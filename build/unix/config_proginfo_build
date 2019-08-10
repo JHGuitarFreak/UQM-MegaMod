@@ -77,10 +77,10 @@ useGccBuildTools() {
 }
 case "$HOST_SYSTEM" in
 	Darwin)
-		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_C='-mmacosx-version-min=10.4 -arch i386'
-		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_CXX='-mmacosx-version-min=10.4 -arch i386'
-		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_OBJC='-mmacosx-version-min=10.4 -arch i386'
-		EXTRA_PLATFORM_GCC_FLAGS_LINK='-mmacosx-version-min=10.4 -arch i386'
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_C='-mmacosx-version-min=10.6 -arch x86_64'
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_CXX='-mmacosx-version-min=10.6 -arch x86_64'
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_OBJC='-mmacosx-version-min=10.6 -arch x86_64'
+		EXTRA_PLATFORM_GCC_FLAGS_LINK='-mmacosx-version-min=10.6 -arch x86_64'
 		useGccBuildTools
 		;;
 	WINSCW)
