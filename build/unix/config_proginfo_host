@@ -44,14 +44,6 @@ SYSTEM_HOST_LDFLAGS=""
 ### SDL ###
 LIB_SDL_NAME="Simple DirectMedia Layer"
 case "$HOST_SYSTEM" in
-	Darwin)
-		LIB_SDL_CFLAGS='-I/Library/Frameworks/SDL.framework/Headers'
-		LIB_SDL_LDFLAGS='-framework SDL -framework Cocoa -lobjc'
-		LIB_SDL_VERSION=$(echo \
-                      "SDL_MAJOR_VERSION.SDL_MINOR_VERSION.SDL_PATCHLEVEL" | \
-                      gcc -E -include SDL/SDL_version.h $LIB_SDL_CFLAGS - | \
-                      tail -1 | tr -d ' ')
-		;;
 	WINSCW|GCCE)
 		LIB_SDL_CFLAGS='-I$BUILD_EPOCROOT/epoc32/include/SDL'
 		LIB_SDL_LDFLAGS=''		
@@ -187,7 +179,7 @@ case "$HOST_SYSTEM" in
 		;;
 	Darwin)
 		LIB_vorbisfile_CFLAGS="-D__MACOSX__"
-		LIB_vorbisfile_LDFLAGS="-framework Ogg -framework Vorbis"
+		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis"
 		;;
 	QNX)
 		LIB_vorbisfile_CFLAGS=""
