@@ -100,6 +100,18 @@ esac
 LIB_SDL_image_VERSION=""
 
 
+### libpng ###
+LIB_libpng_NAME="libpng"
+# libpng generally integrates with pkg-config, but that also generally
+# only matters if we're building against a non-systemwide version. UQM
+# should not need to do that.
+#
+# To link against a static libpng, set LDFLAGS with an appropriate -L
+# argument before calling `build.sh uqm config`.
+LIB_libpng_CFLAGS=""
+LIB_libpng_LDFLAGS="-lpng"
+
+
 ### OpenAL ###
 LIB_openal_NAME="OpenAL"
 LIB_openal_CFLAGS=""

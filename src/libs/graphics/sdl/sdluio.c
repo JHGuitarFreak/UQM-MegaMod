@@ -21,8 +21,8 @@
 #include SDL_INCLUDE(SDL.h)
 #include SDL_INCLUDE(SDL_error.h)
 #include SDL_INCLUDE(SDL_rwops.h)
-#include SDL_IMAGE_INCLUDE(SDL_image.h)
 #include "libs/memlib.h"
+#include "png2sdl.h"
 #include <errno.h>
 #include <string.h>
 
@@ -44,7 +44,7 @@ SDL_Surface *
 sdluio_loadImage (uio_DirHandle *dir, const char *fileName) {
 	uio_Stream *stream;
 	SDL_RWops *rwops;
-	SDL_Surface *result;
+	SDL_Surface *result = NULL;
 
 	stream = uio_fopen (dir, fileName, "rb");
 	if (stream == NULL)
@@ -54,7 +54,10 @@ sdluio_loadImage (uio_DirHandle *dir, const char *fileName) {
 		return NULL;
 	}
 	rwops = sdluio_makeRWops (stream);
-	result = IMG_Load_RW (rwops, 1);
+	if (rwops) {
+		result = TFB_png_to_sdl (rwops);
+		SDL_RWclose (rwops);
+	}
 	return result;
 }
 	
