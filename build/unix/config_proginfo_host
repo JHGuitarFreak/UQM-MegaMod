@@ -73,33 +73,6 @@ case "$HOST_SYSTEM" in
 esac
 
 
-### SDL_mixer ###
-LIB_SDL_mixer_NAME="SDL_mixer"
-LIB_SDL_mixer_CFLAGS="$LIB_SDL_CFLAGS"
-LIB_SDL_mixer_LDFLAGS="$LIB_SDL_LDFLAGS -lSDL_mixer"
-LIB_SDL_mixer_VERSION=""
-
-
-### SDL_image ###
-LIB_SDL_image_NAME="SDL_image"
-case "$HOST_SYSTEM" in
-	Darwin)
-		LIB_SDL_image_CFLAGS=''
-		LIB_SDL_image_LDFLAGS="-framework SDL_image"
-	;;
-	ARMV5|WINSCW|GCCE)
-		LIB_SDL_image_CFLAGS="$LIB_SDL_CFLAGS"
-		LIB_SDL_image_LDFLAGS="$LIB_SDL_LDFLAGS"
-		LIB_SDL_image_DETECT="true"
-		;;	
-	*)
-		LIB_SDL_image_CFLAGS="$LIB_SDL_CFLAGS"
-		LIB_SDL_image_LDFLAGS="$LIB_SDL_LDFLAGS -lSDL_image"
-		;;
-esac
-LIB_SDL_image_VERSION=""
-
-
 ### libpng ###
 LIB_libpng_NAME="libpng"
 # libpng generally integrates with pkg-config, but that also generally
