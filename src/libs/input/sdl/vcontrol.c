@@ -981,9 +981,14 @@ VControl_HandleEvent (const SDL_Event *e)
 	switch (e->type)
 	{
 		case SDL_KEYDOWN:
-			VControl_ProcessKeyDown (e->key.keysym.sym);
-			last_interesting = *e;
-			event_ready = 1;
+#if SDL_MAJOR_VERSION > 1
+			if (!e->key.repeat)
+#endif
+			{
+				VControl_ProcessKeyDown (e->key.keysym.sym);
+				last_interesting = *e;
+				event_ready = 1;
+			}
 			break;
 		case SDL_KEYUP:
 			VControl_ProcessKeyUp (e->key.keysym.sym);
