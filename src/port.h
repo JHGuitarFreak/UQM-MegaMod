@@ -490,16 +490,8 @@ typedef unsigned int wint_t;
 #endif  /* defined (PORT_WANT_ERRNO) */
 
 // Use SDL_INCLUDE to portably include the SDL files from the right location.
-// TODO: Where the SDL and SDL_image headers are located could be detected
-//       from the build script.
+// The SDL_DIR definition is provided by the build configuration.
 #ifdef __APPLE__
-#	define SDL_DIR SDL
-#else
-	// SDL_image.h directly under the include dir.
-#	undef SDL_DIR
-#endif
-
-#ifdef SDL_DIR
 #	define SDL_INCLUDE(file) <SDL_DIR/file>
 #else
 #	define SDL_INCLUDE(file) <file>
