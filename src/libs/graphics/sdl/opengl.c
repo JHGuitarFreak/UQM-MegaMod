@@ -53,6 +53,7 @@ static BOOLEAN first_init = TRUE;
 
 static void TFB_GL_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
 static void TFB_GL_Postprocess (void);
+static void TFB_GL_UploadTransitionScreen (void);
 static void TFB_GL_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
@@ -60,18 +61,21 @@ static void TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rec
 static TFB_GRAPHICS_BACKEND opengl_scaled_backend = {
 	TFB_GL_Preprocess,
 	TFB_GL_Postprocess,
+	TFB_GL_UploadTransitionScreen,
 	TFB_GL_Scaled_ScreenLayer,
 	TFB_GL_ColorLayer };
 
 static TFB_GRAPHICS_BACKEND opengl_unscaled_backend = {
 	TFB_GL_Preprocess,
 	TFB_GL_Postprocess,
+	TFB_GL_UploadTransitionScreen,
 	TFB_GL_Unscaled_ScreenLayer,
 	TFB_GL_ColorLayer };
 
 static int
 AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFactor)
 {
+	SDL_Surface *SDL_Video;
 	int videomode_flags;
 	ScreenColorDepth = bpp;
 	ScreenWidthActual = width;
@@ -310,7 +314,8 @@ TFB_GL_UninitGraphics (void)
 		UnInit_Screen (&GL_Screens[i].scaled);
 }
 
-void TFB_GL_UploadTransitionScreen (void)
+static void
+TFB_GL_UploadTransitionScreen (void)
 {
 	GL_Screens[TFB_SCREEN_TRANSITION].updated.x = 0;
 	GL_Screens[TFB_SCREEN_TRANSITION].updated.y = 0;

@@ -40,7 +40,6 @@
 #include <SDL/SDL_screenkeyboard.h>
 #endif
 
-SDL_Surface *SDL_Video;
 SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
 
@@ -398,12 +397,7 @@ TFB_GetScreenCanvas (SCREEN screen)
 void
 TFB_UploadTransitionScreen (void)
 {
-#ifdef HAVE_OPENGL
-	if (GraphicsDriver == TFB_GFXDRIVER_SDL_OPENGL)
-	{
-		TFB_GL_UploadTransitionScreen ();
-	}
-#endif
+	graphics_backend->uploadTransitionScreen ();
 }
 
 bool
