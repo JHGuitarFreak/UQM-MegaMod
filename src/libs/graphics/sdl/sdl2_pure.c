@@ -17,8 +17,9 @@
 
 #include "pure.h"
 #include "libs/graphics/bbox.h"
-#include "scalers.h"
 #include "libs/log.h"
+#include "scalers.h"
+#include "uqmversion.h"
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -103,13 +104,17 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	if (window == NULL)
 	{
 		SDL_RendererInfo info;
+		char caption[200];
 		int flags2 = 0;
+
 		if (flags & SDL_WINDOW_FULLSCREEN)
 		{
 			flags2 = SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
-		/* TODO: Create the right window name right away */
-		window = SDL_CreateWindow ("",
+		sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
+				UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
+				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
+		window = SDL_CreateWindow (caption,
 				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 				width, height, flags2);
 		if (!window) 
