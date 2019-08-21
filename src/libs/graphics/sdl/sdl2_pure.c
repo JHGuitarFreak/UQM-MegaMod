@@ -107,7 +107,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		char caption[200];
 		int flags2 = 0;
 
-		if (flags & SDL_WINDOW_FULLSCREEN)
+		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
 			flags2 = SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
@@ -160,7 +160,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	}
 	else
 	{
-		if (flags & SDL_WINDOW_FULLSCREEN)
+		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
 			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		}
