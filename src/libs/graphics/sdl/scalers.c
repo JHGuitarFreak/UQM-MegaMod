@@ -31,6 +31,9 @@
 #	endif /* MMX_ASM */
 #endif /* USE_PLATFORM_ACCEL */
 
+#if SDL_MAJOR_VERSION == 1
+#define SDL_HasMMX SDL_HasMMXExt
+#endif
 
 typedef enum
 {
@@ -210,7 +213,7 @@ Scale_PrepPlatform (int flags, const SDL_PixelFormat* fmt)
 	// first match wins
 	// add better platform techs to the top
 #ifdef MMX_ASM
-	if ( (!force_platform && (SDL_HasSSE () || SDL_HasMMXExt ()))
+	if ( (!force_platform && (SDL_HasSSE () || SDL_HasMMX ()))
 			|| force_platform == PLATFORM_SSE)
 	{
 		log_add (log_Info, "Screen scalers are using SSE/MMX-Ext/MMX code");

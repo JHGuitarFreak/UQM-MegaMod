@@ -39,15 +39,17 @@
 void
 TFB_PreInit (void)
 {
+	SDL_version compiled, linked;
+	SDL_VERSION(&compiled);
+	SDL_GetVersion(&linked);
 	log_add (log_Info, "Initializing base SDL functionality.");
 	log_add (log_Info, "Using SDL version %d.%d.%d (compiled with "
-			"%d.%d.%d)", SDL_Linked_Version ()->major,
-			SDL_Linked_Version ()->minor, SDL_Linked_Version ()->patch,
-			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+			"%d.%d.%d)", linked.major, linked.minor, linked.patch,
+			compiled.major, compiled.minor, compiled.patch);
 #if 0
-	if (SDL_Linked_Version ()->major != SDL_MAJOR_VERSION ||
-			SDL_Linked_Version ()->minor != SDL_MINOR_VERSION ||
-			SDL_Linked_Version ()->patch != SDL_PATCHLEVEL) {
+	if (compiled.major != linked.major || compiled.minor != linked.minor ||
+			compiled.patch != linked.patch)
+	{
 		log_add (log_Warning, "The used SDL library is not the same version "
 				"as the one used to compile The Ur-Quan Masters with! "
 				"If you experience any crashes, this would be an excellent "
@@ -55,7 +57,7 @@ TFB_PreInit (void)
 	}
 #endif
 
-	if ((SDL_Init (SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1))
+	if ((SDL_Init (SDL_INIT_VIDEO) == -1))
 	{
 		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
 		exit (EXIT_FAILURE);
@@ -67,7 +69,6 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height)
 {
 	int result;
 	int togglefullscreen = 0;
-	char caption[200];
 
 	if (GfxFlags == (flags ^ TFB_GFXFLAGS_FULLSCREEN) &&
 			driver == GraphicsDriver &&
@@ -78,29 +79,8 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height)
 
 	GfxFlags = flags;
 
-	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
-	{
-#ifdef HAVE_OPENGL
-		result = TFB_GL_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-#else
-		driver = TFB_GFXDRIVER_SDL_PURE;
-		log_add (log_Warning, "OpenGL support not compiled in,"
-				" so using pure SDL driver");
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-#endif
-	}
-	else
-	{
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-	}
-
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-	SDL_WM_SetCaption (caption, NULL);
+	result = TFB_Pure_ConfigureVideo (TFB_GFXDRIVER_SDL_PURE, flags, 
+			width, height, togglefullscreen);
 
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		SDL_ShowCursor (SDL_DISABLE);
@@ -131,13 +111,7 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 			srcfmt->Amask == dstfmt->Amask)
 		return surface; // no conversion needed
 
-	newsurf = SDL_ConvertSurface (surface, dstfmt, surface->flags);
-	// SDL_SRCCOLORKEY and SDL_SRCALPHA cannot work at the same time,
-	// so we need to disable one of them
-	if ((surface->flags & SDL_SRCCOLORKEY) && newsurf
-			&& (newsurf->flags & SDL_SRCCOLORKEY)
-			&& (newsurf->flags & SDL_SRCALPHA))
-		SDL_SetAlpha (newsurf, 0, 255);
+	newsurf = SDL_ConvertSurface (surface, dstfmt, 0);
 
 	return newsurf;
 }
@@ -249,15 +223,14 @@ TFB_BlitSurface (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
 	x2 = srcx + w;
 	y2 = srcy + h;
 
-	if (src->flags & SDL_SRCCOLORKEY)
-	{
-		has_colorkey = TRUE;
-		colorkey = src->format->colorkey;
-	}
-	else
+	if (SDL_GetColorKey (src, &colorkey) < 0)
 	{
 		has_colorkey = FALSE;
 		colorkey = 0;  /* Satisfying compiler */
+	}
+	else
+	{
+		has_colorkey = TRUE;
 	}
 
 	src_getpix = getpixel_for (src);
@@ -390,14 +363,7 @@ TFB_BlitSurface (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
 void
 TFB_SetGamma (float gamma)
 {
-	if (SDL_SetGamma (gamma, gamma, gamma) == -1)
-	{
-		log_add (log_Warning, "Unable to set gamma correction.");
-	}
-	else
-	{
-		log_add (log_Info, "Gamma correction set to %1.4f.", gamma);
-	}
+	log_add (log_Warning, "Custom gamma correction is not available in the SDL2 engine.");
 }
 
 #endif
