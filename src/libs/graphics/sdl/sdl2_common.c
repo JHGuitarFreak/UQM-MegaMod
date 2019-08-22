@@ -366,4 +366,56 @@ TFB_SetGamma (float gamma)
 	log_add (log_Warning, "Custom gamma correction is not available in the SDL2 engine.");
 }
 
+int
+TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha)
+{
+	SDL_BlendMode blend_mode;
+	if (!surface || !alpha)
+	{
+		return -1;
+	}
+	if (SDL_GetSurfaceBlendMode (surface, &blend_mode) == 0)
+	{
+		return SDL_GetSurfaceAlphaMod (surface, alpha);
+	}
+	*alpha = 255;
+	return 0;
+}
+
+int
+TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha)
+{
+	int result = SDL_SetSurfaceBlendMode (surface, SDL_BLENDMODE_BLEND);
+	if (result == 0)
+	{
+		result = SDL_SetSurfaceAlphaMod (surface, alpha);
+	}
+	return result;
+}
+
+int
+TFB_DisableSurfaceAlphaMod (SDL_Surface *surface)
+{
+	SDL_SetSurfaceAlphaMod (surface, 255);
+	return SDL_SetSurfaceBlendMode (surface, SDL_BLENDMODE_NONE);
+}
+
+int
+TFB_GetColorKey (SDL_Surface *surface, Uint32 *key)
+{
+	return SDL_GetColorKey (surface, key);
+}
+
+int
+TFB_SetColorKey (SDL_Surface *surface, Uint32 key)
+{
+	return SDL_SetColorKey (surface, SDL_TRUE, key);
+}
+
+int
+TFB_DisableColorKey (SDL_Surface *surface)
+{
+	return SDL_SetColorKey (surface, SDL_FALSE, 0);
+}
+
 #endif

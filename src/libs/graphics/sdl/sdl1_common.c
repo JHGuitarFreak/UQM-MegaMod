@@ -400,4 +400,57 @@ TFB_SetGamma (float gamma)
 	}
 }
 
+int
+TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha)
+{
+	if (!surface || !surface->format || !alpha)
+	{
+		return -1;
+	}
+	if (surface->flags & SDL_SRCALPHA)
+	{
+		*alpha = surface->format->alpha;
+	}
+	else
+	{
+		*alpha = 255;
+	}
+	return 0;
+}
+
+int
+TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha)
+{
+	return SDL_SetAlpha (surface, SDL_SRCALPHA, alpha);
+}
+
+int
+TFB_DisableSurfaceAlphaMod (SDL_Surface *surface)
+{
+	return SDL_SetAlpha (surface, 0, 255);
+}
+
+int
+TFB_GetColorKey (SDL_Surface *surface, Uint32 *key)
+{
+	if (surface && surface->format && key &&
+			(surface->flags & SDL_SRCCOLORKEY))
+	{
+		*key = surface->format->colorkey;
+		return 0;
+	}
+	return -1;
+}
+
+int
+TFB_SetColorKey (SDL_Surface *surface, Uint32 key)
+{
+	return SDL_SetColorKey (surface, SDL_SRCCOLORKEY, key);
+}
+
+int
+TFB_DisableColorKey (SDL_Surface *surface)
+{
+	return SDL_SetColorKey (surface, 0, 0);
+}
 #endif
