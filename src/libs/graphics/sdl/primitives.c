@@ -533,18 +533,10 @@ blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 		mask = srcfmt->Amask;
 		key = 0;
 	}
-#if SDL_MAJOR_VERSION == 1
-	else if (src->flags & SDL_SRCCOLORKEY)
-	{	// colorkey transparency
-		mask = ~srcfmt->Amask;
-		key = srcfmt->colorkey & mask;
-	}
-#else
-	else if (SDL_GetColorKey (src, &key) == 0)
+	else if (TFB_GetColorKey (src, &key) == 0)
 	{
 		mask = ~0;
 	}
-#endif
 	// TODO: calculate the source and destination pointers directly
 	//   instead of using the plot(x,y) version
 	for (y = 0; y < src_r.h; ++y)
