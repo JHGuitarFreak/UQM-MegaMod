@@ -47,9 +47,11 @@ extern SDL_Surface *format_conv_surf;
 extern const SDL_VideoInfo *SDL_screen_info; // JMS_GFX
 
 SDL_Surface* TFB_DisplayFormatAlpha (SDL_Surface *surface);
+int TFB_HasSurfaceAlphaMod (SDL_Surface *surface);
 int TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha);
 int TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha);
 int TFB_DisableSurfaceAlphaMod (SDL_Surface *surface);
+int TFB_HasColorKey (SDL_Surface *surface);
 int TFB_GetColorKey (SDL_Surface *surface, Uint32 *key);
 int TFB_SetColorKey (SDL_Surface *surface, Uint32 key);
 int TFB_DisableColorKey (SDL_Surface *surface);

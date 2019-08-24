@@ -293,6 +293,13 @@ TFB_UploadTransitionScreen (void)
 	graphics_backend->uploadTransitionScreen ();
 }
 
+int
+TFB_HasColorKey (SDL_Surface *surface)
+{
+	Uint32 key;
+	return TFB_GetColorKey (surface, &key) != 0;
+}
+
 #if defined(ANDROID) || defined(__ANDROID__)
 
 static SDL_Rect SDL_LeftJoystickRect, SDL_RightJoystickRect, SDL_TextInputRect;

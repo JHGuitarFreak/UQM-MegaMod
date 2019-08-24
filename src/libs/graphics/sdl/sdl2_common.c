@@ -367,6 +367,21 @@ TFB_SetGamma (float gamma)
 }
 
 int
+TFB_HasSurfaceAlphaMod (SDL_Surface *surface)
+{
+	SDL_BlendMode blend_mode;
+	if (!surface)
+	{
+		return 0;
+	}
+	if (SDL_GetSurfaceBlendMode (surface, &blend_mode) != 0)
+	{
+		return 0;
+	}
+	return blend_mode == SDL_BLENDMODE_BLEND;
+}
+
+int
 TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha)
 {
 	SDL_BlendMode blend_mode;
@@ -376,7 +391,10 @@ TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha)
 	}
 	if (SDL_GetSurfaceBlendMode (surface, &blend_mode) == 0)
 	{
-		return SDL_GetSurfaceAlphaMod (surface, alpha);
+		if (blend_mode == SDL_BLENDMODE_BLEND)
+		{
+			return SDL_GetSurfaceAlphaMod (surface, alpha);
+		}
 	}
 	*alpha = 255;
 	return 0;
@@ -385,7 +403,12 @@ TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha)
 int
 TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha)
 {
-	int result = SDL_SetSurfaceBlendMode (surface, SDL_BLENDMODE_BLEND);
+	int result;
+	if (!surface)
+	{
+		return -1;
+	}
+	result = SDL_SetSurfaceBlendMode (surface, SDL_BLENDMODE_BLEND);
 	if (result == 0)
 	{
 		result = SDL_SetSurfaceAlphaMod (surface, alpha);
@@ -396,6 +419,10 @@ TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha)
 int
 TFB_DisableSurfaceAlphaMod (SDL_Surface *surface)
 {
+	if (!surface)
+	{
+		return -1;
+	}
 	SDL_SetSurfaceAlphaMod (surface, 255);
 	return SDL_SetSurfaceBlendMode (surface, SDL_BLENDMODE_NONE);
 }
@@ -403,18 +430,30 @@ TFB_DisableSurfaceAlphaMod (SDL_Surface *surface)
 int
 TFB_GetColorKey (SDL_Surface *surface, Uint32 *key)
 {
+	if (!surface || !key)
+	{
+		return -1;
+	}
 	return SDL_GetColorKey (surface, key);
 }
 
 int
 TFB_SetColorKey (SDL_Surface *surface, Uint32 key)
 {
+	if (!surface)
+	{
+		return -1;
+	}
 	return SDL_SetColorKey (surface, SDL_TRUE, key);
 }
 
 int
 TFB_DisableColorKey (SDL_Surface *surface)
 {
+	if (!surface)
+	{
+		return -1;
+	}
 	return SDL_SetColorKey (surface, SDL_FALSE, 0);
 }
 

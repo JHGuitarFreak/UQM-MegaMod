@@ -401,6 +401,16 @@ TFB_SetGamma (float gamma)
 }
 
 int
+TFB_HasSurfaceAlphaMod (SDL_Surface *surface)
+{
+	if (!surface)
+	{
+		return 0;
+	}
+	return (surface->flags & SDL_SRCALPHA) ? 1 : 0;
+}
+
+int
 TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha)
 {
 	if (!surface || !surface->format || !alpha)
@@ -421,12 +431,20 @@ TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha)
 int
 TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha)
 {
+	if (!surface)
+	{
+		return -1;
+	}
 	return SDL_SetAlpha (surface, SDL_SRCALPHA, alpha);
 }
 
 int
 TFB_DisableSurfaceAlphaMod (SDL_Surface *surface)
 {
+	if (!surface)
+	{
+		return -1;
+	}
 	return SDL_SetAlpha (surface, 0, 255);
 }
 
@@ -445,12 +463,20 @@ TFB_GetColorKey (SDL_Surface *surface, Uint32 *key)
 int
 TFB_SetColorKey (SDL_Surface *surface, Uint32 key)
 {
+	if (!surface)
+	{
+		return -1;
+	}
 	return SDL_SetColorKey (surface, SDL_SRCCOLORKEY, key);
 }
 
 int
 TFB_DisableColorKey (SDL_Surface *surface)
 {
+	if (!surface)
+	{
+		return -1;
+	}
 	return SDL_SetColorKey (surface, 0, 0);
 }
 #endif
