@@ -255,8 +255,17 @@ CreateThread_SDL (ThreadFunction func, void *data, SDWORD stackSize
 	startInfo->data = data;
 	startInfo->sem = SDL_CreateSemaphore (0);
 	startInfo->thread = thread;
-	
+
+#if SDL_MAJOR_VERSION == 1
+	// SDL1 case
 	thread->native = SDL_CreateThread (ThreadHelper, (void *) startInfo);
+#elif defined(NAMED_SYNCHRO)
+	// SDL2 with UQM-aware named threads case
+	thread->native = SDL_CreateThread (ThreadHelper, thread->name, (void *) startInfo);
+#else
+	// SDL2 without UQM-aware named threads; use a placeholder for debuggers
+	thread->native = SDL_CreateThread (ThreadHelper, "UQM worker thread", (void *)startInfo);
+#endif
 	if (!(thread->native))
 	{
 		DestroyThreadLocal (thread->localData);
