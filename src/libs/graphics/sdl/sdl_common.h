@@ -53,8 +53,9 @@ int TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha);
 int TFB_DisableSurfaceAlphaMod (SDL_Surface *surface);
 int TFB_HasColorKey (SDL_Surface *surface);
 int TFB_GetColorKey (SDL_Surface *surface, Uint32 *key);
-int TFB_SetColorKey (SDL_Surface *surface, Uint32 key);
+int TFB_SetColorKey (SDL_Surface *surface, Uint32 key, int rleaccel);
 int TFB_DisableColorKey (SDL_Surface *surface);
+int TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 
 void TFB_InitOnScreenKeyboard(void);
 

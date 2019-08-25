@@ -168,12 +168,13 @@ TFB_GetColorKey (SDL_Surface *surface, Uint32 *key)
 }
 
 int
-TFB_SetColorKey (SDL_Surface *surface, Uint32 key)
+TFB_SetColorKey (SDL_Surface *surface, Uint32 key, int rleaccel)
 {
 	if (!surface)
 	{
 		return -1;
 	}
+	SDL_SetSurfaceRLE (surface, rleaccel);
 	return SDL_SetColorKey (surface, SDL_TRUE, key);
 }
 
@@ -185,6 +186,21 @@ TFB_DisableColorKey (SDL_Surface *surface)
 		return -1;
 	}
 	return SDL_SetColorKey (surface, SDL_FALSE, 0);
+}
+
+int
+TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
+{
+	if (!surface || !colors || !surface->format || !surface->format->palette)
+	{
+		return 0;
+	}
+	if (SDL_SetPaletteColors (surface->format->palette, colors, firstcolor, ncolors) == 0)
+	{
+		// SDL2's success code is opposite from SDL1's SDL_SetColors
+		return 1;
+	}
+	return 0;
 }
 
 #endif

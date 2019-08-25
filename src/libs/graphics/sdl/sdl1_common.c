@@ -184,13 +184,13 @@ TFB_GetColorKey (SDL_Surface *surface, Uint32 *key)
 }
 
 int
-TFB_SetColorKey (SDL_Surface *surface, Uint32 key)
+TFB_SetColorKey (SDL_Surface *surface, Uint32 key, int rleaccel)
 {
 	if (!surface)
 	{
 		return -1;
 	}
-	return SDL_SetColorKey (surface, SDL_SRCCOLORKEY, key);
+	return SDL_SetColorKey (surface, SDL_SRCCOLORKEY | (rleaccel ? SDL_RLEACCEL : 0), key);
 }
 
 int
@@ -202,4 +202,11 @@ TFB_DisableColorKey (SDL_Surface *surface)
 	}
 	return SDL_SetColorKey (surface, 0, 0);
 }
+
+int
+TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
+{
+	return SDL_SetColors (surface, colors, firstcolor, ncolors);
+}
+
 #endif
