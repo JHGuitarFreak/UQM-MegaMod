@@ -246,7 +246,12 @@ initJoystick (void)
 		log_add (log_Info, "The names of the joysticks are:");
 		for (i = 0; i < nJoysticks; i++)
 		{
-			log_add (log_Info, "    %s", SDL_JoystickName (i));
+			log_add (log_Info, "    %s",
+#if SDL_MAJOR_VERSION == 1
+					SDL_JoystickName (i));
+#else
+					SDL_JoystickNameForIndex (i));
+#endif
 		}
 		SDL_JoystickEventState (SDL_ENABLE);
 	}
