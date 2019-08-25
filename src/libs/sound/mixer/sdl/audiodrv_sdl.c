@@ -137,7 +137,6 @@ sint32
 mixSDL_Init (audio_Driver *driver, sint32 flags)
 {
 	int i;
-	char devicename[256];
 	SDL_AudioSpec desired, obtained;
 	mixer_Quality quality;
 	TFB_DecoderFormats formats =
@@ -201,12 +200,19 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 		return -1;
 	}
 
-	SDL_AudioDriverName (devicename, sizeof (devicename));
-	log_add (log_Info, "    using %s at %d Hz 16 bit %s, "
-			"%d samples audio buffer",
-			devicename, obtained.freq,
-			obtained.channels > 1 ? "stereo" : "mono",
-			obtained.samples);
+	{
+#if SDL_MAJOR_VERSION == 1
+		char devicename[256];
+		SDL_AudioDriverName (devicename, sizeof (devicename));
+#else
+		const char *devicename = SDL_GetCurrentAudioDriver ();
+#endif
+		log_add (log_Info, "    using %s at %d Hz 16 bit %s, "
+				"%d samples audio buffer",
+				devicename, obtained.freq,
+				obtained.channels > 1 ? "stereo" : "mono",
+				obtained.samples);
+	}
 
 	log_add (log_Info, "Initializing mixer.");
 	if (!mixer_Init (obtained.freq, MIX_FORMAT_MAKE (2, obtained.channels),
