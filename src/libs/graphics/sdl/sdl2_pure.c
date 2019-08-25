@@ -159,6 +159,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		}
 		SDL_Screen = SDL_Screens[0];
 		TransitionScreen = SDL_Screens[2];
+		if (0 != ReInit_Screen (&format_conv_surf, 0, 0))
+		{
+			return -1;
+		}
 	}
 	else
 	{
