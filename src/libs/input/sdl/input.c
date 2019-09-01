@@ -312,11 +312,17 @@ EnterCharacterMode (void)
 	lastchar = 0;
 	in_character_mode = TRUE;
 	VControl_ResetInput ();
+#if SDL_MAJOR_VERSION > 1
+	SDL_StartTextInput ();
+#endif
 }
 
 void
 ExitCharacterMode (void)
 {
+#if SDL_MAJOR_VERSION > 1
+	SDL_StopTextInput ();
+#endif
 	VControl_ResetInput ();
 	in_character_mode = FALSE;
 	kbdhead = kbdtail = 0;
@@ -442,7 +448,25 @@ ProcessInputEvent (const SDL_Event *Event)
 	/* TODO: Block numpad input when NUM_LOCK is on */
 	VControl_HandleEvent (Event);
 
-	/* TODO: Handle SDL_TEXTINPUT events */
+	if (Event->type == SDL_TEXTINPUT)
+	{
+		int newtail;
+		/* TODO: Decode UTF-8 input */
+		UniChar map_key = Event->text.text[0];
+
+		// dont care about the non-printable, non-char
+		if (!map_key)
+			return;
+
+		newtail = (kbdtail + 1) & (KBDBUFSIZE - 1);
+		// ignore the char if the buffer is full
+		if (newtail != kbdhead)
+		{
+			kbdbuf[kbdtail] = map_key;
+			kbdtail = newtail;
+			lastchar = map_key;
+		}
+	}
 }
 
 #endif
