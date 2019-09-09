@@ -141,22 +141,12 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 			SDL2_Screens[i].texture = NULL;
 			SDL2_Screens[i].dirty = TRUE;
 			SDL2_Screens[i].active = TRUE;
+			if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight))
+			{
+				return -1;
+			}
 		}
 		SDL2_Screens[1].active = FALSE;
-		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
-		{
-			if (SDL2_Screens[i].active)
-			{
-				if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight))
-				{
-					return -1;
-				}
-			}
-			else
-			{
-				SDL_Screens[i] = NULL;
-			}
-		}
 		SDL_Screen = SDL_Screens[0];
 		TransitionScreen = SDL_Screens[2];
 		format_conv_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 0, 0,
