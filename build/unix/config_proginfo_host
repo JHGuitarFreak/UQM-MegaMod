@@ -79,6 +79,12 @@ case "$HOST_SYSTEM" in
 	WINSCW|GCCE|ARMV5)
 		LIB_SDL2_DETECT="false"
 		;;
+	Darwin)
+		LIB_SDL2_DETECT="have_command sdl2-config"
+		LIB_SDL2_CFLAGS='$(sdl2-config --cflags)'
+		LIB_SDL2_LDFLAGS='$(sdl2-config --static-libs)'
+		LIB_SDL2_VERSION='$(sdl2-config --version)'
+		;;
 	*)
 		LIB_SDL2_DETECT="have_command sdl2-config"
 		LIB_SDL2_CFLAGS='$(sdl2-config --cflags)'
