@@ -240,7 +240,7 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
 		exit (EXIT_FAILURE);
 	}
 
-	/* Initialize scalers (let them precomputer whatever) */
+	/* Initialize scalers (let them precompute whatever) */
 	Scale_Init ();
 
 	return 0;
@@ -332,7 +332,7 @@ TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 	{
 		TFB_SDL2_UpdateTexture (texture, SDL_Screens[screen], &SDL2_Screens[screen].updated);
 	}
-	if (a != 255)
+	if (a == 255)
 	{
 		SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_NONE);
 	}
@@ -341,15 +341,14 @@ TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 		SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_BLEND);
 		SDL_SetTextureAlphaMod (texture, a);
 	}
-	/* TODO: Respect clip rectangle, which may interact with the
-	 *       logical canvas size */
-	SDL_RenderCopy (renderer, texture, NULL, NULL);
+	SDL_RenderCopy (renderer, texture, rect, rect);
 }
 
 static void
 TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	SDL_Texture *texture = SDL2_Screens[screen].texture;
+	SDL_Rect srcRect, *pSrcRect = NULL;
 	if (SDL2_Screens[screen].dirty)
 	{
 		SDL_Surface *src = SDL2_Screens[screen].scaled;
@@ -361,7 +360,7 @@ TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 		scaled_update.h *= 2;
 		TFB_SDL2_UpdateTexture (texture, src, &scaled_update);
 	}
-	if (a != 255)
+	if (a == 255)
 	{
 		SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_NONE);
 	}
@@ -370,9 +369,20 @@ TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 		SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_BLEND);
 		SDL_SetTextureAlphaMod (texture, a);
 	}
-	/* TODO: Respect clip rectangle, which may interact with the
-	 *       logical canvas size */
-	SDL_RenderCopy (renderer, texture, NULL, NULL);
+	/* The texture has twice the resolution when scaled, but the
+	 * screen's logical resolution has not changed, so the clip
+	 * rectangle does not need to be scaled. The *source* clip
+	 * rect, however, must be scaled to match. */
+	if (rect)
+	{
+		srcRect = *rect;
+		srcRect.x *= 2;
+		srcRect.y *= 2;
+		srcRect.w *= 2;
+		srcRect.h *= 2;
+		pSrcRect = &srcRect;
+	}
+	SDL_RenderCopy (renderer, texture, pSrcRect, rect);
 }
 
 static void
@@ -381,8 +391,7 @@ TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 	SDL_SetRenderDrawBlendMode (renderer, a == 255 ? SDL_BLENDMODE_NONE 
 			: SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor (renderer, r, g, b, a);
-	/* TODO: Respect clip rectangle */
-	SDL_RenderFillRect (renderer, NULL);
+	SDL_RenderFillRect (renderer, rect);
 }
 
 static void
