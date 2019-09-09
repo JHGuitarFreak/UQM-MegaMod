@@ -40,15 +40,15 @@ static int ScreenFilterMode;
 static TFB_ScaleFunc scaler = NULL;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-#define R_MASK 0xff000000
-#define G_MASK 0x00ff0000
-#define B_MASK 0x0000ff00
-#define A_MASK 0x000000ff
-#else
-#define R_MASK 0x000000ff
-#define G_MASK 0x0000ff00
-#define B_MASK 0x00ff0000
 #define A_MASK 0xff000000
+#define B_MASK 0x00ff0000
+#define G_MASK 0x0000ff00
+#define R_MASK 0x000000ff
+#else
+#define A_MASK 0x000000ff
+#define B_MASK 0x0000ff00
+#define G_MASK 0x00ff0000
+#define R_MASK 0xff000000
 #endif
 
 static void TFB_SDL2_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
@@ -197,7 +197,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 				SDL_DestroyTexture (SDL2_Screens[i].texture);
 				SDL2_Screens[i].texture = NULL;
 			}
-			SDL2_Screens[i].texture = SDL_CreateTextureFromSurface (renderer, SDL2_Screens[i].scaled);
+			SDL2_Screens[i].texture = SDL_CreateTexture (renderer, SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING, ScreenWidth * 2, ScreenHeight * 2);
+			SDL_LockSurface (SDL2_Screens[i].scaled);
+			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL, SDL2_Screens[i].scaled->pixels, SDL2_Screens[i].scaled->pitch);
+			SDL_UnlockSurface (SDL2_Screens[i].scaled);
 		}
 		scaler = Scale_PrepPlatform (flags, SDL2_Screens[0].scaled->format);
 		graphics_backend = &sdl2_scaled_backend;
@@ -216,7 +219,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 				SDL_DestroyTexture (SDL2_Screens[i].texture);
 				SDL2_Screens[i].texture = NULL;
 			}
-			SDL2_Screens[i].texture = SDL_CreateTextureFromSurface (renderer, SDL_Screens[i]);
+			SDL2_Screens[i].texture = SDL_CreateTexture (renderer, SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING, ScreenWidth, ScreenHeight);
+			SDL_LockSurface (SDL_Screens[i]);
+			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL, SDL_Screens[i]->pixels, SDL_Screens[i]->pitch);
+			SDL_UnlockSurface (SDL_Screens[i]);
 		}
 		scaler = NULL;
 		graphics_backend = &sdl2_unscaled_backend;
@@ -261,6 +267,40 @@ TFB_SDL2_UploadTransitionScreen (void)
 }
 
 static void
+TFB_SDL2_UpdateTexture (SDL_Texture *dest, SDL_Surface *src, SDL_Rect *rect)
+{
+	void *pixels = NULL;
+	int pitch = 0;
+	SDL_LockSurface (src);
+	if (!SDL_LockTexture (dest, rect, &pixels, &pitch))
+	{
+		char *srcBytes, *destBytes;
+		int row, rowsize;
+		SDL_Rect backup, *r = rect;
+		if (!r)
+		{
+			/* No rectangle specified, use entire surface */
+			backup.x = backup.y = 0;
+			backup.w = src->w;
+			backup.h = src->h;
+			r = &backup;
+		}
+		/* SDL2 screen surfaces are always 32bpp */
+		srcBytes = src->pixels + (src->pitch * r->y) + (r->x * 4);
+		destBytes = pixels;
+		rowsize = r->w * 4;
+		for (row = 0; row < r->h; ++row)
+		{
+			memcpy (destBytes, srcBytes, rowsize);
+			destBytes += pitch;
+			srcBytes += src->pitch;
+		}
+		SDL_UnlockTexture (dest);
+	}
+	SDL_UnlockSurface (src);
+}
+
+static void
 TFB_SDL2_ScanLines (void)
 {
 	/* TODO */
@@ -298,14 +338,9 @@ static void
 TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	SDL_Texture *texture = SDL2_Screens[screen].texture;
-	/* TODO: This is better handled with streaming textures and the
-	 *       SDL_[Un]Lock_Texture functions. */
 	if (SDL2_Screens[screen].dirty)
 	{
-		SDL_Surface *src = SDL_Screens[screen];
-		SDL_LockSurface (src);
-		SDL_UpdateTexture(texture, NULL, src->pixels, src->pitch);
-		SDL_UnlockSurface (src);
+		TFB_SDL2_UpdateTexture (texture, SDL_Screens[screen], &SDL2_Screens[screen].updated);
 	}
 	if (a != 255)
 	{
@@ -325,15 +360,16 @@ static void
 TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	SDL_Texture *texture = SDL2_Screens[screen].texture;
-	/* TODO: This is better handled with streaming textures and the
-	 *       SDL_[Un]Lock_Texture functions. */
 	if (SDL2_Screens[screen].dirty)
 	{
 		SDL_Surface *src = SDL2_Screens[screen].scaled;
+		SDL_Rect scaled_update = SDL2_Screens[screen].updated;
 		scaler (SDL_Screens[screen], src, &SDL2_Screens[screen].updated);
-		SDL_LockSurface (src);
-		SDL_UpdateTexture(texture, NULL, src->pixels, src->pitch);
-		SDL_UnlockSurface (src);
+		scaled_update.x *= 2;
+		scaled_update.y *= 2;
+		scaled_update.w *= 2;
+		scaled_update.h *= 2;
+		TFB_SDL2_UpdateTexture (texture, src, &scaled_update);
 	}
 	if (a != 255)
 	{
