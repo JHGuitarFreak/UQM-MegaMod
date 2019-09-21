@@ -276,7 +276,7 @@ TFB_SDL2_UpdateTexture (SDL_Texture *dest, SDL_Surface *src, SDL_Rect *rect)
 			r = &backup;
 		}
 		/* SDL2 screen surfaces are always 32bpp */
-		srcBytes = src->pixels + (src->pitch * r->y) + (r->x * 4);
+		srcBytes = (char *)src->pixels + (src->pitch * r->y) + (r->x * 4);
 		destBytes = pixels;
 		rowsize = r->w * 4;
 		for (row = 0; row < r->h; ++row)
