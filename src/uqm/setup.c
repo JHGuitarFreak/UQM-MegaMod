@@ -85,6 +85,7 @@ FONT MeleeFont;
 BOOLEAN DeathBySurrender = FALSE;
 BOOLEAN DeathByMelee = FALSE;
 BOOLEAN DeathBySuicide = FALSE;
+BOOLEAN SpaceMusicEXPresent;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -183,6 +184,11 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (optVolasMusic) {
 		if (loadAddon("volasaurus-remix-pack"))
 			VolasPackPresent = TRUE;
+	}
+
+	if (optSpaceMusic) {
+		if (loadAddon("SpaceMusicEX"))
+			SpaceMusicEXPresent = TRUE;
 	}
 
 	if (optWhichIntro == OPT_3DO) {
