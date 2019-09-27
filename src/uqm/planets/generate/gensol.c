@@ -84,7 +84,7 @@ GenerateSol_initNpcs (SOLARSYS_STATE *solarSys)
 
 	if (!init_probe ())
 		GenerateDefault_initNpcs (solarSys);
-	else if (optSpaceMusic)
+	else if (SpaceMusicOK)
 		findRaceSOI();
 
 	return true;

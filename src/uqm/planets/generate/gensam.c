@@ -27,6 +27,7 @@
 #include "../../globdata.h"
 #include "../../grpinfo.h"
 #include "../../nameref.h"
+#include "../../setup.h"
 #include "../../sounds.h"
 #include "../../starmap.h"
 #include "../../state.h"
@@ -76,7 +77,7 @@ GenerateSaMatra_initNpcs (SOLARSYS_STATE *solarSys)
 		}
 	}
 
-	if (optSpaceMusic)
+	if (SpaceMusicOK)
 		findRaceSOI();
 
 	(void) solarSys;

@@ -22,6 +22,7 @@
 #include "../../globdata.h"
 #include "../../grpinfo.h"
 #include "../../races.h"
+#include "../../setup.h"
 #include "../../state.h"
 #include "../../sounds.h"
 #include "libs/mathlib.h"
@@ -56,8 +57,8 @@ GenerateDefault_initNpcs (SOLARSYS_STATE *solarSys)
 		BuildGroups ();
 	}
 
-	if(optSpaceMusic)
-		findRaceSOI();
+	if (SpaceMusicOK)
+		findRaceSOI ();
 
 	(void) solarSys;
 	return true;

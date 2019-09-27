@@ -1886,7 +1886,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		(opts->intro != (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC) ||
 		(opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
 		(opts->musicremix != (optRemixMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-		(opts->volasMusic != (optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
+		(opts->volasMusic != (optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
+		(opts->spaceMusic != (optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
 	{
 		if(opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)){
 			printf("Voice Option Changed\n");
@@ -1896,7 +1897,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 		if((opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
 			(opts->musicremix != (optRemixMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-			(opts->volasMusic != (optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
+			(opts->volasMusic != (optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
+			(opts->spaceMusic != (optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
 		{
 			printf("Music Option Changed\n");
 			optRequiresRestart = TRUE;

@@ -23,6 +23,7 @@
 #include "../../gendef.h"
 #include "../../globdata.h"
 #include "../../nameref.h"
+#include "../../setup.h"
 #include "../../starmap.h"
 #include "../../state.h"
 #include "libs/mathlib.h"
@@ -61,7 +62,7 @@ GenerateZoqFotPik_initNpcs (SOLARSYS_STATE *solarSys)
 	if (GET_GAME_STATE (ZOQFOT_DISTRESS) != 1)
 		GenerateDefault_initNpcs (solarSys);
 
-	if (optSpaceMusic)
+	if (SpaceMusicOK)
 		findRaceSOI();
 
 	return true;

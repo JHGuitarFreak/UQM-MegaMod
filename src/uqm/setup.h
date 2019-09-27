@@ -76,6 +76,7 @@ extern BOOLEAN DeathBySurrender;
 extern BOOLEAN DeathByMelee;
 extern BOOLEAN DeathBySuicide;
 extern BOOLEAN SpaceMusicEXPresent;
+extern BOOLEAN SpaceMusicOK;
 
 #define DEATH_MARCH 0
 #define DIED_IN_BATTLE 1

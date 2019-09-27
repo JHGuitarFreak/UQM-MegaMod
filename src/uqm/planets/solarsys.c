@@ -1985,7 +1985,7 @@ void
 playSpaceMusic() {
 
 	if (!SpaceMusic) {
-		if (optSpaceMusic && SpaceMusicEXPresent) {
+		if (SpaceMusicOK) {
 			findRaceSOI();
 
 			SpaceMusic = LoadMusic(spaceMusicSwitch(spaceMusicBySOI)); // SOI MUSIC TEST

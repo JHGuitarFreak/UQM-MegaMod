@@ -86,6 +86,7 @@ BOOLEAN DeathBySurrender = FALSE;
 BOOLEAN DeathByMelee = FALSE;
 BOOLEAN DeathBySuicide = FALSE;
 BOOLEAN SpaceMusicEXPresent;
+BOOLEAN SpaceMusicOK;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -189,6 +190,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (optSpaceMusic) {
 		if (loadAddon("SpaceMusicEX"))
 			SpaceMusicEXPresent = TRUE;
+		SpaceMusicOK = SpaceMusicEXPresent;
 	}
 
 	if (optWhichIntro == OPT_3DO) {
