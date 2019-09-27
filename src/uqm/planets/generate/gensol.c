@@ -74,10 +74,9 @@ static bool
 GenerateSol_initNpcs (SOLARSYS_STATE *solarSys)
 {
 	GLOBAL (BattleGroupRef) = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
-	if (GLOBAL (BattleGroupRef) == 0)
+	if (GLOBAL (BattleGroupRef) == 0 && !init_probe())
 	{
-		if (!optHeadStart)
-			CloneShipFragment (URQUAN_DRONE_SHIP, &GLOBAL (npc_built_ship_q), 0);
+		CloneShipFragment (URQUAN_DRONE_SHIP, &GLOBAL (npc_built_ship_q), 0);
 		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
 		ReinitQueue (&GLOBAL (npc_built_ship_q));
 		SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, GLOBAL (BattleGroupRef));
