@@ -270,11 +270,12 @@ src.orig
 log.txt
 *.lnk
 *.lib
-!dev-lib/[^.]*
+*.dll
+!dev-lib/**
+/dev-lib/.*
 !doc/[^.]*
 .DS_Store
 *.exe
-*.dll
 *.tlog
 *.exp
 
