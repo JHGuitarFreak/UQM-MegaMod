@@ -1,0 +1,14 @@
+uqm_SUBDIRS="connect netmanager socket"
+uqm_CFILES="netport.c"
+uqm_HFILES="bytesex.h netport.h network.h"
+
+if [ -n "$uqm_USE_WINSOCK" ]; then
+	uqm_CFILES="$uqm_CFILES network_win.c"
+	if [ -n "$MACRO___MINGW32__" ]; then
+		uqm_CFILES="$uqm_CFILES wspiapiwrap.c"
+		uqm_HFILES="$uqm_HFILES wspiapiwrap.h"
+	fi
+else
+	uqm_CFILES="$uqm_CFILES network_bsd.c"
+fi
+

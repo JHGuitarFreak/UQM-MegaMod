@@ -1,0 +1,31 @@
+Planet-rotate code rev3:
+written by PhracturedBlue
+Date: Nov 1, 2002
+
+This is the code to make the planets spin when in orbit view.
+The planet will zoom in (as in the 3do version)
+Shield support is very preliminary, mosly becuase I have not figured
+out how to get the 'look' right.
+
+The planet rotation speed is controlled by ROTATION_TIME which is defined in plangen.c.
+The default is '22' which gives a speed comparable to the DOS version of the game
+
+The planet zoom speed is defined by PLANET_ZOOM_SPEED which is defined in pl_stuff.c
+
+The lighting algorithm is really just a hack.  All lighting code is in plangen.c
+Currently, lighting is performed  by placing the light source at a certain distance 
+(LIGHT_MULT) from the center of the planet (a value of 1 would place the light at 
+the planet's radius. (The angle is determined by the planet's position in orbit with
+respect to the sun).  The brightest poinnt will have the original color of the topo-map.
+The light falls off as the cos(r^2/(LIGHT_RADIUS^2)).
+The light can never be dimmer than AMBIENT_LIGHT
+
+The shield is done in 2 parts:  the halo and the planet-mask.  Whether this is needed or
+not, I don't know, but it gives a bit more flexibility in how the effect is applied.
+
+The code works by blitting directly to an SDL_Surface, rather than using DrawBatch (and 
+the rendering thread).  This gives a huge performance win (My P3-1000 went from ~40fps
+using the DrawBatch to ~500fps using the current method).  All lighting, planet tilt, and
+sphere->plane mapping is precomputed into the 'map_rotate' and 'phong' tables (in plangen.c)
+To optimize performance (there is no floating-poinnt code used during the actual frame
+generation) 

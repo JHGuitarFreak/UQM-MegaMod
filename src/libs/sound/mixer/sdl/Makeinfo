@@ -1,0 +1,2 @@
+uqm_CFILES="audiodrv_sdl.c"
+uqm_HFILES="audiodrv_sdl.h"

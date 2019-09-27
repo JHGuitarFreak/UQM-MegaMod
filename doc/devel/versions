@@ -1,0 +1,42 @@
+This file lists the Subversion repository numbers that coincide with
+each release.  You should be able to revert to any individual release
+by doing a checkout of that version.  It is also possible to check out
+a tagged version of each major release, but this is deprecated.
+
+Major releases for versions 0.6.0 and before are identified by their
+tags in the CVS tree and correspond to source-release packages; all
+microversions are identified by the point at which uqmversion.h
+changed.
+
+Version 0.1:   Revision  240
+Version 0.2:   Revision  847
+Version 0.21:  Revision  816
+Version 0.22:  Revision  913
+Version 0.23:  Revision  994
+Version 0.24:  Revision 1036
+Version 0.3:   Revision 1208
+Version 0.31:  Revision 1220
+Version 0.32:  Revision 1330
+Version 0.33:  Revision 1440
+Version 0.34:  Revision 1619
+Version 0.4.0: Revision 1814
+Version 0.4.1: Revision 1931
+Version 0.4.2: Revision 2049
+Version 0.4.3: Revision 2160
+Version 0.4.4: Revision 2196
+Version 0.5.0: Revision 2250
+Version 0.5.1: Revision 2309
+Version 0.5.2: Revision 2392
+Version 0.5.3: Revision 2436
+Version 0.5.4: Revision 2463
+Version 0.6.0: Revision 2627
+Version 0.6.1: Revision 2652
+Version 0.6.2: Revision 2669
+Version 0.6.3: Revision 2828
+Version 0.6.4: Revision 2869
+Version 0.6.5: Revision 3110
+Version 0.6.6: Revision 3143
+Version 0.6.7: Revision 3276
+Version 0.6.8: Revision 3334
+Version 0.6.9: Revision 3537
+Version 0.7.0: Revision 3631

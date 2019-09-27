@@ -1,0 +1,165 @@
+The UQM Threading and Synchronization library
+
+This document describes the function and API for the many threading and 
+synchronization routines that UQM uses.  People attempting to port this 
+to thread systems that aren't covered by SDL (such as OS 9, for 
+instance) will find the necessary API descriptions here.
+
+#defines
+
+NAMED_SYNCHRO: When #defined, all synchronization objects are named.
+This should be kept on all the time, at least until 1.0.
+
+TRACK_CONTENTION: implies NAMED_SYNCHRO.  Spits out status messages
+whenever a thread goes to sleep because of an object matching
+TRACK_CONTENTION_CLASSES.
+
+TRACK_CONTENTION_CLASSES: This is an ORring of enums defined in
+threadlib.h.
+
+Constructs
+----------
+
+The operation of each construct is given; these operations map to the
+API in fairly straightforward ways.
+
+The locking constructs have an argument called "sync_class"; this
+indicates which value must be defined in TRACK_CONTENTION_CLASSES to
+see reports from this object.  Valid values are SYNC_CLASS_TOPLEVEL
+for game logic synchronizers, SYNC_CLASS_AUDIO and SYNC_CLASS_VIDEO
+for audio and video systems, and SYNC_CLASS_RESOURCE for low-level
+resource allocators like memory systems.
+
+- Task
+
+This is the construct that the UQM game logic sees.  In our
+multithreaded code tasks map directly to threads.  A task is
+"assigned" to be started.  One of its arguments demands that a stack
+size be specified; UQM ignores this.
+
+Tasks can voluntarily yield their timeslice by calling TaskSwitch().
+This is mandatory inside busywait loops; otherwise priority inversion
+problems surface under BSD and even on other systems it causes undue
+CPU utilization.
+
+Tasks have "states" that can be read or modified by various other
+threads.  The only state that is ever checked in the UQM code is
+TASK_EXIT, which is set when the task needs to be shut down.
+
+Task functions themselves return an integer and take a void pointer
+that can be cast to "Task".  This is a reference to the Task itself,
+and is used to check its own state and properly de-initialize itself.
+
+The last thing a Task function must do before exiting is call
+FinishTask.
+
+If another thread wishes to terminate a Task, it can call
+"ConcludeTask" upon it.  ConcludeTask will wait for the Task to
+recognize the TASK_EXIT state and exit; this can produce deadlocks if
+the thread requestion the Task's termination is holding a resource
+that the concluding Task needs.  Program with care.
+
+API:
+Task AssignTask (ThreadFunction task_func, SDWORD Stacksize,
+                 const char *name);
+DWORD Task_SetState (Task task, DWORD state_mask);
+DWORD Task_ClearState (Task task, DWORD state_mask);
+DWORD Task_ToggleState (Task task, DWORD state_mask);
+DWORD Task_ReadState (Task task, DWORD state_mask);
+void TaskSwitch (void);
+void FinishTask (Task task);
+void ConcludeTask (Task task);
+
+
+- Thread
+
+A somewhat more powerful and low-level construct than the Task.
+Threads carry a "ThreadLocal" data object with them - at present, this
+is a single Semaphore used for signaling the thread when it wants to
+sleep until some graphics have been rendered.  Threads can be created
+with arbitrary data passed as an argument (in the form of the void *),
+and can request their own ThreadLocal object.  Threads can also be put
+to sleep for various amounts of time.  Waiting on a thread permits one
+to block a thread until another completes.
+
+API:
+Thread CreateThread (ThreadFunction func, void *data, 
+                     SDWORD stackSize, const char *name);
+void SleepThread (TimePeriod timePeriod);
+void SleepThreadUntil (TimeCount wakeTime);
+void TaskSwitch (void);
+void WaitThread (Thread thread, int *status);
+
+
+- Mutex
+
+The simplest form of lock.  If a thread tries to lock a mutex, it will
+sleep if the mutex is already locked, and awaken once the mutex
+becomes available.  A Mutex must be unlocked by the same thread that
+locked it, and a thread must never lock a mutex it has already locked
+(without unlocking it first).
+
+API:
+Mutex CreateMutex (const char *name, DWORD syncClass);
+void DestroyMutex (Mutex sem);
+void LockMutex (Mutex sem);
+void UnlockMutex (Mutex sem);
+
+- RecursiveMutex
+
+A somewhat more powerful version of the Mutex; this mutex may be
+locked multiple times by the same thread, but then to truly release it
+it must unlock it an equal number of times.  The Draw Command Queue
+(DCQ) is protected by a recursive mutex.  (This construct is
+occasionally called a "reentrant mutex.")
+
+API:
+RecursiveMutex CreateRecursiveMutex (const char *name, 
+                                     DWORD syncClass);
+void DestroyRecursiveMutex (RecursiveMutex m);
+void LockRecursiveMutex (RecursiveMutex m);
+void UnlockRecursiveMutex (RecursiveMutex m);
+int  GetRecursiveMutexDepth (RecursiveMutex m);
+
+- Semaphore
+
+Semaphores superficially resemble Mutexes; they are "set" and
+"cleared".  An integer is associated with each semaphore.  Clearing
+the semaphore raises the value by one; setting it decreases it by one.
+Attempting to set a semaphore that is at value 0 will sleep the thread
+until the semaphore is cleared.
+
+Semaphores are used in the code to sleep until another thread is
+finished doing something.  They are used heavily by the FlushGraphics
+code and the thread handling routines.  A Task in the game is
+dedicated to advancing the calendar when necessary; this task is put
+to sleep by the clock semaphore when the game is paused, the player
+goes into orbit or to the menu, or any of several other events that
+act to suspend the game clock.
+
+API:
+Semaphore CreateSemaphore (DWORD initial, const char *name, 
+                           DWORD syncClass);
+void DestroySemaphore (Semaphore sem);
+void SetSemaphore (Semaphore sem);
+void ClearSemaphore (Semaphore sem);
+ 
+- CondVar
+
+If a thread waits on a condition variable, it will go to sleep until
+some other thread tells that condition variable to signal a thread (or
+broadcast to all threads) that are waiting upon that variable.  Our
+condition variables are weaker than the "standard" variables.
+Condition variables are generally used in conjunction with mutexes,
+but ours do not permit this synchronization and are only suitable for
+use if the condition variable will broadcast periodically.  UQM has a
+condition variable associated with the DCQ that broadcasts whenever
+the queue is empty.  Threads that attempt to write to the DCQ when the
+DCQ is full wait on this condition variable.
+
+API:
+CondVar CreateCondVar (const char *name, DWORD syncClass);
+void DestroyCondVar (CondVar);
+void WaitCondVar (CondVar);
+void SignalCondVar (CondVar);
+void BroadcastCondVar (CondVar);

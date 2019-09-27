@@ -1,0 +1,144 @@
+Needed for use in UQM:
+- documentation
+- configuring for GLOB
+- when doing uio_getStdioPhysical(), if write access is required, but
+  not available on the original location, also copy the file to the
+  temporary dir.
+- Call fsync() at appropriate times.
+
+Documentation:
+- use doxygen
+- Warning: getting (part of) the contents of a directory is fairly slow,
+  as dirs need to be merged.
+- It would be (theoretically) possible to add HTTP and FTP support for
+  remote file systems.
+- on adding extra file system types:
+  open, mkdir, rmdir, and unlink should themselves make sure that
+  the physical structure is kept up to date when an entry is
+  removed or added.
+- stream stuff is not thread safe
+- uio_fflush() does not accept NULL as argument to flush all streams,
+  like stdio fflush() does.
+- uio_close() does never fail
+- The physical open function should call uio_Handle_new and store its own
+  data in it.
+  The physical close function should delete its own data. It's called
+  Will cleanup the general Handle.
+  Analogous for mount/unmount with PRoot
+- No need to store MountHandles. They will be automatically freed
+  when the repository is closed.
+- You can use mount stuff from other repositories.
+- ".." works by nullifying one path component, not by following the ".." link
+  in the directory. "/a/../b" will always be functionally equivalent to
+  "/b", even when "/a" is a symlink.
+
+Testing:
+- Test mounting an UNC directory
+
+Bugs:
+- 'openDir(repository, "dir/")' will have the trailing '/'
+  in the dirHandle, which will cause problems.
+- 'openDirRelative(repository, "/")' causes segfaults later on
+- uio_rename() doesn't work on directories
+- uio_getPhysicalAccess() needs to be changed so that it works the same on
+  dirs as on files. stat() can be cleaned up too then.
+- uio_getPhysicalAccess() will not return ENOENT when (only) the last
+  component does not exist, even when O_RDONLY is used.
+  For O_RDRW, O_CREAT should probably be checked too (function description
+  needs to be updated too then).
+- A lot of inlining is not possible because of the order of function
+  definitions.
+- sizeof(size_t) may be less than 4 on some platforms. Check what problems
+  this may cause. At least the size of zip_INPUT_BUFFER_SIZE is an
+  issue. SIZE_MAX can be used to check for sizeof(size_t) at runtime.
+- remove() is probably more compatible than unlink(). remove() is part
+  of the C standard (as well as POSIX), unlink() is just POSIX.
+- seeking in files opened as "text" on Windows goes wrong.
+- Network paths on Windows are not accepted.
+- No CRLF translation (and ^Z recognition) is done for files read from
+  zip files, even though that may be expected on Windows.
+- The order in which "uio_unmountAllDirs() unmounts the directories, may lead
+  it to unmount a dir while there still is a file descriptor for another
+  dir open, causing a warning.
+
+Extra features (not necessary for UQM):
+- Make functions to use for uio_malloc, uio_free and uio_realloc
+  configurable at init.
+- add uio_mmap()
+- add match_MATCH_ALL and match_MATCH_NONE
+- automounting
+  - Unmount automounted filesystems when the originating filesystem
+    is unmounted.
+- when doing stat() on a directory, merge the stat info of the underlying
+  physical dirs.
+- read directory information from zip files.
+- implement ungetc()
+- make fileblocks public
+- setmode() for windows?
+- prevent aliasing of files/dirs, both between two physical file
+  systems (where possible), as within the same filesystem (in particular
+  stdio). On Windows, aliasing can occur easilly when a file or dir
+  is accessed with the long vs the short ("PROGRA~1") name, or when
+  capitalisation is involved.
+- accept non-dir, non-regular-file dir entries in stdio.
+- Add non-merging mounts. Make 'merging' an option for the mount.
+- make uio_rename() work cross-fs, or provide a wrapper which does that.
+  (the system rename() doesn't work cross-fs either, so keeping uio_rename()
+  as it is makes sense, as I'm trying to stay close to the system functions,
+  even though hiding file systems from the user would be nicer)
+- Add a readdir_r(). Right now, for Symbian readdir_r() is defined in
+  uioport.h, but the actual implementation is out of the uio tree.
+
+Optimisations (not necessary for UQM):
+- use mmap for fileBlocks
+- Use a pre-allocated pool of hash table entries for allocHashEntry.
+- optimise certain strings (specifically directory entries) by making
+  a string type which has pointers to a shared char array.
+  Invariant: if two strings are the same, they point to the same
+  character array. Consequence: string comparison is pointer comparison.
+  Making a new string would imply checking the existing strings.
+  Existing strings should be in a hash table.
+- optimise paths
+  Encode all paths internally as (double-linked) chains of path components
+  This way, operations like going up one path component, are cheap.
+  Each path component could either be represented by a pointer to a string,
+  (possibly shared as above), or as a pair of begin and end pointers
+  (or begin pointer and length). In the latter case, there's no need for
+  copying strings when parsing a user-supplied string, but sharing of strings
+  would not be possible.
+  It's probably possible to use both methods next to eachother;
+  shared strings for stored paths, and pointers into a path for user-supplied
+  strings (which would be freed when the call returns).
+  Instead of a linked list, perhaps an array can be used, as paths rarely
+  change. It would be a problem if for some reason, recursively path
+  components are added to a path.
+- (maybe) keep track of already issued handles, so that the ref counter
+  could just be incremented, instead of issuing a new one.
+  (uio_getPDirEntryHandle)
+- Make it possible for people to add their own file system, without giving
+  away the internals. (no wanton including of .h files)
+- Don't cache stdio dir structure
+  (and don't read the dir leading up to the dir that is actually needed)
+- mounting foo to /Foo and foo/bar to /Foo/Bar should result in only one
+  physical structure. Preferably, it shouldn't even lead to two mountInfo
+  structures for /Foo/Bar, so that merging the dirs is not unnecessarilly
+  expensive.
+- add uio_access()
+  (uqm fileExists can be redone then)
+- implement the physical function cleanup() to clean up the physical
+  structure. Int argument that specifies how thoroughly.
+  On it depends whether cache is cleaned, whether stuff is realloc'ed
+  to defragment memory, etc.
+
+Cleanups (not necessary for UQM):
+- rename function names to be more like class names for as far as that's
+  not already done.
+  uio_PRoot_unref etc
+- Add uio_fatal(), uio_error(), uio_warning()
+- Clean up the include structure
+- use stdint.h and stdbool.h types directly, instead of using uio_int16 etc.
+  Remove types.h, and instead, if these types are missing on some platforms,
+  put the fixes in port.h.
+
+
+

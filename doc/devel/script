@@ -1,0 +1,117 @@
+SCRIPT CONVENTIONS
+------------------
+
+The .txt files in the content/comm directories are unlikely to stay in
+their current form forever, as it's a rather fragile format.  However,
+in the the meantime, and for those who seek to edit the script files
+(to conform to 3DO, PC, and/or director's cut versions).
+
+This file will describe the format, and how it relates to the source
+code in the src/sc2code/comm directory.
+
+The .txt files
+--------------
+
+The text files should all have a set of records, optionally separated
+by newlines.  Each record has a header, then one or more lines of
+text.
+
+The header is a hash (#), an identifier in parentheses, and (if it's
+an alien voice) a tab, then the name of the file corresponding to that
+voice.  Alien voices have identifiers in ALL_CAPITAL_LETTERS, while
+Zelnick's lines are in_lower_case.  Often one line is broken into
+several parts - in these cases the full line is knitted together by
+the communications code (usually inserting the name of the Captain, or
+the flagship, or whatever).
+
+A modest example:
+
+#(HAVING_FUN_WITH_ILWRATH_2)	thrad103.wav
+The exploding starships! The screaming crew!
+The direct hits, the cunning escapes!
+These are the moments we live for!
+Now we must return to the great battles!
+Farewell, Great Teacher.
+
+Zelnick's lines must be ON ONE LINE ONLY; line breaking is handled by
+the communication code and anything after the first newline is
+IGNORED.  So don't do it while repairing his lines, and if you find
+one (a lowercase id with multiple lines following it) delete the
+newlines and make it all one line.
+
+It appears that newlines may appear in the middle of speeches;
+however, most of the lines by aliens have pauses represented by a
+single space or tab.  It seems reasonable to duplicate this.
+
+When multiple records are used to define a single speech line (as
+often happens when they say your name, for instance), only the first
+line has an audio file associated with it.
+
+Lines that do not end in a punctuation mark or a space have a "..."
+added to the end of them by the communications code.  If the previous
+line had "..." appended to it and this line does not START with a
+space, this line will have "..." prepended to it.  The "scriptcheck"
+tool looks for all cases where "..." does not occur in midsentence.
+When editing the script files, check your intended results against
+this.
+
+The .h files (src/sc2code/comm)
+-------------------------------
+
+Each race has its own directory in src/sc2code/comm, and there is a
+file marked strings.h in each directory.  This file defines a single
+enum which should list every record identifier in the appropriate
+race's .txt file over in content/comm/{race}, IN THE PRECISE ORDER
+THOSE RECORDS ARE GIVEN.  Due to the non-symbolic nature of C, there
+is no relation whatsoever between the identifiers in the record and in
+the enum (though it would be reasonably straightforward to generate
+the strings.h files from the .txt files) The values of the enum are
+used in the {racec}.c files in the same directory.
+
+The scriptcheck utility also checks for proper correlation between the
+.h file and the associated .txt file.  It assumes that one enum value
+is listed per line, and that the general format of the file matches
+the current one.
+
+Types of script bugs
+--------------------
+
+Script bugs can fall into three broad categories.
+
+- Voice/Speech mismatch.  These are easy.  The wrong audio file is
+  associated with this clip.  Merely change the clip to make it fit.
+  If a clip is expected but is not specified, this appears to crash the
+  game.  Example: The Zoq-Fot-Pik's "Goodbye Captain."  "See ya." lines
+  had no clips associated with them, which both caused the game to loop
+  forever on those lines and misaligned all clips after that so that the
+  voices did not match the subtitles.
+
+- Subtitling error.  These are also easy.  The voice and text more or
+  less match, but the phrasing is slightly different.  This is also
+  easy.  Change the text to match.  If the speech is *wildly* different,
+  make sure that it's not a misfiled audio file.  NOTE: The PC and 3DO
+  versions had slightly different texts, and the texts we are working
+  with here match neither one.  The voices are to be taken as the
+  ultimate authority on the 3DO text.
+
+- Communications Logic errors.  Basically, this means the enum in the
+  appropriate strings.h was defined wrong, or, worse, was misused by the
+  {race}c.c file.  One fixed example was the Spathi Ruling Council (Race
+  name: spahome), where strings.h defined *two* enums, one for the
+  Captain's lines, one for the Spathi.  This would have horribly garbled
+  everything were it not for the fact that it made their initial
+  challenge and your responses invalid, thus causing the game to lock up
+  on your first visit.  An example of one of these that made it into the
+  final game (PC version, anyway) is when the Umgah are trying to reward
+  you as Great Hero - the responses for the "I act purely from largesse"
+  and "Yep!  You guys owe me BIG time" are clearly reversed.  No
+  decision has yet been made on how to handle these (whether to
+  reproduce them precisely, or fix them, or only fix them in a
+  "director's cut" which would presumably require input from the
+  director) so leave them alone for now unless they crash the game.  (To
+  my knowledge, the only truly serious error of this type was the Spathi
+  Homeworld, which has since been repaired.)
+
+
+
+                             (Initial version: Michael Martin, 10/10/02)

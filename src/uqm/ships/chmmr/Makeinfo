@@ -1,0 +1,2 @@
+uqm_CFILES="chmmr.c"
+uqm_HFILES="chmmr.h icode.h resinst.h"

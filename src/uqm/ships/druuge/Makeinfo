@@ -1,0 +1,2 @@
+uqm_CFILES="druuge.c"
+uqm_HFILES="druuge.h icode.h resinst.h"

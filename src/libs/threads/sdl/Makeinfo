@@ -1,0 +1,2 @@
+uqm_CFILES="sdlthreads.c"
+uqm_HFILES="sdlthreads.h"

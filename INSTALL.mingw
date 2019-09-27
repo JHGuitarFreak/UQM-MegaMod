@@ -1,0 +1,64 @@
+Instructions for building UQM in Windows with MinGW and MSYS
+============================================================
+
+First, download and install the latest version of MinGW and then MSYS.
+(You can get them from <http://www.mingw.org/>).
+
+You'll need all the libraries described in the INSTALL file in SVN.
+You should get the 'mingw' development build for SDL, and follow the
+instructions to install it into mingw. All others will be either for win32
+or VC.
+
+These are the files you need to download:
+
+http://www.libsdl.org/release/SDL-devel-1.2.14-mingw32.zip
+http://www.libsdl.org/projects/SDL_image/release/SDL_image-devel-1.2.10-VC.zip
+http://connect.creativelabs.com/openal/Downloads/OpenAL11CoreSDK.zip (optional)
+http://www.vorbis.com/files/1.0.1/windows/OggVorbis-win32sdk-1.0.1.zip
+http://www.gzip.org/zlib/zlib125-dll.zip
+
+
+You can now do either of the following:
+1) Copy the DLLs for each library to \[MinGW]\lib.  Copy the header files for
+   each library to \[MinGW]\include, (where [MinGW] is the directory where you
+   installed MinGW) except for the Ogg Vorbis headers -- copy the folders (ogg
+   and vorbis) containing the header files to the include directory.
+
+2) Within MSYS set C_INSTALL_PATH and LIBRARY_PATH to point at all of the 
+   respective include and library dirs where you installed them.
+   i.e. something like:
+
+   export C_INCLUDE_PATH=/mingw/include/SDL:/c/VClibs/SDL_image-1.2.10/include/:/c/VClibs/OpenAL\ 1.1\ SDK/Include/:/c/VClibs/oggvorbis-win32sdk-1.0.1/include/:c/VClibs/zlib/include/
+   export LIBRARY_PATH=/c/VClibs/SDL_image-1.2.10/lib/:/c/VClibs/OpenAL\ 1.1\ SDK/libs/:/c/VClibs/oggvorbis-win32sdk-1.0.1/lib/:c/VClibs/zlib/lib/
+
+NOTE:  If you use the 2nd method above, you need to include the path to SDL
+in C_INCLUDE_PATH (but not in LIBRARY_PATH)
+
+The Ogg Vorbis headers want a header that is not included with MinGW. To get
+this file, download <http://sc2.sourceforge.net/misc/_G_config.h>
+and put it to \[MinGW]\include.
+
+If you want to build with OpenAL support, you need to modify the OpenAL SDK
+installation somewhat:
+- Create a directory "AL" in "C:\VClibs\OpenAL 1.1 SDK\include"
+- Copy all the .h files from "C:\VClibs\OpenAL 1.1 SDK\include"
+  into the newly created "AL" directory.
+
+Now you're ready to build. Start up MSYS (the installer put an icon in your
+Start Menu and on the desktop).
+
+cd to the UQM directory. It'll be at /[drive letter]/[path to uqm].
+
+./build.sh uqm config
+
+It should correctly detect everything, and give you a menu.
+
+Next run './build.sh uqm depend' (just to be sure)
+and lastly:
+./build.sh uqm
+
+If you did everything correctly, it should now build successfully.
+
+To run the built executable, you should copy all the required DLLs to the
+same directory the executable is in, or copy them to your Windows directory.
+

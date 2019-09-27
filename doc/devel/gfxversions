@@ -1,0 +1,60 @@
+Chnages between DOS and 3DO graphics.
+[Unless stated otherwise, UQM does things 3DO way]
+
+----------------------------------------------------------------------
+Melee
+----------------------------------------------------------------------
+1. Minor ship small icon changes
+Icon offset horz by 1 pixel: VUX, ZoqFot, Melnorme, Supox
+Facelifted: Utwig
+
+2. Ship/weapon rendering changes
+*Yehat*
+On DOS, Yehat shield was a set of separate shield-only images which
+were composited with the ship; on 3DO, the shield images already include
+the ship.
+*Umgah*
+On DOS, Umgah cone was a composite of a cone mask + spritz images;
+on 3DO, cone images multiplied 3x and are already a combination of
+cone + spritz.
+*Blackurq* [Kohr-Ah]
+Ship images were regenerated for 3DO with a light source
+at a different position (so the angle is diff). This improved the overall look
+of the ship, especially frame 14, which was simply ugly on DOS.
+And, of course, the FRIED is blue on 3DO and was yellow on DOS.
+*Chenjesu*
+Not really a change, med.14 frame has bad transparency info on DOS.
+*Utwig*
+DOS has apparently derelict ship frames (16-18).
+HYPOTHESIS: ship special was originally intended to be some entirely
+different.
+*Sa-Matra*
+The captain portrait is bigger in UQM (same size on DOS and 3DO).
+
+4. Misc
+lbm/stars has an extra frame (2) in 3DO, afaik, it is not used.
+
+5. Planet images
+On DOS, planet images were paletted, and there were 14 topographical types
+(2 were identical) with ~60 palettes; on 3DO, images are truecolor (except
+for Shielded planet), and the 2 identical topographies have been fixed (so
+they are different now).
+
+----------------------------------------------------------------------
+Inter-planetary (IP)
+----------------------------------------------------------------------
+1. Planets
+On DOS, IP planets were all pre-generated (all phases, colors, sizes);
+On 3DO, planet phases and size are pre-generated and rendered using colormaps
+that define planet color.
+
+2. Many changes in Planet Rotation (scan view)
+
+3. Suns
+On DOS, suns have different colors; on 3DO, they are all yellow; UQM has
+been patched to render suns in different colors like DOS.
+
+----------------------------------------------------------------------
+Misc
+----------------------------------------------------------------------
+1. SIS engine color was green-yellow on DOS and is red on 3DO

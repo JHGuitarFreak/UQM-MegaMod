@@ -1,0 +1,24 @@
+uqm_SUBDIRS="comm lua planets ships supermelee"
+uqm_CFILES="battle.c battlecontrols.c border.c build.c cleanup.c clock.c
+		cnctdlg.c collide.c comm.c commanim.c commglue.c confirm.c credits.c
+		cyborg.c demo.c displist.c dummy.c encount.c flash.c fmv.c galaxy.c
+		gameev.c gameinp.c gameopt.c gendef.c getchar.c globdata.c gravity.c
+		cons_res.c grpinfo.c hyper.c init.c intel.c intro.c ipdisp.c load.c
+		load_legacy.c
+		loadship.c master.c menu.c misc.c oscill.c outfit.c pickship.c
+		plandata.c process.c restart.c save.c settings.c setup.c setupmenu.c
+		ship.c shipstat.c shipyard.c sis.c sounds.c starbase.c starcon.c
+		starmap.c state.c status.c tactrans.c trans.c uqmdebug.c util.c
+		velocity.c weapon.c"
+uqm_HFILES="battlecontrols.h battle.h build.h clock.h cnctdlg.h coderes.h
+		collide.h colors.h commanim.h commglue.h comm.h cons_res.h controls.h
+		corecode.h credits.h demo.h displist.h dummy.h element.h encount.h
+		flash.h fmv.h gameev.h gameopt.h gamestr.h gendef.h globdata.h
+		grpinfo.h hyper.h ifontres.h igfxres.h ikey_con.h imusicre.h init.h
+		intel.h ipdisp.h isndres.h istrtab.h master.h menustat.h
+		nameref.h oscill.h pickship.h process.h races.h resinst.h respkg.h
+		restart.h save.h settings.h setup.h setupmenu.h shipcont.h ship.h
+		sis.h sounds.h starbase.h starcon.h state.h status.h tactrans.h
+		starmap.h
+		units.h uqmdebug.h util.h velocity.h weapon.h"
+

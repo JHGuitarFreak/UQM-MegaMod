@@ -1,0 +1,12 @@
+#include <appinfo.rh>
+#include <uqm.rsg>
+
+UID2 KUidAppRegistrationResourceFile
+UID3 0xA000A0C3
+
+RESOURCE APP_REGISTRATION_INFO
+    {
+    app_file = "uqm";
+    localisable_resource_file = "\\resource\\apps\\uqm";
+    localisable_resource_id   = R_UQM_LOCALISABLE_APP_INFO; 
+    }

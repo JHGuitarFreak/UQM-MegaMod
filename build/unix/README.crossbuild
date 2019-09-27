@@ -1,0 +1,49 @@
+-= Instructions for cross-building UQM =-
+
+
+Terminology:
+	Build system
+		The system on which the code is being built.
+	Host system
+		The system on which the code is supposed to run on.
+
+
+Set the environment variable 'CROSS_ROOT' to the root of your cross building
+environment. This is not necessary for the build scripts, but it will
+simplify what you type in the following steps.
+
+Make sure your cross-building tools (gcc, ld, etc) are in the path.
+	export PATH=$CROSS_ROOT/bin:$PATH
+Make sure that it isn't being reset by subshells that are started.
+	unset ENV BASH_ENV
+
+Set the environment variable 'BUILD_HOST' to the host system.
+This is whatever 'uname -s' returns on such a system (like "MINGW32").
+When building for Windows CE, using the cegcc tools, you should use "cegcc".
+
+If your host system is big-endian, set the environment variable
+'BUILD_HOST_ENDIAN' to "big". For a little-endian system, you don't
+have to do anything.
+	export BUILD_HOST_ENDIAN=little
+
+If you're using pkg-config (advised), set the environment variable
+PKG_CONFIG_PATH' to the pkgconfig directory of the cross environment.
+This dir normally resides in the 'lib/' directory.
+	export PKG_CONFIG_PATH=$CROSS_ROOT/lib/pkgconfig
+
+For any libraries that can't be detected - which will be a lot if you
+don't use pkg-config - set the corresponding include dirs in CFLAGS and
+library dirs in LDFLAGS.
+	export CFLAGS="-I$CROSS_ROOT/include"
+	export LDFLAGS="-L$CROSS_ROOT/lib"
+
+Run configure:
+	./build.sh uqm config
+This will produce the file 'build.vars' and 'config_unix.h' (or config_win.h
+on MinGW or Cygwin). If there are any problems during the build, you can
+usually easilly solve them by editing these files manually.
+
+Start the compilation:
+	./build.sh uqm
+
+

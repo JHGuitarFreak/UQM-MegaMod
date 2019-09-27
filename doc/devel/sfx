@@ -1,0 +1,202 @@
+The Ur-Quan Masters Sound Effects
+
+Path/File/Duplicates        Description                                                 
+=========================== ============================================================
+androsyn
+  androsyn/primary.wav      Molecular acid (bubble sounds)                              
+  androsyn/secondary.wav    Blazer form (comet "burner")                                
+
+arilou
+  arilou/primary.wav        Ventral auto-aiming laser (yellow laser)                    
+    (lastbat/primary.wav)
+  arilou/secondary.wav      Shortrange hyperdriver (transporter)                        
+    (lastbat/secondary.wav)
+
+blackurq
+  blackurq/fightret.wav     not used                                                    
+    (urquan/fighter_get.wav)
+  blackurq/fightzip.wav     not used                                                    
+    (ipanims/land_sht.wav)
+    (urquan/fighter_laser.wav)
+  blackurq/primary.wav      Spinning blade                                              
+  blackurq/secondary.wav    F.R.I.E.D. Emitter plasma                                   
+
+chenjesu
+  chenjesu/dogibark.wav     D.O.G.I. hit (kind of "space" dog bark)                     
+  chenjesu/dogidie.wav      D.O.G.I. dies (kind of "space" dog whine/yelp)              
+  chenjesu/primary.wav      Photon crystal shard firing                                 
+  chenjesu/secondary.wav    D.O.G.I. launching, low humming                             
+  chenjesu/sharpnel.wav     Photon crystal shard explode (sharp sound)                  
+
+chmmr
+  chmmr/primary.wav         Terawatt Laser (sharp "crystal" phaser beam)                
+  chmmr/secondary.wav       Tractor beam hum (cut resonance)                            
+
+druuge
+  druuge/primary.wav        High-recoil cannon (a bit like shotgun)                     
+    (orz/primary.wav)
+  druuge/secondary.wav      "Aarrghf" sacrifice scream                                  
+
+human
+  human/primary.wav         Nuclear warhead (rocket)                                    
+  human/secondary.wav       Point defence laser shot (white laser)                      
+
+ilwarth
+  ilwarth/cloak.wav         Cloacking hum (quite bassy)                                 
+  ilwarth/primary.wav       Hellfire (flame thrower)                                    
+  ilwarth/uncloak.wav       Decloacking hum (less bassy, and sounds a bit like reversed clock.wav)
+
+ipanims
+  ipanims/land_awa.wav      Lander takes of from the planet surface                     
+  ipanims/land_bit.wav      Lander gets bitten by bio (teeth clank)
+    (vux/limpet_bite.wav)
+  ipanims/land_can.wav      Bio canned by stun shot (weird sound)
+  ipanims/land_die.wav      Lander explodes (long explosion)                            
+    (lbm/shipdies.wav)
+  ipanims/land_ful.wav      Lander cargo hold full, cannot pick up ("burp")
+  ipanims/land_get.wav      Lander picks up item/mineral (sounds like somone sucking)   
+  ipanims/land_hit.wav      Lander gets hit by something (snappy sound)                 
+  ipanims/land_hot.wav      Firelava hot hum on planet surface                          
+    (thradd/secondary.wav)
+  ipanims/land_hrt.wav      Lander crew dies (just "ugh" human sound)                   
+  ipanims/land_lau.wav      Lander launching                                            
+    (mmrnmhrm/primaryy.wav)
+  ipanims/land_lig.wav      Lightning on planet surface                                 
+  ipanims/land_qua.wav      Earthquake on planet surface                                
+  ipanims/land_sht.wav      Lander blaster shot                                         
+    (urquan/fighter_laser.wav)
+    (blackurq/fightzip.wav)
+
+lastbat
+  lastbat/primary.wav       not used                                                    
+    (arilou/primary.wav)
+  lastbat/secondary.wav     not used                                                    
+    (arilou/secondary.wav)
+
+lbm
+  lbm/boom1.wav             Tiny hit to planet/asteroid on melee (same sound, but higher pitch as ipanims/land_hit.wav)
+    ((ipanims/land_hit.wav))
+  lbm/boom23.wav            Small hit to planet/asteroid on melee                       
+  lbm/boom45.wav            Larger hit to planet/asteroid on melee                      
+  lbm/boom67.wav            Big hit/explosion to planet/asteroid on melee               
+  lbm/getcrew.wav           Get crew back to ship (Syreen called crew) (notes: should be in syreen/ ?)
+  lbm/menusnd01.wav         Enter menu item                                             
+  lbm/menusnd02.wav         Select menu item                                            
+  lbm/menusnd03.wav         Cannot do (cancel) menu item (same as sis_ship/secondary.wav, but with echo)
+  lbm/menusnd04.wav         Use device                                                  
+    (yehat/secondary.wav)
+  lbm/shipdies.wav          Ship explosion (long explosion)                             
+    (ipanims/land_die.wav)
+
+melnorme
+  melnorme/primary.wav      Confusion Ray (same as melnorme/secondary.wav, but reversed and one octave higher)
+  melnorme/secondary.wav    Powerblaster (synth bass slap a like)                       
+
+mmrnmhrm
+  mmrnmhrm/primaryx.wav     Laser cannon (sharp red laser beam)                         
+  mmrnmhrm/primaryy.wav     Rocket launcher                                             
+    (ipanims/land_lau.wav)
+  mmrnmhrm/secondary.wav    Transformer                                                 
+
+mycon
+  mycon/primary.wav         Plasma (long sound)                                         
+  mycon/secondary.wav       Crew regeneration (strange howling)                         
+
+orz
+  orz/argh.wav              High pitched "Argh"                                         
+  orz/intruder.wav          Echoed and reverbed "Intruder"                              
+  orz/primary.wav           Howitzer cannon                                             
+    (druuge/primary.wav)
+  orz/secondary.wav         "Go!"                                                       
+  orz/zap.wav               Pulse cannon zap                                            
+
+pkunk
+  pkunk/insult01.wav        "Baby"                                                      
+  pkunk/insult02.wav        "Dou-Dou"                                                   
+  pkunk/insult03.wav        "Fool"                                                      
+  pkunk/insult04.wav        "Idiot"                                                     
+  pkunk/insult05.wav        "Jerk"                                                      
+  pkunk/insult06.wav        "Looser"                                                    
+  pkunk/insult07.wav        "Moron"                                                     
+  pkunk/insult08.wav        "Nerd"                                                      
+  pkunk/insult09.wav        "Nitwit"                                                    
+  pkunk/insult10.wav        "Stupid"                                                    
+  pkunk/insult11.wav        "Twig"                                                      
+  pkunk/insult12.wav        "Whimp"                                                     
+  pkunk/insult13.wav        "Worm"                                                      
+  pkunk/insult14.wav        "Dummy"                                                     
+  pkunk/primary.wav         Small blaster gun                                           
+    (spathi/primary.wav)
+    (zoqfot/primary.wav)
+  pkunk/rebirth.wav         Short piece of Handel played on Pkunk resurrection          
+
+shofixti
+  shofixti/primary.wav      Blaster gun                                                 
+    (thradd/primary.wav)
+  shofixti/secondary.wav    Self-destruct, explosion and "ayeee!" yell                  
+
+sis_ship
+  sis_ship/primary.wav      Precursors gun                                              
+  sis_ship/secondary.wav    Cancel sound, almost the same as lbm/menusnd03.wav, but no delay echo
+    (spathi/secondary.wav)
+
+slyland
+  slyland/primary.wav       Electric discharger (kind of lightning)                     
+  slyland/secondary.wav     Robotic "Energize"                                          
+
+spathi
+  spathi/primary.wav        Small blaster gun                                           
+    (pkunk/primary.wav)
+    (zoqfot/primary.wav)
+  spathi/secondary.wav      Rear launcher                                               
+    (sis_ship/secondary.wav)
+
+supox
+  supox/primary.wav         Sprout Gun                                                  
+
+syreen
+  syreen/primary.wav        Partical Beam Stiletto                                      
+  syreen/secondary.wav      Syreen call                                                 
+
+thradd
+  thradd/primary.wav        Blaster gun                                                 
+    (shofixti/primary.wav)
+  thradd/secondary.wav      Afterburner                                                 
+    (ipanims/land_hot.wav)
+
+umgah
+  umgah/primary.wav         Antimatter (like shaver)                                    
+  umgah/secondary.wav       Retro Propulsion (Zap sound)                                
+
+urquan
+  urquan/fighter_get.wav    Fighter returning (a bit like end of tincan hit reversed)   
+    (blackurq/fightret.wav)
+  urquan/fighter_laser.wav  Fighter laser                                               
+    (ipanims/land_sht.wav)
+    (blackurq/fightzip.wav)
+  urquan/primary.wav        Photon torpedo (Star Trek sound)                            
+  urquan/secondary.wav      Low pitched voice "Launch fighters"                         
+
+utwig
+  utwig/primary.wav         Wide area guns (Low humming)                                
+  utwig/secondary.wav       Battery (sounds a bit like reversed water drops)            
+  utwig/shieldbattgain.wav  Battery gain (sounds a bit like reversed water drops, plus some hum)
+
+vux
+  vux/limpet_bite.wav       Limpet attaching to ship hull                               
+    (ipanims/land_bit.wav)
+  vux/primary.wav           Gigawatt laser (beam sound)                                 
+  vux/secondary.wav         Limpet launch (reversed *plup* sound)                       
+
+yehat
+  yehat/primary.wav         Rapid fire pulse cannon                                     
+  yehat/secondary.wav       Shield generator                                            
+    (lbm/mainmenu04.wav)
+
+zoqfot
+  zoqfot/primary.wav        Antimatter spray gun                                        
+    (spathi/primary.wav)
+    (pkunk/primary.wav)
+  zoqfot/secondary.wav      Plasma injector tongue ("yak" voice)                        
+
+

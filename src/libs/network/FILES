@@ -1,0 +1,26 @@
+In libs/network/:
+netport.{c,h}         Portability definitions.
+bytesex.h             Functions for endianness conversions.
+network.h             Functions for initialising the network subsystem.
+network_bsd.c         Network subsystem functions for BSD sockets.
+network_win.c         Network subsystem functions for Winsock sockets.
+wspiapiwrap.{c,h}     Hack to make sure <wspiapi.h> is #included in exactly
+                      one file.
+
+In libs/network/netmanager/:
+ndesc.{c,h}           Defines network descriptors.
+netmanager.h          Handles callbacks for network activity.
+netmanager_bsd.{c,h}  NetManager for systems with BSD sockets.
+netmanager_win.{c,h}  NetManager for Winsock systems.
+
+In libs/network/socket/:
+socket.{c,h}          Platform-independant socket layer.
+socket_bsd.{c,h}      Socket operations for BSD sockets.
+socket_win.{c,h}      Socket operations for Winsock sockets.
+
+In libs/network/connect/:
+connect.{c,h}         Routines for establishing outgoing connections.
+listen.{c,h}          Routines for receiving incoming connections.
+resolve.{c,h}         Routines for hostname lookups.
+
+

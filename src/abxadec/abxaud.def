@@ -1,0 +1,16 @@
+;////////////////////////////////////////////////////////////////////
+;// abxaud.def
+;//
+;// MODULE	: abxadec.dll
+;// PURPOSE	: Declaration of DLL exports
+;//
+;// This file is a part of Abx Decoder sample CDP module
+;// It is only necessary if you do not name your
+;// (only) exported symbol "cdpmodinfo"
+;// GPL applies.
+;//
+
+LIBRARY "abxadec.dll"
+
+EXPORTS
+	cdpmodinfo = abxa_mod_info  @1 DATA

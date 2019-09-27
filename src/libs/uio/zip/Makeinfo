@@ -1,0 +1,2 @@
+uqm_CFILES="zip.c"
+uqm_HFILES="zip.h"

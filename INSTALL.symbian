@@ -1,0 +1,94 @@
+UQM for Symbian S60 3rd edition
+===============================
+
+First some general notes. These instructions might be somewhat incomplete or
+unclear. If you encounter any problems or have suggestions how to improve this
+document, please report them to our Bugzilla at
+   http://bugs.uqm.stack.nl/
+   
+UQM's Symbian support is currently at experimental stage. Development is
+being done on Nokia N73, which has too little memory for longer playing
+sessions. Reports of successes and failures on other devices are very welcome.
+
+Known problems:
+- No netmelee.
+
+
+Prerequisites:
+--------------
+
+- Platform SDK for S60 3rd ed.
+  * Download from http://www.forum.nokia.com/
+
+- Open C plugins (if SDK is other than FP2; in FP2 those are included already)
+  * Download from http://www.forum.nokia.com/main/resources/tools_and_sdks/openc_cpp/
+
+- Carbide.c++ (if building for emulator)
+  * Download from http://www.forum.nokia.com/
+  * Command line compiling must be enabled
+  
+- CSL ARM Toolchain or RVCT v2.2 (if building for hardware)
+  * GCCE included with SDK
+
+- MinGW and MSYS (for build scripts)
+  * Download from http://www.mingw.org/
+
+- Info-Zip (for building content package)
+  * Download from http://www.info-zip.org/Zip.html
+
+- SDL for S60 3rd ed.
+  * Download from http://koti.mbnet.fi/mertama/sdl.html
+  * You also need the sources from http://www.libsdl.org/
+  
+- Tremor
+  * Check out from SVN repository at http://svn.xiph.org/trunk/Tremor/
+
+Building:
+---------
+
+1) Set up platform SDK, compilers, Open C plugins and MinGW + MSYS.
+   * Be sure zip and other tools are listed in path so they can be accessed
+     directly from command line.
+
+2) Subst your Symbian SDK to a new drive along the following example:
+      subst z: C:\Symbian\9.1\S60_3rd_MR_2
+      
+3) Put UQM sources and Tremor inside the substed drive, if not already there.
+
+4) Install and build SDL, instructions are inside the package.
+
+5) Build a partial port of libpng and SDL_image, which are included
+   in UQM SVN repository at trunk/symbian/png:
+      cd png\group
+      bldmake bldfiles
+      abld build
+      
+6) Build Tremor. First apply a patch found from UQM SVN repository
+   at trunk/symbian/tremor:
+      cd Tremor
+      patch -p0 </path/to/tremor_symbian.patch
+      bldmake bldfiles
+      abld build
+
+7) Open MSYS terminal. All following steps are done inside it.
+
+8) Two environment variables control the building, BUILD_EPOCROOT and BUILD_HOST.
+   
+   Set BUILD_EPOCROOT to point to the substed drive:
+      export BUILD_EPOCROOT=/z
+      
+   Set BUILD_HOST to WINSCW (emulator) or GCCE / ARMV5 (hardware), depending
+   for which target you want to build:
+      export BUILD_HOST=GCCE
+
+9) Compile (you don't need to change any options from the interactive menu):
+      ./build.sh uqm
+
+10) Install. It builds the content zip and puts everything to proper
+    place (WINSCW) or creates a self-signed SIS package (GCCE / ARMV5):
+       ./build.sh uqm install
+      
+11) If you built for GCCE or ARMV5, you should now have uqm.sisx in the same
+    directory from where you did the build. Remember to also install SDL SIS
+    package and if device does not support FP2, Open C plugins before
+    attempting to run UQM on actual device.

@@ -1,0 +1,9 @@
+uqm_SUBDIRS="luafuncs"
+uqm_CFILES="luacomm.c luaevent.c luainit.c luastate.c"
+uqm_HFILES="luacomm.h luaevent.h luainit.h luastate.h"
+
+if [ -n "$DEBUG" ]; then
+	uqm_CFILES="$uqm_CFILES luadebug.c"
+	uqm_HFILES="$uqm_HFILES luadebug.h"
+fi
+

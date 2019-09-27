@@ -1,0 +1,8 @@
+uqm_CFILES="opengl.c palette.c primitives.c pure.c sdl_common.c scalers.c
+		2xscalers.c 2xscalers_mmx.c 2xscalers_sse.c 2xscalers_3dnow.c
+		nearest2x.c bilinear2x.c biadv2x.c triscan2x.c hq2x.c canvas.c
+		sdluio.c rotozoom.c"
+uqm_HFILES="2xscalers.h 2xscalers_mmx.h opengl.h palette.h primitives.h
+		pure.h rotozoom.h scaleint.h scalemmx.h scalers.h sdl_common.h
+		sdluio.h"
+

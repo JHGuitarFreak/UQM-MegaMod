@@ -1,0 +1,2 @@
+uqm_CFILES="melnorm.c"
+uqm_HFILES="resinst.h strings.h"

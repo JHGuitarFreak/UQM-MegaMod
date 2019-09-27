@@ -1,0 +1,9 @@
+if [ "$uqm_SOUNDMODULE" = "openal" ]; then
+	uqm_SUBDIRS="openal mixer decoders"
+	uqm_CFLAGS="$uqm_CFLAGS -DHAVE_OPENAL"
+else
+	uqm_SUBDIRS="mixer decoders"
+fi
+
+uqm_CFILES="audiocore.c fileinst.c resinst.c sound.c sfx.c music.c stream.c trackplayer.c"
+uqm_HFILES="audiocore.h sndintrn.h sound.h stream.h trackint.h trackplayer.h"

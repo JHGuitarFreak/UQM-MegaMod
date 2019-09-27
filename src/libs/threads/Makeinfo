@@ -1,0 +1,11 @@
+case "$uqm_THREADLIB" in
+	SDL)
+		uqm_SUBDIRS="sdl"
+		;;
+	PTHREAD)
+		uqm_SUBDIRS="pthread"
+		;;
+esac
+
+uqm_CFILES="thrcommon.c"
+uqm_HFILES="thrcommon.h"

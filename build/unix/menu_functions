@@ -1,0 +1,662 @@
+# Auxiliary functions for menu system for custom build system
+# Copyright (c) 2002 Serge van den Boom
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+MENU_ITEM_TYPES="MENU CHOICE INPUT CHECK"
+
+MENU_ITEM_TYPE_MENU_INIT=menu_init_menu
+MENU_ITEM_TYPE_MENU_PRINT_VALUE=menu_print_value_menu
+MENU_ITEM_TYPE_MENU_HANDLER=menu_handle_menu
+MENU_ITEM_TYPE_MENU_SAVE=menu_save_menu
+MENU_ITEM_TYPE_MENU_PROCESS=menu_process_menu
+
+MENU_ITEM_TYPE_CHOICE_INIT=menu_init_choice
+MENU_ITEM_TYPE_CHOICE_PRINT_VALUE=menu_print_value_choice
+MENU_ITEM_TYPE_CHOICE_HANDLER=menu_handle_choice
+MENU_ITEM_TYPE_CHOICE_SAVE=menu_save_choice
+MENU_ITEM_TYPE_CHOICE_PROCESS=menu_process_choice
+
+MENU_ITEM_TYPE_INPUT_INIT=menu_init_input
+MENU_ITEM_TYPE_INPUT_PRINT_VALUE=menu_print_value_input
+MENU_ITEM_TYPE_INPUT_HANDLER=menu_handle_input
+MENU_ITEM_TYPE_INPUT_SAVE=menu_save_input
+MENU_ITEM_TYPE_INPUT_PROCESS=menu_process_input
+
+MENU_ITEM_TYPE_CHECK_INIT=menu_init_check
+MENU_ITEM_TYPE_CHECK_PRINT_VALUE=menu_print_value_check
+MENU_ITEM_TYPE_CHECK_HANDLER=menu_handle_check
+MENU_ITEM_TYPE_CHECK_SAVE=menu_save_check
+MENU_ITEM_TYPE_CHECK_PROCESS=menu_process_check
+
+# Description: Check if a string can be used as a path.
+#              No checks are done if the path really exists.
+# Arguments:   $1 - the string to check
+# Returns:     0 if the string makes a valid path
+#              1 if the string doesn't make a valid path
+# Outputs:     the path, possibly modified
+validate_path() {
+	if [ "$1" = "/" ]; then
+		echo "/"
+		return
+	fi
+	cat << EOF
+${1%/}
+EOF
+	return 0
+}
+
+# Description: Initialise a menu, setting unset values to default
+# Arguments:   $1 - the type of menu item
+#              $2 - the name of the menu item
+menu_init() {
+	local INIT_FUN
+
+	eval INIT_FUN="\$MENU_ITEM_TYPE_$1_INIT"
+	"$INIT_FUN" "$2"
+}
+
+# Description: Initialise this menu
+# Arguments:   $1 - the name of the menu
+menu_init_menu() {
+	local MENU TEMP_ITEMS ITEM TEMP_TYPE
+
+	MENU="$1"
+	eval TEMP_ITEMS="\$MENU_${MENU}_ITEMS"
+	for ITEM in $TEMP_ITEMS; do
+		eval TEMP_TYPE="\$MENU_${MENU}_ITEM_${ITEM}_TYPE"
+		if [ -z "$TEMP_TYPE" ]; then
+			echo "Fatal: \$MENU_${MENU}_ITEM_${ITEM}_TYPE is not defined!" >&2
+			exit 1
+		fi
+		menu_init "$TEMP_TYPE" "$ITEM"
+	done
+}
+
+# Description: Check if this choice is available
+# Arguments:   $1 - the name of the choice menu
+#              $2 - the name of the choice
+# Returns:     0 - if the choice is available
+#              1 - if the choice is not available
+menu_have_choice() {
+	local MENU CHOICE TEMP_VALID TEMP_PRECOND
+	MENU="$1"
+	CHOICE="$2"
+	eval TEMP_VALID="\$CHOICE_${MENU}_OPTION_${CHOICE}_VALID"
+	if [ -n "$TEMP_VALID" ]; then
+		return "$TEMP_VALID"
+	fi
+	eval TEMP_PRECOND="\$CHOICE_${MENU}_OPTION_${CHOICE}_PRECOND"
+	if [ -z "$TEMP_PRECOND" ] || $TEMP_PRECOND; then
+		eval "CHOICE_${MENU}_OPTION_${CHOICE}_VALID"=0
+		return 0
+	fi
+	eval "CHOICE_${MENU}_OPTION_${CHOICE}_VALID"=1
+	return 1
+}
+
+# Description: Initialise this choice menu
+# Arguments:   $1 - the name of the choice menu
+menu_init_choice() {
+	local MENU TEMP_VALUE TEMP_DEFAULT TEMP_OPTIONS OPTION TEMP_TITLE
+	MENU="$1"
+	eval TEMP_VALUE="\$CHOICE_${MENU}_VALUE"
+	eval TEMP_DEFAULT="\$CHOICE_${MENU}_DEFAULT"
+	eval TEMP_OPTIONS="\$CHOICE_${MENU}_OPTIONS"
+	for OPTION in $TEMP_VALUE $TEMP_DEFAULT $TEMP_OPTIONS; do
+		if menu_have_choice "$MENU" "$OPTION"; then
+			eval CHOICE_${MENU}_VALUE="$OPTION"
+			eval CHOICE_${MENU}_OLD_VALUE="$OPTION"
+			return
+		fi
+	done
+	eval TEMP_VALUE="\$CHOICE_${MENU}_TITLE"
+	echo "Error: No option for '$TEMP_VALUE' is available for your system."
+	exit 1
+}
+
+# Description: Initialise this input menu
+# Arguments:   $1 - the name of the input menu
+menu_init_input() {
+	local MENU TEMP_VALUE
+	MENU="$1"
+	eval TEMP_VALUE="\$INPUT_${MENU}_VALUE"
+	if [ -z "$TEMP_VALUE" ]; then
+		eval TEMP_VALUE="\$INPUT_${MENU}_DEFAULT"
+		eval INPUT_${MENU}_VALUE="\$TEMP_VALUE"
+	fi
+	eval INPUT_${MENU}_OLD_VALUE="\$TEMP_VALUE"
+}
+
+# Description: Initialise this checkbox
+# Arguments:   $1 - the name of the checkbox
+menu_init_check() {
+	local CHECKBOX TEMP_VALUE TEMP_DEFAULT
+	CHECKBOX="$1"
+
+	eval TEMP_VALUE="\$CHECK_${CHECKBOX}_VALUE"
+	eval TEMP_DEFAULT="\$CHECK_${CHECKBOX}_DEFAULT"
+
+	# Make sure the default is either 'CHECKED' or 'UNCHECKED'
+	case "$TEMP_DEFAULT" in
+		yes|Yes|YES|checked|Checked|CHECKED|1|true|True|TRUE)
+			TEMP_DEFAULT=CHECKED
+			;;
+		*)
+			TEMP_DEFAULT=UNCHECKED
+			;;
+	esac
+	eval CHECK_${CHECKBOX}_DEFAULT="\$TEMP_DEFAULT"
+
+	if [ -z "$TEMP_VALUE" ]; then
+		TEMP_VALUE="$TEMP_DEFAULT"
+		eval CHECK_${CHECKBOX}_VALUE="\$TEMP_DEFAULT"
+	fi
+	eval CHECK_${CHECKBOX}_OLD_VALUE="\$TEMP_VALUE"
+}
+
+# Description: Print the string describing the value of a menu item.
+# Arguments:   $1 - the type of menu item
+#              $2 - the name of the menu item
+# Outputs:     The string describing the value of the menu item
+menu_print_value() {
+	local PRINT_VALUE
+
+	eval PRINT_VALUE="\$MENU_ITEM_TYPE_$1_PRINT_VALUE"
+	"$PRINT_VALUE" "$2"
+}
+
+# Description: Print the string describing the value of this menu
+# Arguments:   $1 - the name of the menu item
+# Outputs:     The string describing the value of this menu
+menu_print_value_menu() {
+	echo "[...]"
+}
+
+# Description: Print the string describing the value this choice menu
+# Arguments:   $1 - the name of the choice menu item
+# Outputs:     The string describing the value of this choice menu
+menu_print_value_choice() {
+	local TEMP_VALUE TEMP_TITLE
+	eval TEMP_VALUE="\$CHOICE_$1_VALUE"
+	eval TEMP_TITLE=\"\$CHOICE_$1_OPTION_${TEMP_VALUE}_TITLE\"
+	cat << EOF
+$TEMP_TITLE
+EOF
+}
+
+# Description: Print the value of this input menu
+# Arguments:   $1 - the name of the input menu item
+# Outputs:     The value of the given input menu
+menu_print_value_input() {
+	local TEMP_VALUE
+	eval TEMP_VALUE="\$INPUT_$1_VALUE"
+	cat << EOF
+$TEMP_VALUE
+EOF
+}
+
+# Description: Print the value of this checkbox
+# Arguments:   $1 - the name of the checkbox item
+# Outputs:     The value of the given checkbox
+menu_print_value_check() {
+	local TEMP_VALUE TEMP_DEFAULT TEMP_FIXED RESULT EXTRA
+	eval TEMP_VALUE="\$CHECK_$1_VALUE"
+	eval TEMP_DEFAULT="\$CHECK_$1_DEFAULT"
+	eval TEMP_FIXED="\$CHECK_$1_FIXED"
+
+	if [ "$TEMP_VALUE" = "CHECKED" ]; then
+		RESULT="Yes"
+	else
+		RESULT="No"
+	fi
+
+	EXTRA=""
+	if [ "$TEMP_VALUE" = "$TEMP_DEFAULT" ]; then
+		EXTRA="default"
+	fi
+
+	if [ "$TEMP_FIXED" = "TRUE" ]; then
+		EXTRA="${EXTRA:+$EXTRA, }unchangable"
+	fi
+
+	RESULT="$RESULT${EXTRA:+ ($EXTRA)}"
+	echo "$RESULT"
+}
+
+# Description: Print the string describing the value of a menu item.
+# Arguments:   $1 - the type of menu item
+#              $2 - the name of the menu item
+# Outputs:     The string describing the value of the menu item
+menu_handle() {
+	local HANDLER
+
+	eval HANDLER="\$MENU_ITEM_TYPE_$1_HANDLER"
+	"$HANDLER" "$2"
+}
+
+# Description: Process a menu-type menu item
+# Arguments:   $1 - The name of the menu
+menu_handle_menu() {
+	local TEMP_ITEMS I CHOICE NUM_ITEMS TEMP_TYPE MENU ITEM TEMP_TITLE \
+			TEMP_TEXT
+	eval TEMP_ITEMS="\$MENU_$1_ITEMS"
+	eval TEMP_TEXT="\$MENU_$1_TEXT"
+	
+	MENU="$1"
+	while :; do
+		echo
+		eval TEMP_TITLE="\$MENU_${MENU}_TITLE"
+		cat << EOF
+  $ANSI_BOLD-= $TEMP_TITLE =-$ANSI_NORMAL
+EOF
+
+		if [ -n "$TEMP_TEXT" ]; then
+			cat << EOF
+$TEMP_TEXT
+EOF
+		fi
+		
+		# Count the number of options
+		I=0
+		for ITEM in $TEMP_ITEMS; do
+			I=$(($I + 1))
+		done
+		NUM_ITEMS="$I"
+
+		I=0
+		for ITEM in $TEMP_ITEMS; do
+			I=$(($I + 1))
+			eval TEMP_TYPE="\$MENU_${MENU}_ITEM_${ITEM}_TYPE"
+			eval TEMP_TITLE="\$${TEMP_TYPE}_${ITEM}_TITLE"
+			printf "  %${#NUM_ITEMS}i. %-36s %s\n" $I "$TEMP_TITLE" \
+					"$(menu_print_value $TEMP_TYPE $ITEM)"
+		done
+
+		echo
+		echo "Press a number plus <ENTER> if you want to change something, "
+		$ECHON "or just <ENTER> if everything is ok: "
+		read CHOICE
+
+		# Check if the choice was empty
+		if [ -z "$CHOICE" ]; then
+			# We're done
+			return
+		fi
+
+		# Check if what the user entered was a number
+		egrep '^[0-9]+$' << EOF > /dev/null
+$CHOICE
+EOF
+		if [ $? -ne 0 ]; then
+			echo "Invalid choice."
+			continue
+		fi
+
+		# Check if the number the user entered if valid
+		if [ "$CHOICE" -lt 1 -o "$CHOICE" -gt "$NUM_ITEMS" ]; then
+			echo "Invalid choice."
+			continue
+		fi
+
+		# Now look up the choice
+		I=0
+		for ITEM in $TEMP_ITEMS; do
+			I=$(($I + 1))
+			if [ "$I" -eq "$CHOICE" ]; then
+				eval TEMP_TYPE="\$MENU_${MENU}_ITEM_${ITEM}_TYPE"
+				menu_handle "$TEMP_TYPE" "$ITEM"
+				break
+			fi
+		done
+	done
+}
+
+# Description: Process a choice-type menu item
+# Arguments:   $1 - The name of the menu
+menu_handle_choice() {
+	local TEMP_OPTIONS I CHOICE NUM_OPTIONS TEMP_TYPE MENU OPTION \
+			TEMP_VALUE TEMP_TITLE SELECTED TEMP_TEXT
+	eval TEMP_OPTIONS="\$CHOICE_$1_OPTIONS"
+	eval TEMP_TEXT="\$CHOICE_$1_TEXT"
+	
+	MENU="$1"
+	while :; do
+		echo
+		eval TEMP_TITLE="\$CHOICE_${MENU}_TITLE"
+		cat << EOF
+  $ANSI_BOLD-= $TEMP_TITLE =-$ANSI_NORMAL
+EOF
+		if [ -n "$TEMP_TEXT" ]; then
+			cat << EOF
+$TEMP_TEXT
+EOF
+		fi
+
+		eval TEMP_VALUE="\$CHOICE_${MENU}_VALUE"
+
+		# Check in advance which options are present, so that that
+		# is echoed before the menu is printed.
+		# menu_have_choice caches results.
+		# Also, count the number of options
+		I=0
+		for OPTION in $TEMP_OPTIONS; do
+			I=$(($I + 1))
+			menu_have_choice "$MENU" "$OPTION"
+		done
+		NUM_OPTIONS="$I"
+
+		I=0
+		for OPTION in $TEMP_OPTIONS; do
+			I=$(($I + 1))
+			eval TEMP_TITLE="\$CHOICE_${MENU}_OPTION_${OPTION}_TITLE"
+			if [ "$TEMP_VALUE" = "$OPTION" ]; then
+				SELECTED="-->"
+			else
+				SELECTED="   "
+			fi
+			if menu_have_choice "$MENU" "$OPTION"; then
+				printf "  %${#NUM_OPTIONS}i. %s %s\n" "$I" "$SELECTED" \
+						"$TEMP_TITLE"
+			else
+				printf "  %-${#NUM_OPTIONS}s  %s (N/A) %s\n" "-" \
+						"$SELECTED" "$TEMP_TITLE"
+			fi
+		done
+
+		echo
+		echo "Select the option you want by typing a number plus <ENTER>"
+		$ECHON "or just <ENTER> if everything is ok: "
+		read CHOICE
+		echo
+
+		# Check if the choice was empty
+		if [ -z "$CHOICE" ]; then
+			# We're done
+			return
+		fi
+
+		# Check if what the user entered was a number
+		egrep '^[0-9]+$' << EOF > /dev/null
+$CHOICE
+EOF
+		if [ $? -ne 0 ]; then
+			echo "Invalid choice."
+			continue
+		fi
+
+		# Check if the number the user entered if valid
+		if [ "$CHOICE" -lt 1 -o "$CHOICE" -gt "$NUM_ITEMS" ]; then
+			echo "Invalid choice."
+			continue
+		fi
+
+		# Now look up the choice
+		I=0
+		for OPTION in $TEMP_OPTIONS; do
+			I=$(($I + 1))
+			if [ "$I" -eq "$CHOICE" ]; then
+				if menu_have_choice "$MENU" "$OPTION"; then
+					eval "CHOICE_${MENU}_VALUE"="$OPTION"
+					return
+				else
+					echo "That option is unavailable on your system."
+				fi
+			fi
+		done
+	done
+}
+
+# Description: Process an input-type menu item
+# Arguments:   $1 - The name of the menu
+menu_handle_input() {
+	local ITEM TEMP_TITLE TEMP_VALUE TEMP_DEFAULT NEW_VALUE \
+			TEMP_VALIDATOR TEMP_TEXT
+
+	ITEM="$1"
+	eval TEMP_TITLE="\$INPUT_${ITEM}_TITLE"
+	eval TEMP_TEXT="\$INPUT_${ITEM}_TEXT"
+
+	while :; do
+		echo
+		cat << EOF
+  $ANSI_BOLD-= $TEMP_TITLE =-$ANSI_NORMAL
+EOF
+
+		if [ -n "$TEMP_TEXT" ]; then
+			cat << EOF
+$TEMP_TEXT
+EOF
+		fi
+
+		eval TEMP_VALUE="\$INPUT_${ITEM}_VALUE"
+		eval TEMP_DEFAULT="\$INPUT_${ITEM}_DEFAULT"
+		echo "  Default value: $TEMP_DEFAULT"
+		echo "  Current value: $TEMP_VALUE"
+		$ECHON "  New value:     "
+		read NEW_VALUE
+		
+		# If no new value is entered, keep the old one.
+		if [ -z "$NEW_VALUE" ]; then
+			return
+		fi
+
+		# If a validator function is present, validate the new value
+		eval TEMP_VALIDATOR="\$INPUT_${ITEM}_VALIDATOR"
+		if [ -n "$TEMP_VALIDATOR" ]; then
+			NEW_VALUE=`$TEMP_VALIDATOR "$NEW_VALUE"`
+			if [ $? -ne 0 ]; then
+				echo "Invalid value"
+				continue
+			fi
+		fi
+		break
+	done
+	eval "INPUT_${ITEM}_VALUE"=\"\$NEW_VALUE\"
+}
+
+# Description: Process an checkbox-type menu item
+# Arguments:   $1 - The name of the checkbox
+menu_handle_check() {
+	local CHECKBOX OLD_VALUE NEW_VALUE TEMP_FIXED
+
+	CHECKBOX="$1"
+	eval TEMP_FIXED="\$CHECK_${CHECKBOX}_FIXED"
+
+	if [ "$TEMP_FIXED" = "TRUE" ]; then
+		# Unchangable
+		return;
+	fi
+
+	eval OLD_VALUE="\$CHECK_${CHECKBOX}_VALUE"
+	if [ "$OLD_VALUE" = "CHECKED" ]; then
+		NEW_VALUE="UNCHECKED"
+	else
+		NEW_VALUE="CHECKED"
+	fi
+	eval "CHECK_${CHECKBOX}_VALUE"=\"\$NEW_VALUE\"
+}
+
+# Description: echo the current state of a menu item in a form that can be
+#              executed to restore the state.
+# Arguments:   $1 - the type of menu item
+#              $2 - the name of the menu item
+# Outputs:     The string describing the value of the menu item
+menu_save() {
+	local SAVE_FUN
+	eval SAVE_FUN="\$MENU_ITEM_TYPE_$1_SAVE"
+	"$SAVE_FUN" "$2"
+}
+
+# Description: echo the current state of a menu in a form that can be
+#              executed to restore the state.
+# Arguments:   $1 - the name of the menu
+# Outputs:     The string describing the value of the menu
+menu_save_menu() {
+	local MENU TEMP_ITEMS ITEM TEMP_TYPE
+
+	MENU="$1"
+	eval TEMP_ITEMS="\$MENU_${MENU}_ITEMS"
+	for ITEM in $TEMP_ITEMS; do
+		eval TEMP_TYPE="\$MENU_${MENU}_ITEM_${ITEM}_TYPE"
+		menu_save "$TEMP_TYPE" "$ITEM"
+	done	
+}
+
+# Description: echo the current state of a choice menu in a form that can be
+#              executed to restore the state.
+# Arguments:   $1 - the name of the choice menu
+# Outputs:     The string describing the value of the choice menu
+menu_save_choice() {
+	local MENU TEMP_VALUE
+	MENU="$1"
+	eval TEMP_VALUE="\$CHOICE_${MENU}_VALUE"
+	cat << EOF
+CHOICE_${MENU}_VALUE='$TEMP_VALUE'
+EOF
+}
+
+# Description: echo the current state of an input menu in a form that can be
+#              executed to restore the state.
+# Arguments:   $1 - the name of the input menu
+# Outputs:     The string describing the value of the input menu
+menu_save_input() {
+	local MENU TEMP_VALUE
+	MENU="$1"
+	eval TEMP_VALUE="\$INPUT_${MENU}_VALUE"
+	cat << EOF
+INPUT_${MENU}_VALUE='$TEMP_VALUE'
+EOF
+}
+
+# Description: echo the current state of an check box in a form that can be
+#              executed to restore the state.
+# Arguments:   $1 - the name of the checkbox
+# Outputs:     The string describing the value of the checkbox
+menu_save_check() {
+	local CHECKBOX TEMP_VALUE
+	CHECKBOX="$1"
+	eval TEMP_VALUE="\$CHECK_${CHECKBOX}_VALUE"
+	cat << EOF
+CHECK_${CHECKBOX}_VALUE='$TEMP_VALUE'
+EOF
+}
+
+# Description: Perform the actions associated with the choice made for a
+#              menu items.
+# Arguments:   $1 - the type of menu item
+#              $2 - the name of the menu item
+menu_process() {
+	local PROCESS_FUN
+	eval PROCESS_FUN="\$MENU_ITEM_TYPE_$1_PROCESS"
+	"$PROCESS_FUN" "$2"
+}
+
+# Description: Perform the actions associated with the chosen menu items
+#              for a menu.
+# Arguments:   $1 - the name of the menu
+menu_process_menu() {
+	local MENU TEMP_ITEMS ITEM TEMP_TYPE
+
+	MENU="$1"
+	eval TEMP_ITEMS="\$MENU_${MENU}_ITEMS"
+	for ITEM in $TEMP_ITEMS; do
+		eval TEMP_TYPE="\$MENU_${MENU}_ITEM_${ITEM}_TYPE"
+		menu_process "$TEMP_TYPE" "$ITEM"
+	done	
+}
+
+# Description: Perform the actions associated with the choice made for
+#              a choice menu.
+# Arguments:   $1 - the name of the choice menu
+menu_process_choice() {
+	local MENU TEMP_VALUE TEMP_ACTION
+	MENU="$1"
+	eval TEMP_VALUE="\$CHOICE_${MENU}_VALUE"
+	eval TEMP_ACTION="\$CHOICE_${MENU}_OPTION_${TEMP_VALUE}_ACTION"
+	if [ -n "$TEMP_ACTION" ]; then
+		$TEMP_ACTION
+	fi
+}
+
+# Description: Perform the actions associated with the input menu.
+# Arguments:   $1 - the name of the input menu
+menu_process_input() {
+	# Nothing to do
+	:
+}
+
+# Description: Perform the actions associated with the status of a
+#              check box.
+# Arguments:   $1 - the name of the check box
+menu_process_check() {
+	local CHECKBOX TEMP_VALUE TEMP_ACTION
+	CHECKBOX="$1"
+	eval TEMP_VALUE="\$CHECK_${CHECKBOX}_VALUE"
+	eval TEMP_ACTION="\$CHECK_${CHECKBOX}_OPTION_${TEMP_VALUE}_ACTION"
+	if [ -n "$TEMP_ACTION" ]; then
+		$TEMP_ACTION
+	fi
+}
+
+# Description: Start processing a menu
+# Arguments:   $1 - the type of the main menu
+#              $2 - the name of the main menu
+do_menu() {
+	local MENU_TYPE START_MENU SAVE_FILE
+	
+	MENU_TYPE=$1
+	START_MENU=$2
+
+	menu_init "$MENU_TYPE" "$START_MENU"
+	menu_handle "$MENU_TYPE" "$START_MENU"
+	echo
+}
+
+# Description: Load the menu settings from file
+# Arguments:   $1 - the type of the menu (currently ignored)
+#              $2 - the name of the menu (currently ignored)
+#              $3 - the name of the file to load from
+# Returns:     0 - if the file was loaded successfully
+#              1 - if the file did not exist
+do_menu_load() {
+	SAVE_FILE=$3
+
+	if [ ! -e "$SAVE_FILE" ]; then
+		return 1
+	fi
+
+	. "$SAVE_FILE"
+	return 0
+}
+
+# Description: Save the menu settings to file
+# Arguments:   $1 - the type of the menu
+#              $2 - the name of the menu
+#              $3 - the name of the file to save to
+# Returns:     0 - if the file was saved successfully
+do_menu_save() {
+	MENU_TYPE=$1
+	START_MENU=$2
+	SAVE_FILE=$3
+
+	echo "Saving choices..."
+	menu_save "$MENU_TYPE" "$START_MENU" > "$SAVE_FILE"
+	return 0
+}
+
+
+
+

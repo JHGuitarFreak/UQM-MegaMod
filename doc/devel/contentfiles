@@ -1,0 +1,28 @@
+<race>/*icons.0.png
+	small (16x16) icon, used for
+	- picking the next ship for combat in Supermelee
+	- picking the next ship for combat in the full game
+	- the selection grid in the Supermelee fleet editor
+	- the escorts in the status window in the full game when not in
+	  battle
+	- loading a game
+	- loading a melee fleet
+	- (others?)
+
+<race>/*icons.0.png
+	large icon with shadow, used for
+	- current selection in the right middle of the Supermelee fleet editor
+	- ship status window in battle
+	- (others?)
+
+<race>/*micon.0.png
+	large icon without shadow, used for
+	- images in the fleet when in the Supermelee fleet editor
+	- images in the fleet when in the shipyard
+	- current selection in the bottom right in the shipyard
+	- (others?)
+
+<race>/*micon.1.png
+	small icon, used for
+	- representing a battle group in a solarsystem
+

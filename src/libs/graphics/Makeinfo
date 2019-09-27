@@ -1,0 +1,12 @@
+if [ "$uqm_GFXMODULE" = "sdl" ]; then
+	uqm_SUBDIRS="sdl"
+fi
+
+uqm_CFILES="boxint.c clipline.c cmap.c context.c drawable.c filegfx.c
+		bbox.c dcqueue.c gfxload.c
+		font.c frame.c gfx_common.c intersec.c loaddisp.c
+		pixmap.c resgfx.c tfb_draw.c tfb_prim.c widgets.c"
+
+uqm_HFILES="bbox.h cmap.h context.h dcqueue.h drawable.h drawcmd.h font.h
+		gfx_common.h gfxintrn.h prim.h tfb_draw.h tfb_prim.h widgets.h"
+

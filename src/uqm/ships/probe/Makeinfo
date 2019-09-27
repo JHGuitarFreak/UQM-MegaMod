@@ -1,0 +1,2 @@
+uqm_CFILES="probe.c"
+uqm_HFILES="icode.h probe.h resinst.h"

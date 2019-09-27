@@ -1,0 +1,45 @@
+This file describes the use for each entry of the
+content/base/ships/<race>/<ship>.txt files.
+
+
+Entry #0:
+	Battle group name
+	Used in uppercase on the "debris scavanged" message after destroying
+	a battle group in the full game, from UninitEncounter().
+
+Entry #1:
+	Race name
+	Displayed on the starmap, from DrawStarMap() (and GetSphereRect()).
+	Used in combat (both in the full game and in SuperMelee) as the
+	name of the race, from InitShipStatus().
+
+Entry #2:
+	Abbreviated race name.
+	Used when sorting the races in LoadMasterShipList().
+
+Entry #3:
+	Ship name.
+	Unused (?)
+
+Entry #4:
+	Abbreviated ship name.
+	Unused (?)
+
+Entry #5 (NAME_OFFSET) through #20 (NAME_OFFSET + NUM_CAPTAINS_NAMES - 1):
+	The names of the captains of the ships of this race, as displayed
+	during combat.
+
+
+For some races, some plot-specific captain names follow:
+Shofixti:
+	- Entry #21: Tanaka
+	- Entry #22: Katana
+Spathi:
+	- Entry #21: Fwiffo
+
+
+Note that the race/ship name combinations shown when adding a ship to your
+fleet in the shipyard are actually images (lbm/shipyard.3.png through
+shipyard.23.png). They are displayed from DrawRaceStrings().
+
+

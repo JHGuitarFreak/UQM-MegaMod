@@ -1,0 +1,2 @@
+uqm_CFILES="getopt.c getopt1.c"
+uqm_HFILES="getopt.h"

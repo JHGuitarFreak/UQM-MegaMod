@@ -1,0 +1,126 @@
+Input system notes
+
+Code that reads the input state defines a routine that goes through
+the DoInput routine.  This is handled in a pseudo-OOP style.
+
+An "INPUT_STATE_DESC" has the following members:
+
+BOOLEAN (*InputFunc) (PVOID pInputState);
+COUNT MenuRepeatDelay;
+
+Although a "PVOID", pInputState has to be safely castable to
+INPUT_STATE_DESC.  There are various "subclasses" that are used for
+this purpose throughout the code.  They are also pased to the first
+argument of DoInput.
+
+The InputFunc returns TRUE if it still will be keeping control next
+frame.
+
+MenuRepeatDelay is an "internal" variable for making keyrepeat work
+right.
+
+"Subclasses":
+
+MENU_STATE - in starbase.h.  The "pMenuState" global is usually the
+element referenced.  This is used by:
+
+  encount.c:  DoSelectAction
+  gameopt.c:  DoGameOptions, DoSettings, DoTextEntry, DoNaming,
+              DoQuitMenu, DoPickGame
+  outfit.c:   DoOutfit
+  pickship.c: DoPickBattleShip
+  restart.c:  DoRestart
+  shipyard.c: DoModifyShips, DoShipYard
+  starbase.c: DoStarBase
+
+  cargo.c:    DoDiscardCargo
+  devices.c:  DoManipulateDevices
+  lander.c:   DoPlanetSide
+  pstarmap.c: DoMoveCursor, DoFlagshipCommands
+  roster.c:   DoModifyRoster
+  scan.c:     DoScan, PickPlanetSide
+
+VIDEO_INPUT_STATE - in vidplayer.c.  Used by TFB_DoVideoInput.
+
+ENCOUNTER_STATE - in comm.c.  Used by DoCommunication.
+
+MELEE_STATE - in melee.h.  Used by DoPickShip, DoLoadTeam, DoEdit, DoMelee.
+
+The game logic itself that uses DoInput treats it as a stack of state
+machines.  The "current state" is in the InputFunc field of the
+argument.
+
+The state machines are (with the calls that initialize and allocate them):
+
+InitCommunication: DoCommunication
+DoMenuOptions, ExploreSolarSys: DoFlagshipCommands <-> DoDiscardCargo
+                                <-> DoManipulateDevices
+Roster: DoModifyRoster
+DoMelee <-> DoEdit <-> DoLoadTeam <-> DoPickShip
+VisitStarBase: DoStarBase <-> DoOutfit <-> DoInstallModule
+               <-> DoShipyard <-> DoModifyShips
+DoStarMap: DoMoveCursor
+GameOptions: DoGameOptions <-> DoNaming <-> DoSettings <-> DoQuitMenu
+             <-> DoPickGame
+GetArmadaStarShip: DoPickBattleShip
+StartGame: DoRestart
+ScanSystem: DoScan <-> PickPlanetSide <-> DoPlanetSide
+InitEncounter: DoSelectAction
+TFB_VideoInput: TFB_DoVideoInput
+
+These are called from the following points:
+
+InitCommunication: Called by the outtakes, the starbase, and the gen*
+                   files; generally anywhere where you need to
+                   transfer over to a conversation sequence.
+                   RaceCommunication () is the toplevel call for
+                   starcon.c.
+
+DoMenuOptions: Called by the postprocess operation for the sis_ship.
+
+ExploreSolarSys: Called by Starcon2Main.
+
+VisitStarBase: Called by Starcon2Main.
+
+DoStarMap: Called internally by DoFlagshipCommands.
+
+GameOptions: Called internally by DoOutfit, DoShipyard,
+             DoSelectAction, and DoFlagshipCommands.  Basically
+             handles the GAME menu wherever it appears.
+
+GetArmadaStarShip: Called internally by
+                   GetEncounterStarShip. UninitShips calls
+                   GetEncounterStarShip, apparently to do cleanup.
+                   Everyone else calls GetNextStarShip.  This is done
+                   by the Battle() routine, and by the new_ship
+                   function, which is assigned as a "death_func" for
+                   normal ships, and a "preprocess_func" for dead
+                   ships.
+
+StartGame: Called by Starcon2Main.
+
+ScanSystem: Called by DoFlagshipCommands
+
+InitEncounter: Called by InitCommunication when the player has an option.
+
+TFB_VideoInput: UQM's game logic will reach it by calling DoFMV.
+
+Starcon2Main
+------------
+
+This is a loop for the game.  Right now I just have a list of
+top-level calls, and a list of checks made against
+GLOBAL(CurrentActivity).  The actual significance of these things
+comes later.
+
+Activities: CHECK_LOAD, START_ENCOUNTER, CHECK_ABORT,
+            IN_INTERPLANETARY, START_INTERPLANETARY, WON_LAST_BATTLE,
+            CHECK_RESTART, IN_HYPERSPACE
+
+Game states: CHMMR_BOMB_STATE, GLOBAL_FLAGS_AND_DATA, KOHR_AH_KILLED_ALL
+
+Functions: Logo(), StartGame(), VisitStarBase(), RaceCommunication(),
+           ExploreSolarSys(), Battle().  Note that Battle() here is
+           actually for hyperspace travel.  Super Melee combat is
+           handled in DoMelee, and full-game combat is handled by
+           EncounterBattle, called by InitCommunication.

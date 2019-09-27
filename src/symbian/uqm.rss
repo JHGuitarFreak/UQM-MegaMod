@@ -1,0 +1,26 @@
+NAME UQM
+
+#include <eikon.rh>
+#include <avkon.rh>
+#include <avkon.rsg>
+#include <avkon.hrh>
+#include <appinfo.rh>
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF { buf="UQM"; }
+
+RESOURCE EIK_APP_INFO
+    {
+    }
+
+RESOURCE LOCALISABLE_APP_INFO r_uqm_localisable_app_info
+    {
+    short_caption = "UQM";
+    caption_and_icon = CAPTION_AND_ICON_INFO
+        {
+        caption = "UrQuanMasters";
+        number_of_icons = 1;
+        icon_file = "\\resource\\apps\\uqm_icon.mif";
+        };
+    }

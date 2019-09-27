@@ -1,0 +1,6 @@
+The files md5.c and md5.h from this directory come from the GNU TLS
+library (http://www.gnutls.org/), version 1.6.1.
+
+These files are unchanged, except for the replacement of the LGPL notices by
+GPL notices.
+

@@ -1,0 +1,5 @@
+uqm_SUBDIRS="androsyn arilou blackurq chenjesu chmmr druuge human ilwrath
+		lastbat melnorme mmrnmhrm mycon orz pkunk probe shofixti sis_ship
+		slylandr spathi supox syreen thradd umgah urquan utwig vux yehat
+		zoqfot"
+uqm_HFILES="ship.h"

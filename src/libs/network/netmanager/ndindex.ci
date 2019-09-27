@@ -1,0 +1,103 @@
+/*
+ *  Copyright 2006  Serge van den Boom <svdb@stack.nl>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+// This file is part of netmanager_bsd.c, from where it is #included.
+// Only used for BSD sockets.
+
+// This file provides a mapping of Sockets to NetDescriptors.
+
+
+static NetDescriptor *netDescriptors[FD_SETSIZE];
+		// INV: flags.closed is not set for entries in netDescriptors.
+static size_t maxND;
+		// One past the largest used ND in netDescriptors, as used in
+		// the first argument of select();
+
+
+static inline void
+NDIndex_init(void) {
+	size_t i;
+	size_t numND = sizeof (netDescriptors) / sizeof (netDescriptors[0]);
+
+	for (i = 0; i < numND; i++)
+		netDescriptors[i] = NULL;
+}
+
+static inline void
+NDIndex_uninit(void) {
+	// Nothing to do.
+}
+
+static inline int
+NDIndex_registerNDWithSocket(Socket *sock, NetDescriptor *nd) {
+	if ((unsigned int) sock->fd >= FD_SETSIZE) {
+		errno = EMFILE;
+		return -1;
+	}
+
+	netDescriptors[sock->fd] = nd;
+
+	if ((size_t) sock->fd >= maxND)
+		maxND = (size_t) sock->fd + 1;
+
+	return 0;
+}
+
+static inline void
+NDIndex_unregisterNDForSocket(Socket *sock) {
+	NetDescriptor **last;
+
+	netDescriptors[sock->fd] = NULL;
+
+	last = &netDescriptors[sock->fd];
+
+	if ((size_t) sock->fd + 1 == maxND) {
+		do {
+			maxND--;
+			if (last == &netDescriptors[0])
+				break;
+			last--;
+		} while (*last == NULL);
+	}
+}
+
+static inline NetDescriptor *
+NDIndex_getNDForSocket(Socket *sock) {
+	assert((size_t) sock->fd < maxND);
+	return netDescriptors[sock->fd];
+}
+
+static inline NetDescriptor *
+NDIndex_getNDForSocketFd(int fd) {
+	assert((size_t) fd < maxND);
+	return netDescriptors[fd];
+}
+
+static inline bool
+NDIndex_socketRegistered(Socket *sock) {
+	return ((size_t) sock->fd < maxND)
+			&& (NDIndex_getNDForSocket(sock) != NULL);
+}
+
+// Get the first argument to be used in select().
+static inline size_t
+NDIndex_getSelectNumND(void) {
+	return maxND;
+}
+
+

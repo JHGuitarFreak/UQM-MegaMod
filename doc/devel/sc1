@@ -1,0 +1,186 @@
+This file documents the file formats used in Star Control 1.
+
+The .pkg files are in the format described in the file "pkgformat".
+The extracted files are described in this document.
+
+The following describes the format used in the DOS version of SC1.
+
+Resource types used in starcon.pkg:
+ 1 - key config
+ 2 - some graphics type (flags = 7)
+ 3 - some graphics type (flags = 1)
+ 4 - some graphics type (flags = 2) 5 - some graphics type (flags = 3)
+ 6 - font
+ 7 - scenario
+ 8 - palette
+ 9 - strtab
+10 - ? (sound?)
+
+
+Files of types 2, 3, 4, 5, 9, and 10 may be compressed; they have
+a header of the following format: have the following format:
+
+Uncompressed files:
+   off  len
+  0x00    1  0 (means: not compressed)
+  0x01    1  flags, 0 in practice
+  0x04    2  Number of bytes that follow (MSB first)
+  0x06       start of data
+
+Compressed files:
+   off   len
+  0x00     1  6 (means: compressed)
+  0x01     1  flags
+              bit 0: unused
+              bit 1: (table2CodeLen)
+                     if not set: table2 results are shifted by 6 bits.
+                     if set: table2 results are shifted by 7 bits.
+                     (never set in PC SC1 files)
+              bit 2: (litencoded) set if literal bytes are Huffman encoded
+                     (never set in PC SC1 files)
+              rest: unused
+  0x02     4  uncompressed size (MSB first)
+  0x06        Huffman table 0 (8-bit codes) (only present if litencoded set)
+                used for encoding literal bytes
+              Huffman table 1 (6-bit codes)
+                used for encoding lengths
+              Huffman table 2 (6-bit codes)
+                used for the most significant table2CodeLen bits of an offset
+
+
+
+Huffman table:
+(numbers are in bits)
+         8           one less than the number of lengths of codes
+                     in the table (lenCnt)
+         8 * lenCnt  LONIBBLE: one less than one of the code lengths
+                     HINIBBLE: one less than the number of codes with
+                               this length
+This is enough to construct the huffman table.
+
+TODO: document the rest of the compression format; for now, look at the
+      code of sc1-decomp.
+
+
+Resource type 1 (key config):
+   off  len
+  0x00    1  bottom player special key ('n')
+  0x01    1  top player special key    ('1')
+  0x02    1  bottom player left key    ('m')
+  0x03    1  top player left key       ('2')
+  0x04    1  bottom player right key   (',')
+  0x05    1  top player right key      ('3')
+  0x06    1  bottom player thrust key  ('.')
+  0x07    1  top player thrust key     ('4')
+  0x08    1  bottom player fire key    ('/')
+  0x09    1  top player fire key       ('5')
+  0x0a    1  ?
+  0x0b    1  ?
+  0x0c    1  ?
+  0x0d    1  ?
+  0x0e    1  ?
+  0x0f    1  ?
+  0x10    1  ?
+  0x11    1  ?
+  0x12    1  ?
+  0x13    1  ?
+
+
+Resource types 2, 3, 4, and 5 (graphics):
+The difference between those types is the flags parameter that is passed
+to the load functions (see above in the table of resource types).
+bit 0: ?
+bit 1: probably indicates whether a palette is used
+bit 2: ?
+rest: unused
+
+(after decompression/removing packing header)
+   off  len
+  0x00    4  "IANM"
+  0x04    2  frame count (MSB first)
+  0x06    2  MSB first
+             LOBYTE: bits per pixel. All SC1 files are either 1 bpp or 4 bpp.
+For every frame:
+          2  width (MSB first)
+          2  height (MSB first)
+For every frame:
+          2  x hotspot
+          2  y hotspot
+          1  if not zero, the file includes palettes
+          1  transparant color
+         16  (optional) (CGA?) palette (16 entries of 1 byte)
+         16  (optional) (EGA/Tandy?) palette (16 entries of 1 byte)
+         16  (optional) (MCGA/VGA?) palette (16 entries of 1 byte)
+          ?  pixel data (indicees in palette)
+
+
+
+Resource type 6 (font):
+   off  len
+  0x00    1  ?
+  0x01    1  ?
+  0x02    1  LONIBBLE:
+             HINIBBLE:
+  0x03   48
+
+The letters are actually readable if you do 'xxd -b'; it shouldn't be too
+hard to RE this one.
+
+
+Resource type 7 (scenario):
+   off  len
+  0x00   16     Title (\0 terminated)
+  0x10    ?     Short description (\0 terminated)
+     ?    ?     Unknown (probably description of star systems, Space Spines,
+                fleets and bases (maybe random seeds?))
+  0x80  840(?)  Long description (\0 terminated)
+
+
+Resource type 8 (palette):
+   off  len
+     0  768  palette data:
+for each of the 256 entries (with index 0 through 255):
+          1  red value
+          1  green value
+          1  blue value
+
+
+Resource type 9 (string):
+   off  len
+  0x00    2       Number of strings (MSB first)
+  0x02    2       unknown (always 0x0000)
+for each string s:
+          2       len[s]: length of the string (MSB first)
+for each string s:
+          len[s]  String data (not '\0'-terminated)
+
+
+starcon.exe:
+compressed using lzexe
+(http://fabrice.bellard.free.fr/lzexe.html)
+Using PLINK86 to load starcon.ovl as an overlay.
+
+
+
+The Amiga version of SC1:
+
+Resource types used in starcon.pkg:
+ 1 - key config (presumed; different from the DOS version)
+ 2 - graphics
+ 3 - graphics
+ 4 - graphics
+ 5 - graphics
+ 6 - font
+ 7 - scenario (as with the DOS version)
+ 8 - strings as on DOS, but also other data in the same format
+     (presumably including sound)
+
+Files of types 2, 3, 4, 5, 8 may be compressed as in the DOS version.
+
+Graphics files are in a different file format as on DOS. I haven't worked
+on these files yet.
+
+
+Initial version created on 2007-06-01 by Serge van den Boom.
+
+

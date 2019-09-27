@@ -1,0 +1,2 @@
+uqm_CFILES="luauqm.c scriptres.c"
+uqm_HFILES="luauqm.h scriptres.h"

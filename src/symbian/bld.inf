@@ -1,0 +1,9 @@
+PRJ_PLATFORMS
+
+
+PRJ_EXPORTS
+
+
+PRJ_MMPFILES
+gnumakefile icons_scalable_dc.mk
+uqm.mmp

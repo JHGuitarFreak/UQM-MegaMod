@@ -1,0 +1,31 @@
+This file describes the easiest way to use this build system from
+a packaging system such as rpm.
+
+If you want an interactive configuration, you can start the build process
+like you would do manually:
+	./build.sh uqm
+to build the game, and
+	./build.sh uqm install
+to install it.
+			
+
+If you want the configuration to be non-interactive, you'll want to do
+the following: execute
+	./build.sh uqm config
+once. This will generate a 'config.vars' file, which you can then
+include in your package. Then when you want to build the game, put this
+file the directory pointed to by $BUILD_WORK (default is the current
+directory), and do
+	./build.sh uqm reprocess_config
+to generate all the configuration information for the build, and then
+	./build.sh uqm
+to build the game, and
+	./build.sh uqm install
+to install it.
+
+You may wish to set the environment variable BUILD_WORK to a directory
+where the files created in the configuration and build process should be
+stored. That way, the source tree will remain clean and no write access
+to it is required.
+
+

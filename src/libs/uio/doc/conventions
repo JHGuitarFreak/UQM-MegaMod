@@ -1,0 +1,30 @@
+This file describes the various conventions used in the source.
+
+
+-= Naming of constructors and destructors =-
+
+uio_Thing *uio_Thing_new(args)
+	Allocates the structure, and initialises it from the arguments.
+	Arguments are always used as-is; if they are reference-counted,
+	and the caller still needs a reference, it is up to the caller
+	to increment the reference counter.
+void uio_Thing_delete(uio_Thing *thing)
+	Frees the structure and all sub-structures.
+	Decrements reference counters to shared structures.
+uio_Thing *uio_Thing_alloc()
+	Allocates memory for a new structure.
+	Could be omited for standard allocators.
+	Particularly relevant when a non-standard allocation scheme is
+	used (for instance, allocation from a pool of pre-allocated strucures).
+void uio_Thing_free(Thing *thing)
+	Frees the memory allocated for thing (reverse of uio_Thing_alloc).
+	Could be omited for standard deallocators.
+void uio_Thing_ref(Thing *thing)
+	Increments the reference counter to the structure.
+void uio_Thing_unref(Thing *thing)
+	Decrements the reference counter to the structure.
+	Calls uio_Thing_Delete() if the refcounter becomes 0.
+
+These functions are always declared and defined in this order.
+
+

@@ -1,0 +1,2 @@
+uqm_CFILES="zoqfot.c"
+uqm_HFILES="icode.h resinst.h zoqfot.h"

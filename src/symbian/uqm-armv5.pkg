@@ -1,0 +1,26 @@
+;Language - standard language definitions
+&EN
+
+; standard SIS file header
+#{"Ur-Quan Masters"},(0xA000A0C3),1,0,0
+
+;Localised Vendor name
+%{"Interstellar Frungy League"}
+
+;Unique Vendor name
+:"Interstellar Frungy League"
+
+;Supports Series 60 v 3.0
+[0x101F7961], 0, 0, 0, {"Series60ProductID"}
+
+*"uqm.key", "uqm.cer"
+
+;Files to install
+;<source> <destination>
+"\Epoc32\release\Armv5\urel\uqm.exe" - "!:\sys\bin\uqm.exe"
+"\Epoc32\data\z\resource\apps\uqm.rsc" - "!:\resource\apps\uqm.rsc"
+"\Epoc32\data\z\resource\apps\uqm_icon.mif" - "!:\resource\apps\uqm_icon.mif"
+"\Epoc32\data\z\private\10003a3f\import\apps\uqm_reg.rsc" - "!:\private\10003a3f\import\apps\uqm_reg.rsc"
+"uqm.cfg" - "!:\private\A000A0C3\userdata\uqm.cfg"
+"..\..\content\version" - "!:\private\A000A0C3\content\version"
+"..\..\content.uqm" - "!:\private\A000A0C3\content\packages\content.uqm"

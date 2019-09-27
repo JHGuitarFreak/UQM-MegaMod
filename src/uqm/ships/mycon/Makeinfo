@@ -1,0 +1,2 @@
+uqm_CFILES="mycon.c"
+uqm_HFILES="icode.h mycon.h resinst.h"

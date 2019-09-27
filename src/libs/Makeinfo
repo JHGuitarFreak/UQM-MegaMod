@@ -1,0 +1,24 @@
+uqm_SUBDIRS="callback decomp file graphics heap input list math memory
+		resource sound strings task threads time uio video log luauqm"
+if [ -n "$uqm_USE_INTERNAL_MIKMOD" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS mikmod"
+fi
+
+if [ -n "$uqm_USE_INTERNAL_LUA" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS lua"
+fi
+
+if [ -n "$uqm_NETPLAY" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS network"
+fi
+
+#if [ "$DEBUG" = 1 ]; then
+#	uqm_SUBDIRS="$UQM_SUBDIRS debug"
+#fi
+
+uqm_HFILES="alarm.h async.h callback.h cdplib.h compiler.h declib.h file.h
+		gfxlib.h heap.h inplib.h list.h log.h mathlib.h md5.h memlib.h
+		misc.h net.h platform.h reslib.h scriptlib.h sndlib.h
+		strlib.h tasklib.h threadlib.h timelib.h uio.h uioutils.h
+		unicode.h vidlib.h"
+

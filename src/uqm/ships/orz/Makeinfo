@@ -1,0 +1,2 @@
+uqm_CFILES="orz.c"
+uqm_HFILES="icode.h orz.h resinst.h"

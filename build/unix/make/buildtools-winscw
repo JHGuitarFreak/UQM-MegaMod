@@ -1,0 +1,19 @@
+# Definitions for build tools for the makefile used by the UQM build system.
+# This file defines the build commands for Nokia CodeWarrior tools.
+
+include build/unix/make/buildtools-generic
+
+define act_mkdep_c
+	$(MKDEP_C) $(CFLAGS) "$<" -o "$@.tmp"
+	@echo -n "$(@D)/" > $@
+	@cat "$@.tmp" >> $@
+	@rm -f "$@.tmp"
+endef
+
+define act_mkdep_cxx
+	$(MKDEP_C) $(CXXFLAGS) "$<" -o "$@.tmp"
+	@echo -n "$(@D)/" > $@
+	@cat "$@.tmp" >> $@
+	@rm -f "$@.tmp"
+endef
+

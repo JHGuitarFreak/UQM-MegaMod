@@ -1,0 +1,58 @@
+Vanilla 0.7.0 [Using Sol for LOG_X & LOG_Y]
+
+SCREEN_WIDTH = 320
+STATUS_WIDTH = 64
+MAX_REDUCTION = 3
+SPACE_WIDTH = 256 [SCREEN_WIDTH - STATUS_WIDTH]
+LOG_SPACE_WIDTH = 8192 [(SPACE_WIDTH << 2) << MAX_REDUCTION]
+MAX_X_UNIVERSE = 9999
+SECTOR_WIDTH = 195
+LOG_UNITS_X = 99840 [(LOG_SPACE_WIDTH >> 4) * SECTOR_WIDTH]
+UNIVERSE_UNITS_X = 6250 [((MAX_X_UNIVERSE + 1) >> 4) * 10]
+ROUNDING_ERROR = 49920 [LOG_UNITS_X >> 1]
+
+LOG_X = 27987
+
+LogXToUniverse = 1752.49 [(LOG_X * UNIVERSE_UNITS_X + ROUNDING_ERROR) / LOG_UNITS_X] 
+
+------------------------------------------------------------------------------------
+
+SPACE_HEIGHT = 240
+MAX_REDUCTION = 3
+LOG_SPACE_HEIGHT = 7680 [(SPACE_HEIGHT << 2) << MAX_REDUCTION]
+MAX_Y_UNIVERSE = 9999
+SECTOR_HEIGHT = 25
+LOG_UNITS_Y = 12000 [(LOG_SPACE_HEIGHT >> 4) * SECTOR_HEIGHT]
+UNIVERSE_UNITS_Y = 625 [(MAX_Y_UNIVERSE + 1) >> 4]
+ROUNDING_ERROR = 6000 [LOG_UNITS_Y >> 1]
+
+LOG_Y = 164141
+
+LogYToUniverse = 1449.48 [MAX_Y_UNIVERSE - ((LOG_Y * UNIVERSE_UNITS_Y + ROUNDING_ERROR) / LOG_UNITS_Y)] 
+
+____________________________________________________________________________________
+____________________________________________________________________________________
+
+
+0.8.0, macOS, HD-Mod & MegaMod [Using Sol for LOG_X & LOG_Y]
+
+
+MAX_X_UNIVERSE = 9999
+UNIVERSE_UNITS_X = 625 [(MAX_X_UNIVERSE + 1) >> 4]
+LOG_UNITS_X = 10000 [UNIVERSE_UNITS_X * 16]
+ROUNDING_ERROR = 5000 [LOG_UNITS_X >> 1]
+
+LOG_X = 28032
+
+LogXToUniverse = 1752.5 [(LOG_X * UNIVERSE_UNITS_X + ROUNDING_ERROR) / LOG_UNITS_X]
+
+------------------------------------------------------------------------------------
+
+MAX_Y_UNIVERSE = 9999
+UNIVERSE_UNITS_Y = 625 [(MAX_Y_UNIVERSE + 1) >> 4]
+LOG_UNITS_Y = 10000 [UNIVERSE_UNITS_Y * 16]
+ROUNDING_ERROR = 5000 [LOG_UNITS_Y >> 1]
+
+LOG_Y = 136784
+
+LogYToUniverse = 1449.5 [MAX_Y_UNIVERSE - ((LOG_Y * UNIVERSE_UNITS_Y + ROUNDING_ERROR) / LOG_UNITS_Y)]

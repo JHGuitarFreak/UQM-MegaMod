@@ -1,0 +1,174 @@
+The .pkg/.ndx format as used for Starcon.pkg on the 3DO cd.
+Acquired directly from the source.
+
+This format is used both in the file and is memory. There are some
+little differences; where this is this is the case, this is
+mentioned below in square brackets.
+
+Everything is stored LSB first.
+
+This document talks about packaged files.
+Packaged files have multiple resources stored in one file. All the resources
+in one package are stored in a single file, whose name is specified in
+p.packmem. The name may be '\0', in which case the package file itself
+is used.
+Non-packaged files have one resource per file. The name is specified
+in each resource instance info field.
+
+Main header: (resinit.c, _GetResFileData())
+position   length  meaning
+0x00       2       Whether or not the file is packaged (res_flags)
+                   bit 0: 0 - the .pkg file is not packaged
+                          1 - the .pkg file is packaged
+0x02       4       offset from the beginning of the file where the list
+                       of package information is stored (packmem_list_offs)
+0x06       4       offset from the beginning of the file where the list
+                       of pathnames is stored (path_list_offs)
+0x0a       4       offset from the beginning of the file where the list
+                       of file names is stored (file_list_offs)
+0x0e       2       number of packages in the file (num_packages)
+0x10       2       number of types of packages present in the file (num_types)
+0x12       4       length of this header. (index_info.header_len)
+                       (unused if the .pkg file is not packaged)
+0x16       8*num_packages:
+                   On position i the information for package i + 1 is
+                       stored. There is no package 0.
+           4       p.packmem_info
+                   bits 0-7: number of resource types
+                   bits 8-20: number of resource instances
+                   bits 21-31:
+                       For packaged files: index in file_list_offs of the
+                       file name for this resource
+                       For non-packaged files: unused (0)
+           4       p.flags_and_data_loc
+                   MSB is flags, rest is data_loc,
+                   if MSB == 0, then of the data_loc only the low 16 bits
+                       are used as a MEM_HANDLE [only in memory],
+                   if MSB == 0xff, then the data_loc is an offset in the
+                       file to the actual data
+0x16+8*num_packages  Type information
+           2*num_types
+                   t.instance_count
+                   The number of instances there are of this type.
+                   On position i the instance count for type i + 1 is
+                       stored. There's no type 0.
+packmem_list_offs (should be directly after the index info):
+                   for each of the num_packages packages:
+                     for each of the resource types for this package
+                         (as in p.packmem_info):
+           4           bits 0-7: The type number for this type. What that
+                                     number means isn't specified, and may
+                                     vary per .pkg file.
+                                 For the 3DO SC2 starcon.pkg file these are:
+                                 0 - not a type
+                                 1 - Graphics data (GFXRES)
+                                 2 - String data (STRTAB)
+                                 3 - Music data (MUSICRES)
+                                 4 - Resource index (RES_INDEX)
+                                 5 - Code (CODE)
+                       bits 8-20: The instance number of the first instance
+                                  of this type in this package. Every
+                                  following instance has a number 1 higher
+                                  than the one before.
+                       bits 21-31: number of resources of this type in the
+                                   package
+                     for each of the resource instances for this package
+                         (as in p.packmem_info):
+           2           if this is a packaged file: multiply by 4 to get
+                           the length of this resource. [1]
+                       if this is a file that is not packaged:
+                           index in file_list_offs of the file name for
+                           this resource.
+                       [the same position is in memory used as a MEM_HANDLE
+                       to the actual data]
+path_list_offs     (should be directly after the packmem list)
+           ?       null terminated path strings, indexed from the file list
+                       table
+file_list_offs     (should be directly after the path list)
+           ?       A number of file info structures. For packaged files,
+                       these are indexed from the p.packmem_info (so (at most)
+                       one per package). For non-packaged files, these are
+                       indexed from an entry for an instance from
+                       p.packmem_list (so possibly more per package)
+                   These structures are in this form:
+           13        file info:
+           2         location relative to path_list_offs of the
+                         the path to this file, or 0xffff if no path.
+           8         file name (8 chars or null-terminated)
+           3         extension (3 chars or null-terminated)
+
+The following section is present in the package only for packaged files.
+For non-packaged files, the fields below exist in the external file indicated
+by p.packmem_info.file_index.
+For each package p:
+p.data_loc         for each type p.t:
+                     for each instance p.t.i:
+           p.t.i.length
+                       the data for the resource
+                       As the length always is a multiple of 4, the last
+                       few bytes may not belong to the resource itself.
+                       Their content is unspecified.
+
+
+Resources with type 'resource index' (type 4 in the 3DO sc2 starcon.pkg file)
+are files with the same format as this .pkg file itself.
+
+
+The information above, about the format used on the 3DO, is gathered from
+the resource library sources itself.
+The information below, about the format used on the PC, and for SC1,
+is induced from the packed files themselves.
+
+
+The format used in SC1 is somewhat different. The differences are listed
+here:
+0x02       4       offset from the beginning of the file where the list
+                       of pathnames is stored (path_list_offs)
+0x06       4       offset from the beginning of the file where the list
+                       of file names is stored (file_list_offs)
+0x0a       4       offset from the beginning of the file where the list
+                       of package information is stored (packmem_list_offs)
+0x0e       2       number of types of packages present in the file (num_types)
+0x10       2       ?
+0x12       2       number of packages in the file (num_packages)
+0x14       2       ?
+packmem_list_offs
+           4       as for the 3DO
+           2       if this is a packaged file: the length of this resource.
+                       No multiplication by 2 or 4 as on other platforms. [1]
+
+
+The format used in the DOS version of SC2 is different yet again.
+The differences to the 3DO version are listed here:
+0x10       1       number of types of packages present in the file (num_types)
+0x11       1       unknown
+packmem_list_offs
+           4       as for the 3DO
+           2       if this is a packaged file: multiply by 2 to get
+                       the length of this resource. [1]
+
+
+[1]. In some of the packaged .pkg files used in the Toys For Bob games,
+the length field of a resource instance is overflowed for some resources,
+even though the use of a multiplier will have had the purpose of preventing
+this. The actual size is a multiple of 0x10000 times the multiplier larger.
+This occurs in 18 packages in the PC version of Star Control II, in
+1 package of the Amiga version of Star Control 1, and in 2 packages of
+the PC version of The Horde. The PC version of Star Control 1, and the 3DO
+version of Star Control II don't have such overflows.
+The actual size of a package can be determined by looking at the
+difference in offset between two subsequent packages.
+Where the package contains only one resource instance, the extra data can
+only belong to that instance. Where a package contains more than one
+resource instance, the extra data most likely belongs to the last resource,
+as an incorrect size results in an incorrect offset for all subsequent
+instances in the package, which would most likely have been noticed due to
+corruption in the game.
+
+
+The part pointed to by file_list_offs is frequently followed by a bit of
+unused space, which may contain garbage.
+
+
+Initial version of this file 2002-10-10 by Serge van den Boom.
+

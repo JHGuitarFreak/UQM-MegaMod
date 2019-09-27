@@ -1,0 +1,120 @@
+High priority items:
+
+
+Medium-priority:
+- For the battle ending synchronisation, set the end at at least
+  getBattleInputDelay() + 1 frames in the future (instead of just 1),
+  so that there will be no hickup during the end synchronisation.
+  Also check this value for incoming packets.
+- If a player only moves away from 'Battle!' there's no need for the other
+  to have to reconfirm.
+- decent pause handling
+- make compilation of crc.c and checksum.c conditional.
+- negotiate checksum interval
+- Closing and destroying of NetConnections is a terrible mess.
+- Checks allConnected() shouldn't be needed if CHECK_ABORT is set
+  on disconnect.
+- Shorten or lengthen the time between frames depending on how full the input
+  buffer is, to prevent one side constantly stalling when the connection in
+  one direction is slower than in the other direction.
+
+
+Low-priority:
+- Some difference in pictures to indicated confirmed/unconfirmed.
+  A check mark perhaps.
+- Check whether the random seed and frame delay have been agreed before
+  continuing (in doConfirmSettings).
+- Replacement for TOS. It is IPv4 only.
+- Integrate network check functions with doInput
+  It will be easy to get rid of the separate threads then too.
+- The state changes from interBattle to interBattle. That shouldn't happen,
+  but it doesn't seem to cause any problems. Need to investigate.
+  Addition: negotiateReadyConnections() is called again just to make sure
+  all sides pass this checkpoint. This is not a problem. It should be
+  documented in STATES though.
+- More files define NETCONNECTION_INTERNAL than they should.
+- voice transmission during the game (using an external lib)
+  read ramjee94adaptive.pdf
+- Keep-alive packets. Store time of last packet sent, use alarms to determine
+  when to send the next one. Count received messages?
+- Some way to (optionally) hide your fleet setup until the start of the
+  game? With either a previously determined maximum fleet value, or
+  just display a number to the opponent.
+- (when ships stats are in the content) Negotiate the ship stats, so people
+  can play with non-default ships.
+- Pre-fleet-setup setup
+  The values negotiated could include handicapping (different values for
+  each player)
+  - hide fleets (also handicapping here)
+  - maximum number of ships per side
+  - maximum ship cost per side
+  - ship properties
+- Send taunts (prerecorded samples) at the touch of a button?
+  Use taunt add-on packages? Send the opponent's package before the start
+  of a game?
+
+
+Future improvements/optimisations:
+- For BSD sockets: use dup2() to move fds to lower values, so that less fds
+  have to be checked on select().
+- Use writev() to send multiple packets in one syscall, instead of
+  calling send() for each packet.
+- Refusing games with both parties network controlled is not always
+  necessary. In theory it should be possible to have a client work
+  as "proxy". The client can watch as the actual players play the game.
+  Checking for "loops" would be tricky (eventually there should be a human
+  or computer controller for each side).
+- Concurrent selection of ships. Note that if this is handled properly, it
+  will also be easy to take care of the "Allow Shofixti to choose last" bug.
+  Note that one party will still have to send his choice to the other side
+  first, which may be "exploited". Encryption would take care of this,
+  but at the least make sure the same player who gets to chose first
+  every time.
+- meta-server. Use HTTP? Existing libs can be used, no problems with NAT,
+  human-readable. Speed is not an issue.
+- move to UDP. Repeat past battleinput packets for each new packet that
+  is sent until they are confirmed.
+- Once the protocol is stable: register the port number with IANA
+- Per state data (in NetConnection.stateData) is unnecessarilly complicated.
+  Putting all fields directly in NetConnection simplifies things a lot.
+  It's not as generic, but this code won't be used elsewhere anyhow.
+- Send captain names to the other side
+
+
+Bugs:
+- as positions are dependant on the screen resolution, you won't be able
+  to keep sync on games with a different resolution.
+- collision detection is dependant on the images used. Using different
+  graphics packs will result in a desync.
+- Both sides need identical battle frame rates. This value is not
+  negotiated.
+- If one player closes the connection while the other player is selecting
+  a ship to put in his fleet, or loading a fleet, the "Network Control"
+  button won't be updated.
+- If one side is computer-controlled, sync loss will occur, because the AI
+  uses the RNG. It needs its own RNG context.
+- Pressing F10 to exit the supermelee setup when a connection is active
+  will cause an attempt to draw a NULL frame. (possibly the disconnect
+  feedback)
+
+
+Final actions:
+- Check out TODO, XXX, WORK tags
+- memleak testing
+  - check for and remove mtrace()/muntrace() calls.
+- update documentation
+  - FILES, also note which part of the separation they are in
+- check coding style (search for '\>(')
+- compile with maximum warnings
+
+
+To put in the announcement of Netplay:
+- Slow connections is acceptable. Packet loss isn't.
+
+
+Bugs and todos unrelated to netplay.
+- other player being able to choose the next ship after 3 seconds
+  of inactivity
+- DoRunAway() shouldn't be handled in ProcessInput()
+
+

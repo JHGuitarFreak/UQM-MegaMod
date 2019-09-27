@@ -1,0 +1,45 @@
+TARGET uqm.exe
+TARGETTYPE exe
+UID 0 0xA000A0C3
+EPOCHEAPSIZE 1000000 50000000
+EPOCSTACKSIZE 81920
+
+SYSTEMINCLUDE \epoc32\include \epoc32\include\stdapis
+
+SOURCEPATH .
+SOURCE uqmapp.cpp
+
+START RESOURCE uqm.rss
+HEADER
+TARGETPATH resource\apps
+LANG SC
+END  // RESOURCE
+
+START RESOURCE uqm_reg.rss
+#ifdef WINSCW
+TARGETPATH \private\10003a3f\apps
+#else
+TARGETPATH \private\10003a3f\import\apps
+#endif
+END 
+
+OPTION_REPLACE ARMCC --cpu ARM926EJ-S -O3 -Otime
+ALWAYS_BUILD_AS_ARM
+
+LIBRARY avkon.lib
+LIBRARY apparc.lib
+LIBRARY cone.lib
+LIBRARY eikcore.lib
+LIBRARY ws32.lib
+LIBRARY bafl.lib
+LIBRARY euser.lib
+LIBRARY efsrv.lib
+LIBRARY sdl.lib
+LIBRARY libc.lib
+LIBRARY libm.lib
+LIBRARY libz.lib
+LIBRARY libpthread.lib
+
+STATICLIBRARY uqm.lib
+STATICLIBRARY SDL_image.lib
+STATICLIBRARY tremor.lib

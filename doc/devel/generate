@@ -1,0 +1,155 @@
+Note: this file (still) describes the way in which various things were
+generated in the original source. It is still useful, but there are some
+changes:
+- all of this functionality used to be handled through a single function,
+  either the function returned by GenerateIP(), or GenerateRandomIP().
+  Now, there is a structure GenerateFunctions, which contains a function
+  for each of the type of generation. See generate.h.
+- most functions don't use the global variables pSolarSysState, pOrbitalDesc,
+  and pPlanetDesc anymore. Instead, where these are needed, they are passed
+  along through a parameter.
+
+Files related to this system:
+- planets/generate.h
+  Defines GenerateFunctions.
+- planets/generate/gendefault.c
+  Default generation functions for when no specific one is specified.
+- planets/generate/gen*.c
+  Specific generation functions.
+- gendef.c
+  Glue code.
+
+This file should eventually be updated to reflect the new system.
+See the file 'orggenerate' for a description on how the system originally
+worked.
+
+============================================================================
+
+The various universe related game data is generated through a call
+to a solar system dependant generation function.
+This function is of type PLAN_GEN_FUNC, which is a typedef to
+	void (*PLAN_GEN_FUNC) (BYTE control)
+, where the 'control' argument specifies what type of data needs to be
+generated (one of GENERATE_PLANETS, GENERATE_MOONS, GENERATE_ORBITAL,
+INIT_NPCS, REINIT_NPCS, UNINIT_NPCS, GENERATE_MINERAL, GENERATE_ENERGY,
+GENERATE_LIFE, or GENERATE_NAME).
+
+The generation function for a solar system is kept in the 'GenFunc'
+field of the SOLARSYS_STATE structure.
+The SOLARSYS_STATE structure contains the data for a solar system.
+Currently, only one SOLARSYS_STATE structure is used at once, and
+the global variable pSolarSysState points to the current one.
+The GenFunc field is initialised in ExploreSolarSys(), to the value
+returned by GenerateIP() in sc2code/gendef.c. Usually, this will be
+'GenerateRandomIP', but for some specific solar systems a (pointer to a)
+custom generation function is returned. This depends on the value of
+CurStarDescPtr->Index, which contains values such as SOL_DEFINED,
+MELNORME0_DEFINED, AQUA_HELIX_DEFINED, etc (see sc2code/encount.h
+for the complete list).
+The starmap_array in sc2code/plandata.c specifies Index for all
+the solar systems in the game.
+
+Following are the possible values of the 'control' argument to the
+generation function, with the description of how the generation function
+acts on this. As the custom generation functions often only need to
+change one specific aspect of this game data generation, they will
+often call GenerateRandomIP() for the rest.
+StarBases are handled as if they were moons.
+
+GENERATE_PLANETS
+Pre: the global variable pSolarSysState points to the relevant solar system.
+Pre: the RNG is initialised with a seed to be used for the generation.
+     In practice, this seed is generated from the HyperSpace coordinates
+     of the solar system (which are hardcoded in sc2code/plandata.c),
+     followed by exactly one call to TFB_Random().
+Post: the RNG is in an undefined state.
+This function determines how many planets the system has, and fills in
+pSolarSysState->PlanetDesc[] for all planets, including the NumPlanets
+field, which determines how many moons the planet will have.
+It also sets the random seed that is used for data generated for this planet
+(including the number of moons), based on its coordinates (which are in the
+general case randomly determined themselves).
+
+GENERATE_MOONS
+Pre: the global variable pSolarSysState points to the relevant solar system,
+     which is initialised by a GENERATE_PLANETS call.
+Pre: the RNG is initialised with a seed to be used for the generation.
+     In practice, this seed is the seed stored by GENERATE_PLANETS
+     in the rand_seed field for the planet around which the moon(s) orbit.
+Pre: pSolarSysState->pBaseDesc points to the the relevant planet
+     of pSolarSysState->PlanetDesc[].
+Post: The RNG is in an undefined state.
+This function fills in pSolarSysState->MoonDesc[] for all moons around
+the planet pointed to by pSolarSysState->pBaseDesc.
+It also sets the random seed that is used for data generated for the moon
+based on its coordinates (which are in the general case randomly determined
+themselves).
+
+GENERATE_ORBITAL
+Pre: the global variable pSolarSysState points to the relevant solar system,
+     which is initialised by a GENERATE_PLANETS call.
+Pre: pSolarSysState->pOrbitalDesc points to the relevant planet or moon from
+     pSolarSysState->PlanetDesc[] or pSolarSysState->moonDesc[]
+Pre: the planet or moon that pSolarSysState->pOrbitalDesc points to
+     is initialised by a GENERATE_PLANETS or GENERATE_MOONS call.
+This function fills in pSolarSysState->SysInfo with the characteristics
+of the planet or moon, as seen from orbit.
+It also initialises the random seeds used for the generation of bio,
+minerals, and energy nodes on the surface.
+It also sets the discovery report string (if appropriate), initialises
+the surface graphics, and start the planet music.
+For specific planets, it may initiate race communication and possibly combat,
+and will only return once these are over.
+NB. The GENERATE_ORBITAL code should be split up into separate calculation
+and activation (graphics and music) parts.
+
+GENERATE_MINERAL, GENERATE_ENERGY, GENERATE_LIFE
+Pre: the global variable pSolarSysState points to the relevant solar system,
+     which is initialised by a GENERATE_PLANETS call.
+Pre: pSolarSysState->pOrbitalDesc points to the relevant planet or moon from
+     pSolarSysState->PlanetDesc[] or pSolarSysState->moonDesc[]
+Pre: the planet or moon that pSolarSysState->pOrbitalDesc points to
+     is initialised by a GENERATE_PLANETS or GENERATE_MOONS call.
+Pre: pSolarSysState->SysInfo is filled in by a GENERATE_ORBITAL call
+This function determines the properties of one mineral deposit, energy node,
+or life form on a planet or moon. On entry the caller sets
+pSolarSysState->CurNode to the index of the requested item. This function
+will then fill in pSolarSysState->SysInfo.PlanetInfo.CurPt,
+pSolarSysState->SysInfo.PlanetInfo.CurType, and in the case of minerals also
+pSolarSysState->SysInfo.PlanetInfo.CurDensity.
+In case pSolarSysState->CurNode is set to a value larger than or equal to
+the number of items of the requested kind ((COUNT) ~0 in practice), it is
+set to the real number of nodes. In this case the CurXXX fields of
+pSolarSysState->SysInfo.PlanetInfo are set to the values corresponding to
+the largest valid CurNode index, but should probably be considered to be
+undefined.
+These functions may also change the game state, cause the lander
+to take off (by setting InTransit to true in the active PLANETSIDE_DESC
+structure), or mark an energy node as not retrieved, usually in response
+to an item having been picked up since the last call. The game makes
+a GENERATE_MINERAL, GENERATE_ENERGY or GENERATE_LIFE call (whatever
+is relevant) for each item right after it is picked up.
+
+GENERATE_NAME
+Pre: pSolarSysState is set to the relevant solar system.
+Pre: The planet is initialised by GENERATE_PLANETS.
+Pre: pSolarSysState->pBaseDesc points to the relevant planet, which should
+     be in the system.
+This function fills GLOBAL_SIS (PlanetName) with the name of the planet
+pointed to by pSolarSysState->pBaseDesc.
+It also sets the GAME_STATE flag BATTLE_PLANET to the type of this planet,
+so that it will be shown appropriately in melee if combat follows.
+There is no generate function for the names of moons. The few moons that
+are named (those in the Sol system), are handled as a special case of
+the routines that prints these names (PrintCoarseScan3DO and
+PrintCoarseScanPC).
+
+INIT_NPCS
+REINIT_NPCS
+UNINIT_NPCS
+[TODO]
+
+
+Initial version of this document created by Serge van den Boom, on 2005-07-11.
+
+

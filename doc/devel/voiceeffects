@@ -1,0 +1,20 @@
+Slylandro Probe
+---------------------------------------------------------------------------
+The voice of the Slylandro probe is "Bruce" from MacInTalk Pro. MacInTalk
+Pro requires a 68040 Mac, a Quadra or Performa, and System 7.3 minimum.
+Basilisk II emulator can do Quadra 900 well enough.
+
+The probe speech added to UQM was processed as follows:
+1) generated on Basilisk II v0.8.0.142 running System 7.5.3 Rev 2 on
+   Quadra 900. Words like "hundred" and "point" were mid-sentence to get
+   better intonation. Names of tens -- 20, 30, etc. -- were cut from number
+   phrases "twenty-five", "thirty-five", etc.
+2) captured at 44100 Hz
+3) post-processed with Audacity 1.3 beta; filters:
+ a) GVerb: room 40m, reverb time 0.1s, damping 0.85, input bandwidth 0.75,
+       dry signal +0dB, early reflection -22dB, trail level -30dB
+ b) Amplify: +2.5dB (depends on your capture level)
+ c) Bass boost: centered at 300 Hz, +4dB
+4) chopped up and exported at 11025 Hz
+
+

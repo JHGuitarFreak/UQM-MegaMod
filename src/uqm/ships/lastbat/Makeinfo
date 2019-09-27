@@ -1,0 +1,2 @@
+uqm_CFILES="lastbat.c"
+uqm_HFILES="icode.h lastbat.h resinst.h"

@@ -1,0 +1,40 @@
+# Template file for building the UQM installer for unix Systems.
+# By Serge van den Boom, 2003-02-23
+
+UQM_VERSION="0.7"
+UQM_LICENSE_FILE="COPYING"
+
+UQM_PACKAGES="content voice 3domusic"
+UQM_PACKAGE_content_NAME="content"
+UQM_PACKAGE_content_TITLE="General game data"
+UQM_PACKAGE_content_LOCATION="share/uqm/content/packages/"
+UQM_PACKAGE_content_OPTIONAL="FALSE"
+UQM_PACKAGE_content_DEFAULT="TRUE"
+UQM_PACKAGE_voice_NAME="voice"
+UQM_PACKAGE_voice_TITLE="Spoken alien communication"
+UQM_PACKAGE_voice_LOCATION="share/uqm/content/addons/"
+UQM_PACKAGE_voice_OPTIONAL="TRUE"
+UQM_PACKAGE_voice_DEFAULT="TRUE"
+UQM_PACKAGE_3domusic_NAME="3domusic"
+UQM_PACKAGE_3domusic_TITLE="Music from the 3DO version"
+UQM_PACKAGE_3domusic_LOCATION="share/uqm/content/addons/"
+UQM_PACKAGE_3domusic_OPTIONAL="TRUE"
+UQM_PACKAGE_3domusic_DEFAULT="TRUE"
+
+UQM_SCRIPT_FILES="
+	${UQM_TOP}build/unix/ansi
+	${UQM_TOP}build/unix/menu_functions
+	${UQM_TOP}build/unix_installer/installer.config
+	${UQM_TOP}build/unix_installer/install.sh.in
+"
+
+#   File                            destination
+UQM_ATTACH_FILES=\
+"${UQM_TOP}AUTHORS	share/uqm/doc/
+${UQM_TOP}COPYING	share/uqm/doc/
+${UQM_TOP}ChangeLog	share/uqm/doc/
+${UQM_TOP}WhatsNew	share/uqm/doc/
+${UQM_TOP}README	share/uqm/doc/
+${UQM_TOP}doc/users/manual.txt	share/uqm/doc/
+${UQM_TOP}uqm	lib/uqm/"
+

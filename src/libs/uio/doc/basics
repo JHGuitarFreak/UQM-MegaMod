@@ -1,0 +1,178 @@
+-= Introduction =-
+
+The file io system I present here provides the user with a virtual file
+systems on which normal POSIX-like file operations can be performed.
+
+A virtual file system consists of a number of underlying filesystems merged
+together in one directory structure.
+Underlying file systems can be POSIX filesystems, or zip archives, but
+others can be added easilly.
+Filesystems are grafted into the virtual filesystem either explicitely, by
+mounting, or implicitely, by having files of a specific type (for instance
+those ending on .zip) mounted automatically.
+When a filesystem is mounted to a directory which already exists in an
+earlier mounted file system, files in the later mounted file system hide
+files in an earlier mounted file system. Files present in a filesystem
+mounted earlier that don't exist in a filesystem mounted later will remain
+visible.
+Accessing compressed files inside compressed files is possible, though slow.
+
+
+-= Nomenclature =-
+'repository'
+A collection of files from various sources as a virtual file system.
+
+'physical directory structure'
+An underlying filesystem, such as a POSIX filesystem, or a .zip archive.
+
+'logical directory structure'
+The merger of one or more Physical directory structures.
+
+'mounting'
+Grafting a physical directory structure in a logical directory system.
+
+When mounting several dirs on top of eachother, I refer to later mounted
+dirs as 'higher' dirs, and earlier mounted dirs as 'lower' dirs.
+
+'directory entry'
+A file or subdirectory within a directory.
+
+
+-= API =-
+
+Types:
+uio_Repository - A struct describing a repository
+uio_Handle - A handle for working on files
+uio_DirHandle - A handle for working on directories
+
+
+TODO: functions
+
+
+-= Behaviour relating directory structures =-
+
+The design of the virtual filesystem is guided by the following rules:
+- Combined directories contain the entries of each directory.
+  If some of the source directories contain an entry with the same name,
+  the combined directory will contain the entry of the topmost directory.
+  (this means a directory can hide a file and the other way around)
+- Entries hidden in this way are never accessable.
+- Where possible, actions on directory entries within a combined directory
+  are done as in a normal file system.
+Because of these, some design decisions have been made:
+- New entries are created in the topmost writable filesystem. If the path to
+  the directory where the entry is to be created does not exist, it is
+  created [1].
+- When a file is to be opened for writing, and the file in the combined
+  filesystem exists, but is not writable, and there exists a writable
+  filesystem, mounted higher than the filesystem where the existing file
+  resides, the file is first copied to the topmost writable filesystem.
+
+[1]  I could have decided to use a pre-existing writable directory if one
+     is available.
+     With this choice, when no such pre-existing directory exists,
+     it would make sense to complete the path in the writable filesystem
+     in which the part of the path that does exist is the longest.
+     As you can't create a directory inside a specific filesystem,
+     this would complicate and confuse things for the user.
+
+
+In specific, for various actions:
+
+opening a file:
+- if O_RDONLY:
+  - open the file in the highest dir.
+- if O_WRONLY or O_RDWR:
+  - if file already exists:
+    - if O_CREAT and O_EXCL: return EEXIST
+    - if file is writable, use that one
+    - if file is not writable, copy it to the highest writable location
+      higher than the location of that file (don't bother if O_TRUNC) and use
+      the new file. If necessary, create the path leading upto it.
+      If no such location exists, return EACCESS.
+  - if file does not exist:
+    - if not O_CREAT: return ENOENT
+    - if the path to the file does not exists, return ENOENT.
+    - find the highest writable dir and open the file there, creating
+      the path leading upto it if necessary.
+
+removing a file:
+- try removing the specified file from all physical directory structures
+  for a repository.
+- once a file is encountered that can't be removed, return an error for
+  that and don't try the rest.
+
+creating a directory:
+- as for opening a file with O_WRONLY | O_CREAT | O_EXCL
+
+removing a directory:
+- as for removing a file
+  (but a physical directory not being empty is a reason for failure)
+
+
+-= Limitations =-
+
+There's no limit to the length of a path in the logical file system.
+Paths in the underlying physical filesystem can be limited though.
+
+At the moment, the system is not thread safe. Only one thread should access
+a repository at once. Seperate threads working on seperate repositories is
+no problem, as long as the repositories don't overlap.
+
+
+-= Internals =-
+
+Types:
+
+uio_MountTree
+    A node in a data structure describing the mounted directories.
+
+uio_PRoot
+    A struct describing the a physical file system.
+
+uio_PRootExtra
+    Filesystem-dependant extra data for a PRoot.
+
+uio_GPRoot
+    Generic filesystem-dependant data for a PRoot, used as uio_PRootExtra.
+
+uio_GPRootExtra
+    Extra filesystem-dependant data for a PRoot, when using uio_GPRoot for
+    generic filesystem-dependant data.
+
+uio_GPDir
+    Generic structure representing a node in a physical directory structure
+    describing one directory.
+
+uio_GPFile
+    Generic structure describing a file in a physical file system.
+
+
+Helper functions (defined in ioaux.c):
+
+uio_copyFilePhysical
+    Copy a file from one physical directory to another.
+
+uio_getPathPhysicalDirs
+    Get handles to the (existing) physical dirs that are effective in a
+    path 'path' relative from 'dirHandle'
+
+uio_getPhysicalAccess
+    Find PDirHandle and MountInfo structures for reading and writing for a path
+    from a DirHandle.
+
+uio_makePath
+    Create a directory inside a physical directory. All non-existant
+    parent directories will be created as well.
+
+uio_resolvePath
+    Determine the absolute path given a path relative to a given directory.
+
+uio_verifyPath
+    Test whether a path is valid and exists.
+
+uio_walkPhysicalPath
+    Follow a path starting from a specified physical dir for as long as
+    possible.
+
+

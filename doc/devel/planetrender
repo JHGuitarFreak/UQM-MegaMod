@@ -1,0 +1,54 @@
+Planet surface rendering code
+--------------------------------------------------------------
+
+The way the planets appear on the screen (based on planet type
+definition in plandata.c) is determined by several factors:
+
+1. Topography algorithm (PlanetFrame.Type)
+2. Color map (PlanetFrame.CMapInstance)
+3. Elevation -> colormap index xlat table (PlanetFrame.XLatTabInstance)
+4. Base elevation (PlanetFrame.base_elevation)
+5. Several others not covered here: faults, craters (blemishes)
+
+First, the planet topography is generated according to the algorithm
+selected for the planet: TOPO_ALGO, CRATERED_ALGO, GAS_GIANT_ALGO.
+TOPO_ALGO and CRATERED_ALGO use a fractal algorithm to pseudo-randomly
+generate a surface, then 'craters' are added and, at the end, the map is
+dithered for CRATERED_ALGO. GAS_GIANT_ALGO is of course different
+because it needs to produce a series of ring-like structures with
+'storms' added at the end.
+
+The topographical map is a rectangle with each pixel representing an
+elevation level relative to 0, so the topography is expressed in terms
+of elevation relative to base elevation. Base elevation is applied to
+the generated map. Topography is created with elevations -128..127,
+and base elevations, currently, range from 100 to 200 (plandata.c) for
+normal worlds and are always 29 for gas giants. Since the gas giants
+do not have a real topography or a surface to speak of, their surfaces
+are rather simulated with elevations.
+
+At this point, the elevation levels are translated to the actual colors
+using the xlat table and color map. First, the elevation is translated
+to an index into the colormap using the xlat table (.xlt files), and
+after that, the actual RGB color is drawn from the colormap (.ct files)
+at this index.
+
+There are 3 colormaps per instance specified in PlanetFrame. The active
+colormap is selected from these 3 based on the surface temperature of
+the planet: cold, normal and hot. The framework is also laid down for
+3 xlat tables (one per surface temperature), but, AFAIK, distinct xlat
+tables are never actually used. Currently, there is only 1 xlat table
+per instance in each file.
+
+The colormap files (.ct) seem to be in original DOS format. Probably
+because they do not translate to the CLUT system very well. The colormaps
+are carefully crafted and synchronized across all planet types to make
+the entire system function properly. They are composed of 4 gradients of
+different hue, 32 colors each (4*32=128 colors). Gradients go from the
+most intense color to near black. For the most planet types, the three
+colormaps per instance are all the same, so that the way a planet
+surface looks does not change with the surface temperature. Notable
+exceptions are: h2o_cts_ (water world) and mtl_cts_ (metal world); there
+could be others as no byte-identical examination was done.
+See blue-gas-giant-pal.png for an example colormap.
+

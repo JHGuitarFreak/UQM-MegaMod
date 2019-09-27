@@ -1,0 +1,135 @@
+These are some guidelines for people who want to contribute to the code.
+Don't be surprised if your contributions get tossed in the bit-bucket if you
+do not follow them. We don't want to be unfriendly, but our time is limited.
+These guidelines are there so that you won't waste both our and your time.
+
+Before making changes:
+- Read this entire document
+- See if the Bugzilla bug database at
+  http://bugs.uqm.stack.nl/ contains any comments on what you're planning
+  to do.
+- Make sure you're using the most recent Subversion version
+- Discuss in advance what you're planning to do, with the core team.
+  The best place to do this is on #sc2 on irc.freenode.net.
+  This prevents you from wasting your time when
+  - someone else is already working on your issue
+  - we've got a very clear idea of how we want it to be
+  - the code you're planning to change will be completely rewritten
+    in the near future.
+- Don't bother on adding "great ideas" you have for the game;
+  Our current goal is a straight port. The code is GPL, so feel free
+  to start your own modified version, but don't bother sending them
+  in for the official version.
+
+Making changes:
+- Follow the coding style of the existing source. You don't have to like it,
+  we don't even always do, but we've accepted this as our standard. The main
+  reason is that this is very close to the original style.
+  Trying to start a discussion about the standard is pointless and is
+  definitely NOT appreciated.
+  - Use 1 tab per indentation level
+  - Use no more than 76 chars on a line, when using a tab size of 4.
+  - Use 2 extra indentation levels for the continuation of a broken line,
+    like this:
+    if (blablablabla || foobar ||
+    		zut || linefiller ||
+    		morezut)
+    	printf ("Yeah!\n");
+  - Don't use tabs for anything but indenting. If you would, and someone 
+    has a different tab size, or something in the line changes, other stuff
+    on the line may or may not move, depending on where on the line it is.
+    If you for instance want to align a list of declarations, use spaces,
+    like this:
+    {
+    <TAB>long l,
+    <TAB>     m;
+    <TAB>int  i;
+    }
+    (Though in this particular case, I personally would repeat the 'long',
+    or place l and m on the same line)
+  - Put { on a separate line, both for the start of a function and
+    for the start of a block.
+  - one space around binary operators, and after commas.
+  - one space between the function name and following '(', both in
+    declaration and call (unusual as it is).
+  - one space after 'if', 'while', 'do', 'for' and 'switch'.
+  - even for short selections or repetitions, don't have the statement
+    to execute on the same line as the guard. So:
+    if (a)
+    	a--;
+  - Use unix-style line-endings, that is '\n' only. If the editor you're
+    using doesn't support this, please pass your code through a conversion
+    program before submitting.
+- Don't hurry into changing code. All code is there for a reason. Be sure
+  you understand that reason before changing it. Don't just go recode a part
+  because you think that would be easier than trying to understand the
+  original. If you don't have the skills or patience to do so, this is not
+  the place for you.
+- Only use portable functions. The code is intended to work on Windows
+  (MSVC 6), Linux (GCC 4), FreeBSD (GCC 4) and MacOS X (GCC 4).
+  Try to avoid unnecessary system-dependant code, but use #ifdefs if you
+  really have to.
+- No shortcuts. Don't assume anything about user input (like the length),
+  and check the return values of functions that may fail.
+- Your code shouldn't cause any compile-time or runtime-warnings. We know
+  the current source is far from warning-free, but those should be removed
+  eventually and we don't want to make it worse.
+- Don't add comment lines saying things like "This line added by <me>".
+  These comments only foul the code and don't add anything for people
+  reading it. You'll still be credited in the Changelog, and for large
+  contributions (or many small ones) in the authors list. We have
+  Subversion for when we need to find out when what changes were made.
+
+Making the patches:
+- One issue per patch.
+  We need to keep track of what's being changed, and multiple changes
+  in one patch will make that more difficult.
+  Also, we might want to accept one patch, and reject the other.
+- Use unified diffs.
+  That way, there's a bigger chance the patch can be automatically applied
+  successfully against modified files.
+- Make the patches against the current Subversion tree.
+
+Test the patches:
+- If possible, test your changes both on Windows and a *nix platform, or
+  send them to someone to test them for you.
+
+Getting the patches committed:
+- Either attach the patches to the appropriate bug report in the Bugzilla
+  bug database or send them to one of the committers, in plain-text format.
+  This can be done by email, DCC from within the #sc2 channel, or by
+  mentioning an URL where we can get the patch.
+  The committers are listed below (in alphabetical order), with their
+  particular field of expertise with the source. Though all of us
+  should have enough experience to deal with most issues not explicitly
+  mentioned.
+    Serge van den Boom (svdb at stack.nl), SvdB at #sc2
+      - Resource system
+      - 3DO historical code
+      - *nix build system
+      - Netplay
+      - General issues (particularly on *nix)
+    Mika Kolehmainen (mk at kapsi.fi), Gwl at #sc2
+      - Graphics
+      - Sound
+      - General issues
+    Michael Martin (mcmartin at mail.com), McMartin at #sc2
+      - Threading
+      - Graphics
+      - Input system
+      - In-game configuration
+      - General issues
+    Alex Volkov (codepro at usa.net), fossil at #sc2
+      - Graphics
+      - Sound (particularly MixSDL)
+      - Alien communications code
+      - General issues
+- Only submit code that can be used under the GPL. By submitting code you
+  hold the copyright to, you agree that it can be used under the term of
+  the GPL. If you use code by someone else, make sure that it can be used
+  under the GPL and let us know, so that adequate credit can be given.
+
+
+Initial version of this file by Serge van den Boom, 2002-12-05.
+
+

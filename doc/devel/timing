@@ -1,0 +1,66 @@
+1. Timing and Changes
+---------------------
+The current UQM timer runs on a 120 ticks/second clock, defined by the
+constant ONE_SECOND (in timelib.h). Theoretically, all code has been
+updated to use this constant where needed, so the timer precision can
+be increased to 1000, for example, to match the native SDL timer
+resolution.
+
+The following functions and all variables and constants used with them
+have been examined and patched where necessary.
+
+Functions that have something to do with time:
+	XFormColorMap
+	XFormPLUT
+	CycleColorMap
+	FadeMusic
+	SeedRandomNumbers
+	WaitForNoInput
+	GetTimeCounter
+	SleepThread
+	SleepThreadUntil
+
+Global vars:
+	GameClock
+
+Constants changed:
+	BATTLE_FRAME_RATE (element.h)
+	NUM_DELAYS (clock.c)
+	ACCELERATION_INCREMENT (gameinp.c)
+	IP_FRAME_RATE (solarsys.c)
+
+Constants added:
+	CLOCK_BASE_FRAMERATE (clock.c)
+	STEP_ACCEL_DELAY (pstarmap.c)
+	PLANET_SIDE_RATE (lander.c)
+
+All alien comm animation definitions (frame rates) were patched to take
+ONE_SECOND into account. So if some animations start to bug all of a
+sudden, you know where to look ;).
+
+The game-clock function SetGameClockRate() changed to use the rate
+defined by CLOCK_BASE_FRAMERATE and does not use ONE_SECOND now (and is
+not supposed to).
+
+
+2. Possible Rate Changes
+------------------------
+The PLANET_SIDE_RATE and IP_FRAME_RATE can be safely adjusted at this
+time. The BATTLE_FRAME_RATE needs more work.
+
+
+3. Battle rate
+--------------
+The BATTLE_FRAME_RATE constant (currently 24 fps) can be adjusted only
+after converting the rate counters for all ships used in melee. They
+are expressed in frames and *must* take BATTLE_FRAME_RATE into account.
+
+They are:
+	ENERGY_WAIT
+	TURN_WAIT
+	THRUST_WAIT
+	WEAPON_WAIT
+	SPECIAL_WAIT
+
+There is probably more that needs to be done to make it work properly
+with an altered BATTLE_FRAME_RATE. Expect more info to appear.

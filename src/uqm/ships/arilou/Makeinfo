@@ -1,0 +1,2 @@
+uqm_CFILES="arilou.c"
+uqm_HFILES="arilou.h icode.h resinst.h"

@@ -1,0 +1,51 @@
+#!/bin/sh
+# Substitute a string in many files. By Serge van den Boom, 20020826
+
+# We need bash functionality. Executing bash with the shebang won't be
+# portable as the location of bash differs.
+if [ -z "$BASH_VERSION" ]; then
+	exec bash "$0" "$@"
+fi
+
+if [ $# -eq 0 ]; then
+	{
+		echo "subst: substitute a string in a lot of files."
+		echo "By Serge van den Boom, 20020826"
+		echo "Usage: subst <pattern> <file> [...]"
+		echo -n "'pattern' should be a pattern in the form used by sed, "
+		echo " like 's/old/new/g'."
+	} 1>&2
+	exit 1
+fi
+
+PAT="$1"
+SEP="${PAT:1:1}"
+GREPPAT="${PAT:2}"
+eval GREPPAT='${GREPPAT%%'$SEP'*}'
+shift
+while [ "$#" -gt "0" ]; do
+	FILE="$1"
+	echo -n "$FILE: "
+	grep -q "$GREPPAT" < "$FILE"
+	EXITVAL=$?
+	case $EXITVAL in
+		0)  # Match found
+			;;
+		1)  # No match found
+			echo "Nothing to do."
+			shift
+			continue
+			;;
+		*)
+			echo "ERROR"
+			echo "Error: grep returned exit value ${EXITVAL}. Aborted." 1>&2
+			exit 1
+	esac
+	TEMPFILE="${FILE}.patchtree.$$.tmp"
+	mv -- "$FILE" "$TEMPFILE"
+	sed -e "$PAT" < "$TEMPFILE" > "$FILE"
+	rm -- "$TEMPFILE"
+	echo "Done."
+	shift
+done
+

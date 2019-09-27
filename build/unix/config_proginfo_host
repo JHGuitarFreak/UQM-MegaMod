@@ -1,0 +1,357 @@
+# Set information on used programs and libraries
+# This file contains the information for the programs that test the
+# system on which the software will be run.
+# Copyright (c) 2002 Serge van den Boom
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+##############################################################################
+# System specific build flags                                                #
+##############################################################################
+
+
+# CFLAGS
+SYSTEM_HOST_CFLAGS=""
+
+# LDFLAGS
+SYSTEM_HOST_LDFLAGS=""
+
+
+##############################################################################
+# Describe the programs (possibly) used:                                     #
+##############################################################################
+
+
+
+##############################################################################
+# Describe the libaries (possibly) used:                                     #
+##############################################################################
+
+
+### SDL ###
+LIB_SDL_NAME="Simple DirectMedia Layer"
+case "$HOST_SYSTEM" in
+	Darwin)
+		LIB_SDL_CFLAGS='-I/Library/Frameworks/SDL.framework/Headers'
+		LIB_SDL_LDFLAGS='-framework SDL -framework Cocoa -lobjc'
+		LIB_SDL_VERSION=$(echo \
+                      "SDL_MAJOR_VERSION.SDL_MINOR_VERSION.SDL_PATCHLEVEL" | \
+                      gcc -E -include SDL/SDL_version.h $LIB_SDL_CFLAGS - | \
+                      tail -1 | tr -d ' ')
+		;;
+	WINSCW|GCCE)
+		LIB_SDL_CFLAGS='-I$BUILD_EPOCROOT/epoc32/include/SDL'
+		LIB_SDL_LDFLAGS=''		
+		LIB_SDL_VERSION='1.2.13'
+		LIB_SDL_DETECT="true"
+		;;
+	ARMV5)
+		LIB_SDL_CFLAGS='-J$BUILD_EPOCROOT/epoc32/include/SDL'
+		LIB_SDL_LDFLAGS=''		
+		LIB_SDL_VERSION='1.2.13'
+		LIB_SDL_DETECT="true"
+		;;		
+	*)
+		LIB_SDL_DETECT="have_command sdl-config"
+		LIB_SDL_CFLAGS='$(sdl-config --cflags)'
+		LIB_SDL_LDFLAGS='$(sdl-config --libs)'
+		LIB_SDL_VERSION='$(sdl-config --version)'
+		;;
+esac
+
+
+### SDL_mixer ###
+LIB_SDL_mixer_NAME="SDL_mixer"
+LIB_SDL_mixer_CFLAGS="$LIB_SDL_CFLAGS"
+LIB_SDL_mixer_LDFLAGS="$LIB_SDL_LDFLAGS -lSDL_mixer"
+LIB_SDL_mixer_VERSION=""
+
+
+### SDL_image ###
+LIB_SDL_image_NAME="SDL_image"
+case "$HOST_SYSTEM" in
+	Darwin)
+		LIB_SDL_image_CFLAGS=''
+		LIB_SDL_image_LDFLAGS="-framework SDL_image"
+	;;
+	ARMV5|WINSCW|GCCE)
+		LIB_SDL_image_CFLAGS="$LIB_SDL_CFLAGS"
+		LIB_SDL_image_LDFLAGS="$LIB_SDL_LDFLAGS"
+		LIB_SDL_image_DETECT="true"
+		;;	
+	*)
+		LIB_SDL_image_CFLAGS="$LIB_SDL_CFLAGS"
+		LIB_SDL_image_LDFLAGS="$LIB_SDL_LDFLAGS -lSDL_image"
+		;;
+esac
+LIB_SDL_image_VERSION=""
+
+
+### OpenAL ###
+LIB_openal_NAME="OpenAL"
+LIB_openal_CFLAGS=""
+case "$HOST_SYSTEM" in
+	FreeBSD|OpenBSD)
+		LIB_openal_LDFLAGS="-L/usr/local/lib -pthread -lopenal"
+		;;
+	MINGW32*|CYGWIN*|cegcc)
+		LIB_openal_LDFLAGS="-lopenal32"
+		;;
+	Darwin)
+		LIB_openal_CFLAGS=''
+		LIB_openal_LDFLAGS="-framework OpenAL"
+		;;
+	*)
+		LIB_openal_LDFLAGS="-lopenal"
+		;;
+esac
+LIB_openal_VERSION=""
+case "$HOST_SYSTEM" in
+	Darwin)
+		## Apple does not ship pkg-config on Mac OSX
+		;;
+	*)
+		LIB_openal_DETECT="try_pkgconfig_lib openal openal"
+		LIB_openal_DEPEND_DETECT_BIN="pkgconfig"
+		;;
+esac
+
+
+### OpenGL ###
+LIB_opengl_NAME="OpenGL"
+case "$HOST_SYSTEM" in
+	FreeBSD|OpenBSD)
+		LIB_opengl_CFLAGS="-I/usr/X11R6/include -D_THREAD_SAFE"
+		LIB_opengl_LDFLAGS="-L/usr/X11R6/lib -lX11 -lXext -pthread -lGL"
+		;;
+	MINGW32*|CYGWIN*|cegcc)
+		LIB_opengl_CFLAGS=""
+		LIB_opengl_LDFLAGS="-lopengl32"
+		;;
+	Darwin)
+		LIB_opengl_CFLAGS=""
+		LIB_opengl_LDFLAGS="-framework OpenGL"
+		;;
+	ARMV5|WINSCW|GCCE)
+		LIB_opengl_DETECT="false"
+		;;
+	*)
+		LIB_opengl_CFLAGS=""
+		LIB_opengl_LDFLAGS="-lGL -lm"
+		;;
+esac
+LIB_opengl_VERSION=""
+
+
+### Vorbis ###
+LIB_vorbis_NAME="libvorbis"
+LIB_vorbis_CFLAGS=""
+LIB_vorbis_LDFLAGS="-lvorbis"
+LIB_vorbis_VERSION=""
+case "$HOST_SYSTEM" in
+	ARMV5|WINSCW|GCCE)
+		LIB_vorbis_DETECT="false"
+		;;
+esac
+
+
+### Vorbisfile ###
+LIB_vorbisfile_NAME="vorbisfile"
+case "$HOST_SYSTEM" in
+	FreeBSD|OpenBSD)
+		LIB_vorbisfile_CFLAGS="-I/usr/local/include"
+		LIB_vorbisfile_LDFLAGS="-L/usr/local/lib -lvorbisfile -lvorbis"
+		;;
+	MINGW32*|CYGWIN*|cegcc)
+		LIB_vorbisfile_CFLAGS=""
+		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis -lm -logg"
+		;;
+	Darwin)
+		LIB_vorbisfile_CFLAGS="-D__MACOSX__"
+		LIB_vorbisfile_LDFLAGS="-framework Ogg -framework Vorbis"
+		;;
+	QNX)
+		LIB_vorbisfile_CFLAGS=""
+		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis -logg -lm"
+		;;
+	*)
+		LIB_vorbisfile_CFLAGS=""
+		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis"
+		;;
+esac
+LIB_vorbisfile_VERSION=""
+case "$HOST_SYSTEM" in
+	ARMV5|WINSCW|GCCE)
+		LIB_vorbisfile_DETECT="false"
+		;;
+	Darwin)
+		## Apple does not ship pkg-config on Mac OSX
+		;;
+	*)
+		LIB_vorbisfile_DETECT="try_pkgconfig_lib vorbisfile vorbisfile"
+		LIB_vorbisfile_DEPEND_DETECT_BIN="pkgconfig"
+		;;
+esac
+
+
+### Tremor ###
+LIB_tremor_NAME="tremor"
+case "$HOST_SYSTEM" in
+	FreeBSD|OpenBSD)
+		LIB_tremor_CFLAGS="-I/usr/local/include"
+		LIB_tremor_LDFLAGS="-L/usr/local/lib -lvorbisidec"
+		;;
+	Darwin)
+		# Assumed values - please let me know if you can verify this.
+		LIB_tremor_CFLAGS=""
+		LIB_tremor_LDFLAGS="-framework Tremor"
+		;;		
+	ARMV5|WINSCW|GCCE)
+		LIB_tremor_DETECT="true"
+		;;
+	*)
+		LIB_tremor_CFLAGS=""
+		LIB_tremor_LDFLAGS="-lvorbisidec"
+		;;
+esac
+LIB_tremor_VERSION=""
+
+
+### libmikmod ###
+LIB_libmikmod_NAME="libmikmod"
+case "$HOST_SYSTEM" in
+	ARMV5|WINSCW|GCCE)
+		LIB_libmikmod_DETECT="false"
+		;;
+	*)
+		LIB_libmikmod_DETECT="have_command libmikmod-config"
+		LIB_libmikmod_CFLAGS="$(libmikmod-config --cflags)"
+		LIB_libmikmod_LDFLAGS="$(libmikmod-config --libs)"
+		LIB_libmikmod_VERSION="$(libmikmod-config --version)"
+		;;
+esac
+
+
+### zlib ###
+LIB_zlib_NAME="zlib"
+LIB_zlib_CFLAGS=""
+case "$HOST_SYSTEM" in
+	MINGW32*|CYGWIN*|cegcc)
+		LIB_zlib_LDFLAGS="-lzdll"
+		;;
+	ARMV5|WINSCW|GCCE)
+		LIB_zlib_LDFLAGS=""
+		;;
+	*)
+		LIB_zlib_LDFLAGS="-lz"
+		;;
+esac
+LIB_zlib_VERSION=""
+case "$HOST_SYSTEM" in
+	ARMV5|WINSCW|GCCE)
+		LIB_zlib_DETECT="true"
+		;;
+	Darwin)
+		## Apple does not ship pkg-config on Mac OSX
+		;;
+	*)
+		LIB_zlib_DETECT="try_pkgconfig_lib zlib zlib"
+		LIB_zlib_DEPEND_DETECT_BIN="pkgconfig"
+		;;
+esac
+
+
+### pthread ###
+LIB_pthread_NAME="pthread"
+case "$HOST_SYSTEM" in
+	Linux)
+		LIB_pthread_CFLAGS=""
+		LIB_pthread_LDFLAGS=""
+		LIB_pthread_VERSION=""
+		;;
+	FreeBSD|OpenBSD)
+		LIB_pthread_DETECT="have_command pthread-config"
+		LIB_pthread_CFLAGS="$(pthread-config --cflags)"
+		LIB_pthread_LDFLAGS="$(pthread-config --ldflags)"
+		LIB_pthread_VERSION="$(pthread-config --version)"
+		;;
+	WINSCW|ARMV5|GCCE)
+		LIB_pthread_DETECT="true"
+		;;					
+	*)
+		LIB_pthread_CFLAGS=""
+		LIB_pthread_LDFLAGS="-lpthread"
+		LIB_pthread_VERSION=""
+		;;
+esac
+
+
+### Lua ###
+LIB_lua_NAME="Lua"
+case "$HOST_SYSTEM" in
+	FreeBSD|OpenBSD)
+		LIB_lua_LDFLAGS="-L/usr/local/lib -llua"
+		;;
+	*)
+		LIB_lua_LDFLAGS="-llua"
+		;;
+esac
+LIB_lua_VERSION=""
+LIB_lua_DETECT="try_pkgconfig_lib lua lua"
+
+
+# Additional platform-specific libraries for networking.
+LIB_netlibs_NAME="Platform-specific network libraries"
+case "$HOST_SYSTEM" in
+	SunOS)
+		LIB_netlibs_CFLAGS=""
+		LIB_netlibs_LDFLAGS="-lsocket"
+		LIB_netlibs_VERSION=""
+		;;
+	ARMV5|WINSCW|GCCE)
+		LIB_netlibs_DETECT="false"
+		;;
+esac
+
+
+##############################################################################
+# Describe the symbols (possibly) used:                                      #
+##############################################################################
+
+HEADER_regex_EXTRA="#include <sys/types.h>"
+
+SYMBOL_readdir_r_EXTRA="#include <dirent.h>"
+
+SYMBOL_setenv_EXTRA="#include <stdlib.h>"
+
+SYMBOL_strcasecmp_EXTRA="#include <strings.h>"
+
+SYMBOL_strcasecmp_DEFNAME="HAVE_STRCASECMP_UQM"
+		# HAVE_STRCASECMP would conflict with SDL (SDL_config.h).
+
+SYMBOL_stricmp_EXTRA="#include <string.h>"
+
+SYMBOL_strupr_EXTRA="#include <string.h>"
+
+SYMBOL_wchar_t_EXTRA="#include <stddef.h>"
+
+SYMBOL_wint_t_EXTRA="#include <wchar.h>"
+
+SYMBOL_iswgraph_EXTRA="#include <wctype.h>"
+
+SYMBOL_getopt_long_EXTRA="#include <getopt.h>"
+
+

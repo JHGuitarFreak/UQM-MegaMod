@@ -1,0 +1,400 @@
+# Set information on used programs and libraries
+# This file contains the information for the programs that test the
+# system on which the software is built.
+# Copyright (c) 2002 Serge van den Boom
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+##############################################################################
+# System specific build flags                                                #
+##############################################################################
+
+
+# CFLAGS
+SYSTEM_BUILD_CFLAGS=""
+
+# CXXFLAGS
+SYSTEM_BUILD_CXXFLAGS=""
+
+# LDFLAGS
+SYSTEM_BUILD_LDFLAGS=""
+
+# Compilers etc.
+BUILDTOOL_PREPROC_C_NAME="C preprocessor"
+BUILDTOOL_MKDEP_C_NAME="C dependency generator"
+BUILDTOOL_COMPILE_C_NAME="C compiler"
+BUILDTOOL_PREPROC_CXX_NAME="C++ preprocessor"
+BUILDTOOL_MKDEP_CXX_NAME="C++ dependency generator"
+BUILDTOOL_COMPILE_CXX_NAME="C++ compiler"
+BUILDTOOL_PREPROC_OBJC_NAME="Objective-C preprocessor"
+BUILDTOOL_MKDEP_OBJC_NAME="Objective-C dependency generator"
+BUILDTOOL_COMPILE_OBJC_NAME="Objective-C compiler"
+BUILDTOOL_LINK_NAME="linker"
+useGccBuildTools() {
+	# These strings will be evaluated later.
+	BUILDTOOL_PREPROC_C_COMMAND="\$PROG_gcc_FILE -E $EXTRA_PLATFORM_GCC_FLAGS_PREPROC_C"
+	BUILDTOOL_PREPROC_C_DEPEND='gcc'
+
+	BUILDTOOL_MKDEP_C_COMMAND="\$PROG_gcc_FILE -MM $EXTRA_PLATFORM_GCC_FLAGS_MKDEP_C"
+	BUILDTOOL_MKDEP_C_DEPEND='gcc'
+
+	BUILDTOOL_COMPILE_C_COMMAND="\$PROG_gcc_FILE -c $EXTRA_PLATFORM_GCC_FLAGS_COMPILE_C"
+	BUILDTOOL_COMPILE_C_DEPEND='gcc'
+
+	BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_gcc_FILE -E $EXTRA_PLATFORM_GCC_FLAGS_PREPROC_CXX"
+	BUILDTOOL_PREPROC_CXX_DEPEND='gcc'
+
+	BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_gcc_FILE -MM $EXTRA_PLATFORM_GCC_FLAGS_MKDEP_CXX"
+	BUILDTOOL_MKDEP_CXX_DEPEND='gcc'
+
+	BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_gcc_FILE -c $EXTRA_PLATFORM_GCC_FLAGS_COMPILE_CXX"
+	BUILDTOOL_COMPILE_CXX_DEPEND='gcc'
+
+	BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_gcc_FILE -E $EXTRA_PLATFORM_GCC_FLAGS_PREPROC_OBJC"
+	BUILDTOOL_PREPROC_OBJC_DEPEND='gcc'
+
+	BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_gcc_FILE -MM $EXTRA_PLATFORM_GCC_FLAGS_MKDEP_OBJC"
+	BUILDTOOL_MKDEP_OBJC_DEPEND='gcc'
+
+	BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_gcc_FILE -c $EXTRA_PLATFORM_GCC_FLAGS_COMPILE_OBJC"
+	BUILDTOOL_COMPILE_OBJC_DEPEND='gcc'
+
+	BUILDTOOL_LINK_COMMAND="\$PROG_gcc_FILE $EXTRA_PLATFORM_GCC_FLAGS_LINK"
+	BUILDTOOL_LINK_DEPEND='gcc'
+}
+case "$HOST_SYSTEM" in
+	Darwin)
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_C='-mmacosx-version-min=10.4 -arch i386'
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_CXX='-mmacosx-version-min=10.4 -arch i386'
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_OBJC='-mmacosx-version-min=10.4 -arch i386'
+		EXTRA_PLATFORM_GCC_FLAGS_LINK='-mmacosx-version-min=10.4 -arch i386'
+		useGccBuildTools
+		;;
+	WINSCW)
+		EXTRA_WINSCW_FLAGS_COMPILE="-msgstyle gcc -gccinc -dialect c99 -relax_pointers -wchar_t off -align 4 -warnings on -w nohidevirtual,nounusedexpr -enum int -str pool -exc ms -trigraphs on -nostdinc -d _UNICODE -d __SYMBIAN32__ -d __SERIES60_30__ -d __SERIES60_3X__ -d __CW32__ -d __WINS__ -d __WINSCW__ -d __EXE__ -d __SUPPORT_CPP_EXCEPTIONS__ -I$BUILD_EPOCROOT/epoc32/include -I$BUILD_EPOCROOT/epoc32/include/stdapis -I$BUILD_EPOCROOT/epoc32/include/variant"
+		EXTRA_WINSCW_FLAGS_LINK='-library -msgstyle gcc -stdlib -noimplib -search'
+	
+		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_mwccsym2_FILE -E $EXTRA_WINSCW_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_C_DEPEND='mwccsym2'
+	
+		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_mwccsym2_FILE -MM -ext .o -gccdep $EXTRA_WINSCW_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_C_DEPEND='mwccsym2'
+	
+		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_mwccsym2_FILE -c $EXTRA_WINSCW_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_C_DEPEND='mwccsym2'
+	
+		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_mwccsym2_FILE -E $EXTRA_WINSCW_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_CXX_DEPEND='mwccsym2'
+	
+		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_mwccsym2_FILE -MM -ext .o -gccdep $EXTRA_WINSCW_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_CXX_DEPEND='mwccsym2'
+	
+		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_mwccsym2_FILE -c $EXTRA_WINSCW_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_CXX_DEPEND='mwccsym2'
+	
+		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_mwccsym2_FILE -E"
+		BUILDTOOL_PREPROC_OBJC_DEPEND='mwccsym2'
+	
+		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_mwccsym2_FILE -MM"
+		BUILDTOOL_MKDEP_OBJC_DEPEND='mwccsym2'
+	
+		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_mwccsym2_FILE -c"
+		BUILDTOOL_COMPILE_OBJC_DEPEND='mwccsym2'
+	
+		BUILDTOOL_LINK_COMMAND="\$PROG_mwldsym2_FILE $EXTRA_WINSCW_FLAGS_LINK"
+		BUILDTOOL_LINK_DEPEND='mwldsym2'
+		;;
+	ARMV5)
+		EXTRA_ARMV5_FLAGS_COMPILE='--gnu --apcs //inter --diag_suppress 66,161,611,654,997,1152,1300,1464,1488,6318,6331 --diag_error 1267 --arm --cpu ARM926EJ-S --fpu softvfp --exceptions --exceptions_unwind -D__MARM_INTERWORK__ --enum_is_int -Ono_known_library --fpmode ieee_no_fenv --export_all_vtbl --no_vfe --dllimport_runtime -D_UNICODE -D__SYMBIAN32__ -D__SERIES60_30__ -D__SERIES60_3X__ -D__ARMCC__ -D__EPOC32__ -D__MARM__ -D__EABI__ -D__ARMCC_2__ -D__ARMCC_2_2__ -D__MARM_ARMV5__ -D__SUPPORT_CPP_EXCEPTIONS__ -J$BUILD_EPOCROOT/epoc32/include -J$BUILD_EPOCROOT/epoc32/include/stdapis -J$BUILD_EPOCROOT/epoc32/include/variant --preinclude $BUILD_EPOCROOT/epoc32/include/RVCT2_2/RVCT2_2.h'
+		EXTRA_ARMV5_FLAGS_LINK=''
+	
+		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_armcc_FILE -E $EXTRA_ARMV5_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_C_DEPEND='armcc'
+	
+		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_armcc_FILE -MM --unix_depend_format $EXTRA_ARMV5_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_C_DEPEND='armcc'
+	
+		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_armcc_FILE -c $EXTRA_ARMV5_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_C_DEPEND='armcc'
+	
+		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_armcc_FILE -E $EXTRA_ARMV5_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_CXX_DEPEND='armcc'
+	
+		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_armcc_FILE -MM --unix_depend_format $EXTRA_ARMV5_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_CXX_DEPEND='armcc'
+	
+		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_armcc_FILE -c $EXTRA_ARMV5_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_CXX_DEPEND='armcc'
+	
+		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_armcc_FILE -E"
+		BUILDTOOL_PREPROC_OBJC_DEPEND='armcc'
+	
+		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_armcc_FILE -MM"
+		BUILDTOOL_MKDEP_OBJC_DEPEND='armcc'
+	
+		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_armcc_FILE -c"
+		BUILDTOOL_COMPILE_OBJC_DEPEND='armcc'
+	
+		BUILDTOOL_LINK_COMMAND="\$PROG_armar_FILE $EXTRA_ARMV5_FLAGS_LINK"
+		BUILDTOOL_LINK_DEPEND='armar'
+		;;
+	GCCE)
+		EXTRA_GCCE_FLAGS_COMPILE='-Wno-unknown-pragmas -march=armv5t -mapcs -pipe -nostdinc -msoft-float -D_UNICODE -D__GCCE__ -D__SYMBIAN32__ -D__SERIES60_30__ -D__SERIES60_3X__ -D__GCCE__ -D__EPOC32__ -D__MARM__ -D__EABI__ -D__MARM_ARMV5__ -D __REMOVE_PLATSEC_DIAGNOSTIC_STRINGS__ -x c -include $BUILD_EPOCROOT/EPOC32/INCLUDE/GCCE/GCCE.h -I$BUILD_EPOCROOT/epoc32/include -I$BUILD_EPOCROOT/epoc32/include/stdapis -I$BUILD_EPOCROOT/epoc32/include/variant'
+		EXTRA_GCCE_FLAGS_LINK=''
+	
+		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_gcce_FILE -E $EXTRA_GCCE_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_C_DEPEND='gcce'
+	
+		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_gcce_FILE -MM $EXTRA_GCCE_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_C_DEPEND='gcce'
+	
+		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_gcce_FILE -c $EXTRA_GCCE_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_C_DEPEND='gcce'
+	
+		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_gcce_FILE -E $EXTRA_GCCE_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_CXX_DEPEND='gcce'
+	
+		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_gcce_FILE -MM $EXTRA_GCCE_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_CXX_DEPEND='gcce'
+	
+		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_gcce_FILE -c $EXTRA_GCCE_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_CXX_DEPEND='gcce'
+	
+		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_gcce_FILE -E"
+		BUILDTOOL_PREPROC_OBJC_DEPEND='gcce'
+	
+		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_gcce_FILE -MM"
+		BUILDTOOL_MKDEP_OBJC_DEPEND='gcce'
+	
+		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_gcce_FILE -c"
+		BUILDTOOL_COMPILE_OBJC_DEPEND='gcce'
+	
+		BUILDTOOL_LINK_COMMAND="\$PROG_gcce_FILE $EXTRA_GCCE_FLAGS_LINK"
+		BUILDTOOL_LINK_DEPEND='gcce'
+		;;	
+	CYGWIN*)
+		EXTRA_CYGWIN_FLAGS_COMPILE=''
+		EXTRA_CYGWIN_FLAGS_LINK=''
+
+		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_mingw_gcc_FILE -E $EXTRA_CYGWIN_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_C_DEPEND='mingw_gcc'
+
+		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_mingw_gcc_FILE -MM $EXTRA_CYGWIN_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_C_DEPEND='mingw_gcc'
+
+		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_mingw_gcc_FILE -c $EXTRA_CYGWIN_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_C_DEPEND='mingw_gcc'
+
+		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_mingw_gcc_FILE -E $EXTRA_CYGWIN_FLAGS_COMPILE"
+		BUILDTOOL_PREPROC_CXX_DEPEND='mingw_gcc'
+
+		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_mingw_gcc_FILE -MM $EXTRA_CYGWIN_FLAGS_COMPILE"
+		BUILDTOOL_MKDEP_CXX_DEPEND='mingw_gcc'
+
+		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_mingw_gcc_FILE -c $EXTRA_CYGWIN_FLAGS_COMPILE"
+		BUILDTOOL_COMPILE_CXX_DEPEND='mingw_gcc'
+
+		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_mingw_gcc_FILE -E"
+		BUILDTOOL_PREPROC_OBJC_DEPEND='mingw_gcc'
+
+		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_mingw_gcc_FILE -MM"
+		BUILDTOOL_MKDEP_OBJC_DEPEND='mingw_gcc'
+
+		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_mingw_gcc_FILE -c"
+		BUILDTOOL_COMPILE_OBJC_DEPEND='mingw_gcc'
+
+		BUILDTOOL_LINK_COMMAND="\$PROG_mingw_gcc_FILE $EXTRA_CYGWIN_FLAGS_LINK"
+		BUILDTOOL_LINK_DEPEND='mingw_gcc'
+		;;
+	*)
+		useGccBuildTools
+		;;
+esac	
+case "$HOST_SYSTEM" in
+	Darwin)
+		BUILDTOOL_REZ_NAME="MacOS X resource compiler (Rez)"
+		BUILDTOOL_REZ_COMMAND='$PROG_Rez_FILE'
+		BUILDTOOL_REZ_DEPEND='Rez'
+		;;
+	MINGW32*|CYGWIN*|cegcc)
+		BUILDTOOL_WINDRES_NAME="Windows resource linker (windres)"
+		BUILDTOOL_WINDRES_COMMAND='$PROG_windres_FILE'
+		BUILDTOOL_WINDRES_DEPEND='windres'
+		;;
+esac
+
+
+##############################################################################
+# Describe the programs (possibly) used:                                     #
+##############################################################################
+
+
+### gcc ###
+PROG_gcc_NAME="GNU C compiler"
+PROG_gcc_FILE="gcc"
+PROG_gcc_ACTION=""
+PROG_gcc_VERSION='$(gcc --version)'
+
+
+### sed ###
+PROG_sed_NAME="Sed stream editor"
+PROG_sed_FILE="sed"
+PROG_sed_ACTION=""
+PROG_sed_VERSION=''
+
+
+### echo -n ###
+PROG_echon_NAME="'echo -n' capable echo"
+PROG_echon_FILE=""
+PROG_echon_ACTION=""
+PROG_echon_VERSION=''
+PROG_echon_DETECT="echon_detect"
+echon_detect() {
+	local TEST LOCATIONS LOCATION
+	
+	# Default echo (probably builtin)
+	TEST=`echo -n X`
+	if [ "$TEST" = X ]; then
+		PROG_echon_FILE="echo -n"
+		return 0;
+	fi
+
+	# External echo
+	LOCATIONS="/bin/ /usr/ucb/"
+	for LOCATION in $LOCATIONS; do
+		if [ -x ${LOCATION}echo ]; then
+			TEST=`${LOCATION}echo -n X`
+			if [ "$TEST" = X ]; then
+				PROG_echon_FILE="${LOCATION}echo -n"
+				return 0;
+			fi
+		fi
+	done
+
+	# Using printf as echo
+	TEST=`printf %s X`
+	if [ "$TEST" = X ]; then
+		PROG_echon_FILE="printf %s"
+		return 0;
+	fi
+
+	# No good echo found	
+	return 1
+}
+
+
+### GNU Make ###
+PROG_make_NAME="Make"
+case "$BUILD_SYSTEM" in
+	FreeBSD|OpenBSD|SunOS)
+		PROG_make_FILE="gmake"
+		;;
+	*)
+		PROG_make_FILE="make"
+		;;
+esac
+PROG_make_ACTION=""
+PROG_make_VERSION=''
+
+
+### tr ###
+PROG_tr_NAME="tr"
+PROG_tr_FILE="tr"
+PROG_tr_ACTION=""
+PROG_tr_VERSION=''
+
+
+### windres (for Windows) ###
+PROG_windres_NAME=windres
+PROG_windres_FILE=windres
+PROG_windres_ACTION=""
+PROG_windres_VERSION='windres --version'
+
+
+### Rez resource compiler (for MacOS X) ###
+PROG_Rez_NAME="Rez resource compiler (Apple Developer Tools)"
+PROG_Rez_FILE="Rez"
+PROG_Rez_ACTION=""
+PROG_Rez_VERSION=''
+
+
+### pkg-config ###
+PROG_pkgconfig_NAME="pkg-config"
+PROG_pkgconfig_FILE="pkg-config"
+PROG_pkgconfig_ACTION=""
+PROG_pkgconfig_VERSION='$(pkg-config --version)'
+
+
+### mwccsym2 ###
+PROG_mwccsym2_NAME="Nokia CodeWarrior C/C++ Compiler for Windows/x86"
+PROG_mwccsym2_FILE="mwccsym2"
+PROG_mwccsym2_ACTION=""
+PROG_mwccsym2_VERSION='$(mwccsym2 -version)'
+
+
+### mwldsym2 ###
+PROG_mwldsym2_NAME="Nokia CodeWarrior Linker for Windows/x86"
+PROG_mwldsym2_FILE="mwldsym2"
+PROG_mwldsym2_ACTION=""
+PROG_mwldsym2_VERSION='$(mwldsym2 -version)'
+
+
+### armcc ###
+PROG_armcc_NAME="ARM/Thumb C/C++ Compiler"
+PROG_armcc_FILE="armcc"
+PROG_armcc_ACTION=""
+PROG_armcc_VERSION='$(armcc --vsn)'
+
+
+### armlink ###
+PROG_armlink_NAME="ARM Linker"
+PROG_armlink_FILE="armlink"
+PROG_armlink_ACTION=""
+PROG_armlink_VERSION='$(armlink --vsn)'
+
+
+### armar ###
+PROG_armar_NAME="ARM Archiver"
+PROG_armar_FILE="armar"
+PROG_armar_ACTION=""
+PROG_armar_VERSION='$(armar --vsn)'
+
+
+### gcce ###
+PROG_gcce_NAME="GNU C Compiler (CodeSourcery ARM)"
+PROG_gcce_FILE="arm-none-symbianelf-gcc"
+PROG_gcce_ACTION=""
+PROG_gcce_VERSION='$(arm-none-symbianelf-gcc --version)'
+
+
+### mingw-gcc ###
+PROG_mingw_gcc_NAME="GNU C MinGW Cross-compiler"
+PROG_mingw_gcc_FILE="i686-pc-mingw32-gcc"
+PROG_mingw_gcc_ACTION=""
+PROG_mingw_gcc_VERSION='$(i686-pc-mingw32-gcc --version)'
+
+
+##############################################################################
+# Describe the libaries (possibly) used:                                     #
+##############################################################################
+
+
+
+##############################################################################
+# Describe the symbols (possibly) used:                                      #
+##############################################################################
+
+

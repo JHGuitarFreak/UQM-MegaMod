@@ -1,0 +1,22 @@
+uqm_SUBDIRS="stdio"
+uqm_CFILES="charhashtable.c defaultfs.c fileblock.c fstypes.c gphys.c io.c
+		ioaux.c match.c mount.c mounttree.c paths.c physical.c uiostream.c
+		uioutils.c utils.c"
+uqm_HFILES="charhashtable.h defaultfs.h fileblock.h fstypes.h getint.h
+		gphys.h ioaux.h io.h iointrn.h match.h mem.h mount.h mounttree.h
+		paths.h physical.h types.h uioport.h uiostream.h uioutils.h utils.h"
+
+if [ -n "$uqm_USE_ZIP_IO" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS zip"
+fi
+
+#if [ -n "$DEBUG" -o -n "$uqm_UIO_DEBUG" ]; then
+	uqm_CFILES="$uqm_CFILES debug.c"
+	uqm_HFILES="$uqm_HFILES debug.h"
+#fi
+
+if [ -n "$MEMDEBUG" ]; then
+	uqm_CFILES="$uqm_CFILES hashtable.c memdebug.c"
+	uqm_HFILES="$uqm_HFILES hashtable.h memdebug.h"
+fi
+

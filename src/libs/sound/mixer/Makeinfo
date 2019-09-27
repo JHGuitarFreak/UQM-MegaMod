@@ -1,0 +1,3 @@
+uqm_SUBDIRS="sdl nosound"
+uqm_CFILES="mixer.c"
+uqm_HFILES="mixer.h mixerint.h"

@@ -1,0 +1,328 @@
+		      The TFB Graphics Libraries
+
+	 Initial documentation by Michael Martin, 4 Feb 2003
+
+The graphics system in UQM has three major subsystems:
+
+- The "legacy" system, which most of the core code uses.  This
+  involves the foo_blt () routines in 3do_blt.c, and the data
+  types CONTEXT, FRAME, DRAWABLE, and possibly others.  I'm
+  less familiar with this code, and want to eradicate as much of it as
+  I can, but for now, its lowest level has been rewritten as direct
+  calls to:
+
+- The TFB_Draw* commands, documented below in great detail.  These
+  routines deal with the datatype TFB_Image, and the more primitive
+  TFB_Canvas.  They also support drawing to one of several 'screens',
+  but since only one thread should be allowed to touch the screen,
+  the TFB_DrawScreen routines end up constructing inputs to:
+
+- The DCQ/DrawCommand library.  This is a ring queue with commands for
+  rendering graphics on the actual screen.  It interacts to some
+  degree with the CONTEXT datatype, but otherwise is defined entirely
+  in terms of TFB_Images and TFB_Canvases.
+
+			  THE LEGACY LIBRARY
+			 --------------------
+
+The datatypes the code uses directly are CONTEXT, FRAME, and FONT, all
+of which are really pointers to void.  Pointers to those are PCONTEXT,
+PFRAME, and PFONT.  Then there's DRAWABLE, which is a DWORD, and its
+pointer type PDRAWABLE. (These are defined in sc2code/libs/gfxlib.h.)
+I'm not sure how DRAWABLE values are transformed into actual drawable
+entities.
+
+The full structures for these are in various files in
+sc2code/libs/graphics.
+
+context.h:  defines CONTEXT_DESC and PCONTEXT_DESC (and the equivalent
+            CONTEXTPTR -- insert various sorts of incomprenshible
+            muttering here),
+
+display.h:  defines a DISPLAY_INTERFACE and PDISPLAY_INTERFACE type (as
+            well as a global _pCurDisplay).
+
+drawable.h: defines FRAME_DESC and DRAWABLE_DESC, and the pointer
+            types PFRAME_DESC and PDRAWABLE_DESC.  FRAME_DESC has a
+            TFB_Image pointer as a member.  DRAWABLE_DESC currently
+            still uses a rather annoying technique where the last
+            member of a struct is a 1-element array, more memory than
+            that is actually allocated, and the array's bounds are
+            deliberately overflowed to get at multiple frames.
+
+font.h:     defines FONT_DESC and PFONT_DESC.
+
+(Details on how all these data types work is forthcoming.)
+
+			 THE TFB_DRAW LIBRARY
+			----------------------
+
+The TFB_Draw commands have a single header file:
+sc2code/libs/graphics/tfb_draw.h.  This file declares the following
+data types:
+
+SCREEN: This is an enum, naming the various screens that the DrawCmd
+        library can draw to.  Valid values at present are
+        TFB_SCREEN_MAIN, TFB_SCREEN_EXTRA, and TFB_SCREEN_TRANSITION.
+        These correspond to various objects that are of type TFB_Canvas.
+
+	(The maximal number of screens is provided by a bogus last
+        element, TFB_GFX_NUMSCREENS.  Keep that as the last element
+        and the allocators will operate properly regardless of any
+        screens you may later want to add.)
+
+TFB_Canvas: This is, for the purposes of most of the code, a void
+            pointer.  The implementations of TFB_DrawCanvas commands
+            cast them to the appropriate type.  (The only
+            implementation of these commands casts them to
+            SDL_Surface*.)
+
+TFB_Palette: Four UBYTES, r, g, b, and 'unused'.  This is designed at
+             present to be directly castable to SDL_Color, which most
+             things do.  We should probably do something about that at
+             some point.
+
+TFB_Image: The most important image structure.  This has two
+           TFB_Canvases (one for the 'core' image, one for a scaled
+           version of it), a pointer to a TFB_Palette array, a
+           colormap index, a scaling constant, a Mutex from the
+           threading library (to ensure internal consistency if
+           multiple threads are doing stuff), and a 'dirty bit' which
+           means that, if the image is scaled, the ScaledImg needs to
+           be recomputed.
+
+TFB_DrawScreen
+--------------
+
+When you wish to draw graphics directly on the screen, you call these
+routines, which enqueue the DrawCommands:
+
+----
+
+void TFB_DrawScreen_Line (int x1, int y1, int x2, int y2, 
+			  int r, int g, int b, 
+			  SCREEN dest);
+
+Draws a line from (x1, y1)-(x2, y2) of a color specified by r, g, and
+b on the specified screen.
+
+We have a known bug here in that if a corner of one of these lines is
+outside of the context's clipping rectangle, the slope of the line may
+change.
+
+----
+
+void TFB_DrawScreen_Rect (PRECT rect, 
+			  int r, int g, int b, 
+			  SCREEN dest);
+
+Draws a (filled) rectangle with the specified color on the destination
+screen.  PRECT is part of the legacy library.
+
+void TFB_DrawScreen_Copy (PRECT r, SCREEN src, SCREEN dest);
+
+Copies data between screens.  The PRECT defines the region to copy.
+This can be handy in saving and restoring background information.
+
+----
+
+void TFB_DrawScreen_Image (TFB_Image *img, 
+			   int x, int y, 
+			   BOOLEAN scaled, 
+			   TFB_Palette *palette, 
+			   SCREEN dest);
+
+void TFB_DrawScreen_FilledImage (TFB_Image *img, 
+				 int x, int y, 
+				 BOOLEAN scaled, 
+				 int r, int g, int b, 
+				 SCREEN dest);
+
+These two routines draw images.  img, x, and y are all straightforward
+(x and y refer to the upper left of the image), and scaled indicates
+whether or not the NormalImg or ScaledImg should be used, and dest
+names the target screen.
+
+For TFB_DrawScreen_Image, the 'palette' argument refers to a
+256-element array of TFB_Palette that describes the palette to use.
+(The default is cached in TFB_Image itself.)  Various techniques are
+used to cache the palette values to keep spurious palette-switch
+commands from flooding the DrawCmd queue.  However, switching the
+palette many times per frame is likely to seriously degrade
+performance.
+
+TFB_DrawScreen_FilledImage draws every non-transparent pixel in img in
+the color specified by r, g, b.  (Fonts and some menus do this.)
+
+----
+
+void TFB_DrawScreen_WaitForSignal (void);
+
+Puts this thread to sleep until all commands queued to this point are
+executed.  Mostly used to keep from spamming the DrawCmd queue, and to
+ensure proper operation of the next two routines.
+
+----
+
+void TFB_DrawScreen_CopyToImage (TFB_Image *img, 
+				 PRECT lpRect, 
+				 SCREEN src);
+
+Load the pixels from the rectangle lpRect in screen src into img.  If
+you're actually working with the pixels directly, you'll want to do a
+TFB_DrawScreen_WaitForSignal () to ensure the image has actually been
+updated.  (If you're just passing it to other TFB_DrawScreen commands,
+that's unnecessary, because ordering within a thread is guaranteed.)
+
+----
+
+void TFB_DrawScreen_DeleteImage (TFB_Image *img);
+
+Deallocates all memory associated with img.  This REALLY doesn't
+belong here.  It should be a TFB_DrawImage command, with a requirement
+that you WaitForSignal lfirst.
+
+----
+
+TFB_DrawImage
+-------------
+
+These routines are similar to a subset of the TFB_DrawScreen commands,
+except that instead of drawing on the screen at some later time, they
+draw directly and immediately onto a TFB_Image.  The arguments all
+mean the same things as they did for TFB_DrawScreen.
+
+----
+
+void TFB_DrawImage_Line (int x1, int y1, int x2, int y2, 
+                         int r, int g, int b, 
+			 TFB_Image *dest);
+
+void TFB_DrawImage_Rect (PRECT rect, 
+			 int r, int g, int b, 
+			 TFB_Image *image);
+
+void TFB_DrawImage_Image (TFB_Image *img, 
+			  int x, int y, 
+			  BOOLEAN scaled, 
+			  TFB_Palette *palette, 
+			  TFB_Image *target);
+
+void TFB_DrawImage_FilledImage (TFB_Image *img, 
+				int x, int y, 
+				BOOLEAN scaled, 
+				int r, int g, int b, 
+				TFB_Image *target);
+
+----
+
+TFB_DrawCanvas
+--------------
+
+These routines are, quite literally, identical in every way to the
+TFB_DrawImage routines, except that they draw on TFB_Canvases instead.
+They are defined in graphics-library-specific locations.  There is, at
+present, only one implementation of these, in
+libs/graphics/sdl/canvas.c.
+
+void TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, 
+			  int r, int g, int b, 
+			  TFB_Canvas dest);
+
+void TFB_DrawCanvas_Rect (PRECT rect, 
+			  int r, int g, int b, 
+			  TFB_Canvas image);
+
+void TFB_DrawCanvas_Image (TFB_Image *img, 
+			   int x, int y, 
+			   BOOLEAN scaled, 
+			   TFB_Palette *palette, 
+			   TFB_Canvas target);
+
+void TFB_DrawCanvas_FilledImage (TFB_Image *img, 
+				 int x, int y, 
+				 BOOLEAN scaled, 
+				 int r, int g, int b, 
+				 TFB_Canvas target);
+
+----
+
+Creation and Destruction of TFB_Images, TFB_Canvases, and TFB_Palettes
+----------------------------------------------------------------------
+
+Various commands exist for creating and destroying the TFB_Draw data
+types.  The concept of "ownership" is critical here.  If a data object
+owns a pointer inside of it, that pointer's referent is deallocated
+when the data object is deallocated.  If a pointer variable owns its
+referent, it's permissible to delete it.  
+
+TFB_Canvas and TFB_Palette are primitives.  TFB_Image owns NormalImg,
+ScaledImg, and Palette, and will delete them when it is itself
+deleted.
+
+That said, here are the routines:
+
+---
+
+TFB_Image *TFB_DrawImage_New (TFB_Canvas canvas)
+
+Creates a new TFB_Image, which the caller then owns.  The caller must
+own the canvas, and transfers ownership of that canvas to the image.
+The Palette value is automatically created (and the image owns it);
+ScaledImg will be NULL until you scale the image and draw it to the
+screen.
+
+---
+
+void TFB_DrawImage_Delete (TFB_Image *image)
+
+Deletes the image, and all non-NULL components.  You must own the
+image you delete.
+
+---
+
+TFB_Canvas TFB_DrawCanvas_New_TrueColor (int w, int h, BOOLEAN has_alpha);
+
+TFB_Canvas TFB_DrawCanvas_New_Paletted (int w, int h, 
+					TFB_Palette *palette, 
+					int transparent_index);
+
+These create new TFB_Canvases, which the caller will then own.  Width
+and height are straightforward.  The TrueColor variant produces Canvases
+with the same color depth and pixel format as the screen.  The
+has_alpha flag indicates whether or not the canvas has an alpha
+channel.
+
+The Paletted variant produces 8-bit paletted canvases.  The palette
+argument is optional (it can be NULL, in which case you'll need to set
+it later - TFB_Images tend to do this when drawn), as is the
+transparent_index (if -1, there is no transparency; otherwise, it's
+the index of the transparent color).
+
+---
+
+TFB_Canvas TFB_DrawCanvas_ToScreenFormat (TFB_Canvas canvas);
+
+Returns a canvas that, if possible, matches the graphics configuration
+of the screen.  You must own the source canvas.  If the conversion is
+possible, it makes the conversion, deletes its argument, and returns
+the converted version; if conversion is not possible, the canvas is
+returned intact.
+
+Regardless of success or failure, the caller owns the result.
+
+---
+
+TFB_Palette *TFB_DrawCanvas_ExtractPalette (TFB_Canvas canvas);
+
+Allocates and returns a 256-entry TFB_Palette array that describes the
+palette of the canvas, or returns NULL if the canvas is true-color.
+If the result is non-NULL, the caller owns the result.  The caller
+need not own canvas.
+
+
+			   DRAWCMD LIBRARY
+			  -----------------
+
+Documentation yet to be written.  UQM code shouldn't really mess with
+the DrawCmd library directly.

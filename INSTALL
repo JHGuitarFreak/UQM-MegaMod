@@ -1,0 +1,105 @@
+To build The Ur-Quan Masters, you need at least the following software:
+
+For unix-like platforms (such as Linux, BSD, Solaris, MinGW):
+GCC 3.0 - GNU C Compiler
+	http://gcc.gnu.org/
+	Debian package: gcc
+
+GNU Make 3.80
+	ftp://ftp.gnu.org/
+	Debian package: make
+
+For Windows:
+Microsoft Visual C++ 6 or newer (or MinGW+MSYS, see INSTALL.mingw for that)
+Visual C++ 6.0 Processor Pack (if using VC6, to build MMX-accelerated code)
+	http://msdn.microsoft.com/vstudio/downloads/tools/ppack/
+
+For Mac OS X:
+Apple Developer Tools (for Mac OS X 10.2 and older)
+	http://connect.apple.com/
+Xcode Tools (for Mac OS X 10.3)
+	http://developer.apple.com/tools/macosxtools.html
+
+Additionally, The Ur-Quan Masters requires the following libraries:
+Note that dependencies can differ between different OS's.
+
+OpenGL v1.2 (if HAVE_OPENGL is defined, which is the default)
+    Win32 users should have all by default, following is for Linux version:
+	http://www.xfree86.org/
+	Debian package: xlibmesa-dev OR nvidia-glx OR <vendor specific>
+	XFree86 4.x comes with Mesa, which is a clone.
+	Note: Mesa is a software emulation. For enjoyable results
+	you will need hardware accelerated OpenGL (GLX).
+	These usually conflict with mesa (can result in X server crash).
+
+SDL v1.2
+	The Simple Direct-Media Layer
+	A fairly good multiplatform low level graphics library.
+	Homepage: www.libsdl.org
+	Download: http://www.libsdl.org/download-1.2.php
+	Debian package: libsdl1.2-dev (and various runtime debs)
+
+SDL_image
+	An image loading library used with SDL.
+	Homepage: http://www.libsdl.org/projects/SDL_image/
+	Download: http://www.libsdl.org/projects/SDL_image/release/
+	Debian packages: libsdl-image1.2 libsdl-image1.2-dev
+	
+OpenAL (optional)
+	A cross-platform spatialized audio library.
+	Homepage: http://www.openal.org/
+	Windows SDK download: http://connect.creativelabs.com/openal/Downloads/OpenAL11CoreSDK.zip
+    Debian package: libopenal-dev
+
+libogg and libvorbis (optional but highly recommended)
+	Audio codec to play Ogg Vorbis files, used for music and speech.
+	Homepage: http://www.xiph.org/ogg/vorbis/index.html
+	Download:
+	    For Windows:
+			SDK download: http://www.vorbis.com/files/1.0.1/windows/OggVorbis-win32sdk-1.0.1.zip
+	    For Linux:
+			http://www.xiph.org/downloads/
+			download libogg and libvorbis.
+            Debian Packages: libogg-dev libvorbis-dev
+
+Tremor (alternative for libogg and libvorbis)
+	Audio codec to play Ogg Vorbis files, used for music and speech.
+	This library avoids floating point math and should be used instead
+	of libogg and libvorbis when floating point support is not available
+	or slow (on some handhelds and game consoles).
+	Homepage: http://www.xiph.org/vorbis/
+	Download: http://svn.xiph.org/trunk/Tremor (Subversion)
+
+Libmikmod (also included with UQM source)
+	Audio codec to play .mod files, used for the original PC music.
+	Homepage: http://mikmod.raphnet.net/
+	Download: https://sourceforge.net/projects/mikmod/files/
+    Debian package: libmikmod-dev
+
+Zlib v1.2
+	Data compression / decompression library
+	Homepage: http://www.gzip.org/zlib/
+	Download:
+	    For Windows:
+		http://www.gzip.org/zlib/ (mid-page 'zlib compiled DLL')
+
+Lua (also included with UQM source)
+	Scripting language
+	Homepage: http://www.lua.org/
+	Download: http://www.lua.org/download.html
+
+___________________________________________________________________________________________________________________
+
+For Debian users (Or at least Mint and Ubuntu users) here is the basic command to install what you need to compile:
+
+	sudo apt-get install libsdl1.2-dev libsdl-image1.2 libsdl-image1.2-dev libogg-dev libvorbis-dev
+
+Please make sure you update your repositories first with: sudo apt-get update
+___________________________________________________________________________________________________________________
+
+
+If you find these aren't enough, or if you know the names
+of the corresponding RPM etc. packages, please report to
+<sc2-devel@lists.sourceforge.net> or visit
+http://sourceforge.net/projects/sc2/
+

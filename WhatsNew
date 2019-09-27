@@ -1,0 +1,459 @@
+This file tries to organize and describe the changes between releases.
+Changes are broadly classified into the following categories:
+
+- New Features: These are either elements of the original games that
+  were first implemented in this release, or actually new capabilities
+  that are visible to the user.
+
+- Bugfixes: The removal of visible Bad Things from the code.
+
+- Internal Changes: The removal of invisible Bad Things from the code,
+  or changes in the way the program itself is structured.  These are
+  unlikely to be of interest to you unless you plan on coding
+  extensions.
+
+			     Version 0.7
+			    -------------
+
+NEW FEATURES
+
+- Added the missing bits to the no-voice versions of Mycon, Syreen and
+  Utwig dialogue
+- New lander reports for Supox ruins and Ultron. The reports text
+  is new content from TFB.
+- Added spoken Slylandro probe coordinates
+- Remixes are now selectable from the setup menu
+- Added a "safe mode", which will ignore settings. Useful if you've somehow
+  wrecked your configuration files.
+- Added --addondir commandline option
+- Added --keepaspectratio to keep correct aspect ratio when using
+  custom resolutions in OpenGL mode
+- New addon machanism allows greater flexibility for selecting which
+  resource goes with which game element.
+- Joystick text input improved
+- Unicode strings now could theoretically support UCS-4 on all platforms
+- Experimental support for Symbian S60 3rd edition
+- Support for Windows CE
+- Added fullscreen/windowed toggle key F11
+- Support for 3DO "ship spin" videos
+- Better location description in savegame summaries
+- Cancel key will now quit out of the Manifest Menu
+- Error boxes on MacOSX are now actually native to the OS - no need to check
+  Console.app anymore.
+
+BUGFIXES
+
+- Properly account for simultaneous destruction in SuperMelee.
+- Ending a battle with a simultaneous death no longer triggers an
+  assertion
+- Druuge no longer turn hostile after attempting a salvage
+- Fixed Mmrnmhrm's X-Form transformation without energy use
+- Fuel and distance estimates are now more accurate
+- Analog joysticks less sensitive to jitter
+- Cannot talk to Ilwrath with a 'caster anymore after they die off
+- Fixed enemy ships getting recrewed between encounters in HyperSpace
+- Old Windows installer was horribly obsolete; fixed now.
+- Fixed rendering error when entering the orbit of a shielded planet
+- Fixed planet blinking when exiting scan
+- Menu sounds restored after editing a control set name.
+- Fixed a freeze when quickly escaping melee.
+- Fixed misaligned cargo count
+- Fixed a crash when filling fuel tanks over 10
+- Comm code rewrite, fixing a lot of minor annoyances
+- Team configuration in netplay no longer desyncs
+- Fixed Melee menu timeout when both sides are Cyborgs
+- Fixed AI ship not moving on warp in
+- Revert gfx settings entirely when a mode switch fails
+- Fix for weird colors problem on MacOSX with SDL 1.2.14
+- Lander will no longer hang when killed on planets with a lot of
+  natural disasters
+- Fixed crash when saving a game into the last slot while having
+  too many devices on board
+- Fixed crashes and potential weirdness when loading savegames from
+  a Homeworld encounter screen
+- Fixed a crash when conversing with music disabled
+- Extremely busy battle sequences (Orz vs. Orz with many space marines
+  out, for instance) no longer introduces graphical glitches
+- Fixed rendering bug that would occasionally make a ship just be solid
+  blue all the time
+- Objects in melee made of multiple "parts" no longer jitter during zoom
+- Fixed a crash on startup if uqm.cfg did not exist
+- Extremely rapid key presses will no longer be lost at low framerates
+- 3DO videos now work after a resolution change
+- OpenGL texture loading uses surface pitch instead of screen width,
+  improving compatibility across older graphics cards.
+- Miscellaneous conversational typo and timing fixes
+- 999.9:999.9 is now reachable in HyperSpace
+- Do not match singular stars when given a prefix in star search
+- Fixed wrong Sa-Matra guards icons after Kohr-Ah win
+- Canceling load from the main menu returns to main menu
+- Gas giants can no longer have negative masses
+
+INTERNAL CHANGES
+
+- Code cleanup; many warnings removed
+- Massive changes to the way the resource system works. This is
+  mostly interesting in that 3DO voices, 3DO videos, and 3DO music
+  are now addon packs like any other.
+- Code reorganization; old stuff removed, new stuff better set-up
+- 32-bit graphics everywhere internally.
+- Refactored universe generation
+- Pthread support
+- Removed the 256-frame limit on .ani files
+
+			     Version 0.6
+			    -------------
+
+NEW FEATURES
+
+- Netplay!  You can now engage in Super Melee over the Internet.
+- Key configuration is now entirely in-game.
+- UQM now compiles and runs on 64-bit systems.
+
+BUGFIXES
+
+- The Quit button (F10) now works properly when used during the
+  introduction sequence.
+- Various small fixes to text and conversation logic.
+
+INTERNAL CHANGES
+
+- The setup menu now reads all its text from the content, easing
+  translation.
+- The MOD player for PC-style music can now be linked against an
+  external version of libmikmod.
+- Various code cleanups and memory optimizations.
+
+			     Version 0.5
+			    -------------
+
+NEW FEATURES
+
+- The Starmap is searchable!  Type / then the beginning of the
+  constellation name, and you can tab through all possible
+  completions.
+- New 'hq' scaler, based on Maxim Stepin's "HQ2X" scaler.  See
+  www.hiend3d.com/hq2x.html for more details.
+- Scalers can use MMX/SSE/3DNow! instructions for significant speed
+  improvements.  The "Processor pack" is necessary for compilation of
+  same on VC6.
+- Imported DOS versions of many graphics; these have richer palettes
+  and so generally look better
+- There's a proper credit roll at the end of the game now.
+- Superior Planet handling: topographical maps scaled far more
+  precisely; optional 3DO-style throbbing slave shield; planets are
+  finally rotating spheres instead of spotlit cylinders or rectangles.
+  The old PC-style "Entering Planetary Orbit..." screen is back.
+- Setup Menu far more complete and easy to use, and selections made in
+  the Setup Menu will actually persist when you restart the program
+- Added support for the Tremor Ogg Vorbis decoder (avoids floating point
+  math)
+- Home, End and BackSpace keys work as you'd expect in text input.
+- Most of the game works with Unicode properly now, and so, with proper
+  font characters installed, will work with non-Latin alphabets.  (On
+  Windows, Unicode input requires a very recent version of SDL.)
+- Text may be input with the joystick again, as on the 3DO.  The
+  available characters are stored in content/lbm/joyalpha.txt.
+- The intro now plays only when a new game is started.
+- Color depth is now determined entirely automatically.
+
+BUGFIXES
+
+- Only SELECT and CANCEL trigger the fade-to-black at the end of a
+  Super Melee, solving the issue of invisible "Really Quit?" menus for
+  Super Melee.  The "quit during fades" problem in general is still
+  extant.
+- Many dialog, and comm animation, and general graphical fixes
+- Keypress status is not reset when entering battle mode, so (for
+  instance) Melnorme ships can continue to charge a shot across
+  battles.
+- The Melnorme would occasionally strip off Plot Points as part of a
+  fuel deal.  No longer.
+- Bugs in the original code prevented certain ships from properly
+  spawning in "uncontrolled" space.  The "wilds" are now a bit wilder,
+  as apparently originally intended.
+- Venus's atmospheric density was incorrectly corrected in the 3DO
+  version.  It's been correctly corrected now.
+- Scheduled plot events work properly, even when the game suddenly
+  skips ahead in time.
+- Fixed version checking in unix build scripts. SDL 1.2.10 is now
+  recognised as newer than 1.2.9.
+- Spliced communications can be safely skipped past now.
+- Fixed fast escape weirdness (bug #619)
+- Threading system no longer assumes that there is no thread 0; this
+  permits compilation on AmigaOS.
+- Relative paths and fallback paths work properly now.
+- Scalers now use surface pitch instead of image width - this is
+  reported to solve many strange display problems in non-OpenGL mode
+  on Macs
+- Ending sequences may now be safely paused.
+
+INTERNAL CHANGES
+
+- Added the rest of devel/ and users/ documentation into MSVC .dsp
+  files.
+- Control scheme upgraded.  Old versions of keys.cfg will no longer
+  work.
+- PNG transparency info (tRNS chunk) is now set properly, based on
+  info in the .ani files.
+- Paletted images should render much faster now, and collisions
+  between mods are less likely.
+- New font engine: fonts are loaded and treated as alpha-channel-only
+  images, with font effects handled as backing images.
+- Melee works properly with alpha-channel graphics new, even when
+  mipmapped.
+- Lander report drawing handled more sensibly now
+- Binary resource indexes have been replaced with textual ones.
+- All spritework is done internally in 32BPP.
+- Removed MikMod i/o hacks.
+- The temp files for representing star and group data are now kept in
+  memory instead.
+- Separate config_win.h file for build.sh builds on Windows
+- Lowered some animation rates to reasonable levels, lowering CPU
+  usage.
+- Changed comm subtitle caching scheme.  Should kill the "blue comm
+  screen" problem forever.
+- Refactored setup menu code to use generic widgets.
+- Cleaner build output. Set '$MAKE_VERBOSE' to 1 for old output.
+- Improved dependency tracking for unix build system. "./build.sh uqm
+  depend" is now only needed for checking for new source files.
+
+			     Version 0.4
+			    -------------
+
+NEW FEATURES
+
+- Savegame slot defaults to the last one used during this play
+- PC intro and ending sequence are now present
+- 3DO intro and ending movies are supported for those who have these
+  movies from the 3DO CD of Star Control II
+- Improved slave shield graphics
+- Added a new -l option to produce logfiles
+- Added a new 'triscan' scaler derived from scale2x
+- Made the fact that self-destructing ships grant resources more obvious
+- Added a "config dir" option for holding saves and melee information
+- Cocoa hooks
+- Setup menu now permits configuration of some options.  They do not
+  yet persist past program quit, though.
+- Added a "--version" option
+- Melee images are now based on the (richer) DOS content
+- 3-step melee zooming as per the PC version is now implemented
+- It is now possible to complete the game without ever allying with the
+  Starbase (if one is insane; this is known on the forum as "Beating The
+  Game Differently" - but bugs and plot elements preventing this have been
+  fixed or evaded under this circumstance).
+
+BUGFIXES
+
+- Fixes to the Quit Confirmation dialog
+- Collisions/encounters with "invisible" fleeing ships gone
+- Other ships insystem remain in proper locations after planet landing
+- Fixed some keyboard "focus" problems where flight controls were
+  being cleared at inappropriate times, or interfering with menus
+- Graphics fixes
+- Subtitle timings work in the absence of oggs
+- Conversation summaries with Melnorme no longer crash
+- --contentdir argument may now have spaces
+- $HOME isn't required for Unix systems anymore
+- Fuel estimates fixed (original bug)
+- Fuel usage on planet landing now correcly reported on all versions
+- MOD music will play on big-endian machines under high-quality now
+- Space marines die in a self-destructing Scout
+- ZFP speech is properly vertically aligned now
+- Various odd behaviors when loading in HyperSpace now fixed
+- Quitting from the Roster screen no longer crashes
+- Many dialog fixes
+- The "Blue Comm Screen" problem no longer occurs
+- Combat Energy computation in Outfit Flagship screen corrected
+- A game crash that manifested when pausing after 85 minutes has been
+  corrected
+- Main menu version number drawn more consistently
+- Transparency bugfixes - 3DO ending credits, planets in battle
+- Content packs may also be named ".uqm" - these are really still
+  zip files, but you can't expand them by accident.
+- One may now configure a joystick without crashing the game if the
+  joystick is not present
+- Music volume normalized throughout the game
+
+INTERNAL CHANGES
+
+- Thread system completely reworked to provide more detailed thread
+  information, and to prevent resource leaks
+- Sound code is now virtualized and separate from game logic
+- Fine-grained control of menu sounds
+- Input system fully unified - all parts of the game use the same
+  basic structure now
+- Build scripts made more robust
+- Window-drawing code was lifted out of confirm.c and made more general
+- Lots of debugging functions
+- Unicode support for game dialogs and fonts
+- Lots of code cleanups
+- Documentation of more internals
+
+
+			     Version 0.3
+			    -------------
+
+NEW FEATURES
+
+- PC-style shipyard graphics, complete with animated power lines
+- Selling ships in the shipyards has slightly different controls
+  that make it harder to sell ships accidentally
+- Main menu displays version number
+- Added a '-g' option to control gamma correction
+- Planet spin has been improved
+- Trilinear (mipmap-based) scaling in melee
+- PC-style conversation summaries have been implemented
+- Ship location display in status bar matches original more closely
+- Game flags (such as AWARE_OF_SAMATRA) that were ignored by half the
+  game (even in the original) now are more universally available
+- Oscilloscope and Mini-Map have borders now
+- Commander Hayes won't let you rescue him until he's explained his
+  predicament
+- Confirmation dialogs are now menu-based
+- Positional sound effects are available for OpenAL
+- Delete key works on Super-Melee team editing
+- Exit key from the Main Menu will quit the game
+- Quit option available in GAME menu
+- New Main Menu graphics: Setup (not yet implemented) and Quit are
+  options at the Main Menu now
+- Cubic resampling in high quality audio mode
+- PC-style alien outtakes when game is completed
+- 2 more ship slots in melee, as the PC Star Control 2 had.
+- All the standard melee teams from the Star Control 2 PC version.
+- Support for 50 savegames, instead of just 10
+- 'CREW'/'BATT' instead of icons in melee when using PC menus
+
+BUGFIXES
+
+- Text entry doesn't freeze up lander reports anymore
+- VUX warps in at proper range
+- Distance-based ship effects (Syreen, Slylandro, Kohr-Ah) were screen
+  size dependent
+- Line clipping fixed
+- Various communication animation glitches solved
+- Various melee crashes solved
+- Various race conditions eliminated
+- Scaling of graphics is handled by the rendering thread now, solving
+  issues where the background and object scales would drift out of
+  sync
+- Subtitle text is clipped more carefully
+- Objects can no longer be scaled to total invisibility
+- Various dialogue fixes
+- Crossfade glitches eliminated
+- Pause and Exit keys function properly everywhere
+- Visit Count overflow with Yehat and Chmmr patched
+- Wav loader and color transforms are now endian safe
+- Menu glitches when leaving the "GAME" menu are gone
+- Druuge transactions no longer baselessly increase crew cost
+- Lander speed has been retimed to match 3DO
+- Audio resampling works now correctly (less cracklings)
+- MixSDL buffer underrun handling fixed
+- Some memory leaks have been eliminated
+- Fixes and speed improvements on bilinear, biadapt, biadv scalers
+- Various minor graphics glitch fixes
+- Crew death on planet is now counted properly in all cases
+- Mouse cursor is now hidden in fullscreen mode
+- Guardian in Blazer mode being drained by DOGI will no longer
+  result in a non-blazer Guardian with Blazer effects.
+
+INTERNAL CHANGES
+
+- Legacy graphics code stripped down tremendously, a lot of "poor
+  man's object orientation" has fallen away too.  Many uses of
+  function pointers with only one possible value replaced with simple
+  direct calls.
+- Crossfades require you to explicitly cache the screen before drawing
+  the transition target
+- User Input code has been completely rewritten
+- File I/O code has been completely rewritten
+- Subtitle drawing is now cached as its own sprite; communication
+  screens are much less graphics intensive now
+- DRAWABLE_DESC uses separately allocated arrays for its frames
+
+
+			     Version 0.2
+			    -------------
+
+NEW FEATURES
+
+- Planet info "coarse scan" information available and properly rendered,
+  either in 3DO way (symbols) or PC (text)
+- 3D spinning planet in orbit window is present, with antialiasing and
+  phong lighting and an animated approach
+- Pixel-perfect collision detection; Spathi/Mycon are thus playable, and
+  the game is now beatable
+- Build system enhanced and generalized to handle OpenBSD and FreeBSD cleanly.
+- Oscilloscope display works in communication now
+- Color-shading in planet scans
+- Earth with its slave shield now functions properly
+- Outfit Starship and Shipyard graphics re-extracted
+- Save data and temp files are put in a separate directory now
+- Star sizes and colors are properly differentiated.
+- Planet surface is smoothed, blurred, and randomized slightly when it's
+  magnified
+- SIS Status window fully implemented (including gradiated fonts from PC
+  version)
+- Dialogue "slider" shows how far along the speech is; rewind/forward works
+- 'ESC' alone lets you emergency-warp-escape
+- Optional PC version menus
+- Preliminary support for MacOS X (needs more work)
+
+BUGFIXES
+
+- Melee screens cleaned up, SuperMelee menus work.
+- Subtitles now render for all alien races
+- Major editing of subtitles to match more closely the speeches
+- Speech and subtitles are now synchronized properly
+- Autopilot indicator doesn't take over the top of the screen anymore.
+- Entering star systems on autopilot doesn't crash the system.
+- Planet scan is properly erased when cancelling/landing
+- Initial display of planet surface on landing is at correct position
+- Spheres of influence now move correctly on the starmap
+- Melnorme correctly compute the required additional credits
+- Team names switching when selecting the next ship to fight in melee fixed
+- Commas left dots behind on planetary reports; this is fixed
+- Screen resets properly after loading/saving
+- Dialog choices wrap properly
+- Precursor ship crew count now placed correctly in melee
+- 'Cued' color transforms in conversations occur at the right time now
+- SIS correctly predicts its own fuel usage now
+- Melnorme no longer give away fuel
+- Flagship modules are properly aligned
+- The PC soundtrack now loops correctly
+- Lander upgrades were drawn incorrectly
+- Autopilot now works in QuasiSpace without fuel
+- Captain portraits in melee are updated properly now
+- If you have over 1000 units of a resource, those numbers are properly
+  cleared
+
+INTERNAL CHANGES
+
+- SDL_mixer has been abandoned in favor of either OpenAL or the new
+  "MixSDL" library built on the basic SDL_audio routines
+- Color transforms in communications are merged into the core animation
+  thread now, improving speed and stability
+- Much more flexible handling of commandline options
+- All allocated memory is allocated through 'safe' routines that abort if
+  the allocation fails.
+- Thread library now includes condition variables
+- Threads can tell the rendering thread to sleep until everything they've
+  requested is done
+- The rendering thread has been recoded to use no heap space and to have a
+  far smaller memory footprint.
+- Added a special #define, DCQ_OF_DOOM, which simulates severe overload 
+  stresses.
+- SAI and related scalers removed due to GPL incompatibilities; similar
+  algorithms reimplemented under GPL.
+- Files for the intro and ending sequence have been successfully extracted
+- Rendering thread routines are somewhat more modular than before
+- Created a new set of graphics primitives that's much easier to use
+- Only parts of the screen that actually changed are updated
+- Input code rewritten entirely
+- Various functions have their names changed to avoid conflicts with
+  core library routines on OS X
+
+
+			     Version 0.1
+			    -------------
+Initial release.

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Wrapper script for starting The Ur-Quan Masters
+exec "@INSTALL_LIBDIR@uqm-megamod/UrQuanMasters" "--contentdir=@INSTALL_SHAREDIR@uqm-megamod/content" "$@"
+

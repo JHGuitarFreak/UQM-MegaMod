@@ -1,0 +1,46 @@
+TARGETS="uqm"
+
+# For the 'uqm' target:
+if [ "$DEBUG" = "1" ]; then
+	uqm_OBJS=obj/debug/    # Directory for object files
+	uqm_NAME=UrQuanMastersDebug     # File name of executable
+else
+	uqm_OBJS=obj/release/  # Directory for object files
+	uqm_NAME=UrQuanMasters           # File name of executable
+fi
+case "$HOST_SYSTEM" in
+	ARMV5|WINSCW|GCCE)
+		uqm_NAME="uqm.lib"
+		;;
+	MINGW32*|CYGWIN*)
+		uqm_NAME="$uqm_NAME.exe"
+		;;
+esac
+uqm_CFLAGS="$uqm_CFLAGS -Isrc"
+uqm_CXXFLAGS="$uqm_CXXFLAGS -Isrc"
+if [ "$uqm_HAVE_REGEX" = 0 ]; then
+	uqm_CFLAGS="$uqm_CFLAGS -Isrc/regex"
+	uqm_CXXFLAGS="$uqm_CXXFLAGS -Isrc/regex"
+fi
+
+# Stuff to install under the directory for libraries, as specified during
+# config.
+uqm_INSTALL_LIBS="executable"
+uqm_INSTALL_LIB_executable_SRC="$BUILD_WORK/$uqm_NAME"
+uqm_INSTALL_LIB_executable_DEST=uqm-megamod/UrQuanMasters
+uqm_INSTALL_LIB_executable_MODE="0755"
+
+# Stuff to install under the directory for system-independant data, as
+# specified during config.
+uqm_INSTALL_SHARED="content"
+uqm_INSTALL_SHARED_content_SRC=bin/content
+uqm_INSTALL_SHARED_content_DEST=uqm-megamod/
+uqm_INSTALL_SHARED_content_MODE="go+rX"
+
+# Stuff to install under the directory for binaries, as specified during
+# config.
+uqm_INSTALL_BINS=wrapper
+uqm_INSTALL_BIN_wrapper_SRC="$BUILD_WORK/uqm-wrapper"
+uqm_INSTALL_BIN_wrapper_DEST="UrQuanMasters"
+uqm_INSTALL_BIN_wrapper_MODE="0755"
+

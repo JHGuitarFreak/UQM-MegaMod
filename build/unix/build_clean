@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Find all the .c, .cpp, .m, and .rc files which are relevant for the project,
+# and remove their respective object files in the work directory.
+
+# Expected to be passed from the environment:
+# BUILD_PROJECT - the name of the project
+# BUILD_ROOT - The root of the source files.
+# BUILD_WORK - The root of the work directory.
+
+BUILD_ROOT=${BUILD_ROOT%/}/
+BUILD_WORK=${BUILD_WORK%/}/
+eval OBJDIR=\"${BUILD_WORK}\${${BUILD_PROJECT}_OBJS}\"
+
+. "${BUILD_ROOT}Makeproject"
+
+build/unix/recurse "$BUILD_PROJECT" "$BUILD_ROOT" | \
+		while read TYPE FILE; do
+	case "$TYPE" in
+		C|CXX|M|RC)
+			rm -f -- "${OBJDIR}${REC_PREFIX}$FILE.d" \
+					"${OBJDIR}${FILE}.o"
+			;;
+		DIROUT)
+			rmdir -- "${OBJDIR}${FILE}" 2> /dev/null
+			;;
+	esac
+done
+

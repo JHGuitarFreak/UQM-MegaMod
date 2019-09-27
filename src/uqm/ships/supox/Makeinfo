@@ -1,0 +1,2 @@
+uqm_CFILES="supox.c"
+uqm_HFILES="icode.h resinst.h supox.h"

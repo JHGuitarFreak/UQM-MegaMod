@@ -1,0 +1,64 @@
+This is the format for resources of type GFXRES (these have the extension
+.ani in the original source).
+
+Everything is stored MSB first unless otherwise specified.
+
+position   length  meaning
+           4       0xffffffff if the file is uncompressed.
+                   Otherwise, the file is compressed. When uncompressed, the
+                   file complies with the rest of the format as described
+                   below.
+           4       Unused in file, always 0x00000000
+           4       FlagsAndIndex:
+                     bits 0-11: 1 less than the number of frames in this
+                                graphics resource
+                     bits 12-15: flags:
+                       - bit 0: (WANT_MASK)
+                       - bit 1: (WANT_PIXMAP)
+                       - bit 2: (WANT_COMPRESSED)
+                       - bit 3: (DOUBLE_RES)
+                     bits 16-31: unknown (0x0000)
+
+Frame descriptions:
+Then for all frames:
+           4       Type index and flags (TypeIndexAndFlags)
+                   Low 2 bytes:
+                     bits 0-11 is the index of this frame
+                     bits 12-15 are the type flags:
+                        - bit 12-13:
+                          - 0: (ROM_DRAWABLE)
+                          - 1: Direct drawable (RAM_DRAWABLE)
+                          - 2: (SCREEN_DRAWABLE)
+                          - 3: (OVERLAY_DRAWABLE)
+                   High 2 bytes (frame flags):
+                      - bits 0-7: global PLUT to use
+                      - bit 12: Frame is in cel format (DATA_HARDWARE)
+                      - bit 13: (DATA_COPY aka DATA_SCREEN)
+                      - bit 14: (DATA_PACKED)
+                      - bit 15: (X_FLIP)
+           4       Hot spot information (definition of (0, 0) in the image):
+                      - low 2 bytes: x location of hot spot
+                      - high 2 bytes: y location of hot spot
+           4       Image bounds:
+                      - low 2 bytes: Image width
+                      - low 2 bytes: Image height
+           4       Offset from beginning of the frame description for this
+                   frame to the beginning of the frame.
+
+Frames:
+Then for all frames:
+  If DATA_HARDWARE is set in the flags for this frame:
+           4       Size of image data
+           ?       .cel image data
+  If DATA_PACKED is set in the flags for this frame: (from 3do/imageint.c)
+     for every line in the image (bounds.height lines):
+           2       number of bytes used to encode this line
+                   The actual number of bytes is computed like so:
+                   (number-of-bytes + 2) * 4
+           a number of packets of this format:
+           
+
+
+Initial version 2002-10-22, by Serge van den Boom
+
+

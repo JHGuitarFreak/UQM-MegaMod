@@ -1,0 +1,2 @@
+uqm_CFILES="blackurq.c"
+uqm_HFILES="blackurq.h icode.h resinst.h"

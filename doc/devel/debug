@@ -1,0 +1,80 @@
+The file src/sc2code/uqmdebug.c and src/sc2code/uqmdebug.h contain various
+debugging functions, which are included in the binary when the game
+is built in debug mode.
+These functions can be called from anywhere in the code, though some
+require the game to be in a specific state.
+The function debugKeyPressed() in uqmdebug.c is called when the debug key
+is pressed. This function is a suitable place to put various debugging
+calls.
+There are also global variables 'debugHook' and 'doInputDebugHook',
+which can be set to a function to be called from the Starcon2Main thread.
+If if is set, 'debugHook' is called the next iteration of the main game loop
+(which will occur when the current activity (IP, HyperSpace, Communication,
+Battle) changes. The game will be in a well defined state here.
+If 'doInputDebugHook' is set, the function it is set to is called from
+doInput(), which is called all throughout the game.
+By setting one of these hooks, a function can be called from the Starcon2Main
+thread, thereby eliminating threading issues that may otherwise arrise.
+The debug key can be specified in user's override.cfg by adding a line
+with a text similar to "debug.1 = STRING:key F12".
+An interactive way to access various debugging code, similar to
+the uio debug mode (see below) is in the works.
+
+The most interesting debugging functionality available at the moment is
+listed below:
+- the function equipShip()
+  When this function is called, the SIS is equiped with various useful
+  modules (a possible Precursor Bomb is left in place), all
+  fuel tanks and crew pods are filled to the maximum, you are given
+  the maximum number of landers, and all possible lander shields are
+  installed.
+- the boolean variable instantMove
+  When this variable is set to TRUE, you can select a location on the
+  star map, and your HyperSpace/Quasispace coordinates will immediately
+  be set to them. Your realspace coordinates are not changed, so if you
+  are exploring a solar system, you'll only notice it when you leave to
+  HyperSpace.
+- the function showSpheres()
+  When this function is called, all spheres of influence of the active
+  races will be shown.
+- the function activateAllShips()
+  When this function is called, it will make all ships available for
+  purchase in the shipyard.
+- the function forwardToNextEvent()
+  Fast forwards the clock until the next event. If TRUE is given as an
+  argument, the HYPERSPACE_ENCOUNTER_EVENTs, which normally happen every
+  day, are skipped.
+- the function dumpEvents()
+  Outputs information on all scheduled events to a FILE.
+- the function dumpPlanetTypes()
+  Outputs information on all planet types to a FILE.
+- the function dumpUniverseToFile()
+  Outputs information on the universe to "./PlanetInfo". This function
+  should only be called from debugHook, as threading issues would otherwise
+  arrise.
+- the functions resetCrewBattle() and resetEnergyBattle()
+  This function, when called in melee, sets the current crew or energy
+  level of the bottom player's ship to its maximum. This works both in
+  Supermelee and in the full game.
+- the function uio_debugInteractive()
+  This function is not defined in sc2code/uqmdebug.h, but in libs/uio.h.
+  This function can interactively (tty-based) display information on
+  the state of the uio file system, and modifications can be made.
+- the function luaUqm_debug_run()
+  This function is not defined in sc2code/uqmdebug.h, but in
+  uqm/lua/luadebug.c
+  This function can be used to interactively (tty-based) execute Lua
+  commands. Put 'return' in front of an expression to show its result.
+  Press CTRL-D to exit (on *nix; probably CTRL-Z on Windows).
+- the function dumpStrings()
+  This function prints all the game strings, and is useful to check whether
+  the various string bases, as defined in gamestr.h, are correct.
+- the function debugContexts()
+  Prints and visually displays the various graphics contexts.
+  This function should only be called from doInputDebugHook(), as threading
+  issues would otherwise arrise.
+
+
+The first version of this document was created by Serge van den Boom,
+on 2004-05-15.
+

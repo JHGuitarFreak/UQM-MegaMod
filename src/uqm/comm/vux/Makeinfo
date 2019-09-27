@@ -1,0 +1,2 @@
+uqm_CFILES="vuxc.c"
+uqm_HFILES="resinst.h strings.h"

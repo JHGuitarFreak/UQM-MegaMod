@@ -1,0 +1,2 @@
+uqm_CFILES="pkunk.c"
+uqm_HFILES="icode.h pkunk.h resinst.h"

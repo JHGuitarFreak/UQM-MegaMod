@@ -1,0 +1,300 @@
+/*
+ *  Copyright 2006  Serge van den Boom <svdb@stack.nl>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+// This file is part of netconnection.c, from where it is #included.
+
+static inline ConnectStateData *ConnectStateData_alloc(void);
+static inline ConnectStateData *ConnectStateData_new(void);
+static inline void ConnectStateData_free(ConnectStateData *connectStateData);
+static void ConnectStateData_delete(ConnectStateData *connectStateData);
+
+static int NetConnection_go(NetConnection *conn);
+static ListenState *NetConnection_serverGo(NetConnection *conn);
+static ConnectState *NetConnection_clientGo(NetConnection *conn);
+static void NetConnection_connected(NetConnection *conn);
+static void NetConnection_connectedServerCallback(ListenState *listenState,
+		NetDescriptor *listenNd, NetDescriptor *newNd,
+		const struct sockaddr *addr, SOCKLEN_T addrLen);
+static void NetConnection_connectedClientCallback(ConnectState *connectState,
+		NetDescriptor *newNd, const struct sockaddr *addr, SOCKLEN_T addrLen);
+static void NetConnection_connectedServerErrorCallback(
+		ListenState *listenState, const ListenError *listenError);
+static void NetConnection_connectedClientErrorCallback(
+		ConnectState *connectState, const ConnectError *connectError);
+
+
+////////////////////////////////////////////////////////////////////////////
+
+
+static inline ConnectStateData *
+ConnectStateData_alloc(void) {
+	return (ConnectStateData *) malloc(sizeof (ConnectStateData));
+}
+
+static inline ConnectStateData *
+ConnectStateData_new(void) {
+	ConnectStateData *connectStateData = ConnectStateData_alloc();
+	connectStateData->releaseFunction =
+			(NetConnectionStateData_ReleaseFunction) ConnectStateData_delete;
+	return connectStateData;
+}
+
+static inline void
+ConnectStateData_free(ConnectStateData *connectStateData) {
+	free(connectStateData);
+}
+
+static void
+ConnectStateData_delete(ConnectStateData *connectStateData) {
+	if (connectStateData->isServer) {
+		ListenState *listenState = connectStateData->state.listenState;
+		ListenState_close(listenState);
+	} else {
+		ConnectState *connectState = connectStateData->state.connectState;
+		ConnectState_close(connectState);
+	}
+	ConnectStateData_free(connectStateData);
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+
+static int
+NetConnection_go(NetConnection *conn) {
+	ConnectStateData *connectStateData;
+
+	if (NetConnection_isConnected(conn))
+		return 0;
+	
+	if (conn->options->isServer) {
+		ListenState *listenState;
+		listenState = NetConnection_serverGo(conn);
+		if (listenState == NULL) {
+			// errno is set
+			return -1;
+		}
+		connectStateData = ConnectStateData_new();
+		connectStateData->state.listenState = listenState;
+	} else {
+		ConnectState *connectState;
+		connectState = NetConnection_clientGo(conn);
+		if (connectState == NULL) {
+			// errno is set
+			return -1;
+		}
+		connectStateData = ConnectStateData_new();
+		connectStateData->state.connectState = connectState;
+	}
+	connectStateData->isServer = conn->options->isServer;
+
+	NetConnection_setStateData(conn, (void *) connectStateData);
+	return 0;
+}
+
+static ListenState *
+NetConnection_serverGo(NetConnection *conn) {
+	ListenFlags listenFlags;
+	ListenState *result;
+
+	assert(conn->state == NetState_unconnected);
+	assert(conn->options->isServer);
+
+	NetConnection_setState(conn, NetState_connecting);
+
+	memset (&listenFlags, 0, sizeof listenFlags);
+	listenFlags.familyDemand =
+#if NETPLAY == NETPLAY_IPV4
+			PF_inet;
+#else
+			PF_unspec;
+#endif
+	listenFlags.familyPrefer = PF_unspec;
+	listenFlags.backlog = NETPLAY_LISTEN_BACKLOG;
+
+	result = listenPort(conn->options->port, IPProto_tcp, &listenFlags,
+			NetConnection_connectedServerCallback,
+			NetConnection_connectedServerErrorCallback, (void *) conn);
+
+	return result;
+}
+
+static ConnectState *
+NetConnection_clientGo(NetConnection *conn) {
+	ConnectFlags connectFlags;
+	ConnectState *result;
+
+	assert(conn->state == NetState_unconnected);
+	assert(!conn->options->isServer);
+
+	NetConnection_setState(conn, NetState_connecting);
+
+	memset (&connectFlags, 0, sizeof connectFlags);
+	connectFlags.familyDemand =
+#if NETPLAY == NETPLAY_IPV4
+			PF_inet;
+#else
+			PF_unspec;
+#endif
+	connectFlags.familyPrefer = PF_unspec;
+	connectFlags.timeout = NETPLAY_CONNECTTIMEOUT;
+	connectFlags.retryDelayMs = NETPLAY_RETRYDELAY;
+
+	result = connectHostByName(conn->options->host, conn->options->port,
+			IPProto_tcp, &connectFlags, NetConnection_connectedClientCallback,
+			NetConnection_connectedClientErrorCallback, (void *) conn);
+	
+	return result;
+}
+
+// Called when an incoming connection has been established.
+// The caller gives up ownership of newNd
+static void
+NetConnection_connectedServerCallback(ListenState *listenState,
+		NetDescriptor *listenNd, NetDescriptor *newNd,
+		const struct sockaddr *addr, SOCKLEN_T addrLen) {
+	NetConnection *conn =
+			(NetConnection *) ListenState_getExtra(listenState);
+
+	assert(conn->nd == NULL);
+
+	conn->nd = newNd;
+			// No incRef(); the caller gives up ownership.
+	NetDescriptor_setExtra(conn->nd, (void *) conn);
+
+	(void) Socket_setInteractive(NetDescriptor_getSocket(conn->nd));
+			// Ignore errors; it's not a big deal. In debug mode, a message
+			// will already have been printed from the function itself.
+
+	conn->stateFlags.discriminant = true;
+
+	NetConnection_connected(conn);
+	(void) listenNd;
+	(void) addr;
+	(void) addrLen;
+}
+
+// Called when an outgoing connection has been established.
+// The caller gives up ownership of newNd
+static void
+NetConnection_connectedClientCallback(ConnectState *connectState,
+		NetDescriptor *newNd,
+		const struct sockaddr *addr, SOCKLEN_T addrLen) {
+	NetConnection *conn =
+			(NetConnection *) ConnectState_getExtra(connectState);
+
+	assert(conn->nd == NULL);
+
+	conn->nd = newNd;
+			// No incRef(); the caller gives up ownership.
+	NetDescriptor_setExtra(conn->nd, (void *) conn);
+
+	(void) Socket_setInteractive(NetDescriptor_getSocket(conn->nd));
+			// Ignore errors; it's not a big deal. In debug mode, a message
+			// will already have been printed from the function itself.
+
+	conn->stateFlags.discriminant = false;
+
+	NetConnection_connected(conn);
+	(void) addr;
+	(void) addrLen;
+}
+
+// Called when a connection has been established.
+static void
+NetConnection_connected(NetConnection *conn) {
+	ConnectStateData *connectStateData;
+
+	conn->stateFlags.connected = true;
+	NetConnection_setState(conn, NetState_init);
+
+	connectStateData = (ConnectStateData *) NetConnection_getStateData(conn);
+	ConnectStateData_delete(connectStateData);
+	NetConnection_setStateData(conn, NULL);
+
+	NetDescriptor_setReadCallback(conn->nd, dataReadyCallback);
+	NetDescriptor_setCloseCallback(conn->nd, closeCallback);
+
+	(*conn->connectCallback)(conn);
+}
+
+static void
+NetConnection_connectedServerErrorCallback(ListenState *listenState,
+		const ListenError *listenError) {
+	NetConnection *conn =
+			(NetConnection *) ListenState_getExtra(listenState);
+	NetConnectionError error;
+	
+	conn->stateFlags.connected = false;
+	conn->stateFlags.disconnected = true;
+	ListenState_close(listenState);
+	NetConnection_setState(conn, NetState_unconnected);
+
+	{
+		ConnectStateData *connectStateData;
+		connectStateData =
+				(ConnectStateData *) NetConnection_getStateData(conn);
+		ConnectStateData_free(connectStateData);
+		NetConnection_setStateData(conn, NULL);
+	}
+
+	if (conn->errorCallback != NULL) {
+		error.state = NetState_connecting;
+		error.err = listenError->err;
+		error.extra.listenError = listenError;
+		//NetConnection_incRef(conn);
+		(*conn->errorCallback)(conn, &error);
+		//NetConnection_decRef(conn);
+	}
+	
+	NetConnection_close(conn);
+}
+
+static void
+NetConnection_connectedClientErrorCallback(ConnectState *connectState,
+		const ConnectError *connectError) {
+	NetConnection *conn =
+			(NetConnection *) ConnectState_getExtra(connectState);
+	NetConnectionError error;
+
+	conn->stateFlags.connected = false;
+	conn->stateFlags.disconnected = true;
+	ConnectState_close(connectState);
+	NetConnection_setState(conn, NetState_unconnected);
+	
+	{
+		ConnectStateData *connectStateData;
+		connectStateData =
+				(ConnectStateData *) NetConnection_getStateData(conn);
+		ConnectStateData_free(connectStateData);
+		NetConnection_setStateData(conn, NULL);
+	}
+
+	if (conn->errorCallback != NULL) {
+		error.state = NetState_connecting;
+		error.err = connectError->err;
+		error.extra.connectError = connectError;
+		//NetConnection_incRef(conn);
+		(*conn->errorCallback)(conn, &error);
+		//NetConnection_decRef(conn);
+	}
+	
+	NetConnection_close(conn);
+}
+
+

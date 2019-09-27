@@ -1,0 +1,2 @@
+uqm_CFILES="dirs.c files.c"
+uqm_HFILES="filintrn.h"

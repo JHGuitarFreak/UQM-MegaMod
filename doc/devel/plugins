@@ -1,0 +1,129 @@
+UQM Code DataPlate modules
+=====================================================================
+Terminology:
+------------
+cdp			Code DataPlate
+			refers to either a module or the architecture
+			itself;
+
+module			cdp module (ditto ^)
+
+interface		a set of functions defined by either the core
+			engine or a module aimed at performing various
+			tasks on a specific part of the game
+
+itf			interface; short form
+
+host			the game itself or core engine; also a top-level
+			interface for use by modules
+
+interface kind		a unique identifier of a particular defined
+			interface (not of the interface instance);
+			there can be several interfaces of the same
+			kind registered, but they all have to cover
+			different API versions (version ranges may
+			overlap though)
+
+standard interface	interface *defined* by the core engine
+			all host, sound, video, gfx, threads, time,
+			input, io (uio), memory, resource interfaces
+			are standard, including all subdivisions like
+			'sound mixer' and 'sound decoder';
+			a module can implement standard behavior of
+			the game or extend the game by implementing and
+			registering a corresponding interface
+
+built-in interface	interface *provided* by the core engine
+			e.g. host, sound, video, gfx, etc. lib wrappers
+			anything except 'host' can theoretically be
+ 			implemented as a 'standard' interface rather
+			than built-in; sound and video interfaces,
+			for example, would not make sense to rip out
+			from the core, but parts of 'gfx' might be good
+			candidates (gfx should probably be more than
+			1 interface); do not confuse 'sound' interface
+			with 'sound decoder' and 'sound mixer', mixers
+			(MixSDL and OpenAL) are also prime candidates
+
+custom interface	interface *defined and provided* by a module,
+			other than a standard interface
+			a module may decide to provide (expose) some
+			interfaces so that other modules can utilize
+			them; a module will register such interface
+			the same way it would register a standard
+			interface it implements
+
+vtbl			virtual table; a table of interface functions;
+			pointer to vtbl is semantically equivalent to
+			an interface pointer
+
+event			a bindable point in code of the engine or any
+			module; event observer recieves event
+			notifications via event handlers it installs
+
+h_foo			handle to 'foo'
+
+plate			cdp module
+fork			interface; something to poke a plate with
+spoon			event;
+			"hit the plate with a spoon" == "notify via
+			event handler"
+
+
+Typical calling sequence:
+-------------------------
+1) something calls adlm_LoadModule(the_mod) ('the_mod' is used here
+   to identify the module and to *logically* group module properties
+   and operations performed on the module for the sake of this
+   document); the_mod gets dlopen()ed;
+
+2) adlm_LoadModule() looks up the only exported symbol 'adlminfo'.
+   This symbol is the adlm_ModuleInfo struct;
+
+3) adlm_LoadModule() verifies that the_mod is compatible with current
+   engine and API versions and calls
+   adlm_GetInterface(HOST,the_mod.api_ver) to lookup the host interface
+   with the correct API version for the module;
+
+4) adlm_LoadModule() either increments module ref-count (if the module
+   has already been loaded previously) or calls
+   the_mod.module_init(host_itf)
+
+5) the_mod.module_init() stores off the host_itf pointer and performs
+   internal initialization;
+
+6) [Optional; but not useful w/o] the_mod.module_init() calls
+   host_itf->GetInterface(kind) to get access to whatever standard or
+   custom interfaces it requires (for example, it requests a sound
+   interface to register an audio decoder);
+
+7) [Optional] the_mod.module_init() calls
+   host_itf->RegisterItf(kind,...,itf_vtbl,...) to register the custom
+   or standard (do not confuse with built-in) interfaces it wishes to
+   expose to the core engine or other modules;
+
+8) [Continuous normal operation] module calls members of the interfaces
+   it acquired to perform various game-related tasks; core engine
+   and/or other modules call members of the interfaces that module
+   exposed (if it did so);
+
+9) something calls adlm_FreeModule(h_the_mod) either when the game
+   quits or when the module is dynamically unloaded for whatever
+   reason: possibly when user decides to dump the game-mod and use
+   something else in its place or nothing at all, but for now there
+   is no mechanism to ensure safe mid-game unloading of modules --
+   interfaces are not ref-counted and anything can hold a pointer to
+   an interface at any given time (creating a safe system to do this
+   is probably not cost-effective);
+
+10) adlm_FreeModule() decrements module ref-count and, when ref-count
+   reaches 0, calls the_mod.module_term();
+
+11) the_mod.module_term() calls host_itf->UnregisterItf(h_itf) to
+   unregister the interfaces it had exposed previously; then it
+   unregisters any other objects it registered, releases all objects
+   it acquired through interfaces and destroys any objects it is
+   responsible for;
+
+12) the_mod.module_term() performs internal cleanup;
+

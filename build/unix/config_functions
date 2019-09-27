@@ -1,0 +1,1100 @@
+# Auxiliary functions for custom build system
+# Copyright (c) 2002 Serge van den Boom
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+BUILDLOG=/dev/null
+TEMPFILE="/tmp/build.$$.tmp"
+#KEEPTEMPFILES=keeptempfiles
+
+
+# Description: perform a command, and set the exit status to the opposite.
+#              (true 
+# Arguments:   $1 - the command to run
+#              rest - arguments to the command
+not() {
+	local CMD
+	CMD=$1
+	shift
+	"$CMD" "$@"
+	return "$(($? == 0))"
+}
+
+# Description: prints a command to stdout and then executes it
+# Arguments:   command with arguments
+# Returns:     the return value of the command
+echo_and_perform() {
+	cat << EOF
+$@
+EOF
+	"$@"
+}
+
+# Description: Get the contents of a variable with a specific name,
+#              but don't expand it. (evalVar does expand it)
+#              Use this instead of 'eval', so that you won't have to
+#              worry about escaping.
+#              NB. this function only works on global variables.
+# Arguments:   $1 - the name of the variable
+# Returns:     0
+# Prints:      the value of the variable
+getVar() {
+	local RESULT
+	eval RESULT=\$$1
+	cat << EOF
+$RESULT
+EOF
+}
+
+# Description: Get the contents of a variable with a specific name,
+#              and expand it. (getVar doesn't expand it)
+#              Use this instead of 'eval', so that you won't have to
+#              worry about escaping.
+#              NB. this function only works on global variables.
+# Arguments:   $1 - the name of the variable
+# Returns:     0
+# Prints:      the value of the variable
+evalVar() {
+	local RESULT
+	eval RESULT=\$$1
+	eval RESULT=\""$RESULT"\"
+	cat << EOF
+$RESULT
+EOF
+}
+
+# Description: Set the value of a variable with a specific name,
+#              and expand it.
+#              Use this instead of 'eval', so that you won't have to
+#              worry about escaping.
+#              NB. this function only works on global variables.
+# Arguments:   $1 - the name of the variable
+#              $2 - the value to assign to it (will not be expanded)
+setVar() {
+	eval $1=\$2
+}
+
+# Description: delete the files passed as arguments, unless
+#              $KEEPTEMPFILES is set.
+deleteTempFiles() {
+	if [ -n "$KEEPTEMPFILES" ]; then
+		return
+	fi
+
+	rm -f -- "$@"
+}
+
+# Description: read text from stdin to use as a c file to compile
+# Arguments:   $1 - CFLAGS to use for compilation (optional)
+#              $2 - LDFLAGS to use for linking (optional)
+# Returns:     0 - if compile successful
+#              something else - if compile failed
+try_compile_c() {
+	local SYSTEM_FLAGS RESULT
+
+	if [ -z "$COMPILE_C" ]; then
+		echo "Fatal: Program \$COMPILE_C is not defined!" >&2
+		exit 1
+	fi
+
+	SYSTEM_FLAGS="$SYSTEM_BUILD_CFLAGS $SYSTEM_BUILD_LDFLAGS $SYSTEM_HOST_CFLAGS $SYSTEM_HOST_LDFLAGS"
+	cat > "$TEMPFILE.c"
+
+	echo_and_perform $COMPILE_C $SYSTEM_FLAGS $1 "$TEMPFILE.c" \
+			-o "$TEMPFILE.c.o" >> "$BUILDLOG" 2>&1
+	RESULT=$?
+	
+	if [ $RESULT -eq 0 ]; then
+		echo_and_perform $LINK $SYSTEM_FLAGS $2 "$TEMPFILE.c.o" \
+				-o "$TEMPFILE.out" >> "$BUILDLOG" 2>&1
+		RESULT=$?
+	fi
+	
+	if [ $RESULT -ne 0 ]; then
+		echo "Failed program was:" >> "$BUILDLOG"
+		echo "+++ START $TEMPFILE.c" >> "$BUILDLOG"
+		cat "$TEMPFILE.c" >> "$BUILDLOG"
+		echo "+++ END $TEMPFILE.c" >> "$BUILDLOG"
+	fi
+
+	deleteTempFiles "$TEMPFILE.c $TEMPFILE.c.o $TEMPFILE.out"
+
+	echo >> "$BUILDLOG"
+	return $RESULT
+}
+
+# Description: read text from stdin to use as a c file to compile
+# Arguments:   $1 - CFLAGS to use for compilation (optional)
+#              $2 - LDFLAGS to use for linking (optional)
+# Returns:     128 - if compiling or linking failed
+#              otherwise - exit status of the program
+try_compile_and_run_c() {
+	local SYSTEM_FLAGS RESULT
+
+	if [ -z "$COMPILE_C" ]; then
+		echo "Fatal: Program \$COMPILE_C is not defined!" >&2
+		exit 1
+	fi
+
+	SYSTEM_FLAGS="$SYSTEM_BUILD_CFLAGS $SYSTEM_BUILD_LDFLAGS $SYSTEM_HOST_CFLAGS $SYSTEM_HOST_LDFLAGS"
+	cat > "$TEMPFILE.c"
+
+	echo_and_perform $COMPILE_C $SYSTEM_FLAGS $1 "$TEMPFILE.c" \
+			-o "$TEMPFILE.c.o" >> "$BUILDLOG" 2>&1
+	RESULT=$?
+	
+	if [ $RESULT -eq 0 ]; then
+		echo_and_perform $LINK $SYSTEM_FLAGS $2 "$TEMPFILE.c.o" \
+				-o "$TEMPFILE.out" >> "$BUILDLOG" 2>&1
+		RESULT=$?
+	fi
+
+	if [ $RESULT -eq 0 ]; then
+		"$TEMPFILE.out"
+		RESULT=$?
+	fi
+
+	deleteTempFiles "$TEMPFILE.c $TEMPFILE.c.o $TEMPFILE.out"
+
+	echo >> "$BUILDLOG"
+	return $RESULT
+}
+
+# Description: Output a message to stderr, unless BUILD_SILENT is set
+# Arguments: the message
+build_message() {
+	if [ -z "$BUILD_SILENT" ]; then
+	cat >&2 << EOF
+$@
+EOF
+	fi
+}
+
+# Description: check if a string is lexicographically before
+#              another string
+# Arguments:   $1 - the first string
+#              $2 - the second string
+# Returns:     0 if $1 is lexicographically before $2
+#              1 otherwise
+lexlt() {
+	# The 'test' builtin in some sh shells can't do this.
+	# To execute the non-builtin 'test' you need the path, and
+	# that differs per system (/bin/test or /usr/bin/test).
+	# It says '>=' instead of '<' because expr prints '1' for true,
+	# and sh uses 0.
+	return `expr "$1" ">=" "$2"`
+}
+
+# Description: Check if one version is sufficiently new.
+# Arguments:   $1 - the required version
+#              $2 - the available version
+# Returns:     0 - if $2 is at least as new as $1
+#              1 - if $2 is older than $1, or the two strings don't compare
+version_match() {
+	# To compare the two version strings, the numbers in the version
+	# compared numerically, and all string parts should be equal.
+	local REST1 REST2 NUM1 NUM2 STR1 STR2 CHECKNUMS
+	REST1=$1
+	REST2=$2
+	CHECKNUMS=0
+
+	while [ -n "$REST1" -a -n "$REST2" ]; do
+		NUM1=`$SED -e 's/^\([0-9]*\).*$/\1/' << EOF
+$REST1
+EOF
+`
+		NUM2=`$SED -e 's/^\([0-9]*\).*$/\1/' << EOF
+$REST2
+EOF
+`
+		REST1=`$SED -e 's/^[0-9]*//' << EOF
+$REST1
+EOF
+`
+		REST2=`$SED -e 's/^[0-9]*//' << EOF
+$REST2
+EOF
+`
+		if [ "(" -n "$NUM1" -a -z "$NUM2" ")" -o \
+				"(" -z "$NUM1" -a -n "$NUM2" ")" ]; then
+			# Only one of the versions contains a number here. No match.
+			return 1
+		fi
+		if [ "(" -n "$NUM1" -a -z "$NUM2" ")" -o \
+				"(" -z "$NUM1" -a -n "$NUM2" ")" ]; then
+			# Only one of the versions contains a number here. No match.
+			return 1
+		fi
+
+		if [ "$CHECKNUMS" -eq 0 ]; then
+			if [ "$NUM1" -gt "$NUM2" ]; then
+				# Too old.
+				return 1
+			fi
+			if [ "$NUM1" -lt "$NUM2" ]; then
+				# A major number is larger. Minor numbers may be smaller.
+				CHECKNUMS=1
+			fi
+		fi
+
+		STR1=`$SED -e 's/^\([^0-9]*\).*$/\1/' << EOF
+$REST1
+EOF
+`
+		STR2=`$SED -e 's/^\([^0-9]*\).*$/\1/' << EOF
+$REST2
+EOF
+`
+		REST1=`$SED -e 's/^[^0-9]*//' << EOF
+$REST1
+EOF
+`
+		REST2=`$SED -e 's/^[^0-9]*//' << EOF
+$REST2
+EOF
+`
+
+		if [ "x$STR1" "!=" "x$STR2" ]; then
+			# String parts don't match
+			return 1
+		fi
+	done
+
+	if [ -n "$REST1" -o -n "$REST2" ]; then
+		# One version string contains extra information. No match.
+		return 1
+	fi
+
+	return 0
+}
+
+# Description: try to detect a list of program dependencies.
+#              This only makes sure the PROG_xxx_PRESENT flag is set.
+#              It does not bail out if a dependency is not found.
+#              This function is called for programs in
+#              PROG_xxx_DEPEND_DETECT_BIN or LIB_xxx_DEPEND_DETECT_BIN.
+#              Using have_program in the respective depend functions would
+#              not save the PRESENT flag, as it is executed in a subshell.
+# Arguments:   $1 - the list of programs
+detect_dependencies_program() {
+	local PROGS PROG
+	PROGS=$1
+	for PROG in $PROGS; do
+		have_program "$PROG"
+	done
+}
+
+# Description: try to detect a list of library dependencies.
+#              This only makes sure the LIB_xxx_PRESENT flag is set.
+#              It does not bail out if a dependency is not found.
+#              This function is called for libraries in
+#              PROG_xxx_DEPEND_DETECT_LIB or LIB_xxx_DEPEND_DETECT_LIB.
+#              Using have_library in the respective depend functions would
+#              not save the PRESENT flag, as it is executed in a subshell.
+# Arguments:   $1 - the list of libaries
+detect_dependencies_library() {
+	local LIBS LIB
+	LIBS=$1
+	for LIB in $LIBS; do
+		have_library "$LIB"
+	done
+}
+
+# Description: check if a program is present in the path or as a built-in
+#              command.
+# Arguments:   $1 - The name of the program as it is executed
+# Returns:     0 - if the command is found
+#              1 - if the command is not found
+have_command() {
+	type "$1" > /dev/null 2>&1 || false
+			# The '|| false' is because if 'type' does not recognise the
+			# command, it might return a different value than 1, on some
+			# shells.
+}
+
+# Description: check if a program is present in the path or as a built-in
+#              command.
+# Arguments:   $1 - The name of the program as used in config_proginfo after
+#                   "BIN_"
+have_program() {
+	local PROG TEMP_NAME TEMP_FILE TEMP_VERSION TEMP_PRESENT TEMP_DETECT
+	local TEMP_DEPEND_DETECT_BIN TEMP_DEPEND_DETECT_LIB
+
+	PROG=$1
+	TEMP_NAME=`evalVar "PROG_${PROG}_NAME"`
+	if [ -z "$TEMP_NAME" ]; then
+		echo "Fatal: Program '$PROG' is not defined!" >&2
+		exit 1
+	fi
+	
+	TEMP_PRESENT=`getVar "PROG_${PROG}_PRESENT"`
+	if [ -n "$TEMP_PRESENT" ]; then
+		return "$TEMP_PRESENT"
+	fi
+
+	# If a detection method is specified, try that one first.
+	TEMP_DETECT=`evalVar "PROG_${PROG}_DETECT"`	
+	if [ -n "$TEMP_DETECT" ]; then
+		TEMP_DEPEND_DETECT_BIN=`evalVar "PROG_${PROG}_DEPEND_DETECT_BIN"`
+		TEMP_DEPEND_DETECT_LIB=`evalVar "PROG_${PROG}_DEPEND_DETECT_LIB"`
+		detect_dependencies_program "$TEMP_DEPEND_DETECT_BIN"
+		detect_dependencies_library "$TEMP_DEPEND_DETECT_LIB"
+		$TEMP_DETECT
+		# NB. TEMP_DETECT should make sure PROG_${PROG}_VERSION and
+                # PROG_${PROG}_FILE are set.
+		case $? in
+			0)  # Program found
+				setVar "PROG_${PROG}_PRESENT" 0
+				;;
+			1)  # Lib not found
+				setVar "PROG_${PROG}_PRESENT" 1
+				;;
+			2)  # Use default detection
+				;;
+		esac
+	fi
+
+	# If detection via a specified detection method was inconclusive,
+	# or no detection method was specified, try default detection
+	# based on whether the command name exists.
+	TEMP_PRESENT=`getVar "$PROG_${PROG}_PRESENT"`
+	if [ -z "$TEMP_PRESENT" ]; then
+		TEMP_FILE=`evalVar "PROG_${PROG}_FILE"`
+		have_command "${TEMP_FILE%% *}"
+		if [ $? -eq 0 ]; then
+			# Program found
+			setVar "PROG_${PROG}_PRESENT" 0
+		fi
+	fi
+	
+	# If detection has yielded no results so far, we're calling it
+	# "not found".
+	TEMP_PRESENT=`getVar "PROG_${PROG}_PRESENT"`
+	if [ -z "$TEMP_PRESENT" ]; then
+		setVar "PROG_${PROG}_PRESENT" 1
+	fi
+
+	TEMP_PRESENT=`getVar "PROG_${PROG}_PRESENT"`
+	if [ "$TEMP_PRESENT" -eq 1 ]; then
+		build_message "$TEMP_NAME not found."
+		return 1
+	fi
+
+	# We have found the program.
+	# Test whether the version is sufficient.
+	if [ $# -gt 1 ]; then
+		# Minimum version supplied
+		TEMP_VERSION=`evalVar "PROG_${PROG}_VERSION"`
+		if [ -z "$TEMP_VERSION" ]; then
+			setVar "PROG_${PROG}_PRESENT" 1
+			echo "Fatal: Could not determine the version of $TEMP_NAME" >&2
+			exit 1
+		fi
+		if not version_match "$2" "$TEMP_VERSION"; then
+			setVar "PROG_${PROG}_PRESENT" 1
+			build_message "Found version $TEMP_VERSION of $TEMP_NAME, \
+but version $2 is required!"
+			return 1
+		fi
+		setVar "PROG_${PROG}_PRESENT" 0
+		build_message "$TEMP_NAME version $TEMP_VERSION found."
+		return 0
+	fi
+
+	setVar "PROG_${PROG}_PRESENT" 0
+	build_message "$TEMP_NAME found."
+	return 0
+}
+
+# Description: check if a build tool is present, and define the appropriate
+#              environment variable for it.
+# Arguments:   $1 - The type of compile tool. One of PREPROC_C, MKDEP_C,
+#                   COMPILE_C, PREPROC_OBJC, MKDEP_OBJC, COMPILE_OBJC,
+#                   and LINK.
+have_build_tool() {
+	local TOOL TEMP_NAME TEMP_PRESENT DEPENDS DEPEND SUCCESS COMMAND
+
+	TOOL=$1
+
+	TEMP_NAME=`evalVar "BUILDTOOL_${TOOL}_NAME"`
+	if [ -z "$TEMP_NAME" ]; then
+		echo "Fatal: Build tool '$TOOL' is not defined!" >&2
+		exit 1
+	fi
+
+	TEMP_PRESENT=`getVar "BUILDTOOL_${TOOL}_PRESENT"`
+	if [ -n "$TEMP_PRESENT" ]; then
+		return "$TEMP_PRESENT"
+	fi
+
+	SUCCESS=0
+	DEPENDS=`getVar "BUILDTOOL_${TOOL}_DEPEND"`
+	for DEPEND in $DEPENDS; do
+		if not have_program "$DEPEND"; then
+			SUCCESS=1
+		fi
+	done
+
+	setVar "BUILDTOOL_${TOOL}_PRESENT" "$SUCCESS"
+
+	COMMAND=`evalVar "BUILDTOOL_${TOOL}_COMMAND"`
+			# Environment variables in $BUILDTOOL_xxx_COMMAND are expanded.
+	
+	if [ $SUCCESS -eq 0 ]; then
+		build_message "We have a $TEMP_NAME."
+		setVar "$TOOL" "$COMMAND"
+	else
+		build_message "No $TEMP_NAME found."
+	fi
+
+	return $SUCCESS
+}
+	
+have_build_tools_language() {
+	local LANGUAGE
+
+	LANGUAGE=$1
+
+	have_build_tool "PREPROC_$LANGUAGE" || return 1
+	have_build_tool "MKDEP_$LANGUAGE" || return 1
+	have_build_tool "COMPILE_$LANGUAGE" || return 1
+
+	return 0
+}
+
+
+# Description: check if a library is present on the system
+# Arguments:   $1 - The name of the library as used in config_proginfo after
+#                   "LIB_"
+#              $2 - (optional) minimum version required
+# Pre:         variables LIB_${1}_NAME, LIB_${1}_CFLAGS, and
+#              LIB_${1}_LDFLAGS are expected to exist. If two arguments are
+#              supplied, so is LIB_${1}_VERSION.
+# Returns:     0 - if the library is found
+#              1 - if the library is not found
+have_library() {
+	local LIB TEMP_NAME TEMP_PRESENT TEMP_LDFLAGS TEMP_CFLAGS \
+			TEMP_VERSION TEMP_DETECT
+	local TEMP_DEPEND_DETECT_BIN TEMP_DEPEND_DETECT_LIB
+
+	LIB=$1
+	TEMP_NAME=`evalVar "LIB_${LIB}_NAME"`
+	if [ -z "$TEMP_NAME" ]; then
+		echo "Fatal: Library '$LIB' is not defined!" >&2
+		exit 1
+	fi
+
+	TEMP_PRESENT=`getVar "LIB_${LIB}_PRESENT"`
+	if [ -n "$TEMP_PRESENT" ]; then
+		return "$TEMP_PRESENT"
+	fi
+	
+	# If a detection method is specified, try that one first.
+	TEMP_DETECT=`evalVar "LIB_${LIB}_DETECT"`
+	if [ -n "$TEMP_DETECT" ]; then
+		TEMP_DEPEND_DETECT_BIN=`evalVar "LIB_${LIB}_DEPEND_DETECT_BIN"`
+		TEMP_DEPEND_DETECT_LIB=`evalVar "LIB_${LIB}_DEPEND_DETECT_LIB"`
+		detect_dependencies_program "$TEMP_DEPEND_DETECT_BIN"
+		detect_dependencies_library "$TEMP_DEPEND_DETECT_LIB"
+		$TEMP_DETECT
+		# NB. TEMP_DETECT should make sure PROG_$LIB_VERSION is set.
+		# return value of $TEMP_DETECT is used below.
+		case $? in
+			0)  # Lib found
+				setVar "LIB_${LIB}_PRESENT" 0
+				;;
+			1)  # Lib not found
+				setVar "LIB_${LIB}_PRESENT" 1
+				;;
+			2)  # Use default detection
+				;;
+		esac
+	fi
+
+	# If detection via a specified detection method was inconclusive,
+	# or no detection method was specified, try default detection
+	# based on whether we can compile against the library.
+	TEMP_PRESENT=`getVar "LIB_${LIB}_PRESENT"`
+	if [ -z "$TEMP_PRESENT" ]; then
+		TEMP_CFLAGS=`evalVar "LIB_${LIB}_CFLAGS"`
+		TEMP_LDFLAGS=`evalVar "LIB_${LIB}_LDFLAGS"`
+
+		try_compile_c "$CFLAGS $TEMP_CFLAGS" "$LDFLAGS $TEMP_LDFLAGS" << EOF
+int main(void) {
+	return 0;
+}
+EOF
+		if [ $? -eq 0 ]; then
+			# Build successful
+			setVar "LIB_${LIB}_PRESENT" 0
+		fi
+	fi
+	
+	# If detection has yielded no results so far, we're calling it
+	# "not found".
+	TEMP_PRESENT=`getVar "LIB_${LIB}_PRESENT"`
+	if [ -z "$TEMP_PRESENT" ]; then
+		setVar "LIB_${LIB}_PRESENT" 1
+	fi
+
+	TEMP_PRESENT=`getVar "LIB_${LIB}_PRESENT"`
+	if [ "$TEMP_PRESENT" -eq 1 ]; then
+		build_message "$TEMP_NAME not found."
+		return 1
+	fi
+
+	# We have found the library.
+	# Test whether the version is sufficient.
+	if [ $# -gt 1 ]; then
+		# Minimum version supplied
+		TEMP_VERSION=`evalVar "LIB_${LIB}_VERSION"`
+		if [ -z "$TEMP_VERSION" ]; then
+			setVar "LIB_${LIB}_PRESENT" 1
+			echo "Fatal: Could not determine the version of $TEMP_NAME" >&2
+			exit 1
+		fi
+		if not version_match "$2" "$TEMP_VERSION"; then
+			setVar "LIB_${LIB}_PRESENT" 1
+			build_message "Found version $TEMP_VERSION of $TEMP_NAME, \
+but version $2 is required!"
+			return 1
+		fi
+		setVar "LIB_${LIB}_PRESENT" 0
+		build_message "$TEMP_NAME version $TEMP_VERSION found."
+		return 0
+	fi
+
+	setVar "LIB_${LIB}_PRESENT" 0
+	build_message "$TEMP_NAME found."
+	return 0
+}
+
+# Description: check if a library is present on the system.
+#              If it is, add the appropriate flags to CFLAGS and LDFLAGS.
+#              If not, bail out.
+# Arguments:   $1 - The name of the library as used in config_proginfo after
+#                   "LIB_"
+#              $2 - (optional) minimum version required
+# Pre:         variables LIB_${1}_NAME, LIB_${1}_CFLAGS, and
+#              LIB_${1}_LDFLAGS are expected to exist. If two arguments are
+#              supplied, so is LIB_${1}_VERSION.
+use_library() {
+	local TEMP_CFLAGS TEMP_LDFLAGS
+	have_library "$@"
+	[ $? -eq 0 ] || exit 1
+
+	TEMP_CFLAGS=`evalVar "LIB_${1}_CFLAGS"`
+	TEMP_LDFLAGS=`evalVar "LIB_${1}_LDFLAGS"`
+	CFLAGS="$CFLAGS $TEMP_CFLAGS"
+	LDFLAGS="$LDFLAGS $TEMP_LDFLAGS"
+	return 0
+}
+
+# Description: check if a symbol is defined
+# Arguments:   $1 - the name of the symbol
+#              $2 - the C code that does the actual checking
+have_symbol_generic() {
+	local CODE DETECT EXTRA
+
+	DETECT=`evalVar "SYMBOL_${1}_DETECT"`
+	if [ -n "$DETECT" ]; then
+		$DETECT
+		return $?
+	fi
+
+	EXTRA=`evalVar "SYMBOL_${1}_EXTRA"`
+	CODE=`evalVar "SYMBOL_${1}_CODE"`
+	if [ -z "$CODE" ]; then
+		CODE=$2
+	fi
+
+	try_compile_c "$CFLAGS $TEMP_CFLAGS" "$LDFLAGS $TEMP_LDFLAGS" << EOF > /dev/null 2>&1
+#include <sys/types.h>
+$EXTRA
+
+$CODE
+EOF
+}
+
+# Description: check if a symbol is defined.
+# Arguments:   $1 - the name of the symbol
+have_symbol() {
+	local SYMBOL TEMP_PRESENT CODE
+	SYMBOL=$1
+
+	TEMP_PRESENT=`getVar "SYMBOL_${SYMBOL}_PRESENT"`
+	if [ -n "$TEMP_PRESENT" ]; then
+		return "$TEMP_PRESENT"
+	fi
+
+	CODE=`cat << EOF	
+int main(void) {
+	(void) $SYMBOL;
+	return 0;
+}
+EOF
+`
+
+	have_symbol_generic "$SYMBOL" "$CODE"
+	if [ $? -gt 0 ]; then
+		build_message "Symbol '$SYMBOL' not found."
+		setVar "SYMBOL_${SYMBOL}_PRESENT" 1
+		return 1
+	fi
+	build_message "Symbol '$SYMBOL' found."
+	setVar "SYMBOL_${SYMBOL}_PRESENT" 0
+	return 0
+}
+
+# Description: check if a type is present.
+# Arguments:   $1 - the name of the symbol
+have_type() {
+	local TYPE TEMP_PRESENT CODE
+	TYPE=$1
+	
+	TEMP_PRESENT=`getVar "TYPE_${TYPE}_PRESENT"`
+	if [ -n "$TEMP_PRESENT" ]; then
+		return "$TEMP_PRESENT"
+	fi
+
+	CODE=`cat << EOF	
+int main(void) {
+	$TYPE var;
+	(void) var;
+	return 0;
+}
+EOF
+			`
+
+	have_symbol_generic "$TYPE" "$CODE"
+	if [ $? -gt 0 ]; then
+		build_message "Type '$TYPE' not found."
+		setVar "TYPE_${TYPE}_PRESENT" 1
+		return 1
+	fi
+	build_message "Type '$TYPE' found."
+	setVar "TYPE_${TYPE}_PRESENT" 0
+	return 0
+}
+
+# Description: check if a symbol is defined.
+#              sets HAVE_<NAME> accordingly, where <NAME> is the capitalized
+#              name of the symbol.
+# Arguments:   $1 - the name of the symbol
+define_have_symbol() {
+	local NAME VALUE DEFNAME
+
+	DEFNAME=`getVar "SYMBOL_${1}_DEFNAME"`
+	if [ -z "$DEFNAME" ]; then
+		# Why not "tr [:lower:] [:upper:]"? Because the capital "i" is not
+		# "I" in Turkish... An alternative would be setting LC_CTYPE to POSIX.
+		NAME=`$TR "abcdefghijklmnopqrstuvwxyz" "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+				<< EOF
+$1
+EOF
+				`
+		DEFNAME="HAVE_$NAME"
+	fi
+
+	if have_symbol "$1"; then
+		add_symbol "$DEFNAME" "#define $DEFNAME"
+		add_symbol "${DEFNAME}_FLAG" 1
+	else
+		add_symbol "$DEFNAME" "#undef $DEFNAME"
+		add_symbol "${DEFNAME}_FLAG" 0
+	fi
+}
+
+# Description: check if a type is present.
+#              set HAVE_<NAME> accordingly, where <NAME> is the capitalized
+#              name of the symbol.
+# Arguments:   $1 - the name of the symbol
+define_have_type() {
+	local NAME VALUE DEFNAME
+
+	DEFNAME=`getVar "TYPE_${1}_DEFNAME"`
+	if [ -z "$DEFNAME" ]; then
+		# Why not "tr [:lower:] [:upper:]"? Because the capital "i" is not
+		# "I" in Turkish... An alternative would be setting LC_CTYPE to POSIX.
+		NAME=`$TR "abcdefghijklmnopqrstuvwxyz" "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+				<< EOF
+$1
+EOF
+				`
+		DEFNAME="HAVE_$NAME"
+	fi
+
+	if have_type "$1"; then
+		add_symbol "$DEFNAME" "#define $DEFNAME"
+		add_symbol "${DEFNAME}_FLAG" 1
+	else
+		add_symbol "$DEFNAME" "#undef $DEFNAME"
+		add_symbol "${DEFNAME}_FLAG" 0
+	fi
+}
+
+# Description: check if a header is available.
+# Arguments:   $1 - the name of the header file
+have_header() {
+	local HEADER NAME EXTRA
+	HEADER=$1
+
+	NAME=${HEADER%.h}
+	EXTRA=`evalVar "HEADER_${NAME}_EXTRA"`
+
+	try_compile_c "$CFLAGS $TEMP_CFLAGS" "$LDFLAGS $TEMP_LDFLAGS" << EOF > /dev/null 2>&1
+$EXTRA
+#include <$HEADER>
+int main(void) {
+	return 0;
+}
+EOF
+	if [ $? -gt 0 ]; then
+		build_message "Header '$HEADER' not found."
+		return 1
+	fi
+	build_message "Header '$HEADER' found."
+	return 0
+}
+
+# Description: check if a header is available.
+#              sets HAVE_<NAME> accordingly, where <NAME> is the capitalized
+#              name of the header file. "sys/time.h" becomes "SYS_TIME_H".
+# Arguments:   $1 - the name of the header file
+define_have_header() {
+	local NAME VALUE DEFNAME
+	
+	DEFNAME=`getVar "HEADER_${1%.h}_DEFNAME"`
+	if [ -z "$DEFNAME" ]; then
+		# Why not "tr [:lower:] [:upper:]"? Because the capital "i" is not
+		# "I" in Turkish... An alternative would be setting LC_CTYPE to POSIX.
+		NAME=`$TR "/.abcdefghijklmnopqrstuvwxyz" \
+				"__ABCDEFGHIJKLMNOPQRSTUVWXYZ" << EOF
+$1
+EOF
+				`
+		DEFNAME="HAVE_$NAME"
+	fi
+
+	if have_header "$1"; then
+		add_symbol "$DEFNAME" "#define $DEFNAME"
+		add_symbol "${DEFNAME}_FLAG" 1
+	else
+		add_symbol "$DEFNAME" "#undef $DEFNAME"
+		add_symbol "${DEFNAME}_FLAG" 0
+	fi
+}
+
+# Description: check if a macro is available.
+# Arguments:   $1 - the name of the macro
+have_macro() {
+	local MACRO EXTRA
+	MACRO=$1
+
+	EXTRA=`evalVar "MACRO_${NAME}_EXTRA"`
+
+	try_compile_c "$CFLAGS $TEMP_CFLAGS" "$LDFLAGS $TEMP_LDFLAGS" << EOF > /dev/null 2>&1
+$EXTRA
+#ifndef $MACRO
+#	error
+#endif
+int main(void) {
+	return 0;
+}
+EOF
+	if [ $? -gt 0 ]; then
+		build_message "Preprocessor macro '$MACRO' not found."
+		return 1
+	fi
+	build_message "Preprocessor macro '$MACRO' found."
+	return 0
+}
+
+# Description: check if a macro is defined
+#              sets MACRO_<NAME> to a non-empty string if the macro with
+#              the specified name is defined, and to an empty string if it
+#              is not.
+# Arguments:   $1 - the name of the symbol
+define_have_macro() {
+	local NAME
+
+	NAME=$1
+
+	if have_macro "$1"; then
+		add_symbol "MACRO_$NAME" "1"
+	else
+		add_symbol "MACRO_$NAME" ""
+	fi
+}
+
+# Description: Add a symbol to be replaced by substitute_vars
+#              $HAVE_SYMBOLS will contain the variable names of all
+#              symbols added by define_have_symbol and should be passed to
+#              substitute_vars for the file you want them in.
+# Arguments:   $1 - the symbol to add
+#              $2 - the value of the symbol
+add_symbol() {
+	local NAME
+
+	eval NAME="$1"
+	eval "$NAME"=\"\$2\"
+	HAVE_SYMBOLS="$HAVE_SYMBOLS $NAME"
+}
+
+check_endianness() {
+	local ENDIAN	
+
+	if [ "$BUILD_SYSTEM" '!=' "$HOST_SYSTEM" ]; then
+		case "$BUILD_HOST_ENDIAN" in
+			"")
+				build_message "Cross-compiling - assuming little-endian host."
+				ENDIAN=little
+				;;
+			big)
+				build_message "Cross-compiling for a big-endian host."
+				ENDIAN=big
+				;;
+			little)
+				build_message "Cross-compiling for a little-endian host."
+				ENDIAN=little
+				;;
+			*)
+				build_message "Bad endianness specified. Use \"little\" or \"big\""
+				exit 1
+				;;
+		esac
+	else
+		# Detect endianness
+		try_compile_and_run_c "$CFLAGS" "$LDFLAGS" << EOF
+int main(void) {
+	int i;
+
+	i = 1;
+	return *((unsigned char *) &i);
+}
+EOF
+		if [ $? -eq 0 ]; then
+			build_message "Big-endian machine detected."
+			ENDIAN=big
+		else
+			build_message "Little-endian machine detected."
+			ENDIAN=little
+		fi
+	fi
+
+	case "$ENDIAN" in
+		big)
+			add_symbol WORDS_BIGENDIAN "#define WORDS_BIGENDIAN"
+			add_symbol "WORDS_BIGENDIAN_FLAG" 1
+			;;
+		little)
+			add_symbol WORDS_BIGENDIAN "#undef WORDS_BIGENDIAN"
+			add_symbol "WORDS_BIGENDIAN_FLAG" 0
+			;;
+	esac
+}
+
+
+# Description: If pkg-config is installed, check if there's a pkg-config
+#              entry for some binary dependency.
+#              If successful, it sets the appropriate BIN_xxx_VERSION.
+# Arguments:   $1 - The name of the program as it is known in
+#                   config_proginfo after "BIN_"
+#              $2 - The name of the dependency as it would be known to
+#                   pkg-config.
+try_pkgconfig_prog() {
+	have_program pkgconfig || return 1
+
+	local PROG PKG_NAME TEMP_NAME
+	PROG=$1
+	PKG_NAME=$2
+
+	TEMP_NAME=`evalVar "PROG_${PROG}_NAME"`
+	if [ -z "$TEMP_NAME" ]; then
+		echo "Fatal: Program '$PROG' is not defined!" >&2
+		exit 1
+	fi
+
+	if $PROG_pkgconfig_FILE --exists "$PKG_NAME"; then
+		local TEMP_VERSION
+		TEMP_VERSION=$($PROG_pkgconfig_FILE --modversion "$PKG_NAME")
+		setVar "PROG_${PROG}_VERSION" "$TEMP_VERSION"
+		return 0
+	else
+		return 2
+	fi
+}
+
+
+# Description: If pkg-config is installed, check if there's a pkg-config
+#              entry for some dependency.
+#              If successful, it sets the appropriate LIB_xxx_VERSION,
+#              LIB_xxx_CFLAGS and LIB_xxx_LDFLAGS.
+# Arguments:   $1 - The name of the library as it is known in
+#                   config_proginfo after "LIB_"
+#              $2 - The name of the dependency as it would be known to
+#                   pkg-config.
+try_pkgconfig_lib() {
+	have_program pkgconfig || return 1
+
+	local LIB PKG_NAME TEMP_NAME
+	LIB=$1
+	PKG_NAME=$2
+
+	TEMP_NAME=`evalVar "LIB_${LIB}_NAME"`
+	if [ -z "$TEMP_NAME" ]; then
+		echo "Fatal: Library '$LIB' is not defined!" >&2
+		exit 1
+	fi
+
+	if $PROG_pkgconfig_FILE --exists "$PKG_NAME"; then
+		local TEMP_VERSION TEMP_CFLAGS TEMP_LDFLAGS
+		TEMP_VERSION=$($PROG_pkgconfig_FILE --modversion "$PKG_NAME")
+		TEMP_CFLAGS=$($PROG_pkgconfig_FILE --cflags "$PKG_NAME")
+		TEMP_LDFLAGS=$($PROG_pkgconfig_FILE --libs "$PKG_NAME")
+		setVar "LIB_${LIB}_VERSION" "$TEMP_VERSION"
+		setVar "LIB_${LIB}_CFLAGS" "$TEMP_CFLAGS"
+		setVar "LIB_${LIB}_LDFLAGS" "$TEMP_LDFLAGS"
+		return 2  # Force testing using the new CFLAGS and LDFLAGS
+		#return 0
+	else
+		return 2
+	fi
+}
+
+
+# Description: substitute variables in files.
+#              Every supplied variable name found between @'s in the
+#              supplied files, is replaced by its value.
+# Arguments:   $1 - The name of the variable which contains a list of
+#                   variables to substitute in the files.
+#              $2 - The name of the variable which contains a list of
+#                   files to substitute variables in.
+#                   If a filename ends on .in, that filename is used as
+#                   source, and the filename without .in as target.
+#                   If a filename doesn't end on .in, that filename is used
+#                   as target, and the filename with .in attached as source.
+#              $3 - A path to which the input file names are relative
+#              $4 - A path to which the output file names are relative
+substitute_vars() {
+	local VARS VAR VALUE FILES FILE SRC_PATH DST_PATH
+
+	eval VARS=\"\$$1\"
+	eval FILES=\"\$$2\"
+	SRC_PATH="$3"
+	DST_PATH="$4"
+
+	for VAR in $VARS; do
+		# Escape all / in VAR so that we can use / as seperator char for sed
+		eval VALUE=\"\$$VAR\"
+		VALUE=$(echo "$VALUE" | $SED -e 's,\([\&/]\),\\\1,g')
+		cat << EOF
+s/@${VAR}@/${VALUE}/g
+EOF
+	done > "${TEMPFILE}.sed"
+
+	for FILE in $FILES; do
+		FILE="${FILE%.in}"
+		cp -p -- "$SRC_PATH/$FILE".in "$DST_PATH/$FILE"
+				# The copy is done so that the file modes are equal.
+		$SED -f "${TEMPFILE}.sed" < "$SRC_PATH/$FILE".in > "$DST_PATH/$FILE"
+	done
+	deleteTempFiles "${TEMPFILE}.sed"
+}
+
+# Define the build system type.
+set_build_system() {
+	BUILD_SYSTEM=`uname -s`
+}
+
+# Define the host system type.
+set_host_system() {
+	local UHOST
+
+	if [ -z "$BUILD_HOST" ]; then
+		HOST_SYSTEM=$BUILD_SYSTEM
+	else
+		case "$BUILD_HOST" in
+			*-*-*)
+				HOST_SYSTEM="${BUILD_HOST#*-}"
+				HOST_SYSTEM="${HOST_SYSTEM%-*}"
+				;;
+		esac
+
+		# Use a single capitalization.
+		# What is used is whatever 'uname -s' would give on such a platform.
+		case "$BUILD_HOST" in
+			[Ll][Ii][Nn][Uu][Xx])
+				HOST_SYSTEM="Linux" ;;
+			[Ff][Rr][Ee][Ee][Bb][Ss][Dd])
+				HOST_SYSTEM="FreeBSD" ;;
+			[Oo][Pp][Ee][Nn][Bb][Ss][Dd])
+				HOST_SYSTEM="OpenBSD" ;;
+			[Mm][Ii][Nn][Gg][Ww]|[Mm][Ii][Nn][Gg][Ww]32)
+				HOST_SYSTEM="MINGW32" ;;
+			[Cc][Yy][Gg][Ww][Ii][Nn]*)
+				HOST_SYSTEM="CYGWIN" ;;
+			[Dd][Aa][Rr][Ww][Ii][Nn])
+				HOST_SYSTEM="Darwin" ;;
+			[Ss][Uu][Nn][Oo][Ss])
+				HOST_SYSTEM="SunOS" ;;
+			[Qq][Nn][Xx])
+				HOST_SYSTEM="QNX" ;;
+			[Cc][Ee][Gg][Cc][Cc])
+				HOST_SYSTEM="cegcc" ;;
+			[Ww][Ii][Nn][Ss][Cc][Ww])
+				HOST_SYSTEM="WINSCW" ;;
+			[Aa][Rr][Mm][Vv]5)
+				HOST_SYSTEM="ARMV5" ;;
+			[Gg][Cc][Cc][Ee])
+				HOST_SYSTEM="GCCE" ;;				
+			*)
+				build_message "Warning: host type '$BUILD_HOST' unknown. Using defaults."
+				;;
+		esac
+	fi
+
+}
+
+set_system() {
+	set_build_system
+	set_host_system
+}
+
+prepare_build_system() {
+	# Include information about programs we can detect for the build system.
+	. build/unix/config_proginfo_build
+}
+
+prepare_host_system() {
+	# Include information about programs we can detect for the host system.
+	. build/unix/config_proginfo_host
+}
+
+# Some initialisations
+HAVE_SYMBOLS=""
+
+config_requirements() {
+	# Requirements for the config program itself
+	have_program echon || exit 1
+	ECHON="$PROG_echon_FILE"
+	have_program sed || exit 1
+	SED="$PROG_sed_FILE"
+	have_program tr || exit 1
+	TR="$PROG_tr_FILE"
+	have_program make || exit 1
+	MAKE="$PROG_make_FILE"
+}
+

@@ -1,0 +1,50 @@
+In netplay/:
+crc.{c,h}             Generic CRC routines.
+checkbuf.{c,h}        Buffer of checksums.
+checksum.{c,h}        Routines for checksumming the game state.
+netconnection.{c,h}   Definition of NetConnection, being the state of a
+                      network connection, and operations on it.
+nc_connect.ci         Part of netconnection.c that handles establishing
+                      connections.
+netinput.{c,h}        Definitions and operations for melee input commands
+                      over a network connection.
+netmelee.{c,h}        Keeps track of network connections used in the game,
+                      with methods to control them all at once.
+                      Functions that directly access the game data are kept
+                      in the relevant files (melee.c, pickmele.c, battle.c).
+netmisc.{c,h}         Miscelaneous functions that didn't fit in elsewhere.
+netoptions.{c,h}      Description of a network connection to be established.
+netplay.h             Some global netplay definitions.
+netrcv.{c,h}          Processes incoming packets. Does know about the protocol
+                      and will do consistency checking.
+                      Does not directly manipulate the game state.
+netsend.{c,h}         Enqueues all sorts of packets for sending.
+                      Does not know about the protocol and hence will do
+                      no checks for protocol sanity.
+netstate.{c,h}        Definitions of the states of a network connection.
+notify.{c,h}          Routines for notifying a remote side of local changes.
+                      Knows about the protocal and has assert()s to
+                      check for local consistency.
+packet.{c,h}          Definition and creation of packets. Create functions
+                      should only be called from netsend.c.
+packethandlers.{c,h}  Routines for processing each type of incoming packet.
+packetq.{c,h}         Manages the packet queue.
+packetsenders.{c,h}   Creates and sends/queues packets.
+
+In netplay/proto/:
+npconfirm.{c,h}       Functions for handing the 'confirmation' protocol.
+ready.{c,h}           Functions for handling the 'ready' protocol.
+reset.{c,h}           Functions for handling the 'reset' protocol.
+
+
+
+
+
+TODO:
+Division:
+- files that interface with sockets and knows nothing of the game
+  (these are in libs/network)
+- files that know of sockets and the game but don't directly interface
+  with either
+- files that interface with the game and know nothing of sockets
+

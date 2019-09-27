@@ -1,0 +1,36 @@
+# Definitions for build tools for the makefile used by the UQM build system.
+# This file defines the build commands for tools using a gcc-like syntax
+# for arguments.
+
+define act_mkdep_c
+	$(MKDEP_C) $(CFLAGS) "$<" -MT "$(@D)/$(<F).o" -MF "$@"
+endef
+
+define act_mkdep_cxx
+	$(MKDEP_CXX) $(CXXFLAGS) "$<" -MT "$(@D)/$(<F).o" -MF "$@"
+endef
+
+define act_mkdep_m
+	$(MKDEP_OBJC) $(CFLAGS) "$<" -MT "$(@D)/$(<F).o" -MF "$@"
+endef
+
+define act_windres
+	$(WINDRES) --include-dir $(dir $<) -o "$@" "$<"
+endef
+
+define act_cc
+	$(COMPILE_C) -o "$@" $(CFLAGS) "$<"
+endef
+
+define act_cxx
+	$(COMPILE_CXX) -o "$@" $(CXXFLAGS) "$<"
+endef
+
+define act_objcc
+	$(COMPILE_OBJC) -o "$@" $(CFLAGS) "$<"
+endef
+
+define act_link
+	$(LINK) -o "$@" $^ $(LDFLAGS)
+endef
+

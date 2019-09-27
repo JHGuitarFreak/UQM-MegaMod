@@ -1,0 +1,2 @@
+uqm_CFILES="androsyn.c"
+uqm_HFILES="androsyn.h icode.h resinst.h"

@@ -1,0 +1,67 @@
+# Variables for the build procedure
+# Copyright (c) 2002 Serge van den Boom
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+BUILD_SYSTEM='@BUILD_SYSTEM@'
+HOST_SYSTEM='@HOST_SYSTEM@'
+PREPROC_C='@PREPROC_C@'
+MKDEP_C='@MKDEP_C@'
+COMPILE_C='@COMPILE_C@'
+PREPROC_CXX='@PREPROC_CXX@'
+MKDEP_CXX='@MKDEP_CXX@'
+COMPILE_CXX='@COMPILE_CXX@'
+PREPROC_OBJC='@PREPROC_OBJC@'
+MKDEP_OBJC='@MKDEP_OBJC@'
+COMPILE_OBJC='@COMPILE_OBJC@'
+LINK='@LINK@'
+MAKE='@MAKE@'
+ECHON='@ECHON@'
+SED='@SED@'
+REZ='@REZ@'
+WINDRES='@WINDRES@'
+uqm_CFLAGS='@CFLAGS@'
+uqm_CXXFLAGS='@CXXFLAGS@'
+uqm_LDFLAGS='@LDFLAGS@'
+uqm_INSTALL_BINDIR='@INSTALL_BINDIR@'
+uqm_INSTALL_LIBDIR='@INSTALL_LIBDIR@'
+uqm_INSTALL_SHAREDIR='@INSTALL_SHAREDIR@'
+
+# Exported variables are available from all the Makeinfo files
+# Non-exported files only where build.vars is explicitely included.
+uqm_SOUNDMODULE='@SOUNDMODULE@'
+uqm_OGGVORBIS='@OGGVORBIS@'
+uqm_USE_INTERNAL_MIKMOD='@USE_INTERNAL_MIKMOD@'
+uqm_USE_INTERNAL_LUA='@USE_INTERNAL_LUA@'
+uqm_HAVE_GETOPT_LONG='@HAVE_GETOPT_LONG@'
+uqm_HAVE_REGEX='@HAVE_REGEX_H_FLAG@'
+uqm_GFXMODULE='@GFXMODULE@'
+uqm_HAVE_OPENGL='@HAVE_OPENGL@'
+uqm_USE_ZIP_IO='@USE_ZIP_IO@'
+uqm_USE_PLATFORM_ACCEL='@USE_PLATFORM_ACCEL@'
+uqm_THREADLIB='@THREADLIB@'
+uqm_NETPLAY='@NETPLAY@'
+uqm_USE_WINSOCK='@USE_WINSOCK@'
+DEBUG='@DEBUG@'
+MACRO_WIN32='@MACRO_WIN32@'
+MACRO___MINGW32__='@MACRO___MINGW32__@'
+export BUILD_SYSTEM HOST_SYSTEM DEBUG
+export MACRO_WIN32 MACRO___MINGW32__
+export uqm_SOUNDMODULE uqm_OGGVORBIS uqm_USE_INTERNAL_MIKMOD
+export uqm_USE_INTERNAL_LUA
+export uqm_HAVE_GETOPT_LONG uqm_HAVE_REGEX uqm_USE_WINSOCK uqm_GFXMODULE
+export uqm_HAVE_OPENGL
+export uqm_USE_ZIP_IO uqm_USE_PLATFORM_ACCEL uqm_THREADLIB uqm_NETPLAY
+

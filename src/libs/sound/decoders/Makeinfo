@@ -1,0 +1,8 @@
+uqm_CFILES="decoder.c aiffaud.c wav.c dukaud.c modaud.c"
+uqm_HFILES="aiffaud.h decoder.h dukaud.h modaud.h wav.h"
+
+if [ "$uqm_OGGVORBIS" '!=' "none" ]; then
+	uqm_CFILES="$uqm_CFILES oggaud.c"
+	uqm_HFILES="$uqm_HFILES oggaud.h"
+fi
+

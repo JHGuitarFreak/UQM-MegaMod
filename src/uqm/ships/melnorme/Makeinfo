@@ -1,0 +1,2 @@
+uqm_CFILES="melnorme.c"
+uqm_HFILES="icode.h melnorme.h resinst.h"

@@ -1,0 +1,2 @@
+uqm_CFILES="md5.c"
+uqm_HFILES="md5.h"

@@ -1,0 +1,2 @@
+uqm_CFILES="spahome.c"
+uqm_HFILES="strings.h"

@@ -1,0 +1,52 @@
+                    -== Checklist for releases ==-
+
+
+Preparing for the release:
+- update the 'version' file in the content dir
+- update 'uqmversion.h'
+- update uqm.lsm (needs to be done after the content packages are generated)
+- test on all relevant platforms
+- make sure the documentation files are up-to-date
+  - Clean up the ChangeLog file
+  - generate Whatsnew from the ChangeLog
+  - doc/users/manual.txt
+  - doc/users/unixinstall
+  - Contributing
+  - AUTHORS
+  - INSTALL (and platform variants)
+  - unix man pages (in the future)
+
+
+Building the release:
+- make a final build in release mode
+- for the source archive:
+  - use a clean subversion checkout.
+    Just using 'svn update' and watching the output will not be
+    enough, as the files not in repository will be ignored.
+  - be sure to include content/version
+- Building the content packages:
+  - make sure the permissions in the .zip files are ok (0644 for data files
+    and 0755 for executables and dirs)
+  - don't compress .ogg files
+
+
+Announcing the release:
+- provide md5 sums for the released files
+- add a new entry for the release in the bugs database
+- update the home page
+  - http://sc2.sourceforge.net/index.php (News item)
+  - http://sc2.sourceforge.net/downloads.php
+  - http://sc2.sourceforge.net/info.php
+  - http://sc2.sourceforge.net/WhatsNew
+  - http://sc2.sourceforge.net/screenshots.php
+- send a mail to sc2-announce
+- set the forum 'news'
+- set the #sc2 irc channel topic
+- update the version number in http://uqm.stack.nl/wiki/Template:Uqmversion
+
+
+Moving on to the next version:
+- update the snapshots page so that content diffs are generated to the
+  most recent release
+- update doc/devel/versions with the release revision
+

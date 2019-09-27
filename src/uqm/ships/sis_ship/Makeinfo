@@ -1,0 +1,2 @@
+uqm_CFILES="sis_ship.c"
+uqm_HFILES="icode.h resinst.h sis_ship.h"

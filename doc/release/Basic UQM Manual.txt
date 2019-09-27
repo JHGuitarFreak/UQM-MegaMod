@@ -1,0 +1,799 @@
+THE UR-QUAN MASTERS v0.7 -- homepage: http://sc2.sf.net/
+
+Welcome to this beta release of the Ur-Quan Masters port.  This
+document will tell you everything you need to play, even if you've
+never played the original.
+
+For those of you who have played the original, read the first section
+(starting the game and bug reports) and the last sections (Super Melee
+and control summary), and you'll be good to go.
+
+STARTING THE GAME
+
+Simply invoke the executable from the directory you installed UQM in
+to run the game.  (Under Windows, this is uqm.exe; under Linux, it's
+uqm.)  This will use the default settings.  The defaults and how to
+change them are listed under COMMAND LINE OPTIONS, below.
+
+After a splash screen, you will see the main menu, which has five
+options:
+
+  - New Game: Begins a new Full Game.  This is a galaxy-spanning space
+    adventure full of diplomacy, exploration, combat, high treason,
+    and low cunning.  The introductory cutscenes will set the scene;
+    the THE STORY SO FAR section below provides more extensive
+    backstory for the curious.
+
+  - Load Game: Restores a Full Game session that was saved earlier.
+
+  - Super Melee!: Puts the game in Super Melee mode, where you may
+    hone your space combat skills or challenge your friends to fleet
+    battles.  See the SUPER MELEE section below for details on this
+    section.
+
+  - Setup: Lets you configure many options to customize your play
+    experience.  Most options will take effect once you exit the setup
+    menu; a few specially marked options require you to restart UQM.
+    Setup options are preserved across sessions.  The options are
+    described under COMMAND LINE OPTIONS, below.
+
+  - Quit: Exits the program.
+
+COMMAND LINE OPTIONS
+
+The default options for an UQM install are 3DO music, 640x480 windowed
+mode, and pure SDL graphics drivers.  The initial defaults may vary on
+the Windows install if you selected "Mimic PC" or "Mimic 3DO" as the
+install type.  You may pass various command line options to customize
+your experience:
+
+	-r 320x240         (or --res)
+
+Sets the screen resolution.  Unless --opengl is set, the only valid
+values are 640x480 and 320x240.
+
+	-f                 (or --fullscreen)
+
+Uses full screen mode.  Pretty straightforward.  Usually good to
+combine with -r 320x240 unless you're using a scaler.
+
+	-w                 (or --windowed)
+
+Displays the game in a window.  The opposite of --fullscreen.
+
+	-o                 (or --opengl)
+
+Use OpenGL drivers.  This produces higher-quality graphics, and may be
+faster as well -- but it also may not work on older cards.  It also
+permits use of any screen resolution.
+
+	-x                 (or --nogl)
+
+Do not use OpenGL drivers.  This is more likely to run on systems with
+poor or no 3D acceleration, and is often faster, especially on older
+or less well supported cards.  Only the 320x240 and 640x480
+resolutions are available when not using OpenGL.
+
+	-k                 (or --keepaspectratio)
+
+Keep 4:3 aspect ratio when using custom resolutions.
+
+	-c                 (or --scale=mode)
+
+Graphics scaling mode (bilinear, biadapt, biadv, triscan, hq or none).
+Default is none. Try these to get smoother graphics with cost on
+performance.
+
+	-b                 (or --meleezoom=mode)
+
+Melee zooming mode (pc or 3do); 'step' is an alias for 'pc' and 'smooth'
+is an alias for '3do'. Default is 3do. Slower machine owners can set it
+to 'pc' to get better performance in melee.
+
+	-s                 (or --scanlines)
+
+Simulates interlaced displays.
+
+	-g                 (or --gamma)
+
+Sets gamma correction. 1.0 causes no change (unless your graphics card
+is originally set to a different value). Higher than 1.0 makes the
+image brighter, lower than 1.0 makes it darker.
+
+	-p                 (or --fps)
+
+Print fps information in the status window.
+
+	-C                 (or --configdir)
+
+Set the directory where the game will store the config data.
+
+	-n                 (or --contentdir)
+
+Set the directory where the game will seek its data.
+
+	-l                 (or --logfile)
+
+Set a file to receive the diagnostic information that would otherwise go 
+to the console.
+
+	-h                 (or --help)
+
+Display a help message.
+
+	-M                 (or --musicvol)
+
+Set music volume (0-100).
+
+	-S                 (or --sfxvol)
+
+Set sound effects volume (0-100).
+
+	-T                 (or --speechvol)
+
+Set speech volume (0-100). If set to 0, the game runs in 'no speech'
+mode and the oscilloscope reacts to the music.
+
+	-m 3do             (or --music 3do)
+
+Use the 3DO remixed soundtrack for songs that were in fact remixed.
+The default.
+
+	-m pc              (or --music pc)
+
+Use the .MOD based PC soundtrack everywhere.
+
+	-q                 (or --audioquality)
+
+Can be "high", "medium", or "low".  Specifies how nice the audio
+sounds.  Slower machines should lower the audio quality.
+
+	--addon <addon>    (no short version)
+
+Replace <addon> by the name of an add-on to enable in the game. See
+the section 'ADD-ONS' below for details.
+
+	--sound            (no short version)
+
+Can be "openal", "mixsdl" or "none". Specifies which driver/mixer
+to use. "openal" is only available when it has been compiled in.
+It may produce higher-quality sound and will probably be faster,
+but it is not very stable on linux platforms, and may not work
+well with some sound cards.
+Use "none" as a last resort if you cannot get other drivers to work,
+or if you have no soundcard.
+
+	--stereosfx        (no short version)
+
+Enables positional sound effects in melee. Currently works only when
+using openal.
+
+	-u                 (or --nosubtitles)
+	
+Disables subtitles.
+
+	--cscan pc
+
+Use PC style planet information when scanning (text).  Default.
+
+	--cscan 3do
+
+Use 3DO style planet information when scanning (pictograms).
+
+	--menu pc
+
+Use PC style menus (text) and 'CREW'/'BATT' in melee instead of icons.
+Default.
+
+	--menu 3do
+
+Use 3DO style menus (pictograms).
+
+	--font pc
+
+Use PC style fonts and colors.
+Default.
+
+	--font 3do
+
+Use 3DO style fonts and colors.
+
+	--scroll pc
+Scroll voice-over/subtitles 1 page at a time when using left/right arrow keys
+Default.
+
+	--scroll 3do
+Scroll voice-over/subtitles smoothly while holding down left/right arrow keys
+
+	-i 3do             (or --intro 3do)
+
+Use the 3DO intro and ending movies (if you have them).
+The default.
+
+	-i pc              (or --intro pc)
+
+Use the PC intro and ending sequences and slide shows. These will be also
+played if you do not have 3DO movies, regardless of -i option.
+
+	--shield pc
+
+Use PC style static slave shield graphic.
+Default.
+
+	--shield 3do
+
+Use 3DO style throbbing slave shield graphic. This somewhat increases the
+load on CPU while in orbit. Do not use if your CPU cannot handle that.
+
+	--safe             (no short version)
+
+Start the game in safe mode. Safe mode will ignore stored user settings,
+like resolution, fullscreen mode, sound driver, etc. This is useful if
+you have somehow wrecked your configuration files and cannot get to the
+in-game setup menu to change the settings.
+
+
+NOT OFFICIALLY SUPPORTED OPTIONS
+
+The following options may not exist in all builds and can change without
+notice at any time.
+
+	--accel            (no short version)
+
+Can be "none", "detect", "mmx", "3dnow", "sse" (also "altivec" if/when
+added; or other platforms). Specifies which platform accelerations
+to use for graphics and sound, if any. All specific platform code can
+only be used when compiled in.
+
+	--netport1 <port>  (no short version)
+	--netport2 <port>  (no short version)
+
+Specifies the default port that the bottom or top player respectively
+will connect to or accept incoming connections on. If this parameter
+is not specified, 21837 will be used.  This value can be changed later
+in the SuperMelee Net menu. Your firewall needs to be set up to allow
+TCP connections from/to the used port.
+
+	--nethost1 <host>  (no short version)
+	--nethost2 <host>  (no short version)
+
+Specifies the default name or ip number of the host to connect to for
+the bottom or player. If this parameter is not specified, UQM will
+not attempt an outgoing connection, but instead listen for an incoming
+connection.
+
+	--netdelay       (no short version)
+
+Set the default input delay (in frames).  See the Super Melee section
+for details.
+
+
+			     BUG REPORTS
+
+After several years of enthusiastic testing, UQM has dramatically
+improved its stability, but it is still beta software, and bugs
+certainly still lurk.  Upon finding a problem, we'd like you to report
+it, but before you do, please do the following:
+
+- Try to isolate what causes it: "Crashes with a null dereference
+  about half the time when firing and taunting with a Pkunk" is better
+  than "Melee doesn't work."  If the game crashes, notice what error
+  is produced; if the game hangs, check to see if the game-exit key
+  (F12) works.
+
+- Go to the bug database at http://bugs.uqm.stack.nl/
+  and post a report of the problem there. Search the database first if
+  it has been already posted; if we get many duplicate reports, processing
+  them eats our time from actual development. If it's been reported, and
+  you have more information, feel free to confirm that you've reproduced it
+  by adding a comment to the report. If ten people have already confirmed it,
+  though, it's probably best to treat it as duly reported.
+
+- Whenever possible, for bugs that only occur under certain conditions,
+  include a save game with your bug report that duplicates the bug.
+  In the case of a crash, a stack trace can be very helpful for us too.
+  If you don't know what a stack trace is, don't worry about it.
+
+- If your issue is more like "support request" than bug report and you
+  want help from other users, then posting it to our forum might be
+  more appropriate: http://uqm.stack.nl/forum/
+
+
+
+			   THE STORY SO FAR
+
+For the past decade, Earth and the rest of the Alliance of Free Stars
+has fought the Ur-Quan and their Hierarchy of Battle Thralls.  In the
+course of the War, the Earthlings discovered a factory world by the
+'Precursors' - an impossibly advanced that disappeared tens of
+thousands of years ago.  This colony, Unzervalt (aka Vela I), lost all
+contact with Earth shortly after landfall.
+
+You are Captain Zelnick, a human that was born on Unzervalt and who
+possesses a remarkable knack for Precursor technology.  You were the
+one who worked out how to activate the Precursor installation.
+
+It was a factory for building starships.  However, Unzervalt is
+mineral-poor, and there were not enough materials available to
+construct a complete vessel.  Your task is to command this craft, the
+Vindicator, and return to Earth to tell them of the abandoned colony.
+Also, if the War with the Ur-Quan continues, you must fight for Earth
+and the Alliance as best you can.
+
+There is a great deal more to this story.  Asking Starbase Commander
+Hayes for background information will give you most of it.
+
+		      INTERPLANETARY EXPLORATION
+
+When in a Solar system, use the thrust and steering controls to move
+about the system.  Intersecting a planet will move you to the
+planetary system; flying over a planet or moon will then put you into
+orbit.  From there you can talk to the inhabitants, or, if the planet
+is uninhabited, send a lander down to gather minerals, investigate
+energy readings, or capture life forms.
+
+			    PLANET LANDING
+
+To land on a planet, you need to achieve orbit, then fill a planet
+lander with crew and send them down.  You will usually want to scan
+the planet first.  Mineral scans will indicate easily harvestable
+mineral ores and other resources.  Energy scans will indicate unusual
+installations, which will effectively always be worth investigating.
+Biological scans will show where life forms are on the surface.
+
+Minerals are necessary for building up and maintaining your flagship,
+so harvest them wherever you can.  There are nine varieties, each
+color coded:
+
+COMMON ELEMENTS (carbon, nitrogen) are cyan. Worth 1 resource unit
+(RU) per unit.
+
+CORROSIVES (chlorine, iodine) are red.  2 RU per unit.
+
+BASE METALS (iron, tin) are grey.  These are common, and usually worth
+harvesting, but not terribly valuable.  3 RU per unit.
+
+NOBLE GASSES (argon, xenon) are blue.  4 RU per unit.
+
+RARE EARTHS (lanthanum, ytterbium) are green.  5 RU per unit.
+
+PRECIOUS ELEMENTS (gold, silver) are yellow.  6 RU per unit.
+
+RADIOACTIVES (uranium, astatine) are orange.  8 RU per unit.
+
+EXOTICS (antimatter, magnetic monopoles) are purple, and a princely 25
+RU per cargo unit.
+
+Minerals may be unloaded at Earth Starbase by talking to Commander
+Hayes, which will give you RU that you may spend to upgrade your
+flagship.
+
+However, there are many hazards on planetary surfaces.  Life forms are
+often hostile, and need to be subdued with your stunner or evaded.
+Earthquakes (expanding circles) can hurt your crew, lightning may
+crisp them, or lava flows and hotspots can fry them.  Be careful,
+especially on hotter or more seismically and atmospherically active
+worlds.  If your crew level starts dropping dramatically, flee quickly
+with the ESCAPE key!
+
+Stunned life forms may be captured and analyzed by your planet
+landers.  The information you gain from this may not be immediately
+useful, but it will eventually come in handy.
+
+Landing on a planet costs fuel, and the heavier the planet, the more
+fuel it requires. Make sure you don't spend so much fuel exploring
+planets that you can't get back to Sol!
+
+			 INTERSTELLAR TRAVEL
+
+When you leave a solar system, you will push up into HyperSpace.  In
+HyperSpace you can travel great distances quickly, but you must
+continuously thrust to move.  Otherwise, you will gradually slow to a
+stop.
+
+While you can fly about in HyperSpace just like you do in a star
+system, the Galaxy is LARGE, and you will usually want to use the
+Auto-Pilot.  To use the Auto-Pilot, select "Starmap" on the menu.
+This will show you a map of the quadrant (the galactic Core is in the
+upper right corner).  To fly to a location, move the cursor there and
+press Enter.  Then press Space to engage the Auto-Pilot.
+
+			      DIPLOMACY
+
+When you encounter an alien starship, you will usually get a picture
+of their task force and a chance to choose between conversation and
+fighting.  If you choose to fight, you will transition immediately to
+space combat (below).  Otherwise, you will talk first.  If talks go
+poorly, space combat will likely ensue.
+
+If the task force shows ships streaming off in all directions, you
+have reached a fortified world, and there are an unlimited number of
+starships facing you.  You cannot win such a fight - if combat ensues,
+you will need to warp out.
+
+			     SPACE COMBAT
+
+When combat begins, you are prompted to select a ship from your task
+force.  A one-on-one space combat then begins, and continues until
+either the enemy fleet is destroyed (in which case you salvage the
+wrecks and continue the game), your flagship is destroyed (ending the
+game), or your flagship warps out of combat (consuming 5 fuel units
+but ending the encounter).
+
+Each ship has two major stats: Crew and Combat Battery.  Crew are
+effectively hit points.  Getting hit by weapons kills crew, and if all
+crew are eliminated, the craft is destroyed.  Firing weapons typically
+requires energy from the combat batteries, which is replaced over
+time.  The precise speed of energy regeneration and cost of weapons
+fire varies by ship.
+
+Space flight is *mostly* inertial (you'll drift if you stop
+thrusting), but each ship has a maximum velocity that can only be
+exceeding by "gravity whipping" around the planet.  Don't hit the
+planet unless you want to take LOTS of damage.
+
+Each ship has a primary and secondary weapon mode, unique to that
+race's craft.  The descriptions of those follow.
+
+			  SHIP DESCRIPTIONS
+
+			 Androsynth Guardian
+Primary weapon: Fires homing acid bubble clouds.
+Secondary weapon: Transforms into the 'Blazer', a comet that does
+considerable damage by ramming its opponents.
+
+			 Ariloulaleelay Skiff
+Primary weapon: Auto-aiming, short-range laser
+Secondary weapon: Random teleport
+Note: The Skiff is inertia-less, and stops instantly when thrust is
+removed.
+
+			  Chenjesu Broodhome
+Primary weapon: Crystal Shard.  Will travel until the fire button is
+released, then shatters.
+Secondary weapon: De-energizing Offensive Guided Interceptor.
+Launches an autonomous DOGI that rams the opponent to drain their
+combat batteries.
+
+			     Chmmr Avatar
+Primary weapon: Immensely powerful short-range laser
+Secondary weapon: Tractor beam.
+Note: Has three orbiting "ZapSats" that attack anything that gets in
+range.
+
+			    Druuge Mauler
+Primary weapon: Long range, high-recoil cannon
+Secondary weapon: Sets one crew on fire to gain combat energy.
+
+			  Earthling Cruiser
+Primary weapon: Homing nuclear missile
+Secondary weapon: Point-defense laser
+
+			   Ilwrath Avenger
+Primary weapon: Short-range flamethrower
+Secondary weapon: Cloaking device
+
+			   Kohr-Ah Marauder 
+Primary weapon: Spinning blades that stop and home when the fire
+button is released
+Secondary weapon: Fiery Ring of Inevitable and Eternal Destruction
+(F.R.I.E.D.), a short-range corona of energy that blocks shots and
+inflicts lots of damage
+
+			   Melnorme Trader
+Primary weapon: Charged shot.  The longer the fire button is held, the
+stronger the shot.
+Secondary weapon: Confusion beam that scrambles enemy controls.
+
+			   Mmrnmhrm X-Form
+Primary weapon:  Lasers (X-form) or homing missiles (Y-form).
+Secondary weapon:  Switch between X-Form and Y-Form.
+
+			    Mycon Podship
+Primary weapon:  Homing Plasmoid.
+Secondary weapon:  Regenerate 4 crew.
+
+			     Orz Nemesis
+Primary weapon:  Howitzer cannon.
+Secondary weapon: Secondary with left and right arrows rotates the
+primary cannon.  Secondary with Primary launches space marines that
+invade the enemy ship and kill their crew.
+
+			      Pkunk Fury
+Primary weapon:  Three-way cannon
+Secondary weapon: Fling insults at opponent.  This is the only way the
+Pkunk can regenerate combat energy.
+Note: On occasion, a destroyed Fury will be resurrected with full fuel
+and power.
+
+			    Shofixti Scout
+Primary weapon:  Energy Dart.
+Secondary weapon: Glory Device.  When pressed three times, the ship
+will self-destruct, inflicting vast damage on nearby vessels.
+
+			   Slylandro Probe
+Primary weapon:  Lighting weapon.
+Secondary weapon: Absorb a nearby asteroid and convert to combat
+power.  This is the only way the Probe can recharge.
+Note: The Probe is inertia-less and always in motion.  Pressing thrust
+will reverse its direction.
+
+			    Spathi Eluder
+Primary weapon:  Simple forward cannon.
+Secondary weapon: Backward Utilized Tracking Torpedo (B.U.T.T.), a
+homing missile fired from the rear of the vessel.
+
+			     Supox Blade
+Primary weapon: Forward firing glob weapon
+Secondary weapon: Secondary + left or right will cause you to drift
+laterally, while Secondary + thrust will make you fly backwards.  This
+cancels your current velocity, so be careful!
+
+			  Syreen Penetrator
+Primary weapon: Particle Beam Stiletto.
+Secondary weapon: "Syreen Call" - psychic attack that induces enemy
+crew to jump ship, where you (or your opponent) may capture them to
+add to your complement
+
+			   Thraddash Torch
+Primary weapon:  Straightforward blaster cannon.
+Secondary weapon: Afterburner.  The afterburner exhaust does more
+damage then the blaster, so use it as a weapon!
+
+			     Umgah Drone
+Primary weapon:  Anti-Matter cone.  Does not require combat batteries to use.
+Secondary weapon:  Fly backwards suddenly and at high speed.
+Note: The Drone only recharges batteries if you do not fire for a long
+time, and then the energy all returns in one lump.
+
+			 Ur-Quan Dreadnought
+Primary weapon:  Fusion Blast.
+Secondary weapon: Launches autonomous fighters to harrass the enemy.
+When they run low on fuel, they will fly back to the Dreadnought.
+Catch them before they expire.  Each fighter requires one crew to
+pilot it, so take care not to weaken the core ship.
+
+			     Utwig Jugger
+Primary weapon: Six-shot cannon.  Requires no combat battery energy to fire.
+Secondary weapon: Force shield.  Absorbing hits re-energizes your
+batteries.  When the batteries are exhausted, the shield is
+permanently disabled until combat ends.
+
+			     VUX Intruder
+Primary weapon: Gigawatt laser.
+Secondary weapon: Limpet mines that track enemy ships and slow them
+down dramatically if they hit.
+
+			   Yehat Terminator
+Primary weapon: Twin autocannons.
+Secondary weapon: Force shield.
+
+			 Zoq-Fot-Pik Stinger
+Primary weapon: Anti-matter spray gun.
+Secondary weapon: "Tongue attack", a point-blank range attack that
+does grievous damage.
+
+			     SUPER MELEE
+
+Super Melee mode is pure combat.  It's designed to let you hone your
+skills for the full game, or to challenge your friends to fleet
+matches.  Selecting "Super Melee!" from the main menu will bring you
+to the super melee main screen.
+
+This screen is dominated by the fleet design screen.  Move the cursor
+over a ship slot and press ENTER to change the ship assignment, or
+press DELETE to remove the ship.  You may select the fleet name and
+press ENTER to edit the fleet name to something of your choice.  The
+number next to the fleet name lists the fleet strength; this is simply
+the sum of the point values of all ships in the fleet.
+
+The right hand side of the screen has buttons for managing the battle.
+Each side has four buttons associated with it: LOAD, SAVE, CONTROL,
+and NET.  The LOAD and SAVE buttons let you load and save fleets.  A
+variety of fleets of various strengths are pre-defined, and you may
+add your own by saving fleets you design.  
+
+The CONTROL button has one of five settings.  HUMAN CONTROL puts the
+fleet under the control of a human player.  (The precise controls for
+that player are set in the Setup menu, but the bottom player's
+controls are always the same as the full game's controls.)  Then there
+are three levels of computer control: 
+
+  - WEAK CYBORG is not a particularly good shot, and will only use
+    special weapons if the ship absolutely requires the special weapon
+    to function at all (Pkunk, Slylandro).  This difficulty level only
+    appears in the full game when fighting crippled ships.
+
+  - GOOD CYBORG will actually use its special weapon, but it's still
+    not much of a threat.  The Good cyborg provides a gentle
+    introduction to Star Control combat if you are unfamiliar with the
+    gameplay.  However, you will soon wish to switch to...
+
+  - AWESOME CYBORG.  The AI will fully exploit each ship's abilities,
+    and is also a tolerably good shot, compensating for inertia and
+    choosing its shots.  Enemies you meet in the full game are almost
+    always piloted at this level.  If a battle is giving you trouble
+    in the full game, this is the setting you want.
+
+The last control option is NETWORK CONTROL, which will be set if that
+side is controlled by a non-local opponent.  To set up a network game,
+push the NET button on the side you wish to be under your opponent's
+control.
+
+In order to connect, you must agree on a port (the default is 21837,
+which should not require any change) and set a net delay in frames.
+To compensate for network lag, a keypress or keyrelease will only take
+effect after this many frames. While higher values make your ship
+seem to respond more sluggishly, they give the keypress information
+more time to reach the remote party.  If the game stutters, this is
+because it is waiting for this keypress information to arrive, which
+is an indication that the input delay is too low.  Super Melee runs at
+24 frames per second, each frame delayed will delay the input by about
+42ms.  The delay used is the maximum of the desired value for both
+parties.  The default is 2. Values lower than 4 are typically
+acceptable in terms of responsiveness.  Future versions may
+automatically decide on the best value to use.
+
+Once the port and delay are set, one player must select the first
+option (Wait for incoming connection), while the other enters his
+opponent's hostname or IP address into the Host field and then pushes
+"Connect."  Once the connection is established, the control scheme for
+the remote player will flip to NETWORK CONTROL to register the
+connection.  To disconnect, change it away back to one of the HUMAN or
+CYBORG options.  Once connected, you are both free to edit your fleets
+to provide a properly balanced battle.
+
+Once all fleets are in readiness, press the BATTLE button in the
+center right.  (In a network game, both players must select it with no
+intervening fleet edits.  Moving away from BATTLE or having your
+opponent change their fleet will cancel your readiness state, and you
+will need to reselect the BATTLE button.)  When all players are ready,
+the battle begins.
+
+The ship selection screen is much as it would be in the full game,
+with two notable exceptions: a question mark in the upper right allows
+you to select a new ship randomly from those remaining, and a red X
+allows you to exit the combat entirely.  (It is also possible to exit
+the melee at any time by pressing F10, just as one can exit anything.)
+If nobody quits, the combat will continue until one side has been
+completely destroyed.  At this point, both fleets are shown so that
+one may compare initial and remaining fleet strengths.  Press a key to
+return to the melee menu.
+
+To return to the main menu after finishing with Super Melee mode, push
+the QUIT button in the lower right.
+
+			   GENERAL GAME CONTROLS SUMMARY
+
+F1 or PAUSE                  Pause game
+F10                          Exit game
+F11                          Toggle between fullscreen and windowed mode
+
+			   FULL GAME CONTROLS SUMMARY
+
+	Space flight
+
+UP                           Thrust
+LEFT and RIGHT:              Steer
+SPACE or RIGHT SHIFT:        Main menu
+
+	Menus
+
+Arrow Keys:                  Scroll through selections
+ENTER or RIGHT CTRL:         Make selection
+SPACE or RIGHT SHIFT:        Up one level
+      or ESCAPE
+
+	Conversations
+
+LEFT and RIGHT:              Rewind/Forward
+UP and DOWN:                 Scroll through selections
+ENTER or RIGHT CTRL:         Make selection
+SPACE or RIGHT SHIFT:        Skip, Show/Hide summary
+
+	Star Map
+
+Arrow Keys:                  Move the crosshair
+ENTER or RIGHT CTRL:         Select destination
+SPACE or RIGHT SHIFT:        Main menu
+Keypad +:                    Zoom in
+Keypad -:                    Zoom out
+/ (not on the keypad):       Begin search.
+                             (Type star or constellation name to 
+                              find matches)
+TAB:                         Jump to next match.
+
+	Space Combat
+
+UP:                          Thrust
+LEFT and RIGHT:              Steer
+RIGHT CTRL or ENTER:         Fire Primary Weapon
+RIGHT SHIFT:                 Fire Secondary Weapon
+ESCAPE:                      Emergency Warp Escape
+
+
+	Planet Exploration
+
+UP:                          Forward
+LEFT and RIGHT:              Steer
+RIGHT CTRL or ENTER:         Fire stun bolt
+RIGHT SHIFT or ESCAPE:       Blast off
+
+
+			   MELEE CONTROLS SUMMARY
+
+	Top Player
+
+W:                           Thrust
+A and D:                     Steer
+V:                           Fire Primary Weapon
+B:                           Fire Secondary Weapon
+
+	Bottom Player
+
+UP or ENTER:                 Thrust
+LEFT and RIGHT:              Steer
+RIGHT CTRL or ENTER:         Fire Primary Weapon
+RIGHT SHIFT:                 Fire Secondary Weapon
+
+
+These controls are configurable from the Setup Menu.  You may define
+up to six "Input Templates" and assign a template to either or both
+players.  Some commonly used key configurations are pre-defined, as
+well as popular variants.  To change key bindings, select the binding
+you wish to change and press ENTER.  At the dialog box, press the key
+(or joystick gesture) that you wish to assign to this action.
+
+
+                           SAVED GAMES
+
+The saved games are kept in your personal directory for uqm data.
+This directory is automatically created the first time you start the
+game.  The location of this directory varies per system.
+
+On Microsoft Windows systems this is a folder named 'uqm' in the
+application data folder for the current user.
+This is usually in one of the following locations:
+- "C:\Windows\Application Data\"
+  (Windows 95, 98, SE without separate users)
+- "C:\Windows\Profiles\YourName\Application Data\"
+  (Windows 95/98/SE with separate users)
+- "C:\Documents and Settings\YourName\Application Data\"
+  (Windows NT/2k/XP)
+The "Application Data" folder may be hidden. You can tell Windows to display
+hidden files and folders in the Folder Options dialog, which you can
+find in the Tools menu of any folder window.
+
+On Unix systems this personal uqm data is stored in "~/.uqm".
+
+You will generally only need this if you intend to transfer savegames
+to another computer. Note that currently games saved on an PowerPC Mac
+will not work on a PC (or an Intel Mac), and vice versa.  AMD64 and
+Intel savegames may be safely transferred.
+
+
+			   ADD-ONS
+
+As of version 0.3, The Ur-Quan Masters has basic support for add-on
+packages.  Though it is not very elaborate yet, you can install some
+content add-ons. Add-ons created for UQM releases prior to v0.7 are not
+compatible with this release. To continue using your current add-ons,
+you will have to obtain or create new add-on packages.
+
+Inside the directory where the content is installed, in the content/
+directory, there is a directory 'addons/'. In this directory, you can
+place add-on packages, like 3domusic, 3dovoice, remix and others, or
+create new directories with .zip files to be used in addition to the
+standard content .zip files. Each add-on must contain at least one .rmp
+file to tell the game which resources the add-on provides.
+When you specify the command-line option '--addon <addon>', the .zip files
+inside the directory content/addons/<addon> will be included
+in the game. '--addon' may be specified more than once to enable multiple
+add-ons.
+
+Unlike previous releases, 3domusic and 3dovoice are now standard add-ons,
+and can be turned on and off from the in-game setup menu.
+The Precursors UQM Remix project is intended to be used as an add-on.
+If you install UQM 0.7 from the Windows installer, the remix packs
+are available as options. The remix add-on can also be turned on and off
+from the in-game setup menu.

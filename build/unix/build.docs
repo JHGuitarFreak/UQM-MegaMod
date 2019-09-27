@@ -1,0 +1,205 @@
+I've made this build system as a replacement for autoconf, autoheader,
+automake, and aclocal as I found them to be too limiting and too slow.
+This build system is not as complete as the auto* tools, but it's very
+easy to extend.
+
+Some of the most important differences between this system and autoconf:
+- it has a menu-driven configuration
+- when compiling, the current directory will never change
+- the object files are stored in a seperate tree from the source files,
+  leaving the latter clean, and easier grep-able.
+- multiple object trees can be used, so you can have for instance a
+  debugging tree and a release tree side by side.
+- it builds faster, mostly because libtool isn't used.
+
+
+The files
+---------
+
+These are the files in the directory with the build script.
+Of these files only build.config should be modified for a specific build.
+For unknown dependencies, additions to config_proginfo_build or
+config_proginfo_host might need to be made. The other files should not
+be modified.
+Only build.sh is to be called directly.
+
+ansi                   ansi colour definitions.
+build.config           configuration options for the program to build.
+                       It contains the description of the configuration
+                       menu, and specifies the dependencies.
+                       The format of the menu description is listed briefly
+                       below.
+build.sh               the sh script that is to be called for configuration,
+                       building, and installation.
+build_functions        auxiliary functions to build.sh for building.
+config_functions       auxiliary functions to build.sh for configuration.
+config_proginfo_build  contains descriptions of dependencies for the
+                       system where the code is being built.
+                       The information in this file is used in particular
+                       for detecting if those libraries and other external
+                       programs are present.
+config_proginfo_host   contains descriptions of dependencies for the
+                       system where the software will eventually be run.
+                       The information in this file is used in particular
+                       for detecting if those libraries and other external
+                       programs are present.
+menu_functions         auxiliary functions to build.sh for menus.
+
+
+The menu (from build.config)
+----------------------------
+
+There are three types of menu items.
+
+- Type MENU
+  A menu with menu items.
+  - Variables:
+    - MENU_${NAME}_TITLE
+      The title of the menu.
+    - MENU_${NAME}_TEXT (optional)
+      The text to show with the menu.
+    - MENU_${NAME}_ITEMS
+      The names of the menu items (space-seperated).
+    - MENU_${NAME}_ITEM_${ITEMNAME}_TYPE
+      The type of a menu item.
+- Type CHOICE:
+  A choice between several options.
+  - Variables:
+    - CHOICE_${NAME}_TITLE
+      The title of the choice menu.
+    - CHOICE_${NAME}_TEXT (optional)
+      The text to show with the choice menu.
+    - CHOICE_${NAME}_OPTIONS
+      The names of the options (space-seperated).
+    - CHOICE_${NAME}_OPTION_${OPTIONNAME}_TITLE
+      The title of a menu option.
+    - CHOICE_${NAME}_OPTION_${OPTIONNAME}_ACTION
+      A command to be evaluated if this option is used.
+    - CHOICE_${NAME}_OPTION_${OPTIONNAME}_VALID (set by the config program)
+      0 if the choice has been verified to be a valid choice
+      1 if the choice has been verified to be not a valid choice
+      <empty> if the choice hasn't been verified to be valid
+    - CHOICE_${NAME}_DEFAULT (optional)
+      The default choice.
+    - CHOICE_${NAME}_VALUE (set by the config program)
+      The current choice.
+- Type INPUT:
+  A string that is user-definable.
+  - Variables:
+    - INPUT_${NAME}_TITLE
+      The title of the input field.
+    - INPUT_${NAME}_TEXT (optional)
+      The text to show with the input field.
+    - INPUT_${NAME}_VALIDATOR (optional)
+      A function to call after the user supplied a new value which
+      checks if the value is allowed. It should accept the new value as
+      an argument, and return 1 if the value is not allowed, or return 0
+      and output the (possibly modified) value, to accept it.
+    - INPUT_${NAME}_DEFAULT (optional)
+      The default value.
+    - INPUT_${NAME}_VALUE (set by the config program)
+      The current value.
+    - INPUT_${NAME}_OLD_VALUE (set by the config program)
+      The value as it was at the start of the config program.
+- Type CHECK:
+  An option that can either be on or off, like a checkbox.
+  - Variables:
+    - CHECK_${NAME}_TITLE
+      The title of the input field.
+    - CHECK_${NAME}_DEFAULT (optional)
+      The default value, either 'CHECKED' or 'UNCHECKED'.
+    - CHECK_${NAME}_VALUE (set by the config program)
+      The current value, either 'CHECKED' or 'UNCHECKED'.
+    - CHECK_${NAME}_FIXED (optional)
+      A string that evaluates to 0 if this checkbox may not be changed.
+
+
+
+Program info (from config_proginfo_build)
+-----------------------------------------
+
+Information about programs used should be supplied in the following form:
+  - PROG_${PROGRAM}_NAME
+    A string describing the program.
+  - PROG_${PROGRAM}_FILE
+    A string that evaluates to the executable that should be present if
+    this program is used.
+  - PROG_${PROGRAM}_ACTION (optional)
+    A command to be executed if this program is used, after the user is
+    done configuring.
+  - PROG_${PROGRAM}_DETECT (optional)
+    A command to be executed which should return 0 if the program is present
+    on the system, 1 if it is not present, or 2 to fallback to the default
+    detection. If no detect function was set, or it returned 2, 'type' is
+    used to check for the program in the path.
+    This command may include a shell command that modifies any of the
+    variables PROG_${PROGRAM}_FILE, PROG_${PROGRAM}_ACTION, or
+    PROG_${PROGRAM}_VERSION.
+  - PROG_${LIB}_DEPEND_DETECT_BIN (optional)
+    A list of space-separated binaries the detection of this program
+    depends on.
+  - PROG_${LIB}_DEPEND_DETECT_LIB (optional)
+    A list of space-separated libraries the detection of this program
+    depends on.
+  - PROG_${PROGRAM}_VERSION (optional)
+    A string that evaluates to the version of the executable that is
+    present, if it is present.
+  - PROG_${PROGRAM}_PRESENT (set by the configuration program)
+    0 if the program has been verified to be present
+    1 if the program has been verified to be not present
+    <empty> if presence of the program hasn't been verified
+
+Information about build tools in general (say "a C compiler"), where you're
+not interested in what program is actually called, should be supplied in
+the following corm:
+  - BUILDTOOL_${TOOL}_NAME
+    A string describing the build tool.
+  - BUILDTOOL_${TOOL}_COMMAND
+    The command, with arguments, that is to be executed to run this tool.
+  - BUILDTOOL_${TOOL}_DEPEND
+    A whitespace separated list of programs (as described above)
+    that this tool depends on.
+  - BUILDTOOL_${TOOL}_PRESENT (set by the configuration program)
+    0 if the tool has been verified to be present
+    1 if the tool has been verified to be not present
+    <empty> if presence of the tool hasn't been verified
+Each tool described, once detected, will be available through the environment
+variable with the name as specified in $TOOL.
+
+
+Library info (from config_proginfo_host)
+-----------------------------------------
+
+Information about libraries used should be supplied in the following form:
+  - LIB_${LIB}_NAME
+    A string describing the program.
+  - LIB_${LIB}_CFLAGS
+    A string which evaluates to the string to add to CFLAGS if this library
+    is used.
+  - LIB_${LIB}_LDLAGS
+    A string which evaluates to the string to add to LDLAGS if this library
+    is used.
+  - PROG_${LIB}_DETECT (optional)
+    A command to be executed which should return 0 if the library is present
+    on the system, 1 if it is not present, or 2 to fallback to the default
+    detection. If no detect function was set, or it returned 2,
+    an attempt is made to compile and link an empty C program with
+    the flags as in LIB_${LIB}_CFLAGS and LIB_${LIB}_LDFLAGS.
+    This command may include a shell command that modifies any of the
+    variables PROG_${LIB}_CFLAGS, PROG_${LIB}_LDFLAGS, or
+    PROG_${LIB}_VERSION.
+  - LIB_${LIB}_DEPEND_DETECT_BIN (optional)
+    A list of space-separated binaries the detection of this library depends
+    on.
+  - LIB_${LIB}_DEPEND_DETECT_LIB (optional)
+    A list of space-separated libraries the detection of this library depends
+    on.
+  - LIB_${LIB}_VERSION (optional)
+    A string that evaluates to the version of the library that is
+    present, if it is present.
+  - LIB_${LIB}_PRESENT (set by the configuration program)
+    0 if the library has been verified to be present
+    1 if the library has been verified to be not present
+    <empty> if presence of the library hasn't been verified
+
+

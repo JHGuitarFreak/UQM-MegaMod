@@ -1,0 +1,5 @@
+NOTE by UQM developers: this is a modified version of libmikmod.
+
+This version of the library is based on the official libmikmod library
+version 3.1.11a with some internal and API changes backported from v3.2.2.
+The official library is found at http://sourceforge.net/projects/mikmod.

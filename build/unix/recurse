@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# Generic code for traversing the source code directory structure according to
+# the Makeinfo files.
+
+usage() {
+	cat << EOF
+Usage:
+	recurse <project> <root>
+
+With the parameters:
+	<project>
+		The name identifying the project, used as prefix in variables in
+	   	'Makeproject' and 'Makeinfo'.
+
+	<root>
+		The root directory, containing 'Makeproject'.
+EOF
+}
+
+if [ $# -ne 2 ]; then
+	usage >&2
+	exit 1
+fi
+
+BUILD_PROJECT=$1
+BUILD_ROOT=${2%/}/
+
+# $1 - The prefix up to this point
+# $2 - The name of the current subdir
+recurse_subdir() {
+	local REC_PREFIX SUBDIRS SUBDIR CFILES CXXFILES HFILES MFILES RCFILES FILE
+	eval local ${BUILD_PROJECT}_CFILES \
+			${BUILD_PROJECT}_CXXFILES \
+			${BUILD_PROJECT}_HFILES \
+			${BUILD_PROJECT}_MFILES \
+			${BUILD_PROJECT}_RCFILES \
+			${BUILD_PROJECT}_SUBDIRS
+
+	REC_PREFIX="$1$2/"
+	if [ "$REC_PREFIX" = "/" ]; then
+		REC_PREFIX=
+	fi
+	
+	eval ${BUILD_PROJECT}_CFILES=
+	eval ${BUILD_PROJECT}_CXXFILES=
+	eval ${BUILD_PROJECT}_HFILES=
+	eval ${BUILD_PROJECT}_MFILES=
+	eval ${BUILD_PROJECT}_RCFILES=
+	eval ${BUILD_PROJECT}_SUBDIRS=
+
+	. "${BUILD_ROOT}${REC_PREFIX}Makeinfo"
+
+	eval CFILES=\$${BUILD_PROJECT}_CFILES
+	eval CXXFILES=\$${BUILD_PROJECT}_CXXFILES
+	eval HFILES=\$${BUILD_PROJECT}_HFILES
+	eval MFILES=\$${BUILD_PROJECT}_MFILES
+	eval RCFILES=\$${BUILD_PROJECT}_RCFILES
+
+	for FILE in $CFILES; do
+		echo "C	${OBJDIR}${REC_PREFIX}$FILE"
+	done
+	for FILE in $CXXFILES; do
+		echo "CXX	${OBJDIR}${REC_PREFIX}$FILE"
+	done
+	for FILE in $HFILES; do
+		echo "H	${OBJDIR}${REC_PREFIX}$FILE"
+	done
+	for FILE in $MFILES; do
+		echo "M	${OBJDIR}${REC_PREFIX}$FILE"
+	done
+	for FILE in $RCFILES; do
+		echo "RC	${OBJDIR}${REC_PREFIX}$FILE"
+	done
+
+	eval SUBDIRS=\$${BUILD_PROJECT}_SUBDIRS
+
+	for SUBDIR in $SUBDIRS; do
+		echo "DIRIN	${OBJDIR}${REC_PREFIX}$SUBDIR"
+		recurse_subdir "$REC_PREFIX" "$SUBDIR"
+		echo "DIROUT	${OBJDIR}${REC_PREFIX}$SUBDIR"
+	done
+}
+
+. "${BUILD_ROOT}Makeproject"
+
+recurse_subdir "" ""
+

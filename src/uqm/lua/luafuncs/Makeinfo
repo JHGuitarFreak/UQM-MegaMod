@@ -1,0 +1,2 @@
+uqm_CFILES="commfuncs.c customfuncs.c eventfuncs.c logfuncs.c statefuncs.c"
+uqm_HFILES="commfuncs.h customfuncs.h eventfuncs.h logfuncs.h statefuncs.h"

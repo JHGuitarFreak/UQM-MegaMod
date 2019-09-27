@@ -1,0 +1,45 @@
+This document describes the installation procedure for a installation from
+source on a Linux or BSD platform.
+
+1.
+First, make sure all the required libraries are installed.
+They are listed in the file INSTALL in the top dir.
+
+
+2.
+If you haven't done so already, download the content .uqm files packages
+that you want, from where you got this source package.
+You'll need uqm-0.7.0-content.uqm; uqm-0.7.0-3domusic.uqm (music from the 3DO
+version) and uqm-0.7.0-voice.uqm (spoken alien dialogs) are optional.
+
+Put the uqm-0.7.0-content.uqm in the directory content/packages/ which exists
+in the top directory of the source tree (the dir with (among others)
+COPYING, src/, and build.var.in).
+Put the optional music and voice packages in the content/addons/ directory.
+
+
+3.
+Run './build.sh uqm'
+Change settings in the menu if you want.
+The source building process will start, and when it ends, you should have
+a file 'uqm' in the source dir (or uqm-debug if you selected a debug build).
+You can try it out from this dir by typing './uqm' (or './uqm-debug').
+
+
+4.
+Run './build.sh uqm install', and be patient.
+Depending on what installation location you selected in the configuration
+menu, you might need root permissions here.
+
+
+5.
+Done.
+You can start the game now with the command 'uqm'.
+You may also delete the source (with the .uqm files you put in
+content/) if you want.
+
+
+If you want to recompile with other options, you can use
+'./build.sh uqm config' to reconfigure; you might need to do
+'./build.sh uqm depend' afterwards.
+

@@ -1,0 +1,160 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+
+## [v0.8.0.84]
+### Fixed
+- Animated powerlines no longer draw over ship desciriptions in the Shipyard
+- Only Unzervalt will be named Unzervalt
+- Fixed various other planet name discrepencies
+- Isolated the Android specific controls to fix gamepad controls on non-Android devices
+
+
+## [v0.8.0.83]
+### Added
+- Difficulty Modes
+- Android compaitibility
+- Option to show fuel in its whole decimal
+- SETUP MENU: Ability to switch between different Melee scalers for Android
+- SETUP MENU: Text fields in the setup menu can now have tooltips
+- Show Difficulty, Seed, Extended, and Nomad info on the load screen
+- SETUP MENU: Added option to switch between PC/3DO interplanetary transitions (when the viewport zooms in while traveling through a solar system)
+- Name home worlds of various aliens (where applicable) after conditions are met
+	- Druuge home planet named "Trade HQ" after meeting them
+	- Spathi home planet named "Spathiwa" after meeting them
+	- Slylandro home planet named "Source" after Slylandro talk about their planet
+	- Supox home planet named "Vlik" after the Supox say the name
+	- Syreen home planet named "Gaia" after meeting them
+	- Utwig home planet named "Fahz" after meeting them
+	- Syreen's previous home planet named "Syra"
+	- Shofixti's previous home planet named "Kyabetsu"
+	- Vela I is now named "Unzervalt"
+- SETUP MENU: Added option to switch between PC or 3DO lander hold size
+- CUSTOM SEED: When using a custom seed moons can be any planet (Barring gas giants, rainbow, and shattered worlds)
+- SETUP MENU: Added menu option to enable/disable Extended Edition features
+- Add a new mode named "NOMAD" which is a "no Starbase" gameplay mode
+- A new mode called "Extended Lore" to expand more upon the lore of UQM
+- New mineral helpers for Easy and Hard mode
+- Fuel Range point of no return is disabled until you get access to the Starbase
+- Added game over "cutscenes" for the Death March, activating the Utwig Bomb, dying in battle, and surrendering to the Ur-Quan
+- Added back in autoload support for Orange Peel Melnorme
+- SETUP MENU: Added option to enable/disable fuel range point of no return
+
+# EXTENDED LORE
+- No longer possible to encounter random Ur-Quan ships in the Zoq-Fot-Pik home system, like their dialogs say (Bugzilla Bug #759)
+- Add a "dead" slave-shielded world and starbase @ Beta Ophiuchi I (047.9:887.5)
+- Destroyed Ur-Quan(*) / Kohr-Ah(+) starbases
+	+ Beta Reticuli (702.0 : 529.1)
+	* Metis (570.8 : 460.4)
+	* Gamma Cancri (500.6 : 501.1)
+	* Alpha Lentilis (462.5 : 600.0)
+	+ Theta Chamaeleonis (514.5 : 695.8)
+	+ Antares (647.9 : 754.1)
+- The Syreen will have a Sphere of Influence at the completion of their Vault Quest
+- The Chmmr will have a Sphere of Influence once you help them complete their Process
+- Add a defunct Mother-Ark @ Delta Virginis IV
+- Add a stripped Precursor Starbase at Alpha Centauri
+- Add ruins and lore on Algol IV to match with the lore as told by the Melnorme
+- Add a Spathi erected monument to the peaceful negotiatons of colonization between them and the Mmrnmhrm on Beta Herculis II
+- The Thraddash will survive the Ilwrath war if you are allied with them. And they will let you take the AquaHelix peacefully
+
+# HARD MODE
+- All Spathi escorts flee when they slave shield themselves
+- Starting crew is 31 to account for the epilogue story
+- Amount of Thraddash to defeat is 35 to become allied
+- Crew Cost is minimally reduced when the Shofixti are revived
+- Slylandro Probes dodge projectiles
+- Mineral worth for Exotics is brought down to 16
+- Slylandro Probes will orbit Rainbow Worlds, their numbers increase if left unchecked and will eventually vanish once you complete their quest
+- When using a custom seed the seed will be randomized on New Game
+- Rainbow World credit value cut in half
+- SIS: Weapon slots 2 & 3 take double energy
+- SIS: Auto tracking costs double energy
+- Evil Ones are now more dangerous. They move and seek the player out, as well as having 5 HP
+- Melnorme tech catalog spread out between the 9 Supergiants (No tech upgrades in Hyperspace)
+- Melnorme fuel cost upped to 10 credits per unit
+- Randomize Quasi Portal exits based on seed
+- Reduced viability of the Druuge/Melnorme fuel exploit
+- If player kills Tanaka they do not get a second chance with Katana
+- Portal Spawner costs 20 whole units of fuel
+- Selling more than 10 crew to the Druuge guarantees a price hike in crew cost and the immediate disapproval of the Commander
+- Can only build two of any ship
+- Tanaka's Scout has full maneuvreability and main weapon system (Bomb still disabled)
+- Quasispace portal Hyperspace coordinates not revealed
+
+# EASY MODE
+- Double mineral worth
+- Fwiffo starts with a full crew compliment
+- Amount of Thraddash to defeat is 15 to become allied
+- Tune down the battle difficulty to Weak Cyborg
+- Start with two landers
+- Rainbow World credit value doubled
+- Add a couple more fusion thrusters and turning jets for new game
+- Keep the Emergency Escape Warp Unit enabled after Chmmr Bomb installation
+- Portal Spawner costs 5 whole units of fuel
+- Player starts with 43.38 units of fuel (The difference between a full tank and the amount of fuel it takes to travel from Vela to Sol)
+- Player starts with 2500 R.U.
+- Limit to the amount of crew to sell to the Druuge before crew cost hike is 200
+- Commander will tell you about the Melnorme and ZFP earlier than usual
+- Zex's Beast ferocity toned down
+
+# NOMAD MODE
+- New message report for the Earth Starbase when you try to dock
+- Player will no longer "pick up" the base on Luna
+- Emergency Warp Unit activated without needing to visit the Starbase
+- Add a starbase around Kyabetsu that will give the player a max of two Scouts after their quest is completed
+- Give player two extra jets and thrusters so as to not be completely outmatched in speed
+- Make Probes spawn at a reasonable rate so as to not annoy the player
+- When allied, Spathi ships can join your fleet when asked for a max of 3 ships in your fleet.
+- Player starts with 20 more units of fuel
+
+### Changed
+- New icon
+- CUSTOM SEED: Can now be edited in the setup menu
+- CUSTOM SEED: Solar systems can have a max of 10 planets and a max of 5 moons for any given planet
+- Used old Hyperspace code to improve compatibility for Vanilla saves
+- SETUP MENU: Split the visual options into a submenu in Advanced Options to clear up some room
+- SETUP MENU: Rearranged and cleaned up menu options
+- Sol doesn't have a nebula when the option is enabled
+- Druuge's HD convo image changed to the Alpha version of HD-Mod's as it's more faithful to the original lighting and design
+- Refactor all the addons to use more simple "SD - HD" language
+
+### Fixed
+- Fix orbit line bug in HD for macOS and Android
+- Captain/Ship name box now flashes while editing
+- Androsynth captain activating the special weapon is consistent with SC1 (Bugzilla Bug #444)
+- Fixed possible memory leak introduced with the Bubble Warp cheat dealing with interplanetary music not being released properly
+- Removed extraneous Umgah dialogue from the credits sequence
+- Fixed crew text updating properly during melee in HD
+- Planet spin speed in orbit view for HD
+- Fixed edges of Ur-Quan comm screen for HD
+- Fixed subtitle timing for re-voiced Utwig
+
+
+## [v0.8.0.82]
+
+### Added
+-Massive graphics overhaul
+-Race specific ambient space music when inside a race's sphere of influence (Composed by Volasaurus)
+-Quasiportal exits now randomized with the custom seed system
+-Quasiportals stay "unknown" when custom seeds are enabled
+-Increment Fuel/Crew by min/max using the End/Home keys
+-Addon support for Volasaurus' Remix Pack
+-Added alternate music support for Zex, Ur-Quan Probe, Chmmr Pre/Post Process, Sa-Matra battle, 
+-Tumbling Slylandro Probe animation in solar system view
+-Added ability to scale non-textured planets
+
+### Fixed
+-Draw custom border over star search box 
+-Make intersect point for planets in HD "under the skin" (larger than a pixel, smaller than the planet image)
+-Fix Spathi ships being removed from fleet during their slave shield event
+-Head Start cheat properly fixed so one only has to go to the Starbase (you better hope to god no Slylandro spawn in)
+-Fixed mineral cargo fill-up in HD
+-Realign the cargo and device display for HD
+-Fix graphical bug in the custom border UI when choosing 3DO fonts
+
+### Removed
+-Removed the alternate Thraddash storyline
+-Autoload support for the alt-Kohr-Ah Ship design
+-Autoload support for the Orange Peel Melnorme

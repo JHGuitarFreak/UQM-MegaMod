@@ -1,0 +1,62 @@
+The various ship queues used in the game:
+
+GlobData.Game_state.avail_race_q:
+	Contains fleet information, ship template and other info about the
+	  alien races present in the game. All races are present that are
+	  defined by the enum RACE_ID except for, technically, SAMATRA_SHIP.
+	  URQUAN_PROBE_SHIP is a very incomplete 'race'.
+	RACE_ID is used as an index to this queue.
+	Elements are of type FLEET_INFO.
+	Filled in globdata.c:InitGameStructures().
+	Partially included in savegames.
+
+GlobData.Game_state.built_ship_q:
+	The fleet accompanying the flagship (escorts).
+	Elements are of type SHIP_FRAGMENT.
+	which_side is always GOOD_GUY here.
+	Partially included in savegames.
+
+master_q:
+	List of templates for all the ships that are available in SuperMelee.
+	Elements are of type MASTER_SHIP_INFO.
+	Sorted on the (abbreviated) race name (see doc/devel/racestrings).
+	Filled in master.c:LoadMasterShipList().
+
+GlobData.Game_state.npc_built_ship_q:
+	The npc ships in an encounter, or list of ship groups when in IP;
+	  empty otherwise.
+	Elements are of type SHIP_FRAGMENT. IP group list will most likely
+	  change to contain GROUP_INFO instead.
+	For encounters with an infinite number of ships, the queue consists
+	of a single ship with ShipInfo.crew_level set to (BYTE)~0.
+	and the side that this ship is on.
+	Partially included in savegames.
+
+race_q[NUM_PLAYERS]:
+	Contains the ships participating in a battle for each player.
+	Elements are of type STARSHIP.
+	Filled in encount.c:BuildBattle().
+	RaceDescPtr points to a loaded ship's descriptor once the ship data
+	  is loaded in spawn_ship(); NULL otherwise.
+
+
+Other queues:
+
+GlobData.Game_state.GameClock.event_q:
+	Queue of game events.
+	Elements are of type EVENT.
+
+disp_q:
+	Display queue. This contains all visible elements; everything
+	that floats in TrueSpace, HyperSpace/QuasiSpace, battle.
+	Elements are of type ELEMENT.
+
+GlobData.Game_state.encounter_q:
+	Contains information regarding the black globes flying around
+	in HyperSpace.
+	Elements are of type ENCOUNTER.
+
+
+Initial version of this document created by Serge van den Boom, on 2006-03-08.
+
+

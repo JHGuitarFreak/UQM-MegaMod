@@ -1,0 +1,63 @@
+BUILDING THE UR-QUAN MASTERS ON MAC OS X
+
+You'll need a number of libraries to build it.  All are available
+online:
+
+SDL: http://www.libsdl.org/download-1.2.php
+Only the Runtime is truly necessary, but the devel extras are nice.
+
+SDL_image: http://www.libsdl.org/projects/SDL_image/
+The last version of stock framework that can be used is v1.2.7.
+Starting with v1.2.8, the stock framework uses ImageIO by default
+to load PNG files, which strips out the PNG palettes.
+
+Ogg Vorbis: http://www.xiph.org/downloads/
+Theoretically optional, but necessary if you're using the 3DO music
+or voices. You'll need libogg, libvorbis, and libvorbisfile.  The last
+two are part of the Vorbis framework.
+
+PREPARING THE LIBRARIES
+
+For SDL and SDL_image:
+- Install the SDL and SDL_image frameworks in /Library/Frameworks as
+  instructed in the files.  The SDL-devel extras go in their own
+  place, as noted in the instructions.
+
+Unzip the libogg and libvorbis archives somewhere convenient.
+
+For libogg:
+- Go to the macosx directory, open the xcodeproj.
+- Open Project->Project Settings and set the Configuration to
+  "Release".  Ensure the Architecture is set to "i386 ppc".
+- If you are using XCode 3.2.1 (Snow Leopard), you will need to use
+  GCC 4.0 instead of the default 4.2 (which will not work for the 10.4
+  target).  Inside Project Settings, add the following User-Defined
+  Settings via the gear menu at the bottom left:
+  - GCC_VERSION_i386 = 4.0
+  - GCC_VERSION_ppc  = 4.0
+- Choose the "10.4 | Release" target and build.
+- If there are no errors, the Ogg.framework file should have turned
+  from red to black.  Control-click it, choose "reveal in finder".
+- Copy Ogg.framework to /Library/Frameworks.
+
+For libvorbis:
+- Same procedure as libogg.
+
+To build:
+- Run ./build.sh in the sc2/ directory and choose your configuration
+  options.  The only truly important one is to use Included MikMod
+  instead of System MikMod.
+- If the build fails because SDL_include.h has errors, run 
+
+    ./build.sh uqm clean
+
+  then 
+
+    CFLAGS="-I/Library/Frameworks/SDL.framework/Headers" ./build.sh uqm config
+
+  You'll need to set that CFLAGS in that manner each time you
+  reconfig, but not each time you rebuild. (So, every time you clean,
+  you'll need to reset that CFLAGS.)
+
+- If it builds without errors (last line is LINK uqm or LINK
+  uqm-debug), ./build.sh uqm install to build the .app.

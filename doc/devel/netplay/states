@@ -1,0 +1,178 @@
+== Any connected state ==
+Some packets may be sent and received in any state except
+NetState_unconnected.
+These are: PING, ACK, ABORT, RESET
+These are not listed below at each individual state.
+
+Whenever a connection is aborted, the state is returned to
+NetState_unconnected. This state transition is not listed below at each
+individual state.
+
+
+== NetState_unconnected ==
+NetState_unconnected is the initial state.
+
+NetConnection.state: NULL
+
+Packets ok to send:    none
+Packets ok to receive: none
+
+Next state:
+	NetState_connecting -- connection attempt in progress
+
+
+== NetState_connecting ==
+NetState_connecting indicates that a connection is in progress.
+
+When the connection is established, the state is changed to NetState_init
+and InputFunc is set to DoNetworkInit.
+
+NetConnection.state: instance of ConnectStateData
+
+Packets ok to send:    none
+Packets ok to receive: none
+
+Next state:
+	NetState_init -- connection established
+
+
+== NetState_init ==
+NetState_init is for initialising the connection before actual game
+information is sent.
+
+As this state is entered, an INIT packet is sent. When an INIT packet
+has also been received, the state is set to NetState_inSetup and
+InputFunc is set to DoMelee.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    INIT
+Packets ok to receive: INIT
+
+Next state:
+	NetState_inSetup -- received an INIT packet
+	
+
+== NetState_inSetup ==
+NetState_inSetup is the state in which the fleet configuration is negotiated.
+
+This does not necessarilly mean that the fleet setup screen is visible;
+this state is also held after a battle when the battle outcome is still
+displayed.
+
+Each side may send fleet configuration changes to the other side, by means of
+FLEET and TEAMNAME packets. Agreement on configuration settings is provided
+through the Update negotiation.
+The Confirm negotiation is used to end this state and go to
+NetState_preBattle. At this time InputFunc is set to DoPreMelee.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    FLEET, TEAMNAME, HANDSHAKE0, HANDSHAKE1,
+                       HANDSHAKECANCEL, HANDSHAKECANCELACK
+Packets ok to receive: FLEET, TEAMNAME, HANDSHAKE0, HANDSHAKE1,
+                       HANDSHAKECANCEL, HANDSHAKECANCELACK
+
+Next state:
+	NetState_preBattle -- configuration has been confirmed
+
+
+== NetState_preBattle ==
+NetState_preBattle is used for non-interactive battle negotiations.
+
+One side sends the random seed; the other receives it.
+Both sides send their input delay value.
+The Ready negotiation is used to end this state and go to
+NetState_interBattle.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    SEEDRANDOM, INPUTDELAY, READY
+Packets ok to receive: SEEDRANDOM, INPUTDELAY, READY
+
+Next state:
+	NetState_interBattle -- ready to continue
+
+
+== NetState_interBattle ==
+NetState_interBattle is used to allow each side to do some local
+initialisations before moving on.
+The Ready negotiation is used to end this state and go to
+NetState_selectShip, or if all sides have selected a ship, to
+NetState_inBattle, or if there are no more ships in a fleet,
+to NetState_inSetup.
+
+If there are no more ships, the the Ready negotiation is used to
+enter NetState_inSetup.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    READY
+Packets ok to receive: READY
+
+Next state:
+	NetState_selectShip  -- ready to select the next ship
+	NetState_inBattle    -- ready to start the battle
+	NetState_inSetup     -- no more ships; game over
+
+
+== NetState_selectShip ==
+NetState_selectShip is where a side may select their ship. The other
+side is waiting for notice of this selection.
+As soon as the selection has been sent or received, the state is changed
+back to NetState_interBattle.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    SELECTSHIP
+Packets ok to receive: SELECTSHIP
+
+Next state:
+	NetState_interBattle -- a selection has been made
+
+
+== NetState_inBattle ==
+NetState_inBattle is where the actual melee takes place.
+Both sides send their input until the game is over, at which point
+the Ready negotiation is used to end this state and go to
+the NetState_endingBattle state. Until the Ready negotiation has been
+completed, the simulation is continuing.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    BATTLEINPUT, READY
+Packets ok to receive: BATTLEINPUT, READY
+
+Next state:
+	NetState_endingBattle -- ready to end the battle
+
+
+== NetState_endingBattle ==
+NetState_endingBattle is where the local side waits for the remote
+battle frame count, after it has sent its own. When it arrives,
+the state changes to NetState_endingBattle2.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    BATTLEINPUT, FRAMECOUNT
+Packets ok to receive: BATTLEINPUT, FRAMECOUNT
+
+Next state:
+	NetState_endingBattle2 -- we know when to end the battle
+
+
+== NetState_endingBattle2 ==
+NetState_endingBattle2 is where the side with the lowest battle frame count
+catches up with the other other side, while the other side waits.
+The Ready negotiation is used to signal that each side is ready,
+and the state changes to NetState_interBattle.
+
+NetConnection.state: instance of BattleStateData
+
+Packets ok to send:    BATTLEINPUT, READY
+Packets ok to receive: BATTLEINPUT, READY
+
+Next state:
+	NetState_interBattle -- get ready for the next ship
+
+

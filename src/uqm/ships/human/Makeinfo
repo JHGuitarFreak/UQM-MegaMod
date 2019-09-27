@@ -1,0 +1,2 @@
+uqm_CFILES="human.c"
+uqm_HFILES="human.h icode.h resinst.h"

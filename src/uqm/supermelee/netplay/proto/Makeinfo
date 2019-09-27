@@ -1,0 +1,2 @@
+uqm_CFILES="npconfirm.c ready.c reset.c"
+uqm_HFILES="npconfirm.h ready.h reset.h"

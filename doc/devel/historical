@@ -1,0 +1,39 @@
+This file is intended as a place to document historically interesting
+curiosities in the UQM source and content, which have been deleted from
+the current source/content tree.
+
+This file is probably not complete.
+
+
+== .res files ===
+
+The Star Control source code contained files with the extension .res, which
+contained a description of the packages (.pkg or .ndx) files to be generated.
+
+There were .res files for each ship and each race which you can communicate
+with. These files 'included' the file 'star3do.res', which itself included
+'star3do.typ'.
+
+There were also header files icode.h, igfxres.h, imusicre.h, isndres.h,
+istrtab.h, resinst.h, respkg.h and restypes.h in each of the ship and comm
+directories, which defined a few resource constants, which were presumably also
+generated from these .res files.
+
+
+== Outtake not taken out ==
+
+There was an outtake accidentally left in the original speech for the Druuge.
+It can still be found at
+	http://sc2.svn.sourceforge.net/viewvc/*checkout*/sc2/trunk/sc2/content/comm/druuge/druug011.ogg?revision=133&pathrev=1113
+
+
+== Original title screen and menu ==
+
+The original title screen -- which included the text 'Star Control' and
+'Accolade' and could hence not be used in UQM -- can be found at
+        http://sc2.svn.sourceforge.net/viewvc/sc2/trunk/sc2/content/lbm/title.tga?revision=6&pathrev=6
+The original main menu (which did not include 'setup' or 'quit' options)
+can be found at
+        http://sc2.svn.sourceforge.net/viewvc/sc2/trunk/sc2/content/lbm/newgame0.tga?revision=6&pathrev=6
+
+

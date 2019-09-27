@@ -1,0 +1,277 @@
+#!/bin/sh
+# Installation program for binaries.
+# By Serge van den Boom, 2002-11-26
+
+quithandler() {
+	echo
+	echo "Bye."
+	trap INT
+	kill -INT $$
+}
+
+trap quithandler INT
+
+umask 022
+
+cat << EOF
+-== The Ur-Quan Masters installation ==-
+
+Hi, I'm your friendly neighbourhood installation program.
+I will make you very happy, but first, we've got some business to take
+care of.
+
+EOF
+
+PAGER="${PAGER:-more}"
+type "$PAGER" > /dev/null 2>&1
+if [ "$?" -ne 0 ]; then
+	cat << EOF
+I can't find a good pager. I need one. Sorry. Here's your prompt back.
+EOF
+	exit 1
+fi
+
+type unzip > /dev/null 2>&1
+if [ "$?" -ne 0 ]; then
+	cat << EOF
+I need 'unzip' for unzipping things. You don't seem to have it.
+That means no unzipping for me. And no The Ur-Quan Masters for you.
+And that's really not acceptable, is it? So I hope you'll install it
+soon. That way we'll both be happy.
+EOF
+	exit 1
+fi
+
+echo "I need to show you something. I don't want to, but I have to."
+echo "Press enter when you're ready."
+read TEMP
+
+$PAGER << "EOF"
+@LICENCE@
+EOF
+echo "That's hard reading, isn't it? But it's pretty important stuff. "
+echo -n "Now, the big question is, do you agree to it? "
+while :; do
+	read TEMP
+	case "$TEMP" in
+		[yY][eE][sS]|[aA][gG][rR][eE][eE])
+			echo "Good. Now we can be friends."
+			break
+			;;
+		[nN][oO])
+			cat << EOF
+No? You're sure you didn't mean 'yes'? You do realise I can't let you pass
+now? Oh well, come back if you change your mind. I'm not going anywhere.
+I AM not going anywere, right?
+EOF
+			exit 0
+			;;
+		*)
+			echo -n "Hmm... Please type 'Yes' or 'No': "
+			;;
+	esac
+done
+echo
+
+cat << EOF
+Now I need somewhere to put all those Ur-Quan Masters files.
+My invisible friend tells me $INPUT_install_prefix_DEFAULT is a good place.
+I would put an executable there in a bin/ dir and a lot of junk together
+in a subdir under share/ and a little bit in a subdir under lib/
+But you're the boss, so where shall I put them?"
+EOF
+while :; do
+	show_install_prefix_menu
+	echo
+
+	PREFIX="$INPUT_install_prefix_VALUE"
+	if [ "$PREFIX" = "/dev/null" ]; then
+		echo "Ok, done. That was quick, wasn't it? Well, have fun."
+		echo
+		exit 0
+	fi
+
+	if [ ! -d "$PREFIX" ]; then
+cat << EOF
+There's no such directory. If you want me to stuff it all in /dev/null,
+just say so. No need to toy with me.
+Then again, I could create that directory for you.
+EOF
+		echo -n "Would you like that? "
+
+		read TEMP2
+		echo
+		case "$TEMP2" in
+			y|Y|yes|Yes|YES)
+				mkdir -p "$PREFIX" 2> /dev/null
+				if [ "$?" -gt 0 ]; then
+					cat << EOF
+I cannot do it, captain! I don't have enough power!
+Erm... I mean 'permission denied'. Sorry about that.
+I guess we'll need to find another place.
+EOF
+					echo "So what shall it be?"
+				else
+					cat << EOF
+Ok, I've created that dir for you, even though it isn't in my job
+description. Now let's get on with the copying.
+EOF
+					break;
+				fi
+				;;
+			n|N|no|No|NO)
+				echo "Great! That saves me some work."
+				echo "Then where DO you want me to put my files?"
+				echo "I promise I'll handle them with care."
+				;;
+			*)
+				echo "I'll take that as a 'no'."
+				echo -n "So, where should I put my files?"
+				;;
+		esac
+		continue
+	fi
+
+	if [ ! -w "$PREFIX" ]; then
+cat << EOF
+Ooh, a very fine place indeed. Unfortunately it's not your fine place.
+You can't write there, and for some strange cosmological coincidence,
+neither can I. I think we need another place."
+EOF
+		echo "So, what shall it be?"
+		continue
+	fi
+	break
+done
+cat << EOF
+$PREFIX it is. I can work with that.
+
+EOF
+
+if [ -d "${PREFIX}/share/uqm-megamod/content" ]; then
+	if [ -f "${PREFIX}/share/uqm-megamod/content/version" ]; then
+		read UQM_OLDVERSION < "${PREFIX}/share/uqm-megamod/content/version"
+	else
+		UQM_OLDVERSION=0.1
+	fi
+	if [ `expr "$UQM_VERSION" ">" "$UQM_OLDVERSION"` = "1" ]; then
+		# NB: 'expr' echoes '1' for true, while sh uses '0'
+		echo "Hey! I see you've got an old version there."
+		echo "You'll be happy to know this one is even better."
+		echo "(yes, this is a hardcoded string in the installer)"
+		echo
+		UQM_INSTALL=UPGRADE
+	elif [ `expr "$UQM_VERSION" "<" "$UQM_OLDVERSION"` = "1" ]; then
+		UQM_INSTALL=DOWNGRADE
+	else
+		UQM_INSTALL=REINSTALL
+	fi
+else
+	UQM_INSTALL=NEW
+fi
+
+check_content_path() {
+	local OPTIONAL TITLE HAVE FAIL
+
+	echo "Looking for packages to install..."
+	FAIL="0"
+	for PACKAGE in $UQM_PACKAGES; do
+		eval OPTIONAL="\$UQM_PACKAGE_${PACKAGE}_OPTIONAL"
+		eval TITLE="\$UQM_PACKAGE_${PACKAGE}_TITLE"
+		package_available "$PACKAGE"
+		HAVE="$?"
+		echo -n "- Package for '$TITLE'"
+		if [ "$OPTIONAL" = TRUE ]; then
+			echo -n " (optional)"
+		else
+			echo -n " (required)"
+		fi
+
+		if [ "$HAVE" -eq 0 ]; then
+			echo " found."
+			continue
+		fi
+		echo " not found."
+		
+		if [ "$OPTIONAL" = FALSE ]; then
+			FAIL=1
+		fi
+	done
+	return "$FAIL"
+}
+
+CONTENT_PATH="$INPUT_content_path_DEFAULT"
+check_content_path
+if [ "$?" -ne 0 ]; then
+	cat << EOF
+I haven't found the files I need in the $CONTENT_PATH dir.
+I really can't work without them.
+If you don't have them, please press CTRL-C and quickly get it, before I get
+swapped out.
+EOF
+	echo "Otherwise, please tell me where you've hidden them."
+	while :; do
+		show_content_path_menu
+		CONTENT_PATH="$INPUT_content_path_VALUE"
+		check_content_path && break
+		echo "That's not it. Guess again."
+	done
+	echo "Yay! Found them."
+	echo
+fi
+
+set_components_menu
+show_components_menu
+
+cat << EOF
+Ok, I'm ready now to start filling your hard drive.
+It might take some time though, so don't hold your breath.
+On second thought, DO hold your breath, I like the colour blue.
+Orange too, for that matter, but I don't think you can manage that.
+EOF
+echo -n "Ready? Just say the word. Any word will do: "
+read TEMP
+echo "A word as good as any."
+echo
+
+echo "Making directories..."
+mkdir -p -- "$PREFIX"/share/uqm-megamod/content 2> /dev/null
+mkdir -p -- "$PREFIX"/bin 2> /dev/null
+
+echo "Unpacking packages..."
+for PACKAGE in `selected_packages`; do
+	echo "- $COMPFILE"
+	COMPFILE="$(package_filename $PACKAGE)"
+	eval LOCATION="\$UQM_PACKAGE_${PACKAGE}_LOCATION"
+	unzip -od "${PREFIX}${LOCATION}" "$COMPFILE"
+
+	# Next line is a workaround, as the content zips have files
+	# with the wrong permissions in them. Should be fixed for the
+	# next release.
+	chmod go+rX "${PREFIX}${LOCATION}"
+done
+
+
+echo "Unpacking other stuff..."
+tail -c @ATTACHLEN@ < "$0" | gzip -dc | tar -xf - -C "$PREFIX"
+
+echo "Creating wrapper script..."
+cat << EOF > "$PREFIX"bin/uqm
+#!/bin/sh
+# Wrapper script for starting The Ur-Quan Masters
+"${PREFIX}lib/uqm-megamod/UrQuanMasters" "--contentdir=${PREFIX}share/uqm-megamod/content" "\$@"
+EOF
+chmod 755 "$PREFIX"bin/UrQuanMasters
+
+cat << EOF
+
+All done. Now you can play The Ur-Quan masters.
+I told you I was going to make you very happy.
+And if you're looking for documentation, you can find some in
+${PREFIX}share/uqm-megamod/doc/. If you aren't looking for documentation, too.
+But feel free to delete them. You know where to find them.
+EOF
+
+exit 0
+
+

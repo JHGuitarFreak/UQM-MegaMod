@@ -1,0 +1,24 @@
+Begin3
+Title:          The Ur-Quan Masters
+Version:        0.7.0
+Entered-date:   2011-07-04
+Description:    Port of the classic game 'Star Control II'.
+Keywords:       Ur-Quan Masters, Star Control, game, space adventure,
+                Super Melee
+Author:         Toys for Bob <alexness@toysforbob.com>
+                The Ur-Quan Masters developers <sc2-devel@sourceforge.net>
+Maintained-by:  Serge van den Boom <svdb@stack.nl>
+                Mika Kolehmainen <mimakole@cc.jyu.fi>
+                Michael Chapman Martin <mcmartin@gmail.com>
+                Alex Volkov <codepro@usa.net>
+Primary-site:   http://sourceforge.net/projects/sc2/files/
+                1251331 uqm-0.7.0-installer.exe
+                11538533 uqm-0.7.0-content.uqm
+                18980671 uqm-0.7.0-3domusic.uqm
+                115143439 uqm-0.7.0-voice.uqm
+                14716453 uqm-0.7.0-macosx.dmg
+                1562065 uqm-0.7.0-source.tgz
+Platforms:      Windows, Linux, FreeBSD, OpenBSD, MacOS X, BeOS
+Copying-policy: GPL for the C code, CC-by-nc-sa 2.5 or custom for the graphics and audio content, CC-by 2.0 for the documentation
+End
+

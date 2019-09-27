@@ -1,0 +1,76 @@
+This is the format for resources of type STRTAB. It contains a number of
+items of unspecified data (not necessarilly strings).
+This is used for game strings (extension .txt), colour tables (.ct),
+colour translation tables (.xlt), and sound-effect tables (.snd)
+
+Everything is stored MSB first unless otherwise specified.
+
+position   length  meaning
+           4       0xffffffff if the file is uncompressed.
+                   Otherwise, the file is compressed. When uncompressed, the
+                   file complies with the rest of the format as described
+                   below.
+           2       Unused in file, always 0x0000
+           2       number of items in the file (StringCount)
+
+Followed by:
+  In file:
+           4       Placeholder, always 0x00000000
+    numitems times:
+           4       length of string
+  In memory:
+    numitems times:
+           4       offset from &StringCount to the string
+    followed by:
+           4       offset from &StringCount until one char past the end
+                   of the last string.
+
+For .ct files an item is as follows (new 256x24bit format):
+           1       Index of first clut in this item.
+           1       Index of last clut in this item.
+  For each clut:
+    256 palette entries:
+           1       red value
+           1       green value
+           1       blue value
+
+For old .ct files an item is as follows (obsoleted by new 256x24bit format):
+           1       Index of first clut in this item.
+           1       Index of last clut in this item.
+  For each clut:
+    32 palette entries:
+           2       bits 0-4: blue value
+                   bits 5-9: green value
+                   bits 10-14: red value
+                   bit  15: specifies the interpolation mode for 3DO scaling
+                            (is ignored now)
+The full palette contains 256 values, which are the original 32 values
+    multiplied by 1 to 8.
+
+
+For .ct files (planet surface version; in ipanims) an item is as follows:
+           1       Index of first color in this colortab.
+           1       Index of last color in this colortab.
+  Then for each color (6 bits per channel):
+           1       bits 0-5: red value
+           1       bits 0-5: green value
+           1       bits 0-5: blue value
+The planet surface palette files were probably copied verbatim from DOS version
+and left alone because they do no exactly fit into the whole CLUT system.
+
+For .xlt files (planet surface; in ipanims) an item is as follows:
+           2*3     3 elevation levels (not used, probably informational)
+           1*256   256 colormap indices each corresponding to a particular
+                   elevation level 0..255; only colormap indices 128..255
+                   can be used currently because colormaps only define
+                   colors 128..255
+The .xlt files combined with planet surface .ct files are used to select colors
+for planet surface rendering.
+
+
+For .snd files an item is as follows:
+           N-2     Signed, 8-bit, 1 channel PCM samples of the sound
+                   effect, where N = (length of string)
+           2       Sampling frequency of the sound, *LSB first*
+                   (the frequencies themselves seem to be remnants of
+                    the DOS version)

@@ -1,0 +1,3 @@
+uqm_CFILES="cdp.c cdpapi.c"
+uqm_HFILES="cdp_alli.h cdpapi.h cdp.h cdp_iio.h cdp_imem.h cdpint.h
+		cdp_isnd.h cdp_ivid.h cdpmod.h windl.h"

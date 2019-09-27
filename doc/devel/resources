@@ -1,0 +1,196 @@
+This file documents both the currently used resource system and the
+legacy system used in the original implementations. It also describes
+how to update the resources while keeping everything functional.
+
+		       THE UQM RESOURCE SYSTEM
+		       -----------------------
+
+Resources are identified by "resource IDs", which are arbitrary
+strings. The UQM convention is to treat them as paths or qualified
+names, with the period being the separator. An example would be
+"comm.arilou.dialogue", which is conceptually grouped with all other
+resources beginning with "comm." or "comm.arilou."
+
+Resources are mapped to files via "resource map files" or RMPs. These
+files are full of key-value pairs. Each line of an RMP file matches
+this format:
+
+        resource_ID = RESOURCE_TYPE:resource_data
+
+The currently defined resource types and their accompanying data are:
+
+GFXRES:       A single animation. The resource data is the name of the
+              .ani file that defines it. See the "aniformat" file for
+              details.
+FONTRES:      A font. The resource data is the name of the directory
+              in which the font is defined.
+MUSICRES:     A music file. The resource data is the filename of the
+              relevant file in OGG or MOD format.
+SNDRES:       A set of related sounds. Points to a text file,
+              traditionally suffixed ".snd", that lists each sound
+              file in the collection, one per line. These sounds are
+              in WAV format.
+STRTAB:       An unadorned string table. The resource data is the file
+              name.
+BINTAB:       Indexed binary data, mostly used for palettes and
+              topological data for planet terrain generation. The
+              resource data is the file name. See the "strtab" file, but
+              be aware that all information not regarding .ct or .xlt
+              files has been obsoleted.
+CONVERSATION: All data corresponding to an individual conversation
+              tree. The resource data has three components, separated
+              by colons: the conversation text (similar to the
+              STRTAB), the directory in which voiceovers may be
+              found, and the timestamp file corresponding to those
+              voiceovers. The second and third values are optional,
+              but if either is present, both must be.
+SHIP:         This is an integer that specifies which ship corresponds
+              to a specified resource. The mapping of SHIP integers
+              to actual ship_info structures is done by the dummy.c
+              routines.
+STRING:       A string. The resource data is the string itself.
+INT32:        A 32-bit integer. The resource data is the integer as a
+              string giving its representation in decimal.
+BOOLEAN:      A true/false value. Any value of the resource data that
+              is not the exact case-insensitive string "true" will be
+              treated as false.
+UNKNOWNRES:   A catch-all internal type for any type the system does
+              not recognize. It is functionally equivalent to STRING,
+              mainly so that sensible debug messages may be emitted.
+
+When UQM is started, each RMP file in the content directory (but not
+its subdirectories) is read and indexed. Then, for each addon pack
+rqeuested, it reads each RMP file in the addons/(addon name)/
+directory and updates the resource index accordingly. Generally
+speaking, this will overwrite older values of the resources with
+pointers to the new content. 
+
+It is permissible to have multiple RMP files in a single directory;
+however, if this is done, there should be no overlap between the
+resources defined. The UQM resource system makes no guarantees about
+the loading order of RMP files within a unit.
+
+It is not required for an addon to restrict its references to its own
+subdirectory; all paths are relative to the base of the content
+directory. This allows fonts to be shared across addons, for an "addon
+pack" to simply reorganize content within the base directory. (For
+instance, a popular modification to the original games involved
+juggling .SHP files and renaming them so that the "Earthling Cruiser"
+was actually a much more powerful ship like the Utwig Jugger or Chmmr
+Avatar. This may be effected in the current system by making an addon
+pack that redefines the relevant SHIP-typed resources.)
+
+		     UPDATING THE CORE RESOURCES
+		     ---------------------------
+
+The officially supported content is kept in three indices:
+
+- content/uqm.rmp: The core content.
+- content/addons/3domusic/3domusic.rmp: 3DO music.
+- content/addons/3dovoice/3dovoice.rmp: The 3DO conversations.
+
+These latter two are treated the same as any other addons, except that
+they are guaranteed to be loaded first if selected by the
+configuration file.
+
+These files do not house all the necessary data, however. The code
+itself uses a set of automatically generated header files to #define
+constants that correspond to each resource. In order to add new
+resources or change currently defined resource IDs, the .h files must
+also be updated.
+
+To keep all information in one place, the tools/resmap directory
+contains a master data file for all core resources ("resource.csv")
+and a number of Python scripts for manipulating it.
+
+If files have simply been moved, renamed, or re-typed, one may reflect
+these changes in uqm.rmp and run the "reverse_rmp.py" script. This
+will reflect changes in uqm.rmp back into resources.csv.
+
+If the header constants or resource IDs have changed, changes will
+need to propagate to the .h files. Edit or add the relevant lines to
+resources.csv and run "gen_resfiles.py". This will read resources.csv
+and regenerate uqm.rmp and all the relevant header files.
+
+The resources.csv file is a comma-separated-values file suitable for
+importing into most spreadsheet programs. It has one line for each
+resource, and each line has five "columns":
+
+    C constant, resource id, header file, resource type, resource data
+
+If a resource exists in the code, but not in the base content the
+resource type and resource data are both the string "--". The C
+constant and header file are still mandatory - otherwise UQM will not
+compile. Such resources will not be reflected in the RMP files, but
+will have their headers defined appropriately so that addon packs may
+provide values.
+
+Major reorganization of files may be done with the transform.py file;
+its usage string describes its script format.
+
+			    LEGACY SYSTEM
+			    -------------
+
+The resource files the resource system in SC2 uses, comes in two flavours.
+There are 'packaged' files, which contain the data in the file itself,
+and 'non-packaged' (index) files, which only point to other files.
+The internal formats are described in pkgformat, and are mostly the same.
+
+A resource file is opened by a calling OpenResFile(), after which a
+MEM_HANDLE to a resource can be acquired from it by calling GetResource().
+
+The argument of GetResource() is an integer value specifying the resource.
+There are defines for this defined in (files included from) the various
+resinst.h file. The defines are unique to a resource file.
+A resource id can be something like this: 0x00400002
+Bits 21-31 specify the package. (resources are grouped together in a
+		resource file in packages) (a number >= 0).
+Bits 0-7 specify the resource type of the resource (a number >= 1).
+Bits 8-20 specify the instance number (the number of the resource of a
+		type in a package) (a number >= 0).
+
+The resource type is a number. What kind of resource that actually is,
+is not specified in the package. The program registers functions for
+loading data of a specific type number, by calling InitResTypeVectors().
+
+In the original 3DO version, the following types are used:
+GFXRES    (1) - graphics data
+STRTAB    (2) - string table
+MUSICRES  (3) - music and sound data
+RES_INDEX (4) - a resource 'file'
+CODE      (5) - identifies code to use (the resouce file itself does not
+                contain any code)
+
+
+In the PC version of Star Control II, the following types are used
+(the names are taken from the other versions):
+KEY_CONFIG (1) - keyboard configuration
+GFXRES     (2) - graphics data
+SNDRES     (3) - waveform audio
+STRTAB     (4) - string table
+MUSICRES   (5) - mod audio
+RES_INDEX  (6) - a resource 'file'
+CODE       (7) - actual PC code (compressed; used for ships as well as comm;
+                 may include other resources)
+           (8) - Deluxe Paint .ANM
+
+
+In the UQM project pre-resmap, the following types were used:
+KEY_CONFIG (1) - keyboard configuration (not used in the 3do packages)
+GFXRES     (2) - graphics data
+FONTRES    (3) - font data
+STRTAB     (4) - string table
+SNDRES     (5) - waveform audio
+MUSICRES   (6) - music
+RES_INDEX  (7) - a resource 'file'
+CODE       (8) - identifies code to use (the resouce file itself does not
+                 contain any code)
+
+The resource files, resinst.h, restypes.h, and respkg.h files were
+originally generated from information from the .res and .typ files. The
+resource library should be compiled with 'PACKAGING' defined for this.
+
+---
+
+Initial version of this file 2002-10-23 by Serge van den Boom.
+Updated for the 0.7.0 system by Michael Martin.

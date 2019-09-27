@@ -1,0 +1,75 @@
+This is the format for resources of type GFXRES (font variantion -- these
+have the extension .fon in the original source).
+
+All fonts have exactly 96 character descriptors starting with ASCII
+code 32 (space).
+
+Everything is stored MSB first unless otherwise specified.
+
+position   length  meaning
+           4       0xffffffff if the file is uncompressed.
+                   Otherwise, the file is compressed. When uncompressed, the
+                   file complies with the rest of the format as described
+                   below.
+           4       Unused in file, always 0x00000000
+           1       Font leading: the vertical distance between lines of text
+                   in pixels.
+           1       Max ascender: the maximum extent of the font upwards from
+                   the baseline in pixels.
+           1       Max descender: the maximum extent of the font downwards
+                   from the baseline in pixels.
+           1       Char spacing: the number of pixels in between the
+                   successive characters.
+           1       Kern amount: the number of pixels (out of char spacing)
+                   that are used for kerning (explained later). Cannot be
+                   more than char spacing.
+           96      Kerning table: each byte corresponds to a character:
+                     bits 0-1: right-hand side kerning mask
+                     bits 2-3: left-hand side kerning mask
+                   For each pair of chars printed the code figures out whether
+                   the kerning should be used by taking the right mask of a
+                   preceeding char and ANDing it with the left mask of a
+                   succeeding char. If the result is 0, the Kern amount is
+                   subtracted from Char spacing.
+           3       alignment padding: aligns the following char descriptors
+                   on 8-byte boundary.
+
+
+Then for all 96 chars:
+Char descriptors (these are frame descriptors from .ani format and some
+bits are most likely never used):
+           4       Type index and flags (TypeIndexAndFlags)
+                   Low 2 bytes:
+                     bits 0-11 is the index of this frame
+                     bits 12-15 are the type flags:
+                        - bit 12-13:
+                          - 0: (ROM_DRAWABLE)
+                          - 1: Direct drawable (RAM_DRAWABLE)
+                          - 2: (SCREEN_DRAWABLE)
+                          - 3: (OVERLAY_DRAWABLE)
+                   High 2 bytes (frame flags):
+                      - bits 0-7: global PLUT to use (probably unused)
+                      - bit 12: Frame is in cel format (DATA_HARDWARE)
+                      - bit 13: (DATA_COPY aka DATA_SCREEN)
+                      - bit 14: (DATA_PACKED)
+                      - bit 15: (X_FLIP)
+           4       Hot spot information (definition of (0, 0) in the image):
+                      - low 2 bytes: x location of hot spot
+                        (probably never used)
+                      - high 2 bytes: y location of hot spot
+                   This is the baseline of a character. The hotspot Y aligns
+                   with the baseline of the text.
+           4       Image bounds:
+                      - low 2 bytes: Image width
+                      - low 2 bytes: Image height
+           4       Offset from beginning of the char descriptor for this
+                   char to the beginning of the frame data.
+
+Frames:
+Then for all frames:
+           See "Frames" in gfxres.
+
+
+Initial version 2003-09-02, by Alex Volkov
+Frame descriptors and data from gfxres by Serge van den Boom
+

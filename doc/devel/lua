@@ -1,0 +1,616 @@
+= Introduction =
+
+Lua is a scripting language which can be tied into programs.
+
+In UQM, we currently use Lua for the following functionality:
+- to run initialisation scripts when a new game is started or an old
+  game is loaded
+- to script the game conversations (comm)
+- to script game events (uqm/gameev.c)
+Ohter candidates to be moved to Lua are:
+- ship-specific melee intelligence (uqm/ships/*/*.c)
+- configuration files
+
+The goal of using a scripting language such as Lua, is to make game mods
+possible without recompilation, and also make it impossible from mods
+to do harm to your system.
+
+To use Lua we need to define Lua functions, which interface with the program
+code. We describe them below.
+
+
+= Terminology =
+
+"Lua session": one use of the same Lua state. This may involve more than
+    one call to Lua code. The same data is available within a session.
+    e.g. Communicating with an alien may be a session.
+
+
+= General design =
+
+== Security ==
+
+We want Lua code (and in fact entire modules) to be safe; i.e. if you
+download a mod, it should not be able to affect anything on your system,
+other than the game state.
+
+To keep the Lua code clean, and to prevent code for one function from
+interfering with other Lua code, we use a clean environment for each time
+that a script is executed (e.g. each time that communications are initiated
+with a ship).
+
+Because we would want to allow to keep state in Lua -- though not
+accessible directly from Lua code -- we use a single Lua state.
+(See 'state.prop' below for an example of how we use Lua to keep state.)
+We define a new environment for each session, which we fill with
+fresh copies of the functions made available, so that sessions cannot
+interfere with eachother.
+
+= File layout =
+
+libs/lua/
+    Generic code for interfacing with Lua scripts.
+
+uqm/lua/
+    Code for using Lua scripts for specific purposes.
+
+uqm/lua/luafuncs/
+    Bindings for functions available from Lua scripts.
+
+
+= Lua bindings =
+
+== Standard Lua libraries ==
+
+The following Lua libraries may be used:
+- bit32 ( http://www.lua.org/manual/5.2/manual.html#6.7 )
+- math ( http://www.lua.org/manual/5.2/manual.html#6.6 )
+- string ( http://www.lua.org/manual/5.2/manual.html#6.4 )
+- table ( http://www.lua.org/manual/5.2/manual.html#6.5 )
+
+
+== Comm ==
+
+=== Functions ===
+
+comm.addResponse(phraseId, callback)
+    Description:
+        Add a phrase to the list of phrases which can be selected to be
+        spoken by the player.
+    Parameters:
+        phraseId - the string identifying the phrase
+    Returns:
+        nothing
+
+comm.disablePhrase(phraseId)
+    Description:
+        Make a phrase unavailable for selection by the player.
+    Parameters:
+        phraseId - the string identifying the phrase
+    Returns:
+        nothing
+
+comm.doNpcPhrase(phraseId)
+    Description:
+        Let the non-player party of the comm dialog say a phrase.
+    Parameters:
+        phraseId - the string identifying the phrase
+    Returns:
+        nothing
+
+comm.isPhraseEnabled(phraseId)
+    Description:
+        Check whether a phrase is available for selection by the player.
+    Parameters:
+        phraseId - the string identifying the phrase
+    Returns:
+        true if the phrase is enabled
+        false if it is not, or the phraseId is invalid
+
+comm.getPhrase(phraseId)
+    Description:
+        Get a phrase (the actual text).
+    Parameters:
+        phraseId - the string identifying the phrase
+    Returns:
+        nil if 'phraseId' is invalid
+        otherwise: the phrase string, with interpolation performed if
+            applicable
+
+comm.getSegue()
+    Description:
+        Get what will happen after the dialog ends, as set through
+        comm.setSegue().
+    Returns:
+        comm.segue.depart  - leave without combat
+        comm.segue.battle  - battle
+        comm.segue.defeat  - you lose the game
+        comm.segue.victory - the enemy is instantaneously destroyed.
+            You get the loot from the remains.
+
+comm.setSegue(what)
+    Description:
+        Set what will happen after the dialog ends.
+    Parameters:
+        what - one of:
+            comm.segue.depart  - leave without combat
+            comm.segue.battle  - battle
+            comm.segue.defeat  - you lose the game
+            comm.segue.victory - the enemy is instantaneously destroyed.
+                You get the loot from the remains.
+    Returns:
+        nothing
+
+
+== Events ==
+
+=== Functions ===
+
+event.addAbsolute(year, month, day, eventId)
+    Description:
+        Schedule a game event for a certain game date.
+    Parameters:
+        year - the game year when to trigger the event
+        month - the game month when to trigger the event
+        day - the game day when to trigger the event
+        eventId - the string identifying the event, as registered with
+            event.register()
+    Returns:
+        a value >= 0 if the event is scheduled successfully
+        -1 if it is not (probably the date was invalid)
+
+event.addRelative(years, months, days, eventId)
+    Description:
+        Schedule a game event for a certain time period in the future.
+    Parameters:
+        years - the number of game years in the future when to trigger the
+            event
+        months - the number of game months in the future when to trigger the
+            event
+        days - the number of game days in the future when to trigger the
+            event
+        eventId - the string identifying the event, as registered with
+            event.register()
+    Returns:
+        a value >= 0 if the event is scheduled successfully
+        -1 if it is not (probably the date was invalid)
+
+event.register(eventId, fun)
+    Description:
+        Register a function to be called when a game event is triggered.
+        There can currently only be one function registered per game event.
+    Parameters:
+        eventId - the string to identify the event with
+        fun - the function to call when the event is triggered
+    Returns:
+        nothing
+
+event.unregister(eventId, fun)
+    Description:
+        Unregister a function which was to be called when a game event is
+        triggered, as registered with event.register().
+        There can currently only be one function registered per game event.
+    Parameters:
+        eventId - the string identifying the event
+    Returns:
+        nothing
+
+
+== Logging ==
+
+=== Functions ===
+
+log.debug(str)
+    Description:
+        Output a debug message via the logger.
+    Parameters:
+        str - the message to output
+    Returns:
+        nothing
+
+log.error(str)
+    Description:
+        Output an error message via the logger.
+    Parameters:
+        str - the message to output
+    Returns:
+        nothing
+
+log.fatal(str)
+    Description:
+        Output a fatal error message via the logger.
+    Parameters:
+        str - the message to output
+    Returns:
+        nothing
+
+log.info(str)
+    Description:
+        Output an informational message via the logger.
+    Parameters:
+        str - the message to output
+    Returns:
+        nothing
+
+log.warn(str)
+    Description:
+        Output a warning message via the logger.
+    Parameters:
+        str - the message to output
+    Returns:
+        nothing
+
+
+== State ==
+
+In the functions below, the following values may be used for 'shipId':
+  androsynth, arilou, chenjesu, chmmr, druuge, flagship, human, ilwrath,
+  kohrah, melnorme, mmrnmhrm, mycon, orz, pkunk, probe, samatra, shofixti,
+  slylandro, spathi, supox, syreen, thradd, umgah, urquan, utwig, vux, yehat,
+  and zoqfotpik.
+
+In the functions below, the following values may be used for 'raceId':
+  androsynth, arilou, chenjesu, chmmr, druuge, flagship, human, ilwrath,
+  kohrah, melnorme, mmrnmhrm, mycon, orz, pkunk, probe, samatra, shofixti,
+  slylandro, spathi, supox, syreen, thradd, umgah, urquan, utwig, vux, yehat,
+  and zoqfotpik. XXX not quite right yet
+
+
+=== Functions ===
+
+state.clock.getDate()
+    Description:
+        Get the game clock.
+    Returns:
+        the current date, as a table with fields 'year', 'month', and 'day'.
+
+state.escort.addShips(shipId, count)
+    Description:
+        Try to add a number of escort ships to the fleet.
+        The actually added number may be less if there is not enough
+        space in the fleet.
+    Parameters:
+        shipId - string identifying the ship to add
+        count - number of ships to add
+    Returns:
+        the number of ships actually added
+
+state.escort.canAddShips(shipId)
+    Description:
+        Determine how many ships of type 'shipId' may still be added to
+        the fleet.
+    Parameters:
+        shipId - string identifying the ship to add
+    Returns:
+        the number of ships of the specified type which may be added
+
+state.escort.removeShips(shipId[, count])
+    Description:
+        Try to remove a number of ships of the specified type from the
+        fleet. If there are less ships in the fleet than specified,
+        all ships of the specified type are removed.
+    Parameters:
+        shipId - string identifying the type of the ship to remove
+        count - number of ships to remove (optional). If omitted, all
+                ships of the specified type are removed.
+    Returns:
+        the number of ships removed
+
+state.escort.shipCount(shipId)
+    Description:
+        Get the number of escort ships of a specific type.
+    Parameters:
+        shipId - string identifying the type of the ship
+    Returns:
+        the number of escort ships of the specified type in the fleet
+
+state.escort.totalValue()
+    Description:
+        Get the total value of all the escort ships, including a single crew
+        member.
+    Returns:
+        the total value of the escort ships, including a single crew member.
+
+state.prop.get(propName)
+    Description:
+        Get the value of a game state property. These properties persist
+        between Lua sessions and are included in saved games.
+    Parameters:
+        propName - name of the property to be get
+    Returns:
+        The value of the specified property.
+    Limitations:
+        Currently only known properties are included in saved games.
+        These properties all have an integer value.
+
+state.prop.set(propName, value)
+    Description:
+        Set the value of a game state property. These properties persist
+        between Lua sessions and are included in saved games.
+    Parameters:
+        propName - name of the property to be set
+        value - value to which the property is to be set
+    Returns:
+        nothing
+    Limitations:
+        Currently only known properties are included in saved games.
+        These properties all have an integer value.
+
+state.race.isAlive(raceId)
+    Description:
+        Test whether a species is alive.
+    Parameters:
+        raceId - string identifying the species
+    Returns:
+        true if the species is alive
+        false otherwise
+
+state.race.isAllied(raceId)
+    Description:
+        Test whether there exists an alliance with a species.
+        The ships of allied species are available in the ship yard.
+    Parameters:
+        raceId - string identifying the species
+    Returns:
+        true if the player is allied with the species
+        false otherwise
+
+state.race.isKnown(raceId)
+    Description:
+        Test whether the player knows of a species.
+    Parameters:
+        raceId - string identifying the species
+    Returns:
+        true if the species has a finite sphere of influence, and the player
+                knows of the species.
+        false otherwise
+    Limitations:
+        Only works for species which have a sphere of influence.
+
+state.race.setAllied(raceId, flag)
+    Description:
+        Make or break an alliance with a species.
+        The ships of allied species are available in the ship yard.
+    Parameters:
+        raceId - string identifying the species
+        flag - true if there is to be an alliance with the species,
+                false if not
+    Returns:
+        true if successful
+        false otherwise (the species is probably extinct)
+
+state.race.setAlive(raceId, flag)
+    Description:
+        Kill or revive a species.
+    Parameters:
+        raceId - string identifying the species
+        flag - true if the species is to be made alive
+                false if it is to be dead.
+    Returns:
+        true if successful
+        false otherwise
+    Limitations:
+        Reviving a species is currently not implemented.
+
+state.race.setKnown(raceId, flag)
+    Description:
+        Make a species known or unknown to the player.
+        A known species has their sphere of influence visible on the star map.
+    Parameters:
+        raceId - string identifying the species to make known to the player.
+        flag - true if the species is to be known, false if it is to be
+                unknown.
+    Returns:
+        true if successful
+        false otherwise (the species is probably extinct)
+    Limitations:
+        Making a species unknown is currently not implemented.
+
+state.sis.addCrew(delta)
+    Description:
+        Add crew members. Less than the specified number may be added if
+        there is not enough space in the crew pods available, or (with a
+        negative delta) less may be removed if the number of crew members
+        would become negative. The captain is not counted.
+    Parameters:
+        delta - the number of crew members to add. May be negative.
+    Returns:
+        the number of crew members added.
+
+state.sis.addFuel(delta)
+    Description:
+        Add fuel. Less than the specified amount may be added if there
+        is not enough space in the fuel tanks available, or (with a negative
+        delta) less may be removed if the number of fuel units would become
+        negative.
+    Parameters:
+        delta - the number of fuel units to add. May be negative.
+                Note that the amount displayed in the game is 1/100th of
+                this.
+    Returns:
+        the number of fuel units added.
+
+state.sis.addLanders(delta)
+    Description:
+        Add landers. Less than the specified amount may be added if the
+        maximum number is reached, or (with a negative delta) less may be
+        removed if the number of landers would become negative.
+    Parameters:
+        delta - the number of landers to add. May be negative.
+    Returns:
+        the number of landers added.
+
+state.sis.addResUnits(delta)
+    Description:
+        Add a number of resource units.
+    Parameters:
+        delta - the number of resources to add. May be negative.
+    Returns:
+        the number of resource units added.
+
+state.sis.getCaptainName()
+    Description:
+        Get the name of the captain of the flagship.
+    Returns:
+        The name of the captain of the flagship.
+
+state.sis.getCrew()
+    Description:
+        Get the number of crew members aboard the flagship (excluding the
+        captain).
+    Returns:
+        The number of crew members (excluding the captain).
+
+state.sis.getFuel()
+    Description:
+        Get the amount of fuel aboard the flagship.
+        Note that the amount displayed in the game is 1/100th of this.
+    Returns:
+        The amount of fuel aboard the flagship.
+
+state.sis.getLanders()
+    Description:
+        Get the number of landers.
+    Returns:
+        The number of landers.
+
+state.sis.getResUnits()
+    Description:
+        Get the number of resource units.
+    Returns:
+        The number of resource units.
+
+state.sis.getShipName()
+    Description:
+        Get the name of the flagship.
+    Returns:
+        The name of the flagship.
+
+
+= Lua equivalents for C code =
+
+Below, we give the Lua equivalents for C code.
+
+== Dialog functions ==
+
+PLAYER_SAID(R, phrase)
+    R == "phrase"
+
+PHRASE_ENABLED(phrase)
+    comm.isPhraseEnabled("phrase")
+
+DISABLE_PHRASE(phrase)
+    comm.disablePhrase("phrase")
+
+NPCPhrase(PHRASE)
+    comm.doNpcPhrase("PHRASE")
+
+Response(phrase, fun)
+    comm.addResponse("phrase", fun)
+
+
+== Game state functions ==
+
+GLOBAL (GameClock.year_index)
+    state.clock.getDate().year
+(Similar for 'month', 'day'.)
+
+SET_GAME_STATE(PROP, val)
+    state.prop.set("PROP", val)
+
+GET_GAME_STATE(PROP)
+    state.prop.get("PROP")
+
+SET_GAME_STATE_32(PROP, val)
+    state.prop.set("PROP", val)
+
+GET_GAME_STATE_32(PROP)
+    state.prop.get("PROP")
+
+AddEscortShips(SHIP, count)
+    state.escort.addShips("SHIP", count)
+
+RemoveEscortShips(SHIP)
+    state.escort.removeShips("SHIP")
+
+CalculateEscortWorth()
+    state.escort.totalValue()
+
+HaveEscortShip(SHIP)
+    state.escort.countShips("SHIP") > 0
+
+EscortFeasibilityStudy(SHIP)
+    state.escort.canAddShips("SHIP") > 0
+
+SetRaceAllied(RACE, flag)
+    state.race.setAllied("RACE", flag)
+
+StartSphereTracking(RACE)
+    state.race.setKnown("RACE", true)
+
+CheckAlliance(RACE)
+    state.race.isAllied("RACE")
+
+CheckSphereTracking(RACE)
+    state.race.isKnown("RACE")
+
+DeltaSISGauges(crew, fuel, resUnits)
+    state.sis.addCrew(crew)
+    state.sis.addFuel(fuel)
+    state.sis.addResUnits(resUnits)
+
+GLOBAL_SIS(NumLanders) += x; DrawLanders();
+    state.sis.addLanders(x)
+
+XXX
+
+
+Note: the order of arguments in AddEvent is different from those in
+event.addRelative/event.addAbsolute
+
+
+= Importing the Lua sources into UQM =
+
+We have included the sources of the Lua library in UQM.
+To easy upgrading, we have included all of the Lua source files, but we
+only compile the ones we need.
+
+When upgrading Lua, the following steps will have to be taken:
+- remove all the files from the UQM dir src/libs/lua/ except for Makefile
+- copy all the .c, .h and .hpp files from the src/ dir in the Lua source
+  code tar ball to the UQM dir src/libs/lua/
+
+The following files from Lua 5.2.2 are not included in the build:
+- lcorolib.c     Undesired low level functionality (coroutines)
+- ldblib.c       Undesired low level functionality (low level debugging)
+- liolib.c       Undesired low level functionality (system I/O)
+- loadlib.c      Undesired low level functionality (loading modules; we use
+                 our own, using UIO)
+- loslib.c       Undesired low level functionality (system functions)
+- linit.c        Unneeded functionality (code to load all modules)
+- lua.c          For stand-alone use (Lua shell)
+- luac.c         For stand-alone use (Lua compiler)-
+- lua.hpp        Unneeded functionality (C++ interface)
+
+
+
+Point out lua-checker
+
+Things to mention when presenting the patch:
+- an extra hash table is added to conversation string tables, for the names of
+  strings. This costs memory and a little bit of time to fill it.
+- trying to keep the interface clean from the start, even if this means
+  adding some new C functions
+- not all communication is put into script yet
+  Doing this gradually.
+- not all Lua bindings exist yet
+  Adding these gradually as they are needed.
+- GLOBAL(GameState) is now stored in Lua
+- state.sis.addFuel does not use FUEL_TANK_SCALE, so you'll have to multiply yourself
+  So state.sis.addFuel(5000) instead of state.sis.addFuel(50 * FUEL_TANK_SCALE)
+  If we ever want to change this (which we won't), we can change
+  state.sis.addFuel to divide by 100 and multiply by the new FUEL_TANK_SCALE
+- the output of the Lua print function goes to stdout
+
+
+

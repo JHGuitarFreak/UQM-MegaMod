@@ -1,0 +1,1159 @@
+Changes towards version 0.8:
+- Grouping ship properties together at the top of the ship .c files, from
+  oldlaptop.
+- Some added documentation for UIO.
+- Added a StringHashTable type.
+- A few superficial fixes to charhashtable.
+- Removed GraphicsLock and made comm callbacks queued - Alex
+- Split debug key function into sync and async parts, paving the way
+  for GraphicsLock removal - Alex
+- PageUp/PageDown now add/remove 10 fuel in the shipyard, from
+  Scott A. Colcord, Nic
+- Annihigate flash thread - SvdB
+- Switch SetFlashRect() to the new flash code - SvdB
+- Add C++ support to the build system, from Scott A. Colcord
+- Cleaning up DoModifyShips() - SvdB
+- Added Valgrind suppression file, from Louis Delacroix
+- Fix several memory leaks, from Loius Delacroix
+- Some cleanups / warnings fixes, from Louis Delacroix
+- Added a free callback function for the values of the key-value pairs
+  in hash tables - SvdB
+- Annigilate ActivateStarShip() - SvdB
+- Removed obsolete RESPONSE_TO_REF() - SvdB
+- Don't require the 'shadow' dir in addon packs, from Alex
+- Make use of GAME_STATE_FILE consistently, from Scott A. Colcord
+- Fixed unconst(), from Scott A. Colcord
+- Fixes to a few small bugs in UIO which shouldn't have had an impact on
+  UQM, but would in the future, from Alex
+- Allow F6 as a default alternate search key, from related projects.
+- "Player 1" and "Player 2" are now "Bottom" and "Top" player (#954) - McM
+- Fix Utwig dialog inconsistency (#756) - McM
+- Use a deterministic seed for Melnorme modules-for-fuel deals (#567) - McM
+- Various warnings cleanup (bug #50), from Scott A. Colcord
+- Fixed various Pkunk reincarnation and Shofixti Glory device interactions;
+  Pkunk ditty plays in a simultaneous destruction (bug #666) - Alex
+- Preparing for linking with C++ code, from Scott A. Colcord
+- Fixed player's phrase leading to Tanaka's response about a solitary
+  vigil (bug #859) - Alex
+- Added the Ur-Quan to the list of starfaring races on which Commander
+  Hayes provides info (bug #865) - Alex
+- Commander Hayes now advises the player correctly on the number of
+  landers one needs (bug #1098) - Alex
+- All Sound Options are now preserved between visits to the setup menu.
+  Some options still require a restart (bug #1132) - Alex
+- Removed the remnants of the --music option (bug #1133) - Alex
+- Fixed flagship re-entering the inner system after an encounter in the
+  outer system, thus trapping the player (bug #1135) - Alex
+- Fixed starmap fuel range circle shrinking (bug #1130) - Alex
+- Added gamma correction to the setup menu (bug #977) - Alex, Nic
+- Refactor Melnorme comm code to make modding easier; step 1 (bug #1128),
+  from Scott A. Colcord
+- Added aspect ratio option to the setup menu - Alex
+- Positional audio setup menu option now has an immediate effect - Alex
+- Added speech option which controls loading of 3dovoice addon (no need
+  to set speech volume to 0 anymore) - Alex
+- Added the MetaChron story to the no-voice Melnorme script (bug #43) - Alex
+- Spelling and punctuation pass (bug #1200), from Anthony J. Bentley
+- New Man Page edition of the user manual (Bug #1204), from Bentley
+- STAR CONTROL trademark information updated to reflect current events (#1201)
+
+0.7.0:
+- Build with debug info in strict-debug mode (bug #1127), from Scott A. Colcord
+- Added spoken Slylandro probe coordinates (bug #732) - Nic, Alex
+- Added the missing bits to the no-voice versions of Mycon, Syreen and
+  Utwig dialogue (bug #327) - Alex
+- Syreen dialog tree no longer resets after visiting the Syreen Vault
+  for the very first time (bug #891) - Alex
+- Fixed lander report at the Syreen Vault inconsistency (bug #1121) - Alex
+- Added lander reports for Supox ruins and Ultron. The reports text
+  is new content from TFB. (bug #1120) - Alex
+- Fixed 'caster comm with Ilwrath after they die off (bug #850) - Alex
+- Fixed Syreen Vault lander report infinite loop (bug #1118) - Alex
+- Same captain names are used on both net sides (bug #989) - Alex
+- Fixed sync loss in netplay games having duplicate ships (bug #1081) - Alex
+- Fixed loading of melee.cfg (bug #1099) - Alex
+- Fixed the 64KB size limitation on key-value files (bug #1112) - Alex
+- Update download paths for the new SourceForge File Release system - Michael
+- Fix UAC issues with installer for cleaner Vista/Win7 installs - Michael
+- Fixed compilation with Netplay disabled (bug #1091), from Sze Howe Koh
+- Fixed ship picking order after a simultaneous destruction, e.g.
+  Shofixti picks last after Glory device (bugs #1087, #1088) - Alex
+- Game no longer locks up after quickly escaping melee (bug #1003) - Alex
+- Reset input delay upon leaving Supermelee (bug #1022) - Alex
+- Properly account for simultaneous destruction of last ships
+  in each fleet in Supermelee (bug #437) - Alex
+- Do not match singular stars when given a prefix in star search
+  (bug #1071) - Alex
+- Preserve character case when editing with joystick (bug #1080) - Alex
+- Fixed misaligned cargo count (bug #1092) - Coredev
+- Fixed the network SuperMelee team configuration protocol - SvdB
+- Fixed fuel reserve bounds checks - SvdB
+- Fixed a crash when filling fuel tanks over 10 (bug #1082) - Alex
+- Got rid of many warnings - SvdB
+- Clean up and some refactoring of the SuperMelee code - SvdB
+- Fixed concurrent screen fades regression (bug #1079) - Alex
+- Removed some legacy source code files related to resources - SvdB
+- Put SuperMelee source files in separate subdirectory - SvdB
+- Added additive and alpha drawing modes to graphics lib - Alex
+- Fixed black pixel gaps between the planet and shield when entering the
+  orbit of a shielded planet (bug #32) - Alex
+- Split off SDL-specific colormap bits into SDL domain - Alex
+- Fixed planet blinking when exiting scan (bug #799) - Alex
+- Restore menu sounds after editing a control set name (bug #1066) - Alex
+- Use an own 'UniChar' rather than 'wchar_t', which may not be large
+  enough, depending on the platform - SvdB
+- Added 'COLOR' resource type - SvdB
+- All graphics operations use 24-bits colors at the game level too now,
+  instead of 16 bits colors. - SvdB
+- Cross-platform safemode (ignores uqm.cfg, bug #946) - Michael
+- Correct Chmmr response when asking about Sa-Matra (bug #1073) - Alex
+- Refactored universe generation - SvdB
+- Comm animation processing rewrite, bugs fixed - Alex
+- Added graphics context debugging function - SvdB
+- Thread down-throttling and game sleep when inactive (currently disabled),
+  (bug #1070), from Flandry
+- Internal changes: GOOD_GUY/BAD_GUY ship flags retired - Alex
+- Fixed Melee menu timeout when both sides are Cyborgs (bug #1067) - Alex
+- Fixed AI ship not moving on warp in (bug #648) - Alex
+- Revert gfx settings entirely when a mode switch fails (bug #1056) - Alex
+- Fixed the Syreen lights-out scene timing (bug #1011) - Alex
+- Added a native error box for MacOSX (like we have for Windows) - Alex
+- Fix for weird colors problem on MacOSX w/ SDL 1.2.14; also improves
+  overall compatibility on all platforms - Alex
+- Unix build system cleanups, fix detection of SDL, libmikmod, pthread - SvdB
+- Make DoPopupWindow() work over faded out screens. - SvdB
+- Trackplayer rewrite; fixed many bugs - Alex
+- Source tree reorg: libs/ moved out of sc2code/, msvc++/ moved to
+  build/msvc6/, src/sc2code/ renamed to src/uqm/ - Coredev
+- Druuge no longer turn hostile after attempting a salvage (bug #1013) - Alex
+- Process subtitles correctly with no timestamp file (bug #1060) - Alex
+- Lander will no longer hang when killed on planets with a lot of
+  natural disasters (bug #584) - Alex
+- Canceling load from the main menu returns to main menu (bug #679) - Alex
+- Fixed inputting numbers with the numpad, except directx (bug #934) - Alex
+- Better location description in savegame summaries (bug #844) - Alex
+- Fixed crash when saving a game into the last slot while having
+  too many devices on board - Alex
+- Allow any sound data format to be graphed by comm oscilloscope; also
+  auto-adjust the scope for different gain levels (bug #1064) - Alex
+- Game settings Quit menu now delegates to F10 quit (bug #462) - Alex
+- Do not pause the game in places where not relevant (bug #984) - Alex
+- Fixed crashes and potential weirdness when loading savegames from
+  a Homeworld encounter screen (bug #997) - Alex
+- Cleanup of GLOBAL(ShipStamp.frame) abuse; fixes bug #1054 - Alex
+- Game attempts to exit cleanly under normal circustances (bug #52) - Alex
+- Fixed Mmrnmhrm's X-Form transformation without energy use (bug #1004) - Alex
+- Added missing sleeps in DoInput() functions (bug #893) - Alex
+- Starmap unit conversion corrections; fixes bug #970 - Alex
+- Rounding-error correction in log(x|y)ToUniverse (bug #1046), from Nic
+- Change hardcoded Starbase and Sa-Matra values to pretty enum values
+  (bug #1047), from Nic
+- Load override.cfg from user's dir to add or override menu controls - Alex
+- Allow addons to override any content by placing zips into their
+  'shadow-content' dir - Alex
+- Content reorg: font chars now use hexadecimal numbering - Alex
+- Content reorg: some race comm and ships renamed, ship files renamed,
+  many ani files renamed, new naming scheme for ani frames and voice - Alex
+- .cfg files are now kept as subtrees of the resource map - Michael
+- Flight control data no longer unnecessarily copied to config directory - Michael
+- Index loading/saving now can operate on subtrees - Michael
+- Videos vs. slide now controlled by a '3dovideo' addon - Michael
+- New video resource type for 3DO videos - Michael
+- Allow reaching 999.9:999.9 in HyperSpace (bug #628), from Nic
+- Use system getopt_long() when available - SvdB
+- Added --addondir commandline option - Mika
+- Case insensitive matching when looking for .zip/.uqm/.rmp files - SvdB
+- Added read-ahead buffering when reading zip index files. - SvdB
+- Added support for packed ani and font files - Mika
+- DrawTracedText abstraction (bug #1029), from Nic
+- Experimental support for Symbian S60 3rd edition - Mika & SvdB
+- Pthread support - Mika
+- Content Dirs completely reorganized; 3DO and PC segregation - Coredev
+- Voiceovers controlled by a synthetic '3dovoice' addon - Michael
+- CONVERSATION explicitly names text/voice/timestamps - Michael
+- Replaced stricmp() by the POSIX compatible strcasecmp() - SvdB
+- Split STRTAB further into STRTAB and CONVERSATION - Michael
+- INT32, BOOLEAN, and STRING resource types - Michael
+- UNKNOWNRES is now safe to load, and "loads" as its resvalue - Michael
+- CODE is now SHIP, and uses an integer descriptor instead of a one-byte
+  .cod file - Michael
+- ResourceLoadFun is now descriptor-based, not stream-based - Michael
+- Removed RES_TYPE enum, folded into ResourceDesc - Michael
+- Split STRTAB into STRTAB (strings) and BINTAB (color/xlat tables) - Michael
+- Removed internal references to defunct resource types - Michael
+- Revamped resource system to only use .rmp files - Michael
+- Isolated all constructed resources into cons_res.c - Michael
+- Fixed a crash when conversing with music disabled - Michael
+- Moved all resources into starcon.ls2 - Michael
+- Fixed compile errors when compiling without joystick support - Michael
+- Added endian-aware integer read functions to uio - SvdB
+- Introduce the concept of an "InputContext" - SvdB
+- Don't use alloca() in uio. - SvdB
+- Replace PlayerOne/PlayerTwo by PlayerControls[0]/PlayerControls[1] - SvdB
+- Moved comm resources into starcon.ls2 - Michael
+- Repackaged static comm/ship data to it all uniquely named - Michael
+- On MacOS X, search for the content in the application bundle, from Nic
+- Planetside resource names are now consistent and generatable - Michael
+- Androsynth ruins freeing condition now uses cycles (Bug #1028) - Michael
+- .rmp files now carry the types of the targets - Michael
+- Joystick threshold defaults to 10,000, not 0 (Bug #1046) - Michael
+- Remove MEM_HANDLEs from everywhere outside of memlib - Michael
+- Split out RESOURCEs from the loaded data in RACE_DESC and LOCDATA
+  structures - Michael
+- Prevent overflow for planet weight when scanning a planet (bug #1025)
+  - from Benjamin Alan Weaver
+- Don't set _POSIX_THREAD_SAFE_FUNCTIONS - SvdB
+- Support for Windows CE. - SvdB with Pavel Chernikov
+- Added support to the unix build system for explicitely specifying the name
+  of the define to set to show when a symbol is found.
+  Also a fix for when 'strcasecmp' is #define'd by the system. - SvdB
+- Rewrote mapres.c to use uio's hashtables instead of its own
+  association lists - Michael
+- Added a Remix option to the setup menu - Michael
+- Addon zips can live in content/addons directly - Michael
+- 3DO music separated into an addon pack - Michael
+- Major change in resource index scheme - Michael
+  - .lst replaced (mapping to IDs instead of to files)
+  - .rmp files give the mapping from IDs to files. 
+  - Addons provide additional files instead of overriding UIO
+  - Addons must provide .rmp files to do the necessary overrides.
+- Removed unnecessary _ALIGNED_ON macro usage - SvdB
+- The current directory is now among the locations searched for the content
+  when no explicit location has been specified. (bug fix) - from Nic
+- Non-3DO Shipspin anims now use Presentations - Michael
+- Added presentation commands TEXT, TE (text effect), MOVIE - Alex
+- Increased the size of display queue (elements were sometimes missing
+  in e.g. Nemesis vs. Nemesis battles with many marines out) - Alex
+- ShowPresentation() no longer clears the screen by force; presentations
+  now do this by request - Michael
+- Added match_matchPatternOnce() - SvdB
+- Fixed a problem with blue ships after Avatar's tractor beam,
+  along with some other fill-stamp situations; bug #929 - Alex
+- Added TFB_Canvas_Lock(), TFB_Canvas_Unlock() and TFB_Canvas_GetStride()
+  - SvdB
+- Scaling images with respect to their hotspots: stabilizes compound
+  Melee objects; re-added bilinear Melee scaler; zooming planet uses
+  bilinear; fixes bug #685 - Alex
+- Added --keepaspectratio to keep correct aspect ratio when using
+  custom resolutions in OpenGL mode - Mika
+- Add /var/tmp as possible location for temporary files. Don't try
+  /tmp and /var/tmp at all on MS Windows (Cygwin excepted) - SvdB
+- Added fullscreen/windowed toggle key F11 (bug #578) - Mika
+- Allow building without ogg vorbis support (bug #852) - SvdB
+- Reworked SuperMelee fleet loading (fixes bug #823) - SvdB
+- Fixed enemy ships getting recrewed between ecnounters in HyperSpace
+  (bug #996) - Alex
+- Removed mouse_err.c since DoPopupWindow() is used now - SvdB
+- (debugging) Fixed instant-move towards the current location - SvdB
+- Fixed wrong Sa-Matra guards icons after Kohr-Ah win (bug #1001) - Alex
+- Internal ship structures and queues refactoring and cleanup - Alex
+- Fix quitting out of IP before the IP is fully set (bug #987) - Michael
+- Fixed speech looping with long tracks at high sampling rates;
+  scope supports higher rates for speech now; bug 999 - Alex
+- Basic support for .ani-based shipspin animations - Michael
+- Fixed some Melnorme history info timestamps - Alex
+- Fixed Ur-Quan story timestamps, from Vlad-Ceru Opran
+- Removed the 256-frame limit on .ani files - Michael
+- Renamed PlaySpeech/StopSpeech to work around name collisions
+  on OSX - Alex
+- Ending the battle with a simultaneous death no longer triggers an
+  assertion - SvdB
+- Concurrent supermelee ship selection - SvdB
+- New generic, unthreaded flashing code - SvdB
+- Cleanup of 3DO ship spin support; spin speech works now - Alex
+- No longer creating and mounting a temporary directory. It is no longer
+  used, but it might be again at some point, for loadable modules. - SvdB
+- Added RNG functions that work on a supplied state - SvdB
+- Fixed a crash on startup if uqm.cfg did not exist, flagged and fixed 
+  by jdorje - Michael
+- Support for 3do "ship spin" videos (Bug #733, patch by Jan L√∂nnberg) 
+  -Michael
+- Major refactoring of input configuration to use the resource system 
+  instead of custom files (bugs #961 and #949) - Michael
+- Added ability to remove entries from ALists - Michael
+- Cleaned up FRAME, CONTEXT, and FONT abstraction layers - Michael
+- Added Input Frames to pause code to stop infinite loops - Michael
+- Added more netplay debug code - SvdB
+- Added uio_fprintf() and uio_vfprintf() - SvdB
+- Any input will register for at least one frame (Bug #864) - Michael
+- Many VControl cleanups - Michael
+- Fix compilation without Netplay support - SvdB
+- Added limited AIFF sound file decoder for playing 3DO originals;
+  SDX2 decoder by SvdB - Alex
+- Typo fix in Starbase speech (bug #959) - Michael
+- (MacOS) Don't package up .svn dirs with 'build.sh uqm install' (bug #958),
+  from Nic.
+- No more extra newlines to log_add() calls for libs/network/ code - SvdB
+- DUCK videos now play correctly after a video mode change; bug #734 - Alex
+- Cancel key will now quit out of the Manifest Menu (Bug #838) - Michael
+- Added -w and -x commandline options, to counter -f and -o; used these 
+  to implement "Safe Mode" links in the Win32 installer (Bug #946)
+  - Michael
+- OpenGL texture loading uses surface pitch instead of screen width.  
+  This should head off future bugs similar to Bug #740 (this issue was 
+  reported as Bug #956) - Michael
+
+0.6.2 (maintenance release):
+- A bit more debug info for failed connects. - SvdB
+- Exit with failure if basic content cannot be found, ensuring proper
+  error reporting under Windows - Michael
+- Popup windows for "Really Exit?" and Game Pause are immune to fades 
+  and crossfades (Bug #455) - Michael
+- No longer depend on SDLK_LAST statically; key input should now be safe 
+  if compiled with a different version of SDL than the one running the 
+  program (Bug #936, possibly also #834 and #883) - Michael
+- Unix build scripts now work under LC_CTYPE=tr_TR - SvdB
+- Flush write buffer when doing a uio_fclose() after doing only
+  uio_fwrite() operations. - SvdB
+- Major rewrite of the SwapBuffers commands -- screen compositing logic 
+  has all been abstracted out into sdl_common.c instead of being 
+  nearly-duplicated in opengl.c and pure.c - Michael
+
+0.6.1 (maintenance release):
+- The Unicode Private Use Area is no longer considered printable.  This 
+  is a stopgap to handle unusual behavior with text entry under OS X.  
+  From Nic; see bug #942 for more details - Michael
+- Do not rely on GL_UNPACK_SKIP_* arguments, which some OpenGL drivers 
+  mishandle (Bug #914) - Michael
+- Do not overwrite GLOBAL_SIS (CrewEnlisted) when leaving Hyperspace 
+  (Bug #938) - Michael
+- Fixed a text entry width problem that was deleting control template 
+  names (Bug #947) - Michael
+- uio cleanups, documentation - SvdB
+- uio path parsing fixes/improvements - SvdB
+  - Windows UNC path support (#907)
+  - Windows drive-relative paths ("D:path" without a path seperator)
+  - treat multiple consecutive path seperators as one (like POSIX)
+- config dir no longer needs trailing path seperator (bug #738)- SvdB
+- Simplification of uio Stream functions. No more internal seeks. - SvdB
+	
+0.6.0:
+- Fixed a bug where an input delay was used for non-network games - SvdB
+- Fixed a bug where the victory ditty would end prematurely when UQM
+  is compiled without Netplay support - SvdB
+- Take $CFLAGS and $LDFLAGS into account for dependency detection
+  (they were already used for the building itself) - SvdB
+- Validate UQM version of either side of a Netplay game - SvdB
+- Better abort and disconnect handling for Netplay - SvdB
+- Menu sounds in Setup track rest of game (#922), from Nic - Michael
+- Shifted the Mouse Error to a Popup Window, moved the message to
+  starcon.txt for translators - Michael
+- Generic DoPopupWindow() command for status messages - Michael
+- Update the 'current selection' icon after deleting or inserting ships
+  in a fleet in SuperMelee - SvdB
+- Correct some background pixels in melebkgd.{25,26}.png - SvdB
+- Unix build scripts improvements. - SvdB
+- Build fixes for MacOS X (with thanks to Nic) - SvdB
+- Ships in battle can resume normal speed in all circumstances after
+  the enemy Avatar's tractor beam disengages (bug #860; this is a
+  netplay desynchronizing change) - Alex
+- Conversation summary breaks lines based on actual chars/words
+  that fit (bug #916) - Alex
+- Netplay configuration dialog - Michael
+- Better error message for 'Kernel failed to load' (#917) - Michael
+- Pushbutton for connecting to netplay, in anticipation of a full 
+  configuration dialog later - Michael
+- Cleanup of comm.c - SvdB
+- Netplay - SvdB
+- Added step-by-step instructions for compilation on MSVC++ - SvdB
+- All output done in binary mode, due to uio/Win32 conflicts (#912) - Michael
+- Online key configuration menu actually functional now - Michael
+- Tweak to Lander UI - Special Weapon is now explicitly Lander Escape, 
+  just as Warp Escape is - Michael
+- Default key configuration changed slightly; online display of current 
+  key bindings - Michael
+- Input templates can now be renamed, both online and off - Michael
+- Fixed an integer-size error that was causing crashes on AMD64, from 
+  Solomon Peachy (#895) - Michael
+- Added some generic lib code to be used by future code. - SvdB
+- Joystick support is now optional; from SvdB, Alex
+- Restructed and normalized savegame and game-state reading/writing code;
+  savegames are now compatible between same-endian 32- and 64-bit systems;
+  savegames from prior 64-bit builds cannot be used - Alex
+- (Unix build scripts) Failed mkdep doesn't result in empty .d files
+  anymore. Now using the gcc 3 "-MF" and "-MT" options. - SvdB
+- removed internal libmikmod, adding a dependancy on an external one - SvdB
+- Added a quit button for the Super Melee main menu - Michael
+- Fixed sporadic uqm.cfg loading errors in release builds - Alex
+- Quit (F10) now works correctly during intro (bug #862) - Alex
+- Playing failure sounds when entering text consistently (bug #884) - Alex
+- 64-bit fixes in construct_response () - Michael
+- Removed rotating 3d planet frame caching (cuts mem usage by 5M) - Alex
+- One pixel fix in melee menu pictures. - SvdB
+- Debugging function to add energy during battle. - SvdB
+- Changed slaveshield throb rate to match the 3DO - SvdB
+- Fixed recently introduced bug with crew count on exit to HyperSpace.
+  (bug #875) - SvdB
+- Fixed static vars not reinited in alien comm code (caused various
+  side-effects; bug #870) - Alex
+- Fixed a spinlock in Melee's final score screen (Bug 879) - Michael
+- Phase 2 of online keyconfig - Setup Menu can configure assignment of 
+  templates to players - Michael
+- Control scheme shifted to Menus + Control Templates in preparation for 
+  the online keyconfig - Michael
+- Fixes to logic in the Utwig conversations (Bugs 327, 647), from Nic 
+  and Michael
+- Removed unused and invalid lander font chars - Alex
+- Setup menu reads strings out of lbm/setupmenu.txt - Michael
+- More fixes towards working 64-bits binaries. - SvdB
+- Flashing outfit modules to build with PC menus too; bug #871 - Alex
+- Corrected caption Orbit: to Tilt: in planet scan; bug #847 - Alex
+- Added missing failure sounds in Outfit, Shipyard, Cargo and Roster;
+  played when over/under capacity, not enough RUs, etc; bug #842 -Alex
+- Crew retrieved from space after the end of an encounter will no
+  longer set the crew larger than the ship's maximum. - SvdB
+- Flagship crew numbers are no longer continuously synchronised during
+  melee, but only at the beginning and end of the battle. - SvdB
+- Various small cleanups. - SvdB
+- Debugging function to add crew during battle. - SvdB
+- More documentation - SvdB.
+- RMPLIFIED PRECURSOR BOMB is now AMPLIFIED, from Vorn (bug #812) 
+  -Michael
+
+0.5:
+- Innocent original c&p bug fixed, from bpoint.
+- Handle relative dirs in -C correctly, from Jan Lˆnnberg (part of bug #738).
+- Internationalization fixes: moved many hardcoded English strings
+  into string resource file starcon.txt (bug #778), from Andrew Zabolotny
+- Melee Scale and Slides/Movies now take effect immediately - Michael
+- The intro now plays only when a new game is started - Alex
+- fixed uio_rename() and some other cases where a new file is created
+  under specific circumstances. - SvdB
+- Fix bug in GetStringContents which used the number of chars where it
+  should have used the memory size. - SvdB
+- Control scheme upgrades checked (VControl Version upgrade) - Michael
+- Better instant-move (for debugging) - SvdB
+- Fixed version checking in unix build scripts. SDL 1.2.10 is
+  now recognised as newer than 1.2.9. - SvdB
+- Some small improvements to the portability of the build system,
+  from Jim Paris
+- Fixed two-week bomb installation at the Starbase bypassing the
+  defeat condition (bug #757), from Nic, Alex
+- Added star search in Starmap (define Menu-Search and Menu-Next keys
+  in your keys.cfg) from kworces, Alex, SvdB
+- Fixed Orz greeting at Taalo homeworld inconsistency (bug #819) - Alex
+- Fixed Venus' atmo density to 90 times that of Earth (bug #821) - Alex
+- Internationalization fixes: better or, in some cases, fixed support of
+  non-Latin UTF-8 strings (more to come; bug #778), from Andrew Zabolotny
+- Remaped special chars used in the game (degree, infinity and earth
+  signs; middle dot) to their UCS equivalent codes (bug #818) - Alex
+- Color depth is now determined entirely automatically - Michael
+- Text input is now available in languages other than English
+  (UCS/Unicode; SDL does not support Unicode input on Windows yet;
+  you must have proper font chars installed -- see translations) - Alex
+- Re-added joystick text input (with Up/Down/PageUp/PageDown keys);
+  joystick alphabet in content/lbm/joyalpha.txt (bug #495) - Alex
+- Text input refactoring: enabled key repeat, added support for
+  Home, End and BackSpace keys; (bugs #671, #815) - Alex
+- Selecting the scan methods for shielded and gas giant planets
+  is now allowed when using PC menus (bug #800) - Alex
+- Added a unified credit roll combined with outtakes (bug #46) - Alex
+- Setup menu selection doesn't reset when you quit a submenu now - Michael
+- Split config.alwaysgl and config.usegl so that "Use Pure Mode If Possible"
+  persists across runs even when using a GL mode - Michael
+- Fixed Yehat Rebel left hand doubling up problem (bug #807) - Alex
+- Fixed the problem with Melnorme stripping Chmmr bomb/crystal
+  modules from the ship in a fuel deal (bug #803) - Alex
+- Corrected baseline of 'j' in Micro font (bug #797) - Alex
+- Fixed small VUX animation glitch (out of order frames; bug #808) - Alex
+- CANCEL now behaves as expected in setup menu - Michael
+- Only SELECT and CANCEL trigger the fade-to-black at the end of a
+  Super Melee, solving the issue in bug #547 - Michael
+- Admiral ZEX is no longer referred to as "Commander" or "Zex" (bug 
+  #811) - Michael
+- Keypress status is not reset when entering battle mode (solves
+  bug #596) - Michael  
+- Added the rest of devel/ and users/ documentation into MSVC .dsp
+  files (bug #589) - Michael
+- Fixed PNG transparency info (tRNS chunk) in all images according
+  to info specified by .ani - Alex
+- Comm animation fixes (bugs 557, 705, 806); from chmmravatar, Alex
+- Imported DOS versions of alien comm graphics which have richer
+  palettes and look better in most cases (bug #314) - Alex
+- Added slider controls for volume to setup menu - Michael
+- Added --shield and --scaler hq to setup menu - Michael
+- Fixed lockup when skipping past VUX beast analysis data in Starbase
+  (bug #790; should take care of all spliced comm edge cases) - Alex
+- Added 3DO-style throbbing slave shield (--shield; bug #32);
+  special thanks to Nic for inspiration and some code - Alex
+- Rotating 3D planet changes: nicer looking slave shield; planet now
+  finally looks like a rotating sphere (and not cylinder); added some
+  lighting variance to give it a 3D feel (not a smooth ball) - Alex
+- Refactored colormaps storage, management and transforms; paletted
+  images rendering should be much faster now - Alex
+- Corrected intro slide 5 (crosshair removed); bug #794, from AusME
+- Split off alien comm colormaps from global scclrtab into
+  corresponding race dirs (avoids potential mod collisions) - Alex
+- Refactored font engine: fonts are loaded and treated as
+  alpha-channel-only images (allowing for antialiased fonts now);
+  solid color and gradient/alternate effects processing is unified - Alex
+- Fixed problems with pausing the game during ending sequences
+  (game-clock bug; undrawing incorrectly due to cliprect) - Alex
+- Removed hotspot abuse from lander report drawing to fix bad
+  positioning desync brought on by new hotspot handling - Alex
+- Trilinear melee scaler overhaul (melee smooth mode should look
+  nicer now; melee can now fully use alpha gfx) - Alex
+- Miscellaneous Sa-Matra gfx fixes (Generator collision masks and
+  explosion frame 0 were off; Shield position was off in med and sml;
+  Main sml gfx was 2 pixels too narrow) - Alex
+- Replaced the binary resource indexes by textual ones
+  (also resolves bug #687) - SvdB
+- Some subtitle timing fixes (bug #s 771, 780) - Alex
+- Entering Planetary Orbit wait screen is back (from DOS) - Alex
+- Gfx engine changes: now always 32bpp internally (facilitates
+  alpha channel usage); accelerated platform-specific scaler code;
+  only using alpha channel where needed. Processor pack is necessary
+  for compilation on VC6. - Alex
+- New 2x scaler 'hq' (by Maxim Stepin; www.hiend3d.com/hq2x.html) - Alex
+- Removed MikMod i/o hacks (using MREADER i/o now; bug #787) - Alex
+- Fixed fast escape weirdness (bug #619) - from Jan Lˆnnberg
+- New topographical 4x planet surface scaler (bug #786) - Alex
+- Added support for Tremor for Ogg Vorbis decoding (avoids floating point
+  math) - SvdB
+- Fixed T-Pet compulsion graphics (partially); bug #772 - Alex
+- Doing game-state file I/O in memory instead of temp files;
+  should avoid problems as in bug #752 - Alex
+- Separate config_win.h file for build.sh builds on Windows - SvdB
+- Fixed a typo ("we" -> "he") in Thraddash dialog (bug #783) - Alex
+- Corrected grammar in Umgah 'Caster lander report (bug #781);
+  from James Ho
+- Options selected in the Setup Menu now persist across runs -Michael
+- Added a simple implementation of key-value pair "resource" files
+  for organizing simple data such as configuration options -Michael
+- Added a 'fullscreen' setup menu option - Alex
+- Fixed a bug that prevented Slylandro Probes from ever showing up
+  in interplanetary exploration (found by SvdB, bug #768)
+- Lowered the Comm ambient animation rate from 120 to 40fps, thus
+  limiting the CPU usage - Alex
+- Fixed Recursive Mutexes to still work even if the ThreadID is 0
+  (bug 779) - Michael
+- Permit independent selection of graphics driver and resolution in
+  setup menu - Michael
+- Changed comm subtitle caching to use own context instead of
+  screen grabs; should resolve Blue Comm Screen universally - Alex
+- Added missing break statement in DrawBatch:RECT_PRIM - Alex
+- Setup menu split into four submenus - Michael
+- Fixed fallback in getHomeDir() for when $HOME is not defined on *nix
+  - SvdB
+- %APPDATA% fallback no longer to "../userdata", but to "./userdata",
+  as we don't chdir() to the content dir anymore. - SvdB
+- Commander Hayes flickering lights animation now properly reenabled
+  when applicable (bug #777) - Alex
+- Refactored setupmenu code to use generic widgets - Michael
+- Support UTF-8 chars in mineral names (bug #770) - SvdB
+- Modified scalers to use surface pitch instead of width - reported to
+  fix bug #740 - Michael
+- Cleaner build output. Set '$MAKE_VERBOSE' to 1 for old output. - SvdB
+- Improved dependency tracking for unix build system. - SvdB
+  "./build.sh uqm depend" is only needed for checking for new source files.
+- handle "." and ".." in paths - SvdB
+
+0.4:
+- Nicer title image during intro, from Nic
+- Installation routine for MacOS X, from Nic.
+- Lots and lots of dialog fixes, from Nic.
+- Some speech is dependant on whether spoken voices are on, from Nic.
+- OpenAL header cleanup. Updating OpenAL may be necessary.
+  Windows users should put the OpenAL headers in an AL/ directory
+  now too (should be the default). - SvdB
+- Improvements to the unix build system for cross-compilation - SvdB
+- Do not define ssize_t for MinGW. - SvdB
+- Fallback readdir_r() - SvdB
+- Attempting to click the screen pops up an error message, from
+  Nic, heavily modified (dodge on #533) -Michael
+- Fixed potential crash with a truecolor oscilloscope image (thanks
+  jdorje) and made it generally more flexible (bug #729) -Alex
+- Added missing Tanaka battle portrait images (new artwork; oldcap) and
+  minor fixes to other shofixti images (bug #183), from Nic
+- Mycon captain portrait finally fixed (bug #183), from Nic
+- Saving the game while on autopilot inside an interplanetary system
+  will no longer reset the autopilot (bug #725) -Alex
+- Main menu and Super Melee menu can now play music tracks; drop in
+  'lbm/mainmenu.ogg' and 'melee/melemenu.ogg', respectively -Alex
+- Can now switch mod->ogg in intro/outro player (thanks Nic), and
+  mod<->ogg everywhere in general -Alex
+- Fixed crash after T.Pet conversation upon reentering D.Crateris
+  once Ur-Quan have been confused (bug #531) -Alex
+- Fixed last subtitle flashing after fast-forwarding to the end,
+  pressing F10 and selecting NO (bug #498) -Alex
+- Fixed first contact with Arilou at homeworld; Talking Pet confusion
+  (bug #638), from Paxtez
+- Fixed warp-escape in Cyborg mode removed by previous game input
+  patches (bug #563) -Alex
+- Fixed spurious story-line changes (usually the manner of the encountered
+  race) caused by loading a game from an Encounter screen (bug #519) -Alex
+- Option change: --meleescale to --meleezoom (bug #694) -Alex
+- The alpha icon is now default (for XP/2003); bug #474 -Alex
+- Fixed incomplete memset()s in comm alien animation code (comm should
+  be saner now), from jdorje
+- Guard access to the Clock so that accessing it is a no-op when the game 
+  isn't actually in progress (bug #678), from Nic
+- Accept files with .uqm extension for packages (bug #558)
+  Added regex fallback files. - SvdB
+- Music volume normalized throughout the game (bug #718) -Alex
+- VControl parse errors suppressed unless critical - attempting to set
+  the threshold of a nonexistent joystick no longer makes the game refuse
+  to run (Bug #660, again) - Michael
+- Properly handling Thraddash-Ilwrath mission overlap (bug #530) -Alex
+- Separate 'ask for fuel' player responses for Mercury and Luna missions
+  (bug #716), from Nic
+- Stereo SFX model changed slightly (fixes #472) -Alex
+- Pkunk Spindle news items are now disabled until you befriend them
+  (bug #315), from Paxtez
+- Melee captain names re-extracted and fixed (bug #188) -Alex
+- It is now possible to complete the game without ever allying with the
+  Starbase at Earth; known as 'Beating the Game Differently' mode;
+  (bug #592) -Alex
+- The direction flagship is facing is now preserved through an
+  encounter in Hyperspace -Alex
+- Added support for PC-style 3-step melee zooming; -b=pc|step option;
+  (bug #694) -Alex
+- Melee team building pick-ship box is now generated with actual ship
+  icons (bug #692) -Alex
+- Setup Menu no longer crashes or misbehaves on custom resolutions (bug 
+  #693) - Michael
+- Quit confirmation window (on F10) undraws correctly during intro slides
+  (bug #673) -Alex
+- Attempting to set to a mode that Doesn't Work in Setup no longer ends 
+  the program (bug #695) - Michael
+- Fixed segfault when shutting down because video could not be initialized 
+  (bug #683) - Michael
+- Fixed crash when restarting Sa-Matra battle after abort (bug #700) -Alex
+- Some cleanups, enabling successful build with GCC 4 (bug #710),
+  mostly from Ville Skytt√ -SvdB
+- Sa-Matra portrait now fills the portrait space (bug #514), from Nic
+- Updated melee images with original DOS content; should resolve most
+  captain portrait issues (bug #183)  -Alex
+- Bug #702 fixes (dead code + compiler warnings) -Alex
+- Flagship will not fly sideways on auto-pilot in Hyperspace (bug #642) -Alex
+- Fixed menu sounds in full-game battle ship selection box (bug #566) -Alex
+- Added '--version' - SvdB
+- Fixed a bad memory access which could occur when the code relies
+  on CharCount for determining the end of a string (bug #701). - SvdB
+- Battle planet images now have corrected transparency info, so there
+  is no more black square overlaping ships (bug #128); and coincidently
+  3DO credits now have a starfield background (bug #470) -Alex
+- Unicode support for fonts and strings - SvdB
+- Fixed image clipping with --meleescale=nearest (bug #126) -Alex
+- Setup menu now uses a background contributed by Joffrey Smith
+- If keys.cfg refers to a nonexistent joystick, the game will stil run 
+  (bug #660) -McMartin
+- Fixed support for languages other than English; loading font chars
+  with codes above 136 is now possible (bug #690), from Matthias Hager
+- Enable the other insults against the Mycon (bug #559), from Nic.
+- Colormap format (.ct files) changed to allow for richer graphics.
+  First step towards importing some of the original DOS gfx.
+  See bug #314 for more info. -Alex
+- Better dependency checking in unix build scripts - SvdB
+- Many options menu changes: left-justified categories, and the ability 
+  to change driver/resolution/bpp/scaler in real time, and updates are
+  less frequent so as to spare the DCQ  -McMartin
+- PC ending animation now draws the flagship with modules according to
+  the actual player's load; also the script structure changed
+  allowing for an FPS improvement -Alex
+- Version number in the main menu does not blink anymore when the
+  menu selection is changed (bug #672), from Nic
+- Massive amount of file restructuring and cleanups. Need many more. - SvdB
+- Added Intro and Ending slide shows (bug #46); use "-i pc" -Alex
+- Cross-fades in OpenGL mode with complex scalers fixed (bug #674) -Alex
+- Added doc/devel/dialogs - SvdB
+- Don't allow the reply "Symbionts, how interesting!" in the Supox
+  conversation until they mentioned they were Symbionts. (bug #528),
+  from Nic
+- Not initialising the various systems when -h/-? is supplied (bug #656),
+  from Nic
+- F10 works when playing the intro (bug #665), from fOSSiL
+- Game clock counter overflow fix (bug #668) - [collective effort]
+- Cocoa hooks for MacOS X, from Nic
+- Corrected number for combat energy when outfitting starship. - SvdB
+- Added dumping planet info to uqmdebug.c - SvdB
+- Check language.txt for locale, from Zap
+- Make it possible to specify the config dir on the command line.
+  (bug #645) - SvdB
+- Speech .txt and .ts corrections, from Nic. - SvdB
+- Made the unix build scripts more portable. Removed some small
+  bugs. - SvdB
+- No longer chdir() to the content dir (bug #564)
+  Environment variables and ~ are interpreted in the supplied content
+  path now.
+  Don't look for content in the default directories if an explicitely
+  supplied path failed. It would only confuse users. - SvdB
+- The unix build script is now able to detect SDL on Darwin (bug #358) - SvdB
+- Resource units given more obviously when ordering a probe to
+  self-destruct (bug #586), from Nic.
+- Shipyard "Combat Energy" changed to reflect the recharge rate (bug #522).
+  Also, some cleanups. Thanks and apologies to Nic. - SvdB
+- Added lots of debugging functions, SvdB
+- Cleaned up use of the DEBUG define, SvdB
+- Talking Pet .txt file corrected to match the .ogg files,
+  and talkpet.ts corrections, from Nic
+- Abstracted window-drawing code from confirm.c -Michael
+- Fixed blue comms screen problem (bug #363), from Joel Holveck & Nic
+- Automatically adding an icon for Darwin builds, from Nic
+- Fixed Roster-F10-Quit bug (#591), - Michael
+- Restructured starcon2.c, with better checks for argument parsing,
+  and consistent error messages. - SvdB
+- Restructuring of the unix build scripts.
+  Also, interrupted dependency builds are now detected. - SvdB
+- Unix build: Make it possible to use another directory than the current
+  one for putting the build data in (such as build.vars, config.state,
+  the obj/ dir, and the final binary). - SvdB
+- Fixed various odd behaviors when loading from HyperSpace (bug #587), 
+  from Nic and Michael
+- Added new 'triscan' scaler; derived from scale2x[.sf.net] -Alex
+- Space marines die in a self-destructing Scout (Bug #445), from Nic
+- Added the -l option to produce logfiles (bug #560), from Nic
+- Zoq-Fot-Pik speech properly vertically centered (bug #579), from Nic
+- Input code refactoring, phase 2: All player input is brokered by 
+  DoInput -Michael
+- Updated .cvsignore commands, from Nic
+- Fixed a keyrepeatbug from when the player cancels out of the
+  Starmap in IP -Michael
+- IP_taskfunc now uses PulsedInputState instead of handling its
+  own debounce delays -Michael
+- Input code refactoring, phase 1: Replaced messy structs with an
+  array indexed by an enum. -Michael
+- Thread code refactoring: only the main thread will actually spawn 
+  threads, and thread IDs are properly recycled with SDL_WaitThead () 
+  once they're done.  (With luck, this will fix bug #561) -Michael
+- Sound code refactoring: core api is now virtualized,
+  MixSDL is divided to generic mixer and driver entities - Mika
+- Optimized MixSDL mixing and resampling routines
+  (hopefully fixes bug #435) - Mika
+- MOD music should now play properly on big endian machines if using
+  high quality mode (workaround for bug #166) - Mika
+- Better-looking slave shield (bug #32), from Nic
+- Bay door animations don't stall before aborting (bug #500), from 
+  chmmravatar
+- Reports SDL version on startup (bug #520) - Mika,Nic
+- Fuel usage on planet landing is now reported correctly on all situations
+  (bug #556), from Nic
+- Fine-grained control of menu sounds, "MenuSounds" global now 
+  guaranteed to always be non-null  -Michael
+- Added support for stdio file access through temporary files to uio.
+  added uio_copyFile to uio - SvdB
+- Added uio_getFileLocation() and uio_getMountFileSystemType() to uio.
+  Also some small improvements. - SvdB
+- Fixed fuel usage estimate to selected destination on the starmap.
+  (original bug, not reported) - SvdB
+- Sound decoders refactoring: decoders are now virtualized,
+  the high-level decoding code is unified and any format is
+  theoretically streamable -Alex
+- Patches to enforce the invariant that the GraphicsLock is held when 
+  SetFlashRect is called (bug #504) -Michael
+- Major refactoring of threadlib; see doc/devel/threads -Michael
+- Downgraded the GraphicsLock to an ordinary Mutex -Michael
+- Added movie player; only movies defined are intro and ending;
+  only .duk decoder present (.duk audio decoder mostly derived
+  from decoder by SvdB) -Alex
+- Extra fallback for the unlikely situation that $HOME isn't set on a
+  unix system. (#493) - SvdB
+- Accept spaces in --contentdir argument (#492) - SvdB
+- Separated and abstracted sound buffer-tagging and trackplayer
+  clip/subtitle chaining -Alex
+- Abstracted the recursive mutexes in MixSDL and DCQ code -Michael
+- Introduced a new synchronization construct (CrossThreadMutex) and 
+  migrated the GraphicsSem and clock_sem over to it (#359) -Michael
+- Replaced thread-local Semaphores with Mutexes (#359) -Michael
+- Load/save icons don't flash anymore when in savegame menu
+  (part of bug #291), from Paxtez
+- Savegame slot now defaults to the last one used during one execution
+  of uqm (bug #477), from chmmravatar
+- Fixed one-pixel glitch in shipyard when scrapping (bug #461),
+  from Paxtez
+- Adjusted subtitle timings when there are no oggs (part of bug #362),
+  from chmmravatar
+- Fixed crash in conversation summary and ffw/frew problem when
+  selling data to Melnorme (bug #476), from chmmravatar
+- Flush input after selecting "Navigate" (bug #475) - Michael
+- Fixed ships in solar system getting displaced after having
+  visited a planet (bug #365) -Alex
+- Fixed collisions/encounters with "invisible" fleeing ships
+  (bug #319) -Alex
+- Quit confirmation fixes: lander reports, conversation summaries,
+  outtakes, end credits; font effect properly set/saved/restored;
+  (bugs #454, #465, #466); from chmmravatar
+- Obsolete "register" keywords removed -Michael
+
+0.3:
+- Dirty hack to avoid a warning about the "ignored.key" hack - SvdB
+- Typo 'natually' fixed in Arilou speech - SvdB
+- uio: Fixed a bug which could cause spurious warnings when using .zip files
+  generated from DOS/Windows - SvdB
+- uio: Fixed a potentially memory-corrupting bug when in a .zip file a subdir
+  is described before a dir higher in the directory structure.
+- uio: Fixed an incomplete message that would only show when handling a
+  specific error - SvdB
+- Added doc/checklist file - SvdB
+- RUs properly cleared in savegame display, from Paxtez, chmmravatar
+- Support for up to 50 savegames, from Paxtez
+- Action names are properly null-terminated, stops a crash for some
+  bad keys.cfg types -Michael
+- added '--addon <addon>' - SvdB
+- keys.cfg from incompatible control scheme version is now renamed
+  automatically to keys.old -Mika
+- Added warranty message in the console on startup, SvdB
+- Left and Right directions disabled in fuel screen (bug #452), from 
+  Paxtez
+- Syreen don't rejoice until victory truly is theirs (bug #451), from 
+  Nic
+- Guardian in Blazer mode being drained by DOGI will no longer
+  result in a non-blazer Guardian with Blazer effects. Original sc2 bug.
+  (bug #283); from Paxtez
+- 'CREW' and 'BATT' instead of icons in combat screen when using
+  PC-style menus (bug #308); from Paxtez
+- New shipyard SCRAP system with scrapping confirmation
+  (bug #413); from Paxtez
+- Syreen ships become available when Talana says they are
+  (bug #264); from Nic, Alex
+- The infinity symbol is correctly printed for gas giant atmosphere
+  in coarse scan screen (bug #239) -Alex
+- Prevent Syreen crew above 12 getting thrown out the airlock in
+  Roster screen (bug #184); from chmmravatar, Alex
+- Lander report messages now use the entire panel (bug #36), from chmmravatar
+- Fix colour cycling in the roster screen (bug #279), from Nic
+- Fixed last seen battle-group teleporting to Sol after invoking
+  Talking Pet in Sol (bug #109) -Alex
+- Fixed a dialog glitch on Slylandro homeworld (#442) -Michael
+- Freeze planetary simulation at beginning of landing sequence to stop
+  event bursts (bug #80) -Michael
+- Extra 2 ship slots in supermelee, as in the PC SC2, and all the PC
+  default teams, from chmmravatar (bug #248)
+  NOTE: this breaks old team saves!
+- Made functions for GET_GAME_STATE and SET_GAME_STATE - SvdB
+- Fixed bug with entering closing portals (bug #108) - SvdB+chmmravatar
+- Mouse cursor is now hidden in fullscreen mode (bug #173) -Mika
+- Version checks inside the input code to flag incompatible changes --Michael
+- Install location for content on unix systems is now ${prefix}/share/uqm
+  instead of ${prefix}/lib/uqm - SvdB
+- New main menu graphics from MarkVera, Paxtez, Nic (bug #393)
+- Removed a place where you could ask for repairs when you shouldn't 
+  (bug #432), from Nic
+- Can use F10 to quit during splash screen as well as main menu -Michael
+- Fixed starship location when being teleported from Procyon to
+  the Earth Starbase after the Precursor bomb is installed. - SvdB
+- Crew death on planet is now counted properly in all cases (bug #70) -Mika
+- Fixed lockup in 'save failed' alert box (bug #397), from ghakko
+- Fixed glitch in Pkunk animation (bug #354), from Paxtez
+- Fixed Kohr-Ah final defeat message repeating (bug #426) -Mika
+- Fix for picking up talking pet after Umgah genocide - from Paxtez
+- MinGW compilation fixes - SvdB+Mika
+- Bilinear scaler is now faster, has 24bpp mode and uses regions -Alex
+- Accept CRLF line endings in .txt and .ts files - SvdB
+- Fixed overflow problem with 32bpp bilinear,biadapt,biadv scalers -Mika
+- MixSDL now handles resampling correctly (less cracklings);
+  added cubic interpolation for high quality mode -Mika
+- Removed the redundant "GameExiting" variable -Michael
+- Added quit options to ingame menu (bug #409), from Paxtez
+- Fix position of blinking save/load in melee (bug #406), from Paxtez
+- New packaging/io system. - SvdB
+- Exit confirmation dialog is prettier and safer, from Paxtez
+- Exiting from the main menu with F10 now exits the game -Michael
+- Changed lander speed to 35 FPS, which matches reported 3DO speed 
+  (Bug #22) -Michael
+- Added a Menu-Delete key for the Super-Melee menu (#123) -Michael
+- Added support for positional (stereo) sound effects, currently
+  works only with OpenAL -Mika
+- Fixed screen transitions from homeworld conversations (bug #348) -Michael
+- Fixed Fwiffo join_us_refusals initialization (bug #405) -Mika
+- Fix Druuge transactions to not elevate crew costs baselessly (bug #235),
+  from ghakko
+- Fixed glitches and NULL Stamp draw attempt in menu code (bug #26) -Mika
+- Absence of voice files is now automatically detected (bug #309) -Mika
+- Fixed Commander Hayes mouth movement before radioactives are given
+  (bug #343) -Mika
+- Fix glitches in slylandro probe animation (bugs #398, #399), from Paxtez
+- Confirmation dialog box for exiting the game is now menu-based
+- Commander Hayes explains his predicament before you get the option to 
+  rescue, closes #366, from Nic
+- Gestalt mode accelerates continuously as long as some key is held; 
+  should resolve to PC-style input wrt bug #381 - Michael
+- Fixed some more false key cancels, addressing 378 again - Michael
+- Added "gestalt mode" for acceleration cancels; fixes #381 - Michael
+- Fixed some "false key cancels" in the input system, addressing bugs 
+  #378 and #379 -Michael
+- Completely reworked the input system
+- Added PC version outtakes, from chmmravatar
+- Fix crash in PlayStream when whole file is prebuffered and its not
+  speech (bug #259) -Mika
+- Fix endian problem in colormap transform code (bug #137) -Mika
+- Fix minor glitch in planet coarse scan (bug #238), from chmmravatar
+- Wav loader is now endian safe (bug #165) -Mika
+- Dialogue patch for Melnorme, fixing bug #335
+- Two dialogue spots where visit count could run away patched; fixes bug 
+  #333, from Stas Sergeev
+- EventHandler checks CurStarDescPtr before dereferencing it (bug #347)
+- Oscilloscope/mini-map now has borders (bug #307 part 4) -Mika
+- Flashing rects are no longer constrained to even-numbered pixels on the
+  y axis; fixes bug #255, from Nic
+- Fixed minor glitches in main window borders (bug #307 parts 1,2,3) -Mika
+- There's now space before and after : in coordinates (bug #307 part 6),
+  from Paxtez
+- Star coordinates no longer shimmy (bug #331), from chmmravatar
+- The DRAWABLE_DESC datatype now uses separately allocated arrays for
+  animation frames instead of doing pointer arithmetic between it and
+  FRAME_DESCs --McMartin
+- Date on the green bar now has floating period between day and
+  the year like in PC version (bug #307 part 5) -Mika
+- AWARE_OF_SAMATRA flag is now written as well as read (closes #113), 
+  from Nic
+- Subtitle drawing is now cached (closes #313) -Mika
+- Fix glitch and lockup in dialogs when rewinding (bugs #311 and #272),
+  from chmmravatar
+- Fastforwarding when in last subtitle now works as expected (bug #318),
+  from chmmravatar
+- Fixed MixSDL buffer underrun handling (bug #211) -Mika
+- Fix issue with caps lock and num lock preventing planet scan
+  and lander message skipping (bug #299), from chmmravatar
+- Subtitles are now hidden after alien has finished talking (bug #312),
+  from chmmravatar
+- Fix for mycon portrait (bug #183), from Nic
+- Music levels no longer drop in conversations when using -T 0
+  (partial fix for bug #309), from chmmravatar
+- Added PC-style conversation summaries (bug #310), from chmmravatar
+- Pressing pause key now stops dialog correctly (bug #167), from chmmravatar
+- Fix some glitches in load/save screen (bug #163), from chmmravatar
+- Utwig shield now pulsates properly (bug #269), from Nic
+- Fix for memory leak in TFB_DrawCanvas_ExtractPalette (bug #277),
+  from Richard Braakman
+- Patched Umgah dialogue, fixing bug #8
+- Crossfade code now explicitly caches the screen to transition from, and
+  thus no longer glitches.  The code needed a slight rewrite, but this
+  does fix bug #33 -McMartin
+- Melee scaling is now trilinear by default, but it's still possible to
+  choose nearest neighbour with --meleescale; fixes #34 -Mika
+- Minimum scaling extent is now 1,1; fixes mostly small-objects-disappearing
+  problem in melee, from chmmravatar
+- Fixed a long standing memory leak relating  to planet surface -PhracturedBlue
+- Scaled images no longer allocate/free memory all the time -McMartin
+- Planet spin on lander launch/return is now enabled -PhracturedBlue
+- Fix skipping after planet scan, landing (closes bug 31) -PhracturedBlue
+- Decelerate when entering orbit to give a smoother effect -PhracturedBlue
+- fix subtitle text overlap issues (bug 232)
+- 'Esc' now leaves planet surface (bug233) -PhracturedBlue
+- Fix race on exiting starbase (bug 230) -PracturedBlue
+- Cleanup shipyard door animation (bug 215) -PhracturedBlue
+- Misc .ani fixes; Fixes asteroid destruction crash (bugs 150, 155, 158)
+  and somewhat fixes Mycon potrait (bug #183) -fOSSiL
+- Moved image scaling to DCQ thread; fixes scale-out-of-sync problem 
+  in melee -Mika
+- Fix lockup in cyborg melee (fixes 204 and 218) from chmmravatar
+- Added -g option to control gamma correction, from chmmravatar
+- Restored the CondBank to actually use condition variables properly
+  (resolves a race condition under OpenBSD)
+- Removed aspects of the legacy graphics code that are never used or that
+  are redundant.  More 'C-like' use of the PRIMITIVE datatype.
+- Fix various graphics glitches during  dialog.  Especially Spathi Eye,and ZFP
+  Closes #23, #156 - PhracturedBlue
+- Fix Syreen, KohrAh and Slylandro ship effects to not be screen
+  size dependant (corolary to bug 93) - PhracturedBlue
+- Line clipping is now handled correctly; fixes #28 (one pixel corruptions)
+  and #198 (beam weapons changing direction) -Mika
+- Vux warps in close (fixes bug 93) -from Nic
+- Fixed lockup on lander-report (Bug #144 annd 187?) - PhracturedBlue
+- Version # is now printed in the main menu, from Nic
+- Added PC Shipyard + Hangar power lines animation;
+  (closes #176) -fOSSiL
+
+0.2:
+- Shipyard/Outfit screens now use larger PC graphics;
+  Outfit blueprint is properly aligned; from Nic
+- Key config is now saved in user dir too.
+  melee.cfg too again. - SvdB
+- Added copyFile() - SvdB
+- Pure mode partial screen updates are now more efficient;
+  fixed 'crossfades not finished' problem -Mika
+- Graduated colours for crew in shipyard, from Nic
+- Alien dialog fixes: Talking Pet, Utwig, Mycon, Syreen -fOSSiL
+- Updated all game, menu, melee and weapon sounds to original 3DO
+  ones (extracted using various tools); some sounds were simply
+  wrong: menu - "device success", weapons - arilou, slylandro, thraddash;
+  others had bad sampling rates; (fixes #19) -fOSSiL
+- Fixed Melnrome repeating "Please do not mention this subject again"
+  text (bug #145) -fOSSiL
+- Fixed load/save screen leaving characters when having more
+  than 1000 units of some type of resources (bug #75) -fOSSiL
+- Lowered Drawable memory footprint, made Frame safer - Martin
+- Support for running without voice .ogg files present -PBlue
+- Slider should now work correctly everywhere -PhracturedBlue
+- Added 'nosound' driver and --sound=openal|mixsdl|none
+  option; -a option has been removed -fOSSiL
+- Fix ZFP stuttering and some other random sound issues -PBlue
+- Correctly deal with multiply-mapped keys.  This may fix some keys
+  not being detected correctly on the Mac as well - PBlue
+- OpenGL mode now fully supports partial screen updates -Mika
+- Fixed melee ship selection-box bugs -fOSSiL
+- Added a 4th button to starcon.key 'Esc' now emergency-escapes -PBlue
+- Biadapt and biadv scalers now work in OpenGL mode too -Mika
+- Fixed lockup when fastforwarding through orz comm -PBlue
+- A new windows installer is now in builds/win32_install -PBlue
+- Added '-a' switch to go between OpenAL and MixSDL at runtime -PBlue
+- Melnorme will pronounce numbers now -fOSSiL
+- Added icons to win32 builds (MSVC and mingw) -fOSSiL
+- Removed the GraphicStrength code, since all that is handled with
+  an arithmetic blit routine outside of the drawing thread
+- Added an improved version of biadapt scaling filter,
+  working name "biadv" (use --scale=biadv) -fOSSiL
+- Removed SDL_mixer sound module
+- TFB_FlushGraphics keeps track of smallest bounding box that requires
+  updating, allowing for faster scaling
+- Added a TFB_Canvas data buffer to let TFB_Image be more accessible
+- Added new graphics primitives
+- Added 'smooth' scolling for ff, frev (similar to the 3DO) - PhracturedBlue
+- New streaming code for openal/mixsdl.  supports ff/frev in subtitles -PBlue
+- New sound module "mixsdl" (experimental) -fOSSiL
+- Fixed overlapping subtitle text while switch tracks -PhracturedBlue
+- New flash-thread cacheing scheme - PhracturedBlue
+- Voice-over / subtitle synch is done - PhracturedBlue
+- Optimized DCQ to be much smaller and faster
+- Added stat data in outfit screen (use --font=pc) - from Nic
+- Added fixed introx.mod, from fOSSiL
+- Fixed Orz .mod file, from fOSSiL
+- Added vertical alignment for subtitles (text runs off screen fix)-from Nic
+- Updated infinity text/symbol for RUs - from fOSSiL, Nic
+- Split away DCQ-specific code into its own header file
+- Added correct lander font - from fOSSiL
+- Added support for multiple menu hierarchies, and a few PC hiers. -PBlue
+- Fixed a potential semaphore race when suspending clock -PhracturedBlue
+- Function name conflict fixes for Mac OSX -by peterb
+- Minor fixes for pc-fonts (Outfit screen, gradient color swap) -by Nic
+- DCQ is now accessed uniformly by routines in gfx_common.c
+- Fixed OpenGL colors on MacOS X -Mika
+- Added a sane cmd-line naming scheme: --opt=(pc|3do) see --help for more -PBlue
+- Added new font effect (PC-lander messages), and set colors for text -PBlue
+- Use correct font for 'CAPTAIN', 'FUEL', and 'CREW' is status screen -PBlue
+- Added gradiated font support (for ship name), and PC-font option -PBlue
+- Minor fixes to PCMenu by fOSSiL, Nic, PhracturedBlue
+- Updated mingw support with better directions, and easier build -PBlue
+- PCMenus now suports 'settings', and menu font is correct -PhracturedBlue
+- Added '-b' option to get PC Menus -PhracturedBlue
+- Check for a deadlock in savedgames and try to continue -PhracturedBlue
+- Added an option ('-a') to display 'PC-style' coarse-scan -PhracturedBlue
+- Fixed deadlock races in new FlushGraphics method -PhracturedBlue
+- FlushGraphics now waits and notifies on a per-thread level - McMartin
+- No longer using SHGetFolderPath on Windows - SvdB
+- Key repeat is now enabled when typing text, from slayne
+- Capital letter bug in new input code fixed, from slayne
+- Oscilloscope now reacts to music when speech is disabled (OpenAL) -Mika
+- Rewritten input code (better and adds joystick/pad support), from slayne
+- Biadapt scaling for pure mode, from fOSSiL
+- Saving user data in "%APPDATA%/Application Data" on windows - SvdB
+- Melnorme comm fix, from TD.
+- Planet scan font character fixes (micro.fon), from fOSSiL
+- Temporary files are deleted on exit. - SvdB
+- Font png's no longer need to have alpha channel, black background with
+  white pixels is enough -Mika
+- Added PC version intro/ending font, from VileRancour
+- Added files for intro and ending sequence, from fOSSiL; extracted using
+  Mudrony's scripts plus his own work.
+- Added some corrected mods, from fOSSiL; extracted using Mudrony's scripts.
+- Replaced add_sub_frame with arith_frame_blit -PhracturedBlue
+- Crosshair in orbit leaving light trace to image in OpenGL mode fixed -Mika
+- Planet scan should now take ~2secs on all computers -PhracturedBlue
+- Updated earth image to look nicer (no vertical lines) -PhracturedBlue
+- Clock semaphore is now created with a value of 0 -PhracturedBlue
+- Rewrote Semaphore debugging code to be more useful - PhracturedBlue
+- Better fix for clearing load/save screen - fOSSiL
+- Implemented bilinear scaling in pure SDL mode - Mika
+- Planet surface is now smoothed, from PhracturedBlue
+- Implemented scanlines in pure SDL mode - Mika
+- Star sizes and colors are now correct in solar system, from fOSSiL
+- Captain portraits in melee are now updated properly after battle and
+  bottom portrait always stays in correct place, from fOSSiL
+- Removed 2xSaI and SuperSAI scaling due to GPL incompatiblities.
+  They should be reimplemented later.
+- Bucks print from wrong team in melee ship selection box fixed, from fOSSiL
+- Autopilot works in Quasispace when without fuel, from fOSSiL.
+- Negative shift warnings removed, from Fizban
+- Displaying correct lander images, from fOSSiL.
+- 3D planet now uses phong lighting, from PhracturedBlue
+- Put save data and temporary files in a seperate dir - SvdB
+- Fix OpenGL colors on big-endian CPUs, from Bryce McKinlay
+- MikMod now loops modules correctly (OpenAL), from Nic
+- player.fon/42.png corrected, from Parker
+- GraphicsSem usage reverted back in RotatePlanet, from PhracturedBlue
+- Pause/exit game dialog problem with planets fixed, from PhracturedBlue
+- Fixed lockup if sbuf_size was zero (OpenAL)
+- Planet surface changing color when using device fixed, from PhracturedBlue
+- Some race conditions eliminated, from PhracturedBlue
+- Earth / other slave shielded planet color issue fixed, from PhracturedBlue
+- Orbit/starmap related lockup fixed, from PhracturedBlue
+- 3D planet showing on starmap when in orbit fixed, from PhracturedBlue
+- Scan (single, interrupting) fixed, from PhracturedBlue
+- Defining DCQ_OF_DOOM lowers the DrawCommandQueue size to 512, to aid in
+  simulating severe overload stresses on the machine
+- Removed TFB_FlushGraphics' dependency on GraphicsSem, which the new
+  condition variable code both breaks and makes unnecessary
+- Scan tint is now cleared right after the scan, from PhracturedBlue
+- Recoded the DCQ to not sit on the heap, added debugging info
+- Fixed Outfit Starship and Shipyard graphics, from TDuck
+- 3D planet is now zoomed randomly from any corner, from PhracturedBlue
+- Flagship thrusters and modules one-pixel place fix, from TDuck
+- Earth topo map is now tinted as should, from PhracturedBlue
+- Fixed planet stuff when leaving surface with lander, from PhracturedBlue
+- RotatePlanet now holds GraphicsSem a shorter time, from PhracturedBlue
+- Added proper mutex usage to 3do_getbody.c, from PhracturedBlue
+- Scan uses now additive blit instead of transparency, from PhracturedBlue
+- Loading game saved while in orbit fixed (bg correct), from PhracturedBlue
+- Changed SDL_Delay to SleepThread in TFB_FlushGraphics
+- Rendering thread now broadcasts to a condition variable, stopping most
+  of the problems we were having where a fast thread spams the DCQ with
+  too many requests to handle in a timely manner
+- Fixed an unsafe memory freeing from sfx.c
+- Thread library now includes condition variables
+- Shofixti dialogue fixed to subtitles, by BlckKnght
+- Crash during loading from orbit fixed, from PhracturedBlue
+- Starmap issue when orbiting earth fixed, from PhracturedBlue
+- Oscilloscope is now implemented (OpenAL)
+- Moved initialisation of _MemorySem to memInit - SvdB
+- Planet scan is now cleared correctly, from l0ci
+- Flagship modules are now drawn correctly instead of one pix left, from l0ci
+- Planet code fixes, from PhracturedBlue
+- Build fixes for FreeBSD, from Max Horn.
+- Fixed typo in Thraddash text, from Dan Plimak.
+- Make HMalloc abort when no memory available, from Abaddon.
+- Replace malloc() calls by HMalloc, from Abaddon.
+- #include <SDL.h> in main program, for OSX, from Max Horn.
+- Use sources for getopt() for all systems that don't support it, not only
+  for Windows, from Max Horn.
+- Planet code cleanups, from PhracturedBlue
+- Changed some types to SDLKey in input.c to prevent overflows, from tamlin
+- Slider now moves in communications (OpenAL)
+- Fixed a DCQ bug where it wasn't freeing batches of graphics commands
+- > vs. >= bugfix on plangen.c, from PhracturedBlue
+- More appropriate names to ROSTER + 1 and ROSTER + 2, from slayne
+- Lines and colouring of planet surface when scanning, from PhracturedBlue
+- Melnorme bridge turns purple at the right spot in his conversation
+- Repaired a DrawCommandQueue invariant, from tamlin
+- Color transforms in communication merged into core animation thread
+- 3D planet is now antialiased, from PhracturedBlue
+- Hyperspace saving crash introduced by prev. patches fixed, from slayne
+- Precursor ship crew count is now placed correctly in melee, from wjp
+- Dialog choices doesn't go off rectangle in right anymore, from wjp
+- When saving in planet scan screen, screen is now redrawn, from slayne
+- Commas causing pixels to appear in planetary reports fixed, from slayne
+- Team names switching when selecting next ship to fight fixed, from slayne
+- More memory leak fixes in 3do_getbody.c, from PhracturedBlue
+- Fixed memory leak in _ReleaseCelData, from PhracturedBlue.
+- Fixed mutex deadlock in 3do_blt.c, from tamlin
+- 'additional credits' amount for Melnorme correct now, by Windplume.
+- Spheres of influence now move correctly in starmap, from l0ci@hotmail.com
+- Linux OpenAL fixes (music plays now as stereo)
+- Fuel giveaway bug fixed, from steve@blckknght.org and Windplume.
+- Starmap fuel range calculator and actual consumption matches now
+- Collision detection is now pixel-perfect (fixes Sa-Matra, BUTT missile, etc)
+- Fixed lander position sign bug which was introduced by previous fixes
+- Initial display of planet surface on landing is at correct position
+- Planet scan is now properly erased when cancelling/landing
+- 3D planet view when entering orbit is now implemented
+- TFB_DrawCommandQueue->FullSize was uninitialised.
+- Typo 'cultrue' for Thraddash fixed.
+- Autopilot indicator no longer blinking on starmap and combat
+- Entering a star system lockup/messed graphics fixed
+- Position of planet info icons/texts is now correct and centered
+- Yehat had no subtitles.
+- Incorrect position of 'empty slot' and 'team name' in supermelee fixed
+
+0.1:
+- Initial release
+

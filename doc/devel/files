@@ -1,0 +1,115 @@
+battle.c       
+border.c       Draws the screen borders.
+build.c        
+cleanup.c      Cleanup routines for when the game is done.
+clock.c        Manages the game clock.
+collide.c      Process a collision of objects in combat.
+comm.c         Handles communication with aliens.
+commglue.c     Helper functions for communication with aliens.
+confirm.c      Asks for confirmation on exit.
+credits.c      Shows the credits after a victory.
+cyborg.c       Handles combat AI.
+debug.c        Debugging functions.
+demo.c         Code for demo mode and game journal.
+displist.c     Generic doubly linked list, which can keep its own pool
+               of preallocated link structures.
+               This generic list is used in various places throughout
+               the game source, but without preallocaded link structures.
+dummy.c        
+encount.c      Handles what to do when a player encounters an alien.
+fmv.c          Handles video sequences.
+galaxy.c       Starmap? Hyperspace background?
+gameinp.c
+gameopt.c      Game options menu, including save and load selection.
+gendef.c       Defines functions to be called for generating star systems.
+getchar.c      Routines for entering characters with the joystick.
+globdata.c     Sets up global data, creates the main ship, and the radar.
+gravity.c      Maths regarding gravity in combat.
+gravwell.c     Handles objects that generate gravity in combat.
+grpinfo.c      Handles battle groups.
+hyper.c        Handles hyperspace movement and actions.
+init.c         Initialization of various game data.
+intel.c        Passes input of computer or player along (?)
+intro.c        Alternative functions for beginning and ending sequences
+               to those in fmv, unused. (PC version?)
+ipdisp.c       Something with spheres of influence?
+load.c         Loading a saved game.
+loadship.c     Loading of ship resource data.
+master.c       Preloading of all ships?
+melee.c        All supermelee menu related code.
+misc.c         Miscelaneous routines related to combat but not directly to
+               the fighting.
+oscill.c       Code for the oscilloscope and speech sample progress slider.
+               (during communication with aliens)
+outfit.c       Things related to outfiting the starship.
+pickmele.c     Ship selection in Supermelee (not in Full Game)
+pickship.c     Ship selection in Full Game (not in Supermelee)
+plandata.c     Some const data relating stars and planets.
+process.c      Some combat calculations.
+restart.c      Main menu (start new, load, supermelee).
+save.c         Saving of a game.
+settings.c     The back end of the game options.
+setup.c        Initialisations for key config, and loading of various
+               resources.
+ship.c         Ship movement in combat.
+shipstat.c     Routines for showing information about ships in combat
+               (name, crew, energy). (also status.c)
+shipyard.c     Things related to selection of your companion ships.
+sis.c          Drawing various game state information (ship, ship name,
+               captains name, hyperspace coordinates, date, melnorme credits,
+               landers, storage bays, crew, fuel, game menu)
+starbase.c     Code for the Earth starbase.
+starcon.c      Code for various events (Arilou portal, Kohr-Ah genocide,
+               Pkunk exodus, Thraddash attack Kohr-Ah, Ilwrath attack
+               Thraddash, Utwig+Supox attack Kohr-Ah, Mycon colonization
+               attempt, hyperspace ship spawned, zoqfot signal, zoqfot under
+               attack, Shofixti return, Spathi build shield, Arilou give
+               the Dnyarri to the Umgah, Yehat rebellion, Slylandro plague
+               worsening)
+starmap.c      Code to find a star by it's coordinates and compose star names.
+state.c        Saving and loading the temporary planet information,
+               like resource information.
+status.c       Maintain and draw some information like the captain picture,
+               crew, energy. (also shipstat.c)
+tactrans.c     Code for some additional combat events (explosions, dying,
+               new ship, ion trail, escape).
+trans.c        Integer variant of atan2().
+utils.c        Various auxiliary utils, code for pausing.
+velocity.c     Velocity computation routines.
+weapon.c       Routines for weapons fire in combat.
+
+
+build.h
+clock.h
+coderes.h
+collide.h
+commglue.h
+demo.h
+displist.h
+element.h
+encount.h
+globdata.h
+hyper.h
+ifontres.h
+igfxres.h
+ikey_con.h
+imusicre.h
+intel.h
+ires_ind.h
+isndres.h
+istrtab.h
+melee.h
+nameref.h
+races.h
+resinst.h
+respkg.h
+restypes.h
+sis.h
+sounds.h
+starbase.h
+starcon.h
+state.h
+units.h
+velocity.h
+weapon.h
+

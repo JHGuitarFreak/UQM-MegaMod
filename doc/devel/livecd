@@ -1,0 +1,80 @@
+This file contains notes about considerations for developing a live CD
+for UQM.
+
+
+Information on creating boot CD's:
+- http://www.geocities.com/potato.geo/bootlinuxcd.html
+- man mkisofs
+- http://linuxfromscratch.org/~jhuntwork/livecd/
+- http://www.tldp.org/HOWTO/Bootdisk-HOWTO/
+
+
+Desirable features:
+- Both Linux native mode (when booting directly from the CD),
+  an MS Windows autorun. And perhaps even MacOS boot.
+- install from the CD (for Windows)
+- Support saving
+
+
+- Needed software:
+  - boot loader
+    syslinux: ftp://ftp.kernel.org/pub/linux/utils/boot/syslinux/
+  - init (simpleinit?)
+  - libc (including libpthread) (uClibc)?
+  - libSDL
+  - libSDL_image
+  - libpng (needed for libSDL_image)
+  - libvorbisfile
+  - libvorbis (for libvorbisfile)
+  - libogg (for libvorbis)
+  - libmikmod
+  - libm (for libvorbis)
+  - libz (for zipped content)
+  - syslogd+klogd?
+
+  Some audio library:
+  - libasound (prefered)
+
+  Some graphics output: one of
+  - x11 (larger than necessary)
+  - nanox
+  - fbcon (may be the best solution)
+  - directfb
+  - svgalib (directly accesses the VGA card. No acceleration support)
+    (may be the most portable)
+  Having hardware acceleration support may be useful.
+
+  For basic debugging:
+  - sulogin
+  - sash or busybox (minimal features)
+
+  For hardware detection:
+  - udev
+  - ...
+
+- Other needed files:
+  - boot scripts
+  - /etc/ld.so.conf
+  - ...
+
+- Sources
+  Sources must be provided in some way (check the licenses of the
+  dependencies).
+
+- Warranty disclaimer on boot
+
+
+For saving:
+- USB memory stick and other memory devices
+- Windows hard drive (where to put the files?)
+- Linux hard drive (where to put the files?)
+- Floppies? Probably not worth it.
+
+
+
+Tools for testing before burning:
+- vmware
+- QEMU (http://fabrice.bellard.free.fr/qemu/)
+
+
+

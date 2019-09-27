@@ -1,0 +1,123 @@
+		     Ur-Quan Masters State Files
+		     ---------------------------
+
+Statefiles are a legacy component of the UQM runtime and savegame
+format. They represent largish (10-64KB) chunks of semi-structured
+data that the engine used to keep on disk during gameplay, checking
+and updating it as needed. These files were then dumped into and
+restored from save files in a compressed form.
+
+In UQM as it exists now (0.7), these files exist as expandable memory
+arrays that are consulted as if they were files. UQM 0.8 will change
+the savegame format to remove the compression (64K just isn't much
+anymore) and put more structure to the data within. The statefile
+abstraction itself is not guaranteed to be retained, and indeed core
+team considers it kind of horrible and would like to destroy it.
+
+There are three state files.
+
+		   STARINFO_FILE aka "starinfo.dat"
+		   --------------------------------
+
+This is probably the most reasonable of the three. It keeps track of
+which star systems you have visited, and which mineral deposits and
+interesting life forms and gadgets you have harvested from the worlds
+therein.
+
+The file begins with one DWORD for every star system in the
+game. (There are 502 star systems, defined in a gigantic array in
+starmap_array in plandata.c). The DWORD is 0 if the star system is
+unvisited. It is otherwise an absolute offset within the state file.
+
+Generally speaking, UQM star systems are procedurally generated with a
+PRNG and various properties of the star including its type and
+location. Thus, the information in starmap.c is sufficient to provide
+an accounting of the number and quality of worlds in any given
+system. Each world can have up to 32 each of mineral deposits, energy
+signatures, or life forms. Thus, each world, in order, in the system
+will be listed at its offset with three DWORDS, representing mineral,
+energy, and biological entities respectively. Captured entities have a
+1 bit set.
+
+With a little over 3,800 visitable celestial bodies, this state file
+is capped at a little under 50 KB.
+
+		  RANDGRPINFO_FILE aka "randgrp.dat"
+		  ----------------------------------
+
+This is a "battle group file" - it tracks the information regarding
+groups of ships that you can encounter in interplanetary space. This
+file gives the location information for all ships in the last solar
+system you visited, and it tracks the fleet composition, health, &c
+for ships randomly generated due to visiting a solar system in some
+species's sphere of influence. Random battle groups are reset after a
+week in HyperSpace or upon arrival in some other star system.
+
+The data structures, and the reader/writer functions for them, are
+primarily defined in grpinfo.c.
+
+The RANDGRPINFO file starts with a GROUP_HEADER struct, specifying
+which star this information is for, when the data expires, and then 65
+offsets into the file. This is a *one-indexed array* for
+randomly-generated groups.
+
+This is because the offset for group zero points to an entirely
+different data structure: the "Group List". This gives the starmap
+depiction and location on the Interplanetary map of every battle group
+in the system, whether it is randomly generated or pre-defined. This
+comprises two bytes (the ID of the most recently encountered group,
+and then the number of groups), followed by a series of 17-byte chunks
+representing battle groups. These are a byte indicating the race
+identifier of the fleet (battle groups can be mixed-composition, but
+only one ship appears on the map at a time; this specifies that)
+followed by 16 bytes that represent an IP_GROUP structure. See the
+Read/WriteIpGroup functions in gengrp.c for the exact layout in the
+virtual file. There's a lot of wasted space there, a legacy of the
+time when these files were actually structure dumps on 32-bit machines
+with very specific memory layouts.
+
+The offsets that are not Group Zero have a similar layout, interpreted
+differently. Each of these represents a single battle group. It
+retains the two-byte prologue, the second of which specifies the
+number of 17-byte chunks to follow. The first byte here is the
+displayed race identifier, again, and then each 17-byte chunk is that
+ship's particular race ID followed by a 16-byte representation of a
+SHIP_FRAGMENT.
+
+There are no requirements about order of layout or total size of this
+file; the only requirement is that there is a GROUP_HEADER at offset
+zero and that the extents described in the valid offsets do not
+overlap.
+
+		   DEFGRPINFO_FILE aka "defgrp.dat"
+		   --------------------------------
+
+This is a random-access scratch space for battle groups that are
+deliberately placed by the plot. There's one GROUP_HEADER in this
+file, somewhere, for each star system that has ever had predefined
+ships and that the player has visited. There is *no guarantee of any
+kind* as to where they are, a priori.
+
+This information instead lives within the game state array, a
+155-byte-long bitfield that is mostly used for storing plot events and
+event flags. 32-bit values within this array store the relevant
+offsets for their fleets, or a 0 if they have not yet been
+encountered. In vanilla UQM, there are 14 of these values,
+corresponding to the Ur-Quan Probe, the Zoq-Fot-Pik scout, the
+Shofixti Survivor, the Unzervalt Guardian, the Sa-Matra, and the nine
+Melnorme traders in TrueSpace. Each of these has a corresponding entry
+in the game state array that ends in _OFFS0. (Due to the
+implementation of GET_GAME_STATE, these values actually are stored as
+four eight-bit values each, but this can be ignored pretty much
+everywhere but the definition of the states themselves).
+
+If one of these offsets is non-zero, then that offset in the
+DEFGRPINFO_FILE will have a SHIP_FRAGMENT-based group definition in
+the same format as the ones in RANDGRPINFO_FILE.
+
+The Game State array uses 0 as a special value to mean "this
+predefined battle group has not yet been spawned." Because of that, 0
+is not a legal offset to place a GROUP_HEADER. To ensure that no
+GROUP_HEADER is placed there, a zero is written to the first byte of
+the file. That way, the first defined group (which, for vanilla UQM,
+will always be the Ur-Quan Probe) thus begins at offset 1.

@@ -1,0 +1,2 @@
+uqm_CFILES="regex.c"
+uqm_HFILES="regex.h regex_internal.h"

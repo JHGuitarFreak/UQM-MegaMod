@@ -1,0 +1,4 @@
+uqm_SUBDIRS="arilou blackur chmmr comandr druuge ilwrath melnorm mycon
+		orz pkunk rebel shofixt slyhome slyland spahome spathi starbas supox
+		syreen talkpet thradd umgah urquan utwig vux yehat zoqfot"
+uqm_HFILES="commall.h"

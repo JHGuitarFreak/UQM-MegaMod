@@ -1,0 +1,2 @@
+uqm_CFILES="sdltime.c"
+uqm_HFILES="sdltime.h"

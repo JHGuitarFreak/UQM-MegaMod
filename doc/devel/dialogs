@@ -1,0 +1,74 @@
+This file describes how the conversation system works.
+
+Functions:
+
+DoResponsePhrase(RESPONSE_REF R, RESPONSE_FUNC response_func,
+		UNICODE *ConstructStr)
+	Adds a line to the list of remarks the player may choose from.
+	R - The index for the line in the .txt dialog file.
+    response_func - the function where to continue the dialog if this
+			remark was chosen.
+	ConstructStr - A user-constructed string to display. If it is 0,
+			the string from R is used; if it is 0, the string identified
+			by R is not displayed, but R is still used to report what choice
+			a player made.
+			In practice ConstructStr is always the result of a call
+			to construct_response() and R is set to the first part of
+			the constructed phrase.
+	Note: ConstructStr must still be valid after the function calling
+			DoResponsePhrase() returns, so it can't be on the stack.
+			Also, if there are multiple constructed responses at one
+			point in the dialog, they will need separate buffers.
+			In practice, a global buffer shared_phrase_buf is used when
+			only one buffer is required.
+	Note: In practice, when R is 0, the call is always made through the
+			macro Response()
+
+Response(RESPONSE_REF R, RESPONSE_FUNC response_func)
+	Macro that calls DoResponsePhrase() with 0 for ConstructStr.
+
+construct_response(UNICODE *buf, int R, ...)
+	Concatenates strings from a dialog .txt file with strings from
+	the source. The arguments after *buf are alternatingly an int R,
+	and a UNICODE * str, until either R is -1, or str is NULL.
+	buf - the destination
+	R   - The index for the line in the .txt dialog file.
+	str - A UNICODE * string.
+
+NPCPhrase_cb(int index, TFB_TrackCB cb)
+	Display the NPC speech with identifier 'index' (and play the
+	associated sample). The callback function 'cb' is called when
+	the displaying is done (usually when the sample ends).
+	index - The index for the line in the .txt dialog file.
+	cb - the callback function to called when the line is over.
+			NULL indicates no callback function.
+
+NPCPhrase(int index)
+	Display the NPC speech with identifier 'index'.
+	This is a macro to NPCPrhase_cb().
+	index - The index for the line in the .txt dialog file, or
+			GLOBAL_PLAYER_NAME for the name of the captain,
+			GLOBAL_SHIP_NAME for the name of the flagship,
+			GLOBAL_PLAYER_LOCATION, for the player's hyperspace coordinates,
+			GLOBAL_ALLIANCE_NAME, for the name of the new alliance, or
+			a negative number for the absolute number as speech
+
+DISABLE_PHRASE(int index)
+	Mark a player line as not to be offered as a choice anymore. Not in
+	this conversion, nor in any future conversations.
+	index - The index for the line in the .txt dialog file.
+
+PHRASE_ENABLED(int index)
+	Check if a player phrase was formerly marked as not to be offered anymore
+	(by call to DISABLE_PHRASE).
+	index - The index for the line in the .txt dialog file.
+	
+PLAYER_SAID(RESPONSE_REF said, RESPONSE_REF test)
+	Test whether a player the player reply 'said' is equal to the reply
+	'test'.
+	said - the response that the player selected
+	test - a response to test 'said' against
+
+
+Initial version by Serge van den Boom, 2005-01-10
+

@@ -1,0 +1,2 @@
+uqm_CFILES="chenjesu.c"
+uqm_HFILES="chenjesu.h icode.h resinst.h"

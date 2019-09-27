@@ -1,0 +1,8 @@
+# Definitions for build tools for the makefile used by the UQM build system.
+# This file defines the build commands for GCCE tools.
+
+include build/unix/make/buildtools-generic
+
+define act_link
+	arm-none-symbianelf-ar cr "$@" $^ $(LDFLAGS)
+endef

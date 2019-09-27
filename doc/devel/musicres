@@ -1,0 +1,18 @@
+This is the format for resources of type MUSICRES (these have the extension
+.mod in the original source).
+
+If the first 3 characters are 'CDA', from the next character to the first
+nul char, or 3 characters after the first period (whatever comes first) is
+used as a filename with aif audio data to play. (CDA stands for CD-audio.
+The source code mentions 'red book', but it's not (red book is the standard
+for audio CD's)). The rest of the file (just a few more chars) seems to be
+garbage.
+
+If the first 3 characters are something else, the entire file (including the
+first 3 characters) are used as a MOD file. (As the mod file uses those char
+as the title of the song, a mod file with the title beginning with 'CDA'
+will go wrong).
+
+
+Initial version of this file 2002-10-26 by Serge van den Boom.
+

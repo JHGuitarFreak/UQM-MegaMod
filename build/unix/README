@@ -1,0 +1,5 @@
+This directory contains files used for building and installing
+on unix-like environments.
+There's no need to use any of those directly; type './build.sh' from
+the top dir to get started.
+

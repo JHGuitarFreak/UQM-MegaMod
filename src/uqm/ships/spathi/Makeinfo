@@ -1,0 +1,2 @@
+uqm_CFILES="spathi.c"
+uqm_HFILES="icode.h resinst.h spathi.h"

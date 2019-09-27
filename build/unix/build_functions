@@ -1,0 +1,307 @@
+# Auxiliary functions for build.sh
+# Copyright (c) 2002 Serge van den Boom
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+DEPEND_NAME=make.depend
+
+# Show usage information
+usage() {
+	echo "Main build script"
+	echo
+	echo "Syntax:"
+	echo "    ./build.sh <target>"
+	echo "    ./build.sh <target> config"
+	echo "    ./build.sh <target> depend"
+	echo "    ./build.sh <target> clean"
+	echo "    ./build.sh <target> install"
+	echo "    ./build.sh cleanall"
+	echo "    ./build.sh distclean"
+	echo
+	echo "Valid targets:"
+	for TARGET in $TARGETS; do
+		echo "    $TARGET"
+	done
+	echo
+}
+
+escape_string() {
+	$SED -e s,[\\\'\"\`\	\ \$\&\\\*\\\?\#\!],\\\\\&,g << EOF
+$1
+EOF
+}
+
+# Start the configure program.
+# $1 = target
+build_config() {
+	set_system
+	prepare_build_system
+	config_requirements
+	prepare_host_system
+	if [ "$BUILD_SYSTEM" '!=' "$HOST_SYSTEM" ]; then
+		build_message "Cross-compiling to $HOST_SYSTEM."
+	fi
+	eval "${TARGET}_requirements"
+	eval "${TARGET}_prepare_config"
+	eval "${TARGET}_load_config"
+	eval "${TARGET}_do_config"
+	eval "${TARGET}_save_config"
+}
+
+build_reconfig() {
+	if [ ! -e "$BUILD_WORK/config.state" ]; then
+		echo "*** Warning: file 'config.state' not found - using defaults."
+	fi
+
+	prepare_build_system
+	config_requirements
+	prepare_host_system
+	if [ "$BUILD_SYSTEM" '!=' "$HOST_SYSTEM" ]; then
+		build_message "Cross-compiling to $HOST_SYSTEM."
+	fi
+	eval "${TARGET}_requirements"
+	eval "${TARGET}_prepare_config"
+	eval "${TARGET}_load_config"
+	build_process_config
+
+	echo "Reconfiguring complete..." >&2
+}
+
+# Process the configuration information
+build_process_config() {
+	eval "${TARGET}_process_config"
+}
+
+# Recursively build dependency index
+build_depend() {
+	local DEPEND_FILE EXTRA_OFILES
+
+	echo "Building file dependency index..." >&2
+	
+	eval mkdir -p "\$BUILD_WORK/\${${BUILD_PROJECT}_OBJS}"
+	eval DEPEND_FILE="\$BUILD_WORK/\${${BUILD_PROJECT}_OBJS}\$DEPEND_NAME"
+
+	# Remove the old dependency file, if it exists.
+	# The .tmp file is used to detect interrupted dependency builds.
+	rm -f -- "$DEPEND_FILE".tmp "$DEPEND_FILE"
+
+	BUILD_ROOT=./ $SH ./build/unix/build_collect > "$DEPEND_FILE".tmp
+	mv -f -- "$DEPEND_FILE".tmp "$DEPEND_FILE"
+}
+
+# Compile the lot.
+# With the depend info set up, we can leave everything to make.
+build_compile() {
+	local CFLAGS CXXFLAGS LDFLAGS TARGET_FILE DEPEND_FILE OBJDIR
+
+	eval CFLAGS="\${${BUILD_PROJECT}_CFLAGS}"
+	eval CXXFLAGS="\${${BUILD_PROJECT}_CXXFLAGS}"
+	eval LDFLAGS="\${${BUILD_PROJECT}_LDFLAGS}"
+	eval OBJDIR=\""\$BUILD_WORK/\${${BUILD_PROJECT}_OBJS}"\"
+	eval TARGET_FILE=\""\$BUILD_WORK/\${${BUILD_PROJECT}_NAME}"\"
+	DEPEND_FILE=$OBJDIR$DEPEND_NAME
+
+	eval "${TARGET}_pre_build"
+
+	CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS \
+			OBJDIR=$OBJDIR \
+			BUILD_ROOT= \
+			TARGET_FILE=$TARGET_FILE DEPEND_FILE=$DEPEND_FILE \
+			SED=$SED \
+			$MAKE -f Makefile.build "$TARGET_FILE"
+
+	eval "${TARGET}_post_build"
+}
+
+build_clean() {
+	local DEPEND_FILE
+
+	BUILD_ROOT=./ $SH ./build/unix/build_clean
+
+	eval DEPEND_FILE="\$BUILD_WORK/\${${BUILD_PROJECT}_OBJS}${DEPEND_NAME}"
+	rm -f "$DEPEND_FILE" "$BUILD_WORK/build.vars" \
+			"$BUILD_WORK/uqm-wrapper" \
+			"$BUILD_WORK/config.state"
+	eval "${TARGET}_clean"
+}
+
+build_cleanall() {
+	export BUILD_PROJECT
+	for TARGET in $TARGETS; do
+		BUILD_PROJECT="$TARGET"
+		build_clean
+	done
+	BUILD_PROJECT=""
+}
+
+build_distclean() {
+	build_cleanall
+}
+
+
+# Description: check if the config files are present and load them.
+#              If they're not present, remake them.
+build_check_config() {
+	if [ ! -e "$BUILD_WORK/build.vars" ]; then
+		build_config || exit $?
+		build_process_config
+	fi
+	. "$BUILD_WORK/build.vars"
+	. "${BUILD_REC_PATH:=./}Makeproject"
+}
+
+# Description: check if the necessary depend file is present,
+#              if not, build it.
+build_check_dependencies() {
+	eval DEPEND_FILE="\$BUILD_WORK/\${${BUILD_PROJECT}_OBJS}${DEPEND_NAME}"
+	[ ! -e "$DEPEND_FILE" -o -n "$BUILD_RUN_DEPEND" ] || return
+
+	build_depend || exit $?
+}
+
+# Description: check if the program is compiled, and otherwise compile
+build_check_compile() {
+	local NAME
+	eval NAME="\${${BUILD_PROJECT}_NAME}"
+	[ ! -e "$NAME" ] || return
+
+	build_compile || exit $?
+}
+
+# Make a directory path, with mode and owner specified.
+# $1 - name of directory path
+# $2 - mode of the directories (may be empty)
+# $3 - owner of the directories (may be empty)
+mkdirhier() {
+	local REST DIR MODE OWNER
+	REST="$1"
+	MODE="$2"
+	OWNER="$3"
+	case "$REST" in
+		/*)
+			REST="${REST%/}"
+			DIR="/"
+			;;
+		*)
+			DIR=""
+			;;
+	esac
+	case "$REST" in
+		*/)
+			;;
+		*)
+			REST="${REST}/"
+			;;
+	esac
+	while [ -n "$REST" ]; do
+		DIR="$DIR${REST%%/*}"
+		REST="${REST#*/}"
+		if [ ! -d "$DIR" ]; then
+			mkdir "$DIR"
+			[ -n "$MODE" ] && chmod "$MODE" "$DIR"
+			[ -n "$OWNER" ] && chown "$OWNER" "$DIR"
+		fi
+		DIR="${DIR}/"
+	done
+}
+
+# Install a file or directory
+# $1 - Source file/directory
+# $2 - Destination directory/file
+# $3 - Mode of destination file/directory
+# $4 - Owner of destination file/directory
+installsome() {
+	local SRC DEST MODE OWNDER DESTDIR SRCNAME
+	SRC="$1"
+	DEST="$2"
+	MODE="$3"
+	OWNDER="$4"
+
+	DESTDIR="${DEST%/*}"
+	if [ ! -d "$DESTDIR" ]; then
+		mkdirhier "$DESTDIR" 0755
+	fi
+	SRCNAME="${SRC##*/}"
+	cp -pr -- "$SRC" "$DEST"
+	if [ -n "$MODE" ]; then
+		if [ -d "$DEST" ]; then
+			chmod -R "$MODE" "${DEST}${SRCNAME}"
+		else
+			chmod "$MODE" "$DEST"
+		fi
+	fi
+	if [ -n "$OWNER" ]; then
+		if [ -d "$DEST" ]; then
+			chown -R "$OWNER" "${DEST}${SRCNAME}"
+		else
+			chown "$OWNER" "$DEST"
+		fi
+	fi
+}
+
+# Install the program
+build_install() {
+	eval "${TARGET}_install"
+}
+
+# Generic installation routine
+generic_install() {
+	local SRC DEST MODE OWNER
+	
+	eval "${TARGET}_pre_install"
+
+	local LIB LIBS LIBDIR
+	echo "Installing system-dependent data..." >&2
+	eval LIBS="\${${BUILD_PROJECT}_INSTALL_LIBS}"
+	eval LIBDIR="\${${BUILD_PROJECT}_INSTALL_LIBDIR%/}/"
+	mkdirhier "$LIBDIR" 0755
+	for LIB in $LIBS; do
+		eval SRC="\${${BUILD_PROJECT}_INSTALL_LIB_${LIB}_SRC%/}"
+		eval DEST="\$LIBDIR\${${BUILD_PROJECT}_INSTALL_LIB_${LIB}_DEST}"
+		eval MODE="\${${BUILD_PROJECT}_INSTALL_LIB_${LIB}_MODE}"
+		eval OWNER="\${${BUILD_PROJECT}_INSTALL_LIB_${LIB}_OWNER}"
+		installsome "$SRC" "$DEST" "$MODE" "$OWNER"
+	done
+
+	local SHARE SHARED SHAREDIR
+	echo "Installing system-independent data..." >&2
+	eval SHARED="\${${BUILD_PROJECT}_INSTALL_SHARED}"
+	eval SHAREDIR="\${${BUILD_PROJECT}_INSTALL_SHAREDIR%/}/"
+	mkdirhier "$SHAREDIR" 0755
+	for SHARE in $SHARED; do
+		eval SRC="\${${BUILD_PROJECT}_INSTALL_SHARED_${SHARE}_SRC%/}"
+		eval DEST="\$SHAREDIR\${${BUILD_PROJECT}_INSTALL_SHARED_${SHARE}_DEST}"
+		eval MODE="\${${BUILD_PROJECT}_INSTALL_SHARED_${SHARE}_MODE}"
+		eval OWNER="\${${BUILD_PROJECT}_INSTALL_SHARED_${SHARE}_OWNER}"
+		installsome "$SRC" "$DEST" "$MODE" "$OWNER"
+	done
+
+	local BINS BINDIR
+	echo "Installing binaries..." >&2
+	eval BINS="\${${BUILD_PROJECT}_INSTALL_BINS}"
+	eval BINDIR="\${${BUILD_PROJECT}_INSTALL_BINDIR%/}/"
+	mkdirhier "$BINDIR" 0755
+	for BIN in $BINS; do
+		eval SRC="\${${BUILD_PROJECT}_INSTALL_BIN_${BIN}_SRC%/}"
+		eval DEST="\$BINDIR\${${BUILD_PROJECT}_INSTALL_BIN_${BIN}_DEST}"
+		eval MODE="\${${BUILD_PROJECT}_INSTALL_BIN_${BIN}_MODE}"
+		eval OWNER="\${${BUILD_PROJECT}_INSTALL_BIN_${BIN}_OWNER}"
+		installsome "$SRC" "$DEST" "$MODE" "$OWNER"
+	done
+
+	eval "${TARGET}_post_install"
+}
+
+

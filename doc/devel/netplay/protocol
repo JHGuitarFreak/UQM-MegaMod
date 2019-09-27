@@ -1,0 +1,336 @@
+There are several types of negotiations used to synchronised the parties
+of a network connection.
+
+- Continue when we know the other is ready ("Ready")
+  This is used when both parties need to sending information to the
+  other side, but what each party is doing does not interfere with
+  what the other party is doing.
+- Agree on changes ("Update")
+  This is used when the parties have changes to make to common data.
+- Mutual agreement on an action ("Confirm")
+  This is used to end a state where both parties are modifying
+  common data. Both parties have to agree with the data for either
+  party to continue.
+- Reset a connection. This is used to abort a game in progress and return
+  to the fleet setup menu.
+
+============================================================================
+
+"Ready" negotiation.
+
+Sometimes the parties need to notify eachother of their local state,
+and then go on when both are ready. For this purpose both parties signify
+that they are ready by sending the READY message. When a party is ready
+and has received notice that the other party is ready, it can go on.
+
+States:
+0. notReady                     - send nor received READY
+   !localReady && !remoteReady
+1. localReady                   - sent READY, not yet received READY
+   localReady && !remoteReady
+2. remoteReady                  - received READY, not yet sent READY
+   !localReady && remoteReady
+3. ready                        - sent and received READY
+
+Messages:
+- READY - "I have nothing further to send at this point"
+
+
+From state 0 (notReady):
+local decision  -> Send READY,                    goto 1
+received READY  ->                                goto 2
+
+From state 1 (localReady):
+received READY  ->                                goto 3
+
+From state 2 (remoteReady):
+local decision  -> Send READY                     goto 3
+
+
+============================================================================
+
+"Update" negotiation.
+
+During configuration, both sides may change the same properties. So that the
+two sides don't have to take turns, the changes are made locally, and then
+the changes are synchronised.
+
+To this end, each side has a state containing two copies of each property:
+   1. The value of the property as it is locally
+   2. The last value which it sent to the other side (until it is no longer
+      relevant for the protocol)
+
+The basic idea of the Update protocol is:
+- both sides each send and receive one packet before being allowed to
+  send another one (we'll call this a "turn" here)
+- when a packet has been sent and one has been received in a turn,
+  and the sent and received values are the same, then that value is the
+  agreed upon value. If the sent and received values differ, then a
+  tie breaker determines which one prevails.
+- when the first local change of a turn is made, the change is sent to
+  the other side
+- when a local change has been made while a packet has already been
+  sent this turn, the change will be made locally, but communicating the
+  change will be postponed
+- when a turn ends while a change has been postponed, and this change isn't
+  negated by a remote change, then the change will be sent
+- when a remote change arrives, and a packet has not been sent this turn,
+  the local state is updated with the change, and the same packet is sent
+  to the other side to confirm the change
+
+The tie breaker is required to always let one side win, and the other
+side lose, given the same property.
+Any function satisfying this requirement is usable, but the currently
+used one will return true for the side which 'owns' the property, and
+false on the other side.
+Another tie breaker could be one which always lets the same side win,
+regardless of the property.
+
+
+The protocol:
+
+From state 1, {own=x0, sent=--}:
+1a  Local change x1      -> send(x1); state=2:{own=x1,sent=x1}
+1b  Received UPDATE(x1)  -> send(x1); state=1:{own=x1,sent=--}
+
+From state 2, {own=x0, sent=x0}:
+2a  Local change x1      ->           state=3:{own=x1,sent=x0}
+2b  Received UPDATE(x0)  ->           state=1:{own=x0,sent=--}
+2c+ Received UPDATE(x1)  ->           state=1:{own=x0,sent=--} if winTieBreak
+2c- Received UPDATE(x1)  ->           state=1:{own=x1,sent=--} if !winTieBreak
+
+From state 3, {own=x1, sent=x0}:
+3a  Local change x0      ->           state=2:{own=x0,sent=x0}
+3b  Local change !x0     ->           state=3:{own=xN,sent=x0}
+3c  Received UPDATE(x0)  -> send(x1); state=2:{own=x1,sent=x1}
+3d+ Received UPDATE(!x0) -> send(x1); state=2:{own=x1,sent=x1} if winTieBreak
+3d- Received UPDATE(!x0) ->           state=1:{own=x?,sent=--} if !winTieBreak
+
+
+Explanation:
+We keep track of the local value ('own'), and whether or not we sent a packet
+in this turn ('sent' != '--'), and if we did, the last packet which we sent
+('sent'). When we proceed to the next turn, 'sent' is set to '--'.
+
+State 1: We have not yet sent a packet this turn (which implies that we
+haven't made a local change this turn).
+1a.  A local change is made. We update our local value, and send this to
+     the remote side.
+1b.  A remote change arrives. We don't have any local change ourselves,
+     so we accept the remote change, and sent it back to confirm.
+     With both a packet sent and one received, the turn ends, and 'sent'
+     is set back to '--'.
+
+State 2: We have sent a packet this turn (after making a local change), and
+have not changed our local value since (or we have changed it and changed
+it back).
+2a. A local change is made. We update our local value, but we have already
+    sent a packet this turn, so we can't report it until the next turn.
+2b. A remote change arrives, and it is equal to both our local value and
+    the value which we sent to the other side this turn.
+    This remote notification may be a confirmation of our update, or a
+    coincidental identical remote change.
+    Either way, the packet acts as a confirmation, and we do not need
+    to change anything. With both a packet sent and received, the turn ends
+    and so 'sent' is set back to '--'.
+2c. A remote change arrives, and it is not equal to our local value (which
+    is the same as the value which we sent).
+    The tie breaker decides which value prevails. The same value will
+    prevail on the remote side, so there is no need to send any confirmation
+    packets. The turn ends, and 'sent' is set back to '--'.
+
+State 3: We have sent a packet this turn, and have made a local change since.
+3a. A local change is made back to the value which we sent. No action
+    is required.
+3b. A local change is made. We update our local value, but we have already
+    sent a packet this turn, so we can't report it until the next turn.
+3c. A remote change arrives, and it is equal to the value which we sent
+    (which isn't equal to the current local value).
+    The sent/received value is the accepted value and the turn ends.
+    But we have changed our value since already, so as the next turn
+    starts, we immediately send an update.
+3d. A remote change arrives, and it is not equal to the value which we sent
+    this turn.
+    +  We win the tie break, so the value which we sent prevails.
+       But we have changed our value since already, so as the next turn
+       starts, we immediately send an update.
+    -  We lose the tie break, so the value which the remote value sent
+       prevails. We accept the value and the turn ends.
+       (An alternative would be to consider the local change(s) which
+       we made after our change was sent as made in the following turn,
+       in which case we would send our current local value in the next turn.
+       The advantage would be that 3d- would become equal to 3d+,
+       so these could be joined (with 3c too), which saves a few
+       if-statements in the code, but this requires another packet to be sent
+       and replied to in what currently is 3d-.)
+
+
+Proof outline that this works:
+- The states can never get out of sync:
+  After both a packet has been sent and received, both sides (temporarilly)
+  have accepted the same value
+- There can be no indefinite loop without ongoing local changes.
+  Once there are no more local changes:
+  from state 3 we always go to state 2 or 1,
+  from state 2 we always go to state 1
+  from state 1 we can only go back to state 1, and only when a packet
+  has been received.
+  So eventually, both sides are in states 1. With both sides in state 1,
+  no packets have been sent in the current turn, so no more packets are
+  there to be received.
+- Both sides can make changes, as long as the side which wins the tie breaks
+  stops making changes now and then:
+  Without making local changes, a side will go to state 1 eventually.
+  If a side makes a local change, and this is received by the other side
+  while it is in state 1, then that other side will accept the change.
+
+
+The Confirm negatiation is used to finish the Update negotiation.
+This works because local changes triggered by the reception of remote changes
+are treated as local modifications for the purpose of the Confirm negotiation.
+And this can be done because whenever the Confirm negotiation is in a state
+where remote changes may be expected, local modifications are still allowed
+(possily after sending a CANCEL packet).
+
+
+============================================================================
+
+"Confirm" negotiation.
+
+Some actions (like agreeing on a configuration) require confirmation
+from both parties. This section documents the handshaking protocol involved.
+
+Each player must manually confirm the action.
+After a player has confirmed an action, he may cancel it as long as
+he hasn't received a confirmation from the other party.
+
+All messages arrive in the order sent.
+
+
+States:
+0. waiting
+   !handshake.canceling && !handshake.localOk && !handshake.remoteOk
+1. localOk (cancelable)          - sent CONFIRM1 (since last CANCEL)
+   !handshake.canceling && handshake.localOk && !handshake.remoteOk
+2. remoteOk (cancelable)         - received CONFIRM1
+   !handshake.canceling && !handshake.localOk && handshake.remoteOk
+3. committed                     - sent CONFIRM1 (since last CANCEL,
+                                   received CONFIRM1,
+                                   sent CONFIRM2 (since last CANCEL)
+   !handshake.canceling && handshake.localOk && handshake.remoteOk
+4. cancelWaiting                 - sent CANCEL
+   handshake.canceling && !handshake.localOk && !handshake.remoteOk
+5. cancelLocalOk                 - sent CANCEL and ready to send CONFIRM1,
+                                   but received no CANCELACK
+   handshake.canceling && handshake.localOk && !handshake.remoteOk
+6. cancelRemoteOk                - sent CANCEL and received CONFIRM1,
+                                   but received no CANCELACK
+   handshake.canceling && !handshake.localOk && handshake.remoteOk
+7. cancelCommitted               - sent CANCEL and ready to send CONFIRM2,
+                                   received CONFIRM1,
+                                   but received no CANCELACK
+   handshake.canceling && handshake.localOk && handshake.remoteOk
+8. done                          - sent and received CONFIRM1 and CONFIRM2
+                                   (since last CANCEL)
+
+
+Handshake messages:
+- CONFIRM1  - "the current local configuration is OK for me"
+- CONFIRM2  - "acknowledging your CONFIRM1; my own configuration is unchanged
+              since I sent CONFIRM1 (after the last CANCEL)"
+- CANCEL    - "forget about my earlier CONFIRM1"
+- CANCELACK - "received your CANCEL"
+MESSAGE(x) indicates any other message.
+
+
+From state 0: (waiting)
+local confirmation         -> Send CONFIRM1,                  goto 1
+local changes              -> Send MESSAGE(changes)           (goto 0)
+received CONFIRM1          ->                                 goto 2
+received MESSAGE(changes)  -> Process(changes)                (goto 0)
+
+From state 1: (localOk)
+local cancel               -> Send CANCEL,                    goto 4
+received CONFIRM1          -> Send CONFIRM2,                  goto 3
+received CONFIRM2          -> Send CONFIRM2,                  goto 8
+received MESSAGE(changes)  -> Send CANCEL, Process(changes),  goto 4
+
+From state 2: (remoteOk)
+local confirmation         -> Send CONFIRM2,                  goto 3
+local changes              -> Send MESSAGE(changes),          (goto 2)
+received CANCEL            -> Send CANCELACK,                 goto 0
+
+From state 3: (committed)
+received CONFIRM2          ->                                 goto 8
+received CANCEL            -> Send CANCELACK,                 goto 1
+
+From state 4: (cancelWaiting)
+local changes              -> Send MESSAGE(changes),          (goto 4)
+local confirmation         ->                                 goto 5
+received CONFIRM1          ->                                 goto 6
+received CONFIRM2          ->                                 goto 6
+received CANCELACK         ->                                 goto 0
+received MESSAGE(changes)  -> Process(changes),               (goto 4)
+
+From state 5: (cancelLocalOk)
+local cancel               ->                                 goto 4
+received CONFIRM1          ->                                 goto 7
+received CONFIRM2          ->                                 goto 7
+received CANCELACK         -> SEND CONFIRM1                   goto 1
+received MESSAGE(changes)  -> Process(changes),               goto 4
+
+From state 6: (cancelRemoteOk)
+local confirmation         ->                                 goto 7
+local changes              -> Send MESSAGE(changes),          (goto 6)
+received CONFIRM2          ->                                 (goto 6)
+received CANCEL            -> Send CANCELACK,                 goto 4
+received CANCELACK         ->                                 goto 2
+
+From state 7: (cancelCommitted)
+received CONFIRM2          ->                                 (goto 7)
+received CANCEL            -> Send CANCELACK,                 goto 5
+received CANCELACK         -> Send CONFIRM2,                  goto 3
+
+On receiving local confirmation, sending CONFIRM2 is a shortcut for
+sending CONFIRM1 followed by CONFIRM2. Receiving CONFIRM2 from localOk
+and cancelLocalOk is accepted just for this shortcut.
+
+
+To prove there are no race conditions, I examine all the combinations
+of states and messages that are underway. Whenever the order of actions
+isn't fixed, the result should be the same (eg. recv(CONFIRM1) followed
+by send(CANCEL) should leave the party in the same state as when
+the send(CANCEL) preceded the recv(CONFIRM1)).
+I also check whether it is possible for packets to arrive that
+aren't expected.
+
+
+============================================================================
+
+"Reset" negotiation.
+
+See src/sc2code/netplay/proto/reset.c
+
+
+============================================================================
+
+Battle ending negotiation.
+
+This negotation consists of:
+1. a 'Ready' negotiation, before stopping sending frame data
+2. communication of each sides current battle frame count
+3. the side running behind processes more frames to catch up
+
+
+States:
+
+0. Playing
+1. localReady
+2. remoteReady
+3. countSent
+4. catchingUp
+5. awaitingCatchup
+
+// Unfinished... partially described in readyForBattleEndPlayer()
+
+

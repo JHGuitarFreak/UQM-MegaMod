@@ -1,0 +1,21 @@
+As the game currently unfortunately works with polling, this is how
+to integrate network handling with the game.
+
+In the function called periodically by DoInput(), there should be a call
+to netInput() somewhere at the beginning, and a call to flushPacketQueues()
+somewhere at the end.
+
+netInput() checks all connections for incoming packets, and calls
+the appropriate packet handlers.
+
+flushPacketQueues() sends all pending packets on their way, for all
+connections.
+
+In between, you can call functions that enqueue packets.
+You would also check the network state here to determine whether you need to
+act on some packet that has been delivered to the local party.
+
+
+
+
+

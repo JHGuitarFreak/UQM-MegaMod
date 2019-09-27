@@ -1,0 +1,15 @@
+- flag for an option to set if changing it will trigger a new 'make depend'
+- same for 'make clean'
+- Specify files to be removed on clean.
+- static compilationa (?)
+- Let the dependency index depend on the Makeinfo files
+  (What about the internal dependencies among Makeinfo)
+
+some docs
+- uqm_LDFLAGS etc are only relevant in the top dir
+- some variables are 'inherited' from parent dir
+  update: this is not true anymore. The behavior was not needed and
+  would just complicate things.
+- files are sourced (.)
+
+

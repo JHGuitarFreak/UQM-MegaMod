@@ -1,0 +1,13 @@
+The UQM source now has a concept of input context for melee control.
+
+A base InputContext structure is defined in battlecontrols.h. It defines
+the common fields of all the specific structures for each control method.
+
+Among these fields is a BattleInputHandlers structure, which defines the
+functions which handle various input actions for melee, such as frame input,
+selecting the next ship, and querying readiness at the end of a battle.
+
+Structures ComputerInputContext, HumanInputContext, and NetworkInputContext
+are "derived" from InputContext and can contain additional fields for the
+specific control method.
+

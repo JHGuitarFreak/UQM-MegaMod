@@ -1,0 +1,2 @@
+uqm_CFILES="stdio.c"
+uqm_HFILES="stdio.h"

@@ -1,0 +1,56 @@
+This file describes the binary file format for SuperMelee teams.
+The saving and loading is handled in sc2code/loadmele.c.
+
+This file format will be replaced by a human-readable format in the future.
+
+A SuperMelee team consists of the following data:
+           struct TEAM_IMAGE {
+ 0 - 13        uint8_t ShipList[MELEE_FLEET_SIZE];
+                       /* Originally 6*2 ships, now 7*2 */
+14 - 68        char TeamName[MAX_TEAM_CHARS + 1 + 24];
+                       /* \0-terminated */
+           };
+
+The file melee.cfg contains:
+ 0 -   0   Player Control for the bottom player
+           One of:
+              1 - Human controlled
+              6 - Computer controlled
+              8 - Network controlled (added later)
+           or'ed with one of:
+             16 - Standard computer control rating (was 8 originally)
+             32 - Good computer control rating (was 16 originally)
+             64 - Awesome computer control rating (was 32 originally)
+ 1 -  69   TEAM_IMAGE for the top player, as described above
+70 -  70   Player Control for the top player, as byte 0
+71 - 139   TEAM_IMAGE for the bottom player, as described above
+Note the mixed up order for top and bottom player.
+
+The entries in ShipList are:
+  0 - Androsynth Guardian
+  1 - Arilou Skiff
+  2 - Chenjesu Broodhome
+  3 - Chmmr Avatar
+  4 - Druuge Mauler
+  5 - Human Earthling
+  6 - Ilwrath Avenger
+  7 - Kohr-Ah Marauder
+  8 - Melnorme Trader
+  9 - Mmrnmhrm X-Form
+ 10 - Mycon Podship
+ 11 - Orz Nemesis
+ 12 - Pkunk Fury
+ 13 - Shofixti Scout
+ 14 - Slylandro Probe
+ 15 - Spathi Eluder
+ 16 - Supox Blade
+ 17 - Syreen Penetrator
+ 18 - Thraddash Torch
+ 19 - Umgah Drone
+ 20 - Ur-Quan Dreadnought
+ 21 - Utwig Jugger
+ 22 - VUX Intruder
+ 23 - Yehat Terminator
+ 24 - Zoq Fot Pik Stinger
+255 - Unused slot
+

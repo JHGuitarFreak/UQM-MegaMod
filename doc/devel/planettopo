@@ -1,0 +1,92 @@
+Planet Topography Code:   sc2code/planets/gentopo.c
+----------------------------------------------------
+
+This text covers only topography generation code. It does NOT cover the
+craters (blemishes) nor the smoothing. Variables names are the same in
+"sc2code/planets/gentopo.c".
+
+A brief overview:
+
+The algorithm works by applying several elevation/lowering steps on the
+same terrain. Each step works by randomly generating two non-intersecting
+lines, LineDDA0 and LineDDA1. That delimits two regions. Each region is
+then displaced by a certain height delta (depth_delta). That step is
+repeated several times.
+
+There's a pseudocode below, with detailed information about it in the next
+section.
+
+The DeltaTopography() function works as follows:
+
+  Function parameters:
+
+      COUNT  num_iterations  // Number of height displacements on the
+                             // planet's surface
+      PSBYTE DepthArray      // Target surface, receives topography data
+      PRECT  pRect           // Surface dimensions
+      SIZE   depth_delta     // The amount of height units to raise/lower
+                             // on each displacement
+
+  for i from 1 to num_iterations
+      randomly either negates depth_delta's or not, influencing
+              the displacement direction
+      randomly pick two line segments, LineDDA0 and LineDDA1
+      increase the height of the region between LineDDA0 and
+              LineDDA1 by depth_delta
+      decrease the height of the region between LineDDA1 and
+              LineDDA0 by depth_delta (by wrapping around the surface)
+  end for
+
+Detailed information about the algorithm's steps:
+
+First, in half the steps (randomly) depth_delta is negated.
+That influences on the direction of the displacements.
+Note that in each step exactly two height displacements occur:
+a lifting and a lowering.
+
+Next, it sets both w1 and w2 to different random WORD values. Those are
+used in the line segment generation process.
+
+LineDDA0 starts on a random position on the top of the surface, and ends
+at another random position on the bottom of the surface.
+LineDDA0 never wraps around the surface, since their X coordinates are
+generated in the range 0..width-1:
+
+  LineDDA0.x_top = LOBYTE (w1) % width;
+  LineDDA0.x_bot = HIBYTE (w1) % width;
+
+LineDDA1 is generated much like the way LineDDA0 is, the difference being
+LineDDA1's x coordinates are displaced by LineDDA0 ones:
+
+  LineDDA1.x_top = (LOBYTE (w2) % (width - 1)) + LineDDA0.x_top + 1;
+  LineDDA1.x_bot = (HIBYTE (w2) % (width - 1)) + LineDDA0.x_bot + 1;
+
+Y coordinates are 0 for top, and 'height' for bottom in both line
+segments.
+
+This delimits basically two regions. One delimited by LineDDA0 on the left
+side, and LineDDA1 on the right right, which we call "0->1". The other is
+delimited by LineDDA1 on the left, and LineDDA0 on the right, which we call
+"1->0".
+Note that, since we're talking about a planet, the rightmost side of the
+surface if "connected" to the leftmost side. At least one of those regions
+"wrap around" the surface.
+
+The final step in the iteration is to increase the height of the region
+0->1 by depth_delta, and decreasing 1->0 by the same value. Note that since
+delta_depth may be negative, raising part of the surface by delta_depth
+may result in the surface being lowered.
+
+This step is repeated num_iteration times.
+
+About the terrain generation algorithm: This method of displacing
+line-delimited subsets of a surface is commonly known as Fault Formation.
+
+The DDA acronym stands for "Digital Differential Analyzer". Hence the names
+LineDDA0 and LineDDA1.
+
+The first version of this document was written by:
+Daniel Ribeiro Maciel <daniel.maciel@gmail.com>
+on 2006-11-24
+
+

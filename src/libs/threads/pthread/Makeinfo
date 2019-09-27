@@ -1,0 +1,2 @@
+uqm_CFILES="posixthreads.c"
+uqm_HFILES="posixthreads.h"

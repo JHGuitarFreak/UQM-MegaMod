@@ -1,0 +1,7 @@
+uqm_SUBDIRS="generate"
+uqm_CFILES="calc.c cargo.c devices.c gentopo.c lander.c orbits.c
+		oval.c pl_stuff.c planets.c plangen.c pstarmap.c report.c
+		roster.c scan.c solarsys.c surface.c"
+uqm_HFILES="elemdata.h generate.h lander.h lifeform.h plandata.h planets.h
+		scan.h solarsys.h sundata.h"
+

@@ -1,0 +1,37 @@
+For *.ani, *.sml, *.med, *.big files, each line is in following format:
+
+filename transparent_color colormap_index hotspot_x hotspot_y
+
+Filename is string, all others are int.
+
+filename
+	relative to the directory that .ani file is in.
+
+transparent_color
+	 -2 : use PNG tRNS chunk transparency specification
+	 -1 : transparent color is not used; not transparency in the image
+	      (this behavior is enforced, even when tRNS is present)
+	  0 : for paletted images, transparent color index 0;
+	      special for truecolor images, makes RGB (0,0,0) transparent
+	N>0 : for paletted images, transparent color index N;
+	      meaningless for truecolor images
+
+colormap_index
+	-1 : colormaps are not used for the image
+	     for paletted images, the palette from the image itself
+	     will be used
+	 N : for paletted images, the palette from the colormap N will
+	     be used (so some .ct file somewhere defines the palette);
+	     meaningless for truecolor images
+
+hotspot_x, hotspot_y
+	can both be positive or negative (or 0)
+	the position of the image on the screen will be
+		(draw_x - hotspot_x, draw_y - hotspot_y)
+	so a positive hotspot *usually* defines the logical center of
+	an image, and a negative hotspot *usually* defines the position
+	of an image within some larger compound image; there are of course
+	exceptions to this general rule
+
+This information is parsed in libs/graphics/sdl/3do_getbody.c
+
