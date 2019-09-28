@@ -349,7 +349,6 @@ extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 
 extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
-extern void playSpaceMusic(BOOLEAN ComingFromLoad);
 
 #if defined(__cplusplus)
 }
