@@ -1981,7 +1981,7 @@ spaceMusicSwitch(BYTE SpeciesID) {
 	}
 }
 
-void
+static void
 playSpaceMusic() {
 
 	if (!SpaceMusic) {
