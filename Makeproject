@@ -33,7 +33,7 @@ uqm_INSTALL_LIB_executable_MODE="0755"
 # Stuff to install under the directory for system-independant data, as
 # specified during config.
 uqm_INSTALL_SHARED="content"
-uqm_INSTALL_SHARED_content_SRC=bin/content
+uqm_INSTALL_SHARED_content_SRC=content
 uqm_INSTALL_SHARED_content_DEST=uqm-megamod/
 uqm_INSTALL_SHARED_content_MODE="go+rX"
 
