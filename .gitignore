@@ -13,8 +13,10 @@
 
 # Build results
 [Dd]ebug/
+[Dd]ebug2019/
 [Dd]ebugPublic/
 [Rr]elease/
+[Rr]elease2019/
 [Rr]eleases/
 Debug[ _]NoAccel/
 Release[ _]NoAccel/
