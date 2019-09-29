@@ -85,7 +85,6 @@ FONT MeleeFont;
 BOOLEAN DeathBySurrender = FALSE;
 BOOLEAN DeathByMelee = FALSE;
 BOOLEAN DeathBySuicide = FALSE;
-BOOLEAN SpaceMusicEXPresent;
 BOOLEAN SpaceMusicOK;
 
 uio_Repository *repository;
@@ -188,9 +187,12 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	}
 
 	if (optSpaceMusic) {
-		if (loadAddon("SpaceMusicEX"))
-			SpaceMusicEXPresent = TRUE;
-		SpaceMusicOK = SpaceMusicEXPresent;
+		BOOLEAN SpaceMusicPresent = FALSE;
+
+		if (loadAddon("SpaceMusic"))
+			SpaceMusicPresent = TRUE;
+
+		SpaceMusicOK = SpaceMusicPresent;
 	}
 
 	if (optWhichIntro == OPT_3DO) {

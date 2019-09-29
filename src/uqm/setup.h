@@ -75,7 +75,6 @@ extern BYTE Rando;
 extern BOOLEAN DeathBySurrender;
 extern BOOLEAN DeathByMelee;
 extern BOOLEAN DeathBySuicide;
-extern BOOLEAN SpaceMusicEXPresent;
 extern BOOLEAN SpaceMusicOK;
 
 #define DEATH_MARCH 0
