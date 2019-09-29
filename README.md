@@ -26,7 +26,7 @@ With Visual Studio 2015-2019 things get a bit more involved and it all depends o
 
 You can go one of two ways with modern VS:
 1. Install Visual Studio 2008, 2010, and your modern VS of choice (2015-2019). Load the solution file into your modern VS and target the toolset for VS2008 then compile away.
-2. Use just your modern Visual Studio and change the additional include and lib directories to point to the VS2015 equivalent folders in the dev-libs directory. The only downside to this is that it breaks Net-Melee functionality.
+2. Use just your modern Visual Studio and change the build configuration to either Debug2019 or Release2019. The only downside to this is that it breaks Net-Melee functionality.
 
 For other platforms you'll have to gather all of the necessary dependencies and hope for the best.
 
