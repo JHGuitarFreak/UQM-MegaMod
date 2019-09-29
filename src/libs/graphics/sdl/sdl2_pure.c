@@ -306,7 +306,15 @@ TFB_SDL2_UpdateTexture (SDL_Texture *dest, SDL_Surface *src, SDL_Rect *rect)
 static void
 TFB_SDL2_ScanLines (void)
 {
-	/* TODO */
+	int y;
+	SDL_SetRenderDrawColor (renderer, 0, 0, 0, 64);
+	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
+	SDL_RenderSetLogicalSize (renderer, ScreenWidth * 2, ScreenHeight * 2);
+	for (y = 0; y < ScreenHeight * 2; y += 2)
+	{
+		SDL_RenderDrawLine (renderer, 0, y, ScreenWidth * 2 - 1, y);
+	}
+	SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
 }
 
 static void
