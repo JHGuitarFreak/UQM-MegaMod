@@ -169,6 +169,17 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		}
 	}
 
+	if (GfxFlags & TFB_GFXFLAGS_SCALE_ANY)
+	{
+		/* Linear scaling */
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+	}
+	else
+	{
+		/* Nearest-neighbor scaling */
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	}
+
 	if (GfxFlags & TFB_GFXFLAGS_SCALE_SOFT_ONLY)
 	{
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
@@ -221,8 +232,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	/* We succeeded, so alter the screen size to our new sizes */
 	ScreenWidthActual = width;
 	ScreenHeightActual = height;
-	/* TODO: Set bilinear vs nearest-neighbor filtering based on
-	 *       GfxFlags & TFB_GFXFLAGS_SCALE_ANY */
+
 	return 0;
 }
 
