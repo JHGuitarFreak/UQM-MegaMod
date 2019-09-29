@@ -69,6 +69,7 @@ void TFB_UninitGraphics (void);
 void TFB_ProcessEvents (void);
 bool TFB_SetGamma (float gamma);
 void TFB_UploadTransitionScreen (void);
+int TFB_SupportsHardwareScaling (void);
 // This function should not be called directly
 void TFB_SwapBuffers (int force_full_redraw);
 

@@ -218,6 +218,9 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		graphics_backend = &sdl2_unscaled_backend;
 	}
 
+	/* We succeeded, so alter the screen size to our new sizes */
+	ScreenWidthActual = width;
+	ScreenHeightActual = height;
 	/* TODO: Set bilinear vs nearest-neighbor filtering based on
 	 *       GfxFlags & TFB_GFXFLAGS_SCALE_ANY */
 	return 0;

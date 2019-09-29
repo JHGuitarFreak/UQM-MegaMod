@@ -209,4 +209,14 @@ TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncol
 	return SDL_SetColors (surface, colors, firstcolor, ncolors);
 }
 
+int
+TFB_SupportsHardwareScaling (void)
+{
+#ifdef HAVE_OPENGL
+	return 1;
+#else
+	return 0;
+#endif
+}
+
 #endif

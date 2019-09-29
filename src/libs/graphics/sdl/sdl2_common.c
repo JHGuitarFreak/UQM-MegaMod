@@ -203,4 +203,9 @@ TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncol
 	return 0;
 }
 
+int
+TFB_SupportsHardwareScaling (void)
+{
+	return 1;
+}
 #endif

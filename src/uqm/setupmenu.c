@@ -74,12 +74,6 @@ static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#ifdef HAVE_OPENGL
-#define RES_OPTS 2
-#else
-#define RES_OPTS 2
-#endif
-
 #define MENU_COUNT         11
 #define CHOICE_COUNT       56
 #define SLIDER_COUNT        4
@@ -293,6 +287,19 @@ static float maxGamma = 2.5f;
 static float minGammaX;
 static float maxGammaX;
 
+
+static int
+number_res_options (void)
+{
+	if (TFB_SupportsHardwareScaling ())
+	{
+		return 4;
+	}
+	else
+	{
+		return 2;
+	}
+}
 
 static int
 quit_main_menu (WIDGET *self, int event)
@@ -525,11 +532,11 @@ SetDefaults (void)
 	GetGlobalOptions (&opts);
 	/*if (opts.screenResolution == OPTVAL_CUSTOM)
 	{
-		choices[0].numopts = RES_OPTS + 1;
+		choices[0].numopts = number_res_options () + 1;
 	}
 	else
 	{*/
-		choices[0].numopts = RES_OPTS;
+		choices[0].numopts = number_res_options ();
 	//}
 	choices[0].selected = opts.screenResolution;
 	choices[1].selected = opts.driver;
@@ -1128,7 +1135,7 @@ init_widgets (void)
 	}
 
 	/* The first choice is resolution, and is handled specially */
-	choices[0].numopts = RES_OPTS;
+	choices[0].numopts = number_res_options ();
 
 	/* Choices 18-20 are also special, being the names of the key configurations */
 	for (i = 0; i < 6; i++)
