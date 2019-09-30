@@ -22,11 +22,7 @@ Mount the .dmg file and copy the app to your Applications folder.
 ## Building Yourself
 
 I've made the process super easy for Windows, as long as you have Visual Studio 2008. Just load up the solution file and compile away.
-With Visual Studio 2015-2019 things get a bit more involved and it all depends on how far you're willing to go to build on modern VS.
-
-You can go one of two ways with modern VS:
-1. Install Visual Studio 2008, 2010, and your modern VS of choice (2015-2019). Load the solution file into your modern VS and target the toolset for VS2008 then compile away.
-2. Use just your modern Visual Studio and change the build configuration to either Debug2019 or Release2019. The only downside to this is that it breaks Net-Melee functionality.
+With Visual Studio 2015-2019 make sure you select either the Release2019 or Debug2019 build configuration.
 
 For other platforms you'll have to gather all of the necessary dependencies and hope for the best.
 
