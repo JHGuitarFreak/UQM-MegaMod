@@ -1562,6 +1562,7 @@ DoShipyard (MENU_STATE *pMS)
 			r.extent.height += 1;
 			SetContextClipRect (&r);
 			DrawStamp (&s);
+			DrawBorder (9, FALSE);
 			SetContextClipRect (&old_r);
 			animatePowerLines (pMS);
 #endif // USE_3DO_HANGAR
