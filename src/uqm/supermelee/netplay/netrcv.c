@@ -146,19 +146,18 @@ dataReadyCallback(NetDescriptor *nd) {
 		}
 
 		if (numRead == -1) {
-			switch (errno) {
-				case EAGAIN:  // No more data for now.
-					return;
-				case EINTR:  // System call was interrupted. Retry.
-					continue;
-				default: {
-					int savedErrno = errno;
-					log_add(log_Error, "recv() failed: %s.\n",
-							strerror(errno));
-					NetConnection_doErrorCallback(conn, savedErrno);
-					NetDescriptor_close(nd);
-					return;
-				}
+			if (errno == EWOULDBLOCK || errno == EAGAIN)
+				return;  // No more data for now.
+			else if (errno == EINTR)
+				continue;  // System call was interrupted. Retry.
+			else
+			{
+				int savedErrno = errno;
+				log_add (log_Error, "recv() failed: %s.\n",
+					strerror (errno));
+				NetConnection_doErrorCallback (conn, savedErrno);
+				NetDescriptor_close (nd);
+				return;
 			}
 		}
 
