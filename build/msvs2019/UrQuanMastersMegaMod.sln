@@ -25,8 +25,8 @@ Global
 		{DF55CB3F-4271-B954-F8B8-A60BCAE9334D}.Release NoAccel|Win32.Build.0 = Release NoAccel|Win32
 		{DF55CB3F-4271-B954-F8B8-A60BCAE9334D}.Release|Win32.ActiveCfg = Release|Win32
 		{DF55CB3F-4271-B954-F8B8-A60BCAE9334D}.Release|Win32.Build.0 = Release|Win32
-		{DF55CB3F-4271-B954-F8B8-A60BCAE9334D}.Release2019|Win32.ActiveCfg = Debug NoAccel|Win32
-		{DF55CB3F-4271-B954-F8B8-A60BCAE9334D}.Release2019|Win32.Build.0 = Debug NoAccel|Win32
+		{DF55CB3F-4271-B954-F8B8-A60BCAE9334D}.Release2019|Win32.ActiveCfg = Release2019|Win32
+		{DF55CB3F-4271-B954-F8B8-A60BCAE9334D}.Release2019|Win32.Build.0 = Release2019|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
