@@ -451,20 +451,54 @@ ProcessInputEvent (const SDL_Event *Event)
 	if (Event->type == SDL_TEXTINPUT)
 	{
 		int newtail;
-		/* TODO: Decode UTF-8 input */
-		UniChar map_key = Event->text.text[0];
+		int i = 0;
 
-		// dont care about the non-printable, non-char
-		if (!map_key)
-			return;
-
-		newtail = (kbdtail + 1) & (KBDBUFSIZE - 1);
-		// ignore the char if the buffer is full
-		if (newtail != kbdhead)
+		while (Event->text.text[i])
 		{
-			kbdbuf[kbdtail] = map_key;
-			kbdtail = newtail;
-			lastchar = map_key;
+			UniChar map_key = Event->text.text[i++];
+
+			/* Decode any UTF-8 keys */
+			if (map_key >= 0xC0 && map_key < 0xE0)
+			{
+				/* 2-byte UTF-8 */
+				map_key = (map_key & 0x1f) << 6;
+				map_key |= Event->text.text[i++] & 0x3f;
+			}
+			else if (map_key >= 0xE0 && map_key < 0xF0)
+			{
+				/* 3-byte UTF-8 */
+				map_key = (map_key & 0x0f) << 6;
+				map_key |= Event->text.text[i++] & 0x3f;
+				map_key <<= 6;
+				map_key |= Event->text.text[i++] & 0x3f;
+			}
+			else if (map_key >= 0xF0)
+			{
+				/* Out of the BMP, won't fit in a UniChar */
+				/* Use the replacement character instead */
+				map_key = 0xFFFD;
+				while (Event->text.text[i] > 0x7F)
+				{
+					++i;
+				}
+			}
+
+			/* dont care about the non-printable, non-char */
+			if (!map_key)
+				return;
+
+			newtail = (kbdtail + 1) & (KBDBUFSIZE - 1);
+
+			/* ignore the char if the buffer is full */
+			if (newtail != kbdhead)
+			{
+				kbdbuf[kbdtail] = map_key;
+				kbdtail = newtail;
+				lastchar = map_key;
+			}
+
+			/* Loop back in case there are more chars in the
+			 * text input buffer */
 		}
 	}
 }
