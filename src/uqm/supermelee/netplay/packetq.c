@@ -104,8 +104,8 @@ queuePacket(NetConnection *conn, Packet *packet) {
 
 // If an error occurs during sending, we leave the unsent packets in
 // the queue, and let the caller decide what to do with them.
-// This function may return -1 with errno EAGAIN if we're waiting for
-// the other party to act first.
+// This function may return -1 with errno EAGAIN or EWOULDBLOCK
+// if we're waiting for the other party to act first.
 static int
 flushPacketQueueLinks(NetConnection *conn, PacketQueueLink **first) {
 	PacketQueueLink *link;
