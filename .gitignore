@@ -280,5 +280,7 @@ log.txt
 *.exe
 *.tlog
 *.exp
+config_unix.h
+config_win.h
 
 build/msvs2008/UrQuanMasters\.vcproj\.DESKTOP-TCJIFU9\.seros\.user
