@@ -21,8 +21,8 @@ Mount the .dmg file and copy the app to your Applications folder.
 
 ## Building Yourself
 
-I've made the process super easy for Windows, as long as you have Visual Studio 2008. Just load up the solution file and compile away.
-With Visual Studio 2015-2019 make sure you select either the Release2019 or Debug2019 build configuration.
+I've made the process super easy for Windows, as long as you have Visual Studio 2008 or Visual Studios 2015-2019. Just load up the solution file and compile away.
+For Visual Studio 2008 the solution file is under `build/msvs2008` for Visual Studios 2015-2019 the solution file is under `build/msvs2019`
 
 For other platforms you'll have to gather all of the necessary dependencies and hope for the best.
 
