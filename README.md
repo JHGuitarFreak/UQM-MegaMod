@@ -21,10 +21,14 @@ Mount the .dmg file and copy the app to your Applications folder.
 
 ## Building Yourself
 
+# Windows
 I've made the process super easy for Windows, as long as you have Visual Studio 2008 or Visual Studios 2015-2019. Just load up the solution file and compile away.
 For Visual Studio 2008 the solution file is under `build/msvs2008` for Visual Studios 2015-2019 the solution file is under `build/msvs2019`
 
-For other platforms you'll have to gather all of the necessary dependencies and hope for the best.
+WARNING: MinGW compiling is broken currently in both the MegaMod and base UQM.
+
+# Other Platforms
+You'll have to gather all of the necessary dependencies and hope for the best.
 
 ## Contributors
 
