@@ -93,6 +93,43 @@ static const audio_Driver noSound_Driver =
 	noSound_BufferData
 };
 
+/* Adapted from SDL
+ * This will generate "negative subscript or subscript is too large"
+ * error during compile, if the size of a type is wrong
+ */
+#define UQM_COMPILE_TIME_ASSERT(name, x) \
+	typedef int UQM_dummy_##name [(x) * 2 - 1]
+
+UQM_COMPILE_TIME_ASSERT (mixer_Object_fits_in_audio_Object,
+	sizeof (mixer_Object) <= sizeof (audio_Object));
+
+#undef UQM_COMPILE_TIME_ASSERT
+
+// Converts an array of n audio_Objects to an array of mixer_Objects, in place.
+static void
+noSound_ConvertObjectArrayToMixerObjects (uint32 n, audio_Object *arr)
+{
+	if (sizeof (audio_Object) == sizeof (mixer_Object))
+		return;
+	uint32 i;
+	for (i = 0; i < n; i++)
+	{
+		((mixer_Object *) arr)[i] = arr[i];
+	}
+
+}
+// Converts an array of n mixer_Objects to an array of audio_Objects, in place.
+static void
+noSound_ConvertObjectArrayFromMixerObjects (uint32 n, audio_Object *arr)
+{
+	if (sizeof (audio_Object) == sizeof (mixer_Object))
+		return;
+	uint32 i = n;
+	while (i--)
+	{
+		arr[i] = ((mixer_Object *) arr)[i];
+	}
+}
 
 /*
  * Initialization
@@ -257,12 +294,15 @@ void
 noSound_GenSources (uint32 n, audio_Object *psrcobj)
 {
 	mixer_GenSources (n, (mixer_Object *) psrcobj);
+	noSound_ConvertObjectArrayFromMixerObjects (n, psrcobj);
 }
 
 void
 noSound_DeleteSources (uint32 n, audio_Object *psrcobj)
 {
+	noSound_ConvertObjectArrayToMixerObjects (n, psrcobj);
 	mixer_DeleteSources (n, (mixer_Object *) psrcobj);
+	noSound_ConvertObjectArrayFromMixerObjects (n, psrcobj);
 }
 
 bool
@@ -298,8 +338,10 @@ void
 noSound_GetSourcei (audio_Object srcobj, audio_SourceProp pname,
 		audio_IntVal *value)
 {
+	mixer_IntVal temp = *value;
 	mixer_GetSourcei ((mixer_Object) srcobj, (mixer_SourceProp) pname,
-			(mixer_IntVal *) value);
+			&temp);
+	*value = temp;
 	if (pname == MIX_SOURCE_STATE)
 	{
 		switch (*value)
@@ -359,16 +401,20 @@ void
 noSound_SourceQueueBuffers (audio_Object srcobj, uint32 n,
 		audio_Object* pbufobj)
 {
+	noSound_ConvertObjectArrayToMixerObjects (n, pbufobj);
 	mixer_SourceQueueBuffers ((mixer_Object) srcobj, n,
 			(mixer_Object *) pbufobj);
+	noSound_ConvertObjectArrayFromMixerObjects (n, pbufobj);
 }
 
 void
 noSound_SourceUnqueueBuffers (audio_Object srcobj, uint32 n,
 		audio_Object* pbufobj)
 {
+	noSound_ConvertObjectArrayToMixerObjects (n, pbufobj);
 	mixer_SourceUnqueueBuffers ((mixer_Object) srcobj, n,
 			(mixer_Object *) pbufobj);
+	noSound_ConvertObjectArrayFromMixerObjects (n, pbufobj);
 }
 
 
@@ -380,12 +426,15 @@ void
 noSound_GenBuffers (uint32 n, audio_Object *pbufobj)
 {
 	mixer_GenBuffers (n, (mixer_Object *) pbufobj);
+	noSound_ConvertObjectArrayFromMixerObjects (n, pbufobj);
 }
 
 void
 noSound_DeleteBuffers (uint32 n, audio_Object *pbufobj)
 {
+	noSound_ConvertObjectArrayToMixerObjects (n, pbufobj);
 	mixer_DeleteBuffers (n, (mixer_Object *) pbufobj);
+	noSound_ConvertObjectArrayFromMixerObjects (n, pbufobj);
 }
 
 bool
@@ -398,8 +447,10 @@ void
 noSound_GetBufferi (audio_Object bufobj, audio_BufferProp pname,
 		audio_IntVal *value)
 {
+	mixer_IntVal temp = *value;
 	mixer_GetBufferi ((mixer_Object) bufobj, (mixer_BufferProp) pname,
-			(mixer_IntVal *) value);
+			&temp);
+	*value = temp;
 }
 
 void

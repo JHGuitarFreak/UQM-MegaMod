@@ -99,6 +99,43 @@ static const audio_Driver openAL_Driver =
 	openAL_BufferData
 };
 
+/* Adapted from SDL
+ * This will generate "negative subscript or subscript is too large"
+ * error during compile, if the size of a type is wrong
+ */
+#define UQM_COMPILE_TIME_ASSERT(name, x) \
+	typedef int UQM_dummy_##name [(x) * 2 - 1]
+
+UQM_COMPILE_TIME_ASSERT (ALuint_fits_in_audio_Object,
+	sizeof (ALuint) <= sizeof (audio_Object));
+
+#undef UQM_COMPILE_TIME_ASSERT
+
+// Converts an array of n audio_Objects to an array of ALuints, in place.
+static void
+openAL_ConvertObjectArrayToALuints (uint32 n, audio_Object *arr)
+{
+	if (sizeof (audio_Object) == sizeof (ALuint))
+		return;
+	uint32 i;
+	for (i = 0; i < n; i++)
+	{
+		((ALuint *) arr)[i] = arr[i];
+	}
+
+}
+// Converts an array of n ALuints to an array of audio_Objects, in place.
+static void
+openAL_ConvertObjectArrayFromALuints (uint32 n, audio_Object *arr)
+{
+	if (sizeof (audio_Object) == sizeof (ALuint))
+		return;
+	uint32 i = n;
+	while (i--)
+	{
+		arr[i] = ((ALuint *) arr)[i];
+	}
+}
 
 /*
  * Initialization
@@ -170,7 +207,7 @@ openAL_Init (audio_Driver *driver, sint32 flags)
 	{
 		float zero[3] = {0.0f, 0.0f, 0.0f};
 		
-		alGenSources (1, &soundSource[i].handle);
+		audio_GenSources (1, &soundSource[i].handle);
 		alSourcei (soundSource[i].handle, AL_LOOPING, AL_FALSE);
 		alSourcefv (soundSource[i].handle, AL_POSITION, defaultPos);
 		alSourcefv (soundSource[i].handle, AL_VELOCITY, zero);
@@ -269,12 +306,15 @@ void
 openAL_GenSources (uint32 n, audio_Object *psrcobj)
 {
 	alGenSources ((ALsizei) n, (ALuint *) psrcobj);
+	openAL_ConvertObjectArrayFromALuints (n, psrcobj);
 }
 
 void
 openAL_DeleteSources (uint32 n, audio_Object *psrcobj)
 {
+	openAL_ConvertObjectArrayToALuints (n, psrcobj);
 	alDeleteSources ((ALsizei) n, (ALuint *) psrcobj);
+	openAL_ConvertObjectArrayFromALuints (n, psrcobj);
 }
 
 bool
@@ -309,7 +349,9 @@ void
 openAL_GetSourcei (audio_Object srcobj, audio_SourceProp pname,
 		audio_IntVal *value)
 {
-	alGetSourcei ((ALuint) srcobj, (ALenum) pname, (ALint *) value);
+	ALint temp = *value;
+	alGetSourcei ((ALuint) srcobj, (ALenum) pname, &temp);
+	*value = temp;
 	if (pname == AL_SOURCE_STATE)
 	{
 		switch (*value)
@@ -369,14 +411,18 @@ void
 openAL_SourceQueueBuffers (audio_Object srcobj, uint32 n,
 		audio_Object* pbufobj)
 {
+	openAL_ConvertObjectArrayToALuints (n, pbufobj);
 	alSourceQueueBuffers ((ALuint) srcobj, (ALsizei) n, (ALuint *) pbufobj);
+	openAL_ConvertObjectArrayFromALuints (n, pbufobj);
 }
 
 void
 openAL_SourceUnqueueBuffers (audio_Object srcobj, uint32 n,
 		audio_Object* pbufobj)
 {
+	openAL_ConvertObjectArrayToALuints (n, pbufobj);
 	alSourceUnqueueBuffers ((ALuint) srcobj, (ALsizei) n, (ALuint *) pbufobj);
+	openAL_ConvertObjectArrayFromALuints (n, pbufobj);
 }
 
 
@@ -388,12 +434,15 @@ void
 openAL_GenBuffers (uint32 n, audio_Object *pbufobj)
 {
 	alGenBuffers ((ALsizei) n, (ALuint *) pbufobj);
+	openAL_ConvertObjectArrayFromALuints (n, pbufobj);
 }
 
 void
 openAL_DeleteBuffers (uint32 n, audio_Object *pbufobj)
 {
+	openAL_ConvertObjectArrayToALuints (n, pbufobj);
 	alDeleteBuffers ((ALsizei) n, (ALuint *) pbufobj);
+	openAL_ConvertObjectArrayFromALuints (n, pbufobj);
 }
 
 bool
@@ -406,7 +455,9 @@ void
 openAL_GetBufferi (audio_Object bufobj, audio_BufferProp pname,
 		audio_IntVal *value)
 {
-	alGetBufferi ((ALuint) bufobj, (ALenum) pname, (ALint *) value);
+	ALint temp = *value;
+	alGetBufferi ((ALuint) bufobj, (ALenum) pname, &temp);
+	*value = temp;
 }
 
 void
