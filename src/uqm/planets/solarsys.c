@@ -2051,8 +2051,8 @@ EnterPlanetOrbit (void)
 			// and 640x480 modes. Do not draw it in 320x240 since there's no room!
 			if (IS_HD && !(GetNamedPlanetaryBody()) 
 				&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE 
-					|| pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
-					|| pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
+					&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
+					&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
 			{
 				moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
 				snprintf ((GLOBAL_SIS (PlanetName)) + strlen(GLOBAL_SIS (PlanetName)), 3, "-%c%c", 'A' + moon, '\0');
