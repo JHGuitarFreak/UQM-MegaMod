@@ -273,11 +273,11 @@ log.txt
 *.lnk
 *.lib
 *.dll
+*.exe
 !dev-lib/**
 /dev-lib/.*
 !doc/[^.]*
 .DS_Store
-*.exe
 *.tlog
 *.exp
 config_unix.h
