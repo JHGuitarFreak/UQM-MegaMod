@@ -40,7 +40,7 @@ Execute these commands:
 When executing the last command you'll come to a configuration screen where you can select a few developer-centric options.  
 Just hit `enter` and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything *should* build fine.
 
-# Other Platforms
+### Other Platforms
 You'll have to gather all of the necessary dependencies and hope for the best.
 
 ## Contributors
