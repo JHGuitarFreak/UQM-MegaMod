@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-#ifdef __MINGW32__
+#ifdef NEVER
 // Microsoft Windows headers expect this to be set. The MSVC compiler sets
 // it, but MinGW doesn't.
 #	if defined(_X86_)
