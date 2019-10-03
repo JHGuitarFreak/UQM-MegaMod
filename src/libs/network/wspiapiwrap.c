@@ -29,6 +29,7 @@
 
 #if defined(USE_WINSOCK) && defined(__MINGW32__)
 #	include <ws2tcpip.h>
+#	include "wspiapiwrap.h"
 #	include <wspiapi.h>
 #endif
 

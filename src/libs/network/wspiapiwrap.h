@@ -33,6 +33,30 @@ int WINAPI WspiapiGetAddrInfo(const char *nodename, const char *servname,
 		const struct addrinfo *hints, struct addrinfo **res);
 int WINAPI WspiapiGetNameInfo (const struct sockaddr *sa, socklen_t salen,
 		char *host, size_t hostlen, char *serv, size_t servlen, int flags);
+
+#	if defined(__MINGW32__)
+FARPROC WINAPI WspiapiLoad(WORD wFunction);
+BOOL WINAPI WspiapiParseV4Address(const char* pszAddress, PDWORD pswAddress);
+struct addrinfo* WINAPI WspiapiNewAddrInfo(int iSocketType, int iProtocol,
+	WORD wPort, DWORD dwAddress);
+char* WINAPI WspiapiStrdup(const char* pszString);
+int WINAPI WspiapiLookupNode(const char* pszNodeName, int iSocketType,
+	int iProtocol, WORD wPort, BOOL bAI_CANONNAME,
+	struct addrinfo** pptResult);
+int WINAPI WspiapiQueryDNS(const char* pszNodeName, int iSocketType,
+	int iProtocol, WORD wPort, char pszAlias[NI_MAXHOST],
+	struct addrinfo** pptResult);
+int WINAPI WspiapiClone(WORD wPort, struct addrinfo* ptResult);
+void WINAPI WspiapiLegacyFreeAddrInfo(struct addrinfo* ptHead);
+int WINAPI WspiapiLegacyGetAddrInfo(const char* pszNodeName,
+	const char* pszServiceName, const struct addrinfo* ptHints,
+	struct addrinfo** pptRresult);
+int WINAPI WspiapiLegacyGetNameInfo(
+	const struct sockaddr* ptSocketAddress, socklen_t tSocketLength,
+	char* pszNodeName, size_t tNodeLength, char* pszServiceName,
+	size_t tServiceLength, int iFlags);
+#	endif
+
 #endif
 
 #endif  /* LIBS_NETWORK_WSPIAPIWRAP_H_ */
