@@ -21,11 +21,24 @@ Mount the .dmg file and copy the app to your Applications folder.
 
 ## Building Yourself
 
-# Windows
+### Windows
+
+#### Visual Studio 
 I've made the process super easy for Windows, as long as you have Visual Studio 2008 or Visual Studios 2015-2019. Just load up the solution file and compile away.
 For Visual Studio 2008 the solution file is under `build/msvs2008` for Visual Studios 2015-2019 the solution file is under `build/msvs2019`
 
-WARNING: MinGW compiling is broken currently in both the MegaMod and base UQM.
+#### MinGW
+
+Start MSYS and `cd` to the UQM-MegaMod directory.
+
+Execute these commands: 
+
+`export C_INCLUDE_PATH=$PWD/dev-lib/MINGW/include`  
+`export LIBRARY_PATH=$PWD/dev-lib/MINGW/lib`  
+`export PATH=$PATH:$PWD/dev-lib/MINGW/bin`  
+`./build.sh uqm`  
+When executing the last command you'll come to a configuration screen where you can select a few developer-centric options.  
+Just hit `enter` and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything *should* build fine.
 
 # Other Platforms
 You'll have to gather all of the necessary dependencies and hope for the best.
