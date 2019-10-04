@@ -56,7 +56,7 @@ $(OBJDIR)%.m.d: $(BUILD_ROOT)%.m
 	fi
 	$(call act,act_mkdep_m,MKDEP  ,$@)
 
-%.rc.o: %.rc
+$(OBJDIR)%.rc.o: $(BUILD_ROOT)%.rc
 	@DIR=$(dir $@); \
 	if [ ! -d $$DIR ]; then \
 		mkdir -p "$$DIR"; \
