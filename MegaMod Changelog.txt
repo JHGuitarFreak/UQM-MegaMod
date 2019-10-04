@@ -12,12 +12,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Tightened up Android control isolation across the board
 - Tightened up the difficulty, custom seed, extended, and nomad logic. This breaks MegaMod saved games before 0.8.0.85
 - Properly credited Ala-lala in the programming credits
+- More accurately match the HD shipyard to its vanilla counterpart
+- Cut the bitrate of the ogg files in the base content to slim it down
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
 - Properly redraw the title bars when exiting from the Save/Load screen
 - Fixed Shofixti Glory Device range being scaled twice in HD
 - Fixed Super Melee scaler not loading properly on non-Android devices
+- Fixed ending cutscene where a slide was not properly resized to fit the frame
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak
@@ -29,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Fix bug causing moon letters to be displayed at StarBases
 - Ala-lala: Fixed OpenAL on 64-bit builds and future-proofed MixSDL and nosound
 - Ala-lala: Fixed netplay when building with modern Visual Studio (2010-2019)
+- Ala-lala: Fix timing of HD victory2 cutscene
 
 ## [v0.8.0.84]
 ### Fixed
