@@ -16,14 +16,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
 - Properly redraw the title bars when exiting from the Save/Load screen
-- Bug #20: Shofixti Glory Device range being scaled twice in HD
-- Bug #19: Super Melee scaler not loading properly on non-Android devices
-- Pull Request #21 by Ala-lala: Fix space music resource leaks
-- Pull Request #22 by Ala-lala: Fix memory leak when entering hyperspace in HD
-- Pull Request #23 by Ala-lala: Fix main menu graphics leak
-- Pull Request #24 by Ala-lala: Properly display RU during conversation with Hayes after transport to starbase
-- Pull Request #25 by Ala-lala: Fix issues with the Sa-Matra and Druuge AIs' use of WORLD_TO_TURN in HD
-- Pull Request #27 by Ala-lala: Fix positioning of SIS after time passes at StarBase and in a no-StarBase run at endgame
+- Fixed Shofixti Glory Device range being scaled twice in HD
+- Fixed Super Melee scaler not loading properly on non-Android devices
+- Ala-lala: Fix space music resource leaks
+- Ala-lala: Fix memory leak when entering hyperspace in HD
+- Ala-lala: Fix main menu graphics leak
+- Ala-lala: Properly display RU during conversation with Hayes after transport to starbase
+- Ala-lala: Fix issues with the Sa-Matra and Druuge AIs' use of WORLD_TO_TURN in HD
+- Ala-lala: Fix positioning of SIS after time passes at StarBase and in a no-StarBase run at endgame
+- Ala-lala: Fixed MinGW compiling
+- Ala-lala: Include resources in MinGW builds (Fixes MinGW binaries not having an icon)
+- Ala-lala: Fix bug causing moon letters to be displayed at StarBases
+- Ala-lala: Fixed OpenAL on 64-bit builds and future-proofed MixSDL and nosound
+- Ala-lala: Fixed netplay when building with modern Visual Studio (2010-2019)
 
 ## [v0.8.0.84]
 ### Fixed
