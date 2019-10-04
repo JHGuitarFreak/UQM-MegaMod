@@ -29,15 +29,18 @@ For Visual Studio 2008 the solution file is under `build/msvs2008` for Visual St
 
 #### MinGW
 
-Start MSYS and `cd` to the UQM-MegaMod directory.
+Start MSYS and `cd` to the UQM-MegaMod directory then execute this command:  
 
-Execute these commands: 
+`./mingw.sh uqm`
+
+Or if you want to do it manually execute these commands: 
 
 `export C_INCLUDE_PATH=$PWD/dev-lib/MINGW/include`  
 `export LIBRARY_PATH=$PWD/dev-lib/MINGW/lib`  
 `export PATH=$PATH:$PWD/dev-lib/MINGW/bin`  
 `./build.sh uqm`  
-When executing the last command you'll come to a configuration screen where you can select a few developer-centric options.  
+
+When executing the helper script or last command in the manual method you'll come to a configuration screen where you can select a few developer-centric options.  
 Just hit `enter` and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything *should* build fine.
 
 ### Other Platforms
