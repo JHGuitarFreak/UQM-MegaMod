@@ -46,6 +46,13 @@ Just hit `enter` and UQM will start building. It'll take awhile and you'll see a
 ### Other Platforms
 You'll have to gather all of the necessary dependencies and hope for the best.
 
+#### Tips
+
+For all platforms when building from commandline you can use the command `-j#` to invoke multi-threaded performance to dramaticly speed up build time.  
+Example: If you're running on a Ryzen 7 2700x you can use the command like so `./build.sh -j16 uqm` to take advantage of all your threads.
+
+This also works with the MinGW helper script in the same manner: `./mingw.sh -j16 uqm`
+
 ## Contributors
 
 Me (Serosis), SlightlyIntelligentMonkey, and Ala-lala

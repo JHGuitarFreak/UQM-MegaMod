@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Hide addon options if the package isn't in the addon folder
 
 ## [v0.8.0.85]
+### Added
+- Ala-lala: Allow parallelization of build.sh builds with -j
+
 ### Changed
 - Tightened up Android control isolation across the board
 - Tightened up the difficulty, custom seed, extended, and nomad logic. This breaks MegaMod saved games before 0.8.0.85
