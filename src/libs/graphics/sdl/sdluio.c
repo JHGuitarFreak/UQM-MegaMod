@@ -61,9 +61,14 @@ sdluio_loadImage (uio_DirHandle *dir, const char *fileName) {
 	return result;
 }
 	
-
+#if SDL_MAJOR_VERSION == 1
 int
-sdluio_seek (SDL_RWops *context, int offset, int whence) {
+sdluio_seek (SDL_RWops *context, int offset, int whence)
+#else
+Sint64
+sdluio_seek (SDL_RWops *context, Sint64 offset, int whence)
+#endif
+{
 	if (uio_fseek ((uio_Stream *) context->hidden.unknown.data1, offset,
 				whence) == -1)
 	{
@@ -74,8 +79,14 @@ sdluio_seek (SDL_RWops *context, int offset, int whence) {
 	return uio_ftell ((uio_Stream *) context->hidden.unknown.data1);
 }
 
+#if SDL_MAJOR_VERSION == 1
 int
-sdluio_read (SDL_RWops *context, void *ptr, int size, int maxnum) {
+sdluio_read (SDL_RWops *context, void *ptr, int size, int maxnum)
+#else
+size_t
+sdluio_read (SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
+#endif
+{
 	size_t numRead;
 	
 	numRead = uio_fread (ptr, (size_t) size, (size_t) maxnum,
@@ -90,8 +101,14 @@ sdluio_read (SDL_RWops *context, void *ptr, int size, int maxnum) {
 	return (int) numRead;
 }
 
+#if SDL_MAJOR_VERSION == 1
 int
-sdluio_write (SDL_RWops *context, const void *ptr, int size, int num) {
+sdluio_write (SDL_RWops *context, const void *ptr, int size, int num)
+#else
+size_t
+sdluio_write (SDL_RWops *context, const void *ptr, size_t size, size_t num)
+#endif
+{
 	size_t numWritten;
 
 	numWritten = uio_fwrite (ptr, (size_t) size, (size_t) num,
