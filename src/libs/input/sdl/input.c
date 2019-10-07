@@ -35,7 +35,7 @@
 static int kbdhead=0, kbdtail=0;
 static UniChar kbdbuf[KBDBUFSIZE];
 static UniChar lastchar;
-#ifdef SDL_MAJOR_VERSION == 1
+#if SDL_MAJOR_VERSION == 1
 static int num_keys = 0;
 static int *kbdstate = NULL;
 		// Holds all SDL keys +1 for holding invalid values
@@ -302,7 +302,9 @@ TFB_UninitInput (void)
 {
 	VControl_Uninit ();
 	HFree (controls);
+#if SDL_MAJOR_VERSION == 1
 	HFree (kbdstate);
+#endif
 }
 
 void
