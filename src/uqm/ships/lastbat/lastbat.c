@@ -787,14 +787,14 @@ samatra_preprocess (ELEMENT *ElementPtr)
 		
 		POINT offs_hd[] =
 		{
-			{-305, -234}, // Top left generator
-			{-414, -96 }, // The one below the top left generator
-			{-396,  140},
-			{-208,  262},
-			{215,   262},
-			{410,   140},
-			{441,  -87 },
-			{329,  -214}, // Top right generator
+			{-412, -140},
+			{-150, -290},
+			{ 150, -294},
+			{ 398, -180},
+			{ 428,  130},
+			{ 280,  250},
+			{-275,  254},
+			{-429,  133},
 		};
 		
 		POINT *offs;
