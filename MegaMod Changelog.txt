@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Fixed netplay when building with modern Visual Studio (2010-2019)
 - Ala-lala: Fix timing of HD victory2 cutscene
 - Ala-lala: Make HD Sa-Matra battle more faithful to original (By enlarging and moving around the shield generators)
+- Ala-lala: Make HD Sa-Matra fireballs more faithful
 - Fixed Syreen time stamps
 
 ## [v0.8.0.84]
