@@ -1623,8 +1623,8 @@ DoConnectingDialog (MELEE_STATE *pMS)
 		oldfont = SetContextFont (StarConFont);
 		oldcolor = SetContextForeGroundColor (BLACK_COLOR);
 		BatchGraphics ();
-		r.extent.width = 200;
-		r.extent.height = 30;
+		r.extent.width = 200 * RESOLUTION_FACTOR;
+		r.extent.height = RES_SCALE(30);
 		r.corner.x = (SCREEN_WIDTH - r.extent.width) >> 1;
 		r.corner.y = (SCREEN_HEIGHT - r.extent.height) >> 1;
 		DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR, 
