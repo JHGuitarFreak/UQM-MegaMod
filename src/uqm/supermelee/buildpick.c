@@ -147,7 +147,7 @@ DoPickShip (MELEE_STATE *pMS)
 			&& (pMS->currentShip != MELEE_NONE))
 	{
 		// Show ship spin video.
-		DoShipSpin (pMS->currentShip, (MUSIC_REF) 0);
+		DoShipSpin (pMS->currentShip, pMS->hMusic);
 		return TRUE;
 	}
 
