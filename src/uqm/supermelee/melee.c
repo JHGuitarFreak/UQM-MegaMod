@@ -1623,7 +1623,7 @@ DoConnectingDialog (MELEE_STATE *pMS)
 		oldfont = SetContextFont (StarConFont);
 		oldcolor = SetContextForeGroundColor (BLACK_COLOR);
 		BatchGraphics ();
-		r.extent.width = RES_BOOL(200, 400);
+		r.extent.width = 200 << IS_HD;
 		r.extent.height = RES_SCALE(30);
 		r.corner.x = (SCREEN_WIDTH - r.extent.width) >> 1;
 		r.corner.y = (SCREEN_HEIGHT - r.extent.height) >> 1;
