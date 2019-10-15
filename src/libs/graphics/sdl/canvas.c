@@ -1210,7 +1210,15 @@ blend_ratio_2 (Uint8 c1, Uint8 c2, int ratio)
 	return (((c1 - c2) * ratio) >> 8) + c2;
 }
 
-static inline Uint32
+static
+#ifdef _MSC_VER
+// The MSVC compiler doesn't inline this function without __forceinline,
+// which causes significant performance issues with trilinear scaling.
+__forceinline
+#else
+inline
+#endif
+Uint32
 scale_read_pixel (void* ppix, SDL_PixelFormat *fmt, SDL_Color *pal,
 				Uint32 mask, Uint32 key)
 {
