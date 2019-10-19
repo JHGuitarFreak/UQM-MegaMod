@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas]
 - Correct the UI scaling in HD to be more faithful to Vanilla UQM
 - Hide addon options if the package isn't in the addon folder
+- Migrate the MegaMod over to SDL2
 
 ## [v0.8.0.85]
 ### Added
@@ -25,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed Shofixti Glory Device range being scaled twice in HD
 - Fixed Super Melee scaler not loading properly on non-Android devices
 - Fixed ending cutscene where a slide was not properly resized to fit the frame
+- Fixed Syreen time stamps
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak
@@ -40,7 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Make HD Sa-Matra battle more faithful to original (By enlarging and moving around the shield generators)
 - Ala-lala: Make HD Sa-Matra fireballs more faithful
 - Ala-lala: Super Melee menu music continues after viewing a ship description slide or video.
-- Fixed Syreen time stamps
+- Ala-lala: Fix alignment of lander reports
 
 ## [v0.8.0.84]
 ### Fixed
