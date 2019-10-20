@@ -44,7 +44,9 @@ extern SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
 
 extern SDL_Surface *format_conv_surf;
 
+#if SDL_MAJOR_VERSION == 1
 extern const SDL_VideoInfo *SDL_screen_info; // JMS_GFX
+#endif
 
 SDL_Surface* TFB_DisplayFormatAlpha (SDL_Surface *surface);
 int TFB_HasSurfaceAlphaMod (SDL_Surface *surface);

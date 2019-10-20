@@ -46,7 +46,9 @@ SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
 
 SDL_Surface *format_conv_surf = NULL;
 
+#if SDL_MAJOR_VERSION == 1
 const SDL_VideoInfo *SDL_screen_info; // JMS_GFX
+#endif
 
 static volatile BOOLEAN abortFlag = FALSE;
 
@@ -71,6 +73,7 @@ TFB_InitGraphics (int driver, int flags, int width, int height, unsigned int *re
 
 	GfxFlags = flags;
 	
+#if SDL_MAJOR_VERSION == 1
 	// JMS_GFX: Let's read the size of the desktop so we can scale the
 	// fullscreen game according to it.
 	SDL_screen_info = SDL_GetVideoInfo ();
@@ -102,6 +105,7 @@ TFB_InitGraphics (int driver, int flags, int width, int height, unsigned int *re
 		
 		log_add (log_Debug, "fs_height %u, fs_width %u, current_w %u", fs_height, fs_width, SDL_screen_info->current_w);
 	}
+#endif
 
 	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
 	{
