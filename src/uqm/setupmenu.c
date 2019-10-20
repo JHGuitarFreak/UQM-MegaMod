@@ -530,14 +530,6 @@ SetDefaults (void)
 	GLOBALOPTS opts;
 	
 	GetGlobalOptions (&opts);
-	/*if (opts.screenResolution == OPTVAL_CUSTOM)
-	{
-		choices[0].numopts = number_res_options () + 1;
-	}
-	else
-	{*/
-		choices[0].numopts = number_res_options ();
-	//}
 	choices[0].selected = opts.screenResolution;
 	choices[1].selected = opts.driver;
 	choices[2].selected = opts.scaler;
@@ -1133,9 +1125,6 @@ init_widgets (void)
 			}
 		}
 	}
-
-	/* The first choice is resolution, and is handled specially */
-	choices[0].numopts = number_res_options ();
 
 	/* Choices 18-20 are also special, being the names of the key configurations */
 	for (i = 0; i < 6; i++)
