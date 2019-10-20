@@ -259,6 +259,15 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height, unsigned in
 	return 0;
 }
 
+void
+TFB_Pure_UninitGraphics (void)
+{
+	int i;
+
+	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
+		UnInit_Screen (&SDL2_Screens[i].scaled);
+}
+
 static void
 TFB_SDL2_UploadTransitionScreen (void)
 {

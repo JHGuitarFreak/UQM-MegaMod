@@ -61,8 +61,6 @@ int TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int 
 
 void TFB_InitOnScreenKeyboard(void);
 
-SDL_Surface* Create_Screen (SDL_Surface *templat, int w, int h);
-int ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h);
 void UnInit_Screen (SDL_Surface **screen);
 
 #endif

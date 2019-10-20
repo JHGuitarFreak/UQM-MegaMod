@@ -573,6 +573,16 @@ TFB_BlitSurface (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
 }
 
 void
+UnInit_Screen (SDL_Surface **screen)
+{
+	if (*screen == NULL)
+		return;
+	
+	SDL_FreeSurface (*screen);
+	*screen = NULL;
+}
+
+void
 TFB_UploadTransitionScreen (void)
 {
 	graphics_backend->uploadTransitionScreen ();
