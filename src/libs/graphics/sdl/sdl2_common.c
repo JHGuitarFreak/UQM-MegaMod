@@ -90,10 +90,11 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *
 	return result;
 }
 
-void
+bool
 TFB_SetGamma (float gamma)
 {
 	log_add (log_Warning, "Custom gamma correction is not available in the SDL2 engine.");
+	return false;
 }
 
 int

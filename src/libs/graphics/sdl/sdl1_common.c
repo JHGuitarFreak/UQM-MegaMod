@@ -110,17 +110,10 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *
 	return result;
 }
 
-void
+bool
 TFB_SetGamma (float gamma)
 {
-	if (SDL_SetGamma (gamma, gamma, gamma) == -1)
-	{
-		log_add (log_Warning, "Unable to set gamma correction.");
-	}
-	else
-	{
-		log_add (log_Info, "Gamma correction set to %1.4f.", gamma);
-	}
+	return (SDL_SetGamma (gamma, gamma, gamma) == 0);
 }
 
 int
