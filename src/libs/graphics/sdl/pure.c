@@ -54,7 +54,7 @@ static TFB_GRAPHICS_BACKEND pure_unscaled_backend = {
 	TFB_Pure_ScreenLayer,
 	TFB_Pure_ColorLayer };
 
-SDL_Surface *
+static SDL_Surface *
 Create_Screen (SDL_Surface *templat, int w, int h)
 {
 	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
@@ -68,7 +68,7 @@ Create_Screen (SDL_Surface *templat, int w, int h)
 	return newsurf;
 }
 
-int
+static int
 ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
 {
 	UnInit_Screen (screen);
