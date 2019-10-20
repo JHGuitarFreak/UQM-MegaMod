@@ -96,7 +96,7 @@ ReInit_Screen (SDL_Surface **screen, int w, int h)
 }
 
 int
-TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen)
+TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
 {
 	int i;
 	GraphicsDriver = driver;
@@ -237,16 +237,16 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 }
 
 int
-TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
+TFB_Pure_InitGraphics (int driver, int flags, int width, int height, unsigned int resFactor)
 {
 	log_add (log_Info, "Initializing SDL.");
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");
 
-	ScreenWidth = 320;
-	ScreenHeight = 240;
+	ScreenWidth = (320 << resFactor);
+	ScreenHeight = (240 << resFactor);
 
-	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0))
+	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0, resFactor))
 	{
 		log_add (log_Fatal, "Could not initialize video: %s",
 				SDL_GetError ());

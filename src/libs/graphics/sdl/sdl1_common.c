@@ -63,7 +63,7 @@ TFB_PreInit (void)
 }
 
 int
-TFB_ReInitGraphics (int driver, int flags, int width, int height)
+TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *resFactor)
 {
 	int result;
 	int togglefullscreen = 0;
@@ -82,19 +82,19 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height)
 	{
 #ifdef HAVE_OPENGL
 		result = TFB_GL_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
+				togglefullscreen, *resFactor);
 #else
 		driver = TFB_GFXDRIVER_SDL_PURE;
 		log_add (log_Warning, "OpenGL support not compiled in,"
 				" so using pure SDL driver");
 		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
+				togglefullscreen, *resFactor);
 #endif
 	}
 	else
 	{
 		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
+				togglefullscreen, *resFactor);
 	}
 
 	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
