@@ -111,7 +111,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		{
 			flags2 = SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
-		sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
+		sprintf (caption, "The Ur-Quan Masters v%d.%d.%g%s",
 				UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 		window = SDL_CreateWindow (caption,
