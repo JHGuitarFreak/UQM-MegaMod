@@ -158,6 +158,22 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	}
 	else
 	{
+		int LastScreenWidth, LastScreenHeight;
+		SDL_RenderGetLogicalSize (renderer, &LastScreenWidth, &LastScreenHeight);
+		if (LastScreenWidth != ScreenWidth || LastScreenHeight != ScreenHeight)
+		{
+			SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+			for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
+			{
+				SDL2_Screens[i].dirty = TRUE;
+				if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight))
+				{
+					return -1;
+				}
+			}
+			SDL_Screen = SDL_Screens[0];
+			TransitionScreen = SDL_Screens[2];
+		}
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
 			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
