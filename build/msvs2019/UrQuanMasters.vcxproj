@@ -5,12 +5,20 @@
       <Configuration>Debug NoAccel</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug SDL2|Win32">
+      <Configuration>Debug SDL2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release NoAccel|Win32">
       <Configuration>Release NoAccel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release SDL2|Win32">
+      <Configuration>Release SDL2</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
@@ -32,6 +40,12 @@
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL2|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
@@ -39,6 +53,12 @@
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
@@ -57,11 +77,19 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL2|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
   </ImportGroup>
@@ -72,24 +100,35 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug NoAccel|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\dev-lib\VS2015\include;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\dev-lib\VS2015\include;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL2;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName)NoAccel</TargetName>
-    <IncludePath>..\..\dev-lib\VS2015\include;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\dev-lib\VS2015\include;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL2|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL2;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)$(Configuration)</TargetName>
   </PropertyGroup>
@@ -123,7 +162,7 @@
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
-      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_image.lib;zdll.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;libpng16.lib;zdll.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"</Command>
@@ -164,7 +203,43 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>msvcrtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_image.lib;zdll.lib;ws2_32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;libpng16.lib;zdll.lib;ws2_32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level2</WarningLevel>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;_VW=320;_VH=240;GFXMODULE_SDL;THREADLIB_SDL;HAVE_OPENAL;HAVE_ZIP;HAVE_JOYSTICK;NETPLAY;ZLIB_DLL;USE_INTERNAL_MIKMOD;USE_INTERNAL_LUA;USE_PLATFORM_ACCEL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\src;..\..\src\regex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"
+editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$(TargetFileName)"</Command>
+      <Message>Stripping debug info...</Message>
+    </PostBuildEvent>
+    <Midl>
+      <TypeLibraryName>.\Release\UrQuanMasters.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <IgnoreSpecificDefaultLibraries>msvcrtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libpng16.lib;zdll.lib;ws2_32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -201,7 +276,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>msvcrtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
-      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_image.lib;zdll.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;libpng16.lib;zdll.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -234,7 +309,46 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
-      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_image.lib;zdll.lib;ws2_32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;libpng16.lib;zdll.lib;ws2_32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying binary to the root directory...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL2|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>..\..\src;..\..\src\regex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG;_DEBUG;DEBUG_TRACK_SEM;DEBUG_DCQ_THREADS;WIN32;_CONSOLE;_VW=320;_VH=240;GFXMODULE_SDL;THREADLIB_SDL;HAVE_OPENAL;HAVE_ZIP;HAVE_JOYSTICK;NETPLAY;ZLIB_DLL;USE_INTERNAL_MIKMOD;USE_INTERNAL_LUA;USE_PLATFORM_ACCEL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformation>true</BrowseInformation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+    </ClCompile>
+    <Midl>
+      <TypeLibraryName>.\Debug\UrQuanMasters.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libpng16.lib;zdll.lib;ws2_32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"</Command>
@@ -246,6 +360,10 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
   <ItemGroup>
     <ClCompile Include="..\..\src\getopt\getopt.c" />
     <ClCompile Include="..\..\src\getopt\getopt1.c" />
+    <ClCompile Include="..\..\src\libs\graphics\sdl\png2sdl.c" />
+    <ClCompile Include="..\..\src\libs\graphics\sdl\sdl1_common.c" />
+    <ClCompile Include="..\..\src\libs\graphics\sdl\sdl2_common.c" />
+    <ClCompile Include="..\..\src\libs\graphics\sdl\sdl2_pure.c" />
     <ClCompile Include="..\..\src\libs\network\wspiapiwrap.c" />
     <ClCompile Include="..\..\src\regex\regex.c" />
     <ClCompile Include="..\..\src\libs\callback\alarm.c" />
@@ -382,6 +500,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClCompile Include="..\..\src\libs\uio\charhashtable.c" />
     <ClCompile Include="..\..\src\libs\uio\debug.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\libs\uio\defaultfs.c" />
@@ -391,8 +510,10 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClCompile Include="..\..\src\libs\uio\hashtable.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NoAccel|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL2|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\libs\uio\io.c" />
     <ClCompile Include="..\..\src\libs\uio\ioaux.c" />
@@ -400,8 +521,10 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClCompile Include="..\..\src\libs\uio\memdebug.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NoAccel|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL2|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\libs\uio\mount.c" />
     <ClCompile Include="..\..\src\libs\uio\mounttree.c" />
@@ -648,6 +771,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\getopt\getopt.h" />
+    <ClInclude Include="..\..\src\libs\graphics\sdl\png2sdl.h" />
     <ClInclude Include="..\..\src\regex\regex.h" />
     <ClInclude Include="..\..\src\regex\regex_internal.h" />
     <ClInclude Include="..\..\src\libs\callback\alarm.h" />
@@ -1191,8 +1315,10 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ResourceCompile Include="..\..\src\res\UrQuanMasters.rc">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug NoAccel|Win32'">\Users\SeRosiS\Desktop\uqm-git-20150109.0800\src\res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">\Users\SeRosiS\Desktop\uqm-git-20150109.0800\src\res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release SDL2|Win32'">\Users\SeRosiS\Desktop\uqm-git-20150109.0800\src\res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'">\Users\SeRosiS\Desktop\uqm-git-20150109.0800\src\res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">\Users\SeRosiS\Desktop\uqm-git-20150109.0800\src\res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug SDL2|Win32'">\Users\SeRosiS\Desktop\uqm-git-20150109.0800\src\res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
