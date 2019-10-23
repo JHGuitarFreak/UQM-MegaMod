@@ -406,7 +406,7 @@ CloneFrame (FRAME frame)
 // Creates a new DRAWABLE of specified size and scales the passed
 // frame onto it. The aspect ratio is not preserved.
 DRAWABLE
-RescaleFrame (FRAME frame, int width, int height, BOOLEAN eight_to_32)
+RescaleFrame (FRAME frame, int width, int height)
 {
 	FRAME newFrame;
 	TFB_Image *img;
@@ -430,20 +430,7 @@ RescaleFrame (FRAME frame, int width, int height, BOOLEAN eight_to_32)
 	// NOTE: We do not lock the target image because nothing has a
 	//   reference to it yet!
 	src = img->NormalImg;
-	dst = newFrame->image->NormalImg;	
-	
-	// JMS_GFX
-	if (eight_to_32)
-	{
-		SDL_Surface *src_sdl = src;
-		SDL_Surface *dst_sdl = dst;
-		
-		if (src_sdl->format->BytesPerPixel == 1)
-		{
-			dst_sdl->format->BytesPerPixel = src_sdl->format->BytesPerPixel;
-			dst_sdl->format->BitsPerPixel = 8 * (src_sdl->format->BytesPerPixel);
-		}
-	}
+	dst = newFrame->image->NormalImg;
 
 	TFB_DrawCanvas_Rescale_Nearest (src, dst, -1, NULL, NULL, NULL);
 	
