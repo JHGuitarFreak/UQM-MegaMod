@@ -15,8 +15,10 @@
 [Dd]ebug/
 [Dd]ebug2019/
 [Dd]ebugPublic/
+[Dd]ebug SDL2/
 [Rr]elease/
 [Rr]elease2019/
+[Rr]elease SDL2/
 [Rr]eleases/
 Debug[ _]NoAccel/
 Release[ _]NoAccel/
