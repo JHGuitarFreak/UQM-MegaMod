@@ -1793,25 +1793,41 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			case OPTVAL_SCALE_960_720:
 				NewWidth = 960;
 				NewHeight = 720;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1280_960:
 				NewWidth = 1280;
 				NewHeight = 960;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1600_1200:
 				NewWidth = 1600;
 				NewHeight = 1200;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1920_1440:
 				NewWidth = 1920;
 				NewHeight = 1440;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			default:
