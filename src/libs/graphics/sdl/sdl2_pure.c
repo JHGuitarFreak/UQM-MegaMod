@@ -105,18 +105,19 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	{
 		SDL_RendererInfo info;
 		char caption[200];
-		int flags2 = 0;
 
-		if (flags & TFB_GFXFLAGS_FULLSCREEN)
-		{
-			flags2 = SDL_WINDOW_FULLSCREEN_DESKTOP;
-		}
 		sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s",
 				UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 		window = SDL_CreateWindow (caption,
 				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-				width, height, flags2);
+				width, height, 0);
+		if (flags & TFB_GFXFLAGS_FULLSCREEN)
+		{
+			// If this is simply passed as a flag to SDL_CreateWindow,
+			// the window will have no icon if and when it becomes windowed.
+			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		}
 		if (!window) 
 		{
 			return -1;
