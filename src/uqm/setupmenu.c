@@ -132,7 +132,9 @@ static WIDGET *graphics_widgets[] = {
 #endif
 	(WIDGET *)(&choices[23]),	// Aspect Ratio
 	(WIDGET *)(&choices[10]),	// Display
+#if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
 	(WIDGET *)(&sliders[3]),	// Gamma Correction
+#endif
 	(WIDGET *)(&choices[2]),	// Scaler
 	(WIDGET *)(&choices[3]),	// Scanlines	
 	(WIDGET *)(&choices[12]),	// Show FPS
