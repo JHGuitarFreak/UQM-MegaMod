@@ -113,6 +113,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL2;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName) SDL2</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NoAccel|Win32'">
     <LinkIncremental>false</LinkIncremental>
