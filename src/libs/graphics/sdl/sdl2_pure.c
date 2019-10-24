@@ -127,7 +127,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		{
 			return -1;
 		}
-		if (SDL_GetRendererInfo (renderer, &info))
+		if (SDL_GetRendererInfo (renderer, &info) == 0)
 		{
 			log_add (log_Info, "SDL2 renderer '%s' selected.\n", info.name);
 		}
