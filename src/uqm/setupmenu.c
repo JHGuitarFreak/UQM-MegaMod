@@ -1724,7 +1724,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 
+#if SDL_MAJOR_VERSION == 1
 	if (NewWidth == 320 && NewHeight == 240) // MB: Moved code to here to make it work with 320x240 resolutions before opts->loresBlowup switch after
+#endif
 	{
 		switch (opts->scaler)
 		{
@@ -1754,9 +1756,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 		}
 	}
+#if SDL_MAJOR_VERSION == 1
 	else
 	{
-		// JMS: For now, only bilinear works in 1280x960 and 640x480.
+		// For now, only bilinear works in HD with SDL1.
 		switch (opts->scaler)
 		{
 			case OPTVAL_BILINEAR_SCALE:
@@ -1773,6 +1776,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 		}
 	}
+#endif
 
 	if (NewWidth == 320 && NewHeight == 240)
 	{	
@@ -2113,33 +2117,22 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
 	}
 #if !defined(ANDROID) || !defined(__ANDROID__)
-	if (opts->fullscreen){
+	if (opts->fullscreen)
 		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
-		if (IS_HD) {
+	else
+		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+	// In HD, force the usage of no filter in 1280x960 windowed mode
+	// while forcing the usage of a filter in scaled modes.
+	if(IS_HD) {
+		if (NewWidth == 1280 && !opts->fullscreen)
+		{
+			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
+			res_PutString ("config.scaler", "no");
+		}
+		else if (!(NewGfxFlags & TFB_GFXFLAGS_SCALE_ANY))
+		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
-		}
-	} else {
-		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-		// Serosis: Force the usage of no filter in 1280x960 windowed mode.
-		// While forcing the usage of bilinear filter in scaled windowed modes.
-		if(IS_HD){
-			switch(NewWidth){
-				case 640:
-				case 960:
-				case 1600:
-				case 1920:
-					NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-					res_PutString ("config.scaler", "bilinear");
-					break;
-				case 1280:
-				default:
-					NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
-					res_PutString ("config.scaler", "no");
-					break;
-
-			}
 		}
 	}
 #endif
