@@ -62,6 +62,8 @@ TFB_PreInit (void)
 		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
 		exit (EXIT_FAILURE);
 	}
+
+	atexit (SDL_Quit);
 }
 
 int
