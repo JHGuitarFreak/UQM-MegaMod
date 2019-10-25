@@ -42,6 +42,8 @@
 #include "libs/graphics/bbox.h"
 #include "libs/math/random.h"
 
+#include SDL_INCLUDE(SDL_version.h)
+
 
 static STRING SetupTab;
 
