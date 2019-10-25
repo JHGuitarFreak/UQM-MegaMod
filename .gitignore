@@ -15,13 +15,11 @@
 [Dd]ebug/
 [Dd]ebug2019/
 [Dd]ebugPublic/
-[Dd]ebug SDL2/
+[Dd]ebug SDL1/
 [Rr]elease/
 [Rr]elease2019/
-[Rr]elease SDL2/
+[Rr]elease SDL1/
 [Rr]eleases/
-Debug[ _]NoAccel/
-Release[ _]NoAccel/
 x64/
 x86/
 bld/
