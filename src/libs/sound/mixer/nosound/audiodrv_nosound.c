@@ -109,9 +109,9 @@ UQM_COMPILE_TIME_ASSERT (mixer_Object_fits_in_audio_Object,
 static void
 noSound_ConvertObjectArrayToMixerObjects (uint32 n, audio_Object *arr)
 {
+	uint32 i;
 	if (sizeof (audio_Object) == sizeof (mixer_Object))
 		return;
-	uint32 i;
 	for (i = 0; i < n; i++)
 	{
 		((mixer_Object *) arr)[i] = arr[i];
@@ -122,9 +122,10 @@ noSound_ConvertObjectArrayToMixerObjects (uint32 n, audio_Object *arr)
 static void
 noSound_ConvertObjectArrayFromMixerObjects (uint32 n, audio_Object *arr)
 {
+	uint32 i;
 	if (sizeof (audio_Object) == sizeof (mixer_Object))
 		return;
-	uint32 i = n;
+	i = n;
 	while (i--)
 	{
 		arr[i] = ((mixer_Object *) arr)[i];
