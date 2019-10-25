@@ -39,11 +39,10 @@ SDL v1.2
 	Download: http://www.libsdl.org/download-1.2.php
 	Debian package: libsdl1.2-dev (and various runtime debs)
 
-SDL_image
-	An image loading library used with SDL.
-	Homepage: http://www.libsdl.org/projects/SDL_image/
-	Download: http://www.libsdl.org/projects/SDL_image/release/
-	Debian packages: libsdl-image1.2 libsdl-image1.2-dev
+libpng
+	An image loading library.
+	Homepage: http://www.libpng.org/pub/png/libpng.html
+	Debian packages: libpng-devxs
 	
 OpenAL (optional)
 	A cross-platform spatialized audio library.

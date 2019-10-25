@@ -334,6 +334,14 @@ SOURCE=..\..\src\libs\graphics\sdl\palette.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\libs\graphics\sdl\png2sdl.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\png2sdl.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\libs\graphics\sdl\primitives.c
 # End Source File
 # Begin Source File
@@ -371,6 +379,18 @@ SOURCE=..\..\src\libs\graphics\sdl\scalers.c
 # Begin Source File
 
 SOURCE=..\..\src\libs\graphics\sdl\scalers.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\sdl1_common.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\sdl2_common.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\sdl2_pure.c
 # End Source File
 # Begin Source File
 

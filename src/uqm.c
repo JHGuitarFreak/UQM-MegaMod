@@ -583,8 +583,12 @@ main (int argc, char *argv[])
 	NetManager_init ();
 #endif
 
+#if SDL_MAJOR_VERSION == 1
 	gfxDriver = options.opengl.value ?
 			TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE;
+#else
+	gfxDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 	gfxFlags = options.scaler.value;
 	if (options.fullscreen.value)
 		gfxFlags |= TFB_GFXFLAGS_FULLSCREEN;

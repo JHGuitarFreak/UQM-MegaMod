@@ -35,13 +35,16 @@
 static int kbdhead=0, kbdtail=0;
 static UniChar kbdbuf[KBDBUFSIZE];
 static UniChar lastchar;
+#if SDL_MAJOR_VERSION == 1
 static int num_keys = 0;
 static int *kbdstate = NULL;
 		// Holds all SDL keys +1 for holding invalid values
+#endif // Later versions of SDL use the text input API instead
 
 static volatile int *menu_vec;
 static int num_menu;
 // The last vector element is the character repeat "key"
+// This is only used in SDL1 input but it's mostly harmless everywhere else
 #define KEY_MENU_ANY  (num_menu - 1)
 static volatile int *flight_vec;
 static int num_templ;
@@ -202,8 +205,10 @@ initKeyConfig (void)
 static void
 resetKeyboardState (void)
 {
+#if SDL_MAJOR_VERSION == 1
 	memset (kbdstate, 0, sizeof (int) * num_keys);
 	menu_vec[KEY_MENU_ANY] = 0;
+#endif
 }
 
 void
@@ -246,7 +251,12 @@ initJoystick (void)
 		log_add (log_Info, "The names of the joysticks are:");
 		for (i = 0; i < nJoysticks; i++)
 		{
-			log_add (log_Info, "    %s", SDL_JoystickName (i));
+			log_add (log_Info, "    %s",
+#if SDL_MAJOR_VERSION == 1
+					SDL_JoystickName (i));
+#else
+					SDL_JoystickNameForIndex (i));
+#endif
 		}
 		SDL_JoystickEventState (SDL_ENABLE);
 	}
@@ -261,10 +271,12 @@ TFB_InitInput (int driver, int flags)
 	(void)driver;
 	(void)flags;
 
+#if SDL_MAJOR_VERSION == 1
 	SDL_EnableUNICODE(1);
 	(void)SDL_GetKeyState (&signed_num_keys);
 	num_keys = (unsigned int) signed_num_keys;
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
+#endif
 	
 
 #ifdef HAVE_JOYSTICK
@@ -290,7 +302,9 @@ TFB_UninitInput (void)
 {
 	VControl_Uninit ();
 	HFree (controls);
+#if SDL_MAJOR_VERSION == 1
 	HFree (kbdstate);
+#endif
 }
 
 void
@@ -300,11 +314,17 @@ EnterCharacterMode (void)
 	lastchar = 0;
 	in_character_mode = TRUE;
 	VControl_ResetInput ();
+#if SDL_MAJOR_VERSION > 1
+	SDL_StartTextInput ();
+#endif
 }
 
 void
 ExitCharacterMode (void)
 {
+#if SDL_MAJOR_VERSION > 1
+	SDL_StopTextInput ();
+#endif
 	VControl_ResetInput ();
 	in_character_mode = FALSE;
 	kbdhead = kbdtail = 0;
@@ -345,6 +365,8 @@ ProcessMouseEvent (const SDL_Event *e)
 		break;
 	}
 }
+
+#if SDL_MAJOR_VERSION == 1
 
 static inline int
 is_numpad_char_event (const SDL_Event *Event)
@@ -416,6 +438,74 @@ ProcessInputEvent (const SDL_Event *Event)
 		}
 	}
 }
+#else
+void
+ProcessInputEvent (const SDL_Event *Event)
+{
+	if (!InputInitialized)
+		return;
+	
+	ProcessMouseEvent (Event);
+
+	/* TODO: Block numpad input when NUM_LOCK is on */
+	VControl_HandleEvent (Event);
+
+	if (Event->type == SDL_TEXTINPUT)
+	{
+		int newtail;
+		int i = 0;
+
+		while (Event->text.text[i])
+		{
+			UniChar map_key = Event->text.text[i++];
+
+			/* Decode any UTF-8 keys */
+			if (map_key >= 0xC0 && map_key < 0xE0)
+			{
+				/* 2-byte UTF-8 */
+				map_key = (map_key & 0x1f) << 6;
+				map_key |= Event->text.text[i++] & 0x3f;
+			}
+			else if (map_key >= 0xE0 && map_key < 0xF0)
+			{
+				/* 3-byte UTF-8 */
+				map_key = (map_key & 0x0f) << 6;
+				map_key |= Event->text.text[i++] & 0x3f;
+				map_key <<= 6;
+				map_key |= Event->text.text[i++] & 0x3f;
+			}
+			else if (map_key >= 0xF0)
+			{
+				/* Out of the BMP, won't fit in a UniChar */
+				/* Use the replacement character instead */
+				map_key = 0xFFFD;
+				while (Event->text.text[i] > 0x7F)
+				{
+					++i;
+				}
+			}
+
+			/* dont care about the non-printable, non-char */
+			if (!map_key)
+				return;
+
+			newtail = (kbdtail + 1) & (KBDBUFSIZE - 1);
+
+			/* ignore the char if the buffer is full */
+			if (newtail != kbdhead)
+			{
+				kbdbuf[kbdtail] = map_key;
+				kbdtail = newtail;
+				lastchar = map_key;
+			}
+
+			/* Loop back in case there are more chars in the
+			 * text input buffer */
+		}
+	}
+}
+
+#endif
 
 void
 TFB_ResetControls (void)

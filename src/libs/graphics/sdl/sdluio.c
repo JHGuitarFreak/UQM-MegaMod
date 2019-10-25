@@ -21,8 +21,8 @@
 #include SDL_INCLUDE(SDL.h)
 #include SDL_INCLUDE(SDL_error.h)
 #include SDL_INCLUDE(SDL_rwops.h)
-#include SDL_IMAGE_INCLUDE(SDL_image.h)
 #include "libs/memlib.h"
+#include "png2sdl.h"
 #include <errno.h>
 #include <string.h>
 
@@ -44,7 +44,7 @@ SDL_Surface *
 sdluio_loadImage (uio_DirHandle *dir, const char *fileName) {
 	uio_Stream *stream;
 	SDL_RWops *rwops;
-	SDL_Surface *result;
+	SDL_Surface *result = NULL;
 
 	stream = uio_fopen (dir, fileName, "rb");
 	if (stream == NULL)
@@ -54,13 +54,21 @@ sdluio_loadImage (uio_DirHandle *dir, const char *fileName) {
 		return NULL;
 	}
 	rwops = sdluio_makeRWops (stream);
-	result = IMG_Load_RW (rwops, 1);
+	if (rwops) {
+		result = TFB_png_to_sdl (rwops);
+		SDL_RWclose (rwops);
+	}
 	return result;
 }
 	
-
+#if SDL_MAJOR_VERSION == 1
 int
-sdluio_seek (SDL_RWops *context, int offset, int whence) {
+sdluio_seek (SDL_RWops *context, int offset, int whence)
+#else
+Sint64
+sdluio_seek (SDL_RWops *context, Sint64 offset, int whence)
+#endif
+{
 	if (uio_fseek ((uio_Stream *) context->hidden.unknown.data1, offset,
 				whence) == -1)
 	{
@@ -71,8 +79,14 @@ sdluio_seek (SDL_RWops *context, int offset, int whence) {
 	return uio_ftell ((uio_Stream *) context->hidden.unknown.data1);
 }
 
+#if SDL_MAJOR_VERSION == 1
 int
-sdluio_read (SDL_RWops *context, void *ptr, int size, int maxnum) {
+sdluio_read (SDL_RWops *context, void *ptr, int size, int maxnum)
+#else
+size_t
+sdluio_read (SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
+#endif
+{
 	size_t numRead;
 	
 	numRead = uio_fread (ptr, (size_t) size, (size_t) maxnum,
@@ -87,8 +101,14 @@ sdluio_read (SDL_RWops *context, void *ptr, int size, int maxnum) {
 	return (int) numRead;
 }
 
+#if SDL_MAJOR_VERSION == 1
 int
-sdluio_write (SDL_RWops *context, const void *ptr, int size, int num) {
+sdluio_write (SDL_RWops *context, const void *ptr, int size, int num)
+#else
+size_t
+sdluio_write (SDL_RWops *context, const void *ptr, size_t size, size_t num)
+#endif
+{
 	size_t numWritten;
 
 	numWritten = uio_fwrite (ptr, (size_t) size, (size_t) num,

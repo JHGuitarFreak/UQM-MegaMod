@@ -6,6 +6,9 @@
 */
 
 #include "SDL.h"
+
+#if SDL_MAJOR_VERSION == 1
+
 #include "SDLMain.h"
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h>
@@ -379,3 +382,4 @@ int main (int argc, char **argv)
     return 0;
 }
 
+#endif

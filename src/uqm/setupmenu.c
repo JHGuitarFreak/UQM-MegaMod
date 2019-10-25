@@ -42,6 +42,8 @@
 #include "libs/graphics/bbox.h"
 #include "libs/math/random.h"
 
+#include SDL_INCLUDE(SDL_version.h)
+
 
 static STRING SetupTab;
 
@@ -73,12 +75,6 @@ static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
-
-#ifdef HAVE_OPENGL
-#define RES_OPTS 2
-#else
-#define RES_OPTS 2
-#endif
 
 #define MENU_COUNT         11
 #define CHOICE_COUNT       56
@@ -138,7 +134,9 @@ static WIDGET *graphics_widgets[] = {
 #endif
 	(WIDGET *)(&choices[23]),	// Aspect Ratio
 	(WIDGET *)(&choices[10]),	// Display
+#if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
 	(WIDGET *)(&sliders[3]),	// Gamma Correction
+#endif
 	(WIDGET *)(&choices[2]),	// Scaler
 	(WIDGET *)(&choices[3]),	// Scanlines	
 	(WIDGET *)(&choices[12]),	// Show FPS
@@ -293,6 +291,19 @@ static float maxGamma = 2.5f;
 static float minGammaX;
 static float maxGammaX;
 
+
+static int
+number_res_options (void)
+{
+	if (TFB_SupportsHardwareScaling ())
+	{
+		return 4;
+	}
+	else
+	{
+		return 2;
+	}
+}
 
 static int
 quit_main_menu (WIDGET *self, int event)
@@ -523,14 +534,6 @@ SetDefaults (void)
 	GLOBALOPTS opts;
 	
 	GetGlobalOptions (&opts);
-	/*if (opts.screenResolution == OPTVAL_CUSTOM)
-	{
-		choices[0].numopts = RES_OPTS + 1;
-	}
-	else
-	{*/
-		choices[0].numopts = RES_OPTS;
-	//}
 	choices[0].selected = opts.screenResolution;
 	choices[1].selected = opts.driver;
 	choices[2].selected = opts.scaler;
@@ -1126,9 +1129,6 @@ init_widgets (void)
 			}
 		}
 	}
-
-	/* The first choice is resolution, and is handled specially */
-	choices[0].numopts = RES_OPTS;
 
 	/* Choices 18-20 are also special, being the names of the key configurations */
 	for (i = 0; i < 6; i++)
@@ -1728,7 +1728,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 
+#if SDL_MAJOR_VERSION == 1
 	if (NewWidth == 320 && NewHeight == 240) // MB: Moved code to here to make it work with 320x240 resolutions before opts->loresBlowup switch after
+#endif
 	{
 		switch (opts->scaler)
 		{
@@ -1758,9 +1760,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 		}
 	}
+#if SDL_MAJOR_VERSION == 1
 	else
 	{
-		// JMS: For now, only bilinear works in 1280x960 and 640x480.
+		// For now, only bilinear works in HD with SDL1.
 		switch (opts->scaler)
 		{
 			case OPTVAL_BILINEAR_SCALE:
@@ -1777,6 +1780,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 		}
 	}
+#endif
 
 	if (NewWidth == 320 && NewHeight == 240)
 	{	
@@ -1797,25 +1801,41 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			case OPTVAL_SCALE_960_720:
 				NewWidth = 960;
 				NewHeight = 720;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1280_960:
 				NewWidth = 1280;
 				NewHeight = 960;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1600_1200:
 				NewWidth = 1600;
 				NewHeight = 1200;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1920_1440:
 				NewWidth = 1920;
 				NewHeight = 1440;
+#ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+#else
+				NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 				resolutionFactor = 0;
 				break;
 			default:
@@ -2101,33 +2121,22 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
 	}
 #if !defined(ANDROID) || !defined(__ANDROID__)
-	if (opts->fullscreen){
+	if (opts->fullscreen)
 		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
-		if (IS_HD) {
+	else
+		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+	// In HD, force the usage of no filter in 1280x960 windowed mode
+	// while forcing the usage of a filter in scaled modes.
+	if(IS_HD) {
+		if (NewWidth == 1280 && !opts->fullscreen)
+		{
+			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
+			res_PutString ("config.scaler", "no");
+		}
+		else if (!(NewGfxFlags & TFB_GFXFLAGS_SCALE_ANY))
+		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
-		}
-	} else {
-		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-		// Serosis: Force the usage of no filter in 1280x960 windowed mode.
-		// While forcing the usage of bilinear filter in scaled windowed modes.
-		if(IS_HD){
-			switch(NewWidth){
-				case 640:
-				case 960:
-				case 1600:
-				case 1920:
-					NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-					res_PutString ("config.scaler", "bilinear");
-					break;
-				case 1280:
-				default:
-					NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
-					res_PutString ("config.scaler", "no");
-					break;
-
-			}
 		}
 	}
 #endif

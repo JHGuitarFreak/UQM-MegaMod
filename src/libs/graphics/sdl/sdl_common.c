@@ -34,13 +34,11 @@
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
 #include "../../../uqm/units.h"
-#include SDL_INCLUDE(SDL_thread.h)
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL/SDL_screenkeyboard.h>
 #endif
 
-SDL_Surface *SDL_Video;
 SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
 
@@ -48,7 +46,9 @@ SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
 
 SDL_Surface *format_conv_surf = NULL;
 
+#if SDL_MAJOR_VERSION == 1
 const SDL_VideoInfo *SDL_screen_info; // JMS_GFX
+#endif
 
 static volatile BOOLEAN abortFlag = FALSE;
 
@@ -58,90 +58,6 @@ TFB_GRAPHICS_BACKEND *graphics_backend = NULL;
 
 volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
-
-static void TFB_PreQuit (void);
-
-void
-TFB_PreInit (void)
-{
-	log_add (log_Info, "Initializing base SDL functionality.");
-	log_add (log_Info, "Using SDL version %d.%d.%d (compiled with "
-			"%d.%d.%d)", SDL_Linked_Version ()->major,
-			SDL_Linked_Version ()->minor, SDL_Linked_Version ()->patch,
-			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
-#if 0
-	if (SDL_Linked_Version ()->major != SDL_MAJOR_VERSION ||
-			SDL_Linked_Version ()->minor != SDL_MINOR_VERSION ||
-			SDL_Linked_Version ()->patch != SDL_PATCHLEVEL) {
-		log_add (log_Warning, "The used SDL library is not the same version "
-				"as the one used to compile The Ur-Quan Masters with! "
-				"If you experience any crashes, this would be an excellent "
-				"suspect.");
-	}
-#endif
-
-	if ((SDL_Init (SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1))
-	{
-		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
-		exit (EXIT_FAILURE);
-	}
-
-	atexit (TFB_PreQuit);
-}
-
-static void
-TFB_PreQuit (void)
-{
-	SDL_Quit ();
-}
-
-int
-TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *resFactor) // JMS_GFX: Added resFactor
-{
-	int result;
-	int togglefullscreen = 0;
-	char caption[200];
-
-	if (GfxFlags == (flags ^ TFB_GFXFLAGS_FULLSCREEN) &&
-			driver == GraphicsDriver &&
-			width == ScreenWidthActual && height == ScreenHeightActual)
-	{
-		togglefullscreen = 1;
-	}
-
-	GfxFlags = flags;
-
-	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
-	{
-#ifdef HAVE_OPENGL
-		result = TFB_GL_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen, *resFactor);
-#else
-		driver = TFB_GFXDRIVER_SDL_PURE;
-		log_add (log_Warning, "OpenGL support not compiled in,"
-				" so using pure SDL driver");
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen, resFactor);
-#endif
-	}
-	else
-	{
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen, *resFactor);
-	}
-
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s",
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-	SDL_WM_SetCaption (caption, NULL);
-
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
-		SDL_ShowCursor (SDL_DISABLE);
-	else
-		SDL_ShowCursor (SDL_ENABLE);
-
-	return result;
-}
 
 int
 TFB_InitGraphics (int driver, int flags, int width, int height, unsigned int *resFactor)
@@ -157,6 +73,7 @@ TFB_InitGraphics (int driver, int flags, int width, int height, unsigned int *re
 
 	GfxFlags = flags;
 	
+#if SDL_MAJOR_VERSION == 1
 	// JMS_GFX: Let's read the size of the desktop so we can scale the
 	// fullscreen game according to it.
 	SDL_screen_info = SDL_GetVideoInfo ();
@@ -188,6 +105,7 @@ TFB_InitGraphics (int driver, int flags, int width, int height, unsigned int *re
 		
 		log_add (log_Debug, "fs_height %u, fs_width %u, current_w %u", fs_height, fs_width, SDL_screen_info->current_w);
 	}
+#endif
 
 	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
 	{
@@ -205,10 +123,13 @@ TFB_InitGraphics (int driver, int flags, int width, int height, unsigned int *re
 		result = TFB_Pure_InitGraphics (driver, flags, width, height, *resFactor);
 	}
 
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s", 
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, 
+#if SDL_MAJOR_VERSION == 1
+	/* Other versions do this when setting up the window */
+	sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 	SDL_WM_SetCaption (caption, NULL);
+#endif
 
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		SDL_ShowCursor (SDL_DISABLE);
@@ -251,27 +172,37 @@ TFB_ProcessEvents ()
 		ProcessInputEvent (&Event);
 		/* Handle graphics and exposure events. */
 		switch (Event.type) {
+#if 0 /* Currently disabled in mainline */
 			case SDL_ACTIVEEVENT:    /* Lose/gain visibility or focus */
 				/* Up to three different state changes can occur in one event. */
 				/* Here, disregard least significant change (mouse focus). */
-#if 0 /* Currently disabled in mainline */
 				// This controls the automatic sleep/pause when minimized.
-				// On small displays (e.g. mobile devices), APPINPUTFOCUS would 
+				// On small displays (e.g. mobile devices), APPINPUTFOCUS would
 				//  be an appropriate substitution for APPACTIVE:
 				// if (Event.active.state & SDL_APPINPUTFOCUS)
 				if (Event.active.state & SDL_APPACTIVE)
 					GameActive = Event.active.gain;
-#endif
-				break;
-			case SDL_QUIT:
-				QuitPosted = 1;
 				break;
 			case SDL_VIDEORESIZE:    /* User resized video mode */
 				// TODO
 				break;
+#endif
+			case SDL_QUIT:
+				QuitPosted = 1;
+				break;
+#if SDL_MAJOR_VERSION == 1
 			case SDL_VIDEOEXPOSE:    /* Screen needs to be redrawn */
 				TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
 				break;
+#else
+			case SDL_WINDOWEVENT:
+				if (Event.window.event == SDL_WINDOWEVENT_EXPOSED)
+				{
+					/* Screen needs to be redrawn */
+					TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
+				}
+				break;
+#endif
 			default:
 				break;
 		}
@@ -317,7 +248,7 @@ TFB_SwapBuffers (int force_full_redraw)
 		force_full_redraw = TFB_REDRAW_FADING;
 
 	last_fade_amount = fade_amount;
-	last_transition_amount = transition_amount;	
+	last_transition_amount = transition_amount;
 
 	graphics_backend->preprocess (force_full_redraw, transition_amount,
 			fade_amount);
@@ -342,7 +273,7 @@ TFB_SwapBuffers (int force_full_redraw)
 		}
 		else
 		{
-			graphics_backend->color (255, 255, 255, 
+			graphics_backend->color (255, 255, 255,
 					fade_amount - 255, NULL);
 		}
 	}
@@ -362,7 +293,7 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 	SDL_Surface* newsurf;
 	SDL_PixelFormat* dstfmt;
 	const SDL_PixelFormat* srcfmt = surface->format;
-	
+
 	// figure out what format to use (alpha/no alpha)
 	if (surface->format->Amask)
 		dstfmt = format_conv_surf->format;
@@ -377,12 +308,14 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 		return surface; // no conversion needed
 
 	newsurf = SDL_ConvertSurface (surface, dstfmt, surface->flags);
-	// SDL_SRCCOLORKEY and SDL_SRCALPHA cannot work at the same time,
+	// Colorkeys and surface-level alphas cannot work at the same time,
 	// so we need to disable one of them
-	if ((surface->flags & SDL_SRCCOLORKEY) && newsurf
-			&& (newsurf->flags & SDL_SRCCOLORKEY)
-			&& (newsurf->flags & SDL_SRCALPHA))
-		SDL_SetAlpha (newsurf, 0, 255);
+	if (TFB_HasColorKey (surface) && newsurf &&
+			TFB_HasColorKey (newsurf) &&
+			TFB_HasSurfaceAlphaMod (newsurf))
+	{
+		TFB_DisableSurfaceAlphaMod (newsurf);
+	}
 
 	return newsurf;
 }
@@ -396,43 +329,247 @@ TFB_GetScreenCanvas (SCREEN screen)
 }
 
 void
-TFB_UploadTransitionScreen (void)
+TFB_BlitSurface (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+		SDL_Rect *dstrect, int blend_numer, int blend_denom)
 {
-#ifdef HAVE_OPENGL
-	if (GraphicsDriver == TFB_GFXDRIVER_SDL_OPENGL)
+	BOOLEAN has_colorkey;
+	int x, y, x1, y1, x2, y2, dst_x2, dst_y2, nr, ng, nb;
+	int srcx, srcy, w, h;
+	Uint8 sr, sg, sb, dr, dg, db;
+	Uint32 src_pixval, dst_pixval, colorkey;
+	GetPixelFn src_getpix, dst_getpix;
+	PutPixelFn putpix;
+	SDL_Rect fulldst;
+
+	if (blend_numer == blend_denom)
 	{
-		TFB_GL_UploadTransitionScreen ();
+		// normal blit: dst = src
+
+		// log_add (log_Debug, "normal blit\n");
+		SDL_BlitSurface (src, srcrect, dst, dstrect);
+		return;
 	}
+
+	// NOTE: following clipping code is copied from SDL-1.2.4 sources
+
+	// If the destination rectangle is NULL, use the entire dest surface
+	if (dstrect == NULL)
+	{
+		fulldst.x = fulldst.y = 0;
+		dstrect = &fulldst;
+	}
+
+	// clip the source rectangle to the source surface
+	if (srcrect)
+	{
+		int maxw, maxh;
+
+		srcx = srcrect->x;
+		w = srcrect->w;
+		if (srcx < 0)
+		{
+			w += srcx;
+			dstrect->x -= srcx;
+			srcx = 0;
+		}
+		maxw = src->w - srcx;
+		if (maxw < w)
+			w = maxw;
+
+		srcy = srcrect->y;
+		h = srcrect->h;
+		if (srcy < 0)
+		{
+			h += srcy;
+			dstrect->y -= srcy;
+			srcy = 0;
+		}
+		maxh = src->h - srcy;
+		if (maxh < h)
+			h = maxh;
+	}
+	else
+	{
+		srcx = 0;
+		srcy = 0;
+		w = src->w;
+		h = src->h;
+	}
+
+	// clip the destination rectangle against the clip rectangle
+	{
+		SDL_Rect *clip = &dst->clip_rect;
+		int dx, dy;
+
+		dx = clip->x - dstrect->x;
+		if (dx > 0)
+		{
+			w -= dx;
+			dstrect->x += dx;
+			srcx += dx;
+		}
+		dx = dstrect->x + w - clip->x - clip->w;
+		if (dx > 0)
+			w -= dx;
+
+		dy = clip->y - dstrect->y;
+		if (dy > 0)
+		{
+			h -= dy;
+			dstrect->y += dy;
+			srcy += dy;
+		}
+		dy = dstrect->y + h - clip->y - clip->h;
+		if (dy > 0)
+			h -= dy;
+	}
+
+	dstrect->w = w;
+	dstrect->h = h;
+
+	if (w <= 0 || h <= 0)
+		return;
+
+	x1 = srcx;
+	y1 = srcy;
+	x2 = srcx + w;
+	y2 = srcy + h;
+
+	if (TFB_GetColorKey (src, &colorkey) < 0)
+	{
+		has_colorkey = FALSE;
+		colorkey = 0;  /* Satisfying compiler */
+	}
+	else
+	{
+		has_colorkey = TRUE;
+	}
+
+	src_getpix = getpixel_for (src);
+	dst_getpix = getpixel_for (dst);
+	putpix = putpixel_for (dst);
+
+	if (blend_denom < 0)
+	{
+		// additive blit: dst = src + dst
+#if 0
+		log_add (log_Debug, "additive blit %d %d, src %d %d %d %d dst %d %d,"
+				" srcbpp %d", blend_numer, blend_denom, x1, y1, x2, y2,
+				dstrect->x, dstrect->y, src->format->BitsPerPixel);
 #endif
-}
+		for (y = y1; y < y2; ++y)
+		{
+			dst_y2 = dstrect->y + (y - y1);
+			for (x = x1; x < x2; ++x)
+			{
+				dst_x2 = dstrect->x + (x - x1);
+				src_pixval = src_getpix (src, x, y);
 
-bool
-TFB_SetGamma (float gamma)
-{
-	return (SDL_SetGamma (gamma, gamma, gamma) == 0);
-}
+				if (has_colorkey && src_pixval == colorkey)
+					continue;
 
-SDL_Surface *
-Create_Screen (SDL_Surface *templat, int w, int h)
-{
-	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
-			templat->format->BitsPerPixel,
-			templat->format->Rmask, templat->format->Gmask,
-			templat->format->Bmask, 0);
-	if (newsurf == 0) {
-		log_add (log_Error, "Couldn't create screen buffers: %s",
-				SDL_GetError());
+				dst_pixval = dst_getpix (dst, dst_x2, dst_y2);
+
+				SDL_GetRGB (src_pixval, src->format, &sr, &sg, &sb);
+				SDL_GetRGB (dst_pixval, dst->format, &dr, &dg, &db);
+
+				nr = sr + dr;
+				ng = sg + dg;
+				nb = sb + db;
+
+				if (nr > 255)
+					nr = 255;
+				if (ng > 255)
+					ng = 255;
+				if (nb > 255)
+					nb = 255;
+
+				putpix (dst, dst_x2, dst_y2,
+						SDL_MapRGB (dst->format, nr, ng, nb));
+			}
+		}
 	}
-	return newsurf;
-}
+	else if (blend_numer < 0)
+	{
+		// subtractive blit: dst = src - dst
+#if 0
+		log_add (log_Debug, "subtractive blit %d %d, src %d %d %d %d"
+				" dst %d %d, srcbpp %d", blend_numer, blend_denom,
+					x1, y1, x2, y2, dstrect->x, dstrect->y,
+					src->format->BitsPerPixel);
+#endif
+		for (y = y1; y < y2; ++y)
+		{
+			dst_y2 = dstrect->y + (y - y1);
+			for (x = x1; x < x2; ++x)
+			{
+				dst_x2 = dstrect->x + (x - x1);
+				src_pixval = src_getpix (src, x, y);
 
-int
-ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
-{
-	UnInit_Screen (screen);
-	*screen = Create_Screen (templat, w, h);
-	
-	return *screen == 0 ? -1 : 0;
+				if (has_colorkey && src_pixval == colorkey)
+					continue;
+
+				dst_pixval = dst_getpix (dst, dst_x2, dst_y2);
+
+				SDL_GetRGB (src_pixval, src->format, &sr, &sg, &sb);
+				SDL_GetRGB (dst_pixval, dst->format, &dr, &dg, &db);
+
+				nr = sr - dr;
+				ng = sg - dg;
+				nb = sb - db;
+
+				if (nr < 0)
+					nr = 0;
+				if (ng < 0)
+					ng = 0;
+				if (nb < 0)
+					nb = 0;
+
+				putpix (dst, dst_x2, dst_y2,
+						SDL_MapRGB (dst->format, nr, ng, nb));
+			}
+		}
+	}
+	else
+	{
+		// modulated blit: dst = src * (blend_numer / blend_denom)
+
+		float f = blend_numer / (float)blend_denom;
+#if 0
+		log_add (log_Debug, "modulated blit %d %d, f %f, src %d %d %d %d"
+				" dst %d %d, srcbpp %d\n", blend_numer, blend_denom, f,
+				x1, y1, x2, y2, dstrect->x, dstrect->y,
+				src->format->BitsPerPixel);
+#endif
+		for (y = y1; y < y2; ++y)
+		{
+			dst_y2 = dstrect->y + (y - y1);
+			for (x = x1; x < x2; ++x)
+			{
+				dst_x2 = dstrect->x + (x - x1);
+				src_pixval = src_getpix (src, x, y);
+
+				if (has_colorkey && src_pixval == colorkey)
+					continue;
+
+				SDL_GetRGB (src_pixval, src->format, &sr, &sg, &sb);
+
+				nr = (int)(sr * f);
+				ng = (int)(sg * f);
+				nb = (int)(sb * f);
+
+				if (nr > 255)
+					nr = 255;
+				if (ng > 255)
+					ng = 255;
+				if (nb > 255)
+					nb = 255;
+
+				putpix (dst, dst_x2, dst_y2,
+						SDL_MapRGB (dst->format, nr, ng, nb));
+			}
+		}
+	}
 }
 
 void
@@ -440,9 +577,22 @@ UnInit_Screen (SDL_Surface **screen)
 {
 	if (*screen == NULL)
 		return;
-
+	
 	SDL_FreeSurface (*screen);
 	*screen = NULL;
+}
+
+void
+TFB_UploadTransitionScreen (void)
+{
+	graphics_backend->uploadTransitionScreen ();
+}
+
+int
+TFB_HasColorKey (SDL_Surface *surface)
+{
+	Uint32 key;
+	return TFB_GetColorKey (surface, &key) == 0;
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)

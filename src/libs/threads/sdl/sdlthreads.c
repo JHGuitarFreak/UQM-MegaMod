@@ -29,6 +29,10 @@
 #include <sys/resource.h>
 #endif
 
+#if SDL_MAJOR_VERSION == 1
+typedef Uint32 SDL_threadID;
+#endif
+
 typedef struct _thread {
 	void *native;
 #ifdef NAMED_SYNCHRO
@@ -70,7 +74,7 @@ SigUSR1Handler (int signr) {
 static void
 LocalStats (SDL_Thread *thread) {
 #if defined (WIN32) || !defined(SDL_PTHREADS)
-	fprintf (stderr, "Thread ID %u\n", SDL_GetThreadID (thread));
+	fprintf (stderr, "Thread ID %08lx\n", (Uint64)SDL_GetThreadID (thread));
 #else  /* !defined (WIN32) && defined(SDL_PTHREADS) */
 	// This only works if SDL implements threads as processes
 	pid_t pid;
@@ -163,7 +167,7 @@ UnQueueThread (TrueThread thread)
 }
 
 static TrueThread
-FindThreadInfo (Uint32 threadID)
+FindThreadInfo (SDL_threadID threadID)
 {
 	TrueThread ptr;
 
@@ -255,8 +259,17 @@ CreateThread_SDL (ThreadFunction func, void *data, SDWORD stackSize
 	startInfo->data = data;
 	startInfo->sem = SDL_CreateSemaphore (0);
 	startInfo->thread = thread;
-	
+
+#if SDL_MAJOR_VERSION == 1
+	// SDL1 case
 	thread->native = SDL_CreateThread (ThreadHelper, (void *) startInfo);
+#elif defined(NAMED_SYNCHRO)
+	// SDL2 with UQM-aware named threads case
+	thread->native = SDL_CreateThread (ThreadHelper, thread->name, (void *) startInfo);
+#else
+	// SDL2 without UQM-aware named threads; use a placeholder for debuggers
+	thread->native = SDL_CreateThread (ThreadHelper, "UQM worker thread", (void *)startInfo);
+#endif
 	if (!(thread->native))
 	{
 		DestroyThreadLocal (thread->localData);
@@ -327,7 +340,7 @@ GetMyThreadLocal_SDL (void)
 typedef struct _mutex {
 	SDL_mutex *mutex;
 #ifdef TRACK_CONTENTION
-	Uint32 owner;
+	SDL_threadID owner;
 #endif
 #ifdef NAMED_SYNCHRO
 	const char *name;
@@ -509,7 +522,7 @@ ClearSemaphore_SDL (Semaphore s)
 
 typedef struct _recm {
 	SDL_mutex *mutex;
-	Uint32 thread_id;
+	SDL_threadID thread_id;
 	Uint32 locks;
 #ifdef NAMED_SYNCHRO
 	const char *name;
@@ -559,7 +572,7 @@ void
 LockRecursiveMutex_SDL (RecursiveMutex val)
 {
 	RecM *mtx = (RecM *)val;
-	Uint32 thread_id = SDL_ThreadID();
+	SDL_threadID thread_id = SDL_ThreadID();
 	if (!mtx->locks || mtx->thread_id != thread_id)
 	{
 #ifdef TRACK_CONTENTION
@@ -580,7 +593,7 @@ void
 UnlockRecursiveMutex_SDL (RecursiveMutex val)
 {
 	RecM *mtx = (RecM *)val;
-	Uint32 thread_id = SDL_ThreadID();
+	SDL_threadID thread_id = SDL_ThreadID();
 	if (!mtx->locks || mtx->thread_id != thread_id)
 	{
 #ifdef NAMED_SYNCHRO

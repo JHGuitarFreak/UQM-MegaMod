@@ -1497,6 +1497,18 @@
     <ClCompile Include="..\..\src\libs\network\wspiapiwrap.c">
       <Filter>Source Files\libs\network</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\libs\graphics\sdl\png2sdl.c">
+      <Filter>Source Files\libs\graphics\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\graphics\sdl\sdl1_common.c">
+      <Filter>Source Files\libs\graphics\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\graphics\sdl\sdl2_common.c">
+      <Filter>Source Files\libs\graphics\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\graphics\sdl\sdl2_pure.c">
+      <Filter>Source Files\libs\graphics\sdl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\getopt\getopt.h">
@@ -2788,6 +2800,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\uqmversion.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\graphics\sdl\png2sdl.h">
+      <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

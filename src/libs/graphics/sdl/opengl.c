@@ -25,6 +25,8 @@
 #include "libs/log.h"
 #include "uqm/units.h"
 
+#if SDL_MAJOR_VERSION == 1
+
 typedef struct _gl_screeninfo {
 	SDL_Surface *scaled;
 	GLuint texture;
@@ -53,6 +55,7 @@ static BOOLEAN first_init = TRUE;
 
 static void TFB_GL_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
 static void TFB_GL_Postprocess (void);
+static void TFB_GL_UploadTransitionScreen (void);
 static void TFB_GL_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
@@ -60,18 +63,44 @@ static void TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rec
 static TFB_GRAPHICS_BACKEND opengl_scaled_backend = {
 	TFB_GL_Preprocess,
 	TFB_GL_Postprocess,
+	TFB_GL_UploadTransitionScreen,
 	TFB_GL_Scaled_ScreenLayer,
 	TFB_GL_ColorLayer };
 
 static TFB_GRAPHICS_BACKEND opengl_unscaled_backend = {
 	TFB_GL_Preprocess,
 	TFB_GL_Postprocess,
+	TFB_GL_UploadTransitionScreen,
 	TFB_GL_Unscaled_ScreenLayer,
 	TFB_GL_ColorLayer };
+
+static SDL_Surface *
+Create_Screen (SDL_Surface *templat, int w, int h)
+{
+	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
+			templat->format->BitsPerPixel,
+			templat->format->Rmask, templat->format->Gmask,
+			templat->format->Bmask, 0);
+	if (newsurf == 0) {
+		log_add (log_Error, "Couldn't create screen buffers: %s",
+				SDL_GetError());
+	}
+	return newsurf;
+}
+
+static int
+ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
+{
+	UnInit_Screen (screen);
+	*screen = Create_Screen (templat, w, h);
+	
+	return *screen == 0 ? -1 : 0;
+}
 
 static int
 AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFactor)
 {
+	SDL_Surface *SDL_Video;
 	int videomode_flags;
 	ScreenColorDepth = bpp;
 	ScreenWidthActual = width;
@@ -310,7 +339,8 @@ TFB_GL_UninitGraphics (void)
 		UnInit_Screen (&GL_Screens[i].scaled);
 }
 
-void TFB_GL_UploadTransitionScreen (void)
+static void
+TFB_GL_UploadTransitionScreen (void)
 {
 	GL_Screens[TFB_SCREEN_TRANSITION].updated.x = 0;
 	GL_Screens[TFB_SCREEN_TRANSITION].updated.y = 0;
@@ -593,4 +623,5 @@ TFB_GL_Postprocess (void)
 	SDL_GL_SwapBuffers ();
 }	
 
+#endif
 #endif

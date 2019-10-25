@@ -44,14 +44,6 @@ SYSTEM_HOST_LDFLAGS=""
 ### SDL ###
 LIB_SDL_NAME="Simple DirectMedia Layer"
 case "$HOST_SYSTEM" in
-	Darwin)
-		LIB_SDL_CFLAGS='-I/Library/Frameworks/SDL.framework/Headers'
-		LIB_SDL_LDFLAGS='-framework SDL -framework Cocoa -lobjc'
-		LIB_SDL_VERSION=$(echo \
-                      "SDL_MAJOR_VERSION.SDL_MINOR_VERSION.SDL_PATCHLEVEL" | \
-                      gcc -E -include SDL/SDL_version.h $LIB_SDL_CFLAGS - | \
-                      tail -1 | tr -d ' ')
-		;;
 	WINSCW|GCCE)
 		LIB_SDL_CFLAGS='-I$BUILD_EPOCROOT/epoc32/include/SDL'
 		LIB_SDL_LDFLAGS=''		
@@ -73,31 +65,37 @@ case "$HOST_SYSTEM" in
 esac
 
 
-### SDL_mixer ###
-LIB_SDL_mixer_NAME="SDL_mixer"
-LIB_SDL_mixer_CFLAGS="$LIB_SDL_CFLAGS"
-LIB_SDL_mixer_LDFLAGS="$LIB_SDL_LDFLAGS -lSDL_mixer"
-LIB_SDL_mixer_VERSION=""
-
-
-### SDL_image ###
-LIB_SDL_image_NAME="SDL_image"
+### SDL2 ###
+LIB_SDL2_NAME="Simple DirectMedia Layer version 2.x"
 case "$HOST_SYSTEM" in
+	WINSCW|GCCE|ARMV5)
+		LIB_SDL2_DETECT="false"
+		;;
 	Darwin)
-		LIB_SDL_image_CFLAGS=''
-		LIB_SDL_image_LDFLAGS="-framework SDL_image"
-	;;
-	ARMV5|WINSCW|GCCE)
-		LIB_SDL_image_CFLAGS="$LIB_SDL_CFLAGS"
-		LIB_SDL_image_LDFLAGS="$LIB_SDL_LDFLAGS"
-		LIB_SDL_image_DETECT="true"
-		;;	
+		LIB_SDL2_DETECT="have_command sdl2-config"
+		LIB_SDL2_CFLAGS='$(sdl2-config --cflags)'
+		LIB_SDL2_LDFLAGS='$(sdl2-config --static-libs)'
+		LIB_SDL2_VERSION='$(sdl2-config --version)'
+		;;
 	*)
-		LIB_SDL_image_CFLAGS="$LIB_SDL_CFLAGS"
-		LIB_SDL_image_LDFLAGS="$LIB_SDL_LDFLAGS -lSDL_image"
+		LIB_SDL2_DETECT="have_command sdl2-config"
+		LIB_SDL2_CFLAGS='$(sdl2-config --cflags)'
+		LIB_SDL2_LDFLAGS='$(sdl2-config --libs)'
+		LIB_SDL2_VERSION='$(sdl2-config --version)'
 		;;
 esac
-LIB_SDL_image_VERSION=""
+
+
+### libpng ###
+LIB_libpng_NAME="libpng"
+# libpng generally integrates with pkg-config, but that also generally
+# only matters if we're building against a non-systemwide version. UQM
+# should not need to do that.
+#
+# To link against a static libpng, set LDFLAGS with an appropriate -L
+# argument before calling `build.sh uqm config`.
+LIB_libpng_CFLAGS=""
+LIB_libpng_LDFLAGS="-lpng"
 
 
 ### OpenAL ###
@@ -181,7 +179,7 @@ case "$HOST_SYSTEM" in
 		;;
 	Darwin)
 		LIB_vorbisfile_CFLAGS="-D__MACOSX__"
-		LIB_vorbisfile_LDFLAGS="-framework Ogg -framework Vorbis"
+		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis"
 		;;
 	QNX)
 		LIB_vorbisfile_CFLAGS=""

@@ -21,6 +21,9 @@
 #include "libs/log.h"
 #include "../../../uqm/units.h"
 
+#if SDL_MAJOR_VERSION == 1
+
+static SDL_Surface *SDL_Video = NULL;
 static SDL_Surface *fade_color_surface = NULL;
 static SDL_Surface *fade_temp = NULL;
 static SDL_Surface *scaled_display = NULL;
@@ -33,20 +36,46 @@ static void TFB_Pure_Scaled_Preprocess (int force_full_redraw, int transition_am
 static void TFB_Pure_Scaled_Postprocess (void);
 static void TFB_Pure_Unscaled_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
 static void TFB_Pure_Unscaled_Postprocess (void);
+static void TFB_Pure_UploadTransitionScreen (void);
 static void TFB_Pure_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_Pure_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
 
 static TFB_GRAPHICS_BACKEND pure_scaled_backend = {
 	TFB_Pure_Scaled_Preprocess,
 	TFB_Pure_Scaled_Postprocess,
+	TFB_Pure_UploadTransitionScreen,
 	TFB_Pure_ScreenLayer,
 	TFB_Pure_ColorLayer };
 
 static TFB_GRAPHICS_BACKEND pure_unscaled_backend = {
 	TFB_Pure_Unscaled_Preprocess,
 	TFB_Pure_Unscaled_Postprocess,
+	TFB_Pure_UploadTransitionScreen,
 	TFB_Pure_ScreenLayer,
 	TFB_Pure_ColorLayer };
+
+static SDL_Surface *
+Create_Screen (SDL_Surface *templat, int w, int h)
+{
+	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
+			templat->format->BitsPerPixel,
+			templat->format->Rmask, templat->format->Gmask,
+			templat->format->Bmask, 0);
+	if (newsurf == 0) {
+		log_add (log_Error, "Couldn't create screen buffers: %s",
+				SDL_GetError());
+	}
+	return newsurf;
+}
+
+static int
+ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
+{
+	UnInit_Screen (screen);
+	*screen = Create_Screen (templat, w, h);
+	
+	return *screen == 0 ? -1 : 0;
+}
 
 // We cannot rely on SDL_DisplayFormatAlpha() anymore. It can return
 // formats that we do not expect (SDL v1.2.14 on Mac OSX). Mac likes
@@ -414,6 +443,12 @@ TFB_Pure_Unscaled_Postprocess (void)
 }
 
 static void
+TFB_Pure_UploadTransitionScreen (void)
+{
+	/* This is a no-op in SDL1 Pure mode */
+}
+
+static void
 TFB_Pure_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	if (SDL_Screens[screen] == backbuffer)
@@ -484,3 +519,4 @@ Scale_PerfTest (void)
 	SDL_UnlockSurface (SDL_Screen);
 }
 
+#endif

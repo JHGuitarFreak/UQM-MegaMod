@@ -1750,7 +1750,6 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT Width
 	{	// This is a defined planet; pixmap for the topography and
 		// elevation data is supplied in Surface Definition frame
 		BOOLEAN DeleteDef = FALSE;
-		BOOLEAN DeleteElev = FALSE;
 		FRAME ElevFrame;
 
 		// surface pixmap
@@ -1760,7 +1759,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT Width
 				|| GetFrameHeight (SurfDefFrame) != Height)
 		{
 			pSolarSysState->TopoFrame = CaptureDrawable (RescaleFrame (
-					SurfDefFrame, Width, Height, FALSE));
+					SurfDefFrame, Width, Height));
 			// will not need the passed FRAME anymore
 			DeleteDef = TRUE;
 		}
@@ -1773,20 +1772,27 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT Width
 			SBYTE* elev;
 
 			ElevFrame = SetAbsFrameIndex (SurfDefFrame, 1);
-			if (GetFrameWidth (ElevFrame) != Width
-					|| GetFrameHeight (ElevFrame) != Height)
+			if (GetFrameWidth (ElevFrame) == Width
+					&& GetFrameHeight (ElevFrame) == Height
+					&& inOrbit)
 			{
-				ElevFrame = CaptureDrawable (RescaleFrame (ElevFrame,
-						Width, Height, TRUE));
-				DeleteElev = TRUE;
+				// grab the elevation data in 1 byte per pixel format
+				ReadFramePixelIndexes (ElevFrame, (BYTE *)Orbit->lpTopoData,
+						Width, Height, TRUE);
+				// the supplied data is in unsigned format, must convert
+				for (i = 0, elev = Orbit->lpTopoData; i < Width * Height; ++i, ++elev)
+				{
+					*elev = *(BYTE *)elev - 128;
+				}
 			}
-
-			// grab the elevation data in 1 byte per pixel format
-			ReadFramePixelIndexes (ElevFrame, (BYTE *)Orbit->lpTopoData,
-					Width, Height, inOrbit);
-			// the supplied data is in unsigned format, must convert
-			for (i = 0, elev = Orbit->lpTopoData; i < Width * Height; ++i, ++elev) {
-				*elev = *(BYTE *)elev - 128;
+			else
+			{
+				if (inOrbit)
+					log_add (log_Warning, "Elevation frame has incorrect size"
+							" (wanted %dx%d, got %dx%d)", Width, Height,
+							GetFrameWidth (ElevFrame),
+							GetFrameHeight (ElevFrame));
+				memset (Orbit->lpTopoData, (SBYTE)-128, Width * Height);
 			}
 		}
 		else
@@ -1822,8 +1828,6 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT Width
 
 		if (DeleteDef)
 			DestroyDrawable (ReleaseDrawable (SurfDefFrame));
-		if (DeleteElev)
-			DestroyDrawable (ReleaseDrawable (ElevFrame));
 	}
 	else
 	{	// Generate planet surface elevation data and look

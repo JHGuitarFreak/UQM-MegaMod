@@ -20,11 +20,11 @@
 #define OPENGL_H
 
 #include "libs/graphics/sdl/sdl_common.h"
+#if SDL_MAJOR_VERSION == 1
 
 int TFB_GL_InitGraphics (int driver, int flags, int width, int height, unsigned int resFactor);
 void TFB_GL_UninitGraphics (void);
 int TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor);
-void TFB_GL_UploadTransitionScreen (void);
 
 #ifdef HAVE_OPENGL
 #ifdef WIN32
@@ -84,6 +84,6 @@ typedef unsigned short wchar_t;
 #include SDL_INCLUDE(SDL_opengl.h)
 
 #endif /* WIN32 */
+#endif /* SDL_MAJOR_VERSION == 1 */
 #endif /* HAVE_OPENGL */
-
 #endif

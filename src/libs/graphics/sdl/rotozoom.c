@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "sdl_common.h"
 #include "libs/memlib.h"
 #include "port.h"
 #include "rotozoom.h"
@@ -505,6 +506,7 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
     int x, y, dx, dy, xd, yd, sdx, sdy, ax, ay, sw, sh;
     tColorY *pc, *sp;
     int gap;
+    Uint32 colorkey = 0;
 
     /*
      * Variable setup 
@@ -520,7 +522,8 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
     /*
      * Clear surface to colorkey 
      */
-    memset(pc, (unsigned char) (src->format->colorkey & 0xff), dst->pitch * dst->h);
+    TFB_GetColorKey (src, &colorkey);
+    memset(pc, (unsigned char) (colorkey & 0xff), dst->pitch * dst->h);
     /*
      * Iterate through destination surface 
      */
@@ -708,11 +711,13 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int s
 	    /*
 	     * Turn on source-alpha support 
 	     */
-	    SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+	    TFB_SetSurfaceAlphaMod (rz_dst, 255);
 	} else {
 	    /*
 	     * Copy palette and colorkey info 
 	     */
+	    Uint32 srckey = 0;
+	    TFB_GetColorKey (rz_src, &srckey);
 	    for (i = 0; i < rz_src->format->palette->ncolors; i++) {
 		rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
 	    }
@@ -722,7 +727,7 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int s
 	     */
 	    transformSurfaceY(rz_src, rz_dst, dstwidthhalf, dstheighthalf,
 			      (int) (sanglezoominv), (int) (canglezoominv));
-	    SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+	    TFB_SetColorKey(rz_dst, srckey, 1);
 	}
 	/*
 	 * Unlock source surface 
@@ -777,11 +782,13 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int s
 	    /*
 	     * Turn on source-alpha support 
 	     */
-	    SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+	    TFB_SetSurfaceAlphaMod (rz_dst, 255);
 	} else {
 	    /*
 	     * Copy palette and colorkey info 
 	     */
+	    Uint32 srckey = 0;
+	    TFB_GetColorKey (rz_src, &srckey);
 	    for (i = 0; i < rz_src->format->palette->ncolors; i++) {
 		rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
 	    }
@@ -790,7 +797,7 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int s
 	     * Call the 8bit transformation routine to do the zooming 
 	     */
 	    zoomSurfaceY(rz_src, rz_dst);
-	    SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+	    TFB_SetColorKey(rz_dst, srckey, 1);
 	}
 	/*
 	 * Unlock source surface 
@@ -994,11 +1001,13 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
 	/*
 	 * Turn on source-alpha support 
 	 */
-	SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+	TFB_SetSurfaceAlphaMod (rz_dst, 255);
     } else {
 	/*
 	 * Copy palette and colorkey info 
 	 */
+	Uint32 srckey = 0;
+	TFB_GetColorKey (rz_src, &srckey);
 	for (i = 0; i < rz_src->format->palette->ncolors; i++) {
 	    rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
 	}
@@ -1007,7 +1016,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
 	 * Call the 8bit transformation routine to do the zooming 
 	 */
 	zoomSurfaceY(rz_src, rz_dst);
-	SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY, rz_src->format->colorkey);
+	TFB_SetColorKey(rz_dst, srckey, 0);
     }
     /*
      * Unlock source surface 
