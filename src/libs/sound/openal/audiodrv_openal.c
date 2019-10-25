@@ -115,9 +115,9 @@ UQM_COMPILE_TIME_ASSERT (ALuint_fits_in_audio_Object,
 static void
 openAL_ConvertObjectArrayToALuints (uint32 n, audio_Object *arr)
 {
+	uint32 i;
 	if (sizeof (audio_Object) == sizeof (ALuint))
 		return;
-	uint32 i;
 	for (i = 0; i < n; i++)
 	{
 		((ALuint *) arr)[i] = arr[i];
@@ -128,9 +128,10 @@ openAL_ConvertObjectArrayToALuints (uint32 n, audio_Object *arr)
 static void
 openAL_ConvertObjectArrayFromALuints (uint32 n, audio_Object *arr)
 {
+	uint32 i;
 	if (sizeof (audio_Object) == sizeof (ALuint))
 		return;
-	uint32 i = n;
+	i = n;
 	while (i--)
 	{
 		arr[i] = ((ALuint *) arr)[i];
