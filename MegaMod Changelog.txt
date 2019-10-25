@@ -6,11 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas]
 - Correct the UI scaling in HD to be more faithful to Vanilla UQM
 - Hide addon options if the package isn't in the addon folder
-- Migrate the MegaMod over to SDL2
 
 ## [v0.8.0.85]
 ### Added
 - Ala-lala: Allow parallelization of build.sh builds with -j
+- Ala-lala: Add SDL2 support (ported from UQM 0.7.1 branch)
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -44,6 +44,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Super Melee menu music continues after viewing a ship description slide or video.
 - Ala-lala: Fix alignment of lander reports
 - Ala-lala: Improve performance of smooth zoom in Super Melee when building in Visual Studio
+- Ala-lala: Scale menu sliders in HD
+
 
 ## [v0.8.0.84]
 ### Fixed
