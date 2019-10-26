@@ -431,8 +431,8 @@ main (int argc, char *argv[])
 		printf("MSC_VER: %d\n", _MSC_VER);
 		printf("MSC_FULL_VER: %d\n", _MSC_FULL_VER);
 		printf("MSC_BUILD: %d\n\n", _MSC_BUILD);
-		log_add(log_Info, "MSC_VER: %d", _MSC_VER);
-		log_add(log_Info, "MSC_FULL_VER: %d", _MSC_FULL_VER);
+		log_add(log_Info, "MSC_VER: %d\n", _MSC_VER);
+		log_add(log_Info, "MSC_FULL_VER: %d\n", _MSC_FULL_VER);
 		log_add(log_Info, "MSC_BUILD: %d\n", _MSC_BUILD);
 #endif // _MSC_VER
 
@@ -440,6 +440,21 @@ main (int argc, char *argv[])
 		printf("GCC_VERSION: %d.%d.%d\n\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 		log_add(log_Info, "GCC_VERSION: %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif // __GNUC__
+
+#ifdef __clang__
+		printf("CLANG_VERSION: %d.%d.%d\n\n", __clang_major__, __clang_minor__, __clang_patchlevel__);
+		log_add(log_Info, "CLANG_VERSION: %d.%d.%d\n", __clang_major__, __clang_minor__, __clang_patchlevel__);
+#endif // __clang__
+
+#ifdef __MINGW32__
+		printf("MINGW32_VERSION: %d.%d\n\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
+		log_add(log_Info, "MINGW32_VERSION: %d.%d\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
+#endif // __MINGW32__
+
+#ifdef __MINGW64__
+		printf("MINGW64_VERSION: %d.%d\n\n", __MINGW64_MAJOR_VERSION, __MINGW64_MINOR_VERSION);
+		log_add(log_Info, "MINGW64_VERSION: %d.%d\n", __MINGW64_MAJOR_VERSION, __MINGW64_MINOR_VERSION);
+#endif // __MINGW64__
 
 		printf("Buid Time: %s %s\n\n", __DATE__, __TIME__);
 
