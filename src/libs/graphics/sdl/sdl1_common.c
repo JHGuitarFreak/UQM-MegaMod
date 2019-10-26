@@ -44,6 +44,10 @@ TFB_PreInit (void)
 			"%d.%d.%d)", SDL_Linked_Version ()->major,
 			SDL_Linked_Version ()->minor, SDL_Linked_Version ()->patch,
 			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+	printf ("Using SDL version %d.%d.%d\nCompiled with "
+		"%d.%d.%d\n\n", SDL_Linked_Version()->major,
+		SDL_Linked_Version()->minor, SDL_Linked_Version()->patch,
+		SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
 #if 0
 	if (SDL_Linked_Version ()->major != SDL_MAJOR_VERSION ||
 			SDL_Linked_Version ()->minor != SDL_MINOR_VERSION ||

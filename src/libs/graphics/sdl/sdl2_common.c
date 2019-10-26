@@ -46,6 +46,9 @@ TFB_PreInit (void)
 	log_add (log_Info, "Using SDL version %d.%d.%d (compiled with "
 			"%d.%d.%d)", linked.major, linked.minor, linked.patch,
 			compiled.major, compiled.minor, compiled.patch);
+	printf ("Using SDL version %d.%d.%d\nCompiled with "
+		"%d.%d.%d\n\n", linked.major, linked.minor, linked.patch,
+		compiled.major, compiled.minor, compiled.patch);
 #if 0
 	if (compiled.major != linked.major || compiled.minor != linked.minor ||
 			compiled.patch != linked.patch)
