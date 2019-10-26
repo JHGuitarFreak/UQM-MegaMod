@@ -44,7 +44,6 @@
 
 #include SDL_INCLUDE(SDL_version.h)
 
-
 static STRING SetupTab;
 
 typedef struct setup_menu_state {

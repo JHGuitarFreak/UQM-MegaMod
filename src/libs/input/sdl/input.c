@@ -35,6 +35,7 @@
 static int kbdhead=0, kbdtail=0;
 static UniChar kbdbuf[KBDBUFSIZE];
 static UniChar lastchar;
+
 #if SDL_MAJOR_VERSION == 1
 static int num_keys = 0;
 static int *kbdstate = NULL;

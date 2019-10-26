@@ -176,8 +176,10 @@ typedef unsigned short mode_t;
 #if defined(__cplusplus)
 extern "C" {
 #endif
-int snprintf(char *str, size_t size, const char *format, ...);
-#if (_MSC_VER < 1500)
+#if (_MSC_VER < 1500) 
+// Use Windows SDK version of snprintf & vsnprintf when building with Visual Studio
+// versions higher than 2005 - Serosis
+int snprintf(char* str, size_t size, const char* format, ...);
 int vsnprintf(char *str, size_t size, const char *format, va_list args);
 #endif
 #if defined(__cplusplus)

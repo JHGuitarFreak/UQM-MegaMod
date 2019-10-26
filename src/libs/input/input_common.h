@@ -32,7 +32,7 @@ extern int TFB_InitInput (int driver, int flags);
 extern void TFB_UninitInput (void);
 
 #if defined(ANDROID) || defined(__ANDROID__)
-#define MAX_FLIGHT_ALTERNATES  3
+#define MAX_FLIGHT_ALTERNATES 3
 #else
 #define MAX_FLIGHT_ALTERNATES 2
 #endif
