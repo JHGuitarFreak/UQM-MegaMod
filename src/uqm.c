@@ -176,7 +176,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, volasMusic);
 	DECL_CONFIG_OPTION(bool, wholeFuel);
 	DECL_CONFIG_OPTION(bool, directionalJoystick); // For Android
-	DECL_CONFIG_OPTION(bool, landerHold);
+	DECL_CONFIG_OPTION(int,	 landerHold);
 	DECL_CONFIG_OPTION(int,  ipTrans);
 	DECL_CONFIG_OPTION(int,  optDifficulty);
 	DECL_CONFIG_OPTION(bool, fuelRange);
