@@ -104,6 +104,8 @@
       <WarningLevel>Level2</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;_VW=320;_VH=240;GFXMODULE_SDL;THREADLIB_SDL;HAVE_OPENAL;HAVE_ZIP;HAVE_JOYSTICK;NETPLAY;ZLIB_DLL;USE_INTERNAL_MIKMOD;USE_INTERNAL_LUA;USE_PLATFORM_ACCEL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\src;..\..\src\regex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <PostBuildEvent>
       <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"
@@ -140,6 +142,8 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <WarningLevel>Level2</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;_VW=320;_VH=240;HAVE_OPENGL;GFXMODULE_SDL;THREADLIB_SDL;HAVE_OPENAL;HAVE_ZIP;HAVE_JOYSTICK;NETPLAY;ZLIB_DLL;USE_INTERNAL_MIKMOD;USE_INTERNAL_LUA;USE_PLATFORM_ACCEL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\src;..\..\src\regex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <PostBuildEvent>
       <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"
@@ -177,6 +181,8 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <PreprocessorDefinitions>DEBUG;_DEBUG;DEBUG_TRACK_SEM;DEBUG_DCQ_THREADS;WIN32;_CONSOLE;_VW=320;_VH=240;GFXMODULE_SDL;THREADLIB_SDL;HAVE_OPENAL;HAVE_ZIP;HAVE_JOYSTICK;NETPLAY;ZLIB_DLL;USE_INTERNAL_MIKMOD;USE_INTERNAL_LUA;USE_PLATFORM_ACCEL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BrowseInformation>true</BrowseInformation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Midl>
       <TypeLibraryName>.\Debug\UrQuanMasters.tlb</TypeLibraryName>
@@ -216,6 +222,8 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <PreprocessorDefinitions>DEBUG;_DEBUG;DEBUG_TRACK_SEM;DEBUG_DCQ_THREADS;WIN32;_CONSOLE;_VW=320;_VH=240;HAVE_OPENGL;GFXMODULE_SDL;THREADLIB_SDL;HAVE_OPENAL;HAVE_ZIP;HAVE_JOYSTICK;NETPLAY;ZLIB_DLL;USE_INTERNAL_MIKMOD;USE_INTERNAL_LUA;USE_PLATFORM_ACCEL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BrowseInformation>true</BrowseInformation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Midl>
       <TypeLibraryName>.\Debug\UrQuanMasters.tlb</TypeLibraryName>
