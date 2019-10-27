@@ -206,8 +206,6 @@ static void
 key_init (void)
 {
 	unsigned int i;
-	int signed_num_sdl_keys; // JMS: New variable to silence warnings
-	// int num_keys; // Temp to match type of param for SDL_GetKeyState().
 
 	pool = allocate_key_chunk ();
 	for (i = 0; i < KEYBOARD_INPUT_BUCKETS; i++)
