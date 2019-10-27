@@ -870,7 +870,7 @@ drawLandingFuelUsage (COUNT fuel)
 	/* We need this so we can save the StatusMessageMode
 	 * and fix it when we're done.
 	 */
-	StatMsgMode old_status_message_mode;
+	StatMsgMode old_status_message_mode = SMM_DEFAULT;
 	UNICODE buf[100];
 
 	if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel) <= (SDWORD)(get_fuel_to_sol ()))
