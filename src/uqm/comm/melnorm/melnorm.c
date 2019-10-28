@@ -606,7 +606,7 @@ const size_t NUM_TECH_ITEMS = ARRAY_SIZE (tech_sale_catalog);
 // Returns NULL if the player has all the techs.
 static const TechSaleData*
 GetNextTechForSale (void) {
-	size_t i = 0;
+	BYTE i = 0;
 	BYTE j = 0;
 
 	if(DIF_HARD && CurStarDescPtr){
