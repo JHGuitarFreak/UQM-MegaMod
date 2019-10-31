@@ -192,6 +192,8 @@ struct _mixer_Source
 	mixer_SourceState state;
 	bool looping;
 	float gain;
+	float leftGain;
+	float rightGain;
 	uint32 cqueued;
 	uint32 cprocessed;
 	mixer_Buffer *firstqueued; /* first buf in the queue */
