@@ -264,6 +264,8 @@ mixer_GenSources (uint32 n, mixer_Object *psrcobj)
 		src->state = MIX_INITIAL;
 		src->looping = false;
 		src->gain = MIX_GAIN_ADJ;
+		src->leftGain = 1;
+		src->rightGain = 1;
 		src->cqueued = 0;
 		src->cprocessed = 0;
 		src->firstqueued = 0;
@@ -461,12 +463,49 @@ mixer_Sourcef (mixer_Object srcobj, mixer_SourceProp pname, float value)
 	UnlockRecursiveMutex (src_mutex);
 }
 
-/* set source float array property (CURRENTLY NOT IMPLEMENTED) */
+/* set source float array property */
 void mixer_Sourcefv (mixer_Object srcobj, mixer_SourceProp pname, float *value)
 {
-	(void)srcobj;
-	(void)pname;
-	(void)value;
+	mixer_Source *src = (mixer_Source *) srcobj;
+
+	if (!src)
+	{
+		mixer_SetError (MIX_INVALID_NAME);
+		log_add (log_Debug, "mixer_Sourcefv() called with null source");
+		return;
+	}
+
+	LockRecursiveMutex (src_mutex);
+
+	if (src->magic != mixer_srcMagic)
+	{
+		mixer_SetError (MIX_INVALID_NAME);
+		log_add (log_Debug, "mixer_Sourcefv(): not a source");
+	}
+	else
+	{
+		switch (pname)
+		{
+		case MIX_POSITION:
+		{
+			float dist = sqrt (value[0] * value[0] + value[2] * value[2]);
+			float invDist = 1.f / max (0.01f, dist);
+			float pan;
+			if (dist == 0 || mixer_channels == 1)
+				pan = 0;
+			else
+				pan = value[0] / dist;
+			src->leftGain = (1 - pan) * invDist;
+			src->rightGain = (1 + pan) * invDist;
+			break;
+		}
+		default:
+			log_add (log_Debug, "mixer_Sourcefv() called "
+					"with unsupported property %u", pname);
+		}
+	}
+
+	UnlockRecursiveMutex (src_mutex);
 }
 
 
@@ -1036,6 +1075,7 @@ mixer_SourceGetNextSample (mixer_Source *src, float *psamp, bool left)
 		{
 			*psamp = src->samplecache = buf->Resample(src, left) * src->gain;
 		}
+		*psamp *= left ? src->leftGain : src->rightGain;
 
 		if (src->pos < buf->size ||
 				(left && buf->sampsize != mixer_sampsize))
