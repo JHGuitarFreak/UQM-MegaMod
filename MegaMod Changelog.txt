@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
-- Correct the UI scaling in HD to be more faithful to Vanilla UQM
+- Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
 - Hide addon options if the package isn't in the addon folder
+- HARD MODE: Make bio-data take up rooom in the storage bays
 
 ## [v0.8.0.85]
 ### Added
