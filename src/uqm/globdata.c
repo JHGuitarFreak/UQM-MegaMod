@@ -510,7 +510,6 @@ InitGameStructures (void)
  
 	if (optHeadStart){
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 2);
-		SET_GAME_STATE (PROBE_MESSAGE_DELIVERED, 1);
 		if (!NOMAD) {
 			SET_GAME_STATE(MOONBASE_ON_SHIP, 1);
 			SET_GAME_STATE(MOONBASE_DESTROYED, 1);
@@ -571,12 +570,6 @@ InitGameStructures (void)
 	CurStarDescPtr = 0;
 	GLOBAL (autopilot.x) = ~0;
 	GLOBAL (autopilot.y) = ~0;
-	if (optHeadStart && PrimeSeed) {
-		// Start at Earth when Head Start is enabled
-		GLOBAL(ShipFacing) = 1;
-		GLOBAL(ip_location.x) = EARTH_OUTER_X;
-		GLOBAL(ip_location.y) = EARTH_OUTER_Y;
-	}
 
 	return (TRUE);
 }
