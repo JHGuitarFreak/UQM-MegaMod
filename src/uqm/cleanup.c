@@ -74,6 +74,7 @@ UninitKernel (void)
 	DestroyDrawable (ReleaseDrawable (ActivityFrame));
 	DestroyFont (TinyFont);
 	DestroyFont (StarConFont);
+	DestroyFont	(StarConLgFont);
 	DestroyFont (PlyrFont);
 	DestroyFont (MeleeFont);
 

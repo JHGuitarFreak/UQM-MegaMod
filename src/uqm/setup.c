@@ -57,6 +57,7 @@ CONTEXT OffScreenContext;
 SIZE screen_width, screen_height;
 FRAME Screen;
 FONT StarConFont;
+FONT StarConLgFont;
 FONT MicroFont;
 FONT TinyFont;
 FONT PlyrFont;
@@ -266,6 +267,10 @@ InitKernel (void)
 
 	StarConFont = LoadFont (STARCON_FONT);
 	if (StarConFont == NULL)
+		return FALSE;
+
+	StarConLgFont = LoadFont (STARCONLG_FONT);
+	if (StarConLgFont == NULL)
 		return FALSE;
 
 	TinyFont = LoadFont (TINY_FONT);

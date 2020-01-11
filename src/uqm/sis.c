@@ -565,7 +565,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		r.corner.x = RES_BOOL(2, 5);		// JMS_GFX
 		r.corner.y = RES_BOOL(20, 63);	// JMS_GFX
 		r.extent.width = SHIP_NAME_WIDTH;	// JMS_GFX
-		r.extent.height = SHIP_NAME_HEIGHT + IF_HD(1);
+		r.extent.height = SHIP_NAME_HEIGHT + IF_HD(2);
 
 		t.pStr = GLOBAL_SIS (ShipName);
 	}

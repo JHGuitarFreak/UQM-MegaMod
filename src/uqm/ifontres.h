@@ -10,6 +10,7 @@
 #define PT17AA_FONT "credits.font.pt17"
 #define PT45AA_FONT "credits.font.pt45"
 #define STARCON_FONT "font.starcon"
+#define STARCONLG_FONT "font.starconlg"
 #define TINY_FONT "font.tiny"
 #define TINY_FALLBACK_TO_ORIG_FONT "font.tinyfallbacktoorig"
 #define TINY_FALLBACK_TO_HD_FONT "font.tinyfallbacktohd"
