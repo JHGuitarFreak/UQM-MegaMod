@@ -50,11 +50,11 @@ DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 	RECT r;
 	COUNT text_base_y = 106 + 28;
 	COUNT text_spacing_y = 23 - 4;
-	COUNT HD_Y = 32;
+	COUNT HD_Y = 26;
 	//STRING locString;
 
 	SetContext (ScreenContext);
-	SetContextFont (RES_BOOL(StarConFont, MeleeFont));
+	SetContextFont (RES_BOOL(StarConFont, StarConLgFont));
 	SetContextForeGroundColor (BLACK_COLOR);
 
 	t.baseline.x = RES_SCALE(73 - 4); // JMS_GFX

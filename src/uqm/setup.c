@@ -269,9 +269,11 @@ InitKernel (void)
 	if (StarConFont == NULL)
 		return FALSE;
 
-	StarConLgFont = LoadFont (STARCONLG_FONT);
-	if (StarConLgFont == NULL)
-		return FALSE;
+	if (HDPackPresent) {
+		StarConLgFont = LoadFont (STARCONLG_FONT);
+		if (StarConLgFont == NULL)
+			return FALSE;
+	}
 
 	TinyFont = LoadFont (TINY_FONT);
 	if (TinyFont == NULL)
