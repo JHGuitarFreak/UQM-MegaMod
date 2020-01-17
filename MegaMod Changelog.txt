@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Allow parallelization of build.sh builds with -j
 - Ala-lala: Add SDL2 support (ported from UQM 0.7.1 branch)
 - Ala-lala: Add basic 2D positional audio support to MixSDL and fix attenuation in HD
+- A new, larger, more faithful looking "StarCon" font for HD
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -21,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - More accurately match the HD shipyard to its vanilla counterpart
 - Cut the bitrate of the ogg files in the base content to slim it down
 - Moved Volasaurus' interplanetary music outside of the base package to be used as an add-on
+- Made a new, more faithful looking "StarCon" font for HD
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
