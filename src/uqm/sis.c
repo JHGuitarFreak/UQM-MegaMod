@@ -683,13 +683,13 @@ DrawFlagshipStats (void)
 	/* END collect stats */
 
 	OldContext = SetContext (SpaceContext);
-	OldFont = SetContextFont (StarConFont);
+	OldFont = SetContextFont (StarConLgFont);
 	OldFontEffect = SetContextFontEffect (NULL);
 	GetContextFontLeading (&leading);
 
 	/* we need room to play.  full screen width, 4 lines tall */
 	r.corner.x = 0;
-	r.corner.y = SIS_SCREEN_HEIGHT - (4 * leading) - IF_HD(60); // JMS_GFX
+	r.corner.y = SIS_SCREEN_HEIGHT - (4 * leading) - IF_HD(42); // JMS_GFX
 	r.extent.width = SIS_SCREEN_WIDTH;
 	r.extent.height = (4 * leading) + IF_HD(60);// JMS_GFX
 
@@ -701,7 +701,7 @@ DrawFlagshipStats (void)
 	   fact that the leading is way more than is generally needed.
 	*/
 	leading -= RES_BOOL(3, -6);// JMS_GFX
-	t.baseline.x = SIS_SCREEN_WIDTH / RES_BOOL(6, 11); //JMS_GFX
+	t.baseline.x = SIS_SCREEN_WIDTH / RES_BOOL(6, 8); //JMS_GFX
 	t.baseline.y = r.corner.y + leading + 3;
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
@@ -720,7 +720,7 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 3); // "tail:"
 	font_DrawText (&t);
 
-	t.baseline.x += 5;
+	t.baseline.x += RES_BOOL(5, 10);
 	t.baseline.y = r.corner.y + leading + 3;
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
@@ -759,7 +759,7 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 7); // "maximum fuel:"
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - RES_BOOL(2, 40); // JMS_GFX
+	t.baseline.x = r.extent.width - RES_BOOL(2, 6); // JMS_GFX
 	t.baseline.y = r.corner.y + leading + 3;
 	t.pStr = buf;
 
