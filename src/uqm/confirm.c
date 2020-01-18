@@ -42,7 +42,7 @@ static void
 DrawConfirmationWindow (BOOLEAN answer)
 {
 	Color oldfg = SetContextForeGroundColor (MENU_TEXT_COLOR);
-	FONT  oldfont = SetContextFont (StarConFont);
+	FONT  oldfont = SetContextFont (StarConLgFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	RECT r;
 	TEXT t;
@@ -255,7 +255,7 @@ DoPopupWindow (const char *msg)
 	//   We do not know the dimensions here, and so save the whole context
 	s = SaveContextFrame (NULL);
 
-	Widget_SetFont (StarConFont);
+	Widget_SetFont (StarConLgFont);
 	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR, SHADOWBOX_DARK_COLOR,
 			SHADOWBOX_MEDIUM_COLOR);
 	DrawLabelAsWindow (&label, &windowRect);

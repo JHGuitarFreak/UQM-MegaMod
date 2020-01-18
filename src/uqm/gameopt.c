@@ -58,7 +58,7 @@ ConfirmSaveLoad (STAMP *MsgStamp)
 	RECT r, clip_r;
 	TEXT t;
 
-	SetContextFont (StarConFont);
+	SetContextFont (StarConLgFont);
 	GetContextClipRect (&clip_r);
 
 	t.baseline.x = clip_r.extent.width >> 1;
