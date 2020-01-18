@@ -94,6 +94,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 			TinyFont = LoadFont (TINY_FALLBACK_TO_ORIG_FONT);
 			PlyrFont = LoadFont (PLYR_FALLBACK_TO_ORIG_FONT);
 			StarConFont = LoadFont (SCON_FALLBACK_TO_ORIG_FONT);
+			StarConLgFont = LoadFont(SCON_FALLBACK_TO_ORIG_FONT);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
@@ -102,6 +103,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 			TinyFont = LoadFont (TINY_FALLBACK_TO_HD_FONT);
 			PlyrFont = LoadFont (PLYR_FALLBACK_TO_HD_FONT);
 			StarConFont = LoadFont (SCON_FALLBACK_TO_HD_FONT);
+			StarConLgFont = LoadFont (SCONLG_FALLBACK_TO_HD_FONT);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));

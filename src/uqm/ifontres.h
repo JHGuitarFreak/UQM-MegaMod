@@ -18,4 +18,5 @@
 #define PLYR_FALLBACK_TO_HD_FONT "font.plyrfallbacktohd"
 #define SCON_FALLBACK_TO_ORIG_FONT "font.sconfallbacktoorig"
 #define SCON_FALLBACK_TO_HD_FONT "font.sconfallbacktohd"
+#define SCONLG_FALLBACK_TO_HD_FONT "font.sconlgfallbacktohd"
 #define COMPUTER_FONT "comm.computer.font"
