@@ -54,7 +54,7 @@
 // Oscilloscope frame rate
 // Should be <= COMM_ANIM_RATE
 // XXX: was 32 picked experimentally?
-#define OSCILLOSCOPE_RATE   (ONE_SECOND / RES_STAT_SCALE(32))
+#define OSCILLOSCOPE_RATE   (ONE_SECOND / 32)
 
 // Maximum comm animation frame rate (actual execution rate)
 // A gfx frame is not always produced during an execution frame,
@@ -62,9 +62,7 @@
 // The rate was originally 120fps which allowed for more animation
 // precision which is ultimately wasted on the human eye anyway.
 // The highest known stable animation rate is 40fps, so that's what we use.
-//
-// JMS: Changed this back to 120 fps since HD seems to like it... 
-#define COMM_ANIM_RATE   (ONE_SECOND / RES_STAT_SCALE(40))
+#define COMM_ANIM_RATE   (ONE_SECOND / RES_BOOL(40, 60))
 
 static CONTEXT AnimContext;
 

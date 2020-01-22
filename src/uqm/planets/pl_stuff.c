@@ -189,7 +189,7 @@ PrepareNextRotationFrame (PLANET_DESC *pPlanetDesc, SIZE frameCounter, BOOLEAN i
 	// to DrawStamp won't re-blit the frame unless scale has changed.
 }
 
-#define ZOOM_RATE  (RES_BOOL(24, 48)) // Serosis
+#define ZOOM_RATE  RES_DBL(24)
 #define ZOOM_TIME  (ONE_SECOND * 6 / 5)
 
 // This takes care of zooming the planet sphere into place

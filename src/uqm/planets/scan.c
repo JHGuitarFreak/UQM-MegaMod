@@ -1067,7 +1067,7 @@ callPickupForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 static void
 ScanPlanet (COUNT scanType)
 {
-#define SCAN_DURATION  (ONE_SECOND * RES_BOOL(7, 12) / 4)
+#define SCAN_DURATION  (ONE_SECOND * RES_DBL(7) / 4)
 // NUM_FLASH_COLORS for flashing blips; 1 for the final frame
 #define SCAN_LINES      (MAP_HEIGHT + NUM_FLASH_COLORS - 8)
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES)

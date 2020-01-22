@@ -386,7 +386,7 @@ rotateStarbase (MENU_STATE *pMS, FRAME AniFrame)
 	{
 		STAMP s;
 
-		NextTime = Now + (ONE_SECOND / 20);
+		NextTime = Now + (ONE_SECOND / 20); // Starbase animation framerate
 
 		s.origin = pMS->flash_rect0.corner;
 		s.frame = pMS->flash_frame0;

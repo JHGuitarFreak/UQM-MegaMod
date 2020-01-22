@@ -1493,7 +1493,6 @@ DoStarSearch (MENU_STATE *pMS)
 static BOOLEAN
 DoMoveCursor (MENU_STATE *pMS)
 {
-// MB: correcting previously-unusable acceleration values
 #define MIN_ACCEL_DELAY (ONE_SECOND / 60)
 #define MAX_ACCEL_DELAY (ONE_SECOND / 8)
 #define STEP_ACCEL_DELAY (ONE_SECOND / 120)
