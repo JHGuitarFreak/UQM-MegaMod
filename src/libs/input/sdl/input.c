@@ -323,13 +323,13 @@ EnterCharacterMode (void)
 void
 ExitCharacterMode (void)
 {
-#if SDL_MAJOR_VERSION > 1
-	SDL_StopTextInput ();
-#endif
-	VControl_ResetInput ();
-	in_character_mode = FALSE;
 	kbdhead = kbdtail = 0;
 	lastchar = 0;
+	in_character_mode = FALSE;
+	VControl_ResetInput();
+#if SDL_MAJOR_VERSION > 1
+	SDL_StopTextInput();
+#endif
 }
 
 UniChar
