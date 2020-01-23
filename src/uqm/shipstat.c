@@ -90,7 +90,7 @@ ClearShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu)
 	r.corner.x = 2;
 	r.corner.y = 3 + y;
 	r.extent.width = w - 4;
-	r.extent.height = SHIP_INFO_HEIGHT - (inMeleeMenu ? RES_BOOL(3, 6) : 3); // JMS_GFX
+	r.extent.height = SHIP_INFO_HEIGHT - (inMeleeMenu ? RES_DBL(3) : 3); // JMS_GFX
 	DrawFilledRectangle (&r);
 }
 

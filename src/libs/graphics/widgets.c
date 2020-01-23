@@ -114,7 +114,7 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 		int len = utf8StringCount (label->lines[i]);
 		if (len > win_w)
 		{
-			win_w = RES_BOOL(len, len * 2);
+			win_w = RES_DBL(len);
 		}
 	}
 	extra = RES_BOOL(6, (label->line_count == 3 ? 12 : 6));

@@ -609,7 +609,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT -
-					(InStatusArea ? RES_BOOL(1, 2) : IF_HD(-8))); // JMS_GFX
+					(InStatusArea ? RES_DBL(1) : IF_HD(-8))); // JMS_GFX
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (optWhichFonts == OPT_PC)
@@ -720,7 +720,7 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 3); // "tail:"
 	font_DrawText (&t);
 
-	t.baseline.x += RES_BOOL(5, 10);
+	t.baseline.x += RES_DBL(5);
 	t.baseline.y = r.corner.y + leading + 3;
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
@@ -929,7 +929,7 @@ DrawPC_SIS (void)
 
 	GetGaugeRect (&r, FALSE);
 	t.baseline.x = STATUS_WIDTH >> 1;
-	t.baseline.y = r.corner.y - RES_BOOL(1, 2);
+	t.baseline.y = r.corner.y - RES_DBL(1);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	SetContextFont (TinyFont);
