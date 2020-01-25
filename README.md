@@ -55,7 +55,7 @@ This also works with the MinGW helper script in the same manner: `./mingw.sh -j1
 
 ## Contributors
 
-Me (Serosis), SlightlyIntelligentMonkey, and Ala-lala
+Me (Serosis), SlightlyIntelligentMonkey, Volasaurus, and Ala-lala
 
 The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: https://soundcloud.com/itamar-levy-1/star-control-hyperdrive-remix, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music.php.
 
