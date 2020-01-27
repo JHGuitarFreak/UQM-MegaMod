@@ -114,11 +114,10 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 		int len = utf8StringCount (label->lines[i]);
 		if (len > win_w)
 		{
-			win_w = RES_DBL(len);
+			win_w = RES_SCALE(len);
 		}
 	}
-	extra = RES_BOOL(6, (label->line_count == 3 ? 12 : 6));
-	win_w = (win_w * extra) + 16;
+	win_w = (win_w * 6) + 16;
 
 	BatchGraphics ();
 	r.corner.x = (ScreenWidth - win_w) >> 1;
@@ -128,7 +127,7 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 	DrawShadowedBox (&r, win_bg_clr, win_dark_clr, win_medium_clr);
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_BOOL(14, 38); // JMS_GFX
+	t.baseline.y = r.corner.y + RES_DBL(16); // JMS_GFX
 	for (i = 0; i < label->line_count; i++)
 	{
 		t.pStr = label->lines[i];
@@ -149,10 +148,10 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 		// Add the outer border added by DrawShadowedBox.
 		// XXX: It may be nicer to add a border size parameter to
 		// DrawShadowedBox, instead of assuming 2 here.
-		windowRect->corner.x = r.corner.x - 2;
-		windowRect->corner.y = r.corner.y - 2;
-		windowRect->extent.width = r.extent.width + 4;
-		windowRect->extent.height = r.extent.height + 4;
+		windowRect->corner.x = r.corner.x - RES_DBL(2);
+		windowRect->corner.y = r.corner.y - RES_DBL(2);
+		windowRect->extent.width = r.extent.width + RES_DBL(4);
+		windowRect->extent.height = r.extent.height + RES_DBL(4);
 	}
 }
 
