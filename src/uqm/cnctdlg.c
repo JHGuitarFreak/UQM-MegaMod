@@ -153,16 +153,16 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	font_DrawText (&t);
 
 	r.corner.x = t.baseline.x + 3 * tick;
-	r.corner.y = t.baseline.y - 4;
-	r.extent.height = 2;
+	r.corner.y = t.baseline.y - RES_SCALE (4);
+	r.extent.height = RES_SCALE (2);
 	r.extent.width = 3 * tick;
 	DrawFilledRectangle (&r);
 
-	r.extent.width = 3;
-	r.extent.height = 8;
-	r.corner.y = t.baseline.y - 7;
+	r.extent.width = RES_SCALE (3);
+	r.extent.height = RES_SCALE (8);
+	r.corner.y = t.baseline.y - RES_SCALE(7);
 	r.corner.x = t.baseline.x + 3 * tick + (3 * tick *
-			(self->value - self->min) / (self->max - self->min)) - 1;
+			(self->value - self->min) / (self->max - self->min)) - RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	(*self->draw_value)(self, t.baseline.x + 7 * tick, t.baseline.y);
