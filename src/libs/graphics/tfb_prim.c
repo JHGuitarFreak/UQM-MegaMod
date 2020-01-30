@@ -47,7 +47,7 @@ TFB_Prim_Point (POINT *p, Color color, DrawMode mode, POINT ctxOrigin)
 }
 
 void
-TFB_Prim_Rect (RECT *r, Color color, DrawMode mode, POINT ctxOrigin)
+TFB_Prim_Rect (RECT *r, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN scaled)
 {
 	RECT arm;
 	int gscale;
@@ -58,20 +58,20 @@ TFB_Prim_Rect (RECT *r, Color color, DrawMode mode, POINT ctxOrigin)
 	gscale = GetGraphicScale ();
 	arm = *r;
 	arm.extent.width = r->extent.width;
-	arm.extent.height = 1;
+	arm.extent.height = scaled ? RES_SCALE(1) : 1;
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 	arm.extent.height = r->extent.height;
-	arm.extent.width = 1;
+	arm.extent.width = scaled ? RES_SCALE(1) : 1;
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 	// rounding error correction here
 	arm.corner.x += ((r->extent.width * gscale + (GSCALE_IDENTITY >> 1))
-			/ GSCALE_IDENTITY) - 1;
+			/ GSCALE_IDENTITY) - (scaled ? RES_SCALE(1) : 1);
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 	arm.corner.x = r->corner.x;
 	arm.corner.y += ((r->extent.height * gscale + (GSCALE_IDENTITY >> 1))
-			/ GSCALE_IDENTITY) - 1;
+			/ GSCALE_IDENTITY) - (scaled ? RES_SCALE(1) : 1);
 	arm.extent.width = r->extent.width;
-	arm.extent.height = 1;
+	arm.extent.height = scaled ? RES_SCALE(1) : 1;
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 }
 

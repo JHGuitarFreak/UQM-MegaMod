@@ -108,7 +108,7 @@ DoPickBattleShip (MENU_STATE *pMS)
 #ifdef NEVER
 			SetContextForeGroundColor (
 					BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x1D));
-			DrawRectangle (&pMS->flash_rect0);
+			DrawRectangle (&pMS->flash_rect0, FALSE);
 #endif /* NEVER */
 			pMS->first_item.y = new_row;
 			pMS->first_item.x = new_col;

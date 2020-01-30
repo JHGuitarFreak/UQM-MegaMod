@@ -491,7 +491,7 @@ PostProcessStatus (ELEMENT *ShipPtr)
 						
 						// JMS_GFX
 						for (j=0 ; j<RES_STAT_SCALE(1); j++) {
-							DrawRectangle (&r);
+							DrawRectangle (&r, FALSE);
 							++r.corner.x;
 							++r.corner.y;
 							r.extent.width -= 2;

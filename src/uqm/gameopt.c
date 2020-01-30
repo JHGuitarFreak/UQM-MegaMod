@@ -426,11 +426,11 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	r.extent.height = RES_SCALE(11);
 	r.corner.x = RES_SCALE(8);
 	r.corner.y = RES_SCALE(160 + ((gameIndex % SAVES_PER_PAGE) * 13));
-	DrawRectangle (&r);
+	DrawRectangle (&r, IS_HD);
 
-	r.extent.width = RES_SCALE(204);
+	r.extent.width = RES_SCALE(204) + IF_HD(106);
 	r.corner.x = RES_SCALE(30);
-	DrawRectangle (&r);
+	DrawRectangle (&r, IS_HD);
 
 	Font = TinyFont;
 	lf.baseline.x = r.corner.x + RES_SCALE(3);
@@ -554,7 +554,7 @@ NameSaveGame (COUNT gameIndex, UNICODE *buf)
 	tes.CbParam = gIndex;
 	tes.ChangeCallback = OnSaveNameChange;
 	tes.FrameCallback = 0;
-	r.extent.width = RES_SCALE(204);
+	r.extent.width = RES_SCALE(204) + IF_HD(106);
 	r.extent.height = RES_SCALE(11);
 	r.corner.x = RES_SCALE(30);
 	r.corner.y = (RES_SCALE(160) + ((gameIndex % SAVES_PER_PAGE) * RES_SCALE(13)));
@@ -1047,20 +1047,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		r.extent.height = RES_SCALE(11);
 		r.corner.x = RES_SCALE(8); 
 		r.corner.y = RES_SCALE(160 + (i * 13));
-		if (!IS_HD)
-			DrawRectangle(&r);
-		else {
-			DrawFilledRectangle(&r);
-
-			SetContextForeGroundColor(BLACK_COLOR);
-			rHD.extent.width = r.extent.width - 8;
-			rHD.extent.height = r.extent.height - 8;
-			rHD.corner.x = r.corner.x + 4;
-			rHD.corner.y = r.corner.y + 4;
-			DrawFilledRectangle(&rHD);
-
-			SetContextForeGroundColor((curSlot == selSlot) ? Selected : UnSelected);
-		}
+		DrawRectangle(&r, IS_HD);
 
 		t.baseline.x = r.corner.x + RES_BOOL(3, 18);
 		t.baseline.y = r.corner.y + RES_BOOL(8, 29);
@@ -1070,18 +1057,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 		r.extent.width = RES_SCALE(204) + IF_HD(106);
 		r.corner.x = RES_SCALE(30);
-		if (!IS_HD)
-			DrawRectangle(&r);
-		else {
-			DrawFilledRectangle(&r);
-
-			SetContextForeGroundColor(BLACK_COLOR);
-			rHD.extent.width = r.extent.width - 8;
-			rHD.corner.x = r.corner.x + 4;
-			DrawFilledRectangle(&rHD);
-
-			SetContextForeGroundColor((curSlot == selSlot) ? Selected : UnSelected);
-		}
+		DrawRectangle(&r, IS_HD);
 
 		t.baseline.x = r.corner.x + RES_SCALE(3);
 		if (desc->year_index == 0)

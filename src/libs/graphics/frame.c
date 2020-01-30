@@ -162,7 +162,7 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 				case RECT_PRIM:
 					color = GetPrimColor (lpWorkPrim);
 					TFB_Prim_Rect (&lpWorkPrim->Object.Rect, color,
-							mode, origin);
+							mode, origin, FALSE);
 					break;
 				case RECTFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
@@ -201,7 +201,7 @@ DrawPoint (POINT *lpPoint)
 }
 
 void
-DrawRectangle (RECT *lpRect)
+DrawRectangle (RECT *lpRect, BOOLEAN scaled)
 {
 	POINT origin;
 
@@ -209,7 +209,7 @@ DrawRectangle (RECT *lpRect)
 	{
 		Color color = GetPrimColor (&_locPrim);
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_Rect (lpRect, color, mode, origin);
+		TFB_Prim_Rect (lpRect, color, mode, origin, scaled);
 	}
 }
 

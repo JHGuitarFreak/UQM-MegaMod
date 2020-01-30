@@ -46,7 +46,7 @@ DrawPCMenuFrame (RECT *r)
 	// This actually draws a rectangle, but the bottom and right parts
 	// are drawn over in the next step.
 	SetContextForeGroundColor (PCMENU_TOP_LEFT_BORDER_COLOR);
-	DrawRectangle (r);
+	DrawRectangle (r, FALSE);
 
 	// Draw the right and bottom of the outer border.
 	// This actually draws a rectangle, with the top and left segments just
@@ -57,7 +57,7 @@ DrawPCMenuFrame (RECT *r)
 	r->extent.height--;
 	r->extent.width--;
 	SetContextForeGroundColor (PCMENU_BOTTOM_RIGHT_BORDER_COLOR);
-	DrawRectangle (r);
+	DrawRectangle (r, FALSE);
 
 	// Draw the background.
 	r->extent.height--;

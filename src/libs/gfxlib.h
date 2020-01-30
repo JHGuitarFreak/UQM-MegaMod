@@ -381,7 +381,7 @@ extern TIME_VALUE DrawablesIntersect (INTERSECT_CONTROL *pControl0,
 extern void DrawStamp (STAMP *pStamp);
 extern void DrawFilledStamp (STAMP *pStamp);
 extern void DrawPoint (POINT *pPoint);
-extern void DrawRectangle (RECT *pRect);
+extern void DrawRectangle (RECT *pRect, BOOLEAN scaled);
 extern void DrawFilledRectangle (RECT *pRect);
 extern void DrawLine (LINE *pLine);
 extern void font_DrawText (TEXT *pText);
