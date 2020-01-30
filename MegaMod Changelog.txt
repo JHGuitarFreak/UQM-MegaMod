@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Cut the bitrate of the ogg files in the base content to slim it down
 - Moved Volasaurus' interplanetary music outside of the base package to be used as an add-on
 - Made a new, more faithful looking "StarCon" font for HD
+- Make the Load/Save screen more faithful to the original in HD
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
