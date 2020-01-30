@@ -209,16 +209,24 @@ static void Melee_UpdateView_ship (MELEE_STATE *pMS, COUNT side,
 static void Melee_UpdateView_teamName (MELEE_STATE *pMS, COUNT side);
 
 
-// These icons come from melee/melebkgd.ani
+// These icons come from ui/meleemenu.ani
 void
 DrawMeleeIcon (COUNT which_icon)
 {
 	STAMP s;
-			
+
 	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (MeleeFrame, which_icon);
 	DrawStamp (&s);
+}
+
+// These icons come from ui/meleemenu.ani
+void
+DrawTeamBox (COUNT which_icon, STAMP s)
+{
+	s.frame = SetAbsFrameIndex(MeleeFrame, which_icon);
+	DrawStamp(&s);
 }
 
 static FleetShipIndex
@@ -258,26 +266,35 @@ static void
 DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 {
 	RECT r;
+	STAMP s;
 	BYTE row = GetShipRow (index);
 	BYTE col = GetShipColumn (index);
+	BOOLEAN NoShip = (ship != MELEE_NONE);
 
 	GetShipBox (&r, side, row, col);
 
+	s.origin = r.corner;
+
 	BatchGraphics ();
-	if (HiLite)
-		DrawStarConBox (&r, 1,
+	if (HiLite) {
+		if (!IS_HD)
+			DrawStarConBox (&r, 1,
 				SHIPBOX_TOPLEFT_COLOR_HILITE,
 				SHIPBOX_BOTTOMRIGHT_COLOR_HILITE,
-				(BOOLEAN)(ship != MELEE_NONE),
-				SHIPBOX_INTERIOR_COLOR_HILITE);
-	else
-		DrawStarConBox (&r, 1,
-				SHIPBOX_TOPLEFT_COLOR_NORMAL,
-				SHIPBOX_BOTTOMRIGHT_COLOR_NORMAL,
-				(BOOLEAN)(ship != MELEE_NONE),
-				SHIPBOX_INTERIOR_COLOR_NORMAL);
+				NoShip, SHIPBOX_INTERIOR_COLOR_HILITE);
+		else
+			DrawTeamBox (NoShip ? 41 : 42, s);
+	} else {
+		if (!IS_HD)
+			DrawStarConBox (&r, 1,
+					SHIPBOX_TOPLEFT_COLOR_NORMAL,
+					SHIPBOX_BOTTOMRIGHT_COLOR_NORMAL,
+					NoShip, SHIPBOX_INTERIOR_COLOR_NORMAL);
+		else
+			DrawTeamBox (NoShip ? 39 : 40, s);
+	}
 
-	if (ship != MELEE_NONE)
+	if (NoShip)
 	{
 		STAMP s;
 		s.origin.x = r.corner.x + (r.extent.width >> 1);
@@ -896,7 +913,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		r.extent.width = RES_STAT_SCALE(57) + RESOLUTION_FACTOR; // JMS_GFX;
 		r.extent.height = RES_SCALE(60) - IF_HD(6); // JMS_GFX;
 		SetContextForeGroundColor (BLACK_COLOR);
-		DrawRectangle (&r);
+		DrawRectangle (&r, IS_HD);
 		t.baseline.x = STATUS_WIDTH >> 1;
 		t.baseline.y = RES_SCALE(32);
 		t.align = ALIGN_CENTER;
