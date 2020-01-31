@@ -245,7 +245,7 @@ initialize_horrific_laser (ELEMENT *ShipPtr, HELEMENT LaserArray[])
 	LaserBlock.ey = SINE (FACING_TO_ANGLE (LaserBlock.face), LASER_RANGE);
 	LaserBlock.sender = ShipPtr->playerNr;
 	LaserBlock.flags = IGNORE_SIMILAR;
-	LaserBlock.pixoffs = VUX_OFFSET;
+	LaserBlock.pixoffs = RES_BOOL(12, 38);
 	LaserBlock.color = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1F, 0x0A), 0x0A);
 	LaserArray[0] = initialize_laser (&LaserBlock);
 
