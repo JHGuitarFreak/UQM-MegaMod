@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed Super Melee scaler not loading properly on non-Android devices
 - Fixed ending cutscene where a slide was not properly resized to fit the frame
 - Fixed Syreen time stamps
+- Fixed Mmrnmhrm, Spathi, Shofixti, Ilwrath, Ur-Quan, Utwig, VUX, and Flagship weapon offsets and placements in HD
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak
