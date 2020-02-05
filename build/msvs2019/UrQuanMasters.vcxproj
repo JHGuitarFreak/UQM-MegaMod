@@ -77,8 +77,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\dev-lib\VS2008\include;..\..\dev-lib\VS2008\include\SDL;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\dev-lib\VS2008\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName) SDL1</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
