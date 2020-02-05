@@ -282,5 +282,6 @@ log.txt
 *.exp
 config_unix.h
 config_win.h
+*.vcproj.*
 
 build/msvs2008/UrQuanMasters\.vcproj\.DESKTOP-TCJIFU9\.seros\.user
