@@ -128,8 +128,10 @@ static WIDGET *main_widgets[] = {
 static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices[0]),	// Resolution
 	(WIDGET *)(&choices[42]),	// Scale GFX
-#ifdef HAVE_OPENGL
+#if	SDL_MAJOR_VERSION == 1
+#if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),	// Use Framebuffer
+#endif
 #endif
 	(WIDGET *)(&choices[23]),	// Aspect Ratio
 	(WIDGET *)(&choices[10]),	// Display
@@ -2119,6 +2121,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	} else {
 		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
 	}
+
 #if !defined(ANDROID) || !defined(__ANDROID__)
 	if (opts->fullscreen)
 		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
@@ -2126,7 +2129,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
 	// In HD, force the usage of no filter in 1280x960 windowed mode
 	// while forcing the usage of a filter in scaled modes.
-	if(IS_HD) {
+	/*if(IS_HD) {
 		if (NewWidth == 1280 && !opts->fullscreen)
 		{
 			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
@@ -2137,7 +2140,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
 		}
-	}
+	}*/
 #endif
 
 	res_PutBoolean ("config.scanlines", opts->scanlines);
