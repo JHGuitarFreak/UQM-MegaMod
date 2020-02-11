@@ -1615,13 +1615,12 @@ DoBluster (RESPONSE_REF R)
 		} else {
 			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
 			CommData.AlienAmbientArray[3].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[4].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[5].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[6].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[7].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[8].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[9].AnimFlags |= ANIM_DISABLED;
-				
+			CommData.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
+			CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
+			CommData.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
+			CommData.AlienAmbientArray[7].AnimFlags &= ~ANIM_DISABLED;
+			CommData.AlienAmbientArray[8].AnimFlags &= ~ANIM_DISABLED;
+			CommData.AlienAmbientArray[9].AnimFlags &= ~ANIM_DISABLED;
 			CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 48);
 		}
 
