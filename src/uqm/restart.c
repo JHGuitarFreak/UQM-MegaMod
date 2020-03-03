@@ -406,7 +406,9 @@ RestartMenu (MENU_STATE *pMS)
 
 		GLOBAL(CurrentActivity) = IN_ENCOUNTER;
 
-		GameOver (SUICIDE);
+		if (optGameOver)
+			GameOver (SUICIDE);
+
 		DeathBySuicide = FALSE;
 
 		FreeGameData();
@@ -421,12 +423,14 @@ RestartMenu (MENU_STATE *pMS)
 			GLOBAL(CurrentActivity) = IN_ENCOUNTER;
 
 			if (DeathByMelee && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
-				GameOver (DIED_IN_BATTLE);
+				if (optGameOver)
+					GameOver (DIED_IN_BATTLE);
 				DeathByMelee = FALSE;
 			}
 
 			if (DeathBySurrender && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
-				GameOver (SURRENDERED);
+				if (optGameOver)
+					GameOver (SURRENDERED);
 				DeathBySurrender = FALSE;
 			}
 		}

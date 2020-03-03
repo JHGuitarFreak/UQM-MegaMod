@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         11
-#define CHOICE_COUNT       56
+#define CHOICE_COUNT       57
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       15
 #define LABEL_COUNT         5
@@ -104,7 +104,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	3, 2, 2, 2, 2, 2, 3, 2, 2, 2,	// 20-29
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,	// 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 40-49
-	3, 2, 2, 3, 2, 2 };				// 50-55
+	3, 2, 2, 3, 2, 2, 2	 };			// 50-56
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -220,7 +220,8 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),	// Extended features
 	(WIDGET *)(&choices[55]),	// Nomad Mode
 	(WIDGET *)(&choices[32]),	// Skip Intro
-	(WIDGET *)(&choices[40]),	// Partial Pickup switch
+	(WIDGET *)(&choices[40]),	// Partial Pickup switch	
+	(WIDGET *)(&choices[56]),	// Game Over switch
 	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
 	(WIDGET *)(&labels[4]),		// Spacer
@@ -601,6 +602,7 @@ SetDefaults (void)
 	choices[53].selected = opts.difficulty;
 	choices[54].selected = opts.extended;
 	choices[55].selected = opts.nomad;
+	choices[56].selected = opts.gameOver;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -677,6 +679,7 @@ PropagateResults (void)
 	opts.difficulty = choices[53].selected;
 	opts.extended = choices[54].selected;
 	opts.nomad = choices[55].selected;
+	opts.gameOver = choices[56].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1617,6 +1620,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->fuelRange = optFuelRange ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->gameOver = optGameOver ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	// Serosis: 320x240
 	if (!IS_HD) {
@@ -2116,6 +2120,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean("config.nomad", opts->nomad == OPTVAL_ENABLED);
 	optNomad = (opts->nomad == OPTVAL_ENABLED);
 
+	// Serosis: Enable Game Over cutscenes
+	res_PutBoolean("config.gameover", opts->gameOver == OPTVAL_ENABLED);
+	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
+
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
 	} else {
@@ -2129,7 +2137,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
 	// In HD, force the usage of no filter in 1280x960 windowed mode
 	// while forcing the usage of a filter in scaled modes.
-	/*if(IS_HD) {
+	if(IS_HD) {
 		if (NewWidth == 1280 && !opts->fullscreen)
 		{
 			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
@@ -2140,7 +2148,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
 		}
-	}*/
+	}
 #endif
 
 	res_PutBoolean ("config.scanlines", opts->scanlines);

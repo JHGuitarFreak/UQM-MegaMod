@@ -358,7 +358,8 @@ while (--ac > 0)
 			{
 				if (GET_GAME_STATE(KOHR_AH_KILLED_ALL)) {
 					InitCommunication(BLACKURQ_CONVERSATION);
-					GameOver(DEATH_MARCH);
+					if (optGameOver)
+						GameOver (DEATH_MARCH);
 				}
 				else if (GLOBAL (CurrentActivity) & CHECK_RESTART){
 					// surrendered to Ur-Quan

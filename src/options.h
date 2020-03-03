@@ -90,6 +90,7 @@ extern int optDifficulty;
 extern BOOLEAN optFuelRange;
 extern BOOLEAN optExtended;
 extern BOOLEAN optNomad;
+extern BOOLEAN optGameOver;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;

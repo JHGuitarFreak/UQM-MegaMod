@@ -100,6 +100,7 @@ int optDifficulty;
 BOOLEAN optFuelRange;
 BOOLEAN optExtended;
 BOOLEAN optNomad;
+BOOLEAN optGameOver;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
