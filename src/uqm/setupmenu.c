@@ -118,9 +118,11 @@ static WIDGET *main_widgets[] = {
 	(WIDGET *)(&buttons[2]),	// Graphics
 	(WIDGET *)(&buttons[3]),	// PC/3DO Compat Options
 	(WIDGET *)(&buttons[4]),	// Sound
+	(WIDGET *)(&buttons[10]),	// Music
 	//(WIDGET *)(&buttons[12]),	// Gameplay
 	(WIDGET *)(&buttons[6]),	// Controls
 	(WIDGET *)(&buttons[5]),	// Cheats
+	(WIDGET *)(&buttons[11]),	// Visuals
 	(WIDGET *)(&buttons[7]),	// Advanced
 	(WIDGET *)(&buttons[0]),	// Quit Setup Menu
 	NULL };
@@ -172,8 +174,6 @@ static WIDGET *audio_widgets[] = {
 	(WIDGET *)(&choices[15]),	// Sound Driver
 	(WIDGET *)(&choices[16]),	// Sound Quality
 	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&buttons[10]),	// Music
-	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -185,7 +185,7 @@ static WIDGET *music_widgets[] = {
 	(WIDGET *)(&choices[46]),	// Serosis: Volasaurus' Space Music
 	(WIDGET *)(&choices[34]),	// JMS: Main Menu Music
 	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&buttons[13]),
+	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
@@ -225,8 +225,6 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
 	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&buttons[11]),	// Visuals
-	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&buttons[1]),	
 	NULL };
 
@@ -240,7 +238,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[45]),	// Custom Border switch
 	(WIDGET *)(&choices[48]),	// Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),	// Fuel Range
-	(WIDGET *)(&buttons[14]),
+	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *gameplay_widgets[] = {
