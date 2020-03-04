@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         11
-#define CHOICE_COUNT       57
+#define CHOICE_COUNT       58
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       15
 #define LABEL_COUNT         5
@@ -104,7 +104,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	3, 2, 2, 2, 2, 2, 3, 2, 2, 2,	// 20-29
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,	// 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 40-49
-	3, 2, 2, 3, 2, 2, 2	 };			// 50-56
+	3, 2, 2, 3, 2, 2, 2, 2  };		// 50-57
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -116,14 +116,15 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
 	(WIDGET *)(&buttons[2]),	// Graphics
-	(WIDGET *)(&buttons[3]),	// PC/3DO Compat Options
+	(WIDGET *)(&buttons[11]),	// Visuals
 	(WIDGET *)(&buttons[4]),	// Sound
 	(WIDGET *)(&buttons[10]),	// Music
 	//(WIDGET *)(&buttons[12]),	// Gameplay
 	(WIDGET *)(&buttons[6]),	// Controls
-	(WIDGET *)(&buttons[5]),	// Cheats
-	(WIDGET *)(&buttons[11]),	// Visuals
+	(WIDGET *)(&buttons[3]),	// PC/3DO Compat Options
 	(WIDGET *)(&buttons[7]),	// Advanced
+	(WIDGET *)(&buttons[5]),	// Cheats
+	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&buttons[0]),	// Quit Setup Menu
 	NULL };
 
@@ -220,7 +221,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),	// Extended features
 	(WIDGET *)(&choices[55]),	// Nomad Mode
 	(WIDGET *)(&choices[32]),	// Skip Intro
-	(WIDGET *)(&choices[40]),	// Partial Pickup switch	
+	(WIDGET *)(&choices[40]),	// Partial Pickup switch
 	(WIDGET *)(&choices[56]),	// Game Over switch
 	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
@@ -238,6 +239,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[45]),	// Custom Border switch
 	(WIDGET *)(&choices[48]),	// Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),	// Fuel Range
+	(WIDGET *)(&choices[57]),	// NPC Ship Direction in IP
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -601,6 +603,7 @@ SetDefaults (void)
 	choices[54].selected = opts.extended;
 	choices[55].selected = opts.nomad;
 	choices[56].selected = opts.gameOver;
+	choices[57].selected = opts.shipDirectionIP;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -678,6 +681,7 @@ PropagateResults (void)
 	opts.extended = choices[54].selected;
 	opts.nomad = choices[55].selected;
 	opts.gameOver = choices[56].selected;
+	opts.shipDirectionIP = choices[57].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1619,6 +1623,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->gameOver = optGameOver ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->shipDirectionIP = optShipDirectionIP ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	// Serosis: 320x240
 	if (!IS_HD) {
@@ -2121,6 +2126,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	// Serosis: Enable Game Over cutscenes
 	res_PutBoolean("config.gameover", opts->gameOver == OPTVAL_ENABLED);
 	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
+
+	// Serosis: Enable NPC ships in IP facing the direction they're going
+	res_PutBoolean("config.shipdirectionip", opts->shipDirectionIP == OPTVAL_ENABLED);
+	optShipDirectionIP = (opts->shipDirectionIP == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

@@ -91,6 +91,7 @@ extern BOOLEAN optFuelRange;
 extern BOOLEAN optExtended;
 extern BOOLEAN optNomad;
 extern BOOLEAN optGameOver;
+extern BOOLEAN optShipDirectionIP;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;

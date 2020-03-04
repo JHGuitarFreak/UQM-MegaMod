@@ -101,6 +101,7 @@ BOOLEAN optFuelRange;
 BOOLEAN optExtended;
 BOOLEAN optNomad;
 BOOLEAN optGameOver;
+BOOLEAN optShipDirectionIP;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

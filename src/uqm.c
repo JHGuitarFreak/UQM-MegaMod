@@ -183,6 +183,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, extended);
 	DECL_CONFIG_OPTION(bool, nomad);
 	DECL_CONFIG_OPTION(bool, gameOver);
+	DECL_CONFIG_OPTION(bool, shipDirectionIP);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -370,6 +371,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(	 extended,			false),
 		INIT_CONFIG_OPTION(	 nomad,				false),
 		INIT_CONFIG_OPTION(	 gameOver,			false),
+		INIT_CONFIG_OPTION(	 shipDirectionIP,	false),
 
 	};
 	struct options_struct defaults = options;
@@ -579,6 +581,7 @@ main (int argc, char *argv[])
 	optExtended = options.extended.value;
 	optNomad = options.nomad.value;
 	optGameOver = options.gameOver.value;
+	optShipDirectionIP = options.shipDirectionIP.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -940,6 +943,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue(&options->extended, "config.extended");
 	getBoolConfigValue(&options->nomad, "config.nomad");
 	getBoolConfigValue(&options->gameOver, "config.gameover");
+	getBoolConfigValue(&options->shipDirectionIP, "config.shipdirectionip");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1010,6 +1014,7 @@ enum
 	EXTENDED_OPT,
 	NOMAD_OPT,
 	GAMEOVER_OPT,
+	SHIPDIRIP_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1092,6 +1097,7 @@ static struct option longOptions[] =
 	{"extended", 0, NULL, EXTENDED_OPT},
 	{"nomad", 0, NULL, NOMAD_OPT},
 	{"gameover", 0, NULL, GAMEOVER_OPT},
+	{"shipdirectionip", 0, NULL, SHIPDIRIP_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1493,6 +1499,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case GAMEOVER_OPT:
 				setBoolOption(&options->gameOver, true);
 				break;
+			case SHIPDIRIP_OPT:
+				setBoolOption(&options->shipDirectionIP, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -1785,6 +1794,8 @@ usage (FILE *out, const struct options_struct *defaults)
 		boolOptString(&defaults->nomad));
 	log_add(log_User, "  --gameover : Enables Game Over cutscenes    (default: %s)",
 		boolOptString(&defaults->gameOver));
+	log_add(log_User, "  --shipDirectionIP : Enable NPC ships in IP facing the direction they're going    (default: %s)",
+		boolOptString(&defaults->shipDirectionIP));
 	log_setOutput (old);
 }
 

@@ -455,24 +455,25 @@ CheckGetAway:
 			}
 		}
 		
-		if (GroupPtr->race_id != SLYLANDRO_SHIP) {
-			//BW : make IP ships face the direction they're going into
-			suggestedFrame = SetAbsFrameIndex(EPtr->next.image.farray[0], 1 + NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y))));
+		if (optShipDirectionIP) {
+			if (GroupPtr->race_id != SLYLANDRO_SHIP) {
+				//BW : make IP ships face the direction they're going into
+				suggestedFrame = SetAbsFrameIndex(EPtr->next.image.farray[0], 2 + NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y))));
 
-			// JMS: Direction memory prevents jittering of battle group icons when they are orbiting a planet (and not chasing the player ship).		
-			if (isOrbiting) {
-				// This works because ships always orbit planets clockwise.
-				if (GroupPtr->lastDirection < NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y)))
-					|| GroupPtr->lastDirection == 15)
+				// JMS: Direction memory prevents jittering of battle group icons when they are orbiting a planet (and not chasing the player ship).		
+				if (isOrbiting) {
+					// This works because ships always orbit planets clockwise.
+					if (GroupPtr->lastDirection < NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y)))
+						|| GroupPtr->lastDirection == 15)
+						EPtr->next.image.frame = suggestedFrame;
+				} else
 					EPtr->next.image.frame = suggestedFrame;
-			} else
-				EPtr->next.image.frame = suggestedFrame;
-		} else {
-			EPtr->next.image.frame = IncFrameIndex(EPtr->next.image.frame);
-		}
+			} else {
+				EPtr->next.image.frame = IncFrameIndex(EPtr->next.image.frame);
+			}
 
-		
-		GroupPtr->lastDirection = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y)));
+			GroupPtr->lastDirection = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y)));
+		}
 	}
 
 	radius = zoomRadiusForLocation (group_loc);
@@ -601,7 +602,7 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 		IPSHIPElementPtr->state_flags =
 				CHANGING | FINITE_LIFE | IGNORE_VELOCITY;
 
-		if(GroupPtr->race_id == SLYLANDRO_SHIP)
+		if(optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
 			GroupPtr->melee_icon = CaptureDrawable(LoadGraphic(SLYLANDRO_SML_MASK_PMAP_ANIM));
 
 		SetPrimType (&DisplayArray[IPSHIPElementPtr->PrimIndex], STAMP_PRIM);
