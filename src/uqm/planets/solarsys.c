@@ -606,22 +606,18 @@ LoadSolarSys (void)
 	COUNT i;
 	PLANET_DESC *orbital = NULL;
 	PLANET_DESC *pCurDesc;
-	Color BlueHD = BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x00, 0x12), 0x54);
 #define NUM_TEMP_RANGES 5
 
-	static Color temp_color_array_orig[NUM_TEMP_RANGES] =
-	{
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0E), 0x54),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x62),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x0B, 0x00), 0x6D),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
-	};
 
-	// JMS_GFX & Serosis: Let's make the dark blue planet orbit dots a little
-	// more visible in HD.
-	if(IS_HD)
-		temp_color_array_orig[0] = BlueHD;
+	// "RES_DBL" applied to make the orbit dots more visible in HD.
+	Color color_array[NUM_TEMP_RANGES] =
+	{
+		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,			 0x00,  RES_DBL(0x0E)), 0x54),
+		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,	 RES_DBL(0x06), RES_DBL(0x08)), 0x62),
+		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,	 RES_DBL(0x0B),			0x00),  0x6D),
+		BUILD_COLOR (MAKE_RGB15_INIT (RES_DBL(0x0F),		 0x00,			0x00),  0x2D),
+		BUILD_COLOR (MAKE_RGB15_INIT (RES_DBL(0x0F), RES_DBL(0x08),			0x00),  0x75),
+	};
 
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
 
@@ -666,7 +662,7 @@ LoadSolarSys (void)
 			index = (SysInfo.PlanetInfo.SurfaceTemperature + 250) / 100;
 			if (index >= NUM_TEMP_RANGES)
 				index = NUM_TEMP_RANGES - 1;
-			pCurDesc->temp_color = temp_color_array_orig[index];
+			pCurDesc->temp_color = color_array[index];
 		}
 	}
 
@@ -1146,7 +1142,7 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, 1);
+	DrawOval (&r, RES_SCALE(1)); // Scale the orbit dot spacing to make it more visually pleasing
 }
 
 static SIZE

@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Made a new, more faithful looking "StarCon" font for HD
 - Make the Load/Save screen more faithful to the original in HD
 - Made the game over cutscenes optional in the advanced menu
+- Spaced and brightened the orbit dots to make them more visible in HD
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
