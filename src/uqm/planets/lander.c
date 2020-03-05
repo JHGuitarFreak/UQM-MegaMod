@@ -61,7 +61,7 @@ struct LanderInputState {
 			// Frame rate control
 };
 
-FRAME LanderFrame[8];
+FRAME LanderFrame[7];
 static SOUND LanderSounds;
 MUSIC_REF LanderMusic;
 
@@ -1837,8 +1837,6 @@ LoadLanderData (void)
 			CaptureDrawable (LoadGraphic (LANDER_LAUNCH_MASK_PMAP_ANIM));
 	LanderFrame[6] =
 			CaptureDrawable (LoadGraphic (LANDER_RETURN_MASK_PMAP_ANIM));
-	LanderFrame[7] =
-			CaptureDrawable (LoadGraphic (ORBIT_VIEW_ANIM));
 	
 	LanderSounds = CaptureSound (LoadSound (LANDER_SOUNDS));
 

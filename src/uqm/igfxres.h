@@ -110,7 +110,6 @@
 #define NEPTUNE_MASK_ANIM "graphics.neptunemask"
 #define NPCBUBBLE_MASK_PMAP_ANIM "graphics.npcbubble"
 #define ORBENTER_PMAP_ANIM "graphics.orbitenter"
-#define ORBIT_VIEW_ANIM "graphics.orbview"
 #define ORBPLAN_MASK_PMAP_ANIM "graphics.planets"
 #define ORBPLAN_UNSCALED_MASK_PMAP_ANIM "graphics.planets.unscaled"
 #define ORBPLAN_INTERSECT_MASK_PMAP_ANIM "graphics.planets.intersect"
