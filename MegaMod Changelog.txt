@@ -4,9 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
-- Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
-- Hide addon options if the package isn't in the addon folder
-- HARD MODE: Make bio-data take up rooom in the storage bays
+- LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
 
 ## [v0.8.0.85]
 ### Added
@@ -27,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Make the Load/Save screen more faithful to the original in HD
 - Made the game over cutscenes optional in the advanced menu
 - Spaced and brightened the orbit dots to make them more visible in HD
+- Make the 3DO coarse scan screen more faithful to the original in HD
+- Removed a metric ton of superfluous files in the content
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed ending cutscene where a slide was not properly resized to fit the frame
 - Fixed Syreen time stamps
 - Fixed Mmrnmhrm, Spathi, Shofixti, Ilwrath, Ur-Quan, Utwig, VUX, and Flagship weapon offsets and placements in HD
+- Fixed 3DO coarse scan screen code
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak

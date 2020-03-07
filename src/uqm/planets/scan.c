@@ -377,7 +377,7 @@ PrintCoarseScan3DO (void)
 	 * we may have changed it - and having it always be set to a
 	 * sane value removes the need to only reset it conditionally.
 	 */
-	Color OldColor = (SCAN_PC_TITLE_COLOR);
+	Color OldColor = SCAN_INFO_COLOR;
 
 	GetPlanetTitle (buf, sizeof (buf));
 
@@ -389,8 +389,8 @@ PrintCoarseScan3DO (void)
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (SCAN_INFO_COLOR);
-	SetContextFont (MicroFont);
+	SetContextForeGroundColor (OldColor);
+	SetContextFont (RES_BOOL(MicroFont, PlyrFont));
 	font_DrawText (&t);
 
 	s.origin.x = s.origin.y = 0;
@@ -409,8 +409,7 @@ PrintCoarseScan3DO (void)
 	t.pStr = buf;
 	val = ((pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist * 100L
 			+ (EARTH_RADIUS >> 1)) / EARTH_RADIUS);
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 1)); // " a.u."
+	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 	t.baseline.y += SCAN_LEADING;
@@ -422,77 +421,91 @@ PrintCoarseScan3DO (void)
 	{
 		val = (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity * 100
 				+ (EARTH_ATMOSPHERE >> 1)) / EARTH_ATMOSPHERE;
-		MakeScanValue (buf, val,
-				GAME_STRING (ORBITSCAN_STRING_BASE + 5)); // " atm"
+		MakeScanValue (buf, val, STR_EARTH_SIGN);
 	}
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	sprintf (buf, "%d" STR_DEGREE_SIGN " c",
+	sprintf (buf, "%d" STR_DEGREE_SIGN,
 			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
-#ifdef HAZARD_COLORS
-	if ((pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) >= (100) &&
+
+#ifdef HAZARD_COLORS // Planet Temperature
+	if ((pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) < (100)) {
+		OldColor = SCAN_PC_TITLE_COLOR;
+	}
+	else if ((pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) >= (100) &&
 	    (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) <= (400))
 	{ /* Between 100 and 400 temperature the planet is still explorable,
 	   * draw the readout in yellow */
-		OldColor = SetContextForeGroundColor (DULL_YELLOW_COLOR);
+		OldColor = DULL_YELLOW_COLOR;
 	}
 	else if (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature > 400)
 	{ /* Above 400 the planet is quite dangerous, draw the readout in red. */
-		OldColor = SetContextForeGroundColor (BRIGHT_RED_COLOR);
+		OldColor = BRIGHT_RED_COLOR;
 	}
 #endif
+
 	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor(OldColor);
 	font_DrawText (&t);
-	SetContextForeGroundColor (OldColor);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	sprintf (buf, "%s %u", GAME_STRING (ORBITSCAN_STRING_BASE + 9), // Class
-			pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
+	sprintf (buf, "<%u>", pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
 			? 0 : (pSolarSysState->SysInfo.PlanetInfo.Weather + 1));
+
 #ifdef HAZARD_COLORS
+	if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) < (3)) {
+		OldColor = SCAN_PC_TITLE_COLOR;
+	}
 	if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) >= (3) &&
 	    (pSolarSysState->SysInfo.PlanetInfo.Weather + 1) <= (4))
 	{ /* Weather values of 3 or 4 will unavoidably kill a few
 	   * crew, draw the readout in yellow. */
-		OldColor = SetContextForeGroundColor (DULL_YELLOW_COLOR);
+		OldColor = DULL_YELLOW_COLOR;
 	}
 	else if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) >= (5))
 	{ /* Weather values < 5 will unavoidably kill many crew,
 	   * draw the readout in red. */
-		OldColor = SetContextForeGroundColor (BRIGHT_RED_COLOR);
+		OldColor = BRIGHT_RED_COLOR;
 	}
 #endif
+
 	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor(OldColor);
 	font_DrawText (&t);
-	SetContextForeGroundColor (OldColor);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	sprintf (buf, "%s %u", GAME_STRING (ORBITSCAN_STRING_BASE + 9), // Class
+	sprintf (buf, "<%u>",
 			PLANSIZE (
 			pSolarSysState->SysInfo.PlanetInfo.PlanDataPtr->Type
 			) == GAS_GIANT
 			? 0 : (pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1));
 #ifdef HAZARD_COLORS
+	if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) < (3))
+	{
+		OldColor = SCAN_PC_TITLE_COLOR;
+	}
 	if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) >= (3) &&
 	    (pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) <= (5))
 	{ /* Between class 3 and 5 tectonics the planet is still explorable,
 	   * draw the readout in yellow. */
-		OldColor = SetContextForeGroundColor (DULL_YELLOW_COLOR);
+		OldColor = DULL_YELLOW_COLOR;
 	}
 	else if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) > (5))
 	{ /* Above class 5 tectonics the planet is quite dangerous, draw the
 	   * readout in red. */
-		OldColor = SetContextForeGroundColor (BRIGHT_RED_COLOR);
+		OldColor = BRIGHT_RED_COLOR;
 	}
 #endif
 	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor(OldColor);
 	font_DrawText (&t);
-	SetContextForeGroundColor (OldColor);
+
+	SetContextForeGroundColor (SCAN_INFO_COLOR);
 
 	t.baseline.x = RIGHT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
@@ -505,16 +518,14 @@ PrintCoarseScan3DO (void)
 			+ ((100L * 100L) >> 1)) / (100L * 100L);
 	if (val == 0)
 		val = 1;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 12)); // " e.s."
+	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
 	val = pSolarSysState->SysInfo.PlanetInfo.PlanetRadius;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 15)); // " g."
+	MakeScanValue (buf, val, STR_EARTH_SIGN);
 
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -524,8 +535,7 @@ PrintCoarseScan3DO (void)
 	val = pSolarSysState->SysInfo.PlanetInfo.SurfaceGravity;
 	if (val == 0)
 		val = 1;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
+	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 	t.baseline.y += SCAN_LEADING;
@@ -542,8 +552,7 @@ PrintCoarseScan3DO (void)
 	t.pStr = buf;
 	val = (SDWORD)pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
 			* 10 / 24;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
+	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 }
