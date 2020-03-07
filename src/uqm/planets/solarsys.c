@@ -391,18 +391,27 @@ LoadIPData (void)
 	if (!IS_HD) {
 		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
 	} else {
-		if (STAR_COLOR(CurStarDescPtr->Type) == BLUE_BODY)
-			SunFrame = CaptureDrawable (LoadGraphic (SUNBLUE_MASK_PMAP_ANIM));
-		else if (STAR_COLOR(CurStarDescPtr->Type) == GREEN_BODY)
-			SunFrame = CaptureDrawable (LoadGraphic (SUNGREEN_MASK_PMAP_ANIM));
-		else if (STAR_COLOR(CurStarDescPtr->Type) == ORANGE_BODY)
-			SunFrame = CaptureDrawable (LoadGraphic (SUNORANGE_MASK_PMAP_ANIM));
-		else if (STAR_COLOR(CurStarDescPtr->Type) == RED_BODY)
-			SunFrame = CaptureDrawable (LoadGraphic (SUNRED_MASK_PMAP_ANIM));
-		else if (STAR_COLOR(CurStarDescPtr->Type)== WHITE_BODY)
-			SunFrame = CaptureDrawable (LoadGraphic (SUNWHITE_MASK_PMAP_ANIM));
-		else if (STAR_COLOR(CurStarDescPtr->Type) == YELLOW_BODY)
-			SunFrame = CaptureDrawable (LoadGraphic (SUNYELLOW_MASK_PMAP_ANIM));
+		switch (STAR_COLOR(CurStarDescPtr->Type)) {
+			case BLUE_BODY:
+				SunFrame = CaptureDrawable (LoadGraphic (SUNBLUE_MASK_PMAP_ANIM));
+				break;
+			case GREEN_BODY:
+				SunFrame = CaptureDrawable (LoadGraphic (SUNGREEN_MASK_PMAP_ANIM));
+				break;
+			case ORANGE_BODY:
+				SunFrame = CaptureDrawable (LoadGraphic (SUNORANGE_MASK_PMAP_ANIM));
+				break;
+			case RED_BODY:
+				SunFrame = CaptureDrawable (LoadGraphic (SUNRED_MASK_PMAP_ANIM));
+				break;
+			case WHITE_BODY:
+				SunFrame = CaptureDrawable (LoadGraphic (SUNWHITE_MASK_PMAP_ANIM));
+				break;
+			case YELLOW_BODY:
+			default:
+				SunFrame = CaptureDrawable (LoadGraphic (SUNYELLOW_MASK_PMAP_ANIM));
+				break;
+		}
 	}
 
 	if (SpaceJunkFrame == 0)
@@ -608,9 +617,8 @@ LoadSolarSys (void)
 	PLANET_DESC *pCurDesc;
 #define NUM_TEMP_RANGES 5
 
-
 	// "RES_DBL" applied to make the orbit dots more visible in HD.
-	Color color_array[NUM_TEMP_RANGES] =
+	const Color color_array[NUM_TEMP_RANGES] =
 	{
 		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,			 0x00,  RES_DBL(0x0E)), 0x54),
 		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,	 RES_DBL(0x06), RES_DBL(0x08)), 0x62),
