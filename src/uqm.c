@@ -123,34 +123,34 @@ struct options_struct
 	DECL_CONFIG_OPTION2(int, resolution, width, height);
 	DECL_CONFIG_OPTION(bool, fullscreen);
 	DECL_CONFIG_OPTION(bool, scanlines);
-	DECL_CONFIG_OPTION(int, scaler);
+	DECL_CONFIG_OPTION(int,  scaler);
 	DECL_CONFIG_OPTION(bool, showFps);
 	DECL_CONFIG_OPTION(bool, keepAspectRatio);
 	DECL_CONFIG_OPTION(float, gamma);
-	DECL_CONFIG_OPTION(int, soundDriver);
-	DECL_CONFIG_OPTION(int, soundQuality);
+	DECL_CONFIG_OPTION(int,  soundDriver);
+	DECL_CONFIG_OPTION(int,  soundQuality);
 	DECL_CONFIG_OPTION(bool, use3doMusic);
 	DECL_CONFIG_OPTION(bool, useRemixMusic);
 	DECL_CONFIG_OPTION(bool, useSpeech);
-	DECL_CONFIG_OPTION(int, whichCoarseScan);
-	DECL_CONFIG_OPTION(int, whichMenu);
-	DECL_CONFIG_OPTION(int, whichFonts);
-	DECL_CONFIG_OPTION(int, whichIntro);
-	DECL_CONFIG_OPTION(int, whichShield);
-	DECL_CONFIG_OPTION(int, smoothScroll);
-	DECL_CONFIG_OPTION(int, meleeScale);
+	DECL_CONFIG_OPTION(int,  whichCoarseScan);
+	DECL_CONFIG_OPTION(int,  whichMenu);
+	DECL_CONFIG_OPTION(int,  whichFonts);
+	DECL_CONFIG_OPTION(int,  whichIntro);
+	DECL_CONFIG_OPTION(int,  whichShield);
+	DECL_CONFIG_OPTION(int,  smoothScroll);
+	DECL_CONFIG_OPTION(int,  meleeScale);
 	DECL_CONFIG_OPTION(bool, subtitles);
 	DECL_CONFIG_OPTION(bool, stereoSFX);
 	DECL_CONFIG_OPTION(float, musicVolumeScale);
 	DECL_CONFIG_OPTION(float, sfxVolumeScale);
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
 	DECL_CONFIG_OPTION(bool, safeMode);
-	DECL_CONFIG_OPTION(int, resolutionFactor); // JMS_GFX
-	DECL_CONFIG_OPTION(int, loresBlowupScale); // JMS_GFX
+	DECL_CONFIG_OPTION(int,  resolutionFactor); // JMS_GFX
+	DECL_CONFIG_OPTION(int,	 loresBlowupScale); // JMS_GFX
  	DECL_CONFIG_OPTION(bool, cheatMode); // JMS
 	// Serosis
 	DECL_CONFIG_OPTION(bool, godMode);
-	DECL_CONFIG_OPTION(int, timeDilationScale);
+	DECL_CONFIG_OPTION(int,	 timeDilationScale);
 	DECL_CONFIG_OPTION(bool, bubbleWarp);
 	DECL_CONFIG_OPTION(bool, unlockShips);
 	DECL_CONFIG_OPTION(bool, headStart);
@@ -163,7 +163,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, orbitingPlanets);
 	DECL_CONFIG_OPTION(bool, texturedPlanets);
 	// Nic
-	DECL_CONFIG_OPTION(int, optDateFormat);
+	DECL_CONFIG_OPTION(int,	 optDateFormat);
 	// Serosis
 	DECL_CONFIG_OPTION(bool, infiniteFuel);
 	DECL_CONFIG_OPTION(bool, partialPickup);
@@ -171,7 +171,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, addDevices);
 	DECL_CONFIG_OPTION(bool, scalePlanets);
 	DECL_CONFIG_OPTION(bool, customBorder);
-	DECL_CONFIG_OPTION(int, customSeed);
+	DECL_CONFIG_OPTION(int,	 customSeed);
 	DECL_CONFIG_OPTION(bool, spaceMusic);
 	DECL_CONFIG_OPTION(bool, volasMusic);
 	DECL_CONFIG_OPTION(bool, wholeFuel);
@@ -184,6 +184,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, nomad);
 	DECL_CONFIG_OPTION(bool, gameOver);
 	DECL_CONFIG_OPTION(bool, shipDirectionIP);
+	DECL_CONFIG_OPTION(bool, hazardColors);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -311,15 +312,15 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  use3doMusic,       true ),
 		INIT_CONFIG_OPTION(  useRemixMusic,     false ),
 		INIT_CONFIG_OPTION(  useSpeech,         true ),
-		INIT_CONFIG_OPTION(  whichCoarseScan,   OPT_PC ),
+		INIT_CONFIG_OPTION(  whichCoarseScan,   OPT_3DO ),
 		INIT_CONFIG_OPTION(  whichMenu,         OPT_3DO ),
-		INIT_CONFIG_OPTION(  whichFonts,        OPT_3DO ),
-		INIT_CONFIG_OPTION(  whichIntro,        OPT_PC ),
+		INIT_CONFIG_OPTION(  whichFonts,        OPT_PC ),
+		INIT_CONFIG_OPTION(  whichIntro,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  whichShield,       OPT_3DO ),
 		INIT_CONFIG_OPTION(  smoothScroll,      OPT_PC ),
 		INIT_CONFIG_OPTION(	 meleeScale,        TFB_SCALE_TRILINEAR),
 		INIT_CONFIG_OPTION(  subtitles,         true ),
-		INIT_CONFIG_OPTION(  stereoSFX,         true ),
+		INIT_CONFIG_OPTION(  stereoSFX,         false ),
 		INIT_CONFIG_OPTION(  musicVolumeScale,  1.0f ),
 		INIT_CONFIG_OPTION(  sfxVolumeScale,    1.0f ),
 		INIT_CONFIG_OPTION(  speechVolumeScale, 0.8f ),
@@ -364,14 +365,15 @@ main (int argc, char *argv[])
 #else
 		INIT_CONFIG_OPTION(	 directionalJoystick, false ),
 #endif
-		INIT_CONFIG_OPTION(	 landerHold,		OPT_PC),
-		INIT_CONFIG_OPTION(	 ipTrans,			OPT_PC),
+		INIT_CONFIG_OPTION(	 landerHold,		OPT_3DO),
+		INIT_CONFIG_OPTION(	 ipTrans,			OPT_3DO),
 		INIT_CONFIG_OPTION(  optDifficulty,		0 ),
 		INIT_CONFIG_OPTION(	 fuelRange,			false),
 		INIT_CONFIG_OPTION(	 extended,			false),
 		INIT_CONFIG_OPTION(	 nomad,				false),
 		INIT_CONFIG_OPTION(	 gameOver,			false),
 		INIT_CONFIG_OPTION(	 shipDirectionIP,	false),
+		INIT_CONFIG_OPTION(	 hazardColors,		false),
 
 	};
 	struct options_struct defaults = options;
@@ -582,6 +584,7 @@ main (int argc, char *argv[])
 	optNomad = options.nomad.value;
 	optGameOver = options.gameOver.value;
 	optShipDirectionIP = options.shipDirectionIP.value;
+	optHazardColors = options.hazardColors.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -919,7 +922,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->partialPickup, "config.partialPickup");
 	getBoolConfigValue (&options->submenu, "config.submenu");
 	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
-	getBoolConfigValue (&options->scalePlanets, "config.scalePlanets");
+	// getBoolConfigValue (&options->scalePlanets, "config.scalePlanets");
 	getBoolConfigValue (&options->customBorder, "config.customBorder");
 	if (res_IsInteger ("config.customSeed") && !options->customSeed.set) {
 		options->customSeed.value = res_GetInteger ("config.customSeed");
@@ -929,21 +932,22 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue(&options->wholeFuel, "config.wholeFuel");
 
 #if defined(ANDROID) || defined(__ANDROID__)
-	getBoolConfigValue (&options->directionalJoystick, "config.directionaljoystick"); // For Android
+	getBoolConfigValue (&options->directionalJoystick, "config.directionalJoystick"); // For Android
 #endif
 
-	getBoolConfigValueXlat(&options->landerHold, "config.landerhold",
+	getBoolConfigValueXlat(&options->landerHold, "config.landerHold",
 		OPT_3DO, OPT_PC);
-	getBoolConfigValueXlat(&options->ipTrans, "config.iptransition",
+	getBoolConfigValueXlat(&options->ipTrans, "config.ipTransition",
 		OPT_3DO, OPT_PC);
 	if (res_IsInteger("config.difficulty") && !options->optDifficulty.set) {
 		options->optDifficulty.value = res_GetInteger("config.difficulty");
 	}
-	getBoolConfigValue(&options->fuelRange, "config.fuelrange");
+	getBoolConfigValue(&options->fuelRange, "config.fuelRange");
 	getBoolConfigValue(&options->extended, "config.extended");
 	getBoolConfigValue(&options->nomad, "config.nomad");
-	getBoolConfigValue(&options->gameOver, "config.gameover");
-	getBoolConfigValue(&options->shipDirectionIP, "config.shipdirectionip");
+	getBoolConfigValue(&options->gameOver, "config.gameOver");
+	getBoolConfigValue(&options->shipDirectionIP, "config.shipDirectionIP");
+	getBoolConfigValue(&options->hazardColors, "config.hazardColors");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1015,6 +1019,7 @@ enum
 	NOMAD_OPT,
 	GAMEOVER_OPT,
 	SHIPDIRIP_OPT,
+	HAZCOLORS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1098,6 +1103,7 @@ static struct option longOptions[] =
 	{"nomad", 0, NULL, NOMAD_OPT},
 	{"gameover", 0, NULL, GAMEOVER_OPT},
 	{"shipdirectionip", 0, NULL, SHIPDIRIP_OPT},
+	{"hazardcolors", 0, NULL, HAZCOLORS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1514,6 +1520,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SHIPDIRIP_OPT:
 				setBoolOption(&options->shipDirectionIP, true);
 				break;
+			case HAZCOLORS_OPT:
+				setBoolOption(&options->hazardColors, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -1806,8 +1815,10 @@ usage (FILE *out, const struct options_struct *defaults)
 		boolOptString(&defaults->nomad));
 	log_add(log_User, "  --gameover : Enables Game Over cutscenes    (default: %s)",
 		boolOptString(&defaults->gameOver));
-	log_add(log_User, "  --shipDirectionIP : Enable NPC ships in IP facing the direction they're going    (default: %s)",
+	log_add(log_User, "  --shipdirectionip : Enable NPC ships in IP facing the direction they're going    (default: %s)",
 		boolOptString(&defaults->shipDirectionIP));
+	log_add(log_User, "  --hazardcolors : Enable colored text based on hazard severity when viewing planetary scans    (default: %s)",
+		boolOptString(&defaults->hazardColors));
 	log_setOutput (old);
 }
 

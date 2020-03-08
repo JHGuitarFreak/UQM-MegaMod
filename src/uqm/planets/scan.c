@@ -45,10 +45,6 @@
 #include "libs/inplib.h"
 #include "libs/mathlib.h"
 
-#define HAZARD_COLORS
-
-#define SCAN_TITLE_Y (RES_SCALE(13) + IF_HD(19))
-
 extern FRAME SpaceJunkFrame;
 
 // define SPIN_ON_SCAN to allow the planet to spin 
@@ -153,6 +149,34 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 	}
 }
 
+static void HazardCase (BYTE hazard) {
+#define HAZARD_CASE(a,b) ((a) ? DULL_YELLOW_COLOR : ((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
+	Color HazardColor;
+
+	UWORD Temperature = GetThermalHazardRating(pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	UWORD Weather = pSolarSysState->SysInfo.PlanetInfo.Weather + 1;
+	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;	
+
+	switch (hazard) {
+		case LAVASPOT_DISASTER:
+			HazardColor = HAZARD_CASE ((Temperature > 2 && Temperature < 5), (Temperature > 4));
+			break;
+		case LIGHTNING_DISASTER:
+			HazardColor = HAZARD_CASE ((Weather > 2 && Weather < 5), (Weather > 4));
+			break;
+		case EARTHQUAKE_DISASTER:
+			HazardColor = HAZARD_CASE ((Tectonics > 2 && Tectonics < 6), (Tectonics > 5));
+			break;
+		default:
+			HazardColor = SCAN_INFO_COLOR;
+			break;
+	}
+
+	SetContextForeGroundColor (HazardColor);
+}
+
+#define SCAN_TITLE_Y (RES_SCALE(13) + IF_HD(19))
+
 static void
 PrintCoarseScanPC (void)
 {
@@ -180,7 +204,7 @@ PrintCoarseScanPC (void)
 
 #define LEFT_SIDE_BASELINE_X_PC RES_SCALE(5) // JMS_GFX
 #define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(75)) // JMS_GFX
-#define SCAN_BASELINE_Y_PC RES_SCALE(40) // JMS_GFX
+#define SCAN_BASELINE_Y_PC (RES_SCALE(40) + IF_HD(14)) // JMS_GFX
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
@@ -221,18 +245,8 @@ PrintCoarseScanPC (void)
 	sprintf (buf, "%d" STR_DEGREE_SIGN " c",
 			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
 
-#ifdef HAZARD_COLORS // Planet Temperature
-	if ((pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) >= (100) &&
-	    (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) <= (400))
-	{ /* Between 100 and 400 temperature the planet is still explorable,
-	   * draw the readout in yellow */
-		SetContextForeGroundColor (DULL_YELLOW_COLOR);
-	}
-	else if (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature > 400)
-	{ /* Above 400 the planet is quite dangerous, draw the readout in red. */
-		SetContextForeGroundColor (BRIGHT_RED_COLOR);
-	}
-#endif
+	if (optHazardColors) // Planet Temperature
+		HazardCase (LAVASPOT_DISASTER);
 
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
@@ -251,19 +265,8 @@ PrintCoarseScanPC (void)
 		t.pStr = buf;
 	}
 
-#ifdef HAZARD_COLORS
-	if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) >= (3) &&
-	    (pSolarSysState->SysInfo.PlanetInfo.Weather + 1) <= (4))
-	{ /* Weather values of 3 or 4 will unavoidably kill a few
-	   * crew, draw the readout in yellow. */
-		SetContextForeGroundColor (DULL_YELLOW_COLOR);
-	}
-	else if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) >= (5))
-	{ /* Weather values < 5 will unavoidably kill many crew,
-	   * draw the readout in red. */
-		SetContextForeGroundColor (BRIGHT_RED_COLOR);
-	}
-#endif
+	if (optHazardColors) // Weather
+		HazardCase (LIGHTNING_DISASTER);
 
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -282,19 +285,8 @@ PrintCoarseScanPC (void)
 		t.pStr = buf;
 	}
 
-#ifdef HAZARD_COLORS
-	if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) >= (3) &&
-		(pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) <= (5))
-	{ /* Between class 3 and 5 tectonics the planet is still explorable,
-	   * draw the readout in yellow. */
-		SetContextForeGroundColor (DULL_YELLOW_COLOR);
-	}
-	else if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) > (5))
-	{ /* Above class 5 tectonics the planet is quite dangerous, draw the
-	   * readout in red. */
-		SetContextForeGroundColor (BRIGHT_RED_COLOR);
-	}
-#endif
+	if (optHazardColors) // Tectonics
+		HazardCase (EARTHQUAKE_DISASTER);
 
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -368,14 +360,6 @@ PrintCoarseScan3DO (void)
 	STAMP s;
 	UNICODE buf[200];
 
-	/* We need this for the new color-changing hazard readouts.
-	 * We initialize it to SCAN_PC_TITLE_COLOR because we'll need
-	 * to reset the ContextForeGroundColor to this value whenever
-	 * we may have changed it - and having it always be set to a
-	 * sane value removes the need to only reset it conditionally.
-	 */
-	Color OldColor = SCAN_INFO_COLOR;
-
 	GetPlanetTitle (buf, sizeof (buf));
 
 	SetContext (PlanetContext);
@@ -386,7 +370,7 @@ PrintCoarseScan3DO (void)
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (OldColor);
+	SetContextForeGroundColor (SCAN_INFO_COLOR);
 	SetContextFont (MicroFont);
 	font_DrawText (&t);
 
@@ -428,23 +412,8 @@ PrintCoarseScan3DO (void)
 	sprintf (buf, "%d" STR_DEGREE_SIGN,
 			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
 
-#ifdef HAZARD_COLORS // Planet Temperature
-	if ((pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) < (100)) {
-		OldColor = SCAN_INFO_COLOR;
-	}
-	else if ((pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) >= (100) &&
-	    (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature) <= (400))
-	{ /* Between 100 and 400 temperature the planet is still explorable,
-	   * draw the readout in yellow */
-		OldColor = DULL_YELLOW_COLOR;
-	}
-	else if (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature > 400)
-	{ /* Above 400 the planet is quite dangerous, draw the readout in red. */
-		OldColor = BRIGHT_RED_COLOR;
-	}
-
-	SetContextForeGroundColor(OldColor);
-#endif
+	if (optHazardColors) // Planet Temperature
+		HazardCase (LAVASPOT_DISASTER);
 
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -454,24 +423,8 @@ PrintCoarseScan3DO (void)
 	sprintf (buf, "<%u>", pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
 			? 0 : (pSolarSysState->SysInfo.PlanetInfo.Weather + 1));
 
-#ifdef HAZARD_COLORS
-	if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) < (3)) {
-		OldColor = SCAN_INFO_COLOR;
-	}
-	if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) >= (3) &&
-	    (pSolarSysState->SysInfo.PlanetInfo.Weather + 1) <= (4))
-	{ /* Weather values of 3 or 4 will unavoidably kill a few
-	   * crew, draw the readout in yellow. */
-		OldColor = DULL_YELLOW_COLOR;
-	}
-	else if ((pSolarSysState->SysInfo.PlanetInfo.Weather + 1) >= (5))
-	{ /* Weather values < 5 will unavoidably kill many crew,
-	   * draw the readout in red. */
-		OldColor = BRIGHT_RED_COLOR;
-	}
-
-	SetContextForeGroundColor(OldColor);
-#endif
+	if (optHazardColors) // Weather
+		HazardCase (LIGHTNING_DISASTER);
 
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -484,25 +437,8 @@ PrintCoarseScan3DO (void)
 			) == GAS_GIANT
 			? 0 : (pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1));
 
-#ifdef HAZARD_COLORS
-	if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) < (3))
-	{
-		OldColor = SCAN_INFO_COLOR;
-	}
-	if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) >= (3) &&
-	    (pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) <= (5))
-	{ /* Between class 3 and 5 tectonics the planet is still explorable,
-	   * draw the readout in yellow. */
-		OldColor = DULL_YELLOW_COLOR;
-	}
-	else if ((pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1) > (5))
-	{ /* Above class 5 tectonics the planet is quite dangerous, draw the
-	   * readout in red. */
-		OldColor = BRIGHT_RED_COLOR;
-	}
-
-	SetContextForeGroundColor(OldColor);
-#endif
+	if (optHazardColors) // Tectonics
+		HazardCase (EARTHQUAKE_DISASTER);
 
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -519,8 +455,11 @@ PrintCoarseScan3DO (void)
 	if (val == 0)
 		val = 1;
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
+
+	if (optHazardColors)
+		SetContextForeGroundColor (SCAN_INFO_COLOR);
+
 	t.CharCount = (COUNT)~0;
-	SetContextForeGroundColor(SCAN_INFO_COLOR);
 	font_DrawText (&t);
 	t.baseline.y += SCAN_LEADING;
 

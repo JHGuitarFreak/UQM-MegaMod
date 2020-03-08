@@ -102,6 +102,7 @@ BOOLEAN optExtended;
 BOOLEAN optNomad;
 BOOLEAN optGameOver;
 BOOLEAN optShipDirectionIP;
+BOOLEAN optHazardColors;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

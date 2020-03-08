@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - A new, larger, more faithful looking "StarCon" font for HD
 - A new, more faithful looking "Micro" font for HD
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
+- Added an option to toggle the Hazard colors based on severity on/off
 
 ### Changed
 - Tightened up Android control isolation across the board

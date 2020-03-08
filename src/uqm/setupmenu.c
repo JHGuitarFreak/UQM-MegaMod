@@ -233,7 +233,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[35]),	// IP nebulae on/off
 	(WIDGET *)(&choices[36]),	// orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),	// texturedPlanets on/off
-	// (WIDGET *)(&choices[44]),	// Serosis: Scaled Planets
+	(WIDGET *)(&choices[44]),	// Serosis: Hazard Colors
 	(WIDGET *)(&choices[38]),	// Nic: Switch date formats
 	(WIDGET *)(&choices[41]),	// Submenu switch
 	(WIDGET *)(&choices[45]),	// Custom Border switch
@@ -587,7 +587,7 @@ SetDefaults (void)
 	choices[41].selected = opts.submenu;
 	choices[42].selected = opts.loresBlowup; // JMS
 	choices[43].selected = opts.addDevices;
-	choices[44].selected = opts.scalePlanets;
+	choices[44].selected = opts.hazardColors;
 	choices[45].selected = opts.customBorder;
 	choices[46].selected = opts.spaceMusic;
 	choices[47].selected = opts.volasMusic;
@@ -665,7 +665,7 @@ PropagateResults (void)
 	opts.submenu = choices[41].selected;
 	opts.loresBlowup = choices[42].selected; // JMS
 	opts.addDevices = choices[43].selected;
-	opts.scalePlanets = choices[44].selected;
+	opts.hazardColors = choices[44].selected;
 	opts.customBorder = choices[45].selected;
 	opts.spaceMusic = choices[46].selected;
 	opts.volasMusic = choices[47].selected;
@@ -1624,6 +1624,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->gameOver = optGameOver ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->shipDirectionIP = optShipDirectionIP ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->hazardColors = optHazardColors ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	// Serosis: 320x240
 	if (!IS_HD) {
@@ -2052,8 +2053,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optAddDevices = opts->addDevices == OPTVAL_ENABLED;
 	
 	// Serosis: Scale Planets in HD
-	res_PutBoolean ("config.scalePlanets", opts->scalePlanets == OPTVAL_ENABLED);
-	optScalePlanets = opts->scalePlanets == OPTVAL_ENABLED;
+	/*res_PutBoolean ("config.scalePlanets", opts->scalePlanets == OPTVAL_ENABLED);
+	optScalePlanets = opts->scalePlanets == OPTVAL_ENABLED;*/
 	
 	// Serosis: Show custom border
 	res_PutBoolean ("config.customBorder", opts->customBorder == OPTVAL_ENABLED);
@@ -2081,17 +2082,17 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 #if defined(ANDROID) || defined(__ANDROID__)
 	// Serosis: Enable Android Directional Joystick
-	res_PutBoolean("config.directionaljoystick", opts->directionalJoystick == OPTVAL_ENABLED);
+	res_PutBoolean("config.directionalJoystick", opts->directionalJoystick == OPTVAL_ENABLED);
 	optDirectionalJoystick = (opts->directionalJoystick == OPTVAL_ENABLED);
 #endif
 
 	// Serosis: Switch between PC/3DO max lander hold value
 	optLanderHold = (opts->landerHold == OPTVAL_3DO);
-	res_PutBoolean("config.landerhold", opts->landerHold == OPTVAL_3DO);
+	res_PutBoolean("config.landerHold", opts->landerHold == OPTVAL_3DO);
 
 	// Serosis: PC/3DO IP Transitions
 	optIPScaler = (opts->ipTrans == OPTVAL_3DO);
-	res_PutBoolean("config.iptransition", opts->ipTrans == OPTVAL_3DO);
+	res_PutBoolean("config.ipTransition", opts->ipTrans == OPTVAL_3DO);
 
 	// Serosis: Difficulty
 	switch (opts->difficulty) {
@@ -2112,7 +2113,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger("config.difficulty", opts->difficulty);
 
 	// Serosis: Enable "point of no return" fuel range
-	res_PutBoolean("config.fuelrange", opts->fuelRange == OPTVAL_ENABLED);
+	res_PutBoolean("config.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
 	optFuelRange = (opts->fuelRange == OPTVAL_ENABLED);
 
 	// Serosis: Enable Extended Edition features
@@ -2124,12 +2125,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optNomad = (opts->nomad == OPTVAL_ENABLED);
 
 	// Serosis: Enable Game Over cutscenes
-	res_PutBoolean("config.gameover", opts->gameOver == OPTVAL_ENABLED);
+	res_PutBoolean("config.gameOver", opts->gameOver == OPTVAL_ENABLED);
 	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
 
 	// Serosis: Enable NPC ships in IP facing the direction they're going
-	res_PutBoolean("config.shipdirectionip", opts->shipDirectionIP == OPTVAL_ENABLED);
+	res_PutBoolean("config.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
 	optShipDirectionIP = (opts->shipDirectionIP == OPTVAL_ENABLED);
+
+	// Serosis: Enable colored text based on hazard severity when viewing planetary scans
+	res_PutBoolean("config.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
+	optHazardColors = (opts->hazardColors == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
