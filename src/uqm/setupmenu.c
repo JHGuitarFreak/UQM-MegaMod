@@ -233,7 +233,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[35]),	// IP nebulae on/off
 	(WIDGET *)(&choices[36]),	// orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),	// texturedPlanets on/off
-	(WIDGET *)(&choices[44]),	// Serosis: Scaled Planets
+	// (WIDGET *)(&choices[44]),	// Serosis: Scaled Planets
 	(WIDGET *)(&choices[38]),	// Nic: Switch date formats
 	(WIDGET *)(&choices[41]),	// Submenu switch
 	(WIDGET *)(&choices[45]),	// Custom Border switch

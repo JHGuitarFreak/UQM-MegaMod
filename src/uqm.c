@@ -1082,7 +1082,7 @@ static struct option longOptions[] =
 	{"partialpickup", 0, NULL, PICKUP_OPT},
 	{"submenu", 0, NULL, SUBMENU_OPT},
 	{"adddevices", 0, NULL, DEVICES_OPT},
-	{"scaledevices", 0, NULL, SCALEPLAN_OPT},
+	{"scaleplanets", 1, NULL, SCALEPLAN_OPT},
 	{"customborder", 0, NULL, CUSTBORD_OPT},
 	{"customseed", 1, NULL, EXSEED_OPT},
 	{"spacemusic", 0, NULL, SPACEMUSIC_OPT},
@@ -1430,7 +1430,19 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case DEVICES_OPT:
 				setBoolOption (&options->addDevices, true);
 				break;
-			case SCALEPLAN_OPT:
+			case SCALEPLAN_OPT:{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Planet Scaling") == -1) {
+					badArg = true;
+					break;
+				} else if (temp < 0 || temp > 1) {					
+					saveError ("\nScale Planets has to be 0 or 1.\n");
+					badArg = true;
+				} else {
+					setBoolOption (&options->scalePlanets, temp);
+				}
+				break;
+			}
 				setBoolOption (&options->scalePlanets, true);
 				break;
 			case CUSTBORD_OPT:
