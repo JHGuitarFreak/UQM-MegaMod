@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Add SDL2 support (ported from UQM 0.7.1 branch)
 - Ala-lala: Add basic 2D positional audio support to MixSDL and fix attenuation in HD
 - A new, larger, more faithful looking "StarCon" font for HD
+- A new, more faithful looking "Micro" font for HD
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 
 ### Changed
@@ -37,6 +38,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed Syreen time stamps
 - Fixed Mmrnmhrm, Spathi, Shofixti, Ilwrath, Ur-Quan, Utwig, VUX, and Flagship weapon offsets and placements in HD
 - Fixed 3DO coarse scan screen code
+- Fixed PC coarse scan code
+- Fixed a bug that skewed the gravity results for Sol System planets
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak
