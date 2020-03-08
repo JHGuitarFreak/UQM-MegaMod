@@ -82,7 +82,6 @@ BOOLEAN EndlessSCLoaded;
 BYTE Rando;
 BOOLEAN HDPackPresent;
 BOOLEAN VolasPackPresent;
-FONT MeleeFont;
 BOOLEAN DeathBySurrender = FALSE;
 BOOLEAN DeathByMelee = FALSE;
 BOOLEAN DeathBySuicide = FALSE;
@@ -320,10 +319,6 @@ InitKernel (void)
 
 	MicroFont = LoadFont(MICRO_FONT);
 	if (MicroFont == NULL)
-		return FALSE;
-
-	MeleeFont = LoadFont(PT13AA_FONT);
-	if (MeleeFont == NULL)
 		return FALSE;
 
 	MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));

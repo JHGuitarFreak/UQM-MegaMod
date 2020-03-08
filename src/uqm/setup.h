@@ -57,7 +57,6 @@ extern FONT StarConLgFont;
 extern FONT MicroFont;
 extern FONT TinyFont;
 extern FONT PlyrFont;
-extern FONT MeleeFont;
 
 extern CondVar RenderingCond;
 

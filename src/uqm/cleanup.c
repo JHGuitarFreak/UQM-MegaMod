@@ -76,7 +76,6 @@ UninitKernel (void)
 	DestroyFont (StarConFont);
 	DestroyFont	(StarConLgFont);
 	DestroyFont (PlyrFont);
-	DestroyFont (MeleeFont);
 
 	UninitQueue (&race_q[0]);
 	UninitQueue (&race_q[1]);

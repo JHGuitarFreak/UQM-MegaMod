@@ -609,7 +609,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT -
-					(InStatusArea ? RES_DBL(1) : IF_HD(-8))); // JMS_GFX
+					(InStatusArea ? RES_DBL(1) : IF_HD(-25))); // JMS_GFX
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (optWhichFonts == OPT_PC)
