@@ -78,11 +78,6 @@ extern BOOLEAN DeathByMelee;
 extern BOOLEAN DeathBySuicide;
 extern BOOLEAN SpaceMusicOK;
 
-#define DEATH_MARCH 0
-#define DIED_IN_BATTLE 1
-#define SUICIDE 2
-#define SURRENDERED 3
-
 extern ACTIVITY LastActivity;
 
 extern BYTE PlayerControl[];

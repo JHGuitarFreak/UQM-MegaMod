@@ -25,6 +25,11 @@
 extern "C" {
 #endif
 
+#define DEATH_MARCH 0
+#define DIED_IN_BATTLE 1
+#define SUICIDE 2
+#define SURRENDERED 3
+
 extern void SplashScreen (void (* DoProcessing)(DWORD TimeOut));
 extern void Introduction (void);
 extern void Victory (void);
