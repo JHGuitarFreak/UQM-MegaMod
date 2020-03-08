@@ -460,6 +460,9 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						EARTH_RADIUS * 3937L / 100;
 				break;
 		}
+
+		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
+				CalcGravity (&solarSys->SysInfo.PlanetInfo);
 		
 		if (solTexturesPresent){
 			switch (planetNr) {
