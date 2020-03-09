@@ -75,10 +75,10 @@ static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         11
+#define MENU_COUNT         10
 #define CHOICE_COUNT       58
 #define SLIDER_COUNT        4
-#define BUTTON_COUNT       15
+#define BUTTON_COUNT       12
 #define LABEL_COUNT         5
 #define TEXTENTRY_COUNT     2
 #define CONTROLENTRY_COUNT  7
@@ -109,19 +109,17 @@ static int choice_widths[CHOICE_COUNT] = {
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
-	do_keyconfig, do_music, do_visual, do_gameplay, do_audio, 
-	do_advanced };
+	do_keyconfig, do_music, do_visual };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
 	(WIDGET *)(&buttons[2]),	// Graphics
+	(WIDGET *)(&buttons[3]),	// PC/3DO 
 	(WIDGET *)(&buttons[11]),	// Visuals
 	(WIDGET *)(&buttons[4]),	// Sound
 	(WIDGET *)(&buttons[10]),	// Music
-	//(WIDGET *)(&buttons[12]),	// Gameplay
 	(WIDGET *)(&buttons[6]),	// Controls
-	(WIDGET *)(&buttons[3]),	// PC/3DO Compat Options
 	(WIDGET *)(&buttons[7]),	// Advanced
 	(WIDGET *)(&buttons[5]),	// Cheats
 	(WIDGET *)(&labels[4]),		// Spacer
@@ -243,10 +241,6 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
-static WIDGET *gameplay_widgets[] = {
-	(WIDGET *)(&buttons[1]),
-	NULL };
-
 static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&choices[20]),
 	(WIDGET *)(&labels[2]),
@@ -278,7 +272,6 @@ menu_defs[] =
 	{editkeys_widgets, 7},
 	{music_widgets, 8},
 	{visual_widgets, 9},
-	{gameplay_widgets, 10},
 	{NULL, 0}
 };
 

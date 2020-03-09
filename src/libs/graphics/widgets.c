@@ -14,6 +14,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <stdio.h>
+#include <string.h>
+
 #include "gfx_common.h"
 #include "widgets.h"
 #include "libs/strlib.h"
@@ -265,7 +268,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		(*c->draw)(c, 0, widget_y);
 		widget_y += (*c->height)(c) + RES_SCALE(8); // JMS_GFX
 	}
-	
+
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
 		SetContextFont (oldfont);
@@ -351,6 +354,7 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
+	BOOLEAN CenterBool = FALSE;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -358,9 +362,17 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
 
-	t.baseline.x = RES_SCALE(160); // JMS_GFX
+	if (strcmp (self->name, "Quit Setup Menu") == 0 
+		|| strcmp (self->name, "Return to Main Menu") == 0
+		|| strcmp (self->name, "Edit Controls") == 0
+		|| strcmp (self->name, "Back to Control Options") == 0)
+	{
+		CenterBool = TRUE;
+	}
+
+	t.baseline.x = RES_SCALE(160) + (CenterBool ? 0 : RES_BOOL(36, 160)); // JMS_GFX
 	t.baseline.y = y;
-	t.align = ALIGN_CENTER;
+	t.align = CenterBool ? ALIGN_CENTER : ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->name;
 	if (widget_focus == _self)
