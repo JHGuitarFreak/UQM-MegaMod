@@ -141,14 +141,14 @@ DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)
 	t.baseline.x = BATTLE_CREW_X + RES_STAT_SCALE(2); // JMS_GFX
 	if (optWhichMenu == OPT_PC)
 			t.baseline.x -= RES_STAT_SCALE(8); // JMS_GFX
-	t.baseline.y = BATTLE_CREW_Y + y_offs;
+	t.baseline.y = BATTLE_CREW_Y + y_offs - IF_HD(12);
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
 	r.corner.x = t.baseline.x - IF_HD(1);
 	r.corner.y = t.baseline.y - RES_STAT_SCALE(5); // JMS_GFX
-	r.extent.width = 6 * MAX_CREW_DIGITS + RES_SCALE(6) + IF_HD(2); // JMS_GFX
+	r.extent.width = 6 * MAX_CREW_DIGITS + RES_SCALE(6) + IF_HD(26); // JMS_GFX
 	r.extent.height = RES_SCALE(5); // JMS_GFX
 
 	sprintf (buf, "%u", ShipInfoPtr->crew_level);
@@ -274,7 +274,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		TEXT t;
 
 		t.baseline.x = STATUS_WIDTH >> 1;
-		t.baseline.y = y + RES_BOOL(6, -44); // JMS_GFX
+		t.baseline.y = y + RES_BOOL(6, -57) ; // JMS_GFX
 		t.align = ALIGN_CENTER;
 		t.pStr = GLOBAL_SIS (CommanderName);
 		t.CharCount = (COUNT)~0;

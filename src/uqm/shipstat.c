@@ -29,7 +29,7 @@ DrawCrewFuelString (COORD y, SIZE state, BOOLEAN InMeleeMenu)
 {
 	STAMP Stamp;
 
-	Stamp.origin.y = y + GAUGE_YOFFS + STARCON_TEXT_HEIGHT - (InMeleeMenu ? IF_HD(12): IF_HD(-5));
+	Stamp.origin.y = y + GAUGE_YOFFS + STARCON_TEXT_HEIGHT - IF_HD(12);
 	if (state == 0)
 	{
 		Stamp.origin.x = CREW_XOFFS + (STAT_WIDTH >> 1) + RES_STAT_SCALE(6) - IF_HD(8); // JMS_GFX
