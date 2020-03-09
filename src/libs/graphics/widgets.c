@@ -104,7 +104,7 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	RECT r;
 	TEXT t;
-	int i, win_w, win_h, extra;
+	int i, win_w, win_h;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
