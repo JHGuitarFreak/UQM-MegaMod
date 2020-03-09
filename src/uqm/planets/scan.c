@@ -159,7 +159,7 @@ static void HazardCase (BYTE hazard) {
 
 	switch (hazard) {
 		case LAVASPOT_DISASTER:
-			HazardColor = HAZARD_CASE ((Temperature > 2 && Temperature < 5), (Temperature > 4));
+			HazardColor = HAZARD_CASE ((Temperature > 1 && Temperature < 5), (Temperature > 4));
 			break;
 		case LIGHTNING_DISASTER:
 			HazardColor = HAZARD_CASE ((Weather > 2 && Weather < 5), (Weather > 4));
