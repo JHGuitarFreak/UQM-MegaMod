@@ -106,8 +106,18 @@ LIB_libpng_NAME="libpng"
 #
 # To link against a static libpng, set LDFLAGS with an appropriate -L
 # argument before calling `build.sh uqm config`.
-LIB_libpng_CFLAGS=""
-LIB_libpng_LDFLAGS="-lpng"
+case "$HOST_SYSTEM" in
+	Darwin)
+		if not have_framework libpng; then
+			LIB_libpng_CFLAGS=""
+			LIB_libpng_LDFLAGS="-lpng"
+		fi
+		;;
+	*)
+		LIB_libpng_CFLAGS=""
+		LIB_libpng_LDFLAGS="-lpng"
+	;;
+esac
 
 
 ### OpenAL ###
@@ -166,18 +176,6 @@ esac
 LIB_opengl_VERSION=""
 
 
-### Vorbis ###
-LIB_vorbis_NAME="libvorbis"
-LIB_vorbis_CFLAGS=""
-LIB_vorbis_LDFLAGS="-lvorbis"
-LIB_vorbis_VERSION=""
-case "$HOST_SYSTEM" in
-	ARMV5|WINSCW|GCCE)
-		LIB_vorbis_DETECT="false"
-		;;
-esac
-
-
 ### Vorbisfile ###
 LIB_vorbisfile_NAME="vorbisfile"
 case "$HOST_SYSTEM" in
@@ -190,8 +188,10 @@ case "$HOST_SYSTEM" in
 		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis -lm -logg"
 		;;
 	Darwin)
-		LIB_vorbisfile_CFLAGS="-D__MACOSX__"
-		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis"
+		if not have_framework vorbisfile Vorbis; then
+			LIB_vorbisfile_CFLAGS="-D__MACOSX__"
+			LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis"
+		fi
 		;;
 	QNX)
 		LIB_vorbisfile_CFLAGS=""
@@ -225,10 +225,12 @@ case "$HOST_SYSTEM" in
 		LIB_tremor_LDFLAGS="-L/usr/local/lib -lvorbisidec"
 		;;
 	Darwin)
-		# Assumed values - please let me know if you can verify this.
-		LIB_tremor_CFLAGS=""
-		LIB_tremor_LDFLAGS="-framework Tremor"
-		;;		
+		if not have_framework tremor Tremor; then
+			# Assumed values - please let me know if you can verify this.
+			LIB_tremor_CFLAGS=""
+			LIB_tremor_LDFLAGS="-framework Tremor"
+		fi
+		;;	
 	ARMV5|WINSCW|GCCE)
 		LIB_tremor_DETECT="true"
 		;;
