@@ -297,7 +297,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 	disabled = WIDGET_DISABLED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
 
-	t.baseline.x = x + RES_SCALE(16);
+	t.baseline.x = x + RES_SCALE(16); // +RES_SCALE(74);
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
@@ -354,7 +354,6 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	BOOLEAN CenterBool = FALSE;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -362,17 +361,9 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
 
-	if (strcmp (self->name, "Quit Setup Menu") == 0 
-		|| strcmp (self->name, "Return to Main Menu") == 0
-		|| strcmp (self->name, "Edit Controls") == 0
-		|| strcmp (self->name, "Back to Control Options") == 0)
-	{
-		CenterBool = TRUE;
-	}
-
-	t.baseline.x = RES_SCALE(160) + (CenterBool ? 0 : RES_BOOL(36, 160)); // JMS_GFX
+	t.baseline.x = RES_SCALE(160);
 	t.baseline.y = y;
-	t.align = CenterBool ? ALIGN_CENTER : ALIGN_RIGHT;
+	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
 	t.pStr = self->name;
 	if (widget_focus == _self)
