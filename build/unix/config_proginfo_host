@@ -55,6 +55,15 @@ case "$HOST_SYSTEM" in
 		LIB_SDL_LDFLAGS=''		
 		LIB_SDL_VERSION='1.2.13'
 		LIB_SDL_DETECT="true"
+		;;
+	Darwin)
+		if not have_framework SDL; then
+			LIB_SDL_DETECT="have_command sdl-config"
+			LIB_SDL_CFLAGS='$(sdl-config --cflags)'
+			LIB_SDL_LDFLAGS='$(sdl-config --libs)'
+			LIB_SDL_VERSION='$(sdl-config --version)'
+		fi
+		LIB_SDL_LDFLAGS="$LIB_SDL_LDFLAGS -lobjc -framework Cocoa"
 		;;		
 	*)
 		LIB_SDL_DETECT="have_command sdl-config"
@@ -72,10 +81,13 @@ case "$HOST_SYSTEM" in
 		LIB_SDL2_DETECT="false"
 		;;
 	Darwin)
-		LIB_SDL2_DETECT="have_command sdl2-config"
-		LIB_SDL2_CFLAGS='$(sdl2-config --cflags)'
-		LIB_SDL2_LDFLAGS='$(sdl2-config --static-libs)'
-		LIB_SDL2_VERSION='$(sdl2-config --version)'
+		if not have_framework SDL2; then
+			LIB_SDL2_DETECT="have_command sdl2-config"
+			LIB_SDL2_CFLAGS='$(sdl2-config --cflags)'
+			LIB_SDL2_LDFLAGS='$(sdl2-config --libs)'
+			LIB_SDL2_VERSION='$(sdl2-config --version)'
+		fi
+		LIB_SDL2_LDFLAGS="$LIB_SDL2_LDFLAGS -lobjc -framework Cocoa"
 		;;
 	*)
 		LIB_SDL2_DETECT="have_command sdl2-config"
