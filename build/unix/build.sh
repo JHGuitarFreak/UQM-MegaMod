@@ -58,13 +58,13 @@ fi
 # Load the configuration functions
 . build/unix/build.config
 
-BUILD_THREADS=1
+BUILD_THREADS=""
 for i in "$@"; do
 	shift
 	if [ "`printf "%s" "$i" | cut -c1-2`" = "-j" ]; then
 		num="`printf "%s" "$i" | cut -c3-`"
 		if [ -z "$num" ] || [ "$num" -gt 0 ] 2>/dev/null; then
-			BUILD_THREADS="$num"
+			BUILD_THREADS="-j$num"
 		else
 			usage 1>&2
 			exit 1

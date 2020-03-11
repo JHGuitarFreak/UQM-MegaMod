@@ -103,7 +103,8 @@ build_depend() {
 
 # Compile the lot.
 # With the depend info set up, we can leave everything to make.
-# $1 - number of threads to use when building (empty for unlimited)
+# $1 - additional arguments to pass to make (at the moment just
+#      an optional -j arg for parallel builds).
 build_compile() {
 	local CFLAGS CXXFLAGS LDFLAGS TARGET_FILE DEPEND_FILE OBJDIR
 
@@ -121,7 +122,7 @@ build_compile() {
 			BUILD_ROOT= \
 			TARGET_FILE=$TARGET_FILE DEPEND_FILE=$DEPEND_FILE \
 			SED=$SED \
-			$MAKE -j$1 -f Makefile.build "$TARGET_FILE"
+			$MAKE $1 -f Makefile.build "$TARGET_FILE"
 
 	eval "${TARGET}_post_build"
 }
@@ -173,13 +174,14 @@ build_check_dependencies() {
 }
 
 # Description: check if the program is compiled, and otherwise compile
-# $1 - number of threads to use when building (empty for unlimited)
+# $1 - additional arguments to pass to make (at the moment just
+#      an optional -j arg for parallel builds).
 build_check_compile() {
 	local NAME
 	eval NAME="\${${BUILD_PROJECT}_NAME}"
 	[ ! -e "$NAME" ] || return
 
-	build_compile $1 || exit $?
+	build_compile "$1" || exit $?
 }
 
 # Make a directory path, with mode and owner specified.
