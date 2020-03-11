@@ -1184,6 +1184,17 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 		return EXIT_FAILURE;
 	}
 
+#ifdef __APPLE__
+	// If we are launched by double-clicking an application bundle, Finder
+	// sticks a "-psn_<some_number>" argument into the list, which makes
+	// getopt extremely unhappy. Check for this case and wipe out the
+	// entire command line if it looks like it happened.
+	if ((argc >= 2) && (strncmp(argv[1], "-psn_", 5) == 0))
+	{
+		return EXIT_SUCCESS;
+	}
+#endif
+
 	while (!badArg)
 	{
 		int c;
