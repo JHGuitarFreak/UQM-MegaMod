@@ -1,16 +1,18 @@
 BUILDING THE UR-QUAN MASTERS ON MAC OS X
 
-Starting with 0.7.1, The Ur-Quan Masters will build and run when
-linked against the libraries provided by brew (https://brew.sh).
+Starting with 0.7.1, it is possible to build and run The Ur-Quan
+Masters with the brew system (https://brew.sh).
 
 To install the necessary prerequisite libraries, run this command:
 
-    brew install sdl libpng libogg libvorbis
+    brew install sdl2 libpng libogg libvorbis
 
 To build:
 - Run `./build.sh uqm` in the sc2/ directory and choose your
   configuration options. The only truly important one is to use
   Included MikMod instead of System MikMod.
+
+The result can be run directly from the Terminal.
 
 - If it builds without errors (last line is LINK uqm or LINK
   uqm-debug), `./build.sh uqm install` will build a .app file you can
