@@ -56,7 +56,7 @@ sub relink_frameworks {
         $oldfwid =~ s/^\s+//;
         $oldfwid =~ s/\s.*$//g;
         my $newfwid = $oldfwid;
-        $newfwid =~ s/^\/Library/\@executable_path\/../;
+        $newfwid =~ s/^.*\/$fw.framework/\@executable_path\/..\/Frameworks\/$fw.framework/;
 
         system("install_name_tool -id $newfwid \"$src\"");
         foreach my $fw2 (@frameworks) {
