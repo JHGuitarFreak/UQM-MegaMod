@@ -24,8 +24,13 @@
 #include <stdlib.h>
 
 
+/* SDL2 wants to talk to a specific device. We'll let SDL1 use the same
+ * function names and just throw the device argument away. */
 #if SDL_MAJOR_VERSION > 1
 static SDL_AudioDeviceID dev;
+#else
+#define SDL_CloseAudioDevice(x) SDL_CloseAudio ()
+#define SDL_PauseAudioDevice(x, y) SDL_PauseAudio (y)
 #endif
 
 static const audio_Driver mixSDL_Driver =
