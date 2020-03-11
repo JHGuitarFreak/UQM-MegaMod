@@ -804,7 +804,7 @@ uio_open(uio_DirHandle *dir, const char *path, int flags, mode_t mode) {
 			&readMountInfo, &readPDirHandle, NULL,
 			&writeMountInfo, &writePDirHandle, NULL, &name) == -1) {
 		// errno is set
-		log_add(log_Info, "uio_open: uio_getPhysicalAccess  failed for '%s'", path);
+		// log_add(log_Info, "uio_open: uio_getPhysicalAccess failed for '%s'", path);
 		return NULL;
 	}
 	

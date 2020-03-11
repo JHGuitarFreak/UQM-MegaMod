@@ -1355,20 +1355,23 @@ zip_fillDirStructureProcessExtraFields(uio_FileBlock *fileBlock,
 				gPFileData->gid = (uid_t) makeUInt16(buf[2], buf[3]);
 				break;
 			case 0x756e: {  // 'Unix3'
-				mode_t mode;
-				mode = (mode_t) makeUInt16(buf[4], buf[5]);
-				if (!S_ISREG(mode) && !S_ISDIR(mode)) {
-					fprintf(stderr, "Warning: Skipping '%s'; not a regular "
-							"file, nor a directory.\n", fileName);
-					return 1;
+					mode_t mode;
+					mode = (mode_t) makeUInt16(buf[4], buf[5]);
+					if (!S_ISREG(mode) && !S_ISDIR(mode)) {
+						fprintf(stderr, "Warning: Skipping '%s'; not a regular "
+								"file, nor a directory.\n", fileName);
+						return 1;
+					}
+					gPFileData->uid = (uid_t) makeUInt16(buf[10], buf[11]);
+					gPFileData->gid = (uid_t) makeUInt16(buf[12], buf[13]);
 				}
-				gPFileData->uid = (uid_t) makeUInt16(buf[10], buf[11]);
-				gPFileData->gid = (uid_t) makeUInt16(buf[12], buf[13]);
 				break;
 			case 0x7875:  // 'Unix string UID/GID'
 				// Just skip it
 				break;
-			}
+			case 0x000a:
+				// .uqm Package intentionally not loaded, no need to generate a log entry
+				break;
 			default:
 #ifdef DEBUG
 				fprintf(stderr, "Debug: Extra field 0x%04x unsupported, "
