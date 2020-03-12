@@ -1046,9 +1046,14 @@ AddLightning (void)
 		}
 
 		LightningElementPtr->cycle = LightningElementPtr->life_span;
-		
-		SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex], STAMPFILL_PRIM);
-		SetPrimColor (&DisplayArray[LightningElementPtr->PrimIndex], WHITE_COLOR);
+
+		if (!IS_HD) {
+			SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex], STAMPFILL_PRIM);
+			SetPrimColor (&DisplayArray[LightningElementPtr->PrimIndex], WHITE_COLOR);
+		}
+		else
+			SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex], STAMP_PRIM);
+
 		DisplayArray[LightningElementPtr->PrimIndex].Object.Stamp.frame =
 				LanderFrame[2];
 
@@ -1094,7 +1099,11 @@ AddGroundDisaster (COUNT which_disaster)
 
 		if (which_disaster == EARTHQUAKE_DISASTER)
 		{
-			SetPrimType (pPrim, STAMP_PRIM); // JMS: was STAMPFILL_PRIM (this rendered it totally white).
+			if (!IS_HD)
+				SetPrimType (pPrim, STAMPFILL_PRIM);
+			else
+				SetPrimType (pPrim, STAMP_PRIM);
+
 			pPrim->Object.Stamp.frame = LanderFrame[1];
 			GroundDisasterElementPtr->turn_wait = MAKE_BYTE (2, 2);
 		}
