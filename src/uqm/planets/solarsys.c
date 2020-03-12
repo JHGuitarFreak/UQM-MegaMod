@@ -68,7 +68,6 @@
 static void AnimateSun (SIZE radius); // JMS
 static BOOLEAN DoIpFlight (SOLARSYS_STATE *pSS);
 static void DrawSystem (SIZE radius, BOOLEAN IsInnerSystem);
-static FRAME CreateStarBackGround (void);
 static void DrawInnerSystem (void);
 static void DrawOuterSystem (void);
 static void SetPlanetColorMap (PLANET_DESC *planet); // JMS, BW
@@ -2140,7 +2139,7 @@ InitSolarSys (void)
 	}
 
 
-	StarsFrame = CreateStarBackGround ();
+	StarsFrame = CreateStarBackGround (FALSE);
 	
 	SetContext (SpaceContext);
 	SetContextFGFrame (Screen);
@@ -2380,18 +2379,24 @@ DrawStarBackGround (void)
 	DrawStamp (&s);
 }
 
-static FRAME
-CreateStarBackGround (void)
+FRAME
+CreateStarBackGround (BOOLEAN encounter)
 {
 	COUNT i, j;
 	DWORD rand_val;
-	STAMP s, nebula; // JMS (added that nebula there)
+	STAMP s, nebula;
 	CONTEXT oldContext;
 	RECT clipRect;
 	FRAME frame;
 	BYTE numNebulae = 44;
 	COUNT NebulaePercentX = CurStarDescPtr->star_pt.x % numNebulae;
 	COUNT NebulaePercentY = CurStarDescPtr->star_pt.y % (numNebulae + 6);
+
+	if (encounter)
+	{
+		SpaceJunkFrame = CaptureDrawable(LoadGraphic(IPBKGND_MASK_PMAP_ANIM));
+		SysGenRNG = RandomContext_New();
+	}
 
 	// Use SpaceContext to find out the dimensions of the background
 	oldContext = SetContext (SpaceContext);
@@ -2406,7 +2411,6 @@ CreateStarBackGround (void)
 	SetContextBackGroundColor (BLACK_COLOR);
 
 	ClearDrawable ();
-
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
 
 #define NUM_DIM_PIECES 8
@@ -2439,13 +2443,21 @@ CreateStarBackGround (void)
 		s.frame = IncFrameIndex (s.frame);
 	}
 	
-	if (optNebulae && NebulaePercentY < numNebulae && CurStarDescPtr->Index != SOL_DEFINED){ // MB: Make some solar systems & Sol not have nebulae
+	if (optNebulae && NebulaePercentY < numNebulae && CurStarDescPtr->Index != SOL_DEFINED){ // MB: Make some solar systems & Sol not have nebulae		
+		nebula.frame = 0;
 		nebula.origin.x = nebula.origin.y = 0;
 		nebula.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
 		DrawStamp(&nebula);
 	}
 
 	SetContext (oldContext);
+
+	if (encounter) {
+		DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
+		SpaceJunkFrame = 0;
+		RandomContext_Delete (SysGenRNG);
+		SysGenRNG = NULL;
+	}
 
 	return frame;
 }

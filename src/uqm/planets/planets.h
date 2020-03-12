@@ -344,6 +344,7 @@ extern void DeltaTopography (COUNT num_iterations, SBYTE *DepthArray,
 
 extern void DrawPlanetSurfaceBorder (void);
 
+extern FRAME CreateStarBackGround (BOOLEAN encounter);
 extern UNICODE* GetNamedPlanetaryBody (void);
 extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 

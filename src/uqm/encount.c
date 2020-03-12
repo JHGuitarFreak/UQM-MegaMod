@@ -45,6 +45,7 @@
 #include "libs/mathlib.h"
 #include "libs/inplib.h"
 #include "libs/misc.h"
+#include "planets/solarsys.h"
 
 
 static void DrawFadeText (const UNICODE *str1, const UNICODE *str2,
@@ -286,7 +287,7 @@ InitEncounter (void)
 	
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
-	s.frame = SegueFrame;
+	s.frame = optNebulae ? CreateStarBackGround(TRUE) : SegueFrame;
 	DrawStamp (&s);
 
 //    t.baseline.x = SIS_SCREEN_WIDTH >> 1;
@@ -394,7 +395,6 @@ InitEncounter (void)
 	UnbatchGraphics ();
 	DestroyDrawable (ReleaseDrawable (SegueFrame));
 	ScreenTransition (3, NULL);
-
 
 	{
 		MENU_STATE MenuState;
