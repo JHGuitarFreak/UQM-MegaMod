@@ -84,9 +84,9 @@ enum
 
 #define MAX_SUNS 1
 #define MAX_PLANETS 16
-#define MAX_MOONS 5
-#define MAX_GEN_MOONS (PrimeSeed ? 4 : MAX_MOONS)
-#define MAX_GEN_PLANETS (PrimeSeed ? 9 : 10)
+#define MAX_MOONS 4
+#define MAX_GEN_MOONS MAX_MOONS
+#define MAX_GEN_PLANETS 9
 
 #define MAP_BORDER_HEIGHT  RES_DBL(5)
 #define SCAN_SCREEN_HEIGHT (SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
