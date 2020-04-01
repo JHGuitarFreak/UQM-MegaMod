@@ -2391,6 +2391,7 @@ CreateStarBackGround (BOOLEAN encounter)
 	BYTE numNebulae = 44;
 	COUNT NebulaePercentX = CurStarDescPtr->star_pt.x % numNebulae;
 	COUNT NebulaePercentY = CurStarDescPtr->star_pt.y % (numNebulae + 6);
+	RandomContext* OldSysGenRNG = SysGenRNG;
 
 	if (encounter)
 	{
@@ -2456,7 +2457,7 @@ CreateStarBackGround (BOOLEAN encounter)
 		DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 		SpaceJunkFrame = 0;
 		RandomContext_Delete (SysGenRNG);
-		SysGenRNG = NULL;
+		SysGenRNG = OldSysGenRNG;
 	}
 
 	return frame;
