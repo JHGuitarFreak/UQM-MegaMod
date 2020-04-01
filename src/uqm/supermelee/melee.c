@@ -2100,7 +2100,7 @@ Melee (void)
 		GameSounds = CaptureSound (LoadSound (GAME_SOUNDS));
 		LoadMeleeInfo (&MenuState);
 		if (LoadMeleeConfig (&MenuState) == -1)
-		{
+		{	// This sets the default controls on the Super Melee screen
 			PlayerControl[0] = HUMAN_CONTROL | STANDARD_RATING;
 			Melee_LocalChange_team (&MenuState, 0,
 					MenuState.load.preBuiltList[0]);
