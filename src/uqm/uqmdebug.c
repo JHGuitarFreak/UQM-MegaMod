@@ -187,12 +187,12 @@ void
 debugKeyPressedSynchronous (void)
 {
 	// State modifying:
-//	equipShip ();
+	equipShip ();
 //	giveDevices ();
 
 	// Give the player the ships you can't ally with under normal
 	// conditions.
-	/*clearEscorts ();
+	clearEscorts ();
 	AddEscortShips (ARILOU_SHIP, 1);
 	AddEscortShips (PKUNK_SHIP, 1);
 	AddEscortShips (VUX_SHIP, 1);
@@ -204,16 +204,16 @@ debugKeyPressedSynchronous (void)
 	AddEscortShips (SLYLANDRO_SHIP, 1);
 	AddEscortShips (UMGAH_SHIP, 1);
 	AddEscortShips (URQUAN_SHIP, 1);
-	AddEscortShips (BLACK_URQUAN_SHIP, 1);*/
+	AddEscortShips (BLACK_URQUAN_SHIP, 1);
 
 //	resetCrewBattle ();
 //	resetEnergyBattle ();
 //	instantMove = !instantMove;
 	showSpheres ();
 //	activateAllShips ();
-	forwardToNextEvent (TRUE);
-//	SET_GAME_STATE (MELNORME_CREDIT1, 100);
-//	GLOBAL_SIS (ResUnits) = 100000;
+//	forwardToNextEvent (TRUE);
+	//SET_GAME_STATE (MELNORME_CREDIT1, 100);
+	//GLOBAL_SIS (ResUnits) = 100000;
 
 	// Informational:
 //	dumpEvents (stderr);
