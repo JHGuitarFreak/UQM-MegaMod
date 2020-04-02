@@ -136,28 +136,30 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		return FALSE; // Must have at least one index in content dir
 
 	if (!IS_HD) {
-		if (loadAddon("EndlessSC-SD")) {
+		if (loadAddon ("EndlessSC-SD")) {
 			EndlessSCLoaded = TRUE;
-			printf("Loading Endless SC \n");
-			log_add(log_Debug, "loading EndlessSC-SD");
+			printf ("Loading Endless SC \n");
+			log_add (log_Debug, "loading EndlessSC-SD");
 		}
-		if (loadAddon("sol-textures-sd")) {
+		if (loadAddon ("sol-textures-sd")) {
 			solTexturesPresent = TRUE;
-			printf("Loading Sol Textures \n");
-			log_add(log_Debug, "loading sol-textures-sd");
+			printf ("Loading Sol Textures \n");
+			log_add (log_Debug, "loading sol-textures-sd");
 		}
-		loadAddon("yellow-fried-sd");
-	} else if (loadAddon("mm-hd")) {
+		loadAddon ("yellow-fried-sd");
+	} else if (loadAddon ("mm-hd")) {
 		HDPackPresent = TRUE;
 		log_add(log_Debug, "loading addon HD pack");
-		if (loadAddon("sol-textures-hd")) {
+		if (loadAddon ("sol-textures-hd")) {
 			solTexturesPresent = TRUE;
-			printf("Loading Sol Textures \n");
-			log_add(log_Debug, "loading sol-textures-hd");
+			printf ("Loading Sol Textures \n");
+			log_add (log_Debug, "loading sol-textures-hd");
 		}
-		loadAddon("yellow-fried-hd");
-		loadAddon("orange-peel-melnorme");
+		loadAddon ("yellow-fried-hd");
+		loadAddon ("orange-peel-melnorme");
 	}
+
+	loadAddon ("ProfanePkunk");
 
 	usingSpeech = optSpeech;
 	if (optSpeech && !loadAddon ("3dovoice")) {
@@ -165,10 +167,10 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	} 
 	
 	if (usingSpeech){
-		loadAddon("rmx-utwig");
+		loadAddon ("rmx-utwig");
 		// Autoload support for Soul Reaver's dialog fixes
-		loadAddon("MelnormeVoiceFix");
-		if(loadAddon("SyreenVoiceFix")){
+		loadAddon ("MelnormeVoiceFix");
+		if(loadAddon ("SyreenVoiceFix")){
 			SyreenVoiceFix = TRUE;
 		}
 	}
@@ -182,14 +184,14 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	}
 
 	if (optVolasMusic) {
-		if (loadAddon("volasaurus-remix-pack"))
+		if (loadAddon ("volasaurus-remix-pack"))
 			VolasPackPresent = TRUE;
 	}
 
 	if (optSpaceMusic) {
 		BOOLEAN SpaceMusicPresent = FALSE;
 
-		if (loadAddon("SpaceMusic"))
+		if (loadAddon ("SpaceMusic"))
 			SpaceMusicPresent = TRUE;
 
 		SpaceMusicOK = SpaceMusicPresent;
