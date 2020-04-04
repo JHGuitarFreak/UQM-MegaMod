@@ -51,15 +51,6 @@ void debugKeyPressed (void);
 // in the keys.cfg) is pressed.
 void debugKeyPressedSynchronous (void);
 
-// JMS: Called when the debug key (symbol 'Debug_2' in the keys.cfg) is pressed.
-void debugKey2Pressed (void);
-
-// JMS: Called when the debug key (symbol 'Debug_3' in the keys.cfg) is pressed.
-void debugKey3Pressed (void);
-
-// JMS: Called when the debug key (symbol 'Debug_4' in the keys.cfg) is pressed.
-void debugKey4Pressed (void);
-
 // Forward time to the next event. If skipHEE is set, the event named
 // HYPERSPACE_ENCOUNTER_EVENT, which normally occurs every game day,
 // is skipped. Must be called on the Starcon2Main thread.
@@ -185,10 +176,6 @@ const char *depositQualityString (BYTE quality);
 
 // Resets the crew of the first player (the bottom one) to its maximum.
 void resetCrewBattle(void);
-
-// Move instantly across hyperspace/quasispace.
-extern BOOLEAN instantMove;
-
 
 // Dump all game strings.
 void dumpStrings(FILE *out);

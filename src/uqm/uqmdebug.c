@@ -176,9 +176,9 @@ static void tallyResourcesWorld (TallyResourcesArg *arg,
 static void dumpPlanetTypeCallback (int index, const PlanetFrame *planet,
 		void *arg);
 
-
-BOOLEAN instantMove = FALSE;
 BOOLEAN disableInteractivity = FALSE;
+BOOLEAN DebugKeyHasBeenPressed = FALSE;
+BOOLEAN EnableDebugEvents = FALSE;
 
 
 // Must be called on the Starcon2Main thread.
@@ -186,40 +186,50 @@ BOOLEAN disableInteractivity = FALSE;
 void
 debugKeyPressedSynchronous (void)
 {
-	// State modifying:
-	equipShip ();
-//	giveDevices ();
+	if (!DebugKeyHasBeenPressed)
+	{
+		printf("Debug Key Activated\n");
+		equipShip ();
+		showSpheres ();
+	}
 
-	// Give the player the ships you can't ally with under normal
-	// conditions.
-	clearEscorts ();
-	AddEscortShips (ARILOU_SHIP, 1);
-	AddEscortShips (PKUNK_SHIP, 1);
-	AddEscortShips (VUX_SHIP, 1);
-	AddEscortShips (YEHAT_SHIP, 1);
-	AddEscortShips (MELNORME_SHIP, 1);
-	AddEscortShips (DRUUGE_SHIP, 1);
-	AddEscortShips (ILWRATH_SHIP, 1);
-	AddEscortShips (MYCON_SHIP, 1);
-	AddEscortShips (SLYLANDRO_SHIP, 1);
-	AddEscortShips (UMGAH_SHIP, 1);
-	AddEscortShips (URQUAN_SHIP, 1);
-	AddEscortShips (BLACK_URQUAN_SHIP, 1);
+	forwardToNextEvent (TRUE);
 
-//	resetCrewBattle ();
-//	resetEnergyBattle ();
-//	instantMove = !instantMove;
-	showSpheres ();
-//	activateAllShips ();
-//	forwardToNextEvent (TRUE);
-	//SET_GAME_STATE (MELNORME_CREDIT1, 100);
-	//GLOBAL_SIS (ResUnits) = 100000;
+	if (EnableDebugEvents)
+	{
+		// State modifying:
+		giveDevices ();
 
-	// Informational:
-//	dumpEvents (stderr);
+		// Give the player the ships you can't ally with under normal
+		// conditions.
+		clearEscorts ();
+		AddEscortShips (ARILOU_SHIP, 1);
+		AddEscortShips (PKUNK_SHIP, 1);
+		AddEscortShips (VUX_SHIP, 1);
+		AddEscortShips (YEHAT_SHIP, 1);
+		AddEscortShips (MELNORME_SHIP, 1);
+		AddEscortShips (DRUUGE_SHIP, 1);
+		AddEscortShips (ILWRATH_SHIP, 1);
+		AddEscortShips (MYCON_SHIP, 1);
+		AddEscortShips (SLYLANDRO_SHIP, 1);
+		AddEscortShips (UMGAH_SHIP, 1);
+		AddEscortShips (URQUAN_SHIP, 1);
+		AddEscortShips (BLACK_URQUAN_SHIP, 1);
 
-	// Graphical and textual:
-//	debugContexts();
+		resetCrewBattle ();
+		resetEnergyBattle ();
+		activateAllShips ();
+		SET_GAME_STATE (MELNORME_CREDIT1, 100);
+		GLOBAL_SIS (ResUnits) = 100000;
+
+		// Informational:
+		dumpEvents (stderr);
+
+		// Graphical and textual:
+		debugContexts ();
+	}
+
+	DebugKeyHasBeenPressed = TRUE;
 }
 
 // Can be called on any thread, but usually on main()
@@ -230,24 +240,29 @@ debugKeyPressedSynchronous (void)
 void
 debugKeyPressed (void)
 {
-	// Tests
-//	Scale_PerfTest ();
+	if (EnableDebugEvents)
+	{
+#if	SDL_MAJOR_VERSION == 1
+		// Tests
+		Scale_PerfTest ();
+#endif
 
-	// Informational:
-//	dumpStrings (stdout);
-//	dumpPlanetTypes(stderr);
-//	debugHook = dumpUniverseToFile;
-			// This will cause dumpUniverseToFile to be called from the
-			// Starcon2Main loop. Calling it from here would give threading
-			// problems.
-//	debugHook = tallyResourcesToFile;
-			// This will cause tallyResourcesToFile to be called from the
-			// Starcon2Main loop. Calling it from here would give threading
-			// problems.
+		// Informational:
+		dumpStrings (stdout);
+		dumpPlanetTypes (stderr);
+		debugHook = dumpUniverseToFile;
+				// This will cause dumpUniverseToFile to be called from the
+				// Starcon2Main loop. Calling it from here would give threading
+				// problems.
+		debugHook = tallyResourcesToFile;
+				// This will cause tallyResourcesToFile to be called from the
+				// Starcon2Main loop. Calling it from here would give threading
+				// problems.
 
-	// Interactive:
-//	uio_debugInteractive(stdin, stdout, stderr);
-//	luaUqm_debug_run();
+		// Interactive:
+		uio_debugInteractive (stdin, stdout, stderr);
+		luaUqm_debug_run ();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
