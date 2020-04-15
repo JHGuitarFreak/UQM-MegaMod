@@ -109,7 +109,7 @@ animatePowerLines (MENU_STATE *pMS)
 	{	// Init animation
 		s.origin.x = 0;
 		s.origin.y = 0;
-		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 25);
+		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 28);
 		ColorMap = SetAbsColorMapIndex (pMS->CurString, 0);
 	}
 

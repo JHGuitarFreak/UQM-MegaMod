@@ -131,13 +131,16 @@ typedef struct {
 // We would eventually want to unhardcode this.
 static RaceIdMap raceIdMap[] = {
 	// Sorted on the name, for the binary search.
+	{ /* .idStr = */ "androsynth",  /* .id = */ ANDROSYNTH_SHIP },
 	{ /* .idStr = */ "arilou",      /* .id = */ ARILOU_SHIP },
+	{ /* .idStr = */ "chenjesu",    /* .id = */ CHENJESU_SHIP },
 	{ /* .idStr = */ "chmmr",       /* .id = */ CHMMR_SHIP },
 	{ /* .idStr = */ "druuge",      /* .id = */ DRUUGE_SHIP },
 	{ /* .idStr = */ "human",       /* .id = */ HUMAN_SHIP },
 	{ /* .idStr = */ "ilwrath",     /* .id = */ ILWRATH_SHIP },
 	{ /* .idStr = */ "kohrah",      /* .id = */ BLACK_URQUAN_SHIP },
 	{ /* .idStr = */ "melnorme",    /* .id = */ MELNORME_SHIP },
+	{ /* .idStr = */ "mmrnmhrm",    /* .id = */ MMRNMHRM_SHIP },
 	{ /* .idStr = */ "mycon",       /* .id = */ MYCON_SHIP },
 	{ /* .idStr = */ "orz",         /* .id = */ ORZ_SHIP },
 	{ /* .idStr = */ "pkunk",       /* .id = */ PKUNK_SHIP },

@@ -363,7 +363,7 @@ InitGameStructures (void)
 		COUNT num_ships;
 		SPECIES_ID s_id = ARILOU_ID;
 
-		num_ships = KOHR_AH_ID - s_id + 1
+		num_ships = LAST_MELEE_ID - s_id + 1
 				+ 2; /* Yehat Rebels and Ur-Quan probe */
 
 		InitQueue (&GLOBAL (avail_race_q), num_ships, sizeof (FLEET_INFO));
