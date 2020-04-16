@@ -95,6 +95,33 @@ ReInit_Screen (SDL_Surface **screen, int w, int h)
         return *screen == 0 ? -1 : 0;
 }
 
+static int
+FindBestRenderDriver (void)
+{
+	int i, n;
+	n = SDL_GetNumRenderDrivers ();
+	for (i = 0; i < n; i++) {
+		SDL_RendererInfo info;
+		if (SDL_GetRenderDriverInfo (i, &info) < 0) {
+			continue;
+		}
+		if (!strcmp(info.name, "direct3d")) {
+			/* The 32-bit Windows 8+ Intel Integrated Graphics
+			 * driver has a common bug that causes the D3D9
+			 * display to crash with a divide-by-zero error.
+			 * If we have any alternatives, we will ask for
+			 * them instead. */
+			continue;
+		}
+		if (info.flags & SDL_RENDERER_ACCELERATED) {
+			return i;
+		}
+	}
+	/* We did not find any accelerated drivers that weren't D3D9.
+	 * Return -1 to ask SDL2 to do its best. */
+	return -1;
+}
+
 int
 TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
 {
@@ -122,7 +149,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		{
 			return -1;
 		}
-		renderer = SDL_CreateRenderer (window, -1, 0);
+		renderer = SDL_CreateRenderer (window, FindBestRenderDriver (), 0);
 		if (!renderer)
 		{
 			return -1;
