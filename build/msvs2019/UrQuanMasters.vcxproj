@@ -1007,6 +1007,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClInclude Include="..\..\src\uqm\ships\zoqfot\resinst.h" />
     <ClInclude Include="..\..\src\uqm\ships\zoqfot\zoqfot.h" />
     <ClInclude Include="..\..\src\uqm\ships\ship.h" />
+    <ClInclude Include="..\..\src\uqm\supermelee\meleeship.h" />
     <ClInclude Include="..\..\src\uqm\supermelee\netplay\proto\npconfirm.h" />
     <ClInclude Include="..\..\src\uqm\supermelee\netplay\proto\ready.h" />
     <ClInclude Include="..\..\src\uqm\supermelee\netplay\proto\reset.h" />

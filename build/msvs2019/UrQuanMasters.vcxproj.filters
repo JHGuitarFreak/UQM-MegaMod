@@ -2804,6 +2804,9 @@
     <ClInclude Include="..\..\src\libs\graphics\sdl\png2sdl.h">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\uqm\supermelee\meleeship.h">
+      <Filter>Source Files\uqm\supermelee</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\res\UrQuanMasters.rc">
