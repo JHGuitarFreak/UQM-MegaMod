@@ -36,6 +36,8 @@
 
 #if SDL_MAJOR_VERSION == 1
 
+static void TFB_PreQuit (void);
+
 void
 TFB_PreInit (void)
 {
@@ -65,7 +67,13 @@ TFB_PreInit (void)
 		exit (EXIT_FAILURE);
 	}
 
-	atexit (SDL_Quit);
+	atexit (TFB_PreQuit);
+}
+
+static void
+TFB_PreQuit (void)
+{
+	SDL_Quit ();
 }
 
 int
