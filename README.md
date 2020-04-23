@@ -64,7 +64,8 @@ You can fix this one of two ways, by setting the UI scaling in Windows to 100% o
 
 For overriding on UQM itself:  
 Right click on the EXE -> click `Properties` -> click over to the `Compatibility` tab -> click `Change high DPI settings` -> click `Override high DPI scaling behavior` -> set `Scaling performed by:` to `Application`  
-It should look like this: ![image](https://user-images.githubusercontent.com/4404965/80047996-bb0e7f00-84c3-11ea-8914-85509e2fb623.png)
+It should look like this:  
+![image](https://user-images.githubusercontent.com/4404965/80047996-bb0e7f00-84c3-11ea-8914-85509e2fb623.png)
 
 
 ## Contributors
