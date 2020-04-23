@@ -53,6 +53,20 @@ Example: If you're running on a Ryzen 7 2700x you can use the command like so `.
 
 This also works with the MinGW helper script in the same manner: `./mingw.sh -j16 uqm`
 
+## Fixes
+
+### Windows
+
+#### Image Cut-off in fullscreen
+
+The most common contributor to this is the Windows built in DPI settings that scales UI for larger resolutions.
+You can fix this one of two ways, by setting the UI scaling in Windows to 100% or overriding the scaling on UQM itself.
+
+For overriding on UQM itself:  
+Right click on the EXE -> click `Properties` -> click over to the `Compatibility` tab -> click `Change high DPI settings` -> click `Override high DPI scaling behavior` -> set `Scaling performed by:` to `Application`  
+It should look like this: ![image](https://user-images.githubusercontent.com/4404965/80047996-bb0e7f00-84c3-11ea-8914-85509e2fb623.png)
+
+
 ## Contributors
 
 Me (Serosis), SlightlyIntelligentMonkey, Volasaurus, and Ala-lala
