@@ -653,7 +653,7 @@ init_chmmr_comm (void)
 			// generalised in the future.
 
 	if (GET_GAME_STATE(CHMMR_UNLEASHED) || GET_GAME_STATE(CHMMR_EMERGING)) {
-		// use alternate "Process" track if available
+		// use alternate "Process Complete" track if available
 		chmmr_desc.AlienAltSongRes = CHMMR_PROCESS_MUSIC;
 		chmmr_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
 	} else {
