@@ -56,9 +56,10 @@ Changes towards version 0.8:
 - Spelling and punctuation pass (bug #1200), from Anthony J. Bentley
 - New Man Page edition of the user manual (Bug #1204), from Bentley
 - STAR CONTROL trademark information updated to reflect current events (#1201)
+- Reorganize and update credits generally - Michael
 
 Changes towards version 0.7.1:
-- New SDL2 backend for modern operating systems - Micahel
+- New SDL2 backend for modern operating systems - Michael
 - Fixed netplay when compiling against modern versions of Visual
   Studio, from Ala-lala
 
