@@ -293,10 +293,11 @@ GetRaceKnownSize (RACE_ID race)
  * Being in an alliance with a race makes their ships available for building
  * in the shipyard.
  * flag == TRUE: start an alliance
- * flag == TRUE: end an alliance
+ * flag == FALSE: end an alliance
+ * flag == 3: Can build their ships regardless
  */
 BOOLEAN
-SetRaceAllied (RACE_ID race, BOOLEAN flag) {
+SetRaceAllied (RACE_ID race, BYTE flag) {
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
 
@@ -306,37 +307,11 @@ SetRaceAllied (RACE_ID race, BOOLEAN flag) {
 
 	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 
-	if (FleetPtr->allied_state == DEAD_GUY)
-	{
-		/* Strange request, silently ignore it */
-	}
-	else
-	{
-		FleetPtr->allied_state = (flag ? GOOD_GUY : BAD_GUY);
-	}
-
-	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
-	return TRUE;
-}
-
-/*
- * Allows the building of ships regardless of alliance state
- * flag == TRUE: Allow to build ship
- * flag == FALSE: Normal, not allowed to build ships if not allied.
- */
-BOOLEAN
-SetRaceAllowBuild (RACE_ID race) {
-	HFLEETINFO hFleet;
-	FLEET_INFO *FleetPtr;
-
-	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), race);
-	if (!hFleet)
-		return FALSE;
-
-	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
-
-	if (FleetPtr->allied_state != GOOD_GUY) {
-		FleetPtr->allied_state = CAN_BUILD;
+	if (FleetPtr->allied_state == DEAD_GUY) {
+		if (flag == 3)
+			FleetPtr->allied_state = CAN_BUILD;
+	} else {
+		FleetPtr->allied_state = (flag == 1 ? GOOD_GUY : flag == 3 ? CAN_BUILD : BAD_GUY);
 	}
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
@@ -728,8 +703,8 @@ loadGameCheats (void){
 	if (optUnlockShips){
 		BYTE i = 0;
 
-		for (i = ARILOU_SHIP; i <= BLACK_URQUAN_SHIP; ++i) {
-			SetRaceAllowBuild(i);
+		for (i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i) {
+			SetRaceAllied (i, 3);
 		}
 	}
 	if (optUnlockUpgrades){
