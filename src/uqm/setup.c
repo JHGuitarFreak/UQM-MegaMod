@@ -183,19 +183,16 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("remix");
 	}
 
-	if (optVolasMusic) {
-		if (loadAddon ("volasaurus-remix-pack"))
-			VolasPackPresent = TRUE;
+	if (optVolasMusic && loadAddon ("volasaurus-remix-pack")){
+		VolasPackPresent = TRUE;
+
+		if (optSpaceMusic)
+			SpaceMusicOK = TRUE;
 	}
 
-	if (optSpaceMusic) {
-		BOOLEAN SpaceMusicPresent = FALSE;
 
-		if (loadAddon ("SpaceMusic"))
-			SpaceMusicPresent = TRUE;
-
-		SpaceMusicOK = SpaceMusicPresent;
-	}
+	if (optSpaceMusic && loadAddon ("SpaceMusic"))
+		SpaceMusicOK = TRUE;
 
 	if (optWhichIntro == OPT_3DO) {
 		loadAddon ("3dovideo");
