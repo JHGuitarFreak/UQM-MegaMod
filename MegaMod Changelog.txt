@@ -16,8 +16,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Allow parallelization of build.sh builds with -j
 - Ala-lala: Add SDL2 support (ported from UQM 0.7.1 branch)
 - Ala-lala: Add basic 2D positional audio support to MixSDL and fix attenuation in HD
-- A new, larger, more faithful looking "StarCon" font for HD
-- A new, more faithful looking "Micro" font for HD
+- Larger, more faithful looking "StarCon" font for HD
+- More faithful looking "Micro" font for HD
+- Newly created font for the Chmmr in HD
+- Newly created font for the Main Menu and Credits
+- New font for the Arilou and Druuge in HD
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 - Added an option to toggle the Hazard colors based on severity on/off
 
