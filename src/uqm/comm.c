@@ -1371,11 +1371,15 @@ HailAlien (void)
  			CreateDrawable (WANT_PIXMAP, SIS_SCREEN_WIDTH, SLIDER_Y, 1));
 	SetContext (TextCacheContext);
 	SetContextFGFrame (TextCacheFrame);
-	TextBack = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x10), 0x00);
+
+	// This block of code is what makes the fonts jagged in HD
+	{
+		TextBack = BUILD_COLOR (MAKE_RGB15 (0x01, 0x01, 0x01), 0x00);
 			// Color key for the background.
-	SetContextBackGroundColor (TextBack);
-	ClearDrawable ();
-	SetFrameTransparentColor (TextCacheFrame, TextBack);
+		SetContextBackGroundColor (TextBack);
+		ClearDrawable ();
+		SetFrameTransparentColor (TextCacheFrame, TextBack);
+	}
 
 	ES.phrase_buf[0] = '\0';
 
