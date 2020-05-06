@@ -4,7 +4,8 @@ To use this script you have to install FontForge and ImageMagick.
 Then you add FontForge and ImageMagick's installation folder
 to your environment path
 
-Once you have that completed you can 'cd' into the script directory,
+Once you have that completed you can 'cd' into the script directory
+with either the CMD prompt, Windows PowerShell, or any Bash Shell,
 type in "fontforge-console" and press Enter. This will allow you to 
 use FontForge's built-in Python interpreter.
 Then you can run the script by typing in "ffpython ttf2png.py" and 
