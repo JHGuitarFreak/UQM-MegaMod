@@ -1,26 +1,21 @@
 #!/usr/bin/env fontforge
 
-import os
 import fontforge
+from os import system
+from pathlib import Path
 
-FontName = input("Enter Font Name: ")
+FontName = Path(input("Enter Font Name: "))
 FontSize = int(input("Enter Font Size: "))
 
-# small StarCon HD font = 28
-# large StarCon HD font = 36
-# MicroFont HD font = 39
+FontStem = Path(FontName.stem)
+FontStem.mkdir(parents=True, exist_ok=True)
 
-ExportDir= os.path.splitext(FontName)[0]+"/"
-try:
-    os.makedirs(ExportDir)
-except FileExistsError:
-    pass
-
-F = fontforge.open(FontName, 1)
+F = fontforge.open(FontName.name, 1)
 for name in F:
 	unicodeName = fontforge.unicodeFromName(name)
 	filename = '{:05x}'.format(unicodeName) + ".png"
-	print("Exporting " + filename)
-	FullDir = ExportDir + filename
-	F[name].export(FullDir, FontSize)
-	os.system('mogrify -negate '+FullDir)
+	if '-' not in filename:
+		FullDir = str(FontStem.joinpath(filename))
+		print("Exporting " + filename)
+		F[name].export(FullDir, FontSize)
+		system('mogrify -negate "'+FullDir+'"')
