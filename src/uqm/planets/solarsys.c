@@ -513,6 +513,12 @@ GetRandomSeedForStar (const STAR_DESC *star)
 	return MAKE_DWORD (star->star_pt.x, star->star_pt.y);
 }
 
+DWORD
+GetRandomSeedForVar(POINT point)
+{
+	return MAKE_DWORD(point.x, point.y);
+}
+
 void GenerateTexturedPlanets (void)
 {
 	COUNT i;
@@ -2389,15 +2395,23 @@ CreateStarBackGround (BOOLEAN encounter)
 	RECT clipRect;
 	FRAME frame;
 	BYTE numNebulae = 44;
-	COUNT NebulaePercentX = CurStarDescPtr->star_pt.x % numNebulae;
-	COUNT NebulaePercentY = CurStarDescPtr->star_pt.y % (numNebulae + 6);
+	BYTE ZeroIndex = 0;
+	POINT NullCoord;
+	COUNT NebulaePercentX, NebulaePercentY;
 	RandomContext* OldSysGenRNG = SysGenRNG;
 
-	if (encounter)
-	{
+#define NULL_BOOL(a,b) (CurStarDescPtr ? (a) : (b))
+
+	NullCoord.x = LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x));
+	NullCoord.y = LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y));
+
+	if (encounter) {
 		SpaceJunkFrame = CaptureDrawable(LoadGraphic(IPBKGND_MASK_PMAP_ANIM));
 		SysGenRNG = RandomContext_New();
 	}
+
+	NebulaePercentX = NULL_BOOL(CurStarDescPtr->star_pt.x, NullCoord.x) % numNebulae;
+	NebulaePercentY = NULL_BOOL(CurStarDescPtr->star_pt.y, NullCoord.y) % (numNebulae + 6);
 
 	// Use SpaceContext to find out the dimensions of the background
 	oldContext = SetContext (SpaceContext);
@@ -2412,7 +2426,8 @@ CreateStarBackGround (BOOLEAN encounter)
 	SetContextBackGroundColor (BLACK_COLOR);
 
 	ClearDrawable ();
-	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
+
+	RandomContext_SeedRandom(SysGenRNG, NULL_BOOL(GetRandomSeedForStar(CurStarDescPtr), GetRandomSeedForVar(NullCoord)));
 
 #define NUM_DIM_PIECES 8
 	s.frame = SpaceJunkFrame;
@@ -2444,7 +2459,7 @@ CreateStarBackGround (BOOLEAN encounter)
 		s.frame = IncFrameIndex (s.frame);
 	}
 	
-	if (optNebulae && NebulaePercentY < numNebulae && CurStarDescPtr->Index != SOL_DEFINED){ // MB: Make some solar systems & Sol not have nebulae		
+	if (optNebulae && NebulaePercentY < numNebulae && NULL_BOOL(CurStarDescPtr->Index, ZeroIndex) != SOL_DEFINED){ // MB: Make some solar systems & Sol not have nebulae		
 		nebula.frame = 0;
 		nebula.origin.x = nebula.origin.y = 0;
 		nebula.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
