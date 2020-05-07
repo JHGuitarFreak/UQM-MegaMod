@@ -221,6 +221,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[32]),	// Skip Intro
 	(WIDGET *)(&choices[40]),	// Partial Pickup switch
 	(WIDGET *)(&choices[56]),	// Game Over switch
+	(WIDGET *)(&choices[41]),	// Submenu switch
 	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
 	(WIDGET *)(&labels[4]),		// Spacer
@@ -233,7 +234,6 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[37]),	// texturedPlanets on/off
 	(WIDGET *)(&choices[44]),	// Serosis: Hazard Colors
 	(WIDGET *)(&choices[38]),	// Nic: Switch date formats
-	(WIDGET *)(&choices[41]),	// Submenu switch
 	(WIDGET *)(&choices[45]),	// Custom Border switch
 	(WIDGET *)(&choices[48]),	// Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),	// Fuel Range
