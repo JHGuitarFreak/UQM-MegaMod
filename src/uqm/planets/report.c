@@ -116,6 +116,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		const UNICODE *pLastStr;
 		const UNICODE *pNextStr;
 		COUNT lf_pos;
+		BYTE NextPageHD;
 
 		pLastStr = t.pStr;
 
@@ -127,6 +128,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
  			;
 
 		col_cells = 0;
+		NextPageHD = 0;
 		// check if the remaining text fits on current screen
 		if (row_cells == NUM_CELL_ROWS - 1
 				&& (StrLen > NUM_CELL_COLS || lf_pos > 1))
@@ -134,8 +136,9 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
 			StrLen += end_page_len;
+			NextPageHD = 9;
 		}
-		t.baseline.x = 1 + (r.extent.width >> 1) 
+		t.baseline.x = 1 + IF_HD(NextPageHD) + (r.extent.width >> 1)
 			+ (col_cells * (r.extent.width + 1)) 
 			- 1;
 		do
@@ -196,16 +199,16 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						}
 					}
 					t.pStr = pNextStr;
-					t.baseline.x += r.extent.width + RES_SCALE(1);
+					t.baseline.x += r.extent.width + RES_SCALE(1); // Text spacing
 				}
 
 				++col_cells;
 				last_c = getCharFromString (&t.pStr);
-				t.baseline.x += r.extent.width + RES_SCALE(1);
+				t.baseline.x += r.extent.width + RES_SCALE(1); // Space spacing
 			}
 		} while (col_cells <= NUM_CELL_COLS && last_c != '\n' && StrLen);
 
-		t.baseline.y += r.extent.height + RES_SCALE(1);
+		t.baseline.y += r.extent.height + RES_SCALE(1); // Text vertical spacing
 		if (++row_cells == NUM_CELL_ROWS || StrLen == 0)
 		{
 			t.pStr = pLastStr;
@@ -219,7 +222,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 
 InitPageCell:
 			ButtonState = 1;
-			t.baseline.y = r.extent.height + RES_SCALE(1); // JMS_GFX
+			t.baseline.y = r.extent.height + RES_SCALE(1); // Text vertical alignment
 			row_cells = 0;
 			if (StrLen)
 			{
