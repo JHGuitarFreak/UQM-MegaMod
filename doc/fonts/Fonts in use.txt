@@ -1,8 +1,12 @@
 3rd party fonts in use
 
 Arilou		-	Puritan Alt Bold				->	https://www.dafont.com/puritan-ds.font
-Kohr-Ah 	- Xenopyre Regular				->	https://www.fontspace.com/xenopyre-font-f32025
+Computer	-	DJB Get Digital					->	https://www.dafont.com/djb-get-digital.font
+Kohr-Ah 	- Xenopyre								->	https://www.fontspace.com/xenopyre-font-f32025
+Lander		-	Sowftware Tester 7			->	https://www.1001fonts.com/software-tester-7-font.html
 MicroFont	-	Orbitron Black					->	https://www.fontspace.com/orbitron-font-f19177
-Shofixti	-	Luteous Viscous Regular	->	https://www.fontspace.com/luteous-font-f420
-Syreen		-	Shathika Regular				->	https://www.fontspace.com/shathika-font-f31885
-Ur-Quan		- Basalt Regular 					->	https://www.fontspace.com/basalt-font-f30764
+Orz				-	Kero kero								->	https://www.dafont.com/kero-kero.font
+Shofixti	-	Luteous Viscous					->	https://www.fontspace.com/luteous-font-f420
+Supox			-	START REVOLUTION				->	https://www.fontspace.com/start-revolution-font-f25979
+Syreen		-	Shathika								->	https://www.fontspace.com/shathika-font-f31885
+Ur-Quan		- Basalt									->	https://www.fontspace.com/basalt-font-f30764
