@@ -63,7 +63,6 @@ extern MUSIC_REF LanderMusic;
 
 extern void PlanetSide (POINT planetLoc);
 extern void DoDiscoveryReport (SOUND ReadOutSounds);
-extern void DoSpaceReport (SOUND ReadOutSounds, STRING report);
 extern void SetPlanetMusic (BYTE planet_type);
 extern void LoadLanderData (void);
 extern void FreeLanderData (void);
