@@ -36,8 +36,10 @@
 #include <string.h>
 
 
-#define NUM_CELL_COLS (MAP_WIDTH / RES_SCALE(6))
-#define NUM_CELL_ROWS (MAP_HEIGHT / RES_SCALE(6))
+#define NUM_CELL_COLS (ORIGINAL_MAP_WIDTH / 6)
+#define NUM_CELL_ROWS (ORIGINAL_MAP_HEIGHT / 6)
+#define NUM_CELL_COLS_HD (MAP_WIDTH / RES_SCALE(6))
+#define NUM_CELL_ROWS_HD (MAP_HEIGHT / RES_SCALE(6))
 #define MAX_CELL_COLS 40 // Serosis: Why is this is never used???
 
 extern FRAME SpaceJunkFrame;
@@ -63,12 +65,12 @@ ClearReportArea (void)
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 	
-	startx = (1 + (r.extent.width >> 1) - 1);
-	s.origin.y = RES_SCALE(1);
-	for (y = 0; y < NUM_CELL_ROWS; ++y)
+	startx = (RES_BOOL(1, 2) + (r.extent.width >> 1) - 1);
+	s.origin.y = RES_BOOL(1, 11);
+	for (y = 0; y < NUM_CELL_ROWS_HD; ++y)
 	{
 		s.origin.x = startx;
-		for (x = 0; x < NUM_CELL_COLS; ++x)
+		for (x = 0; x < NUM_CELL_COLS_HD; ++x)
 		{
 			if (optWhichFonts == OPT_PC)
 				DrawStamp (&s);
@@ -78,6 +80,14 @@ ClearReportArea (void)
 			s.origin.x += r.extent.width + RES_SCALE(1);
 		}
 		s.origin.y += r.extent.height + RES_SCALE(1);
+	}
+
+	if (IS_HD) {
+		if (optWhichFonts == OPT_PC)
+			DrawBorder (24, FALSE);
+		else
+			DrawBorder (25, FALSE);
+		DrawBorder (10, FALSE);
 	}
 
 	UnbatchGraphics ();
@@ -136,9 +146,9 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
 			StrLen += end_page_len;
-			NextPageHD = 9;
+			NextPageHD = 51;
 		}
-		t.baseline.x = 1 + IF_HD(NextPageHD) + (r.extent.width >> 1)
+		t.baseline.x = RES_BOOL(1, (50 + NextPageHD)) + (r.extent.width >> 1)
 			+ (col_cells * (r.extent.width + 1)) 
 			- 1;
 		do
@@ -222,7 +232,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 
 InitPageCell:
 			ButtonState = 1;
-			t.baseline.y = r.extent.height + RES_SCALE(1); // Text vertical alignment
+			t.baseline.y = r.extent.height + RES_BOOL(1, 35); // Text vertical alignment
 			row_cells = 0;
 			if (StrLen)
 			{
