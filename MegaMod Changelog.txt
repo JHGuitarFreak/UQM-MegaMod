@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Created a more faithful looking "StarCon" font for HD
 - Created font for the Chmmr in HD
 - Created font for the Main Menu and Credits
-- New fonts for the Arilou, Druuge, Kohr-Ah, Lander, Orz, Shofixti, Supox, Syreen, and Ur-Quan in HD
+- New fonts for the Arilou, Druuge, Ilwrath, Kohr-Ah, Lander, Orz, Shofixti, Supox, Syreen, and Ur-Quan in HD
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 - Added an option to toggle the Hazard colors based on severity on/off
 
@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Spaced and brightened the orbit dots to make them more visible in HD
 - Make the 3DO coarse scan screen more faithful to the original in HD
 - Removed a metric ton of superfluous files in the content
+- Scaled the Lander Report UI a bit more accurately
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
