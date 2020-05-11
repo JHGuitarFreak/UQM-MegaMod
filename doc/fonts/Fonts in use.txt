@@ -9,5 +9,5 @@ MicroFont	-	Orbitron Black					->	https://www.fontspace.com/orbitron-font-f19177
 Orz				-	Kero kero								->	https://www.dafont.com/kero-kero.font
 Shofixti	-	Luteous Viscous					->	https://www.fontspace.com/luteous-font-f420
 Supox			-	START REVOLUTION				->	https://www.fontspace.com/start-revolution-font-f25979
-Syreen		-	Shathika								->	https://www.fontspace.com/shathika-font-f31885
+Syreen		-	Oleo Script Swash Caps	->	https://www.fontspace.com/oleo-script-swash-caps-font-f17184
 Ur-Quan		- Basalt									->	https://www.fontspace.com/basalt-font-f30764
