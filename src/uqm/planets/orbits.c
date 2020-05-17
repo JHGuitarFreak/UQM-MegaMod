@@ -533,7 +533,7 @@ char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 #endif /* DEBUG_ORBITS */
 	GeneratingMoons = (BOOLEAN) (pBaseDesc == system->MoonDesc);
 	if (GeneratingMoons)
-		MaxPlanet = (PrimeSeed ? FIRST_LARGE_ROCKY_WORLD : NUMBER_OF_PLANET_TYPES);
+		MaxPlanet = (PrimeSeed ? FIRST_LARGE_ROCKY_WORLD : LAST_LARGE_ROCKY_WORLD);
 	else
 		MaxPlanet = NUMBER_OF_PLANET_TYPES;
 	PlanetCount = NumPlanets;
