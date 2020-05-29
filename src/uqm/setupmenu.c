@@ -1598,7 +1598,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->orbitingPlanets = optOrbitingPlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->texturedPlanets = optTexturedPlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	// Nic
-	opts->dateType = res_GetInteger ("config.dateFormat");
+	opts->dateType = res_GetInteger ("mm.dateFormat");
 	// Serosis
 	opts->infiniteFuel = optInfiniteFuel ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->partialPickup = optPartialPickup ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1606,7 +1606,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->addDevices = optAddDevices ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->scalePlanets = optScalePlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->customBorder = optCustomBorder ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->customSeed = res_GetInteger ("config.customSeed");
+	opts->customSeed = res_GetInteger ("mm.customSeed");
 	opts->spaceMusic = optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->loresBlowup = res_GetInteger("config.loresBlowupScale");
 	opts->volasMusic = optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1614,7 +1614,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->directionalJoystick = optDirectionalJoystick ? OPTVAL_ENABLED : OPTVAL_DISABLED;	// For Android
 	opts->landerHold = (optLanderHold == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->ipTrans = (optIPScaler == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->difficulty = res_GetInteger("config.difficulty");
+	opts->difficulty = res_GetInteger("mm.difficulty");
 	opts->fuelRange = optFuelRange ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1992,11 +1992,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optInfiniteRU = opts->infiniteRU == OPTVAL_ENABLED;
 
 	// Serosis: Skip the intro
-	res_PutBoolean ("config.skipIntro", opts->skipIntro == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.skipIntro", opts->skipIntro == OPTVAL_ENABLED);
 	optSkipIntro = opts->skipIntro == OPTVAL_ENABLED;
 	
 	// JMS: Main menu music
-	res_PutBoolean ("config.mainMenuMusic", opts->mainMenuMusic == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.mainMenuMusic", opts->mainMenuMusic == OPTVAL_ENABLED);
 	optMainMenuMusic = opts->mainMenuMusic == OPTVAL_ENABLED;
 	if(!optMainMenuMusic)
 		FadeMusic (0,ONE_SECOND);
@@ -2004,15 +2004,15 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		FadeMusic (NORMAL_VOLUME+70, ONE_SECOND);
 	
 	// JMS: Is a beautiful nebula background shown as the background of solarsystems.
-	res_PutBoolean ("config.nebulae", opts->nebulae == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.nebulae", opts->nebulae == OPTVAL_ENABLED);
 	optNebulae = opts->nebulae == OPTVAL_ENABLED;
 	
 	// JMS: Rotating planets in IP.
-	res_PutBoolean ("config.orbitingPlanets", opts->orbitingPlanets == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.orbitingPlanets", opts->orbitingPlanets == OPTVAL_ENABLED);
 	optOrbitingPlanets = opts->orbitingPlanets == OPTVAL_ENABLED;
 	
 	// JMS: Textured or plain(==vanilla UQM style) planets in IP.
-	res_PutBoolean ("config.texturedPlanets", opts->texturedPlanets == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.texturedPlanets", opts->texturedPlanets == OPTVAL_ENABLED);
 	optTexturedPlanets = opts->texturedPlanets == OPTVAL_ENABLED;	
 
 	// Nic: Date Format: Switch the displayed date format
@@ -2031,18 +2031,18 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			optDateFormat=0;
 			break;
 	}
-	res_PutInteger ("config.dateFormat", opts->dateType);	
+	res_PutInteger ("mm.dateFormat", opts->dateType);	
 	
 	// Serosis: Infinite Fuel
 	res_PutBoolean ("cheat.infiniteFuel", opts->infiniteFuel == OPTVAL_ENABLED);
 	optInfiniteFuel = opts->infiniteFuel == OPTVAL_ENABLED;
 	
 	// Serosis: Partial mineral pickup when enabled.
-	res_PutBoolean ("config.partialPickup", opts->partialPickup == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.partialPickup", opts->partialPickup == OPTVAL_ENABLED);
 	optPartialPickup = opts->partialPickup == OPTVAL_ENABLED;
 	
 	// Serosis: Show submenu
-	res_PutBoolean ("config.submenu", opts->submenu == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.submenu", opts->submenu == OPTVAL_ENABLED);
 	optSubmenu = opts->submenu == OPTVAL_ENABLED;
 	
 	// Serosis: get all devices
@@ -2050,46 +2050,46 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optAddDevices = opts->addDevices == OPTVAL_ENABLED;
 	
 	// Serosis: Scale Planets in HD
-	/*res_PutBoolean ("config.scalePlanets", opts->scalePlanets == OPTVAL_ENABLED);
+	/*res_PutBoolean ("mm.scalePlanets", opts->scalePlanets == OPTVAL_ENABLED);
 	optScalePlanets = opts->scalePlanets == OPTVAL_ENABLED;*/
 	
 	// Serosis: Show custom border
-	res_PutBoolean ("config.customBorder", opts->customBorder == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.customBorder", opts->customBorder == OPTVAL_ENABLED);
 	optCustomBorder = opts->customBorder == OPTVAL_ENABLED;
 	
 	// Serosis: Externalized Seed Generation
-	SeedStuff = res_GetInteger ("config.customSeed");
+	SeedStuff = res_GetInteger ("mm.customSeed");
 	if(!SANE_SEED(SeedStuff))
 		opts->customSeed = PrimeA;
 	else 
 		opts->customSeed = optCustomSeed;
-	res_PutInteger ("config.customSeed", opts->customSeed);
+	res_PutInteger ("mm.customSeed", opts->customSeed);
 
 	// Serosis: Play localized music for different races when within their borders
-	res_PutBoolean("config.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
+	res_PutBoolean("mm.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
 	optSpaceMusic = opts->spaceMusic == OPTVAL_ENABLED;
 
 	// Serosis: Enable Volasaurus' music remixes
-	res_PutBoolean("config.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
+	res_PutBoolean("mm.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
 	optVolasMusic = (opts->volasMusic == OPTVAL_ENABLED);
 
 	// Serosis: Enable Whole Fuel values
-	res_PutBoolean("config.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
+	res_PutBoolean("mm.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
 	optWholeFuel = (opts->wholeFuel == OPTVAL_ENABLED);
 
 #if defined(ANDROID) || defined(__ANDROID__)
 	// Serosis: Enable Android Directional Joystick
-	res_PutBoolean("config.directionalJoystick", opts->directionalJoystick == OPTVAL_ENABLED);
+	res_PutBoolean("mm.directionalJoystick", opts->directionalJoystick == OPTVAL_ENABLED);
 	optDirectionalJoystick = (opts->directionalJoystick == OPTVAL_ENABLED);
 #endif
 
 	// Serosis: Switch between PC/3DO max lander hold value
 	optLanderHold = (opts->landerHold == OPTVAL_3DO);
-	res_PutBoolean("config.landerHold", opts->landerHold == OPTVAL_3DO);
+	res_PutBoolean("mm.landerHold", opts->landerHold == OPTVAL_3DO);
 
 	// Serosis: PC/3DO IP Transitions
 	optIPScaler = (opts->ipTrans == OPTVAL_3DO);
-	res_PutBoolean("config.ipTransition", opts->ipTrans == OPTVAL_3DO);
+	res_PutBoolean("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
 
 	// Serosis: Difficulty
 	switch (opts->difficulty) {
@@ -2107,30 +2107,30 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			optDifficulty = 0;
 			break;
 	}
-	res_PutInteger("config.difficulty", opts->difficulty);
+	res_PutInteger("mm.difficulty", opts->difficulty);
 
 	// Serosis: Enable "point of no return" fuel range
-	res_PutBoolean("config.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
+	res_PutBoolean("mm.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
 	optFuelRange = (opts->fuelRange == OPTVAL_ENABLED);
 
 	// Serosis: Enable Extended Edition features
-	res_PutBoolean("config.extended", opts->extended == OPTVAL_ENABLED);
+	res_PutBoolean("mm.extended", opts->extended == OPTVAL_ENABLED);
 	optExtended = (opts->extended == OPTVAL_ENABLED);
 
 	// Serosis: Enable Nomad mode (No Starbase)
-	res_PutBoolean("config.nomad", opts->nomad == OPTVAL_ENABLED);
+	res_PutBoolean("mm.nomad", opts->nomad == OPTVAL_ENABLED);
 	optNomad = (opts->nomad == OPTVAL_ENABLED);
 
 	// Serosis: Enable Game Over cutscenes
-	res_PutBoolean("config.gameOver", opts->gameOver == OPTVAL_ENABLED);
+	res_PutBoolean("mm.gameOver", opts->gameOver == OPTVAL_ENABLED);
 	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
 
 	// Serosis: Enable NPC ships in IP facing the direction they're going
-	res_PutBoolean("config.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
+	res_PutBoolean("mm.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
 	optShipDirectionIP = (opts->shipDirectionIP == OPTVAL_ENABLED);
 
 	// Serosis: Enable colored text based on hazard severity when viewing planetary scans
-	res_PutBoolean("config.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
+	res_PutBoolean("mm.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
 	optHazardColors = (opts->hazardColors == OPTVAL_ENABLED);
 
 	// Serosis: Enable alternate font for untranslatable Orz speech 
@@ -2316,8 +2316,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutString ("keys.6.name", input_templates[5].name);
 
 	SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
-
 	SaveKeyConfiguration (configDir, "flight.cfg");
 	
+	SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
 }

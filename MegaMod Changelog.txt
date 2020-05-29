@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - New fonts for the Arilou, Druuge, Ilwrath, Kohr-Ah, Lander, Orz, Shofixti, Supox, Syreen, and Ur-Quan in HD
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 - Added an option to toggle the Hazard colors based on severity on/off
+- Added an option to toggle alternate Orz font for untranslated speech
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -37,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Make the 3DO coarse scan screen more faithful to the original in HD
 - Removed a metric ton of superfluous files in the content
 - Scaled the Lander Report UI a bit more accurately
+- Moved MegaMod specific options to a separate .cfg file
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h

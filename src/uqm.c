@@ -500,6 +500,7 @@ main (int argc, char *argv[])
 	{
 		LoadResourceIndex (configDir, "uqm.cfg", "config.");
 		LoadResourceIndex (configDir, "cheats.cfg", "cheat.");
+		LoadResourceIndex (configDir, "megamod.cfg", "mm.");
 		getUserConfigOptions (&options);
 	}
 
@@ -910,47 +911,47 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->headStart, "cheat.headStart");
 	getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
 	getBoolConfigValue (&options->infiniteRU, "cheat.infiniteRU");
-	getBoolConfigValue (&options->skipIntro, "config.skipIntro");
+	getBoolConfigValue (&options->skipIntro, "mm.skipIntro");
 	// JMS
-	getBoolConfigValue (&options->mainMenuMusic, "config.mainMenuMusic");
-	getBoolConfigValue (&options->nebulae, "config.nebulae");
-	getBoolConfigValue (&options->orbitingPlanets, "config.orbitingPlanets");
-	getBoolConfigValue (&options->texturedPlanets, "config.texturedPlanets");
+	getBoolConfigValue (&options->mainMenuMusic, "mm.mainMenuMusic");
+	getBoolConfigValue (&options->nebulae, "mm.nebulae");
+	getBoolConfigValue (&options->orbitingPlanets, "mm.orbitingPlanets");
+	getBoolConfigValue (&options->texturedPlanets, "mm.texturedPlanets");
 	// Nic	
-	if (res_IsInteger ("config.dateFormat") && !options->optDateFormat.set) {
-		options->optDateFormat.value = res_GetInteger ("config.dateFormat");
+	if (res_IsInteger ("mm.dateFormat") && !options->optDateFormat.set) {
+		options->optDateFormat.value = res_GetInteger ("mm.dateFormat");
 	}
 	// Serosis	
 	getBoolConfigValue (&options->infiniteFuel, "cheat.infiniteFuel");
-	getBoolConfigValue (&options->partialPickup, "config.partialPickup");
-	getBoolConfigValue (&options->submenu, "config.submenu");
+	getBoolConfigValue (&options->partialPickup, "mm.partialPickup");
+	getBoolConfigValue (&options->submenu, "mm.submenu");
 	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
-	// getBoolConfigValue (&options->scalePlanets, "config.scalePlanets");
-	getBoolConfigValue (&options->customBorder, "config.customBorder");
-	if (res_IsInteger ("config.customSeed") && !options->customSeed.set) {
-		options->customSeed.value = res_GetInteger ("config.customSeed");
+	// getBoolConfigValue (&options->scalePlanets, "mm.scalePlanets");
+	getBoolConfigValue (&options->customBorder, "mm.customBorder");
+	if (res_IsInteger ("mm.customSeed") && !options->customSeed.set) {
+		options->customSeed.value = res_GetInteger ("mm.customSeed");
 	}
-	getBoolConfigValue (&options->spaceMusic, "config.spaceMusic");
-	getBoolConfigValue(&options->volasMusic, "config.volasMusic");
-	getBoolConfigValue(&options->wholeFuel, "config.wholeFuel");
+	getBoolConfigValue (&options->spaceMusic, "mm.spaceMusic");
+	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
+	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
 #if defined(ANDROID) || defined(__ANDROID__)
-	getBoolConfigValue (&options->directionalJoystick, "config.directionalJoystick"); // For Android
+	getBoolConfigValue (&options->directionalJoystick, "mm.directionalJoystick"); // For Android
 #endif
 
-	getBoolConfigValueXlat(&options->landerHold, "config.landerHold",
+	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
 		OPT_3DO, OPT_PC);
-	getBoolConfigValueXlat(&options->ipTrans, "config.ipTransition",
+	getBoolConfigValueXlat (&options->ipTrans, "mm.ipTransition",
 		OPT_3DO, OPT_PC);
-	if (res_IsInteger("config.difficulty") && !options->optDifficulty.set) {
-		options->optDifficulty.value = res_GetInteger("config.difficulty");
+	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set) {
+		options->optDifficulty.value = res_GetInteger ("mm.difficulty");
 	}
-	getBoolConfigValue(&options->fuelRange, "config.fuelRange");
-	getBoolConfigValue(&options->extended, "config.extended");
-	getBoolConfigValue(&options->nomad, "config.nomad");
-	getBoolConfigValue(&options->gameOver, "config.gameOver");
-	getBoolConfigValue(&options->shipDirectionIP, "config.shipDirectionIP");
-	getBoolConfigValue(&options->hazardColors, "config.hazardColors");
+	getBoolConfigValue (&options->fuelRange, "mm.fuelRange");
+	getBoolConfigValue (&options->extended, "mm.extended");
+	getBoolConfigValue (&options->nomad, "mm.nomad");
+	getBoolConfigValue (&options->gameOver, "mm.gameOver");
+	getBoolConfigValue (&options->shipDirectionIP, "mm.shipDirectionIP");
+	getBoolConfigValue (&options->hazardColors, "mm.hazardColors");
 	getBoolConfigValue (&options->orzCompFont, "mm.orzCompFont");
 	
 	if (res_IsInteger ("config.player1control"))
@@ -1469,14 +1470,14 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->scalePlanets, true);
 				break;
 			case CUSTBORD_OPT:
-				setBoolOption(&options->customBorder, true);
+				setBoolOption (&options->customBorder, true);
 				break;
 			case EXSEED_OPT:{
 				int temp;
 				if (parseIntOption (optarg, &temp, "Custom Seed") == -1) {
 					badArg = true;
 					break;
-				} else if (!SANE_SEED(temp)) {
+				} else if (!SANE_SEED (temp)) {
 					saveError ("\nCustom Seed can not be less than 2 or greater than 2147483645.\n");
 					badArg = true;
 				} else {
@@ -1486,34 +1487,34 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			}
 			case SPACEMUSIC_OPT:
-				setBoolOption(&options->spaceMusic, true);
+				setBoolOption (&options->spaceMusic, true);
 				break;
 			case WHOLEFUEL_OPT:
-				setBoolOption(&options->wholeFuel, true);
+				setBoolOption (&options->wholeFuel, true);
 				break;
 			case DIRJOY_OPT:
-				setBoolOption(&options->directionalJoystick, true);
+				setBoolOption (&options->directionalJoystick, true);
 				break;
 			case LANDHOLD_OPT:
-				if (!setChoiceOption(&options->landerHold, optarg)) {
-					InvalidArgument(optarg, "--landerhold");
+				if (!setChoiceOption (&options->landerHold, optarg)) {
+					InvalidArgument (optarg, "--landerhold");
 					badArg = true;
 				}
 				break;
 			case IPTRANS_OPT:
-				if (!setChoiceOption(&options->ipTrans, optarg)) {
-					InvalidArgument(optarg, "--iptrans");
+				if (!setChoiceOption (&options->ipTrans, optarg)) {
+					InvalidArgument (optarg, "--iptrans");
 					badArg = true;
 				}
 				break;
 			case DIFFICULTY_OPT: {
 				int temp;
-				if (parseIntOption(optarg, &temp, "Difficulty") == -1) {
+				if (parseIntOption (optarg, &temp, "Difficulty") == -1) {
 					badArg = true;
 					break;
 				}
 				else if (temp < 0 || temp > 3) {
-					saveError("\nDifficulty has to be 0, 1, 2, or 3.\n");
+					saveError ("\nDifficulty has to be 0, 1, 2, or 3.\n");
 					badArg = true;
 				}
 				else {
@@ -1523,22 +1524,23 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			}
 			case FUELRANGE_OPT:
-				setBoolOption(&options->fuelRange, true);
+				setBoolOption (&options->fuelRange, true);
 				break;
 			case EXTENDED_OPT:
-				setBoolOption(&options->extended, true);
+				setBoolOption (&options->extended, true);
 				break;
 			case NOMAD_OPT:
-				setBoolOption(&options->nomad, true);
+				setBoolOption (&options->nomad, true);
 				break;
 			case GAMEOVER_OPT:
-				setBoolOption(&options->gameOver, true);
+				setBoolOption (&options->gameOver, true);
 				break;
 			case SHIPDIRIP_OPT:
-				setBoolOption(&options->shipDirectionIP, true);
+				setBoolOption (&options->shipDirectionIP, true);
 				break;
 			case HAZCOLORS_OPT:
-				setBoolOption(&options->hazardColors, true);
+				setBoolOption (&options->hazardColors, true);
+				break;
 			case ORZFONT_OPT:
 				setBoolOption (&options->orzCompFont, true);
 				break;
@@ -1812,32 +1814,32 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --melee : Takes you straight to Super Melee after the splash screen.");
 	log_add (log_User, "  --loadgame : Takes you straight to the Load Game sceen after the splash screen.");
 	log_add (log_User, "  --customborder : Enables the custom border frame.    (default: %s)",
-		boolOptString(&defaults->customBorder));
-	log_add(log_User, "  --customseed=# : Allows you to customize the internal seed used to generate the solar systems in-game.");
-	log_add(log_User, "  --spacemusic : Enables localized music for races when you are in their sphere of influence    (default: %s)",
-		boolOptString(&defaults->spaceMusic));
-	log_add(log_User, "  --wholefuel : Enables the display of the whole fuel value in the ship status    (default: %s)",
-		boolOptString(&defaults->wholeFuel));
-	log_add(log_User, "  --dirjoystick : Enables the use of directional joystick controls for Android    (default: %s)",
-		boolOptString(&defaults->directionalJoystick));
-	log_add(log_User, "  --landerhold : Switch between PC/3DO max lander hold, pc=64, 3do=50 (default: %s)",
-		choiceOptString(&defaults->landerHold));
-	log_add(log_User, "  --iptrans : Interplanetary transitions, pc=stepped, "
+		boolOptString (&defaults->customBorder));
+	log_add (log_User, "  --customseed=# : Allows you to customize the internal seed used to generate the solar systems in-game.");
+	log_add (log_User, "  --spacemusic : Enables localized music for races when you are in their sphere of influence    (default: %s)",
+		boolOptString (&defaults->spaceMusic));
+	log_add (log_User, "  --wholefuel : Enables the display of the whole fuel value in the ship status    (default: %s)",
+		boolOptString (&defaults->wholeFuel));
+	log_add (log_User, "  --dirjoystick : Enables the use of directional joystick controls for Android    (default: %s)",
+		boolOptString (&defaults->directionalJoystick));
+	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander hold, pc=64, 3do=50 (default: %s)",
+		choiceOptString (&defaults->landerHold));
+	log_add (log_User, "  --iptrans : Interplanetary transitions, pc=stepped, "
 		"3do=crossfade (default: %s)",
-		choiceOptString(&defaults->ipTrans));
-	log_add(log_User, "  --difficulty : 0: Normal | 1: Easy | 2: Hard | 3: Impossible  (default: 0)");
-	log_add(log_User, "  --fuelrange : Enables 'point of no return' fuel range    (default: %s)",
-		boolOptString(&defaults->fuelRange));
-	log_add(log_User, "  --extended : Enables Extended Edition features    (default: %s)",
-		boolOptString(&defaults->extended));
-	log_add(log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase)    (default: %s)",
-		boolOptString(&defaults->nomad));
-	log_add(log_User, "  --gameover : Enables Game Over cutscenes    (default: %s)",
-		boolOptString(&defaults->gameOver));
-	log_add(log_User, "  --shipdirectionip : Enable NPC ships in IP facing the direction they're going    (default: %s)",
-		boolOptString(&defaults->shipDirectionIP));
-	log_add(log_User, "  --hazardcolors : Enable colored text based on hazard severity when viewing planetary scans    (default: %s)",
-		boolOptString(&defaults->hazardColors));
+		choiceOptString (&defaults->ipTrans));
+	log_add (log_User, "  --difficulty : 0: Normal | 1: Easy | 2: Hard | 3: Impossible  (default: 0)");
+	log_add (log_User, "  --fuelrange : Enables 'point of no return' fuel range    (default: %s)",
+		boolOptString (&defaults->fuelRange));
+	log_add (log_User, "  --extended : Enables Extended Edition features    (default: %s)",
+		boolOptString (&defaults->extended));
+	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase)    (default: %s)",
+		boolOptString (&defaults->nomad));
+	log_add (log_User, "  --gameover : Enables Game Over cutscenes    (default: %s)",
+		boolOptString (&defaults->gameOver));
+	log_add (log_User, "  --shipdirectionip : Enable NPC ships in IP facing the direction they're going    (default: %s)",
+		boolOptString (&defaults->shipDirectionIP));
+	log_add (log_User, "  --hazardcolors : Enable colored text based on hazard severity when viewing planetary scans    (default: %s)",
+		boolOptString (&defaults->hazardColors));
 	log_add (log_User, "  --orzcompfont : Enable alternate font for untranslatable Orz speech     (default: %s)",
 		boolOptString (&defaults->orzCompFont));
 	log_setOutput (old);
