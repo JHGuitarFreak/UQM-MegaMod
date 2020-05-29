@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       58
+#define CHOICE_COUNT       59
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         5
@@ -104,7 +104,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	3, 2, 2, 2, 2, 2, 3, 2, 2, 2,	// 20-29
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,	// 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 40-49
-	3, 2, 2, 3, 2, 2, 2, 2  };		// 50-57
+	3, 2, 2, 3, 2, 2, 2, 2, 2  };	// 50-58
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -238,6 +238,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[48]),	// Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),	// Fuel Range
 	(WIDGET *)(&choices[57]),	// NPC Ship Direction in IP
+	(WIDGET *)(&choices[58]),	// Alternate Orz font
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -597,6 +598,7 @@ SetDefaults (void)
 	choices[55].selected = opts.nomad;
 	choices[56].selected = opts.gameOver;
 	choices[57].selected = opts.shipDirectionIP;
+	choices[58].selected = opts.orzCompFont;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -675,6 +677,7 @@ PropagateResults (void)
 	opts.nomad = choices[55].selected;
 	opts.gameOver = choices[56].selected;
 	opts.shipDirectionIP = choices[57].selected;
+	opts.orzCompFont = choices[58].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1618,6 +1621,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->gameOver = optGameOver ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->shipDirectionIP = optShipDirectionIP ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->hazardColors = optHazardColors ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	// Serosis: 320x240
 	if (!IS_HD) {
@@ -2128,6 +2132,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	// Serosis: Enable colored text based on hazard severity when viewing planetary scans
 	res_PutBoolean("config.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
 	optHazardColors = (opts->hazardColors == OPTVAL_ENABLED);
+
+	// Serosis: Enable alternate font for untranslatable Orz speech 
+	res_PutBoolean("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
+	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

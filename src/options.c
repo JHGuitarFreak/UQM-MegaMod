@@ -103,6 +103,7 @@ BOOLEAN optNomad;
 BOOLEAN optGameOver;
 BOOLEAN optShipDirectionIP;
 BOOLEAN optHazardColors;
+BOOLEAN optOrzCompFont;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

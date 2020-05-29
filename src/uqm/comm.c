@@ -306,31 +306,31 @@ add_text (int status, TEXT *pTextIn)
 				
 				// This loop computes the width of the line
 				while (remChars > 0)
-					{
-						while ((*ptr != '$') && remChars > 0)
-							{
-								getCharFromString (&ptr);
-								remChars--;
-							}
+				{
+					while ((*ptr != '$') && remChars > 0)
+						{
+							getCharFromString (&ptr);
+							remChars--;
+						}
 						
-						pText->CharCount -= remChars;
-						TextRect (pText, &rect, NULL);
+					pText->CharCount -= remChars;
+					TextRect (pText, &rect, NULL);
 						
-						width += rect.extent.width;
+					width += rect.extent.width;
 						
-						if (*ptr == '$')
-							{
-								getCharFromString (&ptr);
-								remChars--;
-								computerOn = 1 - computerOn;
-								if (computerOn)
-									SetContextFont (ComputerFont);
-								else
-									SetContextFont (CommData.AlienFont);
-							}
-						pText->CharCount = remChars;
-						pText->pStr = ptr;
+					if (*ptr == '$') {
+						getCharFromString (&ptr);
+						remChars--;
+						computerOn = 1 - computerOn;
+						if (computerOn && optOrzCompFont)
+							SetContextFont (ComputerFont);
+						else
+							SetContextFont (CommData.AlienFont);
 					}
+
+					pText->CharCount = remChars;
+					pText->pStr = ptr;
+				}
 
 				// This to simulate a centered line
 				pText->baseline.x = baselinex - (width >> 1);
@@ -346,13 +346,11 @@ add_text (int status, TEXT *pTextIn)
 				SetContextFont(bakFont);
 				
 				// This loop is used to look up for $
-				while (remChars > 0)
-					{
-						while ((*ptr != '$') && remChars > 0)
-							{
-								getCharFromString (&ptr);
-								remChars--;
-							}
+				while (remChars > 0) {
+						while ((*ptr != '$') && remChars > 0) {
+							getCharFromString (&ptr);
+							remChars--;
+						}
 						
 						pText->CharCount -= remChars;
 						TextRect (pText, &rect, NULL);
@@ -362,16 +360,16 @@ add_text (int status, TEXT *pTextIn)
 						
 						pText->baseline.x += rect.extent.width;
 						
-						if (*ptr == '$')
-							{
-								getCharFromString (&ptr);
-								remChars--;
-								computerOn = 1 - computerOn;
-								if (computerOn)
-									SetContextFont (ComputerFont);
-								else
-									SetContextFont (CommData.AlienFont);
-							}
+						if (*ptr == '$') {
+							getCharFromString (&ptr);
+							remChars--;
+							computerOn = 1 - computerOn;
+							if (computerOn && optOrzCompFont)
+								SetContextFont (ComputerFont);
+							else
+								SetContextFont (CommData.AlienFont);
+						}
+
 						pText->CharCount = remChars;
 						pText->pStr = ptr;
 					}

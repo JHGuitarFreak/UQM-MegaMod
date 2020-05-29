@@ -93,6 +93,7 @@ extern BOOLEAN optNomad;
 extern BOOLEAN optGameOver;
 extern BOOLEAN optShipDirectionIP;
 extern BOOLEAN optHazardColors;
+extern BOOLEAN optOrzCompFont;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;

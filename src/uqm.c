@@ -185,6 +185,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, gameOver);
 	DECL_CONFIG_OPTION(bool, shipDirectionIP);
 	DECL_CONFIG_OPTION(bool, hazardColors);
+	DECL_CONFIG_OPTION(bool, orzCompFont);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -374,6 +375,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(	 gameOver,			false),
 		INIT_CONFIG_OPTION(	 shipDirectionIP,	false),
 		INIT_CONFIG_OPTION(	 hazardColors,		false),
+		INIT_CONFIG_OPTION(	 orzCompFont,		false),
 
 	};
 	struct options_struct defaults = options;
@@ -585,6 +587,7 @@ main (int argc, char *argv[])
 	optGameOver = options.gameOver.value;
 	optShipDirectionIP = options.shipDirectionIP.value;
 	optHazardColors = options.hazardColors.value;
+	optOrzCompFont = options.orzCompFont.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -948,6 +951,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue(&options->gameOver, "config.gameOver");
 	getBoolConfigValue(&options->shipDirectionIP, "config.shipDirectionIP");
 	getBoolConfigValue(&options->hazardColors, "config.hazardColors");
+	getBoolConfigValue (&options->orzCompFont, "mm.orzCompFont");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1020,6 +1024,7 @@ enum
 	GAMEOVER_OPT,
 	SHIPDIRIP_OPT,
 	HAZCOLORS_OPT,
+	ORZFONT_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1104,6 +1109,7 @@ static struct option longOptions[] =
 	{"gameover", 0, NULL, GAMEOVER_OPT},
 	{"shipdirectionip", 0, NULL, SHIPDIRIP_OPT},
 	{"hazardcolors", 0, NULL, HAZCOLORS_OPT},
+	{"orzcompfont", 0, NULL, ORZFONT_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1533,6 +1539,8 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case HAZCOLORS_OPT:
 				setBoolOption(&options->hazardColors, true);
+			case ORZFONT_OPT:
+				setBoolOption (&options->orzCompFont, true);
 				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
@@ -1830,6 +1838,8 @@ usage (FILE *out, const struct options_struct *defaults)
 		boolOptString(&defaults->shipDirectionIP));
 	log_add(log_User, "  --hazardcolors : Enable colored text based on hazard severity when viewing planetary scans    (default: %s)",
 		boolOptString(&defaults->hazardColors));
+	log_add (log_User, "  --orzcompfont : Enable alternate font for untranslatable Orz speech     (default: %s)",
+		boolOptString (&defaults->orzCompFont));
 	log_setOutput (old);
 }
 

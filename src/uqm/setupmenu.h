@@ -112,15 +112,16 @@ typedef struct globalopts_struct {
 	OPT_DRIVERTYPE driver;
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;
-	OPT_TDTYPE tdType; // Serosis
-	OPT_DATETYPE dateType; // Serosis
-	OPT_DIFFICULTY difficulty; // Serosis
+	OPT_TDTYPE tdType;
+	OPT_DATETYPE dateType;
+	OPT_DIFFICULTY difficulty;
 	OPT_MELEEZOOM meleezoom;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix, speech, keepaspect,
-		cheatMode, godMode, bubbleWarp, unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro, // Serosis: except for cheatMode = JMS
-		mainMenuMusic, nebulae, orbitingPlanets, texturedPlanets, // JMS
-		infiniteFuel, partialPickup, submenu, addDevices, scalePlanets, customBorder, spaceMusic, volasMusic, // Serosis
-		directionalJoystick, wholeFuel, fuelRange, extended, nomad, gameOver, shipDirectionIP, hazardColors; // Serosis
+				cheatMode, mainMenuMusic, nebulae, orbitingPlanets, texturedPlanets, godMode,
+				bubbleWarp, unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro, infiniteFuel,
+				partialPickup, submenu, addDevices, scalePlanets, customBorder, spaceMusic, volasMusic,
+				directionalJoystick, wholeFuel, fuelRange, extended, nomad, gameOver, shipDirectionIP, 
+				hazardColors, orzCompFont;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans, landerHold;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol;
