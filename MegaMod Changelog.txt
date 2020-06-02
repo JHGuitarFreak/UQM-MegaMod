@@ -40,6 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Scaled the Lander Report UI a bit more accurately
 - Moved MegaMod specific options to a separate .cfg file
 - Properly credited Team 6014 for their work on the HD-Mod in the credits (Thanks to Matt Bentley for pointing it out.)
+- Replace "Serosis Presents" with a less egotistical logo
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
