@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Removed a metric ton of superfluous files in the content
 - Scaled the Lander Report UI a bit more accurately
 - Moved MegaMod specific options to a separate .cfg file
+- Properly credited Team 6014 for their work on the HD-Mod in the credits (Thanks to Matt Bentley for pointing it out.)
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
@@ -52,6 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed PC coarse scan code
 - Fixed a bug that skewed the gravity results for Sol System planets
 - Reverted max planets and moons to 9 and 4 respectively to solve infinite loop bug in the planet orbit seed generation
+- Fixed bug in Hard Mode which prevented the player from acquiring the Point Defense Laser module
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak
