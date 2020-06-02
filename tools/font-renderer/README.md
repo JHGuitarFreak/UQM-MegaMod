@@ -34,4 +34,10 @@ the current directory to 65 pixels, leaving width intact.
 All that needs to be done for your particular use case is to take the 
 actual largest height from your glyph `.png` files and plug it into the command.
 
+
+### Other commands that can help with fonts
+
+Add 3 pixels to the right of the canvas:
+`mogrify -splice 3x0 -gravity East -background black *.png`
+
 DPComic font made by codeman38 - http://www.zone38.net/

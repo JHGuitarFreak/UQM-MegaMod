@@ -1,11 +1,13 @@
 3rd party fonts in use
 
 Arilou		-	Puritan Alt Bold				->	https://www.dafont.com/puritan-ds.font
+Credits		- OPTICirrus Bold	(Modded)->	https://www.ffonts.net/OPTICirrus-Bold.font.download
 Computer	-	DJB Get Digital					->	https://www.dafont.com/djb-get-digital.font
 Kohr-Ah 	- Xenopyre								->	https://www.fontspace.com/xenopyre-font-f32025
 Ilwrath		-	Times Old Attic					->	https://www.dafont.com/times-old-attic.font
 Lander		-	Arizone Unicase					->	https://www.fontspace.com/arizone-unicase-font-f32250
-MicroFont	-	Orbitron Black					->	https://www.fontspace.com/orbitron-font-f19177
+Main Menu	- OPTICirrus Bold	(Modded)->	https://www.ffonts.net/OPTICirrus-Bold.font.download
+MicroFont	-	Orbitron Black (Modded)	->	https://www.fontspace.com/orbitron-font-f19177
 Orz				-	Kero kero								->	https://www.dafont.com/kero-kero.font
 Shofixti	-	Luteous Viscous					->	https://www.fontspace.com/luteous-font-f420
 Supox			-	START REVOLUTION				->	https://www.fontspace.com/start-revolution-font-f25979

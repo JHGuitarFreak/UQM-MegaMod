@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - More faithful looking "Micro" font for HD
 - Created a more faithful looking "StarCon" font for HD
 - Created font for the Chmmr in HD
-- Created font for the Main Menu and Credits
+- New font for the Credits and Main Menu in HD
 - New fonts for the Arilou, Druuge, Ilwrath, Kohr-Ah, Lander, Orz, Shofixti, Supox, Syreen, and Ur-Quan in HD
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 - Added an option to toggle the Hazard colors based on severity on/off
