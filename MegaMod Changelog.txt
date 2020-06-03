@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 - Added an option to toggle the Hazard colors based on severity on/off
 - Added an option to toggle alternate Orz font for untranslated speech
+- New Title/Splash graphics for Classic and HD that mimics Vanilla UQM's graphics
 
 ### Changed
 - Tightened up Android control isolation across the board
