@@ -1,15 +1,17 @@
 3rd party fonts in use
 
-Arilou		-	Puritan Alt Bold				->	https://www.dafont.com/puritan-ds.font
-Credits		- OPTICirrus Bold	(Modded)->	https://www.ffonts.net/OPTICirrus-Bold.font.download
-Computer	-	DJB Get Digital					->	https://www.dafont.com/djb-get-digital.font
-Kohr-Ah 	- Xenopyre								->	https://www.fontspace.com/xenopyre-font-f32025
-Ilwrath		-	Times Old Attic					->	https://www.dafont.com/times-old-attic.font
-Lander		-	Arizone Unicase					->	https://www.fontspace.com/arizone-unicase-font-f32250
-Main Menu	- OPTICirrus Bold	(Modded)->	https://www.ffonts.net/OPTICirrus-Bold.font.download
-MicroFont	-	Orbitron Black (Modded)	->	https://www.fontspace.com/orbitron-font-f19177
-Orz				-	Kero kero								->	https://www.dafont.com/kero-kero.font
-Shofixti	-	Luteous Viscous					->	https://www.fontspace.com/luteous-font-f420
-Supox			-	START REVOLUTION				->	https://www.fontspace.com/start-revolution-font-f25979
-Syreen		-	Oleo Script Swash Caps	->	https://www.fontspace.com/oleo-script-swash-caps-font-f17184
-Ur-Quan		- Basalt									->	https://www.fontspace.com/basalt-font-f30764
+Arilou			-	Puritan Alt Bold				->	https://www.dafont.com/puritan-ds.font
+Credits			- OPTICirrus Bold	(Modded)->	https://www.ffonts.net/OPTICirrus-Bold.font.download
+Computer		-	DJB Get Digital					->	https://www.dafont.com/djb-get-digital.font
+Kohr-Ah 		- Xenopyre								->	https://www.fontspace.com/xenopyre-font-f32025
+Ilwrath			-	Times Old Attic					->	https://www.dafont.com/times-old-attic.font
+Lander			-	Arizone Unicase					->	https://www.fontspace.com/arizone-unicase-font-f32250
+Main Menu		- OPTICirrus Bold	(Modded)->	https://www.ffonts.net/OPTICirrus-Bold.font.download
+MicroFont		-	Orbitron Black (Modded)	->	https://www.fontspace.com/orbitron-font-f19177
+Orz					-	Kero kero								->	https://www.dafont.com/kero-kero.font
+Shofixti		-	Luteous Viscous					->	https://www.fontspace.com/luteous-font-f420
+Supox				-	START REVOLUTION				->	https://www.fontspace.com/start-revolution-font-f25979
+Syreen			-	Oleo Script Swash Caps	->	https://www.fontspace.com/oleo-script-swash-caps-font-f17184
+Title Screen- FederationHull 					->	https://www.ffonts.net/FederationHull.font
+Title Screen- Aware Bold							->	https://www.fontspace.com/aware-font-f43412
+Ur-Quan			- Basalt									->	https://www.fontspace.com/basalt-font-f30764
