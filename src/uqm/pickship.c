@@ -208,8 +208,16 @@ ChangeSelection:
 				}
 				UnlockStarShip (&race_q[0], hBattleShip);
 
+				// Code to make use of the PC version's font gradient
+				/*if (optWhichFonts == OPT_PC)
+					SetContextForeGroundColor (WHITE_COLOR);
+				else
+					SetContextForeGroundColor (
+						BUILD_COLOR (MAKE_RGB15 (0x14, 0x0A, 0x00), 0x0C));*/
+
 				SetContextForeGroundColor (
 						BUILD_COLOR (MAKE_RGB15 (0x14, 0x0A, 0x00), 0x0C));
+
 				font_DrawText (&t);
 				SetContextForeGroundColor (BLACK_COLOR);
 			}
@@ -231,8 +239,16 @@ ChangeSelection:
 					sprintf (buf, "%u", crew_level);
 				else
 					sprintf (buf, "%u/%u", crew_level, max_crew);
+
+				// Code to make use of the PC version's font gradient
+				/*if (optWhichFonts == OPT_PC)
+					SetContextForeGroundColor (WHITE_COLOR);
+				else
+					SetContextForeGroundColor (
+							BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));*/
+
 				SetContextForeGroundColor (
-						BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));
+							BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));
 				font_DrawText (&t);
 			}
 
@@ -389,7 +405,7 @@ GetEncounterStarShip (STARSHIP *LastStarShipPtr, COUNT which_player)
 void
 DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 {
-#define PICK_NAME_HEIGHT RES_SCALE(6); // JMS_GFX
+#define PICK_NAME_HEIGHT RES_SCALE(6);
 	//COUNT i;
 	HSTARSHIP hBattleShip, hNextShip;
 	STARSHIP *StarShipPtr;
@@ -398,6 +414,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	TEXT t;
 	CONTEXT OldContext;
 	FRAME PickFrame;
+	// FRAME OldFontEffect;
 
 	OldContext = SetContext (SpaceContext);
 
@@ -433,15 +450,29 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	s.origin = pick_r.corner;
 	DrawStamp (&s);
 
+	// OldFontEffect = SetContextFontEffect (NULL);
+
 	t.baseline.x = pick_r.corner.x + (pick_r.extent.width >> 1);
 	t.baseline.y = pick_r.corner.y + pick_r.extent.height - RES_SCALE(5); // JMS_GFX
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (ShipName);
 	t.CharCount = (COUNT)~0;
+
+	// Code to make use of the PC version's font gradient
+	// Along with the FRAME "OldFontEffect"
+	/*if (optWhichFonts == OPT_PC)
+		SetContextFontEffect(SetAbsFrameIndex(FontGradFrame, 6));
+	else
+		SetContextForeGroundColor (
+				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));*/
+
 	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));
-	SetContextFont (StarConFont);
+				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));
+
+	SetContextFont (StarConLgFont);
 	font_DrawText (&t);
+
+	// SetContextFontEffect (OldFontEffect);
 
 	r.extent.width = ICON_WIDTH;
 	r.extent.height = ICON_HEIGHT;
