@@ -1954,6 +1954,8 @@ spaceMusicSwitch(BYTE SpeciesID) {
 	switch (SpeciesID) {
 		case ARILOU_ID:
 			return ARILOU_SPACE_MUSIC;
+		case CHMMR_ID:
+			return CHMMR_SPACE_MUSIC;
 		case ORZ_ID:
 			return ORZ_SPACE_MUSIC;
 		case PKUNK_ID:
@@ -1983,6 +1985,8 @@ spaceMusicSwitch(BYTE SpeciesID) {
 			return URQUAN_SPACE_MUSIC;
 		case ZOQFOTPIK_ID:
 			return ZOQFOTPIK_SPACE_MUSIC;
+		case SYREEN_ID:
+			return SYREEN_SPACE_MUSIC;
 		case SA_MATRA_ID:
 			return KOHRAH_SPACE_MUSIC;
 		default:

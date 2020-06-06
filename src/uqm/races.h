@@ -647,7 +647,7 @@ typedef enum
 
 #define RACE_MUSIC_BOOL \
 		1,  /* ARILOU_SHIP */ \
-		0,  /* CHMMR_SHIP */ \
+		1,  /* CHMMR_SHIP */ \
 		0,  /* HUMAN_SHIP */ \
 		1,  /* ORZ_SHIP */ \
 		1,  /* PKUNK_SHIP */ \
@@ -666,7 +666,7 @@ typedef enum
 		1,  /* UMGAH_SHIP */ \
 		1,  /* URQUAN_SHIP */ \
 		1,  /* ZOQFOTPIK_SHIP */ \
-		0,  /* SYREEN_SHIP */ \
+		1,  /* SYREEN_SHIP */ \
 		1,  /* BLACK_URQUAN_SHIP */ \
 		0,  /* ANDROSYNTH_SHIP */ \
 		0,  /* CHENJESU_SHIP */ \
@@ -676,7 +676,7 @@ typedef enum
 
 #define HOMEWORLD_LOC \
 		0,					/* ARILOU_SHIP */ \
-		0,					/* CHMMR_SHIP */ \
+		CHMMR_DEFINED,		/* CHMMR_SHIP */ \
 		0,					/* HUMAN_SHIP */ \
 		ORZ_DEFINED,		/* ORZ_SHIP */ \
 		PKUNK_DEFINED,		/* PKUNK_SHIP */ \
@@ -695,7 +695,7 @@ typedef enum
 		UMGAH_DEFINED,		/* UMGAH_SHIP */ \
 		0,					/* URQUAN_SHIP */ \
 		ZOQFOT_DEFINED,		/* ZOQFOTPIK_SHIP */ \
-		0,					/* SYREEN_SHIP */ \
+		SYREEN_DEFINED,		/* SYREEN_SHIP */ \
 		0,					/* BLACK_URQUAN_SHIP */ \
 		0,					/* ANDROSYNTH_SHIP */ \
 		0,					/* CHENJESU_SHIP */ \
