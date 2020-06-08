@@ -23,19 +23,21 @@ REMIX4_PKG="uqm-remix-disc4.uqm"
 
 check_pkg() {
     if [ ! -f "$1" ]; then
-        echo $1 not found.
+        echo "$1 not found."
         exit 1
     fi
 }
 
 process_pkg() {
-    echo Processing $1...
-    local SUM=`md5sum "$1" | awk '{print $1}'`
-    local SZ=`wc -c "$1" | awk '{print $1}'`
+    echo "Processing $1..."
+    SUM=$(md5sum "$1" | awk '{print $1}')
+    SZ=$(wc -c "$1" | awk '{print $1}')
     SZ=$(( SZ / 1024 ))
-    echo "!define $2_FILE \"$1\"" >> $NSH_FILE
-    echo "!define $2_MD5SUM \"$SUM\"" >> $NSH_FILE
-    echo "!define $2_SIZE $SZ" >> $NSH_FILE
+    {
+        echo "!define $2_FILE \"$1\""
+        echo "!define $2_MD5SUM \"$SUM\""
+        echo "!define $2_SIZE $SZ"
+    } >> $NSH_FILE
 }
 
 check_pkg $CONTENT_PKG
