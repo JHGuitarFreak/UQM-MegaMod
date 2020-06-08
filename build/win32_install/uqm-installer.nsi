@@ -154,8 +154,8 @@ Function HandlePackage
     ${If} $MD5SUM != $3
       MessageBox MB_ICONINFORMATION|MB_OKCANCEL "The file $PACKAGEDIR\$1 appears to be corrupt.  The expected MD5 sum was '$MD5SUM', but the actual MD5 sum was '$3'.  Press OK to attempt to download a fresh copy from the distribution site, or Cancel to skip the package." IDOK AttemptDownload IDCANCEL PackageDone
     ${EndIf}
-      CopyFiles "$PACKAGEDIR\$1" "$0\$1"
-      Goto PackageDone
+    CopyFiles "$PACKAGEDIR\$1" "$0\$1"
+    Goto PackageDone
   ${EndIf}
   # It's not in the package dir, but check if it's there but an over-helpful
   # browser stuck a .zip at the end
@@ -179,19 +179,8 @@ AttemptDownload:
   CreateDirectory $DOWNLOADTARGET
   inetc::get "https://downloads.sourceforge.net/project/sc2/$DOWNLOADPATH$1" "$DOWNLOADTARGET/$1" /END
   Pop $2
-  ${If} $2 != "OK"
-    ${If} $2 == "Cancelled"
-      StrCpy $2 "Download was canceled by user."
-    ${Else}
-      StrCpy $2 "Could not install the package $1 due to the following error: $\"$2$\"."
-    ${EndIf}
-    ${If} $MANDATORY != 0
-      StrCpy $3 "THIS IS A MANDATORY PACKAGE.  Without this package, $(^Name) will NOT run."
-    ${Else}
-      StrCpy $3 "This is an optional package.  $(^Name) will still run, but some content will not be available."
-    ${EndIf}
-    MessageBox MB_ICONEXCLAMATION|MB_YESNO "$2  $3  Do you want to retry from a different mirror?" IDYES AttemptDownload
-  ${Else}
+  ${If} $2 == "OK"
+    # Download completed. Confirm the MD5 sum is OK.
     md5dll::GetFileMD5 "$DOWNLOADTARGET\$1"
     Pop $3
     ${If} $MD5SUM != $3
@@ -203,6 +192,18 @@ AttemptDownload:
       MessageBox MB_ICONEXCLAMATION|MB_YESNO "The downloaded file $1 doesn't match the internal MD5 sum.  This probably means the download was corrupt.  $3  Do you want to retry from a different mirror?  (Select NO to install the downloaded package anyway - for instance, if you know that the content pack was upgraded or modified since.)" IDYES AttemptDownload
     ${EndIf}
     CopyFiles "$DOWNLOADTARGET\$1" "$0\$1"
+  ${Else}
+    ${If} $2 == "Cancelled"
+      StrCpy $2 "Download was canceled by user."
+    ${Else}
+      StrCpy $2 "Could not install the package $1 due to the following error: $\"$2$\"."
+    ${EndIf}
+    ${If} $MANDATORY != 0
+      StrCpy $3 "THIS IS A MANDATORY PACKAGE.  Without this package, $(^Name) will NOT run."
+    ${Else}
+      StrCpy $3 "This is an optional package.  $(^Name) will still run, but some content will not be available."
+    ${EndIf}
+    MessageBox MB_ICONEXCLAMATION|MB_YESNO "$2  $3  Do you want to retry from a different mirror?" IDYES AttemptDownload
   ${EndIf}
   RmDir /r $DOWNLOADTARGET
 PackageDone:
