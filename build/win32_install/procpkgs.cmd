@@ -10,11 +10,11 @@ setlocal
 
 set nsh_file=packages.nsh
 set md5_tool=md5sum
+set pkg_version=0.7.0
 
-set content_pkg=uqm-0.8.0-content.uqm
-set music_pkg=uqm-0.7.0-3domusic.uqm
-set voice_pkg=uqm-0.8.0-voice.uqm
-set video_pkg=uqm-0.7.0-video.uqm
+set content_pkg=uqm-%pkg_version%-content.uqm
+set music_pkg=uqm-%pkg_version%-3domusic.uqm
+set voice_pkg=uqm-%pkg_version%-voice.uqm
 set remix1_pkg=uqm-remix-disc1.uqm
 set remix2_pkg=uqm-remix-disc2.uqm
 set remix3_pkg=uqm-remix-disc3.uqm
@@ -23,11 +23,10 @@ set remix4_pkg=uqm-remix-disc4.uqm
 call :check_exists %content_pkg%
 call :check_exists %music_pkg%
 call :check_exists %voice_pkg%
-call :check_exists %video_pkg%
 call :check_exists %remix1_pkg%
 call :check_exists %remix2_pkg%
 call :check_exists %remix3_pkg%
-call :check_exists %remix4_pkg%
+REM call :check_exists %remix4_pkg%
 
 call :check_md5_tool
 

@@ -6,10 +6,10 @@ Var MAKEICON
 Var UQMUSERDATA
 
 ; HM NIS Edit Wizard helper defines
-!define PRODUCT_NAME "The Ur-Quan Masters MegaMod"
-!define PRODUCT_VERSION "0.8.0 Gamma"
-!define PRODUCT_WEB_SITE "http://uqm-mods.sourceforge.net"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\UrQuanMasters.exe"
+!define PRODUCT_NAME "The Ur-Quan Masters"
+!define PRODUCT_VERSION "0.7.0"
+!define PRODUCT_WEB_SITE "http://sc2.sourceforge.net"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\uqm.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
@@ -58,7 +58,7 @@ RequestExecutionLevel admin
 ; Start menu page
 var ICONS_GROUP
 !define MUI_STARTMENUPAGE_NODISABLE
-!define MUI_STARTMENUPAGE_DEFAULTFOLDER "Games\The Ur-Quan Masters HD MegaMod"
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "Games\The Ur-Quan Masters"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_STARTMENU_REGVAL}"
@@ -69,7 +69,7 @@ var ICONS_GROUP
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 !define MUI_FINISHPAGE_NOREBOOTSUPPORT
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.txt"
-!define MUI_FINISHPAGE_RUN "$INSTDIR\UrQuanMasters.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\uqm.exe"
 !define MUI_FINISHPAGE_RUN_PARAMETERS $UQMARGS
 !insertmacro MUI_PAGE_FINISH
 
@@ -85,7 +85,7 @@ var ICONS_GROUP
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "uqm-${PRODUCT_VERSION}${INSTALLER_VERSION}-installer.exe"
-InstallDir "$PROGRAMFILES\The Ur-Quan Masters MegaMod\"
+InstallDir "$PROGRAMFILES\The Ur-Quan Masters\"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -105,15 +105,15 @@ Function .onInit
   StrCpy $MAKEICON 0
   ReadEnvStr $0 APPDATA
   StrCmp $0 "" NoAppData
-  ExpandEnvStrings $UQMUSERDATA "%APPDATA%\uqm-080-hd"
+  ExpandEnvStrings $UQMUSERDATA "%APPDATA%\uqm"
   Goto GotAppData
 NoAppData:
   ReadEnvStr $0 USERPROFILE
   StrCmp $0 "" NoProfile
-  ExpandEnvStrings $UQMUSERDATA "%USERPROFILE%\Application Data\uqm-080-hd"
+  ExpandEnvStrings $UQMUSERDATA "%USERPROFILE%\Application Data\uqm"
   Goto GotAppData
 NoProfile:
-  StrCpy $UQMUSERDATA "$INSTDIR\userdata\uqm-080-hd"
+  StrCpy $UQMUSERDATA "$INSTDIR\userdata\uqm"
 GotAppData:
 FunctionEnd
 
@@ -249,7 +249,7 @@ AttemptDownload:
   GetTempFileName $DOWNLOADTARGET
   Delete $DOWNLOADTARGET
   CreateDirectory $DOWNLOADTARGET
-  NSISdl::download "http://$2.dl.sourceforge.net/projects/uqm-mods/files/MegaMod/Content/0.8.0-HD/$DOWNLOADPATH$1" "$DOWNLOADTARGET\$1"
+  NSISdl::download "http://$2.dl.sourceforge.net/project/sc2/$DOWNLOADPATH$1" "$DOWNLOADTARGET\$1"
   Pop $2
   StrCmp $2 "success" DownloadSuccessful
   StrCmp $2 "cancel" DownloadCanceled
@@ -328,25 +328,24 @@ SectionGroup "!UQM" SECGRP01
     SectionIn 1 2 3 4 5 6 RO
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File "keyjam.exe"
-    File "UrQuanMasters.exe"
-    File "jpeg.dll"
-    File "libpng12-0.dll"
-    File "ogg.dll"
-    File "OpenAL32.dll"
-    File "SDL.dll"
-    File "SDL_gfx.dll"
-    File "SDL_image.dll"
-    File "vorbis.dll"
-    File "vorbisfile.dll"
-    File "wrap_oal.dll"
-    File "zlib1.dll"
     File "AUTHORS.txt"
     File "COPYING.txt"
+    File "libpng12-0.dll"
     File "Manual.txt"
+    File "ogg.dll"
+    File "OpenAL32.dll"
+    File "wrap_oal.dll"
     File "README.txt"
     File "README-SDL.txt"
+    File "SDL.dll"
+    File "SDL_image.dll"
+    File "SDL_gfx.dll"
+    File "uqm.exe"
+    File "keyjam.exe"
+    File "vorbis.dll"
+    File "vorbisfile.dll"
     File "WhatsNew.txt"
+    File "zlib1.dll"
     SetOutPath $UQMUSERDATA
     SetOverwrite try
     File "uqm-pc.cfg"
@@ -383,8 +382,8 @@ SectionGroup "!UQM" SECGRP01
     AddSize ${PKG_CONTENT_SIZE}
     StrCpy $MANDATORY 1
     StrCpy $MD5SUM "${PKG_CONTENT_MD5SUM}"
-    File "content\version"
-    StrCpy $DOWNLOADPATH "UQM/0.8/"
+    File "..\..\content\version"
+    StrCpy $DOWNLOADPATH "UQM/0.7/"
     Push "${PKG_CONTENT_FILE}"
     Push "$INSTDIR\content\packages"
     Call HandlePackage
@@ -406,7 +405,7 @@ SectionGroup /e "3DO Content" SECGRP02
     AddSize ${PKG_3DOMUSIC_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_3DOMUSIC_MD5SUM}"
-    StrCpy $DOWNLOADPATH "UQM/0.8/"
+    StrCpy $DOWNLOADPATH "UQM/0.7/"
     Push "${PKG_3DOMUSIC_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
@@ -420,7 +419,7 @@ SectionGroup /e "3DO Content" SECGRP02
     AddSize ${PKG_VOICE_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_VOICE_MD5SUM}"
-    StrCpy $DOWNLOADPATH "UQM/0.8/"
+    StrCpy $DOWNLOADPATH "UQM/0.7/"
     Push "${PKG_VOICE_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
