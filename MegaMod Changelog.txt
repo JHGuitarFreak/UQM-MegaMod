@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Created a more faithful looking "StarCon" font for HD
 - Created font for the Chmmr in HD
 - New font for the Credits and Main Menu in HD
-- New fonts for the Arilou, Druuge, Ilwrath, Kohr-Ah, Lander, Orz, Shofixti, Supox, Syreen, and Ur-Quan in HD
+- New fonts for the Arilou, Ilwrath, Kohr-Ah, Lander, Mycon, Orz, Shofixti, Supox, Syreen, and Ur-Quan in HD
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 - Added an option to toggle the Hazard colors based on severity on/off
 - Added an option to toggle alternate Orz font for untranslated speech
@@ -43,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Moved MegaMod specific options to a separate .cfg file
 - Properly credited Team 6014 for their work on the HD-Mod in the credits (Thanks to Matt Bentley for pointing it out.)
 - Replace "Serosis Presents" with a less egotistical logo
+- HD: Switch Melnorme and Druuge font over to "MicroFont" so as to match with Vanilla UQM
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
