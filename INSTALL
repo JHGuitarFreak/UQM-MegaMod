@@ -1,104 +1,89 @@
-To build The Ur-Quan Masters, you need at least the following software:
+               THE UR-QUAN MASTERS: BUILD INSTRUCTIONS
+               ---------------------------------------
 
-For unix-like platforms (such as Linux, BSD, Solaris, MinGW):
-GCC 3.0 - GNU C Compiler
-	http://gcc.gnu.org/
-	Debian package: gcc
+INSTALLING PREREQUISITES
+------------------------
 
-GNU Make 3.80
-	ftp://ftp.gnu.org/
-	Debian package: make
+To build The Ur-Quan Masters, you must first install its
+prerequisites: SDL2, PNG, Ogg Vorbis, and Zlib. How to do this will
+depend on what operating system you are running:
 
-For Windows:
-Microsoft Visual C++ 6 or newer (or MinGW+MSYS, see INSTALL.mingw for that)
-Visual C++ 6.0 Processor Pack (if using VC6, to build MMX-accelerated code)
-	http://msdn.microsoft.com/vstudio/downloads/tools/ppack/
+On Debian or similar systems like Ubuntu, install the following packages:
 
-For Mac OS X:
-Apple Developer Tools (for Mac OS X 10.2 and older)
-	http://connect.apple.com/
-Xcode Tools (for Mac OS X 10.3)
-	http://developer.apple.com/tools/macosxtools.html
+  sudo apt-get install build-essential libogg-dev libpng-dev libsdl2-dev \
+                       libvorbis-dev libz-dev
 
-Additionally, The Ur-Quan Masters requires the following libraries:
-Note that dependencies can differ between different OS's.
+On Fedora or similar systems like CentOS, install these packages:
+  sudo dnf install libogg-devel libpng-devel libvorbis-devel make SDL2-devel \
+                   zlib-devel
 
-OpenGL v1.2 (if HAVE_OPENGL is defined, which is the default)
-    Win32 users should have all by default, following is for Linux version:
-	http://www.xfree86.org/
-	Debian package: xlibmesa-dev OR nvidia-glx OR <vendor specific>
-	XFree86 4.x comes with Mesa, which is a clone.
-	Note: Mesa is a software emulation. For enjoyable results
-	you will need hardware accelerated OpenGL (GLX).
-	These usually conflict with mesa (can result in X server crash).
+On macOS, install Xcode from the App Store, and then install
+"Additional components" when you run it for the first time. You can
+then install brew from https://brew.sh and then use it to install your
+requirements from the Terminal:
 
-SDL v1.2
-	The Simple Direct-Media Layer
-	A fairly good multiplatform low level graphics library.
-	Homepage: www.libsdl.org
-	Download: http://www.libsdl.org/download-1.2.php
-	Debian package: libsdl1.2-dev (and various runtime debs)
+  brew install libogg libpng libvorbis sdl2
 
-libpng
-	An image loading library.
-	Homepage: http://www.libpng.org/pub/png/libpng.html
-	Debian packages: libpng-devxs
-	
-OpenAL (optional)
-	A cross-platform spatialized audio library.
-	Homepage: http://www.openal.org/
-	Windows SDK download: http://connect.creativelabs.com/openal/Downloads/OpenAL11CoreSDK.zip
-    Debian package: libopenal-dev
+On Windows, you will need to use the MSYS2 system from
+https://www.msys2.org -- after you install the base system, open an
+"MSYS2 MSYS" window and update the system with the command
 
-libogg and libvorbis (optional but highly recommended)
-	Audio codec to play Ogg Vorbis files, used for music and speech.
-	Homepage: http://www.xiph.org/ogg/vorbis/index.html
-	Download:
-	    For Windows:
-			SDK download: http://www.vorbis.com/files/1.0.1/windows/OggVorbis-win32sdk-1.0.1.zip
-	    For Linux:
-			http://www.xiph.org/downloads/
-			download libogg and libvorbis.
-            Debian Packages: libogg-dev libvorbis-dev
+  pacman -Syuu
 
-Tremor (alternative for libogg and libvorbis)
-	Audio codec to play Ogg Vorbis files, used for music and speech.
-	This library avoids floating point math and should be used instead
-	of libogg and libvorbis when floating point support is not available
-	or slow (on some handhelds and game consoles).
-	Homepage: http://www.xiph.org/vorbis/
-	Download: http://svn.xiph.org/trunk/Tremor (Subversion)
+until there is nothing left to do. Aftr that you can install the
+packages you will need to build the 32-bit version of UQM:
 
-Libmikmod (also included with UQM source)
-	Audio codec to play .mod files, used for the original PC music.
-	Homepage: http://mikmod.raphnet.net/
-	Download: https://sourceforge.net/projects/mikmod/files/
-    Debian package: libmikmod-dev
+  pacman -S make pkg-config mingw-w64-i686-gcc mingw-w64-i686-libogg \
+            mingw-w64-i686-libpng mingw-w64-i686-libsystre \
+            mingw-w64-i686-libvorbis mingw-w64-i686-SDL2 mingw-w64-i686-zlib
 
-Zlib v1.2
-	Data compression / decompression library
-	Homepage: http://www.gzip.org/zlib/
-	Download:
-	    For Windows:
-		http://www.gzip.org/zlib/ (mid-page 'zlib compiled DLL')
+Actually building UQM will need to be done from a "MSYS2 MinGW 32-bit"
+window, not "MSYS2 MSYS".
 
-Lua (also included with UQM source)
-	Scripting language
-	Homepage: http://www.lua.org/
-	Download: http://www.lua.org/download.html
+BUILDING THE PROGRAM
+--------------------
 
-___________________________________________________________________________________________________________________
+Building and configuration is managed by the "build.sh" script in the
+same directory as this file. Ordinarily, you will only need the command
 
-For Debian users (Or at least Mint and Ubuntu users) here is the basic command to install what you need to compile:
+  ./build.sh uqm
 
-	sudo apt-get install libsdl1.2-dev libsdl-image1.2 libsdl-image1.2-dev libogg-dev libvorbis-dev
+To configure and build the system. Pass an argument like "-j5" for a
+parallel build using 5 processes. To delete the current bulid and
+reconfigure, issue the command
 
-Please make sure you update your repositories first with: sudo apt-get update
-___________________________________________________________________________________________________________________
+  ./build.sh uqm clean
 
+And it will clear out all configuration choices.
 
-If you find these aren't enough, or if you know the names
-of the corresponding RPM etc. packages, please report to
-<sc2-devel@lists.sourceforge.net> or visit
-http://sourceforge.net/projects/sc2/
+The configuration process is interactive; for unattended or scripted
+installs, consult the "config.state" file generated by the
+configuration process and synthesize an equivalent as needed; builds
+will then skip the configure step after that.
+
+After the build completes, a binary named "uqm" or "uqm-debug" will be
+created, and should be runnable out of this directory. To produce a
+distributable or installable package that runs on any system, more
+work is needed.
+
+BUILDING AN INSTALLABLE PACKAGE
+-------------------------------
+
+LINUX: The UQM project does not officially maintain any installation
+packages for any Linux distro, but other volunteers have often done
+this already. In general, all that will be needed is to arrange
+matters so that the uqm binary and the content directory are installed
+into globally accessible locations, and that it is invoked with
+arguments that properly identify those directories.
+
+WINDOWS: An installable Windows build takes the UQM.EXE file created
+by the build process and then correlates it with the prepackaged
+content packs to produce an installer executable that will download
+all other data from sourceforge. See INSTALL.win32 for the extra steps
+required for this.
+
+MAC: A redistributable package on macOS is an app bundle that contains
+everything needed to run the program. Because of the way brew handles
+system dependencies, the program must be built differently to be
+redistributable. See INSTALL.macos for details on how to do this.
 

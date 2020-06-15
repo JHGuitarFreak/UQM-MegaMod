@@ -1,0 +1,44 @@
+               BUILDING THE UR-QUAN MASTERS ON MAC OS X
+               ----------------------------------------
+
+Starting with 0.7.1, it is possible to build and run The Ur-Quan
+Masters with the brew system (https://brew.sh). This is much easier
+than building a redistributable package, and personal builds should
+probably rely on this. See the main INSTALL file for instructions
+there.
+
+To create a .app file that will work on most Macs, you will need to
+create an app bundle with custom copies of its libraries. To do
+*that*, you will to build most of them yourself:
+
+SDL2: https://www.libsdl.org
+    The development libraries for macOS available here already work
+    fine and do not need any extra work.
+
+Ogg Vorbis: http://www.xiph.org
+    You will need to build frameworks out of libogg and libvorbis,
+    which will be named Ogg.framework and Vorbis.framework.
+
+libpng: http://www.libpng.org/pub/png/libpng.html
+    You will ultimately need to create libpng.framework.
+
+These frameworks should be built as "archives" in Xcode with a macOS
+deployment target of 10.6. Copy the framework directories out of the
+archives into /Library/Frameworks.
+
+With these in place, copy the content packages that you intend to
+undle with the app (at minimum content, but potentially also voice and
+3DO music or even remixes) into a subdirectory under this one named
+"dist-packages".
+
+You are now ready to actually build and package the application:
+
+    DEPS_PATH=/Library/Frameworks ./build.sh uqm
+    build/unix_installer/copy_mac_frameworks.pl
+
+This should produce a working app bundle named "The Ur-Quan
+Masters.app". For proper redistribution this app should be put in a
+disk image with the Disk Utility. If you are running on a version of
+macOS later than 10.12, don't forget to make sure you use HFS+ instead
+of APFS, or your disk image won't be mountable on any version of macOS
+10.12 or earlier!

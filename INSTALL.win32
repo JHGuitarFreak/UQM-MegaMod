@@ -1,0 +1,6 @@
+BUILDING THE WIN32 INSTALLER
+----------------------------
+
+At the moment, alas, this file is a stub. The process needs some
+refinement before a minimal set of build steps may be assembled. This
+file should be updated before any 0.8 release candidate.
