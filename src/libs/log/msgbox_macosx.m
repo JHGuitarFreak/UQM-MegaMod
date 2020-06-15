@@ -28,9 +28,9 @@ log_displayBox (const /*UTF-8*/char *title, int isError,
 		return; // Oops, out of memory?
 
 	if (isError)
-		NSRunCriticalAlertPanel (titleStr, msgStr, nil, nil, nil);
+		NSRunCriticalAlertPanel (titleStr, @"%@", nil, nil, nil, msgStr);
 	else
-		NSRunInformationalAlertPanel (titleStr, msgStr, nil, nil, nil);
+		NSRunInformationalAlertPanel (titleStr, @"%@", nil, nil, nil, msgStr);
 
 	// titleStr and msgStr are autoreleased
 }
