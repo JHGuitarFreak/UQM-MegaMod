@@ -201,7 +201,7 @@ PacketHandler_Fleet(NetConnection *conn, const Packet_Fleet *packet) {
 		// the ships it says it contains.
 		log_add(log_Warning, "Invalid fleet size. Specified size is %d, "
 				"actual size = %d\n",
-				numShips, (len - sizeof packet) / sizeof(packet->ships[0]));
+				numShips, (int) ((len - sizeof packet) / sizeof(packet->ships[0])));
 		errno = EBADMSG;
 		return -1;
 	}
@@ -578,7 +578,7 @@ PacketHandler_Checksum(NetConnection *conn, const Packet_Checksum *packet) {
 		log_add(log_Warning, "NETPLAY: [%d] <== Received checksum "
 				"for frame %u, while we only expect checksums on frames "
 				"divisable by %u -- discarding.\n", conn->player,
-				(unsigned int) frameNr, interval);
+				(unsigned int) frameNr, (unsigned int) interval);
 		return 0;
 				// No need to close the connection; checksums are not
 				// essential.
@@ -593,7 +593,7 @@ PacketHandler_Checksum(NetConnection *conn, const Packet_Checksum *packet) {
 		log_add(log_Warning, "NETPLAY: [%d] <== Received checksum "
 				"for a frame too far in the future (frame %u, current "
 				"is %u, input delay is %u) -- discarding.\n", conn->player,
-				(unsigned int) frameNr, battleFrameCount, delay);
+				(unsigned int) frameNr, (unsigned int) battleFrameCount, (unsigned int) delay);
 		return 0;
 				// No need to close the connection; checksums are not
 				// essential.
@@ -610,7 +610,7 @@ PacketHandler_Checksum(NetConnection *conn, const Packet_Checksum *packet) {
 		log_add(log_Warning, "NETPLAY: [%d] <== Received checksum "
 				"for a frame too far in the past (frame %u, current "
 				"is %u, input delay is %u) -- discarding.", conn->player,
-				(unsigned int) frameNr, battleFrameCount, delay);
+				(unsigned int) frameNr, (unsigned int) battleFrameCount, (unsigned int) delay);
 		return 0;
 				// No need to close the connection; checksums are not
 				// essential.

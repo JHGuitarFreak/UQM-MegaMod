@@ -2164,8 +2164,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	}
 #endif
 
-	res_PutBoolean ("config.scanlines", opts->scanlines);
-	res_PutBoolean ("config.fullscreen", opts->fullscreen);
+	res_PutBoolean ("config.scanlines", (BOOLEAN)opts->scanlines);
+	res_PutBoolean ("config.fullscreen", (BOOLEAN)opts->fullscreen);
 	
 	if ((NewWidth != ScreenWidthActual) ||
 	    (NewHeight != ScreenHeightActual) ||

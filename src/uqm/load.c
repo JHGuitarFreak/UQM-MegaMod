@@ -69,7 +69,7 @@ read_16 (void *fp, UWORD *v)
 static inline size_t
 read_16s (void *fp, SWORD *v)
 {
-	return read_16 (fp, v);
+	return read_16 (fp, (UWORD *) v);
 }
 
 static inline size_t
@@ -94,7 +94,7 @@ read_32 (void *fp, DWORD *v)
 static inline size_t
 read_32s (void *fp, SDWORD *v)
 {
-	return read_32 (fp, v);
+	return read_32 (fp, (DWORD *) v);
 }
 
 static inline size_t
@@ -102,6 +102,12 @@ read_a8 (void *fp, BYTE *ar, COUNT count)
 {
 	assert (ar != NULL);
 	return ReadResFile (ar, 1, count, fp) == count;
+}
+
+static inline size_t
+read_a8s (void *fp, char *ar, COUNT count)
+{
+	return read_a8 (fp, (BYTE *) ar, count);
 }
 
 static inline size_t
@@ -448,7 +454,7 @@ LoadSisState (SIS_STATE *SSPtr, void *fp)
 static BOOLEAN
 LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 {
-	SDWORD magic, PrevFLoc;
+	DWORD magic; // , PrevFLoc;
 	DWORD nameSize = 0;
 	if (!read_32s (fp, &magic))
 		return FALSE;
@@ -486,14 +492,14 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 	
 	if (nameSize < SAVE_NAME_SIZE)
 	{
-		if (read_a8 (fp, SummPtr->SaveName, nameSize) != 1)
+		if (read_a8s (fp, SummPtr->SaveName, nameSize) != 1)
 			return FALSE;
 		SummPtr->SaveName[nameSize] = 0;
 	}
 	else
 	{
 		DWORD remaining = nameSize - SAVE_NAME_SIZE + 1;
-		if (read_a8 (fp, SummPtr->SaveName, SAVE_NAME_SIZE-1) != 1)
+		if (read_a8s (fp, SummPtr->SaveName, SAVE_NAME_SIZE-1) != 1)
 			return FALSE;
 		SummPtr->SaveName[SAVE_NAME_SIZE-1] = 0;
 		if (skip_8 (fp, remaining) != 1)
@@ -556,17 +562,17 @@ LoadGroupList (uio_Stream *fh, DWORD chunksize)
 		{
 			BYTE race_outer;
 			IP_GROUP ip;
-			read_8  (fh, &race_outer);
-			read_16 (fh, &ip.group_counter);
-			read_8  (fh, &ip.race_id);
-			read_8  (fh, &ip.sys_loc);
-			read_8  (fh, &ip.task);
-			read_8  (fh, &ip.in_system);
-			read_8  (fh, &ip.dest_loc);
-			read_8  (fh, &ip.orbit_pos);
-			read_8  (fh, &ip.group_id);
-			read_16 (fh, &ip.loc.x);
-			read_16 (fh, &ip.loc.y);
+			read_8   (fh, &race_outer);
+			read_16  (fh, &ip.group_counter);
+			read_8   (fh, &ip.race_id);
+			read_8   (fh, &ip.sys_loc);
+			read_8   (fh, &ip.task);
+			read_8   (fh, &ip.in_system);
+			read_8   (fh, &ip.dest_loc);
+			read_8   (fh, &ip.orbit_pos);
+			read_8   (fh, &ip.group_id);
+			read_16s (fh, &ip.loc.x);
+			read_16s (fh, &ip.loc.y);
 
 			swrite_8 (fp, race_outer);
 			WriteIpGroup (fp, &ip);
