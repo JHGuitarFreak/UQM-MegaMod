@@ -21,17 +21,22 @@ void
 log_displayBox (const /*UTF-8*/char *title, int isError,
 		const /*UTF-8*/char *msg)
 {
-	NSString *titleStr = [NSString stringWithUTF8String:title];
-	NSString *msgStr = [NSString stringWithUTF8String:msg];
+	@autoreleasepool {
+		NSAlert *alert = [[NSAlert alloc] init];
+		NSString *titleStr = [NSString stringWithUTF8String:title];
+		NSString *msgStr = [NSString stringWithUTF8String:msg];
 
-	if (!titleStr || !msgStr)
-		return; // Oops, out of memory?
+		if (alert && titleStr && msgStr) {
+			alert.alertStyle = isError ? NSAlertStyleCritical : NSAlertStyleInformational;
+			alert.messageText = titleStr;
+			alert.informativeText = msgStr;
 
-	if (isError)
-		NSRunCriticalAlertPanel (titleStr, @"%@", nil, nil, nil, msgStr);
-	else
-		NSRunInformationalAlertPanel (titleStr, @"%@", nil, nil, nil, msgStr);
+			[alert runModal];
+		}
 
-	// titleStr and msgStr are autoreleased
+		[msgStr release];
+		[titleStr release];
+		[alert release];
+	}
 }
 
