@@ -456,7 +456,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 {
 	DWORD magic; // , PrevFLoc;
 	DWORD nameSize = 0;
-	if (!read_32s (fp, &magic))
+	if (!read_32 (fp, &magic))
 		return FALSE;
 	if (magic == SAVEFILE_TAG)
 	{
