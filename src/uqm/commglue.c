@@ -239,7 +239,7 @@ construct_response (UNICODE *buf, int R /* promoted from RESPONSE_REF */, ...)
 		if (name)
 		{
 			len = strlen (name);
-			strncpy (buf, name, len);
+			strcpy (buf, name);
 			buf += len;
 			
 			/*
