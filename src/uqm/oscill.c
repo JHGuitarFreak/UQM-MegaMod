@@ -44,6 +44,8 @@ InitOscilloscope (FRAME scopeBg)
 
 		// mid-image pixel defines the color of scope lines
 		scopeColor = GetFramePixel (scope_frame, midPt);
+		// insist that scope lines be purely opaque
+		scopeColor.a = 0xff;
 		
 		scopeWork = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP | MAPPED_TO_DISPLAY,
