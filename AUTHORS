@@ -14,13 +14,30 @@ Core team (in alphabetical order):
     Alex Volkov <codepro@usa.net>
 
 Additional programming (in alphabetical order):
+    Karl Bartel
+    Scott A. Colcord
+    Loius Delacroix
+    jdorje
     Geoffrey Hausheer <uqm-devel@phracturedblue.com>
+    Sze Howe Koh
+    Ala-lala
+    Mudrony Laszlo
+    Peter MacMillan
+    Sanjay Madhav
+    Robert McNamara
+    Vlad-Ceru Opran
+    Peter Piwowarski
+    Brian Rogers
+    Horatiu Romosan
     Nicolas Simonds <uqm@submedia.net>
-    
+    Peter van Valderen
+    Alexander Waseleski
+
 Music remixers (in alphabetical order):
     Jouni Airaksinen <markvera@spacesynth.net>
     András Barják <forevian@freemail.hu>
     Matt Bentley
+    Travis Chase
     Tore Aune Fjellstad <void@medievalfuture.com>
     Espen Gätzschmann <tilt@medievalfuture.com>
     Aaron J. Grier <agrier@poofygoof.com>
@@ -32,26 +49,36 @@ Music remixers (in alphabetical order):
     Erol Otus <erol@toysforbob.com>
     Greg Szymanski
 
+Additional artwork (in alphabetical order):
+    Jouni Airaksinen <markvera@spacesynth.net>
+    Erol Otus <erol@toysforbob.com>
+    Zarla Sheenaza <astronia@aol.com>
+    Joffrey Smith
+    Yukki
+
 Other contributions (in alphabetical order):
-    Jouni Airaksinen <markvera@spacesynth.net> (Startup Menu)
     Karl Bartel <karlb@gmx.net>
     Travis Chase <cftc@shaw.ca> (BeOS port)
     Felix Lazarev <felix@freedo.org> (3DO internals)
-    Parker MacMillan
-    Sanjay Madhav <madhav@usc.edu> (code patches)
-    Robert McNamara <robert@americantenor.com> (MacOS X stuff)
     Mike Melanson (ADPCM basis from FFmpeg used for DUK audio)
-    Mudrony Laszlo <mudronyl@dragon.klte.hu> (PC/DOS content unpacking)
-    Erol Otus <erol@toysforbob.com> (Splash screen)
     Brian Rogers <burpmaster@truffula.net>
     Horatiu Romosan <hory@post.ro> (v0.1 Win32 installer)
-    Zarla Sheenaza <astronia@aol.com> (0.6 Win32 installer graphics)
-    Joffrey Smith (setup graphics)
-    Peter van Valderen <p.vanvalderen@chello.nl>
-    Alex Volkov <codepro@usa.net> (additional slides)
-    Alexander Waseleski <Paxtez@hotmail.com> (code patches)
-    Yukki (v0.1 Win32 installer graphics)
 
+Third party libraries:
+    Simple Directmedia Layer (SDL) by Sam Lantinga et al.
+    https://www.libsdl.org/
+
+    libpng by Guy Schalnat, Andreas Dilger, et al.
+    https://libpng.org/pub/png/libpng.html
+
+    Ogg Vorbis by the Xiph.Org Foundation
+    https://xiph.org/
+
+    Mikmod Sound System by Jean-Paul Mikkers et al.
+    http://mikmod.sourceforge.net
+
+    zlib by Jean-loup Gailly and Mark Adler
+    https://www.zlib.net
 
 Original game:
 --------------

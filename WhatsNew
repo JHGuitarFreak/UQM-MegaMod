@@ -12,6 +12,59 @@ Changes are broadly classified into the following categories:
   unlikely to be of interest to you unless you plan on coding
   extensions.
 
+			     Version 0.8
+			    -------------
+
+NEW FEATURES
+
+- Savegames may now be given descriptive names. Savegames from 0.7 or before
+  will load fine, but games saved in 0.8 will not work in earlier versions.
+- You can now buy fuel at the Starbase 10 at a time with PageUp and PageDn.
+- F6 may be used by default to search the starmap along with slash.
+- Remixes and voices can be turned on or off directly from the Setup menu,
+  instead of needing to drive the voice volume to zero by hand.
+- A new OS/hardware compatibility layer based on SDL2 is now available. This
+  provides much better support for fullscreen and more efficient use of 2D
+  GPU acceleration. The new layer supports D3D11 on Windows, Metal on macOS
+  and iOS, and can even produce a proper fullscreen display on the Raspberry
+  Pi without X11. The original pixel-based SDL1 backend is still supported
+  for older or more obscure systems.
+
+BUGFIXES
+- The Windows net installer works again and can automatically download
+  packages you ask for that are missing.
+- Earlier versions of the code used some symbols in the include guards that
+  were theoretically reserved to gcc. In the intervening nine years, that
+  became less theoretical and the code stopped compiling. These have all now
+  been renamed.
+- Netplay code no longer breaks when compiled on modern versions of MSVC.
+- You can no longer savescum Melnorme rescues to get better deals.
+- Glitches related to the Shofixti Glory Device and the Pkunk Ressurection
+  have been resolved.
+- Various dialogue lines typo-fixed or brought into line with original
+- Sound options that require a restart aren't lost if you revisit the setup
+  menu without restarting.
+- Fixed a softlock when encountering ships in interplanetary space at
+  exactly the wrong place.
+- Fixed incorrectly sized fuel range circle on Hyperspace map.
+- Credits and acknowledgements are no longer nine years out of date and are
+  now at the level of detail expected of 2020-era indie games.
+
+INTERNAL CHANGES
+
+- The build system has been unified around the Linux build system. Windows
+  builds are built under MSYS2, and macOS supports both traditional framework
+  libraries or building under brew.
+- SDL_image is no longer a prerequisite; libpng is now used directly.
+- The save file format has changed, in part to allow namable savegames, but
+  also to make it easier to edit with simple tools or for independent mods
+  to compatibly and simultaneously extend.
+- Improved documentation and code organization throughout the code.
+- Removed many warnings and memory leaks.
+- Dramatic streamlining of the multithreading code.
+- The C-based code and build system has been modified and annotated to allow
+  extensions to be written in C++ if desired.
+
 			     Version 0.7
 			    -------------
 

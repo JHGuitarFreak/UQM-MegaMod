@@ -57,6 +57,11 @@ Changes towards version 0.8:
 - New Man Page edition of the user manual (Bug #1204), from Bentley
 - STAR CONTROL trademark information updated to reflect current events (#1201)
 - Reorganize and update credits generally - Michael
+- Port Win32 Installer generator to run in MSYS2 bash - Michael
+- Update Win32 Installer to bring net-install logic back up to date with
+  current Sourceforge installs; generic support now available for both HTTPS
+  and automatic redirection to mirrors - Michael
+- Fixed MSYS resource script compilation/linking, from Ala-lala
 
 Changes towards version 0.7.1:
 - New SDL2 backend for modern operating systems - Michael
