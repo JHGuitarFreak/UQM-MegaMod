@@ -506,7 +506,7 @@ res_PutString (const char *key, const char *value)
 		desc->fname = newValue;
 		HFree (oldValue);
 	} else {
-		strncpy (desc->fname, value, srclen + 1);
+		strncpy (desc->fname, value, dstlen + 1);
 	}
 }
 
