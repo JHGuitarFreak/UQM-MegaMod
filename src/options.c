@@ -209,9 +209,16 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 		if (loc == NULL)
 		{
 			char *tempDir = (char *) HMalloc (PATH_MAX);
+			char* execFileDup;
+
+			/* dirname can modify its argument, so we need a local
+			 * mutable copy of it. */
+			execFileDup = (char *) HMalloc (strlen (execFile) + 1);
+			strcpy (execFileDup, execFile);
 			snprintf (tempDir, PATH_MAX, "%s/../Resources/content",
-					dirname (execFile));
+					dirname (execFileDup));
 			loc = findFileInDirs ((const char **) &tempDir, 1, testFile);
+			HFree (execFileDup);
 			HFree (tempDir);
 		}
 #endif
