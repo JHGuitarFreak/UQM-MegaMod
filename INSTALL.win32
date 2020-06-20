@@ -1,6 +1,34 @@
 BUILDING THE WIN32 INSTALLER
 ----------------------------
 
-At the moment, alas, this file is a stub. The process needs some
-refinement before a minimal set of build steps may be assembled. This
-file should be updated before any 0.8 release candidate.
+You will need additional packages installed beyond what is necessary
+for a build:
+
+    pacman -S dos2unix mingw-w64-i686-nsis mingw-w64-i686-ntldd
+    pacman -S mingw-w64-i686-SDL mingw-w64-i686-SDL_gfx unzip zip
+
+You will also need the INetC and MD5dll plugins for NSIS:
+
+    https://nsis.sourceforge.io/mediawiki/images/c/c9/Inetc.zip
+    https://nsis.sourceforge.io/mediawiki/images/d/d7/Md5dll.zip
+
+Unzip these somewhere and then copy the 32-bit ANSI versions of the library
+into place:
+
+    cp Plugins/x86-ansi/INetC.dll /mingw32/share/nsis/Plugins/ansi/
+    cp md5dll/ANSI/md5dll.dll /mingw32/share/nsis/Plugins/ansi/
+
+If this is a new release of UQM, and content packs have not already been
+regenerated, consult INSTALL.pkgs for the steps to update it. These steps
+include updates to the "packages.nsh" file and the "uqm-installer.nsi" files,
+so you should inspect these files to make sure that it's announcing the
+correct version and downloading the correct versions of the content packs.
+
+With these things in place, run the installer creator out of its directory:
+
+    cd sc2/build/win32_install
+    ./build-win32-installer.sh
+
+If all goes well, this will build UQM and the KeyJam application, and then
+build an NSIS-based installer that will install them and all necessary
+ancillary files.

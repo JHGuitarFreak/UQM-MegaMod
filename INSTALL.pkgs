@@ -1,0 +1,39 @@
+			 CREATING NEW CONTENT PACKAGES
+			 -----------------------------
+
+When a new version of UQM is released, new versions of the content
+packages will also need to be created and uploaded. These packages are
+renamed zip files created by the uqmzip utility under tools/uqmzip, and
+ultimately by the "zip" commandline utility itself.
+
+Because of the way Windows and Git interact with line endings and the like,
+and because of macOS's occasionaly pollution of zip files with macOS-specific
+metadata, official releases always create these packages on a Linux system,
+
+The behavior of uqmzip is controlled by variables set at the beginning of it;
+customize these variables for the version and for your system, but remember
+to back out any changes that refer to your system's unique configuration!
+
+Once the packages are created, upload them to SourceForge in an appropriate
+directory matching the current pattern for previous versions. This will
+make them available for new users and for the Windows network installer.
+
+The network installer will also need to be modified to know how to recognize
+the new packages. Make a dist-packages/ directory in the repository root (so,
+next to sc2 and tools) and put all of them in there. There should be seven;
+content, 3domusic, voice, and the four remix packs. Change the directory to
+sc2/build/win32_install and run:
+
+    ./procpkgs.sh
+
+This will update packages.nsh with fresh versions of the MD5 sums and
+package filenames for later inclusion in the installer logic.
+
+If this was a release more significant than a patch release, then the
+SourceForge packages were uploaded to a new directory; edit any necessary
+instances of the $DOWNLOADPATH variable in uqm-installer.nsi to point
+to the new URLs.
+
+Changes to packages.nsh and uqm-installer.nsi SHOULD be committed to the
+repository in their corresponding version branch. Changes to the uqmzip
+script SHOULD NOT be committed.
