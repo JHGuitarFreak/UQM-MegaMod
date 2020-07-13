@@ -73,6 +73,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Reverted max planets and moons to 9 and 4 respectively to solve infinite loop bug in the planet orbit seed generation
 - Fixed bug in Hard Mode which prevented the player from acquiring the Point Defense Laser module
 - Fixed Shofixti SOI color when viewing the Pre-War Starmap
+- EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak

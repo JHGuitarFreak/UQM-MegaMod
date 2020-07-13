@@ -262,7 +262,16 @@ DoRestart (MENU_STATE *pMS)
 					return TRUE;
 				break;
 			case START_NEW_GAME:
-				if (!RestartMessage (pMS, TimeIn)) {
+				if (optCustomSeed == 404) {
+					SetFlashRect (NULL);
+					DoPopupWindow ("Error 404: Universe Not Found");
+					// Got to restart -message
+					SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
+					SetTransitionSource (NULL);
+					SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+					GLOBAL (CurrentActivity) = CHECK_ABORT;
+					restartGame = TRUE;
+				} else if (!RestartMessage (pMS, TimeIn)) {
 					LastActivity = CHECK_LOAD | CHECK_RESTART;
 					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
 				} else
