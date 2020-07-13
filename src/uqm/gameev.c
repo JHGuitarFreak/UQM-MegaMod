@@ -726,8 +726,8 @@ advance_ilwrath_mission (int arg)
 			&& IlwrathPtr->loc.y == ((8070 + 8358) >> 1))
 	{
 		IlwrathPtr->actual_strength = 0;
-		ThraddPtr->actual_strength = 0;
-		if ((EXTENDED && ThraddPtr->allied_state != GOOD_GUY) || !EXTENDED) {
+		IlwrathPtr->allied_state = DEAD_GUY;
+		if (!EXTENDED || ThraddPtr->allied_state != GOOD_GUY) {
 			ThraddPtr->actual_strength = 0;
 			ThraddPtr->allied_state = DEAD_GUY;
 		}
