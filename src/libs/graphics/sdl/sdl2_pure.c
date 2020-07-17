@@ -34,6 +34,7 @@ static TFB_SDL2_SCREENINFO SDL2_Screens[TFB_GFX_NUMSCREENS];
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+static const char* rendererBackend = NULL;
 
 static int ScreenFilterMode;
 
@@ -99,26 +100,25 @@ static int
 FindBestRenderDriver (void)
 {
 	int i, n;
+	if (!rendererBackend) {
+		/* If the user has no preference, just let SDL2 choose */
+		return -1;
+	}
 	n = SDL_GetNumRenderDrivers ();
+	log_add (log_Info, "Searching for render driver \"%s\".", rendererBackend);
 	for (i = 0; i < n; i++) {
 		SDL_RendererInfo info;
 		if (SDL_GetRenderDriverInfo (i, &info) < 0) {
 			continue;
 		}
-		if (!strcmp(info.name, "direct3d")) {
-			/* The 32-bit Windows 8+ Intel Integrated Graphics
-			 * driver has a common bug that causes the D3D9
-			 * display to crash with a divide-by-zero error.
-			 * If we have any alternatives, we will ask for
-			 * them instead. */
-			continue;
-		}
-		if (info.flags & SDL_RENDERER_ACCELERATED) {
+		if (!strcmp(info.name, rendererBackend)) {
 			return i;
 		}
+		log_add (log_Info, "Skipping render driver \"%s\"", info.name);
 	}
 	/* We did not find any accelerated drivers that weren't D3D9.
 	 * Return -1 to ask SDL2 to do its best. */
+	log_add (log_Info, "Render driver \"%s\" not available, using system default", rendererBackend);
 	return -1;
 }
 
@@ -281,7 +281,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 }
 
 int
-TFB_Pure_InitGraphics (int driver, int flags, int width, int height, unsigned int resFactor)
+TFB_Pure_InitGraphics (int driver, int flags, const char* renderer, 
+		int width, int height, unsigned int resFactor)
 {
 	log_add (log_Info, "Initializing SDL.");
 	log_add (log_Info, "SDL initialized.");
@@ -289,6 +290,7 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height, unsigned in
 
 	ScreenWidth = (320 << resFactor);
 	ScreenHeight = (240 << resFactor);
+	rendererBackend = renderer;
 
 	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0, resFactor))
 	{
