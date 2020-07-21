@@ -13,8 +13,12 @@ Melnorme		-	Orbitron Black (Modded)	->	https://www.fontspace.com/orbitron-font-f
 MicroFont		-	Orbitron Black (Modded)	->	https://www.fontspace.com/orbitron-font-f19177
 Mycon				- Untitled Black					->	https://www.fontspace.com/untitled-black-font-f28082
 Orz					-	Kero kero								->	https://www.dafont.com/kero-kero.font
+Pkunk	Main	- Kerithing								->	https://www.fontspace.com/kerithing-font-f32202
+Pkunk	Punct	- Nickainley							->	https://www.fontspace.com/nickainley-font-f21792
 Shofixti		-	Luteous Viscous					->	https://www.fontspace.com/luteous-font-f420
+Slides			-	13/5 Atom Sans (Modded)	->	https://www.dafont.com/13-5atom-sans.font
 Slylandro		-	Camberic								->	https://www.ffonts.net/Camberic.font
+Sly-Probe		-	ComputerFont						->	https://www.dafont.com/computerfont.font
 Spathi			-	Mac Type (Modded)				->	https://www.fontzillion.com/fonts/timour-jgenti/mac-type
 Supox				-	START REVOLUTION				->	https://www.fontspace.com/start-revolution-font-f25979
 Syreen			-	Oleo Script Swash Caps	->	https://www.fontspace.com/oleo-script-swash-caps-font-f17184
