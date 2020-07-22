@@ -26,4 +26,5 @@ Thraddash		-	Oxanium Extra Bold			->	https://www.fontspace.com/oxanium-font-f410
 Title Screen- FederationHull 					->	https://www.ffonts.net/FederationHull.font
 Umgah				-	Obloquy Solid [BRK]			->	https://www.ffonts.net/Obloquy-Solid-BRK.font
 Ur-Quan			- Basalt									->	https://www.fontspace.com/basalt-font-f30764
+Utwig				- Razor Keen							->	https://www.dafont.com/razor-keen.font
 Vux					- Black Chancery					->	https://www.dafont.com/black-chancery.font
