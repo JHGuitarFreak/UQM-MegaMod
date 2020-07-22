@@ -1372,7 +1372,7 @@ HailAlien (void)
 
 	// This block of code is what makes the fonts jagged in HD
 	{
-		TextBack = BUILD_COLOR (MAKE_RGB15 (0x01, 0x01, 0x01), 0x00);
+		TextBack = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x00), 0x00);
 			// Color key for the background.
 		SetContextBackGroundColor (TextBack);
 		ClearDrawable ();
