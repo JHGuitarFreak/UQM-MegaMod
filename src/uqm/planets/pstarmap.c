@@ -880,10 +880,6 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 
 		s.origin.y = UNIVERSE_TO_DISPY (cursorLoc.y);
-		if (s.origin.y < 0) {
-			s.origin.y = 0;
-			cursorLoc.y = DISP_TO_UNIVERSEY (0);
-		}
 	}
 
 	if (s.origin.x < 0 || s.origin.y < 0
