@@ -77,20 +77,20 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 {
 	// Preserve current foreground color for full correctness
 	Color oldfg = SetContextForeGroundColor (trace);
-	BYTE Stroke = 4;
-	POINT BaseLine = pText->baseline;
-	POINT Offset;
+	BYTE stroke = 4;
+	POINT t_baseline = pText->baseline;
+	COORD offset_x, offset_y;
 
 	if (IS_HD) {
-		for (Offset.x = -Stroke; Offset.x <= Stroke; ++Offset.x) 
+		for (offset_x = -stroke; offset_x <= stroke; ++offset_x)
 		{
-			for (Offset.y = -Stroke; Offset.y <= Stroke; ++Offset.y) 
+			for (offset_y = -stroke; offset_y <= stroke; ++offset_y)
 			{
-				pText->baseline = MAKE_POINT (BaseLine.x + Offset.x, BaseLine.y + Offset.y);
+				pText->baseline = MAKE_POINT (t_baseline.x + offset_x, t_baseline.y + offset_y);
 				font_DrawText (pText);
 			}
 		}
-		pText->baseline = BaseLine;
+		pText->baseline = t_baseline;
 	} else {
 		pText->baseline.x--;
 		font_DrawText (pText);
