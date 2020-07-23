@@ -77,80 +77,36 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 {
 	// Preserve current foreground color for full correctness
 	Color oldfg = SetContextForeGroundColor (trace);
-	pText->baseline.x--;
-	font_DrawText (pText);
-	pText->baseline.x += 2;
-	font_DrawText (pText);
-	pText->baseline.x--;
-	pText->baseline.y--;
-	font_DrawText (pText);
-	pText->baseline.y += 2;
-	font_DrawText (pText);
-	pText->baseline.y--;
+	BYTE Stroke = 4;
+	POINT BaseLine = pText->baseline;
+	POINT Offset;
 
 	if (IS_HD) {
-		pText->baseline.x -= RES_DBL(1);
-		font_DrawText(pText);
-		pText->baseline.x += RES_DBL(2);
-		font_DrawText(pText);
-		pText->baseline.x -= RES_DBL(1);
-		pText->baseline.y -= RES_DBL(1);
-		font_DrawText(pText);
-		pText->baseline.y += RES_DBL(2);
-		font_DrawText(pText);
-		pText->baseline.y -= RES_DBL(1);
-
-		pText->baseline.x -= RES_STAT_SCALE(1);
-		font_DrawText(pText);
-		pText->baseline.x += RES_STAT_SCALE(2);
-		font_DrawText(pText);
-		pText->baseline.x -= RES_STAT_SCALE(1);
-		pText->baseline.y -= RES_STAT_SCALE(1);
-		font_DrawText(pText);
-		pText->baseline.y += RES_STAT_SCALE(2);
-		font_DrawText(pText);
-		pText->baseline.y -= RES_STAT_SCALE(1);
-
-		pText->baseline.y--;
+		for (Offset.x = -Stroke; Offset.x <= Stroke; ++Offset.x) 
+		{
+			for (Offset.y = -Stroke; Offset.y <= Stroke; ++Offset.y) 
+			{
+				pText->baseline = MAKE_POINT (BaseLine.x + Offset.x, BaseLine.y + Offset.y);
+				font_DrawText (pText);
+			}
+		}
+		pText->baseline = BaseLine;
+	} else {
 		pText->baseline.x--;
-		font_DrawText(pText);
+		font_DrawText (pText);
 		pText->baseline.x += 2;
-		font_DrawText(pText);
+		font_DrawText (pText);
+		pText->baseline.x--;
+		pText->baseline.y--;
+		font_DrawText (pText);
 		pText->baseline.y += 2;
-		font_DrawText(pText);
-		pText->baseline.x -= 2;
-		font_DrawText(pText);
-		pText->baseline.x ++;
-		pText->baseline.y --;
-
-		pText->baseline.y -= RES_DBL(1);
-		pText->baseline.x -= RES_DBL(1);
-		font_DrawText(pText);
-		pText->baseline.x += RES_DBL(2);
-		font_DrawText(pText);
-		pText->baseline.y += RES_DBL(2);
-		font_DrawText(pText);
-		pText->baseline.x -= RES_DBL(2);
-		font_DrawText(pText);
-		pText->baseline.x += RES_DBL(1);
-		pText->baseline.y -= RES_DBL(1);
-
-		pText->baseline.y -= RES_STAT_SCALE(1);
-		pText->baseline.x -= RES_STAT_SCALE(1);
-		font_DrawText(pText);
-		pText->baseline.x += RES_STAT_SCALE(2);
-		font_DrawText(pText);
-		pText->baseline.y += RES_STAT_SCALE(2);
-		font_DrawText(pText);
-		pText->baseline.x -= RES_STAT_SCALE(2);
-		font_DrawText(pText);
-		pText->baseline.x += RES_STAT_SCALE(1);
-		pText->baseline.y -= RES_STAT_SCALE(1);
+		font_DrawText (pText);
+		pText->baseline.y--;
 	}
 
-	SetContextForeGroundColor(text);
-	font_DrawText(pText);
-	SetContextForeGroundColor(oldfg);
+	SetContextForeGroundColor (text);
+	font_DrawText (pText);
+	SetContextForeGroundColor (oldfg);
 }
 
 BOOLEAN
