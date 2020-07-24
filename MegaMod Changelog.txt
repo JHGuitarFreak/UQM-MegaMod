@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: New fonts for the following races and UI elements:
 		* Arilou
 		* Chmmr
+		* Commander
 		* Credits
 		* Ilwrath
 		* Kohr-Ah
@@ -30,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 		* Mycon
 		* Orz
 		* Pkunk
+		* Player
 		* Shofixti
 		* Slides (Cinematic Sequences)
 		* Spathi
