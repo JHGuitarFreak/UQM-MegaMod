@@ -61,6 +61,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Moved MegaMod specific options to a separate .cfg file
 - Properly credited Team 6014 for their work on the HD-Mod in the credits (Thanks to Matt Bentley for pointing it out.)
 - Replace "Serosis Presents" with a less egotistical logo
+- Tightened up font fallback code/content when switching to Classic and HD graphics
 - HD: Switch Melnorme and Druuge font over to "MicroFont" so as to match with Vanilla UQM
 - HD: Proper thick borders around stylized text in slides and convos - Elestan
 

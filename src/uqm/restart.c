@@ -91,19 +91,19 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	// DC: Load the different menus and fonts depending on the resolution factor
 	if (!IS_HD) {
 		if (optRequiresRestart || !PacksInstalled()) {
-			TinyFont = LoadFont (TINY_FALLBACK_TO_ORIG_FONT);
-			PlyrFont = LoadFont (PLYR_FALLBACK_TO_ORIG_FONT);
-			StarConFont = LoadFont (SCON_FALLBACK_TO_ORIG_FONT);
-			StarConLgFont = LoadFont(SCON_FALLBACK_TO_ORIG_FONT);
+			TinyFont = LoadFont (TINY_FONT_FB);
+			PlyrFont = LoadFont (PLAYER_FONT_FB);
+			StarConFont = LoadFont (STARCON_FONT_FB);
+			StarConLgFont = LoadFont(STARCONLG_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
 	} else {
 		if (optRequiresRestart || !PacksInstalled()) {
-			TinyFont = LoadFont (TINY_FALLBACK_TO_HD_FONT);
-			PlyrFont = LoadFont (PLYR_FALLBACK_TO_HD_FONT);
-			StarConFont = LoadFont (SCON_FALLBACK_TO_HD_FONT);
-			StarConLgFont = LoadFont (SCONLG_FALLBACK_TO_HD_FONT);
+			TinyFont = LoadFont (TINY_FONT_HD);
+			PlyrFont = LoadFont (PLAYER_FONT_HD);
+			StarConFont = LoadFont (STARCON_FONT_HD);
+			StarConLgFont = LoadFont (STARCONLG_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));
