@@ -16,6 +16,7 @@ Mycon       - Untitled Black          ->  https://www.fontspace.com/untitled-bla
 Orz         - Kero kero               ->  https://www.dafont.com/kero-kero.font
 Pkunk Main  - Kerithing               ->  https://www.fontspace.com/kerithing-font-f32202
 Pkunk Punct - Nickainley              ->  https://www.fontspace.com/nickainley-font-f21792
+Player      - Reem Kufi               ->  https://github.com/alif-type/reem-kufi
 Shofixti    - Luteous Viscous         ->  https://www.fontspace.com/luteous-font-f420
 Slides      - 13/5 Atom Sans (Modded) ->  https://www.dafont.com/13-5atom-sans.font
 Slylandro   - Camberic                ->  https://www.ffonts.net/Camberic.font
