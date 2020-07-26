@@ -24,6 +24,7 @@
 #include "commglue.h"
 #include "controls.h"
 #include "colors.h"
+#include "hyper.h"
 #include "sis.h"
 #include "units.h"
 #include "encount.h"
@@ -1408,6 +1409,8 @@ HailAlien (void)
 		}
 		else
 		{
+			POINT Log = MAKE_POINT(LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x)), LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y)));
+
 			r.corner.x = SIS_ORG_X;
 			r.corner.y = SIS_ORG_Y;
 			SetContextClipRect (&r);
@@ -1427,7 +1430,23 @@ HailAlien (void)
 			else
 			{	// Default titles: star name + planet name
 				DrawSISMessage (NULL);
-				DrawSISTitle (GLOBAL_SIS (PlanetName));
+				// DrawSISTitle (GLOBAL_SIS (PlanetName));
+
+				if (inHQSpace())
+				{
+					DrawHyperCoords (GLOBAL (ShipStamp.origin));
+					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1 
+						&& GET_GAME_STATE (ARILOU_HOME_VISITS)
+						&& (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y))
+					{
+						DrawSISMessage (GLOBAL_SIS (PlanetName));
+					}
+
+				}
+				else if (GLOBAL(ip_planet) == 0)
+					DrawHyperCoords (CurStarDescPtr->star_pt);
+				else
+					DrawSISTitle (GLOBAL_SIS (PlanetName));
 			}
 		}
 

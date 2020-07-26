@@ -36,6 +36,7 @@
 #include "libs/tasklib.h"
 #include "libs/alarm.h"
 #include "libs/log.h"
+#include "hyper.h"
 
 #include <stdio.h>
 
@@ -260,10 +261,18 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 				}
 				else
 				{
+					POINT Log = MAKE_POINT(LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x)), LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y)));
+
 					pStr = GAME_STRING (NAVIGATION_STRING_BASE + 1);
 							// "QuasiSpace"
+
+					if (GET_GAME_STATE (ARILOU_HOME_VISITS) && (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y))
+						utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)), GAME_STRING(STAR_STRING_BASE + 148));
+							// "Falayalaralfali"
 				}
 				break;
+
+				
 		}
 
 	}
