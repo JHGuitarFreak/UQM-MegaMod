@@ -82,6 +82,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed bug in Hard Mode which prevented the player from acquiring the Point Defense Laser module
 - Fixed Shofixti SOI color when viewing the Pre-War Starmap
 - Fixed inability to scroll up in zoomed-in StarMap - Kruzenshtern bug #38
+- Fixed SIS sprite drawing twice during smooth interplanetary transition - Kruzenshtern bug #39
 - Fixed Graphics error with Chmmr bomb on SIS status screen - Kruzenshtern bug #41
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - Ala-lala: Fix space music resource leaks

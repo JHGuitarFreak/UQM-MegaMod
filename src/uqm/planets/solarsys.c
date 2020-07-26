@@ -1571,7 +1571,7 @@ ScaleSystem (SIZE new_radius)
 	SetTransitionSource (&r);
 	BatchGraphics ();
 	DrawOuterSystem ();
-	RedrawQueue (FALSE);
+	// RedrawQueue (FALSE);
 	if(optIPScaler == OPT_3DO)
 		ScreenTransition (3, &r);
 	UnbatchGraphics ();
@@ -1815,52 +1815,51 @@ IP_frame (void)
 	ProcessShipControls ();
 	
 	locChange = CheckShipLocation (&newRadius);
-	if (locChange) {
-		if (playerInInnerSystem ()) {	// Entering inner system
+	if (locChange)
+	{
+		if (playerInInnerSystem ())
+		{	// Entering inner system
 			DrawSystemTransition (TRUE);
-		} else if (pSolarSysState->SunDesc[0].radius == newRadius) {	
-			// Leaving inner system to outer
+		}
+		else if (pSolarSysState->SunDesc[0].radius == newRadius)
+		{	// Leaving inner system to outer
 			DrawSystemTransition (FALSE);
-		} else {	// Zooming outer system
+		}
+		else
+		{	// Zooming outer system
 			ScaleSystem (newRadius);
 		}
-	} else if (!pSolarSysState->InOrbit) {
+	}
+	else 
+	{
 		// Just flying around, minding own business..
 		BatchGraphics ();
 		RestoreSystemView ();
 
-		if (optOrbitingPlanets || optTexturedPlanets) {
+		if (optOrbitingPlanets || optTexturedPlanets) 
+		{
 			// BW: recompute planet position to account for orbiting
-			if (playerInInnerSystem ()) {
+			if (playerInInnerSystem ())
+			{
 				// Draw the inner system view
 				ValidateInnerOrbits ();
-			} else {
+				DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
+			}
+			else
+			{
 				// Draw the outer system view
 				ValidateOrbits ();
-			}
-		}
-		
-		if (optTexturedPlanets) {
-		// BW: rotate planets
-		// every frame in Inner (not much CPU required)
-		// depending on planet size and speed in Outer
-			if (playerInInnerSystem ()) {
-				RotatePlanets (TRUE, frameCounter);
-			} else {
-				RotatePlanets (FALSE, frameCounter);
-			}
-		}
-
-		if (optOrbitingPlanets || optTexturedPlanets) { 
-			// Planets have probably moved or changed
-			if (playerInInnerSystem ()) {	
-				// Draw the inner system view
-				DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
-			} else {
-				// Draw the outer system view
 				DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 			}
 		}
+
+		// BW: rotate planets
+		// every frame in Inner (not much CPU required)
+		// depending on planet size and speed in Outer
+		if (optTexturedPlanets && playerInInnerSystem())
+			RotatePlanets (TRUE, frameCounter);
+		else
+			RotatePlanets (FALSE, frameCounter);
 
 		// JMS: Animating IP sun in hi-res modes...
 		if (!playerInInnerSystem () && IS_HD)
