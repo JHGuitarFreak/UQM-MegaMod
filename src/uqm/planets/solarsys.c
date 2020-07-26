@@ -2609,7 +2609,8 @@ GetNamedPlanetaryBody (void)
 	{	// Spathiwa
 		return GAME_STRING (PLANET_NUMBER_BASE + 37);
 	}
-	else if (CurStarDescPtr->Index == SYREEN_DEFINED && GET_GAME_STATE(SYREEN_HOME_VISITS)
+	else if (CurStarDescPtr->Index == SYREEN_DEFINED && (GET_GAME_STATE(SYREEN_HOME_VISITS)
+		|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON))
 		&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 			pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{	// Gaia
