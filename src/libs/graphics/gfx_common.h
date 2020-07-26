@@ -90,7 +90,7 @@ int GetGraphicScale (void);
 int SetGraphicScaleMode (int mode /* enum SCALE */);
 int GetGraphicScaleMode (void);
 void SetTransitionSource (const RECT *pRect);
-void ScreenTransition (int transition, const RECT *pRect);
+void ScreenTransition (int transition, const RECT *pRect, BOOLEAN is3DO);
 
 // TODO: there should be accessor functions for these
 extern volatile int TransitionAmount;

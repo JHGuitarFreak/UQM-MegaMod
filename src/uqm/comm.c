@@ -823,7 +823,7 @@ CommIntroTransition (void)
 {
 	if (curIntroMode == CIM_CROSSFADE_SCREEN)
 	{
-		ScreenTransition (3, NULL);
+		ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_CROSSFADE_SPACE)
@@ -833,12 +833,12 @@ CommIntroTransition (void)
 		r.corner.y = SIS_ORG_Y;
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SIS_SCREEN_HEIGHT;
-		ScreenTransition (3, &r);
+		ScreenTransition (3, &r, optIPScaler == OPT_3DO);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_CROSSFADE_WINDOW)
 	{
-		ScreenTransition (3, &CommWndRect);
+		ScreenTransition (3, &CommWndRect, optIPScaler == OPT_3DO);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_FADE_IN_SCREEN)

@@ -439,7 +439,7 @@ DoStarBase (MENU_STATE *pMS)
 		ClearDrawable ();
 		rotateStarbase (pMS, pMS->CurFrame);
 		DrawBaseStateStrings ((STARBASE_STATE)~0, pMS->CurState);
-		ScreenTransition (3, NULL);
+		ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
 		PlayMusic (pMS->hMusic, TRUE, 1);
 		UnbatchGraphics ();
 	}

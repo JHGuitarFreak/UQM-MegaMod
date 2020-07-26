@@ -1300,7 +1300,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		RECT ctxRect;
 
 		GetContextClipRect (&ctxRect);
-		ScreenTransition (3, &ctxRect);
+		ScreenTransition (3, &ctxRect, TRUE);
 		UnbatchGraphics ();
 	}
 
@@ -1396,7 +1396,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		// Redraws fuel, crew, and status message (green box)
 		DeltaSISGauges(UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 
-		ScreenTransition (3, &DlgRect);
+		ScreenTransition (3, &DlgRect, TRUE);
 		UnbatchGraphics ();
 	}
 

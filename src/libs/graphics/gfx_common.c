@@ -22,6 +22,7 @@
 #include "libs/timelib.h"
 #include "libs/misc.h"
 		// for TFB_DEBUG_HALT
+#include "options.h"
 
 // JMS_GFX
 int fs_height = 0; 
@@ -160,7 +161,7 @@ SetTransitionSource (const RECT *pRect)
 
 // ScreenTransition() is synchronous (does not return until transition done)
 void
-ScreenTransition (int TransType, const RECT *pRect)
+ScreenTransition (int TransType, const RECT *pRect, BOOLEAN is3DO)
 {
 	const TimePeriod DURATION = ONE_SECOND * 31 / 60;
 	TimeCount startTime;
@@ -178,23 +179,26 @@ ScreenTransition (int TransType, const RECT *pRect)
 		TransitionClipRect.extent.height = ScreenHeight;
 	}
 
-	TFB_UploadTransitionScreen ();
-	
-	TransitionAmount = 0;
-	FlushGraphics ();
-	startTime = GetTimeCounter ();
-	while (TransitionAmount < 255)
+	if (is3DO)
 	{
-		TimePeriod deltaT;
-		int newAmount;
+		TFB_UploadTransitionScreen ();
+	
+		TransitionAmount = 0;
+		FlushGraphics ();
+		startTime = GetTimeCounter ();
+		while (TransitionAmount < 255)
+		{
+			TimePeriod deltaT;
+			int newAmount;
 
-		SleepThread (ONE_SECOND / 100);
+			SleepThread (ONE_SECOND / 100);
 
-		deltaT = GetTimeCounter () - startTime;
-		newAmount = deltaT * 255 / DURATION;
-		if (newAmount > 255)
-			newAmount = 255;
+			deltaT = GetTimeCounter () - startTime;
+			newAmount = deltaT * 255 / DURATION;
+			if (newAmount > 255)
+				newAmount = 255;
 
-		TransitionAmount = newAmount;
+			TransitionAmount = newAmount;
+		}
 	}
 }

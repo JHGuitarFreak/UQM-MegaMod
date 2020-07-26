@@ -717,7 +717,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 
 	if (current != next)
 	{
-		ScreenTransition (3, NULL);
+		ScreenTransition (3, NULL, TRUE);
 		current = next;
 	}
 

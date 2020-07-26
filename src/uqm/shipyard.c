@@ -1569,7 +1569,7 @@ DoShipyard (MENU_STATE *pMS)
 			
 			SetContextFont (TinyFont);
 
-			ScreenTransition (3, NULL);
+			ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
 			UnbatchGraphics ();
 
 			PlayMusic (pMS->hMusic, TRUE, 1);

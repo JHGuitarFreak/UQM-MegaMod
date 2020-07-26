@@ -394,7 +394,7 @@ InitEncounter (void)
 
 	UnbatchGraphics ();
 	DestroyDrawable (ReleaseDrawable (SegueFrame));
-	ScreenTransition (3, NULL);
+	ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
 
 	{
 		MENU_STATE MenuState;

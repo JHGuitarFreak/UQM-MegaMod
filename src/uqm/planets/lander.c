@@ -1556,7 +1556,7 @@ InitPlanetSide (POINT pt)
 			DrawStamp (&s);
 		}
 
-		ScreenTransition (3, &r);
+		ScreenTransition (3, &r, optIPScaler == OPT_3DO);
 		UnbatchGraphics ();
 	}
 
@@ -1886,7 +1886,7 @@ ReturnToOrbit (void)
 	DrawStarBackGround ();
 	DrawPlanetSurfaceBorder ();
 	RedrawSurfaceScan (NULL);
-	ScreenTransition (3, &r);
+	ScreenTransition (3, &r, optIPScaler == OPT_3DO);
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
