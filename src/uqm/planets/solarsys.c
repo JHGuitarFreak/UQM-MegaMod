@@ -1830,7 +1830,7 @@ IP_frame (void)
 			ScaleSystem (newRadius);
 		}
 	}
-	else 
+	else if (!pSolarSysState->InOrbit)
 	{
 		// Just flying around, minding own business..
 		BatchGraphics ();
