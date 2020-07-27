@@ -269,7 +269,10 @@ ZapToUrquanEncounter (void)
 			DeltaSISGauges (0, dx, 0);
 		}
 		DrawSISMessage (NULL);
-		DrawHyperCoords (EncounterPtr->loc_pt);
+		// DrawHyperCoords (EncounterPtr->loc_pt);
+		GLOBAL (ShipStamp.origin) = EncounterPtr->loc_pt;
+		GLOBAL (ShipFacing) = 6;
+
 
 		UnlockEncounter (hEncounter);
 	}
