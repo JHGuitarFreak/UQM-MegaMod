@@ -262,7 +262,7 @@ while (--ac > 0)
 		AddInitialGameEvents();
 
 		// JMS: Name Captain & Ship at start (not at loading old game).
-		if (LastActivity == (CHECK_LOAD | CHECK_RESTART)){
+		if (LastActivity == (CHECK_LOAD | CHECK_RESTART) && !optSkipIntro){
 			AskNameForCaptainAndShip();
 
 #ifdef DEBUG
