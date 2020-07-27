@@ -384,43 +384,49 @@ FreeIPData (void)
 void
 LoadIPData (void)
 {
-	if (!IS_HD) {
-		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
-	} else {
-		switch (STAR_COLOR(CurStarDescPtr->Type)) {
-			case BLUE_BODY:
-				SunFrame = CaptureDrawable (LoadGraphic (SUNBLUE_MASK_PMAP_ANIM));
-				break;
-			case GREEN_BODY:
-				SunFrame = CaptureDrawable (LoadGraphic (SUNGREEN_MASK_PMAP_ANIM));
-				break;
-			case ORANGE_BODY:
-				SunFrame = CaptureDrawable (LoadGraphic (SUNORANGE_MASK_PMAP_ANIM));
-				break;
-			case RED_BODY:
-				SunFrame = CaptureDrawable (LoadGraphic (SUNRED_MASK_PMAP_ANIM));
-				break;
-			case WHITE_BODY:
-				SunFrame = CaptureDrawable (LoadGraphic (SUNWHITE_MASK_PMAP_ANIM));
-				break;
-			case YELLOW_BODY:
-			default:
-				SunFrame = CaptureDrawable (LoadGraphic (SUNYELLOW_MASK_PMAP_ANIM));
-				break;
-		}
-	}
-
 	if (SpaceJunkFrame == 0)
 	{
-		SpaceJunkFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
+		SpaceJunkFrame = CaptureDrawable (
+				LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
 		SISIPFrame = CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM));
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
-		OrbitalFrame = CaptureDrawable(LoadGraphic(ORBPLAN_MASK_PMAP_ANIM));
-		OrbitalFrameUnscaled = CaptureDrawable(LoadGraphic(ORBPLAN_UNSCALED_MASK_PMAP_ANIM));
-		if(IS_HD && HDPackPresent)
-			OrbitalFrameIntersect = CaptureDrawable(LoadGraphic(ORBPLAN_INTERSECT_MASK_PMAP_ANIM));
+		OrbitalFrame = CaptureDrawable (
+				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
+		OrbitalFrameUnscaled = CaptureDrawable (
+				LoadGraphic (ORBPLAN_UNSCALED_MASK_PMAP_ANIM));
+		if (IS_HD && HDPackPresent)
+			OrbitalFrameIntersect = CaptureDrawable (
+				LoadGraphic (ORBPLAN_INTERSECT_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
+
+		if (!IS_HD)
+			SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+		else 
+		{
+			switch (STAR_COLOR (CurStarDescPtr->Type)) 
+			{
+				case BLUE_BODY:
+					SunFrame = CaptureDrawable (LoadGraphic (SUNBLUE_MASK_PMAP_ANIM));
+					break;
+				case GREEN_BODY:
+					SunFrame = CaptureDrawable (LoadGraphic (SUNGREEN_MASK_PMAP_ANIM));
+					break;
+				case ORANGE_BODY:
+					SunFrame = CaptureDrawable (LoadGraphic (SUNORANGE_MASK_PMAP_ANIM));
+					break;
+				case RED_BODY:
+					SunFrame = CaptureDrawable (LoadGraphic (SUNRED_MASK_PMAP_ANIM));
+					break;
+				case WHITE_BODY:
+					SunFrame = CaptureDrawable (LoadGraphic (SUNWHITE_MASK_PMAP_ANIM));
+					break;
+				case YELLOW_BODY:
+				default:
+					SunFrame = CaptureDrawable (LoadGraphic (SUNYELLOW_MASK_PMAP_ANIM));
+					break;
+			}
+		}
 
 		SpaceMusic = 0;
 	}
@@ -1097,18 +1103,18 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 			// Those match the sizes of the png planets
 			switch (Size)
 			{
-			case 0: planet->size = 3;
-				break;
-			case 1: planet->size = 4;
-				break;
-			case 2: planet->size = 7;
-				break;
-			case 3: planet->size = 11;
-				break;
-			case 4: planet->size = 15;
-				break;
-			case 5: planet->size = 29;
-				break;
+				case 0: planet->size = 3;
+					break;
+				case 1: planet->size = 4;
+					break;
+				case 2: planet->size = 7;
+					break;
+				case 3: planet->size = 11;
+					break;
+				case 4: planet->size = 15;
+					break;
+				case 5: planet->size = 29;
+					break;
 			}
 		}
 		planet->image.frame = SetAbsFrameIndex(UNSCALED_PLANETS(OrbitalFrameUnscaled, OrbitalFrame),
@@ -1491,7 +1497,6 @@ DrawSystemTransition (BOOLEAN inner)
 	else
 		DrawOuterSystem ();
 	RedrawQueue (FALSE);
-
 	ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
 	UnbatchGraphics ();
 }
@@ -1922,7 +1927,6 @@ DrawInnerSystem (void)
 	if (optOrbitingPlanets || optTexturedPlanets)
 		DrawInnerPlanets(pSolarSysState->pOrbitalDesc);
 	DrawSISTitle (GLOBAL_SIS (PlanetName));
-	IP_frame(); // MB: To fix planet texture and sun corona 'pop-in'
 }
 
 static void
@@ -1933,7 +1937,6 @@ DrawOuterSystem (void)
 	if (optOrbitingPlanets || optTexturedPlanets)
 		DrawOuterPlanets(pSolarSysState->SunDesc[0].radius);
 	DrawHyperCoords (CurStarDescPtr->star_pt);
-	IP_frame(); // MB: To fix planet texture and sun corona 'pop-in'
 }
 
 RESOURCE
@@ -2674,7 +2677,7 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 	bufsize -= i;
 	moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
 	
-	log_add (log_Debug,"last %02d, i %d", tempbuf[i-1], i);	
+	// log_add (log_Debug,"last %02d, i %d", tempbuf[i-1], i);	
 	// JMS: Prevent printing something like 'planet II-A-A' in summary screen.
 	if (i > 0) {
 		if(tempbuf[i-1] == 'A' || tempbuf[i-1] == 'B' 

@@ -91,6 +91,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed SIS sprite drawing twice during smooth interplanetary transition - Kruzenshtern bug #39
 - Fixed all screen transitions to mimic the PC version when chosen - Kruzenshtern bug #40
 - Fixed Graphics error with Chmmr bomb on SIS status screen - Kruzenshtern bug #41
+- Fixed loading game in solarsys while hovering over planet - Kruzenshtern bug #43
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
