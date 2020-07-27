@@ -333,10 +333,11 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 	COUNT i;
 	COUNT facing;
 	PLANET_DESC *pMoonDesc;
-	DWORD old_seed;
 
-	old_seed = RandomContext_SeedRandom (SysGenRNG, planet->rand_seed);
-
+	RandomContext_SeedRandom (SysGenRNG, planet->rand_seed);
+	
+	facing = NORMALIZE_FACING (ANGLE_TO_FACING (
+			ARCTAN (planet->location.x, planet->location.y)));
 	for (i = 0, pMoonDesc = &system->MoonDesc[0];
 			i < MAX_GEN_MOONS; ++i, ++pMoonDesc)
 	{
@@ -347,13 +348,9 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 		pMoonDesc->temp_color = planet->temp_color;
 	}
 
+	// These are moved down here to satisfy the ComputeSpeed function
 	(*system->genFuncs->generateName) (system, planet);
 	(*system->genFuncs->generateMoons) (system, planet);
-
-	facing = NORMALIZE_FACING (ANGLE_TO_FACING (
-			ARCTAN (planet->location.x, planet->location.y)));
-
-	RandomContext_SeedRandom (SysGenRNG, old_seed);
 }
 
 void
