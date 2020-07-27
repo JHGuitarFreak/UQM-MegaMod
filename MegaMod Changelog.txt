@@ -67,6 +67,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Switch Melnorme and Druuge font over to "MicroFont" so as to match with Vanilla UQM
 - HD: Proper thick borders around stylized text in slides and convos - Elestan
 - Skip Intro now also skips naming Captain/Ship when starting a New Game
+- Aligned the player response text to match the PC-DOS spacing in both Classic and HD
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h

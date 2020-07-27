@@ -530,19 +530,19 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	BatchGraphics ();
 
 	DrawSISComWindow ();
-	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1); // JMS_GFX
+	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1);
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
-		extra_y = (response == pES->top_response ? 0 : IF_HD(22)); // JMS_GFX
+		extra_y = response == pES->top_response ? 0 : 8;
 		
-		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE(8); // JMS_GFX
-		pES->response_list[response].response_text.baseline.y = y + leading + extra_y; // JMS_GFX
+		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_STAT_SCALE(8);
+		pES->response_list[response].response_text.baseline.y = y + leading + IF_HD(extra_y);
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
-			y = add_text (-1, &pES->response_list[response].response_text);
+			y = add_text (-1, &pES->response_list[response].response_text) - RES_SCALE(2);
 		else
-			y = add_text (-2, &pES->response_list[response].response_text);
+			y = add_text (-2, &pES->response_list[response].response_text) - RES_SCALE(2);
 	}
 
 	if (pES->top_response)
