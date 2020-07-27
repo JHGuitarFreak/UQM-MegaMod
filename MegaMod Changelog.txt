@@ -82,6 +82,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed bug in Hard Mode which prevented the player from acquiring the Point Defense Laser module
 - Fixed Shofixti SOI color when viewing the Pre-War Starmap
 - Fixed HyperSpace coordinates displaying incorrectly during conversation - Kruzenshtern bug #33
+- Also draw moon letters in title while in Classic graphics - Kruzenshtern bug #34
 - Fixed Gaia reverting its name to Planet I during Organon quest - Kruzenshtern bug #35
 - Fixed inability to scroll up in zoomed-in StarMap - Kruzenshtern bug #38
 - Fixed SIS sprite drawing twice during smooth interplanetary transition - Kruzenshtern bug #39
