@@ -200,13 +200,13 @@ add_text (int status, TEXT *pTextIn)
 	}
 	else if (GetContextFontLeading (&leading), status <= -4)
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8) - (TEXT_X_OFFS << 2)); // JMS_GFX
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - 8 - (TEXT_X_OFFS << 2)); // JMS_GFX
 
 		pText = pTextIn;
 	}
 	else
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8) - (TEXT_X_OFFS << 2)); // JMS_GFX
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - 8 - (TEXT_X_OFFS << 2)); // JMS_GFX
 
 		switch (status)
 		{
@@ -227,7 +227,7 @@ add_text (int status, TEXT *pTextIn)
 
 		maxchars = pTextIn->CharCount;
 		locText = *pTextIn;
-		locText.baseline.x -= RES_SCALE(8) - 4 * RESOLUTION_FACTOR; // JMS_GFX
+		locText.baseline.x -= RES_SCALE(8); // JMS_GFX
 		locText.CharCount = (COUNT)~0;
 		locText.pStr = STR_BULLET;
 		font_DrawText (&locText);
@@ -536,7 +536,7 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	{
 		extra_y = response == pES->top_response ? 0 : 8;
 		
-		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_STAT_SCALE(8);
+		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE(8);
 		pES->response_list[response].response_text.baseline.y = y + leading + IF_HD(extra_y);
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
@@ -581,7 +581,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		TEXT ct;
 
 		ct.baseline.x = SIS_SCREEN_WIDTH >> 1;
-		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13); // JMS_GFX
+		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_STAT_SCALE(13); // JMS_GFX
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
 
