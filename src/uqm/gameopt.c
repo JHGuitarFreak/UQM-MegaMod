@@ -1340,21 +1340,26 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		GLOBAL (CurrentActivity) |= CHECK_LOAD;
 	}
 
-	if (pickState.success) {
+	if (pickState.success) 
+	{
+		SUMMARY_DESC *pSD = pickState.summary + MenuState.CurState;
+
 #ifdef DEBUG
-		printf(saving ? "Saving > " : "Loading > ");
-		printf("Slot: %d\n", MenuState.CurState);
-		printf("Seed: %d\n", SeedA);
-		printf("Difficulty: %s\n", DIF_STR(DIFFICULTY));
-		printf("Extended: %s\n", EXT_STR(EXTENDED));
-		printf("Nomad: %s\n\n", NOMAD_STR(NOMAD));
+		printf (saving ? "Saving -> " : "Loading -> ");
+		printf ("Slot: %d\n", MenuState.CurState);
+		printf ("Name: %s\n", pSD->SaveName);
+		printf ("Seed: %d\n", SeedA);
+		printf ("Difficulty: %s\n", DIF_STR (DIFFICULTY));
+		printf ("Extended: %s\n", EXT_STR (EXTENDED));
+		printf ("Nomad: %s\n\n", NOMAD_STR (NOMAD));
 #endif
-		log_add(log_Info, saving ? "Saving > " : "Loading > ");
-		log_add(log_Info, "Slot: %d\n", MenuState.CurState);
-		log_add(log_Info, "Seed: %d\n", SeedA);
-		log_add(log_Info, "Difficulty: %s\n", DIF_STR(DIFFICULTY));
-		log_add(log_Info, "Extended: %s\n", EXT_STR(EXTENDED));
-		log_add(log_Info, "Nomad: %s\n\n", NOMAD_STR(NOMAD));
+		log_add (log_Info, saving ? "Saving > " : "Loading > ");
+		log_add (log_Info, "Name: %s\n", pSD->SaveName);
+		log_add (log_Info, "Slot: %d\n", MenuState.CurState);
+		log_add (log_Info, "Seed: %d\n", SeedA);
+		log_add (log_Info, "Difficulty: %s\n", DIF_STR (DIFFICULTY));
+		log_add (log_Info, "Extended: %s\n", EXT_STR (EXTENDED));
+		log_add (log_Info, "Nomad: %s\n\n", NOMAD_STR (NOMAD));
 	}
 
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT) &&
