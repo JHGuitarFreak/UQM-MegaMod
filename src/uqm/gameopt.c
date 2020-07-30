@@ -359,7 +359,7 @@ NameCaptainOrShip (bool nameCaptain, bool gamestart)
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
 
 	if (!gamestart)
-		DrawBorder(nameCaptain ? 6 : 11, false);
+		DrawBorder(nameCaptain ? 6 : 12, false);
 
 	SetFlashRect(nameCaptain ? &captainNameRect : &shipNameRect);
 

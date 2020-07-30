@@ -180,7 +180,7 @@ DrawSlider (void)
 	int offs;
 	static int last_offs = -1;
 
-	if (sliderDisabled)
+	if (sliderDisabled || (!usingSpeech && optSmoothScroll == OPT_PC))
 		return;
 	
 	offs = GetTrackPosition (sliderSpace);

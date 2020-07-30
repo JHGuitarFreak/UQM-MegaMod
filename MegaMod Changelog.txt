@@ -46,6 +46,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added an option to toggle alternate Orz font for untranslated speech
 - New Title/Splash graphics for Classic and HD that mimics Vanilla UQM's graphics
 - New Chmmr and Syreen ambient themes from Volasaurus
+- Remove comm slider if voices are disabled and Scroll Style is "Per-Page"
 
 ### Changed
 - Tightened up Android control isolation across the board

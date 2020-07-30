@@ -482,6 +482,43 @@ getLineWithinWidth(TEXT *pText, const char **startNext,
 	}
 }
 
+void
+DrawCommBorder (RECT r)
+{
+	RECT clipRect;
+	RECT oldClipRect;
+	DWORD test;
+
+	GetContextClipRect (&oldClipRect);
+
+	// Expand the context clip-rect so that we can tweak the existing border
+	clipRect = oldClipRect;
+	clipRect.corner.x -= 1;
+	clipRect.extent.width += 2;
+	SetContextClipRect (&clipRect);
+
+	// Border foreground
+	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+	r.corner.y -= SLIDER_HEIGHT;
+	r.extent.width = clipRect.extent.width;
+	r.extent.height = SLIDER_HEIGHT;
+	DrawFilledRectangle (&r);
+
+	// Border top shadow line
+	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
+	r.extent.height = 1;
+	DrawFilledRectangle (&r);
+
+	// Border bottom shadow line
+	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
+	r.corner.y += SLIDER_HEIGHT - 1;
+	DrawFilledRectangle (&r);
+
+	SetContextClipRect (&oldClipRect);
+
+	DrawBorder (11, FALSE);
+}
+
 static void
 DrawSISComWindow (void)
 {
@@ -499,6 +536,9 @@ DrawSISComWindow (void)
 		r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y;
 		SetContextForeGroundColor (COMM_PLAYER_BACKGROUND_COLOR);
 		DrawFilledRectangle (&r);
+
+		if (!usingSpeech && optSmoothScroll == OPT_PC)
+			DrawCommBorder (r);
 
 		SetContext (OldContext);
 	}

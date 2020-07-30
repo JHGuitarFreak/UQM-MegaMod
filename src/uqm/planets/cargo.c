@@ -152,7 +152,7 @@ DrawCargoDisplay (void)
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, CARGO_BACK_COLOR);
 
-	DrawBorder(12, FALSE);
+	DrawBorder(13, FALSE);
 
 	// draw the "CARGO" title
 	SetContextFont (StarConFont);

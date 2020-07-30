@@ -27,7 +27,7 @@
 #ifdef COMM_INTERNAL
 
 #define SLIDER_Y (RES_SCALE(107) + IF_HD(46)) // JMS_GFX
-#define SLIDER_HEIGHT RES_DBL(15) // JMS_GFX
+#define SLIDER_HEIGHT RES_DBL(!usingSpeech && optSmoothScroll == OPT_PC ? 4 : 15)
 
 #include "commanim.h"
 
