@@ -56,6 +56,7 @@ extern FONT StarConFont;
 extern FONT StarConLgFont;
 extern FONT MicroFont;
 extern FONT TinyFont;
+extern FONT TinyFontSS;
 extern FONT PlyrFont;
 
 extern CondVar RenderingCond;

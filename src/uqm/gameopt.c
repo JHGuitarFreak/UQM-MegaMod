@@ -191,7 +191,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 		if (nameCaptain)
 		{	// Naming the captain
-			Font = TinyFont;
+			Font = TinyFontSS;
 			captainNameRect.corner.x = RES_STAT_SCALE(3) - IF_HD(5);
 			captainNameRect.corner.y = RES_BOOL(10, 32);
 			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_BOOL(2, 0);		// JMS_GFX
@@ -969,7 +969,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 				break;
 		}
 
-		SetContextFont (TinyFont);
+		SetContextFont (TinyFontSS);
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
 		t.CharCount = (COUNT)~0;
@@ -1049,8 +1049,8 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		r.corner.y = RES_SCALE(160 + (i * 13));
 		DrawRectangle(&r, IS_HD);
 
-		t.baseline.x = r.corner.x + RES_BOOL(3, 18);
-		t.baseline.y = r.corner.y + RES_BOOL(8, 29);
+		t.baseline.x = r.corner.x + RES_SCALE(3) + IF_HD(3);
+		t.baseline.y = r.corner.y + RES_SCALE(8) + IF_HD(1);
 		snprintf (buf, sizeof buf, (MAX_SAVED_GAMES > 99) ? "%03u" : "%02u",
 				curSlot);
 		font_DrawText (&t);

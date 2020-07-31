@@ -200,7 +200,7 @@ PrintCoarseScanPC (void)
 	SetContextFont (MicroFont);
 	font_DrawText (&t);
 
-	SetContextFont (RES_BOOL(TinyFont, PlyrFont));
+	SetContextFont (TinyFont);
 
 #define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) // JMS_GFX
 #define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) // JMS_GFX

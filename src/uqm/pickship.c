@@ -166,9 +166,9 @@ ChangeSelection:
 			pMS->CurFrame = (FRAME)hBattleShip;
 
 			SetContextForeGroundColor (BLACK_COLOR);
-			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE(6) - 2*RESOLUTION_FACTOR; // JMS_GFX
-			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE(5) - 2*RESOLUTION_FACTOR; // JMS_GFX
-			r.extent.width = ((ICON_WIDTH + RES_SCALE(4)) * 3) - RES_SCALE(4) + 2*RESOLUTION_FACTOR;  // JMS_GFX
+			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE(6) - IF_HD(4); // JMS_GFX
+			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE(5) - IF_HD(4); // JMS_GFX
+			r.extent.width = ((ICON_WIDTH + RES_SCALE(4)) * 3) - RES_SCALE(4) + IF_HD(4);  // JMS_GFX
 			r.extent.height = RES_SCALE(7); // JMS_GFX
 			DrawFilledRectangle (&r);
 
@@ -183,7 +183,7 @@ ChangeSelection:
 				SetContextFont (TinyFont);
 
 				t.baseline.x = r.corner.x + (r.extent.width >> 1);
-				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(1)) - 2*RESOLUTION_FACTOR; // JMS_GFX
+				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(1)) + IF_HD(1); // JMS_GFX
 				t.align = ALIGN_CENTER;
 
 				StarShipPtr = LockStarShip (&race_q[0], hBattleShip);
@@ -222,7 +222,7 @@ ChangeSelection:
 				SetContextForeGroundColor (BLACK_COLOR);
 			}
 
-			r.extent.width -= 2*RESOLUTION_FACTOR; // JMS_GFX
+			r.extent.width -= IF_HD(4); // JMS_GFX
 			r.corner.x += (ICON_WIDTH + RES_SCALE(4))
 				* ((NUM_PICK_SHIP_COLUMNS >> 1) + 1)
 					+ FLAGSHIP_WIDTH - ICON_WIDTH; // JMS_GFX

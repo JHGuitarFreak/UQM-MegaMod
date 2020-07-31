@@ -278,7 +278,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			TEXT Text;
 			FONT OldFont;
 
-			OldFont = SetContextFont (TinyFont);
+			OldFont = SetContextFont (TinyFontSS);
 
 			if (!StarShipPtr)
 			{	// In Melee menu

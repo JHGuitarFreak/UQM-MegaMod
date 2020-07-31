@@ -257,8 +257,6 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		TEXT t;
 		STRING locString;
 
-		SetContextFont (TinyFont);
-
 		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
 		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - 1;
 		t.align = ALIGN_CENTER;
@@ -327,8 +325,6 @@ GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepa
 	{
 		TEXT t;
 		STRING locString;
-
-		SetContextFont (TinyFont);
 
 		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
 		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - 1;

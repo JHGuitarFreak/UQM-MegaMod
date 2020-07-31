@@ -279,7 +279,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		t.pStr = GLOBAL_SIS (CommanderName);
 		t.CharCount = (COUNT)~0;
 		SetContextForeGroundColor (RES_BOOL(BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02), BLACK_COLOR));
-		SetContextFont (TinyFont);
+		SetContextFont (TinyFontSS);
 		font_DrawText (&t);
 	}
 	if (RDPtr->ship_info.max_crew > MAX_CREW_SIZE ||

@@ -55,7 +55,7 @@ ShowRemainingCapacity (void)
 	UNICODE buf[40];
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFont);
+	SetContextFont (TinyFontSS);
 
 	r.corner.x = RES_STAT_SCALE(40); // JMS_GFX
 	r.corner.y = FREE_ORG_Y;
@@ -164,7 +164,7 @@ DrawCargoDisplay (void)
 	SetContextForeGroundColor (CARGO_SELECTED_AMOUNT_COLOR);
 	font_DrawText (&t);
 
-	SetContextFont (TinyFont);
+	SetContextFont (TinyFontSS);
 
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS * 2) + 3);
@@ -245,7 +245,7 @@ DrawCargoStrings (BYTE OldElement, BYTE NewElement)
 	CONTEXT OldContext;
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFont);
+	SetContextFont (TinyFontSS);
 
 	BatchGraphics ();
 
