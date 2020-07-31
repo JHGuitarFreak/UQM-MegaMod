@@ -175,12 +175,12 @@ static void HazardCase (BYTE hazard) {
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y (RES_SCALE(13) + IF_HD(19))
+#define SCAN_TITLE_Y (RES_SCALE(12) + IF_HD(19))
 
 static void
 PrintCoarseScanPC (void)
 {
-#define SCAN_LEADING_PC RES_SCALE(14) // JMS_GFX
+#define SCAN_LEADING_PC RES_SCALE(10) // JMS_GFX
 	SDWORD val;
 	TEXT t;
 	RECT r;
@@ -202,9 +202,9 @@ PrintCoarseScanPC (void)
 
 	SetContextFont (RES_BOOL(TinyFont, PlyrFont));
 
-#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(5) // JMS_GFX
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(75)) // JMS_GFX
-#define SCAN_BASELINE_Y_PC (RES_SCALE(40) + IF_HD(14)) // JMS_GFX
+#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) // JMS_GFX
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) // JMS_GFX
+#define SCAN_BASELINE_Y_PC (RES_SCALE(51) + IF_HD(14)) // JMS_GFX
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
