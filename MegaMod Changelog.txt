@@ -31,7 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 		* Mycon
 		* Orz
 		* Pkunk
-		* Player
+		* "Player"
 		* Shofixti
 		* Slides (Cinematic Sequences)
 		* Spathi
@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 		* Syreen
 		* Talking Pet
 		* Thraddash
+		* "Tiny"
 		* Ur-Quan
 		* Utwig
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM

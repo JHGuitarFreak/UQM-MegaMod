@@ -16,7 +16,7 @@ Mycon       - Untitled Black            - Freeware (No License)   -> https://www
 Orz         - Kero kero                 - Free for personal use   -> https://www.dafont.com/kero-kero.font
 Pkunk Main  - Kerithing                 - Freeware (No License)   -> https://www.fontspace.com/kerithing-font-f32202
 Pkunk Punct - Nickainley                - CC BY-NC 4.0            -> https://www.behance.net/gallery/24243507/Nickainley-Script-Free-Font
-Player      - Reem Kufi                 - OFL-1.1 License         -> https://github.com/alif-type/reem-kufi
+Player      - Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
 Shofixti    - Luteous Viscous           - Freeware (No License)   -> https://www.fontspace.com/luteous-font-f420
 Slides      - 13/5 Atom Sans (Modded)   - Freeware (No License)   -> https://www.dafont.com/13-5atom-sans.font
 Slylandro   - Camberic                  - Freeware (No License)   -> https://www.ffonts.net/Camberic.font
@@ -25,6 +25,7 @@ Spathi      - Mac Type (Modded)         - Freeware (No License)   -> https://www
 Supox       - START REVOLUTION (Modded) - Free for personal use   -> https://www.fontspace.com/start-revolution-font-f25979
 Syreen      - Oleo Script Swash Caps    - OFL-1.1 License         -> https://www.fontspace.com/oleo-script-swash-caps-font-f17184
 Thraddash   - Oxanium Extra Bold        - OFL-1.1 License         -> https://github.com/sevmeyer/oxanium
+"Tiny" Font - Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
 Title Screen- Federation Hull           - Unknown                 -> https://www.ffonts.net/FederationHull.font
 Umgah       - Obloquy Solid [BRK]       - Freeware (No License)   -> https://www.ffonts.net/Obloquy-Solid-BRK.font
 Ur-Quan     - Basalt                    - CC0 1.0 Universal       -> https://fontstruct.com/fontstructions/show/1551502/basalt
