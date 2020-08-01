@@ -187,9 +187,18 @@ debugKeyPressedSynchronous (void)
 {
 	if (!DebugKeyPressed)
 	{
-		printf("Debug Key Activated\n");
+		printf("Debug Key Activated\n\n");
 		equipShip ();
-		showSpheres ();
+		//showSpheres ();
+		{
+			// Alternative to showSpheres() which allows you to view
+			// the SOI expand for each race
+			BYTE i;
+
+			for(i = 0; i <= BLACK_URQUAN_SHIP; i++)
+				StartSphereTracking(i);
+
+		}
 	}
 
 	forwardToNextEvent (TRUE);

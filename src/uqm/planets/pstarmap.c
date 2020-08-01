@@ -1879,6 +1879,7 @@ DoneSphereMove:
 					{
 						VisibleChange = TRUE;
 						RepairMap (index, &last_r, &r);
+						SleepThread (ONE_SECOND / 10);
 					}
 				} while (delta >= 0);
 				if (VisibleChange || temp_r0.extent.width != temp_r1.extent.width)
