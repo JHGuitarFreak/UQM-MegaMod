@@ -456,13 +456,13 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	r.corner.x = r.extent.width - RES_SCALE(6 * 3); // JMS_GFX
 	r.corner.y = RES_SCALE(2); // JMS_GFX
 	r.extent.width = RES_SCALE(6 * 3); // JMS_GFX
-	r.extent.height = RES_SCALE(7 - 2) + RESOLUTION_FACTOR; // JMS_GFX
+	r.extent.height = RES_SCALE(7 - 2) + IF_HD(4); // JMS_GFX
 	SetContextForeGroundColor (PICK_BG_COLOR);
 	DrawFilledRectangle (&r);
 
 	// Draw the new value text.
 	sprintf (buf, "%d", value);
-	t.baseline.y = RES_SCALE(7);
+	t.baseline.y = RES_SCALE(7) + IF_HD(6);
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
@@ -557,7 +557,7 @@ FillPickMeleeFrame (MeleeSetup *setup)
 		// Total team value of the starting team:
 		sprintf (buf, "%u", MeleeSetup_getFleetValue (setup, sideI));
 		t.baseline.x = RES_SCALE(4);
-		t.baseline.y = RES_SCALE(7);
+		t.baseline.y = RES_SCALE(7) + IF_HD(6);
 		t.align = ALIGN_LEFT;
 		t.pStr = buf;
 		t.CharCount = (COUNT)~0;
