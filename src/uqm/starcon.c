@@ -261,6 +261,9 @@ while (--ac > 0)
 		initEventSystem ();
 		AddInitialGameEvents();
 
+		// Reset Debug Key
+		DebugKeyPressed = FALSE;
+
 		// JMS: Name Captain & Ship at start (not at loading old game).
 		if (LastActivity == (CHECK_LOAD | CHECK_RESTART) && !optSkipIntro){
 			AskNameForCaptainAndShip();

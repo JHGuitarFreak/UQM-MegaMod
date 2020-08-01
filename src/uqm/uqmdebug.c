@@ -41,6 +41,7 @@
 #include <errno.h>
 
 void (* volatile debugHook) (void) = NULL;
+BOOLEAN DebugKeyPressed;
 
 // Move the Flagship to the destination of the autopilot.
 // Should only be called from HyperSpace/QuasiSpace.
@@ -177,16 +178,14 @@ static void dumpPlanetTypeCallback (int index, const PlanetFrame *planet,
 		void *arg);
 
 BOOLEAN disableInteractivity = FALSE;
-BOOLEAN DebugKeyHasBeenPressed = FALSE;
 BOOLEAN EnableDebugEvents = FALSE;
-
 
 // Must be called on the Starcon2Main thread.
 // This function is called synchronously wrt the game logic thread.
 void
 debugKeyPressedSynchronous (void)
 {
-	if (!DebugKeyHasBeenPressed)
+	if (!DebugKeyPressed)
 	{
 		printf("Debug Key Activated\n");
 		equipShip ();
@@ -229,7 +228,7 @@ debugKeyPressedSynchronous (void)
 		debugContexts ();
 	}
 
-	DebugKeyHasBeenPressed = TRUE;
+	DebugKeyPressed = TRUE;
 }
 
 // Can be called on any thread, but usually on main()

@@ -25,6 +25,9 @@
 // Starcon2Main thread, in the main game loop.
 extern void (* volatile debugHook) (void);
 
+// Prevents repeated debug key presses for certain functions
+extern BOOLEAN DebugKeyPressed;
+
 // Move the Flagship to the destination of the autopilot.
 // Should only be called from HS/QS.
 // It can be called from debugHook directly after entering HS/QS though.

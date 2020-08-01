@@ -29,6 +29,7 @@
 #include "setup.h"
 #include "state.h"
 #include "grpintrn.h"
+#include "uqmdebug.h"
 
 #include "libs/tasklib.h"
 #include "libs/log.h"
@@ -874,6 +875,9 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	if (!(NextActivity & START_ENCOUNTER)
 			&& LOBYTE (NextActivity) == IN_INTERPLANETARY)
 		NextActivity |= START_INTERPLANETARY;
+
+	// Reset Debug Key
+	DebugKeyPressed = FALSE;
 
 	return TRUE;
 }
