@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 		* Shofixti
 		* Slides (Cinematic Sequences)
 		* Spathi
+		* Super Melee Menu
 		* Supox
 		* Syreen
 		* Talking Pet
@@ -42,6 +43,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 		* "Tiny"
 		* Ur-Quan
 		* Utwig
+		* Yehat
+		* Zoq-Fot-Pik
 - Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
 - Added an option to toggle the Hazard colors based on severity on/off
 - Added an option to toggle alternate Orz font for untranslated speech

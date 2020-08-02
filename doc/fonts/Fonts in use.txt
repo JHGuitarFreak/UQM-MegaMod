@@ -1,33 +1,40 @@
-Use Case    - Font Name                - License                 -> Website
+Use Case           = Font Name                 - License                 -> Website
 
-Arilou      - Puritan Alt Bold          - Freeware (No License)   -> https://www.dafont.com/puritan-ds.font
-Credits     - OPTICirrus Bold (Modded)  - Defunct                 -> https://www.ffonts.net/OPTICirrus-Bold.font
-Commander   - Reem Kufi                 - OFL-1.1 License         -> https://github.com/alif-type/reem-kufi
-Computer    - DJB Get Digital           - Free for personal use   -> https://www.dafont.com/djb-get-digital.font
-Druuge      - Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
-Kohr-Ah     - Xenopyre                  - CC0 1.0 Universal       -> https://fontstruct.com/fontstructions/show/1598415/xenopyre
-Ilwrath     - Times Old Attic (Modded)  - Free for commercial use -> https://www.1001fonts.com/times-old-attic-font.html
-Lander      - Arizone Unicase (Modded)  - CC0 1.0 Universal       -> https://www.fontspace.com/arizone-unicase-font-f32250
-Main Menu   - OPTICirrus Bold (Modded)  - Defunct                 -> https://www.ffonts.net/OPTICirrus-Bold.font
-MegaMod Logo- Aware Bold                - Freeware (No License)   -> https://www.fontspace.com/aware-font-f43412
-Melnorme    - Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
-MicroFont   - Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
-Mycon       - Untitled Black            - Freeware (No License)   -> https://www.fontspace.com/untitled-black-font-f28082
-Orz         - Kero kero                 - Free for personal use   -> https://www.dafont.com/kero-kero.font
-Pkunk Main  - Kerithing                 - Freeware (No License)   -> https://www.fontspace.com/kerithing-font-f32202
-Pkunk Punct - Nickainley                - CC BY-NC 4.0            -> https://www.behance.net/gallery/24243507/Nickainley-Script-Free-Font
-Player      - Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
-Shofixti    - Luteous Viscous           - Freeware (No License)   -> https://www.fontspace.com/luteous-font-f420
-Slides      - 13/5 Atom Sans (Modded)   - Freeware (No License)   -> https://www.dafont.com/13-5atom-sans.font
-Slylandro   - Camberic                  - Freeware (No License)   -> https://www.ffonts.net/Camberic.font
-Sly-Probe   - ComputerFont              - Freeware (No License)   -> https://www.dafont.com/computerfont.font
-Spathi      - Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
-Supox       - START REVOLUTION (Modded) - Free for personal use   -> https://www.fontspace.com/start-revolution-font-f25979
-Syreen      - Oleo Script Swash Caps    - OFL-1.1 License         -> https://www.fontspace.com/oleo-script-swash-caps-font-f17184
-Thraddash   - Oxanium Extra Bold        - OFL-1.1 License         -> https://github.com/sevmeyer/oxanium
-"Tiny" Font - Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
-Title Screen- Federation Hull           - Unknown                 -> https://www.ffonts.net/FederationHull.font
-Umgah       - Obloquy Solid [BRK]       - Freeware (No License)   -> https://www.ffonts.net/Obloquy-Solid-BRK.font
-Ur-Quan     - Basalt                    - CC0 1.0 Universal       -> https://fontstruct.com/fontstructions/show/1551502/basalt
-Utwig       - Razor Keen                - Custom license          -> https://www.dafont.com/razor-keen.font
-Vux         - Black Chancery            - Public Domain           -> https://www.dafont.com/black-chancery.font
+Arilou             = Puritan Alt Bold          - Freeware (No License)   -> https://www.dafont.com/puritan-ds.font
+Chmmr							 = Chmmr Regular						 - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
+Credits            = OPTICirrus Bold (Modded)  - Defunct                 -> https://www.ffonts.net/OPTICirrus-Bold.font
+Commander          = Reem Kufi                 - OFL-1.1 License         -> https://github.com/alif-type/reem-kufi
+Computer           = DJB Get Digital           - Free for personal use   -> https://www.dafont.com/djb-get-digital.font
+Druuge             = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
+Kohr-Ah            = Xenopyre                  - CC0 1.0 Universal       -> https://fontstruct.com/fontstructions/show/1598415/xenopyre
+Ilwrath            = Times Old Attic (Modded)  - Free for commercial use -> https://www.1001fonts.com/times-old-attic-font.html
+Lander             = Arizone Unicase (Modded)  - CC0 1.0 Universal       -> https://www.fontspace.com/arizone-unicase-font-f32250
+Load/Save Menu     = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
+Main Menu          = OPTICirrus Bold (Modded)  - Defunct                 -> https://www.ffonts.net/OPTICirrus-Bold.font
+MegaMod Logo       = Aware Bold                - Freeware (No License)   -> https://www.fontspace.com/aware-font-f43412
+Melnorme           = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
+MicroFont          = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
+Mycon              = Untitled Black            - Freeware (No License)   -> https://www.fontspace.com/untitled-black-font-f28082
+Orz                = Kero kero                 - Free for personal use   -> https://www.dafont.com/kero-kero.font
+Pkunk Main         = Kerithing                 - Freeware (No License)   -> https://www.fontspace.com/kerithing-font-f32202
+Pkunk Punctuation  = Nickainley                - CC BY-NC 4.0            -> https://www.behance.net/gallery/24243507/Nickainley-Script-Free-Font
+"Player" Font      = Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
+Shofixti           = Luteous Viscous           - Freeware (No License)   -> https://www.fontspace.com/luteous-font-f420
+Slides             = 13/5 Atom Sans (Modded)   - Freeware (No License)   -> https://www.dafont.com/13-5atom-sans.font
+Slylandro          = Camberic                  - Freeware (No License)   -> https://www.ffonts.net/Camberic.font
+Sly-Probe          = ComputerFont              - Freeware (No License)   -> https://www.dafont.com/computerfont.font
+Spathi             = Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
+"StarCon" Font     = StarCon Regular           - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
+Super Melee Menu   = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
+Super Melee Menu   = Trivial                   - Freeware (No License)   -> https://www.cufonfonts.com/font/trivial
+Supox              = START REVOLUTION (Modded) - Free for personal use   -> https://www.fontspace.com/start-revolution-font-f25979
+Syreen             = Oleo Script Swash Caps    - OFL-1.1 License         -> https://www.fontspace.com/oleo-script-swash-caps-font-f17184
+Thraddash          = Oxanium Extra Bold        - OFL-1.1 License         -> https://github.com/sevmeyer/oxanium
+"Tiny" Font        = Mac Type (Modded)         - Freeware (No License)   -> https://www.fontzillion.com/fonts/timour-jgenti/mac-type
+Title Screen       = Federation Hull           - Unknown                 -> https://www.ffonts.net/FederationHull.font
+Umgah              = Obloquy Solid [BRK]       - Freeware (No License)   -> https://www.ffonts.net/Obloquy-Solid-BRK.font
+Ur-Quan            = Basalt                    - CC0 1.0 Universal       -> https://fontstruct.com/fontstructions/show/1551502/basalt
+Utwig              = Razor Keen                - Custom license          -> https://www.dafont.com/razor-keen.font
+Vux                = Black Chancery            - Public Domain           -> https://www.dafont.com/black-chancery.font
+Yehat              = Berenika Bold             - OFL-1.1 License         -> https://fontlibrary.org/en/font/klaudia-and-berenika
+Zoq-Fot-Pik        = Arial Narrow 7 (Modded)   - Freeware (No license)   -> http://www.styleseven.com/php/get_product.php?product=Arial%20Narrow%207
