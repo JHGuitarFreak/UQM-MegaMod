@@ -32,28 +32,6 @@
 extern "C" {
 #endif
 
-	// Difficulty
-#define NORM 0
-#define EASY 1
-#define HARD 2
-#define DIFFICULTY (GLOBAL_SIS(Difficulty) ? GLOBAL_SIS(Difficulty) : NORM)
-#define DIF_CASE(a,b,c) (DIFFICULTY == NORM ? (a) : (DIFFICULTY == EASY ? (b) : (c)))
-#define DIF_NORM (DIFFICULTY == NORM ? true : false)
-#define DIF_EASY (DIFFICULTY == EASY ? true : false)
-#define DIF_HARD (DIFFICULTY == HARD ? true : false)
-#define IF_NORM(a,b) (!DIF_NORM ? (a) : (b))
-#define IF_EASY(a,b) (!DIF_EASY ? (a) : (b))
-#define IF_HARD(a,b) (!DIF_HARD ? (a) : (b))
-#define DIF_STR(a) ((a) == NORM ? "Normal" : ((a) == EASY ? "Easy" : "Hard"))
-
-// Extended
-#define EXTENDED (GLOBAL_SIS(Extended) ? TRUE : FALSE)
-#define EXT_STR(a) ((a) ? "True" : "False")
-
-// Nomad
-#define NOMAD (GLOBAL_SIS(Nomad) ? TRUE : FALSE)
-#define NOMAD_STR(a) ((a) ? "True" : "False")
-
 // general numbers-speech generator info
 // should accomodate most common base-10 languages
 // many languages require various plural forms
@@ -1134,6 +1112,40 @@ BOOLEAN inQuasiSpace (void);
 
 extern BOOLEAN InitGameStructures (void);
 extern void UninitGameStructures (void);
+
+// Difficulty
+#define NORM 0
+#define EASY 1
+#define HARD 2
+#define DIFFICULTY (GLOBAL_SIS(Difficulty) ? GLOBAL_SIS(Difficulty) : NORM)
+#define DIF_CASE(a,b,c) (DIFFICULTY == NORM ? (a) : (DIFFICULTY == EASY ? (b) : (c)))
+#define DIF_NORM (DIFFICULTY == NORM ? true : false)
+#define DIF_EASY (DIFFICULTY == EASY ? true : false)
+#define DIF_HARD (DIFFICULTY == HARD ? true : false)
+#define IF_NORM(a,b) (!DIF_NORM ? (a) : (b))
+#define IF_EASY(a,b) (!DIF_EASY ? (a) : (b))
+#define IF_HARD(a,b) (!DIF_HARD ? (a) : (b))
+#define DIF_STR(a) ((a) == NORM ? "Normal" : ((a) == EASY ? "Easy" : "Hard"))
+
+// Extended
+#define EXTENDED (GLOBAL_SIS(Extended) ? TRUE : FALSE)
+#define EXT_STR(a) ((a) ? "True" : "False")
+
+// Nomad
+#define NOMAD (GLOBAL_SIS(Nomad) ? TRUE : FALSE)
+#define NOMAD_STR(a) ((a) ? "True" : "False")
+
+// Planet Name Units
+#define MET_A_SPATHI (GET_GAME_STATE(KNOW_SPATHI_QUEST) || GET_GAME_STATE(FOUND_PLUTO_SPATHI) || GET_GAME_STATE(SPATHI_VISITS))
+#define MET_AN_UTWIG (GET_GAME_STATE(UTWIG_HAVE_ULTRON) || GET_GAME_STATE(UTWIG_WAR_NEWS))
+
+// Earth Coordinates
+#define EARTH_OUTER_X -725
+#define EARTH_OUTER_Y 597
+
+// Druuge Crew Values
+#define MIN_SOLD DIF_CASE(100, 200, 10)
+#define MAX_SOLD DIF_CASE(250, 500, 25)
 
 #if defined(__cplusplus)
 }
