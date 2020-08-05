@@ -60,10 +60,10 @@
 
 // BW: those do not depend on the resolution because numbers too small
 // cause crashes in the generation and rendering
-#define GENERATE_PLANET_DIAMETER (29 << 2)
-#define GENERATE_MOON_DIAMETER (7 << 2)
-#define GENERATE_PLANET_PERIMETER (GENERATE_PLANET_DIAMETER * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
-#define GENERATE_MOON_PERIMETER (GENERATE_MOON_DIAMETER * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
+#define MOON_DIAMETER (7 << 2)
+#define LARGE_MOON_DIAMETER (11 << 2)
+#define PLANET_DIAMETER (29 << 2)
+#define GENERATE_PERIMETER(a) (a * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
 
 static void AnimateSun (SIZE radius); // JMS
 static BOOLEAN DoIpFlight (SOLARSYS_STATE *pSS);
@@ -231,6 +231,7 @@ static void
 GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 {
 	COUNT i;
+	SIZE MoonDiameter;
 	FRAME SurfFrame;
 	PLANET_DESC *pMoonDesc;
 	PLANET_DESC *previousOrbitalDesc;
@@ -309,9 +310,11 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 							break;
 					}
 				}
-			}
+			}		
 
-			GeneratePlanetSurface (pMoonDesc, SurfFrame, GENERATE_MOON_PERIMETER, GENERATE_MOON_DIAMETER, FALSE);
+			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+			GeneratePlanetSurface (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter, FALSE);
 			pMoonDesc->orbit = pSolarSysState->Orbit;
 			PrepareNextRotationFrame (pMoonDesc, 0, FALSE);
 
@@ -600,7 +603,7 @@ void GenerateTexturedPlanets (void)
 			}
 		}
 		
-		GeneratePlanetSurface (pCurDesc, SurfFrame, GENERATE_PLANET_PERIMETER, GENERATE_PLANET_DIAMETER, FALSE);
+		GeneratePlanetSurface (pCurDesc, SurfFrame, GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER, FALSE);
 		pCurDesc->orbit = pSolarSysState->Orbit;
 		PrepareNextRotationFrame (pCurDesc, 0, FALSE);
 		
@@ -806,7 +809,7 @@ FreeSolarSys (void)
 			Orbit->ScratchArray = NULL;
 			if (Orbit->map_rotate && Orbit->light_diff)
 			{
-				for (j=0 ; j < GENERATE_PLANET_DIAMETER+1 ; j++)
+				for (j=0 ; j < PLANET_DIAMETER+1 ; j++)
 				{
 					HFree (Orbit->map_rotate[j]);
 					HFree (Orbit->light_diff[j]);
@@ -851,7 +854,7 @@ FreeSolarSys (void)
 					Orbit->ScratchArray = NULL;
 					if (Orbit->map_rotate && Orbit->light_diff)
 					{
-						for (j=0 ; j < GENERATE_MOON_DIAMETER+1 ; j++)
+						for (j=0 ; j < MOON_DIAMETER+1 ; j++)
 						{
 							HFree (Orbit->map_rotate[j]);
 							HFree (Orbit->light_diff[j]);
@@ -1078,9 +1081,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		}
 		else if (worldIsMoon (pSolarSysState, planet))
 		{
-			Size = 2; // += 2;
-			// BW: Force moons to size 2 to avoid issues with
-			//     Triton (the one and only large rocky moon)
+			Size += 2;
 		}
 		else if (denom <= (MAX_ZOOM_RADIUS >> 2))
 		{
@@ -1393,7 +1394,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 				HFree (Orbit->ScratchArray);
 				Orbit->ScratchArray = NULL;
 				if (Orbit->map_rotate && Orbit->light_diff) {
-					for (j=0 ; j < GENERATE_MOON_DIAMETER+1 ; j++) {
+					for (j=0 ; j < MOON_DIAMETER+1 ; j++) {
 						HFree (Orbit->map_rotate[j]);
 						HFree (Orbit->light_diff[j]);
 					}
@@ -1657,13 +1658,18 @@ DrawTexturedBody (PLANET_DESC* planet, STAMP s)
 {
 	int oldScale;
 	int oldMode;
+	SIZE moonDiameter;
 	
 	BatchGraphics ();
 	oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
-	if (worldIsMoon(pSolarSysState, planet)) 
-		oldScale = SetGraphicScale (GSCALE_IDENTITY * (optScalePlanets ? RES_SCALE(planet->size) : planet->size) / GENERATE_MOON_DIAMETER); 
+	if (worldIsMoon (pSolarSysState, planet)) 
+	{
+		moonDiameter = planet->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
+		oldScale = SetGraphicScale (GSCALE_IDENTITY * (optScalePlanets ? RES_SCALE(planet->size) : planet->size) / moonDiameter);
+	}
 	else
-		oldScale = SetGraphicScale (GSCALE_IDENTITY * (optScalePlanets ? RES_SCALE(planet->size) : planet->size) / GENERATE_PLANET_DIAMETER); 
+		oldScale = SetGraphicScale (GSCALE_IDENTITY * (optScalePlanets ? RES_SCALE(planet->size) : planet->size) / PLANET_DIAMETER);
+
 	s.frame = planet->orbit.SphereFrame;
 	DrawStamp (&s);
 	if (planet->orbit.ObjectFrame) {
