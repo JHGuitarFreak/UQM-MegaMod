@@ -77,7 +77,7 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 {
 	// Preserve current foreground color for full correctness
 	Color oldfg = SetContextForeGroundColor (trace);
-	BYTE stroke = 4;
+	BYTE stroke = 3;
 	POINT t_baseline = pText->baseline;
 	COORD offset_x, offset_y;
 
