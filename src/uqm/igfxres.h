@@ -23,7 +23,6 @@
 #define CALLISTO_MASK_ANIM "graphics.callistomask"
 #define CANNISTER_MASK_PMAP_ANIM "graphics.lifecan"
 #define CHARON_MASK_ANIM "graphics.charonmask"
-#define CONSTELLATIONS_MASK_PMAP_ANIM "graphics.constellations"
 #define CREDITS_BACK_ANIM "credits.background"
 #define CREW_BIG_MASK_PMAP_ANIM "graphics.crew.large"
 #define CREW_MED_MASK_PMAP_ANIM "graphics.crew.medium"

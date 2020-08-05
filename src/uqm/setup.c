@@ -66,7 +66,6 @@ QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
-FRAME ConstellationsFrame; // JMS
 FRAME hyperspacesuns; // BW
 FRAME NebulaeFrame; // JMS
 FRAME FlagStatFrame;
@@ -305,11 +304,6 @@ InitKernel (void)
 
 	NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
 	if (NebulaeFrame == NULL || !NebulaeFrame)
-		return FALSE;
-		
-	// JMS: Constellation lines for the constellation starmap.
-	ConstellationsFrame = CaptureDrawable (LoadGraphic (CONSTELLATIONS_MASK_PMAP_ANIM));
-	if (ConstellationsFrame == NULL)
 		return FALSE;
 		
 	// JMS: This is a table of mineral values that will be shown on the status bar.

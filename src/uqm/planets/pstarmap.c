@@ -46,9 +46,8 @@
 #include <stdlib.h>
 
 typedef enum {
-	NORMAL_STARMAP		  = 0,
-	PREWAR_STARMAP		  = 1,
-	CONSTELLATION_STARMAP = 2,
+	NORMAL_STARMAP,
+	PREWAR_STARMAP,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -446,7 +445,7 @@ DrawFuelCircles ()
 
 		OldColor = SetContextForeGroundColor(
 			BUILD_COLOR(MAKE_RGB15(0x04, 0x04, 0x05), 0x22));
-		DrawFilledOval(&r);
+		DrawFilledOval (&r);
 		SetContextForeGroundColor(OldColor);
 	}
 }
@@ -540,7 +539,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);
-	if (which_space <= 1 && which_starmap != CONSTELLATION_STARMAP)
+	if (which_space <= 1 && which_starmap != NORMAL_STARMAP)
 	{
 		COUNT index;
 		HFLEETINFO hStarShip, hNextShip;
@@ -699,20 +698,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		++SDPtr;
 	} while (SDPtr->star_pt.x <= MAX_X_UNIVERSE
 			&& SDPtr->star_pt.y <= MAX_Y_UNIVERSE);	
-
-	// JMS: This draws the constellation lines on the constellation starmap.
-	if (which_space <= 1 && which_starmap == CONSTELLATION_STARMAP)
-	{
-		s.frame = SetAbsFrameIndex (ConstellationsFrame, 0);
-		DrawStamp (&s);
-		
-		// JMS: If we have a separate frame containing the constellation names, display it.
-		if (GetFrameCount(ConstellationsFrame) > 1)
-		{
-			s.frame = IncFrameIndex (s.frame);
-			DrawStamp (&s);
-		}
-	}
 
 	if (GET_GAME_STATE (ARILOU_SPACE))
 	{
@@ -910,12 +895,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	STAR_DESC *BestSDPtr;
 
 	// JMS: Display star map title.
-	if (which_starmap == CONSTELLATION_STARMAP)
-	{	
-		// "- Known constellations -"
-		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 4));
-	}
-	else if (which_starmap == PREWAR_STARMAP)
+	if (which_starmap == PREWAR_STARMAP)
 	{	
 		// "- Old map from 2135 -"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 3));
