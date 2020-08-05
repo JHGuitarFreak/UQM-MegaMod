@@ -278,7 +278,8 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	if (WaitMode)
 	{
-		ZoomInPlanetSphere ();
+		if (optIPScaler == OPT_3DO)
+			ZoomInPlanetSphere ();
 		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE);
 	}
 	else
