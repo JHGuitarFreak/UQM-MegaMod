@@ -327,34 +327,32 @@ TFB_SDL2_UploadTransitionScreen (void)
 static void
 TFB_SDL2_UpdateTexture (SDL_Texture *dest, SDL_Surface *src, SDL_Rect *rect)
 {
-	void *pixels = NULL;
-	int pitch = 0;
+	char *srcBytes;
 	SDL_LockSurface (src);
-	if (!SDL_LockTexture (dest, rect, &pixels, &pitch))
+	srcBytes = src->pixels;
+
+	if (rect)
 	{
-		char *srcBytes, *destBytes;
-		int row, rowsize;
-		SDL_Rect backup, *r = rect;
-		if (!r)
-		{
-			/* No rectangle specified, use entire surface */
-			backup.x = backup.y = 0;
-			backup.w = src->w;
-			backup.h = src->h;
-			r = &backup;
-		}
 		/* SDL2 screen surfaces are always 32bpp */
-		srcBytes = (char *)src->pixels + (src->pitch * r->y) + (r->x * 4);
-		destBytes = pixels;
-		rowsize = r->w * 4;
-		for (row = 0; row < r->h; ++row)
-		{
-			memcpy (destBytes, srcBytes, rowsize);
-			destBytes += pitch;
-			srcBytes += src->pitch;
-		}
-		SDL_UnlockTexture (dest);
+		srcBytes += (src->pitch * rect->y) + (rect->x * 4);
 	}
+	/* 2020-08-02: At time of writing, the documentation for
+	 * SDL_UpdateTexture states this: "If the texture is intended to be
+	 * updated often, it is preferred to create the texture as streaming
+	 * and use [SDL_LockTexture and SDL_UnlockTexture]." Unfortunately,
+	 * SDL_LockTexture will corrupt driver-space memory in the 32-bit
+	 * Direct3D 9 driver on Intel Integrated graphics chips, resulting
+	 * in an immediate crash with no detectable errors from the API up
+	 * to that point.
+	 *
+	 * We also cannot simply forbid the Direct3D driver outright, because
+	 * pre-Windows 10 machines appear to fail to initialize D3D11 even
+	 * while claiming to support it.
+	 *
+	 * These bugs may be fixed in the future, but in the meantime we
+	 * rely on this allegedly slower but definitely more reliable
+	 * function. */
+	SDL_UpdateTexture (dest, rect, srcBytes, src->pitch);
 	SDL_UnlockSurface (src);
 }
 
