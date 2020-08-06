@@ -1611,10 +1611,10 @@ DoMoveCursor (MENU_STATE *pMS)
 		ZoomStarMap (ZoomIn - ZoomOut);
 
 		sx = sy = 0;
-		if (PulsedInputState.menu[KEY_MENU_LEFT])    sx = RES_STAT_SCALE(-1);
-		if (PulsedInputState.menu[KEY_MENU_RIGHT])   sx = RES_STAT_SCALE(1);
-		if (PulsedInputState.menu[KEY_MENU_UP])      sy = RES_STAT_SCALE(-1);
-		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = RES_STAT_SCALE(1);
+		if (PulsedInputState.menu[KEY_MENU_LEFT])    sx = -RES_SCALE(1);
+		if (PulsedInputState.menu[KEY_MENU_RIGHT])   sx = RES_SCALE(1);
+		if (PulsedInputState.menu[KEY_MENU_UP])      sy = -RES_SCALE(1);
+		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = RES_SCALE(1);
 
 		if (sx != 0 || sy != 0)
 		{

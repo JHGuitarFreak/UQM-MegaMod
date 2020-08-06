@@ -36,7 +36,7 @@
 #include "libs/input/sdl/vcontrol.h"
 #include "setup.h"
 
-#define ACCELERATION_INCREMENT (ONE_SECOND / RES_DBL(12))
+#define ACCELERATION_INCREMENT (ONE_SECOND / RES_SCALE(12))
 #define MENU_REPEAT_DELAY (ONE_SECOND / 3)
 
 typedef struct
