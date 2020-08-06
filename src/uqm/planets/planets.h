@@ -233,7 +233,7 @@ struct solarsys_state
 			// Description of the planets in the system.
 			// Only defined after a call to (*genFuncs)->generatePlanets()
 			// and overwritten by subsequent calls.
-	PLANET_DESC MoonDesc[MAX_MOONS];
+	PLANET_DESC MoonDesc[MAX_GEN_MOONS];
 			// Description of the moons orbiting the planet pointed to
 			// by pBaseDesc.
 			// Only defined after a call to (*genFuncs)->generateMoons()

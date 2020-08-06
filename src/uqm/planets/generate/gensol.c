@@ -265,7 +265,7 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 			if (solTexturesPresent)
 				solarSys->MoonDesc[0].alternate_colormap = TITAN_COLOR_TAB;
 			/*solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS
-					+ (MAX_MOONS - 1) * MOON_DELTA;*/
+					+ (MAX_GEN_MOONS - 1) * MOON_DELTA;*/
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 15.95;
 					/* Titan */
 			break;
