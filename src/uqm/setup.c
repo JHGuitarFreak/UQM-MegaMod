@@ -157,6 +157,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		}
 		loadAddon ("yellow-fried-hd");
 		loadAddon ("orange-peel-melnorme");
+		loadAddon ("classic-hd-fonts");
 	}
 
 	loadAddon ("ProfanePkunk");
@@ -170,7 +171,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("rmx-utwig");
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
-		if(loadAddon ("SyreenVoiceFix")){
+		if (loadAddon ("SyreenVoiceFix")){
 			SyreenVoiceFix = TRUE;
 		}
 	}
