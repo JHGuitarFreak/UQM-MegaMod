@@ -89,7 +89,7 @@ copy_strings_to_strtab (STRING_TABLE_DESC *strtab, size_t firstIndex,
 // returns FALSE if and only if the buffer needs to be enlarged but
 // memory allocation failed.
 static BOOLEAN
-ensureBufSize (char **buf, DWORD *curSize, DWORD minSize, DWORD increment)
+ensureBufSize (char **buf, size_t *curSize, size_t minSize, size_t increment)
 {
 	char *newBuf;
 	size_t newSize;

@@ -34,5 +34,3 @@ extern COUNT square_root (DWORD value);
 #endif
 
 #endif /* LIBS_MATHLIB_H_ */
-
-

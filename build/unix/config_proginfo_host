@@ -170,7 +170,7 @@ case "$HOST_SYSTEM" in
 		;;
 	*)
 		LIB_opengl_CFLAGS=""
-		LIB_opengl_LDFLAGS="-lGL -lm"
+		LIB_opengl_LDFLAGS="-lGL"
 		;;
 esac
 LIB_opengl_VERSION=""
@@ -284,6 +284,7 @@ case "$HOST_SYSTEM" in
 		LIB_zlib_DEPEND_DETECT_BIN="pkgconfig"
 		;;
 esac
+
 
 
 ### pthread ###

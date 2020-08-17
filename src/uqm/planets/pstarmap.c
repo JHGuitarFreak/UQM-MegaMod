@@ -782,7 +782,7 @@ EraseCursor (COORD curs_x, COORD curs_y)
 static void
 ZoomStarMap (SIZE dir)
 {
-#define MAX_ZOOM_SHIFT (BYTE)(4 - RESOLUTION_FACTOR)
+#define MAX_ZOOM_SHIFT 4
 	if (dir > 0)
 	{
 		if (zoomLevel < MAX_ZOOM_SHIFT)
@@ -861,7 +861,7 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 
 		s.origin.y = UNIVERSE_TO_DISPY (cursorLoc.y);
-		if (s.origin.y < 0 && zoomLevel == 0) {
+		if (IS_HD && s.origin.y < 0 && zoomLevel == 0) {
 			s.origin.y = 0;
 			cursorLoc.y = DISP_TO_UNIVERSEY (0);
 		}
@@ -1564,8 +1564,8 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
 	{
-		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1) {	
-			// HyperSpace search
+		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+		{	// HyperSpace search
 			POINT oldpt = cursorLoc;
 
 			if (!DoStarSearch (pMS))
@@ -1580,8 +1580,9 @@ DoMoveCursor (MENU_STATE *pMS)
 			SetMenuRepeatDelay (MIN_ACCEL_DELAY, MAX_ACCEL_DELAY,
 					STEP_ACCEL_DELAY, TRUE);
 			SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
-		} else {
-			// no search in QuasiSpace or Hard Mode
+		}
+		else
+		{	// no search in QuasiSpace
 			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}

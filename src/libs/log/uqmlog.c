@@ -292,7 +292,7 @@ displayLog (bool isError)
 
 	if (isError)
 	{
-		strcpy (p, "The Ur-Quan Masters encountered a fatal error.\n\n"
+		strcpy (p, "The Ur-Quan Masters MegaMod encountered a fatal error.\n\n"
 				"Part of the log follows:\n\n");
 		len = strlen (p);
 		p += len;

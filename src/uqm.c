@@ -418,7 +418,7 @@ main (int argc, char *argv[])
 
 	if (options.runMode == runMode_version)
 	{
- 		printf ("%d.%d.%f %s\n", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
+ 		printf ("%d.%d.%g %s\n", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 		log_showBox (false, false);
 		return EXIT_SUCCESS;
@@ -1484,7 +1484,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					badArg = true;
 					break;
 				} else if (!SANE_SEED (temp)) {
-					saveError ("\nCustom Seed can not be less than 2 or greater than 2147483645.\n");
+					saveError ("\nCustom Seed can not be less than %d or greater than %d.\n", MIN_SEED, MAX_SEED);
 					badArg = true;
 				} else {
 					options->customSeed.value = temp;
@@ -1888,4 +1888,3 @@ boolNotOptString (const struct bool_option *option)
 {
 	return option->value ? "off" : "on";
 }
-

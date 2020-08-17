@@ -106,6 +106,7 @@ FindBestRenderDriver (void)
 	}
 	n = SDL_GetNumRenderDrivers ();
 	log_add (log_Info, "Searching for render driver \"%s\".", rendererBackend);
+
 	for (i = 0; i < n; i++) {
 		SDL_RendererInfo info;
 		if (SDL_GetRenderDriverInfo (i, &info) < 0) {
@@ -141,8 +142,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 				width, height, 0);
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
-			// If this is simply passed as a flag to SDL_CreateWindow,
-			// the window will have no icon if and when it becomes windowed.
+			/* If we create the window fullscreen, it will have
+			 * no icon if and when it becomes windowed. */
 			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		}
 		if (!window) 
@@ -308,10 +309,12 @@ TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
 void
 TFB_Pure_UninitGraphics (void)
 {
-	int i;
-
-	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
-		UnInit_Screen (&SDL2_Screens[i].scaled);
+	if (renderer) {
+		SDL_DestroyRenderer (renderer);
+	}
+	if (window) {
+		SDL_DestroyWindow (window);
+	}
 }
 
 static void
@@ -330,7 +333,6 @@ TFB_SDL2_UpdateTexture (SDL_Texture *dest, SDL_Surface *src, SDL_Rect *rect)
 	char *srcBytes;
 	SDL_LockSurface (src);
 	srcBytes = src->pixels;
-
 	if (rect)
 	{
 		/* SDL2 screen surfaces are always 32bpp */

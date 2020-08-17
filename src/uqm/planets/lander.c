@@ -633,10 +633,13 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 
 	while ((ch = *pStr++) && ch != ' ')
 		;
-	if (ch == '\0') {
+	if (ch == '\0')
+	{
 		pPSD->MineralText[1].CharCount = (COUNT)~0;
 		pPSD->MineralText[2].CharCount = 0;
-	} else {  /* ch == ' ' */
+	}
+	else  /* ch == ' ' */
+	{
 		// Name contains a space. Print over
 		// two lines.
 		pPSD->MineralText[1].CharCount = utf8StringCountN(
@@ -1753,7 +1756,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48)); // JMS
 
 				angle = FACING_TO_ANGLE (index);
 				landerSpeedNumer = GET_GAME_STATE (IMPROVED_LANDER_SPEED) ?
-					WORLD_TO_VELOCITY (RES_SCALE(2 * 16)) :
+					WORLD_TO_VELOCITY (RES_SCALE(2 * 14)) :
 					WORLD_TO_VELOCITY (RES_SCALE(2 * 8));
 
 #ifdef FAST_FAST
