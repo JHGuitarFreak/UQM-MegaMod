@@ -539,7 +539,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);
-	if (which_space <= 1 && which_starmap != NORMAL_STARMAP)
+	if (which_space <= 1)
 	{
 		COUNT index;
 		HFLEETINFO hStarShip, hNextShip;
