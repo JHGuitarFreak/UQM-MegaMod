@@ -100,6 +100,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed Graphics error with Chmmr bomb on SIS status screen - Kruzenshtern bug #41
 - Fixed loading game in solarsys while hovering over planet - Kruzenshtern bug #43
 - Fixed moon size when moon is a large rocky world
+- Druuge AI doesn't thrust during Melee in HD - Kruzenshtern bug #51
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD

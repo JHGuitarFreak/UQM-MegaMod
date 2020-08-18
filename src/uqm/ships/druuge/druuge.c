@@ -212,7 +212,7 @@ druuge_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	if (StarShipPtr->cur_status_flags & SHIP_BEYOND_MAX_SPEED)
 		lpEvalDesc->MoveState = ENTICE;
 	else if (lpEvalDesc->ObjectPtr
-			&& lpEvalDesc->which_turn <= WORLD_TO_TURN (MISSILE_RANGE * 3 / 4))
+			&& lpEvalDesc->which_turn <= RES_DESCALE (WORLD_TO_TURN (RES_SCALE (MISSILE_RANGE) * 3 / 4)))
 	{
 		GetElementStarShip (lpEvalDesc->ObjectPtr, &EnemyStarShipPtr);
 		ship_flags = EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags;
