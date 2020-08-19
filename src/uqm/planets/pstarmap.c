@@ -1694,6 +1694,7 @@ UpdateMap (void)
 	BOOLEAN MapDrawn, Interrupted;
 	COUNT index;
 	HFLEETINFO hStarShip, hNextShip;
+	COUNT GrowthFactor;
 
 	FlushInput ();
 	ButtonState = 1; /* assume a button down */
@@ -1840,6 +1841,8 @@ DoneSphereMove:
 
 				// printf("%s: %d\n", raceName (index), FleetPtr->actual_strength);
 
+				GrowthFactor = delta > 0 ? FleetPtr->actual_strength : FleetPtr->known_strength;
+
 				do
 				{
 					do
@@ -1868,7 +1871,7 @@ DoneSphereMove:
 					{
 						VisibleChange = TRUE;
 						RepairMap (index, &last_r, &r);
-						SleepThread (ONE_SECOND / 12);
+						SleepThread (ONE_SECOND / (12 + GrowthFactor / 44));
 					}
 				} while (delta >= 0);
 				if (VisibleChange || temp_r0.extent.width != temp_r1.extent.width)
