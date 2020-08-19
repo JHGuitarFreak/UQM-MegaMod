@@ -138,7 +138,7 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 				case POINT_PRIM:
 					color = GetPrimColor (lpWorkPrim);
 					TFB_Prim_Point (&lpWorkPrim->Object.Point, color,
-							mode, origin);
+							mode, origin, FALSE);
 					break;
 				case STAMP_PRIM:
 					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin);
@@ -169,6 +169,11 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 					TFB_Prim_FillRect (&lpWorkPrim->Object.Rect, color,
 							mode, origin);
 					break;
+				case POINT_PRIM_HD:
+					color = GetPrimColor (lpWorkPrim);
+					TFB_Prim_Point (&lpWorkPrim->Object.Point, color,
+							mode, origin, TRUE);
+					break;
 			}
 		}
 
@@ -196,7 +201,7 @@ DrawPoint (POINT *lpPoint)
 	{
 		Color color = GetPrimColor (&_locPrim);
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_Point (lpPoint, color, mode, origin);
+		TFB_Prim_Point (lpPoint, color, mode, origin, FALSE);
 	}
 }
 

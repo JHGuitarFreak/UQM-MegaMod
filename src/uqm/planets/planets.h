@@ -318,7 +318,7 @@ extern void FreeLanderFont (PLANET_INFO *info);
 extern void ExploreSolarSys (void);
 extern void DrawStarBackGround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
-extern void DrawOval (RECT *pRect, BYTE num_off_pixels);
+extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
 extern void DrawFilledOval (RECT *pRect);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val);
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,

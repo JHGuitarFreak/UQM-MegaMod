@@ -26,7 +26,7 @@
 #define NUM_QUADS 4
 
 void
-DrawOval (RECT *pRect, BYTE num_off_pixels)
+DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 {
 #define FIRST_QUAD (1 << 0)
 #define SECOND_QUAD (1 << 1)
@@ -133,7 +133,7 @@ DrawOval (RECT *pRect, BYTE num_off_pixels)
 		if (quad_visible & (1 << x))
 		{
 			SetPrimNextLink (&prim[x], StartPrim);
-			SetPrimType (&prim[x], POINT_PRIM); // Orbit dots
+			SetPrimType (&prim[x], !scaled ? POINT_PRIM : POINT_PRIM_HD); // Orbit dots
 			SetPrimColor (&prim[x], _get_context_fg_color ());
 
 			StartPrim = x;

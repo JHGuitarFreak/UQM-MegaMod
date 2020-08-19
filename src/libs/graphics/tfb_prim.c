@@ -29,14 +29,14 @@
 #include "libs/log.h"
 
 void
-TFB_Prim_Point (POINT *p, Color color, DrawMode mode, POINT ctxOrigin)
+TFB_Prim_Point (POINT *p, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN scaled)
 {
 	RECT r;
 
 	// The caller must scale the origin!
 	r.corner.x = p->x + ctxOrigin.x;
 	r.corner.y = p->y + ctxOrigin.y;
-	r.extent.width = r.extent.height = 1;
+	r.extent.width = r.extent.height = !scaled ? 1 : 3;
 
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 		TFB_DrawScreen_Rect (&r, color, mode, TFB_SCREEN_MAIN);

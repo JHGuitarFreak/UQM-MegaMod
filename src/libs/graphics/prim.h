@@ -25,6 +25,7 @@ enum gfx_object
 	TEXT_PRIM,
 	RECT_PRIM,
 	RECTFILL_PRIM,
+	POINT_PRIM_HD,
 
 	NUM_PRIMS
 };

@@ -1152,7 +1152,7 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, RES_SCALE(1)); // Scale the orbit dot spacing to make it more visually pleasing
+	DrawOval (&r, RES_SCALE(1), FALSE); // Scale the orbit dot spacing to make it more visually pleasing
 }
 
 static SIZE
