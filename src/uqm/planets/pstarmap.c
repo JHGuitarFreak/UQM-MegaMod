@@ -1805,7 +1805,7 @@ UpdateMap (void)
 					{
 						VisibleChange = TRUE;
 						RepairMap (index, &last_r, &r);
-						SleepThread (ONE_SECOND / 10);
+						SleepThread (ONE_SECOND / 24);
 					}
 				} while (delta >= 0);
 				if (VisibleChange)
@@ -1865,7 +1865,7 @@ DoneSphereMove:
 					{
 						VisibleChange = TRUE;
 						RepairMap (index, &last_r, &r);
-						SleepThread (ONE_SECOND / 10);
+						SleepThread (ONE_SECOND / 12);
 					}
 				} while (delta >= 0);
 				if (VisibleChange || temp_r0.extent.width != temp_r1.extent.width)

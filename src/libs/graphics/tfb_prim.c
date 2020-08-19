@@ -49,7 +49,7 @@ TFB_Prim_Rect (RECT *r, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN sca
 {
 	RECT arm;
 	int gscale;
-	BYTE scale = scaled ? 4 : 1;
+	BYTE scale = !scaled ? 1 : 4;
 
 	// XXX: Rect prim scaling is currently unused
 	//   We scale the rect size just to be consistent with stamp prim,
