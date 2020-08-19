@@ -1798,8 +1798,8 @@ UpdateMap (void)
 						goto DoneSphereMove;
 					}
 
-					++r.extent.width;
-					++r.extent.height;
+					r.extent.width += RES_BOOL (1, 5);
+					r.extent.height += RES_BOOL (1, 5);
 					if (temp_r0.corner.x != temp_r1.corner.x
 							|| temp_r0.corner.y != temp_r1.corner.y)
 					{
@@ -1859,8 +1859,8 @@ DoneSphereMove:
 						MapDrawn = TRUE;
 						goto DoneSphereGrowth;
 					}
-					++r.extent.width;
-					++r.extent.height;
+					r.extent.width += RES_SCALE (1);
+					r.extent.height += RES_SCALE (1);
 					if (temp_r0.extent.height != temp_r1.extent.height)
 					{
 						VisibleChange = TRUE;
