@@ -1837,6 +1837,9 @@ DoneSphereMove:
 				++last_r.extent.width;
 				++last_r.extent.height;
 				VisibleChange = FALSE;
+
+				// printf("%s: %d\n", raceName (index), FleetPtr->actual_strength);
+
 				do
 				{
 					do

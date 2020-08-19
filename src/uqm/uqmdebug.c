@@ -368,6 +368,60 @@ eventName (BYTE func_index)
 	}
 }
 
+const char*
+raceName (BYTE func_index)
+{
+	switch (func_index) {
+		case ARILOU_ID:
+			return "Arilou Lalee'lay";
+		case CHMMR_ID:
+			return "Chmmr";
+		case EARTHLING_ID:
+			return "Human";
+		case ORZ_ID:
+			return "Orz";
+		case PKUNK_ID:
+			return "Pkunk";
+		case SHOFIXTI_ID:
+			return "Shofixti";
+		case SPATHI_ID:
+			return "Spathi";
+		case SUPOX_ID:
+			return "Supox";
+		case THRADDASH_ID:
+			return "Thraddash";
+		case UTWIG_ID:
+			return "Utwig";
+		case VUX_ID:
+			return "Vux";
+		case YEHAT_ID:
+			return "Yehat";
+		case MELNORME_ID:
+			return "Melnorme";
+		case DRUUGE_ID:
+			return "Druuge";
+		case ILWRATH_ID:
+			return "Ilwrath";
+		case MYCON_ID:
+			return "Mycon";
+		case SLYLANDRO_ID:
+			return "Slylandro";
+		case UMGAH_ID:
+			return "Umgah";
+		case UR_QUAN_ID:
+			return "Ur-Quan";
+		case ZOQFOTPIK_ID:
+			return "Zoq-Fot-Pik";
+		case SYREEN_ID:
+			return "Syreen";
+		case KOHR_AH_ID:
+			return "Kohr-Ah";
+		default:
+			// Should not happen
+			return "???";
+	}
+}
+
 static void
 dumpEventCallback (const EVENT *eventPtr, void *arg)
 {

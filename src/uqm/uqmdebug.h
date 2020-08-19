@@ -65,6 +65,8 @@ void dumpEvents (FILE *out);
 void dumpEvent (FILE *out, const EVENT *eventPtr);
 // Get the name of one event.
 const char *eventName (BYTE func_index);
+// Get the name of one race.
+const char *raceName (BYTE func_index);
 
 // Give the flagship a decent equipment for debugging.
 void equipShip (void);
