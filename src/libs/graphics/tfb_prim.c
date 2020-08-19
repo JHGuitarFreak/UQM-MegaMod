@@ -27,8 +27,6 @@
 #include "tfb_prim.h"
 #include "cmap.h"
 #include "libs/log.h"
-#include "uqm/units.h"
-#include "uqm/planets/planets.h"
 
 void
 TFB_Prim_Point (POINT *p, Color color, DrawMode mode, POINT ctxOrigin)
@@ -51,6 +49,7 @@ TFB_Prim_Rect (RECT *r, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN sca
 {
 	RECT arm;
 	int gscale;
+	BYTE scale = scaled ? 4 : 1;
 
 	// XXX: Rect prim scaling is currently unused
 	//   We scale the rect size just to be consistent with stamp prim,
@@ -58,20 +57,20 @@ TFB_Prim_Rect (RECT *r, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN sca
 	gscale = GetGraphicScale ();
 	arm = *r;
 	arm.extent.width = r->extent.width;
-	arm.extent.height = scaled ? RES_SCALE(1) : 1;
+	arm.extent.height = scale;
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 	arm.extent.height = r->extent.height;
-	arm.extent.width = scaled ? RES_SCALE(1) : 1;
+	arm.extent.width = scale;
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 	// rounding error correction here
 	arm.corner.x += ((r->extent.width * gscale + (GSCALE_IDENTITY >> 1))
-			/ GSCALE_IDENTITY) - (scaled ? RES_SCALE(1) : 1);
+			/ GSCALE_IDENTITY) - scale;
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 	arm.corner.x = r->corner.x;
 	arm.corner.y += ((r->extent.height * gscale + (GSCALE_IDENTITY >> 1))
-			/ GSCALE_IDENTITY) - (scaled ? RES_SCALE(1) : 1);
+			/ GSCALE_IDENTITY) - scale;
 	arm.extent.width = r->extent.width;
-	arm.extent.height = scaled ? RES_SCALE(1) : 1;
+	arm.extent.height = scale;
 	TFB_Prim_FillRect (&arm, color, mode, ctxOrigin);
 }
 
