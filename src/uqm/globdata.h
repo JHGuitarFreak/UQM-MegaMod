@@ -1128,16 +1128,19 @@ extern void UninitGameStructures (void);
 #define DIF_STR(a) ((a) == NORM ? "Normal" : ((a) == EASY ? "Easy" : "Hard"))
 
 // Extended
-#define EXTENDED (GLOBAL_SIS(Extended) ? TRUE : FALSE)
+#define EXTENDED (GLOBAL_SIS (Extended) ? TRUE : FALSE)
 #define EXT_STR(a) ((a) ? "True" : "False")
 
 // Nomad
-#define NOMAD (GLOBAL_SIS(Nomad) ? TRUE : FALSE)
+#define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
 #define NOMAD_STR(a) ((a) ? "True" : "False")
 
 // Planet Name Units
-#define MET_A_SPATHI (GET_GAME_STATE(KNOW_SPATHI_QUEST) || GET_GAME_STATE(FOUND_PLUTO_SPATHI) || GET_GAME_STATE(SPATHI_VISITS))
-#define MET_AN_UTWIG (GET_GAME_STATE(UTWIG_HAVE_ULTRON) || GET_GAME_STATE(UTWIG_WAR_NEWS))
+#define MET_A_SPATHI (GET_GAME_STATE (KNOW_SPATHI_QUEST) || GET_GAME_STATE (FOUND_PLUTO_SPATHI) || GET_GAME_STATE (SPATHI_VISITS))
+#define MET_AN_UTWIG (GET_GAME_STATE (UTWIG_HAVE_ULTRON) || GET_GAME_STATE (UTWIG_WAR_NEWS))
+#define MET_A_DRUUGE ((!GET_GAME_STATE (DRUUGE_MANNER) && (GET_GAME_STATE (DRUUGE_VISITS) >= 1)) \
+						|| CheckSphereTracking (DRUUGE_SHIP) \
+						|| (GET_GAME_STATE (DRUUGE_HOME_VISITS) >= 1))
 
 // Earth Coordinates
 #define EARTH_OUTER_X -725

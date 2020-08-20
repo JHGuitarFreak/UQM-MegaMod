@@ -28,7 +28,7 @@
 
 static bool GenerateColony_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys);
-static bool GenerateColony_generateName(const SOLARSYS_STATE *,
+static bool GenerateColony_generateName (const SOLARSYS_STATE *,
 	const PLANET_DESC *world);
 static bool GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
@@ -95,9 +95,8 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);	
@@ -105,31 +104,34 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD | PLANET_SHIELDED;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2] | PLANET_SHIELDED;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-	} else {
+	}
+	else
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 115L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x = COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed(&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
 
 	return true;
 }
 
 static bool
-GenerateColony_generateName(const SOLARSYS_STATE *solarSys,
+GenerateColony_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (EXTENDED && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)),
-			GAME_STRING(PLANET_NUMBER_BASE + 33));
-		SET_GAME_STATE(BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+			GAME_STRING (PLANET_NUMBER_BASE + 33));
+		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
 	} else
-		GenerateDefault_generateName(solarSys, world);
+		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }
@@ -141,7 +143,8 @@ GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	{
 		DoPlanetaryAnalysis (&solarSys->SysInfo, world);
 
-		if(PrimeSeed){
+		if (PrimeSeed)
+		{
 			solarSys->SysInfo.PlanetInfo.AtmoDensity =
 					EARTH_ATMOSPHERE * 98 / 100;
 			solarSys->SysInfo.PlanetInfo.Weather = 0;

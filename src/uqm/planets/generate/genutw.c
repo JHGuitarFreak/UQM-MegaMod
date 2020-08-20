@@ -34,7 +34,7 @@
 
 static bool GenerateUtwig_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys);
-static bool GenerateUtwig_generateName(const SOLARSYS_STATE *,
+static bool GenerateUtwig_generateName (const SOLARSYS_STATE *,
 	const PLANET_DESC *world);
 static bool GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
@@ -89,12 +89,12 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
-	if (CurStarDescPtr->Index == UTWIG_DEFINED) {
+	if (CurStarDescPtr->Index == UTWIG_DEFINED)
+	{
 		solarSys->SunDesc[0].PlanetByte = 0;
 
-		if(!PrimeSeed){
+		if (!PrimeSeed)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		}
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 		GeneratePlanets (solarSys);
@@ -103,7 +103,8 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
-		if(PrimeSeed){
+		if(PrimeSeed)
+		{
 			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 174L / 100;
 			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
 					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
@@ -111,24 +112,28 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
 					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed(&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
-		} else {			
+			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		}
+		else
+		{			
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		}
-	} else if (CurStarDescPtr->Index == BOMB_DEFINED) {		
+	} 
+	else if (CurStarDescPtr->Index == BOMB_DEFINED) 
+	{		
 		solarSys->SunDesc[0].PlanetByte = 5;		
 		solarSys->SunDesc[0].MoonByte = 1;
 
-		if(!PrimeSeed){
+		if (!PrimeSeed)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 6) + 6);
-		}
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 		GeneratePlanets (solarSys);
 
-		if(!PrimeSeed){		
+		if (!PrimeSeed)
+		{		
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random (SysGenRNG) % (YEL_GAS_GIANT - BLU_GAS_GIANT) + BLU_GAS_GIANT);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (4 - 2) + 2);
 		}		
@@ -138,15 +143,15 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateUtwig_generateName(const SOLARSYS_STATE *solarSys,
+GenerateUtwig_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (CurStarDescPtr->Index == UTWIG_DEFINED && MET_AN_UTWIG
-		&& matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (EXTENDED && MET_AN_UTWIG && CurStarDescPtr->Index == UTWIG_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)),
-			GAME_STRING(PLANET_NUMBER_BASE + 40));
-		SET_GAME_STATE(BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+			GAME_STRING (PLANET_NUMBER_BASE + 40));
+		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName(solarSys, world);

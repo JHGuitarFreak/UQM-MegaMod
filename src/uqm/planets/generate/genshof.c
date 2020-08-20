@@ -35,7 +35,7 @@ static bool GenerateShofixti_uninitNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateShofixti_generateMoons (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *planet);
-static bool GenerateShofixti_generateName(const SOLARSYS_STATE *,
+static bool GenerateShofixti_generateName (const SOLARSYS_STATE *,
 		const PLANET_DESC *world);
 static bool GenerateShofixti_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
@@ -164,18 +164,18 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
 
-	if(NOMAD && CheckAlliance(SHOFIXTI_SHIP) == GOOD_GUY)
+	if (NOMAD && CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 	return true;
 }
 
 static bool
-GenerateShofixti_generateMoons(SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateShofixti_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
-	GenerateDefault_generateMoons(solarSys, planet);
+	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (NOMAD && matchWorld(solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (NOMAD && matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
@@ -185,54 +185,53 @@ GenerateShofixti_generateMoons(SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateShofixti_generateName(const SOLARSYS_STATE *solarSys,
+GenerateShofixti_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (EXTENDED && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)),
-			GAME_STRING(PLANET_NUMBER_BASE + 35));
-		SET_GAME_STATE(BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+			GAME_STRING (PLANET_NUMBER_BASE + 35));
+		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
-		GenerateDefault_generateName(solarSys, world);
+		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }
 
 static bool
-GenerateShofixti_generateOrbital(SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateShofixti_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (NOMAD && matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (NOMAD && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 	{
-		if (CheckAlliance(SHOFIXTI_SHIP) == GOOD_GUY)
+		if (CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		{
-			BOOLEAN MaxShips = (CountEscortShips(SHOFIXTI_SHIP) < IF_HARD(2, 1) ? TRUE : FALSE);
-			BOOLEAN RoomInFleet = EscortFeasibilityStudy(SHOFIXTI_SHIP) ? TRUE : FALSE;
+			BOOLEAN MaxShips = (CountEscortShips (SHOFIXTI_SHIP) < IF_HARD(2, 1) ? TRUE : FALSE);
+			BOOLEAN RoomInFleet = EscortFeasibilityStudy (SHOFIXTI_SHIP) ? TRUE : FALSE;
 			BYTE Index = !MaxShips ? 0 : (!RoomInFleet ? 1 : 2);
 
 			LoadStdLanderFont(&solarSys->SysInfo.PlanetInfo);
 
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex(
-					CaptureStringTable(
-						LoadStringTable(SHOFIXTI_BASE_STRTAB)), Index);
+				SetRelStringTableIndex (
+					CaptureStringTable (
+						LoadStringTable (SHOFIXTI_BASE_STRTAB)), Index);
 
-			DoDiscoveryReport(MenuSounds);
+			DoDiscoveryReport (MenuSounds);
 
-			if (Index == 2) {
-				AddEscortShips(SHOFIXTI_SHIP, (CountEscortShips(SHOFIXTI_SHIP) == 1 ? 1 : 2));
-			}
+			if (Index == 2)
+				AddEscortShips (SHOFIXTI_SHIP, (CountEscortShips(SHOFIXTI_SHIP) == 1 ? 1 : 2));
 
-			DestroyStringTable(ReleaseStringTable(
+			DestroyStringTable (ReleaseStringTable (
 				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			FreeLanderFont(&solarSys->SysInfo.PlanetInfo);
+			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
 			return true;
 		}
 	}
 
-	GenerateDefault_generateOrbital(solarSys, world);
+	GenerateDefault_generateOrbital (solarSys, world);
 	return true;
 }
 

@@ -23,7 +23,7 @@
 
 
 static bool GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys);
-static bool GenerateSlylandro_generateName(const SOLARSYS_STATE *,
+static bool GenerateSlylandro_generateName (const SOLARSYS_STATE *,
 	const PLANET_DESC *world);
 static bool GenerateSlylandro_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
@@ -52,7 +52,8 @@ GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 3;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
@@ -64,7 +65,8 @@ GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random (SysGenRNG) % (YEL_GAS_GIANT - BLU_GAS_GIANT) + BLU_GAS_GIANT);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 	}
@@ -73,17 +75,18 @@ GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateSlylandro_generateName(const SOLARSYS_STATE *solarSys,
+GenerateSlylandro_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) && GET_GAME_STATE(SLYLANDRO_HOME_VISITS))
+	if (EXTENDED && GET_GAME_STATE (SLYLANDRO_HOME_VISITS) 
+			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)),
-			GAME_STRING(PLANET_NUMBER_BASE + 36));
-		SET_GAME_STATE(BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+			GAME_STRING (PLANET_NUMBER_BASE + 36));
+		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
-		GenerateDefault_generateName(solarSys, world);
+		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }

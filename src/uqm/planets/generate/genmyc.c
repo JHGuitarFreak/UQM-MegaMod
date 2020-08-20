@@ -34,7 +34,7 @@
 
 
 static bool GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys);
-static bool GenerateMycon_generateName(const SOLARSYS_STATE *,
+static bool GenerateMycon_generateName (const SOLARSYS_STATE *,
 	const PLANET_DESC *world);
 static bool GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
@@ -71,7 +71,8 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	} 	
@@ -79,9 +80,11 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
 
-	if(PrimeSeed){
+	if (PrimeSeed)
+	{
 		if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets > 2)
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 2;
+
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 80L / 100;
 		angle = ARCTAN (
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
@@ -90,7 +93,7 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 				COSINE (angle, solarSys->PlanetDesc[0].radius);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
 				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed(&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
@@ -99,14 +102,15 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateMycon_generateName(const SOLARSYS_STATE *solarSys,
+GenerateMycon_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (CurStarDescPtr->Index == EGG_CASE0_DEFINED && matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (EXTENDED && CurStarDescPtr->Index == EGG_CASE0_DEFINED 
+			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)),
-			GAME_STRING(PLANET_NUMBER_BASE + 42));
-		SET_GAME_STATE(BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+			GAME_STRING (PLANET_NUMBER_BASE + 42));
+		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName(solarSys, world);
