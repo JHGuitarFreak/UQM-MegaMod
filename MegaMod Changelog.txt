@@ -52,7 +52,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - New Chmmr and Syreen ambient themes from Volasaurus
 - Remove comm slider if voices are disabled and Scroll Style is "Per-Page"
 - Make SOI grow slowly as per the PC and 3DO versions
-- Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld)
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -104,6 +103,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed loading game in solarsys while hovering over planet - Kruzenshtern bug #43
 - Fixed moon size when moon is a large rocky world
 - Druuge AI doesn't thrust during Melee in HD - Kruzenshtern bug #51
+- Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld) - Kruzenshtern bug #56
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
