@@ -67,7 +67,8 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
@@ -77,10 +78,12 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 	
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
-	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED) {
+	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = PRIMORDIAL_WORLD;
 
-		if(PrimeSeed){
+		if (PrimeSeed)
+		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 65L / 100;
 			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
 					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
@@ -88,13 +91,16 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
 					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed(&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 		}
-	} else if (CurStarDescPtr->Index == THRADD_DEFINED) {
+	}
+	else if	(CurStarDescPtr->Index == THRADD_DEFINED)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
 
-		if(PrimeSeed){
+		if (PrimeSeed)
+		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 98L / 100;
 			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
 					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
@@ -102,11 +108,12 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
 					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed(&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 		}
 	}
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 	}
