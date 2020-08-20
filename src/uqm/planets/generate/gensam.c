@@ -39,6 +39,8 @@ static bool GenerateSaMatra_reinitNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *planet);
+static bool GenerateSaMatra_generateName (const SOLARSYS_STATE *,
+	const PLANET_DESC *world);
 static bool GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
 
@@ -51,7 +53,7 @@ const GenerateFunctions generateSaMatraFunctions = {
 	/* .uninitNpcs       = */ GenerateDefault_uninitNpcs,
 	/* .generatePlanets  = */ GenerateSaMatra_generatePlanets,
 	/* .generateMoons    = */ GenerateSaMatra_generateMoons,
-	/* .generateName     = */ GenerateDefault_generateName,
+	/* .generateName     = */ GenerateSaMatra_generateName,
 	/* .generateOrbital  = */ GenerateSaMatra_generateOrbital,
 	/* .generateMinerals = */ GenerateDefault_generateMinerals,
 	/* .generateEnergy   = */ GenerateDefault_generateEnergy,
@@ -266,6 +268,24 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		}
 		
 	}
+
+	return true;
+}
+
+static bool
+GenerateSaMatra_generateName (const SOLARSYS_STATE *solarSys,
+	const PLANET_DESC *world)
+{
+	COUNT planetNr = planetIndex (solarSys, world);
+	if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	{
+		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+			GAME_STRING (PLANET_NUMBER_BASE + 32));
+		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+	}
+	else
+		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }
