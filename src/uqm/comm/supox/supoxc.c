@@ -205,6 +205,12 @@ AlliedHome (RESPONSE_REF R)
 
 		DISABLE_PHRASE (how_is_ultron);
 	}
+	else if (PLAYER_SAID (R, give_info))
+	{
+		NPCPhrase (GOOD_HINTS);
+
+		DISABLE_PHRASE (give_info);
+	}
 	SET_GAME_STATE (SUPOX_WAR_NEWS, News);
 
 	if (NumVisits >= 5)
@@ -222,6 +228,8 @@ AlliedHome (RESPONSE_REF R)
 		Response (what_now_homeworld, AlliedHome);
 	if (PHRASE_ENABLED (how_is_ultron))
 		Response (how_is_ultron, AlliedHome);
+	if (PHRASE_ENABLED (give_info))
+		Response (give_info, AlliedHome);
 	if (NumVisits == 0)
 		Response (can_you_help, ExitConversation);
 	Response (bye_allied_homeworld, ExitConversation);
