@@ -78,6 +78,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Scale the SOI borders up to a thickness of 3 pixels
 - Slow down the movement of SOI to mimic PC/3DO versions
 - Moved planet naming to Extended Lore
+- Moved cut Commander and Supox dialog to Extended Lore
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h
