@@ -51,9 +51,8 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);	
@@ -62,9 +61,12 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
-	} else {
+	}
+	else
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 203L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, 
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
@@ -72,7 +74,7 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 			COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = 
 			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed(&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
 
 	return true;
@@ -83,7 +85,7 @@ GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
 	GenerateDefault_generateOrbital (solarSys, world);
 
-	if (matchWorld (solarSys, world, 0, MATCH_PLANET) && PrimeSeed)
+	if (PrimeSeed && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 2;
 		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 35;

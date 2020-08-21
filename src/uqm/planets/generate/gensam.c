@@ -296,14 +296,16 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	/* Samatra */
 	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 	{
-		if (CurStarDescPtr->Index == SAMATRA_DEFINED) {
-			PutGroupInfo(GROUPS_RANDOM, GROUP_SAVE_IP);
-			ReinitQueue(&GLOBAL(ip_group_q));
-			assert(CountLinks(&GLOBAL(npc_built_ship_q)) == 0);
+		if (CurStarDescPtr->Index == SAMATRA_DEFINED)
+		{
+			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+			ReinitQueue (&GLOBAL (ip_group_q));
 
-			if (!GET_GAME_STATE(URQUAN_MESSED_UP))
+			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+			if (!GET_GAME_STATE (URQUAN_MESSED_UP))
 			{
-				CloneShipFragment (!GET_GAME_STATE(KOHR_AH_FRENZY) ?
+				CloneShipFragment (!GET_GAME_STATE (KOHR_AH_FRENZY) ?
 					URQUAN_SHIP : BLACK_URQUAN_SHIP,
 					&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
 			}
@@ -326,7 +328,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			SET_GAME_STATE (URQUAN_PROTECTING_SAMATRA, 1);
 			InitCommunication (URQUAN_CONVERSATION);
 
-			if (!(GLOBAL(CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
+			if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
 			{
 				BOOLEAN UrquanSurvivors;
 
@@ -335,6 +337,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 				ReinitQueue (&GLOBAL (npc_built_ship_q));
 				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
 				if (UrquanSurvivors)
 				{
 					SET_GAME_STATE (URQUAN_PROTECTING_SAMATRA, 0);
@@ -373,7 +376,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 			DoDiscoveryReport (MenuSounds);
 
-			DestroyStringTable (ReleaseStringTable(
+			DestroyStringTable (ReleaseStringTable (
 				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
@@ -396,7 +399,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 			DoDiscoveryReport (MenuSounds);
 
-			DestroyStringTable( ReleaseStringTable (
+			DestroyStringTable (ReleaseStringTable (
 				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
@@ -405,6 +408,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
 	return true;
 }
 

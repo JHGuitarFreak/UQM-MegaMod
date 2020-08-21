@@ -73,13 +73,13 @@ GenerateIlwrath_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = PRIMORDIAL_WORLD;
 
-	if(!PrimeSeed)
+	if (!PrimeSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 	}
 	else
-	{ 
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 204L / 100;
 		angle = ARCTAN (
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,

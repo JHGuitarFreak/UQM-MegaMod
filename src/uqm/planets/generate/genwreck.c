@@ -60,7 +60,8 @@ GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->PlanetDesc[6].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
 		solarSys->PlanetDesc[6].alternate_colormap = NULL;
 	}

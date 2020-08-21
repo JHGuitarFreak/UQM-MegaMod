@@ -62,7 +62,8 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 1;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
@@ -72,10 +73,13 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = TELLURIC_WORLD;
 
-	if(!PrimeSeed){
+	if (!PrimeSeed)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-	} else {
+	}
+	else
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 204L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, 
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
@@ -83,7 +87,7 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 			COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = 
 			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed(&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
 
 	return true;
@@ -130,7 +134,7 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 
 	GenerateDefault_generateOrbital (solarSys, world);
 
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) && PrimeSeed)
+	if (PrimeSeed && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		solarSys->SysInfo.PlanetInfo.AtmoDensity =
 				EARTH_ATMOSPHERE * 144 / 100;

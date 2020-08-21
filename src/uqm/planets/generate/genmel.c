@@ -30,8 +30,8 @@
 
 
 static bool GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys);
-static bool GenerateMelnorme_generatePlanets(SOLARSYS_STATE *solarSys);
-static bool GenerateMelnorme_generateMoons(SOLARSYS_STATE *solarSys,
+static bool GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys);
+static bool GenerateMelnorme_generateMoons (SOLARSYS_STATE *solarSys,
 	PLANET_DESC *planet);
 static bool GenerateMelnorme_generateOrbital(SOLARSYS_STATE *solarSys,
 	PLANET_DESC *world);
@@ -75,41 +75,42 @@ GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateMelnorme_generatePlanets(SOLARSYS_STATE *solarSys)
+GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 {
 	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
 	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
-	FillOrbits(solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets(solarSys);
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	GeneratePlanets (solarSys);
 
-	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED) {
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED)
+	{
 		solarSys->SunDesc[0].PlanetByte = 2;
 		solarSys->SunDesc[0].MoonByte = 0;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 	}
 
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED) {
+	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
+		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 	}
 
 	return true;
 }
 
 static bool
-GenerateMelnorme_generateMoons(SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateMelnorme_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
-	GenerateDefault_generateMoons(solarSys, planet);
+	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (EXTENDED
-		&& CurStarDescPtr->Index == MELNORME1_DEFINED
-		&& matchWorld(solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED
+		&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = PRECURSOR_STARBASE;
 	}
@@ -118,29 +119,30 @@ GenerateMelnorme_generateMoons(SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateMelnorme_generateOrbital(SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (EXTENDED
-		&& CurStarDescPtr->Index == MELNORME1_DEFINED
-		&& matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 	{
 		/* Starbase */
-		LoadStdLanderFont(&solarSys->SysInfo.PlanetInfo);
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
-			CaptureStringTable(
-				LoadStringTable(PRECURSOR_BASE_STRTAB));
+			CaptureStringTable (
+				LoadStringTable (PRECURSOR_BASE_STRTAB));
 
-		DoDiscoveryReport(MenuSounds);
+		DoDiscoveryReport (MenuSounds);
 
-		DestroyStringTable(ReleaseStringTable(
+		DestroyStringTable(ReleaseStringTable (
 			solarSys->SysInfo.PlanetInfo.DiscoveryString));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-		FreeLanderFont(&solarSys->SysInfo.PlanetInfo);
+		FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
+
 		return true;
 	}
 
-	GenerateDefault_generateOrbital(solarSys, world);
+	GenerateDefault_generateOrbital (solarSys, world);
+
 	return true;
 }
 

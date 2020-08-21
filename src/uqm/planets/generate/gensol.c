@@ -301,29 +301,34 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	if (matchWorld (solarSys, world, 2, 0))
 	{
-		if (!NOMAD) {
+		if (!NOMAD)
+		{
 			/* Starbase */
-			PutGroupInfo(GROUPS_RANDOM, GROUP_SAVE_IP);
-			ReinitQueue(&GLOBAL(ip_group_q));
-			assert(CountLinks(&GLOBAL(npc_built_ship_q)) == 0);
+			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+			ReinitQueue (&GLOBAL (ip_group_q));
+
+			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
 			EncounterGroup = 0;
-			GLOBAL(CurrentActivity) |= START_ENCOUNTER;
-			SET_GAME_STATE(GLOBAL_FLAGS_AND_DATA, (BYTE)~0);
+			GLOBAL (CurrentActivity) |= START_ENCOUNTER;
+			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, (BYTE)~0);
+
 			return true;
-		} else {
-			LoadStdLanderFont(&solarSys->SysInfo.PlanetInfo);
+		}
+		else
+		{
+			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				CaptureStringTable(
-					LoadStringTable(NOMAD_BASE_STRTAB));
+				CaptureStringTable (
+					LoadStringTable (NOMAD_BASE_STRTAB));
 
-			DoDiscoveryReport(MenuSounds);
+			DoDiscoveryReport (MenuSounds);
 
-			DestroyStringTable(ReleaseStringTable(
+			DestroyStringTable (ReleaseStringTable (
 				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			FreeLanderFont(&solarSys->SysInfo.PlanetInfo);
+			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
 
 			return true;
 		}
@@ -464,8 +469,10 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
 				CalcGravity (&solarSys->SysInfo.PlanetInfo);
 		
-		if (solTexturesPresent){
-			switch (planetNr) {
+		if (solTexturesPresent)
+		{
+			switch (planetNr)
+			{
 				case 0: /* MERCURY */
 					LoadPlanet (CaptureDrawable (LoadGraphic (MERCURY_MASK_ANIM)));
 					break;
@@ -497,7 +504,9 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					LoadPlanet (NULL);
 					break;
 			}
-		} else {
+		}
+		else
+		{
 			LoadPlanet (planetNr == 2 ?
 					CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM)) : NULL);			
 		}
@@ -604,8 +613,10 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
 				CalcGravity (&solarSys->SysInfo.PlanetInfo);
 		
-		if (solTexturesPresent){
-			switch (planetNr) {
+		if (solTexturesPresent)
+		{
+			switch (planetNr)
+			{
 				case 2: /* moons of EARTH */
 					if (moonNr == 1)
 						LoadPlanet (CaptureDrawable (LoadGraphic (LUNA_MASK_ANIM)));
@@ -636,7 +647,8 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					LoadPlanet (CaptureDrawable (LoadGraphic (TRITON_MASK_ANIM)));
 					break;
 			}
-		} else			
+		}
+		else			
 			LoadPlanet (NULL);
 	}
 
@@ -720,10 +732,10 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		GenerateDefault_landerReport (solarSys);
 
 		if (!NOMAD) {
-			SetLanderTakeoff();
+			SetLanderTakeoff ();
 
-			SET_GAME_STATE(MOONBASE_DESTROYED, 1);
-			SET_GAME_STATE(MOONBASE_ON_SHIP, 1);
+			SET_GAME_STATE (MOONBASE_DESTROYED, 1);
+			SET_GAME_STATE (MOONBASE_ON_SHIP, 1);
 
 			return true; // picked up
 		}
