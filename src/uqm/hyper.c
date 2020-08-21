@@ -309,6 +309,17 @@ check_hyperspace_encounter (void)
 			{
 				encounter_radius =
 						(encounter_radius * SPHERE_RADIUS_INCREMENT) >> 1;
+
+				if (EXTENDED && GET_GAME_STATE (KOHR_AH_FRENZY)
+					&& Type == BLACK_URQUAN_SHIP 
+					&& GET_GAME_STATE (USED_BROADCASTER))
+				{
+					encounter_radius = (MAX_X_UNIVERSE + 1) << 1;
+					percent = 100;
+					encounter_flags = ONE_SHOT_ENCOUNTER;
+
+					SET_GAME_STATE (BROADCASTER_RESPONSE, 1);
+				}
 			}
 			else /* encounter_radius == infinity */
 			{
@@ -323,16 +334,21 @@ check_hyperspace_encounter (void)
 					else
 						percent *= GET_GAME_STATE (SLYLANDRO_MULTIPLIER);
 				}
-				else if (Type == MELNORME_SHIP
-						&& (GLOBAL_SIS (FuelOnBoard) == 0
-						|| GET_GAME_STATE (USED_BROADCASTER))
-						&& GET_GAME_STATE (MELNORME_ANGER) < 3)
+				
+				if ((EXTENDED && !GET_GAME_STATE (KOHR_AH_FRENZY)) 
+					|| !EXTENDED)
 				{
-					if (!GET_GAME_STATE (USED_BROADCASTER))
-						percent = 30;
-					else
-						percent = 100;
-					encounter_flags = ONE_SHOT_ENCOUNTER;
+					if (Type == MELNORME_SHIP
+							&& (GLOBAL_SIS (FuelOnBoard) == 0
+							|| GET_GAME_STATE (USED_BROADCASTER))
+							&& GET_GAME_STATE (MELNORME_ANGER) < 3)
+					{
+						if (!GET_GAME_STATE (USED_BROADCASTER))
+							percent = 30;
+						else
+							percent = 100;
+						encounter_flags = ONE_SHOT_ENCOUNTER;
+					}
 				}
 
 				// There can be only one! (of either Slylandro or Melnorme)

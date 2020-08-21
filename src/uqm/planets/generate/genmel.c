@@ -60,13 +60,17 @@ const GenerateFunctions generateMelnormeFunctions = {
 static bool
 GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 {
-	GLOBAL (BattleGroupRef) = GetMelnormeRef ();
-	if (GLOBAL (BattleGroupRef) == 0)
+	if ((EXTENDED && !GET_GAME_STATE (KOHR_AH_FRENZY)) 
+		|| !EXTENDED)
 	{
-		CloneShipFragment (MELNORME_SHIP, &GLOBAL (npc_built_ship_q), 0);
-		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
-		ReinitQueue (&GLOBAL (npc_built_ship_q));
-		SetMelnormeRef (GLOBAL (BattleGroupRef));
+		GLOBAL (BattleGroupRef) = GetMelnormeRef ();
+		if (GLOBAL (BattleGroupRef) == 0)
+		{
+			CloneShipFragment (MELNORME_SHIP, &GLOBAL (npc_built_ship_q), 0);
+			GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
+			ReinitQueue (&GLOBAL (npc_built_ship_q));
+			SetMelnormeRef (GLOBAL (BattleGroupRef));
+		}
 	}
 
 	GenerateDefault_initNpcs (solarSys);
