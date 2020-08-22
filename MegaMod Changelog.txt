@@ -54,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Make SOI grow slowly as per the PC and 3DO versions
 - EXTENDED: The Melnorme will now disappear once the Death March starts
 - EXTENDED: The Kohr-Ah will now respond to HyperSpace broadcasts during their Death March
+- EXTENDED: Enabled unused dialog for the Yehat.
 
 ### Changed
 - Tightened up Android control isolation across the board
