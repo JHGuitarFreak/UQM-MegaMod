@@ -39,7 +39,7 @@ static const char *planet_types[] = {
 	"chlorine", "magnetic", "water", "telluric", "hydrocarbon",
 	"iodine", "vinylogous", "ruby", "magma", "maroon",
 	"bluegas", "cyangas", "greengas", "greygas", "orangegas",
-	"purplegas", "redgas", "violetgas", "yellowgas"
+	"purplegas", "redgas", "violetgas", "yellowgas", "samatra"
 };
 
 static const char *planet_sizes[] = {
@@ -54,11 +54,11 @@ load_gravity_well (BYTE selector)
 {
 	COUNT i;
 
-	if (selector == NUMBER_OF_PLANET_TYPES)
+	if (selector == SA_MATRA)
 	{
 		planet[0] = CaptureDrawable (
-				LoadGraphic (SAMATRA_BIG_MASK_PMAP_ANIM)
-				);
+				LoadGraphic (SAMATRA_BIG_MASK_PMAP_ANIM));
+
 		planet[1] = planet[2] = 0;
 	}
 	else

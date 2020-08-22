@@ -55,6 +55,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: The Melnorme will now disappear once the Death March starts
 - EXTENDED: The Kohr-Ah will now respond to HyperSpace broadcasts during their Death March
 - EXTENDED: Enabled unused dialog for the Yehat.
+- EXTENDED: Show the Sa-Matra as a planet on the penultimate battle screen
+- EXTENDED: Use the Sa-Matra as a planet for the penultimate battle
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -109,6 +111,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed moon size when moon is a large rocky world
 - Druuge AI doesn't thrust during Melee in HD - Kruzenshtern bug #51
 - Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld) - Kruzenshtern bug #56
+- EXTENDED: Fixed Sa-Matra's name only showing upon load - Kruzen bug #58
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD

@@ -119,10 +119,11 @@ BuildBattle (COUNT which_player)
 	if (which_player != RPG_PLAYER_NUM)
 	{	// This function is called first for the NPC character
 		// and this is when a centerpiece is loaded
+
 		switch (LOBYTE (GLOBAL (CurrentActivity)))
 		{
 			case IN_LAST_BATTLE:
-				load_gravity_well (NUMBER_OF_PLANET_TYPES);
+				load_gravity_well (SA_MATRA);
 				break;
 			case IN_HYPERSPACE:
 				load_gravity_well ((BYTE)((COUNT)TFB_Random ()
@@ -130,7 +131,17 @@ BuildBattle (COUNT which_player)
 				break;
 			default:
 				SET_GAME_STATE (ESCAPE_COUNTER, 110);
-				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+				if (!EXTENDED)
+				{
+					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+				}
+				else if (pSolarSysState->MoonDesc->data_index == SA_MATRA)
+				{
+					utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+							GAME_STRING (PLANET_NUMBER_BASE + 32));
+					DrawSISTitle (GAME_STRING (PLANET_NUMBER_BASE + 32));
+					load_gravity_well (PLANET_SA_MATRA);
+				}
 				break;
 		}
 	}

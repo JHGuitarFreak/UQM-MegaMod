@@ -68,9 +68,9 @@ static bool
 GenerateSaMatra_initNpcs (SOLARSYS_STATE *solarSys)
 {
 	if (CurStarDescPtr->Index == SAMATRA_DEFINED) {
-		if (!GET_GAME_STATE(URQUAN_MESSED_UP))
+		if (!GET_GAME_STATE (URQUAN_MESSED_UP))
 		{
-			BuildUrquanGuard(solarSys);
+			BuildUrquanGuard (solarSys);
 		}
 		else
 		{	// Exorcise Ur-Quan ghosts upon system reentry
@@ -80,7 +80,7 @@ GenerateSaMatra_initNpcs (SOLARSYS_STATE *solarSys)
 	}
 
 	if (SpaceMusicOK)
-		findRaceSOI();
+		findRaceSOI ();
 
 	(void) solarSys;
 	return true;
@@ -93,7 +93,8 @@ GenerateSaMatra_reinitNpcs (SOLARSYS_STATE *solarSys)
 	HIPGROUP hGroup;
 	HIPGROUP hNextGroup;
 
-	if (CurStarDescPtr->Index == SAMATRA_DEFINED) {
+	if (CurStarDescPtr->Index == SAMATRA_DEFINED)
+	{
 		GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
 		EncounterGroup = 0;
 		EncounterRace = -1;
@@ -132,7 +133,7 @@ GenerateSaMatra_reinitNpcs (SOLARSYS_STATE *solarSys)
 			COUNT angle;
 			POINT org;
 
-			org = planetOuterLocation(solarSys->SunDesc[0].PlanetByte);
+			org = planetOuterLocation (solarSys->SunDesc[0].PlanetByte);
 			angle = ARCTAN (GLOBAL (ip_location.x) - org.x,
 				GLOBAL (ip_location.y) - org.y);
 			GLOBAL (ip_location.x) = org.x + COSINE (angle, 3000);
@@ -152,7 +153,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 	COUNT p;
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-
 
 	if (!PrimeSeed)
 	{
@@ -276,13 +276,12 @@ static bool
 GenerateSaMatra_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	COUNT planetNr = planetIndex (solarSys, world);
 	if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 	{
 		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
 			GAME_STRING (PLANET_NUMBER_BASE + 32));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		SET_GAME_STATE (BATTLE_PLANET, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index);
 	}
 	else
 		GenerateDefault_generateName (solarSys, world);
