@@ -156,10 +156,10 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (!PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 5) + 5);
-
-		if (EXTENDED && CurStarDescPtr->Index >= URQUAN_DEFINED)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 9) + 9);
+		if (CurStarDescPtr->Index >= SAMATRA_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 5) + 5);
+		else if (EXTENDED)
+			solarSys->SunDesc[0].NumPlanets = 9;
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -193,13 +193,13 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 		if (!PrimeSeed)
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random(SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = PLANET_SHIELDED;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index | PLANET_SHIELDED;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = PLANET_SHIELDED;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index | PLANET_SHIELDED;
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 			solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 		}
@@ -240,7 +240,7 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		if (CurStarDescPtr->Index == SAMATRA_DEFINED)
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = SA_MATRA;
-
+			
 			if (PrimeSeed)
 			{
 				solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS + (2 * MOON_DELTA);

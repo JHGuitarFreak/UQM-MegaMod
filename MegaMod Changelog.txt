@@ -57,6 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Enabled unused dialog for the Yehat.
 - EXTENDED: Show the Sa-Matra as a planet on the penultimate battle screen
 - EXTENDED: Use the Sa-Matra as a planet for the penultimate battle
+- EXTENDED: Talk to Kohr-Ah when at the Sa-Matra during Death March
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -113,6 +114,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld) - Kruzenshtern bug #56
 - EXTENDED: Fixed Sa-Matra's name only showing upon load - Kruzen bug #58
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
+- EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak
