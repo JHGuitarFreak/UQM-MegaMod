@@ -156,7 +156,7 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (!PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 5) + 5);
 
 		if (EXTENDED && CurStarDescPtr->Index >= URQUAN_DEFINED)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 9) + 9);
@@ -170,9 +170,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->SunDesc[0].PlanetByte = 4;
 		solarSys->SunDesc[0].MoonByte = 0;
 
-		if (!PrimeSeed)
-			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random(SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 		if (!PrimeSeed)
@@ -185,7 +182,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
 
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-			solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 		}
 	}
 	

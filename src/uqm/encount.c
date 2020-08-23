@@ -28,6 +28,7 @@
 #include "menustat.h"
 #include "gameopt.h"
 #include "gamestr.h"
+#include "gendef.h"
 #include "globdata.h"
 #include "sis.h"
 		// for DrawStatusMessage(), SetStatusMessageMode()
@@ -131,17 +132,16 @@ BuildBattle (COUNT which_player)
 				break;
 			default:
 				SET_GAME_STATE (ESCAPE_COUNTER, 110);
-				if (!EXTENDED)
-				{
-					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
-				}
-				else if (pSolarSysState->MoonDesc->data_index == SA_MATRA)
+				if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED && pSolarSysState
+					&& pSolarSysState->MoonDesc->data_index == SA_MATRA)
 				{
 					utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
 							GAME_STRING (PLANET_NUMBER_BASE + 32));
 					DrawSISTitle (GAME_STRING (PLANET_NUMBER_BASE + 32));
 					load_gravity_well (PLANET_SA_MATRA);
 				}
+				else
+					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
 				break;
 		}
 	}
