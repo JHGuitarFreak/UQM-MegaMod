@@ -311,7 +311,9 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 				for (i = 0; i < URQUAN_REMNANTS; ++i)
 				{
-					CloneShipFragment (URQUAN_SHIP,
+					CloneShipFragment (EXTENDED 
+						&& GET_GAME_STATE (KOHR_AH_FRENZY) ?
+						BLACK_URQUAN_SHIP : URQUAN_SHIP,
 						&GLOBAL (npc_built_ship_q), 0);
 					CloneShipFragment (BLACK_URQUAN_SHIP,
 						&GLOBAL (npc_built_ship_q), 0);
@@ -321,7 +323,10 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			GLOBAL(CurrentActivity) |= START_INTERPLANETARY;
 			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 7);
 			SET_GAME_STATE (URQUAN_PROTECTING_SAMATRA, 1);
-			InitCommunication (URQUAN_CONVERSATION);
+			if (EXTENDED && GET_GAME_STATE (KOHR_AH_FRENZY))
+				InitCommunication (BLACKURQ_CONVERSATION);
+			else
+				InitCommunication (URQUAN_CONVERSATION);
 
 			if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
 			{
