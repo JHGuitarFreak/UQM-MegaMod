@@ -114,6 +114,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Fixed Sa-Matra's name only showing upon load - Kruzen bug #58
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
+- HD: Planet scan speed now matches Core speed
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak

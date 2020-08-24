@@ -290,6 +290,7 @@ PrintCoarseScanPC (void)
 
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
+
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 11),
@@ -1016,9 +1017,9 @@ callPickupForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 static void
 ScanPlanet (COUNT scanType)
 {
-#define SCAN_DURATION  (ONE_SECOND * RES_DBL(7) / 4)
+#define SCAN_DURATION  (ONE_SECOND * 7 / 4)
 // NUM_FLASH_COLORS for flashing blips; 1 for the final frame
-#define SCAN_LINES      (MAP_HEIGHT + NUM_FLASH_COLORS - 8)
+#define SCAN_LINES      (MAP_HEIGHT + NUM_FLASH_COLORS + 1)
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES)
 
 	COUNT startScan, endScan;
@@ -1087,7 +1088,7 @@ ScanPlanet (COUNT scanType)
 
 		// Draw the scan slowly line by line
 		TimeOut = GetTimeCounter ();
-		for (i = 0; i < (SWORD)SCAN_LINES; i++)
+		for (i = 0; i < SCAN_LINES; i++)
 		{
 			TimeOut += SCAN_LINE_WAIT;
 			if (WaitForAnyButtonUntil (TRUE, TimeOut, FALSE))
@@ -1102,7 +1103,7 @@ ScanPlanet (COUNT scanType)
 #endif
 		}
 
-		if (i < (SWORD)SCAN_LINES)
+		if (i < SCAN_LINES)
 		{	// Aborted by a keypress; draw in finished state
 			BatchGraphics ();
 			DrawPlanet (SCAN_LINES - 1, tintColor);
