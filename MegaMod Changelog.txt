@@ -54,7 +54,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Make SOI grow slowly as per the PC and 3DO versions
 - EXTENDED: The Melnorme will now disappear once the Death March starts
 - EXTENDED: The Kohr-Ah will now respond to HyperSpace broadcasts during their Death March
-- EXTENDED: Enabled unused dialog for the Yehat.
 - EXTENDED: Show the Sa-Matra as a planet on the penultimate battle screen
 - EXTENDED: Use the Sa-Matra as a planet for the penultimate battle
 - EXTENDED: Talk to Kohr-Ah when at the Sa-Matra during Death March

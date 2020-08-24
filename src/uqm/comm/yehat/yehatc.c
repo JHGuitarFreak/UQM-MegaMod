@@ -594,29 +594,14 @@ YehatSpace (RESPONSE_REF R)
 
 		SET_GAME_STATE (NO_YEHAT_HELP_SPACE, 2);
 	}
-	else if (!EXTENDED)
+	else if (PLAYER_SAID (R, what_about_pkunk_royalist))
 	{
-		if (PLAYER_SAID (R, what_about_pkunk_royalist))
-		{
-			if (GET_GAME_STATE (YEHAT_ABSORBED_PKUNK))
-				NPCPhrase (PKUNK_ABSORBED_ROYALIST);
-			else
-				NPCPhrase (HATE_PKUNK_ROYALIST);
+		if (GET_GAME_STATE (YEHAT_ABSORBED_PKUNK))
+			NPCPhrase (PKUNK_ABSORBED_ROYALIST);
+		else
+			NPCPhrase (HATE_PKUNK_ROYALIST);
 
-			SET_GAME_STATE (YEHAT_ROYALIST_TOLD_PKUNK, 1);
-		}
-	}
-	else
-	{
-		if (PLAYER_SAID (R, what_about_pkunk_space))
-		{
-			if (GET_GAME_STATE (YEHAT_ABSORBED_PKUNK))
-				NPCPhrase (PKUNK_ABSORBED_SPACE);
-			else
-				NPCPhrase (HATE_PKUNK_SPACE);
-
-			DISABLE_PHRASE (what_about_pkunk_space);
-		}
+		SET_GAME_STATE (YEHAT_ROYALIST_TOLD_PKUNK, 1);
 	}
 
 // SET_FUNCPTR (&PtrDesc, YehatSpace);
@@ -669,12 +654,7 @@ YehatSpace (RESPONSE_REF R)
 	if (!GET_GAME_STATE (YEHAT_ROYALIST_TOLD_PKUNK)
 			&& GET_GAME_STATE (PKUNK_VISITS)
 			&& GET_GAME_STATE (PKUNK_HOME_VISITS))
-	{
-		if (!EXTENDED)
-			Response (what_about_pkunk_royalist, YehatSpace);
-		else if (PHRASE_ENABLED (what_about_pkunk_space))
-			Response (what_about_pkunk_space, YehatSpace);
-	}
+		Response (what_about_pkunk_royalist, YehatSpace);
 	if (GET_GAME_STATE (SHOFIXTI_VISITS))
 	{
 		switch (GET_GAME_STATE (YEHAT_REBEL_TOLD_PKUNK))
