@@ -496,7 +496,9 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		s.frame = SetAbsFrameIndex (LanderFrame[0], 41);
 
 		pPSD->BiologicalLevel += NumRetrieved;
-	} else {
+	}
+	else
+	{
 		start_count = pPSD->ElementLevel;
 		pPSD->ElementLevel += NumRetrieved;
 

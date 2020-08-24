@@ -110,7 +110,7 @@ stdio_close(uio_Handle *handle) {
 	uio_free(handle->native);
 	
 	while (1) {
-		result = close(fd);
+		result = _close(fd);
 		if (result == 0)
 			break;
 		if (errno != EINTR) {

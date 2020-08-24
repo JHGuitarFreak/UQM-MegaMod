@@ -100,15 +100,20 @@ typedef struct
 	double x, y, z;
 } POINT3;
 
+// BW : changed rendering method to direct SDL routines like in
+// RenderPlanetSphere to improve performance at 4x
 static void
 RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDef)
 {
-	if (pSolarSysState->XlatRef == 0) {
+	if (pSolarSysState->XlatRef == 0)
+	{
 		// There is currently nothing we can do w/o an xlat table
 		// This is still called for Earth for 4x scaled topo, but we
 		// do not need it because we cannot land on Earth.
 		log_add(log_Warning, "No xlat table -- could not generate surface.\n");
-	} else {
+	}
+	else
+	{
 		BYTE AlgoType;
 		SIZE base, d;
 		const XLAT_DESC *xlatDesc;
@@ -124,12 +129,17 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 		map = HMalloc (sizeof (Color) * w * h);
 		pix = map;
 
-		PlanDataPtr = &PlanData[pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED];
+		PlanDataPtr = &PlanData[
+			pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED
+			];
 		AlgoType = PLANALGO (PlanDataPtr->Type);
-		if (SurfDef) {
+		if (SurfDef)
+		{
 			// Planets given by a pixmap have elevations between -128 and +128
 			base = 256;
-		} else {
+		}
+		else
+		{
 			base = PlanDataPtr->base_elevation;
 		}
 		xlatDesc = (const XLAT_DESC *) pSolarSysState->XlatPtr;
@@ -143,21 +153,24 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 			ColorShift = 1;
 
 		pSrc = pTopoData;
-		for (pt.y = 0; pt.y < h; ++pt.y) {
-			for (pt.x = 0; pt.x < w; ++pt.x, ++pSrc, ++pix) {
+		for (pt.y = 0; pt.y < h; ++pt.y)
+		{
+			for (pt.x = 0; pt.x < w; ++pt.x, ++pSrc, ++pix)
+			{
 				BYTE *ctab;
 
 				d = *pSrc;
-				if (AlgoType == GAS_GIANT_ALGO) {	
-					// make elevation value non-negative
+				if (AlgoType == GAS_GIANT_ALGO)
+				{	// make elevation value non-negative
 					d &= 255;
-				} else {
+				}
+				else
+				{
 					d += base;
-					if (d < 0){
+					if (d < 0)
 						d = 0;
-					} else if (d > 255) {
+					else if (d > 255)
 						d = 255;
-					}
 				}
 
 				d = xlat_tab[d] - cbase[0];
@@ -169,6 +182,7 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 					ctab[1] >> ColorShift, ctab[2] >> ColorShift), d);		
 			}
 		}
+
 		WriteFramePixelColors (DstFrame, map, w, h);
 		HFree(map);
 	}
@@ -1605,14 +1619,12 @@ GenerateLightMap (SBYTE *pTopo, int w, int h)
 {
 #define LMAP_BLOCKS       (2 * LMAP_MAX_DIST + 1)
 	int x, y;
-
+	elev_block_t vblocks[LMAP_BLOCKS];
+			// we use a running block average to reduce the amount of work
+			// where a block is a vertical line of map points
 	SBYTE *elev;
 	int min, max, med;
 	int sfact, spread;
-
-	elev_block_t vblocks[LMAP_BLOCKS];
-	// we use a running block average to reduce the amount of work
-	// where a block is a vertical line of map points
 
 	// normalize the topo data
 	min = 127;

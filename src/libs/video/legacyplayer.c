@@ -39,7 +39,6 @@ PlayLegacyVideo (LEGACY_VIDEO vid)
 	loopframe = vid->loop;
 
 	ref->vidref = LoadVideoFile (name);
-
 	if (!ref->vidref)
 		return NULL;
 	if (audname)

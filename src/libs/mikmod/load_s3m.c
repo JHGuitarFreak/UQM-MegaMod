@@ -294,7 +294,7 @@ BOOL S3M_Load(BOOL curious)
 			tracker=NUMTRACKERS; /* IT 2.14p3 */
 		else tracker--;
 	}
-	of.modtype = strdup(S3M_Version[tracker]);
+	of.modtype = _strdup(S3M_Version[tracker]);
 	if(tracker<NUMTRACKERS) {
 		of.modtype[numeric[tracker]] = ((mh->tracker>>8) &0xf)+'0';
 		of.modtype[numeric[tracker]+2] = ((mh->tracker>>4)&0xf)+'0';

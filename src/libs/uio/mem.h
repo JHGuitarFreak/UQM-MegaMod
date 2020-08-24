@@ -44,7 +44,7 @@ uio_strdup(const char *s) {
 	return result;
 }
 #else
-#	define uio_strdup strdup
+#	define uio_strdup _strdup
 #endif
 
 // Allocates new memory, copies 'len' characters from 'src', and adds a '\0'.

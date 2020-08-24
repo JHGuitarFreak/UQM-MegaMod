@@ -265,7 +265,7 @@ uio_debugInteractive(FILE *in, FILE *out, FILE *err) {
 		abort();
 	}
 	
-	interactive = isatty(fileno(in));
+	interactive = _isatty(fileno(in));
 	do {
 		if (interactive)
 			fprintf(out, "> ");
@@ -397,7 +397,7 @@ debugCmdCat(DebugContext *debugContext, int argc, char *argv[]) {
 			break;
 		bufPtr = readBuf;
 		do {
-			numWritten = write(fileno(debugContext->out), bufPtr, numInBuf);
+			numWritten = write(_fileno(debugContext->out), bufPtr, numInBuf);
 			if (numWritten == -1)
 			{
 				if (errno == EINTR)

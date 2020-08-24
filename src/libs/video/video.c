@@ -129,10 +129,13 @@ VidPlayEx (VIDEO_REF vid, MUSIC_REF AudRef, MUSIC_REF SpeechRef,
 	_cur_video = NULL_VIDEO_REF;
 
 	// play video in the center of the screen
-	if (TFB_PlayVideo (vid, (ScreenWidth - vid->w) / 2, (ScreenHeight - vid->h) / 2)) {
+	if (TFB_PlayVideo (vid, (ScreenWidth - vid->w) / 2,
+			(ScreenHeight - vid->h) / 2))
+	{
 		_cur_video = vid;
 		ret = SOFTWARE_FMV;
-		if (SpeechRef) {
+		if (SpeechRef)
+		{
 			snd_PlaySpeech (SpeechRef);
 			_cur_speech = SpeechRef;
 		}

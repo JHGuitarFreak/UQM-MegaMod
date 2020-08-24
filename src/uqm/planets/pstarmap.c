@@ -456,7 +456,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 #define GRID_DELTA 500
 	SIZE i;
 	COUNT which_space;
-	// long diameter;
 	RECT r, old_r;
 	POINT oldOrigin = {0, 0};
 	STAMP s;

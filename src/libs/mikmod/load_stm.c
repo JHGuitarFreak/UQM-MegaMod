@@ -299,7 +299,7 @@ BOOL STM_Load(BOOL curious)
 	/* set module variables */
 	for(t=0;t<STM_NTRACKERS;t++)
 		if(!memcmp(mh->trackername,STM_Signatures[t],8)) break;
-	of.modtype   = strdup(STM_Version[t]);
+	of.modtype   = _strdup(STM_Version[t]);
 	of.songname  = DupStr(mh->songname,20,1); /* make a cstr of songname */
 	of.numpat    = mh->numpat;
 	of.inittempo = 125;                     /* mh->inittempo+0x1c; */

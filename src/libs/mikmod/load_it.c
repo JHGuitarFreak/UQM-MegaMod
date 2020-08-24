@@ -506,11 +506,11 @@ BOOL IT_Load(BOOL curious)
 	/* 2.16 : IT 2.14p3 with resonant filters */
 	/* 2.15 : IT 2.14p3 (improved compression) */
 	if((mh->cwt<=0x219)&&(mh->cwt>=0x217))
-		of.modtype=strdup(IT_Version[mh->cmwt<0x214?4:5]);
+		of.modtype= _strdup(IT_Version[mh->cmwt<0x214?4:5]);
 	else if (mh->cwt>=0x215)
-		of.modtype=strdup(IT_Version[mh->cmwt<0x214?2:3]);
+		of.modtype= _strdup(IT_Version[mh->cmwt<0x214?2:3]);
 	else {
-		of.modtype     = strdup(IT_Version[mh->cmwt<0x214?0:1]);
+		of.modtype     = _strdup(IT_Version[mh->cmwt<0x214?0:1]);
 		of.modtype[mh->cmwt<0x214?15:26] = (mh->cwt>>8)+'0';
 		of.modtype[mh->cmwt<0x214?17:28] = ((mh->cwt>>4)&0xf)+'0';
 		of.modtype[mh->cmwt<0x214?18:29] = ((mh->cwt)&0xf)+'0';

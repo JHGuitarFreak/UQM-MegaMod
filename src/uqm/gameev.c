@@ -152,13 +152,14 @@ EventHandler (BYTE selector)
 	const char *eventIdStr;
 
 	eventIdStr = eventIdNumToStr (selector);
-	if (eventIdStr == NULL) {
+	if (eventIdStr == NULL)
+	{
 		log_add(log_Warning, "Warning: EventHandler(): Event %d is "
 				"unknown.", selector);
 		return;
 	}
 
-	luaUqm_event_callEvent(eventIdStr);
+	luaUqm_event_callEvent (eventIdStr);
 }
 
 void

@@ -395,10 +395,7 @@ findRaceSOI(void) {
 				break;
 			}
 
-			if (encounter_radius == INFINITE_RADIUS)
-				encounter_radius = (MAX_X_UNIVERSE + 1) << 1;
-			else
-				encounter_radius = (encounter_radius * SPHERE_RADIUS_INCREMENT) >> 1;
+			encounter_radius = (encounter_radius * SPHERE_RADIUS_INCREMENT) >> 1;
 
 			dx = universe.x - FleetPtr->loc.x;
 			if (dx < 0)
