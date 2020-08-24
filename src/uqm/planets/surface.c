@@ -47,7 +47,7 @@ CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 		while (num_possible--)
 		{
 #define MEDIUM_DEPOSIT_THRESHOLD 150
-#define LARGE_DEPOSIT_THRESHOLD 220
+#define LARGE_DEPOSIT_THRESHOLD 225
 			COUNT deposit_quality_fine;
 			COUNT deposit_quality_gross;
 
