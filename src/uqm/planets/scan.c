@@ -1019,7 +1019,7 @@ ScanPlanet (COUNT scanType)
 {
 #define SCAN_DURATION  (ONE_SECOND * 7 / 4)
 // NUM_FLASH_COLORS for flashing blips; 1 for the final frame
-#define SCAN_LINES      (MAP_HEIGHT + NUM_FLASH_COLORS + 1)
+#define SCAN_LINES      (MAP_HEIGHT + NUM_FLASH_COLORS + RES_BOOL(1, -8))
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES)
 
 	COUNT startScan, endScan;
@@ -1069,8 +1069,6 @@ ScanPlanet (COUNT scanType)
 		r.corner.y = t.baseline.y - RES_SCALE(10); // JMS_GFX
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1); // JMS_GFX
-		// XXX: I do not know why we are repairing it here, as there
-		//   should not be anything drawn over the stars at the moment
 		RepairBackRect (&r, FALSE);
 
 		SetContextFont (MicroFont);

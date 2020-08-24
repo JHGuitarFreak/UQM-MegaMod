@@ -313,10 +313,9 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 			}		
 
 			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
-
-			GeneratePlanetSurface (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter, FALSE);
+			GeneratePlanetSurfaceForIP (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter);
 			pMoonDesc->orbit = pSolarSysState->Orbit;
-			PrepareNextRotationFrame (pMoonDesc, 0, FALSE);
+			PrepareNextRotationFrameForIP (pMoonDesc, 0);
 
 			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
@@ -603,9 +602,9 @@ void GenerateTexturedPlanets (void)
 			}
 		}
 		
-		GeneratePlanetSurface (pCurDesc, SurfFrame, GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER, FALSE);
+		GeneratePlanetSurfaceForIP (pCurDesc, SurfFrame, GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER);
 		pCurDesc->orbit = pSolarSysState->Orbit;
-		PrepareNextRotationFrame (pCurDesc, 0, FALSE);
+		PrepareNextRotationFrameForIP (pCurDesc, 0);
 		
 		// Clean up some parasitic use of pSolarSysState
 		DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
@@ -1784,18 +1783,22 @@ void RotatePlanets (BOOLEAN IsInnerSystem, SIZE frameCounter)
 	if (!pSolarSysState->PlanetDesc->orbit.lpTopoData)
 		return;
 	
-	if (IsInnerSystem) {
+	if (IsInnerSystem)
+	{
 		planet = pSolarSysState->pOrbitalDesc;
-		PrepareNextRotationFrame (planet, frameCounter, FALSE);
-		for (i = 0; i < planet->NumPlanets; ++i) {
+		PrepareNextRotationFrameForIP (planet, frameCounter);
+		for (i = 0; i < planet->NumPlanets; ++i)
+		{
 			moon = &pSolarSysState->MoonDesc[i];
 			if (!(moon->data_index & WORLD_TYPE_SPECIAL))
-				PrepareNextRotationFrame (moon, frameCounter, FALSE);
+				PrepareNextRotationFrameForIP (moon, frameCounter);
 		}
-	} else {
+	}
+	else
+	{
 		for (i = pSolarSysState->SunDesc[0].NumPlanets,
 			     planet = &pSolarSysState->PlanetDesc[0]; i; --i, ++planet)
-			PrepareNextRotationFrame (planet, frameCounter, FALSE);
+			PrepareNextRotationFrameForIP (planet, frameCounter);
 	}
 }
 
