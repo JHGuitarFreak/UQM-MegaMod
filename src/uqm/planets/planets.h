@@ -318,6 +318,7 @@ extern void FreeLanderFont (PLANET_INFO *info);
 extern void ExploreSolarSys (void);
 extern void DrawStarBackGround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
+// extern PLAN_GEN_FUNC GenerateIP (BYTE Index);
 extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
 extern void DrawFilledOval (RECT *pRect);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val);
@@ -339,8 +340,6 @@ extern void RotatePlanetSphere (BOOLEAN keepRate);
 
 extern void DrawScannedObjects (BOOLEAN Reversed);
 extern void GeneratePlanetSurface (PLANET_DESC *pPlanetDesc,
-		FRAME SurfDefFrame);
-extern void GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc,
 		FRAME SurfDefFrame, COUNT width, COUNT height);
 extern void DeltaTopography (COUNT num_iterations, SBYTE *DepthArray,
 		RECT *pRect, SIZE depth_delta);

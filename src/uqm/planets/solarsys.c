@@ -313,7 +313,7 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 			}		
 
 			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
-			GeneratePlanetSurfaceForIP (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter);
+			GeneratePlanetSurface (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter);
 			pMoonDesc->orbit = pSolarSysState->Orbit;
 			PrepareNextRotationFrameForIP (pMoonDesc, 0);
 
@@ -602,7 +602,7 @@ void GenerateTexturedPlanets (void)
 			}
 		}
 		
-		GeneratePlanetSurfaceForIP (pCurDesc, SurfFrame, GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER);
+		GeneratePlanetSurface (pCurDesc, SurfFrame, GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER);
 		pCurDesc->orbit = pSolarSysState->Orbit;
 		PrepareNextRotationFrameForIP (pCurDesc, 0);
 		

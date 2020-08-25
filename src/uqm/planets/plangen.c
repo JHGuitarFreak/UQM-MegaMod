@@ -1756,319 +1756,46 @@ GenerateLightMap (SBYTE *pTopo, int w, int h)
 
 // Sets the SysGenRNG to the required state first.
 void
-GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame)
+GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width, COUNT height)
 {
 	RECT r;
-	const PlanetFrame *PlanDataPtr;
-	PLANET_INFO *PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
+	const PlanetFrame* PlanDataPtr;
+	PLANET_INFO* PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
 	DWORD i, y;  // JMS_GFX: changed from COUNT to avoid overflow at higher resolutions.
 	POINT loc;
-	CONTEXT OldContext;
-	CONTEXT TopoContext;
-	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+	CONTEXT OldContext, TopoContext;
+	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
 	BOOLEAN SurfDef = FALSE;
 	BOOLEAN shielded = (pPlanetDesc->data_index & PLANET_SHIELDED) != 0;
 	SDWORD PlanetRotation = (CurStarDescPtr->Index == SOL_DEFINED ? -1 : 1 - 2 * (PlanetInfo->AxialTilt & 1));
+	COUNT spherespanx, radius;
+	BOOLEAN ForIP;
 
-	RandomContext_SeedRandom (SysGenRNG, pPlanetDesc->rand_seed);
-
-	TopoContext = CreateContext ("Plangen.TopoContext");
-	OldContext = SetContext (TopoContext);
-	planet_orbit_init (MAP_WIDTH, MAP_HEIGHT + IF_HD(1), TRUE); // JMS_GFX: Was MAP_HEIGHT without the +1. Added this to avoid overflows.
-
-	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
-
-	if (SurfDefFrame)
-	{	// This is a defined planet; pixmap for the topography and
-		// elevation data is supplied in Surface Definition frame
-		BOOLEAN DeleteDef = FALSE;
-		BOOLEAN DeleteElev = FALSE;
-		FRAME ElevFrame;
-
-		// surface pixmap
-		SurfDef = TRUE;
-		SurfDefFrame = SetAbsFrameIndex (SurfDefFrame, 0);
-		if (GetFrameWidth (SurfDefFrame) != MAP_WIDTH
-				|| GetFrameHeight (SurfDefFrame) != MAP_HEIGHT)
-		{
-			pSolarSysState->TopoFrame = CaptureDrawable (RescaleFrame (
-					SurfDefFrame, MAP_WIDTH, MAP_HEIGHT));
-			// will not need the passed FRAME anymore
-			DeleteDef = TRUE;
-		}
-		else
-			pSolarSysState->TopoFrame = SurfDefFrame;
-
-		if (GetFrameCount (SurfDefFrame) > 1)
-		{	// 2nd frame is elevation data 
-			int i;
-			SBYTE* elev;
-
-			ElevFrame = SetAbsFrameIndex (SurfDefFrame, 1);
-			if (GetFrameWidth (ElevFrame) != MAP_WIDTH
-					|| GetFrameHeight (ElevFrame) != MAP_HEIGHT)
-			{
-				ElevFrame = CaptureDrawable (RescaleFrame (ElevFrame,
-						MAP_WIDTH, MAP_HEIGHT));
-				DeleteElev = TRUE;
-			}
-
-				// grab the elevation data in 1 byte per pixel format
-				ReadFramePixelIndexes (ElevFrame, (BYTE *)Orbit->lpTopoData,
-					MAP_WIDTH, MAP_HEIGHT, TRUE);
-				// the supplied data is in unsigned format, must convert
-			for (i = 0, elev = Orbit->lpTopoData;
-					i < MAP_WIDTH * MAP_HEIGHT;
-					++i, ++elev)
-				{
-					*elev = *(BYTE *)elev - 128;
-				}
-			}
-			else
-		{	// no elevation data -- planet flat as a pancake
-			memset (Orbit->lpTopoData, 0, MAP_WIDTH * MAP_HEIGHT);
-		}
-
-		if (pPlanetDesc->alternate_colormap)
-		{	// JMS: Planets with special colormaps
-			pSolarSysState->OrbitalCMap = CaptureColorMap (
-				LoadColorMap (pPlanetDesc->alternate_colormap));
-			pSolarSysState->XlatRef = CaptureStringTable (
-				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
-		}		
-		else
-		{	// JMS: Normal planets
-			pSolarSysState->OrbitalCMap = CaptureColorMap (
-				LoadColorMap (PlanDataPtr->CMapInstance));
-			pSolarSysState->XlatRef = CaptureStringTable (
-				LoadStringTable (PlanDataPtr->XlatTabInstance));
-
-			if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
-			{
-				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-						pSolarSysState->OrbitalCMap, 2);
-				pSolarSysState->XlatRef = SetAbsStringTableIndex (
-						pSolarSysState->XlatRef, 2);
-			}
-			else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
-			{
-				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-						pSolarSysState->OrbitalCMap, 1);
-				pSolarSysState->XlatRef = SetAbsStringTableIndex (
-						pSolarSysState->XlatRef, 1);
-			}
-		}
-		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
-
-		if (DeleteDef)
-			DestroyDrawable (ReleaseDrawable (SurfDefFrame));
-		if (DeleteElev)
-			DestroyDrawable (ReleaseDrawable (ElevFrame));
+	if (width == NULL && height == NULL)
+	{
+		width = MAP_WIDTH;
+		height = MAP_HEIGHT;
+		spherespanx = SPHERE_SPAN_X;
+		radius = RADIUS;
+		ForIP = FALSE;
 	}
 	else
-	{	// Generate planet surface elevation data and look
-
-		r.corner.x = r.corner.y = 0;
-		r.extent.width = MAP_WIDTH;
-		r.extent.height = MAP_HEIGHT;
-		{
-			memset (Orbit->lpTopoData, 0, MAP_WIDTH * MAP_HEIGHT);
-			switch (PLANALGO (PlanDataPtr->Type))
-			{
-				case GAS_GIANT_ALGO:
-					MakeGasGiant (PlanDataPtr->num_faults,
-							Orbit->lpTopoData, &r, PlanDataPtr->fault_depth);
-					break;
-				case TOPO_ALGO:
-				case CRATERED_ALGO:
-					if (PlanDataPtr->num_faults)
-						DeltaTopography (PlanDataPtr->num_faults,
-								Orbit->lpTopoData, &r,
-								PlanDataPtr->fault_depth);
-
-					for (i = 0; i < PlanDataPtr->num_blemishes; ++i)
-					{
-						RECT crater_r;
-						UWORD loword;
-				
-						loword = LOWORD (RandomContext_Random (SysGenRNG));
-						switch (HIBYTE (loword) & 31)
-						{
-							case 0:
-								crater_r.extent.width =
-										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 2))
-										+ (ORIGINAL_MAP_HEIGHT >> 2);								
-								break;
-							case 1:
-							case 2:
-							case 3:
-							case 4:
-								crater_r.extent.width =
-										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 3))
-										+ (ORIGINAL_MAP_HEIGHT >> 3);
-								break;
-							default:
-								crater_r.extent.width =
-										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 4))
-										+ 4;
-								break;
-						}
-
-						loword = LOWORD (RandomContext_Random (SysGenRNG));
-						crater_r.extent.height = crater_r.extent.width;
-						crater_r.corner.x = HIBYTE (loword)
-								% (ORIGINAL_MAP_WIDTH - crater_r.extent.width);
-						crater_r.corner.y = LOBYTE (loword)
-								% (ORIGINAL_MAP_HEIGHT - crater_r.extent.height);
-
-						// BW: ... then scale them up
-						crater_r.extent.width = crater_r.extent.width 
-								* MAP_WIDTH / ORIGINAL_MAP_WIDTH;
-						crater_r.extent.height = crater_r.extent.width;
-						crater_r.corner.x = crater_r.corner.x 
-								* MAP_WIDTH / ORIGINAL_MAP_WIDTH;
-						crater_r.corner.y = crater_r.corner.y 
-								* MAP_HEIGHT / ORIGINAL_MAP_HEIGHT;
-
-						MakeCrater (&crater_r, Orbit->lpTopoData,
-								PlanDataPtr->fault_depth << 2,
-								-(PlanDataPtr->fault_depth << 2),
-							    FALSE, MAP_WIDTH);
-					}
-
-					if (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO)
-						DitherMap (Orbit->lpTopoData, MAP_WIDTH, MAP_HEIGHT);
-					ValidateMap (Orbit->lpTopoData, MAP_WIDTH, MAP_HEIGHT);
-					break;
-			}
-		}
-		pSolarSysState->TopoFrame = CaptureDrawable (
-				CreateDrawable (WANT_PIXMAP, (SIZE)MAP_WIDTH,
-				(SIZE)MAP_HEIGHT, 1));
-				
-
-		if (pPlanetDesc->alternate_colormap)
-		{	// JMS: Planets with special colormaps
-			pSolarSysState->OrbitalCMap = CaptureColorMap (
-				LoadColorMap (pPlanetDesc->alternate_colormap));
-			pSolarSysState->XlatRef = CaptureStringTable (
-				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
-		}
-		else
-		{	// JMS: Normal planets
-			pSolarSysState->OrbitalCMap = CaptureColorMap (
-				LoadColorMap (PlanDataPtr->CMapInstance));
-			pSolarSysState->XlatRef = CaptureStringTable (
-				LoadStringTable (PlanDataPtr->XlatTabInstance));
-		}
-
-		if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
-		{
-			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-					pSolarSysState->OrbitalCMap, 2);
-			pSolarSysState->XlatRef = SetAbsStringTableIndex (
-					pSolarSysState->XlatRef, 2);
-		}
-		else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
-		{
-			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-					pSolarSysState->OrbitalCMap, 1);
-			pSolarSysState->XlatRef = SetAbsStringTableIndex (
-					pSolarSysState->XlatRef, 1);
-		}
-		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
-		RenderTopography (pSolarSysState->TopoFrame,
-				Orbit->lpTopoData, MAP_WIDTH, MAP_HEIGHT, FALSE);
+	{
+		spherespanx = height;
+		radius = (height >> 1) - RESOLUTION_FACTOR;
+		ForIP = TRUE;
 	}
-
-	if (!shielded && PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
-	{	// produce 4x scaled topo image for Planetside
-		// for the planets that we can land on
-		SBYTE *pScaledTopo = HMalloc (MAP_WIDTH * 4 * MAP_HEIGHT * 4);
-		if (pScaledTopo)
-		{
-			TopoScale4x (pScaledTopo, Orbit->lpTopoData,
-					PlanDataPtr->num_faults, PlanDataPtr->fault_depth
-					* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1  ));
-			RenderTopography (Orbit->TopoZoomFrame, pScaledTopo,
-					  MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
-
-			HFree (pScaledTopo);
-		}
-	}
-
-	// Generate a pixel array from the Topography map.
-	// We use this instead of lpTopoData because it needs to be
-	// WAP_WIDTH+SPHERE_SPAN_X wide and we need this method for Earth anyway.
-	// It may be more efficient to build it from lpTopoData instead of the
-	// FRAMPTR though.
-	ReadFramePixelColors (pSolarSysState->TopoFrame, Orbit->TopoColors,
-			MAP_WIDTH + SPHERE_SPAN_X, MAP_HEIGHT);
-	// Extend the width from MAP_WIDTH to MAP_WIDTH+SPHERE_SPAN_X
-	for (y = 0; y < (DWORD)(MAP_HEIGHT * (MAP_WIDTH + SPHERE_SPAN_X));
-			y += MAP_WIDTH + SPHERE_SPAN_X)
-		memcpy (Orbit->TopoColors + y + MAP_WIDTH, Orbit->TopoColors + y,
-				SPHERE_SPAN_X * sizeof (Orbit->TopoColors[0]));
-
-	if (PLANALGO (PlanDataPtr->Type) != GAS_GIANT_ALGO)
-	{	// convert topo data to a light map, based on relative
-		// map point elevations
-		GenerateLightMap (Orbit->lpTopoData, MAP_WIDTH, MAP_HEIGHT);
-	}
-	else
-	{	// gas giants are pretty much flat
-		memset (Orbit->lpTopoData, 0, MAP_WIDTH * MAP_HEIGHT);
-	}
-			
-	if (pSolarSysState->pOrbitalDesc->pPrevDesc ==
-			&pSolarSysState->SunDesc[0])
-	{	// this is a planet -- get its location
-		loc = pSolarSysState->pOrbitalDesc->location;
-	}
-	else
-	{	// this is a moon -- get its planet's location
-		loc = pSolarSysState->pOrbitalDesc->pPrevDesc->location;
-	}
-	
-	// Rotating planet sphere initialization
-	GenerateSphereMask (loc, RADIUS);
-	CreateSphereTiltMap (PlanetInfo->AxialTilt, MAP_HEIGHT, RADIUS);
-	if (shielded)
-		Orbit->ObjectFrame = CreateShieldMask (RADIUS);
-	InitSphereRotation (PlanetRotation, shielded, MAP_WIDTH, MAP_HEIGHT);
-
-	if (shielded)
-	{	// This overwrites pSolarSysState->TopoFrame, so everything that
-		// needs it has to come before
-		ApplyShieldTint ();
-	}
-
-	SetContext (OldContext);
-	DestroyContext (TopoContext);
-}
-
-void
-GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width, COUNT height)
-{
-	RECT r;
-	const PlanetFrame *PlanDataPtr;
-	PLANET_INFO *PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
-	DWORD i, y;  // JMS_GFX: changed from COUNT to avoid overflow at higher resolutions.
-	POINT loc;
-	CONTEXT OldContext;
-	CONTEXT TopoContext;
-	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
-	BOOLEAN SurfDef = FALSE;
-	BOOLEAN shielded = (pPlanetDesc->data_index & PLANET_SHIELDED) != 0;
-	COUNT spherespanx = height;
-	COUNT radius = (height >> 1) - RESOLUTION_FACTOR;
-	SDWORD PlanetRotation = (CurStarDescPtr->Index == SOL_DEFINED ? -1 : 1 - 2 * (PlanetInfo->AxialTilt & 1));	
 	
 	RandomContext_SeedRandom (SysGenRNG, pPlanetDesc->rand_seed);
 
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
-	planet_orbit_init (width, height, FALSE);
+	
+	if (ForIP)
+		planet_orbit_init (width, height, FALSE);
+	else
+		planet_orbit_init (MAP_WIDTH, MAP_HEIGHT + IF_HD(1), TRUE); // JMS_GFX: Was MAP_HEIGHT without the +1. Added this to avoid overflows.
+	
 
 	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
 
@@ -2123,22 +1850,19 @@ GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT 
 			memset (Orbit->lpTopoData, 0, width * height);
 		}
 
-		// JMS: Planets with special colormaps
 		if (pPlanetDesc->alternate_colormap)
-		{
+		{	// JMS: Planets with special colormaps
 			pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (pPlanetDesc->alternate_colormap));
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
 		}
-		// JMS: Normal planets
 		else
-		{
+		{	// JMS: Normal planets
 			pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (PlanDataPtr->CMapInstance));
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (PlanDataPtr->XlatTabInstance));
-		}
 
 			if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
 			{
@@ -2154,6 +1878,7 @@ GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT 
 				pSolarSysState->XlatRef = SetAbsStringTableIndex (
 						pSolarSysState->XlatRef, 1);
 			}
+		}
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
 
 		if (DeleteDef)
@@ -2186,49 +1911,45 @@ GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT 
 					{
 						RECT crater_r;
 						UWORD loword;
-						// UWORD hiword; // JMS_GFX
-						// BW: reinstate original values...
 						
 						loword = LOWORD (RandomContext_Random (SysGenRNG));
 						switch (HIBYTE (loword) & 31)
 						{
 							case 0:
-								// if (RESOLUTION_FACTOR == 0)
-								crater_r.extent.width = (LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 2)) + (ORIGINAL_MAP_HEIGHT >> 2);
-								// else
-								// 	crater_r.extent.width = (loword % (MAP_HEIGHT >> 2)) + (MAP_HEIGHT >> 2);
-								
+								crater_r.extent.width =
+										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 2))
+										+ (ORIGINAL_MAP_HEIGHT >> 2);								
 								break;
 							case 1:
 							case 2:
 							case 3:
 							case 4:
-								// if (RESOLUTION_FACTOR == 0)
-								crater_r.extent.width = (LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 3)) + (ORIGINAL_MAP_HEIGHT >> 3);
-								// else
-								// 	crater_r.extent.width = (loword % (MAP_HEIGHT >> 3)) + (MAP_HEIGHT >> 3);
+								crater_r.extent.width =
+										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 3))
+										+ (ORIGINAL_MAP_HEIGHT >> 3);
 								break;
 							default:
-								// if (RESOLUTION_FACTOR == 0)
-								crater_r.extent.width = (LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 4)) + 4;
-								// else
-								// 	crater_r.extent.width = (loword % (MAP_HEIGHT >> 4)) + 4;
+								crater_r.extent.width =
+										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 4))
+										+ 4;
 								break;
 						}
 
 						loword = LOWORD (RandomContext_Random (SysGenRNG));
-	
 						crater_r.extent.height = crater_r.extent.width;
-						crater_r.corner.x = HIBYTE (loword) % (ORIGINAL_MAP_WIDTH - crater_r.extent.width);
-						// crater_r.corner.x = loword % (MAP_WIDTH - crater_r.extent.width); // JMS_GFX: changed the previous line to this. BYTE was too small for 4x resolution
-						crater_r.corner.y = LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT - crater_r.extent.height);
-						// crater_r.corner.y = hiword % (MAP_HEIGHT - crater_r.extent.height); // JMS_GFX: The same
-
+						crater_r.corner.x = HIBYTE (loword)
+								% (ORIGINAL_MAP_WIDTH - crater_r.extent.width);
+						crater_r.corner.y = LOBYTE (loword)
+								% (ORIGINAL_MAP_HEIGHT - crater_r.extent.height);
+						
 						// BW: ... then scale them up
-						crater_r.extent.width = crater_r.extent.width * height / ORIGINAL_MAP_HEIGHT;
+						crater_r.extent.width = crater_r.extent.width
+								* height / ORIGINAL_MAP_HEIGHT;
 						crater_r.extent.height = crater_r.extent.width;
-						crater_r.corner.x = crater_r.corner.x * width / ORIGINAL_MAP_WIDTH;					
-						crater_r.corner.y = crater_r.corner.y * height / ORIGINAL_MAP_HEIGHT;
+						crater_r.corner.x = crater_r.corner.x
+								* width / ORIGINAL_MAP_WIDTH;					
+						crater_r.corner.y = crater_r.corner.y
+								* height / ORIGINAL_MAP_HEIGHT;
 						
 						MakeCrater (&crater_r, Orbit->lpTopoData,
 								PlanDataPtr->fault_depth << 2,
@@ -2245,31 +1966,54 @@ GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT 
 				CreateDrawable (WANT_PIXMAP, (SIZE)width,
 				(SIZE)height, 1));
 
-		{
+		if (!ForIP && pPlanetDesc->alternate_colormap)
+		{	// JMS: Planets with special colormaps
+			pSolarSysState->OrbitalCMap = CaptureColorMap (
+				LoadColorMap (pPlanetDesc->alternate_colormap));
+			pSolarSysState->XlatRef = CaptureStringTable (
+				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
+		}
+		else
+		{	// JMS: Normal planets
 			pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (PlanDataPtr->CMapInstance));
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (PlanDataPtr->XlatTabInstance));
-
-			if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
-			{
-				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-						pSolarSysState->OrbitalCMap, 2);
-				pSolarSysState->XlatRef = SetAbsStringTableIndex (
-						pSolarSysState->XlatRef, 2);
-			}
-			else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
-			{
-				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-						pSolarSysState->OrbitalCMap, 1);
-				pSolarSysState->XlatRef = SetAbsStringTableIndex (
-						pSolarSysState->XlatRef, 1);
-			}
 		}
-			
-		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
-		RenderTopography (pSolarSysState->TopoFrame, Orbit->lpTopoData, width, height, FALSE);
 
+		if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
+		{
+			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+					pSolarSysState->OrbitalCMap, 2);
+			pSolarSysState->XlatRef = SetAbsStringTableIndex (
+					pSolarSysState->XlatRef, 2);
+		}
+		else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
+		{
+			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+					pSolarSysState->OrbitalCMap, 1);
+			pSolarSysState->XlatRef = SetAbsStringTableIndex (
+					pSolarSysState->XlatRef, 1);
+		}
+		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
+		RenderTopography (pSolarSysState->TopoFrame, 
+				Orbit->lpTopoData, width, height, FALSE);
+	}
+
+	if (!ForIP && !shielded && PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
+	{	// produce 4x scaled topo image for Planetside
+		// for the planets that we can land on
+		SBYTE *pScaledTopo = HMalloc (MAP_WIDTH * 4 * MAP_HEIGHT * 4);
+		if (pScaledTopo)
+		{
+			TopoScale4x (pScaledTopo, Orbit->lpTopoData,
+					PlanDataPtr->num_faults, PlanDataPtr->fault_depth
+					* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1  ));
+			RenderTopography (Orbit->TopoZoomFrame, pScaledTopo,
+					  MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
+
+			HFree (pScaledTopo);
+		}
 	}
 
 	// Generate a pixel array from the Topography map.
@@ -2314,13 +2058,17 @@ GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT 
 	if (shielded)
 		Orbit->ObjectFrame = CreateShieldMask (radius);
 	InitSphereRotation (PlanetRotation, shielded, width, height);
-	pPlanetDesc->rotDirection = PlanetRotation;
-	pPlanetDesc->rotwidth = width;
-	pPlanetDesc->rotheight = height;
-	pPlanetDesc->rotFrameIndex = 0;
-	pPlanetDesc->rotPointIndex = 0; 
-	pPlanetDesc->rot_speed = ((double)(pPlanetDesc->rotwidth * pPlanetDesc->rotDirection * 240)) / PlanetInfo->RotationPeriod;
-
+	
+	if (ForIP)
+	{
+		pPlanetDesc->rotDirection = PlanetRotation;
+		pPlanetDesc->rotwidth = width;
+		pPlanetDesc->rotheight = height;
+		pPlanetDesc->rotFrameIndex = 0;
+		pPlanetDesc->rotPointIndex = 0; 
+		pPlanetDesc->rot_speed = ((double)(pPlanetDesc->rotwidth * pPlanetDesc->rotDirection * 240)) / PlanetInfo->RotationPeriod;
+	}
+	
 	if (shielded)
 	{	// This overwrites pSolarSysState->TopoFrame, so everything that
 		// needs it has to come before
