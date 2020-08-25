@@ -617,12 +617,12 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 	Color *pix;
 	int level;
-
+	
 	width = GetFrameWidth (ShieldFrame);
-	height = GetFrameHeight (ShieldFrame);	
-
+	height = GetFrameHeight (ShieldFrame);
+	
 	level = shield_level (offset, width);
-
+	
 	ReadFramePixelColors (ShieldFrame, Orbit->ScratchArray, width, height);
 	
 	for (i = 0, pix = Orbit->ScratchArray; i < width * height; ++i, ++pix)
@@ -697,7 +697,6 @@ get_map_pixel (Color *pixels, int x, int y, COUNT width, COUNT spherespanx)
 {
 	/*if (y * (width + spherespanx) + x > 463000)
 		log_add(log_Warning,"x:%u, y:%u, width:%u, spherespanx:%u, slot:%u. Max:%u", x, y, width, spherespanx, y * (width + spherespanx) + x, (MAP_HEIGHT+1) * (MAP_WIDTH + spherespanx)); */
-
 	return pixels[y * (width + spherespanx) + x];
 }
 
@@ -1085,16 +1084,22 @@ MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
 			switch (HIBYTE (hiword) & 31)
 			{
 				case 0:
-					pstorm_r->extent.height = (LOBYTE (hiword) % (ORIGINAL_MAP_HEIGHT >> 2)) + (ORIGINAL_MAP_HEIGHT >> 2);
+					pstorm_r->extent.height =
+							(LOBYTE (hiword) % (ORIGINAL_MAP_HEIGHT >> 2))
+							+ (ORIGINAL_MAP_HEIGHT >> 2);
 					break;
 				case 1:
 				case 2:
 				case 3:
 				case 4:
-					pstorm_r->extent.height = (LOBYTE (hiword) % (ORIGINAL_MAP_HEIGHT >> 3)) + (ORIGINAL_MAP_HEIGHT >> 3);
+					pstorm_r->extent.height =
+							(LOBYTE (hiword) % (ORIGINAL_MAP_HEIGHT >> 3))
+							+ (ORIGINAL_MAP_HEIGHT >> 3);
 					break;
 				default:
-					pstorm_r->extent.height = (LOBYTE (hiword) % (ORIGINAL_MAP_HEIGHT >> 4)) + 4;
+					pstorm_r->extent.height =
+							(LOBYTE (hiword) % (ORIGINAL_MAP_HEIGHT >> 4))
+							+ 4;
 					break;
 			}
 
@@ -1105,10 +1110,13 @@ MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
 			loword = LOWORD (rand_val);
 			hiword = HIWORD (rand_val);
 
-			pstorm_r->extent.width = pstorm_r->extent.height + (LOBYTE (loword) % pstorm_r->extent.height);
+			pstorm_r->extent.width = pstorm_r->extent.height
+					+ (LOBYTE (loword) % pstorm_r->extent.height);
 
-			pstorm_r->corner.x = HIBYTE (loword) % (ORIGINAL_MAP_WIDTH - pstorm_r->extent.width);
-			pstorm_r->corner.y = LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT - pstorm_r->extent.height);
+			pstorm_r->corner.x = HIBYTE (loword)
+					% (ORIGINAL_MAP_WIDTH - pstorm_r->extent.width);
+			pstorm_r->corner.y = LOBYTE (loword)
+					% (ORIGINAL_MAP_HEIGHT - pstorm_r->extent.height);
 
 			pstorm_r->corner.x = pstorm_r->corner.x * width / ORIGINAL_MAP_WIDTH;
 			pstorm_r->extent.width = pstorm_r->extent.width * width / ORIGINAL_MAP_WIDTH;
@@ -1141,7 +1149,8 @@ MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
 
 		band_delta = HIBYTE (loword) & ((3 << RANGE_SHIFT) + 20);
 
-		MakeCrater (pstorm_r, DepthArray, band_delta, band_delta, TRUE, width);
+		MakeCrater (pstorm_r, DepthArray,
+				band_delta, band_delta, TRUE, width);
 		++pstorm_r->corner.x;
 		++pstorm_r->corner.y;
 		pstorm_r->extent.width -= 2;
@@ -1150,7 +1159,8 @@ MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
 		band_delta += 2;
 		if (pstorm_r->extent.width > 2 && pstorm_r->extent.height > 2)
 		{
-			MakeCrater (pstorm_r, DepthArray, band_delta, band_delta, TRUE, width);
+			MakeCrater (pstorm_r, DepthArray,
+					band_delta, band_delta, TRUE, width);
 			++pstorm_r->corner.x;
 			++pstorm_r->corner.y;
 			pstorm_r->extent.width -= 2;
@@ -1160,7 +1170,8 @@ MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
 		band_delta += 2;
 		if (pstorm_r->extent.width > 2 && pstorm_r->extent.height > 2)
 		{
-			MakeCrater (pstorm_r, DepthArray, band_delta, band_delta, TRUE, width);
+			MakeCrater (pstorm_r, DepthArray,
+					band_delta, band_delta, TRUE, width);
 			++pstorm_r->corner.x;
 			++pstorm_r->corner.y;
 			pstorm_r->extent.width -= 2;
@@ -1168,7 +1179,8 @@ MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
 		}
 
 		band_delta += 4;
-		MakeCrater (pstorm_r, DepthArray, band_delta, band_delta, TRUE, width);
+		MakeCrater (pstorm_r, DepthArray,
+				band_delta, band_delta, TRUE, width);
 	}
 }
 
@@ -1183,9 +1195,7 @@ MakeGasGiant (COUNT num_bands, SBYTE *DepthArray, RECT *pRect, SIZE
 	UWORD loword, hiword;
 	DWORD rand_val;
 
-	// band_height = pRect->extent.height / num_bands;
 	band_height = ORIGINAL_MAP_HEIGHT / num_bands;
-	// band_bump = pRect->extent.height % num_bands;
 	band_bump = ORIGINAL_MAP_HEIGHT % num_bands;
 	band_error = num_bands >> 1;
 	lpDst = DepthArray;
@@ -1220,10 +1230,9 @@ MakeGasGiant (COUNT num_bands, SBYTE *DepthArray, RECT *pRect, SIZE
 			cur_y = cur_y * pRect->extent.height / ORIGINAL_MAP_HEIGHT;
 			r.corner.x = r.corner.y = 0;
 			r.extent.width = pRect->extent.width;
-			// r.extent.height = 5;
 			r.extent.height = 5 * pRect->extent.height / ORIGINAL_MAP_HEIGHT;
 			DeltaTopography (50,
-					&DepthArray[(cur_y - (r.extent.height >>1)) * r.extent.width],
+					&DepthArray[(cur_y - (r.extent.height >> 1)) * r.extent.width],
 					&r, depth_delta);
 		}
 
@@ -1312,28 +1321,30 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 	Orbit->SphereFrame = CaptureDrawable (CreateDrawable (
 			WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));
+
+	if (forOrbit)
+		Orbit->TintFrame = CaptureDrawable (CreateDrawable (
+				WANT_PIXMAP, width, height, 1));
 	Orbit->ObjectFrame = 0;
 	Orbit->WorkFrame = 0;
 	Orbit->lpTopoData = HCalloc (width * height);
+	
+	if (forOrbit)	
+		Orbit->TopoZoomFrame = CaptureDrawable (CreateDrawable (
+				WANT_PIXMAP, width << 2, height << 2, 1));
 	Orbit->TopoColors = HMalloc (sizeof (Orbit->TopoColors[0]) 
 			* (height * (width + spherespanx)));
 	// always allocate the scratch array to largest needed size
 	Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
 			* (shielddiam) * (shielddiam));
+			
 	Orbit->light_diff = HMalloc (sizeof (DWORD *) * diameter);
 	Orbit->map_rotate = HMalloc (sizeof (MAP3D_POINT *) * diameter);
+	
 	for (i=0 ; i < diameter ; i++)
 	{
 		Orbit->light_diff[i] = HMalloc (sizeof (DWORD)* diameter);
 		Orbit->map_rotate[i] = HMalloc (sizeof (MAP3D_POINT) * diameter);
-	}
-
-	if (forOrbit)
-	{
-		Orbit->TintFrame = CaptureDrawable (CreateDrawable (
-				WANT_PIXMAP, width, height, 1));
-		Orbit->TopoZoomFrame = CaptureDrawable (CreateDrawable (
-				WANT_PIXMAP, width << 2, height << 2, 1));
 	}
 }
 
@@ -1818,17 +1829,15 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame)
 			memset (Orbit->lpTopoData, 0, MAP_WIDTH * MAP_HEIGHT);
 		}
 
-		// JMS: Planets with special colormaps
 		if (pPlanetDesc->alternate_colormap)
-		{
+		{	// JMS: Planets with special colormaps
 			pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (pPlanetDesc->alternate_colormap));
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
-		}
-		// JMS: Normal planets
+		}		
 		else
-		{
+		{	// JMS: Normal planets
 			pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (PlanDataPtr->CMapInstance));
 			pSolarSysState->XlatRef = CaptureStringTable (
@@ -1881,47 +1890,45 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame)
 					{
 						RECT crater_r;
 						UWORD loword;
-						// UWORD hiword; // JMS_GFX
-						// BW: reinstate original values...
 				
 						loword = LOWORD (RandomContext_Random (SysGenRNG));
 						switch (HIBYTE (loword) & 31)
 						{
 							case 0:
-								// if (RESOLUTION_FACTOR == 0)
-								crater_r.extent.width = (LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 2)) + (ORIGINAL_MAP_HEIGHT >> 2);
-								// else
-								// 	crater_r.extent.width = (loword % (MAP_HEIGHT >> 2)) + (MAP_HEIGHT >> 2);
-								
+								crater_r.extent.width =
+										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 2))
+										+ (ORIGINAL_MAP_HEIGHT >> 2);								
 								break;
 							case 1:
 							case 2:
 							case 3:
 							case 4:
-								// if (RESOLUTION_FACTOR == 0)
-								crater_r.extent.width = (LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 3)) + (ORIGINAL_MAP_HEIGHT >> 3);
-								// else
-								// 	crater_r.extent.width = (loword % (MAP_HEIGHT >> 3)) + (MAP_HEIGHT >> 3);
+								crater_r.extent.width =
+										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 3))
+										+ (ORIGINAL_MAP_HEIGHT >> 3);
 								break;
 							default:
-								// if (RESOLUTION_FACTOR == 0)
-								crater_r.extent.width = (LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 4)) + 4;
-								// else
-								// 	crater_r.extent.width = (loword % (MAP_HEIGHT >> 4)) + 4;
+								crater_r.extent.width =
+										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 4))
+										+ 4;
 								break;
 						}
 
 						loword = LOWORD (RandomContext_Random (SysGenRNG));
-
 						crater_r.extent.height = crater_r.extent.width;
-						crater_r.corner.x = HIBYTE (loword) % (ORIGINAL_MAP_WIDTH - crater_r.extent.width);
-						crater_r.corner.y = LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT - crater_r.extent.height);
+						crater_r.corner.x = HIBYTE (loword)
+								% (ORIGINAL_MAP_WIDTH - crater_r.extent.width);
+						crater_r.corner.y = LOBYTE (loword)
+								% (ORIGINAL_MAP_HEIGHT - crater_r.extent.height);
 
 						// BW: ... then scale them up
-						crater_r.extent.width = crater_r.extent.width * MAP_WIDTH / ORIGINAL_MAP_WIDTH;
+						crater_r.extent.width = crater_r.extent.width 
+								* MAP_WIDTH / ORIGINAL_MAP_WIDTH;
 						crater_r.extent.height = crater_r.extent.width;
-						crater_r.corner.x = crater_r.corner.x * MAP_WIDTH / ORIGINAL_MAP_WIDTH;
-						crater_r.corner.y = crater_r.corner.y * MAP_HEIGHT / ORIGINAL_MAP_HEIGHT;
+						crater_r.corner.x = crater_r.corner.x 
+								* MAP_WIDTH / ORIGINAL_MAP_WIDTH;
+						crater_r.corner.y = crater_r.corner.y 
+								* MAP_HEIGHT / ORIGINAL_MAP_HEIGHT;
 
 						MakeCrater (&crater_r, Orbit->lpTopoData,
 								PlanDataPtr->fault_depth << 2,
@@ -1939,40 +1946,39 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame)
 				CreateDrawable (WANT_PIXMAP, (SIZE)MAP_WIDTH,
 				(SIZE)MAP_HEIGHT, 1));
 				
-			// JMS: Planets with special colormaps
+
 		if (pPlanetDesc->alternate_colormap)
-		{
-				pSolarSysState->OrbitalCMap = CaptureColorMap (
-					LoadColorMap (pPlanetDesc->alternate_colormap));
-				pSolarSysState->XlatRef = CaptureStringTable (
-					LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
+		{	// JMS: Planets with special colormaps
+			pSolarSysState->OrbitalCMap = CaptureColorMap (
+				LoadColorMap (pPlanetDesc->alternate_colormap));
+			pSolarSysState->XlatRef = CaptureStringTable (
+				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
 		}
-		// JMS: Normal planets
 		else
-		{
-				pSolarSysState->OrbitalCMap = CaptureColorMap (
-					LoadColorMap (PlanDataPtr->CMapInstance));
-				pSolarSysState->XlatRef = CaptureStringTable (
-					LoadStringTable (PlanDataPtr->XlatTabInstance));
-			}
+		{	// JMS: Normal planets
+			pSolarSysState->OrbitalCMap = CaptureColorMap (
+				LoadColorMap (PlanDataPtr->CMapInstance));
+			pSolarSysState->XlatRef = CaptureStringTable (
+				LoadStringTable (PlanDataPtr->XlatTabInstance));
+		}
 
 		if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
 		{
-				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-						pSolarSysState->OrbitalCMap, 2);
-				pSolarSysState->XlatRef = SetAbsStringTableIndex (
-						pSolarSysState->XlatRef, 2);
+			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+					pSolarSysState->OrbitalCMap, 2);
+			pSolarSysState->XlatRef = SetAbsStringTableIndex (
+					pSolarSysState->XlatRef, 2);
 		}
 		else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
 		{
-				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-						pSolarSysState->OrbitalCMap, 1);
-				pSolarSysState->XlatRef = SetAbsStringTableIndex (
-						pSolarSysState->XlatRef, 1);
-			}
+			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+					pSolarSysState->OrbitalCMap, 1);
+			pSolarSysState->XlatRef = SetAbsStringTableIndex (
+					pSolarSysState->XlatRef, 1);
+		}
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
-		RenderTopography (pSolarSysState->TopoFrame, Orbit->lpTopoData, MAP_WIDTH, MAP_HEIGHT, FALSE);
-
+		RenderTopography (pSolarSysState->TopoFrame,
+				Orbit->lpTopoData, MAP_WIDTH, MAP_HEIGHT, FALSE);
 	}
 
 	if (!shielded && PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
@@ -2233,8 +2239,8 @@ GeneratePlanetSurfaceForIP (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT 
 						DitherMap (Orbit->lpTopoData, width, height);
 					ValidateMap (Orbit->lpTopoData, width, height);
 					break;
+			}
 		}
-	}
 		pSolarSysState->TopoFrame = CaptureDrawable (
 				CreateDrawable (WANT_PIXMAP, (SIZE)width,
 				(SIZE)height, 1));
