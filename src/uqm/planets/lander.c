@@ -61,7 +61,7 @@ struct LanderInputState {
 			// Frame rate control
 };
 
-FRAME LanderFrame[7];
+FRAME LanderFrame[8];
 static SOUND LanderSounds;
 MUSIC_REF LanderMusic;
 
@@ -113,6 +113,7 @@ LIFEFORM_DESC CreatureData[] =
 			// Bug-Eyed Bait
 	{SPEED_MOTIONLESS | DANGER_WEAK, MAKE_BYTE (8, 5)},
 			// Goo Burger
+
 	{SPEED_MOTIONLESS | DANGER_MONSTROUS, MAKE_BYTE (1, 1)},
 			// Evil One
 	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_HARMLESS, MAKE_BYTE (1, 1)}, // ? was 0, 1
@@ -261,16 +262,16 @@ object_animation (ELEMENT *ElementPtr)
 			else if (ElementPtr->mass_points == EARTHQUAKE_DISASTER)
 			{
 				SIZE s;
-				SIZE frame_amount = 14; // JMS_GFX
+				SIZE frame_amount = 13; // JMS_GFX
 
-				if (frame_index >= (frame_amount-1))
+				if (frame_index >= (frame_amount))
 					s = 0;
 				else
-					s = (frame_amount - frame_index) >> 1;
+					s = ((frame_amount + 1)- frame_index) >> 1;
 				// XXX: Was 0x8000 the background flag on 3DO?
 				//SetPrimColor (pPrim, BUILD_COLOR (0x8000 | MAKE_RGB15 (0x1F, 0x1F, 0x1F), s));
 				SetPrimColor (pPrim, BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), s));
-				if (frame_index == (frame_amount - 1))
+				if (frame_index == (frame_amount))
 					PlaySound (SetAbsSoundIndex (LanderSounds, EARTHQUAKE_DISASTER),
 							NotPositional (), NULL, GAME_SOUND_PRIORITY);
 			}
@@ -501,8 +502,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	{
 		start_count = pPSD->ElementLevel;
 		pPSD->ElementLevel += NumRetrieved;
-
-		if (GET_GAME_STATE(IMPROVED_LANDER_CARGO)) {
+		if (GET_GAME_STATE(IMPROVED_LANDER_CARGO))
+		{
 			start_count >>= 1;
 			NumRetrieved = (pPSD->ElementLevel >> 1) - start_count;
 		}
@@ -524,7 +525,6 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		s.frame = IncFrameIndex (s.frame);
 
 	OldContext = SetContext (RadarContext);
-
 	while (NumRetrieved--)
 	{
 		if (start_count++ & 1)
@@ -717,11 +717,10 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 		if ((ElementPtr->mass_points & ~CREATURE_AWARE) == 24)
 		{
 			ExplodeCritter (ElementPtr);
-		}
-		// Can other creatures.
+		}		
 		else
-		{
-			// stash the type of creature in the
+		{	// Can other creatures.
+			// Stash the type of creature in the
 			// thrust_wait field.  It seems to be unused
 			// by the game for anything at this point
 			ElementPtr->thrust_wait = ElementPtr->mass_points & ~CREATURE_AWARE;
@@ -839,11 +838,7 @@ CheckObjectCollision (COUNT index)
 						{
 							case EARTHQUAKE_DISASTER:
 							case LAVASPOT_DISASTER:
-								if (scan == LAVASPOT_DISASTER 
-									&& IS_HD
-									&& TFB_Random () % 100 < 9)
-									DeltaLanderCrew (-1, scan);
-								else if (TFB_Random () % 100 < 25)
+								if (TFB_Random () % 100 < 25)
 									DeltaLanderCrew (-1, scan);
 								break;
 						}
@@ -922,7 +917,9 @@ CheckObjectCollision (COUNT index)
 							break;
 						case MINERAL_SCAN:
 						case BIOLOGICAL_SCAN:
-							if (!pickupNode (pPSD, NumRetrieved, ElementPtr, &LanderControl, &ElementControl, scan))
+							if (!pickupNode (pPSD, NumRetrieved,
+									ElementPtr, &LanderControl, 
+									&ElementControl, scan))
 								continue;
 							break;
 					}

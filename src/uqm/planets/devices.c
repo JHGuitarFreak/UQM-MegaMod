@@ -92,7 +92,7 @@ EraseDevicesBackground (void)
 {
 	RECT r;
 
-	r.corner.x = RES_STAT_SCALE(2 + 1); // JMS_GFX
+	r.corner.x = RES_STAT_SCALE(3); // JMS_GFX
 	r.extent.width = FIELD_WIDTH - RES_STAT_SCALE(1); // JMS_GFX
 	r.corner.y = DEVICE_ORG_Y;
 	r.extent.height = MAX_VIS_DEVICES * DEVICE_SPACING_Y;
@@ -347,7 +347,8 @@ InvokeDevice (BYTE which_device)
 				if (CurStarDescPtr->Index != CHMMR_DEFINED
 						|| !matchWorld (pSolarSysState,
 								pSolarSysState->pOrbitalDesc,
-								pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))
+								pSolarSysState->SunDesc[0].PlanetByte
+								, MATCH_PLANET))
 				{
 					FadeScreen (FadeAllToColor, ONE_SECOND * 2);
 				}

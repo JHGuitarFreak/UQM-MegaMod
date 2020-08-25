@@ -340,4 +340,3 @@ extern const PlanetFrame *PlanData;
 #endif
 
 #endif /* UQM_PLANETS_PLANDATA_H_ */
-
