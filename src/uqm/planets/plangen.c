@@ -506,7 +506,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
-#define SHIELD_RADIUS_THRES  ((SHIELD_RADIUS + (RES_SCALE(1)) * (SHIELD_RADIUS + (RES_SCALE(1))) // JMS_GFX
+#define SHIELD_RADIUS_THRES  ((SHIELD_RADIUS + RES_SCALE(1)) * (SHIELD_RADIUS + RES_SCALE(1)))
 #define SHIELD_HALO_GLOW     (SHIELD_GLOW_COMP + SHIELD_REFLECT_COMP)
 #define SHIELD_HALO_GLOW_MIN (SHIELD_HALO_GLOW >> 2)
 
@@ -584,7 +584,7 @@ CreateShieldMask (COUNT radius)
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
 //  the throbbing cycle is tied to the planet rotation cycle
-#define SHIELD_THROBS 12
+#define SHIELD_THROBS RES_DBL(12)
 		// throb cycles per revolution
 #define THROB_CYCLE      ((MAP_WIDTH << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
@@ -594,15 +594,13 @@ CreateShieldMask (COUNT radius)
 #define THROB_D_LEVEL   (THROB_MAX_LEVEL - THROB_MIN_LEVEL)
 
 static inline int
-shield_level (int offset, int width)
+shield_level (int offset)
 {
 	int level;
-	int throb_cycle = ((width << 8) / SHIELD_THROBS);
-	int throb_half_cycle = throb_cycle >> 1;
 
-	offset = (offset << 8) % throb_cycle;
-	level = abs (offset - throb_half_cycle);
-	level = THROB_MIN_LEVEL + level * THROB_D_LEVEL / throb_half_cycle;
+	offset = (offset << 8) % THROB_CYCLE;
+	level = abs (offset - THROB_HALF_CYCLE);
+	level = THROB_MIN_LEVEL + level * THROB_D_LEVEL / THROB_HALF_CYCLE;
 
 	return level;
 }
@@ -618,11 +616,10 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 	Color *pix;
 	int level;
 	
+	level = shield_level (offset);
+
 	width = GetFrameWidth (ShieldFrame);
 	height = GetFrameHeight (ShieldFrame);
-	
-	level = shield_level (offset, width);
-	
 	ReadFramePixelColors (ShieldFrame, Orbit->ScratchArray, width, height);
 	
 	for (i = 0, pix = Orbit->ScratchArray; i < width * height; ++i, ++pix)
@@ -731,7 +728,7 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 #endif
 
 
-	shLevel = shield_level (offset, width);
+	shLevel = shield_level (offset);
 
 	pix = Orbit->ScratchArray;
 	clear = BUILD_COLOR_RGBA (0, 0, 0, 0);
