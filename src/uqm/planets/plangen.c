@@ -1788,11 +1788,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
 	
-	if (ForIP)
-		planet_orbit_init (width, height, FALSE);
-	else
-		planet_orbit_init (MAP_WIDTH, MAP_HEIGHT + IF_HD(1), TRUE); // JMS_GFX: Was MAP_HEIGHT without the +1. Added this to avoid overflows.
-	
+	planet_orbit_init (width, height, !ForIP);	
 
 	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
 

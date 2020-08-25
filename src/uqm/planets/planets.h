@@ -318,7 +318,6 @@ extern void FreeLanderFont (PLANET_INFO *info);
 extern void ExploreSolarSys (void);
 extern void DrawStarBackGround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
-// extern PLAN_GEN_FUNC GenerateIP (BYTE Index);
 extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
 extern void DrawFilledOval (RECT *pRect);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val);
@@ -332,7 +331,8 @@ extern void PrepareNextRotationFrame (void);
 extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter);
 extern void DrawPlanetSphere (int x, int y);
 extern void DrawDefaultPlanetSphere (void);
-extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame, int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius);
+extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame, int offset,
+		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius);
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
 
 extern void ZoomInPlanetSphere (void);
@@ -358,4 +358,3 @@ extern void SaveSolarSysLocation (void);
 #endif
 
 #endif /* UQM_PLANETS_PLANETS_H_ */
-

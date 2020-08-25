@@ -129,13 +129,15 @@ PrepareNextRotationFrame (void)
 	// Go to next point, taking care of wraparounds
 	rotPointIndex += rotDirection;
 	if (rotPointIndex < 0)
-		rotPointIndex = MAP_WIDTH - 1;
-	else if (rotPointIndex >= MAP_WIDTH)
+		rotPointIndex = rotwidth - 1;
+	else if (rotPointIndex >= rotwidth)
 		rotPointIndex = 0;
 
 	// prepare the next sphere frame
 	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, rotFrameIndex);
-	RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex, pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED, throbShield, rotwidth, rotheight, (rotheight >> 1) - RESOLUTION_FACTOR); // RADIUS
+	RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
+			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
+			throbShield, rotwidth, rotheight, (rotheight >> 1) - RESOLUTION_FACTOR); // RADIUS
 	
 	if (throbShield)
 	{	// prepare the next shield throb frame
