@@ -189,16 +189,7 @@ debugKeyPressedSynchronous (void)
 	{
 		printf("Debug Key Activated\n\n");
 		equipShip ();
-		//showSpheres ();
-		{
-			// Alternative to showSpheres() which allows you to view
-			// the SOI expand for each race
-			BYTE i;
-
-			for(i = 0; i <= BLACK_URQUAN_SHIP; i++)
-				StartSphereTracking(i);
-
-		}
+		showSpheres (TRUE);
 	}
 
 	forwardToNextEvent (TRUE);
@@ -652,26 +643,35 @@ findFlagshipElement (void)
 ////////////////////////////////////////////////////////////////////////////
 
 void
-showSpheres (void)
-{
-	HFLEETINFO hStarShip, hNextShip;
-	
-	for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
-			hStarShip != NULL; hStarShip = hNextShip)
+showSpheres (BOOLEAN Animated)
+{	
+	if (Animated)
+	{	// Alternative which allows you to view		
+		// the animated SOI expand for each race
+		for (BYTE i = 0; i <= BLACK_URQUAN_SHIP; i++)
+			StartSphereTracking (i);
+	}
+	else
 	{
-		FLEET_INFO *FleetPtr;
+		HFLEETINFO hStarShip, hNextShip;
 
-		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-		hNextShip = _GetSuccLink (FleetPtr);
-
-		if ((FleetPtr->actual_strength != INFINITE_RADIUS) &&
-				(FleetPtr->known_strength != FleetPtr->actual_strength))
+		for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
+				hStarShip != NULL; hStarShip = hNextShip)
 		{
-			FleetPtr->known_strength = FleetPtr->actual_strength;
-			FleetPtr->known_loc = FleetPtr->loc;
-		}
+			FLEET_INFO *FleetPtr;
 
-		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+			FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+			hNextShip = _GetSuccLink (FleetPtr);
+
+			if ((FleetPtr->actual_strength != INFINITE_RADIUS) &&
+					(FleetPtr->known_strength != FleetPtr->actual_strength))
+			{
+				FleetPtr->known_strength = FleetPtr->actual_strength;
+				FleetPtr->known_loc = FleetPtr->loc;
+			}
+
+			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+		}
 	}
 }
 

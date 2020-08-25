@@ -77,7 +77,7 @@ void giveDevices (void);
 void clearEscorts (void);
 
 // Show all active spheres of influence.
-void showSpheres (void);
+void showSpheres (BOOLEAN Animated);
 
 // Make the ships of all races available for building at the shipyard.
 void activateAllShips (void);
