@@ -70,7 +70,7 @@ read_16 (void *fp, UWORD *v)
 static inline size_t
 read_16s (void *fp, SWORD *v)
 {
-	return read_16 (fp, (UWORD *) v);
+	return read_16 (fp, v);
 }
 
 static inline size_t
@@ -95,7 +95,7 @@ read_32 (void *fp, DWORD *v)
 static inline size_t
 read_32s (void *fp, SDWORD *v)
 {
-	return read_32 (fp, (DWORD *) v);
+	return read_32 (fp, v);
 }
 
 static inline size_t
@@ -303,7 +303,6 @@ static BOOLEAN
 LoadGameState (GAME_STATE *GSPtr, void *fh)
 {
 	DWORD magic;
-	BYTE res_scale; // JMS
 	read_32 (fh, &magic);
 	if (magic != GLOBAL_STATE_TAG)
 	{
@@ -332,12 +331,6 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	read_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
 	read_16  (fh, &GSPtr->CurrentActivity);
 
-	// JMS
-	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
-		res_scale = RESOLUTION_FACTOR;
-	else
-		res_scale = 0;
-
 	LoadClockState (&GSPtr->GameClock, fh);
 
 	read_16s (fh, &GSPtr->autopilot.x);
@@ -364,16 +357,19 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	read_16s (fh, &GSPtr->velocity.error.height);
 	read_16s (fh, &GSPtr->velocity.incr.width);
 	read_16s (fh, &GSPtr->velocity.incr.height);
+	
+	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
+	{	// JMS: Let's make savegames work even between different resolution modes.	
+		GSPtr->velocity.vector.width  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.vector.height <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.fract.width	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.fract.height  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.error.width	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.error.height  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.incr.width	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.incr.height	  <<= RESOLUTION_FACTOR;
+	}
 
-	// JMS: Let's make savegames work even between different resolution modes.
-	GSPtr->velocity.vector.width  <<= res_scale; 
-	GSPtr->velocity.vector.height <<= res_scale; 
-	GSPtr->velocity.fract.width	  <<= res_scale; 
-	GSPtr->velocity.fract.height  <<= res_scale; 
-	GSPtr->velocity.error.width	  <<= res_scale; 
-	GSPtr->velocity.error.height  <<= res_scale; 
-	GSPtr->velocity.incr.width	  <<= res_scale; 
-	GSPtr->velocity.incr.height	  <<= res_scale; 
 	read_32 (fh, &magic);
 	if (magic != GAME_STATE_TAG)
 	{
@@ -459,7 +455,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 	DWORD nameSize = 0;
 	if (!read_32 (fp, &magic))
 		return FALSE;
-	if (magic == SAVEFILE_TAG)
+	if (magic == MEGA_TAG)
 	{
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
@@ -475,8 +471,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 	if (!LoadSisState (&SummPtr->SS, fp))
 		return FALSE;
 
-	if (
-			read_8  (fp, &SummPtr->Activity) != 1 ||
+	if (	read_8  (fp, &SummPtr->Activity) != 1 ||
 			read_8  (fp, &SummPtr->Flags) != 1 ||
 			read_8  (fp, &SummPtr->day_index) != 1 ||
 			read_8  (fp, &SummPtr->month_index) != 1 ||
@@ -506,7 +501,6 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 		if (skip_8 (fp, remaining) != 1)
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -716,7 +710,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	DWORD chunk, chunkSize;
 	BOOLEAN first_group_spec = TRUE;
 
-	sprintf (file, "uqmsave.%02u", which_game);
+	sprintf (file, "megasave.%02u", which_game);
 	in_fp = res_OpenResFile (saveDir, file, "rb");
 	if (!in_fp)
 		return LoadLegacyGame(which_game, SummPtr, FALSE);
@@ -752,7 +746,6 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	initEventSystem ();
 
 	Activity = GLOBAL (CurrentActivity);
-
 	if (!LoadGameState (&GlobData.Game_state, in_fp))
 	{
 		res_CloseResFile (in_fp);

@@ -1469,7 +1469,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 
 	// Write the memory file to the actual savegame file.
-	sprintf (file, "uqmsave.%02u", which_game);
+	sprintf (file, "megasave.%02u", which_game);
 	if ((out_fp = res_OpenResFile (saveDir, file, "wb")))
 	{
 		io_ok = TRUE;

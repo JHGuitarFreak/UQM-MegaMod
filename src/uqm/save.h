@@ -35,6 +35,7 @@ extern "C" {
 
 // The savefile tag numbers.
 #define SAVEFILE_TAG     0x01534d55 // "UMS\x01": UQM Save version 1
+#define MEGA_TAG		 0x4147454D // "MEGA": MegaMod Save version 2
 #define SUMMARY_TAG      0x6d6d7553 // "Summ": Summary. Must be first!
 #define GLOBAL_STATE_TAG 0x74536c47 // "GlSt": Global State. Must be 2nd!
 #define GAME_STATE_TAG   0x74536d47 // "GmSt": Game State Bits. Must be 3rd!
@@ -67,7 +68,7 @@ typedef struct
 extern ACTIVITY NextActivity;
 
 extern BOOLEAN LoadGame (COUNT which_game, SUMMARY_DESC *summary_desc);
-extern BOOLEAN LoadLegacyGame  (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla);
+extern BOOLEAN LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla);
 
 extern void SaveProblem (void);
 extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc, const char *name);
