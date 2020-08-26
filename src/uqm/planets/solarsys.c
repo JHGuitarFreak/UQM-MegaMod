@@ -1488,16 +1488,13 @@ CheckShipLocation (SIZE *newRadius)
 }
 
 static void
-DrawSystemTransition (BOOLEAN inner, SIZE Radius)
+DrawSystemTransition (BOOLEAN inner)
 {
-	SIZE newRadius;
-
 	SetTransitionSource (NULL);
-	CheckShipLocation (&newRadius);
 	BatchGraphics ();
 	if (inner)
 		DrawInnerSystem ();
-	else if (Radius == newRadius)
+	else
 		DrawOuterSystem ();
 	RedrawQueue (FALSE);
 	ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
@@ -1508,7 +1505,7 @@ static void
 TransitionSystemIn (void)
 {
 	SetContext (SpaceContext);
-	DrawSystemTransition (playerInInnerSystem (), NULL);
+	DrawSystemTransition (playerInInnerSystem ());
 }
 
 static void
@@ -1824,11 +1821,11 @@ IP_frame (void)
 	{
 		if (playerInInnerSystem ())
 		{	// Entering inner system
-			DrawSystemTransition (TRUE, FALSE);
+			DrawSystemTransition (TRUE);
 		}
 		else if (pSolarSysState->SunDesc[0].radius == newRadius)
 		{	// Leaving inner system to outer
-			DrawSystemTransition (FALSE, newRadius);
+			DrawSystemTransition (FALSE);
 		}
 		else
 		{	// Zooming outer system
