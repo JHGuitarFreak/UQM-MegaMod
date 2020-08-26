@@ -1485,20 +1485,11 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 			read_8  (fp, &SummPtr->NumDevices) != 1 ||
 			read_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
 			read_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
-			read_8  (fp, &SummPtr->res_factor) != 1 || // JMS: This'll help making saves between different resolutions compatible.
-		
-			read_8  (fp, NULL) != 1 /* padding */
+			read_8  (fp, &SummPtr->res_factor) != 1 || // JMS: This'll help making saves between different resolutions compatible.		
+			read_8  (fp, NULL) != 1 || /* padding */
+			(!try_vanilla && (read_8 (fp, NULL) != 1))
 		)
 		return FALSE;
-	else
-	{
-		// JMS: UQM-HD saves have an extra piece of padding to compensate for the
-		// added res_factor in SummPtr.
-		if (!try_vanilla)
-			read_8 (fp, NULL); /* padding */
-	
-		return TRUE;
-	}
 }
 
 static void
