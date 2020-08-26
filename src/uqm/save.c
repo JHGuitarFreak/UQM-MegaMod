@@ -1473,7 +1473,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 	if ((out_fp = res_OpenResFile (saveDir, file, "wb")))
 	{
 		io_ok = TRUE;
-		write_32 (out_fp, SAVEFILE_TAG);
+		write_32 (out_fp, MEGA_TAG);
 
 		PrepareSummary (SummPtr, name);
 		SaveSummary (SummPtr, out_fp);
