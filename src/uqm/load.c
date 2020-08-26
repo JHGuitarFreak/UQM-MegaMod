@@ -20,7 +20,6 @@
 
 #include "build.h"
 #include "encount.h"
-#include "gameev.h"
 #include "starmap.h"
 #include "libs/file.h"
 #include "globdata.h"
@@ -70,7 +69,7 @@ read_16 (void *fp, UWORD *v)
 static inline size_t
 read_16s (void *fp, SWORD *v)
 {
-	return read_16 (fp, v);
+	return read_16 (fp, (UWORD *) v);
 }
 
 static inline size_t
@@ -95,7 +94,7 @@ read_32 (void *fp, DWORD *v)
 static inline size_t
 read_32s (void *fp, SDWORD *v)
 {
-	return read_32 (fp, v);
+	return read_32 (fp, (DWORD *) v);
 }
 
 static inline size_t
@@ -241,7 +240,7 @@ LoadGroupQueue (void *fh, QUEUE *pQueue, DWORD size)
 }
 
 static void
-LoadEncounter (ENCOUNTER *EncounterPtr, void *fh)
+LoadEncounter (ENCOUNTER *EncounterPtr, void *fh, BOOLEAN try_core)
 {
 	COUNT i;
 
@@ -274,8 +273,16 @@ LoadEncounter (ENCOUNTER *EncounterPtr, void *fh)
 	read_32s (fh, &EncounterPtr->log_x);
 	read_32s (fh, &EncounterPtr->log_y);
 
-	EncounterPtr->log_x <<= RESOLUTION_FACTOR;
-	EncounterPtr->log_y <<= RESOLUTION_FACTOR;
+	if (try_core)
+	{	// Use old Log X to Universe code to get proper coordinates from core saves
+		EncounterPtr->log_x = RES_SCALE (UNIVERSE_TO_LOGX (oldLogxToUniverse (EncounterPtr->log_x)));
+		EncounterPtr->log_y = RES_SCALE (UNIVERSE_TO_LOGY (oldLogyToUniverse (EncounterPtr->log_y)));
+	}
+	else
+	{	// JMS: Let's make savegames work even between different resolution modes.
+		EncounterPtr->log_x <<= RESOLUTION_FACTOR;
+		EncounterPtr->log_y <<= RESOLUTION_FACTOR;
+	}
 }
 
 static void
@@ -300,7 +307,7 @@ LoadClockState (CLOCK_STATE *ClockPtr, void *fh)
 }
 
 static BOOLEAN
-LoadGameState (GAME_STATE *GSPtr, void *fh)
+LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 {
 	DWORD magic;
 	read_32 (fh, &magic);
@@ -317,16 +324,13 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	read_8   (fh, &GSPtr->glob_flags);
 	read_8   (fh, &GSPtr->CrewCost);
 	read_8   (fh, &GSPtr->FuelCost);
-	// JMS: Now that we have read the fuelcost, we can compare it
-	// to the correct value. Fuel cost is always FUEL_COST_RU, and if
-	// the savefile tells otherwise, we have read it with the wrong method
-	// (The savegame is from vanilla UQM and we've been reading it as if it
-	// were UQM-HD save.)
-	//
-	// At this point we must then cease reading the savefile, close it
-	// and re-open it again, this time using the vanilla-reading method.
+
+	// JMS: If fuel cost doesn't match FUEL_COST_RU we must cease
+	// reading the savefile, close it, then re-open it again. This
+	// time using the vanilla-reading method.
 	if (GSPtr->FuelCost != FUEL_COST_RU)
 		return FALSE;
+		
 	read_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
 	read_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
 	read_16  (fh, &GSPtr->CurrentActivity);
@@ -344,7 +348,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	read_8   (fh, &GSPtr->ip_planet);
 	read_8   (fh, &GSPtr->in_orbit);
 
-	// JMS: Let's make savegames work even between different resolution modes.
+	// Let's make savegames work even between different resolution modes.
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR; 
 	/* VELOCITY_DESC velocity */
@@ -359,7 +363,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	read_16s (fh, &GSPtr->velocity.incr.height);
 	
 	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
-	{	// JMS: Let's make savegames work even between different resolution modes.	
+	{	// Let's make savegames work even between different resolution modes.	
 		GSPtr->velocity.vector.width  <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.vector.height <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.fract.width	  <<= RESOLUTION_FACTOR;
@@ -376,9 +380,12 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 		return FALSE;
 	}
 	{
-		size_t gameStateByteCount = (NUM_GAME_STATE_BITS + 7) >> 3;
+		size_t gameStateByteCount;
 		BYTE *buf;
 		BOOLEAN result;
+
+		gameStateByteCount = ((NUM_GAME_STATE_BITS + 7) >> 3) 
+				- (try_core ? 2 : 0);
 
 		read_32 (fh, &magic);
 		if (magic < gameStateByteCount)
@@ -397,8 +404,8 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 		}
 
 		read_a8 (fh, buf, gameStateByteCount);
-		result = deserialiseGameState (gameStateBitMap, buf,
-				gameStateByteCount);
+		result = deserialiseGameState ((try_core ? coreGameStateBitMap  : gameStateBitMap),
+				buf, gameStateByteCount);
 		HFree(buf);
 		if (result == FALSE)
 		{
@@ -415,7 +422,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 }
 
 static BOOLEAN
-LoadSisState (SIS_STATE *SSPtr, void *fp)
+LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core)
 {
 	if (
 			read_32s (fp, &SSPtr->log_x) != 1 ||
@@ -434,28 +441,37 @@ LoadSisState (SIS_STATE *SSPtr, void *fp)
 			read_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
 			read_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
 			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1 ||
-			read_8   (fp, &SSPtr->Difficulty) != 1 ||
-			read_8   (fp, &SSPtr->Extended) != 1 ||
-			read_8   (fp, &SSPtr->Nomad) != 1 ||
-			read_32s (fp, &SSPtr->Seed) != 1
+			(!try_core && (read_8 (fp, &SSPtr->Difficulty) != 1)) ||
+			(!try_core && (read_8 (fp, &SSPtr->Extended) != 1)) ||
+			(!try_core && (read_8 (fp, &SSPtr->Nomad) != 1)) ||
+			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1))
 		)
 		return FALSE;
- 	else {
-		// JMS: Let's make savegames work even between different resolution modes.
-		SSPtr->log_x <<= RESOLUTION_FACTOR;
-		SSPtr->log_y <<= RESOLUTION_FACTOR;
+ 	else 
+ 	{
+		if (try_core)
+		{	// Use old Log X to Universe code to get proper coordinates from core saves
+			SSPtr->log_x = RES_SCALE (UNIVERSE_TO_LOGX (oldLogxToUniverse (SSPtr->log_x)));
+			SSPtr->log_y = RES_SCALE (UNIVERSE_TO_LOGY (oldLogyToUniverse (SSPtr->log_y)));
+		}
+		else
+		{	// JMS: Let's make savegames work even between different resolution modes.
+			SSPtr->log_x <<= RESOLUTION_FACTOR;
+			SSPtr->log_y <<= RESOLUTION_FACTOR;
+		}
 		return TRUE;
 	}
 }
 
 static BOOLEAN
-LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
+LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 {
-	DWORD magic; // , PrevFLoc;
+	DWORD magic;
+	DWORD magicTag = try_core ? SAVEFILE_TAG : MEGA_TAG;
 	DWORD nameSize = 0;
 	if (!read_32 (fp, &magic))
 		return FALSE;
-	if (magic == MEGA_TAG)
+	if (magic == magicTag)
 	{
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
@@ -468,8 +484,14 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 		return FALSE;
 	}
 
-	if (!LoadSisState (&SummPtr->SS, fp))
+	if (!LoadSisState (&SummPtr->SS, fp, try_core))
 		return FALSE;
+	
+	if (try_core)
+	{	// Sanitize seed, difficulty, extended, and nomad variables
+		SummPtr->SS.Seed = SummPtr->SS.Difficulty = 0;
+		SummPtr->SS.Extended = SummPtr->SS.Nomad = 0;
+	}
 
 	if (	read_8  (fp, &SummPtr->Activity) != 1 ||
 			read_8  (fp, &SummPtr->Flags) != 1 ||
@@ -482,7 +504,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 			read_8  (fp, &SummPtr->NumDevices) != 1 ||
 			read_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
 			read_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
-			read_8  (fp, &SummPtr->res_factor) != 1 // JMS: This'll help making saves between different resolutions compatible.		
+			(!try_core && (read_8 (fp, &SummPtr->res_factor) != 1))
 		)
 		return FALSE;
 	
@@ -699,26 +721,21 @@ LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
 }
 
 BOOLEAN
-LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
+LoadCoreGame (COUNT which_game, SUMMARY_DESC* SummPtr)
 {
-	uio_Stream *in_fp;
+	uio_Stream* in_fp;
 	char file[PATH_MAX];
 	SUMMARY_DESC loc_sd;
-	COUNT num_links;
-	STAR_DESC SD;
-	ACTIVITY Activity;
-	DWORD chunk, chunkSize;
-	BOOLEAN first_group_spec = TRUE;
 
-	sprintf (file, "megasave.%02u", which_game);
+	sprintf (file, "uqmsave.%02u", which_game);
 	in_fp = res_OpenResFile (saveDir, file, "rb");
 	if (!in_fp)
-		return LoadLegacyGame(which_game, SummPtr, FALSE);
+		return LoadLegacyGame (which_game, SummPtr, FALSE);
 
-	if (!LoadSummary (&loc_sd, in_fp))
+	if (!LoadSummary (&loc_sd, in_fp, TRUE))
 	{
 		res_CloseResFile (in_fp);
-		return LoadLegacyGame(which_game, SummPtr, FALSE);
+		return LoadLegacyGame (which_game, SummPtr, FALSE);
 	}
 
 	if (!SummPtr)
@@ -727,9 +744,52 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	}
 	else
 	{	// only need summary for displaying to user
-		memcpy (SummPtr, &loc_sd, sizeof (*SummPtr));
+		memcpy(SummPtr, &loc_sd, sizeof(*SummPtr));
 		res_CloseResFile (in_fp);
 		return TRUE;
+	}
+		
+	if (!LoadGame (which_game, SummPtr, in_fp, TRUE))
+	{
+		res_CloseResFile (in_fp);
+		return FALSE;
+	}
+}
+
+BOOLEAN
+LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN try_core)
+{
+	char file[PATH_MAX];
+	SUMMARY_DESC loc_sd;
+	COUNT num_links;
+	STAR_DESC SD;
+	ACTIVITY Activity;
+	DWORD chunk, chunkSize;
+	BOOLEAN first_group_spec = TRUE;
+
+	if (!try_core)
+	{
+		sprintf (file, "uqmsave.%02u", which_game);
+		in_fp = res_OpenResFile (saveDir, file, "rb");
+		if (!in_fp)
+			return LoadLegacyGame (which_game, SummPtr, FALSE);
+
+		if (!LoadSummary (&loc_sd, in_fp, FALSE))
+		{
+			res_CloseResFile (in_fp);
+			return LoadCoreGame (which_game, SummPtr);
+		}
+
+		if (!SummPtr)
+		{
+			SummPtr = &loc_sd;
+		}
+		else
+		{	// only need summary for displaying to user
+			memcpy (SummPtr, &loc_sd, sizeof (*SummPtr));
+			res_CloseResFile (in_fp);
+			return TRUE;
+		}
 	}
 
 	GlobData.SIS_state = SummPtr->SS;
@@ -746,7 +806,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	initEventSystem ();
 
 	Activity = GLOBAL (CurrentActivity);
-	if (!LoadGameState (&GlobData.Game_state, in_fp))
+	if (!LoadGameState (&GlobData.Game_state, in_fp, try_core))
 	{
 		res_CloseResFile (in_fp);
 		return FALSE;
@@ -757,11 +817,11 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	chunk = 0;
 	while (TRUE)
 	{
-		if (read_32(in_fp, &chunk) != 1)
+		if (read_32 (in_fp, &chunk) != 1)
 		{
 			break;
 		}
-		if (read_32(in_fp, &chunkSize) != 1)
+		if (read_32 (in_fp, &chunkSize) != 1)
 		{
 			res_CloseResFile (in_fp);
 			return FALSE;
@@ -784,7 +844,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 				hEncounter = AllocEncounter ();
 				LockEncounter (hEncounter, &EncounterPtr);
 
-				LoadEncounter (EncounterPtr, in_fp);
+				LoadEncounter (EncounterPtr, in_fp, try_core);
 
 				UnlockEncounter (hEncounter);
 				PutEncounter (hEncounter);
@@ -817,7 +877,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 			}
 			break;
 		case STAR_TAG:
-			LoadStarDesc (&SD, in_fp);			
+			LoadStarDesc (&SD, in_fp);
 			loadGameCheats();
 			break;
 		case NPC_SHIP_Q_TAG:

@@ -1157,7 +1157,7 @@ LoadGroupQueue (DECODE_REF fh, QUEUE *pQueue)
 }
 
 static void
-LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh)
+LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh, BOOLEAN try_vanilla)
 {
 	COUNT i;
 	BYTE tmpb;
@@ -1206,10 +1206,17 @@ LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh)
 	// Load the stuff after the BRIEF_SHIP_INFO array
 	cread_32s (fh, &EncounterPtr->log_x);
 	cread_32s (fh, &EncounterPtr->log_y);
-	
-	// JMS: Let's make savegames work even between different resolution modes.
-	EncounterPtr->log_x <<= RESOLUTION_FACTOR;
-	EncounterPtr->log_y <<= RESOLUTION_FACTOR;
+
+	if (try_vanilla)
+	{	// Use old Log to Universe code to get proper coordinates from legacy saves
+		EncounterPtr->log_x = RES_SCALE (UNIVERSE_TO_LOGX (oldLogxToUniverse (EncounterPtr->log_x)));
+		EncounterPtr->log_y = RES_SCALE (UNIVERSE_TO_LOGY (oldLogyToUniverse (EncounterPtr->log_y)));
+	}
+	else
+	{	// JMS: Let's make savegames work even between different resolution modes.
+		EncounterPtr->log_x <<= RESOLUTION_FACTOR;
+		EncounterPtr->log_y <<= RESOLUTION_FACTOR;
+	}
 }
 
 static void
@@ -1459,9 +1466,9 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 	// JMS: Now we'll put those temp variables into action.
 	if (no_savename)
 	{
-		// Removed the complicated maths in favor of utilizing the Vanilla LOG_X code
-		SummPtr->SS.log_x = UNIVERSE_TO_LOGX(oldLogxToUniverse(temp_log_x));
-		SummPtr->SS.log_y = UNIVERSE_TO_LOGY(oldLogyToUniverse(temp_log_y));
+		// Use old Log to Universe code to get proper coordinates from legacy saves
+		SummPtr->SS.log_x = UNIVERSE_TO_LOGX (oldLogxToUniverse (temp_log_x));
+		SummPtr->SS.log_y = UNIVERSE_TO_LOGY (oldLogyToUniverse (temp_log_y));
 		SummPtr->SS.ResUnits = temp_ru;
 		SummPtr->SS.FuelOnBoard = temp_fuel;
 	}
@@ -1659,7 +1666,7 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 			hEncounter = AllocEncounter ();
 			LockEncounter (hEncounter, &EncounterPtr);
 
-			LoadEncounter (EncounterPtr, fh);
+			LoadEncounter (EncounterPtr, fh, try_vanilla);
 
 			UnlockEncounter (hEncounter);
 			PutEncounter (hEncounter);
