@@ -405,13 +405,13 @@ BuildUrquanGuard (SOLARSYS_STATE *solarSys)
 
 	if (!GET_GAME_STATE (KOHR_AH_FRENZY))
 	{
-		ship1 = (!EXTENDED ? URQUAN_SHIP : BLACK_URQUAN_SHIP);
+		ship1 = URQUAN_SHIP;
 		ship2 = BLACK_URQUAN_SHIP;
 	}
 	else
 	{
 		ship1 = BLACK_URQUAN_SHIP;
-		ship2 = URQUAN_SHIP;
+		ship2 = (!EXTENDED ? URQUAN_SHIP : BLACK_URQUAN_SHIP);
 	}
 
 	assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
