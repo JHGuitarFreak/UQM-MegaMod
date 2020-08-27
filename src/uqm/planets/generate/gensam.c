@@ -39,8 +39,6 @@ static bool GenerateSaMatra_reinitNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *planet);
-static bool GenerateSaMatra_generateName (const SOLARSYS_STATE *,
-	const PLANET_DESC *world);
 static bool GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
 
@@ -53,7 +51,7 @@ const GenerateFunctions generateSaMatraFunctions = {
 	/* .uninitNpcs       = */ GenerateDefault_uninitNpcs,
 	/* .generatePlanets  = */ GenerateSaMatra_generatePlanets,
 	/* .generateMoons    = */ GenerateSaMatra_generateMoons,
-	/* .generateName     = */ GenerateSaMatra_generateName,
+	/* .generateName     = */ GenerateDefault_generateName,
 	/* .generateOrbital  = */ GenerateSaMatra_generateOrbital,
 	/* .generateMinerals = */ GenerateDefault_generateMinerals,
 	/* .generateEnergy   = */ GenerateDefault_generateEnergy,
@@ -67,7 +65,8 @@ const GenerateFunctions generateSaMatraFunctions = {
 static bool
 GenerateSaMatra_initNpcs (SOLARSYS_STATE *solarSys)
 {
-	if (CurStarDescPtr->Index == SAMATRA_DEFINED) {
+	if (CurStarDescPtr->Index == SAMATRA_DEFINED) 
+	{
 		if (!GET_GAME_STATE (URQUAN_MESSED_UP))
 		{
 			BuildUrquanGuard (solarSys);
@@ -205,7 +204,9 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 		}
 	}
 
-	if (CurStarDescPtr->Index == URQUAN_DEFINED || CurStarDescPtr->Index == KOHRAH_DEFINED)
+	if (EXTENDED
+		&& (CurStarDescPtr->Index == URQUAN_DEFINED 
+		|| CurStarDescPtr->Index == KOHRAH_DEFINED))
 	{
 		for (p = 0; p < solarSys->SunDesc[0].NumPlanets; p++) {
 			if (solarSys->PlanetDesc[p].NumPlanets <= 1)
@@ -269,23 +270,6 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateSaMatra_generateName (const SOLARSYS_STATE *solarSys,
-	const PLANET_DESC *world)
-{
-	if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
-	{
-		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 32));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index);
-	}
-	else
-		GenerateDefault_generateName (solarSys, world);
-
-	return true;
-}
-
-static bool
 GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
 	/* Samatra */
@@ -295,25 +279,25 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{
 			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 			ReinitQueue (&GLOBAL (ip_group_q));
-
 			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
 			if (!GET_GAME_STATE (URQUAN_MESSED_UP))
 			{
-				CloneShipFragment (!GET_GAME_STATE (KOHR_AH_FRENZY) ?
-					URQUAN_SHIP : BLACK_URQUAN_SHIP,
-					&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
+				CloneShipFragment ((EXTENDED 
+						&& GET_GAME_STATE (KOHR_AH_FRENZY)
+						? BLACK_URQUAN_SHIP : URQUAN_SHIP),
+						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
 			}
 			else
 			{
-#define URQUAN_REMNANTS 3
+	#define URQUAN_REMNANTS 3
 				BYTE i;
 
 				for (i = 0; i < URQUAN_REMNANTS; ++i)
 				{
-					CloneShipFragment (EXTENDED 
+					CloneShipFragment ((EXTENDED 
 						&& GET_GAME_STATE (KOHR_AH_FRENZY) ?
-						BLACK_URQUAN_SHIP : URQUAN_SHIP,
+						BLACK_URQUAN_SHIP : URQUAN_SHIP),
 						&GLOBAL (npc_built_ship_q), 0);
 					CloneShipFragment (BLACK_URQUAN_SHIP,
 						&GLOBAL (npc_built_ship_q), 0);
@@ -337,7 +321,6 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 				ReinitQueue (&GLOBAL (npc_built_ship_q));
 				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
-
 				if (UrquanSurvivors)
 				{
 					SET_GAME_STATE (URQUAN_PROTECTING_SAMATRA, 0);
@@ -353,7 +336,6 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						InitCommunication (YEHAT_REBEL_CONVERSATION);
 				}
 			}
-
 			return true;
 		}
 
@@ -383,8 +365,8 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			return true;
 		}
 
-		if (CurStarDescPtr->Index == URQUAN_DEFINED
-			|| CurStarDescPtr->Index == KOHRAH_DEFINED) 
+		if (EXTENDED && (CurStarDescPtr->Index == URQUAN_DEFINED
+			|| CurStarDescPtr->Index == KOHRAH_DEFINED))
 		{
 			BYTE Index = CurStarDescPtr->Index == URQUAN_DEFINED ? 0 : 1;
 
@@ -408,7 +390,6 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
-
 	return true;
 }
 
@@ -424,7 +405,7 @@ BuildUrquanGuard (SOLARSYS_STATE *solarSys)
 
 	if (!GET_GAME_STATE (KOHR_AH_FRENZY))
 	{
-		ship1 = URQUAN_SHIP;
+		ship1 = (!EXTENDED ? URQUAN_SHIP : BLACK_URQUAN_SHIP);
 		ship2 = BLACK_URQUAN_SHIP;
 	}
 	else
