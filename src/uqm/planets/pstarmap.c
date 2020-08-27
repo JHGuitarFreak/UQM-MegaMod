@@ -283,7 +283,6 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 	}
 }
 
-
 // JMS: For showing the SC1-era situation in starmap
 static void
 GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
@@ -384,13 +383,14 @@ DrawFuelCircles ()
 		(get_fuel_to_sol () > OnBoardFuel))
 	{
 		diameter_no_return = 0;
-	} else {
-		diameter_no_return = OnBoardFuel - get_fuel_to_sol();
 	}
+	else
+		diameter_no_return = OnBoardFuel - get_fuel_to_sol();
 
 	if (!inHQSpace())
 		corner = CurStarDescPtr->star_pt;
-	else {
+	else
+	{
 		corner.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 		corner.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
@@ -513,9 +513,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	ClearDrawable ();
 
 	// Draw the fuel range circle
-	if (race_update == 0 && which_space < 2) {
+	if (race_update == 0 && which_space < 2)
 		DrawFuelCircles ();
-	}
 
 	for (i = MAX_Y_UNIVERSE + 1; i >= 0; i -= GRID_DELTA)
 	{
@@ -605,6 +604,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
 					t.baseline.y = r.corner.y + (r.extent.height >> 1) - 1;
 					t.align = ALIGN_CENTER;
+					
 					// JMS: For drawing SC1-era starmap.
 					if (show_prewar_situation && prewar_name_unknown[index])
 					{
@@ -662,6 +662,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 							0xff : c.b + CC5TO8 (0x03);
 
 					SetContextForeGroundColor (c);
+					
 					if ((!show_prewar_situation) ||
 						(show_prewar_situation && prewar_strengths[index]))
 						font_DrawText (&t);
@@ -781,7 +782,9 @@ EraseCursor (COORD curs_x, COORD curs_y)
 static void
 ZoomStarMap (SIZE dir)
 {
-#define MAX_ZOOM_SHIFT 4
+	// MAX_ZOOM_SHIFT is set to 2 in HD because the cursor
+	// gets stuck in levels 3 and 4.
+#define MAX_ZOOM_SHIFT (BYTE)(4 - RESOLUTION_FACTOR)
 	if (dir > 0)
 	{
 		if (zoomLevel < MAX_ZOOM_SHIFT)
@@ -860,7 +863,8 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 
 		s.origin.y = UNIVERSE_TO_DISPY (cursorLoc.y);
-		if (IS_HD && s.origin.y < 0 && zoomLevel == 0) {
+		if (IS_HD && s.origin.y < 0 && zoomLevel == 0) 
+		{
 			s.origin.y = 0;
 			cursorLoc.y = DISP_TO_UNIVERSEY (0);
 		}
@@ -913,6 +917,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
 
 	SDPtr = BestSDPtr = 0;
+	
 	while ((SDPtr = FindStar (SDPtr, &cursorLoc, 75, 75)))
 	{
 		if ((UNIVERSE_TO_DISPX (SDPtr->star_pt.x) >= pt.x - CURSOR_SNAP_AREA && UNIVERSE_TO_DISPX (SDPtr->star_pt.x) <= pt.x + CURSOR_SNAP_AREA)
@@ -984,6 +989,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	if (strcmp (buf, prevbuf) != 0)
 	{
 		strcpy (prevbuf, buf);
+		
 		// Cursor is on top of a star. Display its name.
 		if (BestSDPtr)
 			DrawSISMessage (buf);
