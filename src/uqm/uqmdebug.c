@@ -645,10 +645,12 @@ findFlagshipElement (void)
 void
 showSpheres (BOOLEAN Animated)
 {	
+	BYTE i;
+
 	if (Animated)
 	{	// Alternative which allows you to view		
 		// the animated SOI expand for each race
-		for (BYTE i = 0; i <= BLACK_URQUAN_SHIP; i++)
+		for (i = 0; i <= BLACK_URQUAN_SHIP; i++)
 			StartSphereTracking (i);
 	}
 	else
