@@ -434,7 +434,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 
 	Font = TinyFont;
 	lf.baseline.x = r.corner.x + RES_SCALE(3);
-	lf.baseline.y = r.corner.y + RES_BOOL(8, 29);
+	lf.baseline.y = r.corner.y + RES_SCALE(8) + IF_HD(1);
 
 	BackGround = BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33);
 	ForeGround = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01);
