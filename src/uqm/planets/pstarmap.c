@@ -24,6 +24,7 @@
 #include "../races.h"
 #include "../gameopt.h"
 #include "../gamestr.h"
+#include "../gendef.h"
 #include "../globdata.h"
 #include "../shipcont.h"
 #include "../units.h"
@@ -1540,7 +1541,12 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
 
-		if (optBubbleWarp) {
+		BOOLEAN DontLeaveMe = EXTENDED && CurStarDescPtr
+			&& GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2
+			&& GET_GAME_STATE (URQUAN_MESSED_UP)
+			&& CurStarDescPtr->Index == SAMATRA_DEFINED;
+
+		if (optBubbleWarp && !DontLeaveMe) {
 			if (GLOBAL_SIS (FuelOnBoard) >= FuelRequired() || optInfiniteFuel){
 				GLOBAL (autopilot) = cursorLoc;
 				PlayMenuSound (MENU_SOUND_BUBBLEWARP);
@@ -1562,9 +1568,11 @@ DoMoveCursor (MENU_STATE *pMS)
 			} else { 
 				PlayMenuSound (MENU_SOUND_FAILURE);
 			}
-		} else {
+		} else if (!DontLeaveMe) {
 			GLOBAL (autopilot) = cursorLoc;
 			DrawStarMap (0, NULL);
+		} else { 
+			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SEARCH])

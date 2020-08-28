@@ -1443,8 +1443,17 @@ CheckShipLocation (SIZE *newRadius)
 		{	// Outer zoom-out transition
 			if (radius == MAX_ZOOM_RADIUS)
 			{
+				BOOLEAN DontLeaveMe = EXTENDED && CurStarDescPtr
+					&& GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2
+					&& GET_GAME_STATE (URQUAN_MESSED_UP)
+					&& CurStarDescPtr->Index == SAMATRA_DEFINED;
+
 				// The ship leaves IP.
 				GLOBAL (CurrentActivity) |= END_INTERPLANETARY;
+					// Set a hook to move to the new location:
+				if (DontLeaveMe)
+					debugHook = doInstantMove;
+
 				return FALSE; // no location change
 			}
 

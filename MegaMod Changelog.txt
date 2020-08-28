@@ -59,6 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Talk to Kohr-Ah when at the Sa-Matra during Death March
 - MegaMod now supports loading saves from Core UQM v0.8.0
 - EXTENDED: Allies will not chase you if you get close to their ships
+- EXTENDED: Player can't leave Delta Crateris after activating the Dnyarri
 
 ### Changed
 - Tightened up Android control isolation across the board
