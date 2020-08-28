@@ -1945,6 +1945,7 @@ DrawInnerSystem (void)
 	if (optOrbitingPlanets || optTexturedPlanets)
 		DrawInnerPlanets(pSolarSysState->pOrbitalDesc);
 	DrawSISTitle (GLOBAL_SIS (PlanetName));
+	IP_frame(); // MB: To fix planet texture and sun corona 'pop-in'
 }
 
 static void
@@ -1955,6 +1956,7 @@ DrawOuterSystem (void)
 	if (optOrbitingPlanets || optTexturedPlanets)
 		DrawOuterPlanets(pSolarSysState->SunDesc[0].radius);
 	DrawHyperCoords (CurStarDescPtr->star_pt);
+	IP_frame(); // MB: To fix planet texture and sun corona 'pop-in'
 }
 
 RESOURCE
