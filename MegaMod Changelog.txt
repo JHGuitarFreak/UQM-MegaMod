@@ -58,6 +58,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Use the Sa-Matra as a planet for the penultimate battle
 - EXTENDED: Talk to Kohr-Ah when at the Sa-Matra during Death March
 - MegaMod now supports loading saves from Core UQM v0.8.0
+- EXTENDED: Allies will not chase you if you get close to their ships
 
 ### Changed
 - Tightened up Android control isolation across the board
