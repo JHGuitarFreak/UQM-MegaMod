@@ -837,10 +837,10 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		OldContext = SetContext (StatusContext);
 		// Hack StatusContext so we can use standard SIS display funcs
 		GetContextClipRect (&OldRect);
-		r.corner.x = SIS_ORG_X + ((SIS_SCREEN_WIDTH - STATUS_WIDTH) >> 1) 
-					- RES_SCALE(16) + SUMMARY_X_OFFS + IF_HD(6);
+		r.corner.x = SIS_ORG_X + ((SIS_SCREEN_WIDTH - STATUS_WIDTH) >> 1)
+			- RES_SCALE(16) + SUMMARY_X_OFFS;
 		r.corner.y = SIS_ORG_Y;
-		r.extent.width = STATUS_WIDTH + 2 * RESOLUTION_FACTOR;
+		r.extent.width = STATUS_WIDTH;
 		r.extent.height = STATUS_HEIGHT;
 		SetContextClipRect (&r);
 
@@ -975,7 +975,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
-		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4) + (SIS_TITLE_WIDTH >> 1);
+		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4)
+			+ (SIS_TITLE_WIDTH >> 1);
 		switch (pSD->Activity)
 		{
 			case IN_STARBASE:
