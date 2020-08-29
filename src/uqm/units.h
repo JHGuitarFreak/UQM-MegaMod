@@ -70,7 +70,7 @@ extern int ScreenHeight;
 		/* Blue boxes which display messages and the green date box. */
 #define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)						// JMS_GFX
 #define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2)) // JMS_GFX
-#define SIS_TITLE_HEIGHT       RES_BOOL(8, 29)						// JMS_GFX
+#define SIS_TITLE_HEIGHT       RES_SCALE(8)						// JMS_GFX
 #define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)						// JMS_GFX
 
 #define SIS_MESSAGE_BOX_WIDTH  (SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - SIS_SPACER_BOX_WIDTH)
@@ -78,7 +78,7 @@ extern int ScreenHeight;
 #define SIS_MESSAGE_HEIGHT     SIS_TITLE_HEIGHT
 
 #define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_BOOL(4, 7))	 // JMS_GFX
-#define STATUS_MESSAGE_HEIGHT  RES_BOOL(7, 24) // JMS_GFX
+#define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) // JMS_GFX
 
 #define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_BOOL(4, 9))// JMS_GFX
 #define SHIP_NAME_HEIGHT       (RES_STAT_SCALE(7) - IF_HD(4)) // JMS_GFX
@@ -122,8 +122,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 // XXX: These corrected for the weird screen aspect ratio on DOS
 //   In part because of them, hyperflight is slower vertically
-#define UNIT_SCREEN_WIDTH ((63 << (COUNT)RESOLUTION_FACTOR) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
-#define UNIT_SCREEN_HEIGHT ((50 << (COUNT)RESOLUTION_FACTOR) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
+#define UNIT_SCREEN_WIDTH (RES_SCALE(63) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
+#define UNIT_SCREEN_HEIGHT (RES_SCALE(50) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
 
 
 // Bug #945: Simplified, these set the speed of SIS in Hyperspace and
