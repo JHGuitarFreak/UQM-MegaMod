@@ -43,9 +43,8 @@ extern int ScreenHeight;
 #define IF_HD(a) (RES_BOOL(0, (a)))
 #define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
-		/* Margins. */
-#define SIS_ORG_X (7)								// JMS_GFX
-#define SIS_ORG_Y RES_STAT_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
+#define SIS_ORG_X RES_SCALE(7)								// JMS_GFX
+#define SIS_ORG_Y RES_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
 
 /* Status bar & play area sizes. */
 #define STATUS_WIDTH RES_STAT_SCALE(64)
@@ -56,9 +55,9 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT SCREEN_HEIGHT
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - 2 * SIS_ORG_X) // DC: Gray area on the right. just a spacer box
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - (2 * SIS_ORG_X)) // DC: Gray area on the right. just a spacer box
 /* Width of the usable part of the space "window" */
-#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_BOOL(3, 6) - RES_STAT_SCALE(10)) // JMS_GFX
+#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(13)) // JMS_GFX
 /* Height of the usable part of the space "window": 3, 6, 6 for the grey bottom border and 10, 20, 30 for the title */
 #define RES_SIS_SCALE(a) ((SIZE)(a) * SIS_SCREEN_WIDTH / 242) // JMS_GFX
 
