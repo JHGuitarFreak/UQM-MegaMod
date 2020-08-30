@@ -950,16 +950,13 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	}
 	else
 	{	// No star found. Reset the coordinates to the cursor's location
-		POINT temp;
-		temp.x = DISP_TO_UNIVERSEX (pt.x);
-		if (temp.x < 0)
+		if (cursorLoc.x < 0)
 			cursorLoc.x = 0;
-		else if (temp.x > MAX_X_UNIVERSE)
+		else if (cursorLoc.x > MAX_X_UNIVERSE)
 			cursorLoc.x = MAX_X_UNIVERSE;
-		temp.y = DISP_TO_UNIVERSEY (pt.y);
-		if (temp.y < 0)
+		if (cursorLoc.y < 0)
 			cursorLoc.y = 0;
-		else if (temp.y > MAX_Y_UNIVERSE)
+		else if (cursorLoc.y > MAX_Y_UNIVERSE)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 	}
 
