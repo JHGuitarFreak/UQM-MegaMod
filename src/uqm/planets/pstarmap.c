@@ -864,7 +864,7 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 
 		s.origin.y = UNIVERSE_TO_DISPY (cursorLoc.y);
-		if (IS_HD && s.origin.y < 0 && zoomLevel == 0) 
+		if (s.origin.y < 0 && zoomLevel == 0) 
 		{
 			s.origin.y = 0;
 			cursorLoc.y = DISP_TO_UNIVERSEY (0);
@@ -950,15 +950,16 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	}
 	else
 	{	// No star found. Reset the coordinates to the cursor's location
-		cursorLoc.x = DISP_TO_UNIVERSEX (pt.x);
-		if (cursorLoc.x < 0)
+		POINT temp;
+		temp.x = DISP_TO_UNIVERSEX (pt.x);
+		if (temp.x < 0)
 			cursorLoc.x = 0;
-		else if (cursorLoc.x > MAX_X_UNIVERSE)
+		else if (temp.x > MAX_X_UNIVERSE)
 			cursorLoc.x = MAX_X_UNIVERSE;
-		cursorLoc.y = DISP_TO_UNIVERSEY (pt.y);
-		if (cursorLoc.y < 0)
+		temp.y = DISP_TO_UNIVERSEY (pt.y);
+		if (temp.y < 0)
 			cursorLoc.y = 0;
-		else if (cursorLoc.y > MAX_Y_UNIVERSE)
+		else if (temp.y > MAX_Y_UNIVERSE)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 	}
 
