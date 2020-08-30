@@ -106,6 +106,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Also draw moon letters in title while in Classic graphics - Kruzenshtern bug #34
 - Fixed Gaia reverting its name to Planet I during Organon quest - Kruzenshtern bug #35
 - Fixed wrong coordinatess in Ur-Quan conversation after Dnyarri mental compulsion - Kruzenshtern bug #36
+- Fixed cursor coordinates changing when viewing starmap - Kruzen bug #37
 - Fixed inability to scroll up in zoomed-in StarMap - Kruzenshtern bug #38
 - Fixed SIS sprite drawing twice during smooth interplanetary transition - Kruzenshtern bug #39
 - Fixed all screen transitions to mimic the PC version when chosen - Kruzenshtern bug #40
