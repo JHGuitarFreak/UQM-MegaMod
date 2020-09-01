@@ -2084,11 +2084,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 #endif
 
 	// Serosis: Switch between PC/3DO max lander hold value
-	optLanderHold = (opts->landerHold == OPTVAL_3DO);
+	optLanderHold = (opts->landerHold == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean("mm.landerHold", opts->landerHold == OPTVAL_3DO);
 
 	// Serosis: PC/3DO IP Transitions
-	optIPScaler = (opts->ipTrans == OPTVAL_3DO);
+	optIPScaler = (opts->ipTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
 
 	// Serosis: Difficulty
