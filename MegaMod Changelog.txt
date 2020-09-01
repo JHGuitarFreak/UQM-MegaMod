@@ -59,7 +59,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Talk to Kohr-Ah when at the Sa-Matra during Death March
 - MegaMod now supports loading saves from Core UQM v0.8.0
 - EXTENDED: Allies will not chase you if you get close to their ships
-- EXTENDED: Player can't leave Delta Crateris after activating the Dnyarri
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -112,6 +111,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed all screen transitions to mimic the PC version when chosen - Kruzenshtern bug #40
 - Fixed Graphics error with Chmmr bomb on SIS status screen - Kruzenshtern bug #41
 - Fixed loading game in solarsys while hovering over planet - Kruzenshtern bug #43
+- Fixed double drawing of flagship when leaving certain planets - Kruzen bug #44-6
 - Fixed moon size when moon is a large rocky world
 - Druuge AI doesn't thrust during Melee in HD - Kruzenshtern bug #51
 - Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld) - Kruzenshtern bug #56
