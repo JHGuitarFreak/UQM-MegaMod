@@ -229,7 +229,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode != DRAW_ORBITAL_UPDATE)
 	{
-		ScreenTransition (3, &r, optIPScaler == OPT_3DO);
+		ScreenTransition (optIPScaler, &r);
 	}
 
 	UnbatchGraphics ();

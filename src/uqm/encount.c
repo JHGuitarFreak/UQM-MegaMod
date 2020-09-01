@@ -404,7 +404,7 @@ InitEncounter (void)
 
 	UnbatchGraphics ();
 	DestroyDrawable (ReleaseDrawable (SegueFrame));
-	ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
+	ScreenTransition (optIPScaler, NULL);
 
 	{
 		MENU_STATE MenuState;

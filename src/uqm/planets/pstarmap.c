@@ -725,7 +725,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (transition_pending)
 	{
 		GetContextClipRect (&r);
-		ScreenTransition (3, &r, optIPScaler == OPT_3DO);
+		ScreenTransition (optIPScaler, &r);
 		transition_pending = FALSE;
 	}
 	

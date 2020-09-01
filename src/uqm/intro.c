@@ -598,7 +598,7 @@ DoPresentation (void *pIS)
 			for (i = 0; i < pPIS->LinesCount; ++i)
 				DrawTextEffect (pPIS->TextLines + i, pPIS->TextColor,
 						pPIS->TextBackColor, pPIS->TextEffect);
-			ScreenTransition (3, &pPIS->tfade_r, TRUE);
+			ScreenTransition (3, &pPIS->tfade_r);
 			UnbatchGraphics ();
 			
 		}
@@ -614,7 +614,7 @@ DoPresentation (void *pIS)
 			for (i = 0; i < pPIS->LinesCount; ++i)
 				DrawTextEffect (pPIS->TextLines + i, pPIS->TextFadeColor,
 						pPIS->TextFadeColor, pPIS->TextEffect);
-			ScreenTransition (3, &pPIS->tfade_r, TRUE);
+			ScreenTransition (3, &pPIS->tfade_r);
 			UnbatchGraphics ();
 		}
 		else if (strcmp (Opcode, "SAVEBG") == 0)
