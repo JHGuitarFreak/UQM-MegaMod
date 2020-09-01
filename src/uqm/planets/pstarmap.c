@@ -1539,12 +1539,7 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
 
-		BOOLEAN DontLeaveMe = EXTENDED && CurStarDescPtr
-			&& GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2
-			&& GET_GAME_STATE (URQUAN_MESSED_UP)
-			&& CurStarDescPtr->Index == SAMATRA_DEFINED;
-
-		if (optBubbleWarp && !DontLeaveMe) {
+		if (optBubbleWarp) {
 			if (GLOBAL_SIS (FuelOnBoard) >= FuelRequired() || optInfiniteFuel){
 				GLOBAL (autopilot) = cursorLoc;
 				PlayMenuSound (MENU_SOUND_BUBBLEWARP);
@@ -1559,18 +1554,16 @@ DoMoveCursor (MENU_STATE *pMS)
 					debugHook = doInstantMove;
 				} else {
 					// Move to the new location immediately.
-					doInstantMove();
+					doInstantMove ();
 				}
 				
 				return FALSE;
 			} else { 
 				PlayMenuSound (MENU_SOUND_FAILURE);
 			}
-		} else if (!DontLeaveMe) {
+		} else {
 			GLOBAL (autopilot) = cursorLoc;
 			DrawStarMap (0, NULL);
-		} else { 
-			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
