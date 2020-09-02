@@ -50,6 +50,7 @@ static COUNT lastUsedSlot;
 
 static NamingCallback *namingCB;
 
+BOOLEAN NewGameInit;
 BYTE OutfitOrShipyard = 0;
 
 void

@@ -75,7 +75,6 @@ static void DrawOuterSystem (void);
 static void SetPlanetColorMap (PLANET_DESC *planet); // JMS, BW
 static void ValidateInnerOrbits (void);
 static void ValidateOrbits (void);
-BOOLEAN NewGameInit;
 
 // SolarSysMenu() items
 enum SolarSysMenuMenuItems
@@ -2088,6 +2087,7 @@ InitSolarSys (void)
 			RedrawQueue (FALSE);
 			UnbatchGraphics ();
 			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
+			NewGameInit = TRUE;
 
 			LastActivity = 0;
 		}

@@ -264,10 +264,8 @@ while (--ac > 0)
 		// Reset Debug Key
 		DebugKeyPressed = FALSE;
 
-		// JMS: Name Captain & Ship at start (not at loading old game).
+		// Debug info when starting a new game
 		if (LastActivity == (CHECK_LOAD | CHECK_RESTART)){
-			NewGameInit = TRUE;
-
 #ifdef DEBUG
 			printf("New Game Seed: %d\n", GLOBAL_SIS(Seed));
 			printf("New Game Difficulty: %s\n", DIF_STR(GLOBAL_SIS(Difficulty)));
