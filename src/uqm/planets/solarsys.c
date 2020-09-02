@@ -75,6 +75,7 @@ static void DrawOuterSystem (void);
 static void SetPlanetColorMap (PLANET_DESC *planet); // JMS, BW
 static void ValidateInnerOrbits (void);
 static void ValidateOrbits (void);
+BOOLEAN NewGameInit;
 
 // SolarSysMenu() items
 enum SolarSysMenuMenuItems
@@ -1375,8 +1376,8 @@ leaveInnerSystem (PLANET_DESC *planet)
 
 	// Now the ship is in outer system (as per game logic)
 
-	if (optTexturedPlanets) {
-		// BW: clean up data generated for textured IP moons
+	if (optTexturedPlanets) 
+	{	// BW: clean up data generated for textured IP moons
 		for (i = 0, pMoonDesc = pSolarSysState->MoonDesc;
 			 i < planet->NumPlanets; ++i, ++pMoonDesc)
 		{
@@ -1410,8 +1411,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 				Orbit->light_diff = NULL;
 			}
 		}
-		// End clean up
-	}
+	}	// End clean up
 
 	pSolarSysState->WaitIntersect = outerPlanetWait;
 	// See if we also intersect with another planet, and if we do,
@@ -2847,9 +2847,9 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	if (pSS->InOrbit)
 	{	// CheckShipLocation() or InitSolarSys() sent us to orbital
 #if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Menu();
-		EnterPlanetOrbit();
-		TFB_SetOnScreenKeyboard_Melee();
+		TFB_SetOnScreenKeyboard_Menu ();
+		EnterPlanetOrbit ();
+		TFB_SetOnScreenKeyboard_Melee ();
 #else
 		EnterPlanetOrbit ();
 #endif
@@ -2859,18 +2859,28 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	else if (cancel || LastActivity == CHECK_LOAD)
 	{
 #if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Menu();
-		SolarSysMenu();
-		TFB_SetOnScreenKeyboard_Melee();
+		TFB_SetOnScreenKeyboard_Menu ();
+		SolarSysMenu ();
+		TFB_SetOnScreenKeyboard_Melee ();
 #else
-		SolarSysMenu();
+		SolarSysMenu ();
 #endif		
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 	}
 	else
 	{
 		assert (pSS->InIpFlight);
+
 		IP_frame ();
+
+		if (NewGameInit) 
+		{
+			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+			SettingsMenu (FALSE);
+			SolarSysMenu ();
+			SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
+		}
+
 		SleepThreadUntil (NextTime);
 		NextTime = GetTimeCounter () + IP_FRAME_RATE;
 	}

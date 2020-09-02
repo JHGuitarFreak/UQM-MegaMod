@@ -265,8 +265,8 @@ while (--ac > 0)
 		DebugKeyPressed = FALSE;
 
 		// JMS: Name Captain & Ship at start (not at loading old game).
-		if (LastActivity == (CHECK_LOAD | CHECK_RESTART) && !optSkipIntro){
-			AskNameForCaptainAndShip();
+		if (LastActivity == (CHECK_LOAD | CHECK_RESTART)){
+			NewGameInit = TRUE;
 
 #ifdef DEBUG
 			printf("New Game Seed: %d\n", GLOBAL_SIS(Seed));

@@ -84,7 +84,8 @@ ConfirmSaveLoad (STAMP *MsgStamp)
 		BUILD_COLOR(MAKE_RGB15(0x10, 0x10, 0x10), 0x19),
 		BUILD_COLOR(MAKE_RGB15(0x08, 0x08, 0x08), 0x1F),
 		TRUE, BUILD_COLOR(MAKE_RGB15(0x0A, 0x0A, 0x0A), 0x08));
-	SetContextForeGroundColor(BUILD_COLOR(MAKE_RGB15(0x14, 0x14, 0x14), 0x0F));
+	SetContextForeGroundColor(
+			BUILD_COLOR(MAKE_RGB15(0x14, 0x14, 0x14), 0x0F));
 	font_DrawText (&t);
 }
 
@@ -167,6 +168,7 @@ FeedbackSetting (BYTE which_setting)
 					GAME_STRING (NAMING_STRING_BASE + 0));
 			break;
 	}
+
 	DrawStatusMessage (buf);
 }
 
@@ -304,72 +306,45 @@ OnNameChange (TEXTENTRY_STATE *pTES)
 }
 
 static void
-NameCaptainOrShip (bool nameCaptain, bool gamestart)
+NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 {
 	UNICODE buf[MAX_NAME_SIZE] = "";
 	TEXTENTRY_STATE tes;
 	UNICODE *Setting;
 	COUNT CursPos = 0; // JMS
-	RECT r; // JMS
 
 	// JMS: This should only be invoked when starting a new game.
 	// It prints a prompt window to the center of the screen, urging
 	// the player to name his captain and ship.
 	if (gamestart)
-	{
-		RECT clip_r;
-		TEXT t;
-		
-		SetContext (ScreenContext);
-		SetContextFont (StarConFont);
-		GetContextClipRect (&clip_r);
-		
-		t.baseline.x = clip_r.extent.width >> 1;
-		t.baseline.y = (clip_r.extent.height >> 1) + RES_SCALE(3);
-		t.align = ALIGN_CENTER;
-		t.CharCount = (COUNT)~0;
-		
-		if (nameCaptain) {
-			// "Captain, what is your name?"
-			t.pStr = GAME_STRING (NAMING_STRING_BASE + 4);
+	{	
+		if (nameCaptain) 
+		{	// "Captain, what is your name?"
 			strcpy (buf,  GAME_STRING (NAMING_STRING_BASE + 3)); // "Zelnick"
-			CursPos = strlen(GAME_STRING (NAMING_STRING_BASE + 3));
-		} else {
-			// "What is the name of your flagship?"
-			t.pStr = GAME_STRING (NAMING_STRING_BASE + 5);
-			strcpy (buf, GAME_STRING (NAMING_STRING_BASE + 2)); // "Vindicator"
-			CursPos = strlen(GAME_STRING (NAMING_STRING_BASE + 2));
+			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 3));
 		}
-		
-		TextRect (&t, &r, NULL);
-		r.corner.x -= RES_SCALE(4);
-		r.corner.y -= RES_SCALE(4);
-		r.extent.width += RES_SCALE(8);
-		r.extent.height += RES_SCALE(8);
-		
-		DrawStarConBox (&r, 2,
-						BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
-						BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F),
-						TRUE, BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
-		SetContextForeGroundColor (
-								   BUILD_COLOR (MAKE_RGB15 (0x14, 0x14, 0x14), 0x0F));
-		font_DrawText (&t);
+		else
+		{	// "What is the name of your flagship?"
+			strcpy (buf, GAME_STRING (NAMING_STRING_BASE + 2)); // "Vindicator"
+			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 2));
+		}
 	}
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
 
-	if (!gamestart)
-		DrawBorder(nameCaptain ? 6 : 12, false);
+	DrawBorder(nameCaptain ? 6 : 12, false);
 
 	SetFlashRect(nameCaptain ? &captainNameRect : &shipNameRect);
 
-	if (!gamestart)
-		DrawStatusMessage (GAME_STRING (NAMING_STRING_BASE + 0));
+	DrawStatusMessage (GAME_STRING (NAMING_STRING_BASE + 0));
 
-	if (nameCaptain) {
+	if (nameCaptain)
+	{
 		Setting = GLOBAL_SIS (CommanderName);
 		tes.MaxSize = sizeof (GLOBAL_SIS (CommanderName));
-	} else {
+	}
+	else
+	{
 		Setting = GLOBAL_SIS (ShipName);
 		tes.MaxSize = sizeof (GLOBAL_SIS (ShipName));
 	}
@@ -393,16 +368,6 @@ NameCaptainOrShip (bool nameCaptain, bool gamestart)
 
 	if (namingCB)
 		namingCB ();
-
-	// JMS: This clears the captain or ship naming prompt.
-	if (gamestart) {
-		SetContext (ScreenContext);
-		DrawStarConBox (&r, 2,
-			BLACK_COLOR, BLACK_COLOR, TRUE, BLACK_COLOR);
-	} else
-		DeltaSISGauges(UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
-
-	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 }
 
 static BOOLEAN
@@ -582,28 +547,6 @@ NameSaveGame (COUNT gameIndex, UNICODE *buf)
 		return (FALSE);
 }
 
-// JMS: This is for naming captain and ship at game start.
-void AskNameForCaptainAndShip(void)
-{
-	// Give sounds for arrows and enter.
-	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-
-	// Erase the intro graphics (that are still hidden in the black fade).
-	SetContext (ScreenContext);
-	SetContextBackGroundColor (BLACK_COLOR);
-	ClearDrawable ();
-
-	// Enable graphics so the prompt for captain naming will be visible.
-	FadeScreen (FadeAllToColor, ONE_SECOND / 2);
-	
-	// Name the captain and the ship.
-	NameCaptainOrShip (true, true);
-	NameCaptainOrShip (false, true);
-	
-	// Re-fade to black before loading the first IP graphics.
-	FadeScreen (FadeAllToBlack, ONE_SECOND / 2);
-}
-
 void
 SetNamingCallback (NamingCallback *callback)
 {
@@ -614,11 +557,19 @@ static BOOLEAN
 DoSettings (MENU_STATE *pMS)
 {
 	BYTE cur_speed;
+	static BYTE i;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
 	cur_speed = (GLOBAL (glob_flags) & COMBAT_SPEED_MASK) >> COMBAT_SPEED_SHIFT;
+
+	if (NewGameInit)
+	{
+		i++;
+		pMS->CurState = i > 1 ? CHANGE_SHIP_SETTING : CHANGE_CAPTAIN_SETTING;
+		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
+	}
 
 	if (PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| (PulsedInputState.menu[KEY_MENU_SELECT]
@@ -644,7 +595,7 @@ DoSettings (MENU_STATE *pMS)
 				break;
 			case CHANGE_CAPTAIN_SETTING:
 			case CHANGE_SHIP_SETTING:
-				NameCaptainOrShip (pMS->CurState == CHANGE_CAPTAIN_SETTING, false);
+				NameCaptainOrShip (pMS->CurState == CHANGE_CAPTAIN_SETTING, NewGameInit);
 				break;
 			default:
 				if (cur_speed++ < NUM_COMBAT_SPEEDS - 1)
@@ -666,16 +617,34 @@ DoSettings (MENU_STATE *pMS)
 	else if (DoMenuChooser (pMS, PM_SOUND_ON))
 		FeedbackSetting (pMS->CurState);
 
+	if (NewGameInit)
+	{
+		if (i == 1)
+		{
+			SettingsMenu (TRUE);
+			return FALSE;
+		}
+		else
+		{
+			NewGameInit = FALSE;
+			i = 0;
+		}
+	}
+
 	return TRUE;
 }
 
-static void
-SettingsMenu (void)
+void
+SettingsMenu (BOOLEAN NameFlagship)
 {
 	MENU_STATE MenuState;
 
 	memset (&MenuState, 0, sizeof MenuState);
-	MenuState.CurState = SOUND_ON_SETTING;
+
+	if (NewGameInit)
+		MenuState.CurState = !NameFlagship ? CHANGE_CAPTAIN_SETTING : CHANGE_SHIP_SETTING;
+	else
+		MenuState.CurState = SOUND_ON_SETTING;
 
 	DrawMenuStateStrings (PM_SOUND_ON, MenuState.CurState);
 	FeedbackSetting (MenuState.CurState);
@@ -753,10 +722,10 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
-	s.origin.x = SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(10);
+	s.origin.x = 7 + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(3);
 	s.origin.y = ELEMENT_ORG_Y;
 	// setup element amounts
-	t.baseline.x = SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + ELEMENT_SPACING_X;
+	t.baseline.x = RES_SCALE(33) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + 3;
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
@@ -840,7 +809,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		r.corner.x = SIS_ORG_X + ((SIS_SCREEN_WIDTH - STATUS_WIDTH) >> 1) 
 					- RES_SCALE(16) + SUMMARY_X_OFFS + IF_HD(6);
 		r.corner.y = SIS_ORG_Y;
-		r.extent.width = STATUS_WIDTH + 2 * RESOLUTION_FACTOR;
+		r.extent.width = STATUS_WIDTH + IF_HD(4);
 		r.extent.height = STATUS_HEIGHT;
 		SetContextClipRect (&r);
 
@@ -930,7 +899,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		// print the location
 		t.baseline.x = RES_SCALE(6);
-		t.baseline.y = RES_SCALE(139 + 6);;
+		t.baseline.y = RES_SCALE(139 + 6);
 		t.align = ALIGN_LEFT;
 		t.pStr = buf;
 		starPt.x = LOGX_TO_UNIVERSE (pSD->SS.log_x);
@@ -975,7 +944,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
-		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4) + (SIS_TITLE_WIDTH >> 1);
+		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
+				- RES_SCALE(4) + (SIS_TITLE_WIDTH >> 1);
 		switch (pSD->Activity)
 		{
 			case IN_STARBASE:
@@ -1132,10 +1102,12 @@ DoPickGame (MENU_STATE *pMS)
 			if(optInfiniteRU)
 				GLOBAL_SIS (ResUnits) = oldRU;
 
-			if(optInfiniteFuel){
+			if(optInfiniteFuel)
+			{
 				if(loadFuel <= GetFuelTankCapacity())
 					GLOBAL_SIS (FuelOnBoard) = loadFuel;
-				else {
+				else
+				{
 					GLOBAL_SIS (ResUnits) += (LoadFuelScaled - TankCapacityScaled) * GLOBAL (FuelCost);
 					GLOBAL_SIS (FuelOnBoard) = GetFuelTankCapacity();
 				}
@@ -1364,8 +1336,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT) &&
 			(saving || (!pickState.success && !fromMainMenu)))
-	{	
-		// Restore previous screen
+	{	// Restore previous screen
 		BOOLEAN InStarbase = (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) == (BYTE)~0);
 
 		// Math to include the title bars in the screen transition
@@ -1445,7 +1416,7 @@ DoGameOptions (MENU_STATE *pMS)
 					return FALSE;
 				break;
 			case SETTINGS:
-				SettingsMenu ();
+				SettingsMenu (FALSE);
 				DrawMenuStateStrings (PM_SAVE_GAME, pMS->CurState);
 				break;
 		}
