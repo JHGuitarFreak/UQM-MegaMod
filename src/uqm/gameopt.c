@@ -195,9 +195,9 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		if (nameCaptain)
 		{	// Naming the captain
 			Font = TinyFontSS;
-			captainNameRect.corner.x = RES_STAT_SCALE(3) - IF_HD(5);
+			captainNameRect.corner.x = 3 + IF_HD(1);
 			captainNameRect.corner.y = RES_BOOL(10, 32);
-			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_BOOL(2, 0);		// JMS_GFX
+			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_BOOL(2, 0);
 			captainNameRect.extent.height += RESOLUTION_FACTOR;
 			r = captainNameRect;
 			lf.baseline.x = (STATUS_WIDTH >> 1) - RES_BOOL(1, -1);
@@ -981,7 +981,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 static void
 DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 {
-	RECT r;
+	RECT r, ClipRect;
 	TEXT t;
 	COUNT i, curSlot;
 	UNICODE buf[256], buf2[80], *SaveName;
@@ -1047,6 +1047,24 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 				SaveName = desc->SaveName[0] ? desc->SaveName : GAME_STRING (SAVEGAME_STRING_BASE + 4);
 
 			snprintf (buf, sizeof buf, "%s: %s", buf2, SaveName);
+
+			ClipRect = font_GetTextRect(&t);
+
+			if (!IS_HD && ClipRect.extent.width > 200)
+			{
+				size_t stringLength = strlen(buf);
+				const char ellipses[] = "...";
+
+				do
+				{	// Shorten the save name down so it will fit the width of the save name box
+					buf[--stringLength] = '\0';
+					ClipRect = font_GetTextRect(&t);
+				} while (ClipRect.extent.width > 200);
+
+				// Remove three extra characters to fit the ellipses
+				buf[strlen(buf) - 2] = '\0'; 			
+				strcat (buf, ellipses); // Add the ellipses
+			}
 		}
 		font_DrawText (&t);
 	}

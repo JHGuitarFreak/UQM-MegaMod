@@ -49,6 +49,26 @@ DestroyFont (FONT FontRef)
 	return (FreeFont (FontRef));
 }
 
+// Returns the RECT of any given TEXT
+RECT
+font_GetTextRect (TEXT *lpText)
+{
+	RECT ClipRect;
+	POINT origin;
+	TEXT text;
+
+	FixContextFontEffect ();
+	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
+		return;
+
+	// TextRect() clobbers TEXT.CharCount so we have to make a copy
+	text = *lpText;
+	if (!TextRect (&text, &ClipRect, NULL))
+		return;
+
+	return ClipRect;
+}
+
 // XXX: Should be in frame.c (renamed to something decent?)
 void
 font_DrawText (TEXT *lpText)
