@@ -298,7 +298,6 @@ BuildGroups (void)
 							* 60L / encounter_radius);
 				}
 
-
 				rand_val = TFB_Random ();
 				if ((int)(LOWORD (rand_val) % 100) < (int)i
 						&& (BestPercent == 0
@@ -310,6 +309,7 @@ BuildGroups (void)
 						// is only the Slylandro Probes)
 						i = 4;
 					}
+
 					BestPercent = i;
 					BestIndex = Index;
 				}

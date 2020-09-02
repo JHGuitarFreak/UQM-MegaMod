@@ -125,7 +125,8 @@ InitSpace (void)
 		if (stars_in_space == NULL)
 			return FALSE;
 
-		if(IS_HD){
+		if(IS_HD)
+		{
 			StarPoints = CaptureDrawable (LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
 			if (StarPoints == NULL)
 				return FALSE;
@@ -208,10 +209,6 @@ SIZE
 InitShips (void)
 {
 	SIZE num_ships;
-	BYTE numAsteroids, numPlanets;
-
-	numAsteroids = 5;
-	numPlanets = 1;
 
 	InitSpace ();
 
@@ -259,9 +256,11 @@ InitShips (void)
 			free_gravity_well ();
 		else
 		{
-			for (i = 0; i < numAsteroids; ++i)
+#define NUM_ASTEROIDS 5
+			for (i = 0; i < NUM_ASTEROIDS; ++i)
 				spawn_asteroid (NULL);
-			for (i = 0; i < numPlanets; ++i)
+#define NUM_PLANETS 1
+			for (i = 0; i < NUM_PLANETS; ++i)
 				spawn_planet ();
 		}
 	

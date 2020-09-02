@@ -307,10 +307,13 @@ SetRaceAllied (RACE_ID race, BYTE flag) {
 
 	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 
-	if (FleetPtr->allied_state == DEAD_GUY) {
+	if (FleetPtr->allied_state == DEAD_GUY)
+	{
 		if (flag == 3)
 			FleetPtr->allied_state = CAN_BUILD;
-	} else {
+	}
+	else
+	{
 		FleetPtr->allied_state = (flag == 1 ? GOOD_GUY : flag == 3 ? CAN_BUILD : BAD_GUY);
 	}
 
@@ -688,26 +691,31 @@ SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 }
 
 void
-loadGameCheats (void){
-	if(optInfiniteRU){
+loadGameCheats (void)
+{
+	if(optInfiniteRU)
 		oldRU = GlobData.SIS_state.ResUnits;
-	} else {
+	else
 		oldRU = 0;
-	}
-	if(optInfiniteFuel){
+		
+	if(optInfiniteFuel)
+	{
 		loadFuel = GlobData.SIS_state.FuelOnBoard;
 		GLOBAL_SIS (FuelOnBoard) = GetFuelTankCapacity();
-	} else {
+	} 
+	else
 		loadFuel = 0;
-	}
-	if (optUnlockShips){
+
+	if (optUnlockShips)
+	{
 		BYTE i = 0;
 
-		for (i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i) {
+		for (i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
 			SetRaceAllied (i, 3);
-		}
 	}
-	if (optUnlockUpgrades){
+	
+	if (optUnlockUpgrades)
+	{
 		SET_GAME_STATE (IMPROVED_LANDER_SPEED, 1);
 		SET_GAME_STATE (IMPROVED_LANDER_CARGO, 1);
 		SET_GAME_STATE (IMPROVED_LANDER_SHOT, 1);
@@ -721,7 +729,9 @@ loadGameCheats (void){
 		GLOBAL (ModuleCost[SHIVA_FURNACE]) = 4000 / MODULE_COST_SCALE;
 		//SET_GAME_STATE (MELNORME_TECH_STACK, 13);
 	}
-	if(optAddDevices){		
+	
+	if(optAddDevices)
+	{		
 		SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, 1);
 		SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, 1);
 		SET_GAME_STATE (GLOWING_ROD_ON_SHIP, 1);

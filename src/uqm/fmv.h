@@ -25,10 +25,13 @@
 extern "C" {
 #endif
 
-#define DEATH_MARCH 0
-#define DIED_IN_BATTLE 1
-#define SUICIDE 2
-#define SURRENDERED 3
+typedef enum
+{
+	DEATH_MARCH,
+	DIED_IN_BATTLE,
+	SUICIDE,
+	SURRENDERED
+} ENDGAME_SCENARIOS;
 
 extern void SplashScreen (void (* DoProcessing)(DWORD TimeOut));
 extern void Introduction (void);

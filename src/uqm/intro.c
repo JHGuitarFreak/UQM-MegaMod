@@ -829,7 +829,6 @@ ShowSlidePresentation (STRING PresStr)
 	pis.MovieFrame = -1;
 	pis.StartTime = GetTimeCounter ();
 	pis.LastSyncTime = pis.StartTime;
-
 	DoInput(&pis, TRUE);
 
 	SleepThreadUntil (FadeMusic (0, ONE_SECOND));
@@ -918,7 +917,6 @@ ShowLegacyVideo (LEGACY_VIDEO vid)
 	vis.InputFunc = DoVideoInput;
 	vis.CurVideo = ref;
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
-
 	DoInput(&vis, TRUE);
 
 	StopLegacyVideo (ref);

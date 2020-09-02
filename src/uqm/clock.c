@@ -208,7 +208,8 @@ SetGameClockRate (COUNT seconds_per_day)
 	SIZE new_day_in_ticks, new_tick_count;
 
 	new_day_in_ticks = (SIZE)(seconds_per_day * CLOCK_BASE_FRAMERATE);
-	switch (timeDilationScale){
+	switch (timeDilationScale)
+	{
 		case 1:
 			new_day_in_ticks = new_day_in_ticks * 6;
 			//printf("TD Slow\n");

@@ -145,7 +145,7 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 		int lwlen;
 
 #if defined(ANDROID) || defined(__ANDROID__)
-		SDL_ANDROID_ToggleScreenKeyboardTextInput(pTES->BaseStr);
+		SDL_ANDROID_ToggleScreenKeyboardTextInput (pTES->BaseStr);
 		pTES->BaseStr[0] = 0;
 #endif
 

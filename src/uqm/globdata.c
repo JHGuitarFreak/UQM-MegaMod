@@ -47,6 +47,7 @@ FRAME PlayFrame;
 
 GLOBDATA GlobData;
 
+
 // Pre: 0 <= bits <= 32
 // This function is necessary because expressions such as '(1 << bits) - 1'
 // or '~(~0 << bits)' may shift by 32 bits, which is undefined (for 32 bits
@@ -464,15 +465,16 @@ InitGameStructures (void)
 	GLOBAL (ElementWorth[EXOTIC]) = 25;
 	GLOBAL_SIS (ElementAmounts[EXOTIC]) = 0;
 
-	switch (DIFFICULTY) {
+	switch (DIFFICULTY)
+	{
 		int i;
 		case EASY:
 			for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++) {
-				GLOBAL(ElementWorth[i]) *= 2;
+				GLOBAL (ElementWorth[i]) *= 2;
 			}
 			break;
 		case HARD:
-			GLOBAL(ElementWorth[EXOTIC]) = 16;
+			GLOBAL (ElementWorth[EXOTIC]) = 16;
 			break;
 	}
 
@@ -493,38 +495,41 @@ InitGameStructures (void)
 	GLOBAL_SIS (ModuleSlots[1]) = FUEL_TANK;
 	GLOBAL_SIS (FuelOnBoard) = IF_EASY(10 * FUEL_TANK_SCALE, 4338);
 
-	if (DIF_EASY) {
-		GLOBAL_SIS(DriveSlots[7]) =
-			GLOBAL_SIS(DriveSlots[8]) = FUSION_THRUSTER;
-		GLOBAL_SIS(JetSlots[1]) =
-			GLOBAL_SIS(JetSlots[7]) = TURNING_JETS;
+	if (DIF_EASY)
+	{
+		GLOBAL_SIS (DriveSlots[7]) =
+			GLOBAL_SIS (DriveSlots[8]) = FUSION_THRUSTER;
+		GLOBAL_SIS (JetSlots[1]) =
+			GLOBAL_SIS (JetSlots[7]) = TURNING_JETS;
 	}
 
-	if (NOMAD) {
-		GLOBAL_SIS(DriveSlots[3]) =
-			GLOBAL_SIS(DriveSlots[4]) = FUSION_THRUSTER;
-		GLOBAL_SIS(JetSlots[2]) =
-			GLOBAL_SIS(JetSlots[5]) = TURNING_JETS;
-		GLOBAL_SIS(FuelOnBoard) += 20 * FUEL_TANK_SCALE;
+	if (NOMAD)
+	{
+		GLOBAL_SIS (DriveSlots[3]) =
+			GLOBAL_SIS (DriveSlots[4]) = FUSION_THRUSTER;
+		GLOBAL_SIS (JetSlots[2]) =
+			GLOBAL_SIS (JetSlots[5]) = TURNING_JETS;
+		GLOBAL_SIS (FuelOnBoard) += 20 * FUEL_TANK_SCALE;
 	}
  
-	if (optHeadStart){
+	if (optHeadStart)
+	{
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 2);
 		if (!NOMAD) {
-			SET_GAME_STATE(MOONBASE_ON_SHIP, 1);
-			SET_GAME_STATE(MOONBASE_DESTROYED, 1);
-			GLOBAL_SIS(ModuleSlots[7]) = STORAGE_BAY;
-			GLOBAL_SIS(ElementAmounts[COMMON]) = 178;
-			GLOBAL_SIS(ElementAmounts[CORROSIVE]) = 66;
-			GLOBAL_SIS(ElementAmounts[BASE_METAL]) = 378;
-			GLOBAL_SIS(ElementAmounts[PRECIOUS]) = 29;
-			GLOBAL_SIS(ElementAmounts[RADIOACTIVE]) = 219;
-			GLOBAL_SIS(ElementAmounts[EXOTIC]) = 5;
-			GLOBAL_SIS(TotalElementMass) = 875;
+			SET_GAME_STATE (MOONBASE_ON_SHIP, 1);
+			SET_GAME_STATE (MOONBASE_DESTROYED, 1);
+			GLOBAL_SIS (ModuleSlots[7]) = STORAGE_BAY;
+			GLOBAL_SIS (ElementAmounts[COMMON]) = 178;
+			GLOBAL_SIS (ElementAmounts[CORROSIVE]) = 66;
+			GLOBAL_SIS (ElementAmounts[BASE_METAL]) = 378;
+			GLOBAL_SIS (ElementAmounts[PRECIOUS]) = 29;
+			GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) = 219;
+			GLOBAL_SIS (ElementAmounts[EXOTIC]) = 5;
+			GLOBAL_SIS (TotalElementMass) = 875;
 		}
 	}
 
-	loadGameCheats();
+	loadGameCheats ();
 
 	InitQueue (&GLOBAL (built_ship_q),
 			MAX_BUILT_SHIPS, sizeof (SHIP_FRAGMENT));
@@ -552,13 +557,15 @@ InitGameStructures (void)
 
 	utf8StringCopy (GLOBAL_SIS (ShipName), sizeof (GLOBAL_SIS (ShipName)),
 			GAME_STRING (NAMING_STRING_BASE + 2));
-	utf8StringCopy (GLOBAL_SIS (CommanderName), sizeof (GLOBAL_SIS (CommanderName)),
+	utf8StringCopy (GLOBAL_SIS (CommanderName),
+			sizeof (GLOBAL_SIS (CommanderName)),
 			GAME_STRING (NAMING_STRING_BASE + 3));
 
 	SetRaceAllied (HUMAN_SHIP, TRUE);
 	CloneShipFragment (HUMAN_SHIP, &GLOBAL (built_ship_q), 0);
 
-	if(optHeadStart){
+	if(optHeadStart)
+	{
 		BYTE SpaCrew = IF_EASY(1, 30);
 		AddEscortShips (SPATHI_SHIP, 1);
 		/* Make the Eluder escort captained by Fwiffo alone or have a full compliment for Easy mode. */

@@ -943,10 +943,13 @@ typedef struct summary_state
 
 } SUMMARY_STATE;
 
-static void remove_char_from_string(UNICODE* str, const UNICODE c) {
-	// MB: Hack for removing '$' characters from Orz dialogue when viewing summary conversation - Used by DoConvSummary below
+static void 
+remove_char_from_string (UNICODE* str, const UNICODE c)
+{	// MB: Hack for removing '$' characters from Orz dialogue when viewing summary conversation - Used by DoConvSummary below
     UNICODE *pr = str, *pw = str;
-    while (*pr) {
+    
+    while (*pr)
+    {
         *pw = *pr++;
         pw += (*pw != c);
     }
@@ -1027,16 +1030,23 @@ DoConvSummary (SUMMARY_STATE *pSS)
 			}
 
 			t.CharCount = (COUNT)~0;
-			for ( ; row < MAX_SUMM_ROWS && !getLineWithinWidth (&t, &next, r.extent.width, (COUNT)~0); ++row) {
-				if (CommData.AlienConv == ORZ_CONVERSATION) { // MB: nasty hack: remove '$'s from conversation for Orz
+			for ( ; row < MAX_SUMM_ROWS &&
+					!getLineWithinWidth (&t, &next, r.extent.width, (COUNT)~0);
+					++row)
+			{
+				if (CommData.AlienConv == ORZ_CONVERSATION)
+				{	// MB: nasty hack: remove '$'s from conversation for Orz
 					UNICODE my_copy[128];
-					strcpy(my_copy, t.pStr);
-					remove_char_from_string(my_copy, '$');
+					
+					strcpy (my_copy, t.pStr);
+					remove_char_from_string (my_copy, '$');
 					t.pStr = my_copy;
-					font_DrawText(&t);
-				} else { // Normal mode
-					font_DrawText(&t);
+					
+					font_DrawText (&t);
 				}
+				else
+					font_DrawText (&t);
+					
 				t.baseline.y += DELTA_Y_SUMMARY;
 				t.pStr = next;
 				t.CharCount = (COUNT)~0;
@@ -1050,15 +1060,17 @@ DoConvSummary (SUMMARY_STATE *pSS)
 			}
 		
 			// this subtitle fit completely
-			if (CommData.AlienConv == ORZ_CONVERSATION) { // MB: nasty hack: remove '$'s from conversation for Orz
+			if (CommData.AlienConv == ORZ_CONVERSATION)
+			{	// MB: nasty hack: remove '$'s from conversation for Orz
 				UNICODE my_copy[128];
-				strcpy(my_copy, t.pStr);
-				remove_char_from_string(my_copy, '$');
+				
+				strcpy (my_copy, t.pStr);
+				remove_char_from_string (my_copy, '$');
 				t.pStr = my_copy;
-				font_DrawText(&t);
-			} else { // Normal mode
-				font_DrawText(&t);
+				font_DrawText (&t);
 			}
+			else
+				font_DrawText(&t);
 			t.baseline.y += DELTA_Y_SUMMARY;
 		}
 
@@ -1074,8 +1086,9 @@ DoConvSummary (SUMMARY_STATE *pSS)
 					STR_MIDDLE_DOT, GAME_STRING (FEEDBACK_STRING_BASE + 1),
 					STR_MIDDLE_DOT);
 
-			if (CommData.AlienConv == ORZ_CONVERSATION) { // MB: nasty hack: remove '$'s from conversation for Orz
-				remove_char_from_string(buffer, '$');
+			if (CommData.AlienConv == ORZ_CONVERSATION)
+			{	// MB: nasty hack: remove '$'s from conversation for Orz
+				remove_char_from_string (buffer, '$');
 			}
 
 			mt.pStr = buffer;
@@ -1386,10 +1399,12 @@ HailAlien (void)
 	if ((CommData.AlienSongFlags & LDASF_USE_ALTERNATE)
 			&& CommData.AlienAltSongRes)
 		SongRef = LoadMusic (CommData.AlienAltSongRes);
-	if (SongRef) {
+	if (SongRef)
+	{
 		CommData.AlienSong = SongRef;
 		IsAltSong = TRUE;
-	} else
+	}
+	else
 		CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
 
 	CommData.ConversationPhrases = CaptureStringTable (
@@ -1409,15 +1424,11 @@ HailAlien (void)
  			CreateDrawable (WANT_PIXMAP, SIS_SCREEN_WIDTH, SLIDER_Y, 1));
 	SetContext (TextCacheContext);
 	SetContextFGFrame (TextCacheFrame);
-
-	// This block of code is what makes the fonts jagged in HD
-	{
-		TextBack = BUILD_COLOR (MAKE_RGB15 (0x01, 0x01, 0x01), 0x00);
-			// Color key for the background.
-		SetContextBackGroundColor (TextBack);
-		ClearDrawable ();
-		SetFrameTransparentColor (TextCacheFrame, TextBack);
-	}
+	TextBack = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x01), 0x00);
+		// Color key for the background.
+	SetContextBackGroundColor (TextBack);
+	ClearDrawable ();
+	SetFrameTransparentColor (TextCacheFrame, TextBack);
 
 	ES.phrase_buf[0] = '\0';
 
@@ -1448,7 +1459,8 @@ HailAlien (void)
 		}
 		else
 		{
-			POINT Log = MAKE_POINT(LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x)), LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y)));
+			POINT Log = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)), 
+					LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
 
 			r.corner.x = SIS_ORG_X;
 			r.corner.y = SIS_ORG_Y;
@@ -1482,7 +1494,7 @@ HailAlien (void)
 					}
 
 				}
-				else if (GLOBAL(ip_planet) == 0)
+				else if (GLOBAL (ip_planet) == 0)
 					DrawHyperCoords (CurStarDescPtr->star_pt);
 				else
 					DrawSISTitle (GLOBAL_SIS (PlanetName));

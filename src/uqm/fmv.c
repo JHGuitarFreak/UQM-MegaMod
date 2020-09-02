@@ -43,9 +43,9 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	FlushColorXForms ();
 #endif
 	
-	if (hMusic){
+	if (hMusic)
 		StopMusic ();
-	}
+
 	FreeHyperData ();
 
 	// TODO: It would be nice to have better resource names for these.
@@ -60,9 +60,9 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	DrawFromExtraScreen (NULL, FALSE);
 	SetContextClipRect (&old_r);
 
-	if (hMusic){
+	if (hMusic)
 		PlayMusic (hMusic, TRUE, 1);
-	}
+		
 	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
 	FlushColorXForms ();
 }
@@ -137,10 +137,11 @@ Victory (void)
 void
 GameOver (BYTE DeathType) 
 {
-	if(DeathType != SUICIDE)
+	if (DeathType != SUICIDE)
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 
-	switch (DeathType) {
+	switch (DeathType)
+	{
 		case DEATH_MARCH:
 			ShowPresentation (DEATHMARCHPRES_STRTAB);
 			break;
@@ -156,7 +157,7 @@ GameOver (BYTE DeathType)
 			ShowPresentation (DEFEATEDPRES_STRTAB);
 			break;
 	}
-	FadeScreen(FadeAllToBlack, 0);
+	FadeScreen (FadeAllToBlack, 0);
 }
 
 void

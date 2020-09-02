@@ -155,8 +155,10 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 }
 
 static BOOLEAN
-RestartMessage(MENU_STATE *pMS, TimeCount TimeIn){	
-	if(optRequiresRestart){
+RestartMessage(MENU_STATE *pMS, TimeCount TimeIn)
+{	
+	if (optRequiresRestart)
+	{
 		SetFlashRect (NULL);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
 		// Got to restart -message
@@ -166,7 +168,9 @@ RestartMessage(MENU_STATE *pMS, TimeCount TimeIn){
 		GLOBAL (CurrentActivity) = CHECK_ABORT;	
 		restartGame = TRUE;
 		return TRUE;
-	} else if (!PacksInstalled ()) {
+	} 
+	else if (!PacksInstalled ())
+	{
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
 		// Could not find graphics pack - message
@@ -205,11 +209,13 @@ DoRestart (MENU_STATE *pMS)
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 	
-	if(optSuperMelee && !optLoadGame && PacksInstalled()){
+	if (optSuperMelee && !optLoadGame && PacksInstalled ())
+	{
 		pMS->CurState = PLAY_SUPER_MELEE;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
-	if(optLoadGame && !optSuperMelee && PacksInstalled()){
+	else if (optLoadGame && !optSuperMelee && PacksInstalled ())
+	{
 		pMS->CurState = LOAD_SAVED_GAME;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}

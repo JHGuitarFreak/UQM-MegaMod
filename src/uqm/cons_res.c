@@ -57,8 +57,8 @@ load_gravity_well (BYTE selector)
 	if (selector == SA_MATRA)
 	{
 		planet[0] = CaptureDrawable (
-				LoadGraphic (SAMATRA_BIG_MASK_PMAP_ANIM));
-
+				LoadGraphic (SAMATRA_BIG_MASK_PMAP_ANIM)
+				);
 		planet[1] = planet[2] = 0;
 	}
 	else
