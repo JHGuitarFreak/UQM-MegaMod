@@ -465,15 +465,16 @@ sortPlanetPositions (void)
 
 		for (j = pSolarSysState->SunDesc[0].NumPlanets; j > i; --j)
 		{
-			SIZE real_i, real_j;
+			SIZE real_i, real_j, temp;
 
 			real_i = sort_array[i];
 			real_j = sort_array[j];
-			if (pSolarSysState->PlanetDesc[real_i].image.origin.y >
-					pSolarSysState->PlanetDesc[real_j].image.origin.y)
+			if ((pSolarSysState->PlanetDesc[real_i].image.origin.y >
+					pSolarSysState->PlanetDesc[real_j].image.origin.y) 
+					|| (pSolarSysState->PlanetDesc[real_i].image.origin.y 
+					== pSolarSysState->PlanetDesc[real_j].image.origin.y 
+					&& real_i == -1))
 			{
-				SIZE temp;
-
 				temp = sort_array[i];
 				sort_array[i] = sort_array[j];
 				sort_array[j] = temp;
@@ -1458,9 +1459,6 @@ CheckShipLocation (SIZE *newRadius)
 		else
 		{
 			leaveInnerSystem (pSolarSysState->pOrbitalDesc);
-
-			if (pointWithinRect (scaleRect, GLOBAL (ShipStamp.origin)))
-				*newRadius = FindRadius (GLOBAL (ip_location), radius);
 		}
 		
 		return TRUE;
@@ -1619,14 +1617,6 @@ AnimateSun (SIZE radius)
 	
 	// Draw the image.
 	DrawStamp (&pSunDesc->image);
-	
-	// BW: temporary workaround, drawing order will have to be redone anyway
-	if (!optTexturedPlanets)
-	{
-		// Re-draw the image of the nearest planet, so the sun won't obscure it.
-		SetPlanetColorMap (pNearestPlanetDesc);
-		DrawStamp (&pNearestPlanetDesc->image);
-	}
 }
 
 static void
@@ -1658,15 +1648,19 @@ DrawTexturedBody (PLANET_DESC* planet, STAMP s)
 	UnbatchGraphics ();
 }
 
-void RotatePlanets (BOOLEAN IsInnerSystem, SIZE frameCounter)
+void
+RotatePlanets (BOOLEAN IsInnerSystem)
 {
 	PLANET_DESC *planet;
 	PLANET_DESC *moon;
+	static SIZE frameCounter;
 	COUNT i;
 
 	// Do not try to rotate planets that haven't been generated yet.
 	if (!pSolarSysState->PlanetDesc->orbit.lpTopoData)
 		return;
+
+	++frameCounter;
 	
 	if (IsInnerSystem)
 	{
@@ -1693,12 +1687,10 @@ IP_frame (void)
 {
 	BOOLEAN locChange;
 	SIZE newRadius;
-	static SIZE frameCounter;
 
 	SetContext (SpaceContext);
 
 	GameClockTick ();
-	++frameCounter;
 	ProcessShipControls ();
 	
 	locChange = CheckShipLocation (&newRadius);
@@ -1721,8 +1713,7 @@ IP_frame (void)
 	{	// Just flying around, minding own business..
 		BatchGraphics ();
 		RestoreSystemView ();
-
-		if (optOrbitingPlanets || optTexturedPlanets) 
+		if (IS_HD || optOrbitingPlanets || optTexturedPlanets)// to animate sun if both opt are disabled
 		{
 			// BW: recompute planet position to account for orbiting
 			if (playerInInnerSystem ())
@@ -1738,21 +1729,11 @@ IP_frame (void)
 				DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 			}
 		}
-
-		// BW: rotate planets
-		// every frame in Inner (not much CPU required)
-		// depending on planet size and speed in Outer
-		if (optTexturedPlanets)
-			RotatePlanets (playerInInnerSystem (), frameCounter);
-
-		// JMS: Animating IP sun in hi-res modes...
-		if (IS_HD && !playerInInnerSystem ())
-			AnimateSun (newRadius);
-
 		RedrawQueue (FALSE);
 		DrawAutoPilotMessage (FALSE);
 		UnbatchGraphics ();
 	}	
+	
 }
 
 static BOOLEAN
@@ -1815,10 +1796,9 @@ DrawInnerSystem (void)
 {
 	ValidateInnerOrbits ();
 	DrawSystem (pSolarSysState->pOrbitalDesc->radius, TRUE);
-	if (optOrbitingPlanets || optTexturedPlanets)
+	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
 	DrawSISTitle (GLOBAL_SIS (PlanetName));
-	IP_frame (); // MB: To fix planet texture and sun corona 'pop-in'
 }
 
 static void
@@ -1826,10 +1806,9 @@ DrawOuterSystem (void)
 {
 	ValidateOrbits ();
 	DrawSystem (pSolarSysState->SunDesc[0].radius, FALSE);
-	if (optOrbitingPlanets || optTexturedPlanets)
+	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 	DrawHyperCoords (CurStarDescPtr->star_pt);
-	IP_frame (); // MB: To fix planet texture and sun corona 'pop-in'
 }
 
 RESOURCE
@@ -1927,6 +1906,7 @@ ResetSolarSys (void)
 	//   for when the ship collides with more than one planet at
 	//   the same time. While quite rare, it's still possible.
 	CheckIntersect ();
+	
 	pSolarSysState->InIpFlight = TRUE;
 
 	playSpaceMusic ();
@@ -2100,9 +2080,9 @@ InitSolarSys (void)
 		{	// Entered a new system, or loaded into inner or outer
 			if (InnerSystem)
 			{
- 				DrawInnerSystem ();
  				if (optTexturedPlanets)
 					GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc);
+ 				DrawInnerSystem ();
 			}
 			else
 				DrawOuterSystem ();
@@ -2112,7 +2092,6 @@ InitSolarSys (void)
 
 			LastActivity &= ~CHECK_LOAD;
 		}
-		IP_frame (); // MB: To fix planet texture and sun corona 'pop-in'
 	}
 }
 
@@ -2238,6 +2217,7 @@ DrawInnerPlanets (PLANET_DESC *planet)
 
 	if (optTexturedPlanets)
 	{	// Draw the planet image
+		RotatePlanets (TRUE);
 		DrawTexturedBody (planet, s);
 		
 		// Draw the moon images
@@ -2281,6 +2261,8 @@ DrawOuterPlanets (SIZE radius)
 	PLANET_DESC *pCurDesc;
 	
 	CalcSunSize (&pSolarSysState->SunDesc[0], radius);
+	if (optOrbitingPlanets)
+		sortPlanetPositions ();
 	
 	index = pSolarSysState->FirstPlanetIndex;
 	for (;;)
@@ -2290,20 +2272,26 @@ DrawOuterPlanets (SIZE radius)
 		if (pCurDesc == &pSolarSysState->SunDesc[0])
 		{	// It's a sun
 			SetColorMap (GetColorMapAddress (SetAbsColorMapIndex (
-					SunCMap, STAR_COLOR (CurStarDescPtr->Type))));
-			if (optTexturedPlanets)
+				SunCMap, STAR_COLOR (CurStarDescPtr->Type))));
+			// Core part that animates sun
+			if (IS_HD)
+				AnimateSun (radius);
+			else
 				DrawStamp (&pCurDesc->image);
 		}
 		else
 		{	// It's a planet
-			if (!optTexturedPlanets)
-				SetPlanetColorMap (pCurDesc);
-			else
+			if (optTexturedPlanets)
+			{
+				RotatePlanets (FALSE);
 				DrawTexturedBody (pCurDesc, pCurDesc->image);
+			}
+			else
+			{
+				SetPlanetColorMap (pCurDesc);
+				DrawStamp (&pCurDesc->image);
+			}
 		}
-		if (!optTexturedPlanets)
-			DrawStamp (&pCurDesc->image);
-		
 		if (index == pSolarSysState->LastPlanetIndex)
 			break;
 		index = pCurDesc->NextIndex;
@@ -2319,10 +2307,9 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	CONTEXT oldContext;
 	STAMP s;
 
+		// BW: This to test if we have already rendered
 	if (optTexturedPlanets && !pSolarSysState->PlanetDesc->orbit.lpTopoData)
-	{	// BW: This to test if we have already rendered
 		GenerateTexturedPlanets ();
-	}
 
 	if (!SolarSysFrame)
 	{	// Create the saved view graphic
@@ -2357,7 +2344,7 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 					radius);
 	}
 
-	if (!optOrbitingPlanets && !optTexturedPlanets)
+	if (!IS_HD && !optOrbitingPlanets && !optTexturedPlanets)
 	{
 		if (IsInnerSystem)
 		{	// Draw the inner system view
@@ -2376,7 +2363,6 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	s.origin.y = 0;
 	s.frame = SolarSysFrame;
 	DrawStamp (&s);
-	IP_frame ();  // MB: To fix planet texture and sun corona 'pop-in'
 }
 
 void
@@ -2870,7 +2856,6 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	else
 	{
 		assert (pSS->InIpFlight);
-
 		IP_frame ();
 
 		if (NewGameInit) 
