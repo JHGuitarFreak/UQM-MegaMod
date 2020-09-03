@@ -1038,6 +1038,8 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		}
 		else
 		{
+			size_t maxWidth = r.extent.width - 5;
+
 			DateToString (buf2, sizeof buf2, desc->month_index,
 					desc->day_index, desc->year_index);
 
@@ -1050,20 +1052,16 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 			ClipRect = font_GetTextRect(&t);
 
-			if (!IS_HD && ClipRect.extent.width > 200)
+			if (!IS_HD && ClipRect.extent.width > maxWidth)
 			{
 				size_t stringLength = strlen(buf);
 				const char ellipses[] = "...";
 
 				do
 				{	// Shorten the save name down so it will fit the width of the save name box
-					buf[--stringLength] = '\0';
+					strncpy(&buf[--stringLength - sizeof(ellipses) + 1], ellipses, sizeof(ellipses));
 					ClipRect = font_GetTextRect(&t);
-				} while (ClipRect.extent.width > 200);
-
-				// Remove three extra characters to fit the ellipses
-				buf[strlen(buf) - 2] = '\0'; 			
-				strcat (buf, ellipses); // Add the ellipses
+				} while (ClipRect.extent.width > maxWidth);
 			}
 		}
 		font_DrawText (&t);
