@@ -304,9 +304,7 @@ InitEncounter (void)
 	t.baseline.x = (SIS_SCREEN_WIDTH >> 1) + 1;
 	t.baseline.y = RES_SCALE(10) + IF_HD(19);
 	t.align = ALIGN_CENTER;
-	font_DrawText (&t);
 
-	SetContextFont (MicroFont);
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
 	if (inHQSpace ())
