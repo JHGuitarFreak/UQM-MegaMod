@@ -981,7 +981,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 static void
 DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 {
-	RECT r, ClipRect;
+	RECT r;
 	TEXT t;
 	COUNT i, curSlot;
 	UNICODE buf[256], buf2[80], *SaveName;
@@ -1038,7 +1038,8 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		}
 		else
 		{
-			size_t maxWidth = r.extent.width - 5;
+			const size_t maxWidth = r.extent.width - 5; // -5 to account for padding around text
+			RECT ClipRect;
 
 			DateToString (buf2, sizeof buf2, desc->month_index,
 					desc->day_index, desc->year_index);
@@ -1052,7 +1053,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 			ClipRect = font_GetTextRect(&t);
 
-			if (!IS_HD && ClipRect.extent.width > maxWidth)
+			if (ClipRect.extent.width > maxWidth)
 			{
 				size_t stringLength = strlen(buf);
 				const char ellipses[] = "...";
