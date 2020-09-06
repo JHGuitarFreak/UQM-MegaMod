@@ -1459,6 +1459,9 @@ CheckShipLocation (SIZE *newRadius)
 		else
 		{
 			leaveInnerSystem (pSolarSysState->pOrbitalDesc);
+
+			if (pointWithinRect (scaleRect, GLOBAL (ShipStamp.origin)))
+				*newRadius = FindRadius (GLOBAL (ip_location), radius);
 		}
 		
 		return TRUE;
