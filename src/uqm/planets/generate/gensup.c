@@ -103,7 +103,7 @@ static bool
 GenerateSupox_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (EXTENDED && GET_GAME_STATE(SUPOX_STACK1) > 2 
+	if (GET_GAME_STATE (SUPOX_STACK1) > 2 
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),

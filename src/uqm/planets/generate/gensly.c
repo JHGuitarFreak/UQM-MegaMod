@@ -78,7 +78,7 @@ static bool
 GenerateSlylandro_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (EXTENDED && GET_GAME_STATE (SLYLANDRO_HOME_VISITS) 
+	if (GET_GAME_STATE (SLYLANDRO_HOME_VISITS) 
 			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),

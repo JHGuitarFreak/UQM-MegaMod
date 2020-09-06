@@ -2587,59 +2587,55 @@ GetNamedPlanetaryBody (void)
 			//	break;
 		}
 	}
-	else if (EXTENDED) 
-	{
-		if (matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
+	else if (CurStarDescPtr->Index == SAMATRA_DEFINED 
+			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 			pSolarSysState->SunDesc[0].PlanetByte, pSolarSysState->SunDesc[0].MoonByte))
-		{
-			if (CurStarDescPtr->Index == SAMATRA_DEFINED)
-			{	// Sa-Matra
-				return GAME_STRING (PLANET_NUMBER_BASE + 32);
-			}
+		{	// Sa-Matra
+			return GAME_STRING (PLANET_NUMBER_BASE + 32);
 		}
-		else if (matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
+	else if (CurStarDescPtr->Index > 0 
+			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 			pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))
-		{
-			if (CurStarDescPtr->Index == START_COLONY_DEFINED)
-			{	// Unzervalt
-				return GAME_STRING (PLANET_NUMBER_BASE + 33);
-			}
-			else if (CurStarDescPtr->Index == SHOFIXTI_DEFINED)
-			{	// Kyabetsu
-				return GAME_STRING (PLANET_NUMBER_BASE + 35);
-			}
-			else if (CurStarDescPtr->Index == SLYLANDRO_DEFINED
-				&& GET_GAME_STATE(SLYLANDRO_HOME_VISITS))
-			{	// Source
-				return GAME_STRING (PLANET_NUMBER_BASE + 36);
-			}
-			else if (CurStarDescPtr->Index == SPATHI_DEFINED && MET_A_SPATHI)
-			{	// Spathiwa
-				return GAME_STRING (PLANET_NUMBER_BASE + 37);
-			}
-			else if (CurStarDescPtr->Index == SUPOX_DEFINED 
-				&& GET_GAME_STATE (SUPOX_STACK1) > 2)
-			{	// Vlik
-				return GAME_STRING (PLANET_NUMBER_BASE + 38);
-			}
-			else if (CurStarDescPtr->Index == SYREEN_DEFINED 
-				&& (GET_GAME_STATE(SYREEN_HOME_VISITS)
-				|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
-			{	// Gaia
-				return GAME_STRING (PLANET_NUMBER_BASE + 39);
-			}
-			else if (CurStarDescPtr->Index == UTWIG_DEFINED && MET_AN_UTWIG)
-			{	// Fahz
-				return GAME_STRING (PLANET_NUMBER_BASE + 40);
-			}
-			else if (CurStarDescPtr->Index == DRUUGE_DEFINED && MET_A_DRUUGE)
-			{	// Trade HQ
-				return GAME_STRING (PLANET_NUMBER_BASE + 41);
-			}
-			else if (CurStarDescPtr->Index == EGG_CASE0_DEFINED)
-			{	// Syra
-				return GAME_STRING (PLANET_NUMBER_BASE + 42);
-			}
+	{
+		if (CurStarDescPtr->Index == START_COLONY_DEFINED)
+		{	// Unzervalt
+			return GAME_STRING (PLANET_NUMBER_BASE + 33);
+		}
+		else if (CurStarDescPtr->Index == SHOFIXTI_DEFINED)
+		{	// Kyabetsu
+			return GAME_STRING (PLANET_NUMBER_BASE + 35);
+		}
+		else if (CurStarDescPtr->Index == SLYLANDRO_DEFINED
+			&& GET_GAME_STATE (SLYLANDRO_HOME_VISITS))
+		{	// Source
+			return GAME_STRING (PLANET_NUMBER_BASE + 36);
+		}
+		else if (CurStarDescPtr->Index == SPATHI_DEFINED && MET_A_SPATHI)
+		{	// Spathiwa
+			return GAME_STRING (PLANET_NUMBER_BASE + 37);
+		}
+		else if (CurStarDescPtr->Index == SUPOX_DEFINED 
+			&& GET_GAME_STATE (SUPOX_STACK1) > 2)
+		{	// Vlik
+			return GAME_STRING (PLANET_NUMBER_BASE + 38);
+		}
+		else if (CurStarDescPtr->Index == SYREEN_DEFINED 
+			&& (GET_GAME_STATE (SYREEN_HOME_VISITS)
+			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
+		{	// Gaia
+			return GAME_STRING (PLANET_NUMBER_BASE + 39);
+		}
+		else if (CurStarDescPtr->Index == UTWIG_DEFINED && MET_AN_UTWIG)
+		{	// Fahz
+			return GAME_STRING (PLANET_NUMBER_BASE + 40);
+		}
+		else if (CurStarDescPtr->Index == DRUUGE_DEFINED && MET_A_DRUUGE)
+		{	// Trade HQ
+			return GAME_STRING (PLANET_NUMBER_BASE + 41);
+		}
+		else if (CurStarDescPtr->Index == EGG_CASE0_DEFINED)
+		{	// Syra
+			return GAME_STRING (PLANET_NUMBER_BASE + 42);
 		}
 	}
 
@@ -2853,7 +2849,7 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 		TFB_SetOnScreenKeyboard_Melee ();
 #else
 		SolarSysMenu ();
-#endif		
+#endif
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 	}
 	else
