@@ -2841,7 +2841,7 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 		pSS->InOrbit = FALSE;
 	}
-	else if (cancel || LastActivity == CHECK_LOAD)
+	else if (!NewGameInit && (cancel || LastActivity == CHECK_LOAD))
 	{
 #if defined(ANDROID) || defined(__ANDROID__)
 		TFB_SetOnScreenKeyboard_Menu ();
@@ -2857,12 +2857,12 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 		assert (pSS->InIpFlight);
 		IP_frame ();
 
-		if (NewGameInit) 
+		if (NewGameInit)
 		{
-			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SettingsMenu (FALSE);
-			SolarSysMenu ();
-			SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
+			SetMenuSounds(MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+			SettingsMenu(FALSE);
+			SolarSysMenu();
+			SetMenuSounds(MENU_SOUND_NONE, MENU_SOUND_NONE);
 		}
 
 		SleepThreadUntil (NextTime);
