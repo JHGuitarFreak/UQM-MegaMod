@@ -394,7 +394,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	r.corner.y = RES_SCALE(160 + ((gameIndex % SAVES_PER_PAGE) * 13));
 	DrawRectangle (&r, IS_HD);
 
-	r.extent.width = RES_SCALE(204) + IF_HD(106);
+	r.extent.width = RES_SCALE(204) + (SIS_SCREEN_WIDTH - RES_SCALE(242));
 	r.corner.x = RES_SCALE(30);
 	DrawRectangle (&r, IS_HD);
 
@@ -520,7 +520,7 @@ NameSaveGame (COUNT gameIndex, UNICODE *buf)
 	tes.CbParam = gIndex;
 	tes.ChangeCallback = OnSaveNameChange;
 	tes.FrameCallback = 0;
-	r.extent.width = RES_SCALE(204) + IF_HD(106);
+	r.extent.width = RES_SCALE(204) + (SIS_SCREEN_WIDTH - RES_SCALE(242));
 	r.extent.height = RES_SCALE(11);
 	r.corner.x = RES_SCALE(30);
 	r.corner.y = (RES_SCALE(160) + ((gameIndex % SAVES_PER_PAGE) * RES_SCALE(13)));
@@ -979,6 +979,32 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 }
 
 static void
+TruncateSaveName (UNICODE buf[256], COORD maxWidth, BOOLEAN naming)
+{
+	TEXT t;
+	RECT r;
+
+	t.pStr = buf;
+
+	r = font_GetTextRect(&t);
+
+	if (r.extent.width > maxWidth)
+	{
+		size_t stringLength = strlen(t.pStr);
+		const char ellipses[] = "...";
+
+		do
+		{	// Shorten the save name down so it will fit the width of the save name box
+			strncpy_s (&buf[--stringLength - sizeof(ellipses)], sizeof(buf), ellipses, sizeof(ellipses));
+			r = font_GetTextRect(&t);
+		} while (r.extent.width > maxWidth);
+
+		if (naming)
+			buf[strlen(buf) - strlen(ellipses)] = '\0';
+	}
+}
+
+static void
 DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 {
 	RECT r;
@@ -993,9 +1019,9 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	SetContextFont (TinyFont);
 
 	// Erase the selection menu
-	r.extent.width = RES_SCALE(240);
+	r.extent.width = SIS_SCREEN_WIDTH - 2;
 	r.extent.height = RES_SCALE(65);
-	r.corner.x = RES_SCALE(1);
+	r.corner.x = 1;
 	r.corner.y = RES_SCALE(160);
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -1026,7 +1052,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 				curSlot);
 		font_DrawText (&t);
 
-		r.extent.width = RES_SCALE(204) + IF_HD(106);
+		r.extent.width = RES_SCALE(204) + (SIS_SCREEN_WIDTH - RES_SCALE(242));
 		r.corner.x = RES_SCALE(30);
 		DrawRectangle(&r, IS_HD);
 
@@ -1038,9 +1064,6 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		}
 		else
 		{
-			const size_t maxWidth = r.extent.width - 5; // -5 to account for padding around text
-			RECT ClipRect;
-
 			DateToString (buf2, sizeof buf2, desc->month_index,
 					desc->day_index, desc->year_index);
 
@@ -1051,19 +1074,8 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 			snprintf (buf, sizeof buf, "%s: %s", buf2, SaveName);
 
-			ClipRect = font_GetTextRect(&t);
-
-			if (ClipRect.extent.width > maxWidth)
-			{
-				size_t stringLength = strlen(buf);
-				const char ellipses[] = "...";
-
-				do
-				{	// Shorten the save name down so it will fit the width of the save name box
-					strncpy(&buf[--stringLength - sizeof(ellipses) + 1], ellipses, sizeof(ellipses));
-					ClipRect = font_GetTextRect(&t);
-				} while (ClipRect.extent.width > maxWidth);
-			}
+			if(!IS_HD)
+				TruncateSaveName (buf, r.extent.width - 7, FALSE);
 		}
 		font_DrawText (&t);
 	}
@@ -1195,11 +1207,17 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 	UNICODE nameBuf[256];
 	STAMP saveStamp;
 	BOOLEAN success;
+	RECT r;
+
+	GetContextClipRect(&r);
 
 	saveStamp.frame = NULL;
 
 	if (pickState->saving)
 	{
+		if(!IS_HD)
+			TruncateSaveName (desc->SaveName, r.extent.width - 104, TRUE);
+
 		// Initialize the save name with whatever name is there already
 		// SAVE_NAME_SIZE is less than 256, so this is safe.
 		strncpy(nameBuf, desc->SaveName, SAVE_NAME_SIZE);
