@@ -1124,13 +1124,12 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					break;
 			}
 		}
-		planet->image.frame = SetAbsFrameIndex(UNSCALED_PLANETS(OrbitalFrameUnscaled, OrbitalFrame),
+		planet->image.frame = SetAbsFrameIndex (UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
 			(Size << FACING_SHIFT) + NORMALIZE_FACING(
-				ANGLE_TO_FACING(angle)));
+				ANGLE_TO_FACING (angle)));
 
-		if (IS_HD && HDPackPresent) {
+		if (IS_HD && HDPackPresent)
 			planet->intersect.frame = SetAbsFrameIndex(OrbitalFrameIntersect, Size);
-		}
 	}
 	else if (planet->data_index == HIERARCHY_STARBASE)
 	{
@@ -1434,14 +1433,17 @@ static BOOLEAN
 CheckShipLocation (SIZE *newRadius)
 {
 	SIZE radius;
+	BOOLEAN SISonScreen;
 
 	radius = pSolarSysState->SunDesc[0].radius;
 	*newRadius = pSolarSysState->SunDesc[0].radius;
-	
-	if (GLOBAL (ShipStamp.origin.x) < 0
+
+	SISonScreen = (GLOBAL (ShipStamp.origin.x) < 0
 			|| GLOBAL (ShipStamp.origin.x) >= SIS_SCREEN_WIDTH
 			|| GLOBAL (ShipStamp.origin.y) < 0
-			|| GLOBAL (ShipStamp.origin.y) >= SIS_SCREEN_HEIGHT)
+			|| GLOBAL (ShipStamp.origin.y) >= SIS_SCREEN_HEIGHT);
+	
+	if (SISonScreen)
 	{
 		// The ship leaves the screen.
 		if (!playerInInnerSystem ())
@@ -1461,7 +1463,16 @@ CheckShipLocation (SIZE *newRadius)
 			leaveInnerSystem (pSolarSysState->pOrbitalDesc);
 
 			if (pointWithinRect (scaleRect, GLOBAL (ShipStamp.origin)))
+			{
 				*newRadius = FindRadius (GLOBAL (ip_location), radius);
+				pSolarSysState->SunDesc[0].radius = *newRadius;
+			}
+			else if (SISonScreen)
+			{
+				*newRadius = FindRadius (GLOBAL (ip_location), MAX_ZOOM_RADIUS << 1);
+				pSolarSysState->SunDesc[0].radius = *newRadius;
+			}
+
 		}
 		
 		return TRUE;

@@ -88,6 +88,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Moved planet naming to Extended Lore
 - Moved cut Commander and Supox dialog to Extended Lore
 - Naming Captain & Ship on new game now mimics the PC version
+- HD: New shielded planet graphics to match the classic look
 
 ### Fixed
 - Properly declared the GameOver() function in fmv.h

@@ -979,7 +979,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 }
 
 static void
-TruncateSaveName (UNICODE buf[256], COORD maxWidth, BOOLEAN naming)
+TruncateSaveName (UNICODE* buf, COORD maxWidth, BOOLEAN naming)
 {
 	TEXT t;
 	RECT r;
@@ -1044,7 +1044,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		r.extent.height = RES_SCALE(11);
 		r.corner.x = RES_SCALE(8); 
 		r.corner.y = RES_SCALE(160 + (i * 13));
-		DrawRectangle(&r, IS_HD);
+		DrawRectangle (&r, IS_HD);
 
 		t.baseline.x = r.corner.x + RES_SCALE(3) + IF_HD(3);
 		t.baseline.y = r.corner.y + RES_SCALE(8) + IF_HD(1);
@@ -1054,7 +1054,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 		r.extent.width = RES_SCALE(204) + (SIS_SCREEN_WIDTH - RES_SCALE(242));
 		r.corner.x = RES_SCALE(30);
-		DrawRectangle(&r, IS_HD);
+		DrawRectangle (&r, IS_HD);
 
 		t.baseline.x = r.corner.x + RES_SCALE(3);
 		if (desc->year_index == 0)

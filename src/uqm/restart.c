@@ -132,7 +132,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	font_DrawText (&t);
 
 	// Put the main menu music credit in the bottom left corner.
-	if (optMainMenuMusic) {
+	if (optMainMenuMusic)
+	{
 		memset (&buf[0], 0, sizeof (buf));
 		t.baseline.x = RES_SCALE(2);
 		t.baseline.y = SCREEN_HEIGHT - RES_SCALE(2);
@@ -555,9 +556,8 @@ StartGame (void)
 			{	// timed out
 				GLOBAL (CurrentActivity) = 0;
 				SplashScreen (0);
-				if(optWhichIntro == OPT_3DO){
+				if (optWhichIntro == OPT_3DO)
 					Drumall ();
-				}
 				Credits (FALSE);
 			}
 
@@ -568,9 +568,8 @@ StartGame (void)
 		if (LastActivity & CHECK_RESTART)
 		{	// starting a new game
 			FadeMusic (NORMAL_VOLUME, 0);
-			if(!optSkipIntro){
+			if (!optSkipIntro)
 				Introduction ();
-			}
 		}
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);
