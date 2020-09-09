@@ -193,10 +193,10 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	assert (StarShipPtr->playerNr >= 0);
 	y_offs = status_y_offsets[StarShipPtr->playerNr];
 
-	r.corner.x = CAPTAIN_XOFFS - RES_STAT_SCALE(4); // JMS_GFX
+	r.corner.x = CAPTAIN_XOFFS - RES_STAT_SCALE(2); // JMS_GFX
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
-	r.extent.width = STATUS_WIDTH - 2;
-	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS + RES_SCALE(4); // JMS_GFX
+	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS;
+	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS + RES_SCALE(2); // JMS_GFX
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 	DrawFilledRectangle (&r);
@@ -274,11 +274,12 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		TEXT t;
 
 		t.baseline.x = STATUS_WIDTH >> 1;
-		t.baseline.y = y + RES_BOOL(6, -57) ; // JMS_GFX
+		t.baseline.y = y + RES_STAT_SCALE(6) + IF_HD(2); // JMS_GFX
 		t.align = ALIGN_CENTER;
 		t.pStr = GLOBAL_SIS (CommanderName);
 		t.CharCount = (COUNT)~0;
-		SetContextForeGroundColor (RES_BOOL(BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02), BLACK_COLOR));
+		SetContextForeGroundColor (
+				BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));
 		SetContextFont (TinyFontSS);
 		font_DrawText (&t);
 	}
