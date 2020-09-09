@@ -479,19 +479,17 @@ PostProcessStatus (ELEMENT *ShipPtr)
 						};
 
 						c = flash_tab1[i];
-
-						// JMS_GFX
 						r.corner.x = CAPTAIN_XOFFS + RES_STAT_SCALE(i);
 						r.corner.y = y + CAPTAIN_YOFFS + RES_STAT_SCALE(i);
 						r.extent.width = CAPTAIN_WIDTH - RES_STAT_SCALE((i << 1));
 						r.extent.height = CAPTAIN_HEIGHT - RES_STAT_SCALE((i << 1));
 
-						if (r.extent.height == 2)
-							++r.extent.height;
-						
-						// JMS_GFX
-						for (j=0 ; j<RES_STAT_SCALE(1); j++) {
-							DrawRectangle (&r, FALSE);
+						if (r.extent.height == RES_STAT_SCALE(2))
+							r.extent.height += RES_STAT_SCALE(1);
+
+						for (j = 0; j < RES_STAT_SCALE(1); j++)
+						{	// JMS_GFX
+							DrawRectangle(&r, FALSE);
 							++r.corner.x;
 							++r.corner.y;
 							r.extent.width -= 2;
@@ -502,7 +500,7 @@ PostProcessStatus (ELEMENT *ShipPtr)
 					{
 						r.corner.y = y + (CAPTAIN_YOFFS + RES_STAT_SCALE(15)); // JMS_GFX
 						r.extent.width = RES_STAT_SCALE(i + 1); // JMS_GFX
-						r.extent.height = 1;
+						r.extent.height = RES_STAT_SCALE(1);
 						switch (i)
 						{
 							case 0:
@@ -558,11 +556,11 @@ PostProcessStatus (ELEMENT *ShipPtr)
 							c = flash_tab2[i];
 						}
 						r.corner.x = CAPTAIN_XOFFS
-								+ (CAPTAIN_WIDTH >> 1);
+								+ (CAPTAIN_WIDTH >> 1) - IF_HD(1);
 						r.corner.y = y + CAPTAIN_YOFFS
 								 + ((CAPTAIN_HEIGHT + 1) >> 1);
-						r.extent.width = 1;
-						r.extent.height = 1;
+						r.extent.width = RES_STAT_SCALE(1);
+						r.extent.height = RES_STAT_SCALE(1);
 					}
 				}
 				SetContextForeGroundColor (c);
