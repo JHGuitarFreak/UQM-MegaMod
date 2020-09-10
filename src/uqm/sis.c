@@ -710,7 +710,7 @@ DrawFlagshipStats (void)
 	   fact that the leading is way more than is generally needed.
 	*/
 	leading -= RES_BOOL(3, -6);// JMS_GFX
-	t.baseline.x = SIS_SCREEN_WIDTH / RES_BOOL(6, 8); //JMS_GFX
+	t.baseline.x = SIS_SCREEN_WIDTH / 6 - IF_HD(16); //JMS_GFX
 	t.baseline.y = r.corner.y + leading + 3;
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
@@ -729,7 +729,7 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 3); // "tail:"
 	font_DrawText (&t);
 
-	t.baseline.x += RES_DBL(5);
+	t.baseline.x += RES_SCALE(5) - IF_HD(3);
 	t.baseline.y = r.corner.y + leading + 3;
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
@@ -750,7 +750,7 @@ DrawFlagshipStats (void)
 			"%-7.7s", describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - 25 - IF_HD(60); // JMS_GFX
+	t.baseline.x = r.extent.width - RES_SCALE(25) + IF_HD(3); // JMS_GFX
 	t.baseline.y = r.corner.y + leading + 3;
 	t.align = ALIGN_RIGHT;
 
@@ -768,7 +768,7 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 7); // "maximum fuel:"
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - RES_BOOL(2, 6); // JMS_GFX
+	t.baseline.x = r.extent.width - RES_BOOL(2, 5); // JMS_GFX
 	t.baseline.y = r.corner.y + leading + 3;
 	t.pStr = buf;
 
