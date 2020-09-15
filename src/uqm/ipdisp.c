@@ -17,7 +17,7 @@
  */
 
 #include "ipdisp.h"
-
+#include "build.h"
 #include "collide.h"
 #include "globdata.h"
 #include "init.h"
