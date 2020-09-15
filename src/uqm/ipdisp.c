@@ -457,24 +457,57 @@ CheckGetAway:
 		if (optShipDirectionIP)
 		{
 			if (GroupPtr->race_id != SLYLANDRO_SHIP)
-			{	//BW : make IP ships face the direction they're going into
-				suggestedFrame = SetAbsFrameIndex(EPtr->next.image.farray[0], 2 + NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y))));
+			{	// BW : make IP ships face the direction they're going into
+				if (GLOBAL (CurrentActivity) & START_ENCOUNTER)	// sometimes they give up chase, don't turn them away from sis during red alert phase
+					suggestedFrame = SetAbsFrameIndex (EPtr->next.image.farray[0], GetFrameIndex (EPtr->current.image.frame));
+				else
+					suggestedFrame = SetAbsFrameIndex (EPtr->next.image.farray[0], 2 + NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y))));
 
-				// JMS: Direction memory prevents jittering of battle group icons when they are orbiting a planet (and not chasing the player ship).		
+				// Set ship sprite when player entering the system (image index is always 1 by default)
+				if (GetFrameIndex (EPtr->current.image.frame) == 1)
+					EPtr->next.image.frame = suggestedFrame;
+
 				if (isOrbiting)
-				{	// This works because ships always orbit planets clockwise.
-					if (GroupPtr->lastDirection < NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y)))
-						|| GroupPtr->lastDirection == 15)
+				{	// JMS: Direction memory prevents jittering of battle group icons when they are orbiting a planet (and not chasing the player ship).
+					if (GroupPtr->canTurn)
+					{
 						EPtr->next.image.frame = suggestedFrame;
+						GroupPtr->canTurn = FALSE; // cannot turn until destination is reached
+					}
 				} 
 				else
 					EPtr->next.image.frame = suggestedFrame;
 			} 
 			else
-				EPtr->next.image.frame = IncFrameIndex(EPtr->next.image.frame);
+				EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame);
 
-			GroupPtr->lastDirection = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y)));
+			// If destination reached - ship can turn (or ship leaves/enters inner system, but not reached destination yet)
+			if ((dest_pt.x == GroupPtr->loc.x && dest_pt.y == GroupPtr->loc.y) || Transition)
+				GroupPtr->canTurn = TRUE;
 		}
+	}
+	else if (task >= REFORM_GROUP && optShipDirectionIP)
+	{	// To face sis while reforming
+		if (GroupPtr->race_id != SLYLANDRO_SHIP)
+		{
+			if (GetFrameIndex (EPtr->current.image.frame) == 1)
+			{	// Define direction only once and not follow player while reforming
+				SIZE delta_x, delta_y;
+				POINT sis_pt;
+
+				sis_pt = displayToLocation (GLOBAL (ShipStamp.origin), radius);	
+
+				// Destination point is sis location
+				delta_x = sis_pt.x - GroupPtr->loc.x;
+				delta_y = sis_pt.y - GroupPtr->loc.y;
+
+				EPtr->next.image.frame = SetAbsFrameIndex (EPtr->next.image.farray[0], 2 + NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y))));
+
+				GroupPtr->canTurn = TRUE; // Allow ship to turn after reforming is complete and if no more chasing player
+			}
+		}
+		else
+			EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame); // Probe will wobble while reforming
 	}
 
 	radius = zoomRadiusForLocation (group_loc);
