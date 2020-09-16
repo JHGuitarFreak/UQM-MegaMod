@@ -364,7 +364,7 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		{
 			if (target_loc == 0)
 			{
-				if (task == FLEE)
+				if (task == FLEE && radius == MAX_ZOOM_RADIUS)
 					goto CheckGetAway;
 			}
 			else if (target_loc == GroupPtr->dest_loc)
