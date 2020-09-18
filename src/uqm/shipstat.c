@@ -32,7 +32,7 @@ DrawCrewFuelString (COORD y, SIZE state)
 	Stamp.origin.y = y + GAUGE_YOFFS + STARCON_TEXT_HEIGHT - IF_HD(12);
 	if (state == 0)
 	{
-		Stamp.origin.x = CREW_XOFFS + (STAT_WIDTH >> 1) + RES_STAT_SCALE(6) - IF_HD(8); // JMS_GFX
+		Stamp.origin.x = CREW_XOFFS + (STAT_WIDTH >> 1) + RES_SCALE(6) - IF_HD(8); // JMS_GFX
 		if (optWhichMenu == OPT_PC)
 			Stamp.frame = SetAbsFrameIndex (StatusFrame, 4);
 		else
@@ -40,7 +40,7 @@ DrawCrewFuelString (COORD y, SIZE state)
 		DrawStamp (&Stamp);
 	}
 
-	Stamp.origin.x = ENERGY_XOFFS + (STAT_WIDTH >> 1) - RES_STAT_SCALE(5) + IF_HD(10); // JMS_GFX
+	Stamp.origin.x = ENERGY_XOFFS + (STAT_WIDTH >> 1) - RES_SCALE(5) + IF_HD(10); // JMS_GFX
 	if (optWhichMenu == OPT_PC)
 		Stamp.frame = SetAbsFrameIndex (StatusFrame, 5);
 	else
@@ -73,7 +73,7 @@ DrawShipNameString (UNICODE *pStr, COUNT CharCount, COORD y)
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
 	font_DrawText (&Text);
-	Text.baseline.y -= RES_STAT_SCALE(1);
+	Text.baseline.y -= RES_SCALE(1);
 	SetContextForeGroundColor (BLACK_COLOR);
 	font_DrawText (&Text);
 

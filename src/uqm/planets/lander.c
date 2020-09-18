@@ -470,8 +470,8 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 	}
 
-	s.origin.x = RES_STAT_SCALE(11) + (RES_STAT_SCALE(6) * (crew_delta % NUM_CREW_COLS));
-	s.origin.y = RES_STAT_SCALE(35) - (RES_STAT_SCALE(6) * (crew_delta / NUM_CREW_COLS));
+	s.origin.x = RES_SCALE(11) + (RES_SCALE(6) * (crew_delta % NUM_CREW_COLS));
+	s.origin.y = RES_SCALE(35) - (RES_SCALE(6) * (crew_delta / NUM_CREW_COLS));
 
 	OldContext = SetContext (RadarContext);
 	DrawStamp (&s);
@@ -517,7 +517,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	start_count = start_count * MAX_HOLD_BARS / MAX_SCROUNGED;
 	NumRetrieved = (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED) + tmpholdint;
 
-	start_count *= RES_STAT_SCALE(1); // JMS_GFX
+	start_count *= RES_SCALE(1); // JMS_GFX
 
 	s.origin.x = 0;
 	s.origin.y = -(int)start_count;
@@ -532,7 +532,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		else
 			s.frame = DecFrameIndex (s.frame);
 		DrawStamp (&s);
-		s.origin.y -= RES_STAT_SCALE(1); // JMS_GFX
+		s.origin.y -= RES_SCALE(1); // JMS_GFX
 	}
 	SetContext (OldContext);
 }
@@ -2262,9 +2262,9 @@ InitLander (BYTE LanderFlags)
 		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
-			r.corner.x = RES_STAT_SCALE(1);
-			r.extent.width = RES_STAT_SCALE(4);
-			r.extent.height = RES_STAT_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+			r.corner.x = RES_SCALE(1);
+			r.extent.width = RES_SCALE(4);
+			r.extent.height = RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 		}

@@ -217,9 +217,9 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
 	r.corner.x = s.origin.x - 1;
-	r.corner.y = s.origin.y - RES_STAT_SCALE(11); // JMS_GFX
+	r.corner.y = s.origin.y - RES_SCALE(11); // JMS_GFX
 	r.extent.width = RADAR_WIDTH + 2;
-	r.extent.height = RES_STAT_SCALE(11); // JMS_GFX
+	r.extent.height = RES_SCALE(11); // JMS_GFX
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (

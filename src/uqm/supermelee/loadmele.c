@@ -191,7 +191,7 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 		FleetShipIndex slotI;
 
 		s.origin.x = origin->x + RES_SCALE(1); // JMS_GFX
-		s.origin.y = origin->y + RES_STAT_SCALE(4); // JMS_GFX
+		s.origin.y = origin->y + RES_SCALE(4); // JMS_GFX
 		for (slotI = 0; slotI < MELEE_FLEET_SIZE; slotI++)
 		{
 			BYTE StarShip;

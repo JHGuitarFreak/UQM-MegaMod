@@ -35,19 +35,20 @@ extern int ScreenHeight;
 #define SCREEN_HEIGHT ScreenHeight
 #define RESOLUTION_FACTOR resolutionFactor
 #define IS_HD (RESOLUTION_FACTOR != HD ? false : true)
-#define RES_STAT_SCALE(a) (!IS_HD ? (a) : ((a) * 3))
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)
 #define RES_DESCALE(a) ((a) >> RESOLUTION_FACTOR)
 #define RES_BOOL(a,b) (!IS_HD ? (a) : (b))	
-#define RES_DBL(a) (!IS_HD ? (a) : (a) * RESOLUTION_FACTOR)
+#define RES_DBL(a) (RES_BOOL((a), (a) * RESOLUTION_FACTOR))
+#define RES_TRP(a) (RES_BOOL((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL(0, (a)))
 #define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
+		/* Margins. */
 #define SIS_ORG_X RES_SCALE(7)								// JMS_GFX
 #define SIS_ORG_Y RES_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
 
 /* Status bar & play area sizes. */
-#define STATUS_WIDTH RES_STAT_SCALE(64)
+#define STATUS_WIDTH RES_SCALE(64)
 /* Width of the status "window" (the right part of the screen) */
 #define STATUS_HEIGHT SCREEN_HEIGHT
 /* Height of the status "window" (the right part of the screen) */
@@ -55,16 +56,16 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT SCREEN_HEIGHT
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - (2 * SIS_ORG_X)) // DC: Gray area on the right. just a spacer box
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - 2 * SIS_ORG_X) // DC: Gray area on the right. just a spacer box
 /* Width of the usable part of the space "window" */
-#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(13)) // JMS_GFX
-/* Height of the usable part of the space "window": 3, 6, 6 for the grey bottom border and 10, 20, 30 for the title */
+#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(3) - RES_SCALE(10)) // JMS_GFX
+/* Height of the usable part of the space "window": 3 for the grey bottom border and 10 for the title */
 #define RES_SIS_SCALE(a) ((SIZE)(a) * SIS_SCREEN_WIDTH / 242) // JMS_GFX
 
 		/* Radar. */
-#define RADAR_X (RES_STAT_SCALE(4) + (SCREEN_WIDTH - STATUS_WIDTH))	// JMS_GFX
-#define RADAR_WIDTH (STATUS_WIDTH - RES_STAT_SCALE(8))							// JMS_GFX
-#define RADAR_HEIGHT RES_STAT_SCALE(53)											// JMS_GFX
+#define RADAR_X (RES_SCALE(4) + (SCREEN_WIDTH - STATUS_WIDTH))	// JMS_GFX
+#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))							// JMS_GFX
+#define RADAR_HEIGHT RES_SCALE(53)											// JMS_GFX
 #define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)		// JMS_GFX
 
 		/* Blue boxes which display messages and the green date box. */
@@ -81,7 +82,7 @@ extern int ScreenHeight;
 #define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) // JMS_GFX
 
 #define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_BOOL(4, 9))// JMS_GFX
-#define SHIP_NAME_HEIGHT       (RES_STAT_SCALE(7) - IF_HD(4)) // JMS_GFX
+#define SHIP_NAME_HEIGHT       (RES_SCALE(7) - IF_HD(4)) // JMS_GFX
 
 		/* A lot of other shit. */
 #define MAX_REDUCTION 3

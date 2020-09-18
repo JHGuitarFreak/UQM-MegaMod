@@ -76,7 +76,7 @@ static UNICODE pm_fuel_str[128];
 static void
 DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 {
-#define PC_MENU_HEIGHT (RES_STAT_SCALE(8)) // JMS_GFX
+#define PC_MENU_HEIGHT (RES_SCALE(8)) // JMS_GFX
 	BYTE pos;
 	COUNT i;
 	int num_items;
@@ -87,7 +87,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	pos = beg_index + NewState;
 	num_items = 1 + end_index - beg_index;
 	r->corner.x -= 1;
-	r->extent.width += RES_STAT_SCALE(1);
+	r->extent.width += RES_SCALE(1);
 	DrawFilledRectangle (r);
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
@@ -98,12 +98,12 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	DrawBorder (19, FALSE);
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
-	t.baseline.x = r->corner.x + RES_STAT_SCALE(2);
-	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_STAT_SCALE(1);// - RESOLUTION_FACTOR; // JMS_GFX
+	t.baseline.x = r->corner.x + RES_SCALE(2);
+	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE(1);// - RESOLUTION_FACTOR; // JMS_GFX
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	r->corner.x += RES_STAT_SCALE(1);
-	r->extent.width -= RES_STAT_SCALE(2);
+	r->corner.x += RES_SCALE(1);
+	r->extent.width -= RES_SCALE(2);
 	for (i = beg_index; i <= end_index; i++)
 	{
 		utf8StringCopy (buf, sizeof buf,
@@ -116,8 +116,8 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 			
 			// Draw the background of the selection.
 			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_MEDIUM_COLOR : PCMENU_SELECTION_BACKGROUND_COLOR));
-			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_STAT_SCALE(2); // JMS_GFX
-			r->extent.height = PC_MENU_HEIGHT - RES_STAT_SCALE(1);
+			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2); // JMS_GFX
+			r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
 			DrawFilledRectangle (r);
 
 			// Draw the text of the selected item.
@@ -559,7 +559,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		if (optWhichMenu == OPT_PC)
 		{
 			r.corner.x -= 1;
-			r.extent.width += RES_STAT_SCALE(1);
+			r.extent.width += RES_SCALE(1);
 			r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
 		}
 		else

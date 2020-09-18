@@ -908,9 +908,9 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 			OutlineShipStatus (0, STATUS_WIDTH, TRUE);
 		
 		SetContextFont (StarConFont);
-		r.corner.x = RES_STAT_SCALE(3); // JMS_GFX;
-		r.corner.y = RES_STAT_SCALE(4); // JMS_GFX;
-		r.extent.width = RES_STAT_SCALE(57) + RESOLUTION_FACTOR; // JMS_GFX;
+		r.corner.x = RES_SCALE(3); // JMS_GFX;
+		r.corner.y = RES_SCALE(4); // JMS_GFX;
+		r.extent.width = RES_SCALE(57) + RESOLUTION_FACTOR; // JMS_GFX;
 		r.extent.height = RES_SCALE(60) - IF_HD(6); // JMS_GFX;
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawRectangle (&r, IS_HD);
