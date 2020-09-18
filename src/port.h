@@ -71,7 +71,7 @@
 #elif !defined(HAVE_STRICMP)
 #	define stricmp strcasecmp
 #elif !defined(HAVE_STRCASECMP_UQM)
-#	define strcasecmp _stricmp
+#	define strcasecmp stricmp
 #else
 	// We should take care not to define anything if both strcasecmp() and
 	// stricmp() are defined, as one might exist as a macro to the other.

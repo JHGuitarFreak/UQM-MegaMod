@@ -474,16 +474,13 @@ void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val)
 {
 	//BW : empiric values, which would give roughly correct
 	// rotation periods for most moons in the solar system
-	if (GeneratingMoons)
-	{
+	if (GeneratingMoons) {
 		planet->orb_speed = FULL_CIRCLE / (29 * pow((double)planet->radius / (MIN_MOON_RADIUS + (MAX_GEN_MOONS - 1) * MOON_DELTA), 1.5));
 		if ((planet->pPrevDesc->data_index & ~PLANET_SHIELDED) >= FIRST_GAS_GIANT)
 			planet->orb_speed *= 2;
 		if (!(rand_val % 7))
 			planet->orb_speed = - planet->orb_speed;
-	}
-	else
-	{
+	} else {
 		planet->orb_speed = FULL_CIRCLE / (ONE_YEAR * pow((double)planet->radius / EARTH_RADIUS, 1.5));
 	}
 }

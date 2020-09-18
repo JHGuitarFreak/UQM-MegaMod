@@ -25,7 +25,6 @@
 #include "scan.h"
 #include "options.h"
 #include "libs/log.h"
-
 #include <math.h>
 
 

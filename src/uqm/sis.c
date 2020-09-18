@@ -592,7 +592,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		snprintf (buf, sizeof buf, "%s %s",
 				GAME_STRING (NAMING_STRING_BASE + 1), GLOBAL_SIS (ShipName));
 		// XXX: this will not work with UTF-8 strings
-		_strupr (buf);
+		strupr (buf);
 
 		// JMS: Handling the a-umlaut and o-umlaut characters
         {

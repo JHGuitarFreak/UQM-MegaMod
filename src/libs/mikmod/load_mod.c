@@ -476,7 +476,7 @@ static BOOL MOD_Load(BOOL curious)
 		q++;
 	}
 
-	of.modtype = _strdup(descr);
+	of.modtype = strdup(descr);
 
 	if (!ML_LoadPatterns())
 		return 0;
