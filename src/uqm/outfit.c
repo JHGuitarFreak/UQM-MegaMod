@@ -84,7 +84,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_STAT_SCALE(2) - RESOLUTION_FACTOR;
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_STAT_SCALE(2) + 14 * RESOLUTION_FACTOR; // JMS_GFX;
+		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_STAT_SCALE(2) + IF_HD(28); // JMS_GFX;
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
