@@ -16,6 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <math.h>
+
 #include "gfxintrn.h"
 #include "tfb_prim.h"
 #include "libs/log.h"
@@ -49,6 +51,26 @@ DestroyFont (FONT FontRef)
 	return (FreeFont (FontRef));
 }
 
+// Returns the RECT of any given TEXT
+RECT
+font_GetTextRect (TEXT *lpText)
+{
+	RECT ClipRect;
+	POINT origin;
+	TEXT text;
+
+	FixContextFontEffect ();
+	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
+		return;
+
+	// TextRect() clobbers TEXT.CharCount so we have to make a copy
+	text = *lpText;
+	if (!TextRect (&text, &ClipRect, NULL))
+		return;
+
+	return ClipRect;
+}
+
 // XXX: Should be in frame.c (renamed to something decent?)
 void
 font_DrawText (TEXT *lpText)
@@ -76,33 +98,21 @@ void
 font_DrawTracedText (TEXT *pText, Color text, Color trace)
 {
 	// Preserve current foreground color for full correctness
-	Color oldfg = SetContextForeGroundColor (trace);
-	BYTE stroke = 3;
-	POINT t_baseline = pText->baseline;
-	COORD offset_x, offset_y;
+	const Color oldfg = SetContextForeGroundColor (trace);
+	const BYTE stroke = RES_SCALE(1);
+	const POINT t_baseline = pText->baseline;
+	POINT offset;
 
-	if (IS_HD) {
-		for (offset_x = -stroke; offset_x <= stroke; ++offset_x)
+	for (offset.x = -stroke; offset.x <= stroke; ++offset.x)
+	{
+		for (offset.y = -stroke; offset.y <= stroke; ++offset.y)
 		{
-			for (offset_y = -stroke; offset_y <= stroke; ++offset_y)
-			{
-				pText->baseline = MAKE_POINT (t_baseline.x + offset_x, t_baseline.y + offset_y);
-				font_DrawText (pText);
-			}
+			if (hypot (offset.x, offset.y) > stroke) continue;
+			pText->baseline = MAKE_POINT(t_baseline.x + offset.x, t_baseline.y + offset.y);
+			font_DrawText(pText);
 		}
-		pText->baseline = t_baseline;
-	} else {
-		pText->baseline.x--;
-		font_DrawText (pText);
-		pText->baseline.x += 2;
-		font_DrawText (pText);
-		pText->baseline.x--;
-		pText->baseline.y--;
-		font_DrawText (pText);
-		pText->baseline.y += 2;
-		font_DrawText (pText);
-		pText->baseline.y--;
 	}
+	pText->baseline = t_baseline;
 
 	SetContextForeGroundColor (text);
 	font_DrawText (pText);

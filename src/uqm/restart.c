@@ -58,11 +58,10 @@ static BOOLEAN
 PacksInstalled(void){
 	BOOLEAN packsInstalled;
 
-	if (!IS_HD) {
+	if (!IS_HD)
 		packsInstalled = TRUE;
-	} else {
+	else
 		packsInstalled = (HDPackPresent ? TRUE : FALSE);
-	}
 
 	return packsInstalled;
 }
@@ -81,7 +80,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	if (optRequiresRestart || !PacksInstalled()) {	
 		DestroyFont (TinyFont);
 		DestroyFont (PlyrFont);
-		DestroyFont (StarConFont);
 		if (pMS->CurFrame) {
 			DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 			pMS->CurFrame = 0;
@@ -93,8 +91,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		if (optRequiresRestart || !PacksInstalled()) {
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
-			StarConFont = LoadFont (STARCON_FONT_FB);
-			StarConLgFont = LoadFont (STARCONLG_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
@@ -102,8 +98,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		if (optRequiresRestart || !PacksInstalled()) {
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
-			StarConFont = LoadFont (STARCON_FONT_HD);
-			StarConLgFont = LoadFont (STARCONLG_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));
@@ -132,7 +126,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	font_DrawText (&t);
 
 	// Put the main menu music credit in the bottom left corner.
-	if (optMainMenuMusic) {
+	if (optMainMenuMusic)
+	{
 		memset (&buf[0], 0, sizeof (buf));
 		t.baseline.x = RES_SCALE(2);
 		t.baseline.y = SCREEN_HEIGHT - RES_SCALE(2);
@@ -155,8 +150,10 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 }
 
 static BOOLEAN
-RestartMessage(MENU_STATE *pMS, TimeCount TimeIn){	
-	if(optRequiresRestart){
+RestartMessage(MENU_STATE *pMS, TimeCount TimeIn)
+{	
+	if (optRequiresRestart)
+	{
 		SetFlashRect (NULL);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
 		// Got to restart -message
@@ -166,7 +163,9 @@ RestartMessage(MENU_STATE *pMS, TimeCount TimeIn){
 		GLOBAL (CurrentActivity) = CHECK_ABORT;	
 		restartGame = TRUE;
 		return TRUE;
-	} else if (!PacksInstalled ()) {
+	} 
+	else if (!PacksInstalled ())
+	{
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
 		// Could not find graphics pack - message
@@ -205,11 +204,13 @@ DoRestart (MENU_STATE *pMS)
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 	
-	if(optSuperMelee && !optLoadGame && PacksInstalled()){
+	if (optSuperMelee && !optLoadGame && PacksInstalled ())
+	{
 		pMS->CurState = PLAY_SUPER_MELEE;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
-	if(optLoadGame && !optSuperMelee && PacksInstalled()){
+	else if (optLoadGame && !optSuperMelee && PacksInstalled ())
+	{
 		pMS->CurState = LOAD_SAVED_GAME;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
@@ -298,7 +299,7 @@ DoRestart (MENU_STATE *pMS)
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
-				ScreenTransition (3, NULL, TRUE);
+				ScreenTransition (3, NULL);
 				
 				InitFlash (pMS);
 				UnbatchGraphics ();
@@ -358,7 +359,7 @@ DoRestart (MENU_STATE *pMS)
 		BatchGraphics ();
 		DrawRestartMenuGraphic (pMS);
 		DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
-		ScreenTransition (3, NULL, TRUE);
+		ScreenTransition (3, NULL);
 		UnbatchGraphics ();
 		Flash_continue (pMS->flashContext);
 
@@ -549,9 +550,8 @@ StartGame (void)
 			{	// timed out
 				GLOBAL (CurrentActivity) = 0;
 				SplashScreen (0);
-				if(optWhichIntro == OPT_3DO){
+				if (optWhichIntro == OPT_3DO)
 					Drumall ();
-				}
 				Credits (FALSE);
 			}
 
@@ -562,9 +562,8 @@ StartGame (void)
 		if (LastActivity & CHECK_RESTART)
 		{	// starting a new game
 			FadeMusic (NORMAL_VOLUME, 0);
-			if(!optSkipIntro){
+			if (!optSkipIntro)
 				Introduction ();
-			}
 		}
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);

@@ -469,7 +469,6 @@ Flash_setOverlay (FlashContext *context, const POINT *origin, FRAME overlay, BOO
 	
 	if (!cleanup)
 		context->u.overlay.frame = overlay;
-
 	GetFrameRect (overlay, &context->rect);
 	context->rect.corner.x += origin->x;
 	context->rect.corner.y += origin->y;

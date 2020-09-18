@@ -65,11 +65,11 @@ UninitKernel (void)
 	DestroySound (ReleaseSound (MenuSounds));
 	DestroyFont (MicroFont);
 	DestroyStringTable (ReleaseStringTable (GameStrings));
-	DestroyDrawable (ReleaseDrawable (BorderFrame)); // JMS
+	DestroyDrawable (ReleaseDrawable (BorderFrame));
 	DestroyDrawable (ReleaseDrawable (StatusFrame));
-	DestroyDrawable (ReleaseDrawable (SubmenuFrame)); // JMS
-	DestroyDrawable (ReleaseDrawable (NebulaeFrame));	// JMS
-	DestroyDrawable (ReleaseDrawable (hyperspacesuns));	// JMS
+	DestroyDrawable (ReleaseDrawable (SubmenuFrame));
+	DestroyDrawable (ReleaseDrawable (NebulaeFrame));
+	DestroyDrawable (ReleaseDrawable (hyperspacesuns));
 	DestroyDrawable (ReleaseDrawable (ActivityFrame));
 	DestroyFont (TinyFont);
 	DestroyFont (TinyFontSS);

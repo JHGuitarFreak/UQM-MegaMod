@@ -52,7 +52,8 @@ DrawConfirmationWindow (BOOLEAN answer)
 	r.corner.y = (SCREEN_HEIGHT - CONFIRM_WIN_HEIGHT) >> 1;
 	r.extent.width = CONFIRM_WIN_WIDTH;
 #if defined(ANDROID) || defined(__ANDROID__)
-	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed()) {
+	if (GLOBAL (CurrentActivity) & IN_BATTLE && RunAwayAllowed ())
+	{
 		r.corner.x -= RES_BOOL(40, 0);
 		r.extent.width += RES_BOOL(40, 0);
 	}
@@ -79,9 +80,10 @@ DrawConfirmationWindow (BOOLEAN answer)
 	t.baseline.x += (r.extent.width >> 1);
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 2); // "No"
 #if defined(ANDROID) || defined(__ANDROID__)
-	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed()) {
+	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
+	{
 		t.baseline.x -= RES_BOOL(10, 20);
-		t.pStr = GAME_STRING(QUITMENU_STRING_BASE + 3); // "Escape Unit"
+		t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 3); // "Escape Unit"
 	}
 #endif
 	SetContextForeGroundColor (answer ? MENU_TEXT_COLOR : MENU_HIGHLIGHT_COLOR);	
@@ -131,14 +133,14 @@ DoConfirmExit (void)
 		done = FALSE;
 
 #if defined(ANDROID) || defined(__ANDROID__)
-		if (!(GLOBAL(CurrentActivity) & IN_BATTLE)) {
-			/* Abort immediately */
+		if (!(GLOBAL (CurrentActivity) & IN_BATTLE))
+		{	// Abort immediately
 			response = TRUE;
 			done = TRUE;
 		}
 #endif
 		
-		while (!done) {
+		while (!done){
 			// Forbid recursive calls or pausing here!
 			ExitRequested = FALSE;
 			GamePaused = FALSE;
@@ -179,7 +181,7 @@ DoConfirmExit (void)
 		else
 		{
 #if defined(ANDROID) || defined(__ANDROID__)
-			if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
+			if (GLOBAL (CurrentActivity) & IN_BATTLE && RunAwayAllowed ())
 				WarpFromMenu = TRUE;
 #endif
 			result = FALSE;

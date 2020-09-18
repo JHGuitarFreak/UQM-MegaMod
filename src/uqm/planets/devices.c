@@ -333,9 +333,9 @@ InvokeDevice (BYTE which_device)
 				return DEVICE_SUCCESS;
 			}
 			break;
-		case ARTIFACT_2_DEVICE:
+		case WIMBLIS_TRIDENT_DEVICE:
 			break;
-		case ARTIFACT_3_DEVICE:
+		case GLOWING_ROD_DEVICE:
 			break;
 		case SUN_EFFICIENCY_DEVICE:
 			if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
@@ -579,10 +579,10 @@ InventoryDevices (BYTE *pDeviceMap, COUNT Size)
 			case ROSY_SPHERE_DEVICE:
 				DeviceState = GET_GAME_STATE (ROSY_SPHERE_ON_SHIP);
 				break;
-			case ARTIFACT_2_DEVICE:
+			case WIMBLIS_TRIDENT_DEVICE:
 				DeviceState = GET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP);
 				break;
-			case ARTIFACT_3_DEVICE:
+			case GLOWING_ROD_DEVICE:
 				DeviceState = GET_GAME_STATE (GLOWING_ROD_ON_SHIP);
 				break;
 			case SUN_EFFICIENCY_DEVICE:

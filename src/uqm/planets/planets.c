@@ -229,7 +229,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode != DRAW_ORBITAL_UPDATE)
 	{
-		ScreenTransition (3, &r, optIPScaler == OPT_3DO);
+		ScreenTransition (optIPScaler, &r);
 	}
 
 	UnbatchGraphics ();
@@ -272,6 +272,9 @@ LoadPlanet (FRAME SurfDefFrame)
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, NULL, NULL);
 	SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
+
+	if (optIPScaler != OPT_3DO)
+		SleepThread (ONE_SECOND);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 		PlayMusic (LanderMusic, TRUE, 1);

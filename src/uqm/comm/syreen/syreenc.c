@@ -919,8 +919,10 @@ PlanAmbush (RESPONSE_REF R)
 
 	// Send ambush fleet to Organon.  EncounterPercent for the
 	// Syreen is 0, so this is purely decorative.
-	if (EXTENDED) {
-		if (SyreenPtr) {
+	if (EXTENDED) 
+	{
+		if (SyreenPtr)
+		{
 			SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
 			SyreenPtr->loc.x = 4125;
 			SyreenPtr->loc.y = 3770;

@@ -1,5 +1,6 @@
 Use Case           = Font Name                 - License                 -> Website
 
+3DO Menu           = Grand National Expanded   - Free for personal use   -> https://www.ffonts.net/Grand-National-Expanded.font
 Arilou             = Puritan Alt Bold          - Freeware (No License)   -> https://www.dafont.com/puritan-ds.font
 Chmmr							 = Chmmr Regular						 - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 Credits            = OPTICirrus Bold (Modded)  - Defunct                 -> https://www.ffonts.net/OPTICirrus-Bold.font
@@ -8,8 +9,14 @@ Computer           = DJB Get Digital           - Free for personal use   -> http
 Druuge             = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
 Kohr-Ah            = Xenopyre                  - CC0 1.0 Universal       -> https://fontstruct.com/fontstructions/show/1598415/xenopyre
 Ilwrath            = Times Old Attic (Modded)  - Free for commercial use -> https://www.1001fonts.com/times-old-attic-font.html
+Intro Card 1 [1st] = Nimbus Roman No. 9 L      - GPL Version 2           -> https://git.ghostscript.com/?p=user/tor/urw-base-12.git;a=tree
+Intro Card 1 [2nd] = Oxanium                   - OFL-1.1 License         -> https://github.com/sevmeyer/oxanium
+Intro Card 1 [3rd] = Orbitron Bold             - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
+Intro Card 2       = Federation Hull           - Unknown                 -> https://www.ffonts.net/FederationHull.font
 Lander             = Arizone Unicase (Modded)  - CC0 1.0 Universal       -> https://www.fontspace.com/arizone-unicase-font-f32250
 Load/Save Menu     = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron
+Logo Card [1st]    = Vandiana Platin           - Free for personal use   -> https://www.dafont.com/vandiana-platin.font
+Logo Card [2nd]    = Oxanium                   - OFL-1.1 License         -> https://github.com/sevmeyer/oxanium
 Main Menu          = OPTICirrus Bold (Modded)  - Defunct                 -> https://www.ffonts.net/OPTICirrus-Bold.font
 MegaMod Logo       = Aware Bold                - Freeware (No License)   -> https://www.fontspace.com/aware-font-f43412
 Melnorme           = Orbitron Black (Modded)   - OFL-1.1 License         -> https://github.com/theleagueof/orbitron

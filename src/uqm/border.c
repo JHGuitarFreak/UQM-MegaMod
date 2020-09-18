@@ -93,6 +93,7 @@ DrawSISFrame (void)
 		// The big Blue box in the upper edge of screen containing the star system name.
 		r.corner.y = 0;
 		r.extent.height = SIS_ORG_Y;
+
 		r.corner.x = SIS_ORG_X;
 		r.extent.width = SIS_MESSAGE_BOX_WIDTH;
 		DrawStarConBox (&r, 1,
@@ -228,7 +229,7 @@ DrawSISFrame (void)
 		r.extent.height = SCREEN_HEIGHT - r.corner.y;
 		DrawFilledRectangle (&r);
 
-		DrawBorder(0, FALSE);
+		DrawBorder (0, FALSE);
 	}
 
 	InitSISContexts ();

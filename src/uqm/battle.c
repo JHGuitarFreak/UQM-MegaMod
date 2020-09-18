@@ -145,9 +145,9 @@ frameInputHuman (HumanInputContext *context, STARSHIP *StarShipPtr)
 {
 	(void) StarShipPtr;
 #if defined(ANDROID) || defined(__ANDROID__)
-	return CurrentInputToBattleInput(context->playerNr, StarShipPtr ? StarShipPtr->ShipFacing : -1);
+	return CurrentInputToBattleInput (context->playerNr, StarShipPtr ? StarShipPtr->ShipFacing : -1);
 #else
-	return CurrentInputToBattleInput(context->playerNr, -1);
+	return CurrentInputToBattleInput (context->playerNr, -1);
 #endif
 }
 
@@ -221,7 +221,7 @@ ProcessInput (void)
 						((InputState & BATTLE_ESCAPE) || WarpFromMenu))
 					{
 						WarpFromMenu = FALSE;
-						DoRunAway(StarShipPtr);
+						DoRunAway (StarShipPtr);
 					}
 				}
 			}
@@ -253,11 +253,12 @@ BattleSong (BOOLEAN DoPlay)
 			BattleRef = LoadMusic (HYPERSPACE_MUSIC);
 		else if (inQuasiSpace ())
 			BattleRef = LoadMusic (QUASISPACE_MUSIC);
-		else {
-			if(LOBYTE(GLOBAL(CurrentActivity)) == IN_LAST_BATTLE && !optRemixMusic)
-				BattleRef = LoadMusic(BATTLE_MUSIC_SAMATRA);
+		else
+		{
+			if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE && !optRemixMusic)
+				BattleRef = LoadMusic (BATTLE_MUSIC_SAMATRA);
 			else
-				BattleRef = LoadMusic(BATTLE_MUSIC);
+				BattleRef = LoadMusic (BATTLE_MUSIC);
 		}
 	}
 
@@ -338,7 +339,7 @@ DoBattle (BATTLE_STATE *bs)
 	if (bs->first_time)
 	{
 		bs->first_time = FALSE;
-		ScreenTransition (3, &r, optIPScaler == OPT_3DO);
+		ScreenTransition (optIPScaler, &r);
 	}
 	UnbatchGraphics ();
 	if ((!(GLOBAL (CurrentActivity) & IN_BATTLE)) ||
@@ -415,10 +416,9 @@ Battle (BattleFrameCallback *callback)
 	SIZE num_ships;
 
 #if defined(ANDROID) || defined(__ANDROID__)
-	TFB_SetOnScreenKeyboard_Melee();
-	if (PlayerControl[1] & HUMAN_CONTROL) {
-		TFB_SetOnScreenKeyboard_TwoPlayersMelee();
-	}
+	TFB_SetOnScreenKeyboard_Melee ();
+	if (PlayerControl[1] & HUMAN_CONTROL)
+		TFB_SetOnScreenKeyboard_TwoPlayersMelee ();
 #endif
 
 #if !(DEMO_MODE || CREATE_JOURNAL)
@@ -530,7 +530,7 @@ AbortBattle:
 	FreeBattleSong ();
 
 #if defined(ANDROID) || defined(__ANDROID__)
-	TFB_SetOnScreenKeyboard_Menu();
+	TFB_SetOnScreenKeyboard_Menu ();
 #endif
 	
 	return (BOOLEAN) (num_ships < 0);

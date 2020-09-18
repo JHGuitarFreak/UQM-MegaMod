@@ -410,7 +410,8 @@ check_hyperspace_encounter (void)
 void
 FreeHyperData (void)
 {
-	if (IS_HD) {
+	if (IS_HD)
+	{
 		DestroyDrawable (ReleaseDrawable (hyperholes[1]));
 		hyperholes[1] = 0;
 		DestroyDrawable (ReleaseDrawable (hyperholes[2]));
@@ -444,8 +445,10 @@ FreeHyperData (void)
 static void
 LoadHyperData (void)
 {
-	if (IS_HD) {
-		if (hyperholes[1] == 0) {
+	if (IS_HD)
+	{
+		if (hyperholes[1] == 0)
+		{
 			hyperholes[1] = CaptureDrawable (
 				LoadGraphic (HYPERHOLES_MASK_PMAP_ANIM));
 			hyperholes[2] = CaptureDrawable (
@@ -461,15 +464,16 @@ LoadHyperData (void)
 			Falayalaralfali = CaptureDrawable (LoadGraphic (FALAYALARALFALI_MASK_PMAP_ANIM));
 	}
 	
-	if (hyperstars[0] == 0) {
+	if (hyperstars[0] == 0)
+	{
 		hyperstars[0] = CaptureDrawable (
 				LoadGraphic (AMBIENT_MASK_PMAP_ANIM));
 		hyperstars[1] = CaptureDrawable (
 				LoadGraphic (HYPERSTARS_MASK_PMAP_ANIM));
+		hypercmaps[0] = CaptureColorMap (LoadColorMap (HYPER_COLOR_TAB));
+
 		hyperstars[2] = CaptureDrawable (
 				LoadGraphic (ARISPACE_MASK_PMAP_ANIM));
-
-		hypercmaps[0] = CaptureColorMap (LoadColorMap (HYPER_COLOR_TAB));		
 		hypercmaps[1] = CaptureColorMap (LoadColorMap (ARISPACE_COLOR_TAB));
 	}
 }
@@ -493,7 +497,8 @@ LoadHyperspace (void)
 		hyperstars[0] = stars_in_space;
 		stars_in_space = F;
 
-		if (IS_HD) {
+		if (IS_HD)
+		{
 			FQ = hyperstars[3];
 			hyperstars[3] = stars_in_quasispace;
 			stars_in_quasispace = FQ;
@@ -552,7 +557,8 @@ FreeHyperspace (void)
 		hyperstars[0] = stars_in_space;
 		stars_in_space = F;
 
-		if (IS_HD) {
+		if (IS_HD)
+		{
 			FQ = hyperstars[3];
 			hyperstars[3] = stars_in_quasispace;
 			stars_in_quasispace = FQ;
@@ -670,19 +676,21 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			portal_rng_x = RandomContext_Set(portal_pt[index].x);
 			portal_rng_y = RandomContext_Set(portal_pt[index].y);
 
-			if (!PrimeSeed || DIF_HARD) {
+			if (!PrimeSeed || DIF_HARD)
+			{
 				GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(RandomContext_Random(portal_rng_x) % (MAX_X_UNIVERSE + 1));
 				GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(RandomContext_Random(portal_rng_y) % (MAX_Y_UNIVERSE + 1));
-			} else {
+			}
+			else
+			{
 				GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
 				GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_pt[index].y);
 			}
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
-			if (PrimeSeed && !DIF_HARD) {
+			if (PrimeSeed && !DIF_HARD)
 				SET_QS_PORTAL_KNOWN(index);
-			}
 
 			SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
 		}
@@ -733,7 +741,8 @@ unhyper_transition (ELEMENT *ElementPtr)
 
 	// JMS: If leaving interplanetary on autopilot, always arrive HS with
 	// the ship's nose pointed into correct direction.
-	if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0) {
+	if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0)
+	{
 		STARSHIP *StarShipPtr;
 		POINT universe;
 		SIZE facing;
@@ -747,7 +756,7 @@ unhyper_transition (ELEMENT *ElementPtr)
 			
 		facing = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (udx, udy)));
 		StarShipPtr->ShipFacing = facing;
-		SetElementStarShip(ElementPtr, StarShipPtr);
+		SetElementStarShip (ElementPtr, StarShipPtr);
 	}
 
 	ElementPtr->state_flags |= CHANGING;
@@ -847,7 +856,8 @@ hyper_transition (ELEMENT *ElementPtr)
 		
 		// JMS: If leaving interplanetary on autopilot, always arrive HS with
 		// the ship's nose pointed into correct direction.
-		if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0) {
+		if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0)
+		{
 			STARSHIP *StarShipPtr;
 			POINT universe;
 			SIZE facing;
@@ -861,7 +871,7 @@ hyper_transition (ELEMENT *ElementPtr)
 			
 			facing = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (udx, udy)));
 			StarShipPtr->ShipFacing = facing;
-			SetElementStarShip(ElementPtr, StarShipPtr);
+			SetElementStarShip (ElementPtr, StarShipPtr);
 		}
 
 		frame_index = GetFrameIndex (ElementPtr->current.image.frame);
@@ -1058,12 +1068,14 @@ AddAmbientElement (void)
 		rand_val = TFB_Random ();
 		dy = LOWORD (rand_val);
 		
-		// JMS_GFX
-		if (!IS_HD) {
+		if (!IS_HD)
+		{	// JMS_GFX
 			dx = (SIZE)(LOBYTE (dy) % SPACE_WIDTH) - (SPACE_WIDTH >> 1);
 			dy = (SIZE)(HIBYTE (dy) % SPACE_HEIGHT) - (SPACE_HEIGHT >> 1);
 			HyperSpaceElementPtr->current.image.farray = &stars_in_space;
-		} else {
+		}
+		else
+		{
 			dx = (SIZE)((HIWORD (rand_val)) % SPACE_WIDTH) - (SPACE_WIDTH >> 1);
 			dy = (SIZE)(dy % SPACE_HEIGHT) - (SPACE_HEIGHT >> 1);
 			
@@ -1125,10 +1137,12 @@ encounter_transition (ELEMENT *ElementPtr)
 			f = IncFrameIndex (ElementPtr->current.image.frame);
 			if (f != ElementPtr->current.image.farray[0])
 				ElementPtr->next.image.frame = f;
-			else {
+			else
+			{
  				ElementPtr->death_func = NULL;
-				// BW: the bubble has reached full size so we start animation
-				if (IS_HD) {
+				
+				if (IS_HD)
+				{	// BW: the bubble has reached full size so we start animation
 					ElementPtr->current.image.farray = &npcbubble;
 					ElementPtr->next.image.farray = &npcbubble;
 					ElementPtr->current.image.frame = SetAbsFrameIndex(npcbubble, 0);
@@ -1329,14 +1343,14 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 		}
 		else
 		{
-			if (IS_HD) {
+			if (IS_HD)
+			{
 				ElementPtr->current.image.farray = &npcbubble;
 				ElementPtr->next.image.farray = &npcbubble;
 				ElementPtr->current.image.frame = SetAbsFrameIndex(npcbubble, 0);
 				ElementPtr->next.image.frame = SetAbsFrameIndex(npcbubble, 0);
-			} else {
+			} else
 				ElementPtr->current.image.frame = DecFrameIndex (ElementPtr->current.image.farray[0]);
-			}
 		}
 
 		ElementPtr->turn_wait = VORTEX_WAIT;
@@ -1770,18 +1784,19 @@ SeedUniverse (void)
 			if (!IS_HD
 				|| (SD[i].Index < 22 && arilouSpaceSide <= 1)
 				|| (SD[i].Index < 4 && arilouSpaceSide > 1))
-			{
-				// The QS portal is still growing (Or when playing in 1x resolution).
+			{	// The QS portal is still growing (Or when playing in 1x resolution).
 				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
 					hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
 					SD[i].Index);
-			} else if (arilouSpaceSide > 1) {
-				// QS. The QS portal has done its growing animation: in HD switch to the full-size anim.
+			}
+			else if (arilouSpaceSide > 1)
+			{	// QS. The QS portal has done its growing animation: in HD switch to the full-size anim.
 				HyperSpaceElementPtr->current.image.frame =
 					SetAbsFrameIndex (quasiportal, frameCounter % NUM_HOLES_FRAMES);
 				HyperSpaceElementPtr->current.image.farray = &hyperholes[2];
-			} else {
-				// HS. The QS portal has done its growing animation: in HD switch to the full-size anim.
+			}
+			else
+			{	// HS. The QS portal has done its growing animation: in HD switch to the full-size anim.
 				HyperSpaceElementPtr->current.image.frame =
 					SetAbsFrameIndex (quasiportal, frameCounter % NUM_QUASIPORTAL_IN_HS_FRAMES);
 				HyperSpaceElementPtr->current.image.farray = &quasiportal;
@@ -1827,7 +1842,8 @@ SeedUniverse (void)
 
 			star_type = SDPtr->Type;
 
-			if (!IS_HD) {
+			if (!IS_HD)
+			{
 				hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
 				if (hHyperSpaceElement == 0)
 					continue;
@@ -1858,7 +1874,9 @@ SeedUniverse (void)
 				UnlockElement (hHyperSpaceElement);
 				
 				InsertElement (hHyperSpaceElement, GetHeadElement ());
-			} else {
+			}
+			else
+			{
 				// BW: first the actual star
 				if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 
 					|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY))
@@ -1871,8 +1889,7 @@ SeedUniverse (void)
 				
 					// JMS_GFX: Draw stars in hyperspace.
 					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-					{
-						// The color, then the size and finally
+					{	// The color, then the size and finally
 						// the frame offset for the actual animation
 						HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
 						hyperspacesuns, STAR_COLOR (star_type) * NUM_STAR_TYPES * NUM_SUNS_FRAMES
@@ -1882,10 +1899,8 @@ SeedUniverse (void)
 						HyperSpaceElementPtr->current.image.farray = &hyperspacesuns;
 						HyperSpaceElementPtr->death_func = NULL;
 					}
-					// JMS_GFX: Draw Arilou homeworld in quasispace.
 					else if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY)
-					{
-						// JMS_GFX: Draw Arilou homeworld in quasispace | Serosis: Draw *animated* Arilou homeworld
+					{	// JMS_GFX: Draw Arilou homeworld in quasispace | Serosis: Draw *animated* Arilou homeworld
 						HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (Falayalaralfali, frameCounter % NUM_HOLES_FRAMES);
 						HyperSpaceElementPtr->current.image.farray = &Falayalaralfali;
 					}
@@ -1904,8 +1919,7 @@ SeedUniverse (void)
 				
 					// JMS_GFX: Don't draw hole for arilou homeworld - it already has a nice planet gfx.
 					if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY && !IS_HD)
-						continue;
-				
+						continue;				
 				}
 				
 				// BW: and then the animated hyperspace portal
@@ -1948,9 +1962,12 @@ SeedUniverse (void)
 				
 				SetUpElement (HyperSpaceElementPtr);
 				
-				if ((SDPtr == CurStarDescPtr && GET_GAME_STATE (PORTAL_COUNTER) == 0)) {
+				if ((SDPtr == CurStarDescPtr && GET_GAME_STATE (PORTAL_COUNTER) == 0))
+				{
 					HyperSpaceElementPtr->death_func = hyper_death;
-				} else {
+				}
+				else
+				{
 					HyperSpaceElementPtr->death_func = NULL;
 					HyperSpaceElementPtr->IntersectControl.IntersectStamp.frame =
 					DecFrameIndex (stars_in_space);

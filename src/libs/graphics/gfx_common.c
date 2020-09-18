@@ -161,11 +161,13 @@ SetTransitionSource (const RECT *pRect)
 
 // ScreenTransition() is synchronous (does not return until transition done)
 void
-ScreenTransition (int TransType, const RECT *pRect, BOOLEAN is3DO)
+ScreenTransition (int TransType, const RECT *pRect)
 {
 	const TimePeriod DURATION = ONE_SECOND * 31 / 60;
 	TimeCount startTime;
-	(void) TransType;  /* dodge compiler warning */
+
+	if (TransType == OPT_PC)
+		return;
 
 	if (pRect)
 	{
@@ -179,26 +181,23 @@ ScreenTransition (int TransType, const RECT *pRect, BOOLEAN is3DO)
 		TransitionClipRect.extent.height = ScreenHeight;
 	}
 
-	if (is3DO)
-	{
-		TFB_UploadTransitionScreen ();
+	TFB_UploadTransitionScreen ();
 	
-		TransitionAmount = 0;
-		FlushGraphics ();
-		startTime = GetTimeCounter ();
-		while (TransitionAmount < 255)
-		{
-			TimePeriod deltaT;
-			int newAmount;
+	TransitionAmount = 0;
+	FlushGraphics ();
+	startTime = GetTimeCounter ();
+	while (TransitionAmount < 255)
+	{
+		TimePeriod deltaT;
+		int newAmount;
 
-			SleepThread (ONE_SECOND / 100);
+		SleepThread (ONE_SECOND / 100);
 
-			deltaT = GetTimeCounter () - startTime;
-			newAmount = deltaT * 255 / DURATION;
-			if (newAmount > 255)
-				newAmount = 255;
+		deltaT = GetTimeCounter () - startTime;
+		newAmount = deltaT * 255 / DURATION;
+		if (newAmount > 255)
+			newAmount = 255;
 
-			TransitionAmount = newAmount;
-		}
+		TransitionAmount = newAmount;
 	}
 }

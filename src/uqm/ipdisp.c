@@ -17,7 +17,7 @@
  */
 
 #include "ipdisp.h"
-
+#include "build.h"
 #include "collide.h"
 #include "globdata.h"
 #include "init.h"
@@ -204,7 +204,7 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		}
 		else if (group_loc == flagship_loc)
 		{
-			SWORD detect_dist = EXTENDED && CheckAlliance(GroupPtr->race_id) == GOOD_GUY ? 0 : 1200;
+			SWORD detect_dist = EXTENDED && CheckAlliance (GroupPtr->race_id) == GOOD_GUY ? 0 : 1200;
 
 			if (group_loc != 0) /* if in planetary views */
 			{
@@ -364,7 +364,7 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		{
 			if (target_loc == 0)
 			{
-				if (task == FLEE)
+				if (task == FLEE && radius == MAX_ZOOM_RADIUS)
 					goto CheckGetAway;
 			}
 			else if (target_loc == GroupPtr->dest_loc)
@@ -454,25 +454,60 @@ CheckGetAway:
 			}
 		}
 		
-		if (optShipDirectionIP) {
-			if (GroupPtr->race_id != SLYLANDRO_SHIP) {
-				//BW : make IP ships face the direction they're going into
-				suggestedFrame = SetAbsFrameIndex(EPtr->next.image.farray[0], 2 + NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y))));
+		if (optShipDirectionIP)
+		{
+			if (GroupPtr->race_id != SLYLANDRO_SHIP)
+			{	// BW : make IP ships face the direction they're going into
+				if (GLOBAL (CurrentActivity) & START_ENCOUNTER)	// sometimes they give up chase, don't turn them away from sis during red alert phase
+					suggestedFrame = SetAbsFrameIndex (EPtr->next.image.farray[0], GetFrameIndex (EPtr->current.image.frame));
+				else
+					suggestedFrame = SetAbsFrameIndex (EPtr->next.image.farray[0], 2 + NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y))));
 
-				// JMS: Direction memory prevents jittering of battle group icons when they are orbiting a planet (and not chasing the player ship).		
-				if (isOrbiting) {
-					// This works because ships always orbit planets clockwise.
-					if (GroupPtr->lastDirection < NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(delta_x, delta_y)))
-						|| GroupPtr->lastDirection == 15)
-						EPtr->next.image.frame = suggestedFrame;
-				} else
+				// Set ship sprite when player entering the system (image index is always 1 by default)
+				if (GetFrameIndex (EPtr->current.image.frame) == 1)
 					EPtr->next.image.frame = suggestedFrame;
-			} else {
-				EPtr->next.image.frame = IncFrameIndex(EPtr->next.image.frame);
-			}
 
-			GroupPtr->lastDirection = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y)));
+				if (isOrbiting)
+				{	// JMS: Direction memory prevents jittering of battle group icons when they are orbiting a planet (and not chasing the player ship).
+					if (GroupPtr->canTurn)
+					{
+						EPtr->next.image.frame = suggestedFrame;
+						GroupPtr->canTurn = FALSE; // cannot turn until destination is reached
+					}
+				} 
+				else
+					EPtr->next.image.frame = suggestedFrame;
+			} 
+			else
+				EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame);
+
+			// If destination reached - ship can turn (or ship leaves/enters inner system, but not reached destination yet)
+			if ((dest_pt.x == GroupPtr->loc.x && dest_pt.y == GroupPtr->loc.y) || Transition)
+				GroupPtr->canTurn = TRUE;
 		}
+	}
+	else if (task >= REFORM_GROUP && optShipDirectionIP)
+	{	// To face sis while reforming
+		if (GroupPtr->race_id != SLYLANDRO_SHIP)
+		{
+			if (GetFrameIndex (EPtr->current.image.frame) == 1)
+			{	// Define direction only once and not follow player while reforming
+				SIZE delta_x, delta_y;
+				POINT sis_pt;
+
+				sis_pt = displayToLocation (GLOBAL (ShipStamp.origin), radius);	
+
+				// Destination point is sis location
+				delta_x = sis_pt.x - GroupPtr->loc.x;
+				delta_y = sis_pt.y - GroupPtr->loc.y;
+
+				EPtr->next.image.frame = SetAbsFrameIndex (EPtr->next.image.farray[0], 2 + NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y))));
+
+				GroupPtr->canTurn = TRUE; // Allow ship to turn after reforming is complete and if no more chasing player
+			}
+		}
+		else
+			EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame); // Probe will wobble while reforming
 	}
 
 	radius = zoomRadiusForLocation (group_loc);
@@ -601,8 +636,8 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 		IPSHIPElementPtr->state_flags =
 				CHANGING | FINITE_LIFE | IGNORE_VELOCITY;
 
-		if(optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
-			GroupPtr->melee_icon = CaptureDrawable(LoadGraphic(SLYLANDRO_SML_MASK_PMAP_ANIM));
+		if (optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
+			GroupPtr->melee_icon = CaptureDrawable (LoadGraphic (SLYLANDRO_SML_MASK_PMAP_ANIM));
 
 		SetPrimType (&DisplayArray[IPSHIPElementPtr->PrimIndex], STAMP_PRIM);
 		// XXX: Hack: farray points to FRAME[3] and given FRAME

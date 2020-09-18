@@ -272,23 +272,30 @@ InitGalaxy (void)
 		}
 		else
 		{
-			if(IS_HD){
-				// In HD the starpoints in HS and QS are images
+			if(IS_HD)
+			{	// In HD the starpoints in HS and QS are images
 				SetPrimType (&DisplayArray[p], STAMP_PRIM);
-				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE){
+				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
+				{
 					SetPrimType (&DisplayArray[p], POINT_PRIM);
-					SetPrimColor (&DisplayArray[p], BUILD_COLOR (MAKE_RGB15 (0x15, 0x15, 0x15), 0x07));
-				} else
+					SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (MAKE_RGB15 (0x15, 0x15, 0x15), 0x07));
+				} 
+				else
 					DisplayArray[p].Object.Stamp.frame = SetAbsFrameIndex (StarPoints, HSorQS);
-			} else {
-				// Pixel starpoints in original res
+			}
+			else
+			{	// Pixel starpoints in original res
 				SetPrimType (&DisplayArray[p], POINT_PRIM);
 				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
-					SetPrimColor (&DisplayArray[p], BUILD_COLOR (MAKE_RGB15 (0x15, 0x15, 0x15), 0x07));
+					SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (MAKE_RGB15 (0x15, 0x15, 0x15), 0x07));
 				else if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-					SetPrimColor (&DisplayArray[p], BUILD_COLOR (MAKE_RGB15 (0x14, 0x00, 0x00), 0x8C));
+					SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (MAKE_RGB15 (0x14, 0x00, 0x00), 0x8C));
 				else
-					SetPrimColor (&DisplayArray[p], BUILD_COLOR (MAKE_RGB15 (0x00, 0x0E, 0x00), 0x8C));
+					SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (MAKE_RGB15 (0x00, 0x0E, 0x00), 0x8C));
 			}
 		}
 

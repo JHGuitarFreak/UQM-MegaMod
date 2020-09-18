@@ -120,7 +120,6 @@ BuildBattle (COUNT which_player)
 	if (which_player != RPG_PLAYER_NUM)
 	{	// This function is called first for the NPC character
 		// and this is when a centerpiece is loaded
-
 		switch (LOBYTE (GLOBAL (CurrentActivity)))
 		{
 			case IN_LAST_BATTLE:
@@ -388,9 +387,11 @@ InitEncounter (void)
 				angle = ARCTAN (s.origin.x, s.origin.y);
 				s.origin.x = (COSINE (angle, radius));
 				s.origin.y = (SINE (angle, radius));
-			} else {
-				s.origin.x <<= RESOLUTION_FACTOR; // JMS_GFX
-				s.origin.y <<= RESOLUTION_FACTOR; // JMS_GFX
+			}
+			else
+			{	// JMS_GFX
+				s.origin.x <<= RESOLUTION_FACTOR; 
+				s.origin.y <<= RESOLUTION_FACTOR;
 			}
 			s.frame = SetAbsFrameIndex (FragPtr->icons, 0);
 			GetFrameRect (s.frame, &r);
@@ -404,7 +405,8 @@ InitEncounter (void)
 
 	UnbatchGraphics ();
 	DestroyDrawable (ReleaseDrawable (SegueFrame));
-	ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
+	ScreenTransition (optIPScaler, NULL);
+	
 
 	{
 		MENU_STATE MenuState;
@@ -525,7 +527,6 @@ UninitEncounter (void)
 		UNICODE buf[80];
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
-
 		static const Color fade_ship_cycle[] =
 		{
 			BUILD_COLOR (MAKE_RGB15_INIT (0x07, 0x00, 0x00), 0x2F),
@@ -637,16 +638,17 @@ UninitEncounter (void)
 								// XXX: this will not work with UTF-8 strings
 								_strupr (buf);
 
-								// JMS: Handling the a-umlaut and o-umlaut characters
-								{
+								{	// JMS: Handling the a-umlaut and o-umlaut characters
 									unsigned char *ptr;
 									ptr = (unsigned char*)buf;
-									while (*ptr) {
-										if (*ptr == 0xc3) {
+									
+									while (*ptr)
+									{
+										if (*ptr == 0xc3)
+										{
 											ptr++;
-											if (*ptr == 0xb6 || *ptr == 0xa4) {
+											if (*ptr == 0xb6 || *ptr == 0xa4)
 												*ptr += 'A' - 'a';
-											}
 										}
 										ptr++;
 									}

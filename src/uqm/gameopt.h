@@ -28,7 +28,8 @@ extern BOOLEAN GameOptions (void);
 
 typedef void (NamingCallback) (void);
 extern void SetNamingCallback (NamingCallback *);
-extern void AskNameForCaptainAndShip(void);
+extern void SettingsMenu (BOOLEAN NameFlagship);
+extern BOOLEAN NewGameInit;
 
 extern BYTE OutfitOrShipyard;
 

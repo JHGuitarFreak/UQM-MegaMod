@@ -167,7 +167,8 @@ GetAvailableRaceCount (void)
 		FLEET_INFO *FleetPtr;
 
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-		if (FleetPtr->allied_state == GOOD_GUY || FleetPtr->allied_state == CAN_BUILD)
+		if (FleetPtr->allied_state == GOOD_GUY 
+			|| FleetPtr->allied_state == CAN_BUILD)
 			++Index;
 
 		hNextShip = _GetSuccLink (FleetPtr);
@@ -188,7 +189,9 @@ GetAvailableRaceFromIndex (BYTE Index)
 		FLEET_INFO *FleetPtr;
 
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-		if (FleetPtr->allied_state == GOOD_GUY && Index-- == 0 || FleetPtr->allied_state == CAN_BUILD && Index-- == 0)
+		if ((FleetPtr->allied_state == GOOD_GUY 
+			|| FleetPtr->allied_state == CAN_BUILD) 
+			&& Index-- == 0)
 		{
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 			return hStarShip;
@@ -258,12 +261,12 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		t.pStr = buf;
 		sprintf (buf, "%u", ShipCost[NewRaceItem]);
 		SetContextFont (TinyFont);
-		if ((ShipCost[NewRaceItem]) <= (GLOBAL_SIS (ResUnits))) {
+
+		if ((ShipCost[NewRaceItem]) <= (GLOBAL_SIS (ResUnits)))
 			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
-		} else if ((ShipCost[NewRaceItem]) > (GLOBAL_SIS (ResUnits)))
-		{ /* We don't have enough to purchase this ship. */
+		else if ((ShipCost[NewRaceItem]) > (GLOBAL_SIS (ResUnits)))
 			SetContextForeGroundColor (BRIGHT_RED_COLOR);
-		}
+
 		font_DrawText (&t);
 	}
 	UnbatchGraphics ();
@@ -312,7 +315,7 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 
 	r = *pRect;
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + r.extent.height - 1; // JMS_GFX
+	t.baseline.y = r.corner.y + r.extent.height - 1;
 	t.align = ALIGN_CENTER;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
@@ -460,7 +463,7 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 		FlushInput ();
 		TimeIn = GetTimeCounter ();
 
-		for (j = 0; (j < (int)SHIP_WIN_FRAMES) && !AllDoorsFinished; j++)
+		for (j = 0; (j < SHIP_WIN_FRAMES) && !AllDoorsFinished; j++)
 		{
 			SleepThreadUntil (TimeIn + ONE_SECOND / RES_SCALE(24));
 			TimeIn = GetTimeCounter ();
@@ -666,7 +669,8 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 			SetFlashRect (SFR_MENU_ANY);
 			break;
 		case DMS_Mode_editCrew:
-			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_PAGE | MENU_SOUND_ACTION);
+			SetMenuSounds (MENU_SOUND_ARROWS,
+				MENU_SOUND_PAGE | MENU_SOUND_ACTION);
 			if (HINIBBLE (pMS->CurState))
 			{
 				// Enter crew editing mode for the flagship.
@@ -760,24 +764,12 @@ DMS_HireFlagShipCrew (void)
 
 	// Draw a crew member.
 	// Crew dots/rectangles for Original and HD graphics.
-	if (!IS_HD) {
-		r.extent.width = RES_SCALE(1);
-		r.extent.height = r.extent.width;
+	r.extent.width = RES_SCALE(1);
+	r.extent.height = r.extent.width;
+	if (!IS_HD)
 		DrawFilledRectangle (&r);
-	} else {
-		r.corner.x += 1;
-		r.extent.width = RES_SCALE(1) - 2;
-		r.extent.height = RES_SCALE(1);
-		DrawFilledRectangle (&r);
-									
-		r.corner.x -= 1;
-		r.corner.y += 1;
-		r.extent.width = RES_SCALE(1);
-		r.extent.height = RES_SCALE(1) - 2;
-		DrawFilledRectangle (&r);
-									
-		r.corner.y -= 1;
-	}
+	else
+		DrawFilledOval (&r);
 
 	// Update the crew counter and RU. Note that the crew counter is
 	// flashing.
@@ -820,7 +812,10 @@ DMS_DismissFlagShipCrew (void)
 	r.extent.width = RES_SCALE(1);
 	r.extent.height = r.extent.width;
 	SetContextForeGroundColor (BLACK_COLOR);
-	DrawFilledRectangle (&r);
+	if (!IS_HD)
+		DrawFilledRectangle (&r);
+	else
+		DrawFilledOval (&r);
 
 	return -1;
 }
@@ -953,37 +948,48 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 	if (hStarShip)
 		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 
-	if (hStarShip == 0) {
+	if (hStarShip == 0)
+	{
 		if (dy == -50)
 			DoLoop = GetCPodCapacity(&r.corner) - GetCrewCount();
 		else if (dy == 50)
 			DoLoop = GetCrewCount();
 
 		// Add/Dismiss crew for the flagship.
-		for (loop = 0; loop < DoLoop; loop++) {
-			if (dy < 0) {
+		for (loop = 0; loop < DoLoop; loop++)
+		{
+			if (dy < 0)
+			{	
 				// Add crew for the flagship.
-				crew_delta += DMS_HireFlagShipCrew ();
-			} else {
+				crew_delta = DMS_HireFlagShipCrew ();
+			}
+			else
+			{	
 				// Dismiss crew from the flagship.
-				crew_delta -= DMS_DismissFlagShipCrew ();
+				crew_delta = DMS_DismissFlagShipCrew ();
 			}
 		}
 
 		if (crew_delta != 0)
 			DMS_FlashFlagShipCrewCount ();
-	} else {
+	}
+	else
+	{
 		if (dy == -50)
 			DoLoop = StarShipPtr->max_crew - StarShipPtr->crew_level;
 		else if (dy == 50)
 			DoLoop = StarShipPtr->crew_level;
 
 		// Add/Dismiss crew for an escort ship.
-		for (loop = 0; loop < DoLoop; loop++) {
-			if (dy < 0) {
+		for (loop = 0; loop < DoLoop; loop++)
+		{
+			if (dy < 0)
+			{	
 				// Add crew for an escort ship.
 				crew_delta = DMS_HireEscortShipCrew (StarShipPtr);
-			} else {
+			}
+			else
+			{	
 				// Dismiss crew from an escort ship.
 				crew_delta = DMS_DismissEscortShipCrew (StarShipPtr);
 			}
@@ -1389,28 +1395,14 @@ DrawBluePrint (MENU_STATE *pMS)
 		{
 			RECT r;
 			// Crew dots/rectangles for Original and HD graphics.
-			if (!IS_HD) {
-				r.extent.width = RES_SCALE(1);
-				r.extent.height = r.extent.width;
+			r.extent.width = RES_SCALE(1);
+			r.extent.height = r.extent.width;
 				
-				GetCPodCapacity (&r.corner);
+			GetCPodCapacity (&r.corner);
+			if (!IS_HD)
 				DrawFilledRectangle (&r);
-			} else {
-				GetCPodCapacity (&r.corner);
-				
-				r.corner.x += 1;
-				r.extent.width = RES_SCALE(1) - 2;
-				r.extent.height = RES_SCALE(1);
-				DrawFilledRectangle (&r);
-				
-				r.corner.x -= 1;
-				r.corner.y += 1;
-				r.extent.width = RES_SCALE(1);
-				r.extent.height = RES_SCALE(1) - 2;
-				DrawFilledRectangle (&r);
-				
-				r.corner.y -= 1;
-			}
+			else
+				DrawFilledOval (&r);
 
 			++GLOBAL_SIS (CrewEnlisted);
 		}
@@ -1444,7 +1436,7 @@ DrawBluePrint (MENU_STATE *pMS)
 		GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
 
 		r.extent.width = RES_SCALE(3) + RESOLUTION_FACTOR; // JMS_GFX
-		r.extent.height = 1; // JMS_GFX
+		r.extent.height = 1;
 		while (FuelVolume)
 		{
 			COUNT m;
@@ -1569,7 +1561,7 @@ DoShipyard (MENU_STATE *pMS)
 			
 			SetContextFont (TinyFont);
 
-			ScreenTransition (3, NULL, optIPScaler == OPT_3DO);
+			ScreenTransition (optIPScaler, NULL);
 			UnbatchGraphics ();
 
 			PlayMusic (pMS->hMusic, TRUE, 1);

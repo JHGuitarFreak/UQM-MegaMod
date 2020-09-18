@@ -417,30 +417,13 @@ GetMenuSounds (MENU_SOUND_FLAGS *s0, MENU_SOUND_FLAGS *s1)
 	*s1 = sound_1;
 }
 
-
 static BATTLE_INPUT_STATE
 ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 {
 	BATTLE_INPUT_STATE InputState = 0;
 
-	if (keyState[KEY_WEAPON]){
-		if (antiCheatAlt()) {
-			resetEnergyBattle();
-		}
-		InputState |= BATTLE_WEAPON;
-	}
-	if (keyState[KEY_SPECIAL]){
-		if (antiCheatAlt()) {
-			resetEnergyBattle();
-		}
-		InputState |= BATTLE_SPECIAL;
-	}
-	if (keyState[KEY_ESCAPE])
-		InputState |= BATTLE_ESCAPE;
-	if (keyState[KEY_DOWN])
-		InputState |= BATTLE_DOWN;
-
-	if (direction < 0) {
+	if (direction < 0)
+	{
 		if (keyState[KEY_UP])
 			InputState |= BATTLE_THRUST;
 		if (keyState[KEY_LEFT])
@@ -449,25 +432,40 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 			InputState |= BATTLE_RIGHT;
 	} 
 #if defined(ANDROID) || defined(__ANDROID__)	
-	else {
-		InputState |= GetDirectionalJoystickInput(direction, player);
-	}
+	else
+		InputState |= GetDirectionalJoystickInput (direction, player);
 #endif
+	if (keyState[KEY_WEAPON])
+	{
+		if (antiCheatAlt ())
+			resetEnergyBattle ();
+		InputState |= BATTLE_WEAPON;
+	}
+	if (keyState[KEY_SPECIAL])
+	{
+		if (antiCheatAlt ())
+			resetEnergyBattle ();
+		InputState |= BATTLE_SPECIAL;
+	}
+	if (keyState[KEY_ESCAPE])
+		InputState |= BATTLE_ESCAPE;
+	if (keyState[KEY_DOWN])
+		InputState |= BATTLE_DOWN;
 
 	return InputState;
 }
 
 BATTLE_INPUT_STATE
-CurrentInputToBattleInput(COUNT player, int direction)
+CurrentInputToBattleInput (COUNT player, int direction)
 {
-	return ControlInputToBattleInput(
+	return ControlInputToBattleInput (
 		CurrentInputState.key[PlayerControls[player]], player, direction);
 }
 
 BATTLE_INPUT_STATE
 PulsedInputToBattleInput (COUNT player)
 {
-	return ControlInputToBattleInput(
+	return ControlInputToBattleInput (
 		PulsedInputState.key[PlayerControls[player]], player, -1);
 }
 
@@ -520,28 +518,35 @@ ConfirmExit (void)
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-enum { atan2i_coeff_1 = ((int)(M_PI*65536.0 / 4)), atan2i_coeff_2 = (3 * atan2i_coeff_1), atan2i_PI = (int)(M_PI * 65536.0), SHIP_DIRECTIONS = 16 };
+enum 
+{ 
+	atan2i_coeff_1 = ((int)(M_PI*65536.0 / 4)), 
+	atan2i_coeff_2 = (3 * atan2i_coeff_1), 
+	atan2i_PI = (int)(M_PI * 65536.0), 
+	SHIP_DIRECTIONS = 16
+};
 
 static inline int 
 atan2i(int y, int x) {
 	int angle;
-	int abs_y = abs(y);
+	int abs_y = abs (y);
 
 	if (abs_y == 0)
 		abs_y = 1;
-	if (x >= 0) {
+	if (x >= 0)
 		angle = atan2i_coeff_1 - atan2i_coeff_1 * (x - abs_y) / (x + abs_y);
-	} else {
-		angle = atan2i_coeff_2 - atan2i_coeff_1 * (x + abs_y) / (abs_y - x);
-	}
-	if (y < 0)
-		return(-angle);     // negate if in quad III or IV
 	else
-		return(angle);
+		angle = atan2i_coeff_2 - atan2i_coeff_1 * (x + abs_y) / (abs_y - x);
+
+	if (y < 0)
+		return (-angle);     // negate if in quad III or IV
+	else
+		return (angle);
 }
 
 BATTLE_INPUT_STATE 
-GetDirectionalJoystickInput(int direction, int player) {
+GetDirectionalJoystickInput(int direction, int player)
+{
 	BATTLE_INPUT_STATE InputState = 0;
 	static BOOLEAN JoystickThrust[NUM_PLAYERS] = { FALSE, FALSE };
 	static BOOLEAN JoystickTapFlag[NUM_PLAYERS] = { FALSE, FALSE };
@@ -551,7 +556,8 @@ GetDirectionalJoystickInput(int direction, int player) {
 	if (CurrentInputState.key[PlayerControls[player]][KEY_THRUST])
 		InputState |= BATTLE_THRUST;
 
-	if (VControl_GetJoysticksAmount() <= 0) {
+	if (VControl_GetJoysticksAmount() <= 0)
+	{
 		if (CurrentInputState.key[PlayerControls[player]][KEY_LEFT])
 			InputState |= BATTLE_LEFT;
 		if (CurrentInputState.key[PlayerControls[player]][KEY_RIGHT])
@@ -564,24 +570,27 @@ GetDirectionalJoystickInput(int direction, int player) {
 	axisX = VControl_GetJoyAxis(0, player * 2);
 	axisY = VControl_GetJoyAxis(0, player * 2 + 1);
 
-	if (axisX == 0 && axisY == 0) {
-		// Some basic gamepad input support
+	if (axisX == 0 && axisY == 0)
+	{	// Some basic gamepad input support
 		axisX = VControl_GetJoyAxis(2, player * 2);
 		axisY = VControl_GetJoyAxis(2, player * 2 + 1);
-		if (abs(axisX) > 5000 || abs(axisY) > 5000) { // Deadspot at the center
+		if (abs(axisX) > 5000 || abs(axisY) > 5000)
+		{	// Deadspot at the center
 			JoystickTapFlag[player] = TRUE;
 			JoystickThrust[player] = FALSE;
 			// Turning thrust with joystick is uncomfortable
-			//if( abs( axisX ) > 25000 || abs( axisY ) > 25000 )
+			//	if(abs( axisX ) > 25000 || abs( axisY ) > 25000)
 			//	JoystickThrust[player] = TRUE;
-		} else {
+		}
+		else
+		{
 			axisX = 0;
 			axisY = 0;
 		}
 	}
 
-	if (axisX == 0 && axisY == 0) {
-		// Process keyboard input only when joystick is not used
+	if (axisX == 0 && axisY == 0)
+	{	// Process keyboard input only when joystick is not used
 		if (CurrentInputState.key[PlayerControls[player]][KEY_LEFT])
 			InputState |= BATTLE_LEFT;
 		if (CurrentInputState.key[PlayerControls[player]][KEY_RIGHT])
@@ -590,8 +599,10 @@ GetDirectionalJoystickInput(int direction, int player) {
 			InputState |= BATTLE_THRUST;
 	}
 
-	if (!optDirectionalJoystick) {
-		if (player == 1) {
+	if (!optDirectionalJoystick)
+	{
+		if (player == 1)
+		{
 			axisX = -axisX;
 			axisY = -axisY;
 		}
@@ -604,7 +615,8 @@ GetDirectionalJoystickInput(int direction, int player) {
 		return InputState;
 	}
 
-	if (axisX != 0 || axisY != 0) {
+	if (axisX != 0 || axisY != 0)
+	{
 		int angle = atan2i(axisY, axisX), diff;
 		// Convert it to 16 directions used by Melee
 		angle += atan2i_PI / SHIP_DIRECTIONS;
@@ -625,17 +637,21 @@ GetDirectionalJoystickInput(int direction, int player) {
 		if (diff > SHIP_DIRECTIONS / 2)
 			InputState |= BATTLE_RIGHT;
 
-		if (!JoystickTapFlag[player]) {
+		if (!JoystickTapFlag[player])
+		{
 			JoystickTapFlag[player] = TRUE;
-			if (GetTimeCounter() < JoystickTapTime[player] + ONE_SECOND)
+			if (GetTimeCounter () < JoystickTapTime[player] + ONE_SECOND)
 				JoystickThrust[player] = !JoystickThrust[player];
 			else
 				JoystickThrust[player] = TRUE;
 		}
 		if (JoystickThrust[player])
 			InputState |= BATTLE_THRUST;
-	} else {
-		if (JoystickTapFlag[player]) {
+	}
+	else
+	{
+		if (JoystickTapFlag[player])
+		{
 			JoystickTapFlag[player] = FALSE;
 			JoystickTapTime[player] = GetTimeCounter();
 		}

@@ -137,11 +137,11 @@ eventIdNumToStr (int eventNum)
 }
 
 void
-AddInitialGameEvents (void) {	
-	COUNT kohrah_winning_years = optCheatMode ? YEARS_TO_KOHRAH_VICTORY + 25 : YEARS_TO_KOHRAH_VICTORY;
+AddInitialGameEvents (void)
+{	
 	AddEvent (RELATIVE_EVENT, 0, 1, 0, HYPERSPACE_ENCOUNTER_EVENT);
 	AddEvent (ABSOLUTE_EVENT, 3, 17, START_YEAR, ARILOU_ENTRANCE_EVENT);
-	AddEvent (RELATIVE_EVENT, 0, 0, kohrah_winning_years,
+	AddEvent (RELATIVE_EVENT, 0, 0, YEARS_TO_KOHRAH_VICTORY,
 			KOHR_AH_VICTORIOUS_EVENT);
 	AddEvent (RELATIVE_EVENT, 0, 0, 0, SLYLANDRO_RAMP_UP);
 }
@@ -152,8 +152,7 @@ EventHandler (BYTE selector)
 	const char *eventIdStr;
 
 	eventIdStr = eventIdNumToStr (selector);
-	if (eventIdStr == NULL)
-	{
+	if (eventIdStr == NULL) {
 		log_add(log_Warning, "Warning: EventHandler(): Event %d is "
 				"unknown.", selector);
 		return;
@@ -701,7 +700,7 @@ spathi_shield_event (int arg)
 		if (SpathiPtr->actual_strength)
 		{
 			SetRaceAllied (SPATHI_SHIP, FALSE);
-			if(DIF_HARD)
+			if (DIF_HARD)
 				RemoveEscortShips (SPATHI_SHIP);
 			SET_GAME_STATE (SPATHI_SHIELDED_SELVES, 1);
 			SpathiPtr->actual_strength = 0;
@@ -797,14 +796,14 @@ advance_ilwrath_mission (int arg)
 		}
 	}
 
-	if (EXTENDED && ThraddPtr->allied_state == GOOD_GUY && !IlwrathPtr->actual_strength) {
+	if (EXTENDED && ThraddPtr->allied_state == GOOD_GUY && !IlwrathPtr->actual_strength)
+	{
 		ThraddPtr->growth = 0;
 		ThraddPtr->growth_fract = 0;
 		SET_GAME_STATE(ILWRATH_FIGHT_THRADDASH, 0);
 		SetRaceDest(THRADDASH_SHIP, 2535, 8358, 3, (BYTE)~0);
-		if (!GET_GAME_STATE(AQUA_HELIX)) {
+		if (!GET_GAME_STATE(AQUA_HELIX))
 			SET_GAME_STATE(HELIX_UNPROTECTED, 0);
-		}
 	}
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hThradd);
@@ -831,7 +830,7 @@ advance_mycon_mission (int arg)
 			SET_GAME_STATE (MYCON_KNOW_AMBUSH, 1);
 			SetRaceDest (MYCON_SHIP, 6392, 2200, 30, (BYTE)~0);
 
-			if(EXTENDED)
+			if (EXTENDED)
 				SetRaceDest (SYREEN_SHIP, 4125, 3770, 15, (BYTE)~0);
 
 			MyconPtr->growth = 0;

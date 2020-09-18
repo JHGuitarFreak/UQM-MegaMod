@@ -919,7 +919,7 @@ ship_transition (ELEMENT *ElementPtr)
 		}
 		else if ((hShipImage = AllocElement ()))
 		{
-#define TRANSITION_SPEED DISPLAY_TO_WORLD ((RES_SCALE(40))) // JMS_GFX
+#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(40)) // JMS_GFX
 #define TRANSITION_LIFE 1
 			COUNT angle;
 
@@ -952,15 +952,17 @@ ship_transition (ELEMENT *ElementPtr)
 			}
 			else if (ElementPtr->crew_level)
 			{
-				// JMS_GFX: Circumventing overflows by using temp variables instead of 
-				// subtracting straight from the POINT sized ShipImagePtr->current.location.
-				SDWORD temp_x = (SDWORD)ShipImagePtr->current.location.x -
-					COSINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
-				SDWORD temp_y = (SDWORD)ShipImagePtr->current.location.y -
-					SINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
-                
-				ShipImagePtr->current.location.x = WRAP_X (temp_x);
-				ShipImagePtr->current.location.y = WRAP_Y (temp_y);
+				ShipImagePtr->current.location.x -=
+						COSINE (angle, TRANSITION_SPEED)
+						* (ElementPtr->life_span - 1);
+				ShipImagePtr->current.location.y -=
+						SINE (angle, TRANSITION_SPEED)
+						* (ElementPtr->life_span - 1);
+
+				ShipImagePtr->current.location.x =
+						WRAP_X (ShipImagePtr->current.location.x);
+				ShipImagePtr->current.location.y =
+						WRAP_Y (ShipImagePtr->current.location.y);
 			}
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;
