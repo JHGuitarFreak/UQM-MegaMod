@@ -80,6 +80,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	if (optRequiresRestart || !PacksInstalled()) {	
 		DestroyFont (TinyFont);
 		DestroyFont (PlyrFont);
+		DestroyFont (StarConFont);
 		if (pMS->CurFrame) {
 			DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 			pMS->CurFrame = 0;
@@ -91,6 +92,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		if (optRequiresRestart || !PacksInstalled()) {
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
+			StarConFont = LoadFont (STARCON_FONT_FB);
+			StarConLgFont = LoadFont (STARCONLG_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
@@ -98,6 +101,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		if (optRequiresRestart || !PacksInstalled()) {
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
+			StarConFont = LoadFont (STARCON_FONT_HD);
+			StarConLgFont = LoadFont (STARCONLG_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));

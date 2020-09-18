@@ -16,4 +16,8 @@
 #define TINY_FONT_SS "font.tiny.ss"
 #define PLAYER_FONT_FB "font.player.fb"
 #define PLAYER_FONT_HD "font.player.hd"
+#define STARCON_FONT_FB "font.starcon.fb"
+#define STARCONLG_FONT_FB "font.starcon.fb"
+#define STARCON_FONT_HD "font.starcon.hd"
+#define STARCONLG_FONT_HD "font.starconlg.hd"
 #define COMPUTER_FONT "comm.computer.font"
