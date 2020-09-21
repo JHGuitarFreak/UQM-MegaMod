@@ -53,8 +53,7 @@ DrawSISFrame (void)
 	BatchGraphics ();
 	{
 		// Middle grey rectangles around space window.
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+		SetContextForeGroundColor (DKGRAY_COLOR);
 			//
 		r.corner.x = 0;
 		r.corner.y = 0;
@@ -86,8 +85,8 @@ DrawSISFrame (void)
 		r.extent.width = SIS_SCREEN_WIDTH + 2;
 		r.extent.height = SIS_SCREEN_HEIGHT + 2;
 		DrawStarConBox (&r, 1,
-				BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
-				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F),
+				SIS_LEFT_BORDER_COLOR,
+				SIS_BOTTOM_RIGHT_BORDER_COLOR,
 				TRUE, BLACK_COLOR);
 
 		// The big Blue box in the upper edge of screen containing the star system name.
@@ -97,17 +96,17 @@ DrawSISFrame (void)
 		r.corner.x = SIS_ORG_X;
 		r.extent.width = SIS_MESSAGE_BOX_WIDTH;
 		DrawStarConBox (&r, 1,
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x0E), 0x54),
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x01, 0x1C), 0x4E),
-				TRUE, BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
+				SIS_MESSAGE_TOP_LEFT_COLOR,
+				SIS_MESSAGE_BOTTOM_RIGHT_COLOR,
+				TRUE, SIS_MESSAGE_BACKGROUND_COLOR);
 
 		// The smaller blue box.
 		r.extent.width = SIS_TITLE_BOX_WIDTH;
 		r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH;
 		DrawStarConBox (&r, 1,
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x0E), 0x54),
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x01, 0x1C), 0x4E),
-				TRUE, BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
+				SIS_TITLE_TOP_LEFT_COLOR,
+				SIS_TITLE_BOTTOM_RIGHT_COLOR,
+				TRUE, SIS_TITLE_BACKGROUND_COLOR);
 
 		// Black border between menu area and space window area
 		SetContextForeGroundColor (BLACK_COLOR);
@@ -126,8 +125,7 @@ DrawSISFrame (void)
 		DrawPoint (&r.corner);
 
 		// Light grey border on the left side of big blue box.
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
+		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		r.corner.y = 1;
 		r.extent.width = 1;
 		r.extent.height = SIS_TITLE_HEIGHT;
@@ -174,8 +172,7 @@ DrawSISFrame (void)
 		DrawFilledRectangle (&r);
 
 		// Dark grey border around blue boxes.
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
+		SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
 		// Vertical line on the right side of the big blue box
 		r.corner.y = 1; // There was a reason this was supposed to be "1": Serosis
 		r.extent.width = 1;
