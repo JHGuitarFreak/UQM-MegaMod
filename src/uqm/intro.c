@@ -346,7 +346,7 @@ DoPresentation (void *pIS)
 		pStr += strlen (Opcode);
 		if (*pStr != '\0')
 			++pStr;
-		_strupr (Opcode);
+		strupr (Opcode);
 
 		if (strcmp (Opcode, "DIMS") == 0)
 		{	/* set dimensions */
@@ -643,7 +643,7 @@ DoPresentation (void *pIS)
 			STAMP s;
 
 			if (1 == sscanf (pStr, "%15s", ImgName)
-					&& strcmp (_strupr (ImgName), "SIS") == 0)
+					&& strcmp (strupr (ImgName), "SIS") == 0)
 			{
 				draw_what = PRES_DRAW_SIS;
 				scale_mode = TFB_SCALE_NEAREST;

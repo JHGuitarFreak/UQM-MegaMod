@@ -636,7 +636,7 @@ UninitEncounter (void)
 								utf8StringCopy (buf, sizeof buf,
 										GetStringAddress (FragPtr->race_strings));
 								// XXX: this will not work with UTF-8 strings
-								_strupr (buf);
+								strupr (buf);
 
 								{	// JMS: Handling the a-umlaut and o-umlaut characters
 									unsigned char *ptr;

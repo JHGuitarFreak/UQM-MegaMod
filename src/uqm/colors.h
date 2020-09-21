@@ -227,6 +227,12 @@
 #define SIS_MESSAGE_CURSOR_COLOR \
 		BLACK_COLOR
 
+#define SIS_MESSAGE_TOP_LEFT_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x0E), 0x54)
+
+#define SIS_MESSAGE_BOTTOM_RIGHT_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x00, 0x01, 0x1C), 0x4E)
+
 // Text color of the title (at the top of the screen, on the right
 // hand side, containing the coordinates in HyperSpace, or the planet name
 // in IP.
@@ -235,7 +241,13 @@
 
 // Background color of the title.
 #define SIS_TITLE_BACKGROUND_COLOR \
-		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01)
+		SIS_MESSAGE_BACKGROUND_COLOR
+
+#define SIS_TITLE_TOP_LEFT_COLOR \
+		SIS_MESSAGE_TOP_LEFT_COLOR
+
+#define SIS_TITLE_BOTTOM_RIGHT_COLOR \
+		SIS_MESSAGE_BOTTOM_RIGHT_COLOR
 
 // Text color of the status message, below the flagship overview, containing
 // the date, RU, etc.

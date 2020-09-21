@@ -2321,9 +2321,12 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	CONTEXT oldContext;
 	STAMP s;
 
-		// BW: This to test if we have already rendered
-	if (optTexturedPlanets && !pSolarSysState->PlanetDesc->orbit.lpTopoData)
-		GenerateTexturedPlanets ();
+	if (optTexturedPlanets)
+	{
+		// BW: This to test if we have already rendered 
+		if (!pSolarSysState->PlanetDesc->orbit.lpTopoData)
+			GenerateTexturedPlanets();
+	}
 
 	if (!SolarSysFrame)
 	{	// Create the saved view graphic
@@ -2358,14 +2361,13 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 					radius);
 	}
 
-	if (!IS_HD && !optOrbitingPlanets && !optTexturedPlanets)
+	if (!optOrbitingPlanets && !optTexturedPlanets)
 	{
 		if (IsInnerSystem)
 		{	// Draw the inner system view
 			DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
-		}
-		else
-		{	// Draw the outer system view
+		} else {
+			// Draw the outer system view
 			DrawOuterPlanets (radius);
 		}
 	}
@@ -2687,15 +2689,13 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 	
 	// log_add (log_Debug,"last %02d, i %d", tempbuf[i-1], i);	
 	// JMS: Prevent printing something like 'planet II-A-A' in summary screen.
-	if (i > 0)
-	{
+	if (i > 0) {
 		if(tempbuf[i-1] == 'A' || tempbuf[i-1] == 'B' 
 			|| tempbuf[i-1] == 'C' || tempbuf[i-1] == 'D')
 			name_has_suffix = TRUE;
 	}
 	
-	if (bufsize >= 3 && !name_has_suffix)
-	{
+	if (bufsize >= 3 && !name_has_suffix) {
 		snprintf (buf, bufsize, "-%c", 'A' + moon);
 		buf[bufsize - 1] = '\0';
 	}

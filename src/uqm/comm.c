@@ -487,6 +487,7 @@ DrawCommBorder (RECT r)
 {
 	RECT clipRect;
 	RECT oldClipRect;
+	DWORD test;
 
 	GetContextClipRect (&oldClipRect);
 

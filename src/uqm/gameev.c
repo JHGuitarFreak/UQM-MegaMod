@@ -158,7 +158,7 @@ EventHandler (BYTE selector)
 		return;
 	}
 
-	luaUqm_event_callEvent (eventIdStr);
+	luaUqm_event_callEvent(eventIdStr);
 }
 
 void

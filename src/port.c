@@ -83,7 +83,7 @@ setenv (const char *name, const char *value, int overwrite)
 	
 	strcpy (ptr, value);
 	
-	return _putenv (string);
+	return putenv (string);
 }
 #endif
 
