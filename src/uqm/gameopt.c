@@ -995,7 +995,7 @@ TruncateSaveName (UNICODE* buf, COORD maxWidth, BOOLEAN naming)
 
 		do
 		{	// Shorten the save name down so it will fit the width of the save name box
-			strncpy_s (&buf[--stringLength - sizeof(ellipses)], sizeof(buf), ellipses, sizeof(ellipses));
+			strncpy (&buf[--stringLength - sizeof(ellipses)], ellipses, sizeof(ellipses));
 			r = font_GetTextRect(&t);
 		} while (r.extent.width > maxWidth);
 
