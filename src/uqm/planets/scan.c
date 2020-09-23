@@ -175,7 +175,7 @@ static void HazardCase (BYTE hazard) {
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y (RES_SCALE(12) + IF_HD(19))
+#define SCAN_TITLE_Y (RES_SCALE(16) + IF_HD(7))
 
 static void
 PrintCoarseScanPC (void)
