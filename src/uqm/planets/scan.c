@@ -175,7 +175,7 @@ static void HazardCase (BYTE hazard) {
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y (RES_SCALE(12) + IF_HD(19))
+#define SCAN_TITLE_Y (RES_SCALE(16) + IF_HD(7))
 
 static void
 PrintCoarseScanPC (void)
@@ -375,14 +375,14 @@ PrintCoarseScan3DO (void)
 	SetContextFont (MicroFont);
 	font_DrawText (&t);
 
-	s.origin.x = s.origin.y = 0;
-	s.origin.x = RES_SCALE(16); // JMS_GFX
+	s.origin.y = RES_SCALE(9);
+	s.origin.x = RES_SCALE(16);
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
 	DrawStamp (&s);
 
 #define LEFT_SIDE_BASELINE_X RES_SCALE(27 + 16) // JMS_GFX
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y (RES_SCALE(25) + IF_HD(19)) // JMS_GFX
+#define SCAN_BASELINE_Y (RES_SCALE(34) + IF_HD(19)) // JMS_GFX
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
