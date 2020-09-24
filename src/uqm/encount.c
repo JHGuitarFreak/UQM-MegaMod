@@ -302,7 +302,7 @@ InitEncounter (void)
 
 //    t.baseline.x = SIS_SCREEN_WIDTH >> 1;
 	t.baseline.x = (SIS_SCREEN_WIDTH >> 1) + 1;
-	t.baseline.y = RES_SCALE(10) + IF_HD(19);
+	t.baseline.y = RES_SCALE(10);
 	t.align = ALIGN_CENTER;
 
 	SetContextForeGroundColor (

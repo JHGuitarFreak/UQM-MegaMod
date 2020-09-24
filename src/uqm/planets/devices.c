@@ -112,7 +112,7 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 
 	r.extent.width = DEVICE_SEL_WIDTH;
 	r.extent.height = TEXT_SPACING_Y * 2;
-	r.corner.x = DEVICE_SEL_ORG_X - IF_HD(8);
+	r.corner.x = DEVICE_SEL_ORG_X;
 
 	// draw line background
 	r.corner.y = DEVICE_ORG_Y + pos * DEVICE_SPACING_Y + NAME_OFS_Y;
@@ -149,7 +149,7 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	r.extent.width = FIELD_WIDTH + 1;
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
-	r.extent.height = (RES_SCALE(129) - r.corner.y) + IF_HD(19);
+	r.extent.height = (RES_SCALE(129) - r.corner.y);
 	DrawStarConBox (&r, 1,
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, DEVICES_BACK_COLOR);

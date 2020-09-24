@@ -84,7 +84,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2) - RESOLUTION_FACTOR;
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2) + IF_HD(28); // JMS_GFX;
+		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
@@ -125,7 +125,7 @@ RedistributeFuel (void)
 		// If we're less than the fuel level, draw fuel.
 		if (GLOBAL_SIS (FuelOnBoard) < FuelVolume)
 		{
-			r.extent.width = RES_SCALE(3) + IF_HD(6); // JMS_GFX
+			r.extent.width = RES_SCALE(3);
 			DrawPoint (&r.corner);
 			r.corner.x += r.extent.width + 1;
 			DrawPoint (&r.corner);
@@ -498,12 +498,6 @@ DoInstallModule (MENU_STATE *pMS)
 				else
 					w = SHIP_PIECE_OFFSET;
 
-				// JMS_GFX
-				if (NewState != PLANET_LANDER && NewState != FUSION_THRUSTER 
-					&& NewState != TURNING_JETS && NewState != EMPTY_SLOT + 0
-					 && NewState != EMPTY_SLOT + 1 && NewState != EMPTY_SLOT + 3)
-					w += IF_HD(1);
-
 				w *= (NewItem - pMS->delta_item);
 				pMS->flash_rect0.corner.x += w;
 				pMS->delta_item = NewItem;
@@ -517,8 +511,8 @@ InitFlash:
 				{
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
-						pMS->flash_rect0.corner.x = LANDER_X - 1 + IF_HD(114); // JMS_GFX
-						pMS->flash_rect0.corner.y = LANDER_Y - 1 + IF_HD(65); // JMS_GFX
+						pMS->flash_rect0.corner.x = LANDER_X - 1;
+						pMS->flash_rect0.corner.y = LANDER_Y - 1;
 						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); // JMS_GFX
 						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2); // JMS_GFX;
 
@@ -526,26 +520,25 @@ InitFlash:
 						break;
 					case FUSION_THRUSTER:
 					case EMPTY_SLOT + 0:
-						pMS->flash_rect0.corner.x = DRIVE_TOP_X - 1 - IF_HD(5);
-						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - 1 + IF_HD(146);
+						pMS->flash_rect0.corner.x = DRIVE_TOP_X - 1;
+						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - 1;
 						pMS->flash_rect0.extent.width = RES_SCALE(8); // JMS_GFX;
-						pMS->flash_rect0.extent.height = RES_SCALE(6) - IF_HD(2); // JMS_GFX;
+						pMS->flash_rect0.extent.height = RES_SCALE(6);
 
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
-						pMS->flash_rect0.corner.x = JET_TOP_X - 1 - IF_HD(3);
-						pMS->flash_rect0.corner.y = JET_TOP_Y - 1 + IF_HD(185);
+						pMS->flash_rect0.corner.x = JET_TOP_X - 1;
+						pMS->flash_rect0.corner.y = JET_TOP_Y - 1;
 						pMS->flash_rect0.extent.width = RES_SCALE(9); // JMS_GFX;
-						pMS->flash_rect0.extent.height = RES_SCALE(10) + IF_HD(4); // JMS_GFX;
+						pMS->flash_rect0.extent.height = RES_SCALE(10);
 
 						break;
 					default:
-						pMS->flash_rect0.corner.x = MODULE_TOP_X - 1 + IF_HD(2);
+						pMS->flash_rect0.corner.x = MODULE_TOP_X - 1;
 						pMS->flash_rect0.corner.y = MODULE_TOP_Y - 1;
-						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + 2 - IF_HD(1);
-						pMS->flash_rect0.extent.height = RES_SCALE(34) + IF_HD(9); // JMS_GFX;
-						w += IF_HD(1);
+						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + 2;
+						pMS->flash_rect0.extent.height = RES_SCALE(34);
 						break;
 				}
 

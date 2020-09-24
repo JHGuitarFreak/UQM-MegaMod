@@ -195,12 +195,11 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		if (nameCaptain)
 		{	// Naming the captain
 			Font = TinyFontSS;
-			captainNameRect.corner.x = 3 + IF_HD(1);
-			captainNameRect.corner.y = RES_BOOL(10, 32);
-			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_BOOL(2, 0);
-			captainNameRect.extent.height += RESOLUTION_FACTOR;
+			captainNameRect.corner.x = 3;
+			captainNameRect.corner.y = RES_SCALE(10);
+			captainNameRect.extent.width = SHIP_NAME_WIDTH - 2;
 			r = captainNameRect;
-			lf.baseline.x = (STATUS_WIDTH >> 1) - RES_BOOL(1, -1);
+			lf.baseline.x = (STATUS_WIDTH >> 1) - 1;
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1F, 0x1F), 0x0B);
@@ -208,17 +207,16 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		else
 		{	// Naming the flagship
 			Font = StarConFont;
-			shipNameRect.corner.x = RES_BOOL(2, 5);
-			shipNameRect.corner.y = RES_BOOL(20, 63);
+			shipNameRect.corner.x = RES_SCALE(2);
+			shipNameRect.corner.y = RES_SCALE(20);
 			shipNameRect.extent.width = SHIP_NAME_WIDTH;
-			shipNameRect.extent.height += IF_HD(1);
 			r = shipNameRect;
 			lf.baseline.x = r.corner.x + (r.extent.width >> 1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0F, 0x00, 0x00), 0x2D);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x0A, 0x00), 0x7D);
 		}
-		lf.baseline.y = r.corner.y + r.extent.height - RES_BOOL(1, 3);
+		lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE(1);
 		lf.align = ALIGN_CENTER;
 	}
 
@@ -400,7 +398,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 
 	Font = TinyFont;
 	lf.baseline.x = r.corner.x + RES_SCALE(3);
-	lf.baseline.y = r.corner.y + RES_SCALE(8) + IF_HD(1);
+	lf.baseline.y = r.corner.y + RES_SCALE(8);
 
 	BackGround = BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33);
 	ForeGround = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01);
@@ -685,7 +683,7 @@ DrawSaveLoad (PICK_GAME_STATE *pickState)
 	STAMP s;
 
 	s.origin.x = RES_DBL(SUMMARY_X_OFFS + 1);
-	s.origin.y = 0 - IF_HD(2);
+	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
 			GetFrameCount (pickState->SummaryFrame) - 2);
 	if (pickState->saving)
@@ -836,7 +834,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		{
 			COUNT j;
 
-			s.origin.x = RES_SCALE(140) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS + IF_HD(110);
+			s.origin.x = RES_SCALE(140) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
 			for (j = 0; j < 4; ++j)
 			{
 				COUNT devIndex = (i * 4) + j;
@@ -852,7 +850,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		}
 
 		SetContextFont (StarConLgFont);
-		t.baseline.x = RES_SCALE(173) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS + IF_HD(110);
+		t.baseline.x = RES_SCALE(173) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
@@ -1045,8 +1043,8 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		r.corner.y = RES_SCALE(160 + (i * 13));
 		DrawRectangle (&r, IS_HD);
 
-		t.baseline.x = r.corner.x + RES_SCALE(3) + IF_HD(3);
-		t.baseline.y = r.corner.y + RES_SCALE(8) + IF_HD(1);
+		t.baseline.x = r.corner.x + RES_SCALE(3);
+		t.baseline.y = r.corner.y + RES_SCALE(8);
 		snprintf (buf, sizeof buf, (MAX_SAVED_GAMES > 99) ? "%03u" : "%02u",
 				curSlot);
 		font_DrawText (&t);

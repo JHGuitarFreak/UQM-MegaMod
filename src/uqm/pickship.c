@@ -166,9 +166,9 @@ ChangeSelection:
 			pMS->CurFrame = (FRAME)hBattleShip;
 
 			SetContextForeGroundColor (BLACK_COLOR);
-			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE(6) - IF_HD(4); // JMS_GFX
-			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE(5) - IF_HD(4); // JMS_GFX
-			r.extent.width = ((ICON_WIDTH + RES_SCALE(4)) * 3) - RES_SCALE(4) + IF_HD(4);  // JMS_GFX
+			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE(6);
+			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE(5);
+			r.extent.width = ((ICON_WIDTH + RES_SCALE(4)) * 3) - RES_SCALE(4);
 			r.extent.height = RES_SCALE(7); // JMS_GFX
 			DrawFilledRectangle (&r);
 
@@ -222,7 +222,6 @@ ChangeSelection:
 				SetContextForeGroundColor (BLACK_COLOR);
 			}
 
-			r.extent.width -= IF_HD(4); // JMS_GFX
 			r.corner.x += (ICON_WIDTH + RES_SCALE(4))
 				* ((NUM_PICK_SHIP_COLUMNS >> 1) + 1)
 					+ FLAGSHIP_WIDTH - ICON_WIDTH; // JMS_GFX
@@ -507,7 +506,6 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 				{
 					/* Dead ship - mark with an X. */
 					s.origin.x -= RES_SCALE(1);
-					s.origin.y -= IF_HD(4);
 					s.frame = SetAbsFrameIndex (StatusFrame, 3);
 					DrawStamp (&s);
 				}

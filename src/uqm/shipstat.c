@@ -29,10 +29,10 @@ DrawCrewFuelString (COORD y, SIZE state, BOOLEAN InMeleeMenu)
 {
 	STAMP Stamp;
 
-	Stamp.origin.y = y + GAUGE_YOFFS + STARCON_TEXT_HEIGHT - IF_HD(12);
+	Stamp.origin.y = y + GAUGE_YOFFS + STARCON_TEXT_HEIGHT;
 	if (state == 0)
 	{
-		Stamp.origin.x = CREW_XOFFS + (STAT_WIDTH >> 1) + RES_SCALE(6) - IF_HD(8); // JMS_GFX
+		Stamp.origin.x = CREW_XOFFS + (STAT_WIDTH >> 1) + RES_SCALE(6);
 		if (optWhichMenu == OPT_PC)
 			Stamp.frame = SetAbsFrameIndex (StatusFrame, 4);
 		else
@@ -40,7 +40,7 @@ DrawCrewFuelString (COORD y, SIZE state, BOOLEAN InMeleeMenu)
 		DrawStamp (&Stamp);
 	}
 
-	Stamp.origin.x = ENERGY_XOFFS + (STAT_WIDTH >> 1) - RES_SCALE(5) + IF_HD(10); // JMS_GFX
+	Stamp.origin.x = ENERGY_XOFFS + (STAT_WIDTH >> 1) - RES_SCALE(5);
 	if (optWhichMenu == OPT_PC)
 		Stamp.frame = SetAbsFrameIndex (StatusFrame, 5);
 	else
@@ -297,7 +297,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			Text.align = ALIGN_CENTER;
 
 			Text.baseline.x = STATUS_WIDTH >> 1;
-			Text.baseline.y = y + GAUGE_YOFFS + 3 - IF_HD(4);
+			Text.baseline.y = y + GAUGE_YOFFS + 3;
 
 			SetContextForeGroundColor (BLACK_COLOR);
 			font_DrawText (&Text);

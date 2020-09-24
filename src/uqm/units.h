@@ -44,8 +44,8 @@ extern int ScreenHeight;
 #define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
 		/* Margins. */
-#define SIS_ORG_X RES_SCALE(7)								// JMS_GFX
-#define SIS_ORG_Y RES_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
+#define SIS_ORG_X RES_SCALE(6)								// JMS_GFX
+#define SIS_ORG_Y RES_SCALE(9)				// DC: top status window. Manually entered in for HD mode.
 
 /* Status bar & play area sizes. */
 #define STATUS_WIDTH RES_SCALE(64)
@@ -78,10 +78,10 @@ extern int ScreenHeight;
 #define SIS_MESSAGE_WIDTH      (SIS_MESSAGE_BOX_WIDTH - 2)
 #define SIS_MESSAGE_HEIGHT     SIS_TITLE_HEIGHT
 
-#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_BOOL(4, 7))	 // JMS_GFX
+#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_SCALE(4))	 // JMS_GFX
 #define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) // JMS_GFX
 
-#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_BOOL(4, 9))// JMS_GFX
+#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE(4))// JMS_GFX
 #define SHIP_NAME_HEIGHT       (RES_SCALE(7) - IF_HD(4)) // JMS_GFX
 
 		/* A lot of other shit. */

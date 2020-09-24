@@ -179,12 +179,11 @@ Present_UnbatchGraphics (PRESENTATION_INPUT_STATE* pPIS, BOOLEAN bYield)
 static void
 Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 {
-#define MODULE_YOFS_P  ((-RES_SCALE(79)) + IF_HD(-94)) // JMS_GFX
+#define MODULE_YOFS_P  -RES_SCALE(79) // JMS_GFX
 #define DRIVE_TOP_Y_P  (DRIVE_TOP_Y + MODULE_YOFS_P)
 #define JET_TOP_Y_P    (JET_TOP_Y + MODULE_YOFS_P)
 #define MODULE_TOP_Y_P (MODULE_TOP_Y + MODULE_YOFS_P)
 #define MODULE_TOP_X_P MODULE_TOP_X
-#define JET_DRIVE_EXTRA_X IF_HD(-3)
 	CONTEXT	OldContext;
 	FRAME SisFrame;
 	FRAME ModuleFrame;
@@ -222,7 +221,7 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 		piece = GLOBAL_SIS (DriveSlots[slot]);
 		if (piece < EMPTY_SLOT)
 		{
-			s.origin.x = DRIVE_TOP_X + JET_DRIVE_EXTRA_X;
+			s.origin.x = DRIVE_TOP_X;
 			s.origin.y = DRIVE_TOP_Y_P;
 			s.origin.x += slot * SHIP_PIECE_OFFSET;
 			s.frame = SetAbsFrameIndex (ModuleFrame, piece);
@@ -234,7 +233,7 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 		piece = GLOBAL_SIS (JetSlots[slot]);
 		if (piece < EMPTY_SLOT)
 		{
-			s.origin.x = JET_TOP_X + JET_DRIVE_EXTRA_X;
+			s.origin.x = JET_TOP_X;
 			s.origin.y = JET_TOP_Y_P;
 			s.origin.x += slot * SHIP_PIECE_OFFSET;
 			s.frame = SetAbsFrameIndex (ModuleFrame, piece);
