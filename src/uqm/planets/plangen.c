@@ -1817,7 +1817,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 
 			// grab the elevation data in 1 byte per pixel format
 			ReadFramePixelIndexes (ElevFrame, (BYTE *)Orbit->lpTopoData,
-					width, height, FALSE);
+					width, height, !ForIP);
 			// the supplied data is in unsigned format, must convert
 			for (i = 0, elev = Orbit->lpTopoData;
 					i < width * height;
@@ -1947,34 +1947,54 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 				CreateDrawable (WANT_PIXMAP, (SIZE)width,
 				(SIZE)height, 1));
 
-		if (!ForIP && pPlanetDesc->alternate_colormap)
-		{	// JMS: Planets with special colormaps
-			pSolarSysState->OrbitalCMap = CaptureColorMap (
-				LoadColorMap (pPlanetDesc->alternate_colormap));
-			pSolarSysState->XlatRef = CaptureStringTable (
-				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
-		}
-		else
-		{	// JMS: Normal planets
+		if (!ForIP)
+		{
+			if (pPlanetDesc->alternate_colormap) 
+			{	// JMS: Planets with special colormaps
+				pSolarSysState->OrbitalCMap = CaptureColorMap (
+					LoadColorMap (pPlanetDesc->alternate_colormap));
+				pSolarSysState->XlatRef = CaptureStringTable (
+					LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
+			}
+			else
+			{ // JMS: Normal planets
+				pSolarSysState->OrbitalCMap = CaptureColorMap (
+					LoadColorMap (PlanDataPtr->CMapInstance));
+				pSolarSysState->XlatRef = CaptureStringTable (
+					LoadStringTable (PlanDataPtr->XlatTabInstance));
+			}
+			if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD) {
+				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+						pSolarSysState->OrbitalCMap, 2);
+				pSolarSysState->XlatRef = SetAbsStringTableIndex (
+						pSolarSysState->XlatRef, 2);
+			} else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD) {
+				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+						pSolarSysState->OrbitalCMap, 1);
+				pSolarSysState->XlatRef = SetAbsStringTableIndex (
+						pSolarSysState->XlatRef, 1);
+			}
+		} 
+		else 
+		{
 			pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (PlanDataPtr->CMapInstance));
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (PlanDataPtr->XlatTabInstance));
-		}
-
-		if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
-		{
-			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-					pSolarSysState->OrbitalCMap, 2);
-			pSolarSysState->XlatRef = SetAbsStringTableIndex (
-					pSolarSysState->XlatRef, 2);
-		}
-		else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
-		{
-			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-					pSolarSysState->OrbitalCMap, 1);
-			pSolarSysState->XlatRef = SetAbsStringTableIndex (
-					pSolarSysState->XlatRef, 1);
+			if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
+			{
+				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+						pSolarSysState->OrbitalCMap, 2);
+				pSolarSysState->XlatRef = SetAbsStringTableIndex (
+						pSolarSysState->XlatRef, 2);
+			}
+			else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
+			{
+				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+						pSolarSysState->OrbitalCMap, 1);
+				pSolarSysState->XlatRef = SetAbsStringTableIndex (
+						pSolarSysState->XlatRef, 1);
+			}
 		}
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
 		RenderTopography (pSolarSysState->TopoFrame, 
