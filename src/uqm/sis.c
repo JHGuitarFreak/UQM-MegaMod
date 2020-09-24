@@ -489,7 +489,7 @@ DrawStatusMessage (const UNICODE *pStr)
 	}
 
 	t.baseline.x = STATUS_MESSAGE_WIDTH >> 1;
-	t.baseline.y = STATUS_MESSAGE_HEIGHT - RES_BOOL(1, 5); // JMS_GFX
+	t.baseline.y = STATUS_MESSAGE_HEIGHT - RES_SCALE(1);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
@@ -767,7 +767,7 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 7); // "maximum fuel:"
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - RES_BOOL(2, 5); // JMS_GFX
+	t.baseline.x = r.extent.width - RES_SCALE(2); // JMS_GFX
 	t.baseline.y = r.corner.y + leading + 3;
 	t.pStr = buf;
 
@@ -1588,7 +1588,7 @@ GetFTankCapacity (POINT *ppt)
 	volume = GetModuleFuelCapacity (moduleType);
 
 	if (volume == FUEL_TANK_CAPACITY)
-		volumehelper = (volume * 10) / RES_BOOL(10, 22);
+		volumehelper = (volume * 10) / 10;
 	else
 		volumehelper = volume;
 

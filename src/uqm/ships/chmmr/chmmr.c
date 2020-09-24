@@ -177,7 +177,7 @@ laser_death (ELEMENT *ElementPtr)
 			IonSpotsPtr->state_flags = FINITE_LIFE | NONSOLID
 					| IGNORE_SIMILAR | APPEARING;
 			IonSpotsPtr->turn_wait = IonSpotsPtr->next_turn = 0;
-			IonSpotsPtr->life_span = RES_BOOL(9, 14);
+			IonSpotsPtr->life_span = RES_SCALE(9);
 
 			angle = ARCTAN (dx, dy);
 			magnitude = ((COUNT)TFB_Random ()

@@ -578,7 +578,7 @@ DMS_FlashFlagShip (void)
 	r.corner.x = 0;
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = RES_BOOL(61, 295); // JMS_GFX
+	r.extent.height = RES_SCALE(61); // JMS_GFX
 	SetFlashRect (&r);
 }
 

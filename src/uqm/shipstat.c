@@ -112,7 +112,7 @@ OutlineShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu)
 	--r.extent.width;
 	DrawFilledRectangle (&r);
 	r.extent.width = 1;
-	r.extent.height = SHIP_INFO_HEIGHT - RES_BOOL((2), (inMeleeMenu ? 3 : 0));
+	r.extent.height = SHIP_INFO_HEIGHT - 2;
 	DrawFilledRectangle (&r);
 	++r.corner.x;
 	DrawFilledRectangle (&r);
@@ -127,7 +127,7 @@ OutlineShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu)
 	DrawFilledRectangle (&r);
 
 	r.corner.x = 1;
-	r.corner.y = SHIP_INFO_HEIGHT + RES_BOOL(2, -2);
+	r.corner.y = SHIP_INFO_HEIGHT + 2;
 	r.extent.width = w - 2;
 	r.extent.height = 1;
 	if (inMeleeMenu)

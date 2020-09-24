@@ -82,7 +82,7 @@ extern int ScreenHeight;
 #define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) // JMS_GFX
 
 #define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE(4))// JMS_GFX
-#define SHIP_NAME_HEIGHT       (RES_SCALE(7) - IF_HD(4)) // JMS_GFX
+#define SHIP_NAME_HEIGHT       RES_SCALE(7) // JMS_GFX
 
 		/* A lot of other shit. */
 #define MAX_REDUCTION 3

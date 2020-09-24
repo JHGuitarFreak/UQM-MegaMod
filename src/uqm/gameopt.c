@@ -873,7 +873,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 			SetContext (RadarContext);
 			// Hack RadarContext so we can use standard Lander display funcs
 			GetContextClipRect (&OldRect);
-			r.corner.x = SIS_ORG_X + RES_BOOL(10, 70) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS;
+			r.corner.x = SIS_ORG_X + RES_SCALE(10) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS;
 			r.corner.y = SIS_ORG_Y + RES_SCALE(84);
 			r.extent = OldRect.extent;
 			SetContextClipRect (&r);

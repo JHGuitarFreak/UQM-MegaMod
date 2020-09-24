@@ -99,7 +99,7 @@ enum
 // Start of JMS_GFX
 // Top Melee Menu
 #define MELEE_X_OFFS RES_SCALE(2) // JMS_GFX
-#define MELEE_Y_OFFS (RES_SCALE(21) + IF_HD(4)) // Serosis
+#define MELEE_Y_OFFS RES_SCALE(21)
 #define MELEE_BOX_WIDTH RES_SCALE(34) // JMS_GFX
 #define MELEE_BOX_HEIGHT RES_SCALE(34) // JMS_GFX
 #define MELEE_BOX_SPACE RES_SCALE(1) // JMS_GFX
@@ -117,7 +117,7 @@ enum
 #define RACE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE(3)) - RACE_INFO_ORIGIN_Y) // JMS_GFX
 
 #define MELEE_STATUS_X_OFFS RES_SCALE(1) // JMS_GFX
-#define MELEE_STATUS_Y_OFFS (RES_SCALE(201) + IF_HD(40)) // JMS_GFX
+#define MELEE_STATUS_Y_OFFS RES_SCALE(201)
 #define MELEE_STATUS_WIDTH  (NUM_MELEE_COLUMNS * \
 		(MELEE_BOX_WIDTH + MELEE_BOX_SPACE))
 #define MELEE_STATUS_HEIGHT RES_SCALE(38) // JMS_GFX
@@ -890,8 +890,8 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&OldRect);
 	r = OldRect;
-	r.corner.x += -RES_SCALE(32) + MENU_X_OFFS - IF_HD(28);
-	r.corner.y += RES_SCALE(76) + IF_HD(8);
+	r.corner.x += -RES_SCALE(32) + MENU_X_OFFS;
+	r.corner.y += RES_SCALE(76);
 	r.extent.height = SHIP_INFO_HEIGHT + 3;
 	SetContextClipRect (&r);
 	BatchGraphics ();
@@ -911,7 +911,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		r.corner.x = RES_SCALE(3); // JMS_GFX;
 		r.corner.y = RES_SCALE(4); // JMS_GFX;
 		r.extent.width = RES_SCALE(57) + RESOLUTION_FACTOR; // JMS_GFX;
-		r.extent.height = RES_SCALE(60) - IF_HD(6); // JMS_GFX;
+		r.extent.height = RES_SCALE(60);
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawRectangle (&r, IS_HD);
 		t.baseline.x = STATUS_WIDTH >> 1;
