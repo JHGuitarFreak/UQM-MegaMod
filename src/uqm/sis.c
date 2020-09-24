@@ -145,7 +145,7 @@ DrawSISTitle (UNICODE *pStr)
 	r.extent.height = SIS_TITLE_HEIGHT - RES_SCALE(1); // JMS_GFX
 	SetContextFGFrame (Screen);
 	SetContextClipRect (&r);
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	BatchGraphics ();
 
@@ -283,7 +283,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2); // JMS_GFX
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	if (flags & DSME_CLEARFR)
 		SetFlashRect (NULL);
@@ -502,7 +502,7 @@ DrawStatusMessage (const UNICODE *pStr)
 		SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	}
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 	SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	font_DrawText (&t);
 	UnbatchGraphics ();
@@ -530,7 +530,7 @@ DrawCaptainsName (bool NewGame)
 	Color OldColor;
 
 	OldContext = SetContext (StatusContext);
-	OldFont = SetContextFont (TinyFontSS);
+	OldFont = SetContextFont (TinyFont);
 	OldColor = SetContextForeGroundColor (CAPTAIN_NAME_BACKGROUND_COLOR);
 
 	r.corner.x = RES_SCALE(3);
@@ -569,7 +569,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	if (InStatusArea)
 	{
 		OldContext = SetContext (StatusContext);
-		OldFont = SetContextFont (StarConFont);
+		OldFont = SetContextFont (StarConLgFont);
 
 		r.corner.x = RES_SCALE(2);
 		r.corner.y = RES_SCALE(20);
@@ -940,7 +940,7 @@ DrawPC_SIS (void)
 	t.baseline.y = r.corner.y - RES_DBL(1);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 	SetContextForeGroundColor (BLACK_COLOR);
 
 	// Black rectangle behind "FUEL" text and fuel amount.
@@ -1263,7 +1263,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		SetContextForeGroundColor (OldColor);
 	}
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	DeltaSISGauges_crewDelta (crew_delta);
 	DeltaSISGauges_fuelDelta (fuel_delta);

@@ -277,7 +277,7 @@ InitKernel (void)
 		return FALSE;
 
 	TinyFontSS = LoadFont (TINY_FONT_SS);
-	if (TinyFontSS == NULL)
+	if (TinyFont == NULL)
 		return FALSE;
 
 	PlyrFont = LoadFont (PLAYER_FONT);

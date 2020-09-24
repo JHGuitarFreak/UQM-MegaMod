@@ -55,7 +55,7 @@ ShowRemainingCapacity (void)
 	UNICODE buf[40];
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	r.corner.x = RES_SCALE(40); // JMS_GFX
 	r.corner.y = FREE_ORG_Y;
@@ -155,7 +155,7 @@ DrawCargoDisplay (void)
 	DrawBorder(13, FALSE);
 
 	// draw the "CARGO" title
-	SetContextFont (StarConFont);
+	SetContextFont (StarConLgFont);
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1); // JMS_GFX
 	t.baseline.y = RES_SCALE(27); // JMS_GFX
 	t.align = ALIGN_CENTER;
@@ -164,7 +164,7 @@ DrawCargoDisplay (void)
 	SetContextForeGroundColor (CARGO_SELECTED_AMOUNT_COLOR);
 	font_DrawText (&t);
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS * 2) + 3);
@@ -245,7 +245,7 @@ DrawCargoStrings (BYTE OldElement, BYTE NewElement)
 	CONTEXT OldContext;
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	BatchGraphics ();
 

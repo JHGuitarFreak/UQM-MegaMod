@@ -61,7 +61,7 @@ DrawShipNameString (UNICODE *pStr, COUNT CharCount, COORD y)
 	TEXT Text;
 	FONT OldFont;
 
-	OldFont = SetContextFont (StarConFont);
+	OldFont = SetContextFont (StarConLgFont);
 
 	Text.pStr = pStr;
 	Text.CharCount = CharCount;
@@ -279,7 +279,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			TEXT Text;
 			FONT OldFont;
 
-			OldFont = SetContextFont (TinyFontSS);
+			OldFont = SetContextFont (TinyFont);
 
 			if (!StarShipPtr)
 			{	// In Melee menu

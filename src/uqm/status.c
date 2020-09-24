@@ -152,7 +152,7 @@ DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)
 	r.extent.height = RES_SCALE(5); // JMS_GFX
 
 	sprintf (buf, "%u", ShipInfoPtr->crew_level);
-	SetContextFont (StarConFont);
+	SetContextFont (StarConLgFont);
 
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
@@ -280,7 +280,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		t.CharCount = (COUNT)~0;
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));
-		SetContextFont (TinyFontSS);
+		SetContextFont (TinyFont);
 		font_DrawText (&t);
 	}
 	if (RDPtr->ship_info.max_crew > MAX_CREW_SIZE ||

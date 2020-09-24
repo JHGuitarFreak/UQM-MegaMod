@@ -194,7 +194,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 		if (nameCaptain)
 		{	// Naming the captain
-			Font = TinyFontSS;
+			Font = TinyFont;
 			captainNameRect.corner.x = 3;
 			captainNameRect.corner.y = RES_SCALE(10);
 			captainNameRect.extent.width = SHIP_NAME_WIDTH - 2;
@@ -206,7 +206,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		}
 		else
 		{	// Naming the flagship
-			Font = StarConFont;
+			Font = StarConLgFont;
 			shipNameRect.corner.x = RES_SCALE(2);
 			shipNameRect.corner.y = RES_SCALE(20);
 			shipNameRect.extent.width = SHIP_NAME_WIDTH;
@@ -937,7 +937,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 				break;
 		}
 
-		SetContextFont (TinyFontSS);
+		SetContextFont (TinyFont);
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
 		t.CharCount = (COUNT)~0;

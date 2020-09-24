@@ -120,7 +120,7 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 			DEVICES_SELECTED_BACK_COLOR : DEVICES_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	// print device name
 	SetContextForeGroundColor (selected ?
@@ -157,7 +157,7 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	DrawBorder(13, FALSE);
 
 	// print the "DEVICES" title
-	SetContextFont (StarConFont);
+	SetContextFont (StarConLgFont);
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
 	t.baseline.y = r.corner.y + RES_SCALE(7);
 	t.align = ALIGN_CENTER;

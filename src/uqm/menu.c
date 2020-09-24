@@ -97,7 +97,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	if (!optCustomBorder)
 		DrawPCMenuFrame (r);	
 	DrawBorder (19, FALSE);
-	OldFont = SetContextFont (StarConFont);
+	OldFont = SetContextFont (StarConLgFont);
 	t.align = ALIGN_LEFT;
 	t.baseline.x = r->corner.x + RES_SCALE(2);
 	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE(1);// - RESOLUTION_FACTOR; // JMS_GFX
@@ -583,7 +583,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
 				snprintf (buf, sizeof buf, "%u", GLOBAL (CrewCost));
-				SetContextFont (TinyFontSS);
+				SetContextFont (TinyFont);
 				SetContextForeGroundColor (THREEDOMENU_TEXT_COLOR);
 				font_DrawText (&t);
 				break;
@@ -594,7 +594,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
 				snprintf (buf, sizeof buf, "%u", GLOBAL (FuelCost));
-				SetContextFont (TinyFontSS);
+				SetContextFont (TinyFont);
 				SetContextForeGroundColor (THREEDOMENU_TEXT_COLOR);
 				font_DrawText (&t);
 				break;
