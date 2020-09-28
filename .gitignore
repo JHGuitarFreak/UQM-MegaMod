@@ -269,6 +269,9 @@ uqm-wrapper
 stderr.txt
 stdout.txt
 src.orig
+src.84
+src.do
+src.hd
 log.txt
 *.lnk
 *.lib
