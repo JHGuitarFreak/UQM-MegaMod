@@ -519,7 +519,8 @@ LoadHyperspace (void)
 			RepairSISBorder ();
 		}
 	}
-	DrawSISMessage (NULL);
+	if (!(GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0))
+        DrawSISMessage (NULL);
 
 	SetContext (RadarContext);
 	SetContextBackGroundColor (

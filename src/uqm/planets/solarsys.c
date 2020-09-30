@@ -1584,7 +1584,7 @@ ScaleSystem (SIZE new_radius)
 	SetTransitionSource (&r);
 	BatchGraphics ();
 	DrawOuterSystem ();
-	// RedrawQueue (FALSE);
+	RedrawQueue (FALSE);
 	ScreenTransition (optIPScaler, &r);
 	UnbatchGraphics ();
 #endif // SMOOTH_SYSTEM_ZOOM
