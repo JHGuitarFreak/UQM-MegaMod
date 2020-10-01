@@ -46,6 +46,8 @@ Start a MSYS2 MinGW 32-bit bash, `cd` to the UQM-MegaMod directory, then execute
 When executing this command for the first time you'll come to a configuration screen where you can select a few developer-centric options.
 Just hit enter and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything should build fine.
 
+Missing .dll can be found in the MSYS2 installation folder under `mingw32\bin\`.in
+
 ### Other Platforms
 You'll have to gather all of the necessary dependencies and hope for the best.
 
