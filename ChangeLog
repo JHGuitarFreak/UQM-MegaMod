@@ -1,4 +1,4 @@
-Changes towards version 0.8:
+0.8:
 - Grouping ship properties together at the top of the ship .c files, from
   oldlaptop.
 - Some added documentation for UIO.
@@ -63,7 +63,7 @@ Changes towards version 0.8:
   and automatic redirection to mirrors - Michael
 - Fixed MSYS resource script compilation/linking, from Ala-lala
 
-Changes towards version 0.7.1:
+0.7.1:
 - New SDL2 backend for modern operating systems - Michael
 - Fixed netplay when compiling against modern versions of Visual
   Studio, from Ala-lala

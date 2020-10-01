@@ -27,21 +27,24 @@ Mount the .dmg file and copy the app to your Applications folder.
 I've made the process super easy for Windows, as long as you have Visual Studio 2008 or Visual Studios 2015-2019. Just load up the solution file and compile away.
 For Visual Studio 2008 the solution file is under `build/msvs2008` for Visual Studios 2015-2019 the solution file is under `build/msvs2019`
 
-#### MinGW
+#### MSYS2
 
-Start MSYS and `cd` to the UQM-MegaMod directory then execute this command:  
+Make sure you've installed all the necessary packes by executing these two commands in the MSYS2 bash:
 
-`./mingw.sh uqm`
+	pacman -Syuu
 
-Or if you want to do it manually execute these commands: 
+then
 
-`export C_INCLUDE_PATH=$PWD/dev-lib/MINGW/include`  
-`export LIBRARY_PATH=$PWD/dev-lib/MINGW/lib`  
-`export PATH=$PATH:$PWD/dev-lib/MINGW/bin`  
-`./build.sh uqm`  
+	pacman -S make pkg-config mingw-w64-i686-gcc mingw-w64-i686-libogg \
+		mingw-w64-i686-libpng mingw-w64-i686-libsystre \
+		mingw-w64-i686-libvorbis mingw-w64-i686-SDL2 mingw-w64-i686-zlib
 
-When executing the helper script or last command in the manual method you'll come to a configuration screen where you can select a few developer-centric options.  
-Just hit `enter` and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything *should* build fine.
+Start a MSYS2 MinGW 32-bit bash, `cd` to the UQM-MegaMod directory, then execute this command: 
+
+	./build.sh uqm 
+
+When executing this command for the first time you'll come to a configuration screen where you can select a few developer-centric options.
+Just hit enter and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything should build fine.
 
 ### Other Platforms
 You'll have to gather all of the necessary dependencies and hope for the best.
@@ -50,8 +53,6 @@ You'll have to gather all of the necessary dependencies and hope for the best.
 
 For all platforms when building from commandline you can use the command `-j#` to invoke multi-threaded performance to dramaticly speed up build time.  
 Example: If you're running on a Ryzen 7 2700x you can use the command like so `./build.sh -j16 uqm` to take advantage of all your threads.
-
-This also works with the MinGW helper script in the same manner: `./mingw.sh -j16 uqm`
 
 ## Fixes
 
@@ -70,7 +71,7 @@ It should look like this:
 
 ## Contributors
 
-Me (Serosis), SlightlyIntelligentMonkey, Volasaurus, and Ala-lala
+Me (Serosis), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, and Kruzenshtern
 
 The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: https://soundcloud.com/itamar-levy-1/star-control-hyperdrive-remix, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music.php.
 
