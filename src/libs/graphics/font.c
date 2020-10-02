@@ -59,14 +59,16 @@ font_GetTextRect (TEXT *lpText)
 	POINT origin;
 	TEXT text;
 
+	memset(&ClipRect, 0, sizeof(RECT));
+
 	FixContextFontEffect ();
 	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
-		return;
+		return ClipRect;
 
 	// TextRect() clobbers TEXT.CharCount so we have to make a copy
 	text = *lpText;
 	if (!TextRect (&text, &ClipRect, NULL))
-		return;
+		return ClipRect;
 
 	return ClipRect;
 }
