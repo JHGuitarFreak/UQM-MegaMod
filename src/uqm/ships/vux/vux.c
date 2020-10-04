@@ -200,6 +200,7 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		}
 		else
 		{
+			GetElementStarShip (ElementPtr0, &StarShipPtr);
 			ProcessSound (SetAbsSoundIndex (
 							/* LIMPET_AFFIXES */
 					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr1);
