@@ -60,8 +60,8 @@ testNetState(bool condition, PacketType type) {
 }
 
 static int
-versionCompare(int major1, int minor1, int patch1,
-		int major2, int minor2, int patch2) {
+versionCompare (int major1, int minor1, float patch1,
+		int major2, int minor2, float patch2) {
 	if (major1 < major2)
 		return -1;
 	if (major1 > major2)
@@ -103,7 +103,7 @@ PacketHandler_Init(NetConnection *conn, const Packet_Init *packet) {
 		return -1;
 	}
 
-	if (versionCompare(packet->uqmVersion.major, packet->uqmVersion.minor,
+	if (versionCompare (packet->uqmVersion.major, packet->uqmVersion.minor,
 			packet->uqmVersion.patch, NETPLAY_MIN_UQM_VERSION_MAJOR,
 			NETPLAY_MIN_UQM_VERSION_MINOR, NETPLAY_MIN_UQM_VERSION_PATCH)
 			< 0) {
