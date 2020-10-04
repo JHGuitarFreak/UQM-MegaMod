@@ -198,10 +198,12 @@ StopTrack (void)
 static void
 DoTrackTag (TFB_SoundChunk *chunk)
 {
+	LockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
 	if (chunk->callback)
-		Callback_add(chunk->callback, 0);
+		chunk->callback(0);
 	
 	cur_sub_chunk = chunk;
+	UnlockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
 }
 
 // This func is called by PlayStream() when stream is about

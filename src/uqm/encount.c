@@ -337,6 +337,7 @@ InitEncounter (void)
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 	}
+	DrawSISMessage (NULL);
 
 	s.origin.x = SIS_SCREEN_WIDTH >> 1;
 	s.origin.y = SIS_SCREEN_HEIGHT >> 1;

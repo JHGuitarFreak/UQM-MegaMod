@@ -4,12 +4,12 @@ use strict;
 use warnings;
 
 my @frameworks = ( 'Ogg', 'Vorbis', 'libpng', 'SDL2' );
-my $target = 'The Ur-Quan Masters';
+my $target = 'The Ur-Quan Masters MegaMod';
 
 create_app_bundle_skeleton($target);
 copy_with_version("src/res/darwin/Info.plist", "$target.app/Contents/Info.plist");
 copy_file("src/res/darwin/PkgInfo", "$target.app/Contents");
-copy_file("src/res/darwin/The Ur-Quan Masters.icns", "$target.app/Contents/Resources");
+copy_file("src/res/darwin/The Ur-Quan Masters MegaMod.icns", "$target.app/Contents/Resources");
 copy_file("content/version", "$target.app/Contents/Resources/content");
 opendir my $packagedir, "dist-packages/" or die "Could not open dist-packages directory";
 while (readdir $packagedir) {
@@ -17,7 +17,7 @@ while (readdir $packagedir) {
         copy_file("dist-packages/$_", "$target.app/Contents/Resources/content/packages");
     }
 }
-copy_file("uqm", "$target.app/Contents/MacOS/$target");
+copy_file("UrQuanMasters", "$target.app/Contents/MacOS/$target");
 copy_frameworks($target, @frameworks);
 relink_frameworks($target, @frameworks);
 
@@ -74,6 +74,7 @@ sub get_uqm_version {
     my $major_version = 0;
     my $minor_version = 0;
     my $patch_version = 0;
+    my $revision_version = 0;
     while (<$versionheader>) {
         if (/^\s*#define\s+UQM_MAJOR_VERSION\s+(\d+)/) {
             $major_version = $1;
@@ -84,9 +85,12 @@ sub get_uqm_version {
         if (/^\s*#define\s+UQM_PATCH_VERSION\s+(\d+)/) {
             $patch_version = $1;
         }
+        if (/^\s*#define\s+UQM_REVISION_VERSION\s+(\d+)/) {
+            $revision_version = $1;
+        }
     }
     close($versionheader) or warn "Could not close version file";
-    return "${major_version}.${minor_version}.${patch_version}";
+    return "${major_version}.${minor_version}.${patch_version}.${revision_version}";
 }
 
 

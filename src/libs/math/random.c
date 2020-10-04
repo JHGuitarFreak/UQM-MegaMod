@@ -36,10 +36,10 @@
 /* ----------------------------DEFINES------------------------------------ */
 /* constants for licongruential random number generator from CACM article
    referenced above */
-#define A 16807 /* a relatively prime number -- also M div Q */
-#define M 2147483647L /* 0xFFFFFFFF / 2 */
-#define Q 127773L /* M div A */
-#define R 2836 /* M mod A */
+#define A SeedA /* a relatively prime number -- also M div Q */
+#define M SeedM /* 0xFFFFFFFF / 2 */
+#define Q SeedQ /* M div A */
+#define R SeedR /* M mod A */
 
 /* ----------------------------STATIC DATA-------------------------------- */
 

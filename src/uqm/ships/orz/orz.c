@@ -62,7 +62,7 @@
 #define TURRET_WAIT 3
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (120)
+#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (MISSILE_SPEED)
 
 static RACE_DESC orz_desc =
 {
@@ -176,7 +176,7 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = TURRET_OFFSET;
-	MissileBlock.speed = RES_SCALE(MISSILE_SPEED);
+	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;
@@ -399,14 +399,14 @@ intruder_preprocess (ELEMENT *ElementPtr)
 				--ElementPtr->thrust_wait;
 
 				if (!IS_HD) {
-					s.origin.x = RES_SCALE(16) + (ElementPtr->turn_wait & 3) * RES_SCALE(9 + RESOLUTION_FACTOR * 6);
-					s.origin.y = RES_SCALE(14) + (ElementPtr->turn_wait >> 2) * RES_SCALE(11 + RESOLUTION_FACTOR * 6);
+					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
+					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
 				} else {
 					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
 					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
 				}
-				s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0], GetFrameCount (ElementPtr->next.image.farray[0]) - 2);
-
+				s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
+						GetFrameCount (ElementPtr->next.image.farray[0]) - 2);
 				ModifySilhouette (ShipPtr, &s, 0);
 			}
 
@@ -419,8 +419,8 @@ intruder_preprocess (ELEMENT *ElementPtr)
 				hElement = 0;
 LeftShip:
 				if (!IS_HD) {
-					s.origin.x = RES_SCALE(16) + (ElementPtr->turn_wait & 3) * RES_SCALE(9 + RESOLUTION_FACTOR * 6);
-					s.origin.y = RES_SCALE(14) + (ElementPtr->turn_wait >> 2) * RES_SCALE(11 + RESOLUTION_FACTOR * 6);
+					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
+					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
 				} else {
 					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
 					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
@@ -453,14 +453,14 @@ LeftShip:
 
 					++ElementPtr->thrust_wait;
 					if (!IS_HD) {
-						s.origin.x = RES_SCALE(16) + (ElementPtr->turn_wait & 3) * RES_SCALE(9 + RESOLUTION_FACTOR * 6);
-						s.origin.y = RES_SCALE(14) + (ElementPtr->turn_wait >> 2) * RES_SCALE(11 + RESOLUTION_FACTOR * 6);
+						s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
+						s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
 					} else {
 						s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
 						s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
 					}
-					s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0], GetFrameCount (ElementPtr->next.image.farray[0]) - 1);
-
+					s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
+							GetFrameCount (ElementPtr->next.image.farray[0]) - 1);
 					ModifySilhouette (ShipPtr, &s, 0);
 					ProcessSound (SetAbsSoundIndex (
 							StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 3), ElementPtr);
@@ -754,52 +754,91 @@ marine_preprocess (ELEMENT *ElementPtr)
 }
 
 void
-marine_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POINT *pPt1) {	
-	STAMP s;
-	STARSHIP *StarShipPtr;
-	GetElementStarShip (ElementPtr0, &StarShipPtr);
-	if (ElementPtr0->life_span && !(ElementPtr0->state_flags & (NONSOLID | COLLISION)) && !(ElementPtr1->state_flags & FINITE_LIFE)) {
-		if (!elementsOfSamePlayer (ElementPtr0, ElementPtr1)) {
-			ElementPtr0->turn_wait = MAKE_BYTE (5, HINIBBLE (ElementPtr0->turn_wait));
-			ElementPtr0->thrust_wait &= ~((SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED) >> 6);
+marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
+	ELEMENT *ElementPtr1, POINT *pPt1)
+{	
+	if (ElementPtr0->life_span
+			&& !(ElementPtr0->state_flags & (NONSOLID | COLLISION))
+			&& !(ElementPtr1->state_flags & FINITE_LIFE))
+	{
+		if (!elementsOfSamePlayer (ElementPtr0, ElementPtr1))
+		{
+			ElementPtr0->turn_wait =
+					MAKE_BYTE (5, HINIBBLE (ElementPtr0->turn_wait));
+			ElementPtr0->thrust_wait &=
+					~((SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED) >> 6);
 			ElementPtr0->state_flags |= COLLISION;
 		}
-		if (GRAVITY_MASS (ElementPtr1->mass_points)) {
+
+		if (GRAVITY_MASS (ElementPtr1->mass_points))
+		{
 			ElementPtr0->state_flags |= NONSOLID | FINITE_LIFE;
 			ElementPtr0->hit_points = 0;
 			ElementPtr0->life_span = 0;
-		} else if ((ElementPtr1->state_flags & PLAYER_SHIP) && ((ElementPtr1->state_flags & FINITE_LIFE) || ElementPtr1->life_span == NORMAL_LIFE)) {
+		}
+		else if ((ElementPtr1->state_flags & PLAYER_SHIP)
+				&& ((ElementPtr1->state_flags & FINITE_LIFE)
+				|| ElementPtr1->life_span == NORMAL_LIFE))
+		{
 			ElementPtr1->state_flags &= ~COLLISION;
-			if (!(ElementPtr0->state_flags & COLLISION)) {
+			
+			if (!(ElementPtr0->state_flags & COLLISION))
+			{
 				DeltaCrew (ElementPtr1, 1);
-				ElementPtr0->state_flags |= DISAPPEARING | NONSOLID | FINITE_LIFE;
+
+				ElementPtr0->state_flags |=
+						DISAPPEARING | NONSOLID | FINITE_LIFE;
 				ElementPtr0->hit_points = 0;
 				ElementPtr0->life_span = 0;
-			} else if ((ElementPtr0->state_flags & IGNORE_SIMILAR) && ElementPtr1->crew_level) {
-				if (!antiCheat(ElementPtr1, FALSE)) {
-					if (!DeltaCrew (ElementPtr1, -1)){
+			}
+			else if ((ElementPtr0->state_flags & IGNORE_SIMILAR)
+					&& ElementPtr1->crew_level
+#ifdef NEVER
+					&& (BYTE)TFB_Random () <= (0x0100 / 3)
+#endif /* NEVER */
+					)
+			{
+				STAMP s;
+				STARSHIP* StarShipPtr;
+
+				GetElementStarShip (ElementPtr0, &StarShipPtr);
+
+				if (!antiCheat(ElementPtr1, FALSE)) 
+				{
+					if (!DeltaCrew (ElementPtr1, -1))
 						ElementPtr1->life_span = 0;
-					}					
 				}
+
 				ElementPtr0->turn_wait = count_marines (StarShipPtr, TRUE);
 				ElementPtr0->thrust_wait = MARINE_WAIT;
-				ElementPtr0->next.image.frame = SetAbsFrameIndex (ElementPtr0->next.image.farray[0], 22 + ElementPtr0->turn_wait);
+				ElementPtr0->next.image.frame = SetAbsFrameIndex (
+						ElementPtr0->next.image.farray[0],
+						22 + ElementPtr0->turn_wait
+						);
 				ElementPtr0->state_flags |= NONSOLID;
 				ElementPtr0->state_flags &= ~CREW_OBJECT;
-				SetPrimType (&(GLOBAL (DisplayArray))[ElementPtr0->PrimIndex], NO_PRIM);
+				SetPrimType (&(GLOBAL (DisplayArray))[
+						ElementPtr0->PrimIndex
+						], NO_PRIM);
 				ElementPtr0->preprocess_func = intruder_preprocess;
-				if (!IS_HD) {
-					s.origin.x = RES_SCALE(16) + (ElementPtr0->turn_wait & 3) * RES_SCALE(9 + RESOLUTION_FACTOR * 6);
-					s.origin.y = RES_SCALE(14) + (ElementPtr0->turn_wait >> 2) * RES_SCALE(11 + RESOLUTION_FACTOR * 6);
-				} else {
+				if (!IS_HD)
+				{
+					s.origin.x = 16 + (ElementPtr0->turn_wait & 3) * 9;
+					s.origin.y = 14 + (ElementPtr0->turn_wait >> 2) * 11;
+				}
+				else
+				{
 					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr0->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
 					s.origin.y = RES_SCALE(14 + (ElementPtr0->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
 				}
 				s.frame = ElementPtr0->next.image.frame;
 				ModifySilhouette (ElementPtr1, &s, 0);
-				ElementPtr0->next.image.frame = SetAbsFrameIndex (ElementPtr0->next.image.farray[0], 22 + ElementPtr0->turn_wait);
-				ProcessSound (SetAbsSoundIndex (StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr1);
+
+				ProcessSound (SetAbsSoundIndex (
+							StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2),
+							ElementPtr1);
 			}
+
 			ElementPtr0->state_flags &= ~COLLISION;
 		}			
 	}
@@ -993,9 +1032,9 @@ turret_postprocess (ELEMENT *ElementPtr)
 				UnlockElement (hSpaceMarine);
 				PutElement (hSpaceMarine);
 
-				if (!antiCheat(ElementPtr, FALSE)) {
+				if (!antiCheat(ElementPtr, FALSE))
 					DeltaCrew (ShipPtr, -1);
-				}
+
 				ProcessSound (SetAbsSoundIndex (
 						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1),
 						SpaceMarinePtr);

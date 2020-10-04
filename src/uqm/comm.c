@@ -682,7 +682,7 @@ UpdateAnimations (bool paused)
 	BatchGraphics ();
 	// Advance and draw ambient, transit and talk animations
 	change = ProcessCommAnimations (clear_subtitles, paused);
-	if (change)
+	if (change || clear_subtitles)
 		RedrawSubtitles ();
 	UnbatchGraphics ();
 	clear_subtitles = FALSE;
@@ -1854,15 +1854,28 @@ static void
 CheckSubtitles (void)
 {
 	const UNICODE *pStr;
+	POINT baseline;
+	TEXT_ALIGN align;
 
 	pStr = GetTrackSubtitle ();
+	baseline = CommData.AlienTextBaseline;
+	align = CommData.AlienTextAlign;
 
-	if (pStr != SubtitleText.pStr)
+	if (pStr != SubtitleText.pStr ||
+		SubtitleText.baseline.x != baseline.x ||
+		SubtitleText.baseline.y != baseline.y ||
+		SubtitleText.align != align)
 	{	// Subtitles changed
 		clear_subtitles = TRUE;
 		// Baseline may be updated by the ZFP
-		SubtitleText.baseline = CommData.AlienTextBaseline;
-		SubtitleText.align = CommData.AlienTextAlign;
+		SubtitleText.baseline = baseline;
+		SubtitleText.align = align;
+		// Make a note in the logs if the update was multiframe
+		if (SubtitleText.pStr == pStr)
+		{
+			log_add(log_Warning, "Dialog text and location changed out of sync");
+		}
+
 		SubtitleText.pStr = pStr;
 		// may have been cleared too
 		if (pStr)

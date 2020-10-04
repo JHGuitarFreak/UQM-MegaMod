@@ -269,6 +269,9 @@ uqm-wrapper
 stderr.txt
 stdout.txt
 src.orig
+src.84
+src.do
+src.hd
 log.txt
 *.lnk
 *.lib
@@ -283,5 +286,7 @@ log.txt
 config_unix.h
 config_win.h
 *.vcproj.*
+dist-packages
+The\ Ur-Quan\ Masters\ MegaMod.app
 
 build/msvs2008/UrQuanMasters\.vcproj\.DESKTOP-TCJIFU9\.seros\.user
