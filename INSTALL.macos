@@ -33,8 +33,8 @@ undle with the app (at minimum content, but potentially also voice and
 
 You are now ready to actually build and package the application:
 
-    DEPS_PATH=/Library/Frameworks ./build.sh uqm
-    build/unix_installer/copy_mac_frameworks.pl
+    DEPS_PATH=/Library/Frameworks ./build.sh uqm -j
+    perl ./build/unix_installer/copy_mac_frameworks.pl
 
 This should produce a working app bundle named "The Ur-Quan
 Masters.app". For proper redistribution this app should be put in a
