@@ -93,6 +93,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: New flagship captain graphics that match the classic look
 
 ### Fixed
+- Fixed the Commander reporting the wrong mineral worth response
 - Properly declared the GameOver() function in fmv.h
 - Properly redraw the title bars when exiting from the Save/Load screen
 - Fixed Shofixti Glory Device range being scaled twice in HD
@@ -129,6 +130,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
 - HD: Planet scan speed now matches Core speed
 - HD: Fixed captains window death animation from leaving pixels on-screen
+- McMartin: Fix the ZFP dialog desync bug introduced post 0.7.
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak
