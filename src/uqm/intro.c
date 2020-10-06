@@ -540,14 +540,11 @@ DoPresentation (void *pIS)
 			{
 				TEXT t;
 
-				x <<= RESOLUTION_FACTOR; // JMS_GFX
-				y <<= RESOLUTION_FACTOR; // JMS_GFX
-
 				t.align = ALIGN_CENTER;
 				t.pStr = pPIS->Buffer;
 				t.CharCount = (COUNT)~0;
-				t.baseline.x = x;
-				t.baseline.y = y;
+				t.baseline.x = RES_SCALE(x);
+				t.baseline.y = RES_SCALE(y);
 				DrawTextEffect (&t, pPIS->TextColor, pPIS->TextBackColor,
 						pPIS->TextEffect);
 			}
@@ -569,7 +566,7 @@ DoPresentation (void *pIS)
 			switch (pPIS->TextVPos)
 			{
 			case 'T': /* top */
-				y = leading;
+				y = leading + IF_HD(15);
 				break;
 			case 'M': /* middle */
 				y = (pPIS->clip_r.extent.height
@@ -752,15 +749,10 @@ DoPresentation (void *pIS)
 			{
 				LINE l;
 
-				x1 <<= RESOLUTION_FACTOR; // JMS_GFX
-				y1 <<= RESOLUTION_FACTOR; // JMS_GFX
-				x2 <<= RESOLUTION_FACTOR; // JMS_GFX
-				y2 <<= RESOLUTION_FACTOR; // JMS_GFX
-
-				l.first.x = x1;
-				l.first.y = y1;
-				l.second.x = x2;
-				l.second.y = y2;
+				l.first.x = RES_SCALE(x1);
+				l.first.y = RES_SCALE(y1);
+				l.second.x = RES_SCALE(x2);
+				l.second.y = RES_SCALE(y2);
 				
 				SetContextForeGroundColor (pPIS->TextColor);
 				DrawLine (&l);
