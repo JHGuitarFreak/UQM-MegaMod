@@ -124,7 +124,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld) - Kruzenshtern bug #56
 - Fixed sprites for reforming groups in Classic graphics - Kruzen bug #64-1
 - Fixed ships turning away from SIS during red alert phase - Kruzen bug #64-5
-- Prevent IP ships from disappearing when they are fleeing - Kruzen bug
 - Fixed Sa-Matra's name only showing upon load - Kruzen bug #58
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
