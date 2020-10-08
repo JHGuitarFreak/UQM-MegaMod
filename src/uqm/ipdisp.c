@@ -238,7 +238,7 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 	if (task <= ON_STATION)
 #endif /* NEVER */
 	{
-		BOOLEAN Transition, isOrbiting, isInSystem;
+		BOOLEAN Transition, isOrbiting;
 		SIZE dx, dy;
 		SIZE delta_x, delta_y;
 		COUNT angle;
@@ -250,8 +250,6 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		{
 			dest_pt.x = GroupPtr->loc.x << 1;
 			dest_pt.y = GroupPtr->loc.y << 1;
-
-			printf("dest_pt.x: %d\ndest_pt.y: %d\n", dest_pt.x, dest_pt.y);
 		}
 		else if (((task != ON_STATION ||
 				GroupPtr->dest_loc == IPNL_INTERCEPT_PLAYER)
@@ -397,14 +395,11 @@ PartialRevolution:
 			else
 			{	// In inner system; also leaving outer CheckGetAway hack
 CheckGetAway:
-				dest_pt = locationToDisplay (GroupPtr->loc, radius);
-				isInSystem = (GroupPtr->loc.x > -LOG_SPACE_WIDTH && GroupPtr->loc.x < LOG_SPACE_WIDTH &&
-								GroupPtr->loc.y > -LOG_SPACE_HEIGHT && GroupPtr->loc.y < LOG_SPACE_HEIGHT);
-
-				if (!isInSystem && dest_pt.x < 0
-						|| dest_pt.x >= SIS_SCREEN_WIDTH
-						|| dest_pt.y < 0
-						|| dest_pt.y >= SIS_SCREEN_HEIGHT)
+				dest_pt = displayToLocation (MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT), MAX_ZOOM_RADIUS);
+				if (!((GroupPtr->loc.x > -dest_pt.x
+						&& GroupPtr->loc.y > -dest_pt.y)
+						&& (GroupPtr->loc.x < dest_pt.x
+						&& GroupPtr->loc.y < dest_pt.y)))
 					Transition = TRUE;
 			}
 
