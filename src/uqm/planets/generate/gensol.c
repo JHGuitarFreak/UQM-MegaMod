@@ -51,6 +51,7 @@ static bool GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys,
 
 static int init_probe (void);
 static void check_probe (void);
+static BYTE race_id;
 
 
 const GenerateFunctions generateSolFunctions = {
@@ -73,14 +74,19 @@ const GenerateFunctions generateSolFunctions = {
 static bool
 GenerateSol_initNpcs (SOLARSYS_STATE *solarSys)
 {
-	GLOBAL (BattleGroupRef) = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
-	if (GLOBAL (BattleGroupRef) == 0)
+	if (!GET_GAME_STATE (PROBE_MESSAGE_DELIVERED))
 	{
-		CloneShipFragment (URQUAN_DRONE_SHIP, &GLOBAL (npc_built_ship_q), 0);
-		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
-		ReinitQueue (&GLOBAL (npc_built_ship_q));
-		SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, GLOBAL (BattleGroupRef));
+		GLOBAL (BattleGroupRef) = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
+		if (GLOBAL (BattleGroupRef) == 0)
+		{
+			CloneShipFragment (URQUAN_DRONE_SHIP, &GLOBAL (npc_built_ship_q), 0);
+			GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
+			ReinitQueue (&GLOBAL (npc_built_ship_q));
+			SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, GLOBAL (BattleGroupRef));
+		}
 	}
+	else if (race_id == URQUAN_DRONE_SHIP)
+		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 
 	if (!init_probe ())
 		GenerateDefault_initNpcs (solarSys);
@@ -118,7 +124,6 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = 9;
 	for (planetI = 0; planetI < 9; ++planetI)
 	{
-		//COUNT angle;
 		DWORD rand_val;
 		UWORD word_val;
 		PLANET_DESC *pCurDesc = &solarSys->PlanetDesc[planetI];
@@ -126,7 +131,6 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 		pCurDesc->rand_seed = RandomContext_Random (SysGenRNG);
 		rand_val = pCurDesc->rand_seed;
 		word_val = LOWORD (rand_val);
-		//angle = NORMALIZE_ANGLE ((COUNT)HIBYTE (word_val));
 		pCurDesc->angle = NORMALIZE_ANGLE ((COUNT)HIBYTE (word_val));
 
 		switch (planetI)
@@ -306,7 +310,6 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			/* Starbase */
 			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 			ReinitQueue (&GLOBAL (ip_group_q));
-
 			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
 			EncounterGroup = 0;
@@ -519,7 +522,6 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		solarSys->SysInfo.PlanetInfo.AxialTilt = 0;
 		solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
 		solarSys->SysInfo.PlanetInfo.Weather = 0;
-
 		switch (planetNr)
 		{
 			case 2: /* moons of EARTH */
@@ -727,7 +729,7 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	
 	if (matchWorld (solarSys, world, 2, 1))
 	{	// Earth Moon
-		// assert (!GET_GAME_STATE (MOONBASE_DESTROYED) && whichNode == 0);
+		assert (!GET_GAME_STATE (MOONBASE_DESTROYED) && whichNode == 0);
 
 		GenerateDefault_landerReport (solarSys);
 
@@ -769,7 +771,8 @@ init_probe (void)
 
 	if (!GET_GAME_STATE (PROBE_MESSAGE_DELIVERED)
 			&& GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP)
-			&& (hGroup = GetHeadLink (&GLOBAL (ip_group_q)))) {
+			&& (hGroup = GetHeadLink (&GLOBAL (ip_group_q))))
+	{
 		IP_GROUP *GroupPtr;
 
 		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
@@ -782,9 +785,9 @@ init_probe (void)
 		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
 
 		return 1;
-	} else {
-		return 0;
 	}
+	else
+		return 0;
 }
 
 static void
@@ -801,6 +804,7 @@ check_probe (void)
 		return; // still nothing to check
 	
 	GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
+	race_id = GroupPtr->race_id;
 	// REFORM_GROUP was set in ipdisp.c:ip_group_collision()
 	// during a collision with the flagship.
 	if (GroupPtr->race_id == URQUAN_DRONE_SHIP
