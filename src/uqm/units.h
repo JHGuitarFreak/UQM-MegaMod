@@ -99,15 +99,15 @@ extern int ScreenHeight;
 #define DISPLAY_TO_WORLD(x) ((x)<<ONE_SHIFT)
 #define WORLD_TO_DISPLAY(x) ((x)>>ONE_SHIFT)
 
-// JMS_GFX: Changed from COORD to SDWORD and from COUNT to DWORD
-#define DISPLAY_ALIGN(x) ((SDWORD)(x)&~(SCALED_ONE-1))
-#define DISPLAY_ALIGN_X(x) ((SDWORD)((DWORD)(x)%LOG_SPACE_WIDTH)&~(SCALED_ONE-1))
-#define DISPLAY_ALIGN_Y(y) ((SDWORD)((DWORD)(y)%LOG_SPACE_HEIGHT)&~(SCALED_ONE-1))
-
 #define LOG_SPACE_WIDTH   (DISPLAY_TO_WORLD (SPACE_WIDTH) << MAX_REDUCTION)
 #define LOG_SPACE_HEIGHT  (DISPLAY_TO_WORLD (SPACE_HEIGHT) << MAX_REDUCTION)
 #define TRANSITION_WIDTH  (DISPLAY_TO_WORLD (SPACE_WIDTH) << MAX_VIS_REDUCTION)
 #define TRANSITION_HEIGHT (DISPLAY_TO_WORLD (SPACE_HEIGHT) << MAX_VIS_REDUCTION)
+
+// JMS_GFX: Changed from COORD to SDWORD and from COUNT to DWORD
+#define DISPLAY_ALIGN(x) ((SDWORD)(x)&~(SCALED_ONE-1))
+#define DISPLAY_ALIGN_X(x) ((SDWORD)((DWORD)(x)%LOG_SPACE_WIDTH)&~(SCALED_ONE-1))
+#define DISPLAY_ALIGN_Y(y) ((SDWORD)((DWORD)(y)%LOG_SPACE_HEIGHT)&~(SCALED_ONE-1))
 
 #define MAX_X_UNIVERSE 9999
 #define MAX_Y_UNIVERSE 9999
@@ -135,10 +135,10 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 //   on the screen resolution when it should not.
 //   Using the new math will break old savegames.
 
-#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE(16))) // JMS_GFX
-#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE(16))) // JMS_GFX
 #define UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4))
 #define UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
+#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE(16))) // JMS_GFX
+#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE(16))) // JMS_GFX
 
 // Original (and now broken) Hyperspace speed factors
 // Serosis: Now being utilized to load Vanilla saves properly
