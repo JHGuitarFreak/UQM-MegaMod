@@ -912,7 +912,8 @@ VControl_ProcessJoyHat (int port, int which, Uint8 value)
 
 #if defined(ANDROID) || defined(__ANDROID__)
 int
-VControl_GetJoyAxis(int port, int axis) {
+VControl_GetJoyAxis (int port, int axis)
+{
 #ifdef HAVE_JOYSTICK
 	if (joycount <= port)
 		return 0;
@@ -924,7 +925,9 @@ VControl_GetJoyAxis(int port, int axis) {
 #endif /* HAVE_JOYSTICK */
 }
 
-int VControl_GetJoysticksAmount() {
+int
+VControl_GetJoysticksAmount (void)
+{
 	return joycount;
 }
 #endif
