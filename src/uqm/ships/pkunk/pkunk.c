@@ -19,6 +19,7 @@
 #include "../ship.h"
 #include "pkunk.h"
 #include "resinst.h"
+
 #include "uqm/globdata.h"
 #include "uqm/tactrans.h"
 #include "libs/mathlib.h"

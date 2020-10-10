@@ -567,6 +567,7 @@ init_black_urquan (void)
 	black_urquan_desc.postprocess_func = black_urquan_postprocess;
 	black_urquan_desc.init_weapon_func = initialize_buzzsaw;
 	black_urquan_desc.cyborg_control.intelligence_func = black_urquan_intelligence;
+
 	RaceDescPtr = &black_urquan_desc;
 
 	return (RaceDescPtr);

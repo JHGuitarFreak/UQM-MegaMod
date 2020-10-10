@@ -56,7 +56,7 @@
 #define NUM_LIMPETS 3
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (96)
+#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
 
 static RACE_DESC shofixti_desc =
 {
@@ -145,7 +145,7 @@ initialize_standard_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = SHOFIXTI_OFFSET;
-	MissileBlock.speed = RES_SCALE(MISSILE_SPEED);
+	MissileBlock.speed = MISSILE_SPEED_HD;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;

@@ -59,7 +59,7 @@
 // DOGI
 #define SPECIAL_ENERGY_COST MAX_ENERGY
 #define SPECIAL_WAIT 0
-#define DOGGY_OFFSET RES_SCALE(18) + 5 * RESOLUTION_FACTOR
+#define DOGGY_OFFSET RES_SCALE(18)
 #define DOGGY_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
 #define ENERGY_DRAIN 10
 #define MAX_DOGGIES 4
@@ -687,6 +687,7 @@ init_chenjesu (void)
 	chenjesu_desc.postprocess_func = chenjesu_postprocess;
 	chenjesu_desc.init_weapon_func = initialize_crystal;
 	chenjesu_desc.cyborg_control.intelligence_func = chenjesu_intelligence;
+
 	RaceDescPtr = &chenjesu_desc;
 
 	return (RaceDescPtr);

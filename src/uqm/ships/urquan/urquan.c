@@ -60,7 +60,7 @@
 #define FIGHTER_LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE(40) + FIGHTER_OFFSET)
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (80)
+#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
 
 static RACE_DESC urquan_desc =
 {
@@ -148,7 +148,7 @@ initialize_fusion (ELEMENT *ShipPtr, HELEMENT FusionArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = URQUAN_OFFSET;
-	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
+	MissileBlock.speed = MISSILE_SPEED_HD;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;

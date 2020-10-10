@@ -47,9 +47,7 @@
 #define HYPER_LIFE 5
 
 // HD Values
-// 4x
-#define ARILOU_OFFSET_HD 36											// JMS_GFX
-#define LASER_RANGE_HD DISPLAY_TO_WORLD (400 + ARILOU_OFFSET_HD)	// JMS_GFX
+#define LASER_RANGE_HD RES_SCALE(LASER_RANGE)
 
 static RACE_DESC arilou_desc =
 {
@@ -130,9 +128,7 @@ initialize_autoaim_laser (ELEMENT *ShipPtr, HELEMENT LaserArray[])
 	SIZE delta_facing;
 	STARSHIP *StarShipPtr;
 	LASER_BLOCK LaserBlock;
-	COUNT LaserRange; // JMS_GFX
-
-	LaserRange = RES_BOOL(LASER_RANGE, LASER_RANGE_HD);
+	COUNT LaserRange = RES_BOOL(LASER_RANGE, LASER_RANGE_HD);
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 	LaserBlock.face = orig_facing = StarShipPtr->ShipFacing;
@@ -323,6 +319,7 @@ init_arilou (void)
 	arilou_desc.preprocess_func = arilou_preprocess;
 	arilou_desc.init_weapon_func = initialize_autoaim_laser;
 	arilou_desc.cyborg_control.intelligence_func = arilou_intelligence;
+
 	RaceDescPtr = &arilou_desc;
 
 	return (RaceDescPtr);

@@ -55,7 +55,7 @@
 #define TRACK_WAIT 1
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (120)
+#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
 #define MISSILE_RANGE_HD (MISSILE_SPEED_HD * MISSILE_LIFE)
 
 static RACE_DESC spathi_desc =
@@ -263,7 +263,7 @@ initialize_standard_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = SPATHI_FORWARD_OFFSET;
-	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
+	MissileBlock.speed = MISSILE_SPEED_HD;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;

@@ -127,6 +127,7 @@ static RACE_DESC androsynth_desc =
 	0, /* CodeRef */
 };
 
+
 // Private per-instance ship data
 typedef struct
 {
@@ -535,6 +536,7 @@ init_androsynth (void)
 	androsynth_desc.postprocess_func = androsynth_postprocess;
 	androsynth_desc.init_weapon_func = initialize_bubble;
 	androsynth_desc.cyborg_control.intelligence_func = androsynth_intelligence;
+
 	RaceDescPtr = &androsynth_desc;
 
 	return (RaceDescPtr);
