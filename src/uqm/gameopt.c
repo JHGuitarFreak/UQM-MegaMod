@@ -314,18 +314,15 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	UNICODE *Setting;
 	COUNT CursPos = 0; // JMS
 
-	// JMS: This should only be invoked when starting a new game.
-	// It prints a prompt window to the center of the screen, urging
-	// the player to name his captain and ship.
 	if (gamestart)
-	{	
+	{	// These pre-fill the captain and flagship names when starting a new game
 		if (nameCaptain) 
-		{	// "Captain, what is your name?"
+		{	
 			strcpy (buf,  GAME_STRING (NAMING_STRING_BASE + 3)); // "Zelnick"
 			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 3));
 		}
 		else
-		{	// "What is the name of your flagship?"
+		{
 			strcpy (buf, GAME_STRING (NAMING_STRING_BASE + 2)); // "Vindicator"
 			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 2));
 		}
