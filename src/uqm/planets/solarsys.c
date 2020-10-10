@@ -522,9 +522,9 @@ GetRandomSeedForStar (const STAR_DESC *star)
 }
 
 DWORD
-GetRandomSeedForVar(POINT point)
+GetRandomSeedForVar (POINT point)
 {
-	return MAKE_DWORD(point.x, point.y);
+	return MAKE_DWORD (point.x, point.y);
 }
 
 void GenerateTexturedPlanets (void)

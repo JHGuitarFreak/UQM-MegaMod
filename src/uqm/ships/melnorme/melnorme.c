@@ -57,7 +57,7 @@
 #define CMISSILE_OFFSET RES_SCALE(4)
 
 // HD
-#define PUMPUP_SPEED_HD DISPLAY_TO_WORLD (180)
+#define PUMPUP_SPEED_HD RES_SCALE(PUMPUP_SPEED)
 
 static RACE_DESC melnorme_desc =
 {
@@ -247,8 +247,8 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 
 			angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
 			SetVelocityComponents (&EPtr->velocity,
-					COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE(PUMPUP_SPEED))),
-					SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(PUMPUP_SPEED))));
+					COSINE (angle, WORLD_TO_VELOCITY (PUMPUP_SPEED_HD)),
+					SINE (angle, WORLD_TO_VELOCITY (PUMPUP_SPEED_HD)));
 
 			ProcessSound (SetAbsSoundIndex (
 					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 3), EPtr);
@@ -542,7 +542,7 @@ initialize_test_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = MELNORME_OFFSET;
-	MissileBlock.speed = RES_SCALE(PUMPUP_SPEED);
+	MissileBlock.speed = PUMPUP_SPEED_HD;
 	MissileBlock.hit_points = PUMPUP_DAMAGE;
 	MissileBlock.damage = PUMPUP_DAMAGE;
 	MissileBlock.life = PUMPUP_LIFE;

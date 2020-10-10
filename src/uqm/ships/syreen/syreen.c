@@ -51,7 +51,7 @@
 #define MAX_ABANDONERS 8
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (120)
+#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
 
 static RACE_DESC syreen_desc =
 {
@@ -139,7 +139,7 @@ initialize_dagger (ELEMENT *ShipPtr, HELEMENT DaggerArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = SYREEN_OFFSET;
-	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
+	MissileBlock.speed = MISSILE_SPEED_HD;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;
@@ -288,6 +288,7 @@ init_syreen (void)
 	syreen_desc.postprocess_func = syreen_postprocess;
 	syreen_desc.init_weapon_func = initialize_dagger;
 	syreen_desc.cyborg_control.intelligence_func = syreen_intelligence;
+
 	RaceDescPtr = &syreen_desc;
 
 	return (RaceDescPtr);

@@ -602,106 +602,155 @@ static SDL_Rect SDL_LeftJoystickRect, SDL_RightJoystickRect, SDL_TextInputRect;
 static BOOLEAN HideScreenKeyboard = FALSE;
 
 void
-TFB_InitOnScreenKeyboard(void) {
-	SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &SDL_LeftJoystickRect);
-	SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD2, &SDL_RightJoystickRect);
-	SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_TEXT, &SDL_TextInputRect);
+TFB_InitOnScreenKeyboard (void)
+{
+
+	SDL_ANDROID_GetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &SDL_LeftJoystickRect);
+	SDL_ANDROID_GetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD2, &SDL_RightJoystickRect);
+	SDL_ANDROID_GetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_TEXT, &SDL_TextInputRect);
 	
-	TFB_SetOnScreenKeyboard_Menu();
-	HideScreenKeyboard = (getenv("OUYA") != NULL);
+	TFB_SetOnScreenKeyboard_Menu ();
+
+	HideScreenKeyboard = (getenv ("OUYA") != NULL);
+
 	if (HideScreenKeyboard)
-		TFB_SetOnScreenKeyboard_Hidden();
+		TFB_SetOnScreenKeyboard_Hidden ();
 }
 
 void 
-TFB_SetOnScreenKeyboard_HiddenPermanently(void) {
+TFB_SetOnScreenKeyboard_HiddenPermanently (void)
+{
 	if (HideScreenKeyboard)
 		return;
+
 	HideScreenKeyboard = TRUE;
-	TFB_SetOnScreenKeyboard_Hidden();
+
+	TFB_SetOnScreenKeyboard_Hidden ();
 }
 
 void
-TFB_SetOnScreenKeyboard_Hidden(void) {
-	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser())
-		return;
+TFB_SetOnScreenKeyboard_Hidden (void)
+{
 	SDL_Rect b;
+
+	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser ())
+		return;
+
 	b.w = b.h = b.x = b.y = 0;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_3, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_4, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_5, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD2, &b);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_TEXT, &b);
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_3, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_4, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_5, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD2, &b);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_TEXT, &b);
 }
 
 void
-TFB_SetOnScreenKeyboard_Menu(void) {
-	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser() || HideScreenKeyboard)
-		return;
-	TFB_SetOnScreenKeyboard_Hidden();
+TFB_SetOnScreenKeyboard_Menu (void)
+{
+
 	SDL_Rect b;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &SDL_LeftJoystickRect);
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_TEXT, &SDL_TextInputRect);
-	b.w = SDL_RightJoystickRect.w / 2;
-	b.h = SDL_RightJoystickRect.h / 2;
+
+	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser () || HideScreenKeyboard)
+		return;
+
+	TFB_SetOnScreenKeyboard_Hidden ();
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &SDL_LeftJoystickRect);
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_TEXT, &SDL_TextInputRect);
+
+	b.w = b.h = SDL_RightJoystickRect.w / 2;
 	b.x = SDL_RightJoystickRect.x + b.w;
-	b.y = SDL_RightJoystickRect.y + SDL_RightJoystickRect.h - b.h;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &b);
+	b.y = SDL_RightJoystickRect.y - (b.w / 2);
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &b);
+
 	b.x = SDL_RightJoystickRect.x;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &b);
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &b);
 }
 
 void
-TFB_SetOnScreenKeyboard_Starmap(void) {
-	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser() || HideScreenKeyboard)
-		return;
-	TFB_SetOnScreenKeyboard_Menu();
+TFB_SetOnScreenKeyboard_Starmap (void)
+{
 	SDL_Rect b;
-	b.h = SDL_RightJoystickRect.h / 2;
-	b.w = SDL_RightJoystickRect.w / 2;
-	b.x = SDL_RightJoystickRect.x - b.w;
-	b.y = SDL_RightJoystickRect.y + SDL_RightJoystickRect.h - b.h;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &b);
-	b.x -= b.w;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_3, &b);
-}
 
-void
-TFB_SetOnScreenKeyboard_Melee(void) {
-	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser() || HideScreenKeyboard)
+	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser () || HideScreenKeyboard)
 		return;
-	/* Make the on-screen buttons slightly overlap, so we can hit them with one finger */
-	TFB_SetOnScreenKeyboard_Hidden();
-	SDL_Rect b;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &SDL_LeftJoystickRect);
-	b.w = SDL_RightJoystickRect.w * 3 / 5;
-	b.h = SDL_RightJoystickRect.h * 3 / 5;
-	b.x = SDL_RightJoystickRect.x + SDL_RightJoystickRect.w - b.w;
-	b.y = SDL_RightJoystickRect.y + SDL_RightJoystickRect.h - b.h; //SDL_RightJoystickRect.y;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &b);
+
+	TFB_SetOnScreenKeyboard_Menu ();
+
+	b.h = b.w = SDL_RightJoystickRect.w / 2;
+	b.x = SDL_RightJoystickRect.x + b.w;
+	b.y = SDL_RightJoystickRect.y + (b.w / 2);
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_3, &b);
+
 	b.x = SDL_RightJoystickRect.x;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &b);
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_4, &b);
 }
 
 void
-TFB_SetOnScreenKeyboard_TwoPlayersMelee(void) {
-	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser() || HideScreenKeyboard)
+TFB_SetOnScreenKeyboard_Melee (void)
+{
+	SDL_Rect b;
+
+	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser () || HideScreenKeyboard)
 		return;
-	/* Mirror the buttons */
-	TFB_SetOnScreenKeyboard_Melee();
+
+	TFB_SetOnScreenKeyboard_Hidden ();
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &SDL_LeftJoystickRect);
+
+	b.w = b.h = SDL_RightJoystickRect.w / 2;
+	b.x = SDL_RightJoystickRect.x + b.w;
+	b.y = SDL_RightJoystickRect.y - (b.w / 2);
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &b);
+
+	b.x = SDL_RightJoystickRect.x;
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &b);
+
+	b.w = SDL_RightJoystickRect.w;
+	b.y += (b.w / 2);
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos (SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &b);
+}
+
+void
+TFB_SetOnScreenKeyboard_TwoPlayersMelee (void)
+{
 	SDL_Rect b = SDL_RightJoystickRect;
+
+	if (SDL_ANDROID_GetScreenKeyboardRedefinedByUser () || HideScreenKeyboard)
+		return;
+
+	TFB_SetOnScreenKeyboard_Melee();
+
 	b.y = 0;
+
 	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD2, &b);
-	b.w = SDL_RightJoystickRect.w * 3 / 5;
-	b.h = SDL_RightJoystickRect.h * 3 / 5;
+
+	b.w = b.h = SDL_RightJoystickRect.w / 2;
 	b.x = 0;
-	b.y = 0; // SDL_RightJoystickRect.h - b.h;
-	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_4, &b);
+	b.y = SDL_RightJoystickRect.w - b.w;
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_3, &b);
+
 	b.x = SDL_RightJoystickRect.w - b.w;
+
+	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_4, &b);
+
+	b.w = SDL_RightJoystickRect.w;
+	b.x = 0;
+	b.y = 0;
+
 	SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_5, &b);
 }
 

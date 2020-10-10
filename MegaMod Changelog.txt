@@ -91,8 +91,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Naming Captain & Ship on new game now mimics the PC version
 - HD: New shielded planet graphics to match the classic look
 - HD: New flagship captain graphics that match the classic look
+- HD: Padded out the comm subtitles and PC slide text from the top of the screen where applicable
 
 ### Fixed
+- Fixed the Commander reporting the wrong mineral worth response
 - Properly declared the GameOver() function in fmv.h
 - Properly redraw the title bars when exiting from the Save/Load screen
 - Fixed Shofixti Glory Device range being scaled twice in HD
@@ -123,12 +125,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld) - Kruzenshtern bug #56
 - Fixed sprites for reforming groups in Classic graphics - Kruzen bug #64-1
 - Fixed ships turning away from SIS during red alert phase - Kruzen bug #64-5
-- Prevent IP ships from disappearing when they are fleeing - Kruzen bug
 - Fixed Sa-Matra's name only showing upon load - Kruzen bug #58
+- Prevent IP ships from disappearing when they are fleeing - Kruzen bug #71
 - EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
 - EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
 - HD: Planet scan speed now matches Core speed
 - HD: Fixed captains window death animation from leaving pixels on-screen
+- McMartin: Fix the ZFP dialog desync bug introduced post 0.7.
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
 - Ala-lala: Fix main menu graphics leak

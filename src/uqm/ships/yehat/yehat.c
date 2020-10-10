@@ -50,7 +50,7 @@
 #define SHIELD_LIFE 10
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (80)
+#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
 
 static RACE_DESC yehat_desc =
 {
@@ -137,7 +137,7 @@ initialize_standard_missiles (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = YEHAT_OFFSET;
-	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
+	MissileBlock.speed = MISSILE_SPEED_HD;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;

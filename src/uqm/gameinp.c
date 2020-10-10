@@ -637,16 +637,16 @@ GetDirectionalJoystickInput(int direction, int player)
 		if (diff > SHIP_DIRECTIONS / 2)
 			InputState |= BATTLE_RIGHT;
 
-		if (!JoystickTapFlag[player])
-		{
-			JoystickTapFlag[player] = TRUE;
-			if (GetTimeCounter () < JoystickTapTime[player] + ONE_SECOND)
-				JoystickThrust[player] = !JoystickThrust[player];
-			else
-				JoystickThrust[player] = TRUE;
-		}
-		if (JoystickThrust[player])
-			InputState |= BATTLE_THRUST;
+		// if (!JoystickTapFlag[player])
+		// {
+		// 	JoystickTapFlag[player] = TRUE;
+		// 	if (GetTimeCounter () < JoystickTapTime[player] + ONE_SECOND)
+		// 		JoystickThrust[player] = !JoystickThrust[player];
+		// 	else
+		// 		JoystickThrust[player] = TRUE;
+		// }
+		// if (JoystickThrust[player])
+		// 	InputState |= BATTLE_THRUST;
 	}
 	else
 	{

@@ -62,7 +62,7 @@
 #define TURRET_WAIT 3
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
 
 static RACE_DESC orz_desc =
 {
@@ -176,7 +176,7 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = TURRET_OFFSET;
-	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
+	MissileBlock.speed = MISSILE_SPEED_HD;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;

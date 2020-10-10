@@ -29,6 +29,7 @@
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 8
 #define MAX_THRUST /* DISPLAY_TO_WORLD (6) */ 24
+#define MAX_THRUST_HD RES_SCALE(MAX_THRUST)
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 3
 #define THRUST_WAIT 4
 #define TURN_WAIT 1
@@ -41,7 +42,8 @@
 #define NUKE_OFFSET RES_SCALE(8)
 #define MIN_MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(10))
 #define MAX_MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(20))
-#define MISSILE_SPEED (RES_SCALE(MAX_THRUST) >= MIN_MISSILE_SPEED ? RES_SCALE(MAX_THRUST) : MIN_MISSILE_SPEED)
+#define MISSILE_SPEED (MAX_THRUST_HD >= MIN_MISSILE_SPEED ? \
+		MAX_THRUST_HD : MIN_MISSILE_SPEED)
 #define THRUST_SCALE DISPLAY_TO_WORLD (RES_SCALE(1))
 #define MISSILE_LIFE 60
 #define MISSILE_HITS 1
@@ -53,7 +55,7 @@
 #define SPECIAL_WAIT 9
 #define LASER_RANGE (UWORD)RES_SCALE(100)
 
-static RACE_DESC human_desc =
+RACE_DESC human_desc =
 {
 	{ /* SHIP_INFO */
 		"cruiser",
@@ -350,7 +352,7 @@ init_human (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		human_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
+		human_desc.characteristics.max_thrust = MAX_THRUST_HD;
 		human_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
 		human_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD;
 	}

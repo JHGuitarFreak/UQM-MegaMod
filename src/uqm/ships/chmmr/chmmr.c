@@ -38,8 +38,8 @@
 // Laser
 #define WEAPON_ENERGY_COST 2
 #define WEAPON_WAIT 0
-#define CHMMR_OFFSET 18
-#define LASER_RANGE DISPLAY_TO_WORLD (150)
+#define CHMMR_OFFSET RES_SCALE(18)
+#define LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE(150))
 #define NUM_CYCLES 4
 
 // Tractor Beam
@@ -165,8 +165,8 @@ laser_death (ELEMENT *ElementPtr)
 				- ShipPtr->current.location.y;
 		if (((BYTE)TFB_Random () & 0x07)
 				&& (dist = (long)dx * dx + (long)dy * dy) >=
-				(long)DISPLAY_TO_WORLD (RES_SCALE(CHMMR_OFFSET + 10)) // JMS_GFX
-				* DISPLAY_TO_WORLD (RES_SCALE(CHMMR_OFFSET + 10)) // JMS_GFX
+				(long)DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) // JMS_GFX
+				* DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) // JMS_GFX
 				&& (hIonSpots = AllocElement ()))
 		{
 			COUNT angle, magnitude;
@@ -177,13 +177,13 @@ laser_death (ELEMENT *ElementPtr)
 			IonSpotsPtr->state_flags = FINITE_LIFE | NONSOLID
 					| IGNORE_SIMILAR | APPEARING;
 			IonSpotsPtr->turn_wait = IonSpotsPtr->next_turn = 0;
-			IonSpotsPtr->life_span = RES_SCALE(9);
+			IonSpotsPtr->life_span = 9;
 
 			angle = ARCTAN (dx, dy);
 			magnitude = ((COUNT)TFB_Random ()
 					% ((square_root (dist) + 1)
-					- DISPLAY_TO_WORLD (RES_SCALE(CHMMR_OFFSET + 10)))) // JMS_GFX
-					+ DISPLAY_TO_WORLD (RES_SCALE(CHMMR_OFFSET + 10)); // JMS_GFX
+					- DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)))) // JMS_GFX
+					+ DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)); // JMS_GFX
 			IonSpotsPtr->current.location.x =
 					ShipPtr->current.location.x
 					+ COSINE (angle, magnitude);
@@ -236,8 +236,8 @@ initialize_megawatt_laser (ELEMENT *ShipPtr, HELEMENT LaserArray[])
 			+ DISPLAY_TO_WORLD (r.corner.x);
 	LaserBlock.cy = DISPLAY_ALIGN (ShipPtr->next.location.y)
 			+ DISPLAY_TO_WORLD (r.corner.y);
-	LaserBlock.ex = COSINE (FACING_TO_ANGLE (LaserBlock.face), RES_SCALE(LASER_RANGE)); // JMS_GFX
-	LaserBlock.ey = SINE (FACING_TO_ANGLE (LaserBlock.face), RES_SCALE(LASER_RANGE)); // JMS_GFX
+	LaserBlock.ex = COSINE (FACING_TO_ANGLE (LaserBlock.face), LASER_RANGE);
+	LaserBlock.ey = SINE (FACING_TO_ANGLE (LaserBlock.face), LASER_RANGE);
 	LaserBlock.sender = ShipPtr->playerNr;
 	LaserBlock.flags = IGNORE_SIMILAR;
 	LaserBlock.pixoffs = 0;
@@ -289,6 +289,7 @@ static void
 chmmr_postprocess (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
+
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 
 	if (StarShipPtr->cur_status_flags & WEAPON)
@@ -365,14 +366,6 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 					DISPLAY_TO_WORLD (8 + 9 + 11 + 14),
 					DISPLAY_TO_WORLD (8 + 9 + 11 + 14 + 18),
 				};
-				static const SIZE shadow_offs_hd[] =
-				{
-					DISPLAY_TO_WORLD (32),
-					DISPLAY_TO_WORLD (32 + 36),
-					DISPLAY_TO_WORLD (32 + 36 + 44),
-					DISPLAY_TO_WORLD (32 + 36 + 44 + 56),
-					DISPLAY_TO_WORLD (32 + 36 + 44 + 56 + 72),
-				};
 				static const Color color_tab[] =
 				{
 					BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x10), 0x53),
@@ -386,15 +379,16 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 				// calculate tractor beam effect
 				angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
 				dx = (ElementPtr->next.location.x
-						+ COSINE (angle, (RES_SCALE(LASER_RANGE) / 3) // JMS_GFX
-						+ DISPLAY_TO_WORLD (RES_SCALE(CHMMR_OFFSET)))) // JMS_GFX
+						+ COSINE (angle, (LASER_RANGE / 3)
+						+ DISPLAY_TO_WORLD (CHMMR_OFFSET)))
 						- ShipElementPtr->next.location.x;
 				dy = (ElementPtr->next.location.y
-						+ SINE (angle, (RES_SCALE(LASER_RANGE) / 3) // JMS_GFX
-						+ DISPLAY_TO_WORLD (RES_SCALE(CHMMR_OFFSET)))) // JMS_GFX
+						+ SINE (angle, (LASER_RANGE / 3)
+						+ DISPLAY_TO_WORLD (CHMMR_OFFSET)))
 						- ShipElementPtr->next.location.y;
 				angle = ARCTAN (dx, dy);
-				magnitude = WORLD_TO_VELOCITY (RES_SCALE(12)) / ShipElementPtr->mass_points; // JMS_GFX
+				magnitude = WORLD_TO_VELOCITY (RES_SCALE(12)) /
+						ShipElementPtr->mass_points;
 				DeltaVelocityComponents (&ShipElementPtr->velocity,
 						COSINE (angle, magnitude), SINE (angle, magnitude));
 
@@ -424,10 +418,6 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 					if (hShadow)
 					{
 						ELEMENT *ShadowElementPtr;
-						COUNT shadow_magnitude; // JMS_GFX
-
-						// JMS_GFX
-						shadow_magnitude = RES_BOOL(shadow_offs[i], shadow_offs_hd[i]);
 
 						LockElement (hShadow, &ShadowElementPtr);
 						ShadowElementPtr->playerNr = ShipElementPtr->playerNr;
@@ -437,9 +427,9 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 
 						ShadowElementPtr->current = ShipElementPtr->next;
 						ShadowElementPtr->current.location.x +=
-								COSINE (angle, shadow_magnitude);
+								COSINE (angle, RES_SCALE(shadow_offs[i]));
 						ShadowElementPtr->current.location.y +=
-								SINE (angle, shadow_magnitude);
+								SINE (angle, RES_SCALE(shadow_offs[i]));
 						ShadowElementPtr->next = ShadowElementPtr->current;
 
 						SetElementStarShip (ShadowElementPtr, EnemyStarShipPtr);
@@ -693,17 +683,12 @@ spawn_satellites (ELEMENT *ElementPtr)
 {
 	COUNT i;
 	STARSHIP *StarShipPtr;
-	BYTE NumSatellites = NUM_SATELLITES;
-
-	if (antiCheat(ElementPtr, FALSE)) {
-		NumSatellites = NUM_SATELLITES + 2;
-	}
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	if (StarShipPtr->hShip)
 	{
 		LockElement (StarShipPtr->hShip, &ElementPtr);
-		for (i = 0; i < NumSatellites; ++i)
+		for (i = 0; i < NUM_SATELLITES; ++i)
 		{
 			HELEMENT hSatellite;
 
@@ -721,8 +706,8 @@ spawn_satellites (ELEMENT *ElementPtr)
 				SattPtr->hit_points = SATELLITE_HITPOINTS;
 				SattPtr->mass_points = SATELLITE_MASS;
 
-				angle = (i * FULL_CIRCLE + (NumSatellites >> 1))
-						/ NumSatellites;
+				angle = (i * FULL_CIRCLE + (NUM_SATELLITES >> 1))
+						/ NUM_SATELLITES;
 				SattPtr->turn_wait = (BYTE)angle;
 				SattPtr->current.location.x = ElementPtr->next.location.x
 						+ COSINE (angle, SATELLITE_OFFSET);

@@ -60,7 +60,7 @@
 #define STATIONARY_SPEED WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(4)))
 
 // HD
-#define MISSILE_SPEED_HD DISPLAY_TO_WORLD (120)
+#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
 
 
 static RACE_DESC thraddash_desc =
@@ -278,7 +278,7 @@ initialize_horn (ELEMENT *ShipPtr, HELEMENT HornArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = THRADDASH_OFFSET;
-	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
+	MissileBlock.speed = MISSILE_SPEED_HD;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;

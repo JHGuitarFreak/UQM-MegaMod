@@ -364,7 +364,7 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		{
 			if (target_loc == 0)
 			{
-				if (task == FLEE && radius == MAX_ZOOM_RADIUS)
+				if (task == FLEE)
 					goto CheckGetAway;
 			}
 			else if (target_loc == GroupPtr->dest_loc)
@@ -395,11 +395,11 @@ PartialRevolution:
 			else
 			{	// In inner system; also leaving outer CheckGetAway hack
 CheckGetAway:
-				dest_pt = locationToDisplay (GroupPtr->loc, radius);
-				if (dest_pt.x < 0
-						|| dest_pt.x >= SIS_SCREEN_WIDTH
-						|| dest_pt.y < 0
-						|| dest_pt.y >= SIS_SCREEN_HEIGHT)
+				dest_pt = displayToLocation (MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT), MAX_ZOOM_RADIUS);
+				if (!((GroupPtr->loc.x > -dest_pt.x
+						&& GroupPtr->loc.y > -dest_pt.y)
+						&& (GroupPtr->loc.x < dest_pt.x
+						&& GroupPtr->loc.y < dest_pt.y)))
 					Transition = TRUE;
 			}
 

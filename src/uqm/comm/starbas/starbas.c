@@ -1780,7 +1780,7 @@ SellMinerals (RESPONSE_REF R)
 
 		if ((amount = GLOBAL_SIS (ElementAmounts[i])) != 0)
 		{
-			total = amount * GLOBAL (ElementWorth[i]);
+			total += amount * GLOBAL (ElementWorth[i]);
 			do
 			{
 				if (!Sleepy || AnyButtonPress (TRUE) ||
@@ -1789,7 +1789,7 @@ SellMinerals (RESPONSE_REF R)
 					Sleepy = FALSE;
 					GLOBAL_SIS (ElementAmounts[i]) = 0;
 					GLOBAL_SIS (TotalElementMass) -= amount;
-					DeltaSISGauges (0, 0, total);
+					DeltaSISGauges (0, 0, amount * GLOBAL (ElementWorth[i]));
 					break;
 				}
 				
