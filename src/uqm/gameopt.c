@@ -333,8 +333,6 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
 
-	DrawBorder(nameCaptain ? 6 : 12, false);
-
 	SetFlashRect(nameCaptain ? &captainNameRect : &shipNameRect);
 
 	DrawStatusMessage (GAME_STRING (NAMING_STRING_BASE + 0));
@@ -366,6 +364,8 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	SetFlashRect (SFR_MENU_3DO);
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_NORMAL);
+
+	DrawBorder(12, false);
 
 	if (namingCB)
 		namingCB ();
