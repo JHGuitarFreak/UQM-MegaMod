@@ -158,6 +158,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("yellow-fried-hd");
 		loadAddon ("orange-peel-melnorme");
 		loadAddon ("classic-hd-fonts");
+		loadAddon ("tarps-choice");
 	}
 
 	loadAddon ("ProfanePkunk");
