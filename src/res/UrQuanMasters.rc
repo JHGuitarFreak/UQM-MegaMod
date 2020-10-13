@@ -42,7 +42,7 @@ BEGIN
             VALUE "FileDescription", "The Ur-Quan Masters MegaMod main executable\0"
             VALUE "FileVersion", UQM_STRING_VERSION "\0"
             VALUE "InternalName", "UrQuanMasters\0"
-            VALUE "LegalCopyright", "(C) 1992-1993, 2002-2019 by respective authors\0"
+            VALUE "LegalCopyright", "(C) 1992-1993, 2002-2020 by respective authors\0"
 #ifdef _DEBUG
             VALUE "OriginalFilename", "UrQuanMastersDebug.exe\0"
 #else
