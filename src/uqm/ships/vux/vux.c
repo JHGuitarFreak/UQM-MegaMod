@@ -354,16 +354,21 @@ vux_preprocess (ELEMENT *ElementPtr)
 
 			do 
 			{
-				SIZE dx, dy, temp_x, temp_y;
-
-				temp_x = (OtherShipPtr->current.location.x -
+				// JMS_GFX: Circumventing overflows by using temp variables
+                // instead of subtracting straight from the POINT sized
+                // ShipImagePtr->current.location.
+				SDWORD dx, dy;
+				SDWORD temp_x =
+						((SDWORD)OtherShipPtr->current.location.x -
 						(MAXX_ENTRY_DIST >> 1)) +
 						((COUNT)TFB_Random () % MAXX_ENTRY_DIST);
-				temp_y = (OtherShipPtr->current.location.y -
+				SDWORD temp_y =
+						((SDWORD)OtherShipPtr->current.location.y -
 						(MAXY_ENTRY_DIST >> 1)) +
 						((COUNT)TFB_Random () % MAXY_ENTRY_DIST);
-				temp_x += temp_x > 0 ? SA_MATRA_EXTRA_DIST : -SA_MATRA_EXTRA_DIST;
-				temp_y += temp_y > 0 ? SA_MATRA_EXTRA_DIST : -SA_MATRA_EXTRA_DIST;
+                
+                temp_x += temp_x > 0 ? SA_MATRA_EXTRA_DIST : -SA_MATRA_EXTRA_DIST;
+                temp_y += temp_y > 0 ? SA_MATRA_EXTRA_DIST : -SA_MATRA_EXTRA_DIST;
                 
 				dx = OtherShipPtr->current.location.x - temp_x;
 				dy = OtherShipPtr->current.location.y - temp_y;

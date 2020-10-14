@@ -368,8 +368,6 @@ AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 		}
 		SetPrimColor (&DisplayArray[CrewPtr->PrimIndex],
 				BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));
-		/*CrewPtr->current.image.frame = DecFrameIndex (stars_in_space);
-		CrewPtr->current.image.farray = &stars_in_space;*/
 		CrewPtr->preprocess_func = crew_preprocess;
 		CrewPtr->collision_func = crew_collision;
 

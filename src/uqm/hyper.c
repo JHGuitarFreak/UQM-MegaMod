@@ -50,7 +50,7 @@
 
 static FRAME npcbubble;			// BW: animated bubble
 static FRAME quasiportal;       // JMS: animated quasispace portal in hyperspace
-static FRAME Falayalaralfali;        // JMS: Arilou homeworld in quasispace
+static FRAME Falayalaralfali;   // JMS: Arilou homeworld in quasispace
 static FRAME hyperholes[3];		// BW: One for each flavour of space
 static FRAME hyperstars[4];
 static COLORMAP hypercmaps[2];

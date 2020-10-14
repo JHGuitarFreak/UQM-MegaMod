@@ -255,8 +255,7 @@ arilou_preprocess (ELEMENT *ElementPtr)
 		++ElementPtr->thrust_wait;
 
 		if ((life_span = ElementPtr->life_span) == NORMAL_LIFE)
-		{
-			/* Ending teleport */
+		{	/* Ending teleport */
 			ElementPtr->state_flags &= ~(NONSOLID | FINITE_LIFE);
 			ElementPtr->state_flags |= APPEARING;
 			ElementPtr->current.image.farray =
@@ -269,8 +268,7 @@ arilou_preprocess (ELEMENT *ElementPtr)
 			InitIntersectStartPoint (ElementPtr);
 		}
 		else
-		{
-			/* Teleporting in progress */
+		{	/* Teleporting in progress */
 			--life_span;
 			if (life_span != 2)
 			{
@@ -280,13 +278,18 @@ arilou_preprocess (ELEMENT *ElementPtr)
 				else
 					ElementPtr->next.image.frame =
 							IncFrameIndex (ElementPtr->next.image.frame);
-			} else { // JMS: Reduce the odds of teleporting into Sa-Matra.
-				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE) {
+			}
+			else
+			{	// JMS: Reduce the odds of teleporting into Sa-Matra.
+				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
+				{
 					SDWORD dist = 0;
 					SDWORD dx, dy;
                     do {
-                        ElementPtr->next.location.x = WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
-                        ElementPtr->next.location.y = WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
+                        ElementPtr->next.location.x =
+								WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
+                        ElementPtr->next.location.y =
+								WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
                         
                         dx = ((SDWORD)ElementPtr->next.location.x - (LOG_SPACE_WIDTH >> 1));
                         dy = ((SDWORD)ElementPtr->next.location.y - (LOG_SPACE_HEIGHT >> 1));
@@ -294,9 +297,13 @@ arilou_preprocess (ELEMENT *ElementPtr)
                         dist = sqrt(dx*dx + dy*dy);                        
                     } 
 					while (dist < (RES_SCALE(2800)));
-                } else {
-                    ElementPtr->next.location.x = WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
-					ElementPtr->next.location.y = WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
+                }
+				else
+				{
+                    ElementPtr->next.location.x =
+							WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
+					ElementPtr->next.location.y =
+							WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
 				}
 			}
 		}
