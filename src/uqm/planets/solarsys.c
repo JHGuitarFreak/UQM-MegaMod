@@ -1208,9 +1208,21 @@ flagship_inertial_thrust (COUNT CurrentAngle)
 				+ COSINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
 		delta_y = cur_delta_y
 				+ SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
-		desired_speed = (DWORD) ((long) delta_x * delta_x)
-				+ (DWORD) ((long) delta_y * delta_y);
-		if (desired_speed <= (DWORD) ((UWORD) max_speed * max_speed))
+		desired_speed = VelocitySquared (delta_x, delta_y);
+
+		switch (CurrentAngle)
+		{
+			case 0:
+				TravelAngle = TravelAngle == 1 ? 0 : TravelAngle;
+			case 16:
+				TravelAngle = TravelAngle == 17 ? 16 : TravelAngle;
+			case 32:
+				TravelAngle = TravelAngle == 31 ? 32 : TravelAngle;
+			case 48:
+				TravelAngle = TravelAngle == 47 ? 48 : TravelAngle;
+		}
+
+		if (desired_speed <= pow (max_speed, 2))
 			SetVelocityComponents (VelocityPtr, delta_x, delta_y);
 		else if (TravelAngle == CurrentAngle)
 		{
@@ -1231,10 +1243,8 @@ flagship_inertial_thrust (COUNT CurrentAngle)
 					SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT >> 1)
 					- SINE (TravelAngle, IP_SHIP_THRUST_INCREMENT));
 			GetCurrentVelocityComponents (&v, &cur_delta_x, &cur_delta_y);
-			desired_speed =
-					(DWORD) ((long) cur_delta_x * cur_delta_x)
-					+ (DWORD) ((long) cur_delta_y * cur_delta_y);
-			if (desired_speed > (DWORD) ((UWORD) max_speed * max_speed))
+			desired_speed = VelocitySquared (cur_delta_x, cur_delta_y);
+			if (desired_speed > pow (max_speed, 2))
 			{
 				SetVelocityComponents (VelocityPtr,
 						COSINE (CurrentAngle, max_speed),
