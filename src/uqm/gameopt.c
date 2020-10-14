@@ -1004,7 +1004,7 @@ TruncateSaveName (UNICODE* buf, COORD maxWidth, BOOLEAN naming)
 static void
 DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 {
-	RECT r, rHD;
+	RECT r;
 	TEXT t;
 	COUNT i, curSlot;
 	UNICODE buf[256], buf2[80], *SaveName;
