@@ -1186,10 +1186,12 @@ FindRadius (POINT shipLoc, SIZE fromRadius)
 static UWORD
 flagship_inertial_thrust (COUNT CurrentAngle)
 {
-	BYTE max_speed;
+	BYTE max_speed, i;
 	SIZE cur_delta_x, cur_delta_y;
 	COUNT TravelAngle;
 	VELOCITY_DESC *VelocityPtr;
+	BYTE ProperAngles[] = {0, 16, 32, 48};
+	BYTE OffAngles[] = {1, 17, 31, 47};
 
 	max_speed = pSolarSysState->max_ship_speed;
 	VelocityPtr = &GLOBAL (velocity);
@@ -1210,16 +1212,10 @@ flagship_inertial_thrust (COUNT CurrentAngle)
 				+ SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
 		desired_speed = VelocitySquared (delta_x, delta_y);
 
-		switch (CurrentAngle)
+		for (i = 0; i < sizeof(ProperAngles); i++)
 		{
-			case 0:
-				TravelAngle = TravelAngle == 1 ? 0 : TravelAngle;
-			case 16:
-				TravelAngle = TravelAngle == 17 ? 16 : TravelAngle;
-			case 32:
-				TravelAngle = TravelAngle == 31 ? 32 : TravelAngle;
-			case 48:
-				TravelAngle = TravelAngle == 47 ? 48 : TravelAngle;
+			if (CurrentAngle == ProperAngles[i] && TravelAngle == OffAngles[i])
+				TravelAngle = ProperAngles[i];
 		}
 
 		if (desired_speed <= pow (max_speed, 2))
