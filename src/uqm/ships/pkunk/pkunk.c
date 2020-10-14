@@ -457,9 +457,9 @@ phoenix_transition (ELEMENT *ElementPtr)
             // JMS_GFX: Circumventing overflows by using temp variables
             // instead of subtracting straight from the POINT sized
             // ShipImagePtr->current.location.
-            SDWORD temp_x = (SDWORD)ShipImagePtr->current.location.x -
+            temp_x = (SDWORD)ShipImagePtr->current.location.x -
                 COSINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
-            SDWORD temp_y = (SDWORD)ShipImagePtr->current.location.y -
+            temp_y = (SDWORD)ShipImagePtr->current.location.y -
                 SINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
             
             ShipImagePtr->current.location.x = WRAP_X (temp_x);
