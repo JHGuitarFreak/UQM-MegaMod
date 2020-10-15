@@ -1186,12 +1186,10 @@ FindRadius (POINT shipLoc, SIZE fromRadius)
 static UWORD
 flagship_inertial_thrust (COUNT CurrentAngle)
 {
-	BYTE max_speed, i;
+	BYTE max_speed;
 	SIZE cur_delta_x, cur_delta_y;
 	COUNT TravelAngle;
 	VELOCITY_DESC *VelocityPtr;
-	BYTE ProperAngles[] = {0, 16, 32, 48};
-	BYTE OffAngles[] = {1, 17, 31, 47};
 
 	max_speed = pSolarSysState->max_ship_speed;
 	VelocityPtr = &GLOBAL (velocity);
@@ -1212,10 +1210,15 @@ flagship_inertial_thrust (COUNT CurrentAngle)
 				+ SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
 		desired_speed = VelocitySquared (delta_x, delta_y);
 
-		for (i = 0; i < sizeof(ProperAngles); i++)
-		{
-			if (CurrentAngle == ProperAngles[i] && TravelAngle == OffAngles[i])
-				TravelAngle = ProperAngles[i];
+		// Serosis - This stops the flagship from drifting to the right
+		// or bottom of the screen continuously when nudged in those
+		// directions then straightened back out with full thrust applied.
+		if (!(CurrentAngle % 16)) 
+		{	
+			if (CurrentAngle <= 16 && (TravelAngle == CurrentAngle + 1))
+				--TravelAngle;
+			else if (CurrentAngle > 16 && (TravelAngle == CurrentAngle - 1))
+				++TravelAngle;
 		}
 
 		if (desired_speed <= pow (max_speed, 2))
@@ -1729,7 +1732,7 @@ IP_frame (void)
 			ScaleSystem (newRadius);
 		}
 	}
-	else if (!pSolarSysState->InOrbit)
+	else
 	{	// Just flying around, minding own business..
 		BatchGraphics ();
 		RestoreSystemView ();
