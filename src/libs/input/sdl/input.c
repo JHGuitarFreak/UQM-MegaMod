@@ -275,6 +275,8 @@ TFB_InitInput (int driver, int flags)
 	(void)SDL_GetKeyState (&signed_num_keys);
 	num_keys = (unsigned int) signed_num_keys;
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
+#else
+	(void) signed_num_keys; /* satisfy compiler (unused parameter) */
 #endif
 	
 

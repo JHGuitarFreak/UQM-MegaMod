@@ -660,7 +660,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	{
 		oldtext = SetContextForeGroundColor (default_color);
 	}
-	font_DrawText (&t);
+	font_DrawText (&t); // Control Name E.G. Up, Down, Weapon, Thrust
 
 	t.baseline.x -= t.baseline.x;
 

@@ -130,6 +130,8 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 	SDL_WM_SetCaption (caption, NULL);
+#else
+	(void) caption; /* satisfy compiler (unused parameter) */
 #endif
 
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)

@@ -578,9 +578,9 @@ PostProcessStatus (ELEMENT *ShipPtr)
 			if (old_status_flags & LOW_ON_ENERGY)
 			{
 				if (!(cur_status_flags & LOW_ON_ENERGY))
-					DrawCrewFuelString (y, 1, FALSE);
+					DrawCrewFuelString (y, 1);
 				else
-					DrawCrewFuelString (y, -1, FALSE);
+					DrawCrewFuelString (y, -1);
 			}
 
 			old_status_flags &= (LEFT | RIGHT | THRUST | WEAPON | SPECIAL);

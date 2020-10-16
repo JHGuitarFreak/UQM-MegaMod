@@ -1186,69 +1186,83 @@ FindRadius (POINT shipLoc, SIZE fromRadius)
 static UWORD
 flagship_inertial_thrust (COUNT CurrentAngle)
 {
-	BYTE max_speed;
+	BYTE max_ship_speed;
 	SIZE cur_delta_x, cur_delta_y;
 	COUNT TravelAngle;
+	COUNT thrust_increment;
 	VELOCITY_DESC *VelocityPtr;
-
-	max_speed = pSolarSysState->max_ship_speed;
+	
 	VelocityPtr = &GLOBAL (velocity);
+
+	max_ship_speed = pSolarSysState->max_ship_speed;
 	GetCurrentVelocityComponents (VelocityPtr, &cur_delta_x, &cur_delta_y);
 	TravelAngle = GetVelocityTravelAngle (VelocityPtr);
+	thrust_increment = IP_SHIP_THRUST_INCREMENT;
+
 	if (TravelAngle == CurrentAngle
-			&& cur_delta_x == COSINE (CurrentAngle, max_speed)
-			&& cur_delta_y == SINE (CurrentAngle, max_speed))
+			&& cur_delta_x == COSINE (CurrentAngle, max_ship_speed)
+			&& cur_delta_y == SINE (CurrentAngle, max_ship_speed))
+	{	// already maxed-out acceleration
 		return (SHIP_AT_MAX_SPEED);
+	}
 	else
 	{
 		SIZE delta_x, delta_y;
-		DWORD desired_speed;
+		DWORD desired_speed, max_speed;
+		DWORD current_speed;
 
-		delta_x = cur_delta_x
-				+ COSINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
-		delta_y = cur_delta_y
-				+ SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
+		GetCurrentVelocityComponents (VelocityPtr, &cur_delta_x, &cur_delta_y);
+		current_speed = VelocitySquared (cur_delta_x, cur_delta_y);
+		delta_x = cur_delta_x + COSINE (CurrentAngle, thrust_increment);
+		delta_y = cur_delta_y + SINE (CurrentAngle, thrust_increment);
 		desired_speed = VelocitySquared (delta_x, delta_y);
+		max_speed = pow (max_ship_speed, 2);
 
 		// Serosis - This stops the flagship from drifting to the right
 		// or bottom of the screen continuously when nudged in those
 		// directions then straightened back out with full thrust applied.
-		if (!(CurrentAngle % 16)) 
+		if (!(CurrentAngle % QUADRANT)) 
 		{	
-			if (CurrentAngle <= 16 && (TravelAngle == CurrentAngle + 1))
+			if (CurrentAngle <= QUADRANT && (TravelAngle == CurrentAngle + 1))
 				--TravelAngle;
-			else if (CurrentAngle > 16 && (TravelAngle == CurrentAngle - 1))
+			else if (CurrentAngle > QUADRANT && (TravelAngle == CurrentAngle - 1))
 				++TravelAngle;
 		}
 
-		if (desired_speed <= pow (max_speed, 2))
+		if (desired_speed <= max_speed)
+		{	// normal acceleration
 			SetVelocityComponents (VelocityPtr, delta_x, delta_y);
+		}
 		else if (TravelAngle == CurrentAngle)
-		{
-			SetVelocityComponents (VelocityPtr,
-					COSINE (CurrentAngle, max_speed),
-					SINE (CurrentAngle, max_speed));
+		{	// normal max acceleration, same vector
+			if (current_speed <= max_speed)
+				SetVelocityComponents (VelocityPtr,
+						COSINE (CurrentAngle, max_ship_speed),
+						SINE (CurrentAngle, max_ship_speed));
 			return (SHIP_AT_MAX_SPEED);
 		}
 		else
-		{
-			VELOCITY_DESC v;
+		{	// maxed-out acceleration at an angle to current travel vector
+			// thrusting at an angle while at max velocity only changes
+			// the travel vector, but does not really change the velocity
 
-			v = *VelocityPtr;
+			VELOCITY_DESC v = *VelocityPtr;
 
 			DeltaVelocityComponents (&v,
-					COSINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT >> 1)
-					- COSINE (TravelAngle, IP_SHIP_THRUST_INCREMENT),
-					SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT >> 1)
-					- SINE (TravelAngle, IP_SHIP_THRUST_INCREMENT));
+					COSINE (CurrentAngle, thrust_increment >> 1)
+					- COSINE (TravelAngle, thrust_increment),
+					SINE (CurrentAngle, thrust_increment >> 1)
+					- SINE (TravelAngle, thrust_increment));
+
 			GetCurrentVelocityComponents (&v, &cur_delta_x, &cur_delta_y);
+
 			desired_speed = VelocitySquared (cur_delta_x, cur_delta_y);
-			if (desired_speed > pow (max_speed, 2))
+
+			if (desired_speed > max_speed)
 			{
-				SetVelocityComponents (VelocityPtr,
-						COSINE (CurrentAngle, max_speed),
-						SINE (CurrentAngle, max_speed));
-				return (SHIP_AT_MAX_SPEED);
+				if (desired_speed < current_speed)
+					*VelocityPtr = v;
+				return (SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
 			}
 
 			*VelocityPtr = v;

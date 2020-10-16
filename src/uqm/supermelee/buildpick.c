@@ -148,6 +148,7 @@ DoPickShip (MELEE_STATE *pMS)
 	{
 		// Show ship spin video.
 		DoShipSpin (pMS->currentShip, pMS->hMusic);
+
 		return TRUE;
 	}
 
