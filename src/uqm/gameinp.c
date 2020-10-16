@@ -422,6 +422,13 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 {
 	BATTLE_INPUT_STATE InputState = 0;
 
+#if defined(ANDROID) || defined(__ANDROID__)	
+	else
+	InputState |= GetDirectionalJoystickInput(direction, player);
+#else
+	(void)player; /* satisfy compiler (unused parameter) */
+#endif
+
 	if (direction < 0)
 	{
 		if (keyState[KEY_UP])
@@ -430,11 +437,7 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 			InputState |= BATTLE_LEFT;
 		if (keyState[KEY_RIGHT])
 			InputState |= BATTLE_RIGHT;
-	} 
-#if defined(ANDROID) || defined(__ANDROID__)	
-	else
-		InputState |= GetDirectionalJoystickInput (direction, player);
-#endif
+	}
 	if (keyState[KEY_WEAPON])
 	{
 		if (antiCheatAlt ())
@@ -451,6 +454,8 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 		InputState |= BATTLE_ESCAPE;
 	if (keyState[KEY_DOWN])
 		InputState |= BATTLE_DOWN;
+	if (keyState[KEY_THRUST])
+		InputState |= BATTLE_THRUST_ALT;
 
 	return InputState;
 }
@@ -554,7 +559,7 @@ GetDirectionalJoystickInput(int direction, int player)
 	int axisX, axisY;
 
 	if (CurrentInputState.key[PlayerControls[player]][KEY_THRUST])
-		InputState |= BATTLE_THRUST;
+		InputState |= BATTLE_THRUST_ALT;
 
 	if (VControl_GetJoysticksAmount() <= 0)
 	{

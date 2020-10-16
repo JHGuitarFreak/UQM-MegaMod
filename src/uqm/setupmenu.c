@@ -81,7 +81,7 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         5
 #define TEXTENTRY_COUNT     2
-#define CONTROLENTRY_COUNT  7
+#define CONTROLENTRY_COUNT  8
 
 /* The space for our widgets */
 static WIDGET_MENU_SCREEN menus[MENU_COUNT];
@@ -243,6 +243,7 @@ static WIDGET *visual_widgets[] = {
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
+	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&choices[20]),
 	(WIDGET *)(&labels[2]),
 	(WIDGET *)(&textentries[0]),
@@ -253,6 +254,7 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&controlentries[4]),
 	(WIDGET *)(&controlentries[5]),
 	(WIDGET *)(&controlentries[6]),
+	(WIDGET *)(&controlentries[7]),
 	(WIDGET *)(&buttons[9]),
 	NULL };
 

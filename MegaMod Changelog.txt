@@ -92,6 +92,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: New shielded planet graphics to match the classic look
 - HD: New flagship captain graphics that match the classic look
 - HD: Padded out the comm subtitles and PC slide text from the top of the screen where applicable
+- Make the "Thrust" control available on all platforms
 
 ### Fixed
 - Maybe fixed roaming flagship in Hyperspace when it gets to destination

@@ -1591,14 +1591,15 @@ LanderFire (SIZE facing)
 			/* shot images immediately follow the lander images */
 			facing + ANGLE_TO_FACING (FULL_CIRCLE));
 
-	if (!CurrentInputState.key[PlayerControls[0]][KEY_UP])
+	if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
 	{
-		wdx = 0;
-		wdy = 0;
+		GetCurrentVelocityComponents (&GLOBAL (velocity), &wdx, &wdy);
 	}
 	else
 	{
-		GetCurrentVelocityComponents (&GLOBAL (velocity), &wdx, &wdy);
+		wdx = 0;
+		wdy = 0;
 	}
 
 	angle = FACING_TO_ANGLE (facing);
@@ -1767,16 +1768,16 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
 #if defined(ANDROID) || defined(__ANDROID__)
-			if (!(InputState & BATTLE_THRUST))
+			if ((InputState & BATTLE_THRUST))
 #else
-			if (!CurrentInputState.key[PlayerControls[0]][KEY_UP])
+			if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+					|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
 #endif
 			{
-				dx = 0;
-				dy = 0;
+				GetNextVelocityComponents(&GLOBAL(velocity), &dx, &dy, 1);
 			}
 			else
-				GetNextVelocityComponents (&GLOBAL (velocity), &dx, &dy, 1);
+				dx = dy = 0;
 
 			if (weapon_wait)
 				--weapon_wait;

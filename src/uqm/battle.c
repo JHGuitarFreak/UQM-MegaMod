@@ -212,6 +212,8 @@ ProcessInput (void)
 						StarShipPtr->ship_input_state |= RIGHT;
 					if (InputState & BATTLE_THRUST)
 						StarShipPtr->ship_input_state |= THRUST;
+					if (InputState & BATTLE_THRUST_ALT)
+						StarShipPtr->ship_input_state |= THRUST;
 					if (InputState & BATTLE_WEAPON)
 						StarShipPtr->ship_input_state |= WEAPON;
 					if (InputState & BATTLE_SPECIAL)
