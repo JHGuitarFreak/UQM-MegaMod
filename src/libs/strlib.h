@@ -72,6 +72,14 @@ extern STRING GetStringByName (STRING_TABLE StringTable, const char *index);
 #define STR_MIDDLE_DOT      "\xC2\xB7"
 #define UNICHAR_BULLET        0x2022
 #define STR_BULLET          "\xE2\x80\xA2"
+#define UNICHAR_CROSS         0x2573
+#define STR_CROSS           "\xE2\x95\xB3"
+#define UNICHAR_SQUARE        0x25A1
+#define STR_SQUARE          "\xE2\x96\xA1"
+#define UNICHAR_TRIANGLE      0x25B3
+#define STR_TRIANGLE        "\xE2\x96\xB3"
+#define UNICHAR_CIRCLE        0x25EF
+#define STR_CIRCLE          "\xE2\x97\xAf"
 
 #if defined(__cplusplus)
 }

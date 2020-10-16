@@ -104,6 +104,7 @@ BOOLEAN optGameOver;
 BOOLEAN optShipDirectionIP;
 BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
+BYTE optControllerType;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
