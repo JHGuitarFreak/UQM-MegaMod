@@ -589,13 +589,17 @@ InterrogateInputState (int templat, int control, int index, char *buffer, int ma
 		buffer[maxlen-1] = 0;
 		break;
 	case VCONTROL_JOYBUTTON:
-		// snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port, g->gesture.button.index + 1);
-		snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port, (optControllerType ? ds4_buttons : xbx_buttons)[g->gesture.button.index]);
+		if (!optControllerType)
+			snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port, g->gesture.button.index + 1);
+		else
+			snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port, (optControllerType ? ds4_buttons : xbx_buttons)[g->gesture.button.index]);
 		buffer[maxlen-1] = 0;
 		break;
 	case VCONTROL_JOYAXIS:
-		// snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port, g->gesture.axis.index, g->gesture.axis.polarity > 0 ? '+' : '-');
-		snprintf (buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port, (optControllerType ? ds4_axes : xbx_axes)[g->gesture.axis.index], g->gesture.axis.polarity > 0 ? '+' : '-');
+		if (!optControllerType)
+			snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port, g->gesture.axis.index, g->gesture.axis.polarity > 0 ? '+' : '-');
+		else
+			snprintf (buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port, (optControllerType ? ds4_axes : xbx_axes)[g->gesture.axis.index], g->gesture.axis.polarity > 0 ? '+' : '-');
 		break;
 	case VCONTROL_JOYHAT:
 		snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port, g->gesture.hat.index, g->gesture.hat.dir);
