@@ -188,6 +188,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, shipDirectionIP);
 	DECL_CONFIG_OPTION(bool, hazardColors);
 	DECL_CONFIG_OPTION(bool, orzCompFont);
+	DECL_CONFIG_OPTION(int,  optControllerType);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -379,8 +380,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(	 gameOver,			false),
 		INIT_CONFIG_OPTION(	 shipDirectionIP,	false),
 		INIT_CONFIG_OPTION(	 hazardColors,		false),
-		INIT_CONFIG_OPTION(	 orzCompFont,		false),
-
+		INIT_CONFIG_OPTION(	 orzCompFont,		false),		
+		INIT_CONFIG_OPTION(	 optControllerType,	0),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -593,6 +594,7 @@ main (int argc, char *argv[])
 	optShipDirectionIP = options.shipDirectionIP.value;
 	optHazardColors = options.hazardColors.value;
 	optOrzCompFont = options.orzCompFont.value;
+	optControllerType = options.optControllerType.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -957,6 +959,9 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->shipDirectionIP, "mm.shipDirectionIP");
 	getBoolConfigValue (&options->hazardColors, "mm.hazardColors");
 	getBoolConfigValue (&options->orzCompFont, "mm.orzCompFont");
+	if (res_IsInteger ("mm.controllerType") && !options->optControllerType.set) {
+		options->optControllerType.value = res_GetInteger ("mm.controllerType");
+	}
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1031,6 +1036,7 @@ enum
 	SHIPDIRIP_OPT,
 	HAZCOLORS_OPT,
 	ORZFONT_OPT,
+	CONTYPE_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1117,6 +1123,7 @@ static struct option longOptions[] =
 	{"shipdirectionip", 0, NULL, SHIPDIRIP_OPT},
 	{"hazardcolors", 0, NULL, HAZCOLORS_OPT},
 	{"orzcompfont", 0, NULL, ORZFONT_OPT},
+	{"controllertype", 0, NULL, CONTYPE_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1526,6 +1533,20 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				else {
 					options->optDifficulty.value = temp;
 					options->optDifficulty.set = true;
+				}
+				break;
+			}
+			case CONTYPE_OPT:{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Date Format") == -1) {
+					badArg = true;
+					break;
+				} else if (temp < 0 || temp > 2) {					
+					saveError ("\nDate Format has to be 0, 1, or 2.\n");
+					badArg = true;
+				} else {
+					options->optControllerType.value = temp;
+					options->optControllerType.set = true;
 				}
 				break;
 			}

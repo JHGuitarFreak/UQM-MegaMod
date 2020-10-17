@@ -96,6 +96,12 @@ typedef enum {
 } OPT_DIFFICULTY;
 
 typedef enum {
+	OPTVAL_KBM,
+	OPTVAL_XBX,
+	OPTVAL_PS4
+} OPT_CONTROLLER;
+
+typedef enum {
 	OPTVAL_STEP,
 	OPTVAL_NEAREST,
 	OPTVAL_BILINEAR,
@@ -116,6 +122,7 @@ typedef struct globalopts_struct {
 	OPT_DATETYPE dateType;
 	OPT_DIFFICULTY difficulty;
 	OPT_MELEEZOOM meleezoom;
+	OPT_CONTROLLER controllerType;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix, speech, keepaspect,
 				cheatMode, mainMenuMusic, nebulae, orbitingPlanets, texturedPlanets, godMode,
 				bubbleWarp, unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro, infiniteFuel,
