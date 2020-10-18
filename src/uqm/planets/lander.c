@@ -470,7 +470,7 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 	}
 
-	s.origin.x = RES_STAT_SCALE(11) + (RES_STAT_SCALE(6) * (crew_delta % NUM_CREW_COLS));
+	s.origin.x = RES_STAT_SCALE(10) + (RES_STAT_SCALE(6) * (crew_delta % NUM_CREW_COLS));
 	s.origin.y = RES_STAT_SCALE(35) - (RES_STAT_SCALE(6) * (crew_delta / NUM_CREW_COLS));
 
 	OldContext = SetContext (RadarContext);
