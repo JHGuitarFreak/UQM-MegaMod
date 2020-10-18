@@ -1937,12 +1937,14 @@ StarMap (void)
 	}
 	
 	if(optSubmenu){
-		if(optCustomBorder){
+		if(optCustomBorder)
+		{
 			if(optWhichMenu != OPT_PC)
-				DrawBorder(20, FALSE);
-			DrawBorder(18, FALSE);
-		} else
-			DrawSubmenu (4);
+				DrawBorder(22, FALSE);
+			DrawBorder(18 + optControllerType, FALSE);
+		} 
+		else
+			DrawSubmenu (4 + optControllerType);
 	}
 
 	DrawStarMap (0, (RECT*)-1);

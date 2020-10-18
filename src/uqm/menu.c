@@ -96,7 +96,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	r->extent.height = num_items * PC_MENU_HEIGHT + RES_DBL(4);
 	if (!optCustomBorder)
 		DrawPCMenuFrame (r);	
-	DrawBorder (19, FALSE);
+	DrawBorder (21, FALSE);
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
 	t.baseline.x = r->corner.x + RES_STAT_SCALE(2);

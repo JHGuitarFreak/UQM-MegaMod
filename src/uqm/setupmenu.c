@@ -2155,7 +2155,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			optControllerType = 0;
 			break;
 	}
-	res_PutInteger ("mm.controllertype", opts->controllerType);
+	res_PutInteger ("mm.controllerType", opts->controllerType);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
