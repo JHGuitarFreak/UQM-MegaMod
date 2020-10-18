@@ -636,9 +636,6 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 		IPSHIPElementPtr->state_flags =
 				CHANGING | FINITE_LIFE | IGNORE_VELOCITY;
 
-		if (optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
-			GroupPtr->melee_icon = CaptureDrawable (LoadGraphic (SLYLANDRO_SML_MASK_PMAP_ANIM));
-
 		SetPrimType (&DisplayArray[IPSHIPElementPtr->PrimIndex], STAMP_PRIM);
 		// XXX: Hack: farray points to FRAME[3] and given FRAME
 		IPSHIPElementPtr->current.image.farray = &GroupPtr->melee_icon;
@@ -650,6 +647,12 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 			 * same result without the side
 			 * effect (InitIntersectFrame)
 			 */
+		if (optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
+		{
+			GroupPtr->melee_icon = CaptureDrawable (LoadGraphic(SLYLANDRO_SML_MASK_PMAP_ANIM));
+			IPSHIPElementPtr->current.image.frame = SetAbsFrameIndex (
+				GroupPtr->melee_icon, (TFB_Random () % (15 - 1) + 1)); // randomize initial sprite            
+		}
 		IPSHIPElementPtr->death_func = ip_group_preprocess;
 		IPSHIPElementPtr->collision_func = ip_group_collision;
 
