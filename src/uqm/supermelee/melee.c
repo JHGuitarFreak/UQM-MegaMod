@@ -99,7 +99,7 @@ enum
 // Start of JMS_GFX
 // Top Melee Menu
 #define MELEE_X_OFFS RES_SCALE(2) // JMS_GFX
-#define MELEE_Y_OFFS (RES_SCALE(21) + IF_HD(4)) // Serosis
+#define MELEE_Y_OFFS (RES_SCALE(22) + IF_HD(3)) // Serosis
 #define MELEE_BOX_WIDTH RES_SCALE(34) // JMS_GFX
 #define MELEE_BOX_HEIGHT RES_SCALE(34) // JMS_GFX
 #define MELEE_BOX_SPACE RES_SCALE(1) // JMS_GFX
@@ -333,7 +333,7 @@ DrawControls (COUNT which_side, BOOLEAN HiLite)
 
 	if (PlayerControl[which_side] & NETWORK_CONTROL)
 	{
-		DrawMeleeIcon (31 + (HiLite ? 1 : 0) + 2 * (1 - which_side));
+		DrawMeleeIcon (35 + (HiLite ? 1 : 0) + 2 * (1 - which_side));
 				/* "Network Control" */
 		return;
 	}
@@ -413,8 +413,8 @@ RepairMeleeFrame (const RECT *pRect)
 
 	DrawMeleeIcon (0);   /* Entire melee screen */
 #ifdef NETPLAY
-	DrawMeleeIcon (35);  /* "Net..." (top, not highlighted) */
-	DrawMeleeIcon (37);  /* "Net..." (bottom, not highlighted) */
+	DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
+	DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
 #endif
 	DrawMeleeIcon (26);  /* "Battle!" (highlighted) */
 
@@ -734,14 +734,14 @@ Deselect (BYTE opt)
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-			DrawMeleeIcon (35);  /* "Net..." (top, not highlighted) */
+			DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
 			break;
 		case NET_BOT:
-			DrawMeleeIcon (37);  /* "Net..." (bottom, not highlighted) */
+			DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
 			break;
 #endif
 		case QUIT_BOT:
-			DrawMeleeIcon (29);  /* "Quit" (not highlighted) */
+			DrawMeleeIcon (33);  /* "Quit" (not highlighted) */
 			break;
 		case CONTROLS_TOP:
 		case CONTROLS_BOT:
@@ -796,14 +796,14 @@ Select (BYTE opt)
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-			DrawMeleeIcon (36);  /* "Net..." (top; highlighted) */
+			DrawMeleeIcon (40);  /* "Net..." (top; highlighted) */
 			break;
 		case NET_BOT:
-			DrawMeleeIcon (38);  /* "Net..." (bottom; highlighted) */
+			DrawMeleeIcon (42);  /* "Net..." (bottom; highlighted) */
 			break;
 #endif
 		case QUIT_BOT:
-			DrawMeleeIcon (30);  /* "Quit" (highlighted) */
+			DrawMeleeIcon (34);  /* "Quit" (highlighted) */
 			break;
 		case CONTROLS_TOP:
 		case CONTROLS_BOT:

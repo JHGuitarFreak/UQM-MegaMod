@@ -37,7 +37,7 @@ BuildBuildPickFrame (void)
 	// create team building ship selection box
 	s.origin.x = 0;
 	s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (MeleeFrame, 27);
+	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);
 			// 5x5 grid of ships to pick from
 	GetFrameRect (s.frame, &r);
 
