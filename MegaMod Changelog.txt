@@ -61,6 +61,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Allies will not chase you if you get close to their ships
 - Long save names from HD get truncated to fit in Classic graphics
 - HARDMODE: Allow VUX to warp in close in Melee for the main game
+- Play ship ditty when viewing ship info when 3DO video are disabled
 
 ### Changed
 - Tightened up Android control isolation across the board

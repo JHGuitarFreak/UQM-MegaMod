@@ -30,6 +30,35 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
 
+const RESOURCE ditties[25] =
+{
+	"ship.androsynth.ditty",
+	"ship.arilou.ditty",
+	"ship.chenjesu.ditty",
+	"ship.chmmr.ditty",
+	"ship.druuge.ditty",
+	"ship.earthling.ditty",
+	"ship.ilwrath.ditty",
+	"ship.kohrah.ditty",
+	"ship.melnorme.ditty",
+	"ship.mmrnmhrm.ditty",
+	"ship.mycon.ditty",
+	"ship.orz.ditty",
+	"ship.pkunk.ditty",
+	"ship.shofixti.ditty",
+	"ship.slylandro.ditty",
+	"ship.spathi.ditty",
+	"ship.supox.ditty",
+	"ship.syreen.ditty",
+	"ship.thraddash.ditty",
+	"ship.umgah.ditty",
+	"ship.urquan.ditty",
+	"ship.utwig.ditty",
+	"ship.vux.ditty",
+	"ship.yehat.ditty",
+	"ship.zoqfotpik.ditty"
+};
+
 void
 DoShipSpin (COUNT index, MUSIC_REF hMusic)
 {
@@ -43,13 +72,17 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	FlushColorXForms ();
 #endif
 	
-	if (hMusic)
+	if (hMusic && optMainMenuMusic)
 		StopMusic ();
 
 	FreeHyperData ();
 
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
+
+	if (optWhichIntro == OPT_PC)
+		PlayMusic(LoadMusic(ditties[index]), FALSE, 1);
+
 	ShowPresentation (vnbuf);
 
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
@@ -60,7 +93,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	DrawFromExtraScreen (NULL, FALSE);
 	SetContextClipRect (&old_r);
 
-	if (hMusic)
+	if (hMusic && optMainMenuMusic)
 		PlayMusic (hMusic, TRUE, 1);
 		
 	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
