@@ -202,6 +202,7 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
+	(WIDGET *)(&choices[59]),	// Control Display
 	(WIDGET *)(&choices[18]),	// Bottom Player
 	(WIDGET *)(&choices[19]),	// Top Player
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -224,7 +225,6 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[40]),	// Partial Pickup switch
 	(WIDGET *)(&choices[56]),	// Game Over switch
 	(WIDGET *)(&choices[41]),	// Submenu switch
-	(WIDGET *)(&choices[59]),	// Controller Type
 	(WIDGET *)(&buttons[1]),	
 	NULL };
 
