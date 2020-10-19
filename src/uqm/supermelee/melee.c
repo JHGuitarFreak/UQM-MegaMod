@@ -283,7 +283,7 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 				SHIPBOX_BOTTOMRIGHT_COLOR_HILITE,
 				NoShip, SHIPBOX_INTERIOR_COLOR_HILITE);
 		else
-			DrawTeamBox (NoShip ? 41 : 42, s);
+			DrawTeamBox (NoShip ? 45 : 46, s);
 	} else {
 		if (!IS_HD)
 			DrawStarConBox (&r, 1,
@@ -291,7 +291,7 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 					SHIPBOX_BOTTOMRIGHT_COLOR_NORMAL,
 					NoShip, SHIPBOX_INTERIOR_COLOR_NORMAL);
 		else
-			DrawTeamBox (NoShip ? 39 : 40, s);
+			DrawTeamBox (NoShip ? 43 : 44, s);
 	}
 
 	if (NoShip)

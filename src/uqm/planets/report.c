@@ -84,9 +84,9 @@ ClearReportArea (void)
 
 	if (IS_HD) {
 		if (optWhichFonts == OPT_PC)
-			DrawBorder (25, FALSE);
+			DrawBorder (27, FALSE);
 		else
-			DrawBorder (26, FALSE);
+			DrawBorder (28, FALSE);
 		DrawBorder (10, FALSE);
 	}
 
