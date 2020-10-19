@@ -29,6 +29,7 @@
 #include "libs/vidlib.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
+#include "libs/sound/sound.h"
 
 const RESOURCE ditties[25] =
 {
@@ -75,13 +76,16 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	if (hMusic && optMainMenuMusic)
 		StopMusic ();
 
+	if (!optMainMenuMusic && musicVolume == 0)
+		FadeMusic (NORMAL_VOLUME, 0);
+
 	FreeHyperData ();
 
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
 
 	if (optWhichIntro == OPT_PC)
-		PlayMusic(LoadMusic(ditties[index]), FALSE, 1);
+		PlayMusic (LoadMusic (ditties[index]), FALSE, 1);
 
 	ShowPresentation (vnbuf);
 
@@ -95,6 +99,8 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	if (hMusic && optMainMenuMusic)
 		PlayMusic (hMusic, TRUE, 1);
+	else
+		FadeMusic(0, 0);
 		
 	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
 	FlushColorXForms ();
