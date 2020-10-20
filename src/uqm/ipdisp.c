@@ -719,6 +719,9 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 
 		GetCurrentVelocityComponents (&GLOBAL (velocity), &vdx, &vdy);
 
+		vdx >>= 1;
+		vdy >>= 1;
+
 		flagship_loc = getFlagshipLocation ();
 		radius = zoomRadiusForLocation (flagship_loc);
 		adjustDeltaVforZoom (radius, &vdx, &vdy);
