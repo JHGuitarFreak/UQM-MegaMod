@@ -62,6 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Long save names from HD get truncated to fit in Classic graphics
 - HARDMODE: Allow VUX to warp in close in Melee for the main game
 - Play ship ditty when viewing ship info when 3DO video are disabled
+- New option to change the on-screen controls to Keyboard, Xbox, or PlayStation 4 controls
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -94,6 +95,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: New flagship captain graphics that match the classic look
 - HD: Padded out the comm subtitles and PC slide text from the top of the screen where applicable
 - Make the "Thrust" control available on all platforms
+- Added Androsynth, Chenjesu, and Mmrnmhrm ships to the shipyard when using the Unlock Ships cheat
+- More controller support so the player doesn't have to touch the keyboard if they don't want to
 
 ### Fixed
 - Maybe fixed roaming flagship in Hyperspace when it gets to destination
