@@ -1941,6 +1941,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if(oldResFactor != resolutionFactor ||
 		audioDriver != opts->adriver ||
 		audioQuality != opts->aquality ||
+		opts->controllerType != optControllerType ||
 		(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
  		optRequiresRestart = TRUE;
 

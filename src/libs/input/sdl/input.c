@@ -109,7 +109,14 @@ register_menu_controls (int index)
 	while (TRUE)
 	{
 		VCONTROL_GESTURE g;
-		snprintf (buf, 39, "menu.%s.%d", menu_res_names[index], i);
+
+		if (optControllerType == 0)
+			snprintf (buf, 39, "menu.%s.%d", menu_res_names[index], i);
+		if (optControllerType == 1)
+			snprintf (buf, 39, "xbx.%s.%d", menu_res_names[index], i);
+		if (optControllerType == 2)
+			snprintf (buf, 39, "ds4.%s.%d", menu_res_names[index], i);
+
 		if (!res_IsString (buf))
 			break;
 		VControl_ParseGesture (&g, res_GetString (buf));
@@ -177,7 +184,13 @@ initKeyConfig (void)
 			* MAX_FLIGHT_ALTERNATES);
 
 	/* First, load in the menu keys */
-	LoadResourceIndex (contentDir, "menu.key", "menu.");
+	if (optControllerType == 0)
+		LoadResourceIndex(contentDir, "menu.key", "menu.");
+	if (optControllerType == 1)
+		LoadResourceIndex(contentDir, "xbx.key", "xbx.");
+	if (optControllerType == 2)
+		LoadResourceIndex(contentDir, "ds4.key", "ds4.");
+
 	LoadResourceIndex (configDir, "override.cfg", "menu.");
 	for (i = 0; i < num_menu; i++)
 	{
@@ -535,11 +548,11 @@ InterrogateInputState (int templat, int control, int index, char *buffer, int ma
 		"LSB",
 		"RSB",
 		"Guide",
+		"B11",
 		"B12",
 		"B13",
 		"B14",
-		"B15",
-		"B16"
+		"B15"
 	};
 	const char ds4_buttons[16][11] =
 	{
