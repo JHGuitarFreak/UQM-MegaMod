@@ -110,12 +110,10 @@ register_menu_controls (int index)
 	{
 		VCONTROL_GESTURE g;
 
-		if (optControllerType == 0)
-			snprintf (buf, 39, "menu.%s.%d", menu_res_names[index], i);
-		if (optControllerType == 1)
-			snprintf (buf, 39, "xbx.%s.%d", menu_res_names[index], i);
 		if (optControllerType == 2)
 			snprintf (buf, 39, "ds4.%s.%d", menu_res_names[index], i);
+		else
+			snprintf (buf, 39, "menu.%s.%d", menu_res_names[index], i);
 
 		if (!res_IsString (buf))
 			break;
@@ -184,12 +182,10 @@ initKeyConfig (void)
 			* MAX_FLIGHT_ALTERNATES);
 
 	/* First, load in the menu keys */
-	if (optControllerType == 0)
-		LoadResourceIndex(contentDir, "menu.key", "menu.");
-	if (optControllerType == 1)
-		LoadResourceIndex(contentDir, "xbx.key", "xbx.");
 	if (optControllerType == 2)
-		LoadResourceIndex(contentDir, "ds4.key", "ds4.");
+		LoadResourceIndex (contentDir, "ds4.key", "ds4.");
+	else
+		LoadResourceIndex (contentDir, "menu.key", "menu.");
 
 	LoadResourceIndex (configDir, "override.cfg", "menu.");
 	for (i = 0; i < num_menu; i++)
