@@ -50,12 +50,7 @@ typedef struct {
 		struct { int port, index; } button;
 		struct { int port, index; Uint8 dir; } hat;
 	} gesture;
-} VCONTROL_GESTURE;
-
-static SDL_Joystick* stick = NULL;
-#if SDL_MAJOR_VERSION == 2
-static SDL_GameController* sdl2_stick = NULL;
-#endif
+} VCONTROL_GESTURE;			
 
 /* Control of bindings */
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);

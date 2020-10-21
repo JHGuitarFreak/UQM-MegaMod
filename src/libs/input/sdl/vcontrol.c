@@ -125,6 +125,7 @@ free_key_pool (keypool *x)
 static void
 create_joystick (int index)
 {
+	SDL_Joystick *stick;
 	int axes, buttons, hats;
 	if ((unsigned int) index >= joycount)
 	{
@@ -136,61 +137,44 @@ create_joystick (int index)
 		// Joystick is already created.  Return.
 		return;
 	}
-
 	stick = SDL_JoystickOpen (index);
-#if SDL_MAJOR_VERSION == 2
-	// sdl2_stick = SDL_GameControllerOpen(index);
-#endif
-
 	if (stick)
 	{
 		joystick *x = &joysticks[index];
 		int j;
 #if SDL_MAJOR_VERSION == 1
-		const char* joystickname = SDL_JoystickName(index);
+		log_add (log_Info, "VControl opened joystick: %s", SDL_JoystickName (index));
 #else
-		const char* joystickname = SDL_JoystickName(stick);
+		log_add (log_Info, "VControl opened joystick: %s", SDL_JoystickName (stick));
 #endif
-		log_add (log_Info, "Joystick %i opened (SDL_Joystick %i is \"%s\" with %i axes, %i buttons, %i hats)\n", index, index, joystickname, (int)SDL_JoystickNumAxes(stick), (int)SDL_JoystickNumButtons(stick), (int)SDL_JoystickNumHats(stick));
-		//printf ("Joystick %i opened (SDL_Joystick %i is \"%s\" with %i axes, %i buttons, %i hats)\n", index, index, joystickname, (int)SDL_JoystickNumAxes(stick), (int)SDL_JoystickNumButtons(stick), (int)SDL_JoystickNumHats(stick));
-
-#if SDL_MAJOR_VERSION == 2
-		if (sdl2_stick)
-		{ 
-		
-		}
-		else
-#endif
+		axes = SDL_JoystickNumAxes (stick);
+		buttons = SDL_JoystickNumButtons (stick);
+		hats = SDL_JoystickNumHats (stick);
+		log_add (log_Info, "%d axes, %d buttons, %d hats.", axes, buttons, hats);
+		x->numaxes = axes;
+		x->numbuttons = buttons;
+		x->numhats = hats;
+		x->axes = HMalloc (sizeof (axis_type) * axes);
+		x->buttons = HMalloc (sizeof (keybinding *) * buttons);
+		x->hats = HMalloc (sizeof (hat_type) * hats);
+		for (j = 0; j < axes; j++)
 		{
-			axes = SDL_JoystickNumAxes (stick);
-			buttons = SDL_JoystickNumButtons (stick);
-			hats = SDL_JoystickNumHats (stick);
-			//log_add (log_Info, "%d axes, %d buttons, %d hats.", axes, buttons, hats);
-			x->numaxes = axes;
-			x->numbuttons = buttons;
-			x->numhats = hats;
-			x->axes = HMalloc (sizeof (axis_type) * axes);
-			x->buttons = HMalloc (sizeof (keybinding *) * buttons);
-			x->hats = HMalloc (sizeof (hat_type) * hats);
-			for (j = 0; j < axes; j++)
-			{
-				x->axes[j].neg = x->axes[j].pos = NULL;
+			x->axes[j].neg = x->axes[j].pos = NULL;
 #if defined(ANDROID) || defined(__ANDROID__)
-				x->axes[j].polarity = x->axes[j].value = 0;
+			x->axes[j].polarity = x->axes[j].value = 0;
 #endif
-			}
-			for (j = 0; j < hats; j++)
-			{
-				x->hats[j].left = x->hats[j].right = NULL;
-				x->hats[j].up = x->hats[j].down = NULL;
-				x->hats[j].last = SDL_HAT_CENTERED;
-			}
-			for (j = 0; j < buttons; j++)
-			{
-				x->buttons[j] = NULL;
-			}
-			x->stick = stick;
 		}
+		for (j = 0; j < hats; j++)
+		{
+			x->hats[j].left = x->hats[j].right = NULL;
+			x->hats[j].up = x->hats[j].down = NULL;
+			x->hats[j].last = SDL_HAT_CENTERED;
+		}
+		for (j = 0; j < buttons; j++)
+		{
+			x->buttons[j] = NULL;
+		}
+		x->stick = stick;
 	}
 	else
 	{
@@ -214,11 +198,6 @@ destroy_joystick (int index)
 		joysticks[index].buttons = NULL;
 		joysticks[index].hats = NULL;
 	}
-#if SDL_MAJOR_VERSION == 2
-	if (sdl2_stick)
-		SDL_GameControllerClose (sdl2_stick);
-#endif
-
 }
 
 #endif /* HAVE_JOYSTICK */
