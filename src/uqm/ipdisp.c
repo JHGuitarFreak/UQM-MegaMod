@@ -19,6 +19,7 @@
 #include "ipdisp.h"
 #include "build.h"
 #include "collide.h"
+#include "controls.h"
 #include "globdata.h"
 #include "init.h"
 #include "races.h"
@@ -30,6 +31,7 @@
 #include "nameref.h"
 #include "ships/slylandr/resinst.h"
 
+BOOLEAN legacySave;
 
 void
 NotifyOthers (COUNT which_race, BYTE target_loc)
@@ -719,8 +721,17 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 
 		GetCurrentVelocityComponents (&GLOBAL (velocity), &vdx, &vdy);
 
-		vdx >>= 1;
-		vdy >>= 1;
+		if (!legacySave)
+		{
+			vdx >>= 1;
+			vdy >>= 1;
+		}
+
+		if (legacySave && (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+				|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST]))
+			legacySave = FALSE;
+
+		printf("vdx: %d vdy: %d\n", vdx, vdy);
 
 		flagship_loc = getFlagshipLocation ();
 		radius = zoomRadiusForLocation (flagship_loc);

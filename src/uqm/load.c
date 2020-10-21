@@ -310,6 +310,7 @@ static BOOLEAN
 LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 {
 	DWORD magic;
+	legacySave = try_core;
 	read_32 (fh, &magic);
 	if (magic != GLOBAL_STATE_TAG)
 	{
