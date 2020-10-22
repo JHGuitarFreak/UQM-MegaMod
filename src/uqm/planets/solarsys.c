@@ -2411,11 +2411,12 @@ CreateStarBackGround (BOOLEAN encounter)
 
 #define NULL_BOOL(a,b) (CurStarDescPtr ? (a) : (b))
 
-	NullCoord.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
-	NullCoord.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+	NullCoord = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
 
-	if (encounter) {
-		SpaceJunkFrame = CaptureDrawable(LoadGraphic(IPBKGND_MASK_PMAP_ANIM));
+	if (encounter && !playerInSolarSystem ()) 
+	{
+		SpaceJunkFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
 		SysGenRNG = RandomContext_New();
 	}
 
@@ -2481,7 +2482,7 @@ CreateStarBackGround (BOOLEAN encounter)
 
 	SetContext (oldContext);
 
-	if (encounter)
+	if (encounter && !playerInSolarSystem ())
 	{
 		DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 		SpaceJunkFrame = 0;
