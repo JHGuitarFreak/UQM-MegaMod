@@ -151,17 +151,17 @@ void
 PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 {
 	PLANET_ORBIT *Orbit = &pPlanetDesc->orbit;
-		COUNT framerate;
-		int oldPointIndex = pPlanetDesc->rotPointIndex;
-		// Go to next point, taking care of wraparounds
+	COUNT framerate;
+	int oldPointIndex = pPlanetDesc->rotPointIndex;
+	// Go to next point, taking care of wraparounds
 
-		// No need to rotate planets that are off screen
-		if (pPlanetDesc->radius > 4 * pSolarSysState->SunDesc[0].radius)
-			return;
+	// No need to rotate planets that are off screen
+	if (pPlanetDesc->radius > 4 * pSolarSysState->SunDesc[0].radius)
+		return;
 
-		// Optimization : the smallest worlds are rotated only once in a while
-		// The framerate is fine-tuned so that the planet is updated
-		// when the landscape has moved 1 pixel approximately
+	// Optimization : the smallest worlds are rotated only once in a while
+	// The framerate is fine-tuned so that the planet is updated
+	// when the landscape has moved 1 pixel approximately
 	switch (pPlanetDesc->size)
 	{
 			case 3: framerate = 15;
@@ -179,7 +179,9 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 		return;
 
 	// BW: account for rotation period
-	pPlanetDesc->rotPointIndex = (int)(fmod(pPlanetDesc->rot_speed * daysElapsed(), pPlanetDesc->rotwidth));
+	pPlanetDesc->rotPointIndex =
+			(int)(fmod(pPlanetDesc->rot_speed * daysElapsed(), pPlanetDesc->rotwidth));
+
 	if (pPlanetDesc->rotPointIndex < 0)
 		pPlanetDesc->rotPointIndex += pPlanetDesc->rotwidth;
 
@@ -190,18 +192,15 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	// Generate the next rotation frame
 	// We alternate between the frames because we do not call FlushGraphics()
 	// The frame we just drew may not have made it to the screen yet
-		pPlanetDesc->rotFrameIndex ^= 1;
-
-	// pPlanetDesc->rotPointIndex += pPlanetDesc->rotDirection;
-	// if (pPlanetDesc->rotPointIndex < 0)
-	//	pPlanetDesc->rotPointIndex = pPlanetDesc->rotwidth - 1;
-	// else if (pPlanetDesc->rotPointIndex >= pPlanetDesc->rotwidth)
-	//	pPlanetDesc->rotPointIndex = 0;
+	pPlanetDesc->rotFrameIndex ^= 1;
 
 	// prepare the next sphere frame
-		Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, pPlanetDesc->rotFrameIndex);
-		RenderPlanetSphere (Orbit, Orbit->SphereFrame, pPlanetDesc->rotPointIndex, pPlanetDesc->data_index & PLANET_SHIELDED, FALSE, pPlanetDesc->rotwidth, pPlanetDesc->rotheight, (pPlanetDesc->rotheight >> 1) - RESOLUTION_FACTOR); // RADIUS
-		Orbit->SphereFrame->image->dirty = TRUE;
+	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, pPlanetDesc->rotFrameIndex);
+	RenderPlanetSphere (Orbit, Orbit->SphereFrame, pPlanetDesc->rotPointIndex,
+			pPlanetDesc->data_index & PLANET_SHIELDED,
+			FALSE, pPlanetDesc->rotwidth, pPlanetDesc->rotheight,
+			(pPlanetDesc->rotheight >> 1) - RESOLUTION_FACTOR); // RADIUS
+	Orbit->SphereFrame->image->dirty = TRUE;
 	// BW: slightly hacky but, in DrawTexturedBody, the call
 	// to DrawStamp won't re-blit the frame unless scale has changed.
 }

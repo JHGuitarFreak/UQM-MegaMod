@@ -1726,7 +1726,7 @@ IP_frame (void)
 			ScaleSystem (newRadius);
 		}
 	}
-	else
+	else if (!pSolarSysState->InOrbit)
 	{	// Just flying around, minding own business..
 		BatchGraphics ();
 		RestoreSystemView ();
@@ -1749,8 +1749,7 @@ IP_frame (void)
 		RedrawQueue (FALSE);
 		DrawAutoPilotMessage (FALSE);
 		UnbatchGraphics ();
-	}	
-	
+	}
 }
 
 static BOOLEAN
