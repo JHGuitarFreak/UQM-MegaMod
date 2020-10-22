@@ -726,12 +726,11 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 			vdx >>= 1;
 			vdy >>= 1;
 		}
-
-		if (legacySave && (CurrentInputState.key[PlayerControls[0]][KEY_UP]
-				|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST]))
+		else if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
+		{
 			legacySave = FALSE;
-
-		printf("vdx: %d vdy: %d\n", vdx, vdy);
+		}
 
 		flagship_loc = getFlagshipLocation ();
 		radius = zoomRadiusForLocation (flagship_loc);
