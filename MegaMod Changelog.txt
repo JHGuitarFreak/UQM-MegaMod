@@ -98,8 +98,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - More controller support so the player doesn't have to touch the keyboard if they don't want to
 
 ### Fixed
-- Maybe fixed roaming flagship in Hyperspace when it gets to destination
-- Janky fix for flagship drift in interplanetary view
+- Fixed roaming flagship in Hyperspace when it gets to destination
+- Fixed continuous flagship drift in the East/South direction while in a solar system
 - Fixed the Commander reporting the wrong mineral worth response
 - Properly declared the GameOver() function in fmv.h
 - Properly redraw the title bars when exiting from the Save/Load screen
@@ -137,6 +137,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
 - HD: Planet scan speed now matches Core speed
 - HD: Fixed captains window death animation from leaving pixels on-screen
+- Fixed blank lander report when nebulae are enabled
 - McMartin: Fix the ZFP dialog desync bug introduced post 0.7.
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD
