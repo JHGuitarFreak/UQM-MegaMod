@@ -157,19 +157,7 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 static BOOLEAN
 RestartMessage(MENU_STATE *pMS, TimeCount TimeIn)
 {	
-	if (optRequiresRestart)
-	{
-		SetFlashRect (NULL);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
-		// Got to restart -message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
-		SetTransitionSource (NULL);
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
-		GLOBAL (CurrentActivity) = CHECK_ABORT;	
-		restartGame = TRUE;
-		return TRUE;
-	} 
-	else if (!PacksInstalled ())
+	if (!PacksInstalled ())
 	{
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));

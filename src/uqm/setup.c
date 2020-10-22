@@ -109,27 +109,28 @@ UninitPlayerInput (void)
 BOOLEAN
 LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 {
-	if(!ReloadPackages){
+	if(!ReloadPackages) 
+	{
 		InitSound (argc, argv);
 		InitVideoPlayer (TRUE);
-
-		ScreenContext = CreateContext ("ScreenContext");
-		if (ScreenContext == NULL)
-			return FALSE;
-
-		Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP,
-					&screen_width, &screen_height));
-		if (Screen == NULL)
-			return FALSE;
-
-		SetContext (ScreenContext);
-		SetContextFGFrame (Screen);
-		SetContextOrigin (MAKE_POINT (0, 0));
-
-		hResIndex = (RESOURCE_INDEX) InitResourceSystem ();
-		if (hResIndex == 0)
-			return FALSE;
 	}
+
+	ScreenContext = CreateContext ("ScreenContext");
+	if (ScreenContext == NULL)
+		return FALSE;
+
+	Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP,
+				&screen_width, &screen_height));
+	if (Screen == NULL)
+		return FALSE;
+
+	SetContext (ScreenContext);
+	SetContextFGFrame (Screen);
+	SetContextOrigin (MAKE_POINT (0, 0));
+
+	hResIndex = (RESOURCE_INDEX) InitResourceSystem ();
+	if (hResIndex == 0)
+		return FALSE;
 	
 	/* Load base content. */
 	if (loadIndices (contentDir) == 0)
@@ -206,8 +207,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	/* Now load the rest of the addons, in order. */
 	prepareAddons(optAddons);
 
-	if(!ReloadPackages){
-
 		{
 			COLORMAP ColorMapTab;
 
@@ -217,6 +216,8 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 			SetColorMap (GetColorMapAddress (ColorMapTab));
 			DestroyColorMap (ReleaseColorMap (ColorMapTab));
 		}
+
+	if (!ReloadPackages) {
 
 		InitPlayerInput ();
 

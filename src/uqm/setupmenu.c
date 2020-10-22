@@ -41,6 +41,8 @@
 #include "gamestr.h"
 #include "libs/graphics/bbox.h"
 #include "libs/math/random.h"
+#include "master.h"
+#include "init.h"
 
 #include SDL_INCLUDE(SDL_version.h)
 
@@ -2203,6 +2205,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			// Tell the game the new screen's size.
 			ScreenWidth  = 320 << resolutionFactor;
 			ScreenHeight = 240 << resolutionFactor;
+
+			RESOLUTION_FACTOR = resolutionFactor;
+			resolutionFactor = RESOLUTION_FACTOR;
 			
 			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
 				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);
@@ -2315,9 +2320,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			/* Shouldn't happen; leave config untouched */
 			break;
 	}
-	
-	if(optRequiresReload && LoadKernel(0,0,TRUE))
-		printf("Packages Reloaded\n");
 
 	res_PutInteger ("config.musicvol", opts->musicvol);
 	res_PutInteger ("config.sfxvol", opts->sfxvol);
@@ -2341,4 +2343,17 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	
 	SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
+
+	if (optRequiresReload || optRequiresRestart)
+	{
+		LoadKernel(0, 0, TRUE);
+		UninitGameKernel();
+		InitGameKernel();
+		UninitGameStructures(); 
+		FreeMasterShipList();
+		LoadMasterShipList(TaskSwitch); 
+		UninitSpace();
+		InitSpace();
+		optRequiresRestart = optRequiresReload = FALSE;
+	}
 }
