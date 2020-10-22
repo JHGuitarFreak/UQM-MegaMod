@@ -6,7 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas]
 - LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
 - Separate infinite energy from God mode - Pikant
-- Add Androsynth, Chenjesu, and Mmrnmhrm ships to the shipyard - Pikant
 - HARDMODE: Up the cost of new technology - Pikant
 - HARDMODE: Make the natural Quasispace portal start appearing about year later - Pikant
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
