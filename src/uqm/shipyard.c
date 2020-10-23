@@ -1291,27 +1291,19 @@ DoModifyShips (MENU_STATE *pMS)
 		SBYTE dx = 0;
 		SBYTE dy = 0;
 
-		if (PulsedInputState.menu[KEY_MENU_RIGHT])
-			dx = 1;
-		if (PulsedInputState.menu[KEY_MENU_LEFT])
-			dx = -1;
-		if (PulsedInputState.menu[KEY_MENU_UP])
-			dy = -1;
-		if (PulsedInputState.menu[KEY_MENU_DOWN])
-			dy = 1;
-		if (PulsedInputState.menu[KEY_MENU_PAGE_UP])
-			dy = -10;
-		if (PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
-			dy = 10;
-		if (PulsedInputState.menu[KEY_MENU_HOME])
-			dy = -50;
-		if (PulsedInputState.menu[KEY_MENU_END])
-			dy = 50;
-
 
 		if (!(pMS->delta_item & MODIFY_CREW_FLAG))
 		{
 			// Navigating through the ship slots.
+			if (PulsedInputState.menu[KEY_MENU_RIGHT])
+				dx = 1;
+			if (PulsedInputState.menu[KEY_MENU_LEFT])
+				dx = -1;
+			if (PulsedInputState.menu[KEY_MENU_UP])
+				dy = -1;
+			if (PulsedInputState.menu[KEY_MENU_DOWN])
+				dy = 1;
+
 			DMS_NavigateShipSlots (pMS, special, select, cancel, dx, dy);
 		}
 		else
@@ -1323,11 +1315,33 @@ DoModifyShips (MENU_STATE *pMS)
 			{
 				// Cursor is over an empty escort ship slot, while we're
 				// in 'add escort ship' mode.
+				if (PulsedInputState.menu[KEY_MENU_RIGHT])
+					dx = 1;
+				if (PulsedInputState.menu[KEY_MENU_LEFT])
+					dx = -1;
+				if (PulsedInputState.menu[KEY_MENU_UP])
+					dy = -1;
+				if (PulsedInputState.menu[KEY_MENU_DOWN])
+					dy = 1;
+
 				DMS_AddEscortShip (pMS, special, select, cancel, dx, dy);
 			}
 			else
 			{
 				// Crew editing mode.
+				if (PulsedInputState.menu[KEY_MENU_UP])
+					dy = -1;
+				if (PulsedInputState.menu[KEY_MENU_DOWN])
+					dy = 1;
+				if (PulsedInputState.menu[KEY_MENU_RIGHT])
+					dy = -10;
+				if (PulsedInputState.menu[KEY_MENU_LEFT])
+					dy = 10;
+				if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
+					dy = -50;
+				if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
+					dy = 50;
+
 				DMS_EditCrewMode (pMS, hStarShip, select, cancel, dy);
 			}
 		}

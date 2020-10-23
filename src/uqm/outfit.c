@@ -576,20 +576,18 @@ ChangeFuelQuantity (void)
 		incr = FUEL_TANK_SCALE;  // +1 Unit
 	else if (PulsedInputState.menu[KEY_MENU_DOWN])
 		incr = -FUEL_TANK_SCALE; // -1 Unit
-	else if (PulsedInputState.menu[KEY_MENU_PAGE_UP])
+	else if (PulsedInputState.menu[KEY_MENU_RIGHT])
 		incr = (FUEL_TANK_SCALE * 10); // +1 Bar
-	else if (PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
+	else if (PulsedInputState.menu[KEY_MENU_LEFT])
 		incr = -(FUEL_TANK_SCALE * 10); // -1 Bar
-	else if (PulsedInputState.menu[KEY_MENU_HOME])
+	else if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
 		incr = maxFit; // Fill to max
-	else if (PulsedInputState.menu[KEY_MENU_END])
+	else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
 		incr = minFit; // -1 Bar
 	else
 		return;
 
-
-
-	if(PulsedInputState.menu[KEY_MENU_HOME] || PulsedInputState.menu[KEY_MENU_END])
+	if(PulsedInputState.menu[KEY_MENU_ZOOM_IN] || PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
 		PlayMenuSound(MENU_SOUND_INVOKED);
 
 	// Clamp incr to what we can afford/hold/have.
