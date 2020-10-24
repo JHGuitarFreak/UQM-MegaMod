@@ -23,7 +23,7 @@
 #include "uqm/build.h"
 
 
-static LOCDATA yehat_desc_orig =
+static LOCDATA yehat_desc =
 {
 	YEHAT_REBEL_CONVERSATION, /* AlienConv */
 	NULL, /* init_encounter_func */
@@ -168,157 +168,6 @@ static LOCDATA yehat_desc_orig =
 			ONE_SECOND / 30, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			(1 << 2) | (1 << 4),
-		},
-	},
-	{ /* AlienTransitionDesc - empty */
-		0, /* StartIndex */
-		0, /* NumFrames */
-		0, /* AnimFlags */
-		0, 0, /* FrameRate */
-		0, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	{ /* AlienTalkDesc */
-		1, /* StartIndex */
-		3, /* NumFrames */
-		0, /* AnimFlags */
-		ONE_SECOND / 15, 0, /* FrameRate */
-		ONE_SECOND / 12, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	NULL, /* AlienNumberSpeech - none */
-	/* Filler for loaded resources */
-	NULL, NULL, NULL,
-	NULL,
-	NULL,
-};
-
-static LOCDATA yehat_desc_hd =
-{
-	YEHAT_REBEL_CONVERSATION, /* AlienConv */
-	NULL, /* init_encounter_func */
-	NULL, /* post_encounter_func */
-	NULL, /* uninit_encounter_func */
-	YEHAT_PMAP_ANIM, /* AlienFrame */
-	YEHAT_FONT, /* AlienFont */
-	WHITE_COLOR_INIT, /* AlienTextFColor */
-	BLACK_COLOR_INIT, /* AlienTextBColor */
-	{0, 0}, /* AlienTextBaseline */
-	0, /* (SIS_TEXT_WIDTH - 16) * 2 / 3, */ /* AlienTextWidth */
-	ALIGN_CENTER, /* AlienTextAlign */
-	VALIGN_MIDDLE, /* AlienTextValign */
-	YEHAT_COLOR_MAP, /* AlienColorMap */
-	YEHAT_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
-	REBEL_CONVERSATION_PHRASES, /* PlayerPhrases */
-	13, /* NumAnimations */
-	{ /* AlienAmbientArray (ambient animations) */
-		{ /* right hand-wing tapping keyboard; front guy */
-			4, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM
-			| WAIT_TALKING, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 10, /* FrameRate */
-			ONE_SECOND / 4, ONE_SECOND / 2,/* RestartRate */
-			0,
-		},
-		{ /* left hand-wing tapping keyboard; front guy */
-			7, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM
-			| WAIT_TALKING, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 10, /* FrameRate */
-			ONE_SECOND / 4, ONE_SECOND / 2,/* RestartRate */
-			0,
-		},
-		{
-			10, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, 0, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 5) | (1 << 12),
-		},
-		{
-			13, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, 0, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 5),
-		},
-		{
-			16, /* StartIndex */
-			5, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND * 6, ONE_SECOND * 3,/* RestartRate */
-			0,
-		},
-		{
-			21, /* StartIndex */
-			5, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND * 6, ONE_SECOND * 3,/* RestartRate */
-			(1 << 2) | (1 << 3) | (1 << 12),
-		},
-		{
-			26, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			29, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			32, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			35, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			38, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			41, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			44, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM | WAIT_TALKING, /* AnimFlags */
-			ONE_SECOND / 30, 0, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 2) | (1 << 5),
 		},
 	},
 	{ /* AlienTransitionDesc - empty */
@@ -580,10 +429,7 @@ post_yehat_enc (void)
 LOCDATA*
 init_rebel_yehat_comm (void)
 {
-	static LOCDATA yehat_desc;
 	LOCDATA *retval;
-
-	yehat_desc = RES_BOOL(yehat_desc_orig, yehat_desc_hd);
 
 	yehat_desc.init_encounter_func = Intro;
 	yehat_desc.post_encounter_func = post_yehat_enc;
