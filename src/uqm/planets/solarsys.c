@@ -1186,59 +1186,63 @@ FindRadius (POINT shipLoc, SIZE fromRadius)
 static UWORD
 flagship_inertial_thrust (COUNT CurrentAngle)
 {
-	BYTE max_speed;
+	SIZE max_ship_speed;
 	SIZE cur_delta_x, cur_delta_y;
-	COUNT TravelAngle;
+	COUNT TravelAngle, thrust_increment;
 	VELOCITY_DESC *VelocityPtr;
 
-	max_speed = pSolarSysState->max_ship_speed;
-	VelocityPtr = &GLOBAL (velocity);
+	max_ship_speed = pSolarSysState->max_ship_speed << 1;
+	thrust_increment = IP_SHIP_THRUST_INCREMENT << 1;
+	VelocityPtr = &GLOBAL(velocity);
 	GetCurrentVelocityComponents (VelocityPtr, &cur_delta_x, &cur_delta_y);
 	TravelAngle = GetVelocityTravelAngle (VelocityPtr);
 	if (TravelAngle == CurrentAngle
-			&& cur_delta_x == COSINE (CurrentAngle, max_speed)
-			&& cur_delta_y == SINE (CurrentAngle, max_speed))
+			&& cur_delta_x == COSINE (CurrentAngle, max_ship_speed)
+			&& cur_delta_y == SINE (CurrentAngle, max_ship_speed))
+	{	// already maxed-out acceleration
 		return (SHIP_AT_MAX_SPEED);
+	}
 	else
 	{
 		SIZE delta_x, delta_y;
-		DWORD desired_speed;
+		DWORD desired_speed, max_speed;
 
-		delta_x = cur_delta_x
-				+ COSINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
-		delta_y = cur_delta_y
-				+ SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT);
-		desired_speed = (DWORD) ((long) delta_x * delta_x)
-				+ (DWORD) ((long) delta_y * delta_y);
-		if (desired_speed <= (DWORD) ((UWORD) max_speed * max_speed))
+		delta_x = cur_delta_x + COSINE (CurrentAngle, thrust_increment);
+		delta_y = cur_delta_y + SINE (CurrentAngle, thrust_increment);
+		desired_speed = VelocitySquared (delta_x, delta_y);
+		max_speed = pow (max_ship_speed, 2);
+
+		if (desired_speed <= max_speed)
+		{	// normal acceleration
 			SetVelocityComponents (VelocityPtr, delta_x, delta_y);
+		}
 		else if (TravelAngle == CurrentAngle)
-		{
+		{	// normal max acceleration, same vector
 			SetVelocityComponents (VelocityPtr,
-					COSINE (CurrentAngle, max_speed),
-					SINE (CurrentAngle, max_speed));
+					COSINE (CurrentAngle, max_ship_speed),
+					SINE (CurrentAngle, max_ship_speed));
 			return (SHIP_AT_MAX_SPEED);
 		}
 		else
-		{
-			VELOCITY_DESC v;
+		{	// maxed-out acceleration at an angle to current travel vector
+			// thrusting at an angle while at max velocity only changes
+			// the travel vector, but does not really change the velocity
 
-			v = *VelocityPtr;
+			VELOCITY_DESC v = *VelocityPtr;
 
 			DeltaVelocityComponents (&v,
-					COSINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT >> 1)
-					- COSINE (TravelAngle, IP_SHIP_THRUST_INCREMENT),
-					SINE (CurrentAngle, IP_SHIP_THRUST_INCREMENT >> 1)
-					- SINE (TravelAngle, IP_SHIP_THRUST_INCREMENT));
+					COSINE (CurrentAngle, thrust_increment >> 1)
+					- COSINE (TravelAngle, thrust_increment),
+					SINE (CurrentAngle, thrust_increment >> 1)
+					- SINE (TravelAngle, thrust_increment));
 			GetCurrentVelocityComponents (&v, &cur_delta_x, &cur_delta_y);
-			desired_speed =
-					(DWORD) ((long) cur_delta_x * cur_delta_x)
-					+ (DWORD) ((long) cur_delta_y * cur_delta_y);
-			if (desired_speed > (DWORD) ((UWORD) max_speed * max_speed))
+			desired_speed = VelocitySquared (cur_delta_x, cur_delta_y);
+
+			if (desired_speed > max_speed)
 			{
 				SetVelocityComponents (VelocityPtr,
-						COSINE (CurrentAngle, max_speed),
-						SINE (CurrentAngle, max_speed));
+						COSINE (CurrentAngle, max_ship_speed),
+						SINE (CurrentAngle, max_ship_speed));
 				return (SHIP_AT_MAX_SPEED);
 			}
 
@@ -1257,12 +1261,11 @@ ProcessShipControls (void)
 
 #if defined(ANDROID) || defined(__ANDROID__)
 	BATTLE_INPUT_STATE InputState = GetDirectionalJoystickInput(index, 0);
-#endif
 
-#if defined(ANDROID) || defined(__ANDROID__)
 	if (InputState & BATTLE_THRUST)
 #else
-	if (CurrentInputState.key[PlayerControls[0]][KEY_UP])
+	if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
 #endif
 		delta_y = -1;
 	else
@@ -1746,8 +1749,7 @@ IP_frame (void)
 		RedrawQueue (FALSE);
 		DrawAutoPilotMessage (FALSE);
 		UnbatchGraphics ();
-	}	
-	
+	}
 }
 
 static BOOLEAN
@@ -2409,11 +2411,12 @@ CreateStarBackGround (BOOLEAN encounter)
 
 #define NULL_BOOL(a,b) (CurStarDescPtr ? (a) : (b))
 
-	NullCoord.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
-	NullCoord.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+	NullCoord = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
 
-	if (encounter) {
-		SpaceJunkFrame = CaptureDrawable(LoadGraphic(IPBKGND_MASK_PMAP_ANIM));
+	if (encounter && !playerInSolarSystem ()) 
+	{
+		SpaceJunkFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
 		SysGenRNG = RandomContext_New();
 	}
 
@@ -2479,7 +2482,7 @@ CreateStarBackGround (BOOLEAN encounter)
 
 	SetContext (oldContext);
 
-	if (encounter)
+	if (encounter && !playerInSolarSystem ())
 	{
 		DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 		SpaceJunkFrame = 0;

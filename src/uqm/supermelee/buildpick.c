@@ -37,7 +37,7 @@ BuildBuildPickFrame (void)
 	// create team building ship selection box
 	s.origin.x = 0;
 	s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (MeleeFrame, 27);
+	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);
 			// 5x5 grid of ships to pick from
 	GetFrameRect (s.frame, &r);
 
@@ -70,7 +70,7 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 	GetFrameRect (BuildPickFrame, &r);
 
 	s.origin.x = r.corner.x + RES_SCALE(20) + (ship % NUM_PICK_COLS) * RES_SCALE(18);
-	s.origin.y = r.corner.y + RES_SCALE(5) + (ship / NUM_PICK_COLS) * RES_SCALE(18);
+	s.origin.y = r.corner.y +  RES_SCALE(5) + (ship / NUM_PICK_COLS) * RES_SCALE(18);
 
 	s.frame = GetShipIconsFromIndex (ship);
 	if (DrawErase)
@@ -148,6 +148,7 @@ DoPickShip (MELEE_STATE *pMS)
 	{
 		// Show ship spin video.
 		DoShipSpin (pMS->currentShip, pMS->hMusic);
+
 		return TRUE;
 	}
 

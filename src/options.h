@@ -94,6 +94,7 @@ extern BOOLEAN optGameOver;
 extern BOOLEAN optShipDirectionIP;
 extern BOOLEAN optHazardColors;
 extern BOOLEAN optOrzCompFont;
+extern int optControllerType;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;

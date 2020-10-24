@@ -713,7 +713,6 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 	t1 = clock ();
 #endif
 
-
 	shLevel = shield_level (offset);
 
 	pix = Orbit->ScratchArray;

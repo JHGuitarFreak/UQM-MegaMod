@@ -312,26 +312,21 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	UNICODE *Setting;
 	COUNT CursPos = 0; // JMS
 
-	// JMS: This should only be invoked when starting a new game.
-	// It prints a prompt window to the center of the screen, urging
-	// the player to name his captain and ship.
 	if (gamestart)
-	{	
+	{	// These pre-fill the captain and flagship names when starting a new game
 		if (nameCaptain) 
-		{	// "Captain, what is your name?"
+		{	
 			strcpy (buf,  GAME_STRING (NAMING_STRING_BASE + 3)); // "Zelnick"
 			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 3));
 		}
 		else
-		{	// "What is the name of your flagship?"
+		{
 			strcpy (buf, GAME_STRING (NAMING_STRING_BASE + 2)); // "Vindicator"
 			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 2));
 		}
 	}
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
-
-	DrawBorder(nameCaptain ? 6 : 12, false);
 
 	SetFlashRect(nameCaptain ? &captainNameRect : &shipNameRect);
 
@@ -364,6 +359,8 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	SetFlashRect (SFR_MENU_3DO);
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_NORMAL);
+
+	DrawBorder(12, false);
 
 	if (namingCB)
 		namingCB ();
@@ -1004,7 +1001,7 @@ TruncateSaveName (UNICODE* buf, COORD maxWidth, BOOLEAN naming)
 static void
 DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 {
-	RECT r, rHD;
+	RECT r;
 	TEXT t;
 	COUNT i, curSlot;
 	UNICODE buf[256], buf2[80], *SaveName;

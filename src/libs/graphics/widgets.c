@@ -660,14 +660,14 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	{
 		oldtext = SetContextForeGroundColor (default_color);
 	}
-	font_DrawText (&t);
+	font_DrawText (&t); // Control Name E.G. Up, Down, Weapon, Thrust
 
 	t.baseline.x -= t.baseline.x;
 
         // 3 * ScreenWidth / ((self->maxcolumns + 1) * 2)) as per CHOICE, but only two options.
-	home_x = t.baseline.x + (ScreenWidth / 2); 
+	home_x = t.baseline.x + (ScreenWidth / 3); 
 	home_y = t.baseline.y;
-	t.align = ALIGN_CENTER;
+	t.align = ALIGN_LEFT;
 	for (i = 0; i < 2; i++)
 	{
 		t.baseline.x = home_x + ((i % 3) * (ScreenWidth / 3));  // self->maxcolumns + 1 as per CHOICE.

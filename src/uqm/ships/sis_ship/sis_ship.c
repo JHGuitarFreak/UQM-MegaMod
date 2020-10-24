@@ -225,8 +225,8 @@ SetCustomShipData (RACE_DESC *pRaceDesc, const CustomShipData_t *data)
 static void
 sis_hyper_preprocess (ELEMENT *ElementPtr)
 {
+	SDWORD udx = 0, udy = 0;
 	SIZE dx = 0, dy = 0;
-	SDWORD udx = 0, udy = 0, dtempx, dtempy;
 	SIZE AccelerateDirection;
 	STARSHIP *StarShipPtr;
 
@@ -234,38 +234,28 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 		ElementPtr->velocity = GLOBAL (velocity);
 	
 	AccelerateDirection = 0;
+
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	++StarShipPtr->weapon_counter; /* no shooting in hyperspace! */
-	
 	if ((GLOBAL (autopilot)).x == ~0
 		|| (GLOBAL (autopilot)).y == ~0
-		|| (StarShipPtr->cur_status_flags & (LEFT | RIGHT | THRUST))
-		|| !(GET_GAME_STATE(AUTOPILOT_OK))) // JMS: This check makes autopilot engage only after coming to full stop
+			|| (StarShipPtr->cur_status_flags & (LEFT | RIGHT | THRUST)))
 	{
 	LeaveAutoPilot:
-		
-		// JMS: This re-check is now needed because of the added autopilot_ok variable to previous check
-		if ((GLOBAL (autopilot)).x == ~0 || (GLOBAL (autopilot)).y == ~0 || (StarShipPtr->cur_status_flags & (LEFT | RIGHT | THRUST)))
-			(GLOBAL (autopilot)).x = (GLOBAL (autopilot)).y = ~0;
-		
+
+		(GLOBAL(autopilot)).x =
+			(GLOBAL(autopilot)).y = ~0;
+
 		if (!(StarShipPtr->cur_status_flags & THRUST)
 			|| (GLOBAL_SIS (FuelOnBoard) == 0
-				&& (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)))
+				&& GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
 		{
 			AccelerateDirection = -1;
-			GetCurrentVelocityComponents (&ElementPtr->velocity, &dx, &dy);
-			
-			// JMS: Engage autopilot only after coming to full stop
-			if (dx==0 && dy==0)
-				SET_GAME_STATE (AUTOPILOT_OK, 1);
-			else
-				SET_GAME_STATE (AUTOPILOT_OK, 0);
-			
-			dtempx = (SDWORD)dx;
-			dtempy = (SDWORD)dy;
-			
-			udx = dtempx;
-			udy = dtempy;
+			GetCurrentVelocityComponents (&ElementPtr->velocity,
+					&dx, &dy);
+
+			udx = RES_BOOL(dx << 4, (SDWORD)dx);
+			udy = RES_BOOL(dy << 4, (SDWORD)dy);
 			
 			StarShipPtr->cur_status_flags &= ~THRUST;
 		}
@@ -333,8 +323,8 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 		else
 		{
 			AccelerateDirection = -1;
-			udx = dx;// << 4;
-			udy = dy;// << 4;
+			udx = dx << (IS_HD ? 0 : 4);
+			udy = dy << (IS_HD ? 0 : 4);
 		}
 	}
 
@@ -366,9 +356,11 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 
 			AccelerateDirection = 0;
 
-			max_velocity = WORLD_TO_VELOCITY (StarShipPtr->RaceDescPtr->characteristics.max_thrust);
-			dy = (speed / velocity_increment + 1) * velocity_increment;
+			max_velocity = WORLD_TO_VELOCITY (
+					StarShipPtr->RaceDescPtr->characteristics.max_thrust);
 
+			dy = (speed / velocity_increment + 1)
+					* velocity_increment;
 			if (dy < speed + velocity_increment)
 				dy = speed + velocity_increment;
 			if ((speed = dy) > max_velocity)
@@ -378,11 +370,12 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 			}
 		}
 
-		dtempx = (SDWORD)((long)udx * speed / (long)dist);
-		dtempy = (SDWORD)((long)udy * speed / (long)dist);
-		
-		SetVelocityComponents (&ElementPtr->velocity, dtempx, dtempy);
-		ElementPtr->thrust_wait =StarShipPtr->RaceDescPtr->characteristics.thrust_wait;
+		dx = (SDWORD)((long)udx * speed / (long)dist);
+		dy = (SDWORD)((long)udy * speed / (long)dist);		
+		SetVelocityComponents (&ElementPtr->velocity, dx, dy);
+
+		ElementPtr->thrust_wait =
+				StarShipPtr->RaceDescPtr->characteristics.thrust_wait;
 	}
 }
 

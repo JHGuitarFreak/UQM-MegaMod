@@ -94,9 +94,7 @@ static const char *flight_res_names[] = {
 	"weapon",
 	"special",
 	"escape",
-#if defined(ANDROID) || defined(__ANDROID__)
 	"thrust",
-#endif
 	NULL
 };
 
@@ -111,7 +109,12 @@ register_menu_controls (int index)
 	while (TRUE)
 	{
 		VCONTROL_GESTURE g;
-		snprintf (buf, 39, "menu.%s.%d", menu_res_names[index], i);
+
+		if (optControllerType == 2)
+			snprintf (buf, 39, "ds4.%s.%d", menu_res_names[index], i);
+		else
+			snprintf (buf, 39, "menu.%s.%d", menu_res_names[index], i);
+
 		if (!res_IsString (buf))
 			break;
 		VControl_ParseGesture (&g, res_GetString (buf));
@@ -179,7 +182,11 @@ initKeyConfig (void)
 			* MAX_FLIGHT_ALTERNATES);
 
 	/* First, load in the menu keys */
-	LoadResourceIndex (contentDir, "menu.key", "menu.");
+	if (optControllerType == 2)
+		LoadResourceIndex (contentDir, "ds4.key", "ds4.");
+	else
+		LoadResourceIndex (contentDir, "menu.key", "menu.");
+
 	LoadResourceIndex (configDir, "override.cfg", "menu.");
 	for (i = 0; i < num_menu; i++)
 	{
@@ -277,6 +284,8 @@ TFB_InitInput (int driver, int flags)
 	(void)SDL_GetKeyState (&signed_num_keys);
 	num_keys = (unsigned int) signed_num_keys;
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
+#else
+	(void) signed_num_keys; /* satisfy compiler (unused parameter) */
 #endif
 	
 
@@ -522,6 +531,62 @@ void
 InterrogateInputState (int templat, int control, int index, char *buffer, int maxlen)
 {
 	VCONTROL_GESTURE *g = CONTROL_PTR(templat, control, index);
+	const char xbx_buttons[16][8] = 
+	{
+		"A",
+		"B",
+		"X",
+		"Y",
+		"LB",
+		"RB",
+		"Back",
+		"Start",
+		"LSB",
+		"RSB",
+		"Guide",
+		"B11",
+		"B12",
+		"B13",
+		"B14",
+		"B15"
+	};
+	const char ds4_buttons[16][11] =
+	{
+		STR_CROSS,
+		STR_CIRCLE,
+		STR_SQUARE,
+		STR_TRIANGLE,
+		"Share",
+		"PS",
+		"Options",
+		"L3",
+		"R3",
+		"L1",
+		"R1",
+		"DPad Up",
+		"DPad Down",
+		"DPad Left",
+		"DPad Right",
+		"TouchPad"
+	};
+	const char xbx_axes[6][5] = 
+	{ 
+		"LS H",
+		"LS V",
+		"LT",
+		"RS H",
+		"RS V",
+		"RT"
+	};
+	const char ds4_axes[6][5] =
+	{
+		"L3 H",
+		"L3 V",
+		"R3 H",
+		"R3 V",
+		"L2",
+		"R2"
+	};
 
 	if (templat >= num_templ || control >= num_flight
 			|| index >= MAX_FLIGHT_ALTERNATES)
@@ -538,11 +603,21 @@ InterrogateInputState (int templat, int control, int index, char *buffer, int ma
 		buffer[maxlen-1] = 0;
 		break;
 	case VCONTROL_JOYBUTTON:
-		snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port, g->gesture.button.index + 1);
+		if (optControllerType == 0)
+			snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port, g->gesture.button.index);
+		else if (optControllerType == 1)
+			snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port, xbx_buttons[g->gesture.button.index]);
+		else if (optControllerType == 2)
+			snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port, ds4_buttons[g->gesture.button.index]);
 		buffer[maxlen-1] = 0;
 		break;
 	case VCONTROL_JOYAXIS:
-		snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port, g->gesture.axis.index, g->gesture.axis.polarity > 0 ? '+' : '-');
+		if (optControllerType == 0)
+			snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port, g->gesture.axis.index, g->gesture.axis.polarity > 0 ? '+' : '-');
+		else if (optControllerType == 1)
+			snprintf (buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port, xbx_axes[g->gesture.axis.index], g->gesture.axis.polarity > 0 ? '+' : '-');
+		else if (optControllerType == 2)
+			snprintf(buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port, ds4_axes[g->gesture.axis.index], g->gesture.axis.polarity > 0 ? '+' : '-');
 		break;
 	case VCONTROL_JOYHAT:
 		snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port, g->gesture.hat.index, g->gesture.hat.dir);

@@ -25,7 +25,7 @@
 #include "menustat.h"
 
 void
-DrawCrewFuelString (COORD y, SIZE state, BOOLEAN InMeleeMenu)
+DrawCrewFuelString (COORD y, SIZE state)
 {
 	STAMP Stamp;
 
@@ -267,7 +267,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 		// This includes Melee menu.
 		STRING locString;
 
-		DrawCrewFuelString (y, 0, inMeleeMenu);
+		DrawCrewFuelString (y, 0);
 
 		locString = SetAbsStringTableIndex (SIPtr->race_strings, 1);
 		DrawShipNameString (
@@ -307,7 +307,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 	}
 	else if (StarShipPtr->playerNr == RPG_PLAYER_NUM)
 	{	// This is SIS
-		DrawCrewFuelString (y, 0, inMeleeMenu);
+		DrawCrewFuelString (y, 0);
 		DrawShipNameString (GLOBAL_SIS (ShipName), (COUNT)~0, y);
 	}
 
@@ -323,8 +323,8 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 	}
 
 	if (IS_HD && !inMeleeMenu) {
-		DrawBorder(21, TRUE);
-		DrawBorder(22, TRUE);
+		DrawBorder(23, TRUE);
+		DrawBorder(24, TRUE);
 	}
 
 	UnbatchGraphics ();

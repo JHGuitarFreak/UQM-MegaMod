@@ -832,9 +832,6 @@ spawn_ion_trail (ELEMENT *ElementPtr, SIZE x_offset, SIZE y_offset)
 		SetPrimColor (&DisplayArray[IonElementPtr->PrimIndex],
 				START_ION_COLOR);
 		IonElementPtr->colorCycleIndex = 0;
-		/*IonElementPtr->current.image.frame =
-				DecFrameIndex (stars_in_space);
-		IonElementPtr->current.image.farray = &stars_in_space;*/
 		IonElementPtr->current.location = ElementPtr->current.location;
 		IonElementPtr->current.location.x +=
 				(COORD)COSINE (angle, r.extent.height) + x_offset;
@@ -952,17 +949,16 @@ ship_transition (ELEMENT *ElementPtr)
 			}
 			else if (ElementPtr->crew_level)
 			{
-				ShipImagePtr->current.location.x -=
-						COSINE (angle, TRANSITION_SPEED)
-						* (ElementPtr->life_span - 1);
-				ShipImagePtr->current.location.y -=
-						SINE (angle, TRANSITION_SPEED)
-						* (ElementPtr->life_span - 1);
-
-				ShipImagePtr->current.location.x =
-						WRAP_X (ShipImagePtr->current.location.x);
-				ShipImagePtr->current.location.y =
-						WRAP_Y (ShipImagePtr->current.location.y);
+				// JMS_GFX: Circumventing overflows by using temp variables
+                // instead of subtracting straight from the POINT sized
+                // ShipImagePtr->current.location.
+                SDWORD temp_x = (SDWORD)ShipImagePtr->current.location.x -
+                    COSINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
+                SDWORD temp_y = (SDWORD)ShipImagePtr->current.location.y -
+                    SINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
+                
+				ShipImagePtr->current.location.x = WRAP_X (temp_x);
+				ShipImagePtr->current.location.y = WRAP_Y (temp_y);
 			}
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;

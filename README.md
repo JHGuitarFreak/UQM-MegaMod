@@ -70,6 +70,13 @@ Right click on the EXE -> click `Properties` -> click over to the `Compatibility
 It should look like this:  
 ![image](https://user-images.githubusercontent.com/4404965/80047996-bb0e7f00-84c3-11ea-8914-85509e2fb623.png)
 
+## Controllers
+
+When using a DualShock 4 controller *DO NOT* use DS4Windows. UQM and hence, MegaMod, support the DS4 without extra software.
+The new controller layout option only works if you *don't* use DS4Windows.
+
+Have a lovely day!
+
 
 ## Contributors
 

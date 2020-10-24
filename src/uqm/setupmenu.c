@@ -76,12 +76,12 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       59
+#define CHOICE_COUNT       60
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         5
 #define TEXTENTRY_COUNT     2
-#define CONTROLENTRY_COUNT  7
+#define CONTROLENTRY_COUNT  8
 
 /* The space for our widgets */
 static WIDGET_MENU_SCREEN menus[MENU_COUNT];
@@ -104,7 +104,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	3, 2, 2, 2, 2, 2, 3, 2, 2, 2,	// 20-29
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,	// 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 40-49
-	3, 2, 2, 3, 2, 2, 2, 2, 2  };	// 50-58
+	3, 2, 2, 3, 2, 2, 2, 2, 2, 3 };	// 50-59
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -202,6 +202,7 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
+	(WIDGET *)(&choices[59]),	// Control Display
 	(WIDGET *)(&choices[18]),	// Bottom Player
 	(WIDGET *)(&choices[19]),	// Top Player
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -218,13 +219,12 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[53]),	// Difficulty
 	(WIDGET *)(&choices[54]),	// Extended features
 	(WIDGET *)(&choices[55]),	// Nomad Mode
+	(WIDGET *)(&textentries[1]),// Custom Seed entry
+	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&choices[32]),	// Skip Intro
 	(WIDGET *)(&choices[40]),	// Partial Pickup switch
 	(WIDGET *)(&choices[56]),	// Game Over switch
 	(WIDGET *)(&choices[41]),	// Submenu switch
-	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&textentries[1]),// Custom Seed entry
-	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&buttons[1]),	
 	NULL };
 
@@ -243,6 +243,7 @@ static WIDGET *visual_widgets[] = {
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
+	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&choices[20]),
 	(WIDGET *)(&labels[2]),
 	(WIDGET *)(&textentries[0]),
@@ -253,6 +254,7 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&controlentries[4]),
 	(WIDGET *)(&controlentries[5]),
 	(WIDGET *)(&controlentries[6]),
+	(WIDGET *)(&controlentries[7]),
 	(WIDGET *)(&buttons[9]),
 	NULL };
 
@@ -599,6 +601,7 @@ SetDefaults (void)
 	choices[56].selected = opts.gameOver;
 	choices[57].selected = opts.shipDirectionIP;
 	choices[58].selected = opts.orzCompFont;
+	choices[59].selected = opts.controllerType;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -678,6 +681,7 @@ PropagateResults (void)
 	opts.gameOver = choices[56].selected;
 	opts.shipDirectionIP = choices[57].selected;
 	opts.orzCompFont = choices[58].selected;
+	opts.controllerType = choices[59].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1622,6 +1626,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->shipDirectionIP = optShipDirectionIP ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->hazardColors = optHazardColors ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->controllerType = res_GetInteger ("mm.controllerType");
 
 	// Serosis: 320x240
 	if (!IS_HD) {
@@ -1936,6 +1941,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if(oldResFactor != resolutionFactor ||
 		audioDriver != opts->adriver ||
 		audioQuality != opts->aquality ||
+		opts->controllerType != optControllerType ||
 		(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
  		optRequiresRestart = TRUE;
 
@@ -2136,6 +2142,21 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	// Serosis: Enable alternate font for untranslatable Orz speech 
 	res_PutBoolean("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
 	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
+
+	// Serosis: Show which type of controls on screen
+	switch (opts->controllerType) {
+		case OPTVAL_XBX:
+			optControllerType = 1;
+			break;
+		case OPTVAL_PS4:
+			optControllerType = 2;
+			break;
+		case OPTVAL_KBM:
+		default:
+			optControllerType = 0;
+			break;
+	}
+	res_PutInteger ("mm.controllerType", opts->controllerType);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

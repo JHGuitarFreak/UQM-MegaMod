@@ -64,6 +64,7 @@ extern RACE_DESC *load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData);
 extern void free_ship (RACE_DESC *RaceDescPtr, BOOLEAN FreeIconData,
 		BOOLEAN FreeBattleData);
 extern void loadGameCheats (void);
+extern BOOLEAN legacySave;
 
 #if defined(__cplusplus)
 }

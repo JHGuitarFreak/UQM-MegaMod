@@ -51,7 +51,7 @@ static LOCDATA mycon_desc =
 			CIRCULAR_ANIM, /* AnimFlags */
 			ONE_SECOND * 3 / 40, 0, /* FrameRate */
 			ONE_SECOND * 3 / 40, 0, /* RestartRate */
-			(1 << 1), /* BlockMask */
+			0, /* BlockMask */
 		},
 		{
 			18, /* StartIndex */
@@ -59,7 +59,7 @@ static LOCDATA mycon_desc =
 			CIRCULAR_ANIM, /* AnimFlags */
 			ONE_SECOND * 3 / 40, 0, /* FrameRate */
 			ONE_SECOND * 3 / 40, 0, /* RestartRate */
-			(1 << 0), /* BlockMask */
+			0, /* BlockMask */
 		},
 		{
 			22, /* StartIndex */

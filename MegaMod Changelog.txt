@@ -6,7 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas]
 - LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
 - Separate infinite energy from God mode - Pikant
-- Add Androsynth, Chenjesu, and Mmrnmhrm ships to the shipyard - Pikant
 - HARDMODE: Up the cost of new technology - Pikant
 - HARDMODE: Make the natural Quasispace portal start appearing about year later - Pikant
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
@@ -61,6 +60,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Allies will not chase you if you get close to their ships
 - Long save names from HD get truncated to fit in Classic graphics
 - HARDMODE: Allow VUX to warp in close in Melee for the main game
+- Play ship ditty when viewing ship info when 3DO video are disabled
+- New option to change the on-screen controls to Keyboard, Xbox, or PlayStation 4 controls
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -92,8 +93,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: New shielded planet graphics to match the classic look
 - HD: New flagship captain graphics that match the classic look
 - HD: Padded out the comm subtitles and PC slide text from the top of the screen where applicable
+- Make the "Thrust" control available on all platforms
+- Added Androsynth, Chenjesu, and Mmrnmhrm ships to the shipyard when using the Unlock Ships cheat
+- More controller support so the player doesn't have to touch the keyboard if they don't want to
 
 ### Fixed
+- Fixed roaming flagship in Hyperspace when it gets to destination
+- Fixed continuous flagship drift in the East/South direction while in a solar system
 - Fixed the Commander reporting the wrong mineral worth response
 - Properly declared the GameOver() function in fmv.h
 - Properly redraw the title bars when exiting from the Save/Load screen
@@ -131,6 +137,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
 - HD: Planet scan speed now matches Core speed
 - HD: Fixed captains window death animation from leaving pixels on-screen
+- Fixed blank lander report when nebulae are enabled
 - McMartin: Fix the ZFP dialog desync bug introduced post 0.7.
 - Ala-lala: Fix space music resource leaks
 - Ala-lala: Fix memory leak when entering hyperspace in HD

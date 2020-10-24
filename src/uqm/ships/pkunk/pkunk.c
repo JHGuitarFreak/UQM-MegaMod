@@ -454,12 +454,13 @@ phoenix_transition (ELEMENT *ElementPtr)
 			SDWORD temp_x, temp_y;
 			angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
 
-            // JMS_GFX: Circumventing overflows by using temp variables instead of
-            // subtracting straight from the POINT sized ShipImagePtr->current.location.
-            temp_x = (SDWORD)ShipImagePtr->current.location.x - 
-				COSINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
-            temp_y = (SDWORD)ShipImagePtr->current.location.y - 
-				SINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
+            // JMS_GFX: Circumventing overflows by using temp variables
+            // instead of subtracting straight from the POINT sized
+            // ShipImagePtr->current.location.
+            temp_x = (SDWORD)ShipImagePtr->current.location.x -
+                COSINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
+            temp_y = (SDWORD)ShipImagePtr->current.location.y -
+                SINE (angle, TRANSITION_SPEED) * (ElementPtr->life_span - 1);
             
             ShipImagePtr->current.location.x = WRAP_X (temp_x);
             ShipImagePtr->current.location.y = WRAP_Y (temp_y);

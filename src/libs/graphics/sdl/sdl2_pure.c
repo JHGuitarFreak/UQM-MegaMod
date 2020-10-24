@@ -278,6 +278,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	ScreenWidthActual = width;
 	ScreenHeightActual = height;
 
+	(void) resFactor; /* satisfy compiler (unused parameter) */
 	return 0;
 }
 

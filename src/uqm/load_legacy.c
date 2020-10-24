@@ -1516,6 +1516,8 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 	STAR_DESC SD;
 	ACTIVITY Activity;
 
+	legacySave = TRUE;
+
 	sprintf (file, "starcon2.%02u", which_game);
 	in_fp = res_OpenResFile (saveDir, file, "rb");
 	if (!in_fp)

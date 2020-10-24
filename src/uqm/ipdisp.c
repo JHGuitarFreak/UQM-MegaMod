@@ -19,6 +19,7 @@
 #include "ipdisp.h"
 #include "build.h"
 #include "collide.h"
+#include "controls.h"
 #include "globdata.h"
 #include "init.h"
 #include "races.h"
@@ -30,6 +31,7 @@
 #include "nameref.h"
 #include "ships/slylandr/resinst.h"
 
+BOOLEAN legacySave;
 
 void
 NotifyOthers (COUNT which_race, BYTE target_loc)
@@ -636,9 +638,6 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 		IPSHIPElementPtr->state_flags =
 				CHANGING | FINITE_LIFE | IGNORE_VELOCITY;
 
-		if (optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
-			GroupPtr->melee_icon = CaptureDrawable (LoadGraphic (SLYLANDRO_SML_MASK_PMAP_ANIM));
-
 		SetPrimType (&DisplayArray[IPSHIPElementPtr->PrimIndex], STAMP_PRIM);
 		// XXX: Hack: farray points to FRAME[3] and given FRAME
 		IPSHIPElementPtr->current.image.farray = &GroupPtr->melee_icon;
@@ -650,6 +649,12 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 			 * same result without the side
 			 * effect (InitIntersectFrame)
 			 */
+		if (optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
+		{
+			GroupPtr->melee_icon = CaptureDrawable (LoadGraphic(SLYLANDRO_SML_MASK_PMAP_ANIM));
+			IPSHIPElementPtr->current.image.frame = SetAbsFrameIndex (
+				GroupPtr->melee_icon, (TFB_Random () % (15 - 1) + 1)); // randomize initial sprite            
+		}
 		IPSHIPElementPtr->death_func = ip_group_preprocess;
 		IPSHIPElementPtr->collision_func = ip_group_collision;
 
@@ -715,6 +720,17 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 		POINT pt;
 
 		GetCurrentVelocityComponents (&GLOBAL (velocity), &vdx, &vdy);
+
+		if (!legacySave)
+		{
+			vdx >>= 1;
+			vdy >>= 1;
+		}
+		else if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
+		{
+			legacySave = FALSE;
+		}
 
 		flagship_loc = getFlagshipLocation ();
 		radius = zoomRadiusForLocation (flagship_loc);

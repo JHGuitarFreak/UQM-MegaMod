@@ -231,7 +231,7 @@ FillFileView (MELEE_STATE *pMS)
 }
 
 #define FILE_STRING_ORIGIN_X RES_SCALE(5) // JMS_GFX
-#define FILE_STRING_ORIGIN_Y  RES_SCALE(34) // JMS_GFX
+#define FILE_STRING_ORIGIN_Y  RES_SCALE(32) + IF_HD(9) // JMS_GFX
 #define ENTRY_HEIGHT RES_SCALE(32) // JMS_GFX
 
 static void
@@ -268,7 +268,7 @@ DrawFileStrings (MELEE_STATE *pMS)
 	SetContextFont (MicroFont);
 	BatchGraphics ();
 
-	DrawMeleeIcon (28);  /* The load team frame */
+	DrawMeleeIcon (30 + optControllerType);  /* The load team frame */
 
 	if (FillFileView (pMS))
 	{
@@ -355,7 +355,7 @@ DoLoadTeam (MELEE_STATE *pMS)
 		{
 			RECT r;
 			
-			GetFrameRect (SetAbsFrameIndex (MeleeFrame, 28), &r);
+			GetFrameRect (SetAbsFrameIndex (MeleeFrame, 30), &r);
 			RepairMeleeFrame (&r);
 		}
 		return TRUE;

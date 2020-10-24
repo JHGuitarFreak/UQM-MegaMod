@@ -292,8 +292,8 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	}
 
 	if (IS_HD) {
-		DrawBorder(23, TRUE);
-		DrawBorder(24, TRUE);
+		DrawBorder(25, TRUE);
+		DrawBorder(26, TRUE);
 	}
 
 	UnbatchGraphics ();
@@ -578,9 +578,9 @@ PostProcessStatus (ELEMENT *ShipPtr)
 			if (old_status_flags & LOW_ON_ENERGY)
 			{
 				if (!(cur_status_flags & LOW_ON_ENERGY))
-					DrawCrewFuelString (y, 1, FALSE);
+					DrawCrewFuelString (y, 1);
 				else
-					DrawCrewFuelString (y, -1, FALSE);
+					DrawCrewFuelString (y, -1);
 			}
 
 			old_status_flags &= (LEFT | RIGHT | THRUST | WEAPON | SPECIAL);

@@ -154,7 +154,8 @@ SetVelocityComponents (VELOCITY_DESC *velocityptr, SDWORD dx, SDWORD dy)
 		{
 			dx = -dx;
 			velocityptr->vector.width = -VELOCITY_TO_WORLD (dx);
-			velocityptr->incr.width = MAKE_WORD ((BYTE)0xFF, (BYTE)(VELOCITY_REMAINDER (dx) << 1));
+			velocityptr->incr.width =
+			MAKE_WORD ((BYTE)0xFF, (BYTE)(VELOCITY_REMAINDER (dx) << 1));
 		}
 		if (dy >= 0)
 		{
@@ -165,7 +166,8 @@ SetVelocityComponents (VELOCITY_DESC *velocityptr, SDWORD dx, SDWORD dy)
 		{
 			dy = -dy;
 			velocityptr->vector.height = -VELOCITY_TO_WORLD (dy);
-			velocityptr->incr.height = MAKE_WORD ((BYTE)0xFF, (BYTE)(VELOCITY_REMAINDER (dy) << 1));
+			velocityptr->incr.height =
+			MAKE_WORD ((BYTE)0xFF, (BYTE)(VELOCITY_REMAINDER (dy) << 1));
 		}
 		
 		velocityptr->fract.width = VELOCITY_REMAINDER (dx);
