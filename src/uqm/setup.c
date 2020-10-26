@@ -135,26 +135,22 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (loadIndices (contentDir) == 0)
 		return FALSE; // Must have at least one index in content dir
 
-	if (!IS_HD) {
-		if (loadAddon ("EndlessSC-SD")) {
+	if (!IS_HD)
+	{
+		if (loadAddon ("EndlessSC-SD"))
+		{
 			EndlessSCLoaded = TRUE;
 			printf ("Loading Endless SC \n");
 			log_add (log_Debug, "loading EndlessSC-SD");
 		}
-		if (loadAddon ("sol-textures-sd")) {
-			solTexturesPresent = TRUE;
-			printf ("Loading Sol Textures \n");
-			log_add (log_Debug, "loading sol-textures-sd");
-		}
+		loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
-	} else if (loadAddon ("mm-hd")) {
+	} 
+	else if (loadAddon ("mm-hd"))
+	{
 		HDPackPresent = TRUE;
-		log_add(log_Debug, "loading addon HD pack");
-		if (loadAddon ("sol-textures-hd")) {
-			solTexturesPresent = TRUE;
-			printf ("Loading Sol Textures \n");
-			log_add (log_Debug, "loading sol-textures-hd");
-		}
+		log_add (log_Debug, "loading HD addon pack");
+		loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		loadAddon ("orange-peel-melnorme");
 		loadAddon ("classic-hd-fonts");
@@ -164,49 +160,43 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	loadAddon ("ProfanePkunk");
 
 	usingSpeech = optSpeech;
-	if (optSpeech && !loadAddon ("3dovoice")) {
+	if (optSpeech && !loadAddon ("3dovoice"))
 		usingSpeech = FALSE;
-	} 
 	
-	if (usingSpeech){
+	if (usingSpeech)
+	{
 		loadAddon ("rmx-utwig");
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
-		if (loadAddon ("SyreenVoiceFix")){
+		if (loadAddon ("SyreenVoiceFix"))
 			SyreenVoiceFix = TRUE;
-		}
 	}
 
-	if (opt3doMusic) {
+	if (opt3doMusic)
 		loadAddon ("3domusic");
-	}
 
-	if (optRemixMusic) {
+	if (optRemixMusic)
 		loadAddon ("remix");
-	}
 
-	if (optVolasMusic && loadAddon ("volasaurus-remix-pack")){
+	if (optVolasMusic && loadAddon ("volasaurus-remix-pack"))
+	{
 		VolasPackPresent = TRUE;
 
 		if (optSpaceMusic)
 			SpaceMusicOK = TRUE;
 	}
 
-
 	if (optSpaceMusic && loadAddon ("SpaceMusic"))
 		SpaceMusicOK = TRUE;
 
-	if (optWhichIntro == OPT_3DO) {
+	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
-	}
-
-	if (ReloadPackages)
-		optRequiresReload = FALSE;
 
 	/* Now load the rest of the addons, in order. */
 	prepareAddons(optAddons);
 
-	if(!ReloadPackages){
+	if (!ReloadPackages)
+	{
 
 		{
 			COLORMAP ColorMapTab;
@@ -222,6 +212,9 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 
 		GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 	}
+
+	if (ReloadPackages)
+		optRequiresReload = FALSE;
 
 	return TRUE;
 }
