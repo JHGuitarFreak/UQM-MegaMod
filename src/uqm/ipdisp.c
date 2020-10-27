@@ -244,7 +244,11 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		SIZE dx, dy;
 		SIZE delta_x, delta_y;
 		COUNT angle;
-		FRAME suggestedFrame; // JMS
+		FRAME suggestedFrame;
+		BOOLEAN FilthyCheater =
+			(GroupPtr->race_id == URQUAN_DRONE_SHIP
+			&& (optBubbleWarp
+			|| CountSISPieces (FUSION_THRUSTER) > 6));
 
 		Transition = FALSE;
 		isOrbiting = FALSE;
@@ -401,7 +405,8 @@ CheckGetAway:
 				if (!((GroupPtr->loc.x > -dest_pt.x
 						&& GroupPtr->loc.y > -dest_pt.y)
 						&& (GroupPtr->loc.x < dest_pt.x
-						&& GroupPtr->loc.y < dest_pt.y)))
+						&& GroupPtr->loc.y < dest_pt.y)) 
+						|| FilthyCheater)
 					Transition = TRUE;
 			}
 
