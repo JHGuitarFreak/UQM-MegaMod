@@ -195,10 +195,8 @@ AddEscortShips (RACE_ID race, SIZE count)
 	COUNT i;
 
 	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), race);
-	if (!hFleet)
+	if (!hFleet || count <= 0)
 		return 0;
-
-	assert (count > 0);
 
 	which_window = 0;
 	for (i = 0; i < (COUNT) count; i++)
@@ -738,7 +736,7 @@ loadGameCheats (void)
 		SET_GAME_STATE (SUN_DEVICE_ON_SHIP, 1);
 		SET_GAME_STATE (UTWIG_BOMB_ON_SHIP, 1);
 		SET_GAME_STATE (ULTRON_CONDITION, 1);
-		SET_GAME_STATE (MAIDENS_ON_SHIP, 1);
+		//SET_GAME_STATE (MAIDENS_ON_SHIP, 1);
 		SET_GAME_STATE (TALKING_PET_ON_SHIP, 1);
 		SET_GAME_STATE (AQUA_HELIX_ON_SHIP, 1);
 		SET_GAME_STATE (CLEAR_SPINDLE_ON_SHIP, 1);
