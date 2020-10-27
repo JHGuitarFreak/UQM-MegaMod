@@ -195,19 +195,18 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	/* Now load the rest of the addons, in order. */
 	prepareAddons(optAddons);
 
+	{
+		COLORMAP ColorMapTab;
+
+		ColorMapTab = CaptureColorMap (LoadColorMap (STARCON_COLOR_MAP));
+		if (ColorMapTab == NULL)
+			return FALSE; // The most basic resource is missing
+		SetColorMap (GetColorMapAddress (ColorMapTab));
+		DestroyColorMap (ReleaseColorMap (ColorMapTab));
+	}
+
 	if (!ReloadPackages)
 	{
-
-		{
-			COLORMAP ColorMapTab;
-
-			ColorMapTab = CaptureColorMap (LoadColorMap (STARCON_COLOR_MAP));
-			if (ColorMapTab == NULL)
-				return FALSE; // The most basic resource is missing
-			SetColorMap (GetColorMapAddress (ColorMapTab));
-			DestroyColorMap (ReleaseColorMap (ColorMapTab));
-		}
-
 		InitPlayerInput ();
 
 		GLOBAL (CurrentActivity) = (ACTIVITY)~0;

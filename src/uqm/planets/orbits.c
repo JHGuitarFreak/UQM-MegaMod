@@ -629,7 +629,7 @@ RelocatePlanet:
 		}
 		// Angle is kept for reference but location will be adjusted
 		// to take orbiting into account
-		ComputeSpeed(pPD, GeneratingMoons, HIWORD (rand_val));
+		ComputeSpeed (pPD, GeneratingMoons, HIWORD (rand_val));
 
 		++pPD;
 	}
