@@ -33,6 +33,7 @@
 #include "planets/scan.h"
 #include "races.h"
 #include "setup.h"
+#include "starmap.h"
 #include "state.h"
 #include "libs/mathlib.h"
 #include "lua/luadebug.h"
@@ -711,7 +712,7 @@ forAllStars (void (*callback) (STAR_DESC *, void *), void *arg)
 	extern STAR_DESC starmap_array[];
 
 	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
-		callback (&starmap_array[i], arg);
+		callback (&star_array[i], arg);
 }
 
 void
@@ -778,11 +779,11 @@ starRecurse (STAR_DESC *star, void *arg)
 	STAR_DESC *oldStarDescPtr = CurStarDescPtr;
 	CurStarDescPtr = star;
 
-	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (star));
+	RandomContext_SeedRandom (SysGenRNGDebug, GetRandomSeedForStar (star));
 
 	memset (&SolarSysState, 0, sizeof (SolarSysState));
 	SolarSysState.SunDesc[0].pPrevDesc = 0;
-	SolarSysState.SunDesc[0].rand_seed = RandomContext_Random (SysGenRNG);
+	SolarSysState.SunDesc[0].rand_seed = RandomContext_Random (SysGenRNGDebug);
 	SolarSysState.SunDesc[0].data_index = STAR_TYPE (star->Type);
 	SolarSysState.SunDesc[0].location.x = 0;
 	SolarSysState.SunDesc[0].location.y = 0;
@@ -841,7 +842,7 @@ planetRecurse (STAR_DESC *star, SOLARSYS_STATE *system, PLANET_DESC *planet,
 
 	if (universeRecurseArg->moonFunc != NULL)
 	{
-		RandomContext_SeedRandom (SysGenRNG, planet->rand_seed);
+		RandomContext_SeedRandom (SysGenRNGDebug, planet->rand_seed);
 		
 		(*system->genFuncs->generateMoons) (system, planet);
 
@@ -1713,6 +1714,7 @@ dumpStrings (FILE *out)
 		MAKE_STRING_CATEGORY(ORBITSCAN_STRING),
 		MAKE_STRING_CATEGORY(MAINMENU_STRING),
 		MAKE_STRING_CATEGORY(NETMELEE_STRING),
+		MAKE_STRING_CATEGORY(BIOLOGICAL_STRING),
 		{ "GAMESTR_COUNT", GAMESTR_COUNT, (size_t) -1 }
 	};
 	size_t numCategories = sizeof categories / sizeof categories[0];
