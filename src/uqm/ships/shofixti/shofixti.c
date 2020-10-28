@@ -20,6 +20,7 @@
 #include "shofixti.h"
 #include "resinst.h"
 #include "../../setup.h"
+#include "../../setupmenu.h"
 #include "uqm/globdata.h"
 #include "uqm/tactrans.h"
 #include "libs/mathlib.h"
@@ -298,7 +299,9 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 			// XXX: Why not simply call do_damage()?
 			if (ObjPtr->state_flags & PLAYER_SHIP)
 			{
-				if (!antiCheat(ElementPtr, TRUE)) {
+				if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
+					|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+				{
 					if (!DeltaCrew (ObjPtr, -destruction))
 						ObjPtr->life_span = 0;
 				}

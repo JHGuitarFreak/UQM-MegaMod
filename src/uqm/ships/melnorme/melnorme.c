@@ -20,6 +20,7 @@
 #include "melnorme.h"
 #include "resinst.h"
 #include "../../setup.h"
+#include "../../setupmenu.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
@@ -198,7 +199,9 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2),
 						EPtr);
 			}
-			if (antiCheat(ElementPtr, FALSE)) {
+			if (antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
+				|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET))
+			{
 				EPtr->thrust_wait = 5;
 			} else {
 				EPtr->thrust_wait = LEVEL_COUNTER;
@@ -346,11 +349,14 @@ initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 		LockElement (PumpUpArray[0], &PumpUpPtr);
 		PumpUpPtr->postprocess_func = pump_up_postprocess;
 		PumpUpPtr->collision_func = pump_up_collision;
-		if (antiCheat(ShipPtr, FALSE)) {
+
+		if (antiCheat (ShipPtr, FALSE, OPTVAL_HORUS)
+			|| antiCheat (ShipPtr, FALSE, OPTVAL_SEKHMET))
+		{
 			PumpUpPtr->thrust_wait = 5;
-		} else {
+		} else
 			PumpUpPtr->thrust_wait = LEVEL_COUNTER;
-		}
+
 		UnlockElement (PumpUpArray[0]);
 	}
 
@@ -474,7 +480,9 @@ confusion_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				ConfusionPtr->hTarget = StarShipPtr->hShip;
 			}
 
-			if (!antiCheat(ElementPtr1, FALSE)) {
+			if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
+				|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
+			{
 				ConfusionPtr->life_span = 400;
 			}
 			ConfusionPtr->turn_wait =

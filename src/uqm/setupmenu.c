@@ -101,7 +101,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 0-9
 	2, 2, 2, 2, 2, 3, 3, 2,	3, 3,	// 10-19
-	3, 2, 2, 2, 2, 2, 3, 2, 2, 2,	// 20-29
+	3, 2, 2, 2, 2, 3, 3, 2, 2, 2,	// 20-29
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,	// 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3 };	// 50-59
@@ -189,7 +189,7 @@ static WIDGET *music_widgets[] = {
 
 static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[24]),	// JMS: cheatMode on/off
-	(WIDGET *)(&choices[25]),	// God Mode
+	(WIDGET *)(&choices[25]),	// Precursor Mode
 	(WIDGET *)(&choices[26]),	// Time Dilation
 	(WIDGET *)(&choices[27]),	// Bubble Warp
 	(WIDGET *)(&choices[28]),	// Unlock Ships
@@ -561,7 +561,7 @@ SetDefaults (void)
 
  	choices[24].selected = opts.cheatMode; // JMS	
 	// Serosis
-	choices[25].selected = opts.godMode;
+	choices[25].selected = opts.precursorMode;
 	choices[26].selected = opts.tdType;
 	choices[27].selected = opts.bubbleWarp;
 	choices[28].selected = opts.unlockShips;
@@ -641,7 +641,7 @@ PropagateResults (void)
 
  	opts.cheatMode = choices[24].selected; // JMS
 	// Serosis
-	opts.godMode = choices[25].selected;
+	opts.precursorMode = choices[25].selected;
 	opts.tdType = choices[26].selected;
 	opts.bubbleWarp = choices[27].selected;
 	opts.unlockShips = choices[28].selected;
@@ -1588,7 +1588,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
  	opts->cheatMode = optCheatMode ? OPTVAL_ENABLED : OPTVAL_DISABLED; // JMS
 	// Serosis
-	opts->godMode = optGodMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->precursorMode = res_GetInteger("cheat.precursorMode");
 	opts->tdType = res_GetInteger ("cheat.timeDilation");
 	opts->bubbleWarp = optBubbleWarp ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->unlockShips = optUnlockShips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1959,22 +1959,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optCheatMode = opts->cheatMode == OPTVAL_ENABLED;
 
 	// Serosis: God Mode: Health and Energy does not deplete in battle.
-	res_PutBoolean ("cheat.godMode", opts->godMode == OPTVAL_ENABLED);
-	optGodMode = opts->godMode == OPTVAL_ENABLED;
+	optPrecursorMode = opts->precursorMode;
+	res_PutInteger ("cheat.precursorMode", opts->precursorMode);
 
 	// Serosis: Time Dilation: Increases and divides time in IP and HS by a factor of 12
-	switch (opts->tdType){
-		case OPTVAL_SLOW:
-			timeDilationScale=1;
-		break;
-		case OPTVAL_FAST:
-			timeDilationScale=2;
-		break;
-		case OPTVAL_NORMAL:
-		default:
-			timeDilationScale=0;
-		break;
-	}
+	timeDilationScale = opts->tdType;
 	res_PutInteger ("cheat.timeDilation", opts->tdType);
 
 	// Serosis: Bubble Warp: Warp instantly to your destination
@@ -2022,21 +2011,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optTexturedPlanets = opts->texturedPlanets == OPTVAL_ENABLED;	
 
 	// Nic: Date Format: Switch the displayed date format
-	switch (opts->dateType){
-		case OPTVAL_MMDDYYYY:
-			optDateFormat=1;
-			break;
-		case OPTVAL_DDMMMYYYY:
-			optDateFormat=2;
-			break;
-		case OPTVAL_DDMMYYYY:
-			optDateFormat=3;
-			break;
-		case OPTVAL_MMMDDYYYY:
-		default:
-			optDateFormat=0;
-			break;
-	}
+	optDateFormat = opts->dateType;
 	res_PutInteger ("mm.dateFormat", opts->dateType);	
 	
 	// Serosis: Infinite Fuel
@@ -2098,21 +2073,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
 
 	// Serosis: Difficulty
-	switch (opts->difficulty) {
-		case OPTVAL_EASY:
-			optDifficulty = 1;
-			break;
-		case OPTVAL_HARD:
-			optDifficulty = 2;
-			break;
-		case OPTVAL_IMPO:
-			optDifficulty = 3;
-			break;
-		case OPTVAL_NORM:
-		default:
-			optDifficulty = 0;
-			break;
-	}
+	optDifficulty = opts->difficulty;
 	res_PutInteger("mm.difficulty", opts->difficulty);
 
 	// Serosis: Enable "point of no return" fuel range

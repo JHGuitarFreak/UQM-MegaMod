@@ -151,7 +151,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,	 loresBlowupScale); // JMS_GFX
  	DECL_CONFIG_OPTION(bool, cheatMode); // JMS
 	// Serosis
-	DECL_CONFIG_OPTION(bool, godMode);
+	DECL_CONFIG_OPTION(int,	 optPrecursorMode);
 	DECL_CONFIG_OPTION(int,	 timeDilationScale);
 	DECL_CONFIG_OPTION(bool, bubbleWarp);
 	DECL_CONFIG_OPTION(bool, unlockShips);
@@ -339,7 +339,7 @@ main (int argc, char *argv[])
 #endif
 		INIT_CONFIG_OPTION(  cheatMode,			false ), // JMS
 		//Serosis
-		INIT_CONFIG_OPTION(  godMode,			false ), 
+		INIT_CONFIG_OPTION(  optPrecursorMode,	0 ), 
 		INIT_CONFIG_OPTION(  timeDilationScale,	0 ),
 		INIT_CONFIG_OPTION(  bubbleWarp,		false ),
 		INIT_CONFIG_OPTION(  unlockShips,		false ),
@@ -551,10 +551,10 @@ main (int argc, char *argv[])
 	optAddons = options.addons;
 	
 	resolutionFactor = (unsigned int) options.resolutionFactor.value; // JMS_GFX
-	loresBlowupScale = (unsigned int) options.loresBlowupScale.value; // JMS_GFX
-	
-	optGodMode = options.godMode.value; // JMS
+	loresBlowupScale = (unsigned int) options.loresBlowupScale.value; // JMS_GFX	
+
 	// Serosis
+	optPrecursorMode = options.optPrecursorMode.value;
 	timeDilationScale = options.timeDilationScale.value;
 	optBubbleWarp = options.bubbleWarp.value;
 	optUnlockShips = options.unlockShips.value;
@@ -908,7 +908,9 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->cheatMode, "cheat.kohrStahp"); // JMS
 	// Serosis
-	getBoolConfigValue (&options->godMode, "cheat.godMode");
+	if (res_IsInteger ("cheat.precursorMode") && !options->optPrecursorMode.set) {
+		options->optPrecursorMode.value = res_GetInteger ("cheat.precursorMode");
+	}
 	if (res_IsInteger ("cheat.timeDilation") && !options->timeDilationScale.set) {
 		options->timeDilationScale.value = res_GetInteger ("cheat.timeDilation");
 	}
@@ -1088,7 +1090,7 @@ static struct option longOptions[] =
 	{"safe", 0, NULL, SAFEMODE_OPT},
 	{"renderer", 1, NULL, RENDERER_OPT},
 	{"kohrstahp", 0, NULL, CHEATMODE_OPT}, //Serosis
-	{"godmode", 0, NULL, GODMODE_OPT},
+	{"precursormode", 1, NULL, GODMODE_OPT},
 	{"timedilation", 1, NULL, TDM_OPT},
 	{"bubblewarp", 0, NULL, BWARP_OPT},
 	{"unlockships", 0, NULL, UNLOCKSHIPS_OPT},
@@ -1394,9 +1396,22 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case CHEATMODE_OPT:
 				setBoolOption (&options->cheatMode, true); //Serosis
 				break;
-			case GODMODE_OPT:
-				setBoolOption (&options->godMode, true);
+			case GODMODE_OPT: {
+				int temp;
+				if (parseIntOption(optarg, &temp, "Precursor Mode") == -1) {
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2) {
+					saveError("\nPrecursor Mode has to be 0, 1, or 2.\n");
+					badArg = true;
+				}
+				else {
+					options->optPrecursorMode.value = temp;
+					options->optPrecursorMode.set = true;
+				}
 				break;
+			}
 			case TDM_OPT:{
 				int temp;
 				if (parseIntOption (optarg, &temp, "Time Dilation scale") == -1) {
@@ -1801,9 +1816,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "The following options are for the Mega Mod"); // Serosis
 	log_add (log_User, "  --kohrstahp : Stops Kohr-Ah advancing.    (default: %s)",
 			boolOptString (&defaults->cheatMode));
-	log_add (log_User, "  --godmode : Player ships and lander invulnerable. "
-			"Also refills energy every shot during melee.    (default: %s)",
-			boolOptString (&defaults->godMode));
+	log_add(log_User, "  --precursormode : =1 Infinite ship battery. =2 No damage"
+			"=3 Infinite ship battery and no damage    (default: 0)");
 	log_add (log_User, "  --timedilation : =1 Time is slowed down times 6. "
 			"=2 Time is sped up times 5    (default: 0)");
 	log_add (log_User, "  --bubblewarp : Instantaneous travel to any point on "
