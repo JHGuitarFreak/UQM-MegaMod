@@ -5,7 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
 - LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
-- Separate infinite energy from God mode - Pikant
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
 
 ## [v0.8.0.85]
