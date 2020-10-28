@@ -6,7 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas]
 - LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
 - Separate infinite energy from God mode - Pikant
-- HARDMODE: Up the cost of new technology - Pikant
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
 
 ## [v0.8.0.85]
@@ -64,6 +63,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: The Kohr-Ah Death March happens one year earlier
 - HARDMODE: The natural QuasiSpace portal is delayed by one year
 - EASYMODE: The Kohr-Ah Death March is delayed by two years
+- HARDMODE: Melnorme tech will increase in price as you buy more
 
 ### Changed
 - Tightened up Android control isolation across the board
