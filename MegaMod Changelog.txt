@@ -7,7 +7,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
 - Separate infinite energy from God mode - Pikant
 - HARDMODE: Up the cost of new technology - Pikant
-- HARDMODE: Make the natural Quasispace portal start appearing about year later - Pikant
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
 
 ## [v0.8.0.85]
@@ -62,6 +61,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: Allow VUX to warp in close in Melee for the main game
 - Play ship ditty when viewing ship info when 3DO video are disabled
 - New option to change the on-screen controls to Keyboard, Xbox, or PlayStation 4 controls
+- HARDMODE: The natural QuasiSpace portal is delayed by one year
 
 ### Changed
 - Tightened up Android control isolation across the board
