@@ -478,18 +478,18 @@ equipShip (void)
 		// This is the original TFB testing layout.
 		i = 0;
 		GLOBAL_SIS (ModuleSlots[i++]) = HIGHEFF_FUELSYS;
-		GLOBAL_SIS (ModuleSlots[i++]) = HIGHEFF_FUELSYS;
-		GLOBAL_SIS (ModuleSlots[i++]) = CREW_POD;
-		GLOBAL_SIS (ModuleSlots[i++]) = CREW_POD;
-		GLOBAL_SIS (ModuleSlots[i++]) = CREW_POD;
-		GLOBAL_SIS (ModuleSlots[i++]) = CREW_POD;
 		GLOBAL_SIS (ModuleSlots[i++]) = CREW_POD;
 		GLOBAL_SIS (ModuleSlots[i++]) = STORAGE_BAY;
-		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
-		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
+		GLOBAL_SIS (ModuleSlots[i++]) = STORAGE_BAY;
+		GLOBAL_SIS (ModuleSlots[i++]) = ANTIMISSILE_DEFENSE;
+		GLOBAL_SIS (ModuleSlots[i++]) = TRACKING_SYSTEM;
+		GLOBAL_SIS (ModuleSlots[i++]) = TRACKING_SYSTEM;
+		GLOBAL_SIS (ModuleSlots[i++]) = TRACKING_SYSTEM;
 		GLOBAL_SIS (ModuleSlots[i++]) = DYNAMO_UNIT;
-		GLOBAL_SIS (ModuleSlots[i++]) = TRACKING_SYSTEM;
-		GLOBAL_SIS (ModuleSlots[i++]) = TRACKING_SYSTEM;
+		GLOBAL_SIS (ModuleSlots[i++]) = DYNAMO_UNIT;
+		GLOBAL_SIS (ModuleSlots[i++]) = DYNAMO_UNIT;
+		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
+		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
 		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
 		GLOBAL_SIS (ModuleSlots[i++]) = CANNON_WEAPON;
 		GLOBAL_SIS (ModuleSlots[i++]) = CANNON_WEAPON;
@@ -503,10 +503,10 @@ equipShip (void)
 		i = NUM_BOMB_MODULES;
 		GLOBAL_SIS (ModuleSlots[i++]) = HIGHEFF_FUELSYS;
 		GLOBAL_SIS (ModuleSlots[i++]) = CREW_POD;
-		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
+		GLOBAL_SIS (ModuleSlots[i++]) = DYNAMO_UNIT;
 		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
 		GLOBAL_SIS (ModuleSlots[i++]) = CANNON_WEAPON;
-		GLOBAL_SIS (ModuleSlots[i++]) = SHIVA_FURNACE;
+		GLOBAL_SIS (ModuleSlots[i++]) = TRACKING_SYSTEM;
 	}
 
 	assert (i <= NUM_MODULE_SLOTS);
