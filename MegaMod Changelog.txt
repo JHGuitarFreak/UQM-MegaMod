@@ -96,6 +96,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Make the "Thrust" control available on all platforms
 - Added Androsynth, Chenjesu, and Mmrnmhrm ships to the shipyard when using the Unlock Ships cheat
 - More controller support so the player doesn't have to touch the keyboard if they don't want to
+- HARDMODE: Remove Quasi portal randomizing
 
 ### Fixed
 - Fixed roaming flagship in Hyperspace when it gets to destination
