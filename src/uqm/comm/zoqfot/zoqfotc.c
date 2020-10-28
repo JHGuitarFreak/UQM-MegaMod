@@ -661,7 +661,7 @@ ZoqFotHome (RESPONSE_REF R)
 		{
 			SIZE i;
 
-			i = START_YEAR + YEARS_TO_KOHRAH_VICTORY;
+			i = START_YEAR + (YEARS_TO_KOHRAH_VICTORY + DIF_CASE(0, 2, -1));
 			if (NumVisits)
 				++i;
 			if ((i -= GLOBAL (GameClock.year_index)) == 1

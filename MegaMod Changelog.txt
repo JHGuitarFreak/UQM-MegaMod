@@ -61,7 +61,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: Allow VUX to warp in close in Melee for the main game
 - Play ship ditty when viewing ship info when 3DO video are disabled
 - New option to change the on-screen controls to Keyboard, Xbox, or PlayStation 4 controls
+- HARDMODE: The Kohr-Ah Death March happens one year earlier
 - HARDMODE: The natural QuasiSpace portal is delayed by one year
+- EASYMODE: The Kohr-Ah Death March is delayed by two years
 
 ### Changed
 - Tightened up Android control isolation across the board
