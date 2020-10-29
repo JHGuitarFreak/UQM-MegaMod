@@ -423,8 +423,7 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 {
 	BATTLE_INPUT_STATE InputState = 0;
 
-#if defined(ANDROID) || defined(__ANDROID__)	
-	else
+#if defined(ANDROID) || defined(__ANDROID__)
 	InputState |= GetDirectionalJoystickInput(direction, player);
 #else
 	(void)player; /* satisfy compiler (unused parameter) */

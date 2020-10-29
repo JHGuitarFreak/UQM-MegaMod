@@ -202,7 +202,9 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
+#if !(defined(ANDROID) || defined(__ANDROID__))
 	(WIDGET *)(&choices[59]),	// Control Display
+#endif
 	(WIDGET *)(&choices[18]),	// Bottom Player
 	(WIDGET *)(&choices[19]),	// Top Player
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -545,7 +547,7 @@ SetDefaults (void)
 	choices[10].selected = opts.fullscreen;
 	choices[11].selected = opts.intro;
 	choices[12].selected = opts.fps;
-#if !defined(ANDROID) || !defined(__ANDROID__)
+#if !(defined(ANDROID) || defined(__ANDROID__))
 	choices[13].selected = opts.meleezoom;
 #endif
 	choices[14].selected = opts.stereo;
@@ -626,7 +628,7 @@ PropagateResults (void)
 	opts.fullscreen = choices[10].selected;
 	opts.intro = choices[11].selected;
 	opts.fps = choices[12].selected;
-#if !defined(ANDROID) || !defined(__ANDROID__)
+#if !(defined(ANDROID) || defined(__ANDROID__))
 	opts.meleezoom = choices[13].selected;
 #endif
 	opts.stereo = choices[14].selected;
@@ -2125,7 +2127,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
 	}
 
-#if !defined(ANDROID) || !defined(__ANDROID__)
+#if !(defined(ANDROID) || defined(__ANDROID__))
 	if (opts->fullscreen)
 		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
 	else
@@ -2198,7 +2200,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichCoarseScan = (opts->cscan == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optSmoothScroll = (opts->scroll == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-#if !defined(ANDROID) || !defined(__ANDROID__)
+#if !(defined(ANDROID) || defined(__ANDROID__))
 	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 #endif
 	opt3doMusic = (opts->music3do == OPTVAL_ENABLED);
