@@ -818,11 +818,12 @@ ExitOutfit:
 	}
 	
 
-	if(optInfiniteFuel){		
-		DeltaSISGauges(0,GetFuelTankCapacity(),0);
+	if (optInfiniteFuel)
+	{		
+		DeltaSISGauges (0, GetFuelTankCapacity (), 0);
 		RedistributeFuel ();
 	}
-	if(optInfiniteRU)		
+	if (optInfiniteRU)		
 		GLOBAL_SIS (ResUnits) = 1000000L;
 
 	return (TRUE);

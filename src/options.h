@@ -52,7 +52,7 @@ extern BOOLEAN optRequiresRestart;
 
 extern BOOLEAN optCheatMode; // JMS
 // Serosis
-extern BOOLEAN optGodMode;
+extern int optPrecursorMode;
 extern int timeDilationScale;
 extern BOOLEAN optBubbleWarp;
 extern BOOLEAN optUnlockShips;

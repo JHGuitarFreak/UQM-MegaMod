@@ -92,11 +92,12 @@ extern BOOLEAN ThrustShip (ELEMENT *ShipPtr, COUNT angle);
 #define AWESOME_RATING (BYTE)(1 << 6)
 
 static inline BOOLEAN
-antiCheat (ELEMENT *ElementPtr, BOOLEAN SwapBool) 
+antiCheat (ELEMENT *ElementPtr, BOOLEAN SwapBool, int PrecursorType) 
 {
-	if (!(PlayerControl[0] & COMPUTER_CONTROL && PlayerControl[1] & COMPUTER_CONTROL) && ((optGodMode) &&
-		(((PlayerControl[0] & COMPUTER_CONTROL) && ElementPtr->playerNr == (SwapBool ? 0 : 1)) ||
-		((PlayerControl[1] & COMPUTER_CONTROL) && ElementPtr->playerNr == (SwapBool ? 1 : 0)))))
+	if ( !(PlayerControl[0] & COMPUTER_CONTROL && PlayerControl[1] & COMPUTER_CONTROL) 
+		&& (optPrecursorMode == PrecursorType
+		&& (((PlayerControl[0] & COMPUTER_CONTROL) && ElementPtr->playerNr == (SwapBool ? 0 : 1))
+		|| ((PlayerControl[1] & COMPUTER_CONTROL) && ElementPtr->playerNr == (SwapBool ? 1 : 0)))))
 	{
 		return TRUE;
 	} 
@@ -105,11 +106,12 @@ antiCheat (ELEMENT *ElementPtr, BOOLEAN SwapBool)
 }
 
 static inline BOOLEAN
-antiCheatAlt (void)
+antiCheatAlt (int PrecursorType)
 {
-	if (!(PlayerControl[0] & COMPUTER_CONTROL && PlayerControl[1] & COMPUTER_CONTROL) && ((optGodMode) &&
-		(((PlayerControl[0] & COMPUTER_CONTROL) && PlayerControl[1] & HUMAN_CONTROL) ||
-		((PlayerControl[1] & COMPUTER_CONTROL) && PlayerControl[0] & HUMAN_CONTROL))))
+	if (!(PlayerControl[0] & COMPUTER_CONTROL && PlayerControl[1] & COMPUTER_CONTROL)
+		&& (optPrecursorMode == PrecursorType
+		&& (((PlayerControl[0] & COMPUTER_CONTROL) && PlayerControl[1] & HUMAN_CONTROL)
+		|| ((PlayerControl[1] & COMPUTER_CONTROL) && PlayerControl[0] & HUMAN_CONTROL))))
 	{
 		return TRUE;
 	} 

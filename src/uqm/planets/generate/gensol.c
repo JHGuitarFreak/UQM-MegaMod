@@ -51,7 +51,6 @@ static bool GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys,
 
 static int init_probe (void);
 static void check_probe (void);
-static BYTE race_id;
 
 
 const GenerateFunctions generateSolFunctions = {
@@ -74,19 +73,14 @@ const GenerateFunctions generateSolFunctions = {
 static bool
 GenerateSol_initNpcs (SOLARSYS_STATE *solarSys)
 {
-	if (!GET_GAME_STATE (PROBE_MESSAGE_DELIVERED))
+	GLOBAL (BattleGroupRef) = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
+	if (GLOBAL (BattleGroupRef) == 0)
 	{
-		GLOBAL (BattleGroupRef) = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
-		if (GLOBAL (BattleGroupRef) == 0)
-		{
-			CloneShipFragment (URQUAN_DRONE_SHIP, &GLOBAL (npc_built_ship_q), 0);
-			GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
-			ReinitQueue (&GLOBAL (npc_built_ship_q));
-			SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, GLOBAL (BattleGroupRef));
-		}
+		CloneShipFragment (URQUAN_DRONE_SHIP, &GLOBAL (npc_built_ship_q), 0);
+		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
+		ReinitQueue (&GLOBAL (npc_built_ship_q));
+		SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, GLOBAL (BattleGroupRef));
 	}
-	else if (race_id == URQUAN_DRONE_SHIP)
-		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 
 	if (!init_probe ())
 		GenerateDefault_initNpcs (solarSys);
@@ -804,7 +798,6 @@ check_probe (void)
 		return; // still nothing to check
 	
 	GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
-	race_id = GroupPtr->race_id;
 	// REFORM_GROUP was set in ipdisp.c:ip_group_collision()
 	// during a collision with the flagship.
 	if (GroupPtr->race_id == URQUAN_DRONE_SHIP

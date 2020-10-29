@@ -27,6 +27,7 @@
 #include "libs/mathlib.h"
 #include "options.h" // For God Mode invincibility
 #include "settings.h"
+#include "setupmenu.h"
 #include "intel.h"
 
 void
@@ -206,7 +207,9 @@ void
 do_damage (ELEMENT *ElementPtr, SIZE damage)
 {
 	// God Mode, borrowed from the UQM-HD debug invincibility code
-	if (antiCheat(ElementPtr, FALSE)) {
+	if (antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
+		|| antiCheat(ElementPtr, FALSE, OPTVAL_SEKHMET))
+	{
 		damage = 0;
 	}
 	if (ElementPtr->state_flags & PLAYER_SHIP)

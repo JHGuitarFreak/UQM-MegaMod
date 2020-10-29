@@ -62,7 +62,7 @@ BOOLEAN optRequiresRestart;
 
 BOOLEAN optCheatMode; // JMS
 // Serosis
-BOOLEAN optGodMode;
+int optPrecursorMode;
 int timeDilationScale;
 BOOLEAN optBubbleWarp;
 BOOLEAN optUnlockShips;

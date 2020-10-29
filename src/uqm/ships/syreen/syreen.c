@@ -20,6 +20,7 @@
 #include "syreen.h"
 #include "resinst.h"
 #include "../../setup.h"
+#include "../../setupmenu.h"
 #include "libs/mathlib.h"
 
 // Core characteristics
@@ -210,8 +211,11 @@ spawn_crew (ELEMENT *ElementPtr)
 				{
 					COUNT crew_loss;
 
-					if (!antiCheat(ElementPtr, TRUE))
+					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
+						|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+					{
 						crew_loss = ((MAX_ABANDONERS * (ABANDONER_RANGE - square_root(d_squared))) / ABANDONER_RANGE) + 1;
+					}
 					else
 						crew_loss = 0;
 

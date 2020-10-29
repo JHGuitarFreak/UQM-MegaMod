@@ -29,6 +29,7 @@
 #include "../nameref.h"
 #include "../resinst.h"
 #include "../setup.h"
+#include "../setupmenu.h"
 #include "../sounds.h"
 #include "../element.h"
 #include "libs/graphics/gfx_common.h"
@@ -148,7 +149,7 @@ extern PRIM_LINKS DisplayLinks;
 #define ADD_AT_END (1 << 4)
 #define REPAIR_COUNT (0xf)
 
-#define LANDER_SPEED_DENOM (10) // JMS_GFX
+#define LANDER_SPEED_DENOM 10
 
 static BYTE lander_flags;
 static POINT curLanderLoc;
@@ -452,7 +453,8 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 		shieldHit &= 1 << which_disaster;
 		if (!shieldHit || TFB_Random () % 100 >= 95)
 		{	// No shield, or it did not help
-			if (!optGodMode) {
+			if (optPrecursorMode >= OPTVAL_HORUS)
+			{
 				shieldHit = 0; 
 				--crew_left; 
 			} else 
@@ -497,7 +499,9 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		s.frame = SetAbsFrameIndex (LanderFrame[0], 41);
 
 		pPSD->BiologicalLevel += NumRetrieved;
-	} else {
+	}
+	else
+	{
 		start_count = pPSD->ElementLevel;
 		pPSD->ElementLevel += NumRetrieved;
 		if (GET_GAME_STATE(IMPROVED_LANDER_CARGO))
@@ -1024,30 +1028,19 @@ AddLightning (void)
 
 		rand_val = TFB_Random ();
 		LightningElementPtr->life_span = 10 + (HIWORD (rand_val) % 10) + 1;
-
-		if (!IS_HD) {
-			LightningElementPtr->next.location.x = (curLanderLoc.x
+		LightningElementPtr->next.location.x = (curLanderLoc.x
 				+ ((MAP_WIDTH << MAG_SHIFT) - ((SURFACE_WIDTH >> 1) - 6))
-				+ (LOBYTE (rand_val) % (SURFACE_WIDTH - 12))
+				+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (SURFACE_WIDTH - RES_SCALE(12)))
 				) % (MAP_WIDTH << MAG_SHIFT);
-			LightningElementPtr->next.location.y = (curLanderLoc.y
+		LightningElementPtr->next.location.y = (curLanderLoc.y
 				+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
-				+ (HIBYTE (rand_val) % (SURFACE_HEIGHT - 12))
+				+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (SURFACE_HEIGHT - RES_SCALE(12)))
 				) % (MAP_HEIGHT << MAG_SHIFT);
-		} else {
-			LightningElementPtr->next.location.x = (curLanderLoc.x
-				+ ((MAP_WIDTH << MAG_SHIFT) - ((SURFACE_WIDTH >> 1) - 6))
-				+ (rand_val % (SURFACE_WIDTH - RES_SCALE(12)))
-				) % (MAP_WIDTH << MAG_SHIFT);
-			LightningElementPtr->next.location.y = (curLanderLoc.y
-				+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
-				+ (rand_val % (SURFACE_HEIGHT - RES_SCALE(12)))
-				) % (MAP_HEIGHT << MAG_SHIFT);
-		}
 
 		LightningElementPtr->cycle = LightningElementPtr->life_span;
 
-		if (!IS_HD) {
+		if (!IS_HD)
+		{
 			SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex], STAMPFILL_PRIM);
 			SetPrimColor (&DisplayArray[LightningElementPtr->PrimIndex], WHITE_COLOR);
 		}
@@ -1359,11 +1352,15 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 			pPSD->MineralText[0].baseline.x -= dx;
 			pPSD->MineralText[0].baseline.y -= dy;
 			font_DrawText (&pPSD->MineralText[0]);
-			pPSD->MineralText[1].baseline.x = pPSD->MineralText[0].baseline.x;
-			pPSD->MineralText[1].baseline.y = pPSD->MineralText[0].baseline.y + RES_SCALE(7); // JMS_GFX
+			pPSD->MineralText[1].baseline.x =
+					pPSD->MineralText[0].baseline.x;
+			pPSD->MineralText[1].baseline.y =
+					pPSD->MineralText[0].baseline.y + RES_SCALE(7);
 			font_DrawText (&pPSD->MineralText[1]);
-			pPSD->MineralText[2].baseline.x = pPSD->MineralText[1].baseline.x;
-			pPSD->MineralText[2].baseline.y = pPSD->MineralText[1].baseline.y + RES_SCALE(7); // JMS_GFX
+			pPSD->MineralText[2].baseline.x =
+					pPSD->MineralText[1].baseline.x;
+			pPSD->MineralText[2].baseline.y =
+					pPSD->MineralText[1].baseline.y + RES_SCALE(7);
 			font_DrawText (&pPSD->MineralText[2]);
 		}
 	}
@@ -1506,21 +1503,16 @@ static void
 InitPlanetSide (POINT pt)
 {
 	// Adjust landing location by a random jitter.
-#define RANDOM_MISS RES_SCALE(64) // JMS_GFX
-	if(!optGodMode){
-		pt.x -= RANDOM_MISS - TFB_Random () % (RANDOM_MISS << 1);
-		pt.y -= RANDOM_MISS - TFB_Random () % (RANDOM_MISS << 1);
-	} else { 
-		pt.x -= 0;
-		pt.y -= 0;
-	}
+#define RANDOM_MISS RES_SCALE(64)
 	// Jitter the X landing point.
+	pt.x -= RANDOM_MISS - TFB_Random () % (RANDOM_MISS << 1);
 	if (pt.x < 0)
 		pt.x += (MAP_WIDTH << MAG_SHIFT);
 	else if (pt.x >= (MAP_WIDTH << MAG_SHIFT))
 		pt.x -= (MAP_WIDTH << MAG_SHIFT);
 
 	// Jitter the Y landing point.
+	pt.y -= RANDOM_MISS - TFB_Random () % (RANDOM_MISS << 1);
 	if (pt.y < 0)
 		pt.y = 0;
 	else if (pt.y >= (MAP_HEIGHT << MAG_SHIFT))
@@ -1877,7 +1869,8 @@ ReturnToOrbit (void)
 	BatchGraphics ();
 	
 	// JMS: This will hide the table of mineral values on the status bar.
-	if (optSubmenu){
+	if (optSubmenu)
+	{
 		if(optCustomBorder)
 			DrawBorder(14, FALSE);
 		else
@@ -1927,9 +1920,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;
 	// JMS_GFX: In HD graphics we run out of default offsets. -> Use larger offset value.
-	max_offsets = MAX_OFFSETS;
-	if (IS_HD) 
-		max_offsets = MAX_OFFSETS_HD;
+	max_offsets = RES_BOOL(MAX_OFFSETS, MAX_OFFSETS_HD);
 
 	for (index = 0; index < max_offsets && delta < DISTANCE_COVERED; ++index)
 	{
@@ -2102,7 +2093,8 @@ PlanetSide (POINT planetLoc)
 	AnimateLanderWarmup ();
 	AnimateLaunch (LanderFrame[5], TRUE);
 
-	if (optSubmenu){
+	if (optSubmenu)
+	{
 		if(optCustomBorder)
 			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
 		else
@@ -2263,7 +2255,8 @@ InitLander (BYTE LanderFlags)
 		{
 			r.corner.x = RES_SCALE(1);
 			r.extent.width = RES_SCALE(4);
-			r.extent.height = RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+			r.extent.height =
+				RES_STAT_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 		}

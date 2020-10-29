@@ -515,7 +515,8 @@ InitGameStructures (void)
 	if (optHeadStart)
 	{
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 2);
-		if (!NOMAD) {
+		if (!NOMAD) 
+		{
 			SET_GAME_STATE (MOONBASE_ON_SHIP, 1);
 			SET_GAME_STATE (MOONBASE_DESTROYED, 1);
 			GLOBAL_SIS (ModuleSlots[7]) = STORAGE_BAY;
@@ -564,7 +565,7 @@ InitGameStructures (void)
 	SetRaceAllied (HUMAN_SHIP, TRUE);
 	CloneShipFragment (HUMAN_SHIP, &GLOBAL (built_ship_q), 0);
 
-	if(optHeadStart)
+	if (optHeadStart)
 	{
 		BYTE SpaCrew = IF_EASY(1, 30);
 		AddEscortShips (SPATHI_SHIP, 1);

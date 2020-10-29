@@ -113,6 +113,7 @@ static RECT scaleRect;
 		// system zooms in when the flagship enters this rect
 
 RandomContext *SysGenRNG;
+RandomContext* SysGenRNGDebug;
 
 #define DISPLAY_TO_LOC  (DISPLAY_FACTOR >> 1)
 
@@ -438,6 +439,7 @@ LoadIPData (void)
 	if (!SysGenRNG)
 	{
 		SysGenRNG = RandomContext_New ();
+		SysGenRNGDebug = SysGenRNG;
 	}
 }
 	

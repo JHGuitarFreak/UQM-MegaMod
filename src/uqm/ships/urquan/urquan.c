@@ -22,6 +22,7 @@
 #include "../../intel.h"
 #include "uqm/globdata.h"
 #include "../../setup.h"
+#include "../../setupmenu.h"
 #include "uqm/colors.h"
 #include <stdlib.h>
 
@@ -418,7 +419,9 @@ spawn_fighters (ELEMENT *ElementPtr)
 		COUNT fighter_facing;
 		ELEMENT *FighterElementPtr;
 
-		if (!antiCheat(ElementPtr, FALSE)) {
+		if (!(antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
+			|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET)))
+		{
 			DeltaCrew (ElementPtr, -1);
 		}
 

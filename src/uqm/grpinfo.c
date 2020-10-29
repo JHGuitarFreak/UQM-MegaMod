@@ -356,49 +356,51 @@ FoundHome:
 }
 
 void
-findRaceSOI(void) {
-	POINT universe;
+findRaceSOI(void)
+{
+	POINT universe = CurStarDescPtr->star_pt;
 	HFLEETINFO hFleet, hNextFleet;
-	BYTE Index, HomeworldID, loop;
+	BYTE Index;
+	BYTE i = 0;
+
+	BYTE RaceHasMusic[] = { RACE_MUSIC_BOOL };
+	BYTE HomeWorld[] = { HOMEWORLD_LOC };
 	BYTE speciesID[4] = { 0 };
 
-	BYTE EncounterPercent[] = { RACE_MUSIC_BOOL };
-	BYTE HomeWorld[] = { HOMEWORLD_LOC };
-
-	loop = 0;
-	HomeworldID = 0;
-	Index = 0;
-
-	universe = CurStarDescPtr->star_pt;
+	if (GET_GAME_STATE(KOHR_AH_FRENZY))
+	{
+		spaceMusicBySOI = SA_MATRA_ID;
+		return;
+	}
 
 	for (hFleet = GetHeadLink(&GLOBAL(avail_race_q)), Index = 0;
 		hFleet; hFleet = hNextFleet, ++Index)
 	{
-		COUNT i, encounter_radius;
-		FLEET_INFO *FleetPtr;
+		FLEET_INFO* FleetPtr;
+		BYTE race_enc = HomeWorld[Index];
+		BOOLEAN race_alive;
 
 		FleetPtr = LockFleetInfo(&GLOBAL(avail_race_q), hFleet);
 		hNextFleet = _GetSuccLink(FleetPtr);
+		race_alive = (FleetPtr->actual_strength > 0 || race_enc == CHMMR_DEFINED
+			|| race_enc == SYREEN_DEFINED);
 
-		if ((encounter_radius = FleetPtr->actual_strength)
-			&& (i = EncounterPercent[Index]))
+		if (race_enc && CurStarDescPtr->Index == race_enc && race_alive)
+		{	// Finds the race homeworld
+			spaceMusicBySOI = FleetPtr->SpeciesID;
+			return;
+		}
+
+		if (FleetPtr->actual_strength && RaceHasMusic[Index])
 		{
 			SIZE dx, dy;
+			COUNT encounter_radius;
 			DWORD d_squared;
-			BYTE race_enc = HomeWorld[Index];
 
-			if (race_enc && CurStarDescPtr->Index == race_enc) 
-			{	
-				// Finds the race homeworld
-				hNextFleet = 0;
-				HomeworldID = FleetPtr->SpeciesID;
-				break;
-			}
-
-			if (encounter_radius == INFINITE_RADIUS)
+			if (FleetPtr->actual_strength == INFINITE_RADIUS)
 				encounter_radius = (MAX_X_UNIVERSE + 1) << 1;
 			else
-				encounter_radius = (encounter_radius * SPHERE_RADIUS_INCREMENT) >> 1;
+				encounter_radius = (FleetPtr->actual_strength * SPHERE_RADIUS_INCREMENT) >> 1;
 
 			dx = universe.x - FleetPtr->loc.x;
 			if (dx < 0)
@@ -408,32 +410,22 @@ findRaceSOI(void) {
 			if (dy < 0)
 				dy = -dy;
 
-			if ((COUNT)dx < encounter_radius 
+			if ((COUNT)dx < encounter_radius
 				&& (COUNT)dy < encounter_radius
-				&& (d_squared = (DWORD)dx * dx + (DWORD)dy * dy) 
-				< (DWORD)encounter_radius * encounter_radius) 
-			{	
-				// Finds the race SOI
-				speciesID[++loop] = FleetPtr->SpeciesID;
+				&& (d_squared = (DWORD)dx * dx + (DWORD)dy * dy)
+				< (DWORD)encounter_radius * encounter_radius)
+			{	// Finds the race SOI
+				speciesID[++i] = FleetPtr->SpeciesID;
 			}
 		}
 	}
 
-	if (HomeworldID == 0 && LOBYTE(GLOBAL(CurrentActivity)) == IN_INTERPLANETARY) {
-		if (speciesID[1] == 0)
-			spaceMusicBySOI = NO_ID;
-		if (speciesID[1] > 0 && speciesID[2] == 0)
-			spaceMusicBySOI = speciesID[1];
-		if (speciesID[1] > 0 && speciesID[2] > 0)
-			spaceMusicBySOI = speciesID[1];
-		if (speciesID[1] > 0 && speciesID[2] > 0 && speciesID[3] > 0)
-			spaceMusicBySOI = speciesID[2];
-	} else {
-		spaceMusicBySOI = HomeworldID; 
-	}
-
-	if (GET_GAME_STATE(KOHR_AH_FRENZY) && LOBYTE(GLOBAL(CurrentActivity)) == IN_INTERPLANETARY)
-		spaceMusicBySOI = SA_MATRA_ID;
+	if (speciesID[1] > 0 && speciesID[2] > 0 && speciesID[3] > 0)
+		spaceMusicBySOI = speciesID[2];
+	else if (speciesID[1] > 0)
+		spaceMusicBySOI = speciesID[1];
+	else
+		spaceMusicBySOI = NO_ID;
 }
 
 static void

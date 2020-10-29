@@ -290,6 +290,7 @@ extern CONTEXT PlanetContext;
 
 // Random context used for all solar system, planets and surfaces generation
 extern RandomContext *SysGenRNG;
+extern RandomContext* SysGenRNGDebug;
 
 bool playerInSolarSystem (void);
 bool playerInPlanetOrbit (void);
