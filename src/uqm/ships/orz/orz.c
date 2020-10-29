@@ -20,6 +20,7 @@
 #include "orz.h"
 #include "resinst.h"
 #include "../../setup.h"
+#include "../../setupmenu.h"
 #include "uqm/colors.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
@@ -446,7 +447,9 @@ LeftShip:
 				}
 				else if (randval < (0x0100 / 2 + 0x0100 / 16))
 				{
-					if (!antiCheat(ElementPtr, TRUE)) {
+					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
+						|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+					{
 						if (!DeltaCrew (ShipPtr, -1))
 							ShipPtr->life_span = 0;
 					}
@@ -803,7 +806,8 @@ marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 				GetElementStarShip (ElementPtr0, &StarShipPtr);
 
-				if (!antiCheat(ElementPtr1, FALSE)) 
+				if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
+					|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
 				{
 					if (!DeltaCrew (ElementPtr1, -1))
 						ElementPtr1->life_span = 0;
@@ -1032,8 +1036,11 @@ turret_postprocess (ELEMENT *ElementPtr)
 				UnlockElement (hSpaceMarine);
 				PutElement (hSpaceMarine);
 
-				if (!antiCheat(ElementPtr, FALSE))
+				if (!(antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
+					|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET)))
+				{
 					DeltaCrew (ShipPtr, -1);
+				}
 
 				ProcessSound (SetAbsSoundIndex (
 						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1),

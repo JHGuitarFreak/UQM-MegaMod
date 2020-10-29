@@ -20,6 +20,7 @@
 #include "vux.h"
 #include "resinst.h"
 #include "../../setup.h"
+#include "../../setupmenu.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
@@ -166,7 +167,8 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 		GetElementStarShip (ElementPtr1, &StarShipPtr);
 		RDPtr = StarShipPtr->RaceDescPtr;
-		if (!antiCheat(ElementPtr1, FALSE))
+		if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
+			|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
 		{
 			if (++RDPtr->characteristics.turn_wait == 0)
 				--RDPtr->characteristics.turn_wait;

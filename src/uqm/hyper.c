@@ -677,7 +677,7 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			portal_rng_x = RandomContext_Set(portal_pt[index].x);
 			portal_rng_y = RandomContext_Set(portal_pt[index].y);
 
-			if (!PrimeSeed || DIF_HARD)
+			if (!PrimeSeed)
 			{
 				GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(RandomContext_Random(portal_rng_x) % (MAX_X_UNIVERSE + 1));
 				GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(RandomContext_Random(portal_rng_y) % (MAX_Y_UNIVERSE + 1));
@@ -690,7 +690,7 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
-			if (PrimeSeed && !DIF_HARD)
+			if (PrimeSeed)
 				SET_QS_PORTAL_KNOWN(index);
 
 			SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);

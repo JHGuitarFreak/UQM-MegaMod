@@ -35,6 +35,7 @@
 #include "libs/threadlib.h"
 #include "libs/input/sdl/vcontrol.h"
 #include "setup.h"
+#include "setupmenu.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / RES_SCALE(12))
 #define MENU_REPEAT_DELAY (ONE_SECOND / 3)
@@ -422,8 +423,7 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 {
 	BATTLE_INPUT_STATE InputState = 0;
 
-#if defined(ANDROID) || defined(__ANDROID__)	
-	else
+#if defined(ANDROID) || defined(__ANDROID__)
 	InputState |= GetDirectionalJoystickInput(direction, player);
 #else
 	(void)player; /* satisfy compiler (unused parameter) */
@@ -440,13 +440,15 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 	}
 	if (keyState[KEY_WEAPON])
 	{
-		if (antiCheatAlt ())
+		if (antiCheatAlt (OPTVAL_ANHUR)
+			|| antiCheatAlt (OPTVAL_SEKHMET))
 			resetEnergyBattle ();
 		InputState |= BATTLE_WEAPON;
 	}
 	if (keyState[KEY_SPECIAL])
 	{
-		if (antiCheatAlt ())
+		if (antiCheatAlt (OPTVAL_ANHUR)
+			|| antiCheatAlt (OPTVAL_SEKHMET))
 			resetEnergyBattle ();
 		InputState |= BATTLE_SPECIAL;
 	}

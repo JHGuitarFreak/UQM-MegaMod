@@ -74,6 +74,13 @@ typedef enum {
 	OPTVAL_MEDIUM,
 	OPTVAL_HIGH
 } OPT_AQUALITYTYPE;
+
+typedef enum {
+	OPTVAL_HUMAN,
+	OPTVAL_ANHUR,
+	OPTVAL_HORUS,
+	OPTVAL_SEKHMET
+} OPT_GODTYPE;
  
 typedef enum {
 	OPTVAL_NORMAL,
@@ -118,6 +125,7 @@ typedef struct globalopts_struct {
 	OPT_DRIVERTYPE driver;
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;
+	OPT_GODTYPE precursorMode;
 	OPT_TDTYPE tdType;
 	OPT_DATETYPE dateType;
 	OPT_DIFFICULTY difficulty;

@@ -493,6 +493,18 @@ GrantTech (TechId_t techId)
 	}
 }
 
+static int
+countTech (void)
+{
+	int numTech = 0;
+	TechId_t i = 0;
+
+	for (i = 0; i <= NUM_TECHNOLOGIES; ++i)
+		numTech += HasTech (i);
+
+	return numTech;
+}
+
 
 ////////////Melnorme Sales System///////////
 // This section contains code related to Melnorme sales
@@ -582,6 +594,7 @@ typedef struct
 } TechSaleData;
 
 // Right now, all techs have the same price.
+// Serosis: Unless Hard Mode is enabled.
 #define TECHPRICE (75 * BIO_CREDIT_VALUE)
 
 static const TechSaleData tech_sale_catalog[] =
@@ -605,12 +618,15 @@ const size_t NUM_TECH_ITEMS = ARRAY_SIZE (tech_sale_catalog);
 // Return the next tech for sale that the player doesn't already have.
 // Returns NULL if the player has all the techs.
 static const TechSaleData*
-GetNextTechForSale (void) {
+GetNextTechForSale (void)
+{
 	BYTE i = 0;
 	BYTE j = 0;
 
-	if(DIF_HARD && CurStarDescPtr){
-		switch (CurStarDescPtr->Index) {
+	if (DIF_HARD && CurStarDescPtr)
+	{
+		switch (CurStarDescPtr->Index)
+		{
 			case MELNORME0_DEFINED:
 				i = TECH_MODULE_CANNON;	 
 				j = i + 1;
@@ -651,14 +667,20 @@ GetNextTechForSale (void) {
 				i = 0; j = i;
 		}
 
-		for (i = i; i < j; ++i) {
+		for (i = i; i < j; ++i)
+		{
 			if (!HasTech (tech_sale_catalog[i].techId))
 				return &tech_sale_catalog[i];
 		}
-	} else if (DIF_HARD && !CurStarDescPtr) {
+	} 
+	else if (DIF_HARD && !CurStarDescPtr)
+	{
 		return NULL;
-	} else {
-		for (i = 0; i < NUM_TECH_ITEMS; ++i) {
+	}
+	else
+	{
+		for (i = 0; i < NUM_TECH_ITEMS; ++i)
+		{
 			if (!HasTech (tech_sale_catalog[i].techId))
 				return &tech_sale_catalog[i];
 		}
@@ -1255,7 +1277,7 @@ TryFuelAgain:
 		// player has by using the technology API above.  This opens the
 		// possibility of the player acquiring tech from someplace other than
 		// the Melnorme.
-		const TechSaleData* nextTech;
+		TechSaleData* nextTech;
 
 		// If it's our first time, give an introduction.
 		if (!GET_GAME_STATE (MELNORME_TECH_PROCEDURE))
@@ -1287,6 +1309,14 @@ TryFuelAgain:
 		}
 
 		NPCPhrase (nextTech->sale_line);
+
+		if (DIF_HARD && countTech() > 0)
+		{
+			nextTech->price += countTech() * 50;
+			NPCPhrase (NEED_MORE_CREDIT0);
+			NPCNumber (nextTech->price - TECHPRICE, NULL);
+			NPCPhrase (NEED_MORE_CREDIT1);
+		}
 
 		Response (buy_new_tech, DoBuy);
 		Response (no_buy_new_tech, DoBuy);
