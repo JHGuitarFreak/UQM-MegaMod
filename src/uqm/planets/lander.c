@@ -453,7 +453,7 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 		shieldHit &= 1 << which_disaster;
 		if (!shieldHit || TFB_Random () % 100 >= 95)
 		{	// No shield, or it did not help
-			if (optPrecursorMode >= OPTVAL_HORUS)
+			if (optPrecursorMode < OPTVAL_HORUS)
 			{
 				shieldHit = 0; 
 				--crew_left; 
