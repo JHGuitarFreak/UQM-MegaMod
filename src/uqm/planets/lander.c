@@ -1867,15 +1867,6 @@ ReturnToOrbit (void)
 
 	SetTransitionSource (&r);
 	BatchGraphics ();
-	
-	// JMS: This will hide the table of mineral values on the status bar.
-	if (optSubmenu)
-	{
-		if(optCustomBorder)
-			DrawBorder(14, FALSE);
-		else
-			DrawSubmenu (0);
-	}
 
 	DrawStarBackGround ();
 	DrawPlanetSurfaceBorder ();
@@ -2092,14 +2083,6 @@ PlanetSide (POINT planetLoc)
 
 	AnimateLanderWarmup ();
 	AnimateLaunch (LanderFrame[5], TRUE);
-
-	if (optSubmenu)
-	{
-		if(optCustomBorder)
-			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
-		else
-			DrawSubmenu (DIF_CASE(1, 2, 3));
-	}
 
 	InitPlanetSide (planetLoc);
 

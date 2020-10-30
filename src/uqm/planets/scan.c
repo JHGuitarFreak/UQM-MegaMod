@@ -1257,6 +1257,14 @@ ScanSystem (void)
 
 	memset (&MenuState, 0, sizeof MenuState);
 
+	if (optSubmenu)
+	{
+		if (optCustomBorder)
+			DrawBorder (DIF_CASE(15, 16, 17), FALSE);
+		else
+			DrawSubmenu (DIF_CASE(1, 2, 3));
+	}
+
 	GetScanContext (NULL);
 
 	if (optWhichMenu == OPT_3DO &&
