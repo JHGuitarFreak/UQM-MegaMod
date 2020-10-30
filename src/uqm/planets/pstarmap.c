@@ -1626,6 +1626,22 @@ DoMoveCursor (MENU_STATE *pMS)
 		if (PulsedInputState.menu[KEY_MENU_UP])      sy = -RES_SCALE(1);
 		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = RES_SCALE(1);
 
+		if (IS_HD)
+		{	// Double the cursor speed in HD when the Zoom In key is held down
+			if (CurrentInputState.menu[KEY_MENU_LEFT]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				sx = -RES_SCALE(2);
+			if (CurrentInputState.menu[KEY_MENU_RIGHT]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				sx = RES_SCALE(2);
+			if (CurrentInputState.menu[KEY_MENU_UP]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				sy = -RES_SCALE(2);
+			if (CurrentInputState.menu[KEY_MENU_DOWN]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				sy = RES_SCALE(2);
+		}
+
 		if (sx != 0 || sy != 0)
 		{
 			UpdateCursorLocation (sx, sy, NULL);
