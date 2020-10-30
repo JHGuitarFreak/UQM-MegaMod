@@ -63,7 +63,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: The natural QuasiSpace portal is delayed by one year
 - EASYMODE: The Kohr-Ah Death March is delayed by two years
 - HARDMODE: Melnorme tech will increase in price as you buy more
-- HD: Holding down the zoom out key doubles cursor speed on StarMap & Scan
+- Holding down the zoom out key doubles cursor speed on StarMap & Scan
 
 ### Changed
 - Tightened up Android control isolation across the board
