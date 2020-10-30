@@ -760,21 +760,19 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		if (CurrentInputState.menu[KEY_MENU_DOWN])
 			dy = RES_SCALE(1);
 
-		if (IS_HD)
-		{	// Double the cursor speed in HD when the Zoom In key is held down
-			if (CurrentInputState.menu[KEY_MENU_LEFT]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dx = -RES_SCALE(2);
-			if (CurrentInputState.menu[KEY_MENU_RIGHT]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dx = RES_SCALE(2);
-			if (CurrentInputState.menu[KEY_MENU_UP]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dy = -RES_SCALE(2);
-			if (CurrentInputState.menu[KEY_MENU_DOWN]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dy = RES_SCALE(2);
-		}
+		// Double the cursor speed when the Zoom Out key is held down
+		if (CurrentInputState.menu[KEY_MENU_LEFT]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dx = -RES_SCALE(2);
+		if (CurrentInputState.menu[KEY_MENU_RIGHT]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dx = RES_SCALE(2);
+		if (CurrentInputState.menu[KEY_MENU_UP]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dy = -RES_SCALE(2);
+		if (CurrentInputState.menu[KEY_MENU_DOWN]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dy = RES_SCALE(2);
 
 		BatchGraphics ();
 
