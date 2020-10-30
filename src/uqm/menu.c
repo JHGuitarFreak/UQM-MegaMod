@@ -88,7 +88,6 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	num_items = 1 + end_index - beg_index;
 	r->corner.x -= 1;
 	r->extent.width += RES_STAT_SCALE(1);
-	DrawFilledRectangle (r);
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
 	else
@@ -472,7 +471,7 @@ void
 DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 {
 	BYTE end_index;
-	RECT r;
+	RECT r, rt;
 	STAMP s;
 	CONTEXT OldContext;
 	BYTE hilite = 1;
@@ -505,7 +504,10 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
 	r.corner.x = s.origin.x - 1;
-	r.corner.y = s.origin.y - RES_SCALE(11); // JMS_GFX
+	if (optWhichMenu == OPT_PC)
+		r.corner.y = s.origin.y - RES_SCALE(6); // JMS_GFX
+	else
+		r.corner.y = s.origin.y - RES_SCALE(11);
 	r.extent.width = RADAR_WIDTH + 2;
 	BatchGraphics ();
 	SetContextForeGroundColor (
@@ -551,6 +553,15 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			}
 		}
 		r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
+
+		{	// Gray rectangle behind PC menu
+			rt = r;
+			rt.corner.x -= 1;
+			rt.corner.y += 8;
+			rt.extent.width += 1;
+			rt.extent.height -= 12;
+			DrawFilledRectangle(&rt);
+		}
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;

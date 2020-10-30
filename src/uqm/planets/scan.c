@@ -724,6 +724,14 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN select, cancel;
 
+	if (optSubmenu)
+	{
+		if (optCustomBorder)
+			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
+		else
+			DrawSubmenu(DIF_CASE(1, 2, 3));
+	}
+
 	select = PulsedInputState.menu[KEY_MENU_SELECT];
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
 	
@@ -1128,6 +1136,14 @@ DoScan (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
+	if (optSubmenu)
+	{
+		if (optCustomBorder)
+			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
+		else
+			DrawSubmenu(DIF_CASE(1, 2, 3));
+	}
+
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
 		return FALSE;
@@ -1251,14 +1267,6 @@ ScanSystem (void)
 
 	memset (&MenuState, 0, sizeof MenuState);
 
-	if (optSubmenu)
-	{
-		if (optCustomBorder)
-			DrawBorder (DIF_CASE(15, 16, 17), FALSE);
-		else
-			DrawSubmenu (DIF_CASE(1, 2, 3));
-	}
-
 	GetScanContext (NULL);
 
 	if (optWhichMenu == OPT_3DO &&
@@ -1280,6 +1288,7 @@ ScanSystem (void)
 	}
 
 	DrawMenuStateStrings (PM_MIN_SCAN, MenuState.CurState);
+
 	SetFlashRect (SFR_MENU_3DO);
 
 	if (optWhichCoarseScan == OPT_PC)
@@ -1290,6 +1299,7 @@ ScanSystem (void)
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
 	MenuState.InputFunc = DoScan;
+
 	DoInput (&MenuState, FALSE);
 
 	SetFlashRect (NULL);
@@ -1298,6 +1308,7 @@ ScanSystem (void)
 	BatchGraphics ();
 	SetContext (ScanContext);
 	DrawPlanet (0, BLACK_COLOR);
+
 	EraseCoarseScan ();
 	UnbatchGraphics ();
 
