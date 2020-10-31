@@ -137,20 +137,15 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 
 	if (!IS_HD)
 	{
-		if (loadAddon ("EndlessSC-SD"))
-		{
-			EndlessSCLoaded = TRUE;
-			printf ("Loading Endless SC \n");
-			log_add (log_Debug, "loading EndlessSC-SD");
-		}
-		loadAddon ("sol-textures-sd");
+		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
+		solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
-		HDPackPresent = TRUE;
 		log_add (log_Debug, "loading HD addon pack");
-		loadAddon ("sol-textures-hd");
+		HDPackPresent = TRUE;
+		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		loadAddon ("orange-peel-melnorme");
 		loadAddon ("classic-hd-fonts");
@@ -168,8 +163,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("rmx-utwig");
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
-		if (loadAddon ("SyreenVoiceFix"))
-			SyreenVoiceFix = TRUE;
+		SyreenVoiceFix = loadAddon ("SyreenVoiceFix");
 	}
 
 	if (opt3doMusic)
@@ -178,16 +172,16 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (optRemixMusic)
 		loadAddon ("remix");
 
-	if (optVolasMusic && loadAddon ("volasaurus-remix-pack"))
+	if (optVolasMusic)
 	{
-		VolasPackPresent = TRUE;
+		VolasPackPresent = loadAddon ("volasaurus-remix-pack");
 
 		if (optSpaceMusic)
-			SpaceMusicOK = TRUE;
+			SpaceMusicOK = VolasPackPresent;
 	}
 
-	if (optSpaceMusic && loadAddon ("SpaceMusic"))
-		SpaceMusicOK = TRUE;
+	if (optSpaceMusic)
+		SpaceMusicOK = loadAddon ("SpaceMusic");
 
 	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
