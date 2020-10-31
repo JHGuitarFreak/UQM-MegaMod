@@ -102,6 +102,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Separate God Mode and infinite battery into new "Precursor Mode"
 
 ### Fixed
+- Realigned StarBase animation so it takes up the full screen
 - Fixed roaming flagship in Hyperspace when it gets to destination
 - Fixed continuous flagship drift in the East/South direction while in a solar system
 - Fixed the Commander reporting the wrong mineral worth response
