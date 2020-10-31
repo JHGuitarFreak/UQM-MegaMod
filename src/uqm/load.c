@@ -353,7 +353,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
-	if (try_core && IS_HD)
+	if (IS_HD)
 	{
 		POINT NewLoc = MAKE_POINT (SIS_SCREEN_WIDTH / 2, SIS_SCREEN_HEIGHT);
 		POINT IPBounds = displayToLocation (
