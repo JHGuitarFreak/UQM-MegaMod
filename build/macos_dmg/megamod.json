@@ -1,0 +1,18 @@
+{
+	"title": "The Ur-Quan Masters MegaMod",
+	"icon": "MegaModDMG.icns",
+	"background": "background.png",
+	"icon-size": 110,
+	"window": {
+		"size": {
+			"width": 640,
+			"height": 480
+		}
+	},
+	"contents": [
+		{ "x": 130, "y": 360, "type": "file", "path": "The Ur-Quan Masters MegaMod.app" },
+		{ "x": 530, "y": 360, "type": "link", "path": "/Applications" },
+		{ "x": 512, "y": 900, "type": "position", "path": ".VolumeIcon.icns" },
+		{ "x": 530, "y": 900, "type": "position", "path": ".background" }
+	]
+}
