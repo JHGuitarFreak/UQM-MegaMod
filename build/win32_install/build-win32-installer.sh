@@ -26,17 +26,23 @@ build_keyjam()
 	return $?
 }
 
-echo "Building the key-jammer application..."
-cd ../../tools/keys || exit 1
-build_keyjam
-result=$?
-cd ../../build/win32_install
-if [ $result -ne 0 ] ; then
-	echo "Could not build keyjam.exe. Aborting installer creation."
-	exit 1
+if ! [ -f ./keyjam.exe ]; then
+	echo "Building the key-jammer application..."
+	cd ../../tools/keys || exit 1
+	build_keyjam
+	result=$?
+	cd ../../build/win32_install
+	if [ $result -ne 0 ] ; then
+		echo "Could not build keyjam.exe. Aborting installer creation."
+		exit 1
+	fi
 fi
-cp ../../UrQuanMasters.exe . || exit
-strip ./UrQuanMasters.exe || exit
+
+if ! [ -f ./UrQuanMasters.exe ]; then
+	cp ../../UrQuanMasters.exe . || exit
+	strip ./UrQuanMasters.exe || exit
+fi
+
 echo "Identifying DLL dependencies..."
 DLLS=$(ntldd -R UrQuanMasters.exe | awk '/\\bin\\/{print $3;}')
 DLLS2=$(ntldd -R keyjam.exe | awk '/\\bin\\/{print $3;}')
@@ -60,11 +66,10 @@ DLLS=$(for dll in $DLLS; do echo $dll; done | sort -u)
  done) >> undlls.nsi
 
 echo "Preparing documentation..."
-for i in AUTHORS COPYING README README-SDL WhatsNew; do
-	cp "../../$i" "$i.txt" && unix2dos "$i.txt"
+for i in AUTHORS.txt COPYING.txt MegaMod-README.txt UQM-README.txt README-SDL.txt UQM-Manual.txt CHANGELOG.txt UQM-Manual.txt; do
+	cp "../../doc/release/$i" "$i"
 done
-cp ../../doc/users/manual.txt Manual.txt && unix2dos "Manual.txt"
 
 echo "Creating installer..."
-#makensis "-XSetCompressor /SOLID lzma" uqm-installer.nsi || exit 1
+makensis "-XSetCompressor /SOLID lzma" uqm-installer.nsi || exit 1
 echo "Installer has been created successfully."
