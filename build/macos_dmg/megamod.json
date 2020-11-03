@@ -10,7 +10,7 @@
 		}
 	},
 	"contents": [
-		{ "x": 130, "y": 360, "type": "file", "path": "The Ur-Quan Masters MegaMod.app" },
+		{ "x": 130, "y": 360, "type": "file", "path": "../../The Ur-Quan Masters MegaMod.app" },
 		{ "x": 530, "y": 360, "type": "link", "path": "/Applications" },
 		{ "x": 512, "y": 900, "type": "position", "path": ".VolumeIcon.icns" },
 		{ "x": 530, "y": 900, "type": "position", "path": ".background" }
