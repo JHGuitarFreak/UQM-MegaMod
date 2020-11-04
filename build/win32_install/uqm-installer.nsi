@@ -9,6 +9,7 @@ Var UQMUSERDATA
 !define PRODUCT_NAME "The Ur-Quan Masters MegaMod"
 !define PRODUCT_VERSION "0.8.0.85"
 !define PRODUCT_WEB_SITE "http://megamod.serosis.net"
+!define PRODUCT_FILE_SERVER "http://files.serosis.net/MegaMod/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\UrQuanMasters.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
@@ -234,7 +235,7 @@ Function AppendToFile
   Pop $0
 FunctionEnd
 
-Function EnableRemixes
+Function EnablePrecursorRemixes
   # If there are errors pending AppendToFile will fail
   ClearErrors
   Push "$UQMUSERDATA\uqm.cfg"
@@ -243,9 +244,45 @@ Function EnableRemixes
   ClearErrors
 FunctionEnd
 
-SectionGroup "!UQM" SECGRP01
+Function EnableVolsRemixes
+  # If there are errors pending AppendToFile will fail
+  ClearErrors
+  Push "$UQMUSERDATA\megamod.cfg"
+  Push "volasMusic = BOOLEAN:true$\r$\n"
+  Call AppendToFile
+  ClearErrors
+FunctionEnd
+
+Function EnableSpaceMusic
+  # If there are errors pending AppendToFile will fail
+  ClearErrors
+  Push "$UQMUSERDATA\megamod.cfg"
+  Push "spaceMusic = BOOLEAN:true$\r$\n"
+  Call AppendToFile
+  ClearErrors
+FunctionEnd
+
+Function EnableHD
+  # If there are errors pending AppendToFile will fail
+  ClearErrors
+  Push "$UQMUSERDATA\uqm.cfg"
+  Push "resolutionfactor = INT32:2$\r$\n"
+  Call AppendToFile
+  Push "$UQMUSERDATA\uqm.cfg"
+  Push "loresBlowupScale = INT32:3$\r$\n"
+  Call AppendToFile
+  Push "$UQMUSERDATA\uqm.cfg"
+  Push "reswidth = INT32:1280$\r$\n"
+  Call AppendToFile
+  Push "$UQMUSERDATA\uqm.cfg"
+  Push "resheight = INT32:960$\r$\n"
+  Call AppendToFile
+  ClearErrors
+FunctionEnd
+
+SectionGroup /e "!UQM" SECGRP01
   Section "Executable" SEC01
-    SectionIn 1 2 3 4 5 6 RO
+    SectionIn 1 2 3 4 5 6 7 RO
     SetOutPath "$INSTDIR"
     SetOverwrite try
     File "AUTHORS.txt"
@@ -288,7 +325,7 @@ SectionGroup "!UQM" SECGRP01
   SectionEnd
 
   Section "Core Data" SEC02
-    SectionIn 1 2 3 4 6
+    SectionIn 1 2 3 4 5 7
     CreateDirectory "$INSTDIR\content\addons"
     SetOutPath "$INSTDIR\content"
     SetOverwrite ifnewer
@@ -296,7 +333,7 @@ SectionGroup "!UQM" SECGRP01
     StrCpy $MANDATORY 1
     StrCpy $MD5SUM "${PKG_CONTENT_MD5SUM}"
     File "..\..\content\version"
-    StrCpy $DOWNLOADPATH "http://files.serosis.net/MegaMod/0.8.0.85/"
+    StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
     Push "${PKG_CONTENT_FILE}"
     Push "$INSTDIR\content\packages"
     Call HandlePackage
@@ -307,18 +344,33 @@ SectionGroup "!UQM" SECGRP01
   SectionEnd
 
   Section "Desktop Icon" SECICON
-    SectionIn 1 2 3 4 5 6 7
+    SectionIn 1 2 3 4 5 7
     StrCpy $MAKEICON 1
   SectionEnd
 SectionGroupEnd
 
-SectionGroup /e "3DO Content" SECGRP02
-  Section "Music" SEC03
-    SectionIn 1 4 6
+Section "HD Data" SEC03
+  SectionIn 1 5 7
+  AddSize ${PKG_HD_CONTENT_SIZE}
+  StrCpy $MANDATORY 0
+  StrCpy $MD5SUM "${PKG_HD_CONTENT_MD5SUM}"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
+  Push "${PKG_HD_CONTENT_FILE}"
+  Push "$INSTDIR\content\addons"
+  Call HandlePackage
+  Call EnableHD
+; Shortcuts
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+  !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+SectionGroup "3DO Content" SECGRP02
+  Section "Music" SEC04
+    SectionIn 1 4 7
     AddSize ${PKG_3DOMUSIC_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_3DOMUSIC_MD5SUM}"
-    StrCpy $DOWNLOADPATH "http://files.serosis.net/MegaMod/"
+    StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}"
     Push "${PKG_3DOMUSIC_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
@@ -327,12 +379,12 @@ SectionGroup /e "3DO Content" SECGRP02
     !insertmacro MUI_STARTMENU_WRITE_END
   SectionEnd
 
-  Section "Voiceovers" SEC04
-    SectionIn 1 4 6
+  Section "Voiceovers" SEC05
+    SectionIn 1 4 5 7
     AddSize ${PKG_VOICE_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_VOICE_MD5SUM}"
-    StrCpy $DOWNLOADPATH "http://files.serosis.net/MegaMod/0.8.0.85/"
+    StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
     Push "${PKG_VOICE_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
@@ -341,12 +393,12 @@ SectionGroup /e "3DO Content" SECGRP02
     !insertmacro MUI_STARTMENU_WRITE_END
   SectionEnd
 
-  Section "Videos" SEC05
-    SectionIn 1 4 6
+  Section "Videos" SEC06
+    SectionIn 1 4 5 7
     AddSize ${PKG_VIDEO_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_VIDEO_MD5SUM}"
-    StrCpy $DOWNLOADPATH "http://files.serosis.net/MegaMod/0.8.0.85/"
+    StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}"
     Push "${PKG_VIDEO_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
@@ -356,8 +408,81 @@ SectionGroup /e "3DO Content" SECGRP02
   SectionEnd
 SectionGroupEnd
 
-Section "The Precursors Remixes" SEC06
-  SectionIn 6
+Section "Volasaurus' Complete Remix" SEC07
+  SectionIn 5 7
+  AddSize ${VOLS_REMIX_SIZE}
+  StrCpy $MANDATORY 0
+  StrCpy $MD5SUM "${VOLS_REMIX_MD5SUM}"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
+  Push "${VOLS_REMIX_FILE}"
+  Push "$INSTDIR\content\addons"
+  Call HandlePackage
+  Call EnableVolsRemixes
+; Shortcuts
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+  !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+Section "Volasaurus' Space Music" SEC08
+  AddSize ${VOL_SPACE_SIZE}
+  StrCpy $MANDATORY 0
+  StrCpy $MD5SUM "${VOL_SPACE_MD5SUM}"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
+  Push "${VOL_SPACE_FILE}"
+  Push "$INSTDIR\content\addons"
+  Call HandlePackage
+  Call EnableSpaceMusic
+; Shortcuts
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+  !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+Section "Lance_Vader's Utwig voicepack" SEC09
+  SectionIn 5 7
+  AddSize ${RMX_UTWIG_SIZE}
+  StrCpy $MANDATORY 0
+  StrCpy $MD5SUM "${RMX_UTWIG_MD5SUM}"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
+  Push "${RMX_UTWIG_FILE}"
+  Push "$INSTDIR\content\addons"
+  Call HandlePackage
+; Shortcuts
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+  !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+SectionGroup "Soul Reaver's Fixes/Voices" SECGRP03
+  Section "Melnorme Fix/Revoice" SEC10
+    SectionIn 7
+    AddSize ${MEL_FIX_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${MEL_FIX_MD5SUM}"
+    StrCpy $DOWNLOADPATH "http://www.warpstormstudios.com/uqmmod/"
+    Push "${MEL_FIX_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
+  ; Shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    !insertmacro MUI_STARTMENU_WRITE_END
+  SectionEnd
+
+  Section "Syreen Fix/Revoice" SEC11
+    SectionIn 7
+    AddSize ${MEL_FIX_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${MEL_FIX_MD5SUM}"
+    StrCpy $DOWNLOADPATH "http://www.warpstormstudios.com/uqmmod/"
+    Push "${MEL_FIX_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
+  ; Shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    !insertmacro MUI_STARTMENU_WRITE_END
+  SectionEnd
+SectionGroupEnd
+
+Section "The Precursors Remixes" SEC12
+  SectionIn 7
 
   AddSize ${PKG_REMIX1_SIZE}
   StrCpy $MANDATORY 0
@@ -394,12 +519,12 @@ Section "The Precursors Remixes" SEC06
   AddSize ${PKG_REMIX5_SIZE}
   StrCpy $MANDATORY 0
   StrCpy $MD5SUM "${PKG_REMIX5_MD5SUM}"
-  StrCpy $DOWNLOADPATH "http://files.serosis.net/MegaMod/0.8.0.85/"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
   Push "${PKG_REMIX5_FILE}"
   Push "$INSTDIR\content\addons"
   Call HandlePackage
 
-  Call EnableRemixes
+  Call EnablePrecursorRemixes
 ; Shortcuts
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   !insertmacro MUI_STARTMENU_WRITE_END
@@ -428,17 +553,6 @@ Section -ShortcutsAndIcons
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section -Set3DOConfig
-  SectionIn 4
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-    SetOutPath $UQMUSERDATA
-    Delete "uqm.cfg"
-    Delete "megamod.cfg"
-    CopyFiles "$UQMUSERDATA\uqm-3do.cfg" "$UQMUSERDATA\uqm.cfg"
-    CopyFiles "$UQMUSERDATA\mm-3do.cfg" "$UQMUSERDATA\megamod.cfg"
-  !insertmacro MUI_STARTMENU_WRITE_END
-SectionEnd
-
 Section -SetPCConfig
   SectionIn 3
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
@@ -450,8 +564,19 @@ Section -SetPCConfig
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section -SetSerosisConfig
+Section -Set3DOConfig
   SectionIn 4
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    SetOutPath $UQMUSERDATA
+    Delete "uqm.cfg"
+    Delete "megamod.cfg"
+    CopyFiles "$UQMUSERDATA\uqm-3do.cfg" "$UQMUSERDATA\uqm.cfg"
+    CopyFiles "$UQMUSERDATA\mm-3do.cfg" "$UQMUSERDATA\megamod.cfg"
+  !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+Section -SetSerosisConfig
+  SectionIn 5
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     SetOutPath $UQMUSERDATA
     Delete "uqm.cfg"
@@ -474,6 +599,8 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\UrQuanMasters.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
+  Delete "$UQMUSERDATA\uqm-*.cfg"
+  Delete "$UQMUSERDATA\mm-*.cfg"
 SectionEnd
 
 ; Section descriptions
@@ -481,12 +608,19 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SECGRP01} "The core executables and content libraries for The Ur-Quan Masters MegaMod.  All elements in this section must be installed for the game to be playable."
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Includes the main program, all subsidiary libraries, and basic documentation for The Ur-Quan Masters MegaMod.  Required for play."
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Graphics, sound, and the PC-edition music for The Ur-Quan Masters MegaMod.  Required for play.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "HD graphics for The Ur-Quan Masters MegaMod.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
   !insertmacro MUI_DESCRIPTION_TEXT ${SECICON} "Adds a desktop icon linking directly to The Ur-Quan Masters MegaMod."
   !insertmacro MUI_DESCRIPTION_TEXT ${SECGRP02} "Optional content packages containing music, sound, and video unique to the 1993 3DO release."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Optional package which includes the remixed songs from the 3DO release.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Optional package containing the voiceovers from the 3DO release.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} "Optional package containing the videos from the 3DO release.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} "Optional content packages containing the official UQM remixes by The Precursors.  Selecting this element will also enable the 'remix' addon by default in the starting configuration."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Optional package which includes the remixed songs from the 3DO release.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} "Optional package containing the voiceovers from the 3DO release.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} "Optional package containing the videos from the 3DO release.  If this package is selected and not present in the packages directory, the installer will attempt to download it."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} "A complete set of music remixes by Volasaurus. Includes the ambient space music required to enable the space music option in-game"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} "This is just the space music portion of Volasaurus' remixes for those that want to keep the PC, 3DO, or Precursor remixes enabled."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC09} "09"  
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECGRP03} "Soul Reaver's voice packages for the Melnorme and Syreen that more closely match the PC dialog."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC10} "Soul Reaver's revoiced Melnorme package which matches the PC dialog (Voiced by Soul Reaver)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC11} "Soul Reaver's revoiced Syreen package which matches the PC dialog (Voiced by Katie Otten)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC12} "Optional content packages containing the official UQM remixes by The Precursors.  Selecting this element will also enable the 'remix' addon by default in the starting configuration."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
