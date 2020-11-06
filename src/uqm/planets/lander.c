@@ -1760,7 +1760,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
 #if defined(ANDROID) || defined(__ANDROID__)
-			if ((InputState & BATTLE_THRUST))
+			if ((InputState & BATTLE_THRUST_ALT))
 #else
 			if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
 					|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])

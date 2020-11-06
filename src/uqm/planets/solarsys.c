@@ -1264,7 +1264,7 @@ ProcessShipControls (void)
 #if defined(ANDROID) || defined(__ANDROID__)
 	BATTLE_INPUT_STATE InputState = GetDirectionalJoystickInput(index, 0);
 
-	if (InputState & BATTLE_THRUST)
+	if (InputState & BATTLE_THRUST_ALT)
 #else
 	if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
 			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
