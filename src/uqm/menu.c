@@ -83,17 +83,23 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	FONT OldFont;
 	TEXT t;
 	UNICODE buf[256];
-
+	RECT rt;
 	pos = beg_index + NewState;
 	num_items = 1 + end_index - beg_index;
 	r->corner.x -= 1;
 	r->extent.width += RES_STAT_SCALE(1);
-	DrawFilledRectangle (r);
+
+	// Gray rectangle behind PC menu
+	rt = *r;
+	rt.corner.y += PC_MENU_HEIGHT;
+	rt.extent.height -= RES_DBL(13) - IF_HD(1);
+	DrawFilledRectangle(&rt);	
+
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
 	else
 		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
-	r->extent.height = num_items * PC_MENU_HEIGHT + RES_DBL(4);
+	r->extent.height = num_items * PC_MENU_HEIGHT + RES_DBL(3);	
 	if (!optCustomBorder)
 		DrawPCMenuFrame (r);	
 	DrawBorder (21, FALSE);
@@ -505,7 +511,10 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
 	r.corner.x = s.origin.x - 1;
-	r.corner.y = s.origin.y - RES_SCALE(11); // JMS_GFX
+	if (optWhichMenu == OPT_PC)
+		r.corner.y = s.origin.y - RES_SCALE(8); // JMS_GFX
+	else
+		r.corner.y = s.origin.y - RES_SCALE(11);
 	r.extent.width = RADAR_WIDTH + 2;
 	BatchGraphics ();
 	SetContextForeGroundColor (
@@ -550,7 +559,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					break;
 			}
 		}
-		r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
+		r.extent.height = RADAR_HEIGHT + RES_STAT_SCALE(11); // JMS_GFX
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;
@@ -558,10 +567,10 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	else
 	{
 		if (optWhichMenu == OPT_PC)
-		{
+		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= 1;
 			r.extent.width += RES_STAT_SCALE(1);
-			r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
+			r.extent.height = RADAR_HEIGHT + RES_STAT_SCALE(11); // JMS_GFX
 		}
 		else
 			r.extent.height = RES_SCALE(11);

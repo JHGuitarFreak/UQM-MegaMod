@@ -1,4 +1,4 @@
-THE UR-QUAN MASTERS v0.7 -- homepage: http://sc2.sf.net/
+THE UR-QUAN MASTERS v0.8 -- homepage: http://sc2.sf.net/
 
 Welcome to this beta release of the Ur-Quan Masters port.  This
 document will tell you everything you need to play, even if you've

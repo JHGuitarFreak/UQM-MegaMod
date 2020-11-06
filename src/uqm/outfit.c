@@ -646,6 +646,9 @@ DoOutfit (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoOutfit;
 		pMS->Initialized = TRUE;
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Starmap();
+#endif
 
 		SetNamingCallback (onNamingDone);
 
@@ -806,9 +809,15 @@ ExitOutfit:
 		switch (pMS->CurState)
 		{
 			case OUTFIT_DOFUEL:
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Starmap();
+#endif
 				SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_PAGE | MENU_SOUND_ACTION);
 				break;
 			default:
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Menu();
+#endif
 				SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 				break;
 		}

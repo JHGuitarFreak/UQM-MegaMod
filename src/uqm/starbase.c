@@ -47,9 +47,8 @@ static void
 DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 {
 	TEXT t;
-	COUNT text_base_y = 106 + 28 + 4;
-	COUNT text_spacing_y = 23 - 4;
-	COUNT HD_Y = IF_HD(26);
+	COUNT text_base_y = RES_SCALE(106 + 28);
+	COUNT text_spacing_y = RES_SCALE(23 - 4);
 
 	SetContext (ScreenContext);
 	SetContextFont (StarConLgFont);
@@ -60,7 +59,7 @@ DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 
 	if (OldState == (STARBASE_STATE)~0)
 	{
-		t.baseline.y = RES_SCALE(text_base_y) + HD_Y;
+		t.baseline.y = text_base_y;
 		for (OldState = TALK_COMMANDER; OldState < DEPART_BASE; ++OldState)
 		{
 			if (OldState != NewState)
@@ -69,18 +68,18 @@ DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 				t.CharCount = (COUNT)~0;
 				font_DrawText (&t);
 			}
-			t.baseline.y += RES_SCALE(text_spacing_y);
+			t.baseline.y += text_spacing_y;
 		}
 	}
 
-	t.baseline.y = RES_SCALE(text_base_y + (text_spacing_y * OldState)) + HD_Y;
+	t.baseline.y = text_base_y + (text_spacing_y * OldState);
 	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 1 + OldState);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x0A), 0x0E));
-	t.baseline.y = RES_SCALE(text_base_y + (text_spacing_y * NewState)) + HD_Y;
+	t.baseline.y = text_base_y + (text_spacing_y * NewState);
 	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 1 + NewState);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -379,7 +378,7 @@ rotateStarbase (MENU_STATE *pMS, FRAME AniFrame)
 	{	// Setup the animation
 		pMS->flash_frame0 = AniFrame;
 		pMS->flash_rect0.corner.x = 0;
-		pMS->flash_rect0.corner.y = 4;
+		pMS->flash_rect0.corner.y = 0;
 	}
 	
 	if (Now >= NextTime || AniFrame)

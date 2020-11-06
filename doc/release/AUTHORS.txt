@@ -16,6 +16,7 @@ Volasaurus (Music, QA, art, feedback)
 Gildon (Right pain in the ass)
 CatLady (QA for Android port and feedback)
 Elestan (Feedback)
+Kruzenshtern (Coding and QA)
 
 Nebulae and HD Super Melee backgrounds created using wwwtyro's space2d & space2dwgl procedural space-scape generator.
 
