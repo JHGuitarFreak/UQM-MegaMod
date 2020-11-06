@@ -1604,6 +1604,9 @@ ExitShipyard:
 		if (pMS->CurState != SHIPYARD_SAVELOAD)
 		{
 			pMS->Initialized = FALSE;
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Starmap();
+#endif
 			DoModifyShips (pMS);
 		}
 		else
@@ -1617,6 +1620,9 @@ ExitShipyard:
 	}
 	else
 	{
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Menu();
+#endif
 		DoMenuChooser (pMS, PM_CREW);
 	}
 

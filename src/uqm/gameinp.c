@@ -37,8 +37,13 @@
 #include "setup.h"
 #include "setupmenu.h"
 
+#ifdef defined(ANDROID) || defined(__ANDROID__)
+#define ACCELERATION_INCREMENT(ONE_SECOND)
+#define MENU_REPEAT_DELAY(ONE_SECOND)
+#else
 #define ACCELERATION_INCREMENT (ONE_SECOND / RES_SCALE(12))
 #define MENU_REPEAT_DELAY (ONE_SECOND / 3)
+#endif
 
 typedef struct
 {

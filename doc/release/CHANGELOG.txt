@@ -3,9 +3,167 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## [v0.8.0.85]
+### Added
+- Ala-lala: Allow parallelization of build.sh builds with -j
+- Ala-lala: Add SDL2 support (ported from UQM 0.7.1 branch)
+- Ala-lala: Add basic 2D positional audio support to MixSDL and fix attenuation in HD
+- HD: Created a more faithful looking "StarCon" font
+- HD: Created font for the Chmmr
+- HD: New fonts for the following races and UI elements:
+		* Arilou
+		* Chmmr
+		* Commander
+		* Credits
+		* Ilwrath
+		* Kohr-Ah
+		* Lander
+		* Main Menu
+		* Micro
+		* Mycon
+		* Orz
+		* Pkunk
+		* "Player"
+		* Shofixti
+		* Slides (Cinematic Sequences)
+		* Spathi
+		* Super Melee Menu
+		* Supox
+		* Syreen
+		* Talking Pet
+		* Thraddash
+		* "Tiny"
+		* Ur-Quan
+		* Utwig
+		* Yehat
+		* Zoq-Fot-Pik
+- Added an option to make the NPC ship icons in interplanetary view stationary a la Vanilla UQM
+- Added an option to toggle the Hazard colors based on severity on/off
+- Added an option to toggle alternate Orz font for untranslated speech
+- New Title/Splash graphics for Classic and HD that mimics Vanilla UQM's graphics
+- New Chmmr and Syreen ambient themes from Volasaurus
+- Remove comm slider if voices are disabled and Scroll Style is "Per-Page"
+- Make SOI grow slowly as per the PC and 3DO versions
+- EXTENDED: The Melnorme will now disappear once the Death March starts
+- EXTENDED: The Kohr-Ah will now respond to HyperSpace broadcasts during their Death March
+- EXTENDED: Show the Sa-Matra as a planet on the penultimate battle screen
+- EXTENDED: Use the Sa-Matra as a planet for the penultimate battle
+- EXTENDED: Talk to Kohr-Ah when at the Sa-Matra during Death March
+- MegaMod now supports loading saves from Core UQM v0.8.0
+- EXTENDED: Allies will not chase you if you get close to their ships
+- Long save names from HD get truncated to fit in Classic graphics
+- HARDMODE: Allow VUX to warp in close in Melee for the main game
+- Play ship ditty when viewing ship info when 3DO video are disabled
+- New option to change the on-screen controls to Keyboard, Xbox, or PlayStation 4 controls
+- HARDMODE: The Kohr-Ah Death March happens one year earlier
+- HARDMODE: The natural QuasiSpace portal is delayed by one year
+- EASYMODE: The Kohr-Ah Death March is delayed by two years
+- HARDMODE: Melnorme tech will increase in price as you buy more
+- Holding down the zoom out key doubles cursor speed on StarMap & Scan
+
+### Changed
+- Tightened up Android control isolation across the board
+- Tightened up the difficulty, custom seed, extended, and nomad logic. This breaks MegaMod saved games before 0.8.0.85
+- Properly credited Ala-lala in the programming credits
+- More accurately match the HD shipyard to its vanilla counterpart
+- Cut the bitrate of the ogg files in the base content to slim it down
+- Moved Volasaurus' interplanetary music outside of the base package to be used as an add-on
+- Make the Load/Save screen more faithful to the original in HD
+- Made the game over cutscenes optional in the advanced menu
+- Spaced and brightened the orbit dots to make them more visible in HD
+- Make the 3DO coarse scan screen more faithful to the original in HD
+- Vertically centered 3DO coarse scan to the planet
+- Removed a metric ton of superfluous files in the content
+- Scaled the Lander Report UI a bit more accurately
+- Moved MegaMod specific options to a separate .cfg file
+- Properly credited Team 6014 for their work on the HD-Mod in the credits (Thanks to Matt Bentley for pointing it out.)
+- Replace "Serosis Presents" with a less egotistical logo
+- Tightened up font fallback code/content when switching to Classic and HD graphics
+- HD: Switch Melnorme and Druuge font over to "MicroFont" so as to match with Vanilla UQM
+- HD: Proper thick borders around stylized text in slides and convos - Elestan
+- Skip Intro now also skips naming Captain/Ship when starting a New Game
+- Aligned the player response text to match the PC-DOS spacing in both Classic and HD
+- Aligned the PC scan screen to match the alignment of the PC-DOS version
+- HD: Scale the SOI borders up to a thickness of 3 pixels
+- Slow down the movement of SOI to mimic PC/3DO versions
+- Moved cut Commander and Supox dialog to Extended Lore
+- Naming Captain & Ship on new game now mimics the PC version
+- HD: New shielded planet graphics to match the classic look
+- HD: New flagship captain graphics that match the classic look
+- HD: Padded out the comm subtitles and PC slide text from the top of the screen where applicable
+- Make the "Thrust" control available on all platforms
+- Added Androsynth, Chenjesu, and Mmrnmhrm ships to the shipyard when using the Unlock Ships cheat
+- More controller support so the player doesn't have to touch the keyboard if they don't want to
+- HARDMODE: Remove Quasi portal randomizing
+- Separate God Mode and infinite battery into new "Precursor Mode"
+
+### Fixed
+- Loading a save from Classic to HD will no longer spit you out into HyperSpace - Kruzenshtern bug #42
+- Realigned StarBase animation so it takes up the full screen
+- Fixed roaming flagship in Hyperspace when it gets to destination
+- Fixed continuous flagship drift in the East/South direction while in a solar system
+- Fixed the Commander reporting the wrong mineral worth response
+- Properly declared the GameOver() function in fmv.h
+- Properly redraw the title bars when exiting from the Save/Load screen
+- Fixed Shofixti Glory Device range being scaled twice in HD
+- Fixed Super Melee scaler not loading properly on non-Android devices
+- Fixed ending cutscene where a slide was not properly resized to fit the frame
+- Fixed Syreen time stamps
+- Fixed Mmrnmhrm, Spathi, Shofixti, Ilwrath, Ur-Quan, Utwig, VUX, and Flagship weapon offsets and placements in HD
+- Fixed 3DO coarse scan screen code
+- Fixed PC coarse scan code
+- Fixed a bug that skewed the gravity results for Sol System planets
+- Reverted max planets and moons to 9 and 4 respectively to solve infinite loop bug in the planet orbit seed generation
+- Fixed bug in Hard Mode which prevented the player from acquiring the Point Defense Laser module
+- Fixed Shofixti SOI color when viewing the Pre-War Starmap
+- Fixed HyperSpace coordinates displaying incorrectly during conversation - Kruzenshtern bug #33
+- Also draw moon letters in title while in Classic graphics - Kruzenshtern bug #34
+- Fixed Gaia reverting its name to Planet I during Organon quest - Kruzenshtern bug #35
+- Fixed wrong coordinatess in Ur-Quan conversation after Dnyarri mental compulsion - Kruzenshtern bug #36
+- Fixed cursor coordinates changing when viewing starmap - Kruzen bug #37
+- Fixed inability to scroll up in zoomed-in StarMap - Kruzenshtern bug #38
+- Fixed SIS sprite drawing twice during smooth interplanetary transition - Kruzenshtern bug #39
+- Fixed all screen transitions to mimic the PC version when chosen - Kruzenshtern bug #40
+- Fixed Graphics error with Chmmr bomb on SIS status screen - Kruzenshtern bug #41
+- Fixed loading game in solarsys while hovering over planet - Kruzenshtern bug #43
+- Fixed double drawing of flagship when leaving certain planets - Kruzen bug #44-6
+- Fixed planets drawing over stars when textures are disabled - Kruzen bug #45
+- Fixed moon size when moon is a large rocky world
+- Druuge AI doesn't thrust during Melee in HD - Kruzenshtern bug #51
+- EXTENDED: Added an unused dialog option for the Supox (Only shows up after Alliance at their homeworld) - Kruzenshtern bug #56
+- Fixed sprites for reforming groups in Classic graphics - Kruzen bug #64-1
+- Fixed ships turning away from SIS during red alert phase - Kruzen bug #64-5
+- Fixed Sa-Matra's name only showing upon load - Kruzen bug #58
+- Prevent IP ships from disappearing when they are fleeing - Kruzen bug #71
+- EXTENDED: Fixed the Thraddash SOI disappearing after Ilwrath war when allied
+- EXTENDED: Fix crash at Beta Ophiuchi when using custom seed
+- HD: Planet scan speed now matches Core speed
+- HD: Fixed captains window death animation from leaving pixels on-screen
+- Fixed blank lander report when nebulae are enabled
+- McMartin: Fix the ZFP dialog desync bug introduced post 0.7.
+- Ala-lala: Fix space music resource leaks
+- Ala-lala: Fix memory leak when entering hyperspace in HD
+- Ala-lala: Fix main menu graphics leak
+- Ala-lala: Properly display RU during conversation with Hayes after transport to starbase
+- Ala-lala: Fix issues with the Sa-Matra and Druuge AIs' use of WORLD_TO_TURN in HD
+- Ala-lala: Fix positioning of SIS after time passes at StarBase and in a no-StarBase run at endgame
+- Ala-lala: Fixed MinGW compiling
+- Ala-lala: Include resources in MinGW builds (Fixes MinGW binaries not having an icon)
+- Ala-lala: Fix bug causing moon letters to be displayed at StarBases
+- Ala-lala: Fixed OpenAL on 64-bit builds and future-proofed MixSDL and nosound
+- Ala-lala: Fixed netplay when building with modern Visual Studio (2010-2019)
+- Ala-lala: Fix timing of HD victory2 cutscene
+- Ala-lala: Make HD Sa-Matra battle more faithful to original (By enlarging and moving around the shield generators)
+- Ala-lala: Make HD Sa-Matra fireballs more faithful
+- Ala-lala: Super Melee menu music continues after viewing a ship description slide or video.
+- Ala-lala: Fix alignment of lander reports
+- Ala-lala: Improve performance of smooth zoom in Super Melee when building in Visual Studio
+- Ala-lala: Scale menu sliders in HD
+
+
 ## [v0.8.0.84]
 ### Fixed
-- Animated powerlines no longer draw over ship desciriptions in the Shipyard
+- Animated powerlines no longer draw over ship descriptions in the Shipyard
 - Only Unzervalt will be named Unzervalt
 - Fixed various other planet name discrepencies
 - Isolated the Android specific controls to fix gamepad controls on non-Android devices

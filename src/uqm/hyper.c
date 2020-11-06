@@ -670,28 +670,14 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			// one of the permanent portals.
 			COUNT index;
 			const POINT portal_pt[] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
-			RandomContext *portal_rng_x, *portal_rng_y;
 
 			index = CurStarDescPtr - &star_array[NUM_SOLAR_SYSTEMS + 1];
-
-			portal_rng_x = RandomContext_Set(portal_pt[index].x);
-			portal_rng_y = RandomContext_Set(portal_pt[index].y);
-
-			if (!PrimeSeed)
-			{
-				GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(RandomContext_Random(portal_rng_x) % (MAX_X_UNIVERSE + 1));
-				GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(RandomContext_Random(portal_rng_y) % (MAX_Y_UNIVERSE + 1));
-			}
-			else
-			{
-				GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
-				GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_pt[index].y);
-			}
+			GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
+			GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_pt[index].y);
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
-			if (PrimeSeed)
-				SET_QS_PORTAL_KNOWN(index);
+			SET_QS_PORTAL_KNOWN(index);
 
 			SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
 		}

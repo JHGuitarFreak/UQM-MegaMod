@@ -62,6 +62,7 @@
   current Sourceforge installs; generic support now available for both HTTPS
   and automatic redirection to mirrors - Michael
 - Fixed MSYS resource script compilation/linking, from Ala-lala
+- Fixed stale main-screen header text displays, from Kruzen
 
 0.7.1:
 - New SDL2 backend for modern operating systems - Michael

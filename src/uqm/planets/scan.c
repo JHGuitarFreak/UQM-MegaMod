@@ -724,7 +724,13 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN select, cancel;
 
-	POINT	new_pt;
+	if (optSubmenu)
+	{
+		if (optCustomBorder)
+			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
+		else
+			DrawSubmenu(DIF_CASE(1, 2, 3));
+	}
 
 	select = PulsedInputState.menu[KEY_MENU_SELECT];
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
@@ -747,70 +753,66 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	}
 	else
 	{
-		COUNT	i, j = 0; // JMS_GFX
-		SIZE	dx = 0;
-		SIZE	dy = 0;
+		SIZE dx = 0;
+		SIZE dy = 0;
+		POINT new_pt;
 
 		new_pt = planetLoc;
 
 		if (CurrentInputState.menu[KEY_MENU_LEFT])
-			dx = -1;
+			dx = -RES_SCALE(1);
 		if (CurrentInputState.menu[KEY_MENU_RIGHT])
-			dx = 1;
+			dx = RES_SCALE(1);
 		if (CurrentInputState.menu[KEY_MENU_UP])
-			dy = -1;
+			dy = -RES_SCALE(1);
 		if (CurrentInputState.menu[KEY_MENU_DOWN])
-			dy = 1;
+			dy = RES_SCALE(1);
 
-		// BatchGraphics ();
+		// Double the cursor speed when the Zoom Out key is held down
+		if (CurrentInputState.menu[KEY_MENU_LEFT]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dx = -RES_SCALE(2);
+		if (CurrentInputState.menu[KEY_MENU_RIGHT]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dx = RES_SCALE(2);
+		if (CurrentInputState.menu[KEY_MENU_UP]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dy = -RES_SCALE(2);
+		if (CurrentInputState.menu[KEY_MENU_DOWN]
+				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			dy = RES_SCALE(2);
+
+		BatchGraphics ();
 
 		dx = dx << MAG_SHIFT;
-		dy = dy << MAG_SHIFT;
-
-		// JMS_GFX: 1 for 320x240, 3 for 640x480, 7 for 1280x960
-		// XXX: This was good for debugging build, but too fast on opitmized release build.
-		//j = (1 << (RESOLUTION_FACTOR + 1)) - 1;
-		
-		// JMS_GFX: 1 for 320x240, 2 for 640x480, 4 for 1280x960
-		j = RES_SCALE(1);
-		
-		// JMS_GFX: This makes the scan cursor faster in hi-res modes.
-		// (Originally there was no loop, just the contents.)
-		for (i = 0; i < j; i++)
+		if (dx)
 		{
-			BatchGraphics ();
-			
-			if (dx)
-			{
-				new_pt.x += dx;
-				if (new_pt.x < 0)
-					new_pt.x += (MAP_WIDTH << MAG_SHIFT);
-				else if (new_pt.x >= (MAP_WIDTH << MAG_SHIFT))
-					new_pt.x -= (MAP_WIDTH << MAG_SHIFT);
-			}
-			
-			if (dy)
-			{
-				new_pt.y += dy;
-				if (new_pt.y < 0 || new_pt.y >= (MAP_HEIGHT << MAG_SHIFT))
-					new_pt.y = planetLoc.y;
-			}
-			
-			if (!pointsEqual (new_pt, planetLoc))
-				setPlanetLoc (new_pt, TRUE);
-			
-			flashPlanetLocation ();
-			
-			// JMS_GFX: Just upping the denominator wouldn't do no good since
-			// something else limits entering this function to about once per 1/40 secs...
-			// Since I couldn't find that mysterious element, I had to do speed things up
-			// with a loop and this thing here.
-			// XXX: Actually, with the optimized release build the best solution now seems is to keep all at 1/40th, but keep the loop...
-			SleepThreadUntil (TimeIn + ONE_SECOND / 40);
-			
-			UnbatchGraphics ();
+			new_pt.x += dx;
+			if (new_pt.x < 0)
+				new_pt.x += (MAP_WIDTH << MAG_SHIFT);
+			else if (new_pt.x >= (MAP_WIDTH << MAG_SHIFT))
+				new_pt.x -= (MAP_WIDTH << MAG_SHIFT);
 		}
+		dy = dy << MAG_SHIFT;
+		if (dy)
+		{
+			new_pt.y += dy;
+			if (new_pt.y < 0 || new_pt.y >= (MAP_HEIGHT << MAG_SHIFT))
+				new_pt.y = planetLoc.y;
+		}
+
+		if (!pointsEqual (new_pt, planetLoc))
+		{
+			setPlanetLoc (new_pt, TRUE);
+		}
+
+		flashPlanetLocation ();
+
+		UnbatchGraphics ();
+
+		SleepThreadUntil (TimeIn + ONE_SECOND / 40);
 	}
+
 	return TRUE;
 }
 
@@ -1134,6 +1136,14 @@ DoScan (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
+	if (optSubmenu)
+	{
+		if (optCustomBorder)
+			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
+		else
+			DrawSubmenu(DIF_CASE(1, 2, 3));
+	}
+
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
 		return FALSE;
@@ -1278,6 +1288,7 @@ ScanSystem (void)
 	}
 
 	DrawMenuStateStrings (PM_MIN_SCAN, MenuState.CurState);
+
 	SetFlashRect (SFR_MENU_3DO);
 
 	if (optWhichCoarseScan == OPT_PC)
@@ -1288,6 +1299,7 @@ ScanSystem (void)
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
 	MenuState.InputFunc = DoScan;
+
 	DoInput (&MenuState, FALSE);
 
 	SetFlashRect (NULL);
@@ -1296,6 +1308,7 @@ ScanSystem (void)
 	BatchGraphics ();
 	SetContext (ScanContext);
 	DrawPlanet (0, BLACK_COLOR);
+
 	EraseCoarseScan ();
 	UnbatchGraphics ();
 

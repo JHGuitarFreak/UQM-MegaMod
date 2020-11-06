@@ -398,7 +398,7 @@ HierarchyInfo (RESPONSE_REF R)
 		NPCPhrase (WHICH_HIERARCHY);
 		HierarchyMask = 0;
 	}
-	else if (EXTENDED && PLAYER_SAID (R, urquan))
+	else if (PLAYER_SAID (R, urquan))
 	{
 		NPCPhrase (ABOUT_URQUAN);
 		HierarchyMask |= HIERARCHY_URQUAN;
@@ -434,7 +434,7 @@ HierarchyInfo (RESPONSE_REF R)
 		HierarchyMask |= HIERARCHY_VUX;
 	}
 
-	if (EXTENDED && !(HierarchyMask & HIERARCHY_URQUAN))
+	if (!(HierarchyMask & HIERARCHY_URQUAN))
 		Response (urquan, HierarchyInfo);
 	if (!(HierarchyMask & HIERARCHY_MYCON))
 		Response (mycon, HierarchyInfo);

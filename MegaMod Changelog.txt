@@ -63,6 +63,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: The natural QuasiSpace portal is delayed by one year
 - EASYMODE: The Kohr-Ah Death March is delayed by two years
 - HARDMODE: Melnorme tech will increase in price as you buy more
+- Holding down the zoom out key doubles cursor speed on StarMap & Scan
 
 ### Changed
 - Tightened up Android control isolation across the board
@@ -101,6 +102,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Separate God Mode and infinite battery into new "Precursor Mode"
 
 ### Fixed
+- Loading a save from Classic to HD will no longer spit you out into HyperSpace - Kruzenshtern bug #42
+- Realigned StarBase animation so it takes up the full screen
 - Fixed roaming flagship in Hyperspace when it gets to destination
 - Fixed continuous flagship drift in the East/South direction while in a solar system
 - Fixed the Commander reporting the wrong mineral worth response
