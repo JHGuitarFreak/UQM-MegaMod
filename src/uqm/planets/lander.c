@@ -2239,7 +2239,7 @@ InitLander (BYTE LanderFlags)
 			r.corner.x = RES_SCALE(1);
 			r.extent.width = RES_SCALE(4);
 			r.extent.height =
-				RES_STAT_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+				RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 		}
