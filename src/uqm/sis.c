@@ -293,7 +293,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	{	// normal state
 		ClearDrawable ();
 
-		DrawBorder(2, FALSE);
+		// DrawBorder(2, FALSE);
 		t.baseline.x = SIS_MESSAGE_WIDTH >> 1;
 		t.align = ALIGN_CENTER;
 		font_DrawText (&t);
@@ -536,14 +536,14 @@ DrawCaptainsName (bool NewGame)
 
 	r.corner.x = RES_SCALE(3);
 	r.corner.y = RES_SCALE(10);
-	r.extent.width = SHIP_NAME_WIDTH - 2;
+	r.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
 	r.extent.height = SHIP_NAME_HEIGHT;
 	DrawFilledRectangle (&r);
 
 	if(!NewGame)
 		DrawBorder(6, FALSE);
 
-	t.baseline.x = (STATUS_WIDTH >> 1) - 1;
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
 	t.baseline.y = r.corner.y + RES_SCALE(6);
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (CommanderName);
@@ -585,7 +585,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		OldFont = SetContextFont (MicroFont);
 
 		r.corner.x = 0;
-		r.corner.y = 1;
+		r.corner.y = RES_SCALE(1);
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SHIP_NAME_HEIGHT;
 
@@ -614,8 +614,8 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	if(!NewGame)
-		DrawBorder(12, FALSE);
+	/*if(!NewGame)
+		DrawBorder(12, FALSE);*/
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - InStatusArea);
@@ -938,7 +938,7 @@ DrawPC_SIS (void)
 
 	GetGaugeRect (&r, FALSE);
 	t.baseline.x = STATUS_WIDTH >> 1;
-	t.baseline.y = r.corner.y - RES_DBL(1);
+	t.baseline.y = r.corner.y - RES_SCALE(1);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	SetContextFont (TinyFont);
@@ -1044,7 +1044,7 @@ DrawModules (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_SCALE(3);
+		s.origin.y -= RES_SCALE(3) - IF_HD(1); // Serosis: -1 so the modules fit within the HD Flagship's frame
 	}
 }
 
