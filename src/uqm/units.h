@@ -44,8 +44,8 @@ extern int ScreenHeight;
 #define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
 		/* Margins. */
-#define SIS_ORG_X RES_SCALE(6)								// JMS_GFX
-#define SIS_ORG_Y RES_SCALE(9)				// DC: top status window. Manually entered in for HD mode.
+#define SIS_ORG_X RES_SCALE(7)								// JMS_GFX
+#define SIS_ORG_Y RES_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
 
 /* Status bar & play area sizes. */
 #define STATUS_WIDTH RES_SCALE(64)

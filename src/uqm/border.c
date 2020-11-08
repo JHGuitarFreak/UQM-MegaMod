@@ -52,27 +52,30 @@ DrawSISFrame (void)
 
 	BatchGraphics ();
 	{
-		// Middle grey rectangles around space window.
 		SetContextForeGroundColor (DKGRAY_COLOR);
-			//
+
+		// Top horizontal border behind SIS Title & Message (Small block in between as well)
 		r.corner.x = 0;
 		r.corner.y = 0;
 		r.extent.width = SIS_ORG_X + SIS_SCREEN_WIDTH + 1;
 		r.extent.height = SIS_ORG_Y - 1;
 		DrawFilledRectangle (&r);
-			// Inside Left Border
+
+		// Left side vertical border
 		r.corner.x = 0;
 		r.corner.y = 0;
 		r.extent.width = SIS_ORG_X - 1;
 		r.extent.height = SIS_ORG_Y + SIS_SCREEN_HEIGHT + 1;
 		DrawFilledRectangle (&r);
-			// Bottom left of the border
+
+		// Bottom horizontal border
 		r.corner.x = 0;
 		r.corner.y = r.extent.height;
 		r.extent.width = SIS_ORG_X + SIS_SCREEN_WIDTH + 1;
 		r.extent.height = SCREEN_HEIGHT - SIS_ORG_Y + SIS_SCREEN_HEIGHT;
 		DrawFilledRectangle (&r);
-			// Top right inside border
+
+		// Right side vertical border and Stat/Menu 
 		r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH + 1;
 		r.corner.y = 0;
 		r.extent.width = SCREEN_WIDTH - r.corner.x;
@@ -80,39 +83,38 @@ DrawSISFrame (void)
 		DrawFilledRectangle (&r);
 		
 		// Light and dark grey edges of the inner space window.
-		r.corner.x = SIS_ORG_X - 1;
-		r.corner.y = SIS_ORG_Y - 1;
-		r.extent.width = SIS_SCREEN_WIDTH + 2;
-		r.extent.height = SIS_SCREEN_HEIGHT + 2;
-		DrawStarConBox (&r, 1,
+		r.corner.x = SIS_ORG_X - RES_SCALE(1);
+		r.corner.y = SIS_ORG_Y - RES_SCALE(1);
+		r.extent.width = SIS_SCREEN_WIDTH + RES_SCALE(2);
+		r.extent.height = SIS_SCREEN_HEIGHT + RES_SCALE(2);
+		DrawStarConBox (&r, RES_SCALE(1),
 				SIS_LEFT_BORDER_COLOR,
 				SIS_BOTTOM_RIGHT_BORDER_COLOR,
 				TRUE, BLACK_COLOR);
 
-		// The big Blue box in the upper edge of screen containing the star system name.
+		// The big Blue box in the upper edge of screen (SIS Message)
 		r.corner.y = 0;
 		r.extent.height = SIS_ORG_Y;
-
 		r.corner.x = SIS_ORG_X;
 		r.extent.width = SIS_MESSAGE_BOX_WIDTH;
-		DrawStarConBox (&r, 1,
+		DrawStarConBox (&r, RES_SCALE(1),
 				SIS_MESSAGE_TOP_LEFT_COLOR,
 				SIS_MESSAGE_BOTTOM_RIGHT_COLOR,
 				TRUE, SIS_MESSAGE_BACKGROUND_COLOR);
 
-		// The smaller blue box.
+		// The smaller blue box (SIS Title).
 		r.extent.width = SIS_TITLE_BOX_WIDTH;
 		r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH;
-		DrawStarConBox (&r, 1,
+		DrawStarConBox (&r, RES_SCALE(1),
 				SIS_TITLE_TOP_LEFT_COLOR,
 				SIS_TITLE_BOTTOM_RIGHT_COLOR,
 				TRUE, SIS_TITLE_BACKGROUND_COLOR);
 
 		// Black border between menu area and space window area
 		SetContextForeGroundColor (BLACK_COLOR);
-		r.corner.x = SPACE_WIDTH - 1;
+		r.corner.x = SPACE_WIDTH - RES_SCALE(1);
 		r.corner.y = 0;
-		r.extent.width = 1;
+		r.extent.width = RES_SCALE(1);
 		r.extent.height = SCREEN_HEIGHT;
 		DrawFilledRectangle (&r);
 		
