@@ -92,7 +92,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	// Gray rectangle behind PC menu
 	rt = *r;
 	rt.corner.y += PC_MENU_HEIGHT;
-	rt.extent.height -= RES_DBL(13) - IF_HD(1);
+	rt.extent.height -= RES_STAT_SCALE(10) - IF_HD(5);
 	DrawFilledRectangle(&rt);	
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
@@ -570,7 +570,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= 1;
 			r.extent.width += RES_STAT_SCALE(1);
-			r.extent.height = RADAR_HEIGHT + RES_STAT_SCALE(11); // JMS_GFX
+			r.extent.height = RADAR_HEIGHT + RES_STAT_SCALE(9); // JMS_GFX
 		}
 		else
 			r.extent.height = RES_SCALE(11);
