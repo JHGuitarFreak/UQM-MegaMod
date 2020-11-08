@@ -557,7 +557,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					break;
 			}
 		}
-		r.extent.height = RADAR_HEIGHT + RES_STAT_SCALE(11); // JMS_GFX
+		r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;
@@ -567,7 +567,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		if (optWhichMenu == OPT_PC)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= 1;
-			r.extent.width += RES_STAT_SCALE(1);
+			r.extent.width += RES_SCALE(1);
 			r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
 		}
 		else
