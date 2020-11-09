@@ -678,11 +678,16 @@ static void
 DrawSaveLoad (PICK_GAME_STATE *pickState)
 {
 	STAMP s;
+	RECT r;
 
-	s.origin.x = RES_DBL(SUMMARY_X_OFFS + 1);
+	s.frame = SetAbsFrameIndex(pickState->SummaryFrame,
+		GetFrameCount(pickState->SummaryFrame) - 2);
+
+	GetFrameRect(s.frame, &r);
+
+	s.origin.x = SIS_SCREEN_WIDTH / 2 - r.extent.width / 2;
 	s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
-			GetFrameCount (pickState->SummaryFrame) - 2);
+
 	if (pickState->saving)
 		s.frame = DecFrameIndex (s.frame);
 	DrawStamp (&s);
@@ -1013,9 +1018,9 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	SetContextFont (TinyFont);
 
 	// Erase the selection menu
-	r.extent.width = SIS_SCREEN_WIDTH - 2;
+	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE(2);
 	r.extent.height = RES_SCALE(65);
-	r.corner.x = 1;
+	r.corner.x = RES_SCALE(1);
 	r.corner.y = RES_SCALE(160);
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
