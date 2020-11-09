@@ -46,22 +46,22 @@ DrawPCMenuFrame (RECT *r)
 	// This actually draws a rectangle, but the bottom and right parts
 	// are drawn over in the next step.
 	SetContextForeGroundColor (PCMENU_TOP_LEFT_BORDER_COLOR);
-	DrawRectangle (r, FALSE);
+	DrawFilledRectangle (r, FALSE);
 
 	// Draw the right and bottom of the outer border.
 	// This actually draws a rectangle, with the top and left segments just
 	// within the total area, but these segments are drawn over in the next
 	// step.
-	r->corner.x++;
-	r->corner.y++;
-	r->extent.height--;
-	r->extent.width--;
+	r->corner.x += RES_SCALE(1);
+	r->corner.y += RES_SCALE(1);
+	r->extent.height -= RES_SCALE(1);
+	r->extent.width -= RES_SCALE(1);
 	SetContextForeGroundColor (PCMENU_BOTTOM_RIGHT_BORDER_COLOR);
-	DrawRectangle (r, FALSE);
+	DrawFilledRectangle(r, FALSE);
 
 	// Draw the background.
-	r->extent.height--;
-	r->extent.width--;
+	r->extent.height -= RES_SCALE(1);
+	r->extent.width -= RES_SCALE(1);
 	SetContextForeGroundColor (PCMENU_BACKGROUND_COLOR);
 	DrawFilledRectangle (r);
 }
@@ -86,25 +86,26 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	RECT rt;
 	pos = beg_index + NewState;
 	num_items = 1 + end_index - beg_index;
-	r->corner.x -= 1;
+	r->corner.x -= RES_SCALE(1);
 	r->extent.width += RES_SCALE(1);
+
 	// Gray rectangle behind PC menu
 	rt = *r;
 	rt.corner.y += PC_MENU_HEIGHT;
-	rt.extent.height -= RES_DBL(13) - IF_HD(1);
-	DrawFilledRectangle(&rt);	
+	rt.extent.height -= RES_TRP(13) - IF_HD(1);
+	DrawFilledRectangle(&rt);
+
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
 	else
 		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
-	r->extent.height = num_items * PC_MENU_HEIGHT + RES_DBL(3);	
-	if (!optCustomBorder)
-		DrawPCMenuFrame (r);	
-	DrawBorder (21, FALSE);
-	OldFont = SetContextFont (StarConFont);
+	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE(3);	
+	DrawPCMenuFrame (r);
+	//DrawBorder (21, FALSE);
+	OldFont = SetContextFont (StarConLgFont);
 	t.align = ALIGN_LEFT;
 	t.baseline.x = r->corner.x + RES_SCALE(2);
-	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE(1);// - RESOLUTION_FACTOR; // JMS_GFX
+	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_BOOL(1,-1);// - RESOLUTION_FACTOR; // JMS_GFX
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	r->corner.x += RES_SCALE(1);
@@ -121,7 +122,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 			
 			// Draw the background of the selection.
 			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_MEDIUM_COLOR : PCMENU_SELECTION_BACKGROUND_COLOR));
-			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2); // JMS_GFX
+			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + 2 + IF_HD(1); // JMS_GFX
 			r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
 			DrawFilledRectangle (r);
 
@@ -508,12 +509,12 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - 1;
+	r.corner.x = s.origin.x - RES_SCALE(1);
 	if (optWhichMenu == OPT_PC)
 		r.corner.y = s.origin.y - RES_SCALE(8); // JMS_GFX
 	else
 		r.corner.y = s.origin.y - RES_SCALE(11);
-	r.extent.width = RADAR_WIDTH + 2;
+	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
 	BatchGraphics ();
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
@@ -573,7 +574,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		else
 			r.extent.height = RES_SCALE(11);
 		DrawFilledRectangle (&r);
-		DrawBorder(8, FALSE);
+		// DrawBorder(8, FALSE);
 	}
 	if (s.frame)
 	{
