@@ -51,7 +51,7 @@ DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 	COUNT text_spacing_y = RES_SCALE(23 - 4);
 
 	SetContext (ScreenContext);
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 	SetContextForeGroundColor (BLACK_COLOR);
 
 	t.baseline.x = RES_SCALE(73 - 4);

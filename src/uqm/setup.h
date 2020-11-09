@@ -52,7 +52,6 @@ extern CONTEXT StatusContext;
 extern SIZE screen_width, screen_height;
 
 extern FONT StarConFont;
-extern FONT StarConLgFont;
 extern FONT MicroFont;
 extern FONT TinyFont;
 extern FONT TinyFontSS;

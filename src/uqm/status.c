@@ -152,7 +152,7 @@ DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)
 	r.extent.height = RES_SCALE(5); // JMS_GFX
 
 	sprintf (buf, "%u", ShipInfoPtr->crew_level);
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));

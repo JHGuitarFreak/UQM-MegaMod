@@ -1199,7 +1199,7 @@ SaveProblemMessage (STAMP *MsgStamp)
 
 	ppStr[0] = GAME_STRING (SAVEGAME_STRING_BASE + 2);
 
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 
 	t.baseline.x = t.baseline.y = 0;
 	t.align = ALIGN_CENTER;

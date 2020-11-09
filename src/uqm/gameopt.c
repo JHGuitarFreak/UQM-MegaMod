@@ -59,7 +59,7 @@ ConfirmSaveLoad (STAMP *MsgStamp)
 	RECT r, clip_r;
 	TEXT t;
 
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 	GetContextClipRect (&clip_r);
 
 	t.baseline.x = clip_r.extent.width >> 1;
@@ -195,18 +195,18 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		if (nameCaptain)
 		{	// Naming the captain
 			Font = TinyFont;
-			captainNameRect.corner.x = 3;
+			captainNameRect.corner.x = RES_SCALE(2 + 1);
 			captainNameRect.corner.y = RES_SCALE(10);
-			captainNameRect.extent.width = SHIP_NAME_WIDTH - 2;
+			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
 			r = captainNameRect;
-			lf.baseline.x = (STATUS_WIDTH >> 1) - 1;
+			lf.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1F, 0x1F), 0x0B);
 		}
 		else
 		{	// Naming the flagship
-			Font = StarConLgFont;
+			Font = StarConFont;
 			shipNameRect.corner.x = RES_SCALE(2);
 			shipNameRect.corner.y = RES_SCALE(20);
 			shipNameRect.extent.width = SHIP_NAME_WIDTH;
@@ -216,7 +216,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0F, 0x00, 0x00), 0x2D);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x0A, 0x00), 0x7D);
 		}
-		lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE(1);
+		lf.baseline.y = r.corner.y + r.extent.height - 1;
 		lf.align = ALIGN_CENTER;
 	}
 
@@ -713,7 +713,7 @@ DrawSavegameCargo (SIS_STATE *sisState)
 
 	SetContext (SpaceContext);
 	BatchGraphics ();
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
@@ -846,7 +846,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 			s.origin.y += RES_SCALE(18);
 		}
 
-		SetContextFont (StarConLgFont);
+		SetContextFont (StarConFont);
 		t.baseline.x = RES_SCALE(173) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;

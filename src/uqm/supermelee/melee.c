@@ -907,7 +907,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		if (IS_HD)
 			OutlineShipStatus (0, STATUS_WIDTH, TRUE);
 		
-		SetContextFont (StarConLgFont);
+		SetContextFont (StarConFont);
 		r.corner.x = RES_SCALE(3); // JMS_GFX;
 		r.corner.y = RES_SCALE(4); // JMS_GFX;
 		r.extent.width = RES_SCALE(57) + RESOLUTION_FACTOR; // JMS_GFX;
@@ -1637,7 +1637,7 @@ DoConnectingDialog (MELEE_STATE *pMS)
 		pMS->InputFunc = DoConnectingDialog;
 
 		/* Draw the dialog box here */
-		oldfont = SetContextFont (StarConLgFont);
+		oldfont = SetContextFont (StarConFont);
 		oldcolor = SetContextForeGroundColor (BLACK_COLOR);
 		BatchGraphics ();
 		r.extent.width = RES_SCALE(200);

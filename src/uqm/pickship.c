@@ -468,7 +468,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));
 
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 	font_DrawText (&t);
 
 	// SetContextFontEffect (OldFontEffect);

@@ -95,7 +95,7 @@ MCD_DrawButton (WIDGET *_self, int x, int y)
 	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
 	Color oldtext;
 	Color inactive, selected;
-	FONT  oldfont = SetContextFont (StarConLgFont);
+	FONT  oldfont = SetContextFont (StarConFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	

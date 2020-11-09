@@ -155,7 +155,7 @@ DrawCargoDisplay (void)
 	DrawBorder(13, FALSE);
 
 	// draw the "CARGO" title
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1); // JMS_GFX
 	t.baseline.y = RES_SCALE(27); // JMS_GFX
 	t.align = ALIGN_CENTER;

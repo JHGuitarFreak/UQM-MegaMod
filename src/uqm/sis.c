@@ -573,7 +573,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	if (InStatusArea)
 	{
 		OldContext = SetContext (StatusContext);
-		OldFont = SetContextFont (StarConLgFont);
+		OldFont = SetContextFont (StarConFont);
 
 		r.corner.x = RES_SCALE(2);
 		r.corner.y = RES_SCALE(20);
@@ -695,7 +695,7 @@ DrawFlagshipStats (void)
 	/* END collect stats */
 
 	OldContext = SetContext (SpaceContext);
-	OldFont = SetContextFont (StarConLgFont);
+	OldFont = SetContextFont (StarConFont);
 	OldFontEffect = SetContextFontEffect (NULL);
 	GetContextFontLeading (&leading);
 

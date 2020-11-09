@@ -61,7 +61,7 @@ DrawShipNameString (UNICODE *pStr, COUNT CharCount, COORD y)
 	TEXT Text;
 	FONT OldFont;
 
-	OldFont = SetContextFont (StarConLgFont);
+	OldFont = SetContextFont (StarConFont);
 
 	Text.pStr = pStr;
 	Text.CharCount = CharCount;
