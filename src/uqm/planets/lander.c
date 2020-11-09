@@ -519,10 +519,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	start_count = start_count * MAX_HOLD_BARS / MAX_SCROUNGED;
 	NumRetrieved = (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED) + tmpholdint;
 
-	start_count *= RES_SCALE(1); // JMS_GFX
-
 	s.origin.x = 0;
-	s.origin.y = -(int)start_count;
+	s.origin.y = -(int)RES_SCALE(start_count);
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
@@ -534,7 +532,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		else
 			s.frame = DecFrameIndex (s.frame);
 		DrawStamp (&s);
-		s.origin.y -= RES_SCALE(1); // JMS_GFX
+		s.origin.y -= RES_SCALE(1);
 	}
 	SetContext (OldContext);
 }
