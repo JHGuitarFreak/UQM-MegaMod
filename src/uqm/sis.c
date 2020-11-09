@@ -133,7 +133,7 @@ DrawSISTitle (UNICODE *pStr)
 	RECT r;
 
 	t.baseline.x = SIS_TITLE_WIDTH >> 1;
-	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2);
+	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2) - IF_HD(2);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
@@ -281,7 +281,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	if (!(flags & DSME_MYCOLOR))
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
 
-	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2);
+	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2) - IF_HD(2);
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 	SetContextFont (TinyFont);
