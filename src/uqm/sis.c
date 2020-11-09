@@ -230,10 +230,10 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 
 	OldContext = SetContext (OffScreenContext);
 	// prepare the context
-	r.corner.x = SIS_ORG_X + 1;
+	r.corner.x = SIS_ORG_X + RES_SCALE(1);
 	r.corner.y = SIS_ORG_Y - SIS_MESSAGE_HEIGHT;
 	r.extent.width = SIS_MESSAGE_WIDTH;
-	r.extent.height = SIS_MESSAGE_HEIGHT - 1;
+	r.extent.height = SIS_MESSAGE_HEIGHT - RES_SCALE(1);
 	SetContextFGFrame (Screen);
 	SetContextClipRect (&r);
 	
@@ -455,7 +455,7 @@ DrawStatusMessage (const UNICODE *pStr)
 	SetContextBackGroundColor (STATUS_MESSAGE_BACKGROUND_COLOR);
 	ClearDrawable ();
 
-	DrawBorder(7, FALSE);
+	// DrawBorder(7, FALSE);
 
 	if (!pStr)
 	{
@@ -468,13 +468,16 @@ DrawStatusMessage (const UNICODE *pStr)
 		}
 		else if (curMsgMode == SMM_RES_UNITS)
 		{
-			if (GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2 || optInfiniteRU) {
+			if (GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2 || optInfiniteRU)
+			{
 				snprintf (buf, sizeof buf, "%s %s",
 						(optWhichMenu == OPT_PC) ?
 							GAME_STRING (STATUS_STRING_BASE + 2)
 							: STR_INFINITY_SIGN, // "UNLIMITED"
 						GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
-			} else {
+			}
+			else
+			{
 				snprintf (buf, sizeof buf, "%u %s", GLOBAL_SIS (ResUnits),
 						GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 			}
@@ -534,14 +537,14 @@ DrawCaptainsName (bool NewGame)
 	OldFont = SetContextFont (TinyFont);
 	OldColor = SetContextForeGroundColor (CAPTAIN_NAME_BACKGROUND_COLOR);
 
-	r.corner.x = RES_SCALE(3);
+	r.corner.x = RES_SCALE(2 + 1);
 	r.corner.y = RES_SCALE(10);
 	r.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
 	r.extent.height = SHIP_NAME_HEIGHT;
 	DrawFilledRectangle (&r);
 
-	if(!NewGame)
-		DrawBorder(6, FALSE);
+	//if(!NewGame)
+	//	DrawBorder(6, FALSE);
 
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
 	t.baseline.y = r.corner.y + RES_SCALE(6);
