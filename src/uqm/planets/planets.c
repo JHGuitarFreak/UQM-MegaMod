@@ -123,9 +123,9 @@ DrawPlanetSurfaceBorder (void)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= 1;
-	clipRect.extent.width += 2;
-	clipRect.extent.height += 1;
+	clipRect.corner.x -= RES_SCALE(1);
+	clipRect.extent.width += RES_SCALE(2);
+	clipRect.extent.height += RES_SCALE(1);
 	SetContextClipRect (&clipRect);
 
 	BatchGraphics ();
@@ -136,39 +136,39 @@ DrawPlanetSurfaceBorder (void)
 	r.corner.x = 0;
 	r.corner.y = clipRect.extent.height - MAP_HEIGHT - MAP_BORDER_HEIGHT;
 	r.extent.width = clipRect.extent.width;
-	r.extent.height = MAP_BORDER_HEIGHT - 2;
+	r.extent.height = MAP_BORDER_HEIGHT - RES_SCALE(2);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
 	
 	// Border top shadow line
-	r.extent.width -= 1;
-	r.extent.height = 1;
-	r.corner.x = 1;
-	r.corner.y -= 1;
+	r.extent.width -= RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
+	r.corner.x = RES_SCALE(1);
+	r.corner.y -= RES_SCALE(1);
 	DrawFilledRectangle (&r);
 	
 	// XXX: We will need bulk left and right rects here if MAP_WIDTH changes
 
 	// Right shadow line
-	r.extent.width = 1;
-	r.extent.height = MAP_HEIGHT + 2;
-	r.corner.y += MAP_BORDER_HEIGHT - 1;
-	r.corner.x = clipRect.extent.width - 1;
+	r.extent.width = RES_SCALE(1);
+	r.extent.height = MAP_HEIGHT + RES_SCALE(2);
+	r.corner.y += MAP_BORDER_HEIGHT - RES_SCALE(1);
+	r.corner.x = clipRect.extent.width - RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 	
 	// Left shadow line
-	r.corner.x -= MAP_WIDTH + 1;
+	r.corner.x -= MAP_WIDTH + RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
-	r.extent.width = MAP_WIDTH + 2;
-	r.extent.height = 1;
+	r.extent.width = MAP_WIDTH + RES_SCALE(2);
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
-	DrawBorder(10, FALSE);
+	// DrawBorder(10, FALSE);
 	
 	UnbatchGraphics ();
 
