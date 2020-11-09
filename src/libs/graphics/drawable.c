@@ -245,7 +245,7 @@ GetFrameHot (FRAME FramePtr)
 
 DRAWABLE
 RotateFrame (FRAME Frame, int angle_deg)
-{
+{	// Serosis: Look into this further
 	DRAWABLE Drawable;
 	FRAME RotFramePtr;
 	double dx, dy;
@@ -407,7 +407,7 @@ CloneFrame (FRAME frame)
 // frame onto it. The aspect ratio is not preserved.
 DRAWABLE
 RescaleFrame (FRAME frame, int width, int height)
-{
+{	// Serosis: look into further
 	FRAME newFrame;
 	TFB_Image *img;
 	TFB_Canvas src, dst;
