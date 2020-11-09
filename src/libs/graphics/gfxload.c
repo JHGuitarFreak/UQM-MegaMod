@@ -21,6 +21,7 @@
 
 #include "options.h"
 #include "port.h"
+#include "uqm/units.h"
 #include "libs/uio.h"
 #include "libs/reslib.h"
 		// for _cur_resfile_name
@@ -124,8 +125,8 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 
 	CharPtr->data = newdata;
 	CharPtr->pitch = dpitch;
-	CharPtr->disp.width = CharPtr->extent.width + 1;
-	CharPtr->disp.height = CharPtr->extent.height + 1;
+	CharPtr->disp.width = CharPtr->extent.width + RES_SCALE(1);
+	CharPtr->disp.height = CharPtr->extent.height + RES_SCALE(1);
 			// XXX: why the +1?
 			// I brought it into this function from the only calling
 			// function, but I don't know why it was there in the first
@@ -143,8 +144,10 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 			tune_amount = -1;
 		else if (CharPtr->extent.height == 9)
 			tune_amount = -2;
-		else if (CharPtr->extent.height > 9)
+		else if (CharPtr->extent.height > 9 && !IS_HD)
 			tune_amount = -3;
+		else
+			tune_amount = -5;
 
 		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
 				CharPtr->extent.height + tune_amount);
