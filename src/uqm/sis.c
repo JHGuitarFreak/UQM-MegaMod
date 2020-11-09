@@ -985,7 +985,7 @@ static void
 DrawThrusters (void)
 {
 	STAMP s;
-	COUNT i;
+	COUNT i, j;
 
 	s.origin.x = RES_SCALE(1);
 	s.origin.y = 0;
@@ -1000,7 +1000,24 @@ DrawThrusters (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_SCALE(3);
+		if (!IS_HD)
+			j = 3;
+		else
+		{
+			switch (i)
+			{
+				case 0:
+				case 3:
+				case 6:
+				case 11:
+					j = 10;
+					break;
+				default:
+					j = 11;
+					break;
+			}
+		}
+		s.origin.y -= j;
 	}
 }
 
@@ -1008,7 +1025,7 @@ static void
 DrawTurningJets (void)
 {
 	STAMP s;
-	COUNT i;
+	COUNT i, j;
 
 	s.origin.x = RES_SCALE(1);
 	s.origin.y = 0;
@@ -1023,7 +1040,22 @@ DrawTurningJets (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_SCALE(3);
+		if (!IS_HD)
+			j = 3;
+		else
+		{
+			switch (i)
+			{
+			case 0:
+			case 3:
+				j = 10;
+				break;
+			default:
+				j = 11;
+				break;
+			}
+		}
+		s.origin.y -= j;
 	}
 }
 
