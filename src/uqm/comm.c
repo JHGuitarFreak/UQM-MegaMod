@@ -492,8 +492,8 @@ DrawCommBorder (RECT r)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= 1;
-	clipRect.extent.width += 2;
+	clipRect.corner.x -= RES_SCALE(1);
+	clipRect.extent.width += RES_SCALE(2);
 	SetContextClipRect (&clipRect);
 
 	// Border foreground
@@ -505,17 +505,17 @@ DrawCommBorder (RECT r)
 
 	// Border top shadow line
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
-	r.extent.height = 1;
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
-	r.corner.y += SLIDER_HEIGHT - 1;
+	r.corner.y += SLIDER_HEIGHT - RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	SetContextClipRect (&oldClipRect);
 
-	DrawBorder (11, FALSE);
+	// DrawBorder (11, FALSE);
 }
 
 static void
