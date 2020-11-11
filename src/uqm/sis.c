@@ -92,8 +92,8 @@ ClearSISRect (BYTE ClearFlags)
 	OldColor = SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 
-	r.corner.x = 2;
-	r.extent.width = STATUS_WIDTH - 4;
+	r.corner.x = RES_SCALE(2);
+	r.extent.width = STATUS_WIDTH - RES_SCALE(4);
 
 	BatchGraphics ();
 	if (ClearFlags & DRAW_SIS_DISPLAY)
@@ -105,12 +105,12 @@ ClearSISRect (BYTE ClearFlags)
 	{
 		DrawMenuStateStrings ((BYTE)~0, 1);
 #ifdef NEVER
-		r.corner.x = RADAR_X - 1;
-		r.corner.y = RADAR_Y - 1;
-		r.extent.width = RADAR_WIDTH + 2;
-		r.extent.height = RADAR_HEIGHT + 2;
+		r.corner.x = RADAR_X - RES_SCALE(1);
+		r.corner.y = RADAR_Y - RES_SCALE(1);
+		r.extent.width = RADAR_WIDTH + RES_SCALE(2);
+		r.extent.height = RADAR_HEIGHT + RES_SCALE(2);
 
-		DrawStarConBox (&r, 1,
+		DrawStarConBox (&r, RES_SCALE(1);,
 				BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
 				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F),
 				TRUE, BUILD_COLOR (MAKE_RGB15 (0x00, 0x0E, 0x00), 0x6C));
