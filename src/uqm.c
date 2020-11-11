@@ -987,7 +987,7 @@ enum
 	ACCEL_OPT,
 	SAFEMODE_OPT,
 	RENDERER_OPT,
-	CHEATMODE_OPT, //Serosis
+	CHEATMODE_OPT,
 	GODMODE_OPT,
 	TDM_OPT,
 	BWARP_OPT,
@@ -1072,7 +1072,7 @@ static struct option longOptions[] =
 	{"accel", 1, NULL, ACCEL_OPT},
 	{"safe", 0, NULL, SAFEMODE_OPT},
 	{"renderer", 1, NULL, RENDERER_OPT},
-	{"kohrstahp", 0, NULL, CHEATMODE_OPT}, //Serosis
+	{"kohrstahp", 0, NULL, CHEATMODE_OPT},
 	{"precursormode", 1, NULL, GODMODE_OPT},
 	{"timedilation", 1, NULL, TDM_OPT},
 	{"bubblewarp", 0, NULL, BWARP_OPT},
@@ -1377,7 +1377,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->stereoSFX, true);
 				break;
 			case CHEATMODE_OPT:
-				setBoolOption (&options->cheatMode, true); //Serosis
+				setBoolOption (&options->cheatMode, true);
 				break;
 			case GODMODE_OPT: {
 				int temp;

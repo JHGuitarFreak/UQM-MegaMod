@@ -594,7 +594,7 @@ typedef struct
 } TechSaleData;
 
 // Right now, all techs have the same price.
-// Serosis: Unless Hard Mode is enabled.
+// Unless Hard Mode is enabled.
 #define TECHPRICE (75 * BIO_CREDIT_VALUE)
 
 static const TechSaleData tech_sale_catalog[] =

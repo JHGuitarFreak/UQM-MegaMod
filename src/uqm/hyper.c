@@ -1887,7 +1887,7 @@ SeedUniverse (void)
 						HyperSpaceElementPtr->death_func = NULL;
 					}
 					else if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY)
-					{	// JMS_GFX: Draw Arilou homeworld in quasispace | Serosis: Draw *animated* Arilou homeworld
+					{	// Draw animated Arilou homeworld
 						HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (Falayalaralfali, frameCounter % NUM_HOLES_FRAMES);
 						HyperSpaceElementPtr->current.image.farray = &Falayalaralfali;
 					}
