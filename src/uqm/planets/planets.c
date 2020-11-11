@@ -235,7 +235,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	UnbatchGraphics ();
 
 	// for later RepairBackRect()
-	// JMS_GFX
+	
 	LoadIntoExtraScreen (&r, IS_HD);
 }
 

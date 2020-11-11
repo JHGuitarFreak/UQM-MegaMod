@@ -52,16 +52,13 @@ int optSmoothScroll;
 int optMeleeScale;
 const char **optAddons;
 
-// JMS_GFX
 unsigned int loresBlowupScale;
 unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;
-
-BOOLEAN optCheatMode; // JMS
-// Serosis
+BOOLEAN optCheatMode;
 int optPrecursorMode;
 int timeDilationScale;
 BOOLEAN optBubbleWarp;
@@ -71,14 +68,11 @@ BOOLEAN optUnlockUpgrades;
 BOOLEAN optInfiniteRU;
 DWORD oldRU;
 BOOLEAN optSkipIntro;
-// JMS
 BOOLEAN optMainMenuMusic;
 BOOLEAN optNebulae;
 BOOLEAN optOrbitingPlanets;
 BOOLEAN optTexturedPlanets;
-// Nic
 int optDateFormat;
-// Serosis
 BOOLEAN optInfiniteFuel;
 DWORD loadFuel;
 BOOLEAN optPartialPickup;
@@ -93,7 +87,7 @@ int spaceMusicBySOI;
 BOOLEAN optSpaceMusic;
 BOOLEAN optVolasMusic;
 BOOLEAN optWholeFuel;
-BOOLEAN optDirectionalJoystick; // For Android
+BOOLEAN optDirectionalJoystick;
 BOOLEAN optLanderHold;
 int optIPScaler;
 int optDifficulty;
@@ -105,16 +99,13 @@ BOOLEAN optShipDirectionIP;
 BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
 int optControllerType;
-
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
 BOOLEAN optSubtitles;
 BOOLEAN optStereoSFX;
 BOOLEAN optKeepAspectRatio;
-
 float optGamma;
-
 uio_DirHandle *contentDir;
 uio_DirHandle *configDir;
 uio_DirHandle *saveDir;

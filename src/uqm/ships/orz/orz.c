@@ -403,8 +403,8 @@ intruder_preprocess (ELEMENT *ElementPtr)
 					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
 					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
 				} else {
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
-					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
+					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
+					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
 				}
 				s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
 						GetFrameCount (ElementPtr->next.image.farray[0]) - 2);
@@ -423,8 +423,8 @@ LeftShip:
 					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
 					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
 				} else {
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
-					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
+					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
+					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
 				}
 				s.frame = ElementPtr->next.image.frame;
 				ModifySilhouette (ShipPtr, &s, MODIFY_SWAP);
@@ -459,8 +459,8 @@ LeftShip:
 						s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
 						s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
 					} else {
-						s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
-						s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
+						s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
+						s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
 					}
 					s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
 							GetFrameCount (ElementPtr->next.image.farray[0]) - 1);
@@ -832,8 +832,8 @@ marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				}
 				else
 				{
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr0->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); // JMS_GFX
-					s.origin.y = RES_SCALE(14 + (ElementPtr0->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); // JMS_GFX
+					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr0->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
+					s.origin.y = RES_SCALE(14 + (ElementPtr0->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
 				}
 				s.frame = ElementPtr0->next.image.frame;
 				ModifySilhouette (ElementPtr1, &s, 0);
@@ -1013,10 +1013,10 @@ turret_postprocess (ELEMENT *ElementPtr)
 				facing = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
 				SpaceMarinePtr->current.location.x =
 						ShipPtr->current.location.x
-						- COSINE (facing, DISPLAY_TO_WORLD (TURRET_OFFSET << ((RESOLUTION_FACTOR + 1)/2))); // JMS_GFX
+						- COSINE (facing, DISPLAY_TO_WORLD (TURRET_OFFSET << ((RESOLUTION_FACTOR + 1)/2))); 
 				SpaceMarinePtr->current.location.y =
 						ShipPtr->current.location.y
-						- SINE (facing, DISPLAY_TO_WORLD (TURRET_OFFSET << ((RESOLUTION_FACTOR + 1)/2))); // JMS_GFX
+						- SINE (facing, DISPLAY_TO_WORLD (TURRET_OFFSET << ((RESOLUTION_FACTOR + 1)/2))); 
 				SpaceMarinePtr->current.image.farray =
 						StarShipPtr->RaceDescPtr->ship_data.special;
 				SpaceMarinePtr->current.image.frame = SetAbsFrameIndex (

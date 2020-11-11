@@ -170,7 +170,7 @@ DrawSISFrame (void)
 		r.corner.x = SCREEN_WIDTH - RES_SCALE(1);
 		r.corner.y = 0;
 		r.extent.width = RES_SCALE(1);
-		r.extent.height = RES_SCALE(139); // JMS_GFX
+		r.extent.height = RES_SCALE(139); 
 		DrawFilledRectangle (&r);
 		
 		// Horizontal line below the in-game menu
@@ -225,19 +225,19 @@ DrawSISFrame (void)
 		r.corner.x = SPACE_WIDTH;
 		r.corner.y = 0;
 		r.extent.width = RES_SCALE(1);
-		r.extent.height = RES_SCALE(139); // JMS_GFX 
+		r.extent.height = RES_SCALE(139);  
 		DrawFilledRectangle (&r);
 
 		// Horizontal line of the separator below the SIS gauges 
 		r.corner.x = SPACE_WIDTH + RES_SCALE(1);
-		r.corner.y = RES_SCALE(139); // JMS_GFX
+		r.corner.y = RES_SCALE(139); 
 		r.extent.width = STATUS_WIDTH - RES_SCALE(2);
 		r.extent.height = RES_SCALE(1);
 		DrawFilledRectangle (&r);
 
 		// Dark verticle line to the left of in-game menu
 		r.corner.x = SPACE_WIDTH;
-		r.corner.y = RES_SCALE(140); // JMS_GFX
+		r.corner.y = RES_SCALE(140); 
 		r.extent.width = RES_SCALE(1);
 		r.extent.height = SCREEN_HEIGHT - r.corner.y;
 		DrawFilledRectangle (&r);

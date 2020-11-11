@@ -57,11 +57,11 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
-	s.origin.y = RADAR_Y - r.corner.y - 19 * RESOLUTION_FACTOR; // JMS_GFX;
+	s.origin.y = RADAR_Y - r.corner.y - 19 * RESOLUTION_FACTOR;
 	r.corner.x = s.origin.x - 1;
 	r.corner.y = s.origin.y - 11;
 	r.extent.width = RADAR_WIDTH + 2;
-	r.extent.height = 11 + 20 * RESOLUTION_FACTOR; // JMS_GFX;
+	r.extent.height = 11 + 20 * RESOLUTION_FACTOR;
 	BatchGraphics ();
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
@@ -70,7 +70,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
-		r.corner.y += 19 * RESOLUTION_FACTOR; // JMS_GFX
+		r.corner.y += 19 * RESOLUTION_FACTOR; 
 		r.extent.width = RADAR_WIDTH;
 		r.extent.height = RADAR_HEIGHT;
 		SetContextForeGroundColor (
@@ -135,7 +135,7 @@ RedistributeFuel (void)
 		}
 		else // Otherwise, draw an empty bar.
 		{
-			r.extent.width = RES_SCALE(5); // JMS_GFX
+			r.extent.width = RES_SCALE(5); 
 			SetContextForeGroundColor (
 					BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E));
 		}
@@ -147,9 +147,9 @@ RedistributeFuel (void)
 	GLOBAL_SIS (FuelOnBoard) = FuelVolume;
 }
 
-#define LANDER_X RES_SCALE(24) // JMS_GFX
-#define LANDER_Y RES_SCALE(67) // JMS_GFX
-#define LANDER_WIDTH RES_SCALE(15) // JMS_GFX
+#define LANDER_X RES_SCALE(24) 
+#define LANDER_Y RES_SCALE(67) 
+#define LANDER_WIDTH RES_SCALE(15) 
 
 static void
 DisplayLanders (MENU_STATE *pMS)
@@ -513,8 +513,8 @@ InitFlash:
 					case EMPTY_SLOT + 3:
 						pMS->flash_rect0.corner.x = LANDER_X - 1;
 						pMS->flash_rect0.corner.y = LANDER_Y - 1;
-						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); // JMS_GFX
-						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2); // JMS_GFX;
+						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); 
+						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2);
 
 						w = LANDER_WIDTH;
 						break;
@@ -522,7 +522,7 @@ InitFlash:
 					case EMPTY_SLOT + 0:
 						pMS->flash_rect0.corner.x = DRIVE_TOP_X - 1;
 						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - 1;
-						pMS->flash_rect0.extent.width = RES_SCALE(8); // JMS_GFX;
+						pMS->flash_rect0.extent.width = RES_SCALE(8);
 						pMS->flash_rect0.extent.height = RES_SCALE(6);
 
 						break;
@@ -530,7 +530,7 @@ InitFlash:
 					case EMPTY_SLOT + 1:
 						pMS->flash_rect0.corner.x = JET_TOP_X - 1;
 						pMS->flash_rect0.corner.y = JET_TOP_Y - 1;
-						pMS->flash_rect0.extent.width = RES_SCALE(9); // JMS_GFX;
+						pMS->flash_rect0.extent.width = RES_SCALE(9);
 						pMS->flash_rect0.extent.height = RES_SCALE(10);
 
 						break;

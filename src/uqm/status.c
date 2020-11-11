@@ -138,18 +138,18 @@ DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)
 	TEXT t;
 	UNICODE buf[40];
 
-	t.baseline.x = BATTLE_CREW_X + RES_SCALE(2); // JMS_GFX
+	t.baseline.x = BATTLE_CREW_X + RES_SCALE(2); 
 	if (optWhichMenu == OPT_PC)
-			t.baseline.x -= RES_SCALE(8); // JMS_GFX
+			t.baseline.x -= RES_SCALE(8); 
 	t.baseline.y = BATTLE_CREW_Y + y_offs;
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
 	r.corner.x = t.baseline.x;
-	r.corner.y = t.baseline.y - RES_SCALE(5); // JMS_GFX
+	r.corner.y = t.baseline.y - RES_SCALE(5); 
 	r.extent.width = 6 * MAX_CREW_DIGITS + RES_SCALE(6);
-	r.extent.height = RES_SCALE(5); // JMS_GFX
+	r.extent.height = RES_SCALE(5); 
 
 	sprintf (buf, "%u", ShipInfoPtr->crew_level);
 	SetContextFont (StarConFont);
@@ -193,10 +193,10 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	assert (StarShipPtr->playerNr >= 0);
 	y_offs = status_y_offsets[StarShipPtr->playerNr];
 
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(2); // JMS_GFX
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(2); 
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
 	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS;
-	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS + RES_SCALE(2); // JMS_GFX
+	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS + RES_SCALE(2); 
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 	DrawFilledRectangle (&r);
@@ -489,7 +489,7 @@ PostProcessStatus (ELEMENT *ShipPtr)
 							r.extent.height += RES_SCALE(1);
 
 						for (j = 0; j < RES_SCALE(1); j++)
-						{	// JMS_GFX
+						{	
 							DrawRectangle(&r, FALSE);
 							++r.corner.x;
 							++r.corner.y;
@@ -499,8 +499,8 @@ PostProcessStatus (ELEMENT *ShipPtr)
 					}
 					else if ((i -= 15) <= 4)
 					{
-						r.corner.y = y + (CAPTAIN_YOFFS + RES_SCALE(15)); // JMS_GFX
-						r.extent.width = RES_SCALE(i + 1); // JMS_GFX
+						r.corner.y = y + (CAPTAIN_YOFFS + RES_SCALE(15)); 
+						r.extent.width = RES_SCALE(i + 1); 
 						r.extent.height = RES_SCALE(1);
 						switch (i)
 						{

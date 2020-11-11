@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#define FIELD_WIDTH (STATUS_WIDTH - 5) // JMS_GFX
+#define FIELD_WIDTH (STATUS_WIDTH - 5) 
 
 extern void CargoMenu (void);
 extern BOOLEAN RosterMenu (void);

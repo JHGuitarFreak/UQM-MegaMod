@@ -310,7 +310,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	UNICODE buf[MAX_NAME_SIZE] = "";
 	TEXTENTRY_STATE tes;
 	UNICODE *Setting;
-	COUNT CursPos = 0; // JMS
+	COUNT CursPos = 0;
 
 	if (gamestart)
 	{	// These pre-fill the captain and flagship names when starting a new game

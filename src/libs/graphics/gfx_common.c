@@ -24,10 +24,8 @@
 		// for TFB_DEBUG_HALT
 #include "options.h"
 
-// JMS_GFX
 int fs_height = 0; 
 int fs_width  = 0;
-// End JMS_GFX
 
 int ScreenWidth;
 int ScreenHeight;

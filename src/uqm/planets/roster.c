@@ -74,8 +74,7 @@ drawSupportShip (ROSTER_STATE *rosterState, bool filled, bool saveFrame)
 	s.origin.x = RES_SCALE(rosterState->curShipPt.x);
 	s.origin.y = RES_SCALE(rosterState->curShipPt.y);
 	s.frame = rosterState->curShipFrame;
-	
-	// JMS: 
+
 	if (saveFrame) {
 		savedShipFrame_r.corner.x = s.origin.x;
 		savedShipFrame_r.corner.y = s.origin.y;

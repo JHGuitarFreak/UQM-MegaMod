@@ -49,10 +49,10 @@ struct RandomContext {
 #define MAX_SEED 2147483645
 #define MIN_SEED 2
 #define SANE_SEED(a) (((a) < MIN_SEED || (a) > MAX_SEED) ? false : true)
-#define SeedA (SANE_SEED (GLOBAL_SIS (Seed)) ? GLOBAL_SIS (Seed) : PrimeA) // Serosis - Default: 16807 - a relatively prime number - also M div Q
+#define SeedA (SANE_SEED (GLOBAL_SIS (Seed)) ? GLOBAL_SIS (Seed) : PrimeA)  // Default: 16807 - a relatively prime number - also M div Q
 #define SeedM (UINT32_MAX / 2) // 0xFFFFFFFF div 2
-#define SeedQ (SeedM / SeedA) // Serosis - Default: 127773L - M div A
-#define SeedR (SeedM % SeedA) // Serosis - Default: 2836 - M mod A 
+#define SeedQ (SeedM / SeedA)  // Default: 127773L - M div A
+#define SeedR (SeedM % SeedA)  // Default: 2836 - M mod A 
 #define PrimeSeed (SeedA == PrimeA ? true : false)
 
 RandomContext *RandomContext_New (void);

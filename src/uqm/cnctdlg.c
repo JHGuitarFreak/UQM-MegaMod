@@ -29,8 +29,8 @@
 #include "libs/graphics/widgets.h"
 #include "supermelee/netplay/netoptions.h"
 
-#define MCD_WIDTH RES_SCALE(260) // JMS_GFX
-#define MCD_HEIGHT RES_SCALE(110) // JMS_GFX
+#define MCD_WIDTH RES_SCALE(260) 
+#define MCD_HEIGHT RES_SCALE(110) 
 
 #define MENU_FRAME_RATE (ONE_SECOND / 20)
 
@@ -80,12 +80,12 @@ MCD_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
 	
-	widget_y = y + RES_SCALE(8); // JMS_GFX
+	widget_y = y + RES_SCALE(8); 
 	for (widget_index = 0; widget_index < self->num_children; widget_index++)
 	{
 		WIDGET *c = self->child[widget_index];
 		(*c->draw)(c, x, widget_y);
-		widget_y += (*c->height)(c) + RES_SCALE(8); // JMS_GFX
+		widget_y += (*c->height)(c) + RES_SCALE(8); 
 	}
 }
 
@@ -102,7 +102,7 @@ MCD_DrawButton (WIDGET *_self, int x, int y)
 	selected = MENU_HIGHLIGHT_COLOR;
 	inactive = MENU_TEXT_COLOR;
 
-	t.baseline.x = RES_SCALE(160); // JMS_GFX
+	t.baseline.x = RES_SCALE(160); 
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -212,7 +212,7 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
-		t.baseline.x = RES_SCALE(160); // JMS_GFX
+		t.baseline.x = RES_SCALE(160); 
 		t.align = ALIGN_CENTER;
 
 		if (widget_focus == _self)
@@ -234,7 +234,7 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		RECT r;
 		SIZE leading;
 
-		t.baseline.x = x + (RES_SCALE(90)); // JMS_GFX
+		t.baseline.x = x + (RES_SCALE(90)); 
 		t.align = ALIGN_LEFT;
 
 		// calc background box dimensions

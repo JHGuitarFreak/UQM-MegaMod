@@ -47,7 +47,7 @@
 #define SHIELD_REFLECT_COMP 100
 
 #define NUM_BATCH_POINTS 64
-#define RADIUS RES_SCALE(37) // JMS_GFX
+#define RADIUS RES_SCALE(37) 
 //2*RADIUS
 #define TWORADIUS (RADIUS << 1)
 //RADIUS^2
@@ -119,7 +119,7 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 		BYTE *cbase;
 		Color *pix;
 		Color *map;
-		BYTE ColorShift; // JMS
+		BYTE ColorShift;
 
 		map = HMalloc (sizeof (Color) * w * h);
 		pix = map;
@@ -488,7 +488,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE(7) // JMS_GFX
+#define SHIELD_HALO          RES_SCALE(7) 
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)

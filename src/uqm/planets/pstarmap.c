@@ -58,8 +58,8 @@ static POINT mapOrigin;
 static int zoomLevel;
 static FRAME StarMapFrame;
 
-static BOOLEAN show_prewar_situation; // JMS
-static CURRENT_STARMAP_SHOWN which_starmap; // JMS
+static BOOLEAN show_prewar_situation;
+static CURRENT_STARMAP_SHOWN which_starmap;
 
 static inline long
 signedDivWithError (long val, long divisor)

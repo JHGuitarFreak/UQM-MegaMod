@@ -65,15 +65,15 @@ QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
-FRAME hyperspacesuns; // BW
-FRAME NebulaeFrame; // JMS
+FRAME hyperspacesuns;
+FRAME NebulaeFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
 STRING GameStrings;
 QUEUE disp_q;
-// Serosis
+
 BOOLEAN solTexturesPresent;
 BOOLEAN SyreenVoiceFix;
 BOOLEAN comingFromInit;
@@ -277,8 +277,7 @@ InitKernel (void)
 	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
 		return FALSE;
-	
-	// JMS: Animated hyperspace suns.
+
 	if (HDPackPresent) { 
 		hyperspacesuns = CaptureDrawable (LoadGraphic (HYPERSUNS_MASK_PMAP_ANIM));
 		if (hyperspacesuns == NULL)
@@ -288,8 +287,7 @@ InitKernel (void)
 	NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
 	if (NebulaeFrame == NULL || !NebulaeFrame)
 		return FALSE;
-		
-	// JMS: This is a table of mineral values that will be shown on the status bar.
+
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)
 		return FALSE;

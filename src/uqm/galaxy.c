@@ -344,7 +344,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 
 		reduction = zoom_out;
 
-		// JMS_GFX
+		
 		if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
 			tempframe = stars_in_space;
 		else

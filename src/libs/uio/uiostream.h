@@ -36,7 +36,7 @@ char *uio_fgets(char *buf, int size, uio_Stream *stream);
 int uio_fgetc(uio_Stream *stream);
 #define uio_getc uio_fgetc
 int uio_ungetc(int c, uio_Stream *stream);
-int uio_backtrack(int rewinded_bytes, uio_Stream *stream); // JMS
+int uio_backtrack(int rewinded_bytes, uio_Stream *stream);
 int uio_vfprintf(uio_Stream *stream, const char *format, va_list args);
 int uio_fprintf(uio_Stream *stream, const char *format, ...);
 int uio_fputc(int c, uio_Stream *stream);

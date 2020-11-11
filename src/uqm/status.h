@@ -54,7 +54,7 @@ extern void InitStatusOffsets (void);
 
 extern void DrawCrewFuelString (COORD y, SIZE state);
 extern void ClearShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu);
-extern void OutlineShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu); // JMS: now is needed elsewhere
+extern void OutlineShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu);
 extern void InitShipStatus (SHIP_INFO *ShipInfoPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEAN inMeleeMenu);
 			// StarShipPtr or pClipRect can be NULL
 extern void DeltaStatistics (SHIP_INFO *ShipInfoPtr, COORD y_offs,

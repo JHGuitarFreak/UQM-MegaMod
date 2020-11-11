@@ -67,9 +67,9 @@ static int do_cheats (WIDGET *self, int event);
 static int do_keyconfig (WIDGET *self, int event);
 static int do_advanced (WIDGET *self, int event);
 static int do_editkeys (WIDGET *self, int event);
-static int do_music (WIDGET *self, int event); // Serosis
-static int do_visual (WIDGET *self, int event); // Serosis
-static int do_gameplay (WIDGET *self, int event); // Serosis
+static int do_music (WIDGET *self, int event); 
+static int do_visual (WIDGET *self, int event); 
+static int do_gameplay (WIDGET *self, int event); 
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
@@ -179,10 +179,10 @@ static WIDGET *audio_widgets[] = {
 static WIDGET *music_widgets[] = {
 	(WIDGET *)(&choices[9]),	// 3DO Remixes
 	(WIDGET *)(&choices[21]),	// Precursor's Remixes
-	(WIDGET *)(&choices[47]),	// Serosis: Volasaurus' Remix Pack
+	(WIDGET *)(&choices[47]),	// Volasaurus' Remix Pack
 	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&choices[46]),	// Serosis: Volasaurus' Space Music
-	(WIDGET *)(&choices[34]),	// JMS: Main Menu Music
+	(WIDGET *)(&choices[46]),	// Volasaurus' Space Music
+	(WIDGET *)(&choices[34]),	// Main Menu Music
 	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&buttons[1]),
 	NULL };
@@ -208,7 +208,7 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&choices[18]),	// Bottom Player
 	(WIDGET *)(&choices[19]),	// Top Player
 #if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[49]),	// Android: Directional Joystick toggle
+	(WIDGET *)(&choices[49]),	// Directional Joystick toggle
 #endif
 	(WIDGET *)(&labels[4]),		// Spacer
 	(WIDGET *)(&labels[1]),
@@ -234,8 +234,8 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[35]),	// IP nebulae on/off
 	(WIDGET *)(&choices[36]),	// orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),	// texturedPlanets on/off
-	(WIDGET *)(&choices[44]),	// Serosis: Hazard Colors
-	(WIDGET *)(&choices[38]),	// Nic: Switch date formats
+	(WIDGET *)(&choices[44]),	// Hazard Colors
+	(WIDGET *)(&choices[38]),	// Switch date formats
 	(WIDGET *)(&choices[45]),	// Custom Border switch
 	(WIDGET *)(&choices[48]),	// Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),	// Fuel Range
@@ -560,9 +560,7 @@ SetDefaults (void)
 	choices[21].selected = opts.musicremix;
 	choices[22].selected = opts.speech;
 	choices[23].selected = opts.keepaspect;
-
- 	choices[24].selected = opts.cheatMode; // JMS	
-	// Serosis
+ 	choices[24].selected = opts.cheatMode;
 	choices[25].selected = opts.precursorMode;
 	choices[26].selected = opts.tdType;
 	choices[27].selected = opts.bubbleWarp;
@@ -572,25 +570,21 @@ SetDefaults (void)
 	choices[31].selected = opts.infiniteRU;
 	choices[32].selected = opts.skipIntro;
 	choices[33].selected = opts.fuelRange;
-	// JMS
 	choices[34].selected = opts.mainMenuMusic;
 	choices[35].selected = opts.nebulae;
 	choices[36].selected = opts.orbitingPlanets;
 	choices[37].selected = opts.texturedPlanets;
-	// Nic
 	choices[38].selected = opts.dateType;
-	 // Serosis
 	choices[39].selected = opts.infiniteFuel;
 	choices[40].selected = opts.partialPickup;
 	choices[41].selected = opts.submenu;
-	choices[42].selected = opts.loresBlowup; // JMS
+	choices[42].selected = opts.loresBlowup;
 	choices[43].selected = opts.addDevices;
 	choices[44].selected = opts.hazardColors;
 	choices[45].selected = opts.customBorder;
 	choices[46].selected = opts.spaceMusic;
 	choices[47].selected = opts.volasMusic;
 	choices[48].selected = opts.wholeFuel;
-	// For Android
 #if defined(ANDROID) || defined(__ANDROID__)
 	choices[49].selected = opts.directionalJoystick;
 	choices[50].selected = opts.meleezoom;
@@ -640,9 +634,7 @@ PropagateResults (void)
 	opts.musicremix = choices[21].selected;
 	opts.speech = choices[22].selected;
 	opts.keepaspect = choices[23].selected;
-
- 	opts.cheatMode = choices[24].selected; // JMS
-	// Serosis
+ 	opts.cheatMode = choices[24].selected;
 	opts.precursorMode = choices[25].selected;
 	opts.tdType = choices[26].selected;
 	opts.bubbleWarp = choices[27].selected;
@@ -652,25 +644,21 @@ PropagateResults (void)
 	opts.infiniteRU = choices[31].selected;
 	opts.skipIntro = choices[32].selected;
 	opts.fuelRange = choices[33].selected;
-	 // JMS
 	opts.mainMenuMusic = choices[34].selected;
 	opts.nebulae = choices[35].selected;
 	opts.orbitingPlanets = choices[36].selected;
 	opts.texturedPlanets = choices[37].selected;
-	// Nic
 	opts.dateType = choices[38].selected;
-	// Serosis
 	opts.infiniteFuel = choices[39].selected;
 	opts.partialPickup = choices[40].selected;
 	opts.submenu = choices[41].selected;
-	opts.loresBlowup = choices[42].selected; // JMS
+	opts.loresBlowup = choices[42].selected;
 	opts.addDevices = choices[43].selected;
 	opts.hazardColors = choices[44].selected;
 	opts.customBorder = choices[45].selected;
 	opts.spaceMusic = choices[46].selected;
 	opts.volasMusic = choices[47].selected;
 	opts.wholeFuel = choices[48].selected;
-	// For Android
 #if defined(ANDROID) || defined(__ANDROID__)
 	opts.directionalJoystick = choices[49].selected;
 	opts.meleezoom = choices[50].selected;
@@ -1588,8 +1576,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 
- 	opts->cheatMode = optCheatMode ? OPTVAL_ENABLED : OPTVAL_DISABLED; // JMS
-	// Serosis
+ 	opts->cheatMode = optCheatMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->precursorMode = res_GetInteger("cheat.precursorMode");
 	opts->tdType = res_GetInteger ("cheat.timeDilation");
 	opts->bubbleWarp = optBubbleWarp ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1598,14 +1585,11 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->unlockUpgrades = optUnlockUpgrades ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->infiniteRU = optInfiniteRU ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->skipIntro = optSkipIntro ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	// JMS
 	opts->mainMenuMusic = optMainMenuMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->nebulae = optNebulae ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->orbitingPlanets = optOrbitingPlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->texturedPlanets = optTexturedPlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	// Nic
 	opts->dateType = res_GetInteger ("mm.dateFormat");
-	// Serosis
 	opts->infiniteFuel = optInfiniteFuel ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->partialPickup = optPartialPickup ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->submenu = optSubmenu ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1630,24 +1614,29 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->controllerType = res_GetInteger ("mm.controllerType");
 
-	// Serosis: 320x240
-	if (!IS_HD) {
-		switch (ScreenWidthActual) {
+	if (!IS_HD)
+	{
+		switch (ScreenWidthActual)
+		{
 			case 320:
-				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE) {
+				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
+				{
 					opts->screenResolution = OPTVAL_320_240;
 				}
-				else {
+				else
+				{
 					opts->screenResolution = OPTVAL_320_240;
 					opts->driver = OPTVAL_ALWAYS_GL;
 				}
 				break;
 			case 640:
-				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE) {
+				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
+				{
 					opts->screenResolution = OPTVAL_320_240;
 					opts->loresBlowup = OPTVAL_SCALE_640_480;
 				}
-				else {
+				else
+				{
 					opts->screenResolution = OPTVAL_320_240;
 					opts->loresBlowup = OPTVAL_SCALE_640_480;
 					opts->driver = OPTVAL_ALWAYS_GL;
@@ -1674,8 +1663,11 @@ GetGlobalOptions (GLOBALOPTS *opts)
 				opts->loresBlowup = NO_BLOWUP;
 				break;
 		}		
-	} else { // Serosis: 1280x960 / HD
-		switch (ScreenWidthActual) {
+	}
+	else
+	{	// HD - 1280x960
+		switch (ScreenWidthActual)
+		{
 			case 640:
 				opts->screenResolution = OPTVAL_REAL_1280_960;
 				opts->loresBlowup = OPTVAL_SCALE_640_480;
@@ -1709,11 +1701,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewDriver = GraphicsDriver;	
 	int SeedStuff;
 	
-	unsigned int oldResFactor = resolutionFactor; // JMS_GFX
+	unsigned int oldResFactor = resolutionFactor; 
 
 	NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
 	
-	// JMS_GFX
+	
 	switch (opts->screenResolution) {
 		case OPTVAL_320_240:
 			NewWidth = 320;
@@ -1737,7 +1729,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 		default:
 			/* Don't mess with the custom value */
-			resolutionFactor = 0; // JMS_GFX
+			resolutionFactor = 0; 
 			break;
 	}
 
@@ -1952,95 +1944,71 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("config.alwaysgl", opts->driver == OPTVAL_ALWAYS_GL);
 	res_PutBoolean ("config.usegl", NewDriver == TFB_GFXDRIVER_SDL_OPENGL);	
 	
-	// JMS_GFX
+	
 	res_PutInteger ("config.resolutionfactor", resolutionFactor);
 	res_PutInteger ("config.loresBlowupScale", opts->loresBlowup);
 
-	// JMS: Cheat Mode: Kohr-Ah move at zero speed when trying to cleanse the galaxy
 	res_PutBoolean ("cheat.kohrStahp", opts->cheatMode == OPTVAL_ENABLED);
 	optCheatMode = opts->cheatMode == OPTVAL_ENABLED;
 
-	// Serosis: God Mode: Health and Energy does not deplete in battle.
 	optPrecursorMode = opts->precursorMode;
 	res_PutInteger ("cheat.precursorMode", opts->precursorMode);
 
-	// Serosis: Time Dilation: Increases and divides time in IP and HS by a factor of 12
 	timeDilationScale = opts->tdType;
 	res_PutInteger ("cheat.timeDilation", opts->tdType);
 
-	// Serosis: Bubble Warp: Warp instantly to your destination
 	res_PutBoolean ("cheat.bubbleWarp", opts->bubbleWarp == OPTVAL_ENABLED);
 	optBubbleWarp = opts->bubbleWarp == OPTVAL_ENABLED;
 
-	// Serosis: Unlocks ships that you can not unlock under normal conditions
 	res_PutBoolean ("cheat.unlockShips", opts->unlockShips == OPTVAL_ENABLED);
 	optUnlockShips = opts->unlockShips == OPTVAL_ENABLED;
 
-	// Serosis: Gives you 1000 Radioactives and a better outfitted ship on a a new game
 	res_PutBoolean ("cheat.headStart", opts->headStart == OPTVAL_ENABLED);
 	optHeadStart = opts->headStart == OPTVAL_ENABLED;
 
-	// Serosis: Unlocks all upgrades
 	res_PutBoolean ("cheat.unlockUpgrades", opts->unlockUpgrades == OPTVAL_ENABLED);
 	optUnlockUpgrades = opts->unlockUpgrades == OPTVAL_ENABLED;
 
-	// Serosis: Virtually Infinite RU
 	res_PutBoolean ("cheat.infiniteRU", opts->infiniteRU == OPTVAL_ENABLED);
 	optInfiniteRU = opts->infiniteRU == OPTVAL_ENABLED;
 
-	// Serosis: Skip the intro
 	res_PutBoolean ("mm.skipIntro", opts->skipIntro == OPTVAL_ENABLED);
 	optSkipIntro = opts->skipIntro == OPTVAL_ENABLED;
-	
-	// JMS: Main menu music
+
 	res_PutBoolean ("mm.mainMenuMusic", opts->mainMenuMusic == OPTVAL_ENABLED);
 	optMainMenuMusic = opts->mainMenuMusic == OPTVAL_ENABLED;
 	if(!optMainMenuMusic)
 		FadeMusic (0,ONE_SECOND);
 	else
 		FadeMusic (NORMAL_VOLUME+70, ONE_SECOND);
-	
-	// JMS: Is a beautiful nebula background shown as the background of solarsystems.
+
 	res_PutBoolean ("mm.nebulae", opts->nebulae == OPTVAL_ENABLED);
 	optNebulae = opts->nebulae == OPTVAL_ENABLED;
-	
-	// JMS: Rotating planets in IP.
+
 	res_PutBoolean ("mm.orbitingPlanets", opts->orbitingPlanets == OPTVAL_ENABLED);
 	optOrbitingPlanets = opts->orbitingPlanets == OPTVAL_ENABLED;
-	
-	// JMS: Textured or plain(==vanilla UQM style) planets in IP.
-	res_PutBoolean ("mm.texturedPlanets", opts->texturedPlanets == OPTVAL_ENABLED);
-	optTexturedPlanets = opts->texturedPlanets == OPTVAL_ENABLED;	
 
-	// Nic: Date Format: Switch the displayed date format
+	res_PutBoolean ("mm.texturedPlanets", opts->texturedPlanets == OPTVAL_ENABLED);
+	optTexturedPlanets = opts->texturedPlanets == OPTVAL_ENABLED;
+
 	optDateFormat = opts->dateType;
-	res_PutInteger ("mm.dateFormat", opts->dateType);	
-	
-	// Serosis: Infinite Fuel
+	res_PutInteger ("mm.dateFormat", opts->dateType);
+
 	res_PutBoolean ("cheat.infiniteFuel", opts->infiniteFuel == OPTVAL_ENABLED);
 	optInfiniteFuel = opts->infiniteFuel == OPTVAL_ENABLED;
-	
-	// Serosis: Partial mineral pickup when enabled.
+
 	res_PutBoolean ("mm.partialPickup", opts->partialPickup == OPTVAL_ENABLED);
 	optPartialPickup = opts->partialPickup == OPTVAL_ENABLED;
-	
-	// Serosis: Show submenu
+
 	res_PutBoolean ("mm.submenu", opts->submenu == OPTVAL_ENABLED);
 	optSubmenu = opts->submenu == OPTVAL_ENABLED;
-	
-	// Serosis: get all devices
+
 	res_PutBoolean ("cheat.addDevices", opts->addDevices == OPTVAL_ENABLED);
 	optAddDevices = opts->addDevices == OPTVAL_ENABLED;
-	
-	// Serosis: Scale Planets in HD
-	/*res_PutBoolean ("mm.scalePlanets", opts->scalePlanets == OPTVAL_ENABLED);
-	optScalePlanets = opts->scalePlanets == OPTVAL_ENABLED;*/
-	
-	// Serosis: Show custom border
+
 	res_PutBoolean ("mm.customBorder", opts->customBorder == OPTVAL_ENABLED);
 	optCustomBorder = opts->customBorder == OPTVAL_ENABLED;
-	
-	// Serosis: Externalized Seed Generation
+
 	SeedStuff = res_GetInteger ("mm.customSeed");
 	if(!SANE_SEED(SeedStuff))
 		opts->customSeed = PrimeA;
@@ -2048,65 +2016,50 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		opts->customSeed = optCustomSeed;
 	res_PutInteger ("mm.customSeed", opts->customSeed);
 
-	// Serosis: Play localized music for different races when within their borders
 	res_PutBoolean("mm.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
 	optSpaceMusic = opts->spaceMusic == OPTVAL_ENABLED;
 
-	// Serosis: Enable Volasaurus' music remixes
 	res_PutBoolean("mm.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
 	optVolasMusic = (opts->volasMusic == OPTVAL_ENABLED);
 
-	// Serosis: Enable Whole Fuel values
 	res_PutBoolean("mm.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
 	optWholeFuel = (opts->wholeFuel == OPTVAL_ENABLED);
 
 #if defined(ANDROID) || defined(__ANDROID__)
-	// Serosis: Enable Android Directional Joystick
 	res_PutBoolean("mm.directionalJoystick", opts->directionalJoystick == OPTVAL_ENABLED);
 	optDirectionalJoystick = (opts->directionalJoystick == OPTVAL_ENABLED);
 #endif
 
-	// Serosis: Switch between PC/3DO max lander hold value
 	optLanderHold = (opts->landerHold == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean("mm.landerHold", opts->landerHold == OPTVAL_3DO);
 
-	// Serosis: PC/3DO IP Transitions
 	optIPScaler = (opts->ipTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
 
-	// Serosis: Difficulty
 	optDifficulty = opts->difficulty;
 	res_PutInteger("mm.difficulty", opts->difficulty);
 
-	// Serosis: Enable "point of no return" fuel range
 	res_PutBoolean("mm.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
 	optFuelRange = (opts->fuelRange == OPTVAL_ENABLED);
 
-	// Serosis: Enable Extended Edition features
 	res_PutBoolean("mm.extended", opts->extended == OPTVAL_ENABLED);
 	optExtended = (opts->extended == OPTVAL_ENABLED);
 
-	// Serosis: Enable Nomad mode (No Starbase)
 	res_PutBoolean("mm.nomad", opts->nomad == OPTVAL_ENABLED);
 	optNomad = (opts->nomad == OPTVAL_ENABLED);
 
-	// Serosis: Enable Game Over cutscenes
 	res_PutBoolean("mm.gameOver", opts->gameOver == OPTVAL_ENABLED);
 	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
 
-	// Serosis: Enable NPC ships in IP facing the direction they're going
 	res_PutBoolean("mm.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
 	optShipDirectionIP = (opts->shipDirectionIP == OPTVAL_ENABLED);
 
-	// Serosis: Enable colored text based on hazard severity when viewing planetary scans
 	res_PutBoolean("mm.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
 	optHazardColors = (opts->hazardColors == OPTVAL_ENABLED);
 
-	// Serosis: Enable alternate font for untranslatable Orz speech 
 	res_PutBoolean("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
 	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
 
-	// Serosis: Show which type of controls on screen
 	switch (opts->controllerType) {
 		case OPTVAL_XBX:
 			optControllerType = 1;
@@ -2154,16 +2107,15 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if ((NewWidth != ScreenWidthActual) ||
 	    (NewHeight != ScreenHeightActual) ||
 	    (NewDriver != GraphicsDriver) ||
-		(optRequiresRestart) || // JMS_GFX
+		(optRequiresRestart) || 
 	    (NewGfxFlags != GfxFlags)) 
 	{
 		FlushGraphics ();
 		UninitVideoPlayer ();
 		
-		// JMS_GFX
+		
 		if (optRequiresRestart)
 		{
-			// Tell the game the new screen's size.
 			ScreenWidth  = 320 << resolutionFactor;
 			ScreenHeight = 240 << resolutionFactor;
 			

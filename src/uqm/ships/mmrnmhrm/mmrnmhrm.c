@@ -248,7 +248,7 @@ mmrnmhrm_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		{
 			if (lpEvalDesc->which_turn > 8)
 			{
-				if (MANEUVERABILITY (&EnemyStarShipPtr->RaceDescPtr->cyborg_control) <= RESOLUTION_COMPENSATED(SLOW_SHIP) // JMS_GFX
+				if (MANEUVERABILITY (&EnemyStarShipPtr->RaceDescPtr->cyborg_control) <= RESOLUTION_COMPENSATED(SLOW_SHIP) 
 						|| NORMALIZE_ANGLE (
 								direction_angle - travel_angle + QUADRANT
 								) > HALF_CIRCLE)

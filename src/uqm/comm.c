@@ -113,7 +113,7 @@ static FRAME TextCacheFrame;
 RECT CommWndRect = {
 	// default values; actually inited by HailAlien()
 	{0, 0},
-	{0, 0} //was {SIS_ORG_X, SIS_ORG_Y}, // JMS_GFX
+	{0, 0} //was {SIS_ORG_X, SIS_ORG_Y}, 
 };
 
 static void ClearSubtitles (void);
@@ -227,7 +227,7 @@ add_text (int status, TEXT *pTextIn)
 
 		maxchars = pTextIn->CharCount;
 		locText = *pTextIn;
-		locText.baseline.x -= RES_SCALE(8); // JMS_GFX
+		locText.baseline.x -= RES_SCALE(8); 
 		locText.CharCount = (COUNT)~0;
 		locText.pStr = STR_BULLET;
 		font_DrawText (&locText);
@@ -559,7 +559,7 @@ static void
 RefreshResponses (ENCOUNTER_STATE *pES)
 {
 	COORD y;
-	BYTE response, extra_y; // JMS_GFX
+	BYTE response, extra_y; 
 	SIZE leading;
 	STAMP s;
 
@@ -620,7 +620,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		TEXT ct;
 
 		ct.baseline.x = SIS_SCREEN_WIDTH >> 1;
-		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13); // JMS_GFX
+		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13); 
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
 
@@ -629,7 +629,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		SetContextForeGroundColor (COMM_RESPONSE_INTRO_TEXT_COLOR);
 		font_DrawText (&ct);
 
-		ct.baseline.y += RES_SCALE(16); // JMS_GFX
+		ct.baseline.y += RES_SCALE(16); 
 		SetContextForeGroundColor (COMM_FEEDBACK_TEXT_COLOR);
 		ct.pStr = pStr;
 		add_text (-4, &ct);
@@ -959,9 +959,9 @@ remove_char_from_string (UNICODE* str, const UNICODE c)
 static BOOLEAN
 DoConvSummary (SUMMARY_STATE *pSS)
 {
-#define DELTA_Y_SUMMARY RES_SCALE(8) // JMS_GFX
+#define DELTA_Y_SUMMARY RES_SCALE(8) 
 	//#define MAX_SUMM_ROWS ((SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT) / DELTA_Y_SUMMARY
-#define MAX_SUMM_ROWS (SLIDER_Y	/ DELTA_Y_SUMMARY) - 1 // JMS_GFX
+#define MAX_SUMM_ROWS (SLIDER_Y	/ DELTA_Y_SUMMARY) - 1 
 
 	if (!pSS->Initialized)
 	{
@@ -998,7 +998,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 		r.corner.x = 0;
 		r.corner.y = 0;
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = SLIDER_Y; //SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT + RES_SCALE(2) + 16 * RESOLUTION_FACTOR; // JMS_GFX
+		r.extent.height = SLIDER_Y; //SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT + RES_SCALE(2) + 16 * RESOLUTION_FACTOR; 
 
 		SetContext (AnimContext);
 		SetContextForeGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
@@ -1007,7 +1007,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 		SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
 		r.extent.width -= 2 + 2;
-		t.baseline.x = RES_SCALE(2); // JMS_GFX
+		t.baseline.x = RES_SCALE(2); 
 		t.align = ALIGN_LEFT;
 		t.baseline.y = DELTA_Y_SUMMARY;
 		SetContextFont (TinyFont);
@@ -1455,8 +1455,8 @@ HailAlien (void)
 		if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 		{
 			// set the position of outtakes comm
-			CommWndRect.corner.x = ((SCREEN_WIDTH - CommWndRect.extent.width) / 2); // JMS_GFX
-			CommWndRect.corner.y = RES_SCALE(5); // JMS_GFX
+			CommWndRect.corner.x = ((SCREEN_WIDTH - CommWndRect.extent.width) / 2);
+			CommWndRect.corner.y = RES_SCALE(5);
 			r.corner = CommWndRect.corner;
 			SetContextClipRect (&r);
 		}

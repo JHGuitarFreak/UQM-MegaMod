@@ -709,10 +709,10 @@ init_commander_comm ()
 		commander_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
 	}
 
-	// JMS_GFX
-	commander_desc.AlienTextWidth = RES_SIS_SCALE(143); // JMS_GFX
-	commander_desc.AlienTextBaseline.x = RES_SIS_SCALE(164); // JMS_GFX
-	commander_desc.AlienTextBaseline.y = RES_SIS_SCALE(20); // JMS_GFX
+	
+	commander_desc.AlienTextWidth = RES_SIS_SCALE(143); 
+	commander_desc.AlienTextBaseline.x = RES_SIS_SCALE(164); 
+	commander_desc.AlienTextBaseline.y = RES_SIS_SCALE(20); 
 
 	setSegue (Segue_peace);
 	retval = &commander_desc;

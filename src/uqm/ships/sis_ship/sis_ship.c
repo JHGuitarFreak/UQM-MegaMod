@@ -703,7 +703,7 @@ sis_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 			lpEvalDesc->ObjectPtr = NULL;
 		}
 		else if (MANEUVERABILITY (&StarShipPtr->RaceDescPtr->cyborg_control)
-				< RESOLUTION_COMPENSATED(MEDIUM_SHIP) // JMS_GFX
+				< RESOLUTION_COMPENSATED(MEDIUM_SHIP) 
 				&& lpEvalDesc->MoveState == ENTICE
 				&& (!(lpEvalDesc->ObjectPtr->state_flags & CREW_OBJECT)
 				|| lpEvalDesc->which_turn <= 8)

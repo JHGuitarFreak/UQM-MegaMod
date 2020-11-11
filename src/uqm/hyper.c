@@ -1056,7 +1056,7 @@ AddAmbientElement (void)
 		dy = LOWORD (rand_val);
 		
 		if (!IS_HD)
-		{	// JMS_GFX
+		{	
 			dx = (SIZE)(LOBYTE (dy) % SPACE_WIDTH) - (SPACE_WIDTH >> 1);
 			dy = (SIZE)(HIBYTE (dy) % SPACE_HEIGHT) - (SPACE_HEIGHT >> 1);
 			HyperSpaceElementPtr->current.image.farray = &stars_in_space;
@@ -1617,9 +1617,9 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 	}
 }
 
-#define NUM_HOLES_FRAMES 32 // BW
-#define NUM_SUNS_FRAMES 32 // BW
-#define NUM_QUASIPORTAL_IN_HS_FRAMES 30 // JMS
+#define NUM_HOLES_FRAMES 32
+#define NUM_SUNS_FRAMES 32
+#define NUM_QUASIPORTAL_IN_HS_FRAMES 30
 
 void
 SeedUniverse (void)

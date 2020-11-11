@@ -23,7 +23,7 @@
 #include "uqm/globdata.h"
 #include "uqm/tactrans.h"
 #include "libs/mathlib.h"
-#include "../../settings.h" // JMS: For StopMusic
+#include "../../settings.h"
 
 // Core characteristics
 #define MAX_CREW 8

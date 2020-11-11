@@ -48,24 +48,24 @@
 // devices the player actually possesses.
 //#define DEBUG_DEVICES
 
-#define DEVICE_ICON_WIDTH  RES_SCALE(16) // JMS_GFX
-#define DEVICE_ICON_HEIGHT RES_SCALE(16) // JMS_GFX
+#define DEVICE_ICON_WIDTH  RES_SCALE(16) 
+#define DEVICE_ICON_HEIGHT RES_SCALE(16) 
 
-#define DEVICE_ORG_Y       RES_SCALE(33) // JMS_GFX
-#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_SCALE(2)) // JMS_GFX
+#define DEVICE_ORG_Y       RES_SCALE(33) 
+#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_SCALE(2)) 
 
-#define DEVICE_COL_0       RES_SCALE(4) // JMS_GFX
-#define DEVICE_COL_1       RES_SCALE(40) // JMS_GFX
+#define DEVICE_COL_0       RES_SCALE(4) 
+#define DEVICE_COL_1       RES_SCALE(40) 
 
 #define DEVICE_SEL_ORG_X  (DEVICE_COL_0 + DEVICE_ICON_WIDTH)
-#define DEVICE_SEL_WIDTH  (FIELD_WIDTH + RES_SCALE(2) - DEVICE_SEL_ORG_X) // JMS_GFX
+#define DEVICE_SEL_WIDTH  (FIELD_WIDTH + RES_SCALE(2) - DEVICE_SEL_ORG_X) 
 
-#define ICON_OFS_Y         RES_SCALE(1) // JMS_GFX
-#define NAME_OFS_Y         RES_SCALE(2) // JMS_GFX
-#define TEXT_BASELINE      RES_SCALE(6) // JMS_GFX
-#define TEXT_SPACING_Y     RES_SCALE(7) // JMS_GFX
+#define ICON_OFS_Y         RES_SCALE(1) 
+#define NAME_OFS_Y         RES_SCALE(2) 
+#define TEXT_BASELINE      RES_SCALE(6) 
+#define TEXT_SPACING_Y     RES_SCALE(7) 
 
-#define MAX_VIS_DEVICES    ((RES_SCALE(129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y) // JMS_GFX
+#define MAX_VIS_DEVICES    ((RES_SCALE(129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y) 
 
 
 typedef enum
@@ -92,8 +92,8 @@ EraseDevicesBackground (void)
 {
 	RECT r;
 
-	r.corner.x = RES_SCALE(3); // JMS_GFX
-	r.extent.width = FIELD_WIDTH - RES_SCALE(1); // JMS_GFX
+	r.corner.x = RES_SCALE(3); 
+	r.extent.width = FIELD_WIDTH - RES_SCALE(1); 
 	r.corner.y = DEVICE_ORG_Y;
 	r.extent.height = MAX_VIS_DEVICES * DEVICE_SPACING_Y;
 	SetContextForeGroundColor (DEVICES_BACK_COLOR);

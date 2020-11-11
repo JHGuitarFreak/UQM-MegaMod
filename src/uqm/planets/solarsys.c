@@ -65,14 +65,14 @@
 #define PLANET_DIAMETER (29 << 2)
 #define GENERATE_PERIMETER(a) (a * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
 
-static void AnimateSun (SIZE radius); // JMS
+static void AnimateSun (SIZE radius);
 static BOOLEAN DoIpFlight (SOLARSYS_STATE *pSS);
 static void DrawInnerPlanets (PLANET_DESC* planet);
 static void DrawOuterPlanets(SIZE radius);
 static void DrawSystem (SIZE radius, BOOLEAN IsInnerSystem);
 static void DrawInnerSystem (void);
 static void DrawOuterSystem (void);
-static void SetPlanetColorMap (PLANET_DESC *planet); // JMS, BW
+static void SetPlanetColorMap (PLANET_DESC *planet);
 static void ValidateInnerOrbits (void);
 static void ValidateOrbits (void);
 

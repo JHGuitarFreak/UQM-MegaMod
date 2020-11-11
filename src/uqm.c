@@ -147,10 +147,9 @@ struct options_struct
 	DECL_CONFIG_OPTION(float, sfxVolumeScale);
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
 	DECL_CONFIG_OPTION(bool, safeMode);
-	DECL_CONFIG_OPTION(int,  resolutionFactor); // JMS_GFX
-	DECL_CONFIG_OPTION(int,	 loresBlowupScale); // JMS_GFX
- 	DECL_CONFIG_OPTION(bool, cheatMode); // JMS
-	// Serosis
+	DECL_CONFIG_OPTION(int,  resolutionFactor); 
+	DECL_CONFIG_OPTION(int,	 loresBlowupScale); 
+ 	DECL_CONFIG_OPTION(bool, cheatMode);
 	DECL_CONFIG_OPTION(int,	 optPrecursorMode);
 	DECL_CONFIG_OPTION(int,	 timeDilationScale);
 	DECL_CONFIG_OPTION(bool, bubbleWarp);
@@ -159,14 +158,11 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, unlockUpgrades);
 	DECL_CONFIG_OPTION(bool, infiniteRU);
 	DECL_CONFIG_OPTION(bool, skipIntro);
-	// JMS
 	DECL_CONFIG_OPTION(bool, mainMenuMusic);
 	DECL_CONFIG_OPTION(bool, nebulae);
 	DECL_CONFIG_OPTION(bool, orbitingPlanets);
 	DECL_CONFIG_OPTION(bool, texturedPlanets);
-	// Nic
 	DECL_CONFIG_OPTION(int,	 optDateFormat);
-	// Serosis
 	DECL_CONFIG_OPTION(bool, infiniteFuel);
 	DECL_CONFIG_OPTION(bool, partialPickup);
 	DECL_CONFIG_OPTION(bool, submenu);
@@ -177,7 +173,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, spaceMusic);
 	DECL_CONFIG_OPTION(bool, volasMusic);
 	DECL_CONFIG_OPTION(bool, wholeFuel);
-	DECL_CONFIG_OPTION(bool, directionalJoystick); // For Android
+	DECL_CONFIG_OPTION(bool, directionalJoystick);
 	DECL_CONFIG_OPTION(int,	 landerHold);
 	DECL_CONFIG_OPTION(int,  ipTrans);
 	DECL_CONFIG_OPTION(int,  optDifficulty);
@@ -337,8 +333,7 @@ main (int argc, char *argv[])
 #else
 		INIT_CONFIG_OPTION(	 loresBlowupScale,  1),
 #endif
-		INIT_CONFIG_OPTION(  cheatMode,			false ), // JMS
-		//Serosis
+		INIT_CONFIG_OPTION(  cheatMode,			false ),
 		INIT_CONFIG_OPTION(  optPrecursorMode,	0 ), 
 		INIT_CONFIG_OPTION(  timeDilationScale,	0 ),
 		INIT_CONFIG_OPTION(  bubbleWarp,		false ),
@@ -347,14 +342,11 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  unlockUpgrades,	false ),
 		INIT_CONFIG_OPTION(  infiniteRU,		false ),
 		INIT_CONFIG_OPTION(  skipIntro,			false ),
-		// JMS
 		INIT_CONFIG_OPTION(  mainMenuMusic,     true ),
 		INIT_CONFIG_OPTION(  nebulae,			false ),
 		INIT_CONFIG_OPTION(  orbitingPlanets,	false ),
 		INIT_CONFIG_OPTION(  texturedPlanets,	false ),
-		// Nic
 		INIT_CONFIG_OPTION(  optDateFormat,		0 ),
-		//Serosis
 		INIT_CONFIG_OPTION(  infiniteFuel,		false ),
 		INIT_CONFIG_OPTION(  partialPickup,		false ),
 		INIT_CONFIG_OPTION(  submenu,			false ),
@@ -365,7 +357,6 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  spaceMusic,		false ),
 		INIT_CONFIG_OPTION(	 volasMusic,		false ),
 		INIT_CONFIG_OPTION(	 wholeFuel,			false ),
-		// For Android
 #if defined(ANDROID) || defined(__ANDROID__)
 		INIT_CONFIG_OPTION(	 directionalJoystick, true ),
 #else
@@ -433,7 +424,7 @@ main (int argc, char *argv[])
 			NETPLAY_MIN_UQM_VERSION_PATCH);
 #endif
 
-	// Serosis - Compiler info to help with future debugging.
+	 // Compiler info to help with future debugging.
 #ifdef _MSC_VER
 		printf("MSC_VER: %d\n", _MSC_VER);
 		printf("MSC_FULL_VER: %d\n", _MSC_FULL_VER);
@@ -544,10 +535,10 @@ main (int argc, char *argv[])
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
 	
-	resolutionFactor = (unsigned int) options.resolutionFactor.value; // JMS_GFX
-	loresBlowupScale = (unsigned int) options.loresBlowupScale.value; // JMS_GFX	
+	resolutionFactor = (unsigned int) options.resolutionFactor.value; 
+	loresBlowupScale = (unsigned int) options.loresBlowupScale.value; 	
 
-	// Serosis
+	
 	optPrecursorMode = options.optPrecursorMode.value;
 	timeDilationScale = options.timeDilationScale.value;
 	optBubbleWarp = options.bubbleWarp.value;
@@ -562,9 +553,9 @@ main (int argc, char *argv[])
 	optOrbitingPlanets = options.orbitingPlanets.value;
 	optTexturedPlanets = options.texturedPlanets.value;
  	optCheatMode = options.cheatMode.value;
-	// Nic
+	
 	optDateFormat = options.optDateFormat.value;
-	// Serosis	
+		
 	optInfiniteFuel = options.infiniteFuel.value;
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;
@@ -572,8 +563,8 @@ main (int argc, char *argv[])
 	optScalePlanets = options.scalePlanets.value;
 	optCustomBorder = options.customBorder.value;
 	optCustomSeed = options.customSeed.value;
-	optRequiresReload = FALSE; // Serosis
-	optRequiresRestart = FALSE; // JMS_GFX
+	optRequiresReload = FALSE; 
+	optRequiresRestart = FALSE; 
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
@@ -886,22 +877,22 @@ getUserConfigOptions (struct options_struct *options)
 	getVolumeConfigValue (&options->sfxVolumeScale, "config.sfxvol");
 	getVolumeConfigValue (&options->speechVolumeScale, "config.speechvol");
 	
-	// JMS_GFX
+	
 	if (res_IsInteger ("config.resolutionfactor") && !options->resolutionFactor.set)
 	{
 		options->resolutionFactor.value = res_GetInteger ("config.resolutionfactor");
 		options->resolutionFactor.set = true;
 	}
 	
-	// JMS_GFX
+	
 	if (res_IsInteger ("config.loresBlowupScale"))
 	{
 		options->loresBlowupScale.value = res_GetInteger ("config.loresBlowupScale");
 		options->loresBlowupScale.set = true;
 	}
 
-	getBoolConfigValue (&options->cheatMode, "cheat.kohrStahp"); // JMS
-	// Serosis
+	getBoolConfigValue (&options->cheatMode, "cheat.kohrStahp");
+	
 	if (res_IsInteger ("cheat.precursorMode") && !options->optPrecursorMode.set) {
 		options->optPrecursorMode.value = res_GetInteger ("cheat.precursorMode");
 	}
@@ -914,21 +905,19 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
 	getBoolConfigValue (&options->infiniteRU, "cheat.infiniteRU");
 	getBoolConfigValue (&options->skipIntro, "mm.skipIntro");
-	// JMS
 	getBoolConfigValue (&options->mainMenuMusic, "mm.mainMenuMusic");
 	getBoolConfigValue (&options->nebulae, "mm.nebulae");
 	getBoolConfigValue (&options->orbitingPlanets, "mm.orbitingPlanets");
 	getBoolConfigValue (&options->texturedPlanets, "mm.texturedPlanets");
-	// Nic	
+		
 	if (res_IsInteger ("mm.dateFormat") && !options->optDateFormat.set) {
 		options->optDateFormat.value = res_GetInteger ("mm.dateFormat");
 	}
-	// Serosis	
+		
 	getBoolConfigValue (&options->infiniteFuel, "cheat.infiniteFuel");
 	getBoolConfigValue (&options->partialPickup, "mm.partialPickup");
 	getBoolConfigValue (&options->submenu, "mm.submenu");
 	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
-	// getBoolConfigValue (&options->scalePlanets, "mm.scalePlanets");
 	getBoolConfigValue (&options->customBorder, "mm.customBorder");
 	if (res_IsInteger ("mm.customSeed") && !options->customSeed.set) {
 		options->customSeed.value = res_GetInteger ("mm.customSeed");
@@ -1807,7 +1796,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			"3do=smooth (default: %s)",
 			choiceOptString (&defaults->smoothScroll));
 
-	log_add (log_User, "The following options are for the Mega Mod"); // Serosis
+	log_add (log_User, "The following options are for the Mega Mod"); 
 	log_add (log_User, "  --kohrstahp : Stops Kohr-Ah advancing.    (default: %s)",
 			boolOptString (&defaults->cheatMode));
 	log_add(log_User, "  --precursormode : =1 Infinite ship battery. =2 No damage"

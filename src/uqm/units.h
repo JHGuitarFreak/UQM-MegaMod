@@ -44,7 +44,7 @@ extern int ScreenHeight;
 #define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
 		/* Margins. */
-#define SIS_ORG_X RES_SCALE(7)								// JMS_GFX
+#define SIS_ORG_X RES_SCALE(7)								
 #define SIS_ORG_Y RES_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
 
 /* Status bar & play area sizes. */
@@ -58,31 +58,31 @@ extern int ScreenHeight;
 /* Height of the space "window" (the left part of the screen) */
 #define SIS_SCREEN_WIDTH (SPACE_WIDTH - 2 * SIS_ORG_X) // DC: Gray area on the right. just a spacer box
 /* Width of the usable part of the space "window" */
-#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(3) - RES_SCALE(10)) // JMS_GFX
+#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(3) - RES_SCALE(10)) 
 /* Height of the usable part of the space "window": 3 for the grey bottom border and 10 for the title */
-#define RES_SIS_SCALE(a) ((SIZE)(a) * SIS_SCREEN_WIDTH / 242) // JMS_GFX
+#define RES_SIS_SCALE(a) ((SIZE)(a) * SIS_SCREEN_WIDTH / 242) 
 
 		/* Radar. */
-#define RADAR_X (RES_SCALE(4) + (SCREEN_WIDTH - STATUS_WIDTH))	// JMS_GFX
-#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))							// JMS_GFX
-#define RADAR_HEIGHT RES_SCALE(53)											// JMS_GFX
-#define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)		// JMS_GFX
+#define RADAR_X (RES_SCALE(4) + (SCREEN_WIDTH - STATUS_WIDTH))	
+#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))							
+#define RADAR_HEIGHT RES_SCALE(53)											
+#define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)		
 
 		/* Blue boxes which display messages and the green date box. */
-#define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)						// JMS_GFX
-#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2)) // JMS_GFX
-#define SIS_TITLE_HEIGHT       RES_SCALE(8)						// JMS_GFX
-#define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)						// JMS_GFX
+#define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)						
+#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2)) 
+#define SIS_TITLE_HEIGHT       RES_SCALE(8)						
+#define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)						
 
 #define SIS_MESSAGE_BOX_WIDTH  (SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - SIS_SPACER_BOX_WIDTH)
 #define SIS_MESSAGE_WIDTH      (SIS_MESSAGE_BOX_WIDTH - RES_SCALE(2))
 #define SIS_MESSAGE_HEIGHT     SIS_TITLE_HEIGHT
 
-#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_SCALE(4))	 // JMS_GFX
-#define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) // JMS_GFX
+#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_SCALE(4))	 
+#define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) 
 
-#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE(4))// JMS_GFX
-#define SHIP_NAME_HEIGHT       RES_SCALE(7) // JMS_GFX
+#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE(4))
+#define SHIP_NAME_HEIGHT       RES_SCALE(7) 
 
 		/* A lot of other shit. */
 #define MAX_REDUCTION 3
@@ -123,8 +123,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 // XXX: These corrected for the weird screen aspect ratio on DOS
 //   In part because of them, hyperflight is slower vertically
-#define UNIT_SCREEN_WIDTH (RES_SCALE(63) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
-#define UNIT_SCREEN_HEIGHT (RES_SCALE(50) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
+#define UNIT_SCREEN_WIDTH (RES_SCALE(63) + (COUNT)RESOLUTION_FACTOR * 10) 
+#define UNIT_SCREEN_HEIGHT (RES_SCALE(50) + (COUNT)RESOLUTION_FACTOR * 10) 
 
 
 // Bug #945: Simplified, these set the speed of SIS in Hyperspace and
@@ -137,8 +137,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 #define UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4))
 #define UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
-#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE(16))) // JMS_GFX
-#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE(16))) // JMS_GFX
+#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE(16))) 
+#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE(16))) 
 
 // Original (and now broken) Hyperspace speed factors
 // Serosis: Now being utilized to load Vanilla saves properly

@@ -65,9 +65,9 @@ enum {
 	KEY_MENU_NEXT,
 	KEY_MENU_TOGGLEMAP, // JMS: For showing SC1-era starmap
 	KEY_MENU_ANY, /* abstract char key */
-	KEY_DEBUG_2,  // JMS: Secondary debug key
-	KEY_DEBUG_3,  // JMS: Tertiary debug key
-	KEY_DEBUG_4,  // JMS: Quaternary debug key
+	KEY_DEBUG_2,
+	KEY_DEBUG_3,
+	KEY_DEBUG_4,
 	NUM_MENU_KEYS
 };
 

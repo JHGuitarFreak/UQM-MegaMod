@@ -41,17 +41,13 @@ extern int optWhichIntro;
 extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
-
-// JMS_GFX
 extern unsigned int loresBlowupScale;
 extern unsigned int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
 extern BOOLEAN optRequiresReload;
 extern BOOLEAN optRequiresRestart;
-
-extern BOOLEAN optCheatMode; // JMS
-// Serosis
+extern BOOLEAN optCheatMode;
 extern int optPrecursorMode;
 extern int timeDilationScale;
 extern BOOLEAN optBubbleWarp;
@@ -61,14 +57,11 @@ extern BOOLEAN optUnlockUpgrades;
 extern BOOLEAN optInfiniteRU;
 extern DWORD oldRU;
 extern BOOLEAN optSkipIntro;
-// JMS
 extern BOOLEAN optMainMenuMusic;
 extern BOOLEAN optNebulae;
 extern BOOLEAN optOrbitingPlanets;
 extern BOOLEAN optTexturedPlanets;
-// Nic
 extern int optDateFormat;
-// Serosis
 extern BOOLEAN optInfiniteFuel;
 extern DWORD loadFuel;
 extern BOOLEAN optPartialPickup;
@@ -83,7 +76,7 @@ extern int spaceMusicBySOI;
 extern BOOLEAN optSpaceMusic;
 extern BOOLEAN optVolasMusic;
 extern BOOLEAN optWholeFuel;
-extern BOOLEAN optDirectionalJoystick; // For Android
+extern BOOLEAN optDirectionalJoystick;
 extern BOOLEAN optLanderHold;
 extern int optIPScaler;
 extern int optDifficulty;
@@ -95,14 +88,12 @@ extern BOOLEAN optShipDirectionIP;
 extern BOOLEAN optHazardColors;
 extern BOOLEAN optOrzCompFont;
 extern int optControllerType;
-
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSpeech;
 extern BOOLEAN optSubtitles;
 extern BOOLEAN optStereoSFX;
 extern BOOLEAN optKeepAspectRatio;
-
 extern BOOLEAN restartGame;
 
 #define GAMMA_SCALE  1000

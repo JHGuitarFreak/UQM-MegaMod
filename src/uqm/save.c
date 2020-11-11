@@ -998,7 +998,7 @@ SaveClockState (const CLOCK_STATE *ClockPtr, uio_Stream *fh)
 static BOOLEAN
 SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 {
-	BYTE res_scale; // JMS
+	BYTE res_scale;
 
 	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
 		res_scale = RESOLUTION_FACTOR; 

@@ -55,10 +55,10 @@ static const COORD hangar_x_coords[HANGAR_SHIPS_ROW] =
 #	define HANGAR_SHIPS_ROW  6
 
 // The Y position of the upper line of hangar bay doors.
-# define HANGAR_Y	RES_SCALE(88) // JMS_GFX
+# define HANGAR_Y	RES_SCALE(88) 
 
 // The Y position of the lower line of hangar bay doors.
-# define HANGAR_DY	RES_SCALE(84) // JMS_GFX
+# define HANGAR_DY	RES_SCALE(84) 
 
 
 // The X positions of the hangar bay doors for each resolution mode.
@@ -217,9 +217,9 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
 	r.corner.x = s.origin.x - 1;
-	r.corner.y = s.origin.y - RES_SCALE(11); // JMS_GFX
+	r.corner.y = s.origin.y - RES_SCALE(11); 
 	r.extent.width = RADAR_WIDTH + 2;
-	r.extent.height = RES_SCALE(11); // JMS_GFX
+	r.extent.height = RES_SCALE(11); 
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (
@@ -275,10 +275,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 }
 
 // Width of an escort ship window.
-#define SHIP_WIN_WIDTH RES_SCALE(34) // JMS_GFX
+#define SHIP_WIN_WIDTH RES_SCALE(34) 
 
 // Height of an escort ship window.
-#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE(6)) // JMS_GFX
+#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE(6)) 
 
 // For how many animation frames' time the escort ship bay doors
 // are slid left and right when opening them. If this number is not large
@@ -321,9 +321,9 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 	t.CharCount = (COUNT)~0;
 	if (r.corner.y)
 	{
-		r.corner.y = t.baseline.y - RES_SCALE(6); //JMS_GFX
+		r.corner.y = t.baseline.y - RES_SCALE(6);
 		r.extent.width = SHIP_WIN_WIDTH;
-		r.extent.height = RES_SCALE(6); // JMS_GFX
+		r.extent.height = RES_SCALE(6); 
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&r);
 	}
@@ -578,7 +578,7 @@ DMS_FlashFlagShip (void)
 	r.corner.x = 0;
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = RES_SCALE(61); // JMS_GFX
+	r.extent.height = RES_SCALE(61); 
 	SetFlashRect (&r);
 }
 
@@ -628,7 +628,7 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	r.corner.x = hangar_x_coords[col];
 	r.corner.y = (HANGAR_Y + (HANGAR_DY * row)) + (SHIP_WIN_HEIGHT - RES_SCALE(6));
 	r.extent.width = SHIP_WIN_WIDTH;
-	r.extent.height = RES_SCALE(5); // JMS_GFX
+	r.extent.height = RES_SCALE(5); 
 
 	SetContext (SpaceContext);
 	SetFlashRect (&r);
@@ -1427,8 +1427,8 @@ DrawBluePrint (MENU_STATE *pMS)
 		num_frames = GLOBAL_SIS (TotalElementMass);
 		GLOBAL_SIS (TotalElementMass) = 0;
 
-		r.extent.width = RES_SCALE(9); // JMS_GFX
-		r.extent.height = RES_SCALE(1); // JMS_GFX
+		r.extent.width = RES_SCALE(9); 
+		r.extent.height = RES_SCALE(1); 
 		while (num_frames)
 		{
 			COUNT m;
@@ -1449,20 +1449,20 @@ DrawBluePrint (MENU_STATE *pMS)
 		FuelVolume = GLOBAL_SIS (FuelOnBoard) - FUEL_RESERVE;
 		GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
 
-		r.extent.width = RES_SCALE(3) + RESOLUTION_FACTOR; // JMS_GFX
+		r.extent.width = RES_SCALE(3) + RESOLUTION_FACTOR; 
 		r.extent.height = 1;
 		while (FuelVolume)
 		{
 			COUNT m;
 
-			// JMS_GFX
+			
 			COUNT slotNr = 0;
 			DWORD compartmentNr = 0;
 			BYTE moduleType;
 			DWORD fuelAmount;
 			DWORD volume;
 			
-			// JMS_GFX
+			
 			fuelAmount = GLOBAL_SIS (FuelOnBoard);
 			if (fuelAmount >= FUEL_RESERVE)
 			{

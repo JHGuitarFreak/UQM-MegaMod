@@ -80,9 +80,9 @@ static const char *menu_res_names[] = {
 	"search",
 	"next",
 	"togglemap", // JMS: For showing SC1-era starmap.
-	"debug_2", // JMS: Secondary debug key.
-	"debug_3", // JMS: Tertiary debug key.
-	"debug_4", // JMS: Quaternary debug key.
+	"debug_2",
+	"debug_3",
+	"debug_4",
 	NULL
 };
 
