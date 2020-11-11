@@ -46,7 +46,7 @@ DrawPCMenuFrame (RECT *r)
 	// This actually draws a rectangle, but the bottom and right parts
 	// are drawn over in the next step.
 	SetContextForeGroundColor (PCMENU_TOP_LEFT_BORDER_COLOR);
-	DrawFilledRectangle (r, FALSE);
+	DrawFilledRectangle (r);
 
 	// Draw the right and bottom of the outer border.
 	// This actually draws a rectangle, with the top and left segments just
@@ -57,7 +57,7 @@ DrawPCMenuFrame (RECT *r)
 	r->extent.height -= RES_SCALE(1);
 	r->extent.width -= RES_SCALE(1);
 	SetContextForeGroundColor (PCMENU_BOTTOM_RIGHT_BORDER_COLOR);
-	DrawFilledRectangle(r, FALSE);
+	DrawFilledRectangle(r);
 
 	// Draw the background.
 	r->extent.height -= RES_SCALE(1);
@@ -76,7 +76,7 @@ static UNICODE pm_fuel_str[128];
 static void
 DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 {
-#define PC_MENU_HEIGHT (RES_SCALE(8)) // JMS_GFX
+#define PC_MENU_HEIGHT (RES_SCALE(8)) 
 	BYTE pos;
 	COUNT i;
 	int num_items;
@@ -105,7 +105,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
 	t.baseline.x = r->corner.x + RES_SCALE(2);
-	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - 1;// - RESOLUTION_FACTOR; // JMS_GFX
+	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - 1;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	r->corner.x += RES_SCALE(1);
@@ -122,8 +122,8 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 			
 			// Draw the background of the selection.
 			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_MEDIUM_COLOR : PCMENU_SELECTION_BACKGROUND_COLOR));
-			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_BOOL(2, 3); // JMS_GFX
-			r->extent.height = PC_MENU_HEIGHT - 1;
+			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_BOOL(2, 5);
+			r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
 			DrawFilledRectangle (r);
 
 			// Draw the text of the selected item.
@@ -511,7 +511,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	s.origin.y = RADAR_Y - r.corner.y;
 	r.corner.x = s.origin.x - RES_SCALE(1);
 	if (optWhichMenu == OPT_PC)
-		r.corner.y = s.origin.y - PC_MENU_HEIGHT; // JMS_GFX
+		r.corner.y = s.origin.y - PC_MENU_HEIGHT; 
 	else
 		r.corner.y = s.origin.y - RES_SCALE(11);
 	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
@@ -558,7 +558,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					break;
 			}
 		}
-		r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
+		r.extent.height = RADAR_HEIGHT + RES_SCALE(11); 
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;
@@ -569,7 +569,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= RES_SCALE(1);
 			r.extent.width += RES_SCALE(1);
-			r.extent.height = RADAR_HEIGHT + RES_SCALE(11); // JMS_GFX
+			r.extent.height = RADAR_HEIGHT + RES_SCALE(11); 
 		}
 		else
 			r.extent.height = RES_SCALE(11);
