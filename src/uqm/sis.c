@@ -55,23 +55,23 @@ RepairSISBorder (void)
 	BatchGraphics ();
 
 	// Left border
-	r.corner.x = SIS_ORG_X - 1;
-	r.corner.y = SIS_ORG_Y - 1;
-	r.extent.width = 1;
-	r.extent.height = SIS_SCREEN_HEIGHT + 2;
+	r.corner.x = SIS_ORG_X - RES_SCALE(1);
+	r.corner.y = SIS_ORG_Y - RES_SCALE(1);
+	r.extent.width = RES_SCALE(1);
+	r.extent.height = SIS_SCREEN_HEIGHT + RES_SCALE(2);
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 	DrawFilledRectangle (&r);
 
 	// Right border
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
-	r.corner.x += (SIS_SCREEN_WIDTH + 2) - 1;
+	r.corner.x += (SIS_SCREEN_WIDTH + RES_SCALE(2)) - RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Bottom border
-	r.corner.x = SIS_ORG_X - 1;
-	r.corner.y += (SIS_SCREEN_HEIGHT + 2) - 1;
-	r.extent.width = SIS_SCREEN_WIDTH + 2;
-	r.extent.height = 1;
+	r.corner.x = SIS_ORG_X - RES_SCALE(1);
+	r.corner.y += (SIS_SCREEN_HEIGHT + RES_SCALE(2)) - RES_SCALE(1);
+	r.extent.width = SIS_SCREEN_WIDTH + RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// DrawBorder(9, FALSE);
