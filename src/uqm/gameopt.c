@@ -360,7 +360,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_NORMAL);
 
-	DrawBorder(12, false);
+	DrawBorder(12, FALSE);
 
 	if (namingCB)
 		namingCB ();

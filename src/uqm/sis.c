@@ -74,7 +74,7 @@ RepairSISBorder (void)
 	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
-	// DrawBorder(9, FALSE);
+	DrawBorder(9, FALSE);
 
 	UnbatchGraphics ();
 
@@ -153,7 +153,7 @@ DrawSISTitle (UNICODE *pStr)
 	SetContextBackGroundColor (SIS_TITLE_BACKGROUND_COLOR);
 	ClearDrawable ();
 	
-	// DrawBorder(3, FALSE);
+	DrawBorder(3, FALSE);
 
 	// Text color
 	SetContextForeGroundColor (SIS_TITLE_TEXT_COLOR);
@@ -293,7 +293,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	{	// normal state
 		ClearDrawable ();
 
-		// DrawBorder(2, FALSE);
+		DrawBorder(2, FALSE);
 		t.baseline.x = SIS_MESSAGE_WIDTH >> 1;
 		t.align = ALIGN_CENTER;
 		font_DrawText (&t);
@@ -455,7 +455,7 @@ DrawStatusMessage (const UNICODE *pStr)
 	SetContextBackGroundColor (STATUS_MESSAGE_BACKGROUND_COLOR);
 	ClearDrawable ();
 
-	// DrawBorder(7, FALSE);
+	DrawBorder(7, FALSE);
 
 	if (!pStr)
 	{

@@ -101,7 +101,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
 	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE(3);	
 	DrawPCMenuFrame (r);
-	//DrawBorder (21, FALSE);
+	DrawBorder (21, FALSE);
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
 	t.baseline.x = r->corner.x + RES_SCALE(2);
@@ -574,7 +574,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		else
 			r.extent.height = RES_SCALE(11);
 		DrawFilledRectangle (&r);
-		// DrawBorder(8, FALSE);
+		DrawBorder(8, FALSE);
 	}
 	if (s.frame)
 	{
@@ -634,6 +634,7 @@ DrawSubmenu (BYTE Visible)
 void
 DrawBorder (BYTE Visible, BOOLEAN InBattle)
 {
+#ifdef NEVER
 	STAMP s;
 	CONTEXT OldContext;
 
@@ -650,4 +651,5 @@ DrawBorder (BYTE Visible, BOOLEAN InBattle)
 	
 	if (!InBattle)
 		SetContext (OldContext);
+#endif
 }
