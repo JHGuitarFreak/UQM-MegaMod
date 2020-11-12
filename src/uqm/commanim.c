@@ -24,6 +24,7 @@
 #include "setup.h"
 #include "libs/compiler.h"
 #include "libs/graphics/cmap.h"
+#include "libs/graphics/drawable.h"
 #include "libs/mathlib.h"
 
 
@@ -592,16 +593,21 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 	int i;
 	STAMP s;
 	BOOLEAN Change = FALSE;
+	FRAME RescaledFrame;
+	const COORD FrameHeight = SetAbsFrameIndex(CommData.AlienFrame, 0)->Bounds.height - 1;
+	const float ScalingFactor = (FrameHeight - SLIDER_Y) / (float)FrameHeight * 100;
 
 	BatchGraphics ();
 
 	s.origin.x = 0;
 	s.origin.y = 0;
-	
+
 	if (fullRedraw)
 	{
 		// Draw the main frame
-		s.frame = CommData.AlienFrame;
+		RescaledFrame = RES_BOOL(CommData.AlienFrame, CaptureDrawable(
+				RescalePercentage(CommData.AlienFrame, ScalingFactor)));
+		s.frame = RescaledFrame;
 		DrawStamp (&s);
 
 		// Draw any static frames (has to be in reverse)
@@ -616,8 +622,12 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 			if (!(ADPtr->AnimFlags & COLORXFORM_ANIM))
 			{	// It's a static frame (e.g. Flagship picture at Starbase)
-				s.frame = SetAbsFrameIndex (CommData.AlienFrame,
-						ADPtr->StartIndex);
+				RescaledFrame = RES_BOOL (SetAbsFrameIndex (CommData.AlienFrame,
+						ADPtr->StartIndex), CaptureDrawable(RescalePercentage (
+						SetAbsFrameIndex (CommData.AlienFrame, ADPtr->StartIndex),
+						ScalingFactor)
+						));
+				s.frame = RescaledFrame;
 				DrawStamp (&s);
 			}
 		}
@@ -638,8 +648,12 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 			if (!fullRedraw && !pSeq->Change)
 				continue;
 
-			s.frame = SetAbsFrameIndex (CommData.AlienFrame,
-					ADPtr->StartIndex + pSeq->CurIndex);
+			RescaledFrame = RES_BOOL(SetAbsFrameIndex (CommData.AlienFrame,
+				ADPtr->StartIndex + pSeq->CurIndex), CaptureDrawable (
+					RescalePercentage(SetAbsFrameIndex(CommData.AlienFrame,
+						ADPtr->StartIndex + pSeq->CurIndex), ScalingFactor)
+					));
+			s.frame = RescaledFrame;
 			DrawStamp (&s);
 			pSeq->Change = FALSE;
 
