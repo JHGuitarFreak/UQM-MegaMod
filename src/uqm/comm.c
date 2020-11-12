@@ -559,7 +559,7 @@ static void
 RefreshResponses (ENCOUNTER_STATE *pES)
 {
 	COORD y;
-	BYTE response, extra_y; 
+	BYTE response;
 	SIZE leading;
 	STAMP s;
 
@@ -573,10 +573,8 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
-		extra_y = response == pES->top_response ? 0 : 8;
-		
 		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE(8);
-		pES->response_list[response].response_text.baseline.y = y + leading + IF_HD(extra_y);
+		pES->response_list[response].response_text.baseline.y = y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
 			y = add_text (-1, &pES->response_list[response].response_text) - RES_SCALE(2);
