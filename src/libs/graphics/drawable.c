@@ -338,8 +338,10 @@ makeMatchingFrame (FRAME frame, int width, int height)
 	DRAWABLE drawable;
 	FRAME newFrame;
 	CREATE_FLAGS flags;
+	SDL_Surface* NormalImg = frame->image->NormalImg;
+	const int dst_has_alpha = (NormalImg->format->Amask != 0);
 
-	flags = GetFrameParentDrawable (frame)->Flags;
+	flags = dst_has_alpha ? WANT_ALPHA : GetFrameParentDrawable (frame)->Flags;
 	drawable = CreateDrawable (flags, width, height, 1);
 	if (!drawable)
 		return NULL;
@@ -437,6 +439,47 @@ RescaleFrame (FRAME frame, int width, int height)
 	UnlockMutex (img->mutex);
 
 	return ReleaseDrawable (newFrame);
+}
+
+// Creates a new DRAWABLE of specified percentage and scales the passed
+// frame onto it. The aspect ratio is preserved.
+DRAWABLE
+RescalePercentage (FRAME frame, float percentage)
+{
+	FRAME newFrame;
+	TFB_Image* img;
+	TFB_Canvas src, dst;
+
+	if (!frame)
+		return NULL;
+
+	assert(frame->Type != SCREEN_DRAWABLE);
+
+	percentage = (100 - percentage) / 100;
+
+	newFrame = makeMatchingFrame (frame,
+			(int)(frame->Bounds.width * percentage),
+			(int)(frame->Bounds.height * percentage));
+
+	if (!newFrame)
+		return NULL;
+
+	// scale the hot-spot
+	newFrame->HotSpot.x = (COORD)(frame->HotSpot.x * percentage);
+	newFrame->HotSpot.y = (COORD)(frame->HotSpot.y * percentage);
+
+	img = frame->image;
+	LockMutex (img->mutex);
+	// NOTE: We do not lock the target image because nothing has a
+	//   reference to it yet!
+	src = img->NormalImg;
+	dst = newFrame->image->NormalImg;
+
+	TFB_DrawCanvas_Rescale_Bilinear (src, dst, -1, NULL, NULL, NULL);
+
+	UnlockMutex (img->mutex);
+
+	return ReleaseDrawable(newFrame);
 }
 
 BOOLEAN
