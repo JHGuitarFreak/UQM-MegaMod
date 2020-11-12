@@ -73,7 +73,7 @@ void
 DrawOscilloscope (void)
 {
 	STAMP s;
-	BYTE scope_data[192]; // JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would really require this to be
+	BYTE scope_data[256]; // JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would really require this to be
 							// less than 256. This "fix" messes up how the oscilloscope looks, but it works for now
 							// (doesn't get caught in asserts). We need to fix this later.
 
