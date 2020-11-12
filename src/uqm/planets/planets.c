@@ -385,7 +385,7 @@ FreeLanderFont (PLANET_INFO *info)
 static BOOLEAN
 DoPlanetOrbit (MENU_STATE *pMS)
 {
-	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT];
+	BOOLEAN select = (BOOLEAN)PulsedInputState.menu[KEY_MENU_SELECT];
 	BOOLEAN handled;
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))

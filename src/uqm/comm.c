@@ -664,7 +664,7 @@ UpdateSpeechGraphics (void)
 }
 
 static void
-UpdateAnimations (bool paused)
+UpdateAnimations (BOOLEAN paused)
 {
 	static TimeCount NextTime;
 	CONTEXT OldContext;
@@ -689,7 +689,7 @@ UpdateAnimations (bool paused)
 static void
 UpdateCommGraphics (void)
 {
-	UpdateAnimations (false);
+	UpdateAnimations (FALSE);
 	UpdateSpeechGraphics ();
 }
 
