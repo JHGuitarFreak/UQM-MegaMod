@@ -34,7 +34,7 @@ extern int ScreenHeight;
 #define SCREEN_WIDTH ScreenWidth
 #define SCREEN_HEIGHT ScreenHeight
 #define RESOLUTION_FACTOR resolutionFactor
-#define IS_HD (RESOLUTION_FACTOR != HD ? false : true)
+#define IS_HD (RESOLUTION_FACTOR != HD ? FALSE : TRUE)
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)
 #define RES_DESCALE(a) ((a) >> RESOLUTION_FACTOR)
 #define RES_BOOL(a,b) (!IS_HD ? (a) : (b))	
@@ -60,7 +60,6 @@ extern int ScreenHeight;
 /* Width of the usable part of the space "window" */
 #define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(3) - RES_SCALE(10)) 
 /* Height of the usable part of the space "window": 3 for the grey bottom border and 10 for the title */
-#define RES_SIS_SCALE(a) ((SIZE)(a) * SIS_SCREEN_WIDTH / 242) 
 
 		/* Radar. */
 #define RADAR_X (RES_SCALE(4) + (SCREEN_WIDTH - STATUS_WIDTH))	
