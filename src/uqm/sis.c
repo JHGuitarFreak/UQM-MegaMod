@@ -179,12 +179,14 @@ DrawHyperCoords (POINT universe)
 }
 
 void
-DrawDiffSeed(SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad) {
+DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
+{
 	UNICODE buf[100];
 	char diffSTR[4][7] = {"Normal", "Easy", "Hard"};
 	char TempDiff[11];
 
-	switch (difficulty) {
+	switch (difficulty)
+	{
 		case EASY:
 			strncpy(TempDiff, diffSTR[1], 11);
 			break;
@@ -196,19 +198,22 @@ DrawDiffSeed(SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad) {
 			strncpy(TempDiff, diffSTR[0], 11);
 	}
 
-	if (seed) {
-		memset(&buf[0], 0, sizeof(buf));
-		snprintf(buf, sizeof buf, "Difficulty: %s%s%s", TempDiff, (extended ? " | Extended" : ""), (nomad ? " | Nomad" : ""));
+	if (seed)
+	{
+		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof buf, "Difficulty: %s%s%s", TempDiff, (extended ? " | Extended" : ""), (nomad ? " | Nomad" : ""));
 		DrawSISMessage(buf);
 
-		memset(&buf[0], 0, sizeof(buf));
-		snprintf(buf, sizeof buf, RES_BOOL("%u", "Seed: %u"), seed);
-		DrawSISTitle(buf);
-	} else {
-		memset(&buf[0], 0, sizeof(buf));
-		snprintf(buf, sizeof buf, "");
-		DrawSISMessage(buf);
-		DrawSISTitle(buf);
+		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof buf, RES_BOOL("%u", "Seed: %u"), seed);
+		DrawSISTitle (buf);
+	}
+	else
+	{
+		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof buf, "");
+		DrawSISMessage (buf);
+		DrawSISTitle (buf);
 	}
 }
 
@@ -293,7 +298,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	{	// normal state
 		ClearDrawable ();
 
-		DrawBorder(2, FALSE);
+		DrawBorder (2, FALSE);
 		t.baseline.x = SIS_MESSAGE_WIDTH >> 1;
 		t.align = ALIGN_CENTER;
 		font_DrawText (&t);
@@ -311,7 +316,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		t.align = ALIGN_LEFT;
 
 		TextRect (&t, &text_r, char_deltas);
-		if (text_r.extent.width + t.baseline.x + 2 >= r.extent.width)
+		if (text_r.extent.width + t.baseline.x + RES_SCALE(2) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			// disallow the change
@@ -331,26 +336,26 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 			for (i = CurPos, pchar_deltas = char_deltas; i > 0; --i)
 				cur_r.corner.x += (SIZE)*pchar_deltas++;
 			if (CurPos < t.CharCount) /* end of line */
-				--cur_r.corner.x;
+				cur_r.corner.x -= RES_SCALE(1);
 			
 			if (flags & DSME_BLOCKCUR)
 			{	// Use block cursor for keyboardless systems
 				if (CurPos == t.CharCount)
 				{	// cursor at end-line -- use insertion point
-					cur_r.extent.width = 1;
+					cur_r.extent.width = RES_SCALE(1);
 				}
 				else if (CurPos + 1 == t.CharCount)
 				{	// extra pixel for last char margin
-					cur_r.extent.width = (SIZE)*pchar_deltas + 2;
+					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 				}
 				else
 				{	// normal mid-line char
-					cur_r.extent.width = (SIZE)*pchar_deltas + 1;
+					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
 				}
 			}
 			else
 			{	// Insertion point cursor
-				cur_r.extent.width = 1;
+				cur_r.extent.width = RES_SCALE(1);
 			}
 			
 			cur_r.corner.y = 0;
@@ -712,9 +717,9 @@ DrawFlagshipStats (void)
 	   now that we've cleared out our playground, compensate for the
 	   fact that the leading is way more than is generally needed.
 	*/
-	leading -= 3;
+	leading -= RES_SCALE(3);
 	t.baseline.x = SIS_SCREEN_WIDTH / 6; //wild-assed guess, but it worked
-	t.baseline.y = r.corner.y + leading + 3;
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
 
@@ -733,7 +738,7 @@ DrawFlagshipStats (void)
 	font_DrawText (&t);
 
 	t.baseline.x += RES_SCALE(5);
-	t.baseline.y = r.corner.y + leading + 3;
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 
@@ -754,7 +759,7 @@ DrawFlagshipStats (void)
 	font_DrawText (&t);
 
 	t.baseline.x = r.extent.width - RES_SCALE(25);
-	t.baseline.y = r.corner.y + leading + 3;
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_RIGHT;
 
 	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 5));
@@ -772,7 +777,7 @@ DrawFlagshipStats (void)
 	font_DrawText (&t);
 
 	t.baseline.x = r.extent.width - RES_SCALE(2);
-	t.baseline.y = r.corner.y + leading + 3;
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.pStr = buf;
 
 	snprintf (buf, sizeof buf, "%4u", max_thrust * 4);
@@ -838,11 +843,11 @@ DrawLanders (void)
 
 	i = GLOBAL_SIS (NumLanders);
 	r.corner.x = (STATUS_WIDTH >> 1) - r.corner.x;
-	s.origin.x = r.corner.x - (((r.extent.width * i) + (2 * (i - 1))) >> 1);
+	s.origin.x = r.corner.x - (((r.extent.width * i) + (RES_SCALE(2) * (i - 1))) >> 1);
 	s.origin.y = RES_SCALE(29);
 
-	width = r.extent.width + 2;
-	r.extent.width = (r.extent.width * MAX_LANDERS) + (2 * (MAX_LANDERS - 1)) + 2;
+	width = r.extent.width + RES_SCALE(2);
+	r.extent.width = (r.extent.width * MAX_LANDERS) + (RES_SCALE(2) * (MAX_LANDERS - 1)) + RES_SCALE(2);
 	r.corner.x -= r.extent.width >> 1;
 	r.corner.y += s.origin.y;
 	SetContextForeGroundColor (BLACK_COLOR);
@@ -968,14 +973,14 @@ DrawPC_SIS (void)
 	SetContextFontEffect (NULL);
 
 	// Background of text "CAPTAIN".
-	r.corner.x = RES_SCALE(2 + 1);;
+	r.corner.x = RES_SCALE(2 + 1);
 	r.corner.y = RES_SCALE(3);
 	r.extent.width = RES_SCALE(58);
 	r.extent.height = RES_SCALE(7);
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	//DrawBorder(4, FALSE);
+	DrawBorder(4, FALSE);
 
 	// Text "CAPTAIN".
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);
@@ -1069,7 +1074,7 @@ DrawModules (void)
 	COUNT i;
 
 	s.origin.x = RES_SCALE(1); // This properly centers the modules.
-	s.origin.y = 1;
+	s.origin.y = RES_SCALE(1);
 	for (i = 0; i < NUM_MODULE_SLOTS; ++i)
 	{
 		BYTE which_piece = GLOBAL_SIS (ModuleSlots[i]);
