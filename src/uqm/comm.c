@@ -584,12 +584,12 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 	if (pES->top_response)
 	{
-		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + 1;
+		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 6);
 	}
 	else if (y > SIS_SCREEN_HEIGHT)
 	{
-		s.origin.y = SIS_SCREEN_HEIGHT - 2;
+		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE(2);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 7);
 	}
 	else
@@ -599,7 +599,7 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 		RECT r;
 
 		GetFrameRect (s.frame, &r);
-		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - 1;
+		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE(1);
 		DrawStamp (&s);
 	}
 
@@ -959,7 +959,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 {
 #define DELTA_Y_SUMMARY RES_SCALE(8) 
 	//#define MAX_SUMM_ROWS ((SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT) / DELTA_Y_SUMMARY
-#define MAX_SUMM_ROWS (SLIDER_Y	/ DELTA_Y_SUMMARY) - 1 
+#define MAX_SUMM_ROWS (SLIDER_Y	/ DELTA_Y_SUMMARY) - RES_SCALE(1)
 
 	if (!pSS->Initialized)
 	{
