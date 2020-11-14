@@ -144,13 +144,13 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	COORD cy;
 	COUNT i;
 
-	r.corner.x = 2; 
+	r.corner.x = RES_SCALE(2);
 	r.corner.y = RES_SCALE(20);
-	r.extent.width = FIELD_WIDTH + 1;
+	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
 	r.extent.height = (RES_SCALE(129) - r.corner.y);
-	DrawStarConBox (&r, 1,
+	DrawStarConBox (&r, RES_SCALE(1),
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, DEVICES_BACK_COLOR);
 
@@ -182,16 +182,7 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 		s.frame = SetAbsFrameIndex (MiscDataFrame,
 				77 + devState->list[devIndex]);
 		
-		if (!IS_HD) {
-			DrawStamp (&s);			
-		} else {
-			int oldMode, oldScale;
-			oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
-			oldScale = SetGraphicScale ((int)(GSCALE_IDENTITY / 2));
-			DrawStamp (&s);
-			SetGraphicScale (oldScale);
-			SetGraphicScaleMode (oldMode);
-		}
+		DrawStamp (&s);
 
 		DrawDevice (devState->list[devIndex], i, false);
 	}
