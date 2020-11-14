@@ -543,8 +543,8 @@ DrawCaptainsName (bool NewGame)
 	r.extent.height = SHIP_NAME_HEIGHT;
 	DrawFilledRectangle (&r);
 
-	//if(!NewGame)
-	//	DrawBorder(6, FALSE);
+	if(!NewGame)
+		DrawBorder(6, FALSE);
 
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
 	t.baseline.y = r.corner.y + RES_SCALE(6);
@@ -617,8 +617,8 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	/*if(!NewGame)
-		DrawBorder(12, FALSE);*/
+	if(!NewGame)
+		DrawBorder(12, FALSE);
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - InStatusArea);
