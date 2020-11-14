@@ -315,16 +315,8 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	if (gamestart)
 	{	// These pre-fill the captain and flagship names when starting a new game
-		if (nameCaptain) 
-		{	
-			strcpy (buf,  GAME_STRING (NAMING_STRING_BASE + 3)); // "Zelnick"
-			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 3));
-		}
-		else
-		{
-			strcpy (buf, GAME_STRING (NAMING_STRING_BASE + 2)); // "Vindicator"
-			CursPos = strlen (GAME_STRING (NAMING_STRING_BASE + 2));
-		}
+		strcpy (buf, GAME_STRING (NAMING_STRING_BASE + 2 + nameCaptain)); // Vindicator & Zelnick
+		CursPos = strlen (GAME_STRING(NAMING_STRING_BASE + 2 + nameCaptain));
 	}
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
@@ -361,7 +353,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_NORMAL);
 
-	DrawBorder(12, FALSE);
+	DrawBorder (12, FALSE);
 
 	if (namingCB)
 		namingCB ();
@@ -430,7 +422,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 		BYTE *pchar_deltas;
 
 		TextRect (&lf, &text_r, char_deltas);
-		if ((text_r.extent.width + 2) >= r.extent.width)
+		if ((text_r.extent.width + RES_SCALE(2)) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			// disallow the change
@@ -449,26 +441,26 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 			text_r.corner.x += *pchar_deltas++;
 
 		if (FullCursorPos < lf.CharCount) /* end of line */
-			--text_r.corner.x;
+			text_r.corner.x -= RES_SCALE(1);
 
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (FullCursorPos == lf.CharCount)
 			{	// cursor at end-line -- use insertion point
-				text_r.extent.width = 1;
+				text_r.extent.width = RES_SCALE(1);
 			}
 			else if (FullCursorPos + 1 == lf.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas + 2;
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 			}
 			else
 			{	// normal mid-line char
-				text_r.extent.width = (SIZE)*pchar_deltas + 1;
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			text_r.extent.width = 1;
+			text_r.extent.width = RES_SCALE(1);
 		}
 
 		text_r.corner.y = r.corner.y;
