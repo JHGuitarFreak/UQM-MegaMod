@@ -36,7 +36,6 @@ static BYTE PreviousMenuState (BYTE BaseState, BYTE CurState);
 static BOOLEAN GetAlternateMenu (BYTE *BaseState, BYTE *CurState);
 static BYTE ConvertAlternateMenu (BYTE BaseState, BYTE NewState);
 
-
 /* Draw the blue background for PC Menu Text, with a border around it.
  * The specified rectangle includes the border. */
 static void
@@ -69,6 +68,8 @@ DrawPCMenuFrame (RECT *r)
 #define ALT_MANIFEST 0x80
 #define ALT_EXIT_MANIFEST 0x81
 
+#define PC_MENU_HEIGHT (RES_SCALE(8))
+
 static UNICODE pm_crew_str[128];
 static UNICODE pm_fuel_str[128];
 
@@ -76,7 +77,6 @@ static UNICODE pm_fuel_str[128];
 static void
 DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 {
-#define PC_MENU_HEIGHT (RES_SCALE(8)) 
 	BYTE pos;
 	COUNT i;
 	int num_items;
@@ -92,7 +92,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	// Gray rectangle behind PC menu
 	rt = *r;
 	rt.corner.y += PC_MENU_HEIGHT;
-	rt.extent.height -= RES_TRP(13) - IF_HD(1);
+	rt.extent.height -= RES_SCALE(10);
 	DrawFilledRectangle(&rt);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
@@ -569,7 +569,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= RES_SCALE(1);
 			r.extent.width += RES_SCALE(1);
-			r.extent.height = RADAR_HEIGHT + RES_SCALE(11); 
+			r.extent.height = RADAR_HEIGHT + RES_SCALE(10); 
 		}
 		else
 			r.extent.height = RES_SCALE(11);
