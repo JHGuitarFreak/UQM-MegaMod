@@ -105,7 +105,6 @@ enum
 
 #define MENU_X_OFFS RES_SCALE(29) 
 
-
 #define INFO_ORIGIN_X RES_SCALE(4) 
 #define INFO_WIDTH RES_SCALE(58) 
 #define TEAM_INFO_ORIGIN_Y RES_SCALE(3) 
@@ -398,8 +397,8 @@ RepairMeleeFrame (const RECT *pRect)
 	r.extent = pRect->extent;
 	if (r.corner.y & 1)
 	{
-		--r.corner.y;
-		++r.extent.height;
+		r.corner.y -= RES_SCALE(1);
+		r.extent.height += RES_SCALE(1);
 	}
 
 	OldContext = SetContext (SpaceContext);
@@ -890,7 +889,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	r = OldRect;
 	r.corner.x += -RES_SCALE(32) + MENU_X_OFFS;
 	r.corner.y += RES_SCALE(76);
-	r.extent.height = SHIP_INFO_HEIGHT + 3;
+	r.extent.height = SHIP_INFO_HEIGHT;
 	SetContextClipRect (&r);
 	BatchGraphics ();
 
@@ -901,14 +900,10 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 
 		ClearShipStatus (0, STATUS_WIDTH, TRUE);
 		
-		
-		if (IS_HD)
-			OutlineShipStatus (0, STATUS_WIDTH, TRUE);
-		
 		SetContextFont (StarConFont);
 		r.corner.x = RES_SCALE(3);
 		r.corner.y = RES_SCALE(4);
-		r.extent.width = RES_SCALE(57) + RESOLUTION_FACTOR;
+		r.extent.width = RES_SCALE(57);
 		r.extent.height = RES_SCALE(60);
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawRectangle (&r, IS_HD);
@@ -1872,16 +1867,13 @@ DoMelee (MELEE_STATE *pMS)
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
 		}
-
 		pMS->hMusic = LoadMusic (MELEE_MUSIC);
-
 		pMS->Initialized = TRUE;
 		
 		pMS->MeleeOption = START_MELEE;
 
 		if (optMainMenuMusic)
 			PlayMusic (pMS->hMusic, TRUE, 1);
-
 		InitMelee (pMS);
 
 		FadeScreen (FadeAllToColor, ONE_SECOND / 2);

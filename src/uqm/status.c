@@ -204,33 +204,33 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	// Left border of the status panel.
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
-	r.corner.x = 1;
+	r.corner.x = RES_SCALE(1);
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
-	r.extent.width = 1;
+	r.extent.width = RES_SCALE(1);
 	r.extent.height = (SHIP_STATUS_HEIGHT - SHIP_INFO_HEIGHT - 2);
 	DrawFilledRectangle (&r);
 	r.corner.x = 0;
-	++r.extent.height;
+	r.extent.height += RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Lower and right border of the status panel.
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
-	r.corner.x = STATUS_WIDTH - 1;
+	r.corner.x = STATUS_WIDTH - RES_SCALE(1);
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
-	r.extent.width = 1;
+	r.extent.width = RES_SCALE(1);
 	r.extent.height = SHIP_STATUS_HEIGHT - SHIP_INFO_HEIGHT;
 	DrawFilledRectangle (&r);
-	r.corner.x = STATUS_WIDTH - 2;
+	r.corner.x = STATUS_WIDTH - RES_SCALE(2);
 	DrawFilledRectangle (&r);
-	r.corner.x = 1;
-	r.extent.width = STATUS_WIDTH - 2;
-	r.corner.y = y_offs + (SHIP_STATUS_HEIGHT - 2);
-	r.extent.height = 1;
+	r.corner.x = RES_SCALE(1);
+	r.extent.width = STATUS_WIDTH - RES_SCALE(2);
+	r.corner.y = y_offs + (SHIP_STATUS_HEIGHT - RES_SCALE(2));
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 	r.corner.x = 0;
-	++r.extent.width;
-	++r.corner.y;
+	r.extent.width += RES_SCALE(1);
+	r.corner.y += RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	y = y_offs + CAPTAIN_YOFFS;
@@ -240,25 +240,25 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
 	r.corner.x = CAPTAIN_WIDTH + CAPTAIN_XOFFS;
 	r.corner.y = y;
-	r.extent.width = 1;
+	r.extent.width = RES_SCALE(1);
 	r.extent.height = CAPTAIN_HEIGHT;
 	DrawFilledRectangle (&r);
-	r.corner.x = CAPTAIN_XOFFS - 1;
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(1);
 	r.corner.y += CAPTAIN_HEIGHT;
-	r.extent.width = CAPTAIN_WIDTH + 2;
-	r.extent.height = 1;
+	r.extent.width = CAPTAIN_WIDTH + RES_SCALE(2);
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Light grey rectangle at top and left of captains window
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
-	r.corner.x = CAPTAIN_XOFFS - 1;
-	r.extent.width = CAPTAIN_WIDTH + 2;
-	r.corner.y = y - 1;
-	r.extent.height = 1;
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(1);
+	r.extent.width = CAPTAIN_WIDTH + RES_SCALE(2);
+	r.corner.y = y - RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
-	r.corner.x = CAPTAIN_XOFFS - 1;
-	r.extent.width = 1;
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(1);
+	r.extent.width = RES_SCALE(1);
 	r.corner.y = y;
 	r.extent.height = CAPTAIN_HEIGHT;
 	DrawFilledRectangle (&r);

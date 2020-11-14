@@ -31,7 +31,7 @@ extern "C" {
 #define GAUGE_YOFFS (SHIP_INFO_HEIGHT - RES_SCALE(10))
 #define UNIT_WIDTH RES_SCALE(2)
 #define UNIT_HEIGHT RES_SCALE(1)
-#define STAT_WIDTH (1 + UNIT_WIDTH + 1 + UNIT_WIDTH + 1)
+#define STAT_WIDTH (RES_SCALE(1) + UNIT_WIDTH + RES_SCALE(1) + UNIT_WIDTH + RES_SCALE(1))
 
 #define SHIP_INFO_HEIGHT RES_SCALE(65)
 #define CAPTAIN_WIDTH RES_SCALE(55)
@@ -53,8 +53,8 @@ extern COORD status_y_offsets[];
 extern void InitStatusOffsets (void);
 
 extern void DrawCrewFuelString (COORD y, SIZE state);
-extern void ClearShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu);
-extern void OutlineShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu);
+extern void ClearShipStatus (COORD y);
+extern void OutlineShipStatus (COORD y);
 extern void InitShipStatus (SHIP_INFO *ShipInfoPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEAN inMeleeMenu);
 			// StarShipPtr or pClipRect can be NULL
 extern void DeltaStatistics (SHIP_INFO *ShipInfoPtr, COORD y_offs,
