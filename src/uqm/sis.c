@@ -547,7 +547,7 @@ DrawCaptainsName (bool NewGame)
 		DrawBorder(6, FALSE);
 
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
-	t.baseline.y = r.corner.y + RES_SCALE(6);
+	t.baseline.y = r.corner.y + RES_SCALE(6) - IF_HD(1);
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (CommanderName);
 	t.CharCount = (COUNT)~0;

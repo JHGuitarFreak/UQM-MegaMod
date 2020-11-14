@@ -200,6 +200,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
 			r = captainNameRect;
 			lf.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
+			lf.baseline.y = r.corner.y + RES_SCALE(6) - IF_HD(1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1F, 0x1F), 0x0B);
@@ -212,11 +213,11 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			shipNameRect.extent.width = SHIP_NAME_WIDTH;
 			r = shipNameRect;
 			lf.baseline.x = r.corner.x + (r.extent.width >> 1);
+			lf.baseline.y = r.corner.y + r.extent.height - 1;
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0F, 0x00, 0x00), 0x2D);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x0A, 0x00), 0x7D);
 		}
-		lf.baseline.y = r.corner.y + r.extent.height - 1;
 		lf.align = ALIGN_CENTER;
 	}
 
@@ -240,7 +241,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		BYTE *pchar_deltas;
 
 		TextRect (&lf, &text_r, char_deltas);
-		if ((text_r.extent.width + 2) >= r.extent.width)
+		if ((text_r.extent.width + RES_SCALE(2)) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			// disallow the change
@@ -256,26 +257,26 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		for (i = CursorPos; i > 0; --i)
 			text_r.corner.x += *pchar_deltas++;
 		if (CursorPos < lf.CharCount) /* end of line */
-			--text_r.corner.x;
+			text_r.corner.x -= RES_SCALE(1);
 
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (CursorPos == lf.CharCount)
 			{	// cursor at end-line -- use insertion point
-				text_r.extent.width = 1;
+				text_r.extent.width = RES_SCALE(1);
 			}
 			else if (CursorPos + 1 == lf.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas + 2;
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 			}
 			else
 			{	// normal mid-line char
-				text_r.extent.width = (SIZE)*pchar_deltas + 1;
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			text_r.extent.width = 1;
+			text_r.extent.width = RES_SCALE(1);
 		}
 
 		text_r.corner.y = r.corner.y;
