@@ -660,7 +660,7 @@ DrawBlankSavegameDisplay (PICK_GAME_STATE *pickState)
 {
 	STAMP s;
 
-	s.origin.x = 0 - (RESOLUTION_FACTOR >> 1);
+	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
 			GetFrameCount (pickState->SummaryFrame) - 1);
