@@ -142,13 +142,13 @@ DrawCargoDisplay (void)
 	COORD cy;
 	COUNT i;
 
-	r.corner.x = 2; 
-	r.extent.width = FIELD_WIDTH + 1;
+	r.corner.x = RES_SCALE(2);
+	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
 	r.corner.y = RES_SCALE(20);
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
 	r.extent.height = (RES_SCALE(129) - r.corner.y);
-	DrawStarConBox (&r, 1,
+	DrawStarConBox (&r, RES_SCALE(1),
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, CARGO_BACK_COLOR);
 
@@ -168,9 +168,6 @@ DrawCargoDisplay (void)
 
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS * 2) + 3);
-	if (IS_HD)
-		s.frame = SetRelFrameIndex (s.frame, -1); 
-
 	r.corner.x = ELEMENT_COL_0;
 	r.extent = GetFrameBounds (s.frame);
 	s.origin.x = r.corner.x + (r.extent.width >> 1);
@@ -195,7 +192,7 @@ DrawCargoDisplay (void)
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i, cy += ELEMENT_SPACING_Y)
 	{
 		// erase background under an element icon
-		SetContextForeGroundColor (CARGO_BACK_COLOR); // Serosis: Was actually supposed to be black
+		SetContextForeGroundColor (BLACK_COLOR);
 		r.corner.y = cy;
 		DrawFilledRectangle (&r);
 
@@ -208,7 +205,7 @@ DrawCargoDisplay (void)
 	}
 
 	// erase background under the Bio icon
-	SetContextForeGroundColor (CARGO_BACK_COLOR); // Serosis: Was actually supposed to be black
+	SetContextForeGroundColor (BLACK_COLOR);
 	r.corner.y = BIO_ORG_Y;
 	DrawFilledRectangle (&r);
 
@@ -224,7 +221,7 @@ DrawCargoDisplay (void)
 	r.corner.x = RES_SCALE(4); 
 	r.corner.y = BIO_ORG_Y - RES_SCALE(2); 
 	r.extent.width = FIELD_WIDTH - RES_SCALE(3); 
-	r.extent.height = 1;
+	r.extent.height = RES_SCALE(1);
 	SetContextForeGroundColor (CARGO_SELECTED_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
