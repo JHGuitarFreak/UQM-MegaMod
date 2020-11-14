@@ -193,9 +193,9 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	assert (StarShipPtr->playerNr >= 0);
 	y_offs = status_y_offsets[StarShipPtr->playerNr];
 
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(2); 
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(2) - IF_HD(4); 
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
-	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS;
+	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS + IF_HD(4);
 	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS + RES_SCALE(2); 
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
@@ -207,7 +207,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	r.corner.x = RES_SCALE(1);
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
 	r.extent.width = RES_SCALE(1);
-	r.extent.height = (SHIP_STATUS_HEIGHT - SHIP_INFO_HEIGHT - 2);
+	r.extent.height = (SHIP_STATUS_HEIGHT - SHIP_INFO_HEIGHT - RES_SCALE(2));
 	DrawFilledRectangle (&r);
 	r.corner.x = 0;
 	r.extent.height += RES_SCALE(1);
