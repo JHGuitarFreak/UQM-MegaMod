@@ -716,10 +716,10 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
-	s.origin.x = 7 + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(3);
+	s.origin.x = RES_SCALE(7) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(3);
 	s.origin.y = ELEMENT_ORG_Y;
 	// setup element amounts
-	t.baseline.x = RES_SCALE(33) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + 3;
+	t.baseline.x = RES_SCALE(33) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(3);
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
@@ -779,7 +779,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
 				GetFrameCount (pickState->SummaryFrame) - 4);
 		DrawStamp (&s);
-		DrawDiffSeed(0, 0, 0, 0);
+		DrawDiffSeed(0, 0, FALSE, FALSE);
 	}
 	else
 	{
