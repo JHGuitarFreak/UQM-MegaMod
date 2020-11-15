@@ -1110,6 +1110,12 @@ ScanPlanet (COUNT scanType)
 			DrawScannedStuff (SCAN_LINES - 1, scan);
 			UnbatchGraphics ();
 		}
+
+		if (IS_HD)
+		{	// Janky fix for the scan overlaying the bottom border by one pixel
+			RepairSISBorder ();
+			DrawPlanetSurfaceBorder ();
+		}
 	}
 
 	SetContext (PlanetContext);
