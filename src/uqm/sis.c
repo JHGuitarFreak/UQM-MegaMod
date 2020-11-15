@@ -1264,8 +1264,6 @@ void
 DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 {
 	CONTEXT OldContext;
-	Color OldColor;
-	RECT r;
 
 	if (crew_delta == 0 && fuel_delta == 0 && resunit_delta == 0)
 		return;
@@ -1279,18 +1277,10 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		s.origin.x = 0;
 		s.origin.y = 0;
 
-		// JMS: These lines prevent the flagship status box from turning grey.
-		//OldColor = SetContextForeGroundColor (BLACK_COLOR);
-		//r.corner.y = 23;
-		//r.corner.x = 2;
-		//r.extent.width = STATUS_WIDTH - 4;
-		//r.extent.height = 105;
-		//DrawFilledRectangle (&r);
-
 		s.frame = FlagStatFrame;
 		DrawStamp (&s);
 
-		//DrawBorder(1, FALSE);
+		DrawBorder(1, FALSE);
 
 		if (optWhichFonts == OPT_PC)
 			DrawPC_SIS();
@@ -1300,8 +1290,6 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		DrawModules ();
 
 		DrawSupportShips ();
-		// JMS: In conjunction with the JMS lines above.
-		// SetContextForeGroundColor (OldColor);
 	}
 
 	SetContextFont (TinyFont);

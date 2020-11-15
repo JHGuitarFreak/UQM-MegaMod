@@ -98,7 +98,7 @@ enum
 
 // Top Melee Menu
 #define MELEE_X_OFFS RES_SCALE(2) 
-#define MELEE_Y_OFFS RES_SCALE(21)
+#define MELEE_Y_OFFS RES_SCALE(21) + IF_HD(4)
 #define MELEE_BOX_WIDTH RES_SCALE(34) 
 #define MELEE_BOX_HEIGHT RES_SCALE(34) 
 #define MELEE_BOX_SPACE RES_SCALE(1) 
@@ -442,7 +442,7 @@ RedrawMeleeFrame (void)
 static void
 GetTeamStringRect (COUNT side, RECT *r)
 {
-	r->corner.x = MELEE_X_OFFS - 1;
+	r->corner.x = MELEE_X_OFFS - RES_SCALE(1);
 	r->corner.y = (side + 1) * (MELEE_Y_OFFS
 			+ ((MELEE_BOX_HEIGHT + MELEE_BOX_SPACE) * NUM_MELEE_ROWS + 2));
 	r->extent.width = NUM_MELEE_COLUMNS * (MELEE_BOX_WIDTH + MELEE_BOX_SPACE)
@@ -888,7 +888,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	GetContextClipRect (&OldRect);
 	r = OldRect;
 	r.corner.x += -RES_SCALE(32) + MENU_X_OFFS;
-	r.corner.y += RES_SCALE(76);
+	r.corner.y += RES_SCALE(76) + IF_HD(2);
 	r.extent.height = SHIP_INFO_HEIGHT;
 	SetContextClipRect (&r);
 	BatchGraphics ();
@@ -898,7 +898,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		RECT r;
 		TEXT t;
 
-		ClearShipStatus (0, STATUS_WIDTH, TRUE);
+		ClearShipStatus (0);
 		
 		SetContextFont (StarConFont);
 		r.corner.x = RES_SCALE(3);
