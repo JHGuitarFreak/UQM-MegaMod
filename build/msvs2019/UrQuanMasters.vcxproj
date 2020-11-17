@@ -29,7 +29,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v90</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'" Label="Configuration">
@@ -42,7 +42,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v90</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\dev-lib\VS2008\include;..\..\dev-lib\VS2008\include\SDL2;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\dev-lib\VS2008\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL2;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -83,8 +83,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\dev-lib\VS2008\include;..\..\dev-lib\VS2008\include\SDL2;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\dev-lib\VS2008\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\dev-lib\VS2015\include;..\..\dev-lib\VS2015\include\SDL2;C:\Program Files\Microsoft Platform SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\dev-lib\VS2015\lib;C:\Program Files\Microsoft Platform SDK\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">
