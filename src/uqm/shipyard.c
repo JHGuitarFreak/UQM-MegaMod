@@ -67,7 +67,7 @@ static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW] = {
 	0, 38, 76, 131, 169, 207
 };
 static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW] = {
-	55, 207, 359, 579, 731, 883
+	0, 152, 304, 524, 676, 828
 };
 #endif // USE_3DO_HANGAR
 
@@ -216,9 +216,9 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - 1;
+	r.corner.x = s.origin.x - RES_SCALE(1);
 	r.corner.y = s.origin.y - RES_SCALE(11); 
-	r.extent.width = RADAR_WIDTH + 2;
+	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
 	r.extent.height = RES_SCALE(11); 
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
@@ -249,8 +249,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		s.frame = FleetPtr->melee_icon;
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-		t.baseline.x = s.origin.x + RADAR_WIDTH - 2;
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - 2;
+		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
+		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 		s.origin.x += (RADAR_WIDTH >> 1);
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
@@ -315,7 +315,7 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 
 	r = *pRect;
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + r.extent.height - 1;
+	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE(1);
 	t.align = ALIGN_CENTER;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
@@ -423,8 +423,8 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 					// anymore after UnlockShipFrag() is called, but it is
 					// used thereafter.
 
-			pship_win_info->lfdoor_s.origin.x = -1;
-			pship_win_info->rtdoor_s.origin.x = 1;
+			pship_win_info->lfdoor_s.origin.x = -RES_SCALE(1);
+			pship_win_info->rtdoor_s.origin.x = RES_SCALE(1);
 			pship_win_info->lfdoor_s.origin.y = 0;
 			pship_win_info->rtdoor_s.origin.y = 0;
 			pship_win_info->lfdoor_s.frame = IncFrameIndex (pMS->ModuleFrame);
@@ -1413,6 +1413,7 @@ DrawBluePrint (MENU_STATE *pMS)
 			r.extent.height = r.extent.width;
 				
 			GetCPodCapacity (&r.corner);
+			//r.corner.x += IF_HD(28);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
 			else
@@ -1427,7 +1428,7 @@ DrawBluePrint (MENU_STATE *pMS)
 		num_frames = GLOBAL_SIS (TotalElementMass);
 		GLOBAL_SIS (TotalElementMass) = 0;
 
-		r.extent.width = RES_SCALE(9); 
+		r.extent.width = RES_SCALE(9) - IF_HD(1); 
 		r.extent.height = RES_SCALE(1); 
 		while (num_frames)
 		{
@@ -1449,7 +1450,7 @@ DrawBluePrint (MENU_STATE *pMS)
 		FuelVolume = GLOBAL_SIS (FuelOnBoard) - FUEL_RESERVE;
 		GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
 
-		r.extent.width = RES_SCALE(3) + RESOLUTION_FACTOR; 
+		r.extent.width = RES_SCALE(3) + IF_HD(2);
 		r.extent.height = 1;
 		while (FuelVolume)
 		{
@@ -1493,6 +1494,8 @@ DrawBluePrint (MENU_STATE *pMS)
 				
 			GetFTankCapacity (&r.corner);
 			//log_add(log_Debug, "volume on %u, hefueltankcapacity %u", volume, HEFUEL_TANK_CAPACITY);
+			r.corner.y -= volume == HEFUEL_TANK_CAPACITY ? IF_HD(19) : IF_HD(28);
+			r.corner.x += volume == HEFUEL_TANK_CAPACITY ? IF_HD(2) : IF_HD(1);
 			DrawPoint (&r.corner);
 			r.corner.x += r.extent.width + 1;
 			DrawPoint (&r.corner);
@@ -1561,9 +1564,9 @@ DoShipyard (MENU_STATE *pMS)
 			// expand the clipping rect by 1 pixel
 			GetContextClipRect (&old_r);
 			r = old_r;
-			r.corner.x--;
-			r.extent.width += 2;
-			r.extent.height += 1;
+			r.corner.x -= RES_SCALE(1);
+			r.extent.width += RES_SCALE(2);
+			r.extent.height += RES_SCALE(1);
 			SetContextClipRect (&r);
 			DrawStamp (&s);
 			DrawBorder (9, FALSE);
