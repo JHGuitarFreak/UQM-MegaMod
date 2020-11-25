@@ -23,12 +23,12 @@
 #define UQM_MINOR_VERSION_S  "8"
 #ifdef RC_INVOKED
 // Versions in resource files must be integers.
-#define UQM_PATCH_VERSION    0
-#define UQM_REVISION_VERSION 85
+#define UQM_PATCH_VERSION    1
+#define UQM_REVISION_VERSION 0
 #else
-#define UQM_PATCH_VERSION     0.85f
+#define UQM_PATCH_VERSION     1.0f
 #endif
-#define UQM_PATCH_VERSION_S  "0.85"
+#define UQM_PATCH_VERSION_S  "1"
 #if defined(DEBUG)
 #define UQM_EXTRA_VERSION    "MegaMod Debug"
 #else
