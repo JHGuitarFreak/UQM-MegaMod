@@ -585,8 +585,8 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			UNICODE buf[20];
 
 			case PM_CREW:
-				t.baseline.x = s.origin.x + RADAR_WIDTH - 2;
-				t.baseline.y = s.origin.y + RADAR_HEIGHT - 2;
+				t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
+				t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 				t.align = ALIGN_RIGHT;
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
@@ -596,8 +596,8 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				font_DrawText (&t);
 				break;
 			case PM_FUEL:
-				t.baseline.x = s.origin.x + RADAR_WIDTH - 2;
-				t.baseline.y = s.origin.y + RADAR_HEIGHT - 2;
+				t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
+				t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 				t.align = ALIGN_RIGHT;
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
