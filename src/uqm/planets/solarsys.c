@@ -2451,8 +2451,8 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_DIM_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = LOWORD (rand_val) % SIS_SCREEN_WIDTH;
-			s.origin.y = HIWORD (rand_val) % SIS_SCREEN_HEIGHT;
+			s.origin.x = RES_SCALE(LOWORD (rand_val) % RES_DESCALE(SIS_SCREEN_WIDTH));
+			s.origin.y = RES_SCALE(HIWORD (rand_val) % RES_DESCALE(SIS_SCREEN_HEIGHT));
 
 			DrawStamp (&s);
 		}
@@ -2465,8 +2465,8 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_BRT_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = LOWORD (rand_val) % SIS_SCREEN_WIDTH;
-			s.origin.y = HIWORD (rand_val) % SIS_SCREEN_HEIGHT;
+			s.origin.x = RES_SCALE(LOWORD (rand_val) % RES_DESCALE(SIS_SCREEN_WIDTH));
+			s.origin.y = RES_SCALE(HIWORD (rand_val) % RES_DESCALE(SIS_SCREEN_HEIGHT));
 
 			DrawStamp (&s);
 		}
