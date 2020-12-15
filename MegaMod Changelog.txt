@@ -102,6 +102,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Separate God Mode and infinite battery into new "Precursor Mode"
 
 ### Fixed
+- Fixed crash when buying tech from the Melnorme
+- Loading while in a solar system in HD would put the flagship at the bottom center of the system
 - Fix ship roster overflows when using the x10 button/key
 - Loading a save from Classic to HD will no longer spit you out into HyperSpace - Kruzenshtern bug #42
 - Realigned StarBase animation so it takes up the full screen
