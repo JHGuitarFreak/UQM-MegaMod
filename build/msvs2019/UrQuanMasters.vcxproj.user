@@ -4,7 +4,7 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>--loadgame --log=debug.log</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--log=debug.log</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
