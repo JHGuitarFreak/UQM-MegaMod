@@ -20,6 +20,8 @@
 #include "libs/gfxlib.h"
 #include "libs/graphics/context.h"
 #include "libs/graphics/drawable.h"
+#include "../nameref.h"
+#include "../igfxres.h"
 
 #include "planets.h"
 
@@ -133,7 +135,14 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		if (quad_visible & (1 << x))
 		{
 			SetPrimNextLink (&prim[x], StartPrim);
-			SetPrimType (&prim[x], !scaled ? POINT_PRIM : POINT_PRIM_HD); // Orbit dots
+			if (num_off_pixels > 1)
+			{
+				FRAME DotFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
+				SetPrimType(&prim[x], STAMPFILL_PRIM); // Orbit dots
+				prim[x].Object.Stamp.frame = SetAbsFrameIndex (DotFrame, 29);
+			}
+			else
+				SetPrimType (&prim[x], !scaled ? POINT_PRIM : POINT_PRIM_HD); // Orbit dots
 			SetPrimColor (&prim[x], _get_context_fg_color ());
 
 			StartPrim = x;

@@ -632,12 +632,12 @@ LoadSolarSys (void)
 	PLANET_DESC *pCurDesc;
 #define NUM_TEMP_RANGES 5
 	const Color temp_color_array[NUM_TEMP_RANGES] =
-	{	// "RES_DBL" applied to make the orbit dots more visible in HD.
-		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,			 0x00,  RES_DBL(0x0E)), 0x54),
-		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,	 RES_DBL(0x06), RES_DBL(0x08)), 0x62),
-		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,	 RES_DBL(0x0B),			0x00),  0x6D),
-		BUILD_COLOR (MAKE_RGB15_INIT (RES_DBL(0x0F),		 0x00,			0x00),  0x2D),
-		BUILD_COLOR (MAKE_RGB15_INIT (RES_DBL(0x0F), RES_DBL(0x08),			0x00),  0x75),
+	{
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0E), 0x54),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x62),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x0B, 0x00), 0x6D),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
 	};
 
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
@@ -1159,7 +1159,7 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, RES_SCALE(1), FALSE); // Scale the orbit dot spacing to make it more visually pleasing
+	DrawOval (&r, RES_BOOL(1, 6), FALSE);
 }
 
 static SIZE
