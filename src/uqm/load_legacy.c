@@ -38,7 +38,7 @@
 #include "libs/scriptlib.h"
 
 //#define DEBUG_LOAD
-
+BYTE IndependantResFactor;
 
 // This defines the order and the number of bits in which the game state
 // properties are saved.
@@ -1314,7 +1314,7 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR;
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
-	if (IS_HD)
+	if (IndependantResFactor == 0 && IS_HD)
 	{
 		POINT NewLoc = MAKE_POINT (SIS_SCREEN_WIDTH / 2, SIS_SCREEN_HEIGHT);
 		POINT IPBounds = displayToLocation (
@@ -1508,7 +1508,10 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 
 			read_8  (fp, NULL) != 1 /* padding */
 		)
+	{
+		IndependantResFactor = !try_vanilla ? SummPtr->res_factor : 0;
 		return FALSE;
+	}
 	else
 	{
 		// JMS: UQM-HD saves have an extra piece of padding to compensate for the

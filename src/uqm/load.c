@@ -37,6 +37,7 @@
 //#define DEBUG_LOAD
 
 ACTIVITY NextActivity;
+BYTE IndependantResFactor;
 
 static inline size_t
 read_8 (void *fp, BYTE *v)
@@ -353,7 +354,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
-	if (IS_HD)
+	if (IndependantResFactor == 0 && IS_HD)
 	{
 		POINT NewLoc = MAKE_POINT (SIS_SCREEN_WIDTH / 2, SIS_SCREEN_HEIGHT);
 		POINT IPBounds = displayToLocation (
@@ -528,6 +529,8 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 			(!try_core && (read_8 (fp, &SummPtr->res_factor) != 1))
 		)
 		return FALSE;
+
+	IndependantResFactor = !try_core ? SummPtr->res_factor : 0;
 	
 	if (nameSize < SAVE_NAME_SIZE)
 	{
