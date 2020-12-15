@@ -1299,8 +1299,8 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 
 	if (crew_delta == UNDEFINED_DELTA)
 	{
-		//if(optWhichFonts == OPT_3DO)
-		//	DrawBorder(5, FALSE);
+		if(optWhichFonts == OPT_3DO)
+			DrawBorder(5, FALSE);
 		DrawFlagshipName (TRUE, FALSE);
 		DrawCaptainsName (FALSE);
 		DrawLanders ();

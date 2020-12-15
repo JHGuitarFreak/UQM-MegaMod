@@ -1413,7 +1413,6 @@ DrawBluePrint (MENU_STATE *pMS)
 			r.extent.height = r.extent.width;
 				
 			GetCPodCapacity (&r.corner);
-			//r.corner.x += IF_HD(28);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
 			else
