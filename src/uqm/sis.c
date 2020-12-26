@@ -551,7 +551,7 @@ DrawCaptainsName (bool NewGame)
 	if(!NewGame)
 		DrawBorder(6, FALSE);
 
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
+	t.baseline.x = (STATUS_WIDTH >> 1) - 1;
 	t.baseline.y = r.corner.y + RES_SCALE(6) - IF_HD(1);
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (CommanderName);
@@ -622,10 +622,10 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	if(!NewGame)
+	if (!NewGame)
 		DrawBorder(12, FALSE);
 
-	t.baseline.x = r.corner.x + (r.extent.width >> 1);
+	t.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(1);
 	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - InStatusArea);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
