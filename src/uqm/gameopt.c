@@ -319,6 +319,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 		CursPos = strlen (GAME_STRING(NAMING_STRING_BASE + 2 + nameCaptain));
 	}
 
+	SetContext (StatusContext);
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
 
 	SetFlashRect(nameCaptain ? &captainNameRect : &shipNameRect);
