@@ -489,7 +489,7 @@ ProcessInputEvent (const SDL_Event *Event)
 				/* Out of the BMP, won't fit in a UniChar */
 				/* Use the replacement character instead */
 				map_key = 0xFFFD;
-				while (Event->text.text[i] > 0x7F)
+				while ((UniChar)Event->text.text[i] > 0x7F)
 				{
 					++i;
 				}
