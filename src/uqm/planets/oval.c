@@ -27,6 +27,8 @@
 
 #define NUM_QUADS 4
 
+extern FRAME SpaceJunkFrame;
+
 void
 DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 {
@@ -137,9 +139,8 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 			SetPrimNextLink (&prim[x], StartPrim);
 			if (num_off_pixels > 1)
 			{
-				FRAME DotFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
 				SetPrimType(&prim[x], STAMPFILL_PRIM); // Orbit dots
-				prim[x].Object.Stamp.frame = SetAbsFrameIndex (DotFrame, 29);
+				prim[x].Object.Stamp.frame = SetAbsFrameIndex (SpaceJunkFrame, 29);
 			}
 			else
 				SetPrimType (&prim[x], !scaled ? POINT_PRIM : POINT_PRIM_HD); // Orbit dots
