@@ -1389,8 +1389,7 @@ DrawBluePrint (MENU_STATE *pMS)
 			DrawShipPiece (ModuleFrame, which_piece, num_frames, TRUE);
 	}
 
-	if (!IS_HD)
-		SetContextForeGroundColor (
+	SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09));
 	for (num_frames = 0; num_frames < NUM_MODULE_SLOTS; ++num_frames)
 	{
