@@ -182,12 +182,11 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				if (solTexturesPresent)
 					pCurDesc->alternate_colormap = PLUTO_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 1550L /* 3937L */ / 100;
-				pCurDesc->NumPlanets = 0;
+				pCurDesc->NumPlanets = EXTENDED;
 				if(PrimeSeed)
 					pCurDesc->angle = FULL_CIRCLE - OCTANT;
 				break;
 		}
-
 		pCurDesc->orb_speed = FULL_CIRCLE / (365.25 * pow((float)pCurDesc->radius / EARTH_RADIUS, 1.5));
 		pCurDesc->location.x = COSINE (pCurDesc->angle, pCurDesc->radius);
 		pCurDesc->location.y = SINE (pCurDesc->angle, pCurDesc->radius);
@@ -233,19 +232,19 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 					COSINE (angle, solarSys->MoonDesc[1].radius);
 			solarSys->MoonDesc[1].location.y =
 					SINE (angle, solarSys->MoonDesc[1].radius);
-			solarSys->MoonDesc[1].orb_speed = FULL_CIRCLE / 29;
+			solarSys->MoonDesc[1].orb_speed = FULL_CIRCLE / 27.32;
 			break;
 		}
 		case 4: /* moons of JUPITER */
 			solarSys->MoonDesc[0].data_index = RADIOACTIVE_WORLD;
 			if (solTexturesPresent)
 				solarSys->MoonDesc[0].alternate_colormap = IO_COLOR_TAB;
-			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 1.77;
+			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 1.75;
 					/* Io */
 			solarSys->MoonDesc[1].data_index = HALIDE_WORLD;
 			if (solTexturesPresent)
 				solarSys->MoonDesc[1].alternate_colormap = EUROPA_COLOR_TAB;
-			solarSys->MoonDesc[1].orb_speed = FULL_CIRCLE / 3.55;
+			solarSys->MoonDesc[1].orb_speed = FULL_CIRCLE / 3.5;
 					/* Europa */
 			solarSys->MoonDesc[2].data_index = CYANIC_WORLD;
 			if (solTexturesPresent)
@@ -255,7 +254,7 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 			solarSys->MoonDesc[3].data_index = PELLUCID_WORLD;
 			if (solTexturesPresent)
 				solarSys->MoonDesc[3].alternate_colormap = CALLISTO_COLOR_TAB;
-			solarSys->MoonDesc[3].orb_speed = FULL_CIRCLE / 16.69;
+			solarSys->MoonDesc[3].orb_speed = FULL_CIRCLE / 16.7;
 					/* Callisto */
 			break;
 		case 5: /* moons of SATURN */
@@ -264,15 +263,22 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 				solarSys->MoonDesc[0].alternate_colormap = TITAN_COLOR_TAB;
 			/*solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS
 					+ (MAX_GEN_MOONS - 1) * MOON_DELTA;*/
-			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 15.95;
+			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 15.22;
 					/* Titan */
 			break;
 		case 7: /* moons of NEPTUNE */
 			solarSys->MoonDesc[0].data_index = VINYLOGOUS_WORLD;
 			if (solTexturesPresent)
 				solarSys->MoonDesc[0].alternate_colormap = TRITON_COLOR_TAB;
-			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / -5.88;
+			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / -5.87;
 					/* Triton */
+			break;
+		case 8: /* moons of Pluto */
+			solarSys->MoonDesc[0].data_index = SELENIC_WORLD;
+			if (solTexturesPresent)
+				solarSys->MoonDesc[0].alternate_colormap = CHARON_COLOR_TAB;
+			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 6.38;
+					/* Charon */
 			break;
 	}
 
@@ -604,6 +610,18 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				solarSys->SysInfo.PlanetInfo.RotationPeriod = 4300;
 				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = -216;
 				break;
+
+			case 8: /* moon of Pluto: Charon */
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 1;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 9;
+				solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
+				solarSys->SysInfo.PlanetInfo.Weather = 0;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 1533;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = -220;
+				solarSys->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 3937L / 100;
+				break;
 		}
 
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
@@ -639,8 +657,12 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					LoadPlanet (CaptureDrawable (LoadGraphic (TITAN_MASK_ANIM)));
 					break;
 				case 7: /* moon of NEPTUNE: Triton */
-				default:
 					LoadPlanet (CaptureDrawable (LoadGraphic (TRITON_MASK_ANIM)));
+					break;
+				case 8: /* moon of Pluto: Charon */
+					LoadPlanet (CaptureDrawable (LoadGraphic (CHARON_MASK_ANIM)));
+				default:
+					LoadPlanet (NULL);
 					break;
 			}
 		}
