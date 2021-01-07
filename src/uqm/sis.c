@@ -593,7 +593,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		OldFont = SetContextFont (MicroFont);
 
 		r.corner.x = 0;
-		r.corner.y = RES_SCALE(1);
+		r.corner.y = RES_SCALE(1) + IF_HD(7);
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SHIP_NAME_HEIGHT;
 
