@@ -90,13 +90,6 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 	RECT r;
 	STAMP Side, Top;
 	SBYTE RepairSlot;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
- 
-	
-	if (IS_HD &&
-		which_piece != FUSION_THRUSTER && which_piece != TURNING_JETS
-		 && which_piece != EMPTY_SLOT + 0 && which_piece != EMPTY_SLOT + 1)
-		ship_piece_offset_scaled += 1;
 
 	RepairSlot = 0;
 	switch (which_piece)
@@ -161,7 +154,6 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 	else if (RepairSlot)
 	{
 		r.corner = Side.origin;
-		r.corner.y += IF_HD(8);
 		r.extent.width = SHIP_PIECE_OFFSET;
 		r.extent.height = RES_SCALE(1);
 		OldColor = SetContextForeGroundColor (BLACK_COLOR);
