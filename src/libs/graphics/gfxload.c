@@ -140,16 +140,14 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 
 		int tune_amount = 0;
 
-		if (CharPtr->extent.height == 8)
-			tune_amount = -1;
-		else if (CharPtr->extent.height == 9)
-			tune_amount = -2;
-		else if (CharPtr->extent.height > 9 && !IS_HD)
-			tune_amount = -3;
-		else
-			tune_amount = -5;
+		if (CharPtr->extent.height == RES_SCALE(8))
+			tune_amount = -RES_SCALE(1);
+		else if (CharPtr->extent.height == RES_SCALE(9))
+			tune_amount = -RES_SCALE(2);
+		else if (CharPtr->extent.height > RES_SCALE(9))
+			tune_amount = -RES_SCALE(3);
 
-		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
+		CharPtr->HotSpot = MAKE_HOT_SPOT (IF_HD(-3),
 				CharPtr->extent.height + tune_amount);
 	}
 }
