@@ -205,7 +205,7 @@ DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
 		DrawSISMessage(buf);
 
 		memset (&buf[0], 0, sizeof (buf));
-		snprintf (buf, sizeof buf, RES_BOOL("%u", "Seed: %u"), seed);
+		snprintf (buf, sizeof buf, "%u", seed);
 		DrawSISTitle (buf);
 	}
 	else
