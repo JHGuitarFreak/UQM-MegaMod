@@ -104,8 +104,8 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	DrawBorder (21, FALSE);
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
-	t.baseline.x = r->corner.x + RES_SCALE(2);
-	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - 1;
+	t.baseline.x = r->corner.x + RES_BOOL(2, 5);
+	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE(1);
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	r->corner.x += RES_SCALE(1);
@@ -122,7 +122,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 			
 			// Draw the background of the selection.
 			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_MEDIUM_COLOR : PCMENU_SELECTION_BACKGROUND_COLOR));
-			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_BOOL(2, 5);
+			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2);
 			r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
 			DrawFilledRectangle (r);
 

@@ -133,7 +133,7 @@ DrawSISTitle (UNICODE *pStr)
 	RECT r;
 
 	t.baseline.x = SIS_TITLE_WIDTH >> 1;
-	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2) - IF_HD(2);
+	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
@@ -286,7 +286,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	if (!(flags & DSME_MYCOLOR))
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
 
-	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2) - IF_HD(2);
+	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2);
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 	SetContextFont (TinyFont);
@@ -552,7 +552,7 @@ DrawCaptainsName (bool NewGame)
 		DrawBorder(6, FALSE);
 
 	t.baseline.x = (STATUS_WIDTH >> 1) - 1;
-	t.baseline.y = r.corner.y + RES_SCALE(6) - IF_HD(1);
+	t.baseline.y = r.corner.y + RES_SCALE(6);
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (CommanderName);
 	t.CharCount = (COUNT)~0;
@@ -593,7 +593,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		OldFont = SetContextFont (MicroFont);
 
 		r.corner.x = 0;
-		r.corner.y = RES_SCALE(1) + IF_HD(7);
+		r.corner.y = RES_SCALE(1);
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SHIP_NAME_HEIGHT;
 
@@ -625,8 +625,8 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	if (!NewGame)
 		DrawBorder(12, FALSE);
 
-	t.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(1);
-	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - InStatusArea);
+	t.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(2);
+	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - InStatusArea) - IF_HD(3);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (optWhichFonts == OPT_PC)
