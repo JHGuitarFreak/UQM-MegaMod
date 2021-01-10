@@ -1980,30 +1980,30 @@ SeedUniverse (void)
 				BUILD_COLOR (MAKE_RGB15 (0x0E, 0x0E, 0x0E), 0x00));
 		r.corner.x = 0;
 		r.corner.y = 0;
-		r.extent.width = RADAR_WIDTH - 1;
-		r.extent.height = 1;
+		r.extent.width = RADAR_WIDTH - RES_SCALE(1);
+		r.extent.height = RES_SCALE(1);
 		DrawFilledRectangle (&r);
-		r.extent.width = 1;
-		r.extent.height = RADAR_HEIGHT - 1;
+		r.extent.width = RES_SCALE(1);
+		r.extent.height = RADAR_HEIGHT - RES_SCALE(1);
 		DrawFilledRectangle (&r);
 
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x06, 0x06, 0x06), 0x00));
-		r.corner.x = RADAR_WIDTH - 1;
-		r.corner.y = 1;
-		r.extent.height = RADAR_HEIGHT - 1;
+		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
+		r.corner.y = RES_SCALE(1);
+		r.extent.height = RADAR_HEIGHT - RES_SCALE(1);
 		DrawFilledRectangle (&r);
-		r.corner.x = 1;
-		r.corner.y = RADAR_HEIGHT - 1;
-		r.extent.width = RADAR_WIDTH - 2;
-		r.extent.height = 1;
+		r.corner.x = RES_SCALE(1);
+		r.corner.y = RADAR_HEIGHT - RES_SCALE(1);
+		r.extent.width = RADAR_WIDTH - RES_SCALE(2);
+		r.extent.height = RES_SCALE(1);
 		DrawFilledRectangle (&r);
 
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x00));
 		r.corner.x = 0;
 		DrawPoint (&r.corner);
-		r.corner.x = RADAR_WIDTH - 1;
+		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
 		r.corner.y = 0;
 		DrawPoint (&r.corner);
 	}
