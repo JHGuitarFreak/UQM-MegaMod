@@ -91,8 +91,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 	// Gray rectangle behind PC menu
 	rt = *r;
-	rt.corner.y += PC_MENU_HEIGHT;
-	rt.extent.height -= RES_SCALE(10);
+	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE(11);
 	DrawFilledRectangle(&rt);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
@@ -514,7 +513,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		r.corner.y = s.origin.y - PC_MENU_HEIGHT; 
 	else
 		r.corner.y = s.origin.y - RES_SCALE(11);
-	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
+	r.extent.width = RADAR_WIDTH + RES_SCALE(3);
 	BatchGraphics ();
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
@@ -558,7 +557,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					break;
 			}
 		}
-		r.extent.height = RADAR_HEIGHT + RES_SCALE(11); 
+		r.extent.height = RADAR_HEIGHT + RES_SCALE(12); 
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;
@@ -569,10 +568,14 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= RES_SCALE(1);
 			r.extent.width += RES_SCALE(1);
-			r.extent.height = RADAR_HEIGHT + RES_SCALE(10); 
+			r.extent.height = RADAR_HEIGHT + RES_SCALE(9); 
 		}
 		else
+		{
+			r.corner.x -= RES_SCALE(1);
+			r.extent.width += RES_SCALE(1);
 			r.extent.height = RES_SCALE(11);
+		}
 		DrawFilledRectangle (&r);
 		DrawBorder(8, FALSE);
 	}
