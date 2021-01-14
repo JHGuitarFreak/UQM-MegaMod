@@ -138,17 +138,26 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 		// This tunes the font positioning to be about what it should
 		// TODO: prolly needs a little tweaking still
 
-		int tune_amount = 0;
+		int tune_amount_x = 0;
+		int tune_amount_y = 0;
 
 		if (CharPtr->extent.height == RES_SCALE(8))
-			tune_amount = -RES_SCALE(1);
+		{
+			tune_amount_y = -RES_SCALE(1);
+		}
 		else if (CharPtr->extent.height == RES_SCALE(9))
-			tune_amount = -RES_SCALE(2);
+		{
+			tune_amount_y = -RES_SCALE(2);
+			tune_amount_x = IF_HD(-3);
+		}
 		else if (CharPtr->extent.height > RES_SCALE(9))
-			tune_amount = -RES_SCALE(3);
+		{
+			tune_amount_y = -RES_SCALE(3);
+			tune_amount_x = IF_HD(-3);
+		}
 
-		CharPtr->HotSpot = MAKE_HOT_SPOT (IF_HD(-3),
-				CharPtr->extent.height + tune_amount);
+		CharPtr->HotSpot = MAKE_HOT_SPOT (tune_amount_x,
+				CharPtr->extent.height + tune_amount_y);
 	}
 }
 
