@@ -153,7 +153,7 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 		else if (CharPtr->extent.height > RES_SCALE(9))
 		{
 			tune_amount_y = -RES_SCALE(3);
-			tune_amount_x = IF_HD(-3);
+			//tune_amount_x = IF_HD(-3);
 		}
 
 		CharPtr->HotSpot = MAKE_HOT_SPOT (tune_amount_x,
