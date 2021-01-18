@@ -132,7 +132,7 @@ DrawSISTitle (UNICODE *pStr)
 	CONTEXT OldContext;
 	RECT r;
 
-	t.baseline.x = SIS_TITLE_WIDTH >> 1;
+	t.baseline.x = (SIS_TITLE_WIDTH >> 1) - IF_HD(1);
 	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
@@ -287,6 +287,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
 
 	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2);
+	t.baseline.x = (SIS_MESSAGE_WIDTH >> 1) - IF_HD(1);
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 	SetContextFont (TinyFont);
@@ -299,7 +300,6 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		ClearDrawable ();
 
 		DrawBorder (2, FALSE);
-		t.baseline.x = SIS_MESSAGE_WIDTH >> 1;
 		t.align = ALIGN_CENTER;
 		font_DrawText (&t);
 	}
@@ -312,7 +312,6 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		BYTE char_deltas[128];
 		BYTE *pchar_deltas;
 
-		t.baseline.x = SIS_MESSAGE_WIDTH >> 1;
 		t.align = ALIGN_LEFT;
 
 		TextRect (&t, &text_r, char_deltas);
@@ -497,7 +496,7 @@ DrawStatusMessage (const UNICODE *pStr)
 		pStr = buf;
 	}
 
-	t.baseline.x = STATUS_MESSAGE_WIDTH >> 1;
+	t.baseline.x = (STATUS_MESSAGE_WIDTH >> 1) + IF_HD(1);
 	t.baseline.y = STATUS_MESSAGE_HEIGHT - RES_SCALE(1);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
@@ -551,7 +550,7 @@ DrawCaptainsName (bool NewGame)
 	if(!NewGame)
 		DrawBorder(6, FALSE);
 
-	t.baseline.x = (STATUS_WIDTH >> 1) - 1;
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_TRP(1);
 	t.baseline.y = r.corner.y + RES_SCALE(6);
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (CommanderName);
@@ -945,7 +944,7 @@ DrawPC_SIS (void)
 	RECT r;
 
 	GetGaugeRect (&r, FALSE);
-	t.baseline.x = STATUS_WIDTH >> 1;
+	t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3);
 	t.baseline.y = r.corner.y - RES_SCALE(1);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
@@ -964,6 +963,7 @@ DrawPC_SIS (void)
 
 	// Black rectangle behind "CREW" text and crew amount.
 	r.corner.y += RES_SCALE(79);
+	t.baseline.x -= IF_HD(2);
 	t.baseline.y += RES_SCALE(79);
 	DrawFilledRectangle (&r);
 
@@ -1149,7 +1149,7 @@ DeltaSISGauges_crewDelta (SIZE crew_delta)
 
 		GetGaugeRect (&r, TRUE);
 		
-		t.baseline.x = STATUS_WIDTH >> 1;
+		t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3);
 		t.baseline.y = r.corner.y + r.extent.height;
 		t.align = ALIGN_CENTER;
 		t.pStr = buf;
@@ -1213,7 +1213,7 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 
 		GetGaugeRect (&r, FALSE);
 		
-		t.baseline.x = STATUS_WIDTH >> 1;
+		t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3);
 		t.baseline.y = r.corner.y + r.extent.height;
 		t.align = ALIGN_CENTER;
 		t.pStr = buf;

@@ -940,7 +940,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
-		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4) + (SIS_TITLE_WIDTH >> 1);
+		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4) + (SIS_TITLE_WIDTH >> 1) + IF_HD(1);
 		switch (pSD->Activity)
 		{
 			case IN_STARBASE:
