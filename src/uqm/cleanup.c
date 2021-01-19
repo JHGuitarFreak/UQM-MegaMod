@@ -72,7 +72,7 @@ UninitKernel (void)
 	DestroyDrawable (ReleaseDrawable (hyperspacesuns));
 	DestroyDrawable (ReleaseDrawable (ActivityFrame));
 	DestroyFont (TinyFont);
-	DestroyFont (TinyFontSS);
+	DestroyFont (TinyFontBold);
 	DestroyFont (StarConFont);
 	DestroyFont (PlyrFont);
 

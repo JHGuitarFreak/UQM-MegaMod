@@ -12,7 +12,7 @@
 #define TINY_FONT "font.tiny"
 #define TINY_FONT_FB "font.tiny.fb"
 #define TINY_FONT_HD "font.tiny.hd"
-#define TINY_FONT_SS "font.tiny.ss"
+#define TINY_FONT_BOLD "font.tiny.bold"
 #define PLAYER_FONT_FB "font.player.fb"
 #define PLAYER_FONT_HD "font.player.hd"
 #define STARCON_FONT_FB "font.starcon.fb"

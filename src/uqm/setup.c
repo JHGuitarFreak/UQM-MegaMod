@@ -59,7 +59,7 @@ FRAME Screen;
 FONT StarConFont;
 FONT MicroFont;
 FONT TinyFont;
-FONT TinyFontSS;
+FONT TinyFontBold;
 FONT PlyrFont;
 QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
@@ -258,8 +258,8 @@ InitKernel (void)
 	if (TinyFont == NULL)
 		return FALSE;
 
-	TinyFontSS = LoadFont (TINY_FONT_SS);
-	if (TinyFont == NULL)
+	TinyFontBold = LoadFont (TINY_FONT_BOLD);
+	if (TinyFontBold == NULL)
 		return FALSE;
 
 	PlyrFont = LoadFont (PLAYER_FONT);
