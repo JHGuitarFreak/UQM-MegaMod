@@ -610,6 +610,9 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 		s.frame = RescaledFrame;
 		DrawStamp (&s);
 
+		DestroyDrawable(ReleaseDrawable(RescaledFrame));
+		RescaledFrame = 0;
+
 		// Draw any static frames (has to be in reverse)
 		for (i = CommData.NumAnimations - 1; i >= 0; --i)
 		{
@@ -629,6 +632,9 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 						));
 				s.frame = RescaledFrame;
 				DrawStamp (&s);
+
+				DestroyDrawable(ReleaseDrawable(RescaledFrame));
+				RescaledFrame = 0;
 			}
 		}
 	}
@@ -655,6 +661,10 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 					));
 			s.frame = RescaledFrame;
 			DrawStamp (&s);
+
+			DestroyDrawable (ReleaseDrawable (RescaledFrame));
+			RescaledFrame = 0;
+
 			pSeq->Change = FALSE;
 
 			Change = TRUE;
