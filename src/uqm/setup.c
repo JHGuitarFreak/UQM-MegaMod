@@ -148,7 +148,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("yellow-fried-hd");
 		loadAddon ("orange-peel-melnorme");
 		loadAddon ("classic-hd-fonts");
-		loadAddon ("tarps-choice");
+		// loadAddon ("tarps-choice"); // Make Room for the Beta-HD Addon
 	}
 
 	loadAddon ("ProfanePkunk");
@@ -163,6 +163,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
 		SyreenVoiceFix = loadAddon ("SyreenVoiceFix");
+		loadAddon ("GlaDOS");
 	}
 
 	if (opt3doMusic)
