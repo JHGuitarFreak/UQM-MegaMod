@@ -199,7 +199,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			captainNameRect.corner.y = RES_SCALE(10);
 			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
 			r = captainNameRect;
-			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - 1;
+			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - RES_TRP(1);
 			lf.baseline.y = r.corner.y + RES_SCALE(6);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09);
@@ -212,8 +212,8 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			shipNameRect.corner.y = RES_SCALE(20);
 			shipNameRect.extent.width = SHIP_NAME_WIDTH;
 			r = shipNameRect;
-			lf.baseline.x = r.corner.x + (r.extent.width >> 1);
-			lf.baseline.y = r.corner.y + r.extent.height - 1;
+			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(2);
+			lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE(1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0F, 0x00, 0x00), 0x2D);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x0A, 0x00), 0x7D);
