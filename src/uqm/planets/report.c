@@ -64,7 +64,7 @@ ClearReportArea (void)
 			BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 	
 	startx = 1 + (r.extent.width >> 1) - RES_BOOL(1, 5);
-	s.origin.y = RES_SCALE(1) + IF_HD(4);
+	s.origin.y = RES_SCALE(1) + IF_HD(3);
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
 		s.origin.x = startx;
