@@ -449,7 +449,7 @@ RescalePercentage (FRAME frame, float percentage)
 	TFB_Image* img;
 	TFB_Canvas src, dst;
 
-	if (!frame)
+	if (!frame || (frame->Bounds.height == 1 && frame->Bounds.width == 1))
 		return NULL;
 
 	assert(frame->Type != SCREEN_DRAWABLE);
