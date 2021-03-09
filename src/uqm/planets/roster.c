@@ -267,8 +267,8 @@ DoModifyRoster (MENU_STATE *pMS)
 	// Left or right produces the same effect because there are 2 columns
 	horiz = PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_RIGHT];
-	pgup = PulsedInputState.menu[KEY_MENU_PAGE_UP];
-	pgdn = PulsedInputState.menu[KEY_MENU_PAGE_DOWN];
+	pgup = PulsedInputState.menu[KEY_MENU_ZOOM_IN];
+	pgdn = PulsedInputState.menu[KEY_MENU_ZOOM_OUT];
 
 	if (cancel && !rosterState->modifyingCrew)
 	{
@@ -292,27 +292,28 @@ DoModifyRoster (MENU_STATE *pMS)
 	}
 	else if (rosterState->modifyingCrew)
 	{
-		SIZE delta = 0;
+		COUNT loop, DoLoop = 0;
 		BOOLEAN failed = FALSE;
 
 		if (up || pgup)
 		{
 			if (GLOBAL_SIS (CrewEnlisted))
-				delta = pgup ? 10 : 1;
+				DoLoop = pgup ? 10 : 1;
 			else
 				failed = TRUE;
 		}
 		else if (down || pgdn)
 		{
 			if (GLOBAL_SIS (CrewEnlisted) < GetCrewPodCapacity ())
-				delta = pgdn ? -10 : -1;
+				DoLoop = pgdn ? 10 : 1;
 			else
 				failed = TRUE;
 		}
 		
-		if (delta != 0)
+		if (DoLoop != 0)
 		{
-			failed = !DeltaSupportCrew (rosterState, delta);
+			for (loop = 0; loop < DoLoop; loop++)
+				failed = !DeltaSupportCrew (rosterState, (down || pgdn) ? -1 : 1);
 		}
 
 		if (failed)

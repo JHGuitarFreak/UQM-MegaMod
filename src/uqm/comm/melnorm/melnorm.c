@@ -597,7 +597,7 @@ typedef struct
 // Unless Hard Mode is enabled.
 #define TECHPRICE (75 * BIO_CREDIT_VALUE)
 
-static const TechSaleData tech_sale_catalog[] =
+TechSaleData tech_sale_catalog[] =
 {
 	{ TECH_MODULE_BLASTER,          TECHPRICE, NEW_TECH_1,  OK_BUY_NEW_TECH_1 },
 	{ TECH_LANDER_SPEED,            TECHPRICE, NEW_TECH_2,  OK_BUY_NEW_TECH_2 },
@@ -1310,7 +1310,7 @@ TryFuelAgain:
 
 		NPCPhrase (nextTech->sale_line);
 
-		if (DIF_HARD && countTech() > 0)
+		if (DIF_HARD && countTech())
 		{
 			nextTech->price += countTech() * 50;
 			NPCPhrase (NEED_MORE_CREDIT0);

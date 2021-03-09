@@ -1740,7 +1740,7 @@ GenerateLightMap (SBYTE *pTopo, int w, int h)
 
 // Sets the SysGenRNG to the required state first.
 void
-GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width, COUNT height)
+GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width, COUNT height)
 {
 	RECT r;
 	const PlanetFrame* PlanDataPtr;
@@ -1980,6 +1980,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 				LoadColorMap (PlanDataPtr->CMapInstance));
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (PlanDataPtr->XlatTabInstance));
+
 			if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
 			{
 				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (

@@ -136,7 +136,7 @@ PrepareNextRotationFrame (void)
 	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, rotFrameIndex);
 	RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
 			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-			throbShield, rotwidth, rotheight, (rotheight >> 1) - RESOLUTION_FACTOR); // RADIUS
+			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD(2)); // RADIUS
 	
 	if (throbShield)
 	{	// prepare the next shield throb frame
@@ -199,7 +199,7 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	RenderPlanetSphere (Orbit, Orbit->SphereFrame, pPlanetDesc->rotPointIndex,
 			pPlanetDesc->data_index & PLANET_SHIELDED,
 			FALSE, pPlanetDesc->rotwidth, pPlanetDesc->rotheight,
-			(pPlanetDesc->rotheight >> 1) - RESOLUTION_FACTOR); // RADIUS
+			(pPlanetDesc->rotheight >> 1) - IF_HD(2)); // RADIUS
 	Orbit->SphereFrame->image->dirty = TRUE;
 	// BW: slightly hacky but, in DrawTexturedBody, the call
 	// to DrawStamp won't re-blit the frame unless scale has changed.
