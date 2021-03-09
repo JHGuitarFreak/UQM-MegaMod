@@ -63,8 +63,8 @@ ClearReportArea (void)
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 	
-	startx = 1 + (r.extent.width >> 1) - RES_BOOL(1, 5);
-	s.origin.y = RES_SCALE(1) + IF_HD(3);
+	startx = 1 + (r.extent.width >> 1) - (RES_SCALE(1) - IF_HD(1));
+	s.origin.y = RES_SCALE(2); // Cell vertical alignment
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
 		s.origin.x = startx;
@@ -143,10 +143,10 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
 			StrLen += end_page_len; 
-			NextPageHD = 52;
+			NextPageHD = 53;
 		}
 		t.baseline.x = RES_BOOL(1, NextPageHD) + (r.extent.width >> 1)
-				+ (col_cells * (r.extent.width + 1)) - RES_BOOL(1, 5);
+				+ (col_cells * (r.extent.width + 1)) - RES_TRP(1);
 		do
 		{
 			COUNT word_chars;
@@ -228,7 +228,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 
 InitPageCell:
 			ButtonState = 1;
-			t.baseline.y = r.extent.height + RES_SCALE(1) + IF_HD(3); // Text vertical alignment
+			t.baseline.y = r.extent.height + RES_SCALE(2); // Text vertical alignment
 			row_cells = 0;
 			if (StrLen)
 			{
