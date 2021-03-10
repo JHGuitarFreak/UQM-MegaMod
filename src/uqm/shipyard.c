@@ -1426,7 +1426,7 @@ DrawBluePrint (MENU_STATE *pMS)
 		num_frames = GLOBAL_SIS (TotalElementMass);
 		GLOBAL_SIS (TotalElementMass) = 0;
 
-		r.extent.width = RES_SCALE(9) - IF_HD(1); 
+		r.extent.width = RES_SCALE(9); 
 		r.extent.height = RES_SCALE(1); 
 		while (num_frames)
 		{
@@ -1448,8 +1448,8 @@ DrawBluePrint (MENU_STATE *pMS)
 		FuelVolume = GLOBAL_SIS (FuelOnBoard) - FUEL_RESERVE;
 		GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
 
-		r.extent.width = RES_SCALE(3) + IF_HD(2);
 		r.extent.height = 1;
+
 		while (FuelVolume)
 		{
 			COUNT m;
@@ -1492,12 +1492,15 @@ DrawBluePrint (MENU_STATE *pMS)
 				
 			GetFTankCapacity (&r.corner);
 			//log_add(log_Debug, "volume on %u, hefueltankcapacity %u", volume, HEFUEL_TANK_CAPACITY);
-			r.corner.y -= volume == HEFUEL_TANK_CAPACITY ? IF_HD(19) : IF_HD(28);
-			r.corner.x += volume == HEFUEL_TANK_CAPACITY ? IF_HD(2) : IF_HD(1);
-			DrawPoint (&r.corner);
-			r.corner.x += r.extent.width + 1;
-			DrawPoint (&r.corner);
-			r.corner.x -= r.extent.width;
+			//r.corner.y -= volume == HEFUEL_TANK_CAPACITY ? IF_HD(19) : IF_HD(28);
+			//r.corner.x += volume == HEFUEL_TANK_CAPACITY ? IF_HD(2) : IF_HD(1);
+
+			r.extent.width = RES_SCALE(5);
+			DrawFilledRectangle(&r);
+
+			r.extent.width = RES_SCALE(3);
+			r.corner.x += RES_SCALE(1);
+
 			SetContextForeGroundColor (
 					SetContextBackGroundColor (BLACK_COLOR));
 			DrawFilledRectangle (&r);

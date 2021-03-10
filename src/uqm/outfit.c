@@ -125,11 +125,12 @@ RedistributeFuel (void)
 		// If we're less than the fuel level, draw fuel.
 		if (GLOBAL_SIS (FuelOnBoard) < FuelVolume)
 		{
+			r.extent.width = RES_SCALE(5);
+			DrawFilledRectangle(&r);
+
 			r.extent.width = RES_SCALE(3);
-			DrawPoint (&r.corner);
-			r.corner.x += r.extent.width + 1;
-			DrawPoint (&r.corner);
-			r.corner.x -= r.extent.width;
+			r.corner.x += RES_SCALE(1);
+
 			SetContextForeGroundColor (
 					SetContextBackGroundColor (BLACK_COLOR));
 		}
