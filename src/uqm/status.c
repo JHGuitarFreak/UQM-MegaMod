@@ -490,7 +490,7 @@ PostProcessStatus (ELEMENT *ShipPtr)
 
 						for (j = 0; j < RES_SCALE(1); j++)
 						{	
-							DrawRectangle(&r, FALSE);
+							DrawRectangle (&r, FALSE);
 							++r.corner.x;
 							++r.corner.y;
 							r.extent.width -= 2;

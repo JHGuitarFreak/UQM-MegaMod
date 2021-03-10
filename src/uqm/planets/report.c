@@ -158,7 +158,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			while (UniChar_isGraph (getCharFromString (&pNextStr)))
 				pStr = pNextStr;
 
-			word_chars = utf8StringCountN (t.pStr, pStr);
+			word_chars = (COUNT)utf8StringCountN (t.pStr, pStr);
 			if ((col_cells += word_chars) <= NUM_CELL_COLS)
 			{
 				TimeCount TimeOut;

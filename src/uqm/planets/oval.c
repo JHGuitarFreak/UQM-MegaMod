@@ -143,7 +143,7 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 				prim[x].Object.Stamp.frame = SetAbsFrameIndex (SpaceJunkFrame, 29);
 			}
 			else
-				SetPrimType (&prim[x], !scaled ? POINT_PRIM : POINT_PRIM_HD); // Orbit dots
+				SetPrimType (&prim[x], POINT_PRIM); // Orbit dots
 			SetPrimColor (&prim[x], _get_context_fg_color ());
 
 			StartPrim = x;
