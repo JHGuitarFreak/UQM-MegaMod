@@ -605,12 +605,12 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 	if (fullRedraw)
 	{
 		// Draw the main frame
-		RescaledFrame = RES_BOOL(CommData.AlienFrame, CaptureDrawable(
-				RescalePercentage(CommData.AlienFrame, ScalingFactor)));
-		s.frame = RescaledFrame;
+		RescaledFrame = CaptureDrawable (
+				RescalePercentage (CommData.AlienFrame, ScalingFactor));
+		s.frame = RES_BOOL(CommData.AlienFrame, RescaledFrame);
 		DrawStamp (&s);
 
-		DestroyDrawable(ReleaseDrawable(RescaledFrame));
+		DestroyDrawable (ReleaseDrawable (RescaledFrame));
 		RescaledFrame = 0;
 
 		// Draw any static frames (has to be in reverse)
@@ -625,15 +625,14 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 			if (!(ADPtr->AnimFlags & COLORXFORM_ANIM))
 			{	// It's a static frame (e.g. Flagship picture at Starbase)
-				RescaledFrame = RES_BOOL (SetAbsFrameIndex (CommData.AlienFrame,
-						ADPtr->StartIndex), CaptureDrawable(RescalePercentage (
+				RescaledFrame = CaptureDrawable (RescalePercentage (
 						SetAbsFrameIndex (CommData.AlienFrame, ADPtr->StartIndex),
-						ScalingFactor)
-						));
-				s.frame = RescaledFrame;
+						ScalingFactor));
+				s.frame = RES_BOOL(SetAbsFrameIndex (CommData.AlienFrame,
+					ADPtr->StartIndex), RescaledFrame);
 				DrawStamp (&s);
 
-				DestroyDrawable(ReleaseDrawable(RescaledFrame));
+				DestroyDrawable (ReleaseDrawable (RescaledFrame));
 				RescaledFrame = 0;
 			}
 		}
@@ -654,12 +653,12 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 			if (!fullRedraw && !pSeq->Change)
 				continue;
 
-			RescaledFrame = RES_BOOL(SetAbsFrameIndex (CommData.AlienFrame,
-				ADPtr->StartIndex + pSeq->CurIndex), CaptureDrawable (
-					RescalePercentage(SetAbsFrameIndex(CommData.AlienFrame,
-						ADPtr->StartIndex + pSeq->CurIndex), ScalingFactor)
-					));
-			s.frame = RescaledFrame;
+			RescaledFrame = CaptureDrawable (
+					RescalePercentage (SetAbsFrameIndex (CommData.AlienFrame,
+						ADPtr->StartIndex + pSeq->CurIndex), ScalingFactor));
+					
+			s.frame = RES_BOOL(SetAbsFrameIndex (CommData.AlienFrame,
+				ADPtr->StartIndex + pSeq->CurIndex), RescaledFrame);
 			DrawStamp (&s);
 
 			DestroyDrawable (ReleaseDrawable (RescaledFrame));
