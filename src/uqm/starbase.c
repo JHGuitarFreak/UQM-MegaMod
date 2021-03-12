@@ -149,7 +149,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		Side.frame = SetAbsFrameIndex (ModuleFrame,
 				((NUM_MODULES - 1) + (6 - 2)) + (NUM_MODULES + 6)
 				- (RepairSlot + 1));
-			DrawStamp (&Side);
+		DrawStamp (&Side);
 	}
 	else if (RepairSlot)
 	{
@@ -160,10 +160,9 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		DrawFilledRectangle (&r);
 		r.corner.y += RES_SCALE(23 - 1);
 		DrawFilledRectangle (&r);
-		
+
 		r.extent.width = RES_SCALE(1);
 		r.extent.height = RES_SCALE(8);
-
 		if (RepairSlot == 2)
 		{
 			r.corner = Side.origin;
@@ -229,7 +228,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		DrawStamp (&Top);
 
 		Side.frame = SetRelFrameIndex (Top.frame, (NUM_MODULES - 1) + 6);
-			DrawStamp (&Side);
+		DrawStamp (&Side);
 
 		if (which_slot == 1 && which_piece == EMPTY_SLOT + 2)
 		{
@@ -258,7 +257,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			DrawStamp (&Top);
 
 			Side.frame = SetRelFrameIndex (Top.frame, (NUM_MODULES - 1) + 6);
-				DrawStamp (&Side);
+			DrawStamp (&Side);
 		}
 	}
 }

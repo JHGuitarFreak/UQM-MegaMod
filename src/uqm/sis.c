@@ -1633,16 +1633,14 @@ GetFTankCapacity (POINT *ppt)
 
 	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY);
 
-	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled);
+	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled) + IF_HD(42);
 	if (volume == FUEL_TANK_CAPACITY) 
 	{
-		//ppt->x += IF_HD(29);
-		ppt->y = RES_SCALE(27) - rowNr;// +IF_HD(25);
+		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(15);
 	} 
 	else 
 	{
-		//ppt->x += IF_HD(28);
-		ppt->y = RES_SCALE(30) - rowNr;// +IF_HD(42);
+		ppt->y = (RES_SCALE(30) - rowNr) + IF_HD(15);
 	}
 	
 	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY) /
