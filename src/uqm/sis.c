@@ -624,8 +624,8 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	if (!NewGame)
 		DrawBorder(12, FALSE);
 
-	t.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(2);
-	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - InStatusArea) - IF_HD(3);
+	t.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(InStatusArea + 1);
+	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE(InStatusArea));
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (optWhichFonts == OPT_PC)
@@ -1604,17 +1604,15 @@ GetFTankCapacity (POINT *ppt)
 	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled) + IF_HD(44);
 	if (volume == FUEL_TANK_CAPACITY) 
 	{
-		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(15);
+		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(1);
 	} 
 	else 
 	{
-		ppt->y = (RES_SCALE(30) - rowNr) + IF_HD(15);
+		ppt->y = (RES_SCALE(30) - rowNr) + IF_HD(1);
 	}
 	
 	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY) /
 		MAX_FUEL_BARS;
-
-	// printf("rowNr: %d\n", rowNr);
 
 	assert (rowNr + 1 < (COUNT) (sizeof fuelColors / sizeof fuelColors[0]));
 	SetContextForeGroundColor (fuelColors[rowNr]);

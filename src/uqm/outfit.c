@@ -148,8 +148,8 @@ RedistributeFuel (void)
 	GLOBAL_SIS (FuelOnBoard) = FuelVolume;
 }
 
-#define LANDER_X RES_SCALE(24) 
-#define LANDER_Y RES_SCALE(67) 
+#define LANDER_X RES_SCALE(24)
+#define LANDER_Y RES_SCALE(67)
 #define LANDER_WIDTH RES_SCALE(15) 
 
 static void
@@ -512,8 +512,8 @@ InitFlash:
 				{
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
-						pMS->flash_rect0.corner.x = LANDER_X - 1;
-						pMS->flash_rect0.corner.y = LANDER_Y - 1;
+						pMS->flash_rect0.corner.x = LANDER_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = LANDER_Y - RES_SCALE(1);
 						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); 
 						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2);
 
@@ -521,24 +521,24 @@ InitFlash:
 						break;
 					case FUSION_THRUSTER:
 					case EMPTY_SLOT + 0:
-						pMS->flash_rect0.corner.x = DRIVE_TOP_X - 1;
-						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - 1;
+						pMS->flash_rect0.corner.x = DRIVE_TOP_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - RES_SCALE(1);
 						pMS->flash_rect0.extent.width = RES_SCALE(8);
 						pMS->flash_rect0.extent.height = RES_SCALE(6);
 
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
-						pMS->flash_rect0.corner.x = JET_TOP_X - 1;
-						pMS->flash_rect0.corner.y = JET_TOP_Y - 1;
+						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = JET_TOP_Y - RES_SCALE(1);
 						pMS->flash_rect0.extent.width = RES_SCALE(9);
 						pMS->flash_rect0.extent.height = RES_SCALE(10);
 
 						break;
 					default:
-						pMS->flash_rect0.corner.x = MODULE_TOP_X - 1;
-						pMS->flash_rect0.corner.y = MODULE_TOP_Y - 1;
-						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + 2;
+						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE(1);
+						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2);
 						pMS->flash_rect0.extent.height = RES_SCALE(34);
 						break;
 				}
