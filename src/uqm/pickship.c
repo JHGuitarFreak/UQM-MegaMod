@@ -413,7 +413,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	TEXT t;
 	CONTEXT OldContext;
 	FRAME PickFrame;
-	// FRAME OldFontEffect;
+	FRAME OldFontEffect;
 
 	OldContext = SetContext (SpaceContext);
 
@@ -449,7 +449,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	s.origin = pick_r.corner;
 	DrawStamp (&s);
 
-	// OldFontEffect = SetContextFontEffect (NULL);
+	OldFontEffect = SetContextFontEffect (NULL);
 
 	t.baseline.x = pick_r.corner.x + (pick_r.extent.width >> 1);
 	t.baseline.y = pick_r.corner.y + pick_r.extent.height - RES_SCALE(5); 
@@ -459,11 +459,11 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 
 	// Code to make use of the PC version's font gradient
 	// Along with the FRAME "OldFontEffect"
-	/*if (optWhichFonts == OPT_PC)
+	if (optWhichFonts == OPT_PC)
 		SetContextFontEffect(SetAbsFrameIndex(FontGradFrame, 6));
 	else
 		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));*/
+				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));
 
 	SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));
@@ -471,7 +471,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	SetContextFont (StarConFont);
 	font_DrawText (&t);
 
-	// SetContextFontEffect (OldFontEffect);
+	SetContextFontEffect (OldFontEffect);
 
 	r.extent.width = ICON_WIDTH;
 	r.extent.height = ICON_HEIGHT;
