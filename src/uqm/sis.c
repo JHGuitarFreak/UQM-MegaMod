@@ -1008,24 +1008,7 @@ DrawThrusters (void)
 			DrawStamp (&s);
 		}
 
-		if (!IS_HD)
-			j = 3;
-		else
-		{
-			switch (i)
-			{
-				case 0:
-				case 3:
-				case 6:
-				case 11:
-					j = 10;
-					break;
-				default:
-					j = 11;
-					break;
-			}
-		}
-		s.origin.y -= j;
+		s.origin.y -= RES_SCALE(3) - IF_HD(1);
 	}
 }
 
@@ -1048,22 +1031,7 @@ DrawTurningJets (void)
 			DrawStamp (&s);
 		}
 
-		if (!IS_HD)
-			j = 3;
-		else
-		{
-			switch (i)
-			{
-			case 0:
-			case 3:
-				j = 10;
-				break;
-			default:
-				j = 11;
-				break;
-			}
-		}
-		s.origin.y -= j;
+		s.origin.y -= RES_SCALE(3) - IF_HD(1);
 	}
 }
 
