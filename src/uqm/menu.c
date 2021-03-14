@@ -91,7 +91,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 	// Gray rectangle behind PC menu
 	rt = *r;
-	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE(11);
+	rt.corner.y += PC_MENU_HEIGHT - (RES_SCALE(11) + 1);
 	DrawFilledRectangle(&rt);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
