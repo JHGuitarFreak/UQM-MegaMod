@@ -170,18 +170,22 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		{
 			r.corner = Side.origin;
 			r.corner.y += IF_HD(16);
-			DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(15);
-			DrawFilledRectangle (&r);
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
+				DrawFilledRectangle (&r);
+				r.corner.y += RES_SCALE(15);
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
+				DrawFilledRectangle (&r);
 		}
 		if (which_slot < (NUM_MODULE_SLOTS - 1))
 		{
 			r.corner = Side.origin;
 			r.corner.y += IF_HD(16);
 			r.corner.x += SHIP_PIECE_OFFSET;
-			DrawFilledRectangle (&r);
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
+				DrawFilledRectangle (&r);
 			r.corner.y += RES_SCALE(15);
-			DrawFilledRectangle (&r);
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
+				DrawFilledRectangle (&r);
 		}
 	}
 
