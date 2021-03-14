@@ -205,9 +205,11 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			r.corner = Top.origin;
 			r.extent.width = SHIP_PIECE_OFFSET;
 			r.extent.height = RES_SCALE(1);
-			DrawFilledRectangle (&r);
+			if (!IS_HD)
+				DrawFilledRectangle (&r);
 			r.corner.y += RES_SCALE(32 - 1);
-			DrawFilledRectangle (&r);
+			if (!IS_HD)
+				DrawFilledRectangle (&r);
 
 			r.extent.width = RES_SCALE(1);
 			r.extent.height = RES_SCALE(12);
