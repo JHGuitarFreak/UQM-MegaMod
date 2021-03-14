@@ -2002,10 +2002,11 @@ SeedUniverse (void)
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x00));
 		r.corner.x = 0;
-		DrawPoint (&r.corner);
+		r.extent.width = r.extent.height;
+		DrawFilledRectangle (&r);
 		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
 		r.corner.y = 0;
-		DrawPoint (&r.corner);
+		DrawFilledRectangle (&r);
 	}
 
 	UnbatchGraphics ();
