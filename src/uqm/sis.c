@@ -717,7 +717,7 @@ DrawFlagshipStats (void)
 	   fact that the leading is way more than is generally needed.
 	*/
 	leading -= RES_SCALE(3);
-	t.baseline.x = SIS_SCREEN_WIDTH / 6; //wild-assed guess, but it worked
+	t.baseline.x = RES_SCALE(RES_DESCALE(SIS_SCREEN_WIDTH) / 6); //wild-assed guess, but it worked
 	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
