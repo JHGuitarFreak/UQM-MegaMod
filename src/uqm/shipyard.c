@@ -217,13 +217,12 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
 	r.corner.x = s.origin.x - RES_SCALE(1);
-	r.corner.y = s.origin.y - RES_SCALE(11); 
+	r.corner.y = s.origin.y - RES_SCALE(11);
 	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
-	r.extent.height = RES_SCALE(11); 
+	r.extent.height = RES_SCALE(11);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
-	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	SetContextForeGroundColor (DKGRAY_COLOR);
 	DrawFilledRectangle (&r);
 	r.corner = s.origin;
 	r.extent.width = RADAR_WIDTH;

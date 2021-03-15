@@ -23,6 +23,7 @@
 #include "gameopt.h"
 #include "gamestr.h"
 #include "resinst.h"
+#include "menustat.h"
 #include "nameref.h"
 #include "settings.h"
 #include "starbase.h"
@@ -57,51 +58,49 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
-	s.origin.y = RADAR_Y - r.corner.y - 19 * RESOLUTION_FACTOR;
-	r.corner.x = s.origin.x - 1;
-	r.corner.y = s.origin.y - 11;
-	r.extent.width = RADAR_WIDTH + 2;
-	r.extent.height = 11 + 20 * RESOLUTION_FACTOR;
+	s.origin.y = RADAR_Y - r.corner.y;
+	r.corner.x = s.origin.x - RES_SCALE(1);
+	r.corner.y = s.origin.y - RES_SCALE(11);
+	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
+	r.extent.height = RES_SCALE(11);
 	BatchGraphics ();
-	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	ClearSISRect (CLEAR_SIS_RADAR);
+	SetContextForeGroundColor (DKGRAY_COLOR);
 	DrawFilledRectangle (&r);
-	DrawBorder(8, FALSE);
+	DrawBorder (8, FALSE);
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
-		r.corner.y += 19 * RESOLUTION_FACTOR; 
 		r.extent.width = RADAR_WIDTH;
 		r.extent.height = RADAR_HEIGHT;
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x00), 0x00));
+		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&r);
 	}
 	else if (pMS->CurFrame)
 	{
 		TEXT t;
 		UNICODE buf[40];
+
+		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
-		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2) - RESOLUTION_FACTOR;
+
+		// Print the module cost.
+		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
 		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
-		t.pStr = buf;
+		t.pStr = buf;		
 		sprintf (buf, "%u",
 				GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-
-		if ((GLOBAL_SIS (ResUnits)) > (DWORD)((GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE))) {
-			sprintf (buf, "%u", GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-			SetContextForeGroundColor (
-					BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0x02));
-		} else {
-			sprintf (buf, "(%u)", GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-			SetContextForeGroundColor (
-					BUILD_COLOR (MAKE_RGB15 (0x1F, 0x00, 0x00), 0x02));
-		}
-
 		SetContextFont (TinyFont);
+
+		if ((GLOBAL_SIS (ResUnits)) > (DWORD)((GLOBAL (ModuleCost[NewModule])
+				* MODULE_COST_SCALE))) 
+			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+		else
+			SetContextForeGroundColor (BRIGHT_RED_COLOR);
+
 		font_DrawText (&t);
 	}
 	UnbatchGraphics ();
