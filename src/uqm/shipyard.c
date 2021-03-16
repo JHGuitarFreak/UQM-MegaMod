@@ -575,7 +575,7 @@ DMS_FlashFlagShip (void)
 {
 	RECT r;
 	r.corner.x = 0;
-	r.corner.y = 0;
+	r.corner.y = IF_HD(20);
 	r.extent.width = SIS_SCREEN_WIDTH;
 	r.extent.height = RES_SCALE(61); 
 	SetFlashRect (&r);
