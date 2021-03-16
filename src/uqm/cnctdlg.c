@@ -243,10 +243,10 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		//   are not what they should be.
 #define BOX_VERT_OFFSET 2
 		GetContextFontLeading (&leading);
-		r.corner.x = t.baseline.x - 1;
+		r.corner.x = t.baseline.x - RES_SCALE(1);
 		r.corner.y = t.baseline.y - leading + BOX_VERT_OFFSET;
-		r.extent.width = MCD_WIDTH - r.corner.x - 10;
-		r.extent.height = leading + 2;
+		r.extent.width = MCD_WIDTH - r.corner.x - RES_SCALE(10);
+		r.extent.height = leading + RES_SCALE(2);
 
 		TextRect (&t, &text_r, char_deltas);
 #if 0
@@ -268,30 +268,30 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		for (i = self->cursor_pos; i > 0; --i)
 			r.corner.x += (SIZE)*pchar_deltas++;
 		if (self->cursor_pos < t.CharCount) /* cursor mid-line */
-			--r.corner.x;
+			r.corner.x -= RES_SCALE(1);
 		if (self->state & WTE_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (self->cursor_pos == t.CharCount)
 			{	// cursor at end-line -- use insertion point
-				r.extent.width = 1;
+				r.extent.width = RES_SCALE(1);
 			}
 			else if (self->cursor_pos + 1 == t.CharCount)
 			{	// extra pixel for last char margin
-				r.extent.width = (SIZE)*pchar_deltas + 2;
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 			}
 			else
 			{	// normal mid-line char
-				r.extent.width = (SIZE)*pchar_deltas + 1;
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			r.extent.width = 1;
+			r.extent.width = RES_SCALE(1);
 		}
 		// position cursor within input field rect
-		++r.corner.x;
-		++r.corner.y;
-		r.extent.height -= 2;
+		r.corner.x += RES_SCALE(1);
+		r.corner.y += RES_SCALE(1);
+		r.extent.height -= RES_SCALE(2);
 		SetContextForeGroundColor (MENU_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 
