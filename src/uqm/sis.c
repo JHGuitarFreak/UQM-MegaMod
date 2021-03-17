@@ -736,7 +736,7 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 3); // "tail:"
 	font_DrawText (&t);
 
-	t.baseline.x += RES_SCALE(5);
+	t.baseline.x += RES_SCALE(5) - IF_HD(3);
 	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
@@ -745,16 +745,16 @@ DrawFlagshipStats (void)
 			describeWeapon (GLOBAL_SIS (ModuleSlots[15])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf,
-			"%-7.7s", describeWeapon (GLOBAL_SIS (ModuleSlots[14])));
+	snprintf (buf, sizeof buf, "%-7.7s",
+			describeWeapon (GLOBAL_SIS (ModuleSlots[14])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf,
-			"%-7.7s", describeWeapon (GLOBAL_SIS (ModuleSlots[13])));
+	snprintf (buf, sizeof buf, "%-7.7s",
+			describeWeapon (GLOBAL_SIS (ModuleSlots[13])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf,
-			"%-7.7s", describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
+	snprintf (buf, sizeof buf, "%-7.7s",
+			describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
 	font_DrawText (&t);
 
 	t.baseline.x = r.extent.width - RES_SCALE(25);
