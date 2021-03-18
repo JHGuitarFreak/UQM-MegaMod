@@ -661,6 +661,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					break;
 				case 8: /* moon of Pluto: Charon */
 					LoadPlanet (CaptureDrawable (LoadGraphic (CHARON_MASK_ANIM)));
+					break;
 				default:
 					LoadPlanet (NULL);
 					break;
