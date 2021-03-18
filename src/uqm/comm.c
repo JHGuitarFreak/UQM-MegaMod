@@ -1408,9 +1408,6 @@ HailAlien (void)
 	CommData.ConversationPhrases = CaptureStringTable (
 			LoadStringTable (CommData.ConversationPhrasesRes));
 
-	if (CommData.AlienTextBaseline.y == 0)
-		CommData.AlienTextBaseline.y = IF_HD(18);
-
 	SubtitleText.baseline = CommData.AlienTextBaseline;
 	SubtitleText.align = CommData.AlienTextAlign;
 
