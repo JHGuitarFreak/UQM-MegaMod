@@ -207,12 +207,35 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode == DRAW_ORBITAL_WAIT)
 	{
-		STAMP s;
+		STAMP s, ss;
+		BOOLEAN never = FALSE;
 
 		SetContext (GetScanContext (NULL));
-		s.frame = CaptureDrawable (LoadGraphic (ORBENTER_PMAP_ANIM));
+
 		s.origin.x = 0;
 		s.origin.y = 0;
+		s.frame = SetAbsFrameIndex (CaptureDrawable
+				(LoadGraphic (ORBENTER_PMAP_ANIM)), never);
+
+		if (never)
+		{
+			PLANET_DESC *pPlanetDesc;
+			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit; 
+			int PlanetScale = RES_BOOL(319, 512);
+			int PlanetRescale = 1275;
+
+			pPlanetDesc = pSolarSysState->pOrbitalDesc;
+			GeneratePlanetSurface (pPlanetDesc, NULL, PlanetScale, PlanetScale);
+			ss.origin.x = SIS_SCREEN_WIDTH / 2;
+			ss.origin.y = RES_SCALE(191);
+			
+			ss.frame = RES_BOOL(Orbit->SphereFrame, CaptureDrawable (
+					RescaleFrame (Orbit->SphereFrame, PlanetRescale, PlanetRescale)));
+
+			DrawStamp (&ss);
+			DestroyDrawable (ReleaseDrawable (ss.frame));
+		}
+
 		DrawStamp (&s);
 		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
