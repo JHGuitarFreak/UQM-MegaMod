@@ -1386,7 +1386,12 @@ HailAlien (void)
 	TalkingFinished = FALSE;
 
 	ES.InputFunc = DoCommunication;
-	PlayerFont = LoadFont (PLAYER_FONT);
+
+	if (optWhichFonts == OPT_PC)
+		PlayerFont = LoadFont (PLAYER_FONT);
+	else
+		PlayerFont = LoadFont (TINY_FONT_BOLD);
+
 	ComputerFont = LoadFont (COMPUTER_FONT);
 
 	CommData.AlienFrame = CaptureDrawable (
