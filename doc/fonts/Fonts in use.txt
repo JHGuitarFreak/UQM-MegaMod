@@ -41,6 +41,7 @@ Syreen             = Oleo Script Swash Caps    - OFL-1.1 License         -> http
 Talking Pet        = Dinova Black              - Freeware (No License)   -> http://www.typografski.de/pages/fonts_dinova.html
 Thraddash          = Oxanium Extra Bold        - OFL-1.1 License         -> https://github.com/sevmeyer/oxanium
 "Tiny" Font        = UQM Tiny Regular          - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
+"Tiny" Font Bold   = UQM Tiny Bold             - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 Title Screen       = Federation Hull           - Unknown                 -> https://www.ffonts.net/FederationHull.font
 Umgah              = Obloquy Solid [BRK]       - Freeware (No License)   -> https://www.ffonts.net/Obloquy-Solid-BRK.font
 Ur-Quan            = Basalt                    - CC0 1.0 Universal       -> https://fontstruct.com/fontstructions/show/1551502/basalt
