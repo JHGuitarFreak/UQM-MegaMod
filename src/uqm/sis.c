@@ -147,6 +147,9 @@ DrawSISTitle (UNICODE *pStr)
 	SetContextClipRect (&r);
 	SetContextFont (TinyFont);
 
+	if (optWhichFonts != OPT_PC)
+		SetContextFont (TinyFontBold);
+
 	BatchGraphics ();
 
 	// Background color
@@ -291,6 +294,9 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 	SetContextFont (TinyFont);
+
+	if (optWhichFonts != OPT_PC)
+		SetContextFont(TinyFontBold);
 
 	if (flags & DSME_CLEARFR)
 		SetFlashRect (NULL);
@@ -511,6 +517,10 @@ DrawStatusMessage (const UNICODE *pStr)
 	}
 
 	SetContextFont (TinyFont);
+
+	if (optWhichFonts != OPT_PC)
+		SetContextFont(TinyFontBold);
+
 	SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	font_DrawText (&t);
 	UnbatchGraphics ();
@@ -539,6 +549,10 @@ DrawCaptainsName (bool NewGame)
 
 	OldContext = SetContext (StatusContext);
 	OldFont = SetContextFont (TinyFont);
+
+	if (optWhichFonts != OPT_PC)
+		OldFont = SetContextFont (TinyFontBold);
+
 	OldColor = SetContextForeGroundColor (CAPTAIN_NAME_BACKGROUND_COLOR);
 
 	r.corner.x = RES_SCALE(2 + 1);
@@ -1180,6 +1194,9 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 
 
 		GetGaugeRect (&r, FALSE);
+
+		if (optWholeFuel && optWhichFonts != OPT_PC)
+			SetContextFont (TinyFont);
 		
 		t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3 - (optWholeFuel * 2));
 		t.baseline.y = r.corner.y + r.extent.height;
@@ -1196,6 +1213,9 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x13, 0x00, 0x00), 0x2C));
 		font_DrawText (&t);
+
+		if (optWholeFuel && optWhichFonts != OPT_PC)
+			SetContextFont(TinyFontBold);
 	}
 }
 	
@@ -1261,6 +1281,9 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	}
 
 	SetContextFont (TinyFont);
+
+	if (optWhichFonts != OPT_PC)
+		SetContextFont (TinyFontBold);
 
 	DeltaSISGauges_crewDelta (crew_delta);
 	DeltaSISGauges_fuelDelta (fuel_delta);
