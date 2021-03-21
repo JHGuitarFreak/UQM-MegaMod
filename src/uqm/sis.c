@@ -993,7 +993,7 @@ static void
 DrawThrusters (void)
 {
 	STAMP s;
-	COUNT i, j;
+	COUNT i;
 
 	s.origin.x = RES_SCALE(1);
 	s.origin.y = 0;
@@ -1016,7 +1016,7 @@ static void
 DrawTurningJets (void)
 {
 	STAMP s;
-	COUNT i, j;
+	COUNT i;
 
 	s.origin.x = RES_SCALE(1);
 	s.origin.y = 0;
@@ -1181,7 +1181,7 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 
 		GetGaugeRect (&r, FALSE);
 		
-		t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3);
+		t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3 - (optWholeFuel * 2));
 		t.baseline.y = r.corner.y + r.extent.height;
 		t.align = ALIGN_CENTER;
 		t.pStr = buf;
@@ -1574,7 +1574,7 @@ GetFTankCapacity (POINT *ppt)
 	COUNT slotNr;
 	DWORD compartmentNr;
 	BYTE moduleType;
-	DWORD volume, volumehelper;
+	DWORD volume;
 
 	DWORD rowNr;
 	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
