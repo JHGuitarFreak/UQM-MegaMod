@@ -232,6 +232,7 @@ while (--ac > 0)
 		comingFromInit = TRUE;
 	}
 
+	updateDiscordPresence("Loading it up...", "", "kohr-ah", "dnyarri", TRUE);
 	SplashScreen (BackgroundInitKernel);
 
 #ifdef DEBUG
@@ -341,6 +342,7 @@ while (--ac > 0)
 			{
 				// Entering HyperSpace or QuasiSpace.
 				GLOBAL (CurrentActivity) = MAKE_WORD (IN_HYPERSPACE, 0);
+				updateDiscordPresence ("In HyperSpace", "", "hyperspace", "hs-sis");
 
 				DrawAutoPilotMessage (TRUE);
 				SetGameClockRate (HYPERSPACE_CLOCK_RATE);
