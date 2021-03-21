@@ -1408,7 +1408,7 @@ HailAlien (void)
 		IsAltSong = TRUE;
 	}
 	else
-		CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
+		CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 
 	CommData.ConversationPhrases = CaptureStringTable (
 			LoadStringTable (CommData.ConversationPhrasesRes));
