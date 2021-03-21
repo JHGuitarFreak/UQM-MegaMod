@@ -74,7 +74,7 @@ enum HyperMenuItems
  * so you can see who's chasing you.
  */
 static void
-decorate_vortex(ELEMENT * ElementPtr)
+decorate_vortex (ELEMENT * ElementPtr)
 {
 	HENCOUNTER hEncounter, hNextEncounter;
 	FRAME f = NULL;
@@ -252,11 +252,9 @@ MoveSIS (SDWORD *pdx, SDWORD *pdy)
 
 		if (cur_fuel_ticks > (COUNT)fuel_ticks)
 		{
-#ifndef TESTING
 			if (!optInfiniteFuel)
 				DeltaSISGauges (0, fuel_ticks - cur_fuel_ticks, 0);
-			
-#endif /* TESTING */
+
 			if (cur_fuel_ticks > 0x00FF)
 			{
 				hyper_dx = 0;
@@ -728,7 +726,7 @@ unhyper_transition (ELEMENT *ElementPtr)
 
 	// JMS: If leaving interplanetary on autopilot, always arrive HS with
 	// the ship's nose pointed into correct direction.
-	if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0)
+	if (optHSDirectionFacing && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
 	{
 		STARSHIP *StarShipPtr;
 		POINT universe;
@@ -840,10 +838,10 @@ hyper_transition (ELEMENT *ElementPtr)
 	else
 	{
 		COUNT frame_index;
-		
+
 		// JMS: If leaving interplanetary on autopilot, always arrive HS with
 		// the ship's nose pointed into correct direction.
-		if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0)
+		if (optHSDirectionFacing && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
 		{
 			STARSHIP *StarShipPtr;
 			POINT universe;

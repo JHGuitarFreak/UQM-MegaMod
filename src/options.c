@@ -99,6 +99,7 @@ BOOLEAN optShipDirectionIP;
 BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
 int optControllerType;
+BOOLEAN optHSDirectionFacing;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
