@@ -168,6 +168,7 @@ Victory (void)
 
 	/* by default we do 3DO cinematics; or PC slides when 3DO files are
 	 * not present */
+	updateDiscordPresence ("Victory!", "You have defeated the Ur-Quan!", "", "", TRUE);
 	ShowPresentation (FINALPRES_STRTAB);
 		
 	FadeScreen (FadeAllToBlack, 0);
@@ -176,6 +177,8 @@ Victory (void)
 void
 GameOver (BYTE DeathType) 
 {
+	updateDiscordPresence ("You died.", "Better luck next time.", "", "", TRUE);
+
 	if (DeathType != SUICIDE)
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 

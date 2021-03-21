@@ -42,6 +42,10 @@
 			/* for dirname() */
 #endif
 
+#include <discord_register.h>
+#include <discord_rpc.h>
+#pragma comment(lib, "discord-rpc.lib")
+
 
 int optWhichCoarseScan;
 int optWhichMenu;
@@ -690,4 +694,54 @@ setGammaCorrection (float gamma)
 	else
 		log_add (log_Warning, "Unable to set gamma correction.");
 	return set;
+}
+
+// Discord RPC
+
+static const char* APPLICATION_ID = "817075322402373673";
+
+void
+updateDiscordPresence (char* state, char* details, char* largeImage, char* smallImage)
+{
+	Discord_ClearPresence();
+	DiscordRichPresence discordPresence;
+	memset(&discordPresence, 0, sizeof(discordPresence));
+	discordPresence.state = state;
+	discordPresence.details = details;
+	discordPresence.largeImageKey = largeImage;
+	discordPresence.smallImageKey = smallImage;
+	discordPresence.instance = 0;
+	Discord_UpdatePresence(&discordPresence);
+}
+
+static void handleDiscordReady(const DiscordUser* connectedUser)
+{
+	printf("\nDiscord: connected to user %s#%s - %s\n",
+		connectedUser->username,
+		connectedUser->discriminator,
+		connectedUser->userId);
+}
+
+static void handleDiscordDisconnected(int errcode, const char* message)
+{
+	printf("\nDiscord: disconnected (%d: %s)\n", errcode, message);
+}
+
+static void handleDiscordError(int errcode, const char* message)
+{
+	printf("\nDiscord: error (%d: %s)\n", errcode, message);
+}
+
+void 
+discordInit (void)
+{
+	DiscordEventHandlers handlers;
+	memset(&handlers, 0, sizeof(handlers));
+	handlers.ready = handleDiscordReady;
+	handlers.disconnected = handleDiscordDisconnected;
+	handlers.errored = handleDiscordError;
+	//handlers.joinGame = handleDiscordJoin;
+	//handlers.spectateGame = handleDiscordSpectate;
+	//handlers.joinRequest = handleDiscordJoinRequest;
+	Discord_Initialize(APPLICATION_ID, &handlers, 1, NULL);
 }

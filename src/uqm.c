@@ -635,6 +635,8 @@ main (int argc, char *argv[])
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
 	TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 
+	discordInit();
+
 	StartThread (Starcon2Main, NULL, 1024, "Starcon2Main");
 
 	for (i = 0; i < 2000 && !MainExited; )
