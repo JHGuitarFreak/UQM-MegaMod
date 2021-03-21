@@ -1388,9 +1388,9 @@ HailAlien (void)
 	ES.InputFunc = DoCommunication;
 
 	if (optWhichFonts == OPT_PC)
-		PlayerFont = PlyrFont;
+		PlayerFont = LoadFont (PLAYER_FONT);
 	else
-		PlayerFont = TinyFontBold;
+		PlayerFont = LoadFont (TINY_FONT_HD);
 
 	ComputerFont = LoadFont (COMPUTER_FONT);
 

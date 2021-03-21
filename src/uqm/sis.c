@@ -147,8 +147,8 @@ DrawSISTitle (UNICODE *pStr)
 	SetContextClipRect (&r);
 	SetContextFont (TinyFont);
 
-	if (optWhichFonts != OPT_PC)
-		SetContextFont (TinyFontBold);
+	/*if (optWhichFonts != OPT_PC)
+		SetContextFont (TinyFontBold);*/
 
 	BatchGraphics ();
 
@@ -284,8 +284,10 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 							// "QuasiSpace"
 
 					if (GET_GAME_STATE (ARILOU_HOME_VISITS) && (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y))
+					{
 						utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)), GAME_STRING(STAR_STRING_BASE + 148));
 							// "Falayalaralfali"
+					}
 				}
 				break;
 

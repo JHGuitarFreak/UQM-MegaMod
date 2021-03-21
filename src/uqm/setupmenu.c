@@ -1959,9 +1959,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("config.reswidth", NewWidth);
 	res_PutInteger ("config.resheight", NewHeight);
 	res_PutBoolean ("config.alwaysgl", opts->driver == OPTVAL_ALWAYS_GL);
-	res_PutBoolean ("config.usegl", NewDriver == TFB_GFXDRIVER_SDL_OPENGL);	
-	
-	
+	res_PutBoolean ("config.usegl", NewDriver == TFB_GFXDRIVER_SDL_OPENGL);
+
 	res_PutInteger ("config.resolutionfactor", resolutionFactor);
 	res_PutInteger ("config.loresBlowupScale", opts->loresBlowup);
 
