@@ -42,10 +42,6 @@
 			/* for dirname() */
 #endif
 
-#include <discord_register.h>
-#include <discord_rpc.h>
-#pragma comment(lib, "discord-rpc.lib")
-
 
 int optWhichCoarseScan;
 int optWhichMenu;

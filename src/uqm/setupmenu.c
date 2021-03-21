@@ -1940,6 +1940,14 @@ SetGlobalOptions (GLOBALOPTS *opts)
  		optRequiresReload = TRUE;
 	}
 
+	if (opts->discordRPC != (optDiscordRPC ? OPTVAL_ENABLED : OPTVAL_DISABLED))
+	{
+		if (opts->discordRPC)
+			discordInit ();
+		else
+			Discord_Shutdown ();
+	}
+
 	// MB: To force the game to restart when changing resolution options (otherwise they will not be changed)
 	if(oldResFactor != resolutionFactor ||
 		audioDriver != opts->adriver ||

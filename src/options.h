@@ -136,6 +136,11 @@ int loadIndices (uio_DirHandle *baseDir);
 bool setGammaCorrection (float gamma);
 
 // Discord RPC
+
+#include <discord_register.h>
+#include <discord_rpc.h>
+#pragma comment(lib, "discord-rpc.lib")
+
 extern void discordInit (void); 
 extern void updateDiscordPresence (char* state, char* details, char* largeImage, char* smallImage);
 

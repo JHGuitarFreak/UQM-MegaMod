@@ -697,6 +697,8 @@ main (int argc, char *argv[])
 		uninitIO ();
 		UnInitThreadSystem ();
 		mem_uninit ();
+
+		Discord_Shutdown ();
 	}
 
 	HFree (options.addons);
