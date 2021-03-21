@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       60
+#define CHOICE_COUNT       62
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         5
@@ -99,12 +99,13 @@ typedef int (*HANDLER)(WIDGET *, int);
 // Each number corresponds to a choice widget in order starting from choices[0]
 // The value determines how many columns the choice has.
 static int choice_widths[CHOICE_COUNT] = {
-	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 0-9
-	2, 2, 2, 2, 2, 3, 3, 2,	3, 3,	// 10-19
-	3, 2, 2, 2, 2, 3, 3, 2, 2, 2,	// 20-29
-	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,	// 30-39
-	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,	// 40-49
-	3, 2, 2, 3, 2, 2, 2, 2, 2, 3 };	// 50-59
+	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 0-9
+	2, 2, 2, 2, 2, 3, 3, 2, 3, 3,   // 10-19
+	3, 2, 2, 2, 2, 3, 3, 2, 2, 2,   // 20-29
+	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
+	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
+	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
+	2, 2 };                         // 60-61
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -114,138 +115,140 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
-	(WIDGET *)(&buttons[2]),	// Graphics
-	(WIDGET *)(&buttons[3]),	// PC/3DO 
-	(WIDGET *)(&buttons[11]),	// Visuals
-	(WIDGET *)(&buttons[4]),	// Sound
-	(WIDGET *)(&buttons[10]),	// Music
-	(WIDGET *)(&buttons[6]),	// Controls
-	(WIDGET *)(&buttons[7]),	// Advanced
-	(WIDGET *)(&buttons[5]),	// Cheats
-	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&buttons[0]),	// Quit Setup Menu
+	(WIDGET *)(&buttons[2]),    // Graphics
+	(WIDGET *)(&buttons[3]),    // PC/3DO 
+	(WIDGET *)(&buttons[11]),   // Visuals
+	(WIDGET *)(&buttons[4]),    // Sound
+	(WIDGET *)(&buttons[10]),   // Music
+	(WIDGET *)(&buttons[6]),    // Controls
+	(WIDGET *)(&buttons[7]),    // Advanced
+	(WIDGET *)(&buttons[5]),    // Cheats
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[0]),    // Quit Setup Menu
 	NULL };
 
 static WIDGET *graphics_widgets[] = {
-	(WIDGET *)(&choices[0]),	// Resolution
-	(WIDGET *)(&choices[42]),	// Scale GFX
+	(WIDGET *)(&choices[0]),    // Resolution
+	(WIDGET *)(&choices[42]),   // Scale GFX
 #if	SDL_MAJOR_VERSION == 1
 #if defined (HAVE_OPENGL)
-	(WIDGET *)(&choices[1]),	// Use Framebuffer
+	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
 #endif
-	(WIDGET *)(&choices[23]),	// Aspect Ratio
-	(WIDGET *)(&choices[10]),	// Display
+	(WIDGET *)(&choices[23]),   // Aspect Ratio
+	(WIDGET *)(&choices[10]),   // Display
 #if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
-	(WIDGET *)(&sliders[3]),	// Gamma Correction
+	(WIDGET *)(&sliders[3]),    // Gamma Correction
 #endif
-	(WIDGET *)(&choices[2]),	// Scaler
-	(WIDGET *)(&choices[3]),	// Scanlines	
-	(WIDGET *)(&choices[12]),	// Show FPS
+	(WIDGET *)(&choices[2]),    // Scaler
+	(WIDGET *)(&choices[3]),    // Scanlines	
+	(WIDGET *)(&choices[12]),   // Show FPS
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *engine_widgets[] = {
-	(WIDGET *)(&choices[4]),	// Menu Style
-	(WIDGET *)(&choices[5]),	// Font Style
-	(WIDGET *)(&choices[6]),	// Scan Style
-	(WIDGET *)(&choices[7]),	// Scroll Style
-	(WIDGET *)(&choices[22]),	// Speech
-	(WIDGET *)(&choices[8]),	// Subtitles
+	(WIDGET *)(&choices[4]),    // Menu Style
+	(WIDGET *)(&choices[5]),    // Font Style
+	(WIDGET *)(&choices[6]),    // Scan Style
+	(WIDGET *)(&choices[7]),    // Scroll Style
+	(WIDGET *)(&choices[22]),   // Speech
+	(WIDGET *)(&choices[8]),    // Subtitles
 #if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[50]),	// Android: Melee Zoom
+	(WIDGET *)(&choices[50]),   // Android: Melee Zoom
 #else
-	(WIDGET *)(&choices[13]),	// Melee Zoom
+	(WIDGET *)(&choices[13]),   // Melee Zoom
 #endif
-	(WIDGET *)(&choices[11]),	// Cutscenes
-	(WIDGET *)(&choices[17]),	// Slave Shields
-	(WIDGET *)(&choices[52]),	// IP Transitions
-	(WIDGET *)(&choices[51]),	// Lander Hold Size
+	(WIDGET *)(&choices[11]),   // Cutscenes
+	(WIDGET *)(&choices[17]),   // Slave Shields
+	(WIDGET *)(&choices[52]),   // IP Transitions
+	(WIDGET *)(&choices[51]),   // Lander Hold Size
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *audio_widgets[] = {
-	(WIDGET *)(&sliders[0]),	// Music Volume
-	(WIDGET *)(&sliders[1]),	// SFX Volume
-	(WIDGET *)(&sliders[2]),	// Speech Volume
-	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&choices[14]),	// Positional Audio
-	(WIDGET *)(&choices[15]),	// Sound Driver
-	(WIDGET *)(&choices[16]),	// Sound Quality
-	(WIDGET *)(&labels[4]),		// Spacer
+	(WIDGET *)(&sliders[0]),    // Music Volume
+	(WIDGET *)(&sliders[1]),    // SFX Volume
+	(WIDGET *)(&sliders[2]),    // Speech Volume
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&choices[14]),   // Positional Audio
+	(WIDGET *)(&choices[15]),   // Sound Driver
+	(WIDGET *)(&choices[16]),   // Sound Quality
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *music_widgets[] = {
-	(WIDGET *)(&choices[9]),	// 3DO Remixes
-	(WIDGET *)(&choices[21]),	// Precursor's Remixes
-	(WIDGET *)(&choices[47]),	// Volasaurus' Remix Pack
-	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&choices[46]),	// Volasaurus' Space Music
-	(WIDGET *)(&choices[34]),	// Main Menu Music
-	(WIDGET *)(&labels[4]),		// Spacer
+	(WIDGET *)(&choices[9]),    // 3DO Remixes
+	(WIDGET *)(&choices[21]),   // Precursor's Remixes
+	(WIDGET *)(&choices[47]),   // Volasaurus' Remix Pack
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&choices[46]),   // Volasaurus' Space Music
+	(WIDGET *)(&choices[34]),   // Main Menu Music
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
-	(WIDGET *)(&choices[24]),	// JMS: cheatMode on/off
-	(WIDGET *)(&choices[25]),	// Precursor Mode
-	(WIDGET *)(&choices[26]),	// Time Dilation
-	(WIDGET *)(&choices[27]),	// Bubble Warp
-	(WIDGET *)(&choices[28]),	// Unlock Ships
-	(WIDGET *)(&choices[29]),	// Head Start
-	(WIDGET *)(&choices[30]),	// Unlock Upgrades
-	(WIDGET *)(&choices[31]),	// Infinite RU
-	(WIDGET *)(&choices[39]),	// Infinite Fuel
-	(WIDGET *)(&choices[43]),	// Add Devices
-	(WIDGET *)(&buttons[1]),	// Exit to Menu
+	(WIDGET *)(&choices[24]),   // JMS: cheatMode on/off
+	(WIDGET *)(&choices[25]),   // Precursor Mode
+	(WIDGET *)(&choices[26]),   // Time Dilation
+	(WIDGET *)(&choices[27]),   // Bubble Warp
+	(WIDGET *)(&choices[28]),   // Unlock Ships
+	(WIDGET *)(&choices[29]),   // Head Start
+	(WIDGET *)(&choices[30]),   // Unlock Upgrades
+	(WIDGET *)(&choices[31]),   // Infinite RU
+	(WIDGET *)(&choices[39]),   // Infinite Fuel
+	(WIDGET *)(&choices[43]),   // Add Devices
+	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	(WIDGET *)(&choices[59]),	// Control Display
+	(WIDGET *)(&choices[59]),   // Control Display
 #endif
-	(WIDGET *)(&choices[18]),	// Bottom Player
-	(WIDGET *)(&choices[19]),	// Top Player
+	(WIDGET *)(&choices[18]),   // Bottom Player
+	(WIDGET *)(&choices[19]),   // Top Player
 #if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[49]),	// Directional Joystick toggle
+	(WIDGET *)(&choices[49]),   // Directional Joystick toggle
 #endif
-	(WIDGET *)(&labels[4]),		// Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[1]),
-	(WIDGET *)(&buttons[8]),	// Edit Controls
-	(WIDGET *)(&labels[4]),		// Spacer
+	(WIDGET *)(&buttons[8]),    // Edit Controls
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *advanced_widgets[] = {
-	(WIDGET *)(&choices[53]),	// Difficulty
-	(WIDGET *)(&choices[54]),	// Extended features
-	(WIDGET *)(&choices[55]),	// Nomad Mode
+	(WIDGET *)(&choices[53]),   // Difficulty
+	(WIDGET *)(&choices[54]),   // Extended features
+	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
-	(WIDGET *)(&labels[4]),		// Spacer
-	(WIDGET *)(&choices[32]),	// Skip Intro
-	(WIDGET *)(&choices[40]),	// Partial Pickup switch
-	(WIDGET *)(&choices[56]),	// Game Over switch
-	(WIDGET *)(&choices[41]),	// Submenu switch
-	(WIDGET *)(&buttons[1]),	
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&choices[32]),   // Skip Intro
+	(WIDGET *)(&choices[40]),   // Partial Pickup switch
+	(WIDGET *)(&choices[56]),   // Game Over switch
+	(WIDGET *)(&choices[41]),   // Submenu switch
+	(WIDGET *)(&choices[60]),   // SIS Facing HyperSpace
+	(WIDGET *)(&choices[61]),   // Discord RPC
+	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *visual_widgets[] = {
-	(WIDGET *)(&choices[35]),	// IP nebulae on/off
-	(WIDGET *)(&choices[36]),	// orbitingPlanets on/off
-	(WIDGET *)(&choices[37]),	// texturedPlanets on/off
-	(WIDGET *)(&choices[44]),	// Hazard Colors
-	(WIDGET *)(&choices[38]),	// Switch date formats
-	(WIDGET *)(&choices[45]),	// Custom Border switch
-	(WIDGET *)(&choices[48]),	// Whole Fuel Value switch
-	(WIDGET *)(&choices[33]),	// Fuel Range
-	(WIDGET *)(&choices[57]),	// NPC Ship Direction in IP
-	(WIDGET *)(&choices[58]),	// Alternate Orz font
+	(WIDGET *)(&choices[35]),   // IP nebulae on/off
+	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
+	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
+	(WIDGET *)(&choices[44]),   // Hazard Colors
+	(WIDGET *)(&choices[38]),   // Switch date formats
+	(WIDGET *)(&choices[45]),   // Custom Border switch
+	(WIDGET *)(&choices[48]),   // Whole Fuel Value switch
+	(WIDGET *)(&choices[33]),   // Fuel Range
+	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
+	(WIDGET *)(&choices[58]),   // Alternate Orz font
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
-	(WIDGET *)(&labels[4]),		// Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[20]),
 	(WIDGET *)(&labels[2]),
 	(WIDGET *)(&textentries[0]),
@@ -598,6 +601,8 @@ SetDefaults (void)
 	choices[57].selected = opts.shipDirectionIP;
 	choices[58].selected = opts.orzCompFont;
 	choices[59].selected = opts.controllerType;
+	choices[60].selected = opts.shipFacingHS;
+	choices[61].selected = opts.discordRPC;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -672,6 +677,8 @@ PropagateResults (void)
 	opts.shipDirectionIP = choices[57].selected;
 	opts.orzCompFont = choices[58].selected;
 	opts.controllerType = choices[59].selected;
+	opts.shipFacingHS = choices[60].selected;
+	opts.discordRPC = choices[61].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1613,6 +1620,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->hazardColors = optHazardColors ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->controllerType = res_GetInteger ("mm.controllerType");
+	opts->shipFacingHS = optShipFacingHS ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->discordRPC = optDiscordRPC ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2073,6 +2082,12 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 	res_PutInteger ("mm.controllerType", opts->controllerType);
+
+	res_PutBoolean ("mm.shipFacingHS", opts->shipFacingHS == OPTVAL_ENABLED);
+	optShipFacingHS = (opts->shipFacingHS == OPTVAL_ENABLED);
+
+	res_PutBoolean ("mm.discordRPC", opts->discordRPC == OPTVAL_ENABLED);
+	optDiscordRPC = (opts->discordRPC == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

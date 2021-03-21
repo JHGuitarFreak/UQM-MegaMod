@@ -103,7 +103,8 @@ BOOLEAN optShipDirectionIP;
 BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
 int optControllerType;
-BOOLEAN optHSDirectionFacing;
+BOOLEAN optShipFacingHS;
+BOOLEAN optDiscordRPC;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
@@ -703,15 +704,18 @@ static const char* APPLICATION_ID = "817075322402373673";
 void
 updateDiscordPresence (char* state, char* details, char* largeImage, char* smallImage)
 {
-	Discord_ClearPresence();
-	DiscordRichPresence discordPresence;
-	memset(&discordPresence, 0, sizeof(discordPresence));
-	discordPresence.state = state;
-	discordPresence.details = details;
-	discordPresence.largeImageKey = largeImage;
-	discordPresence.smallImageKey = smallImage;
-	discordPresence.instance = 0;
-	Discord_UpdatePresence(&discordPresence);
+	if (optDiscordRPC)
+	{
+		Discord_ClearPresence ();
+		DiscordRichPresence discordPresence;
+		memset (&discordPresence, 0, sizeof (discordPresence));
+		discordPresence.state = state;
+		discordPresence.details = details;
+		discordPresence.largeImageKey = largeImage;
+		discordPresence.smallImageKey = smallImage;
+		discordPresence.instance = 0;
+		Discord_UpdatePresence (&discordPresence);
+	}
 }
 
 static void handleDiscordReady(const DiscordUser* connectedUser)

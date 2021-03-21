@@ -88,7 +88,8 @@ extern BOOLEAN optShipDirectionIP;
 extern BOOLEAN optHazardColors;
 extern BOOLEAN optOrzCompFont;
 extern int optControllerType;
-extern BOOLEAN optHSDirectionFacing;
+extern BOOLEAN optShipFacingHS;
+extern BOOLEAN optDiscordRPC;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSpeech;
@@ -143,4 +144,3 @@ extern void updateDiscordPresence (char* state, char* details, char* largeImage,
 #endif
 
 #endif
-
