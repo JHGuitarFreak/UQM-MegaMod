@@ -695,23 +695,21 @@ setGammaCorrection (float gamma)
 
 // Discord RPC
 
-static const char* APPLICATION_ID = "817075322402373673";
-
 void
-updateDiscordPresence (char* state, char* details, char* largeImage, char* smallImage)
+updateDiscordPresence (char* details, char* state, char* largeImage, char* smallImage)
 {
-	if (optDiscordRPC)
-	{
-		Discord_ClearPresence ();
-		DiscordRichPresence discordPresence;
-		memset (&discordPresence, 0, sizeof (discordPresence));
-		discordPresence.state = state;
-		discordPresence.details = details;
-		discordPresence.largeImageKey = largeImage;
-		discordPresence.smallImageKey = smallImage;
-		discordPresence.instance = 0;
-		Discord_UpdatePresence (&discordPresence);
-	}
+	if (!optDiscordRPC)
+		return;
+
+	Discord_ClearPresence ();
+	DiscordRichPresence discordPresence;
+	memset (&discordPresence, 0, sizeof (discordPresence));
+	discordPresence.details = details;
+	discordPresence.state = state;
+	discordPresence.largeImageKey = largeImage;
+	discordPresence.smallImageKey = smallImage;
+	discordPresence.instance = 0;
+	Discord_UpdatePresence (&discordPresence);
 }
 
 static void handleDiscordReady(const DiscordUser* connectedUser)
@@ -740,8 +738,5 @@ discordInit (void)
 	handlers.ready = handleDiscordReady;
 	handlers.disconnected = handleDiscordDisconnected;
 	handlers.errored = handleDiscordError;
-	//handlers.joinGame = handleDiscordJoin;
-	//handlers.spectateGame = handleDiscordSpectate;
-	//handlers.joinRequest = handleDiscordJoinRequest;
-	Discord_Initialize(APPLICATION_ID, &handlers, 1, NULL);
+	Discord_Initialize (APPLICATION_ID, &handlers, 1, NULL);
 }

@@ -141,8 +141,10 @@ bool setGammaCorrection (float gamma);
 #include <discord_rpc.h>
 #pragma comment(lib, "discord-rpc.lib")
 
+static const char* APPLICATION_ID = "817075322402373673";
+
 extern void discordInit (void); 
-extern void updateDiscordPresence (char* state, char* details, char* largeImage, char* smallImage);
+extern void updateDiscordPresence (char* details, char* state, char* largeImage, char* smallImage);
 
 #if defined(__cplusplus)
 }

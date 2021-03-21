@@ -31,6 +31,7 @@
 #include "../uqmdebug.h"
 #include "../resinst.h"
 #include "../nameref.h"
+#include "../starmap.h"
 #include "options.h"
 #include "libs/graphics/gfx_common.h"
 
@@ -197,6 +198,26 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	if (Mode != DRAW_ORBITAL_UPDATE)
 	{
 		SetTransitionSource (NULL);
+		
+		if (optDiscordRPC)
+		{
+			UNICODE starName[256];
+			UNICODE planetTitle[200];
+			BYTE i, stringLength;
+
+			GetPlanetTitle (planetTitle, sizeof (planetTitle));
+
+			stringLength = strlen (planetTitle);
+
+			for (i = 0; i < stringLength; ++i)
+			{
+				if (planetTitle[i] == ' ')
+					planetTitle[i] = '-';
+			}
+
+			GetClusterName (CurStarDescPtr, starName);
+			updateDiscordPresence (starName, GLOBAL_SIS (PlanetName), strlwr (planetTitle),"");
+		}
 
 		DrawSISFrame ();
 		DrawSISMessage (NULL);

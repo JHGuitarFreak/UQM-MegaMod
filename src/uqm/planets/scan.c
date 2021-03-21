@@ -122,7 +122,7 @@ MakeScanValue (UNICODE *buf, long val, const UNICODE *extra)
 	}
 }
 
-static void
+void
 GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 {
 	int val;
