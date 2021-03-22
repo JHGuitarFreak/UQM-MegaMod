@@ -1400,7 +1400,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 			DrawSISTitle (GLOBAL_SIS (PlanetName));
 
 		// Redraws fuel, crew, and status message (green box)
-		DeltaSISGauges(UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
+		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 
 		ScreenTransition (3, &DlgRect);
 		UnbatchGraphics ();
