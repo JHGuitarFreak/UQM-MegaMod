@@ -198,27 +198,6 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	if (Mode != DRAW_ORBITAL_UPDATE)
 	{
 		SetTransitionSource (NULL);
-		
-		if (optDiscordRPC)
-		{
-			UNICODE starName[256];
-			UNICODE planetTitle[200];
-			BYTE i, stringLength;
-
-			GetPlanetTitle (planetTitle, sizeof (planetTitle));
-
-			stringLength = strlen (planetTitle);
-
-			for (i = 0; i < stringLength; ++i)
-			{
-				if (planetTitle[i] == ' ')
-					planetTitle[i] = '-';
-			}
-
-			GetClusterName (CurStarDescPtr, starName);
-			updateDiscordPresence (starName, GLOBAL_SIS (PlanetName), strlwr (planetTitle),"");
-		}
-
 		DrawSISFrame ();
 		DrawSISMessage (NULL);
 		DrawSISTitle (GLOBAL_SIS (PlanetName));
@@ -241,7 +220,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 		if (never)
 		{
 			PLANET_DESC *pPlanetDesc;
-			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit; 
+			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 			int PlanetScale = RES_BOOL(319, 512);
 			int PlanetRescale = 1275;
 
@@ -267,6 +246,25 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode != DRAW_ORBITAL_WAIT)
 	{
+		if (optDiscordRPC)
+		{
+			UNICODE starName[256];
+			UNICODE planetTitle[200];
+			BYTE i, stringLength;
+
+			GetPlanetTitle (planetTitle, sizeof (planetTitle));
+
+			stringLength = strlen (planetTitle);
+
+			for (i = 0; i < stringLength; ++i)
+			{
+				if (planetTitle[i] == ' ')
+					planetTitle[i] = '-';
+			}
+
+			GetClusterName (CurStarDescPtr, starName);
+			updateDiscordPresence (starName, GLOBAL_SIS (PlanetName), strlwr (planetTitle), "");
+		}
 		SetContext (GetScanContext (NULL));
 		DrawPlanet (0, BLACK_COLOR);
 	}
