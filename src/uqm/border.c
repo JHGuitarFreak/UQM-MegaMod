@@ -52,7 +52,7 @@ DrawSISFrame (void)
 
 	BatchGraphics ();
 	{
-		SetContextForeGroundColor (DKGRAY_COLOR);
+		SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 
 		// Top horizontal border behind SIS Title & Message (Small block in between as well)
 		r.corner.x = 0;

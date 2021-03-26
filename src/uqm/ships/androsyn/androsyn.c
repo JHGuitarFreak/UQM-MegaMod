@@ -472,7 +472,7 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 			cur_status_flags &= ~(LEFT | RIGHT
 					| SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
 
-			DrawCaptainsWindow(StarShipPtr);
+			DrawCaptainsWindow (StarShipPtr);
 
 			StarShipPtr->RaceDescPtr->characteristics.turn_wait =
 					StarShipPtr->RaceDescPtr->characteristics.special_wait;

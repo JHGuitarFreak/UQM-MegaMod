@@ -222,7 +222,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	r.extent.height = RES_SCALE(11);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
-	SetContextForeGroundColor (DKGRAY_COLOR);
+	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r);
 	r.corner = s.origin;
 	r.extent.width = RADAR_WIDTH;

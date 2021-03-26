@@ -65,7 +65,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	r.extent.height = RES_SCALE(11);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
-	SetContextForeGroundColor (DKGRAY_COLOR);
+	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r);
 	DrawBorder (8, FALSE);
 	if (NewModule >= EMPTY_SLOT)
