@@ -67,7 +67,7 @@ DrawShipNameString (UNICODE *pStr, COUNT CharCount, COORD y)
 	Text.CharCount = CharCount;
 	Text.align = ALIGN_CENTER;
 
-	Text.baseline.y = STARCON_TEXT_HEIGHT + RES_SCALE(3) + y;
+	Text.baseline.y = STARCON_TEXT_HEIGHT + RES_SCALE(3) + y - IF_HD(4);
 	Text.baseline.x = STATUS_WIDTH >> 1;
 
 	SetContextForeGroundColor (
