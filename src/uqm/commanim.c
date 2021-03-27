@@ -593,25 +593,16 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 	int i;
 	STAMP s;
 	BOOLEAN Change = FALSE;
-	FRAME RescaledFrame;
-	const COORD FrameHeight = SetAbsFrameIndex(CommData.AlienFrame, 0)->Bounds.height - 1;
-	const float ScalingFactor = (FrameHeight - SLIDER_Y) / (float)FrameHeight * 100;
 
 	BatchGraphics ();
 
-	s.origin.x = 0;
-	s.origin.y = 0;
-
+	s.origin.x = s.origin.y = 0;
+	
 	if (fullRedraw)
 	{
 		// Draw the main frame
-		RescaledFrame = CaptureDrawable (
-				RescalePercentage (CommData.AlienFrame, ScalingFactor));
-		s.frame = RES_BOOL(CommData.AlienFrame, RescaledFrame);
+		s.frame = CommData.AlienFrame;
 		DrawStamp (&s);
-
-		DestroyDrawable (ReleaseDrawable (RescaledFrame));
-		RescaledFrame = 0;
 
 		// Draw any static frames (has to be in reverse)
 		for (i = CommData.NumAnimations - 1; i >= 0; --i)
@@ -625,15 +616,9 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 			if (!(ADPtr->AnimFlags & COLORXFORM_ANIM))
 			{	// It's a static frame (e.g. Flagship picture at Starbase)
-				RescaledFrame = CaptureDrawable (RescalePercentage (
-						SetAbsFrameIndex (CommData.AlienFrame, ADPtr->StartIndex),
-						ScalingFactor));
-				s.frame = RES_BOOL(SetAbsFrameIndex (CommData.AlienFrame,
-					ADPtr->StartIndex), RescaledFrame);
+				s.frame = SetAbsFrameIndex (CommData.AlienFrame,
+						ADPtr->StartIndex);
 				DrawStamp (&s);
-
-				DestroyDrawable (ReleaseDrawable (RescaledFrame));
-				RescaledFrame = 0;
 			}
 		}
 	}
@@ -653,17 +638,9 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 			if (!fullRedraw && !pSeq->Change)
 				continue;
 
-			RescaledFrame = CaptureDrawable (
-					RescalePercentage (SetAbsFrameIndex (CommData.AlienFrame,
-						ADPtr->StartIndex + pSeq->CurIndex), ScalingFactor));
-					
-			s.frame = RES_BOOL(SetAbsFrameIndex (CommData.AlienFrame,
-				ADPtr->StartIndex + pSeq->CurIndex), RescaledFrame);
+			s.frame = SetAbsFrameIndex (CommData.AlienFrame,
+					ADPtr->StartIndex + pSeq->CurIndex);
 			DrawStamp (&s);
-
-			DestroyDrawable (ReleaseDrawable (RescaledFrame));
-			RescaledFrame = 0;
-
 			pSeq->Change = FALSE;
 
 			Change = TRUE;
