@@ -1906,7 +1906,7 @@ init_starbase_comm ()
 	static LOCDATA commander_desc;
 	LOCDATA *retval;
 
-	commander_desc = RES_BOOL(commander_desc_orig, commander_desc_hd);
+	commander_desc = commander_desc_orig;
 
 	commander_desc.init_encounter_func = Intro;
 	commander_desc.post_encounter_func = post_starbase_enc;
