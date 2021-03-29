@@ -63,7 +63,7 @@
 // The rate was originally 120fps which allowed for more animation
 // precision which is ultimately wasted on the human eye anyway.
 // The highest known stable animation rate is 40fps, so that's what we use.
-#define COMM_ANIM_RATE   (ONE_SECOND / 40)
+#define COMM_ANIM_RATE   (ONE_SECOND / RES_TRP(40))
 
 static CONTEXT AnimContext;
 
