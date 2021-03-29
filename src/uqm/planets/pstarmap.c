@@ -81,7 +81,7 @@ universeToDispx (long ux)
 {
 	return signedDivWithError (((ux - mapOrigin.x) << zoomLevel)
 			* SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
-			+ ((SIS_SCREEN_WIDTH - 1) >> 1);
+			+ ((SIS_SCREEN_WIDTH - RES_SCALE(1)) >> 1);
 }
 #define UNIVERSE_TO_DISPX(ux)  universeToDispx(ux)
 
@@ -90,14 +90,14 @@ universeToDispy (long uy)
 {
 	return signedDivWithError (((mapOrigin.y - uy) << zoomLevel)
 			* SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
-			+ ((SIS_SCREEN_HEIGHT - 1) >> 1);
+			+ ((SIS_SCREEN_HEIGHT - RES_SCALE(1)) >> 1);
 }
 #define UNIVERSE_TO_DISPY(uy)  universeToDispy(uy)
 
 static inline COORD
 dispxToUniverse (COORD dx)
 {
-	return (((long)(dx - ((SIS_SCREEN_WIDTH - 1) >> 1))
+	return (((long)(dx - ((SIS_SCREEN_WIDTH - RES_SCALE(1)) >> 1))
 			* (MAX_X_UNIVERSE + MAP_FIT_X)) >> zoomLevel)
 			/ SIS_SCREEN_WIDTH + mapOrigin.x;
 }
@@ -106,7 +106,7 @@ dispxToUniverse (COORD dx)
 static inline COORD
 dispyToUniverse (COORD dy)
 {
-	return (((long)(((SIS_SCREEN_HEIGHT - 1) >> 1) - dy)
+	return (((long)(((SIS_SCREEN_HEIGHT - RES_SCALE(1)) >> 1) - dy)
 			* (MAX_Y_UNIVERSE + 2)) >> zoomLevel)
 			/ SIS_SCREEN_HEIGHT + mapOrigin.y;
 }
@@ -402,24 +402,24 @@ DrawFuelCircles ()
 
 	/* Draw outer circle*/
 	r.extent.width = UNIVERSE_TO_DISPX (diameter)
-	                 - UNIVERSE_TO_DISPX (0);
+			- UNIVERSE_TO_DISPX (0);
 
 	if (r.extent.width < 0)
 		r.extent.width = -r.extent.width;
 
 	r.extent.height = UNIVERSE_TO_DISPY (diameter)
-	                  - UNIVERSE_TO_DISPY (0);
+			- UNIVERSE_TO_DISPY (0);
 
 	if (r.extent.height < 0)
 		r.extent.height = -r.extent.height;
 
 	r.corner.x = UNIVERSE_TO_DISPX (corner.x)
-	             - (r.extent.width >> 1);
+			- (r.extent.width >> 1);
 	r.corner.y = UNIVERSE_TO_DISPY (corner.y)
-	             - (r.extent.height >> 1);
+			- (r.extent.height >> 1);
 
 	OldColor = SetContextForeGroundColor (
-	                   BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
+			BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
 	DrawFilledOval (&r);
 	SetContextForeGroundColor (OldColor);
 
@@ -525,15 +525,16 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		r.corner.x = UNIVERSE_TO_DISPX (0);
 		r.corner.y = UNIVERSE_TO_DISPY (i);
 		r.extent.width = SIS_SCREEN_WIDTH << zoomLevel;
-		r.extent.height = 1;
+		r.extent.height = RES_SCALE(1);
 		DrawFilledRectangle (&r);
 
 		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE + 1);
-		r.extent.width = 1;
+		r.extent.width = RES_SCALE(1);
 		r.extent.height = SIS_SCREEN_HEIGHT << zoomLevel;
 		for (j = MAX_X_UNIVERSE + 1; j >= 0; j -= GRID_DELTA)
 		{
 			r.corner.x = UNIVERSE_TO_DISPX (j);
+			printf("%d\n", j);
 			DrawFilledRectangle (&r);
 		}
 	}

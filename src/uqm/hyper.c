@@ -518,7 +518,7 @@ LoadHyperspace (void)
 		}
 	}
 	if (!(GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0))
-        DrawSISMessage (NULL);
+		DrawSISMessage (NULL);
 
 	SetContext (RadarContext);
 	SetContextBackGroundColor (
@@ -1391,9 +1391,9 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 
 	r.corner.y = (COORD) ((long)(MAX_Y_UNIVERSE - ey)
 			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy;
-	r.extent.width = 1;
+	r.extent.width = RES_SCALE(1);
 	r.extent.height = ((COORD) ((long)(MAX_Y_UNIVERSE - sy)
-			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y + 1;
+			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y + RES_SCALE(1);
 	for (ux = sx; ux <= ex; ux += GRID_OFFSET)
 	{
 		r.corner.x = (COORD) ((long)ux * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
@@ -1402,8 +1402,8 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 
 	r.corner.x = (COORD) ((long)sx * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
 	r.extent.width = ((COORD) ((long)ex * RADAR_WIDTH / RADAR_SCAN_WIDTH)
-			- ox) - r.corner.x + 1;
-	r.extent.height = 1;
+			- ox) - r.corner.x + RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
 	for (uy = sy; uy <= ey; uy += GRID_OFFSET)
 	{
 		r.corner.y = (COORD)((long)(MAX_Y_UNIVERSE - uy)
@@ -1758,8 +1758,8 @@ SeedUniverse (void)
 				ey = -ey;
 
 			if (ex > (XOFFS / NUM_RADAR_SCREENS)
-				|| ey > (YOFFS / NUM_RADAR_SCREENS))
-			continue;
+					|| ey > (YOFFS / NUM_RADAR_SCREENS))
+				continue;
 
 			hHyperSpaceElement = AllocHyperElement (&SD[i].star_pt);
 			if (hHyperSpaceElement == 0)

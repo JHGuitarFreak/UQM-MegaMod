@@ -122,8 +122,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 // XXX: These corrected for the weird screen aspect ratio on DOS
 //   In part because of them, hyperflight is slower vertically
-#define UNIT_SCREEN_WIDTH (RES_SCALE(63) + (COUNT)RESOLUTION_FACTOR * 10) 
-#define UNIT_SCREEN_HEIGHT (RES_SCALE(50) + (COUNT)RESOLUTION_FACTOR * 10) 
+#define UNIT_SCREEN_WIDTH RES_SCALE(63)
+#define UNIT_SCREEN_HEIGHT RES_SCALE(50)
 
 
 // Bug #945: Simplified, these set the speed of SIS in Hyperspace and
