@@ -662,12 +662,10 @@ init_commander_comm ()
 {
 	LOCDATA *retval;
 
-	if (IS_HD){
-		commander_desc.AlienAmbientArray[1].NumFrames = 27;
-		commander_desc.AlienAmbientArray[1].AnimFlags = CIRCULAR_ANIM;
-
-		commander_desc.AlienAmbientArray[2].StartIndex = 78;
-		commander_desc.AlienAmbientArray[2].NumFrames = 6;
+	if (IS_HD)
+	{
+		commander_desc.AlienAmbientArray[2].StartIndex = 96;
+		commander_desc.AlienAmbientArray[2].NumFrames = 17;
 		commander_desc.AlienAmbientArray[2].AnimFlags = RANDOM_ANIM;
 		commander_desc.AlienAmbientArray[2].RandomFrameRate = ONE_SECOND / 5;
 		commander_desc.AlienAmbientArray[2].RandomRestartRate = ONE_SECOND / 4;
