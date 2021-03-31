@@ -534,7 +534,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		for (j = MAX_X_UNIVERSE + 1; j >= 0; j -= GRID_DELTA)
 		{
 			r.corner.x = UNIVERSE_TO_DISPX (j);
-			printf("%d\n", j);
 			DrawFilledRectangle (&r);
 		}
 	}
