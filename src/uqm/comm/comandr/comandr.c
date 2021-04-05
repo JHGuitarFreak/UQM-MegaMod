@@ -665,7 +665,7 @@ init_commander_comm ()
 	if (IS_HD)
 	{
 		commander_desc.AlienAmbientArray[2].StartIndex = 96;
-		commander_desc.AlienAmbientArray[2].NumFrames = 17;
+		commander_desc.AlienAmbientArray[2].NumFrames = 16;
 		commander_desc.AlienAmbientArray[2].AnimFlags = RANDOM_ANIM;
 		commander_desc.AlienAmbientArray[2].RandomFrameRate = ONE_SECOND / 5;
 		commander_desc.AlienAmbientArray[2].RandomRestartRate = ONE_SECOND / 4;
@@ -693,7 +693,7 @@ init_commander_comm ()
 		commander_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
 	}
 	else
-	{	
+	{
 		// JMS_GFX: Enable noisy static animation in hi-res.
 		if (IS_HD)
 		{
