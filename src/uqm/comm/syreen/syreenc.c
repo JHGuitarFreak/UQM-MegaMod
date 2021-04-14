@@ -402,10 +402,14 @@ FriendlyExit (RESPONSE_REF R)
 			NPCPhrase (OK_WONT_USE_HANDS);
 		else if (PLAYER_SAID (R, not_much_more_to_say))
 			NPCPhrase (THEN_STOP_TALKING);
+
 		NPCPhrase (LATER);
 		NPCPhrase (SEX_GOODBYE);
 
 		AlienTalkSegue (2);
+
+		CommData.AlienTextFColor = WHITE_COLOR;
+
 		if (!IS_HD) {
 			XFormColorMap (GetColorMapAddress (
  				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
@@ -489,6 +493,8 @@ Foreplay (RESPONSE_REF R)
 			NPCPhrase (ABOUT_US);
 		NPCPhrase (MORE_COMFORTABLE);
 		AlienTalkSegue (1);
+
+		CommData.AlienTextFColor = BUILD_COLOR_RGBA (85, 255, 255, 0);
 
 		if (!IS_HD) {
 			XFormColorMap (GetColorMapAddress (
