@@ -1103,7 +1103,7 @@ DrawSupportShips (void)
 
 		s.origin.x = RES_SCALE(pship_pos->x); // Serosis: Find a better way
 		s.origin.y = RES_SCALE(pship_pos->y);
-		s.frame = SetAbsFrameIndex (StarShipPtr->icons, 2);
+		s.frame = SetAbsFrameIndex (StarShipPtr->icons, 0);
 		DrawStamp (&s);
 
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
