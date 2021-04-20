@@ -1065,7 +1065,8 @@ DrawModules (void)
 	STAMP s;
 	COUNT i;
 
-	s.origin.x = RES_SCALE(1); // This properly centers the modules.
+	// This properly centers the modules.
+	s.origin.x = RES_SCALE(1);
 	s.origin.y = RES_SCALE(1);
 	for (i = 0; i < NUM_MODULE_SLOTS; ++i)
 	{
@@ -1076,7 +1077,8 @@ DrawModules (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_SCALE(3) - IF_HD(1); // Serosis: -1 so the modules fit within the HD Flagship's frame
+		// Serosis: -1 so the modules fit within the HD Flagship's frame
+		s.origin.y -= RES_SCALE(3) - IF_HD(1);
 	}
 }
 
@@ -1101,8 +1103,8 @@ DrawSupportShips (void)
 		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
 
-		s.origin.x = RES_SCALE(pship_pos->x); // Serosis: Find a better way
-		s.origin.y = RES_SCALE(pship_pos->y);
+		s.origin = MAKE_POINT (
+				RES_SCALE (pship_pos->x), RES_SCALE (pship_pos->y));
 		s.frame = SetAbsFrameIndex (StarShipPtr->icons, 0);
 		DrawStamp (&s);
 
@@ -1215,7 +1217,8 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 		t.CharCount = (COUNT)~0;
 
 		SetContextForeGroundColor (BLACK_COLOR);
-		if (optWholeFuel) {
+		if (optWholeFuel)
+		{
 			r.corner.x -= RES_SCALE(1);
 			r.extent.width += RES_SCALE(2);
 		}

@@ -44,8 +44,8 @@ extern int ScreenHeight;
 #define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
 		/* Margins. */
-#define SIS_ORG_X RES_SCALE(7)								
-#define SIS_ORG_Y RES_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
+#define SIS_ORG_X RES_SCALE(6)
+#define SIS_ORG_Y RES_SCALE(9)
 
 /* Status bar & play area sizes. */
 #define STATUS_WIDTH RES_SCALE(64)
@@ -56,16 +56,16 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT SCREEN_HEIGHT
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - 2 * SIS_ORG_X) // DC: Gray area on the right. just a spacer box
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE(13)) // DC: Gray area on the right. just a spacer box
 /* Width of the usable part of the space "window" */
-#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(3) - RES_SCALE(10)) 
-/* Height of the usable part of the space "window": 3 for the grey bottom border and 10 for the title */
+#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(13))
+/* Height of the usable part of the space "window" */
 
 		/* Radar. */
-#define RADAR_X (RES_SCALE(4) + (SCREEN_WIDTH - STATUS_WIDTH))	
-#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))							
-#define RADAR_HEIGHT RES_SCALE(53)											
-#define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)		
+#define RADAR_X (RES_SCALE(4) + SPACE_WIDTH)
+#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))
+#define RADAR_HEIGHT RES_SCALE(53)
+#define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)
 
 		/* Blue boxes which display messages and the green date box. */
 #define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)						

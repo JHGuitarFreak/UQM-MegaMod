@@ -149,15 +149,18 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 	}
 }
 
-static void HazardCase (BYTE hazard) {
+static void
+HazardCase (BYTE hazard)
+{
 #define HAZARD_CASE(a,b) ((a) ? DULL_YELLOW_COLOR : ((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
 	Color HazardColor;
 
-	UWORD Temperature = GetThermalHazardRating(pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	UWORD Temperature = GetThermalHazardRating (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
 	UWORD Weather = pSolarSysState->SysInfo.PlanetInfo.Weather + 1;
-	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;	
+	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;
 
-	switch (hazard) {
+	switch (hazard)
+	{
 		case LAVASPOT_DISASTER:
 			HazardColor = HAZARD_CASE ((Temperature > 1 && Temperature < 5), (Temperature > 4));
 			break;
