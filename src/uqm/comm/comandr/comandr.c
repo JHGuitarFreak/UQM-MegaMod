@@ -662,12 +662,10 @@ init_commander_comm ()
 {
 	LOCDATA *retval;
 
-	if (IS_HD){
-		commander_desc.AlienAmbientArray[1].NumFrames = 27;
-		commander_desc.AlienAmbientArray[1].AnimFlags = CIRCULAR_ANIM;
-
-		commander_desc.AlienAmbientArray[2].StartIndex = 78;
-		commander_desc.AlienAmbientArray[2].NumFrames = 6;
+	if (IS_HD)
+	{
+		commander_desc.AlienAmbientArray[2].StartIndex = 96;
+		commander_desc.AlienAmbientArray[2].NumFrames = 16;
 		commander_desc.AlienAmbientArray[2].AnimFlags = RANDOM_ANIM;
 		commander_desc.AlienAmbientArray[2].RandomFrameRate = ONE_SECOND / 5;
 		commander_desc.AlienAmbientArray[2].RandomRestartRate = ONE_SECOND / 4;
@@ -695,7 +693,7 @@ init_commander_comm ()
 		commander_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
 	}
 	else
-	{	
+	{
 		// JMS_GFX: Enable noisy static animation in hi-res.
 		if (IS_HD)
 		{
@@ -709,10 +707,10 @@ init_commander_comm ()
 		commander_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
 	}
 
-	// JMS_GFX
-	commander_desc.AlienTextWidth = RES_SIS_SCALE(143); // JMS_GFX
-	commander_desc.AlienTextBaseline.x = RES_SIS_SCALE(164); // JMS_GFX
-	commander_desc.AlienTextBaseline.y = RES_SIS_SCALE(20); // JMS_GFX
+	
+	commander_desc.AlienTextWidth = RES_SCALE(143); 
+	commander_desc.AlienTextBaseline.x = RES_SCALE(164); 
+	commander_desc.AlienTextBaseline.y = RES_SCALE(20); 
 
 	setSegue (Segue_peace);
 	retval = &commander_desc;

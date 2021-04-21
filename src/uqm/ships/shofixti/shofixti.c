@@ -526,7 +526,7 @@ init_shofixti (void)
 
 					num_thrusts = new_shofixti_desc.characteristics.max_thrust /
 						new_shofixti_desc.characteristics.thrust_increment;
-					new_shofixti_desc.characteristics.thrust_increment -= RES_SCALE(1); // JMS_GFX
+					new_shofixti_desc.characteristics.thrust_increment -= RES_SCALE(1); 
 					new_shofixti_desc.characteristics.max_thrust =
 						new_shofixti_desc.characteristics.thrust_increment *
 						num_thrusts;

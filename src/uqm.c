@@ -147,10 +147,9 @@ struct options_struct
 	DECL_CONFIG_OPTION(float, sfxVolumeScale);
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
 	DECL_CONFIG_OPTION(bool, safeMode);
-	DECL_CONFIG_OPTION(int,  resolutionFactor); // JMS_GFX
-	DECL_CONFIG_OPTION(int,	 loresBlowupScale); // JMS_GFX
- 	DECL_CONFIG_OPTION(bool, cheatMode); // JMS
-	// Serosis
+	DECL_CONFIG_OPTION(int,  resolutionFactor); 
+	DECL_CONFIG_OPTION(int,	 loresBlowupScale); 
+ 	DECL_CONFIG_OPTION(bool, cheatMode);
 	DECL_CONFIG_OPTION(int,	 optPrecursorMode);
 	DECL_CONFIG_OPTION(int,	 timeDilationScale);
 	DECL_CONFIG_OPTION(bool, bubbleWarp);
@@ -159,14 +158,11 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, unlockUpgrades);
 	DECL_CONFIG_OPTION(bool, infiniteRU);
 	DECL_CONFIG_OPTION(bool, skipIntro);
-	// JMS
 	DECL_CONFIG_OPTION(bool, mainMenuMusic);
 	DECL_CONFIG_OPTION(bool, nebulae);
 	DECL_CONFIG_OPTION(bool, orbitingPlanets);
 	DECL_CONFIG_OPTION(bool, texturedPlanets);
-	// Nic
 	DECL_CONFIG_OPTION(int,	 optDateFormat);
-	// Serosis
 	DECL_CONFIG_OPTION(bool, infiniteFuel);
 	DECL_CONFIG_OPTION(bool, partialPickup);
 	DECL_CONFIG_OPTION(bool, submenu);
@@ -177,7 +173,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, spaceMusic);
 	DECL_CONFIG_OPTION(bool, volasMusic);
 	DECL_CONFIG_OPTION(bool, wholeFuel);
-	DECL_CONFIG_OPTION(bool, directionalJoystick); // For Android
+	DECL_CONFIG_OPTION(bool, directionalJoystick);
 	DECL_CONFIG_OPTION(int,	 landerHold);
 	DECL_CONFIG_OPTION(int,  ipTrans);
 	DECL_CONFIG_OPTION(int,  optDifficulty);
@@ -189,6 +185,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, hazardColors);
 	DECL_CONFIG_OPTION(bool, orzCompFont);
 	DECL_CONFIG_OPTION(int,  optControllerType);
+	DECL_CONFIG_OPTION(bool, shipFacingHS);
+	DECL_CONFIG_OPTION(bool, discordRPC);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -300,13 +298,13 @@ main (int argc, char *argv[])
 		/* .graphicsBackend = */    NULL,
 
 #if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(	 opengl,            false ),
+		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        320, 240 ),
-		INIT_CONFIG_OPTION(	 fullscreen,        true ),
+		INIT_CONFIG_OPTION(  fullscreen,        true ),
 #else
-		INIT_CONFIG_OPTION(	 opengl,            true ),
+		INIT_CONFIG_OPTION(  opengl,            true ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-		INIT_CONFIG_OPTION(	 fullscreen,        false ),
+		INIT_CONFIG_OPTION(  fullscreen,        false ),
 #endif
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
@@ -333,55 +331,52 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 		INIT_CONFIG_OPTION(  resolutionFactor,  0 ),
 #if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(	 loresBlowupScale,  0),
+		INIT_CONFIG_OPTION(  loresBlowupScale,  0),
 #else
-		INIT_CONFIG_OPTION(	 loresBlowupScale,  1),
+		INIT_CONFIG_OPTION(  loresBlowupScale,  1),
 #endif
-		INIT_CONFIG_OPTION(  cheatMode,			false ), // JMS
-		//Serosis
-		INIT_CONFIG_OPTION(  optPrecursorMode,	0 ), 
-		INIT_CONFIG_OPTION(  timeDilationScale,	0 ),
-		INIT_CONFIG_OPTION(  bubbleWarp,		false ),
-		INIT_CONFIG_OPTION(  unlockShips,		false ),
-		INIT_CONFIG_OPTION(  headStart,			false ),
-		INIT_CONFIG_OPTION(  unlockUpgrades,	false ),
-		INIT_CONFIG_OPTION(  infiniteRU,		false ),
-		INIT_CONFIG_OPTION(  skipIntro,			false ),
-		// JMS
+		INIT_CONFIG_OPTION(  cheatMode,         false ),
+		INIT_CONFIG_OPTION(  optPrecursorMode,  0 ), 
+		INIT_CONFIG_OPTION(  timeDilationScale, 0 ),
+		INIT_CONFIG_OPTION(  bubbleWarp,        false ),
+		INIT_CONFIG_OPTION(  unlockShips,       false ),
+		INIT_CONFIG_OPTION(  headStart,         false ),
+		INIT_CONFIG_OPTION(  unlockUpgrades,    false ),
+		INIT_CONFIG_OPTION(  infiniteRU,        false ),
+		INIT_CONFIG_OPTION(  skipIntro,         false ),
 		INIT_CONFIG_OPTION(  mainMenuMusic,     true ),
-		INIT_CONFIG_OPTION(  nebulae,			false ),
-		INIT_CONFIG_OPTION(  orbitingPlanets,	false ),
-		INIT_CONFIG_OPTION(  texturedPlanets,	false ),
-		// Nic
-		INIT_CONFIG_OPTION(  optDateFormat,		0 ),
-		//Serosis
-		INIT_CONFIG_OPTION(  infiniteFuel,		false ),
-		INIT_CONFIG_OPTION(  partialPickup,		false ),
-		INIT_CONFIG_OPTION(  submenu,			false ),
-		INIT_CONFIG_OPTION(  addDevices,		false ),
-		INIT_CONFIG_OPTION(  scalePlanets,		true ),
-		INIT_CONFIG_OPTION(  customBorder,		false ),
-		INIT_CONFIG_OPTION(  customSeed,		PrimeA ),
-		INIT_CONFIG_OPTION(  spaceMusic,		false ),
-		INIT_CONFIG_OPTION(	 volasMusic,		false ),
-		INIT_CONFIG_OPTION(	 wholeFuel,			false ),
-		// For Android
+		INIT_CONFIG_OPTION(  nebulae,           false ),
+		INIT_CONFIG_OPTION(  orbitingPlanets,   false ),
+		INIT_CONFIG_OPTION(  texturedPlanets,   false ),
+		INIT_CONFIG_OPTION(  optDateFormat,     0 ),
+		INIT_CONFIG_OPTION(  infiniteFuel,      false ),
+		INIT_CONFIG_OPTION(  partialPickup,     false ),
+		INIT_CONFIG_OPTION(  submenu,           false ),
+		INIT_CONFIG_OPTION(  addDevices,        false ),
+		INIT_CONFIG_OPTION(  scalePlanets,      true ),
+		INIT_CONFIG_OPTION(  customBorder,      false ),
+		INIT_CONFIG_OPTION(  customSeed,        PrimeA ),
+		INIT_CONFIG_OPTION(  spaceMusic,        false ),
+		INIT_CONFIG_OPTION(  volasMusic,        false ),
+		INIT_CONFIG_OPTION(  wholeFuel,         false ),
 #if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(	 directionalJoystick, true ),
+		INIT_CONFIG_OPTION(  directionalJoystick, true ),
 #else
-		INIT_CONFIG_OPTION(	 directionalJoystick, false ),
+		INIT_CONFIG_OPTION(  directionalJoystick, false ),
 #endif
-		INIT_CONFIG_OPTION(	 landerHold,		OPT_3DO),
-		INIT_CONFIG_OPTION(	 ipTrans,			OPT_3DO),
-		INIT_CONFIG_OPTION(  optDifficulty,		0 ),
-		INIT_CONFIG_OPTION(	 fuelRange,			false),
-		INIT_CONFIG_OPTION(	 extended,			false),
-		INIT_CONFIG_OPTION(	 nomad,				false),
-		INIT_CONFIG_OPTION(	 gameOver,			false),
-		INIT_CONFIG_OPTION(	 shipDirectionIP,	false),
-		INIT_CONFIG_OPTION(	 hazardColors,		false),
-		INIT_CONFIG_OPTION(	 orzCompFont,		false),		
-		INIT_CONFIG_OPTION(	 optControllerType,	0),
+		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO),
+		INIT_CONFIG_OPTION(  ipTrans,           OPT_3DO),
+		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
+		INIT_CONFIG_OPTION(  fuelRange,         false),
+		INIT_CONFIG_OPTION(  extended,          false),
+		INIT_CONFIG_OPTION(  nomad,             false),
+		INIT_CONFIG_OPTION(  gameOver,          false),
+		INIT_CONFIG_OPTION(  shipDirectionIP,   false),
+		INIT_CONFIG_OPTION(  hazardColors,      false),
+		INIT_CONFIG_OPTION(  orzCompFont,       false),
+		INIT_CONFIG_OPTION(  optControllerType, 0),
+		INIT_CONFIG_OPTION(  shipFacingHS,      false),
+		INIT_CONFIG_OPTION(  discordRPC,        false),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -433,7 +428,7 @@ main (int argc, char *argv[])
 			NETPLAY_MIN_UQM_VERSION_PATCH);
 #endif
 
-	// Serosis - Compiler info to help with future debugging.
+	 // Compiler info to help with future debugging.
 #ifdef _MSC_VER
 		printf("MSC_VER: %d\n", _MSC_VER);
 		printf("MSC_FULL_VER: %d\n", _MSC_FULL_VER);
@@ -544,10 +539,10 @@ main (int argc, char *argv[])
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
 	
-	resolutionFactor = (unsigned int) options.resolutionFactor.value; // JMS_GFX
-	loresBlowupScale = (unsigned int) options.loresBlowupScale.value; // JMS_GFX	
+	resolutionFactor = (unsigned int) options.resolutionFactor.value; 
+	loresBlowupScale = (unsigned int) options.loresBlowupScale.value; 	
 
-	// Serosis
+	
 	optPrecursorMode = options.optPrecursorMode.value;
 	timeDilationScale = options.timeDilationScale.value;
 	optBubbleWarp = options.bubbleWarp.value;
@@ -562,9 +557,9 @@ main (int argc, char *argv[])
 	optOrbitingPlanets = options.orbitingPlanets.value;
 	optTexturedPlanets = options.texturedPlanets.value;
  	optCheatMode = options.cheatMode.value;
-	// Nic
+	
 	optDateFormat = options.optDateFormat.value;
-	// Serosis	
+		
 	optInfiniteFuel = options.infiniteFuel.value;
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;
@@ -572,8 +567,8 @@ main (int argc, char *argv[])
 	optScalePlanets = options.scalePlanets.value;
 	optCustomBorder = options.customBorder.value;
 	optCustomSeed = options.customSeed.value;
-	optRequiresReload = FALSE; // Serosis
-	optRequiresRestart = FALSE; // JMS_GFX
+	optRequiresReload = FALSE; 
+	optRequiresRestart = FALSE; 
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
@@ -589,6 +584,8 @@ main (int argc, char *argv[])
 	optHazardColors = options.hazardColors.value;
 	optOrzCompFont = options.orzCompFont.value;
 	optControllerType = options.optControllerType.value;
+	optShipFacingHS = options.shipFacingHS.value;
+	optDiscordRPC = options.discordRPC.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -643,6 +640,9 @@ main (int argc, char *argv[])
 	TFB_SetInputVectors (ImmediateInputState.menu, NUM_MENU_KEYS,
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
 	TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+	
+	if (optDiscordRPC)
+		discordInit ();
 
 	StartThread (Starcon2Main, NULL, 1024, "Starcon2Main");
 
@@ -697,6 +697,8 @@ main (int argc, char *argv[])
 		uninitIO ();
 		UnInitThreadSystem ();
 		mem_uninit ();
+
+		Discord_Shutdown ();
 	}
 
 	HFree (options.addons);
@@ -886,22 +888,22 @@ getUserConfigOptions (struct options_struct *options)
 	getVolumeConfigValue (&options->sfxVolumeScale, "config.sfxvol");
 	getVolumeConfigValue (&options->speechVolumeScale, "config.speechvol");
 	
-	// JMS_GFX
+	
 	if (res_IsInteger ("config.resolutionfactor") && !options->resolutionFactor.set)
 	{
 		options->resolutionFactor.value = res_GetInteger ("config.resolutionfactor");
 		options->resolutionFactor.set = true;
 	}
 	
-	// JMS_GFX
+	
 	if (res_IsInteger ("config.loresBlowupScale"))
 	{
 		options->loresBlowupScale.value = res_GetInteger ("config.loresBlowupScale");
 		options->loresBlowupScale.set = true;
 	}
 
-	getBoolConfigValue (&options->cheatMode, "cheat.kohrStahp"); // JMS
-	// Serosis
+	getBoolConfigValue (&options->cheatMode, "cheat.kohrStahp");
+	
 	if (res_IsInteger ("cheat.precursorMode") && !options->optPrecursorMode.set) {
 		options->optPrecursorMode.value = res_GetInteger ("cheat.precursorMode");
 	}
@@ -914,21 +916,19 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
 	getBoolConfigValue (&options->infiniteRU, "cheat.infiniteRU");
 	getBoolConfigValue (&options->skipIntro, "mm.skipIntro");
-	// JMS
 	getBoolConfigValue (&options->mainMenuMusic, "mm.mainMenuMusic");
 	getBoolConfigValue (&options->nebulae, "mm.nebulae");
 	getBoolConfigValue (&options->orbitingPlanets, "mm.orbitingPlanets");
 	getBoolConfigValue (&options->texturedPlanets, "mm.texturedPlanets");
-	// Nic	
+		
 	if (res_IsInteger ("mm.dateFormat") && !options->optDateFormat.set) {
 		options->optDateFormat.value = res_GetInteger ("mm.dateFormat");
 	}
-	// Serosis	
+		
 	getBoolConfigValue (&options->infiniteFuel, "cheat.infiniteFuel");
 	getBoolConfigValue (&options->partialPickup, "mm.partialPickup");
 	getBoolConfigValue (&options->submenu, "mm.submenu");
 	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
-	// getBoolConfigValue (&options->scalePlanets, "mm.scalePlanets");
 	getBoolConfigValue (&options->customBorder, "mm.customBorder");
 	if (res_IsInteger ("mm.customSeed") && !options->customSeed.set) {
 		options->customSeed.value = res_GetInteger ("mm.customSeed");
@@ -958,6 +958,8 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("mm.controllerType") && !options->optControllerType.set) {
 		options->optControllerType.value = res_GetInteger ("mm.controllerType");
 	}
+	getBoolConfigValue (&options->shipFacingHS, "mm.shipFacingHS");
+	getBoolConfigValue (&options->discordRPC, "mm.discordRPC");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -998,7 +1000,7 @@ enum
 	ACCEL_OPT,
 	SAFEMODE_OPT,
 	RENDERER_OPT,
-	CHEATMODE_OPT, //Serosis
+	CHEATMODE_OPT,
 	GODMODE_OPT,
 	TDM_OPT,
 	BWARP_OPT,
@@ -1033,6 +1035,8 @@ enum
 	HAZCOLORS_OPT,
 	ORZFONT_OPT,
 	CONTYPE_OPT,
+	SISFACEHS_OPT,
+	DISCORDRPC_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1083,7 +1087,7 @@ static struct option longOptions[] =
 	{"accel", 1, NULL, ACCEL_OPT},
 	{"safe", 0, NULL, SAFEMODE_OPT},
 	{"renderer", 1, NULL, RENDERER_OPT},
-	{"kohrstahp", 0, NULL, CHEATMODE_OPT}, //Serosis
+	{"kohrstahp", 0, NULL, CHEATMODE_OPT},
 	{"precursormode", 1, NULL, GODMODE_OPT},
 	{"timedilation", 1, NULL, TDM_OPT},
 	{"bubblewarp", 0, NULL, BWARP_OPT},
@@ -1120,6 +1124,8 @@ static struct option longOptions[] =
 	{"hazardcolors", 0, NULL, HAZCOLORS_OPT},
 	{"orzcompfont", 0, NULL, ORZFONT_OPT},
 	{"controllertype", 0, NULL, CONTYPE_OPT},
+	{"shipfacinghs", 0, NULL, SISFACEHS_OPT},
+	{"discordrpc", 0, NULL, DISCORDRPC_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1388,7 +1394,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->stereoSFX, true);
 				break;
 			case CHEATMODE_OPT:
-				setBoolOption (&options->cheatMode, true); //Serosis
+				setBoolOption (&options->cheatMode, true);
 				break;
 			case GODMODE_OPT: {
 				int temp;
@@ -1545,20 +1551,6 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
-			case CONTYPE_OPT:{
-				int temp;
-				if (parseIntOption (optarg, &temp, "Date Format") == -1) {
-					badArg = true;
-					break;
-				} else if (temp < 0 || temp > 2) {					
-					saveError ("\nDate Format has to be 0, 1, or 2.\n");
-					badArg = true;
-				} else {
-					options->optControllerType.value = temp;
-					options->optControllerType.set = true;
-				}
-				break;
-			}
 			case FUELRANGE_OPT:
 				setBoolOption (&options->fuelRange, true);
 				break;
@@ -1579,6 +1571,28 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case ORZFONT_OPT:
 				setBoolOption (&options->orzCompFont, true);
+				break;
+			case CONTYPE_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Controller Type") == -1) {
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2) {
+					saveError ("\nController type has to be 0, 1, or 2.\n");
+					badArg = true;
+				} else {
+					options->optControllerType.value = temp;
+					options->optControllerType.set = true;
+				}
+				break;
+			}
+			case SISFACEHS_OPT:
+				setBoolOption (&options->shipFacingHS, true);
+				break;
+			case DISCORDRPC_OPT:
+				setBoolOption (&options->discordRPC, true);
 				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
@@ -1807,81 +1821,111 @@ usage (FILE *out, const struct options_struct *defaults)
 			"3do=smooth (default: %s)",
 			choiceOptString (&defaults->smoothScroll));
 
-	log_add (log_User, "The following options are for the Mega Mod"); // Serosis
-	log_add (log_User, "  --kohrstahp : Stops Kohr-Ah advancing.    (default: %s)",
+	log_add (log_User, "The following options are for the Mega Mod"); 
+	log_add (log_User, "  --kohrstahp : Stops Kohr-Ah advancing. (default: %s)",
 			boolOptString (&defaults->cheatMode));
 	log_add(log_User, "  --precursormode : =1 Infinite ship battery. =2 No damage"
-			"=3 Infinite ship battery and no damage    (default: 0)");
+			"=3 Infinite ship battery and no damage (default: 0)");
 	log_add (log_User, "  --timedilation : =1 Time is slowed down times 6. "
-			"=2 Time is sped up times 5    (default: 0)");
+			"=2 Time is sped up times 5 (default: 0)");
 	log_add (log_User, "  --bubblewarp : Instantaneous travel to any point on "
 			"the Starmap.    (default: %s)",
 			boolOptString (&defaults->bubbleWarp));
-	log_add (log_User, "  --unlockships : Allows you to purchase ships that you can't "
-			"normally acquire in the main game.    (default: %s)",
+	log_add (log_User, "  --unlockships : Allows you to purchase ships that you"
+			"can't normally acquire in the main game. (default: %s)",
 			boolOptString (&defaults->unlockShips));
-	log_add (log_User, "  --headstart : Gives you an extra storage bay full of minerals, Fwiffo, "
-			"and the Moonbase during a new game   (default: %s)",
+	log_add (log_User, "  --headstart : Gives you an extra storage bay full of"
+			"minerals, Fwiffo, and the Moonbase during a new game (default: %s)",
 			boolOptString (&defaults->headStart));
 	log_add (log_User, "  --unlockupgrades : Unlocks every upgrade for your flagship "
-			"and landers.    (default: %s)",
+			"and landers. (default: %s)",
 			boolOptString (&defaults->unlockUpgrades));
-	log_add (log_User, "  --infiniteru : Gives you infinite R.U. as long as the cheat is on "
-			" (default: %s)",
+	log_add (log_User, "  --infiniteru : Gives you infinite R.U. as long as the"
+			"cheat is on (default: %s)",
 			boolOptString (&defaults->infiniteRU));
-	log_add (log_User, "  --skipintro : Skips the intro and Logo fmv    (default: %s)",
+	log_add (log_User, "  --skipintro : Skips the intro and Logo fmv"
+			"(default: %s)",
 			boolOptString (&defaults->skipIntro));
-	log_add (log_User, "  --mainmenumusic : Switches the main menu music on/off    (default: %s)",
+	log_add (log_User, "  --mainmenumusic : Switches the main menu"
+			"music on/off (default: %s)",
 			boolOptString (&defaults->mainMenuMusic));
-	log_add (log_User, "  --nebulae : Enables/Disables nebulae in star systems    (default: %s)",
+	log_add (log_User, "  --nebulae : Enables/Disables nebulae in"
+			"star systems (default: %s)",
 			boolOptString (&defaults->nebulae));
-	log_add (log_User, "  --orbitingplanets : Enables/Disables orbiting planets in star systems    (default: %s)",
+	log_add (log_User, "  --orbitingplanets : Enables/Disables orbiting"
+		"planets in star systems (default: %s)",
 			boolOptString (&defaults->orbitingPlanets));
-	log_add (log_User, "  --texturedplanets : Enables/Disables textured planets in star systems    (default: %s)",
+	log_add (log_User, "  --texturedplanets : Enables/Disables textured"
+			"planets in star systems (default: %s)",
 			boolOptString (&defaults->texturedPlanets));
-	log_add (log_User, "  --infinitefuel : Infinite fuel in the main game    (default: %s)",
+	log_add (log_User, "  --infinitefuel : Infinite fuel in the"
+			"main game (default: %s)",
 			boolOptString (&defaults->infiniteFuel));
-	log_add (log_User, "  --partialpickup : Enables/Disables partial mineral pickup    (default: %s)",
+	log_add (log_User, "  --partialpickup : Enables/Disables partial"
+			"mineral pickup  (default: %s)",
 			boolOptString (&defaults->partialPickup));
-	log_add (log_User, "  --submenu : Enables/Disables mineral and star map keys submenu    (default: %s)",
+	log_add (log_User, "  --submenu : Enables/Disables mineral and star"
+			"map keys submenu  (default: %s)",
 			boolOptString (&defaults->submenu));
 	log_add (log_User, "  --dateformat : 0: MMM DD.YYYY | 1: MM.DD.YYYY | "
 			"2: DD MMM.YYYY | 3: DD.MM.YYYY   (default: 0)");
-	log_add (log_User, "  --adddevices : Gives you all available devices    (default: %s)",
+	log_add (log_User, "  --adddevices : Gives you all available"
+			"devices  (default: %s)",
 			boolOptString (&defaults->addDevices));
-	log_add (log_User, "  --scaleplanets : Scales textured planets in HD    (default: %s)",
+	log_add (log_User, "  --scaleplanets : Scales textured planets"
+			"in HD (default: %s)",
 			boolOptString (&defaults->scalePlanets));
-	log_add (log_User, "  --melee : Takes you straight to Super Melee after the splash screen.");
-	log_add (log_User, "  --loadgame : Takes you straight to the Load Game sceen after the splash screen.");
-	log_add (log_User, "  --customborder : Enables the custom border frame.    (default: %s)",
-		boolOptString (&defaults->customBorder));
-	log_add (log_User, "  --customseed=# : Allows you to customize the internal seed used to generate the solar systems in-game.");
-	log_add (log_User, "  --spacemusic : Enables localized music for races when you are in their sphere of influence    (default: %s)",
-		boolOptString (&defaults->spaceMusic));
-	log_add (log_User, "  --wholefuel : Enables the display of the whole fuel value in the ship status    (default: %s)",
-		boolOptString (&defaults->wholeFuel));
-	log_add (log_User, "  --dirjoystick : Enables the use of directional joystick controls for Android    (default: %s)",
-		boolOptString (&defaults->directionalJoystick));
-	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander hold, pc=64, 3do=50 (default: %s)",
-		choiceOptString (&defaults->landerHold));
+	log_add (log_User, "  --melee : Takes you straight to Super Melee"
+			"after the splash screen.");
+	log_add (log_User, "  --loadgame : Takes you straight to the Load"
+			"Game sceen after the splash screen.");
+	log_add (log_User, "  --customborder : Enables the custom border"
+			"frame. (default: %s)",
+			boolOptString (&defaults->customBorder));
+	log_add (log_User, "  --customseed=# : Allows you to customize the internal" 
+			"seed used to generate the solar systems in-game. (default: 16807)");
+	log_add (log_User, "  --spacemusic : Enables localized music for races when"
+			"you are in their sphere of influence (default: %s)",
+			boolOptString (&defaults->spaceMusic));
+	log_add (log_User, "  --wholefuel : Enables the display of the whole fuel"
+			"value in the ship status    (default: %s)",
+			boolOptString (&defaults->wholeFuel));
+	log_add (log_User, "  --dirjoystick : Enables the use of directional"
+			"joystick controls for Android    (default: %s)",
+			boolOptString (&defaults->directionalJoystick));
+	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander hold,"
+			"pc=64, 3do=50     (default: %s)",
+			choiceOptString (&defaults->landerHold));
 	log_add (log_User, "  --iptrans : Interplanetary transitions, pc=stepped, "
-		"3do=crossfade (default: %s)",
-		choiceOptString (&defaults->ipTrans));
-	log_add (log_User, "  --difficulty : 0: Normal | 1: Easy | 2: Hard | 3: Impossible  (default: 0)");
-	log_add (log_User, "  --fuelrange : Enables 'point of no return' fuel range    (default: %s)",
-		boolOptString (&defaults->fuelRange));
-	log_add (log_User, "  --extended : Enables Extended Edition features    (default: %s)",
-		boolOptString (&defaults->extended));
-	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase)    (default: %s)",
-		boolOptString (&defaults->nomad));
-	log_add (log_User, "  --gameover : Enables Game Over cutscenes    (default: %s)",
-		boolOptString (&defaults->gameOver));
-	log_add (log_User, "  --shipdirectionip : Enable NPC ships in IP facing the direction they're going    (default: %s)",
-		boolOptString (&defaults->shipDirectionIP));
-	log_add (log_User, "  --hazardcolors : Enable colored text based on hazard severity when viewing planetary scans    (default: %s)",
-		boolOptString (&defaults->hazardColors));
-	log_add (log_User, "  --orzcompfont : Enable alternate font for untranslatable Orz speech     (default: %s)",
-		boolOptString (&defaults->orzCompFont));
+			"3do=crossfade     (default: %s)",
+			choiceOptString (&defaults->ipTrans));
+	log_add (log_User, "  --difficulty : 0: Normal | 1: Easy | 2: Hard"
+			"| 3: Impossible (default: 0)");
+	log_add (log_User, "  --fuelrange : Enables 'point of no return'"
+			"fuel range (default: %s)",
+			boolOptString (&defaults->fuelRange));
+	log_add (log_User, "  --extended : Enables Extended Edition"
+			"features (default: %s)",
+			boolOptString (&defaults->extended));
+	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) (default: %s)",
+			boolOptString (&defaults->nomad));
+	log_add (log_User, "  --gameover : Enables Game Over cutscenes (default: %s)",
+			boolOptString (&defaults->gameOver));
+	log_add (log_User, "  --shipdirectionip : Enable NPC ships in IP"
+			"facing the direction they're going (default: %s)",
+			boolOptString (&defaults->shipDirectionIP));
+	log_add (log_User, "  --hazardcolors : Enable colored text based on"
+			"hazard severity when viewing planetary scans (default: %s)",
+			boolOptString (&defaults->hazardColors));
+	log_add (log_User, "  --orzcompfont : Enable alternate font for"
+			"untranslatable Orz speech (default: %s)",
+			boolOptString (&defaults->orzCompFont));
+	log_add (log_User, "  --shipfacinghs : Enable flagship facing the"
+			"direction it entered HyperSpace while in auto-pilot (default: %s)",
+			boolOptString (&defaults->shipFacingHS));
+	log_add (log_User, "  --discordrpc : Enable Discord Rich Presence (default: %s)",
+			boolOptString (&defaults->discordRPC));
+	log_add (log_User, "  --controllertype : 0: Keyboard | 1: Xbox | 2: PlayStation 4 (default: 0)");
 	log_setOutput (old);
 }
 

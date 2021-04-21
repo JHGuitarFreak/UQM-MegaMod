@@ -296,7 +296,6 @@ doggy_preprocess (ELEMENT *ElementPtr)
 					DOGGY_SPEED, facing);
 	}
 
-	// JMS_GFX: Doggy is animated in hi-res modes
 	if (IS_HD)
 	{
 		if (ElementPtr->turn_wait > 0)
@@ -440,13 +439,13 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		if ((lpEvalDesc->which_turn <= 16
 				&& MANEUVERABILITY (
 				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) >= RESOLUTION_COMPENSATED(MEDIUM_SHIP)) // JMS_GFX
+				) >= RESOLUTION_COMPENSATED(MEDIUM_SHIP)) 
 				|| (MANEUVERABILITY (
 				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) <= RESOLUTION_COMPENSATED(SLOW_SHIP) // JMS_GFX
+				) <= RESOLUTION_COMPENSATED(SLOW_SHIP) 
 				&& WEAPON_RANGE (
 				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) >= RES_SCALE(LONG_RANGE_WEAPON) * 3 / 4 // JMS_GFX
+				) >= RES_SCALE(LONG_RANGE_WEAPON) * 3 / 4 
 				&& (EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags & SEEKING_WEAPON)))
 			lpEvalDesc->MoveState = PURSUE;
 	}

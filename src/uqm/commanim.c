@@ -24,6 +24,7 @@
 #include "setup.h"
 #include "libs/compiler.h"
 #include "libs/graphics/cmap.h"
+#include "libs/graphics/drawable.h"
 #include "libs/mathlib.h"
 
 
@@ -595,8 +596,7 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 	BatchGraphics ();
 
-	s.origin.x = 0;
-	s.origin.y = 0;
+	s.origin.x = s.origin.y = 0;
 	
 	if (fullRedraw)
 	{

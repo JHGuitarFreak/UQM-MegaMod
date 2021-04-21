@@ -96,32 +96,29 @@ enum
 #define TOP_ENTRY CONTROLS_TOP
 #endif
 
-// Start of JMS_GFX
 // Top Melee Menu
-#define MELEE_X_OFFS RES_SCALE(2) // JMS_GFX
-#define MELEE_Y_OFFS (RES_SCALE(22) + IF_HD(3)) // Serosis
-#define MELEE_BOX_WIDTH RES_SCALE(34) // JMS_GFX
-#define MELEE_BOX_HEIGHT RES_SCALE(34) // JMS_GFX
-#define MELEE_BOX_SPACE RES_SCALE(1) // JMS_GFX
+#define MELEE_X_OFFS RES_SCALE(2) 
+#define MELEE_Y_OFFS RES_SCALE(21) + IF_HD(4)
+#define MELEE_BOX_WIDTH RES_SCALE(34) 
+#define MELEE_BOX_HEIGHT RES_SCALE(34) 
+#define MELEE_BOX_SPACE RES_SCALE(1) 
 
-#define MENU_X_OFFS RES_SCALE(29) // JMS_GFX
+#define MENU_X_OFFS RES_SCALE(29) 
 
+#define INFO_ORIGIN_X RES_SCALE(4) 
+#define INFO_WIDTH RES_SCALE(58) 
+#define TEAM_INFO_ORIGIN_Y RES_SCALE(3) 
+#define TEAM_INFO_HEIGHT (SHIP_INFO_HEIGHT + RES_SCALE(75)) 
+#define MODE_INFO_ORIGIN_Y (TEAM_INFO_HEIGHT + RES_SCALE(6)) 
+#define MODE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE(3)) - MODE_INFO_ORIGIN_Y) 
+#define RACE_INFO_ORIGIN_Y (SHIP_INFO_HEIGHT + RES_SCALE(6)) 
+#define RACE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE(3)) - RACE_INFO_ORIGIN_Y) 
 
-#define INFO_ORIGIN_X RES_SCALE(4) // JMS_GFX
-#define INFO_WIDTH RES_SCALE(58) // JMS_GFX
-#define TEAM_INFO_ORIGIN_Y RES_SCALE(3) // JMS_GFX
-#define TEAM_INFO_HEIGHT (SHIP_INFO_HEIGHT + RES_SCALE(75)) // JMS_GFX
-#define MODE_INFO_ORIGIN_Y (TEAM_INFO_HEIGHT + RES_SCALE(6)) // JMS_GFX
-#define MODE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE(3)) - MODE_INFO_ORIGIN_Y) // JMS_GFX
-#define RACE_INFO_ORIGIN_Y (SHIP_INFO_HEIGHT + RES_SCALE(6)) // JMS_GFX
-#define RACE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE(3)) - RACE_INFO_ORIGIN_Y) // JMS_GFX
-
-#define MELEE_STATUS_X_OFFS RES_SCALE(1) // JMS_GFX
-#define MELEE_STATUS_Y_OFFS (RES_SCALE(201) + IF_HD(40)) // JMS_GFX
+#define MELEE_STATUS_X_OFFS RES_SCALE(1) 
+#define MELEE_STATUS_Y_OFFS RES_SCALE(201)
 #define MELEE_STATUS_WIDTH  (NUM_MELEE_COLUMNS * \
 		(MELEE_BOX_WIDTH + MELEE_BOX_SPACE))
-#define MELEE_STATUS_HEIGHT RES_SCALE(38) // JMS_GFX
-//End JMS_GFX
+#define MELEE_STATUS_HEIGHT RES_SCALE(38)
 
 #define MELEE_BACKGROUND_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x14, 0x00, 0x00), 0x04)
@@ -400,8 +397,8 @@ RepairMeleeFrame (const RECT *pRect)
 	r.extent = pRect->extent;
 	if (r.corner.y & 1)
 	{
-		--r.corner.y;
-		++r.extent.height;
+		r.corner.y -= RES_SCALE(1);
+		r.extent.height += RES_SCALE(1);
 	}
 
 	OldContext = SetContext (SpaceContext);
@@ -445,7 +442,7 @@ RedrawMeleeFrame (void)
 static void
 GetTeamStringRect (COUNT side, RECT *r)
 {
-	r->corner.x = MELEE_X_OFFS - 1;
+	r->corner.x = MELEE_X_OFFS - RES_SCALE(1);
 	r->corner.y = (side + 1) * (MELEE_Y_OFFS
 			+ ((MELEE_BOX_HEIGHT + MELEE_BOX_SPACE) * NUM_MELEE_ROWS + 2));
 	r->extent.width = NUM_MELEE_COLUMNS * (MELEE_BOX_WIDTH + MELEE_BOX_SPACE)
@@ -890,9 +887,9 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&OldRect);
 	r = OldRect;
-	r.corner.x += -RES_SCALE(32) + MENU_X_OFFS - IF_HD(28);
-	r.corner.y += RES_SCALE(76) + IF_HD(8);
-	r.extent.height = SHIP_INFO_HEIGHT + 3;
+	r.corner.x += -RES_SCALE(32) + MENU_X_OFFS;
+	r.corner.y += RES_SCALE(76) + IF_HD(2);
+	r.extent.height = SHIP_INFO_HEIGHT;
 	SetContextClipRect (&r);
 	BatchGraphics ();
 
@@ -901,17 +898,13 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		RECT r;
 		TEXT t;
 
-		ClearShipStatus (0, STATUS_WIDTH, TRUE);
-		
-		// JMS_GFX
-		if (IS_HD)
-			OutlineShipStatus (0, STATUS_WIDTH, TRUE);
+		ClearShipStatus (0);
 		
 		SetContextFont (StarConFont);
-		r.corner.x = RES_STAT_SCALE(3); // JMS_GFX;
-		r.corner.y = RES_STAT_SCALE(4); // JMS_GFX;
-		r.extent.width = RES_STAT_SCALE(57) + RESOLUTION_FACTOR; // JMS_GFX;
-		r.extent.height = RES_SCALE(60) - IF_HD(6); // JMS_GFX;
+		r.corner.x = RES_SCALE(3);
+		r.corner.y = RES_SCALE(4);
+		r.extent.width = RES_SCALE(57);
+		r.extent.height = RES_SCALE(60);
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawRectangle (&r, IS_HD);
 		t.baseline.x = STATUS_WIDTH >> 1;
@@ -1637,7 +1630,7 @@ DoConnectingDialog (MELEE_STATE *pMS)
 		pMS->InputFunc = DoConnectingDialog;
 
 		/* Draw the dialog box here */
-		oldfont = SetContextFont (StarConLgFont);
+		oldfont = SetContextFont (StarConFont);
 		oldcolor = SetContextForeGroundColor (BLACK_COLOR);
 		BatchGraphics ();
 		r.extent.width = RES_SCALE(200);
@@ -1874,16 +1867,13 @@ DoMelee (MELEE_STATE *pMS)
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
 		}
-
 		pMS->hMusic = LoadMusic (MELEE_MUSIC);
-
 		pMS->Initialized = TRUE;
 		
 		pMS->MeleeOption = START_MELEE;
 
 		if (optMainMenuMusic)
 			PlayMusic (pMS->hMusic, TRUE, 1);
-
 		InitMelee (pMS);
 
 		FadeScreen (FadeAllToColor, ONE_SECOND / 2);

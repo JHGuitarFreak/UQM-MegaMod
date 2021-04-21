@@ -55,7 +55,7 @@ animation_preprocess (ELEMENT *ElementPtr)
 STATUS_FLAGS
 inertial_thrust (ELEMENT *ElementPtr)
 {
-#define MAX_ALLOWED_SPEED     WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(18))) // JMS_GFX
+#define MAX_ALLOWED_SPEED     WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(18))) 
 #define MAX_ALLOWED_SPEED_SQR ((DWORD)MAX_ALLOWED_SPEED * MAX_ALLOWED_SPEED)
 
 	COUNT CurrentAngle, TravelAngle;
@@ -189,7 +189,6 @@ ship_preprocess (ELEMENT *ElementPtr)
 			InitShipStatus (&RDPtr->ship_info, StarShipPtr, NULL, FALSE);
 			OldContext = SetContext (StatusContext);
 			DrawCaptainsWindow (StarShipPtr);
-
 			SetContext (OldContext);
 			if (RDPtr->preprocess_func)
 				(*RDPtr->preprocess_func) (ElementPtr);

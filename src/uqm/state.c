@@ -290,7 +290,7 @@ GetPlanetInfo (void)
 					NUM_SCAN_TYPES);
 
 			{
-				BYTE *ar = &(pSolarSysState->SysInfo.PlanetInfo.PartiallyScavengedList[0][0]); // JMS
+				BYTE *ar = &(pSolarSysState->SysInfo.PlanetInfo.PartiallyScavengedList[0][0]);
 				
 				// JMS: Read which mineral deposits are partially retrieved (and how much).
 				for (l = MINERAL_SCAN; l < NUM_SCAN_TYPES; l++)
@@ -351,7 +351,7 @@ PutPlanetInfo (void)
 			for (i = 0; i < pSolarSysState->SunDesc[0].NumPlanets; ++i)
 			{
 				COUNT j;
-				BYTE *ar = &(PartiallyScavengedList[0][0]); // JMS
+				BYTE *ar = &(PartiallyScavengedList[0][0]);
 
 				swrite_a32 (fp, ScanRetrieveMask, NUM_SCAN_TYPES);
 
@@ -362,7 +362,7 @@ PutPlanetInfo (void)
 
 				// init moons
 				for (j = 0; j < pSolarSysState->PlanetDesc[i].NumPlanets; ++j) {
-					BYTE *ar = &(PartiallyScavengedList[0][0]); // JMS
+					BYTE *ar = &(PartiallyScavengedList[0][0]);
 					
  					swrite_a32 (fp, ScanRetrieveMask, NUM_SCAN_TYPES);
 					
@@ -389,7 +389,7 @@ PutPlanetInfo (void)
 				NUM_SCAN_TYPES);
 
 		{
-			BYTE *ar = &(pSolarSysState->SysInfo.PlanetInfo.PartiallyScavengedList[0][0]); // JMS
+			BYTE *ar = &(pSolarSysState->SysInfo.PlanetInfo.PartiallyScavengedList[0][0]);
 			
 			// JMS: Store which mineral deposits are partially retrieved (and how much).
 			for (l = MINERAL_SCAN; l < NUM_SCAN_TYPES; l++)

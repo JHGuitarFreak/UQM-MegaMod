@@ -76,6 +76,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	char *Credit;
 	UNICODE buf[64];
 
+	updateDiscordPresence ("In the Main Menu", "", "mainmenu", "");
+
 	// Re-load all of the restart menu fonts and graphics so the text and background show in the correct size and resolution.
 	if (optRequiresRestart || !PacksInstalled()) {	
 		DestroyFont (TinyFont);
@@ -93,7 +95,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
 			StarConFont = LoadFont (STARCON_FONT_FB);
-			StarConLgFont = LoadFont (STARCONLG_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
@@ -102,7 +103,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
 			StarConFont = LoadFont (STARCON_FONT_HD);
-			StarConLgFont = LoadFont (STARCONLG_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));

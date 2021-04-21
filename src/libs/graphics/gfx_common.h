@@ -102,10 +102,8 @@ extern int FrameRateTickBase;
 void TFB_FlushGraphics (void); // Only call from main thread!!
 void TFB_PurgeDanglingGraphics (void); // Only call from main thread as part of shutdown.
 
-// JMS_GFX
 extern int fs_height; 
 extern int fs_width;
-// END JMS_GFX
 
 extern int ScreenWidth;
 extern int ScreenHeight;

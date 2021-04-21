@@ -30,20 +30,20 @@
 		// for GetFrameBounds()
 
 
-#define ELEMENT_ORG_Y      RES_STAT_SCALE(35) // JMS_GFX
+#define ELEMENT_ORG_Y      RES_SCALE(35) 
 #define FREE_ORG_Y         (ELEMENT_ORG_Y + (NUM_ELEMENT_CATEGORIES \
 							* ELEMENT_SPACING_Y))
-#define BIO_ORG_Y          RES_STAT_SCALE(119) // JMS_GFX
-#define ELEMENT_SPACING_Y  RES_STAT_SCALE(9) // JMS_GFX
+#define BIO_ORG_Y          RES_SCALE(119) 
+#define ELEMENT_SPACING_Y  RES_SCALE(9) 
 
-#define ELEMENT_COL_0      RES_STAT_SCALE(7) // JMS_GFX
-#define ELEMENT_COL_1      RES_STAT_SCALE(32) // JMS_GFX
-#define ELEMENT_COL_2      RES_STAT_SCALE(58) // JMS_GFX
+#define ELEMENT_COL_0      RES_SCALE(7) 
+#define ELEMENT_COL_1      RES_SCALE(32) 
+#define ELEMENT_COL_2      RES_SCALE(58) 
 
-#define ELEMENT_SEL_ORG_X  (ELEMENT_COL_0 + RES_STAT_SCALE(7 + 5)) // JMS_GFX
-#define ELEMENT_SEL_WIDTH  (ELEMENT_COL_2 - ELEMENT_SEL_ORG_X + RES_STAT_SCALE(1)) // JMS_GFX
+#define ELEMENT_SEL_ORG_X  (ELEMENT_COL_0 + RES_SCALE(7 + 5)) 
+#define ELEMENT_SEL_WIDTH  (ELEMENT_COL_2 - ELEMENT_SEL_ORG_X + RES_SCALE(1)) 
 
-#define TEXT_BASELINE      RES_STAT_SCALE(6) // JMS_GFX
+#define TEXT_BASELINE      RES_SCALE(6) 
 
 
 void
@@ -55,21 +55,21 @@ ShowRemainingCapacity (void)
 	UNICODE buf[40];
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
-	r.corner.x = RES_STAT_SCALE(40); // JMS_GFX
+	r.corner.x = RES_SCALE(40); 
 	r.corner.y = FREE_ORG_Y;
 
 	snprintf (buf, sizeof buf, "%u",
 			GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass));
-	t.baseline.x = ELEMENT_COL_2 + RES_STAT_SCALE(1); // JMS_GFX
+	t.baseline.x = ELEMENT_COL_2 + RES_SCALE(1); 
 	t.baseline.y = r.corner.y + TEXT_BASELINE;
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	r.extent.width = t.baseline.x - r.corner.x + RES_STAT_SCALE(1); // JMS_GFX
-	r.extent.height = ELEMENT_SPACING_Y - RES_STAT_SCALE(2); // JMS_GFX
+	r.extent.width = t.baseline.x - r.corner.x + RES_SCALE(1); 
+	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2); 
 
 	BatchGraphics ();
 	// erase previous free amount
@@ -92,7 +92,7 @@ DrawElementAmount (COUNT element, bool selected)
 
 	r.corner.x = ELEMENT_SEL_ORG_X;
 	r.extent.width = ELEMENT_SEL_WIDTH;
-	r.extent.height = ELEMENT_SPACING_Y - RES_STAT_SCALE(2); // JMS_GFX
+	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2); 
 
 	if (element == NUM_ELEMENT_CATEGORIES)
 		r.corner.y = BIO_ORG_Y;
@@ -142,13 +142,13 @@ DrawCargoDisplay (void)
 	COORD cy;
 	COUNT i;
 
-	r.corner.x = 2; 
-	r.extent.width = FIELD_WIDTH + 1;
-	r.corner.y = RES_STAT_SCALE(20);
+	r.corner.x = RES_SCALE(2);
+	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
+	r.corner.y = RES_SCALE(20);
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
-	r.extent.height = (RES_STAT_SCALE(129) - r.corner.y) + IF_HD(19);
-	DrawStarConBox (&r, 1,
+	r.extent.height = (RES_SCALE(129) - r.corner.y);
+	DrawStarConBox (&r, RES_SCALE(1),
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, CARGO_BACK_COLOR);
 
@@ -156,21 +156,18 @@ DrawCargoDisplay (void)
 
 	// draw the "CARGO" title
 	SetContextFont (StarConFont);
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_STAT_SCALE(1); // JMS_GFX
-	t.baseline.y = RES_STAT_SCALE(27); // JMS_GFX
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1); 
+	t.baseline.y = RES_SCALE(27); 
 	t.align = ALIGN_CENTER;
 	t.pStr = GAME_STRING (CARGO_STRING_BASE);
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (CARGO_SELECTED_AMOUNT_COLOR);
 	font_DrawText (&t);
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS * 2) + 3);
-	if (IS_HD)
-		s.frame = SetRelFrameIndex (s.frame, -1); // JMS_GFX
-
 	r.corner.x = ELEMENT_COL_0;
 	r.extent = GetFrameBounds (s.frame);
 	s.origin.x = r.corner.x + (r.extent.width >> 1);
@@ -179,7 +176,7 @@ DrawCargoDisplay (void)
 
 	// print element column headings
 	t.align = ALIGN_RIGHT;
-	t.baseline.y = cy - RES_STAT_SCALE(1); // JMS_GFX
+	t.baseline.y = cy - RES_SCALE(1); 
 	t.CharCount = (COUNT)~0;
 
 	SetContextForeGroundColor (CARGO_WORTH_COLOR);
@@ -195,7 +192,7 @@ DrawCargoDisplay (void)
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i, cy += ELEMENT_SPACING_Y)
 	{
 		// erase background under an element icon
-		SetContextForeGroundColor (CARGO_BACK_COLOR); // Serosis: Was actually supposed to be black
+		SetContextForeGroundColor (BLACK_COLOR);
 		r.corner.y = cy;
 		DrawFilledRectangle (&r);
 
@@ -208,7 +205,7 @@ DrawCargoDisplay (void)
 	}
 
 	// erase background under the Bio icon
-	SetContextForeGroundColor (CARGO_BACK_COLOR); // Serosis: Was actually supposed to be black
+	SetContextForeGroundColor (BLACK_COLOR);
 	r.corner.y = BIO_ORG_Y;
 	DrawFilledRectangle (&r);
 
@@ -221,15 +218,15 @@ DrawCargoDisplay (void)
 	DrawElementAmount (NUM_ELEMENT_CATEGORIES, false);
 
 	// draw the line over the Bio amount
-	r.corner.x = RES_STAT_SCALE(4); // JMS_GFX
-	r.corner.y = BIO_ORG_Y - RES_STAT_SCALE(2); // JMS_GFX
-	r.extent.width = FIELD_WIDTH - RES_SCALE(3); // JMS_GFX
-	r.extent.height = 1;
+	r.corner.x = RES_SCALE(4); 
+	r.corner.y = BIO_ORG_Y - RES_SCALE(2); 
+	r.extent.width = FIELD_WIDTH - RES_SCALE(3); 
+	r.extent.height = RES_SCALE(1);
 	SetContextForeGroundColor (CARGO_SELECTED_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
 	// print "Free"
-	t.baseline.x = RES_STAT_SCALE(5); // JMS_GFX
+	t.baseline.x = RES_SCALE(5); 
 	t.baseline.y = FREE_ORG_Y + TEXT_BASELINE;
 	t.align = ALIGN_LEFT;
 	t.pStr = GAME_STRING (CARGO_STRING_BASE + 1);
@@ -245,7 +242,7 @@ DrawCargoStrings (BYTE OldElement, BYTE NewElement)
 	CONTEXT OldContext;
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	BatchGraphics ();
 

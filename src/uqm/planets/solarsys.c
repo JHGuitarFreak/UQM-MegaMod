@@ -65,14 +65,14 @@
 #define PLANET_DIAMETER (29 << 2)
 #define GENERATE_PERIMETER(a) (a * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
 
-static void AnimateSun (SIZE radius); // JMS
+static void AnimateSun (SIZE radius);
 static BOOLEAN DoIpFlight (SOLARSYS_STATE *pSS);
 static void DrawInnerPlanets (PLANET_DESC* planet);
 static void DrawOuterPlanets(SIZE radius);
 static void DrawSystem (SIZE radius, BOOLEAN IsInnerSystem);
 static void DrawInnerSystem (void);
 static void DrawOuterSystem (void);
-static void SetPlanetColorMap (PLANET_DESC *planet); // JMS, BW
+static void SetPlanetColorMap (PLANET_DESC *planet);
 static void ValidateInnerOrbits (void);
 static void ValidateOrbits (void);
 
@@ -312,6 +312,15 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 4300;
 							break;
 					}
+				} else if (curr_planet_index == 8) {
+					// PLUTO	
+					switch (i) {	
+						case 0: /* CHARON */	
+							if (solTexturesPresent)	
+								SurfFrame = CaptureDrawable (LoadGraphic (IP_CHARON_MASK_ANIM));	
+							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 6.4 * EARTH_HOURS;	
+							break;	
+					}	
 				}
 			}		
 
@@ -632,12 +641,12 @@ LoadSolarSys (void)
 	PLANET_DESC *pCurDesc;
 #define NUM_TEMP_RANGES 5
 	const Color temp_color_array[NUM_TEMP_RANGES] =
-	{	// "RES_DBL" applied to make the orbit dots more visible in HD.
-		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,			 0x00,  RES_DBL(0x0E)), 0x54),
-		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,	 RES_DBL(0x06), RES_DBL(0x08)), 0x62),
-		BUILD_COLOR (MAKE_RGB15_INIT (		  0x00,	 RES_DBL(0x0B),			0x00),  0x6D),
-		BUILD_COLOR (MAKE_RGB15_INIT (RES_DBL(0x0F),		 0x00,			0x00),  0x2D),
-		BUILD_COLOR (MAKE_RGB15_INIT (RES_DBL(0x0F), RES_DBL(0x08),			0x00),  0x75),
+	{
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0E), 0x54),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x62),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x0B, 0x00), 0x6D),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
 	};
 
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
@@ -693,6 +702,13 @@ LoadSolarSys (void)
 	{	// Outer system
 		pSolarSysState->pBaseDesc = pSolarSysState->PlanetDesc;
 		pSolarSysState->pOrbitalDesc = NULL;
+
+		if (optDiscordRPC)
+		{
+			UNICODE starName[256];
+			GetClusterName (CurStarDescPtr, starName);
+			updateDiscordPresence (starName, "", "", "");
+		}
 	}
 	else
 	{	// Inner system
@@ -1159,7 +1175,7 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, RES_SCALE(1), FALSE); // Scale the orbit dot spacing to make it more visually pleasing
+	DrawOval (&r, RES_BOOL(1, 6), FALSE);
 }
 
 static SIZE
@@ -1327,7 +1343,7 @@ static void
 enterInnerSystem (PLANET_DESC *planet)
 {
 #define INNER_ENTRY_DISTANCE  (MIN_MOON_RADIUS + ((MAX_GEN_MOONS - 1) \
-		* MOON_DELTA) + (MOON_DELTA / 4))
+		* MOON_DELTA) + (MOON_DELTA / 4)) + RES_SCALE(5)
 	COUNT angle;
 
 	// Calculate the inner system entry location and facing
@@ -1817,6 +1833,14 @@ DrawInnerSystem (void)
 	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
 	DrawSISTitle (GLOBAL_SIS (PlanetName));
+
+	if (optDiscordRPC)
+	{
+		UNICODE starName[256];
+
+		GetClusterName (CurStarDescPtr, starName);
+		updateDiscordPresence (starName, GLOBAL_SIS(PlanetName), "", "");
+	}
 }
 
 static void
@@ -1827,6 +1851,14 @@ DrawOuterSystem (void)
 	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 	DrawHyperCoords (CurStarDescPtr->star_pt);
+
+	if (optDiscordRPC)
+	{
+		UNICODE starName[256];
+
+		GetClusterName (CurStarDescPtr, starName);
+		updateDiscordPresence (starName, "", "", "");
+	}
 }
 
 RESOURCE
@@ -2451,8 +2483,8 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_DIM_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = LOWORD (rand_val) % SIS_SCREEN_WIDTH;
-			s.origin.y = HIWORD (rand_val) % SIS_SCREEN_HEIGHT;
+			s.origin.x = RES_SCALE(LOWORD (rand_val) % RES_DESCALE(SIS_SCREEN_WIDTH));
+			s.origin.y = RES_SCALE(HIWORD (rand_val) % RES_DESCALE(SIS_SCREEN_HEIGHT));
 
 			DrawStamp (&s);
 		}
@@ -2465,8 +2497,8 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_BRT_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = LOWORD (rand_val) % SIS_SCREEN_WIDTH;
-			s.origin.y = HIWORD (rand_val) % SIS_SCREEN_HEIGHT;
+			s.origin.x = RES_SCALE(LOWORD (rand_val) % RES_DESCALE(SIS_SCREEN_WIDTH));
+			s.origin.y = RES_SCALE(HIWORD (rand_val) % RES_DESCALE(SIS_SCREEN_HEIGHT));
 
 			DrawStamp (&s);
 		}
@@ -2599,10 +2631,10 @@ GetNamedPlanetaryBody (void)
 				if (moon == 0) // Triton
 					return GAME_STRING (PLANET_NUMBER_BASE + 15);
 				break;
-			//case 8: // Pluto
-			//	if (moon == 0) // Charon
-			//		return GAME_STRING (PLANET_NUMBER_BASE + 34);
-			//	break;
+			case 8: // Pluto
+				if (moon == 0) // Charon
+					return GAME_STRING (PLANET_NUMBER_BASE + 34);
+				break;
 		}
 	}
 	else if (CurStarDescPtr->Index == SAMATRA_DEFINED 

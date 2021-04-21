@@ -122,7 +122,7 @@ MakeScanValue (UNICODE *buf, long val, const UNICODE *extra)
 	}
 }
 
-static void
+void
 GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 {
 	int val;
@@ -149,15 +149,18 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 	}
 }
 
-static void HazardCase (BYTE hazard) {
+static void
+HazardCase (BYTE hazard)
+{
 #define HAZARD_CASE(a,b) ((a) ? DULL_YELLOW_COLOR : ((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
 	Color HazardColor;
 
-	UWORD Temperature = GetThermalHazardRating(pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	UWORD Temperature = GetThermalHazardRating (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
 	UWORD Weather = pSolarSysState->SysInfo.PlanetInfo.Weather + 1;
-	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;	
+	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;
 
-	switch (hazard) {
+	switch (hazard)
+	{
 		case LAVASPOT_DISASTER:
 			HazardColor = HAZARD_CASE ((Temperature > 1 && Temperature < 5), (Temperature > 4));
 			break;
@@ -175,12 +178,12 @@ static void HazardCase (BYTE hazard) {
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y (RES_SCALE(16) + IF_HD(7))
+#define SCAN_TITLE_Y RES_SCALE(16)
 
 static void
 PrintCoarseScanPC (void)
 {
-#define SCAN_LEADING_PC RES_SCALE(10) // JMS_GFX
+#define SCAN_LEADING_PC RES_SCALE(10) 
 	SDWORD val;
 	TEXT t;
 	RECT r;
@@ -202,9 +205,9 @@ PrintCoarseScanPC (void)
 
 	SetContextFont (TinyFont);
 
-#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) // JMS_GFX
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) // JMS_GFX
-#define SCAN_BASELINE_Y_PC (RES_SCALE(51) + IF_HD(14)) // JMS_GFX
+#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) 
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) 
+#define SCAN_BASELINE_Y_PC RES_SCALE(51) 
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
@@ -355,7 +358,7 @@ PrintCoarseScanPC (void)
 static void
 PrintCoarseScan3DO (void)
 {
-#define SCAN_LEADING RES_SCALE(19) // JMS_GFX
+#define SCAN_LEADING RES_SCALE(19) 
 	SDWORD val;
 	TEXT t;
 	STAMP s;
@@ -380,9 +383,9 @@ PrintCoarseScan3DO (void)
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
 	DrawStamp (&s);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE(27 + 16) // JMS_GFX
+#define LEFT_SIDE_BASELINE_X RES_SCALE(27 + 16) 
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y (RES_SCALE(34) + IF_HD(19)) // JMS_GFX
+#define SCAN_BASELINE_Y RES_SCALE(34) 
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
@@ -444,7 +447,7 @@ PrintCoarseScan3DO (void)
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
-	t.baseline.x = RIGHT_SIDE_BASELINE_X;
+	t.baseline.x = RIGHT_SIDE_BASELINE_X + IF_HD(3);
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 
@@ -1060,7 +1063,7 @@ ScanPlanet (COUNT scanType)
 		TimeCount TimeOut;
 
 		t.baseline.x = SIS_SCREEN_WIDTH >> 1;
-		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); // JMS_GFX
+		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); 
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 
@@ -1068,9 +1071,9 @@ ScanPlanet (COUNT scanType)
 
 		SetContext (PlanetContext);
 		r.corner.x = 0;
-		r.corner.y = t.baseline.y - RES_SCALE(10); // JMS_GFX
+		r.corner.y = t.baseline.y - RES_SCALE(10); 
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1); // JMS_GFX
+		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1); 
 		RepairBackRect (&r, FALSE);
 
 		SetContextFont (MicroFont);

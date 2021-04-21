@@ -57,24 +57,23 @@ CONTEXT OffScreenContext;
 SIZE screen_width, screen_height;
 FRAME Screen;
 FONT StarConFont;
-FONT StarConLgFont;
 FONT MicroFont;
 FONT TinyFont;
-FONT TinyFontSS;
+FONT TinyFontBold;
 FONT PlyrFont;
 QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
-FRAME hyperspacesuns; // BW
-FRAME NebulaeFrame; // JMS
+FRAME hyperspacesuns;
+FRAME NebulaeFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
 STRING GameStrings;
 QUEUE disp_q;
-// Serosis
+
 BOOLEAN solTexturesPresent;
 BOOLEAN SyreenVoiceFix;
 BOOLEAN comingFromInit;
@@ -149,7 +148,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("yellow-fried-hd");
 		loadAddon ("orange-peel-melnorme");
 		loadAddon ("classic-hd-fonts");
-		loadAddon ("tarps-choice");
+		// loadAddon ("tarps-choice"); // Make Room for the Beta-HD Addon
 	}
 
 	loadAddon ("ProfanePkunk");
@@ -164,6 +163,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
 		SyreenVoiceFix = loadAddon ("SyreenVoiceFix");
+		loadAddon ("GlaDOS");
 	}
 
 	if (opt3doMusic)
@@ -255,16 +255,12 @@ InitKernel (void)
 	if (StarConFont == NULL)
 		return FALSE;
 
-	StarConLgFont = LoadFont (STARCONLG_FONT);
-	if (StarConLgFont == NULL)
-		return FALSE;
-
 	TinyFont = LoadFont (TINY_FONT);
 	if (TinyFont == NULL)
 		return FALSE;
 
-	TinyFontSS = LoadFont (TINY_FONT_SS);
-	if (TinyFontSS == NULL)
+	TinyFontBold = LoadFont (TINY_FONT_BOLD);
+	if (TinyFontBold == NULL)
 		return FALSE;
 
 	PlyrFont = LoadFont (PLAYER_FONT);
@@ -282,8 +278,7 @@ InitKernel (void)
 	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
 		return FALSE;
-	
-	// JMS: Animated hyperspace suns.
+
 	if (HDPackPresent) { 
 		hyperspacesuns = CaptureDrawable (LoadGraphic (HYPERSUNS_MASK_PMAP_ANIM));
 		if (hyperspacesuns == NULL)
@@ -293,8 +288,7 @@ InitKernel (void)
 	NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
 	if (NebulaeFrame == NULL || !NebulaeFrame)
 		return FALSE;
-		
-	// JMS: This is a table of mineral values that will be shown on the status bar.
+
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)
 		return FALSE;

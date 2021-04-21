@@ -819,7 +819,7 @@ spawn_ion_trail (ELEMENT *ElementPtr, SIZE x_offset, SIZE y_offset)
 				// 'cycle_ion_trail', it is given new life a number of
 				// times, by setting life_span to thrust_wait.
 
-		// JMS_GFX
+		
 		if (!IS_HD) {
 			SetPrimType (&DisplayArray[IonElementPtr->PrimIndex], POINT_PRIM);
 			IonElementPtr->current.image.frame = DecFrameIndex (stars_in_space);
@@ -916,7 +916,7 @@ ship_transition (ELEMENT *ElementPtr)
 		}
 		else if ((hShipImage = AllocElement ()))
 		{
-#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(40)) // JMS_GFX
+#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(40)) 
 #define TRANSITION_LIFE 1
 			COUNT angle;
 

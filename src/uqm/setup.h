@@ -33,9 +33,9 @@ extern RESOURCE_INDEX hResIndex;
 extern FRAME Screen;
 extern FRAME ActivityFrame;
 extern FRAME StatusFrame;
-extern FRAME SubmenuFrame; // JMS
-extern FRAME NebulaeFrame;	// JMS
-extern FRAME hyperspacesuns;	// BW
+extern FRAME SubmenuFrame;
+extern FRAME NebulaeFrame;
+extern FRAME hyperspacesuns;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME FontGradFrame;
@@ -52,10 +52,9 @@ extern CONTEXT StatusContext;
 extern SIZE screen_width, screen_height;
 
 extern FONT StarConFont;
-extern FONT StarConLgFont;
 extern FONT MicroFont;
 extern FONT TinyFont;
-extern FONT TinyFontSS;
+extern FONT TinyFontBold;
 extern FONT PlyrFont;
 
 extern CondVar RenderingCond;
@@ -64,7 +63,7 @@ extern QUEUE race_q[];
 		/* Array of lists of ships involved in a battle, one queue per side;
 		 * queue element is STARSHIP */
 
-// Serosis
+
 extern BOOLEAN solTexturesPresent;
 extern BOOLEAN SyreenVoiceFix;
 extern BOOLEAN HDPackPresent;

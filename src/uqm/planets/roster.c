@@ -71,12 +71,10 @@ drawSupportShip (ROSTER_STATE *rosterState, bool filled, bool saveFrame)
 	if (!rosterState->curShipFrame)
 		return;
 
-	s.origin.x = RES_STAT_SCALE(rosterState->curShipPt.x)
-		+ (rosterState->curShipPt.x >= ship_pos[1].x ? IF_HD(5) : IF_HD(-2)); // JMS_GFX
-	s.origin.y = RES_STAT_SCALE(rosterState->curShipPt.y) + IF_HD(10);
+	s.origin.x = RES_SCALE(rosterState->curShipPt.x);
+	s.origin.y = RES_SCALE(rosterState->curShipPt.y);
 	s.frame = rosterState->curShipFrame;
-	
-	// JMS: 
+
 	if (saveFrame) {
 		savedShipFrame_r.corner.x = s.origin.x;
 		savedShipFrame_r.corner.y = s.origin.y;

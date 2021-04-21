@@ -33,12 +33,8 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/tasklib.h"
 #include "libs/log.h"
-
 #include "planets/planets.h"
-// JMS: For MIN_MOON_RADIUS
-
 #include <math.h>
-// JMS: For sin and cos
 
 
 static void CleanupAfterStarBase (void);
@@ -51,7 +47,7 @@ DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 	COUNT text_spacing_y = RES_SCALE(23 - 4);
 
 	SetContext (ScreenContext);
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 	SetContextForeGroundColor (BLACK_COLOR);
 
 	t.baseline.x = RES_SCALE(73 - 4);
@@ -94,13 +90,6 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 	RECT r;
 	STAMP Side, Top;
 	SBYTE RepairSlot;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
- 
-	// JMS_GFX
-	if (IS_HD &&
-		which_piece != FUSION_THRUSTER && which_piece != TURNING_JETS
-		 && which_piece != EMPTY_SLOT + 0 && which_piece != EMPTY_SLOT + 1)
-		ship_piece_offset_scaled += 1;
 
 	RepairSlot = 0;
 	switch (which_piece)
@@ -153,103 +142,63 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			break;
 	}
 
-	Side.origin.x += which_slot * ship_piece_offset_scaled;
+	Side.origin.x += which_slot * SHIP_PIECE_OFFSET;
 	Side.frame = NULL;
 	if (RepairSlot < 0)
 	{
 		Side.frame = SetAbsFrameIndex (ModuleFrame,
 				((NUM_MODULES - 1) + (6 - 2)) + (NUM_MODULES + 6)
 				- (RepairSlot + 1));
-		// JMS_GFX:
-		if (!IS_HD ||
-			(which_piece != FUSION_THRUSTER && which_piece != TURNING_JETS
-			 && which_piece != EMPTY_SLOT + 0 && which_piece != EMPTY_SLOT + 1))
-			DrawStamp (&Side);
+		DrawStamp (&Side);
 	}
-	else if (RepairSlot && !(IS_HD && DrawBluePrint))
+	else if (RepairSlot)
 	{
-		OldColor = SetContextForeGroundColor (BLACK_COLOR);
-
 		r.corner = Side.origin;
-		r.corner.y += IF_HD(8);
-		r.extent.width = ship_piece_offset_scaled;
+		r.corner.y += IF_HD(16);
+		r.extent.width = SHIP_PIECE_OFFSET;
 		r.extent.height = RES_SCALE(1);
+		OldColor = SetContextForeGroundColor (BLACK_COLOR);
+		if (!IS_HD)
+			DrawFilledRectangle (&r);
+		r.corner.y += RES_SCALE(23 - 1);
+		if (!IS_HD)
+			DrawFilledRectangle (&r);
 
-		DrawFilledRectangle (&r);
-
-		r.corner.y += RES_SCALE(23 - 1); // JMS_GFX
-		if (IS_HD)
-			r.extent.height += IF_HD(30);
-		
-		if (which_slot == 0 && IS_HD)
-			r.corner.x += IF_HD(4); // JMS_GFX
-		else if (which_slot == NUM_MODULE_SLOTS - 1 && IS_HD)
-			r.extent.width -= IF_HD(9); // JMS_GFX
-		DrawFilledRectangle (&r);
-		
-		r.extent.width = RES_BOOL(1, 12);
-		r.extent.height = RES_SCALE(8) + IF_HD(30); // JMS_GFX
-
+		r.extent.width = RES_SCALE(1);
+		r.extent.height = RES_SCALE(8);
 		if (RepairSlot == 2)
 		{
 			r.corner = Side.origin;
-			r.corner.y += IF_HD(8);
-			DrawFilledRectangle (&r);
-			if (IS_HD) {
-				r.corner.x += ship_piece_offset_scaled - r.extent.width;
-				if (which_slot == NUM_MODULE_SLOTS - 1 && IS_HD) {
-					r.extent.height -= IF_HD(16); // JMS_GFX
-					r.extent.width += IF_HD(4); // JMS_GFX
-					DrawFilledRectangle (&r);
-					r.extent.width -= IF_HD(4); // JMS_GFX
-				} else
-					DrawFilledRectangle (&r);
-				
-				r.corner.x -= ship_piece_offset_scaled - r.extent.width;
-			}
-			r.corner.y += RES_SCALE(15); // JMS_GFX
-			DrawFilledRectangle (&r);
-			if (IS_HD) {
-				r.corner.x += ship_piece_offset_scaled - r.extent.width;
-				if (which_slot == NUM_MODULE_SLOTS - 1 && IS_HD) {
-					r.corner.y += IF_HD(32);
-					r.extent.height -= IF_HD(36); // JMS_GFX
-					r.extent.width += IF_HD(3); // JMS_GFX
-					DrawFilledRectangle (&r);
-					r.extent.width -= IF_HD(3); // JMS_GFX
-					r.extent.height += IF_HD(36); // JMS_GFX
-				} else
-					DrawFilledRectangle (&r);
-				
-				r.corner.x -= ship_piece_offset_scaled - r.extent.width;
-			}
+			r.corner.y += IF_HD(16);
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
+				DrawFilledRectangle (&r);
+				r.corner.y += RES_SCALE(15);
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
+				DrawFilledRectangle (&r);
 		}
 		if (which_slot < (NUM_MODULE_SLOTS - 1))
 		{
 			r.corner = Side.origin;
-			r.corner.y += IF_HD(8);
-			r.corner.x += ship_piece_offset_scaled;
-			DrawFilledRectangle (&r);
-			if (IS_HD) {
-				r.corner.x += ship_piece_offset_scaled - r.extent.width;
+			r.corner.y += IF_HD(16);
+			r.corner.x += SHIP_PIECE_OFFSET;
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
 				DrawFilledRectangle (&r);
-				r.corner.x -= ship_piece_offset_scaled - r.extent.width;
-			}
-			r.corner.y += RES_SCALE(15); // JMS_GFX
-			DrawFilledRectangle (&r);
+			r.corner.y += RES_SCALE(15);
+			if (!IS_HD || (IS_HD && !DrawBluePrint))
+				DrawFilledRectangle (&r);
 		}
 	}
 
 	if (DrawBluePrint)
 	{
-		if (RepairSlot && !(IS_HD && DrawBluePrint))
+		if (RepairSlot)
 			SetContextForeGroundColor (OldColor);
 		Side.frame = SetAbsFrameIndex (ModuleFrame, which_piece - 1);
 		DrawFilledStamp (&Side);
 	}
 	else
 	{
-		Top.origin.x += which_slot * ship_piece_offset_scaled;
+		Top.origin.x += which_slot * SHIP_PIECE_OFFSET;
 		if (RepairSlot < 0)
 		{
 			Top.frame = SetRelFrameIndex (Side.frame, -((NUM_MODULES - 1) + 6));
@@ -258,38 +207,30 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		else if (RepairSlot)
 		{
 			r.corner = Top.origin;
-			r.extent.width = ship_piece_offset_scaled;
-			r.extent.height = RES_SCALE(1) + RESOLUTION_FACTOR;
-			DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(32 - 1) + IF_HD(16);  // JMS_GFX
-			DrawFilledRectangle (&r);
+			r.extent.width = SHIP_PIECE_OFFSET;
+			r.extent.height = RES_SCALE(1);
+			if (!IS_HD)
+				DrawFilledRectangle (&r);
+			r.corner.y += RES_SCALE(32 - 1);
+			if (!IS_HD)
+				DrawFilledRectangle (&r);
 
-			r.extent.width = RES_SCALE(1) + RESOLUTION_FACTOR;
-			r.extent.height = RES_SCALE(12) + IF_HD(17); // JMS_GFX
+			r.extent.width = RES_SCALE(1);
+			r.extent.height = RES_SCALE(12);
 			if (RepairSlot == 2)
 			{
 				r.corner = Top.origin;
 				DrawFilledRectangle (&r);
-				if (IS_HD) {
-					r.corner.x += ship_piece_offset_scaled - r.extent.width;
+				r.corner.y += RES_SCALE(20);
 					DrawFilledRectangle (&r);
-					r.corner.x -= ship_piece_offset_scaled - r.extent.width;
-				}
-				r.corner.y += RES_SCALE(20); // JMS_GFX
- 				DrawFilledRectangle (&r);
-				if (IS_HD) {
-					r.corner.x += ship_piece_offset_scaled - r.extent.width;
-					DrawFilledRectangle (&r);
-					r.corner.x -= ship_piece_offset_scaled - r.extent.width;
-				}
 			}
 			RepairSlot = (which_slot < NUM_MODULE_SLOTS - 1);
 			if (RepairSlot)
 			{
 				r.corner = Top.origin;
-				r.corner.x += ship_piece_offset_scaled;
+				r.corner.x += SHIP_PIECE_OFFSET;
 				DrawFilledRectangle (&r);
-				r.corner.y += RES_SCALE(20); // JMS_GFX
+				r.corner.y += RES_SCALE(20); 
 				DrawFilledRectangle (&r);
 			}
 		}
@@ -298,44 +239,26 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		DrawStamp (&Top);
 
 		Side.frame = SetRelFrameIndex (Top.frame, (NUM_MODULES - 1) + 6);
-		if (IS_HD
-			&& (which_piece == EMPTY_SLOT + 2 
-				|| which_piece == EMPTY_SLOT + 3))
-		{
-			if (which_slot == 0)
-				Side.frame = SetRelFrameIndex (Side.frame, 8);
-			if (which_slot == 1)
-				Side.frame = SetRelFrameIndex (Side.frame, 10);
-			if (which_slot == NUM_MODULE_SLOTS - 2)
-				Side.frame = SetRelFrameIndex (Side.frame, 10);
-			if (which_slot == NUM_MODULE_SLOTS - 1)
-				Side.frame = SetRelFrameIndex (Side.frame, 11);
-		}
-		
-		// JMS_GFX:
-		if (!IS_HD ||
-			(which_piece != FUSION_THRUSTER && which_piece != TURNING_JETS
-			 && which_piece != EMPTY_SLOT + 0 && which_piece != EMPTY_SLOT + 1))
-			DrawStamp (&Side);
+		DrawStamp (&Side);
 
-		if (which_slot == 1 && which_piece == EMPTY_SLOT + 2 && !IS_HD)
+		if (which_slot == 1 && which_piece == EMPTY_SLOT + 2)
 		{
 			STAMP s;
 
 			s.origin = Top.origin;
-			s.origin.x -= ship_piece_offset_scaled;
+			s.origin.x -= SHIP_PIECE_OFFSET;
 			s.frame = SetAbsFrameIndex (ModuleFrame, NUM_MODULES + 5);
 			DrawStamp (&s);
 			s.origin = Side.origin;
-			s.origin.x -= ship_piece_offset_scaled;
+			s.origin.x -= SHIP_PIECE_OFFSET;
 			s.frame = SetRelFrameIndex (s.frame, (NUM_MODULES - 1) + 6);
 			DrawStamp (&s);
 		}
 
 		if (RepairSlot)
 		{
-			Top.origin.x += ship_piece_offset_scaled;
-			Side.origin.x += ship_piece_offset_scaled;
+			Top.origin.x += SHIP_PIECE_OFFSET;
+			Side.origin.x += SHIP_PIECE_OFFSET;
 			which_piece = GLOBAL_SIS (ModuleSlots[++which_slot]);
 			if (which_piece == EMPTY_SLOT + 2
 					&& which_slot >= NUM_MODULE_SLOTS - 3)
@@ -345,25 +268,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			DrawStamp (&Top);
 
 			Side.frame = SetRelFrameIndex (Top.frame, (NUM_MODULES - 1) + 6);
-			if (IS_HD)
-			{
-				if (which_slot == 0 && which_piece == EMPTY_SLOT + 3)
-					Side.frame = SetAbsFrameIndex (ModuleFrame, GetFrameCount (ModuleFrame)-4);
-				if (which_slot == 1 && which_piece == EMPTY_SLOT + 2)
-					Side.frame = SetAbsFrameIndex (ModuleFrame, GetFrameCount (ModuleFrame)-3);
-				if (which_slot == NUM_MODULE_SLOTS - 2 
-					&& which_piece == EMPTY_SLOT + 3)
-					Side.frame = SetAbsFrameIndex (ModuleFrame, GetFrameCount (ModuleFrame)-2);
-				if (which_slot == NUM_MODULE_SLOTS - 1 
-					&& which_piece == EMPTY_SLOT + 3)
-					Side.frame = SetAbsFrameIndex (ModuleFrame, GetFrameCount (ModuleFrame)-1);
-			}
-			
-			// JMS_GFX:
-			if (!IS_HD ||
-				(which_piece != FUSION_THRUSTER && which_piece != TURNING_JETS
-				 && which_piece != EMPTY_SLOT + 0 && which_piece != EMPTY_SLOT + 1))
-				DrawStamp (&Side);
+			DrawStamp (&Side);
 		}
 	}
 }

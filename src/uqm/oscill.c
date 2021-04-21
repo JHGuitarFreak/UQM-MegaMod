@@ -52,8 +52,8 @@ InitOscilloscope (FRAME scopeBg)
 				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = size.width - RES_STAT_SCALE(2);
-		scopeSize.height = size.height - RES_STAT_SCALE(2);
+		scopeSize.width = size.width - RES_SCALE(2);
+		scopeSize.height = size.height - RES_SCALE(2);
 
 		scope_init = 1;
 	}
@@ -73,7 +73,7 @@ void
 DrawOscilloscope (void)
 {
 	STAMP s;
-	BYTE scope_data[192]; // JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would really require this to be
+	BYTE scope_data[256]; // JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would really require this to be
 							// less than 256. This "fix" messes up how the oscilloscope looks, but it works for now
 							// (doesn't get caught in asserts). We need to fix this later.
 
@@ -106,14 +106,14 @@ DrawOscilloscope (void)
 
 		// draw the scope lines
 		SetContextForeGroundColor (scopeColor);
-		for (i = 0; i < scopeSize.width - RES_STAT_SCALE(1); ++i)
+		for (i = 0; i < scopeSize.width - RES_SCALE(1); ++i)
 		{
 			LINE line;
 
-			line.first.x = i + RES_STAT_SCALE(1);
-			line.first.y = scope_data[i] + RES_STAT_SCALE(1);
-			line.second.x = i + RES_STAT_SCALE(2);
-			line.second.y = scope_data[i + RES_STAT_SCALE(1)] + RES_STAT_SCALE(1);
+			line.first.x = i + RES_SCALE(1);
+			line.first.y = scope_data[i] + RES_SCALE(1);
+			line.second.x = i + RES_SCALE(2);
+			line.second.y = scope_data[i + RES_SCALE(1)] + RES_SCALE(1);
 			DrawLine (&line);
 		}
 

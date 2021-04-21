@@ -52,7 +52,6 @@
 #include "options.h"
 #include "setupmenu.h"
 #include "build.h"
-#include "gameopt.h" // JMS: For naming captain and ship at game start.
 #include "nameref.h"
 #include "settings.h"
 #include "cons_res.h"
@@ -233,6 +232,7 @@ while (--ac > 0)
 		comingFromInit = TRUE;
 	}
 
+	updateDiscordPresence("Loading it up...", "", "loading", "");
 	SplashScreen (BackgroundInitKernel);
 
 #ifdef DEBUG

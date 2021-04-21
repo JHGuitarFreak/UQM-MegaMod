@@ -354,25 +354,6 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
-	if (IndependantResFactor == 0 && IS_HD)
-	{
-		POINT NewLoc = MAKE_POINT (SIS_SCREEN_WIDTH / 2, SIS_SCREEN_HEIGHT);
-		POINT IPBounds = displayToLocation (
-					MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT),
-					MAX_ZOOM_RADIUS);
-		BOOLEAN OutOfBounds = ((GSPtr->ip_location.x > -IPBounds.x
-				&& GSPtr->ip_location.y > -IPBounds.y)
-				&& (GSPtr->ip_location.x < IPBounds.x
-				&& GSPtr->ip_location.x < IPBounds.y));
-
-		if (LOBYTE (GSPtr->CurrentActivity) == IN_INTERPLANETARY
-				&& !GSPtr->in_orbit 
-				&& OutOfBounds)
-		{
-			GSPtr->ip_location = displayToLocation (NewLoc, MAX_ZOOM_RADIUS);
-		}
-	}
-
 	/* VELOCITY_DESC velocity */
 	read_16  (fh, &GSPtr->velocity.TravelAngle);
 	read_16s (fh, &GSPtr->velocity.vector.width);

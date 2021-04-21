@@ -113,7 +113,7 @@ static FRAME TextCacheFrame;
 RECT CommWndRect = {
 	// default values; actually inited by HailAlien()
 	{0, 0},
-	{0, 0} //was {SIS_ORG_X, SIS_ORG_Y}, // JMS_GFX
+	{0, 0} //was {SIS_ORG_X, SIS_ORG_Y}, 
 };
 
 static void ClearSubtitles (void);
@@ -200,13 +200,13 @@ add_text (int status, TEXT *pTextIn)
 	}
 	else if (GetContextFontLeading (&leading), status <= -4)
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - 8 - (TEXT_X_OFFS << 2)); // JMS_GFX
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - 8 - (TEXT_X_OFFS << 2));
 
 		pText = pTextIn;
 	}
 	else
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - 8 - (TEXT_X_OFFS << 2)); // JMS_GFX
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - 8 - (TEXT_X_OFFS << 2));
 
 		switch (status)
 		{
@@ -227,7 +227,7 @@ add_text (int status, TEXT *pTextIn)
 
 		maxchars = pTextIn->CharCount;
 		locText = *pTextIn;
-		locText.baseline.x -= RES_SCALE(8); // JMS_GFX
+		locText.baseline.x -= RES_SCALE(8); 
 		locText.CharCount = (COUNT)~0;
 		locText.pStr = STR_BULLET;
 		font_DrawText (&locText);
@@ -492,8 +492,8 @@ DrawCommBorder (RECT r)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= 1;
-	clipRect.extent.width += 2;
+	clipRect.corner.x -= RES_SCALE(1);
+	clipRect.extent.width += RES_SCALE(2);
 	SetContextClipRect (&clipRect);
 
 	// Border foreground
@@ -505,12 +505,12 @@ DrawCommBorder (RECT r)
 
 	// Border top shadow line
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
-	r.extent.height = 1;
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
-	r.corner.y += SLIDER_HEIGHT - 1;
+	r.corner.y += SLIDER_HEIGHT - RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	SetContextClipRect (&oldClipRect);
@@ -559,7 +559,7 @@ static void
 RefreshResponses (ENCOUNTER_STATE *pES)
 {
 	COORD y;
-	BYTE response, extra_y; // JMS_GFX
+	BYTE response;
 	SIZE leading;
 	STAMP s;
 
@@ -573,10 +573,8 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
-		extra_y = response == pES->top_response ? 0 : 8;
-		
 		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE(8);
-		pES->response_list[response].response_text.baseline.y = y + leading + IF_HD(extra_y);
+		pES->response_list[response].response_text.baseline.y = y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
 			y = add_text (-1, &pES->response_list[response].response_text) - RES_SCALE(2);
@@ -586,12 +584,12 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 	if (pES->top_response)
 	{
-		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + 1;
+		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 6);
 	}
 	else if (y > SIS_SCREEN_HEIGHT)
 	{
-		s.origin.y = SIS_SCREEN_HEIGHT - 2;
+		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE(2);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 7);
 	}
 	else
@@ -601,7 +599,7 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 		RECT r;
 
 		GetFrameRect (s.frame, &r);
-		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - 1;
+		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE(1);
 		DrawStamp (&s);
 	}
 
@@ -620,7 +618,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		TEXT ct;
 
 		ct.baseline.x = SIS_SCREEN_WIDTH >> 1;
-		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_STAT_SCALE(13); // JMS_GFX
+		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13); 
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
 
@@ -629,7 +627,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		SetContextForeGroundColor (COMM_RESPONSE_INTRO_TEXT_COLOR);
 		font_DrawText (&ct);
 
-		ct.baseline.y += RES_SCALE(16); // JMS_GFX
+		ct.baseline.y += RES_SCALE(16); 
 		SetContextForeGroundColor (COMM_FEEDBACK_TEXT_COLOR);
 		ct.pStr = pStr;
 		add_text (-4, &ct);
@@ -666,7 +664,7 @@ UpdateSpeechGraphics (void)
 }
 
 static void
-UpdateAnimations (bool paused)
+UpdateAnimations (BOOLEAN paused)
 {
 	static TimeCount NextTime;
 	CONTEXT OldContext;
@@ -691,7 +689,7 @@ UpdateAnimations (bool paused)
 static void
 UpdateCommGraphics (void)
 {
-	UpdateAnimations (false);
+	UpdateAnimations (FALSE);
 	UpdateSpeechGraphics ();
 }
 
@@ -959,9 +957,9 @@ remove_char_from_string (UNICODE* str, const UNICODE c)
 static BOOLEAN
 DoConvSummary (SUMMARY_STATE *pSS)
 {
-#define DELTA_Y_SUMMARY RES_SCALE(8) // JMS_GFX
+#define DELTA_Y_SUMMARY RES_SCALE(8) 
 	//#define MAX_SUMM_ROWS ((SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT) / DELTA_Y_SUMMARY
-#define MAX_SUMM_ROWS (SLIDER_Y	/ DELTA_Y_SUMMARY) - 1 // JMS_GFX
+#define MAX_SUMM_ROWS (SLIDER_Y	/ DELTA_Y_SUMMARY) - RES_SCALE(1)
 
 	if (!pSS->Initialized)
 	{
@@ -998,7 +996,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 		r.corner.x = 0;
 		r.corner.y = 0;
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = SLIDER_Y; //SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT + RES_SCALE(2) + 16 * RESOLUTION_FACTOR; // JMS_GFX
+		r.extent.height = SLIDER_Y; //SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT + RES_SCALE(2) + 16 * RESOLUTION_FACTOR; 
 
 		SetContext (AnimContext);
 		SetContextForeGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
@@ -1007,7 +1005,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 		SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
 		r.extent.width -= 2 + 2;
-		t.baseline.x = RES_SCALE(2); // JMS_GFX
+		t.baseline.x = RES_SCALE(2); 
 		t.align = ALIGN_LEFT;
 		t.baseline.y = DELTA_Y_SUMMARY;
 		SetContextFont (TinyFont);
@@ -1389,6 +1387,12 @@ HailAlien (void)
 
 	ES.InputFunc = DoCommunication;
 	PlayerFont = LoadFont (PLAYER_FONT);
+
+	/*if (optWhichFonts == OPT_PC)
+		PlayerFont = LoadFont (PLAYER_FONT);
+	else
+		PlayerFont = LoadFont (TINY_FONT_HD);*/
+
 	ComputerFont = LoadFont (COMPUTER_FONT);
 
 	CommData.AlienFrame = CaptureDrawable (
@@ -1405,13 +1409,10 @@ HailAlien (void)
 		IsAltSong = TRUE;
 	}
 	else
-		CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
+		CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 
 	CommData.ConversationPhrases = CaptureStringTable (
 			LoadStringTable (CommData.ConversationPhrasesRes));
-
-	if (CommData.AlienTextBaseline.y == 0)
-		CommData.AlienTextBaseline.y = IF_HD(18);
 
 	SubtitleText.baseline = CommData.AlienTextBaseline;
 	SubtitleText.align = CommData.AlienTextAlign;
@@ -1455,8 +1456,8 @@ HailAlien (void)
 		if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 		{
 			// set the position of outtakes comm
-			CommWndRect.corner.x = ((SCREEN_WIDTH - CommWndRect.extent.width) / 2); // JMS_GFX
-			CommWndRect.corner.y = RES_SCALE(5); // JMS_GFX
+			CommWndRect.corner.x = ((SCREEN_WIDTH - CommWndRect.extent.width) / 2);
+			CommWndRect.corner.y = RES_SCALE(5);
 			r.corner = CommWndRect.corner;
 			SetContextClipRect (&r);
 		}

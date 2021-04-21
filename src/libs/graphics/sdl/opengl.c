@@ -314,8 +314,8 @@ TFB_GL_InitGraphics (int driver, int flags, int width, int height, unsigned int 
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");
 
-	ScreenWidth = (320 << resFactor); // JMS_GFX
-	ScreenHeight = (240 << resFactor); // JMS_GFX
+	ScreenWidth = (320 << resFactor);
+	ScreenHeight = (240 << resFactor);
 
 	if (TFB_GL_ConfigureVideo (driver, flags, width, height, 0, resFactor))
 	{

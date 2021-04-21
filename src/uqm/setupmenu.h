@@ -46,7 +46,7 @@ typedef enum {
 
 typedef enum {
 	OPTVAL_320_240,
-	OPTVAL_REAL_1280_960, // JMS_GFX
+	OPTVAL_REAL_1280_960, 
 } OPT_RESTYPE;
 
 typedef enum {
@@ -136,7 +136,7 @@ typedef struct globalopts_struct {
 				bubbleWarp, unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro, infiniteFuel,
 				partialPickup, submenu, addDevices, scalePlanets, customBorder, spaceMusic, volasMusic,
 				directionalJoystick, wholeFuel, fuelRange, extended, nomad, gameOver, shipDirectionIP, 
-				hazardColors, orzCompFont;
+				hazardColors, orzCompFont, shipFacingHS, discordRPC;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans, landerHold;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol;

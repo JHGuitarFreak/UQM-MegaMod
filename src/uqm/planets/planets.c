@@ -31,6 +31,7 @@
 #include "../uqmdebug.h"
 #include "../resinst.h"
 #include "../nameref.h"
+#include "../starmap.h"
 #include "options.h"
 #include "libs/graphics/gfx_common.h"
 
@@ -123,9 +124,9 @@ DrawPlanetSurfaceBorder (void)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= 1;
-	clipRect.extent.width += 2;
-	clipRect.extent.height += 1;
+	clipRect.corner.x -= RES_SCALE(1);
+	clipRect.extent.width += RES_SCALE(2);
+	clipRect.extent.height += RES_SCALE(1);
 	SetContextClipRect (&clipRect);
 
 	BatchGraphics ();
@@ -136,36 +137,36 @@ DrawPlanetSurfaceBorder (void)
 	r.corner.x = 0;
 	r.corner.y = clipRect.extent.height - MAP_HEIGHT - MAP_BORDER_HEIGHT;
 	r.extent.width = clipRect.extent.width;
-	r.extent.height = MAP_BORDER_HEIGHT - 2;
+	r.extent.height = MAP_BORDER_HEIGHT - RES_SCALE(2);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
 	
 	// Border top shadow line
-	r.extent.width -= 1;
-	r.extent.height = 1;
-	r.corner.x = 1;
-	r.corner.y -= 1;
+	r.extent.width -= RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
+	r.corner.x = RES_SCALE(1);
+	r.corner.y -= RES_SCALE(1);
 	DrawFilledRectangle (&r);
 	
 	// XXX: We will need bulk left and right rects here if MAP_WIDTH changes
 
 	// Right shadow line
-	r.extent.width = 1;
-	r.extent.height = MAP_HEIGHT + 2;
-	r.corner.y += MAP_BORDER_HEIGHT - 1;
-	r.corner.x = clipRect.extent.width - 1;
+	r.extent.width = RES_SCALE(1);
+	r.extent.height = MAP_HEIGHT + RES_SCALE(1);
+	r.corner.y += MAP_BORDER_HEIGHT - RES_SCALE(1);
+	r.corner.x = clipRect.extent.width - RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 	
 	// Left shadow line
-	r.corner.x -= MAP_WIDTH + 1;
+	r.corner.x -= MAP_WIDTH + RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
-	r.extent.width = MAP_WIDTH + 2;
-	r.extent.height = 1;
+	r.extent.width = MAP_WIDTH + RES_SCALE(2);
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	DrawBorder(10, FALSE);
@@ -197,7 +198,6 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	if (Mode != DRAW_ORBITAL_UPDATE)
 	{
 		SetTransitionSource (NULL);
-
 		DrawSISFrame ();
 		DrawSISMessage (NULL);
 		DrawSISTitle (GLOBAL_SIS (PlanetName));
@@ -207,12 +207,35 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode == DRAW_ORBITAL_WAIT)
 	{
-		STAMP s;
+		STAMP s, ss;
+		BOOLEAN never = FALSE;
 
 		SetContext (GetScanContext (NULL));
-		s.frame = CaptureDrawable (LoadGraphic (ORBENTER_PMAP_ANIM));
+
 		s.origin.x = 0;
 		s.origin.y = 0;
+		s.frame = SetAbsFrameIndex (CaptureDrawable
+				(LoadGraphic (ORBENTER_PMAP_ANIM)), never);
+
+		if (never)
+		{
+			PLANET_DESC *pPlanetDesc;
+			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+			int PlanetScale = RES_BOOL(319, 512);
+			int PlanetRescale = 1275;
+
+			pPlanetDesc = pSolarSysState->pOrbitalDesc;
+			GeneratePlanetSurface (pPlanetDesc, NULL, PlanetScale, PlanetScale);
+			ss.origin.x = SIS_SCREEN_WIDTH / 2;
+			ss.origin.y = RES_SCALE(191);
+			
+			ss.frame = RES_BOOL(Orbit->SphereFrame, CaptureDrawable (
+					RescaleFrame (Orbit->SphereFrame, PlanetRescale, PlanetRescale)));
+
+			DrawStamp (&ss);
+			DestroyDrawable (ReleaseDrawable (ss.frame));
+		}
+
 		DrawStamp (&s);
 		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
@@ -223,6 +246,25 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode != DRAW_ORBITAL_WAIT)
 	{
+		if (optDiscordRPC)
+		{
+			UNICODE starName[256];
+			UNICODE planetTitle[200];
+			BYTE i, stringLength;
+
+			GetPlanetTitle (planetTitle, sizeof (planetTitle));
+
+			stringLength = strlen (planetTitle);
+
+			for (i = 0; i < stringLength; ++i)
+			{
+				if (planetTitle[i] == ' ')
+					planetTitle[i] = '-';
+			}
+
+			GetClusterName (CurStarDescPtr, starName);
+			updateDiscordPresence (starName, GLOBAL_SIS (PlanetName), strlwr (planetTitle), "");
+		}
 		SetContext (GetScanContext (NULL));
 		DrawPlanet (0, BLACK_COLOR);
 	}
@@ -235,7 +277,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	UnbatchGraphics ();
 
 	// for later RepairBackRect()
-	// JMS_GFX
+	
 	LoadIntoExtraScreen (&r, IS_HD);
 }
 
@@ -385,7 +427,7 @@ FreeLanderFont (PLANET_INFO *info)
 static BOOLEAN
 DoPlanetOrbit (MENU_STATE *pMS)
 {
-	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT];
+	BOOLEAN select = (BOOLEAN)PulsedInputState.menu[KEY_MENU_SELECT];
 	BOOLEAN handled;
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))

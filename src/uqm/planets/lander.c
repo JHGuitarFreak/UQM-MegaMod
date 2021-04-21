@@ -263,7 +263,7 @@ object_animation (ELEMENT *ElementPtr)
 			else if (ElementPtr->mass_points == EARTHQUAKE_DISASTER)
 			{
 				SIZE s;
-				SIZE frame_amount = 13; // JMS_GFX
+				SIZE frame_amount = 13; 
 
 				if (frame_index >= (frame_amount))
 					s = 0;
@@ -292,8 +292,8 @@ object_animation (ELEMENT *ElementPtr)
 					angle = FACING_TO_ANGLE (ElementPtr->facing);
 					LockElement (hLavaElement, &LavaElementPtr);
 					LavaElementPtr->next.location = ElementPtr->next.location;
-					LavaElementPtr->next.location.x += COSINE (angle, RES_SCALE(4)); // JMS_GFX
-					LavaElementPtr->next.location.y += SINE (angle, RES_SCALE(4)); // JMS_GFX
+					LavaElementPtr->next.location.x += COSINE (angle, RES_SCALE(4)); 
+					LavaElementPtr->next.location.y += SINE (angle, RES_SCALE(4)); 
 					if (LavaElementPtr->next.location.y < 0)
 						LavaElementPtr->next.location.y = 0;
 					else if (LavaElementPtr->next.location.y >= (MAP_HEIGHT << MAG_SHIFT))
@@ -413,7 +413,7 @@ object_animation (ELEMENT *ElementPtr)
 						speed = WORLD_TO_VELOCITY (2 * 1) * 9 / 10;
 						break;
 				}
-				speed = RES_SCALE(speed); // JMS_GFX
+				speed = RES_SCALE(speed); 
 
 				SetVelocityComponents (&ElementPtr->velocity,
 						COSINE (angle, speed), SINE (angle, speed));
@@ -472,8 +472,8 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 	}
 
-	s.origin.x = RES_STAT_SCALE(10) + (RES_STAT_SCALE(6) * (crew_delta % NUM_CREW_COLS));
-	s.origin.y = RES_STAT_SCALE(35) - (RES_STAT_SCALE(6) * (crew_delta / NUM_CREW_COLS));
+	s.origin.x = RES_SCALE(11) + (RES_SCALE(6) * (crew_delta % NUM_CREW_COLS));
+	s.origin.y = RES_SCALE(35) - (RES_SCALE(6) * (crew_delta / NUM_CREW_COLS));
 
 	OldContext = SetContext (RadarContext);
 	DrawStamp (&s);
@@ -486,8 +486,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	COUNT start_count, tmpholdint;
 	STAMP s;
 	CONTEXT OldContext;
-	SIZE  rounding_error_startcount = 0; // JMS_GFX
-	SIZE  rounding_error_numretrieved = 0; // JMS_GFX
+	SIZE  rounding_error_startcount = 0; 
+	SIZE  rounding_error_numretrieved = 0; 
 
 	PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_PICKUP),
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
@@ -519,10 +519,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	start_count = start_count * MAX_HOLD_BARS / MAX_SCROUNGED;
 	NumRetrieved = (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED) + tmpholdint;
 
-	start_count *= RES_STAT_SCALE(1); // JMS_GFX
-
 	s.origin.x = 0;
-	s.origin.y = -(int)start_count;
+	s.origin.y = -(int)RES_SCALE(start_count);
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
@@ -534,7 +532,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		else
 			s.frame = DecFrameIndex (s.frame);
 		DrawStamp (&s);
-		s.origin.y -= RES_STAT_SCALE(1); // JMS_GFX
+		s.origin.y -= RES_SCALE(1);
 	}
 	SetContext (OldContext);
 }
@@ -741,7 +739,7 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 				ANGLE_TO_FACING (FULL_CIRCLE));
 		DeltaVelocityComponents (&ElementPtr->velocity,
 				COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1))),
-				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1)))); // JMS_GFX
+				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1)))); 
 		ElementPtr->thrust_wait = 0;
 		ElementPtr->mass_points |= CREATURE_AWARE;
 	}
@@ -1598,7 +1596,7 @@ LanderFire (SIZE facing)
 	SetVelocityComponents (
 		&WeaponElementPtr->velocity,
 		COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdx,
-		SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdy); // JMS_GFX
+		SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdy); 
 
 	UnlockElement (hWeaponElement);
 
@@ -1671,7 +1669,7 @@ DoPlanetSide (LanderInputState *pMS)
 			WORLD_TO_VELOCITY (2 * RES_SCALE(8));
 
 #ifdef FAST_FAST
-landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48)); // JMS
+landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
 #endif
 
 		SetVelocityComponents (&GLOBAL (velocity),
@@ -1886,7 +1884,7 @@ IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 	while (GetTimeCounter () < TimeOut)
 	{
 		// 10 to clear the lander off of the screen
-		ScrollPlanetSide (0, 0, -(SURFACE_HEIGHT / 2 + RES_SCALE(10))); // JMS_GFX
+		ScrollPlanetSide (0, 0, -(SURFACE_HEIGHT / 2 + RES_SCALE(10))); 
 		SleepThreadUntil (inputState->NextTime);
 		inputState->NextTime += PLANET_SIDE_RATE;
 	}
@@ -1897,7 +1895,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 {
 // We cannot solve a quadratic equation in a macro, so use a sensible max
 #define MAX_OFFSETS  20
-#define MAX_OFFSETS_HD 400 // JMS_GFX
+#define MAX_OFFSETS_HD 400 
 // RES_SCALE(10) to clear the lander off of the screen
 #define DISTANCE_COVERED  (SURFACE_HEIGHT / 2 + RES_SCALE(10))
 	int landingOfs[MAX_OFFSETS];
@@ -1905,8 +1903,8 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	int end;
 	int delta;
 	int index;
-	int max_offsets; // JMS_GFX
-	int landingOfsHD[MAX_OFFSETS_HD]; // JMS_GFX
+	int max_offsets; 
+	int landingOfsHD[MAX_OFFSETS_HD]; 
 
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;
@@ -1916,7 +1914,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	for (index = 0; index < max_offsets && delta < DISTANCE_COVERED; ++index)
 	{
 		delta += index + 1;
-		// JMS_GFX
+		
 		if (IS_HD)
 			landingOfsHD[index] = -delta;
 		else
@@ -1943,7 +1941,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	// Draw the landing/takeoff lander positions
 	for (index = start; index != end; index += delta)
 	{
-		// JMS_GFX
+		
 		if (IS_HD)
 			ScrollPlanetSide (0, 0, landingOfsHD[index]);
 		else
@@ -2236,10 +2234,10 @@ InitLander (BYTE LanderFlags)
 		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
-			r.corner.x = RES_STAT_SCALE(1);
-			r.extent.width = RES_STAT_SCALE(4);
+			r.corner.x = RES_SCALE(1);
+			r.extent.width = RES_SCALE(4);
 			r.extent.height =
-				RES_STAT_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+				RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 		}

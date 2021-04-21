@@ -33,8 +33,8 @@
 #include <stdlib.h>
 
 
-#define CONFIRM_WIN_WIDTH RES_SCALE(80) // JMS_GFX
-#define CONFIRM_WIN_HEIGHT RES_SCALE(22) // JMS_GFX
+#define CONFIRM_WIN_WIDTH RES_SCALE(80) 
+#define CONFIRM_WIN_HEIGHT RES_SCALE(22) 
 
 BOOLEAN WarpFromMenu = FALSE;
 
@@ -42,7 +42,7 @@ static void
 DrawConfirmationWindow (BOOLEAN answer)
 {
 	Color oldfg = SetContextForeGroundColor (MENU_TEXT_COLOR);
-	FONT  oldfont = SetContextFont (StarConLgFont);
+	FONT  oldfont = SetContextFont (StarConFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	RECT r;
 	TEXT t;
@@ -63,12 +63,12 @@ DrawConfirmationWindow (BOOLEAN answer)
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_SCALE(8); // JMS_GFX
+	t.baseline.y = r.corner.y + RES_SCALE(8); 
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE); // "Really Quit?"
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
-	t.baseline.y += RES_SCALE(10); // JMS_GFX
+	t.baseline.y += RES_SCALE(10); 
 	t.baseline.x = r.corner.x + (r.extent.width >> 2);
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
@@ -257,7 +257,7 @@ DoPopupWindow (const char *msg)
 	//   We do not know the dimensions here, and so save the whole context
 	s = SaveContextFrame (NULL);
 
-	Widget_SetFont (StarConLgFont);
+	Widget_SetFont (StarConFont);
 	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR, SHADOWBOX_DARK_COLOR,
 			SHADOWBOX_MEDIUM_COLOR);
 	DrawLabelAsWindow (&label, &windowRect);

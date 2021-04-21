@@ -998,7 +998,7 @@ SaveClockState (const CLOCK_STATE *ClockPtr, uio_Stream *fh)
 static BOOLEAN
 SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 {
-	BYTE res_scale; // JMS
+	BYTE res_scale;
 
 	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
 		res_scale = RESOLUTION_FACTOR; 
@@ -1199,7 +1199,7 @@ SaveProblemMessage (STAMP *MsgStamp)
 
 	ppStr[0] = GAME_STRING (SAVEGAME_STRING_BASE + 2);
 
-	SetContextFont (StarConLgFont);
+	SetContextFont (StarConFont);
 
 	t.baseline.x = t.baseline.y = 0;
 	t.align = ALIGN_CENTER;

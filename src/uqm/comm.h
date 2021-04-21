@@ -26,8 +26,8 @@
 
 #ifdef COMM_INTERNAL
 
-#define SLIDER_Y (RES_SCALE(107) + IF_HD(46)) // JMS_GFX
-#define SLIDER_HEIGHT RES_DBL(!usingSpeech && optSmoothScroll == OPT_PC ? 4 : 15)
+#define SLIDER_Y (RES_SCALE(107)) 
+#define SLIDER_HEIGHT RES_SCALE(!usingSpeech && optSmoothScroll == OPT_PC ? 4 : 15)
 
 #include "commanim.h"
 
@@ -105,8 +105,8 @@ signaledStopTalkingAnim (void)
 
 #endif
 
-#define TEXT_X_OFFS RES_SCALE(1) // JMS_GFX
-#define TEXT_Y_OFFS RES_SCALE(1) // JMS_GFX
+#define TEXT_X_OFFS RES_SCALE(1) 
+#define TEXT_Y_OFFS RES_SCALE(1) 
 #define SIS_TEXT_WIDTH (SIS_SCREEN_WIDTH - (TEXT_X_OFFS << 1))
 
 extern void init_communication (void);
