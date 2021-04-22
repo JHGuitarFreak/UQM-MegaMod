@@ -93,7 +93,8 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	rt = *r;
 	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE(12);
 	rt.extent.height += 2;
-	DrawFilledRectangle(&rt);
+	if (!optCustomBorder)
+		DrawFilledRectangle (&rt);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
@@ -101,7 +102,9 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
 	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE(3);	
 	DrawPCMenuFrame (r);
-	DrawBorder (21, FALSE);
+
+	DrawBorder (27 - num_items, FALSE);
+
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
 	t.baseline.x = r->corner.x + RES_BOOL(2, 5);
@@ -121,19 +124,19 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 			// Currently selected menu option.
 			
 			// Draw the background of the selection.
-			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_MEDIUM_COLOR : PCMENU_SELECTION_BACKGROUND_COLOR));
+			SetContextForeGroundColor (PCMENU_SELECTION_BACKGROUND_COLOR);
 			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2);
 			r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
 			DrawFilledRectangle (r);
 
 			// Draw the text of the selected item.
-			SetContextForeGroundColor ((optCustomBorder ? NORMAL_ILLUMINATED_COLOR : PCMENU_SELECTION_TEXT_COLOR));
+			SetContextForeGroundColor (PCMENU_SELECTION_TEXT_COLOR);
 			font_DrawText (&t);
 		}
 		else
 		{
 			// Draw the text of an unselected item.
-			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_BACKGROUND_COLOR : PCMENU_TEXT_COLOR));
+			SetContextForeGroundColor (PCMENU_TEXT_COLOR);
 			font_DrawText (&t);
 		}
 		t.baseline.y += PC_MENU_HEIGHT;
@@ -577,7 +580,8 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			r.extent.width += RES_SCALE(1);
 			r.extent.height = RES_SCALE(11);
 		}
-		DrawFilledRectangle (&r);
+		if (!optCustomBorder)
+			DrawFilledRectangle (&r);
 		DrawBorder(8, FALSE);
 	}
 	if (s.frame)
@@ -638,7 +642,6 @@ DrawSubmenu (BYTE Visible)
 void
 DrawBorder (BYTE Visible, BOOLEAN InBattle)
 {
-#ifdef NEVER
 	STAMP s;
 	CONTEXT OldContext;
 
@@ -655,5 +658,4 @@ DrawBorder (BYTE Visible, BOOLEAN InBattle)
 	
 	if (!InBattle)
 		SetContext (OldContext);
-#endif
 }
