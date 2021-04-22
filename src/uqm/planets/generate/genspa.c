@@ -101,24 +101,24 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 		ComputeSpeed (pMinPlanet, FALSE, 1);
 	}
 
-	if (EXTENDED && CurStarDescPtr->Index == ALGOLITES_DEFINED)
+	if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
 	{
 		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 		solarSys->SunDesc[0].PlanetByte = 3;
 
-		if (!PrimeSeed)
+		if (EXTENDED && !PrimeSeed)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 		GeneratePlanets (solarSys);
 	}
 
-	if (EXTENDED && CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
+	if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
 	{
 		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 		solarSys->SunDesc[0].PlanetByte = 1;
 
-		if (!PrimeSeed)
+		if (EXTENDED && !PrimeSeed)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
