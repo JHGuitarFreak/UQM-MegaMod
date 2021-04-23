@@ -279,8 +279,8 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			text_r.extent.width = RES_SCALE(1);
 		}
 
-		text_r.corner.y = r.corner.y;
-		text_r.extent.height = r.extent.height;
+		text_r.corner.y = r.corner.y + RES_SCALE(1);
+		text_r.extent.height = r.extent.height - RES_SCALE(2);
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&text_r);
 
@@ -313,12 +313,6 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	UNICODE *Setting;
 	COUNT CursPos = 0;
 
-	if (gamestart)
-	{	// These pre-fill the captain and flagship names when starting a new game
-		strcpy (buf, GAME_STRING (NAMING_STRING_BASE + 2 + nameCaptain)); // Vindicator & Zelnick
-		CursPos = strlen (GAME_STRING(NAMING_STRING_BASE + 2 + nameCaptain));
-	}
-
 	SetContext (StatusContext);
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
 
@@ -349,6 +343,16 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 		utf8StringCopy (Setting, tes.MaxSize, buf);
 	else
 		utf8StringCopy (buf, sizeof (buf), Setting);
+
+	// If the Captain and/or Flagship text entries are blank
+	// at New Game, fill them in with the default names.
+	if (gamestart && (Setting != NULL) && (Setting[0] == '\0'))
+	{
+		strcpy (Setting, GAME_STRING // Zelnick & Vindicator
+				(NAMING_STRING_BASE + 2 + nameCaptain));
+		CursPos = strlen (GAME_STRING 
+				(NAMING_STRING_BASE + 2 + nameCaptain));
+	}
 
 	SetFlashRect (SFR_MENU_3DO);
 

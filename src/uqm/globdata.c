@@ -556,11 +556,12 @@ InitGameStructures (void)
 
 	GLOBAL_SIS (NumLanders) = IF_EASY(1, 2);
 
-	utf8StringCopy (GLOBAL_SIS (ShipName), sizeof (GLOBAL_SIS (ShipName)),
-			GAME_STRING (NAMING_STRING_BASE + 2));
-	utf8StringCopy (GLOBAL_SIS (CommanderName),
+	utf8StringCopy (GLOBAL_SIS (ShipName),
+			sizeof (GLOBAL_SIS (ShipName)),
+			GAME_STRING(NAMING_STRING_BASE + 6));
+	/*utf8StringCopy (GLOBAL_SIS (CommanderName),
 			sizeof (GLOBAL_SIS (CommanderName)),
-			GAME_STRING (NAMING_STRING_BASE + 3));
+			GAME_STRING (NAMING_STRING_BASE + 3));*/
 
 	SetRaceAllied (HUMAN_SHIP, TRUE);
 	CloneShipFragment (HUMAN_SHIP, &GLOBAL (built_ship_q), 0);

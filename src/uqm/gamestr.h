@@ -41,7 +41,7 @@ extern "C" {
 #define STARBASE_STRING_COUNT     5
 #define ENCOUNTER_STRING_COUNT    8
 #define NAVIGATION_STRING_COUNT   6
-#define NAMING_STRING_COUNT       6
+#define NAMING_STRING_COUNT       7
 #define MELEE_STRING_COUNT        9
 #define SAVEGAME_STRING_COUNT     5
 #define OPTION_STRING_COUNT       5
