@@ -102,6 +102,7 @@ DrawOscilloscope (void)
 		s.origin.x = 0;
 		s.origin.y = 0;
 		s.frame = scope_frame;
+
 		DrawStamp (&s);
 
 		// draw the scope lines
@@ -109,12 +110,23 @@ DrawOscilloscope (void)
 		for (i = 0; i < scopeSize.width - RES_SCALE(1); ++i)
 		{
 			LINE line;
+			BYTE j;
 
 			line.first.x = i + RES_SCALE(1);
 			line.first.y = scope_data[i] + RES_SCALE(1);
 			line.second.x = i + RES_SCALE(2);
 			line.second.y = scope_data[i + RES_SCALE(1)] + RES_SCALE(1);
 			DrawLine (&line);
+
+			if (IS_HD)
+			{
+				for (j = 0; j < 4; j++)
+				{
+					line.first.y += 1;
+					line.second.y -= 1;
+					DrawLine (&line);
+				}
+			}
 		}
 
 		SetContext (oldContext);
