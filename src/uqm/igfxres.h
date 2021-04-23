@@ -19,6 +19,7 @@
 #define BOOM_MED_MASK_PMAP_ANIM "graphics.boom.medium"
 #define BOOM_SML_MASK_PMAP_ANIM "graphics.boom.small"
 #define BORDER_MASK_PMAP_ANIM "graphics.border"
+#define HD_BORDER_MASK_PMAP_ANIM "graphics.hdborder"
 #define BURV_BCS_MASK_PMAP_ANIM "graphics.burvixcaster"
 #define CALLISTO_MASK_ANIM "graphics.callistomask"
 #define CANNISTER_MASK_PMAP_ANIM "graphics.lifecan"

@@ -651,10 +651,17 @@ DrawBorder (BYTE Visible, BOOLEAN InBattle)
 	s.origin.x = 0;
 	s.origin.y = 0;
 
-	s.frame = SetAbsFrameIndex (BorderFrame, Visible);
-
-	if (optCustomBorder || InBattle)
+	if (optCustomBorder && !InBattle)
+	{
+		s.frame = SetAbsFrameIndex (BorderFrame, Visible);
 		DrawStamp (&s);
+	}
+
+	if (IS_HD && (!optCustomBorder || InBattle))
+	{
+		s.frame = SetAbsFrameIndex (HDBorderFrame, Visible);
+		DrawStamp (&s);
+	}
 	
 	if (!InBattle)
 		SetContext (OldContext);

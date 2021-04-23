@@ -66,6 +66,7 @@ UninitKernel (void)
 	DestroyFont (MicroFont);
 	DestroyStringTable (ReleaseStringTable (GameStrings));
 	DestroyDrawable (ReleaseDrawable (BorderFrame));
+	DestroyDrawable (ReleaseDrawable (HDBorderFrame));
 	DestroyDrawable (ReleaseDrawable (StatusFrame));
 	DestroyDrawable (ReleaseDrawable (SubmenuFrame));
 	DestroyDrawable (ReleaseDrawable (NebulaeFrame));

@@ -71,6 +71,7 @@ FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
+FRAME HDBorderFrame;
 STRING GameStrings;
 QUEUE disp_q;
 
@@ -267,9 +268,16 @@ InitKernel (void)
 	if (PlyrFont == NULL)
 		return FALSE;
 
-	BorderFrame = CaptureDrawable (LoadGraphic(BORDER_MASK_PMAP_ANIM));
+	BorderFrame = CaptureDrawable (LoadGraphic (BORDER_MASK_PMAP_ANIM));
 	if (BorderFrame == NULL)
 		return FALSE;
+
+	if (HDPackPresent)
+	{
+		HDBorderFrame = CaptureDrawable (LoadGraphic (HD_BORDER_MASK_PMAP_ANIM));
+		if (HDBorderFrame == NULL)
+			return FALSE;
+	}
 
 	ActivityFrame = CaptureDrawable (LoadGraphic (ACTIVITY_ANIM));
 	if (ActivityFrame == NULL)
@@ -279,7 +287,8 @@ InitKernel (void)
 	if (StatusFrame == NULL)
 		return FALSE;
 
-	if (HDPackPresent) { 
+	if (HDPackPresent)
+	{ 
 		hyperspacesuns = CaptureDrawable (LoadGraphic (HYPERSUNS_MASK_PMAP_ANIM));
 		if (hyperspacesuns == NULL)
 			return FALSE;
