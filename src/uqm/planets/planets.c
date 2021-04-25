@@ -247,7 +247,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	if (Mode != DRAW_ORBITAL_WAIT)
 	{
 		if (optDiscordRPC)
-			updateSolarDiscordPresence (FALSE);
+			updateSolarDiscordPresence (TRUE, FALSE);
 
 		SetContext (GetScanContext (NULL));
 		DrawPlanet (0, BLACK_COLOR);

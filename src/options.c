@@ -700,11 +700,12 @@ setGammaCorrection (float gamma)
 void
 updateDiscordPresence (char* details, char* state, char* largeImage, char* smallImage)
 {
+	DiscordRichPresence discordPresence;
+
 	if (!optDiscordRPC)
 		return;
 
 	Discord_ClearPresence ();
-	DiscordRichPresence discordPresence;
 	memset (&discordPresence, 0, sizeof (discordPresence));
 	discordPresence.details = details;
 	discordPresence.state = state;
@@ -715,7 +716,7 @@ updateDiscordPresence (char* details, char* state, char* largeImage, char* small
 }
 
 void
-updateSolarDiscordPresence (BOOLEAN landing)
+updateSolarDiscordPresence (BOOLEAN inOrbit, BOOLEAN landing)
 {
 	UNICODE starName[256];
 	UNICODE planetTitle[SIS_NAME_SIZE];
@@ -740,14 +741,14 @@ updateSolarDiscordPresence (BOOLEAN landing)
 	if (!(planetTitle != NULL && planetTitle[0] == '\0'))
 		sprintf (planetName, "Near %s", GLOBAL_SIS (PlanetName));
 
-	if (playerInPlanetOrbit ())
+	if (inOrbit)
 		sprintf (planetName, "Orbiting %s",
 				!GetNamedPlanetaryBody() ? GLOBAL_SIS (PlanetName) : GetNamedPlanetaryBody());
 
 	printf("PlanetName: %s\nPlanetTitle: %s\n", GetNamedPlanetaryBody(), planetTitle);
 
 	updateDiscordPresence (starName, planetName,
-			playerInPlanetOrbit () ? strlwr (planetTitle) : "interplanetary",
+			inOrbit ? strlwr (planetTitle) : "interplanetary",
 			landing ? "lander-sml" : "");
 }
 

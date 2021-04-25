@@ -145,7 +145,7 @@ static const char* APPLICATION_ID = "817075322402373673";
 
 extern void discordInit (void); 
 extern void updateDiscordPresence (char* details, char* state, char* largeImage, char* smallImage);
-extern void updateSolarDiscordPresence (BOOLEAN landing);
+extern void updateSolarDiscordPresence (BOOLEAN inOrbit, BOOLEAN landing);
 
 #if defined(__cplusplus)
 }

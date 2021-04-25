@@ -2082,7 +2082,7 @@ PlanetSide (POINT planetLoc)
 	AnimateLanderWarmup ();
 	AnimateLaunch (LanderFrame[5], TRUE);
 
-	updateSolarDiscordPresence (TRUE);
+	updateSolarDiscordPresence (TRUE, TRUE);
 
 	InitPlanetSide (planetLoc);
 
@@ -2120,7 +2120,7 @@ PlanetSide (POINT planetLoc)
 			ReturnToOrbit ();
 			AnimateLaunch (LanderFrame[6], FALSE);
 
-			updateSolarDiscordPresence (FALSE);
+			updateSolarDiscordPresence (TRUE, FALSE);
 			
 			DeltaSISGauges (crew_left, 0, 0);
 

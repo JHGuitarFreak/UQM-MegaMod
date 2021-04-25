@@ -1839,7 +1839,7 @@ DrawInnerSystem (void)
 		UNICODE starName[256];
 
 		GetClusterName (CurStarDescPtr, starName);
-		updateSolarDiscordPresence (FALSE);
+		updateSolarDiscordPresence (FALSE, FALSE);
 	}
 }
 
@@ -1853,13 +1853,12 @@ DrawOuterSystem (void)
 	DrawHyperCoords (CurStarDescPtr->star_pt);
 
 	if (optDiscordRPC)
+	{
+		UNICODE starName[256];
 
-		if (optDiscordRPC)
-		{
-			UNICODE starName[256];
-			GetClusterName (CurStarDescPtr, starName);
-			updateDiscordPresence (starName, "", "interplanetary", "");
-		}
+		GetClusterName (CurStarDescPtr, starName);
+		updateDiscordPresence (starName, "", "interplanetary", "");
+	}
 }
 
 RESOURCE
