@@ -157,6 +157,10 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 void
 Introduction (void)
 {
+
+	updateDiscordPresence ("It is a factory...", "for building starships!",
+			optWhichIntro == OPT_3DO ? "intro-3do" : "intro-pc", "");
+
 	ShowPresentation (INTROPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
@@ -168,6 +172,7 @@ Victory (void)
 
 	/* by default we do 3DO cinematics; or PC slides when 3DO files are
 	 * not present */
+	updateDiscordPresence ("Victory!", "You have defeated the Ur-Quan!", "victory", "");
 	ShowPresentation (FINALPRES_STRTAB);
 		
 	FadeScreen (FadeAllToBlack, 0);
@@ -182,17 +187,21 @@ GameOver (BYTE DeathType)
 	switch (DeathType)
 	{
 		case DEATH_MARCH:
+			updateDiscordPresence ("Game Over", "Better luck next time.", "death_march", "");
 			ShowPresentation (DEATHMARCHPRES_STRTAB);
 			break;
 		case SUICIDE:
+			updateDiscordPresence ("Game Over", "Better luck next time.", "suicide", "");
 			SleepThreadUntil (FadeScreen (FadeAllToWhite, ONE_SECOND / 2));
 			ShowPresentation (SUICIDEPRES_STRTAB);
 			break;
 		case SURRENDERED:
+			updateDiscordPresence ("Game Over", "Better luck next time.", "surrendered", "");
 			ShowPresentation (SURRENDEREDPRES_STRTAB);
 			break;
 		case DIED_IN_BATTLE:
 		default:
+			updateDiscordPresence ("Game Over", "Better luck next time.", "kia", "");
 			ShowPresentation (DEFEATEDPRES_STRTAB);
 			break;
 	}
@@ -209,6 +218,7 @@ Logo (void)
 void
 Drumall (void)
 {
+	updateDiscordPresence ("Man, this blows...", "", "drumall", "");
 	ShowPresentation (DRUMALLPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }

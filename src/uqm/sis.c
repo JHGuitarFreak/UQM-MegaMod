@@ -179,6 +179,14 @@ DrawHyperCoords (POINT universe)
 			universe.y / 10, universe.y % 10);
 
 	DrawSISTitle (buf);
+
+	if (inHQSpace ())
+	{
+		if (inQuasiSpace ())
+			updateDiscordPresence ("In QuasiSpace", buf, "quasispace", "qs-sis");
+		else
+			updateDiscordPresence ("In HyperSpace", buf, "hyperspace", "hs-sis");
+	}
 }
 
 void

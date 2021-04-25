@@ -186,6 +186,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, orzCompFont);
 	DECL_CONFIG_OPTION(int,  optControllerType);
 	DECL_CONFIG_OPTION(bool, shipFacingHS);
+	DECL_CONFIG_OPTION(bool, discordRPC);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -375,6 +376,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  orzCompFont,       false),
 		INIT_CONFIG_OPTION(  optControllerType, 0),
 		INIT_CONFIG_OPTION(  shipFacingHS,      false),
+		INIT_CONFIG_OPTION(  discordRPC,        false),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -583,6 +585,7 @@ main (int argc, char *argv[])
 	optOrzCompFont = options.orzCompFont.value;
 	optControllerType = options.optControllerType.value;
 	optShipFacingHS = options.shipFacingHS.value;
+	optDiscordRPC = options.discordRPC.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -637,6 +640,9 @@ main (int argc, char *argv[])
 	TFB_SetInputVectors (ImmediateInputState.menu, NUM_MENU_KEYS,
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
 	TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+	
+	if (optDiscordRPC)
+		discordInit ();
 
 	StartThread (Starcon2Main, NULL, 1024, "Starcon2Main");
 
@@ -691,6 +697,8 @@ main (int argc, char *argv[])
 		uninitIO ();
 		UnInitThreadSystem ();
 		mem_uninit ();
+
+		Discord_Shutdown ();
 	}
 
 	HFree (options.addons);
@@ -951,6 +959,7 @@ getUserConfigOptions (struct options_struct *options)
 		options->optControllerType.value = res_GetInteger ("mm.controllerType");
 	}
 	getBoolConfigValue (&options->shipFacingHS, "mm.shipFacingHS");
+	getBoolConfigValue (&options->discordRPC, "mm.discordRPC");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1027,6 +1036,7 @@ enum
 	ORZFONT_OPT,
 	CONTYPE_OPT,
 	SISFACEHS_OPT,
+	DISCORDRPC_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1115,6 +1125,7 @@ static struct option longOptions[] =
 	{"orzcompfont", 0, NULL, ORZFONT_OPT},
 	{"controllertype", 0, NULL, CONTYPE_OPT},
 	{"shipfacinghs", 0, NULL, SISFACEHS_OPT},
+	{"discordrpc", 0, NULL, DISCORDRPC_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1580,6 +1591,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SISFACEHS_OPT:
 				setBoolOption (&options->shipFacingHS, true);
 				break;
+			case DISCORDRPC_OPT:
+				setBoolOption (&options->discordRPC, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -1909,6 +1923,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --shipfacinghs : Enable flagship facing the"
 			"direction it entered HyperSpace while in auto-pilot (default: %s)",
 			boolOptString (&defaults->shipFacingHS));
+	log_add (log_User, "  --discordrpc : Enable Discord Rich Presence (default: %s)",
+			boolOptString (&defaults->discordRPC));
 	log_add (log_User, "  --controllertype : 0: Keyboard | 1: Xbox | 2: PlayStation 4 (default: 0)");
 	log_setOutput (old);
 }

@@ -701,7 +701,14 @@ LoadSolarSys (void)
 	if (!GLOBAL (ip_planet))
 	{	// Outer system
 		pSolarSysState->pBaseDesc = pSolarSysState->PlanetDesc;
-		pSolarSysState->pOrbitalDesc = NULL;
+		pSolarSysState->pOrbitalDesc = NULL;		
+
+		if (optDiscordRPC)
+		{
+			UNICODE starName[256];
+			GetClusterName (CurStarDescPtr, starName);
+			updateDiscordPresence (starName, "", "interplanetary", "");
+		}
 	}
 	else
 	{	// Inner system
@@ -1826,6 +1833,14 @@ DrawInnerSystem (void)
 	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
 	DrawSISTitle (GLOBAL_SIS (PlanetName));
+
+	if (optDiscordRPC)
+	{
+		UNICODE starName[256];
+
+		GetClusterName (CurStarDescPtr, starName);
+		updateSolarDiscordPresence (FALSE);
+	}
 }
 
 static void
@@ -1836,6 +1851,15 @@ DrawOuterSystem (void)
 	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 	DrawHyperCoords (CurStarDescPtr->star_pt);
+
+	if (optDiscordRPC)
+
+		if (optDiscordRPC)
+		{
+			UNICODE starName[256];
+			GetClusterName (CurStarDescPtr, starName);
+			updateDiscordPresence (starName, "", "interplanetary", "");
+		}
 }
 
 RESOURCE
@@ -2566,52 +2590,56 @@ GetNamedPlanetaryBody (void)
 	{	// Planets and moons in Sol
 		int planet;
 		int moon;
+		UNICODE buf[SIS_NAME_SIZE];
 
 		planet = planetIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
 
 		if (worldIsPlanet (pSolarSysState, pSolarSysState->pOrbitalDesc))
 		{	// A planet
-			return GAME_STRING (PLANET_NUMBER_BASE + planet);
+			sprintf (buf, GAME_STRING (PLANET_NUMBER_BASE + planet));
 		}
 
 		// Moons
-		moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
-		switch (planet)
+		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 		{
-			case 2: // Earth
-				switch (moon)
-				{
-					case 0: // Starbase
-						return GAME_STRING (STARBASE_STRING_BASE + 0);
-					case 1: // Luna
-						return GAME_STRING (PLANET_NUMBER_BASE + 9);
-				}
-				break;
-			case 4: // Jupiter
-				switch (moon)
-				{
-					case 0: // Io
-						return GAME_STRING (PLANET_NUMBER_BASE + 10);
-					case 1: // Europa
-						return GAME_STRING (PLANET_NUMBER_BASE + 11);
-					case 2: // Ganymede
-						return GAME_STRING (PLANET_NUMBER_BASE + 12);
-					case 3: // Callisto
-						return GAME_STRING (PLANET_NUMBER_BASE + 13);
-				}
-				break;
-			case 5: // Saturn
-				if (moon == 0) // Titan
-					return GAME_STRING (PLANET_NUMBER_BASE + 14);
-				break;
-			case 7: // Neptune
-				if (moon == 0) // Triton
-					return GAME_STRING (PLANET_NUMBER_BASE + 15);
-				break;
-			case 8: // Pluto
-				if (moon == 0) // Charon
-					return GAME_STRING (PLANET_NUMBER_BASE + 34);
-				break;
+			moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
+			switch (planet)
+			{
+				case 2: // Earth
+					switch (moon)
+					{
+						case 0: // Starbase
+							return GAME_STRING (STARBASE_STRING_BASE + 0);
+						case 1: // Luna
+							return GAME_STRING (PLANET_NUMBER_BASE + 9);
+					}
+					break;
+				case 4: // Jupiter
+					switch (moon)
+					{
+						case 0: // Io
+							return GAME_STRING (PLANET_NUMBER_BASE + 10);
+						case 1: // Europa
+							return GAME_STRING (PLANET_NUMBER_BASE + 11);
+						case 2: // Ganymede
+							return GAME_STRING (PLANET_NUMBER_BASE + 12);
+						case 3: // Callisto
+							return GAME_STRING (PLANET_NUMBER_BASE + 13);
+					}
+					break;
+				case 5: // Saturn
+					if (moon == 0) // Titan
+						return GAME_STRING (PLANET_NUMBER_BASE + 14);
+					break;
+				case 7: // Neptune
+					if (moon == 0) // Triton
+						return GAME_STRING (PLANET_NUMBER_BASE + 15);
+					break;
+				case 8: // Pluto
+					if (moon == 0) // Charon
+						return GAME_STRING (PLANET_NUMBER_BASE + 34);
+					break;
+			}
 		}
 	}
 	else if (CurStarDescPtr->Index == SAMATRA_DEFINED 

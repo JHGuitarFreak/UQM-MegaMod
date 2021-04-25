@@ -232,6 +232,7 @@ while (--ac > 0)
 		comingFromInit = TRUE;
 	}
 
+	updateDiscordPresence("Loading it up...", "", "loading", "");
 	SplashScreen (BackgroundInitKernel);
 
 #ifdef DEBUG

@@ -102,6 +102,7 @@ BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
 int optControllerType;
 BOOLEAN optShipFacingHS;
+BOOLEAN optDiscordRPC;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
@@ -692,4 +693,96 @@ setGammaCorrection (float gamma)
 	else
 		log_add (log_Warning, "Unable to set gamma correction.");
 	return set;
+}
+
+// Discord RPC
+
+void
+updateDiscordPresence (char* details, char* state, char* largeImage, char* smallImage)
+{
+	if (!optDiscordRPC)
+		return;
+
+	Discord_ClearPresence ();
+	DiscordRichPresence discordPresence;
+	memset (&discordPresence, 0, sizeof (discordPresence));
+	discordPresence.details = details;
+	discordPresence.state = state;
+	discordPresence.largeImageKey = largeImage;
+	discordPresence.smallImageKey = smallImage;
+	discordPresence.instance = 0;
+	Discord_UpdatePresence (&discordPresence);
+}
+
+void
+updateSolarDiscordPresence (BOOLEAN landing)
+{
+	UNICODE starName[256];
+	UNICODE planetTitle[SIS_NAME_SIZE];
+	UNICODE planetName[SIS_NAME_SIZE + 8];
+	BYTE i, stringLength;
+
+	if (!optDiscordRPC)
+		return;
+
+	GetClusterName (CurStarDescPtr, starName);
+
+	GetPlanetTitle (planetTitle, sizeof (planetTitle));
+
+	stringLength = strlen (planetTitle);
+
+	for (i = 0; i < stringLength; ++i)
+	{
+		if (planetTitle[i] == ' ')
+			planetTitle[i] = '-';
+	}
+
+	if (!(planetTitle != NULL && planetTitle[0] == '\0'))
+		sprintf (planetName, "Near %s", GLOBAL_SIS (PlanetName));
+
+	if (playerInPlanetOrbit ())
+		sprintf (planetName, "Orbiting %s",
+				!GetNamedPlanetaryBody() ? GLOBAL_SIS (PlanetName) : GetNamedPlanetaryBody());
+
+	printf("PlanetName: %s\nPlanetTitle: %s\n", GetNamedPlanetaryBody(), planetTitle);
+
+	updateDiscordPresence (starName, planetName,
+			playerInPlanetOrbit () ? strlwr (planetTitle) : "interplanetary",
+			landing ? "lander-sml" : "");
+}
+
+static void
+handleDiscordReady (const DiscordUser* connectedUser)
+{
+	printf("\nDiscord: connected to user %s#%s - %s\n",
+		connectedUser->username,
+		connectedUser->discriminator,
+		connectedUser->userId);
+}
+
+static void
+handleDiscordDisconnected (int errcode, const char* message)
+{
+	printf("\nDiscord: disconnected (%d: %s)\n", errcode, message);
+}
+
+static void
+handleDiscordError (int errcode, const char* message)
+{
+	printf("\nDiscord: error (%d: %s)\n", errcode, message);
+}
+
+void 
+discordInit (void)
+{
+	DiscordEventHandlers handlers;
+
+	if (!optDiscordRPC)
+		return;
+
+	memset(&handlers, 0, sizeof(handlers));
+	handlers.ready = handleDiscordReady;
+	handlers.disconnected = handleDiscordDisconnected;
+	handlers.errored = handleDiscordError;
+	Discord_Initialize (APPLICATION_ID, &handlers, 1, NULL);
 }

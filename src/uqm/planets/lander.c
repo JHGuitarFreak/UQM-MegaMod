@@ -2082,6 +2082,8 @@ PlanetSide (POINT planetLoc)
 	AnimateLanderWarmup ();
 	AnimateLaunch (LanderFrame[5], TRUE);
 
+	updateSolarDiscordPresence (TRUE);
+
 	InitPlanetSide (planetLoc);
 
 	landerInputState.NextTime = GetTimeCounter () + PLANET_SIDE_RATE;
@@ -2117,6 +2119,8 @@ PlanetSide (POINT planetLoc)
 			LandingTakeoffSequence (&landerInputState, FALSE);
 			ReturnToOrbit ();
 			AnimateLaunch (LanderFrame[6], FALSE);
+
+			updateSolarDiscordPresence (FALSE);
 			
 			DeltaSISGauges (crew_left, 0, 0);
 
