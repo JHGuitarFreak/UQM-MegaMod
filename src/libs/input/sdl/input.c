@@ -447,6 +447,57 @@ ProcessInputEvent (const SDL_Event *Event)
 	}
 }
 #else
+
+static void
+TranslateNumpad (SDL_Keysym* keysym)
+{
+	switch (keysym->sym)
+	{
+	case SDLK_KP_0:
+		keysym->scancode = SDL_SCANCODE_0;
+		keysym->sym = SDLK_0;
+		break;
+	case SDLK_KP_1:
+		keysym->scancode = SDL_SCANCODE_1;
+		keysym->sym = SDLK_1;
+		break;
+	case SDLK_KP_2:
+		keysym->scancode = SDL_SCANCODE_2;
+		keysym->sym = SDLK_2;
+		break;
+	case SDLK_KP_3:
+		keysym->scancode = SDL_SCANCODE_3;
+		keysym->sym = SDLK_3;
+		break;
+	case SDLK_KP_4:
+		keysym->scancode = SDL_SCANCODE_4;
+		keysym->sym = SDLK_4;
+		break;
+	case SDLK_KP_5:
+		keysym->scancode = SDL_SCANCODE_5;
+		keysym->sym = SDLK_5;
+		break;
+	case SDLK_KP_6:
+		keysym->scancode = SDL_SCANCODE_6;
+		keysym->sym = SDLK_6;
+		break;
+	case SDLK_KP_7:
+		keysym->scancode = SDL_SCANCODE_7;
+		keysym->sym = SDLK_7;
+		break;
+	case SDLK_KP_8:
+		keysym->scancode = SDL_SCANCODE_8;
+		keysym->sym = SDLK_8;
+		break;
+	case SDLK_KP_9:
+		keysym->scancode = SDL_SCANCODE_9;
+		keysym->sym = SDLK_9;
+		break;
+	default:
+		break;
+	}
+}
+
 void
 ProcessInputEvent (const SDL_Event *Event)
 {
@@ -467,7 +518,10 @@ ProcessInputEvent (const SDL_Event *Event)
 		SDL_StopTextInput ();
 	}
 
-	/* TODO: Block numpad input when NUM_LOCK is on */
+	/* "Block" numpad input when NUM_LOCK is on */
+	if ((SDL_GetModState () & KMOD_NUM) != 0)
+		TranslateNumpad (&Event->key.keysym);
+
 	VControl_HandleEvent (Event);
 
 	if (Event->type == SDL_TEXTINPUT)
