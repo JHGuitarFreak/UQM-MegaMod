@@ -33,6 +33,7 @@
 #include "libs/memlib.h"
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
+#include "uqm/gamestr.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -719,7 +720,7 @@ void
 updateSolarDiscordPresence (BOOLEAN inOrbit, BOOLEAN landing)
 {
 	UNICODE starName[256];
-	UNICODE planetTitle[SIS_NAME_SIZE];
+	UNICODE planetTitle[SIS_NAME_SIZE + 1];
 	UNICODE planetName[SIS_NAME_SIZE + 8];
 	BYTE i, stringLength;
 
@@ -727,11 +728,21 @@ updateSolarDiscordPresence (BOOLEAN inOrbit, BOOLEAN landing)
 		return;
 
 	GetClusterName (CurStarDescPtr, starName);
-
 	GetPlanetTitle (planetTitle, sizeof (planetTitle));
 
-	stringLength = strlen (planetTitle);
+	if (!EXTENDED && inOrbit)
+	{
+		int val = pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED;
 
+		if (val >= FIRST_GAS_GIANT && val <= PLANET_SA_MATRA)
+		{
+			sprintf (planetTitle, "%s",
+					GAME_STRING (SCAN_STRING_BASE + 4 + 2 + val));
+					// "Color" Gas Giant
+		}
+	}
+
+	stringLength = strlen (planetTitle);
 	for (i = 0; i < stringLength; ++i)
 	{
 		if (planetTitle[i] == ' ')
@@ -743,9 +754,9 @@ updateSolarDiscordPresence (BOOLEAN inOrbit, BOOLEAN landing)
 
 	if (inOrbit)
 		sprintf (planetName, "Orbiting %s",
-				!GetNamedPlanetaryBody() ? GLOBAL_SIS (PlanetName) : GetNamedPlanetaryBody());
-
-	printf("PlanetName: %s\nPlanetTitle: %s\n", GetNamedPlanetaryBody(), planetTitle);
+				!GetNamedPlanetaryBody() ?
+				GLOBAL_SIS (PlanetName) : GetNamedPlanetaryBody()
+				);
 
 	updateDiscordPresence (starName, planetName,
 			inOrbit ? strlwr (planetTitle) : "interplanetary",
