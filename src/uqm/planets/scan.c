@@ -127,6 +127,7 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 {
 	int val;
 	UNICODE *named = GetNamedPlanetaryBody ();
+
 	if (named)
 	{
 		utf8StringCopy (buf, bufsize, named);
@@ -137,8 +138,18 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 	val = pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED;
 	if (val >= FIRST_GAS_GIANT)
 	{
-		sprintf (buf, "%s", GAME_STRING (SCAN_STRING_BASE + 4 + 51));
-					// Gas Giant
+		if (!EXTENDED)
+		{
+			sprintf (buf, "%s",
+					GAME_STRING (SCAN_STRING_BASE + 4 + 51));
+							// Gas Giant
+		}
+		else if (val <= PLANET_SA_MATRA)
+		{
+			sprintf (buf, "%s",
+					GAME_STRING (SCAN_STRING_BASE + 4 + 2 + val));
+							// "Color" Gas Giant
+		}
 	}
 	else
 	{
