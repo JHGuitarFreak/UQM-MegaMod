@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       62
+#define CHOICE_COUNT       61
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         5
@@ -105,7 +105,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2, 2 };                         // 60-61
+	2 };                            // 60
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -229,7 +229,6 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[56]),   // Game Over switch
 	(WIDGET *)(&choices[41]),   // Submenu switch
 	(WIDGET *)(&choices[60]),   // SIS Facing HyperSpace
-	(WIDGET *)(&choices[61]),   // Discord RPC
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -602,7 +601,6 @@ SetDefaults (void)
 	choices[58].selected = opts.orzCompFont;
 	choices[59].selected = opts.controllerType;
 	choices[60].selected = opts.shipFacingHS;
-	choices[61].selected = opts.discordRPC;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -678,7 +676,6 @@ PropagateResults (void)
 	opts.orzCompFont = choices[58].selected;
 	opts.controllerType = choices[59].selected;
 	opts.shipFacingHS = choices[60].selected;
-	opts.discordRPC = choices[61].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1621,7 +1618,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->controllerType = res_GetInteger ("mm.controllerType");
 	opts->shipFacingHS = optShipFacingHS ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->discordRPC = optDiscordRPC ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -1940,14 +1936,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
  		optRequiresReload = TRUE;
 	}
 
-	if (opts->discordRPC != (optDiscordRPC ? OPTVAL_ENABLED : OPTVAL_DISABLED))
-	{
-		if (opts->discordRPC)
-			discordInit ();
-		else
-			Discord_Shutdown ();
-	}
-
 	// MB: To force the game to restart when changing resolution options (otherwise they will not be changed)
 	if(oldResFactor != resolutionFactor ||
 		audioDriver != opts->adriver ||
@@ -2092,9 +2080,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.shipFacingHS", opts->shipFacingHS == OPTVAL_ENABLED);
 	optShipFacingHS = (opts->shipFacingHS == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.discordRPC", opts->discordRPC == OPTVAL_ENABLED);
-	optDiscordRPC = (opts->discordRPC == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

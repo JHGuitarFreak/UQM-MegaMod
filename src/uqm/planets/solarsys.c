@@ -702,13 +702,6 @@ LoadSolarSys (void)
 	{	// Outer system
 		pSolarSysState->pBaseDesc = pSolarSysState->PlanetDesc;
 		pSolarSysState->pOrbitalDesc = NULL;
-
-		if (optDiscordRPC)
-		{
-			UNICODE starName[256];
-			GetClusterName (CurStarDescPtr, starName);
-			updateDiscordPresence (starName, "", "", "");
-		}
 	}
 	else
 	{	// Inner system
@@ -1833,14 +1826,6 @@ DrawInnerSystem (void)
 	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
 	DrawSISTitle (GLOBAL_SIS (PlanetName));
-
-	if (optDiscordRPC)
-	{
-		UNICODE starName[256];
-
-		GetClusterName (CurStarDescPtr, starName);
-		updateDiscordPresence (starName, GLOBAL_SIS(PlanetName), "", "");
-	}
 }
 
 static void
@@ -1851,14 +1836,6 @@ DrawOuterSystem (void)
 	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 	DrawHyperCoords (CurStarDescPtr->star_pt);
-
-	if (optDiscordRPC)
-	{
-		UNICODE starName[256];
-
-		GetClusterName (CurStarDescPtr, starName);
-		updateDiscordPresence (starName, "", "", "");
-	}
 }
 
 RESOURCE

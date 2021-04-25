@@ -76,8 +76,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	char *Credit;
 	UNICODE buf[64];
 
-	updateDiscordPresence ("In the Main Menu", "", "mainmenu", "");
-
 	// Re-load all of the restart menu fonts and graphics so the text and background show in the correct size and resolution.
 	if (optRequiresRestart || !PacksInstalled()) {	
 		DestroyFont (TinyFont);

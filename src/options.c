@@ -31,6 +31,8 @@
 #include "libs/log.h"
 #include "libs/reslib.h"
 #include "libs/memlib.h"
+#include "uqm/starmap.h"
+#include "uqm/planets/scan.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -100,7 +102,6 @@ BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
 int optControllerType;
 BOOLEAN optShipFacingHS;
-BOOLEAN optDiscordRPC;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
@@ -691,52 +692,4 @@ setGammaCorrection (float gamma)
 	else
 		log_add (log_Warning, "Unable to set gamma correction.");
 	return set;
-}
-
-// Discord RPC
-
-void
-updateDiscordPresence (char* details, char* state, char* largeImage, char* smallImage)
-{
-	if (!optDiscordRPC)
-		return;
-
-	Discord_ClearPresence ();
-	DiscordRichPresence discordPresence;
-	memset (&discordPresence, 0, sizeof (discordPresence));
-	discordPresence.details = details;
-	discordPresence.state = state;
-	discordPresence.largeImageKey = largeImage;
-	discordPresence.smallImageKey = smallImage;
-	discordPresence.instance = 0;
-	Discord_UpdatePresence (&discordPresence);
-}
-
-static void handleDiscordReady(const DiscordUser* connectedUser)
-{
-	printf("\nDiscord: connected to user %s#%s - %s\n",
-		connectedUser->username,
-		connectedUser->discriminator,
-		connectedUser->userId);
-}
-
-static void handleDiscordDisconnected(int errcode, const char* message)
-{
-	printf("\nDiscord: disconnected (%d: %s)\n", errcode, message);
-}
-
-static void handleDiscordError(int errcode, const char* message)
-{
-	printf("\nDiscord: error (%d: %s)\n", errcode, message);
-}
-
-void 
-discordInit (void)
-{
-	DiscordEventHandlers handlers;
-	memset(&handlers, 0, sizeof(handlers));
-	handlers.ready = handleDiscordReady;
-	handlers.disconnected = handleDiscordDisconnected;
-	handlers.errored = handleDiscordError;
-	Discord_Initialize (APPLICATION_ID, &handlers, 1, NULL);
 }

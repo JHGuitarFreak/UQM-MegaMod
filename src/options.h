@@ -89,7 +89,6 @@ extern BOOLEAN optHazardColors;
 extern BOOLEAN optOrzCompFont;
 extern int optControllerType;
 extern BOOLEAN optShipFacingHS;
-extern BOOLEAN optDiscordRPC;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSpeech;
@@ -134,17 +133,6 @@ BOOLEAN loadAddon (const char *addon);
 int loadIndices (uio_DirHandle *baseDir);
 
 bool setGammaCorrection (float gamma);
-
-// Discord RPC
-
-#include <discord_register.h>
-#include <discord_rpc.h>
-#pragma comment(lib, "discord-rpc.lib")
-
-static const char* APPLICATION_ID = "817075322402373673";
-
-extern void discordInit (void); 
-extern void updateDiscordPresence (char* details, char* state, char* largeImage, char* smallImage);
 
 #if defined(__cplusplus)
 }
