@@ -118,3 +118,12 @@ loadMainMenuMusic (BYTE selector)
 	buffer[79] = '\0'; /* Shouldn't be necessary, but better safe than sorry */	
 	return LoadMusic (buffer);
 }
+
+int
+num_orbit_themes (void)
+{
+	if (VolasPackPresent)
+		return NUM_ORBIT_THEMES;
+	else
+		return NUM_ORBIT_THEMES - 1;
+}

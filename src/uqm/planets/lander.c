@@ -1843,7 +1843,7 @@ LoadLanderData (void)
 	{
 		COUNT i;
 
-		for (i = 0; i < NUM_ORBIT_THEMES; ++i)
+		for (i = 0; i < num_orbit_themes(); ++i)
 			OrbitMusic[i] = load_orbit_theme (i);
 	}
 }
@@ -1851,7 +1851,7 @@ LoadLanderData (void)
 void
 SetPlanetMusic (BYTE planet_type)
 {
-	LanderMusic = OrbitMusic[planet_type % NUM_ORBIT_THEMES];
+	LanderMusic = OrbitMusic[planet_type % num_orbit_themes()];
 }
 
 static void
@@ -1878,7 +1878,7 @@ ReturnToOrbit (void)
 static void
 IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 {
-#define IDLE_OFFSET     
+#define IDLE_OFFSET
 	TimeCount TimeOut = GetTimeCounter () + howLong;
 
 	while (GetTimeCounter () < TimeOut)
