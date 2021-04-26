@@ -577,9 +577,9 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 		pES->response_list[response].response_text.baseline.y = y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
-			y = add_text (-1, &pES->response_list[response].response_text) - RES_SCALE(2);
+			y = add_text (-1, &pES->response_list[response].response_text);
 		else
-			y = add_text (-2, &pES->response_list[response].response_text) - RES_SCALE(2);
+			y = add_text (-2, &pES->response_list[response].response_text);
 	}
 
 	if (pES->top_response)
