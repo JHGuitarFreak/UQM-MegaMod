@@ -153,7 +153,7 @@ DrawPlanetSurfaceBorder (void)
 
 	// Right shadow line
 	r.extent.width = RES_SCALE(1);
-	r.extent.height = MAP_HEIGHT + RES_SCALE(1);
+	r.extent.height = MAP_HEIGHT + RES_SCALE(2);
 	r.corner.y += MAP_BORDER_HEIGHT - RES_SCALE(1);
 	r.corner.x = clipRect.extent.width - RES_SCALE(1);
 	DrawFilledRectangle (&r);
