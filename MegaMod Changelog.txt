@@ -4,8 +4,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
-- LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
+
+## [v0.8.1]
+### Added
+- Optional Discord Rich Presence support
+- HD: Created new, faithful UI fonts
+- EXTENDED: Show gas giant type on the scan screen (I.E. Blue Gas Giant)
+- HD: Created new HD Vanilla border overlay
+- If the Captain and/or Flagship names are left blank at game start then the default names are used.
+- HD: Gave the Kohr-Ah a new bottom-eye animation (Always bugged me that not all the eyes animated)
+- EXTENDED: Charon, the moon of Pluto, is now explorable
+
+### Changed
+- Scaled the outer border of the viewport to match PC-DOS (This unfortunately changed the layout of all star backgrounds)
+- HD: Corrected the UI scaling in HD to be more faithful to Vanilla UQM
+- Created a new set of Sol Textures to accomodate the new UI scale
+- HD: Created a new set of mineral, bio, and energy icons
+- HD: Rescaled all the alien conversation screens (Thanks to Damon Czanik for allowing access to his original files!)
+- HD: Remastered the Commander's conversation screen
+- HD: Slight remaster to the Arilou, Chmmr, Ilwrath, Kohr-Ah, Orz, Safe Ones, Slylandro (Gas Bag), Supox, and Ur-Quan conversation screens
+- HD: Created a new in-game Sa-Matra using the HD ending slides
+- HD: Rescaled ship captains images to the new UI scale (Thanks to Kwayne for offering up his original files!)
+- HD: Brighten up the Spathi Eluder
+- HD: Created a new set of 3DO Menu tiles
+- HD: Rescaled the flagship for the Outfit, Shipyard, and status display
+- HD: Rescaled and recolored all the ship modules to resemble their Vanilla counterparts
+- HD: Created a new set of ship labels for the Shipyard using new UI fonts
+- HD: Remade the module tiles to scale
+- HD: New, brighter background stars to match Vanilla
+- HD: Created a new orbit dot image to be used in lieu of an in-engine drawn circle
+- HD: Thicken the animated Oscilloscope lines
+- Rescaled the custom borders
+- Changed the Syreen text color to cyan during the "sex scene" (And back to white afterwards)
+
+### Fixed
+- Fixed suicide Game Over screen having illegible text
+- HD: Fixed 'k' glyph for Classic HD Commander font
+- HD: Fixed Commander Zex's screen going all funky when fading to black
+- HD: Fixed the font padding for all HD fonts to match a 4x scale with Vanilla
+- Fixed Vela IV having moons with the default seed
+- HD: Fixed player response text being too long to fit the viewport
+- Fixed Beta Herculis and Algol having empty star systems when Extended Lore is disabled
+- Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/Serosis/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
+- Fixed a bug that showed "Trade HQ" as the planet name for various plot-related planets
+- Fixed planet generation so that the Taalo shield is always obtainable no matter the custom seed
+
 
 ## [v0.8.0.85]
 ### Added
