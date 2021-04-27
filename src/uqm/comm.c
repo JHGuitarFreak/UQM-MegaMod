@@ -292,13 +292,13 @@ add_text (int status, TEXT *pTextIn)
 				COORD baselinex = pText->baseline.x;
 				COORD width = 0;
 				COUNT remChars = pText->CharCount;
-			        // Remaining chars until end of line within width
+					// Remaining chars until end of line within width
 				const char *bakptr;
 				COUNT bakChars = remChars;
 				COUNT bakcompOn = computerOn;
-				FONT bakFont = SetContextFont(ComputerFont);
+				FONT bakFont = SetContextFont (ComputerFont);
 				
-				SetContextFont(bakFont);
+				SetContextFont (bakFont);
 				ptr = pText->pStr;
 				bakptr = ptr;
 				
@@ -309,17 +309,18 @@ add_text (int status, TEXT *pTextIn)
 				while (remChars > 0)
 				{
 					while ((*ptr != '$') && remChars > 0)
-						{
-							getCharFromString (&ptr);
-							remChars--;
-						}
+					{
+						getCharFromString (&ptr);
+						remChars--;
+					}
 						
 					pText->CharCount -= remChars;
 					TextRect (pText, &rect, NULL);
 						
 					width += rect.extent.width;
 						
-					if (*ptr == '$') {
+					if (*ptr == '$')
+					{
 						getCharFromString (&ptr);
 						remChars--;
 						computerOn = 1 - computerOn;
@@ -344,43 +345,49 @@ add_text (int status, TEXT *pTextIn)
 				ptr = bakptr;
 				pText->pStr = bakptr;
 				computerOn = bakcompOn;
-				SetContextFont(bakFont);
+				SetContextFont (bakFont);
 				
 				// This loop is used to look up for $
-				while (remChars > 0) {
-						while ((*ptr != '$') && remChars > 0) {
-							getCharFromString (&ptr);
-							remChars--;
-						}
-						
-						pText->CharCount -= remChars;
-						TextRect (pText, &rect, NULL);
-						
-						font_DrawTracedText (pText,
-								     CommData.AlienTextFColor, CommData.AlienTextBColor);
-						
-						pText->baseline.x += rect.extent.width;
-						
-						if (*ptr == '$') {
-							getCharFromString (&ptr);
-							remChars--;
-							computerOn = 1 - computerOn;
-							if (computerOn && optOrzCompFont)
-								SetContextFont (ComputerFont);
-							else
-								SetContextFont (CommData.AlienFont);
-						}
-
-						pText->CharCount = remChars;
-						pText->pStr = ptr;
+				while (remChars > 0)
+				{
+					while ((*ptr != '$') && remChars > 0)
+					{
+						getCharFromString (&ptr);
+						remChars--;
 					}
+						
+					pText->CharCount -= remChars;
+					TextRect (pText, &rect, NULL);
+						
+					font_DrawTracedText (pText,
+							CommData.AlienTextFColor,
+							CommData.AlienTextBColor);
+						
+					pText->baseline.x += rect.extent.width;
+						
+					if (*ptr == '$')
+					{
+						getCharFromString (&ptr);
+						remChars--;
+						computerOn = 1 - computerOn;
+						if (computerOn && optOrzCompFont)
+							SetContextFont (ComputerFont);
+						else
+							SetContextFont (CommData.AlienFont);
+					}
+
+					pText->CharCount = remChars;
+					pText->pStr = ptr;
+				}
 				pText->baseline.x = baselinex;
 				pText->align = ALIGN_CENTER;
 			}
 			else
 			{
 				// Normal case : other races than Orz
-				font_DrawTracedText (pText, CommData.AlienTextFColor, CommData.AlienTextBColor);
+				font_DrawTracedText (pText,
+						CommData.AlienTextFColor,
+						CommData.AlienTextBColor);
 			}
 		}
 	} while (!eol && maxchars);
