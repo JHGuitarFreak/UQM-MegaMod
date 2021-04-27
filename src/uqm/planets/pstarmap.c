@@ -74,7 +74,7 @@ signedDivWithError (long val, long divisor)
 	return invert ? -val : val;
 }
 
-#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + 1)
+#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + RES_SCALE(1))
 
 static inline COORD
 universeToDispx (long ux)
@@ -240,13 +240,13 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 	if (pRect->extent.width < 0)
 		pRect->extent.width = -pRect->extent.width;
 	else if (pRect->extent.width == 0)
-		pRect->extent.width = 1;
+		pRect->extent.width = RES_SCALE(1);
 	pRect->extent.height = UNIVERSE_TO_DISPY (diameter)
 			- UNIVERSE_TO_DISPY (0);
 	if (pRect->extent.height < 0)
 		pRect->extent.height = -pRect->extent.height;
 	else if (pRect->extent.height == 0)
-		pRect->extent.height = 1;
+		pRect->extent.height = RES_SCALE(1);
 
 	pRect->corner.x = UNIVERSE_TO_DISPX (FleetPtr->known_loc.x);
 	pRect->corner.y = UNIVERSE_TO_DISPY (FleetPtr->known_loc.y);
@@ -258,7 +258,7 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		STRING locString;
 
 		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
-		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - 1;
+		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - RES_SCALE(1);
 		t.align = ALIGN_CENTER;
 		locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
 		t.CharCount = GetStringLength (locString);
@@ -266,17 +266,17 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		TextRect (&t, pRepairRect, NULL);
 		
 		if (pRepairRect->corner.x <= 0)
-			pRepairRect->corner.x = 1;
+			pRepairRect->corner.x = RES_SCALE(1);
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
 			pRepairRect->corner.x =
-					SIS_SCREEN_WIDTH - pRepairRect->extent.width - 1;
+					SIS_SCREEN_WIDTH - pRepairRect->extent.width - RES_SCALE(1);
 		if (pRepairRect->corner.y <= 0)
-			pRepairRect->corner.y = 1;
+			pRepairRect->corner.y = RES_SCALE(1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
 			pRepairRect->corner.y =
-					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - 1;
+					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE(1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
 		pRepairRect->extent.width++;
@@ -308,13 +308,13 @@ GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepa
 	if (pRect->extent.width < 0)
 		pRect->extent.width = -pRect->extent.width;
 	else if (pRect->extent.width == 0)
-		pRect->extent.width = 1;
+		pRect->extent.width = RES_SCALE(1);
 	pRect->extent.height = UNIVERSE_TO_DISPY (diameter)
 			- UNIVERSE_TO_DISPY (0);
 	if (pRect->extent.height < 0)
 		pRect->extent.height = -pRect->extent.height;
 	else if (pRect->extent.height == 0)
-		pRect->extent.height = 1;
+		pRect->extent.height = RES_SCALE(1);
 
 	pRect->corner.x = UNIVERSE_TO_DISPX (prewar_locations[index].x);
 	pRect->corner.y = UNIVERSE_TO_DISPY (prewar_locations[index].y);
@@ -326,7 +326,7 @@ GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepa
 		STRING locString;
 
 		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
-		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - 1;
+		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - RES_SCALE(1);
 		t.align = ALIGN_CENTER;
 		
 		if (prewar_name_unknown[index])
@@ -345,17 +345,17 @@ GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepa
 			TextRect (&t, pRepairRect, NULL);
 		
 		if (pRepairRect->corner.x <= 0)
-			pRepairRect->corner.x = 1;
+			pRepairRect->corner.x = RES_SCALE(1);
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
 			pRepairRect->corner.x =
-					SIS_SCREEN_WIDTH - pRepairRect->extent.width - 1;
+					SIS_SCREEN_WIDTH - pRepairRect->extent.width - RES_SCALE(1);
 		if (pRepairRect->corner.y <= 0)
-			pRepairRect->corner.y = 1;
+			pRepairRect->corner.y = RES_SCALE(1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
 			pRepairRect->corner.y =
-					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - 1;
+					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE(1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
 		pRepairRect->extent.width++;
@@ -1990,9 +1990,10 @@ StarMap (void)
 	DrawSISMessage (NULL);
 	DrawStatusMessage (NULL);
 	
-	if (optSubmenu){
-		if(optCustomBorder)
-			DrawBorder(14, FALSE);
+	if (optSubmenu)
+	{
+		if (optCustomBorder)
+			DrawBorder (14, FALSE);
 		else
 			DrawSubmenu (0);
 	}
@@ -2004,4 +2005,3 @@ StarMap (void)
 	return (GLOBAL (autopilot.x) != ~0
 			&& GLOBAL (autopilot.y) != ~0);
 }
-
