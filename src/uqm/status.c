@@ -556,9 +556,9 @@ PostProcessStatus (ELEMENT *ShipPtr)
 							c = flash_tab2[i];
 						}
 						r.corner.x = CAPTAIN_XOFFS
-								+ (CAPTAIN_WIDTH >> 1);
+								+ (CAPTAIN_WIDTH >> 1) - IF_HD(2);
 						r.corner.y = y + CAPTAIN_YOFFS
-								 + ((CAPTAIN_HEIGHT + 1) >> 1);
+								 + ((CAPTAIN_HEIGHT + RES_SCALE(1)) >> 1) - IF_HD(2);
 						r.extent.width = RES_SCALE(1);
 						r.extent.height = RES_SCALE(1);
 					}
