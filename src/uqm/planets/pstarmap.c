@@ -48,7 +48,7 @@
 
 typedef enum {
 	NORMAL_STARMAP,
-	PREWAR_STARMAP,
+	WAR_ERA_STARMAP,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -58,7 +58,7 @@ static POINT mapOrigin;
 static int zoomLevel;
 static FRAME StarMapFrame;
 
-static BOOLEAN show_prewar_situation;
+static BOOLEAN show_war_era_situation;
 static CURRENT_STARMAP_SHOWN which_starmap;
 
 static inline long
@@ -286,25 +286,13 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 
 // JMS: For showing the SC1-era situation in starmap
 static void
-GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
+GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
+		POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
 {
-	long diameter;
-	
-	static const COUNT prewar_strengths[] =
-	{
-		RACE_PREWAR_STRENGTHS
-	};
-	static const POINT prewar_locations[] =
-	{
-		RACE_PREWAR_LOCATIONS
-	};
-	static const BOOLEAN prewar_name_unknown[] =
-	{
-		RACE_PREWAR_NAME_UNKNOWN
-	};
+	long diameter = (long)(war_era_strengths[index] * 2);
 
-	diameter = (long)(prewar_strengths[index] * 2);
-	pRect->extent.width = UNIVERSE_TO_DISPX (diameter) - UNIVERSE_TO_DISPX (0);
+	pRect->extent.width = UNIVERSE_TO_DISPX (diameter)
+			- UNIVERSE_TO_DISPX (0);
 	if (pRect->extent.width < 0)
 		pRect->extent.width = -pRect->extent.width;
 	else if (pRect->extent.width == 0)
@@ -316,50 +304,28 @@ GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepa
 	else if (pRect->extent.height == 0)
 		pRect->extent.height = RES_SCALE(1);
 
-	pRect->corner.x = UNIVERSE_TO_DISPX (prewar_locations[index].x);
-	pRect->corner.y = UNIVERSE_TO_DISPY (prewar_locations[index].y);
+	pRect->corner.x = UNIVERSE_TO_DISPX (war_era_locations[index].x);
+	pRect->corner.y = UNIVERSE_TO_DISPY (war_era_locations[index].y);
 	pRect->corner.x -= pRect->extent.width >> 1;
 	pRect->corner.y -= pRect->extent.height >> 1;
 
 	{
-		TEXT t;
-		STRING locString;
-
-		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
-		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - RES_SCALE(1);
-		t.align = ALIGN_CENTER;
-		
-		if (prewar_name_unknown[index])
-		{
-			t.CharCount = 7;
-			t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
-		}
-		else
-		{
-			locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
-			t.CharCount = GetStringLength (locString);
-			t.pStr = (UNICODE *)GetStringAddress (locString);
-		}
-		
-		if (prewar_strengths[index])
-			TextRect (&t, pRepairRect, NULL);
-		
 		if (pRepairRect->corner.x <= 0)
 			pRepairRect->corner.x = RES_SCALE(1);
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
-			pRepairRect->corner.x =
-					SIS_SCREEN_WIDTH - pRepairRect->extent.width - RES_SCALE(1);
+			pRepairRect->corner.x = SIS_SCREEN_WIDTH
+				- pRepairRect->extent.width - RES_SCALE(1);
 		if (pRepairRect->corner.y <= 0)
 			pRepairRect->corner.y = RES_SCALE(1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
-			pRepairRect->corner.y =
-					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE(1);
+			pRepairRect->corner.y = SIS_SCREEN_HEIGHT
+				- pRepairRect->extent.height - RES_SCALE(1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
-		pRepairRect->extent.width++;
-		pRepairRect->extent.height++;
+		pRepairRect->extent.width += RES_SCALE(1);
+		pRepairRect->extent.height += RES_SCALE(1);
 	}
 }
 
@@ -549,17 +515,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		};
 
 		// JMS: For drawing SC1-era starmap.
-		static const BOOLEAN prewar_name_unknown[] =
+		static const COUNT war_era_strengths[] =
 		{
-			RACE_PREWAR_NAME_UNKNOWN
+			WAR_ERA_STRENGTHS
 		};
-		static const COUNT prewar_strengths[] =
+		static const POINT war_era_locations[] =
 		{
-			RACE_PREWAR_STRENGTHS
+			WAR_ERA_LOCATIONS
 		};
-		const char name_androsynth[] = "Androsynth";
-		const char name_chenjesu[] = "Chenjesu";
-		const char name_mmrnmhrm[] = "Mmrnmhrm";
 
 		for (index = 0,
 				hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -571,12 +534,13 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			hNextShip = _GetSuccLink (FleetPtr);
 
 			if (FleetPtr->known_strength || 
-				(show_prewar_situation && prewar_strengths[index]))
+				(show_war_era_situation && war_era_strengths[index]))
 			{
 				RECT repair_r;
 
-				if (show_prewar_situation)
-					GetPrewarSphereRect (index, FleetPtr, &r, &repair_r);
+				if (show_war_era_situation)
+					GetWarEraSphereRect (index, war_era_strengths, 
+							war_era_locations, &r, &repair_r);
 				else
 					GetSphereRect (FleetPtr, &r, &repair_r);
 
@@ -604,55 +568,43 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					SetContextFont (TinyFont);
 
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + (r.extent.height >> 1) - 1;
+					t.baseline.y = r.corner.y + (r.extent.height >> 1) - RES_SCALE(1);
 					t.align = ALIGN_CENTER;
 					
-					// JMS: For drawing SC1-era starmap.
-					if (show_prewar_situation && prewar_name_unknown[index])
-					{
-						t.CharCount = 7;
-						t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
-					}
-					// JMS: A kludgy way to fix Mrns, Chenjesus and Andros' names.
-					else if (show_prewar_situation && 
-						(index == 1 || index == 16 || index == 20))
-					{
-						if (index == 1)
-						{
-							t.CharCount = 8;
-							t.pStr = (UNICODE *)name_mmrnmhrm;
-						}
-						else if (index == 16)
-						{
-							t.CharCount = 8;
-							t.pStr = (UNICODE *)name_chenjesu;
-						}
-						else if (index == 20)
-						{
-							t.CharCount = 10;
-							t.pStr = (UNICODE *)name_androsynth;
-						}
-					}
-					else
-					{
-						locString = SetAbsStringTableIndex (
-								FleetPtr->race_strings, 1);
-						t.CharCount = GetStringLength (locString);
-						t.pStr = (UNICODE *)GetStringAddress (locString);
-					}
+					locString = SetAbsStringTableIndex (
+							FleetPtr->race_strings, 1);
+					t.CharCount = GetStringLength (locString);
+					t.pStr = (UNICODE *)GetStringAddress (locString);
 					
+					// JMS: For drawing SC1-era starmap.
+					if (show_war_era_situation)
+					{
+						switch (index)
+						{
+							case PKUNK_SHIP:
+							case THRADDASH_SHIP:
+							case DRUUGE_SHIP:
+								t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
+								break;
+							case ANDROSYNTH_SHIP:
+								t.pStr = "Androsynth";
+								break;
+						}
+						t.CharCount = strlen (t.pStr);
+					}
+
 					TextRect (&t, &r, NULL);
 
 					if (r.corner.x <= 0)
-						t.baseline.x -= r.corner.x - 1;
+						t.baseline.x -= r.corner.x - RES_SCALE(1);
 					else if (r.corner.x + r.extent.width >= SIS_SCREEN_WIDTH)
 						t.baseline.x -= (r.corner.x + r.extent.width)
-								- SIS_SCREEN_WIDTH + 1;
+								- SIS_SCREEN_WIDTH + RES_SCALE(1);
 					if (r.corner.y <= 0)
-						t.baseline.y -= r.corner.y - 1;
+						t.baseline.y -= r.corner.y - RES_SCALE(1);
 					else if (r.corner.y + r.extent.height >= SIS_SCREEN_HEIGHT)
 						t.baseline.y -= (r.corner.y + r.extent.height)
-								- SIS_SCREEN_HEIGHT + 1;
+								- SIS_SCREEN_HEIGHT + RES_SCALE(1);
 
 					// The text color is slightly lighter than the color of
 					// the SoI.
@@ -665,8 +617,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 					SetContextForeGroundColor (c);
 					
-					if ((!show_prewar_situation) ||
-						(show_prewar_situation && prewar_strengths[index]))
+					if (!show_war_era_situation ||
+						(show_war_era_situation && war_era_strengths[index]))
 						font_DrawText (&t);
 				}
 			}
@@ -904,7 +856,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	STAR_DESC *BestSDPtr;
 
 	// JMS: Display star map title.
-	if (which_starmap == PREWAR_STARMAP)
+	if (which_starmap == WAR_ERA_STARMAP)
 	{	
 		// "- Old map from 2135 -"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 3));
@@ -1002,7 +954,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				CONTEXT OldContext;
 				OldContext = SetContext (OffScreenContext);
 				
-				if (show_prewar_situation)
+				if (show_war_era_situation)
 					SetContextForeGroundColor 
 						(BUILD_COLOR (MAKE_RGB15 (0x18, 0x00, 0x00), 0x00));
 				else
@@ -1597,10 +1549,10 @@ DoMoveCursor (MENU_STATE *pMS)
 		++which_starmap;
 		which_starmap %= NUM_STARMAPS;
 		
-		if (which_starmap == PREWAR_STARMAP) 
-			show_prewar_situation = TRUE;
+		if (which_starmap == WAR_ERA_STARMAP) 
+			show_war_era_situation = TRUE;
 		else
-			show_prewar_situation = FALSE;
+			show_war_era_situation = FALSE;
 	
 		DrawStarMap (0, NULL);
 		last_buf[0] = '\0';
@@ -1917,7 +1869,7 @@ StarMap (void)
 	memset (&MenuState, 0, sizeof (MenuState));
 
 	// JMS: For showing SC1-era starmap / starmap with constellations.
-	show_prewar_situation = FALSE; 
+	show_war_era_situation = FALSE; 
 	which_starmap = NORMAL_STARMAP;
 
 	zoomLevel = 0;
