@@ -1734,8 +1734,8 @@ UpdateMap (void)
 				}
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				++last_r.extent.width;
-				++last_r.extent.height;
+				last_r.extent.width += RES_SCALE(1);
+				last_r.extent.height += RES_SCALE(1);
 				VisibleChange = FALSE;
 				do
 				{
@@ -1806,8 +1806,8 @@ DoneSphereMove:
 				--delta;
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				++last_r.extent.width;
-				++last_r.extent.height;
+				last_r.extent.width += RES_SCALE(1);
+				last_r.extent.height += RES_SCALE(1);
 				VisibleChange = FALSE;
 
 				// printf("%s: %d\n", raceName (index), FleetPtr->actual_strength);
