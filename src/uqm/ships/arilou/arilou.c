@@ -285,22 +285,24 @@ arilou_preprocess (ELEMENT *ElementPtr)
 				{
 					SDWORD dist = 0;
 					SDWORD dx, dy;
-                    do {
-                        ElementPtr->next.location.x =
+
+					do
+					{
+						ElementPtr->next.location.x =
 								WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
-                        ElementPtr->next.location.y =
+						ElementPtr->next.location.y =
 								WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
-                        
-                        dx = ((SDWORD)ElementPtr->next.location.x - (LOG_SPACE_WIDTH >> 1));
-                        dy = ((SDWORD)ElementPtr->next.location.y - (LOG_SPACE_HEIGHT >> 1));
-                        
-                        dist = sqrt(dx*dx + dy*dy);                        
-                    } 
+
+						dx = ((SDWORD)ElementPtr->next.location.x - (LOG_SPACE_WIDTH >> 1));
+						dy = ((SDWORD)ElementPtr->next.location.y - (LOG_SPACE_HEIGHT >> 1));
+
+						dist = sqrt(dx*dx + dy*dy);
+					}
 					while (dist < (RES_SCALE(2800)));
-                }
+				}
 				else
 				{
-                    ElementPtr->next.location.x =
+					ElementPtr->next.location.x =
 							WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
 					ElementPtr->next.location.y =
 							WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));

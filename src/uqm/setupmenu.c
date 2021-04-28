@@ -404,7 +404,7 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed(void)
 {	
-	sprintf(textentries[1].value, "%d", optCustomSeed); 
+	sprintf (textentries[1].value, "%d", optCustomSeed); 
 	if (!SANE_SEED(optCustomSeed))
 		optCustomSeed = PrimeA;
 }
