@@ -93,6 +93,7 @@ SOLARSYS_STATE *pSolarSysState;
 FRAME SISIPFrame;
 FRAME SunFrame;
 FRAME OrbitalFrame;
+FRAME OldOrbitalFrame;
 FRAME OrbitalFrameUnscaled;
 FRAME OrbitalFrameIntersect;
 FRAME SpaceJunkFrame;
@@ -378,12 +379,14 @@ FreeIPData (void)
 	SunCMap = 0;
 	DestroyColorMap (ReleaseColorMap (OrbitalCMap));
 	OrbitalCMap = 0;
-	DestroyDrawable(ReleaseDrawable(OrbitalFrame));
+	DestroyDrawable (ReleaseDrawable(OrbitalFrame));
 	OrbitalFrame = 0;
-	DestroyDrawable(ReleaseDrawable(OrbitalFrameUnscaled));
+	DestroyDrawable (ReleaseDrawable(OldOrbitalFrame));
+	OldOrbitalFrame = 0;
+	DestroyDrawable (ReleaseDrawable(OrbitalFrameUnscaled));
 	OrbitalFrameUnscaled = 0;
 	if (IS_HD && HDPackPresent) {
-		DestroyDrawable(ReleaseDrawable(OrbitalFrameIntersect));
+		DestroyDrawable (ReleaseDrawable (OrbitalFrameIntersect));
 		OrbitalFrameIntersect = 0;
 	}
 	DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
@@ -407,6 +410,9 @@ LoadIPData (void)
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
 				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
+		if (oldPlanetsPresent)
+			OldOrbitalFrame = CaptureDrawable (
+					LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalFrameUnscaled = CaptureDrawable (
 				LoadGraphic (ORBPLAN_UNSCALED_MASK_PMAP_ANIM));
 		if (IS_HD && HDPackPresent)
@@ -1049,6 +1055,26 @@ GetPlanetOrbitRect (RECT *r, PLANET_DESC *planet, int sizeNumer,
 	GetOrbitRect (r, dx, dy, planet->radius, sizeNumer, dyNumer, denom);
 }
 
+static FRAME
+SetPlanetOldFrame (COUNT index, COUNT color)
+{
+	FRAME oldFrame, newFrame;
+	RECT r;
+
+	oldFrame = SetAbsFrameIndex (OldOrbitalFrame, index);
+	GetFrameRect(oldFrame, &r);
+
+	r.corner.y = 0; // messed because of sprite hotspot
+	r.corner.x = (r.extent.width / NUM_PLANET_COLORS) * color;
+	r.extent.width /= NUM_PLANET_COLORS;
+
+	newFrame = CaptureDrawable (CopyFrameRect (oldFrame, &r));
+	SetFrameHot (newFrame, GetFrameHot (oldFrame));
+	// CaptureDrawable destroys transparency, so it has to be setted again
+	SetFrameTransparentColor (newFrame, BUILD_COLOR_RGBA(0x00, 0x00, 0x00, 0xFF));
+	return newFrame;
+}
+
 static void
 ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 {
@@ -1137,9 +1163,15 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					break;
 			}
 		}
-		planet->image.frame = SetAbsFrameIndex (UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
-			(Size << FACING_SHIFT) + NORMALIZE_FACING(
-				ANGLE_TO_FACING (angle)));
+		if (oldPlanetsPresent)
+			planet->image.frame = SetPlanetOldFrame (
+				(Size << FACING_SHIFT) + NORMALIZE_FACING (
+					ANGLE_TO_FACING (angle)), PLANCOLOR(Type));
+		else
+			planet->image.frame = SetAbsFrameIndex (
+				UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
+				(Size << FACING_SHIFT) + NORMALIZE_FACING (
+						ANGLE_TO_FACING (angle)));
 
 		if (IS_HD && HDPackPresent)
 			planet->intersect.frame = SetAbsFrameIndex(OrbitalFrameIntersect, Size);

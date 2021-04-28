@@ -76,6 +76,7 @@ extern BOOLEAN DeathBySurrender;
 extern BOOLEAN DeathByMelee;
 extern BOOLEAN DeathBySuicide;
 extern BOOLEAN SpaceMusicOK;
+extern BOOLEAN oldPlanetsPresent;
 
 extern ACTIVITY LastActivity;
 
