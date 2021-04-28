@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
 
 ## [v0.8.1]
+### Thanks
+- Thanks to Mergrim for his playthrough of the MegaMod. Which in turn helped bring a couple bugs to light (The "Trade HQ" and Zex's "funky" screen bugs)
+
 ### Added
 - Optional Discord Rich Presence support
 - HD: Created new, faithful UI fonts
@@ -17,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Charon, the moon of Pluto, is now explorable
 
 ### Changed
-- Scaled the outer border of the viewport to match PC-DOS (This unfortunately changed the layout of all star backgrounds)
+- Scaled the outer border of the viewport to match PC-DOS
 - HD: Corrected the UI scaling in HD to be more faithful to Vanilla UQM
 - Created a new set of Sol Textures to accomodate the new UI scale
 - HD: Created a new set of mineral, bio, and energy icons
