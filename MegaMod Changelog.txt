@@ -6,18 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas]
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
 
+## [WIP]
+- Optional Discord Rich Presence support
+
 ## [v0.8.1]
 ### Thanks
 - Thanks to Mergrim for his playthrough of the MegaMod. Which in turn helped bring a couple bugs to light (The "Trade HQ" and Zex's "funky" screen bugs)
 
 ### Added
-- Optional Discord Rich Presence support
 - HD: Created new, faithful UI fonts
 - EXTENDED: Show gas giant type on the scan screen (I.E. Blue Gas Giant)
 - HD: Created new HD Vanilla border overlay
 - If the Captain and/or Flagship names are left blank at game start then the default names are used.
 - HD: Gave the Kohr-Ah a new bottom-eye animation (Always bugged me that not all the eyes animated)
 - EXTENDED: Charon, the moon of Pluto, is now explorable
+- Kruzenshtern: Added support for displaying PC-DOS styled planets while traversing solar systems
 
 ### Changed
 - Scaled the outer border of the viewport to match PC-DOS
@@ -40,6 +43,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Thicken the animated Oscilloscope lines
 - Rescaled the custom borders
 - Changed the Syreen text color to cyan during the "sex scene" (And back to white afterwards)
+- Reconfigured the War Era StarMap to be more faithful against the official paper StarMap
+- EXTENDED: Changed the size and location of the Chmmr SOI to be more logical (Combined Chenjesu & Mmrnmhrm SOI size and location)
 
 ### Fixed
 - Fixed suicide Game Over screen having illegible text
@@ -52,6 +57,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/Serosis/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
 - Fixed a bug that showed "Trade HQ" as the planet name for various plot-related planets
 - Fixed planet generation so that the Taalo shield is always obtainable no matter the custom seed
+- EXTENDED: Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
+- HD: Fixed the melee captain window death animation
 
 
 ## [v0.8.0.85]
