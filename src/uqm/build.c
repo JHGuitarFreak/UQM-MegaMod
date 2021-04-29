@@ -295,7 +295,8 @@ GetRaceKnownSize (RACE_ID race)
  * flag == 3: Can build their ships regardless
  */
 BOOLEAN
-SetRaceAllied (RACE_ID race, BYTE flag) {
+SetRaceAllied (RACE_ID race, BYTE flag)
+{
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
 
@@ -706,9 +707,7 @@ loadGameCheats (void)
 
 	if (optUnlockShips)
 	{
-		BYTE i = 0;
-
-		for (i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
+		for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
 			SetRaceAllied (i, 3);
 	}
 	
@@ -718,8 +717,8 @@ loadGameCheats (void)
 		SET_GAME_STATE (IMPROVED_LANDER_CARGO, 1);
 		SET_GAME_STATE (IMPROVED_LANDER_SHOT, 1);
 		SET_GAME_STATE (LANDER_SHIELDS, (1 << EARTHQUAKE_DISASTER) | (1 << BIOLOGICAL_DISASTER) |
-			(1 << LIGHTNING_DISASTER) | (1 << LAVASPOT_DISASTER));				
-		GLOBAL (ModuleCost[ANTIMISSILE_DEFENSE]) = 4000 / MODULE_COST_SCALE;				
+			(1 << LIGHTNING_DISASTER) | (1 << LAVASPOT_DISASTER));
+		GLOBAL (ModuleCost[ANTIMISSILE_DEFENSE]) = 4000 / MODULE_COST_SCALE;
 		GLOBAL (ModuleCost[BLASTER_WEAPON]) = 4000 / MODULE_COST_SCALE;
 		GLOBAL (ModuleCost[HIGHEFF_FUELSYS]) = 1000 / MODULE_COST_SCALE;
 		GLOBAL (ModuleCost[TRACKING_SYSTEM]) = 5000 / MODULE_COST_SCALE;
@@ -729,7 +728,7 @@ loadGameCheats (void)
 	}
 	
 	if(optAddDevices)
-	{		
+	{
 		SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, 1);
 		SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, 1);
 		SET_GAME_STATE (GLOWING_ROD_ON_SHIP, 1);
@@ -752,4 +751,3 @@ loadGameCheats (void)
 		SET_GAME_STATE (DESTRUCT_CODE_ON_SHIP, 1);
 	}
 }
-
