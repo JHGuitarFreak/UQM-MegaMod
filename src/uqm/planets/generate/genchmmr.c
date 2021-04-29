@@ -119,7 +119,11 @@ GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		COUNT angle;
 		DWORD rand_val;
 
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
+		if (CheckAlliance(CHMMR_SHIP) != DEAD_GUY)
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
+		else
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
+		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 
 		if (PrimeSeed)
 		{
@@ -142,61 +146,100 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
 	if (CurStarDescPtr->Index == CHMMR_DEFINED)
 	{
-		if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+		if (CheckAlliance(CHMMR_SHIP) != DEAD_GUY)
 		{
-			if (GET_GAME_STATE (CHMMR_UNLEASHED))
+			if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 			{
-				SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 7);
-				InitCommunication (CHMMR_CONVERSATION);
-
-				if (GET_GAME_STATE(CHMMR_BOMB_STATE) == 2)
+				if (GET_GAME_STATE (CHMMR_UNLEASHED))
 				{
-					GLOBAL(CurrentActivity) |= END_INTERPLANETARY;
-				}
+					SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 7);
+					InitCommunication (CHMMR_CONVERSATION);
 
-				return true;
+					if (GET_GAME_STATE(CHMMR_BOMB_STATE) == 2)
+					{
+						GLOBAL(CurrentActivity) |= END_INTERPLANETARY;
+					}
+
+					return true;
+				}
+				else if (GET_GAME_STATE (SUN_DEVICE_ON_SHIP)
+					&& !GET_GAME_STATE (ILWRATH_DECEIVED)
+					&& StartSphereTracking (ILWRATH_SHIP))
+				{
+					PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+					ReinitQueue (&GLOBAL (ip_group_q));
+					assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+					CloneShipFragment (ILWRATH_SHIP,
+						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
+
+					SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
+					GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+					InitCommunication (ILWRATH_CONVERSATION);
+
+					if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
+					{
+						GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+						ReinitQueue (&GLOBAL (npc_built_ship_q));
+						GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+					}
+
+					return true;
+				}
 			}
-			else if (GET_GAME_STATE (SUN_DEVICE_ON_SHIP)
-				&& !GET_GAME_STATE (ILWRATH_DECEIVED)
-				&& StartSphereTracking (ILWRATH_SHIP))
+			else if (matchWorld (solarSys, world,
+					solarSys->SunDesc[0].PlanetByte, 
+					solarSys->SunDesc[0].MoonByte))
 			{
-				PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
-				ReinitQueue (&GLOBAL (ip_group_q));
-				assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+				/* Starbase */
+				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+				solarSys->SysInfo.PlanetInfo.DiscoveryString =
+					CaptureStringTable (
+						LoadStringTable (CHMMR_BASE_STRTAB));
 
-				CloneShipFragment (ILWRATH_SHIP,
-					&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
+				DoDiscoveryReport (MenuSounds);
 
-				SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
-				GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
-				InitCommunication (ILWRATH_CONVERSATION);
-
-				if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
-				{
-					GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
-					ReinitQueue (&GLOBAL (npc_built_ship_q));
-					GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
-				}
+				DestroyStringTable (ReleaseStringTable (
+					solarSys->SysInfo.PlanetInfo.DiscoveryString));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
+				FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
 
 				return true;
 			}
 		}
-		else if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, 
-			solarSys->SunDesc[0].MoonByte))
+		else
 		{
-			/* Starbase */
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				CaptureStringTable (LoadStringTable (CHMMR_BASE_STRTAB));
+			if (matchWorld(solarSys, world,
+					solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			{
+				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+				solarSys->PlanetSideFrame[1] =
+						CaptureDrawable (
+							LoadGraphic (RUINS_MASK_PMAP_ANIM));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						CaptureStringTable (
+							LoadStringTable (RUINS_STRTAB));
+			}
+			else if (matchWorld (solarSys, world,
+					solarSys->SunDesc[0].PlanetByte, 
+					solarSys->SunDesc[0].MoonByte))
+			{
+				/* Starbase */
+				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+				solarSys->SysInfo.PlanetInfo.DiscoveryString =
+					SetRelStringTableIndex (
+						CaptureStringTable (
+							LoadStringTable (URQUAN_BASE_STRTAB)), 0);
 
-			DoDiscoveryReport (MenuSounds);
+				DoDiscoveryReport (MenuSounds);
 
-			DestroyStringTable (ReleaseStringTable (
-				solarSys->SysInfo.PlanetInfo.DiscoveryString));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
+				DestroyStringTable (ReleaseStringTable (
+					solarSys->SysInfo.PlanetInfo.DiscoveryString));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
+				FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
 
-			return true;
+				return true;
+			}
 		}
 	}
 
@@ -230,6 +273,14 @@ static COUNT
 GenerateChmmr_generateEnergy (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
+
+	if (CurStarDescPtr->Index == CHMMR_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		// Standard ruins report
+		return GenerateDefault_generateRuins (solarSys, whichNode, info);
+	}
+
 	if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
@@ -243,6 +294,15 @@ static bool
 GenerateChmmr_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	COUNT whichNode)
 {
+
+	if (CurStarDescPtr->Index == CHMMR_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		// Standard ruins report
+		GenerateDefault_landerReportCycle (solarSys);
+		return false;
+	}
+
 	if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{

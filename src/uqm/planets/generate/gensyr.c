@@ -17,10 +17,19 @@
  */
 
 #include "genall.h"
+#include "../lander.h"
 #include "../planets.h"
-#include "../../comm.h"
 #include "../../build.h"
+#include "../../comm.h"
 #include "../../gamestr.h"
+#include "../../gendef.h"
+#include "../../globdata.h"
+#include "../../nameref.h"
+#include "../../setup.h"
+#include "../../sounds.h"
+#include "../../starmap.h"
+#include "../../state.h"
+#include "libs/mathlib.h"
 
 static bool GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys,
@@ -29,6 +38,10 @@ static bool GenerateSyreen_generateName (const SOLARSYS_STATE *,
 	const PLANET_DESC *world);
 static bool GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
+static COUNT GenerateSyreen_generateEnergy (const SOLARSYS_STATE *,
+		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *);
+static bool GenerateSyreen_pickupEnergy (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateSyreenFunctions = {
@@ -40,10 +53,10 @@ const GenerateFunctions generateSyreenFunctions = {
 	/* .generateName     = */ GenerateSyreen_generateName,
 	/* .generateOrbital  = */ GenerateSyreen_generateOrbital,
 	/* .generateMinerals = */ GenerateDefault_generateMinerals,
-	/* .generateEnergy   = */ GenerateDefault_generateEnergy,
+	/* .generateEnergy   = */ GenerateSyreen_generateEnergy,
 	/* .generateLife     = */ GenerateDefault_generateLife,
 	/* .pickupMinerals   = */ GenerateDefault_pickupMinerals,
-	/* .pickupEnergy     = */ GenerateDefault_pickupEnergy,
+	/* .pickupEnergy     = */ GenerateSyreen_pickupEnergy,
 	/* .pickupLife       = */ GenerateDefault_pickupLife,
 };
 
@@ -66,16 +79,19 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);	
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD | PLANET_SHIELDED;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 	if (!PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2] | PLANET_SHIELDED;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 	}
+
+	if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
 
 	return true;
 }
@@ -87,7 +103,10 @@ GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 
 	if (matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
+		if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
+		else
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 
 		if (PrimeSeed)
@@ -124,31 +143,82 @@ GenerateSyreen_generateName (const SOLARSYS_STATE *solarSys,
 static bool
 GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world,
+			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		/* Syreen home planet */
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
 		GenerateDefault_generateOrbital (solarSys, world);
 
-		if (PrimeSeed)
-		{
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 19;
-			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			solarSys->SysInfo.PlanetInfo.Weather = 0;
-			solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 9 / 10;
-		}
+		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 19;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
+		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 9 / 10;
 
 		return true;
 	}
 
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world,
+			solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 	{
-		/* Starbase */
-		InitCommunication (SYREEN_CONVERSATION);
-		return true;
+		if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+		{
+			/* Starbase */
+			InitCommunication (SYREEN_CONVERSATION);
+			return true;
+		}
+		else
+		{
+			/* Starbase */
+			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+			solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				SetRelStringTableIndex (
+					CaptureStringTable (
+						LoadStringTable (URQUAN_BASE_STRTAB)), 0);
+
+			DoDiscoveryReport (MenuSounds);
+
+			DestroyStringTable (ReleaseStringTable (
+				solarSys->SysInfo.PlanetInfo.DiscoveryString));
+			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
+			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
+
+			return true;
+		}
 	}
 
-	GenerateDefault_generateOrbital (solarSys, world);
+	GenerateDefault_generateOrbital(solarSys, world);
 
 	return true;
 }
 
+static COUNT
+GenerateSyreen_generateEnergy (const SOLARSYS_STATE *solarSys,
+	const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
+{
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		return GenerateDefault_generateRuins (solarSys, whichNode, info);
+	}
+
+	return 0;
+}
+
+static bool
+GenerateSyreen_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+	COUNT whichNode)
+{
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		// Standard ruins report
+		GenerateDefault_landerReportCycle (solarSys);
+		return false;
+	}
+
+	(void) whichNode;
+	return false;
+}
