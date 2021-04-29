@@ -617,9 +617,9 @@ Intro (void)
 			{
 				if (ChmmrPtr)
 				{
-					ChmmrPtr->actual_strength = 1800 / SPHERE_RADIUS_INCREMENT * 2;
-					ChmmrPtr->loc.x = 742;
-					ChmmrPtr->loc.y = 2268;
+					ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
+					ChmmrPtr->loc.x = 577;
+					ChmmrPtr->loc.y = 2509;
 					StartSphereTracking (CHMMR_SHIP);
 				}
 				UnlockFleetInfo(&GLOBAL(avail_race_q), hChmmr);
