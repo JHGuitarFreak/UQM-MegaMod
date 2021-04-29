@@ -2005,6 +2005,9 @@ SeedUniverse (void)
 		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
 		r.corner.y = 0;
 		DrawFilledRectangle (&r);
+
+		if (IS_HD)
+			DrawBorder(optCustomBorder ? 28 : 32, FALSE);
 	}
 
 	UnbatchGraphics ();
