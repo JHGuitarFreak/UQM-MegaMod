@@ -1148,14 +1148,6 @@ DoScan (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
-	if (optSubmenu)
-	{
-		if (optCustomBorder)
-			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
-		else
-			DrawSubmenu(DIF_CASE(1, 2, 3));
-	}
-
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
 		return FALSE;
