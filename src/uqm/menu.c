@@ -35,6 +35,7 @@ static BYTE NextMenuState (BYTE BaseState, BYTE CurState);
 static BYTE PreviousMenuState (BYTE BaseState, BYTE CurState);
 static BOOLEAN GetAlternateMenu (BYTE *BaseState, BYTE *CurState);
 static BYTE ConvertAlternateMenu (BYTE BaseState, BYTE NewState);
+void FunkyMenu (BYTE m, STAMP stmp);
 
 /* Draw the blue background for PC Menu Text, with a border around it.
  * The specified rectangle includes the border. */
@@ -565,6 +566,9 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;
+
+		if (optSubmenu)
+			FunkyMenu (beg_index + (BYTE)NewState, s);
 	}
 	else
 	{
@@ -586,7 +590,11 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	}
 	if (s.frame)
 	{
-		DrawStamp (&s);
+		if (optSubmenu)
+			FunkyMenu (beg_index + (BYTE)NewState, s);
+		else
+			DrawStamp (&s);
+
 		switch (beg_index + NewState)
 		{
 			TEXT t;
@@ -665,4 +673,39 @@ DrawBorder (BYTE Visible, BOOLEAN InBattle)
 	
 	if (!InBattle)
 		SetContext (OldContext);
+}
+
+void
+FunkyMenu (BYTE m, STAMP stmp)
+{
+	static BOOLEAN subMenuFlag;
+
+	if ((!stmp.frame && m >= PM_ALT_MSCAN
+			&& m <= PM_ALT_EXIT_SCAN)
+			|| (stmp.frame && m >= PM_MIN_SCAN
+			&& m <= PM_LAUNCH_LANDER))
+	{
+		if (stmp.frame)
+			DrawStamp (&stmp);
+
+		if (optCustomBorder)
+			DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+		else
+			DrawSubmenu (DIF_CASE (1, 2, 3));
+		subMenuFlag = TRUE;
+
+		if (stmp.frame)
+			return;
+	}
+	else if (subMenuFlag == TRUE)
+	{
+		if (optCustomBorder)
+			DrawBorder (14, FALSE);
+		else
+			DrawSubmenu (0);
+		subMenuFlag = FALSE;
+	}
+
+	if (stmp.frame)
+		DrawStamp (&stmp);
 }

@@ -433,16 +433,6 @@ DoPlanetOrbit (MENU_STATE *pMS)
 			{	// Found Fwiffo on Pluto
 				return FALSE;
 			}
-
-			// JMS: This will hide the table of mineral values on the status bar.
-			if (optSubmenu)
-			{
-				if (optCustomBorder)
-					DrawBorder (14, FALSE);
-				else
-					DrawSubmenu (0);
-			}
-
 			break;
 		case EQUIP_DEVICE:
 			select = DevicesMenu ();

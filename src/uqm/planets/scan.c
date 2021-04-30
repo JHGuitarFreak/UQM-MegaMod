@@ -738,14 +738,6 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN select, cancel;
 
-	if (optSubmenu)
-	{
-		if (optCustomBorder)
-			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
-		else
-			DrawSubmenu(DIF_CASE(1, 2, 3));
-	}
-
 	select = PulsedInputState.menu[KEY_MENU_SELECT];
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
 	
