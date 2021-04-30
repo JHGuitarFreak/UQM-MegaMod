@@ -398,8 +398,6 @@ DoModifyRoster (MENU_STATE *pMS)
 		UnbatchGraphics ();
 	}
 
-	SleepThread (ONE_SECOND / 30);
-
 	return TRUE;
 }
 

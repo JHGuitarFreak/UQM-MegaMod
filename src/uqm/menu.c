@@ -473,7 +473,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	if (useAltMenu)
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 	pMS->CurState = NewState;
-	SleepThread (ONE_SECOND / 20);
+
 	return TRUE;
 }
 

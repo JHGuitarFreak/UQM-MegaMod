@@ -546,8 +546,6 @@ DoManipulateDevices (MENU_STATE *pMS)
 			}
 			pMS->CurState = NewState;
 		}
-
-		SleepThread (ONE_SECOND / 30);
 	}
 
 	return TRUE;
