@@ -74,14 +74,14 @@ signedDivWithError (long val, long divisor)
 	return invert ? -val : val;
 }
 
-#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + RES_SCALE(1))
+#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + 1)
 
 static inline COORD
 universeToDispx (long ux)
 {
 	return signedDivWithError (((ux - mapOrigin.x) << zoomLevel)
 			* SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
-			+ ((SIS_SCREEN_WIDTH - RES_SCALE(1)) >> 1);
+			+ ((SIS_SCREEN_WIDTH - 1) >> 1);
 }
 #define UNIVERSE_TO_DISPX(ux)  universeToDispx(ux)
 
@@ -90,14 +90,14 @@ universeToDispy (long uy)
 {
 	return signedDivWithError (((mapOrigin.y - uy) << zoomLevel)
 			* SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
-			+ ((SIS_SCREEN_HEIGHT - RES_SCALE(1)) >> 1);
+			+ ((SIS_SCREEN_HEIGHT - 1) >> 1);
 }
 #define UNIVERSE_TO_DISPY(uy)  universeToDispy(uy)
 
 static inline COORD
 dispxToUniverse (COORD dx)
 {
-	return (((long)(dx - ((SIS_SCREEN_WIDTH - RES_SCALE(1)) >> 1))
+	return (((long)(dx - ((SIS_SCREEN_WIDTH - 1) >> 1))
 			* (MAX_X_UNIVERSE + MAP_FIT_X)) >> zoomLevel)
 			/ SIS_SCREEN_WIDTH + mapOrigin.x;
 }
@@ -106,7 +106,7 @@ dispxToUniverse (COORD dx)
 static inline COORD
 dispyToUniverse (COORD dy)
 {
-	return (((long)(((SIS_SCREEN_HEIGHT - RES_SCALE(1)) >> 1) - dy)
+	return (((long)(((SIS_SCREEN_HEIGHT - 1) >> 1) - dy)
 			* (MAX_Y_UNIVERSE + 2)) >> zoomLevel)
 			/ SIS_SCREEN_HEIGHT + mapOrigin.y;
 }
