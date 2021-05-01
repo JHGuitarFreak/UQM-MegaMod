@@ -279,8 +279,8 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE(1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
-		pRepairRect->extent.width++;
-		pRepairRect->extent.height++;
+		pRepairRect->extent.width += RES_SCALE(1);
+		pRepairRect->extent.height += RES_SCALE(1);
 	}
 }
 
