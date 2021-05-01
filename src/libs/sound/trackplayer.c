@@ -338,7 +338,7 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		pages[page] = HMalloc (sizeof (UNICODE) *
 				(lead_ellips + pos + aft_ellips + 1));
 		if (lead_ellips)
-			strcpy (pages[page], "..");
+			strcpy (pages[page], "...");
 		memcpy (pages[page] + lead_ellips, text, pos);
 		pages[page][lead_ellips + pos] = '\0'; // string term
 		if (aft_ellips)
@@ -346,7 +346,7 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		timestamp[page] = pos * TEXT_SPEED;
 		if (timestamp[page] < 1000)
 			timestamp[page] = 1000;
-		lead_ellips = aft_ellips ? 2 : 0;
+		lead_ellips = aft_ellips ? 3 : 0;
 		text += pos;
 		// Skip any EOL
 		text += strspn (text, "\r\n");
