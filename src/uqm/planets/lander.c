@@ -2195,10 +2195,13 @@ InitLander (BYTE LanderFlags)
 		{
 			ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 			capacity_shift = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
-			if (optCustomBorder)
-				DrawBorder (DIF_CASE (15, 16, 17), FALSE);
-			else
-				DrawSubmenu (DIF_CASE (1, 2, 3));
+			if (optSubmenu)
+			{
+				if (optCustomBorder)
+					DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+				else
+					DrawSubmenu (DIF_CASE (1, 2, 3));
+			}
 		}
 		else
 		{

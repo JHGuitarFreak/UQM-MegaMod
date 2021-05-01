@@ -1902,7 +1902,8 @@ StarMap (void)
 			zoomLevel = 2;
 	}
 	
-	if(optSubmenu){
+	if (optSubmenu)
+	{
 		if(optCustomBorder)
 		{
 			if(optWhichMenu != OPT_PC)
