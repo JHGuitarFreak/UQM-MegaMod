@@ -147,6 +147,50 @@ _count_lines (TEXT *pText)
 	return numLines;
 }
 
+const SIZE
+ReContextualizeLeading (void)
+{
+	switch (CommData.AlienConv)
+	{
+	case UMGAH_CONVERSATION:
+		return RES_SCALE(8);
+	case COMMANDER_CONVERSATION:
+		return RES_SCALE(9);
+	case ARILOU_CONVERSATION:
+	case ZOQFOTPIK_CONVERSATION:
+		return RES_SCALE(10);
+	case CHMMR_CONVERSATION:
+	case DRUUGE_CONVERSATION:
+	case MELNORME_CONVERSATION:
+	case PKUNK_CONVERSATION:
+	case SLYLANDRO_CONVERSATION:
+	case SUPOX_CONVERSATION:
+	case TALKING_PET_CONVERSATION:
+	case THRADD_CONVERSATION:
+	case VUX_CONVERSATION:
+	case YEHAT_CONVERSATION:
+	case YEHAT_REBEL_CONVERSATION:
+		return RES_SCALE(11);
+	case ILWRATH_CONVERSATION:
+		return RES_SCALE(12);
+	case SPATHI_CONVERSATION:
+		return RES_SCALE(14);
+	case SLYLANDRO_HOME_CONVERSATION:
+	case UTWIG_CONVERSATION:
+		return RES_SCALE(15);
+	case BLACKURQ_CONVERSATION:
+	case MYCON_CONVERSATION:
+	case ORZ_CONVERSATION:
+	case SHOFIXTI_CONVERSATION:
+	case SYREEN_CONVERSATION:
+	case URQUAN_CONVERSATION:
+	case URQUAN_DRONE_CONVERSATION:
+		return RES_SCALE(17);
+	default:
+		return 0;
+	}
+}
+
 // status == -1: draw highlighted player dialog option
 // status == -2: draw non-highlighted player dialog option
 // status == -4: use current context, and baseline from pTextIn
@@ -194,7 +238,9 @@ add_text (int status, TEXT *pTextIn)
 
 		text_width = CommData.AlienTextWidth;
 		SetContextFont (CommData.AlienFont);
-		GetContextFontLeading (&leading);
+		//GetContextFontLeading (&leading);
+
+		leading = ReContextualizeLeading();
 
 		pText = pTextIn;
 	}

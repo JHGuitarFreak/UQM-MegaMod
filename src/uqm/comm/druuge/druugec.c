@@ -917,7 +917,7 @@ init_druuge_comm (void)
 
 	druuge_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	druuge_desc.AlienTextBaseline.y = RES_SCALE(70);
-	druuge_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
+	druuge_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
 
 	if ((GET_GAME_STATE (DRUUGE_MANNER) == 0
 			&& (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 7)))
