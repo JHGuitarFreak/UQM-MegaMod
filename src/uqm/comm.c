@@ -845,11 +845,11 @@ TalkSegue (COUNT wait_track)
 	talkingState.waitTrack = wait_track;
 	DoInput (&talkingState, FALSE);
 
-	ClearSubtitles ();
-
 	if (talkingState.ended)
 	{	// reached the end; set STOP icon
 		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 8));
+
+		ClearSubtitles();
 	}
 
 	// transition back to silent, if necessary
