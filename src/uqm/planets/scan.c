@@ -761,32 +761,39 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	{
 		SIZE dx = 0;
 		SIZE dy = 0;
-		POINT new_pt;
+		POINT new_pt; 
+		static DWORD tNext;
 
 		new_pt = planetLoc;
 
-		if (CurrentInputState.menu[KEY_MENU_LEFT])
-			dx = -RES_SCALE(1);
-		if (CurrentInputState.menu[KEY_MENU_RIGHT])
-			dx = RES_SCALE(1);
-		if (CurrentInputState.menu[KEY_MENU_UP])
-			dy = -RES_SCALE(1);
-		if (CurrentInputState.menu[KEY_MENU_DOWN])
-			dy = RES_SCALE(1);
+		if (tNext && TimeIn >= tNext)
+			tNext = NULL;
 
-		// Double the cursor speed when the Zoom Out key is held down
-		if (CurrentInputState.menu[KEY_MENU_LEFT]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dx = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_RIGHT]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dx = RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_UP]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dy = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_DOWN]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dy = RES_SCALE(2);
+		if (!tNext || TimeIn >= tNext)
+		{
+			if (CurrentInputState.menu[KEY_MENU_LEFT])
+				dx = -RES_SCALE(1);
+			if (CurrentInputState.menu[KEY_MENU_RIGHT])
+				dx = RES_SCALE(1);
+			if (CurrentInputState.menu[KEY_MENU_UP])
+				dy = -RES_SCALE(1);
+			if (CurrentInputState.menu[KEY_MENU_DOWN])
+				dy = RES_SCALE(1);
+
+			// Double the cursor speed when the Zoom Out key is held down
+			if (CurrentInputState.menu[KEY_MENU_LEFT]
+					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				dx = -RES_SCALE(2);
+			if (CurrentInputState.menu[KEY_MENU_RIGHT]
+					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				dx = RES_SCALE(2);
+			if (CurrentInputState.menu[KEY_MENU_UP]
+					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				dy = -RES_SCALE(2);
+			if (CurrentInputState.menu[KEY_MENU_DOWN]
+					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+				dy = RES_SCALE(2);
+		}
 
 		BatchGraphics ();
 
@@ -816,7 +823,8 @@ DoPickPlanetSide (MENU_STATE *pMS)
 
 		UnbatchGraphics ();
 
-		SleepThreadUntil (TimeIn + ONE_SECOND / 40);
+		if (dx || dy)
+			tNext = TimeIn + ONE_SECOND / 40;
 	}
 
 	return TRUE;
