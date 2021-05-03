@@ -1378,12 +1378,15 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 {
 #define ANIM_FRAME_RATE  (ONE_SECOND / 30)
 
-	for ( ; periods; --periods)
+	while (periods > 0)
 	{
 		RotatePlanetSphere (TRUE);
 
-		SleepThreadUntil (*TimeIn + ANIM_FRAME_RATE);
-		*TimeIn = GetTimeCounter ();
+		if (GetTimeCounter () >= *TimeIn + ANIM_FRAME_RATE)
+		{
+			*TimeIn = GetTimeCounter ();
+			periods--;
+		}
 	}
 }
 
@@ -1393,7 +1396,8 @@ AnimateLaunch (FRAME farray, BOOLEAN landing)
 	RECT r;
 	STAMP s;
 	COUNT num_frames;
-	TimeCount NextTime;
+	static TimeCount NextTime;
+	int Now;
 
 	SetContext (PlanetContext);
 
@@ -1405,24 +1409,28 @@ AnimateLaunch (FRAME farray, BOOLEAN landing)
 	s.origin.y = 0;
 	s.frame = farray;
 
-	for (num_frames = GetFrameCount (s.frame); num_frames; --num_frames)
+	num_frames = GetFrameCount (s.frame) + 1;
+
+	while (num_frames > 0)
 	{
-		NextTime = GetTimeCounter () + (ONE_SECOND / 22);
+		RotatePlanetSphere (TRUE);
 
-		BatchGraphics ();
-		RepairBackRect (&r, TRUE);
-#ifdef SPIN_ON_LAUNCH
-		RotatePlanetSphere (FALSE);
-#else
-		DrawDefaultPlanetSphere ();
-#endif
-		DrawStamp (&s);
-		UnbatchGraphics ();
+		Now = GetTimeCounter ();
+		if (Now >= NextTime)
+		{
+			NextTime = Now + (ONE_SECOND / 22);
+			BatchGraphics ();
+			RepairBackRect (&r, TRUE);
 
-		GetFrameRect (s.frame, &r);
-		s.frame = IncFrameIndex (s.frame);
+			DrawDefaultPlanetSphere ();
 
-		SleepThreadUntil (NextTime);
+			DrawStamp (&s);
+			UnbatchGraphics();
+
+			GetFrameRect (s.frame, &r);
+			s.frame = IncFrameIndex (s.frame);
+			num_frames--;
+		}
 	}
 
 	// This clears the last lander return / launch) anim frame from the planet window.
