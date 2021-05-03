@@ -695,7 +695,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		if (draw_cursor)
 		{
 			GetContextClipRect (&r);
-			LoadIntoExtraScreen (&r, FALSE);
+			LoadIntoExtraScreen (&r);
 			DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
 					UNIVERSE_TO_DISPY (cursorLoc.y));
 		}
@@ -1914,7 +1914,7 @@ StarMap (void)
 	OldContext = SetContext (SpaceContext);
 	GetContextClipRect (&clip_r);
 	SetContext (OldContext);
-	LoadIntoExtraScreen (&clip_r, FALSE);
+	LoadIntoExtraScreen (&clip_r);
 	DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
 			UNIVERSE_TO_DISPY (cursorLoc.y));
 	UnbatchGraphics ();

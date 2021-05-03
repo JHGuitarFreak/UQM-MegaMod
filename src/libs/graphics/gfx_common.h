@@ -83,8 +83,8 @@ typedef enum {
 	TFB_SCALE_TRILINEAR
 } SCALE;
 
-void LoadIntoExtraScreen (RECT *r, BOOLEAN Fs);
-void DrawFromExtraScreen (RECT *r, BOOLEAN Fs);
+void LoadIntoExtraScreen (RECT *r);
+void DrawFromExtraScreen (RECT *r);
 int SetGraphicScale (int scale);
 int GetGraphicScale (void);
 int SetGraphicScaleMode (int mode /* enum SCALE */);

@@ -33,11 +33,11 @@ typedef BYTE GRAPHICS_PRIM;
 
 typedef union
 {
-   POINT Point;
-   STAMP Stamp;
-   LINE Line;
-   TEXT Text;
-   RECT Rect;
+	POINT Point;
+	STAMP Stamp;
+	LINE Line;
+	TEXT Text;
+	RECT Rect;
 } PRIM_DESC;
 
 typedef DWORD PRIM_LINKS;
@@ -77,5 +77,3 @@ GetPrimNextLink (PRIMITIVE *pPrim)
 
 
 #endif  /* PRIM_H */
-
-

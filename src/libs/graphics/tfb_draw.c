@@ -133,12 +133,12 @@ TFB_DrawScreen_CopyToImage (TFB_Image *img, const RECT *r, SCREEN src)
 }
 
 void
-TFB_DrawScreen_Copy (const RECT *r, SCREEN src, SCREEN dest, BOOLEAN Fs)
+TFB_DrawScreen_Copy (const RECT *r, SCREEN src, SCREEN dest)
 {
 	RECT locRect;
 	TFB_DrawCommand DC;
 
-	if (!r || Fs)
+	if (!r)
 	{
 		locRect.corner.x = locRect.corner.y = 0;
 		locRect.extent.width = ScreenWidth;
@@ -147,7 +147,7 @@ TFB_DrawScreen_Copy (const RECT *r, SCREEN src, SCREEN dest, BOOLEAN Fs)
 	}
 
 	DC.Type = TFB_DRAWCOMMANDTYPE_COPY;
-	DC.data.copy.rect = (Fs ? locRect : *r);
+	DC.data.copy.rect = *r;
 	DC.data.copy.srcBuffer = src;
 	DC.data.copy.destBuffer = dest;
 

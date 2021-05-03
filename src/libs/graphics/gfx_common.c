@@ -42,15 +42,15 @@ static int gscale = GSCALE_IDENTITY;
 static int gscale_mode = TFB_SCALE_NEAREST;
 
 void
-DrawFromExtraScreen (RECT *r, BOOLEAN Fs)
+DrawFromExtraScreen (RECT *r)
 {
-	TFB_DrawScreen_Copy(r, TFB_SCREEN_EXTRA, TFB_SCREEN_MAIN, Fs);
+	TFB_DrawScreen_Copy(r, TFB_SCREEN_EXTRA, TFB_SCREEN_MAIN);
 }
 
 void
-LoadIntoExtraScreen (RECT *r, BOOLEAN Fs)
+LoadIntoExtraScreen (RECT *r)
 {
-	TFB_DrawScreen_Copy(r, TFB_SCREEN_MAIN, TFB_SCREEN_EXTRA, Fs);
+	TFB_DrawScreen_Copy(r, TFB_SCREEN_MAIN, TFB_SCREEN_EXTRA);
 }
 
 int

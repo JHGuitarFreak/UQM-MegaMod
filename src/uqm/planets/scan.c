@@ -70,7 +70,7 @@ enum ScanMenuItems
 
 
 void
-RepairBackRect (RECT *pRect, BOOLEAN Fullscreen)
+RepairBackRect (RECT *pRect)
 {
 	RECT new_r, old_r;
 
@@ -82,7 +82,7 @@ RepairBackRect (RECT *pRect, BOOLEAN Fullscreen)
 	new_r.extent.height += new_r.corner.y & 1;
 	new_r.corner.y &= ~1;
 	
-	DrawFromExtraScreen (&new_r, Fullscreen);
+	DrawFromExtraScreen (&new_r);
 }
 
 static void
@@ -1095,6 +1095,7 @@ ScanPlanet (COUNT scanType)
 
 		// Draw the scan slowly line by line
 		TimeOut = GetTimeCounter ();
+		DrawColoredPlanetSphere (BUILD_COLOR_RGBA (tintColor.r, tintColor.g, tintColor.b, 0x45));
 		for (i = 0; i < SCAN_LINES; i++)
 		{
 			TimeOut += SCAN_LINE_WAIT;
@@ -1105,7 +1106,7 @@ ScanPlanet (COUNT scanType)
 			DrawPlanet (i, tintColor);
 			DrawScannedStuff (i, scan);
 			UnbatchGraphics ();
-			RotatePlanetSphere (TRUE);
+			//RotatePlanetSphere (TRUE);
 		}
 
 		if (i < SCAN_LINES)
@@ -1115,6 +1116,9 @@ ScanPlanet (COUNT scanType)
 			DrawScannedStuff (SCAN_LINES - 1, scan);
 			UnbatchGraphics ();
 		}
+
+		if (scanType == AUTO_SCAN)
+			DrawDefaultPlanetSphere ();
 
 		if (IS_HD)
 		{	// Janky fix for the scan overlaying the bottom border by one pixel
