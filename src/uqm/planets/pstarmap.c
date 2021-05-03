@@ -725,7 +725,7 @@ EraseCursor (COORD curs_x, COORD curs_y)
 		r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y;
 
 #ifndef OLD
-	RepairBackRect (&r, FALSE);
+	RepairBackRect (&r);
 #else /* NEW */
 	r.extent.height += r.corner.y & 1;
 	r.corner.y &= ~1;

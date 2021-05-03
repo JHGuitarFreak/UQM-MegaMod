@@ -1078,7 +1078,7 @@ ScanPlanet (COUNT scanType)
 		r.corner.y = t.baseline.y - RES_SCALE(10); 
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1); 
-		RepairBackRect (&r, FALSE);
+		RepairBackRect (&r);
 
 		SetContextFont (MicroFont);
 		SetContextForeGroundColor (textColors[scan]);
@@ -1128,7 +1128,7 @@ ScanPlanet (COUNT scanType)
 	}
 
 	SetContext (PlanetContext);
-	RepairBackRect (&r, FALSE);
+	RepairBackRect (&r);
 
 	SetContext (ScanContext);
 	if (scanType == AUTO_SCAN)

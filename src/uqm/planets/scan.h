@@ -48,7 +48,7 @@ struct scan_block
 
 extern void ScanSystem (void);
 
-extern void RepairBackRect (RECT *pRect, BOOLEAN Fullscreen);
+extern void RepairBackRect (RECT *pRect);
 extern void GeneratePlanetSide (void);
 extern COUNT callGenerateForScanType (const SOLARSYS_STATE *,
 		const PLANET_DESC *world, COUNT node, BYTE scanType, NODE_INFO *);

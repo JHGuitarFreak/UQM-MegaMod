@@ -1420,7 +1420,7 @@ AnimateLaunch (FRAME farray, BOOLEAN landing)
 		{
 			NextTime = Now + (ONE_SECOND / 22);
 			BatchGraphics ();
-			RepairBackRect (&r, TRUE);
+			RepairBackRect (&r);
 
 			DrawDefaultPlanetSphere ();
 
@@ -1433,9 +1433,7 @@ AnimateLaunch (FRAME farray, BOOLEAN landing)
 		}
 	}
 
-	// This clears the last lander return / launch) anim frame from the planet window.
-	if (!IS_HD || !landing)
-		RepairBackRect (&r, FALSE);
+	RepairBackRect (&r);
 }
 
 static void
