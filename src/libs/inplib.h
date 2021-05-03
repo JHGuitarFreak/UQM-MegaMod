@@ -30,6 +30,7 @@ extern "C" {
 
 
 extern BOOLEAN AnyButtonPress (BOOLEAN DetectSpecial);
+extern BOOLEAN DirKeysPress (void);
 
 extern void TFB_ResetControls (void);
 

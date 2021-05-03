@@ -504,6 +504,22 @@ AnyButtonPress (BOOLEAN CheckSpecial)
 }
 
 BOOLEAN
+DirKeysPress (void)
+{
+	int i;
+	int dirKeys[] = { KEY_MENU_LEFT, KEY_MENU_RIGHT, KEY_MENU_UP, KEY_MENU_DOWN };
+
+	UpdateInputState ();
+
+	for (i = 0; i < ARRAY_SIZE (dirKeys); i++)
+	{
+		if (CurrentInputState.menu[dirKeys[i]])
+			return TRUE;
+	}
+	return FALSE;
+}
+
+BOOLEAN
 ConfirmExit (void)
 {
 	DWORD old_max_accel, old_min_accel, old_step_accel;

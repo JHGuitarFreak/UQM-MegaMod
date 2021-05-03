@@ -1579,18 +1579,11 @@ DoMoveCursor (MENU_STATE *pMS)
 		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = RES_SCALE(1);
 
 		// Double the cursor speed when the Zoom Out key is held down
-		if (CurrentInputState.menu[KEY_MENU_LEFT]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sx = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_RIGHT]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sx = RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_UP]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sy = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_DOWN]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sy = RES_SCALE(2);
+		if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+		{
+			sx *= 2;
+			sy *= 2;
+		}
 
 		if (sx != 0 || sy != 0)
 		{

@@ -781,18 +781,11 @@ DoPickPlanetSide (MENU_STATE *pMS)
 				dy = RES_SCALE(1);
 
 			// Double the cursor speed when the Zoom Out key is held down
-			if (CurrentInputState.menu[KEY_MENU_LEFT]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dx = -RES_SCALE(2);
-			if (CurrentInputState.menu[KEY_MENU_RIGHT]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dx = RES_SCALE(2);
-			if (CurrentInputState.menu[KEY_MENU_UP]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dy = -RES_SCALE(2);
-			if (CurrentInputState.menu[KEY_MENU_DOWN]
-					&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-				dy = RES_SCALE(2);
+			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			{
+					dx *= 2;
+					dy *= 2;
+			}
 		}
 
 		BatchGraphics ();
@@ -1112,9 +1105,7 @@ ScanPlanet (COUNT scanType)
 			DrawPlanet (i, tintColor);
 			DrawScannedStuff (i, scan);
 			UnbatchGraphics ();
-#ifdef SPIN_ON_SCAN
 			RotatePlanetSphere (TRUE);
-#endif
 		}
 
 		if (i < SCAN_LINES)
