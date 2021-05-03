@@ -57,8 +57,10 @@ extern int ScreenHeight;
 #define SPACE_HEIGHT SCREEN_HEIGHT
 /* Height of the space "window" (the left part of the screen) */
 #define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE(13)) // DC: Gray area on the right. just a spacer box
+#define ORIG_SIS_SCREEN_WIDTH (243) // 320 - 64 - 13
 /* Width of the usable part of the space "window" */
 #define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(13))
+#define ORIG_SIS_SCREEN_HEIGHT (227) // 240 - 13
 /* Height of the usable part of the space "window" */
 
 		/* Radar. */
