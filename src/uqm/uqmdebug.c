@@ -1717,7 +1717,7 @@ dumpStrings (FILE *out)
 		MAKE_STRING_CATEGORY(BIOLOGICAL_STRING),
 		{ "GAMESTR_COUNT", GAMESTR_COUNT, (size_t) -1 }
 	};
-	size_t numCategories = sizeof categories / sizeof categories[0];
+	size_t numCategories = ARRAY_SIZE (categories);
 	size_t numStrings = GetStringTableCount (GameStrings);
 	size_t stringI;
 	size_t categoryI = 0;

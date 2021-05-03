@@ -331,8 +331,6 @@ static const NUMBER_SPEECH_DESC melnorme_numbers_english =
 	}
 };
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof (*array))
-
 
 //////////////Technology System///////////////////////
 // This section deals with enabling and checking for

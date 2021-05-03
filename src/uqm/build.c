@@ -173,7 +173,7 @@ RaceIdStrToIndex (const char *raceIdStr)
 {
 	RaceIdMap key = { /* .idStr = */ raceIdStr, /* .id = */ -1 };
 	RaceIdMap *found = bsearch (&key, raceIdMap,
-			sizeof raceIdMap / sizeof raceIdMap[0],
+			ARRAY_SIZE (raceIdMap),
 			sizeof raceIdMap[0], RaceIdCompare);
 
 	if (found == NULL)

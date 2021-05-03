@@ -345,8 +345,7 @@ utwig_preprocess (ELEMENT *ElementPtr)
 			BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2e),
 			//BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x00, 0x00), 0x2f),
 		};
-		const size_t colorTableCount =
-				sizeof colorTable / sizeof colorTable[0];
+		const size_t colorTableCount = ARRAY_SIZE (colorTable);
 
 		if (StarShipPtr->weapon_counter == 0)
 			++StarShipPtr->weapon_counter;

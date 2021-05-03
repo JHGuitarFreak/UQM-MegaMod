@@ -346,7 +346,7 @@ InitEncounter (void)
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
 	{
-#define NUM_DISPLAY_PTS (sizeof (display_pt) / sizeof (display_pt[0]))
+#define NUM_DISPLAY_PTS (ARRAY_SIZE (display_pt))
 		HSHIPFRAG hStarShip, hNextShip;
 		POINT display_pt[] =
 		{
@@ -444,7 +444,7 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 		BUILD_COLOR (MAKE_RGB15_INIT (0x04, 0x04, 0x04), 0x22),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x03, 0x03, 0x03), 0x23),
 	};
-#define NUM_FADES (sizeof (fade_cycle) / sizeof (fade_cycle[0]))
+#define NUM_FADES (ARRAY_SIZE (fade_cycle))
 
 	t1.baseline.x = pRect->corner.x + RES_SCALE(100); 
 	t1.baseline.y = pRect->corner.y + RES_SCALE(45); 

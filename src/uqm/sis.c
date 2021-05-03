@@ -1695,7 +1695,7 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 	BOOLEAN OnAutoPilot;
 	
 	static const Color cycle_tab[] = AUTOPILOT_COLOR_CYCLE_TABLE;
-	const size_t cycleCount = sizeof cycle_tab / sizeof cycle_tab[0];
+	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
 #define BLINK_RATE (ONE_SECOND * 3 / 40) // 9 @ 120 ticks/second
 
 	if (Reset)

@@ -1809,7 +1809,7 @@ FreeLanderData (void)
 	DestroySound (ReleaseSound (LanderSounds));
 	LanderSounds = 0;
 
-	landerFrameCount = sizeof (LanderFrame) / sizeof (LanderFrame[0]);
+	landerFrameCount = ARRAY_SIZE (LanderFrame);
 	for (i = 0; i < landerFrameCount; ++i)
 	{
 		DestroyDrawable (ReleaseDrawable (LanderFrame[i]));
@@ -1984,7 +1984,6 @@ KillLanderCrewSeq (COUNT numKilled, DWORD period)
 // Maps a temperature to a (0-7) hazard rating.
 // Thermal hazards aren't exposed to the user as a hazard number,
 // but the code still works with them that way.
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof (*array))
 unsigned
 GetThermalHazardRating (int temp)
 {

@@ -195,7 +195,7 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 			"content",
 			"../../content" /* For running from MSVC */
 		};
-		loc = findFileInDirs (locs, sizeof locs / sizeof locs[0], testFile);
+		loc = findFileInDirs (locs, ARRAY_SIZE (locs), testFile);
 
 #ifdef __APPLE__
 		/* On OSX, if the content can't be found in any of the static

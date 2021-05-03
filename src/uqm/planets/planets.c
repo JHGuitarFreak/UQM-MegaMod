@@ -324,8 +324,7 @@ FreePlanet (void)
 
 	StopMusic ();
 
-	for (i = 0; i < sizeof (pSolarSysState->PlanetSideFrame)
-			/ sizeof (pSolarSysState->PlanetSideFrame[0]); ++i)
+	for (i = 0; i < ARRAY_SIZE (pSolarSysState->PlanetSideFrame); ++i)
 	{
 		DestroyDrawable (ReleaseDrawable (pSolarSysState->PlanetSideFrame[i]));
 		pSolarSysState->PlanetSideFrame[i] = 0;
