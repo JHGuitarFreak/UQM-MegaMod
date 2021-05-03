@@ -1391,13 +1391,13 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 }
 
 static void
-AnimateLaunch (FRAME farray, BOOLEAN landing)
+AnimateLaunch (FRAME farray)
 {
 	RECT r;
 	STAMP s;
 	COUNT num_frames;
 	static TimeCount NextTime;
-	int Now;
+	TimeCount Now;
 
 	SetContext (PlanetContext);
 
@@ -1409,7 +1409,7 @@ AnimateLaunch (FRAME farray, BOOLEAN landing)
 	s.origin.y = 0;
 	s.frame = farray;
 
-	num_frames = GetFrameCount (s.frame) + 1;
+	num_frames = GetFrameCount (s.frame);
 
 	while (num_frames > 0)
 	{
@@ -1419,17 +1419,19 @@ AnimateLaunch (FRAME farray, BOOLEAN landing)
 		if (Now >= NextTime)
 		{
 			NextTime = Now + (ONE_SECOND / 22);
+
+			num_frames--;
+
 			BatchGraphics ();
 			RepairBackRect (&r);
 
 			DrawDefaultPlanetSphere ();
 
 			DrawStamp (&s);
-			UnbatchGraphics();
+			UnbatchGraphics ();
 
 			GetFrameRect (s.frame, &r);
 			s.frame = IncFrameIndex (s.frame);
-			num_frames--;
 		}
 	}
 
@@ -2085,7 +2087,7 @@ PlanetSide (POINT planetLoc)
 	explosion_index = 0;
 
 	AnimateLanderWarmup ();
-	AnimateLaunch (LanderFrame[5], TRUE);
+	AnimateLaunch (LanderFrame[5]);
 
 	InitPlanetSide (planetLoc);
 
@@ -2121,7 +2123,7 @@ PlanetSide (POINT planetLoc)
 
 			LandingTakeoffSequence (&landerInputState, FALSE);
 			ReturnToOrbit ();
-			AnimateLaunch (LanderFrame[6], FALSE);
+			AnimateLaunch (LanderFrame[6]);
 			
 			DeltaSISGauges (crew_left, 0, 0);
 
