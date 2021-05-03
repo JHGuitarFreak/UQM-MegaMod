@@ -331,6 +331,7 @@ extern void PrepareNextRotationFrame (void);
 extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter);
 extern void DrawPlanetSphere (int x, int y);
 extern void DrawDefaultPlanetSphere (void);
+extern void DrawColoredPlanetSphere (Color color);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame, int offset,
 		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius);
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
