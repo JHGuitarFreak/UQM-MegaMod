@@ -154,7 +154,7 @@ SetTransitionSource (const RECT *pRect)
 		pRect = &ActualRect;
 		ExpandRect (&ActualRect, 2);
 	}
-	TFB_DrawScreen_Copy (pRect, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION, FALSE);
+	TFB_DrawScreen_Copy (pRect, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
 }
 
 // ScreenTransition() is synchronous (does not return until transition done)

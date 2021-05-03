@@ -616,12 +616,12 @@ DoPresentation (void *pIS)
 		else if (strcmp (Opcode, "SAVEBG") == 0)
 		{	/* save background */
 			TFB_DrawScreen_Copy (&pPIS->clip_r,
-					TFB_SCREEN_MAIN, TFB_SCREEN_EXTRA, FALSE);
+					TFB_SCREEN_MAIN, TFB_SCREEN_EXTRA);
 		}
 		else if (strcmp (Opcode, "RESTBG") == 0)
 		{	/* restore background */
 			TFB_DrawScreen_Copy (&pPIS->clip_r,
-					TFB_SCREEN_EXTRA, TFB_SCREEN_MAIN, FALSE);
+					TFB_SCREEN_EXTRA, TFB_SCREEN_MAIN);
 		}
 		else if (strcmp (Opcode, "DRAW") == 0)
 		{	/* draw a graphic */
