@@ -2283,7 +2283,7 @@ DrawInnerPlanets (PLANET_DESC *planet)
 		
 		// Draw the moon images
 		for (i = planet->NumPlanets, moon = pSolarSysState->MoonDesc;
-		     i; --i, ++moon)
+				i; --i, ++moon)
 		{
 			if (moon->data_index & WORLD_TYPE_SPECIAL)
 				DrawStamp (&moon->image);
@@ -2306,7 +2306,7 @@ DrawInnerPlanets (PLANET_DESC *planet)
 
 		// Draw the moon images
 		for (i = planet->NumPlanets, moon = pSolarSysState->MoonDesc;
-			i; --i, ++moon)
+				i; --i, ++moon)
 		{
 			if (!(moon->data_index & WORLD_TYPE_SPECIAL))
 				SetPlanetColorMap (moon);

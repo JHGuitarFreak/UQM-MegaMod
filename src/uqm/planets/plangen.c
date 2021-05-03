@@ -1775,7 +1775,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
 	
-	planet_orbit_init (width, height + IF_HD(1), !ForIP);	
+	planet_orbit_init (width, height + IF_HD(1), !ForIP);
 
 	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
 
