@@ -1380,7 +1380,7 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 
 	while (periods > 0)
 	{
-		RotatePlanetSphere (TRUE);
+		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 
 		if (GetTimeCounter () >= *TimeIn + ANIM_FRAME_RATE)
 		{
@@ -1875,6 +1875,7 @@ ReturnToOrbit (void)
 	BatchGraphics ();
 
 	DrawStarBackGround ();
+	DrawDefaultPlanetSphere();
 	DrawPlanetSurfaceBorder ();
 	RedrawSurfaceScan (NULL);
 	ScreenTransition (optIPScaler, &r);

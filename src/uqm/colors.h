@@ -463,7 +463,7 @@
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x00), 0x00)
 
 // Transparent
-#define TRANSPARENT_BACKGROUND \
+#define TRANSPARENT \
 		BUILD_COLOR_RGBA (0x50, 0x50, 0x50, 0x00)
 
 #endif  /* UQM_COLORS_H_ */

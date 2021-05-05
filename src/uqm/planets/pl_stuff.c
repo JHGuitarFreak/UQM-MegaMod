@@ -308,7 +308,7 @@ ZoomInPlanetSphere (void)
 }
 
 void
-RotatePlanetSphere (BOOLEAN keepRate)
+RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color)
 {
 	static TimeCount NextTime;
 	TimeCount Now = GetTimeCounter ();
@@ -317,8 +317,21 @@ RotatePlanetSphere (BOOLEAN keepRate)
 		return; // not time yet
 
 	NextTime = Now + PLANET_ROTATION_RATE;
-	DrawDefaultPlanetSphere ();
-
+	if (!onTop)
+	{
+		DrawDefaultPlanetSphere ();
+		if (!sameColor (TRANSPARENT, color))
+			DrawColoredPlanetSphere (color);
+	}
+	else
+	{
+		BatchGraphics ();
+		DrawDefaultPlanetSphere ();
+		if (!sameColor (TRANSPARENT, color))
+			DrawColoredPlanetSphere (color);
+		DrawStamp (onTop);
+		UnbatchGraphics ();
+	}
 	PrepareNextRotationFrame ();
 }
 

@@ -1061,10 +1061,12 @@ ScanPlanet (COUNT scanType)
 	for (scan = startScan; scan <= endScan; ++scan)
 	{
 		TEXT t;
-		SWORD i;
+		SWORD i = 0;
 		Color tintColor;
 				// Alpha value will be ignored.
-		TimeCount TimeOut;
+		static TimeCount TimeOut;
+		TimeCount Now, Delay;
+		BOOLEAN stop = FALSE;
 
 		t.baseline.x = SIS_SCREEN_WIDTH >> 1;
 		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); 
@@ -1094,19 +1096,32 @@ ScanPlanet (COUNT scanType)
 		tintColor = tintColors[scan];
 
 		// Draw the scan slowly line by line
-		TimeOut = GetTimeCounter ();
-		DrawColoredPlanetSphere (BUILD_COLOR_RGBA (tintColor.r, tintColor.g, tintColor.b, 0x45));
-		for (i = 0; i < SCAN_LINES; i++)
+		TimeOut = GetTimeCounter () + SCAN_LINE_WAIT;
+		Delay = GetTimeCounter () + ONE_SECOND / 4;
+		FlushInput();
+		while (i < SCAN_LINES && !stop)
 		{
-			TimeOut += SCAN_LINE_WAIT;
-			if (WaitForAnyButtonUntil (TRUE, TimeOut, FALSE))
-				break;
+			Now = GetTimeCounter ();
+			if (Now >= TimeOut)
+			{
+				if (AnyButtonPress (TRUE) && Now > Delay)
+				{
+					stop = TRUE;
+					break;
+				}
+				TimeOut = Now + SCAN_LINE_WAIT;
 
-			BatchGraphics ();
-			DrawPlanet (i, tintColor);
-			DrawScannedStuff (i, scan);
-			UnbatchGraphics ();
-			//RotatePlanetSphere (TRUE);
+				i += RES_DBL(1);
+
+				BatchGraphics ();
+				DrawPlanet (i, tintColor);
+				DrawScannedStuff (i, scan);
+				UnbatchGraphics ();
+			}
+			RotatePlanetSphere (TRUE, NULL,
+					BUILD_COLOR_RGBA (
+						tintColor.r, tintColor.g, tintColor.b, 0x45
+					));
 		}
 
 		if (i < SCAN_LINES)
@@ -1116,9 +1131,6 @@ ScanPlanet (COUNT scanType)
 			DrawScannedStuff (SCAN_LINES - 1, scan);
 			UnbatchGraphics ();
 		}
-
-		if (scanType == AUTO_SCAN)
-			DrawDefaultPlanetSphere ();
 
 		if (IS_HD)
 		{	// Janky fix for the scan overlaying the bottom border by one pixel
@@ -1134,6 +1146,7 @@ ScanPlanet (COUNT scanType)
 	if (scanType == AUTO_SCAN)
 	{	// clear the last scan
 		DrawPlanet (0, BLACK_COLOR);
+		DrawDefaultPlanetSphere ();
 		DrawScannedObjects (FALSE);
 	}
 
