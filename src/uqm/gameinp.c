@@ -506,15 +506,10 @@ AnyButtonPress (BOOLEAN CheckSpecial)
 BOOLEAN
 DirKeysPress (void)
 {
-	if (CurrentInputState.menu[KEY_MENU_LEFT]
+	return (CurrentInputState.menu[KEY_MENU_LEFT]
 		|| CurrentInputState.menu[KEY_MENU_RIGHT]
 		|| CurrentInputState.menu[KEY_MENU_UP]
-		|| CurrentInputState.menu[KEY_MENU_DOWN])
-	{
-		return TRUE;
-	}
-	else
-		return FALSE;
+		|| CurrentInputState.menu[KEY_MENU_DOWN]);
 }
 
 BOOLEAN
