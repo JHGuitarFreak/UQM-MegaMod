@@ -2483,7 +2483,7 @@ CreateStarBackGround (BOOLEAN encounter)
 	ClearDrawable ();
 
 	RandomContext_SeedRandom (SysGenRNG,
-		NULL_BOOL (GetRandomSeedForStar (CurStarDescPtr),
+			NULL_BOOL (GetRandomSeedForStar (CurStarDescPtr),
 			GetRandomSeedForVar (NullCoord)));
 
 #define NUM_DIM_PIECES 8
@@ -2494,8 +2494,27 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_DIM_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = RES_SCALE(LOWORD (rand_val) % ORIG_SIS_SCREEN_WIDTH);
-			s.origin.y = RES_SCALE(HIWORD (rand_val) % ORIG_SIS_SCREEN_HEIGHT);
+
+			if (optWhichMenu == OPT_PC)
+			{
+				s.origin.x = RES_SCALE(
+						LOWORD (rand_val) % ORIG_SIS_SCREEN_WIDTH);
+				s.origin.y = RES_SCALE(
+						scalePCSISHeight (
+							HIWORD (rand_val) % PC_SIS_SCREEN_HEIGHT
+						));
+			}
+			else
+			{
+				s.origin.x = RES_SCALE(
+						scale3DOSISHeight (
+							LOWORD (rand_val) % THREEDO_SIS_SCREEN_WIDTH
+						));
+				s.origin.y = RES_SCALE(
+						scale3DOSISHeight (
+							HIWORD (rand_val) % THREEDO_SIS_SCREEN_HEIGHT
+						));
+			}
 
 			DrawStamp (&s);
 		}
@@ -2508,8 +2527,27 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_BRT_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = RES_SCALE(LOWORD (rand_val) % ORIG_SIS_SCREEN_WIDTH);
-			s.origin.y = RES_SCALE(HIWORD (rand_val) % ORIG_SIS_SCREEN_HEIGHT);
+
+			if (optWhichMenu == OPT_PC)
+			{
+				s.origin.x = RES_SCALE(
+						LOWORD (rand_val) % ORIG_SIS_SCREEN_WIDTH);
+				s.origin.y = RES_SCALE(
+						scalePCSISHeight (
+							HIWORD (rand_val) % PC_SIS_SCREEN_HEIGHT
+						));
+			}
+			else
+			{
+				s.origin.x = RES_SCALE(
+						scale3DOSISHeight (
+							LOWORD (rand_val) % THREEDO_SIS_SCREEN_WIDTH
+						));
+				s.origin.y = RES_SCALE(
+						scale3DOSISHeight (
+							HIWORD (rand_val) % THREEDO_SIS_SCREEN_HEIGHT
+						));
+			}
 
 			DrawStamp (&s);
 		}

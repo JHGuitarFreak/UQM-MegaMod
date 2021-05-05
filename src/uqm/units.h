@@ -56,12 +56,46 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT SCREEN_HEIGHT
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE(13)) // DC: Gray area on the right. just a spacer box
-#define ORIG_SIS_SCREEN_WIDTH (243) // 320 - 64 - 13
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE(13))
 /* Width of the usable part of the space "window" */
 #define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(13))
-#define ORIG_SIS_SCREEN_HEIGHT (227) // 240 - 13
 /* Height of the usable part of the space "window" */
+
+#define ORIG_SIS_SCREEN_WIDTH (RES_DESCALE(SIS_SCREEN_WIDTH))
+#define ORIG_SIS_SCREEN_HEIGHT (RES_DESCALE(SIS_SCREEN_HEIGHT))
+#define PC_SIS_SCREEN_HEIGHT (187)
+#define THREEDO_SIS_SCREEN_WIDTH (210)
+#define THREEDO_SIS_SCREEN_HEIGHT (195)
+
+inline COORD
+scalePCSISHeight (COORD y)
+{
+	float percentage = 
+			((float)ORIG_SIS_SCREEN_HEIGHT - PC_SIS_SCREEN_HEIGHT)
+			/ PC_SIS_SCREEN_HEIGHT + 1;
+
+	return (COORD)(y * percentage);
+}
+
+inline COORD
+scale3DOSISWidth (COORD x)
+{
+	float percentage =
+		((float)ORIG_SIS_SCREEN_WIDTH - THREEDO_SIS_SCREEN_WIDTH)
+		/ THREEDO_SIS_SCREEN_WIDTH + 1;
+
+	return (COORD)(x * percentage);
+}
+
+inline COORD
+scale3DOSISHeight (COORD y)
+{
+	float percentage =
+		((float)ORIG_SIS_SCREEN_HEIGHT - THREEDO_SIS_SCREEN_HEIGHT)
+		/ THREEDO_SIS_SCREEN_HEIGHT + 1;
+
+	return (COORD)(y * percentage);
+}
 
 		/* Radar. */
 #define RADAR_X (RES_SCALE(4) + SPACE_WIDTH)
@@ -70,10 +104,10 @@ extern int ScreenHeight;
 #define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)
 
 		/* Blue boxes which display messages and the green date box. */
-#define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)						
-#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2)) 
-#define SIS_TITLE_HEIGHT       RES_SCALE(8)						
-#define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)						
+#define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)
+#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2))
+#define SIS_TITLE_HEIGHT       RES_SCALE(8)
+#define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)
 
 #define SIS_MESSAGE_BOX_WIDTH  (SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - SIS_SPACER_BOX_WIDTH)
 #define SIS_MESSAGE_WIDTH      (SIS_MESSAGE_BOX_WIDTH - RES_SCALE(2))
