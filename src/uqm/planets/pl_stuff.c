@@ -73,6 +73,32 @@ DrawDefaultPlanetSphere (void)
 }
 
 void
+DrawColoredPlanetSphere (Color color)
+{
+	STAMP s;
+	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
+	CONTEXT oldContext;
+
+	oldContext = SetContext (PlanetContext);
+
+	SetContextForeGroundColor (color);
+
+	s.origin.x = SIS_SCREEN_WIDTH / 2;
+	s.origin.y = PLANET_ORG_Y;
+
+	BatchGraphics ();
+	s.frame = Orbit->SphereFrame;
+	DrawFilledStamp (&s);
+	if (Orbit->ObjectFrame)
+	{
+		s.frame = Orbit->ObjectFrame;
+		DrawFilledStamp (&s);
+	}
+	UnbatchGraphics ();
+	SetContext (oldContext);
+}
+
+void
 InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 {
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
