@@ -30,6 +30,8 @@ WIDGET *widget_focus = NULL;
 		MENU_HIGHLIGHT_COLOR
 #define WIDGET_INACTIVE_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x18, 0x18, 0x1F), 0x00)
+#define PAGE_BUTTON_INACTIVE_COLOR \
+		BUILD_COLOR_RGBA (163,44,0, 0)
 #define WIDGET_INACTIVE_SELECTED_COLOR \
 		WHITE_COLOR
 #define WIDGET_CURSOR_COLOR \
@@ -189,21 +191,21 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 
-	r.corner.x = RES_SCALE(2); 
-	r.corner.y = RES_SCALE(2); 
-	r.extent.width = ScreenWidth - RES_SCALE(4); 
-	r.extent.height = ScreenHeight + RES_SCALE(2); 
+	r.corner.x = RES_SCALE(2);
+	r.corner.y = RES_SCALE(8);
+	r.extent.width = ScreenWidth - RES_SCALE(4);
+	r.extent.height = ScreenHeight + RES_SCALE(2);
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(8) - RES_SCALE(8) * numlines); 
+	t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(8) - RES_SCALE(8) * numlines);
 
 	for (i = 0; i < numlines; i++)
 	{
 		t.pStr = tips[i];
 		font_DrawText(&t);
-		t.baseline.y += RES_SCALE(9); 
+		t.baseline.y += RES_SCALE(9);
 	}
 
 	SetContextFontEffect (oldFontEffect);
@@ -228,7 +230,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 	
-	r.corner.x = RES_SCALE(2) + IF_HD(4); 
+	r.corner.x = RES_SCALE(2); 
 	r.corner.y = RES_SCALE(2); 
 	r.extent.width = ScreenWidth - RES_SCALE(4); 
 	r.extent.height = ScreenHeight - RES_SCALE(4); 
@@ -297,7 +299,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 	disabled = WIDGET_DISABLED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
 
-	t.baseline.x = x + RES_SCALE(16); // +RES_SCALE(74);
+	t.baseline.x = x + RES_SCALE(16);
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
@@ -360,7 +362,6 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
-
 	t.baseline.x = RES_SCALE(160);
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
@@ -368,7 +369,81 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	t.pStr = self->name;
 	if (widget_focus == _self)
 	{
-		Widget_DrawToolTips (3, self->tooltip);		
+		Widget_DrawToolTips (3, self->tooltip);
+		oldtext = SetContextForeGroundColor (selected);
+	}
+	else
+	{
+		oldtext = SetContextForeGroundColor (inactive);
+	}
+	font_DrawText (&t);
+	SetContextFontEffect (oldFontEffect);
+	if (oldfont)
+		SetContextFont (oldfont);
+	SetContextForeGroundColor (oldtext);
+	(void) x;
+}
+
+void
+Widget_DrawRightButton (WIDGET *_self, int x, int y)
+{
+	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
+	Color oldtext;
+	Color inactive, selected;
+	FONT  oldfont = 0;
+	FRAME oldFontEffect = SetContextFontEffect (NULL);
+	TEXT t;
+
+	if (cur_font)
+		oldfont = SetContextFont (cur_font);
+	
+	selected = WIDGET_ACTIVE_COLOR;
+	inactive = PAGE_BUTTON_INACTIVE_COLOR;
+	t.baseline.x = RES_SCALE(304);
+	t.baseline.y = y;
+	t.align = ALIGN_RIGHT;
+	t.CharCount = ~0;
+	t.pStr = self->name;
+	if (widget_focus == _self)
+	{
+		Widget_DrawToolTips (3, self->tooltip);
+		oldtext = SetContextForeGroundColor (selected);
+	}
+	else
+	{
+		oldtext = SetContextForeGroundColor (inactive);
+	}
+	font_DrawText (&t);
+	SetContextFontEffect (oldFontEffect);
+	if (oldfont)
+		SetContextFont (oldfont);
+	SetContextForeGroundColor (oldtext);
+	(void) x;
+}
+
+void
+Widget_DrawLeftButton (WIDGET *_self, int x, int y)
+{
+	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
+	Color oldtext;
+	Color inactive, selected;
+	FONT  oldfont = 0;
+	FRAME oldFontEffect = SetContextFontEffect (NULL);
+	TEXT t;
+
+	if (cur_font)
+		oldfont = SetContextFont (cur_font);
+	
+	selected = WIDGET_ACTIVE_COLOR;
+	inactive = PAGE_BUTTON_INACTIVE_COLOR;
+	t.baseline.x = RES_SCALE(16);
+	t.baseline.y = y;
+	t.align = ALIGN_LEFT;
+	t.CharCount = ~0;
+	t.pStr = self->name;
+	if (widget_focus == _self)
+	{
+		Widget_DrawToolTips (3, self->tooltip);
 		oldtext = SetContextForeGroundColor (selected);
 	}
 	else

@@ -63,22 +63,23 @@ static int quit_sub_menu (WIDGET *self, int event);
 static int do_graphics (WIDGET *self, int event);
 static int do_audio (WIDGET *self, int event);
 static int do_engine (WIDGET *self, int event);
+static int do_more_engine (WIDGET *self, int event);
+static int do_prev_engine (WIDGET *self, int event);
 static int do_cheats (WIDGET *self, int event);
 static int do_keyconfig (WIDGET *self, int event);
 static int do_advanced (WIDGET *self, int event);
 static int do_editkeys (WIDGET *self, int event);
-static int do_music (WIDGET *self, int event); 
-static int do_visual (WIDGET *self, int event); 
-static int do_gameplay (WIDGET *self, int event); 
+static int do_music (WIDGET *self, int event);
+static int do_visual (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         10
+#define MENU_COUNT         11
 #define CHOICE_COUNT       61
 #define SLIDER_COUNT        4
-#define BUTTON_COUNT       12
+#define BUTTON_COUNT       14
 #define LABEL_COUNT         5
 #define TEXTENTRY_COUNT     2
 #define CONTROLENTRY_COUNT  8
@@ -110,13 +111,13 @@ static int choice_widths[CHOICE_COUNT] = {
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
-	do_keyconfig, do_music, do_visual };
+	do_keyconfig, do_music, do_visual, do_more_engine, do_prev_engine };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
 	(WIDGET *)(&buttons[2]),    // Graphics
-	(WIDGET *)(&buttons[3]),    // PC/3DO 
+	(WIDGET *)(&buttons[3]),    // PC/3DO
 	(WIDGET *)(&buttons[11]),   // Visuals
 	(WIDGET *)(&buttons[4]),    // Sound
 	(WIDGET *)(&buttons[10]),   // Music
@@ -141,7 +142,7 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 #endif
 	(WIDGET *)(&choices[2]),    // Scaler
-	(WIDGET *)(&choices[3]),    // Scanlines	
+	(WIDGET *)(&choices[3]),    // Scanlines
 	(WIDGET *)(&choices[12]),   // Show FPS
 	(WIDGET *)(&buttons[1]),
 	NULL };
@@ -160,8 +161,23 @@ static WIDGET *engine_widgets[] = {
 #endif
 	(WIDGET *)(&choices[11]),   // Cutscenes
 	(WIDGET *)(&choices[17]),   // Slave Shields
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[12]),   // Next PC/3DO Page
+	(WIDGET *)(&buttons[1]),
+	NULL };
+
+static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[51]),   // Lander Hold Size
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[13]),   // Prev PC/3DO Page
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -279,6 +295,7 @@ menu_defs[] =
 	{editkeys_widgets, 7},
 	{music_widgets, 8},
 	{visual_widgets, 9},
+	{more_engine_widgets, 3},
 	{NULL, 0}
 };
 
@@ -372,6 +389,32 @@ do_engine (WIDGET *self, int event)
 }
 
 static int
+do_more_engine (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[10]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_prev_engine (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[3]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
 do_cheats (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
@@ -390,10 +433,6 @@ do_keyconfig (WIDGET *self, int event)
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[5]);
-#if defined(ANDROID) || defined(__ANDROID__)
-		if (getenv("OUYA"))
-			next = (WIDGET *)(&menus[4]);
-#endif
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -402,7 +441,7 @@ do_keyconfig (WIDGET *self, int event)
 }
 
 static void
-populate_seed(void)
+populate_seed (void)
 {	
 	sprintf (textentries[1].value, "%d", optCustomSeed); 
 	if (!SANE_SEED(optCustomSeed))
@@ -424,7 +463,7 @@ do_advanced (WIDGET *self, int event)
 }
 
 static int
-do_music(WIDGET *self, int event)
+do_music (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
@@ -437,24 +476,11 @@ do_music(WIDGET *self, int event)
 }
 
 static int
-do_visual(WIDGET *self, int event)
+do_visual (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[9]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_gameplay(WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[10]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -986,7 +1012,7 @@ clear_control (WIDGET_CONTROLENTRY *widget)
 	int templat = choices[20].selected;
 	int control = widget->controlindex;
 	int index = widget->highlighted;
-      
+
 	RemoveInputState (templat, control, index);
 	populate_editkeys (templat);
 }	
@@ -1220,7 +1246,18 @@ init_widgets (void)
 		buttons[i].parent = NULL;
 		buttons[i].handleEvent = button_handlers[i];
 		buttons[i].receiveFocus = Widget_ReceiveFocusSimple;
-		buttons[i].draw = Widget_DrawButton;
+		switch (i)
+		{
+		case 12:
+			buttons[i].draw = Widget_DrawRightButton;
+			break;
+		case 13:
+			buttons[i].draw = Widget_DrawLeftButton;
+			break;
+		default:
+			buttons[i].draw = Widget_DrawButton;
+
+		}
 		buttons[i].height = Widget_HeightOneLine;
 		buttons[i].width = Widget_WidthFullScreen;
 		buttons[i].name = buffer[i];
