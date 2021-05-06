@@ -317,21 +317,14 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color)
 		return; // not time yet
 
 	NextTime = Now + PLANET_ROTATION_RATE;
-	if (!onTop)
-	{
-		DrawDefaultPlanetSphere ();
-		if (!sameColor (TRANSPARENT, color))
-			DrawColoredPlanetSphere (color);
-	}
-	else
-	{
-		BatchGraphics ();
-		DrawDefaultPlanetSphere ();
-		if (!sameColor (TRANSPARENT, color))
-			DrawColoredPlanetSphere (color);
+
+	DrawDefaultPlanetSphere ();
+	if (optColoredPlanet == OPT_PC
+			&& !sameColor (TRANSPARENT, color))
+		DrawColoredPlanetSphere (color);
+	if (onTop)
 		DrawStamp (onTop);
-		UnbatchGraphics ();
-	}
+
 	PrepareNextRotationFrame ();
 }
 
