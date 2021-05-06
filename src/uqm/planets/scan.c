@@ -1026,9 +1026,9 @@ callPickupForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 static void
 ScanPlanet (COUNT scanType)
 {
-#define SCAN_DURATION  (ONE_SECOND * 7 / 4)
+#define SCAN_DURATION  (ONE_SECOND * 7 / RES_BOOL(4, 6))
 // NUM_FLASH_COLORS for flashing blips; 1 for the final frame
-#define SCAN_LINES      (MAP_HEIGHT + NUM_FLASH_COLORS + 1)
+#define SCAN_LINES      RES_SCALE(ORIGINAL_MAP_HEIGHT + NUM_FLASH_COLORS + 1)
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES)
 
 	COUNT startScan, endScan;
@@ -1111,7 +1111,7 @@ ScanPlanet (COUNT scanType)
 				}
 				TimeOut = Now + SCAN_LINE_WAIT;
 
-				i += RES_DBL(1);
+				i++;
 
 				BatchGraphics ();
 				DrawPlanet (i, tintColor);
