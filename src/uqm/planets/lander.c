@@ -1431,11 +1431,12 @@ AnimateLaunch (FRAME farray)
 			DrawDefaultPlanetSphere ();
 
 			DrawStamp (&s);
-			UnbatchGraphics ();	
+			UnbatchGraphics ();
 		}
 	}
 
 	RepairBackRect (&r);
+	DrawDefaultPlanetSphere ();
 }
 
 static void
