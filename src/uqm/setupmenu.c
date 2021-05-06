@@ -77,7 +77,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         11
-#define CHOICE_COUNT       61
+#define CHOICE_COUNT       64
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       14
 #define LABEL_COUNT         5
@@ -106,7 +106,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2 };                            // 60
+	2, 2, 2, 3 };                   // 60-61
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -169,9 +169,9 @@ static WIDGET *engine_widgets[] = {
 static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[51]),   // Lander Hold Size
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&choices[61]),   // Scan Colored Planet
+	(WIDGET *)(&choices[62]),   // Planet Style
+	(WIDGET *)(&choices[63]),   // Star Background
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[4]),     // Spacer
@@ -627,6 +627,9 @@ SetDefaults (void)
 	choices[58].selected = opts.orzCompFont;
 	choices[59].selected = opts.controllerType;
 	choices[60].selected = opts.shipFacingHS;
+	choices[61].selected = opts.coloredPlanet;
+	choices[62].selected = opts.planetStyle;
+	choices[63].selected = opts.starBackground;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -702,6 +705,9 @@ PropagateResults (void)
 	opts.orzCompFont = choices[58].selected;
 	opts.controllerType = choices[59].selected;
 	opts.shipFacingHS = choices[60].selected;
+	opts.coloredPlanet = choices[61].selected;
+	opts.planetStyle = choices[62].selected;
+	opts.starBackground = choices[63].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1655,6 +1661,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->controllerType = res_GetInteger ("mm.controllerType");
 	opts->shipFacingHS = optShipFacingHS ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->coloredPlanet = (optColoredPlanet == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->planetStyle = (optPlanetStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->starBackground = res_GetInteger ("mm.starBackground");
 
 	if (!IS_HD)
 	{
@@ -1992,11 +2001,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("cheat.kohrStahp", opts->cheatMode == OPTVAL_ENABLED);
 	optCheatMode = opts->cheatMode == OPTVAL_ENABLED;
 
-	optPrecursorMode = opts->precursorMode;
 	res_PutInteger ("cheat.precursorMode", opts->precursorMode);
+	optPrecursorMode = opts->precursorMode;
 
-	timeDilationScale = opts->tdType;
 	res_PutInteger ("cheat.timeDilation", opts->tdType);
+	timeDilationScale = opts->tdType;
 
 	res_PutBoolean ("cheat.bubbleWarp", opts->bubbleWarp == OPTVAL_ENABLED);
 	optBubbleWarp = opts->bubbleWarp == OPTVAL_ENABLED;
@@ -2101,22 +2110,20 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
 	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
 
-	switch (opts->controllerType) {
-		case OPTVAL_XBX:
-			optControllerType = 1;
-			break;
-		case OPTVAL_PS4:
-			optControllerType = 2;
-			break;
-		case OPTVAL_KBM:
-		default:
-			optControllerType = 0;
-			break;
-	}
 	res_PutInteger ("mm.controllerType", opts->controllerType);
+	optControllerType = opts->controllerType;
 
 	res_PutBoolean ("mm.shipFacingHS", opts->shipFacingHS == OPTVAL_ENABLED);
 	optShipFacingHS = (opts->shipFacingHS == OPTVAL_ENABLED);
+
+	optColoredPlanet = (opts->coloredPlanet == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.coloredPlanet", opts->coloredPlanet == OPTVAL_3DO);
+
+	optPlanetStyle = (opts->planetStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.planetStyle", opts->planetStyle == OPTVAL_3DO);
+
+	res_PutInteger ("mm.starBackground", opts->starBackground);
+	optStarBackground = opts->starBackground;
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

@@ -141,7 +141,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
 		solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
-		oldPlanetsPresent = loadAddon ("dos-planets");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{

@@ -67,36 +67,6 @@ extern int ScreenHeight;
 #define THREEDO_SIS_SCREEN_WIDTH (210)
 #define THREEDO_SIS_SCREEN_HEIGHT (195)
 
-inline COORD
-scalePCSISHeight (COORD y)
-{
-	float percentage = 
-			((float)ORIG_SIS_SCREEN_HEIGHT - PC_SIS_SCREEN_HEIGHT)
-			/ PC_SIS_SCREEN_HEIGHT + 1;
-
-	return (COORD)(y * percentage);
-}
-
-inline COORD
-scale3DOSISWidth (COORD x)
-{
-	float percentage =
-		((float)ORIG_SIS_SCREEN_WIDTH - THREEDO_SIS_SCREEN_WIDTH)
-		/ THREEDO_SIS_SCREEN_WIDTH + 1;
-
-	return (COORD)(x * percentage);
-}
-
-inline COORD
-scale3DOSISHeight (COORD y)
-{
-	float percentage =
-		((float)ORIG_SIS_SCREEN_HEIGHT - THREEDO_SIS_SCREEN_HEIGHT)
-		/ THREEDO_SIS_SCREEN_HEIGHT + 1;
-
-	return (COORD)(y * percentage);
-}
-
 		/* Radar. */
 #define RADAR_X (RES_SCALE(4) + SPACE_WIDTH)
 #define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))

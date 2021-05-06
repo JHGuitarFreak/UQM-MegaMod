@@ -2007,7 +2007,7 @@ SeedUniverse (void)
 		DrawFilledRectangle (&r);
 
 		if (IS_HD)
-			DrawBorder(optCustomBorder ? 28 : 32, FALSE);
+			DrawBorder (optCustomBorder ? 28 : 32, FALSE);
 	}
 
 	UnbatchGraphics ();

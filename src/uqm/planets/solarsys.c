@@ -75,6 +75,8 @@ static void DrawOuterSystem (void);
 static void SetPlanetColorMap (PLANET_DESC *planet);
 static void ValidateInnerOrbits (void);
 static void ValidateOrbits (void);
+static COORD scaleSISDimensions (BOOLEAN is_width, COORD value);
+static int widthHeightPicker (BOOLEAN width);
 
 // SolarSysMenu() items
 enum SolarSysMenuMenuItems
@@ -410,7 +412,7 @@ LoadIPData (void)
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
 				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
-		if (oldPlanetsPresent)
+		if (!IS_HD)
 			OldOrbitalFrame = CaptureDrawable (
 					LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalFrameUnscaled = CaptureDrawable (
@@ -1163,7 +1165,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					break;
 			}
 		}
-		if (oldPlanetsPresent)
+		if (!IS_HD && !optTexturedPlanets && optPlanetStyle == OPT_PC)
 			planet->image.frame = SetPlanetOldFrame (
 				(Size << FACING_SHIFT) + NORMALIZE_FACING (
 					ANGLE_TO_FACING (angle)), PLANCOLOR(Type));
@@ -2494,27 +2496,15 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_DIM_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-
-			if (optWhichMenu == OPT_PC)
-			{
-				s.origin.x = RES_SCALE(
-						LOWORD (rand_val) % ORIG_SIS_SCREEN_WIDTH);
-				s.origin.y = RES_SCALE(
-						scalePCSISHeight (
-							HIWORD (rand_val) % PC_SIS_SCREEN_HEIGHT
-						));
-			}
-			else
-			{
-				s.origin.x = RES_SCALE(
-						scale3DOSISHeight (
-							LOWORD (rand_val) % THREEDO_SIS_SCREEN_WIDTH
-						));
-				s.origin.y = RES_SCALE(
-						scale3DOSISHeight (
-							HIWORD (rand_val) % THREEDO_SIS_SCREEN_HEIGHT
-						));
-			}
+			
+			s.origin.x = RES_SCALE(
+					scaleSISDimensions (TRUE,
+						LOWORD (rand_val) % widthHeightPicker (TRUE)
+					));
+			s.origin.y = RES_SCALE(
+					scaleSISDimensions (FALSE,
+						HIWORD (rand_val) % widthHeightPicker (FALSE)
+					));
 
 			DrawStamp (&s);
 		}
@@ -2527,27 +2517,15 @@ CreateStarBackGround (BOOLEAN encounter)
 		for (j = 0; j < NUM_BRT_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-
-			if (optWhichMenu == OPT_PC)
-			{
-				s.origin.x = RES_SCALE(
-						LOWORD (rand_val) % ORIG_SIS_SCREEN_WIDTH);
-				s.origin.y = RES_SCALE(
-						scalePCSISHeight (
-							HIWORD (rand_val) % PC_SIS_SCREEN_HEIGHT
-						));
-			}
-			else
-			{
-				s.origin.x = RES_SCALE(
-						scale3DOSISHeight (
-							LOWORD (rand_val) % THREEDO_SIS_SCREEN_WIDTH
-						));
-				s.origin.y = RES_SCALE(
-						scale3DOSISHeight (
-							HIWORD (rand_val) % THREEDO_SIS_SCREEN_HEIGHT
-						));
-			}
+			
+			s.origin.x = RES_SCALE(
+					scaleSISDimensions (TRUE,
+						LOWORD (rand_val) % widthHeightPicker (TRUE)
+					));
+			s.origin.y = RES_SCALE(
+					scaleSISDimensions (FALSE,
+						HIWORD (rand_val) % widthHeightPicker (FALSE)
+					));
 
 			DrawStamp (&s);
 		}
@@ -2970,4 +2948,41 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 			& (START_ENCOUNTER | END_INTERPLANETARY
 			| CHECK_ABORT | CHECK_LOAD))
 			&& GLOBAL_SIS (CrewEnlisted) != (COUNT)~0);
+}
+
+static float
+scaleThingUp (float original, float thingToScale)
+{
+	return ((original - thingToScale) / thingToScale + 1);
+}
+
+static int
+widthHeightPicker (BOOLEAN is_width)
+{
+	switch (optStarBackground)
+	{
+	case 0:
+		return (is_width ? ORIG_SIS_SCREEN_WIDTH : PC_SIS_SCREEN_HEIGHT);
+	case 1:
+		return (is_width ? THREEDO_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_HEIGHT);
+	case 2:
+	default:
+		return (is_width ? (ORIG_SIS_SCREEN_WIDTH - 1) : ORIG_SIS_SCREEN_HEIGHT);
+	}
+}
+
+static COORD
+scaleSISDimensions (BOOLEAN is_width, COORD value)
+{
+	float percentage;
+	int widthOrHeight = is_width ?
+			ORIG_SIS_SCREEN_WIDTH : ORIG_SIS_SCREEN_HEIGHT;
+
+	if (widthOrHeight == widthHeightPicker (is_width))
+		percentage = 1;
+	else
+		percentage = scaleThingUp (widthOrHeight,
+				widthHeightPicker (is_width));
+
+	return (COORD)(value * percentage);
 }

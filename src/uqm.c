@@ -186,6 +186,9 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, orzCompFont);
 	DECL_CONFIG_OPTION(int,  optControllerType);
 	DECL_CONFIG_OPTION(bool, shipFacingHS);
+	DECL_CONFIG_OPTION(int,  coloredPlanet);
+	DECL_CONFIG_OPTION(int,  planetStyle);
+	DECL_CONFIG_OPTION(int,  starBackground);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -375,6 +378,9 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  orzCompFont,       false),
 		INIT_CONFIG_OPTION(  optControllerType, 0),
 		INIT_CONFIG_OPTION(  shipFacingHS,      false),
+		INIT_CONFIG_OPTION(  coloredPlanet,     OPT_3DO),
+		INIT_CONFIG_OPTION(  planetStyle,       OPT_3DO),
+		INIT_CONFIG_OPTION(  starBackground,    2),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -583,6 +589,9 @@ main (int argc, char *argv[])
 	optOrzCompFont = options.orzCompFont.value;
 	optControllerType = options.optControllerType.value;
 	optShipFacingHS = options.shipFacingHS.value;
+	optColoredPlanet = options.coloredPlanet.value;
+	optPlanetStyle = options.planetStyle.value;
+	optStarBackground = options.starBackground.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -951,6 +960,14 @@ getUserConfigOptions (struct options_struct *options)
 		options->optControllerType.value = res_GetInteger ("mm.controllerType");
 	}
 	getBoolConfigValue (&options->shipFacingHS, "mm.shipFacingHS");
+	getBoolConfigValueXlat (&options->coloredPlanet, "mm.coloredPlanet",
+		OPT_3DO, OPT_PC);
+	getBoolConfigValueXlat (&options->planetStyle, "mm.planetStyle",
+		OPT_3DO, OPT_PC);
+
+	if (res_IsInteger ("mm.starBackground") && !options->starBackground.set) {
+		options->starBackground.value = res_GetInteger ("mm.starBackground");
+	}
 	
 	if (res_IsInteger ("config.player1control"))
 	{
