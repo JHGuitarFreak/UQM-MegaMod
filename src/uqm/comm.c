@@ -1010,9 +1010,8 @@ remove_char_from_string (UNICODE* str, const UNICODE c)
 static BOOLEAN
 DoConvSummary (SUMMARY_STATE *pSS)
 {
-#define DELTA_Y_SUMMARY RES_SCALE(8) 
-	//#define MAX_SUMM_ROWS ((SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT) / DELTA_Y_SUMMARY
-#define MAX_SUMM_ROWS (SLIDER_Y	/ DELTA_Y_SUMMARY) - RES_SCALE(1)
+#define DELTA_Y_SUMMARY RES_SCALE(8)
+#define MAX_SUMM_ROWS (SLIDER_Y / DELTA_Y_SUMMARY) - 1
 
 	if (!pSS->Initialized)
 	{
@@ -1049,7 +1048,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 		r.corner.x = 0;
 		r.corner.y = 0;
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = SLIDER_Y; //SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT + RES_SCALE(2) + 16 * RESOLUTION_FACTOR; 
+		r.extent.height = SLIDER_Y;
 
 		SetContext (AnimContext);
 		SetContextForeGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
@@ -1057,7 +1056,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 
 		SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
-		r.extent.width -= 2 + 2;
+		r.extent.width -= RES_SCALE(2 + 2);
 		t.baseline.x = RES_SCALE(2); 
 		t.align = ALIGN_LEFT;
 		t.baseline.y = DELTA_Y_SUMMARY;
