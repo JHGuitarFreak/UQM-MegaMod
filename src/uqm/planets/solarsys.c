@@ -320,12 +320,12 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 					switch (i) {	
 						case 0: /* CHARON */	
 							if (solTexturesPresent)	
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_CHARON_MASK_ANIM));	
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 6.4 * EARTH_HOURS;	
-							break;	
-					}	
+								SurfFrame = CaptureDrawable (LoadGraphic (IP_CHARON_MASK_ANIM));
+							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 6.4 * EARTH_HOURS;
+							break;
+					}
 				}
-			}		
+			}
 
 			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
 			GeneratePlanetSurface (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter);
@@ -833,7 +833,7 @@ FreeSolarSys (void)
 			Orbit->ScratchArray = NULL;
 			if (Orbit->map_rotate && Orbit->light_diff)
 			{
-				for (j=0 ; j < PLANET_DIAMETER+1 ; j++)
+				for (j=0 ; j <= PLANET_DIAMETER; j++)
 				{
 					HFree (Orbit->map_rotate[j]);
 					HFree (Orbit->light_diff[j]);
@@ -861,6 +861,9 @@ FreeSolarSys (void)
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
 				{
 					PLANET_ORBIT *Orbit = &pCurDesc->orbit;
+					int diameterPick =
+							pCurDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
+							LARGE_MOON_DIAMETER : MOON_DIAMETER;
 			
 					HFree (Orbit->lpTopoData);
 					Orbit->lpTopoData = 0;
@@ -878,7 +881,7 @@ FreeSolarSys (void)
 					Orbit->ScratchArray = NULL;
 					if (Orbit->map_rotate && Orbit->light_diff)
 					{
-						for (j=0 ; j < MOON_DIAMETER+1 ; j++)
+						for (j=0 ; j <= diameterPick; j++)
 						{
 							HFree (Orbit->map_rotate[j]);
 							HFree (Orbit->light_diff[j]);
@@ -1416,7 +1419,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 	outerPlanetWait = MAKE_WORD (planet - pSolarSysState->PlanetDesc + 1, 0);
 	// BW: planet may have moved while we were into Inner System
 	ValidateOrbit (planet, DISPLAY_FACTOR, DISPLAY_FACTOR / 4,
-		       pSolarSysState->SunDesc[0].radius);
+			pSolarSysState->SunDesc[0].radius);
 	pSolarSysState->SunDesc[0].location =
 			planetOuterLocation (planetIndex (pSolarSysState, planet));
 	GLOBAL (ip_location) = pSolarSysState->SunDesc[0].location;
@@ -1430,8 +1433,12 @@ leaveInnerSystem (PLANET_DESC *planet)
 		for (i = 0, pMoonDesc = pSolarSysState->MoonDesc;
 			 i < planet->NumPlanets; ++i, ++pMoonDesc)
 		{
-			if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL)) {
+			if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
+			{
 				PLANET_ORBIT *Orbit = &pMoonDesc->orbit;
+				int diameterPick =
+					pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
+					LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
 				HFree (Orbit->lpTopoData);
 				Orbit->lpTopoData = 0;
@@ -1448,7 +1455,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 				HFree (Orbit->ScratchArray);
 				Orbit->ScratchArray = NULL;
 				if (Orbit->map_rotate && Orbit->light_diff) {
-					for (j=0 ; j < MOON_DIAMETER+1 ; j++) {
+					for (j=0 ; j <= diameterPick; j++) {
 						HFree (Orbit->map_rotate[j]);
 						HFree (Orbit->light_diff[j]);
 					}
@@ -2534,7 +2541,7 @@ CreateStarBackGround (BOOLEAN encounter)
 	
 	if (optNebulae && NebulaePercentY < numNebulae 
 		&& NULL_BOOL (CurStarDescPtr->Index, ZeroIndex) != SOL_DEFINED)
-	{ // MB: Make some solar systems & Sol not have nebulae		
+	{ // MB: Make some solar systems & Sol not have nebulae
 		nebula.frame = 0;
 		nebula.origin.x = nebula.origin.y = 0;
 		nebula.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
