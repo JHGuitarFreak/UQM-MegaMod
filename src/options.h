@@ -92,6 +92,7 @@ extern BOOLEAN optShipFacingHS;
 extern int optColoredPlanet;
 extern int optPlanetStyle;
 extern int optStarBackground;
+extern int optScanStyle;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSpeech;

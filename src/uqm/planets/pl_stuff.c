@@ -352,11 +352,11 @@ renderTintFrame (Color tintColor)
 	DrawStamp (&s);
 
 	// apply the tint
-#ifdef USE_ADDITIVE_SCAN_BLIT
-	mode = MAKE_DRAW_MODE (DRAW_ADDITIVE, DRAW_FACTOR_1 * (is_red ? 0.75 : 0.5));
-#else
-	mode = MAKE_DRAW_MODE (DRAW_ALPHA, DRAW_FACTOR_1 / 2);
-#endif
+	if (optScanStyle != OPT_PC)
+		mode = MAKE_DRAW_MODE (DRAW_ADDITIVE, DRAW_FACTOR_1 * (is_red ? 0.75 : 0.5));
+	else
+		mode = MAKE_DRAW_MODE (DRAW_ALPHA, DRAW_FACTOR_1 / 2);
+
 	oldMode = SetContextDrawMode (mode);
 	SetContextForeGroundColor (tintColor);
 	DrawFilledRectangle (&r);

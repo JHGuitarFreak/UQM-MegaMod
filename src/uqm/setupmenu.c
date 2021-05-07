@@ -77,7 +77,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         11
-#define CHOICE_COUNT       64
+#define CHOICE_COUNT       65
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       14
 #define LABEL_COUNT         5
@@ -106,7 +106,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2, 2, 2, 3 };                   // 60-61
+	2, 2, 2, 3, 2 };                // 60-64
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -172,7 +172,7 @@ static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[61]),   // Scan Colored Planet
 	(WIDGET *)(&choices[62]),   // Planet Style
 	(WIDGET *)(&choices[63]),   // Star Background
-	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&choices[64]),   // Scan Style
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[4]),     // Spacer
@@ -630,6 +630,7 @@ SetDefaults (void)
 	choices[61].selected = opts.coloredPlanet;
 	choices[62].selected = opts.planetStyle;
 	choices[63].selected = opts.starBackground;
+	choices[64].selected = opts.scanStyle;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -708,6 +709,7 @@ PropagateResults (void)
 	opts.coloredPlanet = choices[61].selected;
 	opts.planetStyle = choices[62].selected;
 	opts.starBackground = choices[63].selected;
+	opts.scanStyle = choices[64].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1664,6 +1666,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->coloredPlanet = (optColoredPlanet == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->planetStyle = (optPlanetStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->starBackground = res_GetInteger ("mm.starBackground");
+	opts->scanStyle = (optScanStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 
 	if (!IS_HD)
 	{
@@ -2124,6 +2127,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutInteger ("mm.starBackground", opts->starBackground);
 	optStarBackground = opts->starBackground;
+
+	optScanStyle = (opts->scanStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.scanStyle", opts->scanStyle == OPTVAL_3DO);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

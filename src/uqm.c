@@ -189,6 +189,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  coloredPlanet);
 	DECL_CONFIG_OPTION(int,  planetStyle);
 	DECL_CONFIG_OPTION(int,  starBackground);
+	DECL_CONFIG_OPTION(int,  scanStyle);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -381,6 +382,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  coloredPlanet,     OPT_3DO),
 		INIT_CONFIG_OPTION(  planetStyle,       OPT_3DO),
 		INIT_CONFIG_OPTION(  starBackground,    2),
+		INIT_CONFIG_OPTION(  scanStyle,         OPT_3DO),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -592,6 +594,7 @@ main (int argc, char *argv[])
 	optColoredPlanet = options.coloredPlanet.value;
 	optPlanetStyle = options.planetStyle.value;
 	optStarBackground = options.starBackground.value;
+	optScanStyle = options.scanStyle.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -968,6 +971,9 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("mm.starBackground") && !options->starBackground.set) {
 		options->starBackground.value = res_GetInteger ("mm.starBackground");
 	}
+
+	getBoolConfigValueXlat (&options->scanStyle, "mm.scanStyle",
+		OPT_3DO, OPT_PC);
 	
 	if (res_IsInteger ("config.player1control"))
 	{

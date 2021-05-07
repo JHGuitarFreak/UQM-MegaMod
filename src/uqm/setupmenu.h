@@ -138,7 +138,8 @@ typedef struct globalopts_struct {
 				partialPickup, submenu, addDevices, scalePlanets, customBorder, spaceMusic, volasMusic,
 				directionalJoystick, wholeFuel, fuelRange, extended, nomad, gameOver, shipDirectionIP, 
 				hazardColors, orzCompFont, shipFacingHS;
-	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans, landerHold, coloredPlanet, planetStyle, starBackground;
+	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans, landerHold, coloredPlanet,
+				planetStyle, starBackground, scanStyle;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol;
 	int gamma, customSeed;

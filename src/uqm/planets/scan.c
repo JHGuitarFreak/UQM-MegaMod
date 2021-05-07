@@ -1077,9 +1077,9 @@ ScanPlanet (COUNT scanType)
 
 		SetContext (PlanetContext);
 		r.corner.x = 0;
-		r.corner.y = t.baseline.y - RES_SCALE(10); 
+		r.corner.y = t.baseline.y - RES_SCALE(10);
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1); 
+		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1);
 		RepairBackRect (&r);
 
 		SetContextFont (MicroFont);
@@ -1114,7 +1114,11 @@ ScanPlanet (COUNT scanType)
 				i++;
 
 				BatchGraphics ();
-				DrawPlanet (i, tintColor);
+				if (optScanStyle != OPT_PC)
+					DrawPlanet (i, tintColor);
+				else
+					DrawPlanet (SCAN_LINES - 1, tintColor);
+
 				DrawScannedStuff (i, scan);
 				UnbatchGraphics ();
 			}
@@ -1130,12 +1134,6 @@ ScanPlanet (COUNT scanType)
 			DrawPlanet (SCAN_LINES - 1, tintColor);
 			DrawScannedStuff (SCAN_LINES - 1, scan);
 			UnbatchGraphics ();
-		}
-
-		if (IS_HD)
-		{	// Janky fix for the scan overlaying the bottom border by one pixel
-			RepairSISBorder ();
-			DrawPlanetSurfaceBorder ();
 		}
 	}
 

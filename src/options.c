@@ -105,6 +105,7 @@ BOOLEAN optShipFacingHS;
 int optColoredPlanet;
 int optPlanetStyle;
 int optStarBackground;
+int optScanStyle;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
