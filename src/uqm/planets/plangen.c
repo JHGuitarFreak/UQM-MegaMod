@@ -1766,7 +1766,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	else
 	{
 		spherespanx = height;
-		radius = (height >> 1) - RESOLUTION_FACTOR;
+		radius = (height >> 1) - IF_HD(2);
 		ForIP = TRUE;
 	}
 	
@@ -1775,7 +1775,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
 	
-	planet_orbit_init (width, height + IF_HD(1), !ForIP);
+	planet_orbit_init (width, height, !ForIP);
 
 	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
 
