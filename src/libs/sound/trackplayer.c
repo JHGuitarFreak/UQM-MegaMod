@@ -161,8 +161,8 @@ PlayingTrack (void)
 		return 0; // not playing anything
 
 	LockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
-	if (cur_chunk)
-		result = cur_chunk->track_num + 1;
+	if (cur_sub_chunk)
+		result = cur_sub_chunk->track_num + 1;
 	UnlockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
 
 	return result;
