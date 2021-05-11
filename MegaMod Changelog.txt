@@ -5,9 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
 - HARDMODE: Make the Sa-Matra battle more difficult - Pikant
+- HARDMODE: If you don't start the rebellion before the Pkunk arrive, you don't get any help at the end.
+- EXTENDED: Zex's beast is loose on the menagerie planet and can be recaptured then sold to the Melnorme
 
 ## [WIP]
 - Optional Discord Rich Presence support
+
+
 
 ## [v0.8.1]
 ### Thanks
@@ -21,6 +25,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Gave the Kohr-Ah a new bottom-eye animation (Always bugged me that not all the eyes animated)
 - EXTENDED: Charon, the moon of Pluto, is now explorable
 - Kruzenshtern: Added support for displaying PC-DOS styled planets while traversing solar systems
+- Kruzenshtern: Added the leading edge to the planet scan mimicing the 3DO scan
+- Kruzenshtern: Added optional PC-DOS planets in interplanetary
+- Kruzenshtern: Option to have the planet scan also color the spinning planet a la the PC-DOS version
+- SETUPMENU: Added an option to pick between PC-DOS, 3DO, and Vanilla UQM styled star backgrounds (The stars while in a solar system)
+- SETUPMENU: Added a new page to the PC/3DO options
+- SETUPMENU: solar system planet style (DOS Planets)
+- SETUPMENU: Added option for Coloring the planet while scanning
+- SETUPMENU: Added option for PC-DOS scan style (static color while minerals are revealed)
 
 ### Changed
 - Scaled the outer border of the viewport to match PC-DOS
@@ -45,6 +57,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Changed the Syreen text color to cyan during the "sex scene" (And back to white afterwards)
 - Reconfigured the War Era StarMap to be more faithful against the official paper StarMap
 - EXTENDED: Changed the size and location of the Chmmr SOI to be more logical (Combined Chenjesu & Mmrnmhrm SOI size and location)
+- Kruzenshtern: Syreen "sex scene" now faithfully mimics the PC version
+- HD: Tamed the planet scan speed to match vanilla speed
+- Subtitle location and spacing now matches more faithfully to the PC-DOS version
+- EXTENDED: Make Beta Arae (933.3:093.7) an Orange Super Giant (Because there are no Orange Super Giants)
 
 ### Fixed
 - Fixed suicide Game Over screen having illegible text
@@ -59,6 +75,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed planet generation so that the Taalo shield is always obtainable no matter the custom seed
 - EXTENDED: Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
 - HD: Fixed the melee captain window death animation
+- Kruzenshtern: Fixed planet spin lag when traversing menus, scanning, selecting landing spot, and dispatching/retrieving your lander
+- HD: Fixed conversation summary overflow "MORE" text being too high up
+- Fixed alignment of text and flashing boxes when picking a ship for main game Melee
+- Kruzenshtern: Fixed subtitles redrawing while Melnorme color is changing
+- Kruzenshtern: Fixed Orz talking over the initial computer report subtitles
+- Properly free up memory used by large, textured moons
 
 
 ## [v0.8.0.85]
