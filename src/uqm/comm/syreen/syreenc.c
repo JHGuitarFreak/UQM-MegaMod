@@ -347,11 +347,13 @@ static LOCDATA syreen_desc_hd =
 		{
 			64, /* StartIndex */
 			13, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM 
+			CIRCULAR_ANIM | ONE_SHOT_ANIM
 				| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
 			ONE_SECOND / 15, 0, /* FrameRate */
 			0, 0,/* RestartRate */
-			0, /* BlockMask */
+			(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) |
+			(1 << 4) | (1 << 5) | (1 << 6) | (1 << 7) |
+			(1 << 8) | (1 << 10) | (1 << 11), /* BlockMask */
 		},
 	},
 	{ /* AlienTransitionDesc */
@@ -399,32 +401,57 @@ FriendlyExit (RESPONSE_REF R)
 	else
 	{
 		if (PLAYER_SAID (R, hands_off))
+		{
+			SetCustomBaseLine (3,
+					MAKE_POINT (RES_SCALE(108), RES_SCALE(81)), ALIGN_CENTER);
+			SetCustomBaseLine (4,
+					MAKE_POINT (RES_SCALE(80), RES_SCALE(49)), ALIGN_CENTER);
+			SetCustomBaseLine (5,
+					MAKE_POINT (RES_SCALE(121), RES_SCALE(27)), ALIGN_CENTER);
+
 			NPCPhrase (OK_WONT_USE_HANDS);
+		}
 		else if (PLAYER_SAID (R, not_much_more_to_say))
 			NPCPhrase (THEN_STOP_TALKING);
 
 		NPCPhrase (LATER);
 		NPCPhrase (SEX_GOODBYE);
+		
+
+		AlienTalkSegue (1);
+		
+		RedrawSISComWindow ();
 
 		AlienTalkSegue (2);
 
 		CommData.AlienTextFColor = WHITE_COLOR;
+		FadeScreen (FadeAllToBlack, 0);
+		BlockTalkingAnim (1, 2); // Several hours later block (New)	
+
+		DrawSISFrame ();
+		DrawSISMessage (NULL);
+		DrawSISTitle (GLOBAL_SIS(PlanetName));
+		SetCommDarkMode (FALSE);
+		RedrawSISComWindow ();
 
 		if (!IS_HD) {
 			XFormColorMap (GetColorMapAddress (
  				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
  				), ONE_SECOND / 2);
+			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
 			AlienTalkSegue ((COUNT)~0);
-		} else {
+		} 
+		else 
+		{
 			COUNT i = 0;
 			COUNT limit = CommData.NumAnimations;
 			
 			CommData.AlienAmbientArray[limit-1].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienFrame = SetAbsFrameIndex 
+			CommData.AlienFrame = SetAbsFrameIndex
 				(CommData.AlienFrame, 0);
 			
 			CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
-			
+			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
 			AlienTalkSegue ((COUNT)~0);
 			
 			for (i = 0; i < limit; i++)
@@ -442,9 +469,33 @@ static void
 Sex (RESPONSE_REF R)
 {
 	if (PLAYER_SAID (R, in_the_spirit))
+	{
+		SetCustomBaseLine (3,
+				MAKE_POINT (RES_SCALE(98), RES_SCALE(21)), ALIGN_CENTER);
+		SetCustomBaseLine (4,
+				MAKE_POINT (RES_SCALE(156), RES_SCALE(51)), ALIGN_CENTER);
+		SetCustomBaseLine (5,
+				MAKE_POINT (RES_SCALE(169), RES_SCALE(79)), ALIGN_CENTER);
+
 		NPCPhrase (OK_SPIRIT);
+	}
 	else if (PLAYER_SAID (R, what_in_mind))
+	{
+		SetCustomBaseLine (0,
+				MAKE_POINT (RES_SCALE(3), RES_SCALE(0)), ALIGN_LEFT);
+		SetCustomBaseLine (1,
+				MAKE_POINT (RES_SCALE(3), RES_SCALE(0)), ALIGN_LEFT);
+		SetCustomBaseLine (2,
+				MAKE_POINT (RES_SCALE(3), RES_SCALE(55)), ALIGN_LEFT);
+		SetCustomBaseLine (3,
+				MAKE_POINT (RES_SCALE(125), RES_SCALE(67)), ALIGN_CENTER);
+		SetCustomBaseLine (4,
+				MAKE_POINT (RES_SCALE(240), RES_SCALE(10)), ALIGN_RIGHT);
+		SetCustomBaseLine (5,
+				MAKE_POINT (RES_SCALE(240), RES_SCALE(10)), ALIGN_RIGHT);
+
 		NPCPhrase (SOMETHING_LIKE_THIS);
+	}
 	else if (PLAYER_SAID (R, disease))
 		NPCPhrase (JUST_RELAX);
 	else if (PLAYER_SAID (R, what_happens_if_i_touch_this))
@@ -492,15 +543,21 @@ Foreplay (RESPONSE_REF R)
 		else
 			NPCPhrase (ABOUT_US);
 		NPCPhrase (MORE_COMFORTABLE);
+
+		EnableComWRedraw ();
+
 		AlienTalkSegue (1);
 
 		CommData.AlienTextFColor = BUILD_COLOR_RGBA (85, 255, 255, 0);
+		SetCommDarkMode (TRUE);
 
 		if (!IS_HD) {
 			XFormColorMap (GetColorMapAddress (
 					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
 					), ONE_SECOND);
-		} else {
+		} 
+		else 
+		{
 			COUNT i = 0;
 			COUNT limit = CommData.NumAnimations - 2;
 			
@@ -513,13 +570,19 @@ Foreplay (RESPONSE_REF R)
 				
 			CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
 		}
-
-		AlienTalkSegue ((COUNT)~0);
-
+	
+		AlienTalkSegue ((COUNT)~0);			
 		SET_GAME_STATE (PLAYER_HAVING_SEX, 1);
 	}
 	else if (PLAYER_SAID (R, why_lights_off))
 	{
+		SetCustomBaseLine (1,
+				MAKE_POINT (RES_SCALE(60), RES_SCALE(41)), ALIGN_CENTER);
+		SetCustomBaseLine (2,
+				MAKE_POINT (RES_SCALE(180), RES_SCALE(41)), ALIGN_CENTER);
+		SetCustomBaseLine (3,
+				MAKE_POINT (RES_SCALE(120), RES_SCALE(81)), ALIGN_CENTER);
+
 		NPCPhrase (LIGHTS_OFF_BECAUSE);
 
 		DISABLE_PHRASE (why_lights_off);
@@ -1081,6 +1144,7 @@ Intro (void)
 static COUNT
 uninit_syreen (void)
 {
+	FlushCustomBaseLine ();
 	luaUqm_comm_uninit ();
 	return (0);
 }

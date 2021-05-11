@@ -1257,12 +1257,8 @@ DiscussDevices (BOOLEAN TalkAbout)
 		if (VuxBeastIndex)
 		{
 			// Run all tracks upto the Vux Beast scientist's report
-			AlienTalkSegue (VuxBeastIndex - 1);
-			// Disable Commander's speech animation and run the report
-			EnableTalkingAnim (FALSE);
-			AlienTalkSegue (VuxBeastIndex);
-			// Enable Commander's speech animation and run the rest
-			EnableTalkingAnim (TRUE);
+			// Then disable Commander's speech animation and run the report
+			BlockTalkingAnim (VuxBeastIndex - 1, VuxBeastIndex);
 			AlienTalkSegue ((COUNT)~0);
 		}
 	}

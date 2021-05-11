@@ -872,3 +872,51 @@ GetTrackSubtitle (void)
 
 	return cur_sub;
 }
+
+COUNT
+GetSubtitleNumber (UNICODE *sub)
+{
+	COUNT i = 0;
+	TFB_SoundChunk *now;
+
+	if (sub == NULL)// If no sub - get current one
+		sub = GetTrackSubtitle ();
+
+	if (sub == NULL)// Nothing playing - no subs
+		return -1;
+
+	now = chunks_head;	
+
+	while (now->text != sub && now->next != NULL)
+	{
+		now = now->next;
+		i++;
+	}
+
+	return i;
+}
+
+COUNT
+GetSubtitleNumberByTrack (COUNT track)
+{
+	COUNT i = 0;
+	TFB_SoundChunk *now;
+
+	if (chunks_head == NULL)// Fool-proof
+		return;
+
+	now = chunks_head;
+
+	while (now->next != NULL && now->track_num != track)
+	{
+		now = now->next;
+		i++;
+	}
+
+	// A trick if we need to lock the last track in responce
+	// Never used in game, kept for future
+	if (now->next == NULL && now->track_num != track)
+		i++;
+
+	return i;
+}

@@ -113,17 +113,17 @@ DrawOscilloscope (void)
 			BYTE j;
 
 			line.first.x = i + RES_SCALE(1);
-			line.first.y = scope_data[i] + RES_SCALE(1);
+			line.first.y = scope_data[i] + RES_DBL(1);// Now centered
 			line.second.x = i + RES_SCALE(2);
-			line.second.y = scope_data[i + RES_SCALE(1)] + RES_SCALE(1);
+			line.second.y = scope_data[i + RES_SCALE(1)] + RES_DBL(1);// Now centered
 			DrawLine (&line);
 
 			if (IS_HD)
 			{
-				for (j = 0; j < 4; j++)
+				for (j = 0; j < 3; j++)
 				{
 					line.first.y += 1;
-					line.second.y -= 1;
+					line.second.y += 1;
 					DrawLine (&line);
 				}
 			}
@@ -134,14 +134,55 @@ DrawOscilloscope (void)
 		s.frame = scopeWork;
 	}
 	else
-	{	// no data -- draw blank scope background
+	{	// no data -- draw blank scope background with flatline
+		LINE line;
+		CONTEXT oldContext;
+		BYTE j;
+
+		oldContext = SetContext(OffScreenContext);
+		SetContextFGFrame(scopeWork);
+		SetContextClipRect(NULL);
+
+		// draw the background image
+		s.origin.x = 0;
+		s.origin.y = 0;
 		s.frame = scope_frame;
+
+		DrawStamp(&s);
+
+		SetContextForeGroundColor(scopeColor);
+
+		line.first.x = RES_SCALE(1);
+		line.first.y = (scopeSize.height / 2) + RES_DBL(1);
+		line.second.x = scopeSize.width + IF_HD(3);// why?
+		line.second.y = line.first.y;
+		DrawLine(&line);
+
+		if (IS_HD)
+		{
+			for (j = 0; j < 3; j++)
+			{
+				line.first.y += 1;
+				line.second.y += 1;
+				DrawLine(&line);
+			}
+		}
+
+		SetContext(oldContext);
+
+		s.frame = scopeWork;
 	}
 
 	// draw the final scope image to screen
 	s.origin.x = 0;
 	s.origin.y = 0;
 	DrawStamp (&s);
+}
+
+void
+SwitchOscilloscope (BOOLEAN state)
+{
+	oscillDisabled = state;
 }
 
 
@@ -208,3 +249,8 @@ DrawSlider (void)
 	}
 }
 
+void
+SwitchSlider (BOOLEAN state)
+{
+	sliderDisabled = state;
+}

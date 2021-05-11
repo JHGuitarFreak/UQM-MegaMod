@@ -206,6 +206,10 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
+	SwitchOscilloscope (FALSE);
+	SwitchSlider (FALSE);
+	SetCommDarkMode (FALSE);
+	ReleaseTalkingAnim ();
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{

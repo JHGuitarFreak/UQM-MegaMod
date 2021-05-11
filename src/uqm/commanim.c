@@ -651,3 +651,10 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 	return Change;
 }
+
+void
+ShutYourMouth (void)
+{	// If talk animation is disabled - set talk frame to default index (closed mouth)
+	if (Talk->CurIndex != 0 && Talk->CurIndex != NULL)
+		Talk->CurIndex = 0;
+}

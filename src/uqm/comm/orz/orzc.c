@@ -866,10 +866,7 @@ Intro (void)
 		SET_GAME_STATE (MET_ORZ_BEFORE, 1);
 
 		// Disable talking anim and run the computer report
-		EnableTalkingAnim (FALSE);
-		AlienTalkSegue (1);
-		// Run whatever is left with talking anim
-		EnableTalkingAnim (TRUE);
+		BlockTalkingAnim (0, 1);
 	}
 }
 

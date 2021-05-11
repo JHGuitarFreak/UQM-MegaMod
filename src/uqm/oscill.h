@@ -31,6 +31,9 @@ extern void InitOscilloscope (FRAME scopeBg);
 extern void DrawOscilloscope (void);
 extern void UninitOscilloscope (void);
 
+extern void SwitchOscilloscope (BOOLEAN state);
+extern void SwitchSlider (BOOLEAN state);
+
 extern void InitSlider (int x, int y, int width, FRAME sliderFrame,
 		FRAME buttonFrame);
 extern void SetSliderImage (FRAME f);

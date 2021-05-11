@@ -78,6 +78,12 @@ static TimeCount fadeTime;
 BOOLEAN IsProbe;
 BOOLEAN IsAltSong;
 
+// Dark mode
+BOOLEAN IsDarkMode = FALSE;
+BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
+RECT tb, lb, rb, bb, sl, cw;
+static COUNT fadeIndex;
+ 
 typedef struct response_entry
 {
 	RESPONSE_REF response_ref;
@@ -99,6 +105,24 @@ typedef struct encounter_state
 
 	UNICODE phrase_buf[1024];
 } ENCOUNTER_STATE;
+
+// Required to set custom baseline per one sentence
+typedef struct CustomBaseline
+{
+	COUNT index;
+	POINT baseline;
+	TEXT_ALIGN align;
+	struct CustomBaseline *next;
+
+} CUSTOM_BASELINE;
+
+static CUSTOM_BASELINE *head_node; // Head node of custom baseline list
+static CUSTOM_BASELINE *cur_node; // not null if current sentence number has been found in the list
+
+// Used to disable/enable talking animation
+// Better than current because it works with rewind
+static BOOLEAN haveTalkingLock = FALSE;
+static COUNT startSentence, endSentence; 
 
 static ENCOUNTER_STATE *pCurInputState;
 
@@ -262,13 +286,23 @@ add_text (int status, TEXT *pTextIn)
 						BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
 				break;
 			case -2:
-				// Not highlighted dialog options.
-				SetContextForeGroundColor (COMM_PLAYER_TEXT_NORMAL_COLOR);
-				break;
+				{	// Not highlighted dialog options.
+					if (!IsDarkMode)
+						SetContextForeGroundColor (COMM_PLAYER_TEXT_NORMAL_COLOR);
+					else
+						SetContextForeGroundColor (
+								BUILD_COLOR_RGBA (0x00, 0x00, 0xAA, 0xFF));
+					break;
+				}
 			case -1:
-				// Currently highlighted dialog option.
-				SetContextForeGroundColor (COMM_PLAYER_TEXT_HIGHLIGHT_COLOR);
-				break;
+				{	// Currently highlighted dialog option.
+					if (!IsDarkMode)
+						SetContextForeGroundColor (COMM_PLAYER_TEXT_HIGHLIGHT_COLOR);
+					else
+						SetContextForeGroundColor (
+								BUILD_COLOR_RGBA(0x55, 0x55, 0xFF, 0xFF));
+					break;
+				}
 		}
 
 		maxchars = pTextIn->CharCount;
@@ -456,6 +490,65 @@ add_text (int status, TEXT *pTextIn)
 	return (pText->baseline.y);
 }
 
+void
+GetCustomBaseline (COUNT i)
+{
+	if (head_node == NULL)
+		return;
+	else
+	{// Set cur_node if current sentence number equals to one of list indices
+	 // MUST be NULL otherwise
+		cur_node = head_node;
+		while (cur_node != NULL && cur_node->index != i)
+			cur_node = cur_node->next;
+	}
+}
+
+void
+CheckTalkingAnim (COUNT i)
+{
+	if (haveTalkingLock) // Do not check if there is no lock
+	{
+		if (i >= startSentence && i <= endSentence)
+		{
+			CommData.AlienTalkDesc.AnimFlags &= ~WAIT_TALKING;
+			EnableTalkingAnim (FALSE);
+			ShutYourMouth ();
+		}
+		else
+		{
+			CommData.AlienTalkDesc.AnimFlags |= WAIT_TALKING;
+			EnableTalkingAnim (TRUE);
+		}
+	}
+}
+
+void
+BlockTalkingAnim (COUNT trackStart, COUNT trackEnd)
+{
+	if (trackStart >= trackEnd) // Fool-proof
+		return;
+	
+	haveTalkingLock = TRUE;
+	startSentence = GetSubtitleNumberByTrack (trackStart);
+	// First sentence of locked interval
+	endSentence = GetSubtitleNumberByTrack (trackEnd) - 1;
+	// Last sentence of locked interval
+}
+
+void
+ReleaseTalkingAnim (void)
+{// Called at restart and at SelectResponce ()
+	if (haveTalkingLock)
+	{
+		haveTalkingLock = FALSE;
+		startSentence = (COUNT)~0;
+		endSentence = (COUNT)~0;
+	}
+}
+
+
+
 // This function calculates how much of a string can be fitted within
 // a specific width, up to a newline or terminating \0.
 // pText is the text to be fitted. pText->CharCount will be set to the
@@ -586,10 +679,13 @@ DrawSISComWindow (void)
 		r.corner.y = SLIDER_Y + SLIDER_HEIGHT;
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y;
-		SetContextForeGroundColor (COMM_PLAYER_BACKGROUND_COLOR);
+		if (!IsDarkMode)
+			SetContextForeGroundColor (COMM_PLAYER_BACKGROUND_COLOR);
+		else
+			SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&r);
 
-		if (!usingSpeech && optSmoothScroll == OPT_PC)
+		if (!usingSpeech && optSmoothScroll == OPT_PC && !IsDarkMode)
 			DrawCommBorder (r);
 
 		SetContext (OldContext);
@@ -675,13 +771,20 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
 
-		ct.pStr = GAME_STRING (FEEDBACK_STRING_BASE);
-				// "(In response to your statement)"
-		SetContextForeGroundColor (COMM_RESPONSE_INTRO_TEXT_COLOR);
-		font_DrawText (&ct);
+		if (!IsDarkMode)
+		{
+			ct.pStr = GAME_STRING (FEEDBACK_STRING_BASE);
+			// "(In response to your statement)"
+			SetContextForeGroundColor (COMM_RESPONSE_INTRO_TEXT_COLOR);
+			font_DrawText (&ct);
+			// Your response
+			SetContextForeGroundColor (COMM_FEEDBACK_TEXT_COLOR);
+		}
+		else
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF));
 
 		ct.baseline.y += RES_SCALE(16); 
-		SetContextForeGroundColor (COMM_FEEDBACK_TEXT_COLOR);
 		ct.pStr = pStr;
 		add_text (-4, &ct);
 	}
@@ -739,11 +842,93 @@ UpdateAnimations (BOOLEAN paused)
 	SetContext (OldContext);
 }
 
+void
+InitUIRects (void)
+{
+	// Top border
+	tb.corner.x = 0;
+	tb.corner.y = 0;
+	tb.extent.width = SIS_ORG_X + SIS_SCREEN_WIDTH;
+	tb.extent.height = SIS_ORG_Y;
+
+	// Left border
+	lb.corner.x = 0;
+	lb.corner.y = SIS_ORG_Y;
+	lb.extent.width = SIS_ORG_X;
+	lb.extent.height = SCREEN_HEIGHT - SIS_ORG_Y;
+
+	// Right border
+	rb.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH;
+	rb.corner.y = 0;
+	rb.extent.width = SCREEN_WIDTH - rb.corner.x;
+	rb.extent.height = SCREEN_HEIGHT;
+
+	// Bottom border
+	bb.corner.x = SIS_ORG_X;
+	bb.corner.y = SIS_ORG_Y + SIS_SCREEN_HEIGHT;
+	bb.extent.width = SIS_SCREEN_WIDTH;
+	bb.extent.height = SCREEN_HEIGHT - SIS_ORG_Y + SIS_SCREEN_HEIGHT;
+
+	// Slider
+	sl.corner.x = SIS_ORG_X;
+	sl.corner.y = SIS_ORG_Y + SLIDER_Y;
+	sl.extent.width = SIS_SCREEN_WIDTH;
+	sl.extent.height = SLIDER_HEIGHT;
+
+	// Com Window with player responses
+	cw.corner.x = SIS_ORG_X;
+	cw.corner.y = SIS_ORG_Y + SLIDER_Y + SLIDER_HEIGHT;
+	cw.extent.width = SIS_SCREEN_WIDTH;
+	cw.extent.height = SIS_SCREEN_HEIGHT - (SLIDER_Y + SLIDER_HEIGHT);
+}
+
+static void
+FadePlayerUI(void)
+{
+	if (!IsDarkMode)
+		return;
+	else
+	{
+		static TimeCount NextTime;
+		CONTEXT OldContext;
+
+		if (fadeIndex > 50)
+		{
+			cwLock = FALSE;
+			return;
+		}
+
+		if (GetTimeCounter () < NextTime)
+			return;
+
+		NextTime = GetTimeCounter () + ONE_SECOND / 15;
+
+		OldContext = SetContext (ScreenContext);
+
+		SetContextForeGroundColor (
+				BUILD_COLOR_RGBA (
+					0x00, 0x00, 0x00, DRAW_FACTOR_1 * 0.02 * fadeIndex
+				));
+		BatchGraphics ();
+		DrawFilledRectangle (&tb);
+		DrawFilledRectangle (&lb);
+		DrawFilledRectangle (&rb);
+		DrawFilledRectangle (&bb);
+		DrawFilledRectangle (&sl);
+		if (cwLock)
+			DrawFilledRectangle (&cw);
+		UnbatchGraphics ();
+		SetContext (OldContext);
+		fadeIndex++;
+	}
+}
+
 static void
 UpdateCommGraphics (void)
 {
 	UpdateAnimations (FALSE);
 	UpdateSpeechGraphics ();
+	FadePlayerUI ();
 }
 
 // Derived from INPUT_STATE_DESC
@@ -795,6 +980,7 @@ DoTalkSegue (TALKING_STATE *pTS)
 	left = false;
 	right = false;
 #endif
+	curTrack = PlayingTrack();
 
 	if (right)
 	{
@@ -829,7 +1015,14 @@ DoTalkSegue (TALKING_STATE *pTS)
 		// after seeking back to the beginning.
 		// Broken cases were: Syreen "several hours later" and Starbase
 		// VUX Beast analysis by the scientist.
-		CheckSubtitles ();
+
+		// Kruzen - Now paused animations handled differently
+		// This check avoids text redraw 1 tick early
+		// Current track set in AlienTalkSegue(x) reached
+		// But didn't return anything yet
+		// Preventing subs blinking during fade in in syreen.c
+		if (curTrack && curTrack <= pTS->waitTrack)
+			CheckSubtitles ();
 	}
 
 	// XXX: When seeking, all animations (talking and ambient) stop
@@ -837,8 +1030,8 @@ DoTalkSegue (TALKING_STATE *pTS)
 	// reason why the animations cannot continue while seeking.
 	UpdateAnimations (pTS->seeking);
 	UpdateSpeechGraphics ();
-
-	curTrack = PlayingTrack ();
+	FadePlayerUI ();
+	
 	pTS->ended = !pTS->seeking && !curTrack;
 
 	SleepThreadUntil (pTS->NextTime);
@@ -891,11 +1084,12 @@ TalkSegue (COUNT wait_track)
 	talkingState.waitTrack = wait_track;
 	DoInput (&talkingState, FALSE);
 
+	ClearSubtitles ();
+
 	if (talkingState.ended)
 	{	// reached the end; set STOP icon
 		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 8));
-
-		ClearSubtitles();
+		cwLock = FALSE;// Do not update comWindow
 	}
 
 	// transition back to silent, if necessary
@@ -1185,6 +1379,9 @@ SelectResponse (ENCOUNTER_STATE *pES)
 	ClearSubtitles ();
 	SetSliderImage (SetAbsFrameIndex (ActivityFrame, 2));
 
+	FlushCustomBaseLine ();
+	ReleaseTalkingAnim ();
+
 	FadeMusic (BACKGROUND_VOL, ONE_SECOND);
 
 	TalkingFinished = FALSE;
@@ -1237,7 +1434,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		SelectResponse (pES);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL] &&
-			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE)
+			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE &&
+			!IsDarkMode)
 	{
 		SelectConversationSummary (pES);
 	}
@@ -1336,7 +1534,8 @@ DoLastReplay (LAST_REPLAY_STATE *pLRS)
 static BOOLEAN
 DoCommunication (ENCOUNTER_STATE *pES)
 {
-	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
+	if (!IsDarkMode)
+		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
 
 	// First, finish playing all queued tracks if not done yet
 	if (!TalkingFinished)
@@ -1892,6 +2091,13 @@ RedrawSubtitles (void)
 	if (SubtitleText.pStr)
 	{
 		t = SubtitleText;
+
+		if (cur_node != NULL)
+		{	// If cur_node exist - use custom baseline
+			t.baseline = cur_node->baseline;
+			t.align = cur_node->align;
+		}
+
 		add_text (1, &t);
 	}
 }
@@ -1911,6 +2117,7 @@ CheckSubtitles (void)
 	const UNICODE *pStr;
 	POINT baseline;
 	TEXT_ALIGN align;
+	COUNT num;
 
 	pStr = GetTrackSubtitle ();
 	baseline = CommData.AlienTextBaseline;
@@ -1921,6 +2128,9 @@ CheckSubtitles (void)
 		SubtitleText.baseline.y != baseline.y ||
 		SubtitleText.align != align)
 	{	// Subtitles changed
+		num = GetSubtitleNumber (pStr);
+		GetCustomBaseline (num);
+		CheckTalkingAnim (num);
 		clear_subtitles = TRUE;
 		// Baseline may be updated by the ZFP
 		SubtitleText.baseline = baseline;
@@ -1947,4 +2157,67 @@ EnableTalkingAnim (BOOLEAN enable)
 		CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
 	else
 		CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+}
+
+void
+SetCommDarkMode (BOOLEAN state)
+{	// Set dark mode (Black UI during Syreen scene)
+	IsDarkMode = state;
+	SwitchOscilloscope (state);
+	SwitchSlider (state);
+	InitUIRects ();
+	fadeIndex = 1;
+}
+
+void
+RedrawSISComWindow (void)
+{// To call from outside
+	DrawSISComWindow ();
+}
+
+void
+EnableComWRedraw (void)
+{
+	cwLock = TRUE;
+}
+
+
+void
+SetCustomBaseLine (COUNT sentence, POINT bl, TEXT_ALIGN align)
+{	// Add custom baseline to the list
+	CUSTOM_BASELINE *cur, *sPtr;
+
+	cur = HCalloc (sizeof (*cur));
+	cur->index = sentence;
+	cur->baseline = bl;
+	cur->align = align;
+
+	if (head_node == NULL)
+		head_node = cur;
+	else 
+	{
+		sPtr = head_node;
+		while (sPtr->next != NULL)
+			sPtr = sPtr->next;
+		sPtr->next = cur;
+	}
+}
+
+void
+FlushCustomBaseLine (void)
+{	// Free List, called at SelectResponce and Race uninit func (syreen.c for now)
+	CUSTOM_BASELINE *cur, *next;
+
+	if (head_node == NULL)
+		return;
+
+	cur = head_node;
+	while (cur != NULL)
+	{
+		next = cur->next;
+		HFree (cur);
+		cur = next;
+	}
+	head_node = NULL;
+	cur_node = NULL;
 }
