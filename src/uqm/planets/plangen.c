@@ -1898,7 +1898,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 							case 0:
 								crater_r.extent.width =
 										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 2))
-										+ (ORIGINAL_MAP_HEIGHT >> 2);								
+										+ (ORIGINAL_MAP_HEIGHT >> 2);
 								break;
 							case 1:
 							case 2:
@@ -1927,7 +1927,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 								* height / ORIGINAL_MAP_HEIGHT;
 						crater_r.extent.height = crater_r.extent.width;
 						crater_r.corner.x = crater_r.corner.x
-								* width / ORIGINAL_MAP_WIDTH;					
+								* width / ORIGINAL_MAP_WIDTH;
 						crater_r.corner.y = crater_r.corner.y
 								* height / ORIGINAL_MAP_HEIGHT;
 						

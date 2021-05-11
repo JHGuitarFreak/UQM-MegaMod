@@ -833,7 +833,7 @@ FreeSolarSys (void)
 			Orbit->ScratchArray = NULL;
 			if (Orbit->map_rotate && Orbit->light_diff)
 			{
-				for (j=0 ; j <= PLANET_DIAMETER; j++)
+				for (j = 0; j <= PLANET_DIAMETER; j++)
 				{
 					HFree (Orbit->map_rotate[j]);
 					HFree (Orbit->light_diff[j]);
@@ -881,7 +881,7 @@ FreeSolarSys (void)
 					Orbit->ScratchArray = NULL;
 					if (Orbit->map_rotate && Orbit->light_diff)
 					{
-						for (j=0 ; j <= diameterPick; j++)
+						for (j = 0; j <= diameterPick; j++)
 						{
 							HFree (Orbit->map_rotate[j]);
 							HFree (Orbit->light_diff[j]);
@@ -1455,7 +1455,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 				HFree (Orbit->ScratchArray);
 				Orbit->ScratchArray = NULL;
 				if (Orbit->map_rotate && Orbit->light_diff) {
-					for (j=0 ; j <= diameterPick; j++) {
+					for (j = 0; j <= diameterPick; j++) {
 						HFree (Orbit->map_rotate[j]);
 						HFree (Orbit->light_diff[j]);
 					}

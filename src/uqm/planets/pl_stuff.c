@@ -404,7 +404,7 @@ DrawPlanet (int tintY, Color tintColor)
 			RECT clipRect;
 			COUNT i;
 			RECT edge;
-			int grad = 0xC0 / 4; //0xFC / 4 for less contrast
+			int grad = 0xC0 / 4;
 
 			// adjust cliprect to confine the tint
 			GetContextClipRect (&oldClipRect);

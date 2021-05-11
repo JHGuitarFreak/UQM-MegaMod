@@ -361,7 +361,7 @@ FreePlanet (void)
 	Orbit->ScratchArray = NULL;
 	if (Orbit->map_rotate && Orbit->light_diff)
 	{
-		for (j=0 ; j <= MAP_HEIGHT; j++)
+		for (j = 0; j <= MAP_HEIGHT; j++)
 		{
 			HFree (Orbit->map_rotate[j]);
 			HFree (Orbit->light_diff[j]);
