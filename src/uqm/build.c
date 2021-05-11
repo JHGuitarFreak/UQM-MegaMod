@@ -25,6 +25,8 @@
 #include "libs/compiler.h"
 #include "libs/mathlib.h"
 #include "planets/planets.h"
+#include "starmap.h"
+#include "gendef.h"
 #include <stdlib.h>
 
 
@@ -692,6 +694,12 @@ SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 void
 loadGameCheats (void)
 {
+	if (EXTENDED && star_array[63].Index == MELNORME0_DEFINED)
+	{
+		star_array[63].Type =
+				MAKE_STAR (SUPER_GIANT_STAR, ORANGE_BODY, -1);
+	}
+
 	if(optInfiniteRU)
 		oldRU = GlobData.SIS_state.ResUnits;
 	else
