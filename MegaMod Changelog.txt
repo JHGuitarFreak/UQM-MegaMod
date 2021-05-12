@@ -81,6 +81,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Kruzenshtern: Fixed subtitles redrawing while Melnorme color is changing
 - Kruzenshtern: Fixed Orz talking over the initial computer report subtitles
 - Properly free up memory used by large, textured moons
+- Kruzenshtern: Fixed timing for AlienTalkSegue, added tool to create custom baseline per sentence, added Fading UI func, and Talking animation block is now tied to current sub chunk playing
 
 
 ## [v0.8.0.85]
