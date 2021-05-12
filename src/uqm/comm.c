@@ -794,7 +794,10 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 static void
 InitSpeechGraphics (void)
 {
-	InitOscilloscope (SetAbsFrameIndex (ActivityFrame, 9));
+	if (optScopeStyle != OPT_PC)
+		InitOscilloscope (SetAbsFrameIndex (ActivityFrame, 9));
+	else
+		InitOscilloscope (SetAbsFrameIndex (ActivityFrame, 10));
 
 	InitSlider (0, SLIDER_Y, SIS_SCREEN_WIDTH,
 			SetAbsFrameIndex (ActivityFrame, 5),
@@ -1484,9 +1487,6 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		}
 
 		UpdateCommGraphics ();
-
-		// SleepThreadUntil (pES->NextTime);
-		// pES->NextTime = GetTimeCounter () + COMM_ANIM_RATE;
 	}
 }
 

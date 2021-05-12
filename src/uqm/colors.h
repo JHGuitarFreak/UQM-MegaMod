@@ -342,6 +342,11 @@
 #define STORAGE_BAY_EMPTY_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x06, 0x06, 0x06), 0x20)
 
+// Colors of the oscilloscope lines
+#define SCOPE_COLOR_3DO \
+		BUILD_COLOR_RGBA (0x83, 0x4A, 0xFF, 0xFF)
+#define SCOPE_COLOR_PC \
+		BUILD_COLOR_RGBA (0x79, 0x00, 0xCE, 0xFF)
 
 // === PC Menus ===
 

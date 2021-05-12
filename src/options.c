@@ -106,6 +106,8 @@ int optColoredPlanet;
 int optPlanetStyle;
 int optStarBackground;
 int optScanStyle;
+BOOLEAN optNonStopOscill;
+int optScopeStyle;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;

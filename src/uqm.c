@@ -190,6 +190,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  planetStyle);
 	DECL_CONFIG_OPTION(int,  starBackground);
 	DECL_CONFIG_OPTION(int,  scanStyle);
+	DECL_CONFIG_OPTION(bool, nonStopOscill);
+	DECL_CONFIG_OPTION(int,  scopeStyle);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -383,6 +385,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  planetStyle,       OPT_3DO),
 		INIT_CONFIG_OPTION(  starBackground,    2),
 		INIT_CONFIG_OPTION(  scanStyle,         OPT_3DO),
+		INIT_CONFIG_OPTION(  nonStopOscill,     false),
+		INIT_CONFIG_OPTION(  scopeStyle,       OPT_3DO),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -595,6 +599,8 @@ main (int argc, char *argv[])
 	optPlanetStyle = options.planetStyle.value;
 	optStarBackground = options.starBackground.value;
 	optScanStyle = options.scanStyle.value;
+	optNonStopOscill = options.nonStopOscill.value;
+	optScopeStyle = options.scopeStyle.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -973,6 +979,11 @@ getUserConfigOptions (struct options_struct *options)
 	}
 
 	getBoolConfigValueXlat (&options->scanStyle, "mm.scanStyle",
+		OPT_3DO, OPT_PC);
+
+	getBoolConfigValue (&options->nonStopOscill, "mm.nonStopOscill");
+
+	getBoolConfigValueXlat (&options->scopeStyle, "mm.scopeStyle",
 		OPT_3DO, OPT_PC);
 	
 	if (res_IsInteger ("config.player1control"))
