@@ -1485,8 +1485,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 
 		UpdateCommGraphics ();
 
-		SleepThreadUntil (pES->NextTime);
-		pES->NextTime = GetTimeCounter () + COMM_ANIM_RATE;
+		// SleepThreadUntil (pES->NextTime);
+		// pES->NextTime = GetTimeCounter () + COMM_ANIM_RATE;
 	}
 }
 
