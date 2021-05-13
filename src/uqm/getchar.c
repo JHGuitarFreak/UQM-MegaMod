@@ -151,7 +151,6 @@ FlushCursorRect (void)
 static void
 FlashCursor (void)
 {
-	static int val = -2;
 	static TimeCount NextTime = 0;
 	static DWORD cycle_index = 0;
 
@@ -184,7 +183,7 @@ FlashCursor (void)
 
 		cycle_index = (cycle_index + 1) % cycleCount;
 		
-		SetContext(OldContext);
+		SetContext (OldContext);
 	}
 }
 
