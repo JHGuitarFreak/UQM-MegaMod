@@ -123,6 +123,15 @@ colorFromRgb15 (BYTE r, BYTE g, BYTE b)
 		0xff \
 	}
 
+// This define is intended for global initialisations, where the
+// expression must be constant.
+#define MAKE_RGBA_INIT(r, g, b, a) { \
+		(r), \
+		(g), \
+		(b), \
+		(a) \
+	}
+
 static inline Color
 buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 {
