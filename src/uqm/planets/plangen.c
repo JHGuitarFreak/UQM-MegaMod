@@ -148,7 +148,7 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 				BYTE *ctab;
 
 				d = *pSrc;
-				if (AlgoType == GAS_GIANT_ALGO) {	
+				if (AlgoType == GAS_GIANT_ALGO) {
 					// make elevation value non-negative
 					d &= 255;
 				} else {
@@ -1561,9 +1561,12 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 // Lots of pure Voodoo here ;)
 //  the goal is a 3D illusion, not mathematically correct lighting
 
-#define LMAP_AVG_BLOCK     ((ORIGINAL_MAP_HEIGHT + 4) / 5) // BW: hacky but this shouldn't really depend on the size of the original map
-#define LMAP_MAX_DIST     ((LMAP_AVG_BLOCK + 1) >> 1)
-#define LMAP_WEIGHT_THRES (LMAP_MAX_DIST * 2 / 3)
+#define LMAP_AVG_BLOCK       ((ORIGINAL_MAP_HEIGHT + 4) / 5)
+#define LMAP_AVG_BLOCK_CONST ((UQM_MAP_HEIGHT + 4) / 5)
+// BW: hacky but this shouldn't really depend on the size of the original map
+#define LMAP_MAX_DIST        ((LMAP_AVG_BLOCK + 1) >> 1)
+#define LMAP_MAX_DIST_CONST  ((LMAP_AVG_BLOCK_CONST + 1) >> 1)
+#define LMAP_WEIGHT_THRES    (LMAP_MAX_DIST * 2 / 3)
 
 typedef struct
 {
@@ -1622,16 +1625,14 @@ get_vblock_avg (elev_block_t *pblk, SBYTE *pTopo, int x, int y, COUNT width, COU
 static void
 GenerateLightMap (SBYTE *pTopo, int w, int h)
 {
-#define LMAP_BLOCKS       (2 * LMAP_MAX_DIST + 1)
+#define LMAP_BLOCKS       (2 * LMAP_MAX_DIST_CONST + 1)
 	int x, y;
-
+	elev_block_t vblocks[LMAP_BLOCKS];
+			// we use a running block average to reduce the amount of work
+			// where a block is a vertical line of map points
 	SBYTE *elev;
 	int min, max, med;
 	int sfact, spread;
-
-	elev_block_t vblocks[LMAP_BLOCKS];
-	// we use a running block average to reduce the amount of work
-	// where a block is a vertical line of map points
 
 	// normalize the topo data
 	min = 127;

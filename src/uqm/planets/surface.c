@@ -226,14 +226,53 @@ GeneratePresetLife (const SYSTEM_INFO *SysInfoPtr, const SBYTE *lifeTypes,
 	return i;
 }
 
+static int
+widthHeightPicker (BOOLEAN is_width)
+{
+	switch (optStarBackground)
+	{
+	case 0:
+		return (is_width ? PC_MAP_WIDTH : PC_MAP_HEIGHT);
+	case 1:
+		return (is_width ? THREEDO_MAP_WIDTH : THREEDO_MAP_HEIGHT);
+	case 2:
+	default:
+		return (is_width ? (UQM_MAP_WIDTH - 1) : UQM_MAP_HEIGHT);
+	}
+}
+
+static COORD
+scaleMapDimensions (BOOLEAN is_width, COORD value)
+{
+	float percentage;
+	int widthOrHeight = is_width ?
+		UQM_MAP_WIDTH : UQM_MAP_HEIGHT;
+
+	if (widthOrHeight == widthHeightPicker (is_width))
+		percentage = 1;
+	else
+		percentage = scaleThingUp (widthOrHeight,
+			widthHeightPicker (is_width));
+
+	return (COORD)(value * percentage);
+}
+
 void
 GenerateRandomLocation (POINT *loc)
 {
 	UWORD rand_val;
 
 	rand_val = RandomContext_Random (SysGenRNG);
-	loc->x = RES_SCALE(8) + RES_SCALE(LOBYTE (rand_val) % (ORIGINAL_MAP_WIDTH - (8 << 1)));
-	loc->y = RES_SCALE(8) + RES_SCALE(HIBYTE (rand_val) % (ORIGINAL_MAP_HEIGHT - (8 << 1)));
+	loc->x = RES_SCALE(
+			scaleMapDimensions (
+				TRUE, 8 + LOBYTE (rand_val)
+				% (widthHeightPicker (TRUE) - (8 << 1))
+			));
+	loc->y = RES_SCALE(
+			scaleMapDimensions (
+				FALSE, 8 + HIBYTE (rand_val)
+				% (widthHeightPicker (FALSE) - (8 << 1))
+			));
 }
 
 // Returns:

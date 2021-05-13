@@ -25,7 +25,6 @@ extern "C" {
 
 extern void LoadIPData (void);
 extern void FreeIPData (void);
-extern float scaleThingUp (float original, float thingToScale);
 
 #if defined(__cplusplus)
 }

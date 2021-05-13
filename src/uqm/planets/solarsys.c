@@ -2957,12 +2957,6 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 			&& GLOBAL_SIS (CrewEnlisted) != (COUNT)~0);
 }
 
-static float
-scaleThingUp (float original, float thingToScale)
-{
-	return ((original - thingToScale) / thingToScale + 1);
-}
-
 static int
 widthHeightPicker (BOOLEAN is_width)
 {
