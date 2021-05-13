@@ -26,10 +26,16 @@
 #include "settings.h"
 #include "resinst.h"
 #include "nameref.h"
+#include "setup.h"
+#include "gamestr.h"
+#include "colors.h"
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL/SDL_screenkeyboard.h>
 #endif
+
+static RECT cursor;
+static CONTEXT curContext;
 
 // TODO: This may be better done with UniChar at the cost of a tiny bit
 //   of overhead to convert UniChar back to UTF8 string. This overhead
@@ -127,6 +133,61 @@ JoyCharToLower (joy_char_t *outch, const joy_char_t *ch,
 			pTES->JoyRegLength);
 }
 
+void
+SetCursorRect (RECT *r, CONTEXT context)
+{
+	cursor = *r;
+	curContext = context;
+}
+
+void
+FlushCursorRect (void)
+{
+	cursor.corner = MAKE_POINT (0, 0);
+	cursor.extent.height = 0;
+	cursor.extent.width = 0;
+}
+
+static void
+FlashCursor (void)
+{
+	static int val = -2;
+	static TimeCount NextTime = 0;
+	static DWORD cycle_index = 0;
+
+	static const Color cycle_tab[] = CURSOR_COLOR_CYCLE_TABLE;
+	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
+#define BLINK_RATE (ONE_SECOND / 32)
+	
+	if (GetTimeCounter () >= NextTime)
+	{
+		CONTEXT OldContext;
+
+		NextTime = GetTimeCounter () + BLINK_RATE;
+
+		OldContext = SetContext (curContext);
+
+		if (curContext == OffScreenContext)
+		{
+			RECT r;
+
+			r.corner.x = SIS_ORG_X + RES_SCALE(1);
+			r.corner.y = SIS_ORG_Y - SIS_MESSAGE_HEIGHT;
+			r.extent.width = SIS_MESSAGE_WIDTH;
+			r.extent.height = SIS_MESSAGE_HEIGHT - RES_SCALE(1);
+			SetContextFGFrame (Screen);
+			SetContextClipRect (&r);
+		}
+
+		SetContextForeGroundColor (cycle_tab[cycle_index]);
+		DrawFilledRectangle (&cursor);
+
+		cycle_index = (cycle_index + 1) % cycleCount;
+		
+		SetContext(OldContext);
+	}
+}
+
 BOOLEAN
 DoTextEntry (TEXTENTRY_STATE *pTES)
 {
@@ -139,6 +200,8 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
+
+	FlashCursor ();
 
 	if (!pTES->Initialized)
 	{	// init basic vars

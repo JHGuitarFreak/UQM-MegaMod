@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - SETUPMENU: solar system planet style (DOS Planets)
 - SETUPMENU: Added option for Coloring the planet while scanning
 - SETUPMENU: Added option for PC-DOS scan style (static color while minerals are revealed)
+- Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
 
 ### Changed
 - Scaled the outer border of the viewport to match PC-DOS

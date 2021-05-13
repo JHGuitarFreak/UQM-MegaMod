@@ -278,6 +278,23 @@
 			BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x07, 0x0B), 0x61), \
 		}
 
+// Pulsating color of the text cursor
+#define CURSOR_COLOR_CYCLE_TABLE \
+		{ \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x00), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x00), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x16, 0x0A, 0x1F), 0x5C), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x16, 0x0A, 0x1F), 0x5C), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x1F), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x1F), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x19, 0x19, 0x19), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x15, 0x15), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x11, 0x11, 0x11), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x0C, 0x0C, 0x0C), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x08, 0x08, 0x08), 0x00), \
+			BUILD_COLOR (MAKE_RGB15_INIT (0x04, 0x04, 0x04), 0x00), \
+		}
+
 // Colors for the fuel in the fuel tanks as they are filled up,
 // when viewed from the shipyard.
 #define FUEL_COLOR_TABLE \

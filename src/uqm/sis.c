@@ -367,8 +367,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 			
 			cur_r.corner.y = 0;
 			cur_r.extent.height = r.extent.height;
-			SetContextForeGroundColor (SIS_MESSAGE_CURSOR_COLOR);
-			DrawFilledRectangle (&cur_r);
+			SetCursorRect (&cur_r, OffScreenContext);
 		}
 
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
@@ -396,7 +395,6 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	{
 		r.corner.x = 0;
 		r.corner.y = 0;
-		SetFlashRect (&r);
 	}
 
 	UnbatchGraphics ();

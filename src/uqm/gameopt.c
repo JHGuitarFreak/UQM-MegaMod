@@ -248,8 +248,6 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			return (FALSE);
 		}
 
-		PreUpdateFlashRect ();
-
 		SetContextForeGroundColor (BackGround);
 		DrawFilledRectangle (&r);
 
@@ -281,13 +279,10 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 		text_r.corner.y = r.corner.y + RES_SCALE(1);
 		text_r.extent.height = r.extent.height - RES_SCALE(2);
-		SetContextForeGroundColor (BLACK_COLOR);
-		DrawFilledRectangle (&text_r);
+		SetCursorRect (&text_r, StatusContext);
 
 		SetContextForeGroundColor (ForeGround);
 		font_DrawText (&lf);
-
-		PostUpdateFlashRect ();
 	}
 
 	return (TRUE);
@@ -315,8 +310,6 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	SetContext (StatusContext);
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
-
-	SetFlashRect(nameCaptain ? &captainNameRect : &shipNameRect);
 
 	DrawStatusMessage (GAME_STRING (NAMING_STRING_BASE + 0));
 
@@ -353,6 +346,8 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 		CursPos = strlen (GAME_STRING 
 				(NAMING_STRING_BASE + 2 + nameCaptain));
 	}
+
+	FlushCursorRect ();
 
 	SetFlashRect (SFR_MENU_3DO);
 
