@@ -37,11 +37,16 @@ enum PlanetScanTypes
 
 	NUM_SCAN_TYPES,
 };
+#define THREEDO_MAP_WIDTH 210
+#define THREEDO_MAP_HEIGHT 67
+#define PC_MAP_WIDTH THREEDO_MAP_WIDTH
+#define PC_MAP_HEIGHT THREEDO_MAP_HEIGHT
+#define UQM_MAP_WIDTH 243
+#define UQM_MAP_HEIGHT 75
 
 #define ORIGINAL_MAP_WIDTH 243
-#define ORIGINAL_MAP_HEIGHT 75
-#define MAP_WIDTH RES_SCALE(ORIGINAL_MAP_WIDTH)
-#define MAP_HEIGHT RES_SCALE(ORIGINAL_MAP_HEIGHT)
+#define MAP_WIDTH RES_SCALE(UQM_MAP_WIDTH)
+#define MAP_HEIGHT RES_SCALE(UQM_MAP_HEIGHT)
 
 enum
 {
@@ -89,10 +94,11 @@ enum
 #define MAX_GEN_PLANETS 9
 
 #define MAP_BORDER_HEIGHT  RES_SCALE(5)
-#define SCAN_SCREEN_HEIGHT (SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
+#define SCAN_SCREEN_HEIGHT \
+		(SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
 
-#define PLANET_ROTATION_TIME (ONE_SECOND * 12) 
-#define PLANET_ROTATION_RATE (PLANET_ROTATION_TIME / MAP_WIDTH) 
+#define PLANET_ROTATION_RATE \
+		(ONE_SECOND * 5 / RES_SCALE(THREEDO_MAP_WIDTH))
 #define PLANET_ORG_Y ((SCAN_SCREEN_HEIGHT - SIS_ORG_Y) / 2)
 
 #define NUM_RACE_RUINS  16
@@ -103,12 +109,8 @@ typedef struct node_info NODE_INFO;
 typedef struct planet_orbit PLANET_ORBIT;
 typedef struct solarsys_state SOLARSYS_STATE;
 
-
 #include "generate.h"
-#include "../menustat.h"
 #include "../units.h"
-
-#include "elemdata.h"
 #include "lifeform.h"
 #include "plandata.h"
 #include "sundata.h"
