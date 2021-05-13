@@ -32,6 +32,7 @@
 #include "setup.h"
 #include "sounds.h"
 #include "libs/mathlib.h"
+#include "util.h"
 
 #define NUM_PICK_SHIP_ROWS 2
 #define NUM_PICK_SHIP_COLUMNS 6
@@ -40,6 +41,31 @@
 #define FLAGSHIP_Y_OFFS RES_SCALE(4) 
 #define FLAGSHIP_WIDTH RES_SCALE(22) 
 #define FLAGSHIP_HEIGHT RES_SCALE(48) 
+
+static void
+FlashPickShipRect (RECT r)
+{
+	static TimeCount NextTime = 0;
+	static DWORD cycle_index = 0;
+
+	static const Color cycle_tab[] = PICKSHP_COLOR_CYCLE_TABLE;
+	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
+#define BLINK_RATE (ONE_SECOND / 18)
+
+	if (GetTimeCounter () >= NextTime)
+	{
+		Color color;
+
+		NextTime = GetTimeCounter () + BLINK_RATE;
+
+		color = cycle_tab[cycle_index];
+
+		DrawStarConBox ( 
+				&r, RES_SCALE(1), color, color, FALSE, TRANSPARENT);
+
+		cycle_index = (cycle_index + 1) % cycleCount;
+	}
+}
 
 static BOOLEAN
 DoPickBattleShip (MENU_STATE *pMS)
@@ -88,6 +114,9 @@ DoPickBattleShip (MENU_STATE *pMS)
 			COUNT ship_index;
 			HSTARSHIP hBattleShip, hNextShip;
 			STARSHIP *StarShipPtr;
+
+			if (optWhichMenu == OPT_PC)
+				DrawArmadaPickShip (FALSE, &pMS->flash_rect1);
 
 			if (new_col < 0)
 				new_col = NUM_PICK_SHIP_COLUMNS;
@@ -248,12 +277,16 @@ ChangeSelection:
 				font_DrawText (&t);
 			}
 
-			SetFlashRect (NULL);
-			SetFlashRect (&pMS->flash_rect0);
+			if (optWhichMenu == OPT_3DO)
+			{
+				SetFlashRect (NULL);
+				SetFlashRect (&pMS->flash_rect0);
+			}
 		}
 	}
 
-	SleepThread (ONE_SECOND / 30);
+	if (optWhichMenu == OPT_PC)
+		FlashPickShipRect (pMS->flash_rect0);
 
 	return (TRUE);
 }

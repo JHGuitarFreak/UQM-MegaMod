@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - SETUPMENU: Added option for Coloring the planet while scanning
 - SETUPMENU: Added option for PC-DOS scan style (static color while minerals are revealed)
 - Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
+- Kruzenshtern: Add function that mimics the pulsing purple box from PC-DOS ver. when picking a ship
 
 ### Changed
 - Scaled the outer border of the viewport to match PC-DOS
