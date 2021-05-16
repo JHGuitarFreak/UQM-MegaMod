@@ -71,15 +71,17 @@ static int do_advanced (WIDGET *self, int event);
 static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
+static int do_more_visual (WIDGET *self, int event);
+static int do_prev_visual (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         11
-#define CHOICE_COUNT       67
+#define MENU_COUNT         12
+#define CHOICE_COUNT       68
 #define SLIDER_COUNT        4
-#define BUTTON_COUNT       14
+#define BUTTON_COUNT       16
 #define LABEL_COUNT         5
 #define TEXTENTRY_COUNT     2
 #define CONTROLENTRY_COUNT  8
@@ -106,12 +108,13 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2, 2, 2, 3, 2, 2, 2 };          // 60-66
+	2, 2, 2, 3, 2, 2, 2, 2 };       // 60-67
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
-	do_keyconfig, do_music, do_visual, do_more_engine, do_prev_engine };
+	do_keyconfig, do_music, do_visual, do_more_engine, do_prev_engine,
+	do_more_visual, do_prev_visual };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -257,10 +260,23 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[45]),   // Custom Border switch
 	(WIDGET *)(&choices[48]),   // Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),   // Fuel Range
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[14]),   // Next Visual Page
+	(WIDGET *)(&buttons[1]),    // Exit to Menu
+	NULL };
+
+static WIDGET *more_visual_widgets[] = {
 	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
 	(WIDGET *)(&choices[58]),   // Alternate Orz font
-	(WIDGET *)(&choices[65]),   // Alternate Orz font
-	(WIDGET *)(&buttons[1]),
+	(WIDGET *)(&choices[65]),   // Non-Stop Scope
+	(WIDGET *)(&choices[67]),   // Animated HyperStars
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[15]),   // Prev. Visual Page
+	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
@@ -297,6 +313,7 @@ menu_defs[] =
 	{music_widgets, 8},
 	{visual_widgets, 9},
 	{more_engine_widgets, 3},
+	{more_visual_widgets, 9},
 	{NULL, 0}
 };
 
@@ -489,6 +506,32 @@ do_visual (WIDGET *self, int event)
 	return FALSE;
 }
 
+static int
+do_more_visual (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[11]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_prev_visual (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[9]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
 static void
 populate_editkeys (int templat)
 {
@@ -634,6 +677,7 @@ SetDefaults (void)
 	choices[64].selected = opts.scanStyle;
 	choices[65].selected = opts.nonStopOscill;
 	choices[66].selected = opts.scopeStyle;
+	choices[67].selected = opts.hyperStars;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -715,6 +759,7 @@ PropagateResults (void)
 	opts.scanStyle = choices[64].selected;
 	opts.nonStopOscill = choices[65].selected;
 	opts.scopeStyle = choices[66].selected;
+	opts.hyperStars = choices[67].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1262,9 +1307,11 @@ init_widgets (void)
 		switch (i)
 		{
 		case 12:
+		case 14:
 			buttons[i].draw = Widget_DrawRightButton;
 			break;
 		case 13:
+		case 15:
 			buttons[i].draw = Widget_DrawLeftButton;
 			break;
 		default:
@@ -1674,6 +1721,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->scanStyle = (optScanStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->nonStopOscill = optNonStopOscill ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->scopeStyle = (optScopeStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->hyperStars = optHyperStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2143,6 +2191,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	optScopeStyle = (opts->scopeStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.scopeStyle", opts->scopeStyle == OPTVAL_3DO);
+
+	res_PutBoolean ("mm.hyperStars", opts->hyperStars == OPTVAL_ENABLED);
+	optHyperStars = (opts->hyperStars == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

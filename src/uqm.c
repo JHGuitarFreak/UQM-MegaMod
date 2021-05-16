@@ -192,6 +192,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  scanStyle);
 	DECL_CONFIG_OPTION(bool, nonStopOscill);
 	DECL_CONFIG_OPTION(int,  scopeStyle);
+	DECL_CONFIG_OPTION(bool, hyperStars);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -386,7 +387,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  starBackground,    2),
 		INIT_CONFIG_OPTION(  scanStyle,         OPT_3DO),
 		INIT_CONFIG_OPTION(  nonStopOscill,     false),
-		INIT_CONFIG_OPTION(  scopeStyle,       OPT_3DO),
+		INIT_CONFIG_OPTION(  scopeStyle,        OPT_3DO),
+		INIT_CONFIG_OPTION(  hyperStars,        false),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -601,6 +603,7 @@ main (int argc, char *argv[])
 	optScanStyle = options.scanStyle.value;
 	optNonStopOscill = options.nonStopOscill.value;
 	optScopeStyle = options.scopeStyle.value;
+	optHyperStars = options.hyperStars.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -985,6 +988,8 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValueXlat (&options->scopeStyle, "mm.scopeStyle",
 		OPT_3DO, OPT_PC);
+
+	getBoolConfigValue (&options->hyperStars, "mm.hyperStars");
 	
 	if (res_IsInteger ("config.player1control"))
 	{

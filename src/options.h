@@ -95,6 +95,7 @@ extern int optStarBackground;
 extern int optScanStyle;
 extern BOOLEAN optNonStopOscill;
 extern int optScopeStyle;
+extern BOOLEAN optHyperStars;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSpeech;

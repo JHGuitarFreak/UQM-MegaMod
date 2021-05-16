@@ -1837,9 +1837,9 @@ SeedUniverse (void)
 				which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
 				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-					hyperstars[which_spaces_star_gfx],
-					STAR_TYPE (star_type) * NUM_STAR_COLORS
-					+ STAR_COLOR (star_type));
+						hyperstars[which_spaces_star_gfx],
+						STAR_TYPE (star_type) * NUM_STAR_COLORS
+						+ STAR_COLOR (star_type));
 				
 				HyperSpaceElementPtr->preprocess_func = NULL;
 				HyperSpaceElementPtr->postprocess_func = NULL;
@@ -1848,8 +1848,8 @@ SeedUniverse (void)
 				SetUpElement (HyperSpaceElementPtr);
 				
 				if (SDPtr == CurStarDescPtr
-				    && GET_GAME_STATE (PORTAL_COUNTER) == 0)
-					HyperSpaceElementPtr->death_func = hyper_death;
+						&& GET_GAME_STATE (PORTAL_COUNTER) == 0)
+						HyperSpaceElementPtr->death_func = hyper_death;
 				else
 				{
 					HyperSpaceElementPtr->death_func = NULL;
@@ -1864,25 +1864,39 @@ SeedUniverse (void)
 			{
 				// BW: first the actual star
 				if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 
-					|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY))
+						|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
+						&& STAR_COLOR (star_type) == YELLOW_BODY))
 				{
 					hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
 					if (hHyperSpaceElement == 0)
 						continue;
 				
 					LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
+					which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
 					// JMS_GFX: Draw stars in hyperspace.
 					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-					{	// The color, then the size and finally
-						// the frame offset for the actual animation
-						HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-						hyperspacesuns, STAR_COLOR (star_type) * NUM_STAR_TYPES * NUM_SUNS_FRAMES
-						+ STAR_TYPE (star_type) * NUM_SUNS_FRAMES
-						+ frameCounter % NUM_SUNS_FRAMES);
-					
-						HyperSpaceElementPtr->current.image.farray = &hyperspacesuns;
-						HyperSpaceElementPtr->death_func = NULL;
+					{	
+						if (!optHyperStars)
+						{
+
+							HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
+								hyperstars[which_spaces_star_gfx],
+								STAR_TYPE (star_type) * NUM_STAR_COLORS
+								+ STAR_COLOR (star_type));
+						}
+						else
+						{
+							// The color, then the size and finally
+							// the frame offset for the actual animation
+							HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
+								hyperspacesuns, STAR_COLOR(star_type) * NUM_STAR_TYPES * NUM_SUNS_FRAMES
+								+ STAR_TYPE(star_type) * NUM_SUNS_FRAMES
+								+ frameCounter % NUM_SUNS_FRAMES);
+
+							HyperSpaceElementPtr->current.image.farray = &hyperspacesuns;
+							HyperSpaceElementPtr->death_func = NULL;
+						}
 					}
 					else if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY)
 					{	// Draw animated Arilou homeworld

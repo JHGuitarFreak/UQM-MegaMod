@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - SETUPMENU: Added option for PC-DOS scan style (static color while minerals are revealed)
 - Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
 - Kruzenshtern: Add function that mimics the pulsing purple box from PC-DOS ver. when picking a ship
+- HD: Added an option to switch between unfaithful animated HyperSpace stars and faithful HD recreations of the static HyperSpace stars
 
 ### Changed
 - Scaled the outer border of the viewport to match PC-DOS
