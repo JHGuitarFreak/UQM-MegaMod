@@ -517,6 +517,12 @@ CheckGetAway:
 			EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame); // Probe will wobble while reforming
 	}
 
+	if (GET_GAME_STATE(KOHR_AH_FRENZY) && CheckAlliance(GroupPtr->race_id) == DEAD_GUY)
+	{
+		GroupPtr->task = FLEE;
+		EPtr->state_flags |= NONSOLID;
+	}
+
 	radius = zoomRadiusForLocation (group_loc);
 	adjustDeltaVforZoom (radius, &vdx, &vdy);
 	GroupPtr->loc.x += vdx;
@@ -852,7 +858,7 @@ DoMissions (void)
 		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
 		hNextGroup = _GetSuccLink (GroupPtr);
 
-		if (GroupPtr->in_system)
+		if (GroupPtr->in_system && CheckAlliance (GroupPtr->race_id) != DEAD_GUY)
 			spawn_ip_group (GroupPtr);
 
 		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
