@@ -36,6 +36,7 @@
 
 static RECT cursor;
 static CONTEXT curContext;
+static BOOLEAN block = FALSE;
 
 // TODO: This may be better done with UniChar at the cost of a tiny bit
 //   of overhead to convert UniChar back to UTF8 string. This overhead
@@ -134,6 +135,12 @@ JoyCharToLower (joy_char_t *outch, const joy_char_t *ch,
 }
 
 void
+SetCursorFlashBlock (BOOLEAN state)
+{
+	block = state;
+}
+
+void
 SetCursorRect (RECT *r, CONTEXT context)
 {
 	cursor = *r;
@@ -200,7 +207,8 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
 
-	FlashCursor ();
+	if (!block)
+		FlashCursor ();
 
 	if (!pTES->Initialized)
 	{	// init basic vars
@@ -504,8 +512,8 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 		
 	if (pTES->FrameCallback)
 		return pTES->FrameCallback (pTES);
-	else
-		SleepThread (ONE_SECOND / 30);
+	/*else
+		SleepThread (ONE_SECOND / 30);*/
 
 	return TRUE;
 }

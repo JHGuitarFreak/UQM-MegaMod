@@ -335,10 +335,15 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 
 		ClearDrawable ();
 		DrawBorder(2, FALSE);
+		SetCursorFlashBlock (FALSE);
+
 
 		if (CurPos >= 0 && CurPos <= t.CharCount)
 		{	// calc and draw the cursor
 			RECT cur_r = text_r;
+
+			cur_r.corner.y = 0;
+			cur_r.extent.height = r.extent.height;
 
 			for (i = CurPos, pchar_deltas = char_deltas; i > 0; --i)
 				cur_r.corner.x += (SIZE)*pchar_deltas++;
@@ -347,9 +352,11 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 			
 			if (flags & DSME_BLOCKCUR)
 			{	// Use block cursor for keyboardless systems
+				SetCursorFlashBlock (TRUE);
 				if (CurPos == t.CharCount)
 				{	// cursor at end-line -- use insertion point
 					cur_r.extent.width = RES_SCALE(1);
+					SetCursorFlashBlock (FALSE);
 				}
 				else if (CurPos + 1 == t.CharCount)
 				{	// extra pixel for last char margin
@@ -359,15 +366,24 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 				{	// normal mid-line char
 					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
 				}
+
+				if (cur_r.extent.width >= 200)
+				{
+					SetCursorFlashBlock (FALSE);
+					cur_r.extent.width = RES_SCALE(1);
+				}
+				else
+				{
+					SetContextForeGroundColor (SIS_MESSAGE_CURSOR_COLOR);
+					DrawFilledRectangle (&cur_r);
+				}
 			}
 			else
 			{	// Insertion point cursor
 				cur_r.extent.width = RES_SCALE(1);
 			}
 			
-			cur_r.corner.y = 0;
-			cur_r.extent.height = r.extent.height;
-			SetCursorRect (&cur_r, OffScreenContext);
+			SetCursorRect (&cur_r, OffScreenContext);			
 		}
 
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
@@ -623,19 +639,19 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		strupr (buf);
 
 		// JMS: Handling the a-umlaut and o-umlaut characters
-        {
-            unsigned char *ptr;
-            ptr = (unsigned char*)buf;
-            while (*ptr) {
-                if (*ptr == 0xc3) {
-                    ptr++;
-                    if (*ptr == 0xb6 || *ptr == 0xa4) {
-                        *ptr += 'A' - 'a';
-                    }
-                }
-                ptr++;
-            }
-        }
+		{
+			unsigned char *ptr;
+			ptr = (unsigned char*)buf;
+			while (*ptr) {
+				if (*ptr == 0xc3) {
+					ptr++;
+					if (*ptr == 0xb6 || *ptr == 0xa4) {
+						*ptr += 'A' - 'a';
+					}
+				}
+				ptr++;
+			}
+		}
 	}
 	OldFontEffect = SetContextFontEffect (NULL);
 	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);

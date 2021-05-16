@@ -88,6 +88,7 @@ extern STRING GameStrings;
 
 extern void SetCursorRect (RECT *r, CONTEXT context);
 extern void FlushCursorRect (void);
+void SetCursorFlashBlock (BOOLEAN state);
 
 #if defined(__cplusplus)
 }
