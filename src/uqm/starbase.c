@@ -154,38 +154,29 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 	else if (RepairSlot)
 	{
 		r.corner = Side.origin;
-		r.corner.y += IF_HD(16);
 		r.extent.width = SHIP_PIECE_OFFSET;
 		r.extent.height = RES_SCALE(1);
 		OldColor = SetContextForeGroundColor (BLACK_COLOR);
-		if (!IS_HD)
-			DrawFilledRectangle (&r);
+		DrawFilledRectangle (&r);
 		r.corner.y += RES_SCALE(23 - 1);
-		if (!IS_HD)
-			DrawFilledRectangle (&r);
+		DrawFilledRectangle (&r);
 
 		r.extent.width = RES_SCALE(1);
 		r.extent.height = RES_SCALE(8);
 		if (RepairSlot == 2)
 		{
 			r.corner = Side.origin;
-			r.corner.y += IF_HD(16);
-			if (!IS_HD || (IS_HD && !DrawBluePrint))
-				DrawFilledRectangle (&r);
-				r.corner.y += RES_SCALE(15);
-			if (!IS_HD || (IS_HD && !DrawBluePrint))
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
+			r.corner.y += RES_SCALE(15);
+			DrawFilledRectangle (&r);
 		}
 		if (which_slot < (NUM_MODULE_SLOTS - 1))
 		{
 			r.corner = Side.origin;
-			r.corner.y += IF_HD(16);
 			r.corner.x += SHIP_PIECE_OFFSET;
-			if (!IS_HD || (IS_HD && !DrawBluePrint))
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 			r.corner.y += RES_SCALE(15);
-			if (!IS_HD || (IS_HD && !DrawBluePrint))
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 		}
 	}
 
@@ -209,11 +200,9 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			r.corner = Top.origin;
 			r.extent.width = SHIP_PIECE_OFFSET;
 			r.extent.height = RES_SCALE(1);
-			if (!IS_HD)
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 			r.corner.y += RES_SCALE(32 - 1);
-			if (!IS_HD)
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 
 			r.extent.width = RES_SCALE(1);
 			r.extent.height = RES_SCALE(12);
@@ -222,7 +211,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 				r.corner = Top.origin;
 				DrawFilledRectangle (&r);
 				r.corner.y += RES_SCALE(20);
-					DrawFilledRectangle (&r);
+				DrawFilledRectangle (&r);
 			}
 			RepairSlot = (which_slot < NUM_MODULE_SLOTS - 1);
 			if (RepairSlot)

@@ -610,6 +610,12 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SHIP_NAME_HEIGHT;
 
+		if (IS_HD)
+		{
+			r.extent.width = SIS_SCREEN_WIDTH * 0.75;
+			r.corner.x = (SIS_SCREEN_WIDTH - r.extent.width) / 2;
+		}
+
 		t.pStr = buf;
 		snprintf (buf, sizeof buf, "%s %s",
 				GAME_STRING (NAMING_STRING_BASE + 1), GLOBAL_SIS (ShipName));
@@ -1625,20 +1631,21 @@ GetFTankCapacity (POINT *ppt)
 	moduleType = GLOBAL_SIS (ModuleSlots[slotNr]);
 	volume = GetModuleFuelCapacity (moduleType);
 
-	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY);
+	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS /
+			HEFUEL_TANK_CAPACITY);
 
-	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled) + IF_HD(44);
+	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled);
 	if (volume == FUEL_TANK_CAPACITY) 
 	{
-		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(1);
+		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(2);
 	} 
 	else 
 	{
-		ppt->y = (RES_SCALE(30) - rowNr) + IF_HD(2);
+		ppt->y = (RES_SCALE(30) - rowNr) + IF_HD(3);
 	}
 	
-	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY) /
-		MAX_FUEL_BARS;
+	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS /
+			HEFUEL_TANK_CAPACITY) / MAX_FUEL_BARS;
 
 	assert (rowNr + 1 < (COUNT) (sizeof fuelColors / sizeof fuelColors[0]));
 	SetContextForeGroundColor (fuelColors[rowNr]);
