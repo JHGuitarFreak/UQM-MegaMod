@@ -795,6 +795,21 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 }
 
 static void
+AdjustInitialPosition (void)
+{
+	BYTE flagship_loc;
+	SIZE radius;
+	POINT pt;
+
+	flagship_loc = getFlagshipLocation ();
+	radius = zoomRadiusForLocation (flagship_loc);
+
+	pt = locationToDisplay (GLOBAL (ip_location), radius);
+
+	GLOBAL (ShipStamp.origin) = pt;
+}
+
+static void
 spawn_flag_ship (void)
 {
 	HELEMENT hFlagShipElement;
@@ -821,6 +836,8 @@ spawn_flag_ship (void)
 				GLOBAL (ShipStamp.frame);
 		FlagShipElementPtr->preprocess_func = flag_ship_preprocess;
 		FlagShipElementPtr->collision_func = flag_ship_collision;
+
+		AdjustInitialPosition ();
 
 		FlagShipElementPtr->current.location.x =
 				DISPLAY_TO_WORLD (GLOBAL (ShipStamp.origin.x))
