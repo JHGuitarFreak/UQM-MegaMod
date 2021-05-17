@@ -37,6 +37,7 @@
 #include "libs/alarm.h"
 #include "libs/log.h"
 #include "hyper.h"
+#include "gameopt.h"
 
 #include <stdio.h>
 
