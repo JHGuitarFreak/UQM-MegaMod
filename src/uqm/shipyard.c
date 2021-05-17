@@ -575,9 +575,9 @@ DMS_FlashFlagShip (void)
 {
 	RECT r;
 	r.corner.x = 0;
-	r.corner.y = IF_HD(20);
+	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = RES_SCALE(61); 
+	r.extent.height = RES_SCALE(61);
 	SetFlashRect (&r);
 }
 
@@ -1247,7 +1247,8 @@ DMS_NavigateShipSlots (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 			DMS_SetMode (pMS, DMS_Mode_editCrew);
 		}
 	}
-	else if (cancel) {
+	else if (cancel)
+	{
 		// Leave escort ship editor.
 		pMS->InputFunc = DoShipyard;
 		pMS->CurState = SHIPYARD_CREW;
@@ -1492,7 +1493,7 @@ DrawBluePrint (MENU_STATE *pMS)
 			GetFTankCapacity (&r.corner);
 
 			r.extent.width = RES_SCALE(5);
-			DrawFilledRectangle(&r);
+			DrawFilledRectangle (&r);
 
 			r.extent.width = RES_SCALE(3);
 			r.corner.x += RES_SCALE(1);

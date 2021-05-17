@@ -256,13 +256,13 @@ DoInstallModule (MENU_STATE *pMS)
 	else if (select || cancel)
 	{
 		new_slot_piece = pMS->CurState;
-
 		if (select)
 		{
 			if (new_slot_piece < EMPTY_SLOT)
 			{
-
-				if (GLOBAL_SIS (ResUnits) < (DWORD)(GLOBAL (ModuleCost[new_slot_piece]) * MODULE_COST_SCALE))
+				if (GLOBAL_SIS (ResUnits) <
+						(DWORD)(GLOBAL (ModuleCost[new_slot_piece])
+						* MODULE_COST_SCALE))
 				{	// not enough RUs to build
 					PlayMenuSound (MENU_SOUND_FAILURE);
 					return (TRUE);
@@ -664,6 +664,7 @@ DoOutfit (MENU_STATE *pMS)
 			DrawSISFrame ();
 			DrawSISMessage (GAME_STRING (STARBASE_STRING_BASE + 2));
 			DrawSISTitle (GAME_STRING (STARBASE_STRING_BASE));
+
 			SetContext (SpaceContext);
 
 			DrawStamp (&s);
