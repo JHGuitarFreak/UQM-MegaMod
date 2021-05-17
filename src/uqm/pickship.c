@@ -42,31 +42,6 @@
 #define FLAGSHIP_WIDTH RES_SCALE(22)
 #define FLAGSHIP_HEIGHT RES_SCALE(48)
 
-static void
-FlashPickShipRect (RECT r)
-{
-	static TimeCount NextTime = 0;
-	static DWORD cycle_index = 0;
-
-	static const Color cycle_tab[] = PICKSHP_COLOR_CYCLE_TABLE;
-	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
-#define BLINK_RATE (ONE_SECOND / 18)
-
-	if (GetTimeCounter () >= NextTime)
-	{
-		Color color;
-
-		NextTime = GetTimeCounter () + BLINK_RATE;
-
-		color = cycle_tab[cycle_index];
-
-		DrawStarConBox ( 
-				&r, RES_SCALE(1), color, color, FALSE, TRANSPARENT);
-
-		cycle_index = (cycle_index + 1) % cycleCount;
-	}
-}
-
 static BOOLEAN
 DoPickBattleShip (MENU_STATE *pMS)
 {
@@ -286,7 +261,7 @@ ChangeSelection:
 	}
 
 	if (optWhichMenu == OPT_PC)
-		FlashPickShipRect (pMS->flash_rect0);
+		PulsingPurpleBox (pMS->flash_rect0);
 
 	return (TRUE);
 }
