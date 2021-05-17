@@ -37,10 +37,10 @@
 #define NUM_PICK_SHIP_ROWS 2
 #define NUM_PICK_SHIP_COLUMNS 6
 
-#define FLAGSHIP_X_OFFS RES_SCALE(65) 
-#define FLAGSHIP_Y_OFFS RES_SCALE(4) 
-#define FLAGSHIP_WIDTH RES_SCALE(22) 
-#define FLAGSHIP_HEIGHT RES_SCALE(48) 
+#define FLAGSHIP_X_OFFS RES_SCALE(65)
+#define FLAGSHIP_Y_OFFS RES_SCALE(4)
+#define FLAGSHIP_WIDTH RES_SCALE(22)
+#define FLAGSHIP_HEIGHT RES_SCALE(48)
 
 static void
 FlashPickShipRect (RECT r)
@@ -202,7 +202,7 @@ ChangeSelection:
 			{
 				crew_level = 0;
 				max_crew = 0;
-						// Satisfy compiler.
+				// Satisfy compiler.
 			}
 			else
 			{
@@ -490,12 +490,9 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	// Code to make use of the PC version's font gradient
 	// Along with the FRAME "OldFontEffect"
 	if (optWhichFonts == OPT_PC)
-		SetContextFontEffect(SetAbsFrameIndex(FontGradFrame, 6));
+		SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 6));
 	else
 		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));
-
-	SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x12, 0x12, 0x12), 0x17));
 
 	SetContextFont (StarConFont);

@@ -323,8 +323,8 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 		else
 		{
 			AccelerateDirection = -1;
-			udx = dx << (IS_HD ? 0 : 4);
-			udy = dy << (IS_HD ? 0 : 4);
+			udx = dx << IF_HD(4);
+			udy = dy << IF_HD(4);
 		}
 	}
 
