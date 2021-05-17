@@ -115,8 +115,9 @@ dispyToUniverse (COORD dy)
 static BOOLEAN transition_pending;
 
 static void
-flashCurrentLocation (POINT *where)
+flashCurrentLocation (POINT *where, BOOLEAN force)
 {
+	static BOOLEAN redraw = FALSE;
 	static BYTE c = 0;
 	static int val = -2;
 	static POINT universe;
@@ -127,17 +128,23 @@ flashCurrentLocation (POINT *where)
 
 	if (GetTimeCounter () >= NextTime)
 	{
-		Color OldColor;
-		CONTEXT OldContext;
-		STAMP s;
-
 		NextTime = GetTimeCounter () + (ONE_SECOND / 16);
-		
-		OldContext = SetContext (SpaceContext);
 
 		if (c == 0x00 || c == 0x1A)
 			val = -val;
 		c += val;
+
+		redraw = TRUE;
+	}
+
+	if (force || redraw)
+	{
+		Color OldColor;
+		CONTEXT OldContext;
+		STAMP s;
+
+		OldContext = SetContext (SpaceContext);
+
 		OldColor = SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (c, c, c), c));
 		s.origin.x = UNIVERSE_TO_DISPX (universe.x);
@@ -147,6 +154,8 @@ flashCurrentLocation (POINT *where)
 		SetContextForeGroundColor (OldColor);
 
 		SetContext (OldContext);
+
+		redraw = FALSE;
 	}
 }
 
@@ -836,9 +845,12 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 	}
 	else
 	{
+		BatchGraphics ();
 		EraseCursor (pt.x, pt.y);
 		// ClearDrawable ();
 		DrawCursor (s.origin.x, s.origin.y);
+		flashCurrentLocation (NULL, TRUE);
+		UnbatchGraphics ();
 	}
 }
 
@@ -1376,7 +1388,7 @@ OnStarNameFrame (TEXTENTRY_STATE *pTES)
 		UpdateFuelRequirement ();
 	}
 
-	flashCurrentLocation (NULL);
+	flashCurrentLocation (NULL, FALSE);
 
 	SleepThread (ONE_SECOND / 30);
 	
@@ -1448,7 +1460,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			universe.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 			universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 		}
-		flashCurrentLocation (&universe);
+		flashCurrentLocation (&universe, FALSE);
 
 		last_buf[0] = '\0';
 		UpdateCursorInfo (last_buf);
@@ -1529,6 +1541,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			{	// search failed or canceled - return cursor
 				UpdateCursorLocation (0, 0, &oldpt);
 			}
+			FlushCursorRect ();
 			// make sure cmp fails
 			strcpy (last_buf, "  <random garbage>  ");
 			UpdateCursorInfo (last_buf);
@@ -1601,7 +1614,7 @@ DoMoveCursor (MENU_STATE *pMS)
 	else
 		moveRepeats = 0;
 
-	flashCurrentLocation (NULL);
+	flashCurrentLocation (NULL, FALSE);
 
 	return !(GLOBAL (CurrentActivity) & CHECK_ABORT);
 }
