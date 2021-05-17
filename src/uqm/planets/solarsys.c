@@ -1341,7 +1341,49 @@ ProcessShipControls (void)
 		GLOBAL (autopilot.y) = ~0;
 	}
 	else if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
-		delta_y = -1;
+	{
+		// Cram code here
+		// I want the ship to face the closest hyper exit and accelerate
+		// Currently this code points the ship to the intended destination
+		if (optShipFacingHS)
+		{
+			POINT universe;
+			SIZE facing;
+			SDWORD udx = 0, udy = 0;
+			COUNT frame_index;
+
+			universe.x = LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x));
+			universe.y = LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y));
+			udx = (GLOBAL(autopilot)).x - universe.x;
+			udy = -((GLOBAL(autopilot)).y - universe.y);
+
+			frame_index = GetFrameIndex (GLOBAL (ShipStamp.frame));
+
+			facing = NORMALIZE_FACING (
+					ANGLE_TO_FACING (ARCTAN (udx, udy)));
+
+			if ((int)facing != frame_index)
+			{
+				if (NORMALIZE_FACING (frame_index - facing)
+					>= ANGLE_TO_FACING (HALF_CIRCLE))
+				{
+					facing = NORMALIZE_FACING (facing - 1);
+					delta_x++;
+				}
+				else if ((int)frame_index != (int)facing)
+				{
+					facing = NORMALIZE_FACING (facing + 1);
+					delta_x--;
+				}
+			}
+			else
+				delta_y = -1;
+		}
+		else
+		{
+			delta_y = -1;
+		}
+	}
 	else
 		delta_y = 0;
 
