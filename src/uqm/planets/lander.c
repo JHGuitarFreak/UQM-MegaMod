@@ -1411,7 +1411,7 @@ AnimateLaunch (FRAME farray)
 
 	num_frames = GetFrameCount (s.frame);
 	NextTime = GetTimeCounter () + (ONE_SECOND / 22);
-	while (num_frames > 0)
+	while (num_frames >= 0)
 	{
 		RotatePlanetSphere (TRUE, &s, TRANSPARENT);
 
@@ -1420,23 +1420,19 @@ AnimateLaunch (FRAME farray)
 		{
 			NextTime = Now + (ONE_SECOND / 22);
 			num_frames--;
-			if (num_frames == 0)
-				break;
+
 			GetFrameRect (s.frame, &r);
 			s.frame = IncFrameIndex (s.frame);
-			
-			BatchGraphics ();
-			RepairBackRect (&r, TRUE);
 
+			RepairBackRect (&r);
 			DrawDefaultPlanetSphere ();
 
+			if (num_frames == 0)
+				break;
+
 			DrawStamp (&s);
-			UnbatchGraphics ();
 		}
 	}
-
-	RepairBackRect (&r);
-	DrawDefaultPlanetSphere ();
 }
 
 static void
