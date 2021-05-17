@@ -179,6 +179,7 @@ DrawAutoPilot (POINT *pDstPt)
 				xerror, yerror,
 				cycle, delta;
 	POINT pt;
+	RECT r;
 
 	if (!inHQSpace ())
 		pt = CurStarDescPtr->star_pt;
@@ -222,9 +223,18 @@ DrawAutoPilot (POINT *pDstPt)
 	delta &= ~1;
 	while (delta--)
 	{
-		if (!(delta & 1))
-			DrawPoint (&pt);
-
+		if (!(delta & 1)) {
+			if (IS_HD)
+			{
+				r.corner.x = pt.x - 2;
+				r.corner.y = pt.y - 2;
+				r.extent.width = 4;
+				r.extent.height = r.extent.width;
+				DrawFilledRectangle (&r);
+			}
+			else
+				DrawPoint (&pt);
+		}
 		if ((xerror -= dx) <= 0)
 		{
 			pt.x += xincr;
