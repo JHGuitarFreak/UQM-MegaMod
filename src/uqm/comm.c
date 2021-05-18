@@ -1348,8 +1348,9 @@ DoConvSummary (SUMMARY_STATE *pSS)
 	}
 	else
 	{
-		SleepThread (ONE_SECOND / 20);
+		FlushInput ();
 	}
+	UpdateSpeechGraphics();
 
 	return TRUE; // keep going
 }
