@@ -193,6 +193,21 @@ DrawOscilloscope (void)
 }
 
 void
+FlattenOscilloscope (void)
+{
+	STAMP s;
+	CONTEXT OldContext;
+
+	OldContext = SetContext(RadarContext);
+
+	DrawOscilloscopeLines(&s, NULL, FALSE);
+	s.origin.x = 0;
+	s.origin.y = 0;
+	DrawStamp(&s);
+	SetContext(OldContext);
+}
+
+void
 SwitchOscilloscope (BOOLEAN state)
 {
 	oscillDisabled = state;

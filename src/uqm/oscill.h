@@ -30,7 +30,7 @@ extern BOOLEAN oscillDisabled;
 extern void InitOscilloscope (FRAME scopeBg);
 extern void DrawOscilloscope (void);
 extern void UninitOscilloscope (void);
-
+extern void FlattenOscilloscope (void);
 extern void SwitchOscilloscope (BOOLEAN state);
 extern void SwitchSlider (BOOLEAN state);
 

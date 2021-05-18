@@ -1637,6 +1637,7 @@ SellMinerals (RESPONSE_REF R)
 	RESPONSE_REF pStr1 = 0;
 	RESPONSE_REF pStr2 = 0;
 
+	FlattenOscilloscope ();
 	total = 0;
 	Sleepy = TRUE;
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
