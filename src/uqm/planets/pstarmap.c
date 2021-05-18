@@ -172,6 +172,20 @@ DrawCursor (COORD curs_x, COORD curs_y)
 }
 
 static void
+DrawDestReticule (POINT dest)
+{
+	STAMP s;
+
+	s.origin = MAKE_POINT (
+			UNIVERSE_TO_DISPX (dest.x),
+			UNIVERSE_TO_DISPY (dest.y)
+		);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 107);
+
+	DrawStamp (&s);
+}
+
+static void
 DrawAutoPilot (POINT *pDstPt)
 {
 	SIZE dx, dy,
@@ -179,7 +193,7 @@ DrawAutoPilot (POINT *pDstPt)
 				xerror, yerror,
 				cycle, delta;
 	POINT pt;
-	RECT r;
+	STAMP s;
 
 	if (!inHQSpace ())
 		pt = CurStarDescPtr->star_pt;
@@ -188,6 +202,10 @@ DrawAutoPilot (POINT *pDstPt)
 		pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 		pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
+
+	if (IS_HD)
+		s.frame = SetAbsFrameIndex (MiscDataFrame, 106);
+
 	pt.x = UNIVERSE_TO_DISPX (pt.x);
 	pt.y = UNIVERSE_TO_DISPY (pt.y);
 
@@ -223,18 +241,18 @@ DrawAutoPilot (POINT *pDstPt)
 	delta &= ~1;
 	while (delta--)
 	{
-		if (!(delta & 1)) {
-			if (IS_HD)
-			{
-				r.corner.x = pt.x - 2;
-				r.corner.y = pt.y - 2;
-				r.extent.width = 4;
-				r.extent.height = r.extent.width;
-				DrawFilledRectangle (&r);
+		if (IS_HD)
+		{
+			if (delta % 8 == 0 && delta != 0)
+			{	// every eighth dot and not the last dot
+				s.origin.x = pt.x;
+				s.origin.y = pt.y;
+				DrawFilledStamp (&s);
 			}
-			else
-				DrawPoint (&pt);
 		}
+		else if (!(delta & 1))
+			DrawPoint(&pt);
+
 		if ((xerror -= dx) <= 0)
 		{
 			pt.x += xincr;
@@ -692,7 +710,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (race_update == 0
 			&& GLOBAL (autopilot.x) != ~0
 			&& GLOBAL (autopilot.y) != ~0)
+	{
 		DrawAutoPilot (&GLOBAL (autopilot));
+		DrawDestReticule (GLOBAL (autopilot));
+	}
 
 	if (transition_pending)
 	{
