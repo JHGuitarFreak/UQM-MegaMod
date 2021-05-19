@@ -205,6 +205,13 @@ MAKE_POINT (COORD x, COORD y)
 	return pt;
 }
 
+static inline EXTENT
+MAKE_EXTENT (COORD width, COORD height)
+{
+	EXTENT ext = {width, height};
+	return ext;
+}
+
 static inline bool
 pointsEqual (POINT p1, POINT p2)
 {

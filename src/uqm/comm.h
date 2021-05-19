@@ -139,11 +139,10 @@ extern void RedrawSISComWindow (void);
 extern void SetCustomBaseLine (COUNT sentence, POINT bl, TEXT_ALIGN align);
 extern void FlushCustomBaseLine (void);
 extern void BlockTalkingAnim (COUNT trackStart, COUNT trackEnd);
-extern void ReleaseTalkingAnim (void);
-extern void EnableComWRedraw (void);
 
 extern BOOLEAN IsProbe;
 extern BOOLEAN IsAltSong;
+extern BOOLEAN cwLock;
 
 #if defined(__cplusplus)
 }

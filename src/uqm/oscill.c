@@ -178,10 +178,10 @@ DrawOscilloscope (void)
 		DrawOscilloscopeLines (&s, scope_data, FALSE);
 	}
 	else if (GraphForegroundStream (
-			scope_data, scopeSize.width, scopeSize.height, FALSE))
+			scope_data, scopeSize.width, scopeSize.height, FALSE)
+			&& usingSpeech && optNonStopOscill)
 	{
-		DrawOscilloscopeLines (
-				&s, scope_data, (usingSpeech && optNonStopOscill));
+		DrawOscilloscopeLines (&s, scope_data, TRUE);
 	}
 	else
 		DrawOscilloscopeLines (&s, NULL, FALSE);
@@ -198,19 +198,12 @@ FlattenOscilloscope (void)
 	STAMP s;
 	CONTEXT OldContext;
 
-	OldContext = SetContext(RadarContext);
+	OldContext = SetContext (RadarContext);
 
-	DrawOscilloscopeLines(&s, NULL, FALSE);
-	s.origin.x = 0;
-	s.origin.y = 0;
-	DrawStamp(&s);
-	SetContext(OldContext);
-}
-
-void
-SwitchOscilloscope (BOOLEAN state)
-{
-	oscillDisabled = state;
+	DrawOscilloscopeLines (&s, NULL, FALSE);
+	s.origin = MAKE_POINT(0, 0);
+	DrawStamp (&s);
+	SetContext (OldContext);
 }
 
 static STAMP sliderStamp;
@@ -275,10 +268,4 @@ DrawSlider (void)
 		DrawStamp (&buttonStamp);
 		UnbatchGraphics ();
 	}
-}
-
-void
-SwitchSlider (BOOLEAN state)
-{
-	sliderDisabled = state;
 }

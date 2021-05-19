@@ -45,6 +45,7 @@
 #include "libs/sound/sound.h"
 #include "libs/sound/trackplayer.h"
 #include "libs/log.h"
+#include "menustat.h"
 
 #include <ctype.h>
 
@@ -81,7 +82,6 @@ BOOLEAN IsAltSong;
 // Dark mode
 BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
-RECT tb, lb, rb, bb, sl, cw;
 static COUNT fadeIndex;
  
 typedef struct response_entry
@@ -538,7 +538,7 @@ BlockTalkingAnim (COUNT trackStart, COUNT trackEnd)
 
 void
 ReleaseTalkingAnim (void)
-{// Called at restart and at SelectResponce ()
+{	// Called at restart and at SelectResponce ()
 	if (haveTalkingLock)
 	{
 		haveTalkingLock = FALSE;
@@ -845,48 +845,58 @@ UpdateAnimations (BOOLEAN paused)
 	SetContext (OldContext);
 }
 
+RECT DarkModeRect[6];
+
 void
-InitUIRects (void)
+InitUIRects (BOOLEAN state)
 {
-	// Top border
-	tb.corner.x = 0;
-	tb.corner.y = 0;
-	tb.extent.width = SIS_ORG_X + SIS_SCREEN_WIDTH;
-	tb.extent.height = SIS_ORG_Y;
+	if (state)
+	{
+		// Top border
+		DarkModeRect[0].corner = MAKE_POINT (0, 0);
+		DarkModeRect[0].extent = MAKE_EXTENT (
+				SIS_ORG_X + SIS_SCREEN_WIDTH, SIS_ORG_Y);
 
-	// Left border
-	lb.corner.x = 0;
-	lb.corner.y = SIS_ORG_Y;
-	lb.extent.width = SIS_ORG_X;
-	lb.extent.height = SCREEN_HEIGHT - SIS_ORG_Y;
+		// Left border
+		DarkModeRect[1].corner = MAKE_POINT (0, SIS_ORG_Y);
+		DarkModeRect[1].extent = MAKE_EXTENT (
+				SIS_ORG_X, SCREEN_HEIGHT - SIS_ORG_Y);
 
-	// Right border
-	rb.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH;
-	rb.corner.y = 0;
-	rb.extent.width = SCREEN_WIDTH - rb.corner.x;
-	rb.extent.height = SCREEN_HEIGHT;
+		// Right border
+		DarkModeRect[2].corner = MAKE_POINT (
+				SIS_ORG_X + SIS_SCREEN_WIDTH, 0);
+		DarkModeRect[2].extent = MAKE_EXTENT (
+				SCREEN_WIDTH - DarkModeRect[2].corner.x, SCREEN_HEIGHT);
 
-	// Bottom border
-	bb.corner.x = SIS_ORG_X;
-	bb.corner.y = SIS_ORG_Y + SIS_SCREEN_HEIGHT;
-	bb.extent.width = SIS_SCREEN_WIDTH;
-	bb.extent.height = SCREEN_HEIGHT - SIS_ORG_Y + SIS_SCREEN_HEIGHT;
+		// Bottom border
+		DarkModeRect[3].corner = MAKE_POINT (SIS_ORG_X,
+				SIS_ORG_Y + SIS_SCREEN_HEIGHT);
+		DarkModeRect[3].extent = MAKE_EXTENT (SIS_SCREEN_WIDTH,
+				SCREEN_HEIGHT - SIS_ORG_Y + SIS_SCREEN_HEIGHT);
 
-	// Slider
-	sl.corner.x = SIS_ORG_X;
-	sl.corner.y = SIS_ORG_Y + SLIDER_Y;
-	sl.extent.width = SIS_SCREEN_WIDTH;
-	sl.extent.height = SLIDER_HEIGHT;
+		// Slider
+		DarkModeRect[4].corner = MAKE_POINT (
+				SIS_ORG_X, SIS_ORG_Y + SLIDER_Y);
+		DarkModeRect[4].extent = MAKE_EXTENT (
+				SIS_SCREEN_WIDTH, SLIDER_HEIGHT);
 
-	// Com Window with player responses
-	cw.corner.x = SIS_ORG_X;
-	cw.corner.y = SIS_ORG_Y + SLIDER_Y + SLIDER_HEIGHT;
-	cw.extent.width = SIS_SCREEN_WIDTH;
-	cw.extent.height = SIS_SCREEN_HEIGHT - (SLIDER_Y + SLIDER_HEIGHT);
+		// Com Window with player responses
+		DarkModeRect[5].corner = MAKE_POINT (
+				SIS_ORG_X, SIS_ORG_Y + SLIDER_Y + SLIDER_HEIGHT);
+		DarkModeRect[5].extent = MAKE_EXTENT (SIS_SCREEN_WIDTH,
+				SIS_SCREEN_HEIGHT - (SLIDER_Y + SLIDER_HEIGHT));
+	}
+	else
+	{
+		BYTE i;
+
+		for (i = 0; i < ARRAY_SIZE (DarkModeRect); i++)
+			memset (&DarkModeRect[i], 0, sizeof DarkModeRect[i]);
+	}
 }
 
 static void
-FadePlayerUI(void)
+FadePlayerUI (void)
 {
 	if (!IsDarkMode)
 		return;
@@ -894,6 +904,7 @@ FadePlayerUI(void)
 	{
 		static TimeCount NextTime;
 		CONTEXT OldContext;
+		BYTE i;
 
 		if (fadeIndex > 50)
 		{
@@ -913,13 +924,13 @@ FadePlayerUI(void)
 					0x00, 0x00, 0x00, DRAW_FACTOR_1 * 0.02 * fadeIndex
 				));
 		BatchGraphics ();
-		DrawFilledRectangle (&tb);
-		DrawFilledRectangle (&lb);
-		DrawFilledRectangle (&rb);
-		DrawFilledRectangle (&bb);
-		DrawFilledRectangle (&sl);
+
+		for (i = 0; i < (ARRAY_SIZE (DarkModeRect) - 1); i++)
+			DrawFilledRectangle (&DarkModeRect[i]);
+
 		if (cwLock)
-			DrawFilledRectangle (&cw);
+			DrawFilledRectangle (&DarkModeRect[5]);
+
 		UnbatchGraphics ();
 		SetContext (OldContext);
 		fadeIndex++;
@@ -1194,14 +1205,14 @@ typedef struct summary_state
 static void 
 remove_char_from_string (UNICODE* str, const UNICODE c)
 {	// MB: Hack for removing '$' characters from Orz dialogue when viewing summary conversation - Used by DoConvSummary below
-    UNICODE *pr = str, *pw = str;
-    
-    while (*pr)
-    {
-        *pw = *pr++;
-        pw += (*pw != c);
-    }
-    *pw = '\0';
+	UNICODE *pr = str, *pw = str;
+
+	while (*pr)
+	{
+		*pw = *pr++;
+		pw += (*pw != c);
+	}
+	*pw = '\0';
 }
 
 static BOOLEAN
@@ -1570,6 +1581,9 @@ DoCommunication (ENCOUNTER_STATE *pES)
 
 	FlushColorXForms ();
 	ClearSubtitles ();
+
+	if (IsDarkMode)
+		SetCommDarkMode (FALSE);
 
 	StopMusic ();
 	StopSound ();
@@ -2161,27 +2175,22 @@ EnableTalkingAnim (BOOLEAN enable)
 }
 
 void
-SetCommDarkMode (BOOLEAN state)
-{	// Set dark mode (Black UI during Syreen scene)
+SetCommDarkMode(BOOLEAN state)
+{	// Set dark mode (Black UI during Talana sex scene)
 	IsDarkMode = state;
-	SwitchOscilloscope (state);
-	SwitchSlider (state);
-	InitUIRects ();
-	fadeIndex = 1;
+	oscillDisabled = state;
+	sliderDisabled = state;
+	InitUIRects(state);
+	fadeIndex = state;
+	if (!state)
+		ReleaseTalkingAnim ();
 }
 
 void
 RedrawSISComWindow (void)
-{// To call from outside
+{	// To call from outside
 	DrawSISComWindow ();
 }
-
-void
-EnableComWRedraw (void)
-{
-	cwLock = TRUE;
-}
-
 
 void
 SetCustomBaseLine (COUNT sentence, POINT bl, TEXT_ALIGN align)

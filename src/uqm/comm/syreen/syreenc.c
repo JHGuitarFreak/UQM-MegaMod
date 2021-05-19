@@ -430,7 +430,7 @@ FriendlyExit (RESPONSE_REF R)
 
 		DrawSISFrame ();
 		DrawSISMessage (NULL);
-		DrawSISTitle (GLOBAL_SIS(PlanetName));
+		DrawSISTitle (GLOBAL_SIS (PlanetName));
 		SetCommDarkMode (FALSE);
 		RedrawSISComWindow ();
 
@@ -544,7 +544,7 @@ Foreplay (RESPONSE_REF R)
 			NPCPhrase (ABOUT_US);
 		NPCPhrase (MORE_COMFORTABLE);
 
-		EnableComWRedraw ();
+		cwLock = TRUE;
 
 		AlienTalkSegue (1);
 
