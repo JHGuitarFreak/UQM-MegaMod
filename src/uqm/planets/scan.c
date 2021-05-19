@@ -1066,7 +1066,7 @@ ScanPlanet (COUNT scanType)
 		Color tintColor;
 				// Alpha value will be ignored.
 		static TimeCount TimeOut;
-		TimeCount Now, Delay;
+		TimeCount Now;
 		BOOLEAN stop = FALSE;
 
 		t.baseline.x = SIS_SCREEN_WIDTH >> 1;
@@ -1098,14 +1098,13 @@ ScanPlanet (COUNT scanType)
 
 		// Draw the scan slowly line by line
 		TimeOut = GetTimeCounter () + SCAN_LINE_WAIT;
-		Delay = GetTimeCounter () + ONE_SECOND / 4;
 		FlushInput();
 		while (i < SCAN_LINES && !stop)
 		{
 			Now = GetTimeCounter ();
 			if (Now >= TimeOut)
 			{
-				if (AnyButtonPress (TRUE) && Now > Delay)
+				if (AnyButtonPress (TRUE))
 				{
 					stop = TRUE;
 					break;
