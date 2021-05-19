@@ -177,7 +177,6 @@ void
 PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 {
 	PLANET_ORBIT *Orbit = &pPlanetDesc->orbit;
-	COUNT framerate;
 	int oldPointIndex = pPlanetDesc->rotPointIndex;
 	// Go to next point, taking care of wraparounds
 
@@ -185,24 +184,29 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	if (pPlanetDesc->radius > 4 * pSolarSysState->SunDesc[0].radius)
 		return;
 
-	// Optimization : the smallest worlds are rotated only once in a while
-	// The framerate is fine-tuned so that the planet is updated
-	// when the landscape has moved 1 pixel approximately
-	switch (pPlanetDesc->size)
+#if defined(ANDROID) || defined(__ANDROID__)
 	{
-			case 3: framerate = 15;
-				break;
-			case 4: framerate = 10;
-				break;
-			case 7: framerate = 4;
-				break;
-			case 11: framerate = 2;
-				break;
-			default: framerate = 1;
-				break;
+		COUNT framerate;
+		// Optimization : the smallest worlds are rotated only once in a while
+		// The framerate is fine-tuned so that the planet is updated
+		// when the landscape has moved 1 pixel approximately
+		switch (pPlanetDesc->size)
+		{
+				case 3: framerate = 15;
+					break;
+				case 4: framerate = 10;
+					break;
+				case 7: framerate = 4;
+					break;
+				case 11: framerate = 2;
+					break;
+				default: framerate = 1;
+					break;
+		}
+		if ((frameCounter % framerate) != 0)
+			return;
 	}
-	if ((frameCounter % framerate) != 0)
-		return;
+#endif
 
 	// BW: account for rotation period
 	pPlanetDesc->rotPointIndex =
