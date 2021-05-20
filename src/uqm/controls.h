@@ -118,7 +118,11 @@ BOOLEAN ConfirmExit (void);
 #define WAIT_INFINITE ((TimePeriod)-1)
 BOOLEAN WaitForAnyButton (BOOLEAN newButton, TimePeriod duration,
 		BOOLEAN resetInput);
+BOOLEAN WaitForActButton (BOOLEAN newButton, TimePeriod duration,
+		BOOLEAN resetInput);
 BOOLEAN WaitForAnyButtonUntil (BOOLEAN newButton, TimeCount timeOut,
+		BOOLEAN resetInput);
+BOOLEAN WaitForActButtonUntil (BOOLEAN newButton, TimeCount timeOut,
 		BOOLEAN resetInput);
 BOOLEAN WaitForNoInput (TimePeriod duration, BOOLEAN resetInput);
 BOOLEAN WaitForNoInputUntil (TimeCount timeOut, BOOLEAN resetInput);

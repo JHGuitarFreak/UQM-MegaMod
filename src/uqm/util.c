@@ -239,6 +239,34 @@ WaitForAnyButtonUntil (BOOLEAN newButton, TimeCount timeOut,
 	return buttonPressed;
 }
 
+// Waits for action button to be pressed
+// Returns TRUE if the wait succeeded (found input)
+//    FALSE if timed out or game aborted
+BOOLEAN
+WaitForActButtonUntil (BOOLEAN newButton, TimeCount timeOut,
+		BOOLEAN resetInput)
+{
+	BOOLEAN buttonPressed;
+
+	if (newButton && !WaitForNoInputUntil (timeOut, FALSE))
+		return FALSE;
+
+	buttonPressed = ActKeysPress ();
+	while (!buttonPressed
+			&& (timeOut == WAIT_INFINITE || GetTimeCounter () < timeOut)
+			&& !(GLOBAL (CurrentActivity) & CHECK_ABORT)
+			&& !QuitPosted)
+	{
+		SleepThread (ONE_SECOND / 40);
+		buttonPressed = ActKeysPress ();
+	} 
+
+	if (resetInput)
+		FlushInput ();
+
+	return buttonPressed;
+}
+
 BOOLEAN
 WaitForAnyButton (BOOLEAN newButton, TimePeriod duration, BOOLEAN resetInput)
 {
@@ -246,6 +274,15 @@ WaitForAnyButton (BOOLEAN newButton, TimePeriod duration, BOOLEAN resetInput)
 	if (duration != WAIT_INFINITE)
 		timeOut += GetTimeCounter ();
 	return WaitForAnyButtonUntil (newButton, timeOut, resetInput);
+}
+
+BOOLEAN
+WaitForActButton (BOOLEAN newButton, TimePeriod duration, BOOLEAN resetInput)
+{
+	TimeCount timeOut = duration;
+	if (duration != WAIT_INFINITE)
+		timeOut += GetTimeCounter ();
+	return WaitForActButtonUntil (newButton, timeOut, resetInput);
 }
 
 // Returns TRUE if the wait succeeded (found no input)

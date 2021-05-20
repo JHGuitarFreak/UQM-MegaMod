@@ -199,7 +199,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						if (word_chars == 0)
 							TimeOut += ONE_SECOND / 20;
 
-						if (WaitForAnyButtonUntil (TRUE, TimeOut, FALSE))
+						if (WaitForActButtonUntil (TRUE, TimeOut, FALSE))
 						{
 							Sleepy = FALSE;
 							// We draw the whole thing at once after this
@@ -225,7 +225,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 				UnbatchGraphics ();
 			}
 
-			if (!WaitForAnyButton (TRUE, WAIT_INFINITE, FALSE))
+			if (!WaitForActButton (TRUE, WAIT_INFINITE, FALSE))
 				break;
 
 InitPageCell:
