@@ -502,7 +502,7 @@ CheckGetAway:
 				SIZE delta_x, delta_y;
 				POINT sis_pt;
 
-				sis_pt = displayToLocation (GLOBAL (ShipStamp.origin), radius);	
+				sis_pt = displayToLocation (GLOBAL (ShipStamp.origin), radius);
 
 				// Destination point is sis location
 				delta_x = sis_pt.x - GroupPtr->loc.x;

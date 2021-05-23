@@ -627,7 +627,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 								t.pStr = "Androsynth";
 								break;
 						}
-						t.CharCount = strlen (t.pStr);
+						t.CharCount = (COUNT)strlen (t.pStr);
 					}
 
 					TextRect (&t, &r, NULL);
@@ -688,7 +688,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 		++SDPtr;
 	} while (SDPtr->star_pt.x <= MAX_X_UNIVERSE
-			&& SDPtr->star_pt.y <= MAX_Y_UNIVERSE);	
+			&& SDPtr->star_pt.y <= MAX_Y_UNIVERSE);
 
 	if (GET_GAME_STATE (ARILOU_SPACE))
 	{
@@ -712,7 +712,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			&& GLOBAL (autopilot.y) != ~0)
 	{
 		DrawAutoPilot (&GLOBAL (autopilot));
-		DrawDestReticule (GLOBAL (autopilot));
+		if (IS_HD)
+			DrawDestReticule (GLOBAL (autopilot));
 	}
 
 	if (transition_pending)
