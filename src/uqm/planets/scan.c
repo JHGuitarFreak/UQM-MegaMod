@@ -982,6 +982,96 @@ DrawScannedStuff (COUNT y, COUNT scan)
 }
 
 COUNT
+GetScanStuff (COUNT scan)
+{
+	HELEMENT hElement, hNextElement;
+	COUNT res = 0;
+
+	for (hElement = GetHeadElement(); hElement; hElement = hNextElement)
+	{
+		ELEMENT *ElementPtr;
+
+		LockElement(hElement, &ElementPtr);
+		hNextElement = GetSuccElement(ElementPtr);
+
+		if (LOBYTE(ElementPtr->scan_node) == scan)
+			res++;
+		
+		UnlockElement(hElement);
+	}
+	return res;
+}
+
+static void
+DrawPCScannedStuff(COUNT scan, Color color)
+{
+	HELEMENT hElement, hNextElement;
+	TimeCount interval, now;
+	ELEMENT *ElementPtr;
+	STAMP s;
+
+	if (GetScanStuff(scan) != 0)
+		interval = ONE_SECOND / 10;
+	else
+		interval = ONE_SECOND * 3 / 2;
+
+	hElement = GetHeadElement();
+	now = GetTimeCounter () + interval;
+	
+	while (hElement && !AnyButtonPress(TRUE))
+	{
+		if (GetTimeCounter() >= now)
+		{
+			LockElement(hElement, &ElementPtr);
+			hNextElement = GetSuccElement(ElementPtr);
+			if (LOBYTE(ElementPtr->scan_node) != scan)
+			{	// node of wrong type, or not time for it yet
+				UnlockElement(hElement);
+				hElement = hNextElement;
+			}
+			else
+			{
+				COUNT nodeSize, growth, diff;
+
+				growth = 0;
+				ElementPtr->state_flags |= APPEARING;
+				s.origin = ElementPtr->current.location;
+				now = GetTimeCounter () + 17;
+
+				while (growth < NUM_FLASH_COLORS && !AnyButtonPress(TRUE))
+				{
+					if (GetTimeCounter () >= now)
+					{
+						now = GetTimeCounter() + 17;
+						diff = growth;
+						nodeSize = GetFrameIndex(ElementPtr->next.image.frame)
+							- GetFrameIndex(ElementPtr->current.image.frame);
+						if (diff > nodeSize)
+							diff = nodeSize;
+
+						s.frame = SetRelFrameIndex(ElementPtr->current.image.frame, diff);
+						DrawStamp(&s);
+						growth++;
+					}
+					RotatePlanetSphere(TRUE, NULL,
+						BUILD_COLOR_RGBA(
+							color.r, color.g, color.b, 0x45
+						));
+				}
+
+				UnlockElement(hElement);
+				now = GetTimeCounter() + interval;
+				hElement = hNextElement;
+			}
+		}
+		RotatePlanetSphere(TRUE, NULL,
+			BUILD_COLOR_RGBA(
+				color.r, color.g, color.b, 0x45
+			));
+	}
+}
+
+COUNT
 callGenerateForScanType (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT node, BYTE scanType, NODE_INFO *info)
 {
@@ -1066,8 +1156,7 @@ ScanPlanet (COUNT scanType)
 		Color tintColor;
 				// Alpha value will be ignored.
 		static TimeCount TimeOut;
-		TimeCount Now;
-		BOOLEAN stop = FALSE;
+		TimeCount Now, Delay;
 
 		t.baseline.x = SIS_SCREEN_WIDTH >> 1;
 		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); 
@@ -1099,33 +1188,48 @@ ScanPlanet (COUNT scanType)
 		// Draw the scan slowly line by line
 		TimeOut = GetTimeCounter () + SCAN_LINE_WAIT;
 		FlushInput();
-		while (i < SCAN_LINES && !stop)
+		if (optScanStyle != OPT_PC)
 		{
-			Now = GetTimeCounter ();
-			if (Now >= TimeOut)
+			while (i < SCAN_LINES)
 			{
-				if (AnyButtonPress (TRUE))
+				Now = GetTimeCounter();
+				if (Now >= TimeOut)
 				{
-					stop = TRUE;
-					break;
+					if (AnyButtonPress(TRUE))
+						break;
+
+					TimeOut = Now + SCAN_LINE_WAIT;
+
+					i += RES_SCALE(1);
+
+					BatchGraphics();
+
+					DrawPlanet(i, tintColor);
+					
+					DrawScannedStuff(i, scan);
+					UnbatchGraphics();
 				}
-				TimeOut = Now + SCAN_LINE_WAIT;
-
-				i += RES_SCALE(1);
-
-				BatchGraphics ();
-				if (optScanStyle != OPT_PC)
-					DrawPlanet (i, tintColor);
-				else
-					DrawPlanet (SCAN_LINES - 1, tintColor);
-
-				DrawScannedStuff (i, scan);
-				UnbatchGraphics ();
-			}
-			RotatePlanetSphere (TRUE, NULL,
-					BUILD_COLOR_RGBA (
+				RotatePlanetSphere(TRUE, NULL,
+					BUILD_COLOR_RGBA(
 						tintColor.r, tintColor.g, tintColor.b, 0x45
 					));
+			}
+		}
+		else
+		{
+			DrawPlanet(SCAN_LINES - 1, tintColor);
+			DrawPCScannedStuff(scan, tintColor);
+			if (scanType == AUTO_SCAN)
+			{// delay between scans
+				TimeOut = GetTimeCounter() + ONE_SECOND / 2;
+				while (GetTimeCounter() < TimeOut && !AnyButtonPress(TRUE))
+				{
+					RotatePlanetSphere(TRUE, NULL,
+						BUILD_COLOR_RGBA(
+							tintColor.r, tintColor.g, tintColor.b, 0x45
+						));
+				}
+			}
 		}
 
 		if (i < SCAN_LINES)
