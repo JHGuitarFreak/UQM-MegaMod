@@ -1045,7 +1045,7 @@ DrawThrusters (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_SCALE(3) - IF_HD(1);
+		s.origin.y -= RES_SCALE(3);
 	}
 }
 
@@ -1068,7 +1068,7 @@ DrawTurningJets (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_SCALE(3) - IF_HD(1);
+		s.origin.y -= RES_SCALE(3);
 	}
 }
 
@@ -1090,8 +1090,7 @@ DrawModules (void)
 			DrawStamp (&s);
 		}
 
-		// Serosis: -1 so the modules fit within the HD Flagship's frame
-		s.origin.y -= RES_SCALE(3) - IF_HD(1);
+		s.origin.y -= RES_SCALE(3);
 	}
 }
 
