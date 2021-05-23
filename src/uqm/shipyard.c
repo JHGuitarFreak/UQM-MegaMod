@@ -1567,7 +1567,10 @@ DoShipyard (MENU_STATE *pMS)
 			r.extent.height += RES_SCALE(1);
 			SetContextClipRect (&r);
 			DrawStamp (&s);
-			DrawBorder (9, FALSE);
+
+			if (optCustomBorder)
+				DrawBorder (9, FALSE);
+
 			SetContextClipRect (&old_r);
 			animatePowerLines (pMS);
 #endif // USE_3DO_HANGAR
