@@ -369,11 +369,28 @@ renderTintFrame (Color tintColor)
 	SetContext (oldContext);
 }
 
+void
+DrawPCScanTint (COUNT scan)
+{
+	STAMP s;
+
+	s.origin.x = 0;
+	s.origin.y = 0;
+
+	s.frame = pSolarSysState->ScanFrame[scan];
+
+	pSolarSysState->Orbit.scanType = scan;
+	
+	DrawStamp (&s);
+}
+
 // tintColor.a is ignored
 void
 DrawPlanet (int tintY, Color tintColor)
 {
 	STAMP s;
+	RECT temp;
+	POINT orig;
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 
 	s.origin.x = 0;
@@ -381,8 +398,9 @@ DrawPlanet (int tintY, Color tintColor)
 	
 	BatchGraphics ();
 	if (sameColor (tintColor, BLACK_COLOR))
-	{	// no tint -- just draw the surface
+	{	// no tint -- just draw the surface	
 		s.frame = pSolarSysState->TopoFrame;
+		Orbit->scanType = NUM_SCAN_TYPES;// for PC-scan (planet sphere default palette)
 		DrawStamp (&s);
 	}
 	else

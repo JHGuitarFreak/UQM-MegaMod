@@ -100,6 +100,40 @@ typedef struct
 	double x, y, z;
 } POINT3;
 
+void
+TransformColor (Color *c, COUNT scan)
+{
+	if (scan == NUM_SCAN_TYPES)
+		return;
+
+	c->r = c->g = c->b = (c->r + c->g + c->b) / 3;
+
+	switch (scan)
+	{
+		case MINERAL_SCAN:
+		{
+			c->b = 0x00;
+			c->g = 0x00;
+			break;
+		}
+		case ENERGY_SCAN:
+		{
+			c->r = (c->r / 3) * 2;
+			c->b = c->r;
+			c->g = c->r;
+			break;
+		}
+		case BIOLOGICAL_SCAN:
+		{
+			c->r = 0x00;
+			c->b = 0x00;
+			break;
+		}
+		default:
+			break;
+	}
+}
+
 static void
 RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDef)
 {
@@ -799,6 +833,7 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 
 			c.a = 0xff;
 			*pix = c;
+			TransformColor (pix, Orbit->scanType);
 		}
 	}
 	
@@ -1310,12 +1345,15 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	Orbit->ObjectFrame = 0;
 	Orbit->WorkFrame = 0;
 	Orbit->lpTopoData = HCalloc (width * height);
+
+	Orbit->scanType = NUM_SCAN_TYPES;
 	
 	if (forOrbit)	
 		Orbit->TopoZoomFrame = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP, width << 2, height << 2, 1));
 	Orbit->TopoColors = HMalloc (sizeof (Orbit->TopoColors[0]) 
 			* (height * (width + spherespanx)));
+
 	// always allocate the scratch array to largest needed size
 	Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
 			* (shielddiam) * (shielddiam));
@@ -2000,6 +2038,41 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
 		RenderTopography (pSolarSysState->TopoFrame, 
 				Orbit->lpTopoData, width, height, FALSE);
+
+	}
+
+	if (!ForIP && optScanStyle == OPT_PC)
+	{
+		COUNT i;
+
+		for (i = 0; i < NUM_SCAN_TYPES; i++)
+		{
+			COUNT x, y;
+			Color *pix;
+			Color *map;
+
+			pSolarSysState->ScanFrame[i] = CaptureDrawable (
+				CreateDrawable (WANT_PIXMAP, (SIZE)width,
+				(SIZE)height, 1));
+
+			map = HMalloc (sizeof (Color) * width * height);
+			ReadFramePixelColors (
+					pSolarSysState->TopoFrame, map, width, height);
+
+			pix = map;
+
+			for (y = 0; y < height; ++y)
+			{
+				for (x = 0; x < width; ++x, ++pix)
+				{
+					TransformColor (pix, i);
+				}
+			}
+
+			WriteFramePixelColors (
+					pSolarSysState->ScanFrame[i], map, width, height);
+			HFree (map);
+		}
 	}
 
 	if (!ForIP && !shielded && PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)

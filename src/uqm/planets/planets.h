@@ -144,6 +144,7 @@ struct planet_orbit
 			// temp RGBA data for whatever transforms (nuked often)
 	FRAME WorkFrame;
 			// any extra frame workspace (for dynamic objects)
+	COUNT scanType;
 	// BW: extra stuff for animated IP
 	DWORD **light_diff;
 	MAP3D_POINT **map_rotate;
@@ -284,6 +285,8 @@ struct solarsys_state
 	BOOLEAN InOrbit;
 			// Set to TRUE when player hits a world in an inner system
 			// Homeworld encounters count as 'in orbit'
+	FRAME ScanFrame[NUM_SCAN_TYPES];
+			// For PC scan, generated from TopoFrame
 };
 
 extern SOLARSYS_STATE *pSolarSysState;
@@ -313,6 +316,7 @@ POINT planetOuterLocation (COUNT planetI);
 
 extern void LoadPlanet (FRAME SurfDefFrame);
 extern void DrawPlanet (int dy, Color tintColor);
+extern void DrawPCScanTint (COUNT cur_scan);
 extern void FreePlanet (void);
 extern void LoadStdLanderFont (PLANET_INFO *info);
 extern void FreeLanderFont (PLANET_INFO *info);

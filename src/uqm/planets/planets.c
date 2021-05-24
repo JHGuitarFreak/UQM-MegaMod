@@ -336,6 +336,20 @@ FreePlanet (void)
 	pSolarSysState->XlatRef = 0;
 	DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
 	pSolarSysState->TopoFrame = 0;
+
+	if (optScanStyle == OPT_PC)
+	{
+		COUNT k;
+
+		for (k = 0; k < NUM_SCAN_TYPES; k++)
+		{
+			DestroyDrawable (
+					ReleaseDrawable (pSolarSysState->ScanFrame[k]));
+			pSolarSysState->ScanFrame[k] = 0;
+		}
+	}
+	Orbit->scanType = 0;
+
 	DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 	pSolarSysState->OrbitalCMap = 0;
 

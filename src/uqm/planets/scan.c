@@ -981,52 +981,32 @@ DrawScannedStuff (COUNT y, COUNT scan)
 	SetContextForeGroundColor (OldColor);
 }
 
-COUNT
-GetScanStuff (COUNT scan)
-{
-	HELEMENT hElement, hNextElement;
-	COUNT res = 0;
-
-	for (hElement = GetHeadElement(); hElement; hElement = hNextElement)
-	{
-		ELEMENT *ElementPtr;
-
-		LockElement(hElement, &ElementPtr);
-		hNextElement = GetSuccElement(ElementPtr);
-
-		if (LOBYTE(ElementPtr->scan_node) == scan)
-			res++;
-		
-		UnlockElement(hElement);
-	}
-	return res;
-}
 
 static void
-DrawPCScannedStuff(COUNT scan, Color color)
+DrawPCScannedStuff (COUNT scan)
 {
 	HELEMENT hElement, hNextElement;
 	TimeCount interval, now;
 	ELEMENT *ElementPtr;
 	STAMP s;
 
-	if (GetScanStuff(scan) != 0)
-		interval = ONE_SECOND / 10;
-	else
-		interval = ONE_SECOND * 3 / 2;
+	interval = ONE_SECOND / 10;
 
 	hElement = GetHeadElement();
 	now = GetTimeCounter () + interval;
 	
-	while (hElement && !AnyButtonPress(TRUE))
+	while (hElement && !AnyButtonPress (TRUE))
 	{
-		if (GetTimeCounter() >= now)
+		if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
+			return;
+
+		if (GetTimeCounter () >= now)
 		{
-			LockElement(hElement, &ElementPtr);
-			hNextElement = GetSuccElement(ElementPtr);
-			if (LOBYTE(ElementPtr->scan_node) != scan)
+			LockElement (hElement, &ElementPtr);
+			hNextElement = GetSuccElement (ElementPtr);
+			if (LOBYTE (ElementPtr->scan_node) != scan)
 			{	// node of wrong type, or not time for it yet
-				UnlockElement(hElement);
+				UnlockElement (hElement);
 				hElement = hNextElement;
 			}
 			else
@@ -1038,36 +1018,57 @@ DrawPCScannedStuff(COUNT scan, Color color)
 				s.origin = ElementPtr->current.location;
 				now = GetTimeCounter () + 17;
 
-				while (growth < NUM_FLASH_COLORS && !AnyButtonPress(TRUE))
+				while (growth < NUM_FLASH_COLORS && !AnyButtonPress (TRUE))
 				{
 					if (GetTimeCounter () >= now)
 					{
-						now = GetTimeCounter() + 17;
+						now = GetTimeCounter () + 17;
 						diff = growth;
-						nodeSize = GetFrameIndex(ElementPtr->next.image.frame)
-							- GetFrameIndex(ElementPtr->current.image.frame);
+						nodeSize = GetFrameIndex (
+								ElementPtr->next.image.frame)
+								- GetFrameIndex (
+										ElementPtr->current.image.frame);
 						if (diff > nodeSize)
 							diff = nodeSize;
 
-						s.frame = SetRelFrameIndex(ElementPtr->current.image.frame, diff);
-						DrawStamp(&s);
+						s.frame = SetRelFrameIndex (
+								ElementPtr->current.image.frame, diff);
+						DrawStamp (&s);
 						growth++;
 					}
-					RotatePlanetSphere(TRUE, NULL,
-						BUILD_COLOR_RGBA(
-							color.r, color.g, color.b, 0x45
-						));
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+				}
+				if (growth < NUM_FLASH_COLORS)
+				{	// didn't finish - draw 
+					s.frame = ElementPtr->next.image.frame;
+					DrawStamp (&s);
 				}
 
-				UnlockElement(hElement);
-				now = GetTimeCounter() + interval;
+				UnlockElement (hElement);
+				now = GetTimeCounter () + interval;
 				hElement = hNextElement;
 			}
 		}
-		RotatePlanetSphere(TRUE, NULL,
-			BUILD_COLOR_RGBA(
-				color.r, color.g, color.b, 0x45
-			));
+		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+	}
+	if (hElement)
+	{	// scan aborted - make everything scanned, workaround for singular scan
+		while (hElement)
+		{
+			LockElement (hElement, &ElementPtr);
+			hNextElement = GetSuccElement (ElementPtr);
+			if (LOBYTE (ElementPtr->scan_node) != scan)
+			{	// node of wrong type, or not time for it yet
+				UnlockElement (hElement);
+				hElement = hNextElement;
+			}
+			else
+			{
+				ElementPtr->state_flags |= APPEARING;
+				UnlockElement (hElement);
+				hElement = hNextElement;
+			}
+		}
 	}
 }
 
@@ -1149,6 +1150,9 @@ ScanPlanet (COUNT scanType)
 		endScan = scanType;
 	}
 
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return;
+
 	for (scan = startScan; scan <= endScan; ++scan)
 	{
 		TEXT t;
@@ -1187,53 +1191,61 @@ ScanPlanet (COUNT scanType)
 
 		// Draw the scan slowly line by line
 		TimeOut = GetTimeCounter () + SCAN_LINE_WAIT;
-		FlushInput();
+		FlushInput ();
 		if (optScanStyle != OPT_PC)
 		{
 			while (i < SCAN_LINES)
 			{
-				Now = GetTimeCounter();
+				if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
+					return;
+
+				Now = GetTimeCounter ();
 				if (Now >= TimeOut)
 				{
-					if (AnyButtonPress(TRUE))
+					if (AnyButtonPress (TRUE))
 						break;
 
 					TimeOut = Now + SCAN_LINE_WAIT;
 
 					i += RES_SCALE(1);
 
-					BatchGraphics();
+					BatchGraphics ();
 
-					DrawPlanet(i, tintColor);
+					DrawPlanet (i, tintColor);
 					
-					DrawScannedStuff(i, scan);
-					UnbatchGraphics();
+					DrawScannedStuff (i, scan);
+					UnbatchGraphics ();
 				}
-				RotatePlanetSphere(TRUE, NULL,
-					BUILD_COLOR_RGBA(
+				RotatePlanetSphere (TRUE, NULL,
+					BUILD_COLOR_RGBA (
 						tintColor.r, tintColor.g, tintColor.b, 0x45
 					));
 			}
 		}
 		else
 		{
-			DrawPlanet(SCAN_LINES - 1, tintColor);
-			DrawPCScannedStuff(scan, tintColor);
+			DrawPCScanTint (scan); // palette-swap topo and Sphere map
+			DrawPCScannedStuff (scan); // PC-style node pop-in
+
+			if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
+				return;
+
 			if (scanType == AUTO_SCAN)
-			{// delay between scans
-				TimeOut = GetTimeCounter() + ONE_SECOND / 2;
-				while (GetTimeCounter() < TimeOut && !AnyButtonPress(TRUE))
-				{
-					RotatePlanetSphere(TRUE, NULL,
-						BUILD_COLOR_RGBA(
-							tintColor.r, tintColor.g, tintColor.b, 0x45
-						));
-				}
+			{	// delay between scans
+				TimeOut = GetTimeCounter () + ONE_SECOND;
+				while (GetTimeCounter () < TimeOut && !AnyButtonPress (TRUE))
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+			}
+			else
+			{	// endless state - mimics PC "Exit Scan"
+				while (!AnyButtonPress (TRUE))
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 			}
 		}
 
-		if (i < SCAN_LINES)
-		{	// Aborted by a keypress; draw in finished state
+		if (i < SCAN_LINES && optScanStyle != OPT_PC)
+		{	// not for PC-scan, frame flashes otherwise
+			// Aborted by a keypress; draw in finished state
 			BatchGraphics ();
 			DrawPlanet (SCAN_LINES - 1, tintColor);
 			DrawScannedStuff (SCAN_LINES - 1, scan);
@@ -1245,7 +1257,8 @@ ScanPlanet (COUNT scanType)
 	RepairBackRect (&r);
 
 	SetContext (ScanContext);
-	if (scanType == AUTO_SCAN)
+
+	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)
 	{	// clear the last scan
 		DrawPlanet (0, BLACK_COLOR);
 		DrawDefaultPlanetSphere ();
