@@ -172,10 +172,10 @@ static WIDGET *engine_widgets[] = {
 static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[51]),   // Lander Hold Size
-	(WIDGET *)(&choices[61]),   // Scan Colored Planet
-	(WIDGET *)(&choices[62]),   // Planet Style
+	(WIDGET *)(&choices[62]),   // Interplanetary Style
 	(WIDGET *)(&choices[63]),   // Star Background
 	(WIDGET *)(&choices[64]),   // Scan Style
+	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[4]),     // Spacer
