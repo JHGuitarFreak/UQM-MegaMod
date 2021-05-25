@@ -1182,10 +1182,12 @@ ScanPlanet (COUNT scanType)
 
 		SetContext (ScanContext);
 
-		// Draw a virgin surface
-		BatchGraphics ();
-		DrawPlanet (0, BLACK_COLOR);
-		UnbatchGraphics ();
+		if (optScanStyle != OPT_PC)
+		{	// Draw a virgin surface
+			BatchGraphics ();
+			DrawPlanet (0, BLACK_COLOR);
+			UnbatchGraphics ();
+		}
 
 		tintColor = tintColors[scan];
 

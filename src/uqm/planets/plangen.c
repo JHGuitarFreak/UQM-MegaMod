@@ -833,7 +833,6 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 
 			c.a = 0xff;
 			*pix = c;
-			TransformColor (pix, Orbit->scanType);
 		}
 	}
 	

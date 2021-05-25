@@ -41,6 +41,37 @@ static int rotPointIndex;
 static int rotwidth;
 static int rotheight;
 
+void
+DrawPCScannedPlanetSphere (int x, int y)
+{
+	STAMP s;
+	COUNT w, h;
+	Color *pix;
+	Color *map;
+	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+
+	s.origin.x = x;
+	s.origin.y = y;
+
+	s.frame = CaptureDrawable(CloneFrame(Orbit->SphereFrame));
+	
+	map = HMalloc(sizeof(Color) * s.frame->Bounds.width * s.frame->Bounds.height);
+	ReadFramePixelColors(s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
+
+	pix = map;
+
+	for (h = 0; h < s.frame->Bounds.height; ++h)
+	{
+		for (w = 0; w < s.frame->Bounds.width; ++w, ++pix)
+			TransformColor (pix, Orbit->scanType);
+	}
+
+	WriteFramePixelColors(s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
+	HFree(map);
+
+	DrawStamp(&s);
+}
+
 // Draw the planet sphere and any extra graphic (like a shield) if present
 void
 DrawPlanetSphere (int x, int y)
@@ -68,7 +99,11 @@ DrawDefaultPlanetSphere (void)
 	CONTEXT oldContext;
 
 	oldContext = SetContext (PlanetContext);
-	DrawPlanetSphere (SIS_SCREEN_WIDTH / 2, PLANET_ORG_Y);
+	if (optScanStyle == OPT_PC && optColoredPlanet == OPT_PC
+		&& pSolarSysState->Orbit.scanType != NUM_SCAN_TYPES)
+		DrawPCScannedPlanetSphere (SIS_SCREEN_WIDTH / 2, PLANET_ORG_Y);
+	else		
+		DrawPlanetSphere (SIS_SCREEN_WIDTH / 2, PLANET_ORG_Y);
 	SetContext (oldContext);
 }
 
@@ -373,6 +408,7 @@ void
 DrawPCScanTint (COUNT scan)
 {
 	STAMP s;
+	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
 
 	s.origin.x = 0;
 	s.origin.y = 0;
@@ -380,6 +416,8 @@ DrawPCScanTint (COUNT scan)
 	s.frame = pSolarSysState->ScanFrame[scan];
 
 	pSolarSysState->Orbit.scanType = scan;
+
+	DrawDefaultPlanetSphere ();
 	
 	DrawStamp (&s);
 }
@@ -389,7 +427,6 @@ void
 DrawPlanet (int tintY, Color tintColor)
 {
 	STAMP s;
-	RECT temp;
 	POINT orig;
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 
@@ -400,7 +437,7 @@ DrawPlanet (int tintY, Color tintColor)
 	if (sameColor (tintColor, BLACK_COLOR))
 	{	// no tint -- just draw the surface	
 		s.frame = pSolarSysState->TopoFrame;
-		Orbit->scanType = NUM_SCAN_TYPES;// for PC-scan (planet sphere default palette)
+		Orbit->scanType = NUM_SCAN_TYPES; // for PC-scan (planet sphere default palette)
 		DrawStamp (&s);
 	}
 	else
