@@ -1181,13 +1181,10 @@ ScanPlanet (COUNT scanType)
 		font_DrawText (&t);
 
 		SetContext (ScanContext);
-
+		
+		// Draw a virgin surface
 		if (optScanStyle != OPT_PC)
-		{	// Draw a virgin surface
-			BatchGraphics ();
-			DrawPlanet (0, BLACK_COLOR);
-			UnbatchGraphics ();
-		}
+			DrawPlanet(0, BLACK_COLOR);
 
 		tintColor = tintColors[scan];
 

@@ -511,7 +511,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		else
 		{
 			LoadPlanet (planetNr == 2 ?
-					CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM)) : NULL);			
+					CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM)) : NULL);
 		}
 	}
 	else

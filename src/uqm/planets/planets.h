@@ -350,6 +350,8 @@ extern void GeneratePlanetSurface (PLANET_DESC *pPlanetDesc,
 extern void DeltaTopography (COUNT num_iterations, SBYTE *DepthArray,
 		RECT *pRect, SIZE depth_delta);
 
+extern void TransformColor (Color *c, COUNT scan);
+
 extern void DrawPlanetSurfaceBorder (void);
 
 extern FRAME CreateStarBackGround (BOOLEAN encounter);

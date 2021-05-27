@@ -90,7 +90,7 @@ BOOLEAN optSpaceMusic;
 BOOLEAN optVolasMusic;
 BOOLEAN optWholeFuel;
 BOOLEAN optDirectionalJoystick;
-BOOLEAN optLanderHold;
+int optLanderHold;
 int optIPScaler;
 int optDifficulty;
 BOOLEAN optFuelRange;
