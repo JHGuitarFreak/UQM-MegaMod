@@ -573,7 +573,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	{
 		start_count = pPSD->BiologicalLevel;
 
-		s.frame = SetAbsFrameIndex (LanderFrame[0], 41);
+		s.frame = SetAbsFrameIndex (
+				(superPC() ? LanderFrame[7] : LanderFrame[0]), 41);
 
 		pPSD->BiologicalLevel += NumRetrieved;
 	}
@@ -587,7 +588,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 			NumRetrieved = (pPSD->ElementLevel >> 1) - start_count;
 		}
 
-		s.frame = SetAbsFrameIndex (LanderFrame[0], 43);
+		s.frame = SetAbsFrameIndex (
+			(superPC() ? LanderFrame[7] : LanderFrame[0]), 43);
 	}
 
 	tmpholdint = ((start_count + NumRetrieved) * MAX_HOLD_BARS / MAX_SCROUNGED)
@@ -601,21 +603,21 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
-	//rewrite to new lander UI - leaks though frames
-	if (!superPC ())
+	if(superPC())
+		OldContext = SetContext (PCLanderContext);
+	else
+		OldContext = SetContext (RadarContext);
+
+	while (NumRetrieved--)
 	{
-		OldContext = SetContext(RadarContext);
-		while (NumRetrieved--)
-		{
-			if (start_count++ & 1)
-				s.frame = IncFrameIndex (s.frame);
-			else
-				s.frame = DecFrameIndex (s.frame);
-			DrawStamp(&s);
-			s.origin.y -= RES_SCALE(1);
-		}
-		SetContext (OldContext);
+		if (start_count++ & 1)
+			s.frame = IncFrameIndex (s.frame);
+		else
+			s.frame = DecFrameIndex (s.frame);
+		DrawStamp(&s);
+		s.origin.y -= RES_SCALE(1);
 	}
+	SetContext (OldContext);
 }
 
 // returns true iff the node was picked up.
@@ -1554,7 +1556,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 
 static void
 AnimateLanderWarmup (void)
-{// rewrite for tinyWindow
+{
 	SIZE num_crew;
 	STAMP s;
 	CONTEXT OldContext;
@@ -1568,12 +1570,9 @@ AnimateLanderWarmup (void)
 	s.origin.x = 0;
 	s.origin.y = 0;
 
-	if(!superPC())
-		s.frame = SetAbsFrameIndex (LanderFrame[0],
-				(ANGLE_TO_FACING (FULL_CIRCLE) << 1) + 1);
-	else
-		s.frame = SetAbsFrameIndex (LanderFrame[7],
-				(ANGLE_TO_FACING (FULL_CIRCLE) << 1) + 1);
+	s.frame = SetAbsFrameIndex (
+			!superPC() ? LanderFrame[0] : LanderFrame[7],
+			(ANGLE_TO_FACING (FULL_CIRCLE) << 1) + 1);
 
 	DrawStamp (&s);
 
@@ -2019,8 +2018,6 @@ ReturnToOrbit (void)
 		DrawStarBackGround();
 		DrawDefaultPlanetSphere();
 		DrawPlanetSurfaceBorder();
-		if (superPC ())
-			InitPCLander ();
 		RedrawSurfaceScan(NULL);
 		ScreenTransition(optIPScaler, &r);
 		UnbatchGraphics();
@@ -2294,14 +2291,11 @@ PlanetSide (POINT planetLoc)
 					NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
 
 			LandingTakeoffSequence (&landerInputState, FALSE);
+
 			if (!superPC ())
 				ReturnToOrbit ();
+
 			AnimateLaunch (LanderFrame[6], FALSE);
-			if (superPC ())
-			{
-				ReturnToOrbit ();
-				InitPCLander ();
-			}
 			DeltaSISGauges (crew_left, 0, 0);
 
 			if (PSD.ElementLevel)
@@ -2317,6 +2311,12 @@ PlanetSide (POINT planetLoc)
 			}
 
 			GLOBAL_SIS (TotalBioMass) += PSD.BiologicalLevel;
+
+			if (superPC())
+			{
+				ReturnToOrbit ();
+				InitPCLander ();
+			}
 		}
 	}
 
@@ -2490,12 +2490,30 @@ InitPCLander (void)
 		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
+			COUNT i, inc;
+			Color greyBar = BUILD_COLOR_RGBA (48, 48, 48, 255);
+
 			r.corner.x = RES_SCALE(1);
-			r.extent.width = RES_SCALE(4);
-			r.extent.height =
-				RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+			r.corner.y = RES_SCALE(4);
+			r.extent.width = RES_SCALE(2);
+			r.extent.height = RES_SCALE(1);
+			inc = RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2) / 2;
 			SetContextForeGroundColor (BLACK_COLOR);
-			DrawFilledRectangle (&r);
+
+			for (i = 0; i < inc; i++)
+			{
+				DrawFilledRectangle (&r);
+				r.extent.width = RES_SCALE(1);
+				r.corner.y += RES_SCALE(1);
+				SetContextForeGroundColor (greyBar);
+				DrawFilledRectangle (&r);
+				r.corner.x += RES_SCALE(1);
+				SetContextForeGroundColor (BLACK_COLOR);
+				DrawFilledRectangle (&r);
+				r.corner.x -= RES_SCALE(1);
+				r.corner.y += RES_SCALE(1);
+				r.extent.width = RES_SCALE(2);
+			}
 		}
 
 		s.frame = SetAbsFrameIndex (s.frame, 37);

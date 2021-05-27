@@ -177,7 +177,7 @@ static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[64]),   // Scan Style
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
-	(WIDGET *)(&choices[68]),   // Flagship Style
+	(WIDGET *)(&choices[68]),   // Lander Style
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[13]),   // Prev PC/3DO Page
@@ -678,7 +678,7 @@ SetDefaults (void)
 	choices[65].selected = opts.nonStopOscill;
 	choices[66].selected = opts.scopeStyle;
 	choices[67].selected = opts.hyperStars;
-	choices[68].selected = opts.sisStyle;
+	choices[68].selected = opts.landerStyle;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -761,7 +761,7 @@ PropagateResults (void)
 	opts.nonStopOscill = choices[65].selected;
 	opts.scopeStyle = choices[66].selected;
 	opts.hyperStars = choices[67].selected;
-	opts.sisStyle = choices[68].selected;
+	opts.landerStyle = choices[68].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1724,7 +1724,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nonStopOscill = optNonStopOscill ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->scopeStyle = (optScopeStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->hyperStars = optHyperStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->sisStyle = (optSISStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->landerStyle = (optLanderStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 
 	if (!IS_HD)
 	{
@@ -2198,8 +2198,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.hyperStars", opts->hyperStars == OPTVAL_ENABLED);
 	optHyperStars = (opts->hyperStars == OPTVAL_ENABLED);
 
-	optSISStyle = (opts->sisStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.sisStyle", opts->sisStyle == OPTVAL_3DO);
+	optLanderStyle = (opts->landerStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.landerStyle", opts->landerStyle == OPTVAL_3DO);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
