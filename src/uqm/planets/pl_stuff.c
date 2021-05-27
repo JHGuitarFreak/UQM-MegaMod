@@ -70,6 +70,8 @@ DrawPCScannedPlanetSphere (int x, int y)
 	HFree(map);
 
 	DrawStamp(&s);
+
+	DestroyDrawable (ReleaseDrawable (s.frame));
 }
 
 // Draw the planet sphere and any extra graphic (like a shield) if present
