@@ -79,7 +79,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         12
-#define CHOICE_COUNT       68
+#define CHOICE_COUNT       69
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       16
 #define LABEL_COUNT         5
@@ -108,7 +108,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2, 2, 2, 3, 2, 2, 2, 2 };       // 60-67
+	2, 2, 2, 3, 2, 2, 2, 2, 2 };    // 60-68
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -177,7 +177,7 @@ static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[64]),   // Scan Style
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
-	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&choices[68]),   // Flagship Style
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[13]),   // Prev PC/3DO Page
@@ -678,6 +678,7 @@ SetDefaults (void)
 	choices[65].selected = opts.nonStopOscill;
 	choices[66].selected = opts.scopeStyle;
 	choices[67].selected = opts.hyperStars;
+	choices[68].selected = opts.sisStyle;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -760,6 +761,7 @@ PropagateResults (void)
 	opts.nonStopOscill = choices[65].selected;
 	opts.scopeStyle = choices[66].selected;
 	opts.hyperStars = choices[67].selected;
+	opts.sisStyle = choices[68].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1722,6 +1724,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nonStopOscill = optNonStopOscill ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->scopeStyle = (optScopeStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->hyperStars = optHyperStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->sisStyle = (optSISStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 
 	if (!IS_HD)
 	{
@@ -2194,6 +2197,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.hyperStars", opts->hyperStars == OPTVAL_ENABLED);
 	optHyperStars = (opts->hyperStars == OPTVAL_ENABLED);
+
+	optSISStyle = (opts->sisStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.sisStyle", opts->sisStyle == OPTVAL_3DO);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

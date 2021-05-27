@@ -108,6 +108,7 @@ int optStarBackground;
 int optScanStyle;
 BOOLEAN optNonStopOscill;
 int optScopeStyle;
+int optSISStyle;
 BOOLEAN optHyperStars;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
