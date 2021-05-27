@@ -1284,7 +1284,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	OldContext = SetContext (StatusContext);
 
 	BatchGraphics ();
-	if (crew_delta == UNDEFINED_DELTA)
+	if (fuel_delta == UNDEFINED_DELTA)
 	{
 		STAMP s;
 		s.origin.x = 0;
@@ -1313,7 +1313,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	DeltaSISGauges_crewDelta (crew_delta);
 	DeltaSISGauges_fuelDelta (fuel_delta);
 
-	if (crew_delta == UNDEFINED_DELTA)
+	if (fuel_delta == UNDEFINED_DELTA)
 	{
 		if(optWhichFonts == OPT_3DO)
 			DrawBorder(5, FALSE);

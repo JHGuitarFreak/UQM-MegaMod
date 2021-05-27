@@ -878,7 +878,10 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	InitLander (0);
+	if(superPC ())
+		InitPCLander (0);
+	else
+		InitLander (0);
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
 

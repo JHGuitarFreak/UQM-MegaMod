@@ -330,6 +330,7 @@ extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD ran
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 		PLANET_DESC *pBaseDesc, BOOLEAN TypesDefined);
 extern void InitLander (BYTE LanderFlags);
+extern void InitPCLander (BYTE LanderFlags);
 
 extern void InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height);
 extern void UninitSphereRotation (void);

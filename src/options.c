@@ -140,6 +140,37 @@ static void mountAddonDir (uio_Repository *repository,
 static void mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 		int relativeFlags, uio_MountHandle *relativeHandle);
 
+BOOLEAN
+superPC (void)
+{
+	return optWhichCoarseScan == OPT_PC &&
+		optWhichMenu == OPT_PC &&
+		optWhichFonts == OPT_PC &&
+		optWhichIntro == OPT_PC &&
+		optWhichShield == OPT_PC &&
+		optSmoothScroll == OPT_PC &&
+		optMeleeScale == TFB_SCALE_STEP &&
+		optIPScaler == OPT_PC &&
+		optLanderHold == OPT_PC &&
+		optColoredPlanet == OPT_PC &&
+		optPlanetStyle == OPT_PC &&
+		optStarBackground < 2 &&
+		optScanStyle == OPT_PC &&
+		optScopeStyle == OPT_PC &&
+		optSISStyle == OPT_PC &&
+		!optSpeech && !opt3doMusic &&
+		!optRemixMusic && optSubtitles &&
+		!optNebulae && !optOrbitingPlanets &&
+		!optTexturedPlanets && !optDateFormat &&
+		!optPartialPickup && !optSubmenu &&
+		!optCustomBorder && optCustomSeed == PrimeA &&
+		!optSpaceMusic && !optVolasMusic &&
+		!optWholeFuel && !optFuelRange &&
+		!optExtended && !optNomad && !optGameOver &&
+		!optShipDirectionIP && !optHazardColors &&
+		!optOrzCompFont && !optShipFacingHS &&
+		!optNonStopOscill && !optHyperStars;
+}
 
 // Looks for a file 'file' in all 'numLocs' locations from 'locs'.
 // returns the first element from locs where 'file' is found.

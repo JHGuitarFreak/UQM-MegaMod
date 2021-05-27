@@ -104,6 +104,7 @@ extern BOOLEAN optSubtitles;
 extern BOOLEAN optStereoSFX;
 extern BOOLEAN optKeepAspectRatio;
 extern BOOLEAN restartGame;
+extern BOOLEAN superPC (void);
 
 #define GAMMA_SCALE  1000
 extern float optGamma;
