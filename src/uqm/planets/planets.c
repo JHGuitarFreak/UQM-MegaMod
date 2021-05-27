@@ -190,10 +190,7 @@ DrawPlanetSurfaceBorder (void)
 		r.extent.height -= RES_SCALE(2);
 		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		DrawFilledRectangle (&r);
-	}
 
-	if (superPC ())
-	{
 		if (optCustomBorder)
 			DrawBorder (29, FALSE);
 		else if (IS_HD)

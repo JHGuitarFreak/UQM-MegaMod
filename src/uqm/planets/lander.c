@@ -199,7 +199,7 @@ CreatePCLanderContext (void)
 	context = CreateContext ("PCLanderContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - UQM_MAP_WIDTH;
+	r.corner.x += r.extent.width - MAP_WIDTH;
 	r.corner.y += r.extent.height - MAP_HEIGHT;
 	r.extent.width = RES_SCALE(UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X;
 	r.extent.height = MAP_HEIGHT;
@@ -2497,7 +2497,7 @@ InitPCLander (void)
 			r.corner.y = RES_SCALE(4);
 			r.extent.width = RES_SCALE(2);
 			r.extent.height = RES_SCALE(1);
-			inc = RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2) / 2;
+			inc = (MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2) / 2;
 			SetContextForeGroundColor (BLACK_COLOR);
 
 			for (i = 0; i < inc; i++)

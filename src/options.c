@@ -143,7 +143,7 @@ static void mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 BOOLEAN
 superPC (void)
 {
-	return optLanderStyle;
+	return (optLanderStyle == OPT_PC);
 }
 
 // Looks for a file 'file' in all 'numLocs' locations from 'locs'.
