@@ -475,7 +475,7 @@ DrawPlanet (int tintY, Color tintColor)
 			SetContextClipRect (&oldClipRect);
 
 			edge.extent.height = RES_SCALE(1);
-			edge.extent.width = MAP_WIDTH;
+			edge.extent.width = SCALED_MAP_WIDTH;
 			edge.corner.x = tintFrame->HotSpot.x;
 
 			for (i = 0; i < 3; i++)

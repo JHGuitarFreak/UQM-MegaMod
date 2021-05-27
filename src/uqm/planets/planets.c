@@ -32,6 +32,7 @@
 #include "../resinst.h"
 #include "../nameref.h"
 #include "../starmap.h"
+#include "../util.h"
 #include "options.h"
 #include "libs/graphics/gfx_common.h"
 
@@ -169,7 +170,37 @@ DrawPlanetSurfaceBorder (void)
 	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
-	DrawBorder(10, FALSE);
+	if (superPC ())
+	{
+		r.corner.x = RES_SCALE(UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X + RES_SCALE(1);
+		r.corner.y = clipRect.extent.height - MAP_HEIGHT - RES_SCALE(1);
+		r.extent.width = RES_SCALE(1);
+		r.extent.height = MAP_HEIGHT;
+		SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
+		DrawFilledRectangle (&r);
+		r.corner.x += RES_SCALE(1);
+		r.extent.width = RES_SCALE(4);
+		r.corner.y -= RES_SCALE(1);
+		r.extent.height += RES_SCALE(2);
+		SetContextForeGroundColor (BUILD_COLOR_RGBA (0x52, 0x52, 0x52, 0xFF));
+		DrawFilledRectangle (&r);
+		r.corner.x += RES_SCALE(4);
+		r.extent.width = RES_SCALE(1);
+		r.corner.y += RES_SCALE(1);
+		r.extent.height -= RES_SCALE(2);
+		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
+		DrawFilledRectangle (&r);
+	}
+
+	if (superPC ())
+	{
+		if (optCustomBorder)
+			DrawBorder (29, FALSE);
+		else if (IS_HD)
+			DrawBorder (33, FALSE);
+	}
+	else
+		DrawBorder (10, FALSE);
 	
 	UnbatchGraphics ();
 
@@ -203,6 +234,8 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 		DrawSISTitle (GLOBAL_SIS (PlanetName));
 		DrawStarBackGround ();
 		DrawPlanetSurfaceBorder ();
+		if (superPC ())
+			InitPCLander ();
 	}
 
 	if (Mode == DRAW_ORBITAL_WAIT)
@@ -398,7 +431,7 @@ FreePlanet (void)
 	SetContext (SpaceContext);
 	DestroyPlanetContext ();
 	DestroyScanContext ();
-
+	DestroyPCLanderContext ();
 }
 
 void

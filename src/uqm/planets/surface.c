@@ -263,16 +263,28 @@ GenerateRandomLocation (POINT *loc)
 	UWORD rand_val;
 
 	rand_val = RandomContext_Random (SysGenRNG);
-	loc->x = RES_SCALE(
+	if (!superPC ())
+	{
+		loc->x = RES_SCALE(
 			scaleMapDimensions (
 				TRUE, 8 + LOBYTE (rand_val)
 				% (widthHeightPicker (TRUE) - (8 << 1))
 			));
-	loc->y = RES_SCALE(
+		loc->y = RES_SCALE(
 			scaleMapDimensions (
 				FALSE, 8 + HIBYTE (rand_val)
 				% (widthHeightPicker (FALSE) - (8 << 1))
 			));
+	}
+	else
+	{
+		loc->x = RES_SCALE(8 + LOBYTE (rand_val) % (PC_MAP_WIDTH - (8 << 1)));
+		loc->y = RES_SCALE(
+			scaleMapDimensions (
+				FALSE, 8 + HIBYTE (rand_val)
+				% (widthHeightPicker (FALSE) - (8 << 1))
+			));
+	}
 }
 
 // Returns:

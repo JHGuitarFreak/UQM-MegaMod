@@ -108,7 +108,7 @@ int optStarBackground;
 int optScanStyle;
 BOOLEAN optNonStopOscill;
 int optScopeStyle;
-int optSISStyle;
+int optLanderStyle;
 BOOLEAN optHyperStars;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
@@ -140,6 +140,11 @@ static void mountAddonDir (uio_Repository *repository,
 static void mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 		int relativeFlags, uio_MountHandle *relativeHandle);
 
+BOOLEAN
+superPC (void)
+{
+	return optLanderStyle;
+}
 
 // Looks for a file 'file' in all 'numLocs' locations from 'locs'.
 // returns the first element from locs where 'file' is found.

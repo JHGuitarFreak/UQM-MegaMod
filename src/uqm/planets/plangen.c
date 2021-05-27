@@ -1347,7 +1347,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 	Orbit->scanType = NUM_SCAN_TYPES;
 	
-	if (forOrbit)	
+	if (forOrbit)
 		Orbit->TopoZoomFrame = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP, width << 2, height << 2, 1));
 	Orbit->TopoColors = HMalloc (sizeof (Orbit->TopoColors[0]) 
@@ -1404,8 +1404,8 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 		// num_faults and fault_var args
 #define AVG_VARIANCE 250
 	int x, y;
-	const int w = MAP_WIDTH, h = MAP_HEIGHT;
-	const int spitch = MAP_WIDTH, dpitch = MAP_WIDTH * 4;
+	const int w = SCALED_MAP_WIDTH, h = MAP_HEIGHT;
+	const int spitch = SCALED_MAP_WIDTH, dpitch = SCALED_MAP_WIDTH * 4;
 	SBYTE *pSrc;
 	SBYTE *pDst;
 	int* prevrow;
@@ -1449,7 +1449,7 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 		},
 	};
 	
-	prevrow = (int *) HMalloc ((MAP_WIDTH * 4 + 1) * sizeof(prevrow[0]));
+	prevrow = (int *) HMalloc ((SCALED_MAP_WIDTH * 4 + 1) * sizeof(prevrow[0]));
 
 	var_allow = (num_faults << SCALE_SHIFT) / AVG_VARIANCE;
 	var_min = fault_var << SCALE_SHIFT;
@@ -1795,7 +1795,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 
 	if (width == NULL && height == NULL)
 	{
-		width = MAP_WIDTH;
+		width = SCALED_MAP_WIDTH;
 		height = MAP_HEIGHT;
 		spherespanx = SPHERE_SPAN_X;
 		radius = RADIUS;
@@ -2084,7 +2084,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 					PlanDataPtr->num_faults, PlanDataPtr->fault_depth
 					* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1  ));
 			RenderTopography (Orbit->TopoZoomFrame, pScaledTopo,
-					  MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
+					SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
 
 			HFree (pScaledTopo);
 		}
