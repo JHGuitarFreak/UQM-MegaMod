@@ -795,9 +795,9 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		{
 			new_pt.x += dx;
 			if (new_pt.x < 0)
-				new_pt.x += (MAP_WIDTH << MAG_SHIFT);
-			else if (new_pt.x >= (MAP_WIDTH << MAG_SHIFT))
-				new_pt.x -= (MAP_WIDTH << MAG_SHIFT);
+				new_pt.x += (SCALED_MAP_WIDTH << MAG_SHIFT);
+			else if (new_pt.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+				new_pt.x -= (SCALED_MAP_WIDTH << MAG_SHIFT);
 		}
 		dy = dy << MAG_SHIFT;
 		if (dy)
@@ -878,9 +878,7 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	if(superPC ())
-		InitPCLander (0);
-	else
+	if (!superPC ())
 		InitLander (0);
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
@@ -1358,9 +1356,9 @@ CreateScanContext (void)
 	context = CreateContext ("ScanContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - MAP_WIDTH;
+	r.corner.x += r.extent.width - SCALED_MAP_WIDTH;
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = MAP_WIDTH;
+	r.extent.width = SCALED_MAP_WIDTH;
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
@@ -1416,7 +1414,7 @@ ScanSystem (void)
 	else
 	{
 		MenuState.CurState = AUTO_SCAN;
-		planetLoc.x = (MAP_WIDTH >> 1) << MAG_SHIFT;
+		planetLoc.x = (SCALED_MAP_WIDTH >> 1) << MAG_SHIFT;
 		planetLoc.y = (MAP_HEIGHT >> 1) << MAG_SHIFT;
 
 		initPlanetLocationImage ();
@@ -1477,14 +1475,12 @@ generateBioNode (SOLARSYS_STATE *system, ELEMENT *NodeElementPtr,
 		// Place moving creatures at a random location.
 		i = TFB_Random ();
 		j = (DWORD)TFB_Random ();
-		
-		if (!IS_HD) {
-			NodeElementPtr->current.location.x = (LOBYTE (i) % (MAP_WIDTH - (8 << 1))) + 8;
-			NodeElementPtr->current.location.y = (HIBYTE (i) % (MAP_HEIGHT - (8 << 1))) + 8;
-		} else {
-			NodeElementPtr->current.location.x = (LOWORD (j) % (MAP_WIDTH - (8 << 1))) + 8;	// JMS_GFX: Replaced previous line with this line (BYTE was too small for 640x480 maps.)
-			NodeElementPtr->current.location.y = (HIWORD (j) % (MAP_HEIGHT - (8 << 1))) + 8;  // JMS_GFX: Replaced previous line with this line (BYTE was too small for 1280x960 maps.)
-		}
+
+		NodeElementPtr->current.location.x = 
+				((RES_BOOL(LOBYTE (i), LOWORD (j)) %
+					(SCALED_MAP_WIDTH - (8 << 1))) + 8);
+		NodeElementPtr->current.location.y = 
+				(RES_BOOL(HIBYTE (i), HIWORD (j)) % (MAP_HEIGHT - (8 << 1))) + 8;
 	}
 
 	if (system->PlanetSideFrame[0] == 0)

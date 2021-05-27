@@ -37,16 +37,18 @@ enum PlanetScanTypes
 
 	NUM_SCAN_TYPES,
 };
-#define THREEDO_MAP_WIDTH 210
-#define THREEDO_MAP_HEIGHT 67
-#define PC_MAP_WIDTH THREEDO_MAP_WIDTH
-#define PC_MAP_HEIGHT THREEDO_MAP_HEIGHT
+
+#define PC_MAP_WIDTH 210
+#define PC_MAP_HEIGHT 67
+#define THREEDO_MAP_WIDTH PC_MAP_WIDTH
+#define THREEDO_MAP_HEIGHT PC_MAP_HEIGHT
 #define UQM_MAP_WIDTH 243
 #define UQM_MAP_HEIGHT 75
 #define ORIGINAL_MAP_WIDTH (optStarBackground == 2 ? UQM_MAP_WIDTH : PC_MAP_WIDTH)
 #define ORIGINAL_MAP_HEIGHT (optStarBackground == 2 ? UQM_MAP_HEIGHT : PC_MAP_HEIGHT)
 #define MAP_WIDTH RES_SCALE(UQM_MAP_WIDTH)
 #define MAP_HEIGHT RES_SCALE(UQM_MAP_HEIGHT)
+#define SCALED_MAP_WIDTH RES_SCALE(!superPC() ? UQM_MAP_WIDTH : PC_MAP_WIDTH)
 
 enum
 {
@@ -98,7 +100,7 @@ enum
 		(SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
 
 #define PLANET_ROTATION_RATE \
-		(ONE_SECOND * 5 / RES_SCALE(THREEDO_MAP_WIDTH))
+		(ONE_SECOND * 5 / RES_SCALE(PC_MAP_WIDTH))
 #define PLANET_ORG_Y ((SCAN_SCREEN_HEIGHT - SIS_ORG_Y) / 2)
 
 #define NUM_RACE_RUINS  16
@@ -330,7 +332,8 @@ extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD ran
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 		PLANET_DESC *pBaseDesc, BOOLEAN TypesDefined);
 extern void InitLander (BYTE LanderFlags);
-extern void InitPCLander (BYTE LanderFlags);
+extern void InitPCLander (void);
+extern void DestroyPCLanderContext (void);
 
 extern void InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height);
 extern void UninitSphereRotation (void);
