@@ -2873,7 +2873,7 @@ DoSolarSysMenu (MENU_STATE *pMS)
 	if (!select)
 		return TRUE;
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	switch (pMS->CurState)
 	{
@@ -2914,7 +2914,7 @@ DoSolarSysMenu (MENU_STATE *pMS)
 				pMS->CurState = NAVIGATION;
 			DrawMenuStateStrings (PM_STARMAP, pMS->CurState);
 		}
-		SetFlashRect (SFR_MENU_3DO);
+		SetFlashRect (SFR_MENU_3DO, FALSE);
 	}
 
 	return TRUE;
@@ -2938,7 +2938,7 @@ SolarSysMenu (void)
 	}
 
 	DrawStatusMessage (NULL);
-	SetFlashRect (SFR_MENU_3DO);
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	MenuState.InputFunc = DoSolarSysMenu;

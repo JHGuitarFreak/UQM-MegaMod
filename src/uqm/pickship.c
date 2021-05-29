@@ -90,9 +90,6 @@ DoPickBattleShip (MENU_STATE *pMS)
 			HSTARSHIP hBattleShip, hNextShip;
 			STARSHIP *StarShipPtr;
 
-			if (optWhichMenu == OPT_PC)
-				DrawArmadaPickShip (FALSE, &pMS->flash_rect1);
-
 			if (new_col < 0)
 				new_col = NUM_PICK_SHIP_COLUMNS;
 			else if (new_col > NUM_PICK_SHIP_COLUMNS)
@@ -252,16 +249,10 @@ ChangeSelection:
 				font_DrawText (&t);
 			}
 
-			if (optWhichMenu == OPT_3DO)
-			{
-				SetFlashRect (NULL);
-				SetFlashRect (&pMS->flash_rect0);
-			}
+			SetFlashRect (NULL, FALSE);
+			SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 		}
 	}
-
-	if (optWhichMenu == OPT_PC)
-		PulsingPurpleBox (pMS->flash_rect0);
 
 	return (TRUE);
 }
@@ -298,7 +289,7 @@ OldContext = SetContext (SpaceContext);
 		SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 		DoInput (&MenuState, FALSE);
 
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 
 		hBattleShip = (HSTARSHIP)MenuState.CurFrame;
 	}

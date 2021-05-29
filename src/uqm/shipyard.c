@@ -577,8 +577,11 @@ DMS_FlashFlagShip (void)
 	r.corner.x = 0;
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = RES_SCALE(62);
-	SetFlashRect (&r);
+	if (optWhichMenu != OPT_PC)
+		r.extent.height = RES_SCALE(63);
+	else
+		r.extent.height = RES_SCALE(74);
+	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
 static void
@@ -601,7 +604,7 @@ DMS_FlashEscortShip (BYTE slotNr)
 {
 	RECT r;
 	DMS_GetEscortShipRect (&r, slotNr);
-	SetFlashRect (&r);
+	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
 static void
@@ -610,7 +613,7 @@ DMS_FlashFlagShipCrewCount (void)
 	RECT r;
 	SetContext (StatusContext);
 	GetGaugeRect (&r, TRUE);
-	SetFlashRect (&r);
+	SetFlashRect (&r, FALSE);
 	SetContext (SpaceContext);
 }
 
@@ -630,7 +633,7 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	r.extent.height = RES_SCALE(5); 
 
 	SetContext (SpaceContext);
-	SetFlashRect (&r);
+	SetFlashRect (&r, FALSE);
 }
 
 // Helper function for DoModifyShips(). Called to change the flash
@@ -665,7 +668,7 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 			break;
 		case DMS_Mode_addEscort:
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SetFlashRect (SFR_MENU_ANY);
+			SetFlashRect (SFR_MENU_ANY, FALSE);
 			break;
 		case DMS_Mode_editCrew:
 			SetMenuSounds (MENU_SOUND_ARROWS,
@@ -683,7 +686,7 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 			break;
 		case DMS_Mode_exit:
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 			break;
 	}
 }
@@ -727,7 +730,7 @@ DMS_SpinShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}
 	
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	OldContext = SetContext (ScreenContext);
 	GetContextClipRect (&OldClipRect);
@@ -1067,7 +1070,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 	{
 		// Cancel selecting an escort ship.
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 		DMS_SetMode (pMS, DMS_Mode_navigate);
 	}
@@ -1113,7 +1116,7 @@ DMS_ScrapEscortShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 			LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	BYTE slotNr;
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 	ShowCombatShip (pMS, pMS->CurState, StarShipPtr);
 
 	slotNr = StarShipPtr->index;
@@ -1586,7 +1589,7 @@ DoShipyard (MENU_STATE *pMS)
 
 			SetInputCallback (on_input_frame);
 
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 		}
 
 		pMS->Initialized = TRUE;
@@ -1619,7 +1622,7 @@ ExitShipyard:
 			if (!GameOptions ())
 				goto ExitShipyard;
 			DrawMenuStateStrings (PM_CREW, pMS->CurState);
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 		}
 	}
 	else

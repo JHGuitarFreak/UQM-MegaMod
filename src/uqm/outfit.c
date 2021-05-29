@@ -250,7 +250,7 @@ DoInstallModule (MENU_STATE *pMS)
 
 		SetContext (SpaceContext);
 		ClearSISRect (CLEAR_SIS_RADAR);
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 		goto InitFlash;
 	}
 	else if (select || cancel)
@@ -317,7 +317,7 @@ DoInstallModule (MENU_STATE *pMS)
 
 		SetContext (SpaceContext);
 
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 
 		if (select)
 		{
@@ -401,7 +401,7 @@ DoInstallModule (MENU_STATE *pMS)
 		{
 			SetContext (StatusContext);
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState = OUTFIT_MODULES);
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 
 			pMS->InputFunc = DoOutfit;
 			ClearSISRect (DRAW_SIS_DISPLAY);
@@ -537,7 +537,8 @@ InitFlash:
 					default:
 						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE(1);
 						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE(1);
-						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2);
+						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2)
+								+ RES_SCALE(optWhichMenu == OPT_PC);
 						pMS->flash_rect0.extent.height = RES_SCALE(34);
 						break;
 				}
@@ -549,9 +550,9 @@ InitFlash:
 			DrawModuleStrings (pMS, new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
 				// flash with PC menus too
-				SetFlashRect (SFR_MENU_ANY);
+				SetFlashRect (SFR_MENU_ANY, FALSE);
 			else
-				SetFlashRect (&pMS->flash_rect0);
+				SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 		}
 	}
 
@@ -615,7 +616,7 @@ ChangeFuelQuantity (void)
 		RECT r;
 		CONTEXT oldContext = SetContext (StatusContext);
 		GetGaugeRect (&r, FALSE);
-		SetFlashRect (&r);
+		SetFlashRect (&r, FALSE);
 		SetContext (oldContext);
 	}
 }
@@ -729,7 +730,7 @@ DoOutfit (MENU_STATE *pMS)
 			PlayMusic (pMS->hMusic, TRUE, 1);
 			UnbatchGraphics ();
 			
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 
 			GLOBAL_SIS (FuelOnBoard) =
 					(GLOBAL_SIS (FuelOnBoard)
@@ -746,7 +747,7 @@ DoOutfit (MENU_STATE *pMS)
 		if (pMS->CurState == OUTFIT_DOFUEL)
 		{
 			pMS->CurState = OUTFIT_FUEL;
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 		}
 		else
 		{
@@ -772,12 +773,12 @@ ExitOutfit:
 				pMS->CurState = OUTFIT_DOFUEL;
 				SetContext (StatusContext);
 				GetGaugeRect (&r, FALSE);
-				SetFlashRect (&r);
+				SetFlashRect (&r, FALSE);
 				break;
 			}
 			case OUTFIT_DOFUEL:
 				pMS->CurState = OUTFIT_FUEL;
-				SetFlashRect (SFR_MENU_3DO);
+				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case OUTFIT_MODULES:
 				pMS->CurState = EMPTY_SLOT + 2;
@@ -794,7 +795,7 @@ ExitOutfit:
 				if (!GameOptions ())
 					goto ExitOutfit;
 				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
-				SetFlashRect (SFR_MENU_3DO);
+				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 		}
 	}
