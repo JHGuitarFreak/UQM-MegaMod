@@ -194,7 +194,7 @@ InitFlash (MENU_STATE *pMS)
 		(3 * ONE_SECOND) / 16);
 
 	DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
-	Flash_start (pMS->flashContext, FALSE);
+	Flash_start (pMS->flashContext);
 }
 
 static BOOLEAN

@@ -577,7 +577,10 @@ DMS_FlashFlagShip (void)
 	r.corner.x = 0;
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = RES_SCALE(62);
+	if (optWhichMenu != OPT_PC)
+		r.extent.height = RES_SCALE(63);
+	else
+		r.extent.height = RES_SCALE(74);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
@@ -727,7 +730,7 @@ DMS_SpinShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}
 	
-	SetFlashRect (NULL, optWhichMenu == OPT_PC);
+	SetFlashRect (NULL, FALSE);
 
 	OldContext = SetContext (ScreenContext);
 	GetContextClipRect (&OldClipRect);
@@ -1067,7 +1070,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 	{
 		// Cancel selecting an escort ship.
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
-		SetFlashRect (NULL, optWhichMenu == OPT_PC);
+		SetFlashRect (NULL, FALSE);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 		DMS_SetMode (pMS, DMS_Mode_navigate);
 	}

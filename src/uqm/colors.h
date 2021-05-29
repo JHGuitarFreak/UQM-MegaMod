@@ -295,8 +295,8 @@
 			BUILD_COLOR (MAKE_RGB15_INIT (0x04, 0x04, 0x04), 0x00), \
 		}
 
-// Pulsating color of the ship picker box
-#define PICKSHP_COLOR_CYCLE_TABLE \
+// Pulsating color of the PC Menu Rectangle
+#define PC_RECT_COLOR_CYCLE_TABLE \
 		{ \
 			MAKE_RGBA_INIT (0x24, 0x00, 0x45, 0xFF), \
 			MAKE_RGBA_INIT (0x38, 0x00, 0x65, 0xFF), \

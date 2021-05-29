@@ -45,8 +45,7 @@ static StatMsgMode curMsgMode = SMM_DEFAULT;
 
 static const UNICODE *describeWeapon (BYTE moduleType);
 
-RECT flash_rectSave;
-BOOLEAN purpleBox = FALSE;
+BOOLEAN pcRectBool = FALSE;
 
 void
 RepairSISBorder (void)
@@ -1800,10 +1799,10 @@ scheduleFlashAlarm (void)
 }
 
 void
-SetFlashRect (const RECT *pRect, BOOLEAN purple)
+SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 {
 	RECT clip_r = {{0, 0}, {0, 0}};
-	RECT temp_r, temp_rr;
+	RECT temp_r;
 	
 	if (pRect != SFR_MENU_3DO && pRect != SFR_MENU_ANY)
 	{
@@ -1838,9 +1837,7 @@ SetFlashRect (const RECT *pRect, BOOLEAN purple)
 	{
 		// Flash rectangle is not empty, start or continue flashing.
 		flash_rect = *pRect;
-
-		flash_rectSave = flash_rect;
-		purpleBox = purple;
+		pcRectBool = pcRect;
 
 		flash_rect.corner.x += clip_r.corner.x;
 		flash_rect.corner.y += clip_r.corner.y;
@@ -1863,11 +1860,11 @@ SetFlashRect (const RECT *pRect, BOOLEAN purple)
 	}
 	else
 	{
+		pcRectBool = FALSE;
 		// Flash rectangle is empty. Stop flashing.
 		if (flashContext != NULL)
 		{
-			purpleBox = FALSE;
-			Alarm_remove(flashAlarm);
+			Alarm_remove (flashAlarm);
 			flashAlarm = 0;
 			
 			Flash_terminate (flashContext);

@@ -249,7 +249,7 @@ ChangeSelection:
 				font_DrawText (&t);
 			}
 
-			SetFlashRect (NULL, optWhichMenu == OPT_PC);
+			SetFlashRect (NULL, FALSE);
 			SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 		}
 	}

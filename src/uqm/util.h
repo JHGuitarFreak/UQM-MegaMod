@@ -33,7 +33,6 @@ extern DWORD SeedRandomNumbers (void);
 extern STAMP SaveContextFrame (const RECT *saveRect);
 
 extern DWORD get_fuel_to_sol (void);
-extern void PulsingPurpleBox (RECT r);
 
 #if defined(__cplusplus)
 }

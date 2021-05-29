@@ -39,9 +39,11 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 #include "libs/threadlib.h"
-#include "sis.h"
-#include "util.h"
+
+#include "colors.h"
 #include "globdata.h"
+#include "sis.h"
+
 
 
 static FlashContext *Flash_create (CONTEXT gfxContext);
@@ -56,12 +58,12 @@ static void Flash_makeFrame (FlashContext *context,
 		FRAME dest, int numer, int denom);
 static inline void Flash_prepareCacheFrame (FlashContext *context,
 		COUNT index);
-static void Flash_drawFrame (FlashContext *context, FRAME frame);
-static void Flash_drawCacheFrame (FlashContext *context, COUNT index);
+static void Flash_drawFrame (FlashContext *context, FRAME frame, BOOLEAN pcRect);
+static void Flash_drawCacheFrame (FlashContext *context, COUNT index, BOOLEAN pcRect);
 static inline void Flash_drawUncachedFrame (FlashContext *context,
 		int numer, int denom);
 static inline void Flash_drawCachedFrame (FlashContext *context,
-		int numer, int denom);
+		int numer, int denom, BOOLEAN pcRect);
 static void Flash_drawCurrentFrame (FlashContext *context);
 
 static CONTEXT workGfxContext;
@@ -215,7 +217,7 @@ Flash_terminate (FlashContext *context)
 	if (context->started)
 	{
 		// Restore the flash rectangle:
-		Flash_drawFrame (context, context->original);
+		Flash_drawFrame (context, context->original, FALSE);
 
 		Flash_clearCache (context);
 		HFree (context->cache);
@@ -349,7 +351,7 @@ Flash_setMergeFactors(FlashContext *context, int startNumer, int endNumer,
 		int denom) {
 	if (context->started)
 	{
-		Flash_drawFrame (context, context->original);
+		Flash_drawFrame (context, context->original, FALSE);
 		Flash_clearCache (context);
 	}
 
@@ -434,7 +436,7 @@ Flash_setRect (FlashContext *context, const RECT *rect)
 
 	if (context->started)
 	{
-		Flash_drawFrame (context, context->original);
+		Flash_drawFrame (context, context->original, FALSE);
 		Flash_clearCache (context);
 	}
 
@@ -466,7 +468,7 @@ Flash_setOverlay (FlashContext *context, const POINT *origin, FRAME overlay, BOO
 
 	if (context->started && !cleanup)
 	{
-		Flash_drawFrame (context, context->original);
+		Flash_drawFrame (context, context->original, FALSE);
 		Flash_clearCache (context);
 	}
 	
@@ -490,7 +492,7 @@ Flash_preUpdate (FlashContext *context)
 {
 	if (context->started)
 	{
-		Flash_drawFrame (context, context->original);
+		Flash_drawFrame (context, context->original, FALSE);
 		Flash_clearCache (context);
 	}
 }
@@ -681,23 +683,53 @@ Flash_prepareCacheFrame (FlashContext *context, COUNT index)
 	}
 }
 
+void
+PC_Rect (RECT r)
+{
+	static TimeCount NextTime = 0;
+	static DWORD cycle_index = 0;
+
+	static const Color cycle_tab[] = PC_RECT_COLOR_CYCLE_TABLE;
+	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
+#define BLINK_RATE (ONE_SECOND / 18)
+
+	if (GetTimeCounter () >= NextTime)
+	{
+		Color color;
+
+		NextTime = GetTimeCounter () + BLINK_RATE;
+
+		color = cycle_tab[cycle_index];
+
+		DrawStarConBox ( 
+			&r, RES_SCALE(1), color, color, FALSE, TRANSPARENT);
+
+		cycle_index = (cycle_index + 1) % cycleCount;
+	}
+}
+
 static void
-Flash_drawFrame (FlashContext *context, FRAME frame)
+Flash_drawFrame (FlashContext *context, FRAME frame, BOOLEAN pcRect)
 {
 	CONTEXT oldGfxContext;
 	STAMP stamp;
 
 	oldGfxContext = SetContext (context->gfxContext);
 
-	stamp.origin = context->rect.corner;
-	stamp.frame = frame;
-	DrawStamp (&stamp);
+	if (!pcRect)
+	{
+		stamp.origin = context->rect.corner;
+		stamp.frame = frame;
+		DrawStamp (&stamp);
+	}
+	else
+		PC_Rect (context->rect);
 
 	SetContext (oldGfxContext);
 }
 
 static void
-Flash_drawCacheFrame (FlashContext *context, COUNT index)
+Flash_drawCacheFrame (FlashContext *context, COUNT index, BOOLEAN pcRect)
 {
 	FRAME frame;
 
@@ -706,7 +738,7 @@ Flash_drawCacheFrame (FlashContext *context, COUNT index)
 
 	frame = context->cache[index];
 	
-	Flash_drawFrame (context, frame);
+	Flash_drawFrame (context, frame, pcRect);
 
 	context->lastFrameIndex = index;
 }
@@ -756,20 +788,20 @@ Flash_drawUncachedFrame (FlashContext *context, int numer, int denom)
 		work = CaptureDrawable (CreateDrawable (WANT_PIXMAP,
 				context->rect.extent.width, context->rect.extent.height, 1));
 		Flash_makeFrame (context, work, numer, denom);
-		Flash_drawFrame (context, work);
+		Flash_drawFrame (context, work, FALSE);
 
 		DestroyDrawable (ReleaseDrawable (work));
 	}
 }
 
 static inline void
-Flash_drawCachedFrame (FlashContext *context, int numer, int denom)
+Flash_drawCachedFrame (FlashContext *context, int numer, int denom, BOOLEAN pcRect)
 {
 	COUNT cachePos;
 
 	cachePos = ((context->cacheSize - 1) * numer + (denom / 2)) / denom;
 	Flash_prepareCacheFrame (context, cachePos);
-	Flash_drawCacheFrame (context, cachePos);
+	Flash_drawCacheFrame (context, cachePos, pcRect);
 }
 
 static void
@@ -779,7 +811,7 @@ Flash_drawCurrentFrame (FlashContext *context)
 	int denom;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		purpleBox = FALSE;
+		pcRectBool = FALSE;
 
 	if (context->state == FlashState_off)
 	{
@@ -812,11 +844,6 @@ Flash_drawCurrentFrame (FlashContext *context)
 	if (context->cacheSize == 0)
 		Flash_drawUncachedFrame (context, numer, denom);
 	else
-	{
-		if (purpleBox)
-			PulsingPurpleBox (flash_rectSave);
-		else
-			Flash_drawCachedFrame (context, numer, denom);
-	}
+		Flash_drawCachedFrame (context, numer, denom, pcRectBool);
 }
 

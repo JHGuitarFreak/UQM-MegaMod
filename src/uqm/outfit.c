@@ -191,7 +191,6 @@ DoInstallModule (MENU_STATE *pMS)
 	BYTE NewState, new_slot_piece, old_slot_piece;
 	SIZE FirstItem, LastItem;
 	BOOLEAN select, cancel, motion;
-	RECT pRect;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
@@ -538,7 +537,8 @@ InitFlash:
 					default:
 						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE(1);
 						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE(1);
-						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2);
+						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2)
+								+ RES_SCALE(optWhichMenu == OPT_PC);
 						pMS->flash_rect0.extent.height = RES_SCALE(34);
 						break;
 				}

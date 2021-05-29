@@ -773,7 +773,7 @@ GetMeleeStarShips (COUNT playerMask, HSTARSHIP *ships)
 					0, ONE_SECOND / 16, 0, ONE_SECOND / 16);
 		}
 		PickMelee_ChangedSelection (&gmstate, playerI);
-		Flash_start (gmstate.player[playerI].flashContext, FALSE);
+		Flash_start (gmstate.player[playerI].flashContext);
 	}
 
 #ifdef NETPLAY

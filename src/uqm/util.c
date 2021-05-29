@@ -370,28 +370,3 @@ get_fuel_to_sol (void)
 	else
 		return (square_root (f) + (FUEL_TANK_SCALE / 20));
 }
-
-void
-PulsingPurpleBox (RECT r)
-{
-	static TimeCount NextTime = 0;
-	static DWORD cycle_index = 0;
-
-	static const Color cycle_tab[] = PICKSHP_COLOR_CYCLE_TABLE;
-	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
-#define BLINK_RATE (ONE_SECOND / 18)
-
-	if (GetTimeCounter () >= NextTime)
-	{
-		Color color;
-
-		NextTime = GetTimeCounter () + BLINK_RATE;
-
-		color = cycle_tab[cycle_index];
-
-		DrawStarConBox ( 
-			&r, RES_SCALE(1), color, color, FALSE, TRANSPARENT);
-
-		cycle_index = (cycle_index + 1) % cycleCount;
-	}
-}
