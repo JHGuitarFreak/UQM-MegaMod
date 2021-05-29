@@ -157,7 +157,7 @@ RestartMessage(MENU_STATE *pMS, TimeCount TimeIn)
 {	
 	if (optRequiresRestart)
 	{
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
 		// Got to restart -message
 		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
@@ -186,7 +186,7 @@ InitFlash (MENU_STATE *pMS)
 {
 	pMS->flashContext = Flash_createOverlay (ScreenContext,
 		NULL, NULL);
-	Flash_setMergeFactors (pMS->flashContext, -3, 3, 16);
+	Flash_setMergeFactors (pMS->flashContext, -3, 3, 16, FALSE);
 	Flash_setSpeed (pMS->flashContext, (6 * ONE_SECOND) / 14, 0,
 		(6 * ONE_SECOND) / 14, 0);
 	Flash_setFrameTime (pMS->flashContext, ONE_SECOND / 16);
@@ -194,7 +194,7 @@ InitFlash (MENU_STATE *pMS)
 		(3 * ONE_SECOND) / 16);
 
 	DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
-	Flash_start (pMS->flashContext);
+	Flash_start (pMS->flashContext, FALSE);
 }
 
 static BOOLEAN
@@ -219,7 +219,7 @@ DoRestart (MENU_STATE *pMS)
 	}
 
 	if (pMS->Initialized)
-		Flash_process(pMS->flashContext);
+		Flash_process(pMS->flashContext, FALSE);
 
 	if (!pMS->Initialized)
 	{
@@ -267,7 +267,7 @@ DoRestart (MENU_STATE *pMS)
 				break;
 			case START_NEW_GAME:
 				if (optCustomSeed == 404) {
-					SetFlashRect (NULL);
+					SetFlashRect (NULL, FALSE);
 					DoPopupWindow ("Error 404: Universe Not Found");
 					// Got to restart -message
 					SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);

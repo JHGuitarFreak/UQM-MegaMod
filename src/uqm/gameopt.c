@@ -370,7 +370,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	FlushCursorRect ();
 
-	SetFlashRect (SFR_MENU_3DO);
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_NORMAL);
 
@@ -533,12 +533,12 @@ NameSaveGame (COUNT gameIndex, UNICODE *buf)
 	r.extent.height = RES_SCALE(11);
 	r.corner.x = RES_SCALE(30);
 	r.corner.y = (RES_SCALE(160) + ((gameIndex % SAVES_PER_PAGE) * RES_SCALE(13)));
-	SetFlashRect (&r);
+	SetFlashRect (&r, FALSE);
 
 	if (!DoTextEntry (&tes))
 		buf[0] = 0;
 
-	SetFlashRect(NULL);
+	SetFlashRect (NULL, FALSE);
 
 	DrawSaveNameString (buf, CursPos, DDSHS_NORMAL, gameIndex);
 
@@ -549,7 +549,7 @@ NameSaveGame (COUNT gameIndex, UNICODE *buf)
 
 	HFree (gIndex);
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	if (tes.Success)
 		return (TRUE);
@@ -1456,10 +1456,10 @@ DoGameOptions (MENU_STATE *pMS)
 		{
 			case SAVE_GAME:
 			case LOAD_GAME:
-				SetFlashRect (NULL);
+				SetFlashRect (NULL, FALSE);
 				if (PickGame (pMS->CurState == SAVE_GAME, FALSE))
 					return FALSE;
-				SetFlashRect (SFR_MENU_3DO);
+				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case QUIT_GAME:
 				if (ConfirmExit ())
@@ -1501,13 +1501,13 @@ GameOptions (void)
 	MenuState.CurState = SAVE_GAME;
 	DrawMenuStateStrings (PM_SAVE_GAME, MenuState.CurState);
 
-	SetFlashRect (SFR_MENU_3DO);
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	MenuState.InputFunc = DoGameOptions;
 	DoInput (&MenuState, TRUE);
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	return !(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD));
 }

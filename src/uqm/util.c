@@ -27,6 +27,7 @@
 #include "libs/log.h"
 #include "hyper.h"
 #include "colors.h"
+#include "sis.h"
 
 void
 DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,

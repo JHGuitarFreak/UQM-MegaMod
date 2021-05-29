@@ -1306,13 +1306,13 @@ DoScan (MENU_STATE *pMS)
 				return TRUE;
 			}
 
-			SetFlashRect (NULL);
+			SetFlashRect (NULL, FALSE);
 
 			if (!PickPlanetSide ())
 				return FALSE;
 
 			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 
 			return TRUE;
 		}
@@ -1424,7 +1424,7 @@ ScanSystem (void)
 
 	DrawMenuStateStrings (PM_MIN_SCAN, MenuState.CurState);
 
-	SetFlashRect (SFR_MENU_3DO);
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	if (optWhichCoarseScan == OPT_PC)
 		PrintCoarseScanPC ();
@@ -1437,7 +1437,7 @@ ScanSystem (void)
 
 	DoInput (&MenuState, FALSE);
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	// cleanup scan graphics
 	BatchGraphics ();

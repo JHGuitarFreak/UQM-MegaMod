@@ -317,7 +317,7 @@ DoStarBase (MENU_STATE *pMS)
 		LastActivity &= ~CHECK_LOAD;
 		pMS->InputFunc = DoStarBase;
 
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, optWhichMenu == OPT_PC);
 
 		if (pMS->hMusic)
 		{

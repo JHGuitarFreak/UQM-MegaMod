@@ -29,7 +29,7 @@
 #include "state.h"
 #include "grpintrn.h"
 #include "uqmdebug.h"
-
+#include "gameev.h"
 #include "libs/tasklib.h"
 #include "libs/log.h"
 #include "libs/misc.h"

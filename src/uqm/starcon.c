@@ -347,7 +347,7 @@ while (--ac > 0)
 				Battle (&on_battle_frame);
 			}
 
-			SetFlashRect (NULL);
+			SetFlashRect (NULL, FALSE);
 
 			LastActivity = GLOBAL (CurrentActivity);
 

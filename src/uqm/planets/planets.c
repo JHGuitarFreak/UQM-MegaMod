@@ -466,7 +466,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 	if (!select)
 		return TRUE;
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	switch (pMS->CurState)
 	{
@@ -532,7 +532,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 				pMS->CurState = NAVIGATION;
 			DrawMenuStateStrings (PM_SCAN, pMS->CurState);
 		}
-		SetFlashRect (SFR_MENU_3DO);
+		SetFlashRect (SFR_MENU_3DO, FALSE);
 	}
 
 	return TRUE;
@@ -553,7 +553,7 @@ PlanetOrbitMenu (void)
 	memset (&MenuState, 0, sizeof MenuState);
 
 	DrawMenuStateStrings (PM_SCAN, SCAN);
-	SetFlashRect (SFR_MENU_3DO);
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	MenuState.CurState = SCAN;
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
@@ -564,6 +564,6 @@ PlanetOrbitMenu (void)
 
 	SetInputCallback (oldCallback);
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 	DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
 }

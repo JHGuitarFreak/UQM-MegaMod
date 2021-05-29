@@ -81,7 +81,7 @@ DoSelectAction (MENU_STATE *pMS)
 				if (!GameOptions ())
 					return FALSE;
 				DrawMenuStateStrings (PM_CONVERSE, pMS->CurState);
-				SetFlashRect (SFR_MENU_3DO);
+				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			default:
 				printf ("Unknown option: %d\n", pMS->CurState);
@@ -416,11 +416,11 @@ InitEncounter (void)
 		MenuState.Initialized = FALSE;
 
 		DrawMenuStateStrings (PM_CONVERSE, MenuState.CurState = HAIL);
-		SetFlashRect (SFR_MENU_3DO);
+		SetFlashRect (SFR_MENU_3DO, FALSE);
 
 		DoInput (&MenuState, TRUE);
 
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 
 		return (MenuState.CurState);
 	}

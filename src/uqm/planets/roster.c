@@ -181,7 +181,7 @@ flashSupportShipCrew (void)
 
 	SetContext (StatusContext);
 	GetStatusMessageRect (&r);
-	SetFlashRect (&r);
+	SetFlashRect (&r, FALSE);
 }
 
 static BOOLEAN
@@ -279,7 +279,7 @@ DoModifyRoster (MENU_STATE *pMS)
 		rosterState->modifyingCrew ^= true;
 		if (!rosterState->modifyingCrew)
 		{
-			SetFlashRect (NULL);
+			SetFlashRect (NULL, FALSE);
 			SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGE, MENU_SOUND_SELECT);
 		}
 		else

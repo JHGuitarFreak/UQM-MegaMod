@@ -39,6 +39,9 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 #include "libs/threadlib.h"
+#include "sis.h"
+#include "util.h"
+#include "globdata.h"
 
 
 static FlashContext *Flash_create (CONTEXT gfxContext);
@@ -688,7 +691,7 @@ Flash_drawFrame (FlashContext *context, FRAME frame)
 
 	stamp.origin = context->rect.corner;
 	stamp.frame = frame;
-	DrawStamp(&stamp);
+	DrawStamp (&stamp);
 
 	SetContext (oldGfxContext);
 }
@@ -702,7 +705,9 @@ Flash_drawCacheFrame (FlashContext *context, COUNT index)
 		return;
 
 	frame = context->cache[index];
+	
 	Flash_drawFrame (context, frame);
+
 	context->lastFrameIndex = index;
 }
 
@@ -742,7 +747,7 @@ Flash_drawUncachedFrame (FlashContext *context, int numer, int denom)
 	}
 
 	context->lastFrameIndex = 2;
-#endif  /* BEGIN_AND_END_FRMAE_EXCEPTIONS */
+#endif  /* BEGIN_AND_END_FRAME_EXCEPTIONS */
 
 	{
 		// Painting to the screen; we need a temporary frame to draw to.
@@ -772,6 +777,9 @@ Flash_drawCurrentFrame (FlashContext *context)
 {
 	int numer;
 	int denom;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		purpleBox = FALSE;
 
 	if (context->state == FlashState_off)
 	{
@@ -804,6 +812,11 @@ Flash_drawCurrentFrame (FlashContext *context)
 	if (context->cacheSize == 0)
 		Flash_drawUncachedFrame (context, numer, denom);
 	else
-		Flash_drawCachedFrame (context, numer, denom);
+	{
+		if (purpleBox)
+			PulsingPurpleBox (flash_rectSave);
+		else
+			Flash_drawCachedFrame (context, numer, denom);
+	}
 }
 
