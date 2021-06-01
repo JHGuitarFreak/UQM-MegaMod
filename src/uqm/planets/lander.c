@@ -179,7 +179,7 @@ EXTENT lS;
 void
 init_surface_sides (void)
 {
-	if (!optSuperPC)
+	if (optSuperPC != OPT_PC)
 		lS = MAKE_EXTENT (SURFACE_WIDTH, SURFACE_HEIGHT);
 	else
 		lS = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
@@ -494,8 +494,8 @@ object_animation (ELEMENT *ElementPtr)
 		lander_flags |= ADD_AT_END;
 }
 
-#define NUM_CREW_COLS (!optSuperPC ? 6 : 3)
-#define NUM_CREW_ROWS (!optSuperPC ? 2 : 4)
+#define NUM_CREW_COLS (optSuperPC != OPT_PC ? 6 : 3)
+#define NUM_CREW_ROWS (optSuperPC != OPT_PC ? 2 : 4)
 
 static void
 DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
@@ -540,7 +540,7 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 	}
 
 
-	if(!optSuperPC)
+	if(optSuperPC != OPT_PC)
 	{
 		s.origin.x = RES_SCALE(11) + (RES_SCALE(6) * (crew_delta % NUM_CREW_COLS));
 		s.origin.y = RES_SCALE(35) - (RES_SCALE(6) * (crew_delta / NUM_CREW_COLS));
@@ -574,7 +574,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		start_count = pPSD->BiologicalLevel;
 
 		s.frame = SetAbsFrameIndex (
-				(optSuperPC ? LanderFrame[7] : LanderFrame[0]), 41);
+				(optSuperPC == OPT_PC ? LanderFrame[7] : LanderFrame[0]), 41);
 
 		pPSD->BiologicalLevel += NumRetrieved;
 	}
@@ -589,7 +589,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		}
 
 		s.frame = SetAbsFrameIndex (
-			(optSuperPC ? LanderFrame[7] : LanderFrame[0]), 43);
+			(optSuperPC == OPT_PC ? LanderFrame[7] : LanderFrame[0]), 43);
 	}
 
 	tmpholdint = ((start_count + NumRetrieved) * MAX_HOLD_BARS / MAX_SCROUNGED)
@@ -603,7 +603,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
-	if(optSuperPC)
+	if(optSuperPC == OPT_PC)
 		OldContext = SetContext (PCLanderContext);
 	else
 		OldContext = SetContext (RadarContext);
@@ -932,7 +932,7 @@ CheckObjectCollision (COUNT index)
 					else if (scan == ENERGY_SCAN)
 					{
 						// noop; handled by generation funcs, see below
-						if (optSuperPC)
+						if (optSuperPC == OPT_PC)
 						{
 							RECT r;
 
@@ -1356,7 +1356,7 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	
 	curLanderLoc = new_pt;
 
-	if (!optSuperPC)
+	if (optSuperPC != OPT_PC)
 		OldContext = SetContext (PlanetContext);
 	else
 		OldContext = SetContext (RadarContext);
@@ -1466,7 +1466,7 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	if (lander_flags & KILL_CREW)
 		DeltaLanderCrew (-1, LIGHTNING_DISASTER);
 
-	if (optSuperPC)
+	if (optSuperPC == OPT_PC)
 	{
 		RECT r;
 
@@ -1528,7 +1528,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 
 		Now = GetTimeCounter ();
 
-		if (!isLanding && optSuperPC && Now >= psNextTime)
+		if (!isLanding && optSuperPC == OPT_PC && Now >= psNextTime)
 		{
 			// 10 to clear the lander off of the screen
 			ScrollPlanetSide (0, 0, -(lS.height / 2 + RES_SCALE(10)));
@@ -1562,7 +1562,7 @@ AnimateLanderWarmup (void)
 	CONTEXT OldContext;
 	TimeCount TimeIn = GetTimeCounter ();
 
-	if(!optSuperPC)
+	if(optSuperPC != OPT_PC)
 		OldContext = SetContext (RadarContext);
 	else
 		OldContext = SetContext (PCLanderContext);
@@ -1571,7 +1571,7 @@ AnimateLanderWarmup (void)
 	s.origin.y = 0;
 
 	s.frame = SetAbsFrameIndex (
-			!optSuperPC ? LanderFrame[0] : LanderFrame[7],
+			optSuperPC != OPT_PC ? LanderFrame[0] : LanderFrame[7],
 			(ANGLE_TO_FACING (FULL_CIRCLE) << 1) + 1);
 
 	DrawStamp (&s);
@@ -1645,7 +1645,7 @@ InitPlanetSide (POINT pt)
 	else if (pt.y >= (MAP_HEIGHT << MAG_SHIFT))
 		pt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
 
-	if (optSuperPC)
+	if (optSuperPC == OPT_PC)
 	{
 		ClearSISRect (CLEAR_SIS_RADAR);
 
@@ -1660,7 +1660,7 @@ InitPlanetSide (POINT pt)
 
 	curLanderLoc = pt;
 
-	if (!optSuperPC)
+	if (optSuperPC != OPT_PC)
 		SetContext (PlanetContext);
 	else
 		SetContext (RadarContext);
@@ -1694,7 +1694,7 @@ InitPlanetSide (POINT pt)
 			s.origin.x -= SCALED_MAP_WIDTH << (MAG_SHIFT + 1);
 			DrawStamp (&s);
 
-			if (optSuperPC)
+			if (optSuperPC == OPT_PC)
 			{
 				b.corner.x = b.corner.y = 0;
 				DrawStarConBox (&b, RES_SCALE(1),
@@ -2020,7 +2020,7 @@ ReturnToOrbit (void)
 	CONTEXT OldContext;
 	RECT r;
 
-	if (!optSuperPC)
+	if (optSuperPC != OPT_PC)
 	{
 		OldContext = SetContext(PlanetContext);
 		GetContextClipRect(&r);
@@ -2049,7 +2049,7 @@ ReturnToOrbit (void)
 		BatchGraphics ();
 		ClearDrawable ();// TODO: color this frame smh
 
-		if (optSuperPC)
+		if (optSuperPC == OPT_PC)
 		{
 			DrawStarConBox(&b, RES_SCALE(1),
 				SIS_LEFT_BORDER_COLOR,
@@ -2305,7 +2305,7 @@ PlanetSide (POINT planetLoc)
 
 			LandingTakeoffSequence (&landerInputState, FALSE);
 
-			if (!optSuperPC)
+			if (optSuperPC != OPT_PC)
 				ReturnToOrbit ();
 
 			AnimateLaunch (LanderFrame[6], FALSE);
@@ -2325,7 +2325,7 @@ PlanetSide (POINT planetLoc)
 
 			GLOBAL_SIS (TotalBioMass) += PSD.BiologicalLevel;
 
-			if (optSuperPC)
+			if (optSuperPC == OPT_PC)
 			{
 				ReturnToOrbit ();
 				InitPCLander ();

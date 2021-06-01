@@ -866,7 +866,7 @@ PickPlanetSide (void)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &PickState;
 
-	if (!optSuperPC)
+	if (optSuperPC != OPT_PC)
 		ClearSISRect (CLEAR_SIS_RADAR);
 
 	SetContext (ScanContext);
@@ -880,7 +880,7 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	if (!optSuperPC)
+	if (optSuperPC != OPT_PC)
 		InitLander (0);
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
