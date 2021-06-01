@@ -882,13 +882,6 @@ PickPlanetSide (void)
 
 	if (!optSuperPC)
 		InitLander (0);
-	else if (optSubmenu)
-	{
-		if (optCustomBorder)
-			DrawBorder (DIF_CASE (15, 16, 17), FALSE);
-		else
-			DrawSubmenu (DIF_CASE (1, 2, 3));
-	}
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
 
