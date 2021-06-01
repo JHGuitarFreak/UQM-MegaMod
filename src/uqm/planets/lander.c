@@ -1645,6 +1645,19 @@ InitPlanetSide (POINT pt)
 	else if (pt.y >= (MAP_HEIGHT << MAG_SHIFT))
 		pt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
 
+	if (optSuperPC)
+	{
+		ClearSISRect (CLEAR_SIS_RADAR);
+
+		if (optSubmenu)
+		{
+			if (optCustomBorder)
+				DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+			else
+				DrawSubmenu (DIF_CASE (1, 2, 3));
+		}
+	}
+
 	curLanderLoc = pt;
 
 	if (!optSuperPC)

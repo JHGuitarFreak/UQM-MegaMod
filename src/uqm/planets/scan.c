@@ -866,7 +866,9 @@ PickPlanetSide (void)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &PickState;
 
-	ClearSISRect (CLEAR_SIS_RADAR);
+	if (!optSuperPC)
+		ClearSISRect (CLEAR_SIS_RADAR);
+
 	SetContext (ScanContext);
 	BatchGraphics ();
 	DrawPlanet (0, BLACK_COLOR);
@@ -878,8 +880,15 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	if (!superPC ())
+	if (!optSuperPC)
 		InitLander (0);
+	else if (optSubmenu)
+	{
+		if (optCustomBorder)
+			DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+		else
+			DrawSubmenu (DIF_CASE (1, 2, 3));
+	}
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
 
