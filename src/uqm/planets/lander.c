@@ -2492,40 +2492,34 @@ InitPCLander (void)
 		ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 		capacity_shift = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
 
-		if (optSubmenu)
-		{
-			if (optCustomBorder)
-				DrawBorder (DIF_CASE (15, 16, 17), FALSE);
-			else
-				DrawSubmenu (DIF_CASE (1, 2, 3));
-		}
-
 		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
 			COUNT i, inc;
-			Color greyBar = BUILD_COLOR_RGBA (48, 48, 48, 255);
 
-			r.corner.x = RES_SCALE(1);
-			r.corner.y = RES_SCALE(4);
-			r.extent.width = RES_SCALE(2);
-			r.extent.height = RES_SCALE(1);
-			inc = (MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2) / 2;
+			inc = MAX_HOLD_BARS - ((free_space >> capacity_shift)
+					* MAX_HOLD_BARS / MAX_SCROUNGED) + 2;
+
+			r.corner = MAKE_POINT (RES_SCALE(1), RES_SCALE(4));
+			r.extent = MAKE_EXTENT (RES_SCALE(2), RES_SCALE(inc));
 			SetContextForeGroundColor (BLACK_COLOR);
+			DrawFilledRectangle (&r);
+
+			r.extent = MAKE_EXTENT (RES_SCALE(1), RES_SCALE(1));
 
 			for (i = 0; i < inc; i++)
 			{
-				DrawFilledRectangle (&r);
-				r.extent.width = RES_SCALE(1);
-				r.corner.y += RES_SCALE(1);
-				SetContextForeGroundColor (greyBar);
-				DrawFilledRectangle (&r);
-				r.corner.x += RES_SCALE(1);
-				SetContextForeGroundColor (BLACK_COLOR);
-				DrawFilledRectangle (&r);
-				r.corner.x -= RES_SCALE(1);
-				r.corner.y += RES_SCALE(1);
-				r.extent.width = RES_SCALE(2);
+				if (i % 2 == 0)
+				{	// Draw grey boxes every 2nd iteration
+					r.corner.y += RES_SCALE(1);
+					SetContextForeGroundColor (VDKGRAY_COLOR);
+					DrawFilledRectangle (&r);
+					r.corner.x += RES_SCALE(1);
+					SetContextForeGroundColor (BLACK_COLOR);
+					DrawFilledRectangle (&r);
+					r.corner.x -= RES_SCALE(1);
+					r.corner.y += RES_SCALE(1);
+				}
 			}
 		}
 
