@@ -2498,7 +2498,7 @@ InitPCLander (void)
 			COUNT i, inc;
 
 			inc = MAX_HOLD_BARS - ((free_space >> capacity_shift)
-					* MAX_HOLD_BARS / MAX_SCROUNGED) + 2;
+					* MAX_HOLD_BARS / MAX_SCROUNGED) + 1;
 
 			r.corner = MAKE_POINT (RES_SCALE(1), RES_SCALE(4));
 			r.extent = MAKE_EXTENT (RES_SCALE(2), RES_SCALE(inc));
