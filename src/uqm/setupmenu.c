@@ -1724,7 +1724,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nonStopOscill = optNonStopOscill ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->scopeStyle = (optScopeStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->hyperStars = optHyperStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->landerStyle = (optLanderStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->landerStyle = (optSuperPC == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 
 	if (!IS_HD)
 	{
@@ -2198,7 +2198,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.hyperStars", opts->hyperStars == OPTVAL_ENABLED);
 	optHyperStars = (opts->hyperStars == OPTVAL_ENABLED);
 
-	optLanderStyle = (opts->landerStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	optSuperPC = (opts->landerStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.landerStyle", opts->landerStyle == OPTVAL_3DO);
 
 	if (opts->scanlines && !IS_HD) {

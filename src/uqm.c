@@ -606,7 +606,7 @@ main (int argc, char *argv[])
 	optNonStopOscill = options.nonStopOscill.value;
 	optScopeStyle = options.scopeStyle.value;
 	optHyperStars = options.hyperStars.value;
-	optLanderStyle = options.landerStyle.value;
+	optSuperPC = options.landerStyle.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();

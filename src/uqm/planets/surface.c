@@ -263,7 +263,7 @@ GenerateRandomLocation (POINT *loc)
 	UWORD rand_val;
 
 	rand_val = RandomContext_Random (SysGenRNG);
-	if (!superPC ())
+	if (!optSuperPC)
 	{
 		loc->x = RES_SCALE(
 			scaleMapDimensions (

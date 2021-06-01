@@ -170,7 +170,7 @@ DrawPlanetSurfaceBorder (void)
 	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
-	if (superPC ())
+	if (optSuperPC)
 	{
 		r.corner.x = RES_SCALE(UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X + RES_SCALE(1);
 		r.corner.y = clipRect.extent.height - MAP_HEIGHT - RES_SCALE(1);
@@ -231,7 +231,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 		DrawSISTitle (GLOBAL_SIS (PlanetName));
 		DrawStarBackGround ();
 		DrawPlanetSurfaceBorder ();
-		if (superPC ())
+		if (optSuperPC)
 			InitPCLander ();
 	}
 

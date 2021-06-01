@@ -95,7 +95,7 @@ extern int optStarBackground;
 extern int optScanStyle;
 extern BOOLEAN optNonStopOscill;
 extern int optScopeStyle;
-extern int optLanderStyle;
+extern int optSuperPC;
 extern BOOLEAN optHyperStars;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
@@ -104,7 +104,6 @@ extern BOOLEAN optSubtitles;
 extern BOOLEAN optStereoSFX;
 extern BOOLEAN optKeepAspectRatio;
 extern BOOLEAN restartGame;
-extern BOOLEAN superPC (void);
 
 #define GAMMA_SCALE  1000
 extern float optGamma;
