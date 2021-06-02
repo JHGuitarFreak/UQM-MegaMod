@@ -50,7 +50,11 @@
 // The PC speed was 30 FPS.
 // Remember that all values need to evenly divide
 // ONE_SECOND.
-#define PLANET_SIDE_RATE (ONE_SECOND / 35)
+// Serosis: I did my own testing using DOSBox
+// comparing speeds frame-by-frame and I came
+// up with 40 FPS. Can be changed later if it
+// causes any trouble.
+#define PLANET_SIDE_RATE (ONE_SECOND / 40)
 
 
 // This is a derived type from INPUT_STATE_DESC.
@@ -152,7 +156,7 @@ extern PRIM_LINKS DisplayLinks;
 #define ADD_AT_END (1 << 4)
 #define REPAIR_COUNT (0xf)
 
-#define LANDER_SPEED_DENOM 10
+#define LANDER_SPEED_DENOM (optSuperPC == OPT_PC ? 14 : 10)
 
 static BYTE lander_flags;
 static POINT curLanderLoc;
@@ -1807,7 +1811,7 @@ DoPlanetSide (LanderInputState *pMS)
 	SIZE dx = 0;
 	SIZE dy = 0;
 
-#define SHUTTLE_TURN_WAIT 2
+#define SHUTTLE_TURN_WAIT (optSuperPC == OPT_PC ? 1 : 2)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
 
