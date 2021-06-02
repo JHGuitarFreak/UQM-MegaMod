@@ -52,9 +52,9 @@
 // ONE_SECOND.
 // Serosis: I did my own testing using DOSBox
 // comparing speeds frame-by-frame and I came
-// up with 40 FPS. Can be changed later if it
+// up with 42 FPS. Can be changed later if it
 // causes any trouble.
-#define PLANET_SIDE_RATE (ONE_SECOND / 40)
+#define PLANET_SIDE_RATE (ONE_SECOND / 42)
 
 
 // This is a derived type from INPUT_STATE_DESC.
@@ -1719,7 +1719,7 @@ InitPlanetSide (POINT pt)
 static void
 LanderFire (SIZE facing)
 {
-#define SHUTTLE_FIRE_WAIT 15
+#define SHUTTLE_FIRE_WAIT optSuperPC == OPT_PC ? 10 : 14
 	HELEMENT hWeaponElement;
 	SIZE wdx, wdy;
 	ELEMENT *WeaponElementPtr;
@@ -1811,7 +1811,7 @@ DoPlanetSide (LanderInputState *pMS)
 	SIZE dx = 0;
 	SIZE dy = 0;
 
-#define SHUTTLE_TURN_WAIT (optSuperPC == OPT_PC ? 1 : 2)
+#define SHUTTLE_TURN_WAIT (optSuperPC == OPT_PC ? 1 : 3)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
 
@@ -1926,7 +1926,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
 					|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
 #endif
 			{
-				GetNextVelocityComponents(&GLOBAL(velocity), &dx, &dy, 1);
+				GetNextVelocityComponents (
+						&GLOBAL (velocity), &dx, &dy, 1);
 			}
 			else
 				dx = dy = 0;
