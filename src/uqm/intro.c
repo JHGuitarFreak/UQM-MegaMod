@@ -179,12 +179,12 @@ Present_UnbatchGraphics (PRESENTATION_INPUT_STATE* pPIS, BOOLEAN bYield)
 static void
 Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 {
-#define MODULE_YOFS_P  -RES_SCALE(79) 
+#define MODULE_YOFS_P  -(RES_SCALE(79) + IF_HD(33))
 #define DRIVE_TOP_Y_P  (DRIVE_TOP_Y + MODULE_YOFS_P)
 #define JET_TOP_Y_P    (JET_TOP_Y + MODULE_YOFS_P)
 #define MODULE_TOP_Y_P (MODULE_TOP_Y + MODULE_YOFS_P)
 #define MODULE_TOP_X_P MODULE_TOP_X
-	CONTEXT	OldContext;
+	CONTEXT OldContext;
 	FRAME SisFrame;
 	FRAME ModuleFrame;
 	FRAME SkelFrame;
