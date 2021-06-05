@@ -176,18 +176,9 @@ static int weapon_wait;
 // TODO: We may want to make the PLANETSIDE_DESC fields into static vars
 static PLANETSIDE_DESC *planetSideDesc;
 
-EXTENT lS;
+EXTENT MapSurface;
 
 #define ON_THE_GROUND   0
-
-void
-init_surface_sides (void)
-{
-	if (optSuperPC != OPT_PC)
-		lS = MAKE_EXTENT (SURFACE_WIDTH, SURFACE_HEIGHT);
-	else
-		lS = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
-}
 
 CONTEXT
 CreatePCLanderContext (void)
@@ -403,8 +394,8 @@ object_animation (ELEMENT *ElementPtr)
 				if (dy < 0)
 					dy = -dy;
 
-				if (dx >= lS.width || dy >= lS.width
-						|| dx * dx + dy * dy >= lS.width * lS.width)
+				if (dx >= MapSurface.width || dy >= MapSurface.width
+						|| dx * dx + dy * dy >= MapSurface.width * MapSurface.width)
 					ElementPtr->mass_points &= ~CREATURE_AWARE;
 				else if (!(ElementPtr->mass_points & CREATURE_AWARE))
 				{
@@ -713,9 +704,9 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	sprintf (pPSD->AmountBuf, "%u", NumRetrieved);
 	pStr = GAME_STRING (EType + Offset);
 
-	pPSD->MineralText[0].baseline.x = (lS.width >> 1)
+	pPSD->MineralText[0].baseline.x = (MapSurface.width >> 1)
 			+ (ElementControl->EndPoint.x - LanderControl->EndPoint.x);
-	pPSD->MineralText[0].baseline.y = (lS.height >> 1)
+	pPSD->MineralText[0].baseline.y = (MapSurface.height >> 1)
 			+ (ElementControl->EndPoint.y - LanderControl->EndPoint.y);
 	pPSD->MineralText[0].CharCount = (COUNT)~0;
 	pPSD->MineralText[1].pStr = pStr;
@@ -856,8 +847,8 @@ CheckObjectCollision (COUNT index)
 	else
 	{
 		pLanderPrim = 0;
-		LanderControl.IntersectStamp.origin.x = lS.width >> 1;
-		LanderControl.IntersectStamp.origin.y = lS.height >> 1;
+		LanderControl.IntersectStamp.origin.x = MapSurface.width >> 1;
+		LanderControl.IntersectStamp.origin.y = MapSurface.height >> 1;
 		LanderControl.IntersectStamp.frame = LanderFrame[0];
 		index = GetSuccLink (DisplayLinks);
 	}
@@ -946,6 +937,19 @@ CheckObjectCollision (COUNT index)
 								SIS_LEFT_BORDER_COLOR,
 								SIS_BOTTOM_RIGHT_BORDER_COLOR,
 								FALSE, TRANSPARENT);
+
+							if (IS_HD)
+							{
+								DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+								if (optSubmenu)
+								{
+									if (optCustomBorder)
+										DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+									else
+										DrawSubmenu (DIF_CASE (1, 2, 3));
+								}
+							}
 						}
 					}
 					else if (scan == BIOLOGICAL_SCAN && ElementPtr->hit_points)
@@ -1125,12 +1129,12 @@ AddLightning (void)
 		rand_val = TFB_Random ();
 		LightningElementPtr->life_span = 10 + (HIWORD (rand_val) % 10) + 1;
 		LightningElementPtr->next.location.x = (curLanderLoc.x
-				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - ((lS.width >> 1) - 6))
-				+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (lS.width - RES_SCALE(12)))
+				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - ((MapSurface.width >> 1) - 6))
+				+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (MapSurface.width - RES_SCALE(12)))
 				) % (SCALED_MAP_WIDTH << MAG_SHIFT);
 		LightningElementPtr->next.location.y = (curLanderLoc.y
-				+ ((MAP_HEIGHT << MAG_SHIFT) - ((lS.height >> 1) - 6))
-				+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (lS.height - RES_SCALE(12)))
+				+ ((MAP_HEIGHT << MAG_SHIFT) - ((MapSurface.height >> 1) - 6))
+				+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (MapSurface.height - RES_SCALE(12)))
 				) % (MAP_HEIGHT << MAG_SHIFT);
 
 		LightningElementPtr->cycle = LightningElementPtr->life_span;
@@ -1177,12 +1181,12 @@ AddGroundDisaster (COUNT which_disaster)
 
 		rand_val = TFB_Random ();
 		GroundDisasterElementPtr->next.location.x = (curLanderLoc.x
-				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - (lS.width * 3 / 8))
-				+ (LOWORD (rand_val) % (lS.width * 3 / 4))
+				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 8))
+				+ (LOWORD (rand_val) % (MapSurface.width * 3 / 4))
 				) % (SCALED_MAP_WIDTH << MAG_SHIFT);
 		GroundDisasterElementPtr->next.location.y = (curLanderLoc.y
-				+ ((MAP_HEIGHT << MAG_SHIFT) - (lS.height * 3 / 8))
-				+ (HIWORD (rand_val) % (lS.height * 3 / 4))
+				+ ((MAP_HEIGHT << MAG_SHIFT) - (MapSurface.height * 3 / 8))
+				+ (HIWORD (rand_val) % (MapSurface.height * 3 / 4))
 				) % (MAP_HEIGHT << MAG_SHIFT);
 
 
@@ -1306,17 +1310,17 @@ BuildObjectList (void)
 			pPrim = &DisplayArray[ElementPtr->PrimIndex];
 			pPrim->Object.Stamp.origin.x =
 					ElementPtr->next.location.x
-					- org.x + (lS.width >> 1);
+					- org.x + (MapSurface.width >> 1);
 			if (pPrim->Object.Stamp.origin.x >=
-					(SCALED_MAP_WIDTH << MAG_SHIFT) - (lS.width * 3 / 2))
+					(SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 2))
 				pPrim->Object.Stamp.origin.x -= SCALED_MAP_WIDTH << MAG_SHIFT;
 			else if (pPrim->Object.Stamp.origin.x <=
-					-((SCALED_MAP_WIDTH << MAG_SHIFT) - (lS.width * 3 / 2)))
+					-((SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 2)))
 				pPrim->Object.Stamp.origin.x += SCALED_MAP_WIDTH << MAG_SHIFT;
 
 			pPrim->Object.Stamp.origin.y =
 					ElementPtr->next.location.y
-					- org.y + (lS.height >> 1);
+					- org.y + (MapSurface.height >> 1);
 
 			if (lander_flags & ADD_AT_END)
 				InsertPrim (&DisplayLinks, ElementPtr->PrimIndex, END_OF_LIST);
@@ -1373,8 +1377,8 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		STAMP s;
 
 		ClearDrawable ();
-		s.origin.x = -new_pt.x + (lS.width >> 1);
-		s.origin.y = -new_pt.y + (lS.height >> 1);
+		s.origin.x = -new_pt.x + (MapSurface.width >> 1);
+		s.origin.y = -new_pt.y + (MapSurface.height >> 1);
 		s.frame = pSolarSysState->Orbit.TopoZoomFrame;
 
 		DrawStamp (&s);
@@ -1392,13 +1396,13 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	// frames while it is exploding
 	if (crew_left || damage_index || explosion_index < 3)
 	{
-		lander_s.origin.x = lS.width >> 1;
-		lander_s.origin.y = (lS.height >> 1) + landingOffset;
+		lander_s.origin.x = MapSurface.width >> 1;
+		lander_s.origin.y = (MapSurface.height >> 1) + landingOffset;
 		lander_s.frame = LanderFrame[0];
 
 		if (landingOffset != ON_THE_GROUND)
 		{	// Landing, draw a shadow
-			shadow_s.origin.x = lander_s.origin.y + (lS.width >> 1) - (lS.height >> 1);//2;
+			shadow_s.origin.x = lander_s.origin.y + (MapSurface.width >> 1) - (MapSurface.height >> 1);//2;
 			shadow_s.origin.y = lander_s.origin.y;
 			shadow_s.frame = lander_s.frame;
 			SetContextForeGroundColor (BLACK_COLOR);
@@ -1480,6 +1484,19 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 			SIS_LEFT_BORDER_COLOR,
 			SIS_BOTTOM_RIGHT_BORDER_COLOR,
 			FALSE, TRANSPARENT);
+
+		if (IS_HD)
+		{
+			DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+			if (optSubmenu)
+			{
+				if (optCustomBorder)
+					DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+				else
+					DrawSubmenu (DIF_CASE (1, 2, 3));
+			}
+		}
 	}
 
 	UnbatchGraphics ();
@@ -1535,7 +1552,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 		if (!isLanding && optSuperPC == OPT_PC && Now >= psNextTime)
 		{
 			// 10 to clear the lander off of the screen
-			ScrollPlanetSide (0, 0, -(lS.height / 2 + RES_SCALE(10)));
+			ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE(10)));
 			psNextTime = Now + PLANET_SIDE_RATE;
 		}
 
@@ -1651,7 +1668,9 @@ InitPlanetSide (POINT pt)
 
 	if (optSuperPC == OPT_PC)
 	{
+		SetContext (RadarContext);
 		ClearSISRect (CLEAR_SIS_RADAR);
+		MapSurface = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
 
 		if (optSubmenu)
 		{
@@ -1661,17 +1680,15 @@ InitPlanetSide (POINT pt)
 				DrawSubmenu (DIF_CASE (1, 2, 3));
 		}
 	}
+	else
+	{
+		SetContext (PlanetContext);
+		MapSurface = MAKE_EXTENT (SURFACE_WIDTH, SURFACE_HEIGHT);
+	}
 
 	curLanderLoc = pt;
 
-	if (optSuperPC != OPT_PC)
-		SetContext (PlanetContext);
-	else
-		SetContext (RadarContext);
 	SetContextFont (TinyFont);
-
-
-	init_surface_sides();
 
 	{
 		RECT r;
@@ -1689,8 +1706,8 @@ InitPlanetSide (POINT pt)
 			// Display planet area, accounting for horizontal wrapping if
 			// near the edges.
 			ClearDrawable ();
-			s.origin.x = -pt.x + (lS.width >> 1);
-			s.origin.y = -pt.y + (lS.height >> 1);
+			s.origin.x = -pt.x + (MapSurface.width >> 1);
+			s.origin.y = -pt.y + (MapSurface.height >> 1);
 			s.frame = pSolarSysState->Orbit.TopoZoomFrame;
 			DrawStamp (&s);
 			s.origin.x += SCALED_MAP_WIDTH << MAG_SHIFT;
@@ -1705,6 +1722,19 @@ InitPlanetSide (POINT pt)
 					SIS_LEFT_BORDER_COLOR,
 					SIS_BOTTOM_RIGHT_BORDER_COLOR,
 					FALSE, TRANSPARENT);
+
+				if (IS_HD)
+				{
+					DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+					if (optSubmenu)
+					{
+						if (optCustomBorder)
+							DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+						else
+							DrawSubmenu (DIF_CASE (1, 2, 3));
+					}
+				}
 			}
 		}
 
@@ -2060,6 +2090,19 @@ ReturnToOrbit (void)
 				SIS_LEFT_BORDER_COLOR,
 				SIS_BOTTOM_RIGHT_BORDER_COLOR,
 				TRUE, BLACK_COLOR);
+
+			if (IS_HD)
+			{
+				DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+				if (optSubmenu)
+				{
+					if (optCustomBorder)
+						DrawBorder (DIF_CASE (15, 16, 17), FALSE);
+					else
+						DrawSubmenu (DIF_CASE (1, 2, 3));
+				}
+			}
 		}
 
 		RedrawSurfaceScan(NULL);
@@ -2079,7 +2122,7 @@ IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 	while (GetTimeCounter () < TimeOut)
 	{
 		// 10 to clear the lander off of the screen
-		ScrollPlanetSide (0, 0, -(lS.height / 2 + RES_SCALE(10))); 
+		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE(10))); 
 		SleepThreadUntil (inputState->NextTime);
 		inputState->NextTime += PLANET_SIDE_RATE;
 	}
@@ -2092,7 +2135,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 #define MAX_OFFSETS  20
 #define MAX_OFFSETS_HD 400 
 // RES_SCALE(10) to clear the lander off of the screen
-#define DISTANCE_COVERED  (lS.height / 2 + RES_SCALE(10))
+#define DISTANCE_COVERED  (MapSurface.height / 2 + RES_SCALE(10))
 	int landingOfs[MAX_OFFSETS];
 	int start;
 	int end;
@@ -2479,9 +2522,10 @@ InitPCLander (void)
 	GetContextClipRect (&r);
 	r.corner = MAKE_POINT (0, 0);
 	SetContextForeGroundColor (BLACK_COLOR);
-	DrawFilledRectangle (&r);
 
 	BatchGraphics ();
+
+	DrawFilledRectangle (&r);
 
 	if (GLOBAL_SIS (NumLanders))
 	{

@@ -63,7 +63,7 @@ ClearReportArea (void)
 		SetContextBackGroundColor (BLACK_COLOR);
 		ClearDrawable ();
 
-		startx = (optSuperPC != OPT_PC ? 0 : 1) + 1
+		startx = (optSuperPC != OPT_PC ? 0 : RES_SCALE(1)) + 1
 				+ (r.extent.width >> 1) - (RES_SCALE(1) - IF_HD(1));
 		starty = RES_SCALE(2);
 	}
