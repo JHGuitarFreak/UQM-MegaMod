@@ -294,6 +294,7 @@ struct solarsys_state
 extern SOLARSYS_STATE *pSolarSysState;
 extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
+extern BOOLEAN actuallyInOrbit;
 
 // Random context used for all solar system, planets and surfaces generation
 extern RandomContext *SysGenRNG;

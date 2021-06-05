@@ -1350,6 +1350,7 @@ CreateScanContext (void)
 	CONTEXT oldContext;
 	CONTEXT context;
 	RECT r;
+	COORD mapWidth = actuallyInOrbit ? SCALED_MAP_WIDTH : MAP_WIDTH;
 
 	// ScanContext rect is relative to SpaceContext
 	oldContext = SetContext (SpaceContext);
@@ -1358,9 +1359,9 @@ CreateScanContext (void)
 	context = CreateContext ("ScanContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - SCALED_MAP_WIDTH;
+	r.corner.x += r.extent.width - mapWidth;
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = SCALED_MAP_WIDTH;
+	r.extent.width = mapWidth;
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 

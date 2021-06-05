@@ -41,14 +41,14 @@
 #define MAX_CELL_COLS 40 // Serosis: Why is this is never used???
 
 extern FRAME SpaceJunkFrame;
+COORD startx, starty;
 
 static void
 ClearReportArea (void)
 {
 	COUNT x, y;
-	RECT r;
+	RECT r, rPC;
 	STAMP s;
-	COORD startx;
 
 	if (optWhichFonts == OPT_PC)
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 21);
@@ -58,13 +58,34 @@ ClearReportArea (void)
 
 	BatchGraphics ();
 
-	SetContextBackGroundColor (BLACK_COLOR);
-	ClearDrawable ();
+	if (actuallyInOrbit || optSuperPC != OPT_PC)
+	{
+		SetContextBackGroundColor (BLACK_COLOR);
+		ClearDrawable ();
+
+		startx = (optSuperPC != OPT_PC ? 0 : 1) + 1
+				+ (r.extent.width >> 1) - (RES_SCALE(1) - IF_HD(1));
+		starty = RES_SCALE(2);
+	}
+	else if (optSuperPC == OPT_PC)
+	{
+		rPC.extent.width = (r.extent.width + RES_SCALE(1))
+			* NUM_CELL_COLS + RES_SCALE(1);
+		rPC.extent.height = (r.extent.height + RES_SCALE(1))
+			* NUM_CELL_ROWS + RES_SCALE(1);
+		rPC.corner.x = (SIS_SCREEN_WIDTH - rPC.extent.width) / 2;
+		rPC.corner.y = RES_SCALE(2);
+		SetContextForeGroundColor (BLACK_COLOR);
+		DrawFilledRectangle (&rPC);
+
+		startx = rPC.corner.x + RES_SCALE(1);
+		starty = rPC.corner.y + RES_SCALE(1);
+	}
+
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
-	
-	startx = 1 + (r.extent.width >> 1) - (RES_SCALE(1) - IF_HD(1));
-	s.origin.y = RES_SCALE(2); // Cell vertical alignment
+
+	s.origin.y = starty; // Cell vertical alignment
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
 		s.origin.x = startx;
@@ -126,7 +147,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		const UNICODE *pLastStr;
 		const UNICODE *pNextStr;
 		COUNT lf_pos;
-		BYTE NextPageHD = 1;
+		BYTE NextPageHD = 0;
 
 		pLastStr = t.pStr;
 
@@ -145,10 +166,12 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
 			StrLen += end_page_len; 
-			NextPageHD = 53;
+			NextPageHD = optSuperPC == OPT_PC ? 42 : 52;
 		}
-		t.baseline.x = RES_BOOL(1, NextPageHD) + (r.extent.width >> 1)
-				+ (col_cells * (r.extent.width + 1)) - RES_TRP(1);
+
+		t.baseline.x = startx + (col_cells * (r.extent.width + 1))
+				+ IF_HD(NextPageHD);
+
 		do
 		{
 			COUNT word_chars;
@@ -230,7 +253,6 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 
 InitPageCell:
 			ButtonState = 1;
-			t.baseline.y = r.extent.height + RES_SCALE(2); // Text vertical alignment
 			row_cells = 0;
 			if (StrLen)
 			{
@@ -240,6 +262,7 @@ InitPageCell:
 				SetContextForeGroundColor (
 						BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF));
 			}
+			t.baseline.y = r.extent.height + starty; // Text vertical alignment
 		}
 	}
 }
