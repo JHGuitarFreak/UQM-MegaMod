@@ -412,9 +412,8 @@ LoadIPData (void)
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
 				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
-		if (!IS_HD)
-			OldOrbitalFrame = CaptureDrawable (
-					LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
+		OldOrbitalFrame = CaptureDrawable (
+				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalFrameUnscaled = CaptureDrawable (
 				LoadGraphic (ORBPLAN_UNSCALED_MASK_PMAP_ANIM));
 		if (IS_HD && HDPackPresent)
@@ -1168,7 +1167,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					break;
 			}
 		}
-		if (!IS_HD && !optTexturedPlanets && optPlanetStyle == OPT_PC)
+		if (!optTexturedPlanets && optPlanetStyle == OPT_PC)
 			planet->image.frame = SetPlanetOldFrame (
 				(Size << FACING_SHIFT) + NORMALIZE_FACING (
 					ANGLE_TO_FACING (angle)), PLANCOLOR(Type));
