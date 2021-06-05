@@ -586,7 +586,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		}
 		if (!optCustomBorder)
 			DrawFilledRectangle (&r);
-		DrawBorder(8, FALSE);
+		DrawBorder (8, FALSE);
 	}
 	if (s.frame)
 	{

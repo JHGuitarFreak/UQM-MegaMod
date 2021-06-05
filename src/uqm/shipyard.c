@@ -216,10 +216,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - RES_SCALE(1);
-	r.corner.y = s.origin.y - RES_SCALE(11);
-	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
-	r.extent.height = RES_SCALE(11);
+	r.corner.x = s.origin.x - RES_SCALE(2);
+	r.corner.y = s.origin.y - RES_SCALE(12);
+	r.extent.width = RADAR_WIDTH + RES_SCALE(4);
+	r.extent.height = RES_SCALE(12);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
