@@ -716,7 +716,10 @@ loadGameCheats (void)
 	if (optUnlockShips)
 	{
 		for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
-			SetRaceAllied (i, 3);
+		{
+			if (CheckAlliance (i) != GOOD_GUY)
+				SetRaceAllied (i, 3);
+		}
 	}
 	
 	if (optUnlockUpgrades)
