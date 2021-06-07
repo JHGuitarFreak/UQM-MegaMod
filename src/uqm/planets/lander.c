@@ -1129,13 +1129,13 @@ AddLightning (void)
 		rand_val = TFB_Random ();
 		LightningElementPtr->life_span = 10 + (HIWORD (rand_val) % 10) + 1;
 		LightningElementPtr->next.location.x = (curLanderLoc.x
-				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - ((MapSurface.width >> 1) - 6))
-				+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (MapSurface.width - RES_SCALE(12)))
-				) % (SCALED_MAP_WIDTH << MAG_SHIFT);
+			+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - ((SURFACE_WIDTH >> 1) - 6))
+			+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (SURFACE_WIDTH - RES_SCALE(12)))
+			) % (SCALED_MAP_WIDTH << MAG_SHIFT);
 		LightningElementPtr->next.location.y = (curLanderLoc.y
-				+ ((MAP_HEIGHT << MAG_SHIFT) - ((MapSurface.height >> 1) - 6))
-				+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (MapSurface.height - RES_SCALE(12)))
-				) % (MAP_HEIGHT << MAG_SHIFT);
+			+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
+			+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (SURFACE_HEIGHT - RES_SCALE(12)))
+			) % (MAP_HEIGHT << MAG_SHIFT);
 
 		LightningElementPtr->cycle = LightningElementPtr->life_span;
 
@@ -1181,12 +1181,12 @@ AddGroundDisaster (COUNT which_disaster)
 
 		rand_val = TFB_Random ();
 		GroundDisasterElementPtr->next.location.x = (curLanderLoc.x
-				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 8))
-				+ (LOWORD (rand_val) % (MapSurface.width * 3 / 4))
+				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - (SURFACE_WIDTH * 3 / 8))
+				+ (LOWORD (rand_val) % (SURFACE_WIDTH * 3 / 4))
 				) % (SCALED_MAP_WIDTH << MAG_SHIFT);
 		GroundDisasterElementPtr->next.location.y = (curLanderLoc.y
-				+ ((MAP_HEIGHT << MAG_SHIFT) - (MapSurface.height * 3 / 8))
-				+ (HIWORD (rand_val) % (MapSurface.height * 3 / 4))
+				+ ((MAP_HEIGHT << MAG_SHIFT) - (SURFACE_HEIGHT * 3 / 8))
+				+ (HIWORD (rand_val) % (SURFACE_HEIGHT * 3 / 4))
 				) % (MAP_HEIGHT << MAG_SHIFT);
 
 
