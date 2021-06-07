@@ -651,13 +651,13 @@ UninitEncounter (void)
 									}
 								}
 
-								t.baseline.x = scavenge_r.corner.x + RES_SCALE(100); 
-								t.baseline.y = scavenge_r.corner.y + RES_SCALE(68); 
+								t.baseline.x = scavenge_r.corner.x + RES_SCALE(100);
+								t.baseline.y = scavenge_r.corner.y + RES_SCALE(68);
 								t.align = ALIGN_CENTER;
 								t.pStr = buf;
 								t.CharCount = (COUNT)~0;
 								font_DrawText (&t);
-								t.baseline.y += RES_SCALE(6); 
+								t.baseline.y += RES_SCALE(6);
 								t.pStr = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 3);
 										// "BATTLE GROUP"
@@ -677,15 +677,15 @@ UninitEncounter (void)
 								DrawFadeText (str1, str2, TRUE, &scavenge_r);
 							}
 
-							r.corner.y = scavenge_r.corner.y + RES_SCALE(9); 
-							r.extent.height = RES_SCALE(22); 
+							r.corner.y = scavenge_r.corner.y + RES_SCALE(9);
+							r.extent.height = RES_SCALE(22);
 
 							SetContextForeGroundColor (BLACK_COLOR);
 
-							r.extent.width = RES_SCALE(34); 
+							r.extent.width = RES_SCALE(34);
 							r.corner.x = scavenge_r.corner.x +
 									scavenge_r.extent.width
-									- (RES_SCALE(10) + r.extent.width); 
+									- (RES_SCALE(10) + r.extent.width);
 							DrawFilledRectangle (&r);
 
 							/* collect bounty ResUnits */
@@ -697,8 +697,8 @@ UninitEncounter (void)
 
 							RecycleAmount += j;
 							sprintf (buf, "%u", RecycleAmount);
-							t.baseline.x = r.corner.x + r.extent.width - 1 - 5 * IF_HD(2);
-							t.baseline.y = r.corner.y + RES_SCALE(14); 
+							t.baseline.x = r.corner.x + r.extent.width - RES_SCALE(1);
+							t.baseline.y = r.corner.y + RES_SCALE(14);
 							t.align = ALIGN_RIGHT;
 							t.pStr = buf;
 							t.CharCount = (COUNT)~0;
@@ -708,17 +708,17 @@ UninitEncounter (void)
 							DeltaSISGauges (0, 0, j);
 
 							if ((VictoryState++ - 1) % MAX_DEAD_DISPLAYED)
-								ship_s.origin.x += RES_SCALE(17); 
+								ship_s.origin.x += RES_SCALE(17);
 							else
 							{
 								SetContextForeGroundColor (BLACK_COLOR);
 
-								r.corner.x = scavenge_r.corner.x + RES_SCALE(10); 
-								r.extent.width = RES_SCALE(104); 
+								r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
+								r.extent.width = RES_SCALE(104);
 								DrawFilledRectangle (&r);
 
-								ship_s.origin.x = r.corner.x + RES_SCALE(2); 
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(12); 
+								ship_s.origin.x = r.corner.x + RES_SCALE(2);
+								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(12);
 							}
 
 							if (Sleepy)
@@ -800,19 +800,10 @@ UninitEncounter (void)
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 
-					// JMS: Now we draw the clean frame to erase the "Enemy ships destroyed"
-					// text before drawing "debris scavenged."
-					if(IS_HD)
-						DrawStamp (&saveMetallicFrame);
-
 					DrawFadeText (str1, str2, TRUE, &scavenge_r);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
 					if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 						DrawFadeText (str1, str2, FALSE, &scavenge_r);
-
-					// JMS: The final cleanup of the "Debris scavenged". Without this, an ugly grey ghost-text would remain.
-					if(IS_HD)
-						DrawStamp (&saveMetallicFrame);
 				}
 			}
 
