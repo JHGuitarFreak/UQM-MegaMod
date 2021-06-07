@@ -47,6 +47,7 @@
 #include "libs/inplib.h"
 #include "libs/misc.h"
 #include "planets/solarsys.h"
+#include "starbase.h"
 
 
 static void DrawFadeText (const UNICODE *str1, const UNICODE *str2,
@@ -544,11 +545,6 @@ UninitEncounter (void)
 #define NUM_SHIP_FADES (sizeof (fade_ship_cycle) / \
 		sizeof (fade_ship_cycle[0]))
 
-		COUNT race_bounty[] =
-		{
-			RACE_SHIP_COST
-		};
-
 		SET_GAME_STATE (BATTLE_SEGUE, 0);
 		SET_GAME_STATE (BOMB_CARRIER, 0);
 
@@ -672,23 +668,6 @@ UninitEncounter (void)
 
 								SetContextFont (MicroFont);
 
-								// JMS: Let's store the rectangle behind "Enemy ships destroyed" (before drawing the text on it).
-								if (IS_HD)
-								{
-									// These values are inferred from DrawFadeText.
-									// However, they're not the same (100 and 45) because the text there is centered,
-									// but these rect coords are for the upper-left corner, not center.
-									save_r.corner.x = scavenge_r.corner.x + RES_SCALE(70); 
-									save_r.corner.y = scavenge_r.corner.y + (RES_SCALE(35)); 
-									
-									// These are wild-assed guesses.
-									save_r.extent.width  = RES_SCALE(60);
-									save_r.extent.height = RES_SCALE(30); 
-									
-									// Now that we have the size and placement of the rectangle, let's store it.
-									saveMetallicFrame = SaveContextFrame (&save_r);
-								}
-
 								str1 = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 4);
 										// "Enemy Ships"
@@ -710,10 +689,15 @@ UninitEncounter (void)
 							DrawFilledRectangle (&r);
 
 							/* collect bounty ResUnits */
-							j = race_bounty[EncounterRace] >> 3;
+							j = ShipCost (EncounterRace) >> 3;
+							if (EncounterRace == SLYLANDRO_SHIP)
+								j = 550;
+							if (EncounterRace == MELNORME_SHIP)
+								j = j * 2;
+
 							RecycleAmount += j;
 							sprintf (buf, "%u", RecycleAmount);
-							t.baseline.x = r.corner.x + r.extent.width - 1 - 5 * RESOLUTION_FACTOR; // JMS_GFX;
+							t.baseline.x = r.corner.x + r.extent.width - 1 - 5 * IF_HD(2);
 							t.baseline.y = r.corner.y + RES_SCALE(14); 
 							t.align = ALIGN_RIGHT;
 							t.pStr = buf;

@@ -25,6 +25,7 @@
 #include "libs/compiler.h"
 #include "libs/mathlib.h"
 #include "planets/planets.h"
+#include "starbase.h"
 #include "starmap.h"
 #include "gendef.h"
 #include <stdlib.h>
@@ -243,10 +244,6 @@ AddEscortShips (RACE_ID race, SIZE count)
 COUNT
 CalculateEscortsWorth (void)
 {
-	COUNT ShipCost[] =
-	{
-		RACE_SHIP_COST
-	};
 	COUNT total = 0;
 	HSHIPFRAG hStarShip, hNextShip;
 
@@ -257,7 +254,7 @@ CalculateEscortsWorth (void)
 
 		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
-		total += ShipCost[StarShipPtr->race_id];
+		total += ShipCost (StarShipPtr->race_id);
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}
 	return total;

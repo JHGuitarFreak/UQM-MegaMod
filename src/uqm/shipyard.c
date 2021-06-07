@@ -90,11 +90,6 @@ typedef enum {
 	DMS_Mode_exit,       // Leaving DoModifyShips() mode.
 } DMS_Mode;
 
-static COUNT ShipCost[] =
-{
-	RACE_SHIP_COST
-};
-
 static BOOLEAN DoShipSpins;
 
 static void
@@ -204,6 +199,20 @@ GetAvailableRaceFromIndex (BYTE Index)
 	return 0;
 }
 
+COUNT
+ShipCost (BYTE race_id)
+{
+	HFLEETINFO hStarShip = GetAvailableRaceFromIndex (race_id);
+	FLEET_INFO *FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+	RACE_DESC *RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
+	COUNT shipCost = RDPtr->ship_info.ship_cost * 100;
+
+	free_ship (RDPtr, TRUE, TRUE);
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+	return shipCost;
+}
+
 static void
 DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 {
@@ -235,6 +244,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		HFLEETINFO hStarShip;
 		FLEET_INFO *FleetPtr;
 		UNICODE buf[30];
+		COUNT shipCost = ShipCost (NewRaceItem);
 
 		hStarShip = GetAvailableRaceFromIndex (NewRaceItem);
 		NewRaceItem = GetIndexFromStarShip (&GLOBAL (avail_race_q),
@@ -258,19 +268,18 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
-		sprintf (buf, "%u", ShipCost[NewRaceItem]);
+		sprintf (buf, "%u", shipCost);
 		SetContextFont (TinyFont);
 
-		if ((ShipCost[NewRaceItem]) <= (GLOBAL_SIS (ResUnits)))
+		if (shipCost <= (GLOBAL_SIS (ResUnits)))
 			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
-		else if ((ShipCost[NewRaceItem]) > (GLOBAL_SIS (ResUnits)))
+		else if (shipCost > (GLOBAL_SIS (ResUnits)))
 			SetContextForeGroundColor (BRIGHT_RED_COLOR);
 
 		font_DrawText (&t);
 	}
 	UnbatchGraphics ();
 	SetContext (OldContext);
-
 }
 
 // Width of an escort ship window.
@@ -867,7 +876,7 @@ DMS_HireEscortShipCrew (SHIP_FRAGMENT *StarShipPtr)
 	else
 	{
 		// Buy a ship.
-		DeltaSISGauges (0, 0, -(COUNT)ShipCost[StarShipPtr->race_id]);
+		DeltaSISGauges (0, 0, -(int)ShipCost (StarShipPtr->race_id));
 	}
 
 	++StarShipPtr->crew_level;
@@ -907,7 +916,7 @@ DMS_DismissEscortShipCrew (SHIP_FRAGMENT *StarShipPtr)
 		{
 			// With the last crew member, the ship will be scrapped.
 			// Give RU for the ship.
-			DeltaSISGauges (0, 0, (COUNT)ShipCost[StarShipPtr->race_id]);
+			DeltaSISGauges (0, 0, (int)ShipCost (StarShipPtr->race_id));
 		}
 		crew_delta = -1;
 		--StarShipPtr->crew_level;
@@ -1026,17 +1035,17 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 			LOBYTE (pMS->delta_item));
 	COUNT Index = GetIndexFromStarShip (&GLOBAL (avail_race_q), shipInfo);
 	BYTE MaxBuild = 2;
+	COUNT shipCost = ShipCost (Index);
 
 	if ((DIF_HARD && CountEscortShips(Index) < MaxBuild || !DIF_HARD)
-			&& GLOBAL_SIS (ResUnits) >= (DWORD)ShipCost[Index]
+			&& GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
 			&& CloneShipFragment (Index, &GLOBAL (built_ship_q), 1))
 	{
 		ShowCombatShip (pMS, pMS->CurState, NULL);
 				// Reset flash rectangle
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 
-		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA,
-				-((int)ShipCost[Index]));
+		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, -(int)shipCost);
 		DMS_SetMode (pMS, DMS_Mode_editCrew);
 	}
 	else

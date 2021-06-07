@@ -499,34 +499,6 @@ typedef enum
 	URQUAN_DRONE_SHIP, /* URQUAN_DRONE_CONVERSATION */ \
 	YEHAT_SHIP,        /* YEHAT_REBEL_CONVERSATION */ \
 	HUMAN_SHIP         /* INVALID_CONVERSATION */
- 
-#define RACE_SHIP_COST \
-		1600,  /* ARILOU_SHIP */ \
-		3000,  /* CHMMR_SHIP */ \
-		1100,  /* HUMAN_SHIP */ \
-		2300,  /* ORZ_SHIP */ \
-		2000,  /* PKUNK_SHIP */ \
-		 500,  /* SHOFIXTI_SHIP */ \
-		1800,  /* SPATHI_SHIP */ \
-		1600,  /* SUPOX_SHIP */ \
-		1000,  /* THRADDASH_SHIP */ \
-		2200,  /* UTWIG_SHIP */ \
-		1200,  /* VUX_SHIP */ \
-		2300,  /* YEHAT_SHIP */ \
-		3600,  /* MELNORME_SHIP */ \
-		1700,  /* DRUUGE_SHIP */ \
-		1000,  /* ILWRATH_SHIP */ \
-		2100,  /* MYCON_SHIP */ \
-		4400,  /* SLYLANDRO_SHIP */ \
-		 700,  /* UMGAH_SHIP */ \
-		3000,  /* URQUAN_SHIP */ \
-		 600,  /* ZOQFOTPIK_SHIP */ \
-		1300,  /* SYREEN_SHIP */ \
-		3000,  /* BLACK_URQUAN_SHIP */ \
-		1900,  /* ANDROSYNTH_SHIP*/ \
-		2800,  /* CHENJESU_SHIP */ \
-		1800,  /* MMRNMHRM_SHIP */ \
-		2300,  /* YEHAT_REBEL_SHIP */
 
 #define LOG_TO_IP(s) ((s) << 1)
 #define RACE_IP_SPEED \

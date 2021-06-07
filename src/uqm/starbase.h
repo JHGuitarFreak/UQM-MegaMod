@@ -48,6 +48,8 @@ extern COUNT WrapText (const UNICODE *pStr, COUNT len, TEXT *tarray, SIZE
 		field_width);
 		// XXX: Doesn't really belong in this file.
 
+extern COUNT ShipCost (BYTE race_id);
+
 #if defined(__cplusplus)
 }
 #endif
