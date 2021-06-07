@@ -251,6 +251,9 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 		s.frame = SetAbsFrameIndex (CaptureDrawable
 				(LoadGraphic (ORBENTER_PMAP_ANIM)), never);
 
+		if (optSuperPC == OPT_PC)
+			s.origin.x -= RES_SCALE((UQM_MAP_WIDTH - PC_MAP_WIDTH) / 2);
+
 		if (never)
 		{
 			PLANET_DESC *pPlanetDesc;
