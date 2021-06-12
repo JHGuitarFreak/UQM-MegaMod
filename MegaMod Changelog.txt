@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
-- HARDMODE: Make the Sa-Matra battle more difficult - Pikant
 - HARDMODE: If you don't start the rebellion before the Pkunk arrive, you don't get any help at the end.
 - EXTENDED: Zex's beast is loose on the menagerie planet and can be recaptured then sold to the Melnorme
 
@@ -26,16 +25,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Charon, the moon of Pluto, is now explorable
 - Kruzenshtern: Added support for displaying PC-DOS styled planets while traversing solar systems
 - Kruzenshtern: Added the leading edge to the planet scan mimicing the 3DO scan
-- Kruzenshtern: Added optional PC-DOS planets in interplanetary
 - Kruzenshtern: Option to have the planet scan also color the spinning planet a la the PC-DOS version
 - SETUPMENU: Added an option to pick between PC-DOS, 3DO, and Vanilla UQM styled star backgrounds (The stars while in a solar system)
 - SETUPMENU: Added a new page to the PC/3DO options
+- SETUPMENU: Added a new page to the Visual options
 - SETUPMENU: solar system planet style (DOS Planets)
 - SETUPMENU: Added option for Coloring the planet while scanning
 - SETUPMENU: Added option for PC-DOS scan style (static color while minerals are revealed)
 - Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
 - Kruzenshtern: Add function that mimics the pulsing purple box from PC-DOS ver. when picking a ship
+- Added pulsing purple box selector "universally" when using PC menus, mimicking PC-DOS UI
 - HD: Added an option to switch between unfaithful animated HyperSpace stars and faithful HD recreations of the static HyperSpace stars
+- Added PC-DOS style lander mechanics with the help of Kruzenshtern
+- Added option to switch between PC or 3DO comm oscilloscope
+- Kruzenshtern: Added "Non-Stop Oscilloscope" ability where, if speech is enabled, the Oscilloscope will switch over to music for its data when nobody is talking
+- Kruzenshtern Non-HD: Added a couple of frames to the dispatch/return lander animation so it clears the UI nicely
+- Kruzenshtern: Remove ships from system if Kohr-Ah destroyed corresponding race
 
 ### Changed
 - Scaled the outer border of the viewport to match PC-DOS
@@ -64,6 +69,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Tamed the planet scan speed to match vanilla speed
 - Subtitle location and spacing now matches more faithfully to the PC-DOS version
 - EXTENDED: Make Beta Arae (933.3:093.7) an Orange Super Giant (Because there are no Orange Super Giants)
+- Adjusted FPS and Lander values to be as close as possible to its PC and 3DO counterparts
+- Lander reports now only respond to the "action keys" instead of every mappable key
+- HD: Auto-pilot line on the starmap is now a dotted line with a reticule at the end showing your destination
+- HARDMODE: Make the Sa-Matra battle more difficult - Kruzenshtern
+
 
 ### Fixed
 - Fixed suicide Game Over screen having illegible text
@@ -86,6 +96,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Properly free up memory used by large, textured moons
 - Kruzenshtern: Fixed timing for AlienTalkSegue, added tool to create custom baseline per sentence, added Fading UI func, and Talking animation block is now tied to current sub chunk playing
 - Kruzenshtern: Remove ships from system if Kohr-Ah destroyed corresponding race
+- Fixed Unlock All Ships cheat from affecting current alliances
 
 ## [v0.8.0.85]
 ### Added
