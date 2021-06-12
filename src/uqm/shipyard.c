@@ -202,10 +202,17 @@ GetAvailableRaceFromIndex (BYTE Index)
 COUNT
 ShipCost (BYTE race_id)
 {
-	HFLEETINFO hStarShip = GetAvailableRaceFromIndex (race_id);
-	FLEET_INFO *FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-	RACE_DESC *RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
-	COUNT shipCost = RDPtr->ship_info.ship_cost * 100;
+	HFLEETINFO hStarShip = GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
+	FLEET_INFO *FleetPtr;
+	RACE_DESC *RDPtr;
+	COUNT shipCost;
+
+	if (!hStarShip)
+		return 0;
+
+	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+	RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
+	shipCost = RDPtr->ship_info.ship_cost * 100;
 
 	free_ship (RDPtr, TRUE, TRUE);
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
