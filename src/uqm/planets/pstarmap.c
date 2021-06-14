@@ -1980,14 +1980,9 @@ StarMap (void)
 	DrawHyperCoords (universe);
 	DrawSISMessage (NULL);
 	DrawStatusMessage (NULL);
-	
+
 	if (optSubmenu)
-	{
-		if (optCustomBorder)
-			DrawBorder (14, FALSE);
-		else
-			DrawSubmenu (0);
-	}
+		DrawMineralHelpers (TRUE);
 
 	if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)

@@ -27,6 +27,8 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/tasklib.h"
 #include "libs/log.h"
+#include "util.h"
+#include "planets/planets.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -648,6 +650,103 @@ DrawSubmenu (BYTE Visible)
 }
 
 void
+DrawMineralHelpers (BOOLEAN cleanup)
+{
+	RECT r;
+	CONTEXT OldContext;
+	COUNT i, digit;
+	STAMP s;
+	TEXT t;
+	UNICODE buf[40];
+
+	OldContext = SetContext (StatusContext);
+	SetContextFont (TinyFont);
+
+	r.corner = MAKE_POINT (RES_SCALE(1), RES_SCALE(141));
+	r.extent = MAKE_EXTENT(RES_SCALE(62), RES_SCALE(42));
+
+	if (cleanup)
+	{
+		if(optCustomBorder)
+			DrawBorder (14, FALSE);
+		else 
+		{
+			SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+			DrawFilledRectangle (&r);
+		}
+
+		return;
+	}
+
+	BatchGraphics ();
+
+	if(!optCustomBorder)
+		DrawStarConBox (
+				&r, RES_SCALE(1), PCMENU_TOP_LEFT_BORDER_COLOR,
+				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, PCMENU_BACKGROUND_COLOR
+			);
+	else
+		DrawBorder (14, FALSE);
+
+#define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE(7))
+#define ELEMENT_SPACING_Y  RES_SCALE(9)
+#define ELEMENT_SPACING_X  RES_SCALE(32)
+
+	// setup element icons
+	s.frame = SetAbsFrameIndex (MiscDataFrame,
+			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
+	s.origin.x = r.corner.x + RES_SCALE(7);
+	s.origin.y = ELEMENT_ORG_Y;
+	// setup element worths
+	t.baseline.x = s.origin.x + RES_SCALE(5);
+	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
+	t.align = ALIGN_LEFT;
+	t.pStr = buf;
+
+	// draw element icons and worths
+	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+	{
+		if (i == NUM_ELEMENT_CATEGORIES / 2)
+		{
+			s.origin.x += ELEMENT_SPACING_X;
+			s.origin.y = ELEMENT_ORG_Y;
+			t.baseline.x += ELEMENT_SPACING_X;
+			t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
+		}
+
+		// draw element icon
+		DrawStamp (&s);
+		s.frame = SetRelFrameIndex (s.frame, 5);
+		s.origin.y += ELEMENT_SPACING_Y;
+
+		// print x'es
+		if (!optCustomBorder)
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x10, 0x21, 0xF7, 0xFF));
+		else
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x31, 0x31, 0x31, 0xFF));
+		snprintf (buf, sizeof buf, "%s", "x");
+		font_DrawText (&t);
+
+		// print element worth
+		if (!optCustomBorder)
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0xAD, 0xAD, 0xFF));
+		else
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x74, 0x74, 0x74, 0xFF));
+		snprintf (buf, sizeof buf, "%u", GLOBAL (ElementWorth[i]));
+		digit = RES_SCALE(!strncmp (buf, "1", 1) ? 4 : 5);
+		t.baseline.x += digit;
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+		t.baseline.x -= digit;
+		t.baseline.y += ELEMENT_SPACING_Y;
+	}
+
+	UnbatchGraphics ();
+
+	SetContext (OldContext);
+}
+
+void
 DrawBorder (BYTE Visible, BOOLEAN InBattle)
 {
 	STAMP s;
@@ -682,16 +781,13 @@ FunkyMenu (BYTE m, STAMP stmp)
 
 	if ((!stmp.frame && m >= PM_ALT_MSCAN
 			&& m <= PM_ALT_EXIT_SCAN)
-			|| (stmp.frame && m >= PM_MIN_SCAN
-			&& m <= PM_LAUNCH_LANDER))
+			|| m == PM_LAUNCH_LANDER)
 	{
 		if (stmp.frame)
 			DrawStamp (&stmp);
 
-		if (optCustomBorder)
-			DrawBorder (DIF_CASE (15, 16, 17), FALSE);
-		else
-			DrawSubmenu (DIF_CASE (1, 2, 3));
+		DrawMineralHelpers (FALSE);
+
 		subMenuFlag = TRUE;
 
 		if (stmp.frame)
@@ -699,10 +795,7 @@ FunkyMenu (BYTE m, STAMP stmp)
 	}
 	else if (subMenuFlag == TRUE)
 	{
-		if (optCustomBorder)
-			DrawBorder (14, FALSE);
-		else
-			DrawSubmenu (0);
+		DrawMineralHelpers (TRUE);
 		subMenuFlag = FALSE;
 	}
 

@@ -124,6 +124,7 @@ enum
 extern BOOLEAN DoMenuChooser (MENU_STATE *pMS, BYTE BaseState);
 extern void DrawMenuStateStrings (BYTE beg_index, SWORD NewState);
 extern void DrawSubmenu (BYTE Visible);
+extern void DrawMineralHelpers (BOOLEAN cleanup);
 extern void DrawBorder (BYTE Visible, BOOLEAN InBattle);
 
 #if defined(__cplusplus)
