@@ -1719,9 +1719,9 @@ InitPlanetSide (POINT pt)
 						DrawMineralHelpers (FALSE);
 				}
 			}
-		}
-
-		ScreenTransition (optIPScaler, &r);
+			else
+				ScreenTransition (optIPScaler, &r);
+		}		
 		UnbatchGraphics ();
 	}
 
@@ -2040,27 +2040,27 @@ ReturnToOrbit (void)
 
 	if (optSuperPC != OPT_PC)
 	{
-		OldContext = SetContext(PlanetContext);
-		GetContextClipRect(&r);
+		OldContext = SetContext (PlanetContext);
+		GetContextClipRect (&r);
 
-		SetTransitionSource(&r);
-		BatchGraphics();
+		SetTransitionSource (&r);
+		BatchGraphics ();
 
-		DrawStarBackGround();
-		DrawDefaultPlanetSphere();
-		DrawPlanetSurfaceBorder();
-		RedrawSurfaceScan(NULL);
-		ScreenTransition(optIPScaler, &r);
-		UnbatchGraphics();
+		DrawStarBackGround ();
+		DrawDefaultPlanetSphere ();
+		DrawPlanetSurfaceBorder ();
+		RedrawSurfaceScan (NULL);
+		ScreenTransition (optIPScaler, &r);
+		UnbatchGraphics ();
 	}
 	else
 	{
 		RECT b;
 		OldContext = SetContext (RadarContext);
-		GetContextClipRect(&r);
+		GetContextClipRect (&r);
 		b = r;
 
-		SetTransitionSource(&r);
+		SetTransitionSource (&r);
 
 		b.corner.x = b.corner.y = 0;
 
@@ -2082,9 +2082,10 @@ ReturnToOrbit (void)
 					DrawMineralHelpers (FALSE);
 			}
 		}
+		else
+			ScreenTransition (optIPScaler, &r);
 
 		RedrawSurfaceScan(NULL);
-		ScreenTransition (optIPScaler, &r);
 		UnbatchGraphics ();
 	}
 
@@ -2500,8 +2501,12 @@ InitPCLander (void)
 
 	DrawFilledRectangle (&r);
 
-	if (GLOBAL_SIS (NumLanders))
-	{
+	if (GLOBAL_SIS (NumLanders)
+		&& !(pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED) 
+		&& !(pSolarSysState->pOrbitalDesc->data_index >= FIRST_GAS_GIANT
+		&& pSolarSysState->pOrbitalDesc->data_index <= LAST_GAS_GIANT))
+	{	// Do not draw lander graphics if it's impossible to land (shielded and gas giant)
+	 	// This mimics PC behaviour
 		BYTE ShieldFlags, capacity_shift;
 		COUNT free_space;
 		STAMP s;
