@@ -212,6 +212,7 @@ typedef enum
 	DRAW_ORBITAL_FULL,
 	DRAW_ORBITAL_WAIT,
 	DRAW_ORBITAL_UPDATE,
+	DRAW_ORBITAL_FROM_STARMAP,
 
 } DRAW_ORBITAL_MODE;
 
@@ -279,7 +280,15 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	else if (Mode == DRAW_ORBITAL_FULL)
 	{
 		DrawDefaultPlanetSphere ();
+		DrawMenuStateStrings (PM_SCAN, SCAN);
 	}
+	else if (Mode == DRAW_ORBITAL_FROM_STARMAP)
+	{
+		DrawDefaultPlanetSphere ();
+		DrawMenuStateStrings (PM_SCAN, STARMAP);
+	}
+	else
+		DrawMenuStateStrings (PM_SCAN, SCAN);
 
 	if (Mode != DRAW_ORBITAL_WAIT)
 	{
@@ -524,7 +533,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 
 			if (!AutoPilotSet)
 			{	// Redraw the orbital display
-				DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
+				DrawOrbitalDisplay (DRAW_ORBITAL_FROM_STARMAP);//WAS FULL
 				break;
 			}
 			// Fall through !!!
@@ -539,7 +548,8 @@ DoPlanetOrbit (MENU_STATE *pMS)
 		{	// 3DO menu jumps to NAVIGATE after a successful submenu run
 			if (optWhichMenu != OPT_PC)
 				pMS->CurState = NAVIGATION;
-			DrawMenuStateStrings (PM_SCAN, pMS->CurState);
+			if (pMS->CurState != STARMAP)
+				DrawMenuStateStrings (PM_SCAN, pMS->CurState);
 		}
 		SetFlashRect (SFR_MENU_3DO, FALSE);
 	}
@@ -560,8 +570,7 @@ PlanetOrbitMenu (void)
 	InputFrameCallback *oldCallback;
 
 	memset (&MenuState, 0, sizeof MenuState);
-
-	DrawMenuStateStrings (PM_SCAN, SCAN);
+	
 	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	MenuState.CurState = SCAN;
@@ -574,5 +583,6 @@ PlanetOrbitMenu (void)
 	SetInputCallback (oldCallback);
 
 	SetFlashRect (NULL, FALSE);
-	DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
+	if (!(GLOBAL(CurrentActivity) & CHECK_LOAD))
+		DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
 }

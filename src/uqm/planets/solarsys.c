@@ -2943,7 +2943,8 @@ SolarSysMenu (void)
 	MenuState.InputFunc = DoSolarSysMenu;
 	DoInput (&MenuState, TRUE);
 
-	DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
+	if (!(GLOBAL (CurrentActivity) & CHECK_LOAD))
+		DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
 }
 
 static BOOLEAN

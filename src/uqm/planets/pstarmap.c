@@ -1927,6 +1927,14 @@ StarMap (void)
 	if (cursorLoc.x == ~0 && cursorLoc.y == ~0)
 		cursorLoc = universe;
 
+	if (optWhichMenu == OPT_PC)
+	{
+		if (actuallyInOrbit)
+			DrawMenuStateStrings (PM_ALT_SCAN, 1);
+		else
+			DrawMenuStateStrings (PM_ALT_STARMAP, 0);
+	}
+
 	MenuState.InputFunc = DoMoveCursor;
 	MenuState.Initialized = FALSE;
 

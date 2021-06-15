@@ -677,6 +677,9 @@ DevicesMenu (void)
 	SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGE,
 			MENU_SOUND_SELECT);
 
+	if (optWhichMenu == OPT_PC)
+		DrawMenuStateStrings (PM_ALT_CARGO, 1);
+
 	MenuState.InputFunc = DoManipulateDevices;
 	DoInput (&MenuState, TRUE);
 

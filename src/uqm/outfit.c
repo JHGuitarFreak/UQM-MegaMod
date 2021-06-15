@@ -292,14 +292,15 @@ DoInstallModule (MENU_STATE *pMS)
 							? FUEL_TANK_CAPACITY : HEFUEL_TANK_CAPACITY);
 					if (GLOBAL_SIS (FuelOnBoard) > volume + FUEL_RESERVE)
 					{	// fuel tank still needed for the fuel on board
-						if(!optInfiniteFuel){
+						if(!optInfiniteFuel)
+						{
 							PlayMenuSound (MENU_SOUND_FAILURE);
 							return (TRUE);
 						} else {
 							if (old_slot_piece == FUEL_TANK)
-								DeltaSISGauges(0,-FUEL_TANK_CAPACITY,0);
+								DeltaSISGauges (0,-FUEL_TANK_CAPACITY,0);
 							else
-								DeltaSISGauges(0,-HEFUEL_TANK_CAPACITY,0);
+								DeltaSISGauges (0,-HEFUEL_TANK_CAPACITY,0);
 						}
 					}
 				}
@@ -747,6 +748,7 @@ DoOutfit (MENU_STATE *pMS)
 		if (pMS->CurState == OUTFIT_DOFUEL)
 		{
 			pMS->CurState = OUTFIT_FUEL;
+			DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 			SetFlashRect (SFR_MENU_3DO, FALSE);
 		}
 		else
@@ -769,7 +771,7 @@ ExitOutfit:
 			case OUTFIT_FUEL:
 			{
 				RECT r;
-
+				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 				pMS->CurState = OUTFIT_DOFUEL;
 				SetContext (StatusContext);
 				GetGaugeRect (&r, FALSE);
@@ -781,6 +783,7 @@ ExitOutfit:
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case OUTFIT_MODULES:
+				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 				pMS->CurState = EMPTY_SLOT + 2;
 				if (GET_GAME_STATE (CHMMR_BOMB_STATE) != 3)
 					pMS->delta_item = 0;

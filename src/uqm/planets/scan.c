@@ -1156,6 +1156,8 @@ ScanPlanet (COUNT scanType)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return;
 
+	DrawMenuStateStrings (PM_MIN_SCAN, scanType);
+
 	for (scan = startScan; scan <= endScan; ++scan)
 	{
 		TEXT t;
@@ -1309,6 +1311,7 @@ DoScan (MENU_STATE *pMS)
 			}
 
 			SetFlashRect (NULL, FALSE);
+			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
 
 			if (!PickPlanetSide ())
 				return FALSE;
@@ -1328,10 +1331,8 @@ DoScan (MENU_STATE *pMS)
 
 		ScanPlanet (pMS->CurState);
 		if (pMS->CurState == AUTO_SCAN)
-		{
 			pMS->CurState = DISPATCH_SHUTTLE;
-			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
-		}
+		DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
 	}
 	else if (optWhichMenu == OPT_PC ||
 			(!(pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED)

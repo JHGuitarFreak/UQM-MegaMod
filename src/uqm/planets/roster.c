@@ -451,6 +451,9 @@ RosterMenu (void)
 	if (IS_HD)
 		drawSupportShip (&RosterState, TRUE, TRUE);
 
+	if (optWhichMenu == OPT_PC)
+		DrawMenuStateStrings (PM_ALT_CARGO, 2);
+
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
 	MenuState.InputFunc = DoModifyRoster;

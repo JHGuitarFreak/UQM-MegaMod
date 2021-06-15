@@ -82,6 +82,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 {
 	BYTE pos;
 	COUNT i;
+	static COUNT rd = 0;
 	int num_items;
 	FONT OldFont;
 	TEXT t;
@@ -125,12 +126,16 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 		if (hilite && pos == i)
 		{
 			// Currently selected menu option.
-			
-			// Draw the background of the selection.
-			SetContextForeGroundColor (PCMENU_SELECTION_BACKGROUND_COLOR);
-			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2);
-			r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
-			DrawFilledRectangle (r);
+			if (pos != rd)
+			{	// Draw the background of the selection.
+				SetContextForeGroundColor (PCMENU_SELECTION_BACKGROUND_COLOR);
+				r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2);
+				r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
+				DrawFilledRectangle (r);
+				rd = pos;
+			}
+			else
+				rd = 0;
 
 			// Draw the text of the selected item.
 			SetContextForeGroundColor (PCMENU_SELECTION_TEXT_COLOR);

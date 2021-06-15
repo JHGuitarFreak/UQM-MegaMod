@@ -605,6 +605,8 @@ DoSettings (MENU_STATE *pMS)
 				break;
 			case CHANGE_CAPTAIN_SETTING:
 			case CHANGE_SHIP_SETTING:
+				SetFlashRect (NULL, FALSE);
+				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
 				NameCaptainOrShip (pMS->CurState == CHANGE_CAPTAIN_SETTING, NewGameInit);
 				break;
 			default:
@@ -621,6 +623,8 @@ DoSettings (MENU_STATE *pMS)
 				pMS->CurState = CYBORG_OFF_SETTING + cur_speed;
 				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
 		}
+		if (optWhichMenu == OPT_PC)
+			DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
 
 		FeedbackSetting (pMS->CurState);
 	}
@@ -1298,6 +1302,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	DlgStamp = SaveContextFrame (NULL);
 	GetContextClipRect (&DlgRect);
 
+	DrawMenuStateStrings (PM_SAVE_GAME, saving);
+
 	SleepThreadUntil (TimeOut);
 	PauseMusic ();
 	StopSound ();
@@ -1459,6 +1465,7 @@ DoGameOptions (MENU_STATE *pMS)
 				SetFlashRect (NULL, FALSE);
 				if (PickGame (pMS->CurState == SAVE_GAME, FALSE))
 					return FALSE;
+				DrawMenuStateStrings (PM_SAVE_GAME, pMS->CurState);
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case QUIT_GAME:
@@ -1506,7 +1513,6 @@ GameOptions (void)
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	MenuState.InputFunc = DoGameOptions;
 	DoInput (&MenuState, TRUE);
-
 	SetFlashRect (NULL, FALSE);
 
 	return !(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD));

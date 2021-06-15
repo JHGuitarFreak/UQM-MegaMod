@@ -344,6 +344,9 @@ CargoMenu (void)
 	// draw the initial cargo display
 	DrawCargoStrings ((BYTE)~0, MenuState.CurState);
 	DrawElementDescription (MenuState.CurState);
+	
+	if (optWhichMenu == OPT_PC)
+		DrawMenuStateStrings (PM_ALT_CARGO, 0);
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 

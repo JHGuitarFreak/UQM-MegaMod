@@ -1051,6 +1051,7 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 		ShowCombatShip (pMS, pMS->CurState, NULL);
 				// Reset flash rectangle
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
+		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);// twice to reset menu selection
 
 		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, -(int)shipCost);
 		DMS_SetMode (pMS, DMS_Mode_editCrew);
@@ -1088,6 +1089,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
 		SetFlashRect (NULL, FALSE);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
+		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);// twice to reset menu selection
 		DMS_SetMode (pMS, DMS_Mode_navigate);
 	}
 	else if (select)
@@ -1630,6 +1632,7 @@ ExitShipyard:
 #if defined(ANDROID) || defined(__ANDROID__)
 		TFB_SetOnScreenKeyboard_Starmap();
 #endif
+			DrawMenuStateStrings(PM_CREW, pMS->CurState);
 			DoModifyShips (pMS);
 		}
 		else
