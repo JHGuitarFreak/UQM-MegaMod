@@ -421,6 +421,7 @@ InitEncounter (void)
 
 		DoInput (&MenuState, TRUE);
 
+		DrawMenuStateStrings(PM_CONVERSE, MenuState.CurState);
 		SetFlashRect (NULL, FALSE);
 
 		return (MenuState.CurState);
