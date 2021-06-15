@@ -110,7 +110,8 @@ UninitPlayerInput (void)
 BOOLEAN
 LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 {
-	if(!ReloadPackages){
+	if (!ReloadPackages)
+	{
 		InitSound (argc, argv);
 		InitVideoPlayer (TRUE);
 
@@ -189,7 +190,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("3dovideo");
 
 	/* Now load the rest of the addons, in order. */
-	prepareAddons(optAddons);
+	prepareAddons (optAddons);
 
 	{
 		COLORMAP ColorMapTab;

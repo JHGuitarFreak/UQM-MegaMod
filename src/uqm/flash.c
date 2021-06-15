@@ -43,6 +43,7 @@
 #include "colors.h"
 #include "globdata.h"
 #include "sis.h"
+#include "util.h"
 
 
 
@@ -701,7 +702,7 @@ PC_Rect (RECT r)
 
 		color = cycle_tab[cycle_index];
 
-		DrawStarConBox ( 
+		DrawStarConBox (
 			&r, RES_SCALE(1), color, color, FALSE, TRANSPARENT);
 
 		cycle_index = (cycle_index + 1) % cycleCount;

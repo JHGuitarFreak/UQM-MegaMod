@@ -82,7 +82,7 @@
 #define BLASTER_OFFSET RES_SCALE(8)
 #define SIS_VERT_OFFSET RES_SCALE(28)
 		/* Used for foward, spread, and rear slots */
-#define SIS_HORZ_OFFSET RES_BOOL(20, 59)
+#define SIS_HORZ_OFFSET RES_SCALE(20)
 		/* Used for side slot */
 
 /* Secondary weapon */
