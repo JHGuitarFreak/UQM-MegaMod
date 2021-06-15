@@ -142,6 +142,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
 		solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
+		loadAddon ("threedo-flagship-sd");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
@@ -150,8 +151,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		loadAddon ("orange-peel-melnorme");
-		loadAddon ("classic-hd-fonts");
-		// loadAddon ("tarps-choice"); // Make Room for the Beta-HD Addon
+		loadAddon ("threedo-flagship-hd");
 	}
 
 	loadAddon ("ProfanePkunk");
