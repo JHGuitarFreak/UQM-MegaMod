@@ -127,9 +127,13 @@ BuildBattle (COUNT which_player)
 				load_gravity_well (SA_MATRA);
 				break;
 			case IN_HYPERSPACE:
-				load_gravity_well ((BYTE)((COUNT)TFB_Random ()
-						% NUMBER_OF_PLANET_TYPES));
+			{
+				BYTE selector = (BYTE)((COUNT)TFB_Random () % NUMBER_OF_PLANET_TYPES);
+				if (EXTENDED && (selector == RAINBOW_WORLD || selector == SHATTERED_WORLD))
+					selector += 2;// No rainbow or shattered worlds in hyperspace
+				load_gravity_well (selector);
 				break;
+			}
 			default:
 				SET_GAME_STATE (ESCAPE_COUNTER, 110);
 				if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED && pSolarSysState
