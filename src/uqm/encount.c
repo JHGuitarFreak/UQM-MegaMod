@@ -145,7 +145,17 @@ BuildBattle (COUNT which_player)
 					load_gravity_well (PLANET_SA_MATRA);
 				}
 				else
-					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+				{
+					if (EXTENDED && pSolarSysState 
+						&& worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+					{	// Set gravity well to moon if encounter takes place there (Spathiwa moon, Taalo HW, Utwig Bomb Loc)
+						// Only if encounter starts with moon collision
+						// colliding with IP group in inner system still uses main planet for gravity well
+						COUNT moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
+						SET_GAME_STATE (BATTLE_PLANET, pSolarSysState->MoonDesc[moon].data_index);
+					}
+					load_gravity_well (GET_GAME_STATE(BATTLE_PLANET));
+				}
 				break;
 		}
 	}
@@ -524,10 +534,10 @@ UninitEncounter (void)
 		BOOLEAN Sleepy;
 		SIZE VictoryState, i;
 		COUNT RecycleAmount = 0;
-		RECT r, save_r;
+		RECT r;
 		RECT scavenge_r = {{0, 0}, {0, 0}};
 		TEXT t;
-		STAMP ship_s, saveMetallicFrame;
+		STAMP ship_s;
 		const UNICODE *str1 = NULL;
 		const UNICODE *str2 = NULL;
 		StatMsgMode prevMsgMode;
