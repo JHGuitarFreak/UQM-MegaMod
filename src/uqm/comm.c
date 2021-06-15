@@ -1846,7 +1846,22 @@ InitCommunication (CONVERSATION which_comm)
 			else if (GLOBAL (ip_planet) == 0)
 				DrawHyperCoords (CurStarDescPtr->star_pt);
 			else
-				DrawSISTitle (GLOBAL_SIS (PlanetName));
+			{	// to fix moon suffix on load
+				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE 
+					&& worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+				{
+					if (!(GetNamedPlanetaryBody ())
+						&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE
+						&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
+						&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
+					{
+						snprintf ((GLOBAL_SIS (PlanetName)) + strlen (GLOBAL_SIS (PlanetName)),
+							3, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
+					}
+				}
+
+				DrawSISTitle(GLOBAL_SIS(PlanetName));
+			}
 		}
 	}
 

@@ -355,8 +355,19 @@ LoadPlanet (FRAME SurfDefFrame)
 		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE);
 	}
 	else
-	{
-		DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
+	{	// to fix moon suffix on load
+		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+		{
+			if (!(GetNamedPlanetaryBody ())
+				&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE
+				&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
+				&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
+			{
+				snprintf ((GLOBAL_SIS (PlanetName)) + strlen (GLOBAL_SIS (PlanetName)),
+					3, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
+			}
+		}
+	 	DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
 	}
 }
 
