@@ -642,10 +642,9 @@ DrawSubmenu (BYTE Visible)
 	STAMP s;
 	CONTEXT OldContext;
 	
-	OldContext = SetContext (ScreenContext);
+	OldContext = SetContext (StatusContext);
 
-	s.origin.x = 0;
-	s.origin.y = 0;
+	s.origin = MAKE_POINT (RES_SCALE(1), RES_SCALE(141));
 
 	s.frame = SetAbsFrameIndex (SubmenuFrame, Visible);
 
@@ -686,24 +685,31 @@ DrawMineralHelpers (BOOLEAN cleanup)
 	BatchGraphics ();
 
 	if(!optCustomBorder)
+	{
 		DrawStarConBox (
 				&r, RES_SCALE(1), PCMENU_TOP_LEFT_BORDER_COLOR,
 				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, PCMENU_BACKGROUND_COLOR
 			);
+
+		if (IS_HD)
+			DrawSubmenu (1);
+	}
 	else
 		DrawBorder (14, FALSE);
 
+#define ELEMENT_ORG_X      (r.corner.x + RES_SCALE(7))
 #define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE(7))
 #define ELEMENT_SPACING_Y  RES_SCALE(9)
 #define ELEMENT_SPACING_X  RES_SCALE(32)
+#define HD_ALIGN_DOTS IF_HD(2)
 
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
-	s.origin.x = r.corner.x + RES_SCALE(7);
-	s.origin.y = ELEMENT_ORG_Y;
+	s.origin.x = ELEMENT_ORG_X + HD_ALIGN_DOTS;
+	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
 	// setup element worths
-	t.baseline.x = s.origin.x + RES_SCALE(5);
+	t.baseline.x = ELEMENT_ORG_X + RES_SCALE(5);
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
@@ -714,7 +720,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 		if (i == NUM_ELEMENT_CATEGORIES / 2)
 		{
 			s.origin.x += ELEMENT_SPACING_X;
-			s.origin.y = ELEMENT_ORG_Y;
+			s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
 			t.baseline.x += ELEMENT_SPACING_X;
 			t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
 		}
