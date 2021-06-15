@@ -3029,3 +3029,10 @@ scaleSISDimensions (BOOLEAN is_width, COORD value)
 
 	return (COORD)(value * percentage);
 }
+
+void
+InitialIntersect (void)
+{	// need to check collision with moons on load
+ 	// rare but annoying
+	CheckIntersect ();
+}

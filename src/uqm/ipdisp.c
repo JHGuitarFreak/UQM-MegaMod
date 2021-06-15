@@ -26,10 +26,12 @@
 #include "process.h"
 #include "grpinfo.h"
 #include "encount.h"
+#include "planets/solarsys.h"
 		// for EncounterGroup, EncounterRace
 #include "libs/mathlib.h"
 #include "nameref.h"
 #include "ships/slylandr/resinst.h"
+#include "setup.h"
 
 BOOLEAN legacySave;
 
@@ -805,6 +807,9 @@ AdjustInitialPosition (void)
 	radius = zoomRadiusForLocation (flagship_loc);
 
 	pt = locationToDisplay (GLOBAL (ip_location), radius);
+
+	if (LastActivity & CHECK_LOAD)
+		InitialIntersect ();
 
 	GLOBAL (ShipStamp.origin) = pt;
 }
