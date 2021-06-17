@@ -37,6 +37,7 @@
 
 
 FRAME stars_in_space;
+FRAME misc_in_space;
 FRAME StarPoints;
 FRAME stars_in_quasispace; 
 FRAME crew_dots[NUM_VIEWS]; 
@@ -125,19 +126,19 @@ InitSpace (void)
 		if (stars_in_space == NULL)
 			return FALSE;
 
+		misc_in_space = CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
+
 		if(IS_HD)
 		{
 			StarPoints = CaptureDrawable (LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
 			if (StarPoints == NULL)
 				return FALSE;
-
 			
 			if (!load_animation (crew_dots,
 					CREW_BIG_MASK_PMAP_ANIM,
 					CREW_MED_MASK_PMAP_ANIM,
 					CREW_SML_MASK_PMAP_ANIM))
 				return FALSE;
-        
 			
 			if (!load_animation (ion_trails,
 					IONS_BIG_MASK_PMAP_ANIM,
@@ -183,8 +184,10 @@ UninitSpace (void)
 
 		DestroyDrawable (ReleaseDrawable (stars_in_space));
 		DestroyDrawable (ReleaseDrawable (StarPoints));
+		DestroyDrawable (ReleaseDrawable (misc_in_space));
 		stars_in_space = 0;
 		StarPoints = 0;
+		misc_in_space = 0;
 	}
 }
 

@@ -29,12 +29,15 @@
 #include "settings.h"
 #include "setupmenu.h"
 #include "intel.h"
+#include "igfxres.h"
+#include "nameref.h"
 
 void
 spawn_planet (void)
 {
 	HELEMENT hPlanetElement;
-	
+	POINT pt;
+
 	hPlanetElement = AllocElement ();
 	if (hPlanetElement)
 	{
@@ -63,9 +66,21 @@ spawn_planet (void)
 		} while (CalculateGravity (PlanetElementPtr)
 				|| TimeSpaceMatterConflict (PlanetElementPtr));
 		PlanetElementPtr->mass_points = PlanetElementPtr->hit_points;
-		UnlockElement (hPlanetElement);
+		pt = PlanetElementPtr->current.location;
 
-		PutElement (hPlanetElement);
+		UnlockElement(hPlanetElement);
+
+		PutElement(hPlanetElement);
+	}
+	if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA))
+	{	// Works inconsistently because planet is on top star layer
+	 	// and Sa-Matra on second, therefore scrollig is a bit off
+		pt.x += 1200;
+		pt.y += 780;
+		WRAP_X (pt.x);
+		WRAP_Y (pt.y);
+
+		SetStarPoint (pt, 31);
 	}
 }
 

@@ -1956,6 +1956,11 @@ InitCommunication (CONVERSATION which_comm)
 		if (status)
 		{
 			// Start combat
+			if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA))
+			{	// reload GW to planet in penultimate battle
+				free_gravity_well ();
+				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+			}
 			BuildBattle (RPG_PLAYER_NUM);
 			EncounterBattle ();
 		}

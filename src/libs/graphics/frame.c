@@ -140,6 +140,9 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 					TFB_Prim_Point (&lpWorkPrim->Object.Point, color,
 							mode, origin, FALSE);
 					break;
+				case MISC_PRIM:
+					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin);
+					break;
 				case STAMP_PRIM:
 					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin);
 					break;

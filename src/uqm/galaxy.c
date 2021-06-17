@@ -29,6 +29,8 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/mathlib.h"
 #include "libs/log.h"
+#include "igfxres.h"
+#include "nameref.h"
 
 extern COUNT zoom_out;
 extern PRIM_LINKS DisplayLinks;
@@ -259,43 +261,62 @@ InitGalaxy (void)
 		ppt->x = (SDWORD)((UWORD)TFB_Random () % SPACE_WIDTH) << factor;
 		ppt->y = (SDWORD)((UWORD)TFB_Random () % SPACE_HEIGHT) << factor;
 
-		if (i < BIG_STAR_COUNT + MED_STAR_COUNT)
-		{
-			SetPrimType (&DisplayArray[p], STAMP_PRIM);
-			SetPrimColor (&DisplayArray[p],
-					BUILD_COLOR (MAKE_RGB15 (0x0B, 0x0B, 0x1F), 0x09));
-			// JMS_GFX: This was originally only "DisplayArray[p].Object.Stamp.frame = stars_in_space;"
-			if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-				DisplayArray[p].Object.Stamp.frame = stars_in_space;
-			else
-				DisplayArray[p].Object.Stamp.frame = stars_in_quasispace;
+		if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA) 
+				&& LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE 
+				&& i == BIG_STAR_COUNT + 1)
+		{	//Set SA-MATRA as background image on the second Star layer
+			SetPrimType (&DisplayArray[p], MISC_PRIM);
+			DisplayArray[p].Object.Stamp.frame = misc_in_space;
 		}
 		else
 		{
-			if(IS_HD)
-			{	// In HD the starpoints in HS and QS are images
+			if (i < BIG_STAR_COUNT + MED_STAR_COUNT)
+			{
 				SetPrimType (&DisplayArray[p], STAMP_PRIM);
-				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
-				{
-					SetPrimType (&DisplayArray[p], POINT_PRIM);
-					SetPrimColor (&DisplayArray[p],
-							BUILD_COLOR (MAKE_RGB15 (0x15, 0x15, 0x15), 0x07));
-				} 
+				SetPrimColor (&DisplayArray[p],
+						BUILD_COLOR (MAKE_RGB15 (0x0B, 0x0B, 0x1F), 0x09));
+
+				// JMS_GFX: This was originally only "DisplayArray[p].Object.Stamp.frame = stars_in_space;"
+				if (!IS_HD || (GET_GAME_STATE(ARILOU_SPACE_SIDE) <= 1))
+					DisplayArray[p].Object.Stamp.frame = stars_in_space;
 				else
-					DisplayArray[p].Object.Stamp.frame = SetAbsFrameIndex (StarPoints, HSorQS);
+					DisplayArray[p].Object.Stamp.frame = stars_in_quasispace;
 			}
 			else
-			{	// Pixel starpoints in original res
-				SetPrimType (&DisplayArray[p], POINT_PRIM);
-				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
-					SetPrimColor (&DisplayArray[p],
-							BUILD_COLOR (MAKE_RGB15 (0x15, 0x15, 0x15), 0x07));
-				else if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-					SetPrimColor (&DisplayArray[p],
-							BUILD_COLOR (MAKE_RGB15 (0x14, 0x00, 0x00), 0x8C));
+			{
+				if (IS_HD)
+				{	// In HD the starpoints in HS and QS are images
+					SetPrimType(&DisplayArray[p], STAMP_PRIM);
+					if (LOBYTE(GLOBAL(CurrentActivity)) != IN_HYPERSPACE)
+					{
+						SetPrimType (&DisplayArray[p], POINT_PRIM);
+						SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (MAKE_RGB15(0x15, 0x15, 0x15), 0x07));
+					}
+					else
+						DisplayArray[p].Object.Stamp.frame =
+								SetAbsFrameIndex (StarPoints, HSorQS);
+				}
 				else
-					SetPrimColor (&DisplayArray[p],
-							BUILD_COLOR (MAKE_RGB15 (0x00, 0x0E, 0x00), 0x8C));
+				{	// Pixel starpoints in original res
+					SetPrimType(&DisplayArray[p], POINT_PRIM);
+					if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
+						SetPrimColor (&DisplayArray[p],
+								BUILD_COLOR (
+									MAKE_RGB15 (0x15, 0x15, 0x15), 0x07)
+								);
+					else if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+						SetPrimColor (&DisplayArray[p],
+								BUILD_COLOR (
+									MAKE_RGB15 (0x14, 0x00, 0x00), 0x8C)
+								);
+					else
+						SetPrimColor (&DisplayArray[p],
+								BUILD_COLOR (
+									MAKE_RGB15 (0x00, 0x0E, 0x00), 0x8C)
+								);
+				}
+
 			}
 		}
 
@@ -337,7 +358,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 
 	if (view_state != VIEW_STABLE)
 	{
-		COUNT reduction, i, iss;
+		COUNT reduction, i, iss, scale;
 		DPOINT *ppt;
 		FRAME tempframe;
 		int wrap_around;
@@ -417,8 +438,26 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 					{
 						for (i = star_counts[iss]; i > 0; --i, ++pprim)
 						{
-							SetPrimType (pprim, star_object[iss]);
-							pprim->Object.Stamp.frame = star_frame[iss];
+							if (GetPrimType (pprim) != MISC_PRIM)
+							{
+								SetPrimType (pprim, star_object[iss]);
+								pprim->Object.Stamp.frame = star_frame[iss];
+							}
+							else
+							{
+								if (optMeleeScale != TFB_SCALE_STEP)
+								{
+									if (reduction < 512)
+										scale = 0;
+									if (reduction >= 512)
+										scale = 1;
+									if (reduction >= 1024)
+										scale = 2;
+								}
+								else
+									scale = reduction;
+								pprim->Object.Stamp.frame = SetAbsFrameIndex(misc_in_space, 2 - scale);
+							}
 						}
 					}
 				}
@@ -447,8 +486,26 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 					{
 						for (i = star_counts[iss]; i > 0; --i, ++pprim)
 						{
-							SetPrimType (pprim, star_object[iss]);
-							pprim->Object.Stamp.frame = star_frame[iss + zoomlevel];
+							if (GetPrimType (pprim) != MISC_PRIM)
+							{
+								SetPrimType (pprim, star_object[iss]);
+								pprim->Object.Stamp.frame = star_frame[iss + zoomlevel];
+							}
+							else
+							{
+								if (optMeleeScale != TFB_SCALE_STEP)
+								{
+									if (reduction < 512)
+										scale = 0;
+									if (reduction >= 512)
+										scale = 1;
+									if (reduction >= 1024)
+										scale = 2;
+								}
+								else
+									scale = reduction;
+								pprim->Object.Stamp.frame = SetAbsFrameIndex (misc_in_space, 2 - scale);
+							}
 						}
 					}
 				}
@@ -531,4 +588,11 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 	}
 
 	DisplayLinks = MakeLinks (NUM_STARS - 1, 0);
+}
+
+void
+SetStarPoint(POINT pt, COUNT i)
+{
+	log_star_array[i].x = pt.x;
+	log_star_array[i].y = pt.y;
 }
