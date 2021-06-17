@@ -28,6 +28,8 @@
 
 static bool GenerateColony_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys);
+static bool GenerateColony_generateMoons (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *planet);
 static bool GenerateColony_generateName (const SOLARSYS_STATE *,
 	const PLANET_DESC *world);
 static bool GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys,
@@ -39,7 +41,7 @@ const GenerateFunctions generateColonyFunctions = {
 	/* .reinitNpcs       = */ GenerateDefault_reinitNpcs,
 	/* .uninitNpcs       = */ GenerateDefault_uninitNpcs,
 	/* .generatePlanets  = */ GenerateColony_generatePlanets,
-	/* .generateMoons    = */ GenerateDefault_generateMoons,
+	/* .generateMoons    = */ GenerateColony_generateMoons,
 	/* .generateName     = */ GenerateColony_generateName,
 	/* .generateOrbital  = */ GenerateColony_generateOrbital,
 	/* .generateMinerals = */ GenerateDefault_generateMinerals,
@@ -109,6 +111,8 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2] | PLANET_SHIELDED;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		if (EXTENDED)
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 	}
 	else
 	{
@@ -117,6 +121,28 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x = COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		if (EXTENDED)
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+	}
+
+	return true;
+}
+
+static bool
+GenerateColony_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+{
+	COUNT angle;
+
+	GenerateDefault_generateMoons (solarSys, planet);
+
+	if (EXTENDED
+		&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+
+		solarSys->MoonDesc[0].data_index = SELENIC_WORLD;
+
+		if(!PrimeSeed)
+			solarSys->MoonDesc[0].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
 	}
 
 	return true;
