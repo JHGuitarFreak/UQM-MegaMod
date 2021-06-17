@@ -297,6 +297,9 @@ GenerateRandomNodes (const SYSTEM_INFO *SysInfoPtr, COUNT scan, COUNT numNodes,
 {
 	COUNT i;
 	NODE_INFO temp_info;
+	const ELEMENT_ENTRY *eptr;
+
+	eptr = &SysInfoPtr->PlanetInfo.PlanDataPtr->UsefulElements[0];
 
 	if (!info) // user not interested in info but we need space for it
 		info = &temp_info;
@@ -306,11 +309,34 @@ GenerateRandomNodes (const SYSTEM_INFO *SysInfoPtr, COUNT scan, COUNT numNodes,
 
 	for (i = 0; i < numNodes; ++i)
 	{
+#define MEDIUM_DEPOSIT_THRESHOLD 150
+#define LARGE_DEPOSIT_THRESHOLD 225
+		COUNT deposit_quality_fine;
+		COUNT deposit_quality_gross;
+
 		GenerateRandomLocation (&info->loc_pt);
 		// type is irrelevant for energy nodes
 		info->type = type;
-		// density is irrelevant for energy and bio nodes
-		info->density = 0;
+
+		if (scan == MINERAL_SCAN)
+		{
+			deposit_quality_fine = (LOWORD (RandomContext_Random (SysGenRNG)) % 100)
+				+ (
+					DEPOSIT_QUALITY (eptr->Density)
+					+ SysInfoPtr->StarSize
+					) * 50;
+			if (deposit_quality_fine < MEDIUM_DEPOSIT_THRESHOLD)
+				deposit_quality_gross = 0;
+			else if (deposit_quality_fine < LARGE_DEPOSIT_THRESHOLD)
+				deposit_quality_gross = 1;
+			else
+				deposit_quality_gross = 2;
+
+			info->density = MAKE_WORD (
+				deposit_quality_gross, deposit_quality_fine / 10 + 1);
+		}
+		else	// density is irrelevant for energy and bio nodes
+			info->density = 0;
 
 		if (i >= whichNode)
 			break;

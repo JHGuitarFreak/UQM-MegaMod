@@ -42,6 +42,8 @@ static bool GenerateSol_generateName (const SOLARSYS_STATE *,
 		const PLANET_DESC *world);
 static bool GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
+static COUNT GenerateSol_generateMinerals (const SOLARSYS_STATE *solarSys,
+		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *);
 static COUNT GenerateSol_generateEnergy (const SOLARSYS_STATE *,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *);
 static COUNT GenerateSol_generateLife (const SOLARSYS_STATE *,
@@ -61,7 +63,7 @@ const GenerateFunctions generateSolFunctions = {
 	/* .generateMoons    = */ GenerateSol_generateMoons,
 	/* .generateName     = */ GenerateSol_generateName,
 	/* .generateOrbital  = */ GenerateSol_generateOrbital,
-	/* .generateMinerals = */ GenerateDefault_generateMinerals,
+	/* .generateMinerals = */ GenerateSol_generateMinerals,
 	/* .generateEnergy   = */ GenerateSol_generateEnergy,
 	/* .generateLife     = */ GenerateSol_generateLife,
 	/* .pickupMinerals   = */ GenerateDefault_pickupMinerals,
@@ -673,6 +675,21 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	return true;
 }
+
+static COUNT
+GenerateSol_generateMinerals (const SOLARSYS_STATE *solarSys,
+		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
+{
+	if (EXTENDED && matchWorld (solarSys, world, 8, 0))
+	{
+		/* Pluto's Moon, Charon */
+		return GenerateRandomNodes (&solarSys->SysInfo, MINERAL_SCAN, 5,
+			CHARON_DUST, whichNode, info);
+	}
+	else
+		return GenerateMineralDeposits (&solarSys->SysInfo, whichNode, info);
+}
+
 
 static COUNT
 GenerateSol_generateEnergy (const SOLARSYS_STATE *solarSys,
