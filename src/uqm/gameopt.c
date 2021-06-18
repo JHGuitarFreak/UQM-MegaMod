@@ -1302,7 +1302,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	DlgStamp = SaveContextFrame (NULL);
 	GetContextClipRect (&DlgRect);
 
-	DrawMenuStateStrings (PM_SAVE_GAME, saving);
+	DrawMenuStateStrings (PM_SAVE_GAME, !saving);
 
 	SleepThreadUntil (TimeOut);
 	PauseMusic ();
