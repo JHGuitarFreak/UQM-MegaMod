@@ -327,7 +327,7 @@ GenerateSpathi_generateEnergy (const SOLARSYS_STATE *solarSys,
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET)) 
 	{
 		return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 6,
-			0, whichNode, info);
+				0, whichNode, info, NULL);
 	}
 
 	if (EXTENDED
@@ -335,7 +335,7 @@ GenerateSpathi_generateEnergy (const SOLARSYS_STATE *solarSys,
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 1,
-			0, whichNode, info);
+				0, whichNode, info, NULL);
 	}
 
 	return 0;
@@ -390,7 +390,7 @@ GenerateSpathi_generateLife (const SOLARSYS_STATE *solarSys,
 	{
 		#define NUM_EVIL_ONES  32
 		return GenerateRandomNodes (&solarSys->SysInfo, BIOLOGICAL_SCAN, NUM_EVIL_ONES,
-				EVIL_ONE, whichNode, info);
+				EVIL_ONE, whichNode, info, NULL);
 	}
 
 	return 0;

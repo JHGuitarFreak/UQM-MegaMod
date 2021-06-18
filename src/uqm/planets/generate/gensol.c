@@ -684,7 +684,7 @@ GenerateSol_generateMinerals (const SOLARSYS_STATE *solarSys,
 	{
 		/* Pluto's Moon, Charon */
 		return GenerateRandomNodes (&solarSys->SysInfo, MINERAL_SCAN, 5,
-			CHARON_DUST, whichNode, info);
+			CHARON_DUST, whichNode, info, NULL);
 	}
 	else
 		return GenerateMineralDeposits (&solarSys->SysInfo, whichNode, info);
@@ -791,7 +791,7 @@ GenerateSol_generateLife (const SOLARSYS_STATE *solarSys,
 	{
 		/* Earth Moon */
 		return GenerateRandomNodes (&solarSys->SysInfo, BIOLOGICAL_SCAN, 10,
-				BRAINBOX_BULLDOZER, whichNode, info);
+				BRAINBOX_BULLDOZER, whichNode, info, NULL);
 	}
 
 	return 0;

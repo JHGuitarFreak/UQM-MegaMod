@@ -27,6 +27,9 @@
 const BYTE *Elements;
 const PlanetFrame *PlanData;
 
+#define MEDIUM_DEPOSIT_THRESHOLD 150
+#define LARGE_DEPOSIT_THRESHOLD 225
+
 static COUNT
 CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 		NODE_INFO *info)
@@ -46,8 +49,6 @@ CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 				% (DEPOSIT_QUANTITY (eptr->Density) + 1);
 		while (num_possible--)
 		{
-#define MEDIUM_DEPOSIT_THRESHOLD 150
-#define LARGE_DEPOSIT_THRESHOLD 225
 			COUNT deposit_quality_fine;
 			COUNT deposit_quality_gross;
 
@@ -293,13 +294,14 @@ GenerateRandomLocation (POINT *loc)
 // Sets the SysGenRNG to the required state first.
 COUNT
 GenerateRandomNodes (const SYSTEM_INFO *SysInfoPtr, COUNT scan, COUNT numNodes,
-		COUNT type, COUNT whichNode, NODE_INFO *info)
+		COUNT type, COUNT whichNode, NODE_INFO *info, COUNT density)
 {
 	COUNT i;
 	NODE_INFO temp_info;
-	const ELEMENT_ENTRY *eptr;
-
-	eptr = &SysInfoPtr->PlanetInfo.PlanDataPtr->UsefulElements[0];
+	BYTE MaxScrounged =
+			MAX_SCROUNGED << GET_GAME_STATE (IMPROVED_LANDER_CARGO);
+	const ELEMENT_ENTRY *eptr =
+			&SysInfoPtr->PlanetInfo.PlanDataPtr->UsefulElements[0];
 
 	if (!info) // user not interested in info but we need space for it
 		info = &temp_info;
@@ -309,8 +311,6 @@ GenerateRandomNodes (const SYSTEM_INFO *SysInfoPtr, COUNT scan, COUNT numNodes,
 
 	for (i = 0; i < numNodes; ++i)
 	{
-#define MEDIUM_DEPOSIT_THRESHOLD 150
-#define LARGE_DEPOSIT_THRESHOLD 225
 		COUNT deposit_quality_fine;
 		COUNT deposit_quality_gross;
 
@@ -332,8 +332,12 @@ GenerateRandomNodes (const SYSTEM_INFO *SysInfoPtr, COUNT scan, COUNT numNodes,
 			else
 				deposit_quality_gross = 2;
 
-			info->density = MAKE_WORD (
-				deposit_quality_gross, deposit_quality_fine / 10 + 1);
+			if (density == NULL)
+				info->density = MAKE_WORD (
+					deposit_quality_gross, deposit_quality_fine / 10 + 1);
+			else
+				info->density =
+						(density > MaxScrounged ? MaxScrounged : density) * 256;
 		}
 		else	// density is irrelevant for energy and bio nodes
 			info->density = 0;

@@ -51,7 +51,7 @@ extern COUNT GenerateLifeForms (const SYSTEM_INFO *, COUNT whichLife,
 		NODE_INFO *info);
 extern void GenerateRandomLocation (POINT *loc);
 extern COUNT GenerateRandomNodes (const SYSTEM_INFO *, COUNT scan, COUNT numNodes,
-		COUNT type, COUNT whichNode, NODE_INFO *info);
+		COUNT type, COUNT whichNode, NODE_INFO *info, COUNT density);
 // Generate lifeforms from a preset lifeTypes[] array
 extern COUNT GeneratePresetLife (const SYSTEM_INFO *,
 		const SBYTE *lifeTypes, COUNT whichLife, NODE_INFO *info);
