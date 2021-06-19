@@ -683,8 +683,8 @@ GenerateSol_generateMinerals (const SOLARSYS_STATE *solarSys,
 	if (EXTENDED && matchWorld (solarSys, world, 8, 0))
 	{
 		/* Pluto's Moon, Charon */
-		return GenerateRandomNodes (&solarSys->SysInfo, MINERAL_SCAN, 5,
-			CHARON_DUST, whichNode, info, NULL);
+		return CustomMineralDeposits (&solarSys->SysInfo, whichNode, info,
+				5, CHARON_DUST, LIGHT);
 	}
 	else
 		return GenerateMineralDeposits (&solarSys->SysInfo, whichNode, info);
