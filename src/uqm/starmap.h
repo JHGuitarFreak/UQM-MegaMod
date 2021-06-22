@@ -26,6 +26,7 @@ extern "C" {
 
 extern STAR_DESC *CurStarDescPtr;
 extern STAR_DESC *star_array;
+extern POINT *constel_array;
 
 #define NUM_SOLAR_SYSTEMS 502
 

@@ -47,8 +47,9 @@
 #include <stdlib.h>
 
 typedef enum {
-	NORMAL_STARMAP,
-	WAR_ERA_STARMAP,
+	NORMAL_STARMAP    = 0,
+	WAR_ERA_STARMAP   = 1,
+	CONSTELLATION_MAP = 2,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -321,7 +322,7 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 	}
 }
 
-// JMS: For showing the SC1-era situation in starmap
+// For showing the War-Era situation in starmap
 static void
 GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
 		POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
@@ -517,32 +518,49 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 	ClearDrawable ();
 
-	// Draw the fuel range circle
-	if (race_update == 0 && which_space < 2)
+	if (which_starmap != CONSTELLATION_MAP
+			&& (race_update == 0 && which_space < 2))
+	{	// Draw the fuel range circle
 		DrawFuelCircles ();
+	}
 
-	for (i = MAX_Y_UNIVERSE + 1; i >= 0; i -= GRID_DELTA)
-	{
-		SIZE j;
+	if (which_starmap != CONSTELLATION_MAP)
+	{	// Grid
+		for (i = 0; i < MAX_Y_UNIVERSE + GRID_DELTA; i += GRID_DELTA)
+		{	// Horizontal lines
+			if (i > MAX_Y_UNIVERSE)
+			{
+				i = MAX_Y_UNIVERSE;
+				r.corner.y = UNIVERSE_TO_DISPY (i) + IF_HD(1);
+			}
+			else
+				r.corner.y = UNIVERSE_TO_DISPY (i) - IF_HD(3);
 
-		r.corner.x = UNIVERSE_TO_DISPX (0);
-		r.corner.y = UNIVERSE_TO_DISPY (i);
-		r.extent.width = SIS_SCREEN_WIDTH << zoomLevel;
-		r.extent.height = RES_SCALE(1);
-		DrawFilledRectangle (&r);
+			r.corner.x = UNIVERSE_TO_DISPX (0);
+			r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (1 << zoomLevel) + 1;
+			r.extent.height = RES_SCALE(1);
+			DrawFilledRectangle (&r);
+		}
 
-		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE + 1);
-		r.extent.width = RES_SCALE(1);
-		r.extent.height = SIS_SCREEN_HEIGHT << zoomLevel;
-		for (j = MAX_X_UNIVERSE + 1; j >= 0; j -= GRID_DELTA)
-		{
-			r.corner.x = UNIVERSE_TO_DISPX (j);
+		for (i = 0; i < MAX_X_UNIVERSE + GRID_DELTA; i += GRID_DELTA)
+		{	// Vertical lines
+			if (i > MAX_Y_UNIVERSE)
+			{
+				i = MAX_Y_UNIVERSE;
+				r.corner.x = UNIVERSE_TO_DISPX (i) - IF_HD(3);
+			}
+			else
+				r.corner.x = UNIVERSE_TO_DISPX (i);
+
+			r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) + RES_SCALE(1);
+			r.extent.width = RES_SCALE(1);
+			r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) - RES_SCALE(1);
 			DrawFilledRectangle (&r);
 		}
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);
-	if (which_space <= 1)
+	if (which_space <= 1 && which_starmap != CONSTELLATION_MAP)
 	{
 		COUNT index;
 		HFLEETINFO hStarShip, hNextShip;
@@ -600,7 +618,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						SetContextForeGroundColor (WHITE_COLOR);
 					else
 						SetContextForeGroundColor (c);
-					DrawOval (&r, 0, IS_HD);
+
+					if (!(which_starmap == WAR_ERA_STARMAP
+							&& war_era_strengths[index] == 0))
+						DrawOval (&r, 0, IS_HD);
 
 					SetContextFont (TinyFont);
 
@@ -613,7 +634,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					t.CharCount = GetStringLength (locString);
 					t.pStr = (UNICODE *)GetStringAddress (locString);
 					
-					// JMS: For drawing SC1-era starmap.
+					// For drawing War-Era starmap.
 					if (show_war_era_situation)
 					{
 						switch (index)
@@ -655,13 +676,37 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					SetContextForeGroundColor (c);
 					
 					if (!show_war_era_situation ||
-						(show_war_era_situation && war_era_strengths[index]))
+							(show_war_era_situation && war_era_strengths[index]))
 						font_DrawText (&t);
 				}
 			}
 
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		}
+	}
+
+	// Kruzen: This draws the constellation lines on the constellation starmap.
+	if (which_space <= 1 && which_starmap == CONSTELLATION_MAP)
+	{
+		Color oldColor;
+		POINT *CNPtr;
+		LINE l;
+		BYTE c = 0x3F + IF_HD(0x11);
+		CNPtr = &constel_array[0];
+
+		oldColor = SetContextForeGroundColor (BUILD_COLOR_RGBA (c, c, c, 0xFF));
+
+		while (CNPtr->x < MAX_X_UNIVERSE && CNPtr->y < MAX_Y_UNIVERSE)
+		{
+			l.first.x = UNIVERSE_TO_DISPX (CNPtr->x);
+			l.first.y = UNIVERSE_TO_DISPY (CNPtr->y);
+			CNPtr++;
+			l.second.x = UNIVERSE_TO_DISPX (CNPtr->x);
+			l.second.y = UNIVERSE_TO_DISPY (CNPtr->y);
+			CNPtr++;
+			DrawLine (&l);
+		}
+	 	SetContextForeGroundColor (oldColor);
 	}
 
 	do
@@ -899,10 +944,15 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	STAR_DESC *SDPtr;
 	STAR_DESC *BestSDPtr;
 
-	// JMS: Display star map title.
-	if (which_starmap == WAR_ERA_STARMAP)
+	// Display star map title.
+	if (which_starmap == CONSTELLATION_MAP)
 	{	
-		// "- Old map from 2135 -"
+		// "- Known constellations -"
+		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 4));
+	}
+	else if (which_starmap == WAR_ERA_STARMAP)
+	{	
+		// "- War Era map from 2133 -"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 3));
 	}
 	else
@@ -1591,6 +1641,7 @@ DoMoveCursor (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_TOGGLEMAP] 
 		&& GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 	{
+		FlushInput ();
 		++which_starmap;
 		which_starmap %= NUM_STARMAPS;
 		
