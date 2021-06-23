@@ -183,7 +183,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 			SpaceMusicOK = VolasPackPresent;
 	}
 
-	if (optSpaceMusic)
+	if (optSpaceMusic && !VolasPackPresent)
 		SpaceMusicOK = loadAddon ("SpaceMusic");
 
 	if (optWhichIntro == OPT_3DO)
