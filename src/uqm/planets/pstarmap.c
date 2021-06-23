@@ -1468,6 +1468,33 @@ OnStarNameFrame (TEXTENTRY_STATE *pTES)
 	return TRUE;
 }
 
+BOOLEAN
+coords_only (UNICODE *s)
+{
+	BYTE i, count = 0;
+	BYTE countD = 0, countC = 0;
+	BYTE j = strlen (s);
+
+	for (i = 0; i < j; i++)
+	{
+		if (s[i] == '.')
+		{
+			count++;
+			countD++;
+		}
+		else if (s[i] == ':')
+		{
+			count++;
+			countC++;
+		}
+		else if (isdigit (s[i]) == 0)
+			return FALSE;
+		else
+			count++;
+	}
+	return i == j && countD <= 2 && countC == 1;
+}
+
 static BOOLEAN
 DoStarSearch (MENU_STATE *pMS)
 {
@@ -1501,6 +1528,22 @@ DoStarSearch (MENU_STATE *pMS)
 	SetDefaultMenuRepeatDelay ();
 	success = DoTextEntry (&tes);
 
+	if (coords_only (tes.BaseStr))
+	{
+		POINT coord;
+
+		coord.x = (COORD)(atof (strtok (tes.BaseStr, ":")) * 10);
+		coord.y = (COORD)(atof (strtok (NULL, ":")) * 10);
+
+		if (coord.x > MAX_X_UNIVERSE || coord.y > MAX_Y_UNIVERSE
+			|| coord.x < 0 || coord.y < 0)
+			success = FALSE;
+		else
+			UpdateCursorLocation (0, 0, &coord);
+
+		success = TRUE;
+	}
+	
 	DrawSISMessageEx (pss->Text, -1, -1, DSME_CLEARFR);
 
 	HFree (pss);
