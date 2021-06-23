@@ -75,25 +75,25 @@ signedDivWithError (long val, long divisor)
 	return invert ? -val : val;
 }
 
-#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + 1)
+#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / ORIG_SIS_SCREEN_WIDTH + 1)
 
 static inline COORD
 universeToDispx (long ux)
 {
 	return signedDivWithError (((ux - mapOrigin.x) << zoomLevel)
-			* SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
-			+ ((SIS_SCREEN_WIDTH - 1) >> 1);
+			* ORIG_SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
+			+ ((ORIG_SIS_SCREEN_WIDTH - 1) >> 1);
 }
-#define UNIVERSE_TO_DISPX(ux)  universeToDispx(ux)
+#define UNIVERSE_TO_DISPX(ux)  RES_SCALE(universeToDispx(ux))
 
 static inline COORD
 universeToDispy (long uy)
 {
 	return signedDivWithError (((mapOrigin.y - uy) << zoomLevel)
-			* SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
-			+ ((SIS_SCREEN_HEIGHT - 1) >> 1);
+			* ORIG_SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
+			+ ((ORIG_SIS_SCREEN_HEIGHT - 1) >> 1);
 }
-#define UNIVERSE_TO_DISPY(uy)  universeToDispy(uy)
+#define UNIVERSE_TO_DISPY(uy)  RES_SCALE(universeToDispy(uy))
 
 static inline COORD
 dispxToUniverse (COORD dx)
@@ -525,38 +525,33 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 
 	if (which_starmap != CONSTELLATION_MAP)
-	{	// Grid
-		for (i = 0; i < MAX_Y_UNIVERSE + GRID_DELTA; i += GRID_DELTA)
-		{	// Horizontal lines
-			if (i > MAX_Y_UNIVERSE)
-			{
-				i = MAX_Y_UNIVERSE;
-				r.corner.y = UNIVERSE_TO_DISPY (i) + IF_HD(1);
-			}
-			else
-				r.corner.y = UNIVERSE_TO_DISPY (i) - IF_HD(3);
+	{	// Horizontal lines
+		r.corner.x = UNIVERSE_TO_DISPX (0);
+		r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (RES_SCALE(1) << zoomLevel);
+		r.extent.height = RES_SCALE(1);
 
-			r.corner.x = UNIVERSE_TO_DISPX (0);
-			r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (1 << zoomLevel) + 1;
-			r.extent.height = RES_SCALE(1);
+		for (i = MAX_Y_UNIVERSE; i >= 0; i -= GRID_DELTA)
+		{
+			r.corner.y = UNIVERSE_TO_DISPY(i);
 			DrawFilledRectangle (&r);
 		}
 
-		for (i = 0; i < MAX_X_UNIVERSE + GRID_DELTA; i += GRID_DELTA)
-		{	// Vertical lines
-			if (i > MAX_Y_UNIVERSE)
-			{
-				i = MAX_Y_UNIVERSE;
-				r.corner.x = UNIVERSE_TO_DISPX (i) - IF_HD(3);
-			}
-			else
-				r.corner.x = UNIVERSE_TO_DISPX (i);
+		r.corner.y = UNIVERSE_TO_DISPY(0);
+		DrawFilledRectangle (&r);
 
-			r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) + RES_SCALE(1);
-			r.extent.width = RES_SCALE(1);
-			r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) - RES_SCALE(1);
+		// Vertical lines
+		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) + RES_SCALE(1);
+		r.extent.width = RES_SCALE(1);
+		r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) - RES_SCALE(1);
+
+		for (i = MAX_X_UNIVERSE; i >= 0; i -= GRID_DELTA)
+		{
+			r.corner.x = UNIVERSE_TO_DISPX(i);
 			DrawFilledRectangle (&r);
 		}
+
+		r.corner.x = UNIVERSE_TO_DISPX (0);
+		DrawFilledRectangle (&r);
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);
@@ -822,9 +817,9 @@ EraseCursor (COORD curs_x, COORD curs_y)
 static void
 ZoomStarMap (SIZE dir)
 {
-	// MAX_ZOOM_SHIFT is set to 2 in HD because the cursor
-	// gets stuck in levels 3 and 4.
-#define MAX_ZOOM_SHIFT (BYTE)(4 - RESOLUTION_FACTOR)
+	// MAX_ZOOM_SHIFT is set to 3 in HD because the cursor
+	// gets stuck in level 4.
+#define MAX_ZOOM_SHIFT (BYTE)(4 - IF_HD(1))
 	if (dir > 0)
 	{
 		if (zoomLevel < MAX_ZOOM_SHIFT)
@@ -910,8 +905,9 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 		}
 	}
 
+	// ORIG_SIS_SCREEN_WIDTH/HEIGHT for viewport follows cursor mode
 	if (s.origin.x < 0 || s.origin.y < 0
-			|| s.origin.x >= SIS_SCREEN_WIDTH
+			|| s.origin.x >= SIS_SCREEN_WIDTH 
 			|| s.origin.y >= SIS_SCREEN_HEIGHT)
 	{
 		mapOrigin = cursorLoc;
@@ -932,9 +928,6 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 }
 
 #define CURSOR_INFO_BUFSIZE 256
-// JMS: How close to a star the cursor has to be to 'snap' into it.
-// Don't make this larger than 1 for lo-res(1x). Otherwise the cursor gets stuck on stars.
-#define CURSOR_SNAP_AREA (IF_HD(2)) // MB: Fixed cursor snap area so that trying to autopilot to sol no longer selects sirius all the damn time unless you zoom in.
 
 static void
 UpdateCursorInfo (UNICODE *prevbuf)
@@ -965,12 +958,12 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
 
 	SDPtr = BestSDPtr = 0;
-	
 	while ((SDPtr = FindStar (SDPtr, &cursorLoc, 75, 75)))
 	{
-		if ((UNIVERSE_TO_DISPX (SDPtr->star_pt.x) >= pt.x - CURSOR_SNAP_AREA && UNIVERSE_TO_DISPX (SDPtr->star_pt.x) <= pt.x + CURSOR_SNAP_AREA)
-			&& (UNIVERSE_TO_DISPY (SDPtr->star_pt.y) >= pt.y - CURSOR_SNAP_AREA && UNIVERSE_TO_DISPY (SDPtr->star_pt.y) <= pt.y + CURSOR_SNAP_AREA)
-			&& (BestSDPtr == 0 || STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
+		if (UNIVERSE_TO_DISPX (SDPtr->star_pt.x) == pt.x
+				&& UNIVERSE_TO_DISPY (SDPtr->star_pt.y) == pt.y
+				&& (BestSDPtr == 0
+				|| STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
 			BestSDPtr = SDPtr;
 	}
 
@@ -983,10 +976,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 		};
 		
 		// A star is near the cursor:
-		// Snap cursor onto star only in 1x res. In hi-res modes,
-		// snapping is done when the star is selected as auto-pilot target.
-		if (!IS_HD)
-			cursorLoc = BestSDPtr->star_pt;
+		// Snap cursor onto star
+		cursorLoc = BestSDPtr->star_pt;
 		
 		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) >= 2
 			&& !(QuasiPortalsKnown[BestSDPtr->Postfix - 133]))
@@ -1556,34 +1547,6 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
-		// JMS: The hi-res modes now have a user-friendly starmap cursor.
-		// The cursor finds a star even if the cursor is several pixels away from it (CURSOR_SNAP_AREA)
-		// The cursor centers on the star only when selected as an auto-pilot target.
-		if (IS_HD)
-		{
-			STAR_DESC *SDPtr;
-			STAR_DESC *BestSDPtr;
-			POINT pt;
-			
-			pt.x = UNIVERSE_TO_DISPX (cursorLoc.x);
-			pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
-			SDPtr = BestSDPtr = 0;
-			
-			while ((SDPtr = FindStar (SDPtr, &cursorLoc, 75, 75)))
-			{
-				if ((UNIVERSE_TO_DISPX (SDPtr->star_pt.x) >= pt.x - CURSOR_SNAP_AREA && UNIVERSE_TO_DISPX (SDPtr->star_pt.x) <= pt.x + CURSOR_SNAP_AREA)
-					&& (UNIVERSE_TO_DISPY (SDPtr->star_pt.y) >= pt.y -CURSOR_SNAP_AREA && UNIVERSE_TO_DISPY (SDPtr->star_pt.y) <= pt.y + CURSOR_SNAP_AREA)
-					&& (BestSDPtr == 0 || STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
-					BestSDPtr = SDPtr;
-			}
-			
-			if (BestSDPtr)
-			{
-				cursorLoc = BestSDPtr->star_pt;
-				UpdateCursorLocation (0, 0, &BestSDPtr->star_pt);
-			}
-		}
-
 		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
 
 		if (optBubbleWarp) {
@@ -1594,21 +1557,25 @@ DoMoveCursor (MENU_STATE *pMS)
 				if (!optInfiniteFuel)
 					DeltaSISGauges(0, -FuelRequired(), 0);
 
-				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY) {
+				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
+				{
 					// We're in a solar system; exit it.
-					GLOBAL (CurrentActivity) |= END_INTERPLANETARY;			
+					GLOBAL (CurrentActivity) |= END_INTERPLANETARY;
 					// Set a hook to move to the new location:
 					debugHook = doInstantMove;
-				} else {
-					// Move to the new location immediately.
+				}
+				else 
+				{	// Move to the new location immediately.
 					doInstantMove ();
 				}
 				
 				return FALSE;
-			} else { 
-				PlayMenuSound (MENU_SOUND_FAILURE);
 			}
-		} else {
+			else
+				PlayMenuSound (MENU_SOUND_FAILURE);
+		}
+		else
+		{
 			GLOBAL (autopilot) = cursorLoc;
 			DrawStarMap (0, NULL);
 		}
