@@ -45,6 +45,8 @@
 #include "../util.h"
 		// For get_fuel_to_sol()
 #include <stdlib.h>
+#include <ctype.h> 
+		// For isdigit()
 
 typedef enum {
 	NORMAL_STARMAP    = 0,
