@@ -544,6 +544,7 @@ ReleaseTalkingAnim (void)
 		haveTalkingLock = FALSE;
 		startSentence = (COUNT)~0;
 		endSentence = (COUNT)~0;
+		EnableTalkingAnim (TRUE);
 	}
 }
 
