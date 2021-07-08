@@ -22,6 +22,31 @@
 #include "libs/log.h"
 #include "propfile.h"
 #include "libs/reslib.h"
+#include "options.h"
+
+void
+removeSubstr (char *str, const char *toRemove)
+{
+	if (NULL == (str = strstr (str, toRemove)))
+	{  
+		// no match.
+		//printf("No match in %s\n", str);
+		return;
+	}
+
+	// str points to toRemove in str now.
+	const size_t remLen = strlen (toRemove);
+	char *copyEnd;
+	char *copyFrom = str + remLen;
+	while (NULL != (copyEnd = strstr (copyFrom, toRemove)))
+	{
+		//printf ("match at %3ld in %s\n", copyEnd - str, str);
+		memmove (str, copyFrom, copyEnd - copyFrom);
+		str += copyEnd - copyFrom;
+		copyFrom = copyEnd + remLen;
+	}
+	memmove (str, copyFrom, 1 + strlen(copyFrom));
+}
 
 void
 PropFile_from_string (char *d, PROPERTY_HANDLER handler, const char *prefix)
@@ -84,9 +109,24 @@ PropFile_from_string (char *d, PROPERTY_HANDLER handler, const char *prefix)
 		   make a new map entry. */
 		d[key_end] = '\0';
 		d[value_end] = '\0';
-		if (prefix) {
+		if (prefix)
+		{
 			char buf[256];
-			snprintf(buf, 255, "%s%s", prefix, d+key_start);
+			char dKeyStart[256];
+			const char xbx[] = "xbx.";
+			const char ds4[] = "ds4.";
+
+			snprintf (dKeyStart, sizeof (dKeyStart), "%s", d + key_start);
+			
+			if (strstr (dKeyStart, ds4) || strstr (dKeyStart, xbx))
+			{
+				if (optControllerType == 2)
+					removeSubstr (dKeyStart, ds4);
+				else
+					removeSubstr (dKeyStart, xbx);
+			}
+
+			snprintf(buf, 255, "%s%s", prefix, dKeyStart);
 			buf[255]=0;
 			handler(buf, d+value_start);
 		} else {
