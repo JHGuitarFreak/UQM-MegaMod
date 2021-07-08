@@ -200,7 +200,11 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						font_DrawText (&t);
 					else
 					{
+						BYTE LeftRight = 1;
 						font_DrawText (&t);
+
+						if (CurrentInputState.menu[KEY_MENU_RIGHT])
+							LeftRight = 4;
 
 						PlaySound (ReadOutSounds, NotPositional (), NULL,
 								GAME_SOUND_PRIORITY);
@@ -209,18 +213,18 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 								last_c != '.' && last_c != '!' && last_c != '?')
 						{
 							if (c == ',')
-								TimeOut += ONE_SECOND / 4;
+								TimeOut += ONE_SECOND / ( 4 * LeftRight);
 							if (c == '.' || c == '!' || c == '?')
-								TimeOut += ONE_SECOND / 2;
+								TimeOut += ONE_SECOND / (2 * LeftRight);
 							else
-								TimeOut += ONE_SECOND / 20;
+								TimeOut += ONE_SECOND / (20 * LeftRight);
 						}
 						else
-							TimeOut += ONE_SECOND / 20;
+							TimeOut += ONE_SECOND / (20 * LeftRight);
 						last_c = c;
 
 						if (word_chars == 0)
-							TimeOut += ONE_SECOND / 20;
+							TimeOut += ONE_SECOND / (20 * LeftRight);
 
 						if (WaitForActButtonUntil (TRUE, TimeOut, FALSE))
 						{
