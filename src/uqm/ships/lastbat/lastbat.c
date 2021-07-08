@@ -679,6 +679,13 @@ sentinel_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 					DeltaEnergy(ElementPtr1, -StarShipPtr->RaceDescPtr->ship_info.energy_level);
 				else
 					DeltaEnergy(ElementPtr1, -ENERGY_DRAIN);
+				if (EXTENDED)
+				{
+					GetElementStarShip (ElementPtr0, &StarShipPtr);
+					ProcessSound (SetAbsSoundIndex (
+						/* ENERGY DRAIN */
+						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), ElementPtr0);
+				}
 			}
 
 			ZeroVelocityComponents (&ElementPtr0->velocity);
@@ -724,6 +731,12 @@ samatra_postprocess (ELEMENT *ElementPtr)
 				&& spawn_comet (ElementPtr))
 		{
 			StarShipPtr->weapon_counter = WEAPON_WAIT;
+			if (EXTENDED)
+			{
+				ProcessSound (SetAbsSoundIndex (
+					/* COMET SPAWN */
+					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 0), ElementPtr);
+			}
 		}
 
 		if (StarShipPtr->special_counter == 0
