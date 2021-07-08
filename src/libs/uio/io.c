@@ -1399,7 +1399,7 @@ uio_getDirListMulti(uio_PDirHandle **pDirHandles,
 		}
 	}
 
-	match_freeContext(matchContext);
+	match_freeContext (matchContext);
 
 	// Sort the bigNameBuffer
 	// Necessary for removing doubles.

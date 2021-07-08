@@ -553,9 +553,8 @@ main (int argc, char *argv[])
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
 	
-	resolutionFactor = (unsigned int) options.resolutionFactor.value; 
-	loresBlowupScale = (unsigned int) options.loresBlowupScale.value; 	
-
+	resolutionFactor = (unsigned int) options.resolutionFactor.value;
+	loresBlowupScale = (unsigned int) options.loresBlowupScale.value;
 	
 	optPrecursorMode = options.optPrecursorMode.value;
 	timeDilationScale = options.timeDilationScale.value;
@@ -565,15 +564,12 @@ main (int argc, char *argv[])
 	optUnlockUpgrades = options.unlockUpgrades.value;
 	optInfiniteRU = options.infiniteRU.value;
 	optSkipIntro = options.skipIntro.value;
-	// JMS
 	optMainMenuMusic = options.mainMenuMusic.value;
 	optNebulae = options.nebulae.value;
 	optOrbitingPlanets = options.orbitingPlanets.value;
 	optTexturedPlanets = options.texturedPlanets.value;
  	optCheatMode = options.cheatMode.value;
-	
 	optDateFormat = options.optDateFormat.value;
-		
 	optInfiniteFuel = options.infiniteFuel.value;
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;

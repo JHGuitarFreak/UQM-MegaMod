@@ -1476,6 +1476,7 @@ coords_only (UNICODE *s)
 	BYTE i, count = 0;
 	BYTE countD = 0, countC = 0;
 	BYTE j = strlen (s);
+	//const char *pattern = "^\d*(\.\d+)?:\d*(\.\d+)?$";
 
 	for (i = 0; i < j; i++)
 	{

@@ -323,6 +323,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		BYTE char_deltas[128];
 		BYTE *pchar_deltas;
 
+		t.baseline.x = RES_SCALE(3);
 		t.align = ALIGN_LEFT;
 
 		TextRect (&t, &text_r, char_deltas);
@@ -386,7 +387,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 				cur_r.extent.width = RES_SCALE(1);
 			}
 			
-			SetCursorRect (&cur_r, OffScreenContext);			
+			SetCursorRect (&cur_r, OffScreenContext);
 		}
 
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
@@ -1656,12 +1657,11 @@ GetFTankCapacity (POINT *ppt)
 			+ IF_HD(OutfitOrShipyard == 2 ? 0 : 2);
 	if (volume == FUEL_TANK_CAPACITY) 
 	{
-		ppt->y = (RES_SCALE(27) - rowNr)
-				+ IF_HD(OutfitOrShipyard == 2 ? 2 : 3);
+		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(3);
 	} 
-	else 
+	else
 	{
-		ppt->y = (RES_SCALE(30) - rowNr) + IF_HD(3);
+		ppt->y = (RES_SCALE(30) - rowNr) - IF_HD(1);
 	}
 	
 	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS /

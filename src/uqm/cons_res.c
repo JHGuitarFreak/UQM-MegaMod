@@ -47,7 +47,6 @@ static const char *planet_sizes[] = {
 }; 
 
 FRAME planet[NUM_VIEWS];
-FRAME smtr[NUM_VIEWS];
 static char buffer[80];
 
 void
@@ -79,15 +78,11 @@ load_gravity_well (BYTE selector)
 			snprintf (buffer, 79, "planet.%s.%s", ptype, planet_sizes[i]);
 			buffer[79] = '\0';
 			planet[i] = CaptureDrawable (LoadGraphic (buffer));
-			snprintf (buffer, 79, "planet.samatra.%s", planet_sizes[i]);
-			buffer[79] = '\0';
-			smtr[i] = CaptureDrawable (LoadGraphic (buffer));
 		}
 	}
 
 }
 
-}
 
 void
 free_gravity_well (void)
@@ -98,8 +93,7 @@ free_gravity_well (void)
 	{
 		DestroyDrawable (ReleaseDrawable (planet[i]));
 		planet[i] = 0;
-		DestroyDrawable (ReleaseDrawable (smtr[i]));
-		smtr[i] = 0;
+
 	}
 }
 
