@@ -67,7 +67,7 @@
 #define ANIMATION_WAIT 1
 #define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE(10), RES_SCALE(8), RES_SCALE(10))))
 #define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
-#define MAX_SENTINELS 4
+#define MAX_SENTINELS DIF_CASE(4, 4, 5)
 #define SPECIAL_ENERGY_COST 3
 		/* Used for samatra_desc.special_energy_cost, but the value isn't
 		 * actually used. */
@@ -781,7 +781,6 @@ samatra_preprocess (ELEMENT *ElementPtr)
 	}
 	else
 	{
-		int g;
 		POINT* offs;
 
 		POINT offs_orig[8] =
