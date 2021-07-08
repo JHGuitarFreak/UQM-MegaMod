@@ -46,13 +46,13 @@ enum
 
 enum
 {
-	HYDROGEN, // Unused
+	HYDROGEN, // Unused - Common
 	HELIUM,
 	LITHIUM,
 	BERYLLIUM,
 	BORON,
 	CARBON,
-	NITROGEN, // Unused
+	NITROGEN, // Unused - Common
 	OXYGEN,
 	FLUORINE,
 	NEON,
@@ -96,8 +96,8 @@ enum
 	CADMIUM,
 	INDIUM,
 	TIN,
-	ANTIMONY, // Unused
-	TELLURIUM, // Unused
+	ANTIMONY, // Unused - Base Metal
+	TELLURIUM, // Unused - Base Metal
 	IODINE,
 	XENON,
 	CESIUM,
@@ -108,16 +108,16 @@ enum
 	NEODYMIUM,
 	PROMETHIUM,
 	SAMARIUM,
-	EUROPIUM, // Unused
+	EUROPIUM, // Unused - Rare Earth
 	GADOLINIUM,
 	TERBIUM,
-	DYPROSIUM, // Unused
+	DYPROSIUM, // Unused - Rare Earth
 	HOLMIUM,
 	ERBIUM,
 	THULIUM,
 	YTTERBIUM,
 	LUTETIUM,
-	HAFNIUM, // Unused
+	HAFNIUM, // Unused - Base Metal
 	TANTALUM,
 	TUNGSTEN,
 	RHENIUM,
@@ -145,7 +145,7 @@ enum
 	OZONE = NUMBER_OF_NORMAL,
 	FREE_RADICALS,
 	CARBON_DIOXIDE,
-	CARBON_MONOXIDE, // Unused
+	CARBON_MONOXIDE, // Unused - Common
 	AMMONIA,
 	METHANE,
 	SULFURIC_ACID,
@@ -157,29 +157,29 @@ enum
 	CYANOACETYLENE,
 	METHANOL,
 	ETHANOL,
-	SILICON_MONOXIDE, // Unused
-	TITANIUM_OXIDE, // Unused
-	ZIRCONIUM_OXIDE, // Unused
-	WATER, // Unused
-	SILICON_COMPOUNDS, // Unused
-	METAL_OXIDES, // Unused
-	QUANTUM_BH, // Unused
+	SILICON_MONOXIDE, // Unused - Common
+	TITANIUM_OXIDE, // Unused - Common
+	ZIRCONIUM_OXIDE, // Unused - Common
+	WATER, // Unused - Common
+	SILICON_COMPOUNDS, // Unused - Common
+	METAL_OXIDES, // Unused - Common
+	QUANTUM_BH, // Unused - Exotic
 	NEUTRONIUM,
 	MAGNETIC_MONOPOLES,
 	DEGENERATE_MATTER,
 	RT_SUPER_FLUID,
 	AGUUTI_NODULES,
-	IRON_COMPOUNDS, // Unused
-	ALUMINUM_COMPOUNDS, // Unused
-	NITROUS_OXIDE, // Unused
-	RADIOACTIVE_COMPOUNDS, // Unused
+	IRON_COMPOUNDS, // Unused - Common
+	ALUMINUM_COMPOUNDS, // Unused - Common
+	NITROUS_OXIDE, // Unused - Common
+	RADIOACTIVE_COMPOUNDS, // Unused - Radioactive
 	HYDROCARBONS,
-	CARBON_COMPOUNDS, // Unused
+	CARBON_COMPOUNDS, // Unused - Common
 	ANTIMATTER,
-	CHARON_DUST, // Unused
+	CHARON_DUST, // Unused - Exotic
 	REISBURG_HELICES,
 	TZO_CRYSTALS,
-	CALCIUM_COMPOUNDS, // Unused
+	CALCIUM_COMPOUNDS, // Unused - Common
 	NITRIC_ACID,
 
 	NUMBER_OF_ELEMENTS
