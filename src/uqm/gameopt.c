@@ -1092,8 +1092,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 			snprintf (buf, sizeof buf, "%s: %s", buf2, SaveName);
 
-			if(!IS_HD)
-				TruncateSaveName (buf, r.extent.width - 7, FALSE);
+			TruncateSaveName (buf, r.extent.width - 7, FALSE);
 		}
 		font_DrawText (&t);
 	}
@@ -1233,8 +1232,7 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 
 	if (pickState->saving)
 	{
-		if(!IS_HD)
-			TruncateSaveName (desc->SaveName, r.extent.width - 104, TRUE);
+		TruncateSaveName (desc->SaveName, r.extent.width - 104, TRUE);
 
 		// Initialize the save name with whatever name is there already
 		// SAVE_NAME_SIZE is less than 256, so this is safe.
