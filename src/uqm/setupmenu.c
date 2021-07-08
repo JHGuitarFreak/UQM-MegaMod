@@ -41,6 +41,7 @@
 #include "gamestr.h"
 #include "libs/graphics/bbox.h"
 #include "libs/math/random.h"
+#include "libs/input/input_common.h"
 
 #include SDL_INCLUDE(SDL_version.h)
 
@@ -2047,9 +2048,15 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if(oldResFactor != resolutionFactor ||
 		audioDriver != opts->adriver ||
 		audioQuality != opts->aquality ||
-		opts->controllerType != optControllerType ||
 		(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
  		optRequiresRestart = TRUE;
+
+	if (opts->controllerType != optControllerType)
+	{
+		optControllerType = opts->controllerType;
+		TFB_UninitInput ();
+		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+	}
 
 	res_PutInteger ("config.reswidth", NewWidth);
 	res_PutInteger ("config.resheight", NewHeight);
@@ -2288,8 +2295,14 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optStereoSFX = (opts->stereo == OPTVAL_ENABLED);
 	optKeepAspectRatio = (opts->keepaspect == OPTVAL_ENABLED);
-	PlayerControls[0] = opts->player1;
 	PlayerControls[1] = opts->player2;
+
+	if (optControllerType == 2)
+		PlayerControls[0] = CONTROL_TEMPLATE_JOY_3;
+	else if (optControllerType == 1)
+		PlayerControls[0] = CONTROL_TEMPLATE_JOY_2;
+	else
+		PlayerControls[0] = opts->player1;
 
 	res_PutBoolean ("config.subtitles", opts->subtitles == OPTVAL_ENABLED);
 	res_PutBoolean ("config.textmenu", opts->menu == OPTVAL_PC);

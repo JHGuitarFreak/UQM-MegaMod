@@ -221,7 +221,7 @@ key_init (void)
 		joysticks = HMalloc (sizeof (joystick) * joycount);
 		for (i = 0; i < joycount; i++)
 		{
-			joysticks[i].stick = NULL;	
+			joysticks[i].stick = NULL;
 			joysticks[i].numaxes = joysticks[i].numbuttons = 0;
 			joysticks[i].axes = NULL;
 			joysticks[i].buttons = NULL;
