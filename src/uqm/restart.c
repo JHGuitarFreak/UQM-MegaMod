@@ -186,7 +186,7 @@ InitFlash (MENU_STATE *pMS)
 {
 	pMS->flashContext = Flash_createOverlay (ScreenContext,
 		NULL, NULL);
-	Flash_setMergeFactors (pMS->flashContext, -3, 3, 16, FALSE);
+	Flash_setMergeFactors (pMS->flashContext, -3, 3, 16);
 	Flash_setSpeed (pMS->flashContext, (6 * ONE_SECOND) / 14, 0,
 		(6 * ONE_SECOND) / 14, 0);
 	Flash_setFrameTime (pMS->flashContext, ONE_SECOND / 16);
@@ -219,7 +219,7 @@ DoRestart (MENU_STATE *pMS)
 	}
 
 	if (pMS->Initialized)
-		Flash_process(pMS->flashContext, FALSE);
+		Flash_process (pMS->flashContext);
 
 	if (!pMS->Initialized)
 	{

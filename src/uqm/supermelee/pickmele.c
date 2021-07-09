@@ -153,7 +153,7 @@ PickMelee_ChangedSelection (GETMELEE_STATE *gms, COUNT playerI)
 			+ ((1 - playerI) * PICK_SIDE_OFFS);
 	r.extent.width = (ICON_WIDTH + RES_SCALE(2));
 	r.extent.height = (ICON_HEIGHT + RES_SCALE(2));
-	Flash_setRect (gms->player[playerI].flashContext, &r, optWhichMenu == OPT_PC);
+	Flash_setRect (gms->player[playerI].flashContext, &r);
 }
 
 // Only returns false when there is no ship for the choice.
@@ -328,7 +328,7 @@ DoGetMelee (GETMELEE_STATE *gms)
 			continue;
 
 		if (!gms->player[playerI].done)
-			Flash_process (gms->player[playerI].flashContext, FALSE);
+			Flash_process (gms->player[playerI].flashContext);
 	}
 
 	SleepThread (ONE_SECOND / 120);
@@ -759,7 +759,7 @@ GetMeleeStarShips (COUNT playerMask, HSTARSHIP *ships)
 		gmstate.player[playerI].flashContext =
 				Flash_createHighlight (ScreenContext, NULL);
 		Flash_setMergeFactors (gmstate.player[playerI].flashContext,
-				2, 3, 2, FALSE);
+				2, 3, 2);
 		Flash_setFrameTime (gmstate.player[playerI].flashContext,
 				ONE_SECOND / 16);
 #ifdef NETPLAY
