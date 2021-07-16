@@ -85,6 +85,8 @@ As such MegaMod has its own packages and add-ons.
 
 For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.0.85-hd.uqm`.
 
+And as MegaMod is not compatible with any other mods, do not install it over any existing UQM installations.
+
 All MegaMod compatible add-ons and content can be found on the main website's Releases page: https://megamod.serosis.net/Releases
 
 ## Contributors
