@@ -41,6 +41,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Kruzenshtern: Added "Non-Stop Oscilloscope" ability where, if speech is enabled, the Oscilloscope will switch over to music for its data when nobody is talking
 - Kruzenshtern Non-HD: Added a couple of frames to the dispatch/return lander animation so it clears the UI nicely
 - Kruzenshtern: Remove ships from system if Kohr-Ah destroyed corresponding race
+- Option to change Flagship graphics to the 3DO red engined variant for all instances
+- EXTENDED: Charon now generates previously unused element "Charon Dust"
+- EXTENDED: Unzervalt now has a single moon as per the intro artwork
+- EXTENDED: Show Sa-Matra in background during penultimate battle - Kruzen
+- Kruzen: Draw constellation map in-engine
+- Added ability to use star search to enter direct HyperSpace coordinates
+- Speed up lander reports by holding the "right" menu key
+
 
 ### Changed
 - Scaled the outer border of the viewport to match PC-DOS
@@ -73,6 +81,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Lander reports now only respond to the "action keys" instead of every mappable key
 - HD: Auto-pilot line on the starmap is now a dotted line with a reticule at the end showing your destination
 - HARDMODE: Make the Sa-Matra battle more difficult - Kruzenshtern
+- EXTENDED: Set encountered world to moon when applicable - Kruzen
+- Flagship graphics now default to the PC green engined variant for all instances
+- Picking Xbox or PS4 controls auto-selects the correct control scheme
+- EXTENDED: Enable Sa-Matra sound effects - Kruzen
 
 
 ### Fixed
@@ -97,6 +109,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Kruzenshtern: Fixed timing for AlienTalkSegue, added tool to create custom baseline per sentence, added Fading UI func, and Talking animation block is now tied to current sub chunk playing
 - Kruzenshtern: Remove ships from system if Kohr-Ah destroyed corresponding race
 - Fixed Unlock All Ships cheat from affecting current alliances
+- Kruzen: Fix moon intersect when loading game
+- Fixed SOI based space music when only Vol's complete remix is installed
+- Kruzen: Fix for stuck lip flaps for Orz when you skip their first dialog
+
 
 ## [v0.8.0.85]
 ### Added
