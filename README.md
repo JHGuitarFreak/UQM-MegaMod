@@ -78,6 +78,14 @@ The new controller layout option only works if you *don't* use DS4Windows.
 
 Have a lovely day!
 
+## Mod Compatibility
+MegaMod is not compatible with any other mods nor are they compatible with MegaMod.
+MegaMod is completely independant from Core UQM, HD-Mod, HD-Remix, Crazy Mod, Balance Mod, Extended, or any other mods.
+As such MegaMod has its own packages and add-ons.
+
+For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.0.85-hd.uqm`.
+
+All MegaMod compatible add-ons and content can be found on the main website's Releases page: https://megamod.serosis.net/Releases
 
 ## Contributors
 
