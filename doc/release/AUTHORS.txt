@@ -21,7 +21,7 @@ Kruzenshtern (Coding and QA)
 Nebulae and HD Super Melee backgrounds created using wwwtyro's space2d & space2dwgl procedural space-scape generator.
 
 Thanks to Saibuster, Mark Vera, and Rush AX for the Main Menu Music
-and the entire Star Control Discord for putting up with my crap and
+and the entire New Alliance Discord for putting up with my crap and
 letting me bounce ideas off them.
 
 The Ur-Quan Masters port:
