@@ -113,17 +113,16 @@ PropFile_from_string (char *d, PROPERTY_HANDLER handler, const char *prefix)
 		{
 			char buf[256];
 			char dKeyStart[256];
-			const char xbx[] = "xbx.";
-			const char ds4[] = "ds4.";
+			const char *Prefix[2] = { "ds4.", "xbx." };
 
 			snprintf (dKeyStart, sizeof (dKeyStart), "%s", d + key_start);
 			
-			if (strstr (dKeyStart, ds4) || strstr (dKeyStart, xbx))
+			if (strstr (dKeyStart, Prefix[0]) || strstr (dKeyStart, Prefix[1]))
 			{
 				if (optControllerType == 2)
-					removeSubstr (dKeyStart, ds4);
+					removeSubstr (dKeyStart, Prefix[0]);
 				else
-					removeSubstr (dKeyStart, xbx);
+					removeSubstr (dKeyStart, Prefix[1]);
 			}
 
 			snprintf(buf, 255, "%s%s", prefix, dKeyStart);
