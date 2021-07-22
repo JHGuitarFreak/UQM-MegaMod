@@ -387,7 +387,7 @@ ProcessInputEvent (const SDL_Event *Event)
 	if (!InputInitialized)
 		return;
 	
-	ProcessMouseEvent (Event);
+	// ProcessMouseEvent (Event);
 
 	// In character mode with NumLock on, numpad chars bypass VControl
 	// so that menu arrow events are not produced
@@ -497,8 +497,6 @@ ProcessInputEvent (const SDL_Event *Event)
 {
 	if (!InputInitialized)
 		return;
-	
-	ProcessMouseEvent (Event);
 
 	if (in_character_mode && !set_character_mode)
 	{
