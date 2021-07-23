@@ -222,7 +222,7 @@ GenerateDefault_generateArtifact (const SOLARSYS_STATE *solarSys,
 {
 	// Generate an energy node at a random location
 	return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 1, 0,
-			whichNode, info, NULL);
+			whichNode, info);
 }
 
 COUNT
@@ -231,7 +231,7 @@ GenerateDefault_generateRuins (const SOLARSYS_STATE *solarSys,
 {
 	// Generate a standard spread of city ruins of a destroyed civilization
 	return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, NUM_RACE_RUINS,
-			0, whichNode, info, NULL);
+			0, whichNode, info);
 }
 
 static inline void

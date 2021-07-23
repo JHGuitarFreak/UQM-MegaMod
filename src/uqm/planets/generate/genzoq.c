@@ -199,7 +199,7 @@ GenerateZoqFotPik_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return GenerateDefault_generateRuins (solarSys, whichNode, info);
 		else if (EXTENDED && CurStarDescPtr->Index == ZOQ_COLONY_DEFINED)
 			return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 4,
-					0, whichNode, info, NULL);
+					0, whichNode, info);
 	}
 
 	return 0;
