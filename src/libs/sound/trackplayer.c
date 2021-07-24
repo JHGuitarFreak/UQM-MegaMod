@@ -903,7 +903,7 @@ GetSubtitleNumberByTrack (COUNT track)
 	TFB_SoundChunk *now;
 
 	if (chunks_head == NULL)// Fool-proof
-		return;
+		return i;
 
 	now = chunks_head;
 
