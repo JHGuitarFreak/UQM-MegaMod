@@ -1,5 +1,11 @@
 NOTE by UQM developers: this is a modified version of libmikmod.
 
 This version of the library is based on the official libmikmod library
-version 3.1.11a with some internal and API changes backported from v3.2.2.
+version 3.3.11.1. Alterations have been marked with comments that
+begin with the text UQM MOD, along with brief descriptions. The
+changes are largely limited to removal of unused-by-UQM formats and
+drivers, hardcoding static-library behavior for the remainder, and
+reliance on UQM's own configuration files for cross-compatibility
+defines.
+
 The official library is found at http://sourceforge.net/projects/mikmod.

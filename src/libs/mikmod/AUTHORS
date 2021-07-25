@@ -9,25 +9,35 @@ libmikmod main authors
   maintained MikMod version 3 until it was discontinued. He still works
   on the WinAmp module plugin, roughly based on MikMod.
 * Miod Vallat <miod@mikmod.org>
-  current overbooked libmikmod maintainer (since version 3.0.4), made
+  [email doesn't work anymore...]
+  maintainer MikMod'Unix (since version 3.0.4), made
   an audit of the code resulting in many bugs fixed.
+* Raphael Assenat <raph@raphnet.net>
+  Revived the project after many years of inactivity, in 2004. Former
+  maintainer.
+* Shlomi Fish <shlomif@shlomifish.org> ( http://www.shlomifish.org/ ).
+  Took over maintenance after many years of inactivity, in 2012.
+* Ozkan Sezer <sezero@users.sourceforge.net>
+  Took over maintenance in 2013. (current maintainer.)
 
 Previous Unix maintainers
 -------------------------
 
-* Steve McIntyre <steven@chiark.greenend.org.uk>
+* Steve McIntyre <steve@einval.com>
   maintained MikMod'Unix version 2. Used to maintain the Debian package
   for MikMod.
 * Peter Amstutz <tetron@student.umass.edu>
   maintained MikMod'Unix version 3 up to version 3.0.3.
-  
+
 General contributors
 --------------------
 
 * Arne de Bruijn <arne@knoware.nl>
   wrote the compressed IT sample support.
-* Shlomi Fish <shlomif@vipe.technion.ac.il>
-  wrote the Java port, bug fixes.
+* Shlomi Fish <shlomif@shlomifish.org>
+  wrote the Java port, bug fixes, CMake build system.
+* Ozkan Sezer <sezero@users.sourceforge.net>
+  overall bug fixes, configury updates.
 * Juan Linietsky <coding@reduz.com.ar>
   overall bug fixes.
 * Claudio Matsuoka <claudio@helllabs.org>
@@ -48,6 +58,9 @@ General contributors
 Contributors on the Unix side
 -----------------------------
 
+* Axel "awe" Wefers <awe@fruitz-of-dojo.de>
+  wrote the OSX CoreAudio driver, the AIFF driver and
+  updated the Mac Audio Carbon driver
 * Douglas Carmichael <dcarmich@mcs.com>
   ported MikMod to FreeBSD.
 * Chris Conn <cconn@tohs.abacom.com>
@@ -84,6 +97,22 @@ Contributors on the Windows side
   created the DirectSound driver.
 * Bjornar Henden <bhenden@online.no>
   created the Multimedia API windows driver.
+* Paul Spark <sparkynz74@gmail.com>
+  created the SDL windows driver and made changes to build with MSVC++ 6.
+
+Contributors on the Android side
+--------------------------------
+
+* Radovan Cervenka <radovan.cervenka@gmail.com>
+  provided the Android building artifacts and ported the old OpenSL ES
+  driver from the old http://github.com/0xD34D/libmikmod-android project
+  to libmikmod-3.
+
+Contributors on the Amiga side
+------------------------------
+
+* Szilárd Biró <col.lawrence@gmail.com>
+  provided the AHI driver.
 
 Contributors on the Dos side
 ----------------------------
@@ -108,7 +137,7 @@ Contributors on the Macintosh side
 Contributors on the OS/2 side
 -----------------------------
 
-* Stefan Tibus <Stefan_Tibus@ThePentagon.com>
+* Stefan Tibus <sjti@gmx.net>
   ported libmikmod to OS/2.
 * Andrew Zabolotny <bit@eltech.ru>
   improved the existing OS/2 drivers.
@@ -119,6 +148,5 @@ Contributors on the BeOS side
 * Thomas Neumann <tneumann@polycode.dk>
   integrated libmikmod into his BeOS APlayer, and contributed many bug fixes.
 
--- 
-If your name is missing, don't hesitate to remind me at
-<miod@mikmod.org>
+--
+If your name is missing, don't hesitate to remind the current maintainer.

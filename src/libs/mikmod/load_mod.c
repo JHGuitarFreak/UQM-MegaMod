@@ -6,12 +6,12 @@
 	it under the terms of the GNU Library General Public License as
 	published by the Free Software Foundation; either version 2 of
 	the License, or (at your option) any later version.
- 
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Library General Public License for more details.
- 
+
 	You should have received a copy of the GNU Library General Public
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
@@ -34,7 +34,6 @@
 #include <unistd.h>
 #endif
 
-#include <ctype.h>
 #include <stdio.h>
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
@@ -42,6 +41,7 @@
 #include <string.h>
 
 #include "mikmod_internals.h"
+#include "mikmod_ctype.h"
 
 #ifdef SUNOS
 extern int fprintf(FILE *, const char *, ...);
@@ -108,10 +108,10 @@ static BOOL MOD_CheckType(UBYTE *id, UBYTE *numchn, CHAR **descr)
 		*numchn = 4;
 		return 1;
 	}
-	
+
 	/* Star Tracker */
 	if (((!memcmp(id, "FLT", 3)) || (!memcmp(id, "EXO", 3))) &&
-		(isdigit(id[3]))) {
+		(mik_isdigit(id[3]))) {
 		*descr = startrekker;
 		modtype = trekker = 1;
 		*numchn = id[3] - '0';
@@ -141,7 +141,7 @@ static BOOL MOD_CheckType(UBYTE *id, UBYTE *numchn, CHAR **descr)
 	}
 
 	/* Fasttracker */
-	if ((!memcmp(id + 1, "CHN", 3)) && (isdigit(id[0]))) {
+	if ((!memcmp(id + 1, "CHN", 3)) && (mik_isdigit(id[0]))) {
 		*descr = fasttracker;
 		modtype = 1;
 		*numchn = id[0] - '0';
@@ -149,7 +149,7 @@ static BOOL MOD_CheckType(UBYTE *id, UBYTE *numchn, CHAR **descr)
 	}
 	/* Fasttracker or Taketracker */
 	if (((!memcmp(id + 2, "CH", 2)) || (!memcmp(id + 2, "CN", 2)))
-		&& (isdigit(id[0])) && (isdigit(id[1]))) {
+		&& (mik_isdigit(id[0])) && (mik_isdigit(id[1]))) {
 		if (id[3] == 'H') {
 			*descr = fasttracker;
 			modtype = 2;		/* this can also be Imago Orpheus */
@@ -190,6 +190,8 @@ static void MOD_Cleanup(void)
 {
 	MikMod_free(mh);
 	MikMod_free(patbuf);
+	mh=NULL;
+	patbuf=NULL;
 }
 
 /*
@@ -277,7 +279,7 @@ static UBYTE ConvertNote(MODNOTE *n, UBYTE lasteffect)
 	/* Handle ``heavy'' volumes correctly */
 	if ((effect == 0xc) && (effdat > 0x40))
 		effdat = 0x40;
-	
+
 	/* An isolated 100, 200 or 300 effect should be ignored (no
 	   "standalone" porta memory in mod files). However, a sequence such
 	   as 1XX, 100, 100, 100 is fine. */
@@ -288,7 +290,7 @@ static UBYTE ConvertNote(MODNOTE *n, UBYTE lasteffect)
 	UniPTEffect(effect, effdat);
 	if (effect == 8)
 		of.flags |= UF_PANNING;
-	
+
 	return effect;
 }
 
@@ -315,7 +317,7 @@ static BOOL ML_LoadPatterns(void)
 		return 0;
 	if (!AllocTracks())
 		return 0;
-	
+
 	/* Allocate temporary buffer for loading and converting the patterns */
 	if (!(patbuf = (MODNOTE *)MikMod_calloc(64U * of.numchn, sizeof(MODNOTE))))
 		return 0;
@@ -323,7 +325,7 @@ static BOOL ML_LoadPatterns(void)
 	if (trekker && of.numchn == 8) {
 		/* Startrekker module dual pattern */
 		for (t = 0; t < of.numpat; t++) {
-			for (s = 0; s < (64 * 4); s++) {
+			for (s = 0; s < (64U * 4); s++) {
 				patbuf[s].a = _mm_read_UBYTE(modreader);
 				patbuf[s].b = _mm_read_UBYTE(modreader);
 				patbuf[s].c = _mm_read_UBYTE(modreader);
@@ -332,7 +334,7 @@ static BOOL ML_LoadPatterns(void)
 			for (s = 0; s < 4; s++)
 				if (!(of.tracks[tracks++] = ConvertTrack(patbuf + s, 4)))
 					return 0;
-			for (s = 0; s < (64 * 4); s++) {
+			for (s = 0; s < (64U * 4); s++) {
 				patbuf[s].a = _mm_read_UBYTE(modreader);
 				patbuf[s].b = _mm_read_UBYTE(modreader);
 				patbuf[s].c = _mm_read_UBYTE(modreader);
@@ -346,7 +348,7 @@ static BOOL ML_LoadPatterns(void)
 		/* Generic module pattern */
 		for (t = 0; t < of.numpat; t++) {
 			/* Load the pattern into the temp buffer and convert it */
-			for (s = 0; s < (64 * of.numchn); s++) {
+			for (s = 0; s < (64U * of.numchn); s++) {
 				patbuf[s].a = _mm_read_UBYTE(modreader);
 				patbuf[s].b = _mm_read_UBYTE(modreader);
 				patbuf[s].c = _mm_read_UBYTE(modreader);
@@ -384,10 +386,10 @@ static BOOL MOD_Load(BOOL curious)
 
 	mh->songlength = _mm_read_UBYTE(modreader);
 
-	/* this fixes mods which declare more than 128 positions. 
+	/* this fixes mods which declare more than 128 positions.
 	 * eg: beatwave.mod */
 	if (mh->songlength > 128) { mh->songlength = 128; }
-	
+
 	mh->magic1 = _mm_read_UBYTE(modreader);
 	_mm_read_UBYTES(mh->positions, 128, modreader);
 	_mm_read_UBYTES(mh->magic2, 4, modreader);
@@ -476,11 +478,11 @@ static BOOL MOD_Load(BOOL curious)
 		q++;
 	}
 
-	of.modtype = strdup(descr);
+	of.modtype = MikMod_strdup(descr);
 
 	if (!ML_LoadPatterns())
 		return 0;
-	
+
 	return 1;
 }
 
