@@ -1434,6 +1434,12 @@ DoSell (RESPONSE_REF R)
 					(BYTE)NUM_ELEMENT_CATEGORIES,
 					(BYTE)NUM_ELEMENT_CATEGORIES
 					);
+
+			if (EXTENDED && GLOBAL_SIS (TotalBioMass)
+					&& GET_GAME_STATE (VUX_BEAST_ON_SHIP) == 2
+					&& GET_GAME_STATE (VUX_BEAST) == 2)
+				SET_GAME_STATE (VUX_BEAST_ON_SHIP, 0);
+
 			do
 			{
 				TimeIn = GetTimeCounter ();

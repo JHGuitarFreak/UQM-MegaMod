@@ -48,6 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Kruzen: Draw constellation map in-engine
 - Added ability to use star search to enter direct HyperSpace coordinates
 - Speed up lander reports by holding the "right" menu key
+- EXTENDED: Set Zex's Beauty free upon the planet after it devours Zex - idea and lander report by Tarp 
 
 
 ### Changed
