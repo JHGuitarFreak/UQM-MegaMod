@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=0.8.1
+Name=The Ur-Quan Masters MegaMod
+Comment=An interstellar adventure game
+Exec=UrQuanMasters
+Icon=UrQuanMasters
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Game;AdventureGame;
