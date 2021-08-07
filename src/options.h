@@ -97,6 +97,7 @@ extern BOOLEAN optNonStopOscill;
 extern int optScopeStyle;
 extern int optSuperPC;
 extern BOOLEAN optHyperStars;
+extern BOOLEAN optPlanetTexture;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSpeech;

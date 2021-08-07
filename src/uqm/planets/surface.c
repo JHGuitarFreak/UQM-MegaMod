@@ -230,16 +230,10 @@ GeneratePresetLife (const SYSTEM_INFO *SysInfoPtr, const SBYTE *lifeTypes,
 static int
 widthHeightPicker (BOOLEAN is_width)
 {
-	switch (optStarBackground)
-	{
-	case 0:
-		return (is_width ? PC_MAP_WIDTH : PC_MAP_HEIGHT);
-	case 1:
-		return (is_width ? THREEDO_MAP_WIDTH : THREEDO_MAP_HEIGHT);
-	case 2:
-	default:
+	if (optPlanetTexture)
 		return (is_width ? (UQM_MAP_WIDTH - 1) : UQM_MAP_HEIGHT);
-	}
+	else
+		return (is_width ? THREEDO_MAP_WIDTH : THREEDO_MAP_HEIGHT);
 }
 
 static COORD

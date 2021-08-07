@@ -110,6 +110,7 @@ BOOLEAN optNonStopOscill;
 int optScopeStyle;
 int optSuperPC;
 BOOLEAN optHyperStars;
+BOOLEAN optPlanetTexture;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
