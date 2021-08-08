@@ -53,6 +53,8 @@
 #include <math.h>
 #include <time.h>
 
+#include SDL_INCLUDE(SDL_version.h)
+
 //#define DEBUG_SOLARSYS
 //#define SMOOTH_SYSTEM_ZOOM  1
 
