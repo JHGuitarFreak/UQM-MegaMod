@@ -166,7 +166,9 @@ static WIDGET *engine_widgets[] = {
 #endif
 	(WIDGET *)(&choices[11]),   // Cutscenes
 	(WIDGET *)(&choices[17]),   // Slave Shields
+#if !defined(ANDROID) || !defined(__ANDROID__)
 	(WIDGET *)(&labels[4]),     // Spacer
+#endif
 	(WIDGET *)(&buttons[12]),   // Next PC/3DO Page
 	(WIDGET *)(&buttons[1]),
 	NULL };
