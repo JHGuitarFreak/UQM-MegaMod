@@ -1793,6 +1793,8 @@ init_starbase_comm ()
 
 	if (optFlagshipColor == OPT_3DO)
 		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM_RED;
+	else
+		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM;
 
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be

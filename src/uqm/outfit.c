@@ -663,6 +663,8 @@ DoOutfit (MENU_STATE *pMS)
 
 			if (optFlagshipColor == OPT_3DO)
 				s.frame = SetAbsFrameIndex (s.frame, 1);
+			else
+				s.frame = SetAbsFrameIndex (s.frame, 0);
 
 			SetTransitionSource (NULL);
 			BatchGraphics ();

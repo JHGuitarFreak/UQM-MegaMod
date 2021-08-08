@@ -120,14 +120,15 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	if (!IS_HD) {
 		printf("Loading Splashscreen\n\n");
 		s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
-		if (optFlagshipColor == OPT_3DO)
-			s.frame = SetAbsFrameIndex (s.frame, 1);
 	} else {
 		printf("Loading HD Splashscreen\n\n");
 		s.frame = CaptureDrawable (LoadGraphic (TITLE_HD));
-		if (optFlagshipColor == OPT_3DO)
-			s.frame = SetAbsFrameIndex (s.frame, 1);
 	}
+
+	if (optFlagshipColor == OPT_3DO)
+		s.frame = SetAbsFrameIndex (s.frame, 1);
+	else
+		s.frame = SetAbsFrameIndex (s.frame, 0);
 
 	DrawStamp (&s);
 	DestroyDrawable (ReleaseDrawable (s.frame));

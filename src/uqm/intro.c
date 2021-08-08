@@ -196,12 +196,8 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 	Color SisBack;
 
 	OldContext = SetContext (OffScreenContext);
-
+	
 	SkelFrame = CaptureDrawable (LoadGraphic (SISSKEL_MASK_PMAP_ANIM));
-
-	if (optFlagshipColor == OPT_3DO)
-		SkelFrame = CaptureDrawable (LoadGraphic (SISSKEL_MASK_PMAP_ANIM_RED));
-
 	ModuleFrame = CaptureDrawable (LoadGraphic (SISMODS_MASK_PMAP_ANIM));
 
 	GetFrameRect (SkelFrame, &r);
@@ -215,7 +211,7 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 	ClearDrawable ();
 	SetFrameTransparentColor (SisFrame, SisBack);
 
-	s.frame = SetAbsFrameIndex (SkelFrame, 0);
+	s.frame = SetAbsFrameIndex (SkelFrame, optFlagshipColor == OPT_3DO ? 1 : 0);
 	s.origin.x = 0;
 	s.origin.y = 0;
 	DrawStamp (&s);

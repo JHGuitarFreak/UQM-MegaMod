@@ -1296,7 +1296,9 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		s.frame = FlagStatFrame;
 
 		if (optFlagshipColor == OPT_3DO)
-			s.frame = SetAbsFrameIndex (FlagStatFrame, 23);
+			s.frame = SetAbsFrameIndex (s.frame, 23);
+		else
+			s.frame = SetAbsFrameIndex (s.frame, 0);
 
 		DrawStamp (&s);
 

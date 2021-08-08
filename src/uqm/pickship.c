@@ -417,6 +417,8 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 
 	if (optFlagshipColor == OPT_3DO)
 		PickFrame = SetAbsFrameIndex (PickFrame, 2);
+	else
+		PickFrame = SetAbsFrameIndex (PickFrame, 0);
 
 	BatchGraphics ();
 
