@@ -1167,18 +1167,21 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					break;
 			}
 		}
+		planet->image.frame = SetAbsFrameIndex (
+			UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
+			(Size << FACING_SHIFT) + NORMALIZE_FACING (
+					ANGLE_TO_FACING (angle)));
+
+#if SDL_MAJOR_VERSION == 2
 		if (!optTexturedPlanets && optPlanetStyle == OPT_PC)
 			planet->image.frame = SetPlanetOldFrame (
 				(Size << FACING_SHIFT) + NORMALIZE_FACING (
 					ANGLE_TO_FACING (angle)), PLANCOLOR(Type));
-		else
-			planet->image.frame = SetAbsFrameIndex (
-				UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
-				(Size << FACING_SHIFT) + NORMALIZE_FACING (
-						ANGLE_TO_FACING (angle)));
+#endif
 
 		if (IS_HD && HDPackPresent)
-			planet->intersect.frame = SetAbsFrameIndex(OrbitalFrameIntersect, Size);
+			planet->intersect.frame =
+				SetAbsFrameIndex (OrbitalFrameIntersect, Size);
 	}
 	else if (planet->data_index == HIERARCHY_STARBASE)
 	{
