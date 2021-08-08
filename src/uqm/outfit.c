@@ -661,6 +661,9 @@ DoOutfit (MENU_STATE *pMS)
 			s.frame = CaptureDrawable (
 					LoadGraphic (OUTFIT_PMAP_ANIM));
 
+			if (optFlagshipColor == OPT_3DO)
+				s.frame = SetAbsFrameIndex (s.frame, 1);
+
 			SetTransitionSource (NULL);
 			BatchGraphics ();
 			DrawSISFrame ();

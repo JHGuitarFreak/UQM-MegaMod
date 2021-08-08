@@ -415,6 +415,9 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 
 	PickFrame = CaptureDrawable (LoadGraphic (SC2_PICK_PMAP_ANIM));
 
+	if (optFlagshipColor == OPT_3DO)
+		PickFrame = SetAbsFrameIndex (PickFrame, 2);
+
 	BatchGraphics ();
 
 	s.frame = PickFrame;

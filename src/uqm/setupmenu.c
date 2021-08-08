@@ -80,7 +80,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         12
-#define CHOICE_COUNT       70
+#define CHOICE_COUNT       71
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       16
 #define LABEL_COUNT         5
@@ -109,7 +109,8 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2, 2, 2, 3, 2, 2, 2, 2, 2, 2 }; // 60-69
+	2, 2, 2, 3, 2, 2, 2, 2, 2, 2,   // 60-69
+	2 };                            // 70
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -181,7 +182,7 @@ static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
 	(WIDGET *)(&choices[68]),   // Lander Style
-	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&choices[70]),   // Flagship Style
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[13]),   // Prev PC/3DO Page
 	(WIDGET *)(&buttons[1]),
@@ -683,6 +684,7 @@ SetDefaults (void)
 	choices[67].selected = opts.hyperStars;
 	choices[68].selected = opts.landerStyle;
 	choices[69].selected = opts.planetTexture;
+	choices[70].selected = opts.flagshipColor;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -767,6 +769,7 @@ PropagateResults (void)
 	opts.hyperStars = choices[67].selected;
 	opts.landerStyle = choices[68].selected;
 	opts.planetTexture = choices[69].selected;
+	opts.flagshipColor = choices[70].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1731,6 +1734,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->hyperStars = optHyperStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->landerStyle = (optSuperPC == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->planetTexture = optPlanetTexture ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->flagshipColor = (optFlagshipColor == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 
 	if (!IS_HD)
 	{
@@ -2215,6 +2219,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.planetTexture", opts->planetTexture == OPTVAL_ENABLED);
 	optPlanetTexture = (opts->planetTexture == OPTVAL_ENABLED);
+
+	optFlagshipColor = (opts->flagshipColor == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.flagshipColor", opts->flagshipColor == OPTVAL_3DO);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

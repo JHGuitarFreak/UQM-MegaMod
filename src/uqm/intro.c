@@ -198,6 +198,10 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 	OldContext = SetContext (OffScreenContext);
 
 	SkelFrame = CaptureDrawable (LoadGraphic (SISSKEL_MASK_PMAP_ANIM));
+
+	if (optFlagshipColor == OPT_3DO)
+		SkelFrame = CaptureDrawable (LoadGraphic (SISSKEL_MASK_PMAP_ANIM_RED));
+
 	ModuleFrame = CaptureDrawable (LoadGraphic (SISMODS_MASK_PMAP_ANIM));
 
 	GetFrameRect (SkelFrame, &r);

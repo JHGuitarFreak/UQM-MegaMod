@@ -1294,9 +1294,13 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		s.origin.y = 0;
 
 		s.frame = FlagStatFrame;
+
+		if (optFlagshipColor == OPT_3DO)
+			s.frame = SetAbsFrameIndex (FlagStatFrame, 23);
+
 		DrawStamp (&s);
 
-		DrawBorder(1, FALSE);
+		DrawBorder (1, FALSE);
 
 		if (optWhichFonts == OPT_PC)
 			DrawPC_SIS();
@@ -1319,7 +1323,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	if (fuel_delta == UNDEFINED_DELTA)
 	{
 		if(optWhichFonts == OPT_3DO)
-			DrawBorder(5, FALSE);
+			DrawBorder (5, FALSE);
 		DrawFlagshipName (TRUE, FALSE);
 		DrawCaptainsName (FALSE);
 		DrawLanders ();

@@ -195,6 +195,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, hyperStars);
 	DECL_CONFIG_OPTION(int,  landerStyle);
 	DECL_CONFIG_OPTION(bool, planetTexture);
+	DECL_CONFIG_OPTION(int,  flagshipColor);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -393,6 +394,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  hyperStars,        false),
 		INIT_CONFIG_OPTION(  landerStyle,       OPT_3DO),
 		INIT_CONFIG_OPTION(  planetTexture,     true),
+		INIT_CONFIG_OPTION(  flagshipColor,     OPT_PC),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -606,6 +608,7 @@ main (int argc, char *argv[])
 	optHyperStars = options.hyperStars.value;
 	optSuperPC = options.landerStyle.value;
 	optPlanetTexture = options.planetTexture.value;
+	optFlagshipColor = options.flagshipColor.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -998,6 +1001,9 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->planetTexture, "mm.planetTexture");
 
+	getBoolConfigValueXlat (&options->flagshipColor, "mm.flagshipColor",
+		OPT_3DO, OPT_PC);
+	
 	if (res_IsInteger ("config.player1control"))
 	{
 		PlayerControls[0] = res_GetInteger ("config.player1control");

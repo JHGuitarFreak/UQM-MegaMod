@@ -29,6 +29,8 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/mathlib.h"
 #include "libs/inplib.h"
+#include "uqm/oscill.h"
+#include "uqm/nameref.h"
 
 
 static void TellMission (RESPONSE_REF R);
@@ -1789,13 +1791,16 @@ init_starbase_comm ()
 	commander_desc.post_encounter_func = post_starbase_enc;
 	commander_desc.uninit_encounter_func = uninit_starbase;
 
+	if (optFlagshipColor == OPT_3DO)
+		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM_RED;
+
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	commander_desc.AlienTextWidth = RES_SCALE(143); 
-	commander_desc.AlienTextBaseline.x = RES_SCALE(164); 
-	commander_desc.AlienTextBaseline.y = RES_SCALE(20); 
+	commander_desc.AlienTextWidth = RES_SCALE(143);
+	commander_desc.AlienTextBaseline.x = RES_SCALE(164);
+	commander_desc.AlienTextBaseline.y = RES_SCALE(20);
 
 	// use alternate Starbase track if available
 	commander_desc.AlienAltSongRes = STARBASE_ALT_MUSIC;

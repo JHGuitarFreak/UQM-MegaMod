@@ -111,6 +111,7 @@ int optScopeStyle;
 int optSuperPC;
 BOOLEAN optHyperStars;
 BOOLEAN optPlanetTexture;
+int optFlagshipColor;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;

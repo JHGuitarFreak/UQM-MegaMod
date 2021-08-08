@@ -409,7 +409,10 @@ LoadIPData (void)
 	{
 		SpaceJunkFrame = CaptureDrawable (
 				LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
+
 		SISIPFrame = CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM));
+		if (optFlagshipColor == OPT_3DO)
+			SISIPFrame = CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM_RED));
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (

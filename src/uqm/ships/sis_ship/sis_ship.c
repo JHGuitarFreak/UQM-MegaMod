@@ -975,6 +975,14 @@ init_sis (void)
 		new_sis_desc.init_weapon_func = initialize_blasters;
 		new_sis_desc.cyborg_control.intelligence_func = sis_intelligence;
 
+		if (optFlagshipColor == OPT_3DO)
+		{
+			new_sis_desc.ship_info.icons_rsc = SIS_ICON_MASK_PMAP_ANIM_RED;
+			new_sis_desc.ship_data.ship_rsc[0] = SIS_BIG_MASK_PMAP_ANIM_RED;
+			new_sis_desc.ship_data.ship_rsc[1] = SIS_MED_MASK_PMAP_ANIM_RED;
+			new_sis_desc.ship_data.ship_rsc[2] = SIS_SML_MASK_PMAP_ANIM_RED;
+		}
+
 		if (GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 			SET_GAME_STATE (BOMB_CARRIER, 1);
 	}
