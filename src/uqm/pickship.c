@@ -434,13 +434,18 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	else
 	{
 		s.origin.x = r.extent.width >> 1;
-		s.frame = IncFrameIndex (s.frame);
+		s.frame = SetAbsFrameIndex (s.frame, 1);
 		SetFrameHot (s.frame, MAKE_HOT_SPOT (0, 0));
 		GetFrameRect (s.frame, &r);
 		s.origin.x -= r.extent.width >> 1;
 		s.origin.y = pick_r.corner.y - (r.extent.height >> 1);
 		DrawStamp (&s);
-		s.frame = DecFrameIndex (s.frame);
+
+		if (optFlagshipColor == OPT_3DO)
+			s.frame = SetAbsFrameIndex (s.frame, 2);
+		else
+			s.frame = SetAbsFrameIndex (s.frame, 0);
+
 		pick_r.corner.y = s.origin.y + r.extent.height;
 
 		r.corner.x = pick_r.corner.x;
