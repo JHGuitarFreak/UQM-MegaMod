@@ -29,7 +29,9 @@
 #	define inline __inline__
 #	ifdef __MINGW32__
 		// For when including Microsoft Windows header files.
-#		define _inline inline
+#		ifndef _inline
+#			define _inline inline
+#		endif
 #	endif
 #endif
 
@@ -102,7 +104,9 @@ int readdir_r(DIR *dirp, struct dirent *entry, struct dirent **result);
 // Directories
 #ifdef WIN32
 #	include <stdlib.h>
-#	define PATH_MAX  _MAX_PATH
+#	ifndef PATH_MAX
+#		define PATH_MAX  _MAX_PATH
+#	endif
 #	define NAME_MAX  _MAX_FNAME
 		// _MAX_DIR and FILENAME_MAX could also be candidates.
 		// If anyone can tell me which one matches NAME_MAX, please
