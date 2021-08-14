@@ -317,7 +317,8 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 	hTemplate = GetStarShipFromIndex (&GLOBAL (avail_race_q),
 			StarShipPtr->race_id);
 	TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
-	maxCrewLevel = TemplatePtr->crew_level;
+	maxCrewLevel = EXTENDED ? TemplatePtr->max_crew: TemplatePtr->crew_level;
+
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
 
 	if (StarShipPtr->crew_level >= maxCrewLevel)
@@ -854,7 +855,7 @@ DMS_HireEscortShipCrew (SHIP_FRAGMENT *StarShipPtr)
 				StarShipPtr->race_id);
 		FLEET_INFO *TemplatePtr =
 				LockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
-		templateMaxCrew = TemplatePtr->crew_level;
+		templateMaxCrew = EXTENDED ? TemplatePtr->max_crew : TemplatePtr->crew_level;
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
 	}
 	

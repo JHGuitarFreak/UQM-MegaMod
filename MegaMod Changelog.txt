@@ -49,6 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added option to swap between 3DO and vanilla UQM planet textures (When not using a custom seed)
 - HD: Brand new Flagship designed off the vanilla version created by Jordan Lo
 - HD: JBrand new set of Flagship modules designed off the vanilla versions created by Jordan Lo
+- EXTENDED: Ability to fill Syreen crew to max in the Shipyard
 
 
 ### Changed
