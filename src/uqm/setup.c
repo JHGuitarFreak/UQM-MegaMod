@@ -142,7 +142,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
 		solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
-		loadAddon ("threedo-flagship-sd");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
@@ -150,8 +149,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		HDPackPresent = TRUE;
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
-		loadAddon ("orange-peel-melnorme");
-		loadAddon ("threedo-flagship-hd");
 	}
 
 	loadAddon ("ProfanePkunk");
@@ -166,7 +163,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
 		SyreenVoiceFix = loadAddon ("SyreenVoiceFix");
-		loadAddon ("GlaDOS");
 	}
 
 	if (opt3doMusic)
@@ -188,6 +184,12 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 
 	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
+
+	if (!IS_HD)
+		loadAddon ("automods-sd");
+	else if (HDPackPresent)
+		loadAddon ("automods-hd");
+
 
 	/* Now load the rest of the addons, in order. */
 	prepareAddons (optAddons);

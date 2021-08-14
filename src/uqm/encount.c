@@ -603,7 +603,7 @@ UninitEncounter (void)
 					else if (GLOBAL (ip_planet) == 0)
 						DrawHyperCoords (CurStarDescPtr->star_pt);
 					else
-						DrawSISTitle(GLOBAL_SIS (PlanetName));
+						DrawSISTitle (GLOBAL_SIS (PlanetName));
 
 					SetContext (SpaceContext);
 					if (VictoryState)
@@ -752,19 +752,6 @@ UninitEncounter (void)
 									SleepThreadUntil (Time + (ONE_SECOND / 15));
 									Time = GetTimeCounter ();
 								}
-							}
-
-							if (IS_HD) {
-								SetContextForeGroundColor (BLACK_COLOR);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
 							}
 
 							DrawStamp (&ship_s);
