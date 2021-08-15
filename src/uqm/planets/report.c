@@ -36,21 +36,19 @@
 #include <string.h>
 
 
-#define NUM_CELL_COLS (ORIGINAL_MAP_WIDTH / 6)
-#define NUM_CELL_ROWS (ORIGINAL_MAP_HEIGHT / 6)
-#define NUM_CELL_COLS_HD (MAP_WIDTH / RES_SCALE(6))
-#define NUM_CELL_ROWS_HD (MAP_HEIGHT / RES_SCALE(6))
+#define NUM_CELL_COLS (optSuperPC == OPT_PC ? 34 : (UQM_MAP_WIDTH / 6))
+#define NUM_CELL_ROWS (UQM_MAP_HEIGHT / 6)
 #define MAX_CELL_COLS 40 // Serosis: Why is this is never used???
 
 extern FRAME SpaceJunkFrame;
+COORD startx, starty;
 
 static void
 ClearReportArea (void)
 {
 	COUNT x, y;
-	RECT r;
+	RECT r, rPC;
 	STAMP s;
-	COORD startx;
 
 	if (optWhichFonts == OPT_PC)
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 21);
@@ -60,17 +58,38 @@ ClearReportArea (void)
 
 	BatchGraphics ();
 
-	SetContextBackGroundColor (BLACK_COLOR);
-	ClearDrawable ();
+	if (actuallyInOrbit || optSuperPC != OPT_PC)
+	{
+		SetContextBackGroundColor (BLACK_COLOR);
+		ClearDrawable ();
+
+		startx = (optSuperPC != OPT_PC ? 0 : RES_SCALE(1)) + 1
+				+ (r.extent.width >> 1) - (RES_SCALE(1) - IF_HD(1));
+		starty = RES_SCALE(2);
+	}
+	else if (optSuperPC == OPT_PC)
+	{
+		rPC.extent.width = (r.extent.width + RES_SCALE(1))
+			* NUM_CELL_COLS + RES_SCALE(1);
+		rPC.extent.height = (r.extent.height + RES_SCALE(1))
+			* NUM_CELL_ROWS + RES_SCALE(1);
+		rPC.corner.x = (SIS_SCREEN_WIDTH - rPC.extent.width) / 2;
+		rPC.corner.y = RES_SCALE(2);
+		SetContextForeGroundColor (BLACK_COLOR);
+		DrawFilledRectangle (&rPC);
+
+		startx = rPC.corner.x + RES_SCALE(1);
+		starty = rPC.corner.y + RES_SCALE(1);
+	}
+
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
-	
-	startx = (RES_BOOL(1, 2) + (r.extent.width >> 1) - 1);
-	s.origin.y = RES_BOOL(1, 11);
-	for (y = 0; y < NUM_CELL_ROWS_HD; ++y)
+
+	s.origin.y = starty; // Cell vertical alignment
+	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
 		s.origin.x = startx;
-		for (x = 0; x < NUM_CELL_COLS_HD; ++x)
+		for (x = 0; x < NUM_CELL_COLS; ++x)
 		{
 			if (optWhichFonts == OPT_PC)
 				DrawStamp (&s);
@@ -82,13 +101,15 @@ ClearReportArea (void)
 		s.origin.y += r.extent.height + RES_SCALE(1);
 	}
 
+#ifdef NEVER
 	if (IS_HD) {
 		if (optWhichFonts == OPT_PC)
-			DrawBorder (27, FALSE);
+			DrawBorder (32, FALSE);
 		else
-			DrawBorder (28, FALSE);
+			DrawBorder (33, FALSE);
 		DrawBorder (10, FALSE);
 	}
+#endif
 
 	UnbatchGraphics ();
 }
@@ -126,7 +147,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		const UNICODE *pLastStr;
 		const UNICODE *pNextStr;
 		COUNT lf_pos;
-		BYTE NextPageHD;
+		BYTE NextPageHD = 0;
 
 		pLastStr = t.pStr;
 
@@ -138,19 +159,19 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
  			;
 
 		col_cells = 0;
-		NextPageHD = 0;
 		// check if the remaining text fits on current screen
 		if (row_cells == NUM_CELL_ROWS - 1
 				&& (StrLen > NUM_CELL_COLS || lf_pos > 1))
 		{
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
-			StrLen += end_page_len;
-			NextPageHD = 51;
+			StrLen += end_page_len; 
+			NextPageHD = optSuperPC == OPT_PC ? 42 : 52;
 		}
-		t.baseline.x = RES_BOOL(1, (50 + NextPageHD)) + (r.extent.width >> 1)
-			+ (col_cells * (r.extent.width + 1)) 
-			- 1;
+
+		t.baseline.x = startx + (col_cells * (r.extent.width + 1))
+				+ IF_HD(NextPageHD);
+
 		do
 		{
 			COUNT word_chars;
@@ -162,7 +183,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			while (UniChar_isGraph (getCharFromString (&pNextStr)))
 				pStr = pNextStr;
 
-			word_chars = utf8StringCountN (t.pStr, pStr);
+			word_chars = (COUNT)utf8StringCountN (t.pStr, pStr);
 			if ((col_cells += word_chars) <= NUM_CELL_COLS)
 			{
 				TimeCount TimeOut;
@@ -179,7 +200,11 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						font_DrawText (&t);
 					else
 					{
+						BYTE LeftRight = 1;
 						font_DrawText (&t);
+
+						if (CurrentInputState.menu[KEY_MENU_RIGHT])
+							LeftRight = 4;
 
 						PlaySound (ReadOutSounds, NotPositional (), NULL,
 								GAME_SOUND_PRIORITY);
@@ -188,20 +213,20 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 								last_c != '.' && last_c != '!' && last_c != '?')
 						{
 							if (c == ',')
-								TimeOut += ONE_SECOND / 4;
+								TimeOut += ONE_SECOND / ( 4 * LeftRight);
 							if (c == '.' || c == '!' || c == '?')
-								TimeOut += ONE_SECOND / 2;
+								TimeOut += ONE_SECOND / (2 * LeftRight);
 							else
-								TimeOut += ONE_SECOND / 20;
+								TimeOut += ONE_SECOND / (20 * LeftRight);
 						}
 						else
-							TimeOut += ONE_SECOND / 20;
+							TimeOut += ONE_SECOND / (20 * LeftRight);
 						last_c = c;
 
 						if (word_chars == 0)
-							TimeOut += ONE_SECOND / 20;
+							TimeOut += ONE_SECOND / (20 * LeftRight);
 
-						if (WaitForAnyButtonUntil (TRUE, TimeOut, FALSE))
+						if (WaitForActButtonUntil (TRUE, TimeOut, FALSE))
 						{
 							Sleepy = FALSE;
 							// We draw the whole thing at once after this
@@ -227,12 +252,11 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 				UnbatchGraphics ();
 			}
 
-			if (!WaitForAnyButton (TRUE, WAIT_INFINITE, FALSE))
+			if (!WaitForActButton (TRUE, WAIT_INFINITE, FALSE))
 				break;
 
 InitPageCell:
 			ButtonState = 1;
-			t.baseline.y = r.extent.height + RES_BOOL(1, 35); // Text vertical alignment
 			row_cells = 0;
 			if (StrLen)
 			{
@@ -242,6 +266,7 @@ InitPageCell:
 				SetContextForeGroundColor (
 						BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF));
 			}
+			t.baseline.y = r.extent.height + starty; // Text vertical alignment
 		}
 	}
 }

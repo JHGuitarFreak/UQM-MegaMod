@@ -49,10 +49,10 @@ extern "C" {
 #define CREW_PER_ROW 5
 #define SBAY_MASS_PER_ROW 50
 
-#define MAX_FUEL_BARS RES_BOOL(10, 80)
+#define MAX_FUEL_BARS RES_SCALE(10)
 #define FUEL_VOLUME_PER_ROW (HEFUEL_TANK_CAPACITY / MAX_FUEL_BARS)
-#define FUEL_RESERVE (10 * FUEL_TANK_SCALE) // JMS_GFX
-#define FUEL_COST_RU 20 // JMS
+#define FUEL_RESERVE (10 * FUEL_TANK_SCALE)
+#define FUEL_COST_RU 20
 
 #define IP_SHIP_THRUST_INCREMENT 8
 #define IP_SHIP_TURN_WAIT 17
@@ -95,22 +95,22 @@ enum
 #define EMPTY_SLOT NUM_MODULES
 #define NUM_BOMB_MODULES 10
 
-#define DRIVE_SIDE_X RES_SCALE(31) // JMS_GFX
-#define DRIVE_SIDE_Y RES_SCALE(56) // JMS_GFX
-#define DRIVE_TOP_X (RES_SCALE(33) + IF_HD(100)) // JMS_GFX
-#define DRIVE_TOP_Y (RES_SCALE(86) - IF_HD(73)) // JMS_GFX
+#define DRIVE_SIDE_X RES_SCALE(31)
+#define DRIVE_SIDE_Y RES_SCALE(56)
+#define DRIVE_TOP_X RES_SCALE(33)
+#define DRIVE_TOP_Y RES_SCALE(86)
 
-#define JET_SIDE_X RES_SCALE(71) // JMS_GFX
-#define JET_SIDE_Y RES_SCALE(48) // JMS_GFX
-#define JET_TOP_X (RES_SCALE(70) + IF_HD(86)) // JMS_GFX
-#define JET_TOP_Y (RES_SCALE(94) - IF_HD(120)) // JMS_GFX
+#define JET_SIDE_X RES_SCALE(71)
+#define JET_SIDE_Y RES_SCALE(48)
+#define JET_TOP_X RES_SCALE(70)
+#define JET_TOP_Y RES_SCALE(94)
 
-#define MODULE_SIDE_X (RES_SCALE(17) + IF_HD(55)) // JMS_GFX
-#define MODULE_SIDE_Y (RES_SCALE(14) - IF_HD(5)) // JMS_GFX
-#define MODULE_TOP_X (RES_SCALE(17) + IF_HD(55)) // JMS_GFX
-#define MODULE_TOP_Y (RES_SCALE(117) + IF_HD(59)) // JMS_GFX
+#define MODULE_SIDE_X RES_SCALE(17)
+#define MODULE_SIDE_Y RES_SCALE(14)
+#define MODULE_TOP_X RES_SCALE(17)
+#define MODULE_TOP_Y RES_SCALE(117)
 
-#define SHIP_PIECE_OFFSET (RES_SCALE(12) - IF_HD(2)) // JMS_GFX
+#define SHIP_PIECE_OFFSET RES_SCALE(12)
 
 #define MAX_BUILT_SHIPS 12
 		/* Maximum number of ships escorting the SIS */
@@ -131,8 +131,8 @@ enum
 	{3 + 42, 30 + (5 * 16)},
 
 #define SIS_NAME_SIZE 16
-#define LEGACY_SAVE_NAME_SIZE 32 // JMS
-#define LEGACY_SAVE_NAME_CHECKER "superbutcherX !" // JMS
+#define LEGACY_SAVE_NAME_SIZE 32
+#define LEGACY_SAVE_NAME_CHECKER "superbutcherX !"
 #define SAVE_CHECKER_SIZE SIS_NAME_SIZE
 
 typedef struct
@@ -169,11 +169,12 @@ extern void RepairSISBorder (void);
 extern void InitSISContexts (void);
 extern void DrawSISFrame (void);
 extern void ClearSISRect (BYTE ClearFlags);
-extern void SetFlashRect (const RECT *pRect);
+extern void SetFlashRect (const RECT *pRect, BOOLEAN purple);
 extern void PreUpdateFlashRect (void);
 extern void PostUpdateFlashRect (void);
 extern void PauseFlash (void);
 extern void ContinueFlash (void);
+extern BOOLEAN pcRectBool;
 
 #define SFR_MENU_3DO ((RECT*)~0L)
 #define SFR_MENU_ANY ((RECT*)~1L)

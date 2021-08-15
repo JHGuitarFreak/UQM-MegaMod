@@ -48,24 +48,24 @@
 // devices the player actually possesses.
 //#define DEBUG_DEVICES
 
-#define DEVICE_ICON_WIDTH  RES_STAT_SCALE(16) // JMS_GFX
-#define DEVICE_ICON_HEIGHT RES_STAT_SCALE(16) // JMS_GFX
+#define DEVICE_ICON_WIDTH  RES_SCALE(16) 
+#define DEVICE_ICON_HEIGHT RES_SCALE(16) 
 
-#define DEVICE_ORG_Y       RES_STAT_SCALE(33) // JMS_GFX
-#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_STAT_SCALE(2)) // JMS_GFX
+#define DEVICE_ORG_Y       RES_SCALE(33) 
+#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_SCALE(2)) 
 
-#define DEVICE_COL_0       RES_STAT_SCALE(4) // JMS_GFX
-#define DEVICE_COL_1       RES_STAT_SCALE(40) // JMS_GFX
+#define DEVICE_COL_0       RES_SCALE(4) 
+#define DEVICE_COL_1       RES_SCALE(40) 
 
 #define DEVICE_SEL_ORG_X  (DEVICE_COL_0 + DEVICE_ICON_WIDTH)
-#define DEVICE_SEL_WIDTH  (FIELD_WIDTH + RES_STAT_SCALE(2) - DEVICE_SEL_ORG_X) // JMS_GFX
+#define DEVICE_SEL_WIDTH  (FIELD_WIDTH + RES_SCALE(2) - DEVICE_SEL_ORG_X) 
 
-#define ICON_OFS_Y         RES_BOOL(1, 11) // JMS_GFX
-#define NAME_OFS_Y         RES_STAT_SCALE(2) // JMS_GFX
-#define TEXT_BASELINE      RES_STAT_SCALE(6) // JMS_GFX
-#define TEXT_SPACING_Y     RES_STAT_SCALE(7) // JMS_GFX
+#define ICON_OFS_Y         RES_SCALE(1) 
+#define NAME_OFS_Y         RES_SCALE(2) 
+#define TEXT_BASELINE      RES_SCALE(6) 
+#define TEXT_SPACING_Y     RES_SCALE(7) 
 
-#define MAX_VIS_DEVICES    ((RES_STAT_SCALE(129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y) // JMS_GFX
+#define MAX_VIS_DEVICES    ((RES_SCALE(129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y) 
 
 
 typedef enum
@@ -92,8 +92,8 @@ EraseDevicesBackground (void)
 {
 	RECT r;
 
-	r.corner.x = RES_STAT_SCALE(3); // JMS_GFX
-	r.extent.width = FIELD_WIDTH - RES_STAT_SCALE(1); // JMS_GFX
+	r.corner.x = RES_SCALE(3); 
+	r.extent.width = FIELD_WIDTH - RES_SCALE(1); 
 	r.corner.y = DEVICE_ORG_Y;
 	r.extent.height = MAX_VIS_DEVICES * DEVICE_SPACING_Y;
 	SetContextForeGroundColor (DEVICES_BACK_COLOR);
@@ -112,7 +112,7 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 
 	r.extent.width = DEVICE_SEL_WIDTH;
 	r.extent.height = TEXT_SPACING_Y * 2;
-	r.corner.x = DEVICE_SEL_ORG_X - IF_HD(8);
+	r.corner.x = DEVICE_SEL_ORG_X;
 
 	// draw line background
 	r.corner.y = DEVICE_ORG_Y + pos * DEVICE_SPACING_Y + NAME_OFS_Y;
@@ -120,7 +120,7 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 			DEVICES_SELECTED_BACK_COLOR : DEVICES_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 
 	// print device name
 	SetContextForeGroundColor (selected ?
@@ -144,13 +144,13 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	COORD cy;
 	COUNT i;
 
-	r.corner.x = 2; 
-	r.corner.y = RES_STAT_SCALE(20);
-	r.extent.width = FIELD_WIDTH + 1;
+	r.corner.x = RES_SCALE(2);
+	r.corner.y = RES_SCALE(20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
-	r.extent.height = (RES_STAT_SCALE(129) - r.corner.y) + IF_HD(19);
-	DrawStarConBox (&r, 1,
+	r.extent.height = (RES_SCALE(129) - r.corner.y);
+	DrawStarConBox (&r, RES_SCALE(1),
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, DEVICES_BACK_COLOR);
 
@@ -158,8 +158,8 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 
 	// print the "DEVICES" title
 	SetContextFont (StarConFont);
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_STAT_SCALE(1);
-	t.baseline.y = r.corner.y + RES_STAT_SCALE(7);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
+	t.baseline.y = r.corner.y + RES_SCALE(7);
 	t.align = ALIGN_CENTER;
 	t.pStr = GAME_STRING (DEVICE_STRING_BASE);
 	t.CharCount = (COUNT)~0;
@@ -182,16 +182,7 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 		s.frame = SetAbsFrameIndex (MiscDataFrame,
 				77 + devState->list[devIndex]);
 		
-		if (!IS_HD) {
-			DrawStamp (&s);			
-		} else {
-			int oldMode, oldScale;
-			oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
-			oldScale = SetGraphicScale ((int)(GSCALE_IDENTITY / 2));
-			DrawStamp (&s);
-			SetGraphicScale (oldScale);
-			SetGraphicScaleMode (oldMode);
-		}
+		DrawStamp (&s);
 
 		DrawDevice (devState->list[devIndex], i, false);
 	}
@@ -555,8 +546,6 @@ DoManipulateDevices (MENU_STATE *pMS)
 			}
 			pMS->CurState = NewState;
 		}
-
-		SleepThread (ONE_SECOND / 30);
 	}
 
 	return TRUE;
@@ -687,6 +676,9 @@ DevicesMenu (void)
 
 	SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGE,
 			MENU_SOUND_SELECT);
+
+	if (optWhichMenu == OPT_PC)
+		DrawMenuStateStrings (PM_ALT_CARGO, 1);
 
 	MenuState.InputFunc = DoManipulateDevices;
 	DoInput (&MenuState, TRUE);

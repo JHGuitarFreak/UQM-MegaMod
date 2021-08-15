@@ -31,6 +31,8 @@
 #include "libs/log.h"
 #include "libs/reslib.h"
 #include "libs/memlib.h"
+#include "uqm/starmap.h"
+#include "uqm/planets/scan.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -52,16 +54,13 @@ int optSmoothScroll;
 int optMeleeScale;
 const char **optAddons;
 
-// JMS_GFX
 unsigned int loresBlowupScale;
 unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;
-
-BOOLEAN optCheatMode; // JMS
-// Serosis
+BOOLEAN optCheatMode;
 int optPrecursorMode;
 int timeDilationScale;
 BOOLEAN optBubbleWarp;
@@ -71,14 +70,11 @@ BOOLEAN optUnlockUpgrades;
 BOOLEAN optInfiniteRU;
 DWORD oldRU;
 BOOLEAN optSkipIntro;
-// JMS
 BOOLEAN optMainMenuMusic;
 BOOLEAN optNebulae;
 BOOLEAN optOrbitingPlanets;
 BOOLEAN optTexturedPlanets;
-// Nic
 int optDateFormat;
-// Serosis
 BOOLEAN optInfiniteFuel;
 DWORD loadFuel;
 BOOLEAN optPartialPickup;
@@ -93,8 +89,8 @@ int spaceMusicBySOI;
 BOOLEAN optSpaceMusic;
 BOOLEAN optVolasMusic;
 BOOLEAN optWholeFuel;
-BOOLEAN optDirectionalJoystick; // For Android
-BOOLEAN optLanderHold;
+BOOLEAN optDirectionalJoystick;
+int optLanderHold;
 int optIPScaler;
 int optDifficulty;
 BOOLEAN optFuelRange;
@@ -105,16 +101,24 @@ BOOLEAN optShipDirectionIP;
 BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
 int optControllerType;
-
+BOOLEAN optShipFacingHS;
+int optColoredPlanet;
+int optPlanetStyle;
+int optStarBackground;
+int optScanStyle;
+BOOLEAN optNonStopOscill;
+int optScopeStyle;
+int optSuperPC;
+BOOLEAN optHyperStars;
+BOOLEAN optPlanetTexture;
+int optFlagshipColor;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
 BOOLEAN optSubtitles;
 BOOLEAN optStereoSFX;
 BOOLEAN optKeepAspectRatio;
-
 float optGamma;
-
 uio_DirHandle *contentDir;
 uio_DirHandle *configDir;
 uio_DirHandle *saveDir;
@@ -137,7 +141,6 @@ static void mountAddonDir (uio_Repository *repository,
 
 static void mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 		int relativeFlags, uio_MountHandle *relativeHandle);
-
 
 // Looks for a file 'file' in all 'numLocs' locations from 'locs'.
 // returns the first element from locs where 'file' is found.
@@ -201,7 +204,7 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 			"content",
 			"../../content" /* For running from MSVC */
 		};
-		loc = findFileInDirs (locs, sizeof locs / sizeof locs[0], testFile);
+		loc = findFileInDirs (locs, ARRAY_SIZE (locs), testFile);
 
 #ifdef __APPLE__
 		/* On OSX, if the content can't be found in any of the static

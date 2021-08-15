@@ -30,6 +30,8 @@ WIDGET *widget_focus = NULL;
 		MENU_HIGHLIGHT_COLOR
 #define WIDGET_INACTIVE_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x18, 0x18, 0x1F), 0x00)
+#define PAGE_BUTTON_INACTIVE_COLOR \
+		BUILD_COLOR_RGBA (163,44,0, 0)
 #define WIDGET_INACTIVE_SELECTED_COLOR \
 		WHITE_COLOR
 #define WIDGET_CURSOR_COLOR \
@@ -130,14 +132,14 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 	DrawShadowedBox (&r, win_bg_clr, win_dark_clr, win_medium_clr);
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_DBL(16); // JMS_GFX
+	t.baseline.y = r.corner.y + RES_DBL(16);
 	for (i = 0; i < label->line_count; i++)
 	{
 		t.pStr = label->lines[i];
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(8); // JMS_GFX
+		t.baseline.y += RES_SCALE(8); 
 	}
 
 	UnbatchGraphics ();
@@ -189,21 +191,21 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 
-	r.corner.x = RES_SCALE(2); // JMS_GFX
-	r.corner.y = RES_SCALE(2); // JMS_GFX
-	r.extent.width = ScreenWidth - RES_SCALE(4); // JMS_GFX
-	r.extent.height = ScreenHeight + RES_SCALE(2); // JMS_GFX
+	r.corner.x = RES_SCALE(2);
+	r.corner.y = RES_SCALE(8);
+	r.extent.width = ScreenWidth - RES_SCALE(4);
+	r.extent.height = ScreenHeight + RES_SCALE(2);
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(8) - RES_SCALE(8) * numlines); // JMS_GFX
+	t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(8) - RES_SCALE(8) * numlines);
 
 	for (i = 0; i < numlines; i++)
 	{
 		t.pStr = tips[i];
 		font_DrawText(&t);
-		t.baseline.y += RES_SCALE(9); // JMS_GFX
+		t.baseline.y += RES_SCALE(9);
 	}
 
 	SetContextFontEffect (oldFontEffect);
@@ -228,10 +230,10 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 	
-	r.corner.x = RES_SCALE(2) + IF_HD(4); // JMS_GFX
-	r.corner.y = RES_SCALE(2); // JMS_GFX
-	r.extent.width = ScreenWidth - RES_SCALE(4); // JMS_GFX
-	r.extent.height = ScreenHeight - RES_SCALE(4); // JMS_GFX
+	r.corner.x = RES_SCALE(2); 
+	r.corner.y = RES_SCALE(2); 
+	r.extent.width = ScreenWidth - RES_SCALE(4); 
+	r.extent.height = ScreenHeight - RES_SCALE(4); 
 	
 	title = WIDGET_INACTIVE_SELECTED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
@@ -242,12 +244,12 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	
 	oldtext = SetContextForeGroundColor (title);
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_SCALE(8); // JMS_GFX
+	t.baseline.y = r.corner.y + RES_SCALE(8); 
 	t.pStr = self->title;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
 	font_DrawText (&t);
-	t.baseline.y += RES_SCALE(8); // JMS_GFX
+	t.baseline.y += RES_SCALE(8); 
 	t.pStr = self->subtitle;
 	font_DrawText (&t);
 
@@ -256,17 +258,17 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	{
 		WIDGET *child = self->child[widget_index];
 		height += (*child->height)(child);
-		height += RES_SCALE(8); // JMS_GFX  /* spacing */
+		height += RES_SCALE(8);   /* spacing */
 	}
 
-	height -= RES_SCALE(8); // JMS_GFX
+	height -= RES_SCALE(8); 
 
 	widget_y = (ScreenHeight - height) >> 1;
 	for (widget_index = 0; widget_index < self->num_children; widget_index++)
 	{
 		WIDGET *c = self->child[widget_index];
 		(*c->draw)(c, 0, widget_y);
-		widget_y += (*c->height)(c) + RES_SCALE(8); // JMS_GFX
+		widget_y += (*c->height)(c) + RES_SCALE(8); 
 	}
 
 	SetContextFontEffect (oldFontEffect);
@@ -297,7 +299,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 	disabled = WIDGET_DISABLED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
 
-	t.baseline.x = x + RES_SCALE(16); // +RES_SCALE(74);
+	t.baseline.x = x + RES_SCALE(16);
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
@@ -321,7 +323,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 	{
 		t.baseline.x = home_x + ((i % 3) *
 				(ScreenWidth / (self->maxcolumns + 1)));
-		t.baseline.y = home_y + RES_SCALE(10 * (i / 3)); // JMS_GFX // Was 8*(i/3): Changed for readability
+		t.baseline.y = home_y + RES_SCALE(10 * (i / 3));  // Was 8*(i/3): Changed for readability
 		t.pStr = self->options[i].optname;
 		if ((widget_focus == _self) &&
 		    (self->highlighted == i))
@@ -360,7 +362,6 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
-
 	t.baseline.x = RES_SCALE(160);
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
@@ -368,7 +369,81 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	t.pStr = self->name;
 	if (widget_focus == _self)
 	{
-		Widget_DrawToolTips (3, self->tooltip);		
+		Widget_DrawToolTips (3, self->tooltip);
+		oldtext = SetContextForeGroundColor (selected);
+	}
+	else
+	{
+		oldtext = SetContextForeGroundColor (inactive);
+	}
+	font_DrawText (&t);
+	SetContextFontEffect (oldFontEffect);
+	if (oldfont)
+		SetContextFont (oldfont);
+	SetContextForeGroundColor (oldtext);
+	(void) x;
+}
+
+void
+Widget_DrawRightButton (WIDGET *_self, int x, int y)
+{
+	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
+	Color oldtext;
+	Color inactive, selected;
+	FONT  oldfont = 0;
+	FRAME oldFontEffect = SetContextFontEffect (NULL);
+	TEXT t;
+
+	if (cur_font)
+		oldfont = SetContextFont (cur_font);
+	
+	selected = WIDGET_ACTIVE_COLOR;
+	inactive = PAGE_BUTTON_INACTIVE_COLOR;
+	t.baseline.x = RES_SCALE(304);
+	t.baseline.y = y;
+	t.align = ALIGN_RIGHT;
+	t.CharCount = ~0;
+	t.pStr = self->name;
+	if (widget_focus == _self)
+	{
+		Widget_DrawToolTips (3, self->tooltip);
+		oldtext = SetContextForeGroundColor (selected);
+	}
+	else
+	{
+		oldtext = SetContextForeGroundColor (inactive);
+	}
+	font_DrawText (&t);
+	SetContextFontEffect (oldFontEffect);
+	if (oldfont)
+		SetContextFont (oldfont);
+	SetContextForeGroundColor (oldtext);
+	(void) x;
+}
+
+void
+Widget_DrawLeftButton (WIDGET *_self, int x, int y)
+{
+	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
+	Color oldtext;
+	Color inactive, selected;
+	FONT  oldfont = 0;
+	FRAME oldFontEffect = SetContextFontEffect (NULL);
+	TEXT t;
+
+	if (cur_font)
+		oldfont = SetContextFont (cur_font);
+	
+	selected = WIDGET_ACTIVE_COLOR;
+	inactive = PAGE_BUTTON_INACTIVE_COLOR;
+	t.baseline.x = RES_SCALE(16);
+	t.baseline.y = y;
+	t.align = ALIGN_LEFT;
+	t.CharCount = ~0;
+	t.pStr = self->name;
+	if (widget_focus == _self)
+	{
+		Widget_DrawToolTips (3, self->tooltip);
 		oldtext = SetContextForeGroundColor (selected);
 	}
 	else
@@ -396,7 +471,7 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 	
-	t.baseline.x = RES_SCALE(160); // JMS_GFX
+	t.baseline.x = RES_SCALE(160); 
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -405,7 +480,7 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	{
 		t.pStr = self->lines[i];
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(10); // JMS_GFX
+		t.baseline.y += RES_SCALE(10); 
 	}
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
@@ -527,7 +602,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	t.baseline.x -= t.baseline.x;
 
 	/* Force string termination */
-	self->value[WIDGET_TEXTENTRY_WIDTH-1] = 0;
+	self->value[WIDGET_TEXTENTRY_WIDTH-RES_SCALE(1)] = 0;
 
 	t.baseline.y = y;
 	t.CharCount = utf8StringCount (self->value);
@@ -535,7 +610,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
-		t.baseline.x = RES_SCALE(160); // JMS_GFX
+		t.baseline.x = RES_SCALE(160); 
 		t.align = ALIGN_CENTER;
 
 		if (widget_focus == _self)
@@ -557,19 +632,19 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		RECT r;
 		SIZE leading;
 
-		t.baseline.x = RES_SCALE(90); // JMS_GFX
+		t.baseline.x = RES_SCALE(90);
 		t.align = ALIGN_LEFT;
 
 		// calc background box dimensions
 		// XXX: this may need some tuning, especially if a
 		//   different font is used. The font 'leading' values
 		//   are not what they should be.
-#define BOX_VERT_OFFSET 2
+#define BOX_VERT_OFFSET RES_SCALE(2)
 		GetContextFontLeading (&leading);
-		r.corner.x = t.baseline.x - 1;
+		r.corner.x = t.baseline.x - RES_SCALE(1);
 		r.corner.y = t.baseline.y - leading + BOX_VERT_OFFSET;
-		r.extent.width = ScreenWidth - r.corner.x - 10;
-		r.extent.height = leading + 2;
+		r.extent.width = ScreenWidth - r.corner.x - RES_SCALE(10);
+		r.extent.height = leading;
 
 		TextRect (&t, &text_r, char_deltas);
 #if 0
@@ -591,30 +666,30 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		for (i = self->cursor_pos; i > 0; --i)
 			r.corner.x += (SIZE)*pchar_deltas++;
 		if (self->cursor_pos < t.CharCount) /* cursor mid-line */
-			--r.corner.x;
+			r.corner.x -= RES_SCALE(1);
 		if (self->state & WTE_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (self->cursor_pos == t.CharCount)
 			{	// cursor at end-line -- use insertion point
-				r.extent.width = 1;
+				r.extent.width = RES_SCALE(1);
 			}
 			else if (self->cursor_pos + 1 == t.CharCount)
 			{	// extra pixel for last char margin
-				r.extent.width = (SIZE)*pchar_deltas + 2;
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 			}
 			else
 			{	// normal mid-line char
-				r.extent.width = (SIZE)*pchar_deltas + 1;
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			r.extent.width = 1;
+			r.extent.width = RES_SCALE(1);
 		}
 		// position cursor within input field rect
-		++r.corner.x;
-		++r.corner.y;
-		r.extent.height -= 2;
+		r.corner.x += RES_SCALE(1);
+		r.corner.y += RES_SCALE(1);
+		r.extent.height -= RES_SCALE(2);
 		SetContextForeGroundColor (WIDGET_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 
@@ -671,7 +746,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	for (i = 0; i < 2; i++)
 	{
 		t.baseline.x = home_x + ((i % 3) * (ScreenWidth / 3));  // self->maxcolumns + 1 as per CHOICE.
-		t.baseline.y = home_y + RES_SCALE(8 * (i / 3)); // JMS_GFX;
+		t.baseline.y = home_y + RES_SCALE(8 * (i / 3));
 		t.pStr = self->controlname[i];
 		if (!t.pStr[0])
 		{
@@ -697,7 +772,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 int
 Widget_HeightChoice (WIDGET *_self)
 {
-	return ((((WIDGET_CHOICE *)_self)->numopts + 2) / 3) * RES_SCALE(8); // JMS_GFX;
+	return ((((WIDGET_CHOICE *)_self)->numopts + 2) / 3) * RES_SCALE(8);
 }
 
 int
@@ -711,7 +786,7 @@ int
 Widget_HeightOneLine (WIDGET *_self)
 {
 	(void)_self;
-	return RES_SCALE(8); // JMS_GFX
+	return RES_SCALE(8); 
 }
 
 int

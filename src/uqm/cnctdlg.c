@@ -29,8 +29,8 @@
 #include "libs/graphics/widgets.h"
 #include "supermelee/netplay/netoptions.h"
 
-#define MCD_WIDTH RES_SCALE(260) // JMS_GFX
-#define MCD_HEIGHT RES_SCALE(110) // JMS_GFX
+#define MCD_WIDTH RES_SCALE(260) 
+#define MCD_HEIGHT RES_SCALE(110) 
 
 #define MENU_FRAME_RATE (ONE_SECOND / 20)
 
@@ -80,12 +80,12 @@ MCD_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
 	
-	widget_y = y + RES_SCALE(8); // JMS_GFX
+	widget_y = y + RES_SCALE(8); 
 	for (widget_index = 0; widget_index < self->num_children; widget_index++)
 	{
 		WIDGET *c = self->child[widget_index];
 		(*c->draw)(c, x, widget_y);
-		widget_y += (*c->height)(c) + RES_SCALE(8); // JMS_GFX
+		widget_y += (*c->height)(c) + RES_SCALE(8); 
 	}
 }
 
@@ -95,14 +95,14 @@ MCD_DrawButton (WIDGET *_self, int x, int y)
 	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
 	Color oldtext;
 	Color inactive, selected;
-	FONT  oldfont = SetContextFont (StarConLgFont);
+	FONT  oldfont = SetContextFont (StarConFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	
 	selected = MENU_HIGHLIGHT_COLOR;
 	inactive = MENU_TEXT_COLOR;
 
-	t.baseline.x = RES_SCALE(160); // JMS_GFX
+	t.baseline.x = RES_SCALE(160); 
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -212,7 +212,7 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
-		t.baseline.x = RES_SCALE(160); // JMS_GFX
+		t.baseline.x = RES_SCALE(160); 
 		t.align = ALIGN_CENTER;
 
 		if (widget_focus == _self)
@@ -234,7 +234,7 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		RECT r;
 		SIZE leading;
 
-		t.baseline.x = x + (RES_SCALE(90)); // JMS_GFX
+		t.baseline.x = x + (RES_SCALE(90)); 
 		t.align = ALIGN_LEFT;
 
 		// calc background box dimensions
@@ -243,10 +243,10 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		//   are not what they should be.
 #define BOX_VERT_OFFSET 2
 		GetContextFontLeading (&leading);
-		r.corner.x = t.baseline.x - 1;
+		r.corner.x = t.baseline.x - RES_SCALE(1);
 		r.corner.y = t.baseline.y - leading + BOX_VERT_OFFSET;
-		r.extent.width = MCD_WIDTH - r.corner.x - 10;
-		r.extent.height = leading + 2;
+		r.extent.width = MCD_WIDTH - r.corner.x - RES_SCALE(10);
+		r.extent.height = leading + RES_SCALE(2);
 
 		TextRect (&t, &text_r, char_deltas);
 #if 0
@@ -268,30 +268,30 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		for (i = self->cursor_pos; i > 0; --i)
 			r.corner.x += (SIZE)*pchar_deltas++;
 		if (self->cursor_pos < t.CharCount) /* cursor mid-line */
-			--r.corner.x;
+			r.corner.x -= RES_SCALE(1);
 		if (self->state & WTE_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (self->cursor_pos == t.CharCount)
 			{	// cursor at end-line -- use insertion point
-				r.extent.width = 1;
+				r.extent.width = RES_SCALE(1);
 			}
 			else if (self->cursor_pos + 1 == t.CharCount)
 			{	// extra pixel for last char margin
-				r.extent.width = (SIZE)*pchar_deltas + 2;
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 			}
 			else
 			{	// normal mid-line char
-				r.extent.width = (SIZE)*pchar_deltas + 1;
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			r.extent.width = 1;
+			r.extent.width = RES_SCALE(1);
 		}
 		// position cursor within input field rect
-		++r.corner.x;
-		++r.corner.y;
-		r.extent.height -= 2;
+		r.corner.x += RES_SCALE(1);
+		r.corner.y += RES_SCALE(1);
+		r.extent.height -= RES_SCALE(2);
 		SetContextForeGroundColor (MENU_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 

@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+extern void InitialIntersect (void);
+
 extern void LoadIPData (void);
 extern void FreeIPData (void);
 

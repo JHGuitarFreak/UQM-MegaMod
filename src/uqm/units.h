@@ -34,21 +34,21 @@ extern int ScreenHeight;
 #define SCREEN_WIDTH ScreenWidth
 #define SCREEN_HEIGHT ScreenHeight
 #define RESOLUTION_FACTOR resolutionFactor
-#define IS_HD (RESOLUTION_FACTOR != HD ? false : true)
-#define RES_STAT_SCALE(a) (!IS_HD ? (a) : ((a) * 3))
+#define IS_HD (RESOLUTION_FACTOR != HD ? FALSE : TRUE)
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)
 #define RES_DESCALE(a) ((a) >> RESOLUTION_FACTOR)
 #define RES_BOOL(a,b) (!IS_HD ? (a) : (b))	
-#define RES_DBL(a) (!IS_HD ? (a) : (a) * RESOLUTION_FACTOR)
+#define RES_DBL(a) (RES_BOOL((a), (a) * RESOLUTION_FACTOR))
+#define RES_TRP(a) (RES_BOOL((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL(0, (a)))
 #define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
 		/* Margins. */
-#define SIS_ORG_X (7)								// JMS_GFX
-#define SIS_ORG_Y RES_STAT_SCALE(10)				// DC: top status window. Manually entered in for HD mode.
+#define SIS_ORG_X RES_SCALE(6)
+#define SIS_ORG_Y RES_SCALE(9)
 
 /* Status bar & play area sizes. */
-#define STATUS_WIDTH RES_STAT_SCALE(64)
+#define STATUS_WIDTH RES_SCALE(64)
 /* Width of the status "window" (the right part of the screen) */
 #define STATUS_HEIGHT SCREEN_HEIGHT
 /* Height of the status "window" (the right part of the screen) */
@@ -56,33 +56,38 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT SCREEN_HEIGHT
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - 2 * SIS_ORG_X) // DC: Gray area on the right. just a spacer box
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE(13))
 /* Width of the usable part of the space "window" */
-#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_BOOL(3, 6) - RES_STAT_SCALE(10)) // JMS_GFX
-/* Height of the usable part of the space "window": 3, 6, 6 for the grey bottom border and 10, 20, 30 for the title */
-#define RES_SIS_SCALE(a) ((SIZE)(a) * SIS_SCREEN_WIDTH / 242) // JMS_GFX
+#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(13))
+/* Height of the usable part of the space "window" */
+
+#define ORIG_SIS_SCREEN_WIDTH (RES_DESCALE(SIS_SCREEN_WIDTH))
+#define ORIG_SIS_SCREEN_HEIGHT (RES_DESCALE(SIS_SCREEN_HEIGHT))
+#define PC_SIS_SCREEN_HEIGHT (187)
+#define THREEDO_SIS_SCREEN_WIDTH (210)
+#define THREEDO_SIS_SCREEN_HEIGHT (195)
 
 		/* Radar. */
-#define RADAR_X (RES_STAT_SCALE(4) + (SCREEN_WIDTH - STATUS_WIDTH))	// JMS_GFX
-#define RADAR_WIDTH (STATUS_WIDTH - RES_STAT_SCALE(8))							// JMS_GFX
-#define RADAR_HEIGHT RES_STAT_SCALE(53)											// JMS_GFX
-#define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)		// JMS_GFX
+#define RADAR_X (RES_SCALE(4) + SPACE_WIDTH)
+#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))
+#define RADAR_HEIGHT RES_SCALE(53)
+#define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)
 
 		/* Blue boxes which display messages and the green date box. */
-#define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)						// JMS_GFX
-#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2)) // JMS_GFX
-#define SIS_TITLE_HEIGHT       RES_BOOL(8, 29)						// JMS_GFX
-#define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)						// JMS_GFX
+#define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)
+#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2))
+#define SIS_TITLE_HEIGHT       RES_SCALE(8)
+#define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)
 
 #define SIS_MESSAGE_BOX_WIDTH  (SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - SIS_SPACER_BOX_WIDTH)
-#define SIS_MESSAGE_WIDTH      (SIS_MESSAGE_BOX_WIDTH - 2)
+#define SIS_MESSAGE_WIDTH      (SIS_MESSAGE_BOX_WIDTH - RES_SCALE(2))
 #define SIS_MESSAGE_HEIGHT     SIS_TITLE_HEIGHT
 
-#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_BOOL(4, 7))	 // JMS_GFX
-#define STATUS_MESSAGE_HEIGHT  RES_BOOL(7, 24) // JMS_GFX
+#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_SCALE(4))
+#define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) 
 
-#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_BOOL(4, 9))// JMS_GFX
-#define SHIP_NAME_HEIGHT       (RES_STAT_SCALE(7) - IF_HD(4)) // JMS_GFX
+#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE(4))
+#define SHIP_NAME_HEIGHT       RES_SCALE(7) 
 
 		/* A lot of other shit. */
 #define MAX_REDUCTION 3
@@ -123,8 +128,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 // XXX: These corrected for the weird screen aspect ratio on DOS
 //   In part because of them, hyperflight is slower vertically
-#define UNIT_SCREEN_WIDTH ((63 << (COUNT)RESOLUTION_FACTOR) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
-#define UNIT_SCREEN_HEIGHT ((50 << (COUNT)RESOLUTION_FACTOR) + (COUNT)RESOLUTION_FACTOR * 10) // JMS_GFX
+#define UNIT_SCREEN_WIDTH RES_SCALE(63)
+#define UNIT_SCREEN_HEIGHT RES_SCALE(50)
 
 
 // Bug #945: Simplified, these set the speed of SIS in Hyperspace and
@@ -137,8 +142,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 #define UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4))
 #define UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
-#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE(16))) // JMS_GFX
-#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE(16))) // JMS_GFX
+#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE(16))) 
+#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE(16))) 
 
 // Original (and now broken) Hyperspace speed factors
 // Serosis: Now being utilized to load Vanilla saves properly

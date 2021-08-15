@@ -493,6 +493,9 @@ FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 	BOOLEAN GeneratingMoons;
 	COUNT StarSize;
 	PLANET_DESC *pPD;
+	DWORD loopCounter = 0;
+	BYTE orbitDiff;
+
 	struct
 	{
 		COUNT MinRockyDist, MinGasGDist;
@@ -604,14 +607,28 @@ RelocatePlanet:
 					+ min_radius;
 			for (pLocPD = pPD - 1; pLocPD >= pBaseDesc; --pLocPD)
 			{
-				delta_r = UNSCALE_RADIUS (pLocPD->radius) / 5
-						- UNSCALE_RADIUS (pPD->radius) / 5;
-				if (delta_r < 0)
+				if (loopCounter < UINT16_MAX)
+				{
+					delta_r = UNSCALE_RADIUS(pLocPD->radius) / 5 - UNSCALE_RADIUS(pPD->radius) / 5;
+					orbitDiff = 1;
+				}
+				else
+				{
+					delta_r = UNSCALE_RADIUS (pLocPD->radius) - UNSCALE_RADIUS (pPD->radius);
+					orbitDiff = 5;
+				}
+
+				if (delta_r <= 0)
 					delta_r = -delta_r;
-				if (delta_r <= 1)
+				if (delta_r <= orbitDiff && loopCounter < (UINT16_MAX * 2))
+				{
+					loopCounter++;
 					goto RelocatePlanet;
+				}
 			}
 		}
+
+
 
 		rand_val = RandomContext_Random (SysGenRNG);
 		// Initial angle & coordinates as in Vanilla UQM

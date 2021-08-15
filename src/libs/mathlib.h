@@ -29,6 +29,12 @@ extern "C" {
 
 extern COUNT square_root (DWORD value);
 
+inline static float
+scaleThingUp (float original, float thingToScale)
+{
+	return ((original - thingToScale) / thingToScale + 1);
+}
+
 #if defined(__cplusplus)
 }
 #endif

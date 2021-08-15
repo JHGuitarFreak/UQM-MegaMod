@@ -115,7 +115,7 @@ uninitEventSystem (void) {
 int
 eventIdStrToNum (const char *eventIdStr)
 {
-	size_t eventCount = sizeof eventNames / sizeof eventNames[0];
+	size_t eventCount = ARRAY_SIZE (eventNames);
 	size_t eventI;
 
 	// Linear search; acceptable for such a small number of events.
@@ -130,7 +130,7 @@ eventIdStrToNum (const char *eventIdStr)
 const char *
 eventIdNumToStr (int eventNum)
 {
-	size_t eventCount = sizeof eventNames / sizeof eventNames[0];
+	size_t eventCount = ARRAY_SIZE (eventNames);
 	if (eventNum < 0 || (size_t) eventNum >= eventCount)
 		return NULL;
 	return eventNames[eventNum];

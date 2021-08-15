@@ -40,7 +40,9 @@
 // Paths
 #ifdef WIN32
 #	include <stdlib.h>
-#	define PATH_MAX  _MAX_PATH
+#	ifndef PATH_MAX
+#		define PATH_MAX  _MAX_PATH
+#	endif
 #	define NAME_MAX  _MAX_FNAME
 		// _MAX_DIR and FILENAME_MAX could also be candidates.
 		// If anyone can tell me which one matches NAME_MAX, please
@@ -146,14 +148,30 @@ typedef unsigned short mode_t;
 #	define stat _stat
 #	define unlink _unlink
 #elif defined (__MINGW32__)
-#	define S_IRGRP 0
-#	define S_IWGRP 0
-#	define S_IXGRP 0
-#	define S_IROTH 0
-#	define S_IWOTH 0
-#	define S_IXOTH 0
-#	define S_IRWXG 0
-#	define S_IRWXO 0
+#	ifndef S_IRGRP
+#		define S_IRGRP 0
+#	endif
+#	ifndef S_IWGRP
+#		define S_IWGRP 0
+#	endif
+#	ifndef S_IXGRP
+#		define S_IXGRP 0
+#	endif
+#	ifndef S_IROTH
+#		define S_IROTH 0
+#	endif
+#	ifndef S_IWOTH
+#		define S_IWOTH 0
+#	endif
+#	ifndef S_IXOTH
+#		define S_IXOTH 0
+#	endif
+#	ifndef S_IRWXG
+#		define S_IRWXG 0
+#	endif
+#	ifndef S_IRWXO
+#		define S_IRWXO 0
+#	endif
 #	define S_ISUID 0
 #	define S_ISGID 0
 #	define S_IFMT _S_IFMT

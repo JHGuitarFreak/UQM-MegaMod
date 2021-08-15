@@ -290,7 +290,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			}
 			else
 			{
-	#define URQUAN_REMNANTS 3
+#define URQUAN_REMNANTS DIF_CASE (3, 2, 5)
 				BYTE i;
 
 				for (i = 0; i < URQUAN_REMNANTS; ++i)

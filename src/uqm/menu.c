@@ -27,6 +27,8 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/tasklib.h"
 #include "libs/log.h"
+#include "util.h"
+#include "planets/planets.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -35,7 +37,7 @@ static BYTE NextMenuState (BYTE BaseState, BYTE CurState);
 static BYTE PreviousMenuState (BYTE BaseState, BYTE CurState);
 static BOOLEAN GetAlternateMenu (BYTE *BaseState, BYTE *CurState);
 static BYTE ConvertAlternateMenu (BYTE BaseState, BYTE NewState);
-
+void FunkyMenu (BYTE m, STAMP stmp);
 
 /* Draw the blue background for PC Menu Text, with a border around it.
  * The specified rectangle includes the border. */
@@ -46,28 +48,30 @@ DrawPCMenuFrame (RECT *r)
 	// This actually draws a rectangle, but the bottom and right parts
 	// are drawn over in the next step.
 	SetContextForeGroundColor (PCMENU_TOP_LEFT_BORDER_COLOR);
-	DrawRectangle (r, FALSE);
+	DrawFilledRectangle (r);
 
 	// Draw the right and bottom of the outer border.
 	// This actually draws a rectangle, with the top and left segments just
 	// within the total area, but these segments are drawn over in the next
 	// step.
-	r->corner.x++;
-	r->corner.y++;
-	r->extent.height--;
-	r->extent.width--;
+	r->corner.x += RES_SCALE(1);
+	r->corner.y += RES_SCALE(1);
+	r->extent.height -= RES_SCALE(1);
+	r->extent.width -= RES_SCALE(1);
 	SetContextForeGroundColor (PCMENU_BOTTOM_RIGHT_BORDER_COLOR);
-	DrawRectangle (r, FALSE);
+	DrawFilledRectangle(r);
 
 	// Draw the background.
-	r->extent.height--;
-	r->extent.width--;
+	r->extent.height -= RES_SCALE(1);
+	r->extent.width -= RES_SCALE(1);
 	SetContextForeGroundColor (PCMENU_BACKGROUND_COLOR);
 	DrawFilledRectangle (r);
 }
 
 #define ALT_MANIFEST 0x80
 #define ALT_EXIT_MANIFEST 0x81
+
+#define PC_MENU_HEIGHT (RES_SCALE(8))
 
 static UNICODE pm_crew_str[128];
 static UNICODE pm_fuel_str[128];
@@ -76,9 +80,9 @@ static UNICODE pm_fuel_str[128];
 static void
 DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 {
-#define PC_MENU_HEIGHT (RES_STAT_SCALE(8)) // JMS_GFX
 	BYTE pos;
 	COUNT i;
+	static COUNT rd = 0;
 	int num_items;
 	FONT OldFont;
 	TEXT t;
@@ -86,31 +90,33 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	RECT rt;
 	pos = beg_index + NewState;
 	num_items = 1 + end_index - beg_index;
-	r->corner.x -= 1;
-	r->extent.width += RES_STAT_SCALE(1);
+	r->corner.x -= RES_SCALE(1);
+	r->extent.width += RES_SCALE(1);
 
 	// Gray rectangle behind PC menu
 	rt = *r;
-	rt.corner.y += PC_MENU_HEIGHT;
-	rt.extent.height -= RES_DBL(13) - IF_HD(1);
-	DrawFilledRectangle(&rt);	
+	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE(12);
+	rt.extent.height += 2;
+	if (!optCustomBorder)
+		DrawFilledRectangle (&rt);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
 	else
 		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
-	r->extent.height = num_items * PC_MENU_HEIGHT + RES_DBL(3);	
-	if (!optCustomBorder)
-		DrawPCMenuFrame (r);	
-	DrawBorder (21, FALSE);
+	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE(3);	
+	DrawPCMenuFrame (r);
+
+	DrawBorder (27 - num_items, FALSE);
+
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
-	t.baseline.x = r->corner.x + RES_STAT_SCALE(2);
-	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_STAT_SCALE(1);// - RESOLUTION_FACTOR; // JMS_GFX
+	t.baseline.x = r->corner.x + RES_BOOL(2, 5);
+	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE(1);
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	r->corner.x += RES_STAT_SCALE(1);
-	r->extent.width -= RES_STAT_SCALE(2);
+	r->corner.x += RES_SCALE(1);
+	r->extent.width -= RES_SCALE(2);
 	for (i = beg_index; i <= end_index; i++)
 	{
 		utf8StringCopy (buf, sizeof buf,
@@ -120,21 +126,25 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 		if (hilite && pos == i)
 		{
 			// Currently selected menu option.
-			
-			// Draw the background of the selection.
-			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_MEDIUM_COLOR : PCMENU_SELECTION_BACKGROUND_COLOR));
-			r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_STAT_SCALE(2); // JMS_GFX
-			r->extent.height = PC_MENU_HEIGHT - RES_STAT_SCALE(1);
-			DrawFilledRectangle (r);
+			if (pos != rd)
+			{	// Draw the background of the selection.
+				SetContextForeGroundColor (PCMENU_SELECTION_BACKGROUND_COLOR);
+				r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2);
+				r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
+				DrawFilledRectangle (r);
+				rd = pos;
+			}
+			else
+				rd = 0;
 
 			// Draw the text of the selected item.
-			SetContextForeGroundColor ((optCustomBorder ? NORMAL_ILLUMINATED_COLOR : PCMENU_SELECTION_TEXT_COLOR));
+			SetContextForeGroundColor (PCMENU_SELECTION_TEXT_COLOR);
 			font_DrawText (&t);
 		}
 		else
 		{
 			// Draw the text of an unselected item.
-			SetContextForeGroundColor ((optCustomBorder ? SHADOWBOX_BACKGROUND_COLOR : PCMENU_TEXT_COLOR));
+			SetContextForeGroundColor (PCMENU_TEXT_COLOR);
 			font_DrawText (&t);
 		}
 		t.baseline.y += PC_MENU_HEIGHT;
@@ -470,7 +480,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	if (useAltMenu)
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 	pMS->CurState = NewState;
-	SleepThread (ONE_SECOND / 20);
+
 	return TRUE;
 }
 
@@ -510,12 +520,12 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - 1;
+	r.corner.x = s.origin.x - RES_SCALE(1);
 	if (optWhichMenu == OPT_PC)
-		r.corner.y = s.origin.y - RES_SCALE(8); // JMS_GFX
+		r.corner.y = s.origin.y - PC_MENU_HEIGHT - IF_HD(2); 
 	else
 		r.corner.y = s.origin.y - RES_SCALE(11);
-	r.extent.width = RADAR_WIDTH + 2;
+	r.extent.width = RADAR_WIDTH + RES_SCALE(3);
 	BatchGraphics ();
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
@@ -559,51 +569,63 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					break;
 			}
 		}
-		r.extent.height = RADAR_HEIGHT + RES_STAT_SCALE(11); // JMS_GFX
+		r.extent.height = RADAR_HEIGHT + RES_SCALE(12); 
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;
+
+		if (optSubmenu)
+			FunkyMenu (beg_index + (BYTE)NewState, s);
 	}
 	else
 	{
 		if (optWhichMenu == OPT_PC)
 		{	// Gray rectangle behind Lander and HyperSpace radar
-			r.corner.x -= 1;
-			r.extent.width += RES_STAT_SCALE(1);
-			r.extent.height = RADAR_HEIGHT + RES_STAT_SCALE(11); // JMS_GFX
+			r.corner.x -= RES_SCALE(1);
+			r.extent.width += RES_SCALE(1);
+			r.extent.height = RADAR_HEIGHT + RES_SCALE(9); 
 		}
 		else
+		{
+			r.corner.x -= RES_SCALE(1);
+			r.extent.width += RES_SCALE(1);
 			r.extent.height = RES_SCALE(11);
-		DrawFilledRectangle (&r);
-		DrawBorder(8, FALSE);
+		}
+		if (!optCustomBorder)
+			DrawFilledRectangle (&r);
+		DrawBorder (8, FALSE);
 	}
 	if (s.frame)
 	{
-		DrawStamp (&s);
+		if (optSubmenu)
+			FunkyMenu (beg_index + (BYTE)NewState, s);
+		else
+			DrawStamp (&s);
+
 		switch (beg_index + NewState)
 		{
 			TEXT t;
 			UNICODE buf[20];
 
 			case PM_CREW:
-				t.baseline.x = s.origin.x + RADAR_WIDTH - 2;
-				t.baseline.y = s.origin.y + RADAR_HEIGHT - 2;
+				t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
+				t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 				t.align = ALIGN_RIGHT;
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
 				snprintf (buf, sizeof buf, "%u", GLOBAL (CrewCost));
-				SetContextFont (TinyFontSS);
+				SetContextFont (TinyFont);
 				SetContextForeGroundColor (THREEDOMENU_TEXT_COLOR);
 				font_DrawText (&t);
 				break;
 			case PM_FUEL:
-				t.baseline.x = s.origin.x + RADAR_WIDTH - 2;
-				t.baseline.y = s.origin.y + RADAR_HEIGHT - 2;
+				t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
+				t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 				t.align = ALIGN_RIGHT;
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
 				snprintf (buf, sizeof buf, "%u", GLOBAL (FuelCost));
-				SetContextFont (TinyFontSS);
+				SetContextFont (TinyFont);
 				SetContextForeGroundColor (THREEDOMENU_TEXT_COLOR);
 				font_DrawText (&t);
 				break;
@@ -620,15 +642,118 @@ DrawSubmenu (BYTE Visible)
 	STAMP s;
 	CONTEXT OldContext;
 	
-	OldContext = SetContext (ScreenContext);
+	OldContext = SetContext (StatusContext);
 
-	s.origin.x = 0;
-	s.origin.y = 0;
+	s.origin = MAKE_POINT (RES_SCALE(1), RES_SCALE(141));
 
 	s.frame = SetAbsFrameIndex (SubmenuFrame, Visible);
 
 	DrawStamp (&s);
 	
+	SetContext (OldContext);
+}
+
+void
+DrawMineralHelpers (BOOLEAN cleanup)
+{
+	RECT r;
+	CONTEXT OldContext;
+	COUNT i, digit;
+	STAMP s;
+	TEXT t;
+	UNICODE buf[40];
+
+	OldContext = SetContext (StatusContext);
+	SetContextFont (TinyFont);
+
+	r.corner = MAKE_POINT (RES_SCALE(1), RES_SCALE(141));
+	r.extent = MAKE_EXTENT(RES_SCALE(62), RES_SCALE(42));
+
+	if (cleanup)
+	{
+		if(optCustomBorder)
+			DrawBorder (14, FALSE);
+		else 
+		{
+			SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+			DrawFilledRectangle (&r);
+		}
+
+		return;
+	}
+
+	BatchGraphics ();
+
+	if(!optCustomBorder)
+	{
+		DrawStarConBox (
+				&r, RES_SCALE(1), PCMENU_TOP_LEFT_BORDER_COLOR,
+				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, PCMENU_BACKGROUND_COLOR
+			);
+
+		if (IS_HD)
+			DrawSubmenu (1);
+	}
+	else
+		DrawBorder (14, FALSE);
+
+#define ELEMENT_ORG_X      (r.corner.x + RES_SCALE(7))
+#define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE(7))
+#define ELEMENT_SPACING_Y  RES_SCALE(9)
+#define ELEMENT_SPACING_X  RES_SCALE(32)
+#define HD_ALIGN_DOTS IF_HD(2)
+
+	// setup element icons
+	s.frame = SetAbsFrameIndex (MiscDataFrame,
+			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
+	s.origin.x = ELEMENT_ORG_X + HD_ALIGN_DOTS;
+	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
+	// setup element worths
+	t.baseline.x = ELEMENT_ORG_X + RES_SCALE(5);
+	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
+	t.align = ALIGN_LEFT;
+	t.pStr = buf;
+
+	// draw element icons and worths
+	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+	{
+		if (i == NUM_ELEMENT_CATEGORIES / 2)
+		{
+			s.origin.x += ELEMENT_SPACING_X;
+			s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
+			t.baseline.x += ELEMENT_SPACING_X;
+			t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
+		}
+
+		// draw element icon
+		DrawStamp (&s);
+		s.frame = SetRelFrameIndex (s.frame, 5);
+		s.origin.y += ELEMENT_SPACING_Y;
+
+		// print x'es
+		if (!optCustomBorder)
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x10, 0x21, 0xF7, 0xFF));
+		else
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x31, 0x31, 0x31, 0xFF));
+		snprintf (buf, sizeof buf, "%s", "x");
+		font_DrawText (&t);
+
+		// print element worth
+		if (!optCustomBorder)
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0xAD, 0xAD, 0xFF));
+		else
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x74, 0x74, 0x74, 0xFF));
+		snprintf (buf, sizeof buf, "%u", GLOBAL (ElementWorth[i]));
+		digit = RES_SCALE(!strncmp (buf, "1", 1) ? 4 : 5);
+		t.baseline.x += digit;
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+		t.baseline.x -= digit;
+		t.baseline.y += ELEMENT_SPACING_Y;
+	}
+
+	UnbatchGraphics ();
+
 	SetContext (OldContext);
 }
 
@@ -644,11 +769,47 @@ DrawBorder (BYTE Visible, BOOLEAN InBattle)
 	s.origin.x = 0;
 	s.origin.y = 0;
 
-	s.frame = SetAbsFrameIndex (BorderFrame, Visible);
-
-	if (optCustomBorder || InBattle)
+	if (optCustomBorder && !InBattle)
+	{
+		s.frame = SetAbsFrameIndex (BorderFrame, Visible);
 		DrawStamp (&s);
+	}
+
+	if (IS_HD && (!optCustomBorder || InBattle))
+	{
+		s.frame = SetAbsFrameIndex (HDBorderFrame, Visible);
+		DrawStamp (&s);
+	}
 	
 	if (!InBattle)
 		SetContext (OldContext);
+}
+
+void
+FunkyMenu (BYTE m, STAMP stmp)
+{
+	static BOOLEAN subMenuFlag;
+
+	if ((!stmp.frame && m >= PM_ALT_MSCAN
+			&& m <= PM_ALT_EXIT_SCAN)
+			|| m == PM_LAUNCH_LANDER)
+	{
+		if (stmp.frame)
+			DrawStamp (&stmp);
+
+		DrawMineralHelpers (FALSE);
+
+		subMenuFlag = TRUE;
+
+		if (stmp.frame)
+			return;
+	}
+	else if (subMenuFlag == TRUE)
+	{
+		DrawMineralHelpers (TRUE);
+		subMenuFlag = FALSE;
+	}
+
+	if (stmp.frame)
+		DrawStamp (&stmp);
 }

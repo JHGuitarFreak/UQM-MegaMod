@@ -26,26 +26,26 @@
 extern "C" {
 #endif
 
-#define CREW_XOFFS RES_STAT_SCALE(4)
-#define ENERGY_XOFFS RES_STAT_SCALE(52)
+#define CREW_XOFFS RES_SCALE(4)
+#define ENERGY_XOFFS RES_SCALE(52)
 #define GAUGE_YOFFS (SHIP_INFO_HEIGHT - RES_SCALE(10))
 #define UNIT_WIDTH RES_SCALE(2)
 #define UNIT_HEIGHT RES_SCALE(1)
-#define STAT_WIDTH (1 + UNIT_WIDTH + 1 + UNIT_WIDTH + 1)
+#define STAT_WIDTH (RES_SCALE(1) + UNIT_WIDTH + RES_SCALE(1) + UNIT_WIDTH + RES_SCALE(1))
 
 #define SHIP_INFO_HEIGHT RES_SCALE(65)
-#define CAPTAIN_WIDTH RES_STAT_SCALE(55)
-#define CAPTAIN_HEIGHT RES_STAT_SCALE(30)
-#define CAPTAIN_XOFFS ((STATUS_WIDTH - CAPTAIN_WIDTH) >> 1) 
+#define CAPTAIN_WIDTH RES_SCALE(55)
+#define CAPTAIN_HEIGHT RES_SCALE(30)
+#define CAPTAIN_XOFFS ((STATUS_WIDTH - CAPTAIN_WIDTH) >> 1) - IF_HD(2)
 #define CAPTAIN_YOFFS (SHIP_INFO_HEIGHT + RES_SCALE(4))
 
 #define SHIP_STATUS_HEIGHT (STATUS_HEIGHT >> 1)
 #define BAD_GUY_YOFFS 0
 #define GOOD_GUY_YOFFS SHIP_STATUS_HEIGHT
 
-#define STARCON_TEXT_HEIGHT RES_SCALE(7)
+#define STARCON_TEXT_HEIGHT RES_BOOL(7, 32)
 #define TINY_TEXT_HEIGHT RES_SCALE(9)
-#define BATTLE_CREW_X RES_STAT_SCALE(10)
+#define BATTLE_CREW_X RES_SCALE(10)
 #define BATTLE_CREW_Y RES_SCALE(64)
 
 extern COORD status_y_offsets[];
@@ -53,8 +53,8 @@ extern COORD status_y_offsets[];
 extern void InitStatusOffsets (void);
 
 extern void DrawCrewFuelString (COORD y, SIZE state);
-extern void ClearShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu);
-extern void OutlineShipStatus (COORD y, COORD w, BOOLEAN inMeleeMenu); // JMS: now is needed elsewhere
+extern void ClearShipStatus (COORD y);
+extern void OutlineShipStatus (COORD y);
 extern void InitShipStatus (SHIP_INFO *ShipInfoPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEAN inMeleeMenu);
 			// StarShipPtr or pClipRect can be NULL
 extern void DeltaStatistics (SHIP_INFO *ShipInfoPtr, COORD y_offs,

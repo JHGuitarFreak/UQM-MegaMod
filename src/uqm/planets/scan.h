@@ -48,7 +48,7 @@ struct scan_block
 
 extern void ScanSystem (void);
 
-extern void RepairBackRect (RECT *pRect, BOOLEAN Fullscreen);
+extern void RepairBackRect (RECT *pRect);
 extern void GeneratePlanetSide (void);
 extern COUNT callGenerateForScanType (const SOLARSYS_STATE *,
 		const PLANET_DESC *world, COUNT node, BYTE scanType, NODE_INFO *);
@@ -64,6 +64,8 @@ bool isNodeRetrieved (PLANET_INFO *planetInfo, BYTE scanType, BYTE nodeNr);
 COUNT countNodesRetrieved (PLANET_INFO *planetInfo, BYTE scanType);
 void setNodeRetrieved (PLANET_INFO *planetInfo, BYTE scanType, BYTE nodeNr);
 void setNodeNotRetrieved (PLANET_INFO *planetInfo, BYTE scanType, BYTE nodeNr);
+
+void GetPlanetTitle (UNICODE* buf, COUNT bufsize);
 
 #if defined(__cplusplus)
 }

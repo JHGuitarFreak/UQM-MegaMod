@@ -161,8 +161,8 @@ PlayingTrack (void)
 		return 0; // not playing anything
 
 	LockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
-	if (cur_chunk)
-		result = cur_chunk->track_num + 1;
+	if (cur_sub_chunk)
+		result = cur_sub_chunk->track_num + 1;
 	UnlockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
 
 	return result;
@@ -338,7 +338,7 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		pages[page] = HMalloc (sizeof (UNICODE) *
 				(lead_ellips + pos + aft_ellips + 1));
 		if (lead_ellips)
-			strcpy (pages[page], "..");
+			strcpy (pages[page], "...");
 		memcpy (pages[page] + lead_ellips, text, pos);
 		pages[page][lead_ellips + pos] = '\0'; // string term
 		if (aft_ellips)
@@ -346,7 +346,7 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		timestamp[page] = pos * TEXT_SPEED;
 		if (timestamp[page] < 1000)
 			timestamp[page] = 1000;
-		lead_ellips = aft_ellips ? 2 : 0;
+		lead_ellips = aft_ellips ? 3 : 0;
 		text += pos;
 		// Skip any EOL
 		text += strspn (text, "\r\n");
@@ -871,4 +871,52 @@ GetTrackSubtitle (void)
 	UnlockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
 
 	return cur_sub;
+}
+
+COUNT
+GetSubtitleNumber (UNICODE *sub)
+{
+	COUNT i = 0;
+	TFB_SoundChunk *now;
+
+	if (sub == NULL)// If no sub - get current one
+		sub = GetTrackSubtitle ();
+
+	if (sub == NULL)// Nothing playing - no subs
+		return -1;
+
+	now = chunks_head;	
+
+	while (now->text != sub && now->next != NULL)
+	{
+		now = now->next;
+		i++;
+	}
+
+	return i;
+}
+
+COUNT
+GetSubtitleNumberByTrack (COUNT track)
+{
+	COUNT i = 0;
+	TFB_SoundChunk *now;
+
+	if (chunks_head == NULL)// Fool-proof
+		return i;
+
+	now = chunks_head;
+
+	while (now->next != NULL && now->track_num != track)
+	{
+		now = now->next;
+		i++;
+	}
+
+	// A trick if we need to lock the last track in responce
+	// Never used in game, kept for future
+	if (now->next == NULL && now->track_num != track)
+		i++;
+
+	return i;
 }

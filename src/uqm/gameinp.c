@@ -41,8 +41,8 @@
 #define ACCELERATION_INCREMENT(ONE_SECOND)
 #define MENU_REPEAT_DELAY(ONE_SECOND)
 #else
-#define ACCELERATION_INCREMENT (ONE_SECOND / RES_SCALE(12))
-#define MENU_REPEAT_DELAY (ONE_SECOND / 3)
+#define ACCELERATION_INCREMENT (ONE_SECOND / 12)
+#define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
 #endif
 
 typedef struct
@@ -501,6 +501,32 @@ AnyButtonPress (BOOLEAN CheckSpecial)
 			return TRUE;
 	}
 	return FALSE;
+}
+
+BOOLEAN
+DirKeysPress (void)
+{
+	return (
+		CurrentInputState.menu[KEY_MENU_LEFT] ||
+		CurrentInputState.menu[KEY_MENU_RIGHT] ||
+		CurrentInputState.menu[KEY_MENU_UP] ||
+		CurrentInputState.menu[KEY_MENU_DOWN]
+	);
+}
+
+BOOLEAN
+ActKeysPress (void)
+{
+	UpdateInputState ();
+
+	return (
+		CurrentInputState.key[PlayerControls[0]][KEY_WEAPON] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
+		CurrentInputState.menu[KEY_MENU_SELECT] ||
+		CurrentInputState.menu[KEY_MENU_CANCEL] ||
+		CurrentInputState.menu[KEY_MENU_SPECIAL]
+	);
 }
 
 BOOLEAN

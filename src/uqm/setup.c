@@ -57,24 +57,24 @@ CONTEXT OffScreenContext;
 SIZE screen_width, screen_height;
 FRAME Screen;
 FONT StarConFont;
-FONT StarConLgFont;
 FONT MicroFont;
 FONT TinyFont;
-FONT TinyFontSS;
+FONT TinyFontBold;
 FONT PlyrFont;
 QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
-FRAME hyperspacesuns; // BW
-FRAME NebulaeFrame; // JMS
+FRAME hyperspacesuns;
+FRAME NebulaeFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
+FRAME HDBorderFrame;
 STRING GameStrings;
 QUEUE disp_q;
-// Serosis
+
 BOOLEAN solTexturesPresent;
 BOOLEAN SyreenVoiceFix;
 BOOLEAN comingFromInit;
@@ -86,6 +86,7 @@ BOOLEAN DeathBySurrender = FALSE;
 BOOLEAN DeathByMelee = FALSE;
 BOOLEAN DeathBySuicide = FALSE;
 BOOLEAN SpaceMusicOK;
+BOOLEAN oldPlanetsPresent;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -148,9 +149,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		HDPackPresent = TRUE;
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
-		loadAddon ("orange-peel-melnorme");
-		loadAddon ("classic-hd-fonts");
-		loadAddon ("tarps-choice");
 	}
 
 	loadAddon ("ProfanePkunk");
@@ -181,14 +179,20 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 			SpaceMusicOK = VolasPackPresent;
 	}
 
-	if (optSpaceMusic)
+	if (optSpaceMusic && !VolasPackPresent)
 		SpaceMusicOK = loadAddon ("SpaceMusic");
 
 	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
 
+	if (!IS_HD)
+		loadAddon ("automods-sd");
+	else if (HDPackPresent)
+		loadAddon ("automods-hd");
+
+
 	/* Now load the rest of the addons, in order. */
-	prepareAddons(optAddons);
+	prepareAddons (optAddons);
 
 	{
 		COLORMAP ColorMapTab;
@@ -256,25 +260,28 @@ InitKernel (void)
 	if (StarConFont == NULL)
 		return FALSE;
 
-	StarConLgFont = LoadFont (STARCONLG_FONT);
-	if (StarConLgFont == NULL)
-		return FALSE;
-
 	TinyFont = LoadFont (TINY_FONT);
 	if (TinyFont == NULL)
 		return FALSE;
 
-	TinyFontSS = LoadFont (TINY_FONT_SS);
-	if (TinyFontSS == NULL)
+	TinyFontBold = LoadFont (TINY_FONT_BOLD);
+	if (TinyFontBold == NULL)
 		return FALSE;
 
 	PlyrFont = LoadFont (PLAYER_FONT);
 	if (PlyrFont == NULL)
 		return FALSE;
 
-	BorderFrame = CaptureDrawable (LoadGraphic(BORDER_MASK_PMAP_ANIM));
+	BorderFrame = CaptureDrawable (LoadGraphic (BORDER_MASK_PMAP_ANIM));
 	if (BorderFrame == NULL)
 		return FALSE;
+
+	if (HDPackPresent)
+	{
+		HDBorderFrame = CaptureDrawable (LoadGraphic (HD_BORDER_MASK_PMAP_ANIM));
+		if (HDBorderFrame == NULL)
+			return FALSE;
+	}
 
 	ActivityFrame = CaptureDrawable (LoadGraphic (ACTIVITY_ANIM));
 	if (ActivityFrame == NULL)
@@ -283,9 +290,9 @@ InitKernel (void)
 	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
 		return FALSE;
-	
-	// JMS: Animated hyperspace suns.
-	if (HDPackPresent) { 
+
+	if (HDPackPresent)
+	{ 
 		hyperspacesuns = CaptureDrawable (LoadGraphic (HYPERSUNS_MASK_PMAP_ANIM));
 		if (hyperspacesuns == NULL)
 			return FALSE;
@@ -294,8 +301,7 @@ InitKernel (void)
 	NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
 	if (NebulaeFrame == NULL || !NebulaeFrame)
 		return FALSE;
-		
-	// JMS: This is a table of mineral values that will be shown on the status bar.
+
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)
 		return FALSE;

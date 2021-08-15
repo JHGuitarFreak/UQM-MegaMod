@@ -21,6 +21,7 @@
 
 #include "options.h"
 #include "port.h"
+#include "uqm/units.h"
 #include "libs/uio.h"
 #include "libs/reslib.h"
 		// for _cur_resfile_name
@@ -124,8 +125,8 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 
 	CharPtr->data = newdata;
 	CharPtr->pitch = dpitch;
-	CharPtr->disp.width = CharPtr->extent.width + 1;
-	CharPtr->disp.height = CharPtr->extent.height + 1;
+	CharPtr->disp.width = CharPtr->extent.width + RES_SCALE(1);
+	CharPtr->disp.height = CharPtr->extent.height + RES_SCALE(1);
 			// XXX: why the +1?
 			// I brought it into this function from the only calling
 			// function, but I don't know why it was there in the first
@@ -137,17 +138,26 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 		// This tunes the font positioning to be about what it should
 		// TODO: prolly needs a little tweaking still
 
-		int tune_amount = 0;
+		int tune_amount_x = 0;
+		int tune_amount_y = 0;
 
-		if (CharPtr->extent.height == 8)
-			tune_amount = -1;
-		else if (CharPtr->extent.height == 9)
-			tune_amount = -2;
-		else if (CharPtr->extent.height > 9)
-			tune_amount = -3;
+		if (CharPtr->extent.height == RES_SCALE(8))
+		{
+			tune_amount_y = -RES_SCALE(1);
+		}
+		else if (CharPtr->extent.height == RES_SCALE(9))
+		{
+			tune_amount_y = -RES_SCALE(2);
+			tune_amount_x = IF_HD(-3);
+		}
+		else if (CharPtr->extent.height > RES_SCALE(9))
+		{
+			tune_amount_y = -RES_SCALE(3);
+			tune_amount_x = IF_HD(-2);
+		}
 
-		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
-				CharPtr->extent.height + tune_amount);
+		CharPtr->HotSpot = MAKE_HOT_SPOT (tune_amount_x,
+				CharPtr->extent.height + tune_amount_y);
 	}
 }
 
@@ -528,7 +538,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		*pageEndPtr = NULL;
 	}
 
-	fontPtr->Leading++;
+	fontPtr->Leading += RES_SCALE(1);
 
 	HFree (bcds);
 

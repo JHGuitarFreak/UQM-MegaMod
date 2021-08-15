@@ -703,8 +703,8 @@ init_umgah_comm (void)
 			// generalised in the future.
 
 	umgah_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	umgah_desc.AlienTextBaseline.y = 0;
-	umgah_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
+	umgah_desc.AlienTextBaseline.y = RES_SCALE(4);
+	umgah_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
 
 	if ((GET_GAME_STATE (TALKING_PET) && !GET_GAME_STATE (UMGAH_HOSTILE))
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

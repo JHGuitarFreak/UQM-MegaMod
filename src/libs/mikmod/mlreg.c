@@ -6,12 +6,12 @@
 	it under the terms of the GNU Library General Public License as
 	published by the Free Software Foundation; either version 2 of
 	the License, or (at your option) any later version.
- 
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Library General Public License for more details.
- 
+
 	You should have received a copy of the GNU Library General Public
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
@@ -32,8 +32,9 @@
 
 #include "mikmod_internals.h"
 
-void MikMod_RegisterAllLoaders_internal(void)
+static void MikMod_RegisterAllLoaders_internal(void)
 {
+	/* UQM edit: Cut down the loader list to those we support */
 	_mm_registerloader(&load_it);
 	_mm_registerloader(&load_mod);
 	_mm_registerloader(&load_s3m);
@@ -41,7 +42,7 @@ void MikMod_RegisterAllLoaders_internal(void)
 	_mm_registerloader(&load_xm);
 }
 
-void MikMod_RegisterAllLoaders(void)
+MIKMODAPI void MikMod_RegisterAllLoaders(void)
 {
 	MUTEX_LOCK(lists);
 	MikMod_RegisterAllLoaders_internal();

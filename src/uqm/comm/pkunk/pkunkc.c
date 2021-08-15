@@ -1091,7 +1091,7 @@ Intro (void)
 static COUNT
 uninit_pkunk (void)
 {
-	luaUqm_comm_uninit();
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -1121,13 +1121,13 @@ init_pkunk_comm (void)
 	pkunk_desc.post_encounter_func = post_pkunk_enc;
 	pkunk_desc.uninit_encounter_func = uninit_pkunk;
 
-	luaUqm_comm_init(NULL, NULL_RESOURCE);
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
 	pkunk_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	pkunk_desc.AlienTextBaseline.y = 0;
-	pkunk_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
+	pkunk_desc.AlienTextBaseline.y = RES_SCALE(4);
+	pkunk_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
 
 	if (GET_GAME_STATE (PKUNK_MANNER) == 3
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

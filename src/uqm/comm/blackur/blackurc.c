@@ -57,6 +57,14 @@ static LOCDATA blackurq_desc =
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			0, /* BlockMask */
 		},
+		{	// New eye animation
+			42, /* StartIndex */
+			8, /* NumFrames */
+			CIRCULAR_ANIM, /* AnimFlags */
+			ONE_SECOND / 15, 0, /* FrameRate */
+			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
+			0, /* BlockMask */
+		},
 		{
 			20, /* StartIndex */
 			3, /* NumFrames */
@@ -549,9 +557,9 @@ init_blackurq_comm (void)
 	blackurq_desc.post_encounter_func = post_blackurq_enc;
 	blackurq_desc.uninit_encounter_func = uninit_blackurq;
 
-	blackurq_desc.AlienTextBaseline.x =	TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	blackurq_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	blackurq_desc.AlienTextBaseline.y = 0;
-	blackurq_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
+	blackurq_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
 
 	if (!GET_GAME_STATE (KOHR_AH_KILLED_ALL)
 			&& LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE)

@@ -25,6 +25,9 @@
 #include "libs/compiler.h"
 #include "libs/mathlib.h"
 #include "planets/planets.h"
+#include "starbase.h"
+#include "starmap.h"
+#include "gendef.h"
 #include <stdlib.h>
 
 
@@ -173,7 +176,7 @@ RaceIdStrToIndex (const char *raceIdStr)
 {
 	RaceIdMap key = { /* .idStr = */ raceIdStr, /* .id = */ -1 };
 	RaceIdMap *found = bsearch (&key, raceIdMap,
-			sizeof raceIdMap / sizeof raceIdMap[0],
+			ARRAY_SIZE (raceIdMap),
 			sizeof raceIdMap[0], RaceIdCompare);
 
 	if (found == NULL)
@@ -241,10 +244,6 @@ AddEscortShips (RACE_ID race, SIZE count)
 COUNT
 CalculateEscortsWorth (void)
 {
-	COUNT ShipCost[] =
-	{
-		RACE_SHIP_COST
-	};
 	COUNT total = 0;
 	HSHIPFRAG hStarShip, hNextShip;
 
@@ -255,7 +254,7 @@ CalculateEscortsWorth (void)
 
 		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
-		total += ShipCost[StarShipPtr->race_id];
+		total += ShipCost (StarShipPtr->race_id);
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}
 	return total;
@@ -295,7 +294,8 @@ GetRaceKnownSize (RACE_ID race)
  * flag == 3: Can build their ships regardless
  */
 BOOLEAN
-SetRaceAllied (RACE_ID race, BYTE flag) {
+SetRaceAllied (RACE_ID race, BYTE flag)
+{
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
 
@@ -691,6 +691,12 @@ SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 void
 loadGameCheats (void)
 {
+	if (EXTENDED && star_array[63].Index == MELNORME0_DEFINED)
+	{
+		star_array[63].Type =
+				MAKE_STAR (SUPER_GIANT_STAR, ORANGE_BODY, -1);
+	}
+
 	if(optInfiniteRU)
 		oldRU = GlobData.SIS_state.ResUnits;
 	else
@@ -706,10 +712,11 @@ loadGameCheats (void)
 
 	if (optUnlockShips)
 	{
-		BYTE i = 0;
-
-		for (i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
-			SetRaceAllied (i, 3);
+		for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
+		{
+			if (CheckAlliance (i) != GOOD_GUY)
+				SetRaceAllied (i, 3);
+		}
 	}
 	
 	if (optUnlockUpgrades)
@@ -717,9 +724,10 @@ loadGameCheats (void)
 		SET_GAME_STATE (IMPROVED_LANDER_SPEED, 1);
 		SET_GAME_STATE (IMPROVED_LANDER_CARGO, 1);
 		SET_GAME_STATE (IMPROVED_LANDER_SHOT, 1);
-		SET_GAME_STATE (LANDER_SHIELDS, (1 << EARTHQUAKE_DISASTER) | (1 << BIOLOGICAL_DISASTER) |
-			(1 << LIGHTNING_DISASTER) | (1 << LAVASPOT_DISASTER));				
-		GLOBAL (ModuleCost[ANTIMISSILE_DEFENSE]) = 4000 / MODULE_COST_SCALE;				
+		SET_GAME_STATE (LANDER_SHIELDS,
+				(1 << EARTHQUAKE_DISASTER) | (1 << BIOLOGICAL_DISASTER)
+				| (1 << LIGHTNING_DISASTER) | (1 << LAVASPOT_DISASTER));
+		GLOBAL (ModuleCost[ANTIMISSILE_DEFENSE]) = 4000 / MODULE_COST_SCALE;
 		GLOBAL (ModuleCost[BLASTER_WEAPON]) = 4000 / MODULE_COST_SCALE;
 		GLOBAL (ModuleCost[HIGHEFF_FUELSYS]) = 1000 / MODULE_COST_SCALE;
 		GLOBAL (ModuleCost[TRACKING_SYSTEM]) = 5000 / MODULE_COST_SCALE;
@@ -729,7 +737,7 @@ loadGameCheats (void)
 	}
 	
 	if(optAddDevices)
-	{		
+	{
 		SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, 1);
 		SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, 1);
 		SET_GAME_STATE (GLOWING_ROD_ON_SHIP, 1);
@@ -750,6 +758,13 @@ loadGameCheats (void)
 		SET_GAME_STATE (PORTAL_SPAWNER_ON_SHIP, 1);
 		SET_GAME_STATE (BURV_BROADCASTERS_ON_SHIP, 1);
 		SET_GAME_STATE (DESTRUCT_CODE_ON_SHIP, 1);
+
+		if (GET_GAME_STATE(KNOW_ABOUT_SHATTERED) < 2)
+			SET_GAME_STATE (KNOW_ABOUT_SHATTERED, 2);
+		SET_GAME_STATE (KNOW_SYREEN_WORLD_SHATTERED, 1);
+
+		SET_GAME_STATE (SHIP_VAULT_UNLOCKED, 1);
+		SET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP, 0);
+		SET_GAME_STATE (SYREEN_HOME_VISITS, 0);
 	}
 }
-

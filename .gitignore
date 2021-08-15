@@ -258,11 +258,11 @@ paket-files/
 # Addons directory and miscellany
 config/*
 #bin/content/*
-#!content/version
 #!content/addons
 #content/addons/*
 #content/packages
 content/*
+!content/version
 build.vars
 config.state
 uqm-wrapper
@@ -288,5 +288,6 @@ config_win.h
 *.vcproj.*
 dist-packages
 The\ Ur-Quan\ Masters\ MegaMod.app
+uqmanimationtool.conf
 
 build/msvs2008/UrQuanMasters\.vcproj\.DESKTOP-TCJIFU9\.seros\.user

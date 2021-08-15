@@ -83,8 +83,8 @@ typedef enum {
 	TFB_SCALE_TRILINEAR
 } SCALE;
 
-void LoadIntoExtraScreen (RECT *r, BOOLEAN Fs);
-void DrawFromExtraScreen (RECT *r, BOOLEAN Fs);
+void LoadIntoExtraScreen (RECT *r);
+void DrawFromExtraScreen (RECT *r);
 int SetGraphicScale (int scale);
 int GetGraphicScale (void);
 int SetGraphicScaleMode (int mode /* enum SCALE */);
@@ -102,10 +102,8 @@ extern int FrameRateTickBase;
 void TFB_FlushGraphics (void); // Only call from main thread!!
 void TFB_PurgeDanglingGraphics (void); // Only call from main thread as part of shutdown.
 
-// JMS_GFX
 extern int fs_height; 
 extern int fs_width;
-// END JMS_GFX
 
 extern int ScreenWidth;
 extern int ScreenHeight;

@@ -23,6 +23,7 @@
 #include "gameopt.h"
 #include "gamestr.h"
 #include "resinst.h"
+#include "menustat.h"
 #include "nameref.h"
 #include "settings.h"
 #include "starbase.h"
@@ -57,51 +58,49 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
-	s.origin.y = RADAR_Y - r.corner.y - 19 * RESOLUTION_FACTOR; // JMS_GFX;
-	r.corner.x = s.origin.x - 1;
-	r.corner.y = s.origin.y - 11;
-	r.extent.width = RADAR_WIDTH + 2;
-	r.extent.height = 11 + 20 * RESOLUTION_FACTOR; // JMS_GFX;
+	s.origin.y = RADAR_Y - r.corner.y;
+	r.corner.x = s.origin.x - RES_SCALE(1);
+	r.corner.y = s.origin.y - RES_SCALE(11);
+	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
+	r.extent.height = RES_SCALE(11);
 	BatchGraphics ();
-	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	ClearSISRect (CLEAR_SIS_RADAR);
+	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r);
-	DrawBorder(8, FALSE);
+	DrawBorder (8, FALSE);
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
-		r.corner.y += 19 * RESOLUTION_FACTOR; // JMS_GFX
 		r.extent.width = RADAR_WIDTH;
 		r.extent.height = RADAR_HEIGHT;
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x00), 0x00));
+		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&r);
 	}
 	else if (pMS->CurFrame)
 	{
 		TEXT t;
 		UNICODE buf[40];
+
+		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
-		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_STAT_SCALE(2) - RESOLUTION_FACTOR;
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_STAT_SCALE(2) + IF_HD(28); // JMS_GFX;
+
+		// Print the module cost.
+		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
+		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
-		t.pStr = buf;
+		t.pStr = buf;		
 		sprintf (buf, "%u",
 				GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-
-		if ((GLOBAL_SIS (ResUnits)) > (DWORD)((GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE))) {
-			sprintf (buf, "%u", GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-			SetContextForeGroundColor (
-					BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0x02));
-		} else {
-			sprintf (buf, "(%u)", GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-			SetContextForeGroundColor (
-					BUILD_COLOR (MAKE_RGB15 (0x1F, 0x00, 0x00), 0x02));
-		}
-
 		SetContextFont (TinyFont);
+
+		if ((GLOBAL_SIS (ResUnits)) > (DWORD)((GLOBAL (ModuleCost[NewModule])
+				* MODULE_COST_SCALE))) 
+			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+		else
+			SetContextForeGroundColor (BRIGHT_RED_COLOR);
+
 		font_DrawText (&t);
 	}
 	UnbatchGraphics ();
@@ -125,17 +124,18 @@ RedistributeFuel (void)
 		// If we're less than the fuel level, draw fuel.
 		if (GLOBAL_SIS (FuelOnBoard) < FuelVolume)
 		{
-			r.extent.width = RES_SCALE(3) + IF_HD(6); // JMS_GFX
-			DrawPoint (&r.corner);
-			r.corner.x += r.extent.width + 1;
-			DrawPoint (&r.corner);
-			r.corner.x -= r.extent.width;
+			r.extent.width = RES_SCALE(5);
+			DrawFilledRectangle(&r);
+
+			r.extent.width = RES_SCALE(3);
+			r.corner.x += RES_SCALE(1);
+
 			SetContextForeGroundColor (
 					SetContextBackGroundColor (BLACK_COLOR));
 		}
 		else // Otherwise, draw an empty bar.
 		{
-			r.extent.width = RES_SCALE(5); // JMS_GFX
+			r.extent.width = RES_SCALE(5); 
 			SetContextForeGroundColor (
 					BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E));
 		}
@@ -147,9 +147,9 @@ RedistributeFuel (void)
 	GLOBAL_SIS (FuelOnBoard) = FuelVolume;
 }
 
-#define LANDER_X RES_SCALE(24) // JMS_GFX
-#define LANDER_Y RES_SCALE(67) // JMS_GFX
-#define LANDER_WIDTH RES_SCALE(15) // JMS_GFX
+#define LANDER_X RES_SCALE(24)
+#define LANDER_Y RES_SCALE(67)
+#define LANDER_WIDTH RES_SCALE(15) 
 
 static void
 DisplayLanders (MENU_STATE *pMS)
@@ -250,19 +250,19 @@ DoInstallModule (MENU_STATE *pMS)
 
 		SetContext (SpaceContext);
 		ClearSISRect (CLEAR_SIS_RADAR);
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 		goto InitFlash;
 	}
 	else if (select || cancel)
 	{
 		new_slot_piece = pMS->CurState;
-
 		if (select)
 		{
 			if (new_slot_piece < EMPTY_SLOT)
 			{
-
-				if (GLOBAL_SIS (ResUnits) < (DWORD)(GLOBAL (ModuleCost[new_slot_piece]) * MODULE_COST_SCALE))
+				if (GLOBAL_SIS (ResUnits) <
+						(DWORD)(GLOBAL (ModuleCost[new_slot_piece])
+						* MODULE_COST_SCALE))
 				{	// not enough RUs to build
 					PlayMenuSound (MENU_SOUND_FAILURE);
 					return (TRUE);
@@ -292,14 +292,15 @@ DoInstallModule (MENU_STATE *pMS)
 							? FUEL_TANK_CAPACITY : HEFUEL_TANK_CAPACITY);
 					if (GLOBAL_SIS (FuelOnBoard) > volume + FUEL_RESERVE)
 					{	// fuel tank still needed for the fuel on board
-						if(!optInfiniteFuel){
+						if(!optInfiniteFuel)
+						{
 							PlayMenuSound (MENU_SOUND_FAILURE);
 							return (TRUE);
 						} else {
 							if (old_slot_piece == FUEL_TANK)
-								DeltaSISGauges(0,-FUEL_TANK_CAPACITY,0);
+								DeltaSISGauges (0,-FUEL_TANK_CAPACITY,0);
 							else
-								DeltaSISGauges(0,-HEFUEL_TANK_CAPACITY,0);
+								DeltaSISGauges (0,-HEFUEL_TANK_CAPACITY,0);
 						}
 					}
 				}
@@ -317,7 +318,7 @@ DoInstallModule (MENU_STATE *pMS)
 
 		SetContext (SpaceContext);
 
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 
 		if (select)
 		{
@@ -401,7 +402,7 @@ DoInstallModule (MENU_STATE *pMS)
 		{
 			SetContext (StatusContext);
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState = OUTFIT_MODULES);
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 
 			pMS->InputFunc = DoOutfit;
 			ClearSISRect (DRAW_SIS_DISPLAY);
@@ -498,12 +499,6 @@ DoInstallModule (MENU_STATE *pMS)
 				else
 					w = SHIP_PIECE_OFFSET;
 
-				// JMS_GFX
-				if (NewState != PLANET_LANDER && NewState != FUSION_THRUSTER 
-					&& NewState != TURNING_JETS && NewState != EMPTY_SLOT + 0
-					 && NewState != EMPTY_SLOT + 1 && NewState != EMPTY_SLOT + 3)
-					w += IF_HD(1);
-
 				w *= (NewItem - pMS->delta_item);
 				pMS->flash_rect0.corner.x += w;
 				pMS->delta_item = NewItem;
@@ -517,35 +512,35 @@ InitFlash:
 				{
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
-						pMS->flash_rect0.corner.x = LANDER_X - 1 + IF_HD(114); // JMS_GFX
-						pMS->flash_rect0.corner.y = LANDER_Y - 1 + IF_HD(65); // JMS_GFX
-						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); // JMS_GFX
-						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2); // JMS_GFX;
+						pMS->flash_rect0.corner.x = LANDER_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = LANDER_Y - RES_SCALE(1);
+						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); 
+						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2);
 
 						w = LANDER_WIDTH;
 						break;
 					case FUSION_THRUSTER:
 					case EMPTY_SLOT + 0:
-						pMS->flash_rect0.corner.x = DRIVE_TOP_X - 1 - IF_HD(5);
-						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - 1 + IF_HD(146);
-						pMS->flash_rect0.extent.width = RES_SCALE(8); // JMS_GFX;
-						pMS->flash_rect0.extent.height = RES_SCALE(6) - IF_HD(2); // JMS_GFX;
+						pMS->flash_rect0.corner.x = DRIVE_TOP_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - RES_SCALE(1);
+						pMS->flash_rect0.extent.width = RES_SCALE(8);
+						pMS->flash_rect0.extent.height = RES_SCALE(6);
 
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
-						pMS->flash_rect0.corner.x = JET_TOP_X - 1 - IF_HD(3);
-						pMS->flash_rect0.corner.y = JET_TOP_Y - 1 + IF_HD(185);
-						pMS->flash_rect0.extent.width = RES_SCALE(9); // JMS_GFX;
-						pMS->flash_rect0.extent.height = RES_SCALE(10) + IF_HD(4); // JMS_GFX;
+						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = JET_TOP_Y - RES_SCALE(1);
+						pMS->flash_rect0.extent.width = RES_SCALE(9);
+						pMS->flash_rect0.extent.height = RES_SCALE(10);
 
 						break;
 					default:
-						pMS->flash_rect0.corner.x = MODULE_TOP_X - 1 + IF_HD(2);
-						pMS->flash_rect0.corner.y = MODULE_TOP_Y - 1;
-						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + 2 - IF_HD(1);
-						pMS->flash_rect0.extent.height = RES_SCALE(34) + IF_HD(9); // JMS_GFX;
-						w += IF_HD(1);
+						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE(1);
+						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2)
+								+ RES_SCALE(optWhichMenu == OPT_PC);
+						pMS->flash_rect0.extent.height = RES_SCALE(34);
 						break;
 				}
 
@@ -556,9 +551,9 @@ InitFlash:
 			DrawModuleStrings (pMS, new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
 				// flash with PC menus too
-				SetFlashRect (SFR_MENU_ANY);
+				SetFlashRect (SFR_MENU_ANY, FALSE);
 			else
-				SetFlashRect (&pMS->flash_rect0);
+				SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 		}
 	}
 
@@ -622,7 +617,7 @@ ChangeFuelQuantity (void)
 		RECT r;
 		CONTEXT oldContext = SetContext (StatusContext);
 		GetGaugeRect (&r, FALSE);
-		SetFlashRect (&r);
+		SetFlashRect (&r, FALSE);
 		SetContext (oldContext);
 	}
 }
@@ -666,11 +661,17 @@ DoOutfit (MENU_STATE *pMS)
 			s.frame = CaptureDrawable (
 					LoadGraphic (OUTFIT_PMAP_ANIM));
 
+			if (optFlagshipColor == OPT_3DO)
+				s.frame = SetAbsFrameIndex (s.frame, 1);
+			else
+				s.frame = SetAbsFrameIndex (s.frame, 0);
+
 			SetTransitionSource (NULL);
 			BatchGraphics ();
 			DrawSISFrame ();
 			DrawSISMessage (GAME_STRING (STARBASE_STRING_BASE + 2));
 			DrawSISTitle (GAME_STRING (STARBASE_STRING_BASE));
+
 			SetContext (SpaceContext);
 
 			DrawStamp (&s);
@@ -735,7 +736,7 @@ DoOutfit (MENU_STATE *pMS)
 			PlayMusic (pMS->hMusic, TRUE, 1);
 			UnbatchGraphics ();
 			
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 
 			GLOBAL_SIS (FuelOnBoard) =
 					(GLOBAL_SIS (FuelOnBoard)
@@ -752,7 +753,8 @@ DoOutfit (MENU_STATE *pMS)
 		if (pMS->CurState == OUTFIT_DOFUEL)
 		{
 			pMS->CurState = OUTFIT_FUEL;
-			SetFlashRect (SFR_MENU_3DO);
+			DrawMenuStateStrings (PM_FUEL, pMS->CurState);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 		}
 		else
 		{
@@ -774,18 +776,19 @@ ExitOutfit:
 			case OUTFIT_FUEL:
 			{
 				RECT r;
-
+				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 				pMS->CurState = OUTFIT_DOFUEL;
 				SetContext (StatusContext);
 				GetGaugeRect (&r, FALSE);
-				SetFlashRect (&r);
+				SetFlashRect (&r, FALSE);
 				break;
 			}
 			case OUTFIT_DOFUEL:
 				pMS->CurState = OUTFIT_FUEL;
-				SetFlashRect (SFR_MENU_3DO);
+				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case OUTFIT_MODULES:
+				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 				pMS->CurState = EMPTY_SLOT + 2;
 				if (GET_GAME_STATE (CHMMR_BOMB_STATE) != 3)
 					pMS->delta_item = 0;
@@ -800,7 +803,7 @@ ExitOutfit:
 				if (!GameOptions ())
 					goto ExitOutfit;
 				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
-				SetFlashRect (SFR_MENU_3DO);
+				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 		}
 	}

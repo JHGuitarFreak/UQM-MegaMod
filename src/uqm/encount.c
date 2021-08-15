@@ -47,6 +47,7 @@
 #include "libs/inplib.h"
 #include "libs/misc.h"
 #include "planets/solarsys.h"
+#include "starbase.h"
 
 
 static void DrawFadeText (const UNICODE *str1, const UNICODE *str2,
@@ -81,7 +82,7 @@ DoSelectAction (MENU_STATE *pMS)
 				if (!GameOptions ())
 					return FALSE;
 				DrawMenuStateStrings (PM_CONVERSE, pMS->CurState);
-				SetFlashRect (SFR_MENU_3DO);
+				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			default:
 				printf ("Unknown option: %d\n", pMS->CurState);
@@ -126,9 +127,13 @@ BuildBattle (COUNT which_player)
 				load_gravity_well (SA_MATRA);
 				break;
 			case IN_HYPERSPACE:
-				load_gravity_well ((BYTE)((COUNT)TFB_Random ()
-						% NUMBER_OF_PLANET_TYPES));
+			{
+				BYTE selector = (BYTE)((COUNT)TFB_Random () % NUMBER_OF_PLANET_TYPES);
+				if (EXTENDED && (selector == RAINBOW_WORLD || selector == SHATTERED_WORLD))
+					selector += 2;// No rainbow or shattered worlds in hyperspace
+				load_gravity_well (selector);
 				break;
+			}
 			default:
 				SET_GAME_STATE (ESCAPE_COUNTER, 110);
 				if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED && pSolarSysState
@@ -140,7 +145,17 @@ BuildBattle (COUNT which_player)
 					load_gravity_well (PLANET_SA_MATRA);
 				}
 				else
-					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+				{
+					if (EXTENDED && pSolarSysState 
+						&& worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+					{	// Set gravity well to moon if encounter takes place there (Spathiwa moon, Taalo HW, Utwig Bomb Loc)
+						// Only if encounter starts with moon collision
+						// colliding with IP group in inner system still uses main planet for gravity well
+						COUNT moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
+						SET_GAME_STATE (BATTLE_PLANET, pSolarSysState->MoonDesc[moon].data_index);
+					}
+					load_gravity_well (GET_GAME_STATE(BATTLE_PLANET));
+				}
 				break;
 		}
 	}
@@ -302,7 +317,7 @@ InitEncounter (void)
 
 //    t.baseline.x = SIS_SCREEN_WIDTH >> 1;
 	t.baseline.x = (SIS_SCREEN_WIDTH >> 1) + 1;
-	t.baseline.y = RES_SCALE(10) + IF_HD(19);
+	t.baseline.y = RES_SCALE(10);
 	t.align = ALIGN_CENTER;
 
 	SetContextForeGroundColor (
@@ -313,7 +328,7 @@ InitEncounter (void)
 				// "ENCOUNTER IN"
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); // JMS_GFX
+		t.baseline.y += RES_SCALE(12); 
 		t.pStr = GAME_STRING (ENCOUNTER_STRING_BASE + 1);
 				// "DEEP SPACE"
 		t.CharCount = (COUNT)~0;
@@ -327,12 +342,12 @@ InitEncounter (void)
 				// "ENCOUNTER AT"
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); // JMS_GFX
+		t.baseline.y += RES_SCALE(12); 
 		GetClusterName (CurStarDescPtr, buf);
 		t.pStr = buf;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); // JMS_GFX
+		t.baseline.y += RES_SCALE(12); 
 		t.pStr = GLOBAL_SIS (PlanetName);
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
@@ -346,7 +361,7 @@ InitEncounter (void)
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
 	{
-#define NUM_DISPLAY_PTS (sizeof (display_pt) / sizeof (display_pt[0]))
+#define NUM_DISPLAY_PTS (ARRAY_SIZE (display_pt))
 		HSHIPFRAG hStarShip, hNextShip;
 		POINT display_pt[] =
 		{
@@ -383,14 +398,14 @@ InitEncounter (void)
 						+ (long)s.origin.y * s.origin.y)
 						+ ((i / NUM_DISPLAY_PTS) * 18);
 
-				radius <<= RESOLUTION_FACTOR; // JMS_GFX
+				radius <<= RESOLUTION_FACTOR; 
 
 				angle = ARCTAN (s.origin.x, s.origin.y);
 				s.origin.x = (COSINE (angle, radius));
 				s.origin.y = (SINE (angle, radius));
 			}
 			else
-			{	// JMS_GFX
+			{	
 				s.origin.x <<= RESOLUTION_FACTOR; 
 				s.origin.y <<= RESOLUTION_FACTOR;
 			}
@@ -416,11 +431,12 @@ InitEncounter (void)
 		MenuState.Initialized = FALSE;
 
 		DrawMenuStateStrings (PM_CONVERSE, MenuState.CurState = HAIL);
-		SetFlashRect (SFR_MENU_3DO);
+		SetFlashRect (SFR_MENU_3DO, FALSE);
 
 		DoInput (&MenuState, TRUE);
 
-		SetFlashRect (NULL);
+		DrawMenuStateStrings(PM_CONVERSE, MenuState.CurState);
+		SetFlashRect (NULL, FALSE);
 
 		return (MenuState.CurState);
 	}
@@ -444,15 +460,15 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 		BUILD_COLOR (MAKE_RGB15_INIT (0x04, 0x04, 0x04), 0x22),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x03, 0x03, 0x03), 0x23),
 	};
-#define NUM_FADES (sizeof (fade_cycle) / sizeof (fade_cycle[0]))
+#define NUM_FADES (ARRAY_SIZE (fade_cycle))
 
-	t1.baseline.x = pRect->corner.x + RES_SCALE(100); // JMS_GFX
-	t1.baseline.y = pRect->corner.y + RES_SCALE(45); // JMS_GFX
+	t1.baseline.x = pRect->corner.x + RES_SCALE(100); 
+	t1.baseline.y = pRect->corner.y + RES_SCALE(45); 
 	t1.align = ALIGN_CENTER;
 	t1.pStr = str1;
 	t1.CharCount = (COUNT)~0;
 	t2 = t1;
-	t2.baseline.y += RES_SCALE(11); // JMS_GFX
+	t2.baseline.y += RES_SCALE(11); 
 	t2.pStr = str2;
 
 	FlushInput ();
@@ -518,10 +534,10 @@ UninitEncounter (void)
 		BOOLEAN Sleepy;
 		SIZE VictoryState, i;
 		COUNT RecycleAmount = 0;
-		RECT r, save_r;
+		RECT r;
 		RECT scavenge_r = {{0, 0}, {0, 0}};
 		TEXT t;
-		STAMP ship_s, saveMetallicFrame;
+		STAMP ship_s;
 		const UNICODE *str1 = NULL;
 		const UNICODE *str2 = NULL;
 		StatMsgMode prevMsgMode;
@@ -543,11 +559,6 @@ UninitEncounter (void)
 		};
 #define NUM_SHIP_FADES (sizeof (fade_ship_cycle) / \
 		sizeof (fade_ship_cycle[0]))
-
-		COUNT race_bounty[] =
-		{
-			RACE_SHIP_COST
-		};
 
 		SET_GAME_STATE (BATTLE_SEGUE, 0);
 		SET_GAME_STATE (BOMB_CARRIER, 0);
@@ -592,7 +603,7 @@ UninitEncounter (void)
 					else if (GLOBAL (ip_planet) == 0)
 						DrawHyperCoords (CurStarDescPtr->star_pt);
 					else
-						DrawSISTitle(GLOBAL_SIS (PlanetName));
+						DrawSISTitle (GLOBAL_SIS (PlanetName));
 
 					SetContext (SpaceContext);
 					if (VictoryState)
@@ -626,8 +637,8 @@ UninitEncounter (void)
 
 								DrawStatusMessage (NULL);
 								
-								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE(32); // JMS_GFX
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(56); // JMS_GFX
+								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE(32); 
+								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(56); 
 								ship_s.frame = IncFrameIndex (FragPtr->icons);
 								DrawStamp (&ship_s);
 								SetContextForeGroundColor (
@@ -655,13 +666,13 @@ UninitEncounter (void)
 									}
 								}
 
-								t.baseline.x = scavenge_r.corner.x + RES_SCALE(100); // JMS_GFX
-								t.baseline.y = scavenge_r.corner.y + RES_SCALE(68); // JMS_GFX
+								t.baseline.x = scavenge_r.corner.x + RES_SCALE(100);
+								t.baseline.y = scavenge_r.corner.y + RES_SCALE(68);
 								t.align = ALIGN_CENTER;
 								t.pStr = buf;
 								t.CharCount = (COUNT)~0;
 								font_DrawText (&t);
-								t.baseline.y += RES_SCALE(6); // JMS_GFX
+								t.baseline.y += RES_SCALE(6);
 								t.pStr = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 3);
 										// "BATTLE GROUP"
@@ -672,23 +683,6 @@ UninitEncounter (void)
 
 								SetContextFont (MicroFont);
 
-								// JMS: Let's store the rectangle behind "Enemy ships destroyed" (before drawing the text on it).
-								if (IS_HD)
-								{
-									// These values are inferred from DrawFadeText.
-									// However, they're not the same (100 and 45) because the text there is centered,
-									// but these rect coords are for the upper-left corner, not center.
-									save_r.corner.x = scavenge_r.corner.x + RES_SCALE(70); // JMS_GFX
-									save_r.corner.y = scavenge_r.corner.y + (RES_SCALE(35)); // JMS_GFX
-									
-									// These are wild-assed guesses.
-									save_r.extent.width  = RES_SCALE(60);
-									save_r.extent.height = RES_SCALE(30); 
-									
-									// Now that we have the size and placement of the rectangle, let's store it.
-									saveMetallicFrame = SaveContextFrame (&save_r);
-								}
-
 								str1 = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 4);
 										// "Enemy Ships"
@@ -698,23 +692,28 @@ UninitEncounter (void)
 								DrawFadeText (str1, str2, TRUE, &scavenge_r);
 							}
 
-							r.corner.y = scavenge_r.corner.y + RES_SCALE(9); // JMS_GFX
-							r.extent.height = RES_SCALE(22); // JMS_GFX
+							r.corner.y = scavenge_r.corner.y + RES_SCALE(9);
+							r.extent.height = RES_SCALE(22);
 
 							SetContextForeGroundColor (BLACK_COLOR);
 
-							r.extent.width = RES_SCALE(34); // JMS_GFX
+							r.extent.width = RES_SCALE(34);
 							r.corner.x = scavenge_r.corner.x +
 									scavenge_r.extent.width
-									- (RES_SCALE(10) + r.extent.width); // JMS_GFX
+									- (RES_SCALE(10) + r.extent.width);
 							DrawFilledRectangle (&r);
 
 							/* collect bounty ResUnits */
-							j = race_bounty[EncounterRace] >> 3;
+							j = ShipCost (EncounterRace) >> 3;
+							if (EncounterRace == SLYLANDRO_SHIP)
+								j = 550;
+							if (EncounterRace == MELNORME_SHIP)
+								j = j * 2;
+
 							RecycleAmount += j;
 							sprintf (buf, "%u", RecycleAmount);
-							t.baseline.x = r.corner.x + r.extent.width - 1 - 5 * RESOLUTION_FACTOR; // JMS_GFX;
-							t.baseline.y = r.corner.y + RES_SCALE(14); // JMS_GFX
+							t.baseline.x = r.corner.x + r.extent.width - RES_SCALE(1);
+							t.baseline.y = r.corner.y + RES_SCALE(14);
 							t.align = ALIGN_RIGHT;
 							t.pStr = buf;
 							t.CharCount = (COUNT)~0;
@@ -724,17 +723,17 @@ UninitEncounter (void)
 							DeltaSISGauges (0, 0, j);
 
 							if ((VictoryState++ - 1) % MAX_DEAD_DISPLAYED)
-								ship_s.origin.x += RES_SCALE(17); // JMS_GFX
+								ship_s.origin.x += RES_SCALE(17);
 							else
 							{
 								SetContextForeGroundColor (BLACK_COLOR);
 
-								r.corner.x = scavenge_r.corner.x + RES_SCALE(10); // JMS_GFX
-								r.extent.width = RES_SCALE(104); // JMS_GFX
+								r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
+								r.extent.width = RES_SCALE(104);
 								DrawFilledRectangle (&r);
 
-								ship_s.origin.x = r.corner.x + RES_SCALE(2); // JMS_GFX
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(12); // JMS_GFX
+								ship_s.origin.x = r.corner.x + RES_SCALE(2);
+								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(12);
 							}
 
 							if (Sleepy)
@@ -753,19 +752,6 @@ UninitEncounter (void)
 									SleepThreadUntil (Time + (ONE_SECOND / 15));
 									Time = GetTimeCounter ();
 								}
-							}
-
-							if (IS_HD) {
-								SetContextForeGroundColor (BLACK_COLOR);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
-								DrawFilledStamp (&ship_s);
 							}
 
 							DrawStamp (&ship_s);
@@ -797,13 +783,13 @@ UninitEncounter (void)
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
 					SetContextForeGroundColor (BLACK_COLOR);
-					r.corner.x = scavenge_r.corner.x + RES_SCALE(10); // JMS_GFX
-					r.extent.width = RES_SCALE(132); // JMS_GFX
+					r.corner.x = scavenge_r.corner.x + RES_SCALE(10); 
+					r.extent.width = RES_SCALE(132); 
 					DrawFilledRectangle (&r);
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + RES_SCALE(14); // JMS_GFX
+					t.baseline.y = r.corner.y + RES_SCALE(14); 
 					t.align = ALIGN_CENTER;
 					t.pStr = buf;
 					t.CharCount = (COUNT)~0;
@@ -816,19 +802,10 @@ UninitEncounter (void)
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 
-					// JMS: Now we draw the clean metallic frame to erase the "Enemy ships destroyed"
-					// text before drawing "debris scavenged."
-					if(IS_HD)
-						DrawStamp (&saveMetallicFrame);
-
 					DrawFadeText (str1, str2, TRUE, &scavenge_r);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
 					if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 						DrawFadeText (str1, str2, FALSE, &scavenge_r);
-
-					// JMS: The final cleanup of the "Debris scavenged". Without this, an ugly grey ghost-text would remain.
-					if(IS_HD)
-						DrawStamp (&saveMetallicFrame);
 				}
 			}
 

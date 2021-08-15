@@ -675,7 +675,7 @@ init_supox_comm (void)
 
 	supox_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	supox_desc.AlienTextBaseline.y = 0;
-	supox_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
+	supox_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
 
 	if (!GET_GAME_STATE (SUPOX_HOSTILE)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

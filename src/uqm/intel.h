@@ -40,7 +40,7 @@ extern "C" {
 #define MEDIUM_SHIP 45
 #define SLOW_SHIP 25
 
-// JMS_GFX
+
 #define CLOSE_RANGE_WEAPON_HD DISPLAY_TO_WORLD (200)
 #define LONG_RANGE_WEAPON_HD DISPLAY_TO_WORLD (4000)
 
@@ -50,7 +50,7 @@ extern "C" {
 #define MEDIUM_SHIP_HD 720
 #define SLOW_SHIP_HD 400
 
-// JMS_GFX
+
 #define RESOLUTION_COMPENSATED(speed) (RES_SCALE(RES_SCALE(speed)))
 
 enum

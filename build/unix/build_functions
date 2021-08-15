@@ -305,6 +305,32 @@ generic_install() {
 		installsome "$SRC" "$DEST" "$MODE" "$OWNER"
 	done
 
+	local APP APPS APPDIR
+	echo "Installing shortcut data..." >&2
+	eval APPS="\${${BUILD_PROJECT}_INSTALL_APP}"
+	eval APPDIR="\${${BUILD_PROJECT}_INSTALL_APPDIR%/}/"
+	mkdirhier "$APPDIR" 0755
+	for APP in $APPS; do
+		eval SRC="\${${BUILD_PROJECT}_INSTALL_APP_${APP}_SRC%/}"
+		eval DEST="\$APPDIR\${${BUILD_PROJECT}_INSTALL_APP_${APP}_DEST}"
+		eval MODE="\${${BUILD_PROJECT}_INSTALL_APP_${APP}_MODE}"
+		eval OWNER="\${${BUILD_PROJECT}_INSTALL_APP_${APP}_OWNER}"
+		installsome "$SRC" "$DEST" "$MODE" "$OWNER"
+	done
+
+	local ICON ICONS ICONDIR
+	echo "Installing icon data..." >&2
+	eval ICONS="\${${BUILD_PROJECT}_INSTALL_ICON}"
+	eval ICONDIR="\${${BUILD_PROJECT}_INSTALL_ICONDIR%/}/"
+	mkdirhier "$ICONDIR" 0755
+	for ICON in $ICONS; do
+		eval SRC="\${${BUILD_PROJECT}_INSTALL_ICON_${ICON}_SRC%/}"
+		eval DEST="\$ICONDIR\${${BUILD_PROJECT}_INSTALL_ICON_${ICON}_DEST}"
+		eval MODE="\${${BUILD_PROJECT}_INSTALL_ICON_${ICON}_MODE}"
+		eval OWNER="\${${BUILD_PROJECT}_INSTALL_ICON_${ICON}_OWNER}"
+		installsome "$SRC" "$DEST" "$MODE" "$OWNER"
+	done
+
 	eval "${TARGET}_post_install"
 }
 

@@ -70,7 +70,7 @@ enum ScanMenuItems
 
 
 void
-RepairBackRect (RECT *pRect, BOOLEAN Fullscreen)
+RepairBackRect (RECT *pRect)
 {
 	RECT new_r, old_r;
 
@@ -82,7 +82,7 @@ RepairBackRect (RECT *pRect, BOOLEAN Fullscreen)
 	new_r.extent.height += new_r.corner.y & 1;
 	new_r.corner.y &= ~1;
 	
-	DrawFromExtraScreen (&new_r, Fullscreen);
+	DrawFromExtraScreen (&new_r);
 }
 
 static void
@@ -122,11 +122,12 @@ MakeScanValue (UNICODE *buf, long val, const UNICODE *extra)
 	}
 }
 
-static void
+void
 GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 {
 	int val;
 	UNICODE *named = GetNamedPlanetaryBody ();
+
 	if (named)
 	{
 		utf8StringCopy (buf, bufsize, named);
@@ -137,8 +138,18 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 	val = pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED;
 	if (val >= FIRST_GAS_GIANT)
 	{
-		sprintf (buf, "%s", GAME_STRING (SCAN_STRING_BASE + 4 + 51));
-					// Gas Giant
+		if (!EXTENDED)
+		{
+			sprintf (buf, "%s",
+					GAME_STRING (SCAN_STRING_BASE + 4 + 51));
+							// Gas Giant
+		}
+		else if (val <= PLANET_SA_MATRA)
+		{
+			sprintf (buf, "%s",
+					GAME_STRING (SCAN_STRING_BASE + 4 + 2 + val));
+							// "Color" Gas Giant
+		}
 	}
 	else
 	{
@@ -149,15 +160,18 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 	}
 }
 
-static void HazardCase (BYTE hazard) {
+static void
+HazardCase (BYTE hazard)
+{
 #define HAZARD_CASE(a,b) ((a) ? DULL_YELLOW_COLOR : ((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
 	Color HazardColor;
 
-	UWORD Temperature = GetThermalHazardRating(pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	UWORD Temperature = GetThermalHazardRating (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
 	UWORD Weather = pSolarSysState->SysInfo.PlanetInfo.Weather + 1;
-	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;	
+	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;
 
-	switch (hazard) {
+	switch (hazard)
+	{
 		case LAVASPOT_DISASTER:
 			HazardColor = HAZARD_CASE ((Temperature > 1 && Temperature < 5), (Temperature > 4));
 			break;
@@ -175,12 +189,12 @@ static void HazardCase (BYTE hazard) {
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y (RES_SCALE(16) + IF_HD(7))
+#define SCAN_TITLE_Y RES_SCALE(16)
 
 static void
 PrintCoarseScanPC (void)
 {
-#define SCAN_LEADING_PC RES_SCALE(10) // JMS_GFX
+#define SCAN_LEADING_PC RES_SCALE(10) 
 	SDWORD val;
 	TEXT t;
 	RECT r;
@@ -202,9 +216,9 @@ PrintCoarseScanPC (void)
 
 	SetContextFont (TinyFont);
 
-#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) // JMS_GFX
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) // JMS_GFX
-#define SCAN_BASELINE_Y_PC (RES_SCALE(51) + IF_HD(14)) // JMS_GFX
+#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) 
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) 
+#define SCAN_BASELINE_Y_PC RES_SCALE(51) 
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
@@ -355,7 +369,7 @@ PrintCoarseScanPC (void)
 static void
 PrintCoarseScan3DO (void)
 {
-#define SCAN_LEADING RES_SCALE(19) // JMS_GFX
+#define SCAN_LEADING RES_SCALE(19) 
 	SDWORD val;
 	TEXT t;
 	STAMP s;
@@ -380,9 +394,9 @@ PrintCoarseScan3DO (void)
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
 	DrawStamp (&s);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE(27 + 16) // JMS_GFX
+#define LEFT_SIDE_BASELINE_X RES_SCALE(27 + 16) 
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y (RES_SCALE(34) + IF_HD(19)) // JMS_GFX
+#define SCAN_BASELINE_Y RES_SCALE(34) 
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
@@ -444,7 +458,7 @@ PrintCoarseScan3DO (void)
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
-	t.baseline.x = RIGHT_SIDE_BASELINE_X;
+	t.baseline.x = RIGHT_SIDE_BASELINE_X + IF_HD(3);
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 
@@ -724,14 +738,6 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN select, cancel;
 
-	if (optSubmenu)
-	{
-		if (optCustomBorder)
-			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
-		else
-			DrawSubmenu(DIF_CASE(1, 2, 3));
-	}
-
 	select = PulsedInputState.menu[KEY_MENU_SELECT];
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
 	
@@ -755,32 +761,32 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	{
 		SIZE dx = 0;
 		SIZE dy = 0;
-		POINT new_pt;
+		POINT new_pt; 
+		static DWORD tNext;
 
 		new_pt = planetLoc;
 
-		if (CurrentInputState.menu[KEY_MENU_LEFT])
-			dx = -RES_SCALE(1);
-		if (CurrentInputState.menu[KEY_MENU_RIGHT])
-			dx = RES_SCALE(1);
-		if (CurrentInputState.menu[KEY_MENU_UP])
-			dy = -RES_SCALE(1);
-		if (CurrentInputState.menu[KEY_MENU_DOWN])
-			dy = RES_SCALE(1);
+		if (tNext && TimeIn >= tNext)
+			tNext = NULL;
 
-		// Double the cursor speed when the Zoom Out key is held down
-		if (CurrentInputState.menu[KEY_MENU_LEFT]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dx = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_RIGHT]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dx = RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_UP]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dy = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_DOWN]
-				&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			dy = RES_SCALE(2);
+		if (!tNext || TimeIn >= tNext)
+		{
+			if (CurrentInputState.menu[KEY_MENU_LEFT])
+				dx = -RES_SCALE(1);
+			if (CurrentInputState.menu[KEY_MENU_RIGHT])
+				dx = RES_SCALE(1);
+			if (CurrentInputState.menu[KEY_MENU_UP])
+				dy = -RES_SCALE(1);
+			if (CurrentInputState.menu[KEY_MENU_DOWN])
+				dy = RES_SCALE(1);
+
+			// Double the cursor speed when the Zoom Out key is held down
+			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			{
+					dx *= 2;
+					dy *= 2;
+			}
+		}
 
 		BatchGraphics ();
 
@@ -789,9 +795,9 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		{
 			new_pt.x += dx;
 			if (new_pt.x < 0)
-				new_pt.x += (MAP_WIDTH << MAG_SHIFT);
-			else if (new_pt.x >= (MAP_WIDTH << MAG_SHIFT))
-				new_pt.x -= (MAP_WIDTH << MAG_SHIFT);
+				new_pt.x += (SCALED_MAP_WIDTH << MAG_SHIFT);
+			else if (new_pt.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+				new_pt.x -= (SCALED_MAP_WIDTH << MAG_SHIFT);
 		}
 		dy = dy << MAG_SHIFT;
 		if (dy)
@@ -810,7 +816,8 @@ DoPickPlanetSide (MENU_STATE *pMS)
 
 		UnbatchGraphics ();
 
-		SleepThreadUntil (TimeIn + ONE_SECOND / 40);
+		if (dx || dy)
+			tNext = TimeIn + ONE_SECOND / 40;
 	}
 
 	return TRUE;
@@ -859,7 +866,9 @@ PickPlanetSide (void)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &PickState;
 
-	ClearSISRect (CLEAR_SIS_RADAR);
+	if (optSuperPC != OPT_PC)
+		ClearSISRect (CLEAR_SIS_RADAR);
+
 	SetContext (ScanContext);
 	BatchGraphics ();
 	DrawPlanet (0, BLACK_COLOR);
@@ -871,7 +880,8 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	InitLander (0);
+	if (optSuperPC != OPT_PC)
+		InitLander (0);
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
 
@@ -974,6 +984,97 @@ DrawScannedStuff (COUNT y, COUNT scan)
 	SetContextForeGroundColor (OldColor);
 }
 
+
+static void
+DrawPCScannedStuff (COUNT scan)
+{
+	HELEMENT hElement, hNextElement;
+	TimeCount interval, now;
+	ELEMENT *ElementPtr;
+	STAMP s;
+
+	interval = ONE_SECOND / 10;
+
+	hElement = GetHeadElement();
+	now = GetTimeCounter () + interval;
+	
+	while (hElement && !AnyButtonPress (TRUE))
+	{
+		if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
+			return;
+
+		if (GetTimeCounter () >= now)
+		{
+			LockElement (hElement, &ElementPtr);
+			hNextElement = GetSuccElement (ElementPtr);
+			if (LOBYTE (ElementPtr->scan_node) != scan)
+			{	// node of wrong type, or not time for it yet
+				UnlockElement (hElement);
+				hElement = hNextElement;
+			}
+			else
+			{
+				COUNT nodeSize, growth, diff;
+
+				growth = 0;
+				ElementPtr->state_flags |= APPEARING;
+				s.origin = ElementPtr->current.location;
+				now = GetTimeCounter () + 17;
+
+				while (growth < NUM_FLASH_COLORS && !AnyButtonPress (TRUE))
+				{
+					if (GetTimeCounter () >= now)
+					{
+						now = GetTimeCounter () + 17;
+						diff = growth;
+						nodeSize = GetFrameIndex (
+								ElementPtr->next.image.frame)
+								- GetFrameIndex (
+										ElementPtr->current.image.frame);
+						if (diff > nodeSize)
+							diff = nodeSize;
+
+						s.frame = SetRelFrameIndex (
+								ElementPtr->current.image.frame, diff);
+						DrawStamp (&s);
+						growth++;
+					}
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+				}
+				if (growth < NUM_FLASH_COLORS)
+				{	// didn't finish - draw 
+					s.frame = ElementPtr->next.image.frame;
+					DrawStamp (&s);
+				}
+
+				UnlockElement (hElement);
+				now = GetTimeCounter () + interval;
+				hElement = hNextElement;
+			}
+		}
+		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+	}
+	if (hElement)
+	{	// scan aborted - make everything scanned, workaround for singular scan
+		while (hElement)
+		{
+			LockElement (hElement, &ElementPtr);
+			hNextElement = GetSuccElement (ElementPtr);
+			if (LOBYTE (ElementPtr->scan_node) != scan)
+			{	// node of wrong type, or not time for it yet
+				UnlockElement (hElement);
+				hElement = hNextElement;
+			}
+			else
+			{
+				ElementPtr->state_flags |= APPEARING;
+				UnlockElement (hElement);
+				hElement = hNextElement;
+			}
+		}
+	}
+}
+
 COUNT
 callGenerateForScanType (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT node, BYTE scanType, NODE_INFO *info)
@@ -1019,10 +1120,11 @@ callPickupForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 static void
 ScanPlanet (COUNT scanType)
 {
-#define SCAN_DURATION  (ONE_SECOND * 7 / 4)
+#define SCAN_DURATION   ((ONE_SECOND * 7 / 4 + RES_BOOL(UINT8_MAX, 0)))
 // NUM_FLASH_COLORS for flashing blips; 1 for the final frame
-#define SCAN_LINES      (MAP_HEIGHT + NUM_FLASH_COLORS + 1)
-#define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES)
+#define SCAN_LINES_OG   (UQM_MAP_HEIGHT + NUM_FLASH_COLORS + 1)
+#define SCAN_LINES      RES_SCALE(SCAN_LINES_OG)
+#define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES_OG)
 
 	COUNT startScan, endScan;
 	COUNT scan;
@@ -1051,16 +1153,22 @@ ScanPlanet (COUNT scanType)
 		endScan = scanType;
 	}
 
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return;
+
+	DrawMenuStateStrings (PM_MIN_SCAN, scanType);
+
 	for (scan = startScan; scan <= endScan; ++scan)
 	{
 		TEXT t;
-		SWORD i;
+		SWORD i = 0;
 		Color tintColor;
 				// Alpha value will be ignored.
-		TimeCount TimeOut;
+		static TimeCount TimeOut;
+		TimeCount Now, Delay;
 
 		t.baseline.x = SIS_SCREEN_WIDTH >> 1;
-		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); // JMS_GFX
+		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); 
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 
@@ -1068,43 +1176,80 @@ ScanPlanet (COUNT scanType)
 
 		SetContext (PlanetContext);
 		r.corner.x = 0;
-		r.corner.y = t.baseline.y - RES_SCALE(10); // JMS_GFX
+		r.corner.y = t.baseline.y - RES_SCALE(10);
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1); // JMS_GFX
-		RepairBackRect (&r, FALSE);
+		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1);
+		RepairBackRect (&r);
 
 		SetContextFont (MicroFont);
 		SetContextForeGroundColor (textColors[scan]);
 		font_DrawText (&t);
 
 		SetContext (ScanContext);
-
+		
 		// Draw a virgin surface
-		BatchGraphics ();
-		DrawPlanet (0, BLACK_COLOR);
-		UnbatchGraphics ();
+		if (optScanStyle != OPT_PC)
+			DrawPlanet(0, BLACK_COLOR);
 
 		tintColor = tintColors[scan];
 
 		// Draw the scan slowly line by line
-		TimeOut = GetTimeCounter ();
-		for (i = 0; i < SCAN_LINES; i++)
+		TimeOut = GetTimeCounter () + SCAN_LINE_WAIT;
+		FlushInput ();
+		if (optScanStyle != OPT_PC)
 		{
-			TimeOut += SCAN_LINE_WAIT;
-			if (WaitForAnyButtonUntil (TRUE, TimeOut, FALSE))
-				break;
+			while (i < SCAN_LINES)
+			{
+				if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
+					return;
 
-			BatchGraphics ();
-			DrawPlanet (i, tintColor);
-			DrawScannedStuff (i, scan);
-			UnbatchGraphics ();
-#ifdef SPIN_ON_SCAN
-			RotatePlanetSphere (TRUE);
-#endif
+				Now = GetTimeCounter ();
+				if (Now >= TimeOut)
+				{
+					if (AnyButtonPress (TRUE))
+						break;
+
+					TimeOut = Now + SCAN_LINE_WAIT;
+
+					i += RES_SCALE(1);
+
+					BatchGraphics ();
+
+					DrawPlanet (i, tintColor);
+					
+					DrawScannedStuff (i, scan);
+					UnbatchGraphics ();
+				}
+				RotatePlanetSphere (TRUE, NULL,
+					BUILD_COLOR_RGBA (
+						tintColor.r, tintColor.g, tintColor.b, 0x45
+					));
+			}
+		}
+		else
+		{
+			DrawPCScanTint (scan); // palette-swap topo and Sphere map
+			DrawPCScannedStuff (scan); // PC-style node pop-in
+
+			if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
+				return;
+
+			if (scanType == AUTO_SCAN)
+			{	// delay between scans
+				TimeOut = GetTimeCounter () + ONE_SECOND;
+				while (GetTimeCounter () < TimeOut && !AnyButtonPress (TRUE))
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+			}
+			else
+			{	// endless state - mimics PC "Exit Scan"
+				while (!AnyButtonPress (TRUE))
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+			}
 		}
 
-		if (i < SCAN_LINES)
-		{	// Aborted by a keypress; draw in finished state
+		if (i < SCAN_LINES && optScanStyle != OPT_PC)
+		{	// not for PC-scan, frame flashes otherwise
+			// Aborted by a keypress; draw in finished state
 			BatchGraphics ();
 			DrawPlanet (SCAN_LINES - 1, tintColor);
 			DrawScannedStuff (SCAN_LINES - 1, scan);
@@ -1113,12 +1258,14 @@ ScanPlanet (COUNT scanType)
 	}
 
 	SetContext (PlanetContext);
-	RepairBackRect (&r, FALSE);
+	RepairBackRect (&r);
 
 	SetContext (ScanContext);
-	if (scanType == AUTO_SCAN)
+
+	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)
 	{	// clear the last scan
 		DrawPlanet (0, BLACK_COLOR);
+		DrawDefaultPlanetSphere ();
 		DrawScannedObjects (FALSE);
 	}
 
@@ -1135,14 +1282,6 @@ DoScan (MENU_STATE *pMS)
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
-
-	if (optSubmenu)
-	{
-		if (optCustomBorder)
-			DrawBorder(DIF_CASE(15, 16, 17), FALSE);
-		else
-			DrawSubmenu(DIF_CASE(1, 2, 3));
-	}
 
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
@@ -1171,13 +1310,14 @@ DoScan (MENU_STATE *pMS)
 				return TRUE;
 			}
 
-			SetFlashRect (NULL);
+			SetFlashRect (NULL, FALSE);
+			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
 
 			if (!PickPlanetSide ())
 				return FALSE;
 
 			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
-			SetFlashRect (SFR_MENU_3DO);
+			SetFlashRect (SFR_MENU_3DO, FALSE);
 
 			return TRUE;
 		}
@@ -1191,10 +1331,8 @@ DoScan (MENU_STATE *pMS)
 
 		ScanPlanet (pMS->CurState);
 		if (pMS->CurState == AUTO_SCAN)
-		{
 			pMS->CurState = DISPATCH_SHUTTLE;
-			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
-		}
+		DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
 	}
 	else if (optWhichMenu == OPT_PC ||
 			(!(pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED)
@@ -1213,6 +1351,7 @@ CreateScanContext (void)
 	CONTEXT oldContext;
 	CONTEXT context;
 	RECT r;
+	COORD mapWidth = actuallyInOrbit ? SCALED_MAP_WIDTH : MAP_WIDTH;
 
 	// ScanContext rect is relative to SpaceContext
 	oldContext = SetContext (SpaceContext);
@@ -1221,9 +1360,9 @@ CreateScanContext (void)
 	context = CreateContext ("ScanContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - MAP_WIDTH;
+	r.corner.x += r.extent.width - mapWidth;
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = MAP_WIDTH;
+	r.extent.width = mapWidth;
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
@@ -1279,7 +1418,7 @@ ScanSystem (void)
 	else
 	{
 		MenuState.CurState = AUTO_SCAN;
-		planetLoc.x = (MAP_WIDTH >> 1) << MAG_SHIFT;
+		planetLoc.x = (SCALED_MAP_WIDTH >> 1) << MAG_SHIFT;
 		planetLoc.y = (MAP_HEIGHT >> 1) << MAG_SHIFT;
 
 		initPlanetLocationImage ();
@@ -1289,7 +1428,7 @@ ScanSystem (void)
 
 	DrawMenuStateStrings (PM_MIN_SCAN, MenuState.CurState);
 
-	SetFlashRect (SFR_MENU_3DO);
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	if (optWhichCoarseScan == OPT_PC)
 		PrintCoarseScanPC ();
@@ -1302,7 +1441,7 @@ ScanSystem (void)
 
 	DoInput (&MenuState, FALSE);
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	// cleanup scan graphics
 	BatchGraphics ();
@@ -1340,14 +1479,12 @@ generateBioNode (SOLARSYS_STATE *system, ELEMENT *NodeElementPtr,
 		// Place moving creatures at a random location.
 		i = TFB_Random ();
 		j = (DWORD)TFB_Random ();
-		
-		if (!IS_HD) {
-			NodeElementPtr->current.location.x = (LOBYTE (i) % (MAP_WIDTH - (8 << 1))) + 8;
-			NodeElementPtr->current.location.y = (HIBYTE (i) % (MAP_HEIGHT - (8 << 1))) + 8;
-		} else {
-			NodeElementPtr->current.location.x = (LOWORD (j) % (MAP_WIDTH - (8 << 1))) + 8;	// JMS_GFX: Replaced previous line with this line (BYTE was too small for 640x480 maps.)
-			NodeElementPtr->current.location.y = (HIWORD (j) % (MAP_HEIGHT - (8 << 1))) + 8;  // JMS_GFX: Replaced previous line with this line (BYTE was too small for 1280x960 maps.)
-		}
+
+		NodeElementPtr->current.location.x = 
+				((RES_BOOL(LOBYTE (i), LOWORD (j)) %
+					(SCALED_MAP_WIDTH - (8 << 1))) + 8);
+		NodeElementPtr->current.location.y = 
+				(RES_BOOL(HIBYTE (i), HIWORD (j)) % (MAP_HEIGHT - (8 << 1))) + 8;
 	}
 
 	if (system->PlanetSideFrame[0] == 0)

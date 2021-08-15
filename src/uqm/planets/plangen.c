@@ -47,7 +47,7 @@
 #define SHIELD_REFLECT_COMP 100
 
 #define NUM_BATCH_POINTS 64
-#define RADIUS RES_BOOL(37, 163) // JMS_GFX
+#define RADIUS RES_SCALE(37) 
 //2*RADIUS
 #define TWORADIUS (RADIUS << 1)
 //RADIUS^2
@@ -100,6 +100,40 @@ typedef struct
 	double x, y, z;
 } POINT3;
 
+void
+TransformColor (Color *c, COUNT scan)
+{
+	if (scan == NUM_SCAN_TYPES)
+		return;
+
+	c->r = c->g = c->b = (c->r + c->g + c->b) / 3;
+
+	switch (scan)
+	{
+		case MINERAL_SCAN:
+		{
+			c->b = 0x00;
+			c->g = 0x00;
+			break;
+		}
+		case ENERGY_SCAN:
+		{
+			c->r = (c->r / 3) * 2;
+			c->b = c->r;
+			c->g = c->r;
+			break;
+		}
+		case BIOLOGICAL_SCAN:
+		{
+			c->r = 0x00;
+			c->b = 0x00;
+			break;
+		}
+		default:
+			break;
+	}
+}
+
 static void
 RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDef)
 {
@@ -119,7 +153,7 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 		BYTE *cbase;
 		Color *pix;
 		Color *map;
-		BYTE ColorShift; // JMS
+		BYTE ColorShift;
 
 		map = HMalloc (sizeof (Color) * w * h);
 		pix = map;
@@ -148,7 +182,7 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 				BYTE *ctab;
 
 				d = *pSrc;
-				if (AlgoType == GAS_GIANT_ALGO) {	
+				if (AlgoType == GAS_GIANT_ALGO) {
 					// make elevation value non-negative
 					d &= 255;
 				} else {
@@ -488,7 +522,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE(7) // JMS_GFX
+#define SHIELD_HALO          RES_SCALE(7) 
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
@@ -1310,12 +1344,15 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	Orbit->ObjectFrame = 0;
 	Orbit->WorkFrame = 0;
 	Orbit->lpTopoData = HCalloc (width * height);
+
+	Orbit->scanType = NUM_SCAN_TYPES;
 	
-	if (forOrbit)	
+	if (forOrbit)
 		Orbit->TopoZoomFrame = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP, width << 2, height << 2, 1));
 	Orbit->TopoColors = HMalloc (sizeof (Orbit->TopoColors[0]) 
 			* (height * (width + spherespanx)));
+
 	// always allocate the scratch array to largest needed size
 	Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
 			* (shielddiam) * (shielddiam));
@@ -1367,8 +1404,8 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 		// num_faults and fault_var args
 #define AVG_VARIANCE 250
 	int x, y;
-	const int w = MAP_WIDTH, h = MAP_HEIGHT;
-	const int spitch = MAP_WIDTH, dpitch = MAP_WIDTH * 4;
+	const int w = SCALED_MAP_WIDTH, h = MAP_HEIGHT;
+	const int spitch = SCALED_MAP_WIDTH, dpitch = SCALED_MAP_WIDTH * 4;
 	SBYTE *pSrc;
 	SBYTE *pDst;
 	int* prevrow;
@@ -1412,7 +1449,7 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 		},
 	};
 	
-	prevrow = (int *) HMalloc ((MAP_WIDTH * 4 + 1) * sizeof(prevrow[0]));
+	prevrow = (int *) HMalloc ((SCALED_MAP_WIDTH * 4 + 1) * sizeof(prevrow[0]));
 
 	var_allow = (num_faults << SCALE_SHIFT) / AVG_VARIANCE;
 	var_min = fault_var << SCALE_SHIFT;
@@ -1561,9 +1598,12 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 // Lots of pure Voodoo here ;)
 //  the goal is a 3D illusion, not mathematically correct lighting
 
-#define LMAP_AVG_BLOCK     ((ORIGINAL_MAP_HEIGHT + 4) / 5) // BW: hacky but this shouldn't really depend on the size of the original map
-#define LMAP_MAX_DIST     ((LMAP_AVG_BLOCK + 1) >> 1)
-#define LMAP_WEIGHT_THRES (LMAP_MAX_DIST * 2 / 3)
+#define LMAP_AVG_BLOCK       ((ORIGINAL_MAP_HEIGHT + 4) / 5)
+#define LMAP_AVG_BLOCK_CONST ((UQM_MAP_HEIGHT + 4) / 5)
+// BW: hacky but this shouldn't really depend on the size of the original map
+#define LMAP_MAX_DIST        ((LMAP_AVG_BLOCK + 1) >> 1)
+#define LMAP_MAX_DIST_CONST  ((LMAP_AVG_BLOCK_CONST + 1) >> 1)
+#define LMAP_WEIGHT_THRES    (LMAP_MAX_DIST * 2 / 3)
 
 typedef struct
 {
@@ -1622,16 +1662,14 @@ get_vblock_avg (elev_block_t *pblk, SBYTE *pTopo, int x, int y, COUNT width, COU
 static void
 GenerateLightMap (SBYTE *pTopo, int w, int h)
 {
-#define LMAP_BLOCKS       (2 * LMAP_MAX_DIST + 1)
+#define LMAP_BLOCKS       (2 * LMAP_MAX_DIST_CONST + 1)
 	int x, y;
-
+	elev_block_t vblocks[LMAP_BLOCKS];
+			// we use a running block average to reduce the amount of work
+			// where a block is a vertical line of map points
 	SBYTE *elev;
 	int min, max, med;
 	int sfact, spread;
-
-	elev_block_t vblocks[LMAP_BLOCKS];
-	// we use a running block average to reduce the amount of work
-	// where a block is a vertical line of map points
 
 	// normalize the topo data
 	min = 127;
@@ -1740,7 +1778,7 @@ GenerateLightMap (SBYTE *pTopo, int w, int h)
 
 // Sets the SysGenRNG to the required state first.
 void
-GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width, COUNT height)
+GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width, COUNT height)
 {
 	RECT r;
 	const PlanetFrame* PlanDataPtr;
@@ -1757,7 +1795,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 
 	if (width == NULL && height == NULL)
 	{
-		width = MAP_WIDTH;
+		width = SCALED_MAP_WIDTH;
 		height = MAP_HEIGHT;
 		spherespanx = SPHERE_SPAN_X;
 		radius = RADIUS;
@@ -1766,7 +1804,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	else
 	{
 		spherespanx = height;
-		radius = (height >> 1) - RESOLUTION_FACTOR;
+		radius = (height >> 1) - IF_HD(2);
 		ForIP = TRUE;
 	}
 	
@@ -1775,7 +1813,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
 	
-	planet_orbit_init (width, height, !ForIP);	
+	planet_orbit_init (width, height, !ForIP);
 
 	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
 
@@ -1898,7 +1936,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 							case 0:
 								crater_r.extent.width =
 										(LOBYTE (loword) % (ORIGINAL_MAP_HEIGHT >> 2))
-										+ (ORIGINAL_MAP_HEIGHT >> 2);								
+										+ (ORIGINAL_MAP_HEIGHT >> 2);
 								break;
 							case 1:
 							case 2:
@@ -1927,7 +1965,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 								* height / ORIGINAL_MAP_HEIGHT;
 						crater_r.extent.height = crater_r.extent.width;
 						crater_r.corner.x = crater_r.corner.x
-								* width / ORIGINAL_MAP_WIDTH;					
+								* width / ORIGINAL_MAP_WIDTH;
 						crater_r.corner.y = crater_r.corner.y
 								* height / ORIGINAL_MAP_HEIGHT;
 						
@@ -1980,6 +2018,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 				LoadColorMap (PlanDataPtr->CMapInstance));
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (PlanDataPtr->XlatTabInstance));
+
 			if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
 			{
 				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
@@ -1998,6 +2037,41 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
 		RenderTopography (pSolarSysState->TopoFrame, 
 				Orbit->lpTopoData, width, height, FALSE);
+
+	}
+
+	if (!ForIP && optScanStyle == OPT_PC)
+	{
+		COUNT i;
+
+		for (i = 0; i < NUM_SCAN_TYPES; i++)
+		{
+			COUNT x, y;
+			Color *pix;
+			Color *map;
+
+			pSolarSysState->ScanFrame[i] = CaptureDrawable (
+				CreateDrawable (WANT_PIXMAP, (SIZE)width,
+				(SIZE)height, 1));
+
+			map = HMalloc (sizeof (Color) * width * height);
+			ReadFramePixelColors (
+					pSolarSysState->TopoFrame, map, width, height);
+
+			pix = map;
+
+			for (y = 0; y < height; ++y)
+			{
+				for (x = 0; x < width; ++x, ++pix)
+				{
+					TransformColor (pix, i);
+				}
+			}
+
+			WriteFramePixelColors (
+					pSolarSysState->ScanFrame[i], map, width, height);
+			HFree (map);
+		}
 	}
 
 	if (!ForIP && !shielded && PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
@@ -2010,7 +2084,7 @@ GeneratePlanetSurface (PLANET_DESC* pPlanetDesc, FRAME SurfDefFrame, COUNT width
 					PlanDataPtr->num_faults, PlanDataPtr->fault_depth
 					* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1  ));
 			RenderTopography (Orbit->TopoZoomFrame, pScaledTopo,
-					  MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
+					SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
 
 			HFree (pScaledTopo);
 		}

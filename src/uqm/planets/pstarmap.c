@@ -45,10 +45,13 @@
 #include "../util.h"
 		// For get_fuel_to_sol()
 #include <stdlib.h>
+#include <ctype.h> 
+		// For isdigit()
 
 typedef enum {
-	NORMAL_STARMAP,
-	PREWAR_STARMAP,
+	NORMAL_STARMAP    = 0,
+	WAR_ERA_STARMAP   = 1,
+	CONSTELLATION_MAP = 2,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -58,8 +61,8 @@ static POINT mapOrigin;
 static int zoomLevel;
 static FRAME StarMapFrame;
 
-static BOOLEAN show_prewar_situation; // JMS
-static CURRENT_STARMAP_SHOWN which_starmap; // JMS
+static BOOLEAN show_war_era_situation;
+static CURRENT_STARMAP_SHOWN which_starmap;
 
 static inline long
 signedDivWithError (long val, long divisor)
@@ -74,25 +77,25 @@ signedDivWithError (long val, long divisor)
 	return invert ? -val : val;
 }
 
-#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + 1)
+#define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / ORIG_SIS_SCREEN_WIDTH + 1)
 
 static inline COORD
 universeToDispx (long ux)
 {
 	return signedDivWithError (((ux - mapOrigin.x) << zoomLevel)
-			* SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
-			+ ((SIS_SCREEN_WIDTH - 1) >> 1);
+			* ORIG_SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
+			+ ((ORIG_SIS_SCREEN_WIDTH - 1) >> 1);
 }
-#define UNIVERSE_TO_DISPX(ux)  universeToDispx(ux)
+#define UNIVERSE_TO_DISPX(ux)  RES_SCALE(universeToDispx(ux))
 
 static inline COORD
 universeToDispy (long uy)
 {
 	return signedDivWithError (((mapOrigin.y - uy) << zoomLevel)
-			* SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
-			+ ((SIS_SCREEN_HEIGHT - 1) >> 1);
+			* ORIG_SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
+			+ ((ORIG_SIS_SCREEN_HEIGHT - 1) >> 1);
 }
-#define UNIVERSE_TO_DISPY(uy)  universeToDispy(uy)
+#define UNIVERSE_TO_DISPY(uy)  RES_SCALE(universeToDispy(uy))
 
 static inline COORD
 dispxToUniverse (COORD dx)
@@ -115,8 +118,9 @@ dispyToUniverse (COORD dy)
 static BOOLEAN transition_pending;
 
 static void
-flashCurrentLocation (POINT *where)
+flashCurrentLocation (POINT *where, BOOLEAN force)
 {
+	static BOOLEAN redraw = FALSE;
 	static BYTE c = 0;
 	static int val = -2;
 	static POINT universe;
@@ -127,17 +131,23 @@ flashCurrentLocation (POINT *where)
 
 	if (GetTimeCounter () >= NextTime)
 	{
-		Color OldColor;
-		CONTEXT OldContext;
-		STAMP s;
-
 		NextTime = GetTimeCounter () + (ONE_SECOND / 16);
-		
-		OldContext = SetContext (SpaceContext);
 
 		if (c == 0x00 || c == 0x1A)
 			val = -val;
 		c += val;
+
+		redraw = TRUE;
+	}
+
+	if (force || redraw)
+	{
+		Color OldColor;
+		CONTEXT OldContext;
+		STAMP s;
+
+		OldContext = SetContext (SpaceContext);
+
 		OldColor = SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (c, c, c), c));
 		s.origin.x = UNIVERSE_TO_DISPX (universe.x);
@@ -147,6 +157,8 @@ flashCurrentLocation (POINT *where)
 		SetContextForeGroundColor (OldColor);
 
 		SetContext (OldContext);
+
+		redraw = FALSE;
 	}
 }
 
@@ -163,6 +175,20 @@ DrawCursor (COORD curs_x, COORD curs_y)
 }
 
 static void
+DrawDestReticule (POINT dest)
+{
+	STAMP s;
+
+	s.origin = MAKE_POINT (
+			UNIVERSE_TO_DISPX (dest.x),
+			UNIVERSE_TO_DISPY (dest.y)
+		);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 107);
+
+	DrawStamp (&s);
+}
+
+static void
 DrawAutoPilot (POINT *pDstPt)
 {
 	SIZE dx, dy,
@@ -170,6 +196,7 @@ DrawAutoPilot (POINT *pDstPt)
 				xerror, yerror,
 				cycle, delta;
 	POINT pt;
+	STAMP s;
 
 	if (!inHQSpace ())
 		pt = CurStarDescPtr->star_pt;
@@ -178,6 +205,10 @@ DrawAutoPilot (POINT *pDstPt)
 		pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 		pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
+
+	if (IS_HD)
+		s.frame = SetAbsFrameIndex (MiscDataFrame, 106);
+
 	pt.x = UNIVERSE_TO_DISPX (pt.x);
 	pt.y = UNIVERSE_TO_DISPY (pt.y);
 
@@ -213,8 +244,17 @@ DrawAutoPilot (POINT *pDstPt)
 	delta &= ~1;
 	while (delta--)
 	{
-		if (!(delta & 1))
-			DrawPoint (&pt);
+		if (IS_HD)
+		{
+			if (delta % 8 == 0 && delta != 0)
+			{	// every eighth dot and not the last dot
+				s.origin.x = pt.x;
+				s.origin.y = pt.y;
+				DrawFilledStamp (&s);
+			}
+		}
+		else if (!(delta & 1))
+			DrawPoint(&pt);
 
 		if ((xerror -= dx) <= 0)
 		{
@@ -240,13 +280,13 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 	if (pRect->extent.width < 0)
 		pRect->extent.width = -pRect->extent.width;
 	else if (pRect->extent.width == 0)
-		pRect->extent.width = 1;
+		pRect->extent.width = RES_SCALE(1);
 	pRect->extent.height = UNIVERSE_TO_DISPY (diameter)
 			- UNIVERSE_TO_DISPY (0);
 	if (pRect->extent.height < 0)
 		pRect->extent.height = -pRect->extent.height;
 	else if (pRect->extent.height == 0)
-		pRect->extent.height = 1;
+		pRect->extent.height = RES_SCALE(1);
 
 	pRect->corner.x = UNIVERSE_TO_DISPX (FleetPtr->known_loc.x);
 	pRect->corner.y = UNIVERSE_TO_DISPY (FleetPtr->known_loc.y);
@@ -258,7 +298,7 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		STRING locString;
 
 		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
-		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - 1;
+		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - RES_SCALE(1);
 		t.align = ALIGN_CENTER;
 		locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
 		t.CharCount = GetStringLength (locString);
@@ -266,100 +306,66 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		TextRect (&t, pRepairRect, NULL);
 		
 		if (pRepairRect->corner.x <= 0)
-			pRepairRect->corner.x = 1;
+			pRepairRect->corner.x = RES_SCALE(1);
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
 			pRepairRect->corner.x =
-					SIS_SCREEN_WIDTH - pRepairRect->extent.width - 1;
+					SIS_SCREEN_WIDTH - pRepairRect->extent.width - RES_SCALE(1);
 		if (pRepairRect->corner.y <= 0)
-			pRepairRect->corner.y = 1;
+			pRepairRect->corner.y = RES_SCALE(1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
 			pRepairRect->corner.y =
-					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - 1;
+					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE(1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
-		pRepairRect->extent.width++;
-		pRepairRect->extent.height++;
+		pRepairRect->extent.width += RES_SCALE(1);
+		pRepairRect->extent.height += RES_SCALE(1);
 	}
 }
 
-// JMS: For showing the SC1-era situation in starmap
+// For showing the War-Era situation in starmap
 static void
-GetPrewarSphereRect (COUNT index, FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
+GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
+		POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
 {
-	long diameter;
-	
-	static const COUNT prewar_strengths[] =
-	{
-		RACE_PREWAR_STRENGTHS
-	};
-	static const POINT prewar_locations[] =
-	{
-		RACE_PREWAR_LOCATIONS
-	};
-	static const BOOLEAN prewar_name_unknown[] =
-	{
-		RACE_PREWAR_NAME_UNKNOWN
-	};
+	long diameter = (long)(war_era_strengths[index] * 2);
 
-	diameter = (long)(prewar_strengths[index] * 2);
-	pRect->extent.width = UNIVERSE_TO_DISPX (diameter) - UNIVERSE_TO_DISPX (0);
+	pRect->extent.width = UNIVERSE_TO_DISPX (diameter)
+			- UNIVERSE_TO_DISPX (0);
 	if (pRect->extent.width < 0)
 		pRect->extent.width = -pRect->extent.width;
 	else if (pRect->extent.width == 0)
-		pRect->extent.width = 1;
+		pRect->extent.width = RES_SCALE(1);
 	pRect->extent.height = UNIVERSE_TO_DISPY (diameter)
 			- UNIVERSE_TO_DISPY (0);
 	if (pRect->extent.height < 0)
 		pRect->extent.height = -pRect->extent.height;
 	else if (pRect->extent.height == 0)
-		pRect->extent.height = 1;
+		pRect->extent.height = RES_SCALE(1);
 
-	pRect->corner.x = UNIVERSE_TO_DISPX (prewar_locations[index].x);
-	pRect->corner.y = UNIVERSE_TO_DISPY (prewar_locations[index].y);
+	pRect->corner.x = UNIVERSE_TO_DISPX (war_era_locations[index].x);
+	pRect->corner.y = UNIVERSE_TO_DISPY (war_era_locations[index].y);
 	pRect->corner.x -= pRect->extent.width >> 1;
 	pRect->corner.y -= pRect->extent.height >> 1;
 
 	{
-		TEXT t;
-		STRING locString;
-
-		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
-		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - 1;
-		t.align = ALIGN_CENTER;
-		
-		if (prewar_name_unknown[index])
-		{
-			t.CharCount = 7;
-			t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
-		}
-		else
-		{
-			locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
-			t.CharCount = GetStringLength (locString);
-			t.pStr = (UNICODE *)GetStringAddress (locString);
-		}
-		
-		if (prewar_strengths[index])
-			TextRect (&t, pRepairRect, NULL);
-		
 		if (pRepairRect->corner.x <= 0)
-			pRepairRect->corner.x = 1;
+			pRepairRect->corner.x = RES_SCALE(1);
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
-			pRepairRect->corner.x =
-					SIS_SCREEN_WIDTH - pRepairRect->extent.width - 1;
+			pRepairRect->corner.x = SIS_SCREEN_WIDTH
+				- pRepairRect->extent.width - RES_SCALE(1);
 		if (pRepairRect->corner.y <= 0)
-			pRepairRect->corner.y = 1;
+			pRepairRect->corner.y = RES_SCALE(1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
-			pRepairRect->corner.y =
-					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - 1;
+			pRepairRect->corner.y = SIS_SCREEN_HEIGHT
+				- pRepairRect->extent.height - RES_SCALE(1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
-		pRepairRect->extent.width++;
-		pRepairRect->extent.height++;
+		pRepairRect->extent.width += RES_SCALE(1);
+		pRepairRect->extent.height += RES_SCALE(1);
 	}
 }
 
@@ -402,24 +408,24 @@ DrawFuelCircles ()
 
 	/* Draw outer circle*/
 	r.extent.width = UNIVERSE_TO_DISPX (diameter)
-	                 - UNIVERSE_TO_DISPX (0);
+			- UNIVERSE_TO_DISPX (0);
 
 	if (r.extent.width < 0)
 		r.extent.width = -r.extent.width;
 
 	r.extent.height = UNIVERSE_TO_DISPY (diameter)
-	                  - UNIVERSE_TO_DISPY (0);
+			- UNIVERSE_TO_DISPY (0);
 
 	if (r.extent.height < 0)
 		r.extent.height = -r.extent.height;
 
 	r.corner.x = UNIVERSE_TO_DISPX (corner.x)
-	             - (r.extent.width >> 1);
+			- (r.extent.width >> 1);
 	r.corner.y = UNIVERSE_TO_DISPY (corner.y)
-	             - (r.extent.height >> 1);
+			- (r.extent.height >> 1);
 
 	OldColor = SetContextForeGroundColor (
-	                   BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
+			BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
 	DrawFilledOval (&r);
 	SetContextForeGroundColor (OldColor);
 
@@ -514,32 +520,44 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 	ClearDrawable ();
 
-	// Draw the fuel range circle
-	if (race_update == 0 && which_space < 2)
+	if (which_starmap != CONSTELLATION_MAP
+			&& (race_update == 0 && which_space < 2))
+	{	// Draw the fuel range circle
 		DrawFuelCircles ();
+	}
 
-	for (i = MAX_Y_UNIVERSE + 1; i >= 0; i -= GRID_DELTA)
-	{
-		SIZE j;
-
+	if (which_starmap != CONSTELLATION_MAP)
+	{	// Horizontal lines
 		r.corner.x = UNIVERSE_TO_DISPX (0);
-		r.corner.y = UNIVERSE_TO_DISPY (i);
-		r.extent.width = SIS_SCREEN_WIDTH << zoomLevel;
-		r.extent.height = 1;
-		DrawFilledRectangle (&r);
+		r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (RES_SCALE(1) << zoomLevel);
+		r.extent.height = RES_SCALE(1);
 
-		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE + 1);
-		r.extent.width = 1;
-		r.extent.height = SIS_SCREEN_HEIGHT << zoomLevel;
-		for (j = MAX_X_UNIVERSE + 1; j >= 0; j -= GRID_DELTA)
+		for (i = MAX_Y_UNIVERSE; i >= 0; i -= GRID_DELTA)
 		{
-			r.corner.x = UNIVERSE_TO_DISPX (j);
+			r.corner.y = UNIVERSE_TO_DISPY(i);
 			DrawFilledRectangle (&r);
 		}
+
+		r.corner.y = UNIVERSE_TO_DISPY(0);
+		DrawFilledRectangle (&r);
+
+		// Vertical lines
+		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) + RES_SCALE(1);
+		r.extent.width = RES_SCALE(1);
+		r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) - RES_SCALE(1);
+
+		for (i = MAX_X_UNIVERSE; i >= 0; i -= GRID_DELTA)
+		{
+			r.corner.x = UNIVERSE_TO_DISPX(i);
+			DrawFilledRectangle (&r);
+		}
+
+		r.corner.x = UNIVERSE_TO_DISPX (0);
+		DrawFilledRectangle (&r);
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);
-	if (which_space <= 1)
+	if (which_space <= 1 && which_starmap != CONSTELLATION_MAP)
 	{
 		COUNT index;
 		HFLEETINFO hStarShip, hNextShip;
@@ -549,17 +567,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		};
 
 		// JMS: For drawing SC1-era starmap.
-		static const BOOLEAN prewar_name_unknown[] =
+		static const COUNT war_era_strengths[] =
 		{
-			RACE_PREWAR_NAME_UNKNOWN
+			WAR_ERA_STRENGTHS
 		};
-		static const COUNT prewar_strengths[] =
+		static const POINT war_era_locations[] =
 		{
-			RACE_PREWAR_STRENGTHS
+			WAR_ERA_LOCATIONS
 		};
-		const char name_androsynth[] = "Androsynth";
-		const char name_chenjesu[] = "Chenjesu";
-		const char name_mmrnmhrm[] = "Mmrnmhrm";
 
 		for (index = 0,
 				hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -571,12 +586,13 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			hNextShip = _GetSuccLink (FleetPtr);
 
 			if (FleetPtr->known_strength || 
-				(show_prewar_situation && prewar_strengths[index]))
+				(show_war_era_situation && war_era_strengths[index]))
 			{
 				RECT repair_r;
 
-				if (show_prewar_situation)
-					GetPrewarSphereRect (index, FleetPtr, &r, &repair_r);
+				if (show_war_era_situation)
+					GetWarEraSphereRect (index, war_era_strengths, 
+							war_era_locations, &r, &repair_r);
 				else
 					GetSphereRect (FleetPtr, &r, &repair_r);
 
@@ -599,60 +615,51 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						SetContextForeGroundColor (WHITE_COLOR);
 					else
 						SetContextForeGroundColor (c);
-					DrawOval (&r, 0, IS_HD);
+
+					if (!(which_starmap == WAR_ERA_STARMAP
+							&& war_era_strengths[index] == 0))
+						DrawOval (&r, 0, IS_HD);
 
 					SetContextFont (TinyFont);
 
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + (r.extent.height >> 1) - 1;
+					t.baseline.y = r.corner.y + (r.extent.height >> 1) - RES_SCALE(1);
 					t.align = ALIGN_CENTER;
 					
-					// JMS: For drawing SC1-era starmap.
-					if (show_prewar_situation && prewar_name_unknown[index])
-					{
-						t.CharCount = 7;
-						t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
-					}
-					// JMS: A kludgy way to fix Mrns, Chenjesus and Andros' names.
-					else if (show_prewar_situation && 
-						(index == 1 || index == 16 || index == 20))
-					{
-						if (index == 1)
-						{
-							t.CharCount = 8;
-							t.pStr = (UNICODE *)name_mmrnmhrm;
-						}
-						else if (index == 16)
-						{
-							t.CharCount = 8;
-							t.pStr = (UNICODE *)name_chenjesu;
-						}
-						else if (index == 20)
-						{
-							t.CharCount = 10;
-							t.pStr = (UNICODE *)name_androsynth;
-						}
-					}
-					else
-					{
-						locString = SetAbsStringTableIndex (
-								FleetPtr->race_strings, 1);
-						t.CharCount = GetStringLength (locString);
-						t.pStr = (UNICODE *)GetStringAddress (locString);
-					}
+					locString = SetAbsStringTableIndex (
+							FleetPtr->race_strings, 1);
+					t.CharCount = GetStringLength (locString);
+					t.pStr = (UNICODE *)GetStringAddress (locString);
 					
+					// For drawing War-Era starmap.
+					if (show_war_era_situation)
+					{
+						switch (index)
+						{
+							case PKUNK_SHIP:
+							case THRADDASH_SHIP:
+							case DRUUGE_SHIP:
+								t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
+								break;
+							case ANDROSYNTH_SHIP:
+								t.pStr = "Androsynth";
+								break;
+						}
+						t.CharCount = (COUNT)strlen (t.pStr);
+					}
+
 					TextRect (&t, &r, NULL);
 
 					if (r.corner.x <= 0)
-						t.baseline.x -= r.corner.x - 1;
+						t.baseline.x -= r.corner.x - RES_SCALE(1);
 					else if (r.corner.x + r.extent.width >= SIS_SCREEN_WIDTH)
 						t.baseline.x -= (r.corner.x + r.extent.width)
-								- SIS_SCREEN_WIDTH + 1;
+								- SIS_SCREEN_WIDTH + RES_SCALE(1);
 					if (r.corner.y <= 0)
-						t.baseline.y -= r.corner.y - 1;
+						t.baseline.y -= r.corner.y - RES_SCALE(1);
 					else if (r.corner.y + r.extent.height >= SIS_SCREEN_HEIGHT)
 						t.baseline.y -= (r.corner.y + r.extent.height)
-								- SIS_SCREEN_HEIGHT + 1;
+								- SIS_SCREEN_HEIGHT + RES_SCALE(1);
 
 					// The text color is slightly lighter than the color of
 					// the SoI.
@@ -665,14 +672,38 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 					SetContextForeGroundColor (c);
 					
-					if ((!show_prewar_situation) ||
-						(show_prewar_situation && prewar_strengths[index]))
+					if (!show_war_era_situation ||
+							(show_war_era_situation && war_era_strengths[index]))
 						font_DrawText (&t);
 				}
 			}
 
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		}
+	}
+
+	// Kruzen: This draws the constellation lines on the constellation starmap.
+	if (which_space <= 1 && which_starmap == CONSTELLATION_MAP)
+	{
+		Color oldColor;
+		POINT *CNPtr;
+		LINE l;
+		BYTE c = 0x3F + IF_HD(0x11);
+		CNPtr = &constel_array[0];
+
+		oldColor = SetContextForeGroundColor (BUILD_COLOR_RGBA (c, c, c, 0xFF));
+
+		while (CNPtr->x < MAX_X_UNIVERSE && CNPtr->y < MAX_Y_UNIVERSE)
+		{
+			l.first.x = UNIVERSE_TO_DISPX (CNPtr->x);
+			l.first.y = UNIVERSE_TO_DISPY (CNPtr->y);
+			CNPtr++;
+			l.second.x = UNIVERSE_TO_DISPX (CNPtr->x);
+			l.second.y = UNIVERSE_TO_DISPY (CNPtr->y);
+			CNPtr++;
+			DrawLine (&l);
+		}
+	 	SetContextForeGroundColor (oldColor);
 	}
 
 	do
@@ -699,7 +730,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 		++SDPtr;
 	} while (SDPtr->star_pt.x <= MAX_X_UNIVERSE
-			&& SDPtr->star_pt.y <= MAX_Y_UNIVERSE);	
+			&& SDPtr->star_pt.y <= MAX_Y_UNIVERSE);
 
 	if (GET_GAME_STATE (ARILOU_SPACE))
 	{
@@ -721,7 +752,11 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (race_update == 0
 			&& GLOBAL (autopilot.x) != ~0
 			&& GLOBAL (autopilot.y) != ~0)
+	{
 		DrawAutoPilot (&GLOBAL (autopilot));
+		if (IS_HD)
+			DrawDestReticule (GLOBAL (autopilot));
+	}
 
 	if (transition_pending)
 	{
@@ -743,7 +778,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		if (draw_cursor)
 		{
 			GetContextClipRect (&r);
-			LoadIntoExtraScreen (&r, FALSE);
+			LoadIntoExtraScreen (&r);
 			DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
 					UNIVERSE_TO_DISPY (cursorLoc.y));
 		}
@@ -773,7 +808,7 @@ EraseCursor (COORD curs_x, COORD curs_y)
 		r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y;
 
 #ifndef OLD
-	RepairBackRect (&r, FALSE);
+	RepairBackRect (&r);
 #else /* NEW */
 	r.extent.height += r.corner.y & 1;
 	r.corner.y &= ~1;
@@ -784,9 +819,9 @@ EraseCursor (COORD curs_x, COORD curs_y)
 static void
 ZoomStarMap (SIZE dir)
 {
-	// MAX_ZOOM_SHIFT is set to 2 in HD because the cursor
-	// gets stuck in levels 3 and 4.
-#define MAX_ZOOM_SHIFT (BYTE)(4 - RESOLUTION_FACTOR)
+	// MAX_ZOOM_SHIFT is set to 3 in HD because the cursor
+	// gets stuck in level 4.
+#define MAX_ZOOM_SHIFT (BYTE)(4 - IF_HD(1))
 	if (dir > 0)
 	{
 		if (zoomLevel < MAX_ZOOM_SHIFT)
@@ -872,8 +907,9 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 		}
 	}
 
+	// ORIG_SIS_SCREEN_WIDTH/HEIGHT for viewport follows cursor mode
 	if (s.origin.x < 0 || s.origin.y < 0
-			|| s.origin.x >= SIS_SCREEN_WIDTH
+			|| s.origin.x >= SIS_SCREEN_WIDTH 
 			|| s.origin.y >= SIS_SCREEN_HEIGHT)
 	{
 		mapOrigin = cursorLoc;
@@ -884,16 +920,16 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 	}
 	else
 	{
+		BatchGraphics ();
 		EraseCursor (pt.x, pt.y);
 		// ClearDrawable ();
 		DrawCursor (s.origin.x, s.origin.y);
+		flashCurrentLocation (NULL, TRUE);
+		UnbatchGraphics ();
 	}
 }
 
 #define CURSOR_INFO_BUFSIZE 256
-// JMS: How close to a star the cursor has to be to 'snap' into it.
-// Don't make this larger than 1 for lo-res(1x). Otherwise the cursor gets stuck on stars.
-#define CURSOR_SNAP_AREA (IF_HD(2)) // MB: Fixed cursor snap area so that trying to autopilot to sol no longer selects sirius all the damn time unless you zoom in.
 
 static void
 UpdateCursorInfo (UNICODE *prevbuf)
@@ -903,10 +939,15 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	STAR_DESC *SDPtr;
 	STAR_DESC *BestSDPtr;
 
-	// JMS: Display star map title.
-	if (which_starmap == PREWAR_STARMAP)
+	// Display star map title.
+	if (which_starmap == CONSTELLATION_MAP)
 	{	
-		// "- Old map from 2135 -"
+		// "- Known constellations -"
+		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 4));
+	}
+	else if (which_starmap == WAR_ERA_STARMAP)
+	{	
+		// "- War Era map from 2133 -"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 3));
 	}
 	else
@@ -919,12 +960,12 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
 
 	SDPtr = BestSDPtr = 0;
-	
 	while ((SDPtr = FindStar (SDPtr, &cursorLoc, 75, 75)))
 	{
-		if ((UNIVERSE_TO_DISPX (SDPtr->star_pt.x) >= pt.x - CURSOR_SNAP_AREA && UNIVERSE_TO_DISPX (SDPtr->star_pt.x) <= pt.x + CURSOR_SNAP_AREA)
-			&& (UNIVERSE_TO_DISPY (SDPtr->star_pt.y) >= pt.y - CURSOR_SNAP_AREA && UNIVERSE_TO_DISPY (SDPtr->star_pt.y) <= pt.y + CURSOR_SNAP_AREA)
-			&& (BestSDPtr == 0 || STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
+		if (UNIVERSE_TO_DISPX (SDPtr->star_pt.x) == pt.x
+				&& UNIVERSE_TO_DISPY (SDPtr->star_pt.y) == pt.y
+				&& (BestSDPtr == 0
+				|| STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
 			BestSDPtr = SDPtr;
 	}
 
@@ -937,10 +978,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 		};
 		
 		// A star is near the cursor:
-		// Snap cursor onto star only in 1x res. In hi-res modes,
-		// snapping is done when the star is selected as auto-pilot target.
-		if (!IS_HD)
-			cursorLoc = BestSDPtr->star_pt;
+		// Snap cursor onto star
+		cursorLoc = BestSDPtr->star_pt;
 		
 		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) >= 2
 			&& !(QuasiPortalsKnown[BestSDPtr->Postfix - 133]))
@@ -1002,7 +1041,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				CONTEXT OldContext;
 				OldContext = SetContext (OffScreenContext);
 				
-				if (show_prewar_situation)
+				if (show_war_era_situation)
 					SetContextForeGroundColor 
 						(BUILD_COLOR (MAKE_RGB15 (0x18, 0x00, 0x00), 0x00));
 				else
@@ -1424,11 +1463,39 @@ OnStarNameFrame (TEXTENTRY_STATE *pTES)
 		UpdateFuelRequirement ();
 	}
 
-	flashCurrentLocation (NULL);
+	flashCurrentLocation (NULL, FALSE);
 
 	SleepThread (ONE_SECOND / 30);
 	
 	return TRUE;
+}
+
+BOOLEAN
+coords_only (UNICODE *s)
+{
+	BYTE i, count = 0;
+	BYTE countD = 0, countC = 0;
+	BYTE j = strlen (s);
+	//const char *pattern = "^\d*(\.\d+)?:\d*(\.\d+)?$";
+
+	for (i = 0; i < j; i++)
+	{
+		if (s[i] == '.')
+		{
+			count++;
+			countD++;
+		}
+		else if (s[i] == ':')
+		{
+			count++;
+			countC++;
+		}
+		else if (isdigit (s[i]) == 0)
+			return FALSE;
+		else
+			count++;
+	}
+	return i == j && countD <= 2 && countC == 1;
 }
 
 static BOOLEAN
@@ -1464,6 +1531,22 @@ DoStarSearch (MENU_STATE *pMS)
 	SetDefaultMenuRepeatDelay ();
 	success = DoTextEntry (&tes);
 
+	if (coords_only (tes.BaseStr))
+	{
+		POINT coord;
+
+		coord.x = (COORD)(atof (strtok (tes.BaseStr, ":")) * 10);
+		coord.y = (COORD)(atof (strtok (NULL, ":")) * 10);
+
+		if (coord.x > MAX_X_UNIVERSE || coord.y > MAX_Y_UNIVERSE
+			|| coord.x < 0 || coord.y < 0)
+			success = FALSE;
+		else
+			UpdateCursorLocation (0, 0, &coord);
+
+		success = TRUE;
+	}
+	
 	DrawSISMessageEx (pss->Text, -1, -1, DSME_CLEARFR);
 
 	HFree (pss);
@@ -1496,7 +1579,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			universe.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 			universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 		}
-		flashCurrentLocation (&universe);
+		flashCurrentLocation (&universe, FALSE);
 
 		last_buf[0] = '\0';
 		UpdateCursorInfo (last_buf);
@@ -1510,34 +1593,6 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
-		// JMS: The hi-res modes now have a user-friendly starmap cursor.
-		// The cursor finds a star even if the cursor is several pixels away from it (CURSOR_SNAP_AREA)
-		// The cursor centers on the star only when selected as an auto-pilot target.
-		if (IS_HD)
-		{
-			STAR_DESC *SDPtr;
-			STAR_DESC *BestSDPtr;
-			POINT pt;
-			
-			pt.x = UNIVERSE_TO_DISPX (cursorLoc.x);
-			pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
-			SDPtr = BestSDPtr = 0;
-			
-			while ((SDPtr = FindStar (SDPtr, &cursorLoc, 75, 75)))
-			{
-				if ((UNIVERSE_TO_DISPX (SDPtr->star_pt.x) >= pt.x - CURSOR_SNAP_AREA && UNIVERSE_TO_DISPX (SDPtr->star_pt.x) <= pt.x + CURSOR_SNAP_AREA)
-					&& (UNIVERSE_TO_DISPY (SDPtr->star_pt.y) >= pt.y -CURSOR_SNAP_AREA && UNIVERSE_TO_DISPY (SDPtr->star_pt.y) <= pt.y + CURSOR_SNAP_AREA)
-					&& (BestSDPtr == 0 || STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
-					BestSDPtr = SDPtr;
-			}
-			
-			if (BestSDPtr)
-			{
-				cursorLoc = BestSDPtr->star_pt;
-				UpdateCursorLocation (0, 0, &BestSDPtr->star_pt);
-			}
-		}
-
 		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
 
 		if (optBubbleWarp) {
@@ -1548,21 +1603,25 @@ DoMoveCursor (MENU_STATE *pMS)
 				if (!optInfiniteFuel)
 					DeltaSISGauges(0, -FuelRequired(), 0);
 
-				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY) {
+				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
+				{
 					// We're in a solar system; exit it.
-					GLOBAL (CurrentActivity) |= END_INTERPLANETARY;			
+					GLOBAL (CurrentActivity) |= END_INTERPLANETARY;
 					// Set a hook to move to the new location:
 					debugHook = doInstantMove;
-				} else {
-					// Move to the new location immediately.
+				}
+				else 
+				{	// Move to the new location immediately.
 					doInstantMove ();
 				}
 				
 				return FALSE;
-			} else { 
-				PlayMenuSound (MENU_SOUND_FAILURE);
 			}
-		} else {
+			else
+				PlayMenuSound (MENU_SOUND_FAILURE);
+		}
+		else
+		{
 			GLOBAL (autopilot) = cursorLoc;
 			DrawStarMap (0, NULL);
 		}
@@ -1577,6 +1636,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			{	// search failed or canceled - return cursor
 				UpdateCursorLocation (0, 0, &oldpt);
 			}
+			FlushCursorRect ();
 			// make sure cmp fails
 			strcpy (last_buf, "  <random garbage>  ");
 			UpdateCursorInfo (last_buf);
@@ -1594,13 +1654,14 @@ DoMoveCursor (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_TOGGLEMAP] 
 		&& GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 	{
+		FlushInput ();
 		++which_starmap;
 		which_starmap %= NUM_STARMAPS;
 		
-		if (which_starmap == PREWAR_STARMAP) 
-			show_prewar_situation = TRUE;
+		if (which_starmap == WAR_ERA_STARMAP) 
+			show_war_era_situation = TRUE;
 		else
-			show_prewar_situation = FALSE;
+			show_war_era_situation = FALSE;
 	
 		DrawStarMap (0, NULL);
 		last_buf[0] = '\0';
@@ -1627,18 +1688,11 @@ DoMoveCursor (MENU_STATE *pMS)
 		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = RES_SCALE(1);
 
 		// Double the cursor speed when the Zoom Out key is held down
-		if (CurrentInputState.menu[KEY_MENU_LEFT]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sx = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_RIGHT]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sx = RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_UP]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sy = -RES_SCALE(2);
-		if (CurrentInputState.menu[KEY_MENU_DOWN]
-			&& CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
-			sy = RES_SCALE(2);
+		if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+		{
+			sx *= 2;
+			sy *= 2;
+		}
 
 		if (sx != 0 || sy != 0)
 		{
@@ -1656,7 +1710,7 @@ DoMoveCursor (MENU_STATE *pMS)
 	else
 		moveRepeats = 0;
 
-	flashCurrentLocation (NULL);
+	flashCurrentLocation (NULL, FALSE);
 
 	return !(GLOBAL (CurrentActivity) & CHECK_ABORT);
 }
@@ -1782,8 +1836,8 @@ UpdateMap (void)
 				}
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				++last_r.extent.width;
-				++last_r.extent.height;
+				last_r.extent.width += RES_SCALE(1);
+				last_r.extent.height += RES_SCALE(1);
 				VisibleChange = FALSE;
 				do
 				{
@@ -1818,8 +1872,8 @@ UpdateMap (void)
 						goto DoneSphereMove;
 					}
 
-					r.extent.width += RES_BOOL (1, 5);
-					r.extent.height += RES_BOOL (1, 5);
+					r.extent.width += RES_SCALE(1);
+					r.extent.height += RES_SCALE(1);
 					if (temp_r0.corner.x != temp_r1.corner.x
 							|| temp_r0.corner.y != temp_r1.corner.y)
 					{
@@ -1854,8 +1908,8 @@ DoneSphereMove:
 				--delta;
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				++last_r.extent.width;
-				++last_r.extent.height;
+				last_r.extent.width += RES_SCALE(1);
+				last_r.extent.height += RES_SCALE(1);
 				VisibleChange = FALSE;
 
 				// printf("%s: %d\n", raceName (index), FleetPtr->actual_strength);
@@ -1917,7 +1971,7 @@ StarMap (void)
 	memset (&MenuState, 0, sizeof (MenuState));
 
 	// JMS: For showing SC1-era starmap / starmap with constellations.
-	show_prewar_situation = FALSE; 
+	show_war_era_situation = FALSE; 
 	which_starmap = NORMAL_STARMAP;
 
 	zoomLevel = 0;
@@ -1937,6 +1991,14 @@ StarMap (void)
 	if (cursorLoc.x == ~0 && cursorLoc.y == ~0)
 		cursorLoc = universe;
 
+	if (optWhichMenu == OPT_PC)
+	{
+		if (actuallyInOrbit)
+			DrawMenuStateStrings (PM_ALT_SCAN, 1);
+		else
+			DrawMenuStateStrings (PM_ALT_STARMAP, 0);
+	}
+
 	MenuState.InputFunc = DoMoveCursor;
 	MenuState.Initialized = FALSE;
 
@@ -1950,11 +2012,12 @@ StarMap (void)
 			zoomLevel = 2;
 	}
 	
-	if(optSubmenu){
+	if (optSubmenu)
+	{
 		if(optCustomBorder)
 		{
 			if(optWhichMenu != OPT_PC)
-				DrawBorder(22, FALSE);
+				DrawBorder(14, FALSE);
 			DrawBorder(18 + optControllerType, FALSE);
 		} 
 		else
@@ -1968,7 +2031,7 @@ StarMap (void)
 	OldContext = SetContext (SpaceContext);
 	GetContextClipRect (&clip_r);
 	SetContext (OldContext);
-	LoadIntoExtraScreen (&clip_r, FALSE);
+	LoadIntoExtraScreen (&clip_r);
 	DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
 			UNIVERSE_TO_DISPY (cursorLoc.y));
 	UnbatchGraphics ();
@@ -1989,13 +2052,9 @@ StarMap (void)
 	DrawHyperCoords (universe);
 	DrawSISMessage (NULL);
 	DrawStatusMessage (NULL);
-	
-	if (optSubmenu){
-		if(optCustomBorder)
-			DrawBorder(14, FALSE);
-		else
-			DrawSubmenu (0);
-	}
+
+	if (optSubmenu)
+		DrawMineralHelpers (TRUE);
 
 	if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)
@@ -2004,4 +2063,3 @@ StarMap (void)
 	return (GLOBAL (autopilot.x) != ~0
 			&& GLOBAL (autopilot.y) != ~0);
 }
-

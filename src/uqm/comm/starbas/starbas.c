@@ -29,13 +29,15 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/mathlib.h"
 #include "libs/inplib.h"
+#include "uqm/oscill.h"
+#include "uqm/nameref.h"
 
 
 static void TellMission (RESPONSE_REF R);
 static void SellMinerals (RESPONSE_REF R);
 
 
-static LOCDATA commander_desc_orig =
+static LOCDATA commander_desc =
 {
 	COMMANDER_CONVERSATION, /* AlienConv */
 	NULL, /* init_encounter_func */
@@ -134,123 +136,6 @@ static LOCDATA commander_desc_orig =
 			0, /* AnimFlags */
 			0, 0, /* FrameRate */
 			0, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
-	},
-	{ /* AlienTransitionDesc */
-		0, /* StartIndex */
-		0, /* NumFrames */
-		0, /* AnimFlags */
-		0, 0, /* FrameRate */
-		0, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	{ /* AlienTalkDesc */
-		4, /* StartIndex */
-		6, /* NumFrames */
-		0, /* AnimFlags */
-		ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-		ONE_SECOND * 7 / 60, ONE_SECOND / 12, /* RestartRate */
-		0, /* BlockMask */
-	},
-	NULL, /* AlienNumberSpeech - none */
-	/* Filler for loaded resources */
-	NULL, NULL, NULL,
-	NULL,
-	NULL,
-};
-
-static LOCDATA commander_desc_hd =
-{
-	COMMANDER_CONVERSATION, /* AlienConv */
-	NULL, /* init_encounter_func */
-	NULL, /* post_encounter_func */
-	NULL, /* uninit_encounter_func */
-	COMMANDER_PMAP_ANIM, /* AlienFrame */
-	COMMANDER_FONT, /* AlienFont */
-	WHITE_COLOR_INIT, /* AlienTextFColor */
-	BLACK_COLOR_INIT, /* AlienTextBColor */
-	{0, 0}, /* AlienTextBaseline */
-	0, /* SIS_TEXT_WIDTH, */ /* AlienTextWidth */
-	ALIGN_CENTER, /* AlienTextAlign */
-	VALIGN_MIDDLE, /* AlienTextValign */
-	COMMANDER_COLOR_MAP, /* AlienColorMap */
-	COMMANDER_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
-	STARBASE_CONVERSATION_PHRASES, /* PlayerPhrases */
-	9, /* NumAnimations */
-	{ /* AlienAmbientArray (ambient animations) */
-		{ /* Blink */
-			1, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, 0, /* FrameRate */
-			0, ONE_SECOND * 8, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Running light */
-			10, /* StartIndex */
-			27, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 40, 0, /* FrameRate */
-			ONE_SECOND * 2, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Flagship picture */
-			37, /* StartIndex */
-			1, /* NumFrames */
-			0, /* AnimFlags */
-			0, 0, /* FrameRate */
-			0, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Flagship side lights */
-			38, /* StartIndex */
-			2, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND * 2, 0, /* FrameRate */
-			0, ONE_SECOND * 12, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Arc welder 1 */
-			40, /* StartIndex */
-			8, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 40, 0, /* FrameRate */
-			0, ONE_SECOND * 8, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Arc welder 2 */
-			48, /* StartIndex */
-			6, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND, 0, /* FrameRate */
-			0, ONE_SECOND * 8, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Arc welder 3 */
-			54, /* StartIndex */
-			6, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 40, 0, /* FrameRate */
-			0, ONE_SECOND * 8, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Arc welder 4 */
-			60, /* StartIndex */
-			7, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 40, 0, /* FrameRate */
-			0, ONE_SECOND * 8, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* Arc welder 5 */
-			67, /* StartIndex */
-			11, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 40, 0, /* FrameRate */
-			0, ONE_SECOND * 8, /* RestartRate */
 			0, /* BlockMask */
 		},
 	},
@@ -1374,12 +1259,8 @@ DiscussDevices (BOOLEAN TalkAbout)
 		if (VuxBeastIndex)
 		{
 			// Run all tracks upto the Vux Beast scientist's report
-			AlienTalkSegue (VuxBeastIndex - 1);
-			// Disable Commander's speech animation and run the report
-			EnableTalkingAnim (FALSE);
-			AlienTalkSegue (VuxBeastIndex);
-			// Enable Commander's speech animation and run the rest
-			EnableTalkingAnim (TRUE);
+			// Then disable Commander's speech animation and run the report
+			BlockTalkingAnim (VuxBeastIndex - 1, VuxBeastIndex);
 			AlienTalkSegue ((COUNT)~0);
 		}
 	}
@@ -1758,6 +1639,7 @@ SellMinerals (RESPONSE_REF R)
 	RESPONSE_REF pStr1 = 0;
 	RESPONSE_REF pStr2 = 0;
 
+	FlattenOscilloscope ();
 	total = 0;
 	Sleepy = TRUE;
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
@@ -1903,22 +1785,24 @@ post_starbase_enc (void)
 LOCDATA*
 init_starbase_comm ()
 {
-	static LOCDATA commander_desc;
 	LOCDATA *retval;
-
-	commander_desc = RES_BOOL(commander_desc_orig, commander_desc_hd);
 
 	commander_desc.init_encounter_func = Intro;
 	commander_desc.post_encounter_func = post_starbase_enc;
 	commander_desc.uninit_encounter_func = uninit_starbase;
 
+	if (optFlagshipColor == OPT_3DO)
+		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM_RED;
+	else
+		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM;
+
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	commander_desc.AlienTextWidth = RES_SIS_SCALE(143); // JMS_GFX
-	commander_desc.AlienTextBaseline.x = RES_SIS_SCALE(164); // JMS_GFX
-	commander_desc.AlienTextBaseline.y = RES_SIS_SCALE(20); // JMS_GFX
+	commander_desc.AlienTextWidth = RES_SCALE(143);
+	commander_desc.AlienTextBaseline.x = RES_SCALE(164);
+	commander_desc.AlienTextBaseline.y = RES_SCALE(20);
 
 	// use alternate Starbase track if available
 	commander_desc.AlienAltSongRes = STARBASE_ALT_MUSIC;

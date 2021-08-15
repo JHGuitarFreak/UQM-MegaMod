@@ -24,6 +24,7 @@
 
 STAR_DESC *star_array;
 STAR_DESC *CurStarDescPtr = 0;
+POINT *constel_array;
 
 STAR_DESC*
 FindStar (STAR_DESC *LastSDPtr, POINT *puniverse, SIZE xbounds,

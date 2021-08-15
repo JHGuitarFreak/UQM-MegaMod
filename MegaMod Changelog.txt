@@ -4,8 +4,117 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
-- LONGTERM: Correct the UI scaling in HD to be more faithful to Vanilla UQM (Long term goal)
-- HARDMODE: Make the Sa-Matra battle more difficult - Pikant
+- HARDMODE: If you don't start the rebellion before the Pkunk arrive, you don't get any help at the end.
+
+## [WIP]
+
+
+## [v0.8.1]
+### Thanks
+- Thanks to Mergrim for his playthrough of the MegaMod. Which in turn helped bring a couple bugs to light (The "Trade HQ" and Zex's "funky" screen bugs)
+
+### Added
+- HD: Created new, faithful UI fonts
+- EXTENDED: Show gas giant type on the scan screen (I.E. Blue Gas Giant)
+- HD: Created new HD Vanilla border overlay
+- If the Captain and/or Flagship names are left blank at game start then the default names are used.
+- HD: Gave the Kohr-Ah a new bottom-eye animation (Always bugged me that not all the eyes animated)
+- EXTENDED: Charon, the moon of Pluto, is now explorable
+- Kruzenshtern: Added support for displaying PC-DOS styled planets while traversing solar systems
+- Kruzenshtern: Added the leading edge to the planet scan mimicing the 3DO scan
+- Kruzenshtern: Option to have the planet scan also color the spinning planet a la the PC-DOS version
+- SETUPMENU: Added an option to pick between PC-DOS, 3DO, and Vanilla UQM styled star backgrounds (The stars while in a solar system) [When not using a custom seed]
+- SETUPMENU: Added a new page to the PC/3DO options
+- SETUPMENU: Added a new page to the Visual options
+- SETUPMENU: solar system planet style (DOS Planets) - Kruzen
+- SETUPMENU: Added option for Coloring the planet while scanning - Kruzen
+- SETUPMENU: Added option for PC-DOS scan style (static color while minerals are revealed) - Kruzen
+- Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
+- Kruzenshtern: Add function that mimics the pulsing purple box from PC-DOS ver. when picking a ship
+- Added pulsing purple box selector "universally" when using PC menus, mimicking PC-DOS UI
+- HD: Added an option to switch between unfaithful animated HyperSpace stars and faithful HD recreations of the static HyperSpace stars
+- Added PC-DOS style lander mechanics with the help of Kruzenshtern
+- Added option to switch between PC or 3DO comm oscilloscope
+- Kruzenshtern: Added "Non-Stop Oscilloscope" ability where, if speech is enabled, the Oscilloscope will switch over to music for its data when nobody is talking
+- Kruzenshtern Non-HD: Added a couple of frames to the dispatch/return lander animation so it clears the UI nicely
+- Kruzenshtern: Remove ships from system if Kohr-Ah destroyed corresponding race
+- EXTENDED: Charon now generates previously unused element "Charon Dust"
+- EXTENDED: Unzervalt now has a single moon as per the intro artwork
+- EXTENDED: Show Sa-Matra in background during penultimate battle - Kruzen
+- Kruzen: Draw constellation map in-engine
+- Added ability to use star search to enter direct HyperSpace coordinates
+- Speed up lander reports by holding the "right" menu key
+- EXTENDED: Set Zex's Beauty free upon the planet after it devours Zex - idea and lander report by Tarp
+- Added option to swap between Green/Red engined variants of the Flagship.
+- Added option to swap between 3DO and vanilla UQM planet textures (When not using a custom seed)
+- HD: Brand new Flagship designed off the vanilla version created by Jordan Lo
+- HD: JBrand new set of Flagship modules designed off the vanilla versions created by Jordan Lo
+- EXTENDED: Ability to fill Syreen crew to max in the Shipyard
+
+
+### Changed
+- Scaled the outer border of the viewport to match PC-DOS
+- HD: Corrected the UI scaling in HD to be more faithful to Vanilla UQM
+- Created a new set of Sol Textures to accomodate the new UI scale
+- HD: Created a new set of mineral, bio, and energy icons
+- HD: Rescaled all the alien conversation screens (Thanks to Damon Czanik for allowing access to his original files!)
+- HD: Remastered the Commander's conversation screen
+- HD: Slight remaster to the Arilou, Chmmr, Ilwrath, Kohr-Ah, Orz, Safe Ones, Slylandro (Gas Bag), Supox, and Ur-Quan conversation screens
+- HD: Created a new in-game Sa-Matra using the HD ending slides
+- HD: Rescaled ship captains images to the new UI scale (Thanks to Kwayne for offering up his original files!)
+- HD: Brighten up the Spathi Eluder
+- HD: Created a new set of 3DO Menu tiles
+- HD: Rescaled and recolored all the ship modules to resemble their Vanilla counterparts
+- HD: Created a new set of ship labels for the Shipyard using new UI fonts
+- HD: Remade the module tiles to scale
+- HD: New, brighter background stars to match Vanilla
+- HD: Created a new orbit dot image to be used in lieu of an in-engine drawn circle
+- HD: Thicken the animated Oscilloscope lines
+- Rescaled the custom borders
+- Changed the Syreen text color to cyan during the "sex scene" (And back to white afterwards)
+- Reconfigured the War Era StarMap to be more faithful against the official paper StarMap
+- EXTENDED: Changed the size and location of the Chmmr SOI to be more logical (Combined Chenjesu & Mmrnmhrm SOI size and location)
+- Kruzenshtern: Syreen "sex scene" now faithfully mimics the PC version
+- HD: Tamed the planet scan speed to match vanilla speed
+- Subtitle location and spacing now matches more faithfully to the PC-DOS version
+- EXTENDED: Make Beta Arae (933.3:093.7) an Orange Super Giant (Because there are no Orange Super Giants)
+- Adjusted FPS and Lander values to be as close as possible to its PC and 3DO counterparts
+- Lander reports now only respond to the "action keys" instead of every mappable key
+- HD: Auto-pilot line on the starmap is now a dotted line with a reticule at the end showing your destination
+- HARDMODE: Make the Sa-Matra battle more difficult - Kruzenshtern
+- EXTENDED: Set encountered world to moon when applicable - Kruzen
+- Flagship graphics now defaults to the PC green engined variant for all instances
+- Picking Xbox or PS4 controls auto-selects the correct control scheme
+- EXTENDED: Enable Sa-Matra sound effects - Kruzen
+
+
+### Fixed
+- Fixed suicide Game Over screen having illegible text
+- HD: Fixed 'k' glyph for Classic HD Commander font
+- HD: Fixed Commander Zex's screen going all funky when fading to black
+- HD: Fixed the font padding for all HD fonts to match a 4x scale with Vanilla
+- Fixed Vela IV having moons with the default seed
+- HD: Fixed player response text being too long to fit the viewport
+- Fixed Beta Herculis and Algol having empty star systems when Extended Lore is disabled
+- Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/Serosis/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
+- Fixed a bug that showed "Trade HQ" as the planet name for various plot-related planets
+- Custom Seed: Fixed planet generation so that the Taalo shield is always obtainable no matter the custom seed
+- EXTENDED: Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
+- HD: Fixed the melee captain window death animation
+- Kruzenshtern: Fixed planet spin lag when traversing menus, scanning, selecting landing spot, and dispatching/retrieving your lander
+- HD: Fixed conversation summary overflow "MORE" text being too high up
+- Fixed alignment of text and flashing boxes when picking a ship for main game Melee
+- Kruzenshtern: Fixed subtitles redrawing while Melnorme color is changing
+- Kruzenshtern: Fixed Orz talking over the initial computer report subtitles
+- Properly free up memory used by large, textured moons
+- Kruzenshtern: Fixed timing for AlienTalkSegue, added tool to create custom baseline per sentence, added Fading UI func, and Talking animation block is now tied to current sub chunk playing
+- Kruzenshtern: Remove ships from system if Kohr-Ah destroyed corresponding race
+- Fixed Unlock All Ships cheat from affecting current alliances
+- Kruzen: Fix moon intersect when loading game
+- Fixed SOI based space music when only Vol's complete remix is installed
+- Kruzen: Fix for stuck lip flaps for Orz when you skip their first dialog
+- Custom Seed: Fixed instances where entering a solar system would put the game in an endless loop
+
 
 ## [v0.8.0.85]
 ### Added
@@ -102,6 +211,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Separate God Mode and infinite battery into new "Precursor Mode"
 
 ### Fixed
+- Fixed crash when buying tech from the Melnorme
+- Loading while in a solar system in HD would put the flagship at the bottom center of the system
+- Fix ship roster overflows when using the x10 button/key
 - Loading a save from Classic to HD will no longer spit you out into HyperSpace - Kruzenshtern bug #42
 - Realigned StarBase animation so it takes up the full screen
 - Fixed roaming flagship in Hyperspace when it gets to destination

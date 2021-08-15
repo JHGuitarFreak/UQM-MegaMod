@@ -83,6 +83,7 @@ load_gravity_well (BYTE selector)
 
 }
 
+
 void
 free_gravity_well (void)
 {
@@ -92,6 +93,7 @@ free_gravity_well (void)
 	{
 		DestroyDrawable (ReleaseDrawable (planet[i]));
 		planet[i] = 0;
+
 	}
 }
 
@@ -117,4 +119,13 @@ loadMainMenuMusic (BYTE selector)
 	snprintf (buffer, 79, "music.mainmenu%d", selector + 1);
 	buffer[79] = '\0'; /* Shouldn't be necessary, but better safe than sorry */	
 	return LoadMusic (buffer);
+}
+
+int
+num_orbit_themes (void)
+{
+	if (VolasPackPresent)
+		return NUM_ORBIT_THEMES;
+	else
+		return NUM_ORBIT_THEMES - 1;
 }

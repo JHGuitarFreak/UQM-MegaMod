@@ -38,10 +38,17 @@ enum PlanetScanTypes
 	NUM_SCAN_TYPES,
 };
 
-#define MAP_WIDTH SIS_SCREEN_WIDTH
-#define MAP_HEIGHT RES_BOOL(75, 330) // JMS_GFX
-#define ORIGINAL_MAP_WIDTH 242			// JMS_GFX
-#define ORIGINAL_MAP_HEIGHT 75			// JMS_GFX
+#define PC_MAP_WIDTH 210
+#define PC_MAP_HEIGHT 67
+#define THREEDO_MAP_WIDTH PC_MAP_WIDTH
+#define THREEDO_MAP_HEIGHT PC_MAP_HEIGHT
+#define UQM_MAP_WIDTH 243
+#define UQM_MAP_HEIGHT 75
+#define ORIGINAL_MAP_WIDTH (optPlanetTexture ? UQM_MAP_WIDTH : THREEDO_MAP_WIDTH)
+#define ORIGINAL_MAP_HEIGHT (optPlanetTexture ? UQM_MAP_HEIGHT : THREEDO_MAP_HEIGHT)
+#define MAP_WIDTH RES_SCALE(UQM_MAP_WIDTH)
+#define MAP_HEIGHT RES_SCALE(UQM_MAP_HEIGHT)
+#define SCALED_MAP_WIDTH RES_SCALE(optSuperPC != OPT_PC ? UQM_MAP_WIDTH : PC_MAP_WIDTH)
 
 enum
 {
@@ -63,7 +70,7 @@ enum
 };
 
 #define MAX_SCROUNGED (optLanderHold == OPT_3DO ? 50 : 64) /* max units lander can hold (was 64 in SC2 DOS) */
-#define MAX_HOLD_BARS 50 /* number of bars on the lander screen */
+#define MAX_HOLD_BARS (optSuperPC == OPT_PC ? 64 : 50) /* number of bars on the lander screen */
 
 #define SCALE_RADIUS(r) ((r) << 6)
 #define UNSCALE_RADIUS(r) ((r) >> 6)
@@ -75,12 +82,12 @@ enum
 #define MIN_PLANET_RADIUS SCALE_RADIUS (4)
 #define MAX_PLANET_RADIUS SCALE_RADIUS (124)
 
-#define DISPLAY_FACTOR ((SIS_SCREEN_WIDTH >> 1) - RES_SCALE(8))
+#define DISPLAY_FACTOR RES_SCALE((ORIG_SIS_SCREEN_WIDTH >> 1) - 8)
 
 #define NUM_SCANDOT_TRANSITIONS 4
 
-#define MIN_MOON_RADIUS RES_SCALE(35) // JMS_GFX
-#define MOON_DELTA RES_SCALE(20) // JMS_GFX
+#define MIN_MOON_RADIUS RES_SCALE(35) 
+#define MOON_DELTA RES_SCALE(20) 
 
 #define MAX_SUNS 1
 #define MAX_PLANETS 16
@@ -88,13 +95,13 @@ enum
 #define MAX_GEN_MOONS MAX_MOONS
 #define MAX_GEN_PLANETS 9
 
-#define MAP_BORDER_HEIGHT  RES_DBL(5)
-#define SCAN_SCREEN_HEIGHT (SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
+#define MAP_BORDER_HEIGHT  RES_SCALE(5)
+#define SCAN_SCREEN_HEIGHT \
+		(SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
 
-#define PLANET_ROTATION_TIME (ONE_SECOND * 12) // Serosis
-#define PLANET_ROTATION_RATE (PLANET_ROTATION_TIME / MAP_WIDTH) // JMS_GFX
-// XXX: -9 to match the original, but why? I have no idea
-#define PLANET_ORG_Y ((SCAN_SCREEN_HEIGHT - 9) / 2)
+#define PLANET_ROTATION_RATE \
+		(ONE_SECOND * 5 / RES_SCALE(PC_MAP_WIDTH))
+#define PLANET_ORG_Y ((SCAN_SCREEN_HEIGHT - SIS_ORG_Y) / 2)
 
 #define NUM_RACE_RUINS  16
 
@@ -104,12 +111,8 @@ typedef struct node_info NODE_INFO;
 typedef struct planet_orbit PLANET_ORBIT;
 typedef struct solarsys_state SOLARSYS_STATE;
 
-
 #include "generate.h"
-#include "../menustat.h"
 #include "../units.h"
-
-#include "elemdata.h"
 #include "lifeform.h"
 #include "plandata.h"
 #include "sundata.h"
@@ -143,6 +146,7 @@ struct planet_orbit
 			// temp RGBA data for whatever transforms (nuked often)
 	FRAME WorkFrame;
 			// any extra frame workspace (for dynamic objects)
+	COUNT scanType;
 	// BW: extra stuff for animated IP
 	DWORD **light_diff;
 	MAP3D_POINT **map_rotate;
@@ -283,11 +287,14 @@ struct solarsys_state
 	BOOLEAN InOrbit;
 			// Set to TRUE when player hits a world in an inner system
 			// Homeworld encounters count as 'in orbit'
+	FRAME ScanFrame[NUM_SCAN_TYPES];
+			// For PC scan, generated from TopoFrame
 };
 
 extern SOLARSYS_STATE *pSolarSysState;
 extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
+extern BOOLEAN actuallyInOrbit;
 
 // Random context used for all solar system, planets and surfaces generation
 extern RandomContext *SysGenRNG;
@@ -312,6 +319,7 @@ POINT planetOuterLocation (COUNT planetI);
 
 extern void LoadPlanet (FRAME SurfDefFrame);
 extern void DrawPlanet (int dy, Color tintColor);
+extern void DrawPCScanTint (COUNT cur_scan);
 extern void FreePlanet (void);
 extern void LoadStdLanderFont (PLANET_INFO *info);
 extern void FreeLanderFont (PLANET_INFO *info);
@@ -325,6 +333,8 @@ extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD ran
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 		PLANET_DESC *pBaseDesc, BOOLEAN TypesDefined);
 extern void InitLander (BYTE LanderFlags);
+extern void InitPCLander (void);
+extern void DestroyPCLanderContext (void);
 
 extern void InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height);
 extern void UninitSphereRotation (void);
@@ -337,13 +347,15 @@ extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame, int offset,
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
 
 extern void ZoomInPlanetSphere (void);
-extern void RotatePlanetSphere (BOOLEAN keepRate);
+extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color);
 
 extern void DrawScannedObjects (BOOLEAN Reversed);
 extern void GeneratePlanetSurface (PLANET_DESC *pPlanetDesc,
 		FRAME SurfDefFrame, COUNT width, COUNT height);
 extern void DeltaTopography (COUNT num_iterations, SBYTE *DepthArray,
 		RECT *pRect, SIZE depth_delta);
+
+extern void TransformColor (Color *c, COUNT scan);
 
 extern void DrawPlanetSurfaceBorder (void);
 

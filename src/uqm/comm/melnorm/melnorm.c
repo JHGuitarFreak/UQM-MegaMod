@@ -331,8 +331,6 @@ static const NUMBER_SPEECH_DESC melnorme_numbers_english =
 	}
 };
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof (*array))
-
 
 //////////////Technology System///////////////////////
 // This section deals with enabling and checking for
@@ -594,10 +592,10 @@ typedef struct
 } TechSaleData;
 
 // Right now, all techs have the same price.
-// Serosis: Unless Hard Mode is enabled.
+// Unless Hard Mode is enabled.
 #define TECHPRICE (75 * BIO_CREDIT_VALUE)
 
-static const TechSaleData tech_sale_catalog[] =
+TechSaleData tech_sale_catalog[] =
 {
 	{ TECH_MODULE_BLASTER,          TECHPRICE, NEW_TECH_1,  OK_BUY_NEW_TECH_1 },
 	{ TECH_LANDER_SPEED,            TECHPRICE, NEW_TECH_2,  OK_BUY_NEW_TECH_2 },
@@ -1310,7 +1308,7 @@ TryFuelAgain:
 
 		NPCPhrase (nextTech->sale_line);
 
-		if (DIF_HARD && countTech() > 0)
+		if (DIF_HARD && countTech())
 		{
 			nextTech->price += countTech() * 50;
 			NPCPhrase (NEED_MORE_CREDIT0);
@@ -1436,6 +1434,12 @@ DoSell (RESPONSE_REF R)
 					(BYTE)NUM_ELEMENT_CATEGORIES,
 					(BYTE)NUM_ELEMENT_CATEGORIES
 					);
+
+			if (EXTENDED && GLOBAL_SIS (TotalBioMass)
+					&& GET_GAME_STATE (VUX_BEAST_ON_SHIP) == 2
+					&& GET_GAME_STATE (VUX_BEAST) == 2)
+				SET_GAME_STATE (VUX_BEAST_ON_SHIP, 0);
+
 			do
 			{
 				TimeIn = GetTimeCounter ();

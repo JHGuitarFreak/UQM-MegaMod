@@ -165,8 +165,8 @@ laser_death (ELEMENT *ElementPtr)
 				- ShipPtr->current.location.y;
 		if (((BYTE)TFB_Random () & 0x07)
 				&& (dist = (long)dx * dx + (long)dy * dy) >=
-				(long)DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) // JMS_GFX
-				* DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) // JMS_GFX
+				(long)DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) 
+				* DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) 
 				&& (hIonSpots = AllocElement ()))
 		{
 			COUNT angle, magnitude;
@@ -182,8 +182,8 @@ laser_death (ELEMENT *ElementPtr)
 			angle = ARCTAN (dx, dy);
 			magnitude = ((COUNT)TFB_Random ()
 					% ((square_root (dist) + 1)
-					- DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)))) // JMS_GFX
-					+ DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)); // JMS_GFX
+					- DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)))) 
+					+ DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)); 
 			IonSpotsPtr->current.location.x =
 					ShipPtr->current.location.x
 					+ COSINE (angle, magnitude);

@@ -279,7 +279,7 @@ GenerateVux_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 		if (info)
 		{
-			info->loc_pt.x = MAP_WIDTH / 3;
+			info->loc_pt.x = SCALED_MAP_WIDTH / 3;
 			info->loc_pt.y = MAP_HEIGHT * 5 / 8;
 		}
 		
@@ -325,6 +325,8 @@ GenerateVux_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	return false;
 }
 
+#define LIFE_BOOL (EXTENDED && GET_GAME_STATE (VUX_BEAST))
+
 static COUNT
 GenerateVux_generateLife (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
@@ -339,7 +341,26 @@ GenerateVux_generateLife (const SOLARSYS_STATE *solarSys,
 			18, 18, 18, 18, /* Penguin Cyclops */
 			-1 /* term */
 		};
-		return GeneratePresetLife (&solarSys->SysInfo, life, whichNode, info);
+		static const SBYTE lifeEx[] =
+		{
+			9,  9,  9,  9,  9, /* Carousel Beast */
+			18, 18, 18, 18, 18, /* Penguin Cyclops */
+			ZEX_BEAUTY, /* VUX Beast */
+			-1 /* term */
+		};
+		static const SBYTE lifeExDM[] =
+		{
+			9,  9,  9,  9,  9, /* Carousel Beast */
+			18, 18, 18, 18, 18, /* Penguin Cyclops */
+			-1 /* term */
+		};
+
+		return GeneratePresetLife (
+				&solarSys->SysInfo,
+				LIFE_BOOL && GET_GAME_STATE (VUX_BEAST_ON_SHIP)
+					? lifeExDM : LIFE_BOOL ? lifeEx : life,
+				whichNode,
+				info);
 	}
 
 	if (CurStarDescPtr->Index == VUX_BEAST_DEFINED
@@ -375,6 +396,28 @@ GenerateVux_pickupLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 
 			SET_GAME_STATE (VUX_BEAST, 1);
 			SET_GAME_STATE (VUX_BEAST_ON_SHIP, 1);
+		}
+
+		return true; // picked up
+	}
+
+	if (LIFE_BOOL && CurStarDescPtr->Index == MAIDENS_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+
+		if (whichNode == 10)
+		{	// Picked up Zex' Beauty... Again.
+			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+			solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				SetRelStringTableIndex (
+					CaptureStringTable (
+						LoadStringTable (BEAST_STRTAB)), 1);
+
+			GenerateDefault_landerReport (solarSys);
+			SetLanderTakeoff ();
+
+			SET_GAME_STATE (VUX_BEAST, 2);
+			SET_GAME_STATE (VUX_BEAST_ON_SHIP, 2);
 		}
 
 		return true; // picked up

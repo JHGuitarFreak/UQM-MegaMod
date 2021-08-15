@@ -29,7 +29,7 @@
 #include "state.h"
 #include "grpintrn.h"
 #include "uqmdebug.h"
-
+#include "gameev.h"
 #include "libs/tasklib.h"
 #include "libs/log.h"
 #include "libs/misc.h"
@@ -37,6 +37,7 @@
 //#define DEBUG_LOAD
 
 ACTIVITY NextActivity;
+BYTE IndependantResFactor;
 
 static inline size_t
 read_8 (void *fp, BYTE *v)
@@ -353,25 +354,6 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
-	if (IS_HD)
-	{
-		POINT NewLoc = MAKE_POINT (SIS_SCREEN_WIDTH / 2, SIS_SCREEN_HEIGHT);
-		POINT IPBounds = displayToLocation (
-					MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT),
-					MAX_ZOOM_RADIUS);
-		BOOLEAN OutOfBounds = ((GSPtr->ip_location.x > -IPBounds.x
-				&& GSPtr->ip_location.y > -IPBounds.y)
-				&& (GSPtr->ip_location.x < IPBounds.x
-				&& GSPtr->ip_location.x < IPBounds.y));
-
-		if (LOBYTE (GSPtr->CurrentActivity) == IN_INTERPLANETARY
-				&& !GSPtr->in_orbit 
-				&& OutOfBounds)
-		{
-			GSPtr->ip_location = displayToLocation (NewLoc, MAX_ZOOM_RADIUS);
-		}
-	}
-
 	/* VELOCITY_DESC velocity */
 	read_16  (fh, &GSPtr->velocity.TravelAngle);
 	read_16s (fh, &GSPtr->velocity.vector.width);
@@ -528,6 +510,8 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 			(!try_core && (read_8 (fp, &SummPtr->res_factor) != 1))
 		)
 		return FALSE;
+
+	IndependantResFactor = !try_core ? SummPtr->res_factor : 0;
 	
 	if (nameSize < SAVE_NAME_SIZE)
 	{

@@ -499,34 +499,6 @@ typedef enum
 	URQUAN_DRONE_SHIP, /* URQUAN_DRONE_CONVERSATION */ \
 	YEHAT_SHIP,        /* YEHAT_REBEL_CONVERSATION */ \
 	HUMAN_SHIP         /* INVALID_CONVERSATION */
- 
-#define RACE_SHIP_COST \
-		1600,  /* ARILOU_SHIP */ \
-		3000,  /* CHMMR_SHIP */ \
-		1100,  /* HUMAN_SHIP */ \
-		2300,  /* ORZ_SHIP */ \
-		2000,  /* PKUNK_SHIP */ \
-		 500,  /* SHOFIXTI_SHIP */ \
-		1800,  /* SPATHI_SHIP */ \
-		1600,  /* SUPOX_SHIP */ \
-		1000,  /* THRADDASH_SHIP */ \
-		2200,  /* UTWIG_SHIP */ \
-		1200,  /* VUX_SHIP */ \
-		2300,  /* YEHAT_SHIP */ \
-		3600,  /* MELNORME_SHIP */ \
-		1700,  /* DRUUGE_SHIP */ \
-		1000,  /* ILWRATH_SHIP */ \
-		2100,  /* MYCON_SHIP */ \
-		4400,  /* SLYLANDRO_SHIP */ \
-		 700,  /* UMGAH_SHIP */ \
-		3000,  /* URQUAN_SHIP */ \
-		 600,  /* ZOQFOTPIK_SHIP */ \
-		1300,  /* SYREEN_SHIP */ \
-		3000,  /* BLACK_URQUAN_SHIP */ \
-		1900,  /* ANDROSYNTH_SHIP*/ \
-		2800,  /* CHENJESU_SHIP */ \
-		1800,  /* MMRNMHRM_SHIP */ \
-		2300,  /* YEHAT_REBEL_SHIP */
 
 #define LOG_TO_IP(s) ((s) << 1)
 #define RACE_IP_SPEED \
@@ -756,97 +728,68 @@ typedef enum
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),  /* ZOQFOTPIK_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x66, 0x00, 0xCC), 0xFF),  /* SYREEN_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x20),  /* BLACK_URQUAN_SHIP */ \
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x1F, 0x00), 0x4D),  /* ANDROSYNTH_SHIP */ \
-		BUILD_COLOR (MAKE_RGB15_INIT (0x2A, 0x2A, 0x2A), 0x39),  /* CHENJESU_SHIP */ \
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x00), 0x4D),  /* MMRNMHRM_SHIP */ \
+		BUILD_COLOR (MAKE_RGB15_INIT (0x12, 0x10, 0x1F), 0x00),  /* ANDROSYNTH_SHIP */ \
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x15, 0x1C), 0x00),  /* CHENJESU_SHIP */ \
+		BUILD_COLOR (MAKE_RGB15_INIT (0x18, 0x18, 0x18), 0x00),  /* MMRNMHRM_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x07, 0x1F), 0x39),  /* YEHAT_REBEL_SHIP */
 
 // JMS: For showing the SC1-era situation in starmap
-#define RACE_PREWAR_STRENGTHS \
+#define WAR_ERA_STRENGTHS \
 		0,    /* ARILOU_SHIP */ \
-		500,  /* CHMMR_SHIP masquerading as Mmrnmhrm */ \
-		400,  /* HUMAN_SHIP */ \
+		0,	  /* CHMMR_SHIP */ \
+		460,  /* HUMAN_SHIP */ \
 		0,    /* ORZ_SHIP */ \
-		642,  /* PKUNK_SHIP, should be marked 'Unknown' */ \
-		400,  /* SHOFIXTI_SHIP */ \
-		1003, /* SPATHI_SHIP */ \
+		350,  /* PKUNK_SHIP, should be marked 'Unknown' */ \
+		329,  /* SHOFIXTI_SHIP */ \
+		1007, /* SPATHI_SHIP */ \
 		0,	  /* SUPOX_SHIP */ \
-		835,  /* THRADDASH_SHIP, should be marked 'Unknown' */ \
-		0,    /* UTWIG_SHIP masquerading as Chenjesu */ \
-		700,  /* VUX_SHIP */ \
-		1100, /* YEHAT_SHIP */ \
+		723,  /* THRADDASH_SHIP, should be marked 'Unknown' */ \
+		0,    /* UTWIG_SHIP */ \
+		572,  /* VUX_SHIP */ \
+		1029, /* YEHAT_SHIP */ \
 		0,	  /* MELNORME_SHIP */ \
-		800,  /* DRUUGE_SHIP, should be marked 'Unknown' */ \
-		500,  /* ILWRATH_SHIP */ \
-		650,  /* MYCON_SHIP */ \
-		750,  /* SLYLANDRO_SHIP masquerading as Chenjesu */ \
-		633,  /* UMGAH_SHIP */ \
+		745,  /* DRUUGE_SHIP, should be marked 'Unknown' */ \
+		470 ,  /* ILWRATH_SHIP */ \
+		591,  /* MYCON_SHIP */ \
+		0,    /* SLYLANDRO_SHIP */ \
+		506,  /* UMGAH_SHIP */ \
 		0,    /* URQUAN_SHIP */ \
 		0,	  /* ZOQFOTPIK_SHIP */ \
-		450,  /* SYREEN_SHIP masquareding as Androsynth */ \
+		0,	  /* SYREEN_SHIP */ \
 		0,	  /* BLACK_URQUAN_SHIP */ \
-		0,	  /* ANDROSYNTH_SHIP */ \
-		0,	  /* CHENJESU_SHIP */ \
-		0,	  /* MMRNMHRM_SHIP */ \
+		504,  /* ANDROSYNTH_SHIP */ \
+		657,  /* CHENJESU_SHIP */ \
+		482,  /* MMRNMHRM_SHIP */ \
 		0,	  /* YEHAT_REBEL_SHIP */
-		
+
 // JMS: For showing the SC1-era situation in starmap
-#define RACE_PREWAR_LOCATIONS \
+#define WAR_ERA_LOCATIONS \
 		{0,0},		 /* ARILOU_SHIP */ \
-		{742,2968},	 /* CHMMR_SHIP masquerading as Mmrnmhrm */ \
-		{1752,1450}, /* HUMAN_SHIP */ \
+		{0,0},		 /* CHMMR_SHIP */ \
+		{1806,1476}, /* HUMAN_SHIP */ \
 		{0,0 },		 /* ORZ_SHIP */ \
-		{502,401},   /* PKUNK_SHIP, should be marked 'Unknown' */ \
-		{2908,269},	 /* SHOFIXTI_SHIP */ \
-		{2549,3600}, /* SPATHI_SHIP */ \
+		{577,463},   /* PKUNK_SHIP, should be marked 'Unknown' */ \
+		{2852,242},	 /* SHOFIXTI_SHIP */ \
+		{2416,3687}, /* SPATHI_SHIP */ \
 		{0,0},		 /* SUPOX_SHIP */ \
-		{2535,8358}, /* THRADDASH_SHIP, should be marked 'Unknown' */ \
-		{0,0},		 /* UTWIG_SHIP masquerading as Chenjesu */ \
-		{4333,1687}, /* VUX_SHIP */ \
-		{4923,294},  /* YEHAT_SHIP */ \
+		{2808,8522}, /* THRADDASH_SHIP, should be marked 'Unknown' */ \
+		{0,0},		 /* UTWIG_SHIP */ \
+		{4333,1520}, /* VUX_SHIP */ \
+		{4969,75},  /* YEHAT_SHIP */ \
 		{0,0},		 /* MELNORME_SHIP */ \
-		{9469,2806}, /* DRUUGE_SHIP, should be marked 'Unknown' */ \
-		{229,3666},  /* ILWRATH_SHIP */ \
-		{6392,2200}, /* MYCON_SHIP */ \
-		{0742,2268}, /* SLYLANDRO_SHIP masquerading as Chenjesu */ \
-		{1978,5968}, /* UMGAH_SHIP */ \
+		{9421,2754}, /* DRUUGE_SHIP, should be marked 'Unknown' */ \
+		{0,3589},    /* ILWRATH_SHIP */ \
+		{6278,2399}, /* MYCON_SHIP */ \
+		{0,0},		 /* SLYLANDRO_SHIP */ \
+		{1860,6099}, /* UMGAH_SHIP */ \
 		{0,0},		 /* URQUAN_SHIP */ \
 		{0,0},		 /* ZOQFOTPIK_SHIP */ \
-		{3587,2566}, /* SYREEN_SHIP masquerading as Androsynth */ \
+		{0,0},		 /* SYREEN_SHIP */ \
 		{0,0},		 /* BLACK_URQUAN_SHIP */ \
-		{0,0},		 /* ANDROSYNTH_SHIP */ \
-		{0,0},		 /* CHENJESU_SHIP */ \
-		{0,0},		 /* MMRNMHRM_SHIP */ \
+		{3676,2619}, /* ANDROSYNTH_SHIP */ \
+		{701,2137}, /* CHENJESU_SHIP */ \
+		{672,2930},	 /* MMRNMHRM_SHIP */ \
 		{0,0},		 /* YEHAT_REBEL_SHIP */
-		
-// JMS: For showing the SC1-era situation in starmap
-#define RACE_PREWAR_NAME_UNKNOWN \
-		FALSE,  /* ARILOU_SHIP */ \
-		FALSE,  /* CHMMR_SHIP masquerading as Mmrnmhrm */ \
-		FALSE,  /* HUMAN_SHIP */ \
-		FALSE,  /* ORZ_SHIP */ \
-		TRUE,   /* PKUNK_SHIP, should be marked 'Unknown' */ \
-		FALSE,  /* SHOFIXTI_SHIP */ \
-		FALSE,  /* SPATHI_SHIP */ \
-		FALSE,	/* SUPOX_SHIP */ \
-		TRUE,   /* THRADDASH_SHIP, should be marked 'Unknown' */ \
-		FALSE,  /* UTWIG_SHIP */ \
-		FALSE,  /* VUX_SHIP */ \
-		FALSE,  /* YEHAT_SHIP */ \
-		FALSE,	/* MELNORME_SHIP */ \
-		TRUE,   /* DRUUGE_SHIP, should be marked 'Unknown' */ \
-		FALSE,  /* ILWRATH_SHIP */ \
-		FALSE,  /* MYCON_SHIP */ \
-		FALSE,	/* SLYLANDRO_SHIP masquerading as Chenjesu */ \
-		FALSE,  /* UMGAH_SHIP */ \
-		FALSE,  /* URQUAN_SHIP */ \
-		FALSE,	/* ZOQFOTPIK_SHIP */ \
-		FALSE,  /* SYREEN_SHIP masquareding as Androsynth */ \
-		FALSE,	/* BLACK_URQUAN_SHIP */ \
-		FALSE,	/* ANDROSYNTH_SHIP */ \
-		FALSE,	/* CHENJESU_SHIP */ \
-		FALSE,	/* MMRNMHRM_SHIP */ \
-		FALSE,	/* YEHAT_REBEL_SHIP */
 
 #if defined(__cplusplus)
 }

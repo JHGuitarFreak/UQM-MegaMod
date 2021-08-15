@@ -138,6 +138,7 @@ typedef struct SEQUENCE SEQUENCE;
 extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
 extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
+extern void ShutYourMouth (void);
 
 #if defined(__cplusplus)
 }

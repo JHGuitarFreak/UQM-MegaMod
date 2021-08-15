@@ -93,7 +93,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
 			StarConFont = LoadFont (STARCON_FONT_FB);
-			StarConLgFont = LoadFont (STARCONLG_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
@@ -102,7 +101,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
 			StarConFont = LoadFont (STARCON_FONT_HD);
-			StarConLgFont = LoadFont (STARCONLG_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));
@@ -209,7 +207,7 @@ DoRestart (MENU_STATE *pMS)
 	}
 
 	if (pMS->Initialized)
-		Flash_process(pMS->flashContext);
+		Flash_process (pMS->flashContext);
 
 	if (!pMS->Initialized)
 	{
@@ -257,7 +255,7 @@ DoRestart (MENU_STATE *pMS)
 				break;
 			case START_NEW_GAME:
 				if (optCustomSeed == 404) {
-					SetFlashRect (NULL);
+					SetFlashRect (NULL, FALSE);
 					DoPopupWindow ("Error 404: Universe Not Found");
 					// Got to restart -message
 					SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
@@ -565,10 +563,12 @@ StartGame (void)
 		extern STAR_DESC starmap_array[];
 		extern const BYTE element_array[];
 		extern const PlanetFrame planet_array[];
+		extern POINT constell_array[];
 
 		star_array = starmap_array;
 		Elements = element_array;
 		PlanData = planet_array;
+		constel_array = constell_array;
 	}
 
 	PlayerControl[0] = HUMAN_CONTROL | STANDARD_RATING;

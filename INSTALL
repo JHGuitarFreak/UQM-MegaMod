@@ -66,6 +66,50 @@ created, and should be runnable out of this directory. To produce a
 distributable or installable package that runs on any system, more
 work is needed.
 
+INSTALLING THE CONTENT
+----------------------
+
+Once the build is complete you'll need to download the content files,
+if you have not done so already, and place them in your content directory.
+
+This could be in the root folder where the
+MegaMod was compiled:
+
+  UQM-MegaMod/content
+
+Or if you're compiling within Linux it could be in the default location used 
+by the build script when ran with the "install" command
+
+  /usr/share/uqm-megamod/content
+
+--MAJOR RELEASES
+
+For major releases all the content and addons can be found at the
+main website:
+  
+  https://megamod.serosis.net/Releases
+
+The base content package, mm-0.8.X-content.uqm, goes into a subfolder
+named "packages" inside the content directory:
+
+  /content/packages/mm-0.8.X-content.uqm
+
+The addon content, mm-0.8.X-hd.uqm for example, goes into a subfolder
+named "addons" inside the content directory:
+
+  /content/addons/mm-0.8.X-hd.uqm
+
+--LATEST GIT REPOSITORY
+
+When building straight from the repository it is best 
+that you download or clone the UQM-MegaMod-Content repository:
+
+  https://github.com/Serosis/UQM-MegaMod-Content
+
+When downloading or cloning the content repo make sure to remove
+the addons you do not want to load into the MegaMod.
+
+
 BUILDING AN INSTALLABLE PACKAGE
 -------------------------------
 

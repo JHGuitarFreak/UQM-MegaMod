@@ -1,15 +1,15 @@
 # The Ur-Quan Masters MegaMod
-A fork of The Ur-Quan Masters that continues the HD mod with a veritable smorgasbord of extra features.
+A fork of The Ur-Quan Masters that remasters the HD mod with a veritable smorgasbord of extra features and options.
 
 ## Changes from the original
 
-A full list of changes and features can be found on the [Main site](http://megamod.serosis.net/Features).
+A full list of changes and features for the current release can be found on the [Main site](http://megamod.serosis.net/Features).
 
-And the current changelog can be found in the repository: [Changelog](https://github.com/Serosis/UQM-MegaMod/blob/master/MegaMod%20Changelog.txt)
+And the full WIP changelog can be found in the root of this repository: [Changelog](https://github.com/Serosis/UQM-MegaMod/blob/master/MegaMod%20Changelog.txt)
 
 ## Motivation
 
-This project exists out of my love for Star Control II and The Ur-Quan Masters project. Fiddling with the code as a hobby to try and expand my skill as a programmer.
+This project exists out of my love for Star Control II and The Ur-Quan Masters project. Fiddling with the code and assets as a hobby to try and expand my skill as a programmer .
 
 ## Windows Installation
 
@@ -54,7 +54,8 @@ You'll have to gather all of the necessary dependencies and hope for the best.
 #### Tips
 
 For all platforms when building from commandline you can use the command `-j#` to invoke multi-threaded performance to dramaticly speed up build time.  
-Example: If you're running on a Ryzen 7 2700x you can use the command like so `./build.sh -j16 uqm` to take advantage of all your threads.
+Where `#` denotes how many threads you want the process to be locked to and plain `-j` uses all threads
+Example: If you're running on a Ryzen 7 2700x you can use the command like so `./build.sh uqm -j8` to take advantage of eight threads or `./build.sh uqm -j` to take advanatage of all 16 threads
 
 ## Fixes
 
@@ -77,12 +78,22 @@ The new controller layout option only works if you *don't* use DS4Windows.
 
 Have a lovely day!
 
+## Mod Compatibility
+MegaMod is not compatible with any other mods nor are they compatible with MegaMod.
+MegaMod is completely independant from Core UQM, HD-Mod, HD-Remix, Crazy Mod, Balance Mod, Extended, or any other mods.
+As such MegaMod has its own packages and add-ons.
+
+For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.0.85-hd.uqm`.
+
+And as MegaMod is not compatible with any other mods, do not install it over any existing UQM installations.
+
+All MegaMod compatible add-ons and content can be found on the main website's Releases page: https://megamod.serosis.net/Releases
 
 ## Contributors
 
 Me (Serosis), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, and Kruzenshtern
 
-The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: https://soundcloud.com/itamar-levy-1/star-control-hyperdrive-remix, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music.php.
+The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: http://star-control.com/fan/music/Various/saibuster-hyprespace.mp3, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music/Rush/HSpace%20Rush%20MIX.mp3
 
 And the default Super Melee menu music is by Flashy of Infinitum.
 

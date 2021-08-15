@@ -33,7 +33,7 @@ extern "C" {
 #define DEVICE_STRING_COUNT      29
 #define CARGO_STRING_COUNT       10
 #define ELEMENTS_STRING_COUNT   133
-#define SCAN_STRING_COUNT        56
+#define SCAN_STRING_COUNT        66
 #define STAR_NUMBER_COUNT        14
 #define PLANET_NUMBER_COUNT      43
 #define MONTHS_STRING_COUNT      12
@@ -41,7 +41,7 @@ extern "C" {
 #define STARBASE_STRING_COUNT     5
 #define ENCOUNTER_STRING_COUNT    8
 #define NAVIGATION_STRING_COUNT   6
-#define NAMING_STRING_COUNT       6
+#define NAMING_STRING_COUNT       7
 #define MELEE_STRING_COUNT        9
 #define SAVEGAME_STRING_COUNT     5
 #define OPTION_STRING_COUNT       5
@@ -86,7 +86,9 @@ enum {
 
 extern STRING GameStrings;
 
-
+extern void SetCursorRect (RECT *r, CONTEXT context);
+extern void FlushCursorRect (void);
+void SetCursorFlashBlock (BOOLEAN state);
 
 #if defined(__cplusplus)
 }

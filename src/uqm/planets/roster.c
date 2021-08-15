@@ -71,12 +71,10 @@ drawSupportShip (ROSTER_STATE *rosterState, bool filled, bool saveFrame)
 	if (!rosterState->curShipFrame)
 		return;
 
-	s.origin.x = RES_STAT_SCALE(rosterState->curShipPt.x)
-		+ (rosterState->curShipPt.x >= ship_pos[1].x ? IF_HD(5) : IF_HD(-2)); // JMS_GFX
-	s.origin.y = RES_STAT_SCALE(rosterState->curShipPt.y) + IF_HD(10);
+	s.origin.x = RES_SCALE(rosterState->curShipPt.x);
+	s.origin.y = RES_SCALE(rosterState->curShipPt.y);
 	s.frame = rosterState->curShipFrame;
-	
-	// JMS: 
+
 	if (saveFrame) {
 		savedShipFrame_r.corner.x = s.origin.x;
 		savedShipFrame_r.corner.y = s.origin.y;
@@ -183,7 +181,7 @@ flashSupportShipCrew (void)
 
 	SetContext (StatusContext);
 	GetStatusMessageRect (&r);
-	SetFlashRect (&r);
+	SetFlashRect (&r, FALSE);
 }
 
 static BOOLEAN
@@ -269,8 +267,8 @@ DoModifyRoster (MENU_STATE *pMS)
 	// Left or right produces the same effect because there are 2 columns
 	horiz = PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_RIGHT];
-	pgup = PulsedInputState.menu[KEY_MENU_PAGE_UP];
-	pgdn = PulsedInputState.menu[KEY_MENU_PAGE_DOWN];
+	pgup = PulsedInputState.menu[KEY_MENU_ZOOM_IN];
+	pgdn = PulsedInputState.menu[KEY_MENU_ZOOM_OUT];
 
 	if (cancel && !rosterState->modifyingCrew)
 	{
@@ -281,7 +279,7 @@ DoModifyRoster (MENU_STATE *pMS)
 		rosterState->modifyingCrew ^= true;
 		if (!rosterState->modifyingCrew)
 		{
-			SetFlashRect (NULL);
+			SetFlashRect (NULL, FALSE);
 			SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGE, MENU_SOUND_SELECT);
 		}
 		else
@@ -294,27 +292,28 @@ DoModifyRoster (MENU_STATE *pMS)
 	}
 	else if (rosterState->modifyingCrew)
 	{
-		SIZE delta = 0;
+		COUNT loop, DoLoop = 0;
 		BOOLEAN failed = FALSE;
 
 		if (up || pgup)
 		{
 			if (GLOBAL_SIS (CrewEnlisted))
-				delta = pgup ? 10 : 1;
+				DoLoop = pgup ? 10 : 1;
 			else
 				failed = TRUE;
 		}
 		else if (down || pgdn)
 		{
 			if (GLOBAL_SIS (CrewEnlisted) < GetCrewPodCapacity ())
-				delta = pgdn ? -10 : -1;
+				DoLoop = pgdn ? 10 : 1;
 			else
 				failed = TRUE;
 		}
 		
-		if (delta != 0)
+		if (DoLoop != 0)
 		{
-			failed = !DeltaSupportCrew (rosterState, delta);
+			for (loop = 0; loop < DoLoop; loop++)
+				failed = !DeltaSupportCrew (rosterState, (down || pgdn) ? -1 : 1);
 		}
 
 		if (failed)
@@ -399,8 +398,6 @@ DoModifyRoster (MENU_STATE *pMS)
 		UnbatchGraphics ();
 	}
 
-	SleepThread (ONE_SECOND / 30);
-
 	return TRUE;
 }
 
@@ -453,6 +450,9 @@ RosterMenu (void)
 	// the red junk from around it after rostering.
 	if (IS_HD)
 		drawSupportShip (&RosterState, TRUE, TRUE);
+
+	if (optWhichMenu == OPT_PC)
+		DrawMenuStateStrings (PM_ALT_CARGO, 2);
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 

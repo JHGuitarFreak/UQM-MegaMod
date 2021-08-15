@@ -770,7 +770,7 @@ cycle_ion_trail (ELEMENT *ElementPtr)
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2e),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x00, 0x00), 0x2f),
 	};
-	const size_t colorTabCount = sizeof colorTab / sizeof colorTab[0];
+	const size_t colorTabCount = ARRAY_SIZE (colorTab);
 			
 	assert (!(ElementPtr->state_flags & PLAYER_SHIP));
 
@@ -819,7 +819,7 @@ spawn_ion_trail (ELEMENT *ElementPtr, SIZE x_offset, SIZE y_offset)
 				// 'cycle_ion_trail', it is given new life a number of
 				// times, by setting life_span to thrust_wait.
 
-		// JMS_GFX
+		
 		if (!IS_HD) {
 			SetPrimType (&DisplayArray[IonElementPtr->PrimIndex], POINT_PRIM);
 			IonElementPtr->current.image.frame = DecFrameIndex (stars_in_space);
@@ -916,7 +916,7 @@ ship_transition (ELEMENT *ElementPtr)
 		}
 		else if ((hShipImage = AllocElement ()))
 		{
-#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(40)) // JMS_GFX
+#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(40)) 
 #define TRANSITION_LIFE 1
 			COUNT angle;
 
@@ -1001,7 +1001,7 @@ flee_preprocess (ELEMENT *ElementPtr)
 			BUILD_COLOR (MAKE_RGB15_INIT (0x13, 0x00, 0x00), 0x2C),
 			BUILD_COLOR (MAKE_RGB15_INIT (0x0E, 0x00, 0x00), 0x2D),
 		};
-		const size_t colorTabCount = sizeof colorTab / sizeof colorTab[0];
+		const size_t colorTabCount = ARRAY_SIZE (colorTab);
 
 		ElementPtr->colorCycleIndex++;
 		if (ElementPtr->colorCycleIndex == colorTabCount)

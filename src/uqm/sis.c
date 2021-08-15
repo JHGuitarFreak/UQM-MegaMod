@@ -37,12 +37,15 @@
 #include "libs/alarm.h"
 #include "libs/log.h"
 #include "hyper.h"
+#include "gameopt.h"
 
 #include <stdio.h>
 
 static StatMsgMode curMsgMode = SMM_DEFAULT;
 
 static const UNICODE *describeWeapon (BYTE moduleType);
+
+BOOLEAN pcRectBool = FALSE;
 
 void
 RepairSISBorder (void)
@@ -55,23 +58,23 @@ RepairSISBorder (void)
 	BatchGraphics ();
 
 	// Left border
-	r.corner.x = SIS_ORG_X - 1;
-	r.corner.y = SIS_ORG_Y - 1;
-	r.extent.width = 1;
-	r.extent.height = SIS_SCREEN_HEIGHT + 2;
+	r.corner.x = SIS_ORG_X - RES_SCALE(1);
+	r.corner.y = SIS_ORG_Y - RES_SCALE(1);
+	r.extent.width = RES_SCALE(1);
+	r.extent.height = SIS_SCREEN_HEIGHT + RES_SCALE(2);
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 	DrawFilledRectangle (&r);
 
 	// Right border
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
-	r.corner.x += (SIS_SCREEN_WIDTH + 2) - 1;
+	r.corner.x += (SIS_SCREEN_WIDTH + RES_SCALE(2)) - RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Bottom border
-	r.corner.x = SIS_ORG_X - 1;
-	r.corner.y += (SIS_SCREEN_HEIGHT + 2) - 1;
-	r.extent.width = SIS_SCREEN_WIDTH + 2;
-	r.extent.height = 1;
+	r.corner.x = SIS_ORG_X - RES_SCALE(1);
+	r.corner.y += (SIS_SCREEN_HEIGHT + RES_SCALE(2)) - RES_SCALE(1);
+	r.extent.width = SIS_SCREEN_WIDTH + RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	DrawBorder(9, FALSE);
@@ -92,8 +95,8 @@ ClearSISRect (BYTE ClearFlags)
 	OldColor = SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 
-	r.corner.x = 2;
-	r.extent.width = STATUS_WIDTH - 4;
+	r.corner.x = RES_SCALE(2);
+	r.extent.width = STATUS_WIDTH - RES_SCALE(4);
 
 	BatchGraphics ();
 	if (ClearFlags & DRAW_SIS_DISPLAY)
@@ -105,12 +108,12 @@ ClearSISRect (BYTE ClearFlags)
 	{
 		DrawMenuStateStrings ((BYTE)~0, 1);
 #ifdef NEVER
-		r.corner.x = RADAR_X - 1;
-		r.corner.y = RADAR_Y - 1;
-		r.extent.width = RADAR_WIDTH + 2;
-		r.extent.height = RADAR_HEIGHT + 2;
+		r.corner.x = RADAR_X - RES_SCALE(1);
+		r.corner.y = RADAR_Y - RES_SCALE(1);
+		r.extent.width = RADAR_WIDTH + RES_SCALE(2);
+		r.extent.height = RADAR_HEIGHT + RES_SCALE(2);
 
-		DrawStarConBox (&r, 1,
+		DrawStarConBox (&r, RES_SCALE(1);,
 				BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
 				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F),
 				TRUE, BUILD_COLOR (MAKE_RGB15 (0x00, 0x0E, 0x00), 0x6C));
@@ -132,20 +135,23 @@ DrawSISTitle (UNICODE *pStr)
 	CONTEXT OldContext;
 	RECT r;
 
-	t.baseline.x = SIS_TITLE_WIDTH >> 1;
-	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2); // JMS_GFX
+	t.baseline.x = (SIS_TITLE_WIDTH >> 1) - IF_HD(1);
+	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 
 	OldContext = SetContext (OffScreenContext);
-	r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH + RES_SCALE(1); // JMS_GFX
+	r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH + RES_SCALE(1);
 	r.corner.y = SIS_ORG_Y - SIS_TITLE_HEIGHT;
 	r.extent.width = SIS_TITLE_WIDTH;
-	r.extent.height = SIS_TITLE_HEIGHT - RES_STAT_SCALE(1); // JMS_GFX
+	r.extent.height = SIS_TITLE_HEIGHT - RES_SCALE(1);
 	SetContextFGFrame (Screen);
 	SetContextClipRect (&r);
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
+
+	/*if (optWhichFonts != OPT_PC)
+		SetContextFont (TinyFontBold);*/
 
 	BatchGraphics ();
 
@@ -179,12 +185,14 @@ DrawHyperCoords (POINT universe)
 }
 
 void
-DrawDiffSeed(SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad) {
+DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
+{
 	UNICODE buf[100];
 	char diffSTR[4][7] = {"Normal", "Easy", "Hard"};
 	char TempDiff[11];
 
-	switch (difficulty) {
+	switch (difficulty)
+	{
 		case EASY:
 			strncpy(TempDiff, diffSTR[1], 11);
 			break;
@@ -196,19 +204,22 @@ DrawDiffSeed(SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad) {
 			strncpy(TempDiff, diffSTR[0], 11);
 	}
 
-	if (seed) {
-		memset(&buf[0], 0, sizeof(buf));
-		snprintf(buf, sizeof buf, "Difficulty: %s%s%s", TempDiff, (extended ? " | Extended" : ""), (nomad ? " | Nomad" : ""));
+	if (seed)
+	{
+		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof buf, "Difficulty: %s%s%s", TempDiff, (extended ? " | Extended" : ""), (nomad ? " | Nomad" : ""));
 		DrawSISMessage(buf);
 
-		memset(&buf[0], 0, sizeof(buf));
-		snprintf(buf, sizeof buf, RES_BOOL("%u", "Seed: %u"), seed);
-		DrawSISTitle(buf);
-	} else {
-		memset(&buf[0], 0, sizeof(buf));
-		snprintf(buf, sizeof buf, "");
-		DrawSISMessage(buf);
-		DrawSISTitle(buf);
+		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof buf, "%u", seed);
+		DrawSISTitle (buf);
+	}
+	else
+	{
+		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof buf, "");
+		DrawSISMessage (buf);
+		DrawSISTitle (buf);
 	}
 }
 
@@ -230,10 +241,10 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 
 	OldContext = SetContext (OffScreenContext);
 	// prepare the context
-	r.corner.x = SIS_ORG_X + 1;
+	r.corner.x = SIS_ORG_X + RES_SCALE(1);
 	r.corner.y = SIS_ORG_Y - SIS_MESSAGE_HEIGHT;
 	r.extent.width = SIS_MESSAGE_WIDTH;
-	r.extent.height = SIS_MESSAGE_HEIGHT - 1;
+	r.extent.height = SIS_MESSAGE_HEIGHT - RES_SCALE(1);
 	SetContextFGFrame (Screen);
 	SetContextClipRect (&r);
 	
@@ -261,14 +272,17 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 				}
 				else
 				{
-					POINT Log = MAKE_POINT(LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x)), LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y)));
+					POINT Log = MAKE_POINT(LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x)),
+							LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y)));
 
 					pStr = GAME_STRING (NAVIGATION_STRING_BASE + 1);
 							// "QuasiSpace"
 
 					if (GET_GAME_STATE (ARILOU_HOME_VISITS) && (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y))
+					{
 						utf8StringCopy(GLOBAL_SIS(PlanetName), sizeof(GLOBAL_SIS(PlanetName)), GAME_STRING(STAR_STRING_BASE + 148));
 							// "Falayalaralfali"
+					}
 				}
 				break;
 
@@ -280,20 +294,23 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	if (!(flags & DSME_MYCOLOR))
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
 
-	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2); // JMS_GFX
+	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2);
+	t.baseline.x = (SIS_MESSAGE_WIDTH >> 1) - IF_HD(1);
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
+
+	/*if (optWhichFonts != OPT_PC)
+		SetContextFont(TinyFontBold);*/
 
 	if (flags & DSME_CLEARFR)
-		SetFlashRect (NULL);
+		SetFlashRect (NULL, FALSE);
 
 	if (CurPos < 0 && ExPos < 0)
 	{	// normal state
 		ClearDrawable ();
 
-		DrawBorder(2, FALSE);
-		t.baseline.x = SIS_MESSAGE_WIDTH >> 1;
+		DrawBorder (2, FALSE);
 		t.align = ALIGN_CENTER;
 		font_DrawText (&t);
 	}
@@ -306,11 +323,11 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		BYTE char_deltas[128];
 		BYTE *pchar_deltas;
 
-		t.baseline.x = SIS_MESSAGE_WIDTH >> 1; // JMS_GFX
+		t.baseline.x = RES_SCALE(3);
 		t.align = ALIGN_LEFT;
 
 		TextRect (&t, &text_r, char_deltas);
-		if (text_r.extent.width + t.baseline.x + 2 >= r.extent.width)
+		if (text_r.extent.width + t.baseline.x + RES_SCALE(2) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			// disallow the change
@@ -322,40 +339,55 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 
 		ClearDrawable ();
 		DrawBorder(2, FALSE);
+		SetCursorFlashBlock (FALSE);
+
 
 		if (CurPos >= 0 && CurPos <= t.CharCount)
 		{	// calc and draw the cursor
 			RECT cur_r = text_r;
 
+			cur_r.corner.y = 0;
+			cur_r.extent.height = r.extent.height;
+
 			for (i = CurPos, pchar_deltas = char_deltas; i > 0; --i)
 				cur_r.corner.x += (SIZE)*pchar_deltas++;
 			if (CurPos < t.CharCount) /* end of line */
-				--cur_r.corner.x;
+				cur_r.corner.x -= RES_SCALE(1);
 			
 			if (flags & DSME_BLOCKCUR)
 			{	// Use block cursor for keyboardless systems
+				SetCursorFlashBlock (TRUE);
 				if (CurPos == t.CharCount)
 				{	// cursor at end-line -- use insertion point
-					cur_r.extent.width = 1;
+					cur_r.extent.width = RES_SCALE(1);
+					SetCursorFlashBlock (FALSE);
 				}
 				else if (CurPos + 1 == t.CharCount)
 				{	// extra pixel for last char margin
-					cur_r.extent.width = (SIZE)*pchar_deltas + 2;
+					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 				}
 				else
 				{	// normal mid-line char
-					cur_r.extent.width = (SIZE)*pchar_deltas + 1;
+					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
+				}
+
+				if (cur_r.extent.width >= 200)
+				{
+					SetCursorFlashBlock (FALSE);
+					cur_r.extent.width = RES_SCALE(1);
+				}
+				else
+				{
+					SetContextForeGroundColor (SIS_MESSAGE_CURSOR_COLOR);
+					DrawFilledRectangle (&cur_r);
 				}
 			}
 			else
 			{	// Insertion point cursor
-				cur_r.extent.width = 1;
+				cur_r.extent.width = RES_SCALE(1);
 			}
 			
-			cur_r.corner.y = 0;
-			cur_r.extent.height = r.extent.height;
-			SetContextForeGroundColor (SIS_MESSAGE_CURSOR_COLOR);
-			DrawFilledRectangle (&cur_r);
+			SetCursorRect (&cur_r, OffScreenContext);
 		}
 
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
@@ -383,7 +415,6 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	{
 		r.corner.x = 0;
 		r.corner.y = 0;
-		SetFlashRect (&r);
 	}
 
 	UnbatchGraphics ();
@@ -424,8 +455,8 @@ DateToString (char *buf, size_t bufLen,
 void
 GetStatusMessageRect (RECT *r)
 {
-	r->corner.x = RES_STAT_SCALE(2) - IF_HD(2); // JMS_GFX
-	r->corner.y = RES_STAT_SCALE(130) + IF_HD(18); // JMS_GFX
+	r->corner.x = RES_SCALE(2);
+	r->corner.y = RES_SCALE(130);
 	r->extent.width = STATUS_MESSAGE_WIDTH;
 	r->extent.height = STATUS_MESSAGE_HEIGHT;
 }
@@ -467,13 +498,16 @@ DrawStatusMessage (const UNICODE *pStr)
 		}
 		else if (curMsgMode == SMM_RES_UNITS)
 		{
-			if (GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2 || optInfiniteRU) {
+			if (GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2 || optInfiniteRU)
+			{
 				snprintf (buf, sizeof buf, "%s %s",
 						(optWhichMenu == OPT_PC) ?
 							GAME_STRING (STATUS_STRING_BASE + 2)
 							: STR_INFINITY_SIGN, // "UNLIMITED"
 						GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
-			} else {
+			}
+			else
+			{
 				snprintf (buf, sizeof buf, "%u %s", GLOBAL_SIS (ResUnits),
 						GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 			}
@@ -488,8 +522,8 @@ DrawStatusMessage (const UNICODE *pStr)
 		pStr = buf;
 	}
 
-	t.baseline.x = STATUS_MESSAGE_WIDTH >> 1;
-	t.baseline.y = STATUS_MESSAGE_HEIGHT - RES_BOOL(1, 5); // JMS_GFX
+	t.baseline.x = (STATUS_MESSAGE_WIDTH >> 1) + IF_HD(1);
+	t.baseline.y = STATUS_MESSAGE_HEIGHT - RES_SCALE(1);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
@@ -502,7 +536,11 @@ DrawStatusMessage (const UNICODE *pStr)
 		SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	}
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
+
+	/*if (optWhichFonts != OPT_PC)
+		SetContextFont(TinyFontBold);*/
+
 	SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	font_DrawText (&t);
 	UnbatchGraphics ();
@@ -530,20 +568,24 @@ DrawCaptainsName (bool NewGame)
 	Color OldColor;
 
 	OldContext = SetContext (StatusContext);
-	OldFont = SetContextFont (TinyFontSS);
+	OldFont = SetContextFont (TinyFont);
+
+	/*if (optWhichFonts != OPT_PC)
+		OldFont = SetContextFont (TinyFontBold);*/
+
 	OldColor = SetContextForeGroundColor (CAPTAIN_NAME_BACKGROUND_COLOR);
 
-	r.corner.x = RES_STAT_SCALE(3) - IF_HD(5);		// JMS_GFX
-	r.corner.y = RES_BOOL(10, 32);						// JMS_GFX
-	r.extent.width = SHIP_NAME_WIDTH - RES_BOOL(2,0);		// JMS_GFX
-	r.extent.height = SHIP_NAME_HEIGHT + RESOLUTION_FACTOR;	// JMS_GFX
+	r.corner.x = RES_SCALE(2 + 1);
+	r.corner.y = RES_SCALE(10);
+	r.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
+	r.extent.height = SHIP_NAME_HEIGHT;
 	DrawFilledRectangle (&r);
 
 	if(!NewGame)
 		DrawBorder(6, FALSE);
 
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_BOOL(1, -1);
-	t.baseline.y = r.corner.y + RES_BOOL(6, 16); // JMS_GFX
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_TRP(1);
+	t.baseline.y = r.corner.y + RES_SCALE(6);
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (CommanderName);
 	t.CharCount = (COUNT)~0;
@@ -571,10 +613,10 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		OldContext = SetContext (StatusContext);
 		OldFont = SetContextFont (StarConFont);
 
-		r.corner.x = RES_BOOL(2, 5);		// JMS_GFX
-		r.corner.y = RES_BOOL(20, 63);	// JMS_GFX
-		r.extent.width = SHIP_NAME_WIDTH;	// JMS_GFX
-		r.extent.height = SHIP_NAME_HEIGHT + IF_HD(2);
+		r.corner.x = RES_SCALE(2);
+		r.corner.y = RES_SCALE(20);
+		r.extent.width = SHIP_NAME_WIDTH;
+		r.extent.height = SHIP_NAME_HEIGHT;
 
 		t.pStr = GLOBAL_SIS (ShipName);
 	}
@@ -584,9 +626,15 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		OldFont = SetContextFont (MicroFont);
 
 		r.corner.x = 0;
-		r.corner.y = 1;
-		r.extent.width = SIS_SCREEN_WIDTH; // JMS_GFX
-		r.extent.height = SHIP_NAME_HEIGHT + IF_HD(18);// JMS_GFX
+		r.corner.y = RES_SCALE(1);
+		r.extent.width = SIS_SCREEN_WIDTH;
+		r.extent.height = SHIP_NAME_HEIGHT;
+
+		if (IS_HD)
+		{
+			r.extent.width = SIS_SCREEN_WIDTH * 0.75;
+			r.corner.x = (SIS_SCREEN_WIDTH - r.extent.width) / 2;
+		}
 
 		t.pStr = buf;
 		snprintf (buf, sizeof buf, "%s %s",
@@ -595,30 +643,29 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		strupr (buf);
 
 		// JMS: Handling the a-umlaut and o-umlaut characters
-        {
-            unsigned char *ptr;
-            ptr = (unsigned char*)buf;
-            while (*ptr) {
-                if (*ptr == 0xc3) {
-                    ptr++;
-                    if (*ptr == 0xb6 || *ptr == 0xa4) {
-                        *ptr += 'A' - 'a';
-                    }
-                }
-                ptr++;
-            }
-        }
+		{
+			unsigned char *ptr;
+			ptr = (unsigned char*)buf;
+			while (*ptr) {
+				if (*ptr == 0xc3) {
+					ptr++;
+					if (*ptr == 0xb6 || *ptr == 0xa4) {
+						*ptr += 'A' - 'a';
+					}
+				}
+				ptr++;
+			}
+		}
 	}
 	OldFontEffect = SetContextFontEffect (NULL);
 	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	if(!NewGame)
+	if (!NewGame)
 		DrawBorder(12, FALSE);
 
-	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT -
-					(InStatusArea ? RES_DBL(1) : IF_HD(-25))); // JMS_GFX
+	t.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(InStatusArea + 1);
+	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE(InStatusArea));
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (optWhichFonts == OPT_PC)
@@ -692,15 +739,15 @@ DrawFlagshipStats (void)
 	/* END collect stats */
 
 	OldContext = SetContext (SpaceContext);
-	OldFont = SetContextFont (StarConLgFont);
+	OldFont = SetContextFont (StarConFont);
 	OldFontEffect = SetContextFontEffect (NULL);
 	GetContextFontLeading (&leading);
 
 	/* we need room to play.  full screen width, 4 lines tall */
 	r.corner.x = 0;
-	r.corner.y = SIS_SCREEN_HEIGHT - (4 * leading) - IF_HD(42); // JMS_GFX
+	r.corner.y = SIS_SCREEN_HEIGHT - (4 * leading);
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = (4 * leading) + IF_HD(60);// JMS_GFX
+	r.extent.height = (4 * leading);
 
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -709,9 +756,9 @@ DrawFlagshipStats (void)
 	   now that we've cleared out our playground, compensate for the
 	   fact that the leading is way more than is generally needed.
 	*/
-	leading -= RES_BOOL(3, -6);// JMS_GFX
-	t.baseline.x = SIS_SCREEN_WIDTH / 6 - IF_HD(16); //JMS_GFX
-	t.baseline.y = r.corner.y + leading + 3;
+	leading -= RES_SCALE(3);
+	t.baseline.x = RES_SCALE(ORIG_SIS_SCREEN_WIDTH / 6); //wild-assed guess, but it worked
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
 
@@ -730,7 +777,7 @@ DrawFlagshipStats (void)
 	font_DrawText (&t);
 
 	t.baseline.x += RES_SCALE(5) - IF_HD(3);
-	t.baseline.y = r.corner.y + leading + 3;
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 
@@ -738,20 +785,20 @@ DrawFlagshipStats (void)
 			describeWeapon (GLOBAL_SIS (ModuleSlots[15])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf,
-			"%-7.7s", describeWeapon (GLOBAL_SIS (ModuleSlots[14])));
+	snprintf (buf, sizeof buf, "%-7.7s",
+			describeWeapon (GLOBAL_SIS (ModuleSlots[14])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf,
-			"%-7.7s", describeWeapon (GLOBAL_SIS (ModuleSlots[13])));
+	snprintf (buf, sizeof buf, "%-7.7s",
+			describeWeapon (GLOBAL_SIS (ModuleSlots[13])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf,
-			"%-7.7s", describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
+	snprintf (buf, sizeof buf, "%-7.7s",
+			describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - RES_SCALE(25) + IF_HD(3); // JMS_GFX
-	t.baseline.y = r.corner.y + leading + 3;
+	t.baseline.x = r.extent.width - RES_SCALE(25);
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.align = ALIGN_RIGHT;
 
 	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 5));
@@ -768,8 +815,8 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 7); // "maximum fuel:"
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - RES_BOOL(2, 5); // JMS_GFX
-	t.baseline.y = r.corner.y + leading + 3;
+	t.baseline.x = r.extent.width - RES_SCALE(2);
+	t.baseline.y = r.corner.y + leading + RES_SCALE(3);
 	t.pStr = buf;
 
 	snprintf (buf, sizeof buf, "%4u", max_thrust * 4);
@@ -834,12 +881,12 @@ DrawLanders (void)
 	GetFrameRect (s.frame, &r);
 
 	i = GLOBAL_SIS (NumLanders);
-	r.corner.x = (STATUS_WIDTH >> 1) - r.corner.x + IF_HD(16);
-	s.origin.x = r.corner.x - (((r.extent.width * i) + (2 * (i - 1))) >> 1) + IF_HD(-16);
-	s.origin.y = RES_STAT_SCALE(29) + IF_HD(2); // JMS_GFX
+	r.corner.x = (STATUS_WIDTH >> 1) - r.corner.x;
+	s.origin.x = r.corner.x - (((r.extent.width * i) + (RES_SCALE(2) * (i - 1))) >> 1);
+	s.origin.y = RES_SCALE(29);
 
-	width = r.extent.width + 2;
-	r.extent.width = (r.extent.width * MAX_LANDERS) + (2 * (MAX_LANDERS - 1)) + RES_BOOL(2,-16); // JMS_GFX
+	width = r.extent.width + RES_SCALE(2);
+	r.extent.width = (r.extent.width * MAX_LANDERS) + (RES_SCALE(2) * (MAX_LANDERS - 1)) + RES_SCALE(2);
 	r.corner.x -= r.extent.width >> 1;
 	r.corner.y += s.origin.y;
 	SetContextForeGroundColor (BLACK_COLOR);
@@ -863,17 +910,17 @@ DrawStorageBays (BOOLEAN Refresh)
 
 	OldContext = SetContext (StatusContext);
 
-	r.extent.width  = RES_STAT_SCALE(2); // JMS_GFX
-	r.extent.height = RES_STAT_SCALE(4); // JMS_GFX
-	r.corner.y		= RES_STAT_SCALE(123) + IF_HD(23); // JMS_GFX
+	r.extent.width  = RES_SCALE(2);
+	r.extent.height = RES_SCALE(4);
+	r.corner.y		= RES_SCALE(123);
 	if (Refresh)
 	{
 		r.extent.width = NUM_MODULE_SLOTS * (r.extent.width + 1);
-		r.corner.x = (STATUS_WIDTH >> 1) - (r.extent.width >> 1) + IF_HD(2);
+		r.corner.x = (STATUS_WIDTH >> 1) - (r.extent.width >> 1);
 
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&r);
-		r.extent.width = RES_STAT_SCALE(2); // JMS_GFX
+		r.extent.width = RES_SCALE(2);
 	}
 
 	i = (BYTE)CountSISPieces (STORAGE_BAY);
@@ -881,40 +928,40 @@ DrawStorageBays (BOOLEAN Refresh)
 	{
 		COUNT j;
 
-		r.corner.x = (STATUS_WIDTH >> 1) - ((i * (r.extent.width + RES_STAT_SCALE(1))) >> 1) + IF_HD(2);
+		r.corner.x = (STATUS_WIDTH >> 1) - ((i * (r.extent.width + RES_SCALE(1))) >> 1);
 		SetContextForeGroundColor (STORAGE_BAY_FULL_COLOR);
 		for (j = GLOBAL_SIS (TotalElementMass);
 				j >= STORAGE_BAY_CAPACITY; j -= STORAGE_BAY_CAPACITY)
 		{
 			DrawFilledRectangle (&r);
-			r.corner.x += r.extent.width + RES_STAT_SCALE(1); // JMS_GFX;
+			r.corner.x += r.extent.width + RES_SCALE(1);;
 
 			--i;
 		}
 
-		r.extent.height = (RES_STAT_SCALE (4) * j + (STORAGE_BAY_CAPACITY - 1)) / STORAGE_BAY_CAPACITY;
+		r.extent.height = (RES_SCALE (4) * j + (STORAGE_BAY_CAPACITY - 1)) / STORAGE_BAY_CAPACITY;
 		if (r.extent.height)
 		{
-			r.corner.y += RES_STAT_SCALE (4) - r.extent.height;
+			r.corner.y += RES_SCALE (4) - r.extent.height;
 			DrawFilledRectangle (&r);
-			r.extent.height = RES_STAT_SCALE(4) - r.extent.height;
+			r.extent.height = RES_SCALE(4) - r.extent.height;
 			if (r.extent.height)
 			{
-				r.corner.y = RES_STAT_SCALE(123) + IF_HD(23);
+				r.corner.y = RES_SCALE(123);
 				SetContextForeGroundColor (STORAGE_BAY_EMPTY_COLOR);
 				DrawFilledRectangle (&r);
 			}
-			r.corner.x += r.extent.width + RES_STAT_SCALE(1);
+			r.corner.x += r.extent.width + RES_SCALE(1);
 
 			--i;
 		}
-		r.extent.height = RES_STAT_SCALE(4);
+		r.extent.height = RES_SCALE(4);
 
 		SetContextForeGroundColor (STORAGE_BAY_EMPTY_COLOR);
 		while (i--)
 		{
 			DrawFilledRectangle (&r);
-			r.corner.x += r.extent.width + RES_STAT_SCALE(1);
+			r.corner.x += r.extent.width + RES_SCALE(1);
 		}
 	}
 
@@ -924,10 +971,10 @@ DrawStorageBays (BOOLEAN Refresh)
 void
 GetGaugeRect (RECT *pRect, BOOLEAN IsCrewRect)
 {
-	pRect->extent.width = RES_STAT_SCALE(24); // JMS_GFX
-	pRect->corner.x = (STATUS_WIDTH >> 1) - (pRect->extent.width >> 1) + IF_HD(4);
-	pRect->extent.height = RES_STAT_SCALE(5); // JMS_GFX
-	pRect->corner.y = IsCrewRect ? RES_BOOL(117, 375) : RES_BOOL(38, 120); // JMS_GFX
+	pRect->extent.width = RES_SCALE(24);
+	pRect->corner.x = (STATUS_WIDTH >> 1) - (pRect->extent.width >> 1);
+	pRect->extent.height = RES_SCALE(5);
+	pRect->corner.y = IsCrewRect ? RES_SCALE(117) : RES_SCALE(38);
 }
 
 static void
@@ -937,18 +984,17 @@ DrawPC_SIS (void)
 	RECT r;
 
 	GetGaugeRect (&r, FALSE);
-	t.baseline.x = STATUS_WIDTH >> 1;
-	t.baseline.y = r.corner.y - RES_DBL(1);
+	t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3);
+	t.baseline.y = r.corner.y - RES_SCALE(1);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
 	SetContextForeGroundColor (BLACK_COLOR);
 
 	// Black rectangle behind "FUEL" text and fuel amount.
-	r.corner.y -= RES_STAT_SCALE(6); // JMS_GFX
-	r.corner.x -= RES_STAT_SCALE(1); // JMS_GFX
-	r.extent.width += RES_STAT_SCALE(2);
-	r.extent.height += IF_HD(2);
+	r.corner.y -= RES_SCALE(6);
+	r.corner.x -= RES_SCALE(1);
+	r.extent.width += RES_SCALE(2);
 	DrawFilledRectangle (&r);
 
 	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 1));
@@ -956,8 +1002,9 @@ DrawPC_SIS (void)
 	font_DrawText (&t);
 
 	// Black rectangle behind "CREW" text and crew amount.
-	r.corner.y += RES_STAT_SCALE(79) + IF_HD(20); // JMS_GFX
-	t.baseline.y += RES_STAT_SCALE(79) + IF_HD(19); // JMS_GFX
+	r.corner.y += RES_SCALE(79);
+	t.baseline.x -= IF_HD(2);
+	t.baseline.y += RES_SCALE(79);
 	DrawFilledRectangle (&r);
 
 	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 2));
@@ -966,10 +1013,10 @@ DrawPC_SIS (void)
 	SetContextFontEffect (NULL);
 
 	// Background of text "CAPTAIN".
-	r.corner.x = RES_SCALE(2 + 1); // JMS_GFX;
-	r.corner.y = RES_STAT_SCALE(3); // JMS_GFX
-	r.extent.width = RES_STAT_SCALE(58); // JMS_GFX
-	r.extent.height = RES_STAT_SCALE(7); // JMS_GFX
+	r.corner.x = RES_SCALE(2 + 1);
+	r.corner.y = RES_SCALE(3);
+	r.extent.width = RES_SCALE(58);
+	r.extent.height = RES_SCALE(7);
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
@@ -977,7 +1024,7 @@ DrawPC_SIS (void)
 
 	// Text "CAPTAIN".
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);
-	t.baseline.y = r.corner.y + RES_STAT_SCALE(6); // JMS_GFX
+	t.baseline.y = r.corner.y + RES_SCALE(6);
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 5); // "CAPTAIN"
 	font_DrawText (&t);
 }
@@ -988,7 +1035,7 @@ DrawThrusters (void)
 	STAMP s;
 	COUNT i;
 
-	s.origin.x = RES_STAT_SCALE(1); // JMS_GFX
+	s.origin.x = RES_SCALE(1);
 	s.origin.y = 0;
 	for (i = 0; i < NUM_DRIVE_SLOTS; ++i)
 	{
@@ -1001,7 +1048,7 @@ DrawThrusters (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_STAT_SCALE(3); // JMS_GFX
+		s.origin.y -= RES_SCALE(3);
 	}
 }
 
@@ -1011,7 +1058,7 @@ DrawTurningJets (void)
 	STAMP s;
 	COUNT i;
 
-	s.origin.x = RES_STAT_SCALE(1); // JMS_GFX
+	s.origin.x = RES_SCALE(1);
 	s.origin.y = 0;
 	for (i = 0; i < NUM_JET_SLOTS; ++i)
 	{
@@ -1024,7 +1071,7 @@ DrawTurningJets (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_STAT_SCALE(3); // JMS_GFX
+		s.origin.y -= RES_SCALE(3);
 	}
 }
 
@@ -1034,8 +1081,9 @@ DrawModules (void)
 	STAMP s;
 	COUNT i;
 
-	s.origin.x = RES_STAT_SCALE(1); // JMS_GFX // This properly centers the modules.
-	s.origin.y = 1;
+	// This properly centers the modules.
+	s.origin.x = RES_SCALE(1);
+	s.origin.y = RES_SCALE(1);
 	for (i = 0; i < NUM_MODULE_SLOTS; ++i)
 	{
 		BYTE which_piece = GLOBAL_SIS (ModuleSlots[i]);
@@ -1045,7 +1093,7 @@ DrawModules (void)
 			DrawStamp (&s);
 		}
 
-		s.origin.y -= RES_STAT_SCALE(3); // JMS_GFX
+		s.origin.y -= RES_SCALE(3);
 	}
 }
 
@@ -1070,10 +1118,9 @@ DrawSupportShips (void)
 		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
 
-		s.origin.x = RES_STAT_SCALE(pship_pos->x) 
-			+ ((pship_pos - ship_pos) % 2 ? IF_HD(5) : IF_HD(-2)); // JMS_GFX
-		s.origin.y = RES_STAT_SCALE(pship_pos->y) + IF_HD(10); // JMS_GFX
-		s.frame = SetAbsFrameIndex (StarShipPtr->icons, 2);
+		s.origin = MAKE_POINT (
+				RES_SCALE (pship_pos->x), RES_SCALE (pship_pos->y));
+		s.frame = SetAbsFrameIndex (StarShipPtr->icons, 0);
 		DrawStamp (&s);
 
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
@@ -1111,8 +1158,8 @@ DeltaSISGauges_crewDelta (SIZE crew_delta)
 
 		GetGaugeRect (&r, TRUE);
 		
-		t.baseline.x = STATUS_WIDTH >> 1;
-		t.baseline.y = r.corner.y + r.extent.height; // JMS_GFX
+		t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3);
+		t.baseline.y = r.corner.y + r.extent.height;
 		t.align = ALIGN_CENTER;
 		t.pStr = buf;
 		t.CharCount = (COUNT)~0;
@@ -1174,22 +1221,29 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 
 
 		GetGaugeRect (&r, FALSE);
+
+		if (optWholeFuel && optWhichFonts != OPT_PC)
+			SetContextFont (TinyFont);
 		
-		t.baseline.x = STATUS_WIDTH >> 1;
-		t.baseline.y = r.corner.y + r.extent.height; // JMS_GFX
+		t.baseline.x = (STATUS_WIDTH >> 1) + IF_HD(3 - (optWholeFuel * 2));
+		t.baseline.y = r.corner.y + r.extent.height;
 		t.align = ALIGN_CENTER;
 		t.pStr = buf;
 		t.CharCount = (COUNT)~0;
 
 		SetContextForeGroundColor (BLACK_COLOR);
-		if (optWholeFuel) {
-			r.corner.x -= RES_STAT_SCALE(1);
-			r.extent.width += RES_STAT_SCALE(2);
+		if (optWholeFuel)
+		{
+			r.corner.x -= RES_SCALE(1);
+			r.extent.width += RES_SCALE(2);
 		}
 		DrawFilledRectangle (&r);
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x13, 0x00, 0x00), 0x2C));
 		font_DrawText (&t);
+
+		/*if (optWholeFuel && optWhichFonts != OPT_PC)
+			SetContextFont(TinyFontBold);*/
 	}
 }
 	
@@ -1226,8 +1280,6 @@ void
 DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 {
 	CONTEXT OldContext;
-	Color OldColor;
-	RECT r;
 
 	if (crew_delta == 0 && fuel_delta == 0 && resunit_delta == 0)
 		return;
@@ -1235,24 +1287,22 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	OldContext = SetContext (StatusContext);
 
 	BatchGraphics ();
-	if (crew_delta == UNDEFINED_DELTA)
+	if (fuel_delta == UNDEFINED_DELTA)
 	{
 		STAMP s;
 		s.origin.x = 0;
 		s.origin.y = 0;
 
-		// JMS: These lines prevent the flagship status box from turning grey.
-		OldColor = SetContextForeGroundColor (BLACK_COLOR);
-		r.corner.y = 23;
-		r.corner.x = 2;
-		r.extent.width = STATUS_WIDTH - 4;
-		r.extent.height = 105;
-		DrawFilledRectangle (&r);
-
 		s.frame = FlagStatFrame;
+
+		if (optFlagshipColor == OPT_3DO)
+			s.frame = SetAbsFrameIndex (s.frame, 23);
+		else
+			s.frame = SetAbsFrameIndex (s.frame, 0);
+
 		DrawStamp (&s);
 
-		DrawBorder(1, FALSE);
+		DrawBorder (1, FALSE);
 
 		if (optWhichFonts == OPT_PC)
 			DrawPC_SIS();
@@ -1262,19 +1312,20 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		DrawModules ();
 
 		DrawSupportShips ();
-		// JMS: In conjunction with the JMS lines above.
-		SetContextForeGroundColor (OldColor);
 	}
 
-	SetContextFont (TinyFontSS);
+	SetContextFont (TinyFont);
+
+	/*if (optWhichFonts != OPT_PC)
+		SetContextFont (TinyFontBold);*/
 
 	DeltaSISGauges_crewDelta (crew_delta);
 	DeltaSISGauges_fuelDelta (fuel_delta);
 
-	if (crew_delta == UNDEFINED_DELTA)
+	if (fuel_delta == UNDEFINED_DELTA)
 	{
 		if(optWhichFonts == OPT_3DO)
-			DrawBorder(5, FALSE);
+			DrawBorder (5, FALSE);
 		DrawFlagshipName (TRUE, FALSE);
 		DrawCaptainsName (FALSE);
 		DrawLanders ();
@@ -1360,8 +1411,13 @@ GetCrewPodForCrewMember (COUNT crewNr, COUNT *slotNr, COUNT *seatNr)
 COUNT
 GetCPodCapacity (POINT *ppt)
 {
-	COUNT crewCount, slotNr, seatNr, rowNr, colNr;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET + IF_HD(1);  // JMS_GFX
+	COUNT crewCount;
+	COUNT slotNr;
+	COUNT seatNr;
+
+	COUNT rowNr;
+	COUNT colNr;
+	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
 				
 	static const Color crewRows[] = PC_CREW_COLOR_TABLE;
 
@@ -1380,9 +1436,9 @@ GetCPodCapacity (POINT *ppt)
 	else
 		SetContextForeGroundColor (THREEDO_CREW_COLOR);
 		
-	ppt->x = RES_SCALE(27) + (slotNr * ship_piece_offset_scaled) -
-				RES_SCALE(colNr * 2) + IF_HD(53); // JMS_GFX
-	ppt->y = RES_SCALE(34 - (rowNr * 2)) + IF_HD(20); // JMS_GFX
+	ppt->x = RES_SCALE(27) + (slotNr * ship_piece_offset_scaled)
+			- RES_SCALE(colNr * 2);
+	ppt->y = RES_SCALE(34 - rowNr * 2) + IF_HD(2);
 
 	return GetCrewPodCapacity ();
 }
@@ -1459,8 +1515,13 @@ GetStorageCellForMineralUnit (COUNT unitNr, COUNT *slotNr, COUNT *cellNr)
 COUNT
 GetSBayCapacity (POINT *ppt)
 {
-	COUNT massCount, slotNr, cellNr, rowNr, colNr;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET + IF_HD(1);  // JMS_GFX
+	COUNT massCount;
+	COUNT slotNr;
+	COUNT cellNr;
+
+	COUNT rowNr;
+	COUNT colNr;
+	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
 				
 	static const Color colorBars[] = STORAGE_BAY_COLOR_TABLE;
 
@@ -1482,8 +1543,8 @@ GetSBayCapacity (POINT *ppt)
 		SetContextForeGroundColor (colorBars[rowNr]);
 	}
 		
-	ppt->x = RES_SCALE(19) + (slotNr * ship_piece_offset_scaled) + IF_HD(53); // JMS_GFX
-	ppt->y = RES_SCALE(34 - (rowNr * 2)) - IF_HD(9); // JMS_GFX
+	ppt->x = RES_SCALE(19) + (slotNr * ship_piece_offset_scaled);
+	ppt->y = RES_SCALE(34 - (rowNr * 2));
 
 	return GetStorageBayCapacity ();
 }
@@ -1565,10 +1626,15 @@ GetFuelTankForFuelUnit (DWORD unitNr, COUNT *slotNr, DWORD *compartmentNr)
 DWORD
 GetFTankCapacity (POINT *ppt)
 {
-	DWORD capacity, rowNr, fuelAmount, compartmentNr, volume, volumehelper;
+	DWORD capacity;
+	DWORD fuelAmount;
 	COUNT slotNr;
+	DWORD compartmentNr;
 	BYTE moduleType;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET + IF_HD(1);  // JMS_GFX
+	DWORD volume;
+
+	DWORD rowNr;
+	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
 	
 	static const Color fuelColors[] = FUEL_COLOR_TABLE;
 		
@@ -1590,23 +1656,22 @@ GetFTankCapacity (POINT *ppt)
 	moduleType = GLOBAL_SIS (ModuleSlots[slotNr]);
 	volume = GetModuleFuelCapacity (moduleType);
 
-	if (volume == FUEL_TANK_CAPACITY)
-		volumehelper = (volume * 10) / RES_BOOL(10, 22);
-	else
-		volumehelper = volume;
+	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS /
+			HEFUEL_TANK_CAPACITY);
 
-	rowNr = ((volumehelper - compartmentNr) * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY);
-	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled);
-	if (volume == FUEL_TANK_CAPACITY) {
-		ppt->x += IF_HD(54); // JMS_GFX
-		ppt->y = RES_SCALE(27) - rowNr + IF_HD(27); // JMS_GFX
-	} else {
-		ppt->x += IF_HD(53); // JMS_GFX
-		ppt->y = RES_SCALE(30) - rowNr + IF_HD(43); // JMS_GFX
+	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled)
+			+ IF_HD(OutfitOrShipyard == 2 ? 0 : 2);
+	if (volume == FUEL_TANK_CAPACITY) 
+	{
+		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(3);
+	} 
+	else
+	{
+		ppt->y = (RES_SCALE(30) - rowNr) - IF_HD(1);
 	}
 	
-	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY) /
-		MAX_FUEL_BARS;
+	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS /
+			HEFUEL_TANK_CAPACITY) / MAX_FUEL_BARS;
 
 	assert (rowNr + 1 < (COUNT) (sizeof fuelColors / sizeof fuelColors[0]));
 	SetContextForeGroundColor (fuelColors[rowNr]);
@@ -1661,7 +1726,7 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 	BOOLEAN OnAutoPilot;
 	
 	static const Color cycle_tab[] = AUTOPILOT_COLOR_CYCLE_TABLE;
-	const size_t cycleCount = sizeof cycle_tab / sizeof cycle_tab[0];
+	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
 #define BLINK_RATE (ONE_SECOND * 3 / 40) // 9 @ 120 ticks/second
 
 	if (Reset)
@@ -1740,7 +1805,7 @@ scheduleFlashAlarm (void)
 }
 
 void
-SetFlashRect (const RECT *pRect)
+SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 {
 	RECT clip_r = {{0, 0}, {0, 0}};
 	RECT temp_r;
@@ -1778,6 +1843,8 @@ SetFlashRect (const RECT *pRect)
 	{
 		// Flash rectangle is not empty, start or continue flashing.
 		flash_rect = *pRect;
+		pcRectBool = pcRect;
+
 		flash_rect.corner.x += clip_r.corner.x;
 		flash_rect.corner.y += clip_r.corner.y;
 
@@ -1799,10 +1866,11 @@ SetFlashRect (const RECT *pRect)
 	}
 	else
 	{
+		pcRectBool = FALSE;
 		// Flash rectangle is empty. Stop flashing.
 		if (flashContext != NULL)
 		{
-			Alarm_remove(flashAlarm);
+			Alarm_remove (flashAlarm);
 			flashAlarm = 0;
 			
 			Flash_terminate (flashContext);

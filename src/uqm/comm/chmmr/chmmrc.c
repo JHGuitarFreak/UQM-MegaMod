@@ -554,9 +554,10 @@ Intro (void)
 		NumVisits = GET_GAME_STATE (CHMMR_HOME_VISITS);
 		if (!GET_GAME_STATE (CHMMR_EMERGING))
 		{
-			CommData.AlienColorMap = SetAbsColorMapIndex (
-					CommData.AlienColorMap, 1
-					);
+			if (!IS_HD)
+				CommData.AlienColorMap = SetAbsColorMapIndex (
+						CommData.AlienColorMap, 1
+						);
 
 			// JMS_GFX: Use separate graphics in hires instead of colormap transform.
 			if (IS_HD)
@@ -616,9 +617,9 @@ Intro (void)
 			{
 				if (ChmmrPtr)
 				{
-					ChmmrPtr->actual_strength = 1800 / SPHERE_RADIUS_INCREMENT * 2;
-					ChmmrPtr->loc.x = 742;
-					ChmmrPtr->loc.y = 2268;
+					ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
+					ChmmrPtr->loc.x = 577;
+					ChmmrPtr->loc.y = 2509;
 					StartSphereTracking (CHMMR_SHIP);
 				}
 				UnlockFleetInfo(&GLOBAL(avail_race_q), hChmmr);
@@ -665,7 +666,7 @@ init_chmmr_comm (void)
 
 	chmmr_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	chmmr_desc.AlienTextBaseline.y = 0;
-	chmmr_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
+	chmmr_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
 
 	setSegue (Segue_peace);
 	retval = &chmmr_desc;

@@ -47,7 +47,7 @@ SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
 SDL_Surface *format_conv_surf = NULL;
 
 #if SDL_MAJOR_VERSION == 1
-const SDL_VideoInfo *SDL_screen_info; // JMS_GFX
+const SDL_VideoInfo *SDL_screen_info; 
 #endif
 
 static volatile BOOLEAN abortFlag = FALSE;

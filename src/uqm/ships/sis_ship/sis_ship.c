@@ -82,7 +82,7 @@
 #define BLASTER_OFFSET RES_SCALE(8)
 #define SIS_VERT_OFFSET RES_SCALE(28)
 		/* Used for foward, spread, and rear slots */
-#define SIS_HORZ_OFFSET RES_BOOL(20, 59)
+#define SIS_HORZ_OFFSET RES_SCALE(20)
 		/* Used for side slot */
 
 /* Secondary weapon */
@@ -323,8 +323,8 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 		else
 		{
 			AccelerateDirection = -1;
-			udx = dx << (IS_HD ? 0 : 4);
-			udy = dy << (IS_HD ? 0 : 4);
+			udx = dx << IF_HD(4);
+			udy = dy << IF_HD(4);
 		}
 	}
 
@@ -703,7 +703,7 @@ sis_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 			lpEvalDesc->ObjectPtr = NULL;
 		}
 		else if (MANEUVERABILITY (&StarShipPtr->RaceDescPtr->cyborg_control)
-				< RESOLUTION_COMPENSATED(MEDIUM_SHIP) // JMS_GFX
+				< RESOLUTION_COMPENSATED(MEDIUM_SHIP) 
 				&& lpEvalDesc->MoveState == ENTICE
 				&& (!(lpEvalDesc->ObjectPtr->state_flags & CREW_OBJECT)
 				|| lpEvalDesc->which_turn <= 8)
@@ -974,6 +974,21 @@ init_sis (void)
 		new_sis_desc.postprocess_func = sis_battle_postprocess;
 		new_sis_desc.init_weapon_func = initialize_blasters;
 		new_sis_desc.cyborg_control.intelligence_func = sis_intelligence;
+
+		if (optFlagshipColor == OPT_3DO)
+		{
+			new_sis_desc.ship_info.icons_rsc = SIS_ICON_MASK_PMAP_ANIM_RED;
+			new_sis_desc.ship_data.ship_rsc[0] = SIS_BIG_MASK_PMAP_ANIM_RED;
+			new_sis_desc.ship_data.ship_rsc[1] = SIS_MED_MASK_PMAP_ANIM_RED;
+			new_sis_desc.ship_data.ship_rsc[2] = SIS_SML_MASK_PMAP_ANIM_RED;
+		}
+		else
+		{
+			new_sis_desc.ship_info.icons_rsc = SIS_ICON_MASK_PMAP_ANIM;
+			new_sis_desc.ship_data.ship_rsc[0] = SIS_BIG_MASK_PMAP_ANIM;
+			new_sis_desc.ship_data.ship_rsc[1] = SIS_MED_MASK_PMAP_ANIM;
+			new_sis_desc.ship_data.ship_rsc[2] = SIS_SML_MASK_PMAP_ANIM;
+		}
 
 		if (GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 			SET_GAME_STATE (BOMB_CARRIER, 1);

@@ -26,10 +26,12 @@
 #include "process.h"
 #include "grpinfo.h"
 #include "encount.h"
+#include "planets/solarsys.h"
 		// for EncounterGroup, EncounterRace
 #include "libs/mathlib.h"
 #include "nameref.h"
 #include "ships/slylandr/resinst.h"
+#include "setup.h"
 
 BOOLEAN legacySave;
 
@@ -502,7 +504,7 @@ CheckGetAway:
 				SIZE delta_x, delta_y;
 				POINT sis_pt;
 
-				sis_pt = displayToLocation (GLOBAL (ShipStamp.origin), radius);	
+				sis_pt = displayToLocation (GLOBAL (ShipStamp.origin), radius);
 
 				// Destination point is sis location
 				delta_x = sis_pt.x - GroupPtr->loc.x;
@@ -515,6 +517,12 @@ CheckGetAway:
 		}
 		else
 			EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame); // Probe will wobble while reforming
+	}
+
+	if (GET_GAME_STATE(KOHR_AH_FRENZY) && CheckAlliance(GroupPtr->race_id) == DEAD_GUY)
+	{
+		GroupPtr->task = FLEE;
+		EPtr->state_flags |= NONSOLID;
 	}
 
 	radius = zoomRadiusForLocation (group_loc);
@@ -789,6 +797,24 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 }
 
 static void
+AdjustInitialPosition (void)
+{
+	BYTE flagship_loc;
+	SIZE radius;
+	POINT pt;
+
+	flagship_loc = getFlagshipLocation ();
+	radius = zoomRadiusForLocation (flagship_loc);
+
+	pt = locationToDisplay (GLOBAL (ip_location), radius);
+
+	if (LastActivity & CHECK_LOAD)
+		InitialIntersect ();
+
+	GLOBAL (ShipStamp.origin) = pt;
+}
+
+static void
 spawn_flag_ship (void)
 {
 	HELEMENT hFlagShipElement;
@@ -815,6 +841,8 @@ spawn_flag_ship (void)
 				GLOBAL (ShipStamp.frame);
 		FlagShipElementPtr->preprocess_func = flag_ship_preprocess;
 		FlagShipElementPtr->collision_func = flag_ship_collision;
+
+		AdjustInitialPosition ();
 
 		FlagShipElementPtr->current.location.x =
 				DISPLAY_TO_WORLD (GLOBAL (ShipStamp.origin.x))
@@ -852,7 +880,7 @@ DoMissions (void)
 		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
 		hNextGroup = _GetSuccLink (GroupPtr);
 
-		if (GroupPtr->in_system)
+		if (GroupPtr->in_system && CheckAlliance (GroupPtr->race_id) != DEAD_GUY)
 			spawn_ip_group (GroupPtr);
 
 		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);

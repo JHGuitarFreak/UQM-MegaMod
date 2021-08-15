@@ -66,7 +66,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	char vnbuf[24]; // From 32 to 24
 	RECT old_r;
 
-	LoadIntoExtraScreen (NULL, FALSE);
+	LoadIntoExtraScreen (NULL);
 #if 0
 	/* This is cut out right now but should be part of the 3DO side */
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
@@ -94,7 +94,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	GetContextClipRect (&old_r);
 	SetContextClipRect (NULL);
-	DrawFromExtraScreen (NULL, FALSE);
+	DrawFromExtraScreen (NULL);
 	SetContextClipRect (&old_r);
 
 	if (hMusic && optMainMenuMusic)
@@ -124,6 +124,11 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 		printf("Loading HD Splashscreen\n\n");
 		s.frame = CaptureDrawable (LoadGraphic (TITLE_HD));
 	}
+
+	if (optFlagshipColor == OPT_3DO)
+		s.frame = SetAbsFrameIndex (s.frame, 1);
+	else
+		s.frame = SetAbsFrameIndex (s.frame, 0);
 
 	DrawStamp (&s);
 	DestroyDrawable (ReleaseDrawable (s.frame));

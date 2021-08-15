@@ -38,7 +38,7 @@
 #include "libs/scriptlib.h"
 
 //#define DEBUG_LOAD
-
+BYTE LegacyResFactor;
 
 // This defines the order and the number of bits in which the game state
 // properties are saved.
@@ -1314,25 +1314,6 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR;
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
-	if (IS_HD)
-	{
-		POINT NewLoc = MAKE_POINT (SIS_SCREEN_WIDTH / 2, SIS_SCREEN_HEIGHT);
-		POINT IPBounds = displayToLocation (
-					MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT),
-					MAX_ZOOM_RADIUS);
-		BOOLEAN OutOfBounds = ((GSPtr->ip_location.x > -IPBounds.x
-				&& GSPtr->ip_location.y > -IPBounds.y)
-				&& (GSPtr->ip_location.x < IPBounds.x
-				&& GSPtr->ip_location.x < IPBounds.y));
-
-		if (LOBYTE (GSPtr->CurrentActivity) == IN_INTERPLANETARY
-				&& !GSPtr->in_orbit 
-				&& OutOfBounds)
-		{
-			GSPtr->ip_location = displayToLocation (NewLoc, MAX_ZOOM_RADIUS);
-		}
-	}
-
 	/* VELOCITY_DESC velocity */
 	cread_16  (fh, &GSPtr->velocity.TravelAngle);
 	cread_16s (fh, &GSPtr->velocity.vector.width);
@@ -1508,7 +1489,10 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 
 			read_8  (fp, NULL) != 1 /* padding */
 		)
+	{
+		LegacyResFactor = !try_vanilla ? SummPtr->res_factor : 0;
 		return FALSE;
+	}
 	else
 	{
 		// JMS: UQM-HD saves have an extra piece of padding to compensate for the

@@ -33,10 +33,12 @@
 #include "../sounds.h"
 #include "../element.h"
 #include "libs/graphics/gfx_common.h"
+#include "libs/graphics/drawable.h"
 #include "libs/mathlib.h"
 #include "libs/log.h"
 #include "options.h"
 #include "uqm/menustat.h"
+#include "../util.h"
 
 //define SPIN_ON_LAUNCH to let the planet spin while
 // the lander animation is playing
@@ -48,7 +50,11 @@
 // The PC speed was 30 FPS.
 // Remember that all values need to evenly divide
 // ONE_SECOND.
-#define PLANET_SIDE_RATE (ONE_SECOND / 35)
+// Serosis: I did my own testing using DOSBox
+// comparing speeds frame-by-frame and I came
+// up with 42 FPS. Can be changed later if it
+// causes any trouble.
+#define PLANET_SIDE_RATE (ONE_SECOND / 42)
 
 
 // This is a derived type from INPUT_STATE_DESC.
@@ -65,6 +71,7 @@ struct LanderInputState {
 FRAME LanderFrame[8];
 static SOUND LanderSounds;
 MUSIC_REF LanderMusic;
+static CONTEXT PCLanderContext;
 
 LIFEFORM_DESC CreatureData[] =
 {
@@ -149,7 +156,7 @@ extern PRIM_LINKS DisplayLinks;
 #define ADD_AT_END (1 << 4)
 #define REPAIR_COUNT (0xf)
 
-#define LANDER_SPEED_DENOM 10
+#define LANDER_SPEED_DENOM (optSuperPC == OPT_PC ? 14 : 10)
 
 static BYTE lander_flags;
 static POINT curLanderLoc;
@@ -169,7 +176,62 @@ static int weapon_wait;
 // TODO: We may want to make the PLANETSIDE_DESC fields into static vars
 static PLANETSIDE_DESC *planetSideDesc;
 
+EXTENT MapSurface;
+
 #define ON_THE_GROUND   0
+
+CONTEXT
+CreatePCLanderContext (void)
+{
+	CONTEXT oldContext;
+	CONTEXT context;
+	RECT r;
+
+	// PCLanderContext rect is relative to SpaceContext
+	oldContext = SetContext (SpaceContext);
+	GetContextClipRect (&r);
+
+	context = CreateContext ("PCLanderContext");
+	SetContext (context);
+	SetContextFGFrame (Screen);
+	r.corner.x += r.extent.width - MAP_WIDTH;
+	r.corner.y += r.extent.height - MAP_HEIGHT;
+	r.extent.width = RES_SCALE(UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X;
+	r.extent.height = MAP_HEIGHT;
+	SetContextClipRect (&r);
+
+	SetContext (oldContext);
+
+	return context;
+}
+
+CONTEXT
+GetPCLanderContext (BOOLEAN *owner)
+{
+	// TODO: Make CONTEXT ref-counted
+	if (PCLanderContext)
+	{
+		if (owner)
+			*owner = FALSE;
+	}
+	else
+	{
+		if (owner)
+			*owner = TRUE;
+		PCLanderContext = CreatePCLanderContext ();
+	}
+	return PCLanderContext;
+}
+
+void
+DestroyPCLanderContext (void)
+{
+	if (PCLanderContext)
+	{
+		DestroyContext (PCLanderContext);
+		PCLanderContext = NULL;
+	}
+}
 
 
 static Color
@@ -263,7 +325,7 @@ object_animation (ELEMENT *ElementPtr)
 			else if (ElementPtr->mass_points == EARTHQUAKE_DISASTER)
 			{
 				SIZE s;
-				SIZE frame_amount = 13; // JMS_GFX
+				SIZE frame_amount = 13; 
 
 				if (frame_index >= (frame_amount))
 					s = 0;
@@ -292,16 +354,16 @@ object_animation (ELEMENT *ElementPtr)
 					angle = FACING_TO_ANGLE (ElementPtr->facing);
 					LockElement (hLavaElement, &LavaElementPtr);
 					LavaElementPtr->next.location = ElementPtr->next.location;
-					LavaElementPtr->next.location.x += COSINE (angle, RES_SCALE(4)); // JMS_GFX
-					LavaElementPtr->next.location.y += SINE (angle, RES_SCALE(4)); // JMS_GFX
+					LavaElementPtr->next.location.x += COSINE (angle, RES_SCALE(4));
+					LavaElementPtr->next.location.y += SINE (angle, RES_SCALE(4));
 					if (LavaElementPtr->next.location.y < 0)
 						LavaElementPtr->next.location.y = 0;
 					else if (LavaElementPtr->next.location.y >= (MAP_HEIGHT << MAG_SHIFT))
 						LavaElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
 					if (LavaElementPtr->next.location.x < 0)
-						LavaElementPtr->next.location.x += MAP_WIDTH << MAG_SHIFT;
+						LavaElementPtr->next.location.x += SCALED_MAP_WIDTH << MAG_SHIFT;
 					else
-						LavaElementPtr->next.location.x %= MAP_WIDTH << MAG_SHIFT;
+						LavaElementPtr->next.location.x %= SCALED_MAP_WIDTH << MAG_SHIFT;
 					LavaElementPtr->facing = NORMALIZE_FACING (
 							ElementPtr->facing + (TFB_Random () % 3 - 1));
 					UnlockElement (hLavaElement);
@@ -321,10 +383,10 @@ object_animation (ELEMENT *ElementPtr)
 				COUNT old_angle;
 
 				dx = curLanderLoc.x - ElementPtr->next.location.x;
-				if (dx < 0 && dx < -(MAP_WIDTH << (MAG_SHIFT - 1)))
-					dx += MAP_WIDTH << MAG_SHIFT;
-				else if (dx > (MAP_WIDTH << (MAG_SHIFT - 1)))
-					dx -= MAP_WIDTH << MAG_SHIFT;
+				if (dx < 0 && dx < -(SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
+					dx += SCALED_MAP_WIDTH << MAG_SHIFT;
+				else if (dx > (SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
+					dx -= SCALED_MAP_WIDTH << MAG_SHIFT;
 				dy = curLanderLoc.y - ElementPtr->next.location.y;
 				angle = ARCTAN (dx, dy);
 				if (dx < 0)
@@ -332,8 +394,8 @@ object_animation (ELEMENT *ElementPtr)
 				if (dy < 0)
 					dy = -dy;
 
-				if (dx >= SURFACE_WIDTH || dy >= SURFACE_WIDTH
-						|| dx * dx + dy * dy >= SURFACE_WIDTH * SURFACE_WIDTH)
+				if (dx >= MapSurface.width || dy >= MapSurface.width
+						|| dx * dx + dy * dy >= MapSurface.width * MapSurface.width)
 					ElementPtr->mass_points &= ~CREATURE_AWARE;
 				else if (!(ElementPtr->mass_points & CREATURE_AWARE))
 				{
@@ -413,7 +475,7 @@ object_animation (ELEMENT *ElementPtr)
 						speed = WORLD_TO_VELOCITY (2 * 1) * 9 / 10;
 						break;
 				}
-				speed = RES_SCALE(speed); // JMS_GFX
+				speed = RES_SCALE(speed); 
 
 				SetVelocityComponents (&ElementPtr->velocity,
 						COSINE (angle, speed), SINE (angle, speed));
@@ -427,8 +489,8 @@ object_animation (ELEMENT *ElementPtr)
 		lander_flags |= ADD_AT_END;
 }
 
-#define NUM_CREW_COLS 6
-#define NUM_CREW_ROWS 2
+#define NUM_CREW_COLS (optSuperPC != OPT_PC ? 6 : 3)
+#define NUM_CREW_ROWS (optSuperPC != OPT_PC ? 2 : 4)
 
 static void
 DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
@@ -472,10 +534,20 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 	}
 
-	s.origin.x = RES_STAT_SCALE(10) + (RES_STAT_SCALE(6) * (crew_delta % NUM_CREW_COLS));
-	s.origin.y = RES_STAT_SCALE(35) - (RES_STAT_SCALE(6) * (crew_delta / NUM_CREW_COLS));
 
-	OldContext = SetContext (RadarContext);
+	if(optSuperPC != OPT_PC)
+	{
+		s.origin.x = RES_SCALE(11) + (RES_SCALE(6) * (crew_delta % NUM_CREW_COLS));
+		s.origin.y = RES_SCALE(35) - (RES_SCALE(6) * (crew_delta / NUM_CREW_COLS));
+		OldContext = SetContext (RadarContext);
+	}
+	else
+	{
+		s.origin.x = RES_SCALE(6) + (RES_SCALE(6) * (crew_delta % NUM_CREW_COLS));
+		s.origin.y = RES_SCALE(43) - (RES_SCALE(6) * (crew_delta / NUM_CREW_COLS));
+		OldContext = SetContext (PCLanderContext);
+	}
+
 	DrawStamp (&s);
 	SetContext (OldContext);
 }
@@ -486,8 +558,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	COUNT start_count, tmpholdint;
 	STAMP s;
 	CONTEXT OldContext;
-	SIZE  rounding_error_startcount = 0; // JMS_GFX
-	SIZE  rounding_error_numretrieved = 0; // JMS_GFX
+	SIZE  rounding_error_startcount = 0; 
+	SIZE  rounding_error_numretrieved = 0; 
 
 	PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_PICKUP),
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
@@ -496,7 +568,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	{
 		start_count = pPSD->BiologicalLevel;
 
-		s.frame = SetAbsFrameIndex (LanderFrame[0], 41);
+		s.frame = SetAbsFrameIndex (
+				(optSuperPC == OPT_PC ? LanderFrame[7] : LanderFrame[0]), 41);
 
 		pPSD->BiologicalLevel += NumRetrieved;
 	}
@@ -510,7 +583,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 			NumRetrieved = (pPSD->ElementLevel >> 1) - start_count;
 		}
 
-		s.frame = SetAbsFrameIndex (LanderFrame[0], 43);
+		s.frame = SetAbsFrameIndex (
+			(optSuperPC == OPT_PC ? LanderFrame[7] : LanderFrame[0]), 43);
 	}
 
 	tmpholdint = ((start_count + NumRetrieved) * MAX_HOLD_BARS / MAX_SCROUNGED)
@@ -519,22 +593,24 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	start_count = start_count * MAX_HOLD_BARS / MAX_SCROUNGED;
 	NumRetrieved = (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED) + tmpholdint;
 
-	start_count *= RES_STAT_SCALE(1); // JMS_GFX
-
 	s.origin.x = 0;
-	s.origin.y = -(int)start_count;
+	s.origin.y = -(int)RES_SCALE(start_count);
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
-	OldContext = SetContext (RadarContext);
+	if(optSuperPC == OPT_PC)
+		OldContext = SetContext (PCLanderContext);
+	else
+		OldContext = SetContext (RadarContext);
+
 	while (NumRetrieved--)
 	{
 		if (start_count++ & 1)
 			s.frame = IncFrameIndex (s.frame);
 		else
 			s.frame = DecFrameIndex (s.frame);
-		DrawStamp (&s);
-		s.origin.y -= RES_STAT_SCALE(1); // JMS_GFX
+		DrawStamp(&s);
+		s.origin.y -= RES_SCALE(1);
 	}
 	SetContext (OldContext);
 }
@@ -628,9 +704,9 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	sprintf (pPSD->AmountBuf, "%u", NumRetrieved);
 	pStr = GAME_STRING (EType + Offset);
 
-	pPSD->MineralText[0].baseline.x = (SURFACE_WIDTH >> 1)
+	pPSD->MineralText[0].baseline.x = (MapSurface.width >> 1)
 			+ (ElementControl->EndPoint.x - LanderControl->EndPoint.x);
-	pPSD->MineralText[0].baseline.y = (SURFACE_HEIGHT >> 1)
+	pPSD->MineralText[0].baseline.y = (MapSurface.height >> 1)
 			+ (ElementControl->EndPoint.y - LanderControl->EndPoint.y);
 	pPSD->MineralText[0].CharCount = (COUNT)~0;
 	pPSD->MineralText[1].pStr = pStr;
@@ -646,7 +722,7 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	{
 		// Name contains a space. Print over
 		// two lines.
-		pPSD->MineralText[1].CharCount = utf8StringCountN(
+		pPSD->MineralText[1].CharCount = utf8StringCountN (
 				pPSD->MineralText[1].pStr, pStr - 1);
 		pPSD->MineralText[2].pStr = pStr;
 		pPSD->MineralText[2].CharCount = (COUNT)~0;
@@ -741,7 +817,7 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 				ANGLE_TO_FACING (FULL_CIRCLE));
 		DeltaVelocityComponents (&ElementPtr->velocity,
 				COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1))),
-				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1)))); // JMS_GFX
+				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1)))); 
 		ElementPtr->thrust_wait = 0;
 		ElementPtr->mass_points |= CREATURE_AWARE;
 	}
@@ -771,8 +847,8 @@ CheckObjectCollision (COUNT index)
 	else
 	{
 		pLanderPrim = 0;
-		LanderControl.IntersectStamp.origin.x = SURFACE_WIDTH >> 1;
-		LanderControl.IntersectStamp.origin.y = SURFACE_HEIGHT >> 1;
+		LanderControl.IntersectStamp.origin.x = MapSurface.width >> 1;
+		LanderControl.IntersectStamp.origin.y = MapSurface.height >> 1;
 		LanderControl.IntersectStamp.frame = LanderFrame[0];
 		index = GetSuccLink (DisplayLinks);
 	}
@@ -851,6 +927,25 @@ CheckObjectCollision (COUNT index)
 					else if (scan == ENERGY_SCAN)
 					{
 						// noop; handled by generation funcs, see below
+						if (optSuperPC == OPT_PC)
+						{
+							RECT r;
+
+							GetContextClipRect (&r);
+							r.corner.x = r.corner.y = 0;
+							DrawStarConBox (&r, RES_SCALE(1),
+								SIS_LEFT_BORDER_COLOR,
+								SIS_BOTTOM_RIGHT_BORDER_COLOR,
+								FALSE, TRANSPARENT);
+
+							if (IS_HD)
+							{
+								DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+								if (optSubmenu)
+									DrawMineralHelpers (FALSE);
+							}
+						}
 					}
 					else if (scan == BIOLOGICAL_SCAN && ElementPtr->hit_points)
 					{
@@ -1029,13 +1124,13 @@ AddLightning (void)
 		rand_val = TFB_Random ();
 		LightningElementPtr->life_span = 10 + (HIWORD (rand_val) % 10) + 1;
 		LightningElementPtr->next.location.x = (curLanderLoc.x
-				+ ((MAP_WIDTH << MAG_SHIFT) - ((SURFACE_WIDTH >> 1) - 6))
-				+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (SURFACE_WIDTH - RES_SCALE(12)))
-				) % (MAP_WIDTH << MAG_SHIFT);
+			+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - ((SURFACE_WIDTH >> 1) - 6))
+			+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (SURFACE_WIDTH - RES_SCALE(12)))
+			) % (SCALED_MAP_WIDTH << MAG_SHIFT);
 		LightningElementPtr->next.location.y = (curLanderLoc.y
-				+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
-				+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (SURFACE_HEIGHT - RES_SCALE(12)))
-				) % (MAP_HEIGHT << MAG_SHIFT);
+			+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
+			+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (SURFACE_HEIGHT - RES_SCALE(12)))
+			) % (MAP_HEIGHT << MAG_SHIFT);
 
 		LightningElementPtr->cycle = LightningElementPtr->life_span;
 
@@ -1081,9 +1176,9 @@ AddGroundDisaster (COUNT which_disaster)
 
 		rand_val = TFB_Random ();
 		GroundDisasterElementPtr->next.location.x = (curLanderLoc.x
-				+ ((MAP_WIDTH << MAG_SHIFT) - (SURFACE_WIDTH * 3 / 8))
+				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - (SURFACE_WIDTH * 3 / 8))
 				+ (LOWORD (rand_val) % (SURFACE_WIDTH * 3 / 4))
-				) % (MAP_WIDTH << MAG_SHIFT);
+				) % (SCALED_MAP_WIDTH << MAG_SHIFT);
 		GroundDisasterElementPtr->next.location.y = (curLanderLoc.y
 				+ ((MAP_HEIGHT << MAG_SHIFT) - (SURFACE_HEIGHT * 3 / 8))
 				+ (HIWORD (rand_val) % (SURFACE_HEIGHT * 3 / 4))
@@ -1190,9 +1285,9 @@ BuildObjectList (void)
 					ElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
 			}
 			if (ElementPtr->next.location.x < 0)
-				ElementPtr->next.location.x += MAP_WIDTH << MAG_SHIFT;
+				ElementPtr->next.location.x += SCALED_MAP_WIDTH << MAG_SHIFT;
 			else
-				ElementPtr->next.location.x %= MAP_WIDTH << MAG_SHIFT;
+				ElementPtr->next.location.x %= SCALED_MAP_WIDTH << MAG_SHIFT;
 			
 			// XXX: APPEARING flag is set by scan.c for scanned blips
 			if (ElementPtr->state_flags & APPEARING)
@@ -1210,17 +1305,17 @@ BuildObjectList (void)
 			pPrim = &DisplayArray[ElementPtr->PrimIndex];
 			pPrim->Object.Stamp.origin.x =
 					ElementPtr->next.location.x
-					- org.x + (SURFACE_WIDTH >> 1);
+					- org.x + (MapSurface.width >> 1);
 			if (pPrim->Object.Stamp.origin.x >=
-					(MAP_WIDTH << MAG_SHIFT) - (SURFACE_WIDTH * 3 / 2))
-				pPrim->Object.Stamp.origin.x -= MAP_WIDTH << MAG_SHIFT;
+					(SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 2))
+				pPrim->Object.Stamp.origin.x -= SCALED_MAP_WIDTH << MAG_SHIFT;
 			else if (pPrim->Object.Stamp.origin.x <=
-					-((MAP_WIDTH << MAG_SHIFT) - (SURFACE_WIDTH * 3 / 2)))
-				pPrim->Object.Stamp.origin.x += MAP_WIDTH << MAG_SHIFT;
+					-((SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 2)))
+				pPrim->Object.Stamp.origin.x += SCALED_MAP_WIDTH << MAG_SHIFT;
 
 			pPrim->Object.Stamp.origin.y =
 					ElementPtr->next.location.y
-					- org.y + (SURFACE_HEIGHT >> 1);
+					- org.y + (MapSurface.height >> 1);
 
 			if (lander_flags & ADD_AT_END)
 				InsertPrim (&DisplayLinks, ElementPtr->PrimIndex, END_OF_LIST);
@@ -1258,13 +1353,16 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 
 	new_pt.x = curLanderLoc.x + dx;
 	if (new_pt.x < 0)
-		new_pt.x += MAP_WIDTH << MAG_SHIFT;
-	else if (new_pt.x >= MAP_WIDTH << MAG_SHIFT)
-		new_pt.x -= MAP_WIDTH << MAG_SHIFT;
+		new_pt.x += SCALED_MAP_WIDTH << MAG_SHIFT;
+	else if (new_pt.x >= SCALED_MAP_WIDTH << MAG_SHIFT)
+		new_pt.x -= SCALED_MAP_WIDTH << MAG_SHIFT;
 	
 	curLanderLoc = new_pt;
 
-	OldContext = SetContext (PlanetContext);
+	if (optSuperPC != OPT_PC)
+		OldContext = SetContext (PlanetContext);
+	else
+		OldContext = SetContext (RadarContext);
 
 	BatchGraphics ();
 
@@ -1274,13 +1372,14 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		STAMP s;
 
 		ClearDrawable ();
-		s.origin.x = -new_pt.x + (SURFACE_WIDTH >> 1);
-		s.origin.y = -new_pt.y + (SURFACE_HEIGHT >> 1);
+		s.origin.x = -new_pt.x + (MapSurface.width >> 1);
+		s.origin.y = -new_pt.y + (MapSurface.height >> 1);
 		s.frame = pSolarSysState->Orbit.TopoZoomFrame;
+
 		DrawStamp (&s);
-		s.origin.x += MAP_WIDTH << MAG_SHIFT;
+		s.origin.x += SCALED_MAP_WIDTH << MAG_SHIFT;
 		DrawStamp (&s);
-		s.origin.x -= MAP_WIDTH << (MAG_SHIFT + 1);
+		s.origin.x -= SCALED_MAP_WIDTH << (MAG_SHIFT + 1);
 		DrawStamp (&s);
 	}
 
@@ -1292,13 +1391,13 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	// frames while it is exploding
 	if (crew_left || damage_index || explosion_index < 3)
 	{
-		lander_s.origin.x = SURFACE_WIDTH >> 1;
-		lander_s.origin.y = (SURFACE_HEIGHT >> 1) + landingOffset;
+		lander_s.origin.x = MapSurface.width >> 1;
+		lander_s.origin.y = (MapSurface.height >> 1) + landingOffset;
 		lander_s.frame = LanderFrame[0];
 
 		if (landingOffset != ON_THE_GROUND)
 		{	// Landing, draw a shadow
-			shadow_s.origin.x = lander_s.origin.y + (SURFACE_WIDTH >> 1) - (SURFACE_HEIGHT >> 1);//2;
+			shadow_s.origin.x = lander_s.origin.y + (MapSurface.width >> 1) - (MapSurface.height >> 1);//2;
 			shadow_s.origin.y = lander_s.origin.y;
 			shadow_s.frame = lander_s.frame;
 			SetContextForeGroundColor (BLACK_COLOR);
@@ -1370,6 +1469,29 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	if (lander_flags & KILL_CREW)
 		DeltaLanderCrew (-1, LIGHTNING_DISASTER);
 
+	if (optSuperPC == OPT_PC)
+	{
+		RECT r;
+
+		GetContextClipRect (&r);
+		r.corner.x = r.corner.y = 0;
+		DrawStarConBox (&r, RES_SCALE(1),
+			SIS_LEFT_BORDER_COLOR,
+			SIS_BOTTOM_RIGHT_BORDER_COLOR,
+			FALSE, TRANSPARENT);
+
+		if (IS_HD)
+		{
+			DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+			if (optSubmenu)
+			{
+				if (optSubmenu)
+					DrawMineralHelpers (FALSE);
+			}
+		}
+	}
+
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
@@ -1380,22 +1502,26 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 {
 #define ANIM_FRAME_RATE  (ONE_SECOND / 30)
 
-	for ( ; periods; --periods)
+	while (periods > 0)
 	{
-		RotatePlanetSphere (TRUE);
+		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 
-		SleepThreadUntil (*TimeIn + ANIM_FRAME_RATE);
-		*TimeIn = GetTimeCounter ();
+		if (GetTimeCounter () >= *TimeIn + ANIM_FRAME_RATE)
+		{
+			*TimeIn = GetTimeCounter ();
+			periods--;
+		}
 	}
 }
 
 static void
-AnimateLaunch (FRAME farray, BOOLEAN landing)
+AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 {
 	RECT r;
 	STAMP s;
 	COUNT num_frames;
-	TimeCount NextTime;
+	static TimeCount NextTime, psNextTime;
+	TimeCount Now;
 
 	SetContext (PlanetContext);
 
@@ -1407,29 +1533,39 @@ AnimateLaunch (FRAME farray, BOOLEAN landing)
 	s.origin.y = 0;
 	s.frame = farray;
 
-	for (num_frames = GetFrameCount (s.frame); num_frames; --num_frames)
+	num_frames = GetFrameCount (s.frame);
+	NextTime = GetTimeCounter () + (ONE_SECOND / 22);
+	psNextTime = GetTimeCounter () + PLANET_SIDE_RATE;
+	while (num_frames >= 0)
 	{
-		NextTime = GetTimeCounter () + (ONE_SECOND / 22);
+		RotatePlanetSphere (TRUE, &s, TRANSPARENT);
 
-		BatchGraphics ();
-		RepairBackRect (&r, TRUE);
-#ifdef SPIN_ON_LAUNCH
-		RotatePlanetSphere (FALSE);
-#else
-		DrawDefaultPlanetSphere ();
-#endif
-		DrawStamp (&s);
-		UnbatchGraphics ();
+		Now = GetTimeCounter ();
 
-		GetFrameRect (s.frame, &r);
-		s.frame = IncFrameIndex (s.frame);
+		if (!isLanding && optSuperPC == OPT_PC && Now >= psNextTime)
+		{
+			// 10 to clear the lander off of the screen
+			ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE(10)));
+			psNextTime = Now + PLANET_SIDE_RATE;
+		}
 
-		SleepThreadUntil (NextTime);
+		if (Now >= NextTime)
+		{
+			NextTime = Now + (ONE_SECOND / 22);
+			num_frames--;
+
+			GetFrameRect (s.frame, &r);
+			s.frame = IncFrameIndex (s.frame);
+
+			RepairBackRect (&r);
+			DrawDefaultPlanetSphere ();
+
+			if (num_frames == 0)
+				break;
+
+			DrawStamp (&s);
+		}
 	}
-
-	// This clears the last lander return / launch) anim frame from the planet window.
-	if (!IS_HD || !landing)
-		RepairBackRect (&r, FALSE);
 }
 
 static void
@@ -1440,11 +1576,16 @@ AnimateLanderWarmup (void)
 	CONTEXT OldContext;
 	TimeCount TimeIn = GetTimeCounter ();
 
-	OldContext = SetContext (RadarContext);
+	if(optSuperPC != OPT_PC)
+		OldContext = SetContext (RadarContext);
+	else
+		OldContext = SetContext (PCLanderContext);
 
 	s.origin.x = 0;
 	s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (LanderFrame[0],
+
+	s.frame = SetAbsFrameIndex (
+			optSuperPC != OPT_PC ? LanderFrame[0] : LanderFrame[7],
 			(ANGLE_TO_FACING (FULL_CIRCLE) << 1) + 1);
 
 	DrawStamp (&s);
@@ -1507,9 +1648,9 @@ InitPlanetSide (POINT pt)
 	// Jitter the X landing point.
 	pt.x -= RANDOM_MISS - TFB_Random () % (RANDOM_MISS << 1);
 	if (pt.x < 0)
-		pt.x += (MAP_WIDTH << MAG_SHIFT);
-	else if (pt.x >= (MAP_WIDTH << MAG_SHIFT))
-		pt.x -= (MAP_WIDTH << MAG_SHIFT);
+		pt.x += (SCALED_MAP_WIDTH << MAG_SHIFT);
+	else if (pt.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+		pt.x -= (SCALED_MAP_WIDTH << MAG_SHIFT);
 
 	// Jitter the Y landing point.
 	pt.y -= RANDOM_MISS - TFB_Random () % (RANDOM_MISS << 1);
@@ -1518,37 +1659,69 @@ InitPlanetSide (POINT pt)
 	else if (pt.y >= (MAP_HEIGHT << MAG_SHIFT))
 		pt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
 
+	if (optSuperPC == OPT_PC)
+	{
+		SetContext (RadarContext);
+		ClearSISRect (CLEAR_SIS_RADAR);
+		MapSurface = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
+
+		if (optSubmenu)
+			DrawMineralHelpers (FALSE);
+	}
+	else
+	{
+		SetContext (PlanetContext);
+		MapSurface = MAKE_EXTENT (SURFACE_WIDTH, SURFACE_HEIGHT);
+	}
+
 	curLanderLoc = pt;
 
-	SetContext (PlanetContext);
 	SetContextFont (TinyFont);
 
 	{
 		RECT r;
 
-		GetContextClipRect (&r);
+		GetContextClipRect(&r);
 
-		SetTransitionSource (&r);
-		BatchGraphics ();
+		SetTransitionSource(&r);
+		BatchGraphics();
 		
 		{
 			STAMP s;
+			RECT b = r;
 
 			// Note - This code is the same as in ScrollPlanetSize,
 			// Display planet area, accounting for horizontal wrapping if
 			// near the edges.
 			ClearDrawable ();
-			s.origin.x = -pt.x + (SURFACE_WIDTH >> 1);
-			s.origin.y = -pt.y + (SURFACE_HEIGHT >> 1);
+			s.origin.x = -pt.x + (MapSurface.width >> 1);
+			s.origin.y = -pt.y + (MapSurface.height >> 1);
 			s.frame = pSolarSysState->Orbit.TopoZoomFrame;
 			DrawStamp (&s);
-			s.origin.x += MAP_WIDTH << MAG_SHIFT;
+			s.origin.x += SCALED_MAP_WIDTH << MAG_SHIFT;
 			DrawStamp (&s);
-			s.origin.x -= MAP_WIDTH << (MAG_SHIFT + 1);
+			s.origin.x -= SCALED_MAP_WIDTH << (MAG_SHIFT + 1);
 			DrawStamp (&s);
-		}
 
-		ScreenTransition (optIPScaler, &r);
+			if (optSuperPC == OPT_PC)
+			{
+				b.corner.x = b.corner.y = 0;
+				DrawStarConBox (&b, RES_SCALE(1),
+					SIS_LEFT_BORDER_COLOR,
+					SIS_BOTTOM_RIGHT_BORDER_COLOR,
+					FALSE, TRANSPARENT);
+
+				if (IS_HD)
+				{
+					DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+					if (optSubmenu)
+						DrawMineralHelpers (FALSE);
+				}
+			}
+			else
+				ScreenTransition (optIPScaler, &r);
+		}		
 		UnbatchGraphics ();
 	}
 
@@ -1559,7 +1732,7 @@ InitPlanetSide (POINT pt)
 static void
 LanderFire (SIZE facing)
 {
-#define SHUTTLE_FIRE_WAIT 15
+#define SHUTTLE_FIRE_WAIT optSuperPC == OPT_PC ? 10 : 14
 	HELEMENT hWeaponElement;
 	SIZE wdx, wdy;
 	ELEMENT *WeaponElementPtr;
@@ -1598,7 +1771,7 @@ LanderFire (SIZE facing)
 	SetVelocityComponents (
 		&WeaponElementPtr->velocity,
 		COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdx,
-		SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdy); // JMS_GFX
+		SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdy); 
 
 	UnlockElement (hWeaponElement);
 
@@ -1651,7 +1824,7 @@ DoPlanetSide (LanderInputState *pMS)
 	SIZE dx = 0;
 	SIZE dy = 0;
 
-#define SHUTTLE_TURN_WAIT 2
+#define SHUTTLE_TURN_WAIT (optSuperPC == OPT_PC ? 1 : 3)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
 
@@ -1671,7 +1844,7 @@ DoPlanetSide (LanderInputState *pMS)
 			WORLD_TO_VELOCITY (2 * RES_SCALE(8));
 
 #ifdef FAST_FAST
-landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48)); // JMS
+landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
 #endif
 
 		SetVelocityComponents (&GLOBAL (velocity),
@@ -1766,7 +1939,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
 					|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
 #endif
 			{
-				GetNextVelocityComponents(&GLOBAL(velocity), &dx, &dy, 1);
+				GetNextVelocityComponents (
+						&GLOBAL (velocity), &dx, &dy, 1);
 			}
 			else
 				dx = dy = 0;
@@ -1811,7 +1985,7 @@ FreeLanderData (void)
 	DestroySound (ReleaseSound (LanderSounds));
 	LanderSounds = 0;
 
-	landerFrameCount = sizeof (LanderFrame) / sizeof (LanderFrame[0]);
+	landerFrameCount = ARRAY_SIZE (LanderFrame);
 	for (i = 0; i < landerFrameCount; ++i)
 	{
 		DestroyDrawable (ReleaseDrawable (LanderFrame[i]));
@@ -1839,13 +2013,15 @@ LoadLanderData (void)
 			CaptureDrawable (LoadGraphic (LANDER_LAUNCH_MASK_PMAP_ANIM));
 	LanderFrame[6] =
 			CaptureDrawable (LoadGraphic (LANDER_RETURN_MASK_PMAP_ANIM));
+	LanderFrame[7] =
+			CaptureDrawable (LoadGraphic (LANDER_PC_MASK_PMAP_ANIM));
 	
 	LanderSounds = CaptureSound (LoadSound (LANDER_SOUNDS));
 
 	{
 		COUNT i;
 
-		for (i = 0; i < NUM_ORBIT_THEMES; ++i)
+		for (i = 0; i < num_orbit_themes(); ++i)
 			OrbitMusic[i] = load_orbit_theme (i);
 	}
 }
@@ -1853,7 +2029,7 @@ LoadLanderData (void)
 void
 SetPlanetMusic (BYTE planet_type)
 {
-	LanderMusic = OrbitMusic[planet_type % NUM_ORBIT_THEMES];
+	LanderMusic = OrbitMusic[planet_type % num_orbit_themes()];
 }
 
 static void
@@ -1862,17 +2038,56 @@ ReturnToOrbit (void)
 	CONTEXT OldContext;
 	RECT r;
 
-	OldContext = SetContext (PlanetContext);
-	GetContextClipRect (&r);
+	if (optSuperPC != OPT_PC)
+	{
+		OldContext = SetContext (PlanetContext);
+		GetContextClipRect (&r);
 
-	SetTransitionSource (&r);
-	BatchGraphics ();
+		SetTransitionSource (&r);
+		BatchGraphics ();
 
-	DrawStarBackGround ();
-	DrawPlanetSurfaceBorder ();
-	RedrawSurfaceScan (NULL);
-	ScreenTransition (optIPScaler, &r);
-	UnbatchGraphics ();
+		DrawStarBackGround ();
+		DrawDefaultPlanetSphere ();
+		DrawPlanetSurfaceBorder ();
+		RedrawSurfaceScan (NULL);
+		ScreenTransition (optIPScaler, &r);
+		UnbatchGraphics ();
+	}
+	else
+	{
+		RECT b;
+		OldContext = SetContext (RadarContext);
+		GetContextClipRect (&r);
+		b = r;
+
+		SetTransitionSource (&r);
+
+		b.corner.x = b.corner.y = 0;
+
+		BatchGraphics ();
+		ClearDrawable ();// TODO: color this frame smh
+
+		if (optSuperPC == OPT_PC)
+		{
+			DrawStarConBox(&b, RES_SCALE(1),
+				SIS_LEFT_BORDER_COLOR,
+				SIS_BOTTOM_RIGHT_BORDER_COLOR,
+				TRUE, BLACK_COLOR);
+
+			if (IS_HD)
+			{
+				DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+
+				if (optSubmenu)
+					DrawMineralHelpers (FALSE);
+			}
+		}
+		else
+			ScreenTransition (optIPScaler, &r);
+
+		RedrawSurfaceScan(NULL);
+		UnbatchGraphics ();
+	}
 
 	SetContext (OldContext);
 }
@@ -1880,13 +2095,13 @@ ReturnToOrbit (void)
 static void
 IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 {
-#define IDLE_OFFSET     
+#define IDLE_OFFSET
 	TimeCount TimeOut = GetTimeCounter () + howLong;
 
 	while (GetTimeCounter () < TimeOut)
 	{
 		// 10 to clear the lander off of the screen
-		ScrollPlanetSide (0, 0, -(SURFACE_HEIGHT / 2 + RES_SCALE(10))); // JMS_GFX
+		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE(10))); 
 		SleepThreadUntil (inputState->NextTime);
 		inputState->NextTime += PLANET_SIDE_RATE;
 	}
@@ -1897,16 +2112,16 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 {
 // We cannot solve a quadratic equation in a macro, so use a sensible max
 #define MAX_OFFSETS  20
-#define MAX_OFFSETS_HD 400 // JMS_GFX
+#define MAX_OFFSETS_HD 400 
 // RES_SCALE(10) to clear the lander off of the screen
-#define DISTANCE_COVERED  (SURFACE_HEIGHT / 2 + RES_SCALE(10))
+#define DISTANCE_COVERED  (MapSurface.height / 2 + RES_SCALE(10))
 	int landingOfs[MAX_OFFSETS];
 	int start;
 	int end;
 	int delta;
 	int index;
-	int max_offsets; // JMS_GFX
-	int landingOfsHD[MAX_OFFSETS_HD]; // JMS_GFX
+	int max_offsets; 
+	int landingOfsHD[MAX_OFFSETS_HD]; 
 
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;
@@ -1916,7 +2131,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	for (index = 0; index < max_offsets && delta < DISTANCE_COVERED; ++index)
 	{
 		delta += index + 1;
-		// JMS_GFX
+		
 		if (IS_HD)
 			landingOfsHD[index] = -delta;
 		else
@@ -1943,7 +2158,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	// Draw the landing/takeoff lander positions
 	for (index = start; index != end; index += delta)
 	{
-		// JMS_GFX
+		
 		if (IS_HD)
 			ScrollPlanetSide (0, 0, landingOfsHD[index]);
 		else
@@ -1986,7 +2201,6 @@ KillLanderCrewSeq (COUNT numKilled, DWORD period)
 // Maps a temperature to a (0-7) hazard rating.
 // Thermal hazards aren't exposed to the user as a hazard number,
 // but the code still works with them that way.
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof (*array))
 unsigned
 GetThermalHazardRating (int temp)
 {
@@ -2117,9 +2331,11 @@ PlanetSide (POINT planetLoc)
 					NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
 
 			LandingTakeoffSequence (&landerInputState, FALSE);
-			ReturnToOrbit ();
+
+			if (optSuperPC != OPT_PC)
+				ReturnToOrbit ();
+
 			AnimateLaunch (LanderFrame[6], FALSE);
-			
 			DeltaSISGauges (crew_left, 0, 0);
 
 			if (PSD.ElementLevel)
@@ -2135,6 +2351,12 @@ PlanetSide (POINT planetLoc)
 			}
 
 			GLOBAL_SIS (TotalBioMass) += PSD.BiologicalLevel;
+
+			if (optSuperPC == OPT_PC)
+			{
+				ReturnToOrbit ();
+				InitPCLander ();
+			}
 		}
 	}
 
@@ -2190,13 +2412,16 @@ InitLander (BYTE LanderFlags)
 
 		s.origin.x = 0; /* set up powered-down lander */
 		s.origin.y = 0;
-		s.frame = SetAbsFrameIndex (LanderFrame[0],
-				ANGLE_TO_FACING (FULL_CIRCLE) << 1);
+
+		s.frame = SetAbsFrameIndex (LanderFrame[0], 32);
+
 		DrawStamp (&s);
 		if (LanderFlags == 0)
 		{
 			ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 			capacity_shift = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
+			if (optSubmenu)
+				DrawMineralHelpers (FALSE);
 		}
 		else
 		{
@@ -2236,12 +2461,93 @@ InitLander (BYTE LanderFlags)
 		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
-			r.corner.x = RES_STAT_SCALE(1);
-			r.extent.width = RES_STAT_SCALE(4);
+			r.corner.x = RES_SCALE(1);
+			r.extent.width = RES_SCALE(4);
 			r.extent.height =
-				RES_STAT_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+				RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
+		}
+
+		s.frame = SetAbsFrameIndex (s.frame, 37);
+		if (ShieldFlags & (1 << EARTHQUAKE_DISASTER))
+			DrawStamp (&s);
+		s.frame = IncFrameIndex (s.frame);
+		if (ShieldFlags & (1 << BIOLOGICAL_DISASTER))
+			DrawStamp (&s);
+		s.frame = IncFrameIndex (s.frame);
+		if (ShieldFlags & (1 << LIGHTNING_DISASTER))
+			DrawStamp (&s);
+		s.frame = IncFrameIndex (s.frame);
+		if (ShieldFlags & (1 << LAVASPOT_DISASTER))
+			DrawStamp (&s);
+	}
+
+	UnbatchGraphics ();
+}
+
+void
+InitPCLander (void)
+{
+	RECT r;
+
+	SetContext (GetPCLanderContext (NULL));
+
+	GetContextClipRect (&r);
+	r.corner = MAKE_POINT (0, 0);
+	SetContextForeGroundColor (BLACK_COLOR);
+
+	BatchGraphics ();
+
+	DrawFilledRectangle (&r);
+
+	if (GLOBAL_SIS (NumLanders)
+		&& !(pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED) 
+		&& !(pSolarSysState->pOrbitalDesc->data_index >= FIRST_GAS_GIANT
+		&& pSolarSysState->pOrbitalDesc->data_index <= LAST_GAS_GIANT))
+	{	// Do not draw lander graphics if it's impossible to land (shielded and gas giant)
+	 	// This mimics PC behaviour
+		BYTE ShieldFlags, capacity_shift;
+		COUNT free_space;
+		STAMP s;
+
+		s.frame = SetAbsFrameIndex (LanderFrame[7], 32);
+		s.origin.x = 0;
+		s.origin.y = MAP_HEIGHT / 2 - s.frame->Bounds.height / 2;
+		DrawStamp (&s);
+
+		ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
+		capacity_shift = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
+
+		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
+		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
+		{
+			COUNT i, inc;
+
+			inc = MAX_HOLD_BARS - ((free_space >> capacity_shift)
+					* MAX_HOLD_BARS / MAX_SCROUNGED) + 1;
+
+			r.corner = MAKE_POINT (RES_SCALE(1), RES_SCALE(4));
+			r.extent = MAKE_EXTENT (RES_SCALE(2), RES_SCALE(inc));
+			SetContextForeGroundColor (BLACK_COLOR);
+			DrawFilledRectangle (&r);
+
+			r.extent = MAKE_EXTENT (RES_SCALE(1), RES_SCALE(1));
+
+			for (i = 0; i < inc; i++)
+			{
+				if (i % 2 == 0)
+				{	// Draw grey boxes every 2nd iteration
+					r.corner.y += RES_SCALE(1);
+					SetContextForeGroundColor (VDKGRAY_COLOR);
+					DrawFilledRectangle (&r);
+					r.corner.x += RES_SCALE(1);
+					SetContextForeGroundColor (BLACK_COLOR);
+					DrawFilledRectangle (&r);
+					r.corner.x -= RES_SCALE(1);
+					r.corner.y += RES_SCALE(1);
+				}
+			}
 		}
 
 		s.frame = SetAbsFrameIndex (s.frame, 37);

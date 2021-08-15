@@ -27,6 +27,9 @@
 const BYTE *Elements;
 const PlanetFrame *PlanData;
 
+#define MEDIUM_DEPOSIT_THRESHOLD 150
+#define LARGE_DEPOSIT_THRESHOLD 225
+
 static COUNT
 CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 		NODE_INFO *info)
@@ -46,8 +49,6 @@ CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 				% (DEPOSIT_QUANTITY (eptr->Density) + 1);
 		while (num_possible--)
 		{
-#define MEDIUM_DEPOSIT_THRESHOLD 150
-#define LARGE_DEPOSIT_THRESHOLD 225
 			COUNT deposit_quality_fine;
 			COUNT deposit_quality_gross;
 
@@ -226,35 +227,58 @@ GeneratePresetLife (const SYSTEM_INFO *SysInfoPtr, const SBYTE *lifeTypes,
 	return i;
 }
 
+static int
+widthHeightPicker (BOOLEAN is_width)
+{
+	if (optPlanetTexture)
+		return (is_width ? (UQM_MAP_WIDTH - 1) : UQM_MAP_HEIGHT);
+	else
+		return (is_width ? THREEDO_MAP_WIDTH : THREEDO_MAP_HEIGHT);
+}
+
+static COORD
+scaleMapDimensions (BOOLEAN is_width, COORD value)
+{
+	float percentage;
+	int widthOrHeight = is_width ?
+		UQM_MAP_WIDTH : UQM_MAP_HEIGHT;
+
+	if (widthOrHeight == widthHeightPicker (is_width))
+		percentage = 1;
+	else
+		percentage = scaleThingUp (widthOrHeight,
+			widthHeightPicker (is_width));
+
+	return (COORD)(value * percentage);
+}
+
 void
 GenerateRandomLocation (POINT *loc)
 {
 	UWORD rand_val;
-	UWORD x, y; // JMS_GFX: Helpers.
 
 	rand_val = RandomContext_Random (SysGenRNG);
-	// loc->x = 8 + LOBYTE (rand_val) % (MAP_WIDTH - (8 << 1));
-	// loc->y = 8 + HIBYTE (rand_val) % (MAP_HEIGHT - (8 << 1));
-
-	x = (LOBYTE (rand_val) % (ORIGINAL_MAP_WIDTH - (8 << 1)));
-	y = (HIBYTE (rand_val) % (ORIGINAL_MAP_HEIGHT - (8 << 1)));
-	
-	// JMS_GFX
-	x <<= RESOLUTION_FACTOR;
-	y <<= RESOLUTION_FACTOR;
-	loc->x = x;
-	loc->y = y;
-	
-	loc->x += RES_SCALE(8); // JMS_GFX
-	loc->y += RES_SCALE(8); // JMS_GFX
-	
-	// JMS_GFX: Compensate for 1280x960's different aspect ratio
-	if (IS_HD)
+	if (optSuperPC != OPT_PC)
 	{
-		DWORD xx = (DWORD)loc->x;
-		xx *= 111;
-		xx /= 100;
-		loc->x = (COUNT)xx;
+		loc->x = RES_SCALE(
+			scaleMapDimensions (
+				TRUE, 8 + LOBYTE (rand_val)
+				% (widthHeightPicker (TRUE) - (8 << 1))
+			));
+		loc->y = RES_SCALE(
+			scaleMapDimensions (
+				FALSE, 8 + HIBYTE (rand_val)
+				% (widthHeightPicker (FALSE) - (8 << 1))
+			));
+	}
+	else
+	{
+		loc->x = RES_SCALE(8 + LOBYTE (rand_val) % (PC_MAP_WIDTH - (8 << 1)));
+		loc->y = RES_SCALE(
+			scaleMapDimensions (
+				FALSE, 8 + HIBYTE (rand_val)
+				% (widthHeightPicker (FALSE) - (8 << 1))
+			));
 	}
 }
 
@@ -288,4 +312,100 @@ GenerateRandomNodes (const SYSTEM_INFO *SysInfoPtr, COUNT scan, COUNT numNodes,
 	}
 	
 	return i;
+}
+
+COUNT
+CustomMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
+		NODE_INFO *info, COUNT numNodes, COUNT type, BYTE quality)
+{
+	BYTE j;
+	COUNT num_deposits;
+	BOOLEAN OpenSeason = TRUE;
+	NODE_INFO temp_info;
+	const ELEMENT_ENTRY *eptr;
+
+	if (!info) // user not interested in info but we need space for it
+		info = &temp_info;
+
+	RandomContext_SeedRandom (SysGenRNG,
+		SysInfoPtr->PlanetInfo.ScanSeed[MINERAL_SCAN]);
+
+	eptr = &SysInfoPtr->PlanetInfo.PlanDataPtr->UsefulElements[0];
+	num_deposits = 0;
+	j = NUM_USEFUL_ELEMENTS;
+	do
+	{
+		BYTE num_possible, depositQuality = 0;
+
+		num_possible = LOBYTE (RandomContext_Random (SysGenRNG))
+				% (DEPOSIT_QUANTITY (eptr->Density) + 1);
+
+		if (num_possible == 0 && OpenSeason)
+		{
+			num_possible = numNodes;
+			info->type = type;
+			depositQuality = quality;
+			OpenSeason = FALSE;
+		}
+		else
+		{
+			depositQuality = DEPOSIT_QUALITY (eptr->Density);
+			info->type = eptr->ElementType;
+		}
+
+		while (num_possible--)
+		{
+			COUNT deposit_quality_fine;
+			COUNT deposit_quality_gross;
+
+			// JMS: For making the mineral blip smaller in case it is partially scavenged.
+			SDWORD temp_deposit_quality;
+
+			deposit_quality_fine = (LOWORD (RandomContext_Random (SysGenRNG)) % 100)
+					+ (
+					depositQuality
+					+ SysInfoPtr->StarSize
+					) * 50;
+
+			// JMS: This makes the mineral blip smaller in case it is partially scavenged.
+			if (which_deposit < 32)
+				temp_deposit_quality = deposit_quality_fine
+						- ((SysInfoPtr->PlanetInfo.PartiallyScavengedList[MINERAL_SCAN][which_deposit]) * 10);
+			// JMS: In case which_deposit >= 32 (most likely 65535), it means that this
+			// function is being called only to count the number of deposit nodes on the
+			// surface. In that case we don't need to use the PartiallyScavengedList
+			// since the amount of minerals in that node is not stored yet.
+			// (AND we cannot use the list since accessing element 65535 would crash the game ;)
+			else
+				temp_deposit_quality = deposit_quality_fine;
+
+			if (temp_deposit_quality < 0)
+				temp_deposit_quality = 0;
+
+			if (temp_deposit_quality < MEDIUM_DEPOSIT_THRESHOLD)
+				deposit_quality_gross = 0;
+			else if (temp_deposit_quality < LARGE_DEPOSIT_THRESHOLD)
+				deposit_quality_gross = 1;
+			else
+				deposit_quality_gross = 2;
+
+			GenerateRandomLocation (&info->loc_pt);
+
+			info->density = MAKE_WORD (
+					deposit_quality_gross, deposit_quality_fine / 10 + 1);
+#ifdef DEBUG_SURFACE
+			log_add (log_Debug, "\t\t%d units of %Fs",
+				info->density,
+				Elements[eptr->ElementType].name);
+#endif /* DEBUG_SURFACE */
+			if (num_deposits >= which_deposit
+				|| ++num_deposits == sizeof (DWORD) * 8)
+			{	// reached the maximum or the requested node
+				return num_deposits;
+			}
+		}
+		++eptr;
+	} while (--j);
+
+	return num_deposits;
 }

@@ -29,10 +29,11 @@ extern "C" {
 #define NUM_SIDES 2
 
 extern FRAME stars_in_space;
+extern FRAME misc_in_space;
 extern FRAME StarPoints;
-extern FRAME stars_in_quasispace; // JMS_GFX
-extern FRAME crew_dots[NUM_VIEWS]; // JMS_GFX
-extern FRAME ion_trails[NUM_VIEWS]; // JMS_GFX
+extern FRAME stars_in_quasispace; 
+extern FRAME crew_dots[NUM_VIEWS]; 
+extern FRAME ion_trails[NUM_VIEWS]; 
 
 extern BOOLEAN InitSpace (void);
 extern void UninitSpace (void);

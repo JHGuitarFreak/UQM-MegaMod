@@ -123,6 +123,15 @@ colorFromRgb15 (BYTE r, BYTE g, BYTE b)
 		0xff \
 	}
 
+// This define is intended for global initialisations, where the
+// expression must be constant.
+#define MAKE_RGBA_INIT(r, g, b, a) { \
+		(r), \
+		(g), \
+		(b), \
+		(a) \
+	}
+
 static inline Color
 buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 {
@@ -194,6 +203,13 @@ MAKE_POINT (COORD x, COORD y)
 {
 	POINT pt = {x, y};
 	return pt;
+}
+
+static inline EXTENT
+MAKE_EXTENT (COORD width, COORD height)
+{
+	EXTENT ext = {width, height};
+	return ext;
 }
 
 static inline bool
@@ -438,7 +454,8 @@ extern FRAME DecFrameIndex (FRAME Frame);
 extern DRAWABLE CopyFrameRect (FRAME Frame, const RECT *area);
 extern DRAWABLE CloneFrame (FRAME Frame);
 extern DRAWABLE RotateFrame (FRAME Frame, int angle_deg);
-extern DRAWABLE RescaleFrame (FRAME, int width, int height);
+extern DRAWABLE RescaleFrame (FRAME frame, int width, int height);
+extern DRAWABLE RescalePercentage (FRAME frame, float percentage);
 // This pair works for both paletted and trucolor frames
 extern BOOLEAN ReadFramePixelColors (FRAME frame, Color *pixels,
 		int width, int height);

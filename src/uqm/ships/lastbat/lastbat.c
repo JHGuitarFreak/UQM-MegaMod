@@ -47,11 +47,11 @@
 #define WEAPON_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 10)
 #define COMET_DAMAGE 2
 #define COMET_OFFSET 0
-#define COMET_HITS 12
-#define COMET_SPEED DISPLAY_TO_WORLD (RES_SCALE(12))
+#define COMET_HITS DIF_CASE(12, 10, 15)
+#define COMET_SPEED DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE(12), RES_SCALE(10), RES_SCALE(17)))
 #define COMET_LIFE 2
-#define COMET_TURN_WAIT 3
-#define MAX_COMETS 3
+#define COMET_TURN_WAIT DIF_CASE(3, 3, 2)// compensate high speed with lesser maneuverability
+#define MAX_COMETS DIF_CASE(3, 2, 4)
 #define WEAPON_ENERGY_COST 2
 		/* Used for samatra_desc.weapon_energy_cost, but the value isn't
 		 * actually used. */
@@ -61,23 +61,24 @@
 #define SENTINEL_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
 #define SENTINEL_LIFE 2
 #define SENTINEL_OFFSET 0
-#define SENTINEL_HITS 10
-#define SENTINEL_DAMAGE 1
+#define SENTINEL_HITS DIF_CASE(10, 9, 12)
+#define SENTINEL_DAMAGE DIF_CASE(1, 1, 2)
 #define TRACK_WAIT 1
 #define ANIMATION_WAIT 1
-#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(10)))
+#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE(10), RES_SCALE(8), RES_SCALE(10))))
 #define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
-#define MAX_SENTINELS 4
+#define MAX_SENTINELS DIF_CASE(4, 4, 5)
 #define SPECIAL_ENERGY_COST 3
 		/* Used for samatra_desc.special_energy_cost, but the value isn't
 		 * actually used. */
+#define ENERGY_DRAIN 8 // for HARD mode
 
 // Blue force field
 #define GATE_DAMAGE 1
 #define GATE_HITS 100
 
 // Red generators
-#define GENERATOR_HITS 15
+#define GENERATOR_HITS DIF_CASE(15, 12, 18)
 #define MAX_GENERATORS 8
 
 static RACE_DESC samatra_desc =
@@ -672,6 +673,20 @@ sentinel_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 						COSINE (angle, MAX_RECOIL_VELOCITY),
 						SINE (angle, MAX_RECOIL_VELOCITY));
 			}
+			if (DIFFICULTY == HARD)
+			{
+				if (StarShipPtr->RaceDescPtr->ship_info.energy_level < ENERGY_DRAIN)
+					DeltaEnergy(ElementPtr1, -StarShipPtr->RaceDescPtr->ship_info.energy_level);
+				else
+					DeltaEnergy(ElementPtr1, -ENERGY_DRAIN);
+				if (EXTENDED)
+				{
+					GetElementStarShip (ElementPtr0, &StarShipPtr);
+					ProcessSound (SetAbsSoundIndex (
+						/* ENERGY DRAIN */
+						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), ElementPtr0);
+				}
+			}
 
 			ZeroVelocityComponents (&ElementPtr0->velocity);
 		}
@@ -716,6 +731,12 @@ samatra_postprocess (ELEMENT *ElementPtr)
 				&& spawn_comet (ElementPtr))
 		{
 			StarShipPtr->weapon_counter = WEAPON_WAIT;
+			if (EXTENDED)
+			{
+				ProcessSound (SetAbsSoundIndex (
+					/* COMET SPAWN */
+					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 0), ElementPtr);
+			}
 		}
 
 		if (StarShipPtr->special_counter == 0
@@ -773,7 +794,9 @@ samatra_preprocess (ELEMENT *ElementPtr)
 	}
 	else
 	{
-		POINT offs_orig[] =
+		POINT* offs;
+
+		POINT offs_orig[8] =
 		{
 			{-127-9,  -53+18},
 			{ -38-9,  -88+18},
@@ -784,20 +807,18 @@ samatra_preprocess (ELEMENT *ElementPtr)
 			{ -87-9,   58+18},
 			{-136-9,   29+18},
 		};
-		
+
 		POINT offs_hd[] =
 		{
-			{-412, -140},
-			{-150, -290},
-			{ 150, -294},
-			{ 398, -180},
-			{ 428,  130},
-			{ 280,  250},
-			{-275,  254},
-			{-429,  133},
+			{ -544 + 44, -140 - 16},
+			{ -188 + 38, -280 - 20},
+			{  140 + 34, -268 - 16},
+			{  472 + 36, -168 - 20},
+			{  460 + 32,  184 - 20},
+			{  256 + 44,  316 - 24},
+			{ -384 + 44,  304 - 12},
+			{ -580 + 32,  188 - 24},
 		};
-		
-		POINT *offs;
 
 		offs = RES_BOOL(offs_orig, offs_hd);
 

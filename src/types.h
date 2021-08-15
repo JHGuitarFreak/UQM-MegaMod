@@ -193,6 +193,8 @@ UQM_COMPILE_TIME_ASSERT(uint64, sizeof(uint64) == 8);
 #define UINT32_MAX 0xffffffff /* 4294967295U */
 #define UINT64_MAX 0xffffffffffffffff /* 18446744073709551615U */
 
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(*array))
+
 #if defined(__cplusplus)
 }
 #endif

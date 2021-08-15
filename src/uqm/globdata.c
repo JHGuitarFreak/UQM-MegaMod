@@ -544,7 +544,7 @@ InitGameStructures (void)
 
 	GLOBAL_SIS (ResUnits) = IF_EASY(0, 2500);
 	GLOBAL (CrewCost) = 3;
-	GLOBAL (FuelCost) = FUEL_COST_RU; // JMS: Was 20
+	GLOBAL (FuelCost) = FUEL_COST_RU; // JMS: Was "20"
 	GLOBAL (ModuleCost[PLANET_LANDER]) = 500 / MODULE_COST_SCALE;
 	GLOBAL (ModuleCost[FUSION_THRUSTER]) = 500 / MODULE_COST_SCALE;
 	GLOBAL (ModuleCost[TURNING_JETS]) = 500 / MODULE_COST_SCALE;
@@ -556,11 +556,12 @@ InitGameStructures (void)
 
 	GLOBAL_SIS (NumLanders) = IF_EASY(1, 2);
 
-	utf8StringCopy (GLOBAL_SIS (ShipName), sizeof (GLOBAL_SIS (ShipName)),
-			GAME_STRING (NAMING_STRING_BASE + 2));
-	utf8StringCopy (GLOBAL_SIS (CommanderName),
+	utf8StringCopy (GLOBAL_SIS (ShipName),
+			sizeof (GLOBAL_SIS (ShipName)),
+			GAME_STRING(NAMING_STRING_BASE + 6));
+	/*utf8StringCopy (GLOBAL_SIS (CommanderName),
 			sizeof (GLOBAL_SIS (CommanderName)),
-			GAME_STRING (NAMING_STRING_BASE + 3));
+			GAME_STRING (NAMING_STRING_BASE + 3));*/
 
 	SetRaceAllied (HUMAN_SHIP, TRUE);
 	CloneShipFragment (HUMAN_SHIP, &GLOBAL (built_ship_q), 0);

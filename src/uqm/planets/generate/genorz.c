@@ -64,8 +64,13 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
-	if(!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+	if (!PrimeSeed)
+	{
+		if (CurStarDescPtr->Index == ORZ_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+		else if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);

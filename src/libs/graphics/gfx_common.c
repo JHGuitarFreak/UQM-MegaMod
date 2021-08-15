@@ -24,10 +24,8 @@
 		// for TFB_DEBUG_HALT
 #include "options.h"
 
-// JMS_GFX
 int fs_height = 0; 
 int fs_width  = 0;
-// End JMS_GFX
 
 int ScreenWidth;
 int ScreenHeight;
@@ -44,15 +42,15 @@ static int gscale = GSCALE_IDENTITY;
 static int gscale_mode = TFB_SCALE_NEAREST;
 
 void
-DrawFromExtraScreen (RECT *r, BOOLEAN Fs)
-{	// Serosis: Added BOOLEAN trigger to minimize function redundancy
-	TFB_DrawScreen_Copy(r, TFB_SCREEN_EXTRA, TFB_SCREEN_MAIN, Fs);
+DrawFromExtraScreen (RECT *r)
+{
+	TFB_DrawScreen_Copy(r, TFB_SCREEN_EXTRA, TFB_SCREEN_MAIN);
 }
 
 void
-LoadIntoExtraScreen (RECT *r, BOOLEAN Fs)
-{	// Serosis: Added BOOLEAN trigger to minimize function redundancy
-	TFB_DrawScreen_Copy(r, TFB_SCREEN_MAIN, TFB_SCREEN_EXTRA, Fs);
+LoadIntoExtraScreen (RECT *r)
+{
+	TFB_DrawScreen_Copy(r, TFB_SCREEN_MAIN, TFB_SCREEN_EXTRA);
 }
 
 int
@@ -156,7 +154,7 @@ SetTransitionSource (const RECT *pRect)
 		pRect = &ActualRect;
 		ExpandRect (&ActualRect, 2);
 	}
-	TFB_DrawScreen_Copy (pRect, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION, FALSE);
+	TFB_DrawScreen_Copy (pRect, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
 }
 
 // ScreenTransition() is synchronous (does not return until transition done)

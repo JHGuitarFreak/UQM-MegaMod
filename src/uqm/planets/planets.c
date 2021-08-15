@@ -31,6 +31,8 @@
 #include "../uqmdebug.h"
 #include "../resinst.h"
 #include "../nameref.h"
+#include "../starmap.h"
+#include "../util.h"
 #include "options.h"
 #include "libs/graphics/gfx_common.h"
 
@@ -50,6 +52,8 @@ enum PlanetMenuItems
 
 CONTEXT PlanetContext;
 		// Context for rotating planet view and lander surface view
+BOOLEAN actuallyInOrbit = FALSE;
+		// For determining if the player is in actual scanning orbit
 
 static void
 CreatePlanetContext (void)
@@ -123,9 +127,9 @@ DrawPlanetSurfaceBorder (void)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= 1;
-	clipRect.extent.width += 2;
-	clipRect.extent.height += 1;
+	clipRect.corner.x -= RES_SCALE(1);
+	clipRect.extent.width += RES_SCALE(2);
+	clipRect.extent.height += RES_SCALE(1);
 	SetContextClipRect (&clipRect);
 
 	BatchGraphics ();
@@ -136,39 +140,66 @@ DrawPlanetSurfaceBorder (void)
 	r.corner.x = 0;
 	r.corner.y = clipRect.extent.height - MAP_HEIGHT - MAP_BORDER_HEIGHT;
 	r.extent.width = clipRect.extent.width;
-	r.extent.height = MAP_BORDER_HEIGHT - 2;
+	r.extent.height = MAP_BORDER_HEIGHT - RES_SCALE(2);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
 	
 	// Border top shadow line
-	r.extent.width -= 1;
-	r.extent.height = 1;
-	r.corner.x = 1;
-	r.corner.y -= 1;
+	r.extent.width -= RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
+	r.corner.x = RES_SCALE(1);
+	r.corner.y -= RES_SCALE(1);
 	DrawFilledRectangle (&r);
 	
 	// XXX: We will need bulk left and right rects here if MAP_WIDTH changes
 
 	// Right shadow line
-	r.extent.width = 1;
-	r.extent.height = MAP_HEIGHT + 2;
-	r.corner.y += MAP_BORDER_HEIGHT - 1;
-	r.corner.x = clipRect.extent.width - 1;
+	r.extent.width = RES_SCALE(1);
+	r.extent.height = MAP_HEIGHT + RES_SCALE(2);
+	r.corner.y += MAP_BORDER_HEIGHT - RES_SCALE(1);
+	r.corner.x = clipRect.extent.width - RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 	
 	// Left shadow line
-	r.corner.x -= MAP_WIDTH + 1;
+	r.corner.x -= MAP_WIDTH + RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
-	r.extent.width = MAP_WIDTH + 2;
-	r.extent.height = 1;
+	r.extent.width = MAP_WIDTH + RES_SCALE(2);
+	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
-	DrawBorder(10, FALSE);
+	if (optSuperPC == OPT_PC)
+	{
+		r.corner.x = RES_SCALE(UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X + RES_SCALE(1);
+		r.corner.y = clipRect.extent.height - MAP_HEIGHT - RES_SCALE(1);
+		r.extent.width = RES_SCALE(1);
+		r.extent.height = MAP_HEIGHT;
+		SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
+		DrawFilledRectangle (&r);
+		r.corner.x += RES_SCALE(1);
+		r.extent.width = RES_SCALE(4);
+		r.corner.y -= RES_SCALE(1);
+		r.extent.height += RES_SCALE(2);
+		SetContextForeGroundColor (BUILD_COLOR_RGBA (0x52, 0x52, 0x52, 0xFF));
+		DrawFilledRectangle (&r);
+		r.corner.x += RES_SCALE(4);
+		r.extent.width = RES_SCALE(1);
+		r.corner.y += RES_SCALE(1);
+		r.extent.height -= RES_SCALE(2);
+		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
+		DrawFilledRectangle (&r);
+
+		if (optCustomBorder)
+			DrawBorder (29, FALSE);
+		else if (IS_HD)
+			DrawBorder (33, FALSE);
+	}
+	else
+		DrawBorder (10, FALSE);
 	
 	UnbatchGraphics ();
 
@@ -181,6 +212,7 @@ typedef enum
 	DRAW_ORBITAL_FULL,
 	DRAW_ORBITAL_WAIT,
 	DRAW_ORBITAL_UPDATE,
+	DRAW_ORBITAL_FROM_STARMAP,
 
 } DRAW_ORBITAL_MODE;
 
@@ -188,6 +220,8 @@ static void
 DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 {
 	RECT r;
+
+	actuallyInOrbit = TRUE;
 
 	SetContext (SpaceContext);
 	GetContextClipRect (&r);
@@ -197,29 +231,64 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	if (Mode != DRAW_ORBITAL_UPDATE)
 	{
 		SetTransitionSource (NULL);
-
 		DrawSISFrame ();
 		DrawSISMessage (NULL);
 		DrawSISTitle (GLOBAL_SIS (PlanetName));
 		DrawStarBackGround ();
 		DrawPlanetSurfaceBorder ();
+		if (optSuperPC == OPT_PC)
+			InitPCLander ();
 	}
 
 	if (Mode == DRAW_ORBITAL_WAIT)
 	{
-		STAMP s;
+		STAMP s, ss;
+		BOOLEAN never = FALSE;
 
 		SetContext (GetScanContext (NULL));
-		s.frame = CaptureDrawable (LoadGraphic (ORBENTER_PMAP_ANIM));
+
 		s.origin.x = 0;
 		s.origin.y = 0;
+		s.frame = SetAbsFrameIndex (CaptureDrawable
+				(LoadGraphic (ORBENTER_PMAP_ANIM)), never);
+
+		if (optSuperPC == OPT_PC)
+			s.origin.x -= RES_SCALE((UQM_MAP_WIDTH - PC_MAP_WIDTH) / 2);
+
+		if (never)
+		{
+			PLANET_DESC *pPlanetDesc;
+			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+			int PlanetScale = RES_BOOL(319, 512);
+			int PlanetRescale = 1275;
+
+			pPlanetDesc = pSolarSysState->pOrbitalDesc;
+			GeneratePlanetSurface (pPlanetDesc, NULL, PlanetScale, PlanetScale);
+			ss.origin.x = SIS_SCREEN_WIDTH / 2;
+			ss.origin.y = RES_SCALE(191);
+			
+			ss.frame = RES_BOOL(Orbit->SphereFrame, CaptureDrawable (
+					RescaleFrame (Orbit->SphereFrame, PlanetRescale, PlanetRescale)));
+
+			DrawStamp (&ss);
+			DestroyDrawable (ReleaseDrawable (ss.frame));
+		}
+
 		DrawStamp (&s);
 		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
 	else if (Mode == DRAW_ORBITAL_FULL)
 	{
 		DrawDefaultPlanetSphere ();
+		DrawMenuStateStrings (PM_SCAN, SCAN);
 	}
+	else if (Mode == DRAW_ORBITAL_FROM_STARMAP)
+	{
+		DrawDefaultPlanetSphere ();
+		DrawMenuStateStrings (PM_SCAN, STARMAP);
+	}
+	else
+		DrawMenuStateStrings (PM_SCAN, SCAN);
 
 	if (Mode != DRAW_ORBITAL_WAIT)
 	{
@@ -235,8 +304,8 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	UnbatchGraphics ();
 
 	// for later RepairBackRect()
-	// JMS_GFX
-	LoadIntoExtraScreen (&r, IS_HD);
+	
+	LoadIntoExtraScreen (&r);
 }
 
 // Initialise the surface graphics, and start the planet music.
@@ -286,8 +355,19 @@ LoadPlanet (FRAME SurfDefFrame)
 		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE);
 	}
 	else
-	{
-		DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
+	{	// to fix moon suffix on load
+		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+		{
+			if (!(GetNamedPlanetaryBody ())
+				&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE
+				&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
+				&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
+			{
+				snprintf ((GLOBAL_SIS (PlanetName)) + strlen (GLOBAL_SIS (PlanetName)),
+					3, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
+			}
+		}
+	 	DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
 	}
 }
 
@@ -301,8 +381,7 @@ FreePlanet (void)
 
 	StopMusic ();
 
-	for (i = 0; i < sizeof (pSolarSysState->PlanetSideFrame)
-			/ sizeof (pSolarSysState->PlanetSideFrame[0]); ++i)
+	for (i = 0; i < ARRAY_SIZE (pSolarSysState->PlanetSideFrame); ++i)
 	{
 		DestroyDrawable (ReleaseDrawable (pSolarSysState->PlanetSideFrame[i]));
 		pSolarSysState->PlanetSideFrame[i] = 0;
@@ -314,6 +393,20 @@ FreePlanet (void)
 	pSolarSysState->XlatRef = 0;
 	DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
 	pSolarSysState->TopoFrame = 0;
+
+	if (optScanStyle == OPT_PC)
+	{
+		COUNT k;
+
+		for (k = 0; k < NUM_SCAN_TYPES; k++)
+		{
+			DestroyDrawable (
+					ReleaseDrawable (pSolarSysState->ScanFrame[k]));
+			pSolarSysState->ScanFrame[k] = 0;
+		}
+	}
+	Orbit->scanType = 0;
+
 	DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 	pSolarSysState->OrbitalCMap = 0;
 
@@ -339,7 +432,7 @@ FreePlanet (void)
 	Orbit->ScratchArray = NULL;
 	if (Orbit->map_rotate && Orbit->light_diff)
 	{
-		for (j=0 ; j < (MAP_HEIGHT); j++)
+		for (j = 0; j <= MAP_HEIGHT; j++)
 		{
 			HFree (Orbit->map_rotate[j]);
 			HFree (Orbit->light_diff[j]);
@@ -362,7 +455,9 @@ FreePlanet (void)
 	SetContext (SpaceContext);
 	DestroyPlanetContext ();
 	DestroyScanContext ();
+	DestroyPCLanderContext ();
 
+	actuallyInOrbit = FALSE;
 }
 
 void
@@ -385,7 +480,7 @@ FreeLanderFont (PLANET_INFO *info)
 static BOOLEAN
 DoPlanetOrbit (MENU_STATE *pMS)
 {
-	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT];
+	BOOLEAN select = (BOOLEAN)PulsedInputState.menu[KEY_MENU_SELECT];
 	BOOLEAN handled;
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
@@ -400,7 +495,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 	if (!select)
 		return TRUE;
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	switch (pMS->CurState)
 	{
@@ -410,16 +505,6 @@ DoPlanetOrbit (MENU_STATE *pMS)
 			{	// Found Fwiffo on Pluto
 				return FALSE;
 			}
-
-			// JMS: This will hide the table of mineral values on the status bar.
-			if (optSubmenu)
-			{
-				if (optCustomBorder)
-					DrawBorder (14, FALSE);
-				else
-					DrawSubmenu (0);
-			}
-
 			break;
 		case EQUIP_DEVICE:
 			select = DevicesMenu ();
@@ -459,7 +544,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 
 			if (!AutoPilotSet)
 			{	// Redraw the orbital display
-				DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
+				DrawOrbitalDisplay (DRAW_ORBITAL_FROM_STARMAP);//WAS FULL
 				break;
 			}
 			// Fall through !!!
@@ -474,9 +559,10 @@ DoPlanetOrbit (MENU_STATE *pMS)
 		{	// 3DO menu jumps to NAVIGATE after a successful submenu run
 			if (optWhichMenu != OPT_PC)
 				pMS->CurState = NAVIGATION;
-			DrawMenuStateStrings (PM_SCAN, pMS->CurState);
+			if (pMS->CurState != STARMAP)
+				DrawMenuStateStrings (PM_SCAN, pMS->CurState);
 		}
-		SetFlashRect (SFR_MENU_3DO);
+		SetFlashRect (SFR_MENU_3DO, FALSE);
 	}
 
 	return TRUE;
@@ -485,7 +571,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 static void
 on_input_frame (void)
 {
-	RotatePlanetSphere (TRUE);
+	RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 }
 
 void
@@ -495,9 +581,8 @@ PlanetOrbitMenu (void)
 	InputFrameCallback *oldCallback;
 
 	memset (&MenuState, 0, sizeof MenuState);
-
-	DrawMenuStateStrings (PM_SCAN, SCAN);
-	SetFlashRect (SFR_MENU_3DO);
+	
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	MenuState.CurState = SCAN;
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
@@ -508,6 +593,7 @@ PlanetOrbitMenu (void)
 
 	SetInputCallback (oldCallback);
 
-	SetFlashRect (NULL);
-	DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
+	SetFlashRect (NULL, FALSE);
+	if (!(GLOBAL(CurrentActivity) & CHECK_LOAD))
+		DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
 }

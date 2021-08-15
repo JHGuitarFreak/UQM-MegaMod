@@ -74,7 +74,7 @@ enum HyperMenuItems
  * so you can see who's chasing you.
  */
 static void
-decorate_vortex(ELEMENT * ElementPtr)
+decorate_vortex (ELEMENT * ElementPtr)
 {
 	HENCOUNTER hEncounter, hNextEncounter;
 	FRAME f = NULL;
@@ -252,11 +252,9 @@ MoveSIS (SDWORD *pdx, SDWORD *pdy)
 
 		if (cur_fuel_ticks > (COUNT)fuel_ticks)
 		{
-#ifndef TESTING
 			if (!optInfiniteFuel)
 				DeltaSISGauges (0, fuel_ticks - cur_fuel_ticks, 0);
-			
-#endif /* TESTING */
+
 			if (cur_fuel_ticks > 0x00FF)
 			{
 				hyper_dx = 0;
@@ -520,7 +518,7 @@ LoadHyperspace (void)
 		}
 	}
 	if (!(GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0))
-        DrawSISMessage (NULL);
+		DrawSISMessage (NULL);
 
 	SetContext (RadarContext);
 	SetContextBackGroundColor (
@@ -677,7 +675,7 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
-			SET_QS_PORTAL_KNOWN(index);
+			SET_QS_PORTAL_KNOWN (index);
 
 			SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
 		}
@@ -728,7 +726,7 @@ unhyper_transition (ELEMENT *ElementPtr)
 
 	// JMS: If leaving interplanetary on autopilot, always arrive HS with
 	// the ship's nose pointed into correct direction.
-	if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0)
+	if (optShipFacingHS && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
 	{
 		STARSHIP *StarShipPtr;
 		POINT universe;
@@ -840,10 +838,10 @@ hyper_transition (ELEMENT *ElementPtr)
 	else
 	{
 		COUNT frame_index;
-		
+
 		// JMS: If leaving interplanetary on autopilot, always arrive HS with
 		// the ship's nose pointed into correct direction.
-		if ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0)
+		if (optShipFacingHS && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
 		{
 			STARSHIP *StarShipPtr;
 			POINT universe;
@@ -1056,7 +1054,7 @@ AddAmbientElement (void)
 		dy = LOWORD (rand_val);
 		
 		if (!IS_HD)
-		{	// JMS_GFX
+		{	
 			dx = (SIZE)(LOBYTE (dy) % SPACE_WIDTH) - (SPACE_WIDTH >> 1);
 			dy = (SIZE)(HIBYTE (dy) % SPACE_HEIGHT) - (SPACE_HEIGHT >> 1);
 			HyperSpaceElementPtr->current.image.farray = &stars_in_space;
@@ -1393,9 +1391,9 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 
 	r.corner.y = (COORD) ((long)(MAX_Y_UNIVERSE - ey)
 			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy;
-	r.extent.width = 1;
+	r.extent.width = RES_SCALE(1);
 	r.extent.height = ((COORD) ((long)(MAX_Y_UNIVERSE - sy)
-			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y + 1;
+			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y + RES_SCALE(1);
 	for (ux = sx; ux <= ex; ux += GRID_OFFSET)
 	{
 		r.corner.x = (COORD) ((long)ux * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
@@ -1404,8 +1402,8 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 
 	r.corner.x = (COORD) ((long)sx * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
 	r.extent.width = ((COORD) ((long)ex * RADAR_WIDTH / RADAR_SCAN_WIDTH)
-			- ox) - r.corner.x + 1;
-	r.extent.height = 1;
+			- ox) - r.corner.x + RES_SCALE(1);
+	r.extent.height = RES_SCALE(1);
 	for (uy = sy; uy <= ey; uy += GRID_OFFSET)
 	{
 		r.corner.y = (COORD)((long)(MAX_Y_UNIVERSE - uy)
@@ -1617,9 +1615,9 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 	}
 }
 
-#define NUM_HOLES_FRAMES 32 // BW
-#define NUM_SUNS_FRAMES 32 // BW
-#define NUM_QUASIPORTAL_IN_HS_FRAMES 30 // JMS
+#define NUM_HOLES_FRAMES 32
+#define NUM_SUNS_FRAMES 32
+#define NUM_QUASIPORTAL_IN_HS_FRAMES 30
 
 void
 SeedUniverse (void)
@@ -1760,8 +1758,8 @@ SeedUniverse (void)
 				ey = -ey;
 
 			if (ex > (XOFFS / NUM_RADAR_SCREENS)
-				|| ey > (YOFFS / NUM_RADAR_SCREENS))
-			continue;
+					|| ey > (YOFFS / NUM_RADAR_SCREENS))
+				continue;
 
 			hHyperSpaceElement = AllocHyperElement (&SD[i].star_pt);
 			if (hHyperSpaceElement == 0)
@@ -1839,9 +1837,9 @@ SeedUniverse (void)
 				which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
 				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-					hyperstars[which_spaces_star_gfx],
-					STAR_TYPE (star_type) * NUM_STAR_COLORS
-					+ STAR_COLOR (star_type));
+						hyperstars[which_spaces_star_gfx],
+						STAR_TYPE (star_type) * NUM_STAR_COLORS
+						+ STAR_COLOR (star_type));
 				
 				HyperSpaceElementPtr->preprocess_func = NULL;
 				HyperSpaceElementPtr->postprocess_func = NULL;
@@ -1850,8 +1848,8 @@ SeedUniverse (void)
 				SetUpElement (HyperSpaceElementPtr);
 				
 				if (SDPtr == CurStarDescPtr
-				    && GET_GAME_STATE (PORTAL_COUNTER) == 0)
-					HyperSpaceElementPtr->death_func = hyper_death;
+						&& GET_GAME_STATE (PORTAL_COUNTER) == 0)
+						HyperSpaceElementPtr->death_func = hyper_death;
 				else
 				{
 					HyperSpaceElementPtr->death_func = NULL;
@@ -1866,28 +1864,42 @@ SeedUniverse (void)
 			{
 				// BW: first the actual star
 				if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 
-					|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY))
+						|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
+						&& STAR_COLOR (star_type) == YELLOW_BODY))
 				{
 					hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
 					if (hHyperSpaceElement == 0)
 						continue;
 				
 					LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
+					which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
 					// JMS_GFX: Draw stars in hyperspace.
 					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-					{	// The color, then the size and finally
-						// the frame offset for the actual animation
-						HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-						hyperspacesuns, STAR_COLOR (star_type) * NUM_STAR_TYPES * NUM_SUNS_FRAMES
-						+ STAR_TYPE (star_type) * NUM_SUNS_FRAMES
-						+ frameCounter % NUM_SUNS_FRAMES);
-					
-						HyperSpaceElementPtr->current.image.farray = &hyperspacesuns;
-						HyperSpaceElementPtr->death_func = NULL;
+					{	
+						if (!optHyperStars)
+						{
+
+							HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
+								hyperstars[which_spaces_star_gfx],
+								STAR_TYPE (star_type) * NUM_STAR_COLORS
+								+ STAR_COLOR (star_type));
+						}
+						else
+						{
+							// The color, then the size and finally
+							// the frame offset for the actual animation
+							HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
+								hyperspacesuns, STAR_COLOR(star_type) * NUM_STAR_TYPES * NUM_SUNS_FRAMES
+								+ STAR_TYPE(star_type) * NUM_SUNS_FRAMES
+								+ frameCounter % NUM_SUNS_FRAMES);
+
+							HyperSpaceElementPtr->current.image.farray = &hyperspacesuns;
+							HyperSpaceElementPtr->death_func = NULL;
+						}
 					}
 					else if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY)
-					{	// JMS_GFX: Draw Arilou homeworld in quasispace | Serosis: Draw *animated* Arilou homeworld
+					{	// Draw animated Arilou homeworld
 						HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (Falayalaralfali, frameCounter % NUM_HOLES_FRAMES);
 						HyperSpaceElementPtr->current.image.farray = &Falayalaralfali;
 					}
@@ -1980,32 +1992,36 @@ SeedUniverse (void)
 				BUILD_COLOR (MAKE_RGB15 (0x0E, 0x0E, 0x0E), 0x00));
 		r.corner.x = 0;
 		r.corner.y = 0;
-		r.extent.width = RADAR_WIDTH - 1;
-		r.extent.height = 1;
+		r.extent.width = RADAR_WIDTH - RES_SCALE(1);
+		r.extent.height = RES_SCALE(1);
 		DrawFilledRectangle (&r);
-		r.extent.width = 1;
-		r.extent.height = RADAR_HEIGHT - 1;
+		r.extent.width = RES_SCALE(1);
+		r.extent.height = RADAR_HEIGHT - RES_SCALE(1);
 		DrawFilledRectangle (&r);
 
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x06, 0x06, 0x06), 0x00));
-		r.corner.x = RADAR_WIDTH - 1;
-		r.corner.y = 1;
-		r.extent.height = RADAR_HEIGHT - 1;
+		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
+		r.corner.y = RES_SCALE(1);
+		r.extent.height = RADAR_HEIGHT - RES_SCALE(1);
 		DrawFilledRectangle (&r);
-		r.corner.x = 1;
-		r.corner.y = RADAR_HEIGHT - 1;
-		r.extent.width = RADAR_WIDTH - 2;
-		r.extent.height = 1;
+		r.corner.x = RES_SCALE(1);
+		r.corner.y = RADAR_HEIGHT - RES_SCALE(1);
+		r.extent.width = RADAR_WIDTH - RES_SCALE(2);
+		r.extent.height = RES_SCALE(1);
 		DrawFilledRectangle (&r);
 
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x00));
 		r.corner.x = 0;
-		DrawPoint (&r.corner);
-		r.corner.x = RADAR_WIDTH - 1;
+		r.extent.width = r.extent.height;
+		DrawFilledRectangle (&r);
+		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
 		r.corner.y = 0;
-		DrawPoint (&r.corner);
+		DrawFilledRectangle (&r);
+
+		if (IS_HD)
+			DrawBorder (optCustomBorder ? 28 : 32, FALSE);
 	}
 
 	UnbatchGraphics ();
@@ -2040,7 +2056,7 @@ DoHyperspaceMenu (MENU_STATE *pMS)
 	if (!select)
 		return TRUE;
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	switch (pMS->CurState)
 	{
@@ -2080,7 +2096,7 @@ DoHyperspaceMenu (MENU_STATE *pMS)
 				pMS->CurState = NAVIGATION;
 			DrawMenuStateStrings (PM_STARMAP, pMS->CurState);
 		}
-		SetFlashRect (SFR_MENU_3DO);
+		SetFlashRect (SFR_MENU_3DO, FALSE);
 	}
 
 	return TRUE;
@@ -2105,12 +2121,12 @@ UnbatchGraphics ();
 	MenuState.CurState = STARMAP;
 
 	DrawMenuStateStrings (PM_STARMAP, STARMAP);
-	SetFlashRect (SFR_MENU_3DO);
+	SetFlashRect (SFR_MENU_3DO, FALSE);
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	DoInput (&MenuState, TRUE);
 
-	SetFlashRect (NULL);
+	SetFlashRect (NULL, FALSE);
 
 	SetContext (SpaceContext);
 

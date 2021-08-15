@@ -25,11 +25,11 @@
 #include "libs/sound/sound.h"
 #include "libs/sound/trackplayer.h"
 #include "libs/log.h"
+#include "colors.h"
 
 static FRAME scope_frame;
 static int scope_init = 0;
 static FRAME scopeWork;
-static Color scopeColor;
 static EXTENT scopeSize;
 BOOLEAN oscillDisabled = FALSE;
 
@@ -40,20 +40,14 @@ InitOscilloscope (FRAME scopeBg)
 	if (!scope_init)
 	{
 		EXTENT size = GetFrameBounds (scope_frame);
-		POINT midPt = {size.width / 2, size.height / 2};
-
-		// mid-image pixel defines the color of scope lines
-		scopeColor = GetFramePixel (scope_frame, midPt);
-		// insist that scope lines be purely opaque
-		scopeColor.a = 0xff;
 		
 		scopeWork = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP | MAPPED_TO_DISPLAY,
 				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = size.width - RES_STAT_SCALE(2);
-		scopeSize.height = size.height - RES_STAT_SCALE(2);
+		scopeSize.width = size.width - RES_SCALE(2);
+		scopeSize.height = size.height - RES_SCALE(2);
 
 		scope_init = 1;
 	}
@@ -68,63 +62,129 @@ UninitOscilloscope (void)
 	scope_init = 0;
 }
 
+void
+DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
+{
+	int i;
+	CONTEXT oldContext;
+	Color scopeColor;
+
+	oldContext = SetContext (OffScreenContext);
+	SetContextFGFrame (scopeWork);
+	SetContextClipRect (NULL);
+
+	// draw the background image
+	s->origin.x = 0;
+	s->origin.y = 0;
+	s->frame = scope_frame;
+
+	DrawStamp(s);
+
+	// Set oscilloscope line color
+	scopeColor = optScopeStyle != OPT_PC ?
+			SCOPE_COLOR_3DO : SCOPE_COLOR_PC;
+
+	if (nonStop)
+	{	// Dim the oscilloscope lines for Non-Stop option
+#define DIM_PERCENTAGE 0.77
+		scopeColor.r *= DIM_PERCENTAGE;
+		scopeColor.g *= DIM_PERCENTAGE;
+		scopeColor.b *= DIM_PERCENTAGE;
+	}
+
+	SetContextForeGroundColor (scopeColor);
+
+	if (scope_data)
+	{
+		for (i = 0; i < scopeSize.width - RES_SCALE(1); ++i)
+		{
+			LINE line;
+			BYTE j;
+
+			line.first.x = i + RES_SCALE(1);
+			line.first.y = scope_data[i] + RES_DBL(1);
+			line.second.x = i + RES_SCALE(2);
+			line.second.y = scope_data[i + RES_SCALE(1)] + RES_DBL(1);
+			DrawLine (&line);
+
+			if (IS_HD)
+			{
+				for (j = 0; j < 3; j++)
+				{
+					line.first.y += 1;
+					line.second.y += 1;
+					DrawLine (&line);
+				}
+			}
+		}
+	}
+	else
+	{
+		LINE line;
+		BYTE j;
+
+		line.first.x = RES_SCALE(1);
+		line.first.y = (scopeSize.height / 2) + RES_DBL(1);
+		line.second.x = scopeSize.width + IF_HD(3);
+		line.second.y = line.first.y;
+		DrawLine (&line);
+
+		if (IS_HD)
+		{
+			for (j = 0; j < 3; j++)
+			{
+				line.first.y += 1;
+				line.second.y += 1;
+				DrawLine (&line);
+			}
+		}
+	}
+
+	SetContext (oldContext);
+
+	s->frame = scopeWork;
+}
+
 // draws the oscilloscope
 void
 DrawOscilloscope (void)
 {
 	STAMP s;
-	BYTE scope_data[192]; // JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would really require this to be
-							// less than 256. This "fix" messes up how the oscilloscope looks, but it works for now
-							// (doesn't get caught in asserts). We need to fix this later.
+	BYTE scope_data[256];
+	// JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would
+	// really require this to be less than 256. This "fix" messes up how the
+	// oscilloscope looks, but it works for now (doesn't get caught in
+	// asserts). We need to fix this later.
 
-	// BW: fixed. With narrow status panel at 4x, scope width (and data) are never more than 192.
+	// BW: fixed. With narrow status panel at 4x, scope width (and data)
+	// are never more than 192.
 	if (oscillDisabled)
 		return;
 
-	//log_add(log_Debug, "(size_t)scopeSize.width %lu, sizeof(scope_data) %lu", (size_t)scopeSize.width, sizeof(scope_data));
+	// log_add (log_Debug, "(size_t)scopeSize.width %lu,
+	//		sizeof (scope_data) %lu", (size_t)scopeSize.width,
+	//		sizeof (scope_data));
 	
-	assert ((size_t)scopeSize.width <= sizeof(scope_data));
-	assert (scopeSize.height < 256); // JMS_GFX: Was 256. FIXME:This is a hack: GraphForeGroundStream would really require this to be
-	// less than 256. This "fix" messes up how the oscilloscope looks, but it works for now
-	// (doesn't get caught in asserts). We need to fix this later.
+	assert ((size_t)scopeSize.width <= sizeof (scope_data));
+	assert (scopeSize.height < 256);
+	// JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would
+	// really require this to be less than 256. This "fix" messes up how the
+	// oscilloscope looks, but it works for now (doesn't get caught in
+	// asserts). We need to fix this later.
 
-	if (GraphForegroundStream (scope_data, scopeSize.width, scopeSize.height,
-			usingSpeech))
+	if (GraphForegroundStream (
+			scope_data, scopeSize.width, scopeSize.height, usingSpeech))
 	{
-		int i;
-		CONTEXT oldContext;
-
-		oldContext = SetContext (OffScreenContext);
-		SetContextFGFrame (scopeWork);
-		SetContextClipRect (NULL);
-		
-		// draw the background image
-		s.origin.x = 0;
-		s.origin.y = 0;
-		s.frame = scope_frame;
-		DrawStamp (&s);
-
-		// draw the scope lines
-		SetContextForeGroundColor (scopeColor);
-		for (i = 0; i < scopeSize.width - RES_STAT_SCALE(1); ++i)
-		{
-			LINE line;
-
-			line.first.x = i + RES_STAT_SCALE(1);
-			line.first.y = scope_data[i] + RES_STAT_SCALE(1);
-			line.second.x = i + RES_STAT_SCALE(2);
-			line.second.y = scope_data[i + RES_STAT_SCALE(1)] + RES_STAT_SCALE(1);
-			DrawLine (&line);
-		}
-
-		SetContext (oldContext);
-
-		s.frame = scopeWork;
+		DrawOscilloscopeLines (&s, scope_data, FALSE);
+	}
+	else if (GraphForegroundStream (
+			scope_data, scopeSize.width, scopeSize.height, FALSE)
+			&& usingSpeech && optNonStopOscill)
+	{
+		DrawOscilloscopeLines (&s, scope_data, TRUE);
 	}
 	else
-	{	// no data -- draw blank scope background
-		s.frame = scope_frame;
-	}
+		DrawOscilloscopeLines (&s, NULL, FALSE);
 
 	// draw the final scope image to screen
 	s.origin.x = 0;
@@ -132,6 +192,19 @@ DrawOscilloscope (void)
 	DrawStamp (&s);
 }
 
+void
+FlattenOscilloscope (void)
+{
+	STAMP s;
+	CONTEXT OldContext;
+
+	OldContext = SetContext (RadarContext);
+
+	DrawOscilloscopeLines (&s, NULL, FALSE);
+	s.origin = MAKE_POINT(0, 0);
+	DrawStamp (&s);
+	SetContext (OldContext);
+}
 
 static STAMP sliderStamp;
 static STAMP buttonStamp;
@@ -161,7 +234,8 @@ InitSlider (int x, int y, int width, FRAME sliderFrame, FRAME buttonFrame)
 	sliderStamp.frame = sliderFrame;
 	
 	buttonStamp.origin.x = x;
-	buttonStamp.origin.y = y - ((buttonSize.height - sliderSize.height) / 2);
+	buttonStamp.origin.y = y - (
+			(buttonSize.height - sliderSize.height) / 2);
 	buttonStamp.frame = buttonFrame;
 
 	sliderSpace = width - buttonSize.width;
@@ -195,4 +269,3 @@ DrawSlider (void)
 		UnbatchGraphics ();
 	}
 }
-
