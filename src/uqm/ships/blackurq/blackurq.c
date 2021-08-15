@@ -557,10 +557,21 @@ init_black_urquan (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		black_urquan_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		black_urquan_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		black_urquan_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
+	if (IS_HD)
+	{
+		black_urquan_desc.characteristics.max_thrust =
+				RES_SCALE (MAX_THRUST);
+		black_urquan_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		black_urquan_desc.cyborg_control.WeaponRange =
+				CLOSE_RANGE_WEAPON_HD;
+	}
+	else
+	{
+		black_urquan_desc.characteristics.max_thrust = MAX_THRUST;
+		black_urquan_desc.characteristics.thrust_increment =
+				THRUST_INCREMENT;
+		black_urquan_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON;
 	}
 
 	black_urquan_desc.preprocess_func = black_urquan_preprocess;

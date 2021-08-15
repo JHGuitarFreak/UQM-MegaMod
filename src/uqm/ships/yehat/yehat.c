@@ -362,10 +362,20 @@ init_yehat (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		yehat_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		yehat_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		yehat_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE / 3;
+	if (IS_HD)
+	{
+		yehat_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		yehat_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		yehat_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED_HD * MISSILE_LIFE / 3;
+	}
+	else
+	{
+		yehat_desc.characteristics.max_thrust = MAX_THRUST;
+		yehat_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		yehat_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED * MISSILE_LIFE / 3;
 	}
 
 	yehat_desc.preprocess_func = yehat_preprocess;

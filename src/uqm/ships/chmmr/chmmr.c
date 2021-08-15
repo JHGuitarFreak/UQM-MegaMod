@@ -779,10 +779,18 @@ init_chmmr (void)
 {
 	RACE_DESC *RaceDescPtr;	
 
-	if (IS_HD) {
-		chmmr_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		chmmr_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+	if (IS_HD)
+	{
+		chmmr_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		chmmr_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
 		chmmr_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
+	}
+	else
+	{
+		chmmr_desc.characteristics.max_thrust = MAX_THRUST;
+		chmmr_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		chmmr_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON;
 	}
 
 	chmmr_desc.preprocess_func = chmmr_preprocess;

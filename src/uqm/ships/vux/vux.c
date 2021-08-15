@@ -410,9 +410,16 @@ init_vux (void)
 
 	if (IS_HD)
 	{
-		vux_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		vux_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		vux_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		vux_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
 		vux_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
+	}
+	else
+	{
+		vux_desc.characteristics.max_thrust = MAX_THRUST;
+		vux_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		vux_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON;
 	}
 
 	vux_desc.preprocess_func = vux_preprocess;

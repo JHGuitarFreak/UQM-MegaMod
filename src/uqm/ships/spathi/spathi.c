@@ -296,10 +296,18 @@ init_spathi (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		spathi_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		spathi_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+	if (IS_HD)
+	{
+		spathi_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		spathi_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
 		spathi_desc.cyborg_control.WeaponRange = MISSILE_RANGE_HD;
+	}
+	else
+	{
+		spathi_desc.characteristics.max_thrust = MAX_THRUST;
+		spathi_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		spathi_desc.cyborg_control.WeaponRange = MISSILE_RANGE;
 	}
 
 	spathi_desc.postprocess_func = spathi_postprocess;

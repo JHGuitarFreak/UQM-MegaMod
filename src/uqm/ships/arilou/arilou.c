@@ -319,10 +319,18 @@ init_arilou (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		arilou_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		arilou_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+	if (IS_HD)
+	{
+		arilou_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		arilou_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
 		arilou_desc.cyborg_control.WeaponRange = LASER_RANGE_HD >> 1;
+	}
+	else
+	{
+		arilou_desc.characteristics.max_thrust = MAX_THRUST;
+		arilou_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		arilou_desc.cyborg_control.WeaponRange = LASER_RANGE >> 1;
 	}
 
 	arilou_desc.preprocess_func = arilou_preprocess;

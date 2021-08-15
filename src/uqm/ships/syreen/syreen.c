@@ -283,10 +283,20 @@ init_syreen (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		syreen_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		syreen_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		syreen_desc.cyborg_control.WeaponRange = (MISSILE_SPEED_HD * MISSILE_LIFE * 2 / 3);
+	if (IS_HD)
+	{
+		syreen_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		syreen_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		syreen_desc.cyborg_control.WeaponRange =
+				(MISSILE_SPEED_HD * MISSILE_LIFE * 2 / 3);
+	}
+	else
+	{
+		syreen_desc.characteristics.max_thrust = MAX_THRUST;
+		syreen_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		syreen_desc.cyborg_control.WeaponRange =
+				(MISSILE_SPEED * MISSILE_LIFE * 2 / 3);
 	}
 
 	syreen_desc.postprocess_func = syreen_postprocess;

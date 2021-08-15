@@ -554,10 +554,20 @@ init_urquan (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		urquan_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		urquan_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		urquan_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
+	if (IS_HD)
+	{
+		urquan_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		urquan_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		urquan_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED_HD * MISSILE_LIFE;
+	}
+	else
+	{
+		urquan_desc.characteristics.max_thrust = MAX_THRUST;
+		urquan_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		urquan_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED * MISSILE_LIFE;
 	}
 
 	urquan_desc.postprocess_func = urquan_postprocess;

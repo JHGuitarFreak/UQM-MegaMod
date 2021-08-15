@@ -317,10 +317,18 @@ init_druuge (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		druuge_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		druuge_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+	if (IS_HD)
+	{
+		druuge_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		druuge_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
 		druuge_desc.cyborg_control.WeaponRange = MISSILE_RANGE_HD;
+	}
+	else
+	{
+		druuge_desc.characteristics.max_thrust = MAX_THRUST;
+		druuge_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		druuge_desc.cyborg_control.WeaponRange = MISSILE_RANGE;
 	}
 
 	druuge_desc.preprocess_func = druuge_preprocess;

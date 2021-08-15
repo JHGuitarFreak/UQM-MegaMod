@@ -366,10 +366,18 @@ init_mycon (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		mycon_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		mycon_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		mycon_desc.cyborg_control.WeaponRange = DISPLAY_TO_WORLD(3200);
+	if (IS_HD)
+	{
+		mycon_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		mycon_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		mycon_desc.cyborg_control.WeaponRange = DISPLAY_TO_WORLD (3200);
+	}
+	else
+	{
+		mycon_desc.characteristics.max_thrust = MAX_THRUST;
+		mycon_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		mycon_desc.cyborg_control.WeaponRange = DISPLAY_TO_WORLD (800);
 	}
 
 	mycon_desc.postprocess_func = mycon_postprocess;

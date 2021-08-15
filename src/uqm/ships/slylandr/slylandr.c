@@ -430,10 +430,20 @@ init_slylandro (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		slylandro_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		slylandro_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		slylandro_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD << 1;
+	if (IS_HD)
+	{
+		slylandro_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		slylandro_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		slylandro_desc.cyborg_control.WeaponRange =
+				CLOSE_RANGE_WEAPON_HD << 1;
+	}
+	else
+	{
+		slylandro_desc.characteristics.max_thrust = MAX_THRUST;
+		slylandro_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		slylandro_desc.cyborg_control.WeaponRange =
+				CLOSE_RANGE_WEAPON << 1;
 	}
 
 	slylandro_desc.preprocess_func = slylandro_preprocess;

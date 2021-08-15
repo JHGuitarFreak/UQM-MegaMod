@@ -1112,10 +1112,19 @@ init_orz (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		orz_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		orz_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		orz_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
+	if (IS_HD)
+	{
+		orz_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		orz_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		orz_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED_HD * MISSILE_LIFE;
+	}
+	else
+	{
+		orz_desc.characteristics.max_thrust = MAX_THRUST;
+		orz_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		orz_desc.cyborg_control.WeaponRange = MISSILE_SPEED * MISSILE_LIFE;
 	}
 
 	orz_desc.preprocess_func = orz_preprocess;

@@ -526,10 +526,22 @@ init_androsynth (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		androsynth_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		androsynth_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		androsynth_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD >> 2;
+	if (IS_HD)
+	{
+		androsynth_desc.characteristics.max_thrust =
+				RES_SCALE (MAX_THRUST);
+		androsynth_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		androsynth_desc.cyborg_control.WeaponRange =
+				LONG_RANGE_WEAPON_HD >> 2;
+	}
+	else
+	{
+		androsynth_desc.characteristics.max_thrust = MAX_THRUST;
+		androsynth_desc.characteristics.thrust_increment =
+				THRUST_INCREMENT;
+		androsynth_desc.cyborg_control.WeaponRange =
+				LONG_RANGE_WEAPON >> 2;
 	}
 
 	androsynth_desc.preprocess_func = androsynth_preprocess;

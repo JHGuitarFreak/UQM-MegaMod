@@ -619,10 +619,18 @@ init_pkunk (void)
 	RACE_DESC *RaceDescPtr;
 	PKUNK_DATA empty_data;
 
-	if (IS_HD) {
-		pkunk_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		pkunk_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+	if (IS_HD)
+	{
+		pkunk_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		pkunk_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
 		pkunk_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD + 4;
+	}
+	else
+	{
+		pkunk_desc.characteristics.max_thrust = MAX_THRUST;
+		pkunk_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		pkunk_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON + 1;
 	}
 
 	// The caller of this func will copy the struct

@@ -470,10 +470,20 @@ init_shofixti (void)
 	// The caller of this func will copy the struct
 	static RACE_DESC new_shofixti_desc;
 
-	if (IS_HD) {
-		shofixti_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		shofixti_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		shofixti_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
+	if (IS_HD)
+	{
+		shofixti_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		shofixti_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		shofixti_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED_HD * MISSILE_LIFE;
+	}
+	else
+	{
+		shofixti_desc.characteristics.max_thrust = MAX_THRUST;
+		shofixti_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		shofixti_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED * MISSILE_LIFE;
 	}
 
 	shofixti_desc.postprocess_func = shofixti_postprocess;

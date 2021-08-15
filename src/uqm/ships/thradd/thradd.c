@@ -394,10 +394,20 @@ init_thraddash (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
-		thraddash_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		thraddash_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		thraddash_desc.cyborg_control.WeaponRange = (MISSILE_SPEED_HD * MISSILE_LIFE) >> 1;
+	if (IS_HD)
+	{
+		thraddash_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		thraddash_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		thraddash_desc.cyborg_control.WeaponRange =
+				(MISSILE_SPEED_HD * MISSILE_LIFE) >> 1;
+	}
+	else
+	{
+		thraddash_desc.characteristics.max_thrust = MAX_THRUST;
+		thraddash_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		thraddash_desc.cyborg_control.WeaponRange =
+				(MISSILE_SPEED * MISSILE_LIFE) >> 1;
 	}
 
 	thraddash_desc.preprocess_func = thraddash_preprocess;

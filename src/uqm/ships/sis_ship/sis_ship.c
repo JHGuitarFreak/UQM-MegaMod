@@ -934,10 +934,19 @@ init_sis (void)
 	SIS_DATA empty_data;
 	memset (&empty_data, 0, sizeof (empty_data));
 
-	if (IS_HD) {
-		sis_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		sis_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
-		sis_desc.cyborg_control.WeaponRange = BLASTER_SPEED_HD * BLASTER_LIFE;
+	if (IS_HD)
+	{
+		sis_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		sis_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
+		sis_desc.cyborg_control.WeaponRange =
+				BLASTER_SPEED_HD * BLASTER_LIFE;
+	}
+	else
+	{
+		sis_desc.characteristics.max_thrust = MAX_THRUST;
+		sis_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		sis_desc.cyborg_control.WeaponRange = BLASTER_SPEED * BLASTER_LIFE;
 	}
 
 	/* copy initial ship settings to new_sis_desc */

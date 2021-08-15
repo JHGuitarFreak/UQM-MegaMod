@@ -500,10 +500,17 @@ init_mmrnmhrm (void)
 	static RACE_DESC new_mmrnmhrm_desc;
 	MMRNMHRM_DATA otherwing_desc;
 
-	if (IS_HD) {
-		mmrnmhrm_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		mmrnmhrm_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+	if (IS_HD)
+	{
+		mmrnmhrm_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		mmrnmhrm_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		mmrnmhrm_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
+	}
+	else
+	{
+		mmrnmhrm_desc.characteristics.max_thrust = MAX_THRUST;
+		mmrnmhrm_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		mmrnmhrm_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON;
 	}
 
 	mmrnmhrm_desc.uninit_func = uninit_mmrnmhrm;
