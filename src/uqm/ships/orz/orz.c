@@ -399,13 +399,8 @@ intruder_preprocess (ELEMENT *ElementPtr)
 			{
 				--ElementPtr->thrust_wait;
 
-				if (!IS_HD) {
-					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
-					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
-				} else {
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-				}
+				s.origin.x = RES_SCALE (16 + (ElementPtr->turn_wait & 3) * 9);
+				s.origin.y = RES_SCALE (14 + (ElementPtr->turn_wait >> 2) * 11);
 				s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
 						GetFrameCount (ElementPtr->next.image.farray[0]) - 2);
 				ModifySilhouette (ShipPtr, &s, 0);
@@ -419,13 +414,8 @@ intruder_preprocess (ELEMENT *ElementPtr)
 				UnlockElement (hElement);
 				hElement = 0;
 LeftShip:
-				if (!IS_HD) {
-					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
-					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
-				} else {
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-				}
+				s.origin.x = RES_SCALE (16 + (ElementPtr->turn_wait & 3) * 9);
+				s.origin.y = RES_SCALE (14 + (ElementPtr->turn_wait >> 2) * 11);
 				s.frame = ElementPtr->next.image.frame;
 				ModifySilhouette (ShipPtr, &s, MODIFY_SWAP);
 			}
@@ -455,13 +445,8 @@ LeftShip:
 					}
 
 					++ElementPtr->thrust_wait;
-					if (!IS_HD) {
-						s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
-						s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
-					} else {
-						s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-						s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-					}
+					s.origin.x = RES_SCALE (16 + (ElementPtr->turn_wait & 3) * 9);
+					s.origin.y = RES_SCALE (14 + (ElementPtr->turn_wait >> 2) * 11);
 					s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
 							GetFrameCount (ElementPtr->next.image.farray[0]) - 1);
 					ModifySilhouette (ShipPtr, &s, 0);
@@ -825,16 +810,8 @@ marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 						ElementPtr0->PrimIndex
 						], NO_PRIM);
 				ElementPtr0->preprocess_func = intruder_preprocess;
-				if (!IS_HD)
-				{
-					s.origin.x = 16 + (ElementPtr0->turn_wait & 3) * 9;
-					s.origin.y = 14 + (ElementPtr0->turn_wait >> 2) * 11;
-				}
-				else
-				{
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr0->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-					s.origin.y = RES_SCALE(14 + (ElementPtr0->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-				}
+				s.origin.x = RES_SCALE (16 + (ElementPtr0->turn_wait & 3) * 9);
+				s.origin.y = RES_SCALE (14 + (ElementPtr0->turn_wait >> 2) * 11);
 				s.frame = ElementPtr0->next.image.frame;
 				ModifySilhouette (ElementPtr1, &s, 0);
 
