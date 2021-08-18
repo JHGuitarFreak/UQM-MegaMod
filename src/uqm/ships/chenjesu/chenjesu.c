@@ -295,25 +295,6 @@ doggy_preprocess (ELEMENT *ElementPtr)
 			SetVelocityVector (&ElementPtr->velocity,
 					DOGGY_SPEED, facing);
 	}
-
-	if (IS_HD)
-	{
-		if (ElementPtr->turn_wait > 0)
-			--ElementPtr->turn_wait;
-		else
-		{
-			if (GetFrameIndex (ElementPtr->current.image.frame) == 11)
-				ElementPtr->next.image.frame =
-					SetAbsFrameIndex (ElementPtr->current.image.frame, 0);
-			else
-				ElementPtr->next.image.frame =
-					IncFrameIndex (ElementPtr->current.image.frame);
-					
-			ElementPtr->state_flags |= CHANGING;
-
-			ElementPtr->turn_wait = 1;
-		}
- 	}
 }
 
 static void
@@ -328,13 +309,10 @@ doggy_death (ELEMENT *ElementPtr)
 
 	ElementPtr->state_flags &= ~DISAPPEARING;
 	ElementPtr->state_flags |= NONSOLID | FINITE_LIFE;
-	// JMS_GFX: Doggy's dying animation starts at different frame in hi-res modes.
-	if (IS_HD){
-		ElementPtr->current.image.frame = SetRelFrameIndex (
-			ElementPtr->current.image.frame, 12);
-	}
 	ElementPtr->life_span = 6;
+	{
 	ElementPtr->preprocess_func = animate;
+	}
 	ElementPtr->death_func = NULL;
 	ElementPtr->collision_func = NULL;
 	ZeroVelocityComponents (&ElementPtr->velocity);
@@ -445,7 +423,7 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 				) <= RESOLUTION_COMPENSATED(SLOW_SHIP) 
 				&& WEAPON_RANGE (
 				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) >= RES_SCALE(LONG_RANGE_WEAPON) * 3 / 4 
+				) >= RES_BOOL(LONG_RANGE_WEAPON, LONG_RANGE_WEAPON_HD) * 3 / 4 
 				&& (EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags & SEEKING_WEAPON)))
 			lpEvalDesc->MoveState = PURSUE;
 	}
