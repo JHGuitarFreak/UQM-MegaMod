@@ -19,6 +19,7 @@ Logo Card [1st]    = Vandiana Platin           - Free for personal use   -> http
 Logo Card [2nd]    = Oxanium                   - OFL-1.1 License         -> https://github.com/sevmeyer/oxanium
 Main Menu          = OPTICirrus Bold (Modded)  - Defunct                 -> https://www.ffonts.net/OPTICirrus-Bold.font
 MegaMod Logo       = Aware Bold                - Freeware (No License)   -> https://www.fontspace.com/aware-font-f43412
+Melee Labels       = UQM Melee Labels          - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 Melnorme           = UQM Micro Regular         - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 MicroFont          = UQM Micro Regular         - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 Mycon              = Untitled Black            - Freeware (No License)   -> https://www.fontspace.com/untitled-black-font-f28082
