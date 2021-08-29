@@ -240,6 +240,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r);
+	DrawBorder (8, FALSE);
 	r.corner = s.origin;
 	r.extent.width = RADAR_WIDTH;
 	r.extent.height = RADAR_HEIGHT;
