@@ -111,8 +111,8 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
 			{
 				for (j = 0; j < 3; j++)
 				{
-					line.first.y += 1;
-					line.second.y += 1;
+					line.first.y++;
+					line.second.y++;
 					DrawLine (&line);
 				}
 			}
@@ -133,8 +133,8 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
 		{
 			for (j = 0; j < 3; j++)
 			{
-				line.first.y += 1;
-				line.second.y += 1;
+				line.first.y++;
+				line.second.y++;
 				DrawLine (&line);
 			}
 		}

@@ -1062,7 +1062,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 }
 
 static unsigned int
-FuelRequired (void){
+FuelRequired (void)
+{
 	COUNT fuel_required;
 	DWORD f;
 	POINT pt;
