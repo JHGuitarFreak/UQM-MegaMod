@@ -973,9 +973,13 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->shipDirectionIP, "mm.shipDirectionIP");
 	getBoolConfigValue (&options->hazardColors, "mm.hazardColors");
 	getBoolConfigValue (&options->orzCompFont, "mm.orzCompFont");
+
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 	if (res_IsInteger ("mm.controllerType") && !options->optControllerType.set) {
 		options->optControllerType.value = res_GetInteger ("mm.controllerType");
 	}
+#endif
+
 	getBoolConfigValue (&options->shipFacingHS, "mm.shipFacingHS");
 	getBoolConfigValueXlat (&options->coloredPlanet, "mm.coloredPlanet",
 		OPT_3DO, OPT_PC);
@@ -1624,8 +1628,10 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					saveError ("\nController type has to be 0, 1, or 2.\n");
 					badArg = true;
 				} else {
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 					options->optControllerType.value = temp;
 					options->optControllerType.set = true;
+#endif
 				}
 				break;
 			}

@@ -228,7 +228,7 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
-#if !(defined(ANDROID) || defined(__ANDROID__))
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 	(WIDGET *)(&choices[59]),   // Control Display
 #endif
 	(WIDGET *)(&choices[18]),   // Bottom Player
@@ -2189,8 +2189,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
 	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
 
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 	res_PutInteger ("mm.controllerType", opts->controllerType);
 	optControllerType = opts->controllerType;
+#endif
 
 	res_PutBoolean ("mm.shipFacingHS", opts->shipFacingHS == OPTVAL_ENABLED);
 	optShipFacingHS = (opts->shipFacingHS == OPTVAL_ENABLED);
