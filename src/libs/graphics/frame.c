@@ -20,6 +20,7 @@
 #include "gfx_common.h"
 #include "tfb_draw.h"
 #include "tfb_prim.h"
+#include "uqm/units.h"
 
 HOT_SPOT
 MAKE_HOT_SPOT (COORD x, COORD y)
@@ -154,7 +155,7 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 				case LINE_PRIM:
 					color = GetPrimColor (lpWorkPrim);
 					TFB_Prim_Line (&lpWorkPrim->Object.Line, color,
-							mode, origin);
+							mode, origin, RES_BOOL (1, 3));
 					break;
 				case TEXT_PRIM:
 					if (!TextRect (&lpWorkPrim->Object.Text, &ClipRect, NULL))
@@ -235,7 +236,7 @@ DrawFilledRectangle (RECT *lpRect)
 }
 
 void
-DrawLine (LINE *lpLine)
+DrawLine (LINE *lpLine, BYTE thickness)
 {
 	POINT origin;
 
@@ -243,7 +244,7 @@ DrawLine (LINE *lpLine)
 	{
 		Color color = GetPrimColor (&_locPrim);
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_Line (lpLine, color, mode, origin);
+		TFB_Prim_Line (lpLine, color, mode, origin, thickness);
 	}
 }
 

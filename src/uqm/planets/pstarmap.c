@@ -701,7 +701,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			l.second.x = UNIVERSE_TO_DISPX (CNPtr->x);
 			l.second.y = UNIVERSE_TO_DISPY (CNPtr->y);
 			CNPtr++;
-			DrawLine (&l);
+			DrawLine (&l, 1);
 		}
 	 	SetContextForeGroundColor (oldColor);
 	}

@@ -64,7 +64,7 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		if (corners.second.y < corners.first.y)
 			corners.second.y = corners.first.y;
 
-		DrawLine (&corners);
+		DrawLine (&corners, 1);
 		return;
 	}
 
@@ -250,7 +250,7 @@ DrawFilledOval (RECT *pRect)
 		if (corners.second.y < corners.first.y)
 			corners.second.y = corners.first.y;
 
-		DrawLine (&corners);
+		DrawLine (&corners, 1);
 		return;
 	}
 

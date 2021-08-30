@@ -1866,12 +1866,12 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	DrawFilledRectangle (&rect);
 
 	SetContextForeGroundColor (lineCol);
-	line.first = p1; line.second = p2; DrawLine (&line);
-	line.first = p2; line.second = p4; DrawLine (&line);
-	line.first = p1; line.second = p3; DrawLine (&line);
-	line.first = p3; line.second = p4; DrawLine (&line);
-	line.first = p1; line.second = p4; DrawLine (&line);
-	line.first = p2; line.second = p3; DrawLine (&line);
+	line.first = p1; line.second = p2; DrawLine (&line, 1);
+	line.first = p2; line.second = p4; DrawLine (&line, 1);
+	line.first = p1; line.second = p3; DrawLine (&line, 1);
+	line.first = p3; line.second = p4; DrawLine (&line, 1);
+	line.first = p1; line.second = p4; DrawLine (&line, 1);
+	line.first = p2; line.second = p3; DrawLine (&line, 1);
 	// Gimme C'99! So I can do:
 	//     DrawLine ((LINE) { .first = p1, .second = p2 })
 

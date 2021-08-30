@@ -399,7 +399,7 @@ extern void DrawFilledStamp (STAMP *pStamp);
 extern void DrawPoint (POINT *pPoint);
 extern void DrawRectangle (RECT *pRect, BOOLEAN scaled);
 extern void DrawFilledRectangle (RECT *pRect);
-extern void DrawLine (LINE *pLine);
+extern void DrawLine (LINE *pLine, BYTE thickness);
 extern RECT font_GetTextRect (TEXT* pText);
 extern void font_DrawText (TEXT *pText);
 extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);

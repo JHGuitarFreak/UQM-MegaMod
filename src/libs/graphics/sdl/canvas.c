@@ -72,7 +72,7 @@ checkPrimitiveMode (SDL_Surface *surf, Color *color, DrawMode *mode)
 
 void
 TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
-		DrawMode mode, TFB_Canvas target)
+		DrawMode mode, TFB_Canvas target, BYTE thickness)
 {
 	SDL_Surface *dst = target;
 	SDL_PixelFormat *fmt = dst->format;
@@ -91,7 +91,7 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 	}
 
 	SDL_LockSurface (dst);
-	line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst);
+	line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst, thickness);
 	SDL_UnlockSurface (dst);
 }
 

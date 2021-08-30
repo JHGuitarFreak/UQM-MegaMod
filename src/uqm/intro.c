@@ -754,7 +754,7 @@ DoPresentation (void *pIS)
 				l.second.y = RES_SCALE(y2);
 				
 				SetContextForeGroundColor (pPIS->TextColor);
-				DrawLine (&l);
+				DrawLine (&l, 1);
 			}
 			else
 			{

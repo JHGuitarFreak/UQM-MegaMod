@@ -99,45 +99,23 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
 		for (i = 0; i < scopeSize.width - RES_SCALE(1); ++i)
 		{
 			LINE line;
-			BYTE j;
 
 			line.first.x = i + RES_SCALE(1);
 			line.first.y = scope_data[i] + RES_DBL(1);
 			line.second.x = i + RES_SCALE(2);
 			line.second.y = scope_data[i + RES_SCALE(1)] + RES_DBL(1);
-			DrawLine (&line);
-
-			if (IS_HD)
-			{
-				for (j = 0; j < 3; j++)
-				{
-					line.first.y++;
-					line.second.y++;
-					DrawLine (&line);
-				}
-			}
+			DrawLine (&line, RES_SCALE(1));
 		}
 	}
 	else
 	{
 		LINE line;
-		BYTE j;
 
 		line.first.x = RES_SCALE(1);
 		line.first.y = (scopeSize.height / 2) + RES_DBL(1);
 		line.second.x = scopeSize.width + IF_HD(3);
 		line.second.y = line.first.y;
-		DrawLine (&line);
-
-		if (IS_HD)
-		{
-			for (j = 0; j < 3; j++)
-			{
-				line.first.y++;
-				line.second.y++;
-				DrawLine (&line);
-			}
-		}
+		DrawLine (&line, RES_SCALE(1));
 	}
 
 	SetContext (oldContext);
