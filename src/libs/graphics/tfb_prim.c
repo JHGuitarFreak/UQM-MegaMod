@@ -116,20 +116,7 @@ TFB_Prim_Line (LINE *line, Color color, DrawMode mode, POINT ctxOrigin)
 	y2=line->second.y + ctxOrigin.y;
 
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
-	{
 		TFB_DrawScreen_Line (x1, y1, x2, y2, color, mode, TFB_SCREEN_MAIN);
-
-		if (IS_HD)
-		{
-			BYTE i;
-
-			for (i = 0; i < 2; i++)
-			{
-				x1++; y1++; x2++; y2++;
-				TFB_DrawScreen_Line (x1, y1, x2, y2, color, mode, TFB_SCREEN_MAIN);
-			}
-		}
-	}
 	else
 		TFB_DrawImage_Line (x1, y1, x2, y2, color, mode, _CurFramePtr->image);
 }

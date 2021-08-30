@@ -19,6 +19,7 @@
 #include "port.h"
 #include "sdl_common.h"
 #include "primitives.h"
+#include "uqm/units.h"
 
 
 // Pixel drawing routines
@@ -297,7 +298,7 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
  * 3 Sep 85; taken from Graphics Gems I */
 
 void
-line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
+line_prim (int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 		int factor, SDL_Surface *dst)
 {
 	int d, x, y, ax, ay, sx, sy, dx, dy;
@@ -306,6 +307,12 @@ line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	SDL_GetClipRect (dst, &clip_r);
 	if (!clip_line (&x1, &y1, &x2, &y2, &clip_r))
 		return; // line is completely outside clipping rectangle
+
+	if (IS_HD)
+	{
+		clip_r.w = 3;
+		clip_r.h = 3;
+	}
 
 	dx = x2-x1;
 	ax = ((dx < 0) ? -dx : dx) << 1;
@@ -319,7 +326,14 @@ line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	if (ax > ay) {
 		d = ay - (ax >> 1);
 		for (;;) {
-			(*plot)(dst, x, y, color, factor);
+			if(!IS_HD)
+				(*plot)(dst, x, y, color, factor);
+			else
+			{
+				clip_r.x = x;
+				clip_r.y = y;
+				fillrect_prim (clip_r, color, plot, factor, dst);
+			}
 			if (x == x2)
 				return;
 			if (d >= 0) {
@@ -332,7 +346,14 @@ line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	} else {
 		d = ax - (ay >> 1);
 		for (;;) {
-			(*plot)(dst, x, y, color, factor);
+			if(!IS_HD)
+				(*plot)(dst, x, y, color, factor);
+			else
+			{
+				clip_r.x = x;
+				clip_r.y = y;
+				fillrect_prim (clip_r, color, plot, factor, dst);
+			}
 			if (y == y2)
 				return;
 			if (d >= 0) {
