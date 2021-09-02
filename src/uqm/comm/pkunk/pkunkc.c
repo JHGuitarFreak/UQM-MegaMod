@@ -158,7 +158,9 @@ ExitConversation (RESPONSE_REF R)
 		SET_GAME_STATE (PKUNK_HOME_VISITS, 0);
 		SET_GAME_STATE (PKUNK_INFO, 0);
 
-		AddEvent (RELATIVE_EVENT, 6, 0, 0, ADVANCE_PKUNK_MISSION);
+		if (!DIF_HARD)
+			AddEvent (RELATIVE_EVENT, 6, 0, 0, ADVANCE_PKUNK_MISSION);
+
 		if (EscortFeasibilityStudy (PKUNK_SHIP) == 0)
 			NPCPhrase (INIT_NO_ROOM);
 		else

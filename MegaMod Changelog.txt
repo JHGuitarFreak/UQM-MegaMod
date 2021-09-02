@@ -50,6 +50,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Brand new Flagship designed off the vanilla version created by Jordan Lo
 - HD: JBrand new set of Flagship modules designed off the vanilla versions created by Jordan Lo
 - EXTENDED: Ability to fill Syreen crew to max in the Shipyard
+- HARD MODE: Pkunk Exodus starts 6 months game start
 
 
 ### Changed

@@ -258,7 +258,7 @@ while (--ac > 0)
 		InitGameStructures ();
 		InitGameClock ();
 		initEventSystem ();
-		AddInitialGameEvents();
+		AddInitialGameEvents ();
 
 		// Reset Debug Key
 		DebugKeyPressed = FALSE;
