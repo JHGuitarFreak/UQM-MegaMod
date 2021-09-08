@@ -205,10 +205,24 @@ MAKE_POINT (COORD x, COORD y)
 	return pt;
 }
 
+static inline DPOINT
+MAKE_DPOINT (SDWORD x, SDWORD y)
+{
+	DPOINT pt = { x, y };
+	return pt;
+}
+
 static inline EXTENT
 MAKE_EXTENT (COORD width, COORD height)
 {
 	EXTENT ext = {width, height};
+	return ext;
+}
+
+static inline DEXTENT
+MAKE_DEXTENT (SDWORD width, SDWORD height)
+{
+	DEXTENT ext = {width, height};
 	return ext;
 }
 
@@ -237,6 +251,18 @@ pointWithinRect (RECT r, POINT p)
 	return p.x >= r.corner.x && p.y >= r.corner.y
 			&& p.x < r.corner.x + r.extent.width
 			&& p.y < r.corner.y + r.extent.height;
+}
+
+static inline void
+printPt (POINT pt, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, pt.x, pt.y);
+}
+
+static inline void
+printDPt(DPOINT dPt, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, dPt.x, dPt.y);
 }
 
 typedef enum
