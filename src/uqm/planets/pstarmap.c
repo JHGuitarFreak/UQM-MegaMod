@@ -1729,10 +1729,10 @@ DoMoveCursor (MENU_STATE *pMS)
 		ZoomStarMap (ZoomIn - ZoomOut);
 
 		sx = sy = 0;
-		if (PulsedInputState.menu[KEY_MENU_LEFT])    sx = -RES_SCALE(1);
-		if (PulsedInputState.menu[KEY_MENU_RIGHT])   sx = RES_SCALE(1);
-		if (PulsedInputState.menu[KEY_MENU_UP])      sy = -RES_SCALE(1);
-		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = RES_SCALE(1);
+		if (PulsedInputState.menu[KEY_MENU_LEFT])    sx = -1;
+		if (PulsedInputState.menu[KEY_MENU_RIGHT])   sx = 1;
+		if (PulsedInputState.menu[KEY_MENU_UP])      sy = -1;
+		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = 1;
 
 		// Double the cursor speed when the Zoom Out key is held down
 		if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
