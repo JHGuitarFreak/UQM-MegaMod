@@ -22,6 +22,7 @@ MegaMod Logo       = Aware Bold                - Freeware (No License)   -> http
 Melee Labels       = UQM Melee Labels          - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 Melnorme           = UQM Micro Regular         - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 MicroFont          = UQM Micro Regular         - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
+Module Menu        = UQM Ship Labels Regular   - CC BY-NC-SA 2.5         -> https://github.com/Serosis/UQM-MegaMod/tree/master/doc/fonts
 Mycon              = Untitled Black            - Freeware (No License)   -> https://www.fontspace.com/untitled-black-font-f28082
 Orz                = Kero kero                 - Free for personal use   -> https://www.dafont.com/kero-kero.font
 Pkunk Main         = Kerithing                 - Freeware (No License)   -> https://www.fontspace.com/kerithing-font-f32202
