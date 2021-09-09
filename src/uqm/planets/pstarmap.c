@@ -528,7 +528,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		DrawFuelCircles ();
 	}
 
-	if (which_starmap != CONSTELLATION_MAP)
 	{	// Horizontal lines
 		r.corner.x = UNIVERSE_TO_DISPX (0);
 		r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (RES_SCALE(1) << zoomLevel);
