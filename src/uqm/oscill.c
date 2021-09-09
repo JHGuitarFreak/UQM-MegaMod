@@ -39,15 +39,15 @@ InitOscilloscope (FRAME scopeBg)
 	scope_frame = scopeBg;
 	if (!scope_init)
 	{
-		EXTENT size = MAKE_EXTENT (56, 53); // GetFrameBounds (scope_frame);
+		EXTENT size = GetFrameBounds (scope_frame);
 		
 		scopeWork = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP | MAPPED_TO_DISPLAY,
-				RES_SCALE (size.width), RES_SCALE (size.height), 1));
+				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = size.width - 2;
-		scopeSize.height = size.height - 2;
+		scopeSize.width = RES_DESCALE (size.width) - 2;
+		scopeSize.height = RES_DESCALE (size.height) - 2;
 
 		scope_init = 1;
 	}
