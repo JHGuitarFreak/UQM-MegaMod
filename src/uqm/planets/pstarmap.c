@@ -47,8 +47,6 @@
 #include <stdlib.h>
 #include <ctype.h> 
 		// For isdigit()
-#include <math.h>
-		// for sqrt()
 
 typedef enum {
 	NORMAL_STARMAP    = 0,
@@ -1062,24 +1060,6 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	}
 }
 
-static double
-timeCase (double days)
-{
-	switch (timeDilationScale)
-	{
-	case 1:
-		return (days / 6.75) / 6;
-		break;
-	case 2:
-		return (days / 7) * 5;
-		break;
-	case 0:
-	default:
-		return days / 6.75;
-	}
-}
-
-
 static unsigned int
 FuelRequired (void)
 {
@@ -1094,32 +1074,6 @@ FuelRequired (void)
 		pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 		pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
-
-	{
-		BYTE i;
-		double distance;
-		COUNT max_thrust = 10;
-		COUNT thrust_wait = 0;
-		COUNT thrust_increment = 4;
-
-		for (i = 0; i < NUM_DRIVE_SLOTS; ++i)
-			if (GLOBAL_SIS (DriveSlots[i]) == FUSION_THRUSTER)
-			{
-				max_thrust += 2;
-				++thrust_wait;
-			}
-
-		thrust_wait = (BYTE)(6 - (thrust_wait >> 1));
-		max_thrust = ((max_thrust / thrust_increment) + 1) * thrust_increment;
-
-		distance = sqrt (
-				pow ((double)pt.x - cursorLoc.x, 2) +
-				pow ((double)pt.y - cursorLoc.y, 2));
-
-		//printf("distance=%f max_thrust=%d thrust_wait=%d thrust_increment=%d\n", distance, max_thrust, thrust_wait, thrust_increment);
-		printf ("days: %f\n", timeCase (distance / max_thrust + thrust_wait + thrust_increment));
-	}
-
 	pt.x -= cursorLoc.x;
 	pt.y -= cursorLoc.y;
 
