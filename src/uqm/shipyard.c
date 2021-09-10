@@ -769,6 +769,11 @@ static SIZE
 DMS_HireFlagShipCrew (void)
 {
 	RECT r;
+	SIZE crew_bought;
+
+	crew_bought = (SIZE)MAKE_WORD(
+			GET_GAME_STATE(CREW_PURCHASED0),
+			GET_GAME_STATE(CREW_PURCHASED1));
 	
 	if (GetCPodCapacity (&r.corner) <= GetCrewCount ())
 	{
@@ -779,6 +784,13 @@ DMS_HireFlagShipCrew (void)
 	if (GLOBAL_SIS (ResUnits) < (DWORD)GLOBAL (CrewCost))
 	{
 		// Not enough RUs.
+		return 0;
+	}
+
+	if (DIF_HARD && crew_bought >= 2000
+			&& CheckAlliance(SHOFIXTI_SHIP) != GOOD_GUY)
+	{
+		// Ran out of StarBase crew
 		return 0;
 	}
 
@@ -963,7 +975,7 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 		DoLoop = 10;
 
 	if (dy == -50 || dy == 50)
-		PlayMenuSound(MENU_SOUND_INVOKED);
+		PlayMenuSound (MENU_SOUND_INVOKED);
 
 	if (hStarShip)
 		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
@@ -971,9 +983,9 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 	if (hStarShip == 0)
 	{
 		if (dy == -50)
-			DoLoop = GetCPodCapacity(&r.corner) - GetCrewCount();
+			DoLoop = GetCPodCapacity (&r.corner) - GetCrewCount ();
 		else if (dy == 50)
-			DoLoop = GetCrewCount();
+			DoLoop = GetCrewCount ();
 
 		// Add/Dismiss crew for the flagship.
 		for (loop = 0; loop < DoLoop; loop++)

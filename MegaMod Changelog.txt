@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [WIP]
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
+- HARDMODE: Limit the amount of crew one can buy, in total, to 2000 and lock the player out of buying crew until they revive the Shofixti.
 
 ## [v0.8.1]
 ### Thanks
