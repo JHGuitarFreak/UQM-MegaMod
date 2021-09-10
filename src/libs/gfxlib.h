@@ -265,6 +265,18 @@ printDPt(DPOINT dPt, UNICODE *Str)
 	printf ("%s = %d x %d\n", Str, dPt.x, dPt.y);
 }
 
+static inline void
+printExt (EXTENT ext, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, ext.width, ext.height);
+}
+
+static inline void
+printDExt (DEXTENT dExt, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, dExt.width, dExt.height);
+}
+
 typedef enum
 {
 	ALIGN_LEFT,
