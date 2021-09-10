@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: If you don't start the rebellion before the Pkunk arrive, you don't get any help at the end.
 
 ## [WIP]
-
+- Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
 
 ## [v0.8.1]
 ### Thanks
@@ -48,9 +48,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added option to swap between Green/Red engined variants of the Flagship.
 - Added option to swap between 3DO and vanilla UQM planet textures (When not using a custom seed)
 - HD: Brand new Flagship designed off the vanilla version created by Jordan Lo
-- HD: JBrand new set of Flagship modules designed off the vanilla versions created by Jordan Lo
+- HD: Brand new set of Flagship modules designed off the vanilla versions created by Jordan Lo
 - EXTENDED: Ability to fill Syreen crew to max in the Shipyard
 - HARD MODE: Pkunk Exodus starts 6 months game start
+- Add ability to sell your remaining credits to the Melnorme for fuel
+- HD: Added an attribution file for the various art I've used from the internet to the HD content folder
 
 
 ### Changed
@@ -87,6 +89,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Flagship graphics now defaults to the PC green engined variant for all instances
 - Picking Xbox or PS4 controls auto-selects the correct control scheme
 - EXTENDED: Enable Sa-Matra sound effects - Kruzen
+- HD: New Chenjesu Shard weapon art by Kruzen
+- HD: Recreated the Chenjesu's D.O.G.I. to be more faithful to the best of my ability
+- HD: Removed superfluous D.O.G.I. animations
+- HD: Recreated the Super Melee labels "CREW" and "BATT"
+- HD: New Androsynth main weapon (bubbles) and Blazer Form art
+- HD: New Yehat main weapon art
+- HD: New Orz Marines art by Volasaurus
+- Refined joypad controls are disabled in SDL1 builds
+- HD: Widened the various laser beams used in Super Melee
 
 
 ### Fixed
@@ -115,6 +126,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed SOI based space music when only Vol's complete remix is installed
 - Kruzen: Fix for stuck lip flaps for Orz when you skip their first dialog
 - Custom Seed: Fixed instances where entering a solar system would put the game in an endless loop
+- HD: Fixed Ur-Quan Dreadnought erroneous sprite facing while arena is zooming in
+- HD: Scaled the melee explosion animation properly
+- HD: Fully fixed the oscilloscope data so that it doesn't draw 4 repeated waveforms
+- HD: Starmap code is now scaled properly removing the need for HD cursor snap
+- HD: Fixed the Starmap grid so that it draws properly - Kruzen
 
 
 ## [v0.8.0.85]
