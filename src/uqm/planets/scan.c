@@ -458,7 +458,7 @@ PrintCoarseScan3DO (void)
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
-	t.baseline.x = RIGHT_SIDE_BASELINE_X + IF_HD(3);
+	t.baseline.x = RIGHT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 

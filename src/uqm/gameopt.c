@@ -199,7 +199,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			captainNameRect.corner.y = RES_SCALE(10);
 			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
 			r = captainNameRect;
-			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - RES_TRP(1);
+			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - RES_SCALE(1);
 			lf.baseline.y = r.corner.y + RES_SCALE(6);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09);
@@ -212,7 +212,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			shipNameRect.corner.y = RES_SCALE(20);
 			shipNameRect.extent.width = SHIP_NAME_WIDTH;
 			r = shipNameRect;
-			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - IF_HD(2);
+			lf.baseline.x = r.corner.x + (r.extent.width >> 1);
 			lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE(1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0F, 0x00, 0x00), 0x2D);
@@ -964,7 +964,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
-		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4) + (SIS_TITLE_WIDTH >> 1) + IF_HD(1);
+		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4) + RES_SCALE(RES_DESCALE(SIS_TITLE_WIDTH) >> 1);
 		switch (pSD->Activity)
 		{
 			case IN_STARBASE:

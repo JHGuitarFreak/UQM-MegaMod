@@ -111,7 +111,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
-	t.baseline.x = r->corner.x + RES_BOOL(2, 5);
+	t.baseline.x = r->corner.x + RES_SCALE(2);
 	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE(1);
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;

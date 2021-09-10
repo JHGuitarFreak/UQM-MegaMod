@@ -137,27 +137,17 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 	{
 		// This tunes the font positioning to be about what it should
 		// TODO: prolly needs a little tweaking still
-
-		int tune_amount_x = 0;
-		int tune_amount_y = 0;
+		int tune_amount = 0;
 
 		if (CharPtr->extent.height == RES_SCALE(8))
-		{
-			tune_amount_y = -RES_SCALE(1);
-		}
+			tune_amount = -RES_SCALE(1);
 		else if (CharPtr->extent.height == RES_SCALE(9))
-		{
-			tune_amount_y = -RES_SCALE(2);
-			tune_amount_x = IF_HD(-3);
-		}
+			tune_amount = -RES_SCALE(2);
 		else if (CharPtr->extent.height > RES_SCALE(9))
-		{
-			tune_amount_y = -RES_SCALE(3);
-			tune_amount_x = IF_HD(-2);
-		}
+			tune_amount = -RES_SCALE(3);
 
-		CharPtr->HotSpot = MAKE_HOT_SPOT (tune_amount_x,
-				CharPtr->extent.height + tune_amount_y);
+		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
+				CharPtr->extent.height + tune_amount);
 	}
 }
 
@@ -178,7 +168,7 @@ _GetCelData (uio_Stream *fp, DWORD length)
 
 	{
 		char *s1, *s2;
-		char aniDirName[PATH_MAX];			
+		char aniDirName[PATH_MAX];
 		const char *aniFileName;
 		uint8 buf[4] = { 0, 0, 0, 0 };
 		uint32 header;
