@@ -26,9 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - SETUPMENU: Added an option to pick between PC-DOS, 3DO, and Vanilla UQM styled star backgrounds (The stars while in a solar system) [When not using a custom seed]
 - SETUPMENU: Added a new page to the PC/3DO options
 - SETUPMENU: Added a new page to the Visual options
-- SETUPMENU: solar system planet style (DOS Planets) - Kruzen
-- SETUPMENU: Added option for Coloring the planet while scanning - Kruzen
-- SETUPMENU: Added option for PC-DOS scan style (static color while minerals are revealed) - Kruzen
+- Added option for PC-DOS scan style (static color while minerals are revealed) - Kruzen
 - Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
 - Kruzenshtern: Add function that mimics the pulsing purple box from PC-DOS ver. when picking a ship
 - Added pulsing purple box selector "universally" when using PC menus, mimicking PC-DOS UI
@@ -53,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARD MODE: Pkunk Exodus starts 6 months game start
 - Add ability to sell your remaining credits to the Melnorme for fuel
 - HD: Added an attribution file for the various art I've used from the internet to the HD content folder
+- Kruzenshtern: Added the full Syreen "sex scene" from the PC-DOS version
 
 
 ### Changed
@@ -67,9 +66,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Rescaled ship captains images to the new UI scale (Thanks to Kwayne for offering up his original files!)
 - HD: Brighten up the Spathi Eluder
 - HD: Created a new set of 3DO Menu tiles
-- HD: Rescaled and recolored all the ship modules to resemble their Vanilla counterparts
 - HD: Created a new set of ship labels for the Shipyard using new UI fonts
-- HD: Remade the module tiles to scale
 - HD: New, brighter background stars to match Vanilla
 - HD: Created a new orbit dot image to be used in lieu of an in-engine drawn circle
 - HD: Thicken the animated Oscilloscope lines
@@ -77,7 +74,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Changed the Syreen text color to cyan during the "sex scene" (And back to white afterwards)
 - Reconfigured the War Era StarMap to be more faithful against the official paper StarMap
 - EXTENDED: Changed the size and location of the Chmmr SOI to be more logical (Combined Chenjesu & Mmrnmhrm SOI size and location)
-- Kruzenshtern: Syreen "sex scene" now faithfully mimics the PC version
 - HD: Tamed the planet scan speed to match vanilla speed
 - Subtitle location and spacing now matches more faithfully to the PC-DOS version
 - EXTENDED: Make Beta Arae (933.3:093.7) an Orange Super Giant (Because there are no Orange Super Giants)
