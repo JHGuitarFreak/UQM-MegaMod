@@ -535,13 +535,13 @@ FillPickMeleeFrame (MeleeSetup *setup)
 
 		r.corner.x += RES_SCALE(2);
 		r.corner.y += RES_SCALE(2);
-		r.extent.width -= RES_SCALE((2 * 2) + (ICON_WIDTH + RES_SCALE(2)) + RES_SCALE(1)); 
+		r.extent.width -= RES_SCALE((2 * 2) + (RES_DESCALE(ICON_WIDTH) + 2) + 1);
 		r.extent.height -= RES_SCALE(2 * 2) + NAME_AREA_HEIGHT; 
 		SetContextForeGroundColor (PICK_BG_COLOR);
 		DrawFilledRectangle (&r);
 
 		r.corner.x += RES_SCALE(2); 
-		r.extent.width += (ICON_WIDTH + RES_SCALE(2)) - RES_SCALE(2 * 2); 
+		r.extent.width += RES_SCALE((RES_DESCALE(ICON_WIDTH) + 2) - (2 * 2));
 		r.corner.y += r.extent.height;
 		r.extent.height = NAME_AREA_HEIGHT;
 		DrawFilledRectangle (&r);
