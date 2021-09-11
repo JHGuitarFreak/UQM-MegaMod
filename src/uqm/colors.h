@@ -378,6 +378,10 @@
 #define SCOPE_COLOR_PC \
 		BUILD_COLOR_RGBA (0x79, 0x00, 0xCE, 0xFF)
 
+// Flagship blueprint color
+#define BLUEPRINT_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x16), 0x01)
+
 // === PC Menus ===
 
 // Background color of the PC-style menus.

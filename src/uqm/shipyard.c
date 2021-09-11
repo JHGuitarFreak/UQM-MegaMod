@@ -93,6 +93,43 @@ typedef enum {
 static BOOLEAN DoShipSpins;
 
 static void
+showRemainingCrew (void)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[30];
+	SIZE remaining_crew;
+#define INITIAL_CREW 2000
+
+	remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
+			GET_GAME_STATE (CREW_PURCHASED0),
+			GET_GAME_STATE (CREW_PURCHASED1));
+	
+	r.extent = MAKE_EXTENT (RES_SCALE (90), RES_SCALE(7));
+	r.corner = MAKE_POINT (RES_SCALE (1),
+			RES_SCALE (74) - (r.extent.height + RES_SCALE (1)));
+
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
+	
+	// Print remaining crew
+	t.baseline.x = r.corner.x;
+	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
+	t.align = ALIGN_LEFT;
+	t.CharCount = (COUNT)~0;
+	t.pStr = buf;
+
+	if (CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY)
+		sprintf (buf, "Remaining Crew: %u", remaining_crew);
+	else
+		sprintf (buf, "Remaining Crew: %s", STR_INFINITY_SIGN);
+
+	SetContextFont (TinyFont);
+	SetContextForeGroundColor (BLUEPRINT_COLOR);
+	font_DrawText (&t);
+}
+
+static void
 animatePowerLines (MENU_STATE *pMS)
 {
 	static STAMP s; 
@@ -584,6 +621,9 @@ CrewTransaction (SIZE crew_delta)
 		{
 			SET_GAME_STATE (CREW_PURCHASED0, LOBYTE (crew_bought));
 			SET_GAME_STATE (CREW_PURCHASED1, HIBYTE (crew_bought));
+
+			if (DIF_HARD)
+				showRemainingCrew ();
 		}
 	}
 }
@@ -788,7 +828,7 @@ DMS_HireFlagShipCrew (void)
 	}
 
 	if (DIF_HARD && crew_bought >= 2000
-			&& CheckAlliance(SHOFIXTI_SHIP) != GOOD_GUY)
+			&& CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY)
 	{
 		// Ran out of StarBase crew
 		return 0;
@@ -1400,9 +1440,11 @@ DrawBluePrint (MENU_STATE *pMS)
 	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = DecFrameIndex (ModuleFrame);
-	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x16), 0x01));
+	SetContextForeGroundColor (BLUEPRINT_COLOR);
 	DrawFilledStamp (&s);
+
+	if (DIF_HARD)
+		showRemainingCrew ();
 
 	for (num_frames = 0; num_frames < NUM_DRIVE_SLOTS; ++num_frames)
 	{
@@ -1445,7 +1487,7 @@ DrawBluePrint (MENU_STATE *pMS)
 			// Crew dots/rectangles for Original and HD graphics.
 			r.extent.width = RES_SCALE(1);
 			r.extent.height = r.extent.width;
-				
+
 			GetCPodCapacity (&r.corner);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
