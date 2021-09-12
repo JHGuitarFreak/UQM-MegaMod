@@ -106,26 +106,36 @@ showRemainingCrew (void)
 			GET_GAME_STATE (CREW_PURCHASED1));
 	
 	r.extent = MAKE_EXTENT (RES_SCALE (90), RES_SCALE(7));
-	r.corner = MAKE_POINT (RES_SCALE (1),
-			RES_SCALE (74) - (r.extent.height + RES_SCALE (1)));
+	r.corner = MAKE_POINT (RES_SCALE (2),
+			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
 
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
 	
 	// Print remaining crew
+	SetContextFont (TinyFont);
+	SetContextForeGroundColor (BLUEPRINT_COLOR);
 	t.baseline.x = r.corner.x;
 	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
 	t.align = ALIGN_LEFT;
 	t.CharCount = (COUNT)~0;
 	t.pStr = buf;
+	sprintf (buf, "Remaining Crew:");
+
+	font_DrawText(&t);
+
+	t.baseline.x += RES_SCALE (71);
+	SetContextForeGroundColor (
+			remaining_crew > 1000 ? FULL_CREW_COLOR :
+			(remaining_crew < 250 ? LOW_CREW_COLOR :
+					HALF_CREW_COLOR)
+		);
 
 	if (CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY)
-		sprintf (buf, "Remaining Crew: %u", remaining_crew);
+		sprintf (buf, "%u", remaining_crew);
 	else
-		sprintf (buf, "Remaining Crew: %s", STR_INFINITY_SIGN);
+		sprintf (buf, "%s", STR_INFINITY_SIGN);
 
-	SetContextFont (TinyFont);
-	SetContextForeGroundColor (BLUEPRINT_COLOR);
 	font_DrawText (&t);
 }
 
@@ -649,7 +659,7 @@ DMS_GetEscortShipRect (RECT *rOut, BYTE slotNr)
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
 	static const COORD *hangar_x_coords;
 
-	hangar_x_coords = RES_BOOL(hangar_x_coords_orig, hangar_x_coords_hd);
+	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	rOut->corner.x = hangar_x_coords[col];
 	rOut->corner.y = HANGAR_Y + (HANGAR_DY * row);
@@ -683,7 +693,7 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
 	static const COORD *hangar_x_coords;
 
-	hangar_x_coords = RES_BOOL(hangar_x_coords_orig, hangar_x_coords_hd);
+	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	r.corner.x = hangar_x_coords[col];
 	r.corner.y = (HANGAR_Y + (HANGAR_DY * row)) + (SHIP_WIN_HEIGHT - RES_SCALE(6));
@@ -812,8 +822,8 @@ DMS_HireFlagShipCrew (void)
 	SIZE crew_bought;
 
 	crew_bought = (SIZE)MAKE_WORD(
-			GET_GAME_STATE(CREW_PURCHASED0),
-			GET_GAME_STATE(CREW_PURCHASED1));
+			GET_GAME_STATE (CREW_PURCHASED0),
+			GET_GAME_STATE (CREW_PURCHASED1));
 	
 	if (GetCPodCapacity (&r.corner) <= GetCrewCount ())
 	{
@@ -901,6 +911,11 @@ DMS_HireEscortShipCrew (SHIP_FRAGMENT *StarShipPtr)
 {
 	COUNT templateMaxCrew;
 	RECT r;
+	SIZE crew_bought;
+
+	crew_bought = (SIZE)MAKE_WORD (
+			GET_GAME_STATE (CREW_PURCHASED0),
+			GET_GAME_STATE (CREW_PURCHASED1));
 
 	{
 		// XXX Split this off into a separate function?
@@ -927,6 +942,13 @@ DMS_HireEscortShipCrew (SHIP_FRAGMENT *StarShipPtr)
 	if (StarShipPtr->crew_level >= templateMaxCrew)
 	{
 		// A ship of this type cannot handle more crew.
+		return 0;
+	}
+
+	if (DIF_HARD && crew_bought >= 2000
+			&& CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY)
+	{
+		// Ran out of StarBase crew
 		return 0;
 	}
 
@@ -1010,11 +1032,13 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 	COUNT loop;
 	COUNT DoLoop = 1;
 	RECT r;
+	SIZE remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
+			GET_GAME_STATE (CREW_PURCHASED0),
+			GET_GAME_STATE (CREW_PURCHASED1));
 
-	if (dy == -10 || dy == 10)
-		DoLoop = 10;
+	DoLoop = abs (dy);
 
-	if (dy == -50 || dy == 50)
+	if (abs (dy) == 50)
 		PlayMenuSound (MENU_SOUND_INVOKED);
 
 	if (hStarShip)
@@ -1023,7 +1047,7 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 	if (hStarShip == 0)
 	{
 		if (dy == -50)
-			DoLoop = GetCPodCapacity (&r.corner) - GetCrewCount ();
+			DoLoop = GetCPodCapacity (&r.corner) - GetCrewCount();
 		else if (dy == 50)
 			DoLoop = GetCrewCount ();
 
@@ -1040,10 +1064,15 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 				// Dismiss crew from the flagship.
 				crew_delta = DMS_DismissFlagShipCrew ();
 			}
-		}
 
-		if (crew_delta != 0)
-			DMS_FlashFlagShipCrewCount ();
+			if (crew_delta != 0)
+				DMS_FlashFlagShipCrewCount();
+
+			if (crew_delta == 0)
+				break;
+
+			CrewTransaction (crew_delta);
+		}
 	}
 	else
 	{
@@ -1065,10 +1094,17 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 				// Dismiss crew from an escort ship.
 				crew_delta = DMS_DismissEscortShipCrew (StarShipPtr);
 			}
-		}
 
-		if (crew_delta != 0)
-			DMS_FlashEscortShipCrewCount (StarShipPtr->index);
+			if (crew_delta != 0)
+				DMS_FlashEscortShipCrewCount(StarShipPtr->index);
+
+			if (crew_delta == 0)
+				break;
+
+			if (!DIF_HARD || ((dy > 0 && StarShipPtr->crew_level >= 1)
+				|| (dy < 0 && StarShipPtr->crew_level != 1)))
+				CrewTransaction (crew_delta);
+		}
 	}
 
 	if (crew_delta == 0)
@@ -1082,8 +1118,6 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 		// correctly.
 		pMS->delta_item &= MODIFY_CREW_FLAG;
 	}
-
-	CrewTransaction (crew_delta);
 }
 
 // Helper function for DoModifyShips(), called when the player presses the
@@ -1098,7 +1132,7 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 	BYTE MaxBuild = 2;
 	COUNT shipCost = ShipCost (Index);
 
-	if ((DIF_HARD && CountEscortShips(Index) < MaxBuild || !DIF_HARD)
+	if ((DIF_HARD && CountEscortShips (Index) < MaxBuild || !DIF_HARD)
 			&& GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
 			&& CloneShipFragment (Index, &GLOBAL (built_ship_q), 1))
 	{
@@ -1443,9 +1477,6 @@ DrawBluePrint (MENU_STATE *pMS)
 	SetContextForeGroundColor (BLUEPRINT_COLOR);
 	DrawFilledStamp (&s);
 
-	if (DIF_HARD)
-		showRemainingCrew ();
-
 	for (num_frames = 0; num_frames < NUM_DRIVE_SLOTS; ++num_frames)
 	{
 		DrawShipPiece (ModuleFrame, GLOBAL_SIS (DriveSlots[num_frames]),
@@ -1584,6 +1615,9 @@ DrawBluePrint (MENU_STATE *pMS)
 			FuelVolume -= m;
 		}
 	}
+
+	if (DIF_HARD)
+		showRemainingCrew ();
 
 	DestroyDrawable (ReleaseDrawable (ModuleFrame));
 }

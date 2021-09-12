@@ -382,6 +382,13 @@
 #define BLUEPRINT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x16), 0x01)
 
+#define FULL_CREW_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x00, 0x16, 0x00), 0x01)
+#define HALF_CREW_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x16, 0x16, 0x00), 0x01)
+#define LOW_CREW_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x16, 0x00, 0x00), 0x01)
+
 // === PC Menus ===
 
 // Background color of the PC-style menus.
