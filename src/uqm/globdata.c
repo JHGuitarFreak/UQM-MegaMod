@@ -519,14 +519,8 @@ InitGameStructures (void)
 		{
 			SET_GAME_STATE (MOONBASE_ON_SHIP, 1);
 			SET_GAME_STATE (MOONBASE_DESTROYED, 1);
-			GLOBAL_SIS (ModuleSlots[7]) = STORAGE_BAY;
-			GLOBAL_SIS (ElementAmounts[COMMON]) = 178;
-			GLOBAL_SIS (ElementAmounts[CORROSIVE]) = 66;
-			GLOBAL_SIS (ElementAmounts[BASE_METAL]) = 378;
-			GLOBAL_SIS (ElementAmounts[PRECIOUS]) = 29;
-			GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) = 219;
-			GLOBAL_SIS (ElementAmounts[EXOTIC]) = 5;
-			GLOBAL_SIS (TotalElementMass) = 875;
+			GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) = 1;
+			GLOBAL_SIS (TotalElementMass) = 1;
 		}
 	}
 

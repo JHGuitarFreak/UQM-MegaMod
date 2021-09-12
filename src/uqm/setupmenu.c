@@ -219,7 +219,6 @@ static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[26]),   // Time Dilation
 	(WIDGET *)(&choices[27]),   // Bubble Warp
 	(WIDGET *)(&choices[28]),   // Unlock Ships
-	(WIDGET *)(&choices[29]),   // Head Start
 	(WIDGET *)(&choices[30]),   // Unlock Upgrades
 	(WIDGET *)(&choices[31]),   // Infinite RU
 	(WIDGET *)(&choices[39]),   // Infinite Fuel
@@ -248,12 +247,12 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
-	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[32]),   // Skip Intro
 	(WIDGET *)(&choices[40]),   // Partial Pickup switch
 	(WIDGET *)(&choices[56]),   // Game Over switch
 	(WIDGET *)(&choices[41]),   // Submenu switch
 	(WIDGET *)(&choices[60]),   // SIS Facing HyperSpace
+	(WIDGET *)(&choices[29]),   // Head Start
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
