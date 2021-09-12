@@ -132,14 +132,18 @@ typedef struct globalopts_struct {
 	OPT_DIFFICULTY difficulty;
 	OPT_MELEEZOOM meleezoom;
 	OPT_CONTROLLER controllerType;
-	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix, speech, keepaspect,
-				cheatMode, mainMenuMusic, nebulae, orbitingPlanets, texturedPlanets, godMode,
-				bubbleWarp, unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro, infiniteFuel,
-				partialPickup, submenu, addDevices, scalePlanets, customBorder, spaceMusic, volasMusic,
-				directionalJoystick, wholeFuel, fuelRange, extended, nomad, gameOver, shipDirectionIP, 
-				hazardColors, orzCompFont, shipFacingHS, nonStopOscill, hyperStars, planetTexture;
-	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans, landerHold, coloredPlanet,
-				planetStyle, starBackground, scanStyle, scopeStyle, landerStyle, flagshipColor;
+	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
+			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
+			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
+			unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro,
+			infiniteFuel, partialPickup, submenu, addDevices, scalePlanets,
+			customBorder, spaceMusic, volasMusic, directionalJoystick,
+			wholeFuel, fuelRange, extended, nomad, gameOver,
+			shipDirectionIP, hazardColors, orzCompFont, shipFacingHS,
+			nonStopOscill, hyperStars, planetTexture, noHQEncounters;
+	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
+			landerHold, coloredPlanet, planetStyle, starBackground,
+			scanStyle, scopeStyle, landerStyle, flagshipColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol;
 	int gamma, customSeed;

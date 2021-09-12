@@ -196,6 +196,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  landerStyle);
 	DECL_CONFIG_OPTION(bool, planetTexture);
 	DECL_CONFIG_OPTION(int,  flagshipColor);
+	DECL_CONFIG_OPTION(bool, noHQEncounters);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -395,6 +396,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  landerStyle,       OPT_3DO),
 		INIT_CONFIG_OPTION(  planetTexture,     true),
 		INIT_CONFIG_OPTION(  flagshipColor,     OPT_PC),
+		INIT_CONFIG_OPTION(  noHQEncounters,    false),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -609,6 +611,7 @@ main (int argc, char *argv[])
 	optSuperPC = options.landerStyle.value;
 	optPlanetTexture = options.planetTexture.value;
 	optFlagshipColor = options.flagshipColor.value;
+	optNoHQEncounters = options.noHQEncounters.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1007,6 +1010,8 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValueXlat (&options->flagshipColor, "mm.flagshipColor",
 		OPT_3DO, OPT_PC);
+
+	getBoolConfigValue (&options->noHQEncounters, "cheat.noHQEncounters");
 	
 	if (res_IsInteger ("config.player1control"))
 	{

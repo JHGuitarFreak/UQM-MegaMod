@@ -303,6 +303,9 @@ check_hyperspace_encounter (void)
 			encounter_flags = 0;
 			percent = EncounterPercent[Type];
 			
+			if (optNoHQEncounters)
+				percent = 0;
+			
 			if (encounter_radius != INFINITE_RADIUS)
 			{
 				encounter_radius =
@@ -331,6 +334,9 @@ check_hyperspace_encounter (void)
 						percent = 100;
 					else
 						percent *= GET_GAME_STATE (SLYLANDRO_MULTIPLIER);
+
+					if (optNoHQEncounters)
+						percent = 0;
 				}
 				
 				if ((EXTENDED && !GET_GAME_STATE (KOHR_AH_FRENZY)) 

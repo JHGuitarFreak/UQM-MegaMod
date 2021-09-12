@@ -112,6 +112,7 @@ int optSuperPC;
 BOOLEAN optHyperStars;
 BOOLEAN optPlanetTexture;
 int optFlagshipColor;
+BOOLEAN optNoHQEncounters;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;

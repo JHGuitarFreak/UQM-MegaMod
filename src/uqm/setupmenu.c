@@ -80,7 +80,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         12
-#define CHOICE_COUNT       71
+#define CHOICE_COUNT       72
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       16
 #define LABEL_COUNT         5
@@ -110,7 +110,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
 	2, 2, 2, 3, 2, 2, 2, 2, 2, 2,   // 60-69
-	2 };                            // 70
+	2, 2 };                         // 70-71
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -223,6 +223,7 @@ static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[31]),   // Infinite RU
 	(WIDGET *)(&choices[39]),   // Infinite Fuel
 	(WIDGET *)(&choices[43]),   // Add Devices
+	(WIDGET *)(&choices[71]),   // No HyperSpace Encounters
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 	
@@ -686,6 +687,7 @@ SetDefaults (void)
 	choices[68].selected = opts.landerStyle;
 	choices[69].selected = opts.planetTexture;
 	choices[70].selected = opts.flagshipColor;
+	choices[71].selected = opts.noHQEncounters;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -771,6 +773,7 @@ PropagateResults (void)
 	opts.landerStyle = choices[68].selected;
 	opts.planetTexture = choices[69].selected;
 	opts.flagshipColor = choices[70].selected;
+	opts.noHQEncounters = choices[71].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1736,6 +1739,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->landerStyle = (optSuperPC == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->planetTexture = optPlanetTexture ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->flagshipColor = (optFlagshipColor == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->noHQEncounters = optNoHQEncounters ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2225,6 +2229,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	optFlagshipColor = (opts->flagshipColor == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.flagshipColor", opts->flagshipColor == OPTVAL_3DO);
+
+	res_PutBoolean ("cheat.noHQEncounters", opts->noHQEncounters == OPTVAL_ENABLED);
+	optNoHQEncounters = (opts->noHQEncounters == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
