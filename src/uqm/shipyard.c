@@ -105,7 +105,7 @@ showRemainingCrew (void)
 			GET_GAME_STATE (CREW_PURCHASED0),
 			GET_GAME_STATE (CREW_PURCHASED1));
 	
-	r.extent = MAKE_EXTENT (RES_SCALE (90), RES_SCALE(7));
+	r.extent = MAKE_EXTENT (RES_SCALE (122), RES_SCALE(7));
 	r.corner = MAKE_POINT (RES_SCALE (2),
 			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
 
@@ -131,10 +131,12 @@ showRemainingCrew (void)
 					HALF_CREW_COLOR)
 		);
 
-	if (CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY)
-		sprintf (buf, "%u", remaining_crew);
-	else
+	if (CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		sprintf (buf, "%s", STR_INFINITY_SIGN);
+	else if (remaining_crew == 0)
+		sprintf (buf, "Cdr. Hayes");
+	else
+		sprintf(buf, "%u", remaining_crew);
 
 	font_DrawText (&t);
 }
