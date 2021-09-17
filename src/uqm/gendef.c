@@ -105,6 +105,7 @@ getGenerateFunctions (BYTE Index)
 		case EGG_CASE2_DEFINED:
 			return &generateMyconFunctions;
 		case ANDROSYNTH_DEFINED:
+		case EXCAVATION_SITE_DEFINED:
 			return &generateAndrosynthFunctions;
 		case TAALO_PROTECTOR_DEFINED:
 		case ORZ_DEFINED:

@@ -52,6 +52,7 @@
 #define EMERALD_COLOR_TAB "planet.emerald.colortable"
 #define EMERALD_XLAT_TAB "planet.emerald.translatetable"
 #define EUROPA_COLOR_TAB "planet.europa.colortable"
+#define EXCAVATION_SITE_STRTAB "text.excavationsite"
 #define FINALPRES_STRTAB "slides.ending"
 #define FLUORESCENT_COLOR_TAB "planet.fluorescent.colortable"
 #define FLUORESCENT_XLAT_TAB "planet.fluorescent.translatetable"

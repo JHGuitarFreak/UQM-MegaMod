@@ -32,6 +32,7 @@
 #define EARTH_MASK_ANIM "graphics.earthmask"
 #define EGG_CASE_MASK_PMAP_ANIM "graphics.eggcase"
 #define EUROPA_MASK_ANIM "graphics.europamask"
+#define EXCAVATION_SITE_MASK_PMAP_ANIM "graphics.excavationsite"
 #define FALAYALARALFALI_MASK_PMAP_ANIM "graphics.falayalaralfali"
 #define FLAGSTAT_MASK_PMAP_ANIM "graphics.flagshipstatus"
 #define FONTGRAD_PMAP_ANIM "graphics.fontgradient"
