@@ -673,7 +673,7 @@ sentinel_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 						COSINE (angle, MAX_RECOIL_VELOCITY),
 						SINE (angle, MAX_RECOIL_VELOCITY));
 			}
-			if (DIFFICULTY == HARD)
+			if (DIF_HARD)
 			{
 				if (StarShipPtr->RaceDescPtr->ship_info.energy_level < ENERGY_DRAIN)
 					DeltaEnergy(ElementPtr1, -StarShipPtr->RaceDescPtr->ship_info.energy_level);

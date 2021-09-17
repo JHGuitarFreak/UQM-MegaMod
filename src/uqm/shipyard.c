@@ -136,7 +136,7 @@ showRemainingCrew (void)
 	else if (remaining_crew == 0)
 		sprintf (buf, "Cdr. Hayes");
 	else
-		sprintf(buf, "%u", remaining_crew);
+		sprintf (buf, "%u", remaining_crew);
 
 	font_DrawText (&t);
 }

@@ -126,7 +126,7 @@ GenerateShofixti_uninitNpcs (SOLARSYS_STATE *solarSys)
 		{
 			SET_GAME_STATE (SHOFIXTI_KIA, 1);
 			SET_GAME_STATE (SHOFIXTI_VISITS, 0);
-			if(DIF_HARD)
+			if (DIF_HARD)
 				SET_GAME_STATE(SHOFIXTI_BRO_KIA, 1);
 		}
 		else if (GET_GAME_STATE (MAIDENS_ON_SHIP))
