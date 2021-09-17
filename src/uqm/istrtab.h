@@ -146,6 +146,7 @@
 #define SPECIAL_CMAP_XLAT_TAB "planet.specialcolormap.translatetable"
 #define STARCON_COLOR_MAP "colortable.main"
 #define STARCON_GAME_STRINGS "text.starcon"
+#define STELE_STRTAB "text.stele"
 #define SUICIDEPRES_STRTAB "slides.suicide"
 #define SUN_DEVICE_STRTAB "text.sundevice"
 #define SUPER_DENSE_COLOR_TAB "planet.superdense.colortable"

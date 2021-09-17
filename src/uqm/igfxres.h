@@ -325,6 +325,7 @@
 #define STARPOINT_MASK_PMAP_ANIM "graphics.starpoints"
 #define STARMISK_MASK_PMAP_ANIM "graphics.stars.misc"
 #define STATUS_MASK_PMAP_ANIM "graphics.status"
+#define STELE_MASK_PMAP_ANIM "graphics.stele"
 #define SUBMENU_MASK_PMAP_ANIM "graphics.submenu"
 #define SUNBLUE_MASK_PMAP_ANIM "graphics.truespacesunblue"
 #define SUNGREEN_MASK_PMAP_ANIM "graphics.truespacesungreen"

@@ -54,7 +54,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Kruzenshtern: Added the full Syreen "sex scene" from the PC-DOS version
 - HARDMODE: Limit the amount of crew one can buy, in total, to 2000 and lock the player out of buying crew until they revive the Shofixti - Idea by Murus.
 - HARDMODE: Show the remaining amount of Starbase crew on the Shipyard screen. Underneath the blueprint of the Flagship.
-- EXTENDED: New Androsynth excavation site on Alpha Lalande 1, idea, art, and lander report by Kruzen
+- EXTENDED: New Androsynth excavation site on Alpha Lalande 1. Idea, art, and lander report by Kruzen
+- EXTENDED: New Precursor artifact on Alpha Apodis 4. Idea, art, and lander report by Kruzen
 
 
 ### Changed
