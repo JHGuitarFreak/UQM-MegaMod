@@ -176,7 +176,7 @@ GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 
 	GenerateDefault_generateOrbital (solarSys, world);
 
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) && PrimeSeed)
+	if (PrimeSeed && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 		solarSys->SysInfo.PlanetInfo.Weather = 0;
 
 	return true;

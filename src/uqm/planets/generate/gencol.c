@@ -166,6 +166,8 @@ GenerateColony_generateName (const SOLARSYS_STATE *solarSys,
 static bool
 GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
+	GenerateDefault_generateOrbital (solarSys, world);
+
 	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		DoPlanetaryAnalysis (&solarSys->SysInfo, world);
@@ -183,8 +185,6 @@ GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 		return true;
 	}
-
-	GenerateDefault_generateOrbital (solarSys, world);
 
 	return true;
 }

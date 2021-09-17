@@ -187,6 +187,8 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
 	DWORD rand_val;
 
+	GenerateDefault_generateOrbital (solarSys, world);
+
 	if (CurStarDescPtr->Index == SPATHI_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 	{
@@ -299,8 +301,6 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 			CaptureStringTable (LoadStringTable (SPATHI_MONUMENT_STRTAB));
 	}
-	
-	GenerateDefault_generateOrbital (solarSys, world);
 
 	return true;
 }
