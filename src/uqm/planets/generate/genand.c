@@ -116,8 +116,6 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 static bool
 GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	GenerateDefault_generateOrbital (solarSys, world);
-
 	if (CurStarDescPtr->Index == ANDROSYNTH_DEFINED)
 	{
 		if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
@@ -156,6 +154,8 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 			}
 		}
 
+		GenerateDefault_generateOrbital (solarSys, world);
+
 		if (PrimeSeed && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 		{
 			solarSys->SysInfo.PlanetInfo.AtmoDensity =
@@ -166,17 +166,28 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 		}
 	}
 
-	if (EXTENDED &&
-		CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED &&
-		matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED)
 	{
-		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-		solarSys->PlanetSideFrame[1] =
-			CaptureDrawable (LoadGraphic (EXCAVATION_SITE_MASK_PMAP_ANIM));
-		solarSys->SysInfo.PlanetInfo.DiscoveryString =
-			CaptureStringTable (LoadStringTable (EXCAVATION_SITE_STRTAB));
+		if (EXTENDED &&
+			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+		{
+			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+			solarSys->PlanetSideFrame[1] =
+				CaptureDrawable (LoadGraphic (EXCAVATION_SITE_MASK_PMAP_ANIM));
+			solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (LoadStringTable (EXCAVATION_SITE_STRTAB));
+		}
 
-		solarSys->SysInfo.PlanetInfo.Tectonics = 3;
+		GenerateDefault_generateOrbital (solarSys, world);
+
+		if (PrimeSeed && EXTENDED &&
+			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+		{
+			solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 126 / 100;
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 9;
+			solarSys->SysInfo.PlanetInfo.Tectonics = 3;
+		}
 	}
 
 	return true;

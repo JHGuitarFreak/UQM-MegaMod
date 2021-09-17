@@ -143,7 +143,6 @@ GenerateSyreen_generateName (const SOLARSYS_STATE *solarSys,
 static bool
 GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	GenerateDefault_generateOrbital (solarSys, world);
 
 	if (matchWorld (solarSys, world,
 			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
@@ -153,13 +152,6 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (LoadStringTable (RUINS_STRTAB));
-
-		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 19;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-		solarSys->SysInfo.PlanetInfo.Weather = 0;
-		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 9 / 10;
-
-		return true;
 	}
 
 	if (matchWorld (solarSys, world,
@@ -169,7 +161,6 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{
 			/* Starbase */
 			InitCommunication (SYREEN_CONVERSATION);
-			return true;
 		}
 		else
 		{
@@ -186,9 +177,18 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
-
-			return true;
 		}
+	}
+
+	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world,
+		solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 19;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
+		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 9 / 10;
 	}
 
 	return true;
