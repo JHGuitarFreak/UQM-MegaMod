@@ -26,6 +26,9 @@
 extern "C" {
 #endif
 
+#define MENU_BOOL(a, b) (optWhichMenu == OPT_PC ? (b) : (a))
+#define FONT_BOOL(a, b) (optWhichFonts == OPT_PC ? (b) : (a))
+
 #define CREW_XOFFS RES_SCALE(4)
 #define ENERGY_XOFFS RES_SCALE(52)
 #define GAUGE_YOFFS (SHIP_INFO_HEIGHT - RES_SCALE(10))
@@ -37,7 +40,7 @@ extern "C" {
 #define CAPTAIN_WIDTH RES_SCALE(55)
 #define CAPTAIN_HEIGHT RES_SCALE(30)
 #define CAPTAIN_XOFFS RES_SCALE(RES_DESCALE(STATUS_WIDTH - CAPTAIN_WIDTH) >> 1)
-#define CAPTAIN_YOFFS (SHIP_INFO_HEIGHT + RES_SCALE(4))
+#define CAPTAIN_YOFFS (SHIP_INFO_HEIGHT + RES_SCALE(MENU_BOOL(4, 1)))
 
 #define SHIP_STATUS_HEIGHT (STATUS_HEIGHT >> 1)
 #define BAD_GUY_YOFFS 0

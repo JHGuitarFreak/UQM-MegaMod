@@ -263,7 +263,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			TEXT Text;
 			FONT OldFont;
 
-			OldFont = SetContextFont (TinyFont);
+			OldFont = SetContextFont (MENU_BOOL (TinyFontBold, TinyFont));
 
 			if (!StarShipPtr)
 			{	// In Melee menu
@@ -281,7 +281,8 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			Text.align = ALIGN_CENTER;
 
 			Text.baseline.x = STATUS_WIDTH >> 1;
-			Text.baseline.y = y + GAUGE_YOFFS + RES_SCALE(3);
+			Text.baseline.y = y + GAUGE_YOFFS + RES_SCALE (3)
+					+ RES_SCALE (MENU_BOOL (6, 0));
 
 			SetContextForeGroundColor (BLACK_COLOR);
 			font_DrawText (&Text);

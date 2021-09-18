@@ -138,15 +138,12 @@ DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)
 	TEXT t;
 	UNICODE buf[40];
 
-	t.baseline.x = BATTLE_CREW_X + RES_SCALE (2); 
-	if (optWhichMenu == OPT_PC)
-			t.baseline.x -= RES_SCALE (5);
+	t.baseline.x = BATTLE_CREW_X + RES_SCALE (MENU_BOOL (2, 4));
 	t.baseline.y = BATTLE_CREW_Y + y_offs;
-	t.align = ALIGN_LEFT;
+	t.align = MENU_BOOL (ALIGN_LEFT, ALIGN_CENTER);
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-
-	r.corner.x = t.baseline.x - RES_SCALE (2);
+	r.corner.x = t.baseline.x - RES_SCALE (MENU_BOOL (2, 9));
 	r.corner.y = t.baseline.y - RES_SCALE (5);
 	r.extent.width = RES_SCALE (6 * MAX_CREW_DIGITS + 6);
 	r.extent.height = RES_SCALE (5);
@@ -195,7 +192,8 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(2);
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
 	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS + IF_HD(4);
-	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS + RES_SCALE(2); 
+	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS
+			+ RES_SCALE (MENU_BOOL (2, 1));
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 	DrawFilledRectangle (&r);
@@ -279,7 +277,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		t.CharCount = (COUNT)~0;
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));
-		SetContextFont (TinyFont);
+		SetContextFont (MENU_BOOL (TinyFontBold, TinyFont));
 		font_DrawText (&t);
 	}
 	if (RDPtr->ship_info.max_crew > MAX_CREW_SIZE ||
@@ -290,9 +288,10 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		DrawBattleCrewAmount (&RDPtr->ship_info, y_offs);
 	}
 
-	if (IS_HD) {
-		DrawBorder(31, TRUE);
-		DrawBorder(30, TRUE);
+	if (IS_HD)
+	{
+		DrawBorder (31, TRUE);
+		DrawBorder (30, TRUE);
 	}
 
 	UnbatchGraphics ();
