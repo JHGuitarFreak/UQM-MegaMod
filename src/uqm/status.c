@@ -138,18 +138,18 @@ DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)
 	TEXT t;
 	UNICODE buf[40];
 
-	t.baseline.x = BATTLE_CREW_X + RES_SCALE(2); 
+	t.baseline.x = BATTLE_CREW_X + RES_SCALE (2); 
 	if (optWhichMenu == OPT_PC)
-			t.baseline.x -= RES_SCALE(8); 
+			t.baseline.x -= RES_SCALE (5);
 	t.baseline.y = BATTLE_CREW_Y + y_offs;
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	r.corner.x = t.baseline.x;
-	r.corner.y = t.baseline.y - RES_SCALE(5);
-	r.extent.width = RES_SCALE(6) * MAX_CREW_DIGITS + RES_SCALE(6);
-	r.extent.height = RES_SCALE(5);
+	r.corner.x = t.baseline.x - RES_SCALE (2);
+	r.corner.y = t.baseline.y - RES_SCALE (5);
+	r.extent.width = RES_SCALE (6 * MAX_CREW_DIGITS + 6);
+	r.extent.height = RES_SCALE (5);
 
 	sprintf (buf, "%u", ShipInfoPtr->crew_level);
 	SetContextFont (StarConFont);

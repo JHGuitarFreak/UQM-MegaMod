@@ -32,7 +32,7 @@ DrawCrewFuelString (COORD y, SIZE state)
 	Stamp.origin.y = y + GAUGE_YOFFS + STARCON_TEXT_HEIGHT;
 	if (state == 0)
 	{
-		Stamp.origin.x = CREW_XOFFS + (STAT_WIDTH >> 1) + 6;
+		Stamp.origin.x = CREW_XOFFS + RES_SCALE (RES_DESCALE (STAT_WIDTH) >> 1) + RES_SCALE (5);
 		if (optWhichMenu == OPT_PC)
 			Stamp.frame = SetAbsFrameIndex (StatusFrame, 4);
 		else
@@ -40,7 +40,7 @@ DrawCrewFuelString (COORD y, SIZE state)
 		DrawStamp (&Stamp);
 	}
 
-	Stamp.origin.x = ENERGY_XOFFS + (STAT_WIDTH >> 1) - 5;
+	Stamp.origin.x = ENERGY_XOFFS + RES_SCALE (RES_DESCALE (STAT_WIDTH) >> 1) - RES_SCALE (4);
 	if (optWhichMenu == OPT_PC)
 		Stamp.frame = SetAbsFrameIndex (StatusFrame, 5);
 	else
