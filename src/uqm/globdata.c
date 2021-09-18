@@ -490,7 +490,9 @@ InitGameStructures (void)
 		GLOBAL_SIS (ModuleSlots[i]) = EMPTY_SLOT + 2;
 	GLOBAL_SIS (ModuleSlots[15]) = GUN_WEAPON;
 	GLOBAL_SIS (ModuleSlots[2]) = CREW_POD;
-	GLOBAL_SIS (CrewEnlisted) =  IF_HARD(CREW_POD_CAPACITY, 31);
+	// Make crew 31 at start to align with the amount of crew lost on the Tobermoon
+	// during the journey from Vela to Sol, Hard and/or Extended mode only
+	GLOBAL_SIS (CrewEnlisted) = (DIF_HARD || EXTENDED) ? 31 : CREW_POD_CAPACITY;
 	GLOBAL_SIS (ModuleSlots[8]) = STORAGE_BAY;
 	GLOBAL_SIS (ModuleSlots[1]) = FUEL_TANK;
 	GLOBAL_SIS (FuelOnBoard) = IF_EASY(10 * FUEL_TANK_SCALE, 4338);
