@@ -108,6 +108,17 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 		GeneratePlanets (solarSys);
+
+		if (!PrimeSeed)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
+					RandomContext_Random (SysGenRNG) % LAST_LARGE_ROCKY_WORLD;
+
+			if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
+			else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+		}
 	}
 
 	return true;
