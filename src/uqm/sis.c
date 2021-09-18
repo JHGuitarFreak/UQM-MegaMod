@@ -142,7 +142,8 @@ DrawSISTitle (UNICODE *pStr)
 	t.CharCount = (COUNT)~0;
 
 	OldContext = SetContext (OffScreenContext);
-	r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH + RES_SCALE(1);
+	r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
+			+ RES_SCALE(1);
 	r.corner.y = SIS_ORG_Y - SIS_TITLE_HEIGHT;
 	r.extent.width = SIS_TITLE_WIDTH;
 	r.extent.height = SIS_TITLE_HEIGHT - RES_SCALE(1);
@@ -882,12 +883,17 @@ DrawLanders (void)
 
 	i = GLOBAL_SIS (NumLanders);
 	r.corner.x = (STATUS_WIDTH >> 1) - r.corner.x;
-	s.origin.x = r.corner.x - (((r.extent.width * i) + (RES_SCALE(2) * (i - 1))) >> 1);
-	s.origin.y = RES_SCALE(29);
+	s.origin.x = r.corner.x
+			- RES_SCALE (
+					RES_DESCALE ((r.extent.width * i) + (RES_SCALE(2)
+						* (i - 1))) >> 1
+				);
+	s.origin.y = RES_SCALE (29);
 
-	width = r.extent.width + RES_SCALE(2);
-	r.extent.width = (r.extent.width * MAX_LANDERS) + (RES_SCALE(2) * (MAX_LANDERS - 1)) + RES_SCALE(2);
-	r.corner.x -= r.extent.width >> 1;
+	width = r.extent.width + RES_SCALE (2);
+	r.extent.width = (r.extent.width * MAX_LANDERS)
+			+ (RES_SCALE (2) * (MAX_LANDERS - 1)) + RES_SCALE(2);
+	r.corner.x -= RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
 	r.corner.y += s.origin.y;
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -928,7 +934,11 @@ DrawStorageBays (BOOLEAN Refresh)
 	{
 		COUNT j;
 
-		r.corner.x = (STATUS_WIDTH >> 1) - ((i * (r.extent.width + RES_SCALE(1))) >> 1);
+		r.corner.x = (STATUS_WIDTH >> 1)
+				- RES_SCALE (
+						RES_DESCALE (i * (r.extent.width + RES_SCALE (1)))
+							>> 1
+					);
 		SetContextForeGroundColor (STORAGE_BAY_FULL_COLOR);
 		for (j = GLOBAL_SIS (TotalElementMass);
 				j >= STORAGE_BAY_CAPACITY; j -= STORAGE_BAY_CAPACITY)
@@ -939,7 +949,8 @@ DrawStorageBays (BOOLEAN Refresh)
 			--i;
 		}
 
-		r.extent.height = (RES_SCALE (4) * j + (STORAGE_BAY_CAPACITY - 1)) / STORAGE_BAY_CAPACITY;
+		r.extent.height = (RES_SCALE (4) * j + (STORAGE_BAY_CAPACITY - 1))
+				/ STORAGE_BAY_CAPACITY;
 		if (r.extent.height)
 		{
 			r.corner.y += RES_SCALE (4) - r.extent.height;
