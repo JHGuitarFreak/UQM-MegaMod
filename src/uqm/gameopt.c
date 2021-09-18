@@ -701,9 +701,9 @@ DrawSaveLoad (PICK_GAME_STATE *pickState)
 	s.frame = SetAbsFrameIndex(pickState->SummaryFrame,
 		GetFrameCount(pickState->SummaryFrame) - 2);
 
-	GetFrameRect(s.frame, &r);
+	GetFrameRect (s.frame, &r);
 
-	s.origin.x = SIS_SCREEN_WIDTH / 2 - r.extent.width / 2;
+	s.origin.x = RES_SCALE((ORIG_SIS_SCREEN_WIDTH - RES_DESCALE(r.extent.width)) / 2);
 	s.origin.y = 0;
 
 	if (pickState->saving)
@@ -826,8 +826,10 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		OldContext = SetContext (StatusContext);
 		// Hack StatusContext so we can use standard SIS display funcs
 		GetContextClipRect (&OldRect);
-		r.corner.x = SIS_ORG_X + ((SIS_SCREEN_WIDTH - STATUS_WIDTH) >> 1)
-			- RES_SCALE(16) + SUMMARY_X_OFFS;
+		r.corner.x = SIS_ORG_X
+				+ RES_SCALE (
+						RES_DESCALE (SIS_SCREEN_WIDTH - STATUS_WIDTH) >> 1
+					) - RES_SCALE (16) + SUMMARY_X_OFFS;
 		r.corner.y = SIS_ORG_Y;
 		r.extent.width = STATUS_WIDTH;
 		r.extent.height = STATUS_HEIGHT;
@@ -835,7 +837,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		// Hack the states so that we can use standard SIS display funcs
 		GlobData.SIS_state = pSD->SS;
-		DrawDiffSeed(pSD->SS.Seed, pSD->SS.Difficulty, pSD->SS.Extended, pSD->SS.Nomad);
+		DrawDiffSeed (pSD->SS.Seed, pSD->SS.Difficulty, pSD->SS.Extended, pSD->SS.Nomad);
 		InitQueue (&GLOBAL (built_ship_q),
 				MAX_BUILT_SHIPS, sizeof (SHIP_FRAGMENT));
 		for (i = 0; i < pSD->NumShips; ++i)
@@ -964,7 +966,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
-		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE(4) + RES_SCALE(RES_DESCALE(SIS_TITLE_WIDTH) >> 1);
+		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
+				- RES_SCALE(4) + RES_SCALE(RES_DESCALE(SIS_TITLE_WIDTH) >> 1);
 		switch (pSD->Activity)
 		{
 			case IN_STARBASE:
