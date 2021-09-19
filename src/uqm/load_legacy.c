@@ -1528,8 +1528,6 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 	STAR_DESC SD;
 	ACTIVITY Activity;
 
-	legacySave = TRUE;
-
 	sprintf (file, "starcon2.%02u", which_game);
 	in_fp = res_OpenResFile (saveDir, file, "rb");
 	if (!in_fp)
@@ -1749,6 +1747,9 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 	ReinitQueue (&race_q[0]);
 	ReinitQueue (&race_q[1]);
 	CurStarDescPtr = FindStar (NULL, &SD.star_pt, 0, 0);
+
+	legacySave = TRUE;
+
 	if (!(NextActivity & START_ENCOUNTER)
 			&& LOBYTE (NextActivity) == IN_INTERPLANETARY)
 		NextActivity |= START_INTERPLANETARY;
