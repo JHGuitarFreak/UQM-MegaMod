@@ -316,7 +316,7 @@ InitEncounter (void)
 	DrawStamp (&s);
 
 //    t.baseline.x = SIS_SCREEN_WIDTH >> 1;
-	t.baseline.x = (SIS_SCREEN_WIDTH >> 1) + 1;
+	t.baseline.x = RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1);
 	t.baseline.y = RES_SCALE(10);
 	t.align = ALIGN_CENTER;
 
