@@ -1848,7 +1848,7 @@ InitCommunication (CONVERSATION which_comm)
 				DrawHyperCoords (CurStarDescPtr->star_pt);
 			else
 			{	// to fix moon suffix on load
-				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE 
+				if (pSolarSysState && LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE
 					&& worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 				{
 					if (!(GetNamedPlanetaryBody ())
