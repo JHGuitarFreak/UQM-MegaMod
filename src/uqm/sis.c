@@ -324,7 +324,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		BYTE char_deltas[128];
 		BYTE *pchar_deltas;
 
-		t.baseline.x = RES_SCALE(3);
+		// t.baseline.x = RES_SCALE(3);
 		t.align = ALIGN_LEFT;
 
 		TextRect (&t, &text_r, char_deltas);
