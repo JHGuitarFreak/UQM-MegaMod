@@ -286,17 +286,14 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 					}
 				}
 				break;
-
-				
 		}
-
 	}
 
 	if (!(flags & DSME_MYCOLOR))
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
 
 	t.baseline.y = SIS_MESSAGE_HEIGHT - RES_SCALE(2);
-	t.baseline.x = (SIS_MESSAGE_WIDTH >> 1);
+	t.baseline.x = RES_SCALE (RES_DESCALE (SIS_MESSAGE_WIDTH) >> 1);
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 	SetContextFont (TinyFont);
@@ -339,7 +336,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		}
 
 		ClearDrawable ();
-		DrawBorder(2, FALSE);
+		DrawBorder (2, FALSE);
 		SetCursorFlashBlock (FALSE);
 
 
@@ -601,7 +598,7 @@ DrawCaptainsName (bool NewGame)
 void
 DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 {
-	RECT r;
+	RECT r, rHD;
 	TEXT t;
 	FONT OldFont;
 	Color OldColor;
@@ -633,8 +630,8 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 
 		if (IS_HD)
 		{
-			r.extent.width = SIS_SCREEN_WIDTH * 0.75;
-			r.corner.x = (SIS_SCREEN_WIDTH - r.extent.width) / 2;
+			rHD.extent.width = SIS_SCREEN_WIDTH * 0.75;
+			rHD.corner.x = (SIS_SCREEN_WIDTH - r.extent.width) / 2;
 		}
 
 		t.pStr = buf;
@@ -660,13 +657,13 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	}
 	OldFontEffect = SetContextFontEffect (NULL);
 	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
-	DrawFilledRectangle (&r);
+	DrawFilledRectangle (RES_BOOL (&r, &rHD));
 
 	if (!NewGame)
 		DrawBorder(12, FALSE);
 
-	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE(InStatusArea));
+	t.baseline.x = r.corner.x + RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE (InStatusArea));
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (optWhichFonts == OPT_PC)
