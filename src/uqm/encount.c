@@ -354,7 +354,7 @@ InitEncounter (void)
 	}
 	DrawSISMessage (NULL);
 
-	s.origin.x = SIS_SCREEN_WIDTH >> 1;
+	s.origin.x = RES_SCALE (RES_DESCALE (SIS_SCREEN_WIDTH) >> 1);
 	s.origin.y = SIS_SCREEN_HEIGHT >> 1;
 	s.frame = planet[0];
 	DrawStamp (&s);
