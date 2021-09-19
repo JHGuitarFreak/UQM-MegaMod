@@ -205,7 +205,7 @@ PrintCoarseScanPC (void)
 	SetContext (PlanetContext);
 
 	t.align = ALIGN_CENTER;
-	t.baseline.x = SIS_SCREEN_WIDTH >> 1;
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	t.baseline.y = SCAN_TITLE_Y;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
@@ -380,7 +380,7 @@ PrintCoarseScan3DO (void)
 	SetContext (PlanetContext);
 
 	t.align = ALIGN_CENTER;
-	t.baseline.x = SIS_SCREEN_WIDTH >> 1;
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	t.baseline.y = SCAN_TITLE_Y;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
