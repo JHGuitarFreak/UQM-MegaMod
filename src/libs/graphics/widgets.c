@@ -112,27 +112,30 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 		oldfont = SetContextFont (cur_font);
 
 	/* Compute the dimensions of the label */
-	win_h = label->height ((WIDGET *)label) + (16);
+	win_h = label->height ((WIDGET *)label) + RES_SCALE (16);
 	win_w = 0;
 	for (i = 0; i < label->line_count; i++)
 	{
 		int len = utf8StringCount (label->lines[i]);
 		if (len > win_w)
 		{
-			win_w = RES_SCALE(len);
+			win_w = RES_SCALE (len);
 		}
 	}
-	win_w = (win_w * 6) + 16;
+	win_w = (win_w * 6) + RES_SCALE (16);
 
 	BatchGraphics ();
-	r.corner.x = (ScreenWidth - win_w) >> 1;
-	r.corner.y = (ScreenHeight - win_h) >> 1;
+	r.corner.x = RES_SCALE (
+			(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w)) >> 1);
+	r.corner.y = RES_SCALE (
+			(RES_DESCALE (ScreenHeight) - RES_DESCALE (win_h)) >> 1);
 	r.extent.width = win_w;
 	r.extent.height = win_h;
 	DrawShadowedBox (&r, win_bg_clr, win_dark_clr, win_medium_clr);
 
-	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_DBL(16);
+	t.baseline.x = r.corner.x
+			+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+	t.baseline.y = r.corner.y + RES_SCALE (16);
 	for (i = 0; i < label->line_count; i++)
 	{
 		t.pStr = label->lines[i];
@@ -149,8 +152,8 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 		SetContextFont (oldfont);
 	SetContextForeGroundColor (oldfg);
 
-	if (windowRect != NULL) {
-		// Add the outer border added by DrawShadowedBox.
+	if (windowRect != NULL)
+	{	// Add the outer border added by DrawShadowedBox.
 		// XXX: It may be nicer to add a border size parameter to
 		// DrawShadowedBox, instead of assuming 2 here.
 		windowRect->corner.x = r.corner.x - RES_DBL(2);
