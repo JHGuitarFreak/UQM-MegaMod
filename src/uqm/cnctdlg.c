@@ -102,7 +102,7 @@ MCD_DrawButton (WIDGET *_self, int x, int y)
 	selected = MENU_HIGHLIGHT_COLOR;
 	inactive = MENU_TEXT_COLOR;
 
-	t.baseline.x = RES_SCALE(160); 
+	t.baseline.x = RES_SCALE(160);
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -132,7 +132,7 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	RECT r;
-	int tick = (MCD_WIDTH) / 8;
+	int tick = RES_SCALE (RES_DESCALE (MCD_WIDTH) / 8);
 	
 	default_color = MENU_TEXT_COLOR;
 	selected = MENU_HIGHLIGHT_COLOR;
@@ -162,7 +162,8 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	r.extent.height = RES_SCALE (8);
 	r.corner.y = t.baseline.y - RES_SCALE(7);
 	r.corner.x = t.baseline.x + 3 * tick + (3 * tick *
-			(self->value - self->min) / (self->max - self->min)) - RES_SCALE (1);
+			(self->value - self->min) / (self->max - self->min))
+			- RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	(*self->draw_value)(self, t.baseline.x + 7 * tick, t.baseline.y);
@@ -492,7 +493,7 @@ CreateWidgets (void)
 		texts[i].height = Widget_HeightOneLine;
 		texts[i].width = Widget_WidthFullScreen;
 		texts[i].handleEventSelect = OnTextEntryEvent;
-		texts[i].maxlen = WIDGET_TEXTENTRY_WIDTH-1;
+		texts[i].maxlen = WIDGET_TEXTENTRY_WIDTH - RES_SCALE(1);
 		texts[i].state = WTE_NORMAL;
 		texts[i].cursor_pos = 0;
 	}
@@ -535,7 +536,8 @@ DrawConnectDialog (void)
 	DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR,
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
-	menu.draw ((WIDGET *)&menu, r.corner.x + 10, r.corner.y + 10);
+	menu.draw ((WIDGET *)&menu,
+			r.corner.x + RES_SCALE (10), r.corner.y + RES_SCALE (10));
 
 }
 

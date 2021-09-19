@@ -65,28 +65,28 @@ DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium)
 
 	BatchGraphics ();
 
-	t.corner.x = r->corner.x - 2;
-	t.corner.y = r->corner.y - 2;
-	t.extent.width  = r->extent.width + 4;
-	t.extent.height  = r->extent.height + 4;
+	t.corner.x = r->corner.x - RES_SCALE (2);
+	t.corner.y = r->corner.y - RES_SCALE (2);
+	t.extent.width  = r->extent.width + RES_SCALE (4);
+	t.extent.height  = r->extent.height + RES_SCALE (4);
 	oldcolor = SetContextForeGroundColor (dark);
 	DrawFilledRectangle (&t);
 
-	t.corner.x += 2;
-	t.corner.y += 2;
-	t.extent.width -= 2;
-	t.extent.height -= 2;
+	t.corner.x += RES_SCALE (2);
+	t.corner.y += RES_SCALE (2);
+	t.extent.width -= RES_SCALE (2);
+	t.extent.height -= RES_SCALE (2);
 	SetContextForeGroundColor (medium);
 	DrawFilledRectangle (&t);
 
-	t.corner.x -= 1;
-	t.corner.y += r->extent.height + 1;
-	t.extent.height = 1;
+	t.corner.x -= RES_SCALE (1);
+	t.corner.y += r->extent.height + RES_SCALE (1);
+	t.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&t);
 
-	t.corner.x += r->extent.width + 2;
-	t.corner.y -= r->extent.height + 2;
-	t.extent.width = 1;
+	t.corner.x += r->extent.width + RES_SCALE (2);
+	t.corner.y -= r->extent.height + RES_SCALE (2);
+	t.extent.width = RES_SCALE (1);
 	DrawFilledRectangle (&t);
 
 	SetContextForeGroundColor (bg);
