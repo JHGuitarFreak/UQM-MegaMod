@@ -319,13 +319,17 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 
 	t.baseline.x -= t.baseline.x;
 
-	home_x = t.baseline.x + 3 * (ScreenWidth / ((self->maxcolumns + 1) * 2));
+	home_x = t.baseline.x + 3 *
+			RES_SCALE (
+					RES_DESCALE (ScreenWidth) / ((self->maxcolumns + 1) * 2)
+				);
 	home_y = t.baseline.y;
 	t.align = ALIGN_CENTER;
 	for (i = 0; i < self->numopts; i++)
 	{
 		t.baseline.x = home_x + ((i % 3) *
-				(ScreenWidth / (self->maxcolumns + 1)));
+				RES_SCALE (
+						RES_DESCALE (ScreenWidth) / (self->maxcolumns + 1)));
 		t.baseline.y = home_y + RES_SCALE(10 * (i / 3));  // Was 8*(i/3): Changed for readability
 		t.pStr = self->options[i].optname;
 		if ((widget_focus == _self) &&
