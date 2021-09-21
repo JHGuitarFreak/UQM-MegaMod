@@ -264,7 +264,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 			pPlanetDesc = pSolarSysState->pOrbitalDesc;
 			GeneratePlanetSurface (pPlanetDesc, NULL, PlanetScale, PlanetScale);
-			ss.origin.x = SIS_SCREEN_WIDTH / 2;
+			ss.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 			ss.origin.y = RES_SCALE(191);
 			
 			ss.frame = RES_BOOL(Orbit->SphereFrame, CaptureDrawable (

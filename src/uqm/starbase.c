@@ -450,8 +450,8 @@ DoTimePassage (void)
 		//log_add (log_Debug, "startangle:%d angle:%f, radius:%d, speed:%f, days:%f X:%d, y:%d", 10, newAngle, MIN_MOON_RADIUS, FULL_CIRCLE / 11.46, daysElapsed(), starbase_coords.x, starbase_coords.y);
 		
 		// Translate the coordinates on a circle to an ellipse and update the ship's graphics' coordinates on the screen.
-		GLOBAL (ShipStamp.origin.x) = (SIS_SCREEN_WIDTH >> 1) + starbase_coords.x;
-		GLOBAL (ShipStamp.origin.y) = (SIS_SCREEN_HEIGHT >> 1) + (starbase_coords.y >> 1);
+		GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + starbase_coords.x;
+		GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + (starbase_coords.y >> 1);
 	}
 }
 
@@ -561,8 +561,8 @@ InstallBombAtEarth (void)
 {
 	DoTimePassage ();
 
-	GLOBAL (ShipStamp.origin.x) = SIS_SCREEN_WIDTH >> 1;
-	GLOBAL (ShipStamp.origin.y) = SIS_SCREEN_HEIGHT >> 1;
+	GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 
 	SetContext (ScreenContext);
 	SetTransitionSource (NULL);

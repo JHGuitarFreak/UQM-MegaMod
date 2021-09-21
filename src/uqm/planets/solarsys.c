@@ -121,16 +121,17 @@ RandomContext *SysGenRNG;
 RandomContext* SysGenRNGDebug;
 
 #define DISPLAY_TO_LOC  (DISPLAY_FACTOR >> 1)
+#define DISPLAY_TO_LOC_US  (DISPLAY_FACTOR_US >> 1)
 
 POINT
 locationToDisplay (POINT pt, SIZE scaleRadius)
 {
 	POINT out;
 
-	out.x = (SIS_SCREEN_WIDTH >> 1)
-			+ (long)pt.x * DISPLAY_TO_LOC / scaleRadius;
-	out.y = (SIS_SCREEN_HEIGHT >> 1)
-			+ (long)pt.y * DISPLAY_TO_LOC / scaleRadius;
+	out.x = (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
+			+ (long)pt.x * DISPLAY_TO_LOC / scaleRadius);
+	out.y = (RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
+			+ (long)pt.y * DISPLAY_TO_LOC / scaleRadius);
 
 	return out;
 }
@@ -140,10 +141,10 @@ displayToLocation (POINT pt, SIZE scaleRadius)
 {
 	POINT out;
 
-	out.x = ((long)pt.x - (SIS_SCREEN_WIDTH >> 1))
-			* scaleRadius / DISPLAY_TO_LOC;
-	out.y = ((long)pt.y - (SIS_SCREEN_HEIGHT >> 1))
-			* scaleRadius / DISPLAY_TO_LOC;
+	out.x = (((long)pt.x - RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1))
+			* scaleRadius / DISPLAY_TO_LOC);
+	out.y = (((long)pt.y - RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1))
+			* scaleRadius / DISPLAY_TO_LOC);
 
 	return out;
 }
@@ -945,8 +946,8 @@ CheckIntersect (void)
 	ShipIntersect.EndPoint = ShipIntersect.IntersectStamp.origin;
 	ShipIntersect.IntersectStamp.frame = GLOBAL (ShipStamp.frame);
 
-	PlanetIntersect.IntersectStamp.origin.x = SIS_SCREEN_WIDTH >> 1;
-	PlanetIntersect.IntersectStamp.origin.y = SIS_SCREEN_HEIGHT >> 1;
+	PlanetIntersect.IntersectStamp.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	PlanetIntersect.IntersectStamp.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 	PlanetIntersect.EndPoint = PlanetIntersect.IntersectStamp.origin;
 	
 	PlanetIntersect.IntersectStamp.frame = getCollisionFrame (pCurDesc,
@@ -1043,8 +1044,8 @@ static void
 GetOrbitRect (RECT *pRect, COORD dx, COORD dy, SIZE radius,
 		int xnumer, int ynumer, int denom)
 {
-	pRect->corner.x = (SIS_SCREEN_WIDTH >> 1) + (long)-dx * xnumer / denom;
-	pRect->corner.y = (SIS_SCREEN_HEIGHT >> 1) + (long)-dy * ynumer / denom;
+	pRect->corner.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + (long)-dx * xnumer / denom;
+	pRect->corner.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + (long)-dy * ynumer / denom;
 	pRect->extent.width = (long)radius * (xnumer << 1) / denom;
 	pRect->extent.height = pRect->extent.width >> 1;
 }
@@ -1233,7 +1234,7 @@ FindRadius (POINT shipLoc, SIZE fromRadius)
 			nextRadius = 0; // scaleRect will be nul
 
 		GetOrbitRect (&scaleRect, nextRadius, nextRadius, nextRadius,
-				DISPLAY_FACTOR, DISPLAY_FACTOR >> 2, fromRadius);
+				DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US >> 2), fromRadius);
 		displayLoc = locationToDisplay (shipLoc, fromRadius);
 	
 	} while (pointWithinRect (scaleRect, displayLoc));
@@ -1431,15 +1432,15 @@ enterInnerSystem (PLANET_DESC *planet)
 	// Calculate the inner system entry location and facing
 	angle = FACING_TO_ANGLE (GetFrameIndex (GLOBAL (ShipStamp.frame)))
 			+ HALF_CIRCLE;
-	GLOBAL (ShipStamp.origin.x) = (SIS_SCREEN_WIDTH >> 1)
+	GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
 			+ COSINE (angle, INNER_ENTRY_DISTANCE);
-	GLOBAL (ShipStamp.origin.y) = (SIS_SCREEN_HEIGHT >> 1)
+	GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
 			+ SINE (angle, INNER_ENTRY_DISTANCE);
 	if (GLOBAL (ShipStamp.origin.y) < 0)
-		GLOBAL (ShipStamp.origin.y) = 1;
+		GLOBAL (ShipStamp.origin.y) = RES_SCALE (1);
 	else if (GLOBAL (ShipStamp.origin.y) >= SIS_SCREEN_HEIGHT)
 		GLOBAL (ShipStamp.origin.y) =
-				(SIS_SCREEN_HEIGHT - 1) - 1;
+				(SIS_SCREEN_HEIGHT - RES_SCALE (1)) - RES_SCALE (1);
 
 	GLOBAL (ip_location) = displayToLocation (
 			GLOBAL (ShipStamp.origin), MAX_ZOOM_RADIUS);
@@ -1468,7 +1469,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 
 	outerPlanetWait = MAKE_WORD (planet - pSolarSysState->PlanetDesc + 1, 0);
 	// BW: planet may have moved while we were into Inner System
-	ValidateOrbit (planet, DISPLAY_FACTOR, DISPLAY_FACTOR / 4,
+	ValidateOrbit (planet, DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US / 4),
 			pSolarSysState->SunDesc[0].radius);
 	pSolarSysState->SunDesc[0].location =
 			planetOuterLocation (planetIndex (pSolarSysState, planet));
@@ -1887,7 +1888,7 @@ ValidateOrbits (void)
 	for (i = pSolarSysState->SunDesc[0].NumPlanets,
 			planet = &pSolarSysState->PlanetDesc[0]; i; --i, ++planet)
 	{
-		ValidateOrbit (planet, DISPLAY_FACTOR, DISPLAY_FACTOR / 4,
+		ValidateOrbit (planet, DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US / 4),
 				pSolarSysState->SunDesc[0].radius);
 	}
 }
@@ -1901,7 +1902,7 @@ ValidateInnerOrbits (void)
 	assert (playerInInnerSystem ());
 
 	planet = pSolarSysState->pOrbitalDesc;
-	ValidateOrbit (planet, DISPLAY_FACTOR * 4, DISPLAY_FACTOR,
+	ValidateOrbit (planet, RES_SCALE (DISPLAY_FACTOR_US * 4), DISPLAY_FACTOR,
 			planet->radius);
 
 	for (i = 0; i < planet->NumPlanets; ++i)
@@ -2060,8 +2061,8 @@ EnterPlanetOrbit (void)
 		}
 		else
 		{	// Planet -- its origin is for the outer view, so use mid-screen
-			GLOBAL (ShipStamp.origin.x) = SIS_SCREEN_WIDTH >> 1;
-			GLOBAL (ShipStamp.origin.y) = SIS_SCREEN_HEIGHT >> 1;
+			GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+			GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 		}
 	}
 
@@ -2125,8 +2126,8 @@ InitSolarSys (void)
 		GLOBAL (autopilot.x) = ~0;
 		GLOBAL (autopilot.y) = ~0;
 
-		GLOBAL (ShipStamp.origin.x) = SIS_SCREEN_WIDTH >> 1;
-		GLOBAL (ShipStamp.origin.y) = SIS_SCREEN_HEIGHT - 2;
+		GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		GLOBAL (ShipStamp.origin.y) = SIS_SCREEN_HEIGHT - RES_SCALE (2);
 		
 		GLOBAL (ip_location) = displayToLocation (GLOBAL (ShipStamp.origin),
 				MAX_ZOOM_RADIUS);
@@ -2306,8 +2307,8 @@ CalcSunSize (PLANET_DESC *pSunDesc, SIZE radius)
 			++index;
 	}
 
-	pSunDesc->image.origin.x = SIS_SCREEN_WIDTH >> 1;
-	pSunDesc->image.origin.y = SIS_SCREEN_HEIGHT >> 1;
+	pSunDesc->image.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	pSunDesc->image.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 	
 	// JMS: Animating IP sun in hi-res modes...
 	if (!IS_HD)
@@ -2332,8 +2333,8 @@ DrawInnerPlanets (PLANET_DESC *planet)
 	COUNT i;
 	PLANET_DESC *moon;
 
-	s.origin.x = SIS_SCREEN_WIDTH >> 1;
-	s.origin.y = SIS_SCREEN_HEIGHT >> 1;
+	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	s.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 
 	if (optTexturedPlanets)
 	{	// Draw the planet image
@@ -2453,7 +2454,7 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	if (IsInnerSystem)
 	{	// Draw the inner system view *planet's* orbit segment
 		pCurDesc = pSolarSysState->pOrbitalDesc;
-		DrawOrbit (pCurDesc, DISPLAY_FACTOR * 4, DISPLAY_FACTOR, radius);
+		DrawOrbit (pCurDesc, RES_SCALE (DISPLAY_FACTOR_US * 4), DISPLAY_FACTOR, radius);
 	}
 
 	// Draw the planet orbits or moon orbits
@@ -2463,7 +2464,7 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 		if (IsInnerSystem)
 			DrawOrbit (pCurDesc, 2, 1, 2);
 		else
-			DrawOrbit (pCurDesc, DISPLAY_FACTOR, DISPLAY_FACTOR / 4,
+			DrawOrbit (pCurDesc, DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US / 4),
 					radius);
 	}
 

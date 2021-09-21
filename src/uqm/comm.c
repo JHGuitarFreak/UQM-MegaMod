@@ -767,7 +767,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 	{
 		TEXT ct;
 
-		ct.baseline.x = RES_SCALE (RES_DESCALE (SIS_SCREEN_WIDTH) >> 1);
+		ct.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13); 
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
@@ -1338,7 +1338,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 			TEXT mt;
 			UNICODE buffer[128];
 
-			mt.baseline.x = RES_SCALE (RES_DESCALE (SIS_SCREEN_WIDTH) >> 1);
+			mt.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 			mt.baseline.y = t.baseline.y;
 			mt.align = ALIGN_CENTER;
 			snprintf (buffer, sizeof (buffer), "%s%s%s", // "MORE"

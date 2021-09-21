@@ -354,7 +354,7 @@ InitEncounter (void)
 	}
 	DrawSISMessage (NULL);
 
-	s.origin.x = RES_SCALE (RES_DESCALE (SIS_SCREEN_WIDTH) >> 1);
+	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	s.origin.y = SIS_SCREEN_HEIGHT >> 1;
 	s.frame = planet[0];
 	DrawStamp (&s);
@@ -411,8 +411,8 @@ InitEncounter (void)
 			}
 			s.frame = SetAbsFrameIndex (FragPtr->icons, 0);
 			GetFrameRect (s.frame, &r);
-			s.origin.x += (SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1);
-			s.origin.y += (SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1);
+			s.origin.x += RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1);
+			s.origin.y += RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1);
 			DrawStamp (&s);
 
 			UnlockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);

@@ -1218,9 +1218,9 @@ SaveProblemMessage (STAMP *MsgStamp)
 			BoxUnion (&tr, &r, &r);
 		t.baseline.y += 11;
 	}
-	t.baseline.x = ((SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1))
+	t.baseline.x = (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1))
 			- r.corner.x;
-	t.baseline.y = ((SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1))
+	t.baseline.y = (RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1))
 			- r.corner.y;
 	r.corner.x += t.baseline.x - RES_SCALE(4);
 	r.corner.y += t.baseline.y - RES_SCALE(4);

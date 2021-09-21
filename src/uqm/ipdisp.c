@@ -451,9 +451,9 @@ CheckGetAway:
 					// different from how the flagship enters, but similar
 					// in the way that the group will never show up in any
 					// of the corners.
-					entryPt.x = (SIS_SCREEN_WIDTH >> 1) - COSINE (angle,
+					entryPt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) - COSINE (angle,
 							SIS_SCREEN_WIDTH * 9 / 16);
-					entryPt.y = (SIS_SCREEN_HEIGHT >> 1) - SINE (angle,
+					entryPt.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - SINE (angle,
 							SIS_SCREEN_HEIGHT * 9 / 16);
 					GroupPtr->loc = displayToLocation (entryPt,
 							MAX_ZOOM_RADIUS);

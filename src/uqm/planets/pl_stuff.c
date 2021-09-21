@@ -103,9 +103,9 @@ DrawDefaultPlanetSphere (void)
 	oldContext = SetContext (PlanetContext);
 	if (optScanStyle == OPT_PC && optColoredPlanet == OPT_PC
 		&& pSolarSysState->Orbit.scanType != NUM_SCAN_TYPES)
-		DrawPCScannedPlanetSphere (SIS_SCREEN_WIDTH / 2, PLANET_ORG_Y);
+		DrawPCScannedPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
 	else		
-		DrawPlanetSphere (SIS_SCREEN_WIDTH / 2, PLANET_ORG_Y);
+		DrawPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
 	SetContext (oldContext);
 }
 
@@ -120,7 +120,7 @@ DrawColoredPlanetSphere (Color color)
 
 	SetContextForeGroundColor (color);
 
-	s.origin.x = SIS_SCREEN_WIDTH / 2;
+	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	s.origin.y = PLANET_ORG_Y;
 
 	BatchGraphics ();
@@ -320,8 +320,8 @@ ZoomInPlanetSphere (void)
 			scale = 1.0; // final frame
 
 		// start from beyond the screen
-		pt.x = SIS_SCREEN_WIDTH / 2 + (int) (dx * (1.0 - scale)
-				* (SIS_SCREEN_WIDTH * 6 / 10) + 0.5);
+		pt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + (int) (dx * (1.0 - scale)
+				* RES_SCALE(ORIG_SIS_SCREEN_WIDTH * 6 / 10) + 0.5);
 		pt.y = PLANET_ORG_Y + (int) (dy * (1.0 - scale)
 				* (SCAN_SCREEN_HEIGHT * 6 / 10) + 0.5);
 

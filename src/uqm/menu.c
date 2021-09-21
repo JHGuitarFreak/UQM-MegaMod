@@ -522,7 +522,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	s.origin.y = RADAR_Y - r.corner.y;
 	r.corner.x = s.origin.x - RES_SCALE(1);
 	if (optWhichMenu == OPT_PC)
-		r.corner.y = s.origin.y - PC_MENU_HEIGHT - IF_HD(2); 
+		r.corner.y = s.origin.y - PC_MENU_HEIGHT - IF_HD(2);
 	else
 		r.corner.y = s.origin.y - RES_SCALE(11);
 	r.extent.width = RADAR_WIDTH + RES_SCALE(3);
