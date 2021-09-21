@@ -606,6 +606,9 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	FRAME OldFontEffect;
 	UNICODE buf[250];
 
+	OldFontEffect = SetContextFontEffect (NULL);
+	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
+
 	if (InStatusArea)
 	{
 		OldContext = SetContext (StatusContext);
@@ -617,6 +620,8 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		r.extent.height = SHIP_NAME_HEIGHT;
 
 		t.pStr = GLOBAL_SIS (ShipName);
+
+		DrawFilledRectangle (&r);
 	}
 	else
 	{
@@ -627,12 +632,6 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		r.corner.y = RES_SCALE(1);
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SHIP_NAME_HEIGHT;
-
-		if (IS_HD)
-		{
-			rHD.extent.width = SIS_SCREEN_WIDTH * 0.75;
-			rHD.corner.x = (SIS_SCREEN_WIDTH - r.extent.width) / 2;
-		}
 
 		t.pStr = buf;
 		snprintf (buf, sizeof buf, "%s %s",
@@ -654,10 +653,15 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 				ptr++;
 			}
 		}
+
+		if (IS_HD)
+		{
+			rHD.extent.width = SIS_SCREEN_WIDTH * 0.75;
+			rHD.corner.x = (SIS_SCREEN_WIDTH - r.extent.width) / 2;
+		}
+
+		DrawFilledRectangle (RES_BOOL (&r, &rHD));
 	}
-	OldFontEffect = SetContextFontEffect (NULL);
-	OldColor = SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
-	DrawFilledRectangle (RES_BOOL (&r, &rHD));
 
 	if (!NewGame)
 		DrawBorder(12, FALSE);
