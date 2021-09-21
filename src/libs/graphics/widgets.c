@@ -18,6 +18,8 @@
 #include <string.h>
 
 #include "gfx_common.h"
+#include "uqm/nameref.h"
+#include "uqm/igfxres.h"
 #include "widgets.h"
 #include "libs/strlib.h"
 #include "uqm/colors.h"
@@ -40,6 +42,8 @@ WIDGET *widget_focus = NULL;
 		LTGRAY_COLOR
 #define WIDGET_DIALOG_TEXT_COLOR \
 		WIDGET_CURSOR_COLOR
+#define WIDGET_BONUS_COLOR \
+		BUILD_COLOR_RGBA (223,106,19, 0)
 
 #define WIDGET_ENABLED_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x18, 0x00), 0x00)
@@ -47,6 +51,12 @@ WIDGET *widget_focus = NULL;
 		PCMENU_TOP_LEFT_BORDER_COLOR
 #define WIDGET_TOOLTIP_COLOR \
 		BUILD_COLOR(MAKE_RGB15(0xD2, 0xB4, 0x8C), 0x00)
+#define WIDGET_LABEL_COLOR \
+		BUILD_COLOR_RGBA (0,119,119, 0)
+
+#define ONSCREEN 10
+#define LSTEP RES_SCALE(16)
+#define RSTEP ((LSTEP * 10) + RES_SCALE(20))
 
 static Color win_bg_clr =
 		BUILD_COLOR (MAKE_RGB15_INIT (0x18, 0x18, 0x1F), 0x00);
@@ -57,9 +67,42 @@ static Color win_dark_clr =
 
 static FONT cur_font;
 
+static COUNT offset_t = 0; // Top widget offset
+static COUNT offset_b = ONSCREEN; // Bottom widget offset
+static FRAME arrow_frame = NULL; // Frames for additional graphics
+
+void
+ResetOffset(void)
+{	// To reset offsets while traversing different moves
+	offset_t = 0;
+	offset_b = ONSCREEN;
+}
+
+void
+LoadArrows (void)
+{	
+	if (arrow_frame == NULL || optRequiresRestart)
+	{
+		// Load the different arrows depending on the resolution factor.
+		arrow_frame = CaptureDrawable (
+				LoadGraphic (
+					RES_BOOL (MENUARR_PMAP_ANIM, MENUARR_PMAP_ANIM_HD)));
+	}
+}
+
+void
+ReleaseArrows (void)
+{	// Release graphics
+	if (arrow_frame)
+	{
+		DestroyDrawable (ReleaseDrawable (arrow_frame));
+		arrow_frame = NULL;
+	}
+}
+
 void
 DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium)
-{
+{	// Dialog box
 	RECT t;
 	Color oldcolor;
 
@@ -202,7 +245,8 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(8) - RES_SCALE(8) * numlines);
+	t.baseline.y = r.corner.y
+			+ (r.extent.height - RES_SCALE(8) - RES_SCALE(8) * numlines);
 
 	for (i = 0; i < numlines; i++)
 	{
@@ -219,14 +263,14 @@ Widget_DrawToolTips (int numlines, const char **tips)
 
 void
 Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
-{
+{	// Main menu function that draws backgroung and all widgets
 	RECT r;
 	Color title, oldtext;
-	Color inactive, default_color, selected;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	int widget_index, height, widget_y;
+	int widget_index, height, widget_y, on_screen;
+	
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
 
@@ -239,9 +283,6 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	r.extent.height = ScreenHeight - RES_SCALE(4); 
 	
 	title = WIDGET_INACTIVE_SELECTED_COLOR;
-	selected = WIDGET_ACTIVE_COLOR;
-	inactive = WIDGET_INACTIVE_COLOR;
-	default_color = title;
 	
 	DrawStamp (&self->bgStamp);
 	
@@ -258,16 +299,53 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 	height = 0;
 	for (widget_index = 0; widget_index < self->num_children; widget_index++)
-	{
+	{	// Calculate overall height until we hit top limit (more widgets can't fit the page)
 		WIDGET *child = self->child[widget_index];
-		height += (*child->height)(child);
-		height += RES_SCALE(8);   /* spacing */
+		if (widget_index <= ONSCREEN)
+		{
+			height += (*child->height)(child);
+			height += RES_SCALE(8);   /* spacing */
+		}
 	}
 
 	height -= RES_SCALE(8); 
-
 	widget_y = (ScreenHeight - height) >> 1;
-	for (widget_index = 0; widget_index < self->num_children; widget_index++)
+
+	{	// Scrolling
+		if (self->highlighted > offset_b)
+		{
+			offset_t += (self->highlighted - offset_b);
+			offset_b += (self->highlighted - offset_b);
+		}
+		if (self->highlighted < offset_t)
+		{
+			offset_b -= (offset_t - self->highlighted);
+			offset_t -= (offset_t - self->highlighted);
+		}
+		if (self->num_children > ONSCREEN)
+		{	// Arrows (blue to the right)
+			STAMP arr;
+
+			arr.origin.x = RES_SCALE (290);
+
+			if (offset_t != 0)
+			{
+				arr.frame = SetAbsFrameIndex (arrow_frame, 0); // Up arrow
+				arr.origin.y = RES_SCALE (25);
+				DrawStamp (&arr);
+			}
+			if (offset_b != self->num_children - 1)
+			{
+				arr.frame = SetAbsFrameIndex (arrow_frame, 1); // Down arrow
+				arr.origin.y = RES_SCALE (195);
+				DrawStamp (&arr);
+			}
+		}
+	}
+
+	on_screen = min (offset_b + 1, self->num_children); // Determine how much widgets we're gonna draw
+
+	for (widget_index = offset_t; widget_index < on_screen; widget_index++)
 	{
 		WIDGET *c = self->child[widget_index];
 		(*c->draw)(c, 0, widget_y);
@@ -285,24 +363,25 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 void
 Widget_DrawChoice (WIDGET *_self, int x, int y)
-{
+{	// Choice drawer
 	WIDGET_CHOICE *self = (WIDGET_CHOICE *)_self;
 	Color oldtext;
-	Color default_color, selected, enabled, disabled;
+	Color default_color, selected, enabled, disabled, canbe;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	int i, home_x, home_y;
+	int i;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 	
-	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
-	enabled = WIDGET_ENABLED_COLOR;
-	disabled = WIDGET_DISABLED_COLOR;
-	selected = WIDGET_ACTIVE_COLOR;
+	default_color = WIDGET_INACTIVE_SELECTED_COLOR; // White
+	enabled = WIDGET_ENABLED_COLOR; // Green
+	disabled = WIDGET_DISABLED_COLOR; // Grey
+	selected = WIDGET_ACTIVE_COLOR; // Yellow
+	canbe = WIDGET_BONUS_COLOR; // Orange
 
-	t.baseline.x = x + RES_SCALE(16);
+	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
@@ -315,38 +394,78 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 	{
 		oldtext = SetContextForeGroundColor (default_color);
 	}
-	font_DrawText (&t);
+	font_DrawText (&t); // Choicer name
 
-	t.baseline.x -= t.baseline.x;
+	{	// Choicer options
+		t.baseline.x = RSTEP;
+		t.align = ALIGN_CENTER;
+		for (i = 0; i < self->numopts; i++)
+		{
+			if (i == self->selected && widget_focus != _self)
+			{	// Unfocused widget current option (White)
+				t.pStr = self->options[i].optname;
+				font_DrawText(&t);
+			}
 
-	home_x = t.baseline.x + 3 *
-			RES_SCALE (
-					RES_DESCALE (ScreenWidth) / ((self->maxcolumns + 1) * 2)
-				);
-	home_y = t.baseline.y;
-	t.align = ALIGN_CENTER;
-	for (i = 0; i < self->numopts; i++)
-	{
-		t.baseline.x = home_x + ((i % 3) *
-				RES_SCALE (
-						RES_DESCALE (ScreenWidth) / (self->maxcolumns + 1)));
-		t.baseline.y = home_y + RES_SCALE(10 * (i / 3));  // Was 8*(i/3): Changed for readability
-		t.pStr = self->options[i].optname;
-		if ((widget_focus == _self) &&
-		    (self->highlighted == i))
-		{
-			SetContextForeGroundColor (selected);
-			Widget_DrawToolTips (3, self->options[i].tooltip);
+			if (widget_focus == _self && self->highlighted == i)
+			{	// Focused widget
+				if (i == self->selected)
+				{// Currently chosen option (Yellow)
+					SetContextForeGroundColor(selected);
+				}
+				else
+				{// Available option (Orange)
+					SetContextForeGroundColor(canbe);
+				}
+				Widget_DrawToolTips(3, self->options[i].tooltip);
+				t.pStr = self->options[i].optname;
+				font_DrawText(&t); // Draw only 1 option name at a time
+
+				{	// Arrows around widget option
+					STAMP arr;
+					
+					arr.origin.x = font_GetTextRect (&t).corner.x
+							- RES_SCALE(10);
+					arr.origin.y = t.baseline.y;
+
+					// Left arrow
+					arr.frame = SetAbsFrameIndex (arrow_frame, 2);
+					DrawStamp (&arr);
+
+					arr.origin.x = font_GetTextRect (&t).corner.x
+							+ font_GetTextRect (&t).extent.width
+							+ RES_SCALE (10);
+
+					// Right arrow
+					arr.frame = SetAbsFrameIndex (arrow_frame, 3);
+					DrawStamp (&arr);
+				}
+
+				{	// Navigation Dots
+					RECT d;
+					COUNT c;
+
+					d.extent.width = d.extent.height = RES_SCALE (1);
+					d.corner.x = t.baseline.x
+							- (RES_SCALE (self->numopts / 2) * 2)
+							- (RES_SCALE (self->numopts % 2))
+							- RES_SCALE (1); // centered
+					d.corner.y = t.baseline.y + RES_SCALE (4);
+
+					for (c = 0; c < self->numopts; c++)
+					{
+						d.corner.x += RES_SCALE (2);
+
+						if (c == self->highlighted)
+							SetContextForeGroundColor (enabled);
+						else
+							SetContextForeGroundColor (disabled);
+
+						DrawFilledRectangle (&d);
+					}
+				}
+			}
 		}
-		else if (i == self->selected)
-		{
-			SetContextForeGroundColor (enabled);
-		}
-		else
-		{
-			SetContextForeGroundColor (disabled);
-		}
-		font_DrawText (&t);
 	}
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
@@ -356,7 +475,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 
 void
 Widget_DrawButton (WIDGET *_self, int x, int y)
-{
+{	// Several buttons for navigation
 	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
 	Color oldtext;
 	Color inactive, selected;
@@ -392,84 +511,10 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 }
 
 void
-Widget_DrawRightButton (WIDGET *_self, int x, int y)
-{
-	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
-	Color oldtext;
-	Color inactive, selected;
-	FONT  oldfont = 0;
-	FRAME oldFontEffect = SetContextFontEffect (NULL);
-	TEXT t;
-
-	if (cur_font)
-		oldfont = SetContextFont (cur_font);
-	
-	selected = WIDGET_ACTIVE_COLOR;
-	inactive = PAGE_BUTTON_INACTIVE_COLOR;
-	t.baseline.x = RES_SCALE(304);
-	t.baseline.y = y;
-	t.align = ALIGN_RIGHT;
-	t.CharCount = ~0;
-	t.pStr = self->name;
-	if (widget_focus == _self)
-	{
-		Widget_DrawToolTips (3, self->tooltip);
-		oldtext = SetContextForeGroundColor (selected);
-	}
-	else
-	{
-		oldtext = SetContextForeGroundColor (inactive);
-	}
-	font_DrawText (&t);
-	SetContextFontEffect (oldFontEffect);
-	if (oldfont)
-		SetContextFont (oldfont);
-	SetContextForeGroundColor (oldtext);
-	(void) x;
-}
-
-void
-Widget_DrawLeftButton (WIDGET *_self, int x, int y)
-{
-	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
-	Color oldtext;
-	Color inactive, selected;
-	FONT  oldfont = 0;
-	FRAME oldFontEffect = SetContextFontEffect (NULL);
-	TEXT t;
-
-	if (cur_font)
-		oldfont = SetContextFont (cur_font);
-	
-	selected = WIDGET_ACTIVE_COLOR;
-	inactive = PAGE_BUTTON_INACTIVE_COLOR;
-	t.baseline.x = RES_SCALE(16);
-	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
-	t.CharCount = ~0;
-	t.pStr = self->name;
-	if (widget_focus == _self)
-	{
-		Widget_DrawToolTips (3, self->tooltip);
-		oldtext = SetContextForeGroundColor (selected);
-	}
-	else
-	{
-		oldtext = SetContextForeGroundColor (inactive);
-	}
-	font_DrawText (&t);
-	SetContextFontEffect (oldFontEffect);
-	if (oldfont)
-		SetContextFont (oldfont);
-	SetContextForeGroundColor (oldtext);
-	(void) x;
-}
-
-void
 Widget_DrawLabel (WIDGET *_self, int x, int y)
-{
+{	// Special labels
 	WIDGET_LABEL *self = (WIDGET_LABEL *)_self;
-	Color oldtext = SetContextForeGroundColor (WIDGET_INACTIVE_SELECTED_COLOR);
+	Color oldtext = SetContextForeGroundColor (WIDGET_LABEL_COLOR);
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
@@ -498,7 +543,7 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 
 void
 Widget_DrawSlider(WIDGET *_self, int x, int y)
-{
+{	// SFX slider
 	WIDGET_SLIDER *self = (WIDGET_SLIDER *)_self;
 	Color oldtext;
 	Color inactive, default_color, selected;
@@ -515,7 +560,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
 
-	t.baseline.x = x + RES_SCALE(16);
+	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
@@ -556,7 +601,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 
 void
 Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y)
-{
+{	// Number from 0 to 100 near slider
 	TEXT t;
 	char buffer[16];
 
@@ -573,10 +618,10 @@ Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y)
 
 void
 Widget_DrawTextEntry (WIDGET *_self, int x, int y)
-{
+{	// Custom seed and key layout name
 	WIDGET_TEXTENTRY *self = (WIDGET_TEXTENTRY *)_self;
 	Color oldtext;
-	Color inactive, default_color, selected;
+	Color inactive, default_color, selected, editing;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
@@ -587,10 +632,11 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
+	editing = WIDGET_LABEL_COLOR;
 
 	BatchGraphics ();
 
-	t.baseline.x = x + RES_SCALE(16);
+	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
@@ -617,7 +663,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
-		t.baseline.x = RES_SCALE(160); 
+		t.baseline.x = RSTEP;
 		t.align = ALIGN_CENTER;
 
 		if (widget_focus == _self)
@@ -700,7 +746,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		SetContextForeGroundColor (WIDGET_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 
-		SetContextForeGroundColor (inactive);
+		SetContextForeGroundColor (editing);
 		font_DrawText (&t);
 	}
 	
@@ -713,7 +759,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 
 void
 Widget_DrawControlEntry (WIDGET *_self, int x, int y)
-{
+{	// mappable key name in controls setup
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
 	Color oldtext;
 	Color inactive, default_color, selected;
@@ -729,7 +775,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
 
-	t.baseline.x = x + RES_SCALE(16);
+	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
@@ -779,7 +825,8 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 int
 Widget_HeightChoice (WIDGET *_self)
 {
-	return ((((WIDGET_CHOICE *)_self)->numopts + 2) / 3) * RES_SCALE(8);
+	//return ((((WIDGET_CHOICE *)_self)->numopts + 2) / 3) * RES_SCALE(8);
+	return RES_SCALE(8); //effectively 1 column
 }
 
 int

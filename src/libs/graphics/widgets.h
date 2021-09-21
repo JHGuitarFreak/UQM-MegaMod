@@ -189,7 +189,6 @@ int Widget_Event (int event);
 int Widget_ReceiveFocusMenuScreen (WIDGET *_self, int event);
 int Widget_ReceiveFocusChoice (WIDGET *_self, int event);
 int Widget_ReceiveFocusSimple (WIDGET *_self, int event);
-int Widget_ReceiveFocusSlider (WIDGET *_self, int event);
 int Widget_ReceiveFocusControlEntry (WIDGET *_self, int event);
 int Widget_ReceiveFocusRefuseFocus (WIDGET *_self, int event);
 
@@ -210,14 +209,16 @@ int Widget_WidthFullScreen (WIDGET *_self);
 void Widget_DrawMenuScreen (WIDGET *_self, int x, int y);
 void Widget_DrawChoice (WIDGET *_self, int x, int y);
 void Widget_DrawButton (WIDGET *_self, int x, int y);
-void Widget_DrawLeftButton (WIDGET *_self, int x, int y);
-void Widget_DrawRightButton (WIDGET *_self, int x, int y);
 void Widget_DrawLabel (WIDGET *_self, int x, int y);
 void Widget_DrawSlider (WIDGET *_self, int x, int y);
 void Widget_DrawTextEntry (WIDGET *_self, int x, int y);
 void Widget_DrawControlEntry (WIDGET *_self, int x, int y);
 
 void Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y);
+
+void ResetOffset (void);
+void LoadArrows (void);
+void ReleaseArrows (void);
 
 /* Other implementations will need these values */
 extern WIDGET *widget_focus;

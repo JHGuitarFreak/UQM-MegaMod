@@ -365,6 +365,7 @@ quit_sub_menu (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
+		ResetOffset ();
 		next = (WIDGET *)(&menus[0]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_SELECT);
 		return TRUE;
@@ -1117,6 +1118,7 @@ init_widgets (void)
 	{
 		// JMS: Load the different menus depending on the resolution factor.
 		setup_frame = CaptureDrawable (LoadGraphic (RES_BOOL(MENUBKG_PMAP_ANIM, MENUBKG_PMAP_ANIM_HD)));
+		LoadArrows ();
 	}
 
 	count = GetStringTableCount (SetupTab);
@@ -1318,20 +1320,7 @@ init_widgets (void)
 		buttons[i].parent = NULL;
 		buttons[i].handleEvent = button_handlers[i];
 		buttons[i].receiveFocus = Widget_ReceiveFocusSimple;
-		switch (i)
-		{
-		case 12:
-		case 14:
-			buttons[i].draw = Widget_DrawRightButton;
-			break;
-		case 13:
-		case 15:
-			buttons[i].draw = Widget_DrawLeftButton;
-			break;
-		default:
-			buttons[i].draw = Widget_DrawButton;
-
-		}
+		buttons[i].draw = Widget_DrawButton;
 		buttons[i].height = Widget_HeightOneLine;
 		buttons[i].width = Widget_WidthFullScreen;
 		buttons[i].name = buffer[i];
@@ -1546,6 +1535,7 @@ clean_up_widgets (void)
 	{
 		DestroyDrawable (ReleaseDrawable (setup_frame));
 		setup_frame = NULL;
+		ReleaseArrows ();
 	}
 }
 
