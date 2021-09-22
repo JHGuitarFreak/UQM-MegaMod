@@ -560,7 +560,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
 
-	t.baseline.x = x + LSTEP;
+	t.baseline.x = x + RES_SCALE (16);
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
