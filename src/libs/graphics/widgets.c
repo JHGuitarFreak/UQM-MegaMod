@@ -55,8 +55,9 @@ WIDGET *widget_focus = NULL;
 		BUILD_COLOR_RGBA (0,119,119, 0)
 
 #define ONSCREEN 10
-#define LSTEP RES_SCALE(16)
-#define RSTEP ((LSTEP * 10) + RES_SCALE(20))
+#define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2);
+#define LSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 - 7)
+#define RSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 + 7)
 
 static Color win_bg_clr =
 		BUILD_COLOR (MAKE_RGB15_INIT (0x18, 0x18, 0x1F), 0x00);
@@ -199,10 +200,10 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 	{	// Add the outer border added by DrawShadowedBox.
 		// XXX: It may be nicer to add a border size parameter to
 		// DrawShadowedBox, instead of assuming 2 here.
-		windowRect->corner.x = r.corner.x - RES_DBL(2);
-		windowRect->corner.y = r.corner.y - RES_DBL(2);
-		windowRect->extent.width = r.extent.width + RES_DBL(4);
-		windowRect->extent.height = r.extent.height + RES_DBL(4);
+		windowRect->corner.x = r.corner.x - RES_SCALE (2);
+		windowRect->corner.y = r.corner.y - RES_SCALE (2);
+		windowRect->extent.width = r.extent.width + RES_SCALE (4);
+		windowRect->extent.height = r.extent.height + RES_SCALE (4);
 	}
 }
 
@@ -252,7 +253,7 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	{
 		t.pStr = tips[i];
 		font_DrawText(&t);
-		t.baseline.y += RES_SCALE(9);
+		t.baseline.y += RES_SCALE (9);
 	}
 
 	SetContextFontEffect (oldFontEffect);
@@ -277,10 +278,10 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 	
-	r.corner.x = RES_SCALE(2); 
-	r.corner.y = RES_SCALE(2); 
-	r.extent.width = ScreenWidth - RES_SCALE(4); 
-	r.extent.height = ScreenHeight - RES_SCALE(4); 
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (2);
+	r.extent.width = ScreenWidth - RES_SCALE (4);
+	r.extent.height = ScreenHeight - RES_SCALE (4);
 	
 	title = WIDGET_INACTIVE_SELECTED_COLOR;
 	
@@ -288,12 +289,12 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	
 	oldtext = SetContextForeGroundColor (title);
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_SCALE(8); 
+	t.baseline.y = r.corner.y + RES_SCALE (8);
 	t.pStr = self->title;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
 	font_DrawText (&t);
-	t.baseline.y += RES_SCALE(8); 
+	t.baseline.y += RES_SCALE (8);
 	t.pStr = self->subtitle;
 	font_DrawText (&t);
 
@@ -304,11 +305,11 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		if (widget_index <= ONSCREEN)
 		{
 			height += (*child->height)(child);
-			height += RES_SCALE(8);   /* spacing */
+			height += RES_SCALE (8);   /* spacing */
 		}
 	}
 
-	height -= RES_SCALE(8); 
+	height -= RES_SCALE (8);
 	widget_y = (ScreenHeight - height) >> 1;
 
 	{	// Scrolling
@@ -349,7 +350,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	{
 		WIDGET *c = self->child[widget_index];
 		(*c->draw)(c, 0, widget_y);
-		widget_y += (*c->height)(c) + RES_SCALE(8); 
+		widget_y += (*c->height)(c) + RES_SCALE (8);
 	}
 
 	SetContextFontEffect (oldFontEffect);
@@ -383,7 +384,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 
 	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
 	if (widget_focus == _self)
@@ -398,7 +399,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 
 	{	// Choicer options
 		t.baseline.x = RSTEP;
-		t.align = ALIGN_CENTER;
+		t.align = ALIGN_LEFT;
 		for (i = 0; i < self->numopts; i++)
 		{
 			if (i == self->selected && widget_focus != _self)
@@ -445,16 +446,15 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 					RECT d;
 					COUNT c;
 
-					d.extent.width = d.extent.height = RES_SCALE (1);
-					d.corner.x = t.baseline.x
-							- (RES_SCALE (self->numopts / 2) * 2)
-							- (RES_SCALE (self->numopts % 2))
-							- RES_SCALE (1); // centered
+					d.extent.width = RES_SCALE (4);
+					d.extent.height = RES_SCALE (1);
+
+					d.corner.x = t.baseline.x - RES_SCALE (6);
 					d.corner.y = t.baseline.y + RES_SCALE (4);
 
 					for (c = 0; c < self->numopts; c++)
 					{
-						d.corner.x += RES_SCALE (2);
+						d.corner.x += RES_SCALE (6);
 
 						if (c == self->highlighted)
 							SetContextForeGroundColor (enabled);
@@ -488,7 +488,7 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 	
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
-	t.baseline.x = RES_SCALE(160);
+	t.baseline.x = SCREEN_CENTER;
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -523,7 +523,7 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 	
-	t.baseline.x = RES_SCALE(160); 
+	t.baseline.x = SCREEN_CENTER;
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -532,7 +532,7 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	{
 		t.pStr = self->lines[i];
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(10); 
+		t.baseline.y += RES_SCALE (10);
 	}
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
@@ -638,7 +638,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 
 	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
 	if (widget_focus == _self)
@@ -664,7 +664,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
 		t.baseline.x = RSTEP;
-		t.align = ALIGN_CENTER;
+		t.align = ALIGN_LEFT;
 
 		if (widget_focus == _self)
 		{
@@ -685,7 +685,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		RECT r;
 		SIZE leading;
 
-		t.baseline.x = RES_SCALE(90);
+		t.baseline.x = RSTEP;
 		t.align = ALIGN_LEFT;
 
 		// calc background box dimensions
@@ -775,7 +775,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
 
-	t.baseline.x = x + LSTEP;
+	t.baseline.x = x + RES_SCALE (16);
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
