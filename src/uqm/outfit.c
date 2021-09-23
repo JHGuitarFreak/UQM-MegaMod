@@ -501,6 +501,7 @@ DoInstallModule (MENU_STATE *pMS)
 
 				w *= (NewItem - pMS->delta_item);
 				pMS->flash_rect0.corner.x += w;
+				pMS->flash_rect1.corner.x += w;
 				pMS->delta_item = NewItem;
 			}
 			else
@@ -517,6 +518,9 @@ InitFlash:
 						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); 
 						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2);
 
+						pMS->flash_rect1.corner = pMS->flash_rect0.corner;
+						pMS->flash_rect1.extent = pMS->flash_rect0.extent;
+
 						w = LANDER_WIDTH;
 						break;
 					case FUSION_THRUSTER:
@@ -526,6 +530,11 @@ InitFlash:
 						pMS->flash_rect0.extent.width = RES_SCALE(8);
 						pMS->flash_rect0.extent.height = RES_SCALE(6);
 
+						pMS->flash_rect1.corner.x = DRIVE_SIDE_X - RES_SCALE(1);
+						pMS->flash_rect1.corner.y = DRIVE_SIDE_Y - RES_SCALE(1);
+						pMS->flash_rect1.extent.width = RES_SCALE(12);
+						pMS->flash_rect1.extent.height = RES_SCALE(7);
+
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
@@ -534,18 +543,29 @@ InitFlash:
 						pMS->flash_rect0.extent.width = RES_SCALE(9);
 						pMS->flash_rect0.extent.height = RES_SCALE(10);
 
+						pMS->flash_rect1.corner.x = JET_SIDE_X - RES_SCALE(1);
+						pMS->flash_rect1.corner.y = JET_SIDE_Y - RES_SCALE(1);
+						pMS->flash_rect1.extent.width = RES_SCALE(7);
+						pMS->flash_rect1.extent.height = RES_SCALE(4);
 						break;
 					default:
 						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE(1);
 						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE(1);
 						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2)
-								+ RES_SCALE(optWhichMenu == OPT_PC);
+								+ RES_SCALE (optWhichMenu == OPT_PC);
 						pMS->flash_rect0.extent.height = RES_SCALE(34);
+
+						pMS->flash_rect1.corner.x = MODULE_SIDE_X - RES_SCALE(1);
+						pMS->flash_rect1.corner.y = MODULE_SIDE_Y - RES_SCALE(1);
+						pMS->flash_rect1.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2)
+								+ RES_SCALE (optWhichMenu == OPT_PC);
+						pMS->flash_rect1.extent.height = RES_SCALE (25);
 						break;
 				}
 
 				w *= pMS->delta_item;
 				pMS->flash_rect0.corner.x += w;
+				pMS->flash_rect1.corner.x += w;
 			}
 
 			DrawModuleStrings (pMS, new_slot_piece);
