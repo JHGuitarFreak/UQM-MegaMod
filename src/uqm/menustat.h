@@ -41,7 +41,7 @@ typedef struct menu_state
 	SIZE delta_item;
 
 	FRAME ModuleFrame;
-	RECT flash_rect0, flash_rect1;
+	RECT flash_rect0, flash_rect1, flash_rect2;
 	FRAME flash_frame0, flash_frame1;
 	FlashContext *flashContext;
 

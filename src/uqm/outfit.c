@@ -64,9 +64,9 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
 	r.extent.height = RES_SCALE(11);
 	BatchGraphics ();
-	ClearSISRect (CLEAR_SIS_RADAR);
+//	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-	DrawFilledRectangle (&r);
+	DrawFilledRectangle (&r); // drawn over anyway
 	DrawBorder (8, FALSE);
 	if (NewModule >= EMPTY_SLOT)
 	{
@@ -502,6 +502,7 @@ DoInstallModule (MENU_STATE *pMS)
 				w *= (NewItem - pMS->delta_item);
 				pMS->flash_rect0.corner.x += w;
 				pMS->flash_rect1.corner.x += w;
+				//pMS->flash_rect2.corner.x += w;
 				pMS->delta_item = NewItem;
 			}
 			else
@@ -518,9 +519,6 @@ InitFlash:
 						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); 
 						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2);
 
-						pMS->flash_rect1.corner = pMS->flash_rect0.corner;
-						pMS->flash_rect1.extent = pMS->flash_rect0.extent;
-
 						w = LANDER_WIDTH;
 						break;
 					case FUSION_THRUSTER:
@@ -530,23 +528,28 @@ InitFlash:
 						pMS->flash_rect0.extent.width = RES_SCALE(8);
 						pMS->flash_rect0.extent.height = RES_SCALE(6);
 
-						pMS->flash_rect1.corner.x = DRIVE_SIDE_X - RES_SCALE(1);
-						pMS->flash_rect1.corner.y = DRIVE_SIDE_Y - RES_SCALE(1);
-						pMS->flash_rect1.extent.width = RES_SCALE(12);
-						pMS->flash_rect1.extent.height = RES_SCALE(7);
+						pMS->flash_rect1.corner.x = DRIVE_SIDE_X - RES_SCALE(1) + IF_HD(5); // not aligned on HD sprite;
+						pMS->flash_rect1.corner.y = DRIVE_SIDE_Y - RES_SCALE(1) - IF_HD(10); // not aligned on HD sprite;
+						pMS->flash_rect1.extent.width = RES_SCALE(12) - IF_HD(10); // not aligned on HD sprite;;
+						pMS->flash_rect1.extent.height = RES_SCALE(7) + IF_HD(4); // not aligned on HD sprite;
 
+						//pMS->flash_rect2 = pMS->flash_rect0;
+						//pMS->flash_rect2.corner.y += RES_SCALE(90);
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
-						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE(1) - IF_HD (6);
+						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE(1) - IF_HD(6); // not aligned on HD sprite
 						pMS->flash_rect0.corner.y = JET_TOP_Y - RES_SCALE(1);
 						pMS->flash_rect0.extent.width = RES_SCALE(9);
 						pMS->flash_rect0.extent.height = RES_SCALE(10);
 
-						pMS->flash_rect1.corner.x = JET_SIDE_X - RES_SCALE(1);
-						pMS->flash_rect1.corner.y = JET_SIDE_Y - RES_SCALE(1);
+						pMS->flash_rect1.corner.x = JET_SIDE_X - RES_SCALE(1) - IF_HD(6); // not aligned on HD sprite;
+						pMS->flash_rect1.corner.y = JET_SIDE_Y - RES_SCALE(1) + IF_HD(4); // not aligned on HD sprite;
 						pMS->flash_rect1.extent.width = RES_SCALE(7);
 						pMS->flash_rect1.extent.height = RES_SCALE(4);
+
+						//pMS->flash_rect2 = pMS->flash_rect0;
+						//pMS->flash_rect2.corner.y += RES_SCALE(70);
 						break;
 					default:
 						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE(1);
@@ -566,6 +569,7 @@ InitFlash:
 				w *= pMS->delta_item;
 				pMS->flash_rect0.corner.x += w;
 				pMS->flash_rect1.corner.x += w;
+				//pMS->flash_rect2.corner.x += w;
 			}
 
 			DrawModuleStrings (pMS, new_slot_piece);
@@ -573,7 +577,33 @@ InitFlash:
 				// flash with PC menus too
 				SetFlashRect (SFR_MENU_ANY, FALSE);
 			else
+			{
+				if (optWhichMenu == OPT_PC)
+				{
+					switch (pMS->CurState)
+					{
+						case EMPTY_SLOT + 3:
+						{	// lander
+							DumpAdditionalRect ();
+							break;
+						}
+						case EMPTY_SLOT + 0:
+						case EMPTY_SLOT + 1:
+						{	// thruster and jets
+							SetAdditionalRect (&pMS->flash_rect1, 1);
+							// SetAdditionalRect (&pMS->flash_rect2, 2);
+							break;
+						}
+						default:
+						{	// everything else
+							DumpAdditionalRect ();
+							SetAdditionalRect (&pMS->flash_rect1, 1);
+							break;
+						}
+					}
+				}
 				SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
+			}
 		}
 	}
 

@@ -684,8 +684,8 @@ Flash_prepareCacheFrame (FlashContext *context, COUNT index)
 	}
 }
 
-void
-PC_Rect (RECT r)
+Color
+GetFlashPCColor (void)
 {
 	static TimeCount NextTime = 0;
 	static DWORD cycle_index = 0;
@@ -696,17 +696,12 @@ PC_Rect (RECT r)
 
 	if (GetTimeCounter () >= NextTime)
 	{
-		Color color;
-
 		NextTime = GetTimeCounter () + BLINK_RATE;
-
-		color = cycle_tab[cycle_index];
-
-		DrawStarConBox (
-			&r, RES_SCALE(1), color, color, FALSE, TRANSPARENT);
 
 		cycle_index = (cycle_index + 1) % cycleCount;
 	}
+
+	return cycle_tab[cycle_index];
 }
 
 static void
@@ -724,7 +719,13 @@ Flash_drawFrame (FlashContext *context, FRAME frame, BOOLEAN pcRect)
 		DrawStamp (&stamp);
 	}
 	else
-		PC_Rect (context->rect);
+	{
+		Color color = GetFlashPCColor ();
+		DrawStarConBox (
+				&context->rect, RES_SCALE (1), color, color, FALSE,
+				TRANSPARENT
+			);
+	}
 
 	SetContext (oldGfxContext);
 }

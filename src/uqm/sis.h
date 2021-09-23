@@ -170,6 +170,8 @@ extern void InitSISContexts (void);
 extern void DrawSISFrame (void);
 extern void ClearSISRect (BYTE ClearFlags);
 extern void SetFlashRect (const RECT *pRect, BOOLEAN purple);
+extern void SetAdditionalRect (const RECT *pRect, COUNT number);
+extern void DumpAdditionalRect (void);
 extern void PreUpdateFlashRect (void);
 extern void PostUpdateFlashRect (void);
 extern void PauseFlash (void);

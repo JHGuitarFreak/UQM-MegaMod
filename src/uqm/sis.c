@@ -1786,21 +1786,27 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 	}
 }
 
+#define MAX_NUM_RECTS 5 // 5 flashing rects at once should be enough
+#define NUM_RECTS 1
 
-static FlashContext *flashContext = NULL;
-static RECT flash_rect;
+static FlashContext *flashContext[MAX_NUM_RECTS] = { NULL, NULL, NULL, NULL, NULL };
+static RECT flash_rect[MAX_NUM_RECTS];
 static Alarm *flashAlarm = NULL;
 static BOOLEAN flashPaused = FALSE;
+static BYTE count_r = NUM_RECTS;
 
 static void scheduleFlashAlarm (void);
 
 static void
 updateFlashRect (void *arg)
 {
-	if (flashContext == NULL)
+	if (flashContext[0] == NULL)
 		return;
 
-	Flash_process (flashContext);
+	for (COUNT i = 0; i < count_r; i++)
+	{
+		Flash_process (flashContext[i]);
+	}
 	scheduleFlashAlarm ();
 	(void) arg;
 }
@@ -1808,11 +1814,43 @@ updateFlashRect (void *arg)
 static void
 scheduleFlashAlarm (void)
 {
-	TimeCount nextTime = Flash_nextTime (flashContext);
+	TimeCount nextTime = Flash_nextTime (flashContext[0]);
 	DWORD nextTimeMs = (nextTime / ONE_SECOND) * 1000 +
 			((nextTime % ONE_SECOND) * 1000 / ONE_SECOND);
 			// Overflow-safe conversion.
 	flashAlarm = Alarm_addAbsoluteMs (nextTimeMs, updateFlashRect, NULL);
+}
+
+void
+SetAdditionalRect (const RECT *pRect, COUNT number)
+{	// Add new flashing rect (Max 5)
+	// Must be called one by one and in incremental order
+	if (pRect != NULL && count_r != MAX_NUM_RECTS)
+	{
+		RECT clip_r = { {0, 0}, {0, 0} };
+		GetContextClipRect (&clip_r);
+
+		flash_rect[number] = *pRect;
+		flash_rect[number].corner.x += clip_r.corner.x;
+		flash_rect[number].corner.y += clip_r.corner.y;
+
+		if (number == count_r)
+			count_r++;
+	}
+}
+
+void
+DumpAdditionalRect (void)
+{	// Dump all additional rects
+	for (COUNT i = count_r; i > 0; i--)
+	{
+		if (flashContext[i] != NULL)
+		{
+			Flash_terminate (flashContext[i]);
+			flashContext[i] = NULL;
+		}
+	}
+	count_r = NUM_RECTS;
 }
 
 void
@@ -1822,8 +1860,7 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 	RECT temp_r;
 	
 	if (pRect != SFR_MENU_3DO && pRect != SFR_MENU_ANY)
-	{
-		// The caller specified their own flash area, or NULL (stop flashing).
+	{	// The caller specified their own flash area, or NULL (stop flashing).
 		GetContextClipRect (&clip_r);
 	}
 	else
@@ -1852,40 +1889,46 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 
 	if (pRect != 0 && pRect->extent.width != 0)
 	{
+
 		// Flash rectangle is not empty, start or continue flashing.
-		flash_rect = *pRect;
+		flash_rect[0] = *pRect;
 		pcRectBool = pcRect;
 
-		flash_rect.corner.x += clip_r.corner.x;
-		flash_rect.corner.y += clip_r.corner.y;
+		flash_rect[0].corner.x += clip_r.corner.x;
+		flash_rect[0].corner.y += clip_r.corner.y;
 
-		if (flashContext == NULL)
+		// Create a new flash context(s).
+		for (COUNT i = 0; i < count_r; i++)
 		{
-			// Create a new flash context.
-			flashContext = Flash_createHighlight (ScreenContext, &flash_rect);
-			Flash_setMergeFactors(flashContext, 3, 2, 2);
-			Flash_setSpeed (flashContext, 0, ONE_SECOND / 16, 0, ONE_SECOND / 16);
-			Flash_setFrameTime (flashContext, ONE_SECOND / 16);
-			Flash_start (flashContext);
-			scheduleFlashAlarm ();
-		}
-		else
-		{
-			// Reuse an existing flash context
-			Flash_setRect (flashContext, &flash_rect);
+			if (flashContext[i] == NULL)
+			{
+				flashContext[i] = Flash_createHighlight (ScreenContext, &flash_rect[i]);
+				Flash_setMergeFactors (flashContext[i], 3, 2, 2);
+				Flash_setSpeed (flashContext[i], 0, ONE_SECOND / 16, 0, ONE_SECOND / 16);
+				Flash_setFrameTime (flashContext[i], ONE_SECOND / 16);
+				Flash_start (flashContext[i]);
+				if (i == (count_r - 1))
+				scheduleFlashAlarm ();
+			}
+			else
+				Flash_setRect (flashContext[i], &flash_rect[i]);
 		}
 	}
 	else
 	{
 		pcRectBool = FALSE;
 		// Flash rectangle is empty. Stop flashing.
-		if (flashContext != NULL)
+		if (flashContext[0] != NULL)
 		{
 			Alarm_remove (flashAlarm);
 			flashAlarm = 0;
 			
-			Flash_terminate (flashContext);
-			flashContext = NULL;
+			for (COUNT i = 0; i < count_r; i++)
+			{
+				Flash_terminate (flashContext[i]);
+				flashContext[i] = NULL;
+			}
+			count_r = NUM_RECTS;
 		}
 	}
 }
@@ -1904,7 +1947,10 @@ PreUpdateFlashRect (void)
 		updateFlashRectRecursion++;
 		if (updateFlashRectRecursion > 1)
 			return;
-		Flash_preUpdate (flashContext);
+		for (COUNT i = 0; i < count_r; i++)
+		{
+			Flash_preUpdate (flashContext[i]);
+		}
 	}
 }
 
@@ -1916,8 +1962,10 @@ PostUpdateFlashRect (void)
 		updateFlashRectRecursion--;
 		if (updateFlashRectRecursion > 0)
 			return;
-
-		Flash_postUpdate (flashContext);
+		for (COUNT i = 0; i < count_r; i++)
+		{
+			Flash_postUpdate (flashContext[i]);
+		}
 	}
 }
 
@@ -1925,9 +1973,9 @@ PostUpdateFlashRect (void)
 void
 PauseFlash (void)
 {
-	if (flashContext != NULL)
+	if (flashContext[0] != NULL)
 	{
-		Alarm_remove(flashAlarm);
+		Alarm_remove (flashAlarm);
 		flashAlarm = 0;
 		flashPaused = TRUE;
 	}
