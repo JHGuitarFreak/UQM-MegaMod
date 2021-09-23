@@ -538,7 +538,7 @@ InitFlash:
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
-						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE(1);
+						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE(1) - IF_HD (6);
 						pMS->flash_rect0.corner.y = JET_TOP_Y - RES_SCALE(1);
 						pMS->flash_rect0.extent.width = RES_SCALE(9);
 						pMS->flash_rect0.extent.height = RES_SCALE(10);
