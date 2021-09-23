@@ -99,6 +99,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: New Orz Marines art by Volasaurus
 - Refined joypad controls are disabled in SDL1 builds
 - HD: Widened the various laser beams used in Super Melee
+- EXTENDED: Start a new game with only 31 crew.
+- Full Setup Menu redesign, options grouped together with indicators and menus can now scroll up and down - Kruzen
 
 
 ### Fixed
@@ -133,6 +135,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Starmap code is now scaled properly removing the need for HD cursor snap
 - HD: Fixed the Starmap grid so that it draws properly - Kruzen
 - Fix Flagship speed doubling when going from Save/Load screen straight to navigation
+- Fix SIS speed doubling when going from Save/Load screen straight to interplanetary navigation
 
 
 ## [v0.8.0.85]
