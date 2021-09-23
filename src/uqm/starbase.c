@@ -157,32 +157,26 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		r.extent.width = SHIP_PIECE_OFFSET;
 		r.extent.height = RES_SCALE(1);
 		OldColor = SetContextForeGroundColor (BLACK_COLOR);
-		if (!IS_HD)
-			DrawFilledRectangle (&r);
-		r.corner.y += RES_SCALE(32 - 1);
-		if (!IS_HD)
-			DrawFilledRectangle (&r);
+		DrawFilledRectangle (&r);
+		r.corner.y += RES_SCALE(23 - 1);
+		DrawFilledRectangle (&r);
 
-		r.extent.width = RES_SCALE(1);
-		r.extent.height = RES_SCALE(8);
+		r.extent.width = RES_SCALE (1);
+		r.extent.height = RES_SCALE (8);
 		if (RepairSlot == 2)
 		{
 			r.corner = Side.origin;
-			if (!IS_HD)
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 			r.corner.y += RES_SCALE(15);
-			if (!IS_HD)
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 		}
 		if (which_slot < (NUM_MODULE_SLOTS - 1))
 		{
 			r.corner = Side.origin;
 			r.corner.x += SHIP_PIECE_OFFSET;
-			if (!IS_HD)
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 			r.corner.y += RES_SCALE(15);
-			if (!IS_HD)
-				DrawFilledRectangle (&r);
+			DrawFilledRectangle (&r);
 		}
 	}
 
