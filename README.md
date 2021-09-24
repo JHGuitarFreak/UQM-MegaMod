@@ -55,7 +55,7 @@ You'll have to gather all of the necessary dependencies and hope for the best.
 
 For all platforms when building from commandline you can use the command `-j#` to invoke multi-threaded performance to dramaticly speed up build time.  
 Where `#` denotes how many threads you want the process to be locked to and plain `-j` uses all threads
-Example: If you're running on a Ryzen 7 2700x you can use the command like so `./build.sh uqm -j8` to take advantage of eight threads or `./build.sh uqm -j` to take advanatage of all 16 threads
+Example: If you're running on a Ryzen 7 2700x you can use the command like so `./build.sh uqm -j8` to take advantage of eight threads or `./build.sh uqm -j` to take advantage of all 16 threads
 
 ## Fixes
 
