@@ -1517,15 +1517,12 @@ DrawBluePrint (MENU_STATE *pMS)
 		while (num_frames--)
 		{
 			RECT r;
-			// Crew dots/rectangles for Original and HD graphics.
-			r.extent.width = RES_SCALE(1);
+			// Crew dots
+			r.extent.width = RES_SCALE (1);
 			r.extent.height = r.extent.width;
 
 			GetCPodCapacity (&r.corner);
-			if (!IS_HD)
-				DrawFilledRectangle (&r);
-			else
-				DrawFilledOval (&r);
+			DrawFilledRectangle (&r);
 
 			++GLOBAL_SIS (CrewEnlisted);
 		}
@@ -1536,8 +1533,8 @@ DrawBluePrint (MENU_STATE *pMS)
 		num_frames = GLOBAL_SIS (TotalElementMass);
 		GLOBAL_SIS (TotalElementMass) = 0;
 
-		r.extent.width = RES_SCALE(9); 
-		r.extent.height = RES_SCALE(1); 
+		r.extent.width = RES_SCALE(9);
+		r.extent.height = RES_SCALE(1);
 		while (num_frames)
 		{
 			COUNT m;
@@ -1558,7 +1555,7 @@ DrawBluePrint (MENU_STATE *pMS)
 		FuelVolume = GLOBAL_SIS (FuelOnBoard) - FUEL_RESERVE;
 		GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
 
-		r.extent.height = 1;
+		r.extent.height = RES_SCALE(1);
 
 		while (FuelVolume)
 		{

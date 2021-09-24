@@ -113,7 +113,7 @@ RedistributeFuel (void)
 	const DWORD FuelVolume = GLOBAL_SIS (FuelOnBoard);
 	const CONTEXT OldContext = SetContext (SpaceContext);
 	RECT r;
-	r.extent.height = 1;
+	r.extent.height = RES_SCALE (1);
 
 	// Loop through all the rows to draw
 	BatchGraphics ();

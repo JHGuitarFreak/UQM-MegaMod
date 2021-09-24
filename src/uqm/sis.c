@@ -1428,7 +1428,6 @@ GetCPodCapacity (POINT *ppt)
 
 	COUNT rowNr;
 	COUNT colNr;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
 				
 	static const Color crewRows[] = PC_CREW_COLOR_TABLE;
 
@@ -1447,7 +1446,7 @@ GetCPodCapacity (POINT *ppt)
 	else
 		SetContextForeGroundColor (THREEDO_CREW_COLOR);
 		
-	ppt->x = RES_SCALE(27) + (slotNr * ship_piece_offset_scaled)
+	ppt->x = RES_SCALE(27) + (slotNr * SHIP_PIECE_OFFSET)
 			- RES_SCALE(colNr * 2);
 	ppt->y = RES_SCALE(34 - rowNr * 2) + IF_HD(2);
 
@@ -1532,8 +1531,7 @@ GetSBayCapacity (POINT *ppt)
 
 	COUNT rowNr;
 	COUNT colNr;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
-				
+
 	static const Color colorBars[] = STORAGE_BAY_COLOR_TABLE;
 
 	massCount = GetElementMass ();
@@ -1554,8 +1552,8 @@ GetSBayCapacity (POINT *ppt)
 		SetContextForeGroundColor (colorBars[rowNr]);
 	}
 		
-	ppt->x = RES_SCALE(19) + (slotNr * ship_piece_offset_scaled);
-	ppt->y = RES_SCALE(34 - (rowNr * 2));
+	ppt->x = RES_SCALE(19) + (slotNr * SHIP_PIECE_OFFSET);
+	ppt->y = RES_SCALE(34 - (rowNr * 2)) + IF_HD (2);
 
 	return GetStorageBayCapacity ();
 }
@@ -1645,7 +1643,6 @@ GetFTankCapacity (POINT *ppt)
 	DWORD volume;
 
 	DWORD rowNr;
-	COUNT ship_piece_offset_scaled = SHIP_PIECE_OFFSET;
 	
 	static const Color fuelColors[] = FUEL_COLOR_TABLE;
 		
@@ -1667,22 +1664,14 @@ GetFTankCapacity (POINT *ppt)
 	moduleType = GLOBAL_SIS (ModuleSlots[slotNr]);
 	volume = GetModuleFuelCapacity (moduleType);
 
-	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS /
-			HEFUEL_TANK_CAPACITY);
+	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY);
 
-	ppt->x = RES_SCALE(21) + (slotNr * ship_piece_offset_scaled)
+	ppt->x = RES_SCALE(21) + (slotNr * SHIP_PIECE_OFFSET)
 			+ IF_HD(OutfitOrShipyard == 2 ? 0 : 2);
-	if (volume == FUEL_TANK_CAPACITY) 
-	{
-		ppt->y = (RES_SCALE(27) - rowNr) + IF_HD(3);
-	} 
+	if (volume == FUEL_TANK_CAPACITY)
+		ppt->y = RES_SCALE(27 - rowNr);
 	else
-	{
-		ppt->y = (RES_SCALE(30) - rowNr) - IF_HD(1);
-	}
-	
-	rowNr = ((volume - compartmentNr) * 10 * MAX_FUEL_BARS /
-			HEFUEL_TANK_CAPACITY) / MAX_FUEL_BARS;
+		ppt->y = RES_SCALE(30 - rowNr);
 
 	assert (rowNr + 1 < (COUNT) (sizeof fuelColors / sizeof fuelColors[0]));
 	SetContextForeGroundColor (fuelColors[rowNr]);
