@@ -1202,7 +1202,6 @@ DoBuy (RESPONSE_REF R)
 			|| PLAYER_SAID (R, buy_5_fuel)
 			|| PLAYER_SAID (R, buy_10_fuel)
 			|| PLAYER_SAID (R, buy_25_fuel)
-			|| PLAYER_SAID (R, sell_remaining_credits_for_fuel)
 			|| PLAYER_SAID (R, fill_me_up))
 	{
 		needed_credit = 0;
@@ -1214,21 +1213,17 @@ DoBuy (RESPONSE_REF R)
 			needed_credit = 10;
 		else if (PLAYER_SAID (R, buy_25_fuel))
 			needed_credit = 25;
-		else if (PLAYER_SAID (R, sell_remaining_credits_for_fuel))
+		else if (PLAYER_SAID (R, fill_me_up))
 		{
 			SIZE remainingCapacity = (capacity - GLOBAL_SIS(FuelOnBoard)
 					+ FUEL_TANK_SCALE - 1)
-					/ FUEL_TANK_SCALE;
+				/ FUEL_TANK_SCALE;
 
 			if (credit < remainingCapacity)
 				needed_credit = credit;
 			else
 				needed_credit = remainingCapacity;
 		}
-		else if (PLAYER_SAID (R, fill_me_up))
-			needed_credit = (capacity - GLOBAL_SIS (FuelOnBoard)
-					+ FUEL_TANK_SCALE - 1)
-				/ FUEL_TANK_SCALE;
 
 		if (needed_credit == 0)
 		{
@@ -1276,7 +1271,6 @@ TryFuelAgain:
 		Response (buy_5_fuel, DoBuy);
 		Response (buy_10_fuel, DoBuy);
 		Response (buy_25_fuel, DoBuy);
-		Response (sell_remaining_credits_for_fuel, DoBuy);
 		Response (fill_me_up, DoBuy);
 		Response (done_buying_fuel, DoBuy);
 	}

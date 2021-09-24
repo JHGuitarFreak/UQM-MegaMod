@@ -163,7 +163,6 @@ enum
 	buy_5_fuel,
 	buy_10_fuel,
 	buy_25_fuel,
-	sell_remaining_credits_for_fuel,
 	done_buying_fuel,
 	FRIENDLY_GOODBYE,
 	CREDIT_IS0,
