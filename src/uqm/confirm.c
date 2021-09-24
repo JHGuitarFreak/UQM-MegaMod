@@ -119,8 +119,8 @@ DoConfirmExit (void)
 		SetContextClipRect (NULL);
 
 		GetContextClipRect (&ctxRect);
-		r.extent.width = CONFIRM_WIN_WIDTH + 4;
-		r.extent.height = CONFIRM_WIN_HEIGHT + 4;
+		r.extent.width = CONFIRM_WIN_WIDTH + RES_SCALE (4);
+		r.extent.height = CONFIRM_WIN_HEIGHT + RES_SCALE (4);
 		r.corner.x = (ctxRect.extent.width - r.extent.width) >> 1;
 		r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
 		s = SaveContextFrame (&r);
