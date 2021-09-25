@@ -171,18 +171,21 @@ _count_lines (TEXT *pText)
 	return numLines;
 }
 
-const SIZE
-ReContextualizeLeading (void)
+void
+ReContextualizeLeading (SIZE* pheight)
 {
 	switch (CommData.AlienConv)
 	{
 	case UMGAH_CONVERSATION:
-		return RES_SCALE(8);
+		*pheight = RES_SCALE(8);
+		return;
 	case COMMANDER_CONVERSATION:
-		return RES_SCALE(9);
+		*pheight = RES_SCALE(9);
+		return;
 	case ARILOU_CONVERSATION:
 	case ZOQFOTPIK_CONVERSATION:
-		return RES_SCALE(10);
+		*pheight = RES_SCALE(10);
+		return;
 	case CHMMR_CONVERSATION:
 	case DRUUGE_CONVERSATION:
 	case MELNORME_CONVERSATION:
@@ -194,14 +197,18 @@ ReContextualizeLeading (void)
 	case VUX_CONVERSATION:
 	case YEHAT_CONVERSATION:
 	case YEHAT_REBEL_CONVERSATION:
-		return RES_SCALE(11);
+		*pheight = RES_SCALE(11);
+		return;
 	case ILWRATH_CONVERSATION:
-		return RES_SCALE(12);
+		*pheight = RES_SCALE(12);
+		return;
 	case SPATHI_CONVERSATION:
-		return RES_SCALE(14);
+		*pheight = RES_SCALE(14);
+		return;
 	case SLYLANDRO_HOME_CONVERSATION:
 	case UTWIG_CONVERSATION:
-		return RES_SCALE(15);
+		*pheight = RES_SCALE(15);
+		return;
 	case BLACKURQ_CONVERSATION:
 	case MYCON_CONVERSATION:
 	case ORZ_CONVERSATION:
@@ -209,9 +216,10 @@ ReContextualizeLeading (void)
 	case SYREEN_CONVERSATION:
 	case URQUAN_CONVERSATION:
 	case URQUAN_DRONE_CONVERSATION:
-		return RES_SCALE(17);
+		*pheight = RES_SCALE(17);
+		return;
 	default:
-		return 0;
+		*pheight = 0;
 	}
 }
 
@@ -233,8 +241,12 @@ add_text (int status, TEXT *pTextIn)
 	BOOLEAN eol;
 	CONTEXT OldContext = NULL;
 	COUNT computerOn = 0;
+	RECT arrow;
+	BOOLEAN is3DO = optWhichFonts == OPT_3DO;
 	
 	BatchGraphics ();
+
+	GetFrameRect (SetAbsFrameIndex (ActivityFrame, 6), &arrow);
 
 	maxchars = (COUNT)~0;
 	if (status == 1)
@@ -264,19 +276,23 @@ add_text (int status, TEXT *pTextIn)
 		SetContextFont (CommData.AlienFont);
 		//GetContextFontLeading (&leading);
 
-		leading = ReContextualizeLeading();
+		ReContextualizeLeading (&leading);
 
 		pText = pTextIn;
 	}
-	else if (GetContextFontLeading (&leading), status <= -4)
+	else if (leading = RES_SCALE (is3DO ? 7 : 9), status <= -4)
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8) - (TEXT_X_OFFS << 2));
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8)
+					- (TEXT_X_OFFS << 2)
+					- (arrow.extent.width + RES_SCALE (2)));
 
 		pText = pTextIn;
 	}
 	else
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8) - (TEXT_X_OFFS << 2));
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8)
+					- (TEXT_X_OFFS << 2)
+					- (arrow.extent.width + RES_SCALE (2)));
 
 		switch (status)
 		{
@@ -307,7 +323,7 @@ add_text (int status, TEXT *pTextIn)
 
 		maxchars = pTextIn->CharCount;
 		locText = *pTextIn;
-		locText.baseline.x -= RES_SCALE(8); 
+		locText.baseline.x -= RES_SCALE(8);
 		locText.CharCount = (COUNT)~0;
 		locText.pStr = STR_BULLET;
 		font_DrawText (&locText);
@@ -712,14 +728,16 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	BYTE response;
 	SIZE leading;
 	STAMP s;
+	BOOLEAN is3DO = optWhichFonts == OPT_3DO;
 
 
 	SetContext (SpaceContext);
-	GetContextFontLeading (&leading);
+	// GetContextFontLeading (&leading);
+	leading = RES_SCALE (is3DO ? 7 : 9);
 	BatchGraphics ();
 
 	DrawSISComWindow ();
-	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1);
+	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO);
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
@@ -768,7 +786,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		TEXT ct;
 
 		ct.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13); 
+		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13);
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
 
@@ -785,7 +803,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 			SetContextForeGroundColor (
 					BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF));
 
-		ct.baseline.y += RES_SCALE(16); 
+		ct.baseline.y += RES_SCALE(16);
 		ct.pStr = pStr;
 		add_text (-4, &ct);
 	}
@@ -1653,12 +1671,11 @@ HailAlien (void)
 	TalkingFinished = FALSE;
 
 	ES.InputFunc = DoCommunication;
-	PlayerFont = LoadFont (PLAYER_FONT);
 
-	/*if (optWhichFonts == OPT_PC)
+	if (optWhichFonts == OPT_PC)
 		PlayerFont = LoadFont (PLAYER_FONT);
 	else
-		PlayerFont = LoadFont (TINY_FONT_HD);*/
+		PlayerFont = LoadFont (TINY_FONT_BOLD);
 
 	ComputerFont = LoadFont (COMPUTER_FONT);
 
