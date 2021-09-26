@@ -326,7 +326,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
 		sprintf (buf, "%u", shipCost);
-		SetContextFont (TinyFont);
+		if (optWhichFonts == OPT_PC)
+			SetContextFont (TinyFont);
+		else
+			SetContextFont (TinyFontBold);
 
 		if (shipCost <= (GLOBAL_SIS (ResUnits)))
 			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
@@ -1685,7 +1688,10 @@ DoShipyard (MENU_STATE *pMS)
 			animatePowerLines (pMS);
 #endif // USE_3DO_HANGAR
 			
-			SetContextFont (TinyFont);
+			if (optWhichFonts == OPT_PC)
+				SetContextFont (TinyFont);
+			else
+				SetContextFont (TinyFontBold);
 
 			ScreenTransition (optIPScaler, NULL);
 			UnbatchGraphics ();

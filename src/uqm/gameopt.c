@@ -44,7 +44,7 @@ extern FRAME PlayFrame;
 #define SUMMARY_SIDE_OFFS RES_SCALE(7)
 #define SAVES_PER_PAGE 5
 
-#define MAX_NAME_SIZE  SIS_NAME_SIZE
+#define MAX_NAME_SIZE SIS_NAME_SIZE
 
 static COUNT lastUsedSlot;
 
@@ -52,6 +52,7 @@ static NamingCallback *namingCB;
 
 BOOLEAN NewGameInit;
 BYTE OutfitOrShipyard = 0;
+BOOLEAN SaveOrLoad = FALSE;
 
 void
 ConfirmSaveLoad (STAMP *MsgStamp)
@@ -128,16 +129,18 @@ FeedbackSetting (BYTE which_setting)
 	{
 		case SOUND_ON_SETTING:
 		case SOUND_OFF_SETTING:
-			snprintf (buf, sizeof (buf) - 1, "%s %s",
+			snprintf (buf, sizeof (buf) - 1, "%s%s%s",
 					GAME_STRING (OPTION_STRING_BASE + 0),
+					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					GLOBAL (glob_flags) & SOUND_DISABLED
 					? GAME_STRING (OPTION_STRING_BASE + 3) :
 					GAME_STRING (OPTION_STRING_BASE + 4));
 			break;
 		case MUSIC_ON_SETTING:
 		case MUSIC_OFF_SETTING:
-			snprintf (buf, sizeof (buf) - 1, "%s %s",
+			snprintf (buf, sizeof (buf) - 1, "%s%s%s",
 					GAME_STRING (OPTION_STRING_BASE + 1),
+					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					GLOBAL (glob_flags) & MUSIC_DISABLED
 					? GAME_STRING (OPTION_STRING_BASE + 3) :
 					GAME_STRING (OPTION_STRING_BASE + 4));
@@ -156,8 +159,9 @@ FeedbackSetting (BYTE which_setting)
 			}
 			else
 				tmpstr = "";
-			snprintf (buf, sizeof (buf) - 1, "%s %s%s",
+			snprintf (buf, sizeof (buf) - 1, "%s%s%s%s",
 					GAME_STRING (OPTION_STRING_BASE + 2),
+					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					!(GLOBAL (glob_flags) & CYBORG_ENABLED)
 					? GAME_STRING (OPTION_STRING_BASE + 3) :
 					GAME_STRING (OPTION_STRING_BASE + 4),
@@ -166,7 +170,9 @@ FeedbackSetting (BYTE which_setting)
 		case CHANGE_CAPTAIN_SETTING:
 		case CHANGE_SHIP_SETTING:
 			utf8StringCopy (buf, sizeof (buf),
-					GAME_STRING (NAMING_STRING_BASE + 0));
+					GAME_STRING (
+						NAMING_STRING_BASE + (is3DO (optWhichFonts) ? 7 : 0))
+				);
 			break;
 	}
 
@@ -194,7 +200,10 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 		if (nameCaptain)
 		{	// Naming the captain
-			Font = TinyFont;
+			if (optWhichFonts == OPT_PC)
+				Font = TinyFont;
+			else
+				Font = TinyFontBold;
 			captainNameRect.corner.x = RES_SCALE(3);
 			captainNameRect.corner.y = RES_SCALE(10);
 			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
@@ -332,7 +341,10 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	SetContext (StatusContext);
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_EDIT);
 
-	DrawStatusMessage (GAME_STRING (NAMING_STRING_BASE + 0));
+	DrawStatusMessage (
+			GAME_STRING (
+				NAMING_STRING_BASE + (is3DO (optWhichFonts) ? 7 : 0))
+		);
 
 	if (nameCaptain)
 	{
@@ -797,6 +809,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 	BatchGraphics ();
 
+	SaveOrLoad = TRUE;
+
 	if (pSD->year_index == 0)
 	{
 		// Unused save slot, draw 'Empty Game' message.
@@ -960,7 +974,11 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 				break;
 		}
 
-		SetContextFont (TinyFont);
+		if (optWhichFonts == OPT_PC)
+			SetContextFont (TinyFont);
+		else
+			SetContextFont (TinyFontBold);
+
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
 		t.CharCount = (COUNT)~0;
@@ -997,6 +1015,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 	}
 
 	UnbatchGraphics ();
+
+	SaveOrLoad = FALSE;
 }
 
 static void

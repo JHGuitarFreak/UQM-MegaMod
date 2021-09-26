@@ -93,7 +93,10 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		t.pStr = buf;		
 		sprintf (buf, "%u",
 				GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-		SetContextFont (TinyFont);
+		if (optWhichFonts == OPT_PC)
+			SetContextFont (TinyFont);
+		else
+			SetContextFont (TinyFontBold);
 
 		if ((GLOBAL_SIS (ResUnits)) > (DWORD)((GLOBAL (ModuleCost[NewModule])
 				* MODULE_COST_SCALE))) 
@@ -135,7 +138,7 @@ RedistributeFuel (void)
 		}
 		else // Otherwise, draw an empty bar.
 		{
-			r.extent.width = RES_SCALE(5); 
+			r.extent.width = RES_SCALE(5);
 			SetContextForeGroundColor (
 					BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E));
 		}
@@ -149,7 +152,7 @@ RedistributeFuel (void)
 
 #define LANDER_X RES_SCALE(24)
 #define LANDER_Y RES_SCALE(67)
-#define LANDER_WIDTH RES_SCALE(15) 
+#define LANDER_WIDTH RES_SCALE(15)
 
 static void
 DisplayLanders (MENU_STATE *pMS)

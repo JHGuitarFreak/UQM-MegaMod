@@ -135,24 +135,25 @@ DrawSISTitle (UNICODE *pStr)
 	CONTEXT OldContext;
 	RECT r;
 
-	t.baseline.x = RES_SCALE((RES_DESCALE(SIS_TITLE_WIDTH) >> 1));
-	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE(2);
+	t.baseline.x = RES_SCALE ((RES_DESCALE (SIS_TITLE_WIDTH) >> 1));
+	t.baseline.y = SIS_TITLE_HEIGHT - RES_SCALE (2);
 	t.align = ALIGN_CENTER;
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 
 	OldContext = SetContext (OffScreenContext);
 	r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
-			+ RES_SCALE(1);
+			+ RES_SCALE (1);
 	r.corner.y = SIS_ORG_Y - SIS_TITLE_HEIGHT;
 	r.extent.width = SIS_TITLE_WIDTH;
-	r.extent.height = SIS_TITLE_HEIGHT - RES_SCALE(1);
+	r.extent.height = SIS_TITLE_HEIGHT - RES_SCALE (1);
 	SetContextFGFrame (Screen);
 	SetContextClipRect (&r);
-	SetContextFont (TinyFont);
 
-	/*if (optWhichFonts != OPT_PC)
-		SetContextFont (TinyFontBold);*/
+	if (optWhichFonts == OPT_PC || SaveOrLoad)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	BatchGraphics ();
 
@@ -178,8 +179,10 @@ DrawHyperCoords (POINT universe)
 {
 	UNICODE buf[100];
 
-	snprintf (buf, sizeof buf, "%03u.%01u : %03u.%01u",
+	snprintf (buf, sizeof buf, "%03u.%01u%s:%s%03u.%01u",
 			universe.x / 10, universe.x % 10,
+			is3DO (optWhichFonts) ? "" : " ",
+			is3DO (optWhichFonts) ? "" : " ",
 			universe.y / 10, universe.y % 10);
 
 	DrawSISTitle (buf);
@@ -296,10 +299,10 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	t.baseline.x = RES_SCALE (RES_DESCALE (SIS_MESSAGE_WIDTH) >> 1);
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
-	SetContextFont (TinyFont);
-
-	/*if (optWhichFonts != OPT_PC)
-		SetContextFont(TinyFontBold);*/
+	if (optWhichFonts == OPT_PC || SaveOrLoad)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	if (flags & DSME_CLEARFR)
 		SetFlashRect (NULL, FALSE);
@@ -427,13 +430,15 @@ void
 DateToString (char *buf, size_t bufLen,
 		BYTE month_index, BYTE day_index, COUNT year_index)
 {
-	switch (optDateFormat) {
+	switch (optDateFormat)
+	{
 		case 1: /* MM.DD.YYYY */
 			snprintf (buf, bufLen, "%02d%s%02d%s%04d", month_index,
 					STR_MIDDLE_DOT, day_index, STR_MIDDLE_DOT, year_index);
 			break;
 		case 2: /* DD MMM YYYY */
-			snprintf (buf, bufLen, "%02d %s%s%04d", day_index,
+			snprintf (buf, bufLen, "%02d%s%s%s%04d", day_index,
+					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					GAME_STRING (MONTHS_STRING_BASE + month_index - 1),
 					STR_MIDDLE_DOT, year_index);
 			break;
@@ -443,8 +448,9 @@ DateToString (char *buf, size_t bufLen,
 			break;
 		case 0:
 		default: /* MMM DD.YYYY */
-			snprintf (buf, bufLen, "%s %02d%s%04d",
+			snprintf (buf, bufLen, "%s%s%02d%s%04d",
 					GAME_STRING (MONTHS_STRING_BASE + month_index - 1),
+					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					day_index, STR_MIDDLE_DOT, year_index);
 			break;
 	}
@@ -499,7 +505,7 @@ DrawStatusMessage (const UNICODE *pStr)
 			if (GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2 || optInfiniteRU)
 			{
 				snprintf (buf, sizeof buf, "%s %s",
-						(optWhichMenu == OPT_PC) ?
+						isPC (optWhichMenu) ?
 							GAME_STRING (STATUS_STRING_BASE + 2)
 							: STR_INFINITY_SIGN, // "UNLIMITED"
 						GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
@@ -534,10 +540,10 @@ DrawStatusMessage (const UNICODE *pStr)
 		SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	}
 
-	SetContextFont (TinyFont);
-
-	/*if (optWhichFonts != OPT_PC)
-		SetContextFont(TinyFontBold);*/
+	if (optWhichFonts == OPT_PC)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	font_DrawText (&t);
@@ -566,10 +572,10 @@ DrawCaptainsName (bool NewGame)
 	Color OldColor;
 
 	OldContext = SetContext (StatusContext);
-	OldFont = SetContextFont (TinyFont);
-
-	/*if (optWhichFonts != OPT_PC)
-		OldFont = SetContextFont (TinyFontBold);*/
+	if (optWhichFonts == OPT_PC)
+		OldFont = SetContextFont (TinyFont);
+	else
+		OldFont = SetContextFont (TinyFontBold);
 
 	OldColor = SetContextForeGroundColor (CAPTAIN_NAME_BACKGROUND_COLOR);
 
@@ -1233,7 +1239,9 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 
 		GetGaugeRect (&r, FALSE);
 
-		if (optWholeFuel && optWhichFonts != OPT_PC)
+		if (optWhichFonts == OPT_3DO && !optWholeFuel)
+			SetContextFont (TinyFontBold);
+		else
 			SetContextFont (TinyFont);
 		
 		t.baseline.x = (STATUS_WIDTH >> 1);
@@ -1252,9 +1260,6 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x13, 0x00, 0x00), 0x2C));
 		font_DrawText (&t);
-
-		/*if (optWholeFuel && optWhichFonts != OPT_PC)
-			SetContextFont(TinyFontBold);*/
 	}
 }
 	
@@ -1325,10 +1330,10 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		DrawSupportShips ();
 	}
 
-	SetContextFont (TinyFont);
-
-	/*if (optWhichFonts != OPT_PC)
-		SetContextFont (TinyFontBold);*/
+	if (optWhichFonts == OPT_PC)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	DeltaSISGauges_crewDelta (crew_delta);
 	DeltaSISGauges_fuelDelta (fuel_delta);
@@ -1666,14 +1671,14 @@ GetFTankCapacity (POINT *ppt)
 
 	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY);
 
-	ppt->x = RES_SCALE(21) + (slotNr * SHIP_PIECE_OFFSET)
-			+ IF_HD(OutfitOrShipyard == 2 ? 0 : 2);
+	ppt->x = RES_SCALE (21) + (slotNr * SHIP_PIECE_OFFSET)
+			+ IF_HD (OutfitOrShipyard == 2 ? 0 : 2);
 	if (volume == FUEL_TANK_CAPACITY)
-		ppt->y = RES_SCALE(27 - rowNr);
+		ppt->y = RES_SCALE (27 - rowNr);
 	else
-		ppt->y = RES_SCALE(30 - rowNr);
+		ppt->y = RES_SCALE (30 - rowNr);
 
-	assert (rowNr + 1 < (COUNT) (sizeof fuelColors / sizeof fuelColors[0]));
+	assert (rowNr + 1 < (COUNT)ARRAY_SIZE (fuelColors));
 	SetContextForeGroundColor (fuelColors[rowNr]);
 	SetContextBackGroundColor (fuelColors[rowNr + 1]);
 
@@ -1756,7 +1761,10 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 				SetContextForeGroundColor (cycle_tab[cycle_index]);
 				if (GLOBAL_SIS (FuelOnBoard) == 0)
 				{
-					DrawSISMessageEx (GAME_STRING (NAVIGATION_STRING_BASE + 2),
+					DrawSISMessageEx (
+							GAME_STRING (
+									NAVIGATION_STRING_BASE
+									+ (isPC(optWhichFonts) ? 2 : 6)),
 							-1, -1, DSME_MYCOLOR);   // "OUT OF FUEL"
 				}
 				else

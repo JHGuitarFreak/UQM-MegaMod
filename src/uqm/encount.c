@@ -637,13 +637,17 @@ UninitEncounter (void)
 
 								DrawStatusMessage (NULL);
 								
-								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE(32); 
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(56); 
+								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE(32);
+								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(56);
 								ship_s.frame = IncFrameIndex (FragPtr->icons);
 								DrawStamp (&ship_s);
 								SetContextForeGroundColor (
 										BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
-								SetContextFont (TinyFont);
+								if (optWhichFonts == OPT_PC)
+									SetContextFont (TinyFont);
+								else
+									SetContextFont (TinyFontBold);
+
 
 								utf8StringCopy (buf, sizeof buf,
 										GetStringAddress (FragPtr->race_strings));

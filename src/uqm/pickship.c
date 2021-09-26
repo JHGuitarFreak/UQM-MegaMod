@@ -178,7 +178,10 @@ ChangeSelection:
 			}
 			else
 			{
-				SetContextFont (TinyFont);
+				if (optWhichFonts == OPT_PC)
+					SetContextFont (TinyFont);
+				else
+					SetContextFont (TinyFontBold);
 
 				t.baseline.x = r.corner.x + (r.extent.width >> 1);
 				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(1)); 

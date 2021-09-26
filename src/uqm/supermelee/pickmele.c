@@ -148,8 +148,8 @@ static void
 PickMelee_ChangedSelection (GETMELEE_STATE *gms, COUNT playerI)
 {
 	RECT r;
-	r.corner.x = PICK_X_OFFS + ((ICON_WIDTH + RES_SCALE(2)) * gms->player[playerI].col); 
-	r.corner.y = PICK_Y_OFFS + ((ICON_HEIGHT + RES_SCALE(2)) * gms->player[playerI].row) 
+	r.corner.x = PICK_X_OFFS + ((ICON_WIDTH + RES_SCALE(2)) * gms->player[playerI].col);
+	r.corner.y = PICK_Y_OFFS + ((ICON_HEIGHT + RES_SCALE(2)) * gms->player[playerI].row)
 			+ ((1 - playerI) * PICK_SIDE_OFFS);
 	r.extent.width = (ICON_WIDTH + RES_SCALE(2));
 	r.extent.height = (ICON_HEIGHT + RES_SCALE(2));
@@ -466,7 +466,10 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	SetContextFont (TinyFont);
+	if (optWhichFonts == OPT_PC)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 	SetContextForeGroundColor (PICK_VALUE_COLOR);
 	font_DrawText (&t);
 	
@@ -550,7 +553,10 @@ FillPickMeleeFrame (MeleeSetup *setup)
 		t.align = ALIGN_CENTER;
 		t.pStr = MeleeSetup_getTeamName (setup, sideI);
 		t.CharCount = (COUNT) ~0;
-		SetContextFont (TinyFont);
+		if (optWhichFonts == OPT_PC)
+			SetContextFont (TinyFont);
+		else
+			SetContextFont (TinyFontBold);
 		SetContextForeGroundColor (PICKSHIP_TEAM_NAME_TEXT_COLOR);
 		font_DrawText (&t);
 

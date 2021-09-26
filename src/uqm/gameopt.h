@@ -32,6 +32,7 @@ extern void SettingsMenu (BOOLEAN NameFlagship);
 extern BOOLEAN NewGameInit;
 
 extern BYTE OutfitOrShipyard;
+extern BOOLEAN SaveOrLoad;
 
 #if defined(__cplusplus)
 }

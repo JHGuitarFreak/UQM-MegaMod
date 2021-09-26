@@ -614,7 +614,10 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
 				snprintf (buf, sizeof buf, "%u", GLOBAL (CrewCost));
-				SetContextFont (TinyFont);
+				if (optWhichFonts == OPT_PC)
+					SetContextFont (TinyFont);
+				else
+					SetContextFont (TinyFontBold);
 				SetContextForeGroundColor (THREEDOMENU_TEXT_COLOR);
 				font_DrawText (&t);
 				break;
@@ -625,7 +628,10 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
 				snprintf (buf, sizeof buf, "%u", GLOBAL (FuelCost));
-				SetContextFont (TinyFont);
+				if (optWhichFonts == OPT_3DO && !optWholeFuel)
+					SetContextFont (TinyFontBold);
+				else
+					SetContextFont (TinyFont);
 				SetContextForeGroundColor (THREEDOMENU_TEXT_COLOR);
 				font_DrawText (&t);
 				break;

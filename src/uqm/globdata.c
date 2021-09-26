@@ -724,3 +724,15 @@ inQuasiSpace (void)
 			// IN_HYPERSPACE is also set for QuasiSpace
 }
 
+BOOLEAN
+isPC (int optWhich)
+{
+	return optWhich == OPT_PC;
+}
+
+BOOLEAN
+is3DO (int optWhich)
+{
+	return optWhich == OPT_3DO;
+}
+

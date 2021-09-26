@@ -55,7 +55,10 @@ ShowRemainingCapacity (void)
 	UNICODE buf[40];
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFont);
+	if (optWhichFonts == OPT_PC)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	r.corner.x = RES_SCALE(40); 
 	r.corner.y = FREE_ORG_Y;
@@ -164,7 +167,10 @@ DrawCargoDisplay (void)
 	SetContextForeGroundColor (CARGO_SELECTED_AMOUNT_COLOR);
 	font_DrawText (&t);
 
-	SetContextFont (TinyFont);
+	if (optWhichFonts == OPT_PC)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS * 2) + 3);
@@ -242,7 +248,10 @@ DrawCargoStrings (BYTE OldElement, BYTE NewElement)
 	CONTEXT OldContext;
 
 	OldContext = SetContext (StatusContext);
-	SetContextFont (TinyFont);
+	if (optWhichFonts == OPT_PC)
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	BatchGraphics ();
 

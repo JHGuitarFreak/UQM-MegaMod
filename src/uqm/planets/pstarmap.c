@@ -619,7 +619,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 							&& war_era_strengths[index] == 0))
 						DrawOval (&r, 0, IS_HD);
 
-					SetContextFont (TinyFont);
+					if (optWhichFonts == OPT_PC)
+						SetContextFont (TinyFont);
+					else
+						SetContextFont (TinyFontBold);
 
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
 					t.baseline.y = r.corner.y + (r.extent.height >> 1) - RES_SCALE(1);
@@ -1092,8 +1095,9 @@ UpdateFuelRequirement (void)
 	UNICODE buf[80];
 	COUNT fuel_required = FuelRequired();
 
-	sprintf (buf, "%s %u.%u",
+	sprintf (buf, "%s%s%u.%u",
 			GAME_STRING (NAVIGATION_STRING_BASE + 4),
+			is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 			fuel_required / FUEL_TANK_SCALE,
 			(fuel_required % FUEL_TANK_SCALE) / 10);
 

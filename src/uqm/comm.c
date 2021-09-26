@@ -46,6 +46,8 @@
 #include "libs/sound/trackplayer.h"
 #include "libs/log.h"
 #include "menustat.h"
+// for free_gravity_well() & load_gravity_well()
+#include "cons_res.h"
 
 #include <ctype.h>
 
@@ -242,7 +244,6 @@ add_text (int status, TEXT *pTextIn)
 	CONTEXT OldContext = NULL;
 	COUNT computerOn = 0;
 	RECT arrow;
-	BOOLEAN is3DO = optWhichFonts == OPT_3DO;
 	
 	BatchGraphics ();
 
@@ -280,7 +281,7 @@ add_text (int status, TEXT *pTextIn)
 
 		pText = pTextIn;
 	}
-	else if (leading = RES_SCALE (is3DO ? 7 : 9), status <= -4)
+	else if (leading = RES_SCALE (is3DO (optWhichFonts) ? 7 : 9), status <= -4)
 	{
 		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8)
 					- (TEXT_X_OFFS << 2)
@@ -728,16 +729,15 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	BYTE response;
 	SIZE leading;
 	STAMP s;
-	BOOLEAN is3DO = optWhichFonts == OPT_3DO;
 
 
 	SetContext (SpaceContext);
 	// GetContextFontLeading (&leading);
-	leading = RES_SCALE (is3DO ? 7 : 9);
+	leading = RES_SCALE (is3DO (optWhichFonts) ? 7 : 9);
 	BatchGraphics ();
 
 	DrawSISComWindow ();
-	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO);
+	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO (optWhichFonts));
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
@@ -1287,6 +1287,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 		t.baseline.x = RES_SCALE(2); 
 		t.align = ALIGN_LEFT;
 		t.baseline.y = DELTA_Y_SUMMARY;
+
 		SetContextFont (TinyFont);
 
 		for (row = 0; row < MAX_SUMM_ROWS && pSS->NextSub;
