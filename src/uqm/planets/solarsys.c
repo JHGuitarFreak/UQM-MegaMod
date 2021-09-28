@@ -1188,7 +1188,9 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 
 		if (IS_HD && HDPackPresent)
 			planet->intersect.frame =
-				SetAbsFrameIndex (OrbitalFrameIntersect, Size);
+				CaptureDrawable (
+						RescalePercentage (planet->image.frame, 50)
+					);
 	}
 	else if (planet->data_index == HIERARCHY_STARBASE)
 	{
