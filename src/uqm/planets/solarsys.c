@@ -99,7 +99,6 @@ FRAME SunFrame;
 FRAME OrbitalFrame;
 FRAME OldOrbitalFrame;
 FRAME OrbitalFrameUnscaled;
-FRAME OrbitalFrameIntersect;
 FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
@@ -390,10 +389,6 @@ FreeIPData (void)
 	OldOrbitalFrame = 0;
 	DestroyDrawable (ReleaseDrawable(OrbitalFrameUnscaled));
 	OrbitalFrameUnscaled = 0;
-	if (IS_HD && HDPackPresent) {
-		DestroyDrawable (ReleaseDrawable (OrbitalFrameIntersect));
-		OrbitalFrameIntersect = 0;
-	}
 	DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 	SpaceJunkFrame = 0;
 	DestroyMusic (SpaceMusic);
@@ -423,9 +418,6 @@ LoadIPData (void)
 				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalFrameUnscaled = CaptureDrawable (
 				LoadGraphic (ORBPLAN_UNSCALED_MASK_PMAP_ANIM));
-		if (IS_HD && HDPackPresent)
-			OrbitalFrameIntersect = CaptureDrawable (
-				LoadGraphic (ORBPLAN_INTERSECT_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
 
 		if (!IS_HD)
