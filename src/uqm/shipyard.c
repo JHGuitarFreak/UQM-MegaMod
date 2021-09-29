@@ -858,10 +858,7 @@ DMS_HireFlagShipCrew (void)
 	// Crew dots/rectangles for Original and HD graphics.
 	r.extent.width = RES_SCALE(1);
 	r.extent.height = r.extent.width;
-	if (!IS_HD)
-		DrawFilledRectangle (&r);
-	else
-		DrawFilledOval (&r);
+	DrawFilledRectangle (&r);
 
 	// Update the crew counter and RU. Note that the crew counter is
 	// flashing.
@@ -904,10 +901,7 @@ DMS_DismissFlagShipCrew (void)
 	r.extent.width = RES_SCALE(1);
 	r.extent.height = r.extent.width;
 	SetContextForeGroundColor (BLACK_COLOR);
-	if (!IS_HD)
-		DrawFilledRectangle (&r);
-	else
-		DrawFilledOval (&r);
+	DrawFilledRectangle (&r);
 
 	return -1;
 }
