@@ -619,7 +619,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 							&& war_era_strengths[index] == 0))
 						DrawOval (&r, 0, IS_HD);
 
-					if (optWhichFonts == OPT_PC)
+					if (isPC (optWhichFonts))
 						SetContextFont (TinyFont);
 					else
 						SetContextFont (TinyFontBold);

@@ -643,7 +643,7 @@ UninitEncounter (void)
 								DrawStamp (&ship_s);
 								SetContextForeGroundColor (
 										BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
-								if (optWhichFonts == OPT_PC)
+								if (isPC (optWhichFonts))
 									SetContextFont (TinyFont);
 								else
 									SetContextFont (TinyFontBold);

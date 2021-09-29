@@ -150,7 +150,7 @@ DrawSISTitle (UNICODE *pStr)
 	SetContextFGFrame (Screen);
 	SetContextClipRect (&r);
 
-	if (optWhichFonts == OPT_PC || SaveOrLoad)
+	if (isPC (optWhichFonts) || SaveOrLoad)
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);
@@ -299,7 +299,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	t.baseline.x = RES_SCALE (RES_DESCALE (SIS_MESSAGE_WIDTH) >> 1);
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
-	if (optWhichFonts == OPT_PC || SaveOrLoad)
+	if (isPC (optWhichFonts) || SaveOrLoad)
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);
@@ -540,7 +540,7 @@ DrawStatusMessage (const UNICODE *pStr)
 		SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	}
 
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);
@@ -572,7 +572,7 @@ DrawCaptainsName (bool NewGame)
 	Color OldColor;
 
 	OldContext = SetContext (StatusContext);
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		OldFont = SetContextFont (TinyFont);
 	else
 		OldFont = SetContextFont (TinyFontBold);
@@ -676,7 +676,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE (InStatusArea));
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFontEffect (SetAbsFrameIndex (FontGradFrame,
 				InStatusArea ? 0 : 3));
 	else
@@ -1330,7 +1330,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 		DrawSupportShips ();
 	}
 
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);

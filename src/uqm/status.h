@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #define MENU_BOOL(a, b) (optWhichMenu == OPT_PC ? (b) : (a))
-#define FONT_BOOL(a, b) (optWhichFonts == OPT_PC ? (b) : (a))
+#define FONT_BOOL(a, b) (isPC (optWhichFonts) ? (b) : (a))
 
 #define CREW_XOFFS RES_SCALE(4)
 #define ENERGY_XOFFS RES_SCALE(52)

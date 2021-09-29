@@ -120,7 +120,7 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 			DEVICES_SELECTED_BACK_COLOR : DEVICES_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);

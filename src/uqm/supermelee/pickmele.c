@@ -466,7 +466,7 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);
@@ -553,7 +553,7 @@ FillPickMeleeFrame (MeleeSetup *setup)
 		t.align = ALIGN_CENTER;
 		t.pStr = MeleeSetup_getTeamName (setup, sideI);
 		t.CharCount = (COUNT) ~0;
-		if (optWhichFonts == OPT_PC)
+		if (isPC (optWhichFonts))
 			SetContextFont (TinyFont);
 		else
 			SetContextFont (TinyFontBold);

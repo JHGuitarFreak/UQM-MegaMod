@@ -1676,7 +1676,7 @@ InitPlanetSide (POINT pt)
 
 	curLanderLoc = pt;
 
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);

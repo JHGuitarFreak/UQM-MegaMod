@@ -1673,7 +1673,7 @@ HailAlien (void)
 
 	ES.InputFunc = DoCommunication;
 
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		PlayerFont = LoadFont (PLAYER_FONT);
 	else
 		PlayerFont = LoadFont (TINY_FONT_BOLD);

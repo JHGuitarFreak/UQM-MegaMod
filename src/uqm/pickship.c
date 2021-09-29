@@ -178,7 +178,7 @@ ChangeSelection:
 			}
 			else
 			{
-				if (optWhichFonts == OPT_PC)
+				if (isPC (optWhichFonts))
 					SetContextFont (TinyFont);
 				else
 					SetContextFont (TinyFontBold);
@@ -210,7 +210,7 @@ ChangeSelection:
 				UnlockStarShip (&race_q[0], hBattleShip);
 
 				// Code to make use of the PC version's font gradient
-				/*if (optWhichFonts == OPT_PC)
+				/*if (isPC (optWhichFonts))
 					SetContextForeGroundColor (WHITE_COLOR);
 				else
 					SetContextForeGroundColor (
@@ -241,7 +241,7 @@ ChangeSelection:
 					sprintf (buf, "%u/%u", crew_level, max_crew);
 
 				// Code to make use of the PC version's font gradient
-				/*if (optWhichFonts == OPT_PC)
+				/*if (isPC (optWhichFonts))
 					SetContextForeGroundColor (WHITE_COLOR);
 				else
 					SetContextForeGroundColor (
@@ -468,7 +468,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 
 	// Code to make use of the PC version's font gradient
 	// Along with the FRAME "OldFontEffect"
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 6));
 	else
 		SetContextForeGroundColor (

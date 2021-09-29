@@ -55,7 +55,7 @@ ShowRemainingCapacity (void)
 	UNICODE buf[40];
 
 	OldContext = SetContext (StatusContext);
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);
@@ -167,7 +167,7 @@ DrawCargoDisplay (void)
 	SetContextForeGroundColor (CARGO_SELECTED_AMOUNT_COLOR);
 	font_DrawText (&t);
 
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);
@@ -248,7 +248,7 @@ DrawCargoStrings (BYTE OldElement, BYTE NewElement)
 	CONTEXT OldContext;
 
 	OldContext = SetContext (StatusContext);
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
 	else
 		SetContextFont (TinyFontBold);

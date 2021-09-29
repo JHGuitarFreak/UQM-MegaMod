@@ -326,7 +326,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
 		sprintf (buf, "%u", shipCost);
-		if (optWhichFonts == OPT_PC)
+		if (isPC (optWhichFonts))
 			SetContextFont (TinyFont);
 		else
 			SetContextFont (TinyFontBold);
@@ -371,6 +371,11 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 			StarShipPtr->race_id);
 	TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
 	maxCrewLevel = EXTENDED ? TemplatePtr->max_crew: TemplatePtr->crew_level;
+	
+	if (isPC (optWhichFonts))
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
 
@@ -1688,7 +1693,7 @@ DoShipyard (MENU_STATE *pMS)
 			animatePowerLines (pMS);
 #endif // USE_3DO_HANGAR
 			
-			if (optWhichFonts == OPT_PC)
+			if (isPC (optWhichFonts))
 				SetContextFont (TinyFont);
 			else
 				SetContextFont (TinyFontBold);

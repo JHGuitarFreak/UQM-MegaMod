@@ -93,7 +93,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		t.pStr = buf;		
 		sprintf (buf, "%u",
 				GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
-		if (optWhichFonts == OPT_PC)
+		if (isPC (optWhichFonts))
 			SetContextFont (TinyFont);
 		else
 			SetContextFont (TinyFontBold);

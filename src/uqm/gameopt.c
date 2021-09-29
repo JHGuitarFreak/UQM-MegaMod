@@ -200,7 +200,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 		if (nameCaptain)
 		{	// Naming the captain
-			if (optWhichFonts == OPT_PC)
+			if (isPC (optWhichFonts))
 				Font = TinyFont;
 			else
 				Font = TinyFontBold;
@@ -974,7 +974,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 				break;
 		}
 
-		if (optWhichFonts == OPT_PC)
+		if (isPC (optWhichFonts))
 			SetContextFont (TinyFont);
 		else
 			SetContextFont (TinyFontBold);

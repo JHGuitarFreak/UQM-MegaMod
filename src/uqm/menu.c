@@ -614,7 +614,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				t.CharCount = (COUNT)~0;
 				t.pStr = buf;
 				snprintf (buf, sizeof buf, "%u", GLOBAL (CrewCost));
-				if (optWhichFonts == OPT_PC)
+				if (isPC (optWhichFonts))
 					SetContextFont (TinyFont);
 				else
 					SetContextFont (TinyFontBold);
