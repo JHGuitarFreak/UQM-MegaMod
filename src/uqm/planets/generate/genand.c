@@ -163,17 +163,19 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 						SetRelStringTableIndex (
 						solarSys->SysInfo.PlanetInfo.DiscoveryString, visits);
 			}
-		}
 
-		GenerateDefault_generateOrbital (solarSys, world);
+			GenerateDefault_generateOrbital (solarSys, world);
 
-		if (PrimeSeed && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-		{
-			solarSys->SysInfo.PlanetInfo.AtmoDensity =
+			if (PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
 					EARTH_ATMOSPHERE * 144 / 100;
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
-			solarSys->SysInfo.PlanetInfo.Weather = 1;
-			solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
+				solarSys->SysInfo.PlanetInfo.Weather = 1;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+			}
+
+			return true;
 		}
 	}
 
@@ -187,19 +189,19 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 				CaptureDrawable (LoadGraphic (EXCAVATION_SITE_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (LoadStringTable (EXCAVATION_SITE_STRTAB));
-		}
 
-		GenerateDefault_generateOrbital (solarSys, world);
+			GenerateDefault_generateOrbital (solarSys, world);
 
-		if (PrimeSeed && EXTENDED &&
-			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-		{
 			solarSys->SysInfo.PlanetInfo.AtmoDensity =
 				EARTH_ATMOSPHERE * 126 / 100;
 			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 9;
 			solarSys->SysInfo.PlanetInfo.Tectonics = 3;
+
+			return true;
 		}
 	}
+
+	GenerateDefault_generateOrbital (solarSys, world);
 
 	return true;
 }

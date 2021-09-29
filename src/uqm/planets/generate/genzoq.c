@@ -124,7 +124,6 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			{
 				PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 				ReinitQueue (&GLOBAL (ip_group_q));
-
 				assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
 				if (GET_GAME_STATE (ZOQFOT_DISTRESS))
@@ -144,7 +143,6 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 						ReinitQueue (&GLOBAL (npc_built_ship_q));
 						GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
-
 						return true;
 					}
 				}

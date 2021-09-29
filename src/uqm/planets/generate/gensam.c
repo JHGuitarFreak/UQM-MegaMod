@@ -339,53 +339,49 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			return true;
 		}
 
-		if (EXTENDED && CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
+		if (EXTENDED)
 		{
-			/* Starbase */
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+			UWORD Index = CurStarDescPtr->Index;
 
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				CaptureStringTable (
-					LoadStringTable (DESTROYED_BASE_STRTAB));
+			if (Index == URQUAN_DEFINED
+				|| Index == KOHRAH_DEFINED
+				|| Index == DESTROYED_STARBASE_DEFINED)
+			{
 
-			// use alternate text if the player
-			// hasn't freed the Earth starbase yet
-			if (!GET_GAME_STATE (STARBASE_AVAILABLE))
-				solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
-					solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
+				/* Starbase */
+				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 
+				if (Index == DESTROYED_STARBASE_DEFINED)
+				{
+					solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						CaptureStringTable (
+							LoadStringTable (DESTROYED_BASE_STRTAB));
 
-			DoDiscoveryReport (MenuSounds);
+					// use alternate text if the player
+					// hasn't freed the Earth starbase yet
+					if (!GET_GAME_STATE (STARBASE_AVAILABLE))
+						solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						SetRelStringTableIndex (
+							solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
+				}
+				else
+				{
+					solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						SetRelStringTableIndex (
+							CaptureStringTable (
+								LoadStringTable (URQUAN_BASE_STRTAB)),
+								Index == KOHRAH_DEFINED);
+				}
 
-			DestroyStringTable (ReleaseStringTable (
-				solarSys->SysInfo.PlanetInfo.DiscoveryString));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
-			return true;
-		}
+				DoDiscoveryReport (MenuSounds);
 
-		if (EXTENDED && (CurStarDescPtr->Index == URQUAN_DEFINED
-			|| CurStarDescPtr->Index == KOHRAH_DEFINED))
-		{
-			BYTE Index = CurStarDescPtr->Index == URQUAN_DEFINED ? 0 : 1;
+				DestroyStringTable (ReleaseStringTable (
+					solarSys->SysInfo.PlanetInfo.DiscoveryString));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
+				FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
 
-			/* Starbase */
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
-					CaptureStringTable (
-						LoadStringTable (URQUAN_BASE_STRTAB)), Index);
-
-
-			DoDiscoveryReport (MenuSounds);
-
-			DestroyStringTable (ReleaseStringTable (
-				solarSys->SysInfo.PlanetInfo.DiscoveryString));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
-			return true;
+				return true;
+			}
 		}
 	}
 

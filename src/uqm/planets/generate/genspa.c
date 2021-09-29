@@ -189,7 +189,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	if (CurStarDescPtr->Index == SPATHI_DEFINED)
 	{
-		if  (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+		if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 		{	/* Spathiwa's moon */
 			if (!GET_GAME_STATE (SPATHI_SHIELDED_SELVES)
 					&& StartSphereTracking (SPATHI_SHIP))
@@ -226,7 +226,10 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			GenerateMineralDeposits (&solarSys->SysInfo, GENERATE_ALL, NULL);
 
 			solarSys->SysInfo.PlanetInfo.ScanSeed[ENERGY_SCAN] = rand_val;
-
+			
+			solarSys->SysInfo.PlanetInfo.Weather = 0;
+			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
 			if (!GET_GAME_STATE (UMGAH_BROADCASTERS))
 			{
 				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
@@ -238,27 +241,16 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				{	// The first report talks extensively about Spathi
 					// slave-shielding selves. If they never did so, the report
 					// makes no sense, so use an alternate.
-					solarSys->SysInfo.PlanetInfo.DiscoveryString =	
+					solarSys->SysInfo.PlanetInfo.DiscoveryString =
 							SetAbsStringTableIndex (
 							solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
 				}
 			}
-		}
 
-		GenerateDefault_generateOrbital(solarSys, world);
-
-		if (matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
-		{
-			solarSys->SysInfo.PlanetInfo.Weather = 0;
-			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
 			LoadPlanet (NULL);
+			return true;
 		}
-		return true;
-	}
-	else if (CurStarDescPtr->Index == SPATHI_DEFINED)
-	{
-		if(matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+		else if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 		{
 			/* visiting Spathiwa */
 			DoPlanetaryAnalysis (&solarSys->SysInfo, world);
@@ -269,12 +261,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			rand_val = RandomContext_GetSeed (SysGenRNG);
 
 			solarSys->SysInfo.PlanetInfo.ScanSeed[BIOLOGICAL_SCAN] = rand_val;
-		}
-
-		GenerateDefault_generateOrbital (solarSys, world);
-
-		if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-		{
+			
 			if (PrimeSeed)
 			{
 				solarSys->SysInfo.PlanetInfo.PlanetRadius = 120;
@@ -284,13 +271,12 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
 				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 31;
 			}
-
+			
 			LoadPlanet (NULL);
+			return true;
 		}
-
-		return true;
 	}
-
+	
 	if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
 	{
 
@@ -302,15 +288,16 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (LoadStringTable (ALGOLITE_RUINS_STRTAB));
-		}
 
-		GenerateDefault_generateOrbital(solarSys, world);
+			GenerateDefault_generateOrbital (solarSys, world);
 
-		if (EXTENDED
-			&& matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-		{
 			solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
+
+			return true;
 		}
+
+		GenerateDefault_generateOrbital (solarSys, world);
+		return true;
 	}
 
 	if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
@@ -326,6 +313,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		}
 
 		GenerateDefault_generateOrbital (solarSys, world);
+		return true;
 	}
 
 	return true;

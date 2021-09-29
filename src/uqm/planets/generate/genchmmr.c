@@ -237,9 +237,8 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					solarSys->SysInfo.PlanetInfo.DiscoveryString));
 				solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 				FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
-
-				return true;
 			}
+			return true;
 		}
 	}
 
@@ -248,9 +247,6 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	{
 		BOOLEAN MelnormeInfo = GET_GAME_STATE (MELNORME_ALIEN_INFO_STACK) >= 8;
 		BOOLEAN ChmmrStack = GET_GAME_STATE (CHMMR_HOME_VISITS);
-
-		solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 2;
 
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
@@ -262,6 +258,13 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				SetRelStringTableIndex (
 					solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
+
+		GenerateDefault_generateOrbital (solarSys, world);
+
+		solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+
+		return true;
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
