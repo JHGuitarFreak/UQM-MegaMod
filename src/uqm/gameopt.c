@@ -129,18 +129,16 @@ FeedbackSetting (BYTE which_setting)
 	{
 		case SOUND_ON_SETTING:
 		case SOUND_OFF_SETTING:
-			snprintf (buf, sizeof (buf) - 1, "%s%s%s",
+			snprintf (buf, sizeof (buf) - 1, "%s %s",
 					GAME_STRING (OPTION_STRING_BASE + 0),
-					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					GLOBAL (glob_flags) & SOUND_DISABLED
 					? GAME_STRING (OPTION_STRING_BASE + 3) :
 					GAME_STRING (OPTION_STRING_BASE + 4));
 			break;
 		case MUSIC_ON_SETTING:
 		case MUSIC_OFF_SETTING:
-			snprintf (buf, sizeof (buf) - 1, "%s%s%s",
+			snprintf (buf, sizeof (buf) - 1, "%s %s",
 					GAME_STRING (OPTION_STRING_BASE + 1),
-					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					GLOBAL (glob_flags) & MUSIC_DISABLED
 					? GAME_STRING (OPTION_STRING_BASE + 3) :
 					GAME_STRING (OPTION_STRING_BASE + 4));
@@ -159,9 +157,8 @@ FeedbackSetting (BYTE which_setting)
 			}
 			else
 				tmpstr = "";
-			snprintf (buf, sizeof (buf) - 1, "%s%s%s%s",
+			snprintf (buf, sizeof (buf) - 1, "%s %s%s",
 					GAME_STRING (OPTION_STRING_BASE + 2),
-					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					!(GLOBAL (glob_flags) & CYBORG_ENABLED)
 					? GAME_STRING (OPTION_STRING_BASE + 3) :
 					GAME_STRING (OPTION_STRING_BASE + 4),

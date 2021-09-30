@@ -1095,9 +1095,8 @@ UpdateFuelRequirement (void)
 	UNICODE buf[80];
 	COUNT fuel_required = FuelRequired();
 
-	sprintf (buf, "%s%s%u.%u",
+	sprintf (buf, "%s %u.%u",
 			GAME_STRING (NAVIGATION_STRING_BASE + 4),
-			is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 			fuel_required / FUEL_TANK_SCALE,
 			(fuel_required % FUEL_TANK_SCALE) / 10);
 

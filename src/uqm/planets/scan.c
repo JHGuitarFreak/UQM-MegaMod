@@ -841,10 +841,7 @@ drawLandingFuelUsage (COUNT fuel)
 	}
 
 	sprintf (buf, "%s%1.1f",
-			GAME_STRING (
-					NAVIGATION_STRING_BASE
-					+ (isPC (optWhichFonts) ? 5 : 7)
-				),
+			GAME_STRING (NAVIGATION_STRING_BASE + 5),
 			(float) fuel / FUEL_TANK_SCALE);
 	DrawStatusMessage (buf);
 

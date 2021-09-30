@@ -437,8 +437,7 @@ DateToString (char *buf, size_t bufLen,
 					STR_MIDDLE_DOT, day_index, STR_MIDDLE_DOT, year_index);
 			break;
 		case 2: /* DD MMM YYYY */
-			snprintf (buf, bufLen, "%02d%s%s%s%04d", day_index,
-					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
+			snprintf (buf, bufLen, "%02d %s%s%04d", day_index,
 					GAME_STRING (MONTHS_STRING_BASE + month_index - 1),
 					STR_MIDDLE_DOT, year_index);
 			break;
@@ -448,9 +447,8 @@ DateToString (char *buf, size_t bufLen,
 			break;
 		case 0:
 		default: /* MMM DD.YYYY */
-			snprintf (buf, bufLen, "%s%s%02d%s%04d",
+			snprintf (buf, bufLen, "%s %02d%s%04d",
 					GAME_STRING (MONTHS_STRING_BASE + month_index - 1),
-					is3DO (optWhichFonts) ? STR_MIDDLE_DOT : " ",
 					day_index, STR_MIDDLE_DOT, year_index);
 			break;
 	}
@@ -1762,9 +1760,7 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 				if (GLOBAL_SIS (FuelOnBoard) == 0)
 				{
 					DrawSISMessageEx (
-							GAME_STRING (
-									NAVIGATION_STRING_BASE
-									+ (isPC(optWhichFonts) ? 2 : 6)),
+							GAME_STRING (NAVIGATION_STRING_BASE + 2),
 							-1, -1, DSME_MYCOLOR);   // "OUT OF FUEL"
 				}
 				else
