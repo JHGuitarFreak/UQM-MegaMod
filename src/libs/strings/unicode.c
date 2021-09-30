@@ -286,6 +286,24 @@ utf8StringCopy (unsigned char *dst, size_t size, const unsigned char *src)
 	return dst;
 }
 
+int
+utf8ReplaceChar (char *pStr, UniChar find, UniChar replace)
+{
+	int pos, count = 0;
+
+	do
+	{
+		pos = utf8StringPos (pStr, find);
+
+		if (pos != -1)
+			pStr[pos] = replace;
+		else
+			return count;
+
+		count++;
+	} while (pos != -1);
+}
+
 // TODO: this is not implemented with respect to collating order
 int
 utf8StringCompare (const unsigned char *str1, const unsigned char *str2)

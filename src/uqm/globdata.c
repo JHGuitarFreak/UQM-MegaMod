@@ -736,3 +736,44 @@ is3DO (int optWhich)
 	return optWhich == OPT_3DO;
 }
 
+int
+replaceChar (UNICODE *pStr, UniChar find, UniChar replace)
+{
+	BYTE i, pos, count = 0;
+	UNICODE buf[255];
+
+	pos = utf8StringPos (pStr, find);
+
+	if (pos == -1)
+		return pos;
+
+	utf8StringCopy (buf, sizeof buf, pStr);
+
+	for (i = 0; i < strlen (buf); i++)
+	{
+		if (buf[i] == find)
+		{
+			buf[i] = replace;
+			if (buf[i] == replace)
+				count++;
+		}
+	}
+
+	if (!count)
+		return -1;
+
+	count = 0;
+
+	for (i = 0; i < strlen (pStr); i++)
+	{
+		if (pStr[i] == find)
+		{
+			pStr[i] = replace;
+			if(pStr[i] == replace)
+				count++;
+		}
+	}
+
+	return count;
+}
+
