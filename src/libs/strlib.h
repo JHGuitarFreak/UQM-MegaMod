@@ -62,6 +62,10 @@ extern STRINGPTR GetStringSoundClip (STRING String);
 extern STRINGPTR GetStringTimeStamp (STRING String);
 extern STRING GetStringByName (STRING_TABLE StringTable, const char *index);
 
+#define UNICHAR_TAB           0x0009
+#define STR_TAB             "\x09"
+#define UNICHAR_SPACE         0x0020
+#define STR_SPACE           "\x20"
 #define UNICHAR_DEGREE_SIGN   0x00b0
 #define STR_DEGREE_SIGN     "\xC2\xB0"
 #define UNICHAR_INFINITY_SIGN 0x221e
