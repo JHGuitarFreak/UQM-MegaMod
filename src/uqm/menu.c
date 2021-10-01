@@ -100,11 +100,13 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	if (!optCustomBorder)
 		DrawFilledRectangle (&rt);
 
+	DrawBorder (8, FALSE);
+
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
 	else
 		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
-	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE(3);	
+	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE(3);
 	DrawPCMenuFrame (r);
 
 	DrawBorder (27 - num_items, FALSE);
