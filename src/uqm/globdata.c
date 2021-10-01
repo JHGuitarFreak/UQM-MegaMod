@@ -739,12 +739,19 @@ is3DO (int optWhich)
 // Does not work with UTF encoding!
 // Basic function for replacing all instances of character "find"
 // with character "replace"
-// Returns the number of replaced characters
+// Returns the number of replaced characters on success
+// -1 if any input is NULL, and 0 if 'find' isn't found
 int
-actualReplace (char *pStr, const char find, const char replace)
+replaceChar (char *pStr, const char find, const char replace)
 {
 	int i, count = 0;
 	size_t len = strlen (pStr);
+
+	if (!pStr || !find || !replace)
+		return -1; // pStr, find, or replace is NULL
+
+	if (utf8StringPos (pStr, find) == -1)
+		return 0; // 'find' not found
 
 	for (i = 0; i < len; i++)
 	{
@@ -757,25 +764,5 @@ actualReplace (char *pStr, const char find, const char replace)
 	}
 
 	return count;
-}
-
-// Does not work with UTF encoding!
-// Wrapper function for 'actualReplace()' that returns the number
-// of replaced characters upon completion and returns negative 
-// numbers upon failure
-int
-replaceChar (char *pStr, const char find, const char replace)
-{
-	char buf[255];
-
-	if (!pStr || utf8StringPos (pStr, find) == -1)
-		return -1; // Either a null pStr or 'find' char not found
-
-	utf8StringCopy (buf, sizeof buf, pStr);
-
-	if (!actualReplace (buf, find, replace))
-		return -2; // The test on the buffer failed to replace anything
-
-	return actualReplace (pStr, find, replace);
 }
 
