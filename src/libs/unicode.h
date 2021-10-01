@@ -46,7 +46,6 @@ size_t utf8StringCountN(const UNICODE_CHAR *start,
 int utf8StringPos (const UNICODE_CHAR *pStr, UniChar ch);
 unsigned char *utf8StringCopy (UNICODE_CHAR *dst, size_t size,
 		const UNICODE_CHAR *src);
-int utf8ReplaceChar (char *pStr, UniChar find, UniChar replace);
 int utf8StringCompare (const UNICODE_CHAR *str1, const UNICODE_CHAR *str2);
 UNICODE_CHAR *skipUTF8Chars(const UNICODE_CHAR *ptr, size_t num);
 size_t getUniCharFromString(UniChar *wstr, size_t maxcount,

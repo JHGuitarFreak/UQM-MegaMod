@@ -736,44 +736,46 @@ is3DO (int optWhich)
 	return optWhich == OPT_3DO;
 }
 
+// Does not work with UTF encoding!
+// Basic function for replacing all instances of character "find"
+// with character "replace"
+// Returns the number of replaced characters
 int
-replaceChar (UNICODE *pStr, UniChar find, UniChar replace)
+actualReplace (char *pStr, const char find, const char replace)
 {
-	BYTE i, pos, count = 0;
-	UNICODE buf[255];
+	int i, count = 0;
+	size_t len = strlen (pStr);
 
-	pos = utf8StringPos (pStr, find);
-
-	if (pos == -1)
-		return pos;
-
-	utf8StringCopy (buf, sizeof buf, pStr);
-
-	for (i = 0; i < strlen (buf); i++)
-	{
-		if (buf[i] == find)
-		{
-			buf[i] = replace;
-			if (buf[i] == replace)
-				count++;
-		}
-	}
-
-	if (!count)
-		return -1;
-
-	count = 0;
-
-	for (i = 0; i < strlen (pStr); i++)
+	for (i = 0; i < len; i++)
 	{
 		if (pStr[i] == find)
 		{
 			pStr[i] = replace;
-			if(pStr[i] == replace)
+			if (pStr[i] == replace)
 				count++;
 		}
 	}
 
 	return count;
+}
+
+// Does not work with UTF encoding!
+// Wrapper function for 'actualReplace()' that returns the number
+// of replaced characters upon completion and returns negative 
+// numbers upon failure
+int
+replaceChar (char *pStr, const char find, const char replace)
+{
+	char buf[255];
+
+	if (!pStr || utf8StringPos (pStr, find) == -1)
+		return -1; // Either a null pStr or 'find' char not found
+
+	utf8StringCopy (buf, sizeof buf, pStr);
+
+	if (!actualReplace (buf, find, replace))
+		return -2; // The test on the buffer failed to replace anything
+
+	return actualReplace (pStr, find, replace);
 }
 

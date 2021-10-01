@@ -1112,7 +1112,7 @@ BOOLEAN inHyperSpace (void);
 BOOLEAN inQuasiSpace (void);
 BOOLEAN isPC (int optWhich);
 BOOLEAN is3DO (int optWhich);
-extern int replaceChar (UNICODE *pStr, UniChar find, UniChar replace);
+extern int replaceChar (char *pStr, const char find, const char replace);
 
 extern BOOLEAN InitGameStructures (void);
 extern void UninitGameStructures (void);
