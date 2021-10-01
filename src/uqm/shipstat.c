@@ -46,7 +46,20 @@ DrawCrewFuelString (COORD y, SIZE state)
 	else
 		Stamp.frame = SetAbsFrameIndex (StatusFrame, 1);
 	if (state >= 0)
+	{
+		if (IS_HD)
+		{
+			RECT r;
+			GetFrameRect (Stamp.frame, &r);
+			r.corner.x += Stamp.origin.x;
+			r.corner.y += Stamp.origin.y;
+			SetContextForeGroundColor (
+				BUILD_COLOR(MAKE_RGB15(0x0A, 0x0A, 0x0A), 0x08));
+			DrawFilledRectangle (&r);
+		}
+
 		DrawStamp (&Stamp);
+	}
 	else
 	{
 #define LOW_FUEL_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x0A), 0x0E)
