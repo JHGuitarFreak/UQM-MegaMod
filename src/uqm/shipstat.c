@@ -290,6 +290,8 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 						StarShipPtr->captains_name_index);
 				Text.pStr = (UNICODE *)GetStringAddress (locString);
 				Text.CharCount = GetStringLength (locString);
+				if (is3DO (optWhichMenu))
+					replaceChar (Text.pStr, UNICHAR_SPACE, UNICHAR_TAB);
 			}
 			Text.align = ALIGN_CENTER;
 
