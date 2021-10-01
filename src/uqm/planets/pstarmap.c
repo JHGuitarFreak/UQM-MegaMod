@@ -955,7 +955,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	else
 	{	
 		// "(Star Search: F6 | Toggle Maps: F7)"
-		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 2));
+		utf8StringCopy (buf, sizeof (buf), GAME_STRING (
+				FEEDBACK_STRING_BASE + (isPC (optWhichFonts) ? 2 : 5)));
 	}
 
 	pt.x = UNIVERSE_TO_DISPX (cursorLoc.x);

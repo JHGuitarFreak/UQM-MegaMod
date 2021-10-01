@@ -979,6 +979,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
 		t.CharCount = (COUNT)~0;
+		if (is3DO (optWhichFonts))
+			replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
 		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
@@ -1001,6 +1003,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 						starPt.x / 10, starPt.x % 10,
 						starPt.y / 10, starPt.y % 10);
 		}
+		if (is3DO (optWhichFonts))
+			replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 

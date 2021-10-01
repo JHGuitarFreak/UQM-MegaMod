@@ -153,7 +153,10 @@ DrawSISTitle (UNICODE *pStr)
 	if (isPC (optWhichFonts) || SaveOrLoad)
 		SetContextFont (TinyFont);
 	else
+	{
 		SetContextFont (TinyFontBold);
+		replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+	}
 
 	BatchGraphics ();
 
@@ -302,7 +305,11 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 	if (isPC (optWhichFonts) || SaveOrLoad)
 		SetContextFont (TinyFont);
 	else
+	{
 		SetContextFont (TinyFontBold);
+		if (CurPos < 0 && ExPos < 0)
+			replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+	}
 
 	if (flags & DSME_CLEARFR)
 		SetFlashRect (NULL, FALSE);
@@ -503,7 +510,7 @@ DrawStatusMessage (const UNICODE *pStr)
 			if (GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2 || optInfiniteRU)
 			{
 				snprintf (buf, sizeof buf, "%s %s",
-						isPC (optWhichMenu) ?
+						(isPC (optWhichMenu) && isPC (optWhichFonts)) ?
 							GAME_STRING (STATUS_STRING_BASE + 2)
 							: STR_INFINITY_SIGN, // "UNLIMITED"
 						GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
@@ -538,10 +545,13 @@ DrawStatusMessage (const UNICODE *pStr)
 		SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	}
 
-	if (isPC (optWhichFonts))
+	if (isPC (optWhichFonts) || optCustomBorder)
 		SetContextFont (TinyFont);
 	else
+	{
 		SetContextFont (TinyFontBold);
+		replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+	}
 
 	SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
 	font_DrawText (&t);
