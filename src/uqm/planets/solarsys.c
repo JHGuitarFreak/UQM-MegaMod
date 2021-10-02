@@ -914,6 +914,11 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 	else
 	{	// Existing collisions are cleared only once the ship does not
 		// intersect anymore with a full planet image
+#if SDL_MAJOR_VERSION == 1
+		if (!optTexturedPlanets && isPC (optPlanetStyle))
+			return planet->dosIntersect.frame;
+		else
+#endif
 		return planet->image.frame;
 	}
 }
@@ -1074,7 +1079,10 @@ SetPlanetOldFrame (COUNT index, COUNT color)
 	newFrame = CaptureDrawable (CopyFrameRect (oldFrame, &r));
 	SetFrameHot (newFrame, GetFrameHot (oldFrame));
 	// CaptureDrawable destroys transparency, so it has to be setted again
-	SetFrameTransparentColor (newFrame, BUILD_COLOR_RGBA(0x00, 0x00, 0x00, 0xFF));
+#if SDL_MAJOR_VERSION == 1
+	SetFrameTransparentColor (newFrame, BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0xFF));
+#endif
+
 	return newFrame;
 }
 
@@ -1166,17 +1174,22 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					break;
 			}
 		}
-		planet->image.frame = SetAbsFrameIndex (
-			UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
-			(Size << FACING_SHIFT) + NORMALIZE_FACING (
-					ANGLE_TO_FACING (angle)));
 
-#if SDL_MAJOR_VERSION == 2
-		if (!optTexturedPlanets && optPlanetStyle == OPT_PC)
+		if (!optTexturedPlanets && isPC (optPlanetStyle))
+		{
 			planet->image.frame = SetPlanetOldFrame (
 				(Size << FACING_SHIFT) + NORMALIZE_FACING (
 					ANGLE_TO_FACING (angle)), PLANCOLOR(Type));
+#if SDL_MAJOR_VERSION == 1
+			planet->dosIntersect.frame = SetAbsFrameIndex (OrbitalFrame,
+					(Size << FACING_SHIFT));
 #endif
+		}
+		else
+			planet->image.frame = SetAbsFrameIndex (
+					UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
+					(Size << FACING_SHIFT) + NORMALIZE_FACING (
+							ANGLE_TO_FACING (angle)));
 
 		if (IS_HD && HDPackPresent)
 			planet->intersect.frame =

@@ -176,9 +176,7 @@ static WIDGET *engine_widgets[] = {
 static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[51]),   // Lander Hold Size
-#if SDL_MAJOR_VERSION == 2
 	(WIDGET *)(&choices[62]),   // Interplanetary Style
-#endif
 	(WIDGET *)(&choices[63]),   // Star Background
 	(WIDGET *)(&choices[64]),   // Scan Style
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
