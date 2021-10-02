@@ -910,7 +910,8 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 	{	// Existing collisions are cleared only once the ship does not
 		// intersect anymore with a full planet image
 #if SDL_MAJOR_VERSION == 1
-		if (!optTexturedPlanets && isPC (optPlanetStyle))
+		if (!optTexturedPlanets && isPC (optPlanetStyle)
+			&& planet->data_index < PRECURSOR_STARBASE)
 			return planet->dosIntersect.frame;
 		else
 #endif
