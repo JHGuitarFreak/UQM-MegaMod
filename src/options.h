@@ -67,7 +67,6 @@ extern DWORD loadFuel;
 extern BOOLEAN optPartialPickup;
 extern BOOLEAN optSubmenu;
 extern BOOLEAN optAddDevices;
-extern BOOLEAN optScalePlanets;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
 extern BOOLEAN optCustomBorder;

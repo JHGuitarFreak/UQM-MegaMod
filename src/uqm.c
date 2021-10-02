@@ -167,7 +167,6 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, partialPickup);
 	DECL_CONFIG_OPTION(bool, submenu);
 	DECL_CONFIG_OPTION(bool, addDevices);
-	DECL_CONFIG_OPTION(bool, scalePlanets);
 	DECL_CONFIG_OPTION(bool, customBorder);
 	DECL_CONFIG_OPTION(int,  customSeed);
 	DECL_CONFIG_OPTION(bool, spaceMusic);
@@ -363,7 +362,6 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  partialPickup,     false ),
 		INIT_CONFIG_OPTION(  submenu,           false ),
 		INIT_CONFIG_OPTION(  addDevices,        false ),
-		INIT_CONFIG_OPTION(  scalePlanets,      true ),
 		INIT_CONFIG_OPTION(  customBorder,      false ),
 		INIT_CONFIG_OPTION(  customSeed,        PrimeA ),
 		INIT_CONFIG_OPTION(  spaceMusic,        false ),
@@ -580,7 +578,6 @@ main (int argc, char *argv[])
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;
 	optAddDevices = options.addDevices.value;
-	optScalePlanets = options.scalePlanets.value;
 	optCustomBorder = options.customBorder.value;
 	optCustomSeed = options.customSeed.value;
 	optRequiresReload = FALSE; 
