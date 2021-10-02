@@ -1869,7 +1869,7 @@ InitCommunication (CONVERSATION which_comm)
 				if (pSolarSysState && LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE
 					&& worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 				{
-					if (!(GetNamedPlanetaryBody ())
+					if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
 						&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE
 						&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
 						&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))

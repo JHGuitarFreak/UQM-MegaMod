@@ -2061,7 +2061,7 @@ EnterPlanetOrbit (void)
 					pSolarSysState->pOrbitalDesc->image.origin;
 
 			// JMS_GFX: Draw the moon letter when orbiting a moon
-			if (!(GetNamedPlanetaryBody()) 
+			if (!(GetNamedPlanetaryBody()) && isPC (optWhichFonts)
 					&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE 
 					&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
 					&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
@@ -2809,7 +2809,8 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 	utf8StringCopy (buf, bufsize, GLOBAL_SIS (PlanetName));
 
 	if (!playerInSolarSystem () || !playerInInnerSystem () ||
-			worldIsPlanet (pSolarSysState, pSolarSysState->pOrbitalDesc))
+			worldIsPlanet (pSolarSysState, pSolarSysState->pOrbitalDesc)
+			|| is3DO (optWhichFonts))
 	{	// Outer or inner system or orbiting a planet
 		return;
 	}

@@ -358,7 +358,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	{	// to fix moon suffix on load
 		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 		{
-			if (!(GetNamedPlanetaryBody ())
+			if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
 				&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE
 				&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
 				&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
