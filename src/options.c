@@ -80,7 +80,6 @@ DWORD loadFuel;
 BOOLEAN optPartialPickup;
 BOOLEAN optSubmenu;
 BOOLEAN optAddDevices;
-BOOLEAN optScalePlanets;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 BOOLEAN optCustomBorder;

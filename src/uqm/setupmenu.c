@@ -1697,7 +1697,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->partialPickup = optPartialPickup ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->submenu = optSubmenu ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->addDevices = optAddDevices ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->scalePlanets = optScalePlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->customBorder = optCustomBorder ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->customSeed = res_GetInteger ("mm.customSeed");
 	opts->spaceMusic = optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;

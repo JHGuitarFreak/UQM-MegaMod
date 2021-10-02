@@ -37,11 +37,10 @@ extern int ScreenHeight;
 #define IS_HD (RESOLUTION_FACTOR != HD ? FALSE : TRUE)
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)
 #define RES_DESCALE(a) ((a) >> RESOLUTION_FACTOR)
-#define RES_BOOL(a,b) (!IS_HD ? (a) : (b))	
+#define RES_BOOL(a,b) (!IS_HD ? (a) : (b))
 #define RES_DBL(a) (RES_BOOL((a), (a) * RESOLUTION_FACTOR))
 #define RES_TRP(a) (RES_BOOL((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL(0, (a)))
-#define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
 
 		/* Margins. */
 #define SIS_ORG_X RES_SCALE(6)

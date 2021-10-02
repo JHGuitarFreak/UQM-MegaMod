@@ -136,11 +136,11 @@ typedef struct globalopts_struct {
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
 			unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro,
-			infiniteFuel, partialPickup, submenu, addDevices, scalePlanets,
-			customBorder, spaceMusic, volasMusic, directionalJoystick,
-			wholeFuel, fuelRange, extended, nomad, gameOver,
-			shipDirectionIP, hazardColors, orzCompFont, shipFacingHS,
-			nonStopOscill, hyperStars, planetTexture, noHQEncounters;
+			infiniteFuel, partialPickup, submenu, addDevices, customBorder,
+			spaceMusic, volasMusic, directionalJoystick, wholeFuel,
+			fuelRange, extended, nomad, gameOver, shipDirectionIP,
+			hazardColors, orzCompFont, shipFacingHS, nonStopOscill,
+			hyperStars, planetTexture, noHQEncounters;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
 			landerHold, coloredPlanet, planetStyle, starBackground,
 			scanStyle, scopeStyle, landerStyle, flagshipColor;

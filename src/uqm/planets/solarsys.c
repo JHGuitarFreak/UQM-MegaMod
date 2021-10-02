@@ -98,7 +98,6 @@ FRAME SISIPFrame;
 FRAME SunFrame;
 FRAME OrbitalFrame;
 FRAME OldOrbitalFrame;
-FRAME OrbitalFrameUnscaled;
 FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
@@ -387,8 +386,6 @@ FreeIPData (void)
 	OrbitalFrame = 0;
 	DestroyDrawable (ReleaseDrawable(OldOrbitalFrame));
 	OldOrbitalFrame = 0;
-	DestroyDrawable (ReleaseDrawable(OrbitalFrameUnscaled));
-	OrbitalFrameUnscaled = 0;
 	DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 	SpaceJunkFrame = 0;
 	DestroyMusic (SpaceMusic);
@@ -416,8 +413,6 @@ LoadIPData (void)
 				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
 		OldOrbitalFrame = CaptureDrawable (
 				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
-		OrbitalFrameUnscaled = CaptureDrawable (
-				LoadGraphic (ORBPLAN_UNSCALED_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
 
 		if (!IS_HD)
@@ -904,7 +899,7 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 	if (pSolarSysState->WaitIntersect != (COUNT)~0
 			&& pSolarSysState->WaitIntersect != WaitPlanet)
 	{
-		if (!IS_HD || !optScalePlanets)
+		if (!IS_HD)
 			return DecFrameIndex(stars_in_space);
 		else if (planet->data_index >= PRECURSOR_STARBASE)
 			return planet->image.frame;
@@ -1186,8 +1181,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 #endif
 		}
 		else
-			planet->image.frame = SetAbsFrameIndex (
-					UNSCALED_PLANETS (OrbitalFrameUnscaled, OrbitalFrame),
+			planet->image.frame = SetAbsFrameIndex (OrbitalFrame,
 					(Size << FACING_SHIFT) + NORMALIZE_FACING (
 							ANGLE_TO_FACING (angle)));
 
@@ -1199,19 +1193,19 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	}
 	else if (planet->data_index == HIERARCHY_STARBASE)
 	{
-		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, UNSCALED_PLANETS(22, 16));
+		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 16);
 	}
 	else if (planet->data_index == SA_MATRA)
 	{
-		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, UNSCALED_PLANETS(23, 19));
+		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 19);
 	}
 	else if (planet->data_index == DESTROYED_STARBASE)
 	{
-		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, UNSCALED_PLANETS(26, RES_BOOL(22, 25)));
+		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 22);
 	}
 	else if (planet->data_index == PRECURSOR_STARBASE)
 	{
-		planet->image.frame = SetAbsFrameIndex(SpaceJunkFrame, UNSCALED_PLANETS(28, RES_BOOL(23, 27)));
+		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 23);
 	}
 }
 
@@ -1759,11 +1753,21 @@ DrawTexturedBody (PLANET_DESC* planet, STAMP s)
 	oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
 	if (worldIsMoon (pSolarSysState, planet)) 
 	{
-		moonDiameter = planet->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
-		oldScale = SetGraphicScale (GSCALE_IDENTITY * (optScalePlanets ? RES_SCALE(planet->size) : planet->size) / moonDiameter);
+		moonDiameter =
+				planet->data_index > LAST_SMALL_ROCKY_WORLD ?
+						LARGE_MOON_DIAMETER : MOON_DIAMETER;
+		oldScale =
+				SetGraphicScale (
+						GSCALE_IDENTITY
+						* RES_SCALE (planet->size) / moonDiameter
+					);
 	}
 	else
-		oldScale = SetGraphicScale (GSCALE_IDENTITY * (optScalePlanets ? RES_SCALE(planet->size) : planet->size) / PLANET_DIAMETER);
+		oldScale =
+			SetGraphicScale (
+					GSCALE_IDENTITY
+					* RES_SCALE (planet->size) / PLANET_DIAMETER
+				);
 
 	s.frame = planet->orbit.SphereFrame;
 	DrawStamp (&s);
@@ -1805,7 +1809,7 @@ RotatePlanets (BOOLEAN IsInnerSystem)
 	else
 	{
 		for (i = pSolarSysState->SunDesc[0].NumPlanets,
-			     planet = &pSolarSysState->PlanetDesc[0]; i; --i, ++planet)
+				planet = &pSolarSysState->PlanetDesc[0]; i; --i, ++planet)
 			PrepareNextRotationFrameForIP (planet, frameCounter);
 	}
 }
@@ -2367,7 +2371,7 @@ DrawInnerPlanets (PLANET_DESC *planet)
 		if (i < NUMBER_OF_PLANET_TYPES
 			&& (planet->data_index & PLANET_SHIELDED))
 		{	// Shielded world looks "shielded" in inner view
-			s.frame = SetAbsFrameIndex (SpaceJunkFrame, UNSCALED_PLANETS(24, 17));
+			s.frame = SetAbsFrameIndex (SpaceJunkFrame, 17);
 		}
 		DrawStamp (&s);
 

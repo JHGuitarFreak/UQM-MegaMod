@@ -977,11 +977,9 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->hazardColors, "mm.hazardColors");
 	getBoolConfigValue (&options->orzCompFont, "mm.orzCompFont");
 
-#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 	if (res_IsInteger ("mm.controllerType") && !options->optControllerType.set) {
 		options->optControllerType.value = res_GetInteger ("mm.controllerType");
 	}
-#endif
 
 	getBoolConfigValue (&options->shipFacingHS, "mm.shipFacingHS");
 	getBoolConfigValueXlat (&options->coloredPlanet, "mm.coloredPlanet",
@@ -1070,7 +1068,6 @@ enum
 	PICKUP_OPT,
 	SUBMENU_OPT,
 	DEVICES_OPT,
-	SCALEPLAN_OPT,
 	CUSTBORD_OPT,
 	EXSEED_OPT,
 	SPACEMUSIC_OPT,
@@ -1156,7 +1153,6 @@ static struct option longOptions[] =
 	{"partialpickup", 0, NULL, PICKUP_OPT},
 	{"submenu", 0, NULL, SUBMENU_OPT},
 	{"adddevices", 0, NULL, DEVICES_OPT},
-	{"scaleplanets", 1, NULL, SCALEPLAN_OPT},
 	{"customborder", 0, NULL, CUSTBORD_OPT},
 	{"customseed", 1, NULL, EXSEED_OPT},
 	{"spacemusic", 0, NULL, SPACEMUSIC_OPT},
@@ -1532,21 +1528,6 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case DEVICES_OPT:
 				setBoolOption (&options->addDevices, true);
 				break;
-			case SCALEPLAN_OPT:{
-				int temp;
-				if (parseIntOption (optarg, &temp, "Planet Scaling") == -1) {
-					badArg = true;
-					break;
-				} else if (temp < 0 || temp > 1) {					
-					saveError ("\nScale Planets has to be 0 or 1.\n");
-					badArg = true;
-				} else {
-					setBoolOption (&options->scalePlanets, temp);
-				}
-				break;
-			}
-				setBoolOption (&options->scalePlanets, true);
-				break;
 			case CUSTBORD_OPT:
 				setBoolOption (&options->customBorder, true);
 				break;
@@ -1633,10 +1614,8 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					saveError ("\nController type has to be 0, 1, or 2.\n");
 					badArg = true;
 				} else {
-#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 					options->optControllerType.value = temp;
 					options->optControllerType.set = true;
-#endif
 				}
 				break;
 			}
@@ -1921,9 +1900,6 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --adddevices : Gives you all available"
 			"devices  (default: %s)",
 			boolOptString (&defaults->addDevices));
-	log_add (log_User, "  --scaleplanets : Scales textured planets"
-			"in HD (default: %s)",
-			boolOptString (&defaults->scalePlanets));
 	log_add (log_User, "  --melee : Takes you straight to Super Melee"
 			"after the splash screen.");
 	log_add (log_User, "  --loadgame : Takes you straight to the Load"
