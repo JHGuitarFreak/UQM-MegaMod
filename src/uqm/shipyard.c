@@ -301,11 +301,12 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		HFLEETINFO hStarShip;
 		FLEET_INFO *FleetPtr;
 		UNICODE buf[30];
-		COUNT shipCost = ShipCost (NewRaceItem);
+		COUNT shipCost;
 
 		hStarShip = GetAvailableRaceFromIndex (NewRaceItem);
 		NewRaceItem = GetIndexFromStarShip (&GLOBAL (avail_race_q),
 				hStarShip);
+		shipCost = ShipCost (NewRaceItem);
 
 		// Draw the ship name, above the ship image.
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 3 + NewRaceItem);
