@@ -291,10 +291,9 @@ GetRaceKnownSize (RACE_ID race)
  * in the shipyard.
  * flag == TRUE: start an alliance
  * flag == FALSE: end an alliance
- * flag == 2: Can build their ships regardless
  */
 BOOLEAN
-SetRaceAllied (RACE_ID race, BYTE flag)
+SetRaceAllied (RACE_ID race, BOOLEAN flag)
 {
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
@@ -309,13 +308,10 @@ SetRaceAllied (RACE_ID race, BYTE flag)
 	{
 		/* Strange request, silently ignore it */
 	}
-	else if (flag != 2)
+	else
 	{
 		FleetPtr->allied_state = (flag ? GOOD_GUY : BAD_GUY);
 	}
-
-	if (flag == 2)
-		FleetPtr->can_build = TRUE;
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 	return TRUE;
