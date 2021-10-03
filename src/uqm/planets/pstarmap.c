@@ -55,6 +55,7 @@ typedef enum {
 	WAR_ERA_STARMAP   = 1,
 	CONSTELLATION_MAP = 2,
 	HOMEWORLDS_MAP = 3,
+	RAINBOW_MAP = 4,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -768,6 +769,19 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				DrawReticule (star_array[i].star_pt, TRUE);
 		}
 	}
+
+	// This draws reticules over the Rainbow worlds
+	if (which_space <= 1 && which_starmap == RAINBOW_MAP)
+	{
+		COUNT i;
+
+		for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
+		{
+			if (star_array[i].Index == RAINBOW_DEFINED)
+				DrawReticule (star_array[i].star_pt, TRUE);
+		}
+	}
+
 	do
 	{
 		BYTE star_type;
@@ -1013,6 +1027,10 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	else if (which_starmap == HOMEWORLDS_MAP)
 	{	// "- War Era map from 2133 -"
 		utf8StringCopy (buf, sizeof (buf), "- Known Homeworlds -");
+	}
+	else if (which_starmap == RAINBOW_MAP)
+	{	// "- War Era map from 2133 -"
+		utf8StringCopy (buf, sizeof (buf), "- Rainbow Worlds -");
 	}
 	else
 	{	// "(Star Search: F6 | Toggle Maps: F7)"
