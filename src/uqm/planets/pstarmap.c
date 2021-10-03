@@ -1515,6 +1515,8 @@ DoStarSearch (MENU_STATE *pMS)
 
 	DrawSISMessageEx ("", 0, 0, DSME_SETFR);
 
+	TextEntry3DO = is3DO (optWhichFonts);
+
 	pss->pMS = pMS;
 	pss->LastChangeTime = 0;
 	pss->Text[0] = '\0';
@@ -1554,6 +1556,8 @@ DoStarSearch (MENU_STATE *pMS)
 	DrawSISMessageEx (pss->Text, -1, -1, DSME_CLEARFR);
 
 	HFree (pss);
+
+	TextEntry3DO = FALSE;
 
 	return success;
 } 

@@ -29,6 +29,8 @@
 #include "setup.h"
 #include "gamestr.h"
 #include "colors.h"
+// for bool TextEntry3DO
+#include "gameopt.h"
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL/SDL_screenkeyboard.h>
@@ -279,6 +281,8 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 
 	// process the pending character buffer
 	ch = GetNextCharacter ();
+	if (TextEntry3DO && ch == UNICHAR_SPACE)
+		ch = UNICHAR_TAB;
 	if (!ch && PulsedInputState.menu[KEY_MENU_ANY])
 	{	// keyboard repeat, but only when buffer empty
 		ch = GetLastCharacter ();
@@ -307,6 +311,8 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 			}
 		}
 		ch = GetNextCharacter ();
+		if (TextEntry3DO && ch == UNICHAR_SPACE)
+			ch = UNICHAR_TAB;
 	}
 
 	if (PulsedInputState.menu[KEY_MENU_DELETE])

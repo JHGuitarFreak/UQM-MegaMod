@@ -53,6 +53,7 @@ static NamingCallback *namingCB;
 BOOLEAN NewGameInit;
 BYTE OutfitOrShipyard = 0;
 BOOLEAN SaveOrLoad = FALSE;
+BOOLEAN TextEntry3DO = FALSE;
 
 void
 ConfirmSaveLoad (STAMP *MsgStamp)
@@ -347,11 +348,13 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	{
 		Setting = GLOBAL_SIS (CommanderName);
 		tes.MaxSize = sizeof (GLOBAL_SIS (CommanderName));
+		TextEntry3DO = is3DO (optWhichFonts);
 	}
 	else
 	{
 		Setting = GLOBAL_SIS (ShipName);
 		tes.MaxSize = sizeof (GLOBAL_SIS (ShipName));
+		TextEntry3DO = FALSE;
 	}
 
 	// text entry setup
@@ -387,6 +390,8 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	if (namingCB)
 		namingCB ();
+
+	TextEntry3DO = FALSE;
 }
 
 static BOOLEAN

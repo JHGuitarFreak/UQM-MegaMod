@@ -33,6 +33,7 @@ extern BOOLEAN NewGameInit;
 
 extern BYTE OutfitOrShipyard;
 extern BOOLEAN SaveOrLoad;
+extern BOOLEAN TextEntry3DO;
 
 #if defined(__cplusplus)
 }
