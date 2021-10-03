@@ -27,6 +27,7 @@
 #include "../../sounds.h"
 #include "../../starmap.h"
 #include "libs/mathlib.h"
+#include "../../build.h"
 
 
 static bool GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys);
@@ -226,6 +227,10 @@ GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 
 		// Androsynth ruins have several lander reports which form a story
 		GenerateDefault_landerReportCycle (solarSys);
+		
+		// "Kill" the Androsynth once you learn they are gone
+		if (CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
+			KillRace (ANDROSYNTH_SHIP);
 
 		return false; // do not remove the node from the surface
 	}

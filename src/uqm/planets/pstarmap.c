@@ -47,11 +47,14 @@
 #include <stdlib.h>
 #include <ctype.h> 
 		// For isdigit()
+#include "../build.h"
+		// For StartSphereTracking()
 
 typedef enum {
 	NORMAL_STARMAP    = 0,
 	WAR_ERA_STARMAP   = 1,
 	CONSTELLATION_MAP = 2,
+	HOMEWORLDS_MAP = 3,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -175,7 +178,7 @@ DrawCursor (COORD curs_x, COORD curs_y)
 }
 
 static void
-DrawDestReticule (POINT dest)
+DrawReticule (POINT dest, BOOLEAN loc)
 {
 	STAMP s;
 
@@ -183,7 +186,7 @@ DrawDestReticule (POINT dest)
 			UNIVERSE_TO_DISPX (dest.x),
 			UNIVERSE_TO_DISPY (dest.y)
 		);
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 107);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 107 + loc);
 
 	DrawStamp (&s);
 }
@@ -708,6 +711,63 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	 	SetContextForeGroundColor (oldColor);
 	}
 
+	// This draws reticules over known alien Homeworlds
+	if (which_space <= 1 && which_starmap == HOMEWORLDS_MAP)
+	{
+		COUNT i;
+		BOOLEAN MetTheSyreen = (GET_GAME_STATE (SYREEN_HOME_VISITS)
+			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON));
+
+		for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
+		{
+			BYTE Index = star_array[i].Index;
+			
+			if ((CheckSphereTracking (DRUUGE_SHIP)
+					&& Index == DRUUGE_DEFINED)
+					|| (CheckSphereTracking (SPATHI_SHIP)
+						&& Index == SPATHI_DEFINED)
+					|| (CheckSphereTracking (UTWIG_SHIP)
+						&& Index == UTWIG_DEFINED)
+					|| (CheckAlliance (SYREEN_SHIP) != DEAD_GUY
+						&& MetTheSyreen
+						&& Index == SYREEN_DEFINED)
+					|| (MetTheSyreen && Index == EGG_CASE0_DEFINED)
+					|| (GET_GAME_STATE (SLYLANDRO_HOME_VISITS)
+						&& Index == SLYLANDRO_DEFINED)
+					|| (CheckSphereTracking (PKUNK_SHIP)
+						&& Index == PKUNK_DEFINED)
+					|| (CheckSphereTracking (ZOQFOTPIK_SHIP)
+						&& Index == ZOQFOT_DEFINED)
+					|| (CheckSphereTracking (SUPOX_SHIP)
+						&& Index == SUPOX_DEFINED)
+					|| (CheckSphereTracking (THRADDASH_SHIP)
+						&& Index == THRADD_DEFINED)
+					|| (CheckSphereTracking (UMGAH_SHIP)
+						&& Index == UMGAH_DEFINED)
+					|| (CheckSphereTracking (VUX_SHIP)
+						&& Index == VUX_DEFINED)
+					|| (CheckSphereTracking (ILWRATH_SHIP)
+						&& Index == ILWRATH_DEFINED)
+					|| (CheckSphereTracking (MYCON_SHIP)
+						&& Index == MYCON_DEFINED)
+					|| (CheckSphereTracking (ORZ_SHIP)
+						&& Index == ORZ_DEFINED)
+					|| ((GET_GAME_STATE (STARBASE_AVAILABLE)
+						|| CheckSphereTracking (YEHAT_SHIP))
+						&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY
+						&& Index == YEHAT_DEFINED)
+					|| (CheckAlliance (CHMMR_SHIP) != DEAD_GUY
+						&& Index == CHMMR_DEFINED)
+					|| (CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY
+						&& Index == ANDROSYNTH_DEFINED)
+					|| (CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY
+						&& GET_GAME_STATE (STARBASE_AVAILABLE)
+						&& Index == SHOFIXTI_DEFINED)
+					|| Index == START_COLONY_DEFINED
+				)
+				DrawReticule (star_array[i].star_pt, TRUE);
+		}
+	}
 	do
 	{
 		BYTE star_type;
@@ -757,7 +817,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		DrawAutoPilot (&GLOBAL (autopilot));
 		if (IS_HD)
-			DrawDestReticule (GLOBAL (autopilot));
+			DrawReticule (GLOBAL (autopilot), FALSE);
 	}
 
 	if (transition_pending)
@@ -943,18 +1003,19 @@ UpdateCursorInfo (UNICODE *prevbuf)
 
 	// Display star map title.
 	if (which_starmap == CONSTELLATION_MAP)
-	{	
-		// "- Known constellations -"
+	{	// "- Known constellations -"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 4));
 	}
 	else if (which_starmap == WAR_ERA_STARMAP)
-	{	
-		// "- War Era map from 2133 -"
+	{	// "- War Era map from 2133 -"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 3));
 	}
+	else if (which_starmap == HOMEWORLDS_MAP)
+	{	// "- War Era map from 2133 -"
+		utf8StringCopy (buf, sizeof (buf), "- Known Homeworlds -");
+	}
 	else
-	{	
-		// "(Star Search: F6 | Toggle Maps: F7)"
+	{	// "(Star Search: F6 | Toggle Maps: F7)"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (
 				FEEDBACK_STRING_BASE + (isPC (optWhichFonts) ? 2 : 5)));
 	}
