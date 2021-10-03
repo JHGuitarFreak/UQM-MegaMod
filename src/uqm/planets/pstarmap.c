@@ -758,8 +758,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY
 						&& Index == YEHAT_DEFINED)
 					|| (CheckAlliance (CHMMR_SHIP) != DEAD_GUY
+						&& GET_GAME_STATE (STARBASE_AVAILABLE)
 						&& Index == CHMMR_DEFINED)
 					|| (CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY
+						&& GET_GAME_STATE (STARBASE_AVAILABLE)
 						&& Index == ANDROSYNTH_DEFINED)
 					|| (CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY
 						&& GET_GAME_STATE (STARBASE_AVAILABLE)
