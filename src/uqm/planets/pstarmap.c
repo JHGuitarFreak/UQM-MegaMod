@@ -694,7 +694,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		Color oldColor;
 		POINT *CNPtr;
 		LINE l;
-		BYTE c = 0x3F + IF_HD(0x11);
+		BYTE c = 0x3F + IF_HD (0x11);
 		CNPtr = &constel_array[0];
 
 		oldColor = SetContextForeGroundColor (BUILD_COLOR_RGBA (c, c, c, 0xFF));

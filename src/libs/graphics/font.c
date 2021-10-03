@@ -101,7 +101,7 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 {
 	// Preserve current foreground color for full correctness
 	const Color oldfg = SetContextForeGroundColor (trace);
-	const BYTE stroke = RES_SCALE(1);
+	const BYTE stroke = RES_SCALE (1);
 	const POINT t_baseline = pText->baseline;
 	POINT offset;
 
@@ -110,8 +110,12 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 		for (offset.y = -stroke; offset.y <= stroke; ++offset.y)
 		{
 			if (hypot (offset.x, offset.y) > stroke) continue;
-			pText->baseline = MAKE_POINT(t_baseline.x + offset.x, t_baseline.y + offset.y);
-			font_DrawText(pText);
+			pText->baseline =
+					MAKE_POINT (
+							t_baseline.x + offset.x,
+							t_baseline.y + offset.y
+						);
+			font_DrawText (pText);
 		}
 	}
 	pText->baseline = t_baseline;
