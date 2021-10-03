@@ -291,7 +291,7 @@ GetRaceKnownSize (RACE_ID race)
  * in the shipyard.
  * flag == TRUE: start an alliance
  * flag == FALSE: end an alliance
- * flag == 3: Can build their ships regardless
+ * flag == 2: Can build their ships regardless
  */
 BOOLEAN
 SetRaceAllied (RACE_ID race, BYTE flag)
@@ -307,13 +307,15 @@ SetRaceAllied (RACE_ID race, BYTE flag)
 
 	if (FleetPtr->allied_state == DEAD_GUY)
 	{
-		if (flag == 3)
-			FleetPtr->allied_state = CAN_BUILD;
+		/* Strange request, silently ignore it */
 	}
-	else
+	else if (flag != 2)
 	{
-		FleetPtr->allied_state = (flag == 1 ? GOOD_GUY : flag == 3 ? CAN_BUILD : BAD_GUY);
+		FleetPtr->allied_state = (flag ? GOOD_GUY : BAD_GUY);
 	}
+
+	if (flag == 2)
+		FleetPtr->can_build = TRUE;
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 	return TRUE;
@@ -709,15 +711,6 @@ loadGameCheats (void)
 	} 
 	else
 		loadFuel = 0;
-
-	if (optUnlockShips)
-	{
-		for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
-		{
-			if (CheckAlliance (i) != GOOD_GUY)
-				SetRaceAllied (i, 3);
-		}
-	}
 	
 	if (optUnlockUpgrades)
 	{

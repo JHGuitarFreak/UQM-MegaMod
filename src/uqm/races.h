@@ -382,6 +382,9 @@ typedef struct
 			 * '(BYTE) ~0' means no function to call. */
 	POINT dest_loc;
 			/* Location to which the fleet (center) is moving. */
+	BOOLEAN can_build;
+			/* Determines if you can build the ship regardless
+			 * of allegiance */
 
 } FLEET_INFO;
 
@@ -391,7 +394,6 @@ enum
 	DEAD_GUY = 0,  // Race is extinct
 	GOOD_GUY,      // Race is allied with the player
 	BAD_GUY,       // Race is not allied with the player
-	CAN_BUILD,	   // Ships can be built regardless
 };
 
 static inline FLEET_INFO *
