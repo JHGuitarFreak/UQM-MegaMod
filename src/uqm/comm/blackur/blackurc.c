@@ -39,7 +39,7 @@ static LOCDATA blackurq_desc =
 	NULL_RESOURCE, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	BLACKURQ_CONVERSATION_PHRASES, /* PlayerPhrases */
-	8, /* NumAnimations */
+	9, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			7, /* StartIndex */
