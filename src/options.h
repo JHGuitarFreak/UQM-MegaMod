@@ -45,6 +45,8 @@ extern unsigned int loresBlowupScale;
 extern unsigned int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
+
+// Added options
 extern BOOLEAN optRequiresReload;
 extern BOOLEAN optRequiresRestart;
 extern BOOLEAN optCheatMode;
@@ -99,6 +101,8 @@ extern BOOLEAN optHyperStars;
 extern BOOLEAN optPlanetTexture;
 extern int optFlagshipColor;
 extern BOOLEAN optNoHQEncounters;
+extern BOOLEAN optDeCleansing;
+
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSpeech;

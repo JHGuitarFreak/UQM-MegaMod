@@ -140,7 +140,7 @@ typedef struct globalopts_struct {
 			spaceMusic, volasMusic, directionalJoystick, wholeFuel,
 			fuelRange, extended, nomad, gameOver, shipDirectionIP,
 			hazardColors, orzCompFont, shipFacingHS, nonStopOscill,
-			hyperStars, planetTexture, noHQEncounters;
+			hyperStars, planetTexture, noHQEncounters, deCleansing;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
 			landerHold, coloredPlanet, planetStyle, starBackground,
 			scanStyle, scopeStyle, landerStyle, flagshipColor;

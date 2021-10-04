@@ -80,7 +80,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         12
-#define CHOICE_COUNT       72
+#define CHOICE_COUNT       73
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       16
 #define LABEL_COUNT         5
@@ -110,7 +110,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
 	2, 2, 2, 3, 2, 2, 2, 2, 2, 2,   // 60-69
-	2, 2 };                         // 70-71
+	2, 2, 2 };                      // 70-72
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -213,6 +213,7 @@ static WIDGET *music_widgets[] = {
 
 static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[24]),   // JMS: cheatMode on/off
+	(WIDGET *)(&choices[72]),   // Kohr-Ah DeCleansing mode
 	(WIDGET *)(&choices[25]),   // Precursor Mode
 	(WIDGET *)(&choices[26]),   // Time Dilation
 	(WIDGET *)(&choices[27]),   // Bubble Warp
@@ -687,6 +688,7 @@ SetDefaults (void)
 	choices[69].selected = opts.planetTexture;
 	choices[70].selected = opts.flagshipColor;
 	choices[71].selected = opts.noHQEncounters;
+	choices[72].selected = opts.deCleansing;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -773,6 +775,7 @@ PropagateResults (void)
 	opts.planetTexture = choices[69].selected;
 	opts.flagshipColor = choices[70].selected;
 	opts.noHQEncounters = choices[71].selected;
+	opts.deCleansing = choices[72].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1727,6 +1730,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->planetTexture = optPlanetTexture ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->flagshipColor = (optFlagshipColor == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->noHQEncounters = optNoHQEncounters ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2219,6 +2223,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("cheat.noHQEncounters", opts->noHQEncounters == OPTVAL_ENABLED);
 	optNoHQEncounters = (opts->noHQEncounters == OPTVAL_ENABLED);
+
+	res_PutBoolean ("cheat.deCleansing", opts->deCleansing == OPTVAL_ENABLED);
+	optDeCleansing = opts->deCleansing == OPTVAL_ENABLED;
 
 	if (opts->scanlines && !IS_HD) {
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

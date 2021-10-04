@@ -864,6 +864,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 			{
 				HEVENT hEvent;
 				EVENT *EventPtr;
+				BOOLEAN DeCleanse = FALSE;
 
 				hEvent = AllocEvent ();
 				LockEvent (hEvent, &EventPtr);
@@ -877,8 +878,25 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 						 EventPtr->year_index,
 						 EventPtr->func_index);
 #endif /* DEBUG_LOAD */
+				if (optDeCleansing && EventPtr->func_index == KOHR_AH_VICTORIOUS_EVENT)
+				{
+					UnlockEvent (hEvent);
+					printf("EventPtr->year_index: %d\n", EventPtr->year_index);
+
+					if (EventPtr->year_index == 2158)
+					{
+						FreeEvent (hEvent);
+						DeCleanse = TRUE;
+					}
+					continue;
+				}
+
 				UnlockEvent (hEvent);
 				PutEvent (hEvent);
+
+				if (optDeCleansing && DeCleanse)
+					AddEvent (ABSOLUTE_EVENT, 2, 17, START_YEAR + YEARS_TO_KOHRAH_VICTORY,
+							KOHR_AH_VICTORIOUS_EVENT);
 			}
 			break;
 		case STAR_TAG:

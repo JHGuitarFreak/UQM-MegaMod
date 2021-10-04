@@ -58,6 +58,8 @@ unsigned int loresBlowupScale;
 unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
+
+// Added options
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;
 BOOLEAN optCheatMode;
@@ -112,6 +114,8 @@ BOOLEAN optHyperStars;
 BOOLEAN optPlanetTexture;
 int optFlagshipColor;
 BOOLEAN optNoHQEncounters;
+BOOLEAN optDeCleansing;
+
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
