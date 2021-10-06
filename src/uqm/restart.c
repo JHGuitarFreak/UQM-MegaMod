@@ -192,6 +192,7 @@ InitFlash (MENU_STATE *pMS)
 	Flash_setFrameTime (pMS->flashContext, ONE_SECOND / 16);
 	Flash_setState (pMS->flashContext, FlashState_fadeIn,
 		(3 * ONE_SECOND) / 16);
+	Flash_setPulseBox (pMS->flashContext, FALSE);
 
 	DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
 	Flash_start (pMS->flashContext);
