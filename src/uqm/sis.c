@@ -45,8 +45,6 @@ static StatMsgMode curMsgMode = SMM_DEFAULT;
 
 static const UNICODE *describeWeapon (BYTE moduleType);
 
-BOOLEAN pcRectBool = FALSE;
-
 void
 RepairSISBorder (void)
 {
@@ -149,7 +147,6 @@ DrawSISTitle (UNICODE *pStr)
 	r.extent.height = SIS_TITLE_HEIGHT - RES_SCALE (1);
 	SetContextFGFrame (Screen);
 	SetContextClipRect (&r);
-
 	if (isPC (optWhichFonts) || SaveOrLoad)
 		SetContextFont (TinyFont);
 	else
@@ -201,14 +198,14 @@ DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
 	switch (difficulty)
 	{
 		case EASY:
-			strncpy(TempDiff, diffSTR[1], 11);
+			strncpy (TempDiff, diffSTR[1], 11);
 			break;
 		case HARD:
-			strncpy(TempDiff, diffSTR[2], 11);
+			strncpy (TempDiff, diffSTR[2], 11);
 			break;
 		case NORM:
 		default:
-			strncpy(TempDiff, diffSTR[0], 11);
+			strncpy (TempDiff, diffSTR[0], 11);
 	}
 
 	if (seed)
@@ -336,10 +333,9 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		//   the size to TextRect()
 		BYTE char_deltas[128];
 		BYTE *pchar_deltas;
+		SIZE bl;
 
-		// t.baseline.x = RES_SCALE(3);
-		t.align = ALIGN_LEFT;
-
+		t.align = ALIGN_CENTER;
 		TextRect (&t, &text_r, char_deltas);
 		if (text_r.extent.width + t.baseline.x + RES_SCALE(2) >= r.extent.width)
 		{	// the text does not fit the input box size and so
@@ -359,24 +355,36 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		if (CurPos >= 0 && CurPos <= t.CharCount)
 		{	// calc and draw the cursor
 			RECT cur_r = text_r;
+			TEXT h = t;
+			RECT text_ex;
+
+			if (CurPos > 0)
+			{	// recalculate cursor rect because of central alignment
+				UNICODE buffer[50];
+				strncpy(buffer, t.pStr, CurPos);
+				buffer[CurPos] = '\0';
+				h.pStr = buffer;
+				TextRect(&h, &text_ex, char_deltas);
+				cur_r = text_ex;
+			}
 
 			cur_r.corner.y = 0;
 			cur_r.extent.height = r.extent.height;
 
 			for (i = CurPos, pchar_deltas = char_deltas; i > 0; --i)
 				cur_r.corner.x += (SIZE)*pchar_deltas++;
-			if (CurPos < t.CharCount) /* end of line */
+			if (CurPos < h.CharCount) /* end of line */
 				cur_r.corner.x -= RES_SCALE(1);
 			
 			if (flags & DSME_BLOCKCUR)
 			{	// Use block cursor for keyboardless systems
 				SetCursorFlashBlock (TRUE);
-				if (CurPos == t.CharCount)
+				if (CurPos == h.CharCount)
 				{	// cursor at end-line -- use insertion point
 					cur_r.extent.width = RES_SCALE(1);
 					SetCursorFlashBlock (FALSE);
 				}
-				else if (CurPos + 1 == t.CharCount)
+				else if (CurPos + 1 == h.CharCount)
 				{	// extra pixel for last char margin
 					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
 				}
@@ -402,6 +410,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 			}
 			
 			SetCursorRect (&cur_r, OffScreenContext);
+			bl = cur_r.corner.x + RES_SCALE(1);
 		}
 
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
@@ -412,9 +421,9 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 			font_DrawText (&t);
 
 			// print extra chars
+			t.align = ALIGN_LEFT;
+			t.baseline.x = bl; // no matter where the cursor is - print extra text right after it
 			SetContextForeGroundColor (SIS_MESSAGE_EXTRA_TEXT_COLOR);
-			for (i = ExPos, pchar_deltas = char_deltas; i > 0; --i)
-				t.baseline.x += (SIZE)*pchar_deltas++;
 			t.pStr = skipUTF8Chars (t.pStr, ExPos);
 			t.CharCount = (COUNT)~0;
 			font_DrawText (&t);
@@ -1901,7 +1910,6 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 
 		// Flash rectangle is not empty, start or continue flashing.
 		flash_rect[0] = *pRect;
-		pcRectBool = pcRect;
 
 		flash_rect[0].corner.x += clip_r.corner.x;
 		flash_rect[0].corner.y += clip_r.corner.y;
@@ -1915,17 +1923,20 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 				Flash_setMergeFactors (flashContext[i], 3, 2, 2);
 				Flash_setSpeed (flashContext[i], 0, ONE_SECOND / 16, 0, ONE_SECOND / 16);
 				Flash_setFrameTime (flashContext[i], ONE_SECOND / 16);
+				Flash_setPulseBox(flashContext[i], pcRect);
 				Flash_start (flashContext[i]);
 				if (i == (count_r - 1))
 				scheduleFlashAlarm ();
 			}
 			else
+			{
+				Flash_setPulseBox(flashContext[i], pcRect);
 				Flash_setRect (flashContext[i], &flash_rect[i]);
+			}
 		}
 	}
 	else
 	{
-		pcRectBool = FALSE;
 		// Flash rectangle is empty. Stop flashing.
 		if (flashContext[0] != NULL)
 		{
@@ -1988,6 +1999,11 @@ PauseFlash (void)
 		flashAlarm = 0;
 		flashPaused = TRUE;
 	}
+	for (BYTE i = 0; i < count_r; i++)
+	{
+		if (flashContext[i] != NULL && Flash_getPulseBox (flashContext[i]))
+				Flash_pause (flashContext[i]);
+	}
 }
 
 // Continue flashing after PauseFlash (), if flashing was active.
@@ -1996,6 +2012,12 @@ ContinueFlash (void)
 {
 	if (flashPaused)
 	{
+		for (BYTE i = 0; i < count_r; i++)// need to do before setting clock
+		{
+			if (flashContext[i] != NULL && Flash_getPulseBox (flashContext[i]))
+				Flash_continue (flashContext[i]);
+		}
+
 		scheduleFlashAlarm ();
 		flashPaused = FALSE;
 	}
