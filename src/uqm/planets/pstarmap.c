@@ -1258,7 +1258,8 @@ SplitStarName (STAR_SEARCH_STATE *pSS)
 
 	// skip leading space
 	for (next = buf; *next != '\0' &&
-			getCharFromString ((const UNICODE **)&next) == ' ';
+			getCharFromString ((const UNICODE **)&next)
+				== (isPC (optWhichFonts) ? UNICHAR_SPACE : UNICHAR_TAB);
 			buf = next)
 		;
 	if (*buf == '\0')
@@ -1270,7 +1271,8 @@ SplitStarName (STAR_SEARCH_STATE *pSS)
 
 	// See if player gave a prefix
 	for (buf = next; *next != '\0' &&
-			getCharFromString ((const UNICODE **)&next) != ' ';
+			getCharFromString ((const UNICODE **)&next)
+				!= (isPC (optWhichFonts) ? UNICHAR_SPACE : UNICHAR_TAB);
 			buf = next)
 		;
 	if (*buf != '\0')
@@ -1278,7 +1280,8 @@ SplitStarName (STAR_SEARCH_STATE *pSS)
 		sep = buf;
 		// skip separating space
 		for (buf = next; *next != '\0' &&
-				getCharFromString ((const UNICODE **)&next) == ' ';
+				getCharFromString ((const UNICODE **)&next)
+					== (isPC (optWhichFonts) ? UNICHAR_SPACE : UNICHAR_TAB);
 				buf = next)
 			;
 	}
