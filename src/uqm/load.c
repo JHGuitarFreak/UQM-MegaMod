@@ -369,12 +369,12 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	{	// Let's make savegames work even between different resolution modes.	
 		GSPtr->velocity.vector.width  <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.vector.height <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.fract.width	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.fract.width   <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.fract.height  <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.error.width	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.error.width   <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.error.height  <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.incr.width	  <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.incr.height	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.incr.width    <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.incr.height   <<= RESOLUTION_FACTOR;
 	}
 
 	read_32 (fh, &magic);

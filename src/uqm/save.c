@@ -1001,7 +1001,7 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 	BYTE res_scale;
 
 	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
-		res_scale = RESOLUTION_FACTOR; 
+		res_scale = RESOLUTION_FACTOR;
 	else
 		res_scale = 0;
 
@@ -1021,8 +1021,8 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 	write_16  (fh, GSPtr->ip_location.x);
 	write_16  (fh, GSPtr->ip_location.y);
 	/* STAMP ShipStamp */
-	write_16  (fh, RES_DESCALE(GSPtr->ShipStamp.origin.x));
-	write_16  (fh, RES_DESCALE(GSPtr->ShipStamp.origin.y));
+	write_16  (fh, RES_DESCALE (GSPtr->ShipStamp.origin.x));
+	write_16  (fh, RES_DESCALE (GSPtr->ShipStamp.origin.y));
 	write_16  (fh, GSPtr->ShipFacing);
 	write_8   (fh, GSPtr->ip_planet);
 	write_8   (fh, GSPtr->in_orbit);
@@ -1061,8 +1061,8 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 static void
 SaveSisState (const SIS_STATE *SSPtr, void *fp)
 {
-	write_32  (fp, RES_DESCALE(SSPtr->log_x));
-	write_32  (fp, RES_DESCALE(SSPtr->log_y));
+	write_32  (fp, RES_DESCALE (SSPtr->log_x));
+	write_32  (fp, RES_DESCALE (SSPtr->log_y));
 	write_32  (fp, SSPtr->ResUnits);
 	write_32  (fp, SSPtr->FuelOnBoard);
 	write_16  (fp, SSPtr->CrewEnlisted);
@@ -1089,7 +1089,7 @@ static void
 SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 {
 	write_32 (fp, SUMMARY_TAG);
-	write_32 (fp, 160 + strlen(SummPtr->SaveName));
+	write_32 (fp, 160 + strlen (SummPtr->SaveName));
 	SaveSisState (&SummPtr->SS, fp);
 
 	write_8  (fp, SummPtr->Activity);
@@ -1104,7 +1104,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 	write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS);
 	write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES);
 	write_8  (fp, SummPtr->res_factor);
-	write_a8 (fp, (BYTE *) SummPtr->SaveName, strlen(SummPtr->SaveName));
+	write_a8 (fp, (BYTE *) SummPtr->SaveName, strlen (SummPtr->SaveName));
 }
 
 /* Save the Star Description chunk. This is not to be confused with

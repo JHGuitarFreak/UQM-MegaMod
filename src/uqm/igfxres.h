@@ -116,7 +116,6 @@
 #define NPCBUBBLE_MASK_PMAP_ANIM "graphics.npcbubble"
 #define ORBENTER_PMAP_ANIM "graphics.orbitenter"
 #define ORBPLAN_MASK_PMAP_ANIM "graphics.planets"
-#define ORBPLAN_INTERSECT_MASK_PMAP_ANIM "graphics.planets.intersect"
 #define OUTFIT_PMAP_ANIM "graphics.outfit"
 #define PLANET00_BIG_MASK_PMAP_ANIM "planet.oolite.large"
 #define PLANET00_MED_MASK_PMAP_ANIM "planet.oolite.medium"
