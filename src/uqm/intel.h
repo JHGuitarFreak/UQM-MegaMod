@@ -119,6 +119,11 @@ antiCheatAlt (int PrecursorType)
 		return FALSE;
 }
 
+static inline BOOLEAN
+isNetwork (void)
+{
+	return (PlayerControl[0] & NETWORK_CONTROL || PlayerControl[1] & NETWORK_CONTROL);
+}
 
 #if defined(__cplusplus)
 }

@@ -33,6 +33,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/log.h"
 #include "libs/misc.h"
+#include "intel.h"
 
 
 //#define DEBUG_PROCESS
@@ -294,7 +295,7 @@ CalcView (DPOINT *pNewScrollPt, SIZE next_reduction,
 	dy = ((SDWORD)(LOG_SPACE_HEIGHT >> 1) - pNewScrollPt->y);
 	dx = WRAP_DELTA_X (dx);
 	dy = WRAP_DELTA_Y (dy);
-	if (ships_alive == 1)
+	if (ships_alive == 1 && (optMeleeScale != TFB_SCALE_STEP || isNetwork()))
 	{
 #define ORG_JUMP_X ((SDWORD)DISPLAY_ALIGN(LOG_SPACE_WIDTH / 75))
 #define ORG_JUMP_Y ((SDWORD)DISPLAY_ALIGN(LOG_SPACE_HEIGHT / 75))
