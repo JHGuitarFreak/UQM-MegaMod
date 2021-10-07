@@ -96,7 +96,10 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		pMinPlanet->alternate_colormap = NULL;
 		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
+		{
+			if (!(EXTENDED && GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ORZ_SHIP) == DEAD_GUY))
 			pMinPlanet->data_index |= PLANET_SHIELDED;
+		}
 		pMinPlanet->NumPlanets = 1;
 		ComputeSpeed (pMinPlanet, FALSE, 1);
 	}
@@ -148,9 +151,12 @@ GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		solarSys->MoonDesc[0].data_index = PELLUCID_WORLD;
 		solarSys->MoonDesc[0].alternate_colormap = NULL;
 		
-		if(!PrimeSeed){
+		if (!PrimeSeed)
+		{
 			solarSys->MoonDesc[0].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
-		} else {
+		}
+		else
+		{
 			solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS + MOON_DELTA;
 			angle = NORMALIZE_ANGLE (LOWORD (RandomContext_Random (SysGenRNG)));
 			solarSys->MoonDesc[0].location.x =
@@ -262,6 +268,19 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 			solarSys->SysInfo.PlanetInfo.ScanSeed[BIOLOGICAL_SCAN] = rand_val;
 			
+			if (EXTENDED
+				&& GET_GAME_STATE(KOHR_AH_FRENZY) && CheckAlliance(ORZ_SHIP) == DEAD_GUY &&
+				GET_GAME_STATE(SPATHI_SHIELDED_SELVES))
+			{
+				solarSys->SysInfo.PlanetInfo.ScanSeed[ENERGY_SCAN] = rand_val;
+
+				LoadStdLanderFont(&solarSys->SysInfo.PlanetInfo);
+				solarSys->PlanetSideFrame[1] =
+					CaptureDrawable(LoadGraphic(RUINS_MASK_PMAP_ANIM));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString =
+					CaptureStringTable(LoadStringTable(RUINS_STRTAB));
+			}
+
 			if (PrimeSeed)
 			{
 				solarSys->SysInfo.PlanetInfo.PlanetRadius = 120;
@@ -323,17 +342,27 @@ static COUNT
 GenerateSpathi_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (CurStarDescPtr->Index == SPATHI_DEFINED
-		&& matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (CurStarDescPtr->Index == SPATHI_DEFINED)
 	{
-		// This check is redundant since the retrieval bit will keep the
-		// node from showing up again
-		if (GET_GAME_STATE (UMGAH_BROADCASTERS))
-		{	// already picked up
-			return 0;
-		}
+		if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+		{
+			// This check is redundant since the retrieval bit will keep the
+			// node from showing up again
+			if (GET_GAME_STATE (UMGAH_BROADCASTERS))
+			{	// already picked up
+				return 0;
+			}
 
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+			return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		}
+		else if (EXTENDED
+			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) &&
+			GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ORZ_SHIP) == DEAD_GUY &&
+			GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
+		{
+			return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 4,
+				0, whichNode, info);
+		}
 	}
 
 	if (EXTENDED
@@ -359,18 +388,29 @@ static bool
 GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (CurStarDescPtr->Index == SPATHI_DEFINED
-		&& matchWorld(solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (CurStarDescPtr->Index == SPATHI_DEFINED)
 	{
-		assert (!GET_GAME_STATE (UMGAH_BROADCASTERS) && whichNode == 0);
+		if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+		{
+			assert (!GET_GAME_STATE (UMGAH_BROADCASTERS) && whichNode == 0);
 
-		GenerateDefault_landerReport (solarSys);
-		SetLanderTakeoff ();
+			GenerateDefault_landerReport (solarSys);
+			SetLanderTakeoff ();
 
-		SET_GAME_STATE (UMGAH_BROADCASTERS, 1);
-		SET_GAME_STATE (UMGAH_BROADCASTERS_ON_SHIP, 1);
+			SET_GAME_STATE (UMGAH_BROADCASTERS, 1);
+			SET_GAME_STATE (UMGAH_BROADCASTERS_ON_SHIP, 1);
 
-		return true; // picked up
+			return true; // picked up
+		}
+		else if (EXTENDED
+			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) &&
+			GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ORZ_SHIP) == DEAD_GUY &&
+			GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
+		{
+			GenerateDefault_landerReportCycle (solarSys);
+
+			return false; // do not remove the node
+		}
 	}
 
 	if (EXTENDED 
