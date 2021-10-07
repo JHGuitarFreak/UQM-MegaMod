@@ -343,8 +343,8 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 			}
 		}
 	}
-
-	on_screen = min (offset_b + 1, self->num_children); // Determine how much widgets we're gonna draw
+	// Determine how much widgets we're gonna draw
+	on_screen = (((offset_b + 1) < self->num_children) ? (offset_b + 1) : self->num_children);
 
 	for (widget_index = offset_t; widget_index < on_screen; widget_index++)
 	{
@@ -986,7 +986,7 @@ Widget_HandleEventSlider (WIDGET *_self, int event)
 	case WIDGET_EVENT_LEFT:
 		self->value -= self->step;
 		if (self->value < self->min)
-			self->value = self->min;			
+			self->value = self->min;
 		return TRUE;
 	case WIDGET_EVENT_RIGHT:
 		self->value += self->step;
