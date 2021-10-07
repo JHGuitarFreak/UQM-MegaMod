@@ -33,6 +33,7 @@
 #include "uqm/sis.h"
 #include "../../gendef.h"
 #include "../../starmap.h"
+#include "uqm/oscill.h"
 
 
 static const NUMBER_SPEECH_DESC melnorme_numbers_english;
@@ -1434,6 +1435,7 @@ DoSell (RESPONSE_REF R)
 			}
 			AlienTalkSegue (1);
 
+			FlattenOscilloscope();
 			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
 			SleepThread (ONE_SECOND / 2);
 			TimeIn = GetTimeCounter ();
