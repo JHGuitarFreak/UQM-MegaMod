@@ -178,11 +178,11 @@ void
 DrawHyperCoords (POINT universe)
 {
 	UNICODE buf[100];
+	char *SpaceOrNull = (isPC (optWhichFonts) ? STR_SPACE : "");
 
 	snprintf (buf, sizeof buf, "%03u.%01u%s:%s%03u.%01u",
 			universe.x / 10, universe.x % 10,
-			is3DO (optWhichFonts) ? "" : " ",
-			is3DO (optWhichFonts) ? "" : " ",
+			SpaceOrNull, SpaceOrNull,
 			universe.y / 10, universe.y % 10);
 
 	DrawSISTitle (buf);
@@ -191,39 +191,31 @@ DrawHyperCoords (POINT universe)
 void
 DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
 {
-	UNICODE buf[100];
-	char diffSTR[4][7] = {"Normal", "Easy", "Hard"};
-	char TempDiff[11];
-
-	switch (difficulty)
-	{
-		case EASY:
-			strncpy (TempDiff, diffSTR[1], 11);
-			break;
-		case HARD:
-			strncpy (TempDiff, diffSTR[2], 11);
-			break;
-		case NORM:
-		default:
-			strncpy (TempDiff, diffSTR[0], 11);
-	}
-
 	if (seed)
 	{
-		memset (&buf[0], 0, sizeof (buf));
-		snprintf (buf, sizeof buf, "Difficulty: %s%s%s", TempDiff, (extended ? " | Extended" : ""), (nomad ? " | Nomad" : ""));
-		DrawSISMessage(buf);
+		UNICODE buf[100];
+		char TempDiff[11];
 
-		memset (&buf[0], 0, sizeof (buf));
+		strncpy (
+			TempDiff, GAME_STRING (MAINMENU_STRING_BASE + 56 + difficulty),
+			ARRAY_SIZE (TempDiff)
+		);
+
+		snprintf (buf, sizeof buf, "%s %s%s%s",
+				GAME_STRING (MAINMENU_STRING_BASE + 55),
+				TempDiff,
+				(extended ? GAME_STRING (MAINMENU_STRING_BASE + 59) : ""),
+				(nomad ? GAME_STRING (MAINMENU_STRING_BASE + 60) : "")
+			);
+		DrawSISMessage (buf);
+
 		snprintf (buf, sizeof buf, "%u", seed);
 		DrawSISTitle (buf);
 	}
 	else
 	{
-		memset (&buf[0], 0, sizeof (buf));
-		snprintf (buf, sizeof buf, "");
-		DrawSISMessage (buf);
-		DrawSISTitle (buf);
+		DrawSISMessage ("");
+		DrawSISTitle ("");
 	}
 }
 

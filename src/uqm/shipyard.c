@@ -120,7 +120,7 @@ showRemainingCrew (void)
 	t.align = ALIGN_LEFT;
 	t.CharCount = (COUNT)~0;
 	t.pStr = buf;
-	sprintf (buf, "Remaining Crew:");
+	sprintf (buf, GAME_STRING (STARBASE_STRING_BASE + 6));
 
 	font_DrawText(&t);
 
@@ -134,7 +134,7 @@ showRemainingCrew (void)
 	if (CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		sprintf (buf, "%s", STR_INFINITY_SIGN);
 	else if (remaining_crew == 0)
-		sprintf (buf, "Cdr. Hayes");
+		sprintf (buf, GAME_STRING (STARBASE_STRING_BASE + 7));
 	else
 		sprintf (buf, "%u", remaining_crew);
 
@@ -384,7 +384,7 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 		sprintf (buf, "%u", StarShipPtr->crew_level);
 	else if (StarShipPtr->crew_level == 0)
 		// XXX: "SCRAP" needs to be moved to starcon.txt
-		utf8StringCopy (buf, sizeof (buf), "SCRAP");
+		utf8StringCopy (buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 5));
 	else
 		sprintf (buf, "%u/%u", StarShipPtr->crew_level, maxCrewLevel);
 

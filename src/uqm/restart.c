@@ -76,34 +76,42 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	char *Credit;
 	UNICODE buf[64];
 
-	// Re-load all of the restart menu fonts and graphics so the text and background show in the correct size and resolution.
-	if (optRequiresRestart || !PacksInstalled()) {	
+	// Re-load all of the restart menu fonts and graphics so the text and
+	// background show in the correct size and resolution.
+	if (optRequiresRestart || !PacksInstalled ())
+	{
 		DestroyFont (TinyFont);
 		DestroyFont (PlyrFont);
 		DestroyFont (StarConFont);
-		if (pMS->CurFrame) {
+		if (pMS->CurFrame)
+		{
 			DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 			pMS->CurFrame = 0;
 		}
-	}	
+	}
 
-	// DC: Load the different menus and fonts depending on the resolution factor
-	if (!IS_HD) {
-		if (optRequiresRestart || !PacksInstalled()) {
+	// Load the different menus and fonts depending on the resolution factor
+	if (!IS_HD)
+	{
+		if (optRequiresRestart || !PacksInstalled ())
+		{
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
 			StarConFont = LoadFont (STARCON_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
+			pMS->CurFrame = CaptureDrawable (
+					LoadGraphic (RESTART_PMAP_ANIM));
 	} else {
-		if (optRequiresRestart || !PacksInstalled()) {
+		if (optRequiresRestart || !PacksInstalled ())
+		{
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
 			StarConFont = LoadFont (STARCON_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));
+			pMS->CurFrame = CaptureDrawable (
+					LoadGraphic (RESTART_PMAP_ANIM_HD));
 	}
 
 	s.frame = pMS->CurFrame;
@@ -120,11 +128,13 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	// Put the version number in the bottom right corner.
 	SetContextFont (TinyFont);
 	t.pStr = buf;
-	t.baseline.x = SCREEN_WIDTH - RES_SCALE(2);
-	t.baseline.y = SCREEN_HEIGHT - RES_SCALE(2);
+	t.baseline.x = SCREEN_WIDTH - RES_SCALE (2);
+	t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
-	sprintf (buf, "v%d.%d.%g %s", UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
+	sprintf (buf, "v%d.%d.%g %s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			UQM_EXTRA_VERSION);
 	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 
@@ -132,11 +142,11 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	if (optMainMenuMusic)
 	{
 		memset (&buf[0], 0, sizeof (buf));
-		t.baseline.x = RES_SCALE(2);
-		t.baseline.y = SCREEN_HEIGHT - RES_SCALE(2);
+		t.baseline.x = RES_SCALE (2);
+		t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 		t.align = ALIGN_LEFT;
-		Credit = (Rando == 0 ? "Saibuster" : (Rando == 1 ? "Rush AX" : "Mark Vera"));
-		sprintf(buf, "Main Menu Music by %s", Credit);
+		sprintf (buf, "%s %s", GAME_STRING (MAINMENU_STRING_BASE + 61),
+				GAME_STRING (MAINMENU_STRING_BASE + 62 + Rando));
 		font_DrawText (&t);
 	}
 
@@ -153,7 +163,7 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 }
 
 static BOOLEAN
-RestartMessage(MENU_STATE *pMS, TimeCount TimeIn)
+RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 {	
 	if (optRequiresRestart)
 	{
@@ -172,7 +182,7 @@ RestartMessage(MENU_STATE *pMS, TimeCount TimeIn)
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
 		// Could not find graphics pack - message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
+		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
 		SetTransitionSource (NULL);
 		Flash_continue (pMS->flashContext);
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);
@@ -259,27 +269,37 @@ DoRestart (MENU_STATE *pMS)
 		switch (pMS->CurState)
 		{
 			case LOAD_SAVED_GAME:
-				if (!RestartMessage (pMS, TimeIn)) {
+				if (!RestartMessage (pMS, TimeIn))
+				{
 					LastActivity = CHECK_LOAD;
 					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
 					optLoadGame = FALSE;
-				} else
+				}
+				else
 					return TRUE;
 				break;
 			case START_NEW_GAME:
-				if (optCustomSeed == 404) {
+				if (optCustomSeed == 404)
+				{
 					SetFlashRect (NULL, FALSE);
-					DoPopupWindow ("Error 404: Universe Not Found");
+					DoPopupWindow (
+							GAME_STRING (MAINMENU_STRING_BASE + 65));
 					// Got to restart -message
-					SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
+					SetMenuSounds (
+							MENU_SOUND_UP | MENU_SOUND_DOWN,
+							MENU_SOUND_SELECT);
 					SetTransitionSource (NULL);
-					SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+					SleepThreadUntil (
+							FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 					GLOBAL (CurrentActivity) = CHECK_ABORT;
 					restartGame = TRUE;
-				} else if (!RestartMessage (pMS, TimeIn)) {
+				}
+				else if (!RestartMessage (pMS, TimeIn))
+				{
 					LastActivity = CHECK_LOAD | CHECK_RESTART;
 					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
-				} else
+				}
+				else
 					return TRUE;
 				break;
 			case PLAY_SUPER_MELEE:

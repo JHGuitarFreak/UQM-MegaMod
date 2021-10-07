@@ -51,11 +51,11 @@
 		// For StartSphereTracking()
 
 typedef enum {
-	NORMAL_STARMAP    = 0,
-	WAR_ERA_STARMAP   = 1,
-	CONSTELLATION_MAP = 2,
-	HOMEWORLDS_MAP = 3,
-	RAINBOW_MAP = 4,
+	NORMAL_STARMAP,
+	WAR_ERA_STARMAP,
+	CONSTELLATION_MAP,
+	HOMEWORLDS_MAP,
+	RAINBOW_MAP,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -1017,28 +1017,14 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	STAR_DESC *SDPtr;
 	STAR_DESC *BestSDPtr;
 
-	// Display star map title.
-	if (which_starmap == CONSTELLATION_MAP)
-	{	// "- Known constellations -"
-		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 4));
-	}
-	else if (which_starmap == WAR_ERA_STARMAP)
-	{	// "- War Era map from 2133 -"
-		utf8StringCopy (buf, sizeof (buf), GAME_STRING (FEEDBACK_STRING_BASE + 3));
-	}
-	else if (which_starmap == HOMEWORLDS_MAP)
-	{	// "- War Era map from 2133 -"
-		utf8StringCopy (buf, sizeof (buf), "- Known Homeworlds -");
-	}
-	else if (which_starmap == RAINBOW_MAP)
-	{	// "- War Era map from 2133 -"
-		utf8StringCopy (buf, sizeof (buf), "- Rainbow Worlds -");
-	}
-	else
+	if (which_starmap == NORMAL_STARMAP)
 	{	// "(Star Search: F6 | Toggle Maps: F7)"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (
-				FEEDBACK_STRING_BASE + (isPC (optWhichFonts) ? 2 : 5)));
+				FEEDBACK_STRING_BASE + 2 + is3DO (optWhichFonts)));
 	}
+	else
+		utf8StringCopy (buf, sizeof (buf),
+				GAME_STRING (FEEDBACK_STRING_BASE + 3 + which_starmap));
 
 	pt.x = UNIVERSE_TO_DISPX (cursorLoc.x);
 	pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
@@ -1138,7 +1124,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 			// In QS, don't display star search button - the search is unusable.
 			else
 			{
-				strcpy (buf, "QuasiSpace");
+				strcpy (buf, GAME_STRING (NAVIGATION_STRING_BASE + 1));
 				DrawSISMessage (buf);
 			}
 		}
