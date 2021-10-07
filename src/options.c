@@ -115,6 +115,7 @@ BOOLEAN optPlanetTexture;
 int optFlagshipColor;
 BOOLEAN optNoHQEncounters;
 BOOLEAN optDeCleansing;
+BOOLEAN optMeleeObstacles;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

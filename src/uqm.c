@@ -197,6 +197,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  flagshipColor);
 	DECL_CONFIG_OPTION(bool, noHQEncounters);
 	DECL_CONFIG_OPTION(bool, deCleansing);
+	DECL_CONFIG_OPTION(bool, meleeObstacles);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -397,6 +398,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  flagshipColor,     OPT_PC),
 		INIT_CONFIG_OPTION(  noHQEncounters,    false),
 		INIT_CONFIG_OPTION(  deCleansing,       false),
+		INIT_CONFIG_OPTION(  meleeObstacles,    false),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -612,6 +614,7 @@ main (int argc, char *argv[])
 	optFlagshipColor = options.flagshipColor.value;
 	optNoHQEncounters = options.noHQEncounters.value;
 	optDeCleansing = options.deCleansing.value;
+	optMeleeObstacles = options.meleeObstacles.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1012,6 +1015,8 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->noHQEncounters, "cheat.noHQEncounters");
 
 	getBoolConfigValue (&options->deCleansing, "cheat.deCleansing");
+
+	getBoolConfigValue (&options->meleeObstacles, "cheat.meleeObstacles");
 	
 	if (res_IsInteger ("config.player1control"))
 	{

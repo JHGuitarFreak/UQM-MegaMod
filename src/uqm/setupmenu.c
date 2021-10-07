@@ -80,7 +80,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         12
-#define CHOICE_COUNT       73
+#define CHOICE_COUNT       74
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       16
 #define LABEL_COUNT         5
@@ -110,7 +110,7 @@ static int choice_widths[CHOICE_COUNT] = {
 	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
 	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
 	2, 2, 2, 3, 2, 2, 2, 2, 2, 2,   // 60-69
-	2, 2, 2 };                      // 70-72
+	2, 2, 2, 2 };                   // 70-74
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -217,12 +217,14 @@ static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[25]),   // Precursor Mode
 	(WIDGET *)(&choices[26]),   // Time Dilation
 	(WIDGET *)(&choices[27]),   // Bubble Warp
+	(WIDGET *)(&choices[29]),   // Head Start
 	(WIDGET *)(&choices[28]),   // Unlock Ships
 	(WIDGET *)(&choices[30]),   // Unlock Upgrades
 	(WIDGET *)(&choices[31]),   // Infinite RU
 	(WIDGET *)(&choices[39]),   // Infinite Fuel
 	(WIDGET *)(&choices[43]),   // Add Devices
 	(WIDGET *)(&choices[71]),   // No HyperSpace Encounters
+	(WIDGET *)(&choices[73]),   // No Planets in melee
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 	
@@ -252,7 +254,6 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[56]),   // Game Over switch
 	(WIDGET *)(&choices[41]),   // Submenu switch
 	(WIDGET *)(&choices[60]),   // SIS Facing HyperSpace
-	(WIDGET *)(&choices[29]),   // Head Start
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -689,6 +690,7 @@ SetDefaults (void)
 	choices[70].selected = opts.flagshipColor;
 	choices[71].selected = opts.noHQEncounters;
 	choices[72].selected = opts.deCleansing;
+	choices[73].selected = opts.meleeObstacles;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -776,6 +778,7 @@ PropagateResults (void)
 	opts.flagshipColor = choices[70].selected;
 	opts.noHQEncounters = choices[71].selected;
 	opts.deCleansing = choices[72].selected;
+	opts.meleeObstacles = choices[73].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1731,6 +1734,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->flagshipColor = (optFlagshipColor == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->noHQEncounters = optNoHQEncounters ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -1877,6 +1881,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				NewGfxFlags |= TFB_GFXFLAGS_SCALE_HQXX;
 				res_PutString ("config.scaler", "hq");
 				break;
+			case OPTVAL_NO_SCALE:
 			default:
 				/* OPTVAL_NO_SCALE has no equivalent in gfxflags. */
 				res_PutString ("config.scaler", "no");
@@ -2227,11 +2232,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("cheat.deCleansing", opts->deCleansing == OPTVAL_ENABLED);
 	optDeCleansing = opts->deCleansing == OPTVAL_ENABLED;
 
-	if (opts->scanlines && !IS_HD) {
+	res_PutBoolean("cheat.meleeObstacles", opts->meleeObstacles == OPTVAL_ENABLED);
+	optMeleeObstacles = opts->meleeObstacles == OPTVAL_ENABLED;
+
+	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
-	} else {
+	else
 		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
-	}
 
 #if !(defined(ANDROID) || defined(__ANDROID__))
 	if (opts->fullscreen)
@@ -2240,7 +2247,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
 	// In HD, force the usage of no filter in 1280x960 windowed mode
 	// while forcing the usage of a filter in scaled modes.
-	if(IS_HD) {
+	if(IS_HD)
+	{
 		if (NewWidth == 1280 && !opts->fullscreen)
 		{
 			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;

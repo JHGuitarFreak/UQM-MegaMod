@@ -34,6 +34,7 @@
 #include "nameref.h"
 #include "setup.h"
 #include "units.h"
+#include "intel.h"
 
 
 FRAME stars_in_space;
@@ -257,7 +258,7 @@ InitShips (void)
 
 		if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
 			free_gravity_well ();
-		else
+		else if (!optMeleeObstacles || isNetwork ())
 		{
 #define NUM_ASTEROIDS 5
 			for (i = 0; i < NUM_ASTEROIDS; ++i)

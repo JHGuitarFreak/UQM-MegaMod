@@ -102,6 +102,7 @@ extern BOOLEAN optPlanetTexture;
 extern int optFlagshipColor;
 extern BOOLEAN optNoHQEncounters;
 extern BOOLEAN optDeCleansing;
+extern BOOLEAN optMeleeObstacles;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
