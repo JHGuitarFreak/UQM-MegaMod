@@ -329,7 +329,7 @@ Rebels (RESPONSE_REF R)
 			NPCPhrase (NO_ROOM);
 		else
 		{
-#define NUM_YEHAT_SHIPS 4
+#define NUM_YEHAT_SHIPS DIF_CASE (4, 4, 2)
 			if (NumVisits < NUM_YEHAT_SHIPS)
 				NPCPhrase (HAVE_FEW_SHIPS);
 			else

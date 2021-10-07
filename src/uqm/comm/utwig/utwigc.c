@@ -305,7 +305,7 @@ ExitConversation (RESPONSE_REF R)
 			NPCPhrase (HAVE_4_SHIPS);
 
 			AlienTalkSegue ((COUNT)~0);
-			AddEscortShips (UTWIG_SHIP, 4);
+			AddEscortShips (UTWIG_SHIP, DIF_CASE(4, 4, 2));
 		}
 	}
 }

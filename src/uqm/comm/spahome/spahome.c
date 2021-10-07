@@ -944,11 +944,14 @@ SpathiCouncil (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, good_password))
 	{
 		NPCPhrase (YES_GOOD_PASSWORD);
-		if (!IS_HD) {
+		if (!IS_HD) 
+		{
 			XFormColorMap (GetColorMapAddress (
 					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
 					), ONE_SECOND / 4);
-		} else {
+		} 
+		else
+		{
 			COUNT i = 0;
 			COUNT limit = CommData.NumAnimations;
 			

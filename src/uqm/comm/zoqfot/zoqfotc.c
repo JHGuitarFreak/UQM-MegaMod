@@ -839,7 +839,7 @@ Intro (void)
 	{
 		if (GET_GAME_STATE (ZOQFOT_DISTRESS))
 		{
-#define MAX_ZFP_SHIPS 4
+#define MAX_ZFP_SHIPS DIF_CASE (4, 4, 2)
 			NPCPhrase_cb (THANKS_FOR_RESCUE0, &SelectAlienZOQ);
 			NPCPhrase_cb (THANKS_FOR_RESCUE1, &SelectAlienPIK);
 			NPCPhrase_cb (THANKS_FOR_RESCUE2, &SelectAlienZOQ);

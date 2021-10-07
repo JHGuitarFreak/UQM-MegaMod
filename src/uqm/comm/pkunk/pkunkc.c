@@ -19,7 +19,7 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
-
+#include "../uqm/globdata.h"
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
@@ -111,7 +111,7 @@ ShipsReady (void)
 static void
 PrepareShip (void)
 {
-#define MAX_PKUNK_SHIPS 4
+#define MAX_PKUNK_SHIPS DIF_CASE (4, 4, 2)
 	if (AddEscortShips (PKUNK_SHIP, MAX_PKUNK_SHIPS))
 	{
 		BYTE mi, di, yi;
