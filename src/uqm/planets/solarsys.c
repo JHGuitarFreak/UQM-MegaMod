@@ -901,8 +901,6 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 	{
 		if (!IS_HD)
 			return DecFrameIndex(stars_in_space);
-		else if (planet->data_index >= PRECURSOR_STARBASE)
-			return planet->image.frame;
 		else
 			return planet->intersect.frame;
 	}
@@ -1192,21 +1190,35 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 						RescalePercentage (planet->image.frame, 50)
 					);
 	}
-	else if (planet->data_index == HIERARCHY_STARBASE)
+	else
 	{
-		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 16);
-	}
-	else if (planet->data_index == SA_MATRA)
-	{
-		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 19);
-	}
-	else if (planet->data_index == DESTROYED_STARBASE)
-	{
-		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 22);
-	}
-	else if (planet->data_index == PRECURSOR_STARBASE)
-	{
-		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 23);
+		COUNT percent = 0; // HD sprites have differents sizes, so intersect must be calculated accordingly
+
+		switch (planet->data_index)
+		{			
+			case SA_MATRA:
+				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 19);
+				percent = 50;
+				break;
+			case DESTROYED_STARBASE:
+				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 22);
+				percent = 75;
+				break;
+			case PRECURSOR_STARBASE:
+				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 23);
+				percent = 50;
+				break;
+			case HIERARCHY_STARBASE:
+			default:
+				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 16);
+				percent = 75;
+				break;
+		}
+		if (IS_HD && HDPackPresent)
+			planet->intersect.frame =
+			CaptureDrawable(
+				RescalePercentage(planet->image.frame, percent)
+			);
 	}
 }
 
