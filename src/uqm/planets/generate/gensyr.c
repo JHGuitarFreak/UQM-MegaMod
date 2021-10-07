@@ -146,7 +146,7 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	if (matchWorld (solarSys, world,
 			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-	{
+	{	/* Gaia */
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
 				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));

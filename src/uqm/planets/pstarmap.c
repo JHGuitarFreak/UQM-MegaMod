@@ -1112,11 +1112,13 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				OldContext = SetContext (OffScreenContext);
 				
 				if (show_war_era_situation)
-					SetContextForeGroundColor 
-						(BUILD_COLOR (MAKE_RGB15 (0x18, 0x00, 0x00), 0x00));
+					SetContextForeGroundColor (
+							BUILD_COLOR (
+								MAKE_RGB15 (0x18, 0x00, 0x00), 0x00));
 				else
-					SetContextForeGroundColor 
-						(BUILD_COLOR (MAKE_RGB15 (0x0E, 0xA7, 0xD9), 0x00));
+					SetContextForeGroundColor (
+							BUILD_COLOR (
+								MAKE_RGB15 (0x0E, 0xA7, 0xD9), 0x00));
 						
 				DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
 				SetContext (OldContext);

@@ -19,7 +19,6 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
-#include "../uqm/globdata.h"
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
