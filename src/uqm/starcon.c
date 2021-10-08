@@ -236,14 +236,14 @@ while (--ac > 0)
 
 #ifdef DEBUG
 	printf("Set Seed: %d\n", optCustomSeed);
-	printf("Set Difficulty: %s\n", DIF_STR(optDifficulty));
-	printf("Set Extended: %s\n", EXT_STR(optExtended));
-	printf("Set Nomad: %s\n\n", NOMAD_STR(optNomad));
+	printf("Set Difficulty: %s\n", DIF_STR (optDifficulty));
+	printf("Set Extended: %s\n", EXT_STR (optExtended));
+	printf("Set Nomad: %s\n\n", NOMAD_STR (optNomad));
 #endif
 	log_add(log_Info, "Set Seed: %d\n", optCustomSeed);
-	log_add(log_Info, "Set Difficulty: %s\n", DIF_STR(optDifficulty));
-	log_add(log_Info, "Set Extended: %s\n", EXT_STR(optExtended));
-	log_add(log_Info, "Set Nomad: %s\n\n", NOMAD_STR(optNomad));
+	log_add(log_Info, "Set Difficulty: %s\n", DIF_STR (optDifficulty));
+	log_add(log_Info, "Set Extended: %s\n", EXT_STR (optExtended));
+	log_add(log_Info, "Set Nomad: %s\n\n", NOMAD_STR (optNomad));
 
 //	OpenJournal ();
 	while (StartGame ())

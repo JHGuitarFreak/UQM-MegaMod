@@ -333,7 +333,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  whichIntro,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  whichShield,       OPT_3DO ),
 		INIT_CONFIG_OPTION(  smoothScroll,      OPT_PC ),
-		INIT_CONFIG_OPTION(	 meleeScale,        TFB_SCALE_TRILINEAR),
+		INIT_CONFIG_OPTION(  meleeScale,        TFB_SCALE_TRILINEAR),
 		INIT_CONFIG_OPTION(  subtitles,         true ),
 		INIT_CONFIG_OPTION(  stereoSFX,         false ),
 		INIT_CONFIG_OPTION(  musicVolumeScale,  1.0f ),

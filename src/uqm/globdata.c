@@ -446,7 +446,8 @@ InitGameStructures (void)
 	GLOBAL_SIS (Nomad) = optNomad;
 	GLOBAL_SIS (Seed) = optCustomSeed;
 
-	if (DIF_HARD && !PrimeSeed) {
+	if (DIF_HARD && !PrimeSeed)
+	{
 		srand (time (NULL));
 		GLOBAL_SIS (Seed) = (rand () % ((MAX_SEED - MIN_SEED) + MIN_SEED));
 	}

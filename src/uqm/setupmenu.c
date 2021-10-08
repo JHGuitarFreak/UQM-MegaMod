@@ -1711,7 +1711,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->directionalJoystick = optDirectionalJoystick ? OPTVAL_ENABLED : OPTVAL_DISABLED;	// For Android
 	opts->landerHold = (optLanderHold == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->ipTrans = (optIPScaler == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->difficulty = res_GetInteger("mm.difficulty");
+	opts->difficulty = res_GetInteger ("mm.difficulty");
 	opts->fuelRange = optFuelRange ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -2105,9 +2105,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.mainMenuMusic", opts->mainMenuMusic == OPTVAL_ENABLED);
 	optMainMenuMusic = opts->mainMenuMusic == OPTVAL_ENABLED;
 	if(!optMainMenuMusic)
-		FadeMusic (0,ONE_SECOND);
+		FadeMusic (0, ONE_SECOND);
 	else
-		FadeMusic (NORMAL_VOLUME+70, ONE_SECOND);
+		FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND);
 
 	res_PutBoolean ("mm.nebulae", opts->nebulae == OPTVAL_ENABLED);
 	optNebulae = opts->nebulae == OPTVAL_ENABLED;
@@ -2137,19 +2137,19 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optCustomBorder = opts->customBorder == OPTVAL_ENABLED;
 
 	SeedStuff = res_GetInteger ("mm.customSeed");
-	if(!SANE_SEED(SeedStuff))
+	if(!SANE_SEED (SeedStuff))
 		opts->customSeed = PrimeA;
 	else 
 		opts->customSeed = optCustomSeed;
 	res_PutInteger ("mm.customSeed", opts->customSeed);
 
-	res_PutBoolean("mm.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
 	optSpaceMusic = opts->spaceMusic == OPTVAL_ENABLED;
 
-	res_PutBoolean("mm.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
 	optVolasMusic = (opts->volasMusic == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
 	optWholeFuel = (opts->wholeFuel == OPTVAL_ENABLED);
 
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -2158,33 +2158,33 @@ SetGlobalOptions (GLOBALOPTS *opts)
 #endif
 
 	optLanderHold = (opts->landerHold == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean("mm.landerHold", opts->landerHold == OPTVAL_3DO);
+	res_PutBoolean ("mm.landerHold", opts->landerHold == OPTVAL_3DO);
 
 	optIPScaler = (opts->ipTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
+	res_PutBoolean ("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
 
 	optDifficulty = opts->difficulty;
-	res_PutInteger("mm.difficulty", opts->difficulty);
+	res_PutInteger ("mm.difficulty", opts->difficulty);
 
-	res_PutBoolean("mm.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
 	optFuelRange = (opts->fuelRange == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.extended", opts->extended == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.extended", opts->extended == OPTVAL_ENABLED);
 	optExtended = (opts->extended == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.nomad", opts->nomad == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.nomad", opts->nomad == OPTVAL_ENABLED);
 	optNomad = (opts->nomad == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.gameOver", opts->gameOver == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.gameOver", opts->gameOver == OPTVAL_ENABLED);
 	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
 	optShipDirectionIP = (opts->shipDirectionIP == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
 	optHazardColors = (opts->hazardColors == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
 	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
 
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
@@ -2231,7 +2231,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("cheat.deCleansing", opts->deCleansing == OPTVAL_ENABLED);
 	optDeCleansing = opts->deCleansing == OPTVAL_ENABLED;
 
-	res_PutBoolean("cheat.meleeObstacles", opts->meleeObstacles == OPTVAL_ENABLED);
+	res_PutBoolean ("cheat.meleeObstacles", opts->meleeObstacles == OPTVAL_ENABLED);
 	optMeleeObstacles = opts->meleeObstacles == OPTVAL_ENABLED;
 
 	if (opts->scanlines && !IS_HD)

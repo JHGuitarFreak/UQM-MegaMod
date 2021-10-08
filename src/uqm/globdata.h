@@ -1121,7 +1121,7 @@ extern void UninitGameStructures (void);
 #define NORM 0
 #define EASY 1
 #define HARD 2
-#define DIFFICULTY (GLOBAL_SIS(Difficulty) ? GLOBAL_SIS(Difficulty) : NORM)
+#define DIFFICULTY (GLOBAL_SIS (Difficulty) ? GLOBAL_SIS (Difficulty) : NORM)
 #define DIF_CASE(a,b,c) (DIFFICULTY == NORM ? (a) : (DIFFICULTY == EASY ? (b) : (c)))
 #define DIF_NORM (DIFFICULTY == NORM ? true : false)
 #define DIF_EASY (DIFFICULTY == EASY ? true : false)
