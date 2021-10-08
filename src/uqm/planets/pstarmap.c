@@ -1731,11 +1731,13 @@ DoMoveCursor (MENU_STATE *pMS)
 			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_TOGGLEMAP] 
+	else if (PulsedInputState.menu[KEY_MENU_TOGGLEMAP]
 		&& GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 	{
 		FlushInput ();
 		++which_starmap;
+		if (!GET_GAME_STATE (TRADED_WITH_MELNORME) && which_starmap == RAINBOW_MAP)
+			++which_starmap;
 		which_starmap %= NUM_STARMAPS;
 		
 		if (which_starmap == WAR_ERA_STARMAP) 
