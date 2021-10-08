@@ -45,6 +45,9 @@
 #include "options.h"
 #include "cons_res.h"
 
+#include "libs/resource/stringbank.h"
+// for StringBank_Create() & SplitString()
+
 enum
 {
 	START_NEW_GAME = 0,
@@ -55,7 +58,8 @@ enum
 };
 
 static BOOLEAN
-PacksInstalled(void){
+PacksInstalled (void)
+{
 	BOOLEAN packsInstalled;
 
 	if (!IS_HD)
@@ -65,6 +69,200 @@ PacksInstalled(void){
 
 	return packsInstalled;
 }
+
+#define CHOOSER_X (SCREEN_WIDTH >> 1)
+#define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
+
+#define LARGEST(a,b,c)(((a) > (b) && (a) > (c)) ? (a) : ((b) > (c)) ? (b) : (c))
+
+void
+DrawToolTips (int answer, RECT r)
+{
+	COUNT i;
+	TEXT t;
+	stringbank *bank = StringBank_Create ();
+	const char *lines[30];
+	const char *msg[30];
+	int line_count, win_w[3], win_h;
+
+	SetContextFont (TinyFont);
+
+	t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 66 + answer);
+	line_count = SplitString (t.pStr, '\n', 30, lines, bank);
+
+	/* Compute the dimensions of the label */
+	/*win_h = line_count * RES_SCALE(8) + RES_SCALE (8);
+	win_w[0] = 0;
+	for (i = 0; i < line_count; i++)
+	{
+		int len = utf8StringCount (lines[i]);
+		if (len > win_w[i])
+		{
+			win_w[i] = RES_SCALE (len);
+			printf ("win_w[%d]: %d\n", i, win_w[i]);
+		}
+	}
+	win_w[0] = LARGEST (win_w[0], win_w[1], win_w[2]);
+	win_w[0] = (win_w[0] * 5);*/
+
+	win_h = RES_SCALE (3 * 8 + 8);
+	win_w[0] = RES_SCALE (49 * 5);
+	r.extent = MAKE_EXTENT (win_w[0], win_h);
+	r.corner.x = RES_SCALE (
+		(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w[0])) >> 1);
+
+	DrawStarConBox (&r, RES_SCALE (1), BUILD_COLOR_RGBA (24,24,24,255),
+			BUILD_COLOR_RGBA (74,74,74,255), TRUE,
+			BUILD_COLOR_RGBA (81,81,81,255));
+	SetContextForeGroundColor (BLACK_COLOR);
+
+	t.baseline.x = r.corner.x
+		+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+	t.baseline.y = r.corner.y + RES_SCALE (10)
+			+ RES_SCALE (line_count < 2 ? 8 : (line_count > 2 ? 0 : 3));
+	for (i = 0; i < line_count; i++)
+	{
+		t.pStr = lines[i];
+		t.align = ALIGN_CENTER;
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+		t.baseline.y += RES_SCALE(8);
+	}
+
+	StringBank_Free (bank);
+}
+
+static void
+DrawDiffChooser (FRAME diff, BYTE answer, BOOLEAN confirm)
+{
+	STAMP s;
+	FONT oldFont;
+	TEXT t;
+	Color c;
+	RECT r;
+	COUNT i;
+
+	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
+	s.frame = diff;
+	DrawStamp (&s);
+
+	GetFrameRect (diff, &r);
+	r.corner.y += CHOOSER_Y + r.extent.height + RES_SCALE (1);
+	DrawToolTips (answer, r);
+
+	oldFont = SetContextFont (MicroFont);
+
+	c = SetContextForeGroundColor (MENU_TEXT_COLOR);
+	t.align = ALIGN_CENTER;
+	t.baseline.x = s.origin.x;
+	t.baseline.y = s.origin.y - RES_SCALE (20);
+
+	for (COUNT i = 0; i <= 2; i++)
+	{
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
+				+ (!i ? 1 : (i > 1 ? 2 : 0)));
+
+		SetContextForeGroundColor (
+				(i == answer) ?
+				(confirm ? c : MENU_HIGHLIGHT_COLOR) : BLACK_COLOR
+			);
+		font_DrawText (&t);
+
+		t.baseline.y += RES_SCALE (23);
+	}
+
+	SetContextFont (oldFont);
+	SetContextForeGroundColor (c);
+}
+
+static BOOLEAN
+DoDiffChooser (FRAME diff)
+{
+	static TimeCount LastInputTime;
+	static TimeCount InactTimeOut;
+	RECT oldRect;
+	STAMP s;
+	CONTEXT oldContext;
+	BOOLEAN response,done = FALSE;
+	BYTE a = 1;
+
+	InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
+	LastInputTime = GetTimeCounter ();
+
+	oldContext = SetContext (ScreenContext);
+	GetContextClipRect (&oldRect);
+	s = SaveContextFrame (NULL);
+
+	DrawDiffChooser (diff, a, FALSE);
+
+	FlushGraphics ();
+	FlushInput ();
+
+	while (!done)
+	{
+		UpdateInputState ();
+		if (PulsedInputState.menu[KEY_MENU_SELECT])
+		{
+			done = TRUE;
+			response = TRUE;
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+			DrawDiffChooser (diff, a, TRUE);
+		}
+		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
+				|| CurrentInputState.menu[KEY_EXIT])
+		{
+			done = TRUE;
+			response = FALSE;
+			DrawStamp (&s);
+		}
+		else if (PulsedInputState.menu[KEY_MENU_LEFT]
+				|| PulsedInputState.menu[KEY_MENU_UP])
+		{
+			a--;
+			if (a > 254)
+				a = 2;
+			PlayMenuSound (MENU_SOUND_MOVE);
+			DrawDiffChooser (diff, a, FALSE);
+			LastInputTime = GetTimeCounter();
+		}
+		else if (PulsedInputState.menu[KEY_MENU_DOWN]
+				|| PulsedInputState.menu[KEY_MENU_RIGHT])
+		{
+			a++;
+			if (a > 2)
+				a = 0;
+			PlayMenuSound (MENU_SOUND_MOVE);
+			DrawDiffChooser (diff, a, FALSE);
+			LastInputTime = GetTimeCounter ();
+		}
+		else if (GetTimeCounter () - LastInputTime > InactTimeOut
+			&& !optRequiresRestart && PacksInstalled ())
+		{	// timed out
+			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
+			done = TRUE;
+			response = FALSE;
+		}
+
+		SleepThread (ONE_SECOND / 30);
+	}
+
+	if (response)
+	{
+		optDifficulty = (!a ? OPTVAL_EASY :
+				(a > 1 ? OPTVAL_HARD : OPTVAL_NORMAL));
+
+		res_PutInteger ("mm.difficulty", optDifficulty);
+	}
+
+	DestroyDrawable (ReleaseDrawable (s.frame));
+	FlushInput ();
+	
+	SetContextClipRect (&oldRect);
+	SetContext (oldContext);
+
+	return response;
+}
+
 
 // Draw the full restart menu. Nothing is done with selections.
 static void
@@ -102,7 +300,9 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (
 					LoadGraphic (RESTART_PMAP_ANIM));
-	} else {
+	}
+	else
+	{
 		if (optRequiresRestart || !PacksInstalled ())
 		{
 			TinyFont = LoadFont (TINY_FONT_HD);
@@ -173,7 +373,7 @@ RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
 		SetTransitionSource (NULL);
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
-		GLOBAL (CurrentActivity) = CHECK_ABORT;	
+		GLOBAL (CurrentActivity) = CHECK_ABORT;
 		restartGame = TRUE;
 		return TRUE;
 	} 
@@ -296,6 +496,17 @@ DoRestart (MENU_STATE *pMS)
 				}
 				else if (!RestartMessage (pMS, TimeIn))
 				{
+					if (optDifficulty == OPTVAL_IMPO)
+					{
+						Flash_terminate (pMS->flashContext); //so it won't visibly stuck
+						if (!DoDiffChooser (SetRelFrameIndex(pMS->CurFrame, 6)))
+						{
+							LastInputTime = GetTimeCounter ();// if we timed out - don't start second credit roll
+							InitFlash (pMS);// reinit flash
+							return TRUE;
+						}
+						InitFlash(pMS);// reinit flash
+					}
 					LastActivity = CHECK_LOAD | CHECK_RESTART;
 					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
 				}
@@ -303,10 +514,12 @@ DoRestart (MENU_STATE *pMS)
 					return TRUE;
 				break;
 			case PLAY_SUPER_MELEE:
-				if (!RestartMessage (pMS, TimeIn)) {
+				if (!RestartMessage (pMS, TimeIn)) 
+				{
 					GLOBAL (CurrentActivity) = SUPER_MELEE;
 					optSuperMelee = FALSE;
-				} else
+				} 
+				else
 					return TRUE;
 				break;
 			case SETUP_GAME:
