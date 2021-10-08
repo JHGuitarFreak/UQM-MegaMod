@@ -286,19 +286,18 @@ static WIDGET *more_visual_widgets[] = {
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&choices[20]),
-	(WIDGET *)(&labels[2]),
-	(WIDGET *)(&textentries[0]),
-	(WIDGET *)(&controlentries[0]),
-	(WIDGET *)(&controlentries[1]),
-	(WIDGET *)(&controlentries[2]),
-	(WIDGET *)(&controlentries[3]),
-	(WIDGET *)(&controlentries[4]),
-	(WIDGET *)(&controlentries[5]),
-	(WIDGET *)(&controlentries[6]),
-	(WIDGET *)(&controlentries[7]),
-	(WIDGET *)(&buttons[9]),
+	(WIDGET *)(&choices[20]),       // Current layout
+	(WIDGET *)(&textentries[0]),    // Layout name
+	(WIDGET *)(&labels[2]),         // "Tap to Edit..."
+	(WIDGET *)(&controlentries[0]), // Up
+	(WIDGET *)(&controlentries[1]), // Down
+	(WIDGET *)(&controlentries[2]), // Left
+	(WIDGET *)(&controlentries[3]), // Right
+	(WIDGET *)(&controlentries[4]), // Weapon
+	(WIDGET *)(&controlentries[5]), // Special
+	(WIDGET *)(&controlentries[6]), // Escape
+	(WIDGET *)(&controlentries[7]), // Thrust
+	(WIDGET *)(&buttons[9]),        // Previous menu
 	NULL };
 
 static const struct
