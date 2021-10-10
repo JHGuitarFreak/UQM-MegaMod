@@ -73,48 +73,33 @@ PacksInstalled (void)
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
 
-#define LARGEST(a,b,c)(((a) > (b) && (a) > (c)) ? (a) : ((b) > (c)) ? (b) : (c))
-
 void
-DrawToolTips (int answer, RECT r)
+DrawToolTips (MENU_STATE *pMS, int answer)
 {
 	COUNT i;
 	TEXT t;
 	stringbank *bank = StringBank_Create ();
 	const char *lines[30];
-	const char *msg[30];
-	int line_count, win_w[3], win_h;
+	int line_count;
+	RECT r;
+	STAMP s;
 
 	SetContextFont (TinyFont);
 
+	GetFrameRect (SetRelFrameIndex (pMS->CurFrame, 6), &r);
+	r.corner.y += CHOOSER_Y + r.extent.height + RES_SCALE (1);
+
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 7);
+	r.extent = GetFrameBounds (s.frame);
+	r.corner.x = RES_SCALE (
+		(RES_DESCALE (ScreenWidth) - RES_DESCALE (r.extent.width)) >> 1);
+	s.origin = r.corner;
+	DrawStamp (&s);
+
+	SetContextForeGroundColor (BLACK_COLOR);
+
 	t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 66 + answer);
 	line_count = SplitString (t.pStr, '\n', 30, lines, bank);
-
-	/* Compute the dimensions of the label */
-	/*win_h = line_count * RES_SCALE(8) + RES_SCALE (8);
-	win_w[0] = 0;
-	for (i = 0; i < line_count; i++)
-	{
-		int len = utf8StringCount (lines[i]);
-		if (len > win_w[i])
-		{
-			win_w[i] = RES_SCALE (len);
-			printf ("win_w[%d]: %d\n", i, win_w[i]);
-		}
-	}
-	win_w[0] = LARGEST (win_w[0], win_w[1], win_w[2]);
-	win_w[0] = (win_w[0] * 5);*/
-
-	win_h = RES_SCALE (3 * 8 + 8);
-	win_w[0] = RES_SCALE (49 * 5);
-	r.extent = MAKE_EXTENT (win_w[0], win_h);
-	r.corner.x = RES_SCALE (
-		(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w[0])) >> 1);
-
-	DrawStarConBox (&r, RES_SCALE (1), BUILD_COLOR_RGBA (24,24,24,255),
-			BUILD_COLOR_RGBA (74,74,74,255), TRUE,
-			BUILD_COLOR_RGBA (81,81,81,255));
-	SetContextForeGroundColor (BLACK_COLOR);
 
 	t.baseline.x = r.corner.x
 		+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
@@ -133,22 +118,18 @@ DrawToolTips (int answer, RECT r)
 }
 
 static void
-DrawDiffChooser (FRAME diff, BYTE answer, BOOLEAN confirm)
+DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 {
 	STAMP s;
 	FONT oldFont;
 	TEXT t;
 	Color c;
-	RECT r;
-	COUNT i;
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
-	s.frame = diff;
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 6);
 	DrawStamp (&s);
 
-	GetFrameRect (diff, &r);
-	r.corner.y += CHOOSER_Y + r.extent.height + RES_SCALE (1);
-	DrawToolTips (answer, r);
+	DrawToolTips (pMS, answer);
 
 	oldFont = SetContextFont (MicroFont);
 
@@ -176,14 +157,15 @@ DrawDiffChooser (FRAME diff, BYTE answer, BOOLEAN confirm)
 }
 
 static BOOLEAN
-DoDiffChooser (FRAME diff)
+DoDiffChooser (MENU_STATE *pMS)
 {
 	static TimeCount LastInputTime;
 	static TimeCount InactTimeOut;
 	RECT oldRect;
 	STAMP s;
 	CONTEXT oldContext;
-	BOOLEAN response,done = FALSE;
+	BOOLEAN response = FALSE;
+	BOOLEAN done = FALSE;
 	BYTE a = 1;
 
 	InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
@@ -193,20 +175,23 @@ DoDiffChooser (FRAME diff)
 	GetContextClipRect (&oldRect);
 	s = SaveContextFrame (NULL);
 
-	DrawDiffChooser (diff, a, FALSE);
+	DrawDiffChooser (pMS, a, FALSE);
 
 	FlushGraphics ();
 	FlushInput ();
 
 	while (!done)
 	{
+		if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+			return FALSE;
+
 		UpdateInputState ();
 		if (PulsedInputState.menu[KEY_MENU_SELECT])
 		{
 			done = TRUE;
 			response = TRUE;
 			PlayMenuSound (MENU_SOUND_SUCCESS);
-			DrawDiffChooser (diff, a, TRUE);
+			DrawDiffChooser (pMS, a, TRUE);
 		}
 		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
 				|| CurrentInputState.menu[KEY_EXIT])
@@ -222,7 +207,7 @@ DoDiffChooser (FRAME diff)
 			if (a > 254)
 				a = 2;
 			PlayMenuSound (MENU_SOUND_MOVE);
-			DrawDiffChooser (diff, a, FALSE);
+			DrawDiffChooser (pMS, a, FALSE);
 			LastInputTime = GetTimeCounter();
 		}
 		else if (PulsedInputState.menu[KEY_MENU_DOWN]
@@ -232,7 +217,7 @@ DoDiffChooser (FRAME diff)
 			if (a > 2)
 				a = 0;
 			PlayMenuSound (MENU_SOUND_MOVE);
-			DrawDiffChooser (diff, a, FALSE);
+			DrawDiffChooser (pMS, a, FALSE);
 			LastInputTime = GetTimeCounter ();
 		}
 		else if (GetTimeCounter () - LastInputTime > InactTimeOut
@@ -270,8 +255,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 {
 	RECT r;
 	STAMP s;
-	TEXT t; 
-	char *Credit;
+	TEXT t;
 	UNICODE buf[64];
 
 	// Re-load all of the restart menu fonts and graphics so the text and
@@ -499,7 +483,7 @@ DoRestart (MENU_STATE *pMS)
 					if (optDifficulty == OPTVAL_IMPO)
 					{
 						Flash_terminate (pMS->flashContext); //so it won't visibly stuck
-						if (!DoDiffChooser (SetRelFrameIndex(pMS->CurFrame, 6)))
+						if (!DoDiffChooser (pMS))
 						{
 							LastInputTime = GetTimeCounter ();// if we timed out - don't start second credit roll
 							InitFlash (pMS);// reinit flash
