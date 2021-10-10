@@ -1508,15 +1508,18 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			if (response < pES->top_response)
 			{
 				pES->top_response = 0;
-				RefreshResponses(pES);
+				RefreshResponses (pES);
 			}
 			else if (y > SIS_SCREEN_HEIGHT)
 			{
 				pES->top_response = response;
-				RefreshResponses(pES);
+				RefreshResponses (pES);
 			}
 			UnbatchGraphics ();
 		}
+
+		if (IS_HD)
+			RefreshResponses (pES);
 
 		UpdateCommGraphics ();
 	}
