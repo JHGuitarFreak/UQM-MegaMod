@@ -134,6 +134,57 @@ TransformColor (Color *c, COUNT scan)
 	}
 }
 
+SBYTE
+ColorDelta(COUNT scan, DWORD avg)
+{
+	if (scan == NUM_SCAN_TYPES)
+		return 0;
+	else
+	{
+		SBYTE diff = 0;
+
+		if (avg > MAX_BRIGHTNESS(scan))
+			diff = -(SBYTE)(avg - MAX_BRIGHTNESS(scan));
+		else if (avg < MIN_BRIGHTNESS(scan))
+			diff = MIN_BRIGHTNESS(scan) - avg;
+
+		return diff;
+	}
+}
+
+void
+AdjustColor(Color *c, COUNT scan, COUNT height, COUNT width, SBYTE diff)
+{
+	for (COUNT y = 0; y < height; ++y)
+	{
+		for (COUNT x = 0; x < width; ++x, ++c)
+		{
+			switch (scan)
+			{
+			case MINERAL_SCAN:
+			{
+				c->r += diff;
+				break;
+			}
+			case ENERGY_SCAN:
+			{
+				c->r += diff;
+				c->g += diff;
+				c->b += diff;
+				break;
+			}
+			case BIOLOGICAL_SCAN:
+			{
+				c->g += diff;
+				break;
+			}
+			default:
+				break;
+			}
+		}
+	}
+}
+
 static void
 RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDef)
 {

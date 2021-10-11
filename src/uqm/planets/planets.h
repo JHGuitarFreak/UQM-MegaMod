@@ -109,6 +109,9 @@ enum
 
 #define NUM_RACE_RUINS  16
 
+#define MIN_BRIGHTNESS(a) ((a == ENERGY_SCAN) ? (50) : (55))
+#define MAX_BRIGHTNESS(a) ((a == ENERGY_SCAN) ? (90) : (135))
+
 typedef struct planet_desc PLANET_DESC;
 typedef struct star_desc STAR_DESC;
 typedef struct node_info NODE_INFO;
