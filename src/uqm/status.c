@@ -582,7 +582,7 @@ PostProcessStatus (ELEMENT *ShipPtr)
 			}
 
 			old_status_flags &= (LEFT | RIGHT | THRUST | WEAPON | SPECIAL);
-			if (old_status_flags)
+			if (old_status_flags && ShipPtr->crew_level != 0)
 			{
 				CaptainsWindow (
 						&StarShipPtr->RaceDescPtr->ship_data.captain_control,
