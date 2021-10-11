@@ -97,6 +97,12 @@ clearStopTalkingAnim (void)
 	CommData.AlienTalkDesc.AnimFlags &= ~TALK_DONE;
 }
 
+static inline void
+restartStopTalkingAnim (void)
+{
+	CommData.AlienTalkDesc.AnimFlags &= TALK_DONE;
+}
+
 static inline BOOLEAN
 signaledStopTalkingAnim (void)
 {
@@ -139,6 +145,7 @@ extern void RedrawSISComWindow (void);
 extern void SetCustomBaseLine (COUNT sentence, POINT bl, TEXT_ALIGN align);
 extern void FlushCustomBaseLine (void);
 extern void BlockTalkingAnim (COUNT trackStart, COUNT trackEnd);
+extern void UpdateDuty (BOOLEAN talk);
 
 extern BOOLEAN IsProbe;
 extern BOOLEAN IsAltSong;

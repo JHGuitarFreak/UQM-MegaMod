@@ -864,6 +864,19 @@ UpdateAnimations (BOOLEAN paused)
 	SetContext (OldContext);
 }
 
+void
+UpdateDuty (BOOLEAN talk)
+{
+	if (talk)
+	{
+		if (!TalkingFinished)
+			setRunTalkingAnim ();
+		CheckSubtitles ();
+		UpdateAnimations (FALSE);
+	}
+	UpdateSpeechGraphics ();
+}
+
 RECT DarkModeRect[6];
 
 void
@@ -1558,9 +1571,9 @@ DoLastReplay (LAST_REPLAY_STATE *pLRS)
 		pLRS->TimeOut = FadeMusic (0, ONE_SECOND * 2) + ONE_SECOND / 60;
 	}
 
-	UpdateCommGraphics ();
-	
-	SleepThreadUntil (pLRS->NextTime);
+	while (GetTimeCounter() < pLRS->NextTime)
+		UpdateCommGraphics ();
+		
 	pLRS->NextTime = GetTimeCounter () + COMM_ANIM_RATE;
 
 	return TRUE;

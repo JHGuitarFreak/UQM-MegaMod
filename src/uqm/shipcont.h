@@ -34,6 +34,7 @@ extern BOOLEAN StarMap (void);
 
 extern void DrawCargoStrings (BYTE OldElement, BYTE NewElement);
 extern void ShowRemainingCapacity (void);
+extern void DrawRainbowPlanet (COUNT planet);
 
 extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
 
