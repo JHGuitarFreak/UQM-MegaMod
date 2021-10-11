@@ -758,6 +758,21 @@ UninitEncounter (void)
 								}
 							}
 
+							if (IS_HD)
+							{
+								RECT r;
+								POINT p;
+
+								GetFrameRect (ship_s.frame, &r);
+								p = GetFrameHot (ship_s.frame);
+
+								r.corner = ship_s.origin;
+								r.corner.x -= p.x;
+								r.corner.y += p.y;
+								SetContextForeGroundColor (BLACK_COLOR);
+								DrawFilledRectangle (&r);
+							}
+
 							DrawStamp (&ship_s);
 						}
 					}
