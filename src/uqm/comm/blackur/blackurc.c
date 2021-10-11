@@ -59,7 +59,7 @@ static LOCDATA blackurq_desc =
 		},
 		{	// New eye animation
 			42, /* StartIndex */
-			8, /* NumFrames */
+			7, /* NumFrames */
 			CIRCULAR_ANIM, /* AnimFlags */
 			ONE_SECOND / 15, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
