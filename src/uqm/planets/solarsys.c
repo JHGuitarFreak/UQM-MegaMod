@@ -1202,7 +1202,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 				break;
 			case DESTROYED_STARBASE:
 				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 22);
-				percent = 75;
+				percent = 90;
 				break;
 			case PRECURSOR_STARBASE:
 				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 23);
@@ -1211,7 +1211,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 			case HIERARCHY_STARBASE:
 			default:
 				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 16);
-				percent = 75;
+				percent = 90;
 				break;
 		}
 		if (IS_HD && HDPackPresent)
