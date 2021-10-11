@@ -19,7 +19,7 @@
 #include "../commall.h"
 #include "../comandr/resinst.h"
 #include "strings.h"
-#include "../../../options.h"
+#include "options.h"
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/setup.h"
@@ -31,6 +31,7 @@
 #include "libs/inplib.h"
 #include "uqm/oscill.h"
 #include "uqm/nameref.h"
+#include "uqm/controls.h"
 
 
 static void TellMission (RESPONSE_REF R);
@@ -163,6 +164,90 @@ static LOCDATA commander_desc =
 };
 
 static DWORD CurBulletinMask;
+
+COUNT
+DoSellMinerals (void)
+{
+	COUNT total = 0;
+	BOOLEAN Sleepy = TRUE;
+
+	FlushInput ();
+
+	for (COUNT i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+	{
+		COUNT amount;
+		DWORD TimeIn = 0;
+
+		if (i == 0)
+		{
+			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
+			TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+			while (GetTimeCounter () <= TimeIn)
+			{
+				if (AnyButtonPress (TRUE) ||
+					(GLOBAL(CurrentActivity) & CHECK_ABORT))
+				{
+					Sleepy = FALSE;
+					break;
+				}
+				UpdateDuty (FALSE);
+			}
+
+			if (Sleepy)
+				DrawCargoStrings ((BYTE)0, (BYTE)0);
+		}
+		else if (Sleepy)
+		{
+			DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
+		}
+
+		if ((amount = GLOBAL_SIS (ElementAmounts[i])) != 0)
+		{
+			total += amount * GLOBAL (ElementWorth[i]);
+			do
+			{
+				if (!Sleepy || AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					Sleepy = FALSE;
+					GLOBAL_SIS (ElementAmounts[i]) = 0;
+					GLOBAL_SIS (TotalElementMass) -= amount;
+					DeltaSISGauges (0, 0, amount * GLOBAL(ElementWorth[i]));
+					break;
+				}
+
+				UpdateDuty (FALSE);
+
+				--GLOBAL_SIS (ElementAmounts[i]);
+				--GLOBAL_SIS (TotalElementMass);
+				TaskSwitch ();
+				DrawCargoStrings ((BYTE)i, (BYTE)i);
+				ShowRemainingCapacity ();
+				DeltaSISGauges (0, 0, GLOBAL(ElementWorth[i]));
+			} while (--amount);
+		}
+		if (Sleepy)
+		{
+			TimeIn = GetTimeCounter () + (ONE_SECOND / 4);
+			while (GetTimeCounter () <= TimeIn)
+			{
+				if (AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					Sleepy = FALSE;
+					break;
+				}
+				UpdateDuty (FALSE);
+			}
+		}
+	}
+
+	SleepThread (ONE_SECOND / 2);
+
+	ClearSISRect (DRAW_SIS_DISPLAY);
+
+	return total;
+}
 
 static void
 ByeBye (RESPONSE_REF R)
@@ -1634,65 +1719,11 @@ NormalStarbase (RESPONSE_REF R)
 static void
 SellMinerals (RESPONSE_REF R)
 {
-	COUNT i, total;
-	BOOLEAN Sleepy;
+	COUNT total;
 	RESPONSE_REF pStr1 = 0;
 	RESPONSE_REF pStr2 = 0;
 
-	FlattenOscilloscope ();
-	total = 0;
-	Sleepy = TRUE;
-	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
-	{
-		COUNT amount;
-		DWORD TimeIn = 0;
-
-		if (i == 0)
-		{
-			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
-			SleepThread (ONE_SECOND / 2);
-			TimeIn = GetTimeCounter ();
-			DrawCargoStrings ((BYTE)0, (BYTE)0);
-		}
-		else if (Sleepy)
-		{
-			DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
-			TimeIn = GetTimeCounter ();
-		}
-
-		if ((amount = GLOBAL_SIS (ElementAmounts[i])) != 0)
-		{
-			total += amount * GLOBAL (ElementWorth[i]);
-			do
-			{
-				if (!Sleepy || AnyButtonPress (TRUE) ||
-						(GLOBAL (CurrentActivity) & CHECK_ABORT))
-				{
-					Sleepy = FALSE;
-					GLOBAL_SIS (ElementAmounts[i]) = 0;
-					GLOBAL_SIS (TotalElementMass) -= amount;
-					DeltaSISGauges (0, 0, amount * GLOBAL (ElementWorth[i]));
-					break;
-				}
-				
-				--GLOBAL_SIS (ElementAmounts[i]);
-				--GLOBAL_SIS (TotalElementMass);
-				TaskSwitch ();
-				TimeIn = GetTimeCounter ();
-				DrawCargoStrings ((BYTE)i, (BYTE)i);
-				ShowRemainingCapacity ();
-				DeltaSISGauges (0, 0, GLOBAL (ElementWorth[i]));
-			} while (--amount);
-		}
-		if (Sleepy) {
-			SleepThreadUntil (TimeIn + (ONE_SECOND / 4));
-			TimeIn = GetTimeCounter ();
-		}
-	}
-	SleepThread (ONE_SECOND / 2);
-
-	ClearSISRect (DRAW_SIS_DISPLAY);
-// DrawStorageBays (FALSE);
+	total = DoSellMinerals();
 
 	if (total < 1000)
 	{
