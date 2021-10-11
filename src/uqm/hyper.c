@@ -1890,17 +1890,8 @@ SeedUniverse (void)
 					// JMS_GFX: Draw stars in hyperspace.
 					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 					{	
-						if (!optHyperStars)
-						{
-
-							HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-								hyperstars[which_spaces_star_gfx],
-								STAR_TYPE (star_type) * NUM_STAR_COLORS
-								+ STAR_COLOR (star_type));
-						}
-						else
-						{
-							// The color, then the size and finally
+						if (optHyperStars)
+						{	// The color, then the size and finally
 							// the frame offset for the actual animation
 							HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
 								hyperspacesuns, STAR_COLOR(star_type) * NUM_STAR_TYPES * NUM_SUNS_FRAMES
@@ -1942,32 +1933,43 @@ SeedUniverse (void)
 				LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
 				which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
-				// Most holes go 100, 150, 200 or 150, 200, 250
-				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-					hyperholes[which_spaces_star_gfx],
-					STAR_TYPE (star_type) * NUM_HOLES_FRAMES);
-				
-				// Green, orange and yellow need bigger holes
-				if (STAR_COLOR (star_type) == GREEN_BODY 
-					|| STAR_COLOR (star_type) == ORANGE_BODY 
-					|| STAR_COLOR (star_type) == YELLOW_BODY)
+				if (!optHyperStars && (GET_GAME_STATE(ARILOU_SPACE_SIDE) <= 1))
+				{
+					HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
+						hyperstars[which_spaces_star_gfx],
+						STAR_TYPE(star_type) * NUM_STAR_COLORS
+						+ STAR_COLOR(star_type));
+				}
+				else
+				{	// Most holes go 100, 150, 200 or 150, 200, 250
+					HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
+						hyperholes[which_spaces_star_gfx],
+						STAR_TYPE (star_type) * NUM_HOLES_FRAMES);
+					
+					// Green, orange and yellow need bigger holes
+					if (STAR_COLOR (star_type) == GREEN_BODY 
+						|| STAR_COLOR (star_type) == ORANGE_BODY 
+						|| STAR_COLOR (star_type) == YELLOW_BODY)
+						HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
+							HyperSpaceElementPtr->current.image.frame,
+							NUM_HOLES_FRAMES);
+					
+					// Super giant blue needs a bigger hole
+					if (STAR_COLOR (star_type) == BLUE_BODY 
+						&& STAR_TYPE (star_type) == SUPER_GIANT_STAR)
+						HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
+							HyperSpaceElementPtr->current.image.frame,
+							NUM_HOLES_FRAMES);
+					
+					// The actual animation
 					HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
 						HyperSpaceElementPtr->current.image.frame,
-						NUM_HOLES_FRAMES);
-				
-				// Super giant blue needs a bigger hole
-				if (STAR_COLOR (star_type) == BLUE_BODY 
-					&& STAR_TYPE (star_type) == SUPER_GIANT_STAR)
-					HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
-						HyperSpaceElementPtr->current.image.frame,
-						NUM_HOLES_FRAMES);
-				
-				// The actual animation
-				HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
-					HyperSpaceElementPtr->current.image.frame,
-					frameCounter % NUM_HOLES_FRAMES);
+						frameCounter % NUM_HOLES_FRAMES);
+	
+					HyperSpaceElementPtr->current.image.farray = &hyperholes[which_spaces_star_gfx];
+				}
 
-				HyperSpaceElementPtr->current.image.farray = &hyperholes[which_spaces_star_gfx];
+
 				HyperSpaceElementPtr->preprocess_func = NULL;
 				HyperSpaceElementPtr->postprocess_func = NULL;
 				HyperSpaceElementPtr->collision_func = hyper_collision;
