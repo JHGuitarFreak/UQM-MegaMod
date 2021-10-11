@@ -153,11 +153,13 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
 	r.extent.height = (RES_SCALE(129) - r.corner.y);
-	DrawStarConBox (&r, RES_SCALE(1),
-			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
-			TRUE, DEVICES_BACK_COLOR);
 
-	DrawBorder(13, FALSE);
+	if (!optCustomBorder && !IS_HD)
+		DrawStarConBox (&r, RES_SCALE(1),
+				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+				TRUE, DEVICES_BACK_COLOR);
+	else
+		DrawBorder(13, FALSE);
 
 	// print the "DEVICES" title
 	SetContextFont (StarConFont);
