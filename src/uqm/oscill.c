@@ -62,8 +62,33 @@ UninitOscilloscope (void)
 	scope_init = 0;
 }
 
+BYTE
+ScaleHeightByVolume (uint8 scope_data, BOOLEAN toScale)
+{
+	if (!toScale || musicVolume == NORMAL_VOLUME)
+		return scope_data;
+	else
+	{
+		float scale = (float)musicVolume / NORMAL_VOLUME;
+		float res;
+
+		if (scope_data >= (scopeSize.height / 2))
+		{
+			res = scope_data - (scopeSize.height / 2);
+			res *= scale;
+			return (BYTE)((scopeSize.height / 2) + res);
+		}
+		else
+		{
+			res = (scopeSize.height / 2) - scope_data;
+			res *= scale;
+			return (BYTE)((scopeSize.height / 2) - res);
+		}
+	}
+}
+
 void
-DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
+DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toScale)
 {
 	int i;
 	CONTEXT oldContext;
@@ -101,9 +126,9 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
 			LINE line;
 
 			line.first.x = RES_SCALE (i + 1);
-			line.first.y = RES_SCALE (scope_data[i] + 1);
+			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i], toScale) + 1);
 			line.second.x = RES_SCALE (i + 2);
-			line.second.y = RES_SCALE (scope_data[i + 1] + 1);
+			line.second.y = RES_SCALE (ScaleHeightByVolume (scope_data[i + 1], toScale) + 1);
 			DrawLine (&line, RES_SCALE (1));
 		}
 	}
@@ -143,16 +168,16 @@ DrawOscilloscope (void)
 	if (GraphForegroundStream (
 			scope_data, scopeSize.width, scopeSize.height, usingSpeech))
 	{
-		DrawOscilloscopeLines (&s, scope_data, FALSE);
+		DrawOscilloscopeLines (&s, scope_data, FALSE, !usingSpeech);
 	}
 	else if (GraphForegroundStream (
 			scope_data, scopeSize.width, scopeSize.height, FALSE)
 			&& usingSpeech && optNonStopOscill)
 	{
-		DrawOscilloscopeLines (&s, scope_data, TRUE);
+		DrawOscilloscopeLines (&s, scope_data, TRUE, TRUE);
 	}
 	else
-		DrawOscilloscopeLines (&s, NULL, FALSE);
+		DrawOscilloscopeLines (&s, NULL, FALSE, FALSE);
 
 	// draw the final scope image to screen
 	s.origin.x = 0;
@@ -168,7 +193,7 @@ FlattenOscilloscope (void)
 
 	OldContext = SetContext (RadarContext);
 
-	DrawOscilloscopeLines (&s, NULL, FALSE);
+	DrawOscilloscopeLines (&s, NULL, FALSE, FALSE);
 	s.origin = MAKE_POINT(0, 0);
 	DrawStamp (&s);
 	SetContext (OldContext);
