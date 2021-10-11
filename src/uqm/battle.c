@@ -490,6 +490,9 @@ Battle (BattleFrameCallback *callback)
 		bs.frame_cb = callback;
 		bs.first_time = inHQSpace ();
 
+		if (bs.first_time)
+			EraseRadar ();
+
 		DoInput (&bs, FALSE);
 
 AbortBattle:

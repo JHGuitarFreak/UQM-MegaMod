@@ -547,9 +547,16 @@ LoadHyperspace (void)
 	}
 //    ClearDrawable ();
 
-	ClearSISRect (CLEAR_SIS_RADAR);
-
 	return TRUE;
+}
+
+void
+EraseRadar (void)
+{
+	BatchGraphics ();
+	SeedUniverse ();
+	ClearSISRect (CLEAR_SIS_RADAR);
+	UnbatchGraphics ();
 }
 
 BOOLEAN

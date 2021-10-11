@@ -76,6 +76,7 @@ extern "C" {
 extern BOOLEAN LoadHyperspace (void);
 extern BOOLEAN FreeHyperspace (void);
 extern void SeedUniverse (void);
+extern void EraseRadar (void);
 extern void MoveSIS (SDWORD *pdx, SDWORD *pdy);
 
 extern void FreeHyperData (void);
