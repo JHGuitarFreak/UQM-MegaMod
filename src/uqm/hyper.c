@@ -554,8 +554,8 @@ void
 EraseRadar (void)
 {
 	BatchGraphics ();
-	SeedUniverse ();
 	ClearSISRect (CLEAR_SIS_RADAR);
+	SeedUniverse ();
 	UnbatchGraphics ();
 }
 
