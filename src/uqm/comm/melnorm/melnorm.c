@@ -1419,8 +1419,14 @@ DoSell (RESPONSE_REF R)
 		if (PLAYER_SAID (R, sell_life_data))
 		{
 			DWORD TimeIn;
+			SIZE beast_value = 0;
+			BOOLEAN Sleepy = TRUE;
 
-			added_credit = GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE;
+			if (EXTENDED && GET_GAME_STATE (VUX_BEAST_ON_SHIP) == 2
+					&& GET_GAME_STATE (VUX_BEAST) == 2)
+				SET_GAME_STATE (VUX_BEAST_ON_SHIP, 0);
+			
+			added_credit = GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE + beast_value;
 
 			NPCPhrase (SOLD_LIFE_DATA1);
 			NPCNumber (GLOBAL_SIS (TotalBioMass), NULL);
@@ -1433,47 +1439,65 @@ DoSell (RESPONSE_REF R)
 				NPCPhrase (WHAT_TO_SELL);
 				what_to_sell_queued = 1;
 			}
+
 			AlienTalkSegue (1);
 
-			FlattenOscilloscope();
 			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
-			SleepThread (ONE_SECOND / 2);
-			TimeIn = GetTimeCounter ();
+			TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+			while (GetTimeCounter () < TimeIn && Sleepy)
+			{
+				UpdateDuty(TRUE);
+				Sleepy = !(AnyButtonPress (TRUE) ||
+					GLOBAL (CurrentActivity) & CHECK_ABORT);
+			}
 			DrawCargoStrings (
 					(BYTE)NUM_ELEMENT_CATEGORIES,
 					(BYTE)NUM_ELEMENT_CATEGORIES
 					);
 
-			if (EXTENDED && GLOBAL_SIS (TotalBioMass)
-					&& GET_GAME_STATE (VUX_BEAST_ON_SHIP) == 2
-					&& GET_GAME_STATE (VUX_BEAST) == 2)
-				SET_GAME_STATE (VUX_BEAST_ON_SHIP, 0);
-
-			do
+			while (GLOBAL_SIS(TotalBioMass) && Sleepy)
 			{
-				TimeIn = GetTimeCounter ();
-				if (AnyButtonPress (TRUE))
-				{
-					DeltaCredit (GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE);
-					GLOBAL_SIS (TotalBioMass) = 0;
-				}
-				else
-				{
-					--GLOBAL_SIS (TotalBioMass);
-					DeltaCredit (BIO_CREDIT_VALUE);
-				}
-				DrawCargoStrings (
-						(BYTE)NUM_ELEMENT_CATEGORIES,
-						(BYTE)NUM_ELEMENT_CATEGORIES
-						);
-			} while (GLOBAL_SIS (TotalBioMass));
-			SleepThread (ONE_SECOND / 2);
+				Sleepy = !(AnyButtonPress (TRUE)
+						|| GLOBAL (CurrentActivity) & CHECK_ABORT);
+				
+				UpdateDuty (TRUE);
 
+				--GLOBAL_SIS (TotalBioMass);
+				TaskSwitch ();
+				DeltaCredit (BIO_CREDIT_VALUE);
+				DrawCargoStrings(
+					(BYTE)NUM_ELEMENT_CATEGORIES,
+					(BYTE)NUM_ELEMENT_CATEGORIES
+				);
+			}
+
+			if (!Sleepy && GLOBAL_SIS (TotalBioMass))
+			{
+				DeltaCredit (
+						GLOBAL_SIS (TotalBioMass)
+						* BIO_CREDIT_VALUE);
+				GLOBAL_SIS (TotalBioMass) = 0;
+			}
+			else
+			{
+				TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+				while (GetTimeCounter () < TimeIn && Sleepy)
+				{
+					UpdateDuty (TRUE);
+					Sleepy = !(AnyButtonPress (TRUE) ||
+						GLOBAL (CurrentActivity) & CHECK_ABORT);
+				}
+			}
 			ClearSISRect (DRAW_SIS_DISPLAY);
 		}
 		else /* if (R == sell_rainbow_locations) */
 		{
-			added_credit = num_new_rainbows * (DIF_CASE(250, 500, 125) * BIO_CREDIT_VALUE);
+			DWORD TimeIn;
+			BOOLEAN Sleepy = TRUE;
+			BYTE planets;
+			int diffCase = DIF_CASE (250, 500, 125);
+
+			added_credit = num_new_rainbows * (diffCase * BIO_CREDIT_VALUE);
 
 			NPCPhrase (SOLD_RAINBOW_LOCATIONS1);
 			NPCNumber (num_new_rainbows, NULL);
@@ -1481,11 +1505,69 @@ DoSell (RESPONSE_REF R)
 			NPCNumber (added_credit, NULL);
 			NPCPhrase (SOLD_RAINBOW_LOCATIONS3);
 
+			planets = num_new_rainbows;
 			num_new_rainbows += GET_GAME_STATE (MELNORME_RAINBOW_COUNT);
 			SET_GAME_STATE (MELNORME_RAINBOW_COUNT, num_new_rainbows);
 			num_new_rainbows = 0;
 
-			DeltaCredit (added_credit);
+			if (!EXTENDED)
+				DeltaCredit (added_credit);
+			else
+			{
+				// queue WHAT_TO_SELL before talk-segue
+				if (GLOBAL_SIS (TotalBioMass))
+				{
+					NPCPhrase (WHAT_TO_SELL);
+					what_to_sell_queued = 1;
+				}
+
+				AlienTalkSegue (1);
+				DrawRainbowPlanet (planets);
+				TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+				while (GetTimeCounter () < TimeIn && Sleepy)
+				{
+					UpdateDuty (TRUE);
+					Sleepy = !(AnyButtonPress (TRUE) ||
+							GLOBAL(CurrentActivity) & CHECK_ABORT);
+				}
+
+				DrawRainbowPlanet (planets);
+
+				TimeIn = GetTimeCounter () + ONE_SECOND / 10;
+
+				while (planets != 0 && Sleepy)
+				{
+					Sleepy = !(AnyButtonPress (TRUE)
+							|| GLOBAL (CurrentActivity) & CHECK_ABORT);
+
+					UpdateDuty (TRUE);
+
+					if (GetTimeCounter () > TimeIn)
+					{
+						--planets;
+						DeltaCredit (diffCase * BIO_CREDIT_VALUE);
+						DrawRainbowPlanet (planets);
+						TimeIn = GetTimeCounter () + ONE_SECOND / 6;
+					}
+				}
+
+				if (!Sleepy && planets != 0)
+				{
+					DeltaCredit (planets * diffCase * BIO_CREDIT_VALUE);
+					planets = 0;
+				}
+				else
+				{
+					TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+					while (GetTimeCounter () < TimeIn && Sleepy)
+					{
+						UpdateDuty (TRUE);
+						Sleepy = !(AnyButtonPress (TRUE) ||
+								GLOBAL (CurrentActivity) & CHECK_ABORT);
+					}
+				}
+				ClearSISRect (DRAW_SIS_DISPLAY);
+			}
 		}
 		
 		AskedToBuy = FALSE;
