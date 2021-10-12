@@ -91,6 +91,7 @@ universeToDispx (long ux)
 			+ ((ORIG_SIS_SCREEN_WIDTH - 1) >> 1);
 }
 #define UNIVERSE_TO_DISPX(ux)  RES_SCALE(universeToDispx(ux))
+#define ORIG_UNIVERSE_TO_DISPX(ux)  universeToDispx(ux)
 
 static inline COORD
 universeToDispy (long uy)
@@ -100,24 +101,27 @@ universeToDispy (long uy)
 			+ ((ORIG_SIS_SCREEN_HEIGHT - 1) >> 1);
 }
 #define UNIVERSE_TO_DISPY(uy)  RES_SCALE(universeToDispy(uy))
+#define ORIG_UNIVERSE_TO_DISPY(uy)  universeToDispy(uy)
 
 static inline COORD
 dispxToUniverse (COORD dx)
 {
-	return (((long)(dx - ((SIS_SCREEN_WIDTH - 1) >> 1))
+	return (((long)(dx - ((ORIG_SIS_SCREEN_WIDTH - 1) >> 1))
 			* (MAX_X_UNIVERSE + MAP_FIT_X)) >> zoomLevel)
-			/ SIS_SCREEN_WIDTH + mapOrigin.x;
+			/ ORIG_SIS_SCREEN_WIDTH + mapOrigin.x;
 }
-#define DISP_TO_UNIVERSEX(dx)  dispxToUniverse(dx)
+#define DISP_TO_UNIVERSEX(dx) dispxToUniverse(RES_DESCALE(dx))
+#define ORIG_DISP_TO_UNIVERSEX(dx) dispxToUniverse(dx)
 
 static inline COORD
 dispyToUniverse (COORD dy)
 {
-	return (((long)(((SIS_SCREEN_HEIGHT - 1) >> 1) - dy)
+	return (((long)(((ORIG_SIS_SCREEN_HEIGHT - 1) >> 1) - dy)
 			* (MAX_Y_UNIVERSE + 2)) >> zoomLevel)
-			/ SIS_SCREEN_HEIGHT + mapOrigin.y;
+			/ ORIG_SIS_SCREEN_HEIGHT + mapOrigin.y;
 }
-#define DISP_TO_UNIVERSEY(dy)  dispyToUniverse(dy)
+#define DISP_TO_UNIVERSEY(dy) dispyToUniverse(RES_DESCALE(dy))
+#define ORIG_DISP_TO_UNIVERSEY(dy) dispyToUniverse(dy)
 
 static BOOLEAN transition_pending;
 
@@ -545,7 +549,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) - RES_SCALE (1);
 
-		for (i = MAX_X_UNIVERSE; i >= 0; i -= GRID_DELTA)
+		for (i = 0; i < MAX_Y_UNIVERSE; i += GRID_DELTA)
 		{
 			r.corner.x = UNIVERSE_TO_DISPX (i);
 			DrawFilledRectangle (&r);
@@ -768,7 +772,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					|| (CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY
 						&& GET_GAME_STATE (STARBASE_AVAILABLE)
 						&& Index == SHOFIXTI_DEFINED)
-					|| Index == START_COLONY_DEFINED
 				)
 				DrawReticule (star_array[i].star_pt, TRUE);
 		}
@@ -787,7 +790,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 
 	do
-	{
+	{	// Draws all the stars
 		BYTE star_type;
 
 		star_type = SDPtr->Type;
@@ -844,8 +847,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		ScreenTransition (optIPScaler, &r);
 		transition_pending = FALSE;
 	}
-	
-	UnbatchGraphics ();
 
 	if (pClipRect)
 	{
@@ -853,17 +854,16 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		SetContextOrigin (oldOrigin);
 	}
 
-	if (race_update == 0)
+	if (race_update == 0 && draw_cursor)
 	{
-		if (draw_cursor)
-		{
-			GetContextClipRect (&r);
-			LoadIntoExtraScreen (&r);
-			DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
-					UNIVERSE_TO_DISPY (cursorLoc.y));
-			flashCurrentLocation (NULL, TRUE);
-		}
+		GetContextClipRect (&r);
+		LoadIntoExtraScreen (&r);
+		DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
+				UNIVERSE_TO_DISPY (cursorLoc.y));
+		flashCurrentLocation (NULL, TRUE);
 	}
+
+	UnbatchGraphics ();
 }
 
 static void
@@ -900,9 +900,7 @@ EraseCursor (COORD curs_x, COORD curs_y)
 static void
 ZoomStarMap (SIZE dir)
 {
-	// MAX_ZOOM_SHIFT is set to 3 in HD because the cursor
-	// gets stuck in level 4.
-#define MAX_ZOOM_SHIFT (BYTE)(4 - IF_HD(1))
+#define MAX_ZOOM_SHIFT 4
 	if (dir > 0)
 	{
 		if (zoomLevel < MAX_ZOOM_SHIFT)
@@ -939,14 +937,14 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 	STAMP s;
 	POINT pt;
 
-	pt.x = UNIVERSE_TO_DISPX (cursorLoc.x);
-	pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
+	pt.x = ORIG_UNIVERSE_TO_DISPX (cursorLoc.x);
+	pt.y = ORIG_UNIVERSE_TO_DISPY (cursorLoc.y);
 
 	if (newpt)
 	{	// absolute move
 		sx = sy = 0;
-		s.origin.x = UNIVERSE_TO_DISPX (newpt->x);
-		s.origin.y = UNIVERSE_TO_DISPY (newpt->y);
+		s.origin.x = ORIG_UNIVERSE_TO_DISPX (newpt->x);
+		s.origin.y = ORIG_UNIVERSE_TO_DISPY (newpt->y);
 		cursorLoc = *newpt;
 	}
 	else
@@ -957,8 +955,8 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 
 	if (sx)
 	{
-		cursorLoc.x = DISP_TO_UNIVERSEX (s.origin.x) - sx;
-		while (UNIVERSE_TO_DISPX (cursorLoc.x) == pt.x)
+		cursorLoc.x = ORIG_DISP_TO_UNIVERSEX (s.origin.x) - sx;
+		while (ORIG_UNIVERSE_TO_DISPX (cursorLoc.x) == pt.x)
 			cursorLoc.x += sx;
 		
 		if (cursorLoc.x < 0)
@@ -966,13 +964,13 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 		else if (cursorLoc.x > MAX_X_UNIVERSE)
 			cursorLoc.x = MAX_X_UNIVERSE;
 
-		s.origin.x = UNIVERSE_TO_DISPX (cursorLoc.x);
+		s.origin.x = ORIG_UNIVERSE_TO_DISPX (cursorLoc.x);
 	}
 
 	if (sy)
 	{
-		cursorLoc.y = DISP_TO_UNIVERSEY (s.origin.y) + sy;
-		while (UNIVERSE_TO_DISPY (cursorLoc.y) == pt.y)
+		cursorLoc.y = ORIG_DISP_TO_UNIVERSEY (s.origin.y) + sy;
+		while (ORIG_UNIVERSE_TO_DISPY(cursorLoc.y) == pt.y)
 			cursorLoc.y -= sy;
 
 		if (cursorLoc.y < 0)
@@ -980,31 +978,25 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 		else if (cursorLoc.y > MAX_Y_UNIVERSE)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 
-		s.origin.y = UNIVERSE_TO_DISPY (cursorLoc.y);
-		if (s.origin.y < 0 && zoomLevel == 0) 
-		{
-			s.origin.y = 0;
-			cursorLoc.y = DISP_TO_UNIVERSEY (0);
-		}
+		s.origin.y = ORIG_UNIVERSE_TO_DISPY (cursorLoc.y);
 	}
 
 	// ORIG_SIS_SCREEN_WIDTH/HEIGHT for viewport follows cursor mode
 	if (s.origin.x < 0 || s.origin.y < 0
-			|| s.origin.x >= SIS_SCREEN_WIDTH 
-			|| s.origin.y >= SIS_SCREEN_HEIGHT)
+			|| s.origin.x >= ORIG_SIS_SCREEN_WIDTH 
+			|| s.origin.y >= ORIG_SIS_SCREEN_HEIGHT)
 	{
 		mapOrigin = cursorLoc;
 		DrawStarMap (0, NULL);
-
-		s.origin.x = UNIVERSE_TO_DISPX (cursorLoc.x);
-		s.origin.y = UNIVERSE_TO_DISPY (cursorLoc.y);
+		
+		s.origin.x = ORIG_UNIVERSE_TO_DISPX (cursorLoc.x);
+		s.origin.y = ORIG_UNIVERSE_TO_DISPY (cursorLoc.y);
 	}
 	else
 	{
 		BatchGraphics ();
-		EraseCursor (pt.x, pt.y);
-		// ClearDrawable ();
-		DrawCursor (s.origin.x, s.origin.y);
+		EraseCursor (RES_SCALE (pt.x), RES_SCALE (pt.y));
+		DrawCursor (RES_SCALE (s.origin.x), RES_SCALE (s.origin.y));
 		flashCurrentLocation (NULL, TRUE);
 		UnbatchGraphics ();
 	}
@@ -1063,10 +1055,12 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	}
 	else
 	{	// No star found. Reset the coordinates to the cursor's location
+		cursorLoc.x = DISP_TO_UNIVERSEX (pt.x);
 		if (cursorLoc.x < 0)
 			cursorLoc.x = 0;
 		else if (cursorLoc.x > MAX_X_UNIVERSE)
 			cursorLoc.x = MAX_X_UNIVERSE;
+		cursorLoc.y = DISP_TO_UNIVERSEY (pt.y);
 		if (cursorLoc.y < 0)
 			cursorLoc.y = 0;
 		else if (cursorLoc.y > MAX_Y_UNIVERSE)
