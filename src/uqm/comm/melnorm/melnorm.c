@@ -34,6 +34,7 @@
 #include "../../gendef.h"
 #include "../../starmap.h"
 #include "uqm/oscill.h"
+#include "uqm/controls.h"
 
 
 static const NUMBER_SPEECH_DESC melnorme_numbers_english;
@@ -1442,6 +1443,8 @@ DoSell (RESPONSE_REF R)
 
 			AlienTalkSegue (1);
 
+			FlushInput ();
+
 			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
 			TimeIn = GetTimeCounter () + ONE_SECOND / 2;
 			while (GetTimeCounter () < TimeIn && Sleepy)
@@ -1522,6 +1525,9 @@ DoSell (RESPONSE_REF R)
 				}
 
 				AlienTalkSegue (1);
+
+				FlushInput ();
+
 				DrawRainbowPlanet (planets);
 				TimeIn = GetTimeCounter () + ONE_SECOND / 2;
 				while (GetTimeCounter () < TimeIn && Sleepy)
@@ -2262,7 +2268,8 @@ init_melnorme_comm (void)
 	melnorme_desc.AlienTextBaseline.y = 0;
 	melnorme_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
 
-	if (IS_HD) {
+	if (IS_HD)
+	{
 		melnorme_desc.AlienAmbientArray[2].AnimFlags &= ~ANIM_DISABLED;
 		melnorme_desc.AlienAmbientArray[3].AnimFlags &= ~ANIM_DISABLED;
 		melnorme_desc.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
