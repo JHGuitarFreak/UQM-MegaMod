@@ -429,8 +429,8 @@ DrawFuelCircles ()
 		if (diameter_no_return < 0)
 			diameter_no_return = 0;
 
-		if (diameter_no_return > MAX_X_UNIVERSE * 2)
-			diameter_no_return = MAX_X_UNIVERSE * 2;
+		if (diameter_no_return > MAX_X_UNIVERSE * 4)
+			diameter_no_return = MAX_X_UNIVERSE * 4;
 
 		r.extent.width = UNIVERSE_TO_DISPX(diameter_no_return)
 			- UNIVERSE_TO_DISPX(0);
