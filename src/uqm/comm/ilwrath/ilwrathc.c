@@ -21,6 +21,7 @@
 #include "strings.h"
 
 #include "uqm/gameev.h"
+#include "uqm/build.h"
 
 
 static LOCDATA ilwrath_desc =
@@ -103,6 +104,7 @@ static LOCDATA ilwrath_desc =
 static void
 CombatIsInevitable (RESPONSE_REF R)
 {
+	BOOLEAN isGTFO = PLAYER_SAID (R, gtfo);
 	setSegue (Segue_hostile);
 
 	if (PLAYER_SAID (R, you_are_weak))
@@ -121,11 +123,18 @@ CombatIsInevitable (RESPONSE_REF R)
 		NPCPhrase (NO_ALLIANCE);
 	else if (PLAYER_SAID (R, but_evil_is_defined))
 		NPCPhrase (DONT_CONFUSE_US);
-	else if (PLAYER_SAID (R, bye_gods))
+	else if (PLAYER_SAID (R, bye_gods) || isGTFO)
 	{
 		NPCPhrase (GOODBYE_GODS);
 
 		setSegue (Segue_peace);
+
+		if (isGTFO)
+		{
+			printf ("isGTFO");
+			GTFO = TRUE;
+		}
+
 	}
 	if (PLAYER_SAID (R, whats_up))
 	{
@@ -573,9 +582,6 @@ Intro (void)
 				break;
 		}
 		SET_GAME_STATE (ILWRATH_CHMMR_VISITS, NumVisits);
-
-		Response (whats_up, CombatIsInevitable);
-		Response (bye, CombatIsInevitable);
 	}
 	else if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 5))
 	{
@@ -585,7 +591,12 @@ Intro (void)
 		else if (GET_GAME_STATE (ILWRATH_DECEIVED))
 			NPCPhrase (FAST_AS_CAN);
 		else
+		{
 			NPCPhrase (JUST_GRUNTS);
+
+			if (EXTENDED)
+				Response (gtfo, CombatIsInevitable);
+		}
 
 		setSegue (Segue_peace);
 	}

@@ -130,6 +130,7 @@ enum
 	what_about_urquan,
 	are_you_evil,
 	but_evil_is_defined,
+	gtfo,
 };
 
 #endif /* UQM_COMM_ILWRATH_STRINGS_H */

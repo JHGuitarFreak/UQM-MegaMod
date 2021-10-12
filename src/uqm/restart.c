@@ -44,6 +44,7 @@
 #include "libs/log.h"
 #include "options.h"
 #include "cons_res.h"
+#include "build.h"
 
 #include "libs/resource/stringbank.h"
 // for StringBank_Create() & SplitString()
@@ -401,6 +402,7 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
+	GTFO = FALSE;
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{

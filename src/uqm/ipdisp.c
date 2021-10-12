@@ -34,6 +34,7 @@
 #include "setup.h"
 
 BOOLEAN legacySave;
+BOOLEAN GTFO = FALSE;
 
 void
 NotifyOthers (COUNT which_race, BYTE target_loc)
@@ -172,6 +173,23 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 	InitIntersectStartPoint (EPtr);
 
 	flagship_loc = getFlagshipLocation ();
+
+	if ((GET_GAME_STATE (KOHR_AH_FRENZY)
+		 && CheckAlliance (GroupPtr->race_id) == DEAD_GUY)
+		|| (GTFO && GroupPtr->race_id == ILWRATH_SHIP))
+	{
+		if (GTFO && GroupPtr->race_id == ILWRATH_SHIP)
+		{
+			GroupPtr->task &= REFORM_GROUP;
+			GroupPtr->task = FLEE | IGNORE_FLAGSHIP;
+			GroupPtr->dest_loc = 0;
+		}
+		else
+		{
+			GroupPtr->task = FLEE;
+			EPtr->state_flags |= NONSOLID;
+		}
+	}
 
 	task = GroupPtr->task;
 
@@ -432,6 +450,7 @@ CheckGetAway:
 					EPtr->life_span = 0;
 					EPtr->state_flags |= DISAPPEARING | NONSOLID;
 					GroupPtr->in_system = 0;
+					GTFO = FALSE;
 					return;
 				}
 				else
@@ -517,12 +536,6 @@ CheckGetAway:
 		}
 		else
 			EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame); // Probe will wobble while reforming
-	}
-
-	if (GET_GAME_STATE(KOHR_AH_FRENZY) && CheckAlliance(GroupPtr->race_id) == DEAD_GUY)
-	{
-		GroupPtr->task = FLEE;
-		EPtr->state_flags |= NONSOLID;
 	}
 
 	radius = zoomRadiusForLocation (group_loc);
