@@ -299,7 +299,9 @@ DrawFilledOval (RECT *pRect)
 			prim[0].Object.Rect.corner.y = B - y;
 			prim[1].Object.Rect.corner.y = B + y;
 
-			DrawBatch (prim, StartPrim, 0);
+			if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT)
+					|| ((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+				DrawBatch (prim, StartPrim, 0);
 
 			--y;
 			dy -= TwoAsquared;
@@ -322,7 +324,9 @@ DrawFilledOval (RECT *pRect)
 		prim[0].Object.Rect.corner.y = B - y;
 		prim[1].Object.Rect.corner.y = B + y;
 
-		DrawBatch (prim, StartPrim, 0);
+		if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT)
+				|| ((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+			DrawBatch (prim, StartPrim, 0);
 
 		if (d < 0)
 		{

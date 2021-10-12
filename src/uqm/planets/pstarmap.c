@@ -381,22 +381,9 @@ DrawFuelCircles ()
 	long diameter_no_return;
 	POINT corner;
 	Color OldColor;
-	DWORD OnBoardFuel = !optInfiniteFuel ? GLOBAL_SIS (FuelOnBoard) : 0;
+	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
 
 	diameter = OnBoardFuel << 1;
-
-	/* Terribly ugly hack to keep this from being assigned
-	 * a negative value, and also to make sure the inner circle
-	 * is not drawn if we don't have enough fuel to get to Sol at
-	 * all.
-	 */
-	if (((OnBoardFuel) - (long)get_fuel_to_sol() < 0) ||
-		(get_fuel_to_sol () > OnBoardFuel))
-	{
-		diameter_no_return = 0;
-	}
-	else
-		diameter_no_return = OnBoardFuel - get_fuel_to_sol();
 
 	if (!inHQSpace())
 		corner = CurStarDescPtr->star_pt;
@@ -431,12 +418,20 @@ DrawFuelCircles ()
 	OldColor = SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
 	DrawFilledOval (&r);
-	SetContextForeGroundColor (OldColor);
 
 	/* Draw a second fuel circle showing the 'point of no return', past which there will
 	 * not be enough fuel to return to Sol.
 	 */
-	if (GET_GAME_STATE(STARBASE_AVAILABLE) && optFuelRange) {
+	if (GET_GAME_STATE(STARBASE_AVAILABLE) && optFuelRange)
+	{
+		diameter_no_return = OnBoardFuel - get_fuel_to_sol();
+
+		if (diameter_no_return < 0)
+			diameter_no_return = 0;
+
+		if (diameter_no_return > MAX_X_UNIVERSE * 2)
+			diameter_no_return = MAX_X_UNIVERSE * 2;
+
 		r.extent.width = UNIVERSE_TO_DISPX(diameter_no_return)
 			- UNIVERSE_TO_DISPX(0);
 
@@ -454,11 +449,11 @@ DrawFuelCircles ()
 		r.corner.y = UNIVERSE_TO_DISPY(corner.y)
 			- (r.extent.height >> 1);
 
-		OldColor = SetContextForeGroundColor(
-			BUILD_COLOR(MAKE_RGB15(0x04, 0x04, 0x05), 0x22));
+		SetContextForeGroundColor (
+			BUILD_COLOR (MAKE_RGB15 (0x04, 0x04, 0x05), 0x22));
 		DrawFilledOval (&r);
-		SetContextForeGroundColor(OldColor);
 	}
+	SetContextForeGroundColor(OldColor);
 }
 
 static void
@@ -525,37 +520,44 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	ClearDrawable ();
 
 	if (which_starmap != CONSTELLATION_MAP
-			&& (race_update == 0 && which_space < 2))
+			&& (race_update == 0 && which_space < 2)
+		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
 	{	// Draw the fuel range circle
 		DrawFuelCircles ();
 	}
 
 	{	// Horizontal lines
 		r.corner.x = UNIVERSE_TO_DISPX (0);
-		r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (RES_SCALE(1) << zoomLevel);
-		r.extent.height = RES_SCALE(1);
+		r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (RES_SCALE (1) << zoomLevel);
+		r.extent.height = RES_SCALE (1);
 
 		for (i = MAX_Y_UNIVERSE; i >= 0; i -= GRID_DELTA)
 		{
-			r.corner.y = UNIVERSE_TO_DISPY(i);
+			r.corner.y = UNIVERSE_TO_DISPY (i);
 			DrawFilledRectangle (&r);
 		}
 
-		r.corner.y = UNIVERSE_TO_DISPY(0);
+		r.corner.y = UNIVERSE_TO_DISPY (0);
 		DrawFilledRectangle (&r);
 
 		// Vertical lines
-		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) + RES_SCALE(1);
-		r.extent.width = RES_SCALE(1);
-		r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) - RES_SCALE(1);
+		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) + RES_SCALE (1);
+		r.extent.width = RES_SCALE (1);
+		r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) - RES_SCALE (1);
 
 		for (i = MAX_X_UNIVERSE; i >= 0; i -= GRID_DELTA)
 		{
-			r.corner.x = UNIVERSE_TO_DISPX(i);
+			r.corner.x = UNIVERSE_TO_DISPX (i);
 			DrawFilledRectangle (&r);
 		}
 
-		r.corner.x = UNIVERSE_TO_DISPX (0);
+		// Edge rounding error compensation
+		// so the bar wouldn't leak over the edge
+		r.corner.x = UNIVERSE_TO_DISPX (MAX_X_UNIVERSE);
+		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE);
+		r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) + RES_SCALE (1);
+		if (r.extent.height - RES_SCALE (1) > (-(UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) - UNIVERSE_TO_DISPY (0))))
+			r.extent.height -= RES_SCALE (1);
 		DrawFilledRectangle (&r);
 	}
 
@@ -859,6 +861,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			LoadIntoExtraScreen (&r);
 			DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
 					UNIVERSE_TO_DISPY (cursorLoc.y));
+			flashCurrentLocation (NULL, TRUE);
 		}
 	}
 }
