@@ -400,7 +400,8 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 			printf ("We have a v0.8.0.85 save\n\n");
 			legacyMM = TRUE;
 		}
-		else
+		
+		if (magic < gameStateByteCount)
 		{
 			log_add (log_Error, "Warning: Savegame is corrupt: saved game "
 					"state is too small.");
