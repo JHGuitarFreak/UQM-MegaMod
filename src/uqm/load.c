@@ -366,7 +366,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	read_16s (fh, &GSPtr->velocity.incr.height);
 	
 	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
-	{	// Let's make savegames work even between different resolution modes.	
+	{	// Let's make savegames work even between different resolution modes.
 		GSPtr->velocity.vector.width  <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.vector.height <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.fract.width   <<= RESOLUTION_FACTOR;
@@ -383,15 +383,24 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		return FALSE;
 	}
 	{
-		size_t gameStateByteCount;
 		BYTE *buf;
 		BOOLEAN result;
-
-		gameStateByteCount = ((NUM_GAME_STATE_BITS + 7) >> 3) 
-				- (try_core ? 2 : 0);
+		BOOLEAN legacyMM = FALSE;
+		size_t gameStateByteCount085 = 1255 + 7 >> 3;
+		size_t gameStateByteCount =
+				(NUM_GAME_STATE_BITS - (try_core ? 551 : 0)) + 7 >> 3;
 
 		read_32 (fh, &magic);
-		if (magic < gameStateByteCount)
+
+		if (magic == gameStateByteCount)
+			printf ("We have a MegaMod v0.8.1 or Core v0.8.0 save\n\n");
+		else if (magic == gameStateByteCount085)
+		{
+			gameStateByteCount = gameStateByteCount085;
+			printf ("We have a v0.8.0.85 save\n\n");
+			legacyMM = TRUE;
+		}
+		else
 		{
 			log_add (log_Error, "Warning: Savegame is corrupt: saved game "
 					"state is too small.");
@@ -407,9 +416,11 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		}
 
 		read_a8 (fh, buf, gameStateByteCount);
-		result = deserialiseGameState ((try_core ? coreGameStateBitMap  : gameStateBitMap),
+		result = deserialiseGameState (
+				(try_core ? coreGameStateBitMap :
+				(!legacyMM ? gameStateBitMap : gameStateBitMap085)),
 				buf, gameStateByteCount);
-		HFree(buf);
+		HFree (buf);
 		if (result == FALSE)
 		{
 			// An error message is already printed.

@@ -716,10 +716,47 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "KNOW_QS_PORTAL_13", 1 },
 	{ "KNOW_QS_PORTAL_14", 1 },
 	{ "KNOW_QS_PORTAL_15", 1 },
+
+	{ "SYS_VISITED_00", 32 },
+	{ "SYS_VISITED_01", 32 },
+	{ "SYS_VISITED_02", 32 },
+	{ "SYS_VISITED_03", 32 },
+	{ "SYS_VISITED_04", 32 },
+	{ "SYS_VISITED_05", 32 },
+	{ "SYS_VISITED_06", 32 },
+	{ "SYS_VISITED_07", 32 },
+	{ "SYS_VISITED_08", 32 },
+	{ "SYS_VISITED_09", 32 },
+	{ "SYS_VISITED_10", 32 },
+	{ "SYS_VISITED_11", 32 },
+	{ "SYS_VISITED_12", 32 },
+	{ "SYS_VISITED_13", 32 },
+	{ "SYS_VISITED_14", 32 },
+	{ "SYS_VISITED_15", 32 },
+
+	{ "KNOW_CHMMR_HOMEWORLD", 1 },
+	{ "KNOW_ORZ_HOMEWORLD", 1 },
+	{ "KNOW_PKUNK_HOMEWORLD", 1 },
+	{ "KNOW_SHOFIXTI_HOMEWORLD", 1 },
+	{ "KNOW_SPATHI_HOMEWORLD", 1 },
+	{ "KNOW_SUPOX_HOMEWORLD", 1 },
+	{ "KNOW_THRADD_HOMEWORLD", 1 },
+	{ "KNOW_UTWIG_HOMEWORLD", 1 },
+	{ "KNOW_VUX_HOMEWORLD", 1 },
+	{ "KNOW_YEHAT_HOMEWORLD", 1 },
+	{ "KNOW_DRUUGE_HOMEWORLD", 1 },
+	{ "KNOW_ILWRATH_HOMEWORLD", 1 },
+	{ "KNOW_MYCON_HOMEWORLD", 1 },
+	{ "KNOW_SLYLANDRO_HOMEWORLD", 1 },
+	{ "KNOW_UMGAH_HOMEWORLD", 1 },
+	{ "KNOW_ZOQFOT_HOMEWORLD", 1 },
+	{ "KNOW_SYREEN_HOMEWORLD", 1 },
+	{ "KNOW_ANDROSYNTH_HOMEWORLD", 1 },
+
+	{ "HM_ENCOUNTERS", 4 },
 	
 	{ NULL, 0 },
 };
-
 
 // XXX: these should handle endian conversions later
 static inline void
