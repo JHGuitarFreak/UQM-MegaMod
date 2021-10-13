@@ -1133,11 +1133,10 @@ extern void UninitGameStructures (void);
 
 // Extended
 #define EXTENDED (GLOBAL_SIS (Extended) ? TRUE : FALSE)
-#define EXT_STR(a) ((a) ? "True" : "False")
-
 // Nomad
 #define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
-#define NOMAD_STR(a) ((a) ? "True" : "False")
+
+#define BOOL_STR(a) ((a) ? "True" : "False")
 
 // Planet Name Units
 #define MET_A_SPATHI (GET_GAME_STATE (KNOW_SPATHI_QUEST) \

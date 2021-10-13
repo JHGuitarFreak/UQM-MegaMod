@@ -1405,16 +1405,16 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		printf ("Name: %s\n", pSD->SaveName);
 		printf ("Seed: %d\n", SeedA);
 		printf ("Difficulty: %s\n", DIF_STR (DIFFICULTY));
-		printf ("Extended: %s\n", EXT_STR (EXTENDED));
-		printf ("Nomad: %s\n\n", NOMAD_STR (NOMAD));
+		printf ("Extended: %s\n", BOOL_STR (EXTENDED));
+		printf ("Nomad: %s\n\n", BOOL_STR (NOMAD));
 #endif
 		log_add (log_Info, saving ? "Saving > " : "Loading > ");
 		log_add (log_Info, "Name: %s\n", pSD->SaveName);
 		log_add (log_Info, "Slot: %d\n", MenuState.CurState);
 		log_add (log_Info, "Seed: %d\n", SeedA);
 		log_add (log_Info, "Difficulty: %s\n", DIF_STR (DIFFICULTY));
-		log_add (log_Info, "Extended: %s\n", EXT_STR (EXTENDED));
-		log_add (log_Info, "Nomad: %s\n\n", NOMAD_STR (NOMAD));
+		log_add (log_Info, "Extended: %s\n", BOOL_STR (EXTENDED));
+		log_add (log_Info, "Nomad: %s\n\n", BOOL_STR (NOMAD));
 	}
 
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT) &&

@@ -237,13 +237,13 @@ while (--ac > 0)
 #ifdef DEBUG
 	printf("Set Seed: %d\n", optCustomSeed);
 	printf("Set Difficulty: %s\n", DIF_STR (optDifficulty));
-	printf("Set Extended: %s\n", EXT_STR (optExtended));
-	printf("Set Nomad: %s\n\n", NOMAD_STR (optNomad));
+	printf("Set Extended: %s\n", BOOL_STR (optExtended));
+	printf("Set Nomad: %s\n\n", BOOL_STR (optNomad));
 #endif
 	log_add(log_Info, "Set Seed: %d\n", optCustomSeed);
 	log_add(log_Info, "Set Difficulty: %s\n", DIF_STR (optDifficulty));
-	log_add(log_Info, "Set Extended: %s\n", EXT_STR (optExtended));
-	log_add(log_Info, "Set Nomad: %s\n\n", NOMAD_STR (optNomad));
+	log_add(log_Info, "Set Extended: %s\n", BOOL_STR (optExtended));
+	log_add(log_Info, "Set Nomad: %s\n\n", BOOL_STR (optNomad));
 
 //	OpenJournal ();
 	while (StartGame ())
@@ -266,15 +266,15 @@ while (--ac > 0)
 		// Debug info when starting a new game
 		if (LastActivity == (CHECK_LOAD | CHECK_RESTART)){
 #ifdef DEBUG
-			printf("New Game Seed: %d\n", GLOBAL_SIS(Seed));
-			printf("New Game Difficulty: %s\n", DIF_STR(GLOBAL_SIS(Difficulty)));
-			printf("New Game Extended: %s\n", EXT_STR(GLOBAL_SIS(Extended)));
-			printf("New Game Nomad: %s\n\n", NOMAD_STR(GLOBAL_SIS(Nomad)));
+			printf("New Game Seed: %d\n", GLOBAL_SIS (Seed));
+			printf("New Game Difficulty: %s\n", DIF_STR (GLOBAL_SIS (Difficulty)));
+			printf("New Game Extended: %s\n", BOOL_STR (GLOBAL_SIS (Extended)));
+			printf("New Game Nomad: %s\n\n", BOOL_STR (GLOBAL_SIS (Nomad)));
 #endif
-			log_add(log_Info, "New Game Seed: %d\n", GLOBAL_SIS(Seed));
-			log_add(log_Info, "New Game Difficulty: %s\n", DIF_STR(GLOBAL_SIS(Difficulty)));
-			log_add(log_Info, "New Game Extended: %s\n", EXT_STR(GLOBAL_SIS(Extended)));
-			log_add(log_Info, "New Game Nomad: %s\n\n", NOMAD_STR(GLOBAL_SIS(Nomad)));
+			log_add(log_Info, "New Game Seed: %d\n", GLOBAL_SIS (Seed));
+			log_add(log_Info, "New Game Difficulty: %s\n", DIF_STR (GLOBAL_SIS (Difficulty)));
+			log_add(log_Info, "New Game Extended: %s\n", BOOL_STR (GLOBAL_SIS (Extended)));
+			log_add(log_Info, "New Game Nomad: %s\n\n", BOOL_STR (GLOBAL_SIS (Nomad)));
 		}
 
 #if defined(ANDROID) || defined(__ANDROID__)
