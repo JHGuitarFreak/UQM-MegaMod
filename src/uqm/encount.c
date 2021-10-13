@@ -827,9 +827,9 @@ UninitEncounter (void)
 						DrawFadeText (str1, str2, FALSE, &scavenge_r);
 				}
 			}
-
-			DrawStatusMessage (NULL);
 		}
+
+		DrawStatusMessage (NULL);
 
 		if (ships_killed && EncounterRace == THRADDASH_SHIP
 				&& !GET_GAME_STATE (THRADD_MANNER))
