@@ -34,7 +34,7 @@
 #include "setup.h"
 
 BOOLEAN legacySave;
-BOOLEAN GTFO = FALSE;
+BYTE GTFO = 0;
 
 void
 NotifyOthers (COUNT which_race, BYTE target_loc)
@@ -96,8 +96,9 @@ NotifyOthers (COUNT which_race, BYTE target_loc)
 		else
 		{	// Send the group to the location.
 			// XXX: There is currently no use of such notify that I know of.
-			GroupPtr->task |= IGNORE_FLAGSHIP;
-			GroupPtr->dest_loc = target_loc;
+			GroupPtr->task &= REFORM_GROUP;
+			GroupPtr->task |= FLEE | IGNORE_FLAGSHIP;
+			GroupPtr->dest_loc = 0;
 		}
 
 		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
@@ -176,19 +177,16 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 
 	if ((GET_GAME_STATE (KOHR_AH_FRENZY)
 		 && CheckAlliance (GroupPtr->race_id) == DEAD_GUY)
-		|| (GTFO && GroupPtr->race_id == ILWRATH_SHIP))
+		|| (GTFO == 1 && GroupPtr->race_id == ILWRATH_SHIP))
 	{
-		if (GTFO && GroupPtr->race_id == ILWRATH_SHIP)
-		{
-			GroupPtr->task &= REFORM_GROUP;
-			GroupPtr->task = FLEE | IGNORE_FLAGSHIP;
-			GroupPtr->dest_loc = 0;
-		}
-		else
-		{
-			GroupPtr->task = FLEE;
-			EPtr->state_flags |= NONSOLID;
-		}
+		GTFO = 0;
+		NotifyOthers (GroupPtr->race_id, IPNL_FLEE);
+	}
+
+	if (GTFO == 2 && GroupPtr->race_id == ILWRATH_SHIP)
+	{
+		GTFO = 0;
+		NotifyOthers (ILWRATH_SHIP, IPNL_INTERCEPT_PLAYER);
 	}
 
 	task = GroupPtr->task;
@@ -450,7 +448,6 @@ CheckGetAway:
 					EPtr->life_span = 0;
 					EPtr->state_flags |= DISAPPEARING | NONSOLID;
 					GroupPtr->in_system = 0;
-					GTFO = FALSE;
 					return;
 				}
 				else

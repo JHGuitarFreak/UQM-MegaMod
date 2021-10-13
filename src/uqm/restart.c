@@ -402,7 +402,6 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
-	GTFO = FALSE;
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{

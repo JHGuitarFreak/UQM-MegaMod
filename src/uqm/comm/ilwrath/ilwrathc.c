@@ -127,14 +127,9 @@ CombatIsInevitable (RESPONSE_REF R)
 	{
 		NPCPhrase (GOODBYE_GODS);
 
+		GTFO = isGTFO;
+
 		setSegue (Segue_peace);
-
-		if (isGTFO)
-		{
-			printf ("isGTFO");
-			GTFO = TRUE;
-		}
-
 	}
 	if (PLAYER_SAID (R, whats_up))
 	{
@@ -435,6 +430,10 @@ GodsSpeak (RESPONSE_REF R)
 		else
 		{
 			NumVisits = GET_GAME_STATE (ILWRATH_GODS_SPOKEN);
+
+			if (NumVisits > 3)
+				NumVisits = 0;
+
 			switch (NumVisits++)
 			{
 				case 0:
@@ -592,13 +591,47 @@ Intro (void)
 			NPCPhrase (FAST_AS_CAN);
 		else
 		{
-			NPCPhrase (JUST_GRUNTS);
-
 			if (EXTENDED)
-				Response (gtfo, CombatIsInevitable);
+			{
+				NumVisits = GET_GAME_STATE (ILWRATH_GODS_SPOKEN);
+
+				if (NumVisits < 5)
+				{
+					Response (gtfo, CombatIsInevitable);
+					Response (bye_gods, CombatIsInevitable);
+				}
+
+				switch (NumVisits++)
+				{
+					case 0:
+						NPCPhrase (JUST_GRUNTS);
+						break;
+					case 1:
+						NPCPhrase (ILWRATH_BELIEVE);
+						break;
+					case 2:
+						NPCPhrase (GODS_RETURN_1);
+						break;
+					case 3:
+						NPCPhrase (GODS_RETURN_2);
+						break;
+					case 4:
+						NPCPhrase (GODS_RETURN_3);
+						break;
+					case 5:
+						NPCPhrase (DECEIVERS);
+						GTFO = 2;
+						--NumVisits;
+						break;
+				}
+				SET_GAME_STATE (ILWRATH_GODS_SPOKEN, NumVisits);
+			}
+			else
+				NPCPhrase (JUST_GRUNTS);
+
+			setSegue (Segue_peace);
 		}
 
-		setSegue (Segue_peace);
 	}
 	else if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 4))
 	{
