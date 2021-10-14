@@ -3011,7 +3011,7 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 #endif
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 	}
-	else
+	else if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{
 		assert (pSS->InIpFlight);
 		IP_frame ();
