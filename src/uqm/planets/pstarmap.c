@@ -1787,11 +1787,37 @@ DoMoveCursor (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_TOGGLEMAP]
 		&& GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 	{
+		BYTE NewState;
+
 		FlushInput ();
-		++which_starmap;
-		if (!GET_GAME_STATE (TRADED_WITH_MELNORME) && which_starmap == RAINBOW_MAP)
-			++which_starmap;
-		which_starmap %= NUM_STARMAPS;
+
+		NewState = which_starmap;
+
+		if (NewState == RAINBOW_MAP)
+			NewState = NORMAL_STARMAP;
+		else
+			++NewState;
+
+		if (NewState == WAR_ERA_STARMAP
+			&& !GET_GAME_STATE (STARBASE_AVAILABLE))
+		{
+			++NewState;
+		}
+		if (NewState == HOMEWORLDS_MAP && !KNOW_A_HOMEWORLD)
+		{
+			if (!GET_GAME_STATE (TRADED_WITH_MELNORME))
+				NewState = NORMAL_STARMAP;
+			else
+				++NewState;
+		}
+		else if (NewState == RAINBOW_MAP
+				&& !GET_GAME_STATE (TRADED_WITH_MELNORME))
+			NewState = NORMAL_STARMAP;
+
+		if (NewState != which_starmap)
+			which_starmap = NewState;
+
+		PlayMenuSound (MENU_SOUND_MOVE);
 		
 		if (which_starmap == WAR_ERA_STARMAP) 
 			show_war_era_situation = TRUE;
