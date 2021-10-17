@@ -388,16 +388,13 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		BOOLEAN legacyMM = FALSE;
 		size_t gameStateByteCount085 = 1255 + 7 >> 3;
 		size_t gameStateByteCount =
-				(NUM_GAME_STATE_BITS - (try_core ? 551 : 0)) + 7 >> 3;
+				(NUM_GAME_STATE_BITS - (try_core ? 556 : 0)) + 7 >> 3;
 
 		read_32 (fh, &magic);
 
-		if (magic == gameStateByteCount)
-			printf ("We have a MegaMod v0.8.1 or Core v0.8.0 save\n\n");
-		else if (magic == gameStateByteCount085)
+		if (magic == gameStateByteCount085)
 		{
 			gameStateByteCount = gameStateByteCount085;
-			printf ("We have a v0.8.0.85 save\n\n");
 			legacyMM = TRUE;
 		}
 		

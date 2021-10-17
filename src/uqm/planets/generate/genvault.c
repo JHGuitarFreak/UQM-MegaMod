@@ -22,6 +22,8 @@
 #include "../../globdata.h"
 #include "../../nameref.h"
 #include "../../resinst.h"
+#include "../../state.h"
+#include "../../build.h"
 #include "libs/mathlib.h"
 
 
@@ -94,6 +96,48 @@ GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		}
 		else if (GET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP))
 		{
+			if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS)
+					& 1 << URQUAN_ENCOUNTER))
+			{
+				PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+				ReinitQueue (&GLOBAL (ip_group_q));
+				assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+				for (COUNT i = 0; i < 6; ++i)
+					CloneShipFragment (URQUAN_SHIP,
+						&GLOBAL (npc_built_ship_q), 0);
+
+				SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
+				GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+				InitCommunication (URQUAN_CONVERSATION);
+
+				if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+					return true;
+
+				{
+					BOOLEAN Survivors =
+							GetHeadLink (&GLOBAL(npc_built_ship_q)) != 0;
+
+					GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+					ReinitQueue (&GLOBAL (npc_built_ship_q));
+					GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
+					if (Survivors)
+						return true;
+
+					{
+						UWORD state;
+
+						state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+						state |= 1 << URQUAN_ENCOUNTER;
+
+						SET_GAME_STATE (HM_ENCOUNTERS, state);
+					}
+
+					RepairSISBorder ();
+				}
+			}
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					SetAbsStringTableIndex (
 					solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);

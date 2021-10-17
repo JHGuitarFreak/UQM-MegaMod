@@ -753,7 +753,7 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "KNOW_SYREEN_HOMEWORLD", 1 },
 	{ "KNOW_ANDROSYNTH_HOMEWORLD", 1 },
 
-	{ "HM_ENCOUNTERS", 4 },
+	{ "HM_ENCOUNTERS", 9 },
 	
 	{ NULL, 0 },
 };

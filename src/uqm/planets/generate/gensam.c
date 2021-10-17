@@ -332,6 +332,10 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				}
 				else
 				{
+					if (DIF_HARD && (GET_GAME_STATE(HM_ENCOUNTERS)
+						& 1 << NO_HELP_FROM_PKUNK))
+						return true;
+
 					EncounterGroup = 0;
 					EncounterRace = -1;
 					GLOBAL (CurrentActivity) = IN_LAST_BATTLE | START_ENCOUNTER;

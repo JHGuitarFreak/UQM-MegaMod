@@ -393,6 +393,17 @@ DoTransaction (RESPONSE_REF R)
 		BYTE trade_gas;
 		BYTE ship_slots, ships_to_trade;
 
+		if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << READY_TO_BARGAIN))
+		{
+			UWORD state;
+
+			state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+			state |= 1 << READY_TO_BARGAIN;
+
+			SET_GAME_STATE (HM_ENCOUNTERS, state);
+		}
+
 		trade_gas = 0;
 		ships_to_trade = 0;
 		ship_slots = EscortFeasibilityStudy (DRUUGE_SHIP);
@@ -520,7 +531,12 @@ Sell (RESPONSE_REF R)
 	}
 
 	if (!GET_GAME_STATE (ROSY_SPHERE))
+	{
+		if ((DIF_HARD && GET_GAME_STATE( HM_ENCOUNTERS) & 1 << READY_TO_BARGAIN) || !DIF_HARD)
 		RespFunc = (RESPONSE_FUNC)Trade;
+		else
+			RespFunc = (RESPONSE_FUNC)Sell;
+	}		
 	else
 		RespFunc = (RESPONSE_FUNC)Sell;
 	if (GET_GAME_STATE (MAIDENS_ON_SHIP))

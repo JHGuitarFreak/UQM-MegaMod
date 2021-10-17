@@ -720,36 +720,72 @@ Intro (void)
 	}
 	else if (GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH))
 	{
-		NumVisits = GET_GAME_STATE (THRADD_VISITS);
-		if (GET_GAME_STATE (THRADD_MANNER))
+		if (DIF_HARD && GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 		{
-			switch (NumVisits++)
+			RESPONSE_REF pStr0, pStr1;
+
+			if (GET_GAME_STATE (THRADD_MANNER))
 			{
+				pStr0 = WELCOME_HELIX0;
+				pStr1 = WELCOME_HELIX1;
+
+				NPCPhrase (pStr0);
+				NPCPhrase (GetCultureName ());
+				NPCPhrase (pStr1);
+
+				ThraddAllies ((RESPONSE_REF)0);
+			}
+			else
+			{
+				NumVisits = GET_GAME_STATE (HELIX_VISITS);
+				switch (NumVisits++)
+				{
 				case 0:
-					NPCPhrase (HAVING_FUN_WITH_ILWRATH_1);
+					NPCPhrase (HOSTILE_HELIX_HELLO_1);
 					break;
 				case 1:
-					NPCPhrase (HAVING_FUN_WITH_ILWRATH_2);
+					NPCPhrase (HOSTILE_HELIX_HELLO_2);
 					--NumVisits;
 					break;
+				}
+				SET_GAME_STATE (HELIX_VISITS, NumVisits);
+
+				HelixWorld ((RESPONSE_REF)0);
 			}
 		}
 		else
 		{
-			switch (NumVisits++)
+			NumVisits = GET_GAME_STATE (THRADD_VISITS);
+			if (GET_GAME_STATE (THRADD_MANNER))
 			{
-				case 0:
-					NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_1);
-					break;
-				case 1:
-					NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_2);
-					--NumVisits;
-					break;
+				switch (NumVisits++)
+				{
+					case 0:
+						NPCPhrase (HAVING_FUN_WITH_ILWRATH_1);
+						break;
+					case 1:
+						NPCPhrase (HAVING_FUN_WITH_ILWRATH_2);
+						--NumVisits;
+						break;
+				}
 			}
+			else
+			{
+				switch (NumVisits++)
+				{
+					case 0:
+						NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_1);
+						break;
+					case 1:
+						NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_2);
+						--NumVisits;
+						break;
+				}
+			}
+			SET_GAME_STATE (THRADD_VISITS, NumVisits);
+	
+			setSegue (Segue_peace);
 		}
-		SET_GAME_STATE (THRADD_VISITS, NumVisits);
-
-		setSegue (Segue_peace);
 	}
 	else if (GET_GAME_STATE (THRADD_MANNER))
 	{

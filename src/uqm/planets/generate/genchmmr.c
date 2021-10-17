@@ -163,13 +163,28 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					return true;
 				}
 				else if (GET_GAME_STATE (SUN_DEVICE_ON_SHIP)
-					&& !GET_GAME_STATE (ILWRATH_DECEIVED)
-					&& StartSphereTracking (ILWRATH_SHIP))
+					&& ((!GET_GAME_STATE(ILWRATH_DECEIVED)
+					&& StartSphereTracking(ILWRATH_SHIP))
+					|| (!(GET_GAME_STATE(HM_ENCOUNTERS)
+					& 1 << ILWRATH_ENCOUNTER) && DIF_HARD)))
 				{
 					PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 					ReinitQueue (&GLOBAL (ip_group_q));
 					assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
+					if (GET_GAME_STATE(ILWRATH_DECEIVED) && DIF_HARD)
+					{
+						COUNT lim;
+						if (StartSphereTracking(ILWRATH_SHIP))
+							lim = 14;
+						else
+							lim = 6;
+
+						for (COUNT i = 0; i < lim; ++i)
+							CloneShipFragment(ILWRATH_SHIP,
+								&GLOBAL(npc_built_ship_q), 0);
+					}
+					else
 					CloneShipFragment (ILWRATH_SHIP,
 						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
 
@@ -177,12 +192,33 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
 					InitCommunication (ILWRATH_CONVERSATION);
 
-					if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
+					if (GLOBAL(CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+						return true;
+
 					{
+						BOOLEAN Survivors = GetHeadLink(&GLOBAL(npc_built_ship_q)) != 0;
+
 						GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 						ReinitQueue (&GLOBAL (npc_built_ship_q));
 						GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
+						if (Survivors)
+							return true;
+
+						{
+							UWORD state;
+
+							state = GET_GAME_STATE(HM_ENCOUNTERS);
+
+							state |= 1 << ILWRATH_ENCOUNTER;
+
+							SET_GAME_STATE(HM_ENCOUNTERS, state);
 					}
+
+						RepairSISBorder();
+					}
+					
+					GenerateDefault_generateOrbital(solarSys, world);
 
 					return true;
 				}
@@ -237,8 +273,9 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					solarSys->SysInfo.PlanetInfo.DiscoveryString));
 				solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 				FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
+
+				return true;
 			}
-			return true;
 		}
 	}
 

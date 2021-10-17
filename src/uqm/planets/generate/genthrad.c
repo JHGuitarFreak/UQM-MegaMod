@@ -163,7 +163,49 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					&& (BYTE)(GET_GAME_STATE (THRADD_MISSION) - 1) >= 3))
 				return true;
 
-			RepairSISBorder ();
+			RepairSISBorder (); // reachable if you're frendly with thraddsh and talk to them at helix world
+		}
+		else if (DIF_HARD && CurStarDescPtr->Index == AQUA_HELIX_DEFINED &&
+				!(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << THRADDASH_ENCOUNTER) &&
+				StartSphereTracking (THRADDASH_SHIP))
+		{
+			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+			ReinitQueue (&GLOBAL (ip_group_q));
+			assert (CountLinks (&GLOBAL(npc_built_ship_q)) == 0);
+
+			for (COUNT i = 0; i < 14; ++i)
+				CloneShipFragment (THRADDASH_SHIP,
+					&GLOBAL (npc_built_ship_q), 0);
+
+			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
+			GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+			InitCommunication (THRADD_CONVERSATION);
+
+			if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+				return true;
+
+			{
+				BOOLEAN Survivors = GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
+
+				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+				ReinitQueue (&GLOBAL(npc_built_ship_q));
+				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
+				if (Survivors)
+					return true;
+
+				{
+					UWORD state;
+
+					state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+					state |= 1 << THRADDASH_ENCOUNTER;
+
+					SET_GAME_STATE (HM_ENCOUNTERS, state);
+				}
+
+				RepairSISBorder ();
+			}
 		}
 
 		if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED

@@ -25,6 +25,8 @@
 #include "uqm/gameev.h"
 #include "libs/mathlib.h"
 
+#include "uqm/planets/generate/gendefault.h"
+
 
 static LOCDATA yehat_desc =
 {
@@ -245,6 +247,17 @@ ExitConversation (RESPONSE_REF R)
 		SET_GAME_STATE (YEHAT_REBEL_INFO, 0);
 		SET_GAME_STATE (YEHAT_REBEL_TOLD_PKUNK, 0);
 		SET_GAME_STATE (NO_YEHAT_INFO, 0);
+
+		if (GET_GAME_STATE (YEHAT_ABSORBED_PKUNK) && DIF_HARD)
+		{	// absorbed before revolution
+			UWORD state;
+
+			state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+			state |= 1 << NO_HELP_FROM_PKUNK;
+
+			SET_GAME_STATE (HM_ENCOUNTERS, state);
+		}
 
 		AddEvent (RELATIVE_EVENT, 0, 0, 0, YEHAT_REBEL_EVENT);
 	}
