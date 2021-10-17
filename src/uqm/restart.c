@@ -264,6 +264,7 @@ DoDiffChooser (MENU_STATE *pMS)
 				(a > 1 ? OPTVAL_HARD : OPTVAL_NORMAL));
 
 		res_PutInteger ("mm.difficulty", optDifficulty);
+		SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	}
 
 	DestroyDrawable (ReleaseDrawable (s.frame));
