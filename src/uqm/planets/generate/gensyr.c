@@ -188,6 +188,8 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
+
+			return true;
 		}
 	}
 
