@@ -58,6 +58,13 @@ enum
 	QUIT_GAME
 };
 
+enum
+{
+	EASY_DIFF = 0,
+	ORIGINAL_DIFF,
+	HARD_DIFF
+};
+
 static BOOLEAN
 PacksInstalled (void)
 {
@@ -183,16 +190,18 @@ DoDiffChooser (MENU_STATE *pMS)
 
 	while (!done)
 	{
-		if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-			return FALSE;
-
 		UpdateInputState ();
-		if (PulsedInputState.menu[KEY_MENU_SELECT])
+
+		if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		{
+			return FALSE;
+		}
+		else if (PulsedInputState.menu[KEY_MENU_SELECT])
 		{
 			done = TRUE;
 			response = TRUE;
-			PlayMenuSound (MENU_SOUND_SUCCESS);
 			DrawDiffChooser (pMS, a, TRUE);
+			PlayMenuSound (MENU_SOUND_SUCCESS);
 		}
 		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
 				|| CurrentInputState.menu[KEY_EXIT])
@@ -201,25 +210,42 @@ DoDiffChooser (MENU_STATE *pMS)
 			response = FALSE;
 			DrawStamp (&s);
 		}
-		else if (PulsedInputState.menu[KEY_MENU_LEFT]
-				|| PulsedInputState.menu[KEY_MENU_UP])
+		else if (PulsedInputState.menu[KEY_MENU_UP] ||
+				PulsedInputState.menu[KEY_MENU_DOWN] ||
+				PulsedInputState.menu[KEY_MENU_LEFT] ||
+				PulsedInputState.menu[KEY_MENU_RIGHT])
 		{
-			a--;
-			if (a > 254)
-				a = 2;
+			BYTE NewState;
+
+			NewState = a;
+			if (PulsedInputState.menu[KEY_MENU_UP]
+					|| PulsedInputState.menu[KEY_MENU_LEFT])
+			{
+				if (NewState == EASY_DIFF)
+					NewState = HARD_DIFF;
+				else
+					--NewState;
+			}
+			else if (PulsedInputState.menu[KEY_MENU_DOWN]
+					|| PulsedInputState.menu[KEY_MENU_RIGHT])
+			{
+				if (NewState == HARD_DIFF)
+					NewState = EASY_DIFF;
+				else
+					++NewState;
+			}
+			if (NewState != a)
+			{
+				BatchGraphics ();
+				DrawDiffChooser (pMS, NewState, FALSE);
+				UnbatchGraphics ();
+				a = NewState;
+			}
+
 			PlayMenuSound (MENU_SOUND_MOVE);
-			DrawDiffChooser (pMS, a, FALSE);
-			LastInputTime = GetTimeCounter();
-		}
-		else if (PulsedInputState.menu[KEY_MENU_DOWN]
-				|| PulsedInputState.menu[KEY_MENU_RIGHT])
-		{
-			a++;
-			if (a > 2)
-				a = 0;
-			PlayMenuSound (MENU_SOUND_MOVE);
-			DrawDiffChooser (pMS, a, FALSE);
+
 			LastInputTime = GetTimeCounter ();
+
 		}
 		else if (GetTimeCounter () - LastInputTime > InactTimeOut
 			&& !optRequiresRestart && PacksInstalled ())
