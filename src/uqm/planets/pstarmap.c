@@ -742,7 +742,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					t.align = ALIGN_CENTER;
 					
 					locString = SetAbsStringTableIndex (
-							FleetPtr->race_strings, 1);
+							FleetPtr->race_strings,
+							(index == ANDROSYNTH_SHIP? 0 : 1));
 					t.CharCount = GetStringLength (locString);
 					t.pStr = (UNICODE *)GetStringAddress (locString);
 					
@@ -755,9 +756,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 							case THRADDASH_SHIP:
 							case DRUUGE_SHIP:
 								t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
-								break;
-							case ANDROSYNTH_SHIP:
-								t.pStr = "Androsynth";
 								break;
 						}
 						t.CharCount = (COUNT)strlen (t.pStr);
