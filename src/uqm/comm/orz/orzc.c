@@ -333,7 +333,11 @@ TaaloWorld (RESPONSE_REF R)
 		if (Manner != 1)
 			NPCPhrase (FRIENDLY_PLACE);
 		else
+		{
 			NPCPhrase (ANGRY_PLACE);
+			if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
+				SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
+		}
 
 		DISABLE_PHRASE (what_is_this_place);
 	}
@@ -346,6 +350,8 @@ TaaloWorld (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, make_alliance))
 	{
 		NPCPhrase (CANT_ALLY_HERE);
+		if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
+			SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
 
 		DISABLE_PHRASE (make_alliance);
 	}

@@ -934,6 +934,9 @@ Intro (void)
 					break;
 			}
 			SET_GAME_STATE (VUX_HOME_VISITS, NumVisits);
+
+			if (!GET_GAME_STATE (KNOW_VUX_HOMEWORLD))
+				SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
 		}
 		else
 		{

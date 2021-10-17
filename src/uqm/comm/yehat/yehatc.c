@@ -335,6 +335,9 @@ static void
 YehatHome (RESPONSE_REF R)
 {
 
+	if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
+		SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
+
 	if (PLAYER_SAID (R, whats_up_homeworld))
 	{
 		BYTE NumVisits;
@@ -414,6 +417,9 @@ YehatSpace (RESPONSE_REF R)
 				break;
 			case 1:
 				NPCPhrase (GENERAL_INFO_SPACE_2);
+
+				if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
+					SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_SPACE_3);

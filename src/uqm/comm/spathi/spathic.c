@@ -736,6 +736,8 @@ Intro (void)
 			SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 0);
 			SET_GAME_STATE (SPATHI_HOME_VISITS, 0);
 		}
+		if (!GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
 
 		Response (identify, SpathiMustGrovel);
 		Response (hi_there, SpathiOnPluto);

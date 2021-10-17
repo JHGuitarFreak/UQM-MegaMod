@@ -626,6 +626,9 @@ Intro (void)
 					break;
 			}
 			SET_GAME_STATE (SUPOX_HOME_VISITS, NumVisits);
+
+			if (!GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
 		}
 		else
 		{

@@ -155,6 +155,8 @@ CombatIsInevitable (RESPONSE_REF R)
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_SPACE_3);
+				if (!GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD))
+					SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_SPACE_4);
@@ -581,6 +583,9 @@ Intro (void)
 				break;
 		}
 		SET_GAME_STATE (ILWRATH_CHMMR_VISITS, NumVisits);
+
+		Response(whats_up, CombatIsInevitable);
+		Response(bye, CombatIsInevitable);
 	}
 	else if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 5))
 	{

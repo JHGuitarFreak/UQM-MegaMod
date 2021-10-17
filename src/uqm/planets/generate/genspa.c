@@ -174,7 +174,7 @@ static bool
 GenerateSpathi_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (MET_A_SPATHI 
+	if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD)
 		&& CurStarDescPtr->Index == SPATHI_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{

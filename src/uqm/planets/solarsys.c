@@ -2769,7 +2769,8 @@ GetNamedPlanetaryBody (void)
 		{	// Source
 			return GAME_STRING (PLANET_NUMBER_BASE + 36);
 		}
-		else if (CurStarDescPtr->Index == SPATHI_DEFINED && MET_A_SPATHI)
+		else if (CurStarDescPtr->Index == SPATHI_DEFINED
+				&& GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
 		{	// Spathiwa
 			return GAME_STRING (PLANET_NUMBER_BASE + 37);
 		}
@@ -2784,11 +2785,13 @@ GetNamedPlanetaryBody (void)
 		{	// Gaia
 			return GAME_STRING (PLANET_NUMBER_BASE + 39);
 		}
-		else if (CurStarDescPtr->Index == UTWIG_DEFINED && MET_AN_UTWIG)
+		else if (CurStarDescPtr->Index == UTWIG_DEFINED
+				&& GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
 		{	// Fahz
 			return GAME_STRING (PLANET_NUMBER_BASE + 40);
 		}
-		else if (CurStarDescPtr->Index == DRUUGE_DEFINED && MET_A_DRUUGE)
+		else if (CurStarDescPtr->Index == DRUUGE_DEFINED
+				&& GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
 		{	// Trade HQ
 			return GAME_STRING (PLANET_NUMBER_BASE + 41);
 		}

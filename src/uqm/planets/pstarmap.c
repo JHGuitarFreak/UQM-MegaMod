@@ -460,6 +460,109 @@ DrawFuelCircles ()
 	SetContextForeGroundColor(OldColor);
 }
 
+BOOLEAN
+isHomeworld (BYTE Index)
+{
+	BOOLEAN raceBool = FALSE;
+
+	switch (Index)
+	{
+		case CHMMR_DEFINED:
+			if (GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD)
+				&& CheckAlliance (CHMMR_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case ORZ_DEFINED:
+			if (GET_GAME_STATE (KNOW_ORZ_HOMEWORLD)
+				&& CheckAlliance (ORZ_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case PKUNK_DEFINED:
+			if (GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD)
+				&& CheckAlliance (PKUNK_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case SHOFIXTI_DEFINED:
+			if (GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD)
+				&& CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case SPATHI_DEFINED:
+			if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD)
+				&& CheckAlliance (SPATHI_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case SUPOX_DEFINED:
+			if (GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD)
+				&& CheckAlliance (SUPOX_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case THRADD_DEFINED:
+			if (GET_GAME_STATE (KNOW_THRADD_HOMEWORLD)
+				&& CheckAlliance (THRADDASH_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case UTWIG_DEFINED:
+			if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD)
+				&& CheckAlliance (UTWIG_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case VUX_DEFINED:
+			if (GET_GAME_STATE (KNOW_VUX_HOMEWORLD)
+				&& CheckAlliance (VUX_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case YEHAT_DEFINED:
+			if (GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD)
+				&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case DRUUGE_DEFINED:
+			if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD)
+				&& CheckAlliance (DRUUGE_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case ILWRATH_DEFINED:
+			if (GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD)
+				&& CheckAlliance (ILWRATH_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case MYCON_DEFINED:
+			if (GET_GAME_STATE (KNOW_MYCON_HOMEWORLD)
+				&& CheckAlliance (MYCON_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case SLYLANDRO_DEFINED:
+			if (GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD)
+				&& Index == SLYLANDRO_DEFINED)
+				raceBool = TRUE;
+			break;
+		case UMGAH_DEFINED:
+			if (GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD)
+				&& CheckAlliance (UMGAH_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case ZOQFOT_DEFINED:
+			if (GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD)
+				&& CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case SYREEN_DEFINED:
+			if (GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD)
+				&& CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+		case ANDROSYNTH_DEFINED:
+			if (GET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD)
+				&& Index == ANDROSYNTH_DEFINED
+				&& CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
+				raceBool = TRUE;
+			break;
+	}
+
+	return raceBool;
+}
+
 static void
 DrawStarMap (COUNT race_update, RECT *pClipRect)
 {
@@ -722,57 +825,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_space <= 1 && which_starmap == HOMEWORLDS_MAP)
 	{
 		COUNT i;
-		BOOLEAN MetTheSyreen = (GET_GAME_STATE (SYREEN_HOME_VISITS)
-			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON));
 
 		for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
 		{
 			BYTE Index = star_array[i].Index;
-			
-			if ((CheckSphereTracking (DRUUGE_SHIP)
-					&& Index == DRUUGE_DEFINED)
-					|| (CheckSphereTracking (SPATHI_SHIP)
-						&& Index == SPATHI_DEFINED)
-					|| (CheckSphereTracking (UTWIG_SHIP)
-						&& Index == UTWIG_DEFINED)
-					|| (CheckAlliance (SYREEN_SHIP) != DEAD_GUY
-						&& MetTheSyreen
-						&& Index == SYREEN_DEFINED)
-					|| (MetTheSyreen && Index == EGG_CASE0_DEFINED)
-					|| (GET_GAME_STATE (SLYLANDRO_HOME_VISITS)
-						&& Index == SLYLANDRO_DEFINED)
-					|| (CheckSphereTracking (PKUNK_SHIP)
-						&& Index == PKUNK_DEFINED)
-					|| (CheckSphereTracking (ZOQFOTPIK_SHIP)
-						&& Index == ZOQFOT_DEFINED)
-					|| (CheckSphereTracking (SUPOX_SHIP)
-						&& Index == SUPOX_DEFINED)
-					|| (CheckSphereTracking (THRADDASH_SHIP)
-						&& Index == THRADD_DEFINED)
-					|| (CheckSphereTracking (UMGAH_SHIP)
-						&& Index == UMGAH_DEFINED)
-					|| (CheckSphereTracking (VUX_SHIP)
-						&& Index == VUX_DEFINED)
-					|| (CheckSphereTracking (ILWRATH_SHIP)
-						&& Index == ILWRATH_DEFINED)
-					|| (CheckSphereTracking (MYCON_SHIP)
-						&& Index == MYCON_DEFINED)
-					|| (CheckSphereTracking (ORZ_SHIP)
-						&& Index == ORZ_DEFINED)
-					|| ((GET_GAME_STATE (STARBASE_AVAILABLE)
-						|| CheckSphereTracking (YEHAT_SHIP))
-						&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY
-						&& Index == YEHAT_DEFINED)
-					|| (CheckAlliance (CHMMR_SHIP) != DEAD_GUY
-						&& GET_GAME_STATE (STARBASE_AVAILABLE)
-						&& Index == CHMMR_DEFINED)
-					|| (CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY
-						&& GET_GAME_STATE (STARBASE_AVAILABLE)
-						&& Index == ANDROSYNTH_DEFINED)
-					|| (CheckAlliance (SHOFIXTI_SHIP) != GOOD_GUY
-						&& GET_GAME_STATE (STARBASE_AVAILABLE)
-						&& Index == SHOFIXTI_DEFINED)
-				)
+
+			if (isHomeworld (Index))
 				DrawReticule (star_array[i].star_pt, TRUE);
 		}
 	}

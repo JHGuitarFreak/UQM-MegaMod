@@ -309,6 +309,8 @@ AllianceInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_SHOFIXTI);
 		AllianceMask |= ALLIANCE_SHOFIXTI;
+		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, yehat))
 	{
@@ -392,6 +394,7 @@ HierarchyInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_ANDROSYNTH);
 		HierarchyMask |= HIERARCHY_ANDROSYNTH;
+		SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, ilwrath))
 	{

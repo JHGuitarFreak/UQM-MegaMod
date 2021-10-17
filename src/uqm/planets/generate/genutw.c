@@ -146,7 +146,8 @@ static bool
 GenerateUtwig_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (MET_AN_UTWIG && CurStarDescPtr->Index == UTWIG_DEFINED
+	if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD)
+		&& CurStarDescPtr->Index == UTWIG_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),

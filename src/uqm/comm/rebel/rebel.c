@@ -241,6 +241,8 @@ RebelInfo (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, what_about_war))
 	{
 		NPCPhrase (ABOUT_WAR);
+		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
 
 		DISABLE_PHRASE (what_about_war);
 	}
