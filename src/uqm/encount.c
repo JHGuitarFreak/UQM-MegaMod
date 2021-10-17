@@ -696,36 +696,6 @@ UninitEncounter (void)
 								DrawFadeText (str1, str2, TRUE, &scavenge_r);
 							}
 
-							r.corner.y = scavenge_r.corner.y + RES_SCALE(9);
-							r.extent.height = RES_SCALE(22);
-
-							SetContextForeGroundColor (BLACK_COLOR);
-
-							r.extent.width = RES_SCALE(34);
-							r.corner.x = scavenge_r.corner.x +
-									scavenge_r.extent.width
-									- (RES_SCALE(10) + r.extent.width);
-							DrawFilledRectangle (&r);
-
-							/* collect bounty ResUnits */
-							j = ShipCost (EncounterRace) >> 3;
-							if (EncounterRace == SLYLANDRO_SHIP)
-								j = 550;
-							if (EncounterRace == MELNORME_SHIP)
-								j = j * 2;
-
-							RecycleAmount += j;
-							sprintf (buf, "%u", RecycleAmount);
-							t.baseline.x = r.corner.x + r.extent.width - RES_SCALE(1);
-							t.baseline.y = r.corner.y + RES_SCALE(14);
-							t.align = ALIGN_RIGHT;
-							t.pStr = buf;
-							t.CharCount = (COUNT)~0;
-							SetContextForeGroundColor (
-									BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x18), 0x50));
-							font_DrawText (&t);
-							DeltaSISGauges (0, 0, j);
-
 							if ((VictoryState++ - 1) % MAX_DEAD_DISPLAYED)
 								ship_s.origin.x += RES_SCALE(17);
 							else
@@ -738,6 +708,41 @@ UninitEncounter (void)
 
 								ship_s.origin.x = r.corner.x + RES_SCALE(2);
 								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(12);
+							}
+
+							{
+								r.corner.y = scavenge_r.corner.y + RES_SCALE (9);
+								r.extent.height = RES_SCALE (22);
+
+								SetContextForeGroundColor (BLACK_COLOR);
+
+								r.extent.width = RES_SCALE (34);
+								r.corner.x = scavenge_r.corner.x +
+									scavenge_r.extent.width
+									- (RES_SCALE (10) + r.extent.width);
+
+								BatchGraphics(); // to avoid blinking text
+								DrawFilledRectangle (&r);
+
+								/* collect bounty ResUnits */
+								j = ShipCost (EncounterRace) >> 3;
+								if (EncounterRace == SLYLANDRO_SHIP)
+									j = 550;
+								if (EncounterRace == MELNORME_SHIP)
+									j = j * 2;
+
+								RecycleAmount += j;
+								sprintf (buf, "%u", RecycleAmount);
+								t.baseline.x = r.corner.x + r.extent.width - RES_SCALE (1);
+								t.baseline.y = r.corner.y + RES_SCALE (14);
+								t.align = ALIGN_RIGHT;
+								t.pStr = buf;
+								t.CharCount = (COUNT)~0;
+								SetContextForeGroundColor (
+									BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x18), 0x50));
+								font_DrawText (&t);
+							UnbatchGraphics();
+								DeltaSISGauges (0, 0, j);
 							}
 
 							if (Sleepy)
@@ -768,7 +773,7 @@ UninitEncounter (void)
 
 								r.corner = ship_s.origin;
 								r.corner.x -= p.x;
-								r.corner.y += p.y;
+								r.corner.y -= p.y;
 								SetContextForeGroundColor (BLACK_COLOR);
 								DrawFilledRectangle (&r);
 							}
