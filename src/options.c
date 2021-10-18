@@ -116,6 +116,7 @@ int optFlagshipColor;
 BOOLEAN optNoHQEncounters;
 BOOLEAN optDeCleansing;
 BOOLEAN optMeleeObstacles;
+BOOLEAN optShowVisitedStars;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

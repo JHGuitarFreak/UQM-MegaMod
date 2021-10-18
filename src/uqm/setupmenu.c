@@ -80,7 +80,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         12
-#define CHOICE_COUNT       74
+#define CHOICE_COUNT       75
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       16
 #define LABEL_COUNT         5
@@ -242,6 +242,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[56]),   // Game Over switch
 	(WIDGET *)(&choices[41]),   // Submenu switch
 	(WIDGET *)(&choices[60]),   // SIS Facing HyperSpace
+	(WIDGET *)(&choices[74]),   // Show Visited Stars
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -678,6 +679,7 @@ SetDefaults (void)
 	choices[71].selected = opts.noHQEncounters;
 	choices[72].selected = opts.deCleansing;
 	choices[73].selected = opts.meleeObstacles;
+	choices[74].selected = opts.showVisitedStars;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -766,6 +768,7 @@ PropagateResults (void)
 	opts.noHQEncounters = choices[71].selected;
 	opts.deCleansing = choices[72].selected;
 	opts.meleeObstacles = choices[73].selected;
+	opts.showVisitedStars = choices[74].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1721,6 +1724,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->noHQEncounters = optNoHQEncounters ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2220,6 +2224,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("cheat.meleeObstacles", opts->meleeObstacles == OPTVAL_ENABLED);
 	optMeleeObstacles = opts->meleeObstacles == OPTVAL_ENABLED;
+
+	res_PutBoolean ("mm.showVisitedStars", opts->showVisitedStars == OPTVAL_ENABLED);
+	optShowVisitedStars = opts->showVisitedStars == OPTVAL_ENABLED;
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
