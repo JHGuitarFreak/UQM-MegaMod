@@ -64,25 +64,21 @@ static int quit_sub_menu (WIDGET *self, int event);
 static int do_graphics (WIDGET *self, int event);
 static int do_audio (WIDGET *self, int event);
 static int do_engine (WIDGET *self, int event);
-static int do_more_engine (WIDGET *self, int event);
-static int do_prev_engine (WIDGET *self, int event);
 static int do_cheats (WIDGET *self, int event);
 static int do_keyconfig (WIDGET *self, int event);
 static int do_advanced (WIDGET *self, int event);
 static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
-static int do_more_visual (WIDGET *self, int event);
-static int do_prev_visual (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         12
+#define MENU_COUNT         10
 #define CHOICE_COUNT       75
 #define SLIDER_COUNT        4
-#define BUTTON_COUNT       16
+#define BUTTON_COUNT       12
 #define LABEL_COUNT         5
 #define TEXTENTRY_COUNT     2
 #define CONTROLENTRY_COUNT  8
@@ -103,8 +99,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
-	do_keyconfig, do_music, do_visual, do_more_engine, do_prev_engine,
-	do_more_visual, do_prev_visual };
+	do_keyconfig, do_music, do_visual };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -154,14 +149,6 @@ static WIDGET *engine_widgets[] = {
 #endif
 	(WIDGET *)(&choices[11]),   // Cutscenes
 	(WIDGET *)(&choices[17]),   // Slave Shields
-#if !defined(ANDROID) || !defined(__ANDROID__)
-	(WIDGET *)(&labels[4]),     // Spacer
-#endif
-	(WIDGET *)(&buttons[12]),   // Next PC/3DO Page
-	(WIDGET *)(&buttons[1]),
-	NULL };
-
-static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[51]),   // Lander Hold Size
 	(WIDGET *)(&choices[62]),   // Interplanetary Style
@@ -170,9 +157,6 @@ static WIDGET *more_engine_widgets[] = {
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
 	(WIDGET *)(&choices[68]),   // Lander Style
-	(WIDGET *)(&choices[70]),   // Flagship Style
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[13]),   // Prev PC/3DO Page
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -255,22 +239,12 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[45]),   // Custom Border switch
 	(WIDGET *)(&choices[48]),   // Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),   // Fuel Range
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[14]),   // Next Visual Page
-	(WIDGET *)(&buttons[1]),    // Exit to Menu
-	NULL };
-
-static WIDGET *more_visual_widgets[] = {
 	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
 	(WIDGET *)(&choices[58]),   // Alternate Orz font
 	(WIDGET *)(&choices[65]),   // Non-Stop Scope
 	(WIDGET *)(&choices[67]),   // Animated HyperStars
 	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[15]),   // Prev. Visual Page
+	(WIDGET *)(&choices[70]),   // Flagship Style
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
@@ -306,8 +280,6 @@ menu_defs[] =
 	{editkeys_widgets, 7},
 	{music_widgets, 8},
 	{visual_widgets, 9},
-	{more_engine_widgets, 3},
-	{more_visual_widgets, 9},
 	{NULL, 0}
 };
 
@@ -402,32 +374,6 @@ do_engine (WIDGET *self, int event)
 }
 
 static int
-do_more_engine (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[10]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_prev_engine (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[3]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
 do_cheats (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
@@ -490,32 +436,6 @@ do_music (WIDGET *self, int event)
 
 static int
 do_visual (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[9]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_more_visual (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[11]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_prev_visual (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
