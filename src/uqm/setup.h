@@ -38,6 +38,7 @@ extern FRAME NebulaeFrame;
 extern FRAME hyperspacesuns;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
+extern FRAME visitedStarsFrame;
 extern FRAME FontGradFrame;
 extern FRAME BorderFrame;
 extern FRAME HDBorderFrame;

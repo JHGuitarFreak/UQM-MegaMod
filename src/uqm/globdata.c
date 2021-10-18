@@ -319,6 +319,11 @@ LoadSC2Data (void)
 		if (MiscDataFrame == NULL)
 			return FALSE;
 
+		visitedStarsFrame = CaptureDrawable (
+				LoadGraphic (VISITED_STARS_ANIM));
+		if (visitedStarsFrame == NULL)
+			return FALSE;
+
 		FontGradFrame = CaptureDrawable (
 				LoadGraphic (FONTGRAD_PMAP_ANIM));
 	}
@@ -592,6 +597,8 @@ FreeSC2Data (void)
 	FontGradFrame = 0;
 	DestroyDrawable (ReleaseDrawable (MiscDataFrame));
 	MiscDataFrame = 0;
+	DestroyDrawable (ReleaseDrawable (visitedStarsFrame));
+	visitedStarsFrame = 0;
 	DestroyDrawable (ReleaseDrawable (FlagStatFrame));
 	FlagStatFrame = 0;
 }

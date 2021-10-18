@@ -69,6 +69,7 @@ FRAME hyperspacesuns;
 FRAME NebulaeFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
+FRAME visitedStarsFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
 FRAME HDBorderFrame;

@@ -344,4 +344,5 @@
 #define URANUS_MASK_ANIM "graphics.uranusmask"
 #define VAULT_MASK_PMAP_ANIM "graphics.syreenvault"
 #define VENUS_MASK_ANIM "graphics.venusmask"
+#define VISITED_STARS_ANIM "graphics.visitedstars"
 #define WRECK_MASK_PMAP_ANIM "graphics.urquanwreck"

@@ -848,16 +848,31 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	do
 	{	// Draws all the stars
 		BYTE star_type;
+		static COUNT i = 0;
+		
+		i = i >= NUM_SOLAR_SYSTEMS ? 0 : i;
 
 		star_type = SDPtr->Type;
 
 		s.origin.x = UNIVERSE_TO_DISPX (SDPtr->star_pt.x);
 		s.origin.y = UNIVERSE_TO_DISPY (SDPtr->star_pt.y);
 		if (which_space <= 1)
-			s.frame = SetRelFrameIndex (star_frame,
-					STAR_TYPE (star_type)
-					* NUM_STAR_COLORS
-					+ STAR_COLOR (star_type));
+		{
+			
+			if (isStarVisited (i))
+			{
+				s.frame = SetRelFrameIndex (visitedStarsFrame,
+						STAR_TYPE (star_type)
+						* NUM_STAR_COLORS
+						+ STAR_COLOR (star_type));
+				printf ("%d\n", i);
+			}
+			else
+				s.frame = SetRelFrameIndex (star_frame,
+						STAR_TYPE (star_type)
+						* NUM_STAR_COLORS
+						+ STAR_COLOR (star_type));
+		}
 		else if (SDPtr->star_pt.x == ARILOU_HOME_X
 				&& SDPtr->star_pt.y == ARILOU_HOME_Y)
 			s.frame = SetRelFrameIndex (star_frame,
@@ -867,6 +882,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					GIANT_STAR * NUM_STAR_COLORS + GREEN_BODY);
 		DrawStamp (&s);
 
+		++i;
 		++SDPtr;
 	} while (SDPtr->star_pt.x <= MAX_X_UNIVERSE
 			&& SDPtr->star_pt.y <= MAX_Y_UNIVERSE);
