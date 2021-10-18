@@ -857,15 +857,13 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		s.origin.x = UNIVERSE_TO_DISPX (SDPtr->star_pt.x);
 		s.origin.y = UNIVERSE_TO_DISPY (SDPtr->star_pt.y);
 		if (which_space <= 1)
-		{
-			
-			if (isStarVisited (i))
+		{			
+			if (optShowVisitedStars && isStarVisited (i))
 			{
 				s.frame = SetRelFrameIndex (visitedStarsFrame,
 						STAR_TYPE (star_type)
 						* NUM_STAR_COLORS
 						+ STAR_COLOR (star_type));
-				printf ("%d\n", i);
 			}
 			else
 				s.frame = SetRelFrameIndex (star_frame,
@@ -1076,6 +1074,19 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 
 #define CURSOR_INFO_BUFSIZE 256
 
+int starIndex (POINT starPt)
+{
+	COUNT i;
+
+	for (i = 0; i <= NUM_SOLAR_SYSTEMS; i++)
+	{
+		if (star_array[i].star_pt.x == starPt.x
+			&& star_array[i].star_pt.y == starPt.y)
+			break;
+	}
+	return i;
+}
+
 static void
 UpdateCursorInfo (UNICODE *prevbuf)
 {
@@ -1170,7 +1181,18 @@ UpdateCursorInfo (UNICODE *prevbuf)
 		
 		// Cursor is on top of a star. Display its name.
 		if (BestSDPtr)
+		{
+			if (optShowVisitedStars
+				&& isStarVisited (starIndex (BestSDPtr->star_pt)))
+			{
+				UNICODE visBuf[CURSOR_INFO_BUFSIZE] = "";
+
+				utf8StringCopy (visBuf, sizeof (visBuf), buf);
+				snprintf (buf, sizeof buf, "%c %s %c", '(', visBuf, ')');
+			}
+
 			DrawSISMessage (buf);
+		}
 		// Cursor is elsewhere.
 		else
 		{

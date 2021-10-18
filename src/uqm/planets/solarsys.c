@@ -2280,6 +2280,9 @@ InitSolarSys (void)
 
 		ResetSolarSys ();
 
+		if (!isStarVisited (INTERNAL_STAR_INDEX))
+			setStarVisited ();
+
 		// JMS: This is to prevent flashing the 3do "navigate"
 		// unnecessarily whilst starting a new game.
 		// SetFlashRect (NULL);
@@ -2311,9 +2314,6 @@ InitSolarSys (void)
 			else
 			{
 				DrawOuterSystem ();
-
-				if (!isStarVisited (INTERNAL_STAR_INDEX))
-					setStarVisited ();
 			}
 			RedrawQueue (FALSE);
 			ScreenTransition (optIPScaler, NULL);
@@ -2844,12 +2844,13 @@ GetNamedPlanetaryBody (void)
 		{	// Unzervalt
 			return GAME_STRING (PLANET_NUMBER_BASE + 33);
 		}
-		else if (CurStarDescPtr->Index == SHOFIXTI_DEFINED)
+		else if (CurStarDescPtr->Index == SHOFIXTI_DEFINED
+				&& GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
 		{	// Kyabetsu
 			return GAME_STRING (PLANET_NUMBER_BASE + 35);
 		}
 		else if (CurStarDescPtr->Index == SLYLANDRO_DEFINED
-			&& GET_GAME_STATE (SLYLANDRO_HOME_VISITS))
+				&& GET_GAME_STATE (SLYLANDRO_HOME_VISITS))
 		{	// Source
 			return GAME_STRING (PLANET_NUMBER_BASE + 36);
 		}
@@ -2859,13 +2860,13 @@ GetNamedPlanetaryBody (void)
 			return GAME_STRING (PLANET_NUMBER_BASE + 37);
 		}
 		else if (CurStarDescPtr->Index == SUPOX_DEFINED 
-			&& GET_GAME_STATE (SUPOX_STACK1) > 2)
+				&& GET_GAME_STATE (SUPOX_STACK1) > 2)
 		{	// Vlik
 			return GAME_STRING (PLANET_NUMBER_BASE + 38);
 		}
 		else if (CurStarDescPtr->Index == SYREEN_DEFINED 
-			&& (GET_GAME_STATE (SYREEN_HOME_VISITS)
-			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
+				&& (GET_GAME_STATE (SYREEN_HOME_VISITS)
+				|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
 		{	// Gaia
 			return GAME_STRING (PLANET_NUMBER_BASE + 39);
 		}
