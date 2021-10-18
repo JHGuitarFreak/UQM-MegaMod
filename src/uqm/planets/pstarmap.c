@@ -858,7 +858,9 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		s.origin.y = UNIVERSE_TO_DISPY (SDPtr->star_pt.y);
 		if (which_space <= 1)
 		{			
-			if (optShowVisitedStars && isStarVisited (i))
+			if (optShowVisitedStars && isStarVisited (i)
+					&& which_starmap == NORMAL_STARMAP
+					&& SDPtr->Index != SOL_DEFINED)
 			{
 				s.frame = SetRelFrameIndex (visitedStarsFrame,
 						STAR_TYPE (star_type)
