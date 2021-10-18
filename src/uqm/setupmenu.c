@@ -100,18 +100,6 @@ static WIDGET_CONTROLENTRY controlentries[CONTROLENTRY_COUNT];
 
 typedef int (*HANDLER)(WIDGET *, int);
 
-// Each number corresponds to a choice widget in order starting from choices[0]
-// The value determines how many columns the choice has.
-static int choice_widths[CHOICE_COUNT] = {
-	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 0-9
-	2, 2, 2, 2, 2, 3, 3, 2, 3, 3,   // 10-19
-	3, 2, 2, 2, 2, 3, 3, 2, 2, 2,   // 20-29
-	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
-	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
-	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2, 2, 2, 3, 2, 2, 2, 2, 2, 2,   // 60-69
-	2, 2, 2, 2 };                   // 70-74
-
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
@@ -1185,7 +1173,6 @@ init_widgets (void)
 		choices[i].options = NULL;
 		choices[i].selected = 0;
 		choices[i].highlighted = 0;
-		choices[i].maxcolumns = choice_widths[i];
 		choices[i].onChange = NULL;
 	}
 

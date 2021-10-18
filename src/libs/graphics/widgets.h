@@ -87,7 +87,6 @@ typedef struct _widget_choice {
 	int (*width)(struct _widget *self);
 	const char *category;
 	int numopts;
-	int maxcolumns;
 	CHOICE_OPTION *options;
 	int selected, highlighted;
 	void (*onChange)(struct _widget_choice *self, int oldval);
