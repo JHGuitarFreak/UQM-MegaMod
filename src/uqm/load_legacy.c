@@ -1350,7 +1350,7 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 	// JMS: Let's not read the 'autopilot ok' and QS portal
 	// coord bits for vanilla UQM saves.
 	{ 
-		size_t numBytes = ((NUM_GAME_STATE_BITS + 7) >> 3); 
+		size_t numBytes = ((1255 + 7) >> 3);
 		BYTE *buf; 
 		
 		numBytes = (vanilla ? numBytes - 2 : numBytes);
@@ -1597,7 +1597,7 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 		res_CloseResFile (in_fp);
 		
 		if (!try_vanilla)
-		{			
+		{
 			LoadLegacyGame (which_game, NULL, TRUE);
 			return TRUE;
 		}
