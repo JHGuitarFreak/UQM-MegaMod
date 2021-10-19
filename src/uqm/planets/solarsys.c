@@ -92,6 +92,13 @@ enum SolarSysMenuMenuItems
 	NAVIGATION,
 };
 
+enum CardinalDirections
+{
+	NORTH = 1,
+	EAST,
+	SOUTH,
+	WEST,
+};
 
 SOLARSYS_STATE *pSolarSysState;
 FRAME SISIPFrame;
@@ -1370,20 +1377,52 @@ ProcessShipControls (void)
 		// Currently this code points the ship to the intended destination
 		if (optShipFacingHS)
 		{
-			POINT universe;
 			SIZE facing;
-			SDWORD udx = 0, udy = 0;
 			COUNT frame_index;
 
-			universe.x = LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x));
-			universe.y = LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y));
-			udx = (GLOBAL(autopilot)).x - universe.x;
-			udy = -((GLOBAL(autopilot)).y - universe.y);
+			POINT scrLoc = GLOBAL (ShipStamp.origin);
+			POINT maxBounds = MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT);
+			COUNT cardinalDir = 0;
+
+			if (scrLoc.x <= (maxBounds.x / 2) && scrLoc.y <= (maxBounds.y / 2))
+			{
+				if (scrLoc.x < scrLoc.y)
+					cardinalDir = WEST;
+				else
+					cardinalDir = NORTH;
+			}
+			else if (scrLoc.x >= (maxBounds.x / 2) && scrLoc.y <= (maxBounds.y / 2))
+			{
+				if ((maxBounds.x - scrLoc.x) < scrLoc.y)
+					cardinalDir = EAST;
+				else
+					cardinalDir = NORTH;
+			}
+			else if (scrLoc.x >= (maxBounds.x / 2) && scrLoc.y >= (maxBounds.y / 2))
+			{
+				if ((maxBounds.x - scrLoc.x) < (maxBounds.y - scrLoc.y))
+					cardinalDir = EAST;
+				else
+					cardinalDir = SOUTH;
+			}
+			else if (scrLoc.x <= (maxBounds.x / 2) && scrLoc.y >= (maxBounds.y / 2))
+			{
+				if (scrLoc.x < (maxBounds.y - scrLoc.y))
+					cardinalDir = WEST;
+				else
+					cardinalDir = SOUTH;
+			}
 
 			frame_index = GetFrameIndex (GLOBAL (ShipStamp.frame));
 
-			facing = NORMALIZE_FACING (
-					ANGLE_TO_FACING (ARCTAN (udx, udy)));
+			switch (cardinalDir)
+			{
+				case NORTH: facing = 0; break;
+				case EAST: facing = 4; break;
+				case SOUTH: facing = 8; break;
+				case WEST: facing = 12; break;
+				default: facing = frame_index; break;
+			}
 
 			if ((int)facing != frame_index)
 			{
