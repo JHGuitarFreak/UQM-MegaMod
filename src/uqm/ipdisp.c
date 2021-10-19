@@ -749,8 +749,9 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 			vdx >>= 1;
 			vdy >>= 1;
 		}
-		else if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+		else if ((CurrentInputState.key[PlayerControls[0]][KEY_UP]
 			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
+			|| (vdx == 0 && vdy == 0))
 		{
 			legacySave = FALSE;
 		}
