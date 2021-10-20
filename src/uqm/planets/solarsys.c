@@ -1372,41 +1372,43 @@ ProcessShipControls (void)
 	}
 	else if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
 	{
-		// Cram code here
-		// I want the ship to face the closest hyper exit and accelerate
-		// Currently this code points the ship to the intended destination
 		if (optShipFacingHS)
 		{
 			SIZE facing;
 			COUNT frame_index;
 
 			POINT scrLoc = GLOBAL (ShipStamp.origin);
-			POINT maxBounds = MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT);
+			POINT maxBounds =
+					MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT);
 			COUNT cardinalDir = 0;
 
-			if (scrLoc.x <= (maxBounds.x / 2) && scrLoc.y <= (maxBounds.y / 2))
-			{
+			if (scrLoc.x <= (maxBounds.x / 2)
+					&& scrLoc.y <= (maxBounds.y / 2))
+			{	// NorthWest Quadrant
 				if (scrLoc.x < scrLoc.y)
 					cardinalDir = WEST;
 				else
 					cardinalDir = NORTH;
 			}
-			else if (scrLoc.x >= (maxBounds.x / 2) && scrLoc.y <= (maxBounds.y / 2))
-			{
+			else if (scrLoc.x >= (maxBounds.x / 2)
+					&& scrLoc.y <= (maxBounds.y / 2))
+			{	// NorthEast Quadrant
 				if ((maxBounds.x - scrLoc.x) < scrLoc.y)
 					cardinalDir = EAST;
 				else
 					cardinalDir = NORTH;
 			}
-			else if (scrLoc.x >= (maxBounds.x / 2) && scrLoc.y >= (maxBounds.y / 2))
-			{
+			else if (scrLoc.x >= (maxBounds.x / 2)
+					&& scrLoc.y >= (maxBounds.y / 2))
+			{	// SouthEast Quadrant
 				if ((maxBounds.x - scrLoc.x) < (maxBounds.y - scrLoc.y))
 					cardinalDir = EAST;
 				else
 					cardinalDir = SOUTH;
 			}
-			else if (scrLoc.x <= (maxBounds.x / 2) && scrLoc.y >= (maxBounds.y / 2))
-			{
+			else if (scrLoc.x <= (maxBounds.x / 2)
+					&& scrLoc.y >= (maxBounds.y / 2))
+			{	// SouthWest Quadrant
 				if (scrLoc.x < (maxBounds.y - scrLoc.y))
 					cardinalDir = WEST;
 				else
