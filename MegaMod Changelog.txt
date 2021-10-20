@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
-- HARDMODE: If you don't start the rebellion before the Pkunk arrive, you don't get any help at the end.
 
 ## [WIP]
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
@@ -18,14 +17,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Show gas giant type on the scan screen (I.E. Blue Gas Giant)
 - HD: Created new HD Vanilla border overlay
 - If the Captain and/or Flagship names are left blank at game start then the default names are used.
-- HD: Gave the Kohr-Ah a new bottom-eye animation (Always bugged me that not all the eyes animated)
+- Gave the Kohr-Ah a new bottom-eye animation - Kruzen
 - EXTENDED: Charon, the moon of Pluto, is now explorable
 - Kruzenshtern: Added support for displaying PC-DOS styled planets while traversing solar systems
 - Kruzenshtern: Added the leading edge to the planet scan mimicing the 3DO scan
 - Kruzenshtern: Option to have the planet scan also color the spinning planet a la the PC-DOS version
 - SETUPMENU: Added an option to pick between PC-DOS, 3DO, and Vanilla UQM styled star backgrounds (The stars while in a solar system) [When not using a custom seed]
-- SETUPMENU: Added a new page to the PC/3DO options
-- SETUPMENU: Added a new page to the Visual options
 - Added option for PC-DOS scan style (static color while minerals are revealed) - Kruzen
 - Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
 - Kruzenshtern: Add function that mimics the pulsing purple box from PC-DOS ver. when picking a ship
@@ -48,7 +45,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Brand new Flagship designed off the vanilla version created by Jordan Lo
 - HD: Brand new set of Flagship modules designed off the vanilla versions created by Jordan Lo
 - EXTENDED: Ability to fill Syreen crew to max in the Shipyard
-- HARD MODE: Pkunk Exodus starts 6 months game start
 - Add ability to sell your remaining credits to the Melnorme for fuel
 - HD: Added an attribution file for the various art I've used from the internet to the HD content folder
 - Kruzenshtern: Added the full Syreen "sex scene" from the PC-DOS version
@@ -57,6 +53,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: New Androsynth excavation site on Alpha Lalande 1. Idea, art, and lander report by Kruzen
 - EXTENDED: New Precursor artifact on Alpha Apodis 4. Idea, art, and lander report by Kruzen
 - Extra flashing rectangle on the Outfit screen for the Flagship's side-view like the PC-DOS version - Kruzen
+- Added a "Known Homeworlds" map that shows a reticule over alien homeworlds as you learn of them
+- Added option to enable Auto-Pilot to find the shortest route out of the solar system
+- Added option to show visited stars by dimming them on the starmap and surrounding the star name in parenthesis.
+- HARDMODE: Added harder encounters at the Chmmr homeworld, Sun Device, Aqua Helix, Ur-Quan wreck, and Syreen vault - Kruzen
+- HARDMODE: Druuge sell the Rosy Sphere on second deal - Kruzen
+- HARDMODE: No help before the final battle if the Pkunk are absorbed before triggering the Yehat rebellion - Kruzen
+- Added option and graphics for picking a difficulty when starting a new game - Kruzen
+- EXTENDED: Added the ability to tell the Ilwrath to GTFO of any star system in their SOI via Hyperwave Broadcaster a maximum of 5 times before they wise-up and attack you.
+- Added an animation for selling Rainbow Worlds to the Melnorme - Kruzen
+- CHEAT: Add option to disable planet and asteroid in Super Melee (only against non-network opponents) - Kruzen
+- CHEAT: Remade the old De-Cleansing Mod and added it as an option
 
 
 ### Changed
@@ -88,7 +95,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: Make the Sa-Matra battle more difficult - Kruzenshtern
 - EXTENDED: Set encountered world to moon when applicable - Kruzen
 - Flagship graphics now defaults to the PC green engined variant for all instances
-- Picking Xbox or PS4 controls auto-selects the correct control scheme
 - EXTENDED: Enable Sa-Matra sound effects - Kruzen
 - HD: New Chenjesu Shard weapon art by Kruzen
 - HD: Recreated the Chenjesu's D.O.G.I. to be more faithful to the best of my ability
@@ -101,6 +107,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Widened the various laser beams used in Super Melee
 - EXTENDED: Start a new game with only 31 crew.
 - Full Setup Menu redesign, options grouped together with indicators and menus can now scroll up and down - Kruzen
+- Use the "special" key to double cursor speed on the StarMap
+- HD: Adjust intersecting scale of Starbases and planets in-engine - Kruzen
+- Mimic DOS victory camera when stepped melee scale is selected - Kruzen
+- HARDMODE: Cut reinforcements in half where applicable - Kruzen
+- EXTENDED: "Pop" Beta Ophiuchi's slave shield on Arilou destruction - Kruzen
+- EXTENDED: "Pop" Spathiwa's slave shield and generate 3-4 ruins on Orz destruction - Kruzen
+- Change planet spin speed on scan screen depending on scan style chosen - Kruzen
+- CHEAT: Cleaned up allied race code so the unlock ships cheat will never mess with alliances
+- Center star search text as it's being typed - Kruzen
 
 
 ### Fixed
@@ -136,6 +151,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Fixed the Starmap grid so that it draws properly - Kruzen
 - Fix Flagship speed doubling when going from Save/Load screen straight to navigation
 - Fix SIS speed doubling when going from Save/Load screen straight to interplanetary navigation
+- HD: Remove red outline of defeated ships on the debris screen - Kruzen
 
 
 ## [v0.8.0.85]
