@@ -74,7 +74,7 @@ GenerateMyconDefenders (BYTE index)
 		ReinitQueue (&GLOBAL (ip_group_q));
 		assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-		for (COUNT i = 0; i < 5; ++i)
+		for (COUNT i = 0; i < 4; ++i)
 			CloneShipFragment (MYCON_SHIP,
 				&GLOBAL (npc_built_ship_q), 0);
 
@@ -190,7 +190,7 @@ GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				}
 				else
 				{
-					COUNT sum = DIF_CASE (5, 3, 14);
+					COUNT sum = DIF_CASE (5, 3, 12);
 
 					for (COUNT i = 0; i < sum; ++i)
 						CloneShipFragment (MYCON_SHIP,

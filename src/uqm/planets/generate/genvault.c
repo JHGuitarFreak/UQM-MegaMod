@@ -97,7 +97,8 @@ GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		else if (GET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP))
 		{
 			if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS)
-					& 1 << URQUAN_ENCOUNTER))
+						& 1 << URQUAN_ENCOUNTER)
+					&& !(GET_GAME_STATE(KOHR_AH_FRENZY)))
 			{
 				PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 				ReinitQueue (&GLOBAL (ip_group_q));

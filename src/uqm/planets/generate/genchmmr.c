@@ -163,25 +163,26 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					return true;
 				}
 				else if (GET_GAME_STATE (SUN_DEVICE_ON_SHIP)
-					&& ((!GET_GAME_STATE(ILWRATH_DECEIVED)
-					&& StartSphereTracking(ILWRATH_SHIP))
-					|| (!(GET_GAME_STATE(HM_ENCOUNTERS)
-					& 1 << ILWRATH_ENCOUNTER) && DIF_HARD)))
+						&& ((!GET_GAME_STATE (ILWRATH_DECEIVED)
+						&& StartSphereTracking (ILWRATH_SHIP))
+						|| (!(GET_GAME_STATE (HM_ENCOUNTERS)
+						& 1 << ILWRATH_ENCOUNTER)
+						&& DIF_HARD && !(GET_GAME_STATE (KOHR_AH_FRENZY)))))
 				{
 					PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 					ReinitQueue (&GLOBAL (ip_group_q));
 					assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-					if (GET_GAME_STATE(ILWRATH_DECEIVED) && DIF_HARD)
+					if (GET_GAME_STATE (ILWRATH_DECEIVED) && DIF_HARD)
 					{
 						COUNT lim;
-						if (StartSphereTracking(ILWRATH_SHIP))
+						if (StartSphereTracking (ILWRATH_SHIP))
 							lim = 14;
 						else
 							lim = 6;
 
 						for (COUNT i = 0; i < lim; ++i)
-							CloneShipFragment(ILWRATH_SHIP,
+							CloneShipFragment (ILWRATH_SHIP,
 								&GLOBAL(npc_built_ship_q), 0);
 					}
 					else
@@ -196,7 +197,8 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						return true;
 
 					{
-						BOOLEAN Survivors = GetHeadLink(&GLOBAL(npc_built_ship_q)) != 0;
+						BOOLEAN Survivors =
+								GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
 
 						GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 						ReinitQueue (&GLOBAL (npc_built_ship_q));
@@ -208,17 +210,17 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						{
 							UWORD state;
 
-							state = GET_GAME_STATE(HM_ENCOUNTERS);
+							state = GET_GAME_STATE (HM_ENCOUNTERS);
 
 							state |= 1 << ILWRATH_ENCOUNTER;
 
-							SET_GAME_STATE(HM_ENCOUNTERS, state);
-					}
+							SET_GAME_STATE (HM_ENCOUNTERS, state);
+						}
 
-						RepairSISBorder();
+						RepairSISBorder ();
 					}
 					
-					GenerateDefault_generateOrbital(solarSys, world);
+					GenerateDefault_generateOrbital (solarSys, world);
 
 					return true;
 				}

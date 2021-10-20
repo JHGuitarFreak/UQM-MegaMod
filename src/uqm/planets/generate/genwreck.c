@@ -83,7 +83,14 @@ GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			ReinitQueue (&GLOBAL (ip_group_q));
 			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-			for (COUNT i = 0; i < 4; ++i)
+			COUNT sum;
+
+			if (GET_GAME_STATE (DESTRUCT_CODE_ON_SHIP))
+				sum = 2;
+			else
+				sum = 4;
+
+			for (COUNT i = 0; i < sum; ++i)
 				CloneShipFragment (SLYLANDRO_SHIP,
 					&GLOBAL (npc_built_ship_q), 0);
 

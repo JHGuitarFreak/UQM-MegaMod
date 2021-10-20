@@ -60,13 +60,13 @@ extern void GeneratePlanets (SOLARSYS_STATE *system);
 extern const GenerateFunctions generateDefaultFunctions;
 
 typedef enum {
-	ILWRATH_ENCOUNTER, // 14 ships at procyon even if ilwrath left
-	PROBE_ENCOUNTER, // 4 probes at dreadnought wreck
+	ILWRATH_ENCOUNTER, // 14/6 ships at procyon even if ilwrath left
+	PROBE_ENCOUNTER, // 4/2 probes at dreadnought wreck
 	URQUAN_ENCOUNTER, // 6 dreadnoughts at vault if the shuttle is on board
-	EGGCASE00_ENCOUNTER, // 5 mycon
-	EGGCASE01_ENCOUNTER, // 5 mycon 
-	EGGCASE02_ENCOUNTER, // 5 mycon
-	THRADDASH_ENCOUNTER, // 14 thraddash minimum at all time
+	EGGCASE00_ENCOUNTER, // 4 mycon
+	EGGCASE01_ENCOUNTER, // 4 mycon 
+	EGGCASE02_ENCOUNTER, // 4 mycon
+	THRADDASH_ENCOUNTER, // 12/6 thraddash minimum at all time
 	NO_HELP_FROM_PKUNK, // no help before final battle if pkunk are absorbed before the revolt
 	READY_TO_BARGAIN // druuge sell rosy sphere on second deal
 } HARDMODE_ENCOUNTERS;
