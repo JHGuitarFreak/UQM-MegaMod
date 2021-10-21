@@ -169,7 +169,7 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 				&& !(GET_GAME_STATE (HM_ENCOUNTERS)
 					& 1 << THRADDASH_ENCOUNTER) &&
 				StartSphereTracking (THRADDASH_SHIP)
-				|| !(GET_GAME_STATE(KOHR_AH_FRENZY))))
+				|| !(GET_GAME_STATE(KOHR_AH_FRENZY)))
 		{
 			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 			ReinitQueue (&GLOBAL (ip_group_q));
