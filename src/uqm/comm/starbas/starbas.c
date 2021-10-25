@@ -170,6 +170,7 @@ DoSellMinerals (void)
 {
 	COUNT total = 0;
 	BOOLEAN Sleepy = TRUE;
+	COUNT count = 0;
 
 	FlushInput ();
 
@@ -178,66 +179,97 @@ DoSellMinerals (void)
 		COUNT amount;
 		DWORD TimeIn = 0;
 
-		if (i == 0)
+		if (usingSpeech)
 		{
-			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
-			TimeIn = GetTimeCounter () + ONE_SECOND / 2;
-			while (GetTimeCounter () <= TimeIn)
+			if (i == 0)
 			{
-				if (AnyButtonPress (TRUE) ||
-					(GLOBAL(CurrentActivity) & CHECK_ABORT))
+				DrawCargoStrings ((BYTE)~0, (BYTE)~0);
+				TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+				while (GetTimeCounter () <= TimeIn)
 				{
-					Sleepy = FALSE;
-					break;
+					if (AnyButtonPress (TRUE) ||
+						(GLOBAL (CurrentActivity) & CHECK_ABORT))
+					{
+						Sleepy = FALSE;
+						break;
+					}
+					UpdateDuty (FALSE);
 				}
-				UpdateDuty (FALSE);
-			}
 
-			if (Sleepy)
-				DrawCargoStrings ((BYTE)0, (BYTE)0);
-		}
-		else if (Sleepy)
-		{
-			DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
+				if (Sleepy)
+					DrawCargoStrings ((BYTE)0, (BYTE)0);
+			}
+			else if (Sleepy)
+			{
+				DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
+			}
 		}
 
 		if ((amount = GLOBAL_SIS (ElementAmounts[i])) != 0)
 		{
-			total += amount * GLOBAL (ElementWorth[i]);
-			do
+			if (usingSpeech)
 			{
-				if (!Sleepy || AnyButtonPress (TRUE) ||
-					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				total += amount * GLOBAL (ElementWorth[i]);
+				do
 				{
-					Sleepy = FALSE;
-					GLOBAL_SIS (ElementAmounts[i]) = 0;
-					GLOBAL_SIS (TotalElementMass) -= amount;
-					DeltaSISGauges (0, 0, amount * GLOBAL(ElementWorth[i]));
-					break;
-				}
+					if (!Sleepy || AnyButtonPress (TRUE) ||
+						(GLOBAL (CurrentActivity) & CHECK_ABORT))
+					{
+						Sleepy = FALSE;
+						GLOBAL_SIS (ElementAmounts[i]) = 0;
+						GLOBAL_SIS (TotalElementMass) -= amount;
+						DeltaSISGauges (0, 0, amount * GLOBAL (ElementWorth[i]));
+						break;
+					}
 
-				UpdateDuty (FALSE);
+					UpdateDuty (FALSE);
 
-				--GLOBAL_SIS (ElementAmounts[i]);
-				--GLOBAL_SIS (TotalElementMass);
-				TaskSwitch ();
-				DrawCargoStrings ((BYTE)i, (BYTE)i);
-				ShowRemainingCapacity ();
-				DeltaSISGauges (0, 0, GLOBAL(ElementWorth[i]));
-			} while (--amount);
+					--GLOBAL_SIS (ElementAmounts[i]);
+					--GLOBAL_SIS (TotalElementMass);
+					TaskSwitch ();
+					DrawCargoStrings ((BYTE)i, (BYTE)i);
+					ShowRemainingCapacity ();
+					DeltaSISGauges (0, 0, GLOBAL (ElementWorth[i]));
+				} while (--amount);
+			}
+			else
+			{
+				COUNT Ru = amount * GLOBAL (ElementWorth[i]);
+
+				if (count > 0)
+					NPCPhrase (ELLIPSES);
+				else
+					NPCPhrase (BLANK);
+				NPCNumber (amount, NULL);
+				NPCPhrase_splice (KILOTONS_OF);
+				NPCPhrase_splice (COMMONR + i);
+				NPCPhrase_splice (FOR);
+				NPCNumber (Ru, NULL);
+				NPCPhrase (RESUNITS);
+
+				total += Ru;
+				GLOBAL_SIS (ElementAmounts[i]) = 0;
+				GLOBAL_SIS (TotalElementMass) -= amount;
+				DeltaSISGauges (0, 0, Ru);
+				++count;
+			}
 		}
-		if (Sleepy)
+
+		if (usingSpeech)
 		{
-			TimeIn = GetTimeCounter () + (ONE_SECOND / 4);
-			while (GetTimeCounter () <= TimeIn)
+			if (Sleepy)
 			{
-				if (AnyButtonPress (TRUE) ||
-					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				TimeIn = GetTimeCounter () + (ONE_SECOND / 4);
+				while (GetTimeCounter () <= TimeIn)
 				{
-					Sleepy = FALSE;
-					break;
+					if (AnyButtonPress (TRUE) ||
+						(GLOBAL (CurrentActivity) & CHECK_ABORT))
+					{
+						Sleepy = FALSE;
+						break;
+					}
+					UpdateDuty (FALSE);
 				}
-				UpdateDuty (FALSE);
 			}
 		}
 	}
@@ -1725,6 +1757,9 @@ SellMinerals (RESPONSE_REF R)
 	COUNT total;
 	RESPONSE_REF pStr1 = 0;
 	RESPONSE_REF pStr2 = 0;
+
+	if (!usingSpeech)
+		NPCPhrase (CARGO_LIST);
 
 	total = DoSellMinerals();
 
