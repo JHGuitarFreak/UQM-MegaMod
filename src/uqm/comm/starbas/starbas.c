@@ -165,12 +165,11 @@ static LOCDATA commander_desc =
 
 static DWORD CurBulletinMask;
 
-COUNT
+static COUNT
 DoSellMinerals (void)
 {
 	COUNT total = 0;
 	BOOLEAN Sleepy = TRUE;
-	COUNT count = 0;
 
 	FlushInput ();
 
@@ -179,97 +178,67 @@ DoSellMinerals (void)
 		COUNT amount;
 		DWORD TimeIn = 0;
 
-		if (usingSpeech)
+		if (i == 0)
 		{
-			if (i == 0)
+			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
+			TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+			while (GetTimeCounter () <= TimeIn)
 			{
-				DrawCargoStrings ((BYTE)~0, (BYTE)~0);
-				TimeIn = GetTimeCounter () + ONE_SECOND / 2;
-				while (GetTimeCounter () <= TimeIn)
+				if (AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
 				{
-					if (AnyButtonPress (TRUE) ||
-						(GLOBAL (CurrentActivity) & CHECK_ABORT))
-					{
-						Sleepy = FALSE;
-						break;
-					}
-					UpdateDuty (FALSE);
+					Sleepy = FALSE;
+					break;
 				}
+				UpdateDuty (FALSE);
+			}
 
-				if (Sleepy)
-					DrawCargoStrings ((BYTE)0, (BYTE)0);
-			}
-			else if (Sleepy)
-			{
-				DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
-			}
+			if (Sleepy)
+				DrawCargoStrings ((BYTE)0, (BYTE)0);
+		}
+		else if (Sleepy)
+		{
+			DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
 		}
 
 		if ((amount = GLOBAL_SIS (ElementAmounts[i])) != 0)
 		{
-			if (usingSpeech)
+			total += amount * GLOBAL (ElementWorth[i]);
+			do
 			{
-				total += amount * GLOBAL (ElementWorth[i]);
-				do
+				if (!Sleepy || AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
 				{
-					if (!Sleepy || AnyButtonPress (TRUE) ||
-						(GLOBAL (CurrentActivity) & CHECK_ABORT))
-					{
-						Sleepy = FALSE;
-						GLOBAL_SIS (ElementAmounts[i]) = 0;
-						GLOBAL_SIS (TotalElementMass) -= amount;
-						DeltaSISGauges (0, 0, amount * GLOBAL (ElementWorth[i]));
-						break;
-					}
-
-					UpdateDuty (FALSE);
-
-					--GLOBAL_SIS (ElementAmounts[i]);
-					--GLOBAL_SIS (TotalElementMass);
-					TaskSwitch ();
-					DrawCargoStrings ((BYTE)i, (BYTE)i);
-					ShowRemainingCapacity ();
-					DeltaSISGauges (0, 0, GLOBAL (ElementWorth[i]));
-				} while (--amount);
-			}
-			else
-			{
-				COUNT Ru = amount * GLOBAL (ElementWorth[i]);
-
-				if (count > 0)
-					NPCPhrase (ELLIPSES);
-				else
-					NPCPhrase (BLANK);
-				NPCNumber (amount, NULL);
-				NPCPhrase_splice (KILOTONS_OF);
-				NPCPhrase_splice (COMMONR + i);
-				NPCPhrase_splice (FOR);
-				NPCNumber (Ru, NULL);
-				NPCPhrase (RESUNITS);
-
-				total += Ru;
-				GLOBAL_SIS (ElementAmounts[i]) = 0;
-				GLOBAL_SIS (TotalElementMass) -= amount;
-				DeltaSISGauges (0, 0, Ru);
-				++count;
-			}
-		}
-
-		if (usingSpeech)
-		{
-			if (Sleepy)
-			{
-				TimeIn = GetTimeCounter () + (ONE_SECOND / 4);
-				while (GetTimeCounter () <= TimeIn)
-				{
-					if (AnyButtonPress (TRUE) ||
-						(GLOBAL (CurrentActivity) & CHECK_ABORT))
-					{
-						Sleepy = FALSE;
-						break;
-					}
-					UpdateDuty (FALSE);
+					Sleepy = FALSE;
+					GLOBAL_SIS (ElementAmounts[i]) = 0;
+					GLOBAL_SIS (TotalElementMass) -= amount;
+					DeltaSISGauges (0, 0,
+							amount * GLOBAL (ElementWorth[i]));
+					break;
 				}
+
+				UpdateDuty (FALSE);
+
+				--GLOBAL_SIS (ElementAmounts[i]);
+				--GLOBAL_SIS (TotalElementMass);
+				TaskSwitch ();
+				DrawCargoStrings ((BYTE)i, (BYTE)i);
+				ShowRemainingCapacity ();
+				DeltaSISGauges (0, 0, GLOBAL(ElementWorth[i]));
+			} while (--amount);
+		}
+		if (Sleepy)
+		{
+			TimeIn = GetTimeCounter () + (ONE_SECOND / 4);
+			while (GetTimeCounter () <= TimeIn)
+			{
+				if (AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					Sleepy = FALSE;
+					break;
+				}
+				UpdateDuty (FALSE);
 			}
 		}
 	}
@@ -279,6 +248,72 @@ DoSellMinerals (void)
 	ClearSISRect (DRAW_SIS_DISPLAY);
 
 	return total;
+}
+
+static RESPONSE_REF
+EveryOnesACritic (COUNT total)
+{
+	RESPONSE_REF pStr;
+
+	if (total < 1000)
+	{
+		total = GET_GAME_STATE (LIGHT_MINERAL_LOAD);
+		switch (total++)
+		{
+		case 0: pStr = LIGHT_LOAD_A; break;
+		case 1: pStr = LIGHT_LOAD_B; break;
+		case 2:
+			// There are two separate sound samples in this case.
+			pStr = LIGHT_LOAD_C0;
+			//pStr2 = LIGHT_LOAD_C1; Kruzen: processed outside this func now
+			break;
+		case 3: pStr = LIGHT_LOAD_D; break;
+		case 4: pStr = LIGHT_LOAD_E; break;
+		case 5: pStr = LIGHT_LOAD_F; break;
+		case 6: --total;
+			pStr = LIGHT_LOAD_G;
+			break;
+		}
+		SET_GAME_STATE (LIGHT_MINERAL_LOAD, total);
+	}
+	else if (total < 2500)
+	{
+		total = GET_GAME_STATE (MEDIUM_MINERAL_LOAD);
+		switch (total++)
+		{
+		case 0: pStr = MEDIUM_LOAD_A; break;
+		case 1: pStr = MEDIUM_LOAD_B; break;
+		case 2: pStr = MEDIUM_LOAD_C; break;
+		case 3: pStr = MEDIUM_LOAD_D; break;
+		case 4: pStr = MEDIUM_LOAD_E; break;
+		case 5: pStr = MEDIUM_LOAD_F; break;
+		case 6:
+			--total;
+			pStr = MEDIUM_LOAD_G;
+			break;
+		}
+		SET_GAME_STATE (MEDIUM_MINERAL_LOAD, total);
+	}
+	else
+	{
+		total = GET_GAME_STATE (HEAVY_MINERAL_LOAD);
+		switch (total++)
+		{
+		case 0: pStr = HEAVY_LOAD_A; break;
+		case 1: pStr = HEAVY_LOAD_B; break;
+		case 2: pStr = HEAVY_LOAD_C; break;
+		case 3: pStr = HEAVY_LOAD_D; break;
+		case 4: pStr = HEAVY_LOAD_E; break;
+		case 5: pStr = HEAVY_LOAD_F; break;
+		case 6:
+			--total;
+			pStr = HEAVY_LOAD_G;
+			break;
+		}
+		SET_GAME_STATE (HEAVY_MINERAL_LOAD, total);
+	}
+
+	return pStr;
 }
 
 static void
@@ -1754,76 +1789,62 @@ NormalStarbase (RESPONSE_REF R)
 static void
 SellMinerals (RESPONSE_REF R)
 {
-	COUNT total;
-	RESPONSE_REF pStr1 = 0;
-	RESPONSE_REF pStr2 = 0;
+	COUNT total = 0;
+	RESPONSE_REF pStr = 0;
 
-	if (!usingSpeech)
-		NPCPhrase (CARGO_LIST);
-
-	total = DoSellMinerals();
-
-	if (total < 1000)
+	if (optSpeech)
 	{
-		total = GET_GAME_STATE (LIGHT_MINERAL_LOAD);
-		switch (total++)
-		{
-			case 0: pStr1 = LIGHT_LOAD_A; break;
-			case 1: pStr1 = LIGHT_LOAD_B; break;
-			case 2:
-				// There are two separate sound samples in this case.
-				pStr1 = LIGHT_LOAD_C0;
-				pStr2 = LIGHT_LOAD_C1;
-				break;
-			case 3: pStr1 = LIGHT_LOAD_D; break;
-			case 4: pStr1 = LIGHT_LOAD_E; break;
-			case 5: pStr1 = LIGHT_LOAD_F; break;
-			case 6: --total;
-				pStr1 = LIGHT_LOAD_G;
-				break;
-		}
-		SET_GAME_STATE (LIGHT_MINERAL_LOAD, total);
-	}
-	else if (total < 2500)
-	{
-		total = GET_GAME_STATE (MEDIUM_MINERAL_LOAD);
-		switch (total++)
-		{
-			case 0: pStr1 = MEDIUM_LOAD_A; break;
-			case 1: pStr1 = MEDIUM_LOAD_B; break;
-			case 2: pStr1 = MEDIUM_LOAD_C; break;
-			case 3: pStr1 = MEDIUM_LOAD_D; break;
-			case 4: pStr1 = MEDIUM_LOAD_E; break;
-			case 5: pStr1 = MEDIUM_LOAD_F; break;
-			case 6:
-				--total;
-				pStr1 = MEDIUM_LOAD_G;
-				break;
-		}
-		SET_GAME_STATE (MEDIUM_MINERAL_LOAD, total);
+		total = DoSellMinerals ();
+
+		pStr = EveryOnesACritic (total);
+
+		NPCPhrase (pStr);
+		if (pStr == LIGHT_LOAD_C0)
+			NPCPhrase (LIGHT_LOAD_C1);
 	}
 	else
 	{
-		total = GET_GAME_STATE (HEAVY_MINERAL_LOAD);
-		switch (total++)
-		{
-			case 0: pStr1 = HEAVY_LOAD_A; break;
-			case 1: pStr1 = HEAVY_LOAD_B; break;
-			case 2: pStr1 = HEAVY_LOAD_C; break;
-			case 3: pStr1 = HEAVY_LOAD_D; break;
-			case 4: pStr1 = HEAVY_LOAD_E; break;
-			case 5: pStr1 = HEAVY_LOAD_F; break;
-			case 6:
-				--total;
-				pStr1 = HEAVY_LOAD_G;
-				break;
-		}
-		SET_GAME_STATE (HEAVY_MINERAL_LOAD, total);
-	}
+		COUNT amount[NUM_ELEMENT_CATEGORIES], Ru[NUM_ELEMENT_CATEGORIES];
+		COUNT seg = 0;
+		COUNT count = 0;
 
-	NPCPhrase (pStr1);
-	if (pStr2 != (RESPONSE_REF) 0)
-		NPCPhrase (pStr2);
+		NPCPhrase (CARGO_LIST);
+		for (COUNT i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+		{
+			if ((amount[seg] = GLOBAL_SIS (ElementAmounts[i])) != 0)
+			{
+				Ru[seg] = amount[seg] * GLOBAL (ElementWorth[i]);
+				if (count > 0)
+					NPCPhrase (ELLIPSES);
+				else
+					NPCPhrase (BLANK);
+				NPCNumber(amount[seg], NULL);
+				NPCPhrase_splice (KILOTONS_OF);
+				NPCPhrase_splice (COMMONR + i);
+				NPCPhrase_splice (FOR);
+				NPCNumber (Ru[seg], NULL);
+				NPCPhrase (RESUNITS);
+				total += Ru[seg];
+				seg++;
+				GLOBAL_SIS (ElementAmounts[i]) = 0;
+				++count;
+			}
+		}
+
+		pStr = EveryOnesACritic (total);
+
+		NPCPhrase (pStr);
+		if (pStr == LIGHT_LOAD_C0)
+			NPCPhrase (LIGHT_LOAD_C1);
+
+		for (COUNT sseg = 1; sseg < seg + 1; sseg++)
+		{
+			AlienTalkSegue (sseg);
+			GLOBAL_SIS (TotalElementMass) -= amount[sseg - 1];
+			DeltaSISGauges (0, 0, Ru[sseg - 1]);
+			ClearSISRect (DRAW_SIS_DISPLAY);
+		}
+	}
 
 	NormalStarbase (R);
 }
