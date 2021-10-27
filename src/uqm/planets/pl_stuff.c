@@ -348,25 +348,34 @@ ZoomInPlanetSphere (void)
 	}
 }
 
+#define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL(24, 35))
+
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color)
 {
-	static TimeCount NextTime;
+	static TimeCount NextTime, OutNextTime;
 	TimeCount Now = GetTimeCounter ();
 
 	if (keepRate && Now < NextTime)
 		return; // not time yet
 
-	NextTime = Now + PLANET_ROTATION_RATE;
+	if (Now >= NextTime)
+	{
+		NextTime = Now + PLANET_ROTATION_RATE;
 
-	DrawDefaultPlanetSphere ();
-	if (optColoredPlanet == OPT_PC
-			&& !sameColor (TRANSPARENT, color))
-		DrawColoredPlanetSphere (color);
-	if (onTop)
-		DrawStamp (onTop);
+		if (Now >= OutNextTime)
+		{
+			OutNextTime = Now + PLANET_ROTATION_FPS;
 
-	PrepareNextRotationFrame ();
+			DrawDefaultPlanetSphere ();
+			if (optColoredPlanet == OPT_PC
+				&& !sameColor (TRANSPARENT, color))
+				DrawColoredPlanetSphere (color);
+			if (onTop)
+				DrawStamp (onTop);
+		}
+		PrepareNextRotationFrame ();
+	}
 }
 
 static void
