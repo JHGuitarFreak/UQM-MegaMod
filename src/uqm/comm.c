@@ -124,7 +124,7 @@ static CUSTOM_BASELINE *cur_node; // not null if current sentence number has bee
 // Used to disable/enable talking animation
 // Better than current because it works with rewind
 static BOOLEAN haveTalkingLock = FALSE;
-static COUNT startSentence, endSentence; 
+static COUNT startSentence, endSentence;
 
 static ENCOUNTER_STATE *pCurInputState;
 
@@ -305,7 +305,8 @@ add_text (int status, TEXT *pTextIn)
 			case -2:
 				{	// Not highlighted dialog options.
 					if (!IsDarkMode)
-						SetContextForeGroundColor (COMM_PLAYER_TEXT_NORMAL_COLOR);
+						SetContextForeGroundColor (
+								COMM_PLAYER_TEXT_NORMAL_COLOR);
 					else
 						SetContextForeGroundColor (
 								BUILD_COLOR_RGBA (0x00, 0x00, 0xAA, 0xFF));
@@ -314,10 +315,11 @@ add_text (int status, TEXT *pTextIn)
 			case -1:
 				{	// Currently highlighted dialog option.
 					if (!IsDarkMode)
-						SetContextForeGroundColor (COMM_PLAYER_TEXT_HIGHLIGHT_COLOR);
+						SetContextForeGroundColor (
+								COMM_PLAYER_TEXT_HIGHLIGHT_COLOR);
 					else
 						SetContextForeGroundColor (
-								BUILD_COLOR_RGBA(0x55, 0x55, 0xFF, 0xFF));
+								BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF));
 					break;
 				}
 		}

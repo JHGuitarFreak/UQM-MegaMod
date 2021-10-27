@@ -1769,13 +1769,15 @@ DoMoveCursor (MENU_STATE *pMS)
 	{
 		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
 
-		if (optBubbleWarp) {
-			if (GLOBAL_SIS (FuelOnBoard) >= FuelRequired() || optInfiniteFuel){
+		if (optBubbleWarp)
+		{
+			if (GLOBAL_SIS (FuelOnBoard) >= FuelRequired () || optInfiniteFuel)
+			{
 				GLOBAL (autopilot) = cursorLoc;
 				PlayMenuSound (MENU_SOUND_BUBBLEWARP);
 
 				if (!optInfiniteFuel)
-					DeltaSISGauges(0, -FuelRequired(), 0);
+					DeltaSISGauges (0, -FuelRequired(), 0);
 
 				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
 				{

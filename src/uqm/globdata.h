@@ -165,8 +165,7 @@ typedef struct
 	FONT AlienFont;
 	COLORMAP AlienColorMap;
 	MUSIC_REF AlienSong;
-	STRING ConversationPhrases;
-	
+	STRING ConversationPhrases;	
 } LOCDATA;
 
 enum
@@ -1015,9 +1014,12 @@ END_GAME_STATE
 	}
 
 // Values for GAME_STATE.glob_flags:
+#define READ_SPEED_MASK ((1 << 3) - 1)
+#define NUM_READ_SPEEDS 5
 #define COMBAT_SPEED_SHIFT 6
 #define COMBAT_SPEED_MASK (((1 << 2) - 1) << COMBAT_SPEED_SHIFT)
 #define NUM_COMBAT_SPEEDS 4
+
 #define MUSIC_DISABLED (1 << 3)
 #define SOUND_DISABLED (1 << 4)
 #define CYBORG_ENABLED (1 << 5)

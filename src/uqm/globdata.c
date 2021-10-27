@@ -444,7 +444,7 @@ InitGameStructures (void)
 	InitPlanetInfo ();
 	InitGroupInfo (TRUE);
 
-	GLOBAL (glob_flags) = 0;
+	GLOBAL (glob_flags) = NUM_READ_SPEEDS >> 1;
 	
 	GLOBAL_SIS (Difficulty) = optDifficulty;
 	GLOBAL_SIS (Extended) = optExtended;
