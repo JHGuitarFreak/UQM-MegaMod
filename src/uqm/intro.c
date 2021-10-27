@@ -37,6 +37,35 @@
 
 static BOOLEAN ShowSlidePresentation (STRING PresStr);
 
+const RESOURCE ditties[25] =
+{
+	"ship.androsynth.ditty",
+	"ship.arilou.ditty",
+	"ship.chenjesu.ditty",
+	"ship.chmmr.ditty",
+	"ship.druuge.ditty",
+	"ship.earthling.ditty",
+	"ship.ilwrath.ditty",
+	"ship.kohrah.ditty",
+	"ship.melnorme.ditty",
+	"ship.mmrnmhrm.ditty",
+	"ship.mycon.ditty",
+	"ship.orz.ditty",
+	"ship.pkunk.ditty",
+	"ship.shofixti.ditty",
+	"ship.slylandro.ditty",
+	"ship.spathi.ditty",
+	"ship.supox.ditty",
+	"ship.syreen.ditty",
+	"ship.thraddash.ditty",
+	"ship.umgah.ditty",
+	"ship.urquan.ditty",
+	"ship.utwig.ditty",
+	"ship.vux.ditty",
+	"ship.yehat.ditty",
+	"ship.zoqfotpik.ditty"
+};
+
 typedef struct
 {
 	/* standard state required by DoInput */
@@ -466,6 +495,19 @@ DoPresentation (void *pIS)
 				DestroyMusic (pPIS->MusicRef);
 			}
 			pPIS->MusicRef = LoadMusicFile (pPIS->Buffer);
+			PlayMusic (pPIS->MusicRef, FALSE, 1);
+		}
+		else if (strcmp (Opcode, "DITTY") == 0)
+		{	/* set ditty */
+			int index = 0;
+			sscanf (pStr, "%d", &index);
+
+			if (pPIS->MusicRef)
+			{
+				StopMusic ();
+				DestroyMusic (pPIS->MusicRef);
+			}
+			pPIS->MusicRef = LoadMusic (ditties[index]);
 			PlayMusic (pPIS->MusicRef, FALSE, 1);
 		}
 		else if (strcmp (Opcode, "WAIT") == 0)

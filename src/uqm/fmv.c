@@ -31,35 +31,6 @@
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
 
-const RESOURCE ditties[25] =
-{
-	"ship.androsynth.ditty",
-	"ship.arilou.ditty",
-	"ship.chenjesu.ditty",
-	"ship.chmmr.ditty",
-	"ship.druuge.ditty",
-	"ship.earthling.ditty",
-	"ship.ilwrath.ditty",
-	"ship.kohrah.ditty",
-	"ship.melnorme.ditty",
-	"ship.mmrnmhrm.ditty",
-	"ship.mycon.ditty",
-	"ship.orz.ditty",
-	"ship.pkunk.ditty",
-	"ship.shofixti.ditty",
-	"ship.slylandro.ditty",
-	"ship.spathi.ditty",
-	"ship.supox.ditty",
-	"ship.syreen.ditty",
-	"ship.thraddash.ditty",
-	"ship.umgah.ditty",
-	"ship.urquan.ditty",
-	"ship.utwig.ditty",
-	"ship.vux.ditty",
-	"ship.yehat.ditty",
-	"ship.zoqfotpik.ditty"
-};
-
 void
 DoShipSpin (COUNT index, MUSIC_REF hMusic)
 {
@@ -83,9 +54,6 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
-
-	if (optWhichIntro == OPT_PC)
-		PlayMusic (LoadMusic (ditties[index]), FALSE, 1);
 
 	ShowPresentation (vnbuf);
 
