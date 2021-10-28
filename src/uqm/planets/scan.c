@@ -1125,6 +1125,8 @@ ScanPlanet (COUNT scanType)
 #define SCAN_LINES_OG   (UQM_MAP_HEIGHT + NUM_FLASH_COLORS + 1)
 #define SCAN_LINES      RES_SCALE(SCAN_LINES_OG)
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES_OG)
+	// For taming the scan FPS on underpowered devices
+#define SCAN_LINE_FPS  (ONE_SECOND / 60)
 
 	COUNT startScan, endScan;
 	COUNT scan;
@@ -1164,11 +1166,11 @@ ScanPlanet (COUNT scanType)
 		SWORD i = 0;
 		Color tintColor;
 				// Alpha value will be ignored.
-		static TimeCount TimeOut;
-		TimeCount Now, Delay;
+		static TimeCount TimeOut, TimeOutDraw;
+		TimeCount Now;
 
 		t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); 
+		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7);
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 
@@ -1193,9 +1195,8 @@ ScanPlanet (COUNT scanType)
 
 		tintColor = tintColors[scan];
 
-		// Draw the scan slowly line by line
-		TimeOut = GetTimeCounter () + SCAN_LINE_WAIT;
 		FlushInput ();
+
 		if (optScanStyle != OPT_PC)
 		{
 			while (i < SCAN_LINES)
@@ -1213,12 +1214,15 @@ ScanPlanet (COUNT scanType)
 
 					i += RES_SCALE(1);
 
-					BatchGraphics ();
+					if (Now >= TimeOutDraw)
+					{
+						TimeOutDraw = Now + SCAN_LINE_FPS;
 
-					DrawPlanet (i, tintColor);
-					
-					DrawScannedStuff (i, scan);
-					UnbatchGraphics ();
+						BatchGraphics ();
+						DrawPlanet (i, tintColor);
+						DrawScannedStuff (i, scan);
+						UnbatchGraphics ();
+					}
 				}
 				RotatePlanetSphere (TRUE, NULL,
 					BUILD_COLOR_RGBA (
