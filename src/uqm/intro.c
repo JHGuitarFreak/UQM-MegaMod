@@ -499,15 +499,15 @@ DoPresentation (void *pIS)
 		}
 		else if (strcmp (Opcode, "DITTY") == 0)
 		{	/* set ditty */
-			int index = 0;
-			sscanf (pStr, "%d", &index);
+			snprintf (pPIS->Buffer, sizeof (pPIS->Buffer), "ship.%s.ditty", pStr);
 
 			if (pPIS->MusicRef)
 			{
 				StopMusic ();
 				DestroyMusic (pPIS->MusicRef);
 			}
-			pPIS->MusicRef = LoadMusic (ditties[index]);
+
+			pPIS->MusicRef = LoadMusic (pPIS->Buffer);
 			PlayMusic (pPIS->MusicRef, FALSE, 1);
 		}
 		else if (strcmp (Opcode, "WAIT") == 0)
