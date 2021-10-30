@@ -75,7 +75,7 @@ RepairSISBorder (void)
 	r.extent.height = RES_SCALE(1);
 	DrawFilledRectangle (&r);
 
-	DrawBorder(9, FALSE);
+	DrawBorder (9, FALSE);
 
 	UnbatchGraphics ();
 
@@ -161,7 +161,7 @@ DrawSISTitle (UNICODE *pStr)
 	SetContextBackGroundColor (SIS_TITLE_BACKGROUND_COLOR);
 	ClearDrawable ();
 	
-	DrawBorder(3, FALSE);
+	DrawBorder (3, FALSE);
 
 	// Text color
 	SetContextForeGroundColor (SIS_TITLE_TEXT_COLOR);
@@ -501,7 +501,7 @@ DrawStatusMessage (const UNICODE *pStr)
 	SetContextBackGroundColor (STATUS_MESSAGE_BACKGROUND_COLOR);
 	ClearDrawable ();
 
-	DrawBorder(7, FALSE);
+	DrawBorder (7, FALSE);
 
 	if (!pStr)
 	{
@@ -685,7 +685,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	}
 
 	if (!NewGame)
-		DrawBorder(12, FALSE);
+		DrawBorder (12, FALSE);
 
 	t.baseline.x = r.corner.x + RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
 	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE (InStatusArea));
@@ -1052,7 +1052,7 @@ DrawPC_SIS (void)
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	DrawBorder(4, FALSE);
+	DrawBorder (4, FALSE);
 
 	// Text "CAPTAIN".
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);

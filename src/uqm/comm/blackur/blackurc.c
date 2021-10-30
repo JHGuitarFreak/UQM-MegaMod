@@ -97,16 +97,15 @@ static LOCDATA blackurq_desc =
 			ONE_SECOND / 10, 0, /* RestartRate */
 			0, /* BlockMask */
 		},
-		{
+		{	// "Left" extremity
 			33, /* StartIndex */
 			5, /* NumFrames */
-			CIRCULAR_ANIM
-					| WAIT_TALKING, /* AnimFlags */
+			CIRCULAR_ANIM | WAIT_TALKING, /* AnimFlags */
 			ONE_SECOND / 10, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			0, /* BlockMask */
 		},
-		{
+		{	// "Right" extremeity
 			38, /* StartIndex */
 			4, /* NumFrames */
 			CIRCULAR_ANIM, /* AnimFlags */

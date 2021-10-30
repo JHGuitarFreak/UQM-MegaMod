@@ -761,13 +761,13 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	{
 		SIZE dx = 0;
 		SIZE dy = 0;
-		POINT new_pt; 
+		POINT new_pt;
 		static DWORD tNext;
 
 		new_pt = planetLoc;
 
 		if (tNext && TimeIn >= tNext)
-			tNext = NULL;
+			tNext = 0;
 
 		if (!tNext || TimeIn >= tNext)
 		{
@@ -781,10 +781,10 @@ DoPickPlanetSide (MENU_STATE *pMS)
 				dy = RES_SCALE(1);
 
 			// Double the cursor speed when the Zoom Out key is held down
-			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_SPECIAL])
 			{
-					dx *= 2;
-					dy *= 2;
+				dx *= 2;
+				dy *= 2;
 			}
 		}
 

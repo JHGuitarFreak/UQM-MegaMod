@@ -322,9 +322,10 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 		DeltaStatistics (SIPtr, y, crew_delta, energy_delta);
 	}
 
-	if (IS_HD && !inMeleeMenu) {
-		DrawBorder(28, TRUE);
-		DrawBorder(29, TRUE);
+	if (IS_HD && !inMeleeMenu)
+	{
+		DrawBorder (28, TRUE);
+		DrawBorder (29, TRUE);
 	}
 
 	UnbatchGraphics ();

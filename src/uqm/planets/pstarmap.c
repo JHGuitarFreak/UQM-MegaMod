@@ -2221,8 +2221,8 @@ StarMap (void)
 		if(optCustomBorder)
 		{
 			if(optWhichMenu != OPT_PC)
-				DrawBorder(14, FALSE);
-			DrawBorder(18 + optControllerType, FALSE);
+				DrawBorder (14, FALSE);
+			DrawBorder (18 + optControllerType, FALSE);
 		} 
 		else
 			DrawSubmenu (4 + optControllerType);

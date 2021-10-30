@@ -325,13 +325,14 @@ static LOCDATA spahome_desc_hd =
 		{
 			59, /* StartIndex */
 			11, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
+			CIRCULAR_ANIM | ONE_SHOT_ANIM
+			| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
 			ONE_SECOND / 30, 0, /* FrameRate */
 			0, 0,/* RestartRate */
 			(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) 
 			| (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7) 
 			| (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) 
-			| (1 << 12) | (1 << 13) , /* BlockMask */
+			| (1 << 12) | (1 << 13), /* BlockMask */
 		},
 	},
 	{ /* AlienTransitionDesc - empty */

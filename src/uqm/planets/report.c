@@ -101,16 +101,6 @@ ClearReportArea (void)
 		s.origin.y += r.extent.height + RES_SCALE(1);
 	}
 
-#ifdef NEVER
-	if (IS_HD) {
-		if (optWhichFonts == OPT_PC)
-			DrawBorder (32, FALSE);
-		else
-			DrawBorder (33, FALSE);
-		DrawBorder (10, FALSE);
-	}
-#endif
-
 	UnbatchGraphics ();
 }
 

@@ -30,20 +30,20 @@
 		// for GetFrameBounds()
 
 
-#define ELEMENT_ORG_Y      RES_SCALE(35) 
+#define ELEMENT_ORG_Y      RES_SCALE (35)
 #define FREE_ORG_Y         (ELEMENT_ORG_Y + (NUM_ELEMENT_CATEGORIES \
 							* ELEMENT_SPACING_Y))
-#define BIO_ORG_Y          RES_SCALE(119) 
-#define ELEMENT_SPACING_Y  RES_SCALE(9) 
+#define BIO_ORG_Y          RES_SCALE (119)
+#define ELEMENT_SPACING_Y  RES_SCALE (9)
 
-#define ELEMENT_COL_0      RES_SCALE(7) 
-#define ELEMENT_COL_1      RES_SCALE(32) 
-#define ELEMENT_COL_2      RES_SCALE(58) 
+#define ELEMENT_COL_0      RES_SCALE (7)
+#define ELEMENT_COL_1      RES_SCALE (32)
+#define ELEMENT_COL_2      RES_SCALE (58)
 
-#define ELEMENT_SEL_ORG_X  (ELEMENT_COL_0 + RES_SCALE(7 + 5)) 
-#define ELEMENT_SEL_WIDTH  (ELEMENT_COL_2 - ELEMENT_SEL_ORG_X + RES_SCALE(1)) 
+#define ELEMENT_SEL_ORG_X  (ELEMENT_COL_0 + RES_SCALE (7 + 5))
+#define ELEMENT_SEL_WIDTH  (ELEMENT_COL_2 - ELEMENT_SEL_ORG_X + RES_SCALE (1))
 
-#define TEXT_BASELINE      RES_SCALE(6) 
+#define TEXT_BASELINE      RES_SCALE(6)
 
 
 void
@@ -60,19 +60,19 @@ ShowRemainingCapacity (void)
 	else
 		SetContextFont (TinyFontBold);
 
-	r.corner.x = RES_SCALE(40); 
+	r.corner.x = RES_SCALE(40);
 	r.corner.y = FREE_ORG_Y;
 
 	snprintf (buf, sizeof buf, "%u",
 			GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass));
-	t.baseline.x = ELEMENT_COL_2 + RES_SCALE(1); 
+	t.baseline.x = ELEMENT_COL_2 + RES_SCALE(1);
 	t.baseline.y = r.corner.y + TEXT_BASELINE;
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	r.extent.width = t.baseline.x - r.corner.x + RES_SCALE(1); 
-	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2); 
+	r.extent.width = t.baseline.x - r.corner.x + RES_SCALE(1);
+	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2);
 
 	BatchGraphics ();
 	// erase previous free amount
@@ -95,7 +95,7 @@ DrawElementAmount (COUNT element, bool selected)
 
 	r.corner.x = ELEMENT_SEL_ORG_X;
 	r.extent.width = ELEMENT_SEL_WIDTH;
-	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2); 
+	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2);
 
 	if (element == NUM_ELEMENT_CATEGORIES)
 		r.corner.y = BIO_ORG_Y;
@@ -308,7 +308,7 @@ DrawRainbowPlanet(COUNT planet)
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, CARGO_BACK_COLOR);
 	else
-		DrawBorder(13, FALSE);
+		DrawBorder (13, FALSE);
 
 	// draw the "DATALOG" title
 	SetContextFont(StarConFont);

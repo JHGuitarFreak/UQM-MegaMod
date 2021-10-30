@@ -245,9 +245,12 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	}
 #endif
 
+	(void) frameCounter;  /* Satisfying compiler */
+
 	// BW: account for rotation period
 	pPlanetDesc->rotPointIndex =
-			(int)(fmod(pPlanetDesc->rot_speed * daysElapsed(), pPlanetDesc->rotwidth));
+			(int)(fmod (pPlanetDesc->rot_speed * daysElapsed (),
+					pPlanetDesc->rotwidth));
 
 	if (pPlanetDesc->rotPointIndex < 0)
 		pPlanetDesc->rotPointIndex += pPlanetDesc->rotwidth;
@@ -438,7 +441,6 @@ void
 DrawPlanet (int tintY, Color tintColor)
 {
 	STAMP s;
-	POINT orig;
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 
 	s.origin.x = 0;
