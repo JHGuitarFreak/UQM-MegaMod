@@ -1126,7 +1126,7 @@ ScanPlanet (COUNT scanType)
 #define SCAN_LINES      RES_SCALE(SCAN_LINES_OG)
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES_OG)
 	// For taming the scan FPS on underpowered devices
-#define SCAN_LINE_FPS  (ONE_SECOND / 60)
+#define SCAN_LINE_FPS  (ONE_SECOND / RES_BOOL(40, 60))
 
 	COUNT startScan, endScan;
 	COUNT scan;
