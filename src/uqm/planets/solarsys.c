@@ -104,6 +104,7 @@ SOLARSYS_STATE *pSolarSysState;
 FRAME SISIPFrame;
 FRAME SunFrame;
 FRAME OrbitalFrame;
+FRAME OrbitalShield;
 FRAME OldOrbitalFrame;
 FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
@@ -389,9 +390,11 @@ FreeIPData (void)
 	SunCMap = 0;
 	DestroyColorMap (ReleaseColorMap (OrbitalCMap));
 	OrbitalCMap = 0;
-	DestroyDrawable (ReleaseDrawable(OrbitalFrame));
+	DestroyDrawable (ReleaseDrawable (OrbitalFrame));
 	OrbitalFrame = 0;
-	DestroyDrawable (ReleaseDrawable(OldOrbitalFrame));
+	DestroyDrawable (ReleaseDrawable (OrbitalShield));
+	OrbitalShield = 0;
+	DestroyDrawable (ReleaseDrawable (OldOrbitalFrame));
 	OldOrbitalFrame = 0;
 	DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 	SpaceJunkFrame = 0;
@@ -418,6 +421,8 @@ LoadIPData (void)
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
 				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
+		OrbitalShield = CaptureDrawable (
+				LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
 		OldOrbitalFrame = CaptureDrawable (
 				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
@@ -2509,7 +2514,11 @@ DrawInnerPlanets (PLANET_DESC *planet)
 		if (i < NUMBER_OF_PLANET_TYPES
 			&& (planet->data_index & PLANET_SHIELDED))
 		{	// Shielded world looks "shielded" in inner view
-			s.frame = SetAbsFrameIndex (SpaceJunkFrame, 17);
+			// s.frame = SetAbsFrameIndex (SpaceJunkFrame, 17);
+			COUNT angle = ARCTAN (planet->location.x, planet->location.y);
+
+			s.frame = SetAbsFrameIndex (OrbitalShield, NORMALIZE_FACING (
+				ANGLE_TO_FACING (angle)));
 		}
 		DrawStamp (&s);
 
