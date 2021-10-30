@@ -27,6 +27,8 @@
 #include <memory.h>
 // for GLOBAL (glob_flags) & READ_SPEED_MASK
 #include "uqm/globdata.h"
+// for usingSpeech bool
+#include "uqm/setup.h"
 
 static int track_count;       // total number of tracks
 static int no_page_break;     // set when combining several tracks into one
@@ -345,7 +347,7 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		if (aft_ellips)
 			strcpy (pages[page] + lead_ellips + pos, "...");
 
-		if (isPC (optSmoothScroll) && !optSpeech)
+		if (isPC (optSmoothScroll) && !usingSpeech)
 			timestamp[page] = RecalculateDelay (pos, TRUE);
 		else
 			timestamp[page] = pos * TEXT_SPEED;

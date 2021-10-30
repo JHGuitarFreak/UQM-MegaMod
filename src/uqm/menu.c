@@ -93,8 +93,6 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	r->corner.x -= RES_SCALE (1);
 	r->extent.width += RES_SCALE (1);
 
-	printf ("beg_index %d, end_index %d, NewState %d, hilite %d\n", beg_index, end_index, NewState, hilite);
-
 	// Gray rectangle behind PC menu
 	rt = *r;
 	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE (12);
@@ -261,7 +259,10 @@ NextMenuState (BYTE BaseState, BYTE CurState)
 		case PM_CYBORG_NORMAL:
 		case PM_CYBORG_DOUBLE:
 		case PM_CYBORG_SUPER:
-			NextState = PM_READ_VERY_SLOW;
+			if (isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu))
+				NextState = PM_READ_VERY_SLOW;
+			else
+				NextState = PM_CHANGE_CAPTAIN;
 			break;
 		case PM_READ_VERY_SLOW:
 		case PM_READ_SLOW:
@@ -311,7 +312,10 @@ PreviousMenuState (BYTE BaseState, BYTE CurState)
 			NextState = PM_CYBORG_OFF;
 			break;
 		case PM_CHANGE_CAPTAIN:
-			NextState = PM_READ_VERY_SLOW;
+			if (isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu))
+				NextState = PM_READ_VERY_SLOW;
+			else
+				NextState = PM_CYBORG_OFF;
 			break;
 		default:
 			NextState = AdjBase + CurState - 1;
@@ -520,6 +524,8 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	CONTEXT OldContext;
 	BYTE hilite = 1;
 	extern FRAME PlayFrame;
+	BOOLEAN speechBool =
+			isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu);
 
 	if (NewState < 0)
 	{
@@ -568,7 +574,8 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					 GLOBAL (FuelCost));
 		if (beg_index == PM_SOUND_ON)
 		{
-			end_index = beg_index + 6;
+			end_index = beg_index + (speechBool ? 6 : 5);
+
 			switch (beg_index + NewState)
 			{
 				case PM_SOUND_ON:
@@ -590,20 +597,23 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				case PM_READ_MODERATE:
 				case PM_READ_FAST:
 				case PM_READ_VERY_FAST:
-					NewState = 3;
-					break;
+					if (speechBool)
+					{
+						NewState = 3;
+						break;
+					}
 				case PM_CHANGE_CAPTAIN:
-					NewState = 4;
+					NewState = speechBool ? 4 : 3;
 					break;
 				case PM_CHANGE_SHIP:
-					NewState = 5;
+					NewState = speechBool ? 5 : 4;
 					break;
 				case PM_EXIT_SETTINGS:
-					NewState = 6;
+					NewState = speechBool ? 6 : 5;
 					break;
 			}
 		}
-		r.extent.height = RADAR_HEIGHT + RES_SCALE(12); 
+		r.extent.height = RADAR_HEIGHT + RES_SCALE (12);
 
 		DrawPCMenu (beg_index, end_index, (BYTE)NewState, hilite, &r);
 		s.frame = 0;
