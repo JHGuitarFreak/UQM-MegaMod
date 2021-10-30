@@ -163,6 +163,27 @@ static COUNT probe_tens_names[] =
 	ENUMERATE_NINETY,
 };
 
+static COUNT random_ramble[] =
+{
+	1,
+	15,
+	48,
+	312,
+	7,
+	4000,
+	668,
+	46,
+	4,
+	8,
+	15,
+	16,
+	23,
+	42,
+	998,
+	80556,
+	1337
+};
+
 static const NUMBER_SPEECH_DESC probe_numbers_english =
 {
 	5, /* NumDigits */
@@ -453,11 +474,28 @@ CombatIsInevitable (RESPONSE_REF R)
 static void
 Intro (void)
 {
-	BYTE  NumVisits;
-
-	NumVisits = GET_GAME_STATE (SLYLANDRO_PROBE_VISITS);
-	switch (NumVisits++)
+	if (DIF_HARD && GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 	{
+		NPCPhrase (COORD_POINT);
+		for (COUNT i = 0; i < 16; i++)
+		{
+			NPCNumber (random_ramble[i], "%d ");
+		}
+		NPCNumber (random_ramble[16], "%d");
+		NPCPhrase (COORD_POINT);
+
+		NPCPhrase (HOSTILE);
+
+		SET_GAME_STATE (PROBE_EXHIBITED_BUG, 1);
+		setSegue (Segue_hostile);
+	}
+	else
+	{
+		BYTE  NumVisits;
+
+		NumVisits = GET_GAME_STATE (SLYLANDRO_PROBE_VISITS);
+		switch (NumVisits++)
+		{
 		case 0:
 			NPCPhrase (WE_COME_IN_PEACE_1);
 			break;
@@ -483,10 +521,11 @@ Intro (void)
 			NPCPhrase (WE_COME_IN_PEACE_8);
 			--NumVisits;
 			break;
-	}
-	SET_GAME_STATE (SLYLANDRO_PROBE_VISITS, NumVisits);
+		}
+		SET_GAME_STATE (SLYLANDRO_PROBE_VISITS, NumVisits);
 
-	CombatIsInevitable ((RESPONSE_REF)0);
+		CombatIsInevitable ((RESPONSE_REF)0);
+	}
 }
 
 static COUNT
