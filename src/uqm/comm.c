@@ -129,6 +129,7 @@ static COUNT startSentence, endSentence;
 static ENCOUNTER_STATE *pCurInputState;
 
 static BOOLEAN clear_subtitles;
+static BOOLEAN next_page = FALSE;
 static TEXT SubtitleText;
 static const UNICODE *last_subtitle;
 
@@ -143,8 +144,10 @@ RECT CommWndRect = {
 };
 
 static void ClearSubtitles (void);
-static void CheckSubtitles (void);
+static void CheckSubtitles (BOOLEAN really);
 static void RedrawSubtitles (void);
+static void runCommAnimFrame (void);
+static BOOLEAN PauseSubtitles(BOOLEAN force);
 
 
 /* _count_lines - sees how many lines a given input string would take to
@@ -298,10 +301,17 @@ add_text (int status, TEXT *pTextIn)
 		switch (status)
 		{
 			case -3:
-				// Unknown. Never reached; color matches the background color.
-				SetContextForeGroundColor (
-						BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
-				break;
+				{
+					// Unknown. Never reached; color matches the background color.
+					// reused to mimic DOS
+					if (!IsDarkMode)
+						SetContextForeGroundColor (
+								BUILD_COLOR (
+									MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
+					else
+						SetContextForeGroundColor(BLACK_COLOR);
+					break;
+				}
 			case -2:
 				{	// Not highlighted dialog options.
 					if (!IsDarkMode)
@@ -725,6 +735,37 @@ uninit_communication (void)
 }
 
 static void
+RefreshResponsesSpecial (ENCOUNTER_STATE *pES)
+{	// PC style repsonses
+	COORD y;
+	BYTE response;
+	SIZE leading;	
+
+	SetContext (SpaceContext);
+	// GetContextFontLeading (&leading);
+	leading = RES_SCALE (is3DO (optWhichFonts) ? 7 : 9);
+	BatchGraphics ();
+
+	DrawSISComWindow ();
+	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO (optWhichFonts));
+	for (response = pES->top_response; response < pES->num_responses;
+		++response)
+	{
+		pES->response_list[response].response_text.baseline.x =
+				TEXT_X_OFFS + RES_SCALE (8);
+		pES->response_list[response].response_text.baseline.y =
+				y + leading;
+		pES->response_list[response].response_text.align = ALIGN_LEFT;
+		if (response == pES->cur_response)
+			y = add_text (-1, &pES->response_list[response].response_text);
+		else
+			y = add_text (-3, &pES->response_list[response].response_text);
+	}
+
+	UnbatchGraphics ();
+}
+
+static void
 RefreshResponses (ENCOUNTER_STATE *pES)
 {
 	COORD y;
@@ -873,7 +914,7 @@ UpdateDuty (BOOLEAN talk)
 	{
 		if (!TalkingFinished)
 			setRunTalkingAnim ();
-		CheckSubtitles ();
+		CheckSubtitles (TRUE);
 		UpdateAnimations (FALSE);
 	}
 	UpdateSpeechGraphics ();
@@ -940,6 +981,9 @@ FadePlayerUI (void)
 		CONTEXT OldContext;
 		BYTE i;
 
+		Color DarkModeFGTextColor[] = DARKMODE_FG_TABLE; // emulating as close as possible PC-DOS text glow
+		Color DarkModeBGTextColor[] = DARKMODE_BG_TABLE; // it was not instantanious, but also looked like fading shenanigans
+
 		if (fadeIndex > 50)
 		{
 			cwLock = FALSE;
@@ -957,11 +1001,20 @@ FadePlayerUI (void)
 				BUILD_COLOR_RGBA (
 					0x00, 0x00, 0x00, DRAW_FACTOR_1 * 0.02 * fadeIndex
 				));
+				
 		BatchGraphics ();
 
 		for (i = 0; i < (ARRAY_SIZE (DarkModeRect) - 1); i++)
 			DrawFilledRectangle (&DarkModeRect[i]);
 
+		if (fadeIndex < 16)
+		{
+			ClearSubtitles ();
+			CommData.AlienTextFColor = DarkModeFGTextColor[fadeIndex];
+			CommData.AlienTextBColor = DarkModeBGTextColor[fadeIndex];
+			RedrawSubtitles ();
+		}
+		
 		if (cwLock)
 			DrawFilledRectangle (&DarkModeRect[5]);
 
@@ -1006,71 +1059,158 @@ DoTalkSegue (TALKING_STATE *pTS)
 		return FALSE;
 	}
 	
-	if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (optSpeech || optSmoothScroll == OPT_3DO || (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
 	{
-		JumpTrack ();
-		pTS->ended = true;
-		return FALSE;
-	}
+		if (PulsedInputState.menu[KEY_MENU_CANCEL])
+		{
+			JumpTrack ();
+			pTS->ended = true;
+			return FALSE;
+		}
 
-	if (optSmoothScroll == OPT_PC)
-	{
-		left = PulsedInputState.menu[KEY_MENU_LEFT] != 0;
-		right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0;
-	}
-	else if (optSmoothScroll == OPT_3DO)
-	{
-		left = CurrentInputState.menu[KEY_MENU_LEFT] != 0;
-		right = CurrentInputState.menu[KEY_MENU_RIGHT] != 0;
-	}
+		if (optSmoothScroll == OPT_PC || !optSpeech)
+		{
+			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0;
+			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0;
+		}
+		else if (optSmoothScroll == OPT_3DO)
+		{
+			left = CurrentInputState.menu[KEY_MENU_LEFT] != 0;
+			right = CurrentInputState.menu[KEY_MENU_RIGHT] != 0;
+		}
 
 #if DEMO_MODE || CREATE_JOURNAL
-	left = false;
-	right = false;
+		left = false;
+		right = false;
 #endif
-	curTrack = PlayingTrack();
+		curTrack = PlayingTrack();
 
-	if (right)
-	{
-		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 3));
-		if (optSmoothScroll == OPT_PC)
-			FastForward_Page ();
-		else if (optSmoothScroll == OPT_3DO)
-			FastForward_Smooth ();
-		pTS->seeking = true;
-	}
-	else if (left || pTS->rewind)
-	{
-		pTS->rewind = false;
-		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 4));
-		if (optSmoothScroll == OPT_PC)
-			FastReverse_Page ();
-		else if (optSmoothScroll == OPT_3DO)
-			FastReverse_Smooth ();
-		pTS->seeking = true;
-	}
-	else if (pTS->seeking)
-	{
-		// This is only done once the seeking is over (in the smooth
-		// scroll case, once the user releases the seek button)
-		pTS->seeking = false;
-		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 2));
+		if (right)
+		{
+			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 3));
+			if (optSmoothScroll == OPT_PC || !optSpeech)
+				FastForward_Page ();
+			else if (optSmoothScroll == OPT_3DO)
+				FastForward_Smooth ();
+			pTS->seeking = true;
+		}
+		else if (left || pTS->rewind)
+		{
+			pTS->rewind = false;
+			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 4));
+			if (optSmoothScroll == OPT_PC || !optSpeech)
+				FastReverse_Page ();
+			else if (optSmoothScroll == OPT_3DO)
+				FastReverse_Smooth ();
+			pTS->seeking = true;
+		}
+		else if (pTS->seeking)
+		{
+			// This is only done once the seeking is over (in the smooth
+			// scroll case, once the user releases the seek button)
+			pTS->seeking = false;
+			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 2));
+		}
+		else
+		{
+			// This used to have a buggy guard condition, which
+			// would cause the animations to remain paused in a couple cases
+			// after seeking back to the beginning.
+			// Broken cases were: Syreen "several hours later" and Starbase
+			// VUX Beast analysis by the scientist.
+
+			// Kruzen - Now paused animations handled differently
+			CheckSubtitles(curTrack && curTrack <= pTS->waitTrack);
+		}
 	}
 	else
 	{
-		// This used to have a buggy guard condition, which
-		// would cause the animations to remain paused in a couple cases
-		// after seeking back to the beginning.
-		// Broken cases were: Syreen "several hours later" and Starbase
-		// VUX Beast analysis by the scientist.
+		curTrack = PlayingTrack ();
+		
+		if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+		{
+			JumpTrack ();
+			pTS->ended = true;
+			return FALSE;
+		}
 
-		// Kruzen - Now paused animations handled differently
-		// This check avoids text redraw 1 tick early
-		// Current track set in AlienTalkSegue(x) reached
-		// But didn't return anything yet
-		// Preventing subs blinking during fade in in syreen.c
-		if (curTrack && curTrack <= pTS->waitTrack)
-			CheckSubtitles ();
+		if (PulsedInputState.menu[KEY_MENU_CANCEL])
+		{
+			FastForward_Page ();
+			FlushInput ();
+			next_page = TRUE;
+			return TRUE;
+		}
+		else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+		{
+			JumpTrack ();
+			pTS->ended = true;
+			return FALSE;
+		}
+		else if (PauseSubtitles (next_page))
+		{
+			BOOLEAN awake = FALSE;
+			BOOLEAN block = FALSE;
+			TimeCount TimeOut;
+
+			if (CommData.AlienTalkDesc.AnimFlags & PAUSE_TALKING)
+			{	// something's already blocking animation - do not intervene
+				block = TRUE;
+			}
+
+			if (!IsDarkMode
+					&& CommData.AlienTalkDesc.NumFrames != 0 && !block)
+			{
+				while (GetTalkingIndex () != 0)
+				{
+					WrapTalkingAnim ();
+					// no need to rush here - process ONLY talking
+					// animation so it'll pause smoothly
+					UpdateSpeechGraphics ();
+				}
+
+				clearRunTalkingAnim();
+			}
+			/* I would like to NOT count ellipses but whatever */
+			TimeOut = GetTimeCounter ()
+					+ RecalculateDelay (strlen (SubtitleText.pStr), FALSE);
+			
+			PauseTrack ();
+			
+			while (!awake)
+			{
+				if ((GLOBAL (glob_flags) & READ_SPEED_MASK) > 0)
+				{
+					if (GetTimeCounter () >= TimeOut)
+						awake = TRUE;
+				}
+
+				UpdateCommGraphics ();
+
+				UpdateInputState ();
+				if (PulsedInputState.menu[KEY_MENU_CANCEL]
+						|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					awake = TRUE;
+				}
+				else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+				{
+					JumpTrack ();
+					pTS->ended = true;
+					return FALSE;
+				}
+			}
+
+			if (!IsDarkMode
+					&& CommData.AlienTalkDesc.NumFrames != 0 && !block)
+				setRunTalkingAnim ();
+
+			ResumeTrack ();
+		}
+
+		next_page = FALSE;
+
+		CheckSubtitles (curTrack && curTrack <= pTS->waitTrack);
 	}
 
 	// XXX: When seeking, all animations (talking and ambient) stop
@@ -1132,10 +1272,9 @@ TalkSegue (COUNT wait_track)
 	talkingState.waitTrack = wait_track;
 	DoInput (&talkingState, FALSE);
 
-	ClearSubtitles ();
-
 	if (talkingState.ended)
 	{	// reached the end; set STOP icon
+		ClearSubtitles ();
 		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 8));
 		cwLock = FALSE;// Do not update comWindow
 	}
@@ -1213,6 +1352,17 @@ AlienTalkSegue (COUNT wait_track)
 		SetMusicVolume (BACKGROUND_VOL);
 
 		InitCommAnimations ();
+
+		if (optIPScaler && !optSpeech)
+		{	// short pause to compensate instant fading (conditions to be adjusted)
+			// I think it is for optIPScaler
+			TimeCount timeout = GetTimeCounter() + ONE_SECOND / 4;
+			while (GetTimeCounter() < timeout)
+			{
+				UpdateDuty(FALSE);
+				UpdateAnimations(FALSE);
+			}
+		}
 
 		LastActivity &= ~CHECK_LOAD;
 	}
@@ -1424,7 +1574,20 @@ SelectResponse (ENCOUNTER_STATE *pES)
 			&pES->response_list[pES->cur_response].response_text;
 	utf8StringCopy (pES->phrase_buf, sizeof pES->phrase_buf,
 			response_text->pStr);
-	FeedbackPlayerPhrase (pES->phrase_buf);
+			
+	if (!optSpeech && optSmoothScroll == OPT_PC)
+	{	// short pause after choosing response to mimic PC behaviour
+		TimeCount timeout = GetTimeCounter () + ONE_SECOND / 2;
+		RefreshResponsesSpecial (pES);
+		while (GetTimeCounter () < timeout)
+		{
+			UpdateDuty (FALSE);
+			UpdateAnimations (FALSE);
+		}
+	}
+	else
+		FeedbackPlayerPhrase (pES->phrase_buf);
+		
 	StopTrack ();
 	ClearSubtitles ();
 	SetSliderImage (SetAbsFrameIndex (ActivityFrame, 2));
@@ -1492,7 +1655,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	else
 	{
 		response = pES->cur_response;
-		if (PulsedInputState.menu[KEY_MENU_LEFT])
+		if (PulsedInputState.menu[KEY_MENU_LEFT] && (optSpeech || optSmoothScroll == OPT_3DO))
 		{
 			SelectReplay (pES);
 
@@ -2183,13 +2346,44 @@ ClearSubtitles (void)
 	SubtitleText.CharCount = 0;
 }
 
+static BOOLEAN
+PauseSubtitles (BOOLEAN force)
+{
+	const UNICODE *pStr;
+	static COUNT num = 0;
+
+	pStr = GetTrackSubtitle ();
+	
+	if (GetSubtitleNumber (pStr) == 0 || SubtitleText.pStr == NULL)
+	{
+		num = GetSubtitleNumber (pStr);
+		return FALSE;
+	}
+
+	if (num != GetSubtitleNumber (pStr) && !force)
+	{
+		num = GetSubtitleNumber (pStr);
+		return TRUE;
+	}
+
+	num = GetSubtitleNumber (pStr);
+	return FALSE;
+}
+
 static void
-CheckSubtitles (void)
+CheckSubtitles (BOOLEAN really)
 {
 	const UNICODE *pStr;
 	POINT baseline;
 	TEXT_ALIGN align;
 	COUNT num;
+
+	if (!really)
+	{	// New check - blocks subtitle change on switching tracks so any code 
+		// that was waiting through AlienTalkSegue(x) would be completed first
+		next_page = TRUE;
+		return;
+	}
 
 	pStr = GetTrackSubtitle ();
 	baseline = CommData.AlienTextBaseline;
@@ -2210,7 +2404,8 @@ CheckSubtitles (void)
 		// Make a note in the logs if the update was multiframe
 		if (SubtitleText.pStr == pStr)
 		{
-			log_add(log_Warning, "Dialog text and location changed out of sync");
+			log_add (log_Warning,
+					"Dialog text and location changed out of sync");
 		}
 
 		SubtitleText.pStr = pStr;

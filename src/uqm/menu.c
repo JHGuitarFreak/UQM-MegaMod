@@ -81,7 +81,7 @@ static void
 DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 {
 	BYTE pos;
-	COUNT i;
+	COUNT i, j;
 	static COUNT rd = 0;
 	int num_items;
 	FONT OldFont;
@@ -90,12 +90,14 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	RECT rt;
 	pos = beg_index + NewState;
 	num_items = 1 + end_index - beg_index;
-	r->corner.x -= RES_SCALE(1);
-	r->extent.width += RES_SCALE(1);
+	r->corner.x -= RES_SCALE (1);
+	r->extent.width += RES_SCALE (1);
+
+	printf ("beg_index %d, end_index %d, NewState %d, hilite %d\n", beg_index, end_index, NewState, hilite);
 
 	// Gray rectangle behind PC menu
 	rt = *r;
-	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE(12);
+	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE (12);
 	rt.extent.height += 2;
 	if (!optCustomBorder)
 		DrawFilledRectangle (&rt);
@@ -106,33 +108,39 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 		log_add (log_Error, "Warning, no room for all menu items!");
 	else
 		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
-	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE(3);
+	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE (3);
 	DrawPCMenuFrame (r);
 
-	DrawBorder (27 - num_items, FALSE);
+	DrawBorder (28 - num_items, FALSE);
 
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
-	t.baseline.x = r->corner.x + RES_SCALE(2);
-	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE(1);
+	t.baseline.x = r->corner.x + RES_SCALE (2);
+	t.baseline.y = r->corner.y + PC_MENU_HEIGHT - RES_SCALE (1);
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	r->corner.x += RES_SCALE(1);
-	r->extent.width -= RES_SCALE(2);
+	r->corner.x += RES_SCALE (1);
+	r->extent.width -= RES_SCALE (2);
 	for (i = beg_index; i <= end_index; i++)
 	{
+		// To compensate for the read speed menu entries
+		j = i > PM_EXIT_SETTINGS ?
+				(i - (PM_CHANGE_CAPTAIN - PM_READ_VERY_SLOW)) : i;
+
 		utf8StringCopy (buf, sizeof buf,
 						(i == PM_FUEL) ? pm_fuel_str :
 						(i == PM_CREW) ? pm_crew_str :
-						GAME_STRING (MAINMENU_STRING_BASE + i));
+						GAME_STRING (MAINMENU_STRING_BASE + j));
 		if (hilite && pos == i)
 		{
 			// Currently selected menu option.
 			if (pos != rd)
 			{	// Draw the background of the selection.
-				SetContextForeGroundColor (PCMENU_SELECTION_BACKGROUND_COLOR);
-				r->corner.y = t.baseline.y - PC_MENU_HEIGHT + RES_SCALE(2);
-				r->extent.height = PC_MENU_HEIGHT - RES_SCALE(1);
+				SetContextForeGroundColor (
+						PCMENU_SELECTION_BACKGROUND_COLOR);
+				r->corner.y = t.baseline.y - PC_MENU_HEIGHT
+						+ RES_SCALE (2);
+				r->extent.height = PC_MENU_HEIGHT - RES_SCALE (1);
 				DrawFilledRectangle (r);
 				rd = pos;
 			}
@@ -222,6 +230,9 @@ FixMenuState (BYTE BadState)
 			return (PM_CYBORG_OFF +
 				((BYTE)(GLOBAL (glob_flags) & COMBAT_SPEED_MASK) >>
 				COMBAT_SPEED_SHIFT));
+		case PM_READ_VERY_SLOW:
+			return (PM_READ_VERY_SLOW +
+				(BYTE)(GLOBAL (glob_flags) & READ_SPEED_MASK));
 	}
 	return BadState;
 }
@@ -250,6 +261,13 @@ NextMenuState (BYTE BaseState, BYTE CurState)
 		case PM_CYBORG_NORMAL:
 		case PM_CYBORG_DOUBLE:
 		case PM_CYBORG_SUPER:
+			NextState = PM_READ_VERY_SLOW;
+			break;
+		case PM_READ_VERY_SLOW:
+		case PM_READ_SLOW:
+		case PM_READ_MODERATE:
+		case PM_READ_FAST:
+		case PM_READ_VERY_FAST:
 			NextState = PM_CHANGE_CAPTAIN;
 			break;
 		default:
@@ -285,8 +303,15 @@ PreviousMenuState (BYTE BaseState, BYTE CurState)
 		case PM_CYBORG_SUPER:
 			NextState = PM_MUSIC_ON;
 			break;
-		case PM_CHANGE_CAPTAIN:
+		case PM_READ_VERY_SLOW:
+		case PM_READ_SLOW:
+		case PM_READ_MODERATE:
+		case PM_READ_FAST:
+		case PM_READ_VERY_FAST:
 			NextState = PM_CYBORG_OFF;
+			break;
+		case PM_CHANGE_CAPTAIN:
+			NextState = PM_READ_VERY_SLOW;
 			break;
 		default:
 			NextState = AdjBase + CurState - 1;
@@ -543,7 +568,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					 GLOBAL (FuelCost));
 		if (beg_index == PM_SOUND_ON)
 		{
-			end_index = beg_index + 5;
+			end_index = beg_index + 6;
 			switch (beg_index + NewState)
 			{
 				case PM_SOUND_ON:
@@ -560,14 +585,21 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				case PM_CYBORG_SUPER:
 					NewState = 2;
 					break;
-				case PM_CHANGE_CAPTAIN:
+				case PM_READ_VERY_SLOW:
+				case PM_READ_SLOW:
+				case PM_READ_MODERATE:
+				case PM_READ_FAST:
+				case PM_READ_VERY_FAST:
 					NewState = 3;
 					break;
-				case PM_CHANGE_SHIP:
+				case PM_CHANGE_CAPTAIN:
 					NewState = 4;
 					break;
-				case PM_EXIT_SETTINGS:
+				case PM_CHANGE_SHIP:
 					NewState = 5;
+					break;
+				case PM_EXIT_SETTINGS:
+					NewState = 6;
 					break;
 			}
 		}

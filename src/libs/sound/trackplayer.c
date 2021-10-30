@@ -25,7 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <memory.h>
-
+// for GLOBAL (glob_flags) & READ_SPEED_MASK
+#include "uqm/globdata.h"
 
 static int track_count;       // total number of tracks
 static int no_page_break;     // set when combining several tracks into one
@@ -343,7 +344,12 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		pages[page][lead_ellips + pos] = '\0'; // string term
 		if (aft_ellips)
 			strcpy (pages[page] + lead_ellips + pos, "...");
-		timestamp[page] = pos * TEXT_SPEED;
+
+		if (isPC (optSmoothScroll) && !optSpeech)
+			timestamp[page] = RecalculateDelay (pos, TRUE);
+		else
+			timestamp[page] = pos * TEXT_SPEED;
+
 		if (timestamp[page] < 1000)
 			timestamp[page] = 1000;
 		lead_ellips = aft_ellips ? 3 : 0;
@@ -919,4 +925,29 @@ GetSubtitleNumberByTrack (COUNT track)
 		i++;
 
 	return i;
+}
+
+DWORD
+RecalculateDelay (DWORD numChars, BOOLEAN talk)
+{
+	DWORD silence_length, talk_length;
+	BYTE read_speed;
+
+	read_speed = speed_array[GLOBAL (glob_flags) & READ_SPEED_MASK];
+	talk_length = ONE_SECOND * numChars / MODERATE;
+
+	if (read_speed)
+	{
+		silence_length = ONE_SECOND * (numChars + MODERATE) / read_speed;
+		if (silence_length < talk_length)
+			talk_length = silence_length;
+		silence_length -= talk_length;
+	}
+	else
+		silence_length = 0;
+
+	if (talk)
+		return talk_length;
+	else
+		return silence_length;
 }

@@ -661,3 +661,45 @@ ShutYourMouth (void)
 		Talk->CurIndex = 0;
 	}
 }
+
+void
+CanYouPleaseCloseYourMouth()
+{	// For no speech sometimes setting talking index to 0 is not enough
+	// forcefully draw 0-index talking frame
+
+	if (Talk->ADPtr->NumFrames != 0)
+	{
+		STAMP s;
+		ANIMATION_DESC *ADPtr = Talk->ADPtr;
+
+		s.origin.x = s.origin.y = 0;
+		s.frame = SetAbsFrameIndex (CommData.AlienFrame,
+			ADPtr->StartIndex);
+		DrawStamp (&s);
+	}
+}
+
+COUNT
+GetTalkingIndex (void)
+{	// If talk animation is disabled - set talk frame to default index (closed mouth)
+
+	if (Talk->CurIndex != NULL)
+	{
+		return Talk->CurIndex;
+	}
+
+	return 0;
+}
+
+void
+WrapTalkingAnim (void)
+{
+	DWORD ElapsedTicks;
+	TimeCount CurTime;
+
+	CurTime = GetTimeCounter ();
+	ElapsedTicks = CurTime - LastTime;
+	LastTime = CurTime;
+
+	AdvanceTalkingSequence (Talk, ElapsedTicks);
+}

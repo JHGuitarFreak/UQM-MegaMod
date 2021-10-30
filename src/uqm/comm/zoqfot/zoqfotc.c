@@ -135,6 +135,13 @@ SelectAlienZOQ (CallbackArg arg)
 		CommData.AlienTalkDesc.StartIndex = ZOQ_TALK_INDEX;
 		CommData.AlienTalkDesc.NumFrames = ZOQ_TALK_FRAMES;
 		CommData.AlienAmbientArray[1].AnimFlags &= ~WAIT_TALKING;
+		CommData.AlienAmbientArray[0].AnimFlags |= ANIM_DISABLED;
+		/* So the idea is: Eye blink is blocked by talking animation
+			and it's not an issue with current talking segue since they're constantly talking.
+			However with per-page new mechanism we stops talking animation while waiting for player input
+			therefore blinking animation ruins the eye.
+			We just disable animation here and in PIK callback func
+			and reenable it in ZFPTalkSegue(x), a func with which every ZFP Phrase ends*/
 
 		CommData.AlienTextBaseline.x = (SWORD)ZOQ_BASE_X;
 		CommData.AlienTextBaseline.y = ZOQ_BASE_Y;
@@ -160,6 +167,7 @@ SelectAlienPIK (CallbackArg arg)
 		CommData.AlienTalkDesc.StartIndex = PIK_TALK_INDEX;
 		CommData.AlienTalkDesc.NumFrames = PIK_TALK_FRAMES;
 		CommData.AlienAmbientArray[1].AnimFlags |= WAIT_TALKING;
+		CommData.AlienAmbientArray[0].AnimFlags |= ANIM_DISABLED;
 
 		CommData.AlienTextBaseline.x = (SWORD)PIK_BASE_X;
 		CommData.AlienTextBaseline.y = PIK_BASE_Y;
@@ -176,6 +184,7 @@ ZFPTalkSegue (COUNT wait_track)
 	LastAlien = FOT_ALIEN;
 	SelectAlienZOQ (0);
 	AlienTalkSegue (wait_track);
+	CommData.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
 }
 
 static void

@@ -139,6 +139,9 @@ extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
 extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
 extern void ShutYourMouth (void);
+extern void CanYouPleaseCloseYourMouth (void);
+extern COUNT GetTalkingIndex (void);
+extern void WrapTalkingAnim (void);
 
 #if defined(__cplusplus)
 }
