@@ -653,6 +653,7 @@ DoSettings (MENU_STATE *pMS)
 						((GLOBAL (glob_flags) & ~COMBAT_SPEED_MASK)
 						| (cur_speed << COMBAT_SPEED_SHIFT));
 				pMS->CurState = CYBORG_OFF_SETTING + cur_speed;
+				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
 				break;
 			case READ_VERY_SLOW_SETTING:
 			case READ_SLOW_SETTING:
@@ -668,6 +669,7 @@ DoSettings (MENU_STATE *pMS)
 						((GLOBAL (glob_flags) & ~READ_SPEED_MASK)
 						| read_speed);
 				pMS->CurState = READ_VERY_SLOW_SETTING + read_speed;
+				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
 				break;
 			default:
 				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
