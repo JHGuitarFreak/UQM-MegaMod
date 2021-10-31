@@ -1125,6 +1125,8 @@ DoTalkSegue (TALKING_STATE *pTS)
 	}
 	else
 	{
+		BYTE read_speed = GLOBAL (glob_flags) & READ_SPEED_MASK;
+		
 		curTrack = PlayingTrack ();
 		
 		if (PulsedInputState.menu[KEY_MENU_SPECIAL])
@@ -1134,78 +1136,64 @@ DoTalkSegue (TALKING_STATE *pTS)
 			return FALSE;
 		}
 
-		if (PulsedInputState.menu[KEY_MENU_CANCEL])
+		if (PulsedInputState.menu[KEY_MENU_CANCEL]
+				|| PulsedInputState.menu[KEY_MENU_RIGHT])
 		{
 			FastForward_Page ();
 			FlushInput ();
 			next_page = TRUE;
 			return TRUE;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_RIGHT])
-		{
-			JumpTrack ();
-			pTS->ended = true;
-			return FALSE;
-		}
 		else if (PauseSubtitles (next_page))
 		{
-			BOOLEAN awake = FALSE;
-			BOOLEAN block = FALSE;
-			TimeCount TimeOut;
-
-			if (CommData.AlienTalkDesc.AnimFlags & PAUSE_TALKING)
-			{	// something's already blocking animation - do not intervene
-				block = TRUE;
-			}
-
-			if (!IsDarkMode
-					&& CommData.AlienTalkDesc.NumFrames != 0 && !block)
-			{
-				while (GetTalkingIndex () != 0)
-				{
-					WrapTalkingAnim ();
-					// no need to rush here - process ONLY talking
-					// animation so it'll pause smoothly
-					UpdateSpeechGraphics ();
-				}
-
-				clearRunTalkingAnim();
-			}
 			/* I would like to NOT count ellipses but whatever */
-			TimeOut = GetTimeCounter ()
-					+ RecalculateDelay (strlen (SubtitleText.pStr), FALSE);
-			
-			PauseTrack ();
-			
-			while (!awake)
+			DWORD delay = RecalculateDelay(strlen(SubtitleText.pStr), FALSE);
+
+			if (delay > 0 || speed_array[read_speed] == VERY_SLOW)
 			{
-				if ((GLOBAL (glob_flags) & READ_SPEED_MASK) > 0)
+				BOOLEAN awake = FALSE;
+				BOOLEAN block = (!wantTalkingAnim () || IsDarkMode
+								|| !haveTalkingAnim ());
+				TimeCount TimeOut;
+
+				PauseTrack();
+
+				if (!block)
+					freezeTalkingAnim ();
+				
+				TimeOut = GetTimeCounter () + delay;
+
+				while (!awake)
 				{
-					if (GetTimeCounter () >= TimeOut)
+					if (speed_array[read_speed] != VERY_SLOW
+							&& GetTimeCounter () >= TimeOut)
 						awake = TRUE;
+
+					UpdateCommGraphics ();
+					UpdateInputState ();
+
+					if (PulsedInputState.menu[KEY_MENU_CANCEL]
+						|| (GLOBAL( CurrentActivity) & CHECK_ABORT))
+					{
+						awake = TRUE;
+					}
+					else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+					{
+						JumpTrack ();
+						pTS->ended = true;
+
+						if (!block)
+							unFreezeTalkingAnim ();
+
+						return FALSE;
+					}
 				}
 
-				UpdateCommGraphics ();
+				if (!block)
+					unFreezeTalkingAnim ();
 
-				UpdateInputState ();
-				if (PulsedInputState.menu[KEY_MENU_CANCEL]
-						|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
-				{
-					awake = TRUE;
-				}
-				else if (PulsedInputState.menu[KEY_MENU_RIGHT])
-				{
-					JumpTrack ();
-					pTS->ended = true;
-					return FALSE;
-				}
+				ResumeTrack ();
 			}
-
-			if (!IsDarkMode
-					&& CommData.AlienTalkDesc.NumFrames != 0 && !block)
-				setRunTalkingAnim ();
-
-			ResumeTrack ();
 		}
 
 		next_page = FALSE;

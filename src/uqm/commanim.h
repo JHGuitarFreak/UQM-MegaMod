@@ -59,6 +59,10 @@ extern "C" {
 #define WHEN_TALKING (1L << 7) // JMS
 #define ANIM_DISABLED (1L << 8) // BW (needed for news anchor and animated background)
 
+#define FREEZE_TALKING (1 << 9)
+		// Kr (needed for blocking animations that are WAIT_TALKING even
+		// if talking itself is stopped. Used only in PS-DOS style scrolling)
+
 #define FAST_STOP_AT_TALK_START (TALK_DONE) // JMS: If there's a very loooong animation, it can be forced to stop when talking with this.
 // (otherwise there'll be nasty, unwanted pauses in the conversation.) 
 
@@ -139,9 +143,6 @@ extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
 extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
 extern void ShutYourMouth (void);
-extern void CanYouPleaseCloseYourMouth (void);
-extern COUNT GetTalkingIndex (void);
-extern void WrapTalkingAnim (void);
 
 #if defined(__cplusplus)
 }

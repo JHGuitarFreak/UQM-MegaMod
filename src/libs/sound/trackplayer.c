@@ -347,13 +347,18 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		if (aft_ellips)
 			strcpy (pages[page] + lead_ellips + pos, "...");
 
-		if (isPC (optSmoothScroll) && !usingSpeech)
-			timestamp[page] = RecalculateDelay (pos, TRUE);
+		if (optSmoothScroll == OPT_PC && !usingSpeech)
+		{
+			timestamp[page] =
+					RecalculateDelay (lead_ellips + pos + aft_ellips, TRUE);
+		}
 		else
+		{
 			timestamp[page] = pos * TEXT_SPEED;
 
-		if (timestamp[page] < 1000)
-			timestamp[page] = 1000;
+			if (timestamp[page] < 1000)
+				timestamp[page] = 1000;
+		}
 		lead_ellips = aft_ellips ? 3 : 0;
 		text += pos;
 		// Skip any EOL
