@@ -1125,38 +1125,36 @@ DoTalkSegue (TALKING_STATE *pTS)
 	}
 	else
 	{
-		BYTE read_speed = GLOBAL (glob_flags) & READ_SPEED_MASK;
-		
 		curTrack = PlayingTrack ();
-		
-		if (PulsedInputState.menu[KEY_MENU_SPECIAL])
-		{
-			JumpTrack ();
-			pTS->ended = true;
-			return FALSE;
-		}
 
 		if (PulsedInputState.menu[KEY_MENU_CANCEL]
-				|| PulsedInputState.menu[KEY_MENU_RIGHT])
+			|| PulsedInputState.menu[KEY_MENU_RIGHT])
 		{
 			FastForward_Page ();
 			FlushInput ();
 			next_page = TRUE;
 			return TRUE;
 		}
+		else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+		{
+			JumpTrack();
+			pTS->ended = true;
+			return FALSE;
+		}
 		else if (PauseSubtitles (next_page))
 		{
 			/* I would like to NOT count ellipses but whatever */
-			DWORD delay = RecalculateDelay(strlen(SubtitleText.pStr), FALSE);
+			DWORD delay = RecalculateDelay (strlen (SubtitleText.pStr), FALSE);
+			BYTE read_speed = speed_array[GLOBAL (glob_flags) & READ_SPEED_MASK];
 
-			if (delay > 0 || speed_array[read_speed] == VERY_SLOW)
+			if (delay > 0 || read_speed == VERY_SLOW)
 			{
 				BOOLEAN awake = FALSE;
 				BOOLEAN block = (!wantTalkingAnim () || IsDarkMode
 								|| !haveTalkingAnim ());
 				TimeCount TimeOut;
 
-				PauseTrack();
+				PauseTrack ();
 
 				if (!block)
 					freezeTalkingAnim ();
@@ -1165,7 +1163,7 @@ DoTalkSegue (TALKING_STATE *pTS)
 
 				while (!awake)
 				{
-					if (speed_array[read_speed] != VERY_SLOW
+					if (read_speed != VERY_SLOW
 							&& GetTimeCounter () >= TimeOut)
 						awake = TRUE;
 
@@ -1173,11 +1171,12 @@ DoTalkSegue (TALKING_STATE *pTS)
 					UpdateInputState ();
 
 					if (PulsedInputState.menu[KEY_MENU_CANCEL]
+						|| PulsedInputState.menu[KEY_MENU_RIGHT]
 						|| (GLOBAL( CurrentActivity) & CHECK_ABORT))
 					{
 						awake = TRUE;
 					}
-					else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+					else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
 					{
 						JumpTrack ();
 						pTS->ended = true;

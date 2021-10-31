@@ -26,7 +26,7 @@
 
 #define VERY_SLOW 0
 #define SLOW 12
-#define MODERATE 16
+#define MODERATE_SPEED 16
 #define FAST 24
 #define VERY_FAST 32
 
@@ -34,7 +34,7 @@ static BYTE speed_array[] =
 {
 	VERY_SLOW,
 	SLOW,
-	MODERATE,
+	MODERATE_SPEED,
 	FAST,
 	VERY_FAST
 };

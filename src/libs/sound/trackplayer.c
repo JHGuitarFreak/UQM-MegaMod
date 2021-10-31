@@ -937,15 +937,13 @@ GetSubtitleNumberByTrack (COUNT track)
 DWORD
 RecalculateDelay (DWORD numChars, BOOLEAN talk)
 {
-	DWORD silence_length, talk_length;
-	BYTE read_speed;
-
-	read_speed = speed_array[GLOBAL (glob_flags) & READ_SPEED_MASK];
-	talk_length = ONE_SECOND * numChars / MODERATE;
+	DWORD silence_length;
+	DWORD talk_length = ONE_SECOND * numChars / MODERATE_SPEED;
+	BYTE read_speed = speed_array[GLOBAL (glob_flags) & READ_SPEED_MASK];
 
 	if (read_speed)
 	{
-		silence_length = ONE_SECOND * (numChars + MODERATE) / read_speed;
+		silence_length = ONE_SECOND * (numChars + MODERATE_SPEED) / read_speed;
 		if (silence_length < talk_length)
 			talk_length = silence_length;
 		silence_length -= talk_length;
