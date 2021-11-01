@@ -524,8 +524,6 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	CONTEXT OldContext;
 	BYTE hilite = 1;
 	extern FRAME PlayFrame;
-	BOOLEAN speechBool =
-			isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu);
 
 	if (NewState < 0)
 	{
@@ -574,7 +572,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 					 GLOBAL (FuelCost));
 		if (beg_index == PM_SOUND_ON)
 		{
-			end_index = beg_index + (speechBool ? 6 : 5);
+			end_index = beg_index + 6;
 
 			switch (beg_index + NewState)
 			{
@@ -597,19 +595,16 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 				case PM_READ_MODERATE:
 				case PM_READ_FAST:
 				case PM_READ_VERY_FAST:
-					if (speechBool)
-					{
-						NewState = 3;
-						break;
-					}
+					NewState = 3;
+					break;
 				case PM_CHANGE_CAPTAIN:
-					NewState = speechBool ? 4 : 3;
+					NewState = 4;
 					break;
 				case PM_CHANGE_SHIP:
-					NewState = speechBool ? 5 : 4;
+					NewState = 5;
 					break;
 				case PM_EXIT_SETTINGS:
-					NewState = speechBool ? 6 : 5;
+					NewState = 6;
 					break;
 			}
 		}
