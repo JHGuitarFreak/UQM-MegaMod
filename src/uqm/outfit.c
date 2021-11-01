@@ -812,6 +812,8 @@ DoOutfit (MENU_STATE *pMS)
 		else
 		{
 ExitOutfit:
+			if (pMS->CurState < OUTFIT_EXIT)
+				DrawMenuStateStrings (PM_FUEL, OUTFIT_EXIT);
 			DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 			pMS->CurFrame = 0;
 			DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
