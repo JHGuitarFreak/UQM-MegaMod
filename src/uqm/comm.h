@@ -109,6 +109,24 @@ signaledStopTalkingAnim (void)
 	return CommData.AlienTalkDesc.AnimFlags & TALK_DONE;
 }
 
+static inline void
+freezeTalkingAnim(void)
+{
+	CommData.AlienTalkDesc.AnimFlags |= FREEZE_TALKING;
+}
+
+static inline void
+unFreezeTalkingAnim(void)
+{
+	CommData.AlienTalkDesc.AnimFlags &= ~FREEZE_TALKING;
+}
+
+static inline BOOLEAN
+signaledFreezeTalkingAnim(void)
+{
+	return CommData.AlienTalkDesc.AnimFlags & FREEZE_TALKING;
+}
+
 #endif
 
 #define TEXT_X_OFFS RES_SCALE (1)

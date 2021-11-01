@@ -24,6 +24,21 @@
 
 #define ACCEL_SCROLL_SPEED 300
 
+#define VERY_SLOW 0
+#define SLOW 12
+#define MODERATE_SPEED 16
+#define FAST 24
+#define VERY_FAST 32
+
+static BYTE speed_array[] =
+{
+	VERY_SLOW,
+	SLOW,
+	MODERATE_SPEED,
+	FAST,
+	VERY_FAST
+};
+
 extern void PlayTrack (void);
 extern void StopTrack (void);
 extern void JumpTrack (void);
@@ -50,5 +65,6 @@ extern const UNICODE *GetTrackSubtitleText (SUBTITLE_REF SubRef);
 
 extern const UNICODE *GetTrackSubtitle (void);
 extern COUNT GetSubtitleNumberByTrack (COUNT track);
+extern DWORD RecalculateDelay (DWORD numChars, BOOLEAN talk);
 
 #endif

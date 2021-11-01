@@ -111,6 +111,11 @@ enum
 	CYBORG_NORMAL_SETTING,
 	CYBORG_DOUBLE_SETTING,
 	CYBORG_SUPER_SETTING,
+	READ_VERY_SLOW_SETTING,
+	READ_SLOW_SETTING,
+	READ_MODERATE_SETTING,
+	READ_FAST_SETTING,
+	READ_VERY_FAST_SETTING,
 	CHANGE_CAPTAIN_SETTING,
 	CHANGE_SHIP_SETTING,
 	EXIT_SETTINGS_MENU,
@@ -164,6 +169,15 @@ FeedbackSetting (BYTE which_setting)
 					? GAME_STRING (OPTION_STRING_BASE + 3) :
 					GAME_STRING (OPTION_STRING_BASE + 4),
 					tmpstr);
+			break;
+		case READ_VERY_SLOW_SETTING:
+		case READ_SLOW_SETTING:
+		case READ_MODERATE_SETTING:
+		case READ_FAST_SETTING:
+		case READ_VERY_FAST_SETTING:
+			snprintf (buf, sizeof (buf) - 1, "%s",
+					GAME_STRING (OPTION_STRING_BASE + 5
+					+ (GLOBAL (glob_flags) & READ_SPEED_MASK)));
 			break;
 		case CHANGE_CAPTAIN_SETTING:
 		case CHANGE_SHIP_SETTING:
@@ -261,7 +275,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		DrawFilledRectangle (&r);
 
 		if (optCustomBorder)
-			DrawBorder(12, FALSE);
+			DrawBorder (12, FALSE);
 
 
 		pchar_deltas = char_deltas;
@@ -580,13 +594,14 @@ SetNamingCallback (NamingCallback *callback)
 static BOOLEAN
 DoSettings (MENU_STATE *pMS)
 {
-	BYTE cur_speed;
+	BYTE cur_speed, read_speed;
 	static BYTE i;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
 	cur_speed = (GLOBAL (glob_flags) & COMBAT_SPEED_MASK) >> COMBAT_SPEED_SHIFT;
+	read_speed = (GLOBAL (glob_flags) & READ_SPEED_MASK);
 
 	if (NewGameInit)
 	{
@@ -623,7 +638,10 @@ DoSettings (MENU_STATE *pMS)
 				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
 				NameCaptainOrShip (pMS->CurState == CHANGE_CAPTAIN_SETTING, NewGameInit);
 				break;
-			default:
+			case CYBORG_OFF_SETTING:
+			case CYBORG_NORMAL_SETTING:
+			case CYBORG_DOUBLE_SETTING:
+			case CYBORG_SUPER_SETTING:
 				if (cur_speed++ < NUM_COMBAT_SPEEDS - 1)
 					GLOBAL (glob_flags) |= CYBORG_ENABLED;
 				else
@@ -635,6 +653,25 @@ DoSettings (MENU_STATE *pMS)
 						((GLOBAL (glob_flags) & ~COMBAT_SPEED_MASK)
 						| (cur_speed << COMBAT_SPEED_SHIFT));
 				pMS->CurState = CYBORG_OFF_SETTING + cur_speed;
+				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
+				break;
+			case READ_VERY_SLOW_SETTING:
+			case READ_SLOW_SETTING:
+			case READ_MODERATE_SETTING:
+			case READ_FAST_SETTING:
+			case READ_VERY_FAST_SETTING:
+				if (read_speed == NUM_READ_SPEEDS - 1)
+					read_speed = 0;
+				else
+					read_speed++;
+
+				GLOBAL (glob_flags) =
+						((GLOBAL (glob_flags) & ~READ_SPEED_MASK)
+						| read_speed);
+				pMS->CurState = READ_VERY_SLOW_SETTING + read_speed;
+				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
+				break;
+			default:
 				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
 		}
 		if (optWhichMenu == OPT_PC)

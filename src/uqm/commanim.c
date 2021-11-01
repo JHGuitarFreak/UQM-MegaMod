@@ -252,6 +252,11 @@ AdvanceTalkingSequence (SEQUENCE *pSeq, DWORD ElapsedTicks)
 		ADPtr->AnimFlags &= ~ANIM_DISABLED;
 	}
 
+	if (pSeq->CurIndex == 0 && signaledFreezeTalkingAnim ())
+	{	// drop routine if we are freezed
+		return;
+	}
+
 	if (pSeq->Alarm > ElapsedTicks)
 	{	// Not time yet
 		pSeq->Alarm -= ElapsedTicks;
@@ -264,8 +269,10 @@ AdvanceTalkingSequence (SEQUENCE *pSeq, DWORD ElapsedTicks)
 	// Talking animation is like RANDOM_ANIM, except that
 	// random frames always alternate with the neutral one
 	// The animation does not stop until we reset it
-	if (pSeq->CurIndex == 0)
-	{	// random frame next
+	// Kruzen: do not advance sequence if we're freezed
+	// (all other animations still will be blocked)
+	if (pSeq->CurIndex == 0 && !signaledFreezeTalkingAnim ())
+	{	// random frame next if not freezed		
 		pSeq->CurIndex = randomFrameIndex (pSeq, 1);
 		pSeq->Alarm += randomRestartRate (pSeq);
 	}
@@ -512,7 +519,8 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 			}
 
 			if (CommData.AlienTransitionDesc.AnimFlags
-					& (TALK_INTRO | TALK_DONE))
+					& (TALK_INTRO | TALK_DONE)
+					&& !signaledFreezeTalkingAnim ())
 			{	// Transitioning in or out of talking
 				if ((CommData.AlienTransitionDesc.AnimFlags & TALK_DONE)
 						&& Transit->Direction == NO_DIR)
@@ -654,8 +662,8 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 void
 ShutYourMouth (void)
-{	// If talk animation is disabled - set talk frame to default index (closed mouth)
-
+{	// If talk animation is disabled set
+	// talk frame to default index (closed mouth)
 	if (Talk->CurIndex != 0 && Talk->CurIndex != NULL)
 	{
 		Talk->CurIndex = 0;

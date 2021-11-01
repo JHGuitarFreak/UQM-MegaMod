@@ -955,13 +955,16 @@ SpathiCouncil (RESPONSE_REF R)
 		{
 			COUNT i = 0;
 			COUNT limit = CommData.NumAnimations;
-			
+
+			CommData.AlienFrame = SetAbsFrameIndex
+			(CommData.AlienFrame, 59);
+
 			for (i = 0; i < limit; i++)
 				CommData.AlienAmbientArray[i].AnimFlags &= ~ANIM_DISABLED;
-				
+
 			CommData.AlienFrame = SetAbsFrameIndex 
 				(CommData.AlienFrame, 0);
-				
+
 			CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
 		}
 

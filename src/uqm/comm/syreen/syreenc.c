@@ -425,8 +425,7 @@ FriendlyExit (RESPONSE_REF R)
 		AlienTalkSegue (2);
 
 		CommData.AlienTextFColor = WHITE_COLOR;
-		FadeScreen (FadeAllToBlack, 0);
-		BlockTalkingAnim (1, 2); // Several hours later block (New)	
+		FadeScreen (FadeAllToBlack, 0);		
 
 		DrawSISFrame ();
 		DrawSISMessage (NULL);
@@ -439,6 +438,7 @@ FriendlyExit (RESPONSE_REF R)
  				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
  				), ONE_SECOND / 2);
 			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
+			BlockTalkingAnim (1, 2); // Several hours later block (New)
 			AlienTalkSegue ((COUNT)~0);
 		} 
 		else 
@@ -452,6 +452,7 @@ FriendlyExit (RESPONSE_REF R)
 			
 			CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
 			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
+			BlockTalkingAnim (1, 2); // Several hours later block (New)
 			AlienTalkSegue ((COUNT)~0);
 			
 			for (i = 0; i < limit; i++)

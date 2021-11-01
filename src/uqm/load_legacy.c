@@ -1279,6 +1279,8 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 	cread_8   (fh, &GSPtr->glob_flags);
 	cread_8   (fh, &GSPtr->CrewCost);
 	cread_8   (fh, &GSPtr->FuelCost);
+
+	GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
 	
 	// JMS: Now that we have read the fuelcost, we can compare it
 	// to the correct value. Fuel cost is always FUEL_COST_RU, and if
