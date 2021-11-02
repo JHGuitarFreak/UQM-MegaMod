@@ -375,10 +375,9 @@ is_numpad_char_event (const SDL_Event *Event)
 {
 	return in_character_mode &&
 			(Event->type == SDL_KEYDOWN || Event->type == SDL_KEYUP) &&
-			(Event->key.keysym.mod & KMOD_NUM) &&  /* NumLock is ON */
 			Event->key.keysym.unicode > 0 &&       /* Printable char */
 			Event->key.keysym.sym >= SDLK_KP0 &&   /* Keypad key */
-			Event->key.keysym.sym <= SDLK_KP_PLUS;
+			Event->key.keysym.sym <= SDLK_KP_PERIOD;
 }
 
 void
@@ -442,54 +441,15 @@ ProcessInputEvent (const SDL_Event *Event)
 }
 #else
 
-static void
-TranslateNumpad (SDL_Keysym* keysym)
+static inline int
+is_numpad_char_event (const SDL_Event * Event)
 {
-	switch (keysym->sym)
-	{
-	case SDLK_KP_0:
-		keysym->scancode = SDL_SCANCODE_0;
-		keysym->sym = SDLK_0;
-		break;
-	case SDLK_KP_1:
-		keysym->scancode = SDL_SCANCODE_1;
-		keysym->sym = SDLK_1;
-		break;
-	case SDLK_KP_2:
-		keysym->scancode = SDL_SCANCODE_2;
-		keysym->sym = SDLK_2;
-		break;
-	case SDLK_KP_3:
-		keysym->scancode = SDL_SCANCODE_3;
-		keysym->sym = SDLK_3;
-		break;
-	case SDLK_KP_4:
-		keysym->scancode = SDL_SCANCODE_4;
-		keysym->sym = SDLK_4;
-		break;
-	case SDLK_KP_5:
-		keysym->scancode = SDL_SCANCODE_5;
-		keysym->sym = SDLK_5;
-		break;
-	case SDLK_KP_6:
-		keysym->scancode = SDL_SCANCODE_6;
-		keysym->sym = SDLK_6;
-		break;
-	case SDLK_KP_7:
-		keysym->scancode = SDL_SCANCODE_7;
-		keysym->sym = SDLK_7;
-		break;
-	case SDLK_KP_8:
-		keysym->scancode = SDL_SCANCODE_8;
-		keysym->sym = SDLK_8;
-		break;
-	case SDLK_KP_9:
-		keysym->scancode = SDL_SCANCODE_9;
-		keysym->sym = SDLK_9;
-		break;
-	default:
-		break;
-	}
+	return in_character_mode &&
+			(Event->type == SDL_KEYDOWN || Event->type == SDL_KEYUP) &&
+			(Event->key.keysym.mod & KMOD_NUM) &&  /* Numlock on */
+			Event->key.keysym.sym >= SDLK_KP_1 &&  /* Keypad key */
+			Event->key.keysym.sym <= SDLK_KP_PERIOD;
+	/* Note that in the SDL2 enumeration 0 comes after 9 and before period */
 }
 
 void
@@ -511,10 +471,10 @@ ProcessInputEvent (const SDL_Event *Event)
 	}
 
 	/* "Block" numpad input when NUM_LOCK is on */
-	if ((SDL_GetModState () & KMOD_NUM) != 0)
-		TranslateNumpad (&Event->key.keysym);
-
-	VControl_HandleEvent (Event);
+	if (!is_numpad_char_event (Event))
+	{
+		VControl_HandleEvent (Event);
+	}
 
 	if (Event->type == SDL_TEXTINPUT)
 	{
