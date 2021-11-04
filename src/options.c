@@ -206,9 +206,7 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 		// Try the default content locations.
 		const char *locs[] = {
 			CONTENTDIR, /* defined in config.h */
-			"",
 			"content",
-			"../../content" /* For running from MSVC */
 		};
 		loc = findFileInDirs (locs, ARRAY_SIZE (locs), testFile);
 
@@ -569,7 +567,7 @@ loadIndices (uio_DirHandle *dir)
 					indices->names[i]);
 			LoadResourceIndex (dir, indices->names[i], NULL);
 			numLoaded++;
-		}			
+		}
 	}
 	uio_DirList_free (indices);
 	
