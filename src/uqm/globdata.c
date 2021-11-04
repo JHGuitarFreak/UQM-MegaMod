@@ -526,6 +526,8 @@ InitGameStructures (void)
 	if (optHeadStart)
 	{
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 2);
+		SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 1);
+		SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
 		if (!NOMAD) 
 		{
 			SET_GAME_STATE (MOONBASE_ON_SHIP, 1);
@@ -776,4 +778,3 @@ replaceChar (char *pStr, const char find, const char replace)
 
 	return count;
 }
-
