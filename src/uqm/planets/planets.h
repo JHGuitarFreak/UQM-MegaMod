@@ -87,8 +87,8 @@ enum
 
 #define NUM_SCANDOT_TRANSITIONS 4
 
-#define MIN_MOON_RADIUS RES_SCALE(35) 
-#define MOON_DELTA RES_SCALE(20) 
+#define MIN_MOON_RADIUS RES_SCALE(35)
+#define MOON_DELTA RES_SCALE(20)
 
 #define MAX_SUNS 1
 #define MAX_PLANETS 16
@@ -96,7 +96,7 @@ enum
 #define MAX_GEN_MOONS MAX_MOONS
 #define MAX_GEN_PLANETS 9
 
-#define MAP_BORDER_HEIGHT  RES_SCALE(5)
+#define MAP_BORDER_HEIGHT RES_SCALE(5)
 #define SCAN_SCREEN_HEIGHT \
 		(SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
 
@@ -107,7 +107,7 @@ enum
 		(is3DO (optWhichCoarseScan) ? THREEDO_ROTATION_RATE : PC_ROTATION_RATE)
 #define PLANET_ORG_Y ((SCAN_SCREEN_HEIGHT - SIS_ORG_Y) / 2)
 
-#define NUM_RACE_RUINS  16
+#define NUM_RACE_RUINS 16
 
 #define MIN_BRIGHTNESS(a) ((a == ENERGY_SCAN) ? (50) : (55))
 #define MAX_BRIGHTNESS(a) ((a == ENERGY_SCAN) ? (90) : (135))
@@ -124,7 +124,7 @@ typedef struct solarsys_state SOLARSYS_STATE;
 #include "plandata.h"
 #include "sundata.h"
  
-typedef struct 
+typedef struct
 {
 	POINT p[4];
 	DWORD m[4];
