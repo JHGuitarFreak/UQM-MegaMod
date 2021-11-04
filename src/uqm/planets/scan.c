@@ -1120,13 +1120,13 @@ callPickupForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 static void
 ScanPlanet (COUNT scanType)
 {
-#define SCAN_DURATION   ((ONE_SECOND * 7 / 4 + RES_BOOL(UINT8_MAX, 0)))
+#define SCAN_DURATION   ((ONE_SECOND * 7 / 4 + RES_BOOL (UINT8_MAX, 0)))
 // NUM_FLASH_COLORS for flashing blips; 1 for the final frame
 #define SCAN_LINES_OG   (UQM_MAP_HEIGHT + NUM_FLASH_COLORS + 1)
-#define SCAN_LINES      RES_SCALE(SCAN_LINES_OG)
+#define SCAN_LINES      RES_SCALE (SCAN_LINES_OG)
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES_OG)
 	// For taming the scan FPS on underpowered devices
-#define SCAN_LINE_FPS  (ONE_SECOND / RES_BOOL(40, 60))
+#define SCAN_LINE_FPS  (ONE_SECOND / RES_BOOL (42, 60))
 
 	COUNT startScan, endScan;
 	COUNT scan;
@@ -1191,7 +1191,7 @@ ScanPlanet (COUNT scanType)
 		
 		// Draw a virgin surface
 		if (optScanStyle != OPT_PC)
-			DrawPlanet(0, BLACK_COLOR);
+			DrawPlanet (0, BLACK_COLOR);
 
 		tintColor = tintColors[scan];
 
