@@ -672,7 +672,7 @@ GetNextTechForSale (void)
 			if (!HasTech (tech_sale_catalog[i].techId))
 				return &tech_sale_catalog[i];
 		}
-	} 
+	}
 	else if (DIF_HARD && !CurStarDescPtr)
 	{
 		return NULL;
@@ -1211,7 +1211,7 @@ DoBuy (RESPONSE_REF R)
 	SIZE needed_credit;
 	BYTE slot;
 	DWORD capacity; 
-	BYTE FuelCost = IF_HARD((BIO_CREDIT_VALUE / 2), (FUEL_COST_RU / 2));
+	BYTE FuelCost = BIO_CREDIT_VALUE / 2;
 
 	credit = GetAvailableCredits ();
 
@@ -1440,6 +1440,7 @@ DoSell (RESPONSE_REF R)
 	UWORD rainbow_mask;
 	SIZE added_credit;
 	int what_to_sell_queued = 0;
+	BYTE BioCreditValue = IF_HARD (BIO_CREDIT_VALUE, 1);
 
 	rainbow_mask = MAKE_WORD (
 			GET_GAME_STATE (RAINBOW_WORLD0),
@@ -1466,7 +1467,7 @@ DoSell (RESPONSE_REF R)
 					&& GET_GAME_STATE (VUX_BEAST) == 2)
 				SET_GAME_STATE (VUX_BEAST_ON_SHIP, 0);
 			
-			added_credit = GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE + beast_value;
+			added_credit = GLOBAL_SIS (TotalBioMass) * BioCreditValue + beast_value;
 
 			NPCPhrase (SOLD_LIFE_DATA1);
 			NPCNumber (GLOBAL_SIS (TotalBioMass), NULL);
@@ -1497,7 +1498,7 @@ DoSell (RESPONSE_REF R)
 					(BYTE)NUM_ELEMENT_CATEGORIES
 					);
 
-			while (GLOBAL_SIS(TotalBioMass) && Sleepy)
+			while (GLOBAL_SIS (TotalBioMass) && Sleepy)
 			{
 				Sleepy = !(AnyButtonPress (TRUE)
 						|| GLOBAL (CurrentActivity) & CHECK_ABORT);
@@ -1506,7 +1507,7 @@ DoSell (RESPONSE_REF R)
 
 				--GLOBAL_SIS (TotalBioMass);
 				TaskSwitch ();
-				DeltaCredit (BIO_CREDIT_VALUE);
+				DeltaCredit (BioCreditValue);
 				DrawCargoStrings(
 					(BYTE)NUM_ELEMENT_CATEGORIES,
 					(BYTE)NUM_ELEMENT_CATEGORIES
@@ -1517,7 +1518,7 @@ DoSell (RESPONSE_REF R)
 			{
 				DeltaCredit (
 						GLOBAL_SIS (TotalBioMass)
-						* BIO_CREDIT_VALUE);
+						* BioCreditValue);
 				GLOBAL_SIS (TotalBioMass) = 0;
 			}
 			else
@@ -1539,7 +1540,7 @@ DoSell (RESPONSE_REF R)
 			BYTE planets;
 			int diffCase = DIF_CASE (250, 500, 125);
 
-			added_credit = num_new_rainbows * (diffCase * BIO_CREDIT_VALUE);
+			added_credit = num_new_rainbows * (diffCase * BioCreditValue);
 
 			NPCPhrase (SOLD_RAINBOW_LOCATIONS1);
 			NPCNumber (num_new_rainbows, NULL);
@@ -1590,7 +1591,7 @@ DoSell (RESPONSE_REF R)
 					if (GetTimeCounter () > TimeIn)
 					{
 						--planets;
-						DeltaCredit (diffCase * BIO_CREDIT_VALUE);
+						DeltaCredit (diffCase * BioCreditValue);
 						DrawRainbowPlanet (planets);
 						TimeIn = GetTimeCounter () + ONE_SECOND / 6;
 					}
@@ -1598,7 +1599,7 @@ DoSell (RESPONSE_REF R)
 
 				if (!Sleepy && planets != 0)
 				{
-					DeltaCredit (planets * diffCase * BIO_CREDIT_VALUE);
+					DeltaCredit (planets * diffCase * BioCreditValue);
 					planets = 0;
 				}
 				else
