@@ -351,7 +351,7 @@ ZoomInPlanetSphere (void)
 	}
 }
 
-#define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL(24, 35))
+#define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL (24, 42))
 
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color)
