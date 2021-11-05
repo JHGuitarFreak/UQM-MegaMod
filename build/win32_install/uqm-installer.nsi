@@ -10,6 +10,7 @@ Var UQMUSERDATA
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "The Ur-Quan Masters MegaMod"
 !define PRODUCT_VERSION "0.8.1"
+!define PREV_VERSION "0.8.0.85"
 !define PRODUCT_WEB_SITE "http://megamod.serosis.net"
 !define PRODUCT_FILE_SERVER "http://files.serosis.net/MegaMod/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\UrQuanMasters.exe"
@@ -429,7 +430,7 @@ Section "Volasaurus' Space Music" SEC08
   AddSize ${VOL_SPACE_SIZE}
   StrCpy $MANDATORY 0
   StrCpy $MD5SUM "${VOL_SPACE_MD5SUM}"
-  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PREV_VERSION}/"
   Push "${VOL_SPACE_FILE}"
   Push "$INSTDIR\content\addons"
   Call HandlePackage
@@ -444,7 +445,7 @@ Section "Lance_Vader's Utwig voicepack" SEC09
   AddSize ${RMX_UTWIG_SIZE}
   StrCpy $MANDATORY 0
   StrCpy $MD5SUM "${RMX_UTWIG_MD5SUM}"
-  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PREV_VERSION}/"
   Push "${RMX_UTWIG_FILE}"
   Push "$INSTDIR\content\addons"
   Call HandlePackage
@@ -521,7 +522,7 @@ Section "The Precursors Remixes" SEC12
   AddSize ${PKG_REMIX5_SIZE}
   StrCpy $MANDATORY 0
   StrCpy $MD5SUM "${PKG_REMIX5_MD5SUM}"
-  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PREV_VERSION}/"
   Push "${PKG_REMIX5_FILE}"
   Push "$INSTDIR\content\addons"
   Call HandlePackage
