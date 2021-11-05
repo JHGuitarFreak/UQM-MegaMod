@@ -141,7 +141,6 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 
 	oldFont = SetContextFont (MicroFont);
 
-	c = SetContextForeGroundColor (MENU_TEXT_COLOR);
 	t.align = ALIGN_CENTER;
 	t.baseline.x = s.origin.x;
 	t.baseline.y = s.origin.y - RES_SCALE (20);
@@ -152,8 +151,9 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 				+ (!i ? 1 : (i > 1 ? 2 : 0)));
 
 		SetContextForeGroundColor (
-				(i == answer) ?
-				(confirm ? c : MENU_HIGHLIGHT_COLOR) : BLACK_COLOR
+				i == answer ?
+				(confirm ? MENU_BACKGROUND_COLOR
+				: MENU_HIGHLIGHT_COLOR) : BLACK_COLOR
 			);
 		font_DrawText (&t);
 
@@ -161,7 +161,6 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	}
 
 	SetContextFont (oldFont);
-	SetContextForeGroundColor (c);
 }
 
 static BOOLEAN
