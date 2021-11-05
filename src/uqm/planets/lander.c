@@ -1479,18 +1479,33 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 
 	if (optSuperPC == OPT_PC)
 	{
-		RECT r;
-
-		GetContextClipRect (&r);
-		r.corner.x = r.corner.y = 0;
-		DrawStarConBox (&r, RES_SCALE(1),
-			SIS_LEFT_BORDER_COLOR,
-			SIS_BOTTOM_RIGHT_BORDER_COLOR,
-			FALSE, TRANSPARENT);
-
-		if (IS_HD)
+		if (!IS_HD)
 		{
-			DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+			RECT r;
+			CONTEXT oldContext;
+
+			GetContextClipRect(&r);
+			
+			oldContext = SetContext(ScreenContext);
+
+			r.corner.x -= RES_SCALE (1);
+			r.corner.y -= RES_SCALE (1);
+			r.extent.height += RES_SCALE (2);
+			r.extent.width += RES_SCALE (2);
+
+			DrawStarConBox (&r, RES_SCALE(1),
+				SIS_LEFT_BORDER_COLOR,
+				SIS_BOTTOM_RIGHT_BORDER_COLOR,
+				FALSE, TRANSPARENT);
+
+			SetContext(oldContext);
+
+			if (optSubmenu)
+				DrawMineralHelpers(FALSE);
+		}
+		else
+		{
+			DrawBorder (optCustomBorder ? 30 : 35, FALSE);
 
 			if (optSubmenu)
 			{
