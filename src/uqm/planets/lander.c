@@ -1448,8 +1448,16 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 			--pPSD->NumFrames;
 			SetContextForeGroundColor (pPSD->ColorCycle[pPSD->NumFrames >> 1]);
 
-			pPSD->MineralText[0].baseline.x -= dx;
-			pPSD->MineralText[0].baseline.y -= dy;
+			if (optSuperPC == OPT_PC)
+			{
+				pPSD->MineralText[0].baseline.x = RADAR_WIDTH >> 1;
+				pPSD->MineralText[0].baseline.y = RES_SCALE (8); // original value
+			}
+			else
+			{
+				pPSD->MineralText[0].baseline.x -= dx;
+				pPSD->MineralText[0].baseline.y -= dy;
+			}
 			font_DrawText (&pPSD->MineralText[0]);
 			pPSD->MineralText[1].baseline.x =
 					pPSD->MineralText[0].baseline.x;
