@@ -1712,6 +1712,9 @@ DoShipyard (MENU_STATE *pMS)
 ExitShipyard:
 		SetInputCallback (NULL);
 
+		if (pMS->CurState < SHIPYARD_EXIT)
+			DrawMenuStateStrings (PM_CREW, SHIPYARD_EXIT);
+
 		DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
 		pMS->ModuleFrame = 0;
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
