@@ -262,7 +262,7 @@ DoDiffChooser (MENU_STATE *pMS)
 		optDifficulty = (!a ? OPTVAL_EASY :
 				(a > 1 ? OPTVAL_HARD : OPTVAL_NORMAL));
 
-		res_PutInteger ("mm.difficulty", optDifficulty);
+		res_PutInteger ("mm.difficulty", OPTVAL_IMPO);
 		SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	}
 
@@ -507,7 +507,7 @@ DoRestart (MENU_STATE *pMS)
 				}
 				else if (!RestartMessage (pMS, TimeIn))
 				{
-					if (optDifficulty == OPTVAL_IMPO)
+					if (res_GetInteger ("mm.difficulty") == OPTVAL_IMPO)
 					{
 						Flash_terminate (pMS->flashContext); //so it won't visibly stuck
 						if (!DoDiffChooser (pMS))
