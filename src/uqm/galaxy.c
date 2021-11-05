@@ -263,6 +263,7 @@ InitGalaxy (void)
 
 		if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA) 
 				&& LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE 
+				&& LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE
 				&& i == BIG_STAR_COUNT + 1)
 		{	//Set SA-MATRA as background image on the second Star layer
 			SetPrimType (&DisplayArray[p], MISC_PRIM);
