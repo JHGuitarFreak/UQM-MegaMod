@@ -74,6 +74,7 @@ DoSelectAction (MENU_STATE *pMS)
 		{
 			case HAIL:
 			case ATTACK:
+				DrawMenuStateStrings (PM_CONVERSE, pMS->CurState);
 				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
 					pMS->CurState = HAIL;
 				return (FALSE);
@@ -435,7 +436,6 @@ InitEncounter (void)
 
 		DoInput (&MenuState, TRUE);
 
-		DrawMenuStateStrings(PM_CONVERSE, MenuState.CurState);
 		SetFlashRect (NULL, FALSE);
 
 		return (MenuState.CurState);
