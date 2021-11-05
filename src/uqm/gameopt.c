@@ -896,7 +896,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		for (i = 0; i < pSD->NumShips; ++i)
 			CloneShipFragment (pSD->ShipList[i], &GLOBAL (built_ship_q), 0);
 		DateToString (buf, sizeof buf,
-				pSD->month_index, pSD->day_index, pSD->year_index),
+				pSD->month_index, pSD->day_index, pSD->year_index);
 		ClearSISRect (DRAW_SIS_DISPLAY);
 		DrawBorder (34, FALSE);
 		DrawStatusMessage (buf);
@@ -1056,6 +1056,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		// Restore the states because we hacked them
 		GLOBAL (built_ship_q) = player_q;
 		GlobData.SIS_state = SaveSS;
+		if (optCustomBorder)
+			DrawStatusMessage (NULL);
 	}
 
 	UnbatchGraphics ();
@@ -1348,7 +1350,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 
 	memset (&pickState, 0, sizeof pickState);
 	pickState.saving = saving;
-	pickState.SummaryFrame = SetAbsFrameIndex (PlayFrame, 39);
+	pickState.SummaryFrame = SetAbsFrameIndex (PlayFrame, 44);
 
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &pickState;
