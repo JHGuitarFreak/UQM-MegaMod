@@ -347,7 +347,8 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		if (aft_ellips)
 			strcpy (pages[page] + lead_ellips + pos, "...");
 
-		if (optSmoothScroll == OPT_PC && !usingSpeech)
+		if (optSmoothScroll == OPT_PC && !usingSpeech
+				&& (LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE))
 		{
 			timestamp[page] =
 					RecalculateDelay (lead_ellips + pos + aft_ellips, TRUE);
