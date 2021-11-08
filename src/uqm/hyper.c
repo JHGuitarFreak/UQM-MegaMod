@@ -739,7 +739,7 @@ unhyper_transition (ELEMENT *ElementPtr)
 
 	// JMS: If leaving interplanetary on autopilot, always arrive HS with
 	// the ship's nose pointed into correct direction.
-	if (optShipFacingHS && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
+	if (optSmartAutoPilot && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
 	{
 		STARSHIP *StarShipPtr;
 		POINT universe;
@@ -854,7 +854,7 @@ hyper_transition (ELEMENT *ElementPtr)
 
 		// JMS: If leaving interplanetary on autopilot, always arrive HS with
 		// the ship's nose pointed into correct direction.
-		if (optShipFacingHS && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
+		if (optSmartAutoPilot && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
 		{
 			STARSHIP *StarShipPtr;
 			POINT universe;

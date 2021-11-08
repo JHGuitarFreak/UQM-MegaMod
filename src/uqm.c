@@ -184,8 +184,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, hazardColors);
 	DECL_CONFIG_OPTION(bool, orzCompFont);
 	DECL_CONFIG_OPTION(int,  optControllerType);
-	DECL_CONFIG_OPTION(bool, shipFacingHS);
-	DECL_CONFIG_OPTION(int,  coloredPlanet);
+	DECL_CONFIG_OPTION(bool, smartAutoPilot);
+	DECL_CONFIG_OPTION(int,  tintPlanSphere);
 	DECL_CONFIG_OPTION(int,  planetStyle);
 	DECL_CONFIG_OPTION(int,  starBackground);
 	DECL_CONFIG_OPTION(int,  scanStyle);
@@ -386,8 +386,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  hazardColors,      false),
 		INIT_CONFIG_OPTION(  orzCompFont,       false),
 		INIT_CONFIG_OPTION(  optControllerType, 0),
-		INIT_CONFIG_OPTION(  shipFacingHS,      false),
-		INIT_CONFIG_OPTION(  coloredPlanet,     OPT_3DO),
+		INIT_CONFIG_OPTION(  smartAutoPilot,    false),
+		INIT_CONFIG_OPTION(  tintPlanSphere,    OPT_3DO),
 		INIT_CONFIG_OPTION(  planetStyle,       OPT_3DO),
 		INIT_CONFIG_OPTION(  starBackground,    2),
 		INIT_CONFIG_OPTION(  scanStyle,         OPT_3DO),
@@ -603,8 +603,8 @@ main (int argc, char *argv[])
 	optHazardColors = options.hazardColors.value;
 	optOrzCompFont = options.orzCompFont.value;
 	optControllerType = options.optControllerType.value;
-	optShipFacingHS = options.shipFacingHS.value;
-	optColoredPlanet = options.coloredPlanet.value;
+	optSmartAutoPilot = options.smartAutoPilot.value;
+	optTintPlanSphere = options.tintPlanSphere.value;
 	optPlanetStyle = options.planetStyle.value;
 	optStarBackground = options.starBackground.value;
 	optScanStyle = options.scanStyle.value;
@@ -987,8 +987,8 @@ getUserConfigOptions (struct options_struct *options)
 		options->optControllerType.value = res_GetInteger ("mm.controllerType");
 	}
 
-	getBoolConfigValue (&options->shipFacingHS, "mm.shipFacingHS");
-	getBoolConfigValueXlat (&options->coloredPlanet, "mm.coloredPlanet",
+	getBoolConfigValue (&options->smartAutoPilot, "mm.smartAutoPilot");
+	getBoolConfigValueXlat (&options->tintPlanSphere, "mm.tintPlanSphere",
 		OPT_3DO, OPT_PC);
 	getBoolConfigValueXlat (&options->planetStyle, "mm.planetStyle",
 		OPT_3DO, OPT_PC);
@@ -1397,7 +1397,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case 'C':
 				options->configDir = optarg;
-				break;			
+				break;
 			case 'i':
 				if (!setChoiceOption (&options->whichIntro, optarg))
 				{

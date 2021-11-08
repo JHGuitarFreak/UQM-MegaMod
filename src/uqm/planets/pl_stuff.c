@@ -101,7 +101,7 @@ DrawDefaultPlanetSphere (void)
 	CONTEXT oldContext;
 
 	oldContext = SetContext (PlanetContext);
-	if (optScanStyle == OPT_PC && optColoredPlanet == OPT_PC
+	if (optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC
 		&& pSolarSysState->Orbit.scanType != NUM_SCAN_TYPES)
 		DrawPCScannedPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
 	else		
@@ -371,7 +371,7 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color)
 			OutNextTime = Now + PLANET_ROTATION_FPS;
 
 			DrawDefaultPlanetSphere ();
-			if (optColoredPlanet == OPT_PC
+			if (optTintPlanSphere == OPT_PC
 				&& !sameColor (TRANSPARENT, color))
 				DrawColoredPlanetSphere (color);
 			if (onTop)

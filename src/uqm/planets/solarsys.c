@@ -1377,7 +1377,7 @@ ProcessShipControls (void)
 	}
 	else if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
 	{
-		if (optShipFacingHS)
+		if (optSmartAutoPilot)
 		{
 			SIZE facing;
 			COUNT frame_index;

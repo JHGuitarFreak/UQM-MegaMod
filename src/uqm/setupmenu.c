@@ -585,8 +585,8 @@ SetDefaults (void)
 	choices[57].selected = opts.shipDirectionIP;
 	choices[58].selected = opts.orzCompFont;
 	choices[59].selected = opts.controllerType;
-	choices[60].selected = opts.shipFacingHS;
-	choices[61].selected = opts.coloredPlanet;
+	choices[60].selected = opts.smartAutoPilot;
+	choices[61].selected = opts.tintPlanSphere;
 	choices[62].selected = opts.planetStyle;
 	choices[63].selected = opts.starBackground;
 	choices[64].selected = opts.scanStyle;
@@ -674,8 +674,8 @@ PropagateResults (void)
 	opts.shipDirectionIP = choices[57].selected;
 	opts.orzCompFont = choices[58].selected;
 	opts.controllerType = choices[59].selected;
-	opts.shipFacingHS = choices[60].selected;
-	opts.coloredPlanet = choices[61].selected;
+	opts.smartAutoPilot = choices[60].selected;
+	opts.tintPlanSphere = choices[61].selected;
 	opts.planetStyle = choices[62].selected;
 	opts.starBackground = choices[63].selected;
 	opts.scanStyle = choices[64].selected;
@@ -1630,8 +1630,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->hazardColors = optHazardColors ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->controllerType = res_GetInteger ("mm.controllerType");
-	opts->shipFacingHS = optShipFacingHS ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->coloredPlanet = (optColoredPlanet == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->smartAutoPilot = optSmartAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->tintPlanSphere = (optTintPlanSphere == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->planetStyle = (optPlanetStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->starBackground = res_GetInteger ("mm.starBackground");
 	opts->scanStyle = (optScanStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
@@ -2103,11 +2103,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optControllerType = opts->controllerType;
 #endif
 
-	res_PutBoolean ("mm.shipFacingHS", opts->shipFacingHS == OPTVAL_ENABLED);
-	optShipFacingHS = (opts->shipFacingHS == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.smartAutoPilot", opts->smartAutoPilot == OPTVAL_ENABLED);
+	optSmartAutoPilot = (opts->smartAutoPilot == OPTVAL_ENABLED);
 
-	optColoredPlanet = (opts->coloredPlanet == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.coloredPlanet", opts->coloredPlanet == OPTVAL_3DO);
+	optTintPlanSphere = (opts->tintPlanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.tintPlanSphere", opts->tintPlanSphere == OPTVAL_3DO);
 
 	optPlanetStyle = (opts->planetStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.planetStyle", opts->planetStyle == OPTVAL_3DO);
