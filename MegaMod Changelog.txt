@@ -64,6 +64,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added an animation for selling Rainbow Worlds to the Melnorme - Kruzen
 - CHEAT: Add option to disable planet and asteroid in Super Melee (only against non-network opponents) - Kruzen
 - CHEAT: Remade the old De-Cleansing Mod and added it as an option
+- DOS-style, text-only, "sell minerals" Commander dialog when not using voices - Kruzen
+- Full reimplementation of the "read speed" DOS option when not using voices - Kruzen
 
 
 ### Changed
