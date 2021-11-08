@@ -1097,6 +1097,20 @@ enum
 	ORZFONT_OPT,
 	CONTYPE_OPT,
 	SISFACEHS_OPT,
+	COLORPLAN_OPT,
+	PLANSTYLE_OPT,
+	STARBACK_OPT,
+	SCANSTYLE_OPT,
+	OSCILLO_OPT,
+	OSCSTYLE_OPT,
+	HYPERSTARS_OPT,
+	LANDSTYLE_OPT,
+	PLANTEX_OPT,
+	SISENGINE_OPT,
+	NOHSENC_OPT,
+	DECLEANSE_OPT,
+	NOMELEEOBJ_OPT,
+	SHOWSTARS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1182,8 +1196,21 @@ static struct option longOptions[] =
 	{"shipdirectionip", 0, NULL, SHIPDIRIP_OPT},
 	{"hazardcolors", 0, NULL, HAZCOLORS_OPT},
 	{"orzcompfont", 0, NULL, ORZFONT_OPT},
-	{"controllertype", 0, NULL, CONTYPE_OPT},
-	{"shipfacinghs", 0, NULL, SISFACEHS_OPT},
+	{"smartautopilot", 0, NULL, SISFACEHS_OPT},
+	{"tintplansphere", 1, NULL, COLORPLAN_OPT},
+	{"planetstyle", 1, NULL, PLANSTYLE_OPT},
+	{"starbackground", 1, NULL, STARBACK_OPT},
+	{"scanstyle", 1, NULL, SCANSTYLE_OPT},
+	{"nonstoposcill", 0, NULL, OSCILLO_OPT},
+	{"scopestyle", 1, NULL, OSCSTYLE_OPT},
+	{"animhyperstars", 0, NULL, HYPERSTARS_OPT},
+	{"landerview", 1, NULL, LANDSTYLE_OPT},
+	{"planettexture", 1, NULL, PLANTEX_OPT},
+	{"sisenginecolor", 1, NULL, SISENGINE_OPT},
+	{"nohqencounters", 0, NULL, NOHSENC_OPT},
+	{"decleanse", 0, NULL, DECLEANSE_OPT},
+	{"nomeleeobstacles", 0, NULL, NOMELEEOBJ_OPT},
+	{"showvisitstars", 0, NULL, SHOWSTARS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1451,6 +1478,36 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case STEREOSFX_OPT:
 				setBoolOption (&options->stereoSFX, true);
 				break;
+			case ADDON_OPT:
+				options->numAddons++;
+				options->addons = HRealloc ((void *)options->addons,
+					(options->numAddons + 1) * sizeof (const char *));
+				options->addons[options->numAddons - 1] = optarg;
+				options->addons[options->numAddons] = NULL;
+				break;
+			case ADDONDIR_OPT:
+				options->addonDir = optarg;
+				break;
+			case ACCEL_OPT:
+			{
+				int value;
+				if (lookupOptionValue (accelList, optarg, &value))
+				{
+					force_platform = value;
+				}
+				else
+				{
+					InvalidArgument (optarg, "--accel");
+					badArg = true;
+				}
+				break;
+			}
+			case SAFEMODE_OPT:
+				setBoolOption (&options->safeMode, true);
+				break;
+			case RENDERER_OPT:
+				options->graphicsBackend = optarg;
+				break;
 			case CHEATMODE_OPT:
 				setBoolOption (&options->cheatMode, true);
 				break;
@@ -1632,43 +1689,92 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			}
 			case SISFACEHS_OPT:
-				setBoolOption (&options->shipFacingHS, true);
+				setBoolOption (&options->smartAutoPilot, true);
+				break;
+			case COLORPLAN_OPT:
+				if (!setChoiceOption (&options->tintPlanSphere, optarg))
+				{
+					InvalidArgument (optarg, "--tintplansphere");
+					badArg = true;
+				}
+				break;
+			case PLANSTYLE_OPT:
+				if (!setChoiceOption (&options->planetStyle, optarg))
+				{
+					InvalidArgument (optarg, "--planetstyle");
+					badArg = true;
+				}
+				break;
+			case STARBACK_OPT:
+				if (!setChoiceOption (&options->starBackground, optarg))
+				{
+					InvalidArgument (optarg, "--starbackground");
+					badArg = true;
+				}
+				break;
+			case SCANSTYLE_OPT:
+				if (!setChoiceOption (&options->scanStyle, optarg))
+				{
+					InvalidArgument (optarg, "--scanstyle");
+					badArg = true;
+				}
+				break;
+			case OSCILLO_OPT:
+				setBoolOption (&options->nonStopOscill, true);
+				break;
+			case OSCSTYLE_OPT:
+				if (!setChoiceOption (&options->scopeStyle, optarg))
+				{
+					InvalidArgument (optarg, "--scopestyle");
+					badArg = true;
+				}
+				break;
+			case HYPERSTARS_OPT:
+				setBoolOption (&options->hyperStars, true);
+				break;
+			case LANDSTYLE_OPT:
+				if (!setChoiceOption (&options->landerStyle, optarg))
+				{
+					InvalidArgument (optarg, "--landerview");
+					badArg = true;
+				}
+				break;
+			case PLANTEX_OPT:
+				if (strcmp (optarg, "uqm") == 0)
+					setBoolOption (&options->planetTexture, true);
+				else if (strcmp (optarg, "3do") == 0)
+					setBoolOption (&options->planetTexture, false);
+				else
+				{
+					InvalidArgument (optarg, "--planettexture");
+					saveError ("\nPlanet Texture can only be set to '3do' or 'uqm'\n");
+					badArg = true;
+				}
+				break;
+			case SISENGINE_OPT:
+				if (!setChoiceOption (&options->flagshipColor, optarg))
+				{
+					InvalidArgument (optarg, "--sisenginecolor");
+					badArg = true;
+				}
+				break;
+			case NOHSENC_OPT:
+				setBoolOption (&options->noHQEncounters, true);
+				break;
+			case DECLEANSE_OPT:
+				setBoolOption (&options->deCleansing, true);
+				break;
+			case NOMELEEOBJ_OPT:
+				setBoolOption (&options->meleeObstacles, true);
+				break;
+			case SHOWSTARS_OPT:
+				setBoolOption (&options->showVisitedStars, true);
 				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
 			case LOADGAME_OPT:
 				optLoadGame = TRUE;
-				break;
-			case ADDON_OPT:
-				options->numAddons++;
-				options->addons = HRealloc ((void *) options->addons,
-						(options->numAddons + 1) * sizeof (const char *));
-				options->addons[options->numAddons - 1] = optarg;
-				options->addons[options->numAddons] = NULL;
-				break;
-			case ADDONDIR_OPT:
-				options->addonDir = optarg;
-				break;
-			case ACCEL_OPT:
-			{
-				int value;
-				if (lookupOptionValue (accelList, optarg, &value))
-				{
-					force_platform = value;
-				}
-				else
-				{
-					InvalidArgument (optarg, "--accel");
-					badArg = true;
-				}
-				break;
-			}
-			case SAFEMODE_OPT:
-				setBoolOption (&options->safeMode, true);
-				break;
-			case RENDERER_OPT:
-				options->graphicsBackend = optarg;
 				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
@@ -1861,15 +1967,16 @@ usage (FILE *out, const struct options_struct *defaults)
 			"3do=smooth (default: %s)",
 			choiceOptString (&defaults->smoothScroll));
 
-	log_add (log_User, "The following options are for the Mega Mod"); 
-	log_add (log_User, "  --kohrstahp : Stops Kohr-Ah advancing. (default: %s)",
-			boolOptString (&defaults->cheatMode));
+	log_add (log_User, "\nThe following options are MegaMod specific\n");
+
+	log_add (log_User, "  --kohrstahp : Stops Kohr-Ah advancing. "
+			"(default: %s)", boolOptString (&defaults->cheatMode));
 	log_add(log_User, "  --precursormode : =1 Infinite ship battery. =2 No damage"
 			"=3 Infinite ship battery and no damage (default: 0)");
 	log_add (log_User, "  --timedilation : =1 Time is slowed down times 6. "
 			"=2 Time is sped up times 5 (default: 0)");
 	log_add (log_User, "  --bubblewarp : Instantaneous travel to any point on "
-			"the Starmap.    (default: %s)",
+			"the Starmap. (default: %s)",
 			boolOptString (&defaults->bubbleWarp));
 	log_add (log_User, "  --unlockships : Allows you to purchase ships that you"
 			"can't normally acquire in the main game. (default: %s)",
@@ -1883,7 +1990,7 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --infiniteru : Gives you infinite R.U. as long as the"
 			"cheat is on (default: %s)",
 			boolOptString (&defaults->infiniteRU));
-	log_add (log_User, "  --skipintro : Skips the intro and Logo fmv"
+	log_add (log_User, "  --skipintro : Skips the intro and Logo fmv "
 			"(default: %s)",
 			boolOptString (&defaults->skipIntro));
 	log_add (log_User, "  --mainmenumusic : Switches the main menu"
@@ -1908,10 +2015,9 @@ usage (FILE *out, const struct options_struct *defaults)
 			"map keys submenu  (default: %s)",
 			boolOptString (&defaults->submenu));
 	log_add (log_User, "  --dateformat : 0: MMM DD.YYYY | 1: MM.DD.YYYY | "
-			"2: DD MMM.YYYY | 3: DD.MM.YYYY   (default: 0)");
-	log_add (log_User, "  --adddevices : Gives you all available"
-			"devices  (default: %s)",
-			boolOptString (&defaults->addDevices));
+			"2: DD MMM.YYYY | 3: DD.MM.YYYY (default: 0)");
+	log_add (log_User, "  --adddevices : Gives you all available "
+			"devices (default: %s)", boolOptString (&defaults->addDevices));
 	log_add (log_User, "  --melee : Takes you straight to Super Melee"
 			"after the splash screen.");
 	log_add (log_User, "  --loadgame : Takes you straight to the Load"
@@ -1919,37 +2025,38 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --customborder : Enables the custom border"
 			"frame. (default: %s)",
 			boolOptString (&defaults->customBorder));
-	log_add (log_User, "  --customseed=# : Allows you to customize the internal" 
-			"seed used to generate the solar systems in-game. (default: 16807)");
-	log_add (log_User, "  --spacemusic : Enables localized music for races when"
-			"you are in their sphere of influence (default: %s)",
+	log_add (log_User, "  --customseed=# : Allows you to customize the "
+			"internal seed used to generate the solar systems in-game."
+			" (default: 16807)");
+	log_add (log_User, "  --spacemusic : Enables localized music for races "
+			"when you are in their sphere of influence (default: %s)",
 			boolOptString (&defaults->spaceMusic));
-	log_add (log_User, "  --wholefuel : Enables the display of the whole fuel"
-			"value in the ship status    (default: %s)",
+	log_add (log_User, "  --wholefuel : Enables the display of the whole "
+			"fuel value in the ship status (default: %s)",
 			boolOptString (&defaults->wholeFuel));
 	log_add (log_User, "  --dirjoystick : Enables the use of directional"
-			"joystick controls for Android    (default: %s)",
+			"joystick controls for Android (default: %s)",
 			boolOptString (&defaults->directionalJoystick));
-	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander hold,"
-			"pc=64, 3do=50     (default: %s)",
+	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander "
+			"hold, pc=64, 3do=50 (default: %s)",
 			choiceOptString (&defaults->landerHold));
-	log_add (log_User, "  --iptrans : Interplanetary transitions, pc=stepped, "
-			"3do=crossfade     (default: %s)",
+	log_add (log_User, "  --iptrans : Interplanetary transitions, "
+			"pc=stepped, 3do=crossfade (default: %s)",
 			choiceOptString (&defaults->ipTrans));
 	log_add (log_User, "  --difficulty : 0: Normal | 1: Easy | 2: Hard"
-			"| 3: Impossible (default: 0)");
+			"| 3: Choose at Start (default: 0)");
 	log_add (log_User, "  --fuelrange : Enables 'point of no return'"
 			"fuel range (default: %s)",
 			boolOptString (&defaults->fuelRange));
 	log_add (log_User, "  --extended : Enables Extended Edition"
 			"features (default: %s)",
 			boolOptString (&defaults->extended));
-	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) (default: %s)",
-			boolOptString (&defaults->nomad));
-	log_add (log_User, "  --gameover : Enables Game Over cutscenes (default: %s)",
-			boolOptString (&defaults->gameOver));
+	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) "
+			"(default: %s)", boolOptString (&defaults->nomad));
+	log_add (log_User, "  --gameover : Enables Game Over cutscenes "
+			"(default: %s)", boolOptString (&defaults->gameOver));
 	log_add (log_User, "  --shipdirectionip : Enable NPC ships in IP"
-			"facing the direction they're going (default: %s)",
+			"to face their direction of travel (default: %s)",
 			boolOptString (&defaults->shipDirectionIP));
 	log_add (log_User, "  --hazardcolors : Enable colored text based on"
 			"hazard severity when viewing planetary scans (default: %s)",
@@ -1958,9 +2065,52 @@ usage (FILE *out, const struct options_struct *defaults)
 			"untranslatable Orz speech (default: %s)",
 			boolOptString (&defaults->orzCompFont));
 	log_add (log_User, "  --shipfacinghs : Enable flagship facing the"
-			"direction it entered HyperSpace while in auto-pilot (default: %s)",
-			boolOptString (&defaults->shipFacingHS));
-	log_add (log_User, "  --controllertype : 0: Keyboard | 1: Xbox | 2: PlayStation 4 (default: 0)");
+			"direction it entered HyperSpace while in auto-pilot "
+			"(default: %s)", boolOptString (&defaults->smartAutoPilot));
+	log_add (log_User, "  --controllertype : 0: Keyboard | 1: Xbox | "
+			"2: PlayStation 4 (default: 0)");
+	log_add (log_User, "  --tintplansphere : Tint the planet sphere"
+			" with scan color during scan (default: %s)",
+			choiceOptString (&defaults->tintPlanSphere));
+	log_add (log_User, "  --planetstyle : Choose between PC or 3DO planet"
+			" color and shading (default: %s)",
+			choiceOptString (&defaults->planetStyle));
+	log_add (log_User, "  --starbackground : Set the background stars"
+			" in solar system between PC, 3DO, or UQM patterns "
+			"(default: pc)");
+	log_add (log_User, "  --scanstyle : Choose between PC or 3DO scanning"
+			" types (default: %s)", choiceOptString (&defaults->scanStyle));
+	log_add (log_User, "  --nonstoposcill : Oscilloscope uses both voice "
+			" and music data (default: %s)",
+			boolOptString (&defaults->nonStopOscill));
+	log_add (log_User, "  --scopestyle : Choose between either the PC or"
+			" 3DO oscilloscope type (default: %s)",
+			choiceOptString (&defaults->scopeStyle));
+	log_add (log_User, "  --animhyperstars : HD only - Use old HD-mod "
+			"animated HyperSpace stars (default: %s)",
+			boolOptString (&defaults->hyperStars));
+	log_add (log_User, "  --landerview : Choose between either the PC or"
+			" 3DO lander view (default: %s)",
+			choiceOptString (&defaults->landerStyle));
+	log_add (log_User, "  --planettexture : Choose between either 3DO or"
+			" UQM planet map texture [when not using custom seed] "
+			"(default: 3do)");
+	log_add (log_User, "  --sisenginecolor : Choose between either the PC"
+			" or 3DO Flagship engine color (default: %s)",
+			choiceOptString (&defaults->flagshipColor));
+	log_add (log_User, "  --nohqencounters : Disables HyperSpace encounters"
+			" (default: %s)", boolOptString (&defaults->noHQEncounters));
+	log_add (log_User, "  --decleanse : Moves the Death March 100 years"
+			" ahead from its actual start date [does not work once the"
+			" Death March has started] (default: %s)",
+			boolOptString (&defaults->deCleansing));
+	log_add (log_User, "  --nomeleeobstacles : Removes the planet and "
+			"asteroids from Super Melee (default: %s)",
+			boolOptString (&defaults->meleeObstacles));
+	log_add (log_User, "  --showvisitstars : Dim visited stars on the "
+			" StarMap and encase the star name in parenthesis "
+			"(default: %s)", boolOptString (&defaults->showVisitedStars));
+
 	log_setOutput (old);
 }
 
