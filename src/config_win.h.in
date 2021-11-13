@@ -11,7 +11,7 @@
 #define CONFIG_WIN_H_
 
 /* Directory where the UQM game data is located */
-#define CONTENTDIR "../content/"
+#define CONTENTDIR "./content/"
 
 /* Directory where game data will be stored */
 //#define USERDIR "../userdata/"
