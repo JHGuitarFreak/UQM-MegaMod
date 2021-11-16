@@ -13,10 +13,11 @@ darklord42 (QA, art, and invaluable feedback)
 Soul Reaver A.K.A. Andy Krieg (Mycon & Melnorme voice fixes and the Syreen HD fix)
 SlightlyIntelligentMonkey (3DO FMV fix for HD)
 Volasaurus (Music, QA, art, feedback)
-Gildon (Right pain in the ass)
+Gildon (Feedback)
 CatLady (QA for Android port and feedback)
 Elestan (Feedback)
-Kruzenshtern (Coding and QA)
+Kruzenshtern (Coding, QA, art, and writing)
+Tarp (Ideas and writing)
 
 Nebulae and HD Super Melee backgrounds created using wwwtyro's space2d & space2dwgl procedural space-scape generator.
 
