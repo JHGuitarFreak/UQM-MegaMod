@@ -119,6 +119,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Change planet spin speed on scan screen depending on scan style chosen - Kruzen
 - CHEAT: Cleaned up allied race code so the unlock ships cheat will never mess with alliances
 - Center star search text as it's being typed - Kruzen
+- New shielded planet graphics that are shaded properly for where they are in their orbit. - Kruzen
 
 
 ### Fixed
@@ -153,7 +154,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Starmap code is now scaled properly removing the need for HD cursor snap
 - HD: Fixed the Starmap grid so that it draws properly - Kruzen
 - Fix Flagship speed doubling when going from Save/Load screen straight to navigation
-- Fix SIS speed doubling when going from Save/Load screen straight to interplanetary navigation
 - HD: Remove red outline of defeated ships on the debris screen - Kruzen
 
 

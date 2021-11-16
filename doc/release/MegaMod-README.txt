@@ -60,7 +60,7 @@ Explanation of the Setup Menu options:
 
       Alternate Orz Font - Turn on/off the alternate font for untranslated Orz text.
 
-      Non-Stop Oscilloscope - Enabled the conversation oscilloscope to switch to music when nobody is talking (When speech is enabled).
+      Non-Stop Oscilloscope - Enable the conversation oscilloscope to switch to music when nobody is talking (When speech is enabled).
 
       Animated HyperSpace Stars - HD-only: Enables the legacy HD-mod animated HyperSpace stars. When disabled it switches to recreated faithful designs of the originals.
 
