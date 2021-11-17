@@ -139,7 +139,18 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 				r->corner.y = t.baseline.y - PC_MENU_HEIGHT
 						+ RES_SCALE (2);
 				r->extent.height = PC_MENU_HEIGHT - RES_SCALE (1);
-				DrawFilledRectangle (r);
+				if (optCustomBorder)
+				{
+					STAMP s;
+
+					s.origin = r->corner;
+
+					s.frame = SetAbsFrameIndex (BorderFrame, 28);
+					DrawStamp (&s);
+				}
+				else
+					DrawFilledRectangle (r);
+
 				rd = pos;
 			}
 			else
@@ -729,7 +740,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 
 	BatchGraphics ();
 
-	if(!optCustomBorder)
+	if (!optCustomBorder)
 	{
 		DrawStarConBox (
 				&r, RES_SCALE(1), PCMENU_TOP_LEFT_BORDER_COLOR,

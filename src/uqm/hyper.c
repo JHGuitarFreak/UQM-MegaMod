@@ -2036,7 +2036,7 @@ SeedUniverse (void)
 		DrawFilledRectangle (&r);
 
 		if (IS_HD)
-			DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+			DrawBorder (31, FALSE);
 	}
 
 	UnbatchGraphics ();

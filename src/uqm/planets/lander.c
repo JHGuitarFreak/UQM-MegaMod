@@ -929,22 +929,28 @@ CheckObjectCollision (COUNT index)
 						// noop; handled by generation funcs, see below
 						if (optSuperPC == OPT_PC)
 						{
-							RECT r;
-
-							GetContextClipRect (&r);
-							r.corner.x = r.corner.y = 0;
-							DrawStarConBox (&r, RES_SCALE(1),
-								SIS_LEFT_BORDER_COLOR,
-								SIS_BOTTOM_RIGHT_BORDER_COLOR,
-								FALSE, TRANSPARENT);
-
-							if (IS_HD)
+							if (!IS_HD)
 							{
-								DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+								RECT r;
 
-								if (optSubmenu)
-									DrawMineralHelpers (FALSE);
+								GetContextClipRect (&r);
+								r.corner.x = r.corner.y = 0;
+
+								r.corner.x--;
+								r.corner.y--;
+								r.extent.height += 2;
+								r.extent.width += 2;
+
+								DrawStarConBox (&r, 1,
+										SIS_LEFT_BORDER_COLOR,
+										SIS_BOTTOM_RIGHT_BORDER_COLOR,
+										FALSE, TRANSPARENT);
 							}
+							else
+								DrawBorder (32, FALSE);
+
+							if (optSubmenu)
+								DrawMineralHelpers (FALSE);
 						}
 					}
 					else if (scan == BIOLOGICAL_SCAN && ElementPtr->hit_points)
@@ -1484,36 +1490,28 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 			RECT r;
 			CONTEXT oldContext;
 
-			GetContextClipRect(&r);
+			GetContextClipRect (&r);
 			
-			oldContext = SetContext(ScreenContext);
+			oldContext = SetContext (ScreenContext);
 
-			r.corner.x -= RES_SCALE (1);
-			r.corner.y -= RES_SCALE (1);
-			r.extent.height += RES_SCALE (2);
-			r.extent.width += RES_SCALE (2);
+			r.corner.x--;
+			r.corner.y--;
+			r.extent.height += 2;
+			r.extent.width += 2;
 
-			DrawStarConBox (&r, RES_SCALE(1),
-				SIS_LEFT_BORDER_COLOR,
-				SIS_BOTTOM_RIGHT_BORDER_COLOR,
-				FALSE, TRANSPARENT);
+			DrawStarConBox (&r, 1,
+					SIS_LEFT_BORDER_COLOR,
+					SIS_BOTTOM_RIGHT_BORDER_COLOR,
+					FALSE, TRANSPARENT);
 
-			SetContext(oldContext);
-
-			if (optSubmenu)
-				DrawMineralHelpers(FALSE);
+			SetContext (oldContext);
 		}
 		else
-		{
-			DrawBorder (optCustomBorder ? 30 : 35, FALSE);
-
-			if (optSubmenu)
-			{
-				if (optSubmenu)
-					DrawMineralHelpers (FALSE);
-			}
-		}
+			DrawBorder (32, FALSE);
 	}
+
+	if (optSubmenu)
+		DrawMineralHelpers (FALSE);
 
 	UnbatchGraphics ();
 
@@ -1731,19 +1729,26 @@ InitPlanetSide (POINT pt)
 
 			if (optSuperPC == OPT_PC)
 			{
-				b.corner.x = b.corner.y = 0;
-				DrawStarConBox (&b, RES_SCALE(1),
-					SIS_LEFT_BORDER_COLOR,
-					SIS_BOTTOM_RIGHT_BORDER_COLOR,
-					FALSE, TRANSPARENT);
-
-				if (IS_HD)
+				if (!IS_HD)
 				{
-					DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+					b.corner.x = b.corner.y = 0;
 
-					if (optSubmenu)
-						DrawMineralHelpers (FALSE);
+
+					b.corner.x--;
+					b.corner.y--;
+					b.extent.height += 2;
+					b.extent.width += 2;
+
+					DrawStarConBox (&b, 1,
+							SIS_LEFT_BORDER_COLOR,
+							SIS_BOTTOM_RIGHT_BORDER_COLOR,
+							FALSE, TRANSPARENT);
 				}
+				else
+					DrawBorder (32, FALSE);
+
+				if (optSubmenu)
+					DrawMineralHelpers (FALSE);
 			}
 			else
 				ScreenTransition (optIPScaler, &r);
@@ -2095,18 +2100,23 @@ ReturnToOrbit (void)
 
 		if (optSuperPC == OPT_PC)
 		{
-			DrawStarConBox(&b, RES_SCALE(1),
-				SIS_LEFT_BORDER_COLOR,
-				SIS_BOTTOM_RIGHT_BORDER_COLOR,
-				TRUE, BLACK_COLOR);
-
-			if (IS_HD)
+			if (!IS_HD)
 			{
-				DrawBorder (optCustomBorder ? 28 : 32, FALSE);
+				b.corner.x--;
+				b.corner.y--;
+				b.extent.height += 2;
+				b.extent.width += 2;
 
-				if (optSubmenu)
-					DrawMineralHelpers (FALSE);
+				DrawStarConBox (&b, 1,
+						SIS_LEFT_BORDER_COLOR,
+						SIS_BOTTOM_RIGHT_BORDER_COLOR,
+						FALSE, TRANSPARENT);
 			}
+			else
+				DrawBorder (32, FALSE);
+
+			if (optSubmenu)
+				DrawMineralHelpers (FALSE);
 		}
 		else
 			ScreenTransition (optIPScaler, &r);

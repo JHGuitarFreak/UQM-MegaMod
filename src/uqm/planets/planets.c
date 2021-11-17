@@ -193,10 +193,7 @@ DrawPlanetSurfaceBorder (void)
 		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		DrawFilledRectangle (&r);
 
-		if (optCustomBorder)
-			DrawBorder (29, FALSE);
-		else if (IS_HD)
-			DrawBorder (33, FALSE);
+		DrawBorder (30, FALSE);
 	}
 	else
 		DrawBorder (10, FALSE);
