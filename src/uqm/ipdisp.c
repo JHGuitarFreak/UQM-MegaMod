@@ -600,6 +600,11 @@ ip_group_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 	GetElementStarShip (ElementPtr0, &GroupPtr);
 	GetElementStarShip (ElementPtr1, &OtherPtr);
+
+	if (!(GLOBAL (autopilot.x) == ~0 && GLOBAL (autopilot.y) == ~0)
+			&& (CheckAlliance (GroupPtr->race_id) == GOOD_GUY))
+		return; // Ignore collisions when allied during Auto-Pilot
+
 	if (OtherPtr)
 	{	// Collision with another group
 		// Prevent the groups from coalescing into a single ship icon

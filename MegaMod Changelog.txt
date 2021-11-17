@@ -67,6 +67,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - CHEAT: Remade the old De-Cleansing Mod and added it as an option
 - DOS-style, text-only, "sell minerals" Commander dialog when not using voices - Kruzen
 - Full reimplementation of the "read speed" DOS option when not using voices - Kruzen
+- Pass through allies when auto-pilot is enabled
 
 
 ### Changed
@@ -155,6 +156,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Fixed the Starmap grid so that it draws properly - Kruzen
 - Fix Flagship speed doubling when going from Save/Load screen straight to navigation
 - HD: Remove red outline of defeated ships on the debris screen - Kruzen
+- Remove all alliances that have a broken alliance value during load
 
 
 ## [v0.8.0.85]
