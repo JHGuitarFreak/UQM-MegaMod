@@ -190,6 +190,10 @@ LoadRaceQueue (void *fh, QUEUE *pQueue, DWORD size)
 
 		// Read FLEET_INFO elements
 		read_16 (fh, &FleetPtr->allied_state);
+
+		if (FleetPtr->allied_state > 2)
+			FleetPtr->allied_state = BAD_GUY;
+
 		read_8  (fh, &FleetPtr->days_left);
 		read_8  (fh, &FleetPtr->growth_fract);
 		read_16 (fh, &FleetPtr->crew_level);
