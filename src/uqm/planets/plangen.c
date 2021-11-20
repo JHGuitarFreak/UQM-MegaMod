@@ -1878,7 +1878,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 		// surface pixmap
 		SurfDef = TRUE;
 		SurfDefFrame = SetAbsFrameIndex (SurfDefFrame, 0);
-		if (GetFrameWidth (SurfDefFrame) != width
+		if (width != SCALED_MAP_WIDTH
+				&& GetFrameWidth (SurfDefFrame) != width
 				|| GetFrameHeight (SurfDefFrame) != height)
 		{
 			pSolarSysState->TopoFrame = CaptureDrawable (RescaleFrame (
@@ -1895,7 +1896,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 			SBYTE* elev;
 
 			ElevFrame = SetAbsFrameIndex (SurfDefFrame, 1);
-			if (GetFrameWidth (ElevFrame) != width
+			if (width != SCALED_MAP_WIDTH
+					&& GetFrameWidth (ElevFrame) != width
 					|| GetFrameHeight (ElevFrame) != height)
 			{
 				ElevFrame = CaptureDrawable (RescaleFrame (ElevFrame,
