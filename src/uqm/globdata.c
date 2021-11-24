@@ -579,6 +579,7 @@ InitGameStructures (void)
 		AddEscortShips (SPATHI_SHIP, 1);
 		/* Make the Eluder escort captained by Fwiffo alone or have a full compliment for Easy mode. */
 		SetEscortCrewComplement (SPATHI_SHIP, SpaCrew, NAME_OFFSET + NUM_CAPTAINS_NAMES);
+		StartSphereTracking (SPATHI_SHIP);
 	}
 
 	GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
