@@ -94,6 +94,8 @@ extern void SetChannelVolume (COUNT Channel, COUNT Volume, BYTE
 extern void StopSound (void);
 extern BOOLEAN SoundPlaying (void);
 
+extern SDWORD PLRGetPos (void);
+
 extern void WaitForSoundEnd (COUNT Channel);
 #define TFBSOUND_WAIT_ALL ((COUNT)~0)
 

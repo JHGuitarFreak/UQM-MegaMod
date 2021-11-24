@@ -97,6 +97,28 @@ PLRPause (MUSIC_REF MusicRef)
 	}
 }
 
+static sint32
+get_current_music_pos (void)
+{
+	sint32 start_time = soundSource[MUSIC_SOURCE].start_time;
+	uint32 length = soundSource[MUSIC_SOURCE].sample->decoder->length * 1000;
+	sint32 pos = (GetTimeCounter () - start_time);
+
+	printf ("start_time %d, length %d, pos %d\n", start_time, length, pos);
+
+	if (pos < 0)
+		pos = 0;
+	else if ((uint32)pos > length)
+		pos = length;
+	return pos;
+}
+
+SDWORD
+PLRGetPos (void)
+{
+	return get_current_music_pos ();
+}
+
 void
 PLRResume (MUSIC_REF MusicRef)
 {

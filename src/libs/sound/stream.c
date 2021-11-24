@@ -66,6 +66,9 @@ PlayStream (TFB_SoundSample *sample, uint32 source, bool looping, bool scope,
 	else
 		offset += (sint32)(SoundDecoder_GetTime (decoder) * ONE_SECOND);
 	
+	if (source == MUSIC_SOURCE)
+		soundSource[source].start_time = 0;
+
 	soundSource[source].sample = sample;
 	decoder->looping = looping;
 	audio_Sourcei (soundSource[source].handle, audio_LOOPING, false);

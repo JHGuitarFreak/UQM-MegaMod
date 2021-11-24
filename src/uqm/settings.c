@@ -59,10 +59,16 @@ PlayMusic (MUSIC_REF MusicRef, BOOLEAN Continuous, BYTE Priority)
 }
 
 void
+SeekMusic (DWORD pos)
+{
+	PLRSeek (LastMusicRef, pos);
+}
+
+void
 StopMusic (void)
 {
-	 PLRStop (LastMusicRef);
-	 LastMusicRef = 0;
+	PLRStop (LastMusicRef);
+	LastMusicRef = 0;
 }
 
 void

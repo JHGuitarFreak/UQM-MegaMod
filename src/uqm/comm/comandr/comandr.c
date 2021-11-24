@@ -560,7 +560,7 @@ GiveRadios (RESPONSE_REF R)
 		SET_GAME_STATE (RADIOACTIVES_PROVIDED, 1);
 
 		NPCPhrase (FUEL_UP0);
-		NPCPhrase (FUEL_UP1);		
+		NPCPhrase (FUEL_UP1);
 		AlienTalkSegue (1);
 
 		// JMS_GFX: Disable noisy static animation in hi-res.
@@ -578,10 +578,13 @@ GiveRadios (RESPONSE_REF R)
 				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
 				), ONE_SECOND / 2);
 
-		if (IsAltSong) {
-			StopMusic();
-			CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
-			PlayMusic(CommData.AlienSong, TRUE, 1);
+		if (IsAltSong)
+		{
+			DWORD pos = PLRGetPos ();
+
+			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
+			PlayMusic (CommData.AlienSong, TRUE, 1);
+			SeekMusic (pos);
 		}
 
 		AlienTalkSegue ((COUNT)~0);
