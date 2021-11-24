@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Ideas]
+- Special captain graphics in melee for Fwiffo's ship - Jo Li KMC
+- Special game over sequence for the Death March while hiding in QuasiSpace - Jo Li KMC
 
 ## [WIP]
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
