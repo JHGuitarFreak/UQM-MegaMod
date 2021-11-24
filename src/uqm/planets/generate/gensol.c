@@ -669,7 +669,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					break;
 			}
 		}
-		else			
+		else
 			LoadPlanet (NULL);
 	}
 

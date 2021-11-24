@@ -68,7 +68,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 SDL_app            ICON    PRELOAD DISCARDABLE "kohr-ah.ico"
-101				   ICON	   DISCARDABLE	   "kohr-ah1.ico"
+101                ICON    DISCARDABLE     "kohr-ah1.ico"
 102                ICON    DISCARDABLE     "ur-quan-icon-std.ico"
 103                ICON    DISCARDABLE     "ur-quan1.ico"
 104                ICON    DISCARDABLE     "sis1.ico"

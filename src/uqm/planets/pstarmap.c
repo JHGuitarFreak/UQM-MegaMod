@@ -176,8 +176,8 @@ DrawCursor (COORD curs_x, COORD curs_y)
 {
 	STAMP s;
 
-	s.origin.x = curs_x;
-	s.origin.y = curs_y;
+	s.origin.x = curs_x + HD_COMP;
+	s.origin.y = curs_y + HD_COMP;
 	s.frame = StarMapFrame;
 
 	DrawStamp (&s);
@@ -931,8 +931,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		GetContextClipRect (&r);
 		LoadIntoExtraScreen (&r);
-		DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x) + HD_COMP,
-				UNIVERSE_TO_DISPY (cursorLoc.y) + HD_COMP);
+		DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
+				UNIVERSE_TO_DISPY (cursorLoc.y));
 		flashCurrentLocation (NULL, TRUE);
 	}
 
@@ -943,6 +943,9 @@ static void
 EraseCursor (COORD curs_x, COORD curs_y)
 {
 	RECT r;
+
+	curs_x += HD_COMP;
+	curs_y += HD_COMP;
 
 	GetFrameRect (StarMapFrame, &r);
 
@@ -1068,8 +1071,8 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 	else
 	{
 		BatchGraphics ();
-		EraseCursor (RES_SCALE (pt.x) + HD_COMP, RES_SCALE (pt.y) + HD_COMP);
-		DrawCursor (RES_SCALE (s.origin.x) + HD_COMP, RES_SCALE (s.origin.y) + HD_COMP);
+		EraseCursor (RES_SCALE (pt.x), RES_SCALE (pt.y));
+		DrawCursor (RES_SCALE (s.origin.x), RES_SCALE (s.origin.y));
 		flashCurrentLocation (NULL, TRUE);
 		UnbatchGraphics ();
 	}
@@ -2236,8 +2239,8 @@ StarMap (void)
 	GetContextClipRect (&clip_r);
 	SetContext (OldContext);
 	LoadIntoExtraScreen (&clip_r);
-	DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x) + HD_COMP,
-			UNIVERSE_TO_DISPY (cursorLoc.y) + HD_COMP);
+	DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
+			UNIVERSE_TO_DISPY (cursorLoc.y));
 	UnbatchGraphics ();
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);

@@ -2131,7 +2131,6 @@ isStarVisited (int Index)
 {
 	COUNT star_index;
 	DWORD starData;
-	BOOLEAN starBool;
 
 	if (Index == INTERNAL_STAR_INDEX)
 		star_index = (COUNT)(CurStarDescPtr - star_array);
