@@ -50,6 +50,8 @@
 #include "libs/mathlib.h"
 #include "globdata.h"
 #include "libs/input/sdl/vcontrol.h"
+#include "hyper.h"
+		// for EraseRadar()
 
 
 BYTE battle_counter[NUM_SIDES];
@@ -257,8 +259,13 @@ BattleSong (BOOLEAN DoPlay)
 			BattleRef = LoadMusic (QUASISPACE_MUSIC);
 		else
 		{
-			if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE && !optRemixMusic)
+			if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
+			{
 				BattleRef = LoadMusic (BATTLE_MUSIC_SAMATRA);
+
+				if (BattleRef == 0)
+					BattleRef = LoadMusic (BATTLE_MUSIC);
+			}
 			else
 				BattleRef = LoadMusic (BATTLE_MUSIC);
 		}
