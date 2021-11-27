@@ -110,6 +110,7 @@ FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
 MUSIC_REF SpaceMusic;
+static DWORD SpaceMusicPos[21];
 
 SIZE EncounterRace;
 BYTE EncounterGroup;
@@ -2073,6 +2074,14 @@ playSpaceMusic (void)
 		(LastActivity != CHECK_LOAD || NextActivity))
 	{
 		PlayMusic (SpaceMusic, TRUE, 1);
+
+		// Commented out for use in future version.
+		//if (SpaceMusicPos[spaceMusicBySOI] > 0)
+		//{
+		//	FadeMusic (0, 0);
+		//	FadeMusic (NORMAL_VOLUME, ONE_SECOND);
+		//	SeekMusic (SpaceMusicPos[spaceMusicBySOI]);
+		//}
 	}
 }
 
@@ -2815,6 +2824,16 @@ ExploreSolarSys (void)
 #else
 	DoInput (&SolarSysState, FALSE);
 #endif
+
+	// Commented out for use in future version.
+	/*if (LastActivity != CHECK_LOAD)
+	{
+		if (!SpaceMusicOK)
+			spaceMusicBySOI = 0;
+
+		SpaceMusicPos[spaceMusicBySOI] = PLRGetPos ();
+	}*/
+
 	UninitSolarSys ();
 	pSolarSysState = 0;
 }

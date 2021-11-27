@@ -22,6 +22,8 @@
 #include "libs/reslib.h"
 #include "libs/log.h"
 #include "libs/memlib.h"
+#include "uqm/globdata.h"
+#include "uqm/setup.h"
 
 
 static MUSIC_REF curMusicRef;
@@ -98,11 +100,25 @@ PLRPause (MUSIC_REF MusicRef)
 }
 
 static sint32
-get_current_music_pos (void)
+get_current_music_pos (MUSIC_REF MusicRef)
 {
-	sint32 start_time = soundSource[MUSIC_SOURCE].start_time;
-	uint32 length = soundSource[MUSIC_SOURCE].sample->decoder->length * 1000;
-	sint32 pos = (GetTimeCounter () - start_time);
+	sint32 start_time, pos;
+	uint32 length = 0;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return 0;
+
+	if (MusicRef == curMusicRef || MusicRef == (MUSIC_REF)~0)
+	{
+		LockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
+		start_time = soundSource[MUSIC_SOURCE].start_time;
+		length = soundSource[MUSIC_SOURCE].sample->decoder->length * 1000;
+		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
+	}
+	else
+		return 0;
+
+	pos = (GetTimeCounter () - start_time);
 
 	printf ("start_time %d, length %d, pos %d\n", start_time, length, pos);
 
@@ -116,7 +132,7 @@ get_current_music_pos (void)
 SDWORD
 PLRGetPos (void)
 {
-	return get_current_music_pos ();
+	return get_current_music_pos (curMusicRef);
 }
 
 void

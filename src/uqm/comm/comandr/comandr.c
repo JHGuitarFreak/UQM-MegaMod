@@ -580,11 +580,9 @@ GiveRadios (RESPONSE_REF R)
 
 		if (IsAltSong)
 		{
-			DWORD pos = PLRGetPos ();
-
+			StopMusic ();
 			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 			PlayMusic (CommData.AlienSong, TRUE, 1);
-			SeekMusic (pos);
 		}
 
 		AlienTalkSegue ((COUNT)~0);

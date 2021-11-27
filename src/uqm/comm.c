@@ -52,8 +52,6 @@
 #include <ctype.h>
 
 #define MAX_RESPONSES 8
-#define BACKGROUND_VOL (usingSpeech && !VolasPackPresent ? (NORMAL_VOLUME / 2) : NORMAL_VOLUME)
-#define FOREGROUND_VOL NORMAL_VOLUME
 
 // Oscilloscope frame rate
 // Should be <= COMM_ANIM_RATE
