@@ -90,7 +90,7 @@ GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
 	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 3) + 3);
 	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
 
@@ -163,6 +163,8 @@ GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->SysInfo.PlanetInfo.DiscoveryString));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 		FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
+
+		return true;
 	}
 
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED &&
@@ -173,6 +175,8 @@ GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			CaptureDrawable (LoadGraphic (STELE_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 			CaptureStringTable (LoadStringTable (STELE_STRTAB));
+
+		return true;
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
