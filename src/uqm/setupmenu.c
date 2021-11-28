@@ -157,6 +157,7 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
 	(WIDGET *)(&choices[68]),   // Lander Style
+	(WIDGET *)(&choices[70]),   // Flagship Style
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -244,7 +245,6 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[65]),   // Non-Stop Scope
 	(WIDGET *)(&choices[67]),   // Animated HyperStars
 	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&choices[70]),   // Flagship Style
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
