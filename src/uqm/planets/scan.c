@@ -122,6 +122,16 @@ MakeScanValue (UNICODE *buf, long val, const UNICODE *extra)
 	}
 }
 
+SIZE
+GetRotationalPeriod (void)
+{
+	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
+		return (SIZE)(pSolarSysState->SysInfo.PlanetInfo.RotationPeriod * 10 / 24);
+	else
+		return (SIZE)((pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
+				+ (24 >> 1)) / 24);
+}
+
 void
 GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 {
@@ -346,10 +356,13 @@ PrintCoarseScanPC (void)
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 16),
 			RIGHT_SIDE_BASELINE_X_PC); // "Day: "
-	val = (SDWORD)pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
-			* 10 / 24;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
+	val = GetRotationalPeriod ();
+	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
+		sprintf (buf, "%u.%02u%s", val / 100, val % 100,
+				GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
+	else
+		sprintf (buf, "%u.%u%s", val / 10, val % 10,
+				GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -505,9 +518,11 @@ PrintCoarseScan3DO (void)
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	val = (SDWORD)pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
-			* 10 / 24;
-	MakeScanValue (buf, val, STR_EARTH_SIGN);
+	val = GetRotationalPeriod ();
+	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
+		sprintf (buf, "%u.%02u%s", val / 100, val % 100, STR_EARTH_SIGN);
+	else
+		sprintf (buf, "%u.%u%s", val / 10, val % 10, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 }
