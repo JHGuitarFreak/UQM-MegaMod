@@ -673,3 +673,45 @@ RelocatePlanet:
 	}
 }
 
+SIZE
+CheckForHabitable (SOLARSYS_STATE *solarSys)
+{
+	const DWORD HabitableRanges[NUM_STAR_COLORS][2] = {
+		{  853, 1790 },
+		{  544, 1151 },
+		{  139,  287 },
+		{   68,   68 },
+		{ 1231, 2569 },
+		{  312,  778 }
+	};
+	BYTE starColor;
+	DWORD habitableRangeMin, habitableRangeMax, newHabitable;
+	COUNT angle;
+	SIZE Radius = solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius;
+
+	starColor =  STAR_COLOR (CurStarDescPtr->Type);
+
+	habitableRangeMin = HabitableRanges[starColor][0];
+	habitableRangeMax = HabitableRanges[starColor][1];
+
+	if (Radius >= habitableRangeMin && Radius <= habitableRangeMax)
+		return Radius;
+
+	newHabitable = (RandomContext_Random (SysGenRNG) % (
+			habitableRangeMax - habitableRangeMin) + habitableRangeMin);
+
+	printf ("starColor %d, HabitableRange Min %d Max %d, newHabitable %d\n",
+		starColor, habitableRangeMin, habitableRangeMax, newHabitable);
+
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = newHabitable;
+	angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
+		COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
+		SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+	ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+
+	return newHabitable;
+}
+
