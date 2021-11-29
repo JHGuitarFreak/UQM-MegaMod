@@ -980,7 +980,7 @@ init_thradd_comm (void)
 
 	thradd_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	thradd_desc.AlienTextBaseline.y = 0;
-	thradd_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	thradd_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (THRADD_MANNER)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

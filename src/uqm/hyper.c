@@ -1404,9 +1404,9 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 
 	r.corner.y = (COORD) ((long)(MAX_Y_UNIVERSE - ey)
 			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy;
-	r.extent.width = RES_SCALE(1);
+	r.extent.width = RES_SCALE (1);
 	r.extent.height = ((COORD) ((long)(MAX_Y_UNIVERSE - sy)
-			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y + RES_SCALE(1);
+			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y + RES_SCALE (1);
 	for (ux = sx; ux <= ex; ux += GRID_OFFSET)
 	{
 		r.corner.x = (COORD) ((long)ux * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
@@ -1415,8 +1415,8 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 
 	r.corner.x = (COORD) ((long)sx * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
 	r.extent.width = ((COORD) ((long)ex * RADAR_WIDTH / RADAR_SCAN_WIDTH)
-			- ox) - r.corner.x + RES_SCALE(1);
-	r.extent.height = RES_SCALE(1);
+			- ox) - r.corner.x + RES_SCALE (1);
+	r.extent.height = RES_SCALE (1);
 	for (uy = sy; uy <= ey; uy += GRID_OFFSET)
 	{
 		r.corner.y = (COORD)((long)(MAX_Y_UNIVERSE - uy)
@@ -2007,23 +2007,23 @@ SeedUniverse (void)
 				BUILD_COLOR (MAKE_RGB15 (0x0E, 0x0E, 0x0E), 0x00));
 		r.corner.x = 0;
 		r.corner.y = 0;
-		r.extent.width = RADAR_WIDTH - RES_SCALE(1);
-		r.extent.height = RES_SCALE(1);
+		r.extent.width = RADAR_WIDTH - RES_SCALE (1);
+		r.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&r);
-		r.extent.width = RES_SCALE(1);
-		r.extent.height = RADAR_HEIGHT - RES_SCALE(1);
+		r.extent.width = RES_SCALE (1);
+		r.extent.height = RADAR_HEIGHT - RES_SCALE (1);
 		DrawFilledRectangle (&r);
 
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x06, 0x06, 0x06), 0x00));
-		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
-		r.corner.y = RES_SCALE(1);
-		r.extent.height = RADAR_HEIGHT - RES_SCALE(1);
+		r.corner.x = RADAR_WIDTH - RES_SCALE (1);
+		r.corner.y = RES_SCALE (1);
+		r.extent.height = RADAR_HEIGHT - RES_SCALE (1);
 		DrawFilledRectangle (&r);
-		r.corner.x = RES_SCALE(1);
-		r.corner.y = RADAR_HEIGHT - RES_SCALE(1);
-		r.extent.width = RADAR_WIDTH - RES_SCALE(2);
-		r.extent.height = RES_SCALE(1);
+		r.corner.x = RES_SCALE (1);
+		r.corner.y = RADAR_HEIGHT - RES_SCALE (1);
+		r.extent.width = RADAR_WIDTH - RES_SCALE (2);
+		r.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&r);
 
 		SetContextForeGroundColor (
@@ -2031,7 +2031,7 @@ SeedUniverse (void)
 		r.corner.x = 0;
 		r.extent.width = r.extent.height;
 		DrawFilledRectangle (&r);
-		r.corner.x = RADAR_WIDTH - RES_SCALE(1);
+		r.corner.x = RADAR_WIDTH - RES_SCALE (1);
 		r.corner.y = 0;
 		DrawFilledRectangle (&r);
 

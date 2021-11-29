@@ -51,7 +51,7 @@ extern "C" {
 #define SLOW_SHIP_HD 400
 
 
-#define RESOLUTION_COMPENSATED(speed) (RES_SCALE(RES_SCALE(speed)))
+#define RESOLUTION_COMPENSATED(speed) (RES_SCALE (RES_SCALE (speed)))
 
 enum
 {

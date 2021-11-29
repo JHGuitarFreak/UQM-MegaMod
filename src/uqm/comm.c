@@ -180,14 +180,14 @@ ReContextualizeLeading (SIZE* pheight)
 	switch (CommData.AlienConv)
 	{
 	case UMGAH_CONVERSATION:
-		*pheight = RES_SCALE(8);
+		*pheight = RES_SCALE (8);
 		return;
 	case COMMANDER_CONVERSATION:
-		*pheight = RES_SCALE(9);
+		*pheight = RES_SCALE (9);
 		return;
 	case ARILOU_CONVERSATION:
 	case ZOQFOTPIK_CONVERSATION:
-		*pheight = RES_SCALE(10);
+		*pheight = RES_SCALE (10);
 		return;
 	case CHMMR_CONVERSATION:
 	case DRUUGE_CONVERSATION:
@@ -200,17 +200,17 @@ ReContextualizeLeading (SIZE* pheight)
 	case VUX_CONVERSATION:
 	case YEHAT_CONVERSATION:
 	case YEHAT_REBEL_CONVERSATION:
-		*pheight = RES_SCALE(11);
+		*pheight = RES_SCALE (11);
 		return;
 	case ILWRATH_CONVERSATION:
-		*pheight = RES_SCALE(12);
+		*pheight = RES_SCALE (12);
 		return;
 	case SPATHI_CONVERSATION:
-		*pheight = RES_SCALE(14);
+		*pheight = RES_SCALE (14);
 		return;
 	case SLYLANDRO_HOME_CONVERSATION:
 	case UTWIG_CONVERSATION:
-		*pheight = RES_SCALE(15);
+		*pheight = RES_SCALE (15);
 		return;
 	case BLACKURQ_CONVERSATION:
 	case MYCON_CONVERSATION:
@@ -219,7 +219,7 @@ ReContextualizeLeading (SIZE* pheight)
 	case SYREEN_CONVERSATION:
 	case URQUAN_CONVERSATION:
 	case URQUAN_DRONE_CONVERSATION:
-		*pheight = RES_SCALE(17);
+		*pheight = RES_SCALE (17);
 		return;
 	default:
 		*pheight = 0;
@@ -284,7 +284,7 @@ add_text (int status, TEXT *pTextIn)
 	}
 	else if (leading = RES_SCALE (is3DO (optWhichFonts) ? 7 : 9), status <= -4)
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8)
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE (8)
 					- (TEXT_X_OFFS << 2)
 					- (arrow.extent.width + RES_SCALE (2)));
 
@@ -292,7 +292,7 @@ add_text (int status, TEXT *pTextIn)
 	}
 	else
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8)
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE (8)
 					- (TEXT_X_OFFS << 2)
 					- (arrow.extent.width + RES_SCALE (2)));
 
@@ -334,7 +334,7 @@ add_text (int status, TEXT *pTextIn)
 
 		maxchars = pTextIn->CharCount;
 		locText = *pTextIn;
-		locText.baseline.x -= RES_SCALE(8);
+		locText.baseline.x -= RES_SCALE (8);
 		locText.CharCount = (COUNT)~0;
 		locText.pStr = STR_BULLET;
 		font_DrawText (&locText);
@@ -666,8 +666,8 @@ DrawCommBorder (RECT r)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= RES_SCALE(1);
-	clipRect.extent.width += RES_SCALE(2);
+	clipRect.corner.x -= RES_SCALE (1);
+	clipRect.extent.width += RES_SCALE (2);
 	SetContextClipRect (&clipRect);
 
 	// Border foreground
@@ -679,12 +679,12 @@ DrawCommBorder (RECT r)
 
 	// Border top shadow line
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
-	r.extent.height = RES_SCALE(1);
+	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
-	r.corner.y += SLIDER_HEIGHT - RES_SCALE(1);
+	r.corner.y += SLIDER_HEIGHT - RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	SetContextClipRect (&oldClipRect);
@@ -782,7 +782,7 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
-		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE(8);
+		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE (8);
 		pES->response_list[response].response_text.baseline.y = y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
@@ -793,12 +793,12 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 	if (pES->top_response)
 	{
-		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1);
+		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (1);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 6);
 	}
 	else if (y > SIS_SCREEN_HEIGHT)
 	{
-		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE(2);
+		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE (2);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 7);
 	}
 	else
@@ -808,7 +808,7 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 		RECT r;
 
 		GetFrameRect (s.frame, &r);
-		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE(1);
+		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE (1);
 		DrawStamp (&s);
 	}
 
@@ -827,7 +827,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 		TEXT ct;
 
 		ct.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13);
+		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (13);
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
 
@@ -844,7 +844,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 			SetContextForeGroundColor (
 					BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF));
 
-		ct.baseline.y += RES_SCALE(16);
+		ct.baseline.y += RES_SCALE (16);
 		ct.pStr = pStr;
 		add_text (-4, &ct);
 	}
@@ -1387,7 +1387,7 @@ remove_char_from_string (UNICODE* str, const UNICODE c)
 static BOOLEAN
 DoConvSummary (SUMMARY_STATE *pSS)
 {
-#define DELTA_Y_SUMMARY RES_SCALE(8)
+#define DELTA_Y_SUMMARY RES_SCALE (8)
 #define MAX_SUMM_ROWS (SLIDER_Y / DELTA_Y_SUMMARY) - 1
 
 	if (!pSS->Initialized)
@@ -1433,8 +1433,8 @@ DoConvSummary (SUMMARY_STATE *pSS)
 
 		SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
-		r.extent.width -= RES_SCALE(2 + 2);
-		t.baseline.x = RES_SCALE(2); 
+		r.extent.width -= RES_SCALE (2 + 2);
+		t.baseline.x = RES_SCALE (2); 
 		t.align = ALIGN_LEFT;
 		t.baseline.y = DELTA_Y_SUMMARY;
 
@@ -1908,7 +1908,7 @@ HailAlien (void)
 		{
 			// set the position of outtakes comm
 			CommWndRect.corner.x = ((SCREEN_WIDTH - CommWndRect.extent.width) / 2);
-			CommWndRect.corner.y = RES_SCALE(5);
+			CommWndRect.corner.y = RES_SCALE (5);
 			r.corner = CommWndRect.corner;
 			SetContextClipRect (&r);
 		}

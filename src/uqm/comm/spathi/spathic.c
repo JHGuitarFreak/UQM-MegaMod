@@ -826,8 +826,8 @@ init_spathi_comm (void)
 	spathi_desc.uninit_encounter_func = uninit_spathi;
 
 	spathi_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	spathi_desc.AlienTextBaseline.y = RES_SCALE(2);
-	spathi_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	spathi_desc.AlienTextBaseline.y = RES_SCALE (2);
+	spathi_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (FOUND_PLUTO_SPATHI) == 1)
 	{	// use alternate Fwiffo track if available

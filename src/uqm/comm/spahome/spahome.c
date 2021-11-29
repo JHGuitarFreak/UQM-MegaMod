@@ -1262,7 +1262,7 @@ init_spahome_comm ()
 	static LOCDATA spahome_desc;
  	LOCDATA *retval;
 	
-	spahome_desc = RES_BOOL(spahome_desc_orig, spahome_desc_hd);
+	spahome_desc = RES_BOOL (spahome_desc_orig, spahome_desc_hd);
 
 	spahome_desc.init_encounter_func = Intro;
 	spahome_desc.post_encounter_func = post_spahome_enc;
@@ -1274,7 +1274,7 @@ init_spahome_comm ()
 
 	spahome_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	spahome_desc.AlienTextBaseline.y = 0;
-	spahome_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	spahome_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	// use alternate "Safe Ones" track if available
 	spahome_desc.AlienAltSongRes = SPAHOME_MUSIC;

@@ -38,16 +38,16 @@
 #define WEAPON_WAIT 12
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 15
-#define MISSILE_OFFSET RES_SCALE(3)
-#define THRADDASH_OFFSET RES_SCALE(9)
+#define MISSILE_OFFSET RES_SCALE (3)
+#define THRADDASH_OFFSET RES_SCALE (9)
 #define MISSILE_HITS 2
 #define MISSILE_DAMAGE 1
 
 // Afterburner
 #define SPECIAL_ENERGY_COST 1
 #define SPECIAL_WAIT 0
-#define SPECIAL_THRUST_INCREMENT RES_SCALE(12)
-#define SPECIAL_MAX_THRUST RES_SCALE(72)
+#define SPECIAL_THRUST_INCREMENT RES_SCALE (12)
+#define SPECIAL_MAX_THRUST RES_SCALE (72)
 #define NAPALM_LIFE 48
 #define NAPALM_OFFSET 0
 #define NAPALM_HITS 1
@@ -57,10 +57,10 @@
 		 * decay one step (one animation frame) per NAPALM_DECAY_RATE
 		 * frames. */
 #define NUM_NAPALM_FADES 6
-#define STATIONARY_SPEED WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(4)))
+#define STATIONARY_SPEED WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE (4)))
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 
 static RACE_DESC thraddash_desc =
@@ -395,8 +395,8 @@ init_thraddash (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		thraddash_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		thraddash_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		thraddash_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		thraddash_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		thraddash_desc.cyborg_control.WeaponRange = (MISSILE_SPEED_HD * MISSILE_LIFE) >> 1;
 	}
 

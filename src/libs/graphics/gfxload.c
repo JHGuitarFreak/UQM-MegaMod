@@ -125,8 +125,8 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 
 	CharPtr->data = newdata;
 	CharPtr->pitch = dpitch;
-	CharPtr->disp.width = CharPtr->extent.width + RES_SCALE(1);
-	CharPtr->disp.height = CharPtr->extent.height + RES_SCALE(1);
+	CharPtr->disp.width = CharPtr->extent.width + RES_SCALE (1);
+	CharPtr->disp.height = CharPtr->extent.height + RES_SCALE (1);
 			// XXX: why the +1?
 			// I brought it into this function from the only calling
 			// function, but I don't know why it was there in the first
@@ -139,12 +139,12 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 		// TODO: prolly needs a little tweaking still
 		int tune_amount = 0;
 
-		if (CharPtr->extent.height == RES_SCALE(8))
-			tune_amount = -RES_SCALE(1);
-		else if (CharPtr->extent.height == RES_SCALE(9))
-			tune_amount = -RES_SCALE(2);
-		else if (CharPtr->extent.height > RES_SCALE(9))
-			tune_amount = -RES_SCALE(3);
+		if (CharPtr->extent.height == RES_SCALE (8))
+			tune_amount = -RES_SCALE (1);
+		else if (CharPtr->extent.height == RES_SCALE (9))
+			tune_amount = -RES_SCALE (2);
+		else if (CharPtr->extent.height > RES_SCALE (9))
+			tune_amount = -RES_SCALE (3);
 
 		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
 				CharPtr->extent.height + tune_amount);
@@ -528,7 +528,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		*pageEndPtr = NULL;
 	}
 
-	fontPtr->Leading += RES_SCALE(1);
+	fontPtr->Leading += RES_SCALE (1);
 
 	HFree (bcds);
 

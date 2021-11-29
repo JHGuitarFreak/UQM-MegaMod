@@ -982,7 +982,7 @@ init_vux_comm (void)
 	static LOCDATA vux_desc;
  	LOCDATA *retval;
 	
-	vux_desc = RES_BOOL(vux_desc_orig, vux_desc_hd);
+	vux_desc = RES_BOOL (vux_desc_orig, vux_desc_hd);
 
 	if(GET_GAME_STATE(GLOBAL_FLAGS_AND_DATA) & (1 << 6)){
 		// use alternate "ZEX" track if available
@@ -1000,7 +1000,7 @@ init_vux_comm (void)
 	vux_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1)
 			+ (SIS_TEXT_WIDTH >> 2);
 	vux_desc.AlienTextBaseline.y = 0;
-	vux_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE(16)) >> 1;
+	vux_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1;
 
 	if ((GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

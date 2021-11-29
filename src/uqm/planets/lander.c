@@ -196,7 +196,7 @@ CreatePCLanderContext (void)
 	SetContextFGFrame (Screen);
 	r.corner.x += r.extent.width - MAP_WIDTH;
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = RES_SCALE(UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X;
+	r.extent.width = RES_SCALE (UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X;
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
@@ -354,8 +354,8 @@ object_animation (ELEMENT *ElementPtr)
 					angle = FACING_TO_ANGLE (ElementPtr->facing);
 					LockElement (hLavaElement, &LavaElementPtr);
 					LavaElementPtr->next.location = ElementPtr->next.location;
-					LavaElementPtr->next.location.x += COSINE (angle, RES_SCALE(4));
-					LavaElementPtr->next.location.y += SINE (angle, RES_SCALE(4));
+					LavaElementPtr->next.location.x += COSINE (angle, RES_SCALE (4));
+					LavaElementPtr->next.location.y += SINE (angle, RES_SCALE (4));
 					if (LavaElementPtr->next.location.y < 0)
 						LavaElementPtr->next.location.y = 0;
 					else if (LavaElementPtr->next.location.y >= (MAP_HEIGHT << MAG_SHIFT))
@@ -475,7 +475,7 @@ object_animation (ELEMENT *ElementPtr)
 						speed = WORLD_TO_VELOCITY (2 * 1) * 9 / 10;
 						break;
 				}
-				speed = RES_SCALE(speed); 
+				speed = RES_SCALE (speed); 
 
 				SetVelocityComponents (&ElementPtr->velocity,
 						COSINE (angle, speed), SINE (angle, speed));
@@ -537,14 +537,14 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 
 	if(optSuperPC != OPT_PC)
 	{
-		s.origin.x = RES_SCALE(11) + (RES_SCALE(6) * (crew_delta % NUM_CREW_COLS));
-		s.origin.y = RES_SCALE(35) - (RES_SCALE(6) * (crew_delta / NUM_CREW_COLS));
+		s.origin.x = RES_SCALE (11) + (RES_SCALE (6) * (crew_delta % NUM_CREW_COLS));
+		s.origin.y = RES_SCALE (35) - (RES_SCALE (6) * (crew_delta / NUM_CREW_COLS));
 		OldContext = SetContext (RadarContext);
 	}
 	else
 	{
-		s.origin.x = RES_SCALE(6) + (RES_SCALE(6) * (crew_delta % NUM_CREW_COLS));
-		s.origin.y = RES_SCALE(43) - (RES_SCALE(6) * (crew_delta / NUM_CREW_COLS));
+		s.origin.x = RES_SCALE (6) + (RES_SCALE (6) * (crew_delta % NUM_CREW_COLS));
+		s.origin.y = RES_SCALE (43) - (RES_SCALE (6) * (crew_delta / NUM_CREW_COLS));
 		OldContext = SetContext (PCLanderContext);
 	}
 
@@ -594,7 +594,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	NumRetrieved = (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED) + tmpholdint;
 
 	s.origin.x = 0;
-	s.origin.y = -(int)RES_SCALE(start_count);
+	s.origin.y = -(int)RES_SCALE (start_count);
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
@@ -610,7 +610,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		else
 			s.frame = DecFrameIndex (s.frame);
 		DrawStamp(&s);
-		s.origin.y -= RES_SCALE(1);
+		s.origin.y -= RES_SCALE (1);
 	}
 	SetContext (OldContext);
 }
@@ -816,8 +816,8 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 				LanderControl->IntersectStamp.frame) -
 				ANGLE_TO_FACING (FULL_CIRCLE));
 		DeltaVelocityComponents (&ElementPtr->velocity,
-				COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1))),
-				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(1)))); 
+				COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE (1))),
+				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE (1)))); 
 		ElementPtr->thrust_wait = 0;
 		ElementPtr->mass_points |= CREATURE_AWARE;
 	}
@@ -1131,11 +1131,11 @@ AddLightning (void)
 		LightningElementPtr->life_span = 10 + (HIWORD (rand_val) % 10) + 1;
 		LightningElementPtr->next.location.x = (curLanderLoc.x
 			+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - ((SURFACE_WIDTH >> 1) - 6))
-			+ (RES_BOOL(LOBYTE (rand_val), rand_val) % (SURFACE_WIDTH - RES_SCALE(12)))
+			+ (RES_BOOL (LOBYTE (rand_val), rand_val) % (SURFACE_WIDTH - RES_SCALE (12)))
 			) % (SCALED_MAP_WIDTH << MAG_SHIFT);
 		LightningElementPtr->next.location.y = (curLanderLoc.y
 			+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
-			+ (RES_BOOL(HIBYTE (rand_val), rand_val) % (SURFACE_HEIGHT - RES_SCALE(12)))
+			+ (RES_BOOL (HIBYTE (rand_val), rand_val) % (SURFACE_HEIGHT - RES_SCALE (12)))
 			) % (MAP_HEIGHT << MAG_SHIFT);
 
 		LightningElementPtr->cycle = LightningElementPtr->life_span;
@@ -1468,12 +1468,12 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 			pPSD->MineralText[1].baseline.x =
 					pPSD->MineralText[0].baseline.x;
 			pPSD->MineralText[1].baseline.y =
-					pPSD->MineralText[0].baseline.y + RES_SCALE(7);
+					pPSD->MineralText[0].baseline.y + RES_SCALE (7);
 			font_DrawText (&pPSD->MineralText[1]);
 			pPSD->MineralText[2].baseline.x =
 					pPSD->MineralText[1].baseline.x;
 			pPSD->MineralText[2].baseline.y =
-					pPSD->MineralText[1].baseline.y + RES_SCALE(7);
+					pPSD->MineralText[1].baseline.y + RES_SCALE (7);
 			font_DrawText (&pPSD->MineralText[2]);
 		}
 	}
@@ -1566,7 +1566,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 		if (!isLanding && optSuperPC == OPT_PC && Now >= psNextTime)
 		{
 			// 10 to clear the lander off of the screen
-			ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE(10)));
+			ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10)));
 			psNextTime = Now + PLANET_SIDE_RATE;
 		}
 
@@ -1665,7 +1665,7 @@ static void
 InitPlanetSide (POINT pt)
 {
 	// Adjust landing location by a random jitter.
-#define RANDOM_MISS RES_SCALE(64)
+#define RANDOM_MISS RES_SCALE (64)
 	// Jitter the X landing point.
 	pt.x -= RANDOM_MISS - TFB_Random () % (RANDOM_MISS << 1);
 	if (pt.x < 0)
@@ -1801,8 +1801,8 @@ LanderFire (SIZE facing)
 	angle = FACING_TO_ANGLE (facing);
 	SetVelocityComponents (
 		&WeaponElementPtr->velocity,
-		COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdx,
-		SINE (angle, WORLD_TO_VELOCITY (RES_SCALE(2 * 3))) + wdy); 
+		COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE (2 * 3))) + wdx,
+		SINE (angle, WORLD_TO_VELOCITY (RES_SCALE (2 * 3))) + wdy); 
 
 	UnlockElement (hWeaponElement);
 
@@ -1871,11 +1871,11 @@ DoPlanetSide (LanderInputState *pMS)
 
 		angle = FACING_TO_ANGLE (GetFrameIndex (LanderFrame[0]));
 		landerSpeedNumer = GET_GAME_STATE (IMPROVED_LANDER_SPEED) ?
-			WORLD_TO_VELOCITY (2 * RES_SCALE(14)) :
-			WORLD_TO_VELOCITY (2 * RES_SCALE(8));
+			WORLD_TO_VELOCITY (2 * RES_SCALE (14)) :
+			WORLD_TO_VELOCITY (2 * RES_SCALE (8));
 
 #ifdef FAST_FAST
-landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
+landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 #endif
 
 		SetVelocityComponents (&GLOBAL (velocity),
@@ -1950,11 +1950,11 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
 
 				angle = FACING_TO_ANGLE (index);
 				landerSpeedNumer = GET_GAME_STATE (IMPROVED_LANDER_SPEED) ?
-					WORLD_TO_VELOCITY (RES_SCALE(2 * 14)) :
-					WORLD_TO_VELOCITY (RES_SCALE(2 * 8));
+					WORLD_TO_VELOCITY (RES_SCALE (2 * 14)) :
+					WORLD_TO_VELOCITY (RES_SCALE (2 * 8));
 
 #ifdef FAST_FAST
-landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE(48));
+landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 #endif
 
 				SetVelocityComponents (&GLOBAL (velocity),
@@ -2137,7 +2137,7 @@ IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 	while (GetTimeCounter () < TimeOut)
 	{
 		// 10 to clear the lander off of the screen
-		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE(10))); 
+		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10))); 
 		SleepThreadUntil (inputState->NextTime);
 		inputState->NextTime += PLANET_SIDE_RATE;
 	}
@@ -2149,8 +2149,8 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 // We cannot solve a quadratic equation in a macro, so use a sensible max
 #define MAX_OFFSETS  20
 #define MAX_OFFSETS_HD 400 
-// RES_SCALE(10) to clear the lander off of the screen
-#define DISTANCE_COVERED  (MapSurface.height / 2 + RES_SCALE(10))
+// RES_SCALE (10) to clear the lander off of the screen
+#define DISTANCE_COVERED  (MapSurface.height / 2 + RES_SCALE (10))
 	int landingOfs[MAX_OFFSETS];
 	int start;
 	int end;
@@ -2162,7 +2162,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;
 	// JMS_GFX: In HD graphics we run out of default offsets. -> Use larger offset value.
-	max_offsets = RES_BOOL(MAX_OFFSETS, MAX_OFFSETS_HD);
+	max_offsets = RES_BOOL (MAX_OFFSETS, MAX_OFFSETS_HD);
 
 	for (index = 0; index < max_offsets && delta < DISTANCE_COVERED; ++index)
 	{
@@ -2497,10 +2497,10 @@ InitLander (BYTE LanderFlags)
 		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
-			r.corner.x = RES_SCALE(1);
-			r.extent.width = RES_SCALE(4);
+			r.corner.x = RES_SCALE (1);
+			r.extent.width = RES_SCALE (4);
 			r.extent.height =
-				RES_SCALE(MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+				RES_SCALE (MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 		}
@@ -2563,25 +2563,25 @@ InitPCLander (void)
 			inc = MAX_HOLD_BARS - ((free_space >> capacity_shift)
 					* MAX_HOLD_BARS / MAX_SCROUNGED) + 1;
 
-			r.corner = MAKE_POINT (RES_SCALE(1), RES_SCALE(4));
-			r.extent = MAKE_EXTENT (RES_SCALE(2), RES_SCALE(inc));
+			r.corner = MAKE_POINT (RES_SCALE (1), RES_SCALE (4));
+			r.extent = MAKE_EXTENT (RES_SCALE (2), RES_SCALE (inc));
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 
-			r.extent = MAKE_EXTENT (RES_SCALE(1), RES_SCALE(1));
+			r.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
 
 			for (i = 0; i < inc; i++)
 			{
 				if (i % 2 == 0)
 				{	// Draw grey boxes every 2nd iteration
-					r.corner.y += RES_SCALE(1);
+					r.corner.y += RES_SCALE (1);
 					SetContextForeGroundColor (VDKGRAY_COLOR);
 					DrawFilledRectangle (&r);
-					r.corner.x += RES_SCALE(1);
+					r.corner.x += RES_SCALE (1);
 					SetContextForeGroundColor (BLACK_COLOR);
 					DrawFilledRectangle (&r);
-					r.corner.x -= RES_SCALE(1);
-					r.corner.y += RES_SCALE(1);
+					r.corner.x -= RES_SCALE (1);
+					r.corner.y += RES_SCALE (1);
 				}
 			}
 		}

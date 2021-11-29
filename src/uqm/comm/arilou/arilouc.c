@@ -861,7 +861,7 @@ init_arilou_comm (void)
 
 	arilou_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	arilou_desc.AlienTextBaseline.y = 0;
-	arilou_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	arilou_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1
 			|| GET_GAME_STATE (ARILOU_MANNER) == 3

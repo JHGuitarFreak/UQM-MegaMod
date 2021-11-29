@@ -47,7 +47,7 @@
 #define SHIELD_REFLECT_COMP 100
 
 #define NUM_BATCH_POINTS 64
-#define RADIUS RES_SCALE(37) 
+#define RADIUS RES_SCALE (37) 
 //2*RADIUS
 #define TWORADIUS (RADIUS << 1)
 //RADIUS^2
@@ -573,11 +573,11 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE(7) 
+#define SHIELD_HALO          RES_SCALE (7) 
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
-#define SHIELD_RADIUS_THRES  ((SHIELD_RADIUS + RES_SCALE(1)) * (SHIELD_RADIUS + RES_SCALE(1)))
+#define SHIELD_RADIUS_THRES  ((SHIELD_RADIUS + RES_SCALE (1)) * (SHIELD_RADIUS + RES_SCALE (1)))
 #define SHIELD_HALO_GLOW     (SHIELD_GLOW_COMP + SHIELD_REFLECT_COMP)
 #define SHIELD_HALO_GLOW_MIN (SHIELD_HALO_GLOW >> 2)
 
@@ -655,7 +655,7 @@ CreateShieldMask (COUNT radius)
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
 //  the throbbing cycle is tied to the planet rotation cycle
-#define SHIELD_THROBS RES_DBL(12)
+#define SHIELD_THROBS RES_DBL (12)
 		// throb cycles per revolution
 #define THROB_CYCLE      ((MAP_WIDTH << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
@@ -1855,7 +1855,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	else
 	{
 		spherespanx = height;
-		radius = (height >> 1) - IF_HD(2);
+		radius = (height >> 1) - IF_HD (2);
 		ForIP = TRUE;
 	}
 	

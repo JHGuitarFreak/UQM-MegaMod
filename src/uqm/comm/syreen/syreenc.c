@@ -403,11 +403,11 @@ FriendlyExit (RESPONSE_REF R)
 		if (PLAYER_SAID (R, hands_off))
 		{
 			SetCustomBaseLine (3,
-					MAKE_POINT (RES_SCALE(108), RES_SCALE(81)), ALIGN_CENTER);
+					MAKE_POINT (RES_SCALE (108), RES_SCALE (81)), ALIGN_CENTER);
 			SetCustomBaseLine (4,
-					MAKE_POINT (RES_SCALE(80), RES_SCALE(49)), ALIGN_CENTER);
+					MAKE_POINT (RES_SCALE (80), RES_SCALE (49)), ALIGN_CENTER);
 			SetCustomBaseLine (5,
-					MAKE_POINT (RES_SCALE(121), RES_SCALE(27)), ALIGN_CENTER);
+					MAKE_POINT (RES_SCALE (121), RES_SCALE (27)), ALIGN_CENTER);
 
 			NPCPhrase (OK_WONT_USE_HANDS);
 		}
@@ -472,28 +472,28 @@ Sex (RESPONSE_REF R)
 	if (PLAYER_SAID (R, in_the_spirit))
 	{
 		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE(98), RES_SCALE(21)), ALIGN_CENTER);
+				MAKE_POINT (RES_SCALE (98), RES_SCALE (21)), ALIGN_CENTER);
 		SetCustomBaseLine (4,
-				MAKE_POINT (RES_SCALE(156), RES_SCALE(51)), ALIGN_CENTER);
+				MAKE_POINT (RES_SCALE (156), RES_SCALE (51)), ALIGN_CENTER);
 		SetCustomBaseLine (5,
-				MAKE_POINT (RES_SCALE(169), RES_SCALE(79)), ALIGN_CENTER);
+				MAKE_POINT (RES_SCALE (169), RES_SCALE (79)), ALIGN_CENTER);
 
 		NPCPhrase (OK_SPIRIT);
 	}
 	else if (PLAYER_SAID (R, what_in_mind))
 	{
 		SetCustomBaseLine (0,
-				MAKE_POINT (RES_SCALE(3), RES_SCALE(0)), ALIGN_LEFT);
+				MAKE_POINT (RES_SCALE (3), RES_SCALE (0)), ALIGN_LEFT);
 		SetCustomBaseLine (1,
-				MAKE_POINT (RES_SCALE(3), RES_SCALE(0)), ALIGN_LEFT);
+				MAKE_POINT (RES_SCALE (3), RES_SCALE (0)), ALIGN_LEFT);
 		SetCustomBaseLine (2,
-				MAKE_POINT (RES_SCALE(3), RES_SCALE(55)), ALIGN_LEFT);
+				MAKE_POINT (RES_SCALE (3), RES_SCALE (55)), ALIGN_LEFT);
 		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE(125), RES_SCALE(67)), ALIGN_CENTER);
+				MAKE_POINT (RES_SCALE (125), RES_SCALE (67)), ALIGN_CENTER);
 		SetCustomBaseLine (4,
-				MAKE_POINT (RES_SCALE(240), RES_SCALE(10)), ALIGN_RIGHT);
+				MAKE_POINT (RES_SCALE (240), RES_SCALE (10)), ALIGN_RIGHT);
 		SetCustomBaseLine (5,
-				MAKE_POINT (RES_SCALE(240), RES_SCALE(10)), ALIGN_RIGHT);
+				MAKE_POINT (RES_SCALE (240), RES_SCALE (10)), ALIGN_RIGHT);
 
 		NPCPhrase (SOMETHING_LIKE_THIS);
 	}
@@ -578,11 +578,11 @@ Foreplay (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, why_lights_off))
 	{
 		SetCustomBaseLine (1,
-				MAKE_POINT (RES_SCALE(60), RES_SCALE(41)), ALIGN_CENTER);
+				MAKE_POINT (RES_SCALE (60), RES_SCALE (41)), ALIGN_CENTER);
 		SetCustomBaseLine (2,
-				MAKE_POINT (RES_SCALE(180), RES_SCALE(41)), ALIGN_CENTER);
+				MAKE_POINT (RES_SCALE (180), RES_SCALE (41)), ALIGN_CENTER);
 		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE(120), RES_SCALE(81)), ALIGN_CENTER);
+				MAKE_POINT (RES_SCALE (120), RES_SCALE (81)), ALIGN_CENTER);
 
 		NPCPhrase (LIGHTS_OFF_BECAUSE);
 
@@ -1165,7 +1165,7 @@ init_syreen_comm (void)
 	static LOCDATA syreen_desc;
  	LOCDATA *retval;
 	
-	syreen_desc = RES_BOOL(syreen_desc_orig, syreen_desc_hd);
+	syreen_desc = RES_BOOL (syreen_desc_orig, syreen_desc_hd);
 
 	syreen_desc.init_encounter_func = Intro;
 	syreen_desc.post_encounter_func = post_syreen_enc;
@@ -1177,7 +1177,7 @@ init_syreen_comm (void)
 
 	syreen_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	syreen_desc.AlienTextBaseline.y = 0;
-	syreen_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	syreen_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_peace);
 	retval = &syreen_desc;

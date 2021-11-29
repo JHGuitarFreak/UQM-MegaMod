@@ -189,9 +189,9 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	assert (StarShipPtr->playerNr >= 0);
 	y_offs = status_y_offsets[StarShipPtr->playerNr];
 
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(2);
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE (2);
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
-	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS + IF_HD(4);
+	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS + IF_HD (4);
 	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS
 			+ RES_SCALE (MENU_BOOL (2, 1));
 	SetContextForeGroundColor (
@@ -201,33 +201,33 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	// Left border of the status panel.
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
-	r.corner.x = RES_SCALE(1);
+	r.corner.x = RES_SCALE (1);
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
-	r.extent.width = RES_SCALE(1);
-	r.extent.height = (SHIP_STATUS_HEIGHT - SHIP_INFO_HEIGHT - RES_SCALE(2));
+	r.extent.width = RES_SCALE (1);
+	r.extent.height = (SHIP_STATUS_HEIGHT - SHIP_INFO_HEIGHT - RES_SCALE (2));
 	DrawFilledRectangle (&r);
 	r.corner.x = 0;
-	r.extent.height += RES_SCALE(1);
+	r.extent.height += RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	// Lower and right border of the status panel.
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
-	r.corner.x = STATUS_WIDTH - RES_SCALE(1);
+	r.corner.x = STATUS_WIDTH - RES_SCALE (1);
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
-	r.extent.width = RES_SCALE(1);
+	r.extent.width = RES_SCALE (1);
 	r.extent.height = SHIP_STATUS_HEIGHT - SHIP_INFO_HEIGHT;
 	DrawFilledRectangle (&r);
-	r.corner.x = STATUS_WIDTH - RES_SCALE(2);
+	r.corner.x = STATUS_WIDTH - RES_SCALE (2);
 	DrawFilledRectangle (&r);
-	r.corner.x = RES_SCALE(1);
-	r.extent.width = STATUS_WIDTH - RES_SCALE(2);
-	r.corner.y = y_offs + (SHIP_STATUS_HEIGHT - RES_SCALE(2));
-	r.extent.height = RES_SCALE(1);
+	r.corner.x = RES_SCALE (1);
+	r.extent.width = STATUS_WIDTH - RES_SCALE (2);
+	r.corner.y = y_offs + (SHIP_STATUS_HEIGHT - RES_SCALE (2));
+	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 	r.corner.x = 0;
-	r.extent.width += RES_SCALE(1);
-	r.corner.y += RES_SCALE(1);
+	r.extent.width += RES_SCALE (1);
+	r.corner.y += RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	y = y_offs + CAPTAIN_YOFFS;
@@ -237,25 +237,25 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
 	r.corner.x = CAPTAIN_WIDTH + CAPTAIN_XOFFS;
 	r.corner.y = y;
-	r.extent.width = RES_SCALE(1);
+	r.extent.width = RES_SCALE (1);
 	r.extent.height = CAPTAIN_HEIGHT;
 	DrawFilledRectangle (&r);
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(1);
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
 	r.corner.y += CAPTAIN_HEIGHT;
-	r.extent.width = CAPTAIN_WIDTH + RES_SCALE(2);
-	r.extent.height = RES_SCALE(1);
+	r.extent.width = CAPTAIN_WIDTH + RES_SCALE (2);
+	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	// Light grey rectangle at top and left of captains window
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(1);
-	r.extent.width = CAPTAIN_WIDTH + RES_SCALE(2);
-	r.corner.y = y - RES_SCALE(1);
-	r.extent.height = RES_SCALE(1);
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
+	r.extent.width = CAPTAIN_WIDTH + RES_SCALE (2);
+	r.corner.y = y - RES_SCALE (1);
+	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE(1);
-	r.extent.width = RES_SCALE(1);
+	r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
+	r.extent.width = RES_SCALE (1);
 	r.corner.y = y;
 	r.extent.height = CAPTAIN_HEIGHT;
 	DrawFilledRectangle (&r);
@@ -271,7 +271,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		TEXT t;
 
 		t.baseline.x = STATUS_WIDTH >> 1;
-		t.baseline.y = y + RES_SCALE(6);
+		t.baseline.y = y + RES_SCALE (6);
 		t.align = ALIGN_CENTER;
 		t.pStr = GLOBAL_SIS (CommanderName);
 		t.CharCount = (COUNT)~0;
@@ -478,15 +478,15 @@ PostProcessStatus (ELEMENT *ShipPtr)
 						};
 
 						c = flash_tab1[i];
-						r.corner.x = CAPTAIN_XOFFS + RES_SCALE(i);
-						r.corner.y = y + CAPTAIN_YOFFS + RES_SCALE(i);
-						r.extent.width = CAPTAIN_WIDTH - RES_SCALE((i << 1));
-						r.extent.height = CAPTAIN_HEIGHT - RES_SCALE((i << 1));
+						r.corner.x = CAPTAIN_XOFFS + RES_SCALE (i);
+						r.corner.y = y + CAPTAIN_YOFFS + RES_SCALE (i);
+						r.extent.width = CAPTAIN_WIDTH - RES_SCALE ((i << 1));
+						r.extent.height = CAPTAIN_HEIGHT - RES_SCALE ((i << 1));
 
-						if (r.extent.height == RES_SCALE(2))
-							r.extent.height += RES_SCALE(1);
+						if (r.extent.height == RES_SCALE (2))
+							r.extent.height += RES_SCALE (1);
 
-						for (j = 0; j < RES_SCALE(1); j++)
+						for (j = 0; j < RES_SCALE (1); j++)
 						{	
 							DrawRectangle (&r, FALSE);
 							++r.corner.x;
@@ -497,35 +497,35 @@ PostProcessStatus (ELEMENT *ShipPtr)
 					}
 					else if ((i -= 15) <= 4)
 					{
-						r.corner.y = y + (CAPTAIN_YOFFS + RES_SCALE(15)); 
-						r.extent.width = RES_SCALE(i + 1); 
-						r.extent.height = RES_SCALE(1);
+						r.corner.y = y + (CAPTAIN_YOFFS + RES_SCALE (15)); 
+						r.extent.width = RES_SCALE (i + 1); 
+						r.extent.height = RES_SCALE (1);
 						switch (i)
 						{
 							case 0:
-								r.corner.x = CAPTAIN_XOFFS + RES_SCALE(15);
-								i = CAPTAIN_WIDTH - RES_SCALE((15 + 1) << 1);
+								r.corner.x = CAPTAIN_XOFFS + RES_SCALE (15);
+								i = CAPTAIN_WIDTH - RES_SCALE ((15 + 1) << 1);
 								c = BUILD_COLOR (MAKE_RGB15 (0x13, 0x00, 0x00), 0x2C);
 								break;
 							case 1:
-								r.corner.x = CAPTAIN_XOFFS + RES_SCALE(16);
-								i = CAPTAIN_WIDTH - RES_SCALE((17 + 1) << 1);
+								r.corner.x = CAPTAIN_XOFFS + RES_SCALE (16);
+								i = CAPTAIN_WIDTH - RES_SCALE ((17 + 1) << 1);
 								c = BUILD_COLOR (MAKE_RGB15 (0x07, 0x00, 0x00), 0x2F);
 								break;
 							case 2:
-								r.corner.x = CAPTAIN_XOFFS + RES_SCALE(18);
-								i = CAPTAIN_WIDTH - RES_SCALE((20 + 1) << 1);
+								r.corner.x = CAPTAIN_XOFFS + RES_SCALE (18);
+								i = CAPTAIN_WIDTH - RES_SCALE ((20 + 1) << 1);
 								c = BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x00), 0x2A);
 								break;
 							case 3:
-								r.corner.x = CAPTAIN_XOFFS + RES_SCALE(21);
-								i = CAPTAIN_WIDTH - RES_SCALE((24 + 1) << 1);
+								r.corner.x = CAPTAIN_XOFFS + RES_SCALE (21);
+								i = CAPTAIN_WIDTH - RES_SCALE ((24 + 1) << 1);
 								c = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x00, 0x00), 0x29);
 								break;
 							case 4:
-								r.corner.x = CAPTAIN_XOFFS + RES_SCALE(25);
-								i = RES_SCALE(1);
-								r.extent.width = RES_SCALE(2);
+								r.corner.x = CAPTAIN_XOFFS + RES_SCALE (25);
+								i = RES_SCALE (1);
+								r.extent.width = RES_SCALE (2);
 								c = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x50, 0x05), 0x28);
 								break;
 							default:
@@ -555,11 +555,11 @@ PostProcessStatus (ELEMENT *ShipPtr)
 							c = flash_tab2[i];
 						}
 						r.corner.x = CAPTAIN_XOFFS
-								+ (CAPTAIN_WIDTH >> 1) - IF_HD(2);
+								+ (CAPTAIN_WIDTH >> 1) - IF_HD (2);
 						r.corner.y = y + CAPTAIN_YOFFS
-								 + ((CAPTAIN_HEIGHT + RES_SCALE(1)) >> 1) - IF_HD(2);
-						r.extent.width = RES_SCALE(1);
-						r.extent.height = RES_SCALE(1);
+								 + ((CAPTAIN_HEIGHT + RES_SCALE (1)) >> 1) - IF_HD (2);
+						r.extent.width = RES_SCALE (1);
+						r.extent.height = RES_SCALE (1);
 					}
 				}
 				SetContextForeGroundColor (c);

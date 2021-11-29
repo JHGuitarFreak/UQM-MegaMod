@@ -33,8 +33,8 @@
 #include <stdlib.h>
 
 
-#define CONFIRM_WIN_WIDTH RES_SCALE(80) 
-#define CONFIRM_WIN_HEIGHT RES_SCALE(22) 
+#define CONFIRM_WIN_WIDTH RES_SCALE (80) 
+#define CONFIRM_WIN_HEIGHT RES_SCALE (22) 
 
 BOOLEAN WarpFromMenu = FALSE;
 
@@ -54,8 +54,8 @@ DrawConfirmationWindow (BOOLEAN answer)
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL (CurrentActivity) & IN_BATTLE && RunAwayAllowed ())
 	{
-		r.corner.x -= RES_BOOL(40, 0);
-		r.extent.width += RES_BOOL(40, 0);
+		r.corner.x -= RES_BOOL (40, 0);
+		r.extent.width += RES_BOOL (40, 0);
 	}
 #endif
 	r.extent.height = CONFIRM_WIN_HEIGHT;
@@ -63,16 +63,16 @@ DrawConfirmationWindow (BOOLEAN answer)
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_SCALE(8); 
+	t.baseline.y = r.corner.y + RES_SCALE (8); 
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE); // "Really Quit?"
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
-	t.baseline.y += RES_SCALE(10); 
+	t.baseline.y += RES_SCALE (10); 
 	t.baseline.x = r.corner.x + (r.extent.width >> 2);
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
-		t.baseline.x -= RES_BOOL(5, 0);
+		t.baseline.x -= RES_BOOL (5, 0);
 #endif
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 1); // "Yes"
 	SetContextForeGroundColor (answer ? MENU_HIGHLIGHT_COLOR : MENU_TEXT_COLOR);
@@ -82,7 +82,7 @@ DrawConfirmationWindow (BOOLEAN answer)
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
 	{
-		t.baseline.x -= RES_BOOL(10, 20);
+		t.baseline.x -= RES_BOOL (10, 20);
 		t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 3); // "Escape Unit"
 	}
 #endif

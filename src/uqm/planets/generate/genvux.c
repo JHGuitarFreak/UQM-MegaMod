@@ -113,7 +113,7 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		if (CurStarDescPtr->Index == VUX_DEFINED)
 		{
-			if (!PrimeSeed)				
+			if (!PrimeSeed)
 				solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;

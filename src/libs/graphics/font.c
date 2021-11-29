@@ -240,13 +240,13 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 			if (pdelta[-1] > 0)
 			{
 				--pdelta[-1];
-				width -= RES_SCALE(1);
+				width -= RES_SCALE (1);
 			}
 
 			if (lpText->align == ALIGN_LEFT)
 				pRect->corner.x = 0;
 			else if (lpText->align == ALIGN_CENTER)
-				pRect->corner.x = -RES_SCALE((RES_DESCALE(width) >> 1));
+				pRect->corner.x = -RES_SCALE ((RES_DESCALE (width) >> 1));
 			else
 				pRect->corner.x = -width;
 			pRect->corner.y = top_y;

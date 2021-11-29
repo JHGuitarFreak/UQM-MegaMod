@@ -43,14 +43,14 @@ static void
 DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 {
 	TEXT t;
-	COUNT text_base_y = RES_SCALE(106 + 28);
-	COUNT text_spacing_y = RES_SCALE(23 - 4);
+	COUNT text_base_y = RES_SCALE (106 + 28);
+	COUNT text_spacing_y = RES_SCALE (23 - 4);
 
 	SetContext (ScreenContext);
 	SetContextFont (StarConFont);
 	SetContextForeGroundColor (BLACK_COLOR);
 
-	t.baseline.x = RES_SCALE(73 - 4);
+	t.baseline.x = RES_SCALE (73 - 4);
 	t.align = ALIGN_CENTER;
 
 	if (OldState == (STARBASE_STATE)~0)
@@ -155,11 +155,11 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 	{
 		r.corner = Side.origin;
 		r.extent.width = SHIP_PIECE_OFFSET;
-		r.extent.height = RES_SCALE(1);
+		r.extent.height = RES_SCALE (1);
 		OldColor = SetContextForeGroundColor (BLACK_COLOR);
 		if (!IS_HD)
 			DrawFilledRectangle (&r);
-		r.corner.y += RES_SCALE(23 - 1);
+		r.corner.y += RES_SCALE (23 - 1);
 		if (!IS_HD)
 			DrawFilledRectangle (&r);
 
@@ -170,7 +170,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			r.corner = Side.origin;
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(15);
+			r.corner.y += RES_SCALE (15);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
 		}
@@ -180,7 +180,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			r.corner.x += SHIP_PIECE_OFFSET;
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(15);
+			r.corner.y += RES_SCALE (15);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
 		}
@@ -205,21 +205,21 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		{
 			r.corner = Top.origin;
 			r.extent.width = SHIP_PIECE_OFFSET;
-			r.extent.height = RES_SCALE(1);
+			r.extent.height = RES_SCALE (1);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(32 - 1);
+			r.corner.y += RES_SCALE (32 - 1);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
 
-			r.extent.width = RES_SCALE(1);
-			r.extent.height = RES_SCALE(12);
+			r.extent.width = RES_SCALE (1);
+			r.extent.height = RES_SCALE (12);
 			if (RepairSlot == 2)
 			{
 				r.corner = Top.origin;
 				if (!IS_HD)
 					DrawFilledRectangle (&r);
-				r.corner.y += RES_SCALE(20);
+				r.corner.y += RES_SCALE (20);
 				if (!IS_HD)
 					DrawFilledRectangle (&r);
 			}
@@ -230,7 +230,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 				r.corner.x += SHIP_PIECE_OFFSET;
 				if (!IS_HD)
 					DrawFilledRectangle (&r);
-				r.corner.y += RES_SCALE(20); 
+				r.corner.y += RES_SCALE (20); 
 				if (!IS_HD)
 					DrawFilledRectangle (&r);
 			}

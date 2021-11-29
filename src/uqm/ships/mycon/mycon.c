@@ -34,13 +34,13 @@
 // Plasmoid
 #define WEAPON_ENERGY_COST 20
 #define WEAPON_WAIT 5
-#define MYCON_OFFSET RES_SCALE(24)
+#define MYCON_OFFSET RES_SCALE (24)
 #define MISSILE_OFFSET 0
 #define NUM_PLASMAS 11
 #define NUM_GLOBALLS 8
 #define PLASMA_DURATION 13
 #define MISSILE_LIFE (NUM_PLASMAS * PLASMA_DURATION)
-#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
+#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (8))
 #define MISSILE_DAMAGE 10
 #define TRACK_WAIT 1
 
@@ -288,7 +288,7 @@ mycon_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	if (StarShipPtr->special_counter == 0)
 	{
 		StarShipPtr->ship_input_state &= ~SPECIAL;
-		StarShipPtr->RaceDescPtr->cyborg_control.WeaponRange = DISPLAY_TO_WORLD (RES_SCALE(800));
+		StarShipPtr->RaceDescPtr->cyborg_control.WeaponRange = DISPLAY_TO_WORLD (RES_SCALE (800));
 		if (ShipPtr->crew_level < StarShipPtr->RaceDescPtr->ship_info.max_crew)
 		{
 			StarShipPtr->RaceDescPtr->cyborg_control.WeaponRange = MISSILE_SPEED * MISSILE_LIFE;
@@ -367,8 +367,8 @@ init_mycon (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		mycon_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		mycon_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		mycon_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		mycon_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		mycon_desc.cyborg_control.WeaponRange = DISPLAY_TO_WORLD(3200);
 	}
 

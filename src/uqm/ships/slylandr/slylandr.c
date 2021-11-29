@@ -38,14 +38,14 @@
 #define WEAPON_ENERGY_COST 2
 #define WEAPON_WAIT 17
 #define SLYLANDRO_OFFSET 9
-#define LASER_LENGTH RES_SCALE(32)
+#define LASER_LENGTH RES_SCALE (32)
 		/* Total length of lighting bolts. Actual range is usually less than
 		 * this, since the lightning rarely is straight. */
 
 // Harvester
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_WAIT 20
-#define HARVEST_RANGE RES_SCALE(208 * 3 / 8)
+#define HARVEST_RANGE RES_SCALE (208 * 3 / 8)
 		/* Was originally (SPACE_HEIGHT * 3 / 8) */
 
 static RACE_DESC slylandro_desc =
@@ -431,8 +431,8 @@ init_slylandro (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		slylandro_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		slylandro_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		slylandro_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		slylandro_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		slylandro_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD << 1;
 	}
 

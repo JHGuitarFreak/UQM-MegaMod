@@ -2294,7 +2294,7 @@ init_melnorme_comm (void)
 	static LOCDATA melnorme_desc;
  	LOCDATA *retval;
 
-	melnorme_desc = RES_BOOL(melnorme_desc_orig, melnorme_desc_hd);
+	melnorme_desc = RES_BOOL (melnorme_desc_orig, melnorme_desc_hd);
 
 	melnorme_desc.init_encounter_func = Intro;
 	melnorme_desc.post_encounter_func = post_melnorme_enc;
@@ -2306,7 +2306,7 @@ init_melnorme_comm (void)
 
 	melnorme_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	melnorme_desc.AlienTextBaseline.y = 0;
-	melnorme_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	melnorme_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (IS_HD)
 	{

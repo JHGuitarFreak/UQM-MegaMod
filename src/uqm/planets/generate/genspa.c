@@ -82,7 +82,7 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 		pMinPlanet = &solarSys->PlanetDesc[0];
 		solarSys->SunDesc[0].NumPlanets = 1;
 
-		FillOrbits(solarSys,
+		FillOrbits (solarSys,
 			solarSys->SunDesc[0].NumPlanets, pMinPlanet, FALSE);
 
 		pMinPlanet->radius = EARTH_RADIUS * 1150L / 100;

@@ -38,22 +38,22 @@
 // Laser
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
-#define VUX_OFFSET RES_BOOL(12, 38)
-#define LASER_BASE RES_SCALE(150)
+#define VUX_OFFSET RES_BOOL (12, 38)
+#define LASER_BASE RES_SCALE (150)
 #define LASER_RANGE DISPLAY_TO_WORLD (LASER_BASE + VUX_OFFSET)
 
 // Limpet
 #define SPECIAL_ENERGY_COST 2
 #define SPECIAL_WAIT 7
-#define LIMPET_SPEED RES_SCALE(25)
-#define LIMPET_OFFSET RES_SCALE(8)
+#define LIMPET_SPEED RES_SCALE (25)
+#define LIMPET_OFFSET RES_SCALE (8)
 #define LIMPET_LIFE 80
 #define LIMPET_HITS 1
 #define LIMPET_DAMAGE 0
-#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (RES_SCALE(1))
+#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (RES_SCALE (1))
 
 // Aggressive Entry
-#define WARP_OFFSET RES_SCALE(46)
+#define WARP_OFFSET RES_SCALE (46)
 		/* How far outside of the laser range can the ship warp in. */
 #define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((LASER_BASE + VUX_OFFSET + WARP_OFFSET) << 1)
 #define MAXY_ENTRY_DIST DISPLAY_TO_WORLD ((LASER_BASE + VUX_OFFSET + WARP_OFFSET) << 1)
@@ -185,7 +185,7 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 				num_thrusts = RDPtr->characteristics.max_thrust /
 						RDPtr->characteristics.thrust_increment;
-				RDPtr->characteristics.thrust_increment -= RES_SCALE(1);
+				RDPtr->characteristics.thrust_increment -= RES_SCALE (1);
 				RDPtr->characteristics.max_thrust =
 						RDPtr->characteristics.thrust_increment * num_thrusts;
 			}
@@ -352,7 +352,7 @@ vux_preprocess (ELEMENT *ElementPtr)
 			// JMS: Not REALLY necessary as VUX can ordinarily never be played against Sa-Matra. 
             // But handy in debugging as a single VUX limpet incapacitates Sa-Matra completely.
             if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
-				SA_MATRA_EXTRA_DIST += RES_SCALE(1000);
+				SA_MATRA_EXTRA_DIST += RES_SCALE (1000);
 
 			do 
 			{
@@ -410,8 +410,8 @@ init_vux (void)
 
 	if (IS_HD)
 	{
-		vux_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		vux_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		vux_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		vux_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		vux_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
 

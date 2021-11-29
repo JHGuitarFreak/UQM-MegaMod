@@ -55,10 +55,10 @@ static const COORD hangar_x_coords[HANGAR_SHIPS_ROW] =
 #	define HANGAR_SHIPS_ROW  6
 
 // The Y position of the upper line of hangar bay doors.
-# define HANGAR_Y	RES_SCALE(88) 
+# define HANGAR_Y	RES_SCALE (88) 
 
 // The Y position of the lower line of hangar bay doors.
-# define HANGAR_DY	RES_SCALE(84) 
+# define HANGAR_DY	RES_SCALE (84) 
 
 
 // The X positions of the hangar bay doors for each resolution mode.
@@ -105,7 +105,7 @@ showRemainingCrew (void)
 			GET_GAME_STATE (CREW_PURCHASED0),
 			GET_GAME_STATE (CREW_PURCHASED1));
 	
-	r.extent = MAKE_EXTENT (RES_SCALE (122), RES_SCALE(7));
+	r.extent = MAKE_EXTENT (RES_SCALE (122), RES_SCALE (7));
 	r.corner = MAKE_POINT (RES_SCALE (2),
 			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
 
@@ -281,10 +281,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - RES_SCALE(2);
-	r.corner.y = s.origin.y - RES_SCALE(12);
-	r.extent.width = RADAR_WIDTH + RES_SCALE(4);
-	r.extent.height = RES_SCALE(12);
+	r.corner.x = s.origin.x - RES_SCALE (2);
+	r.corner.y = s.origin.y - RES_SCALE (12);
+	r.extent.width = RADAR_WIDTH + RES_SCALE (4);
+	r.extent.height = RES_SCALE (12);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
@@ -316,8 +316,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		s.frame = FleetPtr->melee_icon;
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
+		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
+		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2);
 		s.origin.x += (RADAR_WIDTH >> 1);
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
@@ -344,10 +344,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 }
 
 // Width of an escort ship window.
-#define SHIP_WIN_WIDTH RES_SCALE(34) 
+#define SHIP_WIN_WIDTH RES_SCALE (34) 
 
 // Height of an escort ship window.
-#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE(6)) 
+#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE (6)) 
 
 // For how many animation frames' time the escort ship bay doors
 // are slid left and right when opening them. If this number is not large
@@ -390,15 +390,15 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 
 	r = *pRect;
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE(1);
+	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
 	t.align = ALIGN_CENTER;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	if (r.corner.y)
 	{
-		r.corner.y = t.baseline.y - RES_SCALE(6);
+		r.corner.y = t.baseline.y - RES_SCALE (6);
 		r.extent.width = SHIP_WIN_WIDTH;
-		r.extent.height = RES_SCALE(6); 
+		r.extent.height = RES_SCALE (6); 
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&r);
 	}
@@ -426,7 +426,7 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 		STAMP rtdoor_s;
 	} ship_win_info[MAX_BUILT_SHIPS], *pship_win_info;
 
-	hangar_x_coords = RES_BOOL(hangar_x_coords_orig, hangar_x_coords_hd);
+	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	num_ships = 1;
 	pship_win_info = &ship_win_info[0];
@@ -498,8 +498,8 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 					// anymore after UnlockShipFrag() is called, but it is
 					// used thereafter.
 
-			pship_win_info->lfdoor_s.origin.x = -RES_SCALE(1);
-			pship_win_info->rtdoor_s.origin.x = RES_SCALE(1);
+			pship_win_info->lfdoor_s.origin.x = -RES_SCALE (1);
+			pship_win_info->rtdoor_s.origin.x = RES_SCALE (1);
 			pship_win_info->lfdoor_s.origin.y = 0;
 			pship_win_info->rtdoor_s.origin.y = 0;
 			pship_win_info->lfdoor_s.frame = IncFrameIndex (pMS->ModuleFrame);
@@ -540,7 +540,7 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 
 		for (j = 0; (j < SHIP_WIN_FRAMES) && !AllDoorsFinished; j++)
 		{
-			SleepThreadUntil (TimeIn + ONE_SECOND / RES_SCALE(24));
+			SleepThreadUntil (TimeIn + ONE_SECOND / RES_SCALE (24));
 			TimeIn = GetTimeCounter ();
 			if (AnyButtonPress (FALSE))
 			{
@@ -657,9 +657,9 @@ DMS_FlashFlagShip (void)
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
 	if (optWhichMenu != OPT_PC)
-		r.extent.height = RES_SCALE(63);
+		r.extent.height = RES_SCALE (63);
 	else
-		r.extent.height = RES_SCALE(74);
+		r.extent.height = RES_SCALE (74);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
@@ -707,9 +707,9 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	r.corner.x = hangar_x_coords[col];
-	r.corner.y = (HANGAR_Y + (HANGAR_DY * row)) + (SHIP_WIN_HEIGHT - RES_SCALE(6));
+	r.corner.y = (HANGAR_Y + (HANGAR_DY * row)) + (SHIP_WIN_HEIGHT - RES_SCALE (6));
 	r.extent.width = SHIP_WIN_WIDTH;
-	r.extent.height = RES_SCALE(5); 
+	r.extent.height = RES_SCALE (5); 
 
 	SetContext (SpaceContext);
 	SetFlashRect (&r, FALSE);
@@ -857,7 +857,7 @@ DMS_HireFlagShipCrew (void)
 
 	// Draw a crew member.
 	// Crew dots/rectangles for Original and HD graphics.
-	r.extent.width = RES_SCALE(1);
+	r.extent.width = RES_SCALE (1);
 	r.extent.height = r.extent.width;
 	DrawFilledRectangle (&r);
 
@@ -899,7 +899,7 @@ DMS_DismissFlagShipCrew (void)
 
 	// Remove the pixel representing the crew member.
 	GetCPodCapacity (&r.corner);
-	r.extent.width = RES_SCALE(1);
+	r.extent.width = RES_SCALE (1);
 	r.extent.height = r.extent.width;
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -1536,8 +1536,8 @@ DrawBluePrint (MENU_STATE *pMS)
 		num_frames = GLOBAL_SIS (TotalElementMass);
 		GLOBAL_SIS (TotalElementMass) = 0;
 
-		r.extent.width = RES_SCALE(9);
-		r.extent.height = RES_SCALE(1);
+		r.extent.width = RES_SCALE (9);
+		r.extent.height = RES_SCALE (1);
 		while (num_frames)
 		{
 			COUNT m;
@@ -1558,7 +1558,7 @@ DrawBluePrint (MENU_STATE *pMS)
 		FuelVolume = GLOBAL_SIS (FuelOnBoard) - FUEL_RESERVE;
 		GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
 
-		r.extent.height = RES_SCALE(1);
+		r.extent.height = RES_SCALE (1);
 
 		while (FuelVolume)
 		{
@@ -1602,11 +1602,11 @@ DrawBluePrint (MENU_STATE *pMS)
 				
 			GetFTankCapacity (&r.corner);
 
-			r.extent.width = RES_SCALE(5);
+			r.extent.width = RES_SCALE (5);
 			DrawFilledRectangle (&r);
 
-			r.extent.width = RES_SCALE(3);
-			r.corner.x += RES_SCALE(1);
+			r.extent.width = RES_SCALE (3);
+			r.corner.x += RES_SCALE (1);
 
 			SetContextForeGroundColor (
 					SetContextBackGroundColor (BLACK_COLOR));
@@ -1675,9 +1675,9 @@ DoShipyard (MENU_STATE *pMS)
 			// expand the clipping rect by 1 pixel
 			GetContextClipRect (&old_r);
 			r = old_r;
-			r.corner.x -= RES_SCALE(1);
-			r.extent.width += RES_SCALE(2);
-			r.extent.height += RES_SCALE(1);
+			r.corner.x -= RES_SCALE (1);
+			r.extent.width += RES_SCALE (2);
+			r.extent.height += RES_SCALE (1);
 			SetContextClipRect (&r);
 			DrawStamp (&s);
 

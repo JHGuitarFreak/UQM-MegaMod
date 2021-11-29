@@ -63,23 +63,23 @@ ClearReportArea (void)
 		SetContextBackGroundColor (BLACK_COLOR);
 		ClearDrawable ();
 
-		startx = (optSuperPC != OPT_PC ? 0 : RES_SCALE(1)) + 1
-				+ (r.extent.width >> 1) - (RES_SCALE(1) - IF_HD(1));
-		starty = RES_SCALE(2);
+		startx = (optSuperPC != OPT_PC ? 0 : RES_SCALE (1)) + 1
+				+ (r.extent.width >> 1) - (RES_SCALE (1) - IF_HD (1));
+		starty = RES_SCALE (2);
 	}
 	else if (optSuperPC == OPT_PC)
 	{
-		rPC.extent.width = (r.extent.width + RES_SCALE(1))
-			* NUM_CELL_COLS + RES_SCALE(1);
-		rPC.extent.height = (r.extent.height + RES_SCALE(1))
-			* NUM_CELL_ROWS + RES_SCALE(1);
+		rPC.extent.width = (r.extent.width + RES_SCALE (1))
+			* NUM_CELL_COLS + RES_SCALE (1);
+		rPC.extent.height = (r.extent.height + RES_SCALE (1))
+			* NUM_CELL_ROWS + RES_SCALE (1);
 		rPC.corner.x = (SIS_SCREEN_WIDTH - rPC.extent.width) / 2;
-		rPC.corner.y = RES_SCALE(2);
+		rPC.corner.y = RES_SCALE (2);
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&rPC);
 
-		startx = rPC.corner.x + RES_SCALE(1);
-		starty = rPC.corner.y + RES_SCALE(1);
+		startx = rPC.corner.x + RES_SCALE (1);
+		starty = rPC.corner.y + RES_SCALE (1);
 	}
 
 	SetContextForeGroundColor (
@@ -96,9 +96,9 @@ ClearReportArea (void)
 			else
 				DrawFilledStamp (&s);
 			
-			s.origin.x += r.extent.width + RES_SCALE(1);
+			s.origin.x += r.extent.width + RES_SCALE (1);
 		}
-		s.origin.y += r.extent.height + RES_SCALE(1);
+		s.origin.y += r.extent.height + RES_SCALE (1);
 	}
 
 	UnbatchGraphics ();
@@ -160,7 +160,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		}
 
 		t.baseline.x = startx + (col_cells * (r.extent.width + 1))
-				+ IF_HD(NextPageHD);
+				+ IF_HD (NextPageHD);
 
 		do
 		{
@@ -224,16 +224,16 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						}
 					}
 					t.pStr = pNextStr;
-					t.baseline.x += r.extent.width + RES_SCALE(1); // Text spacing
+					t.baseline.x += r.extent.width + RES_SCALE (1); // Text spacing
 				}
 
 				++col_cells;
 				last_c = getCharFromString (&t.pStr);
-				t.baseline.x += r.extent.width + RES_SCALE(1); // Space spacing
+				t.baseline.x += r.extent.width + RES_SCALE (1); // Space spacing
 			}
 		} while (col_cells <= NUM_CELL_COLS && last_c != '\n' && StrLen);
 
-		t.baseline.y += r.extent.height + RES_SCALE(1); // Text vertical spacing
+		t.baseline.y += r.extent.height + RES_SCALE (1); // Text vertical spacing
 		if (++row_cells == NUM_CELL_ROWS || StrLen == 0)
 		{
 			t.pStr = pLastStr;

@@ -36,7 +36,7 @@ void
 spawn_planet (void)
 {
 	HELEMENT hPlanetElement;
-	POINT pt;
+	POINT pt = MAKE_POINT (0, 0);
 
 	hPlanetElement = AllocElement ();
 	if (hPlanetElement)
@@ -284,7 +284,7 @@ crew_preprocess (ELEMENT *ElementPtr)
 
 	if (hTarget)
 	{
-#define CREW_DELTA RES_SCALE(SCALED_ONE)
+#define CREW_DELTA RES_SCALE (SCALED_ONE)
 		SIZE delta;
 		ELEMENT *ShipPtr;
 
@@ -356,7 +356,7 @@ AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 		dx = dy = 0;
 	else
 	{
-#define MORE_THAN_ENOUGH RES_SCALE(100) 
+#define MORE_THAN_ENOUGH RES_SCALE (100) 
 		direction += HALF_CIRCLE;
 		dx = COSINE (direction, MORE_THAN_ENOUGH);
 		dy = SINE (direction, MORE_THAN_ENOUGH);

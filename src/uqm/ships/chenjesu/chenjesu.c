@@ -37,9 +37,9 @@
 // Photon Shard
 #define WEAPON_ENERGY_COST 5
 #define WEAPON_WAIT 0
-#define CHENJESU_OFFSET RES_SCALE(16)
+#define CHENJESU_OFFSET RES_SCALE (16)
 #define MISSILE_OFFSET 0
-#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(16))
+#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (16))
 #define MISSILE_LIFE 90
 		/* actually, it's as long as you hold the button down. */
 #define MISSILE_HITS 10
@@ -47,7 +47,7 @@
 #define NUM_SPARKLES 8
 
 // Shrapnel
-#define FRAGMENT_OFFSET RES_SCALE(2)
+#define FRAGMENT_OFFSET RES_SCALE (2)
 #define NUM_FRAGMENTS 8
 #define FRAGMENT_LIFE 10
 #define FRAGMENT_SPEED MISSILE_SPEED
@@ -59,8 +59,8 @@
 // DOGI
 #define SPECIAL_ENERGY_COST MAX_ENERGY
 #define SPECIAL_WAIT 0
-#define DOGGY_OFFSET RES_SCALE(18)
-#define DOGGY_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
+#define DOGGY_OFFSET RES_SCALE (18)
+#define DOGGY_SPEED DISPLAY_TO_WORLD (RES_SCALE (8))
 #define ENERGY_DRAIN 10
 #define MAX_DOGGIES 4
 #define DOGGY_HITS 3
@@ -423,7 +423,7 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 				) <= RESOLUTION_COMPENSATED(SLOW_SHIP) 
 				&& WEAPON_RANGE (
 				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) >= RES_BOOL(LONG_RANGE_WEAPON, LONG_RANGE_WEAPON_HD) * 3 / 4 
+				) >= RES_BOOL (LONG_RANGE_WEAPON, LONG_RANGE_WEAPON_HD) * 3 / 4 
 				&& (EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags & SEEKING_WEAPON)))
 			lpEvalDesc->MoveState = PURSUE;
 	}
@@ -655,8 +655,8 @@ init_chenjesu (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		chenjesu_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		chenjesu_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		chenjesu_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		chenjesu_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		chenjesu_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD;
 	}
 

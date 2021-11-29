@@ -317,8 +317,8 @@ InitEncounter (void)
 	DrawStamp (&s);
 
 //    t.baseline.x = SIS_SCREEN_WIDTH >> 1;
-	t.baseline.x = RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1);
-	t.baseline.y = RES_SCALE(10);
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	t.baseline.y = RES_SCALE (10);
 	t.align = ALIGN_CENTER;
 
 	SetContextForeGroundColor (
@@ -329,7 +329,7 @@ InitEncounter (void)
 				// "ENCOUNTER IN"
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); 
+		t.baseline.y += RES_SCALE (12); 
 		t.pStr = GAME_STRING (ENCOUNTER_STRING_BASE + 1);
 				// "DEEP SPACE"
 		t.CharCount = (COUNT)~0;
@@ -343,12 +343,12 @@ InitEncounter (void)
 				// "ENCOUNTER AT"
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); 
+		t.baseline.y += RES_SCALE (12); 
 		GetClusterName (CurStarDescPtr, buf);
 		t.pStr = buf;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); 
+		t.baseline.y += RES_SCALE (12); 
 		t.pStr = GLOBAL_SIS (PlanetName);
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
@@ -462,13 +462,13 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 	};
 #define NUM_FADES (ARRAY_SIZE (fade_cycle))
 
-	t1.baseline.x = pRect->corner.x + RES_SCALE(100); 
-	t1.baseline.y = pRect->corner.y + RES_SCALE(45); 
+	t1.baseline.x = pRect->corner.x + RES_SCALE (100); 
+	t1.baseline.y = pRect->corner.y + RES_SCALE (45); 
 	t1.align = ALIGN_CENTER;
 	t1.pStr = str1;
 	t1.CharCount = (COUNT)~0;
 	t2 = t1;
-	t2.baseline.y += RES_SCALE(11); 
+	t2.baseline.y += RES_SCALE (11); 
 	t2.pStr = str2;
 
 	FlushInput ();
@@ -637,8 +637,8 @@ UninitEncounter (void)
 
 								DrawStatusMessage (NULL);
 								
-								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE(32);
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(56);
+								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE (32);
+								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE (56);
 								ship_s.frame = IncFrameIndex (FragPtr->icons);
 								DrawStamp (&ship_s);
 								SetContextForeGroundColor (
@@ -670,13 +670,13 @@ UninitEncounter (void)
 									}
 								}
 
-								t.baseline.x = scavenge_r.corner.x + RES_SCALE(100);
-								t.baseline.y = scavenge_r.corner.y + RES_SCALE(68);
+								t.baseline.x = scavenge_r.corner.x + RES_SCALE (100);
+								t.baseline.y = scavenge_r.corner.y + RES_SCALE (68);
 								t.align = ALIGN_CENTER;
 								t.pStr = buf;
 								t.CharCount = (COUNT)~0;
 								font_DrawText (&t);
-								t.baseline.y += RES_SCALE(6);
+								t.baseline.y += RES_SCALE (6);
 								t.pStr = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 3);
 										// "BATTLE GROUP"
@@ -697,17 +697,17 @@ UninitEncounter (void)
 							}
 
 							if ((VictoryState++ - 1) % MAX_DEAD_DISPLAYED)
-								ship_s.origin.x += RES_SCALE(17);
+								ship_s.origin.x += RES_SCALE (17);
 							else
 							{
 								SetContextForeGroundColor (BLACK_COLOR);
 
-								r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
-								r.extent.width = RES_SCALE(104);
+								r.corner.x = scavenge_r.corner.x + RES_SCALE (10);
+								r.extent.width = RES_SCALE (104);
 								DrawFilledRectangle (&r);
 
-								ship_s.origin.x = r.corner.x + RES_SCALE(2);
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(12);
+								ship_s.origin.x = r.corner.x + RES_SCALE (2);
+								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE (12);
 							}
 
 							{
@@ -807,13 +807,13 @@ UninitEncounter (void)
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
 					SetContextForeGroundColor (BLACK_COLOR);
-					r.corner.x = scavenge_r.corner.x + RES_SCALE(10); 
-					r.extent.width = RES_SCALE(132); 
+					r.corner.x = scavenge_r.corner.x + RES_SCALE (10); 
+					r.extent.width = RES_SCALE (132); 
 					DrawFilledRectangle (&r);
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + RES_SCALE(14); 
+					t.baseline.y = r.corner.y + RES_SCALE (14); 
 					t.align = ALIGN_CENTER;
 					t.pStr = buf;
 					t.CharCount = (COUNT)~0;

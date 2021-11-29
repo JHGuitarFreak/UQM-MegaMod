@@ -36,7 +36,7 @@
 // Main weapon
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
-#define ZOQFOTPIK_OFFSET RES_SCALE(13)
+#define ZOQFOTPIK_OFFSET RES_SCALE (13)
 #define MISSILE_OFFSET 0
 #define MISSILE_SPEED DISPLAY_TO_WORLD (10)
 		/* Used by the cyborg only. */
@@ -54,10 +54,10 @@
 #define TONGUE_SPEED 0
 #define TONGUE_HITS 1
 #define TONGUE_DAMAGE 12
-#define TONGUE_OFFSET RES_SCALE(4)
+#define TONGUE_OFFSET RES_SCALE (4)
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 #define MISSILE_RANGE_HD (MISSILE_SPEED_HD * MISSILE_LIFE)
 
 static RACE_DESC zoqfotpik_desc =
@@ -149,7 +149,7 @@ spit_preprocess (ELEMENT *ElementPtr)
 			angle = angle + (((COUNT)TFB_Random () % 3) - 1);
 
 		speed = WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (
-				RES_SCALE(GetFrameCount (ElementPtr->next.image.frame)) - index) << 1);
+				RES_SCALE (GetFrameCount (ElementPtr->next.image.frame)) - index) << 1);
 		SetVelocityComponents (&ElementPtr->velocity,
 				(SIZE)COSINE (angle, speed),
 				(SIZE)SINE (angle, speed));
@@ -176,7 +176,7 @@ initialize_spit (ELEMENT *ShipPtr, HELEMENT SpitArray[])
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = ZOQFOTPIK_OFFSET;
 	MissileBlock.speed = DISPLAY_TO_WORLD (
-			RES_SCALE(GetFrameCount (StarShipPtr->RaceDescPtr->ship_data.weapon[0]))) << 1;
+			RES_SCALE (GetFrameCount (StarShipPtr->RaceDescPtr->ship_data.weapon[0]))) << 1;
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;
@@ -334,7 +334,7 @@ zoqfotpik_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 #endif /* NEVER */
 						))
 						&& ship_weapons (ShipPtr,
-						ObjectsOfConcern->ObjectPtr, DISPLAY_TO_WORLD (RES_SCALE(20))))
+						ObjectsOfConcern->ObjectPtr, DISPLAY_TO_WORLD (RES_SCALE (20))))
 				{
 					StarShipPtr->ship_input_state |= WEAPON;
 					break;
@@ -372,8 +372,8 @@ init_zoqfotpik (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		zoqfotpik_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		zoqfotpik_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		zoqfotpik_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		zoqfotpik_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		zoqfotpik_desc.cyborg_control.WeaponRange = MISSILE_RANGE_HD;
 	}
 

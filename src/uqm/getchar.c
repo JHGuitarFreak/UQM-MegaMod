@@ -179,10 +179,10 @@ FlashCursor (void)
 		{
 			RECT r;
 
-			r.corner.x = SIS_ORG_X + RES_SCALE(1);
+			r.corner.x = SIS_ORG_X + RES_SCALE (1);
 			r.corner.y = SIS_ORG_Y - SIS_MESSAGE_HEIGHT;
 			r.extent.width = SIS_MESSAGE_WIDTH;
-			r.extent.height = SIS_MESSAGE_HEIGHT - RES_SCALE(1);
+			r.extent.height = SIS_MESSAGE_HEIGHT - RES_SCALE (1);
 			SetContextFGFrame (Screen);
 			SetContextClipRect (&r);
 		}

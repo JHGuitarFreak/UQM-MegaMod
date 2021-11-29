@@ -1031,7 +1031,7 @@ init_widgets (void)
 	if (setup_frame == NULL || optRequiresRestart)
 	{
 		// JMS: Load the different menus depending on the resolution factor.
-		setup_frame = CaptureDrawable (LoadGraphic (RES_BOOL(MENUBKG_PMAP_ANIM, MENUBKG_PMAP_ANIM_HD)));
+		setup_frame = CaptureDrawable (LoadGraphic (RES_BOOL (MENUBKG_PMAP_ANIM, MENUBKG_PMAP_ANIM_HD)));
 		LoadArrows ();
 	}
 

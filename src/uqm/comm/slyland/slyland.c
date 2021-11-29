@@ -551,7 +551,7 @@ init_slyland_comm (void)
 
 	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	slylandro_desc.AlienTextBaseline.y = 0;
-	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_hostile);
 	retval = &slylandro_desc;

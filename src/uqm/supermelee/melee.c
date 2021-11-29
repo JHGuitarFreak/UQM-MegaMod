@@ -97,28 +97,28 @@ enum
 #endif
 
 // Top Melee Menu
-#define MELEE_X_OFFS RES_SCALE(2)
-#define MELEE_Y_OFFS RES_SCALE(22)
-#define MELEE_BOX_WIDTH RES_SCALE(34)
-#define MELEE_BOX_HEIGHT RES_SCALE(34)
-#define MELEE_BOX_SPACE RES_SCALE(1)
+#define MELEE_X_OFFS RES_SCALE (2)
+#define MELEE_Y_OFFS RES_SCALE (22)
+#define MELEE_BOX_WIDTH RES_SCALE (34)
+#define MELEE_BOX_HEIGHT RES_SCALE (34)
+#define MELEE_BOX_SPACE RES_SCALE (1)
 
-#define MENU_X_OFFS RES_SCALE(29)
+#define MENU_X_OFFS RES_SCALE (29)
 
-#define INFO_ORIGIN_X RES_SCALE(4)
-#define INFO_WIDTH RES_SCALE(58)
-#define TEAM_INFO_ORIGIN_Y RES_SCALE(3)
-#define TEAM_INFO_HEIGHT (SHIP_INFO_HEIGHT + RES_SCALE(75))
-#define MODE_INFO_ORIGIN_Y (TEAM_INFO_HEIGHT + RES_SCALE(6))
-#define MODE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE(3)) - MODE_INFO_ORIGIN_Y)
-#define RACE_INFO_ORIGIN_Y (SHIP_INFO_HEIGHT + RES_SCALE(6))
-#define RACE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE(3)) - RACE_INFO_ORIGIN_Y)
+#define INFO_ORIGIN_X RES_SCALE (4)
+#define INFO_WIDTH RES_SCALE (58)
+#define TEAM_INFO_ORIGIN_Y RES_SCALE (3)
+#define TEAM_INFO_HEIGHT (SHIP_INFO_HEIGHT + RES_SCALE (75))
+#define MODE_INFO_ORIGIN_Y (TEAM_INFO_HEIGHT + RES_SCALE (6))
+#define MODE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE (3)) - MODE_INFO_ORIGIN_Y)
+#define RACE_INFO_ORIGIN_Y (SHIP_INFO_HEIGHT + RES_SCALE (6))
+#define RACE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE (3)) - RACE_INFO_ORIGIN_Y)
 
-#define MELEE_STATUS_X_OFFS RES_SCALE(1)
-#define MELEE_STATUS_Y_OFFS RES_SCALE(201)
+#define MELEE_STATUS_X_OFFS RES_SCALE (1)
+#define MELEE_STATUS_Y_OFFS RES_SCALE (201)
 #define MELEE_STATUS_WIDTH  (NUM_MELEE_COLUMNS * \
 		(MELEE_BOX_WIDTH + MELEE_BOX_SPACE))
-#define MELEE_STATUS_HEIGHT RES_SCALE(38)
+#define MELEE_STATUS_HEIGHT RES_SCALE (38)
 
 #define MELEE_BACKGROUND_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x14, 0x00, 0x00), 0x04)
@@ -397,8 +397,8 @@ RepairMeleeFrame (const RECT *pRect)
 	r.extent = pRect->extent;
 	if (r.corner.y & 1)
 	{
-		r.corner.y -= RES_SCALE(1);
-		r.extent.height += RES_SCALE(1);
+		r.corner.y -= RES_SCALE (1);
+		r.extent.height += RES_SCALE (1);
 	}
 
 	OldContext = SetContext (SpaceContext);
@@ -512,7 +512,7 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 	lfText.pStr = (teamName != NULL) ? teamName :
 			MeleeSetup_getTeamName (pMS->meleeSetup, side);
 	lfText.baseline.y = r.corner.y + r.extent.height - RES_SCALE (3);
-	lfText.baseline.x = r.corner.x + RES_SCALE(1);
+	lfText.baseline.x = r.corner.x + RES_SCALE (1);
 	lfText.align = ALIGN_LEFT;
 	lfText.CharCount = strlen (lfText.pStr);
 
@@ -531,7 +531,7 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 		BYTE *pchar_deltas;
 
 		TextRect (&lfText, &text_r, char_deltas);
-		if ((text_r.extent.width + RES_SCALE(2)) >= r.extent.width)
+		if ((text_r.extent.width + RES_SCALE (2)) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			UnbatchGraphics ();
@@ -553,25 +553,25 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 		{	// Use block cursor for keyboardless systems
 			if (pMS->CurIndex == lfText.CharCount)
 			{	// cursor at end-line -- use insertion point
-				text_r.extent.width = RES_SCALE(1);
+				text_r.extent.width = RES_SCALE (1);
 			}
 			else if (pMS->CurIndex + 1 == lfText.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
 			}
 			else
 			{	// normal mid-line char
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			text_r.extent.width = RES_SCALE(1);
+			text_r.extent.width = RES_SCALE (1);
 		}
 		// position cursor within input field rect
 		++text_r.corner.x;
 		++text_r.corner.y;
-		text_r.extent.height -= RES_SCALE(2);
+		text_r.extent.height -= RES_SCALE (2);
 		SetContextForeGroundColor (TEAM_NAME_EDIT_CURS_COLOR);
 		DrawFilledRectangle (&text_r);
 
@@ -887,8 +887,8 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&OldRect);
 	r = OldRect;
-	r.corner.x += -RES_SCALE(32) + MENU_X_OFFS;
-	r.corner.y += RES_SCALE(76);
+	r.corner.x += -RES_SCALE (32) + MENU_X_OFFS;
+	r.corner.y += RES_SCALE (76);
 	r.extent.height = SHIP_INFO_HEIGHT;
 	SetContextClipRect (&r);
 	BatchGraphics ();
@@ -901,14 +901,14 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		ClearShipStatus (0);
 		
 		SetContextFont (StarConFont);
-		r.corner.x = RES_SCALE(3);
-		r.corner.y = RES_SCALE(4);
-		r.extent.width = RES_SCALE(57);
-		r.extent.height = RES_SCALE(60);
+		r.corner.x = RES_SCALE (3);
+		r.corner.y = RES_SCALE (4);
+		r.extent.width = RES_SCALE (57);
+		r.extent.height = RES_SCALE (60);
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawRectangle (&r, IS_HD);
 		t.baseline.x = STATUS_WIDTH >> 1;
-		t.baseline.y = RES_SCALE(32);
+		t.baseline.y = RES_SCALE (32);
 		t.align = ALIGN_CENTER;
 		if (pMS->row < NUM_MELEE_ROWS)
 		{
@@ -1633,8 +1633,8 @@ DoConnectingDialog (MELEE_STATE *pMS)
 		oldfont = SetContextFont (StarConFont);
 		oldcolor = SetContextForeGroundColor (BLACK_COLOR);
 		BatchGraphics ();
-		r.extent.width = RES_SCALE(200);
-		r.extent.height = RES_SCALE(30);
+		r.extent.width = RES_SCALE (200);
+		r.extent.height = RES_SCALE (30);
 		r.corner.x = (SCREEN_WIDTH - r.extent.width) >> 1;
 		r.corner.y = (SCREEN_HEIGHT - r.extent.height) >> 1;
 		DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR, 
@@ -1650,7 +1650,7 @@ DoConnectingDialog (MELEE_STATE *pMS)
 			t.pStr = GAME_STRING (NETMELEE_STRING_BASE + 2);
 					/* "Awaiting outgoing connection */
 		}
-		t.baseline.y = r.corner.y + RES_SCALE(10);
+		t.baseline.y = r.corner.y + RES_SCALE (10);
 		t.baseline.x = SCREEN_WIDTH >> 1;
 		t.align = ALIGN_CENTER;
 		t.CharCount = ~0;
@@ -1658,7 +1658,7 @@ DoConnectingDialog (MELEE_STATE *pMS)
 
 		t.pStr = GAME_STRING (NETMELEE_STRING_BASE + 18);
 				/* "Press SPACE to cancel" */
-		t.baseline.y += RES_SCALE(16);
+		t.baseline.y += RES_SCALE (16);
 		font_DrawText (&t);
 
 		// Restore original graphics

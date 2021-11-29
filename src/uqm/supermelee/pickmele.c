@@ -45,13 +45,13 @@
 #define NUM_PICKMELEE_ROWS 2
 #define NUM_PICKMELEE_COLUMNS 7
 
-#define PICK_X_OFFS RES_SCALE(57) 
-#define PICK_Y_OFFS RES_SCALE(24) 
-#define PICK_SIDE_OFFS RES_SCALE(100) 
+#define PICK_X_OFFS RES_SCALE (57) 
+#define PICK_Y_OFFS RES_SCALE (24) 
+#define PICK_SIDE_OFFS RES_SCALE (100) 
 
-#define NAME_AREA_HEIGHT RES_SCALE(7) 
-#define MELEE_WIDTH RES_SCALE(149) 
-#define MELEE_HEIGHT (RES_SCALE(48) + NAME_AREA_HEIGHT)
+#define NAME_AREA_HEIGHT RES_SCALE (7) 
+#define MELEE_WIDTH RES_SCALE (149) 
+#define MELEE_HEIGHT (RES_SCALE (48) + NAME_AREA_HEIGHT)
 
 #define PICKSHIP_TEAM_NAME_TEXT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09)
@@ -148,11 +148,11 @@ static void
 PickMelee_ChangedSelection (GETMELEE_STATE *gms, COUNT playerI)
 {
 	RECT r;
-	r.corner.x = PICK_X_OFFS + ((ICON_WIDTH + RES_SCALE(2)) * gms->player[playerI].col);
-	r.corner.y = PICK_Y_OFFS + ((ICON_HEIGHT + RES_SCALE(2)) * gms->player[playerI].row)
+	r.corner.x = PICK_X_OFFS + ((ICON_WIDTH + RES_SCALE (2)) * gms->player[playerI].col);
+	r.corner.y = PICK_Y_OFFS + ((ICON_HEIGHT + RES_SCALE (2)) * gms->player[playerI].row)
 			+ ((1 - playerI) * PICK_SIDE_OFFS);
-	r.extent.width = (ICON_WIDTH + RES_SCALE(2));
-	r.extent.height = (ICON_HEIGHT + RES_SCALE(2));
+	r.extent.width = (ICON_WIDTH + RES_SCALE (2));
+	r.extent.height = (ICON_HEIGHT + RES_SCALE (2));
 	Flash_setRect (gms->player[playerI].flashContext, &r);
 }
 
@@ -424,8 +424,8 @@ CrossOutShip (FRAME frame, COUNT shipNr)
 	
 	SetContextFGFrame (frame);
 
-	s.origin.x = RES_SCALE(3) + ((ICON_WIDTH + RES_SCALE(2)) * col); 
-	s.origin.y = RES_SCALE(9) + ((ICON_HEIGHT + RES_SCALE(2)) * row); 
+	s.origin.x = RES_SCALE (3) + ((ICON_WIDTH + RES_SCALE (2)) * col); 
+	s.origin.y = RES_SCALE (9) + ((ICON_HEIGHT + RES_SCALE (2)) * row); 
 	s.frame = SetAbsFrameIndex (StatusFrame, 3);
 			// Cross for through the ship image.
 	DrawStamp (&s);
@@ -451,18 +451,18 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 
 	// Erase the old value text.
 	GetFrameRect (frame, &r);
-	r.extent.width -= RES_SCALE(4);
+	r.extent.width -= RES_SCALE (4);
 	t.baseline.x = r.extent.width;
-	r.corner.x = r.extent.width - RES_SCALE(6 * 3); 
-	r.corner.y = RES_SCALE(2); 
-	r.extent.width = RES_SCALE(6 * 3); 
-	r.extent.height = RES_SCALE(7 - 2);
+	r.corner.x = r.extent.width - RES_SCALE (6 * 3); 
+	r.corner.y = RES_SCALE (2); 
+	r.extent.width = RES_SCALE (6 * 3); 
+	r.extent.height = RES_SCALE (7 - 2);
 	SetContextForeGroundColor (PICK_BG_COLOR);
 	DrawFilledRectangle (&r);
 
 	// Draw the new value text.
 	sprintf (buf, "%d", value);
-	t.baseline.y = RES_SCALE(7);
+	t.baseline.y = RES_SCALE (7);
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
@@ -534,17 +534,17 @@ FillPickMeleeFrame (MeleeSetup *setup)
 
 		GetFrameRect (s.frame, &r);
 		t.baseline.x = r.extent.width >> 1;
-		t.baseline.y = r.extent.height - NAME_AREA_HEIGHT + RES_SCALE(4);
+		t.baseline.y = r.extent.height - NAME_AREA_HEIGHT + RES_SCALE (4);
 
-		r.corner.x += RES_SCALE(2);
-		r.corner.y += RES_SCALE(2);
-		r.extent.width -= RES_SCALE((2 * 2) + (RES_DESCALE(ICON_WIDTH) + 2) + 1);
-		r.extent.height -= RES_SCALE(2 * 2) + NAME_AREA_HEIGHT; 
+		r.corner.x += RES_SCALE (2);
+		r.corner.y += RES_SCALE (2);
+		r.extent.width -= RES_SCALE ((2 * 2) + (RES_DESCALE (ICON_WIDTH) + 2) + 1);
+		r.extent.height -= RES_SCALE (2 * 2) + NAME_AREA_HEIGHT; 
 		SetContextForeGroundColor (PICK_BG_COLOR);
 		DrawFilledRectangle (&r);
 
-		r.corner.x += RES_SCALE(2); 
-		r.extent.width += RES_SCALE((RES_DESCALE(ICON_WIDTH) + 2) - (2 * 2));
+		r.corner.x += RES_SCALE (2); 
+		r.extent.width += RES_SCALE ((RES_DESCALE (ICON_WIDTH) + 2) - (2 * 2));
 		r.corner.y += r.extent.height;
 		r.extent.height = NAME_AREA_HEIGHT;
 		DrawFilledRectangle (&r);
@@ -562,8 +562,8 @@ FillPickMeleeFrame (MeleeSetup *setup)
 
 		// Total team value of the starting team:
 		sprintf (buf, "%u", MeleeSetup_getFleetValue (setup, sideI));
-		t.baseline.x = RES_SCALE(4);
-		t.baseline.y = RES_SCALE(7);
+		t.baseline.x = RES_SCALE (4);
+		t.baseline.y = RES_SCALE (7);
 		t.align = ALIGN_LEFT;
 		t.pStr = buf;
 		t.CharCount = (COUNT)~0;
@@ -599,8 +599,8 @@ FillPickMeleeFrame (MeleeSetup *setup)
 				// Draw the icon.
 				row = PickMelee_GetShipRow (index);
 				col = PickMelee_GetShipColumn (index);
-				s.origin.x = RES_SCALE(4) + ((ICON_WIDTH + RES_SCALE(2)) * col); 
-				s.origin.y = RES_SCALE(10) + ((ICON_HEIGHT + RES_SCALE(2)) * row);
+				s.origin.x = RES_SCALE (4) + ((ICON_WIDTH + RES_SCALE (2)) * col); 
+				s.origin.y = RES_SCALE (10) + ((ICON_HEIGHT + RES_SCALE (2)) * row);
 				s.frame = MasterPtr->ShipInfo.icons;
 				DrawStamp (&s);
 
@@ -642,8 +642,8 @@ DrawPickMeleeFrame (COUNT which_player)
 
 	oldContext = SetContext (SpaceContext);
 	s.frame = SetAbsFrameIndex (PickMeleeFrame, which_player);
-	s.origin.x = PICK_X_OFFS - RES_SCALE(3); 
-	s.origin.y = PICK_Y_OFFS - RES_SCALE(9) + ((1 - which_player) * PICK_SIDE_OFFS);
+	s.origin.x = PICK_X_OFFS - RES_SCALE (3); 
+	s.origin.y = PICK_Y_OFFS - RES_SCALE (9) + ((1 - which_player) * PICK_SIDE_OFFS);
 	DrawStamp (&s);
 			// Draw the selection box to screen.
 	

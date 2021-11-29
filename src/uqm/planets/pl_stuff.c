@@ -199,7 +199,7 @@ PrepareNextRotationFrame (void)
 	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, rotFrameIndex);
 	RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
 			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD(2)); // RADIUS
+			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD (2)); // RADIUS
 	
 	if (throbShield)
 	{	// prepare the next shield throb frame
@@ -269,13 +269,13 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	RenderPlanetSphere (Orbit, Orbit->SphereFrame, pPlanetDesc->rotPointIndex,
 			pPlanetDesc->data_index & PLANET_SHIELDED,
 			FALSE, pPlanetDesc->rotwidth, pPlanetDesc->rotheight,
-			(pPlanetDesc->rotheight >> 1) - IF_HD(2)); // RADIUS
+			(pPlanetDesc->rotheight >> 1) - IF_HD (2)); // RADIUS
 	Orbit->SphereFrame->image->dirty = TRUE;
 	// BW: slightly hacky but, in DrawTexturedBody, the call
 	// to DrawStamp won't re-blit the frame unless scale has changed.
 }
 
-#define ZOOM_RATE  RES_DBL(24)
+#define ZOOM_RATE  RES_DBL (24)
 #define ZOOM_TIME  (ONE_SECOND * 6 / 5)
 
 // This takes care of zooming the planet sphere into place
@@ -324,7 +324,7 @@ ZoomInPlanetSphere (void)
 
 		// start from beyond the screen
 		pt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + (int) (dx * (1.0 - scale)
-				* RES_SCALE(ORIG_SIS_SCREEN_WIDTH * 6 / 10) + 0.5);
+				* RES_SCALE (ORIG_SIS_SCREEN_WIDTH * 6 / 10) + 0.5);
 		pt.y = PLANET_ORG_Y + (int) (dy * (1.0 - scale)
 				* (SCAN_SCREEN_HEIGHT * 6 / 10) + 0.5);
 
@@ -487,13 +487,13 @@ DrawPlanet (int tintY, Color tintColor)
 			DrawStamp (&s);
 			SetContextClipRect (&oldClipRect);
 
-			edge.extent.height = RES_SCALE(1);
+			edge.extent.height = RES_SCALE (1);
 			edge.extent.width = SCALED_MAP_WIDTH;
 			edge.corner.x = tintFrame->HotSpot.x;
 
 			for (i = 0; i < 3; i++)
 			{
-				edge.corner.y = clipRect.extent.height - RES_SCALE(i);
+				edge.corner.y = clipRect.extent.height - RES_SCALE (i);
 				SetContextForeGroundColor (
 						BUILD_COLOR_RGBA (
 							tintColor.r,
@@ -503,7 +503,7 @@ DrawPlanet (int tintY, Color tintColor)
 						));
 				DrawFilledRectangle (&edge);
 			}
-			edge.corner.y = clipRect.extent.height + RES_SCALE(1);
+			edge.corner.y = clipRect.extent.height + RES_SCALE (1);
 			SetContextForeGroundColor (
 					BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x40));
 			DrawFilledRectangle (&edge);

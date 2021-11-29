@@ -186,7 +186,7 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(8); 
+		t.baseline.y += RES_SCALE (8); 
 	}
 
 	UnbatchGraphics ();
@@ -238,16 +238,16 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 
-	r.corner.x = RES_SCALE(2);
-	r.corner.y = RES_SCALE(8);
-	r.extent.width = ScreenWidth - RES_SCALE(4);
-	r.extent.height = ScreenHeight + RES_SCALE(2);
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (8);
+	r.extent.width = ScreenWidth - RES_SCALE (4);
+	r.extent.height = ScreenHeight + RES_SCALE (2);
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y
-			+ (r.extent.height - RES_SCALE(8) - RES_SCALE(8) * numlines);
+			+ (r.extent.height - RES_SCALE (8) - RES_SCALE (8) * numlines);
 
 	for (i = 0; i < numlines; i++)
 	{
@@ -426,7 +426,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 					STAMP arr;
 					
 					arr.origin.x = font_GetTextRect (&t).corner.x
-							- RES_SCALE(10);
+							- RES_SCALE (10);
 					arr.origin.y = t.baseline.y;
 
 					// Left arrow
@@ -655,7 +655,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	t.baseline.x -= t.baseline.x;
 
 	/* Force string termination */
-	self->value[WIDGET_TEXTENTRY_WIDTH-RES_SCALE(1)] = 0;
+	self->value[WIDGET_TEXTENTRY_WIDTH-RES_SCALE (1)] = 0;
 
 	t.baseline.y = y;
 	t.CharCount = utf8StringCount (self->value);
@@ -692,11 +692,11 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		// XXX: this may need some tuning, especially if a
 		//   different font is used. The font 'leading' values
 		//   are not what they should be.
-#define BOX_VERT_OFFSET RES_SCALE(2)
+#define BOX_VERT_OFFSET RES_SCALE (2)
 		GetContextFontLeading (&leading);
-		r.corner.x = t.baseline.x - RES_SCALE(1);
+		r.corner.x = t.baseline.x - RES_SCALE (1);
 		r.corner.y = t.baseline.y - leading + BOX_VERT_OFFSET;
-		r.extent.width = ScreenWidth - r.corner.x - RES_SCALE(10);
+		r.extent.width = ScreenWidth - r.corner.x - RES_SCALE (10);
 		r.extent.height = leading;
 
 		TextRect (&t, &text_r, char_deltas);
@@ -719,30 +719,30 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		for (i = self->cursor_pos; i > 0; --i)
 			r.corner.x += (SIZE)*pchar_deltas++;
 		if (self->cursor_pos < t.CharCount) /* cursor mid-line */
-			r.corner.x -= RES_SCALE(1);
+			r.corner.x -= RES_SCALE (1);
 		if (self->state & WTE_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (self->cursor_pos == t.CharCount)
 			{	// cursor at end-line -- use insertion point
-				r.extent.width = RES_SCALE(1);
+				r.extent.width = RES_SCALE (1);
 			}
 			else if (self->cursor_pos + 1 == t.CharCount)
 			{	// extra pixel for last char margin
-				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
 			}
 			else
 			{	// normal mid-line char
-				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
+				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			r.extent.width = RES_SCALE(1);
+			r.extent.width = RES_SCALE (1);
 		}
 		// position cursor within input field rect
-		r.corner.x += RES_SCALE(1);
-		r.corner.y += RES_SCALE(1);
-		r.extent.height -= RES_SCALE(2);
+		r.corner.x += RES_SCALE (1);
+		r.corner.y += RES_SCALE (1);
+		r.extent.height -= RES_SCALE (2);
 		SetContextForeGroundColor (WIDGET_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 
@@ -798,7 +798,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	for (i = 0; i < 2; i++)
 	{
 		t.baseline.x = home_x + ((i % 3) * (ScreenWidth / 3));
-		t.baseline.y = home_y + RES_SCALE(8 * (i / 3));
+		t.baseline.y = home_y + RES_SCALE (8 * (i / 3));
 		t.pStr = self->controlname[i];
 		if (!t.pStr[0])
 		{
@@ -824,8 +824,8 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 int
 Widget_HeightChoice (WIDGET *_self)
 {
-	//return ((((WIDGET_CHOICE *)_self)->numopts + 2) / 3) * RES_SCALE(8);
-	return RES_SCALE(8); //effectively 1 column
+	(void)_self;
+	return RES_SCALE (8); //effectively 1 column
 }
 
 int
@@ -839,14 +839,14 @@ int
 Widget_HeightOneLine (WIDGET *_self)
 {
 	(void)_self;
-	return RES_SCALE(8); 
+	return RES_SCALE (8);
 }
 
 int
 Widget_HeightLabel (WIDGET *_self)
 {
 	WIDGET_LABEL *self = (WIDGET_LABEL *)_self;
-	return self->line_count * RES_SCALE(8);
+	return self->line_count * RES_SCALE (8);
 }
 
 int

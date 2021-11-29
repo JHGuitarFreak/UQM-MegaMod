@@ -1135,8 +1135,8 @@ init_pkunk_comm (void)
 			// generalised in the future.
 
 	pkunk_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	pkunk_desc.AlienTextBaseline.y = RES_SCALE(4);
-	pkunk_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	pkunk_desc.AlienTextBaseline.y = RES_SCALE (4);
+	pkunk_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (PKUNK_MANNER) == 3
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

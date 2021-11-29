@@ -38,21 +38,21 @@
 // Particle Beam Stiletto
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 8
-#define SYREEN_OFFSET RES_SCALE(30)
+#define SYREEN_OFFSET RES_SCALE (30)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 2
-#define MISSILE_OFFSET RES_SCALE(3)
+#define MISSILE_OFFSET RES_SCALE (3)
 
 // Syreen song
 #define SPECIAL_ENERGY_COST 5
 #define SPECIAL_WAIT 20
-#define ABANDONER_RANGE RES_SCALE(208) /* originally SPACE_HEIGHT */
+#define ABANDONER_RANGE RES_SCALE (208) /* originally SPACE_HEIGHT */
 #define MAX_ABANDONERS 8
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC syreen_desc =
 {
@@ -284,8 +284,8 @@ init_syreen (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		syreen_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		syreen_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		syreen_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		syreen_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		syreen_desc.cyborg_control.WeaponRange = (MISSILE_SPEED_HD * MISSILE_LIFE * 2 / 3);
 	}
 

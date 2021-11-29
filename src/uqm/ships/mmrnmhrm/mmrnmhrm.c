@@ -37,25 +37,25 @@
 #define YWING_ENERGY_REGENERATION 1
 #define YWING_SPECIAL_ENERGY_COST MAX_ENERGY
 #define YWING_ENERGY_WAIT 6
-#define YWING_MAX_THRUST RES_SCALE(50)
-#define YWING_THRUST_INCREMENT RES_SCALE(10)
+#define YWING_MAX_THRUST RES_SCALE (50)
+#define YWING_THRUST_INCREMENT RES_SCALE (10)
 #define YWING_THRUST_WAIT 0
 #define YWING_TURN_WAIT 14
 
 // X-Wing Lasers
-#define MMRNMHRM_OFFSET RES_SCALE(16)
+#define MMRNMHRM_OFFSET RES_SCALE (16)
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
-#define CENTER_OFFS DISPLAY_TO_WORLD (RES_SCALE(4))
-#define WING_OFFS DISPLAY_TO_WORLD (RES_BOOL(10, 48))
-#define LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE(125) + MMRNMHRM_OFFSET)
+#define CENTER_OFFS DISPLAY_TO_WORLD (RES_SCALE (4))
+#define WING_OFFS DISPLAY_TO_WORLD (RES_BOOL (10, 48))
+#define LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE (125) + MMRNMHRM_OFFSET)
 
 // Y-Wing Missiles
 #define YWING_WEAPON_ENERGY_COST 1
 #define YWING_WEAPON_WAIT 20
-#define LAUNCH_OFFS DISPLAY_TO_WORLD (RES_SCALE(4))
+#define LAUNCH_OFFS DISPLAY_TO_WORLD (RES_SCALE (4))
 #define MISSILE_OFFSET 0
-#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(20))
+#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (20))
 #define MISSILE_LIFE 40
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
@@ -426,7 +426,7 @@ mmrnmhrm_postprocess (ELEMENT *ElementPtr)
 
 		if (ElementPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.special)
 		{
-			StarShipPtr->RaceDescPtr->cyborg_control.WeaponRange = RES_SCALE(LONG_RANGE_WEAPON - 1);
+			StarShipPtr->RaceDescPtr->cyborg_control.WeaponRange = RES_SCALE (LONG_RANGE_WEAPON - 1);
 			StarShipPtr->RaceDescPtr->ship_info.ship_flags &= ~IMMEDIATE_WEAPON;
 			StarShipPtr->RaceDescPtr->ship_info.ship_flags |= SEEKING_WEAPON;
 			StarShipPtr->RaceDescPtr->ship_data.ship_sounds =
@@ -437,7 +437,7 @@ mmrnmhrm_postprocess (ELEMENT *ElementPtr)
 		}
 		else
 		{
-			StarShipPtr->RaceDescPtr->cyborg_control.WeaponRange = RES_SCALE(CLOSE_RANGE_WEAPON);
+			StarShipPtr->RaceDescPtr->cyborg_control.WeaponRange = RES_SCALE (CLOSE_RANGE_WEAPON);
 			StarShipPtr->RaceDescPtr->ship_info.ship_flags &= ~SEEKING_WEAPON;
 			StarShipPtr->RaceDescPtr->ship_info.ship_flags |= IMMEDIATE_WEAPON;
 			StarShipPtr->RaceDescPtr->ship_data.ship_sounds =
@@ -501,8 +501,8 @@ init_mmrnmhrm (void)
 	MMRNMHRM_DATA otherwing_desc;
 
 	if (IS_HD) {
-		mmrnmhrm_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		mmrnmhrm_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		mmrnmhrm_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		mmrnmhrm_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		mmrnmhrm_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
 

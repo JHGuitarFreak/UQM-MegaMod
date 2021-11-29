@@ -199,12 +199,12 @@ HazardCase (BYTE hazard)
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y RES_SCALE(16)
+#define SCAN_TITLE_Y RES_SCALE (16)
 
 static void
 PrintCoarseScanPC (void)
 {
-#define SCAN_LEADING_PC RES_SCALE(10) 
+#define SCAN_LEADING_PC RES_SCALE (10) 
 	SDWORD val;
 	TEXT t;
 	RECT r;
@@ -226,9 +226,9 @@ PrintCoarseScanPC (void)
 
 	SetContextFont (TinyFont);
 
-#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) 
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) 
-#define SCAN_BASELINE_Y_PC RES_SCALE(51) 
+#define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2) 
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72)) 
+#define SCAN_BASELINE_Y_PC RES_SCALE (51) 
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
@@ -382,7 +382,7 @@ PrintCoarseScanPC (void)
 static void
 PrintCoarseScan3DO (void)
 {
-#define SCAN_LEADING RES_SCALE(19) 
+#define SCAN_LEADING RES_SCALE (19) 
 	SDWORD val;
 	TEXT t;
 	STAMP s;
@@ -402,14 +402,14 @@ PrintCoarseScan3DO (void)
 	SetContextFont (MicroFont);
 	font_DrawText (&t);
 
-	s.origin.y = RES_SCALE(9);
-	s.origin.x = RES_SCALE(16);
+	s.origin.y = RES_SCALE (9);
+	s.origin.x = RES_SCALE (16);
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
 	DrawStamp (&s);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE(27 + 16) 
+#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 16) 
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y RES_SCALE(34) 
+#define SCAN_BASELINE_Y RES_SCALE (34) 
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
@@ -787,13 +787,13 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		if (!tNext || TimeIn >= tNext)
 		{
 			if (CurrentInputState.menu[KEY_MENU_LEFT])
-				dx = -RES_SCALE(1);
+				dx = -RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_RIGHT])
-				dx = RES_SCALE(1);
+				dx = RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_UP])
-				dy = -RES_SCALE(1);
+				dy = -RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_DOWN])
-				dy = RES_SCALE(1);
+				dy = RES_SCALE (1);
 
 			// Double the cursor speed when the Zoom Out key is held down
 			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_SPECIAL])
@@ -1185,7 +1185,7 @@ ScanPlanet (COUNT scanType)
 		TimeCount Now;
 
 		t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7);
+		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE (7);
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 
@@ -1193,9 +1193,9 @@ ScanPlanet (COUNT scanType)
 
 		SetContext (PlanetContext);
 		r.corner.x = 0;
-		r.corner.y = t.baseline.y - RES_SCALE(10);
+		r.corner.y = t.baseline.y - RES_SCALE (10);
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1);
+		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE (1);
 		RepairBackRect (&r);
 
 		SetContextFont (MicroFont);
@@ -1227,7 +1227,7 @@ ScanPlanet (COUNT scanType)
 
 					TimeOut = Now + SCAN_LINE_WAIT;
 
-					i += RES_SCALE(1);
+					i += RES_SCALE (1);
 
 					if (Now >= TimeOutDraw)
 					{
@@ -1500,10 +1500,10 @@ generateBioNode (SOLARSYS_STATE *system, ELEMENT *NodeElementPtr,
 		j = (DWORD)TFB_Random ();
 
 		NodeElementPtr->current.location.x = 
-				((RES_BOOL(LOBYTE (i), LOWORD (j)) %
+				((RES_BOOL (LOBYTE (i), LOWORD (j)) %
 					(SCALED_MAP_WIDTH - (8 << 1))) + 8);
 		NodeElementPtr->current.location.y = 
-				(RES_BOOL(HIBYTE (i), HIWORD (j)) % (MAP_HEIGHT - (8 << 1))) + 8;
+				(RES_BOOL (HIBYTE (i), HIWORD (j)) % (MAP_HEIGHT - (8 << 1))) + 8;
 	}
 
 	if (system->PlanetSideFrame[0] == 0)

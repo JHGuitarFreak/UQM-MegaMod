@@ -49,8 +49,8 @@
 // Marine
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_WAIT 12
-#define MARINE_MAX_THRUST RES_SCALE(32)
-#define MARINE_THRUST_INCREMENT RES_SCALE(8)
+#define MARINE_MAX_THRUST RES_SCALE (32)
+#define MARINE_THRUST_INCREMENT RES_SCALE (8)
 #define MARINE_HIT_POINTS 3
 #define MARINE_MASS_POINTS 1
 #define MAX_MARINES 8
@@ -59,11 +59,11 @@
 #define START_ION_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
 
 // Rotating Turret
-#define TURRET_OFFSET RES_SCALE(14)
+#define TURRET_OFFSET RES_SCALE (14)
 #define TURRET_WAIT 3
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC orz_desc =
 {
@@ -511,9 +511,9 @@ spawn_marine_ion_trail (ELEMENT *ElementPtr, STARSHIP *StarShipPtr,
 		IonElementPtr->colorCycleIndex = 0;
 		IonElementPtr->current.location = ElementPtr->current.location;
 		IonElementPtr->current.location.x +=
-				(COORD)COSINE (angle, DISPLAY_TO_WORLD (RES_SCALE(2)));
+				(COORD)COSINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
 		IonElementPtr->current.location.y +=
-				(COORD)SINE (angle, DISPLAY_TO_WORLD (RES_SCALE(2)));
+				(COORD)SINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
 		IonElementPtr->death_func = ion_preprocess;
 
 		SetElementStarShip (IonElementPtr, StarShipPtr);
@@ -656,7 +656,7 @@ marine_preprocess (ELEMENT *ElementPtr)
 					ElementPtr->state_flags |= CHANGING;
 				}
 
-				num_frames = RES_DESCALE(WORLD_TO_TURN (
+				num_frames = RES_DESCALE (WORLD_TO_TURN (
 						square_root ((long)delta_x * delta_x
 						+ (long)delta_y * delta_y)));
 
@@ -1090,8 +1090,8 @@ init_orz (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		orz_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		orz_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		orz_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		orz_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		orz_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
 

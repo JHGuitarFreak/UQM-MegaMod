@@ -1243,7 +1243,7 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, RES_BOOL(1, 6), FALSE);
+	DrawOval (&r, RES_BOOL (1, 6), FALSE);
 }
 
 static SIZE
@@ -1487,7 +1487,7 @@ static void
 enterInnerSystem (PLANET_DESC *planet)
 {
 #define INNER_ENTRY_DISTANCE  (MIN_MOON_RADIUS + ((MAX_GEN_MOONS - 1) \
-		* MOON_DELTA) + (MOON_DELTA / 4)) + RES_SCALE(5)
+		* MOON_DELTA) + (MOON_DELTA / 4)) + RES_SCALE (5)
 	COUNT angle;
 
 	// Calculate the inner system entry location and facing
@@ -2106,6 +2106,7 @@ starSwitch (int Index)
 		case 13: return GET_GAME_STATE (SYS_VISITED_13);
 		case 14: return GET_GAME_STATE (SYS_VISITED_14);
 		case 15: return GET_GAME_STATE (SYS_VISITED_15);
+		default: return 0;
 	}
 }
 
@@ -2130,6 +2131,7 @@ starSave (int Index, DWORD starData)
 		case 13: SET_GAME_STATE (SYS_VISITED_13, starData); break;
 		case 14: SET_GAME_STATE (SYS_VISITED_14, starData); break;
 		case 15: SET_GAME_STATE (SYS_VISITED_15, starData); break;
+		default: return;
 	}
 }
 
@@ -2721,11 +2723,11 @@ CreateStarBackGround (BOOLEAN encounter)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
 			
-			s.origin.x = RES_SCALE(
+			s.origin.x = RES_SCALE (
 					scaleSISDimensions (TRUE,
 						LOWORD (rand_val) % widthHeightPicker (TRUE)
 					));
-			s.origin.y = RES_SCALE(
+			s.origin.y = RES_SCALE (
 					scaleSISDimensions (FALSE,
 						HIWORD (rand_val) % widthHeightPicker (FALSE)
 					));
@@ -2742,11 +2744,11 @@ CreateStarBackGround (BOOLEAN encounter)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
 			
-			s.origin.x = RES_SCALE(
+			s.origin.x = RES_SCALE (
 					scaleSISDimensions (TRUE,
 						LOWORD (rand_val) % widthHeightPicker (TRUE)
 					));
-			s.origin.y = RES_SCALE(
+			s.origin.y = RES_SCALE (
 					scaleSISDimensions (FALSE,
 						HIWORD (rand_val) % widthHeightPicker (FALSE)
 					));

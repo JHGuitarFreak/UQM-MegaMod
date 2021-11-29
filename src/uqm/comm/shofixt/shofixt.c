@@ -744,7 +744,7 @@ init_shofixti_comm (void)
 	static LOCDATA shofixti_desc;
  	LOCDATA *retval;
 	
-	shofixti_desc = RES_BOOL(shofixti_desc_orig, shofixti_desc_hd);
+	shofixti_desc = RES_BOOL (shofixti_desc_orig, shofixti_desc_hd);
 
 	shofixti_desc.init_encounter_func = Intro;
 	shofixti_desc.post_encounter_func = post_shofixti_enc;

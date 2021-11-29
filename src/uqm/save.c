@@ -980,8 +980,8 @@ SaveEncounters (uio_Stream *fh)
 		}
 
 		// Save the stuff after the BRIEF_SHIP_INFO array
-		write_32  (fh, RES_DESCALE(EncounterPtr->log_x));
-		write_32  (fh, RES_DESCALE(EncounterPtr->log_y));
+		write_32  (fh, RES_DESCALE (EncounterPtr->log_x));
+		write_32  (fh, RES_DESCALE (EncounterPtr->log_y));
 
 		UnlockEncounter (hEncounter);
 		hEncounter = hNextEncounter;
@@ -1259,10 +1259,10 @@ SaveProblemMessage (STAMP *MsgStamp)
 			- r.corner.x;
 	t.baseline.y = (RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1))
 			- r.corner.y;
-	r.corner.x += t.baseline.x - RES_SCALE(4);
-	r.corner.y += t.baseline.y - RES_SCALE(4);
-	r.extent.width += RES_SCALE(8);
-	r.extent.height += RES_SCALE(8);
+	r.corner.x += t.baseline.x - RES_SCALE (4);
+	r.corner.y += t.baseline.y - RES_SCALE (4);
+	r.extent.width += RES_SCALE (8);
+	r.extent.height += RES_SCALE (8);
 
 	*MsgStamp = SaveContextFrame (&r);
 

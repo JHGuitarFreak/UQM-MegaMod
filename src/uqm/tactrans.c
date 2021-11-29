@@ -916,7 +916,7 @@ ship_transition (ELEMENT *ElementPtr)
 		}
 		else if ((hShipImage = AllocElement ()))
 		{
-#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(40)) 
+#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE (40)) 
 #define TRANSITION_LIFE 1
 			COUNT angle;
 

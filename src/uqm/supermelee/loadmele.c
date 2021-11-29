@@ -41,9 +41,9 @@
 		BUILD_COLOR (MAKE_RGB15 (0x17, 0x18, 0x1D), 0x00)
 
 
-#define LOAD_MELEE_BOX_WIDTH RES_SCALE(34) 
-#define LOAD_MELEE_BOX_HEIGHT RES_SCALE(34) 
-#define LOAD_MELEE_BOX_SPACE RES_SCALE(1) 
+#define LOAD_MELEE_BOX_WIDTH RES_SCALE (34) 
+#define LOAD_MELEE_BOX_HEIGHT RES_SCALE (34) 
+#define LOAD_MELEE_BOX_SPACE RES_SCALE (1) 
 
 
 static void DrawFileStrings (MELEE_STATE *pMS);
@@ -190,8 +190,8 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 		STAMP s;
 		FleetShipIndex slotI;
 
-		s.origin.x = origin->x + RES_SCALE(1);
-		s.origin.y = origin->y + RES_SCALE(4);
+		s.origin.x = origin->x + RES_SCALE (1);
+		s.origin.y = origin->y + RES_SCALE (4);
 		for (slotI = 0; slotI < MELEE_FLEET_SIZE; slotI++)
 		{
 			BYTE StarShip;
@@ -201,7 +201,7 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 			{
 				s.frame = GetShipIconsFromIndex (StarShip);
 				DrawStamp (&s);
-				s.origin.x += RES_SCALE(17);
+				s.origin.x += RES_SCALE (17);
 			}
 		}
 	}
@@ -230,9 +230,9 @@ FillFileView (MELEE_STATE *pMS)
 	return true;
 }
 
-#define FILE_STRING_ORIGIN_X RES_SCALE(5)
-#define FILE_STRING_ORIGIN_Y RES_SCALE(32)
-#define ENTRY_HEIGHT RES_SCALE(32) 
+#define FILE_STRING_ORIGIN_X RES_SCALE (5)
+#define FILE_STRING_ORIGIN_Y RES_SCALE (32)
+#define ENTRY_HEIGHT RES_SCALE (32) 
 
 static void
 SelectFileString (MELEE_STATE *pMS, bool hilite)

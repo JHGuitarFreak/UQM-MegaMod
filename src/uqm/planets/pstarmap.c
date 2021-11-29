@@ -82,7 +82,7 @@ signedDivWithError (long val, long divisor)
 }
 
 #define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / ORIG_SIS_SCREEN_WIDTH + 1)
-#define HD_COMP (IF_HD(2))
+#define HD_COMP (IF_HD (2))
 
 static inline COORD
 universeToDispx (long ux)
@@ -91,7 +91,7 @@ universeToDispx (long ux)
 			* ORIG_SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
 			+ ((ORIG_SIS_SCREEN_WIDTH - 1) >> 1);
 }
-#define UNIVERSE_TO_DISPX(ux)  RES_SCALE(universeToDispx(ux))
+#define UNIVERSE_TO_DISPX(ux)  RES_SCALE (universeToDispx(ux))
 #define ORIG_UNIVERSE_TO_DISPX(ux)  universeToDispx(ux)
 
 static inline COORD
@@ -101,7 +101,7 @@ universeToDispy (long uy)
 			* ORIG_SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
 			+ ((ORIG_SIS_SCREEN_HEIGHT - 1) >> 1);
 }
-#define UNIVERSE_TO_DISPY(uy)  RES_SCALE(universeToDispy(uy))
+#define UNIVERSE_TO_DISPY(uy)  RES_SCALE (universeToDispy(uy))
 #define ORIG_UNIVERSE_TO_DISPY(uy)  universeToDispy(uy)
 
 static inline COORD
@@ -111,7 +111,7 @@ dispxToUniverse (COORD dx)
 			* (MAX_X_UNIVERSE + MAP_FIT_X)) >> zoomLevel)
 			/ ORIG_SIS_SCREEN_WIDTH + mapOrigin.x;
 }
-#define DISP_TO_UNIVERSEX(dx) dispxToUniverse(RES_DESCALE(dx))
+#define DISP_TO_UNIVERSEX(dx) dispxToUniverse(RES_DESCALE (dx))
 #define ORIG_DISP_TO_UNIVERSEX(dx) dispxToUniverse(dx)
 
 static inline COORD
@@ -121,7 +121,7 @@ dispyToUniverse (COORD dy)
 			* (MAX_Y_UNIVERSE + 2)) >> zoomLevel)
 			/ ORIG_SIS_SCREEN_HEIGHT + mapOrigin.y;
 }
-#define DISP_TO_UNIVERSEY(dy) dispyToUniverse(RES_DESCALE(dy))
+#define DISP_TO_UNIVERSEY(dy) dispyToUniverse(RES_DESCALE (dy))
 #define ORIG_DISP_TO_UNIVERSEY(dy) dispyToUniverse(dy)
 
 static BOOLEAN transition_pending;
@@ -289,13 +289,13 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 	if (pRect->extent.width < 0)
 		pRect->extent.width = -pRect->extent.width;
 	else if (pRect->extent.width == 0)
-		pRect->extent.width = RES_SCALE(1);
+		pRect->extent.width = RES_SCALE (1);
 	pRect->extent.height = UNIVERSE_TO_DISPY (diameter)
 			- UNIVERSE_TO_DISPY (0);
 	if (pRect->extent.height < 0)
 		pRect->extent.height = -pRect->extent.height;
 	else if (pRect->extent.height == 0)
-		pRect->extent.height = RES_SCALE(1);
+		pRect->extent.height = RES_SCALE (1);
 
 	pRect->corner.x = UNIVERSE_TO_DISPX (FleetPtr->known_loc.x);
 	pRect->corner.y = UNIVERSE_TO_DISPY (FleetPtr->known_loc.y);
@@ -307,7 +307,7 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		STRING locString;
 
 		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
-		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - RES_SCALE(1);
+		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - RES_SCALE (1);
 		t.align = ALIGN_CENTER;
 		locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
 		t.CharCount = GetStringLength (locString);
@@ -315,21 +315,21 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		TextRect (&t, pRepairRect, NULL);
 		
 		if (pRepairRect->corner.x <= 0)
-			pRepairRect->corner.x = RES_SCALE(1);
+			pRepairRect->corner.x = RES_SCALE (1);
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
 			pRepairRect->corner.x =
-					SIS_SCREEN_WIDTH - pRepairRect->extent.width - RES_SCALE(1);
+					SIS_SCREEN_WIDTH - pRepairRect->extent.width - RES_SCALE (1);
 		if (pRepairRect->corner.y <= 0)
-			pRepairRect->corner.y = RES_SCALE(1);
+			pRepairRect->corner.y = RES_SCALE (1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
 			pRepairRect->corner.y =
-					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE(1);
+					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE (1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
-		pRepairRect->extent.width += RES_SCALE(1);
-		pRepairRect->extent.height += RES_SCALE(1);
+		pRepairRect->extent.width += RES_SCALE (1);
+		pRepairRect->extent.height += RES_SCALE (1);
 	}
 }
 
@@ -345,13 +345,13 @@ GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
 	if (pRect->extent.width < 0)
 		pRect->extent.width = -pRect->extent.width;
 	else if (pRect->extent.width == 0)
-		pRect->extent.width = RES_SCALE(1);
+		pRect->extent.width = RES_SCALE (1);
 	pRect->extent.height = UNIVERSE_TO_DISPY (diameter)
 			- UNIVERSE_TO_DISPY (0);
 	if (pRect->extent.height < 0)
 		pRect->extent.height = -pRect->extent.height;
 	else if (pRect->extent.height == 0)
-		pRect->extent.height = RES_SCALE(1);
+		pRect->extent.height = RES_SCALE (1);
 
 	pRect->corner.x = UNIVERSE_TO_DISPX (war_era_locations[index].x);
 	pRect->corner.y = UNIVERSE_TO_DISPY (war_era_locations[index].y);
@@ -360,21 +360,21 @@ GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
 
 	{
 		if (pRepairRect->corner.x <= 0)
-			pRepairRect->corner.x = RES_SCALE(1);
+			pRepairRect->corner.x = RES_SCALE (1);
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
 			pRepairRect->corner.x = SIS_SCREEN_WIDTH
-				- pRepairRect->extent.width - RES_SCALE(1);
+				- pRepairRect->extent.width - RES_SCALE (1);
 		if (pRepairRect->corner.y <= 0)
-			pRepairRect->corner.y = RES_SCALE(1);
+			pRepairRect->corner.y = RES_SCALE (1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
 			pRepairRect->corner.y = SIS_SCREEN_HEIGHT
-				- pRepairRect->extent.height - RES_SCALE(1);
+				- pRepairRect->extent.height - RES_SCALE (1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
-		pRepairRect->extent.width += RES_SCALE(1);
-		pRepairRect->extent.height += RES_SCALE(1);
+		pRepairRect->extent.width += RES_SCALE (1);
+		pRepairRect->extent.height += RES_SCALE (1);
 	}
 }
 
@@ -739,7 +739,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						SetContextFont (TinyFontBold);
 
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + (r.extent.height >> 1) - RES_SCALE(1);
+					t.baseline.y = r.corner.y + (r.extent.height >> 1) - RES_SCALE (1);
 					t.align = ALIGN_CENTER;
 					
 					locString = SetAbsStringTableIndex (
@@ -765,15 +765,15 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					TextRect (&t, &r, NULL);
 
 					if (r.corner.x <= 0)
-						t.baseline.x -= r.corner.x - RES_SCALE(1);
+						t.baseline.x -= r.corner.x - RES_SCALE (1);
 					else if (r.corner.x + r.extent.width >= SIS_SCREEN_WIDTH)
 						t.baseline.x -= (r.corner.x + r.extent.width)
-								- SIS_SCREEN_WIDTH + RES_SCALE(1);
+								- SIS_SCREEN_WIDTH + RES_SCALE (1);
 					if (r.corner.y <= 0)
-						t.baseline.y -= r.corner.y - RES_SCALE(1);
+						t.baseline.y -= r.corner.y - RES_SCALE (1);
 					else if (r.corner.y + r.extent.height >= SIS_SCREEN_HEIGHT)
 						t.baseline.y -= (r.corner.y + r.extent.height)
-								- SIS_SCREEN_HEIGHT + RES_SCALE(1);
+								- SIS_SCREEN_HEIGHT + RES_SCALE (1);
 
 					// The text color is slightly lighter than the color of
 					// the SoI.
@@ -2043,8 +2043,8 @@ UpdateMap (void)
 				}
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				last_r.extent.width += RES_SCALE(1);
-				last_r.extent.height += RES_SCALE(1);
+				last_r.extent.width += RES_SCALE (1);
+				last_r.extent.height += RES_SCALE (1);
 				VisibleChange = FALSE;
 				do
 				{
@@ -2079,8 +2079,8 @@ UpdateMap (void)
 						goto DoneSphereMove;
 					}
 
-					r.extent.width += RES_SCALE(1);
-					r.extent.height += RES_SCALE(1);
+					r.extent.width += RES_SCALE (1);
+					r.extent.height += RES_SCALE (1);
 					if (temp_r0.corner.x != temp_r1.corner.x
 							|| temp_r0.corner.y != temp_r1.corner.y)
 					{
@@ -2115,8 +2115,8 @@ DoneSphereMove:
 				--delta;
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				last_r.extent.width += RES_SCALE(1);
-				last_r.extent.height += RES_SCALE(1);
+				last_r.extent.width += RES_SCALE (1);
+				last_r.extent.height += RES_SCALE (1);
 				VisibleChange = FALSE;
 
 				// printf("%s: %d\n", raceName (index), FleetPtr->actual_strength);

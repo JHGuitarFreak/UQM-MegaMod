@@ -274,8 +274,8 @@ VideoDecoder_Load (uio_DirHandle *dir, const char *filename)
 		return NULL;
 	}
 
-	decoder->w = RES_SCALE(decoder->w);
-	decoder->h = RES_SCALE(decoder->h) - IF_HD(7);
+	decoder->w = RES_SCALE (decoder->w);
+	decoder->h = RES_SCALE (decoder->h) - IF_HD (7);
 
 	return decoder;
 }

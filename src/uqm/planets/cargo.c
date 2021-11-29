@@ -43,7 +43,7 @@
 #define ELEMENT_SEL_ORG_X  (ELEMENT_COL_0 + RES_SCALE (7 + 5))
 #define ELEMENT_SEL_WIDTH  (ELEMENT_COL_2 - ELEMENT_SEL_ORG_X + RES_SCALE (1))
 
-#define TEXT_BASELINE      RES_SCALE(6)
+#define TEXT_BASELINE      RES_SCALE (6)
 
 
 void
@@ -60,19 +60,19 @@ ShowRemainingCapacity (void)
 	else
 		SetContextFont (TinyFontBold);
 
-	r.corner.x = RES_SCALE(40);
+	r.corner.x = RES_SCALE (40);
 	r.corner.y = FREE_ORG_Y;
 
 	snprintf (buf, sizeof buf, "%u",
 			GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass));
-	t.baseline.x = ELEMENT_COL_2 + RES_SCALE(1);
+	t.baseline.x = ELEMENT_COL_2 + RES_SCALE (1);
 	t.baseline.y = r.corner.y + TEXT_BASELINE;
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	r.extent.width = t.baseline.x - r.corner.x + RES_SCALE(1);
-	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2);
+	r.extent.width = t.baseline.x - r.corner.x + RES_SCALE (1);
+	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE (2);
 
 	BatchGraphics ();
 	// erase previous free amount
@@ -95,7 +95,7 @@ DrawElementAmount (COUNT element, bool selected)
 
 	r.corner.x = ELEMENT_SEL_ORG_X;
 	r.extent.width = ELEMENT_SEL_WIDTH;
-	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2);
+	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE (2);
 
 	if (element == NUM_ELEMENT_CATEGORIES)
 		r.corner.y = BIO_ORG_Y;
@@ -145,15 +145,15 @@ DrawCargoDisplay (void)
 	COORD cy;
 	COUNT i;
 
-	r.corner.x = RES_SCALE(2);
-	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
-	r.corner.y = RES_SCALE(20);
+	r.corner.x = RES_SCALE (2);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	r.corner.y = RES_SCALE (20);
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
-	r.extent.height = (RES_SCALE(129) - r.corner.y);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
 
 	if (!optCustomBorder && !IS_HD)
-		DrawStarConBox (&r, RES_SCALE(1),
+		DrawStarConBox (&r, RES_SCALE (1),
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, CARGO_BACK_COLOR);
 	else
@@ -161,8 +161,8 @@ DrawCargoDisplay (void)
 
 	// draw the "CARGO" title
 	SetContextFont (StarConFont);
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1); 
-	t.baseline.y = RES_SCALE(27); 
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1); 
+	t.baseline.y = RES_SCALE (27); 
 	t.align = ALIGN_CENTER;
 	t.pStr = GAME_STRING (CARGO_STRING_BASE);
 	t.CharCount = (COUNT)~0;
@@ -184,7 +184,7 @@ DrawCargoDisplay (void)
 
 	// print element column headings
 	t.align = ALIGN_RIGHT;
-	t.baseline.y = cy - RES_SCALE(1); 
+	t.baseline.y = cy - RES_SCALE (1); 
 	t.CharCount = (COUNT)~0;
 
 	SetContextForeGroundColor (CARGO_WORTH_COLOR);
@@ -226,15 +226,15 @@ DrawCargoDisplay (void)
 	DrawElementAmount (NUM_ELEMENT_CATEGORIES, false);
 
 	// draw the line over the Bio amount
-	r.corner.x = RES_SCALE(4); 
-	r.corner.y = BIO_ORG_Y - RES_SCALE(2); 
-	r.extent.width = FIELD_WIDTH - RES_SCALE(3); 
-	r.extent.height = RES_SCALE(1);
+	r.corner.x = RES_SCALE (4); 
+	r.corner.y = BIO_ORG_Y - RES_SCALE (2); 
+	r.extent.width = FIELD_WIDTH - RES_SCALE (3); 
+	r.extent.height = RES_SCALE (1);
 	SetContextForeGroundColor (CARGO_SELECTED_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
 	// print "Free"
-	t.baseline.x = RES_SCALE(5); 
+	t.baseline.x = RES_SCALE (5); 
 	t.baseline.y = FREE_ORG_Y + TEXT_BASELINE;
 	t.align = ALIGN_LEFT;
 	t.pStr = GAME_STRING (CARGO_STRING_BASE + 1);
@@ -296,15 +296,15 @@ DrawRainbowPlanet(COUNT planet)
 
 	OldContext = SetContext(StatusContext);
 
-	r.corner.x = RES_SCALE(2);
-	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
-	r.corner.y = RES_SCALE(20);
-	r.extent.height = (RES_SCALE(129) - r.corner.y);
+	r.corner.x = RES_SCALE (2);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	r.corner.y = RES_SCALE (20);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
 
 	BatchGraphics();
 
 	if (!optCustomBorder && !IS_HD)
-		DrawStarConBox(&r, RES_SCALE(1),
+		DrawStarConBox(&r, RES_SCALE (1),
 			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 			TRUE, CARGO_BACK_COLOR);
 	else
@@ -312,8 +312,8 @@ DrawRainbowPlanet(COUNT planet)
 
 	// draw the "DATALOG" title
 	SetContextFont(StarConFont);
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
-	t.baseline.y = RES_SCALE(27);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = RES_SCALE (27);
 	t.align = ALIGN_CENTER;
 	t.pStr = GAME_STRING(CARGO_STRING_BASE + 10);// datalog
 	t.CharCount = (COUNT)~0;
@@ -322,17 +322,17 @@ DrawRainbowPlanet(COUNT planet)
 
 	// rainbow world icon
 	s.origin.x = RES_SCALE (1);
-	s.origin.y = RES_SCALE(27);
+	s.origin.y = RES_SCALE (27);
 	s.frame = SetAbsFrameIndex(MiscDataFrame, 109);
 	DrawStamp(&s);
 
 	// number of worlds
 	SetContextForeGroundColor(planet != 0 ?
 		PCMENU_SELECTION_BACKGROUND_COLOR : CARGO_BACK_COLOR);
-	r.corner.x = (STATUS_WIDTH >> 1) - RES_SCALE(6);
+	r.corner.x = (STATUS_WIDTH >> 1) - RES_SCALE (6);
 	r.extent.width = RES_SCALE (12);
-	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE(2);
-	r.corner.y = s.origin.y - s.frame->HotSpot.y + s.frame->Bounds.height + RES_SCALE(3);
+	r.extent.height = ELEMENT_SPACING_Y - RES_SCALE (2);
+	r.corner.y = s.origin.y - s.frame->HotSpot.y + s.frame->Bounds.height + RES_SCALE (3);
 	DrawFilledRectangle(&r);
 	t.pStr = buf;
 	snprintf(buf, sizeof buf, "%u", planet);
@@ -348,10 +348,10 @@ DrawRainbowPlanet(COUNT planet)
 	font_DrawText(&t);
 
 	// decoration text rect
-	r.corner.x = (STATUS_WIDTH >> 1) - RES_SCALE(20);
-	r.extent.width = RES_SCALE(40);
+	r.corner.x = (STATUS_WIDTH >> 1) - RES_SCALE (20);
+	r.extent.width = RES_SCALE (40);
 	r.extent.height *= 2;
-	r.corner.y += RES_SCALE(22);
+	r.corner.y += RES_SCALE (22);
 	SetContextForeGroundColor(CARGO_BACK_COLOR);
 	DrawFilledRectangle(&r);
 
@@ -360,7 +360,7 @@ DrawRainbowPlanet(COUNT planet)
 	{
 		t.pStr = GAME_STRING(CARGO_STRING_BASE + 11);// complete
 		t.CharCount = (COUNT)~0;
-		t.baseline.y += RES_SCALE(25);
+		t.baseline.y += RES_SCALE (25);
 		SetContextForeGroundColor(PCMENU_TEXT_COLOR);
 		font_DrawText(&t);
 	}
@@ -368,12 +368,12 @@ DrawRainbowPlanet(COUNT planet)
 	{
 		t.pStr = GAME_STRING(CARGO_STRING_BASE + 12);// Uploading
 		t.CharCount = (COUNT)~0;
-		t.baseline.y += RES_SCALE(22);
+		t.baseline.y += RES_SCALE (22);
 		SetContextForeGroundColor(PCMENU_TEXT_COLOR);
 		font_DrawText(&t);
 		t.pStr = GAME_STRING(CARGO_STRING_BASE + 13);// data
 		t.CharCount = (COUNT)~0;
-		t.baseline.y += RES_SCALE(7);
+		t.baseline.y += RES_SCALE (7);
 		font_DrawText(&t);
 	}
 

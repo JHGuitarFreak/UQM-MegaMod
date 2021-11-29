@@ -48,7 +48,7 @@
 #define COMET_DAMAGE 2
 #define COMET_OFFSET 0
 #define COMET_HITS DIF_CASE(12, 10, 15)
-#define COMET_SPEED DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE(12), RES_SCALE(10), RES_SCALE(17)))
+#define COMET_SPEED DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE (12), RES_SCALE (10), RES_SCALE (17)))
 #define COMET_LIFE 2
 #define COMET_TURN_WAIT DIF_CASE(3, 3, 2)// compensate high speed with lesser maneuverability
 #define MAX_COMETS DIF_CASE(3, 2, 4)
@@ -58,14 +58,14 @@
 
 // Green sentinel
 #define SPECIAL_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 3)
-#define SENTINEL_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
+#define SENTINEL_SPEED DISPLAY_TO_WORLD (RES_SCALE (8))
 #define SENTINEL_LIFE 2
 #define SENTINEL_OFFSET 0
 #define SENTINEL_HITS DIF_CASE(10, 9, 12)
 #define SENTINEL_DAMAGE DIF_CASE(1, 1, 2)
 #define TRACK_WAIT 1
 #define ANIMATION_WAIT 1
-#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE(10), RES_SCALE(8), RES_SCALE(10))))
+#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE (10), RES_SCALE (8), RES_SCALE (10))))
 #define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
 #define MAX_SENTINELS DIF_CASE(4, 4, 5)
 #define SPECIAL_ENERGY_COST 3
@@ -820,7 +820,7 @@ samatra_preprocess (ELEMENT *ElementPtr)
 			{ -580 + 32,  188 - 24},
 		};
 
-		offs = RES_BOOL(offs_orig, offs_hd);
+		offs = RES_BOOL (offs_orig, offs_hd);
 
 		for (StarShipPtr->RaceDescPtr->num_generators = 0;
 				StarShipPtr->RaceDescPtr->num_generators < MAX_GENERATORS;

@@ -38,7 +38,7 @@
 // Blaster Pulse
 #define WEAPON_ENERGY_COST 5
 #define WEAPON_WAIT 1
-#define MELNORME_OFFSET RES_SCALE(24)
+#define MELNORME_OFFSET RES_SCALE (24)
 #define LEVEL_COUNTER 72
 #define MAX_PUMP 4
 #define PUMPUP_SPEED DISPLAY_TO_WORLD (45)
@@ -51,14 +51,14 @@
 // Confusion Pulse
 #define SPECIAL_ENERGY_COST 20
 #define SPECIAL_WAIT 20
-#define CMISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(30))
+#define CMISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (30))
 #define CMISSILE_LIFE 20
 #define CMISSILE_HITS 200
 #define CMISSILE_DAMAGE 0
-#define CMISSILE_OFFSET RES_SCALE(4)
+#define CMISSILE_OFFSET RES_SCALE (4)
 
 // HD
-#define PUMPUP_SPEED_HD RES_SCALE(PUMPUP_SPEED)
+#define PUMPUP_SPEED_HD RES_SCALE (PUMPUP_SPEED)
 
 static RACE_DESC melnorme_desc =
 {
@@ -670,8 +670,8 @@ init_melnorme (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		melnorme_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		melnorme_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		melnorme_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		melnorme_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		melnorme_desc.cyborg_control.WeaponRange = PUMPUP_SPEED_HD * PUMPUP_LIFE;
 	}
 

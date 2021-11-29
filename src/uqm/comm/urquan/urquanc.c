@@ -535,7 +535,7 @@ init_urquan_comm (void)
 
 	urquan_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	urquan_desc.AlienTextBaseline.y = 0;
-	urquan_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	urquan_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	GrpOffs = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 	

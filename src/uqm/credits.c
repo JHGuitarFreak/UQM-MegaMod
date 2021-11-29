@@ -32,10 +32,10 @@
 #include <math.h>
 
 // Rates in pixel lines per second
-#define CREDITS_BASE_RATE   RES_SCALE(9)
-#define CREDITS_MAX_RATE    RES_SCALE(130)
+#define CREDITS_BASE_RATE   RES_SCALE (9)
+#define CREDITS_MAX_RATE    RES_SCALE (130)
 // Maximum frame rate
-#define CREDITS_FRAME_RATE  RES_SCALE(36)
+#define CREDITS_FRAME_RATE  RES_SCALE (36)
 
 #define CREDITS_TIMEOUT   (ONE_SECOND * 5)
 
@@ -795,7 +795,7 @@ Credits (BOOLEAN WithOuttakes)
 	// set the position of outtakes comm
 	CommWndRect.corner.x = (screenRect.extent.width - CommWndRect.extent.width)
 			/ 2;
-	CommWndRect.corner.y = RES_SCALE(5); 
+	CommWndRect.corner.y = RES_SCALE (5); 
 	
 	InitCredits ();
 	SetInputCallback (on_input_frame);

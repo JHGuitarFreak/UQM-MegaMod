@@ -92,8 +92,8 @@ EraseDevicesBackground (void)
 {
 	RECT r;
 
-	r.corner.x = RES_SCALE(3); 
-	r.extent.width = FIELD_WIDTH - RES_SCALE(1); 
+	r.corner.x = RES_SCALE (3); 
+	r.extent.width = FIELD_WIDTH - RES_SCALE (1); 
 	r.corner.y = DEVICE_ORG_Y;
 	r.extent.height = MAX_VIS_DEVICES * DEVICE_SPACING_Y;
 	SetContextForeGroundColor (DEVICES_BACK_COLOR);
@@ -147,15 +147,15 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	COORD cy;
 	COUNT i;
 
-	r.corner.x = RES_SCALE(2);
-	r.corner.y = RES_SCALE(20);
-	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
-	r.extent.height = (RES_SCALE(129) - r.corner.y);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
 
 	if (!optCustomBorder && !IS_HD)
-		DrawStarConBox (&r, RES_SCALE(1),
+		DrawStarConBox (&r, RES_SCALE (1),
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, DEVICES_BACK_COLOR);
 	else
@@ -163,8 +163,8 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 
 	// print the "DEVICES" title
 	SetContextFont (StarConFont);
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
-	t.baseline.y = r.corner.y + RES_SCALE(7);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
 	t.pStr = GAME_STRING (DEVICE_STRING_BASE);
 	t.CharCount = (COUNT)~0;

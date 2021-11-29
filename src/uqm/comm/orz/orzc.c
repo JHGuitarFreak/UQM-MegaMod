@@ -916,7 +916,7 @@ init_orz_comm (void)
 
 	orz_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	orz_desc.AlienTextBaseline.y = 0;
-	orz_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	orz_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (ORZ_MANNER) == 3
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

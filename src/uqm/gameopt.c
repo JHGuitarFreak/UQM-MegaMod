@@ -40,8 +40,8 @@
 extern FRAME PlayFrame;
 
 #define MAX_SAVED_GAMES 50
-#define SUMMARY_X_OFFS RES_SCALE(14)
-#define SUMMARY_SIDE_OFFS RES_SCALE(7)
+#define SUMMARY_X_OFFS RES_SCALE (14)
+#define SUMMARY_SIDE_OFFS RES_SCALE (7)
 #define SAVES_PER_PAGE 5
 
 #define MAX_NAME_SIZE SIS_NAME_SIZE
@@ -65,7 +65,7 @@ ConfirmSaveLoad (STAMP *MsgStamp)
 	GetContextClipRect (&clip_r);
 
 	t.baseline.x = clip_r.extent.width >> 1;
-	t.baseline.y = (clip_r.extent.height >> 1) + RES_SCALE(3);
+	t.baseline.y = (clip_r.extent.height >> 1) + RES_SCALE (3);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (MsgStamp)
@@ -75,10 +75,10 @@ ConfirmSaveLoad (STAMP *MsgStamp)
 		t.pStr = GAME_STRING (SAVEGAME_STRING_BASE + 1);
 				// "Loading . . ."
 	TextRect (&t, &r, NULL);
-	r.corner.x -= RES_SCALE(4);
-	r.corner.y -= RES_SCALE(4);
-	r.extent.width += RES_SCALE(8);
-	r.extent.height += RES_SCALE(8);
+	r.corner.x -= RES_SCALE (4);
+	r.corner.y -= RES_SCALE (4);
+	r.extent.width += RES_SCALE (8);
+	r.extent.height += RES_SCALE (8);
 	if (MsgStamp)
 	{
 		*MsgStamp = SaveContextFrame (&r);
@@ -216,12 +216,12 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 				Font = TinyFont;
 			else
 				Font = TinyFontBold;
-			captainNameRect.corner.x = RES_SCALE(3);
-			captainNameRect.corner.y = RES_SCALE(10);
-			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE(2);
+			captainNameRect.corner.x = RES_SCALE (3);
+			captainNameRect.corner.y = RES_SCALE (10);
+			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE (2);
 			r = captainNameRect;
-			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - RES_SCALE(1);
-			lf.baseline.y = r.corner.y + RES_SCALE(6);
+			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - RES_SCALE (1);
+			lf.baseline.y = r.corner.y + RES_SCALE (6);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1F, 0x1F), 0x0B);
@@ -229,12 +229,12 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		else
 		{	// Naming the flagship
 			Font = StarConFont;
-			shipNameRect.corner.x = RES_SCALE(2);
-			shipNameRect.corner.y = RES_SCALE(20);
+			shipNameRect.corner.x = RES_SCALE (2);
+			shipNameRect.corner.y = RES_SCALE (20);
 			shipNameRect.extent.width = SHIP_NAME_WIDTH;
 			r = shipNameRect;
 			lf.baseline.x = r.corner.x + (r.extent.width >> 1);
-			lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE(1);
+			lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0F, 0x00, 0x00), 0x2D);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x0A, 0x00), 0x7D);
@@ -264,7 +264,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		BYTE *pchar_deltas;
 
 		TextRect (&lf, &text_r, char_deltas);
-		if ((text_r.extent.width + RES_SCALE(2)) >= r.extent.width)
+		if ((text_r.extent.width + RES_SCALE (2)) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			// disallow the change
@@ -282,10 +282,10 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		for (i = CursorPos; i > 0; --i)
 			text_r.corner.x += *pchar_deltas++;
 		if (CursorPos < lf.CharCount) /* end of line */
-			text_r.corner.x -= RES_SCALE(1);
+			text_r.corner.x -= RES_SCALE (1);
 
-		text_r.corner.y = r.corner.y + RES_SCALE(1);
-		text_r.extent.height = r.extent.height - RES_SCALE(2);
+		text_r.corner.y = r.corner.y + RES_SCALE (1);
+		text_r.extent.height = r.extent.height - RES_SCALE (2);
 
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
@@ -293,22 +293,22 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 			if (CursorPos == lf.CharCount)
 			{	// cursor at end-line -- use insertion point
-				text_r.extent.width = RES_SCALE(1);
+				text_r.extent.width = RES_SCALE (1);
 				SetCursorFlashBlock (FALSE);
 			}
 			else if (CursorPos + 1 == lf.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
 			}
 			else
 			{	// normal mid-line char
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
 			}
 
 			if (text_r.extent.width >= 200)
 			{
 				SetCursorFlashBlock (FALSE);
-				text_r.extent.width = RES_SCALE(1);
+				text_r.extent.width = RES_SCALE (1);
 			}
 			else
 			{
@@ -318,7 +318,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		}
 		else
 		{	// Insertion point cursor
-			text_r.extent.width = RES_SCALE(1);
+			text_r.extent.width = RES_SCALE (1);
 		}
 
 		SetCursorRect (&text_r, StatusContext);
@@ -423,21 +423,21 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	snprintf (fullStr, sizeof fullStr, "%s%s", dateStr, Str);
 
 	SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
-	r.extent.width = RES_SCALE(15);
+	r.extent.width = RES_SCALE (15);
 	if (MAX_SAVED_GAMES > 99)
-		r.extent.width += RES_SCALE(5);
-	r.extent.height = RES_SCALE(11);
-	r.corner.x = RES_SCALE(8);
-	r.corner.y = RES_SCALE(160 + ((gameIndex % SAVES_PER_PAGE) * 13));
+		r.extent.width += RES_SCALE (5);
+	r.extent.height = RES_SCALE (11);
+	r.corner.x = RES_SCALE (8);
+	r.corner.y = RES_SCALE (160 + ((gameIndex % SAVES_PER_PAGE) * 13));
 	DrawRectangle (&r, IS_HD);
 
-	r.extent.width = RES_SCALE(204) + (SIS_SCREEN_WIDTH - RES_SCALE(242));
-	r.corner.x = RES_SCALE(30);
+	r.extent.width = RES_SCALE (204) + (SIS_SCREEN_WIDTH - RES_SCALE (242));
+	r.corner.x = RES_SCALE (30);
 	DrawRectangle (&r, IS_HD);
 
 	Font = TinyFont;
-	lf.baseline.x = r.corner.x + RES_SCALE(3);
-	lf.baseline.y = r.corner.y + RES_SCALE(8);
+	lf.baseline.x = r.corner.x + RES_SCALE (3);
+	lf.baseline.y = r.corner.y + RES_SCALE (8);
 
 	BackGround = BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33);
 	ForeGround = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01);
@@ -455,8 +455,8 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&r);
 
-		t.baseline.x = r.corner.x + RES_SCALE(3);
-		t.baseline.y = r.corner.y + RES_SCALE(8);
+		t.baseline.x = r.corner.x + RES_SCALE (3);
+		t.baseline.y = r.corner.y + RES_SCALE (8);
 		t.align = ALIGN_LEFT;
 		t.pStr = Str;
 		t.CharCount = (COUNT)~0;
@@ -471,7 +471,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 		BYTE *pchar_deltas;
 
 		TextRect (&lf, &text_r, char_deltas);
-		if ((text_r.extent.width + RES_SCALE(2)) >= r.extent.width)
+		if ((text_r.extent.width + RES_SCALE (2)) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			// disallow the change
@@ -490,26 +490,26 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 			text_r.corner.x += *pchar_deltas++;
 
 		if (FullCursorPos < lf.CharCount) /* end of line */
-			text_r.corner.x -= RES_SCALE(1);
+			text_r.corner.x -= RES_SCALE (1);
 
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (FullCursorPos == lf.CharCount)
 			{	// cursor at end-line -- use insertion point
-				text_r.extent.width = RES_SCALE(1);
+				text_r.extent.width = RES_SCALE (1);
 			}
 			else if (FullCursorPos + 1 == lf.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(2);
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
 			}
 			else
 			{	// normal mid-line char
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE(1);
+				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
 			}
 		}
 		else
 		{	// Insertion point cursor
-			text_r.extent.width = RES_SCALE(1);
+			text_r.extent.width = RES_SCALE (1);
 		}
 
 		text_r.corner.y = r.corner.y;
@@ -557,10 +557,10 @@ NameSaveGame (COUNT gameIndex, UNICODE *buf)
 	tes.CbParam = gIndex;
 	tes.ChangeCallback = OnSaveNameChange;
 	tes.FrameCallback = 0;
-	r.extent.width = RES_SCALE(204) + (SIS_SCREEN_WIDTH - RES_SCALE(242));
-	r.extent.height = RES_SCALE(11);
-	r.corner.x = RES_SCALE(30);
-	r.corner.y = (RES_SCALE(160) + ((gameIndex % SAVES_PER_PAGE) * RES_SCALE(13)));
+	r.extent.width = RES_SCALE (204) + (SIS_SCREEN_WIDTH - RES_SCALE (242));
+	r.extent.height = RES_SCALE (11);
+	r.corner.x = RES_SCALE (30);
+	r.corner.y = (RES_SCALE (160) + ((gameIndex % SAVES_PER_PAGE) * RES_SCALE (13)));
 	SetFlashRect (&r, FALSE);
 
 	if (!DoTextEntry (&tes))
@@ -754,7 +754,7 @@ DrawSaveLoad (PICK_GAME_STATE *pickState)
 
 	GetFrameRect (s.frame, &r);
 
-	s.origin.x = RES_SCALE((ORIG_SIS_SCREEN_WIDTH - RES_DESCALE(r.extent.width)) / 2);
+	s.origin.x = RES_SCALE ((ORIG_SIS_SCREEN_WIDTH - RES_DESCALE (r.extent.width)) / 2);
 	s.origin.y = 0;
 
 	if (pickState->saving)
@@ -781,10 +781,10 @@ DrawSavegameCargo (SIS_STATE *sisState)
 		BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x00, 0x14), 0x05),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x19), 0x00),
 	};
-#define ELEMENT_ORG_Y      RES_SCALE(17)
-#define ELEMENT_SPACING_Y  RES_SCALE(12)
-#define ELEMENT_SPACING_X  RES_SCALE(36)
-#define HD_ALIGN_DOTS IF_HD(2)
+#define ELEMENT_ORG_Y      RES_SCALE (17)
+#define ELEMENT_SPACING_Y  RES_SCALE (12)
+#define ELEMENT_SPACING_X  RES_SCALE (36)
+#define HD_ALIGN_DOTS IF_HD (2)
 
 	SetContext (SpaceContext);
 	BatchGraphics ();
@@ -793,11 +793,11 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
-	s.origin.x = RES_SCALE(7) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(3) + HD_ALIGN_DOTS;
+	s.origin.x = RES_SCALE (7) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE (3) + HD_ALIGN_DOTS;
 	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
 	// setup element amounts
-	t.baseline.x = RES_SCALE(33) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(3);
-	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
+	t.baseline.x = RES_SCALE (33) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE (3);
+	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 
@@ -809,7 +809,7 @@ DrawSavegameCargo (SIS_STATE *sisState)
 			s.origin.x += ELEMENT_SPACING_X;
 			s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
 			t.baseline.x += ELEMENT_SPACING_X;
-			t.baseline.y = ELEMENT_ORG_Y + RES_SCALE(3);
+			t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
 		}
 		// draw element icon
 		DrawStamp (&s);
@@ -824,13 +824,13 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	}
 
 	// draw Bio icon
-	s.origin.x = RES_SCALE(24) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + HD_ALIGN_DOTS;
-	s.origin.y = RES_SCALE(68) + HD_ALIGN_DOTS;
+	s.origin.x = RES_SCALE (24) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + HD_ALIGN_DOTS;
+	s.origin.y = RES_SCALE (68) + HD_ALIGN_DOTS;
 	s.frame = SetAbsFrameIndex (s.frame, 68);
 	DrawStamp (&s);
 	// print Bio amount
-	t.baseline.x = RES_SCALE(50) + SUMMARY_X_OFFS;
-	t.baseline.y = s.origin.y + RES_SCALE(3) - HD_ALIGN_DOTS;
+	t.baseline.x = RES_SCALE (50) + SUMMARY_X_OFFS;
+	t.baseline.y = s.origin.y + RES_SCALE (3) - HD_ALIGN_DOTS;
 	SetContextForeGroundColor (cargo_color[i]);
 	snprintf (buf, sizeof buf, "%u", sisState->TotalBioMass);
 	t.CharCount = (COUNT)~0;
@@ -906,12 +906,12 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		SetContext (SpaceContext);
 		// draw devices
-		s.origin.y = RES_SCALE(13);
+		s.origin.y = RES_SCALE (13);
 		for (i = 0; i < 4; ++i)
 		{
 			COUNT j;
 
-			s.origin.x = RES_SCALE(140) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
+			s.origin.x = RES_SCALE (140) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
 			for (j = 0; j < 4; ++j)
 			{
 				COUNT devIndex = (i * 4) + j;
@@ -921,20 +921,20 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 							+ pSD->DeviceList[devIndex]);
 					DrawStamp (&s);
 				}
-				s.origin.x += RES_SCALE(18);
+				s.origin.x += RES_SCALE (18);
 			}
-			s.origin.y += RES_SCALE(18);
+			s.origin.y += RES_SCALE (18);
 		}
 
 		SetContextFont (StarConFont);
-		t.baseline.x = RES_SCALE(173) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
+		t.baseline.x = RES_SCALE (173) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
 		if (pSD->Flags & AFTER_BOMB_INSTALLED)
 		{
 			// draw the bomb and the escape pod
-			s.origin.x = SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE(6);
+			s.origin.x = SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE (6);
 			s.origin.y = 0;
 			s.frame = SetRelFrameIndex (pickState->SummaryFrame, 0);
 			DrawStamp (&s);
@@ -950,8 +950,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 			SetContext (RadarContext);
 			// Hack RadarContext so we can use standard Lander display funcs
 			GetContextClipRect (&OldRect);
-			r.corner.x = SIS_ORG_X + RES_SCALE(10) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS;
-			r.corner.y = SIS_ORG_Y + RES_SCALE(84);
+			r.corner.x = SIS_ORG_X + RES_SCALE (10) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS;
+			r.corner.y = SIS_ORG_Y + RES_SCALE (84);
 			r.extent = OldRect.extent;
 			SetContextClipRect (&r);
 			// draw the lander with upgrades
@@ -960,13 +960,13 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 			SetContext (SpaceContext);
 
 			snprintf (buf, sizeof buf, "%u", pSD->SS.ResUnits);
-			t.baseline.y = RES_SCALE(102);
+			t.baseline.y = RES_SCALE (102);
 			SetContextForeGroundColor (
 					BUILD_COLOR (MAKE_RGB15 (0x10, 0x00, 0x10), 0x01));
 			font_DrawText (&t);
 			t.CharCount = (COUNT)~0;
 		}
-		t.baseline.y = RES_SCALE(126);
+		t.baseline.y = RES_SCALE (126);
 		snprintf (buf, sizeof buf, "%u",
 				MAKE_WORD (pSD->MCreditLo, pSD->MCreditHi));
 		SetContextForeGroundColor (
@@ -974,8 +974,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		font_DrawText (&t);
 
 		// print the location
-		t.baseline.x = RES_SCALE(6);
-		t.baseline.y = RES_SCALE(139 + 6);
+		t.baseline.x = RES_SCALE (6);
+		t.baseline.y = RES_SCALE (139 + 6);
 		t.align = ALIGN_LEFT;
 		t.pStr = buf;
 		starPt.x = LOGX_TO_UNIVERSE (pSD->SS.log_x);
@@ -1027,7 +1027,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
 		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
-				- RES_SCALE(4) + RES_SCALE(RES_DESCALE(SIS_TITLE_WIDTH) >> 1);
+				- RES_SCALE (4) + RES_SCALE (RES_DESCALE (SIS_TITLE_WIDTH) >> 1);
 		switch (pSD->Activity)
 		{
 			case IN_STARBASE:
@@ -1106,10 +1106,10 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	SetContextFont (TinyFont);
 
 	// Erase the selection menu
-	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE(2);
-	r.extent.height = RES_SCALE(65);
-	r.corner.x = RES_SCALE(1);
-	r.corner.y = RES_SCALE(160);
+	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE (2);
+	r.extent.height = RES_SCALE (65);
+	r.corner.x = RES_SCALE (1);
+	r.corner.y = RES_SCALE (160);
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
 
@@ -1125,25 +1125,25 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		SUMMARY_DESC *desc = &pickState->summary[curSlot];
 
 		SetContextForeGroundColor((curSlot == selSlot) ? Selected : UnSelected);
-		r.extent.width = RES_SCALE(15);
+		r.extent.width = RES_SCALE (15);
 		if (MAX_SAVED_GAMES > 99)
-			r.extent.width += RES_SCALE(5);
-		r.extent.height = RES_SCALE(11);
-		r.corner.x = RES_SCALE(8); 
-		r.corner.y = RES_SCALE(160 + (i * 13));
+			r.extent.width += RES_SCALE (5);
+		r.extent.height = RES_SCALE (11);
+		r.corner.x = RES_SCALE (8); 
+		r.corner.y = RES_SCALE (160 + (i * 13));
 		DrawRectangle (&r, IS_HD);
 
-		t.baseline.x = r.corner.x + RES_SCALE(3);
-		t.baseline.y = r.corner.y + RES_SCALE(8);
+		t.baseline.x = r.corner.x + RES_SCALE (3);
+		t.baseline.y = r.corner.y + RES_SCALE (8);
 		snprintf (buf, sizeof buf, (MAX_SAVED_GAMES > 99) ? "%03u" : "%02u",
 				curSlot);
 		font_DrawText (&t);
 
-		r.extent.width = RES_SCALE(204) + (SIS_SCREEN_WIDTH - RES_SCALE(242));
-		r.corner.x = RES_SCALE(30);
+		r.extent.width = RES_SCALE (204) + (SIS_SCREEN_WIDTH - RES_SCALE (242));
+		r.corner.x = RES_SCALE (30);
 		DrawRectangle (&r, IS_HD);
 
-		t.baseline.x = r.corner.x + RES_SCALE(3);
+		t.baseline.x = r.corner.x + RES_SCALE (3);
 		if (desc->year_index == 0)
 		{
 			utf8StringCopy (buf, sizeof buf,

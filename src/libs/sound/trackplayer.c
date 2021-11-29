@@ -899,7 +899,7 @@ GetSubtitleNumber (UNICODE *sub)
 	if (sub == NULL)// Nothing playing - no subs
 		return -1;
 
-	now = chunks_head;	
+	now = chunks_head;
 
 	while (now->text != sub && now->next != NULL)
 	{

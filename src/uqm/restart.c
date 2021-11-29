@@ -119,7 +119,7 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(8);
+		t.baseline.y += RES_SCALE (8);
 	}
 
 	StringBank_Free (bank);
@@ -131,7 +131,6 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	STAMP s;
 	FONT oldFont;
 	TEXT t;
-	Color c;
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
 	s.frame = SetRelFrameIndex (pMS->CurFrame, 6);

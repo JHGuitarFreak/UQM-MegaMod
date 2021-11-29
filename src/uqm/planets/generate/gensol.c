@@ -707,8 +707,8 @@ GenerateSol_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 		if (info)
 		{
-			info->loc_pt.x = RES_SCALE(20);
-			info->loc_pt.y = MAP_HEIGHT - RES_SCALE(8);
+			info->loc_pt.x = RES_SCALE (20);
+			info->loc_pt.y = MAP_HEIGHT - RES_SCALE (8);
 		}
 
 		return 1; // only matters when count is requested

@@ -42,7 +42,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		SetContextForeGroundColor (TopLeftColor);
 		locRect.corner = pRect->corner;
 		locRect.extent.width = pRect->extent.width;
-		locRect.extent.height = RES_SCALE(1);
+		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
 		if (BorderWidth == 2)
 		{
@@ -53,7 +53,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		}
 
 		locRect.corner = pRect->corner;
-		locRect.extent.width = RES_SCALE(1);
+		locRect.extent.width = RES_SCALE (1);
 		locRect.extent.height = pRect->extent.height;
 		DrawFilledRectangle (&locRect);
 		if (BorderWidth == 2)
@@ -65,9 +65,9 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		}
 
 		SetContextForeGroundColor (BottomRightColor);
-		locRect.corner.x = pRect->corner.x + pRect->extent.width - RES_SCALE(1);
-		locRect.corner.y = pRect->corner.y + RES_SCALE(1);
-		locRect.extent.height = pRect->extent.height - RES_SCALE(1);
+		locRect.corner.x = pRect->corner.x + pRect->extent.width - RES_SCALE (1);
+		locRect.corner.y = pRect->corner.y + RES_SCALE (1);
+		locRect.extent.height = pRect->extent.height - RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
 		if (BorderWidth == 2)
 		{
@@ -79,8 +79,8 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 
 		locRect.corner.x = pRect->corner.x;
 		locRect.extent.width = pRect->extent.width;
-		locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE(1);
-		locRect.extent.height = RES_SCALE(1);
+		locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE (1);
+		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
 		if (BorderWidth == 2)
 		{

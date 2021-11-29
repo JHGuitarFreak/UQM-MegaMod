@@ -470,7 +470,7 @@ YellowDistribution (BYTE which_world)
 #define SUPERGIANT_ROCK_DIST SCALE_RADIUS (16)
 #define SUPERGIANT_GASG_DIST SCALE_RADIUS (33)
 
-void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val)
+void ComputeSpeed (PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val)
 {
 	//BW : empiric values, which would give roughly correct
 	// rotation periods for most moons in the solar system
@@ -639,8 +639,8 @@ RelocatePlanet:
 		pPD->location.y = SINE (pPD->angle, pPD->radius);
 		if (GeneratingMoons) {
 			pPD->rand_seed = MAKE_DWORD (
-				 COSINE (pPD->angle, RES_DESCALE(pPD->radius)),
-				 SINE (pPD->angle, RES_DESCALE(pPD->radius)));
+				 COSINE (pPD->angle, RES_DESCALE (pPD->radius)),
+				 SINE (pPD->angle, RES_DESCALE (pPD->radius)));
 		} else {
 			pPD->rand_seed = MAKE_DWORD (pPD->location.x, pPD->location.y);
 		}

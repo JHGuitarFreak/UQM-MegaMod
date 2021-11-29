@@ -36,7 +36,7 @@
 // Gob launcher
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 2
-#define SUPOX_OFFSET RES_SCALE(23)
+#define SUPOX_OFFSET RES_SCALE (23)
 #define MISSILE_OFFSET 2
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
@@ -50,7 +50,7 @@
 		/* Unused except to initialize supox_desc.special_wait */
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC supox_desc =
 {
@@ -282,8 +282,8 @@ init_supox (void)
 	RACE_DESC *RaceDescPtr;
 
 	if (IS_HD) {
-		supox_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		supox_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		supox_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		supox_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		supox_desc.cyborg_control.WeaponRange = (MISSILE_SPEED_HD * MISSILE_LIFE) >> 1;
 	}
 

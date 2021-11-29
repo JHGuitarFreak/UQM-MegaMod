@@ -167,8 +167,8 @@ _init_video_file (const char *pStr)
 	vid = HCalloc (sizeof (*vid));
 	vid->decoder = dec;
 	vid->length = dec->length;
-	vid->w = vid->decoder->w - IF_HD(4);
-	vid->h = vid->decoder->h + IF_HD(7);
+	vid->w = vid->decoder->w - IF_HD (4);
+	vid->h = vid->decoder->h + IF_HD (7);
 	vid->guard = CreateMutex ("video guard", SYNC_CLASS_VIDEO);
 
 	return (VIDEO_REF) vid;

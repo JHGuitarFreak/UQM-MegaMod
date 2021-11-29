@@ -208,7 +208,7 @@ Present_UnbatchGraphics (PRESENTATION_INPUT_STATE* pPIS, BOOLEAN bYield)
 static void
 Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 {
-#define MODULE_YOFS_P  -(RES_SCALE(79) + IF_HD(33))
+#define MODULE_YOFS_P  -(RES_SCALE (79) + IF_HD (33))
 #define DRIVE_TOP_Y_P  (DRIVE_TOP_Y + MODULE_YOFS_P)
 #define JET_TOP_Y_P    (JET_TOP_Y + MODULE_YOFS_P)
 #define MODULE_TOP_Y_P (MODULE_TOP_Y + MODULE_YOFS_P)
@@ -584,8 +584,8 @@ DoPresentation (void *pIS)
 				t.align = ALIGN_CENTER;
 				t.pStr = pPIS->Buffer;
 				t.CharCount = (COUNT)~0;
-				t.baseline.x = RES_SCALE(x);
-				t.baseline.y = RES_SCALE(y);
+				t.baseline.x = RES_SCALE (x);
+				t.baseline.y = RES_SCALE (y);
 				DrawTextEffect (&t, pPIS->TextColor, pPIS->TextBackColor,
 						pPIS->TextEffect);
 			}
@@ -607,7 +607,7 @@ DoPresentation (void *pIS)
 			switch (pPIS->TextVPos)
 			{
 			case 'T': /* top */
-				y = leading + IF_HD(15);
+				y = leading + IF_HD (15);
 				break;
 			case 'M': /* middle */
 				y = (pPIS->clip_r.extent.height
@@ -790,10 +790,10 @@ DoPresentation (void *pIS)
 			{
 				LINE l;
 
-				l.first.x = RES_SCALE(x1);
-				l.first.y = RES_SCALE(y1);
-				l.second.x = RES_SCALE(x2);
-				l.second.y = RES_SCALE(y2);
+				l.first.x = RES_SCALE (x1);
+				l.first.y = RES_SCALE (y1);
+				l.second.x = RES_SCALE (x2);
+				l.second.y = RES_SCALE (y2);
 				
 				SetContextForeGroundColor (pPIS->TextColor);
 				DrawLine (&l, 1);

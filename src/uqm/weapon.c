@@ -285,7 +285,7 @@ ModifySilhouette (ELEMENT *ElementPtr, STAMP *modify_stamp,
 				&ShipIntersect, MAX_TIME_VALUE));
 
 		ObjectIntersect.IntersectStamp.origin.x += STATUS_WIDTH >> 1;
-		ObjectIntersect.IntersectStamp.origin.y += RES_SCALE(31); 
+		ObjectIntersect.IntersectStamp.origin.y += RES_SCALE (31); 
 	}
 
 	ObjectIntersect.IntersectStamp.origin.y +=

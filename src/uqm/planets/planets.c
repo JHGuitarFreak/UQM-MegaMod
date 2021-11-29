@@ -127,9 +127,9 @@ DrawPlanetSurfaceBorder (void)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= RES_SCALE(1);
-	clipRect.extent.width += RES_SCALE(2);
-	clipRect.extent.height += RES_SCALE(1);
+	clipRect.corner.x -= RES_SCALE (1);
+	clipRect.extent.width += RES_SCALE (2);
+	clipRect.extent.height += RES_SCALE (1);
 	SetContextClipRect (&clipRect);
 
 	BatchGraphics ();
@@ -140,56 +140,56 @@ DrawPlanetSurfaceBorder (void)
 	r.corner.x = 0;
 	r.corner.y = clipRect.extent.height - MAP_HEIGHT - MAP_BORDER_HEIGHT;
 	r.extent.width = clipRect.extent.width;
-	r.extent.height = MAP_BORDER_HEIGHT - RES_SCALE(2);
+	r.extent.height = MAP_BORDER_HEIGHT - RES_SCALE (2);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
 	
 	// Border top shadow line
-	r.extent.width -= RES_SCALE(1);
-	r.extent.height = RES_SCALE(1);
-	r.corner.x = RES_SCALE(1);
-	r.corner.y -= RES_SCALE(1);
+	r.extent.width -= RES_SCALE (1);
+	r.extent.height = RES_SCALE (1);
+	r.corner.x = RES_SCALE (1);
+	r.corner.y -= RES_SCALE (1);
 	DrawFilledRectangle (&r);
 	
 	// XXX: We will need bulk left and right rects here if MAP_WIDTH changes
 
 	// Right shadow line
-	r.extent.width = RES_SCALE(1);
-	r.extent.height = MAP_HEIGHT + RES_SCALE(2);
-	r.corner.y += MAP_BORDER_HEIGHT - RES_SCALE(1);
-	r.corner.x = clipRect.extent.width - RES_SCALE(1);
+	r.extent.width = RES_SCALE (1);
+	r.extent.height = MAP_HEIGHT + RES_SCALE (2);
+	r.corner.y += MAP_BORDER_HEIGHT - RES_SCALE (1);
+	r.corner.x = clipRect.extent.width - RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 	
 	// Left shadow line
-	r.corner.x -= MAP_WIDTH + RES_SCALE(1);
+	r.corner.x -= MAP_WIDTH + RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
-	r.extent.width = MAP_WIDTH + RES_SCALE(2);
-	r.extent.height = RES_SCALE(1);
+	r.extent.width = MAP_WIDTH + RES_SCALE (2);
+	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	if (optSuperPC == OPT_PC)
 	{
-		r.corner.x = RES_SCALE(UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X + RES_SCALE(1);
-		r.corner.y = clipRect.extent.height - MAP_HEIGHT - RES_SCALE(1);
-		r.extent.width = RES_SCALE(1);
+		r.corner.x = RES_SCALE (UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X + RES_SCALE (1);
+		r.corner.y = clipRect.extent.height - MAP_HEIGHT - RES_SCALE (1);
+		r.extent.width = RES_SCALE (1);
 		r.extent.height = MAP_HEIGHT;
 		SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
 		DrawFilledRectangle (&r);
-		r.corner.x += RES_SCALE(1);
-		r.extent.width = RES_SCALE(4);
-		r.corner.y -= RES_SCALE(1);
-		r.extent.height += RES_SCALE(2);
+		r.corner.x += RES_SCALE (1);
+		r.extent.width = RES_SCALE (4);
+		r.corner.y -= RES_SCALE (1);
+		r.extent.height += RES_SCALE (2);
 		SetContextForeGroundColor (BUILD_COLOR_RGBA (0x52, 0x52, 0x52, 0xFF));
 		DrawFilledRectangle (&r);
-		r.corner.x += RES_SCALE(4);
-		r.extent.width = RES_SCALE(1);
-		r.corner.y += RES_SCALE(1);
-		r.extent.height -= RES_SCALE(2);
+		r.corner.x += RES_SCALE (4);
+		r.extent.width = RES_SCALE (1);
+		r.corner.y += RES_SCALE (1);
+		r.extent.height -= RES_SCALE (2);
 		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		DrawFilledRectangle (&r);
 
@@ -250,21 +250,21 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 				(LoadGraphic (ORBENTER_PMAP_ANIM)), never);
 
 		if (optSuperPC == OPT_PC)
-			s.origin.x -= RES_SCALE((UQM_MAP_WIDTH - PC_MAP_WIDTH) / 2);
+			s.origin.x -= RES_SCALE ((UQM_MAP_WIDTH - PC_MAP_WIDTH) / 2);
 
 		if (never)
 		{
 			PLANET_DESC *pPlanetDesc;
 			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
-			int PlanetScale = RES_BOOL(319, 512);
+			int PlanetScale = RES_BOOL (319, 512);
 			int PlanetRescale = 1275;
 
 			pPlanetDesc = pSolarSysState->pOrbitalDesc;
 			GeneratePlanetSurface (pPlanetDesc, NULL, PlanetScale, PlanetScale);
 			ss.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-			ss.origin.y = RES_SCALE(191);
+			ss.origin.y = RES_SCALE (191);
 			
-			ss.frame = RES_BOOL(Orbit->SphereFrame, CaptureDrawable (
+			ss.frame = RES_BOOL (Orbit->SphereFrame, CaptureDrawable (
 					RescaleFrame (Orbit->SphereFrame, PlanetRescale, PlanetRescale)));
 
 			DrawStamp (&ss);

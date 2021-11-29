@@ -36,7 +36,7 @@
 #include "libs/graphics/gfx_common.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
-#define SHIELD_LOCATION_IN_MODULE_ANI (RES_BOOL(5, 9))
+#define SHIELD_LOCATION_IN_MODULE_ANI (RES_BOOL (5, 9))
 
 enum
 {
@@ -59,10 +59,10 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - RES_SCALE(1);
-	r.corner.y = s.origin.y - RES_SCALE(11);
-	r.extent.width = RADAR_WIDTH + RES_SCALE(2);
-	r.extent.height = RES_SCALE(11);
+	r.corner.x = s.origin.x - RES_SCALE (1);
+	r.corner.y = s.origin.y - RES_SCALE (11);
+	r.extent.width = RADAR_WIDTH + RES_SCALE (2);
+	r.extent.height = RES_SCALE (11);
 	BatchGraphics ();
 //	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
@@ -86,8 +86,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		DrawStamp (&s);
 
 		// Print the module cost.
-		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE(2);
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE(2);
+		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
+		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2);
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;		
@@ -127,18 +127,18 @@ RedistributeFuel (void)
 		// If we're less than the fuel level, draw fuel.
 		if (GLOBAL_SIS (FuelOnBoard) < FuelVolume)
 		{
-			r.extent.width = RES_SCALE(5);
+			r.extent.width = RES_SCALE (5);
 			DrawFilledRectangle(&r);
 
-			r.extent.width = RES_SCALE(3);
-			r.corner.x += RES_SCALE(1);
+			r.extent.width = RES_SCALE (3);
+			r.corner.x += RES_SCALE (1);
 
 			SetContextForeGroundColor (
 					SetContextBackGroundColor (BLACK_COLOR));
 		}
 		else // Otherwise, draw an empty bar.
 		{
-			r.extent.width = RES_SCALE(5);
+			r.extent.width = RES_SCALE (5);
 			SetContextForeGroundColor (
 					BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E));
 		}
@@ -150,9 +150,9 @@ RedistributeFuel (void)
 	GLOBAL_SIS (FuelOnBoard) = FuelVolume;
 }
 
-#define LANDER_X RES_SCALE(24)
-#define LANDER_Y RES_SCALE(67)
-#define LANDER_WIDTH RES_SCALE(15)
+#define LANDER_X RES_SCALE (24)
+#define LANDER_Y RES_SCALE (67)
+#define LANDER_WIDTH RES_SCALE (15)
 
 static void
 DisplayLanders (MENU_STATE *pMS)
@@ -517,53 +517,53 @@ InitFlash:
 				{
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
-						pMS->flash_rect0.corner.x = LANDER_X - RES_SCALE(1);
-						pMS->flash_rect0.corner.y = LANDER_Y - RES_SCALE(1);
-						pMS->flash_rect0.extent.width = RES_SCALE(11 + 2); 
-						pMS->flash_rect0.extent.height = RES_SCALE(13 + 2);
+						pMS->flash_rect0.corner.x = LANDER_X - RES_SCALE (1);
+						pMS->flash_rect0.corner.y = LANDER_Y - RES_SCALE (1);
+						pMS->flash_rect0.extent.width = RES_SCALE (11 + 2); 
+						pMS->flash_rect0.extent.height = RES_SCALE (13 + 2);
 
 						w = LANDER_WIDTH;
 						break;
 					case FUSION_THRUSTER:
 					case EMPTY_SLOT + 0:
-						pMS->flash_rect0.corner.x = DRIVE_TOP_X - RES_SCALE(1);
-						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - RES_SCALE(1);
-						pMS->flash_rect0.extent.width = RES_SCALE(8);
-						pMS->flash_rect0.extent.height = RES_SCALE(6);
+						pMS->flash_rect0.corner.x = DRIVE_TOP_X - RES_SCALE (1);
+						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - RES_SCALE (1);
+						pMS->flash_rect0.extent.width = RES_SCALE (8);
+						pMS->flash_rect0.extent.height = RES_SCALE (6);
 
-						pMS->flash_rect1.corner.x = DRIVE_SIDE_X - RES_SCALE(1) + IF_HD(5); // not aligned on HD sprite;
-						pMS->flash_rect1.corner.y = DRIVE_SIDE_Y - RES_SCALE(1) - IF_HD(10); // not aligned on HD sprite;
-						pMS->flash_rect1.extent.width = RES_SCALE(12) - IF_HD(10); // not aligned on HD sprite;;
-						pMS->flash_rect1.extent.height = RES_SCALE(7) + IF_HD(4); // not aligned on HD sprite;
+						pMS->flash_rect1.corner.x = DRIVE_SIDE_X - RES_SCALE (1) + IF_HD (5); // not aligned on HD sprite;
+						pMS->flash_rect1.corner.y = DRIVE_SIDE_Y - RES_SCALE (1) - IF_HD (10); // not aligned on HD sprite;
+						pMS->flash_rect1.extent.width = RES_SCALE (12) - IF_HD (10); // not aligned on HD sprite;;
+						pMS->flash_rect1.extent.height = RES_SCALE (7) + IF_HD (4); // not aligned on HD sprite;
 
 						//pMS->flash_rect2 = pMS->flash_rect0;
-						//pMS->flash_rect2.corner.y += RES_SCALE(90);
+						//pMS->flash_rect2.corner.y += RES_SCALE (90);
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
-						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE(1) - IF_HD(6); // not aligned on HD sprite
-						pMS->flash_rect0.corner.y = JET_TOP_Y - RES_SCALE(1);
-						pMS->flash_rect0.extent.width = RES_SCALE(9);
-						pMS->flash_rect0.extent.height = RES_SCALE(10);
+						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE (1) - IF_HD (6); // not aligned on HD sprite
+						pMS->flash_rect0.corner.y = JET_TOP_Y - RES_SCALE (1);
+						pMS->flash_rect0.extent.width = RES_SCALE (9);
+						pMS->flash_rect0.extent.height = RES_SCALE (10);
 
-						pMS->flash_rect1.corner.x = JET_SIDE_X - RES_SCALE(1) - IF_HD(6); // not aligned on HD sprite;
-						pMS->flash_rect1.corner.y = JET_SIDE_Y - RES_SCALE(1) + IF_HD(4); // not aligned on HD sprite;
-						pMS->flash_rect1.extent.width = RES_SCALE(7);
-						pMS->flash_rect1.extent.height = RES_SCALE(4);
+						pMS->flash_rect1.corner.x = JET_SIDE_X - RES_SCALE (1) - IF_HD (6); // not aligned on HD sprite;
+						pMS->flash_rect1.corner.y = JET_SIDE_Y - RES_SCALE (1) + IF_HD (4); // not aligned on HD sprite;
+						pMS->flash_rect1.extent.width = RES_SCALE (7);
+						pMS->flash_rect1.extent.height = RES_SCALE (4);
 
 						//pMS->flash_rect2 = pMS->flash_rect0;
-						//pMS->flash_rect2.corner.y += RES_SCALE(70);
+						//pMS->flash_rect2.corner.y += RES_SCALE (70);
 						break;
 					default:
-						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE(1);
-						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE(1);
-						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2)
+						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE (1);
+						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE (1);
+						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE (2)
 								+ RES_SCALE (optWhichMenu == OPT_PC);
-						pMS->flash_rect0.extent.height = RES_SCALE(34);
+						pMS->flash_rect0.extent.height = RES_SCALE (34);
 
-						pMS->flash_rect1.corner.x = MODULE_SIDE_X - RES_SCALE(1);
-						pMS->flash_rect1.corner.y = MODULE_SIDE_Y - RES_SCALE(1);
-						pMS->flash_rect1.extent.width = SHIP_PIECE_OFFSET + RES_SCALE(2)
+						pMS->flash_rect1.corner.x = MODULE_SIDE_X - RES_SCALE (1);
+						pMS->flash_rect1.corner.y = MODULE_SIDE_Y - RES_SCALE (1);
+						pMS->flash_rect1.extent.width = SHIP_PIECE_OFFSET + RES_SCALE (2)
 								+ RES_SCALE (optWhichMenu == OPT_PC);
 						pMS->flash_rect1.extent.height = RES_SCALE (25);
 						break;

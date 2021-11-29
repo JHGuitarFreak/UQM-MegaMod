@@ -39,8 +39,8 @@
 // Triple Miniguns
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
-#define PKUNK_OFFSET RES_SCALE(15)
-#define MISSILE_OFFSET RES_SCALE(1)
+#define PKUNK_OFFSET RES_SCALE (15)
+#define MISSILE_OFFSET RES_SCALE (1)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (24)
 #define MISSILE_LIFE 5
 #define MISSILE_HITS 1
@@ -54,7 +54,7 @@
 #define PHOENIX_LIFE 12
 #define START_PHOENIX_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
 #define TRANSITION_LIFE 1
-#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(20))
+#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE (20))
 
 static RACE_DESC pkunk_desc =
 {
@@ -200,7 +200,7 @@ initialize_bug_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = PKUNK_OFFSET;
-	MissileBlock.speed = RES_SCALE(MISSILE_SPEED);
+	MissileBlock.speed = RES_SCALE (MISSILE_SPEED);
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;
@@ -285,8 +285,8 @@ new_pkunk (ELEMENT *ElementPtr)
 	StarShipPtr->RaceDescPtr->ship_info.crew_level = MAX_CREW;
 	StarShipPtr->RaceDescPtr->ship_info.energy_level = MAX_ENERGY;
 				/* fix vux impairment */
-	StarShipPtr->RaceDescPtr->characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-	StarShipPtr->RaceDescPtr->characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+	StarShipPtr->RaceDescPtr->characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+	StarShipPtr->RaceDescPtr->characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 	StarShipPtr->RaceDescPtr->characteristics.turn_wait = TURN_WAIT;
 	StarShipPtr->RaceDescPtr->characteristics.thrust_wait = THRUST_WAIT;
 	StarShipPtr->RaceDescPtr->characteristics.special_wait = 0;
@@ -620,8 +620,8 @@ init_pkunk (void)
 	PKUNK_DATA empty_data;
 
 	if (IS_HD) {
-		pkunk_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		pkunk_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		pkunk_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		pkunk_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		pkunk_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD + 4;
 	}
 

@@ -38,8 +38,8 @@ typedef struct melee_state MELEE_STATE;
 #define NUM_MELEE_COLUMNS 7
 //#define NUM_MELEE_COLUMNS 6
 #define MELEE_FLEET_SIZE (NUM_MELEE_ROWS * NUM_MELEE_COLUMNS)
-#define ICON_WIDTH RES_SCALE(16)
-#define ICON_HEIGHT RES_SCALE(16)
+#define ICON_WIDTH RES_SCALE (16)
+#define ICON_HEIGHT RES_SCALE (16)
 
 extern FRAME PickMeleeFrame;
 

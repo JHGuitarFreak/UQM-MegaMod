@@ -40,8 +40,8 @@
 
 // Dart Gun
 #define WEAPON_ENERGY_COST 1
-#define SHOFIXTI_OFFSET RES_BOOL(15, 51)
-#define MISSILE_OFFSET RES_SCALE(1)
+#define SHOFIXTI_OFFSET RES_BOOL (15, 51)
+#define MISSILE_OFFSET RES_SCALE (1)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (24)
 #define MISSILE_LIFE 10
 #define MISSILE_HITS 1
@@ -50,14 +50,14 @@
 // Glory Device
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_SAUCE 180
-#define DESTRUCT_RANGE RES_SCALE(SPECIAL_SAUCE)
+#define DESTRUCT_RANGE RES_SCALE (SPECIAL_SAUCE)
 #define MAX_DESTRUCTION (SPECIAL_SAUCE / 10)
 
 // Full game: Tanaka/Katana's damaged ships
 #define NUM_LIMPETS 3
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC shofixti_desc =
 {
@@ -471,8 +471,8 @@ init_shofixti (void)
 	static RACE_DESC new_shofixti_desc;
 
 	if (IS_HD) {
-		shofixti_desc.characteristics.max_thrust = RES_SCALE(MAX_THRUST);
-		shofixti_desc.characteristics.thrust_increment = RES_SCALE(THRUST_INCREMENT);
+		shofixti_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		shofixti_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		shofixti_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
 
@@ -512,7 +512,7 @@ init_shofixti (void)
 					--new_shofixti_desc.characteristics.thrust_wait;
 
 				/* This should be the same as MIN_THRUST_INCREMENT in vux.c */
-#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (RES_SCALE(1))
+#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (RES_SCALE (1))
 
 				if (new_shofixti_desc.characteristics.thrust_increment <=
 					MIN_THRUST_INCREMENT)
@@ -526,7 +526,7 @@ init_shofixti (void)
 
 					num_thrusts = new_shofixti_desc.characteristics.max_thrust /
 						new_shofixti_desc.characteristics.thrust_increment;
-					new_shofixti_desc.characteristics.thrust_increment -= RES_SCALE(1); 
+					new_shofixti_desc.characteristics.thrust_increment -= RES_SCALE (1); 
 					new_shofixti_desc.characteristics.max_thrust =
 						new_shofixti_desc.characteristics.thrust_increment *
 						num_thrusts;
