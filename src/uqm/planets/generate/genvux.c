@@ -348,19 +348,10 @@ GenerateVux_generateLife (const SOLARSYS_STATE *solarSys,
 			ZEX_BEAUTY, /* VUX Beast */
 			-1 /* term */
 		};
-		static const SBYTE lifeExDM[] =
-		{
-			9,  9,  9,  9,  9, /* Carousel Beast */
-			18, 18, 18, 18, 18, /* Penguin Cyclops */
-			-1 /* term */
-		};
 
 		return GeneratePresetLife (
-				&solarSys->SysInfo,
-				LIFE_BOOL && GET_GAME_STATE (VUX_BEAST_ON_SHIP)
-					? lifeExDM : LIFE_BOOL ? lifeEx : life,
-				whichNode,
-				info);
+				&solarSys->SysInfo, EXTENDED ? lifeEx : life,
+				whichNode, info);
 	}
 
 	if (CurStarDescPtr->Index == VUX_BEAST_DEFINED
@@ -404,20 +395,29 @@ GenerateVux_pickupLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if (LIFE_BOOL && CurStarDescPtr->Index == MAIDENS_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-
 		if (whichNode == 10)
 		{	// Picked up Zex' Beauty... Again.
 			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
-					CaptureStringTable (
-						LoadStringTable (BEAST_STRTAB)), 1);
+					SetRelStringTableIndex (
+						CaptureStringTable (
+							LoadStringTable (BEAST_STRTAB)), 1);
 
 			GenerateDefault_landerReport (solarSys);
 			SetLanderTakeoff ();
 
 			SET_GAME_STATE (VUX_BEAST, 2);
 			SET_GAME_STATE (VUX_BEAST_ON_SHIP, 2);
+
+			if (!GET_GAME_STATE (SHOFIXTI_MAIDENS))
+			{	// Reinitialize the Maiden's report as the Beast report overrides it
+				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+				solarSys->PlanetSideFrame[1] = CaptureDrawable (
+						LoadGraphic (MAIDENS_MASK_PMAP_ANIM));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						CaptureStringTable (
+							LoadStringTable (MAIDENS_STRTAB));
+			}
 		}
 
 		return true; // picked up
