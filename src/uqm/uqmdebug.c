@@ -1225,6 +1225,66 @@ dumpWorld (FILE *out, const PLANET_DESC *world)
 			calculateMineralValue (pSolarSysState, world));
 }
 
+void
+fprintfWorld (const PLANET_DESC *world)
+{
+	PLANET_INFO *info;
+	UNICODE buf[200];
+	FILE *fp = fopen ("planetLog.txt", "a");
+	POINT universe = CurStarDescPtr->star_pt;
+
+	if (world->data_index == HIERARCHY_STARBASE
+		|| world->data_index == SA_MATRA
+		|| world->data_index == DESTROYED_STARBASE
+		|| world->data_index == PRECURSOR_STARBASE)
+	{
+		return;
+	}
+
+	fprintf (fp, "Coords:     %03u.%01u : %03u.%01u\n",
+			universe.x / 10, universe.x % 10,
+			universe.y / 10, universe.y % 10);
+	
+	GetClusterName (CurStarDescPtr, buf);
+
+	fprintf (fp, "Star:       %s\n", buf);
+
+	GetPlanetTitle (buf, sizeof (buf));
+
+	if (strcmp (buf, GLOBAL_SIS (PlanetName)) != 0)
+		fprintf (fp, "Planet:     %s\n", GLOBAL_SIS (PlanetName));
+
+	info = &pSolarSysState->SysInfo.PlanetInfo;
+	fprintf (fp, "World:      %s\n\n", buf);
+	fprintf (fp, "DistToSun:  %d\n", info->PlanetToSunDist);
+	fprintf (fp, "Atmosphere: %d\n", info->AtmoDensity);
+	fprintf (fp, "Temp:       %d\n", info->SurfaceTemperature);
+	fprintf (fp, "Weather:    %d\n", info->Weather);
+	fprintf (fp, "Tectonics:  %d\n\n", info->Tectonics);
+	fprintf (fp, "Density:    %d\n", info->PlanetDensity);
+	fprintf (fp, "Radius:     %d\n", info->PlanetRadius);
+	fprintf (fp, "Gravity:    %d\n", info->SurfaceGravity);
+	fprintf (fp, "Day:        %d\n", info->RotationPeriod);
+	fprintf (fp, "AxialTilt:  %d\n\n", info->AxialTilt);
+
+	if (world->data_index & PLANET_SHIELDED)
+	{	// Slave-shielded planet
+		fprintf (fp, "LifeChance: %d\n", info->LifeChance);
+		fprintf (fp, "____________________________________\n\n");
+		fclose (fp);
+		return;
+	}
+	else
+		fprintf (fp, "LifeChance: %d\n", info->LifeChance);
+
+	fprintf (fp, "Bio: %4d    Min: %4d\n",
+			calculateBioValue (pSolarSysState, world),
+			calculateMineralValue (pSolarSysState, world));
+	fprintf (fp, "____________________________________\n\n");
+
+	fclose (fp);
+}
+
 COUNT
 calculateBioValue (const SOLARSYS_STATE *system, const PLANET_DESC *world)
 {
