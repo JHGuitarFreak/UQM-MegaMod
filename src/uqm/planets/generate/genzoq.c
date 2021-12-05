@@ -115,34 +115,34 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 		}
 	}
-else if (EXTENDED)
-{
-	if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED)
-		solarSys->SunDesc[0].PlanetByte = 0;
-	else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+	else if (EXTENDED)
 	{
-		solarSys->SunDesc[0].PlanetByte = 1;
-
-		if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
+		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED)
+			solarSys->SunDesc[0].PlanetByte = 0;
+		else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-			solarSys->SunDesc[0].MoonByte = 0;
+			solarSys->SunDesc[0].PlanetByte = 1;
+
+			if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
+			{
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+				solarSys->SunDesc[0].MoonByte = 0;
+			}
+		}
+
+		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
+			|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
+			if (!PrimeSeed)
+			{
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			}
+			CheckForHabitable (solarSys);
 		}
 	}
-
-	if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-		|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
-		if (!PrimeSeed)
-		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		}
-		CheckForHabitable (solarSys);
-	}
-}
 
 	return true;
 }

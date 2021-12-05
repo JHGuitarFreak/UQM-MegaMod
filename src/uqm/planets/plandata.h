@@ -315,17 +315,6 @@ extern UWORD CalcGravity (const PLANET_INFO*);
 #define COLD_THRESHOLD -40
 #define HOT_THRESHOLD 100
 
-#define SOL_COLOR_TABS \
-	MERCURY_COLOR_TAB, \
-	VENUS_COLOR_TAB, \
-	EARTH_COLOR_TAB, \
-	MARS_COLOR_TAB, \
-	JUPITER_COLOR_TAB, \
-	SATURN_COLOR_TAB, \
-	URANUS_COLOR_TAB, \
-	NEPTUNE_COLOR_TAB, \
-	PLUTO_COLOR_TAB
-
 /*------------------------------ Global Data ------------------------------ */
 
 #define NO_TECTONICS 0

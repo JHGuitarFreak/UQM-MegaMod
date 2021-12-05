@@ -425,7 +425,7 @@ FriendlyExit (RESPONSE_REF R)
 		AlienTalkSegue (2);
 
 		CommData.AlienTextFColor = WHITE_COLOR;
-		FadeScreen (FadeAllToBlack, 0);		
+		FadeScreen (FadeAllToBlack, 0);
 
 		DrawSISFrame ();
 		DrawSISMessage (NULL);
