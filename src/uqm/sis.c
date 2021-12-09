@@ -1057,6 +1057,7 @@ DrawPC_SIS (void)
 	// Text "CAPTAIN".
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);
 	t.baseline.y = r.corner.y + RES_SCALE (6);
+	t.baseline.x -= RES_SCALE (1);
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 5); // "CAPTAIN"
 	font_DrawText (&t);
 }
