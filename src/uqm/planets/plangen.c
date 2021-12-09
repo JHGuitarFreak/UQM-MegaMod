@@ -655,9 +655,9 @@ CreateShieldMask (COUNT radius)
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
 //  the throbbing cycle is tied to the planet rotation cycle
-#define SHIELD_THROBS RES_DBL (12)
+#define SHIELD_THROBS RES_DESCALE (optSuperPC ? 10 : 12)
 		// throb cycles per revolution
-#define THROB_CYCLE      ((MAP_WIDTH << 8) / SHIELD_THROBS)
+#define THROB_CYCLE      ((ORIGINAL_MAP_WIDTH << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
 
 #define THROB_MAX_LEVEL 256
