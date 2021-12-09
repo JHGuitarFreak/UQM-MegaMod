@@ -79,7 +79,7 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 #define CHOICE_COUNT       75
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
-#define LABEL_COUNT         5
+#define LABEL_COUNT         9
 #define TEXTENTRY_COUNT     2
 #define CONTROLENTRY_COUNT  8
 
@@ -136,27 +136,39 @@ static WIDGET *graphics_widgets[] = {
 	NULL };
 
 static WIDGET *engine_widgets[] = {
+	(WIDGET *)(&labels[5]),     // UI Label
 	(WIDGET *)(&choices[4]),    // Menu Style
 	(WIDGET *)(&choices[5]),    // Font Style
-	(WIDGET *)(&choices[6]),    // Scan Style
+	(WIDGET *)(&choices[11]),   // Cutscenes
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[6]),     // Comm Label
 	(WIDGET *)(&choices[7]),    // Scroll Style
 	(WIDGET *)(&choices[22]),   // Speech
 	(WIDGET *)(&choices[8]),    // Subtitles
+	(WIDGET *)(&choices[66]),   // Oscilloscope Style
+
+	(WIDGET *)(&labels[4]),     // Spacer
 #if defined(ANDROID) || defined(__ANDROID__)
 	(WIDGET *)(&choices[50]),   // Android: Melee Zoom
 #else
 	(WIDGET *)(&choices[13]),   // Melee Zoom
 #endif
-	(WIDGET *)(&choices[11]),   // Cutscenes
-	(WIDGET *)(&choices[17]),   // Slave Shields
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[7]),     // IP Label
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[62]),   // Interplanetary Style
 	(WIDGET *)(&choices[63]),   // Star Background
+	(WIDGET *)(&choices[70]),   // Flagship Style
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[8]),     // Scan Label
+	(WIDGET *)(&choices[6]),    // Scan Style
+	(WIDGET *)(&choices[17]),   // Slave Shields
 	(WIDGET *)(&choices[64]),   // Scan Style
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
-	(WIDGET *)(&choices[66]),   // Oscilloscope Style
 	(WIDGET *)(&choices[68]),   // Lander Style
-	(WIDGET *)(&choices[70]),   // Flagship Style
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -231,19 +243,29 @@ static WIDGET *advanced_widgets[] = {
 	NULL };
 
 static WIDGET *visual_widgets[] = {
+	(WIDGET *)(&labels[7]),     // IP Label
 	(WIDGET *)(&choices[35]),   // IP nebulae on/off
 	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
+	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
+	(WIDGET *)(&choices[69]),   // Planet Texture
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[5]),     // UI Label
 	(WIDGET *)(&choices[38]),   // Switch date formats
 	(WIDGET *)(&choices[45]),   // Custom Border switch
 	(WIDGET *)(&choices[48]),   // Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),   // Fuel Range
-	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
+	(WIDGET *)(&choices[67]),   // Animated HyperStars
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[6]),     // Comm Label
 	(WIDGET *)(&choices[58]),   // Alternate Orz font
 	(WIDGET *)(&choices[65]),   // Non-Stop Scope
-	(WIDGET *)(&choices[67]),   // Animated HyperStars
-	(WIDGET *)(&choices[69]),   // Planet Texture
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
