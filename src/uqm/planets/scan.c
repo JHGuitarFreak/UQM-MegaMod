@@ -199,12 +199,11 @@ HazardCase (BYTE hazard)
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y RES_SCALE (16)
+#define SCAN_TITLE_Y RES_SCALE (13)
 
 static void
 PrintCoarseScanPC (void)
 {
-#define SCAN_LEADING_PC RES_SCALE (10) 
 	SDWORD val;
 	TEXT t;
 	RECT r;
@@ -226,9 +225,10 @@ PrintCoarseScanPC (void)
 
 	SetContextFont (TinyFont);
 
-#define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2) 
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72)) 
-#define SCAN_BASELINE_Y_PC RES_SCALE (51) 
+#define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2)
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72))
+#define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (14))
+#define SCAN_LEADING_PC RES_SCALE (10)
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
@@ -386,34 +386,33 @@ PrintCoarseScan3DO (void)
 	SDWORD val;
 	TEXT t;
 	STAMP s;
-	UNICODE buf[200];
-
-	GetPlanetTitle (buf, sizeof (buf));
+	UNICODE buf[40];
 
 	SetContext (PlanetContext);
+
+	GetPlanetTitle (buf, sizeof (buf));
 
 	t.align = ALIGN_CENTER;
 	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	t.baseline.y = SCAN_TITLE_Y;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-
 	SetContextForeGroundColor (SCAN_INFO_COLOR);
 	SetContextFont (MicroFont);
 	font_DrawText (&t);
 
-	s.origin.y = RES_SCALE (9);
-	s.origin.x = RES_SCALE (16);
-	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
-	DrawStamp (&s);
-
-#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 16) 
+#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15)
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y RES_SCALE (34) 
+#define SCAN_BASELINE_Y RES_SCALE (25 + 12)
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_LEFT;
+
+	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
+	s.origin.x = 0;
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
+	DrawStamp (&s);
 
 	t.pStr = buf;
 	val = ((pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist * 100L
@@ -471,7 +470,7 @@ PrintCoarseScan3DO (void)
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
-	t.baseline.x = RIGHT_SIDE_BASELINE_X;
+	t.baseline.x = RIGHT_SIDE_BASELINE_X - RES_SCALE (3);
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 
@@ -1424,6 +1423,8 @@ ScanSystem (void)
 	MENU_STATE MenuState;
 
 	memset (&MenuState, 0, sizeof MenuState);
+
+	// fprintfWorld (pSolarSysState->pOrbitalDesc);
 
 	GetScanContext (NULL);
 

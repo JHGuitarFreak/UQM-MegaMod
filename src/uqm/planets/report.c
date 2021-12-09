@@ -65,7 +65,7 @@ ClearReportArea (void)
 
 		startx = (optSuperPC != OPT_PC ? 0 : RES_SCALE (1)) + 1
 				+ (r.extent.width >> 1) - (RES_SCALE (1) - IF_HD (1));
-		starty = RES_SCALE (2);
+		starty = RES_SCALE (1);
 	}
 	else if (optSuperPC == OPT_PC)
 	{

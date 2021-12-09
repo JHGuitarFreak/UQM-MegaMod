@@ -544,7 +544,7 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 	else
 	{
 		s.origin.x = RES_SCALE (6) + (RES_SCALE (6) * (crew_delta % NUM_CREW_COLS));
-		s.origin.y = RES_SCALE (43) - (RES_SCALE (6) * (crew_delta / NUM_CREW_COLS));
+		s.origin.y = RES_SCALE (39) - (RES_SCALE (6) * (crew_delta / NUM_CREW_COLS));
 		OldContext = SetContext (PCLanderContext);
 	}
 
@@ -2548,8 +2548,7 @@ InitPCLander (void)
 		STAMP s;
 
 		s.frame = SetAbsFrameIndex (LanderFrame[7], 32);
-		s.origin.x = 0;
-		s.origin.y = MAP_HEIGHT / 2 - s.frame->Bounds.height / 2;
+		s.origin = MAKE_POINT (0, 0);
 		DrawStamp (&s);
 
 		ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
@@ -2563,7 +2562,7 @@ InitPCLander (void)
 			inc = MAX_HOLD_BARS - ((free_space >> capacity_shift)
 					* MAX_HOLD_BARS / MAX_SCROUNGED) + 1;
 
-			r.corner = MAKE_POINT (RES_SCALE (1), RES_SCALE (4));
+			r.corner = MAKE_POINT (RES_SCALE (1), 0);
 			r.extent = MAKE_EXTENT (RES_SCALE (2), RES_SCALE (inc));
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
