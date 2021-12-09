@@ -2310,6 +2310,25 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		MAROON_XLAT_TAB,
 		230, 2, 200, 150,
 	},
+	//{ /* DIAMOND_WORLD */
+	//	MAKE_BYTE (LARGE_ROCKY_WORLD + TOPO_ALGO,
+	//			WHITE_BODY), /* Color and type/size of planet */
+	//	NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
+	//	MAKE_BYTE (LOW_DENSITY, LIGHT), /* Atmosphere and density */
+	//	{
+	//		{TZO_CRYSTALS, HUGE_USEFUL},
+	//		{NEUTRONIUM, MEDIUM_USEFUL},
+	//		{NOTHING, NO_DEPOSIT},
+	//		{NOTHING, NO_DEPOSIT},
+	//		{NOTHING, NO_DEPOSIT},
+	//		{NOTHING, NO_DEPOSIT},
+	//		{NOTHING, NO_DEPOSIT},
+	//		{NOTHING, NO_DEPOSIT},
+	//	},
+	//	GRY_GAS_COLOR_TAB,
+	//	RUBY_XLAT_TAB,
+	//	80, 1, 0, 114,
+	//},
 
 	{
 		MAKE_BYTE (GAS_GIANT + GAS_GIANT_ALGO,

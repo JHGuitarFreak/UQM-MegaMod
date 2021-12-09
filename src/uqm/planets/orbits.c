@@ -91,6 +91,7 @@ BlueDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_NEVER,  /* MAGMA_WORLD */
 		PLANET_NEVER,  /* MAROON_WORLD */
+		//PLANET_NEVER,  /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -162,6 +163,7 @@ GreenDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_NEVER,  /* MAGMA_WORLD */
 		PLANET_NEVER,  /* MAROON_WORLD */
+		//PLANET_NEVER,  /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -233,6 +235,7 @@ OrangeDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_ALWAYS, /* MAGMA_WORLD */
 		PLANET_ALWAYS, /* MAROON_WORLD */
+		//PLANET_ALWAYS, /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -304,6 +307,7 @@ RedDistribution (BYTE which_world)
 		PLANET_ALWAYS, /* RUBY_WORLD */
 		PLANET_ALWAYS, /* MAGMA_WORLD */
 		PLANET_ALWAYS, /* MAROON_WORLD */
+		//PLANET_ALWAYS, /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -375,6 +379,7 @@ WhiteDistribution (BYTE which_world)
 		PLANET_ALWAYS, /* RUBY_WORLD */
 		PLANET_NEVER,  /* MAGMA_WORLD */
 		PLANET_NEVER,  /* MAROON_WORLD */
+		//PLANET_NEVER,  /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -446,6 +451,7 @@ YellowDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_ALWAYS, /* MAGMA_WORLD */
 		PLANET_ALWAYS, /* MAROON_WORLD */
+		//PLANET_ALWAYS, /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -735,5 +741,77 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 		return TRUE;
 	}
 	else return FALSE;
+
+	/*if (planetByte > 0 && newRadius < pPD[planetByte-1].radius)
+	{
+		DWORD radialSection = planetRadii[planetByte] - CLOSEST_RADIUS;
+		BYTE numRockySections = radialSection / DWARF_ROCK_DIST;
+		BYTE numGassySections = radialSection / DWARF_GASG_DIST;
+
+		printf ("radialSection %d, numRockySections %d, numGassySections %d\n", radialSection, numRockySections, numGassySections);
+
+		for (i = planetByte - 1; i > -1; --i)
+		{
+			rand_val = RandomContext_Random (SysGenRNG);
+
+			planetRadii[i] = (LOWORD (rand_val) % (
+				planetRadii[(i + 1)] - CLOSEST_RADIUS) + CLOSEST_RADIUS);
+		}
+
+		for (i = planetByte - 1; i > -1; --i)
+		{
+			if (pPD[i].data_index < FIRST_GAS_GIANT)
+				min_radius = DWARF_ROCK_DIST;
+			else
+				min_radius = DWARF_GASG_DIST;
+
+			if (i > -1)
+			{
+				if (planetRadii[i] < planetRadii[i - 1])
+					planetRadii[i] = planetRadii[i - 1];
+			}
+
+			radiusDiff = planetRadii[(i + 1)] - min_radius;
+
+			if (planetRadii[i] > radiusDiff)
+				planetRadii[i] = radiusDiff;
+		}
+
+		for (i = planetByte - 1; i > -1; --i)
+		{
+			if (planetRadii[i] > CLOSEST_RADIUS)
+			{
+				rand_val = RandomContext_Random (SysGenRNG);
+				pPD[i].radius = planetRadii[i];
+				pPD[i].angle = NORMALIZE_ANGLE (LOWORD (rand_val));
+				pPD[i].location.x =
+					COSINE (pPD[i].angle, pPD[i].radius);
+				pPD[i].location.y =
+					SINE (pPD[i].angle, pPD[i].radius);
+				ComputeSpeed (&pPD[i], FALSE, HIWORD (rand_val));
+			}
+		}
+	}*/
+
+	//{	// Renumber all the planets
+	//	BYTE i;
+
+	//	for (i = 0; i < numPlanets; ++i)
+	//	{
+	//		BYTE j;
+
+	//		for (j = (BYTE)(numPlanets - 1); j > i; --j)
+	//		{
+	//			if (solarSys->PlanetDesc[i].radius > solarSys->PlanetDesc[j].radius)
+	//			{
+	//				PLANET_DESC temp;
+
+	//				temp = solarSys->PlanetDesc[i];
+	//				solarSys->PlanetDesc[i] = solarSys->PlanetDesc[j];
+	//				solarSys->PlanetDesc[j] = temp;
+	//			}
+	//		}
+	//	}
+	//}
 }
 

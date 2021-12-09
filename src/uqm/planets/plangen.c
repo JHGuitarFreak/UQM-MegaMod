@@ -250,8 +250,8 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDe
 
 				// fixed planet surfaces being too dark
 				// ctab shifts were previously >> 3 .. -Mika
-				*pix = BUILD_COLOR (MAKE_RGB15 (ctab[0] >> ColorShift, 
-					ctab[1] >> ColorShift, ctab[2] >> ColorShift), d);		
+				*pix = BUILD_COLOR (MAKE_RGB15 (ctab[0] >> ColorShift,
+					ctab[1] >> ColorShift, ctab[2] >> ColorShift), d);
 			}
 		}
 		WriteFramePixelColors (DstFrame, map, w, h);
@@ -2165,7 +2165,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	{	// gas giants are pretty much flat
 		memset (Orbit->lpTopoData, 0, width * height);
 	}
-			
+
 	if (pSolarSysState->pOrbitalDesc->pPrevDesc ==
 			&pSolarSysState->SunDesc[0])
 	{	// this is a planet -- get its location
@@ -2189,8 +2189,11 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 		pPlanetDesc->rotwidth = width;
 		pPlanetDesc->rotheight = height;
 		pPlanetDesc->rotFrameIndex = 0;
-		pPlanetDesc->rotPointIndex = 0; 
-		pPlanetDesc->rot_speed = ((double)(pPlanetDesc->rotwidth * pPlanetDesc->rotDirection * 240)) / PlanetInfo->RotationPeriod;
+		pPlanetDesc->rotPointIndex = 0;
+		pPlanetDesc->rot_speed =
+				((double)(pPlanetDesc->rotwidth
+				* pPlanetDesc->rotDirection * 240))
+				/ PlanetInfo->RotationPeriod;
 	}
 	
 	if (shielded)
