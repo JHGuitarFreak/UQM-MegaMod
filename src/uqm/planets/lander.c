@@ -631,7 +631,8 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	EType = ElementPtr->thrust_wait;
 	Offset = BIOLOGICAL_STRING_BASE;
 
-	if (Scan != BIOLOGICAL_SCAN){
+	if (Scan != BIOLOGICAL_SCAN) 
+	{
 		Amount = &pPSD->ElementLevel;
 		Max = pPSD->MaxElementLevel;
 		EType = ElementPtr->turn_wait;
@@ -641,22 +642,24 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	// JMS: The rest of partially scavenged minerals stay on the surface.
 	PartialPickup = FALSE;
 
-	if (*Amount >= Max) {
+	if (*Amount >= Max)
+	{
 		// Lander full
 		PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_FULL),
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 		return false;
 	}
 
-	if (*Amount + NumRetrieved > Max) {
+	if (*Amount + NumRetrieved > Max)
+	{
 		SIZE which_node;
 		COUNT oldsize = ElementPtr->mass_points;
 
 		// Deposit could only be picked up partially.
 		NumRetrieved = (COUNT)(Max - *Amount);
 
-		if (Scan != BIOLOGICAL_SCAN && optPartialPickup){
-			// JMS: Subtract the scavenged kilotons from the mineral deposit.
+		if (Scan != BIOLOGICAL_SCAN && optPartialPickup)
+		{	// JMS: Subtract the scavenged kilotons from the mineral deposit.
 			// The rest will stay on the surface.
 			ElementPtr->mass_points -= NumRetrieved;
 		

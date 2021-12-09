@@ -53,10 +53,12 @@ DrawPCScannedPlanetSphere (int x, int y)
 	s.origin.x = x;
 	s.origin.y = y;
 
-	s.frame = CaptureDrawable(CloneFrame(Orbit->SphereFrame));
+	s.frame = CaptureDrawable (CloneFrame (Orbit->SphereFrame));
 	
-	map = HMalloc(sizeof(Color) * s.frame->Bounds.width * s.frame->Bounds.height);
-	ReadFramePixelColors(s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
+	map = HMalloc (
+			sizeof (Color) * s.frame->Bounds.width * s.frame->Bounds.height);
+	ReadFramePixelColors (
+			s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
 
 	pix = map;
 
@@ -66,10 +68,11 @@ DrawPCScannedPlanetSphere (int x, int y)
 			TransformColor (pix, Orbit->scanType);
 	}
 
-	WriteFramePixelColors(s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
-	HFree(map);
+	WriteFramePixelColors (
+			s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
+	HFree (map);
 
-	DrawStamp(&s);
+	DrawStamp (&s);
 
 	DestroyDrawable (ReleaseDrawable (s.frame));
 }
@@ -104,7 +107,7 @@ DrawDefaultPlanetSphere (void)
 	if (optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC
 		&& pSolarSysState->Orbit.scanType != NUM_SCAN_TYPES)
 		DrawPCScannedPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
-	else		
+	else
 		DrawPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
 	SetContext (oldContext);
 }
