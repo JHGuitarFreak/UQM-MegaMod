@@ -69,7 +69,7 @@ enum
 	LANDER_DESTROYED
 };
 
-#define MAX_SCROUNGED (optLanderHold == OPT_3DO ? 50 : 64) /* max units lander can hold (was 64 in SC2 DOS) */
+#define MAX_SCROUNGED (optSuperPC == OPT_PC ? 64 : 50) /* max units lander can hold (was 64 in SC2 DOS) */
 #define MAX_HOLD_BARS (optSuperPC == OPT_PC ? 64 : 50) /* number of bars on the lander screen */
 
 #define SCALE_RADIUS(r) ((r) << 6)

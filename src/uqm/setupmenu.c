@@ -150,7 +150,6 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[11]),   // Cutscenes
 	(WIDGET *)(&choices[17]),   // Slave Shields
 	(WIDGET *)(&choices[52]),   // IP Transitions
-	(WIDGET *)(&choices[51]),   // Lander Hold Size
 	(WIDGET *)(&choices[62]),   // Interplanetary Style
 	(WIDGET *)(&choices[63]),   // Star Background
 	(WIDGET *)(&choices[64]),   // Scan Style
