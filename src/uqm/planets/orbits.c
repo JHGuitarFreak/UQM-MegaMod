@@ -673,10 +673,10 @@ RelocatePlanet:
 	}
 }
 
-SIZE
+BOOLEAN
 CheckForHabitable (SOLARSYS_STATE *solarSys)
 {
-	const DWORD HabitableRanges[NUM_STAR_COLORS][2] = {
+	const SIZE HabitableRanges[NUM_STAR_COLORS][2] = {
 		{  853, 1790 },
 		{  544, 1151 },
 		{  139,  287 },
@@ -684,34 +684,56 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 		{ 1231, 2569 },
 		{  312,  778 }
 	};
+#define CLOSEST_RADIUS HabitableRanges[ORANGE_BODY][0]
+	PLANET_DESC *pPD;
 	BYTE starColor;
-	DWORD habitableRangeMin, habitableRangeMax, newHabitable;
-	COUNT angle;
-	SIZE Radius = solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius;
+	SIZE i;
+	BYTE planetByte = solarSys->SunDesc[0].PlanetByte;
+	BYTE numPlanets = solarSys->SunDesc[0].NumPlanets;
+	SIZE habitableRangeMin, habitableRangeMax, newRadius, radiusDiff;
+	SIZE oldRadius;
+	DWORD planetRadii[MAX_GEN_PLANETS];
+	DWORD rand_val;
+	static SIZE diffCheck, min_radius;
 
 	starColor =  STAR_COLOR (CurStarDescPtr->Type);
+
+	pPD = solarSys->PlanetDesc;
+	oldRadius = pPD[planetByte].radius;
 
 	habitableRangeMin = HabitableRanges[starColor][0];
 	habitableRangeMax = HabitableRanges[starColor][1];
 
-	if (Radius >= habitableRangeMin && Radius <= habitableRangeMax)
-		return Radius;
+	if (oldRadius >= habitableRangeMin && oldRadius <= habitableRangeMax
+			|| starColor == RED_BODY || planetByte > 0)
+	{
+		return FALSE;
+	}
 
-	newHabitable = (RandomContext_Random (SysGenRNG) % (
+	for (i = 0; i < numPlanets; ++i)
+		planetRadii[i] = pPD[i].radius;
+
+	rand_val = RandomContext_Random (SysGenRNG);
+
+	newRadius = (LOWORD (rand_val) % (
 			habitableRangeMax - habitableRangeMin) + habitableRangeMin);
 
-	printf ("starColor %d, HabitableRange Min %d Max %d, newHabitable %d\n",
-		starColor, habitableRangeMin, habitableRangeMax, newHabitable);
+	radiusDiff = abs (oldRadius - newRadius);
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = newHabitable;
-	angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-		COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-		SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-	ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+	planetRadii[planetByte] = newRadius;
 
-	return newHabitable;
+	if (planetRadii[planetByte] < planetRadii[planetByte + 1])
+	{
+		pPD[planetByte].radius = planetRadii[planetByte];
+		pPD[planetByte].angle = NORMALIZE_ANGLE (LOWORD (rand_val));
+		pPD[planetByte].location.x =
+			COSINE (pPD[planetByte].angle, pPD[planetByte].radius);
+		pPD[planetByte].location.y =
+			SINE (pPD[planetByte].angle, pPD[planetByte].radius);
+		ComputeSpeed (&pPD[planetByte], FALSE, HIWORD (rand_val));
+
+		return TRUE;
+	}
+	else return FALSE;
 }
 
