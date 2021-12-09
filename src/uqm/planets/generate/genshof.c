@@ -144,12 +144,15 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 {
 	COUNT i;
 
-	solarSys->SunDesc[0].NumPlanets = 6; 
+	solarSys->SunDesc[0].NumPlanets = 6;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
 	if(!PrimeSeed)
+	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+		CheckForHabitable (solarSys);
+	}
 
 	for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
 	{

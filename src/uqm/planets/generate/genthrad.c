@@ -226,6 +226,28 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					CaptureDrawable (LoadGraphic (AQUA_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (AQUA_STRTAB));
+
+			if (!PrimeSeed)
+			{
+				GenerateDefault_generateOrbital (solarSys, world);
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 160 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = -66;
+				if (!DIF_HARD)
+				{
+					solarSys->SysInfo.PlanetInfo.Weather = 3;
+					solarSys->SysInfo.PlanetInfo.Tectonics = 6;
+				}
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 105;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 97;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 101;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 205;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 10;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+
+				return true;
+			}
 		}
 		else if (CurStarDescPtr->Index == THRADD_DEFINED)
 		{
@@ -234,6 +256,28 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
+			if (!PrimeSeed)
+			{
+				GenerateDefault_generateOrbital (solarSys, world);
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 194 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 38;
+				if (!DIF_HARD)
+				{
+					solarSys->SysInfo.PlanetInfo.Weather = 3;
+					solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+				}
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 84;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 86;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 252;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 21;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
+
+				return true;
+			}
 		}
 	}
 

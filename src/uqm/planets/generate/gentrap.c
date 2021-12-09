@@ -55,7 +55,7 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);	
+	GeneratePlanets (solarSys);
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = TELLURIC_WORLD;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
@@ -64,6 +64,7 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 	if (!PrimeSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
+		CheckForHabitable (solarSys);
 	}
 	else
 	{
@@ -89,8 +90,20 @@ GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	{
 		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 2;
 		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 35;
-		solarSys->SysInfo.PlanetInfo.Weather = 3;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+		if (!DIF_HARD)
+		{
+			solarSys->SysInfo.PlanetInfo.Weather = 3;
+			solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+		}
+		if (!PrimeSeed)
+		{
+			solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 96;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 98;
+			solarSys->SysInfo.PlanetInfo.RotationPeriod = 223;
+			solarSys->SysInfo.PlanetInfo.AxialTilt = 19;
+			solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+		}
 	}
 
 	return true;

@@ -232,10 +232,27 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			GenerateMineralDeposits (&solarSys->SysInfo, GENERATE_ALL, NULL);
 
 			solarSys->SysInfo.PlanetInfo.ScanSeed[ENERGY_SCAN] = rand_val;
-			
-			solarSys->SysInfo.PlanetInfo.Weather = 0;
-			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+
+
 			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 0;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+			}
+
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 20 / 100;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 59;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 30;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 17;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 283;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 6;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+			}
+
 			if (!GET_GAME_STATE (UMGAH_BROADCASTERS))
 			{
 				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
@@ -281,14 +298,23 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					CaptureStringTable(LoadStringTable(RUINS_STRTAB));
 			}
 
-			if (PrimeSeed)
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 120;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 23;
+			if (!DIF_HARD)
 			{
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 120;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity =
-						CalcGravity (&solarSys->SysInfo.PlanetInfo);
 				solarSys->SysInfo.PlanetInfo.Weather = 0;
 				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 31;
+			}
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 31;
+
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 160 / 100;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 63;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 198;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = -27;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
 			}
 			
 			LoadPlanet (NULL);

@@ -156,10 +156,22 @@ GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (
 						LoadStringTable (BURV_RUINS_STRTAB));
-		if (PrimeSeed)
+		if (!DIF_HARD)
 		{
 			solarSys->SysInfo.PlanetInfo.Weather = 0;
 			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+		}
+		if (!PrimeSeed)
+		{
+			solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 30 / 100;
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 18;
+			solarSys->SysInfo.PlanetInfo.PlanetDensity = 96;
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 103;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 98;
+			solarSys->SysInfo.PlanetInfo.RotationPeriod = 172;
+			solarSys->SysInfo.PlanetInfo.AxialTilt = 6;
+			solarSys->SysInfo.PlanetInfo.LifeChance = 860;
 		}
 	}
 	else if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, 0)
@@ -170,6 +182,21 @@ GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				LoadGraphic (BURV_BCS_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (LoadStringTable (BURV_BCS_STRTAB));
+
+		solarSys->SysInfo.PlanetInfo.AtmoDensity =
+			EARTH_ATMOSPHERE * 30 / 100;
+		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 23;
+		if (!DIF_HARD)
+		{
+			solarSys->SysInfo.PlanetInfo.Weather = 2;
+			solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+		}
+		solarSys->SysInfo.PlanetInfo.PlanetDensity = 61;
+		solarSys->SysInfo.PlanetInfo.PlanetRadius = 30;
+		solarSys->SysInfo.PlanetInfo.SurfaceGravity = 18;
+		solarSys->SysInfo.PlanetInfo.RotationPeriod = 156;
+		solarSys->SysInfo.PlanetInfo.AxialTilt = 20;
+		solarSys->SysInfo.PlanetInfo.LifeChance = 860;
 	}
 
 	LoadPlanet (NULL);

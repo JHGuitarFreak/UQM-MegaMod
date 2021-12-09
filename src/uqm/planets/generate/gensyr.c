@@ -88,6 +88,7 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
+		CheckForHabitable (solarSys);
 	}
 
 	if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
@@ -156,9 +157,23 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		GenerateDefault_generateOrbital (solarSys, world);
 
 		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 19;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-		solarSys->SysInfo.PlanetInfo.Weather = 0;
-		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 9 / 10;
+		if (!DIF_HARD)
+		{
+			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+			solarSys->SysInfo.PlanetInfo.Weather = 0;
+		}
+		solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 9 / 10;
+
+		if (!PrimeSeed)
+		{
+			solarSys->SysInfo.PlanetInfo.PlanetDensity = 97;
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 85;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 82;
+			solarSys->SysInfo.PlanetInfo.RotationPeriod = 244;
+			solarSys->SysInfo.PlanetInfo.AxialTilt = 3;
+			solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+		}
 
 		return true;
 	}

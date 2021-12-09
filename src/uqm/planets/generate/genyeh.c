@@ -64,8 +64,8 @@ GenerateYehat_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (!PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
+		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % 3);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -78,6 +78,7 @@ GenerateYehat_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+		CheckForHabitable (solarSys);
 	}
 	else
 	{ 
@@ -129,6 +130,28 @@ GenerateYehat_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
+		if (!PrimeSeed)
+		{
+			GenerateDefault_generateOrbital (solarSys, world);
+
+			solarSys->SysInfo.PlanetInfo.AtmoDensity =
+					EARTH_ATMOSPHERE * 3;
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 16;
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 3;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 3;
+			}
+			solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 84;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 86;
+			solarSys->SysInfo.PlanetInfo.RotationPeriod = 151;
+			solarSys->SysInfo.PlanetInfo.AxialTilt = -9;
+			solarSys->SysInfo.PlanetInfo.LifeChance = 960;
+
+			return true;
+		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);

@@ -167,13 +167,22 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 
 			GenerateDefault_generateOrbital (solarSys, world);
 
-			if (PrimeSeed)
-			{
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+			solarSys->SysInfo.PlanetInfo.AtmoDensity =
 					EARTH_ATMOSPHERE * 144 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
+			if (!DIF_HARD)
+			{
 				solarSys->SysInfo.PlanetInfo.Weather = 1;
 				solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+			}
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 104;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 94;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 97;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 259;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = -22;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 560;
 			}
 
 			return true;
@@ -194,9 +203,21 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 			GenerateDefault_generateOrbital (solarSys, world);
 
 			solarSys->SysInfo.PlanetInfo.AtmoDensity =
-				EARTH_ATMOSPHERE * 126 / 100;
+					EARTH_ATMOSPHERE * 126 / 100;
 			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 9;
-			solarSys->SysInfo.PlanetInfo.Tectonics = 3;
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 1;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+			}
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 146;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 85;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 82;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 191;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 25;
+			}
 
 			return true;
 		}

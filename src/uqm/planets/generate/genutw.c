@@ -115,15 +115,16 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 		}
 		else
-		{			
+		{
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			CheckForHabitable (solarSys);
 		}
 	} 
 	else if (CurStarDescPtr->Index == BOMB_DEFINED) 
-	{		
-		solarSys->SunDesc[0].PlanetByte = 5;		
+	{
+		solarSys->SunDesc[0].PlanetByte = 5;
 		solarSys->SunDesc[0].MoonByte = 1;
 
 		if (!PrimeSeed)
@@ -133,10 +134,10 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 		GeneratePlanets (solarSys);
 
 		if (!PrimeSeed)
-		{		
+		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random (SysGenRNG) % (YEL_GAS_GIANT - BLU_GAS_GIANT) + BLU_GAS_GIANT);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (4 - 2) + 2);
-		}		
+		}
 	}
 
 	return true;
@@ -256,17 +257,34 @@ GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
+			GenerateDefault_generateOrbital (solarSys, world);
+
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 1;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+			}
+
+			if (!PrimeSeed)
+			{
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 2;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 35;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 105;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 107;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 112;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 169;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 3;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
+			}
+
+			return true;
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
-
-	if (CurStarDescPtr->Index == UTWIG_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) && PrimeSeed)
-	{
-		solarSys->SysInfo.PlanetInfo.Weather = 1;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 1;
-	}
 
 	return true;
 }

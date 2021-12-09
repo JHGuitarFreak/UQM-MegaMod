@@ -161,8 +161,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		if (CurStarDescPtr->Index >= SAMATRA_DEFINED)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 5) + 5);
-		else if (EXTENDED)
-			solarSys->SunDesc[0].NumPlanets = 9;
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -207,6 +205,7 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 			solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 		}
+		CheckForHabitable (solarSys);
 	}
 
 	if (EXTENDED

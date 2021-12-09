@@ -113,6 +113,7 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 		if (EXTENDED)
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+		CheckForHabitable (solarSys);
 	}
 	else
 	{
@@ -168,13 +169,20 @@ GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	{
 		DoPlanetaryAnalysis (&solarSys->SysInfo, world);
 
-		if (PrimeSeed)
+		solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 98 / 100;
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
+
+		if (!PrimeSeed)
 		{
-			solarSys->SysInfo.PlanetInfo.AtmoDensity =
-					EARTH_ATMOSPHERE * 98 / 100;
-			solarSys->SysInfo.PlanetInfo.Weather = 0;
-			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
+			solarSys->SysInfo.PlanetInfo.PlanetDensity = 104;
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 84;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 87;
+			solarSys->SysInfo.PlanetInfo.RotationPeriod = 212;
+			solarSys->SysInfo.PlanetInfo.AxialTilt = -28;
+			solarSys->SysInfo.PlanetInfo.LifeChance = 560;
 		}
 
 		LoadPlanet (NULL);
