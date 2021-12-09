@@ -373,6 +373,8 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	read_8   (fh, &GSPtr->ip_planet);
 	read_8   (fh, &GSPtr->in_orbit);
 
+	actuallyInOrbit = GSPtr->in_orbit;
+
 	// Let's make savegames work even between different resolution modes.
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;

@@ -573,7 +573,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE (7) 
+#define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? (is3DO (optWhichShield) ? 5 : 6) : 16)
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
