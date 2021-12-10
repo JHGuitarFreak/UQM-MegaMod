@@ -54,7 +54,7 @@ WIDGET *widget_focus = NULL;
 #define WIDGET_LABEL_COLOR \
 		BUILD_COLOR_RGBA (0,119,119, 0)
 
-#define ONSCREEN 10
+#define ONSCREEN 14
 #define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2);
 #define LSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 - 7)
 #define RSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 + 7)
@@ -279,7 +279,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		oldfont = SetContextFont (cur_font);
 	
 	r.corner.x = RES_SCALE (2);
-	r.corner.y = RES_SCALE (2);
+	r.corner.y = RES_SCALE (1);
 	r.extent.width = ScreenWidth - RES_SCALE (4);
 	r.extent.height = ScreenHeight - RES_SCALE (4);
 	
@@ -289,7 +289,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	
 	oldtext = SetContextForeGroundColor (title);
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_SCALE (8);
+	t.baseline.y = r.corner.y + RES_SCALE (6);
 	t.pStr = self->title;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -305,7 +305,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		if (widget_index <= ONSCREEN)
 		{
 			height += (*child->height)(child);
-			height += RES_SCALE (8);   /* spacing */
+			height += RES_SCALE (5);   /* spacing */
 		}
 	}
 
@@ -350,7 +350,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	{
 		WIDGET *c = self->child[widget_index];
 		(*c->draw)(c, 0, widget_y);
-		widget_y += (*c->height)(c) + RES_SCALE (8);
+		widget_y += (*c->height)(c) + RES_SCALE (5);
 	}
 
 	SetContextFontEffect (oldFontEffect);
@@ -519,6 +519,7 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	int i;
+	RECT r;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -839,14 +840,14 @@ int
 Widget_HeightOneLine (WIDGET *_self)
 {
 	(void)_self;
-	return RES_SCALE (8);
+	return RES_SCALE (6);
 }
 
 int
 Widget_HeightLabel (WIDGET *_self)
 {
 	WIDGET_LABEL *self = (WIDGET_LABEL *)_self;
-	return self->line_count * RES_SCALE (8);
+	return self->line_count * RES_SCALE (6);
 }
 
 int

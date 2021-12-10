@@ -140,29 +140,27 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[4]),    // Menu Style
 	(WIDGET *)(&choices[5]),    // Font Style
 	(WIDGET *)(&choices[11]),   // Cutscenes
+#if defined(ANDROID) || defined(__ANDROID__)
+	(WIDGET *)(&choices[50]),   // Android: Melee Zoom
+#else
+	(WIDGET *)(&choices[13]),   // Melee Zoom
+#endif
+	(WIDGET *)(&choices[70]),   // Flagship Style
 
-	(WIDGET *)(&labels[4]),     // Spacer
+	//(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[6]),     // Comm Label
 	(WIDGET *)(&choices[7]),    // Scroll Style
 	(WIDGET *)(&choices[22]),   // Speech
 	(WIDGET *)(&choices[8]),    // Subtitles
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
 
-	(WIDGET *)(&labels[4]),     // Spacer
-#if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[50]),   // Android: Melee Zoom
-#else
-	(WIDGET *)(&choices[13]),   // Melee Zoom
-#endif
-
-	(WIDGET *)(&labels[4]),     // Spacer
+	//(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[7]),     // IP Label
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[62]),   // Interplanetary Style
 	(WIDGET *)(&choices[63]),   // Star Background
-	(WIDGET *)(&choices[70]),   // Flagship Style
 
-	(WIDGET *)(&labels[4]),     // Spacer
+	//(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[6]),    // Scan Style
 	(WIDGET *)(&choices[17]),   // Slave Shields
@@ -233,6 +231,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[32]),   // Skip Intro
 	(WIDGET *)(&choices[40]),   // Partial Pickup switch
 	(WIDGET *)(&choices[56]),   // Game Over switch
