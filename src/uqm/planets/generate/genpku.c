@@ -69,9 +69,9 @@ GeneratePkunk_generatePlanets (SOLARSYS_STATE *solarSys)
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
 
-	solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[0].alternate_colormap = NULL;
-	solarSys->PlanetDesc[0].NumPlanets = 1;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 	if (!PrimeSeed)
 	{

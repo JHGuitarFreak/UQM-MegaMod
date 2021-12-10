@@ -149,10 +149,7 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].MoonByte = 0;
 
 	if(!PrimeSeed)
-	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
-		CheckForHabitable (solarSys);
-	}
 
 	for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
 	{
@@ -166,6 +163,9 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
+
+	if (!PrimeSeed)
+		CheckForHabitable (solarSys);
 
 	if (NOMAD && CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
