@@ -54,7 +54,7 @@ WIDGET *widget_focus = NULL;
 #define WIDGET_LABEL_COLOR \
 		BUILD_COLOR_RGBA (0,119,119, 0)
 
-#define ONSCREEN 14
+#define ONSCREEN 13
 #define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2);
 #define LSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 - 7)
 #define RSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 + 7)
@@ -73,7 +73,7 @@ static COUNT offset_b = ONSCREEN; // Bottom widget offset
 static FRAME arrow_frame = NULL; // Frames for additional graphics
 
 void
-ResetOffset(void)
+ResetOffset (void)
 {	// To reset offsets while traversing different moves
 	offset_t = 0;
 	offset_b = ONSCREEN;
@@ -241,7 +241,7 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	r.corner.x = RES_SCALE (2);
 	r.corner.y = RES_SCALE (8);
 	r.extent.width = ScreenWidth - RES_SCALE (4);
-	r.extent.height = ScreenHeight + RES_SCALE (2);
+	r.extent.height = ScreenHeight + RES_SCALE (3);
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -519,7 +519,6 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	int i;
-	RECT r;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -568,7 +567,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	t.pStr = self->category;
 	if (widget_focus == _self)
 	{
-		Widget_DrawToolTips (3, self->tooltip);		
+		Widget_DrawToolTips (3, self->tooltip);
 		oldtext = SetContextForeGroundColor (selected);
 	}
 	else
@@ -847,7 +846,7 @@ int
 Widget_HeightLabel (WIDGET *_self)
 {
 	WIDGET_LABEL *self = (WIDGET_LABEL *)_self;
-	return self->line_count * RES_SCALE (6);
+	return self->line_count * RES_SCALE (8);
 }
 
 int

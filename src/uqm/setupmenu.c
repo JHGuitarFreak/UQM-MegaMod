@@ -147,20 +147,17 @@ static WIDGET *engine_widgets[] = {
 #endif
 	(WIDGET *)(&choices[70]),   // Flagship Style
 
-	//(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[6]),     // Comm Label
 	(WIDGET *)(&choices[7]),    // Scroll Style
 	(WIDGET *)(&choices[22]),   // Speech
 	(WIDGET *)(&choices[8]),    // Subtitles
 	(WIDGET *)(&choices[66]),   // Oscilloscope Style
 
-	//(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[7]),     // IP Label
 	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[62]),   // Interplanetary Style
 	(WIDGET *)(&choices[63]),   // Star Background
 
-	//(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[6]),    // Scan Style
 	(WIDGET *)(&choices[17]),   // Slave Shields
@@ -242,18 +239,6 @@ static WIDGET *advanced_widgets[] = {
 	NULL };
 
 static WIDGET *visual_widgets[] = {
-	(WIDGET *)(&labels[7]),     // IP Label
-	(WIDGET *)(&choices[35]),   // IP nebulae on/off
-	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
-	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
-	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
-
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[8]),     // Scan Label
-	(WIDGET *)(&choices[44]),   // Hazard Colors
-	(WIDGET *)(&choices[69]),   // Planet Texture
-
-	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[5]),     // UI Label
 	(WIDGET *)(&choices[38]),   // Switch date formats
 	(WIDGET *)(&choices[45]),   // Custom Border switch
@@ -261,11 +246,20 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[33]),   // Fuel Range
 	(WIDGET *)(&choices[67]),   // Animated HyperStars
 
-	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[6]),     // Comm Label
 	(WIDGET *)(&choices[58]),   // Alternate Orz font
 	(WIDGET *)(&choices[65]),   // Non-Stop Scope
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
+
+	(WIDGET *)(&labels[7]),     // IP Label
+	(WIDGET *)(&choices[35]),   // IP nebulae on/off
+	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
+	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
+	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
+
+	(WIDGET *)(&labels[8]),     // Scan Label
+	(WIDGET *)(&choices[44]),   // Hazard Colors
+	(WIDGET *)(&choices[69]),   // Planet Texture
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
