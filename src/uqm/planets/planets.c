@@ -174,7 +174,8 @@ DrawPlanetSurfaceBorder (void)
 
 	if (optSuperPC == OPT_PC)
 	{
-		r.corner.x = RES_SCALE (UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X + RES_SCALE (1);
+		r.corner.x = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH)
+				- SIS_ORG_X + RES_SCALE (1);
 		r.corner.y = clipRect.extent.height - MAP_HEIGHT - RES_SCALE (1);
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = MAP_HEIGHT;
@@ -184,7 +185,8 @@ DrawPlanetSurfaceBorder (void)
 		r.extent.width = RES_SCALE (4);
 		r.corner.y -= RES_SCALE (1);
 		r.extent.height += RES_SCALE (2);
-		SetContextForeGroundColor (BUILD_COLOR_RGBA (0x52, 0x52, 0x52, 0xFF));
+		SetContextForeGroundColor (
+				BUILD_COLOR_RGBA (0x52, 0x52, 0x52, 0xFF));
 		DrawFilledRectangle (&r);
 		r.corner.x += RES_SCALE (4);
 		r.extent.width = RES_SCALE (1);
@@ -250,7 +252,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 				(LoadGraphic (ORBENTER_PMAP_ANIM)), never);
 
 		if (optSuperPC == OPT_PC)
-			s.origin.x -= RES_SCALE ((UQM_MAP_WIDTH - PC_MAP_WIDTH) / 2);
+			s.origin.x -= RES_SCALE ((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2);
 
 		if (never)
 		{
@@ -260,12 +262,15 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 			int PlanetRescale = 1275;
 
 			pPlanetDesc = pSolarSysState->pOrbitalDesc;
-			GeneratePlanetSurface (pPlanetDesc, NULL, PlanetScale, PlanetScale);
+			GeneratePlanetSurface (
+					pPlanetDesc, NULL, PlanetScale, PlanetScale);
 			ss.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 			ss.origin.y = RES_SCALE (191);
 			
 			ss.frame = RES_BOOL (Orbit->SphereFrame, CaptureDrawable (
-					RescaleFrame (Orbit->SphereFrame, PlanetRescale, PlanetRescale)));
+					RescaleFrame (
+						Orbit->SphereFrame, PlanetRescale, PlanetRescale
+					)));
 
 			DrawStamp (&ss);
 			DestroyDrawable (ReleaseDrawable (ss.frame));
@@ -356,12 +361,20 @@ LoadPlanet (FRAME SurfDefFrame)
 		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 		{
 			if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
-				&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE
-				&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
-				&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
+					&& (pSolarSysState->pOrbitalDesc->data_index
+							< PRECURSOR_STARBASE
+					&& pSolarSysState->pOrbitalDesc->data_index
+							!= DESTROYED_STARBASE
+					&& pSolarSysState->pOrbitalDesc->data_index
+							!= PRECURSOR_STARBASE))
 			{
-				snprintf ((GLOBAL_SIS (PlanetName)) + strlen (GLOBAL_SIS (PlanetName)),
-					3, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
+				snprintf (
+						(GLOBAL_SIS (PlanetName))
+						+ strlen (GLOBAL_SIS (PlanetName)),
+						3, "-%c%c", 'A'
+						+ moonIndex (
+							pSolarSysState, pSolarSysState->pOrbitalDesc),
+							'\0');
 			}
 		}
 	 	DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
@@ -380,7 +393,8 @@ FreePlanet (void)
 
 	for (i = 0; i < ARRAY_SIZE (pSolarSysState->PlanetSideFrame); ++i)
 	{
-		DestroyDrawable (ReleaseDrawable (pSolarSysState->PlanetSideFrame[i]));
+		DestroyDrawable (
+				ReleaseDrawable (pSolarSysState->PlanetSideFrame[i]));
 		pSolarSysState->PlanetSideFrame[i] = 0;
 	}
 
