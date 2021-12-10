@@ -233,7 +233,7 @@ widthHeightPicker (BOOLEAN is_width)
 	if (optPlanetTexture)
 		return (is_width ? (UQM_MAP_WIDTH - 1) : UQM_MAP_HEIGHT);
 	else
-		return (is_width ? THREEDO_MAP_WIDTH : THREEDO_MAP_HEIGHT);
+		return (is_width ? SC2_MAP_WIDTH : SC2_MAP_HEIGHT);
 }
 
 static COORD
@@ -273,7 +273,7 @@ GenerateRandomLocation (POINT *loc)
 	}
 	else
 	{
-		loc->x = RES_SCALE (8 + LOBYTE (rand_val) % (PC_MAP_WIDTH - (8 << 1)));
+		loc->x = RES_SCALE (8 + LOBYTE (rand_val) % (SC2_MAP_WIDTH - (8 << 1)));
 		loc->y = RES_SCALE (
 			scaleMapDimensions (
 				FALSE, 8 + HIBYTE (rand_val)
