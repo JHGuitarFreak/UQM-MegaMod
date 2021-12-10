@@ -249,7 +249,6 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[6]),     // Comm Label
 	(WIDGET *)(&choices[58]),   // Alternate Orz font
 	(WIDGET *)(&choices[65]),   // Non-Stop Scope
-	(WIDGET *)(&buttons[1]),    // Exit to Menu
 
 	(WIDGET *)(&labels[7]),     // IP Label
 	(WIDGET *)(&choices[35]),   // IP nebulae on/off
@@ -260,7 +259,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&buttons[1]),
+	(WIDGET *)(&buttons[1]),		// Exit to Menu
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {

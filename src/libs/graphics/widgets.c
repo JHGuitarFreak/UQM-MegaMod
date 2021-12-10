@@ -55,6 +55,7 @@ WIDGET *widget_focus = NULL;
 		BUILD_COLOR_RGBA (0,119,119, 0)
 
 #define ONSCREEN 13
+#define SCROLL_OFFSET 3 // The pos from the page edge where we need to start scrolling
 #define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2);
 #define LSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 - 7)
 #define RSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 + 7)
@@ -313,15 +314,44 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	widget_y = (ScreenHeight - height) >> 1;
 
 	{	// Scrolling
-		if (self->highlighted > offset_b)
+		if (self->highlighted > (offset_b - SCROLL_OFFSET) && offset_b < self->num_children - 1)
 		{
-			offset_t += (self->highlighted - offset_b);
-			offset_b += (self->highlighted - offset_b);
+			if (self->highlighted == self->num_children - 1 && offset_t != self->highlighted - (ONSCREEN - SCROLL_OFFSET))
+			{// smooth wrapping scroll
+				offset_t += 1;
+				offset_b += 1;
+			}
+			else
+			{// standart scroll
+				offset_b = self->highlighted + SCROLL_OFFSET;
+
+				if (offset_b > self->num_children - 1)
+				{// reached bottom widget
+					offset_b = self->num_children - 1;// cap bottom offset - stop further scrolling
+					offset_t = offset_b - ONSCREEN;// cap top offset
+				}
+				else // still moving
+					offset_t = self->highlighted - (ONSCREEN - SCROLL_OFFSET);
+			}			
 		}
-		if (self->highlighted < offset_t)
+		if (self->highlighted < (offset_t + SCROLL_OFFSET) && offset_t > 0)
 		{
-			offset_b -= (offset_t - self->highlighted);
-			offset_t -= (offset_t - self->highlighted);
+			if (self->highlighted < offset_t && offset_t != 0)
+			{// smooth wrapping scroll
+				offset_t -= 1;
+				offset_b -= 1;
+			}
+			else
+			{// standart scroll
+				offset_t = self->highlighted - SCROLL_OFFSET;
+				if (offset_t > 65500) // unit16 overflow
+				{// reached top widget
+					offset_t = 0;// cap top offset - stop further scrolling
+					offset_b = offset_t + ONSCREEN;// cap bottom offset
+				}
+				else // still moving
+					offset_b = self->highlighted + (ONSCREEN - SCROLL_OFFSET);
+			}
 		}
 		if (self->num_children > ONSCREEN)
 		{	// Arrows (blue to the right)
