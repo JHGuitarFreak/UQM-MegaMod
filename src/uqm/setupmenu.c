@@ -260,6 +260,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
+	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
