@@ -95,7 +95,8 @@ GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 		else if(solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets =
+				(RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 		CheckForHabitable (solarSys);
 	}
 	else

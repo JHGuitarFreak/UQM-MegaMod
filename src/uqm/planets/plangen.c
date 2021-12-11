@@ -1649,7 +1649,7 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 // Lots of pure Voodoo here ;)
 //  the goal is a 3D illusion, not mathematically correct lighting
 
-#define LMAP_AVG_BLOCK       ((UQM_MAP_HEIGHT + 64) / 5)
+#define LMAP_AVG_BLOCK       ((SC2_MAP_HEIGHT + 64) / 5)
 #define LMAP_MAX_DIST        ((LMAP_AVG_BLOCK + 1) >> 1)
 #define LMAP_WEIGHT_THRES    (LMAP_MAX_DIST * 2 / 3)
 

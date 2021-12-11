@@ -122,7 +122,6 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-		CheckForHabitable (solarSys);
 	}
 	
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -143,6 +142,8 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
+	else
+		CheckForHabitable (solarSys);
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
 

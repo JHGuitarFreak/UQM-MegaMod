@@ -196,7 +196,7 @@ CreatePCLanderContext (void)
 	SetContextFGFrame (Screen);
 	r.corner.x += r.extent.width - MAP_WIDTH;
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = RES_SCALE (UQM_MAP_WIDTH - PC_MAP_WIDTH) - SIS_ORG_X;
+	r.extent.width = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH) - SIS_ORG_X;
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
