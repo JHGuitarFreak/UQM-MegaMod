@@ -1999,9 +1999,9 @@ SeedUniverse (void)
 	s.frame = blip_frame;
 	DrawStamp (&s);
 
-	{
-		// draws borders to mini-map
-		
+
+	if (!IS_HD)
+	{	// draws borders to mini-map		
 		RECT r;
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x0E, 0x0E, 0x0E), 0x00));
@@ -2034,10 +2034,9 @@ SeedUniverse (void)
 		r.corner.x = RADAR_WIDTH - RES_SCALE (1);
 		r.corner.y = 0;
 		DrawFilledRectangle (&r);
-
-		if (IS_HD)
-			DrawBorder (31, FALSE);
 	}
+	else
+		DrawBorder (31, FALSE);
 
 	UnbatchGraphics ();
 
