@@ -1486,36 +1486,6 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	if (lander_flags & KILL_CREW)
 		DeltaLanderCrew (-1, LIGHTNING_DISASTER);
 
-	if (optSuperPC == OPT_PC)
-	{
-		if (!IS_HD)
-		{
-			RECT r;
-			CONTEXT oldContext;
-
-			GetContextClipRect (&r);
-			
-			oldContext = SetContext (ScreenContext);
-
-			r.corner.x--;
-			r.corner.y--;
-			r.extent.height += 2;
-			r.extent.width += 2;
-
-			DrawStarConBox (&r, 1,
-					SIS_LEFT_BORDER_COLOR,
-					SIS_BOTTOM_RIGHT_BORDER_COLOR,
-					FALSE, TRANSPARENT);
-
-			SetContext (oldContext);
-		}
-		else
-			DrawBorder (32, FALSE);
-	}
-
-	if (optSubmenu)
-		DrawMineralHelpers (FALSE);
-
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
@@ -1715,7 +1685,6 @@ InitPlanetSide (POINT pt)
 		
 		{
 			STAMP s;
-			RECT b = r;
 
 			// Note - This code is the same as in ScrollPlanetSize,
 			// Display planet area, accounting for horizontal wrapping if
@@ -1734,8 +1703,12 @@ InitPlanetSide (POINT pt)
 			{
 				if (!IS_HD)
 				{
-					b.corner.x = b.corner.y = 0;
+					RECT b;
+					CONTEXT oldContext;
 
+					GetContextClipRect(&b);
+
+					oldContext = SetContext(ScreenContext);
 
 					b.corner.x--;
 					b.corner.y--;
@@ -1746,6 +1719,8 @@ InitPlanetSide (POINT pt)
 							SIS_LEFT_BORDER_COLOR,
 							SIS_BOTTOM_RIGHT_BORDER_COLOR,
 							FALSE, TRANSPARENT);
+
+					SetContext(oldContext);
 				}
 				else
 					DrawBorder (32, FALSE);
