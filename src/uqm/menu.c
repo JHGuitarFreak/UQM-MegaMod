@@ -145,7 +145,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 					s.origin = r->corner;
 
-					s.frame = SetAbsFrameIndex (BorderFrame, 28);
+					s.frame = SetAbsFrameIndex (BorderFrame, 29); // custom border hilighter
 					DrawStamp (&s);
 				}
 				else
