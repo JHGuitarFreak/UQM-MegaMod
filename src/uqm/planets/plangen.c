@@ -2127,16 +2127,22 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	if (!ForIP && !shielded && PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
 	{	// produce 4x scaled topo image for Planetside
 		// for the planets that we can land on
-		SBYTE *pScaledTopo = HMalloc (MAP_WIDTH * 4 * MAP_HEIGHT * 4);
-		if (pScaledTopo)
-		{
-			TopoScale4x (pScaledTopo, Orbit->lpTopoData,
-					PlanDataPtr->num_faults, PlanDataPtr->fault_depth
-					* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1  ));
-			RenderTopography (Orbit->TopoZoomFrame, pScaledTopo,
-					SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
 
-			HFree (pScaledTopo);
+		if (optSuperPC == OPT_PC && !IS_HD) // crispy PC-DOS landscape
+			Orbit->TopoZoomFrame = CaptureDrawable(RescaleFrame(pSolarSysState->TopoFrame, SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4));
+		else
+		{// usual smooth 3DO landscape
+			SBYTE* pScaledTopo = HMalloc(MAP_WIDTH * 4 * MAP_HEIGHT * 4);
+			if (pScaledTopo)
+			{
+				TopoScale4x(pScaledTopo, Orbit->lpTopoData,
+						PlanDataPtr->num_faults, PlanDataPtr->fault_depth
+						* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1  ));
+				RenderTopography (Orbit->TopoZoomFrame, pScaledTopo,
+						SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
+
+				HFree(pScaledTopo);
+			}
 		}
 	}
 
