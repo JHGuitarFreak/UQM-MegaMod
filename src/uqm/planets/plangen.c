@@ -2128,7 +2128,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	{	// produce 4x scaled topo image for Planetside
 		// for the planets that we can land on
 
-		if (optSuperPC == OPT_PC && !IS_HD) // crispy PC-DOS landscape
+		if (optSuperPC == OPT_PC && !IS_HD && !SurfDefFrame) // crispy PC-DOS landscape
 			Orbit->TopoZoomFrame = CaptureDrawable(RescaleFrame(pSolarSysState->TopoFrame, SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4));
 		else
 		{// usual smooth 3DO landscape
