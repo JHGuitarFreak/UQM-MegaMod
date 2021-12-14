@@ -193,9 +193,9 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			/* Starbase */
 			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
 					CaptureStringTable (
-						LoadStringTable (URQUAN_BASE_STRTAB)), 0);
+						LoadStringTable (SYREEN_BASE_STRTAB)
+					);
 
 			DoDiscoveryReport (MenuSounds);
 

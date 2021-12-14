@@ -226,7 +226,7 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				}
 			}
 			else if (matchWorld (solarSys, world,
-					solarSys->SunDesc[0].PlanetByte, 
+					solarSys->SunDesc[0].PlanetByte,
 					solarSys->SunDesc[0].MoonByte))
 			{
 				/* Starbase */
@@ -256,7 +256,7 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 							LoadGraphic (RUINS_MASK_PMAP_ANIM));
 				solarSys->SysInfo.PlanetInfo.DiscoveryString =
 						CaptureStringTable (
-							LoadStringTable (RUINS_STRTAB));
+							LoadStringTable (CHMMR_HOME_STRTAB));
 			}
 			else if (matchWorld (solarSys, world,
 					solarSys->SunDesc[0].PlanetByte, 
