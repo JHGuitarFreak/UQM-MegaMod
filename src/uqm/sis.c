@@ -1338,6 +1338,8 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 
 		if (optWhichFonts == OPT_PC)
 			DrawPC_SIS();
+		else
+			DrawBorder (4, FALSE);
 
 		DrawThrusters ();
 		DrawTurningJets ();
