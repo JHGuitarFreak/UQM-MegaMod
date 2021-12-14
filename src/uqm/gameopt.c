@@ -1073,11 +1073,11 @@ TruncateSaveName (UNICODE* buf, COORD maxWidth, BOOLEAN naming)
 
 	t.pStr = buf;
 
-	r = font_GetTextRect(&t);
+	r = font_GetTextRect (&t);
 
 	if (r.extent.width > maxWidth)
 	{
-		size_t stringLength = strlen(t.pStr);
+		size_t stringLength = strlen (t.pStr);
 		const char ellipses[] = "...";
 
 		do

@@ -175,7 +175,7 @@ GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->SysInfo.PlanetInfo.LifeChance = 860;
 		}
 	}
-	else if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, 0)
+	else if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte)
 			&& !GET_GAME_STATE (BURVIXESE_BROADCASTERS))
 	{
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
