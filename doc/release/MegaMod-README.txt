@@ -44,6 +44,9 @@ Explanation of the Setup Menu options:
 
       Lander View Style - Choose between PC or 3DO lander views. For PC the lander viewport is at the bottom-right of the screen with the lander details to the left of the planet map.
                           For 3DO the lander viewport is above the planet map with the lander details at the bottom-right of the screen.
+
+      Flagship Engine Color - Switch between the Green (PC) variant or Red (3DO) variant engined Flagship.
+
 # Visuals
 
       Hazard Colors - Enables colored text on the scan screen based on the severity of the hazard
@@ -65,8 +68,6 @@ Explanation of the Setup Menu options:
       Animated HyperSpace Stars - HD-only: Enables the legacy HD-mod animated HyperSpace stars. When disabled it switches to recreated faithful designs of the originals.
 
       Planet Map Textures - Switch between 3DO or UQM planet textures and node locations (minerals and bios). Added bonus when set to 3DO is that the node locations are identical to the PC version as well. Only when using the default custom seed (16807).
-
-      Flagship Engine Color - Switch between the Green (PC) variant or Red (3DO) variant engined Flagship.
       
 # Music
 

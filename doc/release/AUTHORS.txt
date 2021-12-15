@@ -7,6 +7,7 @@ MegaMod Contributers:
 
 Serosis (Coding and art) <https://github.com/Serosis>
 DCzanik (Original HD art)
+Kwayne (Original HD art)
 Metamorphosis A.K.A. Matt Bentley (UQM-HD Remix Code)
 Nic (UQM-Extended Code and various bug-fixes)
 darklord42 (QA, art, and invaluable feedback)
@@ -18,6 +19,7 @@ CatLady (QA for Android port and feedback)
 Elestan (Feedback)
 Kruzenshtern (Coding, QA, art, and writing)
 Tarp (Ideas and writing)
+Jo Li KMC (QA and feedback)
 
 Nebulae and HD Super Melee backgrounds created using wwwtyro's space2d & space2dwgl procedural space-scape generator.
 
