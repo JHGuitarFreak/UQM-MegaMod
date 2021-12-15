@@ -72,6 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Pass through allies when auto-pilot is enabled
 - EXTENDED: New reports for the Syreen and Chmmr wen they are cleansed by the Kohr-Ah by Tarp
 - CUSTOMSEED: Made a rudimentary function that puts some home worlds in their star's respective habitable zone
+- EXTENDED: Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
 
 
 ### Changed
@@ -131,6 +132,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 			* Beta Cassiopeiae
 			* Beta Carinae
 - Adjusted the planet map height to match the PC and 3DO versions
+- Moved the "dead" slave-shielded world and starbase from Beta Ophiuchi I to Gamma Ophiuchi I (033.3 : 891.6)
 
 
 ### Fixed
@@ -144,7 +146,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/Serosis/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
 - Fixed a bug that showed "Trade HQ" as the planet name for various plot-related planets
 - Custom Seed: Fixed planet generation so that the Taalo shield is always obtainable no matter the custom seed
-- EXTENDED: Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
 - HD: Fixed the melee captain window death animation
 - Kruzenshtern: Fixed planet spin lag when traversing menus, scanning, selecting landing spot, and dispatching/retrieving your lander
 - HD: Fixed conversation summary overflow "MORE" text being too high up
