@@ -540,7 +540,7 @@ UninitEncounter (void)
 		STAMP ship_s;
 		const UNICODE *str1 = NULL;
 		const UNICODE *str2 = NULL;
-		StatMsgMode prevMsgMode;
+		StatMsgMode prevMsgMode = SMM_UNDEFINED;
 		UNICODE buf[80];
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
@@ -579,7 +579,9 @@ UninitEncounter (void)
 		}
 		UnlockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);
 
-		prevMsgMode = SetStatusMessageMode (SMM_RES_UNITS);
+		if (VictoryState > 0) // Set RU only when we get them
+			prevMsgMode = SetStatusMessageMode(SMM_RES_UNITS);
+
 		ship_s.origin.x = 0;
 		ship_s.origin.y = 0;
 		Sleepy = TRUE;
@@ -802,7 +804,8 @@ UninitEncounter (void)
 				UnlockShipFrag (pQueue, hStarShip);
 			}
 		}
-		SetStatusMessageMode (prevMsgMode);
+		if (prevMsgMode) // Set Status back only when we get RU
+			SetStatusMessageMode (prevMsgMode);
 
 		if (VictoryState)
 		{

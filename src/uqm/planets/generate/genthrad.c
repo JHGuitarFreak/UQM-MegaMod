@@ -165,11 +165,10 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 
 			RepairSISBorder (); // reachable if you're frendly with thraddsh and talk to them at helix world
 		}
-		else if (DIF_HARD && CurStarDescPtr->Index == AQUA_HELIX_DEFINED
-				&& !(GET_GAME_STATE (HM_ENCOUNTERS)
-					& 1 << THRADDASH_ENCOUNTER) &&
-				StartSphereTracking (THRADDASH_SHIP)
-				|| !(GET_GAME_STATE(KOHR_AH_FRENZY)))
+		else if (DIF_HARD 
+					&& CurStarDescPtr->Index == AQUA_HELIX_DEFINED
+					&& !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << THRADDASH_ENCOUNTER) 
+					&& (StartSphereTracking (THRADDASH_SHIP) || !(GET_GAME_STATE(KOHR_AH_FRENZY))))
 		{
 			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 			ReinitQueue (&GLOBAL (ip_group_q));
@@ -183,7 +182,7 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 			else
 				sum = 12;
 
-			for (COUNT i = 0; i < 14; ++i)
+			for (COUNT i = 0; i < sum; ++i)
 				CloneShipFragment (THRADDASH_SHIP,
 					&GLOBAL (npc_built_ship_q), 0);
 
