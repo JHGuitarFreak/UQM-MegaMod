@@ -98,11 +98,11 @@ request_drawable (COUNT NumFrames, DRAWABLE_TYPE DrawableType,
 // Kruzen: New construct to create paletted drawable
 // Uses previously unused TFB_DrawCanvas_New_Paletted()
 static DRAWABLE
-request_indexed_drawable(Color *palette, SIZE width, SIZE height)
+request_indexed_drawable (Color *palette, SIZE width, SIZE height)
 {
 	DRAWABLE Drawable;
 
-	Drawable = AllocDrawable(1);
+	Drawable = AllocDrawable (1);
 	if (!Drawable)
 		return NULL;
 
@@ -114,14 +114,16 @@ request_indexed_drawable(Color *palette, SIZE width, SIZE height)
 
 		if (width > 0 && height > 0)
 		{
-			FramePtr->image = TFB_DrawImage_New(TFB_DrawCanvas_New_Paletted(width, height, palette, -1));
+			FramePtr->image = TFB_DrawImage_New (
+					TFB_DrawCanvas_New_Paletted (
+						width, height, palette, -1));
 		}
 		else
 			return NULL;
 
 		FramePtr->Type = RAM_DRAWABLE;
 		FramePtr->Index = 0;
-		SetFrameBounds(FramePtr, width, height);
+		SetFrameBounds (FramePtr, width, height);
 	}
 
 	return Drawable;
@@ -219,20 +221,20 @@ CreateDrawable (CREATE_FLAGS CreateFlags, SIZE width, SIZE height, COUNT
 
 // Kruzen: New construct to create paletted drawable
 DRAWABLE
-CreateIndexedDrawable(Color *palette, SIZE width, SIZE height)
+CreateIndexedDrawable (Color *palette, SIZE width, SIZE height)
 {
 	DRAWABLE Drawable;
 
-	Drawable = request_indexed_drawable(palette, width, height);
+	Drawable = request_indexed_drawable (palette, width, height);
 		
 	if (Drawable)
 	{
 		FRAME F;
 
-		F = CaptureDrawable(Drawable);
+		F = CaptureDrawable (Drawable);
 		if (F)
 		{
-			ReleaseDrawable(F);
+			ReleaseDrawable (F);
 
 			return (Drawable);
 		}
@@ -394,7 +396,8 @@ makeMatchingFrame (FRAME frame, int width, int height)
 	DRAWABLE drawable;
 	FRAME newFrame;
 	CREATE_FLAGS flags;
-	const bool dst_has_alpha = (((SDL_Surface*)(frame->image->NormalImg))->format->Amask != 0);
+	const bool dst_has_alpha =
+			((SDL_Surface*)(frame->image->NormalImg))->format->Amask != 0;
 
 	flags = dst_has_alpha ? WANT_ALPHA : GetFrameParentDrawable (frame)->Flags;
 	drawable = CreateDrawable (flags, width, height, 1);
@@ -413,18 +416,21 @@ makeMatchingFrame (FRAME frame, int width, int height)
 // Kruzen: New construct to create paletted drawable
 // Copies makeMatchingFrame() call hierarchy
 static FRAME
-makeMatchingIndexedFrame(FRAME frame, int width, int height)
+makeMatchingIndexedFrame (FRAME frame, int width, int height)
 {
 	DRAWABLE drawable;
 	FRAME newFrame;
 	
-	drawable = CreateIndexedDrawable(TFB_DrawCanvas_ExtractPalette(frame->image->NormalImg), width, height);
+	drawable =
+			CreateIndexedDrawable (
+					TFB_DrawCanvas_ExtractPalette (frame->image->NormalImg),
+					width, height);
 	if (!drawable)
 		return NULL;
-	newFrame = CaptureDrawable(drawable);
+	newFrame = CaptureDrawable (drawable);
 	if (!newFrame)
 	{
-		FreeDrawable(drawable);
+		FreeDrawable (drawable);
 		return NULL;
 	}
 
@@ -495,10 +501,14 @@ RescaleFrame (FRAME frame, int width, int height)
 
 	assert (frame->Type != SCREEN_DRAWABLE);
 
-	if (TFB_DrawCanvas_IsPaletted(frame->image->NormalImg))
-		newFrame = makeMatchingIndexedFrame(frame, width, height);// request Paletted frame
+	if (TFB_DrawCanvas_IsPaletted (frame->image->NormalImg))
+	{	// request Paletted frame
+		newFrame = makeMatchingIndexedFrame (frame, width, height);
+	}
 	else
-		newFrame = makeMatchingFrame (frame, width, height);// request TrueColor frame
+	{	// request TrueColor frame
+		newFrame = makeMatchingFrame (frame, width, height);
+	}
 
 	if (!newFrame)
 		return NULL;
