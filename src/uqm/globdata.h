@@ -936,6 +936,8 @@ START_GAME_STATE
 
 	ADD_GAME_STATE (HM_ENCOUNTERS, 9)
 
+	ADD_GAME_STATE (RESERVED, 32)
+
 END_GAME_STATE
 
 // JMS: For making array of Quasispace portal name flags

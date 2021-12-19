@@ -754,6 +754,8 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "KNOW_ANDROSYNTH_HOMEWORLD", 1 },
 
 	{ "HM_ENCOUNTERS", 9 },
+
+	{ "RESERVED", 32 },
 	
 	{ NULL, 0 },
 };
