@@ -1875,12 +1875,11 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 		// surface pixmap
 		SurfDef = TRUE;
 		SurfDefFrame = SetAbsFrameIndex (SurfDefFrame, 0);
-		if (width != SCALED_MAP_WIDTH
-				&& GetFrameWidth (SurfDefFrame) != width
+		if (GetFrameWidth(SurfDefFrame) != width
 				|| GetFrameHeight (SurfDefFrame) != height)
 		{
-			pSolarSysState->TopoFrame = CaptureDrawable (RescaleFrame (
-					SurfDefFrame, width, height));
+			pSolarSysState->TopoFrame = CaptureDrawable(RescaleFrame(
+				SurfDefFrame, width, height));
 			// will not need the passed FRAME anymore
 			DeleteDef = TRUE;
 		}
@@ -1893,18 +1892,16 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 			SBYTE* elev;
 
 			ElevFrame = SetAbsFrameIndex (SurfDefFrame, 1);
-			if (width != SCALED_MAP_WIDTH
-					&& GetFrameWidth (ElevFrame) != width
+			if (GetFrameWidth(ElevFrame) != width
 					|| GetFrameHeight (ElevFrame) != height)
 			{
-				ElevFrame = CaptureDrawable (RescaleFrame (ElevFrame,
-						width, height));
+				ElevFrame = CaptureDrawable (RescaleFrame(ElevFrame, width, height));// Should ALWAYS be paletted
 				DeleteElev = TRUE;
 			}
 
 			// grab the elevation data in 1 byte per pixel format
 			ReadFramePixelIndexes (ElevFrame, (BYTE *)Orbit->lpTopoData,
-					width, height, !ForIP);
+				width, height, !ForIP);
 			// the supplied data is in unsigned format, must convert
 			for (i = 0, elev = Orbit->lpTopoData;
 					i < width * height;
@@ -2132,12 +2129,12 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 			Orbit->TopoZoomFrame = CaptureDrawable(RescaleFrame(pSolarSysState->TopoFrame, SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4));
 		else
 		{// usual smooth 3DO landscape
-			SBYTE* pScaledTopo = HMalloc(MAP_WIDTH * 4 * MAP_HEIGHT * 4);
+			SBYTE* pScaledTopo = HMalloc(SCALED_MAP_WIDTH * 4 * MAP_HEIGHT * 4);
 			if (pScaledTopo)
 			{
 				TopoScale4x(pScaledTopo, Orbit->lpTopoData,
 						PlanDataPtr->num_faults, PlanDataPtr->fault_depth
-						* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1  ));
+						* (PLANALGO (PlanDataPtr->Type) == CRATERED_ALGO ? 2 : 1 ));
 				RenderTopography (Orbit->TopoZoomFrame, pScaledTopo,
 						SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4, SurfDef);
 
