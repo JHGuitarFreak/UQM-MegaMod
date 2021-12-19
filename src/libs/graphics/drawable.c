@@ -95,6 +95,38 @@ request_drawable (COUNT NumFrames, DRAWABLE_TYPE DrawableType,
 	return Drawable;
 }
 
+// Kruzen: New construct to create paletted drawable
+// Uses previously unused TFB_DrawCanvas_New_Paletted()
+static DRAWABLE
+request_indexed_drawable(Color *palette, SIZE width, SIZE height)
+{
+	DRAWABLE Drawable;
+
+	Drawable = AllocDrawable(1);
+	if (!Drawable)
+		return NULL;
+
+	Drawable->Flags = WANT_PIXMAP;
+	Drawable->MaxIndex =0;
+
+	{
+		FRAME FramePtr = &Drawable->Frame[0];
+
+		if (width > 0 && height > 0)
+		{
+			FramePtr->image = TFB_DrawImage_New(TFB_DrawCanvas_New_Paletted(width, height, palette, -1));
+		}
+		else
+			return NULL;
+
+		FramePtr->Type = RAM_DRAWABLE;
+		FramePtr->Index = 0;
+		SetFrameBounds(FramePtr, width, height);
+	}
+
+	return Drawable;
+}
+
 DRAWABLE
 CreateDisplay (CREATE_FLAGS CreateFlags, SIZE *pwidth, SIZE *pheight)
 {
@@ -177,6 +209,30 @@ CreateDrawable (CREATE_FLAGS CreateFlags, SIZE width, SIZE height, COUNT
 		if (F)
 		{
 			ReleaseDrawable (F);
+
+			return (Drawable);
+		}
+	}
+
+	return (0);
+}
+
+// Kruzen: New construct to create paletted drawable
+DRAWABLE
+CreateIndexedDrawable(Color *palette, SIZE width, SIZE height)
+{
+	DRAWABLE Drawable;
+
+	Drawable = request_indexed_drawable(palette, width, height);
+		
+	if (Drawable)
+	{
+		FRAME F;
+
+		F = CaptureDrawable(Drawable);
+		if (F)
+		{
+			ReleaseDrawable(F);
 
 			return (Drawable);
 		}
@@ -354,6 +410,27 @@ makeMatchingFrame (FRAME frame, int width, int height)
 	return newFrame;
 }
 
+// Kruzen: New construct to create paletted drawable
+// Copies makeMatchingFrame() call hierarchy
+static FRAME
+makeMatchingIndexedFrame(FRAME frame, int width, int height)
+{
+	DRAWABLE drawable;
+	FRAME newFrame;
+	
+	drawable = CreateIndexedDrawable(TFB_DrawCanvas_ExtractPalette(frame->image->NormalImg), width, height);
+	if (!drawable)
+		return NULL;
+	newFrame = CaptureDrawable(drawable);
+	if (!newFrame)
+	{
+		FreeDrawable(drawable);
+		return NULL;
+	}
+
+	return newFrame;
+}
+
 // Creates an new DRAWABLE containing a copy of specified FRAME's rect
 // Source FRAME must not be a SCREEN_DRAWABLE
 DRAWABLE
@@ -418,7 +495,11 @@ RescaleFrame (FRAME frame, int width, int height)
 
 	assert (frame->Type != SCREEN_DRAWABLE);
 
-	newFrame = makeMatchingFrame (frame, width, height);
+	if (TFB_DrawCanvas_IsPaletted(frame->image->NormalImg))
+		newFrame = makeMatchingIndexedFrame(frame, width, height);// request Paletted frame
+	else
+		newFrame = makeMatchingFrame (frame, width, height);// request TrueColor frame
+
 	if (!newFrame)
 		return NULL;
 
