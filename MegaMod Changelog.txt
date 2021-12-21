@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas]
 - Special captain graphics in melee for Fwiffo's ship - Jo Li KMC
 - Special game over sequence for the Death March while hiding in QuasiSpace - Jo Li KMC
+- Extend custom border to the playback bar during coversations
+- Extend custom border and HD-default UI to all aspects of the Super Melee UI
+- Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
 
 ## [WIP]
-- Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
 - Newly created Lander by Jordan Lo
 
 ## [v0.8.1]
