@@ -795,7 +795,7 @@ DoPickPlanetSide (MENU_STATE *pMS)
 				dy = RES_SCALE (1);
 
 			// Double the cursor speed when the Zoom Out key is held down
-			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_SPECIAL])
+			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
 			{
 				dx *= 2;
 				dy *= 2;
