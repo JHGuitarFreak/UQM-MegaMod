@@ -10,9 +10,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
 
-## [WIP]
-- Newly created Lander by Jordan Lo
-
 ## [v0.8.1]
 ### Thanks
 - Thanks to Mergrim for his playthrough of the MegaMod. Which in turn helped bring a couple bugs to light (The "Trade HQ" and Zex's "funky" screen bugs)
@@ -75,6 +72,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: New reports for the Syreen and Chmmr wen they are cleansed by the Kohr-Ah by Tarp
 - CUSTOMSEED: Made a rudimentary function that puts some home worlds in their star's respective habitable zone
 - EXTENDED: Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
+- Newly created Lander graphics by Jordan Lo
+- New life form canister graphics by Jordan Lo
 
 
 ### Changed
@@ -118,7 +117,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Widened the various laser beams used in Super Melee
 - EXTENDED: Start a new game with only 31 crew.
 - Full Setup Menu redesign, options grouped together with indicators and menus can now scroll up and down - Kruzen
-- Use the "special" key to double cursor speed on the StarMap
 - HD: Adjust intersecting scale of Starbases and planets in-engine - Kruzen
 - Mimic DOS victory camera when stepped melee scale is selected - Kruzen
 - HARDMODE: Cut reinforcements in half where applicable - Kruzen
@@ -172,6 +170,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Remove all alliances that have a broken alliance value during load
 - Fixed planet scan rotation value display so that it's accurate to the PC-DOS version
 - Show the Spathi SOI and give the player the Spathi password when using the Head Start cheat
+- Fixed planet map texture rescaling - Kruzen
 
 
 ## [v0.8.0.85]
