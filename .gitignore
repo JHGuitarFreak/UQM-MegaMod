@@ -289,5 +289,6 @@ config_win.h
 dist-packages
 The\ Ur-Quan\ Masters\ MegaMod.app
 uqmanimationtool.conf
+*.uqm
 
 build/msvs2008/UrQuanMasters\.vcproj\.DESKTOP-TCJIFU9\.seros\.user
