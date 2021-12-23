@@ -235,8 +235,6 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 		DrawSISTitle (GLOBAL_SIS (PlanetName));
 		DrawStarBackGround ();
 		DrawPlanetSurfaceBorder ();
-		if (optSuperPC == OPT_PC)
-			InitPCLander ();
 	}
 
 	if (Mode == DRAW_ORBITAL_WAIT)
@@ -296,6 +294,8 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	{
 		SetContext (GetScanContext (NULL));
 		DrawPlanet (0, BLACK_COLOR);
+		if (optSuperPC == OPT_PC)
+			InitPCLander();// PC-DOS lander UI pops after "Entering planetary orbit" frame
 	}
 
 	if (Mode != DRAW_ORBITAL_UPDATE)
