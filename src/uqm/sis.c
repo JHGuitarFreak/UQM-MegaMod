@@ -1283,7 +1283,10 @@ static void
 DeltaSISGauges_resunitDelta (SIZE resunit_delta)
 {
 	if (resunit_delta == 0)
+	{
+		DrawStatusMessage(NULL);
 		return;
+	}
 
 	if (resunit_delta != UNDEFINED_DELTA)
 	{
