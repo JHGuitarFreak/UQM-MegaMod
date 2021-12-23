@@ -51,7 +51,7 @@ RequestExecutionLevel admin
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "Press the Install button to continue."
 !insertmacro MUI_PAGE_LICENSE "COPYING.txt"
 ; Components page
-!define MUI_COMPONENTSPAGE_TEXT_COMPLIST "You can preconfigure the options to mimic the original platforms by selecting those install types.  Note that more complete installs will need to download more packages."
+!define MUI_COMPONENTSPAGE_TEXT_COMPLIST "You can preconfigure the options to mimic the original platforms by selecting those install types. Note that some options change UQM's default configuration and will need to download additional packages."
 !insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
@@ -91,7 +91,7 @@ var ICONS_GROUP
 
 ; MUI end ------
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME} v${PRODUCT_VERSION}"
 OutFile "uqm-${PRODUCT_VERSION}${INSTALLER_VERSION}-installer.exe"
 InstallDir "C:\Games\The Ur-Quan Masters MegaMod\"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
@@ -600,7 +600,7 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\UrQuanMasters.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "v${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   Delete "$UQMUSERDATA\uqm-*.cfg"
   Delete "$UQMUSERDATA\mm-*.cfg"
