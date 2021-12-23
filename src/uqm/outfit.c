@@ -840,6 +840,7 @@ ExitOutfit:
 			}
 			case OUTFIT_DOFUEL:
 				pMS->CurState = OUTFIT_FUEL;
+				DrawMenuStateStrings(PM_FUEL, pMS->CurState);
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case OUTFIT_MODULES:
