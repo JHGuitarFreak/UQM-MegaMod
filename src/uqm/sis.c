@@ -679,7 +679,8 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		{
 			rHD = r;
 			rHD.extent.width *= 0.75;
-			rHD.corner.x = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+			rHD.corner.x =
+				(r.extent.width >> 1) - (rHD.extent.width >> 1);
 		}
 
 		DrawFilledRectangle (RES_BOOL (&r, &rHD));
