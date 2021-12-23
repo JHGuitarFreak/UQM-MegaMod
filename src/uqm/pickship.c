@@ -512,6 +512,8 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 				{
 					/* Dead ship - mark with an X. */
 					s.origin.x -= RES_SCALE (1);
+					if (IS_HD)
+						s.origin.y -= RES_SCALE (1);
 					s.frame = SetAbsFrameIndex (StatusFrame, 3);
 					DrawStamp (&s);
 				}

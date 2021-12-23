@@ -324,7 +324,8 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 
 	if (IS_HD && !inMeleeMenu)
 	{
-		DrawBorder (33, TRUE);
+		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
+			DrawBorder (33, TRUE);
 		DrawBorder (34, TRUE);
 	}
 

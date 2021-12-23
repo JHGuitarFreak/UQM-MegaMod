@@ -290,7 +290,8 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 
 	if (IS_HD)
 	{
-		DrawBorder (35, TRUE);
+		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
+			DrawBorder (35, TRUE);
 		DrawBorder (36, TRUE);
 	}
 
