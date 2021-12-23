@@ -677,8 +677,9 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 
 		if (IS_HD)
 		{
-			rHD.extent.width = SIS_SCREEN_WIDTH * 0.75;
-			rHD.corner.x = (SIS_SCREEN_WIDTH - r.extent.width) / 2;
+			rHD = r;
+			rHD.extent.width *= 0.75;
+			rHD.corner.x = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
 		}
 
 		DrawFilledRectangle (RES_BOOL (&r, &rHD));
