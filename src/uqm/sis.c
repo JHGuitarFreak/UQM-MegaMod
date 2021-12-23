@@ -681,6 +681,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 			rHD.extent.width *= 0.75;
 			rHD.corner.x =
 				(r.extent.width >> 1) - (rHD.extent.width >> 1);
+			SetContextForeGroundColor (FLAGSHIP_NAME_BACKGROUND_COLOR);
 		}
 
 		DrawFilledRectangle (RES_BOOL (&r, &rHD));
