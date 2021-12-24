@@ -913,7 +913,7 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 			&& pSolarSysState->WaitIntersect != WaitPlanet)
 	{
 		if (!IS_HD)
-			return DecFrameIndex(stars_in_space);
+			return DecFrameIndex (stars_in_space);
 		else
 			return planet->intersect.frame;
 	}
@@ -1198,10 +1198,22 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 							ANGLE_TO_FACING (angle)));
 
 		if (IS_HD && HDPackPresent)
+		{
 			planet->intersect.frame =
-				CaptureDrawable (
-						RescalePercentage (planet->image.frame, 50)
-					);
+					CaptureDrawable (
+							RescalePercentage (planet->image.frame, 50)
+						);
+#if SDL_MAJOR_VERSION == 1
+			if (!optTexturedPlanets && isPC (optPlanetStyle))
+			{
+				planet->intersect.frame =
+						CaptureDrawable (
+							RescalePercentage (
+								planet->dosIntersect.frame, 50)
+						);
+			}
+#endif
+		}
 	}
 	else
 	{
@@ -1230,7 +1242,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		if (IS_HD && HDPackPresent)
 			planet->intersect.frame =
 			CaptureDrawable(
-				RescalePercentage(planet->image.frame, percent)
+				RescalePercentage (planet->image.frame, percent)
 			);
 	}
 }
