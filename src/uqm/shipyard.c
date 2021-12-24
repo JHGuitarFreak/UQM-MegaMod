@@ -120,7 +120,8 @@ showRemainingCrew (void)
 	t.align = ALIGN_LEFT;
 	t.CharCount = (COUNT)~0;
 	t.pStr = buf;
-	sprintf (buf, GAME_STRING (STARBASE_STRING_BASE + 6));
+	utf8StringCopy (
+			buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 6));
 
 	font_DrawText(&t);
 
@@ -134,7 +135,10 @@ showRemainingCrew (void)
 	if (CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		sprintf (buf, "%s", STR_INFINITY_SIGN);
 	else if (remaining_crew == 0)
-		sprintf (buf, GAME_STRING (STARBASE_STRING_BASE + 7));
+	{
+		utf8StringCopy (
+				buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 7));
+	}
 	else
 		sprintf (buf, "%u", remaining_crew);
 

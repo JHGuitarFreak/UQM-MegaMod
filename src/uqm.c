@@ -378,7 +378,7 @@ main (int argc, char *argv[])
 #endif
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  ipTrans,           OPT_3DO ),
-		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
+		INIT_CONFIG_OPTION(  optDifficulty,     3 ),
 		INIT_CONFIG_OPTION(  fuelRange,         false ),
 		INIT_CONFIG_OPTION(  extended,          false ),
 		INIT_CONFIG_OPTION(  nomad,             false ),
