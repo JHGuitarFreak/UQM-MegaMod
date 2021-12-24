@@ -484,54 +484,76 @@ SectionGroup "Soul Reaver's Fixes/Voices" SECGRP03
   SectionEnd
 SectionGroupEnd
 
-Section "The Precursors Remixes" SEC12
-  SectionIn 7
+SectionGroup "Precursors Remixes" SECGRP04
+  Section "Pack 1" SEC12
+    SectionIn 7
+    AddSize ${PKG_REMIX1_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${PKG_REMIX1_MD5SUM}"
+    StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%201/"
+    Push "${PKG_REMIX1_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
+    Call EnablePrecursorRemixes
+  ; Shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    !insertmacro MUI_STARTMENU_WRITE_END
+  SectionEnd
 
-  AddSize ${PKG_REMIX1_SIZE}
-  StrCpy $MANDATORY 0
-  StrCpy $MD5SUM "${PKG_REMIX1_MD5SUM}"
-  StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%201/"
-  Push "${PKG_REMIX1_FILE}"
-  Push "$INSTDIR\content\addons"
-  Call HandlePackage
+  Section "Pack 2" SEC13
+    SectionIn 7
+    AddSize ${PKG_REMIX2_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${PKG_REMIX2_MD5SUM}"
+    StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%202/"
+    Push "${PKG_REMIX2_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
+    Call EnablePrecursorRemixes
+  ; Shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    !insertmacro MUI_STARTMENU_WRITE_END
+  SectionEnd
 
-  AddSize ${PKG_REMIX2_SIZE}
-  StrCpy $MANDATORY 0
-  StrCpy $MD5SUM "${PKG_REMIX2_MD5SUM}"
-  StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%202/"
-  Push "${PKG_REMIX2_FILE}"
-  Push "$INSTDIR\content\addons"
-  Call HandlePackage
+  Section "Pack 3" SEC14
+    SectionIn 7
+    AddSize ${PKG_REMIX3_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${PKG_REMIX3_MD5SUM}"
+    StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%203/"
+    Push "${PKG_REMIX3_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
+    Call EnablePrecursorRemixes
+  ; Shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    !insertmacro MUI_STARTMENU_WRITE_END
+  SectionEnd
 
-  AddSize ${PKG_REMIX3_SIZE}
-  StrCpy $MANDATORY 0
-  StrCpy $MD5SUM "${PKG_REMIX3_MD5SUM}"
-  StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%203/"
-  Push "${PKG_REMIX3_FILE}"
-  Push "$INSTDIR\content\addons"
-  Call HandlePackage
+  Section "Pack 4" SEC15
+    SectionIn 7
+    AddSize ${PKG_REMIX4_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${PKG_REMIX4_MD5SUM}"
+    StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%204/"
+    Push "${PKG_REMIX4_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
 
-  AddSize ${PKG_REMIX4_SIZE}
-  StrCpy $MANDATORY 0
-  StrCpy $MD5SUM "${PKG_REMIX4_MD5SUM}"
-  StrCpy $DOWNLOADPATH "https://downloads.sourceforge.net/project/sc2/UQM%20Remix%20Packs/UQM%20Remix%20Pack%204/"
-  Push "${PKG_REMIX4_FILE}"
-  Push "$INSTDIR\content\addons"
-  Call HandlePackage
+    AddSize ${PKG_REMIX5_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${PKG_REMIX5_MD5SUM}"
+    StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PREV_VERSION}/"
+    Push "${PKG_REMIX5_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
+    Call EnablePrecursorRemixes
+  ; Shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    !insertmacro MUI_STARTMENU_WRITE_END
+  SectionEnd
 
-  AddSize ${PKG_REMIX5_SIZE}
-  StrCpy $MANDATORY 0
-  StrCpy $MD5SUM "${PKG_REMIX5_MD5SUM}"
-  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PREV_VERSION}/"
-  Push "${PKG_REMIX5_FILE}"
-  Push "$INSTDIR\content\addons"
-  Call HandlePackage
-
-  Call EnablePrecursorRemixes
-; Shortcuts
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-  !insertmacro MUI_STARTMENU_WRITE_END
-SectionEnd
+SectionGroupEnd
 
 Section -ShortcutsAndIcons
   SetOutPath $INSTDIR
@@ -623,7 +645,11 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SECGRP03} "Soul Reaver's voice packages for the Melnorme and Syreen that more closely match the PC dialog."
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC10} "Soul Reaver's revoiced Melnorme package which matches the PC dialog (Voiced by Soul Reaver)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC11} "Soul Reaver's revoiced Syreen package which matches the PC dialog (Voiced by Katie Otten)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC12} "Optional content packages containing the official UQM remixes by The Precursors."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECGRP04} "Optional content packages containing the official UQM remixes by The Precursors."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC12} `Ur-Quan Masters Remix Pack 1 - 'Super Melee!'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC13} `Ur-Quan Masters Remix Pack 2 - 'Neutral Aliens - Don't Shoot!'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC14} `Ur-Quan Masters Remix Pack 3 - 'The Ur-Quan Hierarchy.'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC15} `Ur-Quan Masters Remix Pack 4 - 'The New Alliance of Free Stars.'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Function un.onUninstSuccess
