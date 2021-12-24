@@ -869,10 +869,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						+ STAR_COLOR (star_type));
 			}
 			else
+			{
 				s.frame = SetRelFrameIndex (star_frame,
 						STAR_TYPE (star_type)
 						* NUM_STAR_COLORS
 						+ STAR_COLOR (star_type));
+			}
 		}
 		else if (SDPtr->star_pt.x == ARILOU_HOME_X
 				&& SDPtr->star_pt.y == ARILOU_HOME_Y)
