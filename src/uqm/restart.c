@@ -506,7 +506,8 @@ DoRestart (MENU_STATE *pMS)
 				}
 				else if (!RestartMessage (pMS, TimeIn))
 				{
-					if (res_GetInteger ("mm.difficulty") == OPTVAL_IMPO)
+					if (optDifficulty == OPTVAL_IMPO
+							|| res_GetInteger ("mm.difficulty") == OPTVAL_IMPO)
 					{
 						Flash_terminate (pMS->flashContext); //so it won't visibly stuck
 						if (!DoDiffChooser (pMS))

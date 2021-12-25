@@ -1171,7 +1171,7 @@ extern void UninitGameStructures (void);
 #define IF_NORM(a,b) (!DIF_NORM ? (a) : (b))
 #define IF_EASY(a,b) (!DIF_EASY ? (a) : (b))
 #define IF_HARD(a,b) (!DIF_HARD ? (a) : (b))
-#define DIF_STR(a) ((a) == NORM ? "Normal" : ((a) == EASY ? "Easy" : "Hard"))
+#define DIF_STR(a) ((a) == NORM ? "Normal" : ((a) == EASY ? "Easy" : (a) == HARD ? "Hard" : "CYO"))
 
 // Extended
 #define EXTENDED (GLOBAL_SIS (Extended) ? TRUE : FALSE)
