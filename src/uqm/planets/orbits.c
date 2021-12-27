@@ -23,6 +23,7 @@
 #include "libs/log.h"
 #include "../clock.h"
 #include <math.h>
+#include <stdlib.h>
 
 //#define DEBUG_ORBITS
 
