@@ -25,6 +25,7 @@
 #include "../../state.h"
 #include "../../build.h"
 #include "libs/mathlib.h"
+#include "../../comm.h"
 
 static bool GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys,

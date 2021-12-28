@@ -25,6 +25,7 @@
 #include "../../state.h"
 #include "../../build.h"
 #include "libs/mathlib.h"
+#include "../../comm.h"
 
 
 static bool GenerateVault_generatePlanets (SOLARSYS_STATE *solarSys);
