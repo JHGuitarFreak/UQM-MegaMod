@@ -55,7 +55,6 @@ typedef enum {
 	WAR_ERA_STARMAP,
 	CONSTELLATION_MAP,
 	HOMEWORLDS_MAP,
-	RAINBOW_MAP,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -559,6 +558,10 @@ isHomeworld (BYTE Index)
 				&& CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
+		case SOL_DEFINED:
+		case START_COLONY_DEFINED:
+			raceBool = TRUE;
+			break;
 	}
 
 	return raceBool;
@@ -835,7 +838,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 
 	// This draws reticules over the Rainbow worlds
-	if (which_space <= 1 && which_starmap == RAINBOW_MAP)
+	/*if (which_space <= 1 && which_starmap == RAINBOW_MAP)
 	{
 		COUNT i;
 
@@ -844,7 +847,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			if (star_array[i].Index == RAINBOW_DEFINED)
 				DrawReticule (star_array[i].star_pt, TRUE);
 		}
-	}
+	}*/
 
 	do
 	{	// Draws all the stars
@@ -1841,26 +1844,10 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		NewState = which_starmap;
 
-		if (NewState == RAINBOW_MAP)
+		if (NewState == HOMEWORLDS_MAP)
 			NewState = NORMAL_STARMAP;
 		else
 			++NewState;
-
-		if (NewState == WAR_ERA_STARMAP
-			&& !GET_GAME_STATE (STARBASE_AVAILABLE))
-		{
-			++NewState;
-		}
-		if (NewState == HOMEWORLDS_MAP && !KNOW_A_HOMEWORLD)
-		{
-			if (!GET_GAME_STATE (TRADED_WITH_MELNORME))
-				NewState = NORMAL_STARMAP;
-			else
-				++NewState;
-		}
-		else if (NewState == RAINBOW_MAP
-				&& !GET_GAME_STATE (TRADED_WITH_MELNORME))
-			NewState = NORMAL_STARMAP;
 
 		if (NewState != which_starmap)
 			which_starmap = NewState;

@@ -412,9 +412,6 @@ CombatIsInevitable (RESPONSE_REF R)
 					sayCoord (dx);
 					NPCPhrase (THIS_IS_PROBE_42);
 
-					if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
-						SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
-
 					--NumVisits;
 					break;
 				}
