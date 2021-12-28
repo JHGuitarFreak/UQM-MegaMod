@@ -52,7 +52,7 @@ static LOCDATA thradd_desc =
 			RANDOM_ANIM, /* AnimFlags */
 			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
 			ONE_SECOND / 15, ONE_SECOND / 15, /* RestartRate */
-			(1 << 4), /* BlockMask */
+			(1 << 5), /* BlockMask */
 		},
 		{
 			12, /* StartIndex */
@@ -76,7 +76,15 @@ static LOCDATA thradd_desc =
 			YOYO_ANIM, /* AnimFlags */
 			ONE_SECOND / 20, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 4), /* BlockMask */
+			(1 << 5), /* BlockMask */
+		},
+		{// swapped to avoid overdraw 
+			42, /* StartIndex */
+			5, /* NumFrames */
+			YOYO_ANIM, /* AnimFlags */
+			ONE_SECOND / 10, ONE_SECOND / 30, /* FrameRate */
+			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
+			(1 << 5) | (1 << 6), /* BlockMask */
 		},
 		{
 			30, /* StartIndex */
@@ -85,15 +93,7 @@ static LOCDATA thradd_desc =
 					| WAIT_TALKING, /* AnimFlags */
 			ONE_SECOND / 12, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND, /* RestartRate */
-			(1 << 0) | (1 << 3) | (1 << 5),
-		},
-		{
-			42, /* StartIndex */
-			5, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 4) | (1 << 6), /* BlockMask */
+			(1 << 0) | (1 << 3) | (1 << 4),
 		},
 		{
 			47, /* StartIndex */
@@ -101,7 +101,7 @@ static LOCDATA thradd_desc =
 			YOYO_ANIM, /* AnimFlags */
 			ONE_SECOND / 10, ONE_SECOND / 30, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 5), /* BlockMask */
+			(1 << 4), /* BlockMask */
 		},
 		{
 			52, /* StartIndex */
