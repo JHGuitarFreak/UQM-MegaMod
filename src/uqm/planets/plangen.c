@@ -78,6 +78,9 @@
 #define M_DEG2RAD (M_TWOPI / 360.0)
 #endif
 
+#define BRIGHTNESS_ADJUST 20
+#define CONTRAST_ADJUST 14
+
 // BW: dynamically allocated in the orbit structure
 // JMS_GFX: Changed initialization to constant numbers since DIAMETER is now variably defined
 // The value 330 is the value that's reached at the biggest resolution, 4x.
@@ -774,11 +777,47 @@ get_map_elev (SBYTE *elevs, int x, int y, int offset, COUNT width)
 	return elevs[y * width + (offset + x) % width];
 }
 
+static inline BYTE
+truncate_byte (int incr)
+{
+	if (incr > 0xFF)
+		return 0xFF;
+
+	if (incr < 0x00)
+		return 0x00;
+
+	return (BYTE)incr;
+}
+
+static inline Color
+adjust_brightness(Color c)
+{
+	c.r = truncate_byte((int)c.r + BRIGHTNESS_ADJUST);
+	c.g = truncate_byte((int)c.g + BRIGHTNESS_ADJUST);
+	c.b = truncate_byte((int)c.b + BRIGHTNESS_ADJUST);
+
+	return c;
+}
+
+static inline Color
+adjust_contrast (Color c)
+{
+	float f;
+
+	f = (float)(259 * (CONTRAST_ADJUST + 255)) / (255 * (259 - CONTRAST_ADJUST));
+	c.r = truncate_byte((int)(f * ((int)c.r - 128) + 128));
+	c.g = truncate_byte((int)(f * ((int)c.g - 128) + 128));
+	c.b = truncate_byte((int)(f * ((int)c.b - 128) + 128));
+
+	return c;
+}
+
 // RenderPlanetSphere builds a frame for the rotating planet view
 // offset is effectively the angle of rotation around the planet's axis
 // We use the SDL routines to directly write to the SDL_Surface to improve performance
 void
-RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius)
+RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius, 
+	BOOLEAN ForIP)
 {
 	POINT pt;
 	Color *pix;
@@ -883,6 +922,10 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 			}
 
 			c.a = 0xff;
+
+			if (ForIP)
+				c = adjust_contrast(adjust_brightness(c));			
+
 			*pix = c;
 		}
 	}
@@ -2174,7 +2217,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 		// map point elevations
 		if (solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED)
 			memset (Orbit->lpTopoData, 0, width * height);
-		else
+		else if (!ForIP || shielded)
 			GenerateLightMap (Orbit->lpTopoData, width, height);
 	}
 	else
