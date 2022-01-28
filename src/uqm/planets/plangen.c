@@ -78,8 +78,8 @@
 #define M_DEG2RAD (M_TWOPI / 360.0)
 #endif
 
-#define BRIGHTNESS_ADJUST 20
-#define CONTRAST_ADJUST 14
+#define BRIGHTNESS_ADJUST 20 // For IP experiments
+#define CONTRAST_ADJUST 50
 
 // BW: dynamically allocated in the orbit structure
 // JMS_GFX: Changed initialization to constant numbers since DIAMETER is now variably defined
@@ -763,6 +763,24 @@ calc_map_light (UBYTE val, DWORD dif, int lvf)
 	return ((UBYTE)i);
 }
 
+static inline UBYTE
+calc_ipmap_light(UBYTE val, DWORD dif, int lvf)
+{
+	int i;
+
+	// apply diffusion
+	i = (dif * val) >> DIFFUSE_BITS;
+	// apply light variance for 3d lighting effect
+	i += (lvf * val) >> 7;
+
+	if (i < 0)
+		i = 0;
+	else if (i > 255)
+		i = 255;
+
+	return ((UBYTE)i);
+}
+
 static inline Color
 get_map_pixel (Color *pixels, int x, int y, COUNT width, COUNT spherespanx)
 {
@@ -816,8 +834,7 @@ adjust_contrast (Color c)
 // offset is effectively the angle of rotation around the planet's axis
 // We use the SDL routines to directly write to the SDL_Surface to improve performance
 void
-RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius, 
-	BOOLEAN ForIP)
+RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius)
 {
 	POINT pt;
 	Color *pix;
@@ -914,7 +931,7 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 					r = 255;
 				c.r = r;
 			} 
-			else
+			else 
 			{
 				c.r = calc_map_light (c.r, diffus, lvf);
 				c.g = calc_map_light (c.g, diffus, lvf);
@@ -922,10 +939,6 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 			}
 
 			c.a = 0xff;
-
-			if (ForIP)
-				c = adjust_contrast(adjust_brightness(c));			
-
 			*pix = c;
 		}
 	}

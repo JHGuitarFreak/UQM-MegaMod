@@ -348,7 +348,7 @@ extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameC
 extern void DrawPlanetSphere (int x, int y);
 extern void DrawDefaultPlanetSphere (void);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame, int offset,
-		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius, BOOLEAN ForIP);
+		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius);
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
 
 extern void ZoomInPlanetSphere (void);

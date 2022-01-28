@@ -26,5 +26,6 @@ int TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
 void TFB_Pure_UninitGraphics (void);
 int TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor);
 void Scale_PerfTest (void);
+bool TFB_SetBrightness(float brightness);
 
 #endif

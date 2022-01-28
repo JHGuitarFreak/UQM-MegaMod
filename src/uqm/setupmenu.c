@@ -129,6 +129,7 @@ static WIDGET *graphics_widgets[] = {
 #if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 #endif
+	(WIDGET*) (&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
 	(WIDGET *)(&choices[12]),   // Show FPS
@@ -951,7 +952,11 @@ gamma_HandleEventSlider (WIDGET *_self, int event)
 
 	// Limit the slider to values accepted by gfx subsys
 	gamma = sliderToGamma (self->value);
+#if SDL_MAJOR_VERSION == 1
 	set = TFB_SetGamma (gamma);
+#else
+	set = setGammaCorrection (gamma);
+#endif
 	if (!set)
 	{	// revert
 		self->value = prevValue;
@@ -961,14 +966,14 @@ gamma_HandleEventSlider (WIDGET *_self, int event)
 	// Grow or shrink the range based on accepted values
 	if (gamma < minGamma || (!set && event == WIDGET_EVENT_LEFT))
 	{
-		minGamma = gamma;
+		gamma = minGamma;
 		updateGammaBounds (true);
 		// at the lowest end
 		self->value = 0;
 	}
 	else if (gamma > maxGamma || (!set && event == WIDGET_EVENT_RIGHT))
 	{
-		maxGamma = gamma;
+		gamma = maxGamma;
 		updateGammaBounds (false);
 		// at the highest end
 		self->value = 100;

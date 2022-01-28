@@ -590,9 +590,9 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	selected = WIDGET_ACTIVE_COLOR;
 	inactive = WIDGET_INACTIVE_COLOR;
 
-	t.baseline.x = x + RES_SCALE (16);
+	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
 	if (widget_focus == _self)
@@ -606,22 +606,21 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	}
 	font_DrawText (&t);
 
-	t.baseline.x -= t.baseline.x;
-
-	r.corner.x = t.baseline.x + 3 * tick;
+	/* Kruzen: was +3 * tick, changed to center sliders*/
+	r.corner.x = RSTEP;
 	r.corner.y = t.baseline.y - RES_SCALE (4);
 	r.extent.height = RES_SCALE (2);
-	r.extent.width = 3 * tick;
+	r.extent.width = 2 * tick;
 	DrawFilledRectangle (&r);
 
 	r.extent.width = RES_SCALE (3);
 	r.extent.height = RES_SCALE (8);
 	r.corner.y = t.baseline.y - RES_SCALE (7);
-	r.corner.x = t.baseline.x + 3 * tick + (3 * tick * (self->value - self->min) /
+	r.corner.x = RSTEP + (2 * tick * (self->value - self->min) /
 		(self->max - self->min)) - (RES_SCALE (3) >> 1);
 	DrawFilledRectangle (&r);
 
-	(*self->draw_value)(self, t.baseline.x + 7 * tick, t.baseline.y);
+	(*self->draw_value)(self, RSTEP + 3 * tick - RES_SCALE (22), t.baseline.y);
 
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
@@ -869,7 +868,7 @@ int
 Widget_HeightOneLine (WIDGET *_self)
 {
 	(void)_self;
-	return RES_SCALE (6);
+	return RES_SCALE (8);// 6
 }
 
 int

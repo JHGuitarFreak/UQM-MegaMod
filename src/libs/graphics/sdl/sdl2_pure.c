@@ -480,4 +480,10 @@ TFB_SDL2_Postprocess (void)
 	SDL_RenderPresent (renderer);
 }
 
+bool
+TFB_SetBrightness (float brightness)
+{
+	return (SDL_SetWindowBrightness(window, brightness) == 0);
+}
+
 #endif

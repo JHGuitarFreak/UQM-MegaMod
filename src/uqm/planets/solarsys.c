@@ -2682,7 +2682,7 @@ DrawStarBackGround (void)
 FRAME
 BrightenNebula (FRAME nebula, BYTE factor)
 {
-	if (factor == 25)
+	if (factor == 25) // defaul value
 		return nebula;
 	else
 	{
@@ -2702,6 +2702,7 @@ BrightenNebula (FRAME nebula, BYTE factor)
 
 		pix = map;
 
+		/* Changes opacity, but keeps it smooth without generating eye-bleeding images */
 		for (y = 0; y < height; ++y)
 		{
 			for (x = 0; x < width; ++x, ++pix)
@@ -2819,7 +2820,8 @@ CreateStarBackGround (BOOLEAN encounter)
 		nebula.frame = 0;
 		nebula.origin.x = nebula.origin.y = 0;
 		nebula.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
-		nebula.frame = BrightenNebula(nebula.frame, 25);
+		nebula.frame = BrightenNebula(nebula.frame, 25); // should accept int Option (25 - defaul, 0 - completely transparent, 100 - brightest)
+														 // represent by slider from 0 to 10 with step 5
 		DrawStamp (&nebula);
 	}
 

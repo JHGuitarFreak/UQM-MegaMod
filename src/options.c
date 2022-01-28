@@ -33,6 +33,7 @@
 #include "libs/memlib.h"
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
+#include "libs/graphics/sdl/pure.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -699,9 +700,14 @@ unprepareAllDirs (void)
 bool
 setGammaCorrection (float gamma)
 {
-	bool set = TFB_SetGamma (gamma);
+	bool set;
+#if SDL_MAJOR_VERSION == 1
+	set = TFB_SetGamma (gamma);
+#else
+	set = TFB_SetBrightness(gamma);
+#endif
 	if (set)
-		log_add (log_Info, "Gamma correction set to %.4f.", gamma);
+		log_add(log_Info, "Gamma correction set to %.4f.", gamma);
 	else
 		log_add (log_Warning, "Unable to set gamma correction.");
 	return set;
