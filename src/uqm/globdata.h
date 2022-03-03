@@ -211,10 +211,12 @@ struct GameStateBitMap {
 	BYTE numBits;
 };
 
+size_t totalBitsForGameState (const GameStateBitMap *bm, int rev);
+int getGameStateRevByBytes (const GameStateBitMap *bm, int bytes);
 BOOLEAN serialiseGameState (const GameStateBitMap *bm,
 		BYTE **buf, size_t *numBytes);
 BOOLEAN deserialiseGameState (const GameStateBitMap *bm,
-		const BYTE *buf, size_t numBytes);
+		const BYTE *buf, size_t numBytes, int rev);
 
 #define START_GAME_STATE enum {
 #define ADD_GAME_STATE(SName,NumBits) SName, END_##SName = SName + NumBits - 1,

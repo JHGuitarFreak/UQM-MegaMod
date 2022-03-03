@@ -77,6 +77,9 @@ extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc, const cha
 
 extern const GameStateBitMap gameStateBitMap[];
 
+extern const char* gameStateBitMapRevTag[];
+
+#if 0 /* folded into gameStateBitMap before revision marker 2 */
 static const GameStateBitMap gameStateBitMap085[] = {
 		/* Shofixti states */
 	{ "SHOFIXTI_VISITS", 3 },
@@ -742,7 +745,9 @@ static const GameStateBitMap gameStateBitMap085[] = {
 
 	{ NULL, 0 },
 };
+#endif
 
+#if 0 /* folded into gameStateBitMap before revision marker 1 */
 static const GameStateBitMap coreGameStateBitMap[] = {
 	{ "SHOFIXTI_VISITS", 3 },
 	{ "SHOFIXTI_STACK1", 2 },
@@ -1148,6 +1153,7 @@ static const GameStateBitMap coreGameStateBitMap[] = {
 	{ "SAMATRA_GRPOFFS", 32 },
 	{ NULL, 0 },
 };
+#endif
 
 #if defined(__cplusplus)
 }

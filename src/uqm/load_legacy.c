@@ -445,9 +445,31 @@ static const GameStateBitMap legacyGameStateBitMap[] = {
 	{ "SPATHI_STACK2", 1 },
 	{ "ORZ_STACK0", 1 },
 	{ "ORZ_STACK1", 1 },
-	{ NULL, 0 },
+
+	{ NULL, 1 }, /* end legacyGameStateBitMap */
+
+	{ "AUTOPILOT_OK", 1 },
+	{ "KNOW_QS_PORTAL_0", 1 },
+	{ "KNOW_QS_PORTAL_1", 1 },
+	{ "KNOW_QS_PORTAL_2", 1 },
+	{ "KNOW_QS_PORTAL_3", 1 },
+	{ "KNOW_QS_PORTAL_4", 1 },
+	{ "KNOW_QS_PORTAL_5", 1 },
+	{ "KNOW_QS_PORTAL_6", 1 },
+	{ "KNOW_QS_PORTAL_7", 1 },
+	{ "KNOW_QS_PORTAL_8", 1 },
+	{ "KNOW_QS_PORTAL_9", 1 },
+	{ "KNOW_QS_PORTAL_10", 1 },
+	{ "KNOW_QS_PORTAL_11", 1 },
+	{ "KNOW_QS_PORTAL_12", 1 },
+	{ "KNOW_QS_PORTAL_13", 1 },
+	{ "KNOW_QS_PORTAL_14", 1 },
+	{ "KNOW_QS_PORTAL_15", 1 },
+
+	{ NULL, 0 }, /* end legacyGameStateBitMapHD */
 };
 
+#if 0 /* folded into legacyGameStateBitMap after revision marker 1 */
 const GameStateBitMap legacyGameStateBitMapHD[] = {
 	{ "SHOFIXTI_VISITS", 3 },
 	{ "SHOFIXTI_STACK1", 2 },
@@ -872,7 +894,7 @@ const GameStateBitMap legacyGameStateBitMapHD[] = {
 	{ "KNOW_QS_PORTAL_15", 1 },
 	{ NULL, 0 },
 };
-
+#endif
 
 // XXX: these should handle endian conversions later
 static inline COUNT
@@ -1363,7 +1385,11 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 		if (buf != NULL) 
 		{ 
 			cread_a8  (fh, buf, numBytes); 
-			deserialiseGameState ((vanilla ? legacyGameStateBitMap : legacyGameStateBitMapHD), buf, numBytes);
+			deserialiseGameState (
+					legacyGameStateBitMap,
+					buf,
+					numBytes,
+					(vanilla ? 0 : 1));
 			HFree(buf); 
 		} 
 	} 
