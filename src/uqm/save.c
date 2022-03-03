@@ -759,11 +759,9 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	{ "HM_ENCOUNTERS", 9 },
 
-	{ NULL, 3 }, /* as of MegaMod v0.8.1 */
-
 	{ "RESERVED", 32 },
 
-	{ NULL, 0 }, /* as of MegaMod v(unreleased) */
+	{ NULL, 0 }, /* as of MegaMod v0.8.1 */
 };
 
 // This describes the release version corresponding to each game state
@@ -771,8 +769,7 @@ const GameStateBitMap gameStateBitMap[] = {
 const char* gameStateBitMapRevTag[] = {
 	"Core UQM v0.8.0",
 	"MegaMod v0.8.0.85",
-	"MegaMod v0.8.1",
-	"MegaMod v(unreleased)", // TODO
+	"MegaMod v0.8.1"
 };
 
 // XXX: these should handle endian conversions later
