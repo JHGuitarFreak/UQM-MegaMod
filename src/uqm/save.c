@@ -698,7 +698,9 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "COLONY_GRPOFFS", 32 },
 	{ "SAMATRA_GRPOFFS", 32 },
 
-	{ NULL, 1 }, /* as of Core UQM v0.8.0 */
+	/* end rev 0, Core UQM v0.8.0 */
+	{ NULL, 1 },
+	/* begin rev 1, MegaMod v0.8.0.85 */
 
 	{ "AUTOPILOT_OK", 1 },
 	
@@ -719,7 +721,9 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "KNOW_QS_PORTAL_14", 1 },
 	{ "KNOW_QS_PORTAL_15", 1 },
 
-	{ NULL, 2 }, /* as of MegaMod v0.8.0.85 */
+	/* end rev 1, MegaMod v0.8.0.85 */
+	{ NULL, 2 },
+	/* begin rev 2, MegaMod v0.8.1 */
 
 	{ "SYS_VISITED_00", 32 },
 	{ "SYS_VISITED_01", 32 },
@@ -761,7 +765,8 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	{ "RESERVED", 32 },
 
-	{ NULL, 0 }, /* as of MegaMod v0.8.1 */
+	/* end rev 2, MegaMod v0.8.1 */
+	{ NULL, 0 },
 };
 
 // This describes the release version corresponding to each game state
