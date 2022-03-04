@@ -879,6 +879,9 @@ START_GAME_STATE
 	ADD_GAME_STATE (COLONY_GRPOFFS, 32)
 	ADD_GAME_STATE (SAMATRA_GRPOFFS, 32)
 
+	/* end rev 0, Core UQM v0.8.0 */
+	/* begin rev 1, MegaMod v0.8.0.85 */
+
 	// JMS: It is allowed for the autopilot to engage
 	ADD_GAME_STATE (AUTOPILOT_OK, 1) // Serosis look into
 
@@ -899,6 +902,9 @@ START_GAME_STATE
 	ADD_GAME_STATE (KNOW_QS_PORTAL_13, 1)
 	ADD_GAME_STATE (KNOW_QS_PORTAL_14, 1)
 	ADD_GAME_STATE (KNOW_QS_PORTAL_15, 1)
+
+	/* end rev 1, MegaMod v0.8.0.85 */
+	/* begin rev 2, MegaMod v0.8.1 */
 
 	ADD_GAME_STATE (SYS_VISITED_00, 32)
 	ADD_GAME_STATE (SYS_VISITED_01, 32)
@@ -939,6 +945,8 @@ START_GAME_STATE
 	ADD_GAME_STATE (HM_ENCOUNTERS, 9)
 
 	ADD_GAME_STATE (RESERVED, 32)
+
+	/* end rev 2, MegaMod v0.8.1 */
 
 END_GAME_STATE
 
