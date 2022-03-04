@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
 
+## [v0.8.2]
+### Changed
+- HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
+
+### Fixed
+- HARDMODE: Fixed Melnorme tech price increasing (unintentionally) when refusing to buy new tech and going back to buy the same tech - Bug #100
+
 ## [v0.8.1]
 ### Thanks
 - Thanks to Mergrim for his playthrough of the MegaMod. Which in turn helped bring a couple bugs to light (The "Trade HQ" and Zex's "funky" screen bugs)
