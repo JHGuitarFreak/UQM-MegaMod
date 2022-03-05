@@ -12,10 +12,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [v0.8.2]
 ### Changed
+- De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
 
 ### Fixed
+- Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101
 - HARDMODE: Fixed Melnorme tech price increasing (unintentionally) when refusing to buy new tech and going back to buy the same tech - Bug #100
+
 
 ## [v0.8.1]
 ### Thanks
