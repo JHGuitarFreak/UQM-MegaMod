@@ -410,26 +410,25 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	{
 		BYTE *buf;
 		BOOLEAN result;
-		BOOLEAN legacyMM = FALSE;
-		size_t gameStateByteCount085 = 1255 + 7 >> 3;
-		size_t gameStateByteCount =
-				(NUM_GAME_STATE_BITS - (try_core ? 556 : 0)) + 7 >> 3;
+		int rev;
+		size_t gameStateByteCount;
 
 		read_32 (fh, &magic);
+		rev = (try_core ? 0 : getGameStateRevByBytes (gameStateBitMap, magic));
+		gameStateByteCount = totalBitsForGameState (gameStateBitMap, rev) + 7 >> 3;
 
-		if (magic == gameStateByteCount085)
-		{
-			gameStateByteCount = gameStateByteCount085;
-			legacyMM = TRUE;
-			GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
-		}
-		
-		if (magic < gameStateByteCount)
+		if (rev < 0 || magic < gameStateByteCount)
 		{
 			log_add (log_Error, "Warning: Savegame is corrupt: saved game "
 					"state is too small.");
 			return FALSE;
 		}
+
+		log_add (log_Debug, "Detected save game state rev %d: %s",
+				rev, gameStateBitMapRevTag[rev]);
+
+		if (rev <= 1)
+			GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
 
 		buf = HMalloc (gameStateByteCount);
 		if (buf == NULL)
@@ -440,10 +439,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		}
 
 		read_a8 (fh, buf, gameStateByteCount);
-		result = deserialiseGameState (
-				(try_core ? coreGameStateBitMap :
-				(!legacyMM ? gameStateBitMap : gameStateBitMap085)),
-				buf, gameStateByteCount);
+		result = deserialiseGameState (gameStateBitMap, buf, gameStateByteCount, rev);
 		HFree (buf);
 		if (result == FALSE)
 		{

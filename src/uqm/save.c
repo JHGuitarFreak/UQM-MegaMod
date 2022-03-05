@@ -697,7 +697,11 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "URQUAN_PROBE_GRPOFFS", 32 },
 	{ "COLONY_GRPOFFS", 32 },
 	{ "SAMATRA_GRPOFFS", 32 },
-	
+
+	/* end rev 0, Core UQM v0.8.0 */
+	{ NULL, 1 },
+	/* begin rev 1, MegaMod v0.8.0.85 */
+
 	{ "AUTOPILOT_OK", 1 },
 	
 	{ "KNOW_QS_PORTAL_0", 1 },
@@ -716,6 +720,10 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "KNOW_QS_PORTAL_13", 1 },
 	{ "KNOW_QS_PORTAL_14", 1 },
 	{ "KNOW_QS_PORTAL_15", 1 },
+
+	/* end rev 1, MegaMod v0.8.0.85 */
+	{ NULL, 2 },
+	/* begin rev 2, MegaMod v0.8.1 */
 
 	{ "SYS_VISITED_00", 32 },
 	{ "SYS_VISITED_01", 32 },
@@ -756,8 +764,17 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "HM_ENCOUNTERS", 9 },
 
 	{ "RESERVED", 32 },
-	
+
+	/* end rev 2, MegaMod v0.8.1 */
 	{ NULL, 0 },
+};
+
+// This describes the release version corresponding to each game state
+// flag revision chunk.
+const char* gameStateBitMapRevTag[] = {
+	"Core UQM v0.8.0",
+	"MegaMod v0.8.0.85",
+	"MegaMod v0.8.1"
 };
 
 // XXX: these should handle endian conversions later
