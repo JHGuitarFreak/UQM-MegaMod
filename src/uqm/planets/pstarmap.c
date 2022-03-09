@@ -378,18 +378,20 @@ GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
 }
 
 static void
-DrawFuelCircles ()
+DrawFuelCircle (BOOLEAN secondary)
 {
 	RECT r;
 	long diameter;
-	long diameter_no_return;
 	POINT corner;
 	Color OldColor;
 	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
 
-	diameter = OnBoardFuel << 1;
-
-	if (!inHQSpace())
+	if (secondary)
+	{
+		OnBoardFuel -= FuelRequiredTo (GLOBAL (autopilot));
+		corner = GLOBAL (autopilot);
+	}
+	else if (!inHQSpace())
 		corner = CurStarDescPtr->star_pt;
 	else
 	{
@@ -397,11 +399,15 @@ DrawFuelCircles ()
 		corner.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
+	diameter = OnBoardFuel << 1;
+	if (diameter < 0)
+		diameter = 0;
+
 	// Cap the diameter to a sane range
 	if (diameter > MAX_X_UNIVERSE * 4)
 		diameter = MAX_X_UNIVERSE * 4;
 
-	/* Draw outer circle*/
+	/* Draw circle*/
 	r.extent.width = UNIVERSE_TO_DISPX (diameter)
 			- UNIVERSE_TO_DISPX (0);
 
@@ -420,43 +426,8 @@ DrawFuelCircles ()
 			- (r.extent.height >> 1);
 
 	OldColor = SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
+			secondary ? STARMAP_SECONDARY_RANGE_COLOR : STARMAP_FUEL_RANGE_COLOR);
 	DrawFilledOval (&r);
-
-	/* Draw a second fuel circle showing the 'point of no return', past which there will
-	 * not be enough fuel to return to Sol.
-	 */
-	if (GET_GAME_STATE(STARBASE_AVAILABLE) && optFuelRange)
-	{
-		diameter_no_return = OnBoardFuel - get_fuel_to_sol();
-
-		if (diameter_no_return < 0)
-			diameter_no_return = 0;
-
-		if (diameter_no_return > MAX_X_UNIVERSE * 4)
-			diameter_no_return = MAX_X_UNIVERSE * 4;
-
-		r.extent.width = UNIVERSE_TO_DISPX(diameter_no_return)
-			- UNIVERSE_TO_DISPX(0);
-
-		if (r.extent.width < 0)
-			r.extent.width = -r.extent.width;
-
-		r.extent.height = UNIVERSE_TO_DISPY(diameter_no_return)
-			- UNIVERSE_TO_DISPY(0);
-
-		if (r.extent.height < 0)
-			r.extent.height = -r.extent.height;
-
-		r.corner.x = UNIVERSE_TO_DISPX(corner.x)
-			- (r.extent.width >> 1);
-		r.corner.y = UNIVERSE_TO_DISPY(corner.y)
-			- (r.extent.height >> 1);
-
-		SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x04, 0x04, 0x05), 0x22));
-		DrawFilledOval (&r);
-	}
 	SetContextForeGroundColor(OldColor);
 }
 
@@ -633,8 +604,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_starmap != CONSTELLATION_MAP
 			&& (race_update == 0 && which_space < 2)
 		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
-	{	// Draw the fuel range circle
-		DrawFuelCircles ();
+	{	// Draw the fuel range circle(s)
+		DrawFuelCircle (FALSE);
+
+		/* Draw a second fuel circle showing the range from the current autopilot
+		 * destination, if set.
+		 */
+		if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0 && optFuelRange)
+			DrawFuelCircle (TRUE);
 	}
 
 	{	// Horizontal lines
@@ -1236,7 +1213,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 }
 
 static unsigned int
-FuelRequired (void)
+FuelRequiredTo (POINT dest)
 {
 	COUNT fuel_required;
 	DWORD f;
@@ -1249,8 +1226,9 @@ FuelRequired (void)
 		pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 		pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
-	pt.x -= cursorLoc.x;
-	pt.y -= cursorLoc.y;
+
+	pt.x -= dest.x;
+	pt.y -= dest.y;
 
 	f = (DWORD)((long)pt.x * pt.x + (long)pt.y * pt.y);
 	if (f == 0 || GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
@@ -1259,6 +1237,12 @@ FuelRequired (void)
 		fuel_required = square_root (f) + (FUEL_TANK_SCALE / 20);
 
 	return fuel_required;
+}
+
+static unsigned int
+FuelRequired (void)
+{
+	return FuelRequiredTo (cursorLoc);
 }
 
 static void
@@ -1806,7 +1790,11 @@ DoMoveCursor (MENU_STATE *pMS)
 		}
 		else
 		{
-			GLOBAL (autopilot) = cursorLoc;
+			if (GLOBAL (autopilot.x) == cursorLoc.x
+					&& GLOBAL (autopilot.y) == cursorLoc.y)
+				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
+			else
+				GLOBAL (autopilot) = cursorLoc;
 			DrawStarMap (0, NULL);
 		}
 	}
