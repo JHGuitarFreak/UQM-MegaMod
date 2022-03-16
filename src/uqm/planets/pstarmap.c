@@ -603,15 +603,18 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 	if (which_starmap != CONSTELLATION_MAP
 			&& (race_update == 0 && which_space < 2)
-		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
+			&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
 	{	// Draw the fuel range circle(s)
 		DrawFuelCircle (FALSE);
 
 		/* Draw a second fuel circle showing the range from the current autopilot
 		 * destination, if set.
 		 */
-		if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0 && optFuelRange)
-			DrawFuelCircle (TRUE);
+		if (optFuelRange)
+		{
+			if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
+				DrawFuelCircle (TRUE);
+		}
 	}
 
 	{	// Horizontal lines
@@ -1755,17 +1758,12 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
-		return FALSE;
-	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
-	{
-		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
-
-		if (optBubbleWarp)
+		if (optBubbleWarp &&
+				GLOBAL (autopilot.x) != ~0 &&
+				GLOBAL (autopilot.y) != ~0)
 		{
 			if (GLOBAL_SIS (FuelOnBoard) >= FuelRequired () || optInfiniteFuel)
 			{
-				GLOBAL (autopilot) = cursorLoc;
 				PlayMenuSound (MENU_SOUND_BUBBLEWARP);
 
 				if (!optInfiniteFuel)
@@ -1778,25 +1776,27 @@ DoMoveCursor (MENU_STATE *pMS)
 					// Set a hook to move to the new location:
 					debugHook = doInstantMove;
 				}
-				else 
+				else
 				{	// Move to the new location immediately.
 					doInstantMove ();
 				}
-				
-				return FALSE;
 			}
 			else
 				PlayMenuSound (MENU_SOUND_FAILURE);
 		}
+
+		return FALSE;
+	}
+	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	{
+		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
+
+		if (GLOBAL (autopilot.x) == cursorLoc.x
+				&& GLOBAL (autopilot.y) == cursorLoc.y)
+			GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
 		else
-		{
-			if (GLOBAL (autopilot.x) == cursorLoc.x
-					&& GLOBAL (autopilot.y) == cursorLoc.y)
-				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
-			else
-				GLOBAL (autopilot) = cursorLoc;
-			DrawStarMap (0, NULL);
-		}
+			GLOBAL (autopilot) = cursorLoc;
+		DrawStarMap (0, NULL);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
 	{
