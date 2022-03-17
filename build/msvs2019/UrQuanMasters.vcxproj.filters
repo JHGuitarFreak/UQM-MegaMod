@@ -1389,6 +1389,9 @@
     <ClCompile Include="..\..\src\uqm\ipdisp.c">
       <Filter>Source Files\uqm</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\uqm\journal.c">
+      <Filter>Source Files\uqm</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\uqm\load.c">
       <Filter>Source Files\uqm</Filter>
     </ClCompile>
