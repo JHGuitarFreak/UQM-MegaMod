@@ -1356,9 +1356,9 @@ TryFuelAgain:
 
 		NPCPhrase (nextTech->sale_line);
 
-		if (DIF_HARD && countTech())
+		if (DIF_HARD && countTech ())
 		{
-			nextTech->price += countTech() * 50;
+			nextTech->price = TECHPRICE + countTech () * 50;
 			NPCPhrase (NEED_MORE_CREDIT0);
 			NPCNumber (nextTech->price - TECHPRICE, NULL);
 			NPCPhrase (NEED_MORE_CREDIT1);
