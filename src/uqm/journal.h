@@ -17,25 +17,13 @@
 #ifndef UQM_JOURNAL_H
 #define UQM_JOURNAL_H
 
-static char* JournalStrings[] = {
-	"",
-
-	"Return to Earth",
-	"Contact Earth Starbase",
-	"Acquire radioactives for Earth Starbase",
-	"Give radioactives to Earth Starbase",
-	"Request replacement planet lander from Earth Starbase",
-	"Request another replacement planet lander from Earth Starbase",
-	"Request fuel from Earth Starbase",
-	"Request fuel again from Earth Starbase",
-	"Neutralize Hierarchy base on Luna",
-	"Inform Earth Starbase about Hierarchy base on Luna",
-	"Convince Earth Starbase to join the fight against the Ur-Quan"
-};
-
 enum
 {
 	NO_JOURNAL_ENTRY,
+
+	OBJECTIVES_JOURNAL_HEADER,
+	ALIENS_JOURNAL_HEADER,
+	ARTIFACTS_JOURNAL_HEADER,
 
 	VISIT_EARTH,
 	CONTACT_EARTH,
@@ -47,7 +35,10 @@ enum
 	NEED_FUEL_AGAIN,
 	DESTROY_MOONBASE,
 	REPORT_MOONBASE,
-	RECRUIT_EARTH
+	RECRUIT_EARTH,
+
+
+	NUM_JOURNAL_STRINGS
 };
 
 #endif /* UQM_JOURNAL_H */

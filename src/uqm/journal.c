@@ -20,6 +20,7 @@
 #include "globdata.h"
 #include "journal.h"
 #include "menustat.h"
+#include "nameref.h"
 #include "options.h"
 #include "races.h"
 #include "setup.h"
@@ -62,13 +63,16 @@ typedef struct journal_entry_struct {
 	struct journal_entry_struct *next;
 } JOURNAL_ENTRY;
 
-
+static STRING JournalStrings;
 static JOURNAL_ID which_journal;
 static int scroll_journal;
 static JOURNAL_SECTION journal_section[NUM_SECTIONS];
 #define JOURNAL_BUF_SIZE 1024
 static char journal_buf[JOURNAL_BUF_SIZE];
 static BOOLEAN transition_pending;
+
+
+#define JOURNAL_STRING(i) (GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
 
 
 static BOOLEAN
@@ -130,6 +134,10 @@ FreeJournals (void)
 		}
 		section->head = section->tail = NULL;
 	}
+
+	if (JournalStrings != NULL)
+		DestroyStringTable (ReleaseStringTable (JournalStrings));
+	JournalStrings = NULL;
 }
 
 
@@ -148,7 +156,7 @@ AddJournalObjective (int steps, ...)
 		if (test)
 		{
 			s = i + 1;
-			str = (jstring == NO_JOURNAL_ENTRY) ? NULL : JournalStrings[jstring];
+			str = (jstring == NO_JOURNAL_ENTRY) ? NULL : JOURNAL_STRING(jstring);
 		}
 	}
 	va_end (args);
@@ -166,6 +174,11 @@ WriteJournals (void)
 #define GS(flag)      TF(GET_GAME_STATE(flag) > 0)
 #define GSLT(flag,n)  TF(GET_GAME_STATE(flag) < (n))
 #define GSGE(flag,n)  TF(GET_GAME_STATE(flag) >= (n))
+
+	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
+	if (JournalStrings == 0)
+		return;
+
 
 	// starbase missions
 
@@ -257,17 +270,27 @@ DrawJournal (void)
 	switch (which_journal)
 	{
 		case OBJECTIVES_JOURNAL:
-			snprintf (journal_buf, JOURNAL_BUF_SIZE, "Objectives");
+			DrawSISMessage (JOURNAL_STRING (OBJECTIVES_JOURNAL_HEADER));
 			sid = OPEN_SECTION;
 			sid_end = COMPLETED_SECTION;
 			break;
+		case ALIENS_JOURNAL:
+			DrawSISMessage (JOURNAL_STRING (ALIENS_JOURNAL_HEADER));
+			sid = 1;
+			sid_end = 0;
+			break;
+		case ARTIFACTS_JOURNAL:
+			DrawSISMessage (JOURNAL_STRING (ARTIFACTS_JOURNAL_HEADER));
+			sid = 1;
+			sid_end = 0;
+			break;
 		default:
-			snprintf (journal_buf, JOURNAL_BUF_SIZE, "journal #%d", which_journal); // TODO gamestrings ?
-			sid = SPATHI_SECTION;
-			sid_end = SPATHI_SECTION;
+			snprintf (journal_buf, JOURNAL_BUF_SIZE, "journal #%d", which_journal);
+			DrawSISMessage (journal_buf);
+			sid = 1;
+			sid_end = 0;
 			break;
 	}
-	DrawSISMessage (journal_buf);
 
 	for (;  sid <= sid_end;  sid++)
 	{
