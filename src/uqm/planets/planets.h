@@ -334,6 +334,7 @@ extern void DrawStarBackGround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
 extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
 extern void DrawFilledOval (RECT *pRect);
+extern void DrawEllipse (RECT *pRect, BOOLEAN filled);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val);
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 		PLANET_DESC *pBaseDesc, BOOLEAN TypesDefined);

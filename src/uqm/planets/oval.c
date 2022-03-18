@@ -25,6 +25,8 @@
 
 #include "planets.h"
 
+#include <math.h>
+
 #define NUM_QUADS 4
 
 extern FRAME SpaceJunkFrame;
@@ -341,4 +343,57 @@ DrawFilledOval (RECT *pRect)
 	}
 }
 
+//draw one quadrant arc, and mirror the other 4 quadrants
+void DrawEllipse (RECT *pRect, BOOLEAN filled)
+{
+	float pih = M_PI / 2.0; //half of pi
+	int radiusX = pRect->extent.width >> 1;
+	int radiusY = pRect->extent.height >> 1;
+	int x0 = pRect->corner.x + radiusX;
+	int y0 = pRect->corner.y + radiusY;
 
+	const int prec = pRect->extent.height; // precision value; value of 1 will draw a diamond, 27 makes pretty smooth circles.
+	float theta = 0;     // angle that will be increased each loop
+
+	//starting point
+	int x = (float)radiusX * cos (theta);
+	int y = (float)radiusY * sin (theta);
+	int x1 = x;
+	int y1 = y;
+
+	// Draw the center line
+	if (filled)
+		DRAW_LINE (x0 - radiusX, y0, x0 + radiusX, y0);
+
+	//repeat until theta >= 90;
+	float step = pih / (float)prec; // amount to add to theta each time (degrees)
+	for (theta = step; theta <= pih; theta += step)//step through only a 90 arc (1 quadrant)
+	{
+		//get new point location
+		x1 = (float)radiusX * cosf (theta) + 0.5; //new point (+.5 is a quick rounding method)
+		y1 = (float)radiusY * sinf (theta) + 0.5;
+
+		//draw line from previous point to new point, ONLY if point incremented
+		if ((x != x1) || (y != y1))
+		{
+			if (filled)
+			{
+				DRAW_LINE (x0, y0 - y1, x0 + x1, y0 - y1); // NorthEast Quadrant
+				DRAW_LINE (x0 - x, y0 - y1, x0, y0 - y1);  // SouthEast Quadrant
+				DRAW_LINE (x0 - x, y0 + y1, x0, y0 + y1);  // SouthWest Quadrant
+				DRAW_LINE (x0, y0 + y1, x0 + x1, y0 + y1); // NorthWest Quadrant
+			}
+			else
+			{
+				DRAW_LINE (x0 + x, y0 - y, x0 + x1, y0 - y1);
+				DRAW_LINE (x0 - x, y0 - y, x0 - x1, y0 - y1);
+				DRAW_LINE (x0 - x, y0 + y, x0 - x1, y0 + y1);
+				DRAW_LINE (x0 + x, y0 + y, x0 + x1, y0 + y1);
+			}
+		}
+
+		//save previous points
+		x = x1;
+		y = y1;
+	}
+}

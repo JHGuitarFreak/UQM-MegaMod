@@ -249,6 +249,15 @@ DrawLine (LINE *lpLine, BYTE thickness)
 }
 
 void
+DRAW_LINE (int x1, int y1, int x2, int y2)
+{
+	LINE line;
+
+	MAKE_LINE (&line, x1, y1, x2, y2);
+	DrawLine (&line, 1);
+}
+
+void
 DrawStamp (STAMP *stmp)
 {
 	POINT origin;

@@ -421,7 +421,7 @@ DrawFuelCircles ()
 
 	OldColor = SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
-	DrawFilledOval (&r);
+	DrawEllipse (&r, TRUE);
 
 	/* Draw a second fuel circle showing the 'point of no return', past which there will
 	 * not be enough fuel to return to Sol.
@@ -455,7 +455,7 @@ DrawFuelCircles ()
 
 		SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x04, 0x04, 0x05), 0x22));
-		DrawFilledOval (&r);
+		DrawEllipse (&r, TRUE);
 	}
 	SetContextForeGroundColor(OldColor);
 }

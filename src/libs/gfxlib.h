@@ -226,6 +226,15 @@ MAKE_DEXTENT (SDWORD width, SDWORD height)
 	return ext;
 }
 
+static inline void
+MAKE_LINE (LINE *line, int x1, int y1, int x2, int y2)
+{
+	line->first.x = x1;
+	line->first.y = y1;
+	line->second.x = x2;
+	line->second.y = y2;
+}
+
 static inline bool
 pointsEqual (POINT p1, POINT p2)
 {
@@ -438,6 +447,7 @@ extern void DrawPoint (POINT *pPoint);
 extern void DrawRectangle (RECT *pRect, BOOLEAN scaled);
 extern void DrawFilledRectangle (RECT *pRect);
 extern void DrawLine (LINE *pLine, BYTE thickness);
+extern void DRAW_LINE (int x1, int y1, int x2, int y2);
 extern RECT font_GetTextRect (TEXT* pText);
 extern void font_DrawText (TEXT *pText);
 extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
