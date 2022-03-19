@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <ctype.h> 
 		// For isdigit()
+#include <math.h> // sqrt()
 #include "../build.h"
 		// For StartSphereTracking()
 
@@ -425,10 +426,62 @@ DrawFuelCircle (BOOLEAN secondary)
 	r.corner.y = UNIVERSE_TO_DISPY (corner.y)
 			- (r.extent.height >> 1);
 
-	OldColor = SetContextForeGroundColor (
-			secondary ? STARMAP_SECONDARY_RANGE_COLOR : STARMAP_FUEL_RANGE_COLOR);
-	DrawFilledOval (&r);
+	if (secondary)
+	{
+		OldColor = SetContextForeGroundColor (DKGRAY_COLOR);
+		DrawOval (&r, RES_BOOL (1,6), FALSE);
+	}
+	else
+	{
+		OldColor = SetContextForeGroundColor (STARMAP_FUEL_RANGE_COLOR);
+		DrawFilledOval (&r);
+	}
 	SetContextForeGroundColor(OldColor);
+}
+
+static void
+DrawFuelEllipse()
+{
+	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
+	int x, y, dx, dy, d, cx, cy, rx, ry, angle;
+	Color OldColor;
+
+	// calculate distance, angle, center point, and diameters
+	if (!inHQSpace ())
+	{
+		x = CurStarDescPtr->star_pt.x;
+		y = CurStarDescPtr->star_pt.y;
+	}
+	else
+	{
+		x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
+		y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+	}
+	dx = x - SOL_X;
+	dy = y - SOL_Y;
+	d = (int)(sqrt ((float)dx * dx + (float)dy * dy) + 0.5);
+	if (d >= OnBoardFuel)
+		return;
+	cx = (x + SOL_X) / 2;
+	cy = (y + SOL_Y) / 2;
+	rx = OnBoardFuel / 2;
+	ry = (int)(sqrt ((float)rx * rx - (float)d * d / 4) + 0.5);
+	angle = (dx == 0) ? 90 : ((atan((float)dy / dx) * 180.0) / M_PI);
+
+	// convert starmap coords to screen coords
+	cx = UNIVERSE_TO_DISPX (cx) + HD_COMP;
+	cy = UNIVERSE_TO_DISPY (cy) + HD_COMP;
+	rx = UNIVERSE_TO_DISPX (rx) - UNIVERSE_TO_DISPX (0);
+	if (rx < 0)
+		rx = -rx;
+	ry = UNIVERSE_TO_DISPY (ry) - UNIVERSE_TO_DISPY (0);
+	if (ry < 0)
+		ry = -ry;
+
+	// draw
+	OldColor = SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
+	DrawRotatedEllipse (cx, cy, rx, ry, angle, 1, 0);
+	SetContextForeGroundColor (OldColor);
 }
 
 BOOLEAN
@@ -604,17 +657,11 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_starmap != CONSTELLATION_MAP
 			&& (race_update == 0 && which_space < 2)
 			&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
-	{	// Draw the fuel range circle(s)
+	{	// Draw the fuel range circle (and return-to-Sol ellipse?)
 		DrawFuelCircle (FALSE);
 
-		/* Draw a second fuel circle showing the range from the current autopilot
-		 * destination, if set.
-		 */
 		if (optFuelRange)
-		{
-			if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
-				DrawFuelCircle (TRUE);
-		}
+			DrawFuelEllipse ();
 	}
 
 	{	// Horizontal lines
@@ -650,6 +697,16 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		if (r.extent.height - RES_SCALE (1) > (-(UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) - UNIVERSE_TO_DISPY (0))))
 			r.extent.height -= RES_SCALE (1);
 		DrawFilledRectangle (&r);
+	}
+
+	if (which_starmap != CONSTELLATION_MAP
+		&& (race_update == 0 && which_space < 2)
+		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0)
+		&& optFuelRange
+		&& GLOBAL (autopilot.x) != ~0
+		&& GLOBAL (autopilot.y) != ~0)
+	{	// Draw the autopilot fuel range circle (on top of the grid)
+		DrawFuelCircle (TRUE);
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);

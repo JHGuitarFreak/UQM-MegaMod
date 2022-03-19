@@ -22,6 +22,7 @@
 #include "libs/graphics/drawable.h"
 #include "../nameref.h"
 #include "../igfxres.h"
+#include <math.h>
 
 #include "planets.h"
 
@@ -341,4 +342,119 @@ DrawFilledOval (RECT *pRect)
 	}
 }
 
+void
+DrawEllipseQuadrants (int cx, int cy, int x, int y, int shear, int filled)
+{
+	POINT p;
+	LINE l;
 
+	if (filled && y != 0)
+	{
+		l.first.x = l.second.x = cx - x;
+		l.first.y = cy - shear - y;
+		l.second.y = cy - shear + y;
+		DrawLine (&l, 1);
+
+		if (x != 0)
+		{
+			l.first.x = l.second.x = cx + x;
+			l.first.y = cy + shear - y;
+			l.second.y = cy + shear + y;
+			DrawLine (&l, 1);
+		}
+	}
+	else
+	{
+		p.x = cx - x;
+		p.y = cy - shear - y;
+		DrawPoint (&p);
+		p.y = cy - shear + y;
+		DrawPoint (&p);
+
+		if (x != 0)
+		{
+			p.x = cx + x;
+			p.y = cy + shear - y;
+			DrawPoint (&p);
+			p.y = cy + shear + y;
+			DrawPoint (&p);
+		}
+	}
+}
+
+void
+DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
+{
+	// adapted from https://zingl.github.io/Bresenham.pdf section 2.1
+	int x = -rx;
+	int y = 0;
+	int s = shear;
+	int d = 0;
+	const int sRound = (shear < 0) ? (rx / 2) : -(rx / 2);
+	long e2 = (long)ry * ry;
+	long e = x * (2 * e2 + x) + e2;
+
+	if (rx < 0)
+		rx = 0;
+	if (ry < 0)
+		ry = 0;
+	if (!rx || !ry)
+	{
+		LINE l;
+		l.first.x = cx - rx;
+		l.first.y = cy - ry - s;
+		l.second.x = cx + rx;
+		l.second.y = cy + ry + s;
+		DrawLine (&l, 1);
+		return;
+	}
+
+	do
+	{
+		if (!filled && !d--)
+		{
+			d = dotted;
+			s = (int)(((long)x * shear + sRound) / rx);
+			DrawEllipseQuadrants (cx, cy, -x, y, s, 0);
+		}
+
+		e2 = e * 2;
+		if (e2 >= (x * 2 + 1) * (long)ry * ry)
+		{
+			if (filled)
+			{
+				s = (int)(((long)x * shear + sRound) / rx);
+				DrawEllipseQuadrants (cx, cy, -x, y, s, 1);
+			}
+			x++;
+			e += (x * 2 + 1) * (long)ry * ry;
+		}
+		if (e2 <= (y * 2 + 1) * (long)rx * rx)
+		{
+			y++;
+			e += (y * 2 + 1) * (long)rx * rx;
+		}
+	} while (x < 0);
+
+	// when x=0, y must be ry and s must be 0
+	DrawEllipseQuadrants (cx, cy, 0, ry, 0, filled);
+}
+
+void
+DrawRotatedEllipse (int cx, int cy, int rx, int ry, int angle_deg, int filled, int dotted)
+{
+	// based on https://zingl.github.io/Bresenham.pdf section 4.3
+	double theta = (angle_deg % 90) * M_PI / 180.0;
+	double rx2 = (double)rx * rx;
+	double ry2 = (double)ry * ry;
+	double st = sin (theta);
+	double s2t = st * st;
+	double ct = cos (theta);
+	double c2t = ct * ct;
+	int shear;
+
+	rx = (int)(sqrt (rx2 * c2t + ry2 * s2t) + 0.5);
+	ry = (int)(sqrt ((rx2 * ry2) / (rx2 * c2t + ry2 * s2t)) + 0.5);
+	shear = (int)(((rx2 - ry2) * st * ct) / sqrt(rx2 * c2t + ry2 * s2t) + 0.5);
+	DrawEllipse (cx, cy, rx, ry, shear, filled, dotted);
+}
