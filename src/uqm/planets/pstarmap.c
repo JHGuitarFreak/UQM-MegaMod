@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <ctype.h> 
 		// For isdigit()
+#include <math.h> // sqrt()
 #include "../build.h"
 		// For StartSphereTracking()
 
@@ -378,18 +379,20 @@ GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
 }
 
 static void
-DrawFuelCircles ()
+DrawFuelCircle (BOOLEAN secondary)
 {
 	RECT r;
 	long diameter;
-	long diameter_no_return;
 	POINT corner;
 	Color OldColor;
 	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
 
-	diameter = OnBoardFuel << 1;
-
-	if (!inHQSpace())
+	if (secondary)
+	{
+		OnBoardFuel -= FuelRequiredTo (GLOBAL (autopilot));
+		corner = GLOBAL (autopilot);
+	}
+	else if (!inHQSpace())
 		corner = CurStarDescPtr->star_pt;
 	else
 	{
@@ -397,11 +400,15 @@ DrawFuelCircles ()
 		corner.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
+	diameter = OnBoardFuel << 1;
+	if (diameter < 0)
+		diameter = 0;
+
 	// Cap the diameter to a sane range
 	if (diameter > MAX_X_UNIVERSE * 4)
 		diameter = MAX_X_UNIVERSE * 4;
 
-	/* Draw outer circle*/
+	/* Draw circle*/
 	r.extent.width = UNIVERSE_TO_DISPX (diameter)
 			- UNIVERSE_TO_DISPX (0);
 
@@ -419,45 +426,62 @@ DrawFuelCircles ()
 	r.corner.y = UNIVERSE_TO_DISPY (corner.y)
 			- (r.extent.height >> 1);
 
-	OldColor = SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x03, 0x03, 0x03), 0x22));
-	DrawFilledOval (&r);
-
-	/* Draw a second fuel circle showing the 'point of no return', past which there will
-	 * not be enough fuel to return to Sol.
-	 */
-	if (GET_GAME_STATE(STARBASE_AVAILABLE) && optFuelRange)
+	if (secondary)
 	{
-		diameter_no_return = OnBoardFuel - get_fuel_to_sol();
-
-		if (diameter_no_return < 0)
-			diameter_no_return = 0;
-
-		if (diameter_no_return > MAX_X_UNIVERSE * 4)
-			diameter_no_return = MAX_X_UNIVERSE * 4;
-
-		r.extent.width = UNIVERSE_TO_DISPX(diameter_no_return)
-			- UNIVERSE_TO_DISPX(0);
-
-		if (r.extent.width < 0)
-			r.extent.width = -r.extent.width;
-
-		r.extent.height = UNIVERSE_TO_DISPY(diameter_no_return)
-			- UNIVERSE_TO_DISPY(0);
-
-		if (r.extent.height < 0)
-			r.extent.height = -r.extent.height;
-
-		r.corner.x = UNIVERSE_TO_DISPX(corner.x)
-			- (r.extent.width >> 1);
-		r.corner.y = UNIVERSE_TO_DISPY(corner.y)
-			- (r.extent.height >> 1);
-
-		SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x04, 0x04, 0x05), 0x22));
+		OldColor = SetContextForeGroundColor (DKGRAY_COLOR);
+		DrawOval (&r, RES_BOOL (1,6), FALSE);
+	}
+	else
+	{
+		OldColor = SetContextForeGroundColor (STARMAP_FUEL_RANGE_COLOR);
 		DrawFilledOval (&r);
 	}
 	SetContextForeGroundColor(OldColor);
+}
+
+static void
+DrawFuelEllipse()
+{
+	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
+	int x, y, dx, dy, d, cx, cy, rx, ry, angle;
+	Color OldColor;
+
+	// calculate distance, angle, center point, and diameters
+	if (!inHQSpace ())
+	{
+		x = CurStarDescPtr->star_pt.x;
+		y = CurStarDescPtr->star_pt.y;
+	}
+	else
+	{
+		x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
+		y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+	}
+	dx = x - SOL_X;
+	dy = y - SOL_Y;
+	d = (int)(sqrt ((float)dx * dx + (float)dy * dy) + 0.5);
+	if (d >= OnBoardFuel)
+		return;
+	cx = (x + SOL_X) / 2;
+	cy = (y + SOL_Y) / 2;
+	rx = OnBoardFuel / 2;
+	ry = (int)(sqrt ((float)rx * rx - (float)d * d / 4) + 0.5);
+	angle = (dx == 0) ? 90 : ((atan((float)dy / dx) * 180.0) / M_PI);
+
+	// convert starmap coords to screen coords
+	cx = UNIVERSE_TO_DISPX (cx) + HD_COMP;
+	cy = UNIVERSE_TO_DISPY (cy) + HD_COMP;
+	rx = UNIVERSE_TO_DISPX (rx) - UNIVERSE_TO_DISPX (0);
+	if (rx < 0)
+		rx = -rx;
+	ry = UNIVERSE_TO_DISPY (ry) - UNIVERSE_TO_DISPY (0);
+	if (ry < 0)
+		ry = -ry;
+
+	// draw
+	OldColor = SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
+	DrawRotatedEllipse (cx, cy, rx, ry, angle, 1, 0);
+	SetContextForeGroundColor (OldColor);
 }
 
 BOOLEAN
@@ -632,9 +656,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 	if (which_starmap != CONSTELLATION_MAP
 			&& (race_update == 0 && which_space < 2)
-		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
-	{	// Draw the fuel range circle
-		DrawFuelCircles ();
+			&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
+	{	// Draw the fuel range circle (and return-to-Sol ellipse?)
+		DrawFuelCircle (FALSE);
+
+		if (optFuelRange)
+			DrawFuelEllipse ();
 	}
 
 	{	// Horizontal lines
@@ -670,6 +697,16 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		if (r.extent.height - RES_SCALE (1) > (-(UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) - UNIVERSE_TO_DISPY (0))))
 			r.extent.height -= RES_SCALE (1);
 		DrawFilledRectangle (&r);
+	}
+
+	if (which_starmap != CONSTELLATION_MAP
+		&& (race_update == 0 && which_space < 2)
+		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0)
+		&& optFuelRange
+		&& GLOBAL (autopilot.x) != ~0
+		&& GLOBAL (autopilot.y) != ~0)
+	{	// Draw the autopilot fuel range circle (on top of the grid)
+		DrawFuelCircle (TRUE);
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);
@@ -1236,7 +1273,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 }
 
 static unsigned int
-FuelRequired (void)
+FuelRequiredTo (POINT dest)
 {
 	COUNT fuel_required;
 	DWORD f;
@@ -1249,8 +1286,9 @@ FuelRequired (void)
 		pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 		pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
-	pt.x -= cursorLoc.x;
-	pt.y -= cursorLoc.y;
+
+	pt.x -= dest.x;
+	pt.y -= dest.y;
 
 	f = (DWORD)((long)pt.x * pt.x + (long)pt.y * pt.y);
 	if (f == 0 || GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
@@ -1259,6 +1297,12 @@ FuelRequired (void)
 		fuel_required = square_root (f) + (FUEL_TANK_SCALE / 20);
 
 	return fuel_required;
+}
+
+static unsigned int
+FuelRequired (void)
+{
+	return FuelRequiredTo (cursorLoc);
 }
 
 static void
@@ -1771,17 +1815,12 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
-		return FALSE;
-	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
-	{
-		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
-
-		if (optBubbleWarp)
+		if (optBubbleWarp &&
+				GLOBAL (autopilot.x) != ~0 &&
+				GLOBAL (autopilot.y) != ~0)
 		{
 			if (GLOBAL_SIS (FuelOnBoard) >= FuelRequired () || optInfiniteFuel)
 			{
-				GLOBAL (autopilot) = cursorLoc;
 				PlayMenuSound (MENU_SOUND_BUBBLEWARP);
 
 				if (!optInfiniteFuel)
@@ -1794,21 +1833,27 @@ DoMoveCursor (MENU_STATE *pMS)
 					// Set a hook to move to the new location:
 					debugHook = doInstantMove;
 				}
-				else 
+				else
 				{	// Move to the new location immediately.
 					doInstantMove ();
 				}
-				
-				return FALSE;
 			}
 			else
 				PlayMenuSound (MENU_SOUND_FAILURE);
 		}
+
+		return FALSE;
+	}
+	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	{
+		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
+
+		if (GLOBAL (autopilot.x) == cursorLoc.x
+				&& GLOBAL (autopilot.y) == cursorLoc.y)
+			GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
 		else
-		{
 			GLOBAL (autopilot) = cursorLoc;
-			DrawStarMap (0, NULL);
-		}
+		DrawStarMap (0, NULL);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
 	{
