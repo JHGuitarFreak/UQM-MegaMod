@@ -1778,7 +1778,30 @@ DoStarSearch (MENU_STATE *pMS)
 	TextEntry3DO = FALSE;
 
 	return success;
-} 
+}
+
+void
+DoBubbleWarp (BOOLEAN UseFuel)
+{
+	GLOBAL (autopilot) = cursorLoc;
+
+	PlayMenuSound (MENU_SOUND_BUBBLEWARP);
+
+	if (UseFuel)
+		DeltaSISGauges (0, -FuelRequired (), 0);
+
+	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
+	{
+		// We're in a solar system; exit it.
+		GLOBAL (CurrentActivity) |= END_INTERPLANETARY;
+		// Set a hook to move to the new location:
+		debugHook = doInstantMove;
+	}
+	else
+	{	// Move to the new location immediately.
+		doInstantMove ();
+	}
+}
 
 static BOOLEAN
 DoMoveCursor (MENU_STATE *pMS)
@@ -1815,31 +1838,12 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
-		if (optBubbleWarp &&
-				GLOBAL (autopilot.x) != ~0 &&
-				GLOBAL (autopilot.y) != ~0)
+		if ((optBubbleWarp && !optInfiniteFuel)
+			&& GLOBAL (autopilot.x) != ~0
+			&& GLOBAL (autopilot.y) != ~0
+			&& GLOBAL_SIS (FuelOnBoard) >= FuelRequired ())
 		{
-			if (GLOBAL_SIS (FuelOnBoard) >= FuelRequired () || optInfiniteFuel)
-			{
-				PlayMenuSound (MENU_SOUND_BUBBLEWARP);
-
-				if (!optInfiniteFuel)
-					DeltaSISGauges (0, -FuelRequired(), 0);
-
-				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
-				{
-					// We're in a solar system; exit it.
-					GLOBAL (CurrentActivity) |= END_INTERPLANETARY;
-					// Set a hook to move to the new location:
-					debugHook = doInstantMove;
-				}
-				else
-				{	// Move to the new location immediately.
-					doInstantMove ();
-				}
-			}
-			else
-				PlayMenuSound (MENU_SOUND_FAILURE);
+			DoBubbleWarp (TRUE);
 		}
 
 		return FALSE;
@@ -1848,12 +1852,20 @@ DoMoveCursor (MENU_STATE *pMS)
 	{
 		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
 
-		if (GLOBAL (autopilot.x) == cursorLoc.x
-				&& GLOBAL (autopilot.y) == cursorLoc.y)
-			GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
+		if (optBubbleWarp && optInfiniteFuel)
+		{
+			DoBubbleWarp (FALSE);
+			return FALSE;
+		}
 		else
-			GLOBAL (autopilot) = cursorLoc;
-		DrawStarMap (0, NULL);
+		{
+			if (GLOBAL (autopilot.x) == cursorLoc.x
+					&& GLOBAL (autopilot.y) == cursorLoc.y)
+				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
+			else
+				GLOBAL (autopilot) = cursorLoc;
+			DrawStarMap (0, NULL);
+		}
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
 	{
