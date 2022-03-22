@@ -378,6 +378,33 @@ GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
 	}
 }
 
+static unsigned int
+FuelRequiredTo (POINT dest)
+{
+	COUNT fuel_required;
+	DWORD f;
+	POINT pt;
+
+	if (!inHQSpace ())
+		pt = CurStarDescPtr->star_pt;
+	else
+	{
+		pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
+		pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+	}
+
+	pt.x -= dest.x;
+	pt.y -= dest.y;
+
+	f = (DWORD)((long)pt.x * pt.x + (long)pt.y * pt.y);
+	if (f == 0 || GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
+		fuel_required = 0;
+	else
+		fuel_required = square_root (f) + (FUEL_TANK_SCALE / 20);
+
+	return fuel_required;
+}
+
 static void
 DrawFuelCircle (BOOLEAN secondary)
 {
@@ -1270,33 +1297,6 @@ UpdateCursorInfo (UNICODE *prevbuf)
 			}
 		}
 	}
-}
-
-static unsigned int
-FuelRequiredTo (POINT dest)
-{
-	COUNT fuel_required;
-	DWORD f;
-	POINT pt;
-
-	if (!inHQSpace ())
-		pt = CurStarDescPtr->star_pt;
-	else
-	{
-		pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
-		pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
-	}
-
-	pt.x -= dest.x;
-	pt.y -= dest.y;
-
-	f = (DWORD)((long)pt.x * pt.x + (long)pt.y * pt.y);
-	if (f == 0 || GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
-		fuel_required = 0;
-	else
-		fuel_required = square_root (f) + (FUEL_TANK_SCALE / 20);
-
-	return fuel_required;
 }
 
 static unsigned int
