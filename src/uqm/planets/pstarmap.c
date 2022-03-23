@@ -1836,10 +1836,9 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
-		if ((optBubbleWarp && !optInfiniteFuel)
-			&& GLOBAL (autopilot.x) != ~0
-			&& GLOBAL (autopilot.y) != ~0
-			&& GLOBAL_SIS (FuelOnBoard) >= FuelRequired ())
+		if ((optBubbleWarp && !optInfiniteFuel && !inQuasiSpace ())
+				&& GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0
+				&& GLOBAL_SIS (FuelOnBoard) >= FuelRequired ())
 		{
 			DoBubbleWarp (TRUE);
 		}
@@ -1850,7 +1849,7 @@ DoMoveCursor (MENU_STATE *pMS)
 	{
 		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
 
-		if (optBubbleWarp && optInfiniteFuel)
+		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
 		{
 			GLOBAL (autopilot) = cursorLoc;
 			DoBubbleWarp (FALSE);
