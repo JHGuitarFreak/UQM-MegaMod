@@ -1744,7 +1744,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewGfxFlags = GfxFlags;
 	int NewWidth = ScreenWidthActual;
 	int NewHeight = ScreenHeightActual;
-	int NewDriver = GraphicsDriver;	
+	int NewDriver = GraphicsDriver;
 	int SeedStuff;
 	
 	unsigned int oldResFactor = resolutionFactor; 
@@ -1779,10 +1779,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 
-#if SDL_MAJOR_VERSION == 1
-	if (NewWidth == 320 && NewHeight == 240) // MB: Moved code to here to make it work with 320x240 resolutions before opts->loresBlowup switch after
-#endif
-	{
+	if (NewWidth == 320 && NewHeight == 240)
+	{	// MB: Moved code to here to make it work with 320x240 resolutions
+		// before opts->loresBlowup switch after
 		switch (opts->scaler)
 		{
 			case OPTVAL_BILINEAR_SCALE:
@@ -1812,27 +1811,17 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 		}
 	}
-#if SDL_MAJOR_VERSION == 1
 	else
-	{
-		// For now, only bilinear works in HD with SDL1.
-		switch (opts->scaler)
+	{	// Serosis: Anything higher than bilinear in HD is a massive
+		// performance hit with no visual benefit
+		if (opts->scaler > OPTVAL_NO_SCALE)
 		{
-			case OPTVAL_BILINEAR_SCALE:
-			case OPTVAL_BIADAPT_SCALE:
-			case OPTVAL_BIADV_SCALE:
-			case OPTVAL_TRISCAN_SCALE:
-			case OPTVAL_HQXX_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-				res_PutString ("config.scaler", "bilinear");
-				break;
-			default:
-				/* OPTVAL_NO_SCALE has no equivalent in gfxflags. */
-				res_PutString ("config.scaler", "no");
-				break;
+			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
+			res_PutString ("config.scaler", "bilinear");
 		}
+		else	// OPTVAL_NO_SCALE has no equivalent in gfxflags.
+			res_PutString ("config.scaler", "no");
 	}
-#endif
 
 	if (NewWidth == 320 && NewHeight == 240)
 	{	
@@ -2169,22 +2158,32 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 #if !(defined(ANDROID) || defined(__ANDROID__))
 	if (opts->fullscreen)
-		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-	else
-		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-	// In HD, force the usage of no filter in 1280x960 windowed mode
-	// while forcing the usage of a filter in scaled modes.
-	if(IS_HD)
 	{
-		if (NewWidth == 1280 && !opts->fullscreen)
-		{
-			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
-			res_PutString ("config.scaler", "no");
-		}
-		else if (!(NewGfxFlags & TFB_GFXFLAGS_SCALE_ANY))
+		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
+		if (IS_HD)
 		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
+		}
+	}
+	else
+	{
+		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+		// Serosis: Force the usage of no filter in 1280x960 windowed mode.
+		// While forcing the usage of bilinear filter in scaled windowed modes.
+		if (IS_HD)
+		{
+			if (NewWidth == 1280)
+			{
+				NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
+				res_PutString ("config.scaler", "no");
+			}
+			else
+			{
+				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
+				res_PutString ("config.scaler", "bilinear");
+			}
 		}
 	}
 #endif
