@@ -1783,8 +1783,6 @@ DoStarSearch (MENU_STATE *pMS)
 void
 DoBubbleWarp (BOOLEAN UseFuel)
 {
-	GLOBAL (autopilot) = cursorLoc;
-
 	PlayMenuSound (MENU_SOUND_BUBBLEWARP);
 
 	if (UseFuel)
@@ -1854,6 +1852,7 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		if (optBubbleWarp && optInfiniteFuel)
 		{
+			GLOBAL (autopilot) = cursorLoc;
 			DoBubbleWarp (FALSE);
 			return FALSE;
 		}
