@@ -979,8 +979,10 @@ FadePlayerUI (void)
 		CONTEXT OldContext;
 		BYTE i;
 
-		Color DarkModeFGTextColor[] = DARKMODE_FG_TABLE; // emulating as close as possible PC-DOS text glow
-		Color DarkModeBGTextColor[] = DARKMODE_BG_TABLE; // it was not instantanious, but also looked like fading shenanigans
+		// emulating as close as possible PC-DOS text glow
+		static const Color DarkModeFGTextColor[] = DARKMODE_FG_TABLE;
+		// it was not instantanious, but also looked like fading shenanigans
+		static const Color DarkModeBGTextColor[] = DARKMODE_BG_TABLE;
 
 		if (fadeIndex > 50)
 		{

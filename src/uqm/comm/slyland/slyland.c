@@ -473,8 +473,10 @@ Intro (void)
 {
 	if (DIF_HARD && GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 	{
+		COUNT i;
+
 		NPCPhrase (COORD_POINT);
-		for (COUNT i = 0; i < 16; i++)
+		for (i = 0; i < 16; i++)
 		{
 			NPCNumber (random_ramble[i], "%d ");
 		}

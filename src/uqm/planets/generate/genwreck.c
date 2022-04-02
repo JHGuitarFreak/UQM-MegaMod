@@ -80,18 +80,18 @@ GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS)
 				& 1 << PROBE_ENCOUNTER))
 		{
+			COUNT sum, i;
+
 			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 			ReinitQueue (&GLOBAL (ip_group_q));
 			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
-
-			COUNT sum;
 
 			if (GET_GAME_STATE (DESTRUCT_CODE_ON_SHIP))
 				sum = 2;
 			else
 				sum = 4;
 
-			for (COUNT i = 0; i < sum; ++i)
+			for (i = 0; i < sum; ++i)
 				CloneShipFragment (SLYLANDRO_SHIP,
 					&GLOBAL (npc_built_ship_q), 0);
 

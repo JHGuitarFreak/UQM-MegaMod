@@ -155,9 +155,11 @@ ColorDelta(COUNT scan, DWORD avg)
 void
 AdjustColor(Color *c, COUNT scan, COUNT height, COUNT width, SBYTE diff)
 {
-	for (COUNT y = 0; y < height; ++y)
+	COUNT y, x;
+
+	for (y = 0; y < height; ++y)
 	{
-		for (COUNT x = 0; x < width; ++x, ++c)
+		for (x = 0; x < width; ++x, ++c)
 		{
 			switch (scan)
 			{

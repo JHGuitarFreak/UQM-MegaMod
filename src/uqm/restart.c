@@ -131,6 +131,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	STAMP s;
 	FONT oldFont;
 	TEXT t;
+	COUNT i;
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
 	s.frame = SetRelFrameIndex (pMS->CurFrame, 6);
@@ -144,7 +145,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	t.baseline.x = s.origin.x;
 	t.baseline.y = s.origin.y - RES_SCALE (20);
 
-	for (COUNT i = 0; i <= 2; i++)
+	for (i = 0; i <= 2; i++)
 	{
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
 				+ (!i ? 1 : (i > 1 ? 2 : 0)));

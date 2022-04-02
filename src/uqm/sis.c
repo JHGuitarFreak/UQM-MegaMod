@@ -1819,10 +1819,12 @@ static void scheduleFlashAlarm (void);
 static void
 updateFlashRect (void *arg)
 {
+	COUNT i;
+
 	if (flashContext[0] == NULL)
 		return;
 
-	for (COUNT i = 0; i < count_r; i++)
+	for (i = 0; i < count_r; i++)
 	{
 		Flash_process (flashContext[i]);
 	}
@@ -1861,7 +1863,9 @@ SetAdditionalRect (const RECT *pRect, COUNT number)
 void
 DumpAdditionalRect (void)
 {	// Dump all additional rects
-	for (COUNT i = count_r; i > 0; i--)
+	COUNT i;
+
+	for (i = count_r; i > 0; i--)
 	{
 		if (flashContext[i] != NULL)
 		{
@@ -1877,6 +1881,7 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 {
 	RECT clip_r = {{0, 0}, {0, 0}};
 	RECT temp_r;
+	COUNT i;
 	
 	if (pRect != SFR_MENU_3DO && pRect != SFR_MENU_ANY)
 	{	// The caller specified their own flash area, or NULL (stop flashing).
@@ -1908,7 +1913,6 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 
 	if (pRect != 0 && pRect->extent.width != 0)
 	{
-
 		// Flash rectangle is not empty, start or continue flashing.
 		flash_rect[0] = *pRect;
 
@@ -1916,7 +1920,7 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 		flash_rect[0].corner.y += clip_r.corner.y;
 
 		// Create a new flash context(s).
-		for (COUNT i = 0; i < count_r; i++)
+		for (i = 0; i < count_r; i++)
 		{
 			if (flashContext[i] == NULL)
 			{
@@ -1944,7 +1948,7 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 			Alarm_remove (flashAlarm);
 			flashAlarm = 0;
 			
-			for (COUNT i = 0; i < count_r; i++)
+			for (i = 0; i < count_r; i++)
 			{
 				Flash_terminate (flashContext[i]);
 				flashContext[i] = NULL;
@@ -1963,12 +1967,14 @@ COUNT updateFlashRectRecursion = 0;
 void
 PreUpdateFlashRect (void)
 {
+	COUNT i;
+
 	if (flashAlarm)
 	{
 		updateFlashRectRecursion++;
 		if (updateFlashRectRecursion > 1)
 			return;
-		for (COUNT i = 0; i < count_r; i++)
+		for (i = 0; i < count_r; i++)
 		{
 			Flash_preUpdate (flashContext[i]);
 		}
@@ -1978,12 +1984,14 @@ PreUpdateFlashRect (void)
 void
 PostUpdateFlashRect (void)
 {
+	COUNT i;
+
 	if (flashAlarm)
 	{
 		updateFlashRectRecursion--;
 		if (updateFlashRectRecursion > 0)
 			return;
-		for (COUNT i = 0; i < count_r; i++)
+		for (i = 0; i < count_r; i++)
 		{
 			Flash_postUpdate (flashContext[i]);
 		}
@@ -1994,13 +2002,15 @@ PostUpdateFlashRect (void)
 void
 PauseFlash (void)
 {
+	BYTE i;
+
 	if (flashContext[0] != NULL)
 	{
 		Alarm_remove (flashAlarm);
 		flashAlarm = 0;
 		flashPaused = TRUE;
 	}
-	for (BYTE i = 0; i < count_r; i++)
+	for (i = 0; i < count_r; i++)
 	{
 		if (flashContext[i] != NULL && Flash_getPulseBox (flashContext[i]))
 				Flash_pause (flashContext[i]);
@@ -2011,9 +2021,11 @@ PauseFlash (void)
 void
 ContinueFlash (void)
 {
+	BYTE i;
+
 	if (flashPaused)
 	{
-		for (BYTE i = 0; i < count_r; i++)// need to do before setting clock
+		for (i = 0; i < count_r; i++)// need to do before setting clock
 		{
 			if (flashContext[i] != NULL && Flash_getPulseBox (flashContext[i]))
 				Flash_continue (flashContext[i]);
@@ -2023,5 +2035,3 @@ ContinueFlash (void)
 		flashPaused = FALSE;
 	}
 }
-
-
