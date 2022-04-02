@@ -576,7 +576,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 {	// SFX slider
 	WIDGET_SLIDER *self = (WIDGET_SLIDER *)_self;
 	Color oldtext;
-	Color inactive, default_color, selected;
+	Color default_color, selected;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
@@ -588,7 +588,6 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	
 	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
-	inactive = WIDGET_INACTIVE_COLOR;
 
 	t.baseline.x = x + RES_SCALE (16);
 	t.baseline.y = y;
@@ -792,7 +791,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 {	// mappable key name in controls setup
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
 	Color oldtext;
-	Color inactive, default_color, selected;
+	Color default_color, selected;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
@@ -803,7 +802,6 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	
 	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
-	inactive = WIDGET_INACTIVE_COLOR;
 
 	t.baseline.x = x + RES_SCALE (16);
 	t.baseline.y = y;

@@ -72,6 +72,7 @@ FRAME LanderFrame[8];
 static SOUND LanderSounds;
 MUSIC_REF LanderMusic;
 static CONTEXT PCLanderContext;
+static MUSIC_REF OrbitMusic[NUM_ORBIT_THEMES];
 
 LIFEFORM_DESC CreatureData[] =
 {
@@ -2030,7 +2031,7 @@ LoadLanderData (void)
 	{
 		COUNT i;
 
-		for (i = 0; i < num_orbit_themes(); ++i)
+		for (i = 0; i < num_orbit_themes (); ++i)
 			OrbitMusic[i] = load_orbit_theme (i);
 	}
 }
@@ -2038,7 +2039,7 @@ LoadLanderData (void)
 void
 SetPlanetMusic (BYTE planet_type)
 {
-	LanderMusic = OrbitMusic[planet_type % num_orbit_themes()];
+	LanderMusic = OrbitMusic[planet_type % num_orbit_themes ()];
 }
 
 static void

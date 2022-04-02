@@ -232,7 +232,7 @@ DrawRectangle (RECT *lpRect, BOOLEAN scaled)
 void
 InstaRect (int x, int y, int w, int h, BOOLEAN scaled)
 {
-	RECT r = { x, y, w, h };
+	RECT r = { {x, y}, { w, h } };
 	DrawRectangle (&r, scaled);
 }
 
@@ -252,7 +252,7 @@ DrawFilledRectangle (RECT *lpRect)
 void
 InstaFilledRect (int x, int y, int w, int h)
 {
-	RECT r = { x, y, w, h };
+	RECT r = { {x, y}, { w, h } };
 	DrawFilledRectangle (&r);
 }
 
@@ -272,7 +272,7 @@ DrawLine (LINE *lpLine, BYTE thickness)
 void
 InstaLine (int x1, int y1, int x2, int y2)
 {
-	LINE line =  { x1, y1, x2, y2 };
+	LINE line = { { x1, y1 }, { x2, y2 } };
 	DrawLine (&line, 1);
 }
 
