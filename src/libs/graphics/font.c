@@ -152,6 +152,32 @@ GetContextFontLeadingWidth (SIZE *pwidth)
 }
 
 BOOLEAN
+GetContextFontDispHeight (SIZE *pheight)
+{
+	if (_CurFontPtr != 0)
+	{
+		*pheight = (SIZE)_CurFontPtr->disp.height;
+		return (TRUE);
+	}
+
+	*pheight = 0;
+	return (FALSE);
+}
+
+BOOLEAN
+GetContextFontDispWidth (SIZE *pwidth)
+{
+	if (_CurFontPtr != 0)
+	{
+		*pwidth = (SIZE)_CurFontPtr->disp.width;
+		return (TRUE);
+	}
+
+	*pwidth = 0;
+	return (FALSE);
+}
+
+BOOLEAN
 TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 {
 	BYTE char_delta_array[MAX_DELTAS];

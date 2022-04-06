@@ -52,6 +52,7 @@ struct font_desc
 {
 	UWORD Leading;
 	UWORD LeadingWidth;
+	EXTENT disp;
 	FONT_PAGE *fontPages;
 };
 

@@ -495,6 +495,8 @@ extern BOOLEAN DestroyFont (FONT FontRef);
 extern BOOLEAN TextRect (TEXT *pText, RECT *pRect, BYTE *pdelta);
 extern BOOLEAN GetContextFontLeading (SIZE *pheight);
 extern BOOLEAN GetContextFontLeadingWidth (SIZE *pwidth);
+extern BOOLEAN GetContextFontDispHeight (SIZE *pheight);
+extern BOOLEAN GetContextFontDispWidth (SIZE *pwidth);
 extern COUNT GetFrameCount (FRAME Frame);
 extern COUNT GetFrameIndex (FRAME Frame);
 extern FRAME SetAbsFrameIndex (FRAME Frame, COUNT FrameIndex);

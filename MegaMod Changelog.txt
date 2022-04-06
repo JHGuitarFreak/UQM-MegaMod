@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden
 - De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
+- Get font "leading" value from the height of the 'leading.png' within the font's folder
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
