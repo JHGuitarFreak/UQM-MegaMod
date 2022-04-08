@@ -1255,7 +1255,10 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, RES_BOOL (1, 6), FALSE);
+	if (!classicPackPresent)
+		DrawOval (&r, RES_BOOL (1, 6), FALSE);
+	else
+		DrawOval (&r, 1, FALSE);
 }
 
 static SIZE
@@ -2684,29 +2687,26 @@ CreateStarBackGround (BOOLEAN encounter)
 {
 	COUNT i, j;
 	DWORD rand_val;
-	STAMP s, nebula;
+	STAMP s;
 	CONTEXT oldContext;
 	RECT clipRect;
 	FRAME frame;
-	BYTE numNebulae = 44;
-	BYTE ZeroIndex = 0;
 	POINT NullCoord;
 	COUNT NebulaePercentX, NebulaePercentY;
-	RandomContext* OldSysGenRNG = SysGenRNG;
+	const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
+	RandomContext *OldSysGenRNG = SysGenRNG;
 
 #define NULL_BOOL(a,b) (CurStarDescPtr ? (a) : (b))
 
-	NullCoord = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
-
-	if (encounter && !playerInSolarSystem ()) 
+	if (encounter && !playerInSolarSystem ())
 	{
-		SpaceJunkFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
-		SysGenRNG = RandomContext_New();
+		SpaceJunkFrame =
+				CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
+		SysGenRNG = RandomContext_New ();
 	}
 
-	NebulaePercentX = NULL_BOOL (CurStarDescPtr->star_pt.x, NullCoord.x) % numNebulae;
-	NebulaePercentY = NULL_BOOL (CurStarDescPtr->star_pt.y, NullCoord.y) % (numNebulae + 6);
+	NullCoord = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
 
 	// Use SpaceContext to find out the dimensions of the background
 	oldContext = SetContext (SpaceContext);
@@ -2726,57 +2726,105 @@ CreateStarBackGround (BOOLEAN encounter)
 			NULL_BOOL (GetRandomSeedForStar (CurStarDescPtr),
 			GetRandomSeedForVar (NullCoord)));
 
+	NebulaePercentX = NULL_BOOL (CurStarDescPtr->star_pt.x, NullCoord.x) % numNebulae;
+	NebulaePercentY = NULL_BOOL (CurStarDescPtr->star_pt.y, NullCoord.y) % (numNebulae + 6);
+
 #define NUM_DIM_PIECES 8
-	s.frame = SpaceJunkFrame;
-	for (i = 0; i < NUM_DIM_PIECES; ++i)
-	{
 #define NUM_DIM_DRAWN 5
-		for (j = 0; j < NUM_DIM_DRAWN; ++j)
-		{
-			rand_val = RandomContext_Random (SysGenRNG);
-			
-			s.origin.x = RES_SCALE (
-					scaleSISDimensions (TRUE,
-						LOWORD (rand_val) % widthHeightPicker (TRUE)
-					));
-			s.origin.y = RES_SCALE (
-					scaleSISDimensions (FALSE,
-						HIWORD (rand_val) % widthHeightPicker (FALSE)
-					));
-
-			DrawStamp (&s);
-		}
-		s.frame = IncFrameIndex (s.frame);
-	}
 #define NUM_BRT_PIECES 8
-	for (i = 0; i < NUM_BRT_PIECES; ++i)
-	{
 #define NUM_BRT_DRAWN 30
-		for (j = 0; j < NUM_BRT_DRAWN; ++j)
+
+	if (!classicPackPresent)
+	{
+		s.frame = SpaceJunkFrame;
+		for (i = 0; i < NUM_DIM_PIECES; ++i)
 		{
-			rand_val = RandomContext_Random (SysGenRNG);
-			
-			s.origin.x = RES_SCALE (
-					scaleSISDimensions (TRUE,
+			for (j = 0; j < NUM_DIM_DRAWN; ++j)
+			{
+				rand_val = RandomContext_Random (SysGenRNG);
+
+				s.origin.x = RES_SCALE (
+						scaleSISDimensions (TRUE,
 						LOWORD (rand_val) % widthHeightPicker (TRUE)
 					));
-			s.origin.y = RES_SCALE (
-					scaleSISDimensions (FALSE,
+				s.origin.y = RES_SCALE (
+						scaleSISDimensions (FALSE,
 						HIWORD (rand_val) % widthHeightPicker (FALSE)
 					));
 
+				DrawStamp (&s);
+			}
+			s.frame = IncFrameIndex (s.frame);
+		}
+		for (i = 0; i < NUM_BRT_PIECES; ++i)
+		{
+			for (j = 0; j < NUM_BRT_DRAWN; ++j)
+			{
+				rand_val = RandomContext_Random (SysGenRNG);
+
+				s.origin.x = RES_SCALE (
+						scaleSISDimensions (TRUE,
+						LOWORD (rand_val) % widthHeightPicker (TRUE)
+					));
+				s.origin.y = RES_SCALE (
+						scaleSISDimensions (FALSE,
+						HIWORD (rand_val) % widthHeightPicker (FALSE)
+					));
+
+				DrawStamp (&s);
+			}
+			s.frame = IncFrameIndex (s.frame);
+		}
+	}
+	else
+	{
+		const EXTENT sisScr6014 = { 1074, 924 };
+		const float scaledSSW =
+				scaleThing (SIS_SCREEN_WIDTH, sisScr6014.width);
+		const float scaledSSH =
+				scaleThing (SIS_SCREEN_HEIGHT, sisScr6014.height);
+
+		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 25);
+
+		for (i = 0; i < NUM_DIM_PIECES; ++i)
+		{
+			for (j = 0; j < NUM_DIM_DRAWN; ++j)
+			{
+				rand_val = RandomContext_Random (SysGenRNG);
+				s.origin.x =
+						scaledSSW * (LOWORD (rand_val) % sisScr6014.width);
+				s.origin.y =
+						scaledSSH * (HIWORD (rand_val) % sisScr6014.height);
+
+				DrawStamp (&s);
+			}
+			s.frame = IncFrameIndex (s.frame);
+		}
+		for (i = 0; i < NUM_BRT_PIECES; ++i)
+		{
+			for (j = 0; j < (optNebulae ? 90 : 480); ++j)
+			{
+				rand_val = RandomContext_Random (SysGenRNG);
+				s.origin.x =
+						scaledSSW * (LOWORD (rand_val) % sisScr6014.width);
+				s.origin.y =
+						scaledSSH * (HIWORD (rand_val) % sisScr6014.height);
+
+				DrawStamp (&s);
+			}
+			s.frame = IncFrameIndex (s.frame);
+		}
+	}
+
+	if (optNebulae && (NebulaePercentY < numNebulae || classicPackPresent))
+	{	// MB: Make some solar systems & Sol not have nebulae
+		s.origin = MAKE_POINT (0, 0);
+		s.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
+		if (NULL_BOOL (CurStarDescPtr->Index, s.origin.x) != SOL_DEFINED
+			|| classicPackPresent)
+		{
 			DrawStamp (&s);
 		}
-		s.frame = IncFrameIndex (s.frame);
-	}
-	
-	if (optNebulae && NebulaePercentY < numNebulae 
-		&& NULL_BOOL (CurStarDescPtr->Index, ZeroIndex) != SOL_DEFINED)
-	{ // MB: Make some solar systems & Sol not have nebulae
-		nebula.frame = 0;
-		nebula.origin.x = nebula.origin.y = 0;
-		nebula.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
-		DrawStamp (&nebula);
 	}
 
 	SetContext (oldContext);
