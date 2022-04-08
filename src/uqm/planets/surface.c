@@ -246,7 +246,7 @@ scaleMapDimensions (BOOLEAN is_width, COORD value)
 	if (widthOrHeight == widthHeightPicker (is_width))
 		percentage = 1;
 	else
-		percentage = scaleThingUp (widthOrHeight,
+		percentage = scaleThing (widthOrHeight,
 			widthHeightPicker (is_width));
 
 	return (COORD)(value * percentage);
