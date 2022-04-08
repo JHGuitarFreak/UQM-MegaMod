@@ -117,6 +117,7 @@ BOOLEAN optNoHQEncounters;
 BOOLEAN optDeCleansing;
 BOOLEAN optMeleeObstacles;
 BOOLEAN optShowVisitedStars;
+int optNebulaeVolume;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

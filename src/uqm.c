@@ -199,6 +199,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, deCleansing);
 	DECL_CONFIG_OPTION(bool, meleeObstacles);
 	DECL_CONFIG_OPTION(bool, showVisitedStars);
+	DECL_CONFIG_OPTION(int,  nebulaevol);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -402,6 +403,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  deCleansing,       false ),
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
+		INIT_CONFIG_OPTION(  nebulaevol,        25),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -619,6 +621,7 @@ main (int argc, char *argv[])
 	optDeCleansing = options.deCleansing.value;
 	optMeleeObstacles = options.meleeObstacles.value;
 	optShowVisitedStars = options.showVisitedStars.value;
+	optNebulaeVolume = options.nebulaevol.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1023,6 +1026,11 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->meleeObstacles, "cheat.meleeObstacles");
 
 	getBoolConfigValue (&options->showVisitedStars, "mm.showVisitedStars");
+
+	if (res_IsInteger ("mm.nebulaevol") && !options->nebulaevol.set)
+	{
+		options->nebulaevol.value = res_GetInteger ("mm.nebulaevol");
+	}
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1114,6 +1122,7 @@ enum
 	SHOWSTARS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
+	NEBUVOL_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1212,6 +1221,7 @@ static struct option longOptions[] =
 	{"decleanse", 0, NULL, DECLEANSE_OPT},
 	{"nomeleeobstacles", 0, NULL, NOMELEEOBJ_OPT},
 	{"showvisitstars", 0, NULL, SHOWSTARS_OPT},
+	{"nebulaevol", 1, NULL, NEBUVOL_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1777,6 +1787,22 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case LOADGAME_OPT:
 				optLoadGame = TRUE;
 				break;
+			case NEBUVOL_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Nebulae Volume") == -1) {
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 50) {
+					saveError ("\nNebulae volume has to be between 0-50\n");
+					badArg = true;
+				} else {
+					options->nebulaevol.value = temp;
+					options->nebulaevol.set = true;
+				}
+				break;
+			}
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -2111,6 +2137,7 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --showvisitstars : Dim visited stars on the "
 			" StarMap and encase the star name in parenthesis "
 			"(default: %s)", boolOptString (&defaults->showVisitedStars));
+	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
 
 	log_setOutput (old);
 }

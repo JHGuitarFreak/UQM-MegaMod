@@ -77,7 +77,7 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
 #define CHOICE_COUNT       75
-#define SLIDER_COUNT        4
+#define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
 #define TEXTENTRY_COUNT     2
@@ -123,8 +123,8 @@ static WIDGET *graphics_widgets[] = {
 #if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
-#endif
 	(WIDGET *)(&choices[23]),   // Aspect Ratio
+#endif
 	(WIDGET *)(&choices[10]),   // Display
 #if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
@@ -252,6 +252,7 @@ static WIDGET *visual_widgets[] = {
 
 	(WIDGET *)(&labels[7]),     // IP Label
 	(WIDGET *)(&choices[35]),   // IP nebulae on/off
+	(WIDGET *)(&sliders[4]),    // Nebulae Volume
 	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
 	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
@@ -619,6 +620,7 @@ SetDefaults (void)
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
 	sliders[3].value = opts.gamma;
+	sliders[4].value = opts.nebulaevol;
 }
 
 static void
@@ -708,6 +710,7 @@ PropagateResults (void)
 	opts.sfxvol = sliders[1].value;
 	opts.speechvol = sliders[2].value;
 	opts.gamma = sliders[3].value;
+	opts.nebulaevol = sliders[4].value;
 	SetGlobalOptions (&opts);
 }
 
@@ -1206,6 +1209,9 @@ init_widgets (void)
 	sliders[3].handleEvent = gamma_HandleEventSlider;
 	sliders[3].draw_value = gamma_DrawValue;
 
+	// nebulaevol is a special case
+	sliders[4].step = 1;
+
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{
 		int j, tipcount;
@@ -1659,6 +1665,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->nebulaevol = res_GetInteger ("mm.nebulaevol");
 
 	if (!IS_HD)
 	{
@@ -2150,6 +2157,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.showVisitedStars", opts->showVisitedStars == OPTVAL_ENABLED);
 	optShowVisitedStars = opts->showVisitedStars == OPTVAL_ENABLED;
+
+	res_PutInteger ("mm.nebulaevol", opts->nebulaevol);
+	optNebulaeVolume = opts->nebulaevol;
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

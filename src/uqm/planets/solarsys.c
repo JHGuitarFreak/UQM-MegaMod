@@ -2680,11 +2680,50 @@ DrawStarBackGround (void)
 }
 
 FRAME
+BrightenNebula (FRAME nebula, BYTE factor)
+{
+	COUNT x, y;
+	Color *pix;
+	Color *map;
+	RECT r;
+	COUNT width, height;
+	float f;
+
+	GetFrameRect (nebula, &r);
+	width = r.extent.width;
+	height = r.extent.height;
+
+	map = HMalloc (sizeof (Color) * width * height);
+	ReadFramePixelColors (nebula, map, width, height);
+
+	pix = map;
+
+	for (y = 0; y < height; ++y)
+	{
+		for (x = 0; x < width; ++x, ++pix)
+		{
+			f = (pix->a << 2) * ((float)factor / 100);
+
+			if (f > 0xC0)
+				pix->a = 0xC0;
+			else
+				pix->a = (BYTE)f;
+		}
+	}
+
+	WriteFramePixelColors (nebula, map, width, height);
+
+	HFree (map);
+
+	return nebula;
+}
+
+FRAME
 CreateStarBackGround (BOOLEAN encounter)
 {
 	COUNT i, j;
 	DWORD rand_val;
-	STAMP s, nebula;
+	STAMP s;
 	CONTEXT oldContext;
 	RECT clipRect;
 	FRAME frame;
@@ -2769,14 +2808,15 @@ CreateStarBackGround (BOOLEAN encounter)
 		}
 		s.frame = IncFrameIndex (s.frame);
 	}
-	
-	if (optNebulae && NebulaePercentY < numNebulae 
+
+	if (optNebulae && NebulaePercentY < numNebulae
 		&& NULL_BOOL (CurStarDescPtr->Index, ZeroIndex) != SOL_DEFINED)
-	{ // MB: Make some solar systems & Sol not have nebulae
-		nebula.frame = 0;
-		nebula.origin.x = nebula.origin.y = 0;
-		nebula.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
-		DrawStamp (&nebula);
+	{	// MB: Make some solar systems & Sol not have nebulae
+		s.origin = MAKE_POINT (0, 0);
+		s.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
+		if (optNebulaeVolume != 25)
+			s.frame = BrightenNebula (s.frame, optNebulaeVolume);
+		DrawStamp (&s);
 	}
 
 	SetContext (oldContext);
