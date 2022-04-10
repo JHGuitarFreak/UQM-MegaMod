@@ -199,6 +199,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, deCleansing);
 	DECL_CONFIG_OPTION(bool, meleeObstacles);
 	DECL_CONFIG_OPTION(bool, showVisitedStars);
+	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -390,7 +391,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  smartAutoPilot,    false ),
 		INIT_CONFIG_OPTION(  tintPlanSphere,    OPT_3DO ),
 		INIT_CONFIG_OPTION(  planetStyle,       OPT_3DO ),
-		INIT_CONFIG_OPTION(  starBackground,    2 ),
+		INIT_CONFIG_OPTION(  starBackground,    0 ),
 		INIT_CONFIG_OPTION(  scanStyle,         OPT_3DO ),
 		INIT_CONFIG_OPTION(  nonStopOscill,     false ),
 		INIT_CONFIG_OPTION(  scopeStyle,        OPT_3DO ),
@@ -402,6 +403,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  deCleansing,       false ),
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
+		INIT_CONFIG_OPTION(  unscaledStarSystem,    false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -619,6 +621,7 @@ main (int argc, char *argv[])
 	optDeCleansing = options.deCleansing.value;
 	optMeleeObstacles = options.meleeObstacles.value;
 	optShowVisitedStars = options.showVisitedStars.value;
+	optUnscaledStarSystem = options.unscaledStarSystem.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1023,6 +1026,8 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->meleeObstacles, "cheat.meleeObstacles");
 
 	getBoolConfigValue (&options->showVisitedStars, "mm.showVisitedStars");
+
+	getBoolConfigValue (&options->unscaledStarSystem, "mm.unscaledStarSystem");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1112,6 +1117,7 @@ enum
 	DECLEANSE_OPT,
 	NOMELEEOBJ_OPT,
 	SHOWSTARS_OPT,
+	UNSCALEDSS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1212,6 +1218,7 @@ static struct option longOptions[] =
 	{"decleanse", 0, NULL, DECLEANSE_OPT},
 	{"nomeleeobstacles", 0, NULL, NOMELEEOBJ_OPT},
 	{"showvisitstars", 0, NULL, SHOWSTARS_OPT},
+	{"unscaledstarsystem", 0, NULL, UNSCALEDSS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1707,12 +1714,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			case STARBACK_OPT:
-				if (!setChoiceOption (&options->starBackground, optarg))
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Star Background") == -1)
 				{
-					InvalidArgument (optarg, "--starbackground");
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 3)
+				{
+					saveError ("\nStar background has to be between 0-3.\n");
 					badArg = true;
 				}
+				else
+				{
+					options->starBackground.value = temp;
+					options->starBackground.set = true;
+				}
 				break;
+			}
 			case SCANSTYLE_OPT:
 				if (!setChoiceOption (&options->scanStyle, optarg))
 				{
@@ -1770,6 +1790,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case SHOWSTARS_OPT:
 				setBoolOption (&options->showVisitedStars, true);
+				break;
+			case UNSCALEDSS_OPT:
+				setBoolOption (&options->unscaledStarSystem, true);
 				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
@@ -2077,7 +2100,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			" color and shading (default: %s)",
 			choiceOptString (&defaults->planetStyle));
 	log_add (log_User, "  --starbackground : Set the background stars"
-			" in solar system between PC, 3DO, or UQM patterns "
+			" in solar system between PC, 3DO, UQM, or HD-mod patterns "
 			"(default: pc)");
 	log_add (log_User, "  --scanstyle : Choose between PC or 3DO scanning"
 			" types (default: %s)", choiceOptString (&defaults->scanStyle));
@@ -2111,6 +2134,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --showvisitstars : Dim visited stars on the "
 			" StarMap and encase the star name in parenthesis "
 			"(default: %s)", boolOptString (&defaults->showVisitedStars));
+	log_add (log_User, "  --unscaledstarsystem : Show the classic HD-mod "
+			" Beta Star System view (default: %s)",
+			boolOptString (&defaults->unscaledStarSystem));
 
 	log_setOutput (old);
 }

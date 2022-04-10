@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       75
+#define CHOICE_COUNT       76
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -254,6 +254,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[35]),   // IP nebulae on/off
 	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
+	(WIDGET *)(&choices[75]),   // T6014's Classic Star System View
 	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
 
 	(WIDGET *)(&labels[8]),     // Scan Label
@@ -614,6 +615,7 @@ SetDefaults (void)
 	choices[72].selected = opts.deCleansing;
 	choices[73].selected = opts.meleeObstacles;
 	choices[74].selected = opts.showVisitedStars;
+	choices[75].selected = opts.unscaledStarSystem;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -703,6 +705,7 @@ PropagateResults (void)
 	opts.deCleansing = choices[72].selected;
 	opts.meleeObstacles = choices[73].selected;
 	opts.showVisitedStars = choices[74].selected;
+	opts.unscaledStarSystem = choices[75].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1659,6 +1662,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2150,6 +2154,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.showVisitedStars", opts->showVisitedStars == OPTVAL_ENABLED);
 	optShowVisitedStars = opts->showVisitedStars == OPTVAL_ENABLED;
+
+	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
+	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

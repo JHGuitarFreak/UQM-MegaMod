@@ -65,6 +65,9 @@ extern int ScreenHeight;
 #define PC_SIS_SCREEN_HEIGHT (187)
 #define THREEDO_SIS_SCREEN_WIDTH (210)
 #define THREEDO_SIS_SCREEN_HEIGHT (195)
+#define HDMOD_SIS_SCREEN_WIDTH (1074)
+#define HDMOD_SIS_SCREEN_HEIGHT (924)
+
 
 		/* Radar. */
 #define RADAR_X (RES_SCALE (4) + SPACE_WIDTH)
