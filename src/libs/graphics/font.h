@@ -52,8 +52,9 @@ struct font_desc
 {
 	UWORD Leading;
 	UWORD LeadingWidth;
-	EXTENT disp;
 	FONT_PAGE *fontPages;
+	EXTENT disp;
+	UNICODE filename[PATH_MAX];
 };
 
 #define CHAR_DESCPTR PCHAR_DESC
