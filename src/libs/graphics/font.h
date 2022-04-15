@@ -54,7 +54,10 @@ struct font_desc
 	UWORD LeadingWidth;
 	FONT_PAGE *fontPages;
 	EXTENT disp;
-	UNICODE filename[PATH_MAX];
+	char filename[PATH_MAX];
+	BYTE KernAmount;
+#define MAX_UNICODE 0xFFFF
+	BYTE KernTab[MAX_UNICODE];
 };
 
 #define CHAR_DESCPTR PCHAR_DESC
