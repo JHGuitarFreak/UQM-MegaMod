@@ -26,6 +26,7 @@
 #define LoadFont        (FONT)LoadGraphicInstance
 #define LoadColorMap    LoadColorMapInstance
 #define LoadStringTable LoadStringTableInstance
+#define LoadString      LoadStringInstance
 #define LoadSound       LoadSoundInstance
 #define LoadMusic       LoadMusicInstance
 
