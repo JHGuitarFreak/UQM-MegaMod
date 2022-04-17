@@ -5,7 +5,7 @@
 # compiling this.
 #
 
-TARGET = undani
+TARGET = unfont
 # These flags are needed to get it to compile with libpngX.dll on CYGWIN
 CYGWINFLAGS = -DPNG_USE_DLL
 #CYGWINFLAGS =

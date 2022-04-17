@@ -27,9 +27,11 @@
 #	define makedir(d)  mkdir(d, 0777)
 #endif
 #if defined(__GNUC__)
-#	include <alloca.h>
+#	if !defined(WIN32) || !defined(__WIN32) || !defined(__WIN32__)
+#		include <alloca.h>
+#	endif
 #	define inline __inline__
-#endif 
+#endif
 #include <png.h>
 
 #define countof(a)	   ( sizeof(a)/sizeof(*a) )
@@ -113,10 +115,9 @@ void calcMaxHeight(index_header_t *);
 void updateCharHeights(index_header_t *, int bDataH);
 void writeFiles(const index_header_t *, const char *path, const char *prefix, int zeropos);
 
-inline uint16_t get_16_le(uint16_t* val);
-inline uint32_t get_32_le(uint32_t* val);
-
-inline uint8_t get_quad(const uint8_t *table, int index);
+uint16_t get_16_le (uint16_t* val);
+uint32_t get_32_le (uint32_t* val);
+uint8_t get_quad (const uint8_t *table, int index);
 
 int main(int argc, char *argv[])
 {
@@ -589,7 +590,7 @@ void writeBitmapMask(const char *filename, const char_info_t* f)
 
 	for (y = 0; y < f->h; ++y)
 	{
-		src1 = f->data + desc->xsize * y;
+		src1 = f->data + f->xsize * y;
 		dst = buf + f->w * y;
 		lines[y] = dst;
 
@@ -691,18 +692,17 @@ void writeFiles(const index_header_t *h, const char *path, const char *prefix, i
 	}
 }
 
-
-inline uint16_t get_16_le(uint16_t* val)
+uint16_t get_16_le(uint16_t* val)
 {
 	return (uint16_t)(((uint8_t*)val)[1]) << 8 | ((uint8_t*)val)[0];
 }
 
-inline uint32_t get_32_le(uint32_t* val)
+uint32_t get_32_le(uint32_t* val)
 {
 	return (uint32_t)(((uint16_t*)val)[1]) << 16 | ((uint16_t*)val)[0];
 }
 
-inline uint8_t get_quad(const uint8_t *table, int index)
+uint8_t get_quad(const uint8_t *table, int index)
 {
 	uint8_t val = table[index / 2];
 	return (index % 2) ? (val & 0x0f) : (val >> 4);
