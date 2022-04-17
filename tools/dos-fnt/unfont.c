@@ -20,7 +20,7 @@
 #if defined(WIN32) && defined(_MSC_VER)
 #	include <getopt.h>
 #	include <direct.h>
-#	define makedir(d)  _mkdir(d)
+#	define makedir(d) _mkdir(d)
 #	define inline __inline
 #else
 #	include <unistd.h>
@@ -34,9 +34,9 @@
 #endif
 #include <png.h>
 
-#define countof(a)	   ( sizeof(a)/sizeof(*a) )
+#define countof(a) ( sizeof(a)/sizeof(*a) )
 #ifndef offsetof
-#	define offsetof(s,m)  ( (size_t)(&((s*)0)->m) )
+#	define offsetof(s,m) ( (size_t)(&((s*)0)->m) )
 #endif
 
 #if defined(_MSC_VER)
@@ -50,19 +50,21 @@
 
 typedef struct
 {
-	uint32_t PACKED magic;  // Always ffff
-   	uint8_t  PACKED height;
+	uint32_t PACKED magic;  // Always FFFFFFFF
+	uint8_t  PACKED height;
 	uint8_t  PACKED baseline;
-	uint8_t  PACKED kern_amount;  // char spacing and kerning - upper and lower nibble
-	uint8_t  PACKED char_w[MAX_FONT_CHARS / 2];  // 2 chars per byte; upper and lower nibble
-	uint8_t  PACKED kerntab[MAX_FONT_CHARS / 2]; // 2 chars per byte; upper and lower nibble
-	uint8_t  PACKED char_dy[MAX_FONT_CHARS / 2]; // 2 chars per byte; upper and lower nibble
+	// char spacing and kerning - upper and lower nibble
+	uint8_t  PACKED kern_amount;
+	// 2 chars per byte; upper and lower nibble
+	uint8_t  PACKED char_w[MAX_FONT_CHARS / 2];
+	uint8_t  PACKED kerntab[MAX_FONT_CHARS / 2];
+	uint8_t  PACKED char_dy[MAX_FONT_CHARS / 2];
 } header_t;
 
 typedef struct
 {
 	size_t size;
-	uint8_t* data;
+	uint8_t *data;
 	int xsize;
 	int malloced;
 	int w, h;
@@ -84,7 +86,7 @@ typedef struct
 	uint32_t data_ofs;
 	int first_char;
 	int num_chars;
-	char_info_t* chars;
+	char_info_t *chars;
 } index_header_t;
 
 #if defined(_MSC_VER)
@@ -105,62 +107,65 @@ struct options
 };
 
 int verbose_level = 0;
-void verbose(int level, const char* fmt, ...);
+void verbose (int level, const char *fmt, ...);
 
-index_header_t* readIndex(uint8_t *buf);
-void freeIndex(index_header_t *);
-void parse_arguments(int argc, char *argv[], struct options *opts);
-void printIndex(const index_header_t *, const uint8_t *buf, FILE *out);
-void readChars(index_header_t *, const uint8_t *buf);
-void calcMaxHeight(index_header_t *);
-void updateCharHeights(index_header_t *, int bDataH);
-void writeFiles (const index_header_t *, const char *path, const char *prefix, int zeropos, int ishex, const char *cfg, const char *infile);
+index_header_t *readIndex (uint8_t *buf);
+void freeIndex (index_header_t *);
+void parse_arguments (int argc, char *argv[], struct options *opts);
+void printIndex (const index_header_t *, const uint8_t *buf, FILE *out);
+void readChars (index_header_t *, const uint8_t *buf);
+void calcMaxHeight (index_header_t *);
+void updateCharHeights (index_header_t *, int bDataH);
+void writeFiles (const index_header_t *, const char *path,
+		const char *prefix, int zeropos, int ishex, const char *cfg,
+		const char *infile);
 
-uint16_t get_16_le (uint16_t* val);
-uint32_t get_32_le (uint32_t* val);
+uint16_t get_16_le (uint16_t *val);
+uint32_t get_32_le (uint32_t *val);
 uint8_t get_quad (const uint8_t *table, int index);
 
-int main(int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-	FILE* in;
+	FILE *in;
 	size_t inlen;
 	uint8_t *buf;
 	index_header_t *h;
 	struct options opts;
 	char *prefix;
 
-	parse_arguments(argc, argv, &opts);
+	parse_arguments (argc, argv, &opts);
 	verbose_level = opts.verbose;
 
-	in = fopen(opts.infile, "rb");
+	in = fopen (opts.infile, "rb");
 	if (!in)
 	{
-		verbose(1, "Error: Could not open file %s: %s\n",
-				opts.infile, strerror(errno));
+		verbose (1, "Error: Could not open file %s: %s\n",
+				opts.infile, strerror (errno));
 		return EXIT_FAILURE;
 	}
-	
-	fseek(in, 0, SEEK_END);
-	inlen = ftell(in);
-	fseek(in, 0, SEEK_SET);
 
-	buf = malloc(inlen);
+	fseek (in, 0, SEEK_END);
+	inlen = ftell (in);
+	fseek (in, 0, SEEK_SET);
+
+	buf = malloc (inlen);
 	if (!buf)
 	{
-		verbose(1, "Out of memory reading file\n");
+		verbose (1, "Out of memory reading file\n");
 		return EXIT_FAILURE;
 	}
-	if (inlen != fread(buf, 1, inlen, in))
+	if (inlen != fread (buf, 1, inlen, in))
 	{
-		verbose(1, "Cannot read file '%s'\n", opts.infile);
+		verbose (1, "Cannot read file '%s'\n", opts.infile);
 		return EXIT_FAILURE;
 	}
-	fclose(in);
+	fclose (in);
 
-	h = readIndex(buf);
+	h = readIndex (buf);
 	if (opts.print)
-		printIndex(h, buf, stdout);
-	
+		printIndex (h, buf, stdout);
+
 	prefix = opts.prefix;
 	if (!prefix)
 		prefix = "";
@@ -168,39 +173,41 @@ int main(int argc, char *argv[])
 	if (!opts.print)
 	{
 		size_t len;
-				
-		len = strlen(opts.outdir);
+
+		len = strlen (opts.outdir);
 		if (opts.outdir[len - 1] == '/')
 			opts.outdir[len - 1] = '\0';
 
-		readChars(h, buf);
-		calcMaxHeight(h);
+		readChars (h, buf);
+		calcMaxHeight (h);
 		if (opts.usemax)
-			updateCharHeights(h, 0);
+			updateCharHeights (h, 0);
 
 		writeFiles (h, opts.outdir, prefix, opts.zeropos, opts.ishex, opts.config, opts.infile);
 	}
 
-	free(buf);
-	
+	free (buf);
+
 	return EXIT_SUCCESS;
 }
 
-void verbose(int level, const char* fmt, ...)
+void
+verbose (int level, const char *fmt, ...)
 {
 	va_list args;
-	
+
 	if (verbose_level < level)
 		return;
-	
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
+
+	va_start (args, fmt);
+	vfprintf (stderr, fmt, args);
+	va_end (args);
 }
 
-void usage()
+void
+usage (void)
 {
-	fprintf(stderr,
+	fprintf (stderr,
 			"unfont -p <infile>\n"
 			"unfont [-m] [-x] [-0 #] [-v #] [-o <outdir>] [-n <prefix>] [-c <config>] <infile>\n"
 			"Options:\n"
@@ -212,104 +219,106 @@ void usage()
 			"\t-v  increase verbosity level by # amount\n"
 			"\t-x  Output pngs with filename in hex\n"
 			"\t-c  Config file name\n"
-			);
+		);
 }
 
-void parse_arguments(int argc, char *argv[], struct options *opts)
+void
+parse_arguments (int argc, char *argv[], struct options *opts)
 {
 	char ch;
-	
-	memset(opts, 0, sizeof (struct options));
 
-	while (-1 != (ch = getopt(argc, argv, "h?n:o:mp0:v:xc:")))
+	memset (opts, 0, sizeof (struct options));
+
+	while (-1 != (ch = getopt (argc, argv, "h?n:o:mp0:v:xc:")))
 	{
 		switch (ch)
 		{
-		case 'o':
-			opts->outdir = optarg;
-			break;
-		case 'm':
-			opts->usemax = 1;
-			break;
-		case 'n':
-			opts->prefix = optarg;
-			break;
-		case 'p':
-			opts->print = 1;
-			break;
-		case '0':
-			opts->zeropos = atoi (optarg);
-			break;
-		case 'v':
-			opts->verbose = atoi (optarg);
-			break;
-		case 'x':
-			opts->ishex = 1;
-			break;
-		case 'c':
-			opts->config = optarg;
-			break;
-		case '?':
-		case 'h':
-		default:
-			usage();
-			exit(EXIT_FAILURE);
+			case 'o':
+				opts->outdir = optarg;
+				break;
+			case 'm':
+				opts->usemax = 1;
+				break;
+			case 'n':
+				opts->prefix = optarg;
+				break;
+			case 'p':
+				opts->print = 1;
+				break;
+			case '0':
+				opts->zeropos = atoi (optarg);
+				break;
+			case 'v':
+				opts->verbose = atoi (optarg);
+				break;
+			case 'x':
+				opts->ishex = 1;
+				break;
+			case 'c':
+				opts->config = optarg;
+				break;
+			case '?':
+			case 'h':
+			default:
+				usage ();
+				exit (EXIT_FAILURE);
 		}
 	}
 	argc -= optind;
 	argv += optind;
 	if (argc != 1)
 	{
-		usage();
-		exit(EXIT_FAILURE);
+		usage ();
+		exit (EXIT_FAILURE);
 	}
 	opts->infile = argv[0];
 	if (opts->outdir == NULL)
 		opts->outdir = ".";
 }
 
-index_header_t* readIndex(uint8_t *buf)
+index_header_t *
+readIndex (uint8_t *buf)
 {
-	header_t* fh = (header_t*) buf;
+	header_t *fh = (header_t *)buf;
 	const uint8_t *bufptr;
-	index_header_t* h;
+	index_header_t *h;
 	int i;
 
-	fh->magic = get_32_le(&fh->magic);
+	fh->magic = get_32_le (&fh->magic);
 	if (fh->magic != 0xffffffff)
 	{
-		verbose(1, "File is not a valid dos .fnt file.\n");
-		exit(EXIT_FAILURE);
+		verbose (1, "File is not a valid dos .fnt file.\n");
+		exit (EXIT_FAILURE);
 	}
 
-	h = malloc(sizeof(index_header_t));
+	h = malloc (sizeof (index_header_t));
 	if (!h)
 	{
-		verbose(1, "Out of memory parsing file header\n");
-		exit(EXIT_FAILURE);
+		verbose (1, "Out of memory parsing file header\n");
+		exit (EXIT_FAILURE);
 	}
 
-	h->data_ofs = sizeof(*fh);
+	h->data_ofs = sizeof (*fh);
 	h->num_chars = MAX_FONT_CHARS; // count of chars never changes
 	h->first_char = 32; // first char is always ' ' (space)
 	h->height = fh->height;
 	h->baseline = fh->height - fh->baseline;
 	h->spacing = (fh->kern_amount & 0xf0) >> 4;
 	h->kerning = (fh->kern_amount & 0x0f);
-	
-	bufptr = buf + sizeof(*fh);
-	h->chars = malloc(h->num_chars * sizeof(char_info_t));
+
+	bufptr = buf + sizeof (*fh);
+	h->chars = malloc (h->num_chars * sizeof (char_info_t));
 	if (!h->chars)
 	{
-		verbose(1, "Out of memory parsing char descriptors\n");
-		exit(EXIT_FAILURE);
+		verbose (1, "Out of memory parsing char descriptors\n");
+		exit (EXIT_FAILURE);
 	}
-	memset(h->chars, 0, h->num_chars * sizeof(char_info_t));
+	memset (h->chars, 0, h->num_chars * sizeof (char_info_t));
 
 	h->max_descend = 0;
 	for (i = 0; i < h->num_chars; ++i)
 	{
-		int dy = get_quad(fh->char_dy, i);
+		int dy = get_quad (fh->char_dy, i);
 		if (dy > h->max_descend)
 			h->max_descend = dy;
 	}
@@ -317,25 +326,27 @@ index_header_t* readIndex(uint8_t *buf)
 
 	for (i = 0; i < h->num_chars; ++i)
 	{
-		char_info_t* info = h->chars + i;
-		
+		char_info_t *info = h->chars + i;
+
 		info->h = h->height;
 		info->datah = h->max_height;
-		info->w = get_quad(fh->char_w, i);
-		info->kerning = get_quad(fh->kerntab, i);
-		info->dy = get_quad(fh->char_dy, i);
+		info->w = get_quad (fh->char_w, i);
+		info->kerning = get_quad (fh->kerntab, i);
+		info->dy = get_quad (fh->char_dy, i);
 	}
 
 	return h;
 }
 
-void freeChar(char_info_t* f)
+void
+freeChar (char_info_t *f)
 {
 	if ((f->malloced & 1) && f->data)
-		free(f->data);
+		free (f->data);
 }
 
-void freeIndex(index_header_t* h)
+void
+freeIndex (index_header_t *h)
 {
 	int i;
 
@@ -344,32 +355,34 @@ void freeIndex(index_header_t* h)
 	if (h->chars)
 	{
 		for (i = 0; i < h->num_chars; ++i)
-			freeChar(h->chars + i);
-		
-		free(h->chars);
+			freeChar (h->chars + i);
+
+		free (h->chars);
 	}
-	free(h);
+	free (h);
 }
 
-void printIndex(const index_header_t *h, const uint8_t *buf, FILE *out)
+void
+printIndex (const index_header_t *h, const uint8_t *buf, FILE *out)
 {
-	fprintf(out, "0x%08x  Height: 0x%02x\n",
-			offsetof(header_t, height), h->height);
-	fprintf(out, "0x%08x  Baseline: 0x%02x\n",
-			offsetof(header_t, baseline), h->baseline);
-	fprintf(out, "              Max Descend: %d\n",
+	fprintf (out, "0x%08x  Height: 0x%02x\n",
+			offsetof (header_t, height), h->height);
+	fprintf (out, "0x%08x  Baseline: 0x%02x\n",
+			offsetof (header_t, baseline), h->baseline);
+	fprintf (out, "\t\tMax Descend: %d\n",
 			h->max_descend);
-	fprintf(out, "0x%08x  Spacing: 0x%02x\n",
-			offsetof(header_t, kern_amount), h->spacing);
-	fprintf(out, "0x%08x  Kerning: 0x%02x\n",
-			offsetof(header_t, kern_amount), h->kerning);
-	fprintf(out, "0x%08x  Number of chars:        %d\n",
-			offsetof(header_t, char_w), MAX_FONT_CHARS);
+	fprintf (out, "0x%08x  Spacing: 0x%02x\n",
+			offsetof (header_t, kern_amount), h->spacing);
+	fprintf (out, "0x%08x  Kerning: 0x%02x\n",
+			offsetof (header_t, kern_amount), h->kerning);
+	fprintf (out, "0x%08x  Number of chars:\t\t%d\n",
+			offsetof (header_t, char_w), MAX_FONT_CHARS);
 
 	(void)buf;
 }
 
-int readChar(char_info_t *f, const uint8_t *buf)
+int
+readChar (char_info_t *f, const uint8_t *buf)
 {
 	uint32_t smask, smask_s, smask_n;
 	uint8_t dmask;
@@ -381,13 +394,13 @@ int readChar(char_info_t *f, const uint8_t *buf)
 
 	f->xsize = (f->w + 7) / 8;
 	f->size = f->xsize * f->datah;
-	f->data = malloc(f->size);
+	f->data = malloc (f->size);
 	if (!f->data)
 	{
-		verbose(1, "Out of memory reading char\n");
+		verbose (1, "Out of memory reading char\n");
 		return -1;
 	}
-	memset(f->data, 0, f->size);
+	memset (f->data, 0, f->size);
 	f->malloced |= 1;
 
 	if (f->w <= 8)
@@ -446,7 +459,7 @@ int readChar(char_info_t *f, const uint8_t *buf)
 	return consumed;
 }
 
-void readChars(index_header_t *h, const uint8_t *buf)
+void readChars (index_header_t *h, const uint8_t *buf)
 {
 	int i;
 	int ret;
@@ -455,29 +468,32 @@ void readChars(index_header_t *h, const uint8_t *buf)
 
 	for (i = 0; i < h->num_chars; ++i)
 	{
-		char_info_t* info = h->chars + i;
+		char_info_t *info = h->chars + i;
 
 		if (info->w <= 0)
 			continue;
 
-		ret = readChar(info, buf);
+		ret = readChar (info, buf);
 		if (ret <= 0)
 		{
-			verbose(1, "Char %d conversion failed. Buffer is most likely desynced and remainng chars broken\n", i);
+			verbose (1,
+					"Char %d conversion failed. Buffer is most likely"
+					"desynced and remainng chars broken\n", i);
 			ret = 0;
 		}
 		buf += ret;
 	}
 }
 
-void calcMaxHeight(index_header_t *h)
+void
+calcMaxHeight (index_header_t *h)
 {
 	int i;
 	int max_h;
 
 	for (i = 0, max_h = 0; i < h->num_chars; ++i)
 	{
-		char_info_t* info = h->chars + i;
+		char_info_t *info = h->chars + i;
 
 		if (info->w <= 0)
 			continue;
@@ -489,13 +505,14 @@ void calcMaxHeight(index_header_t *h)
 	h->max_height = max_h;
 }
 
-void updateCharHeights(index_header_t *h, int bDataH)
+void
+updateCharHeights (index_header_t *h, int bDataH)
 {
 	int i;
 
 	for (i = 0; i < h->num_chars; ++i)
 	{
-		char_info_t* info = h->chars + i;
+		char_info_t *info = h->chars + i;
 
 		if (info->w <= 0)
 			continue;
@@ -506,12 +523,13 @@ void updateCharHeights(index_header_t *h, int bDataH)
 
 #if 1
 // this version writes out 1bit PNGs
-void writeBitmapMask(const char *filename, const char_info_t* f)
+void
+writeBitmapMask (const char *filename, const char_info_t *f)
 {
 	uint8_t **lines;
 	int y;
 
-	lines = alloca(f->datah * sizeof (uint8_t *));
+	lines = alloca (f->datah * sizeof (uint8_t *));
 
 	for (y = 0; y < f->acth; ++y)
 		lines[y] = f->data + f->xsize * y;
@@ -523,53 +541,54 @@ void writeBitmapMask(const char *filename, const char_info_t* f)
 		png_color_16 trans;
 
 		png_ptr = png_create_write_struct
-				(PNG_LIBPNG_VER_STRING, (png_voidp) NULL /* user_error_ptr */,
+				(PNG_LIBPNG_VER_STRING, (png_voidp)NULL /* user_error_ptr */,
 				NULL /* user_error_fn */, NULL /* user_warning_fn */);
 		if (!png_ptr)
 		{
-			verbose(1, "png_create_write_struct failed.\n");
-			exit(EXIT_FAILURE);
-		}
-	
-		info_ptr = png_create_info_struct(png_ptr);
-		if (!info_ptr)
-		{
-			png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
-			verbose(1, "png_create_info_struct failed.\n");
-			exit(EXIT_FAILURE);
-		}
-		if (setjmp(png_jmpbuf(png_ptr)))
-		{
-			verbose(1, "png error.\n");
-			png_destroy_write_struct(&png_ptr, &info_ptr);
-			exit(EXIT_FAILURE);
+			verbose (1, "png_create_write_struct failed.\n");
+			exit (EXIT_FAILURE);
 		}
 
-		file = fopen(filename, "wb");
+		info_ptr = png_create_info_struct (png_ptr);
+		if (!info_ptr)
+		{
+			png_destroy_write_struct (&png_ptr, (png_infopp)NULL);
+			verbose (1, "png_create_info_struct failed.\n");
+			exit (EXIT_FAILURE);
+		}
+		if (setjmp (png_jmpbuf (png_ptr)))
+		{
+			verbose (1, "png error.\n");
+			png_destroy_write_struct (&png_ptr, &info_ptr);
+			exit (EXIT_FAILURE);
+		}
+
+		file = fopen (filename, "wb");
 		if (!file)
 		{
-			verbose(1, "Could not open file '%s': %s\n",
-					filename, strerror(errno));
-			png_destroy_write_struct(&png_ptr, &info_ptr);
-			exit(EXIT_FAILURE);
+			verbose (1, "Could not open file '%s': %s\n",
+					filename, strerror (errno));
+			png_destroy_write_struct (&png_ptr, &info_ptr);
+			exit (EXIT_FAILURE);
 		}
-		png_init_io(png_ptr, file);
-		png_set_IHDR(png_ptr, info_ptr, f->w, f->acth,
+		png_init_io (png_ptr, file);
+		png_set_IHDR (png_ptr, info_ptr, f->w, f->acth,
 				1 /* bit_depth per channel */, PNG_COLOR_TYPE_GRAY,
 				PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
 				PNG_FILTER_TYPE_DEFAULT);
 		trans.gray = 0;
-		png_set_tRNS(png_ptr, info_ptr, NULL, 0, &trans);
-		png_write_info(png_ptr, info_ptr);
-		png_write_image(png_ptr, (png_byte **) lines);
-		png_write_end(png_ptr, info_ptr);
-		png_destroy_write_struct(&png_ptr, &info_ptr);
-		fclose(file);
+		png_set_tRNS (png_ptr, info_ptr, NULL, 0, &trans);
+		png_write_info (png_ptr, info_ptr);
+		png_write_image (png_ptr, (png_byte **)lines);
+		png_write_end (png_ptr, info_ptr);
+		png_destroy_write_struct (&png_ptr, &info_ptr);
+		fclose (file);
 	}
 }
 #else
 // this version writes out 8bit PNGs with 2-color pal
-void writeBitmapMask(const char *filename, const char_info_t* f)
+void
+writeBitmapMask (const char *filename, const char_info_t *f)
 {
 	uint32_t bufsize;
 	uint8_t *buf;
@@ -578,17 +597,17 @@ void writeBitmapMask(const char *filename, const char_info_t* f)
 	uint8_t *dst;
 	uint8_t **lines;
 	int x, y;
-	
-	bufsize = f->w * f->h * sizeof(uint8_t);
-	buf = alloca(bufsize);
+
+	bufsize = f->w * f->h * sizeof (uint8_t);
+	buf = alloca (bufsize);
 	if (!buf)
 	{
-		verbose(1, "Out of stack while writing image\n");
-		exit(EXIT_FAILURE);
+		verbose (1, "Out of stack while writing image\n");
+		exit (EXIT_FAILURE);
 	}
-	memset(buf, 0, bufsize);
+	memset (buf, 0, bufsize);
 
-	lines = alloca(f->h * sizeof(uint8_t *));
+	lines = alloca (f->h * sizeof (uint8_t *));
 
 	for (y = 0; y < f->h; ++y)
 	{
@@ -613,58 +632,58 @@ void writeBitmapMask(const char *filename, const char_info_t* f)
 		png_structp png_ptr;
 		png_infop info_ptr;
 		png_color_8 sig_bit;
-		png_color bmppal[2] = {{0x00, 0x00, 0x00}, {0xff, 0xff, 0xff}};
-		png_byte trans[2] = {0x00, 0xff};
-	
+		png_color bmppal[2] = { {0x00, 0x00, 0x00}, {0xff, 0xff, 0xff} };
+		png_byte trans[2] = { 0x00, 0xff };
+
 		png_ptr = png_create_write_struct
-				(PNG_LIBPNG_VER_STRING, (png_voidp) NULL /* user_error_ptr */,
-				NULL /* user_error_fn */, NULL /* user_warning_fn */);
+		(PNG_LIBPNG_VER_STRING, (png_voidp)NULL /* user_error_ptr */,
+		 NULL /* user_error_fn */, NULL /* user_warning_fn */);
 		if (!png_ptr)
 		{
-			verbose(1, "png_create_write_struct failed.\n");
-			exit(EXIT_FAILURE);
-		}
-	
-		info_ptr = png_create_info_struct(png_ptr);
-		if (!info_ptr)
-		{
-			png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
-			verbose(1, "png_create_info_struct failed.\n");
-			exit(EXIT_FAILURE);
-		}
-		if (setjmp(png_jmpbuf(png_ptr)))
-		{
-			verbose(1, "png error.\n");
-			png_destroy_write_struct(&png_ptr, &info_ptr);
-			exit(EXIT_FAILURE);
+			verbose (1, "png_create_write_struct failed.\n");
+			exit (EXIT_FAILURE);
 		}
 
-		file = fopen(filename, "wb");
+		info_ptr = png_create_info_struct (png_ptr);
+		if (!info_ptr)
+		{
+			png_destroy_write_struct (&png_ptr, (png_infopp)NULL);
+			verbose (1, "png_create_info_struct failed.\n");
+			exit (EXIT_FAILURE);
+		}
+		if (setjmp (png_jmpbuf (png_ptr)))
+		{
+			verbose (1, "png error.\n");
+			png_destroy_write_struct (&png_ptr, &info_ptr);
+			exit (EXIT_FAILURE);
+		}
+
+		file = fopen (filename, "wb");
 		if (!file)
 		{
-			verbose(1, "Could not open file '%s': %s\n",
-					filename, strerror(errno));
-			png_destroy_write_struct(&png_ptr, &info_ptr);
-			exit(EXIT_FAILURE);
+			verbose (1, "Could not open file '%s': %s\n",
+					filename, strerror (errno));
+			png_destroy_write_struct (&png_ptr, &info_ptr);
+			exit (EXIT_FAILURE);
 		}
-		png_init_io(png_ptr, file);
-		png_set_IHDR(png_ptr, info_ptr, f->w, f->h,
+		png_init_io (png_ptr, file);
+		png_set_IHDR (png_ptr, info_ptr, f->w, f->h,
 				8 /* bit_depth per channel */, PNG_COLOR_TYPE_PALETTE,
 				PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
 				PNG_FILTER_TYPE_DEFAULT);
 		sig_bit.red = 8;
 		sig_bit.green = 8;
 		sig_bit.blue = 8;
-		png_set_sBIT(png_ptr, info_ptr, &sig_bit);
-		png_set_PLTE(png_ptr, info_ptr, bmppal, 2);
+		png_set_sBIT (png_ptr, info_ptr, &sig_bit);
+		png_set_PLTE (png_ptr, info_ptr, bmppal, 2);
 		// generate transparency chunk
 		// only need to write out upto and including transparent index
-		png_set_tRNS(png_ptr, info_ptr, trans, 1, NULL);
-		png_write_info(png_ptr, info_ptr);
-		png_write_image(png_ptr, lines);
-		png_write_end(png_ptr, info_ptr);
-		png_destroy_write_struct(&png_ptr, &info_ptr);
-		fclose(file);
+		png_set_tRNS (png_ptr, info_ptr, trans, 1, NULL);
+		png_write_info (png_ptr, info_ptr);
+		png_write_image (png_ptr, lines);
+		png_write_end (png_ptr, info_ptr);
+		png_destroy_write_struct (&png_ptr, &info_ptr);
+		fclose (file);
 	}
 }
 #endif // 0 or 1
@@ -694,26 +713,29 @@ writeFiles (const index_header_t *h, const char *path, const char *prefix,
 	}
 
 	if (zeropos > 0)
-		sprintf (fmt + strlen(fmt), ishex ? "0%dx" : "0%dd", zeropos);
+		sprintf (fmt + strlen (fmt), ishex ? "0%dx" : "0%dd", zeropos);
 	else
 		strcat (fmt, ishex ? "x" : "d");
 	strcat (fmt, ".%s");
 
 	for (i = 0; i < h->num_chars; i++)
 	{
-		char_info_t* info = h->chars + i;
+		char_info_t *info = h->chars + i;
 
 		if (info->w <= 0)
 			continue;
 
 		sprintf (filename, fmt, path, prefix, h->first_char + i, "png");
 
-		writeBitmapMask(filename, h->chars + i);
+		writeBitmapMask (filename, h->chars + i);
 
 		if (config)
 		{
 			if (i == 0)
-				fprintf (config, "%s %d %d %d\n", infile, h->leading, h->spacing, h->kerning);
+			{
+				fprintf (config, "%s %d %d %d\n", infile, h->leading,
+						h->spacing, h->kerning);
+			}
 			fprintf (config, "%05x %d\n", h->first_char + i, info->kerning);
 		}
 	}
@@ -722,17 +744,20 @@ writeFiles (const index_header_t *h, const char *path, const char *prefix,
 		fclose (config);
 }
 
-uint16_t get_16_le(uint16_t* val)
-{
-	return (uint16_t)(((uint8_t*)val)[1]) << 8 | ((uint8_t*)val)[0];
+uint16_t
+get_16_le (uint16_t *val)
+{	// Unused
+	return (uint16_t)(((uint8_t *)val)[1]) << 8 | ((uint8_t *)val)[0];
 }
 
-uint32_t get_32_le(uint32_t* val)
+uint32_t
+get_32_le (uint32_t *val)
 {
-	return (uint32_t)(((uint16_t*)val)[1]) << 16 | ((uint16_t*)val)[0];
+	return (uint32_t)(((uint16_t *)val)[1]) << 16 | ((uint16_t *)val)[0];
 }
 
-uint8_t get_quad(const uint8_t *table, int index)
+uint8_t
+get_quad (const uint8_t *table, int index)
 {
 	uint8_t val = table[index / 2];
 	return (index % 2) ? (val & 0x0f) : (val >> 4);
