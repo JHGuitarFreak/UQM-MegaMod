@@ -52,9 +52,9 @@ typedef struct
 {
 	uint32_t PACKED magic;  // Always FFFFFFFF
 	uint8_t  PACKED height;
-	uint8_t  PACKED baseline;
+	uint8_t  PACKED leading;
 	// char spacing and kerning - upper and lower nibble
-	uint8_t  PACKED kern_amount;
+	uint8_t  PACKED kern_info;
 	// 2 chars per byte; upper and lower nibble
 	uint8_t  PACKED char_w[MAX_FONT_CHARS / 2];
 	uint8_t  PACKED kerntab[MAX_FONT_CHARS / 2];
@@ -77,10 +77,9 @@ typedef struct
 typedef struct
 {
 	int height;
-	int baseline;
+	int leading;
 	int max_descend;
 	int max_height;
-	int leading;
 	int spacing;
 	int kerning;
 	uint32_t data_ofs;
@@ -280,7 +279,6 @@ index_header_t *
 readIndex (uint8_t *buf)
 {
 	header_t *fh = (header_t *)buf;
-	const uint8_t *bufptr;
 	index_header_t *h;
 	int i;
 
@@ -302,11 +300,10 @@ readIndex (uint8_t *buf)
 	h->num_chars = MAX_FONT_CHARS; // count of chars never changes
 	h->first_char = 32; // first char is always ' ' (space)
 	h->height = fh->height;
-	h->baseline = fh->height - fh->baseline;
-	h->spacing = (fh->kern_amount & 0xf0) >> 4;
-	h->kerning = (fh->kern_amount & 0x0f);
+	h->leading = fh->leading;
+	h->spacing = (fh->kern_info & 0xf0) >> 4;
+	h->kerning = (fh->kern_info & 0x0f);
 
-	bufptr = buf + sizeof (*fh);
 	h->chars = malloc (h->num_chars * sizeof (char_info_t));
 	if (!h->chars)
 	{
@@ -365,17 +362,17 @@ freeIndex (index_header_t *h)
 void
 printIndex (const index_header_t *h, const uint8_t *buf, FILE *out)
 {
-	fprintf (out, "0x%08x  Height: 0x%02x\n",
+	fprintf (out, "0x%08x  Height: %d\n",
 			offsetof (header_t, height), h->height);
-	fprintf (out, "0x%08x  Baseline: 0x%02x\n",
-			offsetof (header_t, baseline), h->baseline);
-	fprintf (out, "\t\tMax Descend: %d\n",
-			h->max_descend);
-	fprintf (out, "0x%08x  Spacing: 0x%02x\n",
-			offsetof (header_t, kern_amount), h->spacing);
-	fprintf (out, "0x%08x  Kerning: 0x%02x\n",
-			offsetof (header_t, kern_amount), h->kerning);
-	fprintf (out, "0x%08x  Number of chars:\t\t%d\n",
+	fprintf (out, "0x%08x  Leading: %d\n",
+			offsetof (header_t, leading), h->leading);
+	fprintf (out, "\t\tUQM Leading: %d\n",
+			 h->height + h->leading);
+	fprintf (out, "0x%08x  CharSpacing: %d\n",
+			offsetof (header_t, kern_info), h->spacing);
+	fprintf (out, "0x%08x  KernAmount: %d\n",
+			offsetof (header_t, kern_info), h->kerning);
+	fprintf (out, "0x%08x  Number of chars: %d\n",
 			offsetof (header_t, char_w), MAX_FONT_CHARS);
 
 	(void)buf;
@@ -706,7 +703,7 @@ writeFiles (const index_header_t *h, const char *path, const char *prefix,
 		if (!config)
 		{
 			verbose (1, "Could not open file '%s': %s\n",
-					 configPath, strerror (errno));
+					configPath, strerror (errno));
 			fclose (config);
 			exit (EXIT_FAILURE);
 		}
@@ -733,8 +730,8 @@ writeFiles (const index_header_t *h, const char *path, const char *prefix,
 		{
 			if (i == 0)
 			{
-				fprintf (config, "%s %d %d %d\n", infile, h->leading,
-						h->spacing, h->kerning);
+				fprintf (config, "%s %d %d %d\n", infile,
+						h->height + h->leading, h->spacing, h->kerning);
 			}
 			fprintf (config, "%05x %d\n", h->first_char + i, info->kerning);
 		}
