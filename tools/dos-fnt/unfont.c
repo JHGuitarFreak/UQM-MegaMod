@@ -95,12 +95,11 @@ struct options
 	char *infile;
 	char *outdir;
 	char *prefix;
-	int makeani;
-	int list;
 	int print;
 	int verbose;
 	int usemax;
 	int zeropos;
+	int ishex;
 };
 
 int verbose_level = 0;
@@ -164,7 +163,7 @@ int main(int argc, char *argv[])
 	if (!prefix)
 		prefix = "";
 
-	if (!opts.print && !opts.list && !opts.makeani)
+	if (!opts.print)
 	{
 		size_t len;
 				
@@ -177,7 +176,7 @@ int main(int argc, char *argv[])
 		if (opts.usemax)
 			updateCharHeights(h, 0);
 
-		writeFiles(h, opts.outdir, prefix, opts.zeropos);
+		writeFiles (h, opts.outdir, prefix, opts.zeropos, opts.ishex);
 	}
 
 	free(buf);
@@ -200,16 +199,16 @@ void verbose(int level, const char* fmt, ...)
 void usage()
 {
 	fprintf(stderr,
-			//"unfont -a [-m] [-0] <infile>\n"
 			"unfont -p <infile>\n"
-			"unfont [-m] [-0] [-o <outdir>] [-n <prefix>] <infile>\n"
+			"unfont [-m] [-x] [-0 #] [-v #] [-o <outdir>] [-n <prefix>] <infile>\n"
 			"Options:\n"
 			"\t-p  print header and frame info\n"
 			"\t-o  stuff pngs into <outdir>\n"
 			"\t-n  name pngs <prefix><N>.png\n"
 			"\t-m  char images will be of maximum seen height\n"
-			"\t-0  make <N> 0-prepended; use several to specify width\n"
-			"\t-v  increase verbosity level (use more than once)\n"
+			"\t-0  make <N> 0-prepended by # amount\n"
+			"\t-v  increase verbosity level by # amount\n"
+			"\t-x  Output pngs with filename in hex\n"
 			);
 }
 
@@ -219,16 +218,10 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 	
 	memset(opts, 0, sizeof (struct options));
 
-	while (-1 != (ch = getopt(argc, argv, "ah?ln:o:mp0v")))
+	while (-1 != (ch = getopt(argc, argv, "ah?n:o:mp0:v:x")))
 	{
 		switch (ch)
 		{
-		case 'a':
-			opts->makeani = 1;
-			break;
-		case 'l':
-			//opts->list = 1;
-			break;
 		case 'o':
 			opts->outdir = optarg;
 			break;
@@ -242,10 +235,13 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 			opts->print = 1;
 			break;
 		case '0':
-			opts->zeropos++;
+			opts->zeropos = atoi (optarg);
 			break;
 		case 'v':
-			opts->verbose++;
+			opts->verbose = atoi (optarg);
+			break;
+		case 'x':
+			opts->ishex = 1;
 			break;
 		case '?':
 		case 'h':
@@ -667,18 +663,19 @@ void writeBitmapMask(const char *filename, const char_info_t* f)
 }
 #endif // 0 or 1
 
-void writeFiles(const index_header_t *h, const char *path, const char *prefix, int zeropos)
+void
+writeFiles (const index_header_t *h, const char *path, const char *prefix,
+			int zeropos, int ishex)
 {
 	int i;
 	char filename[512];
 	char fmt[32] = "%s/%s%";
 
 	if (zeropos > 0)
-		sprintf(fmt + strlen(fmt), "0%dd", zeropos);
+		sprintf (fmt + strlen(fmt), ishex ? "0%dx" : "0%dd", zeropos);
 	else
-		strcat(fmt, "d");
-	strcat(fmt, ".%s");
-		
+		strcat (fmt, ishex ? "x" : "d");
+	strcat (fmt, ".%s");
 
 	for (i = 0; i < h->num_chars; i++)
 	{
@@ -687,7 +684,8 @@ void writeFiles(const index_header_t *h, const char *path, const char *prefix, i
 		if (info->w <= 0)
 			continue;
 
-		sprintf(filename, fmt, path, prefix, h->first_char + i, "png");
+		sprintf (filename, fmt, path, prefix, h->first_char + i, "png");
+
 		writeBitmapMask(filename, h->chars + i);
 	}
 }
