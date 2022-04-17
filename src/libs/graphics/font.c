@@ -249,12 +249,11 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 					bot_y = y;
 
 				width += charFrame->disp.width;
-#if 0
-				if (num_chars && next_ch < (UNICODE) MAX_CHARS
+
+				if (num_chars && FontPtr->KernTab[ch] != NULL
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 					width -= FontPtr->KernAmount;
-#endif
 			}
 
 			*pdelta++ = (BYTE)(width - last_width);
@@ -351,12 +350,11 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 			}
 
 			origin.x += fontChar->disp.width;
-#if 0
-			if (num_chars && next_ch < (UNICODE) MAX_CHARS
+
+			if (num_chars && FontPtr->KernTab[ch] != NULL
 					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
 				origin.x -= FontPtr->KernAmount;
-#endif
 		}
 	}
 }

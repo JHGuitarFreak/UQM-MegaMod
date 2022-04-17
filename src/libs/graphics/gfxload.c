@@ -380,6 +380,8 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	// The crap I have to deal with to get Leading and Kerning working
 	char filename[20];
 	DWORD leading = 0;
+	DWORD KernAmount = 0;
+	DWORD CharSpacing = 0;
 	const char *cfg_name = LoadString (FONT_CFG_NAME);
 	BOOLEAN HaveKern = FALSE;
 
@@ -493,11 +495,11 @@ _GetFontData (uio_Stream *fp, DWORD length)
 				uio_fseek (cfgFile, opos, SEEK_SET);
 				while (uio_fgets (CurrentLine, sizeof (CurrentLine), cfgFile) && cel_index < cel_total)
 				{
-					DWORD kernLN = 0, kernHN = 0;
-
 					if (cel_index > 0)
 					{
-						if (sscanf (CurrentLine, "%x %d %d", &KernChar[cel_index], &kernLN, &kernHN) != 3)
+						if (sscanf (CurrentLine, "%x %d",
+								&KernChar[cel_index], &KernTab[cel_index])
+								!= 2)
 						{
 							log_add (log_Debug,
 									"Error reading kerning data from %s.\n",
@@ -505,19 +507,13 @@ _GetFontData (uio_Stream *fp, DWORD length)
 							);
 						}
 						else
-						{
-							printf ("%x %d %d %x\n",
-									KernChar[cel_index],
-									kernLN, kernHN,
-									MAKE_BYTE (kernLN, kernHN)
-								);
 							HaveKern = TRUE;
-							KernTab[cel_index] = MAKE_BYTE (kernLN, kernHN);
-						}
 					}
 					else
 					{
-						if (sscanf (CurrentLine, "%s %d", filename, &leading) != 2)
+						if (sscanf (CurrentLine,
+								"%s %d %d %d", filename, &leading,
+								&CharSpacing, &KernAmount) != 4)
 						{
 							log_add (log_Debug,
 									"Error reading %s data from %s...\n"
@@ -532,7 +528,6 @@ _GetFontData (uio_Stream *fp, DWORD length)
 					if ((int)uio_ftell (cfgFile) - (int)opos >= (int)LengthResFile (cfgFile))
 						break;
 				}
-				printf ("%s %u\n", filename, leading);
 			}
 			else
 			{
@@ -574,6 +569,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	
 	fontPtr->Leading = 0;
 	fontPtr->LeadingWidth = 0;
+	fontPtr->KernAmount = 0;
 
 	{
 		size_t startBCD = 0;
@@ -631,16 +627,18 @@ _GetFontData (uio_Stream *fp, DWORD length)
 						fontPtr->disp.width = destChar->disp.width;
 						fontPtr->LeadingWidth = fontPtr->disp.width;
 					}
+					if (CharSpacing)
+					{
+						fontPtr->disp.width += (CharSpacing - RES_SCALE (1));
+						fontPtr->LeadingWidth = fontPtr->disp.width;
+					}
 					if (HaveKern)
 					{
 						BYTE i;
 						for (i = 0; i < endBCD; i++)
 						{
 							if (bcd->index == KernChar[i])
-							{
-								//fontPtr->KernTab[bcd->index] = KernTab[i];
-								printf ("bcd->index: %x, UnicodeChar[i]: %x, KernTab[i]: %x\n", bcd->index, KernChar[i], KernTab[i]);
-							}
+								fontPtr->KernTab[bcd->index] = KernTab[i];
 						}
 					}
 
@@ -657,6 +655,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	else
 	{
 		fontPtr->Leading = leading;
+		fontPtr->KernAmount = KernAmount;
 		snprintf (
 				&fontPtr->filename, sizeof (fontPtr->filename),
 				"%s", filename
