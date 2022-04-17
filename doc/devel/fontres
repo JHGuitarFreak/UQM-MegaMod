@@ -7,23 +7,28 @@ code 32 (space).
 Everything is stored MSB first unless otherwise specified.
 
 position   length  meaning
-           4       0xffffffff if the file is uncompressed.
+0x00       4       0xffffffff if the file is uncompressed.
                    Otherwise, the file is compressed. When uncompressed, the
                    file complies with the rest of the format as described
                    below.
-           4       Unused in file, always 0x00000000
-           1       Font leading: the vertical distance between lines of text
-                   in pixels.
-           1       Max ascender: the maximum extent of the font upwards from
-                   the baseline in pixels.
-           1       Max descender: the maximum extent of the font downwards
-                   from the baseline in pixels.
-           1       Char spacing: the number of pixels in between the
-                   successive characters.
-           1       Kern amount: the number of pixels (out of char spacing)
-                   that are used for kerning (explained later). Cannot be
-                   more than char spacing.
-           96      Kerning table: each byte corresponds to a character:
+
+0x04       1       Font Height: Overall font height in pixels
+
+0x05       1       Leading: the vertical distance between lines of text in
+                   pixels.
+                   To get UQM appropriate Leading you add it to Font Height
+
+0x06       1       KernInfo: This byte is split into lonibble and hinibble
+                   CharSpacing: KernInfo's hinibble, the number of pixels in
+                   between successive characters.
+                   KernAmount: KernInfo's lonibble, the number of pixels
+                   that are used for kerning. Cannot be more than char spacing.
+
+0x07       48      CharWidth: 48 bytes split into 96 nibbles with each
+                   nibble corresponding to a character width.
+
+0x37       48      Kerning table: 48 bytes split into 96 nibbles with each
+                   nibble corresponding to a character:
                      bits 0-1: right-hand side kerning mask
                      bits 2-3: left-hand side kerning mask
                    For each pair of chars printed the code figures out whether
@@ -31,8 +36,12 @@ position   length  meaning
                    preceeding char and ANDing it with the left mask of a
                    succeeding char. If the result is 0, the Kern amount is
                    subtracted from Char spacing.
-           3       alignment padding: aligns the following char descriptors
-                   on 8-byte boundary.
+
+0x67       48      Character Descending Y: 48 bytes split into 96 nibbles with each
+                   nibble corresponding to a character:
+                   The maximum extent of the font downwards from the
+                   baseline in pixels
+                   Max Descender: The highest value from Character Descending Y
 
 
 Then for all 96 chars:
