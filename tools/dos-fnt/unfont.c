@@ -78,6 +78,7 @@ typedef struct
 	int baseline;
 	int max_descend;
 	int max_height;
+	int leading;
 	int spacing;
 	int kerning;
 	uint32_t data_ofs;
@@ -95,6 +96,7 @@ struct options
 	char *infile;
 	char *outdir;
 	char *prefix;
+	char *config;
 	int print;
 	int verbose;
 	int usemax;
@@ -112,7 +114,7 @@ void printIndex(const index_header_t *, const uint8_t *buf, FILE *out);
 void readChars(index_header_t *, const uint8_t *buf);
 void calcMaxHeight(index_header_t *);
 void updateCharHeights(index_header_t *, int bDataH);
-void writeFiles(const index_header_t *, const char *path, const char *prefix, int zeropos);
+void writeFiles (const index_header_t *, const char *path, const char *prefix, int zeropos, int ishex, const char *cfg, const char *infile);
 
 uint16_t get_16_le (uint16_t* val);
 uint32_t get_32_le (uint32_t* val);
@@ -176,7 +178,7 @@ int main(int argc, char *argv[])
 		if (opts.usemax)
 			updateCharHeights(h, 0);
 
-		writeFiles (h, opts.outdir, prefix, opts.zeropos, opts.ishex);
+		writeFiles (h, opts.outdir, prefix, opts.zeropos, opts.ishex, opts.config, opts.infile);
 	}
 
 	free(buf);
@@ -200,7 +202,7 @@ void usage()
 {
 	fprintf(stderr,
 			"unfont -p <infile>\n"
-			"unfont [-m] [-x] [-0 #] [-v #] [-o <outdir>] [-n <prefix>] <infile>\n"
+			"unfont [-m] [-x] [-0 #] [-v #] [-o <outdir>] [-n <prefix>] [-c <config>] <infile>\n"
 			"Options:\n"
 			"\t-p  print header and frame info\n"
 			"\t-o  stuff pngs into <outdir>\n"
@@ -209,6 +211,7 @@ void usage()
 			"\t-0  make <N> 0-prepended by # amount\n"
 			"\t-v  increase verbosity level by # amount\n"
 			"\t-x  Output pngs with filename in hex\n"
+			"\t-c  Config file name\n"
 			);
 }
 
@@ -218,7 +221,7 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 	
 	memset(opts, 0, sizeof (struct options));
 
-	while (-1 != (ch = getopt(argc, argv, "ah?n:o:mp0:v:x")))
+	while (-1 != (ch = getopt(argc, argv, "h?n:o:mp0:v:xc:")))
 	{
 		switch (ch)
 		{
@@ -242,6 +245,9 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 			break;
 		case 'x':
 			opts->ishex = 1;
+			break;
+		case 'c':
+			opts->config = optarg;
 			break;
 		case '?':
 		case 'h':
@@ -665,11 +671,27 @@ void writeBitmapMask(const char *filename, const char_info_t* f)
 
 void
 writeFiles (const index_header_t *h, const char *path, const char *prefix,
-			int zeropos, int ishex)
+			int zeropos, int ishex, const char *cfg, const char *infile)
 {
 	int i;
 	char filename[512];
 	char fmt[32] = "%s/%s%";
+	char configPath[512];
+	FILE *config = NULL;
+
+	if (cfg)
+	{
+		sprintf (configPath, "%s/%s", path, cfg);
+
+		config = fopen (configPath, "wb");
+		if (!config)
+		{
+			verbose (1, "Could not open file '%s': %s\n",
+					 configPath, strerror (errno));
+			fclose (config);
+			exit (EXIT_FAILURE);
+		}
+	}
 
 	if (zeropos > 0)
 		sprintf (fmt + strlen(fmt), ishex ? "0%dx" : "0%dd", zeropos);
@@ -687,7 +709,17 @@ writeFiles (const index_header_t *h, const char *path, const char *prefix,
 		sprintf (filename, fmt, path, prefix, h->first_char + i, "png");
 
 		writeBitmapMask(filename, h->chars + i);
+
+		if (config)
+		{
+			if (i == 0)
+				fprintf (config, "%s %d %d %d\n", infile, h->leading, h->spacing, h->kerning);
+			fprintf (config, "%05x %d\n", h->first_char + i, info->kerning);
+		}
 	}
+
+	if (config)
+		fclose (config);
 }
 
 uint16_t get_16_le(uint16_t* val)
