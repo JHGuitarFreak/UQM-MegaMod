@@ -250,6 +250,11 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 
 				width += charFrame->disp.width;
 
+				if (FontPtr->CharSpace > 0)
+					width += FontPtr->CharSpace;
+				else
+					width += RES_SCALE (1);
+
 				if (num_chars && FontPtr->KernTab[ch] != NULL
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
@@ -350,6 +355,11 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 			}
 
 			origin.x += fontChar->disp.width;
+
+			if (FontPtr->CharSpace > 0)
+				origin.x += FontPtr->CharSpace;
+			else
+				origin.x += RES_SCALE (1);
 
 			if (num_chars && FontPtr->KernTab[ch] != NULL
 					&& !(FontPtr->KernTab[ch]

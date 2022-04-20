@@ -22,6 +22,7 @@
 #include "libs/memlib.h"
 
 #define MAX_DELTAS 100
+#define MAX_UNICODE 0xFFFF
 
 typedef struct FontPage
 {
@@ -55,8 +56,8 @@ struct font_desc
 	FONT_PAGE *fontPages;
 	EXTENT disp;
 	char filename[PATH_MAX];
+	BYTE CharSpace;
 	BYTE KernAmount;
-#define MAX_UNICODE 0xFFFF
 	BYTE KernTab[MAX_UNICODE];
 };
 
