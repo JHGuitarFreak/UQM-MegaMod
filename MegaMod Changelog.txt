@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [v0.8.2]
 ### Added
 - Added a dotted fuel circle that shows the fuel range at the destination - PR #102 by taleden
+- Added ability to load glyph spacing and kerning data from a file inside the font directory
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
