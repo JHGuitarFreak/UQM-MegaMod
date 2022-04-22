@@ -2305,7 +2305,6 @@ init_melnorme_comm (void)
 			// generalised in the future.
 
 	melnorme_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	melnorme_desc.AlienTextBaseline.y = 0;
 	melnorme_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (IS_HD)

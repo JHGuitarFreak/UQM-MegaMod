@@ -557,7 +557,6 @@ init_blackurq_comm (void)
 	blackurq_desc.uninit_encounter_func = uninit_blackurq;
 
 	blackurq_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	blackurq_desc.AlienTextBaseline.y = 0;
 	blackurq_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (!GET_GAME_STATE (KOHR_AH_KILLED_ALL)

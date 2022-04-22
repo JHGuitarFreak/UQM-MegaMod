@@ -629,7 +629,6 @@ init_mycon_comm (void)
 	mycon_desc.uninit_encounter_func = uninit_mycon;
 
 	mycon_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	mycon_desc.AlienTextBaseline.y = 0;
 	mycon_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	MadeChoice = 0;

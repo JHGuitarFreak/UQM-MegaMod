@@ -904,7 +904,6 @@ init_slylandro_comm (void)
 			// generalised in the future.
 
 	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	slylandro_desc.AlienTextBaseline.y = 0;
 	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH;
 
 	setSegue (Segue_peace);

@@ -1273,7 +1273,6 @@ init_spahome_comm ()
 			// generalised in the future.
 
 	spahome_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	spahome_desc.AlienTextBaseline.y = 0;
 	spahome_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	// use alternate "Safe Ones" track if available
