@@ -728,12 +728,18 @@ writeFiles (const index_header_t *h, const char *path, const char *prefix,
 
 		if (config)
 		{
+			//int fullKern;
+			int kernLBits = (info->kerning >> 2) & 3;
+			int kernRBits = info->kerning & 3;
+
+			// fullKern = (kernLBits << 2) | kernRBits;
+
 			if (i == 0)
 			{
 				fprintf (config, "%s %d %d %d\n", infile,
 						h->height + h->leading, h->spacing, h->kerning);
 			}
-			fprintf (config, "%05x %d\n", h->first_char + i, info->kerning);
+			fprintf (config, "%05x %d %d\n", h->first_char + i, kernLBits, kernRBits);
 		}
 	}
 
