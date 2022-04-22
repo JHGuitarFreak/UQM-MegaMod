@@ -266,11 +266,14 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 
 		if (width > 0 && (bot_y -= top_y) > 0)
 		{
-			/* subtract off default character spacing */
+			/* subtract off character spacing */
 			if (pdelta[-1] > 0)
 			{
 				--pdelta[-1];
-				width -= RES_SCALE (1);
+				if (FontPtr->CharSpace > 0)
+					width -= FontPtr->CharSpace;
+				else
+					width -= RES_SCALE (1);
 			}
 
 			if (lpText->align == ALIGN_LEFT)

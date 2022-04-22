@@ -116,7 +116,7 @@ process_image (FRAME FramePtr, TFB_Canvas img[], AniData *ani, int cel_ct)
 }
 
 static void
-processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, int char_space)
+processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, BYTE char_space)
 {
 	BYTE* newdata;
 	size_t dpitch;
@@ -363,7 +363,6 @@ compareBCDIndex (const void *arg1, const void *arg2)
 	return (int) bcd1->index - (int) bcd2->index;
 }
 
-DWORD KernChar[MAX_UNICODE];
 BYTE KernTab[MAX_UNICODE];
 
 void *
@@ -377,14 +376,9 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	uio_DirHandle *fontDirHandle = NULL;
 	uio_MountHandle *fontMount = NULL;
 	FONT fontPtr = NULL;
-	// The crap I have to deal with to get Leading and Kerning working
-	char filename[20];
-	DWORD leading = 0;
-	DWORD KernAmount = 0;
-	DWORD CharSpacing = 0;
-	const char *cfg_name = LoadString (FONT_CFG_NAME);
-	BOOLEAN HaveKern = FALSE;
 	char *basename;
+	BOOLEAN HaveFData = FALSE;
+	char *cfg_name = LoadString (FONT_CFG_NAME);
 
 	if (_cur_resfile_name == 0)
 		goto err;
@@ -474,6 +468,10 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		numBCDs++;
 	}
 
+	fontPtr = AllocFont (0);
+	if (fontPtr == NULL)
+		goto err;
+
 	if (fileExists2 (fontDirHandle, cfg_name))
 	{
 		uio_Stream *cfgFile =
@@ -501,13 +499,42 @@ _GetFontData (uio_Stream *fp, DWORD length)
 			{
 				if (cel_index > 0)
 				{
-					sscanf (CurrentLine, "%x %d", &KernChar[cel_index],
-							&KernTab[cel_index]);
+					int KernChar, kernLBits, kernRBits;
+
+					if (sscanf (CurrentLine, "%x %d %d", &KernChar,
+							&kernLBits, &kernRBits) == 3)
+					{
+
+						if (kernLBits > 3 || kernLBits < 0)
+							kernLBits = 3;
+						if (kernRBits > 3 || kernRBits < 0)
+							kernRBits = 3;
+
+						fontPtr->KernTab[KernChar] =
+								(kernLBits << 2) | kernRBits;
+					}
 				}
 				else
 				{
-					sscanf (CurrentLine, "%s %d %d %d", filename, &leading,
-							&CharSpacing, &KernAmount);
+					char filename[PATH_MAX];
+					int leading, char_space, kern_amount;
+
+					if (sscanf (CurrentLine, "%s %d %d %d", filename, &leading,
+							&char_space, &kern_amount) == 4)
+					{
+						snprintf (
+								fontPtr->filename,
+								sizeof (fontPtr->filename), "%s", filename
+							);
+						fontPtr->Leading = leading;
+						fontPtr->CharSpace = char_space;
+						fontPtr->KernAmount = kern_amount;
+
+						HaveFData = TRUE;
+					}
+					else
+						break;
+
 				}
 
 				++cel_index;
@@ -518,9 +545,6 @@ _GetFontData (uio_Stream *fp, DWORD length)
 						>= (int)LengthResFile (cfgFile))
 					break;
 			}
-
-			if ((cel_index - 1) > 1)
-				HaveKern = TRUE;
 		}
 
 		uio_fclose (cfgFile);
@@ -538,16 +562,6 @@ _GetFontData (uio_Stream *fp, DWORD length)
 
 	// sort on the character index
 	qsort (bcds, numBCDs, sizeof (BuildCharDesc), compareBCDIndex);
-
-	fontPtr = AllocFont (0);
-	if (fontPtr == NULL)
-		goto err;
-	
-	fontPtr->Leading = 0;
-	fontPtr->LeadingWidth = 0;
-	fontPtr->KernAmount = 0;
-	fontPtr->CharSpace = 0;
-
 
 	{
 		size_t startBCD = 0;
@@ -592,29 +606,13 @@ _GetFontData (uio_Stream *fp, DWORD length)
 						continue;
 					}
 					
-					processFontChar (destChar, bcd->canvas, CharSpacing);
+					processFontChar (destChar, bcd->canvas, fontPtr->CharSpace);
 					TFB_DrawCanvas_Delete (bcd->canvas);
 
-					if (destChar->disp.height > fontPtr->Leading)
-					{
+					if (destChar->disp.height > fontPtr->disp.height)
 						fontPtr->disp.height = destChar->disp.height;
-						fontPtr->Leading = fontPtr->disp.height;
-					}
-					if (destChar->disp.width > fontPtr->LeadingWidth)
-					{
+					if (destChar->disp.width > fontPtr->disp.width)
 						fontPtr->disp.width = destChar->disp.width;
-						fontPtr->LeadingWidth = fontPtr->disp.width;
-					}
-					if (HaveKern)
-					{
-						BYTE i;
-						for (i = 0; i < endBCD; i++)
-						{
-							if (bcd->index == KernChar[i])
-								fontPtr->KernTab[bcd->index] = KernTab[i];
-						}
-					}
-
 				}
 			}
 
@@ -623,18 +621,8 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		*pageEndPtr = NULL;
 	}
 
-	if (leading)
-	{
-		fontPtr->Leading = leading;
-		fontPtr->CharSpace = CharSpacing;
-		fontPtr->KernAmount = KernAmount;
-		snprintf (
-				&fontPtr->filename, sizeof (fontPtr->filename),
-				"%s", filename
-			);
-	}
-	else
-		fontPtr->Leading += RES_SCALE (1);
+	if (!HaveFData)
+		fontPtr->Leading = fontPtr->disp.height + RES_SCALE (1);
 
 	HFree (bcds);
 
