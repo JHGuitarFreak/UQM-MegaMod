@@ -1227,6 +1227,9 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">\Users\SeRosiS\Desktop\uqm-git-20150109.0800\src\res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\doc\devel\kerndatacfg" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
