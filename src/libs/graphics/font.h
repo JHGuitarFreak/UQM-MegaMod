@@ -52,7 +52,6 @@ FreeFontPage (FONT_PAGE *page)
 struct font_desc
 {
 	UWORD Leading;
-	UWORD LeadingWidth;
 	FONT_PAGE *fontPages;
 	EXTENT disp;
 	char filename[PATH_MAX];

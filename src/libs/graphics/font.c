@@ -139,19 +139,6 @@ GetContextFontLeading (SIZE *pheight)
 }
 
 BOOLEAN
-GetContextFontLeadingWidth (SIZE *pwidth)
-{
-	if (_CurFontPtr != 0)
-	{
-		*pwidth = (SIZE)_CurFontPtr->LeadingWidth;
-		return (TRUE);
-	}
-
-	*pwidth = 0;
-	return (FALSE);
-}
-
-BOOLEAN
 GetContextFontDispHeight (SIZE *pheight)
 {
 	if (_CurFontPtr != 0)
