@@ -382,7 +382,7 @@ PrintCoarseScanPC (void)
 static void
 PrintCoarseScan3DO (void)
 {
-#define SCAN_LEADING RES_SCALE (19) 
+#define SCAN_LEADING RES_SCALE (19)
 	SDWORD val;
 	TEXT t;
 	STAMP s;
@@ -403,13 +403,13 @@ PrintCoarseScan3DO (void)
 
 #define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15)
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y RES_SCALE (25 + 12)
+#define SCAN_BASELINE_Y RES_SCALE (25 + 14)
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_LEFT;
 
-	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
+	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (12);
 	s.origin.x = 0;
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
 	DrawStamp (&s);

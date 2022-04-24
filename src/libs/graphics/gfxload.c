@@ -120,12 +120,12 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, BYTE char_space)
 {
 	BYTE* newdata;
 	size_t dpitch;
-	BOOLEAN HaveData = char_space != NULL;
+	int tune_amount = 0;
 
 	TFB_DrawCanvas_GetExtent (canvas, &CharPtr->extent);
 
 	// Currently, each font char has its own separate data
-	//  but that can change to common mem area
+	// but that can change to common mem area
 	dpitch = CharPtr->extent.width;
 	newdata = HMalloc (dpitch * CharPtr->extent.height * sizeof (BYTE));
 	TFB_DrawCanvas_GetFontCharData (canvas, newdata, dpitch);
@@ -135,26 +135,21 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, BYTE char_space)
 	CharPtr->disp.width = CharPtr->extent.width;
 	CharPtr->disp.height = CharPtr->extent.height;
 
-	{
-		// This tunes the font positioning to be about what it should
+	if (char_space > 0)
+		tune_amount = char_space;
+	else
+	{	// This tunes the font positioning to be about what it should
 		// TODO: prolly needs a little tweaking still
-		int tune_amount = 0;
-
-		if (HaveData)
-			tune_amount = char_space;
-		else
-		{
-			if (CharPtr->extent.height == RES_SCALE (8))
-				tune_amount = RES_SCALE (1);
-			else if (CharPtr->extent.height == RES_SCALE (9))
-				tune_amount = RES_SCALE (2);
-			else if (CharPtr->extent.height > RES_SCALE (9))
-				tune_amount = RES_SCALE (3);
-		}
-
-		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
-				CharPtr->extent.height - tune_amount);
+		if (CharPtr->extent.height <= RES_SCALE (8))
+			tune_amount = RES_SCALE (1);
+		else if (CharPtr->extent.height == RES_SCALE (9))
+			tune_amount = RES_SCALE (2);
+		else if (CharPtr->extent.height > RES_SCALE (9))
+			tune_amount = RES_SCALE (3);
 	}
+
+	CharPtr->HotSpot = MAKE_HOT_SPOT (0,
+			CharPtr->extent.height - tune_amount);
 }
 
 void *
@@ -363,8 +358,6 @@ compareBCDIndex (const void *arg1, const void *arg2)
 	return (int) bcd1->index - (int) bcd2->index;
 }
 
-BYTE KernTab[MAX_UNICODE];
-
 void *
 _GetFontData (uio_Stream *fp, DWORD length)
 {
@@ -504,7 +497,6 @@ _GetFontData (uio_Stream *fp, DWORD length)
 					if (sscanf (CurrentLine, "%x %d %d", &KernChar,
 							&kernLBits, &kernRBits) == 3)
 					{
-
 						if (kernLBits > 3 || kernLBits < 0)
 							kernLBits = 3;
 						if (kernRBits > 3 || kernRBits < 0)
