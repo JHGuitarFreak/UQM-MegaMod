@@ -1,0 +1,39 @@
+For the data.cfg file inside any given font's directory...
+
+The first line is in following format:
+font_name leading char_spacing kern_amount
+
+font_name is a string, all others are int.
+
+font_name
+	Directory name that contains the font glyphs, only used for debugging and organizational purposes
+	
+leading
+	The vertical distance between two lines from the top of the previous line to the top of the next line
+
+char_spacing
+	The amount of space between each glyph when drawn onto the screen.
+
+kern_amount
+	The amount of kerning applied, in pixels, when kerning is available.
+	Can not be more than char_spacing.
+
+Every line after the first corresponds to the kerning data
+unicode_number kern_table
+
+unicode_number
+	The number that corresponds to a specific unicode glyph in hex
+
+left_kern_mask
+	0-3: left-hand side kerning mask
+
+right_kern_mask
+	0-3: right-hand side kerning mask
+
+
+First few lines of the Zoq-Fot-Pik font's data.cfg file as an example:
+
+zoqfotpik.fon 2 2 2
+00020 3 3
+00021 3 3
+00022 2 2
