@@ -26,6 +26,17 @@
 #	include <unistd.h>
 #	define makedir(d)  mkdir(d, 0777)
 #endif
+
+#ifdef WIN32
+#	ifdef _MSC_VER
+#		define MKDIR(name, mode) ((void) mode, _mkdir(name))
+#	else
+#		define MKDIR(name, mode) ((void) mode, mkdir(name))
+#	endif
+#else
+#	define MKDIR mkdir
+#endif
+
 #if defined(__GNUC__)
 #	if !defined(WIN32) || !defined(__WIN32) || !defined(__WIN32__)
 #		include <alloca.h>
@@ -691,9 +702,16 @@ writeFiles (const index_header_t *h, const char *path, const char *prefix,
 {
 	int i;
 	char filename[512];
+	struct stat sb;
 	char fmt[32] = "%s/%s%";
 	char configPath[512];
 	FILE *config = NULL;
+
+	if (!(stat (path, &sb) == 0 && S_ISDIR (sb.st_mode)))
+	{
+		printf ("Path not found, creating path.\n");
+		MKDIR (path, 777);
+	}
 
 	if (cfg)
 	{
