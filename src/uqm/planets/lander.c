@@ -50,7 +50,7 @@
 // The PC speed was 30 FPS.
 // Remember that all values need to evenly divide
 // ONE_SECOND.
-// Serosis: I did my own testing using DOSBox
+// I did my own testing using DOSBox
 // comparing speeds frame-by-frame and I came
 // up with 42 FPS. Can be changed later if it
 // causes any trouble.

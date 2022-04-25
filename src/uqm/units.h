@@ -148,7 +148,7 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 #define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE (16))) 
 
 // Original (and now broken) Hyperspace speed factors
-// Serosis: Now being utilized to load Vanilla saves properly
+// Now being utilized to load Vanilla saves properly
 #define SECTOR_WIDTH 195
 #define SECTOR_HEIGHT 25
 

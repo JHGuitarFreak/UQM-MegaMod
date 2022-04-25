@@ -1241,7 +1241,7 @@ DeltaSISGauges_fuelDelta (SDWORD fuel_delta)
 		// I.E. only 4 (7) characters, we don't need that much extra padding.
 		UNICODE buf[7];
 		RECT r;
-		// Serosis: Cast as a double and divided by FUEL_TANK_SCALE to get a decimal
+		// Cast as a double and divided by FUEL_TANK_SCALE to get a decimal
 		double dblFuelOnBoard = (double)NewCoarseFuel / FUEL_TANK_SCALE;
 
 		if (!optInfiniteFuel) {

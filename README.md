@@ -5,7 +5,7 @@ A fork of The Ur-Quan Masters that remasters the HD mod with a veritable smorgas
 
 A full list of changes and features for the current release can be found on the [Main site](http://megamod.serosis.net/Features).
 
-And the full WIP changelog can be found in the root of this repository: [Changelog](https://github.com/Serosis/UQM-MegaMod/blob/master/MegaMod%20Changelog.txt)
+And the full WIP changelog can be found in the root of this repository: [Changelog](https://github.com/JHGuitarFreak/UQM-MegaMod/blob/master/MegaMod%20Changelog.txt)
 
 ## Motivation
 
@@ -91,7 +91,7 @@ All MegaMod compatible add-ons and content can be found on the main website's Re
 
 ## Contributors
 
-Me (Serosis), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, and Jordan Lo.
+Me (Kohr-Ah Death), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, and Jordan Lo.
 
 The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: http://star-control.com/fan/music/Various/saibuster-hyprespace.mp3, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music/Rush/HSpace%20Rush%20MIX.mp3
 

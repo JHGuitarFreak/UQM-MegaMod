@@ -1816,7 +1816,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 	}
 	else
-	{	// Serosis: Anything higher than bilinear in HD is a massive
+	{	// Anything higher than bilinear in HD is a massive
 		// performance hit with no visual benefit
 		if (opts->scaler > OPTVAL_NO_SCALE)
 		{
@@ -1946,7 +1946,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 	}
 
-	// Serosis: To force the game to reload content when changing music, video, and speech options
+	// To force the game to reload content when changing music, video, and speech options
  	if ((opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
 		(opts->intro != (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC) ||
 		(opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
@@ -2177,7 +2177,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	else
 	{
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-		// Serosis: Force the usage of no filter in 1280x960 windowed mode.
+		// Force the usage of no filter in 1280x960 windowed mode.
 		// While forcing the usage of bilinear filter in scaled windowed modes.
 		if (IS_HD)
 		{

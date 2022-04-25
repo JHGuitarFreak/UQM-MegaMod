@@ -908,7 +908,7 @@ EncounterBattle (void)
 	if(DIF_EASY)
 		PlayerControl[1] = CYBORG_CONTROL | STANDARD_RATING;
 
-	// PlayerControl[1] = HUMAN_CONTROL | STANDARD_RATING; // Serosis: Yes, you can make Adventure mode 2-player
+	// PlayerControl[1] = HUMAN_CONTROL | STANDARD_RATING; // Yes, you can make Adventure mode 2-player
 
 	GameSounds = CaptureSound (LoadSound (GAME_SOUNDS));
 
