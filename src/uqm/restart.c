@@ -143,7 +143,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 
 	t.align = ALIGN_CENTER;
 	t.baseline.x = s.origin.x;
-	t.baseline.y = s.origin.y - RES_SCALE (18);
+	t.baseline.y = s.origin.y - RES_SCALE (20);
 
 	for (i = 0; i <= 2; i++)
 	{

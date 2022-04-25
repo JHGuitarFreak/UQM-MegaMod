@@ -32,10 +32,6 @@
 #include "libs/graphics/font.h"
 #include "libs/file.h"
 		// for fileExists2()
-#include "uqm/nameref.h"
-		// for LoadString()
-#include "uqm/ifontres.h"
-		// for FONT_CFG_NAME
 
 
 typedef struct anidata
@@ -116,11 +112,10 @@ process_image (FRAME FramePtr, TFB_Canvas img[], AniData *ani, int cel_ct)
 }
 
 static void
-processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, BYTE char_space)
+processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, FONT fontPtr)
 {
 	BYTE* newdata;
 	size_t dpitch;
-	int tune_amount = 0;
 
 	TFB_DrawCanvas_GetExtent (canvas, &CharPtr->extent);
 
@@ -135,21 +130,26 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, BYTE char_space)
 	CharPtr->disp.width = CharPtr->extent.width;
 	CharPtr->disp.height = CharPtr->extent.height;
 
-	if (char_space > 0)
-		tune_amount = char_space;
-	else
-	{	// This tunes the font positioning to be about what it should
-		// TODO: prolly needs a little tweaking still
-		if (CharPtr->extent.height <= RES_SCALE (8))
-			tune_amount = RES_SCALE (1);
-		else if (CharPtr->extent.height == RES_SCALE (9))
-			tune_amount = RES_SCALE (2);
-		else if (CharPtr->extent.height > RES_SCALE (9))
-			tune_amount = RES_SCALE (3);
-	}
+	{
+		int tune_amount = 0;
+		int leading = fontPtr->Leading;
 
-	CharPtr->HotSpot = MAKE_HOT_SPOT (0,
-			CharPtr->extent.height - tune_amount);
+		if (fontPtr->CharSpace > 1)
+			tune_amount = fontPtr->CharSpace;
+		else
+		{	// This tunes the font positioning to be about what it should
+			// TODO: prolly needs a little tweaking still
+			if (CharPtr->extent.height <= RES_SCALE (8))
+				tune_amount = RES_SCALE (1);
+			else if (CharPtr->extent.height == RES_SCALE (9))
+				tune_amount = RES_SCALE (2);
+			else if (CharPtr->extent.height > RES_SCALE (9))
+				tune_amount = RES_SCALE (3);
+		}
+
+		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
+				CharPtr->extent.height - tune_amount);
+	}
 }
 
 void *
@@ -371,7 +371,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	FONT fontPtr = NULL;
 	char *basename;
 	BOOLEAN HaveFData = FALSE;
-	char *cfg_name = LoadString (FONT_CFG_NAME);
+	const char *cfg_name = "data.cfg";
 
 	if (_cur_resfile_name == 0)
 		goto err;
@@ -598,7 +598,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 						continue;
 					}
 					
-					processFontChar (destChar, bcd->canvas, fontPtr->CharSpace);
+					processFontChar (destChar, bcd->canvas, fontPtr);
 					TFB_DrawCanvas_Delete (bcd->canvas);
 
 					if (destChar->disp.height > fontPtr->disp.height)
@@ -614,7 +614,10 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	}
 
 	if (!HaveFData)
+	{
 		fontPtr->Leading = fontPtr->disp.height + RES_SCALE (1);
+		fontPtr->CharSpace = RES_SCALE (1);
+	}
 
 	HFree (bcds);
 

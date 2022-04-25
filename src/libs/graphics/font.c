@@ -235,12 +235,7 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 				if (y > bot_y)
 					bot_y = y;
 
-				width += charFrame->disp.width;
-
-				if (FontPtr->CharSpace > 0)
-					width += FontPtr->CharSpace;
-				else
-					width += RES_SCALE (1);
+				width += charFrame->disp.width + FontPtr->CharSpace;
 
 				if (num_chars && FontPtr->KernTab[ch] != NULL
 						&& !(FontPtr->KernTab[ch]
@@ -257,10 +252,7 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 			if (pdelta[-1] > 0)
 			{
 				--pdelta[-1];
-				if (FontPtr->CharSpace > 0)
-					width -= FontPtr->CharSpace;
-				else
-					width -= RES_SCALE (1);
+				width -= FontPtr->CharSpace;
 			}
 
 			if (lpText->align == ALIGN_LEFT)
@@ -344,12 +336,7 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 						ctxOrigin);
 			}
 
-			origin.x += fontChar->disp.width;
-
-			if (FontPtr->CharSpace > 0)
-				origin.x += FontPtr->CharSpace;
-			else
-				origin.x += RES_SCALE (1);
+			origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
 			if (num_chars && FontPtr->KernTab[ch] != NULL
 					&& !(FontPtr->KernTab[ch]

@@ -18,4 +18,3 @@
 #define STARCON_FONT_FB "font.starcon.fb"
 #define STARCON_FONT_HD "font.starcon.hd"
 #define COMPUTER_FONT "comm.computer.font"
-#define FONT_CFG_NAME "font.config.name"
