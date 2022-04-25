@@ -401,9 +401,9 @@ PrintCoarseScan3DO (void)
 	SetContextFont (MicroFont);
 	font_DrawText (&t);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 12)
+#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15)
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y RES_SCALE (25 + 14)
+#define SCAN_BASELINE_Y RES_SCALE (25 + 12)
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
