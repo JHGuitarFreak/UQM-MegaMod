@@ -129,16 +129,15 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, FONT fontPtr)
 	CharPtr->pitch = dpitch;
 	CharPtr->disp.width = CharPtr->extent.width;
 	CharPtr->disp.height = CharPtr->extent.height;
-
+	
 	{
-		int tune_amount = 0;
-		int leading = fontPtr->Leading;
+		// This tunes the font positioning to be about what it should
+		// TODO: prolly needs a little tweaking still
 
-		if (fontPtr->CharSpace > 1)
-			tune_amount = fontPtr->CharSpace;
-		else
-		{	// This tunes the font positioning to be about what it should
-			// TODO: prolly needs a little tweaking still
+		int tune_amount = 0;
+
+		if (!fontPtr->HaveFntData)
+		{
 			if (CharPtr->extent.height <= RES_SCALE (8))
 				tune_amount = RES_SCALE (1);
 			else if (CharPtr->extent.height == RES_SCALE (9))
@@ -146,6 +145,8 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, FONT fontPtr)
 			else if (CharPtr->extent.height > RES_SCALE (9))
 				tune_amount = RES_SCALE (3);
 		}
+		else
+			tune_amount = fontPtr->VertAlign;
 
 		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
 				CharPtr->extent.height - tune_amount);
@@ -371,7 +372,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	FONT fontPtr = NULL;
 	char *basename;
 	BOOLEAN HaveFData = FALSE;
-	const char *cfg_name = "data.cfg";
+	const char *cfg_name = "kerndat.fnt";
 
 	if (_cur_resfile_name == 0)
 		goto err;
@@ -465,6 +466,8 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	if (fontPtr == NULL)
 		goto err;
 
+	fontPtr->HaveFntData = FALSE;
+
 	if (fileExists2 (fontDirHandle, cfg_name))
 	{
 		uio_Stream *cfgFile =
@@ -509,10 +512,10 @@ _GetFontData (uio_Stream *fp, DWORD length)
 				else
 				{
 					char filename[PATH_MAX];
-					int leading, char_space, kern_amount;
+					int leading, char_space, kern_amount, vertalign;
 
-					if (sscanf (CurrentLine, "%s %d %d %d", filename, &leading,
-							&char_space, &kern_amount) == 4)
+					if (sscanf (CurrentLine, "%s %d %d %d %d", filename, &leading,
+							&char_space, &kern_amount, &vertalign) == 5)
 					{
 						snprintf (
 								fontPtr->filename,
@@ -521,8 +524,8 @@ _GetFontData (uio_Stream *fp, DWORD length)
 						fontPtr->Leading = leading;
 						fontPtr->CharSpace = char_space;
 						fontPtr->KernAmount = kern_amount;
-
-						HaveFData = TRUE;
+						fontPtr->VertAlign = vertalign;
+						fontPtr->HaveFntData = TRUE;
 					}
 					else
 						break;
@@ -613,7 +616,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		*pageEndPtr = NULL;
 	}
 
-	if (!HaveFData)
+	if (!fontPtr->HaveFntData)
 	{
 		fontPtr->Leading = fontPtr->disp.height + RES_SCALE (1);
 		fontPtr->CharSpace = RES_SCALE (1);

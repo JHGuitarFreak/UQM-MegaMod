@@ -812,6 +812,7 @@ init_talkpet_comm (void)
 			// generalised in the future.
 
 	talkpet_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	talkpet_desc.AlienTextBaseline.y = 0;
 	talkpet_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)

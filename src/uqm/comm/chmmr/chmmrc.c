@@ -665,6 +665,7 @@ init_chmmr_comm (void)
 	}
 
 	chmmr_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	chmmr_desc.AlienTextBaseline.y = 0;
 	chmmr_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_peace);

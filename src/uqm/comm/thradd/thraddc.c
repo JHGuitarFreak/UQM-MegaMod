@@ -979,6 +979,7 @@ init_thradd_comm (void)
 			// generalised in the future.
 
 	thradd_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	thradd_desc.AlienTextBaseline.y = 0;
 	thradd_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (THRADD_MANNER)

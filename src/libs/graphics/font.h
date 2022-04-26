@@ -58,6 +58,8 @@ struct font_desc
 	BYTE CharSpace;
 	BYTE KernAmount;
 	BYTE KernTab[MAX_UNICODE];
+	SBYTE VertAlign;
+	BOOLEAN HaveFntData;
 };
 
 #define CHAR_DESCPTR PCHAR_DESC

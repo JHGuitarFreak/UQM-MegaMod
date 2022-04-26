@@ -1176,6 +1176,7 @@ init_syreen_comm (void)
 			// generalised in the future.
 
 	syreen_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	syreen_desc.AlienTextBaseline.y = 0;
 	syreen_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_peace);

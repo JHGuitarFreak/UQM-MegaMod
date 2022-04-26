@@ -548,7 +548,9 @@ init_slyland_comm (void)
 	slylandro_desc.post_encounter_func = post_slyland_enc;
 	slylandro_desc.uninit_encounter_func = uninit_slyland;
 
-	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	slylandro_desc.AlienTextBaseline.x =
+			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	slylandro_desc.AlienTextBaseline.y = 0;
 	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_hostile);

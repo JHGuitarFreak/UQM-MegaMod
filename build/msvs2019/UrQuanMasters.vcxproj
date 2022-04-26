@@ -1228,7 +1228,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\doc\devel\kerndatacfg" />
+    <Text Include="..\..\doc\devel\fntformat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
