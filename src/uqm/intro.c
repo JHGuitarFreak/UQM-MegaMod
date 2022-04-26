@@ -37,35 +37,6 @@
 
 static BOOLEAN ShowSlidePresentation (STRING PresStr);
 
-const RESOURCE ditties[25] =
-{
-	"ship.androsynth.ditty",
-	"ship.arilou.ditty",
-	"ship.chenjesu.ditty",
-	"ship.chmmr.ditty",
-	"ship.druuge.ditty",
-	"ship.earthling.ditty",
-	"ship.ilwrath.ditty",
-	"ship.kohrah.ditty",
-	"ship.melnorme.ditty",
-	"ship.mmrnmhrm.ditty",
-	"ship.mycon.ditty",
-	"ship.orz.ditty",
-	"ship.pkunk.ditty",
-	"ship.shofixti.ditty",
-	"ship.slylandro.ditty",
-	"ship.spathi.ditty",
-	"ship.supox.ditty",
-	"ship.syreen.ditty",
-	"ship.thraddash.ditty",
-	"ship.umgah.ditty",
-	"ship.urquan.ditty",
-	"ship.utwig.ditty",
-	"ship.vux.ditty",
-	"ship.yehat.ditty",
-	"ship.zoqfotpik.ditty"
-};
-
 typedef struct
 {
 	/* standard state required by DoInput */
@@ -381,8 +352,8 @@ DoPresentation (void *pIS)
 			int w, h;
 			if (2 == sscanf (pStr, "%d %d", &w, &h))
 			{
-				w <<= RESOLUTION_FACTOR; 
-				h <<= RESOLUTION_FACTOR; 
+				w <<= RESOLUTION_FACTOR;
+				h <<= RESOLUTION_FACTOR;
 
 				pPIS->clip_r.extent.width = w;
 				pPIS->clip_r.extent.height = h;
@@ -607,7 +578,7 @@ DoPresentation (void *pIS)
 			switch (pPIS->TextVPos)
 			{
 			case 'T': /* top */
-				y = leading + IF_HD (15);
+				y = leading / pPIS->LinesCount + leading;
 				break;
 			case 'M': /* middle */
 				y = (pPIS->clip_r.extent.height
@@ -617,8 +588,8 @@ DoPresentation (void *pIS)
 				y = pPIS->clip_r.extent.height - pPIS->LinesCount * leading;
 			}
 			pPIS->tfade_r = pPIS->clip_r;
-			pPIS->tfade_r.corner.y += y - leading;
-			pPIS->tfade_r.extent.height = (pPIS->LinesCount + 1) * leading;
+			pPIS->tfade_r.corner.y = 0;
+			pPIS->tfade_r.extent.height = SCREEN_HEIGHT;
 			for (i = 0; i < pPIS->LinesCount; ++i, y += leading)
 			{
 				pPIS->TextLines[i].align = ALIGN_CENTER;
@@ -711,8 +682,8 @@ DoPresentation (void *pIS)
 				y = 0;
 			}
 
-			x <<= RESOLUTION_FACTOR; 
-			y <<= RESOLUTION_FACTOR; 
+			x <<= RESOLUTION_FACTOR;
+			y <<= RESOLUTION_FACTOR;
 
 			s.frame = NULL;
 			if (draw_what == PRES_DRAW_INDEX)
