@@ -30,8 +30,6 @@
 #include "libs/graphics/tfb_draw.h"
 #include "libs/graphics/drawable.h"
 #include "libs/graphics/font.h"
-#include "libs/file.h"
-		// for fileExists2()
 
 
 typedef struct anidata
@@ -371,7 +369,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	uio_MountHandle *fontMount = NULL;
 	FONT fontPtr = NULL;
 	char *basename;
-	BOOLEAN HaveFData = FALSE;
+	uio_Stream *cfgFile;
 	const char *cfg_name = "kerndat.fnt";
 
 	if (_cur_resfile_name == 0)
@@ -468,78 +466,74 @@ _GetFontData (uio_Stream *fp, DWORD length)
 
 	fontPtr->HaveFntData = FALSE;
 
-	if (fileExists2 (fontDirHandle, cfg_name))
+	cfgFile = uio_fopen (fontDirHandle, cfg_name, "r");
+
+	if (cfgFile)
 	{
-		uio_Stream *cfgFile =
-				uio_fopen (fontDirHandle, cfg_name, "r");
+		char *CurrentLine[PATH_MAX];
+		int cel_index = 0;
+		int cel_total = 0;
+		DWORD opos = 0;
 
-		if (cfgFile)
+		uio_fseek (cfgFile, opos, SEEK_SET);
+		while (uio_fgets (CurrentLine, sizeof (CurrentLine), cfgFile))
 		{
-			char *CurrentLine[PATH_MAX];
-			int cel_index = 0;
-			int cel_total = 0;
-			DWORD opos = 0;
+			++cel_total;
+			if (cel_total == MAX_UNICODE)
+				break;
+		}
 
-			uio_fseek (cfgFile, opos, SEEK_SET);
-			while (uio_fgets (CurrentLine, sizeof (CurrentLine), cfgFile))
+		uio_fseek (cfgFile, opos, SEEK_SET);
+		while (uio_fgets (
+				CurrentLine, sizeof (CurrentLine),
+				cfgFile) && cel_index < cel_total)
+		{
+			if (cel_index > 0)
 			{
-				++cel_total;
-				if (cel_total == MAX_UNICODE)
-					break;
-			}
+				int KernChar, kernLBits, kernRBits;
 
-			uio_fseek (cfgFile, opos, SEEK_SET);
-			while (uio_fgets (
-					CurrentLine, sizeof (CurrentLine),
-					cfgFile) && cel_index < cel_total)
-			{
-				if (cel_index > 0)
+				if (sscanf (CurrentLine, "%x %d %d", &KernChar,
+						&kernLBits, &kernRBits) == 3)
 				{
-					int KernChar, kernLBits, kernRBits;
+					if (kernLBits > 3 || kernLBits < 0)
+						kernLBits = 3;
+					if (kernRBits > 3 || kernRBits < 0)
+						kernRBits = 3;
 
-					if (sscanf (CurrentLine, "%x %d %d", &KernChar,
-							&kernLBits, &kernRBits) == 3)
-					{
-						if (kernLBits > 3 || kernLBits < 0)
-							kernLBits = 3;
-						if (kernRBits > 3 || kernRBits < 0)
-							kernRBits = 3;
+					fontPtr->KernTab[KernChar] =
+							(kernLBits << 2) | kernRBits;
+				}
+			}
+			else
+			{
+				char filename[PATH_MAX];
+				int leading, char_space, kern_amount, vertalign;
 
-						fontPtr->KernTab[KernChar] =
-								(kernLBits << 2) | kernRBits;
-					}
+				if (sscanf (CurrentLine, "%s %d %d %d %d", filename, &leading,
+						&char_space, &kern_amount, &vertalign) == 5)
+				{
+					snprintf (
+							fontPtr->filename,
+							sizeof (fontPtr->filename), "%s", filename
+						);
+					fontPtr->Leading = leading;
+					fontPtr->CharSpace = char_space;
+					fontPtr->KernAmount = kern_amount;
+					fontPtr->VertAlign = vertalign;
+					fontPtr->HaveFntData = TRUE;
 				}
 				else
-				{
-					char filename[PATH_MAX];
-					int leading, char_space, kern_amount, vertalign;
-
-					if (sscanf (CurrentLine, "%s %d %d %d %d", filename, &leading,
-							&char_space, &kern_amount, &vertalign) == 5)
-					{
-						snprintf (
-								fontPtr->filename,
-								sizeof (fontPtr->filename), "%s", filename
-							);
-						fontPtr->Leading = leading;
-						fontPtr->CharSpace = char_space;
-						fontPtr->KernAmount = kern_amount;
-						fontPtr->VertAlign = vertalign;
-						fontPtr->HaveFntData = TRUE;
-					}
-					else
-						break;
-
-				}
-
-				++cel_index;
-				if (cel_index == MAX_UNICODE)
 					break;
 
-				if ((int)uio_ftell (cfgFile) - (int)opos
-						>= (int)LengthResFile (cfgFile))
-					break;
 			}
+
+			++cel_index;
+			if (cel_index == MAX_UNICODE)
+				break;
+
+			if ((int)uio_ftell (cfgFile) - (int)opos
+					>= (int)LengthResFile (cfgFile))
+				break;
 		}
 
 		uio_fclose (cfgFile);
