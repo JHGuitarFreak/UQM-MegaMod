@@ -134,20 +134,17 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, FONT fontPtr)
 
 		int tune_amount = 0;
 
-		if (!fontPtr->HaveFntData)
-		{
-			if (CharPtr->extent.height <= RES_SCALE (8))
-				tune_amount = RES_SCALE (1);
-			else if (CharPtr->extent.height == RES_SCALE (9))
-				tune_amount = RES_SCALE (2);
-			else if (CharPtr->extent.height > RES_SCALE (9))
-				tune_amount = RES_SCALE (3);
-		}
-		else
+		if (CharPtr->disp.height <= RES_SCALE (8))
+			tune_amount = RES_SCALE (1);
+		else if (CharPtr->disp.height == RES_SCALE (9))
+			tune_amount = RES_SCALE (2);
+		else if (CharPtr->disp.height > RES_SCALE (9))
+			tune_amount = RES_SCALE (3);
+
+		if (fontPtr->HaveFntData)
 			tune_amount = fontPtr->VertAlign;
 
-		CharPtr->HotSpot = MAKE_HOT_SPOT (0,
-				CharPtr->extent.height - tune_amount);
+		CharPtr->HotSpot.y = CharPtr->disp.height - tune_amount;
 	}
 }
 
@@ -247,9 +244,11 @@ _GetCelData (uio_Stream *fp, DWORD length)
 	uio_fseek (aniFile, opos, SEEK_SET);
 	while (uio_fgets (CurrentLine, sizeof (CurrentLine), aniFile) && cel_index < cel_total)
 	{
-		sscanf (CurrentLine, "%s %d %d %d %d", &filename[n], 
-			&ani[cel_index].transparent_color, &ani[cel_index].colormap_index, 
-			&ani[cel_index].hotspot_x, &ani[cel_index].hotspot_y);
+		if (sscanf (CurrentLine, "%s %d %d %d %d", &filename[n],
+				&ani[cel_index].transparent_color,
+				&ani[cel_index].colormap_index,
+				&ani[cel_index].hotspot_x, &ani[cel_index].hotspot_y) != 5)
+			break;
 	
 		img[cel_index] = TFB_DrawCanvas_LoadFromFile (aniDir, filename);
 		if (img[cel_index] == NULL)
@@ -369,7 +368,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	uio_MountHandle *fontMount = NULL;
 	FONT fontPtr = NULL;
 	char *basename;
-	uio_Stream *cfgFile;
+	uio_Stream *cfgFile = 0;
 	const char *cfg_name = "kerndat.fnt";
 
 	if (_cur_resfile_name == 0)
@@ -490,9 +489,9 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		{
 			if (cel_index > 0)
 			{
-				int KernChar, kernLBits, kernRBits;
+				SDWORD KernChar, kernLBits, kernRBits;
 
-				if (sscanf (CurrentLine, "%x %d %d", &KernChar,
+				if (sscanf (CurrentLine, "%x %u %u", &KernChar,
 						&kernLBits, &kernRBits) == 3)
 				{
 					if (kernLBits > 3 || kernLBits < 0)
@@ -506,25 +505,15 @@ _GetFontData (uio_Stream *fp, DWORD length)
 			}
 			else
 			{
-				char filename[PATH_MAX];
-				int leading, char_space, kern_amount, vertalign;
-
-				if (sscanf (CurrentLine, "%s %d %d %d %d", filename, &leading,
-						&char_space, &kern_amount, &vertalign) == 5)
+				if (sscanf (CurrentLine, "%s %hhu %hhu %hhu %hhd",
+						fontPtr->filename, &fontPtr->Leading,
+						&fontPtr->CharSpace, &fontPtr->KernAmount,
+						&fontPtr->VertAlign) == 5)
 				{
-					snprintf (
-							fontPtr->filename,
-							sizeof (fontPtr->filename), "%s", filename
-						);
-					fontPtr->Leading = leading;
-					fontPtr->CharSpace = char_space;
-					fontPtr->KernAmount = kern_amount;
-					fontPtr->VertAlign = vertalign;
 					fontPtr->HaveFntData = TRUE;
 				}
 				else
 					break;
-
 			}
 
 			++cel_index;
@@ -535,7 +524,6 @@ _GetFontData (uio_Stream *fp, DWORD length)
 					>= (int)LengthResFile (cfgFile))
 				break;
 		}
-
 		uio_fclose (cfgFile);
 	}
 
