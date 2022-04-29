@@ -292,6 +292,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	{
 		DestroyFont (TinyFont);
 		DestroyFont (PlyrFont);
+		DestroyFont (StarConFont);
 		if (pMS->CurFrame)
 		{
 			DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
@@ -306,6 +307,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		{
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
+			StarConFont = LoadFont (STARCON_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (
@@ -317,6 +319,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		{
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
+			StarConFont = LoadFont (STARCON_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
 			pMS->CurFrame = CaptureDrawable (
