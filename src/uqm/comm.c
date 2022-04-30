@@ -554,7 +554,7 @@ getLineWithinWidth(TEXT *pText, const char **startNext,
 
 	//GetContextClipRect (&rect);
 
-	eol = FALSE;	
+	eol = FALSE;
 	done = FALSE;
 	oldCount = 1;
 	charCount = 0;
