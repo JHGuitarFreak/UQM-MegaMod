@@ -127,6 +127,7 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, FONT fontPtr)
 	CharPtr->pitch = dpitch;
 	CharPtr->disp.width = CharPtr->extent.width;
 	CharPtr->disp.height = CharPtr->extent.height;
+	CharPtr->HotSpot.x = 0;
 	
 	{
 		// This tunes the font positioning to be about what it should
@@ -367,14 +368,11 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	uio_DirHandle *fontDirHandle = NULL;
 	uio_MountHandle *fontMount = NULL;
 	FONT fontPtr = NULL;
-	char *basename;
 	uio_Stream *cfgFile = 0;
 	const char *cfg_name = "kerndat.fnt";
 
 	if (_cur_resfile_name == 0)
 		goto err;
-
-	basename = strrchr (_cur_resfile_name, '/') + 1;
 
 	if (fp != (uio_Stream*)~0)
 	{
@@ -463,8 +461,6 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	if (fontPtr == NULL)
 		goto err;
 
-	fontPtr->HaveFntData = FALSE;
-
 	cfgFile = uio_fopen (fontDirHandle, cfg_name, "r");
 
 	if (cfgFile)
@@ -530,7 +526,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	uio_closeDir (fontDirHandle);
 	DestroyDirEntryTable (ReleaseDirEntryTable (fontDir));
 	if (fontMount != 0)
-		uio_unmountDir(fontMount);
+		uio_unmountDir (fontMount);
 
 #if 0
 	if (numBCDs == 0)
