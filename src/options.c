@@ -58,6 +58,7 @@ unsigned int loresBlowupScale;
 unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
+unsigned int aspectRatio;
 
 // Added options
 BOOLEAN optRequiresReload;

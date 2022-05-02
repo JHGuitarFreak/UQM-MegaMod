@@ -147,8 +147,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(float, sfxVolumeScale);
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
 	DECL_CONFIG_OPTION(bool, safeMode);
-	DECL_CONFIG_OPTION(int,  resolutionFactor); 
-	DECL_CONFIG_OPTION(int,  loresBlowupScale); 
+	DECL_CONFIG_OPTION(int,  resolutionFactor);
+	DECL_CONFIG_OPTION(int,  loresBlowupScale);
  	DECL_CONFIG_OPTION(bool, cheatMode);
 	DECL_CONFIG_OPTION(int,  optPrecursorMode);
 	DECL_CONFIG_OPTION(int,  timeDilationScale);
@@ -200,6 +200,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, meleeObstacles);
 	DECL_CONFIG_OPTION(bool, showVisitedStars);
 	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
+	DECL_CONFIG_OPTION(int,  aspectRatio);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -403,7 +404,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  deCleansing,       false ),
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
-		INIT_CONFIG_OPTION(  unscaledStarSystem,    false ),
+		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
+		INIT_CONFIG_OPTION(  aspectRatio,       0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -568,6 +570,7 @@ main (int argc, char *argv[])
 	
 	resolutionFactor = (unsigned int) options.resolutionFactor.value;
 	loresBlowupScale = (unsigned int) options.loresBlowupScale.value;
+	aspectRatio = (unsigned int) options.aspectRatio.value;
 	
 	optPrecursorMode = options.optPrecursorMode.value;
 	timeDilationScale = options.timeDilationScale.value;
@@ -658,7 +661,8 @@ main (int argc, char *argv[])
 	if (options.showFps.value)
 		gfxFlags |= TFB_GFXFLAGS_SHOWFPS;
 	TFB_InitGraphics (gfxDriver, gfxFlags, options.graphicsBackend,
-			options.resolution.width, options.resolution.height, &resolutionFactor);
+			options.resolution.width, options.resolution.height,
+			&resolutionFactor, &aspectRatio);
 	if (options.gamma.set && setGammaCorrection (options.gamma.value))
 		optGamma = options.gamma.value;
 	else
@@ -917,8 +921,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->stereoSFX, "config.positionalsfx");
 	getVolumeConfigValue (&options->musicVolumeScale, "config.musicvol");
 	getVolumeConfigValue (&options->sfxVolumeScale, "config.sfxvol");
-	getVolumeConfigValue (&options->speechVolumeScale, "config.speechvol");
-	
+	getVolumeConfigValue (&options->speechVolumeScale, "config.speechvol");	
 	
 	if (res_IsInteger ("config.resolutionfactor") && !options->resolutionFactor.set)
 	{
@@ -926,11 +929,16 @@ getUserConfigOptions (struct options_struct *options)
 		options->resolutionFactor.set = true;
 	}
 	
-	
 	if (res_IsInteger ("config.loresBlowupScale"))
 	{
 		options->loresBlowupScale.value = res_GetInteger ("config.loresBlowupScale");
 		options->loresBlowupScale.set = true;
+	}
+
+	if (res_IsInteger ("config.aspectRatio") && !options->aspectRatio.set)
+	{
+		options->aspectRatio.value = res_GetInteger ("config.aspectRatio");
+		options->aspectRatio.set = true;
 	}
 
 	getBoolConfigValue (&options->cheatMode, "cheat.kohrStahp");

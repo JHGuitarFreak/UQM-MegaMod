@@ -42,6 +42,9 @@ extern int ScreenHeight;
 #define RES_TRP(a) (RES_BOOL ((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
+#define ASPECT_RATIO aspectRatio
+#define IS_WS (ASPECT_RATIO != 1 ? FALSE : TRUE)
+
 		/* Margins. */
 #define SIS_ORG_X RES_SCALE (6)
 #define SIS_ORG_Y RES_SCALE (9)

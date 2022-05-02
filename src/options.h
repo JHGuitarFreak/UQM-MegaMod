@@ -45,6 +45,7 @@ extern unsigned int loresBlowupScale;
 extern unsigned int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
+extern unsigned int aspectRatio;
 
 // Added options
 extern BOOLEAN optRequiresReload;

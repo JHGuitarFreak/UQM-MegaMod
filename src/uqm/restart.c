@@ -474,6 +474,7 @@ DoRestart (MENU_STATE *pMS)
 	{
 		//BYTE fade_buf[1];
 		COUNT oldresfactor;
+		COUNT oldAspectRatio;
 
 		switch (pMS->CurState)
 		{
@@ -534,6 +535,7 @@ DoRestart (MENU_STATE *pMS)
 				break;
 			case SETUP_GAME:
 				oldresfactor = resolutionFactor;
+				oldAspectRatio = aspectRatio;
 
 				Flash_terminate (pMS->flashContext);
 				SetupMenu ();

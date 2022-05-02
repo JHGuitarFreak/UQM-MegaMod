@@ -561,7 +561,7 @@ SetDefaults (void)
 	choices[20].selected = 0;
 	choices[21].selected = opts.musicremix;
 	choices[22].selected = opts.speech;
-	choices[23].selected = opts.keepaspect;
+	choices[23].selected = opts.realAspectRatio;
  	choices[24].selected = opts.cheatMode;
 	choices[25].selected = opts.precursorMode;
 	choices[26].selected = opts.tdType;
@@ -651,7 +651,7 @@ PropagateResults (void)
 	opts.player2 = choices[19].selected;
 	opts.musicremix = choices[21].selected;
 	opts.speech = choices[22].selected;
-	opts.keepaspect = choices[23].selected;
+	opts.realAspectRatio = choices[23].selected;
  	opts.cheatMode = choices[24].selected;
 	opts.precursorMode = choices[25].selected;
 	opts.tdType = choices[26].selected;
@@ -1666,9 +1666,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	if (!IS_HD)
 	{
-		switch (ScreenWidthActual)
+		switch (ScreenHeightActual)
 		{
-			case 320:
+			case 240:
 				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
 				{
 					opts->screenResolution = OPTVAL_320_240;
@@ -1679,7 +1679,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 					opts->driver = OPTVAL_ALWAYS_GL;
 				}
 				break;
-			case 640:
+			case 480:
 				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
 				{
 					opts->screenResolution = OPTVAL_320_240;
@@ -1692,19 +1692,19 @@ GetGlobalOptions (GLOBALOPTS *opts)
 					opts->driver = OPTVAL_ALWAYS_GL;
 				}
 				break;
-			case 960:
+			case 720:
 				opts->screenResolution = OPTVAL_320_240;
 				opts->loresBlowup = OPTVAL_SCALE_960_720;
 				break;
-			case 1280:
+			case 960:
 				opts->screenResolution = OPTVAL_320_240;
 				opts->loresBlowup = OPTVAL_SCALE_1280_960;
 				break;
-			case 1600:
+			case 1200:
 				opts->screenResolution = OPTVAL_320_240;
 				opts->loresBlowup = OPTVAL_SCALE_1600_1200;
 				break;
-			case 1920:
+			case 1440:
 				opts->screenResolution = OPTVAL_320_240;
 				opts->loresBlowup = OPTVAL_SCALE_1920_1440;
 				break;
@@ -1716,25 +1716,25 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	}
 	else
 	{	// HD - 1280x960
-		switch (ScreenWidthActual)
+		switch (ScreenHeightActual)
 		{
-			case 640:
+			case 480:
 				opts->screenResolution = OPTVAL_REAL_1280_960;
 				opts->loresBlowup = OPTVAL_SCALE_640_480;
 				break;
-			case 960:
+			case 720:
 				opts->screenResolution = OPTVAL_REAL_1280_960;
 				opts->loresBlowup = OPTVAL_SCALE_960_720;
 				break;
-			case 1600:
+			case 1200:
 				opts->screenResolution = OPTVAL_REAL_1280_960;
 				opts->loresBlowup = OPTVAL_SCALE_1600_1200;
 				break;
-			case 1920:
+			case 1440:
 				opts->screenResolution = OPTVAL_REAL_1280_960;
 				opts->loresBlowup = OPTVAL_SCALE_1920_1440;
 				break;
-			case 1280:
+			case 960:
 			default:
 				opts->screenResolution = OPTVAL_REAL_1280_960;
 				opts->loresBlowup = OPTVAL_SCALE_1280_960;
@@ -1751,14 +1751,24 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewDriver = GraphicsDriver;
 	int SeedStuff;
 	
-	unsigned int oldResFactor = resolutionFactor; 
+	unsigned int oldResFactor = resolutionFactor;
+	unsigned int oldAspectRatio = aspectRatio;
 
-	NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
+	NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;	
 	
-	
-	switch (opts->screenResolution) {
+	switch (opts->screenResolution)
+	{
 		case OPTVAL_320_240:
-			NewWidth = 320;
+			if (opts->realAspectRatio == OPTVAL_4_BY_3)
+			{
+				NewWidth = 320;
+				aspectRatio = OPTVAL_4_BY_3;
+			}
+			else
+			{
+				NewWidth = 427;
+				aspectRatio = OPTVAL_16_BY_9;
+			}
 			NewHeight = 240;
 #ifdef HAVE_OPENGL	       
 			NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
@@ -1768,7 +1778,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			resolutionFactor = 0;
 			break;
 		case OPTVAL_REAL_1280_960:
-			NewWidth = 1280;
+			if (opts->realAspectRatio == OPTVAL_4_BY_3)
+			{
+				NewWidth = 1280;
+				aspectRatio = OPTVAL_4_BY_3;
+			}
+			else
+			{
+				NewWidth = 1707;
+				aspectRatio = OPTVAL_16_BY_9;
+			}
 			NewHeight = 960;
 #ifdef HAVE_OPENGL	       
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1779,11 +1798,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 		default:
 			/* Don't mess with the custom value */
-			resolutionFactor = 0; 
+			resolutionFactor = 0;
 			break;
 	}
 
-	if (NewWidth == 320 && NewHeight == 240)
+	if ((NewWidth == 320 || NewWidth == 427)&& NewHeight == 240)
 	{	// MB: Moved code to here to make it work with 320x240 resolutions
 		// before opts->loresBlowup switch after
 		switch (opts->scaler)
@@ -1827,14 +1846,24 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			res_PutString ("config.scaler", "no");
 	}
 
-	if (NewWidth == 320 && NewHeight == 240)
+	if ((NewWidth == 320 || NewWidth == 427) && NewHeight == 240)
 	{	
-		switch (opts->loresBlowup) {
+		switch (opts->loresBlowup)
+		{
 			case NO_BLOWUP:
 				// JMS: Default value: Don't do anything.
 				break;
 			case OPTVAL_SCALE_640_480:
-				NewWidth = 640;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 640;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 853;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 480;
 #ifdef HAVE_OPENGL	       
 				NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
@@ -1844,7 +1873,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_960_720:
-				NewWidth = 960;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 960;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 1280;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 720;
 #ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1854,7 +1892,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1280_960:
-				NewWidth = 1280;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 1280;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 1707;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 960;
 #ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1864,7 +1911,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1600_1200:
-				NewWidth = 1600;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 1600;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 2133;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 1200;
 #ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1874,7 +1930,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				resolutionFactor = 0;
 				break;
 			case OPTVAL_SCALE_1920_1440:
-				NewWidth = 1920;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 1920;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 2560;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 1440;
 #ifdef HAVE_OPENGL	       
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1889,9 +1954,19 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	}
 	else
 	{	
-		switch (opts->loresBlowup) {
+		switch (opts->loresBlowup)
+		{
 			case OPTVAL_SCALE_640_480:
-				NewWidth = 640;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 640;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 853;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 480;
 				resolutionFactor = 2;
 #ifdef HAVE_OPENGL	       
@@ -1901,7 +1976,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 #endif
 				break;
 			case OPTVAL_SCALE_960_720:
-				NewWidth = 960;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 960;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 1280;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 720;
 #ifdef HAVE_OPENGL	       
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1912,7 +1996,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case NO_BLOWUP:
 			case OPTVAL_SCALE_1280_960:
-				NewWidth = 1280;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 1280;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 1707;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 960;
 #ifdef HAVE_OPENGL	       
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1922,7 +2015,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				resolutionFactor = 2;
 				break;
 			case OPTVAL_SCALE_1600_1200:
-				NewWidth = 1600;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 1600;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 2133;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 1200;
 #ifdef HAVE_OPENGL	       
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1932,7 +2034,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				resolutionFactor = 2;
 				break;
 			case OPTVAL_SCALE_1920_1440:
-				NewWidth = 1920;
+				if (opts->realAspectRatio == OPTVAL_4_BY_3)
+				{
+					NewWidth = 1920;
+					aspectRatio = OPTVAL_4_BY_3;
+				}
+				else
+				{
+					NewWidth = 2560;
+					aspectRatio = OPTVAL_16_BY_9;
+				}
 				NewHeight = 1440;
 #ifdef HAVE_OPENGL	       
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1992,6 +2103,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutInteger ("config.resolutionfactor", resolutionFactor);
 	res_PutInteger ("config.loresBlowupScale", opts->loresBlowup);
+	res_PutInteger ("config.aspectRatio", aspectRatio);
 
 	res_PutBoolean ("cheat.kohrStahp", opts->cheatMode == OPTVAL_ENABLED);
 	optCheatMode = opts->cheatMode == OPTVAL_ENABLED;
@@ -2181,7 +2293,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		// While forcing the usage of bilinear filter in scaled windowed modes.
 		if (IS_HD)
 		{
-			if (NewWidth == 1280)
+			if (NewHeight == 960)
 			{
 				NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
 				res_PutString ("config.scaler", "no");
@@ -2210,8 +2322,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		
 		if (optRequiresRestart)
 		{
-			ScreenWidth  = 320 << resolutionFactor;
-			ScreenHeight = 240 << resolutionFactor;
+			ScreenWidth  = (aspectRatio ? 427 : 320) << resolutionFactor;
+			ScreenHeight = (240) << resolutionFactor;
 			
 			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
 				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);

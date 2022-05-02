@@ -58,6 +58,12 @@ typedef enum {
 	OPTVAL_SCALE_1920_1440,
 } OPT_RESSCALER;
 
+typedef enum
+{
+	OPTVAL_4_BY_3,
+	OPTVAL_16_BY_9,
+} OPT_ASPECT;
+
 typedef enum {
 	OPTVAL_PURE_IF_POSSIBLE,
 	OPTVAL_ALWAYS_GL
@@ -122,6 +128,7 @@ typedef struct globalopts_struct {
 	OPT_SCALETYPE scaler;
 	OPT_RESTYPE screenResolution;
 	OPT_RESSCALER loresBlowup;
+	OPT_ASPECT realAspectRatio;
 	OPT_DRIVERTYPE driver;
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;

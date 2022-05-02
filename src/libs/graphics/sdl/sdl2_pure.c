@@ -122,7 +122,8 @@ FindBestRenderDriver (void)
 }
 
 int
-TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
+TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
+		int togglefullscreen, unsigned int resFactor, unsigned int aspectRatio)
 {
 	int i;
 	GraphicsDriver = driver;
@@ -281,18 +282,20 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 }
 
 int
-TFB_Pure_InitGraphics (int driver, int flags, const char* renderer, 
-		int width, int height, unsigned int resFactor)
+TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
+		int width, int height, unsigned int resFactor,
+		unsigned int aspectRatio)
 {
 	log_add (log_Info, "Initializing SDL.");
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");
 
-	ScreenWidth = (320 << resFactor);
+	ScreenWidth = ((aspectRatio ? 427 : 320) << resFactor);
 	ScreenHeight = (240 << resFactor);
 	rendererBackend = renderer;
 
-	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0, resFactor))
+	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0,
+			resFactor, aspectRatio))
 	{
 		log_add (log_Fatal, "Could not initialize video: %s",
 				SDL_GetError ());
