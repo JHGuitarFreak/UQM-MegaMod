@@ -147,6 +147,8 @@ struct planet_orbit
 			// the color of the last used tint
 	Color *TopoColors;
 			// RGBA version of topo image; for 3d planet
+	Color **ScanColors;
+			// RGBA version of scan colors; for 3d planet
 	Color *ScratchArray;
 			// temp RGBA data for whatever transforms (nuked often)
 	FRAME WorkFrame;

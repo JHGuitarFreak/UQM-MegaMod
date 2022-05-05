@@ -186,3 +186,4 @@
 #define YTTRIC_COLOR_TAB "planet.yttric.colortable"
 #define YTTRIC_XLAT_TAB "planet.yttric.translatetable"
 #define ZFPRUINS_STRTAB "text.zfpcolony"
+#define SCAN_COLOR_TAB "planet.scans.colortable"

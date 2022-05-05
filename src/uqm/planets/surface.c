@@ -265,21 +265,17 @@ GenerateRandomLocation (POINT *loc)
 				TRUE, 8 + LOBYTE (rand_val)
 				% (widthHeightPicker (TRUE) - (8 << 1))
 			));
-		loc->y = RES_SCALE (
-			scaleMapDimensions (
-				FALSE, 8 + HIBYTE (rand_val)
-				% (widthHeightPicker (FALSE) - (8 << 1))
-			));
 	}
 	else
 	{
-		loc->x = RES_SCALE (8 + LOBYTE (rand_val) % (SC2_MAP_WIDTH - (8 << 1)));
-		loc->y = RES_SCALE (
+		loc->x = RES_SCALE (8 + LOBYTE (rand_val) % (SC2_MAP_WIDTH - (8 << 1)));		
+		/*loc->y = RES_SCALE(
 			scaleMapDimensions (
 				FALSE, 8 + HIBYTE (rand_val)
 				% (widthHeightPicker (FALSE) - (8 << 1))
-			));
+			));*/
 	}
+	loc->y = RES_SCALE(8 + HIBYTE(rand_val) % (SC2_MAP_HEIGHT - (8 << 1)));
 }
 
 // Returns:

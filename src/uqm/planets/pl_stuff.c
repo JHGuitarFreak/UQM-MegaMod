@@ -104,11 +104,11 @@ DrawDefaultPlanetSphere (void)
 	CONTEXT oldContext;
 
 	oldContext = SetContext (PlanetContext);
-	if (optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC
+	/*if (optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC
 		&& pSolarSysState->Orbit.scanType != NUM_SCAN_TYPES)
 		DrawPCScannedPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
-	else
-		DrawPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
+	else*/
+	DrawPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
 	SetContext (oldContext);
 }
 
