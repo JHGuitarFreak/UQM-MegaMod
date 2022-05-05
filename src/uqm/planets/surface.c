@@ -241,7 +241,7 @@ scaleMapDimensions (BOOLEAN is_width, COORD value)
 {
 	float percentage;
 	int widthOrHeight = is_width ?
-		UQM_MAP_WIDTH : UQM_MAP_HEIGHT;
+		UQM_MAP_WIDTH : SC2_MAP_HEIGHT;
 
 	if (widthOrHeight == widthHeightPicker (is_width))
 		percentage = 1;
@@ -273,7 +273,8 @@ GenerateRandomLocation (POINT *loc)
 	}
 	else
 	{
-		loc->x = RES_SCALE (8 + LOBYTE (rand_val) % (SC2_MAP_WIDTH - (8 << 1)));
+		loc->x = RES_SCALE (8 + LOBYTE (rand_val)
+				% (SC2_MAP_WIDTH - (8 << 1)));
 		loc->y = RES_SCALE (
 			scaleMapDimensions (
 				FALSE, 8 + HIBYTE (rand_val)
