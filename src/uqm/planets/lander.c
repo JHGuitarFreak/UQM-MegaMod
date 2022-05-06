@@ -1498,7 +1498,7 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 
 	while (periods > 0)
 	{
-		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+		RotatePlanetSphere (TRUE, NULL);
 
 		if (GetTimeCounter () >= *TimeIn + ANIM_FRAME_RATE)
 		{
@@ -1532,7 +1532,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 	psNextTime = GetTimeCounter () + PLANET_SIDE_RATE;
 	while (num_frames >= 0)
 	{
-		RotatePlanetSphere (TRUE, &s, TRANSPARENT);
+		RotatePlanetSphere (TRUE, &s);
 
 		Now = GetTimeCounter ();
 

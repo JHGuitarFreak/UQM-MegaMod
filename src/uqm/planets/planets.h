@@ -350,11 +350,12 @@ extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameC
 extern void DrawPlanetSphere (int x, int y);
 extern void DrawDefaultPlanetSphere (void);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame, int offset,
-		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius);
+		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius, BOOLEAN ForIP);
+extern void RerenderPlanetSphere (void);
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
 
 extern void ZoomInPlanetSphere (void);
-extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color);
+extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop);
 
 extern void DrawScannedObjects (BOOLEAN Reversed);
 extern void GeneratePlanetSurface (PLANET_DESC *pPlanetDesc,

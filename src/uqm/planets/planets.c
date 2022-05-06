@@ -594,7 +594,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 static void
 on_input_frame (void)
 {
-	RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+	RotatePlanetSphere (TRUE, NULL);
 }
 
 void

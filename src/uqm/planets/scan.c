@@ -1053,7 +1053,7 @@ DrawPCScannedStuff (COUNT scan)
 						DrawStamp (&s);
 						growth++;
 					}
-					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+					RotatePlanetSphere (TRUE, NULL);
 				}
 				if (growth < NUM_FLASH_COLORS)
 				{	// didn't finish - draw 
@@ -1066,7 +1066,7 @@ DrawPCScannedStuff (COUNT scan)
 				hElement = hNextElement;
 			}
 		}
-		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+		RotatePlanetSphere (TRUE, NULL);
 	}
 	if (hElement)
 	{	// scan aborted - make everything scanned, workaround for singular scan
@@ -1211,8 +1211,11 @@ ScanPlanet (COUNT scanType)
 
 		FlushInput ();
 
+		pSolarSysState->Orbit.scanType = scan;
+		RerenderPlanetSphere();
+
 		if (optScanStyle != OPT_PC)
-		{
+		{			
 			while (i < SCAN_LINES)
 			{
 				if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
@@ -1238,10 +1241,7 @@ ScanPlanet (COUNT scanType)
 						UnbatchGraphics ();
 					}
 				}
-				RotatePlanetSphere (TRUE, NULL,
-					BUILD_COLOR_RGBA (
-						tintColor.r, tintColor.g, tintColor.b, 0x45
-					));
+				RotatePlanetSphere (TRUE, NULL);
 			}
 		}
 		else
@@ -1256,12 +1256,12 @@ ScanPlanet (COUNT scanType)
 			{	// delay between scans
 				TimeOut = GetTimeCounter () + ONE_SECOND;
 				while (GetTimeCounter () < TimeOut && !AnyButtonPress (TRUE))
-					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+					RotatePlanetSphere (TRUE, NULL);
 			}
 			else
 			{	// endless state - mimics PC "Exit Scan"
 				while (!AnyButtonPress (TRUE))
-					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+					RotatePlanetSphere (TRUE, NULL);
 			}
 		}
 
@@ -1279,9 +1279,11 @@ ScanPlanet (COUNT scanType)
 	RepairBackRect (&r);
 
 	SetContext (ScanContext);
+	pSolarSysState->Orbit.scanType = NUM_SCAN_TYPES;
 
 	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)
 	{	// clear the last scan
+		RerenderPlanetSphere ();
 		DrawPlanet (0, BLACK_COLOR);
 		DrawDefaultPlanetSphere ();
 		DrawScannedObjects (FALSE);

@@ -34,6 +34,7 @@
 #include "libs/memlib.h"
 #include "../starmap.h"
 #include "../gendef.h"
+#include "../colors.h"
 #include <math.h>
 #include <time.h>
 
@@ -66,6 +67,7 @@
 		// see bug #885
 
 #define DIFFUSE_BITS 16
+#define IP_DIFFUSE_BITS 15
 #define AA_WEIGHT_BITS 16
 
 #ifndef M_TWOPI
@@ -102,6 +104,13 @@ typedef struct
 {
 	double x, y, z;
 } POINT3;
+
+static const Color tintColors[] =
+{
+	SCAN_MINERAL_TINT_COLOR,
+	SCAN_ENERGY_TINT_COLOR,
+	SCAN_BIOLOGICAL_TINT_COLOR,
+};
 
 void
 TransformColor (Color *c, COUNT scan)
@@ -187,6 +196,7 @@ AdjustColor(Color *c, COUNT scan, COUNT height, COUNT width, SBYTE diff)
 		}
 	}
 }
+
 
 static void
 RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h, BOOLEAN SurfDef)
@@ -832,7 +842,7 @@ calc_ipmap_light(UBYTE val, DWORD dif, int lvf)
 	int i;
 
 	// apply diffusion
-	i = (dif * val) >> DIFFUSE_BITS;
+	i = (dif * val) >> IP_DIFFUSE_BITS;
 	// apply light variance for 3d lighting effect
 	i += (lvf * val) >> 7;
 
@@ -850,6 +860,17 @@ get_map_pixel (Color *pixels, int x, int y, COUNT width, COUNT spherespanx)
 	/*if (y * (width + spherespanx) + x > 463000)
 		log_add(log_Warning,"x:%u, y:%u, width:%u, spherespanx:%u, slot:%u. Max:%u", x, y, width, spherespanx, y * (width + spherespanx) + x, (MAP_HEIGHT+1) * (MAP_WIDTH + spherespanx)); */
 	return pixels[y * (width + spherespanx) + x];
+}
+
+static inline Color
+apply_alpha_pixel(Color pix, int scan)
+{
+	Color c;
+	c.r = (tintColors[scan].r * 0x45 / 0xFF) + (pix.r * 0xFF * (0xFF - 0x45) / (255 * 255));
+	c.g = (tintColors[scan].g * 0x45 / 0xFF) + (pix.g * 0xFF * (0xFF - 0x45) / (255 * 255));
+	c.b = (tintColors[scan].b * 0x45 / 0xFF) + (pix.b * 0xFF * (0xFF - 0x45) / (255 * 255));
+
+	return c;
 }
 
 static inline int
@@ -897,7 +918,7 @@ adjust_contrast (Color c)
 // offset is effectively the angle of rotation around the planet's axis
 // We use the SDL routines to directly write to the SDL_Surface to improve performance
 void
-RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius)
+RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius, BOOLEAN ForIP)
 {
 	POINT pt;
 	Color *pix;
@@ -1001,13 +1022,28 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset, BOOLEAN sh
 			} 
 			else 
 			{
-				c.r = calc_map_light (c.r, diffus, lvf);
-				c.g = calc_map_light (c.g, diffus, lvf);
-				c.b = calc_map_light (c.b, diffus, lvf);
+				if ((optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC
+						&& Orbit->scanType < NUM_SCAN_TYPES) || ForIP)
+				{// making scan spheres a bit brighter (and IP for experiment)
+					c.r = calc_ipmap_light(c.r, diffus, lvf);
+					c.g = calc_ipmap_light(c.g, diffus, lvf);
+					c.b = calc_ipmap_light(c.b, diffus, lvf);
+				}
+				else
+				{
+					c.r = calc_map_light(c.r, diffus, lvf);
+					c.g = calc_map_light(c.g, diffus, lvf);
+					c.b = calc_map_light(c.b, diffus, lvf);
+				}				
 			}
 
 			c.a = 0xff;
-			*pix = c;
+
+			if (optScanStyle == OPT_3DO && optTintPlanSphere == OPT_PC
+					&& Orbit->scanType < NUM_SCAN_TYPES)
+				*pix = apply_alpha_pixel(c, Orbit->scanType);
+			else
+				*pix = c;
 		}
 	}
 	
@@ -2350,9 +2386,9 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame, COUNT width
 	{	// convert topo data to a light map, based on relative
 		// map point elevations
 		if (solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED)
-			memset (Orbit->lpTopoData, 0, width * height);
+			memset(Orbit->lpTopoData, 0, width * height);
 		else if (!ForIP || shielded)
-			GenerateLightMap (Orbit->lpTopoData, width, height);
+			GenerateLightMap(Orbit->lpTopoData, width, height);
 	}
 	else
 	{	// gas giants are pretty much flat
