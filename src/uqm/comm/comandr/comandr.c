@@ -566,7 +566,7 @@ GiveRadios (RESPONSE_REF R)
 		// End color transform anim in lo-res.
 		else
 			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
-		// Here to test
+		
 		XFormColorMap (GetColorMapAddress (
 				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
 				), ONE_SECOND / 2);
