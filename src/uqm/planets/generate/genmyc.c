@@ -70,11 +70,13 @@ GenerateMyconDefenders (BYTE index)
 
 	if (!(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << shift))
 	{
+		COUNT i;
+
 		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 		ReinitQueue (&GLOBAL (ip_group_q));
 		assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-		for (COUNT i = 0; i < 4; ++i)
+		for (i = 0; i < 4; ++i)
 			CloneShipFragment (MYCON_SHIP,
 				&GLOBAL (npc_built_ship_q), 0);
 
@@ -192,9 +194,10 @@ GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				}
 				else
 				{
+					COUNT i;
 					COUNT sum = DIF_CASE (5, 3, 12);
 
-					for (COUNT i = 0; i < sum; ++i)
+					for (i = 0; i < sum; ++i)
 						CloneShipFragment (MYCON_SHIP,
 								&GLOBAL (npc_built_ship_q), 0);
 				}

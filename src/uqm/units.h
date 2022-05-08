@@ -65,6 +65,9 @@ extern int ScreenHeight;
 #define PC_SIS_SCREEN_HEIGHT (187)
 #define THREEDO_SIS_SCREEN_WIDTH (210)
 #define THREEDO_SIS_SCREEN_HEIGHT (195)
+#define HDMOD_SIS_SCREEN_WIDTH (1074)
+#define HDMOD_SIS_SCREEN_HEIGHT (924)
+
 
 		/* Radar. */
 #define RADAR_X (RES_SCALE (4) + SPACE_WIDTH)
@@ -145,7 +148,7 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 #define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE (16))) 
 
 // Original (and now broken) Hyperspace speed factors
-// Serosis: Now being utilized to load Vanilla saves properly
+// Now being utilized to load Vanilla saves properly
 #define SECTOR_WIDTH 195
 #define SECTOR_HEIGHT 25
 

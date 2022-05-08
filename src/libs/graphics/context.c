@@ -322,7 +322,7 @@ FixContextFontEffect (void)
 			&& !(_get_context_fbk_flags () & FBK_DIRTY)))
 		return;
 
-	if (!GetContextFontLeading (&h) || !GetContextFontLeadingWidth (&w))
+	if (!GetContextFontDispHeight (&h) || !GetContextFontDispWidth (&w))
 		return;
 
 	img = _pCurContext->FontBacking;

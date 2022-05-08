@@ -382,7 +382,7 @@ PrintCoarseScanPC (void)
 static void
 PrintCoarseScan3DO (void)
 {
-#define SCAN_LEADING RES_SCALE (19) 
+#define SCAN_LEADING RES_SCALE (19)
 	SDWORD val;
 	TEXT t;
 	STAMP s;
@@ -1053,7 +1053,7 @@ DrawPCScannedStuff (COUNT scan)
 						DrawStamp (&s);
 						growth++;
 					}
-					RotatePlanetSphere (TRUE, NULL);
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 				}
 				if (growth < NUM_FLASH_COLORS)
 				{	// didn't finish - draw 
@@ -1066,7 +1066,7 @@ DrawPCScannedStuff (COUNT scan)
 				hElement = hNextElement;
 			}
 		}
-		RotatePlanetSphere (TRUE, NULL);
+		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 	}
 	if (hElement)
 	{	// scan aborted - make everything scanned, workaround for singular scan
@@ -1211,11 +1211,8 @@ ScanPlanet (COUNT scanType)
 
 		FlushInput ();
 
-		pSolarSysState->Orbit.scanType = scan;
-		RerenderPlanetSphere();
-
 		if (optScanStyle != OPT_PC)
-		{			
+		{
 			while (i < SCAN_LINES)
 			{
 				if ((GLOBAL (CurrentActivity) & CHECK_ABORT))
@@ -1241,7 +1238,10 @@ ScanPlanet (COUNT scanType)
 						UnbatchGraphics ();
 					}
 				}
-				RotatePlanetSphere (TRUE, NULL);
+				RotatePlanetSphere (TRUE, NULL,
+					BUILD_COLOR_RGBA (
+						tintColor.r, tintColor.g, tintColor.b, 0x45
+					));
 			}
 		}
 		else
@@ -1256,12 +1256,12 @@ ScanPlanet (COUNT scanType)
 			{	// delay between scans
 				TimeOut = GetTimeCounter () + ONE_SECOND;
 				while (GetTimeCounter () < TimeOut && !AnyButtonPress (TRUE))
-					RotatePlanetSphere (TRUE, NULL);
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 			}
 			else
 			{	// endless state - mimics PC "Exit Scan"
 				while (!AnyButtonPress (TRUE))
-					RotatePlanetSphere (TRUE, NULL);
+					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 			}
 		}
 
@@ -1279,11 +1279,9 @@ ScanPlanet (COUNT scanType)
 	RepairBackRect (&r);
 
 	SetContext (ScanContext);
-	pSolarSysState->Orbit.scanType = NUM_SCAN_TYPES;
 
 	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)
 	{	// clear the last scan
-		RerenderPlanetSphere ();
 		DrawPlanet (0, BLACK_COLOR);
 		DrawDefaultPlanetSphere ();
 		DrawScannedObjects (FALSE);

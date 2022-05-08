@@ -22,6 +22,7 @@
 #include "libs/memlib.h"
 
 #define MAX_DELTAS 100
+#define MAX_UNICODE 0xFFFF
 
 typedef struct FontPage
 {
@@ -50,9 +51,15 @@ FreeFontPage (FONT_PAGE *page)
 
 struct font_desc
 {
-	UWORD Leading;
-	UWORD LeadingWidth;
+	BYTE Leading;
 	FONT_PAGE *fontPages;
+	EXTENT disp;
+	char filename[PATH_MAX];
+	BYTE CharSpace;
+	BYTE KernAmount;
+	BYTE KernTab[MAX_UNICODE];
+	SBYTE VertAlign;
+	BOOLEAN HaveFntData;
 };
 
 #define CHAR_DESCPTR PCHAR_DESC

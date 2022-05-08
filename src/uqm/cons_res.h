@@ -30,7 +30,6 @@ void free_gravity_well (void);
 FRAME load_life_form (BYTE selector);
 
 #define NUM_ORBIT_THEMES 6
-static MUSIC_REF OrbitMusic[NUM_ORBIT_THEMES];
 MUSIC_REF load_orbit_theme (BYTE selector);
 extern int num_orbit_themes (void);
 

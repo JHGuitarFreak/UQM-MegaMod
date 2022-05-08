@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       75
+#define CHOICE_COUNT       76
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -129,7 +129,6 @@ static WIDGET *graphics_widgets[] = {
 #if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 #endif
-	(WIDGET*) (&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
 	(WIDGET *)(&choices[12]),   // Show FPS
@@ -255,6 +254,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[35]),   // IP nebulae on/off
 	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
+	(WIDGET *)(&choices[75]),   // T6014's Classic Star System View
 	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
 
 	(WIDGET *)(&labels[8]),     // Scan Label
@@ -615,6 +615,7 @@ SetDefaults (void)
 	choices[72].selected = opts.deCleansing;
 	choices[73].selected = opts.meleeObstacles;
 	choices[74].selected = opts.showVisitedStars;
+	choices[75].selected = opts.unscaledStarSystem;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -704,6 +705,7 @@ PropagateResults (void)
 	opts.deCleansing = choices[72].selected;
 	opts.meleeObstacles = choices[73].selected;
 	opts.showVisitedStars = choices[74].selected;
+	opts.unscaledStarSystem = choices[75].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -952,11 +954,7 @@ gamma_HandleEventSlider (WIDGET *_self, int event)
 
 	// Limit the slider to values accepted by gfx subsys
 	gamma = sliderToGamma (self->value);
-#if SDL_MAJOR_VERSION == 1
 	set = TFB_SetGamma (gamma);
-#else
-	set = setGammaCorrection (gamma);
-#endif
 	if (!set)
 	{	// revert
 		self->value = prevValue;
@@ -966,14 +964,14 @@ gamma_HandleEventSlider (WIDGET *_self, int event)
 	// Grow or shrink the range based on accepted values
 	if (gamma < minGamma || (!set && event == WIDGET_EVENT_LEFT))
 	{
-		gamma = minGamma;
+		minGamma = gamma;
 		updateGammaBounds (true);
 		// at the lowest end
 		self->value = 0;
 	}
 	else if (gamma > maxGamma || (!set && event == WIDGET_EVENT_RIGHT))
 	{
-		gamma = maxGamma;
+		maxGamma = gamma;
 		updateGammaBounds (false);
 		// at the highest end
 		self->value = 100;
@@ -1664,6 +1662,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -1749,7 +1748,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewGfxFlags = GfxFlags;
 	int NewWidth = ScreenWidthActual;
 	int NewHeight = ScreenHeightActual;
-	int NewDriver = GraphicsDriver;	
+	int NewDriver = GraphicsDriver;
 	int SeedStuff;
 	
 	unsigned int oldResFactor = resolutionFactor; 
@@ -1784,10 +1783,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 
-#if SDL_MAJOR_VERSION == 1
-	if (NewWidth == 320 && NewHeight == 240) // MB: Moved code to here to make it work with 320x240 resolutions before opts->loresBlowup switch after
-#endif
-	{
+	if (NewWidth == 320 && NewHeight == 240)
+	{	// MB: Moved code to here to make it work with 320x240 resolutions
+		// before opts->loresBlowup switch after
 		switch (opts->scaler)
 		{
 			case OPTVAL_BILINEAR_SCALE:
@@ -1817,27 +1815,17 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 		}
 	}
-#if SDL_MAJOR_VERSION == 1
 	else
-	{
-		// For now, only bilinear works in HD with SDL1.
-		switch (opts->scaler)
+	{	// Anything higher than bilinear in HD is a massive
+		// performance hit with no visual benefit
+		if (opts->scaler > OPTVAL_NO_SCALE)
 		{
-			case OPTVAL_BILINEAR_SCALE:
-			case OPTVAL_BIADAPT_SCALE:
-			case OPTVAL_BIADV_SCALE:
-			case OPTVAL_TRISCAN_SCALE:
-			case OPTVAL_HQXX_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-				res_PutString ("config.scaler", "bilinear");
-				break;
-			default:
-				/* OPTVAL_NO_SCALE has no equivalent in gfxflags. */
-				res_PutString ("config.scaler", "no");
-				break;
+			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
+			res_PutString ("config.scaler", "bilinear");
 		}
+		else	// OPTVAL_NO_SCALE has no equivalent in gfxflags.
+			res_PutString ("config.scaler", "no");
 	}
-#endif
 
 	if (NewWidth == 320 && NewHeight == 240)
 	{	
@@ -1958,7 +1946,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 	}
 
-	// Serosis: To force the game to reload content when changing music, video, and speech options
+	// To force the game to reload content when changing music, video, and speech options
  	if ((opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
 		(opts->intro != (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC) ||
 		(opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
@@ -2167,6 +2155,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.showVisitedStars", opts->showVisitedStars == OPTVAL_ENABLED);
 	optShowVisitedStars = opts->showVisitedStars == OPTVAL_ENABLED;
 
+	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
+	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
+
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
 	else
@@ -2174,22 +2165,32 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 #if !(defined(ANDROID) || defined(__ANDROID__))
 	if (opts->fullscreen)
-		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-	else
-		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-	// In HD, force the usage of no filter in 1280x960 windowed mode
-	// while forcing the usage of a filter in scaled modes.
-	if(IS_HD)
 	{
-		if (NewWidth == 1280 && !opts->fullscreen)
-		{
-			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
-			res_PutString ("config.scaler", "no");
-		}
-		else if (!(NewGfxFlags & TFB_GFXFLAGS_SCALE_ANY))
+		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
+		if (IS_HD)
 		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
+		}
+	}
+	else
+	{
+		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+		// Force the usage of no filter in 1280x960 windowed mode.
+		// While forcing the usage of bilinear filter in scaled windowed modes.
+		if (IS_HD)
+		{
+			if (NewWidth == 1280)
+			{
+				NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
+				res_PutString ("config.scaler", "no");
+			}
+			else
+			{
+				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
+				res_PutString ("config.scaler", "bilinear");
+			}
 		}
 	}
 #endif

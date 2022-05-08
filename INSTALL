@@ -104,7 +104,7 @@ named "addons" inside the content directory:
 When building straight from the repository it is best 
 that you download or clone the UQM-MegaMod-Content repository:
 
-  https://github.com/Serosis/UQM-MegaMod-Content
+  https://github.com/JHGuitarFreak/UQM-MegaMod-Content
 
 When downloading or cloning the content repo make sure to remove
 the addons you do not want to load into the MegaMod.

@@ -30,7 +30,7 @@
 #define FAST 24
 #define VERY_FAST 32
 
-static BYTE speed_array[] =
+static const BYTE speed_array[] =
 {
 	VERY_SLOW,
 	SLOW,

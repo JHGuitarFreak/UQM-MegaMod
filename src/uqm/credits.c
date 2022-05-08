@@ -267,7 +267,7 @@ Credits_RenderTextFrame (CONTEXT TempContext, int *istr, int dir,
 			continue;
 		}
 
-		x <<= RESOLUTION_FACTOR; 
+		x <<= RESOLUTION_FACTOR;
 
 		switch (c)
 		{
@@ -795,7 +795,7 @@ Credits (BOOLEAN WithOuttakes)
 	// set the position of outtakes comm
 	CommWndRect.corner.x = (screenRect.extent.width - CommWndRect.extent.width)
 			/ 2;
-	CommWndRect.corner.y = RES_SCALE (5); 
+	CommWndRect.corner.y = RES_SCALE (5);
 	
 	InitCredits ();
 	SetInputCallback (on_input_frame);

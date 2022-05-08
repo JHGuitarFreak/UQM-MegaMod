@@ -170,11 +170,11 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					&& !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << THRADDASH_ENCOUNTER) 
 					&& (StartSphereTracking (THRADDASH_SHIP) || !(GET_GAME_STATE(KOHR_AH_FRENZY))))
 		{
+			COUNT sum, i;
+
 			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 			ReinitQueue (&GLOBAL (ip_group_q));
 			assert (CountLinks (&GLOBAL(npc_built_ship_q)) == 0);
-
-			COUNT sum;
 
 			if (!StartSphereTracking (THRADDASH_SHIP)
 					|| GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH))
@@ -182,7 +182,7 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 			else
 				sum = 12;
 
-			for (COUNT i = 0; i < sum; ++i)
+			for (i = 0; i < sum; ++i)
 				CloneShipFragment (THRADDASH_SHIP,
 					&GLOBAL (npc_built_ship_q), 0);
 

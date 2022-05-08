@@ -1871,30 +1871,11 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		INFRARED_XLAT_TAB,
 		400, 1, 100, 190,
 	},
-//	{ /* TEST_WORLD */
-//		MAKE_BYTE(LARGE_ROCKY_WORLD + CRATERED_ALGO,
-//			WHITE_BODY), /* Color and type/size of planet */
-//		LOW_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
-//		MAKE_BYTE(LOW_DENSITY, MEDIUM), /* Atmosphere and density */
-//		{
-//			{IODINE, MEDIUM_USEFUL},
-//			{BROMINE, MEDIUM_USEFUL},
-//			{NEODYMIUM, LIGHT_USEFUL},
-//			{IRIDIUM, TRACE_USEFUL},
-//			{NOTHING, NO_DEPOSIT},
-//			{NOTHING, NO_DEPOSIT},
-//			{NOTHING, NO_DEPOSIT},
-//			{NOTHING, NO_DEPOSIT},
-//		},
-//		SELENIC_COLOR_TAB,
-//		WATER_XLAT_TAB,
-//		500, 1, 0, 220,
-//	},
 	{ /* SELENIC_WORLD */
-		MAKE_BYTE(SMALL_ROCKY_WORLD + CRATERED_ALGO,
+		MAKE_BYTE (SMALL_ROCKY_WORLD + CRATERED_ALGO,
 				WHITE_BODY), /* Color and type/size of planet */
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
-		MAKE_BYTE(LOW_DENSITY, LIGHT), /* Atmosphere and density */
+		MAKE_BYTE (LOW_DENSITY, LIGHT), /* Atmosphere and density */
 		{
 			{IRON, LIGHT_USEFUL},
 			{ALUMINUM, LIGHT_USEFUL},
@@ -2118,7 +2099,7 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		},
 		PRIMORDIAL_COLOR_TAB,
 		PRIMORDIAL_XLAT_TAB,
-		250, 2, 10, 200,// 200
+		250, 2, 10, 200,
 	},
 	{ /* EMERALD_WORLD */
 		MAKE_BYTE (LARGE_ROCKY_WORLD + TOPO_ALGO,

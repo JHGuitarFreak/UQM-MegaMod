@@ -168,12 +168,13 @@ static DWORD CurBulletinMask;
 static COUNT
 DoSellMinerals (void)
 {
+	COUNT i;
 	COUNT total = 0;
 	BOOLEAN Sleepy = TRUE;
 
 	FlushInput ();
 
-	for (COUNT i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
 	{
 		COUNT amount;
 		DWORD TimeIn = 0;
@@ -1805,11 +1806,12 @@ SellMinerals (RESPONSE_REF R)
 	else
 	{
 		COUNT amount[NUM_ELEMENT_CATEGORIES], Ru[NUM_ELEMENT_CATEGORIES];
+		COUNT i, sseg;
 		COUNT seg = 0;
 		COUNT count = 0;
 
 		NPCPhrase (CARGO_LIST);
-		for (COUNT i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+		for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
 		{
 			if ((amount[seg] = GLOBAL_SIS (ElementAmounts[i])) != 0)
 			{
@@ -1837,7 +1839,7 @@ SellMinerals (RESPONSE_REF R)
 		if (pStr == LIGHT_LOAD_C0)
 			NPCPhrase (LIGHT_LOAD_C1);
 
-		for (COUNT sseg = 1; sseg < seg + 1; sseg++)
+		for (sseg = 1; sseg < seg + 1; sseg++)
 		{
 			AlienTalkSegue (sseg);
 			GLOBAL_SIS (TotalElementMass) -= amount[sseg - 1];

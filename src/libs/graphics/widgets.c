@@ -571,12 +571,14 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	(void) x;
 }
 
+int slider_width;
+
 void
 Widget_DrawSlider(WIDGET *_self, int x, int y)
 {	// SFX slider
 	WIDGET_SLIDER *self = (WIDGET_SLIDER *)_self;
 	Color oldtext;
-	Color inactive, default_color, selected;
+	Color default_color, selected;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
@@ -588,7 +590,6 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	
 	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
-	inactive = WIDGET_INACTIVE_COLOR;
 
 	t.baseline.x = x + LSTEP;
 	t.baseline.y = y;
@@ -606,13 +607,15 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	}
 	font_DrawText (&t);
 
-	/* Kruzen: was +3 * tick, changed to center sliders*/
+	// Slider Bar
 	r.corner.x = RSTEP;
 	r.corner.y = t.baseline.y - RES_SCALE (4);
 	r.extent.height = RES_SCALE (2);
 	r.extent.width = 2 * tick;
+	slider_width = r.corner.x + r.extent.width;
 	DrawFilledRectangle (&r);
 
+	// Slider Indicator
 	r.extent.width = RES_SCALE (3);
 	r.extent.height = RES_SCALE (8);
 	r.corner.y = t.baseline.y - RES_SCALE (7);
@@ -620,7 +623,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 		(self->max - self->min)) - (RES_SCALE (3) >> 1);
 	DrawFilledRectangle (&r);
 
-	(*self->draw_value)(self, RSTEP + 3 * tick - RES_SCALE (22), t.baseline.y);
+	(*self->draw_value)(self, RSTEP + 3 * tick - RES_SCALE (22) * tick, t.baseline.y);
 
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
@@ -636,9 +639,9 @@ Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y)
 
 	sprintf (buffer, "%d", self->value);
 
-	t.baseline.x = x;
+	t.baseline.x = slider_width + RES_SCALE (14);
 	t.baseline.y = y;
-	t.align = ALIGN_CENTER;
+	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
 	t.pStr = buffer;
 
@@ -791,7 +794,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 {	// mappable key name in controls setup
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
 	Color oldtext;
-	Color inactive, default_color, selected;
+	Color default_color, selected;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
@@ -802,7 +805,6 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	
 	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
-	inactive = WIDGET_INACTIVE_COLOR;
 
 	t.baseline.x = x + RES_SCALE (16);
 	t.baseline.y = y;
@@ -868,7 +870,7 @@ int
 Widget_HeightOneLine (WIDGET *_self)
 {
 	(void)_self;
-	return RES_SCALE (8);// 6
+	return RES_SCALE (8);
 }
 
 int

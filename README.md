@@ -5,7 +5,7 @@ A fork of The Ur-Quan Masters that remasters the HD mod with a veritable smorgas
 
 A full list of changes and features for the current release can be found on the [Main site](http://megamod.serosis.net/Features).
 
-And the full WIP changelog can be found in the root of this repository: [Changelog](https://github.com/Serosis/UQM-MegaMod/blob/master/MegaMod%20Changelog.txt)
+And the full WIP changelog can be found in the root of this repository: [Changelog](https://github.com/JHGuitarFreak/UQM-MegaMod/blob/master/MegaMod%20Changelog.txt)
 
 ## Motivation
 
@@ -83,7 +83,7 @@ MegaMod is not compatible with any other mods nor are they compatible with MegaM
 MegaMod is completely independant from Core UQM, HD-Mod, HD-Remix, Crazy Mod, Balance Mod, Extended, or any other mods.
 As such MegaMod has its own packages and add-ons.
 
-For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.0.85-hd.uqm`.
+For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.1-hd.uqm`.
 
 And as MegaMod is not compatible with any other mods, do not install it over any existing UQM installations.
 
@@ -91,7 +91,7 @@ All MegaMod compatible add-ons and content can be found on the main website's Re
 
 ## Contributors
 
-Me (Serosis), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, and Kruzenshtern
+Me (Kohr-Ah Death), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, and Jordan Lo.
 
 The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: http://star-control.com/fan/music/Various/saibuster-hyprespace.mp3, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music/Rush/HSpace%20Rush%20MIX.mp3
 

@@ -211,10 +211,12 @@ struct GameStateBitMap {
 	BYTE numBits;
 };
 
+size_t totalBitsForGameState (const GameStateBitMap *bm, int rev);
+int getGameStateRevByBytes (const GameStateBitMap *bm, int bytes);
 BOOLEAN serialiseGameState (const GameStateBitMap *bm,
 		BYTE **buf, size_t *numBytes);
 BOOLEAN deserialiseGameState (const GameStateBitMap *bm,
-		const BYTE *buf, size_t numBytes);
+		const BYTE *buf, size_t numBytes, int rev);
 
 #define START_GAME_STATE enum {
 #define ADD_GAME_STATE(SName,NumBits) SName, END_##SName = SName + NumBits - 1,
@@ -587,7 +589,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (MELNORME_TECH_PROCEDURE, 1)
 	ADD_GAME_STATE (MELNORME_INFO_PROCEDURE, 1)
 
-	ADD_GAME_STATE (MELNORME_TECH_STACK, 4) // Serosis look into
+	ADD_GAME_STATE (MELNORME_TECH_STACK, 4) // Unused
 			/* MELNORME_TECH_STACK is now unused */
 	ADD_GAME_STATE (MELNORME_EVENTS_INFO_STACK, 5)
 	ADD_GAME_STATE (MELNORME_ALIEN_INFO_STACK, 5)
@@ -639,7 +641,7 @@ START_GAME_STATE
 
 	ADD_GAME_STATE (URQUAN_PROTECTING_SAMATRA, 1)
 
-#define THRADDASH_BODY_THRESHOLD DIF_CASE(25, 15, 35)
+#define THRADDASH_BODY_THRESHOLD DIF_CASE(25, 15, 30)
 	ADD_GAME_STATE (THRADDASH_BODY_COUNT, 5)
 
 	ADD_GAME_STATE (UTWIG_SUPOX_MISSION, 3)
@@ -877,9 +879,12 @@ START_GAME_STATE
 	ADD_GAME_STATE (COLONY_GRPOFFS, 32)
 	ADD_GAME_STATE (SAMATRA_GRPOFFS, 32)
 
-	// JMS: It is allowed for the autopilot to engage
-	ADD_GAME_STATE (AUTOPILOT_OK, 1) // Serosis look into
+	/* end rev 0, Core UQM v0.8.0 */
+	/* begin rev 1, MegaMod v0.8.0.85 */
 
+	// JMS: It is allowed for the autopilot to engage
+	ADD_GAME_STATE (AUTOPILOT_OK, 1)
+	
 	// JMS: Quasispace portal name flags
 	ADD_GAME_STATE (KNOW_QS_PORTAL_0, 1)
 	ADD_GAME_STATE (KNOW_QS_PORTAL_1, 1)
@@ -897,6 +902,9 @@ START_GAME_STATE
 	ADD_GAME_STATE (KNOW_QS_PORTAL_13, 1)
 	ADD_GAME_STATE (KNOW_QS_PORTAL_14, 1)
 	ADD_GAME_STATE (KNOW_QS_PORTAL_15, 1)
+
+	/* end rev 1, MegaMod v0.8.0.85 */
+	/* begin rev 2, MegaMod v0.8.1 */
 
 	ADD_GAME_STATE (SYS_VISITED_00, 32)
 	ADD_GAME_STATE (SYS_VISITED_01, 32)
@@ -937,6 +945,8 @@ START_GAME_STATE
 	ADD_GAME_STATE (HM_ENCOUNTERS, 9)
 
 	ADD_GAME_STATE (RESERVED, 32)
+
+	/* end rev 2, MegaMod v0.8.1 */
 
 END_GAME_STATE
 

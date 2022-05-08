@@ -50,7 +50,7 @@
 // The PC speed was 30 FPS.
 // Remember that all values need to evenly divide
 // ONE_SECOND.
-// Serosis: I did my own testing using DOSBox
+// I did my own testing using DOSBox
 // comparing speeds frame-by-frame and I came
 // up with 42 FPS. Can be changed later if it
 // causes any trouble.
@@ -72,6 +72,7 @@ FRAME LanderFrame[8];
 static SOUND LanderSounds;
 MUSIC_REF LanderMusic;
 static CONTEXT PCLanderContext;
+static MUSIC_REF OrbitMusic[NUM_ORBIT_THEMES];
 
 LIFEFORM_DESC CreatureData[] =
 {
@@ -1498,7 +1499,7 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 
 	while (periods > 0)
 	{
-		RotatePlanetSphere (TRUE, NULL);
+		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 
 		if (GetTimeCounter () >= *TimeIn + ANIM_FRAME_RATE)
 		{
@@ -1532,7 +1533,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 	psNextTime = GetTimeCounter () + PLANET_SIDE_RATE;
 	while (num_frames >= 0)
 	{
-		RotatePlanetSphere (TRUE, &s);
+		RotatePlanetSphere (TRUE, &s, TRANSPARENT);
 
 		Now = GetTimeCounter ();
 
@@ -2030,7 +2031,7 @@ LoadLanderData (void)
 	{
 		COUNT i;
 
-		for (i = 0; i < num_orbit_themes(); ++i)
+		for (i = 0; i < num_orbit_themes (); ++i)
 			OrbitMusic[i] = load_orbit_theme (i);
 	}
 }
@@ -2038,7 +2039,7 @@ LoadLanderData (void)
 void
 SetPlanetMusic (BYTE planet_type)
 {
-	LanderMusic = OrbitMusic[planet_type % num_orbit_themes()];
+	LanderMusic = OrbitMusic[planet_type % num_orbit_themes ()];
 }
 
 static void

@@ -175,19 +175,20 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 					if (GET_GAME_STATE (ILWRATH_DECEIVED) && DIF_HARD)
 					{
-						COUNT lim;
+						COUNT lim, i;
+
 						if (StartSphereTracking (ILWRATH_SHIP))
 							lim = 14;
 						else
 							lim = 6;
 
-						for (COUNT i = 0; i < lim; ++i)
+						for (i = 0; i < lim; ++i)
 							CloneShipFragment (ILWRATH_SHIP,
 								&GLOBAL(npc_built_ship_q), 0);
 					}
 					else
-					CloneShipFragment (ILWRATH_SHIP,
-						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
+						CloneShipFragment (ILWRATH_SHIP,
+							&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
 
 					SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
 					GLOBAL (CurrentActivity) |= START_INTERPLANETARY;

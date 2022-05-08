@@ -42,41 +42,39 @@ static int rotwidth;
 static int rotheight;
 
 void
-DrawCurrentPlanetSphere (void)
+DrawPCScannedPlanetSphere (int x, int y)
 {
 	STAMP s;
+	COUNT w, h;
+	Color *pix;
+	Color *map;
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
-	CONTEXT oldContext = SetContext(PlanetContext);
 
-	s.origin.x = RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1);
-	s.origin.y = PLANET_ORG_Y;
+	s.origin.x = x;
+	s.origin.y = y;
 
-	{// re-render current frame
-		rotFrameIndex ^= 1;
+	s.frame = CaptureDrawable (CloneFrame (Orbit->SphereFrame));
+	
+	map = HMalloc (
+			sizeof (Color) * s.frame->Bounds.width * s.frame->Bounds.height);
+	ReadFramePixelColors (
+			s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
 
-		rotPointIndex -= rotDirection;// roll back
-		if (rotPointIndex < 0)
-			rotPointIndex = rotwidth - 1;
-		else if (rotPointIndex >= rotwidth)
-			rotPointIndex = 0;
+	pix = map;
 
-		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame, rotFrameIndex);
-		RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
-			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
-	}
-	BatchGraphics();
-	s.frame = Orbit->SphereFrame;
-	DrawStamp(&s);
-	if (Orbit->ObjectFrame)
+	for (h = 0; h < s.frame->Bounds.height; ++h)
 	{
-		s.frame = Orbit->ObjectFrame;
-		DrawStamp(&s);
+		for (w = 0; w < s.frame->Bounds.width; ++w, ++pix)
+			TransformColor (pix, Orbit->scanType);
 	}
-	UnbatchGraphics();
-	SetContext(oldContext);
 
-	PrepareNextRotationFrame();
+	WriteFramePixelColors (
+			s.frame, map, s.frame->Bounds.width, s.frame->Bounds.height);
+	HFree (map);
+
+	DrawStamp (&s);
+
+	DestroyDrawable (ReleaseDrawable (s.frame));
 }
 
 // Draw the planet sphere and any extra graphic (like a shield) if present
@@ -106,17 +104,38 @@ DrawDefaultPlanetSphere (void)
 	CONTEXT oldContext;
 
 	oldContext = SetContext (PlanetContext);
-	DrawPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
+	if (optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC
+		&& pSolarSysState->Orbit.scanType != NUM_SCAN_TYPES)
+		DrawPCScannedPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
+	else
+		DrawPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
 	SetContext (oldContext);
 }
 
 void
-RerenderPlanetSphere (void)
+DrawColoredPlanetSphere (Color color)
 {
-	if (optTintPlanSphere != OPT_PC)
-		return;
+	STAMP s;
+	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
+	CONTEXT oldContext;
 
-	DrawCurrentPlanetSphere();
+	oldContext = SetContext (PlanetContext);
+
+	SetContextForeGroundColor (color);
+
+	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	s.origin.y = PLANET_ORG_Y;
+
+	BatchGraphics ();
+	s.frame = Orbit->SphereFrame;
+	DrawFilledStamp (&s);
+	if (Orbit->ObjectFrame)
+	{
+		s.frame = Orbit->ObjectFrame;
+		DrawFilledStamp (&s);
+	}
+	UnbatchGraphics ();
+	SetContext (oldContext);
 }
 
 void
@@ -183,7 +202,7 @@ PrepareNextRotationFrame (void)
 	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, rotFrameIndex);
 	RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
 			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD (2), FALSE); // RADIUS
+			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD (2)); // RADIUS
 	
 	if (throbShield)
 	{	// prepare the next shield throb frame
@@ -253,7 +272,7 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	RenderPlanetSphere (Orbit, Orbit->SphereFrame, pPlanetDesc->rotPointIndex,
 			pPlanetDesc->data_index & PLANET_SHIELDED,
 			FALSE, pPlanetDesc->rotwidth, pPlanetDesc->rotheight,
-			(pPlanetDesc->rotheight >> 1) - IF_HD (2), TRUE); // RADIUS
+			(pPlanetDesc->rotheight >> 1) - IF_HD (2)); // RADIUS
 	Orbit->SphereFrame->image->dirty = TRUE;
 	// BW: slightly hacky but, in DrawTexturedBody, the call
 	// to DrawStamp won't re-blit the frame unless scale has changed.
@@ -338,7 +357,7 @@ ZoomInPlanetSphere (void)
 #define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL (24, 42))
 
 void
-RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
+RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color)
 {
 	static TimeCount NextTime, OutNextTime;
 	TimeCount Now = GetTimeCounter ();
@@ -355,7 +374,9 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 			OutNextTime = Now + PLANET_ROTATION_FPS;
 
 			DrawDefaultPlanetSphere ();
-
+			if (optTintPlanSphere == OPT_PC
+				&& !sameColor (TRANSPARENT, color))
+				DrawColoredPlanetSphere (color);
 			if (onTop)
 				DrawStamp (onTop);
 		}
@@ -410,6 +431,10 @@ DrawPCScanTint (COUNT scan)
 	s.origin.y = 0;
 
 	s.frame = pSolarSysState->ScanFrame[scan];
+
+	pSolarSysState->Orbit.scanType = scan;
+
+	DrawDefaultPlanetSphere ();
 	
 	DrawStamp (&s);
 }
@@ -428,6 +453,7 @@ DrawPlanet (int tintY, Color tintColor)
 	if (sameColor (tintColor, BLACK_COLOR))
 	{	// no tint -- just draw the surface	
 		s.frame = pSolarSysState->TopoFrame;
+		Orbit->scanType = NUM_SCAN_TYPES; // for PC-scan (planet sphere default palette)
 		DrawStamp (&s);
 	}
 	else

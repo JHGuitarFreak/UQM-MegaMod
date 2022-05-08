@@ -73,16 +73,47 @@ shl32 (DWORD value, BYTE shift)
 
 // Returns the total number of bits which are needed to store a game state
 // according to 'bm'.
-static size_t
-totalBitsForGameState (const GameStateBitMap *bm)
+size_t
+totalBitsForGameState (const GameStateBitMap *bm, int rev)
 {
 	size_t totalBits = 0;
 	const GameStateBitMap *bmPtr;
 
-	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
-		totalBits += bmPtr->numBits;
+	for (bmPtr = bm; bmPtr; bmPtr++)
+	{
+		if (bmPtr->name != NULL)
+			totalBits += bmPtr->numBits;
+		else if (bmPtr->numBits == 0)
+			break;
+		else if (rev >= 0 && bmPtr->numBits > rev)
+			break;
+	}
 
 	return totalBits;
+}
+
+// Returns the game state revision number that requires the specified
+// number of 'bytes' according to 'bm', or -1 if no match
+int
+getGameStateRevByBytes (const GameStateBitMap *bm, int bytes)
+{
+	int rev = 0;
+	size_t totalBits = 0;
+	const GameStateBitMap *bmPtr;
+
+	for (bmPtr = bm; bmPtr; bmPtr++)
+	{
+		if (bmPtr->name != NULL)
+			totalBits += bmPtr->numBits;
+		else if (bmPtr->numBits == 0)
+			break;
+		else if ((totalBits + 7 >> 3) >= bytes)
+			break;
+		else
+			rev = bmPtr->numBits;
+	}
+
+	return ((totalBits + 7 >> 3) == bytes) ? rev : -1;
 }
 
 // Write 'valueBitCount' bits from 'value' into the buffer pointed to
@@ -136,7 +167,7 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 	size_t restBitCount = 0;
 
 	// Determine the total number of bits/bytes required.
-	totalBits = totalBitsForGameState (bm);
+	totalBits = totalBitsForGameState (bm, -1);
 	totalBytes = (totalBits + 7) / 8;
 
 	// Allocate memory for the serialised data.
@@ -145,33 +176,37 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 		return FALSE;
 
 	bufPtr = result;
-	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
+	for (bmPtr = bm; bmPtr; bmPtr++)
 	{
-		DWORD value = getGameStateUint (bmPtr->name);
-		BYTE numBits = bmPtr->numBits;
+		if (bmPtr->name != NULL)
+		{
+			DWORD value = getGameStateUint (bmPtr->name);
+			BYTE numBits = bmPtr->numBits;
 
 #ifdef STATE_DEBUG
-		log_add (log_Debug, "Saving: GameState[\'%s\'] = %u", bmPtr->name,
-				value);
+			log_add (log_Debug, "Saving: GameState[\'%s\'] = %u", bmPtr->name,
+					value);
 #endif  /* STATE_DEBUG */
 
-		if (value > bitmask32(numBits))
-		{
-			log_add (log_Error, "Warning: serialiseGameState(): the value "
-					"of the property '%s' (%u) does not fit in the reserved "
-					"number of bits (%d).", bmPtr->name, value, numBits);
-		}
+			if (value > bitmask32(numBits))
+			{
+				log_add (log_Error, "Warning: serialiseGameState(): the value "
+						"of the property '%s' (%u) does not fit in the reserved "
+						"number of bits (%d).", bmPtr->name, value, numBits);
+			}
 
-		// Store multi-byte values with the least significant byte first.
-		while (numBits >= 8)
-		{
-		
-			serialiseBits (&bufPtr, &restBits, &restBitCount, value & 0xff, 8);
-			value >>= 8;
-			numBits -= 8;
+			// Store multi-byte values with the least significant byte first.
+			while (numBits >= 8)
+			{
+				serialiseBits (&bufPtr, &restBits, &restBitCount, value & 0xff, 8);
+				value >>= 8;
+				numBits -= 8;
+			}
+			if (numBits > 0)
+				serialiseBits (&bufPtr, &restBits, &restBitCount, value, numBits);
 		}
-		if (numBits > 0)
-			serialiseBits (&bufPtr, &restBits, &restBitCount, value, numBits);
+		else if (bmPtr->numBits == 0)
+			break;
 	}
 
 	// Pad the end up to a byte.
@@ -231,7 +266,7 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
 // has size 'numBytes', according to the GameStateBitMap 'bm'.
 BOOLEAN
 deserialiseGameState (const GameStateBitMap *bm,
-		const BYTE *buf, size_t numBytes)
+		const BYTE *buf, size_t numBytes, int rev)
 {
 	size_t totalBits;
 	const GameStateBitMap *bmPtr;
@@ -240,10 +275,11 @@ deserialiseGameState (const GameStateBitMap *bm,
 	BYTE bitPtr = 0;
 			// Number of bits already processed from the byte pointed at by
 			// bytePtr.
+	BOOLEAN matchRev = TRUE;
 
 	// Sanity check: determine the number of bits required, and check
 	// whether 'numBytes' is large enough.
-	totalBits = totalBitsForGameState (bm);
+	totalBits = totalBitsForGameState (bm, rev);
 	if (numBytes * 8 < totalBits)
 	{
 		log_add (log_Error, "Warning: deserialiseGameState(): Corrupt "
@@ -251,31 +287,41 @@ deserialiseGameState (const GameStateBitMap *bm,
 		return FALSE;
 	}
 
-	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
+	for (bmPtr = bm; bmPtr; bmPtr++)
 	{
-		DWORD value = 0;
-		BYTE numBits = bmPtr->numBits;
-		BYTE bitsLeft = numBits;
-
-		// Multi-byte values are stored with the least significant byte
-		// first.
-		while (bitsLeft >= 8)
+		if (bmPtr->name != NULL)
 		{
-			DWORD bits = deserialiseBits (&bytePtr, &bitPtr, 8);
-			value |= shl32(bits, numBits - bitsLeft);
-			bitsLeft -= 8;
-		}
-		if (bitsLeft > 0) {
-			value |= shl32(deserialiseBits (&bytePtr, &bitPtr, bitsLeft),
-					numBits - bitsLeft);
-		}
+			DWORD value = 0;
+			BYTE numBits = bmPtr->numBits;
+			BYTE bitsLeft = numBits;
+
+			if (matchRev)
+			{
+				// Multi-byte values are stored with the least significant byte
+				// first.
+				while (bitsLeft >= 8)
+				{
+					DWORD bits = deserialiseBits (&bytePtr, &bitPtr, 8);
+					value |= shl32(bits, numBits - bitsLeft);
+					bitsLeft -= 8;
+				}
+				if (bitsLeft > 0) {
+					value |= shl32(deserialiseBits (&bytePtr, &bitPtr, bitsLeft),
+							numBits - bitsLeft);
+				}
 	
 #ifdef STATE_DEBUG
-		log_add (log_Debug, "Loading: GameState[\'%s\'] = %u", bmPtr->name,
-				value);
+				log_add (log_Debug, "Loading: GameState[\'%s\'] = %u", bmPtr->name,
+						value);
 #endif  /* STATE_DEBUG */
+			}
 
-		setGameStateUint (bmPtr->name, value);
+			setGameStateUint (bmPtr->name, value);
+		}
+		else if (bmPtr->numBits == 0)
+			break;
+		else if (bmPtr->numBits > rev)
+			matchRev = FALSE;
 	}
 #ifdef STATE_DEBUG
 	fflush (stderr);

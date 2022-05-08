@@ -50,6 +50,9 @@
 #include "libs/misc.h"
 #include "scan.h"
 
+#include "../hyper.h"
+		// for SOL_X/Y
+
 #include <math.h>
 #include <time.h>
 
@@ -547,7 +550,7 @@ GetRandomSeedForStar (const STAR_DESC *star)
 }
 
 DWORD
-GetRandomSeedForVar (POINT point)
+GetRandomSeedForVar (const POINT point)
 {
 	return MAKE_DWORD (point.x, point.y);
 }
@@ -656,7 +659,7 @@ LoadSolarSys (void)
 	PLANET_DESC *orbital = NULL;
 	PLANET_DESC *pCurDesc;
 #define NUM_TEMP_RANGES 5
-	const Color temp_color_array[NUM_TEMP_RANGES] =
+	Color temp_color_array[NUM_TEMP_RANGES] =
 	{
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0E), 0x54),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x62),
@@ -664,6 +667,9 @@ LoadSolarSys (void)
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
 	};
+
+	if (optUnscaledStarSystem && IS_HD)
+		temp_color_array[0] = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 19), 0x54);
 
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
 
@@ -1255,7 +1261,10 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, RES_BOOL (1, 6), FALSE);
+	if (!optUnscaledStarSystem)
+		DrawOval (&r, RES_BOOL (1, 6), FALSE);
+	else
+		DrawOval (&r, 1, FALSE);
 }
 
 static SIZE
@@ -2680,77 +2689,34 @@ DrawStarBackGround (void)
 }
 
 FRAME
-BrightenNebula (FRAME nebula, BYTE factor)
-{
-	if (factor == 25) // defaul value
-		return nebula;
-	else
-	{
-		COUNT x, y;
-		Color* pix;
-		Color* map;
-		RECT r;
-		COUNT width, height;
-		float f;
-
-		GetFrameRect(nebula, &r);
-		width = r.extent.width;
-		height = r.extent.height;
-
-		map = HMalloc(sizeof(Color) * width * height);
-		ReadFramePixelColors(nebula, map, width, height);
-
-		pix = map;
-
-		/* Changes opacity, but keeps it smooth without generating eye-bleeding images */
-		for (y = 0; y < height; ++y)
-		{
-			for (x = 0; x < width; ++x, ++pix)
-			{
-				f = (pix->a << 2) * ((float)factor / 100);
-
-				if (f > 0xC0)
-					pix->a = 0xC0;
-				else
-					pix->a = (BYTE)f;
-			}
-		}
-
-		WriteFramePixelColors(nebula, map, width, height);
-		HFree(map);
-
-		return nebula;
-	}
-}
-
-FRAME
 CreateStarBackGround (BOOLEAN encounter)
 {
 	COUNT i, j;
 	DWORD rand_val;
-	STAMP s, nebula;
+	STAMP s;
 	CONTEXT oldContext;
 	RECT clipRect;
 	FRAME frame;
-	BYTE numNebulae = 44;
-	BYTE ZeroIndex = 0;
-	POINT NullCoord;
-	COUNT NebulaePercentX, NebulaePercentY;
-	RandomContext* OldSysGenRNG = SysGenRNG;
+	POINT starPoint;
+	RandomContext *OldSysGenRNG = SysGenRNG;
+	BOOLEAN hdScaled = (!optUnscaledStarSystem || !IS_HD);
 
-#define NULL_BOOL(a,b) (CurStarDescPtr ? (a) : (b))
-
-	NullCoord = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
-
-	if (encounter && !playerInSolarSystem ()) 
+	if (encounter && !playerInSolarSystem ())
 	{
-		SpaceJunkFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
-		SysGenRNG = RandomContext_New();
+		SpaceJunkFrame =
+				CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
+		SysGenRNG = RandomContext_New ();
 	}
 
-	NebulaePercentX = NULL_BOOL (CurStarDescPtr->star_pt.x, NullCoord.x) % numNebulae;
-	NebulaePercentY = NULL_BOOL (CurStarDescPtr->star_pt.y, NullCoord.y) % (numNebulae + 6);
+	if (CurStarDescPtr)
+		starPoint = CurStarDescPtr->star_pt;
+	else
+	{
+		starPoint = MAKE_POINT (
+				LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
+			);
+	}
 
 	// Use SpaceContext to find out the dimensions of the background
 	oldContext = SetContext (SpaceContext);
@@ -2766,27 +2732,24 @@ CreateStarBackGround (BOOLEAN encounter)
 
 	ClearDrawable ();
 
-	RandomContext_SeedRandom (SysGenRNG,
-			NULL_BOOL (GetRandomSeedForStar (CurStarDescPtr),
-			GetRandomSeedForVar (NullCoord)));
+	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForVar (starPoint));
 
 #define NUM_DIM_PIECES 8
-	s.frame = SpaceJunkFrame;
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, hdScaled ? 0 : 25);
 	for (i = 0; i < NUM_DIM_PIECES; ++i)
 	{
 #define NUM_DIM_DRAWN 5
 		for (j = 0; j < NUM_DIM_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			
 			s.origin.x = RES_SCALE (
 					scaleSISDimensions (TRUE,
-						LOWORD (rand_val) % widthHeightPicker (TRUE)
-					));
+					LOWORD (rand_val) % widthHeightPicker (TRUE)
+				));
 			s.origin.y = RES_SCALE (
 					scaleSISDimensions (FALSE,
-						HIWORD (rand_val) % widthHeightPicker (FALSE)
-					));
+					HIWORD (rand_val) % widthHeightPicker (FALSE)
+				));
 
 			DrawStamp (&s);
 		}
@@ -2796,33 +2759,35 @@ CreateStarBackGround (BOOLEAN encounter)
 	for (i = 0; i < NUM_BRT_PIECES; ++i)
 	{
 #define NUM_BRT_DRAWN 30
-		for (j = 0; j < NUM_BRT_DRAWN; ++j)
+		for (j = 0; j < (hdScaled ? NUM_BRT_DRAWN : 90); ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			
 			s.origin.x = RES_SCALE (
 					scaleSISDimensions (TRUE,
-						LOWORD (rand_val) % widthHeightPicker (TRUE)
-					));
+					LOWORD (rand_val) % widthHeightPicker (TRUE)
+				));
 			s.origin.y = RES_SCALE (
 					scaleSISDimensions (FALSE,
-						HIWORD (rand_val) % widthHeightPicker (FALSE)
-					));
+					HIWORD (rand_val) % widthHeightPicker (FALSE)
+				));
 
 			DrawStamp (&s);
 		}
 		s.frame = IncFrameIndex (s.frame);
 	}
-	
-	if (optNebulae && NebulaePercentY < numNebulae 
-		&& NULL_BOOL (CurStarDescPtr->Index, ZeroIndex) != SOL_DEFINED)
-	{ // MB: Make some solar systems & Sol not have nebulae
-		nebula.frame = 0;
-		nebula.origin.x = nebula.origin.y = 0;
-		nebula.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
-		nebula.frame = BrightenNebula(nebula.frame, 25); // should accept int Option (25 - defaul, 0 - completely transparent, 100 - brightest)
-														 // represent by slider from 0 to 10 with step 5
-		DrawStamp (&nebula);
+
+	if (optNebulae)
+	{
+		const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
+		const POINT solPoint = { SOL_X, SOL_Y };
+
+		if ((starPoint.y % (numNebulae + 6)) < numNebulae || classicPackPresent)
+		{
+			s.origin = MAKE_POINT (0, 0);
+			s.frame = SetAbsFrameIndex (NebulaeFrame, starPoint.x % numNebulae);
+			if (!pointsEqual (starPoint, solPoint) || classicPackPresent)
+				DrawStamp (&s);
+		}
 	}
 
 	SetContext (oldContext);
@@ -3260,8 +3225,10 @@ widthHeightPicker (BOOLEAN is_width)
 	case 1:
 		return (is_width ? THREEDO_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_HEIGHT);
 	case 2:
-	default:
 		return (is_width ? (ORIG_SIS_SCREEN_WIDTH - 1) : ORIG_SIS_SCREEN_HEIGHT);
+	case 3:
+	default:
+		return (is_width ? HDMOD_SIS_SCREEN_WIDTH : HDMOD_SIS_SCREEN_HEIGHT);
 	}
 }
 
@@ -3275,7 +3242,7 @@ scaleSISDimensions (BOOLEAN is_width, COORD value)
 	if (widthOrHeight == widthHeightPicker (is_width))
 		percentage = 1;
 	else
-		percentage = scaleThingUp (widthOrHeight,
+		percentage = scaleThing (widthOrHeight,
 				widthHeightPicker (is_width));
 
 	return (COORD)(value * percentage);

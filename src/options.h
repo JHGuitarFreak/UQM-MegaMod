@@ -104,6 +104,7 @@ extern BOOLEAN optNoHQEncounters;
 extern BOOLEAN optDeCleansing;
 extern BOOLEAN optMeleeObstacles;
 extern BOOLEAN optShowVisitedStars;
+extern BOOLEAN optUnscaledStarSystem;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;

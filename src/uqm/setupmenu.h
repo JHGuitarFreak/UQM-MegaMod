@@ -32,8 +32,7 @@ typedef enum {
 
 typedef enum {
 	OPTVAL_PC,
-	OPTVAL_3DO,
-	OPTVAL_UQM
+	OPTVAL_3DO
 } OPT_CONSOLETYPE;
 
 typedef enum {
@@ -47,7 +46,7 @@ typedef enum {
 
 typedef enum {
 	OPTVAL_320_240,
-	OPTVAL_REAL_1280_960, 
+	OPTVAL_REAL_1280_960,
 } OPT_RESTYPE;
 
 typedef enum {
@@ -141,13 +140,13 @@ typedef struct globalopts_struct {
 			fuelRange, extended, nomad, gameOver, shipDirectionIP,
 			hazardColors, orzCompFont, smartAutoPilot, nonStopOscill,
 			hyperStars, planetTexture, noHQEncounters, deCleansing,
-			meleeObstacles, showVisitedStars;
+			meleeObstacles, showVisitedStars, unscaledStarSystem;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
-			landerHold, tintPlanSphere, planetStyle, starBackground,
-			scanStyle, scopeStyle, landerStyle, flagshipColor;
+			landerHold, tintPlanSphere, planetStyle, scanStyle,
+			scopeStyle, landerStyle, flagshipColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol;
-	int gamma, customSeed;
+	int gamma, customSeed, starBackground;
 } GLOBALOPTS;
 
 void SetupMenu (void);

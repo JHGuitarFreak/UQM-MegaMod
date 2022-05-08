@@ -473,8 +473,10 @@ Intro (void)
 {
 	if (DIF_HARD && GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 	{
+		COUNT i;
+
 		NPCPhrase (COORD_POINT);
-		for (COUNT i = 0; i < 16; i++)
+		for (i = 0; i < 16; i++)
 		{
 			NPCNumber (random_ramble[i], "%d ");
 		}
@@ -546,7 +548,8 @@ init_slyland_comm (void)
 	slylandro_desc.post_encounter_func = post_slyland_enc;
 	slylandro_desc.uninit_encounter_func = uninit_slyland;
 
-	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	slylandro_desc.AlienTextBaseline.x =
+			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	slylandro_desc.AlienTextBaseline.y = 0;
 	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 

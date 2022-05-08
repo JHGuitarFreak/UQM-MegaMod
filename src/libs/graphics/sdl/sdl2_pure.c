@@ -36,8 +36,6 @@ static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static const char* rendererBackend = NULL;
 
-static int ScreenFilterMode;
-
 static TFB_ScaleFunc scaler = NULL;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -478,12 +476,6 @@ TFB_SDL2_Postprocess (void)
 		TFB_SDL2_ScanLines ();
 
 	SDL_RenderPresent (renderer);
-}
-
-bool
-TFB_SetBrightness (float brightness)
-{
-	return (SDL_SetWindowBrightness(window, brightness) == 0);
 }
 
 #endif

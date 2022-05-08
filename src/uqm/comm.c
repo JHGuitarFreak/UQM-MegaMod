@@ -174,58 +174,6 @@ _count_lines (TEXT *pText)
 	return numLines;
 }
 
-void
-ReContextualizeLeading (SIZE* pheight)
-{
-	switch (CommData.AlienConv)
-	{
-	case UMGAH_CONVERSATION:
-		*pheight = RES_SCALE (8);
-		return;
-	case COMMANDER_CONVERSATION:
-		*pheight = RES_SCALE (9);
-		return;
-	case ARILOU_CONVERSATION:
-	case ZOQFOTPIK_CONVERSATION:
-		*pheight = RES_SCALE (10);
-		return;
-	case CHMMR_CONVERSATION:
-	case DRUUGE_CONVERSATION:
-	case MELNORME_CONVERSATION:
-	case PKUNK_CONVERSATION:
-	case SLYLANDRO_CONVERSATION:
-	case SUPOX_CONVERSATION:
-	case TALKING_PET_CONVERSATION:
-	case THRADD_CONVERSATION:
-	case VUX_CONVERSATION:
-	case YEHAT_CONVERSATION:
-	case YEHAT_REBEL_CONVERSATION:
-		*pheight = RES_SCALE (11);
-		return;
-	case ILWRATH_CONVERSATION:
-		*pheight = RES_SCALE (12);
-		return;
-	case SPATHI_CONVERSATION:
-		*pheight = RES_SCALE (14);
-		return;
-	case SLYLANDRO_HOME_CONVERSATION:
-	case UTWIG_CONVERSATION:
-		*pheight = RES_SCALE (15);
-		return;
-	case BLACKURQ_CONVERSATION:
-	case MYCON_CONVERSATION:
-	case ORZ_CONVERSATION:
-	case SHOFIXTI_CONVERSATION:
-	case SYREEN_CONVERSATION:
-	case URQUAN_CONVERSATION:
-	case URQUAN_DRONE_CONVERSATION:
-		*pheight = RES_SCALE (17);
-		return;
-	default:
-		*pheight = 0;
-	}
-}
-
 // status == -1: draw highlighted player dialog option
 // status == -2: draw non-highlighted player dialog option
 // status == -4: use current context, and baseline from pTextIn
@@ -276,13 +224,11 @@ add_text (int status, TEXT *pTextIn)
 
 		text_width = CommData.AlienTextWidth;
 		SetContextFont (CommData.AlienFont);
-		//GetContextFontLeading (&leading);
-
-		ReContextualizeLeading (&leading);
+		GetContextFontLeading (&leading);
 
 		pText = pTextIn;
 	}
-	else if (leading = RES_SCALE (is3DO (optWhichFonts) ? 7 : 9), status <= -4)
+	else if (GetContextFontLeading (&leading), status <= -4)
 	{
 		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE (8)
 					- (TEXT_X_OFFS << 2)
@@ -388,7 +334,7 @@ add_text (int status, TEXT *pTextIn)
 		else
 		{
 			// Alien speech
-			if (CommData.AlienConv == ORZ_CONVERSATION)
+			if (optOrzCompFont && CommData.AlienConv == ORZ_CONVERSATION)
 			{
 				// BW : special case for the Orz conversations
 				// the character $ is recycled as a marker to
@@ -431,7 +377,7 @@ add_text (int status, TEXT *pTextIn)
 						getCharFromString (&ptr);
 						remChars--;
 						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
+						if (computerOn)
 							SetContextFont (ComputerFont);
 						else
 							SetContextFont (CommData.AlienFont);
@@ -477,7 +423,7 @@ add_text (int status, TEXT *pTextIn)
 						getCharFromString (&ptr);
 						remChars--;
 						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
+						if (computerOn)
 							SetContextFont (ComputerFont);
 						else
 							SetContextFont (CommData.AlienFont);
@@ -608,7 +554,7 @@ getLineWithinWidth(TEXT *pText, const char **startNext,
 
 	//GetContextClipRect (&rect);
 
-	eol = FALSE;	
+	eol = FALSE;
 	done = FALSE;
 	oldCount = 1;
 	charCount = 0;
@@ -737,11 +683,10 @@ RefreshResponsesSpecial (ENCOUNTER_STATE *pES)
 {	// PC style repsonses
 	COORD y;
 	BYTE response;
-	SIZE leading;	
+	SIZE leading;
 
 	SetContext (SpaceContext);
-	// GetContextFontLeading (&leading);
-	leading = RES_SCALE (is3DO (optWhichFonts) ? 7 : 9);
+	GetContextFontLeading (&leading);
 	BatchGraphics ();
 
 	DrawSISComWindow ();
@@ -773,8 +718,7 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 
 	SetContext (SpaceContext);
-	// GetContextFontLeading (&leading);
-	leading = RES_SCALE (is3DO (optWhichFonts) ? 7 : 9);
+	GetContextFontLeading (&leading);
 	BatchGraphics ();
 
 	DrawSISComWindow ();
@@ -782,8 +726,10 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
-		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE (8);
-		pES->response_list[response].response_text.baseline.y = y + leading;
+		pES->response_list[response].response_text.baseline.x =
+					TEXT_X_OFFS + RES_SCALE (8);
+		pES->response_list[response].response_text.baseline.y =
+					y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
 			y = add_text (-1, &pES->response_list[response].response_text);
@@ -979,8 +925,10 @@ FadePlayerUI (void)
 		CONTEXT OldContext;
 		BYTE i;
 
-		Color DarkModeFGTextColor[] = DARKMODE_FG_TABLE; // emulating as close as possible PC-DOS text glow
-		Color DarkModeBGTextColor[] = DARKMODE_BG_TABLE; // it was not instantanious, but also looked like fading shenanigans
+		// emulating as close as possible PC-DOS text glow
+		static const Color DarkModeFGTextColor[] = DARKMODE_FG_TABLE;
+		// it was not instantanious, but also looked like fading shenanigans
+		static const Color DarkModeBGTextColor[] = DARKMODE_BG_TABLE;
 
 		if (fadeIndex > 50)
 		{
@@ -1844,7 +1792,8 @@ HailAlien (void)
 	else
 		PlayerFont = LoadFont (TINY_FONT_BOLD);
 
-	ComputerFont = LoadFont (COMPUTER_FONT);
+	if (optOrzCompFont)
+		ComputerFont = LoadFont (COMPUTER_FONT);
 
 	CommData.AlienFrame = CaptureDrawable (
 			LoadGraphic (CommData.AlienFrameRes));

@@ -439,18 +439,6 @@ FreePlanet (void)
 
 	HFree (Orbit->TopoColors);
 	Orbit->TopoColors = NULL;
-
-	if (Orbit->ScanColors)
-	{
-		for (j = 0; j < NUM_SCAN_TYPES; j++)
-		{
-			HFree(Orbit->ScanColors[j]);
-			Orbit->ScanColors[j] = NULL;
-		}
-	}
-	HFree(Orbit->ScanColors);
-	Orbit->ScanColors = NULL;
-
 	HFree (Orbit->ScratchArray);
 	Orbit->ScratchArray = NULL;
 	if (Orbit->map_rotate && Orbit->light_diff)
@@ -594,7 +582,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 static void
 on_input_frame (void)
 {
-	RotatePlanetSphere (TRUE, NULL);
+	RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
 }
 
 void

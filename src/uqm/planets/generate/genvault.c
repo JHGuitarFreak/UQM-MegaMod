@@ -101,11 +101,13 @@ GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						& 1 << URQUAN_ENCOUNTER)
 					&& !(GET_GAME_STATE(KOHR_AH_FRENZY)))
 			{
+				COUNT i;
+
 				PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 				ReinitQueue (&GLOBAL (ip_group_q));
 				assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-				for (COUNT i = 0; i < 6; ++i)
+				for (i = 0; i < 6; ++i)
 					CloneShipFragment (URQUAN_SHIP,
 						&GLOBAL (npc_built_ship_q), 0);
 

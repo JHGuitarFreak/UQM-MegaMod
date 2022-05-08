@@ -754,7 +754,8 @@ init_shofixti_comm (void)
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	shofixti_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	shofixti_desc.AlienTextBaseline.x =
+			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	shofixti_desc.AlienTextBaseline.y = 0;
 	shofixti_desc.AlienTextWidth = SIS_TEXT_WIDTH;
 
