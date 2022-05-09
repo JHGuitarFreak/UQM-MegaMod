@@ -2495,7 +2495,8 @@ CalcSunSize (PLANET_DESC *pSunDesc, SIZE radius)
 	}
 
 	pSunDesc->image.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-	pSunDesc->image.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
+	pSunDesc->image.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
+			- IF_WS (RES_SCALE (20));
 	
 	// JMS: Animating IP sun in hi-res modes...
 	if (!IS_HD)
@@ -3222,15 +3223,15 @@ widthHeightPicker (BOOLEAN is_width)
 {
 	switch (optStarBackground)
 	{
-	case 0:
-		return (is_width ? ORIG_SIS_SCREEN_WIDTH : PC_SIS_SCREEN_HEIGHT);
-	case 1:
-		return (is_width ? THREEDO_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_HEIGHT);
-	case 2:
-		return (is_width ? (ORIG_SIS_SCREEN_WIDTH - 1) : ORIG_SIS_SCREEN_HEIGHT);
-	case 3:
-	default:
-		return (is_width ? HDMOD_SIS_SCREEN_WIDTH : HDMOD_SIS_SCREEN_HEIGHT);
+		case 0:
+			return (is_width ? MAP_WIDTH : PC_SIS_SCREEN_HEIGHT);
+		case 1:
+			return (is_width ? THREEDO_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_HEIGHT);
+		case 2:
+			return (is_width ? (MAP_WIDTH - 1) : ORIG_SIS_SCREEN_HEIGHT);
+		case 3:
+		default:
+			return (is_width ? HDMOD_SIS_SCREEN_WIDTH : HDMOD_SIS_SCREEN_HEIGHT);
 	}
 }
 
