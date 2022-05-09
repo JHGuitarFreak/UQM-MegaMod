@@ -44,6 +44,8 @@ extern int ScreenHeight;
 
 #define ASPECT_RATIO aspectRatio
 #define IS_WS (ASPECT_RATIO != 1 ? FALSE : TRUE)
+#define WS_BOOL(a,b) (!IS_WS ? (a) : (b))
+#define IF_WS(a) (WS_BOOL (0, (a)))
 
 		/* Margins. */
 #define SIS_ORG_X RES_SCALE (6)

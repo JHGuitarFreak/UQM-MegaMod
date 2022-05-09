@@ -1058,6 +1058,8 @@ GetOrbitRect (RECT *pRect, COORD dx, COORD dy, SIZE radius,
 	pRect->corner.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + (long)-dy * ynumer / denom;
 	pRect->extent.width = (long)radius * (xnumer << 1) / denom;
 	pRect->extent.height = pRect->extent.width >> 1;
+	if (!playerInInnerSystem ())
+		pRect->corner.y -= IF_WS (RES_SCALE (20));
 }
 
 static void
