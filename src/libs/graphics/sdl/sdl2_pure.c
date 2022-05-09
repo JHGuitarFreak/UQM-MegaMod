@@ -481,4 +481,10 @@ TFB_SDL2_Postprocess (void)
 	SDL_RenderPresent (renderer);
 }
 
+bool
+TFB_SDL2_GammaCorrection (float gamma)
+{
+	return (SDL_SetWindowBrightness(window, gamma) == 0);
+}
+
 #endif
