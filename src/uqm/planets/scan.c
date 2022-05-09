@@ -200,6 +200,7 @@ HazardCase (BYTE hazard)
 }
 
 #define SCAN_TITLE_Y RES_SCALE (13)
+#define WIDE_COMP ((RES_SCALE (ORIG_SIS_SCREEN_WIDTH) - MAP_WIDTH) / 2)
 
 static void
 PrintCoarseScanPC (void)
@@ -225,8 +226,8 @@ PrintCoarseScanPC (void)
 
 	SetContextFont (TinyFont);
 
-#define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2)
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72))
+#define LEFT_SIDE_BASELINE_X_PC (RES_SCALE (2) + IF_WS (WIDE_COMP))
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72) - IF_WS (WIDE_COMP))
 #define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (14))
 #define SCAN_LEADING_PC RES_SCALE (10)
 
@@ -401,7 +402,7 @@ PrintCoarseScan3DO (void)
 	SetContextFont (MicroFont);
 	font_DrawText (&t);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15)
+#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15 + IF_WS (WIDE_COMP))
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
 #define SCAN_BASELINE_Y RES_SCALE (25 + 12)
 
@@ -410,7 +411,7 @@ PrintCoarseScan3DO (void)
 	t.align = ALIGN_LEFT;
 
 	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
-	s.origin.x = 0;
+	s.origin.x = IF_WS (WIDE_COMP);
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
 	DrawStamp (&s);
 
