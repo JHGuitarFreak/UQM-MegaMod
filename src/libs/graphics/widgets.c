@@ -571,8 +571,6 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	(void) x;
 }
 
-int slider_width;
-
 void
 Widget_DrawSlider(WIDGET *_self, int x, int y)
 {	// SFX slider
@@ -584,6 +582,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	TEXT t;
 	RECT r;
 	int tick = (ScreenWidth - x) / 8;
+	int slider_width;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -623,7 +622,8 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 		(self->max - self->min)) - (RES_SCALE (3) >> 1);
 	DrawFilledRectangle (&r);
 
-	(*self->draw_value)(self, RSTEP + 3 * tick - RES_SCALE (22) * tick, t.baseline.y);
+	//printf("%d + 3 * %d - 22 * %d\n", RSTEP, tick, tick);
+	(*self->draw_value)(self, slider_width, t.baseline.y);
 
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
@@ -639,7 +639,7 @@ Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y)
 
 	sprintf (buffer, "%d", self->value);
 
-	t.baseline.x = slider_width + RES_SCALE (14);
+	t.baseline.x = x + RES_SCALE (14);
 	t.baseline.y = y;
 	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;

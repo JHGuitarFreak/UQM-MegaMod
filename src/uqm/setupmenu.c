@@ -964,14 +964,14 @@ gamma_HandleEventSlider (WIDGET *_self, int event)
 	// Grow or shrink the range based on accepted values
 	if (gamma < minGamma || (!set && event == WIDGET_EVENT_LEFT))
 	{
-		minGamma = gamma;
+		gamma = minGamma;
 		updateGammaBounds (true);
 		// at the lowest end
 		self->value = 0;
 	}
 	else if (gamma > maxGamma || (!set && event == WIDGET_EVENT_RIGHT))
 	{
-		maxGamma = gamma;
+		gamma = maxGamma;
 		updateGammaBounds (false);
 		// at the highest end
 		self->value = 100;
@@ -987,9 +987,9 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 	float gamma = sliderToGamma (self->value);
 	snprintf (buf, sizeof buf, "%.4f", gamma);
 
-	t.baseline.x = x;
+	t.baseline.x = x + RES_SCALE(6);
 	t.baseline.y = y;
-	t.align = ALIGN_CENTER;
+	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
 	t.pStr = buf;
 
