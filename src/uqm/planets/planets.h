@@ -147,6 +147,8 @@ struct planet_orbit
 			// the color of the last used tint
 	Color *TopoColors;
 			// RGBA version of topo image; for 3d planet
+	Color **ScanColors;
+			// RGBA version of scan colors; for 3d planet
 	Color *ScratchArray;
 			// temp RGBA data for whatever transforms (nuked often)
 	FRAME WorkFrame;
@@ -349,12 +351,14 @@ extern void PrepareNextRotationFrame (void);
 extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter);
 extern void DrawPlanetSphere (int x, int y);
 extern void DrawDefaultPlanetSphere (void);
-extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame, int offset,
-		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height, COUNT radius);
+extern void RerenderPlanetSphere (void);
+extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame,
+		int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width,
+		COUNT height, COUNT radius, BOOLEAN ForIP);
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
 
 extern void ZoomInPlanetSphere (void);
-extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop, Color color);
+extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop);
 
 extern void DrawScannedObjects (BOOLEAN Reversed);
 extern void GeneratePlanetSurface (PLANET_DESC *pPlanetDesc,
