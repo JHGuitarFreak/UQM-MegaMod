@@ -239,21 +239,22 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode == DRAW_ORBITAL_WAIT)
 	{
-		STAMP s, ss;
-		BOOLEAN never = FALSE;
+		STAMP s;
 
 		SetContext (GetScanContext (NULL));
 
 		s.origin.x = 0;
 		s.origin.y = 0;
 		s.frame = SetAbsFrameIndex (CaptureDrawable
-				(LoadGraphic (ORBENTER_PMAP_ANIM)), never);
+				(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
 
 		if (optSuperPC == OPT_PC)
 			s.origin.x -= RES_SCALE ((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2);
 
+#if 0
 		if (never)
 		{
+			STAMP ss;
 			PLANET_DESC *pPlanetDesc;
 			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 			int PlanetScale = RES_BOOL (319, 512);
@@ -273,8 +274,13 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 			DrawStamp (&ss);
 			DestroyDrawable (ReleaseDrawable (ss.frame));
 		}
+#endif
 
 		DrawStamp (&s);
+
+		if (optSuperPC == OPT_PC)
+			InitPCLander (TRUE);
+
 		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
 	else if (Mode == DRAW_ORBITAL_FULL)
@@ -295,7 +301,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 		SetContext (GetScanContext (NULL));
 		DrawPlanet (0, BLACK_COLOR);
 		if (optSuperPC == OPT_PC)
-			InitPCLander();// PC-DOS lander UI pops after "Entering planetary orbit" frame
+			InitPCLander (FALSE);
 	}
 
 	if (Mode != DRAW_ORBITAL_UPDATE)
