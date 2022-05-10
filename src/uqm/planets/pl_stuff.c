@@ -51,7 +51,7 @@ DrawCurrentPlanetSphere (void)
 	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	s.origin.y = PLANET_ORG_Y;
 
-	{// re-render current frame
+	{	// re-render current frame
 		rotFrameIndex ^= 1;
 
 		rotPointIndex -= rotDirection;// roll back
@@ -97,6 +97,14 @@ DrawPlanetSphere (int x, int y)
 	if (Orbit->ObjectFrame)
 	{
 		s.frame = Orbit->ObjectFrame;
+		DrawStamp (&s);
+	}
+	if (pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED
+		&& isPC (optWhichCoarseScan))
+	{
+		s.frame = SetAbsFrameIndex (MiscDataFrame, 110);
+		s.origin.x -= s.frame->Bounds.width / 2;
+		s.origin.y -= s.frame->Bounds.height / 2;
 		DrawStamp (&s);
 	}
 	UnbatchGraphics ();

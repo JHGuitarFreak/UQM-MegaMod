@@ -2341,7 +2341,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	// Rotating planet sphere initialization
 	GenerateSphereMask (loc, radius);
 	CreateSphereTiltMap (PlanetInfo->AxialTilt, height, radius);
-	if (shielded)
+	if (shielded && is3DO (optWhichCoarseScan))
 		Orbit->ObjectFrame = CreateShieldMask (radius);
 	InitSphereRotation (PlanetRotation, shielded, width, height);
 	

@@ -998,7 +998,6 @@ DrawScannedStuff (COUNT y, COUNT scan)
 	SetContextForeGroundColor (OldColor);
 }
 
-
 static void
 DrawPCScannedStuff (COUNT scan)
 {
