@@ -33,6 +33,7 @@ DeltaTopography (COUNT num_iterations, SBYTE *DepthArray, RECT *pRect,
 		SIZE x_incr, delta_x, error_term;
 	} LineDDA0, LineDDA1;
 
+	
 	width = pRect->extent.width;
 	height = pRect->extent.height;
 	delta_y = (height - 1) << 1;

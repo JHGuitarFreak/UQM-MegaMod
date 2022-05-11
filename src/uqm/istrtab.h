@@ -187,3 +187,4 @@
 #define YTTRIC_COLOR_TAB "planet.yttric.colortable"
 #define YTTRIC_XLAT_TAB "planet.yttric.translatetable"
 #define ZFPRUINS_STRTAB "text.zfpcolony"
+#define DOS_SPHERE_COLOR_TAB "dossphere.colortable"

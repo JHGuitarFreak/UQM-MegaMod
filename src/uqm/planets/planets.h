@@ -158,6 +158,10 @@ struct planet_orbit
 	DWORD **light_diff;
 	MAP3D_POINT **map_rotate;
 	// doubly dynamically allocated depending on map size
+
+	BYTE* spherePixels;
+	BYTE* dosMask;
+	COLORMAP sphereMap;
 };
 
 #if defined(__cplusplus)

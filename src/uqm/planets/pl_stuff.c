@@ -60,12 +60,15 @@ DrawCurrentPlanetSphere (void)
 		else if (rotPointIndex >= rotwidth)
 			rotPointIndex = 0;
 
-		Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame,
+		if (FALSE)
+		{// placeholder for optDOSsphere
+			Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame,
 				rotFrameIndex);
-		RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
+			RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
 				pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
 				throbShield, rotwidth, rotheight,
 				(rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
+		}
 	}
 	BatchGraphics ();
 	s.frame = Orbit->SphereFrame;
@@ -115,8 +118,21 @@ DrawDefaultPlanetSphere (void)
 void
 RerenderPlanetSphere (void)
 {
+	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
+	COUNT sc;
+
 	if (optTintPlanSphere != OPT_PC)
 		return;
+
+	// if optDOSspheres
+	sc = Orbit->scanType;
+	if (sc > 2)
+		sc = 0;
+	else
+		sc++;
+	
+	XFormColorMap(GetColorMapAddress(SetAbsColorMapIndex(Orbit->sphereMap, sc)), 0);
+	XFormColorMap_step();
 
 	DrawCurrentPlanetSphere ();
 }
@@ -182,10 +198,13 @@ PrepareNextRotationFrame (void)
 		rotPointIndex = 0;
 
 	// prepare the next sphere frame
-	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, rotFrameIndex);
-	RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
+	if (FALSE)
+	{// placeholder for optDOSsphere
+		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame, rotFrameIndex);
+		RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
 			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD (2), FALSE); // RADIUS
+			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
+	}
 	
 	if (throbShield)
 	{	// prepare the next shield throb frame
@@ -412,6 +431,7 @@ DrawPCScanTint (COUNT scan)
 	s.origin.y = 0;
 
 	s.frame = pSolarSysState->ScanFrame[scan];
+	//XFormColorMap(GetColorMapAddress(SetAbsColorMapIndex(Orbit->sphereMap, scan+1)), 0);
 	
 	DrawStamp (&s);
 }

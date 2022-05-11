@@ -67,6 +67,7 @@ extern TFB_ColorMap * TFB_GetColorMap (int index);
 extern void TFB_ReturnColorMap (TFB_ColorMap *map);
 
 extern BOOLEAN XFormColorMap_step (void);
+extern void SetColorMapColors(BYTE* cbase, COUNT index, COUNT numColors);
 
 // Native
 NativePalette* AllocNativePalette (void);
