@@ -161,6 +161,16 @@ ColorDelta (COUNT scan, DWORD avg)
 }
 
 void
+SetPlanetColors(void)
+{
+	BYTE* cbase;
+
+	cbase = GetColorMapAddress(pSolarSysState->OrbitalCMap);
+
+	SetColorMapColors(cbase, 44, 128);
+}
+
+void
 AdjustColor (Color *c, COUNT scan, COUNT height, COUNT width, SBYTE diff)
 {
 	COUNT y, x;
@@ -850,6 +860,98 @@ get_map_elev (SBYTE *elevs, int x, int y, int offset, COUNT width)
 	return elevs[y * width + (offset + x) % width];
 }
 
+void
+CreateDOSHeightMask(SBYTE* pTopoData, SIZE w, SIZE h)
+{
+	COUNT i;
+	BYTE AlgoType;
+	SIZE base, d;
+	const XLAT_DESC* xlatDesc;
+
+	const PlanetFrame* PlanDataPtr;
+	SBYTE* pSrc;
+	const SIZE* level_tab;
+
+
+	xlatDesc = (const XLAT_DESC*)pSolarSysState->XlatPtr;
+	level_tab = (const BYTE*)xlatDesc->level_tab;
+
+	pSrc = pTopoData;
+	/*for (pt.y = 0; pt.y < h; ++pt.y)
+	{
+		for (pt.x = 0; pt.x < w; ++pt.x, ++pSrc)
+		{
+			BYTE* ctab;
+
+			d = *pSrc;
+			if (AlgoType == GAS_GIANT_ALGO)
+			{	// make elevation value non-negative
+				d &= 255;
+			}
+			else
+			{
+				d += base;
+				if (d < 0)
+					d = 0;
+				else if (d > 255)
+					d = 255;
+			}
+
+			--pBatch;
+			pBatch->Object.Point.x = pt.x;
+			pBatch->Object.Point.y = pt.y;
+
+			d = xlat_tab[d] - cbase[0];
+			ctab = (cbase + 2) + d * 3;
+
+			if (scanTable == NULL)
+			{	// fixed planet surfaces being too dark
+				// ctab shifts were previously >> 3 .. -Mika
+				SetPrimColor(pBatch, BUILD_COLOR(MAKE_RGB15(
+					ctab[0] >> ColorShift, ctab[1] >> ColorShift,
+					ctab[2] >> ColorShift), d));
+			}
+			else
+				SetPrimColor(pBatch, BUILD_COLOR_RGBA(ctab[0],
+					ctab[1], ctab[2], 0xFF));
+
+
+			if (--i == 0)
+			{	// flush the batch and start the next one
+				DrawBatch(BatchArray, 0, 0);
+				i = NUM_BATCH_POINTS;
+				pBatch = &BatchArray[i];
+			}
+		}
+	
+
+	if (i < NUM_BATCH_POINTS)
+	{
+		DrawBatch(BatchArray, i, 0);
+	}
+
+	SetContextClipRect(&ClipRect);
+	SetContextOrigin(oldOrigin);*/
+
+}
+
+void
+RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
+{
+	BYTE* pxl;
+	BYTE* res;
+
+	pxl = HMalloc(MaskFrame->Bounds.width * MaskFrame->Bounds.height * sizeof(BYTE));
+	memcpy(pxl, Orbit->spherePixels, MaskFrame->Bounds.width * MaskFrame->Bounds.height * sizeof(BYTE));
+
+	res = pxl;
+
+
+
+	WriteFramePixelIndexes(MaskFrame, pxl, MaskFrame->Bounds.width, MaskFrame->Bounds.height);
+
+}
+
 // RenderPlanetSphere builds a frame for the rotating planet view
 // offset is effectively the angle of rotation around the planet's axis
 // We use the SDL routines to directly write to the SDL_Surface to improve performance
@@ -1473,8 +1575,22 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	COUNT diameter = height + 1;
 	COUNT i;
 
-	Orbit->SphereFrame = CaptureDrawable (CreateDrawable (
-			WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));
+
+	if (forOrbit)
+	{
+		Orbit->sphereMap = CaptureColorMap(LoadColorMap(DOS_SPHERE_COLOR_TAB));
+		SetColorMap(GetColorMapAddress(Orbit->sphereMap));
+		Orbit->SphereFrame = CaptureDrawable(LoadGraphic(DOS_PLANET_MASK_ANIM));
+
+		Orbit->dosMask = HMalloc(width * height * sizeof(BYTE));
+		memset(Orbit->dosMask, 0, width * height);
+
+		Orbit->spherePixels = HMalloc(sizeof(BYTE) * Orbit->SphereFrame->Bounds.width * Orbit->SphereFrame->Bounds.height);
+		ReadFramePixelIndexes(Orbit->SphereFrame, Orbit->spherePixels, Orbit->SphereFrame->Bounds.width, Orbit->SphereFrame->Bounds.height, TRUE);
+	}
+	else
+		Orbit->SphereFrame = CaptureDrawable (CreateDrawable (
+				WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));	
 
 	if (forOrbit)
 		Orbit->TintFrame = CaptureDrawable (CreateDrawable (
@@ -1956,7 +2072,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		ForIP = TRUE;
 	}
 	
-	RandomContext_SeedRandom (SysGenRNG, pPlanetDesc->rand_seed);
+	RandomContext_SeedRandom(SysGenRNG, pPlanetDesc->rand_seed);
 
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
@@ -2042,7 +2158,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 				pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
 						pSolarSysState->OrbitalCMap, 1);
 				pSolarSysState->XlatRef = SetAbsStringTableIndex (
-						pSolarSysState->XlatRef, 1);
+						pSolarSysState->XlatRef, 1);				
 			}
 		}
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
@@ -2164,6 +2280,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 				pSolarSysState->XlatRef = SetAbsStringTableIndex (
 						pSolarSysState->XlatRef, 1);
 			}
+			// if optDOSspheres
+			SetPlanetColors();
 		} 
 		else 
 		{
@@ -2185,7 +2303,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 						pSolarSysState->OrbitalCMap, 1);
 				pSolarSysState->XlatRef = SetAbsStringTableIndex (
 						pSolarSysState->XlatRef, 1);
-			}
+			}			
 		}
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
 		RenderTopography (pSolarSysState->TopoFrame,

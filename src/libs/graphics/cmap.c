@@ -661,3 +661,38 @@ GetColorMapAddress (COLORMAP colormap)
 {
 	return GetStringAddress (colormap);
 }
+
+void
+SetColorMapColors(BYTE* cbase, COUNT index, COUNT numColors)
+{
+	TFB_ColorMap* map;
+	int i;
+	LockMutex(maplock);
+
+	map = colormaps[index];
+	if (!map)
+	{
+		UnlockMutex(maplock);
+		log_add(log_Error, "BUG: XFormColorMap_step(): no current map");
+		return;
+	}
+
+	{
+		TFB_ColorMap* newmap = NULL;
+		BYTE* ctab;
+		int i;
+
+		newmap = clone_colormap(map, index);
+
+		for (i = 0; i < numColors; ++i)
+		{
+			ctab = (cbase + 2) + i * 3;
+
+			SetNativePaletteColor(newmap->palette, i, BUILD_COLOR(MAKE_RGB15(ctab[0] >> 1, ctab[1] >> 1, ctab[2] >> 1), i));
+		}
+
+		colormaps[index] = newmap;
+		release_colormap(map);
+	}
+	UnlockMutex(maplock);
+}

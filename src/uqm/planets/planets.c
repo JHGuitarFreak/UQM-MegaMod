@@ -457,6 +457,11 @@ FreePlanet (void)
 	HFree (Orbit->ScanColors);
 	Orbit->ScanColors = NULL;
 
+	DestroyColorMap(ReleaseColorMap(Orbit->sphereMap));
+
+	HFree(Orbit->spherePixels);
+	Orbit->spherePixels = NULL;
+
 	HFree (Orbit->ScratchArray);
 	Orbit->ScratchArray = NULL;
 	if (Orbit->map_rotate && Orbit->light_diff)

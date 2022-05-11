@@ -347,3 +347,4 @@
 #define VENUS_MASK_ANIM "graphics.venusmask"
 #define VISITED_STARS_ANIM "graphics.visitedstars"
 #define WRECK_MASK_PMAP_ANIM "graphics.urquanwreck"
+#define DOS_PLANET_MASK_ANIM "graphics.dossphere"
