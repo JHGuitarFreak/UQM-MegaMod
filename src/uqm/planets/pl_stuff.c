@@ -373,8 +373,12 @@ renderTintFrame (Color tintColor)
 	DrawMode mode, oldMode;
 	STAMP s;
 	RECT r;
-	BOOLEAN is_red = 
-			sameColor(BRIGHT_RED_COLOR, tintColor);
+	double is_red;
+
+	if (sameColor (BRIGHT_RED_COLOR, tintColor))
+		is_red = 0.75;
+	else
+		is_red = 0.5;
 
 	oldContext = SetContext (OffScreenContext);
 	SetContextFGFrame (Orbit->TintFrame);
@@ -389,10 +393,7 @@ renderTintFrame (Color tintColor)
 	DrawStamp (&s);
 
 	// apply the tint
-	if (optScanStyle != OPT_PC)
-		mode = MAKE_DRAW_MODE (DRAW_ADDITIVE, DRAW_FACTOR_1 * (is_red ? 0.75 : 0.5));
-	else
-		mode = MAKE_DRAW_MODE (DRAW_ALPHA, DRAW_FACTOR_1 / 2);
+	mode = MAKE_DRAW_MODE (DRAW_ADDITIVE, DRAW_FACTOR_1 * is_red);
 
 	oldMode = SetContextDrawMode (mode);
 	SetContextForeGroundColor (tintColor);
@@ -428,7 +429,7 @@ DrawPlanet (int tintY, Color tintColor)
 	
 	BatchGraphics ();
 	if (sameColor (tintColor, BLACK_COLOR))
-	{	// no tint -- just draw the surface	
+	{	// no tint -- just draw the surface
 		s.frame = pSolarSysState->TopoFrame;
 		DrawStamp (&s);
 	}
@@ -453,9 +454,8 @@ DrawPlanet (int tintY, Color tintColor)
 		{	// tinted piece showing, draw tinted piece
 			RECT oldClipRect;
 			RECT clipRect;
-			COUNT i;
 			RECT edge;
-			int grad = 0xC0 / 4;
+			COUNT i;
 
 			// adjust cliprect to confine the tint
 			GetContextClipRect (&oldClipRect);
@@ -466,26 +466,31 @@ DrawPlanet (int tintY, Color tintColor)
 			DrawStamp (&s);
 			SetContextClipRect (&oldClipRect);
 
-			edge.extent.height = RES_SCALE (1);
+			edge.extent.height = 1;
 			edge.extent.width = SCALED_MAP_WIDTH;
 			edge.corner.x = tintFrame->HotSpot.x;
+			edge.corner.y = clipRect.extent.height;
 
-			for (i = 0; i < 3; i++)
+			for (i = 0x90; i > 0; i -= 0x90 / RES_SCALE (3))
 			{
-				edge.corner.y = clipRect.extent.height - RES_SCALE (i);
-				SetContextForeGroundColor (
-						BUILD_COLOR_RGBA (
-							tintColor.r,
-							tintColor.g,
-							tintColor.b,
-							0x90 - grad * i
-						));
+				tintColor.a = i;
+				SetContextForeGroundColor (tintColor);
 				DrawFilledRectangle (&edge);
+				edge.corner.y--;
 			}
-			edge.corner.y = clipRect.extent.height + RES_SCALE (1);
-			SetContextForeGroundColor (
-					BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x40));
-			DrawFilledRectangle (&edge);
+
+			tintColor = BLACK_COLOR;
+			edge.corner.y = clipRect.extent.height + 1;
+
+			for (i = 0x40; i > 0; i -= 8)
+			{
+				tintColor.a = i;
+				SetContextForeGroundColor (tintColor);
+				DrawFilledRectangle (&edge);
+				if (!IS_HD)
+					break;
+				edge.corner.y++;
+			}
 		}
 	}
 	UnbatchGraphics ();
