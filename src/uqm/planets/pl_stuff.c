@@ -69,6 +69,15 @@ DrawCurrentPlanetSphere (void)
 				throbShield, rotwidth, rotheight,
 				(rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
 		}
+		else
+		{
+			if (rotFrameIndex)
+				Orbit->SphereFrame = IncFrameIndex(Orbit->SphereFrame);
+			else
+				Orbit->SphereFrame = DecFrameIndex(Orbit->SphereFrame);
+
+			RenderDOSPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex);
+		}
 	}
 	BatchGraphics ();
 	s.frame = Orbit->SphereFrame;
@@ -147,7 +156,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	rotDirection = direction;
 	rotPointIndex = 0;
-	throbShield = shielded && optWhichShield == OPT_3DO;
+	throbShield = shielded && optWhichShield == OPT_3DO && FALSE;// not DOS spheres
 
 	if (throbShield)
 	{
@@ -163,7 +172,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	// Render the first sphere/shield frame
 	// Prepare will set the next one
-	rotFrameIndex = 1;
+	rotFrameIndex = (TRUE ? 0: 1);// if DOS spheres on?
 	PrepareNextRotationFrame ();
 }
 
@@ -200,7 +209,7 @@ PrepareNextRotationFrame (void)
 
 	// prepare the next sphere frame
 	if (FALSE)
-	{// placeholder for optDOSsphere
+	{// not optDOSsphere
 		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame, rotFrameIndex);
 		RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
 			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
@@ -208,10 +217,15 @@ PrepareNextRotationFrame (void)
 	}
 	else
 	{
+		if (rotFrameIndex)
+			Orbit->SphereFrame = IncFrameIndex(Orbit->SphereFrame);
+		else
+			Orbit->SphereFrame = DecFrameIndex(Orbit->SphereFrame);
+
 		RenderDOSPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex);
 	}
 	
-	if (throbShield)
+	if (throbShield && FALSE)// not DOS spheres
 	{	// prepare the next shield throb frame
 		Orbit->ObjectFrame = SetAbsFrameIndex (Orbit->ObjectFrame,
 				rotFrameIndex);

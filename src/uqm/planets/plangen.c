@@ -252,7 +252,7 @@ RenderLevelMasks(BYTE *masks, SBYTE* pTopoData)
 	lpDst = pTopoData;
 	base = PlanDataPtr->base_elevation;
 
-	//printf("%d %d %d", level_tab[1], level_tab[2], level_tab[3]);
+	//printf("%d %d %d", level_tab[0], level_tab[1], level_tab[2]);
 
 	for (pt.y = 0; pt.y < MAP_HEIGHT; ++pt.y)
 	{
@@ -274,7 +274,7 @@ RenderLevelMasks(BYTE *masks, SBYTE* pTopoData)
 			}
 			d = xlat_tab[d];
 
-			numlevels = 3;
+			/*numlevels = 3;
 			while (numlevels--)
 			{
 				if (d >= level_tab[numlevels - 1]
@@ -282,17 +282,16 @@ RenderLevelMasks(BYTE *masks, SBYTE* pTopoData)
 						|| d < level_tab[numlevels + 1]))
 					*level = numlevels;
 
-			}
-			
+			}*/
 
-			/*if (d >= level_tab[2])
-				*level = 3;
-			else if (d >= level_tab[1])
-				*level = 2;
-			else if (d >= level_tab[0])
+			if (d < level_tab[0])
+				*level = 0;
+			else if (d < level_tab[1])
 				*level = 1;
+			else if (d < level_tab[2])
+				*level = 2;
 			else
-				*level = 1;*/
+				*level = 3;
 		}
 	}
 
@@ -304,7 +303,6 @@ RenderLevelMasks(BYTE *masks, SBYTE* pTopoData)
 			d = *lpDst;
 			if (AlgoType == GAS_GIANT_ALGO)
 			{	// make elevation value non-negative
-				d += base;
 				d &= 255;
 			}
 			else
@@ -1632,8 +1630,8 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	COUNT i;
 
 
-	if (forOrbit)
-	{
+	if (forOrbit && TRUE)
+	{// if DOS spheres
 		Orbit->sphereMap = CaptureColorMap(LoadColorMap(DOS_SPHERE_COLOR_TAB));
 		SetColorMap(GetColorMapAddress(Orbit->sphereMap));
 		Orbit->SphereFrame = CaptureDrawable(LoadGraphic(DOS_PLANET_MASK_ANIM));
@@ -1674,14 +1672,22 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	// always allocate the scratch array to largest needed size
 	Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
 			* (shielddiam) * (shielddiam));
-			
-	Orbit->light_diff = HMalloc (sizeof (DWORD *) * diameter);
-	Orbit->map_rotate = HMalloc (sizeof (MAP3D_POINT *) * diameter);
 	
-	for (i=0 ; i < diameter ; i++)
+	if (!forOrbit || FALSE)
+	{// if NOT DOS spheres
+		Orbit->light_diff = HMalloc(sizeof(DWORD*) * diameter);
+		Orbit->map_rotate = HMalloc(sizeof(MAP3D_POINT*) * diameter);
+
+		for (i = 0; i < diameter; i++)
+		{
+			Orbit->light_diff[i] = HMalloc(sizeof(DWORD) * diameter);
+			Orbit->map_rotate[i] = HMalloc(sizeof(MAP3D_POINT) * diameter);
+		}
+	}
+	else
 	{
-		Orbit->light_diff[i] = HMalloc (sizeof (DWORD)* diameter);
-		Orbit->map_rotate[i] = HMalloc (sizeof (MAP3D_POINT) * diameter);
+		Orbit->map_rotate = NULL;
+		Orbit->light_diff = NULL;
 	}
 }
 
@@ -2194,8 +2200,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		}
 		else
 		{	// JMS: Normal planets
-			pSolarSysState->OrbitalCMap = CaptureColorMap (
-					LoadColorMap (PlanDataPtr->CMapInstance));
+			pSolarSysState->OrbitalCMap = CaptureColorMap(
+					LoadColorMap(shielded ? DOS_SHIELDED_COLOR_TAB : PlanDataPtr->CMapInstance));
 			pSolarSysState->XlatRef = CaptureStringTable (
 					LoadStringTable (PlanDataPtr->XlatTabInstance));
 
@@ -2215,6 +2221,13 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			}
 		}
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
+
+		if (!ForIP && TRUE)
+		{// if optDOSspheres
+			RenderLevelMasks(Orbit->dosMask, Orbit->lpTopoData);
+			SetPlanetColors(GetColorMapAddress(Orbit->sphereMap));
+			//WriteFramePixelColors(pSolarSysState->TopoFrame, Orbit->MaskFrame, width, height);
+		}
 
 		if (DeleteDef)
 			DestroyDrawable (ReleaseDrawable (SurfDefFrame));
@@ -2333,8 +2346,6 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 				pSolarSysState->XlatRef = SetAbsStringTableIndex (
 						pSolarSysState->XlatRef, 1);
 			}
-			// if optDOSspheres
-			SetPlanetColors(GetColorMapAddress(Orbit->sphereMap));
 		} 
 		else 
 		{
@@ -2362,9 +2373,10 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		RenderTopography (pSolarSysState->TopoFrame,
 				Orbit->lpTopoData, width, height, FALSE, NULL);
 
-		if (!ForIP)
-		{
-			RenderLevelMasks(Orbit->dosMask, Orbit->lpTopoData);
+		if (!ForIP && TRUE)
+		{// if optDOSspheres
+			RenderLevelMasks(Orbit->dosMask, Orbit->lpTopoData);			
+			SetPlanetColors(GetColorMapAddress(Orbit->sphereMap));
 //			WriteFramePixelColors(pSolarSysState->TopoFrame, Orbit->MaskFrame, width, height);
 		}
 
@@ -2512,10 +2524,19 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 	
 	// Rotating planet sphere initialization
-	GenerateSphereMask (loc, radius);
-	CreateSphereTiltMap (PlanetInfo->AxialTilt, height, radius);
+	if (FALSE || ForIP)
+	{// if not DOS spheres
+		GenerateSphereMask(loc, radius);
+		CreateSphereTiltMap(PlanetInfo->AxialTilt, height, radius);
+	}
+	else
+	{
+		COUNT facing;
+		facing = NORMALIZE_FACING(ANGLE_TO_FACING(ARCTAN(loc.x, loc.y)));
+		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame, facing & 14);
+	}
 	if (shielded)
-		Orbit->ObjectFrame = CreateShieldMask (radius);
+		Orbit->ObjectFrame = ((TRUE && !ForIP) ? (CaptureDrawable(LoadGraphic(DOS_SHIELD_MASK_ANIM))) : CreateShieldMask (radius));
 	InitSphereRotation (PlanetRotation, shielded, width, height);
 	
 	if (ForIP)
