@@ -453,8 +453,8 @@ FreePlanet (void)
 
 	DestroyColorMap(ReleaseColorMap(Orbit->sphereMap));
 
-	HFree(Orbit->spherePixels);
-	Orbit->spherePixels = NULL;
+	HFree(Orbit->dosMask);
+	Orbit->dosMask = NULL;
 
 	HFree (Orbit->ScratchArray);
 	Orbit->ScratchArray = NULL;

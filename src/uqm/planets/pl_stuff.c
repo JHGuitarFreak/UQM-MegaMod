@@ -184,6 +184,7 @@ void
 PrepareNextRotationFrame (void)
 {
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+	static BOOLEAN flag = TRUE;
 
 	// Generate the next rotation frame
 	// We alternate between the frames because we do not call FlushGraphics()
@@ -204,6 +205,10 @@ PrepareNextRotationFrame (void)
 		RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
 			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
 			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
+	}
+	else
+	{
+		RenderDOSPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex);
 	}
 	
 	if (throbShield)
@@ -356,7 +361,7 @@ ZoomInPlanetSphere (void)
 	}
 }
 
-#define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL (24, 42))
+#define PLANET_ROTATION_FPS (ONE_SECOND / 10)//RES_BOOL (24, 42))
 
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
@@ -369,7 +374,7 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 
 	if (Now >= NextTime)
 	{
-		NextTime = Now + PLANET_ROTATION_RATE;
+		NextTime = Now + ONE_SECOND / 10;//PLANET_ROTATION_RATE;
 
 		if (Now >= OutNextTime)
 		{
