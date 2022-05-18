@@ -2279,10 +2279,13 @@ EnterPlanetOrbit (void)
 		ValidateInnerOrbits ();
 		ResetSolarSys ();
 
-		if (optTexturedPlanets && worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-			GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc->pPrevDesc);
-		else
-			GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc);
+		if (optTexturedPlanets)
+		{
+			if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+				GenerateTexturedMoons(pSolarSysState, pSolarSysState->pOrbitalDesc->pPrevDesc);
+			else
+				GenerateTexturedMoons(pSolarSysState, pSolarSysState->pOrbitalDesc);
+		}
 
 		RepairSISBorder ();
 		TransitionSystemIn ();

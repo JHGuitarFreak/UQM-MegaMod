@@ -127,21 +127,24 @@ DrawDefaultPlanetSphere (void)
 void
 RerenderPlanetSphere (void)
 {
-	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
-	COUNT sc;
+	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;	
 
 	if (optTintPlanSphere != OPT_PC)
 		return;
 
 	// if optDOSspheres
-	sc = Orbit->scanType;
-	if (sc > 2)
-		sc = 0;
-	else
-		sc++;
-	
-	XFormColorMap(GetColorMapAddress(SetAbsColorMapIndex(Orbit->sphereMap, sc)), 0);
-	XFormColorMap_step();
+	if (TRUE)
+	{
+		COUNT sc;
+		sc = Orbit->scanType;
+		if (sc > 2)
+			sc = 0;
+		else
+			sc++;
+
+		XFormColorMap(GetColorMapAddress(SetAbsColorMapIndex(Orbit->sphereMap, sc)), 0);
+		XFormColorMap_step();
+	}
 
 	DrawCurrentPlanetSphere ();
 }
@@ -156,7 +159,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	rotDirection = direction;
 	rotPointIndex = 0;
-	throbShield = shielded && optWhichShield == OPT_3DO && FALSE;// not DOS spheres
+	throbShield = shielded && optWhichShield == OPT_3DO && FALSE;// not optDOSspheres
 
 	if (throbShield)
 	{
@@ -172,7 +175,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	// Render the first sphere/shield frame
 	// Prepare will set the next one
-	rotFrameIndex = (TRUE ? 0: 1);// if DOS spheres on?
+	rotFrameIndex = (TRUE ? 0: 1);// if optDOSspheres on?
 	PrepareNextRotationFrame ();
 }
 
@@ -225,7 +228,7 @@ PrepareNextRotationFrame (void)
 		RenderDOSPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex);
 	}
 	
-	if (throbShield && FALSE)// not DOS spheres
+	if (throbShield && FALSE)// not optDOSspheres
 	{	// prepare the next shield throb frame
 		Orbit->ObjectFrame = SetAbsFrameIndex (Orbit->ObjectFrame,
 				rotFrameIndex);

@@ -159,7 +159,8 @@ struct planet_orbit
 	MAP3D_POINT **map_rotate;
 	// doubly dynamically allocated depending on map size
 
-	BYTE* dosMask;
+	// stuff to draw DOS spheres
+	FRAME TopoMask;
 	COLORMAP sphereMap;
 };
 
@@ -355,7 +356,7 @@ extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameC
 extern void DrawPlanetSphere (int x, int y);
 extern void DrawDefaultPlanetSphere (void);
 extern void RerenderPlanetSphere (void);
-extern void RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset);
+extern void RenderDOSPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame,
 		int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width,
 		COUNT height, COUNT radius, BOOLEAN ForIP);
