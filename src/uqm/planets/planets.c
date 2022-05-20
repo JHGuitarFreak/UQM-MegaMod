@@ -426,7 +426,7 @@ FreePlanet (void)
 	DestroyDrawable (ReleaseDrawable (Orbit->TopoZoomFrame));
 	Orbit->TopoZoomFrame = 0;
 	DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-	Orbit->SphereFrame = NULL;
+	Orbit->SphereFrame = 0;
 
 	DestroyDrawable (ReleaseDrawable (Orbit->TintFrame));
 	Orbit->TintFrame = 0;

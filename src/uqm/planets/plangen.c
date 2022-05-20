@@ -1015,65 +1015,6 @@ get_map_elev (SBYTE *elevs, int x, int y, int offset, COUNT width)
 	return elevs[y * width + (offset + x) % width];
 }
 
-
-void
-RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
-{// Kruzen: Yes, I know what to say to Apostle Peter when my time will come.
-	if (!Orbit->TopoMask)
-		return;
-	else
-	{
-		BYTE* pix;
-		BYTE* origin;
-		Color* mask;
-		Color* color;
-		COUNT x, y;
-		SIZE width = 75;
-		SIZE height = 67;
-		RECT r;
-		FRAME dupeframe;
-		PLANET_INFO* PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
-		STAMP s;
-		CONTEXT oldContext;
-
-		r.corner.y = 0;
-		r.corner.x = offset;
-		r.extent.width = width;
-		r.extent.height = height;
-
-		dupeframe = CaptureDrawable(CopyFrameRect(Orbit->TopoMask, &r));
-		
-		/*dupeframe = CaptureDrawable(RotateFrame(dupeframe, PlanetInfo->AxialTilt));//PlanetInfo->AxialTilt
-		GetFrameRect(dupeframe, &r);
-		SetFrameHot(dupeframe, MAKE_HOT_SPOT(r.extent.width / 2 , r.extent.height / 2));*/
-
-		origin = HMalloc(sizeof(BYTE) * width * height);
-		ReadFramePixelIndexes(dupeframe, origin, width, height, TRUE);
-
-		mask = HMalloc(sizeof(Color) * width * height);
-		ReadFramePixelColors(dupeframe, mask, width, height);
-
-		pix = origin;
-		color = mask;
-
-		for (y = 0; y < 67; ++y)
-		{
-			for (x = 0; x < 75; ++x, ++color, ++pix)
-			{
-				if (*pix < 0xFF)
-				{
-					*pix = *pix - ((*pix / 32) * 32) + (color->r * 32);
-				}
-			}
-		}
-		WriteFramePixelIndexes(MaskFrame, origin, width, height);
-
-		HFree(origin);
-		HFree(mask);
-		DestroyDrawable(ReleaseDrawable(dupeframe));
-	}
-}
-
 // RenderPlanetSphere builds a frame for the rotating planet view
 // offset is effectively the angle of rotation around the planet's axis
 // We use the SDL routines to directly write to the SDL_Surface to improve performance
@@ -1216,6 +1157,95 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 	else
 		frames_done++;
 #endif
+}
+
+void
+RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
+{// Kruzen: Yes, I know what to say to Apostle Peter when my time will come.
+	if (!Orbit->TopoMask)
+		return;
+	else
+	{
+		BYTE* pix;
+		BYTE* origin;
+		Color* mask;
+		Color* color;
+		COUNT x, y;
+		SIZE width = 75;
+		SIZE height = 67;
+		RECT r;
+		FRAME dupeframe;
+		PLANET_INFO* PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
+
+		r.corner.y = 0;
+		r.corner.x = offset;
+		r.extent.width = width;
+		r.extent.height = height;
+
+		
+		dupeframe = CaptureDrawable(CopyFrameRect(Orbit->TopoMask, &r));
+
+		mask = HMalloc(sizeof(Color) * width * height);
+
+		if (PlanetInfo->AxialTilt != 0)
+		{
+			STAMP s;
+			FRAME baseframe, rotFrame;
+			DrawMode oldMode;
+			CONTEXT oldContext;
+			POINT pt;
+			
+			rotFrame = CaptureDrawable(RotateFrame(dupeframe, PlanetInfo->AxialTilt));
+			GetFrameRect(rotFrame, &r);
+			baseframe = CaptureDrawable(
+				CreateDrawable(WANT_PIXMAP, (SIZE)width,
+					(SIZE)height, 1));
+
+			oldContext = SetContext(OffScreenContext);
+			SetContextFGFrame(baseframe);
+			SetContextClipRect(NULL);
+			
+			oldMode = SetContextDrawMode(DRAW_REPLACE_MODE);
+
+			SetFrameHot(rotFrame, MAKE_HOT_SPOT(0, 0));
+
+			s.origin.x = (width - r.extent.width) / 2;
+			s.origin.y = (height - r.extent.height) / 2;
+			s.frame = rotFrame;
+			DrawStamp(&s);
+
+			SetContextDrawMode(oldMode);
+			SetContext(oldContext);
+
+			ReadFramePixelColors(baseframe, mask, width, height);
+			DestroyDrawable(ReleaseDrawable(baseframe));
+			DestroyDrawable(ReleaseDrawable(rotFrame));
+		}
+		else
+			ReadFramePixelColors(dupeframe, mask, width, height);
+
+		origin = HMalloc(sizeof(BYTE) * width * height);
+		ReadFramePixelIndexes(MaskFrame, origin, width, height, TRUE);		
+
+		pix = origin;
+		color = mask;
+
+		for (y = 0; y < 67; ++y)
+		{
+			for (x = 0; x < 75; ++x, ++color, ++pix)
+			{
+				if (*pix < 0xFF)
+				{
+					*pix = *pix - ((*pix / 32) * 32) + (color->r * 32);
+				}
+			}
+		}
+		WriteFramePixelIndexes(MaskFrame, origin, width, height);
+
+		HFree(origin);
+		HFree(mask);		
+		DestroyDrawable(ReleaseDrawable(dupeframe));
+	}
 }
 
 #define RANGE_SHIFT 6
