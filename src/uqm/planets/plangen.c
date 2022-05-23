@@ -2020,7 +2020,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			memset (Orbit->lpTopoData, 0, width * height);
 		}
 
-		if (pPlanetDesc->alternate_colormap)
+		if (CheckColorMap (pPlanetDesc->alternate_colormap))
 		{	// JMS: Planets with special colormaps
 			pSolarSysState->OrbitalCMap = CaptureColorMap (
 					LoadColorMap (pPlanetDesc->alternate_colormap));
@@ -2143,7 +2143,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 
 		if (!ForIP)
 		{
-			if (pPlanetDesc->alternate_colormap) 
+			if (CheckColorMap (pPlanetDesc->alternate_colormap))
 			{	// JMS: Planets with special colormaps
 				pSolarSysState->OrbitalCMap = CaptureColorMap (
 					LoadColorMap (pPlanetDesc->alternate_colormap));

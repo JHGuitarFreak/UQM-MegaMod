@@ -545,6 +545,7 @@ extern void FlushColorXForms (void);
 #define SetAbsColorMapIndex SetAbsStringTableIndex
 #define SetRelColorMapIndex SetRelStringTableIndex
 #define GetColorMapLength GetStringLengthBin
+#define CheckColorMap CheckResString
 
 extern COLORMAPPTR GetColorMapAddress (COLORMAP);
 

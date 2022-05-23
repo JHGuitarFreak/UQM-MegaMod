@@ -133,15 +133,13 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 		{
 			case 0: /* MERCURY */
 				pCurDesc->data_index = METAL_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = MERCURY_COLOR_TAB;
+				pCurDesc->alternate_colormap = MERCURY_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 39L / 100;
 				pCurDesc->NumPlanets = 0;
 				break;
 			case 1: /* VENUS */
 				pCurDesc->data_index = PRIMORDIAL_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = VENUS_COLOR_TAB;
+				pCurDesc->alternate_colormap = VENUS_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 72L / 100;
 				pCurDesc->NumPlanets = 0;
 				pCurDesc->angle = NORMALIZE_ANGLE (FULL_CIRCLE - pCurDesc->angle);
@@ -154,8 +152,7 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				break;
 			case 3: /* MARS */
 				pCurDesc->data_index = DUST_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = MARS_COLOR_TAB;
+				pCurDesc->alternate_colormap = MARS_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 152L / 100;
 				pCurDesc->NumPlanets = 0;
 				break;
@@ -181,8 +178,7 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				break;
 			case 8: /* PLUTO */
 				pCurDesc->data_index = PELLUCID_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = PLUTO_COLOR_TAB;
+				pCurDesc->alternate_colormap = PLUTO_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 1550L /* 3937L */ / 100;
 				pCurDesc->NumPlanets = EXTENDED;
 				if(PrimeSeed)
@@ -224,8 +220,7 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 
 			/* Luna: */
 			solarSys->MoonDesc[1].data_index = SELENIC_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[1].alternate_colormap = LUNA_COLOR_TAB;
+			solarSys->MoonDesc[1].alternate_colormap = LUNA_COLOR_TAB;
 			solarSys->MoonDesc[1].radius = MIN_MOON_RADIUS
 					+ (4 - 1) * MOON_DELTA;
 			rand_val = RandomContext_Random (SysGenRNG);
@@ -239,30 +234,25 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		}
 		case 4: /* moons of JUPITER */
 			solarSys->MoonDesc[0].data_index = RADIOACTIVE_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = IO_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = IO_COLOR_TAB;
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 1.75;
 					/* Io */
 			solarSys->MoonDesc[1].data_index = HALIDE_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[1].alternate_colormap = EUROPA_COLOR_TAB;
+			solarSys->MoonDesc[1].alternate_colormap = EUROPA_COLOR_TAB;
 			solarSys->MoonDesc[1].orb_speed = FULL_CIRCLE / 3.5;
 					/* Europa */
 			solarSys->MoonDesc[2].data_index = CYANIC_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[2].alternate_colormap = GANYMEDE_COLOR_TAB;
+			solarSys->MoonDesc[2].alternate_colormap = GANYMEDE_COLOR_TAB;
 			solarSys->MoonDesc[2].orb_speed = FULL_CIRCLE / 7.16;
 					/* Ganymede */
 			solarSys->MoonDesc[3].data_index = PELLUCID_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[3].alternate_colormap = CALLISTO_COLOR_TAB;
+			solarSys->MoonDesc[3].alternate_colormap = CALLISTO_COLOR_TAB;
 			solarSys->MoonDesc[3].orb_speed = FULL_CIRCLE / 16.7;
 					/* Callisto */
 			break;
 		case 5: /* moons of SATURN */
 			solarSys->MoonDesc[0].data_index = ALKALI_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = TITAN_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = TITAN_COLOR_TAB;
 			/*solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS
 					+ (MAX_GEN_MOONS - 1) * MOON_DELTA;*/
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 15.22;
@@ -270,15 +260,13 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 			break;
 		case 7: /* moons of NEPTUNE */
 			solarSys->MoonDesc[0].data_index = VINYLOGOUS_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = TRITON_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = TRITON_COLOR_TAB;
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / -5.87;
 					/* Triton */
 			break;
 		case 8: /* moons of Pluto */
 			solarSys->MoonDesc[0].data_index = SELENIC_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = CHARON_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = CHARON_COLOR_TAB;
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 6.38;
 					/* Charon */
 			break;
