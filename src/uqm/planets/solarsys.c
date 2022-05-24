@@ -62,6 +62,7 @@
 //#define SMOOTH_SYSTEM_ZOOM  1
 
 #define IP_FRAME_RATE  (ONE_SECOND / 30)
+#define CLOCK_FRAME_RATE  (ONE_SECOND / 24)
 
 // BW: those do not depend on the resolution because numbers too small
 // cause crashes in the generation and rendering
@@ -1883,8 +1884,6 @@ IP_frame (void)
 	SIZE newRadius;
 
 	SetContext (SpaceContext);
-
-	GameClockTick ();
 	ProcessShipControls ();
 	
 	locChange = CheckShipLocation (&newRadius);
@@ -3177,19 +3176,30 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	}
 	else if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{
+		static TimeCount TimeOutIP, TimeOutClock;
+		TimeCount Now = GetTimeCounter ();
+
 		assert (pSS->InIpFlight);
-		IP_frame ();
+
+		if (Now >= TimeOutClock)
+		{
+			GameClockTick ();
+			TimeOutClock = Now + CLOCK_FRAME_RATE;
+		}
+
+		if (Now >= TimeOutIP)
+		{
+			IP_frame ();
+			TimeOutIP = Now + IP_FRAME_RATE;
+		}
 
 		if (NewGameInit)
 		{
-			SetMenuSounds(MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SettingsMenu(FALSE);
-			SolarSysMenu();
-			SetMenuSounds(MENU_SOUND_NONE, MENU_SOUND_NONE);
+			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+			SettingsMenu (FALSE);
+			SolarSysMenu ();
+			SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 		}
-
-		SleepThreadUntil (NextTime);
-		NextTime = GetTimeCounter () + IP_FRAME_RATE;
 	}
 
 	return (!(GLOBAL (CurrentActivity)
