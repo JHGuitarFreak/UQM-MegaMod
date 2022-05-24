@@ -52,9 +52,9 @@
 //2*RADIUS
 #define TWORADIUS (RADIUS << 1)
 //RADIUS^2
-#define RADIUS_2 (RADIUS * RADIUS)
+#define RADIUS_2(a) (a * a)
 // distance beyond which all pixels are transparent (for aa)
-#define RADIUS_THRES  ((RADIUS + 1) * (RADIUS + 1))
+#define RADIUS_THRES(a) ((a + 1) * (a + 1))
 #define DIAMETER (TWORADIUS + 1)
 #if 0
 #	define SPHERE_SPAN_X (MAP_WIDTH >> 1)
@@ -579,11 +579,9 @@ static void
 CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 {
 	int x, y;
-	COUNT spherespanx = height;
-	COUNT radius_thres = (radius + 1) * (radius + 1);
-	const double multx = ((double)spherespanx / M_PI);
+	const double multx = ((double)height / M_PI);
 	const double multy = ((double)height / M_PI);
-	const double xadj = ((double)spherespanx / 2.0);
+	const double xadj = ((double)height / 2.0);
 
 	for (y = -radius; y <= radius; y++)
 	{
@@ -598,7 +596,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 			
 			rad_2 = x * x + y_2;
 
-			if (rad_2 >= radius_thres)
+			if (rad_2 >= RADIUS_THRES(radius))
 			{	// pixel won't be present
 				ppt->p[0].x = x + radius;
 				ppt->p[0].y = y + radius;
@@ -642,7 +640,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? (is3DO (optWhichShield) ? 5 : 6) : 16)
+#define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? 5 : 16)
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
@@ -660,8 +658,6 @@ CreateShieldMask (COUNT radius)
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 	COUNT shieldradius = SHIELD_RADIUS * radius / RADIUS;
 	COUNT shielddiam = (shieldradius << 1) + 1;
-	COUNT radius_2 = radius * radius;
-	COUNT shieldradius_thres = (shieldradius + 1) * (shieldradius + 1);
 
 	ShieldFrame = CaptureDrawable (
 			CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
@@ -681,13 +677,13 @@ CreateShieldMask (COUNT radius)
 			int alpha = 255;
 			double rad;
 			
-			if (rad_2 >= shieldradius_thres)
+			if (rad_2 >= RADIUS_THRES (shieldradius))
 			{	// outside all bounds
 				*pix = clear;
 				continue;
 			}
 			// Inside the halo
-			if (rad_2 <= radius_2)
+			if (rad_2 <= RADIUS_2 (radius))
 			{	// planet's pixels, ours transparent
 				*pix = clear;
 				continue;
@@ -705,7 +701,7 @@ CreateShieldMask (COUNT radius)
 			else
 			{	// shield pixels
 				red -= (int) ((red - SHIELD_HALO_GLOW_MIN) * (rad - radius)
-					      / (SHIELD_HALO * radius / RADIUS));
+						/ (SHIELD_HALO * radius / RADIUS));
 				if (red < 0)
 					red = 0;
 			}
@@ -724,9 +720,9 @@ CreateShieldMask (COUNT radius)
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
 //  the throbbing cycle is tied to the planet rotation cycle
-#define SHIELD_THROBS RES_DESCALE (optSuperPC ? 10 : 12)
+#define SHIELD_THROBS 7
 		// throb cycles per revolution
-#define THROB_CYCLE      ((ORIGINAL_MAP_WIDTH << 8) / SHIELD_THROBS)
+#define THROB_CYCLE      ((MAP_WIDTH << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
 
 #define THROB_MAX_LEVEL 256
