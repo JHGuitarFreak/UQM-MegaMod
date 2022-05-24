@@ -251,15 +251,14 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 {
 	COUNT i;
 	SIZE MoonDiameter;
-	FRAME SurfFrame;
 	PLANET_DESC *pMoonDesc;
-	PLANET_DESC *previousOrbitalDesc;
-	previousOrbitalDesc = pSolarSysState->pOrbitalDesc;
+	PLANET_DESC *previousOrbitalDesc = pSolarSysState->pOrbitalDesc;
+	PLANET_INFO *planetInfo = &pSolarSysState->SysInfo.PlanetInfo;
 
 	for (i = 0, pMoonDesc = &system->MoonDesc[0];
 			i < planet->NumPlanets; ++i, ++pMoonDesc)
 	{
-		SurfFrame = NULL;
+		RESOURCE maskAnim = NULL;
 	
 		// BW : precompute the generated texture to display it in IP
 		if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
@@ -273,84 +272,73 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 
 			if (CurStarDescPtr->Index == SOL_DEFINED)
 			{	// png defined moons in Sol
-			
-				COUNT curr_planet_index = planetIndex (pSolarSysState, planet);
-		
-				if (curr_planet_index == 2)
-				{	// EARTH
-					switch (i)
-					{
-						case 1: /* LUNA */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_LUNA_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 0;
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 240 * 29;
-							break;
-					}
-				}
-				else if (curr_planet_index == 4)
-				{	// JUPITER
-					switch (i)
-					{
-						case 0: /* IO */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_IO_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 390;
-							break;
-						case 1: /* EUROPA */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_EUROPA_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 840;
-							break;
-						case 2: /* GANYMEDE */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_GANYMEDE_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 1728;
-							break;
-						case 3: /* CALLISTO */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_CALLISTO_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 4008;
-							break;
-					}
-				}
-				else if (curr_planet_index == 5)
-				{	// SATURN
-					switch (i)
-					{
-						case 0: /* TITAN */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_TITAN_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 3816;
-							break;
-					}
-				}
-				else if (curr_planet_index == 7)
-				{	// NEPTUNE
-					switch (i)
-					{
-						case 0: /* TRITON */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_TRITON_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 4300;
-							break;
-					}
-				}
-				else if (curr_planet_index == 8)
-				{	// PLUTO
-					switch (i)
-					{
-						case 0: /* CHARON */
-							SurfFrame = CaptureDrawable (LoadGraphic (IP_CHARON_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 6.4 * EARTH_HOURS;
-							break;
-					}
+				COUNT curr_planet_index =
+						planetIndex (pSolarSysState, planet);
+
+				switch (curr_planet_index)
+				{
+					case 2:	// EARTH
+						if (i == 1)
+						{	// LUNA
+							maskAnim = IP_LUNA_MASK_ANIM;
+							planetInfo->RotationPeriod = 240 * 29;
+						}
+						break;
+					case 4:	// JUPITER
+						switch (i)
+						{
+							case 0: // IO
+								maskAnim = IP_IO_MASK_ANIM;
+								planetInfo->RotationPeriod = 390;
+								break;
+							case 1: // EUROPA
+								maskAnim = IP_EUROPA_MASK_ANIM;
+								planetInfo->RotationPeriod = 840;
+								break;
+							case 2: // GANYMEDE
+								maskAnim = IP_GANYMEDE_MASK_ANIM;
+								planetInfo->RotationPeriod = 1728;
+								break;
+							case 3: // CALLISTO
+								maskAnim = IP_CALLISTO_MASK_ANIM;
+								planetInfo->RotationPeriod = 4008;
+								break;
+						}
+						break;
+					case 5:	// SATURN
+						// TITAN
+						maskAnim = IP_TITAN_MASK_ANIM;
+						planetInfo->RotationPeriod = 3816;
+						break;
+					case 7:	// NEPTUNE
+						// TRITON
+						maskAnim = IP_TRITON_MASK_ANIM;
+						planetInfo->RotationPeriod = 4300;
+						break;
+					case 8:	// PLUTO
+						// CHARON
+						maskAnim = IP_CHARON_MASK_ANIM;
+						planetInfo->RotationPeriod = 6.4 * EARTH_HOURS;
+						break;
 				}
 			}
 
-			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
-			GeneratePlanetSurface (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter);
+			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
+					LARGE_MOON_DIAMETER : MOON_DIAMETER;
+			GeneratePlanetSurface (pMoonDesc,
+					CaptureDrawable (LoadGraphic (maskAnim)),
+					GENERATE_PERIMETER (MoonDiameter), MoonDiameter
+				);
 			pMoonDesc->orbit = pSolarSysState->Orbit;
 			PrepareNextRotationFrameForIP (pMoonDesc, 0);
 
-			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
+			DestroyStringTable (ReleaseStringTable (
+					pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
 			DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
 			pSolarSysState->TopoFrame = 0;
-			DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
+			DestroyColorMap (ReleaseColorMap (
+					pSolarSysState->OrbitalCMap));
 			pSolarSysState->OrbitalCMap = 0;
 		}
 	}
@@ -559,7 +547,6 @@ GetRandomSeedForVar (const POINT point)
 void GenerateTexturedPlanets (void)
 {
 	COUNT i;
-	FRAME SurfFrame;
 	PLANET_DESC *pCurDesc;
 	PLANET_DESC *previousOrbitalDesc;
 	previousOrbitalDesc = pSolarSysState->pOrbitalDesc;
@@ -567,7 +554,7 @@ void GenerateTexturedPlanets (void)
 	for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 			i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 	{
-		SurfFrame = NULL;
+		RESOURCE maskanim = NULL;
 
 		DoPlanetaryAnalysis (&pSolarSysState->SysInfo, pCurDesc);
 		
@@ -578,57 +565,57 @@ void GenerateTexturedPlanets (void)
 			switch (i)
 			{
 			case 0: /* MERCURY */
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_MERCURY_MASK_ANIM));
+				maskanim = IP_MERCURY_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 3;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 59 * 240;
 				break;
 			case 1: /* VENUS */
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_VENUS_MASK_ANIM));
+				maskanim = IP_VENUS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 177;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 243 * 240;
 				break;
 			case 2: // EARTH
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_EARTH_MASK_ANIM));
-				else
-					SurfFrame = CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM));
+				maskanim = EARTH_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 23;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 240;
 				break;
 			case 3: // MARS
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_MARS_MASK_ANIM));
+				maskanim = IP_MARS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 24;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 246;
 				break;
 			case 4: /* JUPITER */
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_JUPITER_MASK_ANIM));
+				maskanim = IP_JUPITER_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 3;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 98;
 				break;
 			case 5: /* SATURN */
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_SATURN_MASK_ANIM));
+				maskanim = IP_SATURN_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 27;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 102;
 				break;
 			case 6: /* URANUS */
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_URANUS_MASK_ANIM));
+				maskanim = IP_URANUS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 98;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 172;
 				break;
 			case 7: /* NEPTUNE */
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_NEPTUNE_MASK_ANIM));
+				maskanim = IP_NEPTUNE_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 30;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 182;
 				break;
 			case 8: /* PLUTO */
-				SurfFrame = CaptureDrawable (LoadGraphic (IP_PLUTO_MASK_ANIM));
+				maskanim = IP_PLUTO_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 119;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 1533;
 				break;
 			}
 		}
 		
-		GeneratePlanetSurface (pCurDesc, SurfFrame, GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER);
+		GeneratePlanetSurface (pCurDesc,
+				CaptureDrawable (LoadGraphic (maskanim)),
+				GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER
+			);
 		pCurDesc->orbit = pSolarSysState->Orbit;
 		PrepareNextRotationFrameForIP (pCurDesc, 0);
 		
@@ -2922,9 +2909,9 @@ GetNamedPlanetaryBody (void)
 	else if (CurStarDescPtr->Index == SAMATRA_DEFINED 
 			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 			pSolarSysState->SunDesc[0].PlanetByte, pSolarSysState->SunDesc[0].MoonByte))
-		{	// Sa-Matra
-			return GAME_STRING (PLANET_NUMBER_BASE + 32);
-		}
+	{	// Sa-Matra
+		return GAME_STRING (PLANET_NUMBER_BASE + 32);
+	}
 	else if (CurStarDescPtr->Index > 0 
 			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 			pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))

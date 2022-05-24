@@ -462,46 +462,41 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
 				CalcGravity (&solarSys->SysInfo.PlanetInfo);
 		
-		if (solTexturesPresent)
-		{
+		
+		{	// For Sol Textures
+			RESOURCE maskAnim = NULL;
+
 			switch (planetNr)
 			{
-				case 0: /* MERCURY */
-					LoadPlanet (CaptureDrawable (LoadGraphic (MERCURY_MASK_ANIM)));
+				case 0: // MERCURY
+					maskAnim = MERCURY_MASK_ANIM;
 					break;
-				case 1: /* VENUS */
-					LoadPlanet (CaptureDrawable (LoadGraphic (VENUS_MASK_ANIM)));
+				case 1: // VENUS
+					maskAnim = VENUS_MASK_ANIM;
 					break;
-				case 2: /* EARTH */
-					LoadPlanet (CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM)));
+				case 2: // EARTH
+					maskAnim = EARTH_MASK_ANIM;
 					break;
-				case 3: /* MARS */
-					LoadPlanet (CaptureDrawable (LoadGraphic (MARS_MASK_ANIM)));
+				case 3: // MARS
+					maskAnim = MARS_MASK_ANIM;
 					break;
-				case 4: /* JUPITER*/
-					LoadPlanet (CaptureDrawable (LoadGraphic (JUPITER_MASK_ANIM)));
+				case 4: // JUPITER
+					maskAnim = JUPITER_MASK_ANIM;
 					break;
-				case 5: /* SATURN*/
-					LoadPlanet (CaptureDrawable (LoadGraphic (SATURN_MASK_ANIM)));
+				case 5: // SATURN
+					maskAnim = SATURN_MASK_ANIM;
 					break;
-				case 6: /* URANUS */
-					LoadPlanet (CaptureDrawable (LoadGraphic (URANUS_MASK_ANIM)));
+				case 6: // URANUS
+					maskAnim = URANUS_MASK_ANIM;
 					break;
-				case 7: /* NEPTUNE */
-					LoadPlanet (CaptureDrawable (LoadGraphic (NEPTUNE_MASK_ANIM)));
+				case 7: // NEPTUNE
+					maskAnim = NEPTUNE_MASK_ANIM;
 					break;
-				case 8: /* PLUTO */
-					LoadPlanet (CaptureDrawable (LoadGraphic (PLUTO_MASK_ANIM)));
-					break;
-				default:
-					LoadPlanet (NULL);
+				case 8: // PLUTO
+					maskAnim = PLUTO_MASK_ANIM;
 					break;
 			}
-		}
-		else
-		{
-			LoadPlanet (planetNr == 2 ?
-					CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM)) : NULL);
+			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}
 	}
 	else
@@ -616,49 +611,45 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
 				CalcGravity (&solarSys->SysInfo.PlanetInfo);
-		
-		if (solTexturesPresent)
-		{
+
+		{	// For Sol Textures
+			RESOURCE maskAnim = NULL;
+
 			switch (planetNr)
 			{
-				case 2: /* moons of EARTH */
+				case 2: // moon of EARTH: LUNA
 					if (moonNr == 1)
-						LoadPlanet (CaptureDrawable (LoadGraphic (LUNA_MASK_ANIM)));
-					else
-						LoadPlanet (NULL);
+						maskAnim = LUNA_MASK_ANIM;
 					break;
-				case 4: /* moons of JUPITER */
-					switch (moonNr) {
-						case 0: /* Io */
-							LoadPlanet (CaptureDrawable (LoadGraphic (IO_MASK_ANIM)));
+				case 4: // moons of JUPITER
+					switch (moonNr)
+					{
+						case 0: // IO
+							maskAnim = IO_MASK_ANIM;
 							break;
-						case 1: /* Europa */
-							LoadPlanet (CaptureDrawable (LoadGraphic (EUROPA_MASK_ANIM)));
+						case 1: // EUROPA
+							maskAnim = EUROPA_MASK_ANIM;
 							break;
-						case 2: /* Ganymede */
-							LoadPlanet (CaptureDrawable (LoadGraphic (GANYMEDE_MASK_ANIM)));
+						case 2: // GANYMEDE
+							maskAnim = GANYMEDE_MASK_ANIM;
 							break;
-						case 3: /* Callisto */
-							LoadPlanet (CaptureDrawable (LoadGraphic (CALLISTO_MASK_ANIM)));
+						case 3: // CALLISTO
+							maskAnim = CALLISTO_MASK_ANIM;
 							break;
 					}
 					break;
-				case 5: /* moon of Saturn: Titan */
-					LoadPlanet (CaptureDrawable (LoadGraphic (TITAN_MASK_ANIM)));
+				case 5: // moon of SATURN: TITAN
+					maskAnim = TITAN_MASK_ANIM;
 					break;
-				case 7: /* moon of NEPTUNE: Triton */
-					LoadPlanet (CaptureDrawable (LoadGraphic (TRITON_MASK_ANIM)));
+				case 7: // moon of NEPTUNE : TRITON
+					maskAnim = TRITON_MASK_ANIM;
 					break;
-				case 8: /* moon of Pluto: Charon */
-					LoadPlanet (CaptureDrawable (LoadGraphic (CHARON_MASK_ANIM)));
-					break;
-				default:
-					LoadPlanet (NULL);
+				case 8: // moon of PLUTO: CHARON
+					maskAnim = CHARON_MASK_ANIM;
 					break;
 			}
+			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}
-		else
-			LoadPlanet (NULL);
 	}
 
 	return true;
