@@ -462,13 +462,13 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 	};
 #define NUM_FADES (ARRAY_SIZE (fade_cycle))
 
-	t1.baseline.x = pRect->corner.x + RES_SCALE (100); 
-	t1.baseline.y = pRect->corner.y + RES_SCALE (45); 
+	t1.baseline.x = pRect->corner.x + RES_SCALE (100);
+	t1.baseline.y = pRect->corner.y + RES_SCALE (45);
 	t1.align = ALIGN_CENTER;
 	t1.pStr = str1;
 	t1.CharCount = (COUNT)~0;
 	t2 = t1;
-	t2.baseline.y += RES_SCALE (11); 
+	t2.baseline.y += RES_SCALE (11);
 	t2.pStr = str2;
 
 	FlushInput ();
@@ -544,6 +544,7 @@ UninitEncounter (void)
 		UNICODE buf[80];
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
+		STAMP saveFrame;
 		static const Color fade_ship_cycle[] =
 		{
 			BUILD_COLOR (MAKE_RGB15_INIT (0x07, 0x00, 0x00), 0x2F),
@@ -689,6 +690,21 @@ UninitEncounter (void)
 
 								SetContextFont (MicroFont);
 
+								if (classicPackPresent)
+								{	// Let's store the rectangle behind
+									// "Enemy ships destroyed" (before
+									// drawing the text on it).
+									RECT tempR = scavenge_r;
+									tempR.corner.x += 244;
+									tempR.corner.y += 140;
+									tempR.extent = (EXTENT){ 312, 96 };
+
+									// Now that we have the size and
+									// placement of the rectangle,
+									// let's store it.
+									saveFrame = SaveContextFrame (&tempR);
+								}
+
 								str1 = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 4);
 										// "Enemy Ships"
@@ -820,13 +836,13 @@ UninitEncounter (void)
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
 					SetContextForeGroundColor (BLACK_COLOR);
-					r.corner.x = scavenge_r.corner.x + RES_SCALE (10); 
-					r.extent.width = RES_SCALE (132); 
+					r.corner.x = scavenge_r.corner.x + RES_SCALE (10);
+					r.extent.width = RES_SCALE (132);
 					DrawFilledRectangle (&r);
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + RES_SCALE (14); 
+					t.baseline.y = r.corner.y + RES_SCALE (14);
 					t.align = ALIGN_CENTER;
 					t.pStr = buf;
 					t.CharCount = (COUNT)~0;
@@ -839,10 +855,21 @@ UninitEncounter (void)
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 
+					// Now we draw the clean metallic frame to erase
+					// the "Enemy ships destroyed" text before drawing
+					// "debris scavenged."
+					if (classicPackPresent)
+						DrawStamp (&saveFrame);
+
 					DrawFadeText (str1, str2, TRUE, &scavenge_r);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
 					if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 						DrawFadeText (str1, str2, FALSE, &scavenge_r);
+
+					// The final cleanup of the "Debris scavenged".
+					// Without this, an ugly grey ghost-text would remain.
+					if (classicPackPresent)
+						DrawStamp (&saveFrame);
 				}
 			}
 			DrawStatusMessage (NULL);
