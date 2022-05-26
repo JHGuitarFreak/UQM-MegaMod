@@ -513,7 +513,8 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		else
 		{
 			LoadPlanet (planetNr == 2 ?
-					CaptureDrawable (LoadGraphic (TRUE ? EARTH_INDEXED_MASK_ANIM : EARTH_MASK_ANIM)) : NULL);// if optDOSsheres
+					CaptureDrawable (LoadGraphic (useDosSpheres ?
+						EARTH_INDEXED_MASK_ANIM : EARTH_MASK_ANIM)) : NULL);// if optDOSsheres
 		}
 	}
 	else

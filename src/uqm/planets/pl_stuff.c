@@ -60,14 +60,14 @@ DrawCurrentPlanetSphere (void)
 		else if (rotPointIndex >= rotwidth)
 			rotPointIndex = 0;
 
-		if (FALSE)
-		{// placeholder for optDOSsphere
+		if (!useDosSpheres)
+		{
 			Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame,
 				rotFrameIndex);
 			RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
 				pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
 				throbShield, rotwidth, rotheight,
-				(rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
+				(rotheight >> 1) - IF_HD(2), FALSE);
 		}
 		else
 		{
@@ -132,8 +132,7 @@ RerenderPlanetSphere (void)
 	if (optTintPlanSphere != OPT_PC)
 		return;
 
-	// if optDOSspheres
-	if (TRUE)
+	if (useDosSpheres)
 	{
 		COUNT sc;
 		sc = Orbit->scanType;
@@ -159,7 +158,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	rotDirection = direction;
 	rotPointIndex = 0;
-	throbShield = shielded && optWhichShield == OPT_3DO && FALSE;// not optDOSspheres
+	throbShield = shielded && optWhichShield == OPT_3DO && !useDosSpheres;
 
 	if (throbShield)
 	{
@@ -175,7 +174,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	// Render the first sphere/shield frame
 	// Prepare will set the next one
-	rotFrameIndex = (TRUE ? 0: 1);// if optDOSspheres on?
+	rotFrameIndex = (useDosSpheres ? 0: 1);
 	PrepareNextRotationFrame ();
 }
 
@@ -211,8 +210,8 @@ PrepareNextRotationFrame (void)
 		rotPointIndex = 0;
 
 	// prepare the next sphere frame
-	if (FALSE)
-	{// not optDOSsphere
+	if (!useDosSpheres)
+	{
 		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame, rotFrameIndex);
 		RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
 			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
@@ -228,7 +227,7 @@ PrepareNextRotationFrame (void)
 		RenderDOSPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex);
 	}
 	
-	if (throbShield && FALSE)// not optDOSspheres
+	if (throbShield)
 	{	// prepare the next shield throb frame
 		Orbit->ObjectFrame = SetAbsFrameIndex (Orbit->ObjectFrame,
 				rotFrameIndex);
@@ -378,7 +377,7 @@ ZoomInPlanetSphere (void)
 	}
 }
 
-#define PLANET_ROTATION_FPS (ONE_SECOND / 10)//RES_BOOL (24, 42))
+#define PLANET_ROTATION_FPS (ONE_SECOND / 12)//RES_BOOL (24, 42))
 
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
@@ -391,7 +390,7 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 
 	if (Now >= NextTime)
 	{
-		NextTime = Now + ONE_SECOND / 10;//PLANET_ROTATION_RATE;
+		NextTime = Now + ONE_SECOND / 12;//PLANET_ROTATION_RATE;
 
 		if (Now >= OutNextTime)
 		{

@@ -54,6 +54,92 @@ CONTEXT PlanetContext;
 		// Context for rotating planet view and lander surface view
 BOOLEAN actuallyInOrbit = FALSE;
 		// For determining if the player is in actual scanning orbit
+BOOLEAN useDosSpheres = FALSE;
+
+void
+DestroyOrbitCrap (PLANET_ORBIT* Orbit, SIZE height)
+{
+	DestroyDrawable (ReleaseDrawable (Orbit->TopoZoomFrame));
+	Orbit->TopoZoomFrame = 0;
+
+	if (Orbit->lpTopoData)
+	{
+		HFree(Orbit->lpTopoData);
+		Orbit->lpTopoData = NULL;
+	}
+
+	DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
+	Orbit->SphereFrame = 0;
+
+	DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
+	Orbit->ObjectFrame = 0;
+
+	DestroyDrawable (ReleaseDrawable (Orbit->TintFrame));
+	Orbit->TintFrame = 0;
+
+	Orbit->TintColor = BLACK_COLOR;
+
+	if (Orbit->TopoColors)
+	{
+		HFree(Orbit->TopoColors);
+		Orbit->TopoColors = NULL;
+	}
+
+	if (Orbit->ScanColors)
+	{
+		COUNT i;
+		for (i = 0; i < NUM_SCAN_TYPES; i++)
+		{
+			HFree(Orbit->ScanColors[i]);
+			Orbit->ScanColors[i] = NULL;
+		}
+		HFree(Orbit->ScanColors);
+		Orbit->ScanColors = NULL;
+	}
+	
+	if (Orbit->ScratchArray)
+	{
+		HFree(Orbit->ScratchArray);
+		Orbit->ScratchArray = NULL;
+	}
+
+	DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
+	Orbit->WorkFrame = 0;
+
+	if (Orbit->light_diff)
+	{
+		COUNT j;
+		for (j = 0; j < height; j++)
+		{
+			HFree(Orbit->light_diff[j]);
+			Orbit->light_diff[j] = NULL;
+		}
+		HFree(Orbit->light_diff);
+		Orbit->light_diff = NULL;
+	}
+
+	if (Orbit->map_rotate)
+	{
+		COUNT k;
+		for (k = 0; k < height; k++)
+		{
+			HFree(Orbit->map_rotate[k]);
+			Orbit->map_rotate[k] = NULL;
+		}
+		HFree(Orbit->map_rotate);
+		Orbit->map_rotate = NULL;
+	}
+
+	DestroyDrawable (ReleaseDrawable (Orbit->TopoMask));
+	Orbit->TopoMask = 0;
+
+	DestroyColorMap (ReleaseColorMap (Orbit->sphereMap));
+	Orbit->sphereMap = 0;
+
+	Orbit->scanType = 0;
+}
+
+
 
 static void
 CreatePlanetContext (void)
@@ -339,6 +425,8 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	StopMusic ();
 
+	useDosSpheres = (TRUE && !IS_HD);
+
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, NULL, NULL);
 	SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
@@ -416,60 +504,11 @@ FreePlanet (void)
 			pSolarSysState->ScanFrame[k] = 0;
 		}
 	}
-	Orbit->scanType = 0;
 
 	DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 	pSolarSysState->OrbitalCMap = 0;
 
-	HFree (Orbit->lpTopoData);
-	Orbit->lpTopoData = 0;
-	DestroyDrawable (ReleaseDrawable (Orbit->TopoZoomFrame));
-	Orbit->TopoZoomFrame = 0;
-	DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-	Orbit->SphereFrame = 0;
-
-	DestroyDrawable (ReleaseDrawable (Orbit->TintFrame));
-	Orbit->TintFrame = 0;
-	Orbit->TintColor = BLACK_COLOR;
-
-	DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-	Orbit->ObjectFrame = 0;
-	DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-	Orbit->WorkFrame = 0;
-
-	HFree (Orbit->TopoColors);
-	Orbit->TopoColors = NULL;
-
-	if (Orbit->ScanColors)
-	{
-		for (j = 0; j < NUM_SCAN_TYPES; j++)
-		{
-			HFree (Orbit->ScanColors[j]);
-			Orbit->ScanColors[j] = NULL;
-		}
-	}
-	HFree (Orbit->ScanColors);
-	Orbit->ScanColors = NULL;
-
-	DestroyColorMap(ReleaseColorMap(Orbit->sphereMap));
-	DestroyDrawable(ReleaseDrawable(Orbit->TopoMask));
-	Orbit->TopoMask = 0;
-
-	HFree (Orbit->ScratchArray);
-	Orbit->ScratchArray = NULL;
-	if (Orbit->map_rotate && Orbit->light_diff)
-	{
-		for (j = 0; j <= MAP_HEIGHT; j++)
-		{
-			HFree (Orbit->map_rotate[j]);
-			HFree (Orbit->light_diff[j]);
-		}
-	}
-
-	HFree (Orbit->map_rotate);
-	Orbit->map_rotate = NULL;
-	HFree (Orbit->light_diff);
-	Orbit->light_diff = NULL;
+	DestroyOrbitCrap(Orbit, MAP_HEIGHT);
 
 	DestroyStringTable (ReleaseStringTable (
 			pSolarSysState->SysInfo.PlanetInfo.DiscoveryString
@@ -485,6 +524,7 @@ FreePlanet (void)
 	DestroyPCLanderContext ();
 
 	actuallyInOrbit = FALSE;
+	useDosSpheres = FALSE;
 }
 
 void

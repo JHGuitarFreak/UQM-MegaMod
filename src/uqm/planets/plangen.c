@@ -222,19 +222,20 @@ AdjustColor (Color *c, COUNT scan, COUNT height, COUNT width, SBYTE diff)
 
 static void
 ExpandLevelMasks(PLANET_ORBIT* Orbit)
-{
-	COUNT spherespanx;
-	SIZE width, height;
-	Color *colors;
-	
+{	
 	if (!Orbit->TopoMask)
 	{
 		log_add(log_Warning, "No planet mask generated.\n");
 	}
 	else
 	{
+		COUNT spherespanx;
+		SIZE width, height;
+		Color* colors;
 		COUNT y;
+		PLANET_INFO* PlanetInfo;
 
+		PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
 		spherespanx = 75;
 		width = Orbit->TopoMask->Bounds.width;
 		height = Orbit->TopoMask->Bounds.height;
@@ -244,13 +245,35 @@ ExpandLevelMasks(PLANET_ORBIT* Orbit)
 		ReadFramePixelColors(Orbit->TopoMask, colors, width + spherespanx, height);
 
 		DestroyDrawable(ReleaseDrawable(Orbit->TopoMask));
+		Orbit->TopoMask = 0;
 
 		for (y = 0; y < (DWORD)(height * (width + spherespanx)); y += width + spherespanx)
 			memcpy(colors + y + width, colors + y, spherespanx * sizeof(Color));
 
-		Orbit->TopoMask = CaptureDrawable(CreateDrawable(WANT_PIXMAP, width + spherespanx, height, 1));
+		if (PlanetInfo->AxialTilt == 0)
+		{
+			Orbit->TopoMask = CaptureDrawable(CreateDrawable(WANT_PIXMAP, width + spherespanx, height, 1));
 
-		WriteFramePixelColors(Orbit->TopoMask, colors, width + spherespanx, height);
+			WriteFramePixelColors(Orbit->TopoMask, colors, width + spherespanx, height);
+		}
+		else
+		{
+			FRAME dupe;
+			double err;
+
+			err = sin(M_DEG2RAD * (double)PlanetInfo->AxialTilt) * 8;
+
+			if (err < 0)
+				err = -err;
+
+			err = ceil(err);
+
+			dupe = CaptureDrawable(CreateDrawable(WANT_PIXMAP, width + spherespanx, height, 1));
+			WriteFramePixelColors(dupe, colors, width + spherespanx, height);
+
+			Orbit->TopoMask = CaptureDrawable(RescaleFrame(dupe, width + spherespanx, height + (SIZE)err));
+			DestroyDrawable(ReleaseDrawable(dupe));
+		}
 
 		HFree(colors);
 	}
@@ -306,8 +329,6 @@ RenderLevelMasks(FRAME mask, SBYTE* pTopoData, BOOLEAN SurfDef)
 
 	xlatDesc = (const XLAT_DESC*)pSolarSysState->XlatPtr;
 	level_tab = (const SIZE*)xlatDesc->level_tab;
-
-	//printf("%d %d %d\n", level_tab[0], level_tab[1], level_tab[2]);
 
 	while (num_frames > 0)
 	{
@@ -1171,8 +1192,8 @@ RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
 		Color* mask;
 		Color* color;
 		COUNT x, y;
-		SIZE width = 75;
-		SIZE height = 67;
+		SIZE width = MaskFrame->Bounds.width;
+		SIZE height = Orbit->TopoMask->Bounds.height;
 		RECT r;
 		FRAME dupeframe;
 		PLANET_INFO* PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
@@ -1182,7 +1203,6 @@ RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
 		r.extent.width = width;
 		r.extent.height = height;
 
-		
 		dupeframe = CaptureDrawable(CopyFrameRect(Orbit->TopoMask, &r));
 
 		mask = HMalloc(sizeof(Color) * width * height);
@@ -1193,13 +1213,13 @@ RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
 			FRAME baseframe, rotFrame;
 			DrawMode oldMode;
 			CONTEXT oldContext;
-			POINT pt;
-			
+			SIZE trueheight = MaskFrame->Bounds.height;
+
 			rotFrame = CaptureDrawable(RotateFrame(dupeframe, PlanetInfo->AxialTilt));
 			GetFrameRect(rotFrame, &r);
 			baseframe = CaptureDrawable(
 				CreateDrawable(WANT_PIXMAP, (SIZE)width,
-					(SIZE)height, 1));
+					trueheight, 1));
 
 			oldContext = SetContext(OffScreenContext);
 			SetContextFGFrame(baseframe);
@@ -1209,15 +1229,15 @@ RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
 
 			SetFrameHot(rotFrame, MAKE_HOT_SPOT(0, 0));
 
-			s.origin.x = (width - r.extent.width) / 2;
-			s.origin.y = (height - r.extent.height) / 2;
+			s.origin.x = (width - r.extent.width) / 2 - 1;
+			s.origin.y = (trueheight - r.extent.height) / 2;
 			s.frame = rotFrame;
 			DrawStamp(&s);
 
 			SetContextDrawMode(oldMode);
 			SetContext(oldContext);
 
-			ReadFramePixelColors(baseframe, mask, width, height);
+			ReadFramePixelColors(baseframe, mask, width, trueheight);
 			DestroyDrawable(ReleaseDrawable(baseframe));
 			DestroyDrawable(ReleaseDrawable(rotFrame));
 		}
@@ -1230,9 +1250,9 @@ RenderDOSPlanetSphere(PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset)
 		pix = origin;
 		color = mask;
 
-		for (y = 0; y < 67; ++y)
+		for (y = 0; y < MaskFrame->Bounds.height; ++y)
 		{
-			for (x = 0; x < 75; ++x, ++color, ++pix)
+			for (x = 0; x < MaskFrame->Bounds.width; ++x, ++color, ++pix)
 			{
 				if (*pix < 0xFF)
 				{
@@ -1725,12 +1745,16 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	COUNT shieldradius = (height >> 1) * SHIELD_RADIUS / RADIUS;
 	COUNT shielddiam = (shieldradius << 1) + 1;
 	COUNT diameter = height + 1;
-	COUNT i;
+	
 
-	if (forOrbit && TRUE)
-	{// if optDOSspheres
+	// always needed
+	Orbit->lpTopoData = HCalloc(width * height);
+
+	if (forOrbit && useDosSpheres)
+	{
 		Orbit->sphereMap = CaptureColorMap(LoadColorMap(DOS_SPHERE_COLOR_TAB));
 		SetColorMap(GetColorMapAddress(Orbit->sphereMap));
+
 		Orbit->SphereFrame = CaptureDrawable(LoadGraphic(DOS_PLANET_MASK_ANIM));
 
 		Orbit->TopoMask = CaptureDrawable(
@@ -1738,42 +1762,30 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 				(SIZE)height, 1));
 	}
 	else
-		Orbit->SphereFrame = CaptureDrawable (CreateDrawable (
-				WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));
+	{
+		Orbit->SphereFrame = CaptureDrawable(CreateDrawable(
+			WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));
 
-	if (forOrbit)
-		Orbit->TintFrame = CaptureDrawable (CreateDrawable (
-				WANT_PIXMAP, width, height, 1));
-	Orbit->ObjectFrame = 0;
-	Orbit->WorkFrame = 0;
-	Orbit->lpTopoData = HCalloc (width * height);
-
-	Orbit->scanType = NUM_SCAN_TYPES;
-	
-	if (forOrbit)
-		Orbit->TopoZoomFrame = CaptureDrawable (CreateDrawable (
-				WANT_PIXMAP, width << 2, height << 2, 1));
-
-
-	Orbit->TopoColors = HMalloc (sizeof (Orbit->TopoColors[0])
-			* (height * (width + spherespanx)));
-
-	if (forOrbit && optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC)// !optDOSspheres
-	{	// generate only on that conditions and then use if not NULL
-		Orbit->ScanColors = HMalloc (sizeof (Color *) * NUM_SCAN_TYPES);
-		for (i = 0; i < NUM_SCAN_TYPES; i++)
-		{
-			Orbit->ScanColors[i] = HMalloc (sizeof (Orbit->ScanColors[0][0])
-					* (height * (width + spherespanx)));
-		}
+		// unused here
+		Orbit->TopoMask = NULL;
+		Orbit->sphereMap = NULL;
 	}
 
-	// always allocate the scratch array to largest needed size
-	Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
+	// tints for 3DO scan
+	if (forOrbit && optScanStyle != OPT_PC)
+		Orbit->TintFrame = CaptureDrawable (CreateDrawable (
+				WANT_PIXMAP, width, height, 1));
+
+	if (!forOrbit || !useDosSpheres)
+	{
+		COUNT i;
+		// always allocate the scratch array to largest needed size
+		Orbit->ScratchArray = HMalloc(sizeof(Orbit->ScratchArray[0])
 			* (shielddiam) * (shielddiam));
-	
-	if (!forOrbit || FALSE)
-	{// if NOT optDOSspheres
+
+		Orbit->TopoColors = HMalloc(sizeof(Orbit->TopoColors[0])
+			* (height * (width + spherespanx)));
+
 		Orbit->light_diff = HMalloc(sizeof(DWORD*) * diameter);
 		Orbit->map_rotate = HMalloc(sizeof(MAP3D_POINT*) * diameter);
 
@@ -1782,12 +1794,31 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 			Orbit->light_diff[i] = HMalloc(sizeof(DWORD) * diameter);
 			Orbit->map_rotate[i] = HMalloc(sizeof(MAP3D_POINT) * diameter);
 		}
+
+		if (forOrbit && optScanStyle == OPT_PC && optTintPlanSphere == OPT_PC)
+		{	// generate only on that conditions and then use if not NULL
+			Orbit->ScanColors = HMalloc(sizeof(Color*) * NUM_SCAN_TYPES);
+			for (i = 0; i < NUM_SCAN_TYPES; i++)
+			{
+				Orbit->ScanColors[i] = HMalloc(sizeof(Orbit->ScanColors[0][0])
+					* (height * (width + spherespanx)));
+			}
+		}
+		else
+			Orbit->ScanColors = NULL;
 	}
 	else
-	{// to avoid memory leak
+	{// to avoid memory leak declare these as null
+		Orbit->TopoColors = NULL;
+		Orbit->ScratchArray = NULL;
 		Orbit->map_rotate = NULL;
 		Orbit->light_diff = NULL;
 	}
+
+	// slaveshield stuff and scans
+	Orbit->ObjectFrame = 0;
+	Orbit->WorkFrame = 0;
+	Orbit->scanType = NUM_SCAN_TYPES;
 }
 
 static unsigned
@@ -2230,7 +2261,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		ForIP = TRUE;
 	}
 
-	RandomContext_SeedRandom(SysGenRNG, pPlanetDesc->rand_seed);//pPlanetDesc->rand_seed
+	RandomContext_SeedRandom(SysGenRNG, pPlanetDesc->rand_seed);
 
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
@@ -2258,7 +2289,10 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			DeleteDef = TRUE;
 		}
 		else
+		{
 			pSolarSysState->TopoFrame = SurfDefFrame;
+			printf("Not rescaling\n");
+		}
 
 		if (GetFrameCount (SurfDefFrame) > 1)
 		{	// 2nd frame is elevation data 
@@ -2321,13 +2355,13 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		}
 		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
 
-		if (!ForIP && TRUE)
+		if (!ForIP && useDosSpheres)
 		{// if optDOSspheres
 			RenderLevelMasks(Orbit->TopoMask, Orbit->lpTopoData, TRUE);
 			SetPlanetColors(GetColorMapAddress(Orbit->sphereMap));
 			ExpandLevelMasks(Orbit);
 		}
-
+		DestroyDrawable(ReleaseDrawable(SurfDefFrame));
 		if (DeleteDef)
 			DestroyDrawable (ReleaseDrawable (SurfDefFrame));
 		if (DeleteElev)
@@ -2472,7 +2506,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		RenderTopography(pSolarSysState->TopoFrame,
 				Orbit->lpTopoData, width, height, FALSE, NULL);
 
-		if (!ForIP && TRUE)
+		if (!ForIP && useDosSpheres)
 		{// if optDOSspheres
 			RenderLevelMasks(Orbit->TopoMask, Orbit->lpTopoData, FALSE);
 			SetPlanetColors(GetColorMapAddress(Orbit->sphereMap));
@@ -2548,12 +2582,16 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			Orbit->TopoZoomFrame = CaptureDrawable (
 					RescaleFrame (
 						pSolarSysState->TopoFrame,
-						SCALED_MAP_WIDTH * 4, MAP_HEIGHT * 4));
+						width << 2, height << 2));
 		}
 		else
 		{	// usual smooth 3DO landscape
 			SBYTE* pScaledTopo = HMalloc (
 					SCALED_MAP_WIDTH * 4 * MAP_HEIGHT * 4);
+
+			Orbit->TopoZoomFrame = CaptureDrawable(CreateDrawable(
+				WANT_PIXMAP, width << 2, height << 2, 1));
+
 			if (pScaledTopo)
 			{
 				TopoScale4x (pScaledTopo, Orbit->lpTopoData,
@@ -2568,18 +2606,20 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		}
 	}
 
-	// Generate a pixel array from the Topography map.
-	// We use this instead of lpTopoData because it needs to be
-	// WAP_WIDTH+SPHERE_SPAN_X wide and we need this method for Earth anyway.
-	// It may be more efficient to build it from lpTopoData instead of the
-	// FRAMPTR though.
-	ReadFramePixelColors(pSolarSysState->TopoFrame, Orbit->TopoColors,
-		width + spherespanx, height);
-	// Extend the width from MAP_WIDTH to MAP_WIDTH+SPHERE_SPAN_X
-	for (y = 0; y < (DWORD)(height * (width + spherespanx));
-		y += width + spherespanx)
-		memcpy(Orbit->TopoColors + y + width, Orbit->TopoColors + y,
-			spherespanx * sizeof(Orbit->TopoColors[0]));
+	if (Orbit->TopoColors)
+	{	// Generate a pixel array from the Topography map.
+		// We use this instead of lpTopoData because it needs to be
+		// WAP_WIDTH+SPHERE_SPAN_X wide and we need this method for Earth anyway.
+		// It may be more efficient to build it from lpTopoData instead of the
+		// FRAMPTR though.
+		ReadFramePixelColors(pSolarSysState->TopoFrame, Orbit->TopoColors,
+			width + spherespanx, height);
+		// Extend the width from MAP_WIDTH to MAP_WIDTH+SPHERE_SPAN_X
+		for (y = 0; y < (DWORD)(height * (width + spherespanx));
+			y += width + spherespanx)
+			memcpy(Orbit->TopoColors + y + width, Orbit->TopoColors + y,
+				spherespanx * sizeof(Orbit->TopoColors[0]));
+	}
 
 	if (Orbit->ScanColors)
 	{	// prepare colors for every scan tint if we ever created them
@@ -2624,8 +2664,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 	
 	// Rotating planet sphere initialization
-	if (FALSE || ForIP)
-	{// if NOT optDOSspheres
+	if (!useDosSpheres || ForIP)
+	{
 		GenerateSphereMask(loc, radius);
 		CreateSphereTiltMap(PlanetInfo->AxialTilt, height, radius);
 	}
@@ -2636,23 +2676,24 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame, facing & 14);
 	}
 	if (shielded)
-		Orbit->ObjectFrame = ((TRUE && !ForIP) ? (CaptureDrawable(LoadGraphic(DOS_SHIELD_MASK_ANIM))) : CreateShieldMask (radius));
+		Orbit->ObjectFrame = ((useDosSpheres && !ForIP) ?
+			(CaptureDrawable(LoadGraphic(DOS_SHIELD_MASK_ANIM))) : CreateShieldMask (radius));
+
 	InitSphereRotation (PlanetRotation, shielded, width, height);
 	
 	if (ForIP)
 	{
-		pPlanetDesc->rotDirection = PlanetRotation;
 		pPlanetDesc->rotwidth = width;
 		pPlanetDesc->rotheight = height;
 		pPlanetDesc->rotFrameIndex = 0;
 		pPlanetDesc->rotPointIndex = 0;
 		pPlanetDesc->rot_speed =
 				((double)(pPlanetDesc->rotwidth
-				* pPlanetDesc->rotDirection * 240))
+				* PlanetRotation * 240))
 				/ PlanetInfo->RotationPeriod;
 	}
 	
-	if (shielded && FALSE)// not optDOSspheres
+	if (shielded && !useDosSpheres)
 	{	// This overwrites pSolarSysState->TopoFrame, so everything that
 		// needs it has to come before
 		ApplyShieldTint ();

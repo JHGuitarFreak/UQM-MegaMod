@@ -153,7 +153,6 @@ struct planet_orbit
 			// temp RGBA data for whatever transforms (nuked often)
 	FRAME WorkFrame;
 			// any extra frame workspace (for dynamic objects)
-	COUNT scanType;
 	// BW: extra stuff for animated IP
 	DWORD **light_diff;
 	MAP3D_POINT **map_rotate;
@@ -162,6 +161,7 @@ struct planet_orbit
 	// stuff to draw DOS spheres
 	FRAME TopoMask;
 	COLORMAP sphereMap;
+	COUNT scanType;
 };
 
 #if defined(__cplusplus)
@@ -170,29 +170,32 @@ extern "C" {
 
 struct planet_desc
 {
-	DWORD rand_seed;
+	DWORD rand_seed;				// seed for topography and node generation
 
-	BYTE data_index;
-	BYTE NumPlanets;
-	SIZE radius;
-	COUNT angle;
-	POINT location;
-	double orb_speed;
-	double rot_speed;
+	BYTE data_index;				// what planet is this
+	BYTE NumPlanets;				// number of moons
+	SIZE radius;					// radius of planet orbit
+	POINT location;					// coords on screen
 
-	Color temp_color;
-	COUNT NextIndex;
-	STAMP image;
-	STAMP intersect, dosIntersect;
+	Color temp_color;				// color of planet orbit
+	COUNT NextIndex;				// index to a next planet
+	STAMP image;					// image of a planet in IP view
+	STAMP intersect, dosIntersect;	// special cases for HD and DOS planets in SDL1
 
 	PLANET_DESC *pPrevDesc;
 			// The Sun or planet that this world is orbiting around.
-	// BW : new stuff for animated solar systems
-	PLANET_ORBIT orbit;
-	COUNT size;
-	int rotFrameIndex, rotPointIndex, rotDirection, rotwidth, rotheight;
 	
-	RESOURCE alternate_colormap; // JMS: Special color maps for Sol system planets
+	// BW : new stuff for animated solar systems
+	PLANET_ORBIT orbit;				// Link to moon(s)
+	COUNT size;						// size of a planet
+	
+	COUNT angle;
+	int rotFrameIndex, rotPointIndex, rotwidth, rotheight;
+	double orb_speed;
+	double rot_speed;
+			// Handles rotation and orbiting
+
+	RESOURCE alternate_colormap;	// JMS: Special color maps for Sol system planets
 	BYTE PlanetByte;
 	BYTE MoonByte;
 };
@@ -306,6 +309,7 @@ extern SOLARSYS_STATE *pSolarSysState;
 extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
 extern BOOLEAN actuallyInOrbit;
+extern BOOLEAN useDosSpheres;
 
 // Random context used for all solar system, planets and surfaces generation
 extern RandomContext *SysGenRNG;
@@ -328,6 +332,7 @@ POINT locationToDisplay (POINT pt, SIZE scaleRadius);
 POINT displayToLocation (POINT pt, SIZE scaleRadius);
 POINT planetOuterLocation (COUNT planetI);
 
+extern void DestroyOrbitCrap (PLANET_ORBIT* Orbit, SIZE height);
 extern void LoadPlanet (FRAME SurfDefFrame);
 extern void DrawPlanet (int dy, Color tintColor);
 extern void DrawPCScanTint (COUNT cur_scan);
