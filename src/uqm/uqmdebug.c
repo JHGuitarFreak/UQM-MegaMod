@@ -37,6 +37,7 @@
 #include "state.h"
 #include "libs/mathlib.h"
 #include "lua/luadebug.h"
+#include "tactrans.h"
 
 #include <stdio.h>
 #include <errno.h>
@@ -128,7 +129,7 @@ resetEnergyBattle (void)
 	
 	if (!(GLOBAL (CurrentActivity) & IN_BATTLE) ||
 			inHQSpace())
-		return;	
+		return;
 
 	if (PlayerControl[1] & HUMAN_CONTROL){
 		StarShipPtr = findPlayerShip (NPC_PLAYER_NUM);
@@ -147,6 +148,38 @@ resetEnergyBattle (void)
 	OldContext = SetContext (StatusContext);
 	DeltaEnergy (StarShipPtr->hShip, delta);
 	SetContext (OldContext);
+}
+
+void
+scuttleOpponent (void)
+{
+	STARSHIP *StarShipPtr;
+	COUNT delta;
+	CONTEXT OldContext;
+	
+	if (!(GLOBAL (CurrentActivity) & IN_BATTLE) ||
+			inHQSpace())
+		return;
+
+	if (PlayerControl[1] & HUMAN_CONTROL)
+		StarShipPtr = findPlayerShip (RPG_PLAYER_NUM);
+	else if (PlayerControl[0] & HUMAN_CONTROL)
+		StarShipPtr = findPlayerShip (NPC_PLAYER_NUM);
+	else
+		StarShipPtr = NULL;
+
+	if (StarShipPtr == NULL || StarShipPtr->RaceDescPtr == NULL)
+		return;
+
+	delta = StarShipPtr->RaceDescPtr->ship_info.crew_level;
+
+	if (delta > 0)
+	{
+		OldContext = SetContext (StatusContext);
+		DeltaCrew (StarShipPtr->hShip, -delta);
+		SetContext (OldContext);
+		ship_death (StarShipPtr->hShip);
+	}
 }
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)

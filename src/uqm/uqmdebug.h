@@ -39,6 +39,9 @@ STARSHIP* findPlayerShip (SIZE playerNr);
 // Resets the energy of the first player (the bottom one) to its maximum.
 void resetEnergyBattle(void);
 
+// Kills the opponent of the player controlled ship
+void scuttleOpponent (void);
+
 #if !defined(UQM_UQMDEBUG_H_) && (defined(DEBUG) || defined(USE_DEBUG_KEY))
 #define UQM_UQMDEBUG_H_
 
