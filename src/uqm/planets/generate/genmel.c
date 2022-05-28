@@ -175,8 +175,6 @@ GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			CaptureDrawable (LoadGraphic (STELE_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 			CaptureStringTable (LoadStringTable (STELE_STRTAB));
-
-		return true;
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
