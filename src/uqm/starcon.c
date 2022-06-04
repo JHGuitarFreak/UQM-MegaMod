@@ -141,6 +141,9 @@ ProcessUtilityKeys (void)
 				ScreenHeightActual);
 	}
 
+	if (ImmediateInputState.menu[KEY_SCREENSHOT])
+		TFB_ScreenShot ();
+
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	{	// Only call the debug func on the rising edge of
 		// ImmediateInputState[KEY_DEBUG] so it does not execute repeatedly.

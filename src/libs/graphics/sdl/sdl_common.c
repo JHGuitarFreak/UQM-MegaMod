@@ -602,8 +602,9 @@ TFB_HasColorKey (SDL_Surface *surface)
 void
 TFB_ScreenShot (void)
 {
+	const char *shotDirName = getenv ("UQM_SCR_SHOT_DIR");
 #if SDL_MAJOR_VERSION == 2
-	TFB_SDL2_ScreenShot ("");
+	TFB_SDL2_ScreenShot (shotDirName);
 #endif
 }
 

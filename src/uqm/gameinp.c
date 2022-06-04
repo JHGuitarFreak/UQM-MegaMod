@@ -289,9 +289,6 @@ UpdateInputState (void)
 	if (PulsedInputState.menu[KEY_DEBUG])
 		debugKeyPressedSynchronous ();
 #endif
-
-	if (PulsedInputState.menu[KEY_SCREENSHOT])
-		TFB_ScreenShot ();
 }
 
 InputFrameCallback *
