@@ -36,6 +36,8 @@
 #include "../../../uqm/units.h"
 #include "../../../options.h"
 
+#include <time.h>
+
 #if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL/SDL_screenkeyboard.h>
 #endif
@@ -602,11 +604,23 @@ TFB_HasColorKey (SDL_Surface *surface)
 void
 TFB_ScreenShot (void)
 {
+
+	char curTime[PATH_MAX], fullPath[PATH_MAX];
+	time_t t = time (NULL);
+	struct tm *tm = localtime (&t);
 	const char *shotDirName = getenv ("UQM_SCR_SHOT_DIR");
-#if SDL_MAJOR_VERSION == 2
-	TFB_SDL2_ScreenShot (shotDirName);
+
+	strftime (curTime, sizeof (curTime),
+		"%Y-%m-%d_%H-%M-%S", tm);
+	snprintf (fullPath, sizeof (fullPath),
+		"%s%s v%d.%d.%g %s.%s", shotDirName, curTime,
+		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+		UQM_EXTRA_VERSION, "png");
+
+#if SDL_MAJOR_VERSION == 1
+	TFB_SDL1_ScreenShot (fullPath);
 #else
-	TFB_SDL1_ScreenShot (shotDirName);
+	TFB_SDL2_ScreenShot (fullPath);
 #endif
 }
 

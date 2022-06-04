@@ -21,7 +21,6 @@
 #include "scalers.h"
 #include "uqmversion.h"
 #include "png2sdl.h"
-#include <time.h>
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -489,42 +488,29 @@ TFB_SDL2_GammaCorrection (float gamma)
 void
 TFB_SDL2_ScreenShot (const char *path)
 {
-	SDL_Surface *SnapSource;
-	DEXTENT screen;
-	char curTime[PATH_MAX], fullPath[PATH_MAX];
-	time_t t = time (NULL);
-	struct tm *tm = localtime (&t);
-
-	strftime (curTime, sizeof (curTime),
-			"%Y-%m-%d_%H-%M-%S", tm);
-	snprintf (fullPath, sizeof (fullPath),
-		"%s%s v%d.%d.%g %s.%s", path, curTime,
-		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-		UQM_EXTRA_VERSION, "png");
-
-	SDL_GetRendererOutputSize (renderer, &screen.width, &screen.height);
+	SDL_Surface *tmp = SDL_GetWindowSurface (window);
 
 	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
 	{
 		float width, height;
-		width = (float)screen.width / 320;
-		height = (float)screen.height / 240;
+		width = (float)tmp->w / 320;
+		height = (float)tmp->h / 240;
 
 		if (width > height)
-			screen.width = width * 320;
+			tmp->w = width * 320;
 		else if (height > width)
-			screen.height = width * 240;
+			tmp->h = width * 240;
 	}
 
-	SnapSource = SDL_CreateRGBSurfaceWithFormat (0, screen.width,
-			screen.height, 32, SDL_PIXELFORMAT_RGBA32);
+	tmp = SDL_CreateRGBSurfaceWithFormat (0, tmp->w, tmp->h, 32,
+			SDL_PIXELFORMAT_RGBA32);
 
-	SDL_LockSurface (SnapSource);
-	SDL_RenderReadPixels (renderer, NULL, SnapSource->format->format,
-		SnapSource->pixels, SnapSource->pitch);
-	SDL_SavePNG (SnapSource, fullPath);
-	SDL_UnlockSurface (SnapSource);
-	SDL_FreeSurface (SnapSource);
+	SDL_LockSurface (tmp);
+	SDL_RenderReadPixels (renderer, NULL, tmp->format->format,
+		tmp->pixels, tmp->pitch);
+	SDL_SavePNG (tmp, path);
+	SDL_UnlockSurface (tmp);
+	SDL_FreeSurface (tmp);
 }
 
 #endif
