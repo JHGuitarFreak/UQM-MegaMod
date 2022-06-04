@@ -83,7 +83,8 @@ static const char *menu_res_names[] = {
 	"editcancel",
 	"search",
 	"next",
-	"togglemap", // JMS: For showing SC1-era starmap.
+	"togglemap",
+	"screenshot",
 	"debug_2",
 	"debug_3",
 	"debug_4",

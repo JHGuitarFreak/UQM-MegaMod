@@ -20,6 +20,8 @@
 #include "libs/log.h"
 #include "scalers.h"
 #include "uqmversion.h"
+#include "png2sdl.h"
+#include <time.h>
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -482,6 +484,33 @@ bool
 TFB_SDL2_GammaCorrection (float gamma)
 {
 	return (SDL_SetWindowBrightness(window, gamma) == 0);
+}
+
+void
+TFB_SDL2_ScreenShot (const char *path)
+{
+	SDL_Surface *SnapSource, *tmp;
+	DEXTENT screen;
+	char curTime[PATH_MAX];
+	time_t t = time (NULL);
+	struct tm *tm = localtime (&t);
+
+	strftime (curTime, sizeof (curTime), "%Y-%m-%d_%H-%M-%S", tm);
+	snprintf (curTime, sizeof (curTime), "%s%s v%d.%d.%g %s.%s", path,
+			curTime, UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
+			UQM_PATCH_VERSION, UQM_EXTRA_VERSION, "png");
+
+	SDL_GetRendererOutputSize (renderer, &screen.width, &screen.height);
+
+	SnapSource = SDL_CreateRGBSurfaceWithFormat (0, screen.width,
+			screen.height, 32, SDL_PIXELFORMAT_RGBA32);
+
+	SDL_LockSurface (SnapSource);
+	SDL_RenderReadPixels (renderer, NULL, SnapSource->format->format,
+		SnapSource->pixels, SnapSource->pitch);
+	SDL_SavePNG (SnapSource, curTime);
+	SDL_UnlockSurface (SnapSource);
+	SDL_FreeSurface (SnapSource);
 }
 
 #endif

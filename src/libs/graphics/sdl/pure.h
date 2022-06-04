@@ -27,5 +27,6 @@ void TFB_Pure_UninitGraphics (void);
 int TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor);
 void Scale_PerfTest (void);
 bool TFB_SDL2_GammaCorrection (float gamma);
+void TFB_SDL2_ScreenShot (const char *path);
 
 #endif

@@ -34,6 +34,7 @@
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
 #include "../../../uqm/units.h"
+#include "../../../options.h"
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL/SDL_screenkeyboard.h>
@@ -596,6 +597,14 @@ TFB_HasColorKey (SDL_Surface *surface)
 {
 	Uint32 key;
 	return TFB_GetColorKey (surface, &key) == 0;
+}
+
+void
+TFB_ScreenShot (void)
+{
+#if SDL_MAJOR_VERSION == 2
+	TFB_SDL2_ScreenShot ("");
+#endif
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)
