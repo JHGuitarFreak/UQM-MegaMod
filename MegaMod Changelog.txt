@@ -14,17 +14,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Added
 - Added a dotted fuel circle that shows the fuel range at the destination - PR #102 by taleden
 - Added ability to load glyph spacing and kerning data from a file inside the font directory
+- Added ability to take screenshots using the F8 key. A '.png' file will be saved in the config directory in the "screenshots" folder
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
 - Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden
 - De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
-- Get font "leading" value from the height of the 'leading.png' within the font's folder
+- Get font "leading" value from the height of the 'leading.png' within the font's folder.
+- HD: Make the leading edge of the 3DO planet scan a smooth gradient
+- HD: Slylandro Gas-Bags now have working color transforms - Kruzen
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
 - HARDMODE: Fixed Melnorme tech price increasing (unintentionally) when refusing to buy new tech and going back to buy the same tech - Bug #100
+- Fixed Y coordinates for mineral nodes when using 3DO planet textures
+- Fixed PC lander graphic being transparent when planet is loading
+- Fixed textured moons loading regardless if Textured Planets was enabled or not
+- EXTENDED: Fixed interaction with Alpha Apodis IV
 
 
 ## [v0.8.1]
