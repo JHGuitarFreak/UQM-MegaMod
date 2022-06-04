@@ -20,6 +20,8 @@
 #include "scalers.h"
 #include "libs/log.h"
 #include "../../../uqm/units.h"
+#include "uqmversion.h"
+#include <time.h>
 
 #if SDL_MAJOR_VERSION == 1
 
@@ -520,6 +522,26 @@ Scale_PerfTest (void)
 
 	SDL_UnlockSurface (scaled_display);
 	SDL_UnlockSurface (SDL_Screen);
+}
+
+void
+TFB_SDL1_ScreenShot (const char *path)
+{
+	const SDL_Surface video = *SDL_Screen;
+	char curTime[PATH_MAX], fullPath[PATH_MAX];
+	time_t t = time (NULL);
+	struct tm *tm = localtime (&t);
+
+	strftime (curTime, sizeof (curTime),
+		"%Y-%m-%d_%H-%M-%S", tm);
+	snprintf (fullPath, sizeof (fullPath),
+		"%s%s v%d.%d.%g %s.%s", path, curTime,
+		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+		UQM_EXTRA_VERSION, "bmp");
+
+	SDL_LockSurface (&video);
+	SDL_SaveBMP (&video, fullPath);
+	SDL_UnlockSurface (&video);
 }
 
 #endif
