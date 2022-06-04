@@ -18,7 +18,22 @@
 #define PNG2SDL_H_
 
 #include <SDL.h>
+#include <SDL_video.h>
+
 
 SDL_Surface *TFB_png_to_sdl (SDL_RWops *src);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define SDL_SavePNG(surface, file) \
+		SDL_SavePNG_RW(surface, SDL_RWFromFile(file, "wb"), 1)
+extern int SDL_SavePNG_RW (SDL_Surface *surface, SDL_RWops *rw, int freedst);
+extern SDL_Surface *SDL_PNGFormatAlpha (SDL_Surface *src);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
