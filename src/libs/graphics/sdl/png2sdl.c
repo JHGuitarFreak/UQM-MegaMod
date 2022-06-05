@@ -38,7 +38,7 @@
 
 /* Link function between SDL_RWops and PNG's data source */
 static void
-png_read_data(png_structp ctx, png_bytep area, png_size_t size)
+png_read_data (png_structp ctx, png_bytep area, png_size_t size)
 {
 	SDL_RWops *src = (SDL_RWops *)png_get_io_ptr (ctx);
 	SDL_RWread (src, area, size, 1);
@@ -227,7 +227,7 @@ TFB_png_to_sdl (SDL_RWops *src)
 	for (row = 0; row < (int)height; row++)
 	{
 		row_pointers[row] = (png_bytep)
-			(Uint8 *)surface->pixels + row*surface->pitch;
+			(Uint8 *)surface->pixels + row * surface->pitch;
 	}
 
 	/* Read the entire image in one go */
@@ -299,17 +299,11 @@ done:	/* Clean up and return */
 	return surface;
 }
 
-// sdl2png
-
-/*
- * SDL_SavePNG -- libpng-based SDL_Surface writer.
+/* SDL2PNG
+ * Based entirely on driedfruit's SDL_SavePNG
+ * A libpng-based SDL_Surface writer.
  * https://github.com/driedfruit/SDL_SavePNG/
- *
- * This code is free software, available under zlib/libpng license.
- * http://www.libpng.org/pub/png/src/libpng-LICENSE.txt
  */
-
-#define USE_ROW_POINTERS
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define A_MASK 0xff000000
@@ -323,15 +317,11 @@ done:	/* Clean up and return */
 #define R_MASK 0xff000000
 #endif
 
-/* libpng callbacks */
-static void png_error_SDL (png_structp ctx, png_const_charp str)
+static void
+png_write_data (png_structp ctx, png_bytep area, png_size_t size)
 {
-	SDL_SetError ("libpng: %s\n", str);
-}
-static void png_write_SDL (png_structp png_ptr, png_bytep data, png_size_t length)
-{
-	SDL_RWops *rw = (SDL_RWops *)png_get_io_ptr (png_ptr);
-	SDL_RWwrite (rw, data, sizeof (png_byte), length);
+	SDL_RWops *rw = (SDL_RWops *)png_get_io_ptr (ctx);
+	SDL_RWwrite (rw, area, sizeof (png_byte), size);
 }
 
 SDL_Surface *
@@ -358,53 +348,60 @@ SDL_PNGFormatAlpha (SDL_Surface *src)
 }
 
 int
-SDL_SavePNG_RW (SDL_Surface *surface, SDL_RWops *dst, int freedst)
+TFB_sdl_to_png (SDL_Surface *surface, SDL_RWops *dst, int freedst)
 {
 	png_structp png_ptr;
 	png_infop info_ptr;
 	png_colorp pal_ptr;
 	SDL_Palette *pal;
 	int i, colortype;
-#ifdef USE_ROW_POINTERS
 	png_bytep *row_pointers;
-#endif
+	const char *error;
+
+	/* Initialize the data we will clean up when we're done */
+	error = NULL;
+	png_ptr = NULL;
+	info_ptr = NULL;
+	row_pointers = NULL;
+
 	/* Initialize and do basic error checking */
 	if (!dst)
 	{
-		SDL_SetError ("Argument 2 to SDL_SavePNG_RW can't be NULL, expecting SDL_RWops*\n");
-		if (freedst) SDL_RWclose (dst);
-		return (-1);
+		error = "Argument 2 to TFB_sdl_to_png can't be NULL\n";
+		goto done;
 	}
 	if (!surface)
 	{
-		SDL_SetError ("Argument 1 to SDL_SavePNG_RW can't be NULL, expecting SDL_Surface*\n");
-		if (freedst) SDL_RWclose (dst);
-		return (-1);
-	}
-	png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, png_error_SDL, NULL); /* err_ptr, err_fn, warn_fn */
-	if (!png_ptr)
-	{
-		SDL_SetError ("Unable to png_create_write_struct on %s\n", PNG_LIBPNG_VER_STRING);
-		if (freedst) SDL_RWclose (dst);
-		return (-1);
-	}
-	info_ptr = png_create_info_struct (png_ptr);
-	if (!info_ptr)
-	{
-		SDL_SetError ("Unable to png_create_info_struct\n");
-		png_destroy_write_struct (&png_ptr, NULL);
-		if (freedst) SDL_RWclose (dst);
-		return (-1);
-	}
-	if (setjmp (png_jmpbuf (png_ptr)))	/* All other errors, see also "png_error_SDL" */
-	{
-		png_destroy_write_struct (&png_ptr, &info_ptr);
-		if (freedst) SDL_RWclose (dst);
-		return (-1);
+		error = "Argument 1 to TFB_sdl_to_png can't be NULL\n";
+		goto done;
 	}
 
-	/* Setup our RWops writer */
-	png_set_write_fn (png_ptr, dst, png_write_SDL, NULL); /* w_ptr, write_fn, flush_fn */
+	/* Create the PNG writing context structure */
+	png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING,
+			NULL, NULL, NULL);
+	if (png_ptr == NULL)
+	{
+		error = "Couldn't allocate memory for PNG file";
+		goto done;
+	}
+
+	/* Allocate/initialize the memory for image information */
+	info_ptr = png_create_info_struct (png_ptr);
+	if (info_ptr == NULL)
+	{
+		error = "Couldn't create image information for PNG file";
+		goto done;
+	}
+
+	/* Set error handling */
+	if (setjmp (png_jmpbuf (png_ptr)))
+	{
+		error = "Error reading the PNG file.";
+		goto done;
+	}
+
+	/* Set up the output control */
+	png_set_write_fn (png_ptr, dst, png_write_data, NULL);
 
 	/* Prepare chunks */
 	colortype = PNG_COLOR_MASK_COLOR;
@@ -426,10 +423,12 @@ SDL_SavePNG_RW (SDL_Surface *surface, SDL_RWops *dst, int freedst)
 	else if (surface->format->BytesPerPixel > 3 || surface->format->Amask)
 		colortype |= PNG_COLOR_MASK_ALPHA;
 
+	/* Set the PNG header info */
 	png_set_IHDR (png_ptr, info_ptr, surface->w, surface->h, 8, colortype,
-		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+			PNG_FILTER_TYPE_DEFAULT);
 
-	//	png_set_packing(png_ptr);
+	png_set_packing (png_ptr);
 
 		/* Allow BGR surfaces */
 	if (surface->format->Rmask == B_MASK
@@ -439,20 +438,41 @@ SDL_SavePNG_RW (SDL_Surface *surface, SDL_RWops *dst, int freedst)
 
 	/* Write everything */
 	png_write_info (png_ptr, info_ptr);
-#ifdef USE_ROW_POINTERS
-	row_pointers = (png_bytep *)malloc (sizeof (png_bytep) * surface->h);
+
+	/* Create the array of pointers to image data */
+	row_pointers =
+			(png_bytep *)SDL_malloc (sizeof (png_bytep) * surface->h);
+	if (!row_pointers)
+	{
+		error = "Out of memory";
+		goto done;
+	}
 	for (i = 0; i < surface->h; i++)
-		row_pointers[i] = (png_bytep)(Uint8 *)surface->pixels + i * surface->pitch;
+	{
+		row_pointers[i] = (png_bytep)
+			(Uint8 *)surface->pixels + i * surface->pitch;
+	}
+
 	png_write_image (png_ptr, row_pointers);
-	free (row_pointers);
-#else
-	for (i = 0; i < surface->h; i++)
-		png_write_row (png_ptr, (png_bytep)(Uint8 *)surface->pixels + i * surface->pitch);
-#endif
 	png_write_end (png_ptr, info_ptr);
 
-	/* Done */
-	png_destroy_write_struct (&png_ptr, &info_ptr);
-	if (freedst) SDL_RWclose (dst);
+done:	/* Clean up and return */
+	if (freedst && dst != NULL)
+		SDL_RWclose (dst);
+	if (row_pointers)
+		SDL_free (row_pointers);
+	if (png_ptr)
+		png_destroy_write_struct (&png_ptr,
+				info_ptr ? &info_ptr : (png_infopp)0);
+	if (error)
+	{
+		if (surface)
+		{
+			SDL_FreeSurface (surface);
+			surface = NULL;
+		}
+		fprintf (stderr, "%s", error);
+		return (-1);
+	}
 	return (0);
 }
