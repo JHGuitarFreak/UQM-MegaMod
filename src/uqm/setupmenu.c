@@ -1666,7 +1666,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->scanSphere = res_GetInteger ("mm.scanSphere");
+	opts->scanSphere = (optScanSphere == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 
 	if (!IS_HD)
 	{
@@ -2162,8 +2162,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
 	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
 
-	res_PutInteger ("mm.scanSphere", opts->scanSphere);
-	optScanSphere = opts->scanSphere;
+	optScanSphere = (opts->scanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.scanSphere", opts->scanSphere == OPTVAL_3DO);
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

@@ -461,8 +461,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
 				CalcGravity (&solarSys->SysInfo.PlanetInfo);
-		
-		
+
 		{	// For Sol Textures
 			RESOURCE maskAnim = NULL;
 

@@ -1281,11 +1281,11 @@ ScanPlanet (COUNT scanType)
 	SetContext (ScanContext);
 	pSolarSysState->Orbit.scanType = NUM_SCAN_TYPES;
 
-	if (optScanStyle == OPT_PC || TRUE)// optDOSspheres
-		RerenderPlanetSphere();
+	if (optScanStyle == OPT_PC || isPC (optScanSphere))
+		RerenderPlanetSphere ();
 
 	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)
-	{	// clear the last scan		
+	{	// clear the last scan
 		DrawPlanet (0, BLACK_COLOR);
 		DrawDefaultPlanetSphere ();
 		DrawScannedObjects (FALSE);

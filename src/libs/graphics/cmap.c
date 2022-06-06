@@ -663,18 +663,19 @@ GetColorMapAddress (COLORMAP colormap)
 }
 
 static void
-DoTransformColorMap(Color* colors, COLORMAPPTR ColorMapPtr, COUNT from, COUNT to)
-{// New fancy func to change colors of current colormap
+DoTransformColorMap (Color* colors, COLORMAPPTR ColorMapPtr, COUNT from,
+		COUNT to)
+{	// New fancy func to change colors of current colormap
 	TFB_ColorMap* map;
 	int i;
 	int p_index = *(UBYTE*)ColorMapPtr;
-	LockMutex(maplock);
+	LockMutex (maplock);
 
 	map = colormaps[p_index];
 	if (!map)
 	{
-		UnlockMutex(maplock);
-		log_add(log_Error, "BUG: XFormColorMap_step(): no current map");
+		UnlockMutex (maplock);
+		log_add (log_Error, "BUG: XFormColorMap_step(): no current map");
 		return;
 	}
 
@@ -684,7 +685,7 @@ DoTransformColorMap(Color* colors, COLORMAPPTR ColorMapPtr, COUNT from, COUNT to
 		Color* c;
 		int i;
 
-		newmap = clone_colormap(map, p_index);
+		newmap = clone_colormap (map, p_index);
 		c = colors;
 
 		for (i = from; i < to; ++i, ++c, newPtr += PLUTVAL_BYTE_SIZE)
@@ -692,20 +693,21 @@ DoTransformColorMap(Color* colors, COLORMAPPTR ColorMapPtr, COUNT from, COUNT to
 			newPtr[PLUTVAL_RED] = c->r;
 			newPtr[PLUTVAL_GREEN] = c->g;
 			newPtr[PLUTVAL_BLUE] = c->b;
-			SetNativePaletteColor(newmap->palette, i, *c);
+			SetNativePaletteColor (newmap->palette, i, *c);
 		}
 
 		colormaps[p_index] = newmap;
-		release_colormap(map);
+		release_colormap (map);
 	}
-	UnlockMutex(maplock);
+	UnlockMutex (maplock);
 }
 
 void
-SetColorMapColors(Color *colors, COLORMAPPTR ColorMapPtr, COUNT from, COUNT to)
+SetColorMapColors (Color *colors, COLORMAPPTR ColorMapPtr, COUNT from,
+		COUNT to)
 {
 	if (!ColorMapPtr)
-		return;	
+		return;
 
-	DoTransformColorMap(colors, ColorMapPtr, from, to);
+	DoTransformColorMap (colors, ColorMapPtr, from, to);
 }

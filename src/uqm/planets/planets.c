@@ -54,7 +54,6 @@ CONTEXT PlanetContext;
 		// Context for rotating planet view and lander surface view
 BOOLEAN actuallyInOrbit = FALSE;
 		// For determining if the player is in actual scanning orbit
-BOOLEAN useDosSpheres = FALSE;
 
 void
 DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
@@ -90,16 +89,16 @@ DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
 		COUNT i;
 		for (i = 0; i < NUM_SCAN_TYPES; i++)
 		{
-			HFree(Orbit->ScanColors[i]);
+			HFree (Orbit->ScanColors[i]);
 			Orbit->ScanColors[i] = NULL;
 		}
-		HFree(Orbit->ScanColors);
+		HFree (Orbit->ScanColors);
 		Orbit->ScanColors = NULL;
 	}
 	
 	if (Orbit->ScratchArray)
 	{
-		HFree(Orbit->ScratchArray);
+		HFree (Orbit->ScratchArray);
 		Orbit->ScratchArray = NULL;
 	}
 
@@ -111,10 +110,10 @@ DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
 		COUNT j;
 		for (j = 0; j < height; j++)
 		{
-			HFree(Orbit->light_diff[j]);
+			HFree (Orbit->light_diff[j]);
 			Orbit->light_diff[j] = NULL;
 		}
-		HFree(Orbit->light_diff);
+		HFree (Orbit->light_diff);
 		Orbit->light_diff = NULL;
 	}
 
@@ -123,10 +122,10 @@ DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
 		COUNT k;
 		for (k = 0; k < height; k++)
 		{
-			HFree(Orbit->map_rotate[k]);
+			HFree (Orbit->map_rotate[k]);
 			Orbit->map_rotate[k] = NULL;
 		}
-		HFree(Orbit->map_rotate);
+		HFree (Orbit->map_rotate);
 		Orbit->map_rotate = NULL;
 	}
 
@@ -425,9 +424,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	CreatePlanetContext ();
 
 	if (WaitMode)
-	{
 		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
-	}
 
 	StopMusic ();
 
@@ -528,7 +525,6 @@ FreePlanet (void)
 	DestroyPCLanderContext ();
 
 	actuallyInOrbit = FALSE;
-	useDosSpheres = FALSE;
 }
 
 void

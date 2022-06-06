@@ -195,9 +195,12 @@ struct planet_desc
 	double rot_speed;
 			// Handles rotation and orbiting
 
-	RESOURCE alternate_colormap;	// JMS: Special color maps for Sol system planets
+	RESOURCE alternate_colormap;
+			// JMS: Special color maps for Sol system planets
+
 	BYTE PlanetByte;
 	BYTE MoonByte;
+			// Handles hard coded planets/moons for Custom Seed
 };
 
 struct star_desc
@@ -309,7 +312,6 @@ extern SOLARSYS_STATE *pSolarSysState;
 extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
 extern BOOLEAN actuallyInOrbit;
-extern BOOLEAN useDosSpheres;
 
 // Random context used for all solar system, planets and surfaces generation
 extern RandomContext *SysGenRNG;

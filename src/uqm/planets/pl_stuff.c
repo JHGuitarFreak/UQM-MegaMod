@@ -60,11 +60,11 @@ DrawCurrentPlanetSphere (void)
 		else if (rotPointIndex >= rotwidth)
 			rotPointIndex = 0;
 
-		if (!useDosSpheres)
+		if (is3DO (optScanSphere))
 		{
-			Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame,
+			Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame,
 				rotFrameIndex);
-			RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
+			RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
 				pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
 				throbShield, rotwidth, rotheight,
 				(rotheight >> 1) - IF_HD(2), FALSE);
@@ -76,7 +76,8 @@ DrawCurrentPlanetSphere (void)
 			else
 				Orbit->SphereFrame = DecFrameIndex(Orbit->SphereFrame);
 
-			RenderDOSPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex);
+			RenderDOSPlanetSphere (
+					Orbit, Orbit->SphereFrame, rotPointIndex);
 		}
 	}
 	BatchGraphics ();
@@ -120,20 +121,21 @@ DrawDefaultPlanetSphere (void)
 	CONTEXT oldContext;
 
 	oldContext = SetContext (PlanetContext);
-	DrawPlanetSphere (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
+	DrawPlanetSphere (
+			RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
 	SetContext (oldContext);
 }
 
 void
 RerenderPlanetSphere (void)
 {
-	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;	
+	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
 
 	if (optTintPlanSphere != OPT_PC)
 		return;
 
-	if (useDosSpheres)
-	{// palette switch for coloring sphere into scan colors
+	if (isPC (optScanSphere))
+	{	// palette switch for coloring sphere into scan colors
 		COUNT sc;
 		sc = Orbit->scanType;
 		if (sc > 2)
@@ -141,15 +143,19 @@ RerenderPlanetSphere (void)
 		else
 			sc++;
 
-		XFormColorMap(GetColorMapAddress(SetAbsColorMapIndex(Orbit->sphereMap, sc)), 0);
-		XFormColorMap_step();
+		XFormColorMap (
+				GetColorMapAddress (
+					SetAbsColorMapIndex (Orbit->sphereMap, sc)), 0
+			);
+		XFormColorMap_step ();
 	}
 
 	DrawCurrentPlanetSphere ();
 }
 
 void
-InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
+InitSphereRotation (int direction, BOOLEAN shielded, COUNT width,
+		COUNT height)
 {
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 
@@ -158,7 +164,8 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	rotDirection = direction;
 	rotPointIndex = 0;
-	throbShield = shielded && optWhichShield == OPT_3DO && !useDosSpheres;
+	throbShield =
+			shielded && optWhichShield == OPT_3DO && is3DO (optScanSphere);
 
 	if (throbShield)
 	{
@@ -174,7 +181,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height)
 
 	// Render the first sphere/shield frame
 	// Prepare will set the next one
-	rotFrameIndex = (useDosSpheres ? 0: 1);
+	rotFrameIndex = (isPC (optScanSphere) ? 0: 1);
 	PrepareNextRotationFrame ();
 }
 
@@ -198,8 +205,9 @@ PrepareNextRotationFrame (void)
 	static BOOLEAN flag = TRUE;
 
 	// Generate the next rotation frame
-	// We alternate between the frames because we do not call FlushGraphics()
-	// The frame we just drew may not have made it to the screen yet
+	// We alternate between the frames because we do not call
+	// FlushGraphics() The frame we just drew may not have made it to the
+	// screen yet
 	rotFrameIndex ^= 1;
 
 	// Go to next point, taking care of wraparounds
@@ -210,21 +218,23 @@ PrepareNextRotationFrame (void)
 		rotPointIndex = 0;
 
 	// prepare the next sphere frame
-	if (!useDosSpheres)
+	if (is3DO (optScanSphere))
 	{
-		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame, rotFrameIndex);
-		RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
-			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-			throbShield, rotwidth, rotheight, (rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
+		Orbit->SphereFrame =
+				SetAbsFrameIndex (Orbit->SphereFrame, rotFrameIndex);
+		RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
+				pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
+				throbShield, rotwidth, rotheight,
+				(rotheight >> 1) - IF_HD(2), FALSE); // RADIUS
 	}
 	else
 	{
 		if (rotFrameIndex)
-			Orbit->SphereFrame = IncFrameIndex(Orbit->SphereFrame);
+			Orbit->SphereFrame = IncFrameIndex (Orbit->SphereFrame);
 		else
-			Orbit->SphereFrame = DecFrameIndex(Orbit->SphereFrame);
+			Orbit->SphereFrame = DecFrameIndex (Orbit->SphereFrame);
 
-		RenderDOSPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex);
+		RenderDOSPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex);
 	}
 	
 	if (throbShield)
@@ -390,7 +400,8 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 
 	if (Now >= NextTime)
 	{
-		NextTime = Now + (useDosSpheres ? (ONE_SECOND / 12) : PLANET_ROTATION_RATE);
+		NextTime = Now + (is3DO (optScanSphere) ? (ONE_SECOND / 12)
+					: PLANET_ROTATION_RATE);
 
 		if (Now >= OutNextTime)
 		{

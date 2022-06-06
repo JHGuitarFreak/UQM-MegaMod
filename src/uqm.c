@@ -405,7 +405,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
 		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
-		INIT_CONFIG_OPTION(  scanSphere,        0 ),
+		INIT_CONFIG_OPTION(  scanSphere,        OPT_PC ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -591,12 +591,12 @@ main (int argc, char *argv[])
 	optAddDevices = options.addDevices.value;
 	optCustomBorder = options.customBorder.value;
 	optCustomSeed = options.customSeed.value;
-	optRequiresReload = FALSE; 
-	optRequiresRestart = FALSE; 
+	optRequiresReload = FALSE;
+	optRequiresRestart = FALSE;
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
-	optDirectionalJoystick = options.directionalJoystick.value; // For Android
+	optDirectionalJoystick = options.directionalJoystick.value;
 	optLanderHold = options.landerHold.value;
 	optIPScaler = options.ipTrans.value;
 	optDifficulty = options.optDifficulty.value;
@@ -1033,9 +1033,8 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->unscaledStarSystem, "mm.unscaledStarSystem");
 
-	if (res_IsInteger ("mm.scanSphere") && !options->scanSphere.set) {
-		options->scanSphere.value = res_GetInteger ("mm.scanSphere");
-	}
+	getBoolConfigValueXlat (&options->scanSphere, "mm.scanSphere",
+		OPT_3DO, OPT_PC);
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1805,25 +1804,12 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->unscaledStarSystem, true);
 				break;
 			case SCANSPH_OPT:
-			{
-				int temp;
-				if (parseIntOption (optarg, &temp, "Scan Sphere") == -1)
+				if (!setChoiceOption (&options->scanSphere, optarg))
 				{
+					InvalidArgument (optarg, "--scansphere");
 					badArg = true;
-					break;
-				}
-				else if (temp < 0 || temp > 2)
-				{
-					saveError ("\nScan Sphere has to be between 0-2.\n");
-					badArg = true;
-				}
-				else
-				{
-					options->scanSphere.value = temp;
-					options->scanSphere.set = true;
 				}
 				break;
-			}
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2167,6 +2153,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --unscaledstarsystem : Show the classic HD-mod "
 			" Beta Star System view (default: %s)",
 			boolOptString (&defaults->unscaledStarSystem));
+	log_add (log_User, "  --scansphere : Choose between either the PC"
+			" or 3DO scan sphere styles (default: %s)",
+			choiceOptString (&defaults->scanSphere));
 
 	log_setOutput (old);
 }
