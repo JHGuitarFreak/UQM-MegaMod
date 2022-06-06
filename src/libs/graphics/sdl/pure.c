@@ -523,15 +523,19 @@ Scale_PerfTest (void)
 	SDL_UnlockSurface (SDL_Screen);
 }
 
-void
-TFB_SDL1_ScreenShot (const char *path)
+BOOLEAN
+TFB_SDL_ScreenShot (const char *path)
 {
 	SDL_Surface *tmp = SDL_PNGFormatAlpha (SDL_Screen);
+	BOOLEAN successful = FALSE;
 
 	SDL_LockSurface (tmp);
-	SDL_SavePNG (tmp, path);
+	if (SDL_SavePNG (tmp, path) == 0)
+		successful = TRUE;
 	SDL_UnlockSurface (tmp);
 	SDL_FreeSurface (tmp);
+
+	return successful;
 }
 
 #endif

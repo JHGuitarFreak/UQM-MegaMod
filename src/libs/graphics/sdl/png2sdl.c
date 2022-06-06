@@ -457,7 +457,7 @@ TFB_sdl_to_png (SDL_Surface *surface, SDL_RWops *dst, int freedst)
 	png_write_end (png_ptr, info_ptr);
 
 done:	/* Clean up and return */
-	if (freedst && dst != NULL)
+	if (freedst)
 		SDL_RWclose (dst);
 	if (row_pointers)
 		SDL_free (row_pointers);

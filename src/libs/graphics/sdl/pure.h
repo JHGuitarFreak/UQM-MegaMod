@@ -28,7 +28,4 @@ int TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int t
 void Scale_PerfTest (void);
 bool TFB_SDL2_GammaCorrection (float gamma);
 
-void TFB_SDL1_ScreenShot (const char *path);
-void TFB_SDL2_ScreenShot (const char *path);
-
 #endif

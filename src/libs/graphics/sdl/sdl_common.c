@@ -609,6 +609,7 @@ TFB_ScreenShot (void)
 	time_t t = time (NULL);
 	struct tm *tm = localtime (&t);
 	const char *shotDirName = getenv ("UQM_SCR_SHOT_DIR");
+	struct stat sb;
 
 	strftime (curTime, sizeof (curTime),
 		"%Y-%m-%d_%H-%M-%S", tm);
@@ -617,11 +618,13 @@ TFB_ScreenShot (void)
 		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 		UQM_EXTRA_VERSION, "png");
 
-#if SDL_MAJOR_VERSION == 1
-	TFB_SDL1_ScreenShot (fullPath);
-#else
-	TFB_SDL2_ScreenShot (fullPath);
-#endif
+	if (stat (shotDirName, &sb) == 0 && S_ISDIR (sb.st_mode))
+	{
+		if (TFB_SDL_ScreenShot (fullPath))
+			log_add (log_Info, "Screenshot saved at path, '%s'", fullPath);
+		else
+			log_add (log_Debug, "Screenshot not saved due to an error");
+	}
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)

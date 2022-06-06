@@ -395,7 +395,7 @@ prepareScrShotDir (void)
 	char buf[PATH_MAX];
 	const char *shotDirName;
 
-	shotDirName = getenv("UQM_SCR_SHOT_DIR");
+	shotDirName = getenv ("UQM_SCR_SHOT_DIR");
 	if (shotDirName == NULL)
 		shotDirName = SCRSHOTDIR;
 	
@@ -419,7 +419,7 @@ prepareScrShotDir (void)
 			//       "screenshots" in the SCRSHOTDIR macro.
 	if (scrShotDir == NULL)
 	{
-		log_add (log_Fatal, "Fatal error: Could not open melee teams dir: %s",
+		log_add (log_Fatal, "Fatal error: Could not open screenshot dir: %s",
 				strerror (errno));
 		exit (EXIT_FAILURE);
 	}
@@ -731,6 +731,11 @@ unprepareAllDirs (void)
 	{
 		uio_closeDir (configDir);
 		configDir = 0;
+	}
+	if (scrShotDir)
+	{
+		uio_closeDir (scrShotDir);
+		scrShotDir = 0;
 	}
 }
 

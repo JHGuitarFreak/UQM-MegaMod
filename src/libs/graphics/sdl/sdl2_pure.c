@@ -485,10 +485,11 @@ TFB_SDL2_GammaCorrection (float gamma)
 	return (SDL_SetWindowBrightness(window, gamma) == 0);
 }
 
-void
-TFB_SDL2_ScreenShot (const char *path)
+BOOLEAN
+TFB_SDL_ScreenShot (const char *path)
 {
 	SDL_Surface *tmp = SDL_GetWindowSurface (window);
+	BOOLEAN successful = FALSE;
 
 	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
 	{
@@ -508,9 +509,12 @@ TFB_SDL2_ScreenShot (const char *path)
 	SDL_LockSurface (tmp);
 	SDL_RenderReadPixels (renderer, NULL, tmp->format->format,
 		tmp->pixels, tmp->pitch);
-	SDL_SavePNG (tmp, path);
+	if (SDL_SavePNG (tmp, path) == 0)
+		successful = TRUE;
 	SDL_UnlockSurface (tmp);
 	SDL_FreeSurface (tmp);
+
+	return successful;
 }
 
 #endif
