@@ -1183,16 +1183,13 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 
 void
 RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
-{// Kruzen: Yes, I know what to say to Apostle Peter when my time will come.
+{	// Kruzen: Yes, I know what to say to Apostle Peter when my time will come.
 	if (!Orbit->TopoMask)
 		return;
 	else
-	{// Prepare new frame (oh god...)
-		BYTE *pix;
-		BYTE *origin;
-		Color *mask;
-		Color *mask;
-		Color *color;
+	{	// Prepare new frame (oh god...)
+		BYTE *pix, *origin;
+		Color *mask, *color;
 		COUNT x, y;
 		SIZE width = MaskFrame->Bounds.width;
 		SIZE height = Orbit->TopoMask->Bounds.height;
