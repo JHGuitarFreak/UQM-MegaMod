@@ -354,7 +354,7 @@ RenderLevelMasks (FRAME mask, SBYTE *pTopoData, BOOLEAN SurfDef)
 
 				if (AlgoType == GAS_GIANT_ALGO)
 				{	// make elevation value non-negative
-					d += base;
+					// d += base;
 					d &= 255;
 				}
 				else
@@ -471,7 +471,7 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h,
 				d = *pSrc;
 				if (AlgoType == GAS_GIANT_ALGO)
 				{	// make elevation value non-negative
-					d += base;
+					// d += base;
 					d &= 255;
 				}
 				else
@@ -1278,7 +1278,7 @@ static void
 DitherMap (SBYTE *DepthArray, COUNT width, COUNT height)
 {
 #define DITHER_VARIANCE  (1 << (RANGE_SHIFT - 3))
-	DWORD i;  // JMS_GFX: changed from COUNT to avoid overflow at higher resolutions.
+	DWORD i;
 	SBYTE *elev;
 	DWORD rand_val = 0;
 
@@ -2238,7 +2238,7 @@ void
 load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
 	PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN ForIP)
 {
-	if (pPlanetDesc->alternate_colormap && !ForIP)
+	if (CheckColorMap (pPlanetDesc->alternate_colormap) && !ForIP)
 	{	// JMS: Planets with special colormaps
 		pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (pPlanetDesc->alternate_colormap));
