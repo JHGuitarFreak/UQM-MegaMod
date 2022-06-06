@@ -400,8 +400,8 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 
 	if (Now >= NextTime)
 	{
-		NextTime = Now + (is3DO (optScanSphere) ? (ONE_SECOND / 12)
-					: PLANET_ROTATION_RATE);
+		NextTime = Now + (isPC (optScanSphere) ? (ONE_SECOND / 12)
+				: PLANET_ROTATION_RATE);
 
 		if (Now >= OutNextTime)
 		{
