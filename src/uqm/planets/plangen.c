@@ -236,7 +236,7 @@ ExpandLevelMasks(PLANET_ORBIT* Orbit)
 		PLANET_INFO* PlanetInfo;
 
 		PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
-		spherespanx = 75;
+		spherespanx = Orbit->SphereFrame->Bounds.width;
 		width = Orbit->TopoMask->Bounds.width;
 		height = Orbit->TopoMask->Bounds.height;
 
