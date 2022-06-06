@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       76
+#define CHOICE_COUNT       77
 #define SLIDER_COUNT        4
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -162,6 +162,7 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[6]),    // Scan Style
 	(WIDGET *)(&choices[17]),   // Slave Shields
 	(WIDGET *)(&choices[64]),   // Scan Style
+	(WIDGET *)(&choices[76]),   // Scan Sphere Type
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[68]),   // Lander Style
 	(WIDGET *)(&buttons[1]),
@@ -260,7 +261,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&buttons[1]),		// Exit to Menu
+	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
@@ -616,6 +617,7 @@ SetDefaults (void)
 	choices[73].selected = opts.meleeObstacles;
 	choices[74].selected = opts.showVisitedStars;
 	choices[75].selected = opts.unscaledStarSystem;
+	choices[76].selected = opts.scanSphere;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -706,6 +708,7 @@ PropagateResults (void)
 	opts.meleeObstacles = choices[73].selected;
 	opts.showVisitedStars = choices[74].selected;
 	opts.unscaledStarSystem = choices[75].selected;
+	opts.scanSphere = choices[76].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1663,6 +1666,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->scanSphere = res_GetInteger ("mm.scanSphere");
 
 	if (!IS_HD)
 	{
@@ -2157,6 +2161,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
 	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
+
+	res_PutInteger ("mm.scanSphere", opts->scanSphere);
+	optScanSphere = opts->scanSphere;
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

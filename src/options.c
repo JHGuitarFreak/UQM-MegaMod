@@ -118,6 +118,7 @@ BOOLEAN optDeCleansing;
 BOOLEAN optMeleeObstacles;
 BOOLEAN optShowVisitedStars;
 BOOLEAN optUnscaledStarSystem;
+int optScanSphere;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

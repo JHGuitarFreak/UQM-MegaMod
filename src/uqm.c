@@ -200,6 +200,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, meleeObstacles);
 	DECL_CONFIG_OPTION(bool, showVisitedStars);
 	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
+	DECL_CONFIG_OPTION(int,  scanSphere);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -403,7 +404,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  deCleansing,       false ),
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
-		INIT_CONFIG_OPTION(  unscaledStarSystem,    false ),
+		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
+		INIT_CONFIG_OPTION(  scanSphere,        0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -622,6 +624,7 @@ main (int argc, char *argv[])
 	optMeleeObstacles = options.meleeObstacles.value;
 	optShowVisitedStars = options.showVisitedStars.value;
 	optUnscaledStarSystem = options.unscaledStarSystem.value;
+	optScanSphere = options.scanSphere.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1029,6 +1032,10 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->showVisitedStars, "mm.showVisitedStars");
 
 	getBoolConfigValue (&options->unscaledStarSystem, "mm.unscaledStarSystem");
+
+	if (res_IsInteger ("mm.scanSphere") && !options->scanSphere.set) {
+		options->scanSphere.value = res_GetInteger ("mm.scanSphere");
+	}
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1119,6 +1126,7 @@ enum
 	NOMELEEOBJ_OPT,
 	SHOWSTARS_OPT,
 	UNSCALEDSS_OPT,
+	SCANSPH_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 #ifdef NETPLAY
@@ -1220,6 +1228,7 @@ static struct option longOptions[] =
 	{"nomeleeobstacles", 0, NULL, NOMELEEOBJ_OPT},
 	{"showvisitstars", 0, NULL, SHOWSTARS_OPT},
 	{"unscaledstarsystem", 0, NULL, UNSCALEDSS_OPT},
+	{"scansphere", 1, NULL, SCANSPH_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1795,6 +1804,26 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case UNSCALEDSS_OPT:
 				setBoolOption (&options->unscaledStarSystem, true);
 				break;
+			case SCANSPH_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Scan Sphere") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nScan Sphere has to be between 0-2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->scanSphere.value = temp;
+					options->scanSphere.set = true;
+				}
+				break;
+			}
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
