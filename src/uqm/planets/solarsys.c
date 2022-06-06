@@ -814,7 +814,7 @@ FreeSolarSys (void)
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 			 i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
-			DestroyOrbitCrap(&pCurDesc->orbit, PLANET_DIAMETER);
+			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
 			// JMS: Not sure if these do any good...
 			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
@@ -843,7 +843,7 @@ FreeSolarSys (void)
 							pCurDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 						LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
-					DestroyOrbitCrap(&pCurDesc->orbit, diameterPick);
+					DestroyOrbitStruct (&pCurDesc->orbit, diameterPick);
 				}
 			}
 		}
@@ -1512,7 +1512,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 					pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 					LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
-				DestroyOrbitCrap(&pMoonDesc->orbit, diameterPick);
+				DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
 			}
 		}
 	}	// End clean up

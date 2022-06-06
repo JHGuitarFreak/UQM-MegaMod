@@ -57,7 +57,7 @@ BOOLEAN actuallyInOrbit = FALSE;
 BOOLEAN useDosSpheres = FALSE;
 
 void
-DestroyOrbitCrap (PLANET_ORBIT* Orbit, SIZE height)
+DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
 {
 	DestroyDrawable (ReleaseDrawable (Orbit->TopoZoomFrame));
 	Orbit->TopoZoomFrame = 0;
@@ -425,8 +425,6 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	StopMusic ();
 
-	useDosSpheres = (TRUE && !IS_HD);
-
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, NULL, NULL);
 	SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
@@ -508,7 +506,7 @@ FreePlanet (void)
 	DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 	pSolarSysState->OrbitalCMap = 0;
 
-	DestroyOrbitCrap(Orbit, MAP_HEIGHT);
+	DestroyOrbitStruct (Orbit, MAP_HEIGHT);
 
 	DestroyStringTable (ReleaseStringTable (
 			pSolarSysState->SysInfo.PlanetInfo.DiscoveryString

@@ -332,7 +332,7 @@ POINT locationToDisplay (POINT pt, SIZE scaleRadius);
 POINT displayToLocation (POINT pt, SIZE scaleRadius);
 POINT planetOuterLocation (COUNT planetI);
 
-extern void DestroyOrbitCrap (PLANET_ORBIT* Orbit, SIZE height);
+extern void DestroyOrbitStruct (PLANET_ORBIT *Orbit, SIZE height);
 extern void LoadPlanet (FRAME SurfDefFrame);
 extern void DrawPlanet (int dy, Color tintColor);
 extern void DrawPCScanTint (COUNT cur_scan);

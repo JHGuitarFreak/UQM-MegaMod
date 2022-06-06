@@ -133,7 +133,7 @@ RerenderPlanetSphere (void)
 		return;
 
 	if (useDosSpheres)
-	{
+	{// palette switch for coloring sphere into scan colors
 		COUNT sc;
 		sc = Orbit->scanType;
 		if (sc > 2)
@@ -377,7 +377,7 @@ ZoomInPlanetSphere (void)
 	}
 }
 
-#define PLANET_ROTATION_FPS (ONE_SECOND / 12)//RES_BOOL (24, 42))
+#define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL (24, 42))
 
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
@@ -390,7 +390,7 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 
 	if (Now >= NextTime)
 	{
-		NextTime = Now + ONE_SECOND / 12;//PLANET_ROTATION_RATE;
+		NextTime = Now + (useDosSpheres ? (ONE_SECOND / 12) : PLANET_ROTATION_RATE);
 
 		if (Now >= OutNextTime)
 		{
