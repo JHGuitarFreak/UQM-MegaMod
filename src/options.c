@@ -130,6 +130,7 @@ uio_DirHandle *contentDir;
 uio_DirHandle *configDir;
 uio_DirHandle *saveDir;
 uio_DirHandle *meleeDir;
+uio_DirHandle *scrShotDir;
 uio_MountHandle* contentMountHandle;
 
 char baseContentPath[PATH_MAX];
@@ -383,6 +384,42 @@ prepareMeleeDir (void) {
 	if (meleeDir == NULL)
 	{
 		log_add (log_Fatal, "Fatal error: Could not open melee teams dir: %s",
+				strerror (errno));
+		exit (EXIT_FAILURE);
+	}
+}
+
+void
+prepareScrShotDir (void)
+{
+	char buf[PATH_MAX];
+	const char *shotDirName;
+
+	shotDirName = getenv ("UQM_SCR_SHOT_DIR");
+	if (shotDirName == NULL)
+		shotDirName = SCRSHOTDIR;
+	
+	if (expandPath (buf, PATH_MAX - 13, shotDirName, EP_ALL_SYSTEM) == -1)
+	{
+		// Doesn't have to be fatal, but might mess up things when saving
+		// config files.
+		log_add (log_Fatal, "Fatal error: Invalid path to config files.");
+		exit (EXIT_FAILURE);
+	}
+
+	shotDirName = buf;
+	setenv("UQM_SCR_SHOT_DIR", shotDirName, 1);
+
+	// Create the path upto the save dir, if not already existing.
+	if (mkdirhier (shotDirName) == -1)
+		exit (EXIT_FAILURE);
+
+	scrShotDir = uio_openDirRelative (configDir, "screenshots", 0);
+			// TODO: this doesn't work if the save dir is not
+			//       "screenshots" in the SCRSHOTDIR macro.
+	if (scrShotDir == NULL)
+	{
+		log_add (log_Fatal, "Fatal error: Could not open screenshot dir: %s",
 				strerror (errno));
 		exit (EXIT_FAILURE);
 	}
@@ -694,6 +731,11 @@ unprepareAllDirs (void)
 	{
 		uio_closeDir (configDir);
 		configDir = 0;
+	}
+	if (scrShotDir)
+	{
+		uio_closeDir (scrShotDir);
+		scrShotDir = 0;
 	}
 }
 

@@ -63,11 +63,12 @@ enum {
 	KEY_MENU_EDIT_CANCEL,
 	KEY_MENU_SEARCH,
 	KEY_MENU_NEXT,
-	KEY_MENU_TOGGLEMAP, // JMS: For showing SC1-era starmap
-	KEY_MENU_ANY, /* abstract char key */
+	KEY_MENU_TOGGLEMAP,
+	KEY_SCREENSHOT,
 	KEY_DEBUG_2,
 	KEY_DEBUG_3,
 	KEY_DEBUG_4,
+	KEY_MENU_ANY, /* abstract char key */
 	NUM_MENU_KEYS
 };
 
