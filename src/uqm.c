@@ -624,7 +624,10 @@ main (int argc, char *argv[])
 	optMeleeObstacles = options.meleeObstacles.value;
 	optShowVisitedStars = options.showVisitedStars.value;
 	optUnscaledStarSystem = options.unscaledStarSystem.value;
-	optScanSphere = options.scanSphere.value;
+	if (resolutionFactor)
+		optScanSphere = OPT_3DO;
+	else
+		optScanSphere = options.scanSphere.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
