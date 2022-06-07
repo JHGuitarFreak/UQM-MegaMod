@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added a dotted fuel circle that shows the fuel range at the destination - PR #102 by taleden
 - Added ability to load glyph spacing and kerning data from a file inside the font directory
 - Added ability to take screenshots using the F8 key. A '.png' file will be saved in the config directory in the "screenshots" folder
+- Added autoload capability for the Classic HD-mod look & feel addon pack
+- Recreated DOS planet scan sphere graphics from scratch - Kruzen
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
@@ -32,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed PC lander graphic being transparent when planet is loading
 - Fixed textured moons loading regardless if Textured Planets was enabled or not
 - EXTENDED: Fixed interaction with Alpha Apodis IV
+- Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
 
 
 ## [v0.8.1]
