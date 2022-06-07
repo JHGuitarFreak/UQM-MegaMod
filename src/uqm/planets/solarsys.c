@@ -795,23 +795,8 @@ FreeSolarSys (void)
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 			 i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
-			PLANET_ORBIT *Orbit = &pCurDesc->orbit;
-			HFree (Orbit->lpTopoData);
-			Orbit->lpTopoData = 0;
-			DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-			Orbit->SphereFrame = NULL;
-		
-			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-			Orbit->ObjectFrame = 0;
-			DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-			Orbit->WorkFrame = 0;
-		
+			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
 			// JMS: Not sure if these do any good...
-			DestroyDrawable (ReleaseDrawable (pSolarSysState->Orbit.TintFrame));
-			pSolarSysState->Orbit.TintFrame = 0;
-			pSolarSysState->Orbit.TintColor = BLACK_COLOR;
-			DestroyDrawable (ReleaseDrawable (pSolarSysState->Orbit.TopoZoomFrame));
-			pSolarSysState->Orbit.TopoZoomFrame = 0;
 			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
 			DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
@@ -819,24 +804,6 @@ FreeSolarSys (void)
 			DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 			pSolarSysState->OrbitalCMap = 0;
 			// JMS ends.
-		
-			HFree (Orbit->TopoColors);
-			Orbit->TopoColors = NULL;
-			HFree (Orbit->ScratchArray);
-			Orbit->ScratchArray = NULL;
-			if (Orbit->map_rotate && Orbit->light_diff)
-			{
-				for (j = 0; j <= PLANET_DIAMETER; j++)
-				{
-					HFree (Orbit->map_rotate[j]);
-					HFree (Orbit->light_diff[j]);
-				}
-			}
- 
-			HFree (Orbit->map_rotate);
-			Orbit->map_rotate = NULL;
-			HFree (Orbit->light_diff);
-			Orbit->light_diff = NULL;
 		}	
 
 		// BW: if we were in Inner System, clean up data for textured IP moons
@@ -853,38 +820,11 @@ FreeSolarSys (void)
 			{
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
 				{
-					PLANET_ORBIT *Orbit = &pCurDesc->orbit;
-					int diameterPick =
+					SIZE diameterPick =
 							pCurDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
-							LARGE_MOON_DIAMETER : MOON_DIAMETER;
-			
-					HFree (Orbit->lpTopoData);
-					Orbit->lpTopoData = 0;
-					DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-					Orbit->SphereFrame = NULL;
-			
-					DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-					Orbit->ObjectFrame = 0;
-					DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-					Orbit->WorkFrame = 0;
-			
-					HFree (Orbit->TopoColors);
-					Orbit->TopoColors = NULL;
-					HFree (Orbit->ScratchArray);
-					Orbit->ScratchArray = NULL;
-					if (Orbit->map_rotate && Orbit->light_diff)
-					{
-						for (j = 0; j <= diameterPick; j++)
-						{
-							HFree (Orbit->map_rotate[j]);
-							HFree (Orbit->light_diff[j]);
-						}
-					}
-				
-					HFree (Orbit->map_rotate);
-					Orbit->map_rotate = NULL;
-					HFree (Orbit->light_diff);
-					Orbit->light_diff = NULL;
+						LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+					DestroyOrbitStruct (&pCurDesc->orbit, diameterPick);
 				}
 			}
 		}
@@ -1549,36 +1489,11 @@ leaveInnerSystem (PLANET_DESC *planet)
 		{
 			if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
 			{
-				PLANET_ORBIT *Orbit = &pMoonDesc->orbit;
-				int diameterPick =
+				SIZE diameterPick =
 					pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 					LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
-				HFree (Orbit->lpTopoData);
-				Orbit->lpTopoData = 0;
-				DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-				Orbit->SphereFrame = NULL;
-		
-				DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-				Orbit->ObjectFrame = 0;
-				DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-				Orbit->WorkFrame = 0;
-
-				HFree (Orbit->TopoColors);
-				Orbit->TopoColors = NULL;
-				HFree (Orbit->ScratchArray);
-				Orbit->ScratchArray = NULL;
-				if (Orbit->map_rotate && Orbit->light_diff) {
-					for (j = 0; j <= diameterPick; j++) {
-						HFree (Orbit->map_rotate[j]);
-						HFree (Orbit->light_diff[j]);
-					}
-				}
-
-				HFree (Orbit->map_rotate);
-				Orbit->map_rotate = NULL;
-				HFree (Orbit->light_diff);
-				Orbit->light_diff = NULL;
+				DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
 			}
 		}
 	}	// End clean up

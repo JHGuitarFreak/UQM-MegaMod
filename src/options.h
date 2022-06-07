@@ -105,6 +105,7 @@ extern BOOLEAN optDeCleansing;
 extern BOOLEAN optMeleeObstacles;
 extern BOOLEAN optShowVisitedStars;
 extern BOOLEAN optUnscaledStarSystem;
+extern int optScanSphere;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
