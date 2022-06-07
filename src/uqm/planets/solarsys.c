@@ -773,7 +773,7 @@ saveNonOrbitalLocation (void)
 static void
 FreeSolarSys (void)
 {
-	COUNT i, j;
+	COUNT i;
 	PLANET_DESC *pCurDesc;
 
 	if (pSolarSysState->InIpFlight)
@@ -804,7 +804,7 @@ FreeSolarSys (void)
 			DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 			pSolarSysState->OrbitalCMap = 0;
 			// JMS ends.
-		}	
+		}
 
 		// BW: if we were in Inner System, clean up data for textured IP moons
 		if (playerInInnerSystem ())
@@ -1464,7 +1464,7 @@ static void
 leaveInnerSystem (PLANET_DESC *planet)
 {
 	COUNT outerPlanetWait;
-	COUNT i, j;
+	COUNT i;
 	PLANET_DESC *pMoonDesc;
 
 	pSolarSysState->pBaseDesc = pSolarSysState->PlanetDesc;
@@ -2518,7 +2518,7 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	{
 		// BW: This to test if we have already rendered 
 		if (!pSolarSysState->PlanetDesc->orbit.lpTopoData)
-			GenerateTexturedPlanets();
+			GenerateTexturedPlanets ();
 	}
 
 	if (!SolarSysFrame)

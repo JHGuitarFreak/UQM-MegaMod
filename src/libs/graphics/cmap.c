@@ -667,7 +667,6 @@ DoTransformColorMap (Color* colors, COLORMAPPTR ColorMapPtr, COUNT from,
 		COUNT to)
 {	// New fancy func to change colors of current colormap
 	TFB_ColorMap* map;
-	int i;
 	int p_index = *(UBYTE*)ColorMapPtr;
 	LockMutex (maplock);
 

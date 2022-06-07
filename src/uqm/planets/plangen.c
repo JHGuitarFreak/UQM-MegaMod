@@ -303,7 +303,6 @@ RenderLevelMasks (FRAME mask, SBYTE *pTopoData, BOOLEAN SurfDef)
 	SBYTE *pSrc;
 	POINT oldOrigin;
 	RECT ClipRect;
-	BYTE ColorShift;
 	SIZE w, h;
 	SIZE num_frames = 3;
 	const SIZE *level_tab;
@@ -426,7 +425,6 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h,
 		BYTE *cbase;
 		POINT oldOrigin;
 		RECT ClipRect;
-		BYTE ColorShift;
 
 		oldOrigin = SetContextOrigin (MAKE_POINT (0, 0));
 		GetContextClipRect (&ClipRect);
@@ -1043,7 +1041,7 @@ get_map_elev (SBYTE *elevs, int x, int y, int offset, COUNT width)
 void
 RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height,
-		COUNT radius, BOOLEAN ForIP)
+		COUNT radius)
 {
 	POINT pt;
 	Color *pix;
@@ -1803,7 +1801,8 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 		if (forOrbit && isPC (optScanStyle) && isPC (optTintPlanSphere))
 		{	// generate only on that conditions and then use if not NULL
-			Orbit->ScanColors = HMalloc (sizeof (Color *) * NUM_SCAN_TYPES);
+			Orbit->ScanColors =
+					HMalloc (sizeof (Color *) * NUM_SCAN_TYPES);
 			for (i = 0; i < NUM_SCAN_TYPES; i++)
 			{
 				Orbit->ScanColors[i] =

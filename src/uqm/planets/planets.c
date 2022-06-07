@@ -472,7 +472,7 @@ LoadPlanet (FRAME SurfDefFrame)
 void
 FreePlanet (void)
 {
-	COUNT i, j;
+	COUNT i;
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 
 	UninitSphereRotation ();
