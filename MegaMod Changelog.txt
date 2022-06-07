@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border to the playback bar during coversations
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
+- HARDMODE: Keep time running while orbiting a planet & during a landing excursion
 
 ## [v0.8.2]
 ### Added
@@ -23,7 +24,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden
 - De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
-- Get font "leading" value from the height of the 'leading.png' within the font's folder.
 - HD: Make the leading edge of the 3DO planet scan a smooth gradient
 - HD: Slylandro Gas-Bags now have working color transforms - Kruzen
 
