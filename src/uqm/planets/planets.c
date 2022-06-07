@@ -52,7 +52,7 @@ enum PlanetMenuItems
 
 CONTEXT PlanetContext;
 		// Context for rotating planet view and lander surface view
-BOOLEAN actuallyInOrbit = FALSE;
+BOOLEAN actuallyInOrbit;
 		// For determining if the player is in actual scanning orbit
 BOOLEAN useDosSpheres = FALSE;
 
@@ -306,8 +306,6 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 {
 	RECT r;
 
-	actuallyInOrbit = TRUE;
-
 	SetContext (SpaceContext);
 	GetContextClipRect (&r);
 
@@ -525,7 +523,6 @@ FreePlanet (void)
 	DestroyScanContext ();
 	DestroyPCLanderContext ();
 	useDosSpheres = FALSE;
-	actuallyInOrbit = FALSE;
 }
 
 void

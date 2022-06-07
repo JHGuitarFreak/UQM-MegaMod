@@ -2403,6 +2403,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		useDosSpheres = FALSE;
 	}
 
+	actuallyInOrbit = !ForIP;
+
 	RandomContext_SeedRandom(SysGenRNG, pPlanetDesc->rand_seed);
 
 	TopoContext = CreateContext ("Plangen.TopoContext");
