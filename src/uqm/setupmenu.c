@@ -2162,10 +2162,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
 	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
 
-	if (IS_HD)
-		optScanSphere = OPT_3DO;
-	else
-		optScanSphere = (opts->scanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	optScanSphere = (opts->scanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.scanSphere", opts->scanSphere == OPTVAL_3DO);
 
 	if (opts->scanlines && !IS_HD)

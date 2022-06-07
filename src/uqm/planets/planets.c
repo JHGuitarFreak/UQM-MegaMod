@@ -54,6 +54,7 @@ CONTEXT PlanetContext;
 		// Context for rotating planet view and lander surface view
 BOOLEAN actuallyInOrbit = FALSE;
 		// For determining if the player is in actual scanning orbit
+BOOLEAN useDosSpheres = FALSE;
 
 void
 DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
@@ -523,7 +524,7 @@ FreePlanet (void)
 	DestroyPlanetContext ();
 	DestroyScanContext ();
 	DestroyPCLanderContext ();
-
+	useDosSpheres = FALSE;
 	actuallyInOrbit = FALSE;
 }
 

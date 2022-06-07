@@ -1281,7 +1281,7 @@ ScanPlanet (COUNT scanType)
 	SetContext (ScanContext);
 	pSolarSysState->Orbit.scanType = NUM_SCAN_TYPES;
 
-	if (optScanStyle == OPT_PC || isPC (optScanSphere))
+	if (optScanStyle == OPT_PC || useDosSpheres)
 		RerenderPlanetSphere ();
 
 	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)

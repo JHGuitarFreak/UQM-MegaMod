@@ -1754,7 +1754,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	// always needed
 	Orbit->lpTopoData = HCalloc (width * height);
 
-	if (forOrbit && isPC (optScanSphere))
+	if (forOrbit && useDosSpheres)
 	{
 		Orbit->sphereMap =
 			CaptureColorMap (LoadColorMap (DOS_SPHERE_COLOR_TAB));
@@ -1781,7 +1781,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		Orbit->TintFrame = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP, width, height, 1));
 
-	if (!forOrbit || is3DO (optScanSphere))
+	if (!forOrbit || !useDosSpheres)
 	{
 		COUNT i;
 		// always allocate the scratch array to largest needed size
@@ -2239,7 +2239,7 @@ load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
 	PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN ForIP)
 {
 	if (CheckColorMap (pPlanetDesc->alternate_colormap)
-			&& is3DO (optScanSphere) && !ForIP)
+			&& !useDosSpheres && !ForIP)
 	{	// JMS: Planets with special colormaps
 		pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (pPlanetDesc->alternate_colormap));
@@ -2382,7 +2382,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	COUNT spherespanx, radius;
 	BOOLEAN ForIP;
 	BOOLEAN customTexture =
-			solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED
+			solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED;
 			&& is3DO (optScanSphere);
 
 	if (width == NULL && height == NULL)
@@ -2392,12 +2392,16 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		spherespanx = SPHERE_SPAN_X;
 		radius = RADIUS;
 		ForIP = FALSE;
+
+		useDosSpheres = (isPC (optScanSphere) && !IS_HD);
 	}
 	else
 	{
 		spherespanx = height;
 		radius = (height >> 1) - IF_HD (2);
 		ForIP = TRUE;
+
+		useDosSpheres = FALSE;
 	}
 
 	RandomContext_SeedRandom(SysGenRNG, pPlanetDesc->rand_seed);
@@ -2411,7 +2415,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 
 	load_color_resources (
 			pPlanetDesc, PlanDataPtr, PlanetInfo,
-			shielded && isPC (optScanSphere), ForIP);
+			shielded && useDosSpheres, ForIP);
 
 	if (SurfDefFrame)
 	{	// This is a defined planet; pixmap for the topography and
@@ -2422,8 +2426,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		COUNT index = 0;
 
 		// load special frame to render Earth with DOS spheres on
-		if (GetFrameCount (SurfDefFrame) == 4 && isPC (optScanSphere)
-				&& !ForIP)
+		if (GetFrameCount (SurfDefFrame) == 4 && useDosSpheres && !ForIP)
 			index = 2;
 
 		// surface pixmap
@@ -2480,7 +2483,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		generate_surface_frame (width, height, Orbit, PlanDataPtr);
 	}
 
-	if (!ForIP && isPC (optScanSphere))
+	if (!ForIP && useDosSpheres)
 	{
 		RenderLevelMasks (Orbit->TopoMask, Orbit->lpTopoData, SurfDef);
 		SetPlanetColors (GetColorMapAddress(Orbit->sphereMap));
@@ -2638,7 +2641,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 	
 	// Rotating planet sphere initialization
-	if (is3DO (optScanSphere) || ForIP)
+	if (!useDosSpheres || ForIP)
 	{
 		GenerateSphereMask (loc, radius);
 		CreateSphereTiltMap (PlanetInfo->AxialTilt, height, radius);
@@ -2652,7 +2655,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 				SetAbsFrameIndex (Orbit->SphereFrame, facing & 14);
 	}
 	if (shielded)
-		Orbit->ObjectFrame = ((isPC (optScanSphere) && !ForIP) ?
+		Orbit->ObjectFrame = ((useDosSpheres && !ForIP) ?
 				CaptureDrawable (LoadGraphic (DOS_SHIELD_MASK_ANIM))
 				: CreateShieldMask (radius));
 
@@ -2669,7 +2672,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 				/ PlanetInfo->RotationPeriod;
 	}
 	
-	if (shielded && is3DO (optScanSphere))
+	if (shielded && !useDosSpheres)
 	{	// This overwrites pSolarSysState->TopoFrame, so everything that
 		// needs it has to come before
 		ApplyShieldTint ();
