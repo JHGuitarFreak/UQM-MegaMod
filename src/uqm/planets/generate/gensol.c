@@ -465,36 +465,42 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{	// For Sol Textures
 			RESOURCE maskAnim = NULL;
 
-			switch (planetNr)
+			if (is3DO (optScanSphere))
 			{
-				case 0: // MERCURY
-					maskAnim = MERCURY_MASK_ANIM;
-					break;
-				case 1: // VENUS
-					maskAnim = VENUS_MASK_ANIM;
-					break;
-				case 2: // EARTH
-					maskAnim = EARTH_MASK_ANIM;
-					break;
-				case 3: // MARS
-					maskAnim = MARS_MASK_ANIM;
-					break;
-				case 4: // JUPITER
-					maskAnim = JUPITER_MASK_ANIM;
-					break;
-				case 5: // SATURN
-					maskAnim = SATURN_MASK_ANIM;
-					break;
-				case 6: // URANUS
-					maskAnim = URANUS_MASK_ANIM;
-					break;
-				case 7: // NEPTUNE
-					maskAnim = NEPTUNE_MASK_ANIM;
-					break;
-				case 8: // PLUTO
-					maskAnim = PLUTO_MASK_ANIM;
-					break;
+				switch (planetNr)
+				{
+					case 0: // MERCURY
+						maskAnim = MERCURY_MASK_ANIM;
+						break;
+					case 1: // VENUS
+						maskAnim = VENUS_MASK_ANIM;
+						break;
+					case 2: // EARTH
+						maskAnim = EARTH_MASK_ANIM;
+						break;
+					case 3: // MARS
+						maskAnim = MARS_MASK_ANIM;
+						break;
+					case 4: // JUPITER
+						maskAnim = JUPITER_MASK_ANIM;
+						break;
+					case 5: // SATURN
+						maskAnim = SATURN_MASK_ANIM;
+						break;
+					case 6: // URANUS
+						maskAnim = URANUS_MASK_ANIM;
+						break;
+					case 7: // NEPTUNE
+						maskAnim = NEPTUNE_MASK_ANIM;
+						break;
+					case 8: // PLUTO
+						maskAnim = PLUTO_MASK_ANIM;
+						break;
+				}
 			}
+			else if (planetNr == 2)
+				maskAnim = EARTH_MASK_ANIM;
+
 			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}
 	}
@@ -614,38 +620,41 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{	// For Sol Textures
 			RESOURCE maskAnim = NULL;
 
-			switch (planetNr)
+			if (is3DO (optScanSphere))
 			{
-				case 2: // moon of EARTH: LUNA
-					if (moonNr == 1)
-						maskAnim = LUNA_MASK_ANIM;
-					break;
-				case 4: // moons of JUPITER
-					switch (moonNr)
-					{
-						case 0: // IO
-							maskAnim = IO_MASK_ANIM;
-							break;
-						case 1: // EUROPA
-							maskAnim = EUROPA_MASK_ANIM;
-							break;
-						case 2: // GANYMEDE
-							maskAnim = GANYMEDE_MASK_ANIM;
-							break;
-						case 3: // CALLISTO
-							maskAnim = CALLISTO_MASK_ANIM;
-							break;
-					}
-					break;
-				case 5: // moon of SATURN: TITAN
-					maskAnim = TITAN_MASK_ANIM;
-					break;
-				case 7: // moon of NEPTUNE : TRITON
-					maskAnim = TRITON_MASK_ANIM;
-					break;
-				case 8: // moon of PLUTO: CHARON
-					maskAnim = CHARON_MASK_ANIM;
-					break;
+				switch (planetNr)
+				{
+					case 2: // moon of EARTH: LUNA
+						if (moonNr == 1)
+							maskAnim = LUNA_MASK_ANIM;
+						break;
+					case 4: // moons of JUPITER
+						switch (moonNr)
+						{
+							case 0: // IO
+								maskAnim = IO_MASK_ANIM;
+								break;
+							case 1: // EUROPA
+								maskAnim = EUROPA_MASK_ANIM;
+								break;
+							case 2: // GANYMEDE
+								maskAnim = GANYMEDE_MASK_ANIM;
+								break;
+							case 3: // CALLISTO
+								maskAnim = CALLISTO_MASK_ANIM;
+								break;
+						}
+						break;
+					case 5: // moon of SATURN: TITAN
+						maskAnim = TITAN_MASK_ANIM;
+						break;
+					case 7: // moon of NEPTUNE : TRITON
+						maskAnim = TRITON_MASK_ANIM;
+						break;
+					case 8: // moon of PLUTO: CHARON
+						maskAnim = CHARON_MASK_ANIM;
+						break;
+				}
 			}
 			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}

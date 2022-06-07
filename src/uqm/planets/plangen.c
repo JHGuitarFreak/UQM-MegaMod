@@ -2238,7 +2238,8 @@ void
 load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
 	PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN ForIP)
 {
-	if (CheckColorMap (pPlanetDesc->alternate_colormap) && !ForIP)
+	if (CheckColorMap (pPlanetDesc->alternate_colormap)
+			&& is3DO (optScanSphere) && !ForIP)
 	{	// JMS: Planets with special colormaps
 		pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (pPlanetDesc->alternate_colormap));
@@ -2380,7 +2381,9 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			: 1 - 2 * (PlanetInfo->AxialTilt & 1));
 	COUNT spherespanx, radius;
 	BOOLEAN ForIP;
-	BOOLEAN customTexture = solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED;
+	BOOLEAN customTexture =
+			solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED
+			&& is3DO (optScanSphere);
 
 	if (width == NULL && height == NULL)
 	{

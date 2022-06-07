@@ -181,7 +181,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width,
 
 	// Render the first sphere/shield frame
 	// Prepare will set the next one
-	rotFrameIndex = (isPC (optScanSphere) ? 0: 1);
+	rotFrameIndex = isPC (optScanSphere) ? 0 : 1;
 	PrepareNextRotationFrame ();
 }
 
