@@ -2383,7 +2383,6 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	BOOLEAN ForIP;
 	BOOLEAN customTexture =
 			solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED;
-			&& is3DO (optScanSphere);
 
 	if (width == NULL && height == NULL)
 	{
