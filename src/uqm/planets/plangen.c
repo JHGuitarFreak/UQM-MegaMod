@@ -263,7 +263,8 @@ ExpandLevelMasks (PLANET_ORBIT* Orbit)
 		FRAME dupe;
 		double err;
 
-		err = sin (M_DEG2RAD * (double)PlanetInfo->AxialTilt) * 8;
+		err = sin (M_DEG2RAD * (double)PlanetInfo->AxialTilt)
+				* (spherespanx - height);
 
 		if (err < 0)
 			err = -err;
@@ -349,15 +350,14 @@ RenderLevelMasks (FRAME mask, SBYTE *pTopoData, BOOLEAN SurfDef)
 			for (pt.x = 0; pt.x < w; ++pt.x)
 			{
 				d = *pSrc++;
+				d += base;
 
 				if (AlgoType == GAS_GIANT_ALGO)
 				{	// make elevation value non-negative
-					// d += base;
 					d &= 255;
 				}
 				else
 				{
-					d += base;
 					if (d < 0)
 						d = 0;
 					else if (d > 255)
