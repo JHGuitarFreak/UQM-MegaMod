@@ -143,7 +143,7 @@
 - Fixed suicide Game Over screen having illegible text
 - Fixed Vela IV having moons with the default seed
 - Fixed Beta Herculis and Algol having empty star systems when Extended Lore is disabled
-- Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/Serosis/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
+- Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/JHGuitarFreak/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
 - Fixed a bug that showed "Trade HQ" as the planet name for various plot-related planets
 - Fixed alignment of text and flashing boxes when picking a ship for main game Melee
 - Fixed timing for AlienTalkSegue

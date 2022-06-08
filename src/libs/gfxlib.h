@@ -494,7 +494,6 @@ extern BOOLEAN DestroyFont (FONT FontRef);
 // The returned pRect is relative to the context drawing origin
 extern BOOLEAN TextRect (TEXT *pText, RECT *pRect, BYTE *pdelta);
 extern BOOLEAN GetContextFontLeading (SIZE *pheight);
-extern BOOLEAN GetContextFontLeadingWidth (SIZE *pwidth);
 extern BOOLEAN GetContextFontDispHeight (SIZE *pheight);
 extern BOOLEAN GetContextFontDispWidth (SIZE *pwidth);
 extern COUNT GetFrameCount (FRAME Frame);
@@ -546,6 +545,7 @@ extern void FlushColorXForms (void);
 #define SetAbsColorMapIndex SetAbsStringTableIndex
 #define SetRelColorMapIndex SetRelStringTableIndex
 #define GetColorMapLength GetStringLengthBin
+#define CheckColorMap CheckResString
 
 extern COLORMAPPTR GetColorMapAddress (COLORMAP);
 

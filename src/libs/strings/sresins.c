@@ -53,3 +53,15 @@ LoadStringTableInstance (RESOURCE res)
 	return (STRING_TABLE)data;
 }
 
+const char *
+LoadStringInstance (RESOURCE res)
+{
+	const char *data;
+
+	data = res_GetResource (res);
+	if (data)
+		res_DetachResource (res);
+
+	return data;
+}
+

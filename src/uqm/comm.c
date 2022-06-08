@@ -334,7 +334,7 @@ add_text (int status, TEXT *pTextIn)
 		else
 		{
 			// Alien speech
-			if (CommData.AlienConv == ORZ_CONVERSATION)
+			if (optOrzCompFont && CommData.AlienConv == ORZ_CONVERSATION)
 			{
 				// BW : special case for the Orz conversations
 				// the character $ is recycled as a marker to
@@ -377,7 +377,7 @@ add_text (int status, TEXT *pTextIn)
 						getCharFromString (&ptr);
 						remChars--;
 						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
+						if (computerOn)
 							SetContextFont (ComputerFont);
 						else
 							SetContextFont (CommData.AlienFont);
@@ -423,7 +423,7 @@ add_text (int status, TEXT *pTextIn)
 						getCharFromString (&ptr);
 						remChars--;
 						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
+						if (computerOn)
 							SetContextFont (ComputerFont);
 						else
 							SetContextFont (CommData.AlienFont);
@@ -554,7 +554,7 @@ getLineWithinWidth(TEXT *pText, const char **startNext,
 
 	//GetContextClipRect (&rect);
 
-	eol = FALSE;	
+	eol = FALSE;
 	done = FALSE;
 	oldCount = 1;
 	charCount = 0;
@@ -1792,7 +1792,8 @@ HailAlien (void)
 	else
 		PlayerFont = LoadFont (TINY_FONT_BOLD);
 
-	ComputerFont = LoadFont (COMPUTER_FONT);
+	if (optOrzCompFont)
+		ComputerFont = LoadFont (COMPUTER_FONT);
 
 	CommData.AlienFrame = CaptureDrawable (
 			LoadGraphic (CommData.AlienFrameRes));

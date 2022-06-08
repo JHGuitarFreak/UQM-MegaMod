@@ -103,7 +103,7 @@ InstType "Typical"
 InstType "Minimal"
 InstType "Mimic PC"
 InstType "Mimic 3DO"
-InstType "Serosis' Choice"
+InstType "Kohr-Ah Death's Choice"
 InstType "No Content"
 InstType "All Expansions"
 
@@ -295,10 +295,10 @@ SectionGroup /e "!UQM" SECGRP01
     SetOverwrite try
     File "uqm-pc.cfg"
     File "uqm-3do.cfg"
-    File "uqm-serosis.cfg"
+    File "uqm-kad.cfg"
     File "mm-pc.cfg"
     File "mm-3do.cfg"
-    file "mm-serosis.cfg"
+    file "mm-kad.cfg"
 
     # Delete old content
     Delete "$INSTDIR\content\packages\mm-0.8.0-content.uqm"
@@ -600,14 +600,14 @@ Section -Set3DOConfig
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section -SetSerosisConfig
+Section -SetKADConfig
   SectionIn 5
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     SetOutPath $UQMUSERDATA
     Delete "uqm.cfg"
     Delete "megamod.cfg"
-    CopyFiles "$UQMUSERDATA\uqm-serosis.cfg" "$UQMUSERDATA\uqm.cfg"
-    CopyFiles "$UQMUSERDATA\mm-serosis.cfg" "$UQMUSERDATA\megamod.cfg"
+    CopyFiles "$UQMUSERDATA\uqm-kad.cfg" "$UQMUSERDATA\uqm.cfg"
+    CopyFiles "$UQMUSERDATA\mm-kad.cfg" "$UQMUSERDATA\megamod.cfg"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 

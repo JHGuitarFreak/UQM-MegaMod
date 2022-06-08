@@ -892,9 +892,6 @@ init_slylandro_comm (void)
 {
 	LOCDATA *retval;
 
-	if (IS_HD)
-		slylandro_desc.AlienAmbientArray[0].AnimFlags |= ANIM_DISABLED;
-
 	slylandro_desc.init_encounter_func = Intro;
 	slylandro_desc.post_encounter_func = post_slylandro_enc;
 	slylandro_desc.uninit_encounter_func = uninit_slylandro;
@@ -903,7 +900,8 @@ init_slylandro_comm (void)
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	slylandro_desc.AlienTextBaseline.x =
+			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	slylandro_desc.AlienTextBaseline.y = 0;
 	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH;
 

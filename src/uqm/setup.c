@@ -88,6 +88,7 @@ BOOLEAN DeathByMelee = FALSE;
 BOOLEAN DeathBySuicide = FALSE;
 BOOLEAN SpaceMusicOK;
 BOOLEAN oldPlanetsPresent;
+BOOLEAN classicPackPresent;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -150,6 +151,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		HDPackPresent = TRUE;
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
+		classicPackPresent = loadAddon ("classic-pack");
 	}
 
 	loadAddon ("ProfanePkunk");

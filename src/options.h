@@ -104,6 +104,8 @@ extern BOOLEAN optNoHQEncounters;
 extern BOOLEAN optDeCleansing;
 extern BOOLEAN optMeleeObstacles;
 extern BOOLEAN optShowVisitedStars;
+extern BOOLEAN optUnscaledStarSystem;
+extern int optScanSphere;
 extern int optNebulaeVolume;
 
 extern BOOLEAN opt3doMusic;
@@ -121,6 +123,7 @@ extern uio_DirHandle *contentDir;
 extern uio_DirHandle *configDir;
 extern uio_DirHandle *saveDir;
 extern uio_DirHandle *meleeDir;
+extern uio_DirHandle *scrShotDir;
 extern char baseContentPath[PATH_MAX];
 
 extern const char **optAddons;
@@ -142,6 +145,7 @@ void prepareContentDir (const char *contentDirName, const char *addonDirName, co
 void prepareConfigDir (const char *configDirName);
 void prepareMeleeDir (void);
 void prepareSaveDir (void);
+void prepareScrShotDir (void);
 void prepareAddons (const char **addons);
 void prepareShadowAddons (const char **addons);
 void unprepareAllDirs (void);

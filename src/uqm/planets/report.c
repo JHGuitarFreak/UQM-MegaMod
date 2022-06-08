@@ -38,7 +38,7 @@
 
 #define NUM_CELL_COLS (optSuperPC == OPT_PC ? 34 : (UQM_MAP_WIDTH / 6))
 #define NUM_CELL_ROWS (SC2_MAP_HEIGHT / 6)
-#define MAX_CELL_COLS 40 // Serosis: Why is this is never used???
+#define MAX_CELL_COLS 40 // Why is this is never used???
 
 extern FRAME SpaceJunkFrame;
 COORD startx, starty;

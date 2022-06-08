@@ -199,6 +199,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, deCleansing);
 	DECL_CONFIG_OPTION(bool, meleeObstacles);
 	DECL_CONFIG_OPTION(bool, showVisitedStars);
+	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
+	DECL_CONFIG_OPTION(int,  scanSphere);
 	DECL_CONFIG_OPTION(int,  nebulaevol);
 
 #define INIT_CONFIG_OPTION(name, val) \
@@ -391,7 +393,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  smartAutoPilot,    false ),
 		INIT_CONFIG_OPTION(  tintPlanSphere,    OPT_3DO ),
 		INIT_CONFIG_OPTION(  planetStyle,       OPT_3DO ),
-		INIT_CONFIG_OPTION(  starBackground,    2 ),
+		INIT_CONFIG_OPTION(  starBackground,    0 ),
 		INIT_CONFIG_OPTION(  scanStyle,         OPT_3DO ),
 		INIT_CONFIG_OPTION(  nonStopOscill,     false ),
 		INIT_CONFIG_OPTION(  scopeStyle,        OPT_3DO ),
@@ -403,6 +405,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  deCleansing,       false ),
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
+		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
+		INIT_CONFIG_OPTION(  scanSphere,        OPT_PC ),
 		INIT_CONFIG_OPTION(  nebulaevol,        25),
 	};
 	struct options_struct defaults = options;
@@ -589,12 +593,12 @@ main (int argc, char *argv[])
 	optAddDevices = options.addDevices.value;
 	optCustomBorder = options.customBorder.value;
 	optCustomSeed = options.customSeed.value;
-	optRequiresReload = FALSE; 
-	optRequiresRestart = FALSE; 
+	optRequiresReload = FALSE;
+	optRequiresRestart = FALSE;
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
-	optDirectionalJoystick = options.directionalJoystick.value; // For Android
+	optDirectionalJoystick = options.directionalJoystick.value;
 	optLanderHold = options.landerHold.value;
 	optIPScaler = options.ipTrans.value;
 	optDifficulty = options.optDifficulty.value;
@@ -621,11 +625,14 @@ main (int argc, char *argv[])
 	optDeCleansing = options.deCleansing.value;
 	optMeleeObstacles = options.meleeObstacles.value;
 	optShowVisitedStars = options.showVisitedStars.value;
+	optUnscaledStarSystem = options.unscaledStarSystem.value;
+	optScanSphere = options.scanSphere.value;
 	optNebulaeVolume = options.nebulaevol.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
 	prepareSaveDir ();
+	prepareScrShotDir ();
 	prepareShadowAddons (options.addons);
 #if 0
 	initTempDir ();
@@ -1027,6 +1034,11 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->showVisitedStars, "mm.showVisitedStars");
 
+	getBoolConfigValue (&options->unscaledStarSystem, "mm.unscaledStarSystem");
+
+	getBoolConfigValueXlat (&options->scanSphere, "mm.scanSphere",
+		OPT_3DO, OPT_PC);
+
 	if (res_IsInteger ("mm.nebulaevol") && !options->nebulaevol.set)
 	{
 		options->nebulaevol.value = res_GetInteger ("mm.nebulaevol");
@@ -1120,6 +1132,8 @@ enum
 	DECLEANSE_OPT,
 	NOMELEEOBJ_OPT,
 	SHOWSTARS_OPT,
+	UNSCALEDSS_OPT,
+	SCANSPH_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1221,6 +1235,8 @@ static struct option longOptions[] =
 	{"decleanse", 0, NULL, DECLEANSE_OPT},
 	{"nomeleeobstacles", 0, NULL, NOMELEEOBJ_OPT},
 	{"showvisitstars", 0, NULL, SHOWSTARS_OPT},
+	{"unscaledstarsystem", 0, NULL, UNSCALEDSS_OPT},
+	{"scansphere", 1, NULL, SCANSPH_OPT},
 	{"nebulaevol", 1, NULL, NEBUVOL_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
@@ -1717,12 +1733,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			case STARBACK_OPT:
-				if (!setChoiceOption (&options->starBackground, optarg))
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Star Background") == -1)
 				{
-					InvalidArgument (optarg, "--starbackground");
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 3)
+				{
+					saveError ("\nStar background has to be between 0-3.\n");
 					badArg = true;
 				}
+				else
+				{
+					options->starBackground.value = temp;
+					options->starBackground.set = true;
+				}
 				break;
+			}
 			case SCANSTYLE_OPT:
 				if (!setChoiceOption (&options->scanStyle, optarg))
 				{
@@ -1780,6 +1809,16 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case SHOWSTARS_OPT:
 				setBoolOption (&options->showVisitedStars, true);
+				break;
+			case UNSCALEDSS_OPT:
+				setBoolOption (&options->unscaledStarSystem, true);
+				break;
+			case SCANSPH_OPT:
+				if (!setChoiceOption (&options->scanSphere, optarg))
+				{
+					InvalidArgument (optarg, "--scansphere");
+					badArg = true;
+				}
 				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
@@ -2103,7 +2142,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			" color and shading (default: %s)",
 			choiceOptString (&defaults->planetStyle));
 	log_add (log_User, "  --starbackground : Set the background stars"
-			" in solar system between PC, 3DO, or UQM patterns "
+			" in solar system between PC, 3DO, UQM, or HD-mod patterns "
 			"(default: pc)");
 	log_add (log_User, "  --scanstyle : Choose between PC or 3DO scanning"
 			" types (default: %s)", choiceOptString (&defaults->scanStyle));
@@ -2137,6 +2176,12 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --showvisitstars : Dim visited stars on the "
 			" StarMap and encase the star name in parenthesis "
 			"(default: %s)", boolOptString (&defaults->showVisitedStars));
+	log_add (log_User, "  --unscaledstarsystem : Show the classic HD-mod "
+			" Beta Star System view (default: %s)",
+			boolOptString (&defaults->unscaledStarSystem));
+	log_add (log_User, "  --scansphere : Choose between either the PC"
+			" or 3DO scan sphere styles (default: %s)",
+			choiceOptString (&defaults->scanSphere));
 	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
 
 	log_setOutput (old);

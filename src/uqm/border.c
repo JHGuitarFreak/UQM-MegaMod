@@ -190,7 +190,7 @@ DrawSISFrame (void)
 		// Dark grey border around blue boxes.
 		SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
 		// Vertical line on the right side of SIS Message
-		r.corner.y = RES_SCALE (1); // There was a reason this was supposed to be "1": Serosis
+		r.corner.y = RES_SCALE (1);
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = SIS_MESSAGE_HEIGHT;
 		r.corner.x = SIS_ORG_X + SIS_MESSAGE_BOX_WIDTH;

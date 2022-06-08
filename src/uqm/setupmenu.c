@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       75
+#define CHOICE_COUNT       77
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -162,6 +162,7 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[6]),    // Scan Style
 	(WIDGET *)(&choices[17]),   // Slave Shields
 	(WIDGET *)(&choices[64]),   // Scan Style
+	(WIDGET *)(&choices[76]),   // Scan Sphere Type
 	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
 	(WIDGET *)(&choices[68]),   // Lander Style
 	(WIDGET *)(&buttons[1]),
@@ -255,12 +256,13 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&sliders[4]),    // Nebulae Volume
 	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
 	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
+	(WIDGET *)(&choices[75]),   // T6014's Classic Star System View
 	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
 
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&buttons[1]),		// Exit to Menu
+	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
@@ -615,6 +617,8 @@ SetDefaults (void)
 	choices[72].selected = opts.deCleansing;
 	choices[73].selected = opts.meleeObstacles;
 	choices[74].selected = opts.showVisitedStars;
+	choices[75].selected = opts.unscaledStarSystem;
+	choices[76].selected = opts.scanSphere;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -705,6 +709,8 @@ PropagateResults (void)
 	opts.deCleansing = choices[72].selected;
 	opts.meleeObstacles = choices[73].selected;
 	opts.showVisitedStars = choices[74].selected;
+	opts.unscaledStarSystem = choices[75].selected;
+	opts.scanSphere = choices[76].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -964,14 +970,14 @@ gamma_HandleEventSlider (WIDGET *_self, int event)
 	// Grow or shrink the range based on accepted values
 	if (gamma < minGamma || (!set && event == WIDGET_EVENT_LEFT))
 	{
-		minGamma = gamma;
+		gamma = minGamma;
 		updateGammaBounds (true);
 		// at the lowest end
 		self->value = 0;
 	}
 	else if (gamma > maxGamma || (!set && event == WIDGET_EVENT_RIGHT))
 	{
-		maxGamma = gamma;
+		gamma = maxGamma;
 		updateGammaBounds (false);
 		// at the highest end
 		self->value = 100;
@@ -987,9 +993,9 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 	float gamma = sliderToGamma (self->value);
 	snprintf (buf, sizeof buf, "%.4f", gamma);
 
-	t.baseline.x = x;
+	t.baseline.x = x + RES_SCALE(6);
 	t.baseline.y = y;
-	t.align = ALIGN_CENTER;
+	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
 	t.pStr = buf;
 
@@ -1665,6 +1671,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->scanSphere = (optScanSphere == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->nebulaevol = res_GetInteger ("mm.nebulaevol");
 
 	if (!IS_HD)
@@ -1819,7 +1827,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 	}
 	else
-	{	// Serosis: Anything higher than bilinear in HD is a massive
+	{	// Anything higher than bilinear in HD is a massive
 		// performance hit with no visual benefit
 		if (opts->scaler > OPTVAL_NO_SCALE)
 		{
@@ -1949,7 +1957,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 	}
 
-	// Serosis: To force the game to reload content when changing music, video, and speech options
+	// To force the game to reload content when changing music, video, and speech options
  	if ((opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
 		(opts->intro != (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC) ||
 		(opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
@@ -2158,6 +2166,12 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.showVisitedStars", opts->showVisitedStars == OPTVAL_ENABLED);
 	optShowVisitedStars = opts->showVisitedStars == OPTVAL_ENABLED;
 
+	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
+	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
+
+	optScanSphere = (opts->scanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.scanSphere", opts->scanSphere == OPTVAL_3DO);
+
 	res_PutInteger ("mm.nebulaevol", opts->nebulaevol);
 	optNebulaeVolume = opts->nebulaevol;
 
@@ -2180,7 +2194,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	else
 	{
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-		// Serosis: Force the usage of no filter in 1280x960 windowed mode.
+		// Force the usage of no filter in 1280x960 windowed mode.
 		// While forcing the usage of bilinear filter in scaled windowed modes.
 		if (IS_HD)
 		{

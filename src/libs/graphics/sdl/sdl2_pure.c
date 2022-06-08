@@ -20,6 +20,7 @@
 #include "libs/log.h"
 #include "scalers.h"
 #include "uqmversion.h"
+#include "png2sdl.h"
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -476,6 +477,44 @@ TFB_SDL2_Postprocess (void)
 		TFB_SDL2_ScanLines ();
 
 	SDL_RenderPresent (renderer);
+}
+
+bool
+TFB_SDL2_GammaCorrection (float gamma)
+{
+	return (SDL_SetWindowBrightness(window, gamma) == 0);
+}
+
+BOOLEAN
+TFB_SDL_ScreenShot (const char *path)
+{
+	SDL_Surface *tmp = SDL_GetWindowSurface (window);
+	BOOLEAN successful = FALSE;
+
+	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+	{
+		float width, height;
+		width = (float)tmp->w / 320;
+		height = (float)tmp->h / 240;
+
+		if (width > height)
+			tmp->w = width * 320;
+		else if (height > width)
+			tmp->h = width * 240;
+	}
+
+	tmp = SDL_CreateRGBSurfaceWithFormat (0, tmp->w, tmp->h, 32,
+			SDL_PIXELFORMAT_RGBA32);
+
+	SDL_LockSurface (tmp);
+	SDL_RenderReadPixels (renderer, NULL, tmp->format->format,
+		tmp->pixels, tmp->pitch);
+	if (SDL_SavePNG (tmp, path) == 0)
+		successful = TRUE;
+	SDL_UnlockSurface (tmp);
+	SDL_FreeSurface (tmp);
+
+	return successful;
 }
 
 #endif

@@ -50,7 +50,7 @@
 // The PC speed was 30 FPS.
 // Remember that all values need to evenly divide
 // ONE_SECOND.
-// Serosis: I did my own testing using DOSBox
+// I did my own testing using DOSBox
 // comparing speeds frame-by-frame and I came
 // up with 42 FPS. Can be changed later if it
 // causes any trouble.
@@ -1499,7 +1499,7 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 
 	while (periods > 0)
 	{
-		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+		RotatePlanetSphere (TRUE, NULL);
 
 		if (GetTimeCounter () >= *TimeIn + ANIM_FRAME_RATE)
 		{
@@ -1533,7 +1533,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 	psNextTime = GetTimeCounter () + PLANET_SIDE_RATE;
 	while (num_frames >= 0)
 	{
-		RotatePlanetSphere (TRUE, &s, TRANSPARENT);
+		RotatePlanetSphere (TRUE, &s);
 
 		Now = GetTimeCounter ();
 
@@ -2370,7 +2370,7 @@ PlanetSide (POINT planetLoc)
 			if (optSuperPC == OPT_PC)
 			{
 				ReturnToOrbit ();
-				InitPCLander ();
+				InitPCLander (FALSE);
 			}
 		}
 	}
@@ -2502,7 +2502,7 @@ InitLander (BYTE LanderFlags)
 }
 
 void
-InitPCLander (void)
+InitPCLander (BOOLEAN Loading)
 {
 	RECT r;
 
@@ -2516,12 +2516,12 @@ InitPCLander (void)
 
 	DrawFilledRectangle (&r);
 
-	if (GLOBAL_SIS (NumLanders)
-		&& !(pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED) 
+	if (GLOBAL_SIS (NumLanders) && !Loading
+		&& !(pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED)
 		&& !(pSolarSysState->pOrbitalDesc->data_index >= FIRST_GAS_GIANT
 		&& pSolarSysState->pOrbitalDesc->data_index <= LAST_GAS_GIANT))
-	{	// Do not draw lander graphics if it's impossible to land (shielded and gas giant)
-	 	// This mimics PC behaviour
+	{	// Do not draw lander graphics if it's impossible to land (shielded
+		// and gas giant) This mimics PC behaviour.
 		BYTE ShieldFlags, capacity_shift;
 		COUNT free_space;
 		STAMP s;
@@ -2533,7 +2533,8 @@ InitPCLander (void)
 		ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 		capacity_shift = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
 
-		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
+		free_space = GetStorageBayCapacity ()
+				- GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
 			COUNT i, inc;

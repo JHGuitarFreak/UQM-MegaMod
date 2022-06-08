@@ -344,4 +344,18 @@ GetStringByName (STRING_TABLE StringTable, const char *index)
 	return (STRING) StringHashTable_find (StringTable->nameIndex, index);
 }
 
+BOOLEAN
+CheckResString (RESOURCE res)
+{
+	BOOLEAN check = FALSE;
+	STRING string = CaptureStringTable (LoadStringTableInstance (res));
+
+	if (string != NULL)
+		check = TRUE;
+
+	DestroyStringTable (ReleaseStringTable (string));
+	string = 0;
+
+	return check;
+}
 

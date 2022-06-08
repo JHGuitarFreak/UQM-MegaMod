@@ -9,21 +9,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border to the playback bar during coversations
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
+- HARDMODE: Keep time running while orbiting a planet & during a landing excursion
 
 ## [v0.8.2]
 ### Added
 - Added a dotted fuel circle that shows the fuel range at the destination - PR #102 by taleden
+- Added ability to load glyph spacing and kerning data from a file inside the font directory
+- Added ability to take screenshots using the F8 key. A '.png' file will be saved in the config directory in the "screenshots" folder
+- Added autoload capability for the Classic HD-mod look & feel addon pack
+- Recreated DOS planet scan sphere graphics from scratch - Kruzen
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
 - Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden
 - De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
-- Get font "leading" value from the height of the 'leading.png' within the font's folder
+- HD: Make the leading edge of the 3DO planet scan a smooth gradient
+- HD: Slylandro Gas-Bags now have working color transforms - Kruzen
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
 - HARDMODE: Fixed Melnorme tech price increasing (unintentionally) when refusing to buy new tech and going back to buy the same tech - Bug #100
+- Fixed Y coordinates for mineral nodes when using 3DO planet textures
+- Fixed PC lander graphic being transparent when planet is loading
+- Fixed textured moons loading regardless if Textured Planets was enabled or not
+- EXTENDED: Fixed interaction with Alpha Apodis IV
+- Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
 
 
 ## [v0.8.1]
@@ -159,7 +170,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed Vela IV having moons with the default seed
 - HD: Fixed player response text being too long to fit the viewport
 - Fixed Beta Herculis and Algol having empty star systems when Extended Lore is disabled
-- Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/Serosis/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
+- Fixed a small, inner system flagship entry bug (Better explained in the commit: https://github.com/JHGuitarFreak/UQM-MegaMod/commit/29a61c11ca0edad3c3fb59eb3d86b6b358da26c7)
 - Fixed a bug that showed "Trade HQ" as the planet name for various plot-related planets
 - Custom Seed: Fixed planet generation so that the Taalo shield is always obtainable no matter the custom seed
 - HD: Fixed the melee captain window death animation

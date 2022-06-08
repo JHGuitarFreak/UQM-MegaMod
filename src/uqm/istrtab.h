@@ -136,6 +136,7 @@
 #define RUINS_STRTAB "text.ruins"
 #define SAPPHIRE_COLOR_TAB "planet.sapphire.colortable"
 #define SAPPHIRE_XLAT_TAB "planet.sapphire.translatetable"
+#define SCAN_COLOR_TAB "planet.scans.colortable"
 #define SELENIC_COLOR_TAB "planet.selenic.colortable"
 #define SELENIC_XLAT_TAB "planet.selenic.translatetable"
 #define SETUP_MENU_STRTAB "text.setupmenu"
@@ -186,3 +187,5 @@
 #define YTTRIC_COLOR_TAB "planet.yttric.colortable"
 #define YTTRIC_XLAT_TAB "planet.yttric.translatetable"
 #define ZFPRUINS_STRTAB "text.zfpcolony"
+#define DOS_SPHERE_COLOR_TAB "dossphere.colortable"
+#define DOS_SHIELDED_COLOR_TAB "planet.shielded.colortable"

@@ -679,7 +679,7 @@ init_ilwrath_comm (void)
 	ilwrath_desc.uninit_encounter_func = uninit_ilwrath;
 
 	ilwrath_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	ilwrath_desc.AlienTextBaseline.y = RES_SCALE (70);
+	ilwrath_desc.AlienTextBaseline.y = RES_SCALE (64);
 	ilwrath_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (PROBE_ILWRATH_ENCOUNTER)

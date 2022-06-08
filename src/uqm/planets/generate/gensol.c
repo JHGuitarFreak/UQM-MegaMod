@@ -133,15 +133,13 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 		{
 			case 0: /* MERCURY */
 				pCurDesc->data_index = METAL_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = MERCURY_COLOR_TAB;
+				pCurDesc->alternate_colormap = MERCURY_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 39L / 100;
 				pCurDesc->NumPlanets = 0;
 				break;
 			case 1: /* VENUS */
 				pCurDesc->data_index = PRIMORDIAL_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = VENUS_COLOR_TAB;
+				pCurDesc->alternate_colormap = VENUS_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 72L / 100;
 				pCurDesc->NumPlanets = 0;
 				pCurDesc->angle = NORMALIZE_ANGLE (FULL_CIRCLE - pCurDesc->angle);
@@ -154,8 +152,7 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				break;
 			case 3: /* MARS */
 				pCurDesc->data_index = DUST_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = MARS_COLOR_TAB;
+				pCurDesc->alternate_colormap = MARS_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 152L / 100;
 				pCurDesc->NumPlanets = 0;
 				break;
@@ -181,8 +178,7 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				break;
 			case 8: /* PLUTO */
 				pCurDesc->data_index = PELLUCID_WORLD;
-				if (solTexturesPresent)
-					pCurDesc->alternate_colormap = PLUTO_COLOR_TAB;
+				pCurDesc->alternate_colormap = PLUTO_COLOR_TAB;
 				pCurDesc->radius = EARTH_RADIUS * 1550L /* 3937L */ / 100;
 				pCurDesc->NumPlanets = EXTENDED;
 				if(PrimeSeed)
@@ -224,8 +220,7 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 
 			/* Luna: */
 			solarSys->MoonDesc[1].data_index = SELENIC_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[1].alternate_colormap = LUNA_COLOR_TAB;
+			solarSys->MoonDesc[1].alternate_colormap = LUNA_COLOR_TAB;
 			solarSys->MoonDesc[1].radius = MIN_MOON_RADIUS
 					+ (4 - 1) * MOON_DELTA;
 			rand_val = RandomContext_Random (SysGenRNG);
@@ -239,30 +234,25 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		}
 		case 4: /* moons of JUPITER */
 			solarSys->MoonDesc[0].data_index = RADIOACTIVE_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = IO_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = IO_COLOR_TAB;
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 1.75;
 					/* Io */
 			solarSys->MoonDesc[1].data_index = HALIDE_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[1].alternate_colormap = EUROPA_COLOR_TAB;
+			solarSys->MoonDesc[1].alternate_colormap = EUROPA_COLOR_TAB;
 			solarSys->MoonDesc[1].orb_speed = FULL_CIRCLE / 3.5;
 					/* Europa */
 			solarSys->MoonDesc[2].data_index = CYANIC_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[2].alternate_colormap = GANYMEDE_COLOR_TAB;
+			solarSys->MoonDesc[2].alternate_colormap = GANYMEDE_COLOR_TAB;
 			solarSys->MoonDesc[2].orb_speed = FULL_CIRCLE / 7.16;
 					/* Ganymede */
 			solarSys->MoonDesc[3].data_index = PELLUCID_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[3].alternate_colormap = CALLISTO_COLOR_TAB;
+			solarSys->MoonDesc[3].alternate_colormap = CALLISTO_COLOR_TAB;
 			solarSys->MoonDesc[3].orb_speed = FULL_CIRCLE / 16.7;
 					/* Callisto */
 			break;
 		case 5: /* moons of SATURN */
 			solarSys->MoonDesc[0].data_index = ALKALI_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = TITAN_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = TITAN_COLOR_TAB;
 			/*solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS
 					+ (MAX_GEN_MOONS - 1) * MOON_DELTA;*/
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 15.22;
@@ -270,15 +260,13 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 			break;
 		case 7: /* moons of NEPTUNE */
 			solarSys->MoonDesc[0].data_index = VINYLOGOUS_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = TRITON_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = TRITON_COLOR_TAB;
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / -5.87;
 					/* Triton */
 			break;
 		case 8: /* moons of Pluto */
 			solarSys->MoonDesc[0].data_index = SELENIC_WORLD;
-			if (solTexturesPresent)
-				solarSys->MoonDesc[0].alternate_colormap = CHARON_COLOR_TAB;
+			solarSys->MoonDesc[0].alternate_colormap = CHARON_COLOR_TAB;
 			solarSys->MoonDesc[0].orb_speed = FULL_CIRCLE / 6.38;
 					/* Charon */
 			break;
@@ -473,47 +461,47 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
 				CalcGravity (&solarSys->SysInfo.PlanetInfo);
-		
-		if (solTexturesPresent)
-		{
-			switch (planetNr)
+
+		{	// For Sol Textures
+			RESOURCE maskAnim = NULL;
+
+			if (is3DO (optScanSphere))
 			{
-				case 0: /* MERCURY */
-					LoadPlanet (CaptureDrawable (LoadGraphic (MERCURY_MASK_ANIM)));
-					break;
-				case 1: /* VENUS */
-					LoadPlanet (CaptureDrawable (LoadGraphic (VENUS_MASK_ANIM)));
-					break;
-				case 2: /* EARTH */
-					LoadPlanet (CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM)));
-					break;
-				case 3: /* MARS */
-					LoadPlanet (CaptureDrawable (LoadGraphic (MARS_MASK_ANIM)));
-					break;
-				case 4: /* JUPITER*/
-					LoadPlanet (CaptureDrawable (LoadGraphic (JUPITER_MASK_ANIM)));
-					break;
-				case 5: /* SATURN*/
-					LoadPlanet (CaptureDrawable (LoadGraphic (SATURN_MASK_ANIM)));
-					break;
-				case 6: /* URANUS */
-					LoadPlanet (CaptureDrawable (LoadGraphic (URANUS_MASK_ANIM)));
-					break;
-				case 7: /* NEPTUNE */
-					LoadPlanet (CaptureDrawable (LoadGraphic (NEPTUNE_MASK_ANIM)));
-					break;
-				case 8: /* PLUTO */
-					LoadPlanet (CaptureDrawable (LoadGraphic (PLUTO_MASK_ANIM)));
-					break;
-				default:
-					LoadPlanet (NULL);
-					break;
+				switch (planetNr)
+				{
+					case 0: // MERCURY
+						maskAnim = MERCURY_MASK_ANIM;
+						break;
+					case 1: // VENUS
+						maskAnim = VENUS_MASK_ANIM;
+						break;
+					case 2: // EARTH
+						maskAnim = EARTH_MASK_ANIM;
+						break;
+					case 3: // MARS
+						maskAnim = MARS_MASK_ANIM;
+						break;
+					case 4: // JUPITER
+						maskAnim = JUPITER_MASK_ANIM;
+						break;
+					case 5: // SATURN
+						maskAnim = SATURN_MASK_ANIM;
+						break;
+					case 6: // URANUS
+						maskAnim = URANUS_MASK_ANIM;
+						break;
+					case 7: // NEPTUNE
+						maskAnim = NEPTUNE_MASK_ANIM;
+						break;
+					case 8: // PLUTO
+						maskAnim = PLUTO_MASK_ANIM;
+						break;
+				}
 			}
-		}
-		else
-		{
-			LoadPlanet (planetNr == 2 ?
-					CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM)) : NULL);
+			else if (planetNr == 2)
+				maskAnim = EARTH_MASK_ANIM;
+
+			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}
 	}
 	else
@@ -628,49 +616,48 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 		solarSys->SysInfo.PlanetInfo.SurfaceGravity =
 				CalcGravity (&solarSys->SysInfo.PlanetInfo);
-		
-		if (solTexturesPresent)
-		{
-			switch (planetNr)
+
+		{	// For Sol Textures
+			RESOURCE maskAnim = NULL;
+
+			if (is3DO (optScanSphere))
 			{
-				case 2: /* moons of EARTH */
-					if (moonNr == 1)
-						LoadPlanet (CaptureDrawable (LoadGraphic (LUNA_MASK_ANIM)));
-					else
-						LoadPlanet (NULL);
-					break;
-				case 4: /* moons of JUPITER */
-					switch (moonNr) {
-						case 0: /* Io */
-							LoadPlanet (CaptureDrawable (LoadGraphic (IO_MASK_ANIM)));
-							break;
-						case 1: /* Europa */
-							LoadPlanet (CaptureDrawable (LoadGraphic (EUROPA_MASK_ANIM)));
-							break;
-						case 2: /* Ganymede */
-							LoadPlanet (CaptureDrawable (LoadGraphic (GANYMEDE_MASK_ANIM)));
-							break;
-						case 3: /* Callisto */
-							LoadPlanet (CaptureDrawable (LoadGraphic (CALLISTO_MASK_ANIM)));
-							break;
-					}
-					break;
-				case 5: /* moon of Saturn: Titan */
-					LoadPlanet (CaptureDrawable (LoadGraphic (TITAN_MASK_ANIM)));
-					break;
-				case 7: /* moon of NEPTUNE: Triton */
-					LoadPlanet (CaptureDrawable (LoadGraphic (TRITON_MASK_ANIM)));
-					break;
-				case 8: /* moon of Pluto: Charon */
-					LoadPlanet (CaptureDrawable (LoadGraphic (CHARON_MASK_ANIM)));
-					break;
-				default:
-					LoadPlanet (NULL);
-					break;
+				switch (planetNr)
+				{
+					case 2: // moon of EARTH: LUNA
+						if (moonNr == 1)
+							maskAnim = LUNA_MASK_ANIM;
+						break;
+					case 4: // moons of JUPITER
+						switch (moonNr)
+						{
+							case 0: // IO
+								maskAnim = IO_MASK_ANIM;
+								break;
+							case 1: // EUROPA
+								maskAnim = EUROPA_MASK_ANIM;
+								break;
+							case 2: // GANYMEDE
+								maskAnim = GANYMEDE_MASK_ANIM;
+								break;
+							case 3: // CALLISTO
+								maskAnim = CALLISTO_MASK_ANIM;
+								break;
+						}
+						break;
+					case 5: // moon of SATURN: TITAN
+						maskAnim = TITAN_MASK_ANIM;
+						break;
+					case 7: // moon of NEPTUNE : TRITON
+						maskAnim = TRITON_MASK_ANIM;
+						break;
+					case 8: // moon of PLUTO: CHARON
+						maskAnim = CHARON_MASK_ANIM;
+						break;
+				}
 			}
+			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}
-		else
-			LoadPlanet (NULL);
 	}
 
 	return true;

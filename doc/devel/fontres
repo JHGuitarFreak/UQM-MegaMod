@@ -6,64 +6,105 @@ code 32 (space).
 
 Everything is stored MSB first unless otherwise specified.
 
-position   length  meaning
-           4       0xffffffff if the file is uncompressed.
-                   Otherwise, the file is compressed. When uncompressed, the
-                   file complies with the rest of the format as described
-                   below.
-           4       Unused in file, always 0x00000000
-           1       Font leading: the vertical distance between lines of text
-                   in pixels.
-           1       Max ascender: the maximum extent of the font upwards from
-                   the baseline in pixels.
-           1       Max descender: the maximum extent of the font downwards
-                   from the baseline in pixels.
-           1       Char spacing: the number of pixels in between the
-                   successive characters.
-           1       Kern amount: the number of pixels (out of char spacing)
-                   that are used for kerning (explained later). Cannot be
-                   more than char spacing.
-           96      Kerning table: each byte corresponds to a character:
-                     bits 0-1: right-hand side kerning mask
-                     bits 2-3: left-hand side kerning mask
-                   For each pair of chars printed the code figures out whether
-                   the kerning should be used by taking the right mask of a
-                   preceeding char and ANDing it with the left mask of a
-                   succeeding char. If the result is 0, the Kern amount is
-                   subtracted from Char spacing.
-           3       alignment padding: aligns the following char descriptors
-                   on 8-byte boundary.
+For PC-DOS Fonts
+
+    position   length  meaning
+    0x00       4       0xffffffff if the file is uncompressed.
+                       Otherwise, the file is compressed. When uncompressed, the
+                       file complies with the rest of the format as described
+                       below.
+
+    0x04       1       Font Height: Overall font height in pixels
+
+    0x05       1       Leading: the vertical distance between lines of text in
+                       pixels.
+                       To get UQM appropriate Leading you add it to Font Height
+
+    0x06       1       KernInfo: This byte is split into lonibble and hinibble
+                       CharSpacing: KernInfo's hinibble, the number of pixels in
+                       between successive characters.
+                       KernAmount: KernInfo's lonibble, the number of pixels
+                       that are used for kerning. Cannot be more than char spacing.
+
+    0x07       48      CharWidth: 48 bytes split into 96 nibbles with each
+                       nibble corresponding to a character width.
+
+    0x37       48      Kerning table: 48 bytes split into 96 nibbles with each
+                       nibble corresponding to a character:
+                         bits 0-1: right-hand side kerning mask
+                         bits 2-3: left-hand side kerning mask
+                       For each pair of chars printed the code figures out whether
+                       the kerning should be used by taking the right mask of a
+                       preceeding char and ANDing it with the left mask of a
+                       succeeding char. If the result is 0, the Kern amount is
+                       subtracted from Char spacing.
+
+    0x67       48      Character Descending Y: 48 bytes split into 96 nibbles with each
+                       nibble corresponding to a character:
+                       The maximum extent of the font downwards from the
+                       baseline in pixels
+                       Max Descender: The highest value from Character Descending Y
+
+For 3DO Fonts
+
+    position   length  meaning
+               4       0xffffffff if the file is uncompressed.
+                       Otherwise, the file is compressed. When uncompressed, the
+                       file complies with the rest of the format as described
+                       below.
+               4       Unused in file, always 0x00000000
+               1       Font leading: the vertical distance between lines of text
+                       in pixels.
+               1       Max ascender: the maximum extent of the font upwards from
+                       the baseline in pixels.
+               1       Max descender: the maximum extent of the font downwards
+                       from the baseline in pixels.
+               1       Char spacing: the number of pixels in between the
+                       successive characters.
+               1       Kern amount: the number of pixels (out of char spacing)
+                       that are used for kerning (explained later). Cannot be
+                       more than char spacing.
+               96      Kerning table: each byte corresponds to a character:
+                         bits 0-1: right-hand side kerning mask
+                         bits 2-3: left-hand side kerning mask
+                       For each pair of chars printed the code figures out whether
+                       the kerning should be used by taking the right mask of a
+                       preceeding char and ANDing it with the left mask of a
+                       succeeding char. If the result is 0, the Kern amount is
+                       subtracted from Char spacing.
+               3       alignment padding: aligns the following char descriptors
+                       on 8-byte boundary.
 
 
-Then for all 96 chars:
-Char descriptors (these are frame descriptors from .ani format and some
-bits are most likely never used):
-           4       Type index and flags (TypeIndexAndFlags)
-                   Low 2 bytes:
-                     bits 0-11 is the index of this frame
-                     bits 12-15 are the type flags:
-                        - bit 12-13:
-                          - 0: (ROM_DRAWABLE)
-                          - 1: Direct drawable (RAM_DRAWABLE)
-                          - 2: (SCREEN_DRAWABLE)
-                          - 3: (OVERLAY_DRAWABLE)
-                   High 2 bytes (frame flags):
-                      - bits 0-7: global PLUT to use (probably unused)
-                      - bit 12: Frame is in cel format (DATA_HARDWARE)
-                      - bit 13: (DATA_COPY aka DATA_SCREEN)
-                      - bit 14: (DATA_PACKED)
-                      - bit 15: (X_FLIP)
-           4       Hot spot information (definition of (0, 0) in the image):
-                      - low 2 bytes: x location of hot spot
-                        (probably never used)
-                      - high 2 bytes: y location of hot spot
-                   This is the baseline of a character. The hotspot Y aligns
-                   with the baseline of the text.
-           4       Image bounds:
-                      - low 2 bytes: Image width
-                      - low 2 bytes: Image height
-           4       Offset from beginning of the char descriptor for this
-                   char to the beginning of the frame data.
+    Then for all 96 chars:
+    Char descriptors (these are frame descriptors from .ani format and some
+    bits are most likely never used):
+               4       Type index and flags (TypeIndexAndFlags)
+                       Low 2 bytes:
+                         bits 0-11 is the index of this frame
+                         bits 12-15 are the type flags:
+                            - bit 12-13:
+                              - 0: (ROM_DRAWABLE)
+                              - 1: Direct drawable (RAM_DRAWABLE)
+                              - 2: (SCREEN_DRAWABLE)
+                              - 3: (OVERLAY_DRAWABLE)
+                       High 2 bytes (frame flags):
+                          - bits 0-7: global PLUT to use (probably unused)
+                          - bit 12: Frame is in cel format (DATA_HARDWARE)
+                          - bit 13: (DATA_COPY aka DATA_SCREEN)
+                          - bit 14: (DATA_PACKED)
+                          - bit 15: (X_FLIP)
+               4       Hot spot information (definition of (0, 0) in the image):
+                          - low 2 bytes: x location of hot spot
+                            (probably never used)
+                          - high 2 bytes: y location of hot spot
+                       This is the baseline of a character. The hotspot Y aligns
+                       with the baseline of the text.
+               4       Image bounds:
+                          - low 2 bytes: Image width
+                          - low 2 bytes: Image height
+               4       Offset from beginning of the char descriptor for this
+                       char to the beginning of the frame data.
 
 Frames:
 Then for all frames:

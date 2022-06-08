@@ -50,6 +50,9 @@
 #include "libs/misc.h"
 #include "scan.h"
 
+#include "../hyper.h"
+		// for SOL_X/Y
+
 #include <math.h>
 #include <time.h>
 
@@ -59,6 +62,7 @@
 //#define SMOOTH_SYSTEM_ZOOM  1
 
 #define IP_FRAME_RATE  (ONE_SECOND / 30)
+#define CLOCK_FRAME_RATE  (ONE_SECOND / 24)
 
 // BW: those do not depend on the resolution because numbers too small
 // cause crashes in the generation and rendering
@@ -248,15 +252,14 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 {
 	COUNT i;
 	SIZE MoonDiameter;
-	FRAME SurfFrame;
 	PLANET_DESC *pMoonDesc;
-	PLANET_DESC *previousOrbitalDesc;
-	previousOrbitalDesc = pSolarSysState->pOrbitalDesc;
+	PLANET_DESC *previousOrbitalDesc = pSolarSysState->pOrbitalDesc;
+	PLANET_INFO *planetInfo = &pSolarSysState->SysInfo.PlanetInfo;
 
 	for (i = 0, pMoonDesc = &system->MoonDesc[0];
 			i < planet->NumPlanets; ++i, ++pMoonDesc)
 	{
-		SurfFrame = NULL;
+		RESOURCE maskAnim = NULL;
 	
 		// BW : precompute the generated texture to display it in IP
 		if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
@@ -270,83 +273,73 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 
 			if (CurStarDescPtr->Index == SOL_DEFINED)
 			{	// png defined moons in Sol
-			
-				COUNT curr_planet_index = planetIndex (pSolarSysState, planet);
-		
-				if (curr_planet_index == 2) {
-					// EARTH
-					switch (i) {
-						case 1: /* LUNA */
-							if (solTexturesPresent)
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_LUNA_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 0;
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 240 * 29;
-							break;
-					}
-				} else if (curr_planet_index == 4) {
-					// JUPITER
-					switch (i) {
-						case 0: /* IO */
-							if (solTexturesPresent)
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_IO_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 390;
-							break;
-						case 1: /* EUROPA */
-							if (solTexturesPresent)
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_EUROPA_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 840;
-							break;
-						case 2: /* GANYMEDE */
-							if (solTexturesPresent)
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_GANYMEDE_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 1728;
-							break;
-						case 3: /* CALLISTO */
-							if (solTexturesPresent)
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_CALLISTO_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 4008;
-							break;
-					}
-				} else if (curr_planet_index == 5) {
-					// SATURN
-					switch (i) {
-						case 0: /* TITAN */
-							if (solTexturesPresent)
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_TITAN_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 3816;
-							break;
-					}
-				} else if (curr_planet_index == 7) {
-					// NEPTUNE
-					switch (i) {
-						case 0: /* TRITON */
-							if (solTexturesPresent)
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_TRITON_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 4300;
-							break;
-					}
-				} else if (curr_planet_index == 8) {
-					// PLUTO	
-					switch (i) {	
-						case 0: /* CHARON */	
-							if (solTexturesPresent)	
-								SurfFrame = CaptureDrawable (LoadGraphic (IP_CHARON_MASK_ANIM));
-							pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 6.4 * EARTH_HOURS;
-							break;
-					}
+				COUNT curr_planet_index =
+						planetIndex (pSolarSysState, planet);
+
+				switch (curr_planet_index)
+				{
+					case 2:	// EARTH
+						if (i == 1)
+						{	// LUNA
+							maskAnim = IP_LUNA_MASK_ANIM;
+							planetInfo->RotationPeriod = 240 * 29;
+						}
+						break;
+					case 4:	// JUPITER
+						switch (i)
+						{
+							case 0: // IO
+								maskAnim = IP_IO_MASK_ANIM;
+								planetInfo->RotationPeriod = 390;
+								break;
+							case 1: // EUROPA
+								maskAnim = IP_EUROPA_MASK_ANIM;
+								planetInfo->RotationPeriod = 840;
+								break;
+							case 2: // GANYMEDE
+								maskAnim = IP_GANYMEDE_MASK_ANIM;
+								planetInfo->RotationPeriod = 1728;
+								break;
+							case 3: // CALLISTO
+								maskAnim = IP_CALLISTO_MASK_ANIM;
+								planetInfo->RotationPeriod = 4008;
+								break;
+						}
+						break;
+					case 5:	// SATURN
+						// TITAN
+						maskAnim = IP_TITAN_MASK_ANIM;
+						planetInfo->RotationPeriod = 3816;
+						break;
+					case 7:	// NEPTUNE
+						// TRITON
+						maskAnim = IP_TRITON_MASK_ANIM;
+						planetInfo->RotationPeriod = 4300;
+						break;
+					case 8:	// PLUTO
+						// CHARON
+						maskAnim = IP_CHARON_MASK_ANIM;
+						planetInfo->RotationPeriod = 6.4 * EARTH_HOURS;
+						break;
 				}
 			}
 
-			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ? LARGE_MOON_DIAMETER : MOON_DIAMETER;
-			GeneratePlanetSurface (pMoonDesc, SurfFrame, GENERATE_PERIMETER (MoonDiameter), MoonDiameter);
+			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
+					LARGE_MOON_DIAMETER : MOON_DIAMETER;
+			GeneratePlanetSurface (pMoonDesc,
+					CaptureDrawable (LoadGraphic (maskAnim)),
+					GENERATE_PERIMETER (MoonDiameter), MoonDiameter
+				);
 			pMoonDesc->orbit = pSolarSysState->Orbit;
 			PrepareNextRotationFrameForIP (pMoonDesc, 0);
 
-			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
+			DestroyStringTable (ReleaseStringTable (
+					pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
 			DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
 			pSolarSysState->TopoFrame = 0;
-			DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
+			DestroyColorMap (ReleaseColorMap (
+					pSolarSysState->OrbitalCMap));
 			pSolarSysState->OrbitalCMap = 0;
 		}
 	}
@@ -547,7 +540,7 @@ GetRandomSeedForStar (const STAR_DESC *star)
 }
 
 DWORD
-GetRandomSeedForVar (POINT point)
+GetRandomSeedForVar (const POINT point)
 {
 	return MAKE_DWORD (point.x, point.y);
 }
@@ -555,7 +548,6 @@ GetRandomSeedForVar (POINT point)
 void GenerateTexturedPlanets (void)
 {
 	COUNT i;
-	FRAME SurfFrame;
 	PLANET_DESC *pCurDesc;
 	PLANET_DESC *previousOrbitalDesc;
 	previousOrbitalDesc = pSolarSysState->pOrbitalDesc;
@@ -563,7 +555,7 @@ void GenerateTexturedPlanets (void)
 	for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 			i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 	{
-		SurfFrame = NULL;
+		RESOURCE maskanim = NULL;
 
 		DoPlanetaryAnalysis (&pSolarSysState->SysInfo, pCurDesc);
 		
@@ -574,65 +566,57 @@ void GenerateTexturedPlanets (void)
 			switch (i)
 			{
 			case 0: /* MERCURY */
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_MERCURY_MASK_ANIM));
+				maskanim = IP_MERCURY_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 3;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 59 * 240;
 				break;
 			case 1: /* VENUS */
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_VENUS_MASK_ANIM));
+				maskanim = IP_VENUS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 177;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 243 * 240;
 				break;
 			case 2: // EARTH
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_EARTH_MASK_ANIM));
-				else
-					SurfFrame = CaptureDrawable (LoadGraphic (EARTH_MASK_ANIM));
+				maskanim = EARTH_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 23;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 240;
 				break;
 			case 3: // MARS
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_MARS_MASK_ANIM));
+				maskanim = IP_MARS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 24;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 246;
 				break;
 			case 4: /* JUPITER */
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_JUPITER_MASK_ANIM));
+				maskanim = IP_JUPITER_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 3;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 98;
 				break;
 			case 5: /* SATURN */
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_SATURN_MASK_ANIM));
+				maskanim = IP_SATURN_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 27;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 102;
 				break;
 			case 6: /* URANUS */
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_URANUS_MASK_ANIM));
+				maskanim = IP_URANUS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 98;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 172;
 				break;
 			case 7: /* NEPTUNE */
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_NEPTUNE_MASK_ANIM));
+				maskanim = IP_NEPTUNE_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 30;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 182;
 				break;
 			case 8: /* PLUTO */
-				if (solTexturesPresent)
-					SurfFrame = CaptureDrawable (LoadGraphic (IP_PLUTO_MASK_ANIM));
+				maskanim = IP_PLUTO_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 119;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 1533;
 				break;
 			}
 		}
 		
-		GeneratePlanetSurface (pCurDesc, SurfFrame, GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER);
+		GeneratePlanetSurface (pCurDesc,
+				CaptureDrawable (LoadGraphic (maskanim)),
+				GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER
+			);
 		pCurDesc->orbit = pSolarSysState->Orbit;
 		PrepareNextRotationFrameForIP (pCurDesc, 0);
 		
@@ -656,7 +640,7 @@ LoadSolarSys (void)
 	PLANET_DESC *orbital = NULL;
 	PLANET_DESC *pCurDesc;
 #define NUM_TEMP_RANGES 5
-	const Color temp_color_array[NUM_TEMP_RANGES] =
+	Color temp_color_array[NUM_TEMP_RANGES] =
 	{
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0E), 0x54),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x62),
@@ -664,6 +648,9 @@ LoadSolarSys (void)
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
 	};
+
+	if (optUnscaledStarSystem && IS_HD)
+		temp_color_array[0] = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 19), 0x54);
 
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
 
@@ -786,7 +773,7 @@ saveNonOrbitalLocation (void)
 static void
 FreeSolarSys (void)
 {
-	COUNT i, j;
+	COUNT i;
 	PLANET_DESC *pCurDesc;
 
 	if (pSolarSysState->InIpFlight)
@@ -808,23 +795,8 @@ FreeSolarSys (void)
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 			 i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
-			PLANET_ORBIT *Orbit = &pCurDesc->orbit;
-			HFree (Orbit->lpTopoData);
-			Orbit->lpTopoData = 0;
-			DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-			Orbit->SphereFrame = NULL;
-		
-			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-			Orbit->ObjectFrame = 0;
-			DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-			Orbit->WorkFrame = 0;
-		
+			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
 			// JMS: Not sure if these do any good...
-			DestroyDrawable (ReleaseDrawable (pSolarSysState->Orbit.TintFrame));
-			pSolarSysState->Orbit.TintFrame = 0;
-			pSolarSysState->Orbit.TintColor = BLACK_COLOR;
-			DestroyDrawable (ReleaseDrawable (pSolarSysState->Orbit.TopoZoomFrame));
-			pSolarSysState->Orbit.TopoZoomFrame = 0;
 			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
 			DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
@@ -832,25 +804,7 @@ FreeSolarSys (void)
 			DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 			pSolarSysState->OrbitalCMap = 0;
 			// JMS ends.
-		
-			HFree (Orbit->TopoColors);
-			Orbit->TopoColors = NULL;
-			HFree (Orbit->ScratchArray);
-			Orbit->ScratchArray = NULL;
-			if (Orbit->map_rotate && Orbit->light_diff)
-			{
-				for (j = 0; j <= PLANET_DIAMETER; j++)
-				{
-					HFree (Orbit->map_rotate[j]);
-					HFree (Orbit->light_diff[j]);
-				}
-			}
- 
-			HFree (Orbit->map_rotate);
-			Orbit->map_rotate = NULL;
-			HFree (Orbit->light_diff);
-			Orbit->light_diff = NULL;
-		}	
+		}
 
 		// BW: if we were in Inner System, clean up data for textured IP moons
 		if (playerInInnerSystem ())
@@ -866,38 +820,11 @@ FreeSolarSys (void)
 			{
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
 				{
-					PLANET_ORBIT *Orbit = &pCurDesc->orbit;
-					int diameterPick =
+					SIZE diameterPick =
 							pCurDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
-							LARGE_MOON_DIAMETER : MOON_DIAMETER;
-			
-					HFree (Orbit->lpTopoData);
-					Orbit->lpTopoData = 0;
-					DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-					Orbit->SphereFrame = NULL;
-			
-					DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-					Orbit->ObjectFrame = 0;
-					DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-					Orbit->WorkFrame = 0;
-			
-					HFree (Orbit->TopoColors);
-					Orbit->TopoColors = NULL;
-					HFree (Orbit->ScratchArray);
-					Orbit->ScratchArray = NULL;
-					if (Orbit->map_rotate && Orbit->light_diff)
-					{
-						for (j = 0; j <= diameterPick; j++)
-						{
-							HFree (Orbit->map_rotate[j]);
-							HFree (Orbit->light_diff[j]);
-						}
-					}
-				
-					HFree (Orbit->map_rotate);
-					Orbit->map_rotate = NULL;
-					HFree (Orbit->light_diff);
-					Orbit->light_diff = NULL;
+						LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+					DestroyOrbitStruct (&pCurDesc->orbit, diameterPick);
 				}
 			}
 		}
@@ -1255,7 +1182,10 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
 	SetContextForeGroundColor (planet->temp_color);
-	DrawOval (&r, RES_BOOL (1, 6), FALSE);
+	if (!optUnscaledStarSystem)
+		DrawOval (&r, RES_BOOL (1, 6), FALSE);
+	else
+		DrawOval (&r, 1, FALSE);
 }
 
 static SIZE
@@ -1534,7 +1464,7 @@ static void
 leaveInnerSystem (PLANET_DESC *planet)
 {
 	COUNT outerPlanetWait;
-	COUNT i, j;
+	COUNT i;
 	PLANET_DESC *pMoonDesc;
 
 	pSolarSysState->pBaseDesc = pSolarSysState->PlanetDesc;
@@ -1559,36 +1489,11 @@ leaveInnerSystem (PLANET_DESC *planet)
 		{
 			if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
 			{
-				PLANET_ORBIT *Orbit = &pMoonDesc->orbit;
-				int diameterPick =
+				SIZE diameterPick =
 					pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 					LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
-				HFree (Orbit->lpTopoData);
-				Orbit->lpTopoData = 0;
-				DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-				Orbit->SphereFrame = NULL;
-		
-				DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-				Orbit->ObjectFrame = 0;
-				DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-				Orbit->WorkFrame = 0;
-
-				HFree (Orbit->TopoColors);
-				Orbit->TopoColors = NULL;
-				HFree (Orbit->ScratchArray);
-				Orbit->ScratchArray = NULL;
-				if (Orbit->map_rotate && Orbit->light_diff) {
-					for (j = 0; j <= diameterPick; j++) {
-						HFree (Orbit->map_rotate[j]);
-						HFree (Orbit->light_diff[j]);
-					}
-				}
-
-				HFree (Orbit->map_rotate);
-				Orbit->map_rotate = NULL;
-				HFree (Orbit->light_diff);
-				Orbit->light_diff = NULL;
+				DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
 			}
 		}
 	}	// End clean up
@@ -1894,8 +1799,6 @@ IP_frame (void)
 	SIZE newRadius;
 
 	SetContext (SpaceContext);
-
-	GameClockTick ();
 	ProcessShipControls ();
 	
 	locChange = CheckShipLocation (&newRadius);
@@ -2270,10 +2173,13 @@ EnterPlanetOrbit (void)
 		ValidateInnerOrbits ();
 		ResetSolarSys ();
 
-		if (optTexturedPlanets && worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-			GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc->pPrevDesc);
-		else
-			GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc);
+		if (optTexturedPlanets)
+		{
+			if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+				GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc->pPrevDesc);
+			else
+				GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc);
+		}
 
 		RepairSISBorder ();
 		TransitionSystemIn ();
@@ -2612,7 +2518,7 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	{
 		// BW: This to test if we have already rendered 
 		if (!pSolarSysState->PlanetDesc->orbit.lpTopoData)
-			GenerateTexturedPlanets();
+			GenerateTexturedPlanets ();
 	}
 
 	if (!SolarSysFrame)
@@ -2727,25 +2633,26 @@ CreateStarBackGround (BOOLEAN encounter)
 	CONTEXT oldContext;
 	RECT clipRect;
 	FRAME frame;
-	BYTE numNebulae = 44;
-	BYTE ZeroIndex = 0;
-	POINT NullCoord;
-	COUNT NebulaePercentX, NebulaePercentY;
-	RandomContext* OldSysGenRNG = SysGenRNG;
+	POINT starPoint;
+	RandomContext *OldSysGenRNG = SysGenRNG;
+	BOOLEAN hdScaled = (!optUnscaledStarSystem || !IS_HD);
 
-#define NULL_BOOL(a,b) (CurStarDescPtr ? (a) : (b))
-
-	NullCoord = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
-
-	if (encounter && !playerInSolarSystem ()) 
+	if (encounter && !playerInSolarSystem ())
 	{
-		SpaceJunkFrame = CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
-		SysGenRNG = RandomContext_New();
+		SpaceJunkFrame =
+				CaptureDrawable (LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
+		SysGenRNG = RandomContext_New ();
 	}
 
-	NebulaePercentX = NULL_BOOL (CurStarDescPtr->star_pt.x, NullCoord.x) % numNebulae;
-	NebulaePercentY = NULL_BOOL (CurStarDescPtr->star_pt.y, NullCoord.y) % (numNebulae + 6);
+	if (CurStarDescPtr)
+		starPoint = CurStarDescPtr->star_pt;
+	else
+	{
+		starPoint = MAKE_POINT (
+				LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
+			);
+	}
 
 	// Use SpaceContext to find out the dimensions of the background
 	oldContext = SetContext (SpaceContext);
@@ -2761,27 +2668,24 @@ CreateStarBackGround (BOOLEAN encounter)
 
 	ClearDrawable ();
 
-	RandomContext_SeedRandom (SysGenRNG,
-			NULL_BOOL (GetRandomSeedForStar (CurStarDescPtr),
-			GetRandomSeedForVar (NullCoord)));
+	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForVar (starPoint));
 
 #define NUM_DIM_PIECES 8
-	s.frame = SpaceJunkFrame;
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, hdScaled ? 0 : 25);
 	for (i = 0; i < NUM_DIM_PIECES; ++i)
 	{
 #define NUM_DIM_DRAWN 5
 		for (j = 0; j < NUM_DIM_DRAWN; ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			
 			s.origin.x = RES_SCALE (
 					scaleSISDimensions (TRUE,
-						LOWORD (rand_val) % widthHeightPicker (TRUE)
-					));
+					LOWORD (rand_val) % widthHeightPicker (TRUE)
+				));
 			s.origin.y = RES_SCALE (
 					scaleSISDimensions (FALSE,
-						HIWORD (rand_val) % widthHeightPicker (FALSE)
-					));
+					HIWORD (rand_val) % widthHeightPicker (FALSE)
+				));
 
 			DrawStamp (&s);
 		}
@@ -2791,32 +2695,35 @@ CreateStarBackGround (BOOLEAN encounter)
 	for (i = 0; i < NUM_BRT_PIECES; ++i)
 	{
 #define NUM_BRT_DRAWN 30
-		for (j = 0; j < NUM_BRT_DRAWN; ++j)
+		for (j = 0; j < (hdScaled ? NUM_BRT_DRAWN : 90); ++j)
 		{
 			rand_val = RandomContext_Random (SysGenRNG);
-			
 			s.origin.x = RES_SCALE (
 					scaleSISDimensions (TRUE,
-						LOWORD (rand_val) % widthHeightPicker (TRUE)
-					));
+					LOWORD (rand_val) % widthHeightPicker (TRUE)
+				));
 			s.origin.y = RES_SCALE (
 					scaleSISDimensions (FALSE,
-						HIWORD (rand_val) % widthHeightPicker (FALSE)
-					));
+					HIWORD (rand_val) % widthHeightPicker (FALSE)
+				));
 
 			DrawStamp (&s);
 		}
 		s.frame = IncFrameIndex (s.frame);
 	}
 
-	if (optNebulae && NebulaePercentY < numNebulae
-		&& NULL_BOOL (CurStarDescPtr->Index, ZeroIndex) != SOL_DEFINED)
-	{	// MB: Make some solar systems & Sol not have nebulae
-		s.origin = MAKE_POINT (0, 0);
-		s.frame = SetAbsFrameIndex (NebulaeFrame, NebulaePercentX);
-		if (optNebulaeVolume != 25)
-			s.frame = BrightenNebula (s.frame, optNebulaeVolume);
-		DrawStamp (&s);
+	if (optNebulae)
+	{
+		const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
+		const POINT solPoint = { SOL_X, SOL_Y };
+
+		if ((starPoint.y % (numNebulae + 6)) < numNebulae || classicPackPresent)
+		{
+			s.origin = MAKE_POINT (0, 0);
+			s.frame = SetAbsFrameIndex (NebulaeFrame, starPoint.x % numNebulae);
+			if (!pointsEqual (starPoint, solPoint) || classicPackPresent)
+				DrawStamp (&s);
+		}
 	}
 
 	SetContext (oldContext);
@@ -2955,9 +2862,9 @@ GetNamedPlanetaryBody (void)
 	else if (CurStarDescPtr->Index == SAMATRA_DEFINED 
 			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 			pSolarSysState->SunDesc[0].PlanetByte, pSolarSysState->SunDesc[0].MoonByte))
-		{	// Sa-Matra
-			return GAME_STRING (PLANET_NUMBER_BASE + 32);
-		}
+	{	// Sa-Matra
+		return GAME_STRING (PLANET_NUMBER_BASE + 32);
+	}
 	else if (CurStarDescPtr->Index > 0 
 			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 			pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))
@@ -3223,19 +3130,30 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	}
 	else if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{
+		static TimeCount TimeOutIP, TimeOutClock;
+		TimeCount Now = GetTimeCounter ();
+
 		assert (pSS->InIpFlight);
-		IP_frame ();
+
+		if (Now >= TimeOutClock)
+		{
+			GameClockTick ();
+			TimeOutClock = Now + CLOCK_FRAME_RATE;
+		}
+
+		if (Now >= TimeOutIP)
+		{
+			IP_frame ();
+			TimeOutIP = Now + IP_FRAME_RATE;
+		}
 
 		if (NewGameInit)
 		{
-			SetMenuSounds(MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SettingsMenu(FALSE);
-			SolarSysMenu();
-			SetMenuSounds(MENU_SOUND_NONE, MENU_SOUND_NONE);
+			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+			SettingsMenu (FALSE);
+			SolarSysMenu ();
+			SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 		}
-
-		SleepThreadUntil (NextTime);
-		NextTime = GetTimeCounter () + IP_FRAME_RATE;
 	}
 
 	return (!(GLOBAL (CurrentActivity)
@@ -3254,8 +3172,10 @@ widthHeightPicker (BOOLEAN is_width)
 	case 1:
 		return (is_width ? THREEDO_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_HEIGHT);
 	case 2:
-	default:
 		return (is_width ? (ORIG_SIS_SCREEN_WIDTH - 1) : ORIG_SIS_SCREEN_HEIGHT);
+	case 3:
+	default:
+		return (is_width ? HDMOD_SIS_SCREEN_WIDTH : HDMOD_SIS_SCREEN_HEIGHT);
 	}
 }
 
@@ -3269,7 +3189,7 @@ scaleSISDimensions (BOOLEAN is_width, COORD value)
 	if (widthOrHeight == widthHeightPicker (is_width))
 		percentage = 1;
 	else
-		percentage = scaleThingUp (widthOrHeight,
+		percentage = scaleThing (widthOrHeight,
 				widthHeightPicker (is_width));
 
 	return (COORD)(value * percentage);

@@ -36,6 +36,7 @@
 #include "libs/input/sdl/vcontrol.h"
 #include "setup.h"
 #include "setupmenu.h"
+#include "libs/graphics/gfx_common.h"
 
 #ifdef defined(ANDROID) || defined(__ANDROID__)
 #define ACCELERATION_INCREMENT(ONE_SECOND)

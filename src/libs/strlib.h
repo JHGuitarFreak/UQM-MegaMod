@@ -61,6 +61,8 @@ extern STRINGPTR GetStringName (STRING String);
 extern STRINGPTR GetStringSoundClip (STRING String);
 extern STRINGPTR GetStringTimeStamp (STRING String);
 extern STRING GetStringByName (STRING_TABLE StringTable, const char *index);
+extern BOOLEAN CheckResString (RESOURCE res);
+extern const char *LoadStringInstance (RESOURCE res);
 
 #define UNICHAR_TAB           0x0009
 #define STR_TAB             "\x09"

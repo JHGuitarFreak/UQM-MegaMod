@@ -2938,4 +2938,9 @@
       <Filter>Resources</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\doc\devel\fntformat">
+      <Filter>Doc\Devel</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

@@ -195,9 +195,6 @@ FeedbackSetting (BYTE which_setting)
 #define DDSHS_EDIT     1
 #define DDSHS_BLOCKCUR 2
 
-static RECT captainNameRect;
-static RECT shipNameRect;
-
 static BOOLEAN
 DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		COUNT state)
@@ -208,7 +205,9 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 	FONT Font;
 
 	{
-		captainNameRect.extent.height = shipNameRect.extent.height = SHIP_NAME_HEIGHT;
+		r.corner.x = RES_SCALE (2);
+		r.extent.width = SHIP_NAME_WIDTH;
+		r.extent.height = SHIP_NAME_HEIGHT;
 
 		if (nameCaptain)
 		{	// Naming the captain
@@ -216,12 +215,12 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 				Font = TinyFont;
 			else
 				Font = TinyFontBold;
-			captainNameRect.corner.x = RES_SCALE (3);
-			captainNameRect.corner.y = RES_SCALE (10);
-			captainNameRect.extent.width = SHIP_NAME_WIDTH - RES_SCALE (2);
-			r = captainNameRect;
-			lf.baseline.x = r.corner.x + (r.extent.width >> 1) - RES_SCALE (1);
-			lf.baseline.y = r.corner.y + RES_SCALE (6);
+
+			r.corner.y = RES_SCALE (10);
+			r.corner.x += RES_SCALE (1);
+			r.extent.width -= RES_SCALE (2);
+			lf.baseline.x =
+					r.corner.x + (r.extent.width >> 1) - RES_SCALE (1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1F, 0x1F), 0x0B);
@@ -229,16 +228,13 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		else
 		{	// Naming the flagship
 			Font = StarConFont;
-			shipNameRect.corner.x = RES_SCALE (2);
-			shipNameRect.corner.y = RES_SCALE (20);
-			shipNameRect.extent.width = SHIP_NAME_WIDTH;
-			r = shipNameRect;
+			r.corner.y = RES_SCALE (20);
 			lf.baseline.x = r.corner.x + (r.extent.width >> 1);
-			lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
 
 			BackGround = BUILD_COLOR (MAKE_RGB15 (0x0F, 0x00, 0x00), 0x2D);
 			ForeGround = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x0A, 0x00), 0x7D);
 		}
+		lf.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
 		lf.align = ALIGN_CENTER;
 	}
 
@@ -276,7 +272,6 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 		if (optCustomBorder)
 			DrawBorder (12, FALSE);
-
 
 		pchar_deltas = char_deltas;
 		for (i = CursorPos; i > 0; --i)
@@ -402,10 +397,10 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	DrawBorder (12, FALSE);
 
+	TextEntry3DO = FALSE;
+
 	if (namingCB)
 		namingCB ();
-
-	TextEntry3DO = FALSE;
 }
 
 static BOOLEAN
@@ -595,7 +590,7 @@ static BOOLEAN
 DoSettings (MENU_STATE *pMS)
 {
 	BYTE cur_speed, read_speed;
-	static BYTE i;
+	static BYTE i = 0;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
