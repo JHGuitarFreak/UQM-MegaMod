@@ -226,9 +226,8 @@ ExpandLevelMasks (PLANET_ORBIT* Orbit)
 	COUNT spherespanx;
 	SIZE width, height;
 	Color* colors;
-	COUNT y;
+	DWORD y, colorSize, halfBound;
 	PLANET_INFO* PlanetInfo;
-	DWORD colorSize, halfBound;
 
 	PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
 	spherespanx = Orbit->SphereFrame->Bounds.width;
@@ -2391,7 +2390,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		radius = RADIUS;
 		ForIP = FALSE;
 
-		useDosSpheres = (isPC (optScanSphere) && !IS_HD);
+		useDosSpheres = isPC (optScanSphere);
 	}
 	else
 	{
