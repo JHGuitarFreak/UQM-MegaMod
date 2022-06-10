@@ -2586,6 +2586,68 @@ DrawStarBackGround (void)
 }
 
 FRAME
+BrightenNebula (FRAME nebula, BYTE factor)
+{
+	COUNT x, y;
+	Color *pix;
+	Color *map;
+	RECT r;
+	COUNT width, height;
+	float f;
+
+	GetFrameRect (nebula, &r);
+	width = r.extent.width;
+	height = r.extent.height;
+
+	map = HMalloc (sizeof (Color) * width * height);
+	ReadFramePixelColors (nebula, map, width, height);
+
+	pix = map;
+
+	for (y = 0; y < height; ++y)
+	{
+		for (x = 0; x < width; ++x, ++pix)
+		{
+			f = (pix->a << 2) * ((float)factor / 100);
+
+			if (f > 0xC0)
+				pix->a = 0xC0;
+			else
+				pix->a = (BYTE)f;
+		}
+	}
+
+	WriteFramePixelColors (nebula, map, width, height);
+
+	HFree (map);
+
+	return nebula;
+}
+
+void
+DrawNebula (POINT star_point)
+{
+	FRAME NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
+	const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
+	const POINT solPoint = { SOL_X, SOL_Y };
+	STAMP s;
+
+	if ((star_point.y % (numNebulae + 6)) < numNebulae
+			|| classicPackPresent)
+	{
+		s.origin = MAKE_POINT (0, 0);
+		s.frame =
+				SetAbsFrameIndex (NebulaeFrame, star_point.x % numNebulae);
+		if (optNebulaeVolume != 24)
+			s.frame = BrightenNebula (s.frame, optNebulaeVolume);
+		if (!pointsEqual (star_point, solPoint) || classicPackPresent)
+			DrawStamp (&s);
+	}
+	DestroyDrawable (ReleaseDrawable (NebulaeFrame));
+	NebulaeFrame = 0;
+}
+
+FRAME
 CreateStarBackGround (BOOLEAN encounter)
 {
 	COUNT i, j;
@@ -2674,18 +2736,7 @@ CreateStarBackGround (BOOLEAN encounter)
 	}
 
 	if (optNebulae)
-	{
-		const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
-		const POINT solPoint = { SOL_X, SOL_Y };
-
-		if ((starPoint.y % (numNebulae + 6)) < numNebulae || classicPackPresent)
-		{
-			s.origin = MAKE_POINT (0, 0);
-			s.frame = SetAbsFrameIndex (NebulaeFrame, starPoint.x % numNebulae);
-			if (!pointsEqual (starPoint, solPoint) || classicPackPresent)
-				DrawStamp (&s);
-		}
-	}
+		DrawNebula (starPoint);
 
 	SetContext (oldContext);
 

@@ -66,7 +66,6 @@ FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
 FRAME hyperspacesuns;
-FRAME NebulaeFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME visitedStarsFrame;
@@ -300,10 +299,6 @@ InitKernel (void)
 		if (hyperspacesuns == NULL)
 			return FALSE;
 	}
-
-	NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
-	if (NebulaeFrame == NULL || !NebulaeFrame)
-		return FALSE;
 
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)

@@ -145,7 +145,7 @@ typedef struct globalopts_struct {
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor, scanSphere;
 	CONTROL_TEMPLATE player1, player2;
-	int speechvol, musicvol, sfxvol;
+	int speechvol, musicvol, sfxvol, nebulaevol;
 	int gamma, customSeed, starBackground;
 } GLOBALOPTS;
 
