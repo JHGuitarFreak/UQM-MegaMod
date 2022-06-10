@@ -67,14 +67,14 @@ DrawCurrentPlanetSphere (void)
 			RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
 				pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
 				throbShield, rotwidth, rotheight,
-				(rotheight >> 1) - IF_HD(2), FALSE);
+				(rotheight >> 1) - IF_HD (2), FALSE);
 		}
 		else
 		{
 			if (rotFrameIndex)
-				Orbit->SphereFrame = IncFrameIndex(Orbit->SphereFrame);
+				Orbit->SphereFrame = IncFrameIndex (Orbit->SphereFrame);
 			else
-				Orbit->SphereFrame = DecFrameIndex(Orbit->SphereFrame);
+				Orbit->SphereFrame = DecFrameIndex (Orbit->SphereFrame);
 
 			RenderDOSPlanetSphere (
 					Orbit, Orbit->SphereFrame, rotPointIndex);
@@ -91,7 +91,7 @@ DrawCurrentPlanetSphere (void)
 	UnbatchGraphics ();
 	SetContext (oldContext);
 
-	PrepareNextRotationFrame();
+	PrepareNextRotationFrame ();
 }
 
 // Draw the planet sphere and any extra graphic (like a shield) if present

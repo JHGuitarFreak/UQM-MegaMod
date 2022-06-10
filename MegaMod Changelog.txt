@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added ability to take screenshots using the F8 key. A '.png' file will be saved in the config directory in the "screenshots" folder
 - Added autoload capability for the Classic HD-mod look & feel addon pack
 - Recreated DOS planet scan sphere graphics from scratch - Kruzen
+- Added ability to set nebulae brightness via slider option (when nebulae are enabled) - Kruzen
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
