@@ -86,10 +86,10 @@ extern int ScreenHeight;
 #define SIS_MESSAGE_HEIGHT     SIS_TITLE_HEIGHT
 
 #define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_SCALE (4))
-#define STATUS_MESSAGE_HEIGHT  RES_SCALE (7) 
+#define STATUS_MESSAGE_HEIGHT  RES_SCALE (7)
 
 #define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE (4))
-#define SHIP_NAME_HEIGHT       RES_SCALE (7) 
+#define SHIP_NAME_HEIGHT       RES_SCALE (7)
 
 		/* A lot of other shit. */
 #define MAX_REDUCTION 3

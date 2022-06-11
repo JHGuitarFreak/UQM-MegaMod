@@ -97,7 +97,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	rt = *r;
 	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE (12);
 	rt.extent.height += 2;
-	if (!optCustomBorder)
+	if (!optCustomBorder && !classicPackPresent)
 		DrawFilledRectangle (&rt);
 
 	DrawBorder (8, FALSE);
@@ -633,7 +633,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= RES_SCALE (1);
 			r.extent.width += RES_SCALE (1);
-			r.extent.height = RADAR_HEIGHT + RES_SCALE (9); 
+			r.extent.height = RADAR_HEIGHT + RES_SCALE (9);
 		}
 		else
 		{
@@ -641,7 +641,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			r.extent.width += RES_SCALE (1);
 			r.extent.height = RES_SCALE (11);
 		}
-		if (!optCustomBorder)
+		if (!optCustomBorder && !classicPackPresent)
 			DrawFilledRectangle (&r);
 		DrawBorder (8, FALSE);
 	}
@@ -727,9 +727,9 @@ DrawMineralHelpers (BOOLEAN cleanup)
 
 	if (cleanup)
 	{
-		if(optCustomBorder)
+		if (optCustomBorder || classicPackPresent)
 			DrawBorder (14, FALSE);
-		else 
+		else
 		{
 			SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 			DrawFilledRectangle (&r);
