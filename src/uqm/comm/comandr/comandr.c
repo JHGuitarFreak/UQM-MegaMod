@@ -556,15 +556,15 @@ GiveRadios (RESPONSE_REF R)
 		NPCPhrase (FUEL_UP1);
 		AlienTalkSegue (1);
 
-		// JMS_GFX: Disable noisy static animation in hi-res.
-		if (IS_HD) {
+		// Disable noisy static animation in hi-res.
+		if (IS_HD)
+		{
 			CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
 			CommData.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
 			CommData.AlienAmbientArray[1].AnimFlags &= ~ANIM_DISABLED;
 			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
 		}
-		// End color transform anim in lo-res.
-		else
+		else // End color transform anim in lo-res.
 			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
 		
 		XFormColorMap (GetColorMapAddress (

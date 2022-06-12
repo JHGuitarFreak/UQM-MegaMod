@@ -46,7 +46,7 @@ enum PlanetScanTypes
 #define ORIGINAL_MAP_HEIGHT (optPlanetTexture ? UQM_MAP_HEIGHT : SC2_MAP_HEIGHT)
 #define MAP_WIDTH RES_SCALE (UQM_MAP_WIDTH)
 #define MAP_HEIGHT RES_SCALE (SC2_MAP_HEIGHT)
-#define SCALED_MAP_WIDTH RES_SCALE (optSuperPC != OPT_PC ? UQM_MAP_WIDTH : SC2_MAP_WIDTH)
+#define SCALED_MAP_WIDTH RES_SCALE (is3DO (optSuperPC) ? UQM_MAP_WIDTH : SC2_MAP_WIDTH)
 
 enum
 {
@@ -67,8 +67,8 @@ enum
 	LANDER_DESTROYED
 };
 
-#define MAX_SCROUNGED (optSuperPC == OPT_PC ? 64 : 50) /* max units lander can hold (was 64 in SC2 DOS) */
-#define MAX_HOLD_BARS (optSuperPC == OPT_PC ? 64 : 50) /* number of bars on the lander screen */
+#define MAX_SCROUNGED (isPC (optSuperPC) ? 64 : 50) /* max units lander can hold (was 64 in SC2 DOS) */
+#define MAX_HOLD_BARS (isPC (optSuperPC) ? 64 : 50) /* number of bars on the lander screen */
 
 #define SCALE_RADIUS(r) ((r) << 6)
 #define UNSCALE_RADIUS(r) ((r) >> 6)

@@ -1919,7 +1919,7 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 	pSrc = pSrcTopo;
 	prow = prevrow;
 #define STEP_RANGE (4 - 1)
-	prow[0] = ((int)pSrc[0]) << SCALE_SHIFT;;
+	prow[0] = ((int)pSrc[0]) << SCALE_SHIFT;
 	for (x = 0; x < w; ++x, ++pSrc, prow += 4)
 	{
 		int x2;
@@ -2554,7 +2554,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	{	// produce 4x scaled topo image for Planetside
 		// for the planets that we can land on
 
-		if (optSuperPC == OPT_PC && !IS_HD && !SurfDefFrame)
+		if (isPC (optSuperPC) && !IS_HD && !SurfDefFrame)
 		{	// crispy PC-DOS landscape
 			Orbit->TopoZoomFrame = CaptureDrawable (
 					RescaleFrame (

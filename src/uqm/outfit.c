@@ -98,7 +98,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		else
 			SetContextFont (TinyFontBold);
 
-		if ((GLOBAL_SIS (ResUnits)) > (DWORD)((GLOBAL (ModuleCost[NewModule])
+		if ((GLOBAL_SIS (ResUnits)) 
+				> (DWORD)((GLOBAL (ModuleCost[NewModule])
 				* MODULE_COST_SCALE))) 
 			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 		else
@@ -164,7 +165,8 @@ DisplayLanders (MENU_STATE *pMS)
 	{
 		s.origin.x = s.origin.y = 0;
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
-			GetFrameCount (pMS->ModuleFrame) - SHIELD_LOCATION_IN_MODULE_ANI + 4);
+				GetFrameCount (pMS->ModuleFrame)
+				- SHIELD_LOCATION_IN_MODULE_ANI + 4);
 		DrawStamp (&s);
 	}
 	else
@@ -181,7 +183,8 @@ DisplayLanders (MENU_STATE *pMS)
 		}
 
 		SetContextForeGroundColor (BLACK_COLOR);
-		mode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ALPHA, DRAW_FACTOR_1));
+		mode = SetContextDrawMode (
+				MAKE_DRAW_MODE (DRAW_ALPHA, DRAW_FACTOR_1));
 		for (; i < MAX_LANDERS; ++i)
 		{
 			DrawFilledStamp (&s);
@@ -312,7 +315,8 @@ DoInstallModule (MENU_STATE *pMS)
 				}
 				else if (old_slot_piece == STORAGE_BAY)
 				{
-					if (GLOBAL_SIS (TotalElementMass) > STORAGE_BAY_CAPACITY
+					if (GLOBAL_SIS (TotalElementMass)
+							> STORAGE_BAY_CAPACITY
 							* (CountSISPieces (STORAGE_BAY) - 1))
 					{	// storage bay still needed for the cargo
 						PlayMenuSound (MENU_SOUND_FAILURE);
@@ -328,7 +332,8 @@ DoInstallModule (MENU_STATE *pMS)
 
 		if (select)
 		{
-			if (new_slot_piece >= EMPTY_SLOT && old_slot_piece >= EMPTY_SLOT)
+			if (new_slot_piece >= EMPTY_SLOT
+					&& old_slot_piece >= EMPTY_SLOT)
 			{
 				new_slot_piece -= EMPTY_SLOT - 1;
 				if (new_slot_piece > CREW_POD)
@@ -421,7 +426,8 @@ DoInstallModule (MENU_STATE *pMS)
 		NewItem = NewState < EMPTY_SLOT ? pMS->CurState : pMS->delta_item;
 		do
 		{
-			if (NewState >= EMPTY_SLOT && (PulsedInputState.menu[KEY_MENU_UP]
+			if (NewState >= EMPTY_SLOT
+					&& (PulsedInputState.menu[KEY_MENU_UP]
 					|| PulsedInputState.menu[KEY_MENU_DOWN]))
 			{
 				if (PulsedInputState.menu[KEY_MENU_UP])
@@ -520,37 +526,51 @@ InitFlash:
 				{
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
-						pMS->flash_rect0.corner.x = LANDER_X - RES_SCALE (1);
-						pMS->flash_rect0.corner.y = LANDER_Y - RES_SCALE (1);
-						pMS->flash_rect0.extent.width = RES_SCALE (11 + 2); 
-						pMS->flash_rect0.extent.height = RES_SCALE (13 + 2);
+						pMS->flash_rect0.corner.x =
+								LANDER_X - RES_SCALE (1);
+						pMS->flash_rect0.corner.y =
+								LANDER_Y - RES_SCALE (1);
+						pMS->flash_rect0.extent.width =
+								RES_SCALE (11 + 2);
+						pMS->flash_rect0.extent.height =
+								RES_SCALE (13 + 2);
 
 						w = LANDER_WIDTH;
 						break;
 					case FUSION_THRUSTER:
 					case EMPTY_SLOT + 0:
-						pMS->flash_rect0.corner.x = DRIVE_TOP_X - RES_SCALE (1);
-						pMS->flash_rect0.corner.y = DRIVE_TOP_Y - RES_SCALE (1);
+						pMS->flash_rect0.corner.x =
+								DRIVE_TOP_X - RES_SCALE (1);
+						pMS->flash_rect0.corner.y =
+								DRIVE_TOP_Y - RES_SCALE (1);
 						pMS->flash_rect0.extent.width = RES_SCALE (8);
 						pMS->flash_rect0.extent.height = RES_SCALE (6);
 
-						pMS->flash_rect1.corner.x = DRIVE_SIDE_X - RES_SCALE (1) + IF_HD (5); // not aligned on HD sprite;
-						pMS->flash_rect1.corner.y = DRIVE_SIDE_Y - RES_SCALE (1) - IF_HD (10); // not aligned on HD sprite;
-						pMS->flash_rect1.extent.width = RES_SCALE (12) - IF_HD (10); // not aligned on HD sprite;;
-						pMS->flash_rect1.extent.height = RES_SCALE (7) + IF_HD (4); // not aligned on HD sprite;
+						pMS->flash_rect1.corner.x =
+								DRIVE_SIDE_X - RES_SCALE (1) + IF_HD (5);
+						pMS->flash_rect1.corner.y =
+								DRIVE_SIDE_Y - RES_SCALE (1) - IF_HD (10);
+						pMS->flash_rect1.extent.width =
+								RES_SCALE (12) - IF_HD (10);
+						pMS->flash_rect1.extent.height =
+								RES_SCALE (7) + IF_HD (4);
 
 						//pMS->flash_rect2 = pMS->flash_rect0;
 						//pMS->flash_rect2.corner.y += RES_SCALE (90);
 						break;
 					case TURNING_JETS:
 					case EMPTY_SLOT + 1:
-						pMS->flash_rect0.corner.x = JET_TOP_X - RES_SCALE (1) - IF_HD (6); // not aligned on HD sprite
-						pMS->flash_rect0.corner.y = JET_TOP_Y - RES_SCALE (1);
+						pMS->flash_rect0.corner.x =
+								JET_TOP_X - RES_SCALE (1) - IF_HD (6);
+						pMS->flash_rect0.corner.y =
+								JET_TOP_Y - RES_SCALE (1);
 						pMS->flash_rect0.extent.width = RES_SCALE (9);
 						pMS->flash_rect0.extent.height = RES_SCALE (10);
 
-						pMS->flash_rect1.corner.x = JET_SIDE_X - RES_SCALE (1) - IF_HD (6); // not aligned on HD sprite;
-						pMS->flash_rect1.corner.y = JET_SIDE_Y - RES_SCALE (1) + IF_HD (4); // not aligned on HD sprite;
+						pMS->flash_rect1.corner.x =
+								JET_SIDE_X - RES_SCALE (1) - IF_HD (6);
+						pMS->flash_rect1.corner.y =
+								JET_SIDE_Y - RES_SCALE (1) + IF_HD (4);
 						pMS->flash_rect1.extent.width = RES_SCALE (7);
 						pMS->flash_rect1.extent.height = RES_SCALE (4);
 
@@ -558,15 +578,21 @@ InitFlash:
 						//pMS->flash_rect2.corner.y += RES_SCALE (70);
 						break;
 					default:
-						pMS->flash_rect0.corner.x = MODULE_TOP_X - RES_SCALE (1);
-						pMS->flash_rect0.corner.y = MODULE_TOP_Y - RES_SCALE (1);
-						pMS->flash_rect0.extent.width = SHIP_PIECE_OFFSET + RES_SCALE (2)
+						pMS->flash_rect0.corner.x =
+								MODULE_TOP_X - RES_SCALE (1);
+						pMS->flash_rect0.corner.y =
+								MODULE_TOP_Y - RES_SCALE (1);
+						pMS->flash_rect0.extent.width =
+								SHIP_PIECE_OFFSET + RES_SCALE (2)
 								+ RES_SCALE (optWhichMenu == OPT_PC);
 						pMS->flash_rect0.extent.height = RES_SCALE (34);
 
-						pMS->flash_rect1.corner.x = MODULE_SIDE_X - RES_SCALE (1);
-						pMS->flash_rect1.corner.y = MODULE_SIDE_Y - RES_SCALE (1);
-						pMS->flash_rect1.extent.width = SHIP_PIECE_OFFSET + RES_SCALE (2)
+						pMS->flash_rect1.corner.x =
+								MODULE_SIDE_X - RES_SCALE (1);
+						pMS->flash_rect1.corner.y =
+								MODULE_SIDE_Y - RES_SCALE (1);
+						pMS->flash_rect1.extent.width =
+								SHIP_PIECE_OFFSET + RES_SCALE (2)
 								+ RES_SCALE (optWhichMenu == OPT_PC);
 						pMS->flash_rect1.extent.height = RES_SCALE (25);
 						break;
@@ -620,8 +646,9 @@ static void
 ChangeFuelQuantity (void)
 {
 	SDWORD incr = 0; // Fuel increment in fuel points (not units).
-	const SDWORD maxFit = GetFuelTankCapacity() - (SDWORD)GLOBAL_SIS(FuelOnBoard);
-	const SDWORD minFit = -(SDWORD)GLOBAL_SIS(FuelOnBoard);
+	const SDWORD maxFit =
+			GetFuelTankCapacity() - (SDWORD)GLOBAL_SIS (FuelOnBoard);
+	const SDWORD minFit = -(SDWORD)GLOBAL_SIS (FuelOnBoard);
 	
 	if (PulsedInputState.menu[KEY_MENU_UP])
 		incr = FUEL_TANK_SCALE;  // +1 Unit
@@ -638,12 +665,13 @@ ChangeFuelQuantity (void)
 	else
 		return;
 
-	if(PulsedInputState.menu[KEY_MENU_ZOOM_IN] || PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
+	if(PulsedInputState.menu[KEY_MENU_ZOOM_IN]
+			|| PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
 		PlayMenuSound(MENU_SOUND_INVOKED);
 
 	// Clamp incr to what we can afford/hold/have.
 	{
-		const SDWORD maxAfford = GLOBAL_SIS(ResUnits) / GLOBAL(FuelCost);
+		const SDWORD maxAfford = GLOBAL_SIS (ResUnits) / GLOBAL (FuelCost);
 
 		if (incr > maxFit)
 			incr = maxFit; // All we can hold.
@@ -733,7 +761,8 @@ DoOutfit (MENU_STATE *pMS)
 			DrawStamp (&s);
 			DestroyDrawable (ReleaseDrawable (s.frame));
 
-			for (num_frames = 0; num_frames < NUM_DRIVE_SLOTS; ++num_frames)
+			for (num_frames = 0; num_frames < NUM_DRIVE_SLOTS;
+					++num_frames)
 			{
 				BYTE which_piece;
 
@@ -742,7 +771,8 @@ DoOutfit (MENU_STATE *pMS)
 					DrawShipPiece (pMS->ModuleFrame, which_piece,
 							num_frames, FALSE);
 			}
-			for (num_frames = 0; num_frames < NUM_JET_SLOTS; ++num_frames)
+			for (num_frames = 0; num_frames < NUM_JET_SLOTS;
+					++num_frames)
 			{
 				BYTE which_piece;
 
@@ -751,7 +781,8 @@ DoOutfit (MENU_STATE *pMS)
 					DrawShipPiece (pMS->ModuleFrame, which_piece,
 						num_frames, FALSE);
 			}
-			for (num_frames = 0; num_frames < NUM_MODULE_SLOTS; ++num_frames)
+			for (num_frames = 0; num_frames < NUM_MODULE_SLOTS;
+					++num_frames)
 			{
 				BYTE which_piece;
 
@@ -769,7 +800,8 @@ DoOutfit (MENU_STATE *pMS)
 				ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 
 				s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
-						GetFrameCount (pMS->ModuleFrame) - SHIELD_LOCATION_IN_MODULE_ANI);
+						GetFrameCount (pMS->ModuleFrame)
+						- SHIELD_LOCATION_IN_MODULE_ANI);
 				if (ShieldFlags & (1 << EARTHQUAKE_DISASTER))
 					DrawStamp (&s);
 				s.frame = IncFrameIndex (s.frame);
@@ -874,7 +906,8 @@ ExitOutfit:
 #if defined(ANDROID) || defined(__ANDROID__)
 		TFB_SetOnScreenKeyboard_Starmap();
 #endif
-				SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_PAGE | MENU_SOUND_ACTION);
+				SetMenuSounds (MENU_SOUND_ARROWS,
+						MENU_SOUND_PAGE | MENU_SOUND_ACTION);
 				break;
 			default:
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -906,4 +939,3 @@ ExitOutfit:
 
 	return (TRUE);
 }
-

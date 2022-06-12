@@ -258,7 +258,7 @@ DrawPlanetSurfaceBorder (void)
 	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
-	if (optSuperPC == OPT_PC)
+	if (isPC (optSuperPC))
 	{
 		r.corner.x = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH)
 				- SIS_ORG_X + RES_SCALE (1);
@@ -334,7 +334,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 		s.frame = SetAbsFrameIndex (CaptureDrawable
 				(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
 
-		if (optSuperPC == OPT_PC)
+		if (isPC (optSuperPC))
 			s.origin.x -= RES_SCALE ((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2);
 
 #if 0
@@ -364,7 +364,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 		DrawStamp (&s);
 
-		if (optSuperPC == OPT_PC)
+		if (isPC (optSuperPC))
 			InitPCLander (TRUE);
 
 		DestroyDrawable (ReleaseDrawable (s.frame));
@@ -386,7 +386,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	{
 		SetContext (GetScanContext (NULL));
 		DrawPlanet (0, BLACK_COLOR);
-		if (optSuperPC == OPT_PC)
+		if (isPC (optSuperPC))
 			InitPCLander (FALSE);
 	}
 
