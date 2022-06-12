@@ -2241,9 +2241,15 @@ GetThermalHazardRating (int temp)
 static BYTE
 GetHazardChance (int hazardType, unsigned HazardRating)
 {
-	static const BYTE TectonicsChanceTab[] = {0*3, 0*3, 1*3, 2*3, 4*3,  8*3, 16*3, 32*3};
-	static const BYTE WeatherChanceTab  [] = {0*3, 0*3, 1*3, 2*3, 3*3,  6*3, 12*3, 24*3};
-	static const BYTE FireChanceTab     [] = {0*3, 0*3, 1*3, 2*3, 4*3, 12*3, 24*3, 48*3};
+	BYTE TectonicsChanceTab[] = {0*3, 0*3, 1*3, 2*3, 4*3,  8*3, 16*3, 32*3};
+	BYTE WeatherChanceTab  [] = {0*3, 0*3, 1*3, 2*3, 3*3,  6*3, 12*3, 24*3};
+	BYTE FireChanceTab     [] = {0*3, 0*3, 1*3, 2*3, 4*3, 12*3, 24*3, 48*3};
+
+	if (EXTENDED)
+	{
+		TectonicsChanceTab[1] = 1;
+		WeatherChanceTab[1] = 1;
+	}
 
 	switch (hazardType)
 	{
