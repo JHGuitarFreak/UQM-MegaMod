@@ -38,6 +38,7 @@
 #include "libs/log.h"
 #include "hyper.h"
 #include "gameopt.h"
+#include <math.h>
 
 #include <stdio.h>
 
@@ -1791,8 +1792,70 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 				}
 				else
 				{
-					DrawSISMessageEx (GAME_STRING (NAVIGATION_STRING_BASE + 3),
-							-1, -1, DSME_MYCOLOR);   // "AUTO-PILOT"
+					if (!EXTENDED)
+					{
+						DrawSISMessageEx (
+								GAME_STRING (NAVIGATION_STRING_BASE + 3),
+								-1, -1, DSME_MYCOLOR);   // "AUTO-PILOT"
+					}
+					else
+					{	// Show destination and distance to destination
+						STAR_DESC *SDPtr;
+						UNICODE *buf[256];
+						DWORD dist;
+						POINT dest = GLOBAL (autopilot);
+						POINT curr = MAKE_POINT (
+								LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+								LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
+							);
+
+						SDPtr = FindStar (NULL, &dest, 1, 1);
+						
+						dist = sqrt (pow (dest.x - curr.x, 2)
+								+ pow (dest.y - curr.y, 2));
+
+						if (SDPtr)
+						{
+							TEXT temp;
+							RECT r;
+							UNICODE cluster[256];
+
+							GetClusterName (SDPtr, cluster);
+
+							snprintf (buf, sizeof buf,
+									"%s to %s - %03u.%01u",
+									GAME_STRING (
+										NAVIGATION_STRING_BASE + 3),
+									cluster, dist / 10, dist % 10
+								);
+
+							temp.pStr = buf;
+							r = font_GetTextRect (&temp);
+
+							if (r.extent.width > RES_SCALE (172))
+							{	// If the full text is too large then use
+								// "->" instead of "AUTO-PILOT"
+								snprintf (buf, sizeof buf,
+										"-> %s - %03u.%01u",
+										cluster, dist / 10, dist % 10
+									);
+							}
+						}
+						else
+						{
+							snprintf (buf, sizeof buf,
+									"%s to %03u.%01u:%03u.%01u"
+									" - %03u.%01u",
+									GAME_STRING (
+										NAVIGATION_STRING_BASE + 3),
+									dest.x / 10, dest.x % 10,
+									dest.y / 10, dest.y % 10,
+									dist / 10, dist % 10
+								);
+						}
+						
+						DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
+					}
 				}
 				SetContext (OldContext);
 			}
