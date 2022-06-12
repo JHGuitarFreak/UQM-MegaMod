@@ -1803,16 +1803,22 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 						STAR_DESC *SDPtr;
 						UNICODE *buf[256];
 						DWORD dist;
+						POINT Falayalaralfali =
+								{ ARILOU_HOME_X, ARILOU_HOME_Y };
 						POINT dest = GLOBAL (autopilot);
 						POINT curr = MAKE_POINT (
 								LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
 								LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
 							);
 
-						SDPtr = FindStar (NULL, &dest, 1, 1);
-						
 						dist = sqrt (pow (dest.x - curr.x, 2)
 								+ pow (dest.y - curr.y, 2));
+
+						SDPtr = FindStar (NULL, &dest, 1, 1);
+
+						if (inQuasiSpace ()
+								&& !pointsEqual (dest, Falayalaralfali))
+							SDPtr = NULL;
 
 						if (SDPtr)
 						{
