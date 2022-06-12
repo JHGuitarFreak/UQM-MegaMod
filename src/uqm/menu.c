@@ -78,7 +78,8 @@ static UNICODE pm_fuel_str[128];
 
 /* Actually display the menu text */
 static void
-DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
+DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite,
+		RECT *r)
 {
 	BYTE pos;
 	COUNT i, j;
@@ -213,6 +214,50 @@ GetEndMenuState (BYTE BaseState)
 	return BaseState;
 }
 
+/* Determine the last text item to display */
+static BYTE
+GetEndMenuStateDOS (BYTE BaseState)
+{
+	switch (BaseState)
+	{
+		case PC_SCAN:
+		case PC_STARMAP:
+			return PC_NAVIGATE;
+			break;
+		case PC_MIN_SCAN:
+			return PC_EXIT_SCAN_MENU;
+			break;
+		case PC_CARGO:
+			return PC_EXIT_MANIFEST;
+			break;
+		case PC_SAVE_GAME:
+			return PC_EXIT_GAME_MENU;
+			break;
+		case PC_CONVERSE:
+			return PC_ENC_GAME_MENU;
+			break;
+		case PC_FUEL:
+			return PC_EXIT_OUTFIT;
+			break;
+		case PC_CREW:
+			return PC_EXIT_SHIPYARD;
+			break;
+		case PC_MUSIC_ON:
+			return PC_EXIT_SETTINGS;
+			break;
+		case PC_PLUS_RESOLVE:
+			return PC_EXIT_COMBAT_MENU;
+			break;
+		case PC_PLUS_SPEED:
+			return PC_EXIT_READING_MENU;
+			break;
+		case PC_CHANGE_CAPTAIN:
+			return PC_EXIT_NAMES_MENU;
+			break;
+	}
+	return BaseState;
+}
+
 static BYTE
 GetBeginMenuState (BYTE BaseState)
 {
@@ -225,6 +270,7 @@ FixMenuState (BYTE BadState)
 {
 	switch (BadState)
 	{
+		// 3DO Menu
 		case PM_SOUND_ON:
 			if (GLOBAL (glob_flags) & SOUND_DISABLED)
 				return PM_SOUND_OFF;
@@ -242,6 +288,31 @@ FixMenuState (BYTE BadState)
 		case PM_READ_VERY_SLOW:
 			return (PM_READ_VERY_SLOW +
 				(BYTE)(GLOBAL (glob_flags) & READ_SPEED_MASK));
+	}
+	return BadState;
+}
+
+static BYTE
+FixMenuStateDOS (BYTE BadState)
+{
+	switch (BadState)
+	{
+		// DOS Menu
+		case PC_SOUND_ON:
+			if (GLOBAL (glob_flags) & SOUND_DISABLED)
+				return PC_SOUND_OFF;
+			else
+				return PC_SOUND_ON;
+		case PC_MUSIC_ON:
+			if (GLOBAL (glob_flags) & MUSIC_DISABLED)
+				return PC_MUSIC_OFF;
+			else
+				return PC_MUSIC_ON;
+		case PC_CYBORG_ON:
+			if (GLOBAL (glob_flags) & CYBORG_ENABLED)
+				return PC_CYBORG_ON;
+			else
+				return PC_CYBORG_OFF;
 	}
 	return BadState;
 }
@@ -270,7 +341,8 @@ NextMenuState (BYTE BaseState, BYTE CurState)
 		case PM_CYBORG_NORMAL:
 		case PM_CYBORG_DOUBLE:
 		case PM_CYBORG_SUPER:
-			if (isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu))
+			if (isPC (optSmoothScroll) && !usingSpeech
+					|| isPC (optWhichMenu))
 				NextState = PM_READ_VERY_SLOW;
 			else
 				NextState = PM_CHANGE_CAPTAIN;
@@ -288,6 +360,37 @@ NextMenuState (BYTE BaseState, BYTE CurState)
 	if (NextState > GetEndMenuState (BaseState))
 		NextState = GetBeginMenuState (BaseState);
 	return (FixMenuState (NextState) - AdjBase);
+}
+
+static BYTE
+NextMenuStateDOS (BYTE BaseState, BYTE CurState)
+{
+	BYTE NextState;
+	BYTE AdjBase = BaseState;
+
+	if (BaseState == PC_STARMAP)
+		AdjBase--;
+
+	switch (AdjBase + CurState)
+	{
+		case PC_MUSIC_ON:
+		case PC_MUSIC_OFF:
+			NextState = PC_SOUND_ON;
+			break;
+		case PC_SOUND_ON:
+		case PC_SOUND_OFF:
+			NextState = PC_READING_MENU;
+			break;
+		case PC_CYBORG_ON:
+		case PC_CYBORG_OFF:
+			NextState = PC_EXIT_COMBAT_MENU;
+			break;
+		default:
+			NextState = AdjBase + CurState + 1;
+	}
+	if (NextState > GetEndMenuStateDOS (BaseState))
+		NextState = GetBeginMenuState (BaseState);
+	return (FixMenuStateDOS (NextState) - AdjBase);
 }
 
 /* Choose the next menu to hilight in the 'back' direction */ 
@@ -323,7 +426,8 @@ PreviousMenuState (BYTE BaseState, BYTE CurState)
 			NextState = PM_CYBORG_OFF;
 			break;
 		case PM_CHANGE_CAPTAIN:
-			if (isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu))
+			if (isPC (optSmoothScroll) && !usingSpeech
+					|| isPC (optWhichMenu))
 				NextState = PM_READ_VERY_SLOW;
 			else
 				NextState = PM_CYBORG_OFF;
@@ -334,6 +438,36 @@ PreviousMenuState (BYTE BaseState, BYTE CurState)
 	if (NextState < GetBeginMenuState (BaseState))
 		NextState = GetEndMenuState (BaseState);
 	return (FixMenuState ((BYTE)NextState) - AdjBase);
+}
+
+BYTE
+PreviousMenuStateDOS (BYTE BaseState, BYTE CurState)
+{
+	SWORD NextState;
+	BYTE AdjBase = BaseState;
+
+	if (BaseState == PM_STARMAP)
+		AdjBase--;
+
+	switch (AdjBase + CurState)
+	{
+		case PC_MUSIC_OFF:
+			NextState = PC_EXIT_SETTINGS;
+			break;
+		case PC_SOUND_ON:
+		case PC_SOUND_OFF:
+			NextState = PC_MUSIC_ON;
+			break;
+		case PC_CYBORG_ON:
+		case PC_CYBORG_OFF:
+			NextState = PC_MINUS_RESOLVE;
+			break;
+		default:
+			NextState = AdjBase + CurState - 1;
+	}	
+	if (NextState < GetBeginMenuState (BaseState))
+		NextState = GetEndMenuStateDOS (BaseState);
+	return (FixMenuStateDOS ((BYTE)NextState) - AdjBase);
 }
 
 
@@ -503,7 +637,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 		return FALSE;
 	}
 	else if ((optWhichMenu == OPT_PC) &&
-			PulsedInputState.menu[KEY_MENU_CANCEL] && 
+			PulsedInputState.menu[KEY_MENU_CANCEL] &&
 			(BaseState == PM_ALT_CARGO))
 	{
 		if (OrigBase == PM_SCAN)
@@ -744,7 +878,8 @@ DrawMineralHelpers (BOOLEAN cleanup)
 	{
 		DrawStarConBox (
 				&r, RES_SCALE (1), PCMENU_TOP_LEFT_BORDER_COLOR,
-				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, PCMENU_BACKGROUND_COLOR
+				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE,
+				PCMENU_BACKGROUND_COLOR
 			);
 
 		if (IS_HD)
@@ -757,7 +892,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 #define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE (7))
 #define ELEMENT_SPACING_Y  RES_SCALE (9)
 #define ELEMENT_SPACING_X  RES_SCALE (32)
-#define HD_ALIGN_DOTS IF_HD (2)
+#define HD_ALIGN_DOTS      IF_HD (2)
 
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
@@ -788,17 +923,21 @@ DrawMineralHelpers (BOOLEAN cleanup)
 
 		// print x'es
 		if (!optCustomBorder)
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x10, 0x21, 0xF7, 0xFF));
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0x10, 0x21, 0xF7, 0xFF));
 		else
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x31, 0x31, 0x31, 0xFF));
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0x31, 0x31, 0x31, 0xFF));
 		snprintf (buf, sizeof buf, "%s", "x");
 		font_DrawText (&t);
 
 		// print element worth
 		if (!optCustomBorder)
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0xAD, 0xAD, 0xFF));
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0x00, 0xAD, 0xAD, 0xFF));
 		else
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x74, 0x74, 0x74, 0xFF));
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0x74, 0x74, 0x74, 0xFF));
 		snprintf (buf, sizeof buf, "%u", GLOBAL (ElementWorth[i]));
 		digit = RES_SCALE (!strncmp (buf, "1", 1) ? 4 : 5);
 		t.baseline.x += digit;
