@@ -1684,7 +1684,7 @@ DoShipyard (MENU_STATE *pMS)
 			r.extent.width += RES_SCALE (2);
 			r.extent.height += RES_SCALE (1);
 
-			if (IS_HD && classicPackPresent && !optCustomBorder)
+			if (IS_HD && classicPackPresent)
 			{
 				r = old_r;
 				r.corner.x = 0;
