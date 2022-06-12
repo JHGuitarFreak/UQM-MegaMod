@@ -71,9 +71,7 @@ static JOURNAL_SECTION journal_section[NUM_SECTIONS];
 static char journal_buf[JOURNAL_BUF_SIZE];
 static BOOLEAN transition_pending;
 
-
 #define JOURNAL_STRING(i) (GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
-
 
 static BOOLEAN
 StoreJournalEntry (SECTION_ID sid, JOURNAL_ENTRY *entry)
@@ -156,14 +154,16 @@ AddJournalObjective (int steps, ...)
 		if (test)
 		{
 			s = i + 1;
-			str = (jstring == NO_JOURNAL_ENTRY) ? NULL : JOURNAL_STRING(jstring);
+			str = (jstring == NO_JOURNAL_ENTRY)
+					? NULL : JOURNAL_STRING(jstring);
 		}
 	}
 	va_end (args);
 
 	if (!str || !*str)
 		return FALSE;
-	return AppendJournalEntry (s == steps ? COMPLETED_SECTION : OPEN_SECTION, str);
+	return AppendJournalEntry (
+			s == steps ? COMPLETED_SECTION : OPEN_SECTION, str);
 }
 
 
@@ -178,7 +178,6 @@ WriteJournals (void)
 	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
 	if (JournalStrings == 0)
 		return;
-
 
 	// starbase missions
 
@@ -237,10 +236,8 @@ WriteJournals (void)
 
 static void
 DrawJournal (void)
-{
-#define JOURNAL_LINE_SPACING RES_SCALE(9)
-	// TODO: move strings to gamestrings or some other string resource file
-	SIZE width;
+{	// TODO: move strings to gamestrings or some other string resource file
+	SIZE width, leading;
 	TEXT t;
 	SECTION_ID sid, sid_end;
 	JOURNAL_SECTION *section;
@@ -249,23 +246,19 @@ DrawJournal (void)
 	SetContext (SpaceContext);
 
 	if (transition_pending)
-	{
 		SetTransitionSource (NULL);
-	}
+
 	BatchGraphics ();
 
+	ClearDrawable ();
 	SetContextForeGroundColor (LTGRAY_COLOR);
 	SetContextBackGroundColor (BLACK_COLOR);
-	ClearDrawable ();
+	SetContextFont (PlyrFont);
+	GetContextFontLeading (&leading);
 
 	width = SIS_SCREEN_WIDTH - RES_SCALE (10 + 2);
 	t.align = ALIGN_LEFT;
-	t.baseline.y = JOURNAL_LINE_SPACING * (1 - scroll_journal);
-
-	if (is3DO (optWhichFonts))
-		SetContextFont (TinyFont);
-	else
-		SetContextFont (PlyrFont);
+	t.baseline.y = leading * (1 - scroll_journal);
 
 	switch (which_journal)
 	{
@@ -285,31 +278,28 @@ DrawJournal (void)
 			sid_end = 0;
 			break;
 		default:
-			snprintf (journal_buf, JOURNAL_BUF_SIZE, "journal #%d", which_journal);
+			snprintf (journal_buf, JOURNAL_BUF_SIZE, "journal #%d",
+					which_journal);
 			DrawSISMessage (journal_buf);
 			sid = 1;
 			sid_end = 0;
 			break;
 	}
 
-	for (;  sid <= sid_end;  sid++)
+	for (; sid <= sid_end; sid++)
 	{
 		section = &journal_section[sid];
 		const char *nextchar = NULL;
 
-		SetContextForeGroundColor ((sid == COMPLETED_SECTION) ? DKGRAY_COLOR : LTGRAY_COLOR);
+		SetContextForeGroundColor (
+				(sid == COMPLETED_SECTION) ? DKGRAY_COLOR : LTGRAY_COLOR);
 
 		for (entry = section->head;  entry != NULL;  entry = entry->next)
 		{
-			// TinyFont (the 3DO setting) doesn't contain the STR_BULLET glyph
 			t.pStr = STR_BULLET;
 			t.CharCount = (COUNT)~0;
 			t.baseline.x = RES_SCALE (3);
-			if (is3DO (optWhichFonts))
-				SetContextFont (TinyFontBold);
 			font_DrawText (&t);
-			if (is3DO (optWhichFonts))
-				SetContextFont (TinyFont);
 
 			t.pStr = entry->string;
 			t.CharCount = (COUNT)~0;
@@ -317,13 +307,13 @@ DrawJournal (void)
 			while (!getLineWithinWidth (&t, &nextchar, width, (COUNT)~0))
 			{
 				font_DrawText (&t);
-				t.baseline.y += JOURNAL_LINE_SPACING;
+				t.baseline.y += leading;
 				t.CharCount = (COUNT)~0;
 				t.pStr = nextchar;
 			}
 			font_DrawText(&t);
 
-			t.baseline.y += JOURNAL_LINE_SPACING;
+			t.baseline.y += leading;
 		}
 	}
 
@@ -375,10 +365,6 @@ Journal (void)
 {
 	MENU_STATE MenuState;
 	POINT universe;
-/*
-	RECT clip_r;
-	CONTEXT OldContext;
-*/
 
 	memset (&MenuState, 0, sizeof (MenuState));
 
@@ -396,9 +382,11 @@ Journal (void)
 	if (optWhichMenu == OPT_PC)
 	{
 		if (actuallyInOrbit)
-			DrawMenuStateStrings (PM_ALT_SCAN, PM_ALT_JOURNAL - PM_ALT_SCAN);
+			DrawMenuStateStrings (PM_ALT_SCAN,
+					PM_ALT_JOURNAL - PM_ALT_SCAN);
 		else
-			DrawMenuStateStrings (PM_ALT_STARMAP, PM_ALT_JOURNAL - PM_ALT_STARMAP);
+			DrawMenuStateStrings (PM_ALT_STARMAP,
+					PM_ALT_JOURNAL - PM_ALT_STARMAP);
 	}
 
 	MenuState.InputFunc = DoChangeJournal;
@@ -408,19 +396,6 @@ Journal (void)
 	DrawJournal ();
 	transition_pending = FALSE;
 
-/*	
-	BatchGraphics ();
-	OldContext = SetContext (SpaceContext);
-	GetContextClipRect (&clip_r);
-	SetContext (OldContext);
-	LoadIntoExtraScreen (&clip_r);
-	UnbatchGraphics ();
-*/
-
-/*
-	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-	SetDefaultMenuRepeatDelay ();
-*/
 #if defined(ANDROID) || defined(__ANDROID__)
 	TFB_SetOnScreenKeyboard_Starmap();
 	DoInput(&MenuState, FALSE);
