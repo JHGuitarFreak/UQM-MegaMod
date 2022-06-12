@@ -3662,6 +3662,14 @@ SOURCE=..\..\src\uqm\istrtab.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\uqm\journal.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\journal.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\uqm\load.c
 # End Source File
 # Begin Source File

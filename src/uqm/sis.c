@@ -198,15 +198,15 @@ DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
 		char TempDiff[11];
 
 		strncpy (
-			TempDiff, GAME_STRING (MAINMENU_STRING_BASE + 56 + difficulty),
+			TempDiff, GAME_STRING (MEGAMOD_STRING_BASE + 4 + difficulty),
 			ARRAY_SIZE (TempDiff)
 		);
 
 		snprintf (buf, sizeof buf, "%s %s%s%s",
-				GAME_STRING (MAINMENU_STRING_BASE + 55),
+				GAME_STRING (MEGAMOD_STRING_BASE + 3),
 				TempDiff,
-				(extended ? GAME_STRING (MAINMENU_STRING_BASE + 59) : ""),
-				(nomad ? GAME_STRING (MAINMENU_STRING_BASE + 60) : "")
+				(extended ? GAME_STRING (MEGAMOD_STRING_BASE + 7) : ""),
+				(nomad ? GAME_STRING (MEGAMOD_STRING_BASE + 8) : "")
 			);
 		DrawSISMessage (buf);
 

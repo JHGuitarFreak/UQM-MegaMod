@@ -77,6 +77,7 @@
 #define IODINE_COLOR_TAB "planet.iodine.colortable"
 #define IODINE_XLAT_TAB "planet.iodine.translatetable"
 #define IPSUN_COLOR_MAP "colortable.truespace"
+#define JOURNAL_STRTAB "text.journal"
 #define JOYSTICK_ALPHA_STRTAB "text.joyalpha"
 #define LANTHANIDE_COLOR_TAB "planet.lanthanide.colortable"
 #define LANTHANIDE_XLAT_TAB "planet.lanthanide.translatetable"

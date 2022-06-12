@@ -106,7 +106,7 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 
 	SetContextForeGroundColor (BLACK_COLOR);
 
-	t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 66 + answer);
+	t.pStr = GAME_STRING (MEGAMOD_STRING_BASE + 14 + answer);
 	line_count = SplitString (t.pStr, '\n', 30, lines, bank);
 
 	t.baseline.x = r.corner.x
@@ -147,9 +147,8 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 
 	for (i = 0; i <= 2; i++)
 	{
-		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
-				+ (!i ? 1 : (i > 1 ? 2 : 0)));
-		t.CharCount = utf8StringCount (t.pStr);
+		t.pStr = GAME_STRING (MEGAMOD_STRING_BASE + 4 +
+				(!i ? 1 : (i > 1 ? 2 : 0)));
 
 		SetContextForeGroundColor (
 				i == answer ?
@@ -357,8 +356,9 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 		t.baseline.x = RES_SCALE (2);
 		t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 		t.align = ALIGN_LEFT;
-		sprintf (buf, "%s %s", GAME_STRING (MAINMENU_STRING_BASE + 61),
-				GAME_STRING (MAINMENU_STRING_BASE + 62 + Rando));
+
+		sprintf (buf, "%s %s", GAME_STRING (MEGAMOD_STRING_BASE + 9),
+				GAME_STRING (MEGAMOD_STRING_BASE + 10 + Rando));
 		font_DrawText (&t);
 	}
 
@@ -380,7 +380,7 @@ RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 	if (optRequiresRestart)
 	{
 		SetFlashRect (NULL, FALSE);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
+		DoPopupWindow (GAME_STRING (MEGAMOD_STRING_BASE + 0));
 		// Got to restart -message
 		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
 		SetTransitionSource (NULL);
@@ -392,7 +392,7 @@ RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 	else if (!PacksInstalled ())
 	{
 		Flash_pause (pMS->flashContext);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
+		DoPopupWindow (GAME_STRING (MEGAMOD_STRING_BASE + RESOLUTION_FACTOR));
 		// Could not find graphics pack - message
 		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
 		SetTransitionSource (NULL);
@@ -495,7 +495,7 @@ DoRestart (MENU_STATE *pMS)
 				{
 					SetFlashRect (NULL, FALSE);
 					DoPopupWindow (
-							GAME_STRING (MAINMENU_STRING_BASE + 65));
+							GAME_STRING (MEGAMOD_STRING_BASE + 13));
 					// Got to restart -message
 					SetMenuSounds (
 							MENU_SOUND_UP | MENU_SOUND_DOWN,
@@ -602,7 +602,7 @@ DoRestart (MENU_STATE *pMS)
 	else if (MouseButtonDown)
 	{
 		Flash_pause(pMS->flashContext);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
+		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 56));
 				// Mouse not supported message
 		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
 		SetTransitionSource (NULL);
