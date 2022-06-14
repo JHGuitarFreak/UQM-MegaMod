@@ -1813,21 +1813,15 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 					}
 					else
 					{	// Show destination and distance to destination
-						STAR_DESC *SDPtr;
-						UNICODE *buf[256];
-						DWORD dist;
+						UNICODE buf[256];
 						POINT Falayalaralfali =
 								{ ARILOU_HOME_X, ARILOU_HOME_Y };
 						POINT dest = GLOBAL (autopilot);
-						POINT curr = MAKE_POINT (
+						POINT curr = {
 								LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-								LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
-							);
-
-						dist = sqrt (pow (dest.x - curr.x, 2)
-								+ pow (dest.y - curr.y, 2));
-
-						SDPtr = FindStar (NULL, &dest, 1, 1);
+								LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
+						STAR_DESC *SDPtr = FindStar (NULL, &dest, 1, 1);
+						double dist = ptDistance (curr, dest) / 10;
 
 						if (inQuasiSpace ()
 								&& !pointsEqual (dest, Falayalaralfali))
@@ -1841,35 +1835,49 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 
 							GetClusterName (SDPtr, cluster);
 
+							// Show "AUTO-PILOT to [StarName] - [distance]
 							snprintf (buf, sizeof buf,
-									"%s to %s - %03u.%01u",
+									"%s to %s - %.1f",
 									GAME_STRING (
 										NAVIGATION_STRING_BASE + 3),
-									cluster, dist / 10, dist % 10
+									cluster, dist
 								);
 
 							temp.pStr = buf;
 							r = font_GetTextRect (&temp);
 
-							if (r.extent.width > RES_SCALE (172))
+							if (r.extent.width > SIS_MESSAGE_WIDTH)
 							{	// If the full text is too large then use
 								// "->" instead of "AUTO-PILOT"
 								snprintf (buf, sizeof buf,
-										"-> %s - %03u.%01u",
-										cluster, dist / 10, dist % 10
-									);
+										"-> %s - %.1f", cluster, dist);
+
+								temp.pStr = buf;
+								r = font_GetTextRect (&temp);
+								if (r.extent.width > SIS_MESSAGE_WIDTH)
+								{	// If shortened text is *still* too
+									// large then just show distance
+									snprintf (buf, sizeof buf,
+											"%s - %.1f",
+											GAME_STRING (
+												NAVIGATION_STRING_BASE
+												+ 3),
+											dist);
+								}
 							}
 						}
 						else
-						{
+						{	// Show the destination coordinates if the
+							// destination is not a star
+							// AUTO-PILOT to ###.#:###.# - [distance]
 							snprintf (buf, sizeof buf,
 									"%s to %03u.%01u:%03u.%01u"
-									" - %03u.%01u",
+									" - %.1f",
 									GAME_STRING (
 										NAVIGATION_STRING_BASE + 3),
 									dest.x / 10, dest.x % 10,
 									dest.y / 10, dest.y % 10,
-									dist / 10, dist % 10
+									dist
 								);
 						}
 						
@@ -1890,7 +1898,8 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 #define MAX_NUM_RECTS 5 // 5 flashing rects at once should be enough
 #define NUM_RECTS 1
 
-static FlashContext *flashContext[MAX_NUM_RECTS] = { NULL, NULL, NULL, NULL, NULL };
+static FlashContext *flashContext[MAX_NUM_RECTS] =
+		{ NULL, NULL, NULL, NULL, NULL };
 static RECT flash_rect[MAX_NUM_RECTS];
 static Alarm *flashAlarm = NULL;
 static BOOLEAN flashPaused = FALSE;
