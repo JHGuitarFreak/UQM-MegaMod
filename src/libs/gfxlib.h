@@ -23,6 +23,7 @@
 
 #include "port.h"
 #include "libs/compiler.h"
+#include <math.h>
 
 typedef struct Color Color;
 struct Color {
@@ -262,6 +263,22 @@ pointWithinRect (RECT r, POINT p)
 			&& p.y < r.corner.y + r.extent.height;
 }
 
+static inline double
+ptDistance (POINT p1, POINT p2)
+{
+	return (sqrt (pow ((double)p2.x - (double)p1.x, 2)
+			+ pow ((double)p2.y - (double)p1.y, 2)));
+}
+
+static inline double
+calcDistance (COORD x1, COORD y1, COORD x2, COORD y2)
+{
+	double dx = (double)x2 - (double)x1;
+	double dy = (double)y2 - (double)y1;
+
+	return (sqrt (pow (dx, 2) + pow (dy, 2)));
+}
+
 static inline void
 printPt (POINT pt, UNICODE *Str)
 {
@@ -269,7 +286,7 @@ printPt (POINT pt, UNICODE *Str)
 }
 
 static inline void
-printDPt(DPOINT dPt, UNICODE *Str)
+printDPt (DPOINT dPt, UNICODE *Str)
 {
 	printf ("%s = %d x %d\n", Str, dPt.x, dPt.y);
 }
