@@ -421,6 +421,9 @@ LoadIPData (void)
 				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
 
+		SetColorMap(GetColorMapAddress(SetAbsColorMapIndex(
+			SunCMap, STAR_COLOR(CurStarDescPtr->Type))));
+
 		if (!IS_HD)
 			SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
 		else 
@@ -789,6 +792,18 @@ FreeSolarSys (void)
 	
 	StopMusic ();
 
+	if (IS_HD && HDPackPresent)
+	{
+		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
+			i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
+		{
+			DestroyDrawable(ReleaseDrawable(pCurDesc->intersect.frame));
+			pCurDesc->intersect.frame = 0;
+			DestroyDrawable(ReleaseDrawable(pCurDesc->dosIntersect.frame));
+			pCurDesc->dosIntersect.frame = 0;
+		}
+	}
+
 	if (optTexturedPlanets)
 	{
 		// BW: clean up data generated for textured IP planets
@@ -1062,6 +1077,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		BYTE Type;
 		COUNT Size;
 		COUNT angle;
+		BYTE offset;
 
 		Type = PlanData[index].Type;
 		Size = PLANSIZE (Type);
@@ -1109,26 +1125,33 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 			}
 		}
 
-		if (!optTexturedPlanets && isPC (optPlanetStyle))
+		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING(
+			ANGLE_TO_FACING(angle));
+
+		if (!planet->image.frame || (offset != planet->offset_index))
 		{
-			planet->image.frame = SetPlanetOldFrame (
-				(Size << FACING_SHIFT) + NORMALIZE_FACING (
-					ANGLE_TO_FACING (angle)), PLANCOLOR(Type));
+			planet->offset_index = offset;
+			if (!optTexturedPlanets && isPC(optPlanetStyle))
+			{
+				DestroyDrawable(ReleaseDrawable(planet->image.frame));
+				planet->image.frame = 0;
+
+				planet->image.frame = SetPlanetOldFrame(offset, PLANCOLOR(Type));
 #if SDL_MAJOR_VERSION == 1
-			planet->dosIntersect.frame = SetAbsFrameIndex (OrbitalFrame,
+				planet->dosIntersect.frame = SetAbsFrameIndex(OrbitalFrame,
 					(Size << FACING_SHIFT));
 #endif
+			}
+			else
+				planet->image.frame = SetAbsFrameIndex(OrbitalFrame,
+					offset);
 		}
-		else
-			planet->image.frame = SetAbsFrameIndex (OrbitalFrame,
-					(Size << FACING_SHIFT) + NORMALIZE_FACING (
-							ANGLE_TO_FACING (angle)));
 
-		if (IS_HD && HDPackPresent)
+		if (IS_HD && HDPackPresent && !planet->intersect.frame)
 		{
 			planet->intersect.frame =
 					CaptureDrawable (
-							RescalePercentage (planet->image.frame, 50)
+						RescalePercentage (planet->image.frame, 50)
 						);
 #if SDL_MAJOR_VERSION == 1
 			if (!optTexturedPlanets && isPC (optPlanetStyle))
@@ -1142,7 +1165,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 #endif
 		}
 	}
-	else
+	else if (!planet->image.frame && !planet->intersect.frame)
 	{
 		COUNT percent = 0; // HD sprites have differents sizes, so intersect must be calculated accordingly
 
@@ -2221,6 +2244,7 @@ InitSolarSys (void)
 	orbital = LoadSolarSys ();
 	InnerSystem = CheckZoomLevel ();
 	ValidateOrbits ();
+
 	if (InnerSystem)
 		ValidateInnerOrbits ();
 
@@ -2478,8 +2502,6 @@ DrawOuterPlanets (SIZE radius)
 
 		if (pCurDesc == &pSolarSysState->SunDesc[0])
 		{	// It's a sun
-			SetColorMap (GetColorMapAddress (SetAbsColorMapIndex (
-				SunCMap, STAR_COLOR (CurStarDescPtr->Type))));
 			// Core part that animates sun
 			if (IS_HD)
 				AnimateSun (radius);
