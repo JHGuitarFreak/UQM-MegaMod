@@ -188,6 +188,7 @@ struct planet_desc
 	// BW : new stuff for animated solar systems
 	PLANET_ORBIT orbit;				// Link to moon(s)
 	COUNT size;						// size of a planet
+	BYTE offset_index;
 	
 	COUNT angle;
 	int rotFrameIndex, rotPointIndex, rotwidth, rotheight;
