@@ -82,6 +82,8 @@ signedDivWithError (long val, long divisor)
 }
 
 #define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / ORIG_SIS_SCREEN_WIDTH + 1)
+#define MAP_FIT_XX ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + 1)
+
 #define HD_COMP (IF_HD (2))
 
 static inline COORD
@@ -123,6 +125,26 @@ dispyToUniverse (COORD dy)
 }
 #define DISP_TO_UNIVERSEY(dy) dispyToUniverse(RES_DESCALE (dy))
 #define ORIG_DISP_TO_UNIVERSEY(dy) dispyToUniverse(dy)
+
+// Old school HD-mod code for Malin's Sol ellipse.
+COORD UNIVERSE_TO_DISPX2 (COORD ux)
+{
+	long v = signedDivWithError ((((long)ux - mapOrigin.x) << zoomLevel)
+		* SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_XX)
+		+ ((SIS_SCREEN_WIDTH - 1) >> 1);
+	if (v > 32767) { return 32767; }
+	if (v < -32768) { return -32768; }
+	return v;
+}
+COORD UNIVERSE_TO_DISPY2 (COORD uy)
+{
+	long v = signedDivWithError ((((long)mapOrigin.y - uy) << zoomLevel)
+		* SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
+		+ ((SIS_SCREEN_HEIGHT - 1) >> 1);
+	if (v > 32767) { return 32767; }
+	if (v < -32768) { return -32768; }
+	return v;
+}
 
 static BOOLEAN transition_pending;
 
@@ -466,48 +488,115 @@ DrawFuelCircle (BOOLEAN secondary)
 	SetContextForeGroundColor(OldColor);
 }
 
-static void
-DrawFuelEllipse()
-{
-	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
-	int x, y, dx, dy, d, cx, cy, rx, ry, angle;
-	Color OldColor;
+// Begin Malin's fuel to Sol ellipse code
+#define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X)? 1 : 0))
 
-	// calculate distance, angle, center point, and diameters
-	if (!inHQSpace ())
-	{
-		x = CurStarDescPtr->star_pt.x;
-		y = CurStarDescPtr->star_pt.y;
-	}
-	else
-	{
-		x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
-		y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
-	}
-	dx = x - SOL_X;
-	dy = y - SOL_Y;
-	d = (int)(sqrt ((float)dx * dx + (float)dy * dy) + 0.5);
-	if (d >= OnBoardFuel)
+POINT
+GetPointOfEllipse (double a, double b, double radian)
+{
+	double t[2] = { a * cos (radian), b * sin (radian) };
+	return (POINT) { (COORD)MATH_ROUND (t[0]), (COORD)MATH_ROUND (t[1]) };
+}
+
+POINT
+ShiftPoint (POINT p, POINT S)
+{
+	return (POINT) { p.x + S.x, p.y + S.y };
+}
+
+POINT
+RotatePoint (POINT p, POINT Pivot, double radian)
+{
+	double d[2] = { p.x - Pivot.x, p.y - Pivot.y };
+	double cosine[2] = { cos (radian), sin (radian) };
+	double x = Pivot.x + (d[0] * cosine[0] - d[1] * cosine[1]);
+	double y = Pivot.y + (d[0] * cosine[1] + d[1] * cosine[0]);
+
+	return (POINT) { MATH_ROUND (x), MATH_ROUND (y) };
+}
+
+void
+drawEllipse (void)
+{
+	LINE L1;
+	POINT Origin;
+	int i, lines = 50;
+	double ry, dist, radian, rotation;
+	POINT center, sol, sis;
+	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
+
+	sol = (POINT){ SOL_X, SOL_Y };
+	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
+
+	dist = FuelRequiredTo (sol) / 2;
+
+	// do not draw ellipse when fuel is not enough to reach Sol
+	if (dist > halfFuel)
 		return;
-	cx = (x + SOL_X) / 2;
-	cy = (y + SOL_Y) / 2;
-	rx = OnBoardFuel / 2;
-	ry = (int)(sqrt ((float)rx * rx - (float)d * d / 4) + 0.5);
-	angle = (dx == 0) ? 90 : ((atan((float)dy / dx) * 180.0) / M_PI);
+
+	ry = sqrt (pow (halfFuel, 2) - pow (dist, 2));
+	lines = lines + (halfFuel + ry) / 30;
+	center = MAKE_POINT ((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
+	rotation = atan2 (sol.y - sis.y, sol.x - sis.x);
+
+	L1.first = GetPointOfEllipse (halfFuel, ry, 0);
+	L1.first = ShiftPoint (L1.first, center);
+	L1.first = RotatePoint (L1.first, center, rotation);
+	L1.first.x = UNIVERSE_TO_DISPX2 (L1.first.x);
+	L1.first.y = UNIVERSE_TO_DISPY2 (L1.first.y);
+
+	Origin = L1.first;
+
+	for (i = 0; i < lines; i++)
+	{
+		radian = i * 2 * M_PI / lines;
+
+		L1.second = GetPointOfEllipse (halfFuel, ry, radian);
+		L1.second = ShiftPoint (L1.second, center);
+		L1.second = RotatePoint (L1.second, center, rotation);
+		L1.second.x = UNIVERSE_TO_DISPX2 (L1.second.x);
+		L1.second.y = UNIVERSE_TO_DISPY2 (L1.second.y);
+
+		DrawLine (&L1, RES_DBL (1));
+		L1.first = L1.second;
+	}
+}
+
+static void
+DrawFuelEllipse ()
+{
+	Color OldColor;
+	POINT center, sol, sis;
+	double ry, dist, angle;
+	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
+
+	sol = (POINT){ SOL_X, SOL_Y };
+	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
+
+	dist = FuelRequiredTo (sol) / 2;
+
+	if (dist >= halfFuel)
+		return;
+	ry = sqrt (pow (halfFuel, 2) - pow (dist, 2));
+	angle = atan2 (sis.y - sol.y, sis.x - sol.x) * 180.0 / M_PI;
+	center = MAKE_POINT ((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
 
 	// convert starmap coords to screen coords
-	cx = UNIVERSE_TO_DISPX (cx) + HD_COMP;
-	cy = UNIVERSE_TO_DISPY (cy) + HD_COMP;
-	rx = UNIVERSE_TO_DISPX (rx) - UNIVERSE_TO_DISPX (0);
-	if (rx < 0)
-		rx = -rx;
+	center.x = UNIVERSE_TO_DISPX (center.x) + HD_COMP;
+	center.y = UNIVERSE_TO_DISPY (center.y) + HD_COMP;
+
+	halfFuel = UNIVERSE_TO_DISPX (halfFuel) - UNIVERSE_TO_DISPX (0);
+	if (halfFuel < 0)
+		halfFuel = -halfFuel;
 	ry = UNIVERSE_TO_DISPY (ry) - UNIVERSE_TO_DISPY (0);
 	if (ry < 0)
 		ry = -ry;
 
 	// draw
 	OldColor = SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-	DrawRotatedEllipse (cx, cy, rx, ry, angle, 1, 0);
+	DrawRotatedEllipse (center.x, center.y, halfFuel, ry, angle, 1, 0);
 	SetContextForeGroundColor (OldColor);
 }
 
@@ -684,16 +773,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_starmap != CONSTELLATION_MAP
 			&& (race_update == 0 && which_space < 2)
 			&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
-	{	// Draw the fuel range circle (and return-to-Sol ellipse?)
+	{	// Draw the fuel range circle
 		DrawFuelCircle (FALSE);
-
-		if (optFuelRange)
-			DrawFuelEllipse ();
 	}
 
 	{	// Horizontal lines
 		r.corner.x = UNIVERSE_TO_DISPX (0);
-		r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel) - (RES_SCALE (1) << zoomLevel);
+		r.extent.width = (SIS_SCREEN_WIDTH << zoomLevel)
+				- (RES_SCALE (1) << zoomLevel);
 		r.extent.height = RES_SCALE (1);
 
 		for (i = MAX_Y_UNIVERSE; i >= 0; i -= GRID_DELTA)
@@ -729,11 +816,16 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_starmap != CONSTELLATION_MAP
 		&& (race_update == 0 && which_space < 2)
 		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0)
-		&& optFuelRange
-		&& GLOBAL (autopilot.x) != ~0
-		&& GLOBAL (autopilot.y) != ~0)
+		&& optFuelRange)
 	{	// Draw the autopilot fuel range circle (on top of the grid)
-		DrawFuelCircle (TRUE);
+		Color OldColor;
+
+		if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
+			DrawFuelCircle (TRUE);
+
+		OldColor = SetContextForeGroundColor (DKGRAY_COLOR);
+		drawEllipse ();
+		SetContextForeGroundColor (OldColor);
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);

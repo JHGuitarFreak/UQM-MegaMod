@@ -391,12 +391,12 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 	int s = shear;
 	int d = 0;
 	const int sRound = (shear < 0) ? -(rx / 2) : (rx / 2);
-	long dex = 2 * (long)ry * ry;
-	long ex = (long)ry * ry - (long)rx * dex;
-	long dey = 2 * (long)rx * rx;
-	long ey = (long)rx * rx;
-	long e = ex + ey;
-	long e2;
+	FWORD dex = 2 * (long)ry * ry;
+	FWORD ex = (long)ry * ry - (long)rx * dex;
+	FWORD dey = 2 * (long)rx * rx;
+	FWORD ey = (long)rx * rx;
+	FWORD e = ex + ey;
+	FWORD e2;
 
 	if (rx < 0)
 		rx = 0;
@@ -418,7 +418,7 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 		if (!filled && !d--)
 		{
 			d = dotted;
-			s = (int)(((long)x * shear + sRound) / rx);
+			s = (int)(((FWORD)x * shear + sRound) / rx);
 			DrawEllipseQuadrants (cx, cy, x, y, -s, 0);
 		}
 
@@ -427,7 +427,7 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 		{
 			if (filled)
 			{
-				s = (int)(((long)x * shear + sRound) / rx);
+				s = (int)(((FWORD)x * shear + sRound) / rx);
 				DrawEllipseQuadrants (cx, cy, x, y, -s, 1);
 			}
 			x--;
