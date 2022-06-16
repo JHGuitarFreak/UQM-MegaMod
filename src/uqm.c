@@ -200,6 +200,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, meleeObstacles);
 	DECL_CONFIG_OPTION(bool, showVisitedStars);
 	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
+	DECL_CONFIG_OPTION(int,  scanSphere);
+	DECL_CONFIG_OPTION(int,  nebulaevol);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -403,7 +405,9 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  deCleansing,       false ),
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
-		INIT_CONFIG_OPTION(  unscaledStarSystem,    false ),
+		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
+		INIT_CONFIG_OPTION(  scanSphere,        OPT_PC ),
+		INIT_CONFIG_OPTION(  nebulaevol,        25),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -589,12 +593,12 @@ main (int argc, char *argv[])
 	optAddDevices = options.addDevices.value;
 	optCustomBorder = options.customBorder.value;
 	optCustomSeed = options.customSeed.value;
-	optRequiresReload = FALSE; 
-	optRequiresRestart = FALSE; 
+	optRequiresReload = FALSE;
+	optRequiresRestart = FALSE;
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
-	optDirectionalJoystick = options.directionalJoystick.value; // For Android
+	optDirectionalJoystick = options.directionalJoystick.value;
 	optLanderHold = options.landerHold.value;
 	optIPScaler = options.ipTrans.value;
 	optDifficulty = options.optDifficulty.value;
@@ -622,6 +626,8 @@ main (int argc, char *argv[])
 	optMeleeObstacles = options.meleeObstacles.value;
 	optShowVisitedStars = options.showVisitedStars.value;
 	optUnscaledStarSystem = options.unscaledStarSystem.value;
+	optScanSphere = options.scanSphere.value;
+	optNebulaeVolume = options.nebulaevol.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1029,6 +1035,14 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->showVisitedStars, "mm.showVisitedStars");
 
 	getBoolConfigValue (&options->unscaledStarSystem, "mm.unscaledStarSystem");
+
+	getBoolConfigValueXlat (&options->scanSphere, "mm.scanSphere",
+		OPT_3DO, OPT_PC);
+
+	if (res_IsInteger ("mm.nebulaevol") && !options->nebulaevol.set)
+	{
+		options->nebulaevol.value = res_GetInteger ("mm.nebulaevol");
+	}
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1119,8 +1133,10 @@ enum
 	NOMELEEOBJ_OPT,
 	SHOWSTARS_OPT,
 	UNSCALEDSS_OPT,
+	SCANSPH_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
+	NEBUVOL_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1220,6 +1236,8 @@ static struct option longOptions[] =
 	{"nomeleeobstacles", 0, NULL, NOMELEEOBJ_OPT},
 	{"showvisitstars", 0, NULL, SHOWSTARS_OPT},
 	{"unscaledstarsystem", 0, NULL, UNSCALEDSS_OPT},
+	{"scansphere", 1, NULL, SCANSPH_OPT},
+	{"nebulaevol", 1, NULL, NEBUVOL_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1795,12 +1813,35 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case UNSCALEDSS_OPT:
 				setBoolOption (&options->unscaledStarSystem, true);
 				break;
+			case SCANSPH_OPT:
+				if (!setChoiceOption (&options->scanSphere, optarg))
+				{
+					InvalidArgument (optarg, "--scansphere");
+					badArg = true;
+				}
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
 			case LOADGAME_OPT:
 				optLoadGame = TRUE;
 				break;
+			case NEBUVOL_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Nebulae Volume") == -1) {
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 50) {
+					saveError ("\nNebulae volume has to be between 0-50\n");
+					badArg = true;
+				} else {
+					options->nebulaevol.value = temp;
+					options->nebulaevol.set = true;
+				}
+				break;
+			}
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -2138,6 +2179,10 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --unscaledstarsystem : Show the classic HD-mod "
 			" Beta Star System view (default: %s)",
 			boolOptString (&defaults->unscaledStarSystem));
+	log_add (log_User, "  --scansphere : Choose between either the PC"
+			" or 3DO scan sphere styles (default: %s)",
+			choiceOptString (&defaults->scanSphere));
+	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
 
 	log_setOutput (old);
 }

@@ -46,7 +46,7 @@ enum PlanetScanTypes
 #define ORIGINAL_MAP_HEIGHT (optPlanetTexture ? UQM_MAP_HEIGHT : SC2_MAP_HEIGHT)
 #define MAP_WIDTH RES_SCALE (UQM_MAP_WIDTH)
 #define MAP_HEIGHT RES_SCALE (SC2_MAP_HEIGHT)
-#define SCALED_MAP_WIDTH RES_SCALE (optSuperPC != OPT_PC ? UQM_MAP_WIDTH : SC2_MAP_WIDTH)
+#define SCALED_MAP_WIDTH RES_SCALE (is3DO (optSuperPC) ? UQM_MAP_WIDTH : SC2_MAP_WIDTH)
 
 enum
 {
@@ -67,8 +67,8 @@ enum
 	LANDER_DESTROYED
 };
 
-#define MAX_SCROUNGED (optSuperPC == OPT_PC ? 64 : 50) /* max units lander can hold (was 64 in SC2 DOS) */
-#define MAX_HOLD_BARS (optSuperPC == OPT_PC ? 64 : 50) /* number of bars on the lander screen */
+#define MAX_SCROUNGED (isPC (optSuperPC) ? 64 : 50) /* max units lander can hold (was 64 in SC2 DOS) */
+#define MAX_HOLD_BARS (isPC (optSuperPC) ? 64 : 50) /* number of bars on the lander screen */
 
 #define SCALE_RADIUS(r) ((r) << 6)
 #define UNSCALE_RADIUS(r) ((r) >> 6)
@@ -153,15 +153,15 @@ struct planet_orbit
 			// temp RGBA data for whatever transforms (nuked often)
 	FRAME WorkFrame;
 			// any extra frame workspace (for dynamic objects)
-	COUNT scanType;
 	// BW: extra stuff for animated IP
 	DWORD **light_diff;
 	MAP3D_POINT **map_rotate;
 	// doubly dynamically allocated depending on map size
 
-	BYTE* spherePixels;
-	BYTE* dosMask;
+	// stuff to draw DOS spheres
+	FRAME TopoMask;
 	COLORMAP sphereMap;
+	COUNT scanType;
 };
 
 #if defined(__cplusplus)
@@ -170,31 +170,37 @@ extern "C" {
 
 struct planet_desc
 {
-	DWORD rand_seed;
+	DWORD rand_seed;				// seed for topography and node generation
 
-	BYTE data_index;
-	BYTE NumPlanets;
-	SIZE radius;
-	COUNT angle;
-	POINT location;
-	double orb_speed;
-	double rot_speed;
+	BYTE data_index;				// what planet is this
+	BYTE NumPlanets;				// number of moons
+	SIZE radius;					// radius of planet orbit
+	POINT location;					// coords on screen
 
-	Color temp_color;
-	COUNT NextIndex;
-	STAMP image;
-	STAMP intersect, dosIntersect;
+	Color temp_color;				// color of planet orbit
+	COUNT NextIndex;				// index to a next planet
+	STAMP image;					// image of a planet in IP view
+	STAMP intersect, dosIntersect;	// special cases for HD and DOS planets in SDL1
 
 	PLANET_DESC *pPrevDesc;
 			// The Sun or planet that this world is orbiting around.
-	// BW : new stuff for animated solar systems
-	PLANET_ORBIT orbit;
-	COUNT size;
-	int rotFrameIndex, rotPointIndex, rotDirection, rotwidth, rotheight;
 	
-	RESOURCE alternate_colormap; // JMS: Special color maps for Sol system planets
+	// BW : new stuff for animated solar systems
+	PLANET_ORBIT orbit;				// Link to moon(s)
+	COUNT size;						// size of a planet
+	
+	COUNT angle;
+	int rotFrameIndex, rotPointIndex, rotwidth, rotheight;
+	double orb_speed;
+	double rot_speed;
+			// Handles rotation and orbiting
+
+	RESOURCE alternate_colormap;
+			// JMS: Special color maps for Sol system planets
+
 	BYTE PlanetByte;
 	BYTE MoonByte;
+			// Handles hard coded planets/moons for Custom Seed
 };
 
 struct star_desc
@@ -306,6 +312,7 @@ extern SOLARSYS_STATE *pSolarSysState;
 extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
 extern BOOLEAN actuallyInOrbit;
+extern BOOLEAN useDosSpheres;
 
 // Random context used for all solar system, planets and surfaces generation
 extern RandomContext *SysGenRNG;
@@ -328,6 +335,7 @@ POINT locationToDisplay (POINT pt, SIZE scaleRadius);
 POINT displayToLocation (POINT pt, SIZE scaleRadius);
 POINT planetOuterLocation (COUNT planetI);
 
+extern void DestroyOrbitStruct (PLANET_ORBIT *Orbit, SIZE height);
 extern void LoadPlanet (FRAME SurfDefFrame);
 extern void DrawPlanet (int dy, Color tintColor);
 extern void DrawPCScanTint (COUNT cur_scan);
@@ -356,6 +364,7 @@ extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameC
 extern void DrawPlanetSphere (int x, int y);
 extern void DrawDefaultPlanetSphere (void);
 extern void RerenderPlanetSphere (void);
+extern void RenderDOSPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame,
 		int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width,
 		COUNT height, COUNT radius, BOOLEAN ForIP);

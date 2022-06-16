@@ -590,7 +590,7 @@ static BOOLEAN
 DoSettings (MENU_STATE *pMS)
 {
 	BYTE cur_speed, read_speed;
-	static BYTE i;
+	static BYTE i = 0;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;

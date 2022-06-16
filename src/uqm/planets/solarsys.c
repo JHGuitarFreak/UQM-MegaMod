@@ -773,7 +773,7 @@ saveNonOrbitalLocation (void)
 static void
 FreeSolarSys (void)
 {
-	COUNT i, j;
+	COUNT i;
 	PLANET_DESC *pCurDesc;
 
 	if (pSolarSysState->InIpFlight)
@@ -795,23 +795,8 @@ FreeSolarSys (void)
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 			 i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
-			PLANET_ORBIT *Orbit = &pCurDesc->orbit;
-			HFree (Orbit->lpTopoData);
-			Orbit->lpTopoData = 0;
-			DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-			Orbit->SphereFrame = NULL;
-		
-			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-			Orbit->ObjectFrame = 0;
-			DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-			Orbit->WorkFrame = 0;
-		
+			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
 			// JMS: Not sure if these do any good...
-			DestroyDrawable (ReleaseDrawable (pSolarSysState->Orbit.TintFrame));
-			pSolarSysState->Orbit.TintFrame = 0;
-			pSolarSysState->Orbit.TintColor = BLACK_COLOR;
-			DestroyDrawable (ReleaseDrawable (pSolarSysState->Orbit.TopoZoomFrame));
-			pSolarSysState->Orbit.TopoZoomFrame = 0;
 			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
 			DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
@@ -819,25 +804,7 @@ FreeSolarSys (void)
 			DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
 			pSolarSysState->OrbitalCMap = 0;
 			// JMS ends.
-		
-			HFree (Orbit->TopoColors);
-			Orbit->TopoColors = NULL;
-			HFree (Orbit->ScratchArray);
-			Orbit->ScratchArray = NULL;
-			if (Orbit->map_rotate && Orbit->light_diff)
-			{
-				for (j = 0; j <= PLANET_DIAMETER; j++)
-				{
-					HFree (Orbit->map_rotate[j]);
-					HFree (Orbit->light_diff[j]);
-				}
-			}
- 
-			HFree (Orbit->map_rotate);
-			Orbit->map_rotate = NULL;
-			HFree (Orbit->light_diff);
-			Orbit->light_diff = NULL;
-		}	
+		}
 
 		// BW: if we were in Inner System, clean up data for textured IP moons
 		if (playerInInnerSystem ())
@@ -853,38 +820,11 @@ FreeSolarSys (void)
 			{
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
 				{
-					PLANET_ORBIT *Orbit = &pCurDesc->orbit;
-					int diameterPick =
+					SIZE diameterPick =
 							pCurDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
-							LARGE_MOON_DIAMETER : MOON_DIAMETER;
-			
-					HFree (Orbit->lpTopoData);
-					Orbit->lpTopoData = 0;
-					DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-					Orbit->SphereFrame = NULL;
-			
-					DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-					Orbit->ObjectFrame = 0;
-					DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-					Orbit->WorkFrame = 0;
-			
-					HFree (Orbit->TopoColors);
-					Orbit->TopoColors = NULL;
-					HFree (Orbit->ScratchArray);
-					Orbit->ScratchArray = NULL;
-					if (Orbit->map_rotate && Orbit->light_diff)
-					{
-						for (j = 0; j <= diameterPick; j++)
-						{
-							HFree (Orbit->map_rotate[j]);
-							HFree (Orbit->light_diff[j]);
-						}
-					}
-				
-					HFree (Orbit->map_rotate);
-					Orbit->map_rotate = NULL;
-					HFree (Orbit->light_diff);
-					Orbit->light_diff = NULL;
+						LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+					DestroyOrbitStruct (&pCurDesc->orbit, diameterPick);
 				}
 			}
 		}
@@ -1524,7 +1464,7 @@ static void
 leaveInnerSystem (PLANET_DESC *planet)
 {
 	COUNT outerPlanetWait;
-	COUNT i, j;
+	COUNT i;
 	PLANET_DESC *pMoonDesc;
 
 	pSolarSysState->pBaseDesc = pSolarSysState->PlanetDesc;
@@ -1549,36 +1489,11 @@ leaveInnerSystem (PLANET_DESC *planet)
 		{
 			if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
 			{
-				PLANET_ORBIT *Orbit = &pMoonDesc->orbit;
-				int diameterPick =
+				SIZE diameterPick =
 					pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 					LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
-				HFree (Orbit->lpTopoData);
-				Orbit->lpTopoData = 0;
-				DestroyDrawable (ReleaseDrawable (Orbit->SphereFrame));
-				Orbit->SphereFrame = NULL;
-		
-				DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-				Orbit->ObjectFrame = 0;
-				DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
-				Orbit->WorkFrame = 0;
-
-				HFree (Orbit->TopoColors);
-				Orbit->TopoColors = NULL;
-				HFree (Orbit->ScratchArray);
-				Orbit->ScratchArray = NULL;
-				if (Orbit->map_rotate && Orbit->light_diff) {
-					for (j = 0; j <= diameterPick; j++) {
-						HFree (Orbit->map_rotate[j]);
-						HFree (Orbit->light_diff[j]);
-					}
-				}
-
-				HFree (Orbit->map_rotate);
-				Orbit->map_rotate = NULL;
-				HFree (Orbit->light_diff);
-				Orbit->light_diff = NULL;
+				DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
 			}
 		}
 	}	// End clean up
@@ -2603,7 +2518,7 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	{
 		// BW: This to test if we have already rendered 
 		if (!pSolarSysState->PlanetDesc->orbit.lpTopoData)
-			GenerateTexturedPlanets();
+			GenerateTexturedPlanets ();
 	}
 
 	if (!SolarSysFrame)
@@ -2668,6 +2583,68 @@ DrawStarBackGround (void)
 	s.origin.y = 0;
 	s.frame = StarsFrame;
 	DrawStamp (&s);
+}
+
+FRAME
+BrightenNebula (FRAME nebula, BYTE factor)
+{
+	COUNT x, y;
+	Color *pix;
+	Color *map;
+	RECT r;
+	COUNT width, height;
+	float f;
+
+	GetFrameRect (nebula, &r);
+	width = r.extent.width;
+	height = r.extent.height;
+
+	map = HMalloc (sizeof (Color) * width * height);
+	ReadFramePixelColors (nebula, map, width, height);
+
+	pix = map;
+
+	for (y = 0; y < height; ++y)
+	{
+		for (x = 0; x < width; ++x, ++pix)
+		{
+			f = (pix->a << 2) * ((float)factor / 100);
+
+			if (f > 0xC0)
+				pix->a = 0xC0;
+			else
+				pix->a = (BYTE)f;
+		}
+	}
+
+	WriteFramePixelColors (nebula, map, width, height);
+
+	HFree (map);
+
+	return nebula;
+}
+
+void
+DrawNebula (POINT star_point)
+{
+	FRAME NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
+	const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
+	const POINT solPoint = { SOL_X, SOL_Y };
+	STAMP s;
+
+	if ((star_point.y % (numNebulae + 6)) < numNebulae
+			|| classicPackPresent)
+	{
+		s.origin = MAKE_POINT (0, 0);
+		s.frame =
+				SetAbsFrameIndex (NebulaeFrame, star_point.x % numNebulae);
+		if (optNebulaeVolume != 24)
+			s.frame = BrightenNebula (s.frame, optNebulaeVolume);
+		if (!pointsEqual (star_point, solPoint) || classicPackPresent)
+			DrawStamp (&s);
+	}
+	DestroyDrawable (ReleaseDrawable (NebulaeFrame));
+	NebulaeFrame = 0;
 }
 
 FRAME
@@ -2759,18 +2736,7 @@ CreateStarBackGround (BOOLEAN encounter)
 	}
 
 	if (optNebulae)
-	{
-		const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
-		const POINT solPoint = { SOL_X, SOL_Y };
-
-		if ((starPoint.y % (numNebulae + 6)) < numNebulae || classicPackPresent)
-		{
-			s.origin = MAKE_POINT (0, 0);
-			s.frame = SetAbsFrameIndex (NebulaeFrame, starPoint.x % numNebulae);
-			if (!pointsEqual (starPoint, solPoint) || classicPackPresent)
-				DrawStamp (&s);
-		}
-	}
+		DrawNebula (starPoint);
 
 	SetContext (oldContext);
 

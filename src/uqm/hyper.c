@@ -1922,7 +1922,7 @@ SeedUniverse (void)
 				
 					// JMS_GFX: Don't draw hole for arilou homeworld - it already has a nice planet gfx.
 					if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY && !IS_HD)
-						continue;				
+						continue;
 				}
 				
 				// BW: and then the animated hyperspace portal
@@ -1947,15 +1947,15 @@ SeedUniverse (void)
 						STAR_TYPE (star_type) * NUM_HOLES_FRAMES);
 					
 					// Green, orange and yellow need bigger holes
-					if (STAR_COLOR (star_type) == GREEN_BODY 
-						|| STAR_COLOR (star_type) == ORANGE_BODY 
+					if (STAR_COLOR (star_type) == GREEN_BODY
+						|| STAR_COLOR (star_type) == ORANGE_BODY
 						|| STAR_COLOR (star_type) == YELLOW_BODY)
 						HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
 							HyperSpaceElementPtr->current.image.frame,
 							NUM_HOLES_FRAMES);
 					
 					// Super giant blue needs a bigger hole
-					if (STAR_COLOR (star_type) == BLUE_BODY 
+					if (STAR_COLOR (star_type) == BLUE_BODY
 						&& STAR_TYPE (star_type) == SUPER_GIANT_STAR)
 						HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
 							HyperSpaceElementPtr->current.image.frame,
@@ -1988,7 +1988,7 @@ SeedUniverse (void)
 				}
 				UnlockElement (hHyperSpaceElement);
 				
-				InsertElement (hHyperSpaceElement, GetHeadElement ());	
+				InsertElement (hHyperSpaceElement, GetHeadElement ());
 			}
 		}
 		ProcessEncounters (&universe, ox, oy);
@@ -2001,7 +2001,7 @@ SeedUniverse (void)
 
 
 	if (!IS_HD)
-	{	// draws borders to mini-map		
+	{	// draws borders to mini-map
 		RECT r;
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x0E, 0x0E, 0x0E), 0x00));

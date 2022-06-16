@@ -880,7 +880,7 @@ PickPlanetSide (void)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &PickState;
 
-	if (optSuperPC != OPT_PC)
+	if (is3DO (optSuperPC))
 		ClearSISRect (CLEAR_SIS_RADAR);
 
 	SetContext (ScanContext);
@@ -894,7 +894,7 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	if (optSuperPC != OPT_PC)
+	if (is3DO (optSuperPC))
 		InitLander (0);
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
@@ -1281,9 +1281,11 @@ ScanPlanet (COUNT scanType)
 	SetContext (ScanContext);
 	pSolarSysState->Orbit.scanType = NUM_SCAN_TYPES;
 
+	if (optScanStyle == OPT_PC || useDosSpheres)
+		RerenderPlanetSphere ();
+
 	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)
 	{	// clear the last scan
-		RerenderPlanetSphere ();
 		DrawPlanet (0, BLACK_COLOR);
 		DrawDefaultPlanetSphere ();
 		DrawScannedObjects (FALSE);

@@ -157,7 +157,7 @@ extern PRIM_LINKS DisplayLinks;
 #define ADD_AT_END (1 << 4)
 #define REPAIR_COUNT (0xf)
 
-#define LANDER_SPEED_DENOM (optSuperPC == OPT_PC ? 14 : 10)
+#define LANDER_SPEED_DENOM (isPC (optSuperPC) ? 14 : 10)
 
 static BYTE lander_flags;
 static POINT curLanderLoc;
@@ -490,8 +490,8 @@ object_animation (ELEMENT *ElementPtr)
 		lander_flags |= ADD_AT_END;
 }
 
-#define NUM_CREW_COLS (optSuperPC != OPT_PC ? 6 : 3)
-#define NUM_CREW_ROWS (optSuperPC != OPT_PC ? 2 : 4)
+#define NUM_CREW_COLS (is3DO (optSuperPC) ? 6 : 3)
+#define NUM_CREW_ROWS (is3DO (optSuperPC) ? 2 : 4)
 
 static void
 DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
@@ -518,10 +518,10 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 		{	// No shield, or it did not help
 			if (optPrecursorMode < OPTVAL_HORUS)
 			{
-				shieldHit = 0; 
-				--crew_left; 
+				shieldHit = 0;
+				--crew_left;
 			} else 
-				shieldHit = 1; 
+				shieldHit = 1;
 		}
 
 		damage_index = DAMAGE_CYCLE;
@@ -535,17 +535,20 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 	}
 
-
-	if(optSuperPC != OPT_PC)
+	if(is3DO (optSuperPC))
 	{
-		s.origin.x = RES_SCALE (11) + (RES_SCALE (6) * (crew_delta % NUM_CREW_COLS));
-		s.origin.y = RES_SCALE (35) - (RES_SCALE (6) * (crew_delta / NUM_CREW_COLS));
+		s.origin.x = RES_SCALE (11) + (RES_SCALE (6)
+				* (crew_delta % NUM_CREW_COLS));
+		s.origin.y = RES_SCALE (35) - (RES_SCALE (6)
+				* (crew_delta / NUM_CREW_COLS));
 		OldContext = SetContext (RadarContext);
 	}
 	else
 	{
-		s.origin.x = RES_SCALE (6) + (RES_SCALE (6) * (crew_delta % NUM_CREW_COLS));
-		s.origin.y = RES_SCALE (39) - (RES_SCALE (6) * (crew_delta / NUM_CREW_COLS));
+		s.origin.x = RES_SCALE (6) + (RES_SCALE (6)
+				* (crew_delta % NUM_CREW_COLS));
+		s.origin.y = RES_SCALE (39) - (RES_SCALE (6)
+				* (crew_delta / NUM_CREW_COLS));
 		OldContext = SetContext (PCLanderContext);
 	}
 
@@ -570,7 +573,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		start_count = pPSD->BiologicalLevel;
 
 		s.frame = SetAbsFrameIndex (
-				(optSuperPC == OPT_PC ? LanderFrame[7] : LanderFrame[0]), 41);
+				(isPC (optSuperPC) ? LanderFrame[7] : LanderFrame[0]), 41);
 
 		pPSD->BiologicalLevel += NumRetrieved;
 	}
@@ -585,7 +588,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 		}
 
 		s.frame = SetAbsFrameIndex (
-			(optSuperPC == OPT_PC ? LanderFrame[7] : LanderFrame[0]), 43);
+			(isPC (optSuperPC) ? LanderFrame[7] : LanderFrame[0]), 43);
 	}
 
 	tmpholdint = ((start_count + NumRetrieved) * MAX_HOLD_BARS / MAX_SCROUNGED)
@@ -599,7 +602,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
-	if(optSuperPC == OPT_PC)
+	if (isPC (optSuperPC))
 		OldContext = SetContext (PCLanderContext);
 	else
 		OldContext = SetContext (RadarContext);
@@ -931,7 +934,7 @@ CheckObjectCollision (COUNT index)
 					else if (scan == ENERGY_SCAN)
 					{
 						// noop; handled by generation funcs, see below
-						if (optSuperPC == OPT_PC)
+						if (isPC (optSuperPC))
 						{
 							if (!IS_HD)
 							{
@@ -1099,8 +1102,8 @@ lightning_process (ELEMENT *ElementPtr)
 			}
 
 			pPrim->Object.Stamp.frame =
-					 SetAbsFrameIndex (pPrim->Object.Stamp.frame,
-					 TFB_Random () % num_frames);
+					SetAbsFrameIndex (pPrim->Object.Stamp.frame,
+					TFB_Random () % num_frames);
 		}
 
 		ElementPtr->turn_wait += HINIBBLE (ElementPtr->turn_wait);
@@ -1369,7 +1372,7 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	
 	curLanderLoc = new_pt;
 
-	if (optSuperPC != OPT_PC)
+	if (is3DO (optSuperPC))
 		OldContext = SetContext (PlanetContext);
 	else
 		OldContext = SetContext (RadarContext);
@@ -1458,7 +1461,7 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 			--pPSD->NumFrames;
 			SetContextForeGroundColor (pPSD->ColorCycle[pPSD->NumFrames >> 1]);
 
-			if (optSuperPC == OPT_PC)
+			if (isPC (optSuperPC))
 			{
 				pPSD->MineralText[0].baseline.x = RADAR_WIDTH >> 1;
 				pPSD->MineralText[0].baseline.y = RES_SCALE (8); // original value
@@ -1537,10 +1540,11 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 
 		Now = GetTimeCounter ();
 
-		if (!isLanding && optSuperPC == OPT_PC && Now >= psNextTime)
+		if (!isLanding && isPC (optSuperPC) && Now >= psNextTime)
 		{
 			// 10 to clear the lander off of the screen
-			ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10)));
+			ScrollPlanetSide (0, 0,
+					-(MapSurface.height / 2 + RES_SCALE (10)));
 			psNextTime = Now + PLANET_SIDE_RATE;
 		}
 
@@ -1571,7 +1575,7 @@ AnimateLanderWarmup (void)
 	CONTEXT OldContext;
 	TimeCount TimeIn = GetTimeCounter ();
 
-	if(optSuperPC != OPT_PC)
+	if(is3DO (optSuperPC))
 		OldContext = SetContext (RadarContext);
 	else
 		OldContext = SetContext (PCLanderContext);
@@ -1580,7 +1584,7 @@ AnimateLanderWarmup (void)
 	s.origin.y = 0;
 
 	s.frame = SetAbsFrameIndex (
-			optSuperPC != OPT_PC ? LanderFrame[0] : LanderFrame[7],
+			is3DO (optSuperPC) ? LanderFrame[0] : LanderFrame[7],
 			(ANGLE_TO_FACING (FULL_CIRCLE) << 1) + 1);
 
 	DrawStamp (&s);
@@ -1654,7 +1658,7 @@ InitPlanetSide (POINT pt)
 	else if (pt.y >= (MAP_HEIGHT << MAG_SHIFT))
 		pt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
 
-	if (optSuperPC == OPT_PC)
+	if (isPC (optSuperPC))
 	{
 		SetContext (RadarContext);
 		ClearSISRect (CLEAR_SIS_RADAR);
@@ -1700,7 +1704,7 @@ InitPlanetSide (POINT pt)
 			s.origin.x -= SCALED_MAP_WIDTH << (MAG_SHIFT + 1);
 			DrawStamp (&s);
 
-			if (optSuperPC == OPT_PC)
+			if (isPC (optSuperPC))
 			{
 				if (!IS_HD)
 				{
@@ -1742,7 +1746,7 @@ InitPlanetSide (POINT pt)
 static void
 LanderFire (SIZE facing)
 {
-#define SHUTTLE_FIRE_WAIT optSuperPC == OPT_PC ? 10 : 14
+#define SHUTTLE_FIRE_WAIT (isPC (optSuperPC) ? 10 : 14)
 	HELEMENT hWeaponElement;
 	SIZE wdx, wdy;
 	ELEMENT *WeaponElementPtr;
@@ -1834,7 +1838,7 @@ DoPlanetSide (LanderInputState *pMS)
 	SIZE dx = 0;
 	SIZE dy = 0;
 
-#define SHUTTLE_TURN_WAIT (optSuperPC == OPT_PC ? 1 : 3)
+#define SHUTTLE_TURN_WAIT (isPC (optSuperPC) ? 1 : 3)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
 
@@ -2048,7 +2052,7 @@ ReturnToOrbit (void)
 	CONTEXT OldContext;
 	RECT r;
 
-	if (optSuperPC != OPT_PC)
+	if (is3DO (optSuperPC))
 	{
 		OldContext = SetContext (PlanetContext);
 		GetContextClipRect (&r);
@@ -2077,7 +2081,7 @@ ReturnToOrbit (void)
 		BatchGraphics ();
 		ClearDrawable ();// TODO: color this frame smh
 
-		if (optSuperPC == OPT_PC)
+		if (isPC (optSuperPC))
 		{
 			if (!IS_HD)
 			{
@@ -2237,9 +2241,15 @@ GetThermalHazardRating (int temp)
 static BYTE
 GetHazardChance (int hazardType, unsigned HazardRating)
 {
-	static const BYTE TectonicsChanceTab[] = {0*3, 0*3, 1*3, 2*3, 4*3,  8*3, 16*3, 32*3};
-	static const BYTE WeatherChanceTab  [] = {0*3, 0*3, 1*3, 2*3, 3*3,  6*3, 12*3, 24*3};
-	static const BYTE FireChanceTab     [] = {0*3, 0*3, 1*3, 2*3, 4*3, 12*3, 24*3, 48*3};
+	BYTE TectonicsChanceTab[] = {0*3, 0*3, 1*3, 2*3, 4*3,  8*3, 16*3, 32*3};
+	BYTE WeatherChanceTab  [] = {0*3, 0*3, 1*3, 2*3, 3*3,  6*3, 12*3, 24*3};
+	BYTE FireChanceTab     [] = {0*3, 0*3, 1*3, 2*3, 4*3, 12*3, 24*3, 48*3};
+
+	if (EXTENDED)
+	{
+		TectonicsChanceTab[1] = 1;
+		WeatherChanceTab[1] = 1;
+	}
 
 	switch (hazardType)
 	{
@@ -2347,7 +2357,7 @@ PlanetSide (POINT planetLoc)
 
 			LandingTakeoffSequence (&landerInputState, FALSE);
 
-			if (optSuperPC != OPT_PC)
+			if (is3DO (optSuperPC))
 				ReturnToOrbit ();
 
 			AnimateLaunch (LanderFrame[6], FALSE);
@@ -2367,7 +2377,7 @@ PlanetSide (POINT planetLoc)
 
 			GLOBAL_SIS (TotalBioMass) += PSD.BiologicalLevel;
 
-			if (optSuperPC == OPT_PC)
+			if (isPC (optSuperPC))
 			{
 				ReturnToOrbit ();
 				InitPCLander (FALSE);

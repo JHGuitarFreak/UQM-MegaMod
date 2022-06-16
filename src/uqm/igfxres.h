@@ -30,6 +30,7 @@
 #define CREW_SML_MASK_PMAP_ANIM "graphics.crew.small"
 #define DOS_ORBPLAN_MASK_PMAP_ANIM "graphics.dos.planets"
 #define EARTH_MASK_ANIM "graphics.earthmask"
+#define DOS_SHIELD_MASK_ANIM "graphics.dos.shield"
 #define EGG_CASE_MASK_PMAP_ANIM "graphics.eggcase"
 #define EUROPA_MASK_ANIM "graphics.europamask"
 #define EXCAVATION_SITE_MASK_PMAP_ANIM "graphics.excavationsite"

@@ -482,14 +482,17 @@ static int
 advance_utwig_supox_mission (int arg)
 {
 	BYTE MissionState;
-	HFLEETINFO hUtwig, hSupox;
+	HFLEETINFO hUtwig, hSupox, hKohrAh;
 	FLEET_INFO *UtwigPtr;
 	FLEET_INFO *SupoxPtr;
+	FLEET_INFO *KohrAhPtr;
 
 	hUtwig = GetStarShipFromIndex (&GLOBAL (avail_race_q), UTWIG_SHIP);
 	UtwigPtr = LockFleetInfo (&GLOBAL (avail_race_q), hUtwig);
 	hSupox = GetStarShipFromIndex (&GLOBAL (avail_race_q), SUPOX_SHIP);
 	SupoxPtr = LockFleetInfo (&GLOBAL (avail_race_q), hSupox);
+	hKohrAh = GetStarShipFromIndex (&GLOBAL (avail_race_q), BLACK_URQUAN_SHIP);
+	KohrAhPtr = LockFleetInfo (&GLOBAL (avail_race_q), hKohrAh);
 
 	MissionState = GET_GAME_STATE (UTWIG_SUPOX_MISSION);
 	if (UtwigPtr->actual_strength && MissionState < 5)
@@ -514,6 +517,15 @@ advance_utwig_supox_mission (int arg)
 				SupoxPtr->growth_fract =
 						(BYTE)(((strength_loss % 160) << 8) / 160);
 				SupoxPtr->growth_err_term = 255 >> 1;
+			}
+
+			if (EXTENDED)
+			{
+				strength_loss = (SIZE)(KohrAhPtr->actual_strength >> 5);
+				KohrAhPtr->growth = (BYTE)(-strength_loss / 160);
+				KohrAhPtr->growth_fract =
+					(BYTE)(((strength_loss % 160) << 8) / 160);
+				KohrAhPtr->growth_err_term = 255 >> 1;
 			}
 
 			SET_GAME_STATE (UTWIG_WAR_NEWS, 0);
@@ -550,6 +562,12 @@ advance_utwig_supox_mission (int arg)
 				SupoxPtr->growth = 0;
 				SupoxPtr->growth_fract = 0;
 
+				if (EXTENDED)
+				{
+					KohrAhPtr->growth = 0;
+					KohrAhPtr->growth_fract = 0;
+				}
+
 				SET_GAME_STATE (UTWIG_WAR_NEWS, 0);
 				SET_GAME_STATE (SUPOX_WAR_NEWS, 0);
 			}
@@ -565,6 +583,7 @@ advance_utwig_supox_mission (int arg)
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hSupox);
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hUtwig);
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hKohrAh);
 
 	(void) arg;
 	return 0;

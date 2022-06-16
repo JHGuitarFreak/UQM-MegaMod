@@ -36,7 +36,7 @@
 #include <string.h>
 
 
-#define NUM_CELL_COLS (optSuperPC == OPT_PC ? 34 : (UQM_MAP_WIDTH / 6))
+#define NUM_CELL_COLS (isPC (optSuperPC) ? 34 : (UQM_MAP_WIDTH / 6))
 #define NUM_CELL_ROWS (SC2_MAP_HEIGHT / 6)
 #define MAX_CELL_COLS 40 // Why is this is never used???
 
@@ -58,16 +58,16 @@ ClearReportArea (void)
 
 	BatchGraphics ();
 
-	if (actuallyInOrbit || optSuperPC != OPT_PC)
+	if (actuallyInOrbit || is3DO (optSuperPC))
 	{
 		SetContextBackGroundColor (BLACK_COLOR);
 		ClearDrawable ();
 
-		startx = (optSuperPC != OPT_PC ? 0 : RES_SCALE (1)) + 1
+		startx = (is3DO (optSuperPC) ? 0 : RES_SCALE (1)) + 1
 				+ (r.extent.width >> 1) - (RES_SCALE (1) - IF_HD (1));
 		starty = RES_SCALE (1);
 	}
-	else if (optSuperPC == OPT_PC)
+	else if (isPC (optSuperPC))
 	{
 		rPC.extent.width = (r.extent.width + RES_SCALE (1))
 			* NUM_CELL_COLS + RES_SCALE (1);
@@ -156,7 +156,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
 			StrLen += end_page_len; 
-			NextPageHD = optSuperPC == OPT_PC ? 42 : 52;
+			NextPageHD = isPC (optSuperPC) ? 42 : 52;
 		}
 
 		t.baseline.x = startx + (col_cells * (r.extent.width + 1))

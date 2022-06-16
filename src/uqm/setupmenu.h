@@ -143,9 +143,9 @@ typedef struct globalopts_struct {
 			meleeObstacles, showVisitedStars, unscaledStarSystem;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
-			scopeStyle, landerStyle, flagshipColor;
+			scopeStyle, landerStyle, flagshipColor, scanSphere;
 	CONTROL_TEMPLATE player1, player2;
-	int speechvol, musicvol, sfxvol;
+	int speechvol, musicvol, sfxvol, nebulaevol;
 	int gamma, customSeed, starBackground;
 } GLOBALOPTS;
 

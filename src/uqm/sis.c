@@ -38,6 +38,7 @@
 #include "libs/log.h"
 #include "hyper.h"
 #include "gameopt.h"
+#include <math.h>
 
 #include <stdio.h>
 
@@ -225,10 +226,11 @@ DrawSISMessage (const UNICODE *pStr)
 	DrawSISMessageEx (pStr, -1, -1, DSME_NONE);
 }
 
-// See sis.h for the allowed flags. This is the field at the top of the screen, on the
-// left hand side.
+// See sis.h for the allowed flags. This is the field at the top of the
+// screen, on the left hand side.
 BOOLEAN
-DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
+DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
+		COUNT flags)
 {
 	UNICODE buf[256];
 	CONTEXT OldContext;
@@ -276,7 +278,8 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 							// "QuasiSpace"
 
 					if (GET_GAME_STATE (ARILOU_HOME_VISITS)
-						&& (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y))
+						&& (Log.x == ARILOU_HOME_X
+						&& Log.y == ARILOU_HOME_Y))
 					{
 						utf8StringCopy (
 								GLOBAL_SIS (PlanetName),
@@ -325,11 +328,12 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 		//   the size to TextRect()
 		BYTE char_deltas[128];
 		BYTE *pchar_deltas;
-		SIZE bl;
+		SIZE bl = 0;
 
 		t.align = ALIGN_CENTER;
 		TextRect (&t, &text_r, char_deltas);
-		if (text_r.extent.width + t.baseline.x + RES_SCALE (2) >= r.extent.width)
+		if (text_r.extent.width + t.baseline.x + RES_SCALE (2)
+				>= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
 			// disallow the change
@@ -378,11 +382,13 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 				}
 				else if (CurPos + 1 == h.CharCount)
 				{	// extra pixel for last char margin
-					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
+					cur_r.extent.width =
+							(SIZE)*pchar_deltas + RES_SCALE (2);
 				}
 				else
 				{	// normal mid-line char
-					cur_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
+					cur_r.extent.width =
+							(SIZE)*pchar_deltas + RES_SCALE (1);
 				}
 
 				if (cur_r.extent.width >= 200)
@@ -414,7 +420,9 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos, COUNT flags)
 
 			// print extra chars
 			t.align = ALIGN_LEFT;
-			t.baseline.x = bl; // no matter where the cursor is - print extra text right after it
+			t.baseline.x = bl;
+					// no matter where the cursor is - print extra text
+					// right after it
 			SetContextForeGroundColor (SIS_MESSAGE_EXTRA_TEXT_COLOR);
 			t.pStr = skipUTF8Chars (t.pStr, ExPos);
 			t.CharCount = (COUNT)~0;
@@ -457,7 +465,8 @@ DateToString (char *buf, size_t bufLen,
 			break;
 		case 3: /* DD.MM.YYYY */
 			snprintf (buf, bufLen, "%02d%s%02d%s%04d", day_index,
-					STR_MIDDLE_DOT, month_index, STR_MIDDLE_DOT, year_index);
+					STR_MIDDLE_DOT, month_index, STR_MIDDLE_DOT,
+					year_index);
 			break;
 		case 0:
 		default: /* MMM DD.YYYY */
@@ -488,8 +497,8 @@ DrawStatusMessage (const UNICODE *pStr)
 
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&ctxRect);
-	// XXX: Technically, this does not need OffScreenContext. The only reason
-	//   it is used is to avoid preserving StatusContext settings.
+	// XXX: Technically, this does not need OffScreenContext. The only
+	// reason it is used is to avoid preserving StatusContext settings.
 	SetContext (OffScreenContext);
 	SetContextFGFrame (Screen);
 	GetStatusMessageRect (&r);
@@ -544,12 +553,15 @@ DrawStatusMessage (const UNICODE *pStr)
 	t.pStr = pStr;
 	t.CharCount = (COUNT)~0;
 
-	if (curMsgMode == SMM_WARNING) {
-		SetContextForeGroundColor (STATUS_MESSAGE_WARNING_TEXT_COLOR);
-	} else if (curMsgMode == SMM_ALERT) {
-		SetContextForeGroundColor (STATUS_MESSAGE_ALERT_TEXT_COLOR);
-	} else {
-		SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
+	{
+		Color statusColor = STATUS_MESSAGE_TEXT_COLOR;
+
+		if (curMsgMode == SMM_WARNING)
+			statusColor = STATUS_MESSAGE_WARNING_TEXT_COLOR;
+		if (curMsgMode == SMM_ALERT)
+			statusColor = STATUS_MESSAGE_ALERT_TEXT_COLOR;
+
+		SetContextForeGroundColor (statusColor);
 	}
 
 	if (isPC (optWhichFonts) || optCustomBorder)
@@ -660,8 +672,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 		// XXX: this will not work with UTF-8 strings
 		strupr (buf);
 
-		// JMS: Handling the a-umlaut and o-umlaut characters
-		{
+		{	// Handling the a-umlaut and o-umlaut characters
 			unsigned char *ptr;
 			ptr = (unsigned char*)buf;
 			while (*ptr) {
@@ -690,8 +701,10 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	if (!NewGame)
 		DrawBorder (12, FALSE);
 
-	t.baseline.x = r.corner.x + RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
-	t.baseline.y = r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE (InStatusArea));
+	t.baseline.x =
+			r.corner.x + RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+	t.baseline.y =
+			r.corner.y + (SHIP_NAME_HEIGHT - RES_SCALE (InStatusArea));
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	if (isPC (optWhichFonts))
@@ -699,7 +712,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 				InStatusArea ? 0 : 3));
 	else
 		SetContextForeGroundColor (THREEDO_FLAGSHIP_NAME_TEXT_COLOR);
-	
+
 	font_DrawText (&t);
 
 	SetContextFontEffect (OldFontEffect);
@@ -783,7 +796,7 @@ DrawFlagshipStats (void)
 	   fact that the leading is way more than is generally needed.
 	*/
 	leading -= RES_SCALE (3);
-	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH / 6); //wild-assed guess, but it worked
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH / 6);
 	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
@@ -969,7 +982,7 @@ DrawStorageBays (BOOLEAN Refresh)
 				j >= STORAGE_BAY_CAPACITY; j -= STORAGE_BAY_CAPACITY)
 		{
 			DrawFilledRectangle (&r);
-			r.corner.x += r.extent.width + RES_SCALE (1);;
+			r.corner.x += r.extent.width + RES_SCALE (1);
 
 			--i;
 		}
@@ -1710,7 +1723,7 @@ GetFTankCapacity (POINT *ppt)
 }
 
 
-////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 COUNT
 CountSISPieces (BYTE piece_type)
@@ -1764,7 +1777,8 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 		return;
 	}
 
-	OnAutoPilot = (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
+	OnAutoPilot = (GLOBAL (autopilot.x) != ~0
+			&& GLOBAL (autopilot.y) != ~0)
 			|| GLOBAL_SIS (FuelOnBoard) == 0;
 
 	if (OnAutoPilot || LastPilot)
@@ -1791,8 +1805,84 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 				}
 				else
 				{
-					DrawSISMessageEx (GAME_STRING (NAVIGATION_STRING_BASE + 3),
-							-1, -1, DSME_MYCOLOR);   // "AUTO-PILOT"
+					if (!EXTENDED)
+					{
+						DrawSISMessageEx (
+								GAME_STRING (NAVIGATION_STRING_BASE + 3),
+								-1, -1, DSME_MYCOLOR);   // "AUTO-PILOT"
+					}
+					else
+					{	// Show destination and distance to destination
+						UNICODE buf[256];
+						POINT Falayalaralfali =
+								{ ARILOU_HOME_X, ARILOU_HOME_Y };
+						POINT dest = GLOBAL (autopilot);
+						POINT curr = {
+								LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+								LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
+						STAR_DESC *SDPtr = FindStar (NULL, &dest, 1, 1);
+						double dist = ptDistance (curr, dest) / 10;
+
+						if (inQuasiSpace ()
+								&& !pointsEqual (dest, Falayalaralfali))
+							SDPtr = NULL;
+
+						if (SDPtr)
+						{
+							TEXT temp;
+							RECT r;
+							UNICODE cluster[256];
+
+							GetClusterName (SDPtr, cluster);
+
+							// Show "AUTO-PILOT to [StarName] - [distance]
+							snprintf (buf, sizeof buf,
+									"%s to %s - %.1f",
+									GAME_STRING (
+										NAVIGATION_STRING_BASE + 3),
+									cluster, dist
+								);
+
+							temp.pStr = buf;
+							r = font_GetTextRect (&temp);
+
+							if (r.extent.width > SIS_MESSAGE_WIDTH)
+							{	// If the full text is too large then use
+								// "->" instead of "AUTO-PILOT"
+								snprintf (buf, sizeof buf,
+										"-> %s - %.1f", cluster, dist);
+
+								temp.pStr = buf;
+								r = font_GetTextRect (&temp);
+								if (r.extent.width > SIS_MESSAGE_WIDTH)
+								{	// If shortened text is *still* too
+									// large then just show distance
+									snprintf (buf, sizeof buf,
+											"%s - %.1f",
+											GAME_STRING (
+												NAVIGATION_STRING_BASE
+												+ 3),
+											dist);
+								}
+							}
+						}
+						else
+						{	// Show the destination coordinates if the
+							// destination is not a star
+							// AUTO-PILOT to ###.#:###.# - [distance]
+							snprintf (buf, sizeof buf,
+									"%s to %03u.%01u:%03u.%01u"
+									" - %.1f",
+									GAME_STRING (
+										NAVIGATION_STRING_BASE + 3),
+									dest.x / 10, dest.x % 10,
+									dest.y / 10, dest.y % 10,
+									dist
+								);
+						}
+						
+						DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
+					}
 				}
 				SetContext (OldContext);
 			}
@@ -1808,7 +1898,8 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 #define MAX_NUM_RECTS 5 // 5 flashing rects at once should be enough
 #define NUM_RECTS 1
 
-static FlashContext *flashContext[MAX_NUM_RECTS] = { NULL, NULL, NULL, NULL, NULL };
+static FlashContext *flashContext[MAX_NUM_RECTS] =
+		{ NULL, NULL, NULL, NULL, NULL };
 static RECT flash_rect[MAX_NUM_RECTS];
 static Alarm *flashAlarm = NULL;
 static BOOLEAN flashPaused = FALSE;
