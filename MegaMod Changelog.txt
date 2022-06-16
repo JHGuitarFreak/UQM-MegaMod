@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
-- Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden
+- Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden - Superseded using Malin's code from Roguelike
 - De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
 - HD: Make the leading edge of the 3DO planet scan a smooth gradient
