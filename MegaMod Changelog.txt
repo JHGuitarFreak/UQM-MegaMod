@@ -9,21 +9,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border to the playback bar during coversations
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
+- HARDMODE: Keep time running while orbiting a planet & during a landing excursion
 
 ## [v0.8.2]
 ### Added
 - Added a dotted fuel circle that shows the fuel range at the destination - PR #102 by taleden
 - Added ability to load glyph spacing and kerning data from a file inside the font directory
 - Added ability to take screenshots using the F8 key. A '.png' file will be saved in the config directory in the "screenshots" folder
+- Added autoload capability for the Classic HD-mod look & feel addon pack
+- Recreated DOS planet scan sphere graphics from scratch - Kruzen
+- Added ability to set nebulae brightness via slider option (when nebulae are enabled) - Kruzen
+- EXTENDED: The Kohr-Ah lose a tiny fraction of their SOI when the Supox and Utwig attack them.
+- EXTENDED: Show Auto-Pilot destination and distance to destination
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
 - Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden
 - De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
-- Get font "leading" value from the height of the 'leading.png' within the font's folder.
 - HD: Make the leading edge of the 3DO planet scan a smooth gradient
 - HD: Slylandro Gas-Bags now have working color transforms - Kruzen
+- EXTENDED: Add small chance of weather and tectonic hazards to level 2 
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
@@ -32,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed PC lander graphic being transparent when planet is loading
 - Fixed textured moons loading regardless if Textured Planets was enabled or not
 - EXTENDED: Fixed interaction with Alpha Apodis IV
+- Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
 
 
 ## [v0.8.1]
