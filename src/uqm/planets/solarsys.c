@@ -2650,7 +2650,7 @@ void
 DrawNebula (POINT star_point)
 {
 	FRAME NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
-	const BYTE numNebulae = GetFrameCount (NebulaeFrame) - 1;
+	const BYTE numNebulae = GetFrameCount (NebulaeFrame);
 	const POINT solPoint = { SOL_X, SOL_Y };
 	STAMP s;
 
