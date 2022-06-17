@@ -188,9 +188,25 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("3dovideo");
 
 	if (!IS_HD)
+	{
+		// Localization addons
+		loadAddon ("xlat-finnish-sd");
+		loadAddon ("xlat-german-sd");
+		loadAddon ("xlat-japanese-sd");
+		loadAddon ("xlat-russian-sd");
+		
 		loadAddon ("automods-sd");
+	}
 	else if (HDPackPresent)
+	{
+		// Localization addons
+		loadAddon ("xlat-finnish-hd");
+		loadAddon ("xlat-german-hd");
+		loadAddon ("xlat-japanese-hd");
+		loadAddon ("xlat-russian-hd");
+
 		loadAddon ("automods-hd");
+	}
 
 
 	/* Now load the rest of the addons, in order. */
