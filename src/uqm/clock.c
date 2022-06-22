@@ -30,11 +30,6 @@
 #include "libs/misc.h"
 #include "options.h"
 
-// the running of the game-clock is based on game framerates
-// *not* on the system (or translated) timer
-// and is hard-coded to the original 24 fps
-#define CLOCK_BASE_FRAMERATE 24
-
 // WARNING: Most of clock functions are only meant to be called by the
 //   Starcon2Main thread! If you need access from other threads, examine
 //   the locking system!

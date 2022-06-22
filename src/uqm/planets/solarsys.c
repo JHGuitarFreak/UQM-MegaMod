@@ -62,7 +62,6 @@
 //#define SMOOTH_SYSTEM_ZOOM  1
 
 #define IP_FRAME_RATE  (ONE_SECOND / 30)
-#define CLOCK_FRAME_RATE  (ONE_SECOND / 24)
 
 // BW: those do not depend on the resolution because numbers too small
 // cause crashes in the generation and rendering

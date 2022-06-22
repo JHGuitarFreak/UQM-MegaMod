@@ -391,11 +391,17 @@ ZoomInPlanetSphere (void)
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 {
-	static TimeCount NextTime, OutNextTime;
+	static TimeCount NextTime, OutNextTime, TimeOutClock;
 	TimeCount Now = GetTimeCounter ();
 
 	if (keepRate && Now < NextTime)
 		return; // not time yet
+
+	if (DIF_HARD && Now >= TimeOutClock)
+	{
+		GameClockTick ();
+		TimeOutClock = Now + CLOCK_FRAME_RATE;
+	}
 
 	if (Now >= NextTime)
 	{

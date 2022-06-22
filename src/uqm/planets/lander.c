@@ -1974,6 +1974,18 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 	ScrollPlanetSide (dx, dy, ON_THE_GROUND);
 
+	if (DIF_HARD)
+	{
+		static TimeCount TimeOutClock;
+		TimeCount Now = GetTimeCounter ();
+
+		if (Now >= TimeOutClock)
+		{
+			GameClockTick ();
+			TimeOutClock = Now + CLOCK_FRAME_RATE;
+		}
+	}
+
 	SleepThreadUntil (pMS->NextTime);
 	// NOTE: The rate is not stabilized
 	pMS->NextTime = GetTimeCounter () + PLANET_SIDE_RATE;
