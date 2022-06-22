@@ -9,7 +9,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border to the playback bar during coversations
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
-- HARDMODE: Keep time running while orbiting a planet & during a landing excursion
 
 ## [v0.8.2]
 ### Added
@@ -21,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added ability to set nebulae brightness via slider option (when nebulae are enabled) - Kruzen
 - EXTENDED: The Kohr-Ah lose a tiny fraction of their SOI when the Supox and Utwig attack them.
 - EXTENDED: Show Auto-Pilot destination and distance to destination
+- HARDMODE: Keep time running while orbiting a planet & during a landing excursion
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
