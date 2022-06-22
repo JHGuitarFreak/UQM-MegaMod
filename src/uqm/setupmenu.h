@@ -109,6 +109,13 @@ typedef enum {
 } OPT_CONTROLLER;
 
 typedef enum {
+	OPTVAL_FUEL_NORM,
+	OPTVAL_FUEL_AT_DEST,
+	OPTVAL_FUEL_TO_SOL,
+	OPTVAL_FUEL_ALL
+} OPT_FUELRANGE;
+
+typedef enum {
 	OPTVAL_STEP,
 	OPTVAL_NEAREST,
 	OPTVAL_BILINEAR,
@@ -131,16 +138,17 @@ typedef struct globalopts_struct {
 	OPT_DIFFICULTY difficulty;
 	OPT_MELEEZOOM meleezoom;
 	OPT_CONTROLLER controllerType;
+	OPT_FUELRANGE fuelRange;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
 			unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro,
 			infiniteFuel, partialPickup, submenu, addDevices, customBorder,
 			spaceMusic, volasMusic, directionalJoystick, wholeFuel,
-			fuelRange, extended, nomad, gameOver, shipDirectionIP,
-			hazardColors, orzCompFont, smartAutoPilot, nonStopOscill,
-			hyperStars, planetTexture, noHQEncounters, deCleansing,
-			meleeObstacles, showVisitedStars, unscaledStarSystem;
+			extended, nomad, gameOver, shipDirectionIP, hazardColors,
+			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
+			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
+			showVisitedStars, unscaledStarSystem;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor, scanSphere;

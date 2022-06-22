@@ -1648,7 +1648,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->landerHold = (optLanderHold == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->ipTrans = (optIPScaler == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->difficulty = res_GetInteger ("mm.difficulty");
-	opts->fuelRange = optFuelRange ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->fuelRange = res_GetInteger ("mm.fuelRange");
 	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->gameOver = optGameOver ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -2095,8 +2095,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optDifficulty = opts->difficulty;
 	res_PutInteger ("mm.difficulty", opts->difficulty);
 
-	res_PutBoolean ("mm.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
-	optFuelRange = (opts->fuelRange == OPTVAL_ENABLED);
+	optFuelRange = opts->fuelRange;
+	res_PutInteger ("mm.fuelRange", opts->fuelRange);
 
 	res_PutBoolean ("mm.extended", opts->extended == OPTVAL_ENABLED);
 	optExtended = (opts->extended == OPTVAL_ENABLED);

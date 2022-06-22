@@ -68,6 +68,8 @@ static FRAME StarMapFrame;
 static BOOLEAN show_war_era_situation;
 static CURRENT_STARMAP_SHOWN which_starmap;
 
+void drawEllipse (void);
+
 static inline long
 signedDivWithError (long val, long divisor)
 {
@@ -479,13 +481,22 @@ DrawFuelCircle (BOOLEAN secondary)
 	{
 		OldColor = SetContextForeGroundColor (DKGRAY_COLOR);
 		DrawOval (&r, RES_BOOL (1,6), FALSE);
+		SetContextForeGroundColor (OldColor);
 	}
 	else
 	{
 		OldColor = SetContextForeGroundColor (STARMAP_FUEL_RANGE_COLOR);
 		DrawFilledOval (&r);
+		SetContextForeGroundColor (OldColor);
+
+		if (optFuelRange > 1)
+		{
+			OldColor =
+				SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
+			drawEllipse ();
+			SetContextForeGroundColor (OldColor);
+		}
 	}
-	SetContextForeGroundColor(OldColor);
 }
 
 // Begin Malin's fuel to Sol ellipse code
@@ -816,16 +827,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_starmap != CONSTELLATION_MAP
 		&& (race_update == 0 && which_space < 2)
 		&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0)
-		&& optFuelRange)
+		&& (optFuelRange == 1 || optFuelRange == 3)
+		&& (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0))
 	{	// Draw the autopilot fuel range circle (on top of the grid)
-		Color OldColor;
-
-		if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
-			DrawFuelCircle (TRUE);
-
-		OldColor = SetContextForeGroundColor (DKGRAY_COLOR);
-		drawEllipse ();
-		SetContextForeGroundColor (OldColor);
+		DrawFuelCircle (TRUE);
 	}
 
 	star_frame = SetRelFrameIndex (StarMapFrame, 2);

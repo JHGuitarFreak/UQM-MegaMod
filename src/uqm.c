@@ -176,7 +176,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  landerHold);
 	DECL_CONFIG_OPTION(int,  ipTrans);
 	DECL_CONFIG_OPTION(int,  optDifficulty);
-	DECL_CONFIG_OPTION(bool, fuelRange);
+	DECL_CONFIG_OPTION(int,  optFuelRange);
 	DECL_CONFIG_OPTION(bool, extended);
 	DECL_CONFIG_OPTION(bool, nomad);
 	DECL_CONFIG_OPTION(bool, gameOver);
@@ -382,7 +382,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  ipTrans,           OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     3 ),
-		INIT_CONFIG_OPTION(  fuelRange,         false ),
+		INIT_CONFIG_OPTION(  optFuelRange,      0 ),
 		INIT_CONFIG_OPTION(  extended,          false ),
 		INIT_CONFIG_OPTION(  nomad,             false ),
 		INIT_CONFIG_OPTION(  gameOver,          false ),
@@ -602,7 +602,7 @@ main (int argc, char *argv[])
 	optLanderHold = options.landerHold.value;
 	optIPScaler = options.ipTrans.value;
 	optDifficulty = options.optDifficulty.value;
-	optFuelRange = options.fuelRange.value;
+	optFuelRange = options.optFuelRange.value;
 	optExtended = options.extended.value;
 	optNomad = options.nomad.value;
 	optGameOver = options.gameOver.value;
@@ -986,7 +986,9 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set) {
 		options->optDifficulty.value = res_GetInteger ("mm.difficulty");
 	}
-	getBoolConfigValue (&options->fuelRange, "mm.fuelRange");
+	if (res_IsInteger ("mm.fuelRange") && !options->optFuelRange.set) {
+		options->optFuelRange.value = res_GetInteger ("mm.fuelRange");
+	}
 	getBoolConfigValue (&options->extended, "mm.extended");
 	getBoolConfigValue (&options->nomad, "mm.nomad");
 	getBoolConfigValue (&options->gameOver, "mm.gameOver");
@@ -1213,7 +1215,7 @@ static struct option longOptions[] =
 	{"melee", 0, NULL, MELEE_OPT},
 	{"loadgame", 0, NULL, LOADGAME_OPT},
 	{"difficulty", 1, NULL, DIFFICULTY_OPT},
-	{"fuelrange", 0, NULL, FUELRANGE_OPT},
+	{"fuelrange", 1, NULL, FUELRANGE_OPT},
 	{"extended", 0, NULL, EXTENDED_OPT},
 	{"nomad", 0, NULL, NOMAD_OPT},
 	{"gameover", 0, NULL, GAMEOVER_OPT},
@@ -1662,7 +1664,8 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					badArg = true;
 				}
 				break;
-			case DIFFICULTY_OPT: {
+			case DIFFICULTY_OPT:
+			{
 				int temp;
 				if (parseIntOption (optarg, &temp, "Difficulty") == -1) {
 					badArg = true;
@@ -1679,8 +1682,27 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			}
 			case FUELRANGE_OPT:
-				setBoolOption (&options->fuelRange, true);
+			{
+				int temp;
+				if (parseIntOption (
+						optarg, &temp, "Fuel range indicator") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 3)
+				{
+					saveError ("\nFuel range indicator has to be 0, 1, 2,"
+							" or 3.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->optFuelRange.value = temp;
+					options->optFuelRange.set = true;
+				}
 				break;
+			}
 			case EXTENDED_OPT:
 				setBoolOption (&options->extended, true);
 				break;
@@ -2111,9 +2133,10 @@ usage (FILE *out, const struct options_struct *defaults)
 			choiceOptString (&defaults->ipTrans));
 	log_add (log_User, "  --difficulty : 0: Normal | 1: Easy | 2: Hard"
 			"| 3: Choose at Start (default: 0)");
-	log_add (log_User, "  --fuelrange : Enables 'point of no return'"
-			"fuel range (default: %s)",
-			boolOptString (&defaults->fuelRange));
+	log_add (log_User, "  --fuelrange : Enables extra fuel range "
+			"indicators : 0: No indicators | 1: Fuel range at destination "
+			"| 2: Remaining fuel range to Sol | 3: Both option 1 and 2 "
+			"enabled simultaneously (default: 0)");
 	log_add (log_User, "  --extended : Enables Extended Edition"
 			"features (default: %s)",
 			boolOptString (&defaults->extended));

@@ -94,7 +94,7 @@ BOOLEAN optDirectionalJoystick;
 int optLanderHold;
 int optIPScaler;
 int optDifficulty;
-BOOLEAN optFuelRange;
+int optFuelRange;
 BOOLEAN optExtended;
 BOOLEAN optNomad;
 BOOLEAN optGameOver;
