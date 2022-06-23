@@ -1015,9 +1015,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
 	{	// Draw the fuel range circle
 		DrawFuelCircle (FALSE);
-
-		if (optFuelRange)
-			drawEllipse();
 	}
 
 	{	// Horizontal lines
