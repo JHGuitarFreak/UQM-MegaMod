@@ -2648,24 +2648,28 @@ BrightenNebula (FRAME nebula, BYTE factor)
 void
 DrawNebula (POINT star_point)
 {
-	FRAME NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
-	const BYTE numNebulae = GetFrameCount (NebulaeFrame);
 	const POINT solPoint = { SOL_X, SOL_Y };
-	STAMP s;
+	
+	if (!pointsEqual(star_point, solPoint) || classicPackPresent)
+	{// To avoid loading nebulae in loading menu (Yay optimization)
+		FRAME NebulaeFrame = CaptureDrawable(LoadGraphic(NEBULAE_PMAP_ANIM));
+		const BYTE numNebulae = GetFrameCount(NebulaeFrame);
 
-	if ((star_point.y % (numNebulae + 6)) < numNebulae
+		if ((star_point.y % (numNebulae + 6)) < numNebulae
 			|| classicPackPresent)
-	{
-		s.origin = MAKE_POINT (0, 0);
-		s.frame =
-				SetAbsFrameIndex (NebulaeFrame, star_point.x % numNebulae);
-		if (optNebulaeVolume != 24)
-			s.frame = BrightenNebula (s.frame, optNebulaeVolume);
-		if (!pointsEqual (star_point, solPoint) || classicPackPresent)
-			DrawStamp (&s);
+		{
+			STAMP s;
+			s.origin = MAKE_POINT(0, 0);
+			s.frame =
+				SetAbsFrameIndex(NebulaeFrame, star_point.x % numNebulae);
+			if (optNebulaeVolume != 24)
+				s.frame = BrightenNebula(s.frame, optNebulaeVolume);
+
+			DrawStamp(&s);
+		}
+		DestroyDrawable(ReleaseDrawable(NebulaeFrame));
+		NebulaeFrame = 0;
 	}
-	DestroyDrawable (ReleaseDrawable (NebulaeFrame));
-	NebulaeFrame = 0;
 }
 
 FRAME

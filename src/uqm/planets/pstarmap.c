@@ -129,7 +129,8 @@ dispyToUniverse (COORD dy)
 #define ORIG_DISP_TO_UNIVERSEY(dy) dispyToUniverse(dy)
 
 // Old school HD-mod code for Malin's Sol ellipse.
-COORD UNIVERSE_TO_DISPX2 (COORD ux)
+static inline COORD
+universeToDispx2 (COORD ux)
 {
 	long v = signedDivWithError ((((long)ux - mapOrigin.x) << zoomLevel)
 		* SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_XX)
@@ -138,7 +139,8 @@ COORD UNIVERSE_TO_DISPX2 (COORD ux)
 	if (v < -32768) { return -32768; }
 	return v;
 }
-COORD UNIVERSE_TO_DISPY2 (COORD uy)
+static inline COORD
+universeToDispy2 (COORD uy)
 {
 	long v = signedDivWithError ((((long)mapOrigin.y - uy) << zoomLevel)
 		* SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
@@ -147,6 +149,9 @@ COORD UNIVERSE_TO_DISPY2 (COORD uy)
 	if (v < -32768) { return -32768; }
 	return v;
 }
+
+#define UNIVERSE_TO_DISPX2(ux)  (IS_HD ? universeToDispx2(ux) : universeToDispx(ux))
+#define UNIVERSE_TO_DISPY2(uy)  (IS_HD ? universeToDispy2(uy) : universeToDispy(uy))
 
 static BOOLEAN transition_pending;
 
@@ -526,15 +531,191 @@ RotatePoint (POINT p, POINT Pivot, double radian)
 	return (POINT) { MATH_ROUND (x), MATH_ROUND (y) };
 }
 
+BOOLEAN
+onScreen (POINT *p, BOOLEAN ignoreX, BOOLEAN ignoreY, COUNT offsetX, COUNT offsetY)
+{
+	return ((p->x >= offsetX && p->x < SIS_SCREEN_WIDTH - offsetX) || ignoreX)
+			&& ((p->y >= offsetY && p->y < SIS_SCREEN_HEIGHT - offsetY) || ignoreY);
+}
+
+void
+approxMaxMin(POINT* max, POINT* min, POINT* rmax, POINT* rmin, FRAME base)
+{// Kruzen: approximation of max and min relative to the real max and min of the ellipse
+ // Also our task is to "mask" central axis
+ // by calculating midpoint for every Y in the ellipse and then push it to the nearest
+ // screen edge
+	double err, step;
+
+	if (onScreen(rmax, FALSE, FALSE, 0, 0))
+	{
+		COUNT left = 0;
+		COUNT right = 0;
+		POINT pt = *rmax;
+
+		while (sameColor24(GetFramePixel(base, pt), STARMAP_SECONDARY_RANGE_COLOR))
+		{
+			right++;
+			pt.x++;
+		}
+		pt = *rmax;
+		while (sameColor24(GetFramePixel(base, pt), STARMAP_SECONDARY_RANGE_COLOR))
+		{
+			left++;
+			pt.x--;
+		}
+		rmax->x += (right - left) / 2;
+	}
+
+	if (onScreen(rmin, FALSE, FALSE, 0, 0))
+	{
+		COUNT left = 0;
+		COUNT right = 0;
+		POINT pt = *rmin;
+
+		while (sameColor24(GetFramePixel(base, pt), STARMAP_SECONDARY_RANGE_COLOR))
+		{
+			right++;
+			pt.x++;
+		}
+		pt = *rmin;
+		while (sameColor24(GetFramePixel(base, pt), STARMAP_SECONDARY_RANGE_COLOR))
+		{
+			left++;
+			pt.x--;
+		}
+		rmin->x += (right - left) / 2;
+	}
+
+	
+	step = ((double)rmax->x - (double)rmin->x) / ((double)rmax->y - (double)rmin->y);
+
+	if (!pointsEqual(*max, *rmax))
+	{// there is still could be something below
+		POINT pt;
+		COORD lim_x = rmax->x - (COORD)(step * (rmax->y - max->y));
+		SIZE incr = 1;
+
+		if (max->x > lim_x)
+			incr = -1;
+
+		pt = *max;
+
+		if (pt.y >= SIS_SCREEN_HEIGHT)
+			pt.y = SIS_SCREEN_HEIGHT - 1;
+		else
+		{
+			// go to the map edge
+			while (onScreen(&pt, FALSE, TRUE, 1, 0) && (pt.x != lim_x))
+				pt.x += incr;
+
+			// now go down and find map or ellipse edge
+			while (pt.y < (SIS_SCREEN_HEIGHT - 1) &&
+				sameColor24(GetFramePixel(base, pt), BLACK_COLOR))
+				pt.y++;
+		}
+
+		pt.x = rmax->x - (COORD)(step * (rmax->y - pt.y));
+		*max = pt;
+	}
+	max->y++;
+
+	if (!pointsEqual(*min, *rmin))
+	{// there is still could be something above
+		POINT pt;
+		COORD lim_x = rmax->x - (COORD)(step * (rmax->y - min->y));
+		SIZE incr = 1;
+
+		if (min->x > lim_x)
+			incr = -1;
+
+		pt = *min;
+
+		if (pt.y < 0)
+			pt.y = 0;
+		else
+		{
+			while (onScreen(&pt, FALSE, TRUE, 1, 0) && (pt.x != lim_x))
+				pt.x += incr;
+
+			while (pt.y > 0 &&
+				sameColor24(GetFramePixel(base, pt), BLACK_COLOR))
+				pt.y--;
+		}
+
+		pt.x = rmax->x - (COORD)(step * (rmax->y - pt.y));
+		*min = pt;
+	}
+	min->y--;
+}
+
+void
+floodFill(POINT* max, POINT* min, FRAME base)
+{// Kruzen going from bottom to top (on screen) and looking for ellipse edges
+ // Drawing lines with discovered coords
+	LINE L2;
+	POINT pt;
+	double err, step;	
+
+	step = ((double)max->x - (double)min->x) / ((double)max->y - (double)min->y);
+	err = 0 - step;
+
+	pt.y = max->y - 1;
+	pt.x = max->x + (COORD)err;
+
+	//printf("Looking. . .\n");
+	while (pt.y > min->y && pt.y >= 0)
+	{// going up on screen
+		if (pt.x < 0)
+			pt.x = 0;
+
+		if (pt.x > SIS_SCREEN_WIDTH)
+			pt.x = SIS_SCREEN_WIDTH;
+
+		while (sameColor24(GetFramePixel(base, pt), BLACK_COLOR) && 
+				pt.x > 0)
+			pt.x--;
+
+		L2.first = pt;
+
+		pt.x = max->x + (COORD)err;
+
+		if (pt.x < 0)
+			pt.x = 0;
+
+		if (pt.x > SIS_SCREEN_WIDTH)
+			pt.x = SIS_SCREEN_WIDTH;
+
+		while (sameColor24(GetFramePixel(base, pt), BLACK_COLOR) && 
+				pt.x < SIS_SCREEN_WIDTH)
+			pt.x++;
+
+		L2.second = pt;
+
+		DrawLine(&L2, 1);
+
+		err -= step;
+
+		pt.x = max->x + (COORD)err;
+		pt.y--;
+	}
+	//printf("Done\n\n\n");
+	/*SetContextForeGroundColor(BRIGHT_RED_COLOR);
+	DrawPoint(min);
+	DrawPoint(max);*/
+}
+
 void
 drawEllipse (void)
 {
 	LINE L1;
 	POINT Origin;
-	int i, lines = 50;
+	double i, Step;
 	double ry, dist, radian, rotation;
 	POINT center, sol, sis;
 	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
+	POINT max_y, min_y, rmax_y, rmin_y;
+	CONTEXT oldContext;
+	FRAME baseframe;
 
 	sol = (POINT){ SOL_X, SOL_Y };
 	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
@@ -546,12 +727,23 @@ drawEllipse (void)
 	if (dist > halfFuel)
 		return;
 
+	// Draw everything in offscreen context
+	oldContext = SetContext(OffScreenContext);
+	baseframe = CaptureDrawable(CreateDrawable(WANT_PIXMAP, 
+			(SIZE)SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT, 1));
+	SetContextFGFrame(baseframe);
+	SetContextClipRect(NULL);
+	SetContextForeGroundColor(STARMAP_SECONDARY_RANGE_COLOR);
+
 	ry = sqrt (pow (halfFuel, 2) - pow (dist, 2));
-	lines = lines + (halfFuel + ry) / 30;
+
+	// on max zoom ellipse edge becomes wobbly, so we cut num of iterations
+	// in half on zoomLevel 3 and 4
+	Step = (M_PI / (180.0f / (zoomLevel > 2 ? 2 : 1)));
 	center = MAKE_POINT ((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
 	rotation = atan2 (sol.y - sis.y, sol.x - sis.x);
 
-	L1.first = GetPointOfEllipse (halfFuel, ry, 0);
+	L1.first = GetPointOfEllipse(halfFuel, ry, 0);
 	L1.first = ShiftPoint (L1.first, center);
 	L1.first = RotatePoint (L1.first, center, rotation);
 	L1.first.x = UNIVERSE_TO_DISPX2 (L1.first.x);
@@ -559,19 +751,56 @@ drawEllipse (void)
 
 	Origin = L1.first;
 
-	for (i = 0; i < lines; i++)
-	{
-		radian = i * 2 * M_PI / lines;
+	rmax_y = max_y = (POINT){ -1 , -1 };
+	rmin_y = min_y = (POINT){ SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT };
 
-		L1.second = GetPointOfEllipse (halfFuel, ry, radian);
+	for (i = 0; i < M_PI * 2; i += Step)
+	{
+		L1.second = GetPointOfEllipse(halfFuel, ry, i);
 		L1.second = ShiftPoint (L1.second, center);
 		L1.second = RotatePoint (L1.second, center, rotation);
 		L1.second.x = UNIVERSE_TO_DISPX2 (L1.second.x);
 		L1.second.y = UNIVERSE_TO_DISPY2 (L1.second.y);
 
-		DrawLine (&L1, RES_DBL (1));
+		DrawLine (&L1, 1);
+
+		if (L1.second.y > rmax_y.y)
+			rmax_y = L1.second;
+
+		if (L1.second.y > max_y.y && onScreen(&L1.second, FALSE, TRUE, 0 ,0))
+			max_y = L1.second;
+
+		if (L1.second.y < rmin_y.y)
+			rmin_y = L1.second;
+
+		if (L1.second.y < min_y.y && onScreen(&L1.second, FALSE, TRUE, 0, 0))
+			min_y = L1.second;
+
 		L1.first = L1.second;
 	}
+
+	L1.second = Origin;
+	DrawLine(&L1, 1);
+
+	if (max_y.y >= 0 || min_y.y < SIS_SCREEN_HEIGHT)
+	{// If the ellipse is completely off screen - drop it
+		baseframe = GetContextFGFrame();
+	//	approxMaxMin(&max_y, &min_y, &rmax_y, &rmin_y, baseframe);
+	//	floodFill(&max_y, &min_y, baseframe);
+		SetFrameTransparentColor(baseframe, BLACK_COLOR);
+		SetContext(oldContext);
+		{
+			STAMP s;
+			s.origin.x = 0;
+			s.origin.y = 0;
+			s.frame = baseframe;
+			DrawStamp(&s);
+		}
+	}
+	else
+		SetContext(oldContext);
+	DestroyDrawable(ReleaseDrawable(baseframe));
+	baseframe = 0;
 }
 
 static void
@@ -786,6 +1015,9 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			&& !(optInfiniteFuel || GLOBAL_SIS (FuelOnBoard) == 0))
 	{	// Draw the fuel range circle
 		DrawFuelCircle (FALSE);
+
+		if (optFuelRange)
+			drawEllipse();
 	}
 
 	{	// Horizontal lines
@@ -1102,7 +1334,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		flashCurrentLocation (NULL, TRUE);
 	}
 
-	UnbatchGraphics ();
+	UnbatchGraphics ();	
 }
 
 static void
