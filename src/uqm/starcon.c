@@ -149,13 +149,24 @@ ProcessUtilityKeys (void)
 		// ImmediateInputState[KEY_DEBUG] so it does not execute repeatedly.
 		// This duplicates the PulsedInputState somewhat, but we cannot
 		// use PulsedInputState here because it is meant for another thread.
-		static int debugKeyState;
+		static int debugKeyState, debugKey2State,
+				debugKey3State, debugKey4State;
 
 		if (ImmediateInputState.menu[KEY_DEBUG] && debugKeyState == 0)
-		{
 			debugKeyPressed ();
-		}
 		debugKeyState = ImmediateInputState.menu[KEY_DEBUG];
+
+		if (ImmediateInputState.menu[KEY_DEBUG_2] && debugKey2State == 0)
+			debugKey2Pressed ();
+		debugKey2State = ImmediateInputState.menu[KEY_DEBUG_2];
+
+		if (ImmediateInputState.menu[KEY_DEBUG_3] && debugKey3State == 0)
+			debugKey3Pressed ();
+		debugKey3State = ImmediateInputState.menu[KEY_DEBUG_3];
+
+		if (ImmediateInputState.menu[KEY_DEBUG_4] && debugKey4State == 0)
+			debugKey4Pressed ();
+		debugKey4State = ImmediateInputState.menu[KEY_DEBUG_4];
 	}
 #endif  /* DEBUG */
 }

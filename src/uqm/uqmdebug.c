@@ -150,7 +150,8 @@ resetEnergyBattle (void)
 	SetContext (OldContext);
 }
 
-void
+// Kills the opponent of the player controlled ship
+static void
 scuttleOpponent (void)
 {
 	STARSHIP *StarShipPtr;
@@ -179,6 +180,31 @@ scuttleOpponent (void)
 		DeltaCrew (StarShipPtr->hShip, -delta);
 		SetContext (OldContext);
 		ship_death (StarShipPtr->hShip);
+	}
+}
+
+// Zeroes out all ship's velocity, freezing them in their tracks
+static void
+HaltShips (void)
+{
+	STARSHIP *StarShipPtr;
+	ELEMENT *ElementPtr;
+	BYTE i;
+
+	if (!(GLOBAL (CurrentActivity) & IN_BATTLE) ||
+		inHQSpace ())
+		return;
+
+	for (i = 0; i < 2; i++)
+	{
+		StarShipPtr = findPlayerShip (i);
+
+		if (StarShipPtr == NULL || StarShipPtr->RaceDescPtr == NULL)
+			return;
+
+		LockElement (StarShipPtr->hShip, &ElementPtr);
+		ZeroVelocityComponents (&ElementPtr->velocity);
+		UnlockElement (StarShipPtr->hShip);
 	}
 }
 
@@ -223,7 +249,7 @@ debugKeyPressedSynchronous (void)
 	{
 		printf("Debug Key Activated\n\n");
 		equipShip ();
-		showSpheres (TRUE);
+		showSpheres (FALSE);
 	}
 
 	forwardToNextEvent (TRUE);
@@ -265,6 +291,23 @@ debugKeyPressedSynchronous (void)
 	DebugKeyPressed = TRUE;
 }
 
+void
+debugKey2PressedSynchronous (void)
+{
+	scuttleOpponent ();
+}
+
+void
+debugKey3PressedSynchronous (void)
+{
+	HaltShips ();
+}
+
+void
+debugKey4PressedSynchronous (void)
+{
+}
+
 // Can be called on any thread, but usually on main()
 // This function is called asynchronously wrt the game logic thread,
 // which means locking applies. Use carefully.
@@ -279,7 +322,6 @@ debugKeyPressed (void)
 		// Tests
 		Scale_PerfTest ();
 #endif
-
 		// Informational:
 		dumpStrings (stdout);
 		dumpPlanetTypes (stderr);
@@ -296,6 +338,21 @@ debugKeyPressed (void)
 		uio_debugInteractive (stdin, stdout, stderr);
 		luaUqm_debug_run ();
 	}
+}
+
+void
+debugKey2Pressed (void)
+{
+}
+
+void
+debugKey3Pressed (void)
+{
+}
+
+void
+debugKey4Pressed (void)
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////

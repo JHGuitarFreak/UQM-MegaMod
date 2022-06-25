@@ -39,9 +39,6 @@ STARSHIP* findPlayerShip (SIZE playerNr);
 // Resets the energy of the first player (the bottom one) to its maximum.
 void resetEnergyBattle(void);
 
-// Kills the opponent of the player controlled ship
-void scuttleOpponent (void);
-
 #if !defined(UQM_UQMDEBUG_H_) && (defined(DEBUG) || defined(USE_DEBUG_KEY))
 #define UQM_UQMDEBUG_H_
 
@@ -53,9 +50,15 @@ extern BOOLEAN disableInteractivity;
 // Called on the main() thread when the debug key (symbol 'Debug' in the
 // keys.cfg) is pressed
 void debugKeyPressed (void);
+void debugKey2Pressed (void);
+void debugKey3Pressed (void);
+void debugKey4Pressed (void);
 // Called on the Starcon2Main() thread when the debug key (symbol 'Debug'
 // in the keys.cfg) is pressed.
 void debugKeyPressedSynchronous (void);
+void debugKey2PressedSynchronous (void);
+void debugKey3PressedSynchronous (void);
+void debugKey4PressedSynchronous (void);
 
 // Forward time to the next event. If skipHEE is set, the event named
 // HYPERSPACE_ENCOUNTER_EVENT, which normally occurs every game day,
