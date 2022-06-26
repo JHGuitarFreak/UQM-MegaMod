@@ -288,6 +288,12 @@ UpdateInputState (void)
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])
 		debugKeyPressedSynchronous ();
+	if (PulsedInputState.menu[KEY_DEBUG_2])
+		debugKey2PressedSynchronous ();
+	if (PulsedInputState.menu[KEY_DEBUG_3])
+		debugKey3PressedSynchronous ();
+	if (PulsedInputState.menu[KEY_DEBUG_4])
+		debugKey4PressedSynchronous ();
 #endif
 }
 
