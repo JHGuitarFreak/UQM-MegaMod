@@ -65,6 +65,14 @@ sameColor(Color c1, Color c2)
 			c1.a == c2.a;
 }
 
+static inline bool
+sameColor24(Color c1, Color c2)
+{
+	return c1.r == c2.r &&
+		c1.g == c2.g &&
+		c1.b == c2.b;
+}
+
 // Transform a 5-bits color component to an 8-bits color component.
 // Form 1, calculates '(r5 / 31.0) * 255.0, highest value is 0xff:
 #define CC5TO8(c) (((c) << 3) | ((c) >> 2))

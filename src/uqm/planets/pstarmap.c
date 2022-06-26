@@ -68,8 +68,6 @@ static FRAME StarMapFrame;
 static BOOLEAN show_war_era_situation;
 static CURRENT_STARMAP_SHOWN which_starmap;
 
-void drawEllipse (void);
-
 static inline long
 signedDivWithError (long val, long divisor)
 {
@@ -129,7 +127,8 @@ dispyToUniverse (COORD dy)
 #define ORIG_DISP_TO_UNIVERSEY(dy) dispyToUniverse(dy)
 
 // Old school HD-mod code for Malin's Sol ellipse.
-COORD UNIVERSE_TO_DISPX2 (COORD ux)
+static inline COORD
+universeToDispx2 (COORD ux)
 {
 	long v = signedDivWithError ((((long)ux - mapOrigin.x) << zoomLevel)
 		* SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_XX)
@@ -138,7 +137,8 @@ COORD UNIVERSE_TO_DISPX2 (COORD ux)
 	if (v < -32768) { return -32768; }
 	return v;
 }
-COORD UNIVERSE_TO_DISPY2 (COORD uy)
+static inline COORD
+universeToDispy2 (COORD uy)
 {
 	long v = signedDivWithError ((((long)mapOrigin.y - uy) << zoomLevel)
 		* SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
@@ -147,6 +147,9 @@ COORD UNIVERSE_TO_DISPY2 (COORD uy)
 	if (v < -32768) { return -32768; }
 	return v;
 }
+
+#define UNIVERSE_TO_DISPX2(ux)  (IS_HD ? universeToDispx2(ux) : universeToDispx(ux))
+#define UNIVERSE_TO_DISPY2(uy)  (IS_HD ? universeToDispy2(uy) : universeToDispy(uy))
 
 static BOOLEAN transition_pending;
 
@@ -429,6 +432,137 @@ FuelRequiredTo (POINT dest)
 	return fuel_required;
 }
 
+// Begin Malin's fuel to Sol ellipse code. Edited by Kruzen
+#define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X)? 1 : 0))
+
+POINT
+GetPointOfEllipse(double a, double b, double radian)
+{
+	double t[2] = { a * cos(radian), b * sin(radian) };
+	return (POINT) { (COORD)MATH_ROUND(t[0]), (COORD)MATH_ROUND(t[1]) };
+}
+
+POINT
+ShiftPoint(POINT p, POINT S)
+{
+	return (POINT) { p.x + S.x, p.y + S.y };
+}
+
+POINT
+RotatePoint(POINT p, POINT Pivot, double radian)
+{
+	double d[2] = { p.x - Pivot.x, p.y - Pivot.y };
+	double cosine[2] = { cos(radian), sin(radian) };
+	double x = Pivot.x + (d[0] * cosine[0] - d[1] * cosine[1]);
+	double y = Pivot.y + (d[0] * cosine[1] + d[1] * cosine[0]);
+
+	return (POINT) { MATH_ROUND(x), MATH_ROUND(y) };
+}
+
+BOOLEAN
+onScreen(LINE* l, BOOLEAN ignoreX, BOOLEAN ignoreY)
+{
+	return !((l->first.x < 0 && l->second.x < 0 && !ignoreX) || (l->first.x >= SIS_SCREEN_WIDTH
+		&& l->second.x >= SIS_SCREEN_WIDTH && !ignoreX) || (l->first.y < 0 && l->second.y < 0 && !ignoreY)
+		|| (l->first.y >= SIS_SCREEN_HEIGHT
+			&& l->second.y >= SIS_SCREEN_HEIGHT && !ignoreY));
+}
+
+static void
+DrawNoReturnZone (void)
+{
+	double dist;
+	POINT sol, sis;
+	double halfFuel = GLOBAL_SIS(FuelOnBoard) / 2;	
+
+	sol = (POINT){ SOL_X, SOL_Y };
+	sis = (POINT){ LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x)),
+			LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y)) };
+
+	dist = FuelRequiredTo(sol) / 2;
+	
+	if (dist <= halfFuel)
+	{// do not draw ellipse when fuel is not enough to reach Sol
+		POINT curr, center, rmax_y, rmin_y;
+		double i, Step, ry, rotation;
+
+		ry = sqrt(pow(halfFuel, 2) - pow(dist, 2));
+
+		// on max zoom ellipse edge becomes wobbly, so we cut num of iterations
+		// in half on zoomLevel 3 and 4
+		Step = (M_PI / (180.0f / (zoomLevel > 2 ? 2 : 1)));
+		center = MAKE_POINT((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
+		rotation = atan2(sol.y - sis.y, sol.x - sis.x);
+
+		rmax_y = (POINT){ -1 , -1 };
+		rmin_y = (POINT){ SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT };
+
+		for (i = 0; i < M_PI * 2; i += Step)
+		{
+			curr = RotatePoint(ShiftPoint(GetPointOfEllipse(halfFuel, ry, i), center), center, rotation);
+			curr.x = UNIVERSE_TO_DISPX2(curr.x);
+			curr.y = UNIVERSE_TO_DISPY2(curr.y);
+
+			if (curr.y > rmax_y.y)
+				rmax_y = curr;
+
+			if (curr.y < rmin_y.y)
+				rmin_y = curr;
+		}
+
+		if (rmax_y.y >= 0 || rmin_y.y < SIS_SCREEN_HEIGHT)
+		{// If the ellipse is completely off screen - drop it
+			LINE L;
+			POINT prev = RotatePoint(ShiftPoint(GetPointOfEllipse(halfFuel, ry, i - Step), center), center, rotation);
+			COORD dy;
+			double err = ((double)rmax_y.x - (double)rmin_y.x) / ((double)rmax_y.y - (double)rmin_y.y);
+
+			prev.x = UNIVERSE_TO_DISPX2(prev.x);
+			prev.y = UNIVERSE_TO_DISPY2(prev.y);
+
+			for (i = 0; i < M_PI * 2; i += Step)
+			{
+				L.first = RotatePoint(ShiftPoint(GetPointOfEllipse(halfFuel, ry, i), center), center, rotation);
+				L.first.x = UNIVERSE_TO_DISPX2(L.first.x);
+				L.first.y = UNIVERSE_TO_DISPY2(L.first.y);
+
+				L.second.x = rmax_y.x - (COORD)(err * (rmax_y.y - L.first.y));
+				L.second.y = L.first.y;
+
+				if (onScreen(&L, FALSE, FALSE))
+					DrawLine(&L, 1);
+
+				dy = L.first.y - prev.y;
+
+				if ((abs(dy) > 1) && onScreen(&(LINE) { L.first, prev }, TRUE, FALSE))
+				{					
+					LINE L2;
+					COORD iter;
+					double y_err = ((double)L.first.x - (double)prev.x) / ((double)L.first.y - (double)prev.y);
+
+					if (dy < 0)
+						iter = -1;
+					else
+						iter = 1;
+
+					while (abs(dy) > 1)
+					{
+						L2.first.y = L2.second.y = prev.y + dy - iter;
+						L2.first.x = L.first.x - (COORD)(y_err * (L.first.y - L2.first.y));
+						L2.second.x = rmax_y.x - (COORD)(err * (rmax_y.y - L2.first.y));
+
+						if (onScreen(&L2, FALSE, FALSE))
+							DrawLine(&L2, 1);
+
+						dy -= iter;
+					}
+				}
+				prev = L.first;
+			}
+		}
+	}
+}
+
 static void
 DrawFuelCircle (BOOLEAN secondary)
 {
@@ -493,87 +627,46 @@ DrawFuelCircle (BOOLEAN secondary)
 		{
 			OldColor =
 				SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-			drawEllipse ();
+			if (pointsEqual(corner, (POINT) { SOL_X, SOL_Y }))
+			{// We are at Sol, foci are equal - draw a standard oval
+				diameter = OnBoardFuel;
+				if (diameter < 0)
+					diameter = 0;
+
+				// Cap the diameter to a sane range
+				if (diameter > MAX_X_UNIVERSE * 4)
+					diameter = MAX_X_UNIVERSE * 4;
+
+				/* Draw circle*/
+				r.extent.width = UNIVERSE_TO_DISPX(diameter)
+					- UNIVERSE_TO_DISPX(0);
+
+				if (r.extent.width < 0)
+					r.extent.width = -r.extent.width;
+
+				r.extent.height = UNIVERSE_TO_DISPY(diameter)
+					- UNIVERSE_TO_DISPY(0);
+
+				if (r.extent.height < 0)
+					r.extent.height = -r.extent.height;
+
+				r.corner.x = UNIVERSE_TO_DISPX(corner.x)
+					- (r.extent.width >> 1);
+				r.corner.y = UNIVERSE_TO_DISPY(corner.y)
+					- (r.extent.height >> 1);
+
+				DrawFilledOval(&r);
+			}
+			else
+				DrawNoReturnZone ();
+
 			SetContextForeGroundColor (OldColor);
 		}
 	}
 }
 
-// Begin Malin's fuel to Sol ellipse code
-#define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X)? 1 : 0))
 
-POINT
-GetPointOfEllipse (double a, double b, double radian)
-{
-	double t[2] = { a * cos (radian), b * sin (radian) };
-	return (POINT) { (COORD)MATH_ROUND (t[0]), (COORD)MATH_ROUND (t[1]) };
-}
-
-POINT
-ShiftPoint (POINT p, POINT S)
-{
-	return (POINT) { p.x + S.x, p.y + S.y };
-}
-
-POINT
-RotatePoint (POINT p, POINT Pivot, double radian)
-{
-	double d[2] = { p.x - Pivot.x, p.y - Pivot.y };
-	double cosine[2] = { cos (radian), sin (radian) };
-	double x = Pivot.x + (d[0] * cosine[0] - d[1] * cosine[1]);
-	double y = Pivot.y + (d[0] * cosine[1] + d[1] * cosine[0]);
-
-	return (POINT) { MATH_ROUND (x), MATH_ROUND (y) };
-}
-
-void
-drawEllipse (void)
-{
-	LINE L1;
-	POINT Origin;
-	int i, lines = 50;
-	double ry, dist, radian, rotation;
-	POINT center, sol, sis;
-	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
-
-	sol = (POINT){ SOL_X, SOL_Y };
-	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
-
-	dist = FuelRequiredTo (sol) / 2;
-
-	// do not draw ellipse when fuel is not enough to reach Sol
-	if (dist > halfFuel)
-		return;
-
-	ry = sqrt (pow (halfFuel, 2) - pow (dist, 2));
-	lines = lines + (halfFuel + ry) / 30;
-	center = MAKE_POINT ((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
-	rotation = atan2 (sol.y - sis.y, sol.x - sis.x);
-
-	L1.first = GetPointOfEllipse (halfFuel, ry, 0);
-	L1.first = ShiftPoint (L1.first, center);
-	L1.first = RotatePoint (L1.first, center, rotation);
-	L1.first.x = UNIVERSE_TO_DISPX2 (L1.first.x);
-	L1.first.y = UNIVERSE_TO_DISPY2 (L1.first.y);
-
-	Origin = L1.first;
-
-	for (i = 0; i < lines; i++)
-	{
-		radian = i * 2 * M_PI / lines;
-
-		L1.second = GetPointOfEllipse (halfFuel, ry, radian);
-		L1.second = ShiftPoint (L1.second, center);
-		L1.second = RotatePoint (L1.second, center, rotation);
-		L1.second.x = UNIVERSE_TO_DISPX2 (L1.second.x);
-		L1.second.y = UNIVERSE_TO_DISPY2 (L1.second.y);
-
-		DrawLine (&L1, RES_DBL (1));
-		L1.first = L1.second;
-	}
-}
-
+// Taleden code of drawing ellipse. Unused because not precise enough
 static void
 DrawFuelEllipse ()
 {
@@ -1102,7 +1195,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		flashCurrentLocation (NULL, TRUE);
 	}
 
-	UnbatchGraphics ();
+	UnbatchGraphics ();	
 }
 
 static void
@@ -1939,7 +2032,6 @@ DoMoveCursor (MENU_STATE *pMS)
 		{
 			DoBubbleWarp (TRUE);
 		}
-
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
