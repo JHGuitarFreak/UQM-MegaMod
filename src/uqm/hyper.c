@@ -48,10 +48,10 @@
 #define XOFFS ((RADAR_SCAN_WIDTH + (UNIT_SCREEN_WIDTH << 2)) >> 1)
 #define YOFFS ((RADAR_SCAN_HEIGHT + (UNIT_SCREEN_HEIGHT << 2)) >> 1)
 
-static FRAME npcbubble;			// BW: animated bubble
-static FRAME quasiportal;       // JMS: animated quasispace portal in hyperspace
-static FRAME Falayalaralfali;   // JMS: Arilou homeworld in quasispace
-static FRAME hyperholes[3];		// BW: One for each flavour of space
+static FRAME npcbubble;       // BW: animated bubble
+static FRAME quasiportal;     // JMS: animated quasispace portal in hyper
+static FRAME Falayalaralfali; // JMS: Arilou homeworld in quasispace
+static FRAME hyperholes[3];   // BW: One for each flavour of space
 static FRAME hyperstars[4];
 static COLORMAP hypercmaps[2];
 static BYTE fuel_ticks;
@@ -74,7 +74,7 @@ enum HyperMenuItems
  * so you can see who's chasing you.
  */
 static void
-decorate_vortex (ELEMENT * ElementPtr)
+decorate_vortex (ELEMENT *ElementPtr)
 {
 	HENCOUNTER hEncounter, hNextEncounter;
 	FRAME f = NULL;
@@ -87,18 +87,18 @@ decorate_vortex (ELEMENT * ElementPtr)
 	// The element doesn't know what kind of ship it is, that
 	// info is stored in the encounter queue.  I'm guessing this
 	// needs refactoring
-	for (hEncounter = GetHeadEncounter();
+	for (hEncounter = GetHeadEncounter ();
 		hEncounter != 0; hEncounter = hNextEncounter)
 	{
 		ENCOUNTER *EncounterPtr;
 
-		LockEncounter(hEncounter, &EncounterPtr);
-		hNextEncounter = GetSuccEncounter(EncounterPtr);
+		LockEncounter (hEncounter, &EncounterPtr);
+		hNextEncounter = GetSuccEncounter (EncounterPtr);
 		if (EncounterPtr->hElement)
 		{
 			ELEMENT *EncounterElementPtr;
 
-			LockElement(EncounterPtr->hElement, &EncounterElementPtr);
+			LockElement (EncounterPtr->hElement, &EncounterElementPtr);
 			if (EncounterElementPtr == ElementPtr)
 			{
 				HFLEETINFO hFleet;
@@ -106,19 +106,21 @@ decorate_vortex (ELEMENT * ElementPtr)
 
 				if (vortex_ships[EncounterPtr->race_id])
 				{
-					if (ElementPtr->next.image.frame != vortex_ships[EncounterPtr->race_id])
-						ElementPtr->next.image.frame = vortex_ships[EncounterPtr->race_id];
+					if (ElementPtr->next.image.frame !=
+							vortex_ships[EncounterPtr->race_id])
+						ElementPtr->next.image.frame =
+							vortex_ships[EncounterPtr->race_id];
 				}
 				else
 				{
-					hFleet = GetStarShipFromIndex(&GLOBAL(avail_race_q),
+					hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q),
 						EncounterPtr->race_id);
 					if (hFleet)
 					{
-						FleetPtr = LockFleetInfo(&GLOBAL(avail_race_q),
+						FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q),
 							hFleet);
-						f = SetAbsFrameIndex(FleetPtr->melee_icon, 1);
-						UnlockFleetInfo(&GLOBAL(avail_race_q), hFleet);
+						f = SetAbsFrameIndex (FleetPtr->melee_icon, 1);
+						UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 					}
 
 					// now make a frame, and use a context to scribble
@@ -132,42 +134,55 @@ decorate_vortex (ELEMENT * ElementPtr)
 						Color trans;
 						STAMP s;
 
-						vortex_ships[EncounterPtr->race_id] = CaptureDrawable(
-							CreateDrawable(WANT_PIXMAP | WANT_ALPHA,
-								GetFrameWidth(ElementPtr->next.image.frame),
-								GetFrameHeight(ElementPtr->next.image.frame), 1));
-						tmp = CreateContext("HyperSpaceContext");
-						old = SetContext(tmp);
-						SetContextFGFrame(vortex_ships[EncounterPtr->race_id]);
-						trans = BUILD_COLOR(MAKE_RGB15(0x10, 0x00, 0x10), 0x00);
-						SetContextBackGroundColor(trans);
-						ClearDrawable();
-						SetFrameTransparentColor(vortex_ships[EncounterPtr->race_id], trans);
+						vortex_ships[EncounterPtr->race_id] =
+								CaptureDrawable (
+									CreateDrawable (
+										WANT_PIXMAP | WANT_ALPHA,
+										GetFrameWidth (
+											ElementPtr->next.image.frame),
+										GetFrameHeight (
+											ElementPtr->next.image.frame),
+										1)
+									);
+						tmp = CreateContext ("HyperSpaceContext");
+						old = SetContext (tmp);
+						SetContextFGFrame (
+								vortex_ships[EncounterPtr->race_id]);
+						trans = BUILD_COLOR (
+								MAKE_RGB15 (0x10, 0x00, 0x10), 0x00);
+						SetContextBackGroundColor (trans);
+						ClearDrawable ();
+						SetFrameTransparentColor (
+								vortex_ships[EncounterPtr->race_id], trans
+							);
 
 						// the original element
 						s.frame = ElementPtr->current.image.frame;
-						s.origin = GetFrameHot(s.frame);
-						DrawStamp(&s);
+						s.origin = GetFrameHot (s.frame);
+						DrawStamp (&s);
 
 						// the overlaid gfx
 						s.frame = f;
-						DrawStamp(&s);
+						DrawStamp (&s);
 
 						// important to make sure the
 						// collision animation looks correct
-						SetFrameHot(vortex_ships[EncounterPtr->race_id], s.origin);
+						SetFrameHot (vortex_ships[EncounterPtr->race_id],
+								s.origin);
 
 						// cleanup
-						SetContext(old);
-						DestroyContext(tmp);
-						// vortex_ships[EncounterPtr->race_id]->parent = ElementPtr->current.image.frame->parent;
-						// ElementPtr->next.image.frame = vortex_ships[EncounterPtr->race_id];
+						SetContext (old);
+						DestroyContext (tmp);
+						// vortex_ships[EncounterPtr->race_id]->parent =
+						//		ElementPtr->current.image.frame->parent;
+						// ElementPtr->next.image.frame =
+						//		vortex_ships[EncounterPtr->race_id];
 					}
 				}
 			}
-			UnlockElement(EncounterPtr->hElement);
+			UnlockElement (EncounterPtr->hElement);
 		}
-		UnlockEncounter(hEncounter);
+		UnlockEncounter (hEncounter);
 	}
 }
 
@@ -220,8 +235,10 @@ MoveSIS (SDWORD *pdx, SDWORD *pdy)
 				hNextElement = GetPredElement (ElementPtr);
 			else
 			{
-				ElementPtr->next.location.x = (LOG_SPACE_WIDTH >> 1) - new_dx;
-				ElementPtr->next.location.y = (LOG_SPACE_HEIGHT >> 1) - new_dy;
+				ElementPtr->next.location.x = (LOG_SPACE_WIDTH >> 1)
+						- new_dx;
+				ElementPtr->next.location.y = (LOG_SPACE_HEIGHT >> 1)
+						- new_dy;
 				hNextElement = 0;
 			}
 
@@ -242,9 +259,9 @@ MoveSIS (SDWORD *pdx, SDWORD *pdy)
 			new_dy = -new_dy;
 		hyper_dy += new_dy;
 
-		/* These macros are also used in the fuel estimate on the starmap. */
-		adj_dx = LOGX_TO_UNIVERSE(16 * hyper_dx);
-		adj_dy = MAX_Y_UNIVERSE - LOGY_TO_UNIVERSE(16 * hyper_dy);
+		// These macros are also used in the fuel estimate on the starmap.
+		adj_dx = LOGX_TO_UNIVERSE (16 * hyper_dx);
+		adj_dy = MAX_Y_UNIVERSE - LOGY_TO_UNIVERSE (16 * hyper_dy);
 
 		hyper_dist = square_root (adj_dx * adj_dx + adj_dy * adj_dy) 
 					+ hyper_extra;
@@ -461,11 +478,14 @@ LoadHyperData (void)
 				LoadGraphic (ARI_AMBIENT_MASK_PMAP_ANIM));
 		}
 		if (npcbubble == 0)
-			npcbubble = CaptureDrawable (LoadGraphic (NPCBUBBLE_MASK_PMAP_ANIM));
+			npcbubble = CaptureDrawable (
+					LoadGraphic (NPCBUBBLE_MASK_PMAP_ANIM));
 		if (quasiportal == 0)
-			quasiportal = CaptureDrawable (LoadGraphic (QUASIPORTAL_MASK_PMAP_ANIM));
+			quasiportal = CaptureDrawable (
+					LoadGraphic (QUASIPORTAL_MASK_PMAP_ANIM));
 		if (Falayalaralfali == 0)
-			Falayalaralfali = CaptureDrawable (LoadGraphic (FALAYALARALFALI_MASK_PMAP_ANIM));
+			Falayalaralfali = CaptureDrawable (
+					LoadGraphic (FALAYALARALFALI_MASK_PMAP_ANIM));
 	}
 	
 	if (hyperstars[0] == 0)
@@ -478,7 +498,8 @@ LoadHyperData (void)
 
 		hyperstars[2] = CaptureDrawable (
 				LoadGraphic (ARISPACE_MASK_PMAP_ANIM));
-		hypercmaps[1] = CaptureColorMap (LoadColorMap (ARISPACE_COLOR_TAB));
+		hypercmaps[1] = CaptureColorMap (
+				LoadColorMap (ARISPACE_COLOR_TAB));
 	}
 }
 
@@ -662,8 +683,10 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			STAR_DESC *SDPtr, *SDPtr2;
 			SDPtr = CurStarDescPtr;
 			SDPtr2 = FindStar (NULL, &pt, 500, 500);
-			log_add(log_Debug, "SDPtr.x %d, SDPtr.y %d SDPtr2.x %d, SDPtr2.y %d, pt.x %d pt.y %d", 
-				SDPtr->star_pt.x, SDPtr->star_pt.y, SDPtr2->star_pt.x, SDPtr2->star_pt.y, pt.x, pt.y);
+			log_add(log_Debug, "SDPtr.x %d, SDPtr.y %d SDPtr2.x %d, "
+					"SDPtr2.y %d, pt.x %d pt.y %d", 
+					SDPtr->star_pt.x, SDPtr->star_pt.y, SDPtr2->star_pt.x,
+					SDPtr2->star_pt.y, pt.x, pt.y);
 		}*/
 
 		if (CurStarDescPtr->star_pt.x == ARILOU_HOME_X
@@ -680,7 +703,8 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			// Transition from QuasiSpace to HyperSpace through
 			// one of the permanent portals.
 			COUNT index;
-			const POINT portal_pt[] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
+			const POINT portal_pt[] =
+					QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
 
 			index = CurStarDescPtr - &star_array[NUM_SOLAR_SYSTEMS + 1];
 			GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
@@ -739,7 +763,9 @@ unhyper_transition (ELEMENT *ElementPtr)
 
 	// JMS: If leaving interplanetary on autopilot, always arrive HS with
 	// the ship's nose pointed into correct direction.
-	if (optSmartAutoPilot && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
+	if (optSmartAutoPilot
+			&& ((GLOBAL (autopilot)).x != ~0
+				&& (GLOBAL (autopilot)).y != ~0))
 	{
 		STARSHIP *StarShipPtr;
 		POINT universe;
@@ -764,7 +790,8 @@ unhyper_transition (ELEMENT *ElementPtr)
 		frame_index += ANGLE_TO_FACING (FULL_CIRCLE);
 	else if (frame_index < ANGLE_TO_FACING (FULL_CIRCLE))
 		frame_index = NORMALIZE_FACING (frame_index + 1);
-	else if (++frame_index == GetFrameCount (ElementPtr->current.image.frame))
+	else if (++frame_index ==
+			GetFrameCount (ElementPtr->current.image.frame))
 	{
 		cleanup_hyperspace ();
 
@@ -788,7 +815,8 @@ unhyper_transition (ELEMENT *ElementPtr)
 		return;
 	}
 	ElementPtr->next.image.frame =
-			SetAbsFrameIndex (ElementPtr->current.image.frame, frame_index);
+			SetAbsFrameIndex (ElementPtr->current.image.frame,
+				frame_index);
 }
 
 static void
@@ -840,7 +868,7 @@ hyper_transition (ELEMENT *ElementPtr)
 		else
 		{
 			ElementPtr->preprocess_func =
-					(void (*) (struct element *ElementPtr)) hyper_transition;
+					(void(*)(struct element *ElementPtr))hyper_transition;
 			ElementPtr->postprocess_func = NULL;
 			ElementPtr->state_flags |= NONSOLID;
 			ElementPtr->next.image.frame =
@@ -852,9 +880,11 @@ hyper_transition (ELEMENT *ElementPtr)
 	{
 		COUNT frame_index;
 
-		// JMS: If leaving interplanetary on autopilot, always arrive HS with
-		// the ship's nose pointed into correct direction.
-		if (optSmartAutoPilot && ((GLOBAL (autopilot)).x != ~0 && (GLOBAL (autopilot)).y != ~0))
+		// JMS: If leaving interplanetary on autopilot, always arrive HS
+		// with the ship's nose pointed into correct direction.
+		if (optSmartAutoPilot
+				&& ((GLOBAL (autopilot)).x != ~0
+					&& (GLOBAL (autopilot)).y != ~0))
 		{
 			STARSHIP *StarShipPtr;
 			POINT universe;
@@ -867,7 +897,8 @@ hyper_transition (ELEMENT *ElementPtr)
 			udx = (GLOBAL (autopilot)).x - universe.x;
 			udy = -((GLOBAL (autopilot)).y - universe.y);
 			
-			facing = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (udx, udy)));
+			facing =
+					NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (udx, udy)));
 			StarShipPtr->ShipFacing = facing;
 			SetElementStarShip (ElementPtr, StarShipPtr);
 		}
@@ -1074,17 +1105,22 @@ AddAmbientElement (void)
 		}
 		else
 		{
-			dx = (SIZE)((HIWORD (rand_val)) % SPACE_WIDTH) - (SPACE_WIDTH >> 1);
+			dx = (SIZE)((HIWORD (rand_val)) % SPACE_WIDTH)
+					- (SPACE_WIDTH >> 1);
 			dy = (SIZE)(dy % SPACE_HEIGHT) - (SPACE_HEIGHT >> 1);
 			
 			if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-				HyperSpaceElementPtr->current.image.farray = &stars_in_space;
+				HyperSpaceElementPtr->current.image.farray =
+						&stars_in_space;
 			else
-				HyperSpaceElementPtr->current.image.farray = &stars_in_quasispace;
+				HyperSpaceElementPtr->current.image.farray =
+						&stars_in_quasispace;
 		}
 		
-		HyperSpaceElementPtr->current.location.x = (LOG_SPACE_WIDTH >> 1) + DISPLAY_TO_WORLD (dx);
-		HyperSpaceElementPtr->current.location.y = (LOG_SPACE_HEIGHT >> 1) + DISPLAY_TO_WORLD (dy);
+		HyperSpaceElementPtr->current.location.x =
+				(LOG_SPACE_WIDTH >> 1) + DISPLAY_TO_WORLD (dx);
+		HyperSpaceElementPtr->current.location.y =
+				(LOG_SPACE_HEIGHT >> 1) + DISPLAY_TO_WORLD (dy);
 
 		if (HIWORD (rand_val) & 7)
 		{
@@ -1092,15 +1128,18 @@ AddAmbientElement (void)
 			if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
 				HyperSpaceElementPtr->current.image.frame = stars_in_space;
 			else
-				HyperSpaceElementPtr->current.image.frame = stars_in_quasispace;
+				HyperSpaceElementPtr->current.image.frame =
+						stars_in_quasispace;
 		}
 		else
 		{
 			HyperSpaceElementPtr->life_span = 12;
 			if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (stars_in_space, 14);
+				HyperSpaceElementPtr->current.image.frame =
+						SetAbsFrameIndex (stars_in_space, 14);
 			else
-				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (stars_in_quasispace, 14);
+				HyperSpaceElementPtr->current.image.frame =
+						SetAbsFrameIndex (stars_in_quasispace, 14);
 		}
 
 		UnlockElement (hHyperSpaceElement);
@@ -1140,11 +1179,14 @@ encounter_transition (ELEMENT *ElementPtr)
  				ElementPtr->death_func = NULL;
 				
 				if (IS_HD)
-				{	// BW: the bubble has reached full size so we start animation
+				{	// BW: the bubble has reached full size so we start
+					// the animation
 					ElementPtr->current.image.farray = &npcbubble;
 					ElementPtr->next.image.farray = &npcbubble;
-					ElementPtr->current.image.frame = SetAbsFrameIndex(npcbubble, 0);
-					ElementPtr->next.image.frame = SetAbsFrameIndex(npcbubble, 0);
+					ElementPtr->current.image.frame =
+							SetAbsFrameIndex(npcbubble, 0);
+					ElementPtr->next.image.frame =
+							SetAbsFrameIndex(npcbubble, 0);
 				}
 			}
 		}
@@ -1191,7 +1233,8 @@ encounter_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 			|| !(GLOBAL (CurrentActivity) & IN_BATTLE))
 		return;
 
-	init_transition (ElementPtr0, ElementPtr1, RANDOM_ENCOUNTER_TRANSITION);
+	init_transition (ElementPtr0, ElementPtr1,
+			RANDOM_ENCOUNTER_TRANSITION);
 
 	for (hEncounter = GetHeadEncounter ();
 			hEncounter != 0; hEncounter = hNextEncounter)
@@ -1260,7 +1303,8 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 
 		NewEncounter = TRUE;
 
-		radius_squared = (DWORD)EncounterPtr->radius * EncounterPtr->radius;
+		radius_squared =
+				(DWORD)EncounterPtr->radius * EncounterPtr->radius;
 
 		Type = EncounterPtr->race_id;
 		NumShips = LONIBBLE (EncounterMakeup[Type]);
@@ -1345,10 +1389,13 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 			{
 				ElementPtr->current.image.farray = &npcbubble;
 				ElementPtr->next.image.farray = &npcbubble;
-				ElementPtr->current.image.frame = SetAbsFrameIndex(npcbubble, 0);
-				ElementPtr->next.image.frame = SetAbsFrameIndex(npcbubble, 0);
+				ElementPtr->current.image.frame =
+						SetAbsFrameIndex (npcbubble, 0);
+				ElementPtr->next.image.frame =
+						SetAbsFrameIndex (npcbubble, 0);
 			} else
-				ElementPtr->current.image.frame = DecFrameIndex (ElementPtr->current.image.farray[0]);
+				ElementPtr->current.image.frame = DecFrameIndex (
+						ElementPtr->current.image.farray[0]);
 		}
 
 		ElementPtr->turn_wait = VORTEX_WAIT;
@@ -1406,10 +1453,12 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy;
 	r.extent.width = RES_SCALE (1);
 	r.extent.height = ((COORD) ((long)(MAX_Y_UNIVERSE - sy)
-			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y + RES_SCALE (1);
+			* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy) - r.corner.y
+			+ RES_SCALE (1);
 	for (ux = sx; ux <= ex; ux += GRID_OFFSET)
 	{
-		r.corner.x = (COORD) ((long)ux * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
+		r.corner.x = (COORD) ((long)ux * RADAR_WIDTH / RADAR_SCAN_WIDTH)
+				- ox;
 		DrawFilledRectangle (&r);
 	}
 
@@ -1492,7 +1541,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 					--cur_facing;
 				else
 					++cur_facing;
-				if (NORMALIZE_FACING (delta_facing + ANGLE_TO_FACING (OCTANT))
+				if (NORMALIZE_FACING (delta_facing
+						+ ANGLE_TO_FACING (OCTANT))
 						> ANGLE_TO_FACING (QUADRANT))
 				{
 					if (delta_facing < ANGLE_TO_FACING (HALF_CIRCLE))
@@ -1503,7 +1553,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 				}
 				cur_facing = FACING_TO_ANGLE (cur_facing);
 				SetVelocityComponents (&ElementPtr->velocity,
-						COSINE (cur_facing, speed), SINE (cur_facing, speed));
+						COSINE (cur_facing, speed),
+						SINE (cur_facing, speed));
 				GetNextVelocityComponents (&ElementPtr->velocity,
 						&delta_x, &delta_y, 1);
 
@@ -1517,7 +1568,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 
 		// BW: Animate the NPC bubble in hi-res modes.
 		if (IS_HD)
-			ElementPtr->next.image.frame = IncFrameIndex (ElementPtr->current.image.frame);
+			ElementPtr->next.image.frame =
+					IncFrameIndex (ElementPtr->current.image.frame);
 
 		encounter_radius = EncounterPtr->radius + (GRID_OFFSET >> 1);
 		delta_x = EncounterPtr->loc_pt.x - EncounterPtr->origin.x;
@@ -1593,7 +1645,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 
 	UnlockElement (EncounterPtr->hElement);
 		
-	stamp->origin.x = (COORD)((long)ex * RADAR_WIDTH / RADAR_SCAN_WIDTH) - ox;
+	stamp->origin.x = (COORD)((long)ex * RADAR_WIDTH / RADAR_SCAN_WIDTH)
+			- ox;
 	stamp->origin.y = (COORD)((long)(MAX_Y_UNIVERSE - ey) * RADAR_HEIGHT
 			/ RADAR_SCAN_HEIGHT) - oy;
 	DrawStamp (stamp);
@@ -1668,7 +1721,7 @@ SeedUniverse (void)
 	arilouSpaceCounter = GET_GAME_STATE (ARILOU_SPACE_COUNTER);
 	arilouSpaceSide = GET_GAME_STATE (ARILOU_SPACE_SIDE);
 
-//    if (ox != ex || oy != ey)
+//	if (ox != ex || oy != ey)
 	{
 		DrawHyperGrid (universe.x, universe.y, ox, oy);
 
@@ -1749,7 +1802,8 @@ SeedUniverse (void)
 			--i;
 			sx = SD[i].star_pt.x - universe.x + XOFFS;
 			sy = SD[i].star_pt.y - universe.y + YOFFS;
-			if (sx < 0 || sy < 0 || sx >= (XOFFS << 1) || sy >= (YOFFS << 1))
+			if (sx < 0 || sy < 0 || sx >= (XOFFS << 1)
+					|| sy >= (YOFFS << 1))
 				continue;
 
 			ex = SD[i].star_pt.x;
@@ -1780,10 +1834,15 @@ SeedUniverse (void)
 			if (!IS_HD
 				|| (SD[i].Index < 22 && arilouSpaceSide <= 1)
 				|| (SD[i].Index < 4 && arilouSpaceSide > 1))
-			{	// The QS portal is still growing (Or when playing in 1x resolution).
-				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-					hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
-					SD[i].Index);
+			{	// The QS portal is still growing
+				// (Or when playing in 1x resolution).
+				HyperSpaceElementPtr->current.image.frame =
+						SetAbsFrameIndex (
+							hyperstars[
+								1 +
+								(GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)
+							],
+							SD[i].Index);
 			}
 			else if (arilouSpaceSide > 1)
 			{	// QS. The HS portal has done its growing animation.
@@ -1849,12 +1908,14 @@ SeedUniverse (void)
 					continue;
 				
 				LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-				which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
+				which_spaces_star_gfx =
+						1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
-				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-						hyperstars[which_spaces_star_gfx],
-						STAR_TYPE (star_type) * NUM_STAR_COLORS
-						+ STAR_COLOR (star_type));
+				HyperSpaceElementPtr->current.image.frame =
+						SetAbsFrameIndex (
+							hyperstars[which_spaces_star_gfx],
+							STAR_TYPE (star_type) * NUM_STAR_COLORS
+							+ STAR_COLOR (star_type));
 				
 				HyperSpaceElementPtr->preprocess_func = NULL;
 				HyperSpaceElementPtr->postprocess_func = NULL;
@@ -1868,26 +1929,29 @@ SeedUniverse (void)
 				else
 				{
 					HyperSpaceElementPtr->death_func = NULL;
-					HyperSpaceElementPtr->IntersectControl.IntersectStamp.frame =
-					DecFrameIndex (stars_in_space);
+					HyperSpaceElementPtr->
+							IntersectControl.IntersectStamp.frame =
+								DecFrameIndex (stars_in_space);
 				}
 				UnlockElement (hHyperSpaceElement);
 				
 				InsertElement (hHyperSpaceElement, GetHeadElement ());
 			}
 			else
-			{
-				// BW: first the actual star
+			{	// BW: first the actual star
 				if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 
 						|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
 						&& STAR_COLOR (star_type) == YELLOW_BODY))
 				{
-					hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
+					hHyperSpaceElement =
+							AllocHyperElement (&SDPtr->star_pt);
 					if (hHyperSpaceElement == 0)
 						continue;
 				
-					LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-					which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
+					LockElement (hHyperSpaceElement,
+							&HyperSpaceElementPtr);
+					which_spaces_star_gfx =
+							1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
 					// JMS_GFX: Draw stars in hyperspace.
 					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
@@ -1898,12 +1962,13 @@ SeedUniverse (void)
 							HyperSpaceElementPtr->current.image.frame =
 									SetAbsFrameIndex (
 										hyperspacesuns,
-										STAR_COLOR(star_type)
+										STAR_COLOR (star_type)
 											* NUM_STAR_TYPES * NUM_FRAMES
-											+ STAR_TYPE(star_type) 
+											+ STAR_TYPE (star_type) 
 											* NUM_FRAMES + frameCounter);
 
-							HyperSpaceElementPtr->current.image.farray = &hyperspacesuns;
+							HyperSpaceElementPtr->current.image.farray =
+									&hyperspacesuns;
 							HyperSpaceElementPtr->death_func = NULL;
 						}
 					}
@@ -1923,14 +1988,18 @@ SeedUniverse (void)
 				
 					SetUpElement (HyperSpaceElementPtr);
 				
-					HyperSpaceElementPtr->IntersectControl.IntersectStamp.frame = DecFrameIndex (stars_in_space);
+					HyperSpaceElementPtr->
+							IntersectControl.IntersectStamp.frame =
+								DecFrameIndex (stars_in_space);
 				
 					UnlockElement (hHyperSpaceElement);
 				
 					InsertElement (hHyperSpaceElement, GetHeadElement ());
 				
-					// JMS_GFX: Don't draw hole for arilou homeworld - it already has a nice planet gfx.
-					if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY && !IS_HD)
+					// JMS_GFX: Don't draw hole for arilou homeworld
+					// it already has a nice planet gfx.
+					if (!IS_HD && GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1
+							&& STAR_COLOR (star_type) == YELLOW_BODY)
 						continue;
 				}
 				
@@ -1940,14 +2009,17 @@ SeedUniverse (void)
 					continue;
 				
 				LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-				which_spaces_star_gfx = 1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
+				which_spaces_star_gfx =
+						1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
 				
-				if (!optHyperStars && (GET_GAME_STATE(ARILOU_SPACE_SIDE) <= 1))
+				if (!optHyperStars
+						&& (GET_GAME_STATE(ARILOU_SPACE_SIDE) <= 1))
 				{
-					HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
-						hyperstars[which_spaces_star_gfx],
-						STAR_TYPE(star_type) * NUM_STAR_COLORS
-						+ STAR_COLOR(star_type));
+					HyperSpaceElementPtr->current.image.frame =
+							SetAbsFrameIndex (
+								hyperstars[which_spaces_star_gfx],
+								STAR_TYPE (star_type) * NUM_STAR_COLORS
+								+ STAR_COLOR(star_type));
 				}
 				else
 				{	// Most holes go 100, 150, 200 or 150, 200, 250
@@ -1985,7 +2057,8 @@ SeedUniverse (void)
 								HyperSpaceElementPtr->current.image.frame,
 								frameCounter);
 	
-					HyperSpaceElementPtr->current.image.farray = &hyperholes[which_spaces_star_gfx];
+					HyperSpaceElementPtr->current.image.farray =
+							&hyperholes[which_spaces_star_gfx];
 				}
 
 
@@ -1995,15 +2068,17 @@ SeedUniverse (void)
 				
 				SetUpElement (HyperSpaceElementPtr);
 				
-				if ((SDPtr == CurStarDescPtr && GET_GAME_STATE (PORTAL_COUNTER) == 0))
+				if ((SDPtr == CurStarDescPtr
+						&& GET_GAME_STATE (PORTAL_COUNTER) == 0))
 				{
 					HyperSpaceElementPtr->death_func = hyper_death;
 				}
 				else
 				{
 					HyperSpaceElementPtr->death_func = NULL;
-					HyperSpaceElementPtr->IntersectControl.IntersectStamp.frame =
-					DecFrameIndex (stars_in_space);
+					HyperSpaceElementPtr->
+							IntersectControl.IntersectStamp.frame =
+								DecFrameIndex (stars_in_space);
 				}
 				UnlockElement (hHyperSpaceElement);
 				
@@ -2197,4 +2272,3 @@ SaveSisHyperState (void)
 	GLOBAL (ShipFacing) = StarShipPtr->ShipFacing + 1;
 	UnlockElement (hSisElement);
 }
-
