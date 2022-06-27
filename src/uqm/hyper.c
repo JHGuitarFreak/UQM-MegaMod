@@ -1628,9 +1628,7 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 	}
 }
 
-#define NUM_HOLES_FRAMES 32
-#define NUM_SUNS_FRAMES 32
-#define NUM_QUASIPORTAL_IN_HS_FRAMES 30
+#define NUM_FRAMES 32
 
 void
 SeedUniverse (void)
@@ -1788,15 +1786,18 @@ SeedUniverse (void)
 					SD[i].Index);
 			}
 			else if (arilouSpaceSide > 1)
-			{	// QS. The QS portal has done its growing animation: in HD switch to the full-size anim.
+			{	// QS. The HS portal has done its growing animation.
+				// In HD switch to the full-size anim.
 				HyperSpaceElementPtr->current.image.frame =
-					SetAbsFrameIndex (quasiportal, frameCounter % NUM_HOLES_FRAMES);
-				HyperSpaceElementPtr->current.image.farray = &hyperholes[2];
+					SetAbsFrameIndex (quasiportal, frameCounter);
+				HyperSpaceElementPtr->current.image.farray =
+						&hyperholes[2];
 			}
 			else
-			{	// HS. The QS portal has done its growing animation: in HD switch to the full-size anim.
+			{	// HS. The QS portal has done its growing animation
+				// In HD switch to the full-size anim.
 				HyperSpaceElementPtr->current.image.frame =
-					SetAbsFrameIndex (quasiportal, frameCounter % NUM_QUASIPORTAL_IN_HS_FRAMES);
+					SetAbsFrameIndex (quasiportal, frameCounter);
 				HyperSpaceElementPtr->current.image.farray = &quasiportal;
 			}
 
@@ -1811,8 +1812,9 @@ SeedUniverse (void)
 			else
 			{
 				HyperSpaceElementPtr->death_func = NULL;
-				HyperSpaceElementPtr->IntersectControl.IntersectStamp.frame =
-						DecFrameIndex (stars_in_space);
+				HyperSpaceElementPtr->
+						IntersectControl.IntersectStamp.frame =
+							DecFrameIndex (stars_in_space);
 			}
 
 			UnlockElement (hHyperSpaceElement);
@@ -1893,19 +1895,26 @@ SeedUniverse (void)
 						if (optHyperStars)
 						{	// The color, then the size and finally
 							// the frame offset for the actual animation
-							HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
-								hyperspacesuns, STAR_COLOR(star_type) * NUM_STAR_TYPES * NUM_SUNS_FRAMES
-								+ STAR_TYPE(star_type) * NUM_SUNS_FRAMES
-								+ frameCounter % NUM_SUNS_FRAMES);
+							HyperSpaceElementPtr->current.image.frame =
+									SetAbsFrameIndex (
+										hyperspacesuns,
+										STAR_COLOR(star_type)
+											* NUM_STAR_TYPES * NUM_FRAMES
+											+ STAR_TYPE(star_type) 
+											* NUM_FRAMES + frameCounter);
 
 							HyperSpaceElementPtr->current.image.farray = &hyperspacesuns;
 							HyperSpaceElementPtr->death_func = NULL;
 						}
 					}
-					else if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) && STAR_COLOR (star_type) == YELLOW_BODY)
+					else if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
+							&& STAR_COLOR (star_type) == YELLOW_BODY)
 					{	// Draw animated Arilou homeworld
-						HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (Falayalaralfali, frameCounter % NUM_HOLES_FRAMES);
-						HyperSpaceElementPtr->current.image.farray = &Falayalaralfali;
+						HyperSpaceElementPtr->current.image.frame =
+								SetAbsFrameIndex (Falayalaralfali,
+									frameCounter);
+						HyperSpaceElementPtr->current.image.farray =
+								&Falayalaralfali;
 					}
 					HyperSpaceElementPtr->death_func = NULL;
 					HyperSpaceElementPtr->preprocess_func = NULL;
@@ -1942,29 +1951,39 @@ SeedUniverse (void)
 				}
 				else
 				{	// Most holes go 100, 150, 200 or 150, 200, 250
-					HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-						hyperholes[which_spaces_star_gfx],
-						STAR_TYPE (star_type) * NUM_HOLES_FRAMES);
+					HyperSpaceElementPtr->current.image.frame =
+							SetAbsFrameIndex (
+								hyperholes[which_spaces_star_gfx],
+								STAR_TYPE (star_type) * NUM_FRAMES);
 					
 					// Green, orange and yellow need bigger holes
 					if (STAR_COLOR (star_type) == GREEN_BODY
-						|| STAR_COLOR (star_type) == ORANGE_BODY
-						|| STAR_COLOR (star_type) == YELLOW_BODY)
-						HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
-							HyperSpaceElementPtr->current.image.frame,
-							NUM_HOLES_FRAMES);
+							|| STAR_COLOR (star_type) == ORANGE_BODY
+							|| STAR_COLOR (star_type) == YELLOW_BODY)
+					{
+						HyperSpaceElementPtr->current.image.frame =
+								SetRelFrameIndex (
+									HyperSpaceElementPtr->
+										current.image.frame,
+									NUM_FRAMES);
+					}
 					
 					// Super giant blue needs a bigger hole
 					if (STAR_COLOR (star_type) == BLUE_BODY
-						&& STAR_TYPE (star_type) == SUPER_GIANT_STAR)
-						HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
-							HyperSpaceElementPtr->current.image.frame,
-							NUM_HOLES_FRAMES);
+							&& STAR_TYPE (star_type) == SUPER_GIANT_STAR)
+					{
+						HyperSpaceElementPtr->current.image.frame =
+								SetRelFrameIndex (
+									HyperSpaceElementPtr->
+										current.image.frame,
+									NUM_FRAMES);
+					}
 					
 					// The actual animation
-					HyperSpaceElementPtr->current.image.frame = SetRelFrameIndex (
-						HyperSpaceElementPtr->current.image.frame,
-						frameCounter % NUM_HOLES_FRAMES);
+					HyperSpaceElementPtr->current.image.frame =
+							SetRelFrameIndex (
+								HyperSpaceElementPtr->current.image.frame,
+								frameCounter);
 	
 					HyperSpaceElementPtr->current.image.farray = &hyperholes[which_spaces_star_gfx];
 				}
