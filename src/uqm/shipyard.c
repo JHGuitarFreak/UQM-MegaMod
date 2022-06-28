@@ -74,7 +74,7 @@ static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW] = {
 
 #define HANGAR_SHIPS      12
 #define HANGAR_ROWS       (HANGAR_SHIPS / HANGAR_SHIPS_ROW)
-#define HANGAR_ANIM_RATE  15 // fps
+#define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
 
 enum
 {
@@ -1082,6 +1082,7 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 				break;
 
 			CrewTransaction (crew_delta);
+			animatePowerLines (NULL);
 		}
 	}
 	else
@@ -1113,7 +1114,10 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 
 			if (!DIF_HARD || ((dy > 0 && StarShipPtr->crew_level >= 1)
 				|| (dy < 0 && StarShipPtr->crew_level != 1)))
+			{
 				CrewTransaction (crew_delta);
+				animatePowerLines (NULL);
+			}
 		}
 	}
 
