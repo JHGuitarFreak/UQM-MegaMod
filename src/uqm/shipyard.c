@@ -56,14 +56,15 @@ static const COORD hangar_x_coords[HANGAR_SHIPS_ROW] =
 #	define HANGAR_SHIPS_ROW  6
 
 // The Y position of the upper line of hangar bay doors.
-# define HANGAR_Y	RES_SCALE (88) 
+# define HANGAR_Y	RES_SCALE (88)
 
 // The Y position of the lower line of hangar bay doors.
-# define HANGAR_DY	RES_SCALE (84) 
+# define HANGAR_DY	RES_SCALE (84)
 
 
 // The X positions of the hangar bay doors for each resolution mode.
-// Calculated from the right edge of the left grey border bar on the screen.
+// Calculated from the right edge of the left grey border bar on the
+// screen.
 static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW] = {
 	0, 38, 76, 131, 169, 207
 };
@@ -192,13 +193,13 @@ SpinStarShip (MENU_STATE *pMS, HFLEETINFO hStarShip)
 }
 
 static void
-on_input_frame(void)
+on_input_frame (void)
 {
 	CONTEXT oldContext;
 
 	oldContext = SetContext(SpaceContext);
 	if (!DoShipSpins)
-		animatePowerLines(NULL);
+		animatePowerLines (NULL);
 	SetContext(oldContext);
 }
 
@@ -256,7 +257,8 @@ GetAvailableRaceFromIndex (BYTE Index)
 COUNT
 ShipCost (BYTE race_id)
 {
-	HFLEETINFO hStarShip = GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
+	HFLEETINFO hStarShip =
+			GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
 	FLEET_INFO *FleetPtr;
 	RACE_DESC *RDPtr;
 	COUNT shipCost;
@@ -376,7 +378,8 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 	hTemplate = GetStarShipFromIndex (&GLOBAL (avail_race_q),
 			StarShipPtr->race_id);
 	TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
-	maxCrewLevel = EXTENDED ? TemplatePtr->max_crew: TemplatePtr->crew_level;
+	maxCrewLevel =
+			EXTENDED ? TemplatePtr->max_crew : TemplatePtr->crew_level;
 	
 	if (isPC (optWhichFonts))
 		SetContextFont (TinyFont);
@@ -389,7 +392,8 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 		sprintf (buf, "%u", StarShipPtr->crew_level);
 	else if (StarShipPtr->crew_level == 0)
 		// XXX: "SCRAP" needs to be moved to starcon.txt
-		utf8StringCopy (buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 5));
+		utf8StringCopy (buf, sizeof (buf),
+				GAME_STRING (STARBASE_STRING_BASE + 5));
 	else
 		sprintf (buf, "%u/%u", StarShipPtr->crew_level, maxCrewLevel);
 
@@ -473,7 +477,8 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 			hStarShip = GetHeadLink (&GLOBAL (built_ship_q));
 			while (hStarShip)
 			{
-				StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
+				StarShipPtr =
+						LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 				if (StarShipPtr->index > which_window)
 				{
 					UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
@@ -499,15 +504,16 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 
 			pship_win_info->StarShipPtr = StarShipPtr;
 					// XXX BUG: this looks wrong according to the original
-					// semantics of LockShipFrag(): StarShipPtr is not valid
-					// anymore after UnlockShipFrag() is called, but it is
-					// used thereafter.
+					// semantics of LockShipFrag(): StarShipPtr is not
+					// valid anymore after UnlockShipFrag() is called,
+					// but it is used thereafter.
 
 			pship_win_info->lfdoor_s.origin.x = -RES_SCALE (1);
 			pship_win_info->rtdoor_s.origin.x = RES_SCALE (1);
 			pship_win_info->lfdoor_s.origin.y = 0;
 			pship_win_info->rtdoor_s.origin.y = 0;
-			pship_win_info->lfdoor_s.frame = IncFrameIndex (pMS->ModuleFrame);
+			pship_win_info->lfdoor_s.frame =
+					IncFrameIndex (pMS->ModuleFrame);
 			pship_win_info->rtdoor_s.frame =
 					IncFrameIndex (pship_win_info->lfdoor_s.frame);
 
@@ -712,7 +718,8 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	r.corner.x = hangar_x_coords[col];
-	r.corner.y = (HANGAR_Y + (HANGAR_DY * row)) + (SHIP_WIN_HEIGHT - RES_SCALE (6));
+	r.corner.y = (HANGAR_Y + (HANGAR_DY * row))
+			+ (SHIP_WIN_HEIGHT - RES_SCALE (6));
 	r.extent.width = SHIP_WIN_WIDTH;
 	r.extent.height = RES_SCALE (5); 
 
@@ -780,7 +787,8 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 // special button.
 // It works both when the cursor is over an escort ship, while not editing
 // the crew, and when a new ship is added.
-// hStarShip is the ship in the slot under the cursor (or 0 if no such ship).
+// hStarShip is the ship in the slot under the cursor
+// (or 0 if no such ship).
 static BOOLEAN
 DMS_SpinShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 {
@@ -929,11 +937,13 @@ DMS_HireEscortShipCrew (SHIP_FRAGMENT *StarShipPtr)
 
 	{
 		// XXX Split this off into a separate function?
-		HFLEETINFO hTemplate = GetStarShipFromIndex (&GLOBAL (avail_race_q),
+		HFLEETINFO hTemplate = GetStarShipFromIndex (
+				&GLOBAL (avail_race_q),
 				StarShipPtr->race_id);
 		FLEET_INFO *TemplatePtr =
 				LockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
-		templateMaxCrew = EXTENDED ? TemplatePtr->max_crew : TemplatePtr->crew_level;
+		templateMaxCrew =
+				EXTENDED ? TemplatePtr->max_crew : TemplatePtr->crew_level;
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hTemplate);
 	}
 	
@@ -1076,7 +1086,7 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 			}
 
 			if (crew_delta != 0)
-				DMS_FlashFlagShipCrewCount();
+				DMS_FlashFlagShipCrewCount ();
 
 			if (crew_delta == 0)
 				break;
@@ -1107,7 +1117,7 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 			}
 
 			if (crew_delta != 0)
-				DMS_FlashEscortShipCrewCount(StarShipPtr->index);
+				DMS_FlashEscortShipCrewCount (StarShipPtr->index);
 
 			if (crew_delta == 0)
 				break;
@@ -1153,14 +1163,15 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 		ShowCombatShip (pMS, pMS->CurState, NULL);
 				// Reset flash rectangle
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
-		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);// twice to reset menu selection
+		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
+				// twice to reset menu selection
 
 		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, -(int)shipCost);
 		DMS_SetMode (pMS, DMS_Mode_editCrew);
 	}
 	else
 	{
-		// not enough RUs to build, cloning the ship failed, 
+		// not enough RUs to build, cloning the ship failed,
 		// or reached max ship limit in hard mode
 		PlayMenuSound (MENU_SOUND_FAILURE);
 	}
@@ -1169,8 +1180,8 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 // Helper function for DoModifyShips(), called when the player is in the
 // mode to add a new escort ship to the fleet (after pressing select on an
 // empty slot).
-// LOBYTE (pMS->delta_item) is used to store the currently highlighted ship.
-// Returns FALSE if the flash rectangle needs to be updated.
+// LOBYTE (pMS->delta_item) is used to store the currently highlighted
+// ship. Returns FALSE if the flash rectangle needs to be updated.
 static void
 DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		BOOLEAN cancel, SBYTE dx, SBYTE dy)
@@ -1191,7 +1202,8 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
 		SetFlashRect (NULL, FALSE);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
-		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);// twice to reset menu selection
+		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
+				// twice to reset menu selection
 		DMS_SetMode (pMS, DMS_Mode_navigate);
 	}
 	else if (select)
@@ -1329,7 +1341,8 @@ DMS_EditCrewMode (MENU_STATE *pMS, HSHIPFRAG hStarShip,
 }
 
 // Helper function for DoModifyShips(), called every time DoModifyShip() is
-// called when we are in the mode where you can select a ship or empty slot.
+// called when we are in the mode where you can select a ship or empty
+// slot.
 static void
 DMS_NavigateShipSlots (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		BOOLEAN cancel, SBYTE dx, SBYTE dy)
@@ -1594,7 +1607,9 @@ DrawBluePrint (MENU_STATE *pMS)
 					
 					capacity += GetModuleFuelCapacity (moduleType);
 					
-					//log_add (log_Debug, "fuelAmount %d, capacity %d, moduletype %d, slotI %d", fuelAmount, capacity, moduleType, slotI);
+					/*log_add (log_Debug, "fuelAmount %d, capacity %d, "
+							"moduletype %d, slotI %d", fuelAmount,
+							capacity, moduleType, slotI);*/
 					
 					if (fuelAmount < capacity)
 					{
@@ -1773,4 +1788,3 @@ ExitShipyard:
 
 	return TRUE;
 }
-
