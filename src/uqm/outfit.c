@@ -114,41 +114,14 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 static void
 RedistributeFuel (void)
 {
-	const DWORD FuelVolume = GLOBAL_SIS (FuelOnBoard);
 	const CONTEXT OldContext = SetContext (SpaceContext);
-	RECT r;
-	r.extent.height = RES_SCALE (1);
-
-	// Loop through all the rows to draw
+	
 	BatchGraphics ();
-	for (GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
-			GLOBAL_SIS (FuelOnBoard) < GetFTankCapacity (&r.corner);
-			GLOBAL_SIS (FuelOnBoard) += FUEL_VOLUME_PER_ROW)
-	{
-		// If we're less than the fuel level, draw fuel.
-		if (GLOBAL_SIS (FuelOnBoard) < FuelVolume)
-		{
-			r.extent.width = RES_SCALE (5);
-			DrawFilledRectangle(&r);
+	
+	DrawFuelInFTanks (TRUE);
 
-			r.extent.width = RES_SCALE (3);
-			r.corner.x += RES_SCALE (1);
-
-			SetContextForeGroundColor (
-					SetContextBackGroundColor (BLACK_COLOR));
-		}
-		else // Otherwise, draw an empty bar.
-		{
-			r.extent.width = RES_SCALE (5);
-			SetContextForeGroundColor (
-					BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E));
-		}
-		DrawFilledRectangle (&r);
-	}
 	UnbatchGraphics ();
 	SetContext (OldContext);
-
-	GLOBAL_SIS (FuelOnBoard) = FuelVolume;
 }
 
 #define LANDER_X RES_SCALE (24)

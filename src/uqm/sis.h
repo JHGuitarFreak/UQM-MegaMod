@@ -240,12 +240,14 @@ extern COUNT GetSBayCapacity (POINT *ppt);
 
 extern DWORD GetModuleFuelCapacity (BYTE moduleType);
 extern DWORD GetFuelTankCapacity (void);
-extern DWORD GetFTankCapacity (POINT *ppt);
 
 extern COUNT CountSISPieces (BYTE piece_type);
 
 extern void DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame);
 extern void DrawCaptainsName (bool NewGame);
+
+extern void DrawFuelInFTanks (BOOLEAN isOutfit);
+extern FRAME hdFuelFrame;// Frame for HD fuel with smooth grad (loaded and destroyed in starbase.c)
 
 #if defined(__cplusplus)
 }
