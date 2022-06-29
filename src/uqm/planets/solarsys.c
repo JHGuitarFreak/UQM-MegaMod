@@ -2709,7 +2709,7 @@ DrawNebula (POINT star_point)
 	const POINT solPoint = { SOL_X, SOL_Y };
 	
 	if (!pointsEqual (star_point, solPoint) || (classicPackPresent &&
-			!(LastActivity == CHECK_LOAD)))
+			(LastActivity != CHECK_LOAD || NextActivity)))
 	{	// To avoid loading nebulae in loading menu (Yay optimization)
 		FRAME NebulaeFrame =
 				CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
