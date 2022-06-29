@@ -2532,7 +2532,11 @@ StarMap (void)
 	SetDefaultMenuRepeatDelay ();
 
 	DrawHyperCoords (universe);
-	DrawSISMessage (NULL);
+	if (GLOBAL(autopilot.x) != ~0
+		&& GLOBAL(autopilot.y) != ~0)
+		DrawAutoPilotMessage(FALSE);
+	else
+		DrawSISMessage (NULL);
 	DrawStatusMessage (NULL);
 
 	if (optSubmenu)
