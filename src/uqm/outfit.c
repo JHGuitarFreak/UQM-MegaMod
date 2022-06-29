@@ -90,7 +90,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2);
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
-		t.pStr = buf;		
+		t.pStr = buf;
 		sprintf (buf, "%u",
 				GLOBAL (ModuleCost[NewModule]) * MODULE_COST_SCALE);
 		if (isPC (optWhichFonts))
@@ -506,7 +506,8 @@ DoInstallModule (MENU_STATE *pMS)
 
 			if (NewState == pMS->CurState)
 			{
-				if (NewState == PLANET_LANDER || NewState == EMPTY_SLOT + 3)
+				if (NewState == PLANET_LANDER
+						|| NewState == EMPTY_SLOT + 3)
 					w = LANDER_WIDTH;
 				else
 					w = SHIP_PIECE_OFFSET;
@@ -665,8 +666,7 @@ ChangeFuelQuantity (void)
 	else
 		return;
 
-	if(PulsedInputState.menu[KEY_MENU_ZOOM_IN]
-			|| PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
+	if (incr == maxFit || incr == minFit)
 		PlayMenuSound(MENU_SOUND_INVOKED);
 
 	// Clamp incr to what we can afford/hold/have.
@@ -927,14 +927,13 @@ ExitOutfit:
 		else
 			DoMenuChooser (pMS, PM_FUEL);
 	}
-	
 
 	if (optInfiniteFuel)
 	{		
 		DeltaSISGauges (0, GetFuelTankCapacity (), 0);
 		RedistributeFuel ();
 	}
-	if (optInfiniteRU)		
+	if (optInfiniteRU)
 		GLOBAL_SIS (ResUnits) = 1000000L;
 
 	return (TRUE);

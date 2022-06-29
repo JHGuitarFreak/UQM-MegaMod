@@ -1706,7 +1706,8 @@ GetFTankCapacity (POINT *ppt)
 	moduleType = GLOBAL_SIS (ModuleSlots[slotNr]);
 	volume = GetModuleFuelCapacity (moduleType);
 
-	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS / HEFUEL_TANK_CAPACITY);
+	rowNr = ((volume - compartmentNr) * MAX_FUEL_BARS
+			/ HEFUEL_TANK_CAPACITY);
 
 	ppt->x = RES_SCALE (21) + (slotNr * SHIP_PIECE_OFFSET)
 			+ IF_HD (OutfitOrShipyard == 2 ? 0 : 2);

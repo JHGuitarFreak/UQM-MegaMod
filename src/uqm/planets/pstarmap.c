@@ -148,8 +148,10 @@ universeToDispy2 (COORD uy)
 	return v;
 }
 
-#define UNIVERSE_TO_DISPX2(ux)  (IS_HD ? universeToDispx2(ux) : universeToDispx(ux))
-#define UNIVERSE_TO_DISPY2(uy)  (IS_HD ? universeToDispy2(uy) : universeToDispy(uy))
+#define UNIVERSE_TO_DISPX2(ux) \
+		(IS_HD ? universeToDispx2(ux) : universeToDispx(ux))
+#define UNIVERSE_TO_DISPY2(uy) \
+		(IS_HD ? universeToDispy2(uy) : universeToDispy(uy))
 
 static BOOLEAN transition_pending;
 
@@ -334,7 +336,8 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		STRING locString;
 
 		t.baseline.x = pRect->corner.x + (pRect->extent.width >> 1);
-		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1) - RES_SCALE (1);
+		t.baseline.y = pRect->corner.y + (pRect->extent.height >> 1)
+				- RES_SCALE (1);
 		t.align = ALIGN_CENTER;
 		locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
 		t.CharCount = GetStringLength (locString);
@@ -346,13 +349,15 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
 				SIS_SCREEN_WIDTH)
 			pRepairRect->corner.x =
-					SIS_SCREEN_WIDTH - pRepairRect->extent.width - RES_SCALE (1);
+					SIS_SCREEN_WIDTH - pRepairRect->extent.width
+					- RES_SCALE (1);
 		if (pRepairRect->corner.y <= 0)
 			pRepairRect->corner.y = RES_SCALE (1);
 		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
 				SIS_SCREEN_HEIGHT)
 			pRepairRect->corner.y =
-					SIS_SCREEN_HEIGHT - pRepairRect->extent.height - RES_SCALE (1);
+					SIS_SCREEN_HEIGHT - pRepairRect->extent.height
+					- RES_SCALE (1);
 
 		BoxUnion (pRepairRect, pRect, pRepairRect);
 		pRepairRect->extent.width += RES_SCALE (1);
@@ -460,12 +465,14 @@ RotatePoint(POINT p, POINT Pivot, double radian)
 }
 
 BOOLEAN
-onScreen(LINE* l, BOOLEAN ignoreX, BOOLEAN ignoreY)
+onScreen (LINE* l, BOOLEAN ignoreX, BOOLEAN ignoreY)
 {
-	return !((l->first.x < 0 && l->second.x < 0 && !ignoreX) || (l->first.x >= SIS_SCREEN_WIDTH
-		&& l->second.x >= SIS_SCREEN_WIDTH && !ignoreX) || (l->first.y < 0 && l->second.y < 0 && !ignoreY)
-		|| (l->first.y >= SIS_SCREEN_HEIGHT
-			&& l->second.y >= SIS_SCREEN_HEIGHT && !ignoreY));
+	return !((l->first.x < 0 && l->second.x < 0 && !ignoreX)
+			|| (l->first.x >= SIS_SCREEN_WIDTH
+				&& l->second.x >= SIS_SCREEN_WIDTH && !ignoreX)
+			|| (l->first.y < 0 && l->second.y < 0 && !ignoreY)
+			|| (l->first.y >= SIS_SCREEN_HEIGHT
+				&& l->second.y >= SIS_SCREEN_HEIGHT && !ignoreY));
 }
 
 static void
@@ -473,35 +480,36 @@ DrawNoReturnZone (void)
 {
 	double dist;
 	POINT sol, sis;
-	double halfFuel = GLOBAL_SIS(FuelOnBoard) / 2;	
+	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
 
 	sol = (POINT){ SOL_X, SOL_Y };
-	sis = (POINT){ LOGX_TO_UNIVERSE(GLOBAL_SIS(log_x)),
-			LOGY_TO_UNIVERSE(GLOBAL_SIS(log_y)) };
+	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
 
-	dist = FuelRequiredTo(sol) / 2;
+	dist = FuelRequiredTo (sol) / 2;
 	
 	if (dist <= halfFuel)
-	{// do not draw ellipse when fuel is not enough to reach Sol
+	{	// do not draw ellipse when fuel is not enough to reach Sol
 		POINT curr, center, rmax_y, rmin_y;
 		double i, Step, ry, rotation;
 
-		ry = sqrt(pow(halfFuel, 2) - pow(dist, 2));
+		ry = sqrt (pow (halfFuel, 2) - pow (dist, 2));
 
-		// on max zoom ellipse edge becomes wobbly, so we cut num of iterations
-		// in half on zoomLevel 3 and 4
+		// on max zoom ellipse edge becomes wobbly, so we cut num of
+		// iterations in half on zoomLevel 3 and 4
 		Step = (M_PI / (180.0f / (zoomLevel > 2 ? 2 : 1)));
-		center = MAKE_POINT((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
-		rotation = atan2(sol.y - sis.y, sol.x - sis.x);
+		center = MAKE_POINT ((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
+		rotation = atan2 (sol.y - sis.y, sol.x - sis.x);
 
 		rmax_y = (POINT){ -1 , -1 };
 		rmin_y = (POINT){ SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT };
 
 		for (i = 0; i < M_PI * 2; i += Step)
 		{
-			curr = RotatePoint(ShiftPoint(GetPointOfEllipse(halfFuel, ry, i), center), center, rotation);
-			curr.x = UNIVERSE_TO_DISPX2(curr.x);
-			curr.y = UNIVERSE_TO_DISPY2(curr.y);
+			curr = RotatePoint (ShiftPoint (GetPointOfEllipse (halfFuel,
+					ry, i), center), center, rotation);
+			curr.x = UNIVERSE_TO_DISPX2 (curr.x);
+			curr.y = UNIVERSE_TO_DISPY2 (curr.y);
 
 			if (curr.y > rmax_y.y)
 				rmax_y = curr;
@@ -513,46 +521,56 @@ DrawNoReturnZone (void)
 		if (rmax_y.y >= 0 || rmin_y.y < SIS_SCREEN_HEIGHT)
 		{// If the ellipse is completely off screen - drop it
 			LINE L;
-			POINT prev = RotatePoint(ShiftPoint(GetPointOfEllipse(halfFuel, ry, i - Step), center), center, rotation);
+			POINT prev = RotatePoint (ShiftPoint (GetPointOfEllipse (
+					halfFuel, ry, i - Step), center), center, rotation);
 			COORD dy;
-			double err = ((double)rmax_y.x - (double)rmin_y.x) / ((double)rmax_y.y - (double)rmin_y.y);
+			double err = ((double)rmax_y.x - (double)rmin_y.x)
+					/ ((double)rmax_y.y - (double)rmin_y.y);
 
-			prev.x = UNIVERSE_TO_DISPX2(prev.x);
-			prev.y = UNIVERSE_TO_DISPY2(prev.y);
+			prev.x = UNIVERSE_TO_DISPX2 (prev.x);
+			prev.y = UNIVERSE_TO_DISPY2 (prev.y);
 
 			for (i = 0; i < M_PI * 2; i += Step)
 			{
-				L.first = RotatePoint(ShiftPoint(GetPointOfEllipse(halfFuel, ry, i), center), center, rotation);
-				L.first.x = UNIVERSE_TO_DISPX2(L.first.x);
-				L.first.y = UNIVERSE_TO_DISPY2(L.first.y);
+				L.first = RotatePoint (ShiftPoint (GetPointOfEllipse (
+						halfFuel, ry, i), center), center, rotation);
+				L.first.x = UNIVERSE_TO_DISPX2 (L.first.x);
+				L.first.y = UNIVERSE_TO_DISPY2 (L.first.y);
 
-				L.second.x = rmax_y.x - (COORD)(err * (rmax_y.y - L.first.y));
+				L.second.x = rmax_y.x
+						- (COORD)(err * (rmax_y.y - L.first.y));
 				L.second.y = L.first.y;
 
-				if (onScreen(&L, FALSE, FALSE))
-					DrawLine(&L, 1);
+				if (onScreen (&L, FALSE, FALSE))
+					DrawLine (&L, 1);
 
 				dy = L.first.y - prev.y;
 
-				if ((abs(dy) > 1) && onScreen(&(LINE) { L.first, prev }, TRUE, FALSE))
-				{					
+				if ((abs (dy) > 1)
+						&& onScreen (&(LINE) { L.first, prev }, TRUE,
+							FALSE))
+				{
 					LINE L2;
 					COORD iter;
-					double y_err = ((double)L.first.x - (double)prev.x) / ((double)L.first.y - (double)prev.y);
+					double y_err = ((double)L.first.x - (double)prev.x)
+							/ ((double)L.first.y - (double)prev.y);
 
 					if (dy < 0)
 						iter = -1;
 					else
 						iter = 1;
 
-					while (abs(dy) > 1)
+					while (abs (dy) > 1)
 					{
 						L2.first.y = L2.second.y = prev.y + dy - iter;
-						L2.first.x = L.first.x - (COORD)(y_err * (L.first.y - L2.first.y));
-						L2.second.x = rmax_y.x - (COORD)(err * (rmax_y.y - L2.first.y));
+						L2.first.x = L.first.x
+								- (COORD)(y_err
+									* (L.first.y - L2.first.y));
+						L2.second.x = rmax_y.x
+								- (COORD)(err * (rmax_y.y - L2.first.y));
 
-						if (onScreen(&L2, FALSE, FALSE))
-							DrawLine(&L2, 1);
+						if (onScreen (&L2, FALSE, FALSE))
+							DrawLine (&L2, 1);
 
 						dy -= iter;
 					}
@@ -844,7 +862,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		SetContextClipRect (pClipRect);
 		pClipRect->corner.x -= old_r.corner.x;
 		pClipRect->corner.y -= old_r.corner.y;
-		// Offset the origin so that we draw the correct gfx in the cliprect
+		// Offset the origin so that we draw the correct gfx in the
+		// cliprect
 		oldOrigin = SetContextOrigin (MAKE_POINT (-pClipRect->corner.x,
 				-pClipRect->corner.y));
 	}
@@ -912,8 +931,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		r.corner.x = UNIVERSE_TO_DISPX (MAX_X_UNIVERSE);
 		r.corner.y = UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE);
 		r.extent.height = (SIS_SCREEN_HEIGHT << zoomLevel) + RES_SCALE (1);
-		if (r.extent.height - RES_SCALE (1) > (-(UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE) - UNIVERSE_TO_DISPY (0))))
+		if (r.extent.height - RES_SCALE (1)
+				> (-(UNIVERSE_TO_DISPY (MAX_Y_UNIVERSE)
+					- UNIVERSE_TO_DISPY (0))))
+		{
 			r.extent.height -= RES_SCALE (1);
+		}
 		DrawFilledRectangle (&r);
 	}
 
@@ -971,10 +994,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						&& r.corner.x + r.extent.width > 0
 						&& r.corner.y + r.extent.height > 0
 						&& (pClipRect == 0
-						|| (repair_r.corner.x < pClipRect->corner.x + pClipRect->extent.width
-						&& repair_r.corner.y < pClipRect->corner.y + pClipRect->extent.height
-						&& repair_r.corner.x + repair_r.extent.width > pClipRect->corner.x
-						&& repair_r.corner.y + repair_r.extent.height > pClipRect->corner.y)))
+							|| (repair_r.corner.x < pClipRect->corner.x
+							+ pClipRect->extent.width
+							&& repair_r.corner.y < pClipRect->corner.y
+							+ pClipRect->extent.height
+							&& repair_r.corner.x + repair_r.extent.width
+							> pClipRect->corner.x
+							&& repair_r.corner.y + repair_r.extent.height
+							> pClipRect->corner.y)))
 				{
 					Color c;
 					TEXT t;
@@ -996,7 +1023,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						SetContextFont (TinyFontBold);
 
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + (r.extent.height >> 1) - RES_SCALE (1);
+					t.baseline.y = r.corner.y + (r.extent.height >> 1)
+							- RES_SCALE (1);
 					t.align = ALIGN_CENTER;
 					
 					locString = SetAbsStringTableIndex (
@@ -1023,12 +1051,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 					if (r.corner.x <= 0)
 						t.baseline.x -= r.corner.x - RES_SCALE (1);
-					else if (r.corner.x + r.extent.width >= SIS_SCREEN_WIDTH)
+					else if (r.corner.x + r.extent.width
+							>= SIS_SCREEN_WIDTH)
 						t.baseline.x -= (r.corner.x + r.extent.width)
 								- SIS_SCREEN_WIDTH + RES_SCALE (1);
 					if (r.corner.y <= 0)
 						t.baseline.y -= r.corner.y - RES_SCALE (1);
-					else if (r.corner.y + r.extent.height >= SIS_SCREEN_HEIGHT)
+					else if (r.corner.y + r.extent.height
+							>= SIS_SCREEN_HEIGHT)
 						t.baseline.y -= (r.corner.y + r.extent.height)
 								- SIS_SCREEN_HEIGHT + RES_SCALE (1);
 
@@ -1044,7 +1074,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					SetContextForeGroundColor (c);
 					
 					if (!show_war_era_situation ||
-							(show_war_era_situation && war_era_strengths[index]))
+							(show_war_era_situation
+								&& war_era_strengths[index]))
 						font_DrawText (&t);
 				}
 			}
@@ -1053,7 +1084,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		}
 	}
 
-	// Kruzen: This draws the constellation lines on the constellation starmap.
+	// Kruzen: This draws the constellation lines on the constellation
+	// starmap.
 	if (which_space <= 1 && which_starmap == CONSTELLATION_MAP)
 	{
 		Color oldColor;
@@ -1062,7 +1094,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		BYTE c = 0x3F + IF_HD (0x11);
 		CNPtr = &constel_array[0];
 
-		oldColor = SetContextForeGroundColor (BUILD_COLOR_RGBA (c, c, c, 0xFF));
+		oldColor = SetContextForeGroundColor (
+				BUILD_COLOR_RGBA (c, c, c, 0xFF));
 
 		while (CNPtr->x < MAX_X_UNIVERSE && CNPtr->y < MAX_Y_UNIVERSE)
 		{
@@ -1479,7 +1512,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
 				SetContext (OldContext);
 			}
-			// In QS, don't display star search button - the search is unusable.
+			// In QS, don't display star search button - the search is
+			// unusable.
 			else
 			{
 				strcpy (buf, GAME_STRING (NAVIGATION_STRING_BASE + 1));
@@ -1605,7 +1639,8 @@ SplitStarName (STAR_SEARCH_STATE *pSS)
 		// skip separating space
 		for (buf = next; *next != '\0' &&
 				getCharFromString ((const UNICODE **)&next)
-					== (isPC (optWhichFonts) ? UNICHAR_SPACE : UNICHAR_TAB);
+					== (isPC (optWhichFonts) ? UNICHAR_SPACE
+						: UNICHAR_TAB);
 				buf = next)
 			;
 	}
@@ -2036,7 +2071,8 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
-		// printf("Fuel Available: %d | Fuel Requirement: %d\n", GLOBAL_SIS (FuelOnBoard), FuelRequired());
+		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
+				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
 
 		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
 		{
@@ -2098,7 +2134,7 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		PlayMenuSound (MENU_SOUND_MOVE);
 		
-		if (which_starmap == WAR_ERA_STARMAP) 
+		if (which_starmap == WAR_ERA_STARMAP)
 			show_war_era_situation = TRUE;
 		else
 			show_war_era_situation = FALSE;
@@ -2123,9 +2159,9 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		sx = sy = 0;
 		if (PulsedInputState.menu[KEY_MENU_LEFT])    sx = -1;
-		if (PulsedInputState.menu[KEY_MENU_RIGHT])   sx = 1;
+		if (PulsedInputState.menu[KEY_MENU_RIGHT])   sx =  1;
 		if (PulsedInputState.menu[KEY_MENU_UP])      sy = -1;
-		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy = 1;
+		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy =  1;
 
 		// Double the cursor speed when the Zoom Out key is held down
 		if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
@@ -2352,9 +2388,11 @@ DoneSphereMove:
 				last_r.extent.height += RES_SCALE (1);
 				VisibleChange = FALSE;
 
-				// printf("%s: %d\n", raceName (index), FleetPtr->actual_strength);
+				/*printf("%s: %d\n", raceName (index),
+						FleetPtr->actual_strength);*/
 
-				GrowthFactor = delta > 0 ? FleetPtr->actual_strength : FleetPtr->known_strength;
+				GrowthFactor = delta > 0 ? FleetPtr->actual_strength
+						: FleetPtr->known_strength;
 
 				do
 				{
@@ -2364,7 +2402,8 @@ DoneSphereMove:
 						GetSphereRect (FleetPtr, &temp_r1, &r);
 					} while (delta--
 							&& ((delta & 0xF)
-							|| temp_r0.extent.height == temp_r1.extent.height));
+							|| temp_r0.extent.height
+								== temp_r1.extent.height));
 
 					if (ButtonState)
 					{
@@ -2384,10 +2423,12 @@ DoneSphereMove:
 					{
 						VisibleChange = TRUE;
 						RepairMap (index, &last_r, &r);
-						SleepThread (ONE_SECOND / (12 + GrowthFactor / 44));
+						SleepThread (
+								ONE_SECOND / (12 + GrowthFactor / 44));
 					}
 				} while (delta >= 0);
-				if (VisibleChange || temp_r0.extent.width != temp_r1.extent.width)
+				if (VisibleChange
+						|| temp_r0.extent.width != temp_r1.extent.width)
 					RepairMap ((COUNT)~0, &last_r, &r);
 
 DoneSphereGrowth:
@@ -2446,12 +2487,13 @@ StarMap (void)
 	if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		UpdateMap ();
 	else
-	{	// This zooms the Quasi map in by 2 if within the local Quasi star cluster.
+	{	// This zooms the Quasi map in by 2 if within the local Quasi star
+		// cluster.
 		if ((universe.x <= ARILOU_HOME_X && universe.y <= ARILOU_HOME_Y) 
 			&& (universe.x >= 4480 && universe.y >= 4580))
 			zoomLevel = 2;
 	}
-	
+
 	if (optSubmenu)
 	{
 		if(optCustomBorder)
@@ -2459,7 +2501,7 @@ StarMap (void)
 			if(optWhichMenu != OPT_PC)
 				DrawBorder (14, FALSE);
 			DrawBorder (18 + optControllerType, FALSE);
-		} 
+		}
 		else
 			DrawSubmenu (4 + optControllerType);
 	}

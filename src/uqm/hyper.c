@@ -246,7 +246,8 @@ MoveSIS (SDWORD *pdx, SDWORD *pdy)
 		}
 	}
 
-	if (GLOBAL_SIS (FuelOnBoard) && GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+	if (GLOBAL_SIS (FuelOnBoard)
+			&& GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 	{
 		COUNT cur_fuel_ticks;
 		COUNT hyper_dist;

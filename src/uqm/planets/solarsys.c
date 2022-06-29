@@ -68,7 +68,8 @@
 #define MOON_DIAMETER (7 << 2)
 #define LARGE_MOON_DIAMETER (11 << 2)
 #define PLANET_DIAMETER (29 << 2)
-#define GENERATE_PERIMETER(a) (a * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
+#define GENERATE_PERIMETER(a) \
+		(a * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
 
 static void AnimateSun (SIZE radius);
 static BOOLEAN DoIpFlight (SOLARSYS_STATE *pSS);
@@ -163,7 +164,8 @@ POINT
 planetOuterLocation (COUNT planetI)
 {
 	SIZE scaleRadius = pSolarSysState->SunDesc[0].radius;
-	return displayToLocation (pSolarSysState->PlanetDesc[planetI].image.origin,
+	return displayToLocation (
+			pSolarSysState->PlanetDesc[planetI].image.origin,
 			scaleRadius);
 }
 
@@ -407,9 +409,11 @@ LoadIPData (void)
 				LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
 
 		if (optFlagshipColor == OPT_3DO)
-			SISIPFrame = CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM_RED));
+			SISIPFrame =
+				CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM_RED));
 		else
-			SISIPFrame = CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM));
+			SISIPFrame =
+				CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM));
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
@@ -425,30 +429,30 @@ LoadIPData (void)
 
 		if (!IS_HD)
 			SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
-		else 
+		else
 		{
-			switch (STAR_COLOR (CurStarDescPtr->Type)) 
+			RESOURCE maskAnim = SUNYELLOW_MASK_PMAP_ANIM;
+
+			switch (STAR_COLOR (CurStarDescPtr->Type))
 			{
 				case BLUE_BODY:
-					SunFrame = CaptureDrawable (LoadGraphic (SUNBLUE_MASK_PMAP_ANIM));
+					maskAnim = SUNBLUE_MASK_PMAP_ANIM;
 					break;
 				case GREEN_BODY:
-					SunFrame = CaptureDrawable (LoadGraphic (SUNGREEN_MASK_PMAP_ANIM));
+					maskAnim = SUNGREEN_MASK_PMAP_ANIM;
 					break;
 				case ORANGE_BODY:
-					SunFrame = CaptureDrawable (LoadGraphic (SUNORANGE_MASK_PMAP_ANIM));
+					maskAnim = SUNORANGE_MASK_PMAP_ANIM;
 					break;
 				case RED_BODY:
-					SunFrame = CaptureDrawable (LoadGraphic (SUNRED_MASK_PMAP_ANIM));
+					maskAnim = SUNRED_MASK_PMAP_ANIM;
 					break;
 				case WHITE_BODY:
-					SunFrame = CaptureDrawable (LoadGraphic (SUNWHITE_MASK_PMAP_ANIM));
-					break;
-				case YELLOW_BODY:
-				default:
-					SunFrame = CaptureDrawable (LoadGraphic (SUNYELLOW_MASK_PMAP_ANIM));
+					maskAnim = SUNWHITE_MASK_PMAP_ANIM;
 					break;
 			}
+
+			SunFrame = CaptureDrawable (LoadGraphic (maskAnim));
 		}
 
 		SpaceMusic = 0;
@@ -475,6 +479,8 @@ sortPlanetPositions (void)
 	// Very ugly stuff, but it's correct.
 
 	// Initialise sort_array.
+	memset (sort_array, 0, sizeof (sort_array));
+
 	for (i = 0; i <= pSolarSysState->SunDesc[0].NumPlanets; ++i)
 		sort_array[i] = i - 1;
 
@@ -570,12 +576,14 @@ void GenerateTexturedPlanets (void)
 			case 0: /* MERCURY */
 				maskanim = IP_MERCURY_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 3;
-				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 59 * 240;
+				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod =
+						59 * 240;
 				break;
 			case 1: /* VENUS */
 				maskanim = IP_VENUS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 177;
-				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 243 * 240;
+				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod =
+						243 * 240;
 				break;
 			case 2: // EARTH
 				maskanim = EARTH_MASK_ANIM;
@@ -652,15 +660,19 @@ LoadSolarSys (void)
 	};
 
 	if (optUnscaledStarSystem && IS_HD)
-		temp_color_array[0] = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 19), 0x54);
+		temp_color_array[0] =
+				BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 19), 0x54);
 
-	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForStar (CurStarDescPtr));
+	RandomContext_SeedRandom (SysGenRNG,
+			GetRandomSeedForStar (CurStarDescPtr));
 
 	// JMS: Animating IP sun in hi-res...
 	if (!IS_HD)
-		SunFrame = SetAbsFrameIndex (SunFrame, STAR_TYPE (CurStarDescPtr->Type));
+		SunFrame = SetAbsFrameIndex (SunFrame,
+				STAR_TYPE (CurStarDescPtr->Type));
 	else
-		SunFrame = SetAbsFrameIndex (SunFrame, (STAR_TYPE (CurStarDescPtr->Type)) * 32);
+		SunFrame = SetAbsFrameIndex (SunFrame,
+				STAR_TYPE (CurStarDescPtr->Type) * 32);
 
 	pCurDesc = &pSolarSysState->SunDesc[0];
 	pCurDesc->pPrevDesc = 0;
@@ -811,21 +823,25 @@ FreeSolarSys (void)
 		{
 			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
 			// JMS: Not sure if these do any good...
-			DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
+			DestroyStringTable (
+					ReleaseStringTable (pSolarSysState->XlatRef));
 			pSolarSysState->XlatRef = 0;
 			DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
 			pSolarSysState->TopoFrame = 0;
-			DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
+			DestroyColorMap (
+					ReleaseColorMap (pSolarSysState->OrbitalCMap));
 			pSolarSysState->OrbitalCMap = 0;
 			// JMS ends.
 		}
 
-		// BW: if we were in Inner System, clean up data for textured IP moons
+		// BW: if we were in Inner System, clean up data for textured IP
+		// moons
 		if (playerInInnerSystem ())
 		{
 			COUNT numMoons;
 			if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-				numMoons = pSolarSysState->pOrbitalDesc->pPrevDesc->NumPlanets;
+				numMoons =
+					pSolarSysState->pOrbitalDesc->pPrevDesc->NumPlanets;
 			else
 				numMoons = pSolarSysState->pOrbitalDesc->NumPlanets;
 		
@@ -891,14 +907,18 @@ CheckIntersect (void)
 	ShipIntersect.EndPoint = ShipIntersect.IntersectStamp.origin;
 	ShipIntersect.IntersectStamp.frame = GLOBAL (ShipStamp.frame);
 
-	PlanetIntersect.IntersectStamp.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-	PlanetIntersect.IntersectStamp.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
+	PlanetIntersect.IntersectStamp.origin.x =
+			RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	PlanetIntersect.IntersectStamp.origin.y =
+			RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 	PlanetIntersect.EndPoint = PlanetIntersect.IntersectStamp.origin;
 	
 	PlanetIntersect.IntersectStamp.frame = getCollisionFrame (pCurDesc,
 			MAKE_WORD (PlanetOffset, MoonOffset));
 
-	//log_add (log_Debug,"Nyt: x:%d, y:%d", PlanetIntersect.IntersectStamp.origin.x, PlanetIntersect.IntersectStamp.origin.y);
+	/*log_add (log_Debug,"Nyt: x:%d, y:%d",
+			PlanetIntersect.IntersectStamp.origin.x,
+			PlanetIntersect.IntersectStamp.origin.y);*/
 	
 	// Start with no collisions
 	NewWaitPlanet = 0;
@@ -917,7 +937,8 @@ CheckIntersect (void)
 		{
 			pSolarSysState->WaitIntersect = NewWaitPlanet;
 #ifdef DEBUG_SOLARSYS
-			log_add (log_Debug, "Star index = %d, Planet index = %d, <%d, %d>",
+			log_add (log_Debug,
+					"Star index = %d, Planet index = %d, <%d, %d>",
 					CurStarDescPtr - star_array,
 					pCurDesc - pSolarSysState->PlanetDesc,
 					pSolarSysState->SunDesc[0].location.x,
@@ -947,7 +968,11 @@ CheckIntersect (void)
 		PlanetIntersect.IntersectStamp.frame = getCollisionFrame (pCurDesc,
 				MAKE_WORD (PlanetOffset, MoonOffset));
 
-		//log_add (log_Debug, "Ship x:%d y:%d. Planet x:%d, y:%d", ShipIntersect.IntersectStamp.origin.x, ShipIntersect.IntersectStamp.origin.y, PlanetIntersect.IntersectStamp.origin.x, PlanetIntersect.IntersectStamp.origin.y);
+		/*log_add (log_Debug, "Ship x:%d y:%d. Planet x:%d, y:%d",
+				ShipIntersect.IntersectStamp.origin.x,
+				ShipIntersect.IntersectStamp.origin.y,
+				PlanetIntersect.IntersectStamp.origin.x,
+				PlanetIntersect.IntersectStamp.origin.y);*/
 		
 		if (DrawablesIntersect (&ShipIntersect,
 				&PlanetIntersect, MAX_TIME_VALUE))
@@ -959,8 +984,9 @@ CheckIntersect (void)
 			NewWaitPlanet = MAKE_WORD (PlanetOffset, MoonOffset);
 			
 			if (pSolarSysState->WaitIntersect == (COUNT)~0)
-			{	// All collisions disallowed, but the ship is still colliding
-				// with something. Collisions will remain disabled.
+			{	// All collisions disallowed, but the ship is still
+				// colliding with something. Collisions will remain
+				// disabled.
 				break;
 			}
 			else if (pSolarSysState->WaitIntersect == NewWaitPlanet)
@@ -968,17 +994,17 @@ CheckIntersect (void)
 				continue;
 			}
 			
-			// Collision with a new planet/moon. This may cause a transition
-			// to an inner system or start an orbital view.
+			// Collision with a new planet/moon. This may cause a
+			// transition to an inner system or start an orbital view.
 			pSolarSysState->WaitIntersect = NewWaitPlanet;
 			return pCurDesc;
 		}
 	}
 
 	// This records the planet/moon with which the ship just collided
-	// It may be a previously existing collision also (the value won't change)
-	// If all collisions were disabled, this will reenable then once the ship
-	// stops colliding with any planets
+	// It may be a previously existing collision also (the value won't
+	// change) If all collisions were disabled, this will reenable then
+	// once the ship stops colliding with any planets
 	if (pSolarSysState->WaitIntersect != (COUNT)~0 || NewWaitPlanet == 0)
 		pSolarSysState->WaitIntersect = NewWaitPlanet;
 
@@ -989,8 +1015,10 @@ static void
 GetOrbitRect (RECT *pRect, COORD dx, COORD dy, SIZE radius,
 		int xnumer, int ynumer, int denom)
 {
-	pRect->corner.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + (long)-dx * xnumer / denom;
-	pRect->corner.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + (long)-dy * ynumer / denom;
+	pRect->corner.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
+			+ (long)-dx * xnumer / denom;
+	pRect->corner.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
+			+ (long)-dy * ynumer / denom;
 	pRect->extent.width = (long)radius * (xnumer << 1) / denom;
 	pRect->extent.height = pRect->extent.width >> 1;
 }
@@ -1028,7 +1056,8 @@ SetPlanetOldFrame (COUNT index, COUNT color)
 	SetFrameHot (newFrame, GetFrameHot (oldFrame));
 	// CaptureDrawable destroys transparency, so it has to be setted again
 #if SDL_MAJOR_VERSION == 1
-	SetFrameTransparentColor (newFrame, BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0xFF));
+	SetFrameTransparentColor (newFrame,
+			BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0xFF));
 #endif
 
 	return newFrame;
@@ -1043,11 +1072,13 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	{
 		// BW: recompute planet position to account for orbiting
 		// COUNT newAngle;
-		// newAngle = NORMALIZE_ANGLE(planet->angle + (COUNT)(daysElapsed() * planet->orb_speed));
+		// newAngle = NORMALIZE_ANGLE(planet->angle
+		// 		+ (COUNT)(daysElapsed() * planet->orb_speed));
 		// planet->location.x = COSINE (newAngle, planet->radius);
 		// planet->location.y = SINE (newAngle, planet->radius);
 		double newAngle;
-		newAngle = (planet->angle + daysElapsed() * planet->orb_speed) * M_PI / 32 - M_PI/2 ;
+		newAngle = (planet->angle + daysElapsed() * planet->orb_speed)
+				* M_PI / 32 - M_PI/2;
 		planet->location.x = (COORD)(cos(newAngle) * planet->radius);
 		planet->location.y = (COORD)(sin(newAngle) * planet->radius);
 	}
@@ -1130,19 +1161,20 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		if (!planet->image.frame || (offset != planet->offset_index))
 		{
 			planet->offset_index = offset;
-			if (!optTexturedPlanets && isPC(optPlanetStyle))
+			if (!optTexturedPlanets && isPC (optPlanetStyle))
 			{
-				DestroyDrawable(ReleaseDrawable(planet->image.frame));
+				DestroyDrawable (ReleaseDrawable (planet->image.frame));
 				planet->image.frame = 0;
 
-				planet->image.frame = SetPlanetOldFrame(offset, PLANCOLOR(Type));
+				planet->image.frame =
+					SetPlanetOldFrame (offset, PLANCOLOR (Type));
 #if SDL_MAJOR_VERSION == 1
 				planet->dosIntersect.frame = SetAbsFrameIndex(OrbitalFrame,
 					(Size << FACING_SHIFT));
 #endif
 			}
 			else
-				planet->image.frame = SetAbsFrameIndex(OrbitalFrame,
+				planet->image.frame = SetAbsFrameIndex (OrbitalFrame,
 					offset);
 		}
 
@@ -1150,8 +1182,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		{
 			planet->intersect.frame =
 					CaptureDrawable (
-						RescalePercentage (planet->image.frame, 50)
-						);
+						RescalePercentage (planet->image.frame, 50));
 #if SDL_MAJOR_VERSION == 1
 			if (!optTexturedPlanets && isPC (optPlanetStyle))
 			{
@@ -1166,28 +1197,33 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	}
 	else if (!planet->image.frame && !planet->intersect.frame)
 	{
-		COUNT percent = 0; // HD sprites have differents sizes, so intersect must be calculated accordingly
+		COUNT percent = 0;
+		BYTE frameNum = 0;
 
+		// HD sprites have differents sizes, so intersect must be
+		// calculated accordingly
 		switch (planet->data_index)
-		{			
+		{
 			case SA_MATRA:
-				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 19);
+				frameNum = 19;
 				percent = 50;
 				break;
 			case DESTROYED_STARBASE:
-				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 22);
+				frameNum = 22;
 				percent = 90;
 				break;
 			case PRECURSOR_STARBASE:
-				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 23);
+				frameNum = 23;
 				percent = 50;
 				break;
 			case HIERARCHY_STARBASE:
 			default:
-				planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, 16);
+				frameNum = 16;
 				percent = 90;
 				break;
 		}
+		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, frameNum);
+
 		if (IS_HD && HDPackPresent)
 			planet->intersect.frame =
 			CaptureDrawable(
@@ -1225,7 +1261,8 @@ FindRadius (POINT shipLoc, SIZE fromRadius)
 			nextRadius = 0; // scaleRect will be nul
 
 		GetOrbitRect (&scaleRect, nextRadius, nextRadius, nextRadius,
-				DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US >> 2), fromRadius);
+				DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US >> 2),
+				fromRadius);
 		displayLoc = locationToDisplay (shipLoc, fromRadius);
 	
 	} while (pointWithinRect (scaleRect, displayLoc));
@@ -1492,9 +1529,11 @@ leaveInnerSystem (PLANET_DESC *planet)
 	pSolarSysState->pBaseDesc = pSolarSysState->PlanetDesc;
 	pSolarSysState->pOrbitalDesc = NULL;
 
-	outerPlanetWait = MAKE_WORD (planet - pSolarSysState->PlanetDesc + 1, 0);
+	outerPlanetWait = MAKE_WORD (
+			planet - pSolarSysState->PlanetDesc + 1, 0);
 	// BW: planet may have moved while we were into Inner System
-	ValidateOrbit (planet, DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US / 4),
+	ValidateOrbit (planet, DISPLAY_FACTOR,
+			RES_SCALE (DISPLAY_FACTOR_US / 4),
 			pSolarSysState->SunDesc[0].radius);
 	pSolarSysState->SunDesc[0].location =
 			planetOuterLocation (planetIndex (pSolarSysState, planet));
@@ -1577,7 +1616,8 @@ CheckShipLocation (SIZE *newRadius)
 			}
 			else if (SISonScreen)
 			{
-				*newRadius = FindRadius (GLOBAL (ip_location), MAX_ZOOM_RADIUS << 1);
+				*newRadius = FindRadius (GLOBAL (ip_location),
+						MAX_ZOOM_RADIUS << 1);
 				pSolarSysState->SunDesc[0].radius = *newRadius;
 			}
 
@@ -1663,7 +1703,8 @@ ScaleSystem (SIZE new_radius)
 	for (i = 0; i < NUM_STEPS - 1; ++i)
 	{
 		pSolarSysState->SunDesc[0].radius += step;
-		XFormIPLoc (&GLOBAL (ip_location), &GLOBAL (ShipStamp.origin), TRUE);
+		XFormIPLoc (&GLOBAL (ip_location), &GLOBAL (ShipStamp.origin),
+				TRUE);
 
 		BatchGraphics ();
 		DrawOuterSystem ();
@@ -1735,7 +1776,8 @@ AnimateSun (SIZE radius)
 	}
 	
 	// Tell the imageset which frame it should use.
-	pSunDesc->image.frame = SetRelFrameIndex (SunFrame, zoomLevelIndex + sunAnimIndex);
+	pSunDesc->image.frame = SetRelFrameIndex (
+			SunFrame, zoomLevelIndex + sunAnimIndex);
 	
 	// Draw the image.
 	DrawStamp (&pSunDesc->image);
@@ -1843,7 +1885,7 @@ IP_frame (void)
 	{	// Just flying around, minding own business..
 		BatchGraphics ();
 		RestoreSystemView ();
-		if (IS_HD || optOrbitingPlanets || optTexturedPlanets)// to animate sun if both opt are disabled
+		if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
 		{
 			// BW: recompute planet position to account for orbiting
 			if (playerInInnerSystem ())
@@ -1896,7 +1938,8 @@ ValidateOrbits (void)
 	for (i = pSolarSysState->SunDesc[0].NumPlanets,
 			planet = &pSolarSysState->PlanetDesc[0]; i; --i, ++planet)
 	{
-		ValidateOrbit (planet, DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US / 4),
+		ValidateOrbit (planet, DISPLAY_FACTOR,
+				RES_SCALE (DISPLAY_FACTOR_US / 4),
 				pSolarSysState->SunDesc[0].radius);
 	}
 }
@@ -1910,8 +1953,8 @@ ValidateInnerOrbits (void)
 	assert (playerInInnerSystem ());
 
 	planet = pSolarSysState->pOrbitalDesc;
-	ValidateOrbit (planet, RES_SCALE (DISPLAY_FACTOR_US * 4), DISPLAY_FACTOR,
-			planet->radius);
+	ValidateOrbit (planet, RES_SCALE (DISPLAY_FACTOR_US * 4),
+			DISPLAY_FACTOR, planet->radius);
 
 	for (i = 0; i < planet->NumPlanets; ++i)
 	{
@@ -1993,9 +2036,9 @@ playSpaceMusic (void)
 
 	if (!SpaceMusic)
 	{
-		if (SpaceMusicOK) 
+		if (SpaceMusicOK)
 		{
-			findRaceSOI();
+			findRaceSOI ();
 			SpaceMusic = LoadMusic (spaceMusicSwitch (spaceMusicBySOI));
 		}
 		else
@@ -2145,20 +2188,28 @@ EnterPlanetOrbit (void)
 					pSolarSysState->pOrbitalDesc->image.origin;
 
 			// JMS_GFX: Draw the moon letter when orbiting a moon
-			if (!(GetNamedPlanetaryBody()) && isPC (optWhichFonts)
-					&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE 
-					&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
-					&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
+			if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
+					&& (pSolarSysState->pOrbitalDesc->data_index
+						!= HIERARCHY_STARBASE
+					&& pSolarSysState->pOrbitalDesc->data_index
+						!= DESTROYED_STARBASE
+					&& pSolarSysState->pOrbitalDesc->data_index
+						!= PRECURSOR_STARBASE))
 			{
-				snprintf ((GLOBAL_SIS (PlanetName)) + strlen(GLOBAL_SIS (PlanetName)), 
-						3, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
+				snprintf (GLOBAL_SIS (PlanetName)
+						+ strlen (GLOBAL_SIS (PlanetName)), 3, "-%c%c",
+						'A' + moonIndex (
+							pSolarSysState, pSolarSysState->pOrbitalDesc),
+						'\0');
 				DrawSISTitle (GLOBAL_SIS (PlanetName));
 			}
 		}
 		else
 		{	// Planet -- its origin is for the outer view, so use mid-screen
-			GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-			GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
+			GLOBAL (ShipStamp.origin.x) =
+					RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+			GLOBAL (ShipStamp.origin.y) =
+					RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 		}
 	}
 
@@ -2177,8 +2228,8 @@ EnterPlanetOrbit (void)
 		PlanetOrbitMenu ();
 		FreePlanet ();
 	}
-	// Otherwise, generateOrbital function started a homeworld conversation,
-	// and we did not get to the planet no matter what.
+	// Otherwise, generateOrbital function started a homeworld
+	// conversation, and we did not get to the planet no matter what.
 
 	// START_ENCOUNTER could be set by Devices menu a number of ways:
 	// Talking Pet, Sun Device or a Caster over Chmmr, or
@@ -2198,9 +2249,11 @@ EnterPlanetOrbit (void)
 		if (optTexturedPlanets)
 		{
 			if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-				GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc->pPrevDesc);
+				GenerateTexturedMoons (pSolarSysState,
+						pSolarSysState->pOrbitalDesc->pPrevDesc);
 			else
-				GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc);
+				GenerateTexturedMoons (pSolarSysState,
+						pSolarSysState->pOrbitalDesc);
 		}
 
 		RepairSISBorder ();
@@ -2225,10 +2278,12 @@ InitSolarSys (void)
 		GLOBAL (autopilot.x) = ~0;
 		GLOBAL (autopilot.y) = ~0;
 
-		GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		GLOBAL (ShipStamp.origin.x) =
+				RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 		GLOBAL (ShipStamp.origin.y) = SIS_SCREEN_HEIGHT - RES_SCALE (2);
 		
-		GLOBAL (ip_location) = displayToLocation (GLOBAL (ShipStamp.origin),
+		GLOBAL (ip_location) = displayToLocation (
+				GLOBAL (ShipStamp.origin),
 				MAX_ZOOM_RADIUS);
 	}
 
@@ -2266,7 +2321,8 @@ InitSolarSys (void)
 		enterOrbital (orbital);
 	}
 	else
-	{	// Draw the borders, the system (inner or outer) and fade/transition
+	{	// Draw the borders, the system (inner or outer) and
+		// fade/transition
 		SetContext (SpaceContext);
 
 		SetTransitionSource (NULL);
@@ -2305,7 +2361,8 @@ InitSolarSys (void)
 			if (InnerSystem)
 			{
  				if (optTexturedPlanets)
-					GenerateTexturedMoons (pSolarSysState, pSolarSysState->pOrbitalDesc);
+					GenerateTexturedMoons (pSolarSysState,
+							pSolarSysState->pOrbitalDesc);
  				DrawInnerSystem ();
 			}
 			else
@@ -2372,7 +2429,8 @@ UninitSolarSys (void)
 {
 	FreeSolarSys ();
 
-	// FreeLanderData (); // JMS: This is not needed since the landerframes won't reload if they're already loaded once.
+	// FreeLanderData (); // JMS: This is not needed since the landerframes
+	// won't reload if they're already loaded once.
 	FreeIPData (); // JMS This IS necessary.
 
 	DestroyDrawable (ReleaseDrawable (StarsFrame));
@@ -2392,7 +2450,8 @@ UninitSolarSys (void)
 		if (GLOBAL (ip_planet) == 0)
 		{
 			PLANET_DESC *planet =
-					closestPlanetInterPlanetary (&GLOBAL (ShipStamp.origin));
+					closestPlanetInterPlanetary (
+						&GLOBAL (ShipStamp.origin));
 
 			(*pSolarSysState->genFuncs->generateName) (
 					pSolarSysState, planet);
@@ -2419,7 +2478,8 @@ CalcSunSize (PLANET_DESC *pSunDesc, SIZE radius)
 	if (!IS_HD)
 		pSunDesc->image.frame = SetRelFrameIndex (SunFrame, index);
 	else
-		pSunDesc->image.frame = SetRelFrameIndex (SunFrame, index * SUN_ANIMFRAMES_NUM);
+		pSunDesc->image.frame =
+				SetRelFrameIndex (SunFrame, index * SUN_ANIMFRAMES_NUM);
 }
 
 static void
@@ -2561,7 +2621,8 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	if (IsInnerSystem)
 	{	// Draw the inner system view *planet's* orbit segment
 		pCurDesc = pSolarSysState->pOrbitalDesc;
-		DrawOrbit (pCurDesc, RES_SCALE (DISPLAY_FACTOR_US * 4), DISPLAY_FACTOR, radius);
+		DrawOrbit (pCurDesc, RES_SCALE (DISPLAY_FACTOR_US * 4),
+				DISPLAY_FACTOR, radius);
 	}
 
 	// Draw the planet orbits or moon orbits
@@ -2571,19 +2632,16 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 		if (IsInnerSystem)
 			DrawOrbit (pCurDesc, 2, 1, 2);
 		else
-			DrawOrbit (pCurDesc, DISPLAY_FACTOR, RES_SCALE (DISPLAY_FACTOR_US / 4),
-					radius);
+			DrawOrbit (pCurDesc, DISPLAY_FACTOR,
+					RES_SCALE (DISPLAY_FACTOR_US / 4), radius);
 	}
 
 	if (!optOrbitingPlanets && !optTexturedPlanets)
 	{
-		if (IsInnerSystem)
-		{	// Draw the inner system view
+		if (IsInnerSystem) // Draw the inner system view
 			DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
-		} else {
-			// Draw the outer system view
+		else // Draw the outer system view
 			DrawOuterPlanets (radius);
-		}
 	}
 
 	SetContext (oldContext);
@@ -2650,24 +2708,25 @@ DrawNebula (POINT star_point)
 {
 	const POINT solPoint = { SOL_X, SOL_Y };
 	
-	if (!pointsEqual(star_point, solPoint) || classicPackPresent)
-	{// To avoid loading nebulae in loading menu (Yay optimization)
-		FRAME NebulaeFrame = CaptureDrawable(LoadGraphic(NEBULAE_PMAP_ANIM));
-		const BYTE numNebulae = GetFrameCount(NebulaeFrame);
+	if (!pointsEqual (star_point, solPoint) || classicPackPresent)
+	{	// To avoid loading nebulae in loading menu (Yay optimization)
+		FRAME NebulaeFrame =
+				CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
+		const BYTE numNebulae = GetFrameCount (NebulaeFrame);
 
 		if ((star_point.y % (numNebulae + 6)) < numNebulae
 			|| classicPackPresent)
 		{
 			STAMP s;
-			s.origin = MAKE_POINT(0, 0);
-			s.frame =
-				SetAbsFrameIndex(NebulaeFrame, star_point.x % numNebulae);
+			s.origin = MAKE_POINT (0, 0);
+			s.frame = SetAbsFrameIndex (NebulaeFrame,
+					star_point.x % numNebulae);
 			if (optNebulaeVolume != 24)
-				s.frame = BrightenNebula(s.frame, optNebulaeVolume);
+				s.frame = BrightenNebula (s.frame, optNebulaeVolume);
 
-			DrawStamp(&s);
+			DrawStamp (&s);
 		}
-		DestroyDrawable(ReleaseDrawable(NebulaeFrame));
+		DestroyDrawable (ReleaseDrawable (NebulaeFrame));
 		NebulaeFrame = 0;
 	}
 }
@@ -2780,9 +2839,11 @@ void
 XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay)
 {
 	if (ToDisplay)
-		*pOut = locationToDisplay (*pIn, pSolarSysState->SunDesc[0].radius);
+		*pOut = locationToDisplay (*pIn,
+				pSolarSysState->SunDesc[0].radius);
 	else
-		*pOut = displayToLocation (*pIn, pSolarSysState->SunDesc[0].radius);
+		*pOut = displayToLocation (*pIn,
+				pSolarSysState->SunDesc[0].radius);
 }
 
 void
@@ -2799,7 +2860,8 @@ ExploreSolarSys (void)
 		CurStarDescPtr = FindStar (0, &universe, 1, 1);
 		if (!CurStarDescPtr)
 		{
-			log_add (log_Fatal, "ExploreSolarSys(): do not know where you are!");
+			log_add (log_Fatal,
+					"ExploreSolarSys(): do not know where you are!");
 			explode ();
 		}
 	}
@@ -2839,7 +2901,8 @@ ExploreSolarSys (void)
 UNICODE *
 GetNamedPlanetaryBody (void)
 {
-	if (!CurStarDescPtr || !playerInSolarSystem () || !playerInInnerSystem ())
+	if (!CurStarDescPtr || !playerInSolarSystem ()
+			|| !playerInInnerSystem ())
 		return NULL; // Not inside an inner system, so no name
 
 	assert (pSolarSysState->pOrbitalDesc != NULL);
@@ -2849,7 +2912,8 @@ GetNamedPlanetaryBody (void)
 		int planet;
 		int moon;
 
-		planet = planetIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
+		planet =
+				planetIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
 
 		if (worldIsPlanet (pSolarSysState, pSolarSysState->pOrbitalDesc))
 		{	// A planet
@@ -2898,7 +2962,8 @@ GetNamedPlanetaryBody (void)
 	}
 	else if (CurStarDescPtr->Index == SAMATRA_DEFINED 
 			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
-			pSolarSysState->SunDesc[0].PlanetByte, pSolarSysState->SunDesc[0].MoonByte))
+				pSolarSysState->SunDesc[0].PlanetByte,
+				pSolarSysState->SunDesc[0].MoonByte))
 	{	// Sa-Matra
 		return GAME_STRING (PLANET_NUMBER_BASE + 32);
 	}
@@ -2951,7 +3016,6 @@ GetNamedPlanetaryBody (void)
 			return GAME_STRING (PLANET_NUMBER_BASE + 42);
 		}
 	}
-
 	return NULL;
 }
 
@@ -2970,7 +3034,7 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 		utf8StringCopy (buf, bufsize, named);
 		return;
 	}
-		
+
 	// Either not named or we already have a name
 	utf8StringCopy (buf, bufsize, GLOBAL_SIS (PlanetName));
 
@@ -2987,16 +3051,19 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 	buf += i;
 	bufsize -= i;
 	moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
-	
-	// log_add (log_Debug,"last %02d, i %d", tempbuf[i-1], i);	
-	// JMS: Prevent printing something like 'planet II-A-A' in summary screen.
-	if (i > 0) {
+
+	// log_add (log_Debug,"last %02d, i %d", tempbuf[i-1], i);
+	// JMS: Prevent printing something like 'planet II-A-A' in summary
+	// screen.
+	if (i > 0)
+	{
 		if(tempbuf[i-1] == 'A' || tempbuf[i-1] == 'B' 
-			|| tempbuf[i-1] == 'C' || tempbuf[i-1] == 'D')
+				|| tempbuf[i-1] == 'C' || tempbuf[i-1] == 'D')
 			name_has_suffix = TRUE;
 	}
-	
-	if (bufsize >= 3 && !name_has_suffix) {
+
+	if (bufsize >= 3 && !name_has_suffix)
+	{
 		snprintf (buf, bufsize, "-%c", 'A' + moon);
 		buf[bufsize - 1] = '\0';
 	}
@@ -3033,7 +3100,8 @@ SaveSolarSysLocation (void)
 		moon = 1; /* the planet itself */
 		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 		{
-			moon += moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
+			moon += moonIndex (pSolarSysState,
+					pSolarSysState->pOrbitalDesc);
 			// +1 because moons have to be 1-based
 			moon += 1;
 		}
@@ -3207,12 +3275,15 @@ widthHeightPicker (BOOLEAN is_width)
 	case 0:
 		return (is_width ? ORIG_SIS_SCREEN_WIDTH : PC_SIS_SCREEN_HEIGHT);
 	case 1:
-		return (is_width ? THREEDO_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_HEIGHT);
+		return (is_width ? THREEDO_SIS_SCREEN_WIDTH
+				: THREEDO_SIS_SCREEN_HEIGHT);
 	case 2:
-		return (is_width ? (ORIG_SIS_SCREEN_WIDTH - 1) : ORIG_SIS_SCREEN_HEIGHT);
+		return (is_width ? (ORIG_SIS_SCREEN_WIDTH - 1)
+				: ORIG_SIS_SCREEN_HEIGHT);
 	case 3:
 	default:
-		return (is_width ? HDMOD_SIS_SCREEN_WIDTH : HDMOD_SIS_SCREEN_HEIGHT);
+		return (is_width ? HDMOD_SIS_SCREEN_WIDTH
+				: HDMOD_SIS_SCREEN_HEIGHT);
 	}
 }
 
@@ -3235,6 +3306,6 @@ scaleSISDimensions (BOOLEAN is_width, COORD value)
 void
 InitialIntersect (void)
 {	// need to check collision with moons on load
- 	// rare but annoying
+	// rare but annoying
 	CheckIntersect ();
 }

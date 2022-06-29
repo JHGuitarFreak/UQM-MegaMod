@@ -86,51 +86,68 @@ LIFEFORM_DESC CreatureData[] =
 			// Whackin' Bush
 	{SPEED_MOTIONLESS | DANGER_HARMLESS, MAKE_BYTE (2, 10)},
 			// Slot Machine Tree
-	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_HARMLESS, MAKE_BYTE (1, 2)},
+	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_HARMLESS,
+			MAKE_BYTE (1, 2)},
 			// Neon Worm
-	{BEHAVIOR_FLEE | AWARENESS_MEDIUM | SPEED_SLOW | DANGER_HARMLESS, MAKE_BYTE (8, 5)},
+	{BEHAVIOR_FLEE | AWARENESS_MEDIUM | SPEED_SLOW | DANGER_HARMLESS,
+			MAKE_BYTE (8, 5)},
 			// Stiletto Urchin
-	{BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_SLOW | DANGER_WEAK, MAKE_BYTE (2, 2)},
+	{BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_SLOW | DANGER_WEAK,
+			MAKE_BYTE (2, 2)},
 			// Deluxe Blob
-	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_NORMAL, MAKE_BYTE (3, 8)},
+	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_NORMAL,
+			MAKE_BYTE (3, 8)},
 			// Glowing Medusa
-	{BEHAVIOR_HUNT | AWARENESS_MEDIUM | SPEED_SLOW | DANGER_MONSTROUS, MAKE_BYTE (10, 15)},
+	{BEHAVIOR_HUNT | AWARENESS_MEDIUM | SPEED_SLOW | DANGER_MONSTROUS,
+			MAKE_BYTE (10, 15)},
 			// Carousel Beast
-	{BEHAVIOR_HUNT | AWARENESS_MEDIUM | SPEED_MEDIUM | DANGER_WEAK, MAKE_BYTE (3, 3)},
+	{BEHAVIOR_HUNT | AWARENESS_MEDIUM | SPEED_MEDIUM | DANGER_WEAK,
+			MAKE_BYTE (3, 3)},
 			// Mysterious Bees
-	{BEHAVIOR_FLEE | AWARENESS_MEDIUM | SPEED_MEDIUM | DANGER_HARMLESS, MAKE_BYTE (2, 1)},
+	{BEHAVIOR_FLEE | AWARENESS_MEDIUM | SPEED_MEDIUM | DANGER_HARMLESS,
+			MAKE_BYTE (2, 1)},
 			// Hopping Blobby
-	{BEHAVIOR_UNPREDICTABLE | SPEED_MEDIUM | DANGER_WEAK, MAKE_BYTE (2, 2)},
+	{BEHAVIOR_UNPREDICTABLE | SPEED_MEDIUM | DANGER_WEAK,
+			MAKE_BYTE (2, 2)},
 			// Blood Monkey
-	{BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_MEDIUM | DANGER_NORMAL, MAKE_BYTE (4, 6)},
+	{BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_MEDIUM | DANGER_NORMAL,
+			MAKE_BYTE (4, 6)},
 			// Yompin Yiminy
-	{BEHAVIOR_UNPREDICTABLE | SPEED_MEDIUM | DANGER_MONSTROUS, MAKE_BYTE (9, 12)},
+	{BEHAVIOR_UNPREDICTABLE | SPEED_MEDIUM | DANGER_MONSTROUS,
+			MAKE_BYTE (9, 12)},
 			// Amorphous Trandicula
-	{BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST | DANGER_WEAK, MAKE_BYTE (3, 1)},
+	{BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST | DANGER_WEAK,
+			MAKE_BYTE (3, 1)},
 			// Crazy Weasel
-	{BEHAVIOR_FLEE | AWARENESS_HIGH | SPEED_FAST | DANGER_HARMLESS, MAKE_BYTE (1, 1)},
+	{BEHAVIOR_FLEE | AWARENESS_HIGH | SPEED_FAST | DANGER_HARMLESS,
+			MAKE_BYTE (1, 1)},
 			// Merry Whumpet
-	{BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_FAST | DANGER_NORMAL, MAKE_BYTE (7, 8)},
+	{BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_FAST | DANGER_NORMAL,
+			MAKE_BYTE (7, 8)},
 			// Fungal Squid
-	{BEHAVIOR_FLEE | AWARENESS_HIGH | SPEED_FAST | DANGER_WEAK, MAKE_BYTE (15, 2)},
+	{BEHAVIOR_FLEE | AWARENESS_HIGH | SPEED_FAST | DANGER_WEAK,
+			MAKE_BYTE (15, 2)},
 			// Penguin Cyclops
-	{BEHAVIOR_FLEE | AWARENESS_LOW | SPEED_FAST | DANGER_WEAK, MAKE_BYTE (1, 1)},
+	{BEHAVIOR_FLEE | AWARENESS_LOW | SPEED_FAST | DANGER_WEAK,
+			MAKE_BYTE (1, 1)},
 			// Chicken
 	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_WEAK, MAKE_BYTE (6, 2)},
 			// Bubble Vine
-	{BEHAVIOR_FLEE | AWARENESS_HIGH | SPEED_SLOW | DANGER_WEAK, MAKE_BYTE (4, 2)},
+	{BEHAVIOR_FLEE | AWARENESS_HIGH | SPEED_SLOW | DANGER_WEAK,
+			MAKE_BYTE (4, 2)},
 			// Bug-Eyed Bait
 	{SPEED_MOTIONLESS | DANGER_WEAK, MAKE_BYTE (8, 5)},
 			// Goo Burger
 
 	{SPEED_MOTIONLESS | DANGER_MONSTROUS, MAKE_BYTE (1, 1)},
 			// Evil One
-	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_HARMLESS, MAKE_BYTE (1, 1)}, // ? was 0, 1
+	{BEHAVIOR_UNPREDICTABLE | SPEED_SLOW | DANGER_HARMLESS,
+			MAKE_BYTE (1, 1)}, // ? was 0, 1
 			// Brainbox Bulldozers
-	{BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST | DANGER_MONSTROUS, MAKE_BYTE (15, 15)},
+	{BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST | DANGER_MONSTROUS,
+			MAKE_BYTE (15, 15)},
 			// Zex's Beauty
 };
-
 
 extern PRIM_LINKS DisplayLinks;
 
@@ -239,29 +256,21 @@ static Color
 DamageColorCycle (Color c, COUNT i)
 {
 	static const Color damage_tab[DAMAGE_CYCLE + 1] =
-	{
-		WHITE_COLOR_INIT,
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1B, 0x00, 0x00), 0x2A),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x07, 0x00), 0x7E),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0E, 0x00), 0x7C),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x15, 0x00), 0x7A),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1C, 0x00), 0x78),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x0A), 0x0E),
-	};
+			LANDER_DAMAGE_COLOR_TABLE;
 
 	if (i)
 		c = damage_tab[i];
-	else if (sameColor(c, WHITE_COLOR))
+	else if (sameColor(c, damage_tab[0]))
 		c = damage_tab[6];
-	else if (sameColor(c, BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x0A), 0x0E)))
+	else if (sameColor(c, damage_tab[6]))
 		c = damage_tab[5];
-	else if (sameColor(c, BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1C, 0x00), 0x78)))
+	else if (sameColor(c, damage_tab[5]))
 		c = damage_tab[4];
-	else if (sameColor(c, BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)))
+	else if (sameColor(c, damage_tab[4]))
 		c = damage_tab[3];
-	else if (sameColor(c, BUILD_COLOR (MAKE_RGB15 (0x1F, 0x0E, 0x00), 0x7C)))
+	else if (sameColor(c, damage_tab[3]))
 		c = damage_tab[2];
-	else if (sameColor(c, BUILD_COLOR (MAKE_RGB15 (0x1F, 0x07, 0x00), 0x7E)))
+	else if (sameColor(c, damage_tab[2]))
 		c = damage_tab[1];
 	else
 		c = damage_tab[0];
@@ -294,8 +303,10 @@ object_animation (ELEMENT *ElementPtr)
 				pPrim->Object.Stamp.frame =
 						SetAbsFrameIndex (pPrim->Object.Stamp.frame, 0);
 
-				PlaySound (SetAbsSoundIndex (LanderSounds, LIFEFORM_CANNED),
-						NotPositional (), NULL, GAME_SOUND_PRIORITY);
+				PlaySound (
+						SetAbsSoundIndex (LanderSounds, LIFEFORM_CANNED),
+						NotPositional (), NULL, GAME_SOUND_PRIORITY
+					);
 			}
 		}
 
@@ -309,7 +320,8 @@ object_animation (ELEMENT *ElementPtr)
 	{
 		ElementPtr->turn_wait += HINIBBLE (ElementPtr->turn_wait);
 
-		pPrim->Object.Stamp.frame = IncFrameIndex (pPrim->Object.Stamp.frame);
+		pPrim->Object.Stamp.frame =
+				IncFrameIndex (pPrim->Object.Stamp.frame);
 		
 		if (ElementPtr->state_flags & FINITE_LIFE)
 		{
@@ -333,10 +345,16 @@ object_animation (ELEMENT *ElementPtr)
 				else
 					s = ((frame_amount + 1)- frame_index) >> 1;
 				// XXX: Was 0x8000 the background flag on 3DO?
-				//SetPrimColor (pPrim, BUILD_COLOR (0x8000 | MAKE_RGB15 (0x1F, 0x1F, 0x1F), s));
-				SetPrimColor (pPrim, BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), s));
+				/*SetPrimColor (pPrim,
+						BUILD_COLOR (
+							0x8000 | MAKE_RGB15 (0x1F, 0x1F, 0x1F),
+						s));*/
+				SetPrimColor (pPrim,
+						BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), s));
 				if (frame_index == (frame_amount))
-					PlaySound (SetAbsSoundIndex (LanderSounds, EARTHQUAKE_DISASTER),
+					PlaySound (
+							SetAbsSoundIndex (LanderSounds,
+								EARTHQUAKE_DISASTER),
 							NotPositional (), NULL, GAME_SOUND_PRIORITY);
 			}
 			
@@ -354,17 +372,24 @@ object_animation (ELEMENT *ElementPtr)
 
 					angle = FACING_TO_ANGLE (ElementPtr->facing);
 					LockElement (hLavaElement, &LavaElementPtr);
-					LavaElementPtr->next.location = ElementPtr->next.location;
-					LavaElementPtr->next.location.x += COSINE (angle, RES_SCALE (4));
-					LavaElementPtr->next.location.y += SINE (angle, RES_SCALE (4));
+					LavaElementPtr->next.location =
+							ElementPtr->next.location;
+					LavaElementPtr->next.location.x +=
+							COSINE (angle, RES_SCALE (4));
+					LavaElementPtr->next.location.y +=
+							SINE (angle, RES_SCALE (4));
 					if (LavaElementPtr->next.location.y < 0)
 						LavaElementPtr->next.location.y = 0;
-					else if (LavaElementPtr->next.location.y >= (MAP_HEIGHT << MAG_SHIFT))
-						LavaElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+					else if (LavaElementPtr->next.location.y >=
+							(MAP_HEIGHT << MAG_SHIFT))
+						LavaElementPtr->next.location.y =
+								(MAP_HEIGHT << MAG_SHIFT) - 1;
 					if (LavaElementPtr->next.location.x < 0)
-						LavaElementPtr->next.location.x += SCALED_MAP_WIDTH << MAG_SHIFT;
+						LavaElementPtr->next.location.x +=
+								SCALED_MAP_WIDTH << MAG_SHIFT;
 					else
-						LavaElementPtr->next.location.x %= SCALED_MAP_WIDTH << MAG_SHIFT;
+						LavaElementPtr->next.location.x %=
+								SCALED_MAP_WIDTH << MAG_SHIFT;
 					LavaElementPtr->facing = NORMALIZE_FACING (
 							ElementPtr->facing + (TFB_Random () % 3 - 1));
 					UnlockElement (hLavaElement);
@@ -396,8 +421,11 @@ object_animation (ELEMENT *ElementPtr)
 					dy = -dy;
 
 				if (dx >= MapSurface.width || dy >= MapSurface.width
-						|| dx * dx + dy * dy >= MapSurface.width * MapSurface.width)
+						|| dx * dx + dy * dy
+							>= MapSurface.width * MapSurface.width)
+				{
 					ElementPtr->mass_points &= ~CREATURE_AWARE;
+				}
 				else if (!(ElementPtr->mass_points & CREATURE_AWARE))
 				{
 					BYTE DetectPercent;
@@ -407,14 +435,14 @@ object_animation (ELEMENT *ElementPtr)
 							* (30 / 6);
 							// XXX: Shouldn't this be dependent on
 							// PLANET_SIDE_RATE somehow? And why is it
-							// written as '30 / 6' instead of 5? Does the 30
-							// specify the (PC) framerate? That doesn't make
-							// sense; I would expect it to be in the
+							// written as '30 / 6' instead of 5? Does the
+							// 30 specify the (PC) framerate? That doesn't
+							// make sense; I would expect it to be in the
 							// denominator. And even then, it wouldn't give
 							// the same results with different frame rates,
-							// as repeating 'random(x / 30)' 30 times doesn't
-							// generally have the same result as repeating
-							// 'random(x / 35)' 25 times. - SvdB
+							// as repeating 'random(x / 30)' 30 times
+							// doesn't generally have the same result as
+							// repeating 'random(x / 35)' 25 times. - SvdB
 					if (TFB_Random () % 100 < DetectPercent)
 					{
 						ElementPtr->thrust_wait = 0;
@@ -591,11 +619,13 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 			(isPC (optSuperPC) ? LanderFrame[7] : LanderFrame[0]), 43);
 	}
 
-	tmpholdint = ((start_count + NumRetrieved) * MAX_HOLD_BARS / MAX_SCROUNGED)
-			- ((start_count * MAX_HOLD_BARS / MAX_SCROUNGED) + (NumRetrieved *
-			MAX_HOLD_BARS / MAX_SCROUNGED));
+	tmpholdint =
+			((start_count + NumRetrieved) * MAX_HOLD_BARS / MAX_SCROUNGED)
+			- ((start_count * MAX_HOLD_BARS / MAX_SCROUNGED)
+			+ (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED));
 	start_count = start_count * MAX_HOLD_BARS / MAX_SCROUNGED;
-	NumRetrieved = (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED) + tmpholdint;
+	NumRetrieved = (NumRetrieved * MAX_HOLD_BARS / MAX_SCROUNGED)
+			+ tmpholdint;
 
 	s.origin.x = 0;
 	s.origin.y = -(int)RES_SCALE (start_count);
@@ -663,19 +693,21 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 		NumRetrieved = (COUNT)(Max - *Amount);
 
 		if (Scan != BIOLOGICAL_SCAN && optPartialPickup)
-		{	// JMS: Subtract the scavenged kilotons from the mineral deposit.
-			// The rest will stay on the surface.
+		{	// JMS: Subtract the scavenged kilotons from the mineral
+			// deposit. The rest will stay on the surface.
 			ElementPtr->mass_points -= NumRetrieved;
 		
 			// JMS: This makes the mineral deposit subtraction keep  
 			// in effect even after leaving & re-entering the planet.
 			which_node = HIBYTE (ElementPtr->scan_node) - 1;
-			pSolarSysState->SysInfo.PlanetInfo.PartiallyScavengedList[MINERAL_SCAN][which_node] = NumRetrieved;
+			pSolarSysState->SysInfo.PlanetInfo.
+					PartiallyScavengedList[MINERAL_SCAN][which_node] =
+						NumRetrieved;
 		
-			// JMS: If the deposit was large and its amount now equates to a smaller
-			// deposit, change its graphics.
+			// JMS: If the deposit was large and its amount now equates to
+			// a smaller deposit, change its graphics.
 			if ((oldsize > 22 && ElementPtr->mass_points <= 22)
-				|| (oldsize > 15 && ElementPtr->mass_points <= 15))
+					|| (oldsize > 15 && ElementPtr->mass_points <= 15))
 			{
 				PRIMITIVE *pPrim = &DisplayArray[ElementPtr->PrimIndex];
 				BYTE gfx_index_change = 0;
@@ -687,15 +719,19 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 			
 				// Change the scan screen gfx.
 				ElementPtr->current.image.frame = SetRelFrameIndex (
-					ElementPtr->current.image.frame, (2 - gfx_index_change));
-				ElementPtr->next.image.frame = ElementPtr->current.image.frame;
+						ElementPtr->current.image.frame,
+						(2 - gfx_index_change));
+				ElementPtr->next.image.frame =
+						ElementPtr->current.image.frame;
 
-				// Notify the engine that the scan screen gfx should be updated.
+				// Notify the engine that the scan screen gfx should be
+				// updated.
 				ElementPtr->state_flags |= CHANGING;
 				SET_GAME_STATE (PLANETARY_CHANGE, 1);
 			
 				// Change the surface screen gfx.
-				pPrim->Object.Stamp.frame = SetRelFrameIndex (pPrim->Object.Stamp.frame, -gfx_index_change);
+				pPrim->Object.Stamp.frame = SetRelFrameIndex (
+						pPrim->Object.Stamp.frame, -gfx_index_change);
 			}
 		
 			PartialPickup = TRUE;
@@ -757,31 +793,52 @@ ExplodeCritter (ELEMENT *ElementPtr)
 		ExplosionElementPtr->next.location = ElementPtr->next.location;
 		ExplosionElementPtr->preprocess_func = object_animation;
 		ExplosionElementPtr->turn_wait = MAKE_BYTE (2, 2);
-		ExplosionElementPtr->life_span = EXPLOSION_LIFE * (LONIBBLE (ExplosionElementPtr->turn_wait));
-					
-		SetPrimType (&DisplayArray[ExplosionElementPtr->PrimIndex], STAMP_PRIM);
-		DisplayArray[ExplosionElementPtr->PrimIndex].Object.Stamp.frame = SetAbsFrameIndex (LanderFrame[0], 46);
+		ExplosionElementPtr->life_span = EXPLOSION_LIFE
+				* (LONIBBLE (ExplosionElementPtr->turn_wait));
 
-		// JMS: This keeps track of the explosion frames. Normally explosion occurs only once (lander explodes).
-		// If we don't zero this variable here, the explosion anim can run only once properly and would
-		// get stuck in the last frame after that on all the subsequent explosions.
+		SetPrimType (&DisplayArray[ExplosionElementPtr->PrimIndex],
+				STAMP_PRIM);
+		DisplayArray[ExplosionElementPtr->PrimIndex].Object.Stamp.frame =
+				SetAbsFrameIndex (LanderFrame[0], 46);
+
+		// JMS: This keeps track of the explosion frames. Normally
+		// explosion occurs only once (lander explodes). If we don't zero
+		// this variable here, the explosion anim can run only once
+		// properly and would get stuck in the last frame after that on all
+		// the subsequent explosions.
 		explosion_index = 0;
 					
 		UnlockElement (hExplosionElement);
 		InsertElement (hExplosionElement, GetHeadElement ());
 					
-		PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_DESTROYED), NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
+		PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_DESTROYED),
+				NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
 					
-		ElementPtr->state_flags |= DISAPPEARING; // JMS: Delete the critter frame
-		ElementPtr->mass_points = 0;			 // JMS: Make sure critter/explosion doesn't give biodata.
+		ElementPtr->state_flags |= DISAPPEARING;
+				// JMS: Delete the critter frame
+		ElementPtr->mass_points = 0;
+				// JMS: Make sure critter/explosion doesn't give biodata.
 					
-		// JMS: This marks the exploded critter "collected". (even though there was no biodata to collect).
-		// This ensures the critter isn't resurrected when visiting the planet next time.
+		// JMS: This marks the exploded critter "collected". (even though
+		// there was no biodata to collect). This ensures the critter isn't
+		// resurrected when visiting the planet next time.
 		temp_which_node = HIBYTE (ElementPtr->scan_node) - 1;
-		pSolarSysState->SysInfo.PlanetInfo.ScanRetrieveMask[BIOLOGICAL_SCAN] |= (1L << temp_which_node); // Mark this bio blip's state as "collected".
-		//pSolarSysState->CurNode = (COUNT)~0; // GenerateLifeForms will update the states of ALL bio-blips when run.
-		//callGenerateForScanType (pSolarSysState, pSolarSysState->pOrbitalDesc, &pSolarSysState->CurNode, BIOLOGICAL_SCAN); // Re-run GenerateLifeForms so the changed state takes effect
-		SET_GAME_STATE (PLANETARY_CHANGE, 1); // Save the changes to the file containing the states of all lifeforms.
+		pSolarSysState->SysInfo.
+				PlanetInfo.ScanRetrieveMask[BIOLOGICAL_SCAN] |=
+					(1L << temp_which_node);
+				// Mark this bio blip's state as "collected".
+				// 
+		//pSolarSysState->CurNode = (COUNT)~0;
+				// GenerateLifeForms will update the states of ALL
+				// bio-blips when run.
+		//callGenerateForScanType (pSolarSysState,
+		//		pSolarSysState->pOrbitalDesc, &pSolarSysState->CurNode,
+		//		BIOLOGICAL_SCAN);
+				// Re-run GenerateLifeForms so the changed state takes
+				// effect
+		SET_GAME_STATE (PLANETARY_CHANGE, 1);
+				// Save the changes to the file containing the states of
+				// all lifeforms.
 	}
 }
 
@@ -808,10 +865,11 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 			// Stash the type of creature in the
 			// thrust_wait field.  It seems to be unused
 			// by the game for anything at this point
-			ElementPtr->thrust_wait = ElementPtr->mass_points & ~CREATURE_AWARE;
+			ElementPtr->thrust_wait =
+					ElementPtr->mass_points & ~CREATURE_AWARE;
 			ElementPtr->mass_points = value;
 			DisplayArray[ElementPtr->PrimIndex].Object.Stamp.frame =
-			pSolarSysState->PlanetSideFrame[0];
+					pSolarSysState->PlanetSideFrame[0];
 		}
 	}
 	else if (CreatureData[ElementPtr->mass_points & ~CREATURE_AWARE]
@@ -824,7 +882,7 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 				ANGLE_TO_FACING (FULL_CIRCLE));
 		DeltaVelocityComponents (&ElementPtr->velocity,
 				COSINE (angle, WORLD_TO_VELOCITY (RES_SCALE (1))),
-				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE (1)))); 
+				SINE (angle, WORLD_TO_VELOCITY (RES_SCALE (1))));
 		ElementPtr->thrust_wait = 0;
 		ElementPtr->mass_points |= CREATURE_AWARE;
 	}
@@ -861,7 +919,8 @@ CheckObjectCollision (COUNT index)
 	}
 
 	LanderControl.EndPoint = LanderControl.IntersectStamp.origin;
-	LanderHandle = GetFrameParentDrawable (LanderControl.IntersectStamp.frame);
+	LanderHandle =
+			GetFrameParentDrawable (LanderControl.IntersectStamp.frame);
 
 	for (; index != END_OF_LIST; index = GetPredLink (GetPrimLinks (pPrim)))
 	{
@@ -883,7 +942,8 @@ CheckObjectCollision (COUNT index)
 				&ElementControl, MAX_TIME_VALUE))
 			continue;
 
-		for (hElement = GetHeadElement (); hElement; hElement = hNextElement)
+		for (hElement = GetHeadElement (); hElement;
+				hElement = hNextElement)
 		{
 			ELEMENT *ElementPtr;
 
@@ -960,7 +1020,8 @@ CheckObjectCollision (COUNT index)
 								DrawMineralHelpers (FALSE);
 						}
 					}
-					else if (scan == BIOLOGICAL_SCAN && ElementPtr->hit_points)
+					else if (scan == BIOLOGICAL_SCAN
+							&& ElementPtr->hit_points)
 					{
 						BYTE danger_vals[] =
 						{
@@ -1009,7 +1070,7 @@ CheckObjectCollision (COUNT index)
 							& ~CREATURE_AWARE
 							].ValueAndHitPoints)))
 					{
-						/* Collision of a stun bolt with a viable creature */
+						// Collision of a stun bolt with a viable creature
 						shotCreature (ElementPtr, value, &LanderControl,
 								pPrim);
 						UnlockElement (hElement);
@@ -1074,17 +1135,8 @@ lightning_process (ELEMENT *ElementPtr)
 		{
 			SIZE s;
 #define NUM_CYCLES 8
-			static const Color color_tab[] =
-			{
-				BUILD_COLOR (MAKE_RGB15_INIT (0x11, 0x11, 0x11), 0x18),
-				BUILD_COLOR (MAKE_RGB15_INIT (0x13, 0x13, 0x13), 0x17),
-				BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x15, 0x15), 0x15),
-				BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x17, 0x17), 0x14),
-				BUILD_COLOR (MAKE_RGB15_INIT (0x19, 0x19, 0x19), 0x13),
-				BUILD_COLOR (MAKE_RGB15_INIT (0x1B, 0x1B, 0x1B), 0x12),
-				BUILD_COLOR (MAKE_RGB15_INIT (0x1D, 0x1D, 0x1D), 0x10),
-				BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x1F), 0x0f),
-			};
+			static const Color color_tab[NUM_CYCLES] =
+					LIGHTNING_COLOR_TABLE;
 
 			s = ElementPtr->life_span;
 			if (s > NUM_CYCLES - 1)
@@ -1137,23 +1189,29 @@ AddLightning (void)
 		rand_val = TFB_Random ();
 		LightningElementPtr->life_span = 10 + (HIWORD (rand_val) % 10) + 1;
 		LightningElementPtr->next.location.x = (curLanderLoc.x
-			+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - ((SURFACE_WIDTH >> 1) - 6))
-			+ (RES_BOOL (LOBYTE (rand_val), rand_val) % (SURFACE_WIDTH - RES_SCALE (12)))
-			) % (SCALED_MAP_WIDTH << MAG_SHIFT);
+				+ ((SCALED_MAP_WIDTH << MAG_SHIFT)
+				- ((SURFACE_WIDTH >> 1) - 6))
+				+ (RES_BOOL (LOBYTE (rand_val), rand_val)
+				% (SURFACE_WIDTH - RES_SCALE (12))))
+				% (SCALED_MAP_WIDTH << MAG_SHIFT);
 		LightningElementPtr->next.location.y = (curLanderLoc.y
-			+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
-			+ (RES_BOOL (HIBYTE (rand_val), rand_val) % (SURFACE_HEIGHT - RES_SCALE (12)))
-			) % (MAP_HEIGHT << MAG_SHIFT);
+				+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
+				+ (RES_BOOL (HIBYTE (rand_val), rand_val)
+				% (SURFACE_HEIGHT - RES_SCALE (12))))
+				% (MAP_HEIGHT << MAG_SHIFT);
 
 		LightningElementPtr->cycle = LightningElementPtr->life_span;
 
 		if (!IS_HD)
 		{
-			SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex], STAMPFILL_PRIM);
-			SetPrimColor (&DisplayArray[LightningElementPtr->PrimIndex], WHITE_COLOR);
+			SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex],
+					STAMPFILL_PRIM);
+			SetPrimColor (&DisplayArray[LightningElementPtr->PrimIndex],
+					WHITE_COLOR);
 		}
 		else
-			SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex], STAMP_PRIM);
+			SetPrimType (&DisplayArray[LightningElementPtr->PrimIndex],
+					STAMP_PRIM);
 
 		DisplayArray[LightningElementPtr->PrimIndex].Object.Stamp.frame =
 				LanderFrame[2];
@@ -1189,13 +1247,14 @@ AddGroundDisaster (COUNT which_disaster)
 
 		rand_val = TFB_Random ();
 		GroundDisasterElementPtr->next.location.x = (curLanderLoc.x
-				+ ((SCALED_MAP_WIDTH << MAG_SHIFT) - (SURFACE_WIDTH * 3 / 8))
-				+ (LOWORD (rand_val) % (SURFACE_WIDTH * 3 / 4))
-				) % (SCALED_MAP_WIDTH << MAG_SHIFT);
+				+ ((SCALED_MAP_WIDTH << MAG_SHIFT)
+				- (SURFACE_WIDTH * 3 / 8))
+				+ (LOWORD (rand_val) % (SURFACE_WIDTH * 3 / 4)))
+				% (SCALED_MAP_WIDTH << MAG_SHIFT);
 		GroundDisasterElementPtr->next.location.y = (curLanderLoc.y
 				+ ((MAP_HEIGHT << MAG_SHIFT) - (SURFACE_HEIGHT * 3 / 8))
-				+ (HIWORD (rand_val) % (SURFACE_HEIGHT * 3 / 4))
-				) % (MAP_HEIGHT << MAG_SHIFT);
+				+ (HIWORD (rand_val) % (SURFACE_HEIGHT * 3 / 4)))
+				% (MAP_HEIGHT << MAG_SHIFT);
 
 
 		if (which_disaster == EARTHQUAKE_DISASTER)
@@ -1294,13 +1353,17 @@ BuildObjectList (void)
 			{
 				if (ElementPtr->next.location.y < 0)
 					ElementPtr->next.location.y = 0;
-				else if (ElementPtr->next.location.y >= (MAP_HEIGHT << MAG_SHIFT))
-					ElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+				else if (ElementPtr->next.location.y
+						>= (MAP_HEIGHT << MAG_SHIFT))
+					ElementPtr->next.location.y =
+							(MAP_HEIGHT << MAG_SHIFT) - 1;
 			}
 			if (ElementPtr->next.location.x < 0)
-				ElementPtr->next.location.x += SCALED_MAP_WIDTH << MAG_SHIFT;
+				ElementPtr->next.location.x +=
+						SCALED_MAP_WIDTH << MAG_SHIFT;
 			else
-				ElementPtr->next.location.x %= SCALED_MAP_WIDTH << MAG_SHIFT;
+				ElementPtr->next.location.x %=
+						SCALED_MAP_WIDTH << MAG_SHIFT;
 			
 			// XXX: APPEARING flag is set by scan.c for scanned blips
 			if (ElementPtr->state_flags & APPEARING)
@@ -1320,20 +1383,26 @@ BuildObjectList (void)
 					ElementPtr->next.location.x
 					- org.x + (MapSurface.width >> 1);
 			if (pPrim->Object.Stamp.origin.x >=
-					(SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 2))
-				pPrim->Object.Stamp.origin.x -= SCALED_MAP_WIDTH << MAG_SHIFT;
+					(SCALED_MAP_WIDTH << MAG_SHIFT)
+					- (MapSurface.width * 3 / 2))
+				pPrim->Object.Stamp.origin.x -=
+						SCALED_MAP_WIDTH << MAG_SHIFT;
 			else if (pPrim->Object.Stamp.origin.x <=
-					-((SCALED_MAP_WIDTH << MAG_SHIFT) - (MapSurface.width * 3 / 2)))
-				pPrim->Object.Stamp.origin.x += SCALED_MAP_WIDTH << MAG_SHIFT;
+					-((SCALED_MAP_WIDTH << MAG_SHIFT)
+						- (MapSurface.width * 3 / 2)))
+				pPrim->Object.Stamp.origin.x +=
+						SCALED_MAP_WIDTH << MAG_SHIFT;
 
 			pPrim->Object.Stamp.origin.y =
 					ElementPtr->next.location.y
 					- org.y + (MapSurface.height >> 1);
 
 			if (lander_flags & ADD_AT_END)
-				InsertPrim (&DisplayLinks, ElementPtr->PrimIndex, END_OF_LIST);
+				InsertPrim (&DisplayLinks, ElementPtr->PrimIndex,
+						END_OF_LIST);
 			else
-				InsertPrim (&DisplayLinks, ElementPtr->PrimIndex, GetPredLink (DisplayLinks));
+				InsertPrim (&DisplayLinks, ElementPtr->PrimIndex,
+						GetPredLink (DisplayLinks));
 		}
 
 		hNextElement = GetSuccElement (ElementPtr);
@@ -1410,7 +1479,8 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 
 		if (landingOffset != ON_THE_GROUND)
 		{	// Landing, draw a shadow
-			shadow_s.origin.x = lander_s.origin.y + (MapSurface.width >> 1) - (MapSurface.height >> 1);//2;
+			shadow_s.origin.x = lander_s.origin.y + (MapSurface.width >> 1)
+					- (MapSurface.height >> 1);//2;
 			shadow_s.origin.y = lander_s.origin.y;
 			shadow_s.frame = lander_s.frame;
 			SetContextForeGroundColor (BLACK_COLOR);
@@ -1436,7 +1506,8 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 						MAKE_RGB15 (0x1F, 0x1F, 0x1F) | 0x8000,
 						damage_index));*/
 				SetContextForeGroundColor (
-						BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), damage_index));
+						BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F),
+							damage_index));
 				DrawFilledStamp (&shield_s);
 			}
 			DrawStamp (&lander_s);
@@ -1459,12 +1530,14 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		if (pPSD->NumFrames)
 		{
 			--pPSD->NumFrames;
-			SetContextForeGroundColor (pPSD->ColorCycle[pPSD->NumFrames >> 1]);
+			SetContextForeGroundColor (
+					pPSD->ColorCycle[pPSD->NumFrames >> 1]);
 
 			if (isPC (optSuperPC))
 			{
 				pPSD->MineralText[0].baseline.x = RADAR_WIDTH >> 1;
-				pPSD->MineralText[0].baseline.y = RES_SCALE (8); // original value
+				pPSD->MineralText[0].baseline.y = RES_SCALE (8);
+						// original value
 			}
 			else
 			{
@@ -1904,17 +1977,18 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
 #if defined(ANDROID) || defined(__ANDROID__)
-			BATTLE_INPUT_STATE InputState = GetDirectionalJoystickInput(index, 0);
+			BATTLE_INPUT_STATE InputState =
+					GetDirectionalJoystickInput(index, 0);
 #endif
 			if (turn_wait)
 				--turn_wait;
 #if defined(ANDROID) || defined(__ANDROID__)
-			else if ((InputState & BATTLE_LEFT) || (InputState & BATTLE_RIGHT))
+			else if ((InputState & BATTLE_LEFT)
+					|| (InputState & BATTLE_RIGHT))
 #else
 			else if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
 				CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
 #endif
-
 			{
 				COUNT landerSpeedNumer;
 				COUNT angle;
@@ -1941,16 +2015,18 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 #endif
 
 				SetVelocityComponents (&GLOBAL (velocity),
-						COSINE (angle, landerSpeedNumer) / LANDER_SPEED_DENOM,
-						SINE (angle, landerSpeedNumer) / LANDER_SPEED_DENOM);
+						COSINE (angle, landerSpeedNumer)
+							/ LANDER_SPEED_DENOM,
+						SINE (angle, landerSpeedNumer)
+							/ LANDER_SPEED_DENOM);
 
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
 #if defined(ANDROID) || defined(__ANDROID__)
 			if ((InputState & BATTLE_THRUST_ALT))
 #else
-			if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
-					|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
+			if (CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
+					|| CurrentInputState.key[PlayerControls[0]][KEY_UP])
 #endif
 			{
 				GetNextVelocityComponents (
@@ -2156,10 +2232,12 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;
-	// JMS_GFX: In HD graphics we run out of default offsets. -> Use larger offset value.
+	// JMS_GFX: In HD graphics we run out of default offsets. -> Use larger
+	// offset value.
 	max_offsets = RES_BOOL (MAX_OFFSETS, MAX_OFFSETS_HD);
 
-	for (index = 0; index < max_offsets && delta < DISTANCE_COVERED; ++index)
+	for (index = 0; index < max_offsets && delta < DISTANCE_COVERED;
+			++index)
 	{
 		delta += index + 1;
 		
@@ -2235,7 +2313,8 @@ KillLanderCrewSeq (COUNT numKilled, DWORD period)
 unsigned
 GetThermalHazardRating (int temp)
 {
-	static const int tempBreakpoints[] = { 50, 100, 150, 250, 350, 550, 800 };
+	static const int tempBreakpoints[] =
+			{ 50, 100, 150, 250, 350, 550, 800 };
 	const size_t numBreakpoints = ARRAY_SIZE (tempBreakpoints);
 	unsigned i;
 
@@ -2253,9 +2332,9 @@ GetThermalHazardRating (int temp)
 static BYTE
 GetHazardChance (int hazardType, unsigned HazardRating)
 {
-	BYTE TectonicsChanceTab[] = {0*3, 0*3, 1*3, 2*3, 4*3,  8*3, 16*3, 32*3};
-	BYTE WeatherChanceTab  [] = {0*3, 0*3, 1*3, 2*3, 3*3,  6*3, 12*3, 24*3};
-	BYTE FireChanceTab     [] = {0*3, 0*3, 1*3, 2*3, 4*3, 12*3, 24*3, 48*3};
+	BYTE TectonicsChanceTab[] = {0, 0, 1*3, 2*3, 4*3,  8*3, 16*3, 32*3};
+	BYTE WeatherChanceTab  [] = {0, 0, 1*3, 2*3, 3*3,  6*3, 12*3, 24*3};
+	BYTE FireChanceTab     [] = {0, 0, 1*3, 2*3, 4*3, 12*3, 24*3, 48*3};
 
 	if (EXTENDED)
 	{
@@ -2291,10 +2370,12 @@ PlanetSide (POINT planetLoc)
 			pSolarSysState->SysInfo.PlanetInfo.Tectonics);
 	PSD.WeatherChance = GetHazardChance (LIGHTNING_DISASTER,
 			pSolarSysState->SysInfo.PlanetInfo.Weather);
-	PSD.FireChance = GetHazardChance (LAVASPOT_DISASTER, GetThermalHazardRating (
-			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature));
+	PSD.FireChance = GetHazardChance (LAVASPOT_DISASTER,
+			GetThermalHazardRating (
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature));
 
-	PSD.ElementLevel = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
+	PSD.ElementLevel = GetStorageBayCapacity ()
+			- GLOBAL_SIS (TotalElementMass);
 	PSD.MaxElementLevel = MAX_SCROUNGED;
 	if (GET_GAME_STATE (IMPROVED_LANDER_CARGO))
 		PSD.MaxElementLevel <<= 1;
@@ -2495,13 +2576,16 @@ InitLander (BYTE LanderFlags)
 			DrawStamp (&s);
 		}
 
-		free_space = GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass);
+		free_space = GetStorageBayCapacity ()
+				- GLOBAL_SIS (TotalElementMass);
 		if ((int)free_space < (int)(MAX_SCROUNGED << capacity_shift))
 		{
 			r.corner.x = RES_SCALE (1);
 			r.extent.width = RES_SCALE (4);
 			r.extent.height =
-				RES_SCALE (MAX_HOLD_BARS - ((free_space >> capacity_shift) * MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
+					RES_SCALE (MAX_HOLD_BARS
+						- ((free_space >> capacity_shift)
+						* MAX_HOLD_BARS / MAX_SCROUNGED) + 2);
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 		}
