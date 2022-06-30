@@ -635,12 +635,13 @@ ChangeFuelQuantity (void)
 	else if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
 		incr = maxFit; // Fill to max
 	else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
-		incr = minFit; // -1 Bar
+		incr = minFit; // Empty the tanks
 	else
 		return;
 
-	if (incr == maxFit || incr == minFit)
-		PlayMenuSound(MENU_SOUND_INVOKED);
+	if (PulsedInputState.menu[KEY_MENU_ZOOM_IN]
+			|| PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
+		PlayMenuSound (MENU_SOUND_INVOKED);
 
 	// Clamp incr to what we can afford/hold/have.
 	{
