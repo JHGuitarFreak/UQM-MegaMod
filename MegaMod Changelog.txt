@@ -25,11 +25,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
 - Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden - Superseded using Malin's code from Roguelike
+- Filled in point-of-no-return fuel ellipse - Kruzen
 - De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
 - HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
 - HD: Make the leading edge of the 3DO planet scan a smooth gradient
 - HD: Slylandro Gas-Bags now have working color transforms - Kruzen
 - EXTENDED: Add small chance of weather and tectonic hazards to level 2 
+- HD: Shipyard powerlines now have smoother gradients - Kruzen
+- HD: Fuel guage for shipyard and outfit now have smoother gradients - Kruzen
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
@@ -39,6 +42,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed textured moons loading regardless if Textured Planets was enabled or not
 - EXTENDED: Fixed interaction with Alpha Apodis IV
 - Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
+- Realigned the stars via the .ani to get rid of HD compensation code for the Starmap - Kruzen
+
 
 
 ## [v0.8.1]
