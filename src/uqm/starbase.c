@@ -382,6 +382,9 @@ ExitStarBase:
 		{
 			BYTE OldState;
 
+			if (IS_HD && !hdFuelFrame)
+				hdFuelFrame = CaptureDrawable (LoadGraphic (FUEL_PMAP_ANIM));
+
 			switch (OldState = pMS->CurState)
 			{
 				case OUTFIT_STARSHIP:
@@ -394,6 +397,12 @@ ExitStarBase:
 
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 			DoInput (pMS, TRUE);
+
+			if (IS_HD)
+			{
+				DestroyDrawable (ReleaseDrawable (hdFuelFrame));
+				hdFuelFrame = 0;
+			}
 
 			pMS->Initialized = FALSE;
 			pMS->CurState = OldState;

@@ -84,8 +84,6 @@ signedDivWithError (long val, long divisor)
 #define MAP_FIT_X ((MAX_X_UNIVERSE + 1) / ORIG_SIS_SCREEN_WIDTH + 1)
 #define MAP_FIT_XX ((MAX_X_UNIVERSE + 1) / SIS_SCREEN_WIDTH + 1)
 
-#define HD_COMP (IF_HD (2))
-
 static inline COORD
 universeToDispx (long ux)
 {
@@ -188,8 +186,8 @@ flashCurrentLocation (POINT *where, BOOLEAN force)
 
 		OldColor = SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (c, c, c), c));
-		s.origin.x = UNIVERSE_TO_DISPX (universe.x) + HD_COMP;
-		s.origin.y = UNIVERSE_TO_DISPY (universe.y) + HD_COMP;
+		s.origin.x = UNIVERSE_TO_DISPX (universe.x);
+		s.origin.y = UNIVERSE_TO_DISPY (universe.y);
 		s.frame = IncFrameIndex (StarMapFrame);
 		DrawFilledStamp (&s);
 		SetContextForeGroundColor (OldColor);
@@ -205,8 +203,8 @@ DrawCursor (COORD curs_x, COORD curs_y)
 {
 	STAMP s;
 
-	s.origin.x = curs_x + HD_COMP;
-	s.origin.y = curs_y + HD_COMP;
+	s.origin.x = curs_x;
+	s.origin.y = curs_y;
 	s.frame = StarMapFrame;
 
 	DrawStamp (&s);
@@ -218,9 +216,8 @@ DrawReticule (POINT dest, BOOLEAN loc)
 	STAMP s;
 
 	s.origin = MAKE_POINT (
-			UNIVERSE_TO_DISPX (dest.x) + HD_COMP,
-			UNIVERSE_TO_DISPY (dest.y) + HD_COMP
-		);
+			UNIVERSE_TO_DISPX (dest.x),
+			UNIVERSE_TO_DISPY (dest.y));
 	s.frame = SetAbsFrameIndex (MiscDataFrame, 107 + loc);
 
 	DrawStamp (&s);
@@ -247,10 +244,10 @@ DrawAutoPilot (POINT *pDstPt)
 	if (IS_HD)
 		s.frame = SetAbsFrameIndex (MiscDataFrame, 106);
 
-	pt.x = UNIVERSE_TO_DISPX (pt.x) + HD_COMP;
-	pt.y = UNIVERSE_TO_DISPY (pt.y) + HD_COMP;
+	pt.x = UNIVERSE_TO_DISPX (pt.x);
+	pt.y = UNIVERSE_TO_DISPY (pt.y);
 
-	dx = UNIVERSE_TO_DISPX (pDstPt->x) + HD_COMP - pt.x;
+	dx = UNIVERSE_TO_DISPX (pDstPt->x) - pt.x;
 	if (dx >= 0)
 		xincr = 1;
 	else
@@ -260,7 +257,7 @@ DrawAutoPilot (POINT *pDstPt)
 	}
 	dx <<= 1;
 
-	dy = UNIVERSE_TO_DISPY (pDstPt->y) + HD_COMP - pt.y;
+	dy = UNIVERSE_TO_DISPY (pDstPt->y) - pt.y;
 	if (dy >= 0)
 		yincr = 1;
 	else
@@ -706,8 +703,8 @@ DrawFuelEllipse ()
 	center = MAKE_POINT ((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
 
 	// convert starmap coords to screen coords
-	center.x = UNIVERSE_TO_DISPX (center.x) + HD_COMP;
-	center.y = UNIVERSE_TO_DISPY (center.y) + HD_COMP;
+	center.x = UNIVERSE_TO_DISPX (center.x);
+	center.y = UNIVERSE_TO_DISPY (center.y);
 
 	halfFuel = UNIVERSE_TO_DISPX (halfFuel) - UNIVERSE_TO_DISPX (0);
 	if (halfFuel < 0)
@@ -1098,12 +1095,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				BUILD_COLOR_RGBA (c, c, c, 0xFF));
 
 		while (CNPtr->x < MAX_X_UNIVERSE && CNPtr->y < MAX_Y_UNIVERSE)
-		{
-			l.first.x = UNIVERSE_TO_DISPX (CNPtr->x) + HD_COMP;
-			l.first.y = UNIVERSE_TO_DISPY (CNPtr->y) + HD_COMP;
+		{// Have to add 2 because of HD nature (can't get exact middle of 4x4)
+			l.first.x = UNIVERSE_TO_DISPX (CNPtr->x) + IF_HD (2);
+			l.first.y = UNIVERSE_TO_DISPY (CNPtr->y) + IF_HD (2);
 			CNPtr++;
-			l.second.x = UNIVERSE_TO_DISPX (CNPtr->x) + HD_COMP;
-			l.second.y = UNIVERSE_TO_DISPY (CNPtr->y) + HD_COMP;
+			l.second.x = UNIVERSE_TO_DISPX (CNPtr->x) + IF_HD (2);
+			l.second.y = UNIVERSE_TO_DISPY (CNPtr->y) + IF_HD (2);
 			CNPtr++;
 			DrawLine (&l, 1);
 		}
@@ -1123,9 +1120,9 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				DrawReticule (star_array[i].star_pt, TRUE);
 		}
 	}
-
+#ifdef NEVER
 	// This draws reticules over the Rainbow worlds
-	/*if (which_space <= 1 && which_starmap == RAINBOW_MAP)
+	if (which_space <= 1 && which_starmap == RAINBOW_MAP)
 	{
 		COUNT i;
 
@@ -1134,8 +1131,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			if (star_array[i].Index == RAINBOW_DEFINED)
 				DrawReticule (star_array[i].star_pt, TRUE);
 		}
-	}*/
-
+	}
+#endif
 	do
 	{	// Draws all the stars
 		BYTE star_type;
@@ -1145,8 +1142,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 		star_type = SDPtr->Type;
 
-		s.origin.x = UNIVERSE_TO_DISPX (SDPtr->star_pt.x) + HD_COMP;
-		s.origin.y = UNIVERSE_TO_DISPY (SDPtr->star_pt.y) + HD_COMP;
+		s.origin.x = UNIVERSE_TO_DISPX (SDPtr->star_pt.x);
+		s.origin.y = UNIVERSE_TO_DISPY (SDPtr->star_pt.y);
 		if (which_space <= 1)
 		{			
 			if (optShowVisitedStars && isStarVisited (i)
@@ -1184,13 +1181,13 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		if (which_space <= 1)
 		{
-			s.origin.x = UNIVERSE_TO_DISPX (ARILOU_SPACE_X) + HD_COMP;
-			s.origin.y = UNIVERSE_TO_DISPY (ARILOU_SPACE_Y) + HD_COMP;
+			s.origin.x = UNIVERSE_TO_DISPX (ARILOU_SPACE_X);
+			s.origin.y = UNIVERSE_TO_DISPY (ARILOU_SPACE_Y);
 		}
 		else
 		{
-			s.origin.x = UNIVERSE_TO_DISPX (QUASI_SPACE_X) + HD_COMP;
-			s.origin.y = UNIVERSE_TO_DISPY (QUASI_SPACE_Y) + HD_COMP;
+			s.origin.x = UNIVERSE_TO_DISPX (QUASI_SPACE_X);
+			s.origin.y = UNIVERSE_TO_DISPY (QUASI_SPACE_Y);
 		}
 		s.frame = SetRelFrameIndex (star_frame,
 				GIANT_STAR * NUM_STAR_COLORS + GREEN_BODY);
@@ -1235,9 +1232,6 @@ static void
 EraseCursor (COORD curs_x, COORD curs_y)
 {
 	RECT r;
-
-	curs_x += HD_COMP;
-	curs_y += HD_COMP;
 
 	GetFrameRect (StarMapFrame, &r);
 
@@ -1301,12 +1295,14 @@ ZoomStarMap (SIZE dir)
 
 static void
 UpdateCursorLocation (int sx, int sy, const POINT *newpt)
-{
+{// Kruzen: ORIG_SIS_SCREEN_WIDTH/HEIGHT for viewport follows cursor mode
+ // We're scaling the result of s.origin afterwards, but calculating
+ // everything in SD values. So we can use max zoom in HD
 	STAMP s;
 	POINT pt;
 
-	pt.x = ORIG_UNIVERSE_TO_DISPX (cursorLoc.x);
-	pt.y = ORIG_UNIVERSE_TO_DISPY (cursorLoc.y);
+	pt.x = ORIG_UNIVERSE_TO_DISPX(cursorLoc.x);
+	pt.y = ORIG_UNIVERSE_TO_DISPY(cursorLoc.y);
 
 	if (newpt)
 	{	// absolute move
@@ -1349,7 +1345,7 @@ UpdateCursorLocation (int sx, int sy, const POINT *newpt)
 		s.origin.y = ORIG_UNIVERSE_TO_DISPY (cursorLoc.y);
 	}
 
-	// ORIG_SIS_SCREEN_WIDTH/HEIGHT for viewport follows cursor mode
+	
 	if (s.origin.x < 0 || s.origin.y < 0
 			|| s.origin.x >= ORIG_SIS_SCREEN_WIDTH 
 			|| s.origin.y >= ORIG_SIS_SCREEN_HEIGHT)
@@ -1402,14 +1398,14 @@ UpdateCursorInfo (UNICODE *prevbuf)
 		utf8StringCopy (buf, sizeof (buf),
 				GAME_STRING (FEEDBACK_STRING_BASE + 3 + which_starmap));
 
-	pt.x = UNIVERSE_TO_DISPX (cursorLoc.x) + HD_COMP;
-	pt.y = UNIVERSE_TO_DISPY (cursorLoc.y) + HD_COMP;
+	pt.x = UNIVERSE_TO_DISPX (cursorLoc.x);
+	pt.y = UNIVERSE_TO_DISPY (cursorLoc.y);
 
 	SDPtr = BestSDPtr = 0;
 	while ((SDPtr = FindStar (SDPtr, &cursorLoc, 75, 75)))
 	{
-		if (UNIVERSE_TO_DISPX (SDPtr->star_pt.x) + HD_COMP == pt.x
-				&& UNIVERSE_TO_DISPY (SDPtr->star_pt.y) + HD_COMP == pt.y
+		if (UNIVERSE_TO_DISPX (SDPtr->star_pt.x) == pt.x
+				&& UNIVERSE_TO_DISPY (SDPtr->star_pt.y) == pt.y
 				&& (BestSDPtr == 0
 				|| STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
 			BestSDPtr = SDPtr;
@@ -1436,15 +1432,19 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	}
 	else
 	{	// No star found. Reset the coordinates to the cursor's location
-		cursorLoc.x = DISP_TO_UNIVERSEX (pt.x);
-		if (cursorLoc.x < 0)
+		// Kruzen: bucket to avoid cursor misplacement due to
+		// asymmetric DISP_TO_UNIVERSE functions
+		COORD bucket;
+
+		bucket = DISP_TO_UNIVERSEX (pt.x);
+		if (bucket < 0)
 			cursorLoc.x = 0;
-		else if (cursorLoc.x > MAX_X_UNIVERSE)
+		else if (bucket > MAX_X_UNIVERSE)
 			cursorLoc.x = MAX_X_UNIVERSE;
-		cursorLoc.y = DISP_TO_UNIVERSEY (pt.y);
-		if (cursorLoc.y < 0)
+		bucket = DISP_TO_UNIVERSEY (pt.y);
+		if (bucket < 0)
 			cursorLoc.y = 0;
-		else if (cursorLoc.y > MAX_Y_UNIVERSE)
+		else if (bucket > MAX_Y_UNIVERSE)
 			cursorLoc.y = MAX_Y_UNIVERSE;
 	}
 
@@ -1463,8 +1463,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 			ari_pt.y = QUASI_SPACE_Y;
 		}
 
-		if (UNIVERSE_TO_DISPX (ari_pt.x) + HD_COMP == pt.x
-				&& UNIVERSE_TO_DISPY (ari_pt.y) + HD_COMP == pt.y)
+		if (UNIVERSE_TO_DISPX (ari_pt.x) == pt.x
+				&& UNIVERSE_TO_DISPY (ari_pt.y) == pt.y)
 		{
 			cursorLoc = ari_pt;
 			utf8StringCopy (buf, sizeof (buf),
@@ -2532,7 +2532,11 @@ StarMap (void)
 	SetDefaultMenuRepeatDelay ();
 
 	DrawHyperCoords (universe);
-	DrawSISMessage (NULL);
+	if (GLOBAL(autopilot.x) != ~0
+		&& GLOBAL(autopilot.y) != ~0)
+		DrawAutoPilotMessage(FALSE);
+	else
+		DrawSISMessage (NULL);
 	DrawStatusMessage (NULL);
 
 	if (optSubmenu)

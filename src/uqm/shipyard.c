@@ -1484,7 +1484,8 @@ DoModifyShips (MENU_STATE *pMS)
 
 	}
 
-	SleepThread (ONE_SECOND / 30);
+	SleepThread (ONE_SECOND / 60); // Kruzen: was 30, upped to 60 to fit new HD
+								   // powerline animation. No issues detected so far
 
 	return TRUE;
 }
@@ -1572,75 +1573,8 @@ DrawBluePrint (MENU_STATE *pMS)
 			num_frames -= m;
 		}
 	}
-	if (GLOBAL_SIS (FuelOnBoard) > FUEL_RESERVE)
-	{
-		DWORD FuelVolume;
-		RECT r;
 
-		FuelVolume = GLOBAL_SIS (FuelOnBoard) - FUEL_RESERVE;
-		GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
-
-		r.extent.height = RES_SCALE (1);
-
-		while (FuelVolume)
-		{
-			COUNT m;
-
-			
-			COUNT slotNr = 0;
-			DWORD compartmentNr = 0;
-			BYTE moduleType;
-			DWORD fuelAmount;
-			DWORD volume;
-			
-			
-			fuelAmount = GLOBAL_SIS (FuelOnBoard);
-			if (fuelAmount >= FUEL_RESERVE)
-			{
-				COUNT slotI;
-				DWORD capacity = FUEL_RESERVE;
-				
-				slotI = NUM_MODULE_SLOTS;
-				while (slotI--)
-				{
-					BYTE moduleType = GLOBAL_SIS (ModuleSlots[slotI]);
-					
-					capacity += GetModuleFuelCapacity (moduleType);
-					
-					/*log_add (log_Debug, "fuelAmount %d, capacity %d, "
-							"moduletype %d, slotI %d", fuelAmount,
-							capacity, moduleType, slotI);*/
-					
-					if (fuelAmount < capacity)
-					{
-						slotNr = slotI;
-						compartmentNr = capacity - fuelAmount;
-						break;
-					}
-				}
-				
-				moduleType = GLOBAL_SIS (ModuleSlots[slotNr]);
-				volume = GetModuleFuelCapacity (moduleType);
-			}
-
-				
-			GetFTankCapacity (&r.corner);
-
-			r.extent.width = RES_SCALE (5);
-			DrawFilledRectangle (&r);
-
-			r.extent.width = RES_SCALE (3);
-			r.corner.x += RES_SCALE (1);
-
-			SetContextForeGroundColor (
-					SetContextBackGroundColor (BLACK_COLOR));
-			DrawFilledRectangle (&r);
-			m = FuelVolume < FUEL_VOLUME_PER_ROW ?
-					(COUNT)FuelVolume : FUEL_VOLUME_PER_ROW;
-			GLOBAL_SIS (FuelOnBoard) += m;
-			FuelVolume -= m;
-		}
-	}
+	DrawFuelInFTanks (FALSE);
 
 	if (DIF_HARD)
 		showRemainingCrew ();
