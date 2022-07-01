@@ -1672,11 +1672,8 @@ GetFuelTankForFuelUnit (DWORD unitNr, COUNT *slotNr, DWORD *compartmentNr)
 	return false;
 }
 
-// Get the point where to draw the next fuel unit,
-// set the foreground color to the color for that unit,
-// and return GetFuelTankCapacity ().
-// TODO: Split of the parts of this function into separate functions.
-// Kruzen: Splitted - but I need tank volume for HD
+// Get the point where to draw the next fuel unit, set the foreground color
+// to the color for that unit, and return GetFuelTankCapacity ().
 static DWORD
 GetFTankScreenPos (POINT *ppt)
 {
@@ -1897,85 +1894,87 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 	}
 }
 
-// Kruzen: The caller should set the context correctly
-// and batch graphics
+// Kruzen: The caller should set the context correctly and batch graphics
 void
 DrawFuelInFTanks (BOOLEAN isOutfit)
 {
 	RECT r;
-	const DWORD FuelVolume = GLOBAL_SIS(FuelOnBoard);
+	const DWORD FuelVolume = GLOBAL_SIS (FuelOnBoard);
 	DWORD capacity = GetFuelTankCapacity ();
 	DWORD volume;
 	Color c;
 
 	if (isOutfit)
-		c = BUILD_COLOR(MAKE_RGB15(0x0B, 0x00, 0x00), 0x2E);
+		c = BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E);
 	else
 		c = BLACK_COLOR;
 
-	r.extent.height = RES_SCALE(1);
+	r.extent.height = RES_SCALE (1);
 
 	// Loop through all the rows to draw
-	for (GLOBAL_SIS(FuelOnBoard) = FUEL_RESERVE;
-		GLOBAL_SIS(FuelOnBoard) < capacity;)
+	for (GLOBAL_SIS (FuelOnBoard) = FUEL_RESERVE;
+			GLOBAL_SIS (FuelOnBoard) < capacity;)
 	{
 		if (IS_HD && hdFuelFrame)
 		{
 			volume = GetFTankScreenPos (&r.corner);
 
-			if (GLOBAL_SIS(FuelOnBoard) < FuelVolume)
+			if (GLOBAL_SIS (FuelOnBoard) < FuelVolume)
 			{
 				STAMP s;
 
 				s.origin.x = r.corner.x;
 				s.origin.y = 0;
-				s.frame = SetAbsFrameIndex (hdFuelFrame, volume > 5000 ? 0 : 1);
+				s.frame = SetAbsFrameIndex (hdFuelFrame,
+						volume > 5000 ? 0 : 1);
 				DrawStamp (&s);
 
-				GLOBAL_SIS(FuelOnBoard) += volume;
+				GLOBAL_SIS (FuelOnBoard) += volume;
 
-				if (GLOBAL_SIS(FuelOnBoard) > FuelVolume)
-				{// this tank is not full, draw rect on top
-					r.extent.width = RES_SCALE(5);
-					r.extent.height = ((GLOBAL_SIS(FuelOnBoard) - FuelVolume) / (FUEL_VOLUME_PER_ROW >> 2));
-					r.corner.y = -(GetFrameHot(s.frame).y);
+				if (GLOBAL_SIS (FuelOnBoard) > FuelVolume)
+				{	// this tank is not full, draw rect on top
+					r.extent.width = RES_SCALE (5);
+					r.extent.height =
+							(GLOBAL_SIS (FuelOnBoard) - FuelVolume)
+							/ (FUEL_VOLUME_PER_ROW >> 2);
+					r.corner.y = -(GetFrameHot (s.frame).y);
 					SetContextForeGroundColor (c);
 					DrawFilledRectangle (&r);
 				}
 			}
 			else
 			{
-				r.extent.width = RES_SCALE(5);
+				r.extent.width = RES_SCALE (5);
 				r.extent.height = (volume > 5000 ? 40 : 20);
-				r.corner.y -= r.extent.height - 4;// 1 bar lower because GetFTankScreenPos()
-												  // doesn't return exact corner
+				r.corner.y -= r.extent.height - 4;
+						// 1 bar lower because GetFTankScreenPos() doesn't
+						// return exact corner
 				SetContextForeGroundColor (c);
 				DrawFilledRectangle (&r);
-				GLOBAL_SIS(FuelOnBoard) += volume;
+				GLOBAL_SIS (FuelOnBoard) += volume;
 			}
 		}
 		else
 		{
 			GetFTankScreenPos (&r.corner);
-			// If we're less than the fuel level, draw fuel.
-			if (GLOBAL_SIS(FuelOnBoard) < FuelVolume)
-			{
-				r.extent.width = RES_SCALE(5);
-				DrawFilledRectangle(&r);
+			if (GLOBAL_SIS (FuelOnBoard) < FuelVolume)
+			{	// If we're less than the fuel level, draw fuel.
+				r.extent.width = RES_SCALE (5);
+				DrawFilledRectangle (&r);
 
-				r.extent.width = RES_SCALE(3);
-				r.corner.x += RES_SCALE(1);
+				r.extent.width = RES_SCALE (3);
+				r.corner.x += RES_SCALE (1);
 
-				SetContextForeGroundColor(
-					SetContextBackGroundColor(BLACK_COLOR));
+				SetContextForeGroundColor (
+					SetContextBackGroundColor (BLACK_COLOR));
 			}
-			else // Otherwise, draw an empty bar.
-			{
-				r.extent.width = RES_SCALE(5);
+			else
+			{	// Otherwise, draw an empty bar.
+				r.extent.width = RES_SCALE (5);
 				SetContextForeGroundColor (c);
 			}
-			DrawFilledRectangle(&r);
-			GLOBAL_SIS(FuelOnBoard) += FUEL_VOLUME_PER_ROW;
+			DrawFilledRectangle (&r);
+			GLOBAL_SIS (FuelOnBoard) += FUEL_VOLUME_PER_ROW;
 		}
 	}
 	GLOBAL_SIS (FuelOnBoard) = FuelVolume;

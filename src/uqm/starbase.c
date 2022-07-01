@@ -383,7 +383,8 @@ ExitStarBase:
 			BYTE OldState;
 
 			if (IS_HD && !hdFuelFrame)
-				hdFuelFrame = CaptureDrawable (LoadGraphic (FUEL_PMAP_ANIM));
+				hdFuelFrame =
+						CaptureDrawable (LoadGraphic (FUEL_PMAP_ANIM));
 
 			switch (OldState = pMS->CurState)
 			{

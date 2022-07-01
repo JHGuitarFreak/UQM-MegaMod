@@ -247,7 +247,7 @@ extern void DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame);
 extern void DrawCaptainsName (bool NewGame);
 
 extern void DrawFuelInFTanks (BOOLEAN isOutfit);
-extern FRAME hdFuelFrame;// Frame for HD fuel with smooth grad (loaded and destroyed in starbase.c)
+extern FRAME hdFuelFrame;// Frame for HD fuel with smooth gradient
 
 #if defined(__cplusplus)
 }
