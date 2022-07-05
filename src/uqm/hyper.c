@@ -1965,8 +1965,9 @@ SeedUniverse (void)
 										hyperspacesuns,
 										STAR_COLOR (star_type)
 											* NUM_STAR_TYPES * NUM_FRAMES
-											+ STAR_TYPE (star_type) 
-											* NUM_FRAMES + frameCounter);
+											+ STAR_TYPE (star_type)
+											* NUM_FRAMES + frameCounter
+											% NUM_FRAMES);
 
 							HyperSpaceElementPtr->current.image.farray =
 									&hyperspacesuns;
@@ -2056,7 +2057,7 @@ SeedUniverse (void)
 					HyperSpaceElementPtr->current.image.frame =
 							SetRelFrameIndex (
 								HyperSpaceElementPtr->current.image.frame,
-								frameCounter);
+								frameCounter % NUM_FRAMES);
 	
 					HyperSpaceElementPtr->current.image.farray =
 							&hyperholes[which_spaces_star_gfx];
