@@ -766,6 +766,27 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "RESERVED", 32 },
 
 	/* end rev 2, MegaMod v0.8.1 */
+	{ NULL, 3 },
+	/* begin rev 3, MegaMod v0.8.2 */
+
+	{ "SYS_RETICULE_00", 32 },
+	{ "SYS_RETICULE_01", 32 },
+	{ "SYS_RETICULE_02", 32 },
+	{ "SYS_RETICULE_03", 32 },
+	{ "SYS_RETICULE_04", 32 },
+	{ "SYS_RETICULE_05", 32 },
+	{ "SYS_RETICULE_06", 32 },
+	{ "SYS_RETICULE_07", 32 },
+	{ "SYS_RETICULE_08", 32 },
+	{ "SYS_RETICULE_09", 32 },
+	{ "SYS_RETICULE_10", 32 },
+	{ "SYS_RETICULE_11", 32 },
+	{ "SYS_RETICULE_12", 32 },
+	{ "SYS_RETICULE_13", 32 },
+	{ "SYS_RETICULE_14", 32 },
+	{ "SYS_RETICULE_15", 32 },
+
+	/* end rev 3, MegaMod v0.8.2 */
 	{ NULL, 0 },
 };
 
@@ -774,7 +795,8 @@ const GameStateBitMap gameStateBitMap[] = {
 const char* gameStateBitMapRevTag[] = {
 	"Core UQM v0.8.0",
 	"MegaMod v0.8.0.85",
-	"MegaMod v0.8.1"
+	"MegaMod v0.8.1",
+	"MegaMod v0.8.2"
 };
 
 // XXX: these should handle endian conversions later

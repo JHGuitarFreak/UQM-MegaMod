@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: The Kohr-Ah lose a tiny fraction of their SOI when the Supox and Utwig attack them.
 - EXTENDED: Show Auto-Pilot destination and distance to destination
 - HARDMODE: Keep time running while orbiting a planet & during a landing excursion
+- Added ability to toggle reticules on stars of interest on the StarMap
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden

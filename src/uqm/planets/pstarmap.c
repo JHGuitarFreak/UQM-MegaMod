@@ -211,14 +211,17 @@ DrawCursor (COORD curs_x, COORD curs_y)
 }
 
 static void
-DrawReticule (POINT dest, BOOLEAN loc)
+DrawReticule (POINT dest, BYTE type)
 {
 	STAMP s;
+
+	if (type > 2 || type < 0)
+		return;
 
 	s.origin = MAKE_POINT (
 			UNIVERSE_TO_DISPX (dest.x),
 			UNIVERSE_TO_DISPY (dest.y));
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 107 + loc);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 107 + type);
 
 	DrawStamp (&s);
 }
@@ -826,6 +829,85 @@ isHomeworld (BYTE Index)
 	return raceBool;
 }
 
+DWORD
+reticuleSwitch (int Index)
+{
+	switch (Index / 32)
+	{
+		case  0: return GET_GAME_STATE (SYS_RETICULE_00);
+		case  1: return GET_GAME_STATE (SYS_RETICULE_01);
+		case  2: return GET_GAME_STATE (SYS_RETICULE_02);
+		case  3: return GET_GAME_STATE (SYS_RETICULE_03);
+		case  4: return GET_GAME_STATE (SYS_RETICULE_04);
+		case  5: return GET_GAME_STATE (SYS_RETICULE_05);
+		case  6: return GET_GAME_STATE (SYS_RETICULE_06);
+		case  7: return GET_GAME_STATE (SYS_RETICULE_07);
+		case  8: return GET_GAME_STATE (SYS_RETICULE_08);
+		case  9: return GET_GAME_STATE (SYS_RETICULE_09);
+		case 10: return GET_GAME_STATE (SYS_RETICULE_10);
+		case 11: return GET_GAME_STATE (SYS_RETICULE_11);
+		case 12: return GET_GAME_STATE (SYS_RETICULE_12);
+		case 13: return GET_GAME_STATE (SYS_RETICULE_13);
+		case 14: return GET_GAME_STATE (SYS_RETICULE_14);
+		case 15: return GET_GAME_STATE (SYS_RETICULE_15);
+		default: return 0;
+	}
+}
+
+void
+saveReticule (int Index, DWORD starData)
+{
+	switch (Index / 32)
+	{
+		case  0: SET_GAME_STATE (SYS_RETICULE_00, starData); break;
+		case  1: SET_GAME_STATE (SYS_RETICULE_01, starData); break;
+		case  2: SET_GAME_STATE (SYS_RETICULE_02, starData); break;
+		case  3: SET_GAME_STATE (SYS_RETICULE_03, starData); break;
+		case  4: SET_GAME_STATE (SYS_RETICULE_04, starData); break;
+		case  5: SET_GAME_STATE (SYS_RETICULE_05, starData); break;
+		case  6: SET_GAME_STATE (SYS_RETICULE_06, starData); break;
+		case  7: SET_GAME_STATE (SYS_RETICULE_07, starData); break;
+		case  8: SET_GAME_STATE (SYS_RETICULE_08, starData); break;
+		case  9: SET_GAME_STATE (SYS_RETICULE_09, starData); break;
+		case 10: SET_GAME_STATE (SYS_RETICULE_10, starData); break;
+		case 11: SET_GAME_STATE (SYS_RETICULE_11, starData); break;
+		case 12: SET_GAME_STATE (SYS_RETICULE_12, starData); break;
+		case 13: SET_GAME_STATE (SYS_RETICULE_13, starData); break;
+		case 14: SET_GAME_STATE (SYS_RETICULE_14, starData); break;
+		case 15: SET_GAME_STATE (SYS_RETICULE_15, starData); break;
+		default: return;
+	}
+}
+
+#define INTERNAL_STAR_INDEX -1
+
+BOOLEAN
+isStarReticuled (int Index)
+{
+	COUNT star_index;
+	DWORD starData;
+
+	if (Index == INTERNAL_STAR_INDEX)
+		star_index = (COUNT)(CurStarDescPtr - star_array);
+	else
+		star_index = Index;
+
+	starData = reticuleSwitch (star_index);
+
+	return (starData >> (star_index % 32)) & 1;
+}
+
+void
+setStarReticuled (COUNT star_index)
+{
+	int starData;
+
+	// star_index = (COUNT)(CurStarDescPtr - star_array);
+	starData = reticuleSwitch (star_index);
+	starData ^= (1 << (star_index % 32));
+	saveReticule (star_index, starData);
+}
+
 static void
 DrawStarMap (COUNT race_update, RECT *pClipRect)
 {
@@ -1145,7 +1227,13 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		s.origin.x = UNIVERSE_TO_DISPX (SDPtr->star_pt.x);
 		s.origin.y = UNIVERSE_TO_DISPY (SDPtr->star_pt.y);
 		if (which_space <= 1)
-		{			
+		{
+			if (which_starmap == NORMAL_STARMAP
+					&& isStarReticuled (i))
+			{	// This draws reticules over tagged star systems
+				DrawReticule (SDPtr->star_pt, 2);
+			}
+
 			if (optShowVisitedStars && isStarVisited (i)
 					&& which_starmap == NORMAL_STARMAP
 					&& SDPtr->Index != SOL_DEFINED)
@@ -2143,6 +2231,40 @@ DoMoveCursor (MENU_STATE *pMS)
 		last_buf[0] = '\0';
 		UpdateCursorInfo (last_buf);
 		SleepThread (ONE_SECOND / 8);
+	}
+	else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+	{
+		FlushInput ();
+
+		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+		{
+			setStarReticuled (starIndex (cursorLoc));
+
+			DrawStarMap (0, NULL);
+		}
+		else
+			PlayMenuSound (MENU_SOUND_FAILURE);
+	}
+	else if (PulsedInputState.menu[KEY_MENU_DELETE])
+	{
+		FlushInput ();
+
+		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+		{
+			COUNT i;
+
+			for (i = 0; i <= NUM_SOLAR_SYSTEMS; i++)
+			{
+				if (isStarReticuled (i))
+				{
+					setStarReticuled (i);
+					DrawStarMap (0, NULL);
+					SleepThread (ONE_SECOND / 8);
+				}
+			}
+		}
+		else
+			PlayMenuSound (MENU_SOUND_FAILURE);
 	}
 	else
 	{
