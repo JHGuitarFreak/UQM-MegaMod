@@ -683,7 +683,6 @@ DrawFuelCircle (BOOLEAN secondary)
 	}
 }
 
-
 // Taleden code of drawing ellipse. Unused because not precise enough
 static void
 DrawFuelEllipse ()
@@ -1313,7 +1312,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		flashCurrentLocation (NULL, TRUE);
 	}
 
-	UnbatchGraphics ();	
+	UnbatchGraphics ();
 }
 
 static void
@@ -2611,7 +2610,7 @@ StarMap (void)
 	else
 	{	// This zooms the Quasi map in by 2 if within the local Quasi star
 		// cluster.
-		if ((universe.x <= ARILOU_HOME_X && universe.y <= ARILOU_HOME_Y) 
+		if ((universe.x <= ARILOU_HOME_X && universe.y <= ARILOU_HOME_Y)
 			&& (universe.x >= 4480 && universe.y >= 4580))
 			zoomLevel = 2;
 	}

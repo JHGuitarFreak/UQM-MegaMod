@@ -1480,7 +1480,7 @@ SaveGroups (uio_Stream *fh)
 		int i;
 		ReadGroupHeader (fp, &h);
 		/* Group List */
-		SeekStateFile (fp, h.GroupOffset[0], SEEK_SET);	
+		SeekStateFile (fp, h.GroupOffset[0], SEEK_SET);
 		sread_8 (fp, &lastenc);
 		sread_8 (fp, &count);
 		write_32 (fh, GROUP_LIST_TAG);

@@ -125,7 +125,6 @@ register_menu_controls (int index)
 	}
 }
 
-
 static VCONTROL_GESTURE *controls;
 #define CONTROL_PTR(i, j, k) \
 		(controls + ((i) * num_flight + (j)) * MAX_FLIGHT_ALTERNATES + (k))
@@ -156,14 +155,16 @@ register_flight_controls (void)
 			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
 			{
 				VCONTROL_GESTURE *g = CONTROL_PTR(i, j, k);
-				snprintf (buf, 39, "keys.%d.%s.%d", i+1, flight_res_names[j], k+1);
+				snprintf (buf, 39, "keys.%d.%s.%d", i+1,
+						flight_res_names[j], k+1);
 				if (!res_IsString (buf))
 				{
 					g->type = VCONTROL_NONE;
 					continue;
 				}
 				VControl_ParseGesture (g, res_GetString (buf));
-				VControl_AddGestureBinding (g, (int *)(flight_vec + i * num_flight + j));
+				VControl_AddGestureBinding (g,
+						(int *)(flight_vec + i * num_flight + j));
 			}
 		}
 	}
@@ -219,8 +220,8 @@ resetKeyboardState (void)
 }
 
 void
-TFB_SetInputVectors (volatile int menu[], int num_menu_, volatile int flight[],
-		int num_templ_, int num_flight_)
+TFB_SetInputVectors (volatile int menu[], int num_menu_,
+		volatile int flight[], int num_templ_, int num_flight_)
 {
 	if (num_menu_ < 0 || num_templ_ < 0 || num_flight_ < 0)
 	{
@@ -450,7 +451,7 @@ is_numpad_char_event (const SDL_Event * Event)
 			(Event->key.keysym.mod & KMOD_NUM) &&  /* Numlock on */
 			Event->key.keysym.sym >= SDLK_KP_1 &&  /* Keypad key */
 			Event->key.keysym.sym <= SDLK_KP_PERIOD;
-	/* Note that in the SDL2 enumeration 0 comes after 9 and before period */
+	// Note that in the SDL2 enumeration 0 comes after 9 and before period
 }
 
 void
@@ -539,76 +540,41 @@ TFB_ResetControls (void)
 {
 	VControl_ResetInput ();
 	resetKeyboardState ();
-	// flush character buffer
+			// flush character buffer
 	kbdhead = kbdtail = 0;
 	lastchar = 0;
 }
 
 void
-InterrogateInputState (int templat, int control, int index, char *buffer, int maxlen)
+InterrogateInputState (int templat, int control, int index, char *buffer,
+		int maxlen)
 {
-	VCONTROL_GESTURE *g = CONTROL_PTR(templat, control, index);
+	VCONTROL_GESTURE *g = CONTROL_PTR (templat, control, index);
 	const char xbx_buttons[16][8] = 
 	{
-		"A",
-		"B",
-		"X",
-		"Y",
-		"LB",
-		"RB",
-		"Back",
-		"Start",
-		"LSB",
-		"RSB",
-		"Guide",
-		"B11",
-		"B12",
-		"B13",
-		"B14",
-		"B15"
+		"A", "B", "X", "Y", "LB", "RB", "Back", "Start", "LSB", "RSB",
+		"Guide", "B11", "B12", "B13", "B14", "B15"
 	};
 	const char ds4_buttons[16][11] =
 	{
-		STR_CROSS,
-		STR_CIRCLE,
-		STR_SQUARE,
-		STR_TRIANGLE,
-		"Share",
-		"PS",
-		"Options",
-		"L3",
-		"R3",
-		"L1",
-		"R1",
-		"DPad Up",
-		"DPad Down",
-		"DPad Left",
-		"DPad Right",
-		"TouchPad"
+		STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE, "Share", "PS",
+		"Options", "L3", "R3", "L1", "R1", "DPad Up", "DPad Down",
+		"DPad Left", "DPad Right", "TouchPad"
 	};
-	const char xbx_axes[6][5] = 
-	{ 
-		"LS H",
-		"LS V",
-		"LT",
-		"RS H",
-		"RS V",
-		"RT"
+	const char xbx_axes[6][5] =
+	{
+		"LS H", "LS V", "RS H", "RS V", "LT", "RT"
 	};
 	const char ds4_axes[6][5] =
 	{
-		"L3 H",
-		"L3 V",
-		"R3 H",
-		"R3 V",
-		"L2",
-		"R2"
+		"L3 H", "L3 V", "R3 H", "R3 V", "L2", "R2"
 	};
 
 	if (templat >= num_templ || control >= num_flight
 			|| index >= MAX_FLIGHT_ALTERNATES)
 	{
-		log_add (log_Warning, "InterrogateInputState(): invalid control index");
+		log_add (log_Warning,
+				"InterrogateInputState(): invalid control index");
 		buffer[0] = 0;
 		return;
 	}
@@ -616,28 +582,39 @@ InterrogateInputState (int templat, int control, int index, char *buffer, int ma
 	switch (g->type)
 	{
 	case VCONTROL_KEY:
-		snprintf (buffer, maxlen, "%s", VControl_code2name (g->gesture.key));
+		snprintf (buffer, maxlen, "%s",
+				VControl_code2name (g->gesture.key));
 		buffer[maxlen-1] = 0;
 		break;
 	case VCONTROL_JOYBUTTON:
 		if (optControllerType == 0)
-			snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port, g->gesture.button.index);
+			snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port,
+					g->gesture.button.index);
 		else if (optControllerType == 1)
-			snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port, xbx_buttons[g->gesture.button.index]);
+			snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port,
+					xbx_buttons[g->gesture.button.index]);
 		else if (optControllerType == 2)
-			snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port, ds4_buttons[g->gesture.button.index]);
+			snprintf (buffer, maxlen, "[J%d %s]", g->gesture.button.port,
+					ds4_buttons[g->gesture.button.index]);
 		buffer[maxlen-1] = 0;
 		break;
 	case VCONTROL_JOYAXIS:
 		if (optControllerType == 0)
-			snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port, g->gesture.axis.index, g->gesture.axis.polarity > 0 ? '+' : '-');
+			snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port,
+					g->gesture.axis.index,
+					g->gesture.axis.polarity > 0 ? '+' : '-');
 		else if (optControllerType == 1)
-			snprintf (buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port, xbx_axes[g->gesture.axis.index], g->gesture.axis.polarity > 0 ? '+' : '-');
+			snprintf (buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port,
+					xbx_axes[g->gesture.axis.index],
+					g->gesture.axis.polarity > 0 ? '+' : '-');
 		else if (optControllerType == 2)
-			snprintf(buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port, ds4_axes[g->gesture.axis.index], g->gesture.axis.polarity > 0 ? '+' : '-');
+			snprintf(buffer, maxlen, "[J%d %s%c]", g->gesture.axis.port,
+					ds4_axes[g->gesture.axis.index],
+					g->gesture.axis.polarity > 0 ? '+' : '-');
 		break;
 	case VCONTROL_JOYHAT:
-		snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port, g->gesture.hat.index, g->gesture.hat.dir);
+		snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port,
+				g->gesture.hat.index, g->gesture.hat.dir);
 		break;
 	default:
 		/* Something we don't handle yet */
@@ -665,7 +642,8 @@ RemoveInputState (int templat, int control, int index)
 			(int *)(flight_vec + templat * num_flight + control));
 	g->type = VCONTROL_NONE;
 
-	snprintf (keybuf, 39, "keys.%d.%s.%d", templat+1, flight_res_names[control], index+1);
+	snprintf (keybuf, 39, "keys.%d.%s.%d", templat+1,
+			flight_res_names[control], index+1);
 	res_Remove (keybuf);
 
 	return;
@@ -699,7 +677,8 @@ RebindInputState (int templat, int control, int index)
 	VControl_AddGestureBinding (&g,
 			(int *)(flight_vec + templat * num_flight + control));
 	*CONTROL_PTR(templat, control, index) = g;
-	snprintf (keybuf, 39, "keys.%d.%s.%d", templat+1, flight_res_names[control], index+1);
+	snprintf (keybuf, 39, "keys.%d.%s.%d", templat+1,
+			flight_res_names[control], index+1);
 	VControl_DumpGesture (valbuf, 39, &g);
 	res_PutString (keybuf, valbuf);
 }
@@ -715,4 +694,3 @@ BeginInputFrame (void)
 {
 	VControl_BeginFrame ();
 }
-

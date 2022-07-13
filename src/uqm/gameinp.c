@@ -51,7 +51,7 @@ typedef struct
 	BOOLEAN (*InputFunc) (void *pInputState);
 } INPUT_STATE_DESC;
 
-/* These static variables are the values that are set by the controllers. */
+// These static variables are the values that are set by the controllers.
 
 typedef struct
 {
@@ -267,8 +267,9 @@ UpdateInputState (void)
 			for (j = 0; j < NUM_KEYS; j++)
 			{
 				_check_for_pulse (&PulsedInputState.key[i][j],
-						&CachedInputState.key[i][j], &OldInputState.key[i][j],
-						&RepeatDelays.key[i][j], &NewTime, &Times.key[i][j]);
+						&CachedInputState.key[i][j],
+						&OldInputState.key[i][j], &RepeatDelays.key[i][j],
+						&NewTime, &Times.key[i][j]);
 			}
 		}
 		for (i = 0; i < NUM_MENU_KEYS; i++)

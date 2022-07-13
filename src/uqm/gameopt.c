@@ -1559,7 +1559,7 @@ GameOptions (void)
 		BOOLEAN success;
 
 		DrawMenuStateStrings (PM_SAVE_GAME, LOAD_GAME);
-		success	= PickGame (FALSE, TRUE);
+		success = PickGame (FALSE, TRUE);
 		if (!success)
 		{	// Selected LOAD from main menu, and canceled
 			GLOBAL (CurrentActivity) |= CHECK_ABORT;

@@ -1321,7 +1321,8 @@ typedef struct summary_state
 
 static void 
 remove_char_from_string (UNICODE* str, const UNICODE c)
-{	// MB: Hack for removing '$' characters from Orz dialogue when viewing summary conversation - Used by DoConvSummary below
+{	// MB: Hack for removing '$' characters from Orz dialogue when viewing
+	// summary conversation - Used by DoConvSummary below
 	UNICODE *pr = str, *pw = str;
 
 	while (*pr)
@@ -1407,11 +1408,13 @@ DoConvSummary (SUMMARY_STATE *pSS)
 
 			t.CharCount = (COUNT)~0;
 			for ( ; row < MAX_SUMM_ROWS &&
-					!getLineWithinWidth (&t, &next, r.extent.width, (COUNT)~0);
+					!getLineWithinWidth (
+						&t, &next, r.extent.width, (COUNT)~0);
 					++row)
 			{
 				if (CommData.AlienConv == ORZ_CONVERSATION)
-				{	// MB: nasty hack: remove '$'s from conversation for Orz
+				{	// MB: nasty hack: remove '$'s from conversation for
+					// Orz
 					UNICODE my_copy[128];
 					
 					strcpy (my_copy, t.pStr);
