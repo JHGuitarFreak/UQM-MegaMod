@@ -2148,6 +2148,8 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
+		FlushInput ();
+
 		if ((optBubbleWarp && !optInfiniteFuel && !inQuasiSpace ())
 				&& GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0
 				&& GLOBAL_SIS (FuelOnBoard) >= FuelRequired ())
@@ -2160,6 +2162,8 @@ DoMoveCursor (MENU_STATE *pMS)
 	{
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
+
+		FlushInput ();
 
 		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
 		{
@@ -2179,6 +2183,8 @@ DoMoveCursor (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
 	{
+		FlushInput ();
+
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{	// HyperSpace search
 			POINT oldpt = cursorLoc;
@@ -2284,8 +2290,8 @@ DoMoveCursor (MENU_STATE *pMS)
 		if (PulsedInputState.menu[KEY_MENU_UP])      sy = -1;
 		if (PulsedInputState.menu[KEY_MENU_DOWN])    sy =  1;
 
-		// Double the cursor speed when the Zoom Out key is held down
-		if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+		// Double the cursor speed when the "Next" key is held down
+		if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_NEXT])
 		{
 			sx *= 2;
 			sy *= 2;
