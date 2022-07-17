@@ -125,7 +125,7 @@ showRemainingCrew (void)
 	utf8StringCopy (
 			buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 6));
 
-	font_DrawText(&t);
+	font_DrawText (&t);
 
 	t.baseline.x += RES_SCALE (71);
 	SetContextForeGroundColor (
@@ -183,7 +183,7 @@ SpinStarShip (MENU_STATE *pMS, HFLEETINFO hStarShip)
 	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 	Index = FindMasterShipIndex (FleetPtr->SpeciesID);
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-				
+
 	if (Index >= 0 && Index < NUM_MELEE_SHIPS)
 	{
 		DoShipSpins = TRUE;
@@ -296,6 +296,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r);
+	if (classicPackPresent)
+		DrawBorder (14, FALSE);
 	DrawBorder (8, FALSE);
 	r.corner = s.origin;
 	r.extent.width = RADAR_WIDTH;
@@ -391,7 +393,6 @@ ShowShipCrew (SHIP_FRAGMENT *StarShipPtr, const RECT *pRect)
 	if (StarShipPtr->crew_level >= maxCrewLevel)
 		sprintf (buf, "%u", StarShipPtr->crew_level);
 	else if (StarShipPtr->crew_level == 0)
-		// XXX: "SCRAP" needs to be moved to starcon.txt
 		utf8StringCopy (buf, sizeof (buf),
 				GAME_STRING (STARBASE_STRING_BASE + 5));
 	else
@@ -1201,6 +1202,8 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		// Cancel selecting an escort ship.
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
 		SetFlashRect (NULL, FALSE);
+		if (classicPackPresent)
+			DrawBorder (14, FALSE);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 				// twice to reset menu selection

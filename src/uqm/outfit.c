@@ -67,6 +67,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 //	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r); // drawn over anyway
+	if (classicPackPresent)
+		DrawBorder (14, FALSE);
 	DrawBorder (8, FALSE);
 	if (NewModule >= EMPTY_SLOT)
 	{
@@ -385,6 +387,8 @@ DoInstallModule (MENU_STATE *pMS)
 		else
 		{
 			SetContext (StatusContext);
+			if (classicPackPresent)
+				DrawBorder (14, FALSE);
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState = OUTFIT_MODULES);
 			SetFlashRect (SFR_MENU_3DO, FALSE);
 
