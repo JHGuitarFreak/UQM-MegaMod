@@ -788,17 +788,17 @@ DoPickPlanetSide (MENU_STATE *pMS)
 			if (CurrentInputState.menu[KEY_MENU_LEFT])
 				dx = -RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_RIGHT])
-				dx = RES_SCALE (1);
+				dx =  RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_UP])
 				dy = -RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_DOWN])
-				dy = RES_SCALE (1);
+				dy =  RES_SCALE (1);
 
-			// Double the cursor speed when the Zoom Out key is held down
-			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			// Triple the cursor speed when the "Next" key is held down
+			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_NEXT])
 			{
-				dx *= 2;
-				dy *= 2;
+				dx *= 3;
+				dy *= 3;
 			}
 		}
 
