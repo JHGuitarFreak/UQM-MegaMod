@@ -334,9 +334,8 @@ add_text (int status, TEXT *pTextIn)
 		else
 		{
 			// Alien speech
-			if (optOrzCompFont && CommData.AlienConv == ORZ_CONVERSATION)
-			{
-				// BW : special case for the Orz conversations
+			if (CommData.AlienConv == ORZ_CONVERSATION)
+			{	// BW : special case for the Orz conversations
 				// the character $ is recycled as a marker to
 				// switch from and to computer font
 				
@@ -377,7 +376,7 @@ add_text (int status, TEXT *pTextIn)
 						getCharFromString (&ptr);
 						remChars--;
 						computerOn = 1 - computerOn;
-						if (computerOn)
+						if (computerOn && optOrzCompFont)
 							SetContextFont (ComputerFont);
 						else
 							SetContextFont (CommData.AlienFont);
@@ -423,7 +422,7 @@ add_text (int status, TEXT *pTextIn)
 						getCharFromString (&ptr);
 						remChars--;
 						computerOn = 1 - computerOn;
-						if (computerOn)
+						if (computerOn && optOrzCompFont)
 							SetContextFont (ComputerFont);
 						else
 							SetContextFont (CommData.AlienFont);
@@ -469,8 +468,8 @@ GetCustomBaseline (COUNT i)
 	if (head_node == NULL)
 		return;
 	else
-	{// Set cur_node if current sentence number equals to one of list indices
-	 // MUST be NULL otherwise
+	{	// Set cur_node if current sentence number equals to one of list
+		// indices. MUST be NULL otherwise
 		cur_node = head_node;
 		while (cur_node != NULL && cur_node->index != i)
 			cur_node = cur_node->next;
