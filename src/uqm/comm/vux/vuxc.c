@@ -220,7 +220,7 @@ static LOCDATA vux_desc_hd =
 	NULL_RESOURCE, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	VUX_CONVERSATION_PHRASES, /* PlayerPhrases */
-	18, /* NumAnimations */
+	19, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			12, /* StartIndex */
@@ -360,9 +360,19 @@ static LOCDATA vux_desc_hd =
 		},
 		{
 			103, /* StartIndex */
-			13, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 30, 0, /* FrameRate */
+			8, /* NumFrames */
+			CIRCULAR_ANIM | ONE_SHOT_ANIM 
+			| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
+			ONE_SECOND / 15, 0, /* FrameRate */
+			0, 0,/* RestartRate */
+			0, /* BlockMask */
+		},
+		{
+			111, /* StartIndex */
+			11, /* NumFrames */
+			CIRCULAR_ANIM | ONE_SHOT_ANIM
+			| ALPHA_MASK_ANIM | ANIM_DISABLED, /* AnimFlags */
+			ONE_SECOND / 40, 0, /* FrameRate */
 			0, 0,/* RestartRate */
 			0, /* BlockMask */
 		},
@@ -381,7 +391,7 @@ static LOCDATA vux_desc_hd =
 		0, /* AnimFlags */
 		ONE_SECOND / 15, 0, /* FrameRate */
 		ONE_SECOND / 12, 0, /* RestartRate */
-		(1 << 18), /* BlockMask */
+		0, /* BlockMask */
 	},
 	NULL, /* AlienNumberSpeech - none */
 	/* Filler for loaded resources */
@@ -404,22 +414,24 @@ CombatIsInevitable (RESPONSE_REF R)
 
 		AlienTalkSegue (1);
 
-		if (!IS_HD) {
+		if (!IS_HD) 
 			XFormColorMap (GetColorMapAddress (
 					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
 					), ONE_SECOND / 4);
-		} else {
-			COUNT i = 0;
-			COUNT limit = CommData.NumAnimations - 1;
-			
-			for (i = 0; i < limit; i++)
-				CommData.AlienAmbientArray[i].AnimFlags |= ANIM_DISABLED;
-				
-			CommData.AlienAmbientArray[limit].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienFrame = SetAbsFrameIndex 
-				(CommData.AlienFrame, 115);
-				
-			CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+		else 
+		{
+			if (!EXTENDED)
+			{
+				CommData.AlienFrame = SetAbsFrameIndex
+					(CommData.AlienFrame, 110);
+				CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+				RunOneTimeSequence (17, 0);				
+			}
+			else
+			{
+				SetUpAlphaAnimation (0, 100, 18);
+				RunOneTimeSequence (18, STOP_ALL_AFTER);
+			}
 		}
 
 		AlienTalkSegue ((COUNT)~0);

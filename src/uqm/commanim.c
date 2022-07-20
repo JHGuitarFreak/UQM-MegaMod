@@ -41,6 +41,8 @@ static SEQUENCE* Transit;
 static COUNT FirstAmbient;
 static COUNT TotalSequences;
 
+//stuff for Alpha animation in HD
+SWORD Begin, End, Step;
 
 static inline DWORD
 randomFrameRate (SEQUENCE *pSeq)
@@ -398,6 +400,8 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		COUNT i;
 		SEQUENCE *pSeq;
 		BOOLEAN Change;
+		BOOLEAN AMChange = FALSE;
+		BOOLEAN AMPresent = FALSE;
 		BOOLEAN CanTalk = TRUE;
 		TimeCount CurTime;
 		DWORD ElapsedTicks;
@@ -407,6 +411,11 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		ElapsedTicks = CurTime - LastTime;
 		LastTime = CurTime;
 
+	/*	printf(AMChange ? "true " : "false ");
+		AMChange |= TRUE;
+		printf(AMChange ? "true " : "false ");
+		AMChange |= FALSE;
+		printf(AMChange ? "true\n" : "false\n");*/
 		// Process ambient animations
 		NextActiveMask = ActiveMask;
 		pSeq = Sequences + FirstAmbient;
@@ -417,6 +426,9 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 
 			if (ADPtr->AnimFlags & ANIM_DISABLED)
 				continue;
+
+			if (ADPtr->AnimFlags & ALPHA_MASK_ANIM)
+				AMPresent = TRUE;
 			
 			if (pSeq->Direction == NO_DIR)
 			{	// animation is paused
@@ -503,6 +515,8 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 				// Stop the anim if not talking
 				pSeq->Direction = NO_DIR;
 			}
+
+			AMChange |= pSeq->Change;			
 		}
 		// All ambient animations have been processed. Advance the mask.
 		ActiveMask = NextActiveMask;
@@ -544,6 +558,9 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 				clearRunTalkingAnim ();
 				clearStopTalkingAnim ();
 			}
+
+			AMChange |= Talk->Change;
+			AMChange |= Transit->Change;
 		}
 		else
 		{	// Not talking -- disable talking anim if it is done
@@ -557,7 +574,7 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		{
 			BOOLEAN ColorChange = XFormColorMap_step ();
 
-			if (ColorChange)
+			if (ColorChange || (AMChange && AMPresent))
 				FullRedraw = TRUE;
 
 			// Colormap animations are processed separately
@@ -588,6 +605,18 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 					&& !(NextActiveMask & ActiveBit))
 			{	// One-shot animation, inactive next frame
 				ADPtr->AnimFlags |= ANIM_DISABLED;
+
+				if (ADPtr->AnimFlags & RESTART_ALL_AFTER)
+					SwitchSequences (TRUE);
+
+				if (ADPtr->AnimFlags & STOP_ALL_AFTER)
+				{
+					SwitchSequences (FALSE);
+					CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+					TalkDesc.AnimFlags |= ANIM_DISABLED;
+					CommData.AlienFrame = SetAbsFrameIndex
+						(CommData.AlienFrame, ADPtr->StartIndex);
+				}
 			}
 		}
 
@@ -598,9 +627,10 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 BOOLEAN
 DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 {
-	int i;
+	int i,a;
 	STAMP s;
 	BOOLEAN Change = FALSE;
+	BOOLEAN alphaLayer = FALSE;
 
 	BatchGraphics ();
 
@@ -620,7 +650,12 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 			if (ADPtr->AnimFlags & ANIM_MASK)
 				continue;
 
-			ADPtr->AnimFlags |= ANIM_DISABLED;
+			// A small hack to draw alpha masks on screen transition once
+			// Only HD commander rave party so far
+			if (ADPtr->AnimFlags & ALPHA_MASK_ANIM)
+				ADPtr->AnimFlags |= RANDOM_ANIM;
+			else
+				ADPtr->AnimFlags |= ANIM_DISABLED;
 
 			if (!(ADPtr->AnimFlags & COLORXFORM_ANIM))
 			{	// It's a static frame (e.g. Flagship picture at Starbase)
@@ -646,12 +681,58 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 			if (!fullRedraw && !pSeq->Change)
 				continue;
 
+			// Take into account masks to avoid forbidden overdraws
+			if (fullRedraw && ADPtr->BlockMask & ActiveMask)
+				continue;
+
+			// Process alpha-mask anim for HD
+			if (ADPtr->AnimFlags & ALPHA_MASK_ANIM)
+			{
+				alphaLayer = TRUE;
+				a = i;
+				continue;
+			}
+
 			s.frame = SetAbsFrameIndex (CommData.AlienFrame,
 					ADPtr->StartIndex + pSeq->CurIndex);
 			DrawStamp (&s);
 			pSeq->Change = FALSE;
 
 			Change = TRUE;
+		}
+
+		if (alphaLayer)
+		{
+			SEQUENCE* pSeq = &Sequences[a];
+			ANIMATION_DESC* ADPtr = pSeq->ADPtr;
+
+			if (ADPtr->AnimFlags & CIRCULAR_ANIM)
+			{// Requires 1 frame that changes opacity
+				DrawMode mode, oldMode;
+				double factor;
+
+				factor = (Begin - (pSeq->CurIndex * Step));
+				factor = (double)DRAW_FACTOR_1 / 100 * factor;
+				mode = MAKE_DRAW_MODE(DRAW_ALPHA, (SWORD)factor);
+				oldMode = SetContextDrawMode(mode);
+				s.frame = SetAbsFrameIndex(CommData.AlienFrame, ADPtr->StartIndex);
+				DrawStamp(&s);				
+				SetContextDrawMode(oldMode);
+			}
+			else if (ADPtr->AnimFlags & RANDOM_ANIM)
+			{// Requres all transparent frames
+				s.frame = SetAbsFrameIndex(CommData.AlienFrame,
+					ADPtr->StartIndex + pSeq->CurIndex);
+				DrawStamp(&s);
+			}
+			else if (ADPtr->AnimFlags & YOYO_ANIM)
+			{// Throbs back and forth, requires 2 frames
+				s.frame = SetAbsFrameIndex(CommData.AlienFrame,
+					ADPtr->StartIndex + (pSeq->CurIndex % 2));
+				DrawStamp(&s);
+			}
+
+			pSeq->Change = FALSE;
 		}
 	}
 
@@ -668,4 +749,71 @@ ShutYourMouth (void)
 	{
 		Talk->CurIndex = 0;
 	}
+}
+
+void
+SwitchSequences (BOOLEAN enableAll)
+{// Kruzen: Needed for disabling animations during 
+ // HD one-time transitions (i.e. orz frumple)
+	COUNT i;
+
+	for (i = 0; i < CommData.NumAnimations; ++i)
+	{
+
+		if (CommData.AlienAmbientArray[i].AnimFlags & ONE_SHOT_ANIM)// skip one-shot anim
+			continue;
+
+		if (!enableAll)
+		{
+			if (CommData.AlienAmbientArray[i].AnimFlags & IMMUME_TO_STOP)
+				continue;
+
+			CommData.AlienAmbientArray[i].AnimFlags |= ANIM_DISABLED;
+		}
+		else
+		{
+			if (CommData.AlienAmbientArray[i].AnimFlags & IMMUME_TO_RESTART)
+				continue;
+
+			CommData.AlienAmbientArray[i].AnimFlags &= ~ANIM_DISABLED;
+		}
+
+	}
+}
+
+void
+RunOneTimeSequence (COUNT animIndex, COUNT flags)
+{// Kruzen: HD-only
+
+	if (!(CommData.AlienAmbientArray[animIndex].AnimFlags & COLORXFORM_ANIM) &&
+			CommData.AlienAmbientArray[animIndex].AnimFlags & ONE_SHOT_ANIM)
+	{
+		CommData.AlienAmbientArray[animIndex].AnimFlags &= ~ANIM_DISABLED;
+
+		CommData.AlienAmbientArray[animIndex].AnimFlags |= flags;
+
+		if (!(CommData.AlienAmbientArray[animIndex].AnimFlags & ALPHA_MASK_ANIM))
+			SwitchSequences (FALSE);
+	}
+}
+
+void
+SetUpAlphaAnimation (SWORD startPersentage, SWORD endPersentage, COUNT animIndex)
+{
+	Begin = startPersentage;
+	End = endPersentage;
+
+	if (Begin > 100)
+		Begin = 100;
+
+	if (Begin < 0)
+		Begin = 0;
+
+	if (End > 100)
+		End = 100;
+
+	if (End < 0)
+		End = 0;
+
+	Step = (Begin - End) / (CommData.AlienAmbientArray[animIndex].NumFrames - 1);
 }

@@ -34,7 +34,7 @@ static LOCDATA commander_desc =
 	NULL, /* init_encounter_func */
 	NULL, /* post_encounter_func */
 	NULL, /* uninit_encounter_func */
-	COMMANDER_PMAP_ANIM, /* AlienFrame */
+	COMMANDER_INIT_PMAP_ANIM, /* AlienFrame */
 	COMMANDER_FONT, /* AlienFont */
 	WHITE_COLOR_INIT, /* AlienTextFColor */
 	BLACK_COLOR_INIT, /* AlienTextBColor */
@@ -44,10 +44,10 @@ static LOCDATA commander_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	COMMANDER_COLOR_MAP, /* AlienColorMap */
 	COMMANDER_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
+	COMMANDER_LOWPOW_MUSIC, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	COMMANDER_CONVERSATION_PHRASES, /* PlayerPhrases */
-	3, /* NumAnimations */
+	6, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{ /* Blink */
 			1, /* StartIndex */
@@ -65,10 +65,38 @@ static LOCDATA commander_desc =
 			ONE_SECOND * 2, 0, /* RestartRate */
 			0, /* BlockMask */
 		},
-		{
+		{ /* SD "rave party" */
 			1, /* StartIndex */
 			3, /* NumFrames */
-			RANDOM_ANIM | COLORXFORM_ANIM,/* AnimFlags */
+			RANDOM_ANIM | COLORXFORM_ANIM
+			| IMMUME_TO_RESTART | ANIM_DISABLED,/* AnimFlags */
+			0, ONE_SECOND / 30, /* FrameRate */
+			0, ONE_SECOND / 15, /* RestartRate */
+			0, /* BlockMask */
+		},
+		{ /* HD static distortion */
+			40, /* StartIndex */
+			16, /* NumFrames */
+			RANDOM_ANIM | ANIM_DISABLED
+			| IMMUME_TO_RESTART, /* AnimFlags */
+			0, ONE_SECOND / 5, /* FrameRate */
+			0, ONE_SECOND / 4, /* RestartRate */
+			0, /* BlockMask */
+		},
+		{ /* HD light-up animation */
+			56, /* StartIndex */
+			11, /* NumFrames */
+			CIRCULAR_ANIM | ONE_SHOT_ANIM
+			| ALPHA_MASK_ANIM | ANIM_DISABLED, /* AnimFlags */
+			ONE_SECOND / 30, 0, /* FrameRate */
+			0, 0,/* RestartRate */
+			0, /* BlockMask */
+		},
+		{ /* HD "rave party" */
+			57, /* StartIndex */
+			3, /* NumFrames */
+			ALPHA_MASK_ANIM | RANDOM_ANIM
+			| IMMUME_TO_RESTART | ANIM_DISABLED, /* AnimFlags */
 			0, ONE_SECOND / 30, /* FrameRate */
 			0, ONE_SECOND / 15, /* RestartRate */
 			0, /* BlockMask */
@@ -555,21 +583,27 @@ GiveRadios (RESPONSE_REF R)
 		NPCPhrase (FUEL_UP0);
 		NPCPhrase (FUEL_UP1);
 		AlienTalkSegue (1);
-
-		// Disable noisy static animation in hi-res.
-		if (IS_HD)
-		{
-			CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
-			CommData.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[1].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
-		}
-		else // End color transform anim in lo-res.
-			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
 		
-		XFormColorMap (GetColorMapAddress (
-				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
-				), ONE_SECOND / 2);
+		if (IS_HD)
+		{// Disable noisy static animation in hi-res.
+			CommData.AlienFrame = SetAbsFrameIndex(CommData.AlienFrame, 0);
+
+			CommData.AlienAmbientArray[3].AnimFlags |= ANIM_DISABLED;
+			CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
+			SwitchSequences (TRUE);
+			EnableTalkingAnim (TRUE);
+
+			SetUpAlphaAnimation (60, 0, 4);
+			CommData.AlienAmbientArray[4].AnimFlags &= ~ANIM_DISABLED;
+		}
+		else
+		{// End color transform anim in lo-res.
+			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
+
+			XFormColorMap(GetColorMapAddress(
+				SetAbsColorMapIndex(CommData.AlienColorMap, 0)
+			), ONE_SECOND / 2);
+		}
 
 		if (IsAltSong)
 		{
@@ -598,6 +632,9 @@ GiveRadios (RESPONSE_REF R)
 static void
 Intro (void)
 {
+	if (IS_HD)// To smooth out HD blink animation
+		CommData.AlienAmbientArray[0].BaseFrameRate = ONE_SECOND / 40;
+
 	if (GET_GAME_STATE (PROBE_ILWRATH_ENCOUNTER))
 	{
 		NPCPhrase (VERY_IMPRESSIVE);
@@ -621,8 +658,24 @@ Intro (void)
 		}
 		else
 		{
-			CommData.AlienColorMap =
-					SetAbsColorMapIndex (CommData.AlienColorMap, 1);
+			if (IS_HD)
+			{
+				if (EXTENDED)
+				{
+					CommData.AlienFrame = SetAbsFrameIndex(CommData.AlienFrame, 53);
+					SwitchSequences (FALSE);
+					CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+					CommData.AlienAmbientArray[3].AnimFlags &= ~ANIM_DISABLED;					
+				}
+				else
+					CommData.AlienAmbientArray[5].AnimFlags &= ~(RANDOM_ANIM | ANIM_DISABLED);
+			}
+			else
+			{
+				CommData.AlienAmbientArray[2].AnimFlags &= ~ANIM_DISABLED;
+				CommData.AlienColorMap =
+					SetAbsColorMapIndex(CommData.AlienColorMap, 1);
+			}
 			NPCPhrase (DO_YOU_HAVE_RADIO_THIS_TIME);
 
 			if (GLOBAL_SIS (ElementAmounts[RADIOACTIVE]))
@@ -633,8 +686,24 @@ Intro (void)
 	}
 	else /* first visit */
 	{
-		CommData.AlienColorMap =
-				SetAbsColorMapIndex (CommData.AlienColorMap, 1);
+		if (IS_HD)
+		{
+			if (EXTENDED)
+			{
+				CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 53);
+				SwitchSequences (FALSE);
+				CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+				CommData.AlienAmbientArray[3].AnimFlags &= ~ANIM_DISABLED;
+			}
+			else
+				CommData.AlienAmbientArray[5].AnimFlags &= ~(RANDOM_ANIM | ANIM_DISABLED);
+		}
+		else
+		{
+			CommData.AlienAmbientArray[2].AnimFlags &= ~ANIM_DISABLED;
+			CommData.AlienColorMap =
+				SetAbsColorMapIndex(CommData.AlienColorMap, 1);
+		}
 
 		SET_GAME_STATE (STARBASE_VISITED, 1);
 
@@ -663,15 +732,6 @@ init_commander_comm ()
 {
 	LOCDATA *retval;
 
-	if (IS_HD)
-	{
-		commander_desc.AlienAmbientArray[2].StartIndex = 96;
-		commander_desc.AlienAmbientArray[2].NumFrames = 16;
-		commander_desc.AlienAmbientArray[2].AnimFlags = RANDOM_ANIM;
-		commander_desc.AlienAmbientArray[2].RandomFrameRate = ONE_SECOND / 5;
-		commander_desc.AlienAmbientArray[2].RandomRestartRate = ONE_SECOND / 4;
-	}
-
 	commander_desc.init_encounter_func = Intro;
 	commander_desc.post_encounter_func = post_commander_enc;
 	commander_desc.uninit_encounter_func = uninit_commander;
@@ -682,29 +742,11 @@ init_commander_comm ()
 
 	if (GET_GAME_STATE (RADIOACTIVES_PROVIDED))
 	{
-		// JMS_GFX: Disable noisy static animation in hi-res.
-		if (IS_HD)
-		{
-			commander_desc.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
-			commander_desc.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
-			commander_desc.AlienAmbientArray[1].AnimFlags &= ~ANIM_DISABLED;
-		}
-		commander_desc.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
 		// regular track -- let's make sure
 		commander_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
 	}
 	else
-	{
-		// JMS_GFX: Enable noisy static animation in hi-res.
-		if (IS_HD)
-		{
-			commander_desc.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
-			commander_desc.AlienAmbientArray[0].AnimFlags |= ANIM_DISABLED;
-			commander_desc.AlienAmbientArray[1].AnimFlags |= ANIM_DISABLED;
-		}
-		commander_desc.AlienAmbientArray[2].AnimFlags &= ~ANIM_DISABLED;
-		// use alternate 'low-power' track if available
-		commander_desc.AlienAltSongRes = COMMANDER_LOWPOW_MUSIC;
+	{			
 		commander_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
 	}
 

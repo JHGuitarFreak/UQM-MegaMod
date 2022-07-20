@@ -842,6 +842,9 @@ Intro (void)
 {
 	BYTE NumVisits;
 
+	if (!IsFrameIndexed (CommData.AlienFrame))
+		CommData.AlienAmbientArray[0].AnimFlags |= ANIM_DISABLED;
+
 	if (GET_GAME_STATE (SLYLANDRO_KNOW_BROKEN)
 			&& (NumVisits = GET_GAME_STATE (RECALL_VISITS)) == 0)
 	{

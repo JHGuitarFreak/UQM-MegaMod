@@ -1934,6 +1934,8 @@ HailAlien (void)
 	DestroyFont (PlayerFont);
 	DestroyFont (ComputerFont);
 
+	ReleaseTalkingAnim ();
+
 	// Some support code tests either of these to see if the
 	// game is currently in comm or encounter
 	CommData.ConversationPhrasesRes = 0;

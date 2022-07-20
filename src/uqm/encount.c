@@ -444,7 +444,7 @@ InitEncounter (void)
 
 static void
 DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
-		RECT *pRect)
+		RECT *pRect, STAMP saveframe)
 {
 	SIZE i;
 	DWORD TimeIn;
@@ -473,39 +473,76 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 
 	FlushInput ();
 	TimeIn = GetTimeCounter ();
-	if (fade_in)
-	{
-		for (i = 0; i < (SIZE) NUM_FADES; ++i)
+	if (!IS_HD)
+	{// Original code for SD
+		if (fade_in)
 		{
-			if (AnyButtonPress (TRUE))
-				i = NUM_FADES - 1;
+			for (i = 0; i < (SIZE)NUM_FADES; ++i)
+			{
+				if (AnyButtonPress(TRUE))
+					i = NUM_FADES - 1;
 
-			SetContextForeGroundColor (fade_cycle[i]);
-			font_DrawText (&t1);
-			font_DrawText (&t2);
-			SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-			TimeIn = GetTimeCounter ();
+				SetContextForeGroundColor(fade_cycle[i]);
+				font_DrawText(&t1);
+				font_DrawText(&t2);
+				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				TimeIn = GetTimeCounter();
+			}
+		}
+		else
+		{
+			for (i = NUM_FADES - 1; i >= 0; --i)
+			{
+				if (AnyButtonPress(TRUE))
+					i = 0;
+
+				SetContextForeGroundColor(fade_cycle[i]);
+				font_DrawText(&t1);
+				font_DrawText(&t2);
+				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				TimeIn = GetTimeCounter();
+			}
+			SetContextForeGroundColor(
+				BUILD_COLOR_RGBA(0x50, 0x50, 0x50, 0xff));
+			TextRect(&t1, &r1, NULL);
+			TextRect(&t2, &r2, NULL);
+			DrawFilledRectangle(&r1);
+			DrawFilledRectangle(&r2);
 		}
 	}
 	else
-	{
-		for (i = NUM_FADES - 1; i >= 0; --i)
+	{// For HD to hadle transparency in text to avoid rough edges
+		if (fade_in)
 		{
-			if (AnyButtonPress (TRUE))
-				i = 0;
+			for (i = 0; i < (SIZE)NUM_FADES; ++i)
+			{
+				if (AnyButtonPress(TRUE))
+					i = NUM_FADES - 1;
 
-			SetContextForeGroundColor (fade_cycle[i]);
-			font_DrawText (&t1);
-			font_DrawText (&t2);
-			SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-			TimeIn = GetTimeCounter ();
+				DrawStamp(&saveframe);
+				SetContextForeGroundColor(fade_cycle[i]);
+				font_DrawText(&t1);
+				font_DrawText(&t2);
+				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				TimeIn = GetTimeCounter();
+			}
 		}
-		SetContextForeGroundColor (
-				BUILD_COLOR_RGBA (0x50, 0x50, 0x50, 0xff));
-		TextRect(&t1, &r1, NULL);
-		TextRect(&t2, &r2, NULL);
-		DrawFilledRectangle (&r1);
-		DrawFilledRectangle (&r2);
+		else
+		{
+			for (i = NUM_FADES - 1; i >= 0; --i)
+			{
+				if (AnyButtonPress(TRUE))
+					i = 0;
+
+				DrawStamp(&saveframe);
+				SetContextForeGroundColor(fade_cycle[i]);
+				font_DrawText(&t1);
+				font_DrawText(&t2);
+				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				TimeIn = GetTimeCounter();
+			}
+			DrawStamp(&saveframe);
+		}
 	}
 }
 
@@ -690,15 +727,16 @@ UninitEncounter (void)
 
 								SetContextFont (MicroFont);
 
-								if (classicPackPresent)
-								{	// Let's store the rectangle behind
+								if (IS_HD)
+								{	// For HD in general to hadle transparency in text
+									// Let's store the rectangle behind
 									// "Enemy ships destroyed" (before
 									// drawing the text on it).
 									RECT tempR = scavenge_r;
 									tempR.corner.x += 244;
 									tempR.corner.y += 140;
 									tempR.extent = (EXTENT){ 312, 96 };
-
+									
 									// Now that we have the size and
 									// placement of the rectangle,
 									// let's store it.
@@ -711,7 +749,7 @@ UninitEncounter (void)
 								str2 = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 5),
 										// "Destroyed"
-								DrawFadeText (str1, str2, TRUE, &scavenge_r);
+								DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame);
 							}
 
 							r.corner.y = scavenge_r.corner.y + RES_SCALE (9);
@@ -832,7 +870,7 @@ UninitEncounter (void)
 			WaitForAnyButton (TRUE, ONE_SECOND * 3, FALSE);
 			if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 			{
-				DrawFadeText (str1, str2, FALSE, &scavenge_r);
+				DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame);
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
 					SetContextForeGroundColor (BLACK_COLOR);
@@ -855,21 +893,10 @@ UninitEncounter (void)
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 
-					// Now we draw the clean metallic frame to erase
-					// the "Enemy ships destroyed" text before drawing
-					// "debris scavenged."
-					if (classicPackPresent)
-						DrawStamp (&saveFrame);
-
-					DrawFadeText (str1, str2, TRUE, &scavenge_r);
+					DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
 					if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
-						DrawFadeText (str1, str2, FALSE, &scavenge_r);
-
-					// The final cleanup of the "Debris scavenged".
-					// Without this, an ugly grey ghost-text would remain.
-					if (classicPackPresent)
-						DrawStamp (&saveFrame);
+						DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame);
 				}
 			}
 			DrawStatusMessage (NULL);
