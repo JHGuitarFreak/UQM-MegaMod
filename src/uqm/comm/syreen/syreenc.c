@@ -211,7 +211,7 @@ static LOCDATA syreen_desc_hd =
 	NULL_RESOURCE, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	SYREEN_CONVERSATION_PHRASES, /* PlayerPhrases */
-	17, /* NumAnimations */
+	16, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			5, /* StartIndex */
@@ -337,23 +337,12 @@ static LOCDATA syreen_desc_hd =
 		},
 		{
 			51, /* StartIndex */
-			13, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM 
-				| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 15, 0, /* FrameRate */
+			21, /* NumFrames */
+			CIRCULAR_ANIM | ONE_SHOT_ANIM
+			| ALPHA_MASK_ANIM | ANIM_DISABLED, /* AnimFlags */
+			ONE_SECOND / 30, 0, /* FrameRate */
 			0, 0,/* RestartRate */
 			0, /* BlockMask */
-		},
-		{
-			64, /* StartIndex */
-			13, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM
-				| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 15, 0, /* FrameRate */
-			0, 0,/* RestartRate */
-			(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) |
-			(1 << 4) | (1 << 5) | (1 << 6) | (1 << 7) |
-			(1 << 8) | (1 << 10) | (1 << 11), /* BlockMask */
 		},
 	},
 	{ /* AlienTransitionDesc */
@@ -433,7 +422,8 @@ FriendlyExit (RESPONSE_REF R)
 		SetCommDarkMode (FALSE);
 		RedrawSISComWindow ();
 
-		if (!IS_HD) {
+		if (!IS_HD)
+		{
 			XFormColorMap (GetColorMapAddress (
  				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
  				), ONE_SECOND / 2);
@@ -443,22 +433,14 @@ FriendlyExit (RESPONSE_REF R)
 		} 
 		else 
 		{
-			COUNT i = 0;
-			COUNT limit = CommData.NumAnimations;
-			
-			CommData.AlienAmbientArray[limit-1].AnimFlags &= ~ANIM_DISABLED;
 			CommData.AlienFrame = SetAbsFrameIndex
 				(CommData.AlienFrame, 0);
-			
+			SwitchSequences (TRUE);
 			CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
+
 			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
 			BlockTalkingAnim (1, 2); // Several hours later block (New)
 			AlienTalkSegue ((COUNT)~0);
-			
-			for (i = 0; i < limit; i++)
-				CommData.AlienAmbientArray[i].AnimFlags &= ~ANIM_DISABLED;
-			
-			CommData.AlienAmbientArray[limit-2].AnimFlags |= ANIM_DISABLED;
 		}
 
 		SET_GAME_STATE (PLAYER_HAD_SEX, 1);
@@ -552,24 +534,23 @@ Foreplay (RESPONSE_REF R)
 		CommData.AlienTextFColor = BUILD_COLOR_RGBA (85, 255, 255, 0);
 		SetCommDarkMode (TRUE);
 
-		if (!IS_HD) {
+		if (!IS_HD) 
+		{
 			XFormColorMap (GetColorMapAddress (
 					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
 					), ONE_SECOND);
 		} 
 		else 
 		{
-			COUNT i = 0;
-			COUNT limit = CommData.NumAnimations - 2;
-			
-			for (i = 0; i < limit; i++)
-				CommData.AlienAmbientArray[i].AnimFlags |= ANIM_DISABLED;
-				
-			CommData.AlienAmbientArray[limit].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienFrame = SetAbsFrameIndex 
-				(CommData.AlienFrame, 63);
-				
-			CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+			SetUpAlphaAnimation (0, 100, 15);
+			RunOneTimeSequence (15, STOP_ALL_AFTER);
+		/*	if (!EXTENDED)
+			{
+				CommData.AlienFrame = SetAbsFrameIndex
+					(CommData.AlienFrame, 63);
+				CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+				RunOneTimeSequence(16, 0);
+			}*/ // For future ideas maybe
 		}
 	
 		AlienTalkSegue ((COUNT)~0);			

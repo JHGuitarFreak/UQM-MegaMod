@@ -46,7 +46,7 @@ static LOCDATA talkpet_desc =
 	NULL_RESOURCE, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	TALKING_PET_CONVERSATION_PHRASES, /* PlayerPhrases */
-	17, /* NumAnimations */
+	18, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			7, /* StartIndex */
@@ -188,6 +188,15 @@ static LOCDATA talkpet_desc =
 			0, 0, /* RestartRate */
 			0, /* BlockMask */
 		},
+		{	/* Mind control strobe HD (on-demand) */
+			54, /* StartIndex */
+			NUM_STROBES, /* NumFrames */
+			YOYO_ANIM | ONE_SHOT_ANIM
+			| ALPHA_MASK_ANIM | ANIM_DISABLED, /* AnimFlags */
+			ONE_SECOND / (STROBE_RATE * 3), 0, /* FrameRate */
+			0, 0,/* RestartRate */
+			0, /* BlockMask */
+		},
 	},
 	{ /* AlienTransitionDesc */
 		0, /* StartIndex */
@@ -278,7 +287,10 @@ static void
 MindControlStrobe (void)
 {
 	// Enable the one-shot strobe animation
-	CommData.AlienAmbientArray[16].AnimFlags &= ~ANIM_DISABLED;
+	if (IS_HD)
+		CommData.AlienAmbientArray[17].AnimFlags &= ~ANIM_DISABLED;
+	else
+		CommData.AlienAmbientArray[16].AnimFlags &= ~ANIM_DISABLED;
 }
 
 static void

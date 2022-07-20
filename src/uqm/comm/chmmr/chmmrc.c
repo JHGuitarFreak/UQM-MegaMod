@@ -557,11 +557,9 @@ Intro (void)
 			if (!IS_HD)
 				CommData.AlienColorMap = SetAbsColorMapIndex (
 						CommData.AlienColorMap, 1
-						);
-
-			// JMS_GFX: Use separate graphics in hires instead of colormap transform.
-			if (IS_HD)
-			{
+						);			
+			else
+			{// JMS_GFX: Use separate graphics in hires instead of colormap transform.
 				CommData.AlienFrameRes = CHMMR_RED_PMAP_ANIM;
 				CommData.AlienFrame = CaptureDrawable (
 					LoadGraphic (CommData.AlienFrameRes));

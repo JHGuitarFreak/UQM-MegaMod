@@ -118,7 +118,7 @@ static LOCDATA blackurq_desc =
 		1, /* StartIndex */
 		2, /* NumFrames */
 		0, /* AnimFlags */
-		ONE_SECOND / 6, 0, /* FrameRate */
+		ONE_SECOND / 30, 0, /* FrameRate */
 		0, 0, /* RestartRate */
 		0, /* BlockMask */
 	},

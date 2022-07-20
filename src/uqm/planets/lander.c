@@ -1734,6 +1734,7 @@ InitPlanetSide (POINT pt)
 	if (isPC (optSuperPC))
 	{
 		SetContext (RadarContext);
+		SetContextBackGroundColor (BLACK_COLOR);
 		ClearSISRect (CLEAR_SIS_RADAR);
 		MapSurface = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
 

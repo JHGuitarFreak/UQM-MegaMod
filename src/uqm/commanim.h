@@ -63,6 +63,19 @@ extern "C" {
 		// Kr (needed for blocking animations that are WAIT_TALKING even
 		// if talking itself is stopped. Used only in PS-DOS style scrolling)
 
+#define RESTART_ALL_AFTER (1 << 10)
+#define STOP_ALL_AFTER (1 << 11)
+		// Kruzen: Needed for ONE_SHOT_ANIM in HD to define - should we restart
+		// other ambient animations or no
+
+#define IMMUME_TO_RESTART (1 << 12)
+#define IMMUME_TO_STOP (1 << 13)
+		// Kruzen: Some animations needed to be handled individually
+
+#define ALPHA_MASK_ANIM (1 << 14)
+		// Kruzen: New type of animations: Draw transparent frames
+		// on top of all (sets fullRedraw to TRUE
+
 #define FAST_STOP_AT_TALK_START (TALK_DONE) // JMS: If there's a very loooong animation, it can be forced to stop when talking with this.
 // (otherwise there'll be nasty, unwanted pauses in the conversation.) 
 
@@ -71,6 +84,8 @@ extern "C" {
 #define ONE_SHOT_ANIM  TALK_INTRO
 		// Set in AlienAmbientArray for animations that should be
 		// disabled after they run once.
+
+#define BLOCK_ALL_BEFORE_ME(m) ((1 << m) - 1)
 
 typedef struct
 {
@@ -143,6 +158,9 @@ extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
 extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
 extern void ShutYourMouth (void);
+extern void SwitchSequences (BOOLEAN enableAll);
+extern void RunOneTimeSequence (COUNT animIndex, COUNT flags);
+extern void SetUpAlphaAnimation (SWORD startPersentage, SWORD endPersentage, COUNT animIndex);
 
 #if defined(__cplusplus)
 }

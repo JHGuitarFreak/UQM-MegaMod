@@ -157,7 +157,8 @@ static LOCDATA orz_desc =
 		{
 			129, /* StartIndex */
 			5, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
+			CIRCULAR_ANIM | ONE_SHOT_ANIM | 
+			WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
 			ONE_SECOND / 20, 0, /* FrameRate */
 			0, 0, /* RestartRate */
 			0, /* BlockMask */
@@ -242,28 +243,21 @@ ExitConversation (RESPONSE_REF R)
 		// JMS_GFX: Use separate graphics in hires instead of colormap transform.
 		if (IS_HD)
 		{
-			int ii;
-			for (ii = 0; ii < CommData.NumAnimations - 1; ii++)
-				CommData.AlienAmbientArray[ii].AnimFlags |= ANIM_DISABLED;
-			
-			CommData.AlienAmbientArray[13].AnimFlags &= ~ANIM_DISABLED;
 			CommData.AlienFrameRes = ORZ_ANGRY_PMAP_ANIM;
 			CommData.AlienFrame = CaptureDrawable (LoadGraphic (CommData.AlienFrameRes));
+			RunOneTimeSequence (13, RESTART_ALL_AFTER);
+		}
+		else
+		{
+			XFormColorMap(GetColorMapAddress(
+				SetAbsColorMapIndex(CommData.AlienColorMap, 1)
+			), ONE_SECOND / 2);
 		}
 
 		if (PLAYER_SAID (R, about_andro_3))
 			NPCPhrase (BLEW_IT);
 		else
 			NPCPhrase (KNOW_TOO_MUCH);
-
-		// JMS_GFX: Use separate graphics in hires instead of colormap transform.
-		if (IS_HD)
-		{
-			int ii;
-			AlienTalkSegue (1);
-			for (ii = 0; ii < CommData.NumAnimations - 1; ii++)
-				CommData.AlienAmbientArray[ii].AnimFlags &= ~ANIM_DISABLED;
-		}
 
 		SET_GAME_STATE (ORZ_VISITS, 0);
 		SET_GAME_STATE (ORZ_MANNER, 2);
@@ -274,9 +268,7 @@ ExitConversation (RESPONSE_REF R)
 			RemoveEscortShips (ORZ_SHIP);
 		}
 
-		XFormColorMap (GetColorMapAddress (
-				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
-				), ONE_SECOND / 2);
+		
 	}
 	else /* insults */
 	{
@@ -679,15 +671,16 @@ Intro (void)
 	Manner = GET_GAME_STATE (ORZ_MANNER);
 	if (Manner == 2)
 	{
-		CommData.AlienColorMap =
-				SetAbsColorMapIndex (CommData.AlienColorMap, 1);
-
 		// JMS_GFX: Use separate red angry graphics in hires instead of colormap transform.
-		if (IS_HD) {
+		if (IS_HD) 
+		{
 			CommData.AlienFrameRes = ORZ_ANGRY_PMAP_ANIM;
 			CommData.AlienFrame = CaptureDrawable (
-				LoadGraphic (CommData.AlienFrameRes));
+				LoadGraphic (CommData.AlienFrameRes));			
 		}
+		else
+			CommData.AlienColorMap =
+			SetAbsColorMapIndex(CommData.AlienColorMap, 1);
 
 		NumVisits = GET_GAME_STATE (ORZ_VISITS);
 		switch (NumVisits++)

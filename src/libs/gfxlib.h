@@ -551,6 +551,7 @@ extern BOOLEAN ReadFramePixelIndexes (FRAME frame, BYTE *pixels,
 extern BOOLEAN WriteFramePixelIndexes (FRAME frame, const BYTE *pixels,
 		int width, int height);
 extern void SetFrameTransparentColor (FRAME, Color);
+extern BOOLEAN IsFrameIndexed (FRAME Frame);
 
 // If the frame is an active SCREEN_DRAWABLE, this call must be
 // preceeded by FlushGraphics() for draw commands to have taken effect
