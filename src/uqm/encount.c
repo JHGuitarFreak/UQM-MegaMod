@@ -736,7 +736,10 @@ UninitEncounter (void)
 									tempR.corner.x += 244;
 									tempR.corner.y += 140;
 									tempR.extent = (EXTENT){ 312, 96 };
-									
+									// TODO: make this frame expandable
+									// depending on text width
+									// could be required for another language
+									// 
 									// Now that we have the size and
 									// placement of the rectangle,
 									// let's store it.
@@ -910,6 +913,8 @@ UninitEncounter (void)
 				ships_killed = THRADDASH_BODY_THRESHOLD;
 			SET_GAME_STATE (THRADDASH_BODY_COUNT, ships_killed);
 		}
+
+		DestroyDrawable (ReleaseDrawable (saveFrame.frame));
 	}
 ExitUninitEncounter:
 
