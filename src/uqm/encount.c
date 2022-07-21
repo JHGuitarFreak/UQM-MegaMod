@@ -51,7 +51,7 @@
 
 
 static void DrawFadeText (const UNICODE *str1, const UNICODE *str2,
-		BOOLEAN fade_in, RECT *pRect);
+		BOOLEAN fade_in, RECT *pRect, STAMP saveframe);
 
 
 static BOOLEAN
@@ -442,6 +442,40 @@ InitEncounter (void)
 	}
 }
 
+static STAMP
+SetTextFrameRect (const UNICODE* str1, const UNICODE* str2, RECT* pRect)
+{
+	STAMP s;
+	TEXT t1, t2;
+	RECT r1, r2, res;
+
+	t1.baseline.x = pRect->corner.x + RES_SCALE(100);
+	t1.baseline.y = pRect->corner.y + RES_SCALE(45);
+	t1.align = ALIGN_CENTER;
+	t1.pStr = str1;
+	t1.CharCount = (COUNT)~0;
+	t2 = t1;
+	t2.baseline.y += RES_SCALE(11);
+	t2.pStr = str2;
+
+	TextRect(&t1, &r1, NULL);
+	TextRect(&t2, &r2, NULL);
+
+	// Take the closest X to the origin point.
+	res.corner.x = (r1.corner.x < r2.corner.x ? r1.corner.x : r2.corner.x);
+	// r1 always on top
+	res.corner.y = r1.corner.y;
+
+	// Take the widest extent
+	res.extent.width = (r1.extent.width > r2.extent.width ? r1.extent.width : r2.extent.width);
+	// Height is the gap between texts plus height of the second one
+	res.extent.height = r2.corner.y - r1.corner.y + r2.extent.height;
+
+	s = SaveContextFrame(&res);
+
+	return s;
+}
+
 static void
 DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 		RECT *pRect, STAMP saveframe)
@@ -534,6 +568,7 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 				if (AnyButtonPress(TRUE))
 					i = 0;
 
+				SetContextForeGroundColor(BRIGHT_RED_COLOR);
 				DrawStamp(&saveframe);
 				SetContextForeGroundColor(fade_cycle[i]);
 				font_DrawText(&t1);
@@ -573,6 +608,7 @@ UninitEncounter (void)
 		COUNT RecycleAmount = 0;
 		RECT r;
 		RECT scavenge_r = {{0, 0}, {0, 0}};
+		RECT ship_c;
 		TEXT t;
 		STAMP ship_s;
 		const UNICODE *str1 = NULL;
@@ -581,7 +617,7 @@ UninitEncounter (void)
 		UNICODE buf[80];
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
-		STAMP saveFrame;
+		STAMP saveFrame[5];
 		static const Color fade_ship_cycle[] =
 		{
 			BUILD_COLOR (MAKE_RGB15_INIT (0x07, 0x00, 0x00), 0x2F),
@@ -650,6 +686,19 @@ UninitEncounter (void)
 						DrawArmadaPickShip (TRUE, &scavenge_r);
 				}
 				pQueue = &GLOBAL (npc_built_ship_q);
+			}
+
+			if (classicPackPresent && i == NUM_SIDES - 1)
+			{// HD classic pack only. To save that metal texture
+				RECT temp = {{222, 190}, {528, 88}};
+				saveFrame[1] = SaveContextFrame (&temp);// main frame
+
+				temp.extent.width = 392;
+				saveFrame[2] = SaveContextFrame (&temp);// Ship x5 Cover
+
+				temp.corner.x += 392;
+				temp.extent.width = 528 - 392;
+				saveFrame[3] = SaveContextFrame (&temp);// Salvage Cover
 			}
 				
 			ReinitQueue (&race_q[(NUM_SIDES - 1) - i]);
@@ -727,32 +776,16 @@ UninitEncounter (void)
 
 								SetContextFont (MicroFont);
 
-								if (IS_HD)
-								{	// For HD in general to hadle transparency in text
-									// Let's store the rectangle behind
-									// "Enemy ships destroyed" (before
-									// drawing the text on it).
-									RECT tempR = scavenge_r;
-									tempR.corner.x += 244;
-									tempR.corner.y += 140;
-									tempR.extent = (EXTENT){ 312, 96 };
-									// TODO: make this frame expandable
-									// depending on text width
-									// could be required for another language
-									// 
-									// Now that we have the size and
-									// placement of the rectangle,
-									// let's store it.
-									saveFrame = SaveContextFrame (&tempR);
-								}
-
 								str1 = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 4);
 										// "Enemy Ships"
-								str2 = GAME_STRING (
-										ENCOUNTER_STRING_BASE + 5),
+								str2 = GAME_STRING(
+										ENCOUNTER_STRING_BASE + 5);
 										// "Destroyed"
-								DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame);
+
+								if (IS_HD)
+									saveFrame[0] = SetTextFrameRect(str1, str2, &scavenge_r);
+								DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame[0]);
 							}
 
 							r.corner.y = scavenge_r.corner.y + RES_SCALE (9);
@@ -765,7 +798,11 @@ UninitEncounter (void)
 								scavenge_r.extent.width
 								- (RES_SCALE (10) + r.extent.width);
 							BatchGraphics (); // to avoid blinking text
-							DrawFilledRectangle (&r);
+
+							if (classicPackPresent)
+								DrawStamp (&saveFrame[3]);
+							else
+								DrawFilledRectangle (&r);
 
 							/* collect bounty ResUnits */
 							j = ShipCost (EncounterRace) >> 3;
@@ -805,13 +842,32 @@ UninitEncounter (void)
 										RES_SCALE (132)
 										- (textRect.extent.width
 										+ RES_SCALE (1));
-								DrawFilledRectangle (&r);
+
+								if (classicPackPresent)
+									DrawStamp (&saveFrame[2]);
+								else
+									DrawFilledRectangle (&r);
 
 								ship_s.origin.x =
 										r.corner.x + RES_SCALE (2);
 								ship_s.origin.y =
 										scavenge_r.corner.y
 										+ RES_SCALE (12);
+							}
+
+							if (IS_HD)
+							{
+								POINT p;
+
+								GetFrameRect(ship_s.frame, &ship_c);
+								p = GetFrameHot(ship_s.frame);
+
+								ship_c.corner = ship_s.origin;
+								ship_c.corner.x -= p.x;
+								ship_c.corner.y -= p.y;
+
+								if (classicPackPresent)
+									saveFrame[4] = SaveContextFrame (&ship_c);// Ship Cover
 							}
 
 							if (Sleepy)
@@ -824,6 +880,16 @@ UninitEncounter (void)
 									if (!Sleepy)
 										break;
 
+									if (IS_HD)
+									{
+										SetContextForeGroundColor(BLACK_COLOR);
+
+										if (classicPackPresent)
+											DrawStamp (&saveFrame[4]);
+										else
+											DrawFilledRectangle (&ship_c);
+									}
+
 									SetContextForeGroundColor (fade_ship_cycle[j]);
 									DrawFilledStamp (&ship_s);
 
@@ -834,17 +900,15 @@ UninitEncounter (void)
 
 							if (IS_HD)
 							{
-								RECT r;
-								POINT p;
-
-								GetFrameRect (ship_s.frame, &r);
-								p = GetFrameHot (ship_s.frame);
-
-								r.corner = ship_s.origin;
-								r.corner.x -= p.x;
-								r.corner.y -= p.y;
 								SetContextForeGroundColor (BLACK_COLOR);
-								DrawFilledRectangle (&r);
+
+								if (classicPackPresent)
+								{
+									DrawStamp (&saveFrame[4]);
+									DestroyDrawable (ReleaseDrawable (saveFrame[4].frame));
+								}
+								else
+									DrawFilledRectangle (&ship_c);
 							}
 
 							DrawStamp (&ship_s);
@@ -873,13 +937,19 @@ UninitEncounter (void)
 			WaitForAnyButton (TRUE, ONE_SECOND * 3, FALSE);
 			if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 			{
-				DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame);
+				DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame[0]);
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
-					SetContextForeGroundColor (BLACK_COLOR);
-					r.corner.x = scavenge_r.corner.x + RES_SCALE (10);
-					r.extent.width = RES_SCALE (132);
-					DrawFilledRectangle (&r);
+					SetContextForeGroundColor(BLACK_COLOR);
+					r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
+					r.extent.width = RES_SCALE(132);
+
+					if (IS_HD && classicPackPresent)
+						DrawStamp (&saveFrame[1]);
+					else
+					{						
+						DrawFilledRectangle(&r);
+					}
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
@@ -891,15 +961,22 @@ UninitEncounter (void)
 							BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x18), 0x50));
 					font_DrawText (&t);
 
+					if (IS_HD)				
+						DestroyDrawable (ReleaseDrawable (saveFrame[0].frame));
+
+
 					str1 = GAME_STRING (ENCOUNTER_STRING_BASE + 6);
 							// "Debris"
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 
-					DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame);
+					if (IS_HD)					
+						saveFrame[0] = SetTextFrameRect (str1, str2, &scavenge_r);					
+
+					DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame[0]);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
 					if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
-						DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame);
+						DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame[0]);
 				}
 			}
 			DrawStatusMessage (NULL);
@@ -914,7 +991,15 @@ UninitEncounter (void)
 			SET_GAME_STATE (THRADDASH_BODY_COUNT, ships_killed);
 		}
 
-		DestroyDrawable (ReleaseDrawable (saveFrame.frame));
+		if (IS_HD)
+			DestroyDrawable (ReleaseDrawable (saveFrame[0].frame));
+
+		if (classicPackPresent)
+		{
+			for (i = 1; i < 4; i++)
+				DestroyDrawable (ReleaseDrawable (saveFrame[i].frame));
+
+		}
 	}
 ExitUninitEncounter:
 
