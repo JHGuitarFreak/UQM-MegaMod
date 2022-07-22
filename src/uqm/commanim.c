@@ -411,11 +411,6 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		ElapsedTicks = CurTime - LastTime;
 		LastTime = CurTime;
 
-	/*	printf(AMChange ? "true " : "false ");
-		AMChange |= TRUE;
-		printf(AMChange ? "true " : "false ");
-		AMChange |= FALSE;
-		printf(AMChange ? "true\n" : "false\n");*/
 		// Process ambient animations
 		NextActiveMask = ActiveMask;
 		pSeq = Sequences + FirstAmbient;

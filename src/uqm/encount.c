@@ -516,10 +516,10 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 				if (AnyButtonPress(TRUE))
 					i = NUM_FADES - 1;
 
-				SetContextForeGroundColor(fade_cycle[i]);
-				font_DrawText(&t1);
-				font_DrawText(&t2);
-				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				SetContextForeGroundColor (fade_cycle[i]);
+				font_DrawText (&t1);
+				font_DrawText (&t2);
+				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
 				TimeIn = GetTimeCounter();
 			}
 		}
@@ -530,18 +530,18 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 				if (AnyButtonPress(TRUE))
 					i = 0;
 
-				SetContextForeGroundColor(fade_cycle[i]);
-				font_DrawText(&t1);
-				font_DrawText(&t2);
-				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				SetContextForeGroundColor (fade_cycle[i]);
+				font_DrawText (&t1);
+				font_DrawText (&t2);
+				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
 				TimeIn = GetTimeCounter();
 			}
 			SetContextForeGroundColor(
 				BUILD_COLOR_RGBA(0x50, 0x50, 0x50, 0xff));
-			TextRect(&t1, &r1, NULL);
-			TextRect(&t2, &r2, NULL);
-			DrawFilledRectangle(&r1);
-			DrawFilledRectangle(&r2);
+			TextRect (&t1, &r1, NULL);
+			TextRect (&t2, &r2, NULL);
+			DrawFilledRectangle (&r1);
+			DrawFilledRectangle (&r2);
 		}
 	}
 	else
@@ -553,11 +553,11 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 				if (AnyButtonPress(TRUE))
 					i = NUM_FADES - 1;
 
-				DrawStamp(&saveframe);
-				SetContextForeGroundColor(fade_cycle[i]);
-				font_DrawText(&t1);
-				font_DrawText(&t2);
-				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				DrawStamp (&saveframe);
+				SetContextForeGroundColor (fade_cycle[i]);
+				font_DrawText (&t1);
+				font_DrawText (&t2);
+				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
 				TimeIn = GetTimeCounter();
 			}
 		}
@@ -568,15 +568,14 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 				if (AnyButtonPress(TRUE))
 					i = 0;
 
-				SetContextForeGroundColor(BRIGHT_RED_COLOR);
-				DrawStamp(&saveframe);
-				SetContextForeGroundColor(fade_cycle[i]);
-				font_DrawText(&t1);
-				font_DrawText(&t2);
-				SleepThreadUntil(TimeIn + (ONE_SECOND / 20));
+				DrawStamp (&saveframe);
+				SetContextForeGroundColor (fade_cycle[i]);
+				font_DrawText (&t1);
+				font_DrawText (&t2);
+				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
 				TimeIn = GetTimeCounter();
 			}
-			DrawStamp(&saveframe);
+			DrawStamp (&saveframe);
 		}
 	}
 }
@@ -779,12 +778,12 @@ UninitEncounter (void)
 								str1 = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 4);
 										// "Enemy Ships"
-								str2 = GAME_STRING(
+								str2 = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 5);
 										// "Destroyed"
 
 								if (IS_HD)
-									saveFrame[0] = SetTextFrameRect(str1, str2, &scavenge_r);
+									saveFrame[0] = SetTextFrameRect (str1, str2, &scavenge_r);
 								DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame[0]);
 							}
 
@@ -859,8 +858,8 @@ UninitEncounter (void)
 							{
 								POINT p;
 
-								GetFrameRect(ship_s.frame, &ship_c);
-								p = GetFrameHot(ship_s.frame);
+								GetFrameRect (ship_s.frame, &ship_c);
+								p = GetFrameHot (ship_s.frame);
 
 								ship_c.corner = ship_s.origin;
 								ship_c.corner.x -= p.x;
@@ -882,7 +881,7 @@ UninitEncounter (void)
 
 									if (IS_HD)
 									{
-										SetContextForeGroundColor(BLACK_COLOR);
+										SetContextForeGroundColor (BLACK_COLOR);
 
 										if (classicPackPresent)
 											DrawStamp (&saveFrame[4]);
@@ -940,7 +939,7 @@ UninitEncounter (void)
 				DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame[0]);
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
-					SetContextForeGroundColor(BLACK_COLOR);
+					SetContextForeGroundColor (BLACK_COLOR);
 					r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
 					r.extent.width = RES_SCALE(132);
 
@@ -948,7 +947,7 @@ UninitEncounter (void)
 						DrawStamp (&saveFrame[1]);
 					else
 					{						
-						DrawFilledRectangle(&r);
+						DrawFilledRectangle (&r);
 					}
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
