@@ -45,9 +45,16 @@
 static BOOLEAN
 DoPickBattleShip (MENU_STATE *pMS)
 {
+	static STAMP statCover[2];
+
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
 		pMS->CurFrame = 0;
+		if (classicPackPresent)
+		{
+			DestroyDrawable (ReleaseDrawable (statCover[0].frame));
+			DestroyDrawable (ReleaseDrawable (statCover[1].frame));
+		}
 		return (FALSE);
 	}
 
@@ -58,6 +65,14 @@ DoPickBattleShip (MENU_STATE *pMS)
 		pMS->Initialized = TRUE;
 		pMS->InputFunc = DoPickBattleShip;
 
+		if (classicPackPresent)
+		{
+			RECT temp = { {228,362}, {224, 28} };
+			statCover[0] = SaveContextFrame (&temp);
+
+			temp.corner.x += 344;
+			statCover[1] = SaveContextFrame(&temp);
+		}
 
 		goto ChangeSelection;
 	}
@@ -66,6 +81,12 @@ DoPickBattleShip (MENU_STATE *pMS)
 		if ((HSTARSHIP)pMS->CurFrame)
 		{
 			PlayMenuSound (MENU_SOUND_SUCCESS);
+
+			if (classicPackPresent)
+			{
+				DestroyDrawable (ReleaseDrawable (statCover[0].frame));
+				DestroyDrawable (ReleaseDrawable (statCover[1].frame));
+			}
 			return (FALSE);
 		}
 	}
@@ -167,8 +188,12 @@ ChangeSelection:
 			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE (6) - RES_SCALE (1);
 			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE (5) - RES_SCALE (1);
 			r.extent.width = ((ICON_WIDTH + RES_SCALE (4)) * 3) - RES_SCALE (4);
-			r.extent.height = RES_SCALE (7); 
-			DrawFilledRectangle (&r);
+			r.extent.height = RES_SCALE (7);
+
+			if (classicPackPresent)
+				DrawStamp (&statCover[0]);
+			else
+				DrawFilledRectangle (&r);
 
 			if (hBattleShip == 0)
 			{
@@ -226,7 +251,10 @@ ChangeSelection:
 			r.corner.x += (ICON_WIDTH + RES_SCALE (4))
 				* ((NUM_PICK_SHIP_COLUMNS >> 1) + 1)
 					+ FLAGSHIP_WIDTH - ICON_WIDTH;
-			DrawFilledRectangle (&r);
+			if (classicPackPresent)
+				DrawStamp (&statCover[1]);
+			else
+				DrawFilledRectangle (&r);
 
 			if (crew_level)
 			{
@@ -489,6 +517,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 		if (StarShipPtr->captains_name_index)
 		{	// Escort ship, not SIS
 			COUNT ship_index;
+			STAMP cover;
 
 			ship_index = StarShipPtr->index;
 
@@ -503,8 +532,16 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 					* (ship_index / NUM_PICK_SHIP_COLUMNS))); 
 			s.frame = StarShipPtr->icons;
 			r.corner = s.origin;
-			SetContextForeGroundColor (BLACK_COLOR);
-			DrawFilledRectangle (&r);
+			if (classicPackPresent)
+			{
+				cover = SaveContextFrame (&r);
+				DrawStamp (&cover);
+			}
+			else
+			{
+				SetContextForeGroundColor (BLACK_COLOR);
+				DrawFilledRectangle (&r);
+			}
 			if ((StarShipPtr->SpeciesID != NO_ID) || (StarShipPtr->crew_level == 0))
 			{
 				DrawStamp (&s);
@@ -525,6 +562,8 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 						BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
 				DrawFilledStamp (&s);
 			}
+			if (classicPackPresent)
+				DestroyDrawable (ReleaseDrawable (cover.frame));
 		}
 
 		hNextShip = _GetSuccLink (StarShipPtr);
