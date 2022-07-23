@@ -80,7 +80,8 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	STAMP s;
 	DWORD TimeOut;
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
+	if (!optSkipIntro)
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
 	SetContext (ScreenContext);
 	s.origin.x = s.origin.y = 0;
 
@@ -98,7 +99,8 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	else
 		s.frame = SetAbsFrameIndex (s.frame, 0);
 
-	DrawStamp (&s);
+	if (!optSkipIntro)
+		DrawStamp (&s);
 	DestroyDrawable (ReleaseDrawable (s.frame));
 
 	TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
@@ -117,14 +119,16 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	 * with the proper operation of the quit operation.
 	 * --Michael */
 
-	WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
+	if (!optSkipIntro)
+		WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
 		return;
 	}
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	if (!optSkipIntro)
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
 
 void
