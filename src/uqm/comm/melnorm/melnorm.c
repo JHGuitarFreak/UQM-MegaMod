@@ -2076,8 +2076,6 @@ LOCDATA*
 init_melnorme_comm (void)
 {
  	LOCDATA *retval;
-	BYTE i = 51;
-	BYTE res = 117;
 
 	melnorme_desc.init_encounter_func = Intro;
 	melnorme_desc.post_encounter_func = post_melnorme_enc;
@@ -2086,15 +2084,6 @@ init_melnorme_comm (void)
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
-
-	//for (res = 177; res < 179; res++)
-	//{
-	//	for (i = 0; i < 256; i++)
-	//	{
-	printf("Division: %d ", (BYTE)(((double)i / 255) * ((double)res / 255) * 255));
-	printf("Shift: %d\n", (BYTE)(((i << 8) * (res << 8)) >> 24));
-	//	}
-	//}
 
 	melnorme_desc.AlienTextBaseline.x =
 			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
