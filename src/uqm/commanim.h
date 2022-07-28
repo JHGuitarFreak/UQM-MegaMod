@@ -76,6 +76,9 @@ extern "C" {
 		// Kruzen: New type of animations: Draw transparent frames
 		// on top of all (sets fullRedraw to TRUE
 
+#define TRIGGER_FULL_REDRAW (1 << 15)
+		// When animation plays - it triggers full redraw
+
 #define FAST_STOP_AT_TALK_START (TALK_DONE) // JMS: If there's a very loooong animation, it can be forced to stop when talking with this.
 // (otherwise there'll be nasty, unwanted pauses in the conversation.) 
 

@@ -424,6 +424,9 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 
 			if (ADPtr->AnimFlags & ALPHA_MASK_ANIM)
 				AMPresent = TRUE;
+
+			if (ADPtr->AnimFlags & TRIGGER_FULL_REDRAW)
+				FullRedraw = TRUE;
 			
 			if (pSeq->Direction == NO_DIR)
 			{	// animation is paused
