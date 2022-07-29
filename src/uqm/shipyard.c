@@ -1487,8 +1487,9 @@ DoModifyShips (MENU_STATE *pMS)
 
 	}
 
-	SleepThread (ONE_SECOND / 60); // Kruzen: was 30, upped to 60 to fit new HD
-								   // powerline animation. No issues detected so far
+	SleepThread (ONE_SECOND / 60);
+			// Kruzen: was 30, upped to 60 to fit new HD
+			// powerline animation. No issues detected so far
 
 	return TRUE;
 }

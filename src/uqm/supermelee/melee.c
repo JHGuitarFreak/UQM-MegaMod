@@ -1637,7 +1637,7 @@ DoConnectingDialog (MELEE_STATE *pMS)
 		r.extent.height = RES_SCALE (30);
 		r.corner.x = (SCREEN_WIDTH - r.extent.width) >> 1;
 		r.corner.y = (SCREEN_HEIGHT - r.extent.height) >> 1;
-		DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR, 
+		DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR,
 				SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
 		if (NetConnection_getPeerOptions (conn)->isServer)
