@@ -68,7 +68,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	if (hMusic && optMainMenuMusic)
 		PlayMusic (hMusic, TRUE, 1);
 	else
-		FadeMusic(0, 0);
+		FadeMusic (0, 0);
 		
 	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
 	FlushColorXForms ();
@@ -81,36 +81,29 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	DWORD TimeOut;
 
 	if (!optSkipIntro)
+	{
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
-	SetContext (ScreenContext);
-	s.origin.x = s.origin.y = 0;
+		SetContext (ScreenContext);
+		s.origin.x = s.origin.y = 0;
 
-	//DC: Title Splashscreen.
-	if (!IS_HD) {
-		printf("Loading Splashscreen\n\n");
-		s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
-	} else {
-		printf("Loading HD Splashscreen\n\n");
-		s.frame = CaptureDrawable (LoadGraphic (TITLE_HD));
-	}
+		s.frame = CaptureDrawable (LoadGraphic (
+			RES_BOOL (TITLE_ANIM, TITLE_HD)));
 
-	if (optFlagshipColor == OPT_3DO)
-		s.frame = SetAbsFrameIndex (s.frame, 1);
-	else
-		s.frame = SetAbsFrameIndex (s.frame, 0);
+		if (optFlagshipColor == OPT_3DO)
+			s.frame = SetAbsFrameIndex (s.frame, 1);
+		else
+			s.frame = SetAbsFrameIndex (s.frame, 0);
 
-	if (!optSkipIntro)
 		DrawStamp (&s);
-	DestroyDrawable (ReleaseDrawable (s.frame));
+		DestroyDrawable (ReleaseDrawable (s.frame));
+	}
 
 	TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
 
 	if (DoProcessing)
 		DoProcessing (TimeOut);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-	{
 		return;
-	}
 	
 	/* There was a forcible setting of CHECK_ABORT here.  I cannot
 	 * find any purpose for this that DoRestart doesn't handle
@@ -122,9 +115,7 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	if (!optSkipIntro)
 		WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-	{
 		return;
-	}
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
 
 	if (!optSkipIntro)
@@ -178,7 +169,7 @@ GameOver (BYTE DeathType)
 
 void
 Logo (void)
-{	
+{
 	ShowPresentation (LOGOPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
@@ -189,6 +180,3 @@ Drumall (void)
 	ShowPresentation (DRUMALLPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
-
-
-
