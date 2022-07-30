@@ -279,8 +279,8 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		if (CursorPos < lf.CharCount) /* end of line */
 			text_r.corner.x -= RES_SCALE (1);
 
-		text_r.corner.y = r.corner.y + RES_SCALE (1);
-		text_r.extent.height = r.extent.height - RES_SCALE (2);
+		text_r.corner.y = r.corner.y;
+		text_r.extent.height = r.extent.height;
 
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
@@ -289,21 +289,25 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			if (CursorPos == lf.CharCount)
 			{	// cursor at end-line -- use insertion point
 				text_r.extent.width = RES_SCALE (1);
+				text_r.corner.x -= IF_HD (3);
 				SetCursorFlashBlock (FALSE);
 			}
 			else if (CursorPos + 1 == lf.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
+				text_r.extent.width = (SIZE)*pchar_deltas - RES_TRP (1);
+				text_r.corner.x += RES_SCALE (1);
 			}
 			else
 			{	// normal mid-line char
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
+				text_r.extent.width = (SIZE)*pchar_deltas;
+				text_r.corner.x += RES_SCALE (1);
 			}
 
 			if (text_r.extent.width >= 200)
 			{
 				SetCursorFlashBlock (FALSE);
 				text_r.extent.width = RES_SCALE (1);
+				text_r.corner.x -= IF_HD (3);
 			}
 			else
 			{

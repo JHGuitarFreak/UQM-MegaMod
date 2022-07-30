@@ -355,17 +355,13 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 			RECT cur_r = text_r;
 			TEXT h = t;
 			RECT text_ex;
+			UNICODE buffer[50];
 
-			if (CurPos > 0)
-			{	// recalculate cursor rect because of central alignment
-				UNICODE buffer[50];
-				strncpy(buffer, t.pStr, CurPos);
-				buffer[CurPos] = '\0';
-				h.pStr = buffer;
-				TextRect(&h, &text_ex, char_deltas);
-				cur_r = text_ex;
-			}
-
+			strncpy (buffer, t.pStr, CurPos);
+			buffer[CurPos] = '\0';
+			h.pStr = buffer;
+			TextRect (&h, &text_ex, char_deltas);
+			cur_r = text_ex;
 			cur_r.corner.y = 0;
 			cur_r.extent.height = r.extent.height;
 
@@ -377,6 +373,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 			if (flags & DSME_BLOCKCUR)
 			{	// Use block cursor for keyboardless systems
 				SetCursorFlashBlock (TRUE);
+
 				if (CurPos == h.CharCount)
 				{	// cursor at end-line -- use insertion point
 					cur_r.extent.width = RES_SCALE (1);
@@ -385,7 +382,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 				else if (CurPos + 1 == h.CharCount)
 				{	// extra pixel for last char margin
 					cur_r.extent.width =
-							(SIZE)*pchar_deltas + RES_SCALE (2);
+							(SIZE)*pchar_deltas + RES_SCALE (1);
 				}
 				else
 				{	// normal mid-line char
@@ -393,7 +390,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 							(SIZE)*pchar_deltas + RES_SCALE (1);
 				}
 
-				if (cur_r.extent.width >= 200)
+				if (cur_r.extent.width >= RES_SCALE (200))
 				{
 					SetCursorFlashBlock (FALSE);
 					cur_r.extent.width = RES_SCALE (1);
