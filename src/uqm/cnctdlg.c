@@ -235,19 +235,19 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		RECT r;
 		SIZE leading;
 
-		t.baseline.x = x + (RES_SCALE (90)); 
+		t.baseline.x = x + (RES_SCALE (90));
 		t.align = ALIGN_LEFT;
 
 		// calc background box dimensions
 		// XXX: this may need some tuning, especially if a
 		//   different font is used. The font 'leading' values
 		//   are not what they should be.
-#define BOX_VERT_OFFSET 2
+#define BOX_VERT_OFFSET RES_SCALE (2)
 		GetContextFontLeading (&leading);
 		r.corner.x = t.baseline.x - RES_SCALE (1);
 		r.corner.y = t.baseline.y - leading + BOX_VERT_OFFSET;
 		r.extent.width = MCD_WIDTH - r.corner.x - RES_SCALE (10);
-		r.extent.height = leading + RES_SCALE (2);
+		r.extent.height = leading - RES_SCALE (1);
 
 		TextRect (&t, &text_r, char_deltas);
 #if 0
@@ -270,29 +270,37 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 			r.corner.x += (SIZE)*pchar_deltas++;
 		if (self->cursor_pos < t.CharCount) /* cursor mid-line */
 			r.corner.x -= RES_SCALE (1);
+
 		if (self->state & WTE_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
+
+			r.corner.y = r.corner.y;
+			r.extent.height = r.extent.height;
+
 			if (self->cursor_pos == t.CharCount)
 			{	// cursor at end-line -- use insertion point
 				r.extent.width = RES_SCALE (1);
+				r.corner.x -= IF_HD (3);
 			}
 			else if (self->cursor_pos + 1 == t.CharCount)
 			{	// extra pixel for last char margin
-				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
+				r.extent.width = (SIZE)*pchar_deltas - IF_HD (3);
+				r.corner.x += RES_SCALE (1);
 			}
 			else
 			{	// normal mid-line char
-				r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
+				r.extent.width = (SIZE)*pchar_deltas;
+				r.corner.x += RES_SCALE (1);
 			}
 		}
 		else
 		{	// Insertion point cursor
+			r.corner.y = r.corner.y + RES_SCALE (1);
+			r.extent.height = r.extent.height - RES_SCALE (2);
 			r.extent.width = RES_SCALE (1);
 		}
 		// position cursor within input field rect
 		r.corner.x += RES_SCALE (1);
-		r.corner.y += RES_SCALE (1);
-		r.extent.height -= RES_SCALE (2);
 		SetContextForeGroundColor (MENU_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 

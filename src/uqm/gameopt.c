@@ -243,8 +243,6 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 	lf.pStr = Str;
 	lf.CharCount = (COUNT)~0;
 
-	SetCursorFlashBlock (FALSE);
-
 	if (!(state & DDSHS_EDIT))
 	{	// normal state
 		if (nameCaptain)
@@ -279,22 +277,22 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		if (CursorPos < lf.CharCount) /* end of line */
 			text_r.corner.x -= RES_SCALE (1);
 
-		text_r.corner.y = r.corner.y;
-		text_r.extent.height = r.extent.height;
-
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
+
+			text_r.corner.y = r.corner.y;
+			text_r.extent.height = r.extent.height;
+
 			SetCursorFlashBlock (TRUE);
 
 			if (CursorPos == lf.CharCount)
 			{	// cursor at end-line -- use insertion point
 				text_r.extent.width = RES_SCALE (1);
 				text_r.corner.x -= IF_HD (3);
-				SetCursorFlashBlock (FALSE);
 			}
 			else if (CursorPos + 1 == lf.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas - RES_TRP (1);
+				text_r.extent.width = (SIZE)*pchar_deltas - IF_HD (3);
 				text_r.corner.x += RES_SCALE (1);
 			}
 			else
@@ -305,7 +303,6 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 			if (text_r.extent.width >= 200)
 			{
-				SetCursorFlashBlock (FALSE);
 				text_r.extent.width = RES_SCALE (1);
 				text_r.corner.x -= IF_HD (3);
 			}
@@ -317,7 +314,11 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		}
 		else
 		{	// Insertion point cursor
+			text_r.corner.y = r.corner.y + RES_SCALE (1);
+			text_r.extent.height = r.extent.height - RES_SCALE (2);
 			text_r.extent.width = RES_SCALE (1);
+
+			SetCursorFlashBlock (FALSE);
 		}
 
 		SetCursorRect (&text_r, StatusContext);

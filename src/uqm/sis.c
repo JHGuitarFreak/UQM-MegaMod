@@ -330,10 +330,12 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 		//   the size to TextRect()
 		BYTE char_deltas[128];
 		BYTE *pchar_deltas;
-		SIZE bl = 0;
 
-		t.align = ALIGN_CENTER;
+		t.baseline.x = RES_SCALE (3);
+		t.align = ALIGN_LEFT;
+
 		TextRect (&t, &text_r, char_deltas);
+#if 0
 		if (text_r.extent.width + t.baseline.x + RES_SCALE (2)
 				>= r.extent.width)
 		{	// the text does not fit the input box size and so
@@ -344,56 +346,55 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 			SetContext (OldContext);
 			return (FALSE);
 		}
+#endif
 
 		ClearDrawable ();
 		DrawBorder (2, FALSE);
-		SetCursorFlashBlock (FALSE);
-
 
 		if (CurPos >= 0 && CurPos <= t.CharCount)
 		{	// calc and draw the cursor
 			RECT cur_r = text_r;
-			TEXT h = t;
-			RECT text_ex;
-			UNICODE buffer[50];
 
-			strncpy (buffer, t.pStr, CurPos);
-			buffer[CurPos] = '\0';
-			h.pStr = buffer;
-			TextRect (&h, &text_ex, char_deltas);
-			cur_r = text_ex;
-			cur_r.corner.y = 0;
-			cur_r.extent.height = r.extent.height;
-
-			for (i = CurPos, pchar_deltas = char_deltas; i > 0; --i)
+			pchar_deltas = char_deltas;
+			for (i = CurPos; i > 0; --i)
 				cur_r.corner.x += (SIZE)*pchar_deltas++;
-			if (CurPos < h.CharCount) /* end of line */
+			if (CurPos < t.CharCount) /* end of line */
 				cur_r.corner.x -= RES_SCALE (1);
 			
 			if (flags & DSME_BLOCKCUR)
 			{	// Use block cursor for keyboardless systems
+
+				cur_r.corner.y = 0;
+				cur_r.extent.height = r.extent.height;
+
 				SetCursorFlashBlock (TRUE);
 
-				if (CurPos == h.CharCount)
+				if (CurPos == t.CharCount)
 				{	// cursor at end-line -- use insertion point
 					cur_r.extent.width = RES_SCALE (1);
-					SetCursorFlashBlock (FALSE);
+					cur_r.corner.x -= IF_HD (3);
 				}
-				else if (CurPos + 1 == h.CharCount)
+				else if (CurPos + 1 == t.CharCount)
 				{	// extra pixel for last char margin
-					cur_r.extent.width =
-							(SIZE)*pchar_deltas + RES_SCALE (1);
+					cur_r.extent.width = (SIZE)*pchar_deltas - IF_HD (3);
+					cur_r.corner.x += RES_SCALE (1);
+				}
+				else if (CurPos < ExPos)
+				{
+					cur_r.extent.width = (SIZE)*pchar_deltas
+							- RES_SCALE (1);
+					cur_r.corner.x += RES_SCALE (1);
 				}
 				else
 				{	// normal mid-line char
-					cur_r.extent.width =
-							(SIZE)*pchar_deltas + RES_SCALE (1);
+					cur_r.extent.width = (SIZE)*pchar_deltas;
+					cur_r.corner.x += RES_SCALE (1);
 				}
 
-				if (cur_r.extent.width >= RES_SCALE (200))
+				if (cur_r.extent.width >= 200)
 				{
-					SetCursorFlashBlock (FALSE);
 					cur_r.extent.width = RES_SCALE (1);
+					cur_r.corner.x -= IF_HD (3);
 				}
 				else
 				{
@@ -403,11 +404,16 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 			}
 			else
 			{	// Insertion point cursor
+				cur_r.corner.y = RES_SCALE (1);
+				cur_r.extent.height = r.extent.height - RES_SCALE (2);
 				cur_r.extent.width = RES_SCALE (1);
+
+				SetCursorFlashBlock (FALSE);
 			}
-			
+
+			printRect (cur_r, "cur_r");
+
 			SetCursorRect (&cur_r, OffScreenContext);
-			bl = cur_r.corner.x + RES_SCALE (1);
 		}
 
 		SetContextForeGroundColor (SIS_MESSAGE_TEXT_COLOR);
@@ -418,11 +424,9 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 			font_DrawText (&t);
 
 			// print extra chars
-			t.align = ALIGN_LEFT;
-			t.baseline.x = bl;
-					// no matter where the cursor is - print extra text
-					// right after it
 			SetContextForeGroundColor (SIS_MESSAGE_EXTRA_TEXT_COLOR);
+			for (i = ExPos, pchar_deltas = char_deltas; i > 0; --i)
+				t.baseline.x += (SIZE)*pchar_deltas++;
 			t.pStr = skipUTF8Chars (t.pStr, ExPos);
 			t.CharCount = (COUNT)~0;
 			font_DrawText (&t);

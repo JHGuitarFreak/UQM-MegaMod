@@ -755,6 +755,10 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 
 		if (self->state & WTE_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
+
+			r.corner.y = r.corner.y;
+			r.extent.height = r.extent.height;
+
 			if (self->cursor_pos == t.CharCount)
 			{	// cursor at end-line -- use insertion point
 				r.extent.width = RES_SCALE (1);
@@ -762,7 +766,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 			}
 			else if (self->cursor_pos + 1 == t.CharCount)
 			{	// extra pixel for last char margin
-				r.extent.width = (SIZE)*pchar_deltas - RES_TRP (1);
+				r.extent.width = (SIZE)*pchar_deltas - IF_HD (3);
 				r.corner.x += RES_SCALE (1);
 			}
 			else
@@ -773,13 +777,12 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		}
 		else
 		{	// Insertion point cursor
+			r.corner.y = r.corner.y + RES_SCALE (1);
+			r.extent.height = r.extent.height - RES_SCALE (2);
 			r.extent.width = RES_SCALE (1);
 		}
-
 		// position cursor within input field rect
 		r.corner.x += RES_SCALE (1);
-		//r.corner.y += RES_SCALE (1);
-		//r.extent.height -= RES_SCALE (2);
 		SetContextForeGroundColor (WIDGET_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 
