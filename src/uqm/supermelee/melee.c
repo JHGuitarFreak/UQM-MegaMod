@@ -555,8 +555,8 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 		if (HiLiteState & DTSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 
-			text_r.corner.y = r.corner.y;
-			text_r.extent.height = r.extent.height;
+			text_r.corner.y = r.corner.y + RES_SCALE (1);
+			text_r.extent.height = r.extent.height - RES_SCALE (2);
 
 			SetCursorFlashBlock (TRUE);
 
@@ -589,8 +589,8 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 		}
 		else
 		{	// Insertion point cursor
-			text_r.corner.y = r.corner.y + RES_SCALE (1);
-			text_r.extent.height = r.extent.height - RES_SCALE (2);
+			text_r.corner.y = r.corner.y + RES_SCALE (3);
+			text_r.extent.height = r.extent.height - RES_SCALE (6);
 			text_r.extent.width = RES_SCALE (1);
 
 			SetCursorFlashBlock (FALSE);
