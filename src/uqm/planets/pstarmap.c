@@ -1599,10 +1599,9 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
 				SetContext (OldContext);
 			}
-			// In QS, don't display star search button - the search is
-			// unusable.
 			else
-			{
+			{	// In QS, don't display star search button - the search is
+				// unusable.
 				strcpy (buf, GAME_STRING (NAVIGATION_STRING_BASE + 1));
 				DrawSISMessage (buf);
 			}

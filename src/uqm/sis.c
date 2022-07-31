@@ -411,8 +411,6 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 				SetCursorFlashBlock (FALSE);
 			}
 
-			printRect (cur_r, "cur_r");
-
 			SetCursorRect (&cur_r, OffScreenContext);
 		}
 
