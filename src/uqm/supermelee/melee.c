@@ -531,6 +531,7 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 		BYTE *pchar_deltas;
 
 		TextRect (&lfText, &text_r, char_deltas);
+#if 0
 		if ((text_r.extent.width + RES_SCALE (2)) >= r.extent.width)
 		{	// the text does not fit the input box size and so
 			// will not fit when displayed later
@@ -538,6 +539,7 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 			// disallow the change
 			return FALSE;
 		}
+#endif
 
 		text_r = r;
 		SetContextForeGroundColor (TEAM_NAME_EDIT_RECT_COLOR);
@@ -548,32 +550,55 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 		for (i = pMS->CurIndex; i > 0; --i)
 			text_r.corner.x += (SIZE)*pchar_deltas++;
 		if (pMS->CurIndex < lfText.CharCount) /* cursor mid-line */
-			--text_r.corner.x;
+			text_r.corner.x -= RES_SCALE (1);
+
 		if (HiLiteState & DTSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
+
+			text_r.corner.y = r.corner.y;
+			text_r.extent.height = r.extent.height;
+
+			SetCursorFlashBlock (TRUE);
+
 			if (pMS->CurIndex == lfText.CharCount)
 			{	// cursor at end-line -- use insertion point
 				text_r.extent.width = RES_SCALE (1);
+				text_r.corner.x -= IF_HD (3);
 			}
 			else if (pMS->CurIndex + 1 == lfText.CharCount)
 			{	// extra pixel for last char margin
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (2);
+				text_r.extent.width = (SIZE)*pchar_deltas - IF_HD (3);
+				text_r.corner.x += RES_SCALE (2);
 			}
 			else
 			{	// normal mid-line char
-				text_r.extent.width = (SIZE)*pchar_deltas + RES_SCALE (1);
+				text_r.extent.width = (SIZE)*pchar_deltas;
+				text_r.corner.x += RES_SCALE (2);
+			}
+
+			if (text_r.extent.width >= 200)
+			{
+				text_r.extent.width = RES_SCALE (1);
+				text_r.corner.x -= IF_HD (3);
+			}
+			else
+			{
+				SetContextForeGroundColor (TEAM_NAME_EDIT_CURS_COLOR);
+				DrawFilledRectangle (&text_r);
 			}
 		}
 		else
 		{	// Insertion point cursor
+			text_r.corner.y = r.corner.y + RES_SCALE (1);
+			text_r.extent.height = r.extent.height - RES_SCALE (2);
 			text_r.extent.width = RES_SCALE (1);
+
+			SetCursorFlashBlock (FALSE);
 		}
 		// position cursor within input field rect
-		++text_r.corner.x;
-		++text_r.corner.y;
-		text_r.extent.height -= RES_SCALE (2);
-		SetContextForeGroundColor (TEAM_NAME_EDIT_CURS_COLOR);
-		DrawFilledRectangle (&text_r);
+		text_r.corner.x += RES_SCALE (1);
+
+		SetCursorRect (&text_r, SpaceContext);
 
 		SetContextForeGroundColor (BLACK_COLOR); // TEAM_NAME_EDIT_TEXT_COLOR);
 		font_DrawText (&lfText);
