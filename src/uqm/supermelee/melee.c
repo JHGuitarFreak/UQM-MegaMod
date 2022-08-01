@@ -592,6 +592,9 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 			text_r.corner.y = r.corner.y + RES_SCALE (3);
 			text_r.extent.height = r.extent.height - RES_SCALE (6);
 			text_r.extent.width = RES_SCALE (1);
+			
+			if (pMS->CurIndex == lfText.CharCount)
+				text_r.corner.x -= IF_HD (3);
 
 			SetCursorFlashBlock (FALSE);
 		}

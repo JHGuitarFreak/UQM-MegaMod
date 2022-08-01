@@ -320,6 +320,9 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			text_r.extent.height = r.extent.height - RES_SCALE (2);
 			text_r.extent.width = RES_SCALE (1);
 
+			if (CursorPos == lf.CharCount)
+				text_r.corner.x -= IF_HD (3);
+
 			SetCursorFlashBlock (FALSE);
 		}
 

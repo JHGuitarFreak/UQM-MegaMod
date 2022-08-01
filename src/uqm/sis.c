@@ -408,6 +408,9 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 				cur_r.extent.height = r.extent.height - RES_SCALE (2);
 				cur_r.extent.width = RES_SCALE (1);
 
+				if (CurPos == t.CharCount)
+					text_r.corner.x -= IF_HD (3);
+
 				SetCursorFlashBlock (FALSE);
 			}
 

@@ -298,6 +298,9 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 			r.corner.y = r.corner.y + RES_SCALE (1);
 			r.extent.height = r.extent.height - RES_SCALE (2);
 			r.extent.width = RES_SCALE (1);
+
+			if (self->cursor_pos == t.CharCount)
+				text_r.corner.x -= IF_HD (3);
 		}
 		// position cursor within input field rect
 		r.corner.x += RES_SCALE (1);
