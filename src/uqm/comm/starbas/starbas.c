@@ -1854,6 +1854,9 @@ SellMinerals (RESPONSE_REF R)
 static void
 Intro (void)
 {
+	if (IS_HD)// To smooth out HD blink animation
+		CommData.AlienAmbientArray[0].BaseFrameRate = ONE_SECOND / 40;
+
 	NormalStarbase (0);
 }
 

@@ -34,6 +34,7 @@ typedef enum
 	renderReplace = 0,
 	renderAdditive,
 	renderAlpha,
+	renderMultiply,
 } RenderKind;
 
 #define FULLY_OPAQUE_ALPHA  255

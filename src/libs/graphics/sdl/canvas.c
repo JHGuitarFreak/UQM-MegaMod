@@ -131,6 +131,9 @@ TFB_DrawCanvas_Rect (RECT *rect, Color color, DrawMode mode, TFB_Canvas target)
 			return;
 		}
 
+		if (mode.kind == DRAW_MULTIPLY)
+			mode.factor = FULLY_OPAQUE_ALPHA;
+
 		SDL_LockSurface (dst);
 		fillrect_prim (sr, sdlColor, plotFn, mode.factor, dst);
 		SDL_UnlockSurface (dst);
@@ -168,6 +171,9 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 					"unsupported draw mode (%d)", (int)mode.kind);
 			return;
 		}
+
+		if (mode.kind == DRAW_MULTIPLY)
+			mode.factor = FULLY_OPAQUE_ALPHA;
 
 		if (!src_r)
 		{	// blit whole image; generate rect

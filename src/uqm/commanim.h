@@ -156,6 +156,58 @@ struct SEQUENCE
 
 typedef struct SEQUENCE SEQUENCE;
 
+// Kruzen: HD filters that are layered on top
+// and all stuff needed.
+// Because this basically imitates color xform in HD
+// in truecolor format - all color transformations
+// are hadled by the same algorithms as in SD.
+// We just need to take current color and draw whatever
+// nessessary.
+// Although new .ct need to be created
+
+#define COMM_COLORMAP_INDEX 10
+#define MAX_FILTERS 3 // Could be more, but for now more that enough
+
+#define TURN_OFF_OFT (1 << 0) // on full transparency
+#define TURN_OFF_OFO (1 << 1) // on full opacity
+#define FRAMED_FILTER (1 << 2) // filter draws frame and nothing else
+#define FILTER_DISABLED (1 << 3)
+#define SWITCH_OFF_ANIMS (1 << 4)
+#define SWITCH_ON_ANIMS (1 << 5)
+
+typedef struct
+{
+	BYTE ColorIndex;
+	// Index of filter color in color
+	// table with index 10 aka alienrace.ct
+	// Can be used as frame offset for FRAMED_FILTER
+
+	BYTE OpacityIndex;
+	// Index of opacity color in color
+	// table with index 10 aka alienrace.ct
+	// RED channel would be used as alpha channel
+
+	SIZE FrameIndex;
+	// If we want to use frame from CommData.AlienFrame
+	// If -1 then we will draw a rectangle that covers all context
+
+	BYTE Kind;
+	// A drawkind from DrawKind enum
+
+	BYTE Flags;
+	// Any possible frags
+} FILTER;
+
+typedef struct
+{
+	BYTE NumFilters;
+
+	FILTER FilterArray[MAX_FILTERS];
+
+} FILTER_DESC;
+
+extern FILTER_DESC FilterData;
+
 // Returns TRUE if there was an animation change
 extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
@@ -163,7 +215,8 @@ extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
 extern void ShutYourMouth (void);
 extern void SwitchSequences (BOOLEAN enableAll);
 extern void RunOneTimeSequence (COUNT animIndex, COUNT flags);
-extern void SetUpAlphaAnimation (SWORD startPersentage, SWORD endPersentage, COUNT animIndex);
+extern void EngageFilters (FILTER_DESC* f_desc);
+extern void DisengageFilters (void);
 
 #if defined(__cplusplus)
 }
