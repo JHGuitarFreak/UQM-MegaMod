@@ -1935,6 +1935,7 @@ HailAlien (void)
 	DestroyFont (ComputerFont);
 
 	ReleaseTalkingAnim ();
+	DisengageFilters ();
 
 	// Some support code tests either of these to see if the
 	// game is currently in comm or encounter

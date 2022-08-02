@@ -189,6 +189,14 @@ alpha_blend(Uint8 dc, Uint8 sc, int alpha)
 	return (((sc - dc) * alpha) >> 8) + dc;
 }
 
+static inline Uint8
+multiply_blend(Uint8 dc, Uint8 sc, int alpha)
+{
+	// Kruzen: custom blend for multyply
+	// Needed for HD Orz
+	return (((sc << 8) * (dc << 8)) >> 24);
+}
+
 // Assumes 8 bits/channel, a safe assumption for 32bpp surfaces
 #define UNPACK_PIXEL_32(p, fmt, r, g, b) \
 	do { \
@@ -267,6 +275,27 @@ renderpixel_alpha(SDL_Surface *surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_32(fmt, sr, sg, sb);
 }
 
+static void
+renderpixel_multiply(SDL_Surface* surface, int x, int y, Uint32 pixel,
+	int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+
+	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32(sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32(pixel, fmt, r, g, b);
+	sr = multiply_blend(sr, r, factor);
+	sg = multiply_blend(sg, g, factor);
+	sb = multiply_blend(sb, b, factor);
+	*p = PACK_PIXEL_32(fmt, sr, sg, sb);
+}
+
 RenderPixelFn
 renderpixel_for(SDL_Surface *surface, RenderKind kind)
 {
@@ -288,6 +317,8 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_additive;
 	case renderAlpha:
 		return &renderpixel_alpha;
+	case renderMultiply:
+		return &renderpixel_multiply;
 	}
 	// should not ever get here
 	return NULL;

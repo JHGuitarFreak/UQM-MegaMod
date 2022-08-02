@@ -710,3 +710,10 @@ SetColorMapColors (Color *colors, COLORMAPPTR ColorMapPtr, COUNT from,
 
 	DoTransformColorMap (colors, ColorMapPtr, from, to);
 }
+
+Color
+GetColorMapColor(COUNT ColorMapIndex, COUNT ColorIndex)
+{
+	return GetNativePaletteColor (colormaps[ColorMapIndex]->palette,
+			ColorIndex);
+}

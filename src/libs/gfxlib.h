@@ -428,6 +428,15 @@ typedef enum
 			// Text: supported
 			// RGBA sources (WANT_ALPHA): alpha channel ignored
 			// RGBA targets (WANT_ALPHA): not yet supported
+	DRAW_MULTIPLY,
+			// Pixel channels of the source FRAME or Color channels of
+			// a primitive are modulated by (channel / 255) and multiplied
+			// by pixel channels of the target FRAME, modulated by
+			// (channel / 255)
+			// DrawMode.factor range: not yet supported
+			// Text: supported
+			// RGBA sources (WANT_ALPHA): alpha channel ignored
+			// RGBA targets (WANT_ALPHA): not yet supported
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;

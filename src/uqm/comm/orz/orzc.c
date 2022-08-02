@@ -48,7 +48,7 @@ static LOCDATA orz_desc =
 	NULL_RESOURCE, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	ORZ_CONVERSATION_PHRASES, /* PlayerPhrases */
-	14, /* NumAnimations */
+	13, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			4, /* StartIndex */
@@ -154,15 +154,6 @@ static LOCDATA orz_desc =
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			(1 << 10), /* BlockMask */
 		},
-		{
-			129, /* StartIndex */
-			5, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | 
-			WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 20, 0, /* FrameRate */
-			0, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
 	},
 	{ /* AlienTransitionDesc */
 		0, /* StartIndex */
@@ -178,13 +169,27 @@ static LOCDATA orz_desc =
 		0, /* AnimFlags */
 		ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
 		ONE_SECOND / 12, ONE_SECOND * 3 / 8, /* RestartRate */
-		(1 << 13), /* BlockMask */
+		0, /* BlockMask */
 	},
 	NULL, /* AlienNumberSpeech - none */
 	/* Filler for loaded resources */
 	NULL, NULL, NULL,
 	NULL,
 	NULL,
+};
+
+static FILTER_DESC orz_filters =
+{
+	1, /* Number of filters */
+	{ /* Filter array */
+		{
+			0, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_MULTIPLY, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
 };
 
 static void
@@ -240,19 +245,15 @@ ExitConversation (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, about_andro_3)
 			|| PLAYER_SAID (R, must_know_about_androsyn))
 	{
-		// JMS_GFX: Use separate graphics in hires instead of colormap transform.
+		// Run filter for HD
 		if (IS_HD)
 		{
-			CommData.AlienFrameRes = ORZ_ANGRY_PMAP_ANIM;
-			CommData.AlienFrame = CaptureDrawable (LoadGraphic (CommData.AlienFrameRes));
-			RunOneTimeSequence (13, RESTART_ALL_AFTER);
+			EngageFilters( &orz_filters);
 		}
-		else
-		{
-			XFormColorMap(GetColorMapAddress(
-				SetAbsColorMapIndex(CommData.AlienColorMap, 1)
-			), ONE_SECOND / 2);
-		}
+
+		XFormColorMap (GetColorMapAddress (
+			SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+		), ONE_SECOND / 2);
 
 		if (PLAYER_SAID (R, about_andro_3))
 			NPCPhrase (BLEW_IT);
