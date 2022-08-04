@@ -225,7 +225,7 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 		pTES->Success = FALSE;
 		pTES->Initialized = TRUE;
 		pTES->JoystickMode = FALSE;
-		pTES->UpperRegister = TRUE;
+		pTES->UpperRegister = FALSE;
 	
 		// init insertion point
 		if ((size_t)pTES->CursorPos > utf8StringCount (pTES->BaseStr))
