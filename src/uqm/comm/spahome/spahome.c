@@ -190,8 +190,8 @@ static FILTER_DESC spahome_filters =
 	1, /* Number of filters */
 	{ /* Filter array */
 		{
-			1, /* Color index */
-			0, /* Opacity index */
+			0, /* Color index */
+			1, /* Opacity index */
 			-1, /* Frame index */
 			DRAW_ALPHA, /* DrawKind*/
 			SWITCH_ON_ANIMS | TURN_OFF_OFT, /* Flags */
