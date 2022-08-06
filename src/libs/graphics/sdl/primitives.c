@@ -190,7 +190,7 @@ alpha_blend(Uint8 dc, Uint8 sc, int alpha)
 }
 
 static inline Uint8
-multiply_blend(Uint8 dc, Uint8 sc, int alpha)
+multiply_blend (Uint8 dc, Uint8 sc, int alpha)
 {
 	// Kruzen: custom blend for multyply
 	// Needed for HD Orz
@@ -276,8 +276,8 @@ renderpixel_alpha(SDL_Surface *surface, int x, int y, Uint32 pixel,
 }
 
 static void
-renderpixel_multiply(SDL_Surface* surface, int x, int y, Uint32 pixel,
-	int factor)
+renderpixel_multiply (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
 	Uint32* p;
@@ -285,15 +285,14 @@ renderpixel_multiply(SDL_Surface* surface, int x, int y, Uint32 pixel,
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
-
-	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
-	UNPACK_PIXEL_32(sp, fmt, sr, sg, sb);
-	UNPACK_PIXEL_32(pixel, fmt, r, g, b);
-	sr = multiply_blend(sr, r, factor);
-	sg = multiply_blend(sg, g, factor);
-	sb = multiply_blend(sb, b, factor);
-	*p = PACK_PIXEL_32(fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	sr = multiply_blend (sr, r, factor);
+	sg = multiply_blend (sg, g, factor);
+	sb = multiply_blend (sb, b, factor);
+	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
 }
 
 RenderPixelFn

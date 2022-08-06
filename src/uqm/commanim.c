@@ -48,7 +48,7 @@ FILTER_DESC FilterData;
 static inline SWORD
 getAlphaChannel (BYTE index)
 {
-	return (SWORD)GetColorMapColor(COMM_COLORMAP_INDEX, index).r;
+	return (SWORD)GetColorMapColor (COMM_COLORMAP_INDEX, index).r;
 }
 
 static inline DWORD
@@ -765,14 +765,14 @@ ShutYourMouth (void)
 
 void
 SwitchSequences (BOOLEAN enableAll)
-{// Kruzen: Needed for disabling animations during 
- // HD one-time transitions (i.e. orz frumple)
+{	// Kruzen: Needed for disabling animations during
+	// HD one-time transitions (i.e. orz frumple)
 	COUNT i;
 
 	for (i = 0; i < CommData.NumAnimations; ++i)
 	{
-
-		if (CommData.AlienAmbientArray[i].AnimFlags & ONE_SHOT_ANIM)// skip one-shot anim
+		// skip one-shot anim
+		if (CommData.AlienAmbientArray[i].AnimFlags & ONE_SHOT_ANIM)
 			continue;
 
 		if (!enableAll)
@@ -784,7 +784,8 @@ SwitchSequences (BOOLEAN enableAll)
 		}
 		else
 		{
-			if (CommData.AlienAmbientArray[i].AnimFlags & IMMUME_TO_RESTART)
+			if (CommData.AlienAmbientArray[i].AnimFlags
+					& IMMUME_TO_RESTART)
 				continue;
 
 			CommData.AlienAmbientArray[i].AnimFlags &= ~ANIM_DISABLED;
@@ -795,16 +796,18 @@ SwitchSequences (BOOLEAN enableAll)
 
 void
 RunOneTimeSequence (COUNT animIndex, COUNT flags)
-{// Kruzen: HD-only
-
-	if (!(CommData.AlienAmbientArray[animIndex].AnimFlags & COLORXFORM_ANIM) &&
-			CommData.AlienAmbientArray[animIndex].AnimFlags & ONE_SHOT_ANIM)
+{	// Kruzen: HD-only
+	if (!(CommData.AlienAmbientArray[animIndex].AnimFlags
+			& COLORXFORM_ANIM)
+			&& CommData.AlienAmbientArray[animIndex].AnimFlags
+				& ONE_SHOT_ANIM)
 	{
 		CommData.AlienAmbientArray[animIndex].AnimFlags &= ~ANIM_DISABLED;
 
 		CommData.AlienAmbientArray[animIndex].AnimFlags |= flags;
 
-		if (!(CommData.AlienAmbientArray[animIndex].AnimFlags & ALPHA_MASK_ANIM))
+		if (!(CommData.AlienAmbientArray[animIndex].AnimFlags
+				& ALPHA_MASK_ANIM))
 			SwitchSequences (FALSE);
 	}
 }

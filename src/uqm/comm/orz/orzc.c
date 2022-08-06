@@ -247,13 +247,11 @@ ExitConversation (RESPONSE_REF R)
 	{
 		// Run filter for HD
 		if (IS_HD)
-		{
-			EngageFilters( &orz_filters);
-		}
+			EngageFilters (&orz_filters);
 
 		XFormColorMap (GetColorMapAddress (
-			SetAbsColorMapIndex (CommData.AlienColorMap, 1)
-		), ONE_SECOND / 2);
+				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+					), ONE_SECOND / 2);
 
 		if (PLAYER_SAID (R, about_andro_3))
 			NPCPhrase (BLEW_IT);

@@ -261,7 +261,7 @@ FriendlyExit (RESPONSE_REF R)
 		RedrawSISComWindow ();
 
 		CommData.AlienColorMap =
-			SetAbsColorMapIndex (CommData.AlienColorMap, 0);
+				SetAbsColorMapIndex (CommData.AlienColorMap, 0);
 
 		BlockTalkingAnim (1, 2); // Several hours later block (New)
 
@@ -272,7 +272,7 @@ FriendlyExit (RESPONSE_REF R)
 			DisengageFilters ();
 		}
 		FadeScreen (FadeAllToColor, ONE_SECOND / 2);
-		AlienTalkSegue((COUNT)~0);
+		AlienTalkSegue ((COUNT)~0);
 
 		SET_GAME_STATE (PLAYER_HAD_SEX, 1);
 		SET_GAME_STATE (PLAYER_HAVING_SEX, 0);
@@ -369,10 +369,8 @@ Foreplay (RESPONSE_REF R)
 				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
 					), ONE_SECOND);
 
-		if (IS_HD) 
-		{
+		if (IS_HD)
 			EngageFilters (&syreen_filters);
-		} 
 		
 		/*if (!EXTENDED)
 			{
@@ -382,7 +380,7 @@ Foreplay (RESPONSE_REF R)
 				RunOneTimeSequence(16, 0);
 		}*/ // For future ideas maybe
 	
-		AlienTalkSegue ((COUNT)~0);			
+		AlienTalkSegue ((COUNT)~0);
 		SET_GAME_STATE (PLAYER_HAVING_SEX, 1);
 	}
 	else if (PLAYER_SAID (R, why_lights_off))

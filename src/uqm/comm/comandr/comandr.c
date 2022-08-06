@@ -132,12 +132,13 @@ static FILTER_DESC commander_filters =
 static void
 RaveParty (void)
 {
-	CommData.AlienColorMap =
-		SetAbsColorMapIndex(CommData.AlienColorMap, (TFB_Random() % 3) + 1);
+	CommData.AlienColorMap = SetAbsColorMapIndex (CommData.AlienColorMap,
+			(TFB_Random () % 3) + 1);
 
 	if (IS_HD && EXTENDED)
 	{
-		CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, (TFB_Random() % 15) + 40);
+		CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame,
+				(TFB_Random () % 15) + 40);
 		SwitchSequences (FALSE);
 		EnableTalkingAnim (FALSE);
 		CommData.AlienAmbientArray[3].AnimFlags &= ~ANIM_DISABLED;
@@ -613,7 +614,7 @@ GiveRadios (RESPONSE_REF R)
 		CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
 
 		if (IS_HD && EXTENDED)
-		{// Disable noisy static animation in hi-res.
+		{	// Disable noisy static animation in hi-res.
 			CommData.AlienFrame = SetAbsFrameIndex(CommData.AlienFrame, 0);
 
 			CommData.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
@@ -625,9 +626,9 @@ GiveRadios (RESPONSE_REF R)
 			FilterData.FilterArray[1].Flags |= FILTER_DISABLED;
 		}
 
-		XFormColorMap(GetColorMapAddress(
-			SetAbsColorMapIndex(CommData.AlienColorMap, 0)
-		), ONE_SECOND / 2);
+		XFormColorMap (GetColorMapAddress (
+				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
+					), ONE_SECOND / 2);
 
 		if (IsAltSong)
 		{
@@ -727,17 +728,16 @@ init_commander_comm ()
 	commander_desc.post_encounter_func = post_commander_enc;
 	commander_desc.uninit_encounter_func = uninit_commander;
 
-	luaUqm_comm_init(NULL, NULL_RESOURCE);
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
 	if (GET_GAME_STATE (RADIOACTIVES_PROVIDED))
-	{
-		// regular track -- let's make sure
+	{	// regular track -- let's make sure
 		commander_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
 	}
 	else
-	{			
+	{
 		commander_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
 	}
 

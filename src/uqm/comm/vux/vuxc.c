@@ -240,8 +240,8 @@ CombatIsInevitable (RESPONSE_REF R)
 
 		if (IS_HD && EXTENDED)
 		{
-			CommData.AlienFrame = SetAbsFrameIndex
-				(CommData.AlienFrame, 110);
+			CommData.AlienFrame =
+					SetAbsFrameIndex (CommData.AlienFrame, 110);
 			EnableTalkingAnim (FALSE);
 			RunOneTimeSequence (17, 0);
 		}
@@ -250,9 +250,9 @@ CombatIsInevitable (RESPONSE_REF R)
 			if (IS_HD)
 				EngageFilters (&vux_filters);
 
-			XFormColorMap(GetColorMapAddress(
-				SetAbsColorMapIndex(CommData.AlienColorMap, 1)
-			), ONE_SECOND / 4);
+			XFormColorMap (GetColorMapAddress (
+					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+						), ONE_SECOND / 4);
 		}
 
 		AlienTalkSegue ((COUNT)~0);

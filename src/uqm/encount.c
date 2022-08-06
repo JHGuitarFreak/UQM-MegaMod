@@ -684,17 +684,22 @@ UninitEncounter (void)
 					if (VictoryState)
 					{
 						DrawArmadaPickShip (TRUE, &scavenge_r);
+
 						if (classicPackPresent && i == NUM_SIDES - 1)
-						{// HD classic pack only. To save that metal texture
+						{	// HD classic pack only.
+							// To save the metal texture
 							RECT temp = { {222, 190}, {528, 88} };
-							saveFrame[1] = SaveContextFrame(&temp);// main frame
+							saveFrame[1] = SaveContextFrame(&temp);
+									// main frame
 
 							temp.extent.width = 392;
-							saveFrame[2] = SaveContextFrame(&temp);// Ship x5 Cover
+							saveFrame[2] = SaveContextFrame(&temp);
+									// Ship x5 Cover
 
 							temp.corner.x += 392;
 							temp.extent.width = 528 - 392;
-							saveFrame[3] = SaveContextFrame(&temp);// Salvage Cover
+							saveFrame[3] = SaveContextFrame(&temp);
+									// Salvage Cover
 						}
 					}
 				}
@@ -984,13 +989,12 @@ UninitEncounter (void)
 			DrawStatusMessage (NULL);
 
 			if (IS_HD)
-				DestroyDrawable(ReleaseDrawable(saveFrame[0].frame));
+				DestroyDrawable (ReleaseDrawable (saveFrame[0].frame));
 
 			if (classicPackPresent)
 			{
 				for (i = 1; i < 4; i++)
-					DestroyDrawable(ReleaseDrawable(saveFrame[i].frame));
-
+					DestroyDrawable (ReleaseDrawable (saveFrame[i].frame));
 			}
 		}
 
