@@ -624,6 +624,7 @@ GiveRadios (RESPONSE_REF R)
 			EnableTalkingAnim (TRUE);
 
 			EngageFilters (&commander_filters);
+			FilterData.FilterArray[0].Flags = TURN_OFF_OFT;
 			FilterData.FilterArray[1].Flags |= FILTER_DISABLED;
 		}
 
