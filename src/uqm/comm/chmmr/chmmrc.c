@@ -123,6 +123,34 @@ static LOCDATA chmmr_desc =
 	NULL,
 };
 
+static FILTER_DESC chmmr_filters =
+{
+	3, /* Number of filters */
+	{ /* Filter array */
+		{
+			1, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
+			0, /* Flags */
+		},
+		{
+			0, /* Color index */
+			0, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
+			0, /* Flags */
+		},
+		{
+			0, /* Color index */
+			2, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_ALPHA, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
+};
+
 static void
 ExitConversation (RESPONSE_REF R)
 {
@@ -554,17 +582,13 @@ Intro (void)
 		NumVisits = GET_GAME_STATE (CHMMR_HOME_VISITS);
 		if (!GET_GAME_STATE (CHMMR_EMERGING))
 		{
-			if (!IS_HD)
-				CommData.AlienColorMap = SetAbsColorMapIndex (
-						CommData.AlienColorMap, 1
-					);
-			else
-			{	// JMS_GFX: Use separate graphics in hires instead of
-				// colormap transform.
-				CommData.AlienFrameRes = CHMMR_RED_PMAP_ANIM;
-				CommData.AlienFrame = CaptureDrawable (
-						LoadGraphic (CommData.AlienFrameRes));
-			}
+			// Run filter for HD
+			if (IS_HD)
+				EngageFilters (&chmmr_filters);
+
+			CommData.AlienColorMap = SetAbsColorMapIndex (
+					CommData.AlienColorMap, 1
+				);
 
 			switch (NumVisits++)
 			{
@@ -616,7 +640,8 @@ Intro (void)
 			{
 				if (ChmmrPtr)
 				{
-					ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
+					ChmmrPtr->actual_strength =
+							986 / SPHERE_RADIUS_INCREMENT * 2;
 					ChmmrPtr->loc.x = 577;
 					ChmmrPtr->loc.y = 2509;
 					StartSphereTracking (CHMMR_SHIP);
