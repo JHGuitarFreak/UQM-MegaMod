@@ -34,6 +34,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Add small chance of weather and tectonic hazards to level 2 
 - HD: Shipyard powerlines now have smoother gradients - Kruzen
 - HD: Fuel guage for shipyard and outfit now have smoother gradients - Kruzen
+- Updated cursor speed modifier to 3x for picking a landing zone
+- HD: Melnorme, Orz, Commander, and Chmmr color changes now done via color tables - Kruzen
+- Made directional text input look more like 3DO text input
+
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
@@ -44,6 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Fixed interaction with Alpha Apodis IV
 - Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
 - Realigned the stars via the .ani to get rid of HD compensation code for the Starmap - Kruzen
+
 
 
 
