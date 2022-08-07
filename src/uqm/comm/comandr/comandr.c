@@ -117,13 +117,13 @@ static FILTER_DESC commander_filters =
 			1, /* Opacity index */
 			56, /* Frame index */
 			DRAW_MULTIPLY, /* DrawKind*/
-			TURN_OFF_OFT, /* Flags */
+			FILTER_DISABLED, /* Flags */
 		},
 		{
 			2, /* Color index */
 			3, /* Opacity index */
-			-1, /* Frame index */
-			DRAW_ALPHA, /* DrawKind*/
+			56, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
 			TURN_OFF_OFT, /* Flags */
 		},
 	}
@@ -615,7 +615,8 @@ GiveRadios (RESPONSE_REF R)
 
 		if (IS_HD && EXTENDED)
 		{	// Disable noisy static animation in hi-res.
-			CommData.AlienFrame = SetAbsFrameIndex(CommData.AlienFrame, 0);
+			CommData.AlienFrame =
+					SetAbsFrameIndex (CommData.AlienFrame, 0);
 
 			CommData.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
 			CommData.AlienAmbientArray[1].AnimFlags &= ~ANIM_DISABLED;
@@ -624,6 +625,12 @@ GiveRadios (RESPONSE_REF R)
 
 			EngageFilters (&commander_filters);
 			FilterData.FilterArray[1].Flags |= FILTER_DISABLED;
+		}
+
+		if (IS_HD && !EXTENDED)
+		{
+			FilterData.FilterArray[0].Flags = TURN_OFF_OFT;
+			FilterData.FilterArray[1].Flags = FILTER_DISABLED;
 		}
 
 		XFormColorMap (GetColorMapAddress (
