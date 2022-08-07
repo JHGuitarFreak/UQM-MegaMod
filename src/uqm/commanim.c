@@ -625,7 +625,7 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 			if (!(ADPtr->AnimFlags & COLORXFORM_ANIM))
 			{	// It's a static frame (e.g. Flagship picture at Starbase)
 				s.frame = SetAbsFrameIndex(CommData.AlienFrame,
-					ADPtr->StartIndex);
+						ADPtr->StartIndex);
 				DrawStamp(&s);
 			}
 		}
@@ -659,8 +659,9 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 		}
 	}
 	if (filterEnabled && fullRedraw)
-	{// Kruzen: draw any filter if there are any and we need to
-	 // No need to set Change to TRUE since it's already TRUE on fullRedraw
+	{	// Kruzen: draw any filter if there are any and we need to
+		// No need to set Change to TRUE since it's already TRUE on
+		// fullRedraw
 		for (i = 0; i < FilterData.NumFilters; i++)
 		{
 			DrawMode mode, oldMode;
@@ -672,28 +673,29 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 				continue;
 
 			if (FTPtr->Flags & FRAMED_FILTER)
-			{// Special case - just draw plain frame
+			{	// Special case - just draw plain frame
 				factor = getAlphaChannel (FTPtr->ColorIndex);
 
 				// Don't draw if index is outside or no frame is set
-				if (factor > FTPtr->OpacityIndex || FTPtr->FrameIndex == -1)
+				if (factor > FTPtr->OpacityIndex
+						|| FTPtr->FrameIndex == -1)
 					continue;
 
-				s.frame = SetAbsFrameIndex(CommData.AlienFrame,
-					FTPtr->FrameIndex + factor);
+				s.frame = SetAbsFrameIndex (CommData.AlienFrame,
+						FTPtr->FrameIndex + factor);
 
-				DrawStamp(&s);
+				DrawStamp (&s);
 			}
 			else
-			{// Get color from colormap
+			{	// Get color from colormap
 				FGColor = GetColorMapColor (COMM_COLORMAP_INDEX,
-					FTPtr->ColorIndex);
+						FTPtr->ColorIndex);
 
-				 // Get DRAW_FACTOR from red channel of color from colormap
-				 // with set index
+				// Get DRAW_FACTOR from red channel of color from colormap
+				// with set index
 				factor = getAlphaChannel (FTPtr->OpacityIndex);
 
-				 // Image is transparent anyway
+				// Image is transparent anyway
 				if (factor == 0x00 && FTPtr->Kind == DRAW_ALPHA)
 					goto postprocess;
 
@@ -702,7 +704,7 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 				oldColor = SetContextForeGroundColor (FGColor);
 
 				if (FTPtr->FrameIndex == -1)
-				{// Don't have frame - draw rect on top of everything
+				{	// Don't have frame - draw rect on top of everything
 					RECT r;
 
 					GetContextClipRect (&r);
@@ -711,9 +713,9 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 					DrawFilledRectangle(&r);
 				}
 				else
-				{// Draw filled stamp
+				{	// Draw filled stamp
 					s.frame = SetAbsFrameIndex (CommData.AlienFrame,
-						FTPtr->FrameIndex);
+							FTPtr->FrameIndex);
 
 					DrawFilledStamp (&s);
 				}
@@ -722,12 +724,12 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 				SetContextForeGroundColor (oldColor);
 			}
 
-			//postprocess stuff
-		postprocess:
+			// postprocess stuff
+postprocess:
 			if (FTPtr->Flags & TURN_OFF_OFT && factor == 0x00)
 			{
 				filterEnabled = FALSE;
-				printf("Disabled by flag!\n");
+				printf ("Disabled by flag!\n");
 			}
 
 			if (FTPtr->Flags & TURN_OFF_OFO && factor == 0xFF)

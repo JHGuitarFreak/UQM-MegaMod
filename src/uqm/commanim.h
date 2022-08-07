@@ -195,7 +195,7 @@ typedef struct
 	// A drawkind from DrawKind enum
 
 	BYTE Flags;
-	// Any possible frags
+	// Any possible flags
 } FILTER;
 
 typedef struct
@@ -223,5 +223,3 @@ extern void DisengageFilters (void);
 #endif
 
 #endif  /* UQM_COMMANIM_H_ */
-
-

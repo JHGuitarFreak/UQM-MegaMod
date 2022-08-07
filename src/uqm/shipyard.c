@@ -1039,10 +1039,9 @@ DMS_DismissEscortShipCrew (SHIP_FRAGMENT *StarShipPtr)
 }
 
 // Helper function for DoModifyShips(), called when the player presses the
-// up or down button when modifying the crew of the flagship or of an escort
-// ship.
-// 'hStarShip' is the currently escort ship, or 0 if no ship is
-// selected.
+// up or down button when modifying the crew of the flagship or of an
+// escort ship.
+// 'hStarShip' is the currently escort ship, or 0 if no ship is selected.
 // 'dy' is -1 if the 'up' button was pressed, or '1' if the down button was
 // pressed.
 static void
@@ -1434,14 +1433,10 @@ DoModifyShips (MENU_STATE *pMS)
 		if (!(pMS->delta_item & MODIFY_CREW_FLAG))
 		{
 			// Navigating through the ship slots.
-			if (PulsedInputState.menu[KEY_MENU_RIGHT])
-				dx = 1;
-			if (PulsedInputState.menu[KEY_MENU_LEFT])
-				dx = -1;
-			if (PulsedInputState.menu[KEY_MENU_UP])
-				dy = -1;
-			if (PulsedInputState.menu[KEY_MENU_DOWN])
-				dy = 1;
+			if (PulsedInputState.menu[KEY_MENU_RIGHT]) dx =  1;
+			if (PulsedInputState.menu[KEY_MENU_LEFT])  dx = -1;
+			if (PulsedInputState.menu[KEY_MENU_UP])    dy = -1;
+			if (PulsedInputState.menu[KEY_MENU_DOWN])  dy =  1;
 
 			DMS_NavigateShipSlots (pMS, special, select, cancel, dx, dy);
 		}
@@ -1454,32 +1449,22 @@ DoModifyShips (MENU_STATE *pMS)
 			{
 				// Cursor is over an empty escort ship slot, while we're
 				// in 'add escort ship' mode.
-				if (PulsedInputState.menu[KEY_MENU_RIGHT])
-					dx = 1;
-				if (PulsedInputState.menu[KEY_MENU_LEFT])
-					dx = -1;
-				if (PulsedInputState.menu[KEY_MENU_UP])
-					dy = -1;
-				if (PulsedInputState.menu[KEY_MENU_DOWN])
-					dy = 1;
+				if (PulsedInputState.menu[KEY_MENU_RIGHT]) dx =  1;
+				if (PulsedInputState.menu[KEY_MENU_LEFT])  dx = -1;
+				if (PulsedInputState.menu[KEY_MENU_UP])    dy = -1;
+				if (PulsedInputState.menu[KEY_MENU_DOWN])  dy =  1;
 
 				DMS_AddEscortShip (pMS, special, select, cancel, dx, dy);
 			}
 			else
 			{
 				// Crew editing mode.
-				if (PulsedInputState.menu[KEY_MENU_UP])
-					dy = -1;
-				if (PulsedInputState.menu[KEY_MENU_DOWN])
-					dy = 1;
-				if (PulsedInputState.menu[KEY_MENU_RIGHT])
-					dy = -10;
-				if (PulsedInputState.menu[KEY_MENU_LEFT])
-					dy = 10;
-				if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
-					dy = -50;
-				if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
-					dy = 50;
+				if (PulsedInputState.menu[KEY_MENU_UP])       dy = -1;
+				if (PulsedInputState.menu[KEY_MENU_DOWN])     dy =  1;
+				if (PulsedInputState.menu[KEY_MENU_RIGHT])    dy = -10;
+				if (PulsedInputState.menu[KEY_MENU_LEFT])     dy =  10;
+				if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])  dy = -50;
+				if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT]) dy =  50;
 
 				DMS_EditCrewMode (pMS, hStarShip, select, cancel, dy);
 			}
