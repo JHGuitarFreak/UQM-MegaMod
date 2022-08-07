@@ -191,10 +191,38 @@ alpha_blend(Uint8 dc, Uint8 sc, int alpha)
 
 static inline Uint8
 multiply_blend (Uint8 dc, Uint8 sc, int alpha)
-{
-	// Kruzen: custom blend for multyply
-	// Needed for HD Orz
-	return (((sc << 8) * (dc << 8)) >> 24);
+{	// Kruzen: custom blend for multiply
+	(void)alpha;
+
+	return (sc * dc) >> 8;
+}
+
+static inline Uint8
+overlay_blend (Uint8 dc, Uint8 sc, int alpha)
+{	// Custom "overlay" blend mode
+	float value, min;
+	float lower = (float)dc;
+	float upper = (float)sc;
+
+	(void)alpha;
+
+	if (lower > 128)
+	{
+		value = (255 - lower) / 128;
+		min = lower - (255 - lower);
+		return (upper * value) + min;
+	}
+	else
+	{
+		value = lower / 128;
+		return upper * value;
+	}
+}
+
+static inline Uint8
+screen_blend (Uint8 dc, Uint8 sc, int alpha)
+{	// Custom "screen" blend mode
+	return 255 - (((255 - sc) * (255 - dc)) / 255);
 }
 
 // Assumes 8 bits/channel, a safe assumption for 32bpp surfaces
@@ -295,6 +323,46 @@ renderpixel_multiply (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
 }
 
+static void
+renderpixel_overlay (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	sr = overlay_blend (sr, r, factor);
+	sg = overlay_blend (sg, g, factor);
+	sb = overlay_blend (sb, b, factor);
+	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+}
+
+static void
+renderpixel_screen (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	sr = screen_blend (sr, r, factor);
+	sg = screen_blend (sg, g, factor);
+	sb = screen_blend (sb, b, factor);
+	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+}
+
 RenderPixelFn
 renderpixel_for(SDL_Surface *surface, RenderKind kind)
 {
@@ -318,6 +386,8 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_alpha;
 	case renderMultiply:
 		return &renderpixel_multiply;
+	case renderOverlay:
+		return &renderpixel_overlay;
 	}
 	// should not ever get here
 	return NULL;
