@@ -198,25 +198,16 @@ multiply_blend (Uint8 dc, Uint8 sc, int alpha)
 }
 
 static inline Uint8
-overlay_blend (Uint8 dc, Uint8 sc, int alpha)
+overlay_blend (float dc, float sc)
 {	// Custom "overlay" blend mode
-	float value, min;
-	float lower = (float)dc;
-	float upper = (float)sc;
+	// Funky math to compensate for slow division by 127.5
+	// Original formula copied from Wikipedia:
+	// https://en.wikipedia.org/wiki/Blend_modes#Overlay
 
-	(void)alpha;
-
-	if (lower > 128)
-	{
-		value = (255 - lower) / 128;
-		min = lower - (255 - lower);
-		return (upper * value) + min;
-	}
+	if (dc < 127.5)
+		return (Uint8)(0.007843 * dc * sc);
 	else
-	{
-		value = lower / 128;
-		return upper * value;
-	}
+		return (Uint8)(-0.007843 * dc * sc + 2 * dc + 2 * sc - 255);
 }
 
 static inline Uint8
@@ -333,13 +324,15 @@ renderpixel_overlay (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
+	(void)factor;
+
 	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
 	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
 	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-	sr = overlay_blend (sr, r, factor);
-	sg = overlay_blend (sg, g, factor);
-	sb = overlay_blend (sb, b, factor);
+	sr = overlay_blend (sr, r);
+	sg = overlay_blend (sg, g);
+	sb = overlay_blend (sb, b);
 	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
 }
 
