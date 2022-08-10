@@ -39,7 +39,7 @@ static LOCDATA vux_desc =
 	NULL_RESOURCE, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	VUX_CONVERSATION_PHRASES, /* PlayerPhrases */
-	18, /* NumAnimations */
+	19, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			12, /* StartIndex */
@@ -179,6 +179,14 @@ static LOCDATA vux_desc =
 		},
 		{
 			103, /* StartIndex */
+			16, /* NumFrames */
+			CIRCULAR_ANIM, /* AnimFlags */
+			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
+			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
+			0, /* BlockMask */
+		},
+		{
+			119, /* StartIndex */
 			8, /* NumFrames */
 			CIRCULAR_ANIM | ONE_SHOT_ANIM
 			| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */

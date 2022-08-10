@@ -39,7 +39,7 @@ static LOCDATA urquan_desc =
 	NULL_RESOURCE, /* AlienAltSong */
 	0, /* AlienSongFlags */
 	URQUAN_CONVERSATION_PHRASES, /* PlayerPhrases */
-	7, /* NumAnimations */
+	9, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			7, /* StartIndex */
@@ -95,6 +95,22 @@ static LOCDATA urquan_desc =
 			CIRCULAR_ANIM, /* AnimFlags */
 			ONE_SECOND / 15, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
+			0, /* BlockMask */
+		},
+		{
+			44, /* StartIndex */
+			5, /* NumFrames */
+			CIRCULAR_ANIM | ANIM_DISABLED, /* AnimFlags */
+			ONE_SECOND / 20, 0, /* FrameRate */
+			ONE_SECOND * 3, ONE_SECOND * 5, /* RestartRate */
+			0, /* BlockMask */
+		},
+		{
+			49, /* StartIndex */
+			1, /* NumFrames */
+			CIRCULAR_ANIM | ANIM_DISABLED, /* AnimFlags */
+			0, 0, /* FrameRate */
+			0, 0, /* RestartRate */
 			0, /* BlockMask */
 		},
 	},
@@ -409,6 +425,12 @@ static void
 Intro (void)
 {
 	DWORD GrpOffs;
+
+	if (EXTENDED)
+	{
+		CommData.AlienAmbientArray[7].AnimFlags &= ~ANIM_DISABLED;
+		CommData.AlienAmbientArray[8].AnimFlags &= ~CIRCULAR_ANIM;
+	}
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{
