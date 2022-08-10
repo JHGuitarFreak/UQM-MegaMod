@@ -2180,7 +2180,9 @@ DoMoveCursor (MENU_STATE *pMS)
 			DrawStarMap (0, NULL);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
+	else if (PulsedInputState.menu[KEY_MENU_SEARCH]
+			|| (PulsedInputState.menu[KEY_MENU_ZOOM_IN]
+				&& PulsedInputState.menu[KEY_MENU_ZOOM_OUT]))
 	{
 		FlushInput ();
 
