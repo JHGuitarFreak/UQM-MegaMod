@@ -1773,63 +1773,62 @@ DoResponsePhrase (RESPONSE_REF R, RESPONSE_FUNC response_func,
 }
 
 void
-SetUpCommData(void)
-{// Kruzen: Better loading alt resources
-
+SetUpCommData (void)
+{	// Kruzen: Better loading alt resources
 	// Loading alien frame
 	if (altResFlags & USE_ALT_FRAME)
 	{
-		CommData.AlienFrame = CaptureDrawable(
-			LoadGraphic(CommData.AltRes.AlienFrameRes));
+		CommData.AlienFrame = CaptureDrawable (
+				LoadGraphic (CommData.AltRes.AlienFrameRes));
 
 		if (!CommData.AlienFrame)// Failed to load
 		{
-			CommData.AlienFrame = CaptureDrawable(
-				LoadGraphic(CommData.AlienFrameRes));
+			CommData.AlienFrame = CaptureDrawable (
+					LoadGraphic (CommData.AlienFrameRes));
 			altResFlags &= ~USE_ALT_FRAME;
 		}
 	}
 	else
-		CommData.AlienFrame = CaptureDrawable(
-			LoadGraphic(CommData.AlienFrameRes));
+		CommData.AlienFrame = CaptureDrawable (
+				LoadGraphic (CommData.AlienFrameRes));
 
 	// Loading alien font
-	CommData.AlienFont = LoadFont(CommData.AlienFontRes);
+	CommData.AlienFont = LoadFont (CommData.AlienFontRes);
 
 	// Loading alien colormap
 	if (altResFlags & USE_ALT_COLORMAP)
 	{
-		CommData.AlienColorMap = CaptureColorMap(
-			LoadColorMap(CommData.AltRes.AlienColorMapRes));
+		CommData.AlienColorMap = CaptureColorMap (
+				LoadColorMap (CommData.AltRes.AlienColorMapRes));
 
 		if (!CommData.AlienColorMap)// Failed to load
 		{
-			CommData.AlienColorMap = CaptureColorMap(
-				LoadColorMap(CommData.AlienColorMapRes));
+			CommData.AlienColorMap = CaptureColorMap (
+					LoadColorMap (CommData.AlienColorMapRes));
 			altResFlags &= ~USE_ALT_COLORMAP;
 		}
 	}
 	else
-		CommData.AlienColorMap = CaptureColorMap(
-			LoadColorMap(CommData.AlienColorMapRes));
+		CommData.AlienColorMap = CaptureColorMap (
+				LoadColorMap (CommData.AlienColorMapRes));
 
 	// Loading alien song
 	if (altResFlags & USE_ALT_SONG)
 	{
-		CommData.AlienSong = LoadMusic(CommData.AltRes.AlienSongRes);
+		CommData.AlienSong = LoadMusic (CommData.AltRes.AlienSongRes);
 
 		if (!CommData.AlienSong)// Failed to load
 		{
-			CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
+			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 			altResFlags &= ~USE_ALT_SONG;
 		}
 	}
 	else
-		CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
+		CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 
 	// Load alien convo lines
-	CommData.ConversationPhrases = CaptureStringTable(
-		LoadStringTable(CommData.ConversationPhrasesRes));
+	CommData.ConversationPhrases = CaptureStringTable (
+			LoadStringTable (CommData.ConversationPhrasesRes));
 }
 
 static void

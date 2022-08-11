@@ -362,9 +362,9 @@ TFB_DrawCanvas_Fill (SDL_Surface *src, Uint32 fillcolor, SDL_Surface *dst)
 	else
 	{	// We don't know what is that - just draw the color dammit
 		// Added by Kruzen during HD filter optimization
-		// Before it couldn't draw some filled stamps because they didn't have
-		// any transparencies and supposedly nothing from existing before
-		// DrawFilledStamp usages cannot reach that
+		// Before it couldn't draw some filled stamps because they didn't
+		// have any transparencies and supposedly nothing from existing
+		// before DrawFilledStamp usages cannot reach that
 		for (y = 0; y < height; ++y, dst_p += ddst, src_p += dsrc)
 		{
 			for (x = 0; x < width; ++x, ++src_p, ++dst_p)

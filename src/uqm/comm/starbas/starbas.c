@@ -1902,7 +1902,7 @@ init_starbase_comm ()
 	// use alternate Starbase track if available
 	altResFlags |= USE_ALT_SONG;
 
-	if (optFlagshipColor == OPT_3DO)
+	if (is3DO (optFlagshipColor))
 		altResFlags |= USE_ALT_FRAME;
 
 	CurBulletinMask = 0;

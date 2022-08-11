@@ -683,7 +683,8 @@ init_chmmr_comm (void)
 			// generalised in the future.
 
 	// use alternate "Process Complete" track if available
-	if (GET_GAME_STATE(CHMMR_UNLEASHED) || GET_GAME_STATE(CHMMR_EMERGING))
+	if (GET_GAME_STATE (CHMMR_UNLEASHED)
+			|| GET_GAME_STATE (CHMMR_EMERGING))
 		altResFlags |= USE_ALT_SONG;
 
 	chmmr_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);

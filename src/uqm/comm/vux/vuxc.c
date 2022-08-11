@@ -835,7 +835,7 @@ init_vux_comm (void)
 	vux_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1;
 
 	// use alternate "ZEX" track and frame if available
-	if (GET_GAME_STATE(GLOBAL_FLAGS_AND_DATA) & (1 << 6))
+	if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 	{
 		altResFlags |= USE_ALT_SONG;
 

@@ -401,9 +401,9 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 	if (paused)
 	{	// Drive colormap xforms and nothing else
 		// Triggered only during seeking
-		if (XFormColorMap_step())
-		{// Once seeking is done and colors have
-		 // changed - redraw a full frame
+		if (XFormColorMap_step ())
+		{	// Once seeking is done and colors have
+			// changed - redraw a full frame
 			doFullRedraw = TRUE;
 		}
 		return FALSE;
@@ -423,8 +423,8 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		LastTime = CurTime;
 
 		if (doFullRedraw)
-		{// to make frame colors in sync
-		 // mostly for HD
+		{	// to make frame colors in sync
+			// mostly for HD
 			FullRedraw = TRUE;
 			doFullRedraw = FALSE;
 		}
@@ -619,7 +619,7 @@ ApplyFilterToStamp (STAMP s)
 
 		// Get color from colormap
 		FGColor = GetColorMapColor (COMM_COLORMAP_INDEX,
-			FTPtr->ColorIndex);
+				FTPtr->ColorIndex);
 
 		// Get DRAW_FACTOR from red channel of color from colormap
 		// with set index
@@ -635,8 +635,8 @@ ApplyFilterToStamp (STAMP s)
 
 		DrawFilledStamp (&s);
 
-		SetContextDrawMode(oldMode);
-		SetContextForeGroundColor(oldColor);
+		SetContextDrawMode (oldMode);
+		SetContextForeGroundColor (oldColor);
 	}
 }
 
