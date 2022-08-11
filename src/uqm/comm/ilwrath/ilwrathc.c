@@ -40,8 +40,11 @@ static LOCDATA ilwrath_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	ILWRATH_COLOR_MAP, /* AlienColorMap */
 	ILWRATH_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	ILWRATH_CONVERSATION_PHRASES, /* PlayerPhrases */
 	4, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

@@ -44,8 +44,11 @@ static LOCDATA slylandro_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SLYLAND_COLOR_MAP, /* AlienColorMap */
 	SLYLAND_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SLYLAND_CONVERSATION_PHRASES, /* PlayerPhrases */
 	6, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

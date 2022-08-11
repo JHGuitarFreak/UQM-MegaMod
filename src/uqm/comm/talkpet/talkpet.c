@@ -43,8 +43,11 @@ static LOCDATA talkpet_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	TALKING_PET_COLOR_MAP, /* AlienColorMap */
 	TALKING_PET_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	TALKING_PET_CONVERSATION_PHRASES, /* PlayerPhrases */
 	18, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

@@ -36,8 +36,11 @@ static LOCDATA blackurq_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	BLACKURQ_COLOR_MAP, /* AlienColorMap */
 	BLACKURQ_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	BLACKURQ_CONVERSATION_PHRASES, /* PlayerPhrases */
 	9, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

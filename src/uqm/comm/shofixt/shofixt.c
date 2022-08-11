@@ -40,8 +40,11 @@ static LOCDATA shofixti_desc_orig =
 	VALIGN_TOP, /* AlienTextValign */
 	SHOFIXTI_COLOR_MAP, /* AlienColorMap */
 	SHOFIXTI_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SHOFIXTI_CONVERSATION_PHRASES, /* PlayerPhrases */
 	11, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -174,8 +177,11 @@ static LOCDATA shofixti_desc_hd =
 	VALIGN_TOP, /* AlienTextValign */
 	SHOFIXTI_COLOR_MAP, /* AlienColorMap */
 	SHOFIXTI_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SHOFIXTI_CONVERSATION_PHRASES, /* PlayerPhrases */
 	8, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

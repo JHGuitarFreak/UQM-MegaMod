@@ -55,8 +55,11 @@ static LOCDATA melnorme_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	MELNORME_COLOR_MAP, /* AlienColorMap */
 	MELNORME_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	MELNORME_CONVERSATION_PHRASES, /* PlayerPhrases */
 	5, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

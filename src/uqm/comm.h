@@ -169,8 +169,13 @@ extern void BlockTalkingAnim (COUNT trackStart, COUNT trackEnd);
 extern void UpdateDuty (BOOLEAN talk);
 
 extern BOOLEAN IsProbe;
-extern BOOLEAN IsAltSong;
 extern BOOLEAN cwLock;
+
+#define USE_ALT_FRAME (1 << 0)
+#define USE_ALT_COLORMAP (1 << 1)
+#define USE_ALT_SONG (1 << 2)
+#define USE_ALT_ALL (USE_ALT_FRAME | USE_ALT_COLORMAP | USE_ALT_SONG)
+extern BYTE altResFlags;
 
 #if defined(__cplusplus)
 }

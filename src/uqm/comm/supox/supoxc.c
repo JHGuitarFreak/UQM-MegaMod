@@ -40,8 +40,11 @@ static LOCDATA supox_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SUPOX_COLOR_MAP, /* AlienColorMap */
 	SUPOX_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SUPOX_CONVERSATION_PHRASES, /* PlayerPhrases */
 	4, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

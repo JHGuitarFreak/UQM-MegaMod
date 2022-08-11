@@ -45,8 +45,11 @@ static LOCDATA orz_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	ORZ_COLOR_MAP, /* AlienColorMap */
 	ORZ_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	ORZ_CONVERSATION_PHRASES, /* PlayerPhrases */
 	13, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

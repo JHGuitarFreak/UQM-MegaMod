@@ -54,8 +54,11 @@ static LOCDATA commander_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	COMMANDER_COLOR_MAP, /* AlienColorMap */
 	COMMANDER_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		COMMANDER_PMAP_ANIM_RED, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		STARBASE_ALT_MUSIC, /* AlienAltSong */
+	},
 	STARBASE_CONVERSATION_PHRASES, /* PlayerPhrases */
 	10, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -1886,10 +1889,7 @@ init_starbase_comm ()
 	commander_desc.post_encounter_func = post_starbase_enc;
 	commander_desc.uninit_encounter_func = uninit_starbase;
 
-	if (optFlagshipColor == OPT_3DO)
-		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM_RED;
-	else
-		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM;
+	
 
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
@@ -1900,8 +1900,10 @@ init_starbase_comm ()
 	commander_desc.AlienTextBaseline.y = RES_SCALE (20);
 
 	// use alternate Starbase track if available
-	commander_desc.AlienAltSongRes = STARBASE_ALT_MUSIC;
-	commander_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
+	altResFlags |= USE_ALT_SONG;
+
+	if (optFlagshipColor == OPT_3DO)
+		altResFlags |= USE_ALT_FRAME;
 
 	CurBulletinMask = 0;
 	setSegue (Segue_peace);

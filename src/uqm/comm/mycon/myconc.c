@@ -40,8 +40,11 @@ static LOCDATA mycon_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	MYCON_COLOR_MAP, /* AlienColorMap */
 	MYCON_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	MYCON_CONVERSATION_PHRASES, /* PlayerPhrases */
 	4, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

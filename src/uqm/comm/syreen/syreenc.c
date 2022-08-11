@@ -41,8 +41,11 @@ static LOCDATA syreen_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SYREEN_COLOR_MAP, /* AlienColorMap */
 	SYREEN_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SYREEN_CONVERSATION_PHRASES, /* PlayerPhrases */
 	15, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

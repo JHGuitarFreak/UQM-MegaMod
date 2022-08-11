@@ -40,8 +40,11 @@ static LOCDATA pkunk_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	PKUNK_COLOR_MAP, /* AlienColorMap */
 	PKUNK_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	PKUNK_CONVERSATION_PHRASES, /* PlayerPhrases */
 	3, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

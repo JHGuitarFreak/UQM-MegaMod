@@ -41,8 +41,11 @@ static LOCDATA thradd_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	THRADD_COLOR_MAP, /* AlienColorMap */
 	THRADD_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	THRADD_CONVERSATION_PHRASES, /* PlayerPhrases */
 	8, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

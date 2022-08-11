@@ -40,8 +40,11 @@ static LOCDATA umgah_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	UMGAH_COLOR_MAP, /* AlienColorMap */
 	UMGAH_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	UMGAH_CONVERSATION_PHRASES, /* PlayerPhrases */
 	16, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

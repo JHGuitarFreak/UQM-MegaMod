@@ -36,8 +36,11 @@ static LOCDATA urquan_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	URQUAN_COLOR_MAP, /* AlienColorMap */
 	URQUAN_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		URQUAN_PROBE_MUSIC, /* AlienAltSong */
+	},
 	URQUAN_CONVERSATION_PHRASES, /* PlayerPhrases */
 	9, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -561,14 +564,9 @@ init_urquan_comm (void)
 
 	GrpOffs = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 	
-	if (IsProbe == TRUE){
-		// use alternate "Probe" track if available
-		urquan_desc.AlienAltSongRes = URQUAN_PROBE_MUSIC;
-		urquan_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	} else {
-		// regular track -- let's make sure
-		urquan_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
+	// use alternate "Probe" track if available
+	if (IsProbe == TRUE)
+		altResFlags |= USE_ALT_SONG;
 
 	if (GET_GAME_STATE (PLAYER_HYPNOTIZED)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE
