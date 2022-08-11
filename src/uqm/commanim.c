@@ -40,6 +40,7 @@ static SEQUENCE* Talk;
 static SEQUENCE* Transit;
 static COUNT FirstAmbient;
 static COUNT TotalSequences;
+static BOOLEAN doFullRedraw = FALSE;
 
 //stuff for Alpha animation in HD
 BOOLEAN filterEnabled = FALSE;
@@ -399,7 +400,12 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 {
 	if (paused)
 	{	// Drive colormap xforms and nothing else
-		XFormColorMap_step ();
+		// Triggered only during seeking
+		if (XFormColorMap_step())
+		{// Once seeking is done and colors have
+		 // changed - redraw a full frame
+			doFullRedraw = TRUE;
+		}
 		return FALSE;
 	}
 	else
@@ -407,7 +413,6 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		COUNT i;
 		SEQUENCE *pSeq;
 		BOOLEAN Change;
-		BOOLEAN AMChange = FALSE;
 		BOOLEAN CanTalk = TRUE;
 		TimeCount CurTime;
 		DWORD ElapsedTicks;
@@ -417,12 +422,19 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		ElapsedTicks = CurTime - LastTime;
 		LastTime = CurTime;
 
+		if (doFullRedraw)
+		{// to make frame colors in sync
+		 // mostly for HD
+			FullRedraw = TRUE;
+			doFullRedraw = FALSE;
+		}
+			
 		// Process ambient animations
 		NextActiveMask = ActiveMask;
 		pSeq = Sequences + FirstAmbient;
 		for (i = 0; i < CommData.NumAnimations; ++i, ++pSeq)
 		{
-			ANIMATION_DESC* ADPtr = pSeq->ADPtr;
+			ANIMATION_DESC *ADPtr = pSeq->ADPtr;
 			DWORD ActiveBit = 1L << i;
 
 			if (ADPtr->AnimFlags & ANIM_DISABLED)
@@ -484,8 +496,6 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 				}
 			}
 
-			AMChange |= pSeq->Change;
-
 			if (pSeq->Change && ADPtr->AnimFlags & TRIGGER_FULL_REDRAW)
 				FullRedraw = TRUE;
 		}
@@ -529,9 +539,6 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 				clearRunTalkingAnim ();
 				clearStopTalkingAnim ();
 			}
-
-			AMChange |= Talk->Change;
-			AMChange |= Transit->Change;
 		}
 		else
 		{	// Not talking -- disable talking anim if it is done
@@ -545,7 +552,7 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		{
 			BOOLEAN ColorChange = XFormColorMap_step ();
 
-			if (ColorChange || (AMChange && filterEnabled))
+			if (ColorChange)
 				FullRedraw = TRUE;
 
 			// Colormap animations are processed separately
@@ -595,14 +602,52 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 	}
 }
 
+static void
+ApplyFilterToStamp (STAMP s)
+{
+	COUNT i;
+
+	for (i = 0; i < FilterData.NumFilters; i++)
+	{
+		DrawMode mode, oldMode;
+		Color oldColor, FGColor;
+		SWORD factor;
+		FILTER *FTPtr = &FilterData.FilterArray[i];
+
+		if (FTPtr->Flags & FILTER_DISABLED)
+			continue;
+
+		// Get color from colormap
+		FGColor = GetColorMapColor (COMM_COLORMAP_INDEX,
+			FTPtr->ColorIndex);
+
+		// Get DRAW_FACTOR from red channel of color from colormap
+		// with set index
+		factor = getAlphaChannel (FTPtr->OpacityIndex);
+
+		// Image is transparent anyway
+		if (factor == 0x00 && FTPtr->Kind == DRAW_ALPHA)
+			continue;
+
+		mode = MAKE_DRAW_MODE (FTPtr->Kind, factor);
+		oldMode = SetContextDrawMode (mode);
+		oldColor = SetContextForeGroundColor (FGColor);
+
+		DrawFilledStamp (&s);
+
+		SetContextDrawMode(oldMode);
+		SetContextForeGroundColor(oldColor);
+	}
+}
+
 BOOLEAN
-DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
+DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 {
 	int i;
 	STAMP s;
 	BOOLEAN Change = FALSE;
 
-	BatchGraphics();
+	BatchGraphics ();
 
 	s.origin.x = s.origin.y = 0;
 
@@ -610,12 +655,12 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 	{
 		// Draw the main frame
 		s.frame = CommData.AlienFrame;
-		DrawStamp(&s);
+		DrawStamp (&s);
 
 		// Draw any static frames (has to be in reverse)
 		for (i = CommData.NumAnimations - 1; i >= 0; --i)
 		{
-			ANIMATION_DESC* ADPtr = &CommData.AlienAmbientArray[i];
+			ANIMATION_DESC *ADPtr = &CommData.AlienAmbientArray[i];
 
 			if (ADPtr->AnimFlags & ANIM_MASK)
 				continue;
@@ -624,9 +669,9 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 			if (!(ADPtr->AnimFlags & COLORXFORM_ANIM))
 			{	// It's a static frame (e.g. Flagship picture at Starbase)
-				s.frame = SetAbsFrameIndex(CommData.AlienFrame,
+				s.frame = SetAbsFrameIndex (CommData.AlienFrame,
 						ADPtr->StartIndex);
-				DrawStamp(&s);
+				DrawStamp (&s);
 			}
 		}
 	}
@@ -635,8 +680,8 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 	{	// Draw the animation sequences (has to be in reverse)
 		for (i = Num - 1; i >= 0; --i)
 		{
-			SEQUENCE* pSeq = &Sequences[i];
-			ANIMATION_DESC* ADPtr = pSeq->ADPtr;
+			SEQUENCE *pSeq = &Sequences[i];
+			ANIMATION_DESC *ADPtr = pSeq->ADPtr;
 
 			if ((ADPtr->AnimFlags & ANIM_DISABLED)
 				|| pSeq->AnimType != PICTURE_ANIM)
@@ -650,9 +695,13 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 			if (fullRedraw && ADPtr->BlockMask & ActiveMask)
 				continue;
 
-			s.frame = SetAbsFrameIndex(CommData.AlienFrame,
+			s.frame = SetAbsFrameIndex (CommData.AlienFrame,
 				ADPtr->StartIndex + pSeq->CurIndex);
-			DrawStamp(&s);
+			
+			DrawStamp (&s);
+			if (!fullRedraw && filterEnabled)
+				ApplyFilterToStamp (s);
+
 			pSeq->Change = FALSE;
 
 			Change = TRUE;
@@ -667,7 +716,7 @@ DrawAlienFrame(SEQUENCE* Sequences, COUNT Num, BOOLEAN fullRedraw)
 			DrawMode mode, oldMode;
 			Color oldColor, FGColor;
 			SWORD factor;
-			FILTER* FTPtr = &FilterData.FilterArray[i];
+			FILTER *FTPtr = &FilterData.FilterArray[i];
 
 			if (FTPtr->Flags & FILTER_DISABLED)
 				continue;
@@ -729,7 +778,6 @@ postprocess:
 			if (FTPtr->Flags & TURN_OFF_OFT && factor == 0x00)
 			{
 				filterEnabled = FALSE;
-				printf ("Disabled by flag!\n");
 			}
 
 			if (FTPtr->Flags & TURN_OFF_OFO && factor == 0xFF)
@@ -828,5 +876,4 @@ void
 DisengageFilters (void)
 {
 	filterEnabled = FALSE;
-	printf ("Filter disabled\n");
 }

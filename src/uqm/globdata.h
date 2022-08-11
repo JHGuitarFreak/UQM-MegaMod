@@ -126,6 +126,13 @@ typedef enum {
 
 typedef struct
 {
+	RESOURCE AlienFrameRes;
+	RESOURCE AlienColorMapRes;
+	RESOURCE AlienSongRes;
+} ALT_RESOURCE;
+
+typedef struct
+{
 	CONVERSATION AlienConv;
 	void (*init_encounter_func) (void);
 			/* Called when entering communications */
@@ -143,8 +150,7 @@ typedef struct
 	TEXT_VALIGN AlienTextValign;
 	RESOURCE AlienColorMapRes;
 	RESOURCE AlienSongRes;
-	RESOURCE AlienAltSongRes;
-	LDAS_FLAGS AlienSongFlags;
+	ALT_RESOURCE AltRes;
 
 	RESOURCE ConversationPhrasesRes;
 

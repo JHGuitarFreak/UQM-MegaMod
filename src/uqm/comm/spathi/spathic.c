@@ -39,8 +39,11 @@ static LOCDATA spathi_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SPATHI_COLOR_MAP, /* AlienColorMap */
 	SPATHI_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		FWIFFO_MUSIC, /* AlienAltSong */
+	},
 	SPATHI_CONVERSATION_PHRASES, /* PlayerPhrases */
 	8, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -829,15 +832,9 @@ init_spathi_comm (void)
 	spathi_desc.AlienTextBaseline.y = 0;
 	spathi_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
+	// use alternate Fwiffo track if available
 	if (GET_GAME_STATE (FOUND_PLUTO_SPATHI) == 1)
-	{	// use alternate Fwiffo track if available
-		spathi_desc.AlienAltSongRes = FWIFFO_MUSIC;
-		spathi_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	}
-	else
-	{	// regular track -- let's make sure
-		spathi_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
+		altResFlags |= USE_ALT_SONG;
 
 	if (GET_GAME_STATE (FOUND_PLUTO_SPATHI) == 1
 			|| GET_GAME_STATE (SPATHI_MANNER) == 3

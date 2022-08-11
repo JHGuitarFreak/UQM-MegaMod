@@ -41,8 +41,11 @@ static LOCDATA spahome_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SPATHI_HOME_COLOR_MAP, /* AlienColorMap */
 	SPATHI_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		SPAHOME_MUSIC, /* AlienAltSong */
+	},
 	SPATHI_HOME_CONVERSATION_PHRASES, /* PlayerPhrases */
 	14, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -1027,9 +1030,7 @@ init_spahome_comm ()
 	spahome_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	// use alternate "Safe Ones" track if available
-	spahome_desc.AlienAltSongRes = SPAHOME_MUSIC;
-	spahome_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-
+	altResFlags |= USE_ALT_SONG;
 
 	if (GET_GAME_STATE (SPATHI_MANNER) == 3)
 	{

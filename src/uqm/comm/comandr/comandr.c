@@ -35,7 +35,7 @@ static LOCDATA commander_desc =
 	NULL, /* init_encounter_func */
 	NULL, /* post_encounter_func */
 	NULL, /* uninit_encounter_func */
-	COMMANDER_INIT_PMAP_ANIM, /* AlienFrame */
+	COMMANDER_PMAP_ANIM, /* AlienFrame */
 	COMMANDER_FONT, /* AlienFont */
 	WHITE_COLOR_INIT, /* AlienTextFColor */
 	BLACK_COLOR_INIT, /* AlienTextBColor */
@@ -45,8 +45,11 @@ static LOCDATA commander_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	COMMANDER_COLOR_MAP, /* AlienColorMap */
 	COMMANDER_MUSIC, /* AlienSong */
-	COMMANDER_LOWPOW_MUSIC, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		COMMANDER_INIT_PMAP_ANIM, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		COMMANDER_LOWPOW_MUSIC, /* AlienAltSong */
+	},
 	COMMANDER_CONVERSATION_PHRASES, /* PlayerPhrases */
 	4, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -638,11 +641,12 @@ GiveRadios (RESPONSE_REF R)
 				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
 					), ONE_SECOND / 2);
 
-		if (IsAltSong)
+		if (altResFlags & USE_ALT_SONG)
 		{
 			StopMusic ();
 			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 			PlayMusic (CommData.AlienSong, TRUE, 1);
+			altResFlags &= ~USE_ALT_SONG;
 		}
 
 		AlienTalkSegue ((COUNT)~0);
@@ -740,14 +744,11 @@ init_commander_comm ()
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	if (GET_GAME_STATE (RADIOACTIVES_PROVIDED))
-	{	// regular track -- let's make sure
-		commander_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
-	else
-	{
-		commander_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	}
+	if (!GET_GAME_STATE (RADIOACTIVES_PROVIDED))
+		altResFlags |= USE_ALT_SONG;
+	
+	if (IS_HD)
+		altResFlags |= USE_ALT_FRAME;
 
 	
 	commander_desc.AlienTextWidth = RES_SCALE (143);

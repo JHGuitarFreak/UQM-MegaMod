@@ -46,8 +46,11 @@ static LOCDATA chmmr_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	CHMMR_COLOR_MAP, /* AlienColorMap */
 	CHMMR_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		CHMMR_PROCESS_MUSIC, /* AlienAltSong */
+	},
 	CHMMR_CONVERSATION_PHRASES, /* PlayerPhrases */
 	6, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -679,14 +682,9 @@ init_chmmr_comm (void)
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	if (GET_GAME_STATE(CHMMR_UNLEASHED) || GET_GAME_STATE(CHMMR_EMERGING)) {
-		// use alternate "Process Complete" track if available
-		chmmr_desc.AlienAltSongRes = CHMMR_PROCESS_MUSIC;
-		chmmr_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	} else {
-		// regular track -- let's make sure
-		chmmr_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
+	// use alternate "Process Complete" track if available
+	if (GET_GAME_STATE(CHMMR_UNLEASHED) || GET_GAME_STATE(CHMMR_EMERGING))
+		altResFlags |= USE_ALT_SONG;
 
 	chmmr_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	chmmr_desc.AlienTextBaseline.y = 0;

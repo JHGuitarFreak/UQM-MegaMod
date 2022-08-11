@@ -57,8 +57,11 @@ static LOCDATA zoqfot_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	ZOQFOTPIK_COLOR_MAP, /* AlienColorMap */
 	ZOQFOTPIK_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	ZOQFOTPIK_CONVERSATION_PHRASES, /* PlayerPhrases */
 	3, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

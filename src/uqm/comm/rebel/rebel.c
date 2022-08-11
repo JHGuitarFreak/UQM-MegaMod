@@ -39,8 +39,11 @@ static LOCDATA yehat_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	YEHAT_COLOR_MAP, /* AlienColorMap */
 	YEHAT_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		REBEL_MUSIC, /* AlienAltSong */
+	},
 	REBEL_CONVERSATION_PHRASES, /* PlayerPhrases */
 	15, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -442,8 +445,7 @@ init_rebel_yehat_comm (void)
 	yehat_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) * 2 / 3;
 
 	// use alternate "Rebels" track if available
-	yehat_desc.AlienAltSongRes = REBEL_MUSIC;
-	yehat_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
+	altResFlags |= USE_ALT_SONG;
 
 	setSegue (Segue_peace);
 	retval = &yehat_desc;

@@ -48,9 +48,9 @@
 #define COMET_DAMAGE 2
 #define COMET_OFFSET 0
 #define COMET_HITS DIF_CASE (12, 10, 15)
-#define COMET_SPEED RES_SCALE (DISPLAY_TO_WORLD (IF_EASY (10, 12)))
+#define COMET_SPEED RES_SCALE (DISPLAY_TO_WORLD (IF_EASY (10, 12))) // Kryzen: 17
 #define COMET_LIFE 2
-#define COMET_TURN_WAIT 3
+#define COMET_TURN_WAIT 3 // Kruzen: 2
 		// compensate high speed with lesser maneuverability
 #define MAX_COMETS DIF_CASE (3, 2, 4)
 #define WEAPON_ENERGY_COST 2

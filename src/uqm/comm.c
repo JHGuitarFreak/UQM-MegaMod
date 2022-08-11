@@ -77,11 +77,11 @@ static CommIntroMode curIntroMode = CIM_DEFAULT;
 static TimeCount fadeTime;
 
 BOOLEAN IsProbe;
-BOOLEAN IsAltSong;
 
 // Dark mode
 BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
+BYTE altResFlags = 0;
 static COUNT fadeIndex;
  
 typedef struct response_entry
@@ -1065,7 +1065,7 @@ DoTalkSegue (TALKING_STATE *pTS)
 			// VUX Beast analysis by the scientist.
 
 			// Kruzen - Now paused animations handled differently
-			CheckSubtitles(curTrack && curTrack <= pTS->waitTrack);
+			CheckSubtitles (curTrack && curTrack <= pTS->waitTrack);
 		}
 	}
 	else
@@ -1772,6 +1772,66 @@ DoResponsePhrase (RESPONSE_REF R, RESPONSE_FUNC response_func,
 	++pES->num_responses;
 }
 
+void
+SetUpCommData(void)
+{// Kruzen: Better loading alt resources
+
+	// Loading alien frame
+	if (altResFlags & USE_ALT_FRAME)
+	{
+		CommData.AlienFrame = CaptureDrawable(
+			LoadGraphic(CommData.AltRes.AlienFrameRes));
+
+		if (!CommData.AlienFrame)// Failed to load
+		{
+			CommData.AlienFrame = CaptureDrawable(
+				LoadGraphic(CommData.AlienFrameRes));
+			altResFlags &= ~USE_ALT_FRAME;
+		}
+	}
+	else
+		CommData.AlienFrame = CaptureDrawable(
+			LoadGraphic(CommData.AlienFrameRes));
+
+	// Loading alien font
+	CommData.AlienFont = LoadFont(CommData.AlienFontRes);
+
+	// Loading alien colormap
+	if (altResFlags & USE_ALT_COLORMAP)
+	{
+		CommData.AlienColorMap = CaptureColorMap(
+			LoadColorMap(CommData.AltRes.AlienColorMapRes));
+
+		if (!CommData.AlienColorMap)// Failed to load
+		{
+			CommData.AlienColorMap = CaptureColorMap(
+				LoadColorMap(CommData.AlienColorMapRes));
+			altResFlags &= ~USE_ALT_COLORMAP;
+		}
+	}
+	else
+		CommData.AlienColorMap = CaptureColorMap(
+			LoadColorMap(CommData.AlienColorMapRes));
+
+	// Loading alien song
+	if (altResFlags & USE_ALT_SONG)
+	{
+		CommData.AlienSong = LoadMusic(CommData.AltRes.AlienSongRes);
+
+		if (!CommData.AlienSong)// Failed to load
+		{
+			CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
+			altResFlags &= ~USE_ALT_SONG;
+		}
+	}
+	else
+		CommData.AlienSong = LoadMusic(CommData.AlienSongRes);
+
+	// Load alien convo lines
+	CommData.ConversationPhrases = CaptureStringTable(
+		LoadStringTable(CommData.ConversationPhrasesRes));
+}
+
 static void
 HailAlien (void)
 {
@@ -1779,8 +1839,6 @@ HailAlien (void)
 	FONT PlayerFont, OldFont;
 	MUSIC_REF SongRef = 0;
 	Color TextBack;
-
-	IsAltSong = FALSE;
 
 	pCurInputState = &ES;
 	memset (pCurInputState, 0, sizeof (*pCurInputState));
@@ -1802,19 +1860,8 @@ HailAlien (void)
 	CommData.AlienFont = LoadFont (CommData.AlienFontRes);
 	CommData.AlienColorMap = CaptureColorMap (
 			LoadColorMap (CommData.AlienColorMapRes));
-	if ((CommData.AlienSongFlags & LDASF_USE_ALTERNATE)
-			&& CommData.AlienAltSongRes)
-		SongRef = LoadMusic (CommData.AlienAltSongRes);
-	if (SongRef)
-	{
-		CommData.AlienSong = SongRef;
-		IsAltSong = TRUE;
-	}
-	else
-		CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 
-	CommData.ConversationPhrases = CaptureStringTable (
-			LoadStringTable (CommData.ConversationPhrasesRes));
+	SetUpCommData ();
 
 	SubtitleText.baseline = CommData.AlienTextBaseline;
 	SubtitleText.align = CommData.AlienTextAlign;
@@ -1936,6 +1983,7 @@ HailAlien (void)
 
 	ReleaseTalkingAnim ();
 	DisengageFilters ();
+	altResFlags &= ~USE_ALT_ALL;
 
 	// Some support code tests either of these to see if the
 	// game is currently in comm or encounter

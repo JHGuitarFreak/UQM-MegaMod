@@ -44,8 +44,11 @@ static LOCDATA yehat_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	YEHAT_COLOR_MAP, /* AlienColorMap */
 	YEHAT_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	YEHAT_CONVERSATION_PHRASES, /* PlayerPhrases */
 	15, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */

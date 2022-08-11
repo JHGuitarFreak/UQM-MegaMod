@@ -36,10 +36,13 @@ static LOCDATA vux_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	VUX_COLOR_MAP, /* AlienColorMap */
 	VUX_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		VUX_ZEX_MUSIC, /* AlienAltSong */
+	},
 	VUX_CONVERSATION_PHRASES, /* PlayerPhrases */
-	18, /* NumAnimations */
+	19, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			12, /* StartIndex */
@@ -179,6 +182,14 @@ static LOCDATA vux_desc =
 		},
 		{
 			103, /* StartIndex */
+			16, /* NumFrames */
+			CIRCULAR_ANIM, /* AnimFlags */
+			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
+			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
+			0, /* BlockMask */
+		},
+		{
+			119, /* StartIndex */
 			8, /* NumFrames */
 			CIRCULAR_ANIM | ONE_SHOT_ANIM
 			| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
@@ -814,16 +825,6 @@ init_vux_comm (void)
 {
  	LOCDATA *retval;
 	
-
-	if(GET_GAME_STATE(GLOBAL_FLAGS_AND_DATA) & (1 << 6)){
-		// use alternate "ZEX" track if available
-		vux_desc.AlienAltSongRes = VUX_ZEX_MUSIC;
-		vux_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	} else {
-		// regular track -- let's make sure
-		vux_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
-
 	vux_desc.init_encounter_func = Intro;
 	vux_desc.post_encounter_func = post_vux_enc;
 	vux_desc.uninit_encounter_func = uninit_vux;
@@ -832,6 +833,15 @@ init_vux_comm (void)
 			+ (SIS_TEXT_WIDTH >> 2);
 	vux_desc.AlienTextBaseline.y = 0;
 	vux_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1;
+
+	// use alternate "ZEX" track and frame if available
+	if (GET_GAME_STATE(GLOBAL_FLAGS_AND_DATA) & (1 << 6))
+	{
+		altResFlags |= USE_ALT_SONG;
+
+		if (EXTENDED)
+			altResFlags |= USE_ALT_FRAME;
+	}
 
 	if ((GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

@@ -43,8 +43,11 @@ static LOCDATA druuge_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	DRUUGE_COLOR_MAP, /* AlienColorMap */
 	DRUUGE_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	DRUUGE_CONVERSATION_PHRASES, /* PlayerPhrases */
 	11, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
