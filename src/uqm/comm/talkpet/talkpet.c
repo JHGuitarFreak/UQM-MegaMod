@@ -23,8 +23,8 @@
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 
-#define STROBE_RATE   10
-#define STROBE_LENGTH (ONE_SECOND * 3 / 2)
+#define STROBE_RATE   30
+#define STROBE_LENGTH (ONE_SECOND / 3)
 #define NUM_STROBES   (STROBE_LENGTH * STROBE_RATE / ONE_SECOND)
 
 static LOCDATA talkpet_desc =
@@ -191,15 +191,6 @@ static LOCDATA talkpet_desc =
 			0, 0, /* RestartRate */
 			0, /* BlockMask */
 		},
-		{	/* Mind control strobe HD (on-demand) */
-			54, /* StartIndex */
-			NUM_STROBES, /* NumFrames */
-			YOYO_ANIM | ONE_SHOT_ANIM
-			| ALPHA_MASK_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / (STROBE_RATE * 3), 0, /* FrameRate */
-			0, 0,/* RestartRate */
-			0, /* BlockMask */
-		},
 	},
 	{ /* AlienTransitionDesc */
 		0, /* StartIndex */
@@ -222,6 +213,20 @@ static LOCDATA talkpet_desc =
 	NULL, NULL, NULL,
 	NULL,
 	NULL,
+};
+
+static FILTER_DESC talkpet_filters =
+{
+	1, /* Number of filters */
+	{ /* Filter array */
+		{
+			0, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
 };
 
 static void
@@ -290,10 +295,10 @@ static void
 MindControlStrobe (void)
 {
 	// Enable the one-shot strobe animation
+	CommData.AlienAmbientArray[16].AnimFlags &= ~ANIM_DISABLED;
+
 	if (IS_HD)
-		CommData.AlienAmbientArray[17].AnimFlags &= ~ANIM_DISABLED;
-	else
-		CommData.AlienAmbientArray[16].AnimFlags &= ~ANIM_DISABLED;
+		EngageFilters (&talkpet_filters);
 }
 
 static void
