@@ -51,7 +51,7 @@ static LOCDATA slylandro_desc =
 		{
 			0, /* StartIndex */
 			5, /* NumFrames */
-			RANDOM_ANIM | COLORXFORM_ANIM, /* AnimFlags */
+			RANDOM_ANIM | COLORXFORM_ANIM | ANIM_DISABLED, /* AnimFlags */
 			ONE_SECOND / 8, ONE_SECOND * 5 / 8, /* FrameRate */
 			ONE_SECOND / 8, ONE_SECOND * 5 / 8, /* RestartRate */
 			0, /* BlockMask */
@@ -174,6 +174,20 @@ static LOCDATA slylandro_desc =
 	NULL, NULL, NULL,
 	NULL,
 	NULL,
+};
+
+static FILTER_DESC slyhome_filters =
+{
+	1, /* Number of filters */
+	{ /* Filter array */
+		{
+			0, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
 };
 
 static void
@@ -845,8 +859,11 @@ Intro (void)
 {
 	BYTE NumVisits;
 
-	if (!IsFrameIndexed (CommData.AlienFrame))
-		CommData.AlienAmbientArray[0].AnimFlags |= ANIM_DISABLED;
+
+	if (IS_HD)
+		EngageFilters (&slyhome_filters);
+
+	CommData.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
 
 	if (GET_GAME_STATE (SLYLANDRO_KNOW_BROKEN)
 			&& (NumVisits = GET_GAME_STATE (RECALL_VISITS)) == 0)
