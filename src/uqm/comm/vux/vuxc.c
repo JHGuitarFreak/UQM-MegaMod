@@ -37,7 +37,7 @@ static LOCDATA vux_desc =
 	VUX_COLOR_MAP, /* AlienColorMap */
 	VUX_MUSIC, /* AlienSong */
 	{
-		NULL_RESOURCE, /* AlienAltFrame */
+		VUX_ZEX_PMAP_ANIM, /* AlienAltFrame */
 		NULL_RESOURCE, /* AlienAltColorMap */
 		VUX_ZEX_MUSIC, /* AlienAltSong */
 	},
@@ -183,7 +183,7 @@ static LOCDATA vux_desc =
 		{
 			103, /* StartIndex */
 			16, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
+			CIRCULAR_ANIM | ANIM_DISABLED, /* AnimFlags */
 			ONE_SECOND / 30, ONE_SECOND / 30, /* FrameRate */
 			ONE_SECOND / 30, ONE_SECOND / 30, /* RestartRate */
 			0, /* BlockMask */
@@ -236,6 +236,40 @@ static FILTER_DESC vux_filters =
 };
 
 static void
+ZexBeingEatenAlive (void)
+{
+	if (altResFlags & USE_ALT_FRAME)
+	{// make sure we're using the correct set of frames
+		if (IS_HD)
+		{
+			CommData.AlienFrame =
+				SetAbsFrameIndex (CommData.AlienFrame, 126);
+			EnableTalkingAnim (FALSE);
+			SwitchSequences (FALSE);
+			RunOneTimeSequence (18, 0);
+		}
+		else
+		{
+			CommData.AlienFrame =
+				SetAbsFrameIndex (CommData.AlienFrame, 119);
+
+			XFormColorMap (GetColorMapAddress(
+				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+			), ONE_SECOND / 4);
+		}
+	}
+	else
+	{
+		XFormColorMap (GetColorMapAddress(
+			SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+		), ONE_SECOND / 4);
+
+		if (IS_HD)
+			EngageFilters (&vux_filters);
+	}
+}
+
+static void
 CombatIsInevitable (RESPONSE_REF R)
 {
 	BYTE NumVisits;
@@ -249,22 +283,7 @@ CombatIsInevitable (RESPONSE_REF R)
 
 		AlienTalkSegue (1);
 
-		if (IS_HD && EXTENDED)
-		{
-			CommData.AlienFrame =
-					SetAbsFrameIndex (CommData.AlienFrame, 110);
-			EnableTalkingAnim (FALSE);
-			RunOneTimeSequence (17, 0);
-		}
-		else
-		{
-			if (IS_HD)
-				EngageFilters (&vux_filters);
-
-			XFormColorMap (GetColorMapAddress (
-					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
-						), ONE_SECOND / 4);
-		}
+		ZexBeingEatenAlive ();
 
 		AlienTalkSegue ((COUNT)~0);
 
@@ -742,6 +761,9 @@ NormalVux (RESPONSE_REF R)
 static void
 Intro (void)
 {
+	if (altResFlags & USE_ALT_FRAME)
+		CommData.AlienAmbientArray[17].AnimFlags &= ~ANIM_DISABLED;
+
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{
 		NPCPhrase (OUT_TAKES);
