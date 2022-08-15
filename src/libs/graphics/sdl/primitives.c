@@ -198,16 +198,16 @@ multiply_blend (Uint8 dc, Uint8 sc, int alpha)
 }
 
 static inline Uint8
-overlay_blend (float dc, float sc)
+overlay_blend (Uint8 dc, Uint8 sc)
 {	// Custom "overlay" blend mode
 	// Funky math to compensate for slow division by 127.5
 	// Original formula copied from Wikipedia:
 	// https://en.wikipedia.org/wiki/Blend_modes#Overlay
 
-	if (dc < 127.5)
-		return (Uint8)(0.007843 * dc * sc);
+	if (dc < 128)
+		return ((dc * sc) >> 7);
 	else
-		return (Uint8)(-0.007843 * dc * sc + 2 * dc + 2 * sc - 255);
+		return clip_channel (((dc + sc) << 1) - 255 - ((dc * sc) >> 7));
 }
 
 static inline Uint8

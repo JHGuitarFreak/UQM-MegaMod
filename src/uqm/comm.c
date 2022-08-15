@@ -1611,8 +1611,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			COORD y;
 
 			BatchGraphics ();
-			add_text(-2,
-				&pES->response_list[pES->cur_response].response_text);
+			add_text (-2,
+					&pES->response_list[pES->cur_response].response_text);
 
 			pES->cur_response = response;
 
@@ -1628,6 +1628,9 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 				pES->top_response = response;
 				RefreshResponses (pES);
 			}
+			else if (IS_HD)
+				RefreshResponses (pES);
+
 			UnbatchGraphics ();
 		}
 
