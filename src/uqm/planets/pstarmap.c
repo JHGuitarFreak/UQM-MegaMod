@@ -2209,34 +2209,38 @@ DoMoveCursor (MENU_STATE *pMS)
 			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_TOGGLEMAP]
-		&& GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+	else if (PulsedInputState.menu[KEY_MENU_TOGGLEMAP])
 	{
-		BYTE NewState;
-
 		FlushInput ();
 
-		NewState = which_starmap;
+		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+		{
+			BYTE NewState;
+			NewState = which_starmap;
 
-		if (NewState == HOMEWORLDS_MAP)
-			NewState = NORMAL_STARMAP;
+			if (NewState == HOMEWORLDS_MAP)
+				NewState = NORMAL_STARMAP;
+			else
+				++NewState;
+
+			if (NewState != which_starmap)
+				which_starmap = NewState;
+
+			PlayMenuSound (MENU_SOUND_MOVE);
+
+			if (which_starmap == WAR_ERA_STARMAP)
+				show_war_era_situation = TRUE;
+			else
+				show_war_era_situation = FALSE;
+
+			DrawStarMap (0, NULL);
+			last_buf[0] = '\0';
+			UpdateCursorInfo (last_buf);
+		}
 		else
-			++NewState;
-
-		if (NewState != which_starmap)
-			which_starmap = NewState;
-
-		PlayMenuSound (MENU_SOUND_MOVE);
-		
-		if (which_starmap == WAR_ERA_STARMAP)
-			show_war_era_situation = TRUE;
-		else
-			show_war_era_situation = FALSE;
-	
-		DrawStarMap (0, NULL);
-		last_buf[0] = '\0';
-		UpdateCursorInfo (last_buf);
-		SleepThread (ONE_SECOND / 8);
+		{	// no alternate maps in QuasiSpace
+			PlayMenuSound (MENU_SOUND_FAILURE);
+		}
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
 	{
