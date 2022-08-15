@@ -1634,9 +1634,6 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			UnbatchGraphics ();
 		}
 
-		if (IS_HD)
-			RefreshResponses (pES);
-
 		UpdateCommGraphics ();
 	}
 }
