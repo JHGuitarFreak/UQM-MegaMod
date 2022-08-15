@@ -96,14 +96,6 @@ enum SolarSysMenuMenuItems
 	NAVIGATION,
 };
 
-enum CardinalDirections
-{
-	NORTH = 1,
-	EAST,
-	SOUTH,
-	WEST,
-};
-
 SOLARSYS_STATE *pSolarSysState;
 FRAME SISIPFrame;
 FRAME SunFrame;
@@ -1381,57 +1373,50 @@ ProcessShipControls (void)
 	{
 		if (optSmartAutoPilot)
 		{
+#define NORTH  0
+#define EAST   4
+#define SOUTH  8
+#define WEST  12
 			SIZE facing;
 			COUNT frame_index;
 
 			POINT scrLoc = GLOBAL (ShipStamp.origin);
-			POINT maxBounds =
-					MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT);
-			COUNT cardinalDir = 0;
-
-			if (scrLoc.x <= (maxBounds.x / 2)
-					&& scrLoc.y <= (maxBounds.y / 2))
-			{	// NorthWest Quadrant
-				if (scrLoc.x < scrLoc.y)
-					cardinalDir = WEST;
-				else
-					cardinalDir = NORTH;
-			}
-			else if (scrLoc.x >= (maxBounds.x / 2)
-					&& scrLoc.y <= (maxBounds.y / 2))
-			{	// NorthEast Quadrant
-				if ((maxBounds.x - scrLoc.x) < scrLoc.y)
-					cardinalDir = EAST;
-				else
-					cardinalDir = NORTH;
-			}
-			else if (scrLoc.x >= (maxBounds.x / 2)
-					&& scrLoc.y >= (maxBounds.y / 2))
-			{	// SouthEast Quadrant
-				if ((maxBounds.x - scrLoc.x) < (maxBounds.y - scrLoc.y))
-					cardinalDir = EAST;
-				else
-					cardinalDir = SOUTH;
-			}
-			else if (scrLoc.x <= (maxBounds.x / 2)
-					&& scrLoc.y >= (maxBounds.y / 2))
-			{	// SouthWest Quadrant
-				if (scrLoc.x < (maxBounds.y - scrLoc.y))
-					cardinalDir = WEST;
-				else
-					cardinalDir = SOUTH;
-			}
+			EXTENT sisScr = { SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT };
+			BOOLEAN westOfCenter = scrLoc.x < (sisScr.width >> 1);
+			BOOLEAN northOfCenter = scrLoc.y < (sisScr.height >> 1);
 
 			frame_index = GetFrameIndex (GLOBAL (ShipStamp.frame));
 
-			switch (cardinalDir)
-			{
-				case NORTH: facing = 0; break;
-				case EAST: facing = 4; break;
-				case SOUTH: facing = 8; break;
-				case WEST: facing = 12; break;
-				default: facing = frame_index; break;
+			if (westOfCenter && northOfCenter)
+			{	// NorthWest Quadrant
+				if (scrLoc.x < scrLoc.y)
+					facing = WEST;
+				else
+					facing = NORTH;
 			}
+			else if (!westOfCenter && northOfCenter)
+			{	// NorthEast Quadrant
+				if ((sisScr.width - scrLoc.x) < scrLoc.y)
+					facing = EAST;
+				else
+					facing = NORTH;
+			}
+			else if (!westOfCenter && !northOfCenter)
+			{	// SouthEast Quadrant
+				if ((sisScr.width - scrLoc.x) < (sisScr.height - scrLoc.y))
+					facing = EAST;
+				else
+					facing = SOUTH;
+			}
+			else if (westOfCenter && !northOfCenter)
+			{	// SouthWest Quadrant
+				if (scrLoc.x < (sisScr.height - scrLoc.y))
+					facing = WEST;
+				else
+					facing = SOUTH;
+			}
+			else
+				facing = frame_index;
 
 			if ((int)facing != frame_index)
 			{
