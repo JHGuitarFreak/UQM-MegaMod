@@ -253,16 +253,16 @@ ZexBeingEatenAlive (void)
 			CommData.AlienFrame =
 				SetAbsFrameIndex (CommData.AlienFrame, 119);
 
-			XFormColorMap (GetColorMapAddress(
-				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
-			), ONE_SECOND / 4);
+			XFormColorMap (GetColorMapAddress (
+					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+						), ONE_SECOND / 4);
 		}
 	}
 	else
 	{
-		XFormColorMap (GetColorMapAddress(
-			SetAbsColorMapIndex (CommData.AlienColorMap, 1)
-		), ONE_SECOND / 4);
+		XFormColorMap (GetColorMapAddress (
+				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+					), ONE_SECOND / 4);
 
 		if (IS_HD)
 			EngageFilters (&vux_filters);
