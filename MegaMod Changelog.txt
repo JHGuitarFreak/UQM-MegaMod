@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border to the playback bar during coversations
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
-- Add a single ruin to Zex's planet
+- EXTENDED: Add a single ruin to Zex's planet
 
 ## [v0.8.2]
 ### Added
@@ -36,7 +36,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Shipyard powerlines now have smoother gradients - Kruzen
 - HD: Fuel guage for shipyard and outfit now have smoother gradients - Kruzen
 - Updated cursor speed modifier to 3x for picking a landing zone
-- HD: Melnorme, Orz, Commander, and Chmmr color changes now done via color tables - Kruzen
+- HD: Melnorme background color changes done via colortable - Kruzen
+- HD: Slylandro, Chmmr, Hayes, Orz, Talking Pet, VUX, Safe Ones, and Syreen color changes all done via color filters
 - Made directional text input look more like 3DO text input
 - Changed Starmap controls for gamepads and updated the in-game helpers to reflect the new controls
 
