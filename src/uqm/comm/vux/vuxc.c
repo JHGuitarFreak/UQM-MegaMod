@@ -239,11 +239,11 @@ static void
 ZexBeingEatenAlive (void)
 {
 	if (altResFlags & USE_ALT_FRAME)
-	{// make sure we're using the correct set of frames
+	{	// make sure we're using the correct set of frames
 		if (IS_HD)
 		{
 			CommData.AlienFrame =
-				SetAbsFrameIndex (CommData.AlienFrame, 126);
+					SetAbsFrameIndex (CommData.AlienFrame, 126);
 			EnableTalkingAnim (FALSE);
 			SwitchSequences (FALSE);
 			RunOneTimeSequence (18, 0);
@@ -251,7 +251,7 @@ ZexBeingEatenAlive (void)
 		else
 		{
 			CommData.AlienFrame =
-				SetAbsFrameIndex (CommData.AlienFrame, 119);
+					SetAbsFrameIndex (CommData.AlienFrame, 119);
 
 			XFormColorMap (GetColorMapAddress (
 					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
