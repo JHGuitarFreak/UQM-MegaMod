@@ -37,10 +37,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Fuel guage for shipyard and outfit now have smoother gradients - Kruzen
 - Updated cursor speed modifier to 3x for picking a landing zone
 - HD: Melnorme background color changes done via colortable - Kruzen
-- HD: Slylandro, Chmmr, Hayes, Orz, Talking Pet, VUX, Safe Ones, and Syreen color changes all done via color filters
+- HD: Slylandro, Chmmr, Hayes, Orz, Talking Pet, VUX, Safe Ones, and Syreen color changes all done via color filters - Kruzen
 - Made directional text input look more like 3DO text input
 - Changed Starmap controls for gamepads and updated the in-game helpers to reflect the new controls
-
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
@@ -51,8 +50,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Fixed interaction with Alpha Apodis IV
 - Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
 - Realigned the stars via the .ani to get rid of HD compensation code for the Starmap - Kruzen
-
-
+- Fixed bug when exiting game via F10 while entering a captain's name on a new game then immediately starting a new game autofills the captain's name as "UNNAMED"
 
 
 ## [v0.8.1]

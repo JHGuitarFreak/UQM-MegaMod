@@ -603,7 +603,11 @@ DoSettings (MENU_STATE *pMS)
 	static BYTE i = 0;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	{
+		if (NewGameInit)
+			i = 0;
 		return FALSE;
+	}
 
 	cur_speed = (GLOBAL (glob_flags) & COMBAT_SPEED_MASK) >> COMBAT_SPEED_SHIFT;
 	read_speed = (GLOBAL (glob_flags) & READ_SPEED_MASK);
@@ -611,7 +615,8 @@ DoSettings (MENU_STATE *pMS)
 	if (NewGameInit)
 	{
 		i++;
-		pMS->CurState = i > 1 ? CHANGE_SHIP_SETTING : CHANGE_CAPTAIN_SETTING;
+		pMS->CurState =
+				i > 1 ? CHANGE_SHIP_SETTING : CHANGE_CAPTAIN_SETTING;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
 
@@ -641,7 +646,8 @@ DoSettings (MENU_STATE *pMS)
 			case CHANGE_SHIP_SETTING:
 				SetFlashRect (NULL, FALSE);
 				DrawMenuStateStrings (PM_SOUND_ON, pMS->CurState);
-				NameCaptainOrShip (pMS->CurState == CHANGE_CAPTAIN_SETTING, NewGameInit);
+				NameCaptainOrShip (pMS->CurState == CHANGE_CAPTAIN_SETTING,
+						NewGameInit);
 				break;
 			case CYBORG_OFF_SETTING:
 			case CYBORG_NORMAL_SETTING:
