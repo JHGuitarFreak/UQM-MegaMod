@@ -153,7 +153,8 @@ serialiseBits (BYTE **bufPtrPtr, DWORD *restBitsPtr, size_t *restBitCount,
 // '*numBytes' with its size. The caller becomes the owner of '*buf' and
 // is responsible for freeing it.
 BOOLEAN
-serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
+serialiseGameState (const GameStateBitMap *bm, BYTE **buf,
+		size_t *numBytes)
 {
 	size_t totalBits;
 	size_t totalBytes;
@@ -162,8 +163,8 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 	BYTE *bufPtr;
 
 	DWORD restBits = 0;
-			// Bits which have not yet been stored because they did not form
-			// an entire byte.
+			// Bits which have not yet been stored because they did not
+			// form an entire byte.
 	size_t restBitCount = 0;
 
 	// Determine the total number of bits/bytes required.
@@ -184,26 +185,29 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 			BYTE numBits = bmPtr->numBits;
 
 #ifdef STATE_DEBUG
-			log_add (log_Debug, "Saving: GameState[\'%s\'] = %u", bmPtr->name,
-					value);
+			log_add (log_Debug, "Saving: GameState[\'%s\'] = %u",
+					bmPtr->name, value);
 #endif  /* STATE_DEBUG */
 
 			if (value > bitmask32(numBits))
 			{
-				log_add (log_Error, "Warning: serialiseGameState(): the value "
-						"of the property '%s' (%u) does not fit in the reserved "
-						"number of bits (%d).", bmPtr->name, value, numBits);
+				log_add (log_Error, "Warning: serialiseGameState(): the "
+						"value of the property '%s' (%u) does not fit in "
+						"the reserved number of bits (%d).",
+						bmPtr->name, value, numBits);
 			}
 
-			// Store multi-byte values with the least significant byte first.
+			// Store multi-byte values with the least significant byte 1st.
 			while (numBits >= 8)
 			{
-				serialiseBits (&bufPtr, &restBits, &restBitCount, value & 0xff, 8);
+				serialiseBits (&bufPtr, &restBits, &restBitCount,
+						value & 0xff, 8);
 				value >>= 8;
 				numBits -= 8;
 			}
 			if (numBits > 0)
-				serialiseBits (&bufPtr, &restBits, &restBitCount, value, numBits);
+				serialiseBits (&bufPtr, &restBits, &restBitCount, value,
+						numBits);
 		}
 		else if (bmPtr->numBits == 0)
 			break;
@@ -211,7 +215,8 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 
 	// Pad the end up to a byte.
 	if (restBitCount > 0)
-		serialiseBits (&bufPtr, &restBits, &restBitCount, 0, 8 - restBitCount);
+		serialiseBits (&bufPtr, &restBits, &restBitCount, 0,
+				8 - restBitCount);
 
 	*buf = result;
 	*numBytes = totalBytes;
@@ -222,7 +227,8 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 // '*bitPtr'. The result is returned.
 // '*bitPtr' and '*bytePtr' are updated by this function.
 static inline DWORD
-deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
+deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits)
+{
 	assert (*bitPtr < 8);
 	assert (numBits <= 8);
 
@@ -250,9 +256,9 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
 	{
 		// The result comes from two bytes.
 		// We get the *bitPtr most significant bits from [0], as the least
-		// significant bits of the result, and the (numBits - *bitPtr) least
-		// significant bits from [1], as the most significant bits of the
-		// result.
+		// significant bits of the result, and the (numBits - *bitPtr)
+		// least significant bits from [1], as the most significant bits of
+		// the result.
 		DWORD result = (((*bytePtr)[0] >> *bitPtr)
 				| ((*bytePtr)[1] << (8 - *bitPtr))) &
 				bitmask32(numBits);
@@ -297,22 +303,24 @@ deserialiseGameState (const GameStateBitMap *bm,
 
 			if (matchRev)
 			{
-				// Multi-byte values are stored with the least significant byte
-				// first.
+				// Multi-byte values are stored with the least significant
+				// byte first.
 				while (bitsLeft >= 8)
 				{
 					DWORD bits = deserialiseBits (&bytePtr, &bitPtr, 8);
-					value |= shl32(bits, numBits - bitsLeft);
+					value |= shl32 (bits, numBits - bitsLeft);
 					bitsLeft -= 8;
 				}
-				if (bitsLeft > 0) {
-					value |= shl32(deserialiseBits (&bytePtr, &bitPtr, bitsLeft),
+				if (bitsLeft > 0)
+				{
+					value |= shl32 (
+							deserialiseBits (&bytePtr, &bitPtr, bitsLeft),
 							numBits - bitsLeft);
 				}
 	
 #ifdef STATE_DEBUG
-				log_add (log_Debug, "Loading: GameState[\'%s\'] = %u", bmPtr->name,
-						value);
+				log_add (log_Debug, "Loading: GameState[\'%s\'] = %u",
+						bmPtr->name, value);
 #endif  /* STATE_DEBUG */
 			}
 
@@ -545,9 +553,11 @@ InitGameStructures (void)
 		GLOBAL_SIS (ModuleSlots[i]) = EMPTY_SLOT + 2;
 	GLOBAL_SIS (ModuleSlots[15]) = GUN_WEAPON;
 	GLOBAL_SIS (ModuleSlots[2]) = CREW_POD;
-	// Make crew 31 at start to align with the amount of crew lost on the Tobermoon
-	// during the journey from Vela to Sol, Hard and/or Extended mode only
-	GLOBAL_SIS (CrewEnlisted) = (DIF_HARD || EXTENDED) ? 31 : CREW_POD_CAPACITY;
+	// Make crew 31 at start to align with the amount of crew lost on the
+	// Tobermoon during the journey from Vela to Sol, Hard and/or Extended
+	// mode only
+	GLOBAL_SIS (CrewEnlisted) =
+			(DIF_HARD || EXTENDED) ? 31 : CREW_POD_CAPACITY;
 	GLOBAL_SIS (ModuleSlots[8]) = STORAGE_BAY;
 	GLOBAL_SIS (ModuleSlots[1]) = FUEL_TANK;
 	GLOBAL_SIS (FuelOnBoard) = IF_EASY(10 * FUEL_TANK_SCALE, 4338);
@@ -611,10 +621,10 @@ InitGameStructures (void)
 
 	utf8StringCopy (GLOBAL_SIS (ShipName),
 			sizeof (GLOBAL_SIS (ShipName)),
-			GAME_STRING (NAMING_STRING_BASE + 6));
+			GAME_STRING (NAMING_STRING_BASE + 6)); // UNNAMED
 	utf8StringCopy (GLOBAL_SIS (CommanderName),
 			sizeof (GLOBAL_SIS (CommanderName)),
-			GAME_STRING (NAMING_STRING_BASE + 6));
+			GAME_STRING (NAMING_STRING_BASE + 6)); // UNNAMED
 
 	SetRaceAllied (HUMAN_SHIP, TRUE);
 	CloneShipFragment (HUMAN_SHIP, &GLOBAL (built_ship_q), 0);
@@ -623,8 +633,10 @@ InitGameStructures (void)
 	{
 		BYTE SpaCrew = IF_EASY(1, 30);
 		AddEscortShips (SPATHI_SHIP, 1);
-		/* Make the Eluder escort captained by Fwiffo alone or have a full compliment for Easy mode. */
-		SetEscortCrewComplement (SPATHI_SHIP, SpaCrew, NAME_OFFSET + NUM_CAPTAINS_NAMES);
+		// Make the Eluder escort captained by Fwiffo alone or have a full
+		// compliment for Easy mode.
+		SetEscortCrewComplement (SPATHI_SHIP,
+				SpaCrew, NAME_OFFSET + NUM_CAPTAINS_NAMES);
 		StartSphereTracking (SPATHI_SHIP);
 	}
 
