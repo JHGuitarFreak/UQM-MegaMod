@@ -114,8 +114,8 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * open or opening.
 			 */
 	{ "ARILOU_SPACE_SIDE", 2 },
-			/* 0 if in HyperSpace and not just emerged from the periodically
-			 * opening QuasiSpace portal.
+			/* 0 if in HyperSpace and not just emerged from the
+			 * periodically opening QuasiSpace portal.
 			 * 1 if in HyperSpace and just emerged from the periodically
 			 * QuasiSpace portal (still on the portal).
 			 * 2 if in QuasiSpace and just emerged from the periodically
@@ -307,9 +307,9 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "TALKING_PET_VISITS", 3 },
 	{ "TALKING_PET_HOME_VISITS", 3 },
 	{ "UMGAH_ZOMBIE_BLOBBIES", 1 },
-			/* The Umgah have come under the influence of the Talking Pet */
+			// The Umgah have come under the influence of the Talking Pet
 	{ "KNOW_UMGAH_ZOMBIES", 1 },
-			/* The Captain is aware that something is up with the Umgah */
+			// The Captain is aware that something is up with the Umgah
 
 	{ "ARILOU_VISITS", 3 },
 	{ "ARILOU_HOME_VISITS", 3 },
@@ -342,7 +342,8 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * 1 - The captain knows from the Chmmr that some extremely
 			 *     powerful weapon is needed to destroy the Sa-Matra.
 			 * 2 - Installation of the precursor bomb has started.
-			 * 3 - Left the starbase after installation of the Precursor bomb.
+			 * 3 - Left the starbase after installation of the Precursor
+			 * bomb.
 			 */
 
 	{ "DRUUGE_DISCLAIMER", 1 },
@@ -379,11 +380,13 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "HELIX_UNPROTECTED", 1 },
 	{ "THRADD_CULTURE", 2 },
 	{ "THRADD_MISSION", 3 },
-			/* 0 if the Thraddash fleet hasn't left the Thraddash home world.
+			/* 0 if the Thraddash fleet hasn't left the Thraddash home
+			 * world.
 			 * 1 if the Thraddash are heading towards Kohr-Ah territory.
 			 * 2 if the Thraddash are fighting the Kohr-Ah.
 			 * 3 if the Thraddash are returning from Kohr-Ah territory.
-			 * 4 if the Thraddash fleet is back at the Thraddash home world.
+			 * 4 if the Thraddash fleet is back at the Thraddash home
+			 * world.
 			 */
 
 	{ "DRUUGE_VISITS", 3 },
@@ -434,7 +437,7 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * is the low byte.
 			 */
 	{ "MELNORME_RAINBOW_COUNT", 4 },
-			/* The number of rainbow world locations sold to the Melnorme. */
+			// The number of rainbow world locations sold to the Melnorme.
 
 	{ "USED_BROADCASTER", 1 },
 	{ "BROADCASTER_RESPONSE", 1 },
@@ -466,11 +469,12 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "THRADDASH_BODY_COUNT", 5 },
 
 	{ "UTWIG_SUPOX_MISSION", 3 },
-			/* 0 if the Utwig and Supox fleet haven't left their home world.
+			/* 0 if the Utwig and Supox fleet haven't left their home
+			 * world.
 			 * 1 if the U&S are on their way towards the Kohr-Ah
 			 * 2 if the U&S are fighting the Kohr-Ah (first 80 days)
 			 * 3 does not occur
-             * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
+			 * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
 			 * 5 if the U&S are returning home.
 			 * 6 if the U&S are back at their home world.
 			 */
@@ -564,9 +568,10 @@ const GameStateBitMap gameStateBitMap[] = {
 			/* 0 when the flagship is not in battle, or it doesn't have the
 			 *   enhanced precursor bomb installed.
 			 * 1 when the flagship is in battle and the bomb is installed.
-			 * This determines whether you can flee (if the warp escape unit
-			 * is installed at all), and whether taking the ship into the
-			 * Sa-Matra defense structure will trigger the end of the game.
+			 * This determines whether you can flee (if the warp escape
+			 * unit is installed at all), and whether taking the ship into
+			 * the Sa-Matra defense structure will trigger the end of the
+			 * game.
 			 */
 	
 	{ "THRADD_MANNER", 1 },
@@ -860,7 +865,8 @@ SaveShipQueue (uio_Stream *fh, QUEUE *pQueue, DWORD tag)
 	if (num_links == 0)
 		return;
 	write_32 (fh, tag);
-	write_32 (fh, num_links * 11); // Size of chunk: each entry is 11 bytes long.
+	write_32 (fh, num_links * 11);
+			// Size of chunk: each entry is 11 bytes long.
 
 	hStarShip = GetHeadLink (pQueue);
 	while (num_links--)
@@ -1235,8 +1241,9 @@ PrepareSummary (SUMMARY_DESC *SummPtr, const char *name)
 	{
 		HSHIPFRAG hStarShip, hNextShip;
 
-		for (hStarShip = GetHeadLink (&GLOBAL (built_ship_q)), SummPtr->NumShips = 0;
-				hStarShip; hStarShip = hNextShip, ++SummPtr->NumShips)
+		for (hStarShip = GetHeadLink (&GLOBAL (built_ship_q)),
+				SummPtr->NumShips = 0; hStarShip; hStarShip = hNextShip,
+				++SummPtr->NumShips)
 		{
 			SHIP_FRAGMENT *StarShipPtr;
 
@@ -1296,10 +1303,10 @@ SaveProblemMessage (STAMP *MsgStamp)
 			BoxUnion (&tr, &r, &r);
 		t.baseline.y += 11;
 	}
-	t.baseline.x = (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1))
-			- r.corner.x;
-	t.baseline.y = (RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1))
-			- r.corner.y;
+	t.baseline.x = (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
+			- (r.extent.width >> 1)) - r.corner.x;
+	t.baseline.y = (RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
+			- (r.extent.height >> 1)) - r.corner.y;
 	r.corner.x += t.baseline.x - RES_SCALE (4);
 	r.corner.y += t.baseline.y - RES_SCALE (4);
 	r.extent.width += RES_SCALE (8);
@@ -1369,7 +1376,8 @@ SaveStarInfo (uio_Stream *fh)
 		DWORD flen = LengthStateFile (fp);
 		if (flen % 4)
 		{
-			log_add (log_Warning, "Unexpected Star Info length! Expected an integral number of DWORDS.\n");
+			log_add (log_Warning, "Unexpected Star Info length! Expected "
+					"an integral number of DWORDS.\n");
 		}
 		else
 		{
@@ -1388,7 +1396,8 @@ SaveStarInfo (uio_Stream *fh)
 }
 
 static void
-SaveBattleGroup (GAME_STATE_FILE *fp, DWORD encounter_id, DWORD grpoffs, uio_Stream *fh)
+SaveBattleGroup (GAME_STATE_FILE *fp, DWORD encounter_id, DWORD grpoffs,
+		uio_Stream *fh)
 {
 	GROUP_HEADER h;
 	DWORD size = 12;
@@ -1406,7 +1415,8 @@ SaveBattleGroup (GAME_STATE_FILE *fp, DWORD encounter_id, DWORD grpoffs, uio_Str
 	write_32 (fh, BATTLE_GROUP_TAG);
 	write_32 (fh, size);
 	write_32 (fh, encounter_id);
-	write_8  (fh, (grpoffs && (GLOBAL (BattleGroupRef) == grpoffs)) ? 1 : 0); // current
+	write_8  (fh,
+			(grpoffs && (GLOBAL (BattleGroupRef) == grpoffs)) ? 1 : 0);
 	write_16 (fh, h.star_index);
 	write_8  (fh, h.day_index);
 	write_8  (fh, h.month_index);
@@ -1462,8 +1472,8 @@ GetBattleGroupOffset (int encounterIndex)
 		case 13: return GET_GAME_STATE (COLONY_GRPOFFS);
 		case 14: return GET_GAME_STATE (SAMATRA_GRPOFFS);
 		default:
-			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter "
-					"index.\n");
+			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter"
+					" index.\n");
 			return 0;
 	}
 }
@@ -1572,8 +1582,10 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 		if (!(GLOBAL (CurrentActivity) & START_INTERPLANETARY))
 		{
 			if (GLOBAL (CurrentActivity) & START_ENCOUNTER)
-				SaveShipQueue (out_fp, &GLOBAL (npc_built_ship_q), NPC_SHIP_Q_TAG);
-			else if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
+				SaveShipQueue (out_fp, &GLOBAL (npc_built_ship_q),
+						NPC_SHIP_Q_TAG);
+			else if (LOBYTE (GLOBAL (CurrentActivity))
+					== IN_INTERPLANETARY)
 				// XXX: Technically, this queue does not need to be
 				//   saved/loaded at all. IP groups will be reloaded
 				//   from group state files. But the original code did,
