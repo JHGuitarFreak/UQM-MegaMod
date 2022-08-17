@@ -723,7 +723,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 	SetContextFont (TinyFont);
 
 	r.corner = MAKE_POINT (RES_SCALE (1), RES_SCALE (141));
-	r.extent = MAKE_EXTENT(RES_SCALE (62), RES_SCALE (42));
+	r.extent = MAKE_EXTENT(RES_SCALE (62), RES_SCALE (40));
 
 	if (cleanup)
 	{
@@ -744,7 +744,8 @@ DrawMineralHelpers (BOOLEAN cleanup)
 	{
 		DrawStarConBox (
 				&r, RES_SCALE (1), PCMENU_TOP_LEFT_BORDER_COLOR,
-				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, PCMENU_BACKGROUND_COLOR
+				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE,
+				PCMENU_BACKGROUND_COLOR
 			);
 
 		if (IS_HD)
@@ -754,7 +755,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 		DrawBorder (14, FALSE);
 
 #define ELEMENT_ORG_X      (r.corner.x + RES_SCALE (7))
-#define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE (7))
+#define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE (6))
 #define ELEMENT_SPACING_Y  RES_SCALE (9)
 #define ELEMENT_SPACING_X  RES_SCALE (32)
 #define HD_ALIGN_DOTS IF_HD (2)
