@@ -486,6 +486,7 @@ ProcessInputEvent (const SDL_Event *Event)
 		while (Event->text.text[i])
 		{
 			UniChar map_key = Event->text.text[i++];
+			map_key &= 0xFF; /* Interpret as unsigned byte */
 
 			/* Decode any UTF-8 keys */
 			if (map_key >= 0xC0 && map_key < 0xE0)
