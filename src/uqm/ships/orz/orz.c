@@ -437,8 +437,9 @@ LeftShip:
 				}
 				else if (randval < (0x0100 / 2 + 0x0100 / 16))
 				{
-					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
-						|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_INF_HEALTH)
+							|| antiCheat (
+								ElementPtr, TRUE, OPTVAL_FULL_GOD)))
 					{
 						if (!DeltaCrew (ShipPtr, -1))
 							ShipPtr->life_span = 0;
@@ -791,8 +792,9 @@ marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 				GetElementStarShip (ElementPtr0, &StarShipPtr);
 
-				if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
-					|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
+				if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_INF_HEALTH)
+						|| antiCheat (
+							ElementPtr1, FALSE, OPTVAL_FULL_GOD)))
 				{
 					if (!DeltaCrew (ElementPtr1, -1))
 						ElementPtr1->life_span = 0;
@@ -1013,8 +1015,8 @@ turret_postprocess (ELEMENT *ElementPtr)
 				UnlockElement (hSpaceMarine);
 				PutElement (hSpaceMarine);
 
-				if (!(antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-					|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET)))
+				if (!(antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+						|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD)))
 				{
 					DeltaCrew (ShipPtr, -1);
 				}

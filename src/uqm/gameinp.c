@@ -453,15 +453,15 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 	}
 	if (keyState[KEY_WEAPON])
 	{
-		if (antiCheatAlt (OPTVAL_ANHUR)
-			|| antiCheatAlt (OPTVAL_SEKHMET))
+		if (antiCheatAlt (OPTVAL_INF_ENERGY)
+				|| antiCheatAlt (OPTVAL_FULL_GOD))
 			resetEnergyBattle ();
 		InputState |= BATTLE_WEAPON;
 	}
 	if (keyState[KEY_SPECIAL])
 	{
-		if (antiCheatAlt (OPTVAL_ANHUR)
-			|| antiCheatAlt (OPTVAL_SEKHMET))
+		if (antiCheatAlt (OPTVAL_INF_ENERGY)
+				|| antiCheatAlt (OPTVAL_FULL_GOD))
 			resetEnergyBattle ();
 		InputState |= BATTLE_SPECIAL;
 	}

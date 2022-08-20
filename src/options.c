@@ -63,7 +63,7 @@ unsigned int audioQuality;
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;
 BOOLEAN optCheatMode;
-int optPrecursorMode;
+int optGodModes;
 int timeDilationScale;
 BOOLEAN optBubbleWarp;
 BOOLEAN optUnlockShips;

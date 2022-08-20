@@ -76,10 +76,10 @@ typedef enum {
 } OPT_AQUALITYTYPE;
 
 typedef enum {
-	OPTVAL_HUMAN,
-	OPTVAL_ANHUR,
-	OPTVAL_HORUS,
-	OPTVAL_SEKHMET
+	OPTVAL_NO_GOD,
+	OPTVAL_INF_ENERGY,
+	OPTVAL_INF_HEALTH,
+	OPTVAL_FULL_GOD
 } OPT_GODTYPE;
  
 typedef enum {
@@ -132,7 +132,7 @@ typedef struct globalopts_struct {
 	OPT_DRIVERTYPE driver;
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;
-	OPT_GODTYPE precursorMode;
+	OPT_GODTYPE godModes;
 	OPT_TDTYPE tdType;
 	OPT_DATETYPE dateType;
 	OPT_DIFFICULTY difficulty;

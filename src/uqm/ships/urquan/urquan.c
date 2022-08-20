@@ -419,8 +419,8 @@ spawn_fighters (ELEMENT *ElementPtr)
 		COUNT fighter_facing;
 		ELEMENT *FighterElementPtr;
 
-		if (!(antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-			|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET)))
+		if (!(antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+				|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD)))
 		{
 			DeltaCrew (ElementPtr, -1);
 		}

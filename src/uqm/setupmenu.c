@@ -565,7 +565,7 @@ SetDefaults (void)
 	choices[22].selected = opts.speech;
 	choices[23].selected = opts.keepaspect;
  	choices[24].selected = opts.cheatMode;
-	choices[25].selected = opts.precursorMode;
+	choices[25].selected = opts.godModes;
 	choices[26].selected = opts.tdType;
 	choices[27].selected = opts.bubbleWarp;
 	choices[28].selected = opts.unlockShips;
@@ -657,7 +657,7 @@ PropagateResults (void)
 	opts.speech = choices[22].selected;
 	opts.keepaspect = choices[23].selected;
  	opts.cheatMode = choices[24].selected;
-	opts.precursorMode = choices[25].selected;
+	opts.godModes = choices[25].selected;
 	opts.tdType = choices[26].selected;
 	opts.bubbleWarp = choices[27].selected;
 	opts.unlockShips = choices[28].selected;
@@ -1621,7 +1621,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 
  	opts->cheatMode = optCheatMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->precursorMode = res_GetInteger("cheat.precursorMode");
+	opts->godModes = res_GetInteger ("cheat.godModes");
 	opts->tdType = res_GetInteger ("cheat.timeDilation");
 	opts->bubbleWarp = optBubbleWarp ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->unlockShips = optUnlockShips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -2007,8 +2007,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("cheat.kohrStahp", opts->cheatMode == OPTVAL_ENABLED);
 	optCheatMode = opts->cheatMode == OPTVAL_ENABLED;
 
-	res_PutInteger ("cheat.precursorMode", opts->precursorMode);
-	optPrecursorMode = opts->precursorMode;
+	res_PutInteger ("cheat.godModes", opts->godModes);
+	optGodModes = opts->godModes;
 
 	res_PutInteger ("cheat.timeDilation", opts->tdType);
 	timeDilationScale = opts->tdType;

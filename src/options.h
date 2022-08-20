@@ -50,7 +50,7 @@ extern unsigned int audioQuality;
 extern BOOLEAN optRequiresReload;
 extern BOOLEAN optRequiresRestart;
 extern BOOLEAN optCheatMode;
-extern int optPrecursorMode;
+extern int optGodModes;
 extern int timeDilationScale;
 extern BOOLEAN optBubbleWarp;
 extern BOOLEAN optUnlockShips;

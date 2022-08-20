@@ -199,8 +199,8 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2),
 						EPtr);
 			}
-			if (antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-				|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET))
+			if (antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+					|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD))
 			{
 				EPtr->thrust_wait = 5;
 			} else {
@@ -350,8 +350,8 @@ initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 		PumpUpPtr->postprocess_func = pump_up_postprocess;
 		PumpUpPtr->collision_func = pump_up_collision;
 
-		if (antiCheat (ShipPtr, FALSE, OPTVAL_HORUS)
-			|| antiCheat (ShipPtr, FALSE, OPTVAL_SEKHMET))
+		if (antiCheat (ShipPtr, FALSE, OPTVAL_INF_HEALTH)
+				|| antiCheat (ShipPtr, FALSE, OPTVAL_FULL_GOD))
 		{
 			PumpUpPtr->thrust_wait = 5;
 		} else
@@ -480,8 +480,8 @@ confusion_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				ConfusionPtr->hTarget = StarShipPtr->hShip;
 			}
 
-			if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
-				|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
+			if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_INF_HEALTH)
+					|| antiCheat (ElementPtr1, FALSE, OPTVAL_FULL_GOD)))
 			{
 				ConfusionPtr->life_span = 400;
 			}

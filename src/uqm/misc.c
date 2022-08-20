@@ -226,8 +226,8 @@ void
 do_damage (ELEMENT *ElementPtr, SIZE damage)
 {
 	// God Mode, borrowed from the UQM-HD debug invincibility code
-	if (antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-		|| antiCheat(ElementPtr, FALSE, OPTVAL_SEKHMET))
+	if (antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+			|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD))
 	{
 		damage = 0;
 	}

@@ -299,8 +299,8 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 			// XXX: Why not simply call do_damage()?
 			if (ObjPtr->state_flags & PLAYER_SHIP)
 			{
-				if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
-					|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+				if (!(antiCheat (ElementPtr, TRUE, OPTVAL_INF_HEALTH)
+						|| antiCheat (ElementPtr, TRUE, OPTVAL_FULL_GOD)))
 				{
 					if (!DeltaCrew (ObjPtr, -destruction))
 						ObjPtr->life_span = 0;

@@ -211,8 +211,9 @@ spawn_crew (ELEMENT *ElementPtr)
 				{
 					COUNT crew_loss;
 
-					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
-						|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_INF_HEALTH)
+							|| antiCheat (
+								ElementPtr, TRUE, OPTVAL_FULL_GOD)))
 					{
 						crew_loss = ((MAX_ABANDONERS * (ABANDONER_RANGE - square_root(d_squared))) / ABANDONER_RANGE) + 1;
 					}

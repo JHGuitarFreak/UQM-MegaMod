@@ -150,7 +150,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  resolutionFactor); 
 	DECL_CONFIG_OPTION(int,  loresBlowupScale); 
  	DECL_CONFIG_OPTION(bool, cheatMode);
-	DECL_CONFIG_OPTION(int,  optPrecursorMode);
+	DECL_CONFIG_OPTION(int,  optGodModes);
 	DECL_CONFIG_OPTION(int,  timeDilationScale);
 	DECL_CONFIG_OPTION(bool, bubbleWarp);
 	DECL_CONFIG_OPTION(bool, unlockShips);
@@ -352,7 +352,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  loresBlowupScale,  1),
 #endif
 		INIT_CONFIG_OPTION(  cheatMode,         false ),
-		INIT_CONFIG_OPTION(  optPrecursorMode,  0 ),
+		INIT_CONFIG_OPTION(  optGodModes,  0 ),
 		INIT_CONFIG_OPTION(  timeDilationScale, 0 ),
 		INIT_CONFIG_OPTION(  bubbleWarp,        false ),
 		INIT_CONFIG_OPTION(  unlockShips,       false ),
@@ -573,7 +573,7 @@ main (int argc, char *argv[])
 	resolutionFactor = (unsigned int) options.resolutionFactor.value;
 	loresBlowupScale = (unsigned int) options.loresBlowupScale.value;
 	
-	optPrecursorMode = options.optPrecursorMode.value;
+	optGodModes = options.optGodModes.value;
 	timeDilationScale = options.timeDilationScale.value;
 	optBubbleWarp = options.bubbleWarp.value;
 	optUnlockShips = options.unlockShips.value;
@@ -942,10 +942,10 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->cheatMode, "cheat.kohrStahp");
 	
-	if (res_IsInteger ("cheat.precursorMode") && !options->optPrecursorMode.set) {
-		options->optPrecursorMode.value = res_GetInteger ("cheat.precursorMode");
-	}
-	if (res_IsInteger ("cheat.timeDilation") && !options->timeDilationScale.set) {
+	if (res_IsInteger ("cheat.godModes") && !options->optGodModes.set)
+		options->optGodModes.value = res_GetInteger ("cheat.godModes");
+
+	if (res_IsInteger ("cheat.timeDilation") && !options->timeDilationScale.set){
 		options->timeDilationScale.value = res_GetInteger ("cheat.timeDilation");
 	}
 	getBoolConfigValue (&options->bubbleWarp, "cheat.bubbleWarp");
@@ -1540,19 +1540,23 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case CHEATMODE_OPT:
 				setBoolOption (&options->cheatMode, true);
 				break;
-			case GODMODE_OPT: {
+			case GODMODE_OPT:
+			{
 				int temp;
-				if (parseIntOption(optarg, &temp, "Precursor Mode") == -1) {
+				if (parseIntOption (optarg, &temp, "God Modes") == -1)
+				{
 					badArg = true;
 					break;
 				}
-				else if (temp < 0 || temp > 2) {
-					saveError("\nPrecursor Mode has to be 0, 1, or 2.\n");
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nGod Mode has to be 0, 1, or 2.\n");
 					badArg = true;
 				}
-				else {
-					options->optPrecursorMode.value = temp;
-					options->optPrecursorMode.set = true;
+				else
+				{
+					options->optGodModes.value = temp;
+					options->optGodModes.set = true;
 				}
 				break;
 			}

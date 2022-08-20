@@ -167,8 +167,8 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 		GetElementStarShip (ElementPtr1, &StarShipPtr);
 		RDPtr = StarShipPtr->RaceDescPtr;
-		if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
-			|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
+		if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_INF_HEALTH)
+				|| antiCheat (ElementPtr1, FALSE, OPTVAL_FULL_GOD)))
 		{
 			if (++RDPtr->characteristics.turn_wait == 0)
 				--RDPtr->characteristics.turn_wait;
