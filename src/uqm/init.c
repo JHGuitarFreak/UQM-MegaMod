@@ -258,7 +258,7 @@ InitShips (void)
 
 		if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
 			free_gravity_well ();
-		else if (!optMeleeObstacles || isNetwork ())
+		else
 		{
 #define NUM_ASTEROIDS 5
 			for (i = 0; i < NUM_ASTEROIDS; ++i)

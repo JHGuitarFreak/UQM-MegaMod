@@ -51,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
 - Realigned the stars via the .ani to get rid of HD compensation code for the Starmap - Kruzen
 - Fixed bug when exiting game via F10 while entering a captain's name on a new game then immediately starting a new game autofills the captain's name as "UNNAMED"
+- Fixed bug with No Melee Obstacles cheat that caused hard crashes
 
 
 ## [v0.8.1]

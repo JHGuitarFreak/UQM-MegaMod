@@ -47,7 +47,9 @@ spawn_planet (void)
 		LockElement (hPlanetElement, &PlanetElementPtr);
 		PlanetElementPtr->playerNr = NEUTRAL_PLAYER_NUM;
 		PlanetElementPtr->hit_points = 200;
-		PlanetElementPtr->state_flags = APPEARING;
+		PlanetElementPtr->state_flags =
+				optMeleeObstacles && !isNetwork ()
+					? DISAPPEARING : APPEARING;
 		PlanetElementPtr->life_span = NORMAL_LIFE + 1;
 		SetPrimType (&DisplayArray[PlanetElementPtr->PrimIndex], STAMP_PRIM);
 		PlanetElementPtr->current.image.farray = planet;
@@ -168,7 +170,9 @@ spawn_asteroid (ELEMENT *ElementPtr)
 		AsteroidElementPtr->playerNr = NEUTRAL_PLAYER_NUM;
 		AsteroidElementPtr->hit_points = 1;
 		AsteroidElementPtr->mass_points = 3;
-		AsteroidElementPtr->state_flags = APPEARING;
+		AsteroidElementPtr->state_flags =
+				optMeleeObstacles && !isNetwork ()
+					? DISAPPEARING : APPEARING;
 		AsteroidElementPtr->life_span = NORMAL_LIFE;
 		SetPrimType (&DisplayArray[AsteroidElementPtr->PrimIndex], STAMP_PRIM);
 		if ((val = (COUNT)TFB_Random ()) & (1 << 0))
