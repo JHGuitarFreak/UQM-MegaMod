@@ -368,7 +368,7 @@ extern void RerenderPlanetSphere (void);
 extern void RenderDOSPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame,
 		int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width,
-		COUNT height, COUNT radius, BOOLEAN ForIP);
+		COUNT height, COUNT radius);
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
 
 extern void ZoomInPlanetSphere (void);
