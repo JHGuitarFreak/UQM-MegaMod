@@ -824,19 +824,19 @@ DrawFlagshipStats (void)
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 
-	snprintf (buf, sizeof buf, "%-7.7s",
+	snprintf (buf, sizeof buf, "%s",
 			describeWeapon (GLOBAL_SIS (ModuleSlots[15])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf, "%-7.7s",
+	snprintf (buf, sizeof buf, "%s",
 			describeWeapon (GLOBAL_SIS (ModuleSlots[14])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf, "%-7.7s",
+	snprintf (buf, sizeof buf, "%s",
 			describeWeapon (GLOBAL_SIS (ModuleSlots[13])));
 	font_DrawText (&t);
 	t.baseline.y += leading;
-	snprintf (buf, sizeof buf, "%-7.7s",
+	snprintf (buf, sizeof buf, "%s",
 			describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
 	font_DrawText (&t);
 

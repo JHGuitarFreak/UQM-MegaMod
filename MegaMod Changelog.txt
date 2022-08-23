@@ -40,6 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Slylandro, Chmmr, Hayes, Orz, Talking Pet, VUX, Safe Ones, and Syreen color changes all done via color filters - Kruzen
 - Made directional text input look more like 3DO text input
 - Changed Starmap controls for gamepads and updated the in-game helpers to reflect the new controls
+- Expand the width of name variables to allow for unicode character widths.
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden

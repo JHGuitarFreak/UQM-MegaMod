@@ -35,7 +35,8 @@ extern "C" {
 
 // The savefile tag numbers.
 #define SAVEFILE_TAG     0x01534d55 // "UMS\x01": UQM Save version 1
-#define MEGA_TAG		 0x4147454D // "MEGA": MegaMod Save version 2
+#define MEGA_TAG         0x4147454D // "MEGA": MegaMod Save version 2
+#define MMV3_TAG         0x33564D4D // "MMV3": MegaMod Save version 3
 #define SUMMARY_TAG      0x6d6d7553 // "Summ": Summary. Must be first!
 #define GLOBAL_STATE_TAG 0x74536c47 // "GlSt": Global State. Must be 2nd!
 #define GAME_STATE_TAG   0x74536d47 // "GmSt": Game State Bits. Must be 3rd!

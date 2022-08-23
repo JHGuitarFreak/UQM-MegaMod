@@ -990,9 +990,9 @@ LoadSisState (SIS_STATE *SSPtr, void *fp)
 			read_8   (fp, &SSPtr->NumLanders) != 1 ||
 			read_a16 (fp, SSPtr->ElementAmounts, NUM_ELEMENT_CATEGORIES) != 1 ||
 
-			read_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1 ||
+			read_str (fp, SSPtr->ShipName, LEGACY_SIS_NAME_SIZE) != 1 ||
+			read_str (fp, SSPtr->CommanderName, LEGACY_SIS_NAME_SIZE) != 1 ||
+			read_str (fp, SSPtr->PlanetName, LEGACY_SIS_NAME_SIZE) != 1 ||
 
 			read_16  (fp, NULL) != 1 /* padding */
 		)

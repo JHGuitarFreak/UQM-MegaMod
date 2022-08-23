@@ -130,7 +130,8 @@ enum
 	{3 +  0, 30 + (5 * 16)}, \
 	{3 + 42, 30 + (5 * 16)},
 
-#define SIS_NAME_SIZE 16
+#define SIS_NAME_SIZE 32
+#define LEGACY_SIS_NAME_SIZE 16
 #define LEGACY_SAVE_NAME_SIZE 32
 #define LEGACY_SAVE_NAME_CHECKER "superbutcherX !"
 #define SAVE_CHECKER_SIZE SIS_NAME_SIZE

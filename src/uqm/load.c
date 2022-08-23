@@ -456,8 +456,10 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 }
 
 static BOOLEAN
-LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core)
+LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
+		BOOLEAN legacyMM)
 {
+	COUNT SisNameSize = legacyMM ? LEGACY_SIS_NAME_SIZE : SIS_NAME_SIZE;
 	if (
 			read_32s (fp, &SSPtr->log_x) != 1 ||
 			read_32s (fp, &SSPtr->log_y) != 1 ||
@@ -472,9 +474,9 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core)
 			read_8   (fp, &SSPtr->NumLanders) != 1 ||
 			read_a16 (fp, SSPtr->ElementAmounts, NUM_ELEMENT_CATEGORIES) != 1 ||
 
-			read_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1 ||
+			read_str (fp, SSPtr->ShipName, SisNameSize) != 1 ||
+			read_str (fp, SSPtr->CommanderName, SisNameSize) != 1 ||
+			read_str (fp, SSPtr->PlanetName, SisNameSize) != 1 ||
 			(!try_core && (read_8 (fp, &SSPtr->Difficulty) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Extended) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Nomad) != 1)) ||
@@ -501,12 +503,16 @@ static BOOLEAN
 LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 {
 	DWORD magic;
-	DWORD magicTag = try_core ? SAVEFILE_TAG : MEGA_TAG;
+	DWORD magicTag = try_core ? SAVEFILE_TAG : MMV3_TAG;
 	DWORD nameSize = 0;
+	BOOLEAN legacyMM = FALSE;
 	if (!read_32 (fp, &magic))
 		return FALSE;
-	if (magic == magicTag)
+	if (magic == magicTag || magic == MEGA_TAG)
 	{
+		if (magic == MEGA_TAG)
+			legacyMM = TRUE;
+
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
 		if (read_32 (fp, &magic) != 1 || magic < 160)
@@ -518,7 +524,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 		return FALSE;
 	}
 
-	if (!LoadSisState (&SummPtr->SS, fp, try_core))
+	if (!LoadSisState (&SummPtr->SS, fp, try_core, legacyMM))
 		return FALSE;
 	
 	if (try_core)
