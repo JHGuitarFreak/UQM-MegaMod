@@ -538,6 +538,8 @@ InitGameStructures (void)
 			break;
 		case HARD:
 			GLOBAL (ElementWorth[EXOTIC]) = 16;
+			SET_GAME_STATE (CREW_PURCHASED0, LOBYTE (100));
+			SET_GAME_STATE (CREW_PURCHASED1, HIBYTE (100));
 			break;
 	}
 
