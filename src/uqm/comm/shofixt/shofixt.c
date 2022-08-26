@@ -24,7 +24,7 @@
 #include "uqm/gameev.h"
 
 
-static LOCDATA shofixti_desc_orig =
+static LOCDATA shofixti_desc =
 {
 	SHOFIXTI_CONVERSATION, /* AlienConv */
 	NULL, /* init_encounter_func */
@@ -41,7 +41,7 @@ static LOCDATA shofixti_desc_orig =
 	SHOFIXTI_COLOR_MAP, /* AlienColorMap */
 	SHOFIXTI_MUSIC, /* AlienSong */
 	{
-		NULL_RESOURCE, /* AlienAltFrame */
+		SHOFIXTI_ALT_PMAP_ANIM, /* AlienAltFrame */
 		NULL_RESOURCE, /* AlienAltColorMap */
 		NULL_RESOURCE, /* AlienAltSong */
 	},
@@ -149,128 +149,6 @@ static LOCDATA shofixti_desc_orig =
 	{ /* AlienTalkDesc */
 		1, /* StartIndex */
 		4, /* NumFrames */
-		0, /* AnimFlags */
-		ONE_SECOND / 20, 0, /* FrameRate */
-		ONE_SECOND / 15, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	NULL, /* AlienNumberSpeech - none */
-	/* Filler for loaded resources */
-	NULL, NULL, NULL,
-	NULL,
-	NULL,
-};
-
-static LOCDATA shofixti_desc_hd =
-{
-	SHOFIXTI_CONVERSATION, /* AlienConv */
-	NULL, /* init_encounter_func */
-	NULL, /* post_encounter_func */
-	NULL, /* uninit_encounter_func */
-	SHOFIXTI_PMAP_ANIM, /* AlienFrame */
-	SHOFIXTI_FONT, /* AlienFont */
-	WHITE_COLOR_INIT, /* AlienTextFColor */
-	BLACK_COLOR_INIT, /* AlienTextBColor */
-	{0, 0}, /* AlienTextBaseline */
-	0, /* SIS_TEXT_WIDTH, */ /* AlienTextWidth */
-	ALIGN_CENTER, /* AlienTextAlign */
-	VALIGN_TOP, /* AlienTextValign */
-	SHOFIXTI_COLOR_MAP, /* AlienColorMap */
-	SHOFIXTI_MUSIC, /* AlienSong */
-	{
-		NULL_RESOURCE, /* AlienAltFrame */
-		NULL_RESOURCE, /* AlienAltColorMap */
-		NULL_RESOURCE, /* AlienAltSong */
-	},
-	SHOFIXTI_CONVERSATION_PHRASES, /* PlayerPhrases */
-	8, /* NumAnimations */
-	{ /* AlienAmbientArray (ambient animations) */
-		{ /* 0 bottom left star */
-			1, /* StartIndex */
-			6, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* RestartRate */
-			(1 << 2), /* BlockMask */
-		},
-		{ /* 1 bottom right star */
-			7, /* StartIndex */
-			6, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* RestartRate */
-			(1 << 3), /* BlockMask */
-		},
-		{ /* 2 top left star */
-			13, /* StartIndex */
-			5, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* RestartRate */
-			(1 << 0), /* BlockMask */
-		},
-		{ /* 3 top right star */
-			18, /* StartIndex */
-			5, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* RestartRate */
-			(1 << 1), /* BlockMask */
-		},
-		{ /* 4 eye blink */
-			23, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 30, 0, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* 5 right hand */
-			26, /* StartIndex */
-			3, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 10, 0, /* FrameRate */
-			(ONE_SECOND >> 1), (ONE_SECOND >> 1) * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* 6 radar */
-			34, /* StartIndex */
-			8, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 10, 0, /* FrameRate */
-			ONE_SECOND / 10, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{ /* 7 left hand */
-			42, /* StartIndex */
-			3, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 10, 0, /* FrameRate */
-			(ONE_SECOND >> 1), (ONE_SECOND >> 1) * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-#ifdef WHEN_GRAPHICS_ARE_DONE
-		{ /* 8 upper-middle left star */
-			45, /* StartIndex */
-			6, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* FrameRate */
-			ONE_SECOND / 20, ONE_SECOND / 30, /* RestartRate */
-			(1 << 10), /* BlockMask */
-		},
-#endif
-	},
-	{ /* AlienTransitionDesc */
-		0, /* StartIndex */
-		0, /* NumFrames */
-		0, /* AnimFlags */
-		0, 0, /* FrameRate */
-		0, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	{ /* AlienTalkDesc */
-		29, /* StartIndex */
-		5, /* NumFrames */
 		0, /* AnimFlags */
 		ONE_SECOND / 20, 0, /* FrameRate */
 		ONE_SECOND / 15, 0, /* RestartRate */
@@ -747,10 +625,7 @@ post_shofixti_enc (void)
 LOCDATA*
 init_shofixti_comm (void)
 {
-	static LOCDATA shofixti_desc;
  	LOCDATA *retval;
-	
-	shofixti_desc = RES_BOOL (shofixti_desc_orig, shofixti_desc_hd);
 
 	shofixti_desc.init_encounter_func = Intro;
 	shofixti_desc.post_encounter_func = post_shofixti_enc;
@@ -759,6 +634,8 @@ init_shofixti_comm (void)
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
+	if (EXTENDED)
+		altResFlags |= USE_ALT_FRAME;
 
 	shofixti_desc.AlienTextBaseline.x =
 			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
