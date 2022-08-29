@@ -49,6 +49,7 @@
 #include "libs/log.h"
 #include "libs/misc.h"
 #include "scan.h"
+#include "libs/graphics/cmap.h"
 
 #include "../hyper.h"
 		// for SOL_X/Y
@@ -366,6 +367,75 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 	(*system->genFuncs->generateMoons) (system, planet);
 }
 
+static void
+LoadPixelatedSun (void)
+{
+	if (optNebulae)
+	{
+		COUNT i;
+		BYTE *pix, *pIter;
+		Color *map, *mIter;
+		SIZE width, height;
+		RECT r;
+		Color AColor;
+
+		FRAME idxFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_RGB_PMAP_ANIM));
+
+		for (i = 0; i < 5; i++)
+		{		
+			SIZE x, y;
+			GetFrameRect (idxFrame, &r);
+			width = r.extent.width;
+			height = r.extent.height;
+
+			pix = HMalloc (sizeof (BYTE) * width * height);
+			map = HMalloc (sizeof (Color) * width * height);
+
+			pIter = pix;
+			mIter = map;
+
+			ReadFramePixelIndexes (idxFrame, pix, width, height, TRUE);
+			ReadFramePixelColors (SunFrame, map, width, height);
+
+			AColor = GetColorMapColor (56, 239);
+
+
+			for (y = 0; y < height; ++y)
+				for (x = 0; x < width; ++x, ++pIter, ++mIter)
+				{
+					if (mIter->a == 0)// Fully transparent color
+						continue;
+
+					if (mIter->a != 0xFF)// partially transparent
+					{
+						mIter->r = AColor.r;
+						mIter->g = AColor.g;
+						mIter->b = AColor.b;
+					}
+
+					if (mIter->a == 0xFF)// opaque
+					{
+						*mIter = GetColorMapColor (56, *pIter);
+					}
+				}
+
+			WriteFramePixelColors (SunFrame, map, width, height);
+
+			HFree (map);
+			HFree (pix);
+
+			idxFrame = IncFrameIndex (idxFrame);
+			SunFrame = IncFrameIndex (SunFrame);			
+		}
+
+		DestroyDrawable (ReleaseDrawable (idxFrame));
+		idxFrame = 0;
+	}
+	else
+		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+}
+
 void
 FreeIPData (void)
 {
@@ -416,11 +486,11 @@ LoadIPData (void)
 				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
 
-		SetColorMap(GetColorMapAddress(SetAbsColorMapIndex(
-			SunCMap, STAR_COLOR(CurStarDescPtr->Type))));
+		SetColorMap (GetColorMapAddress (SetAbsColorMapIndex(
+			SunCMap, STAR_COLOR (CurStarDescPtr->Type))));
 
 		if (!IS_HD)
-			SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+			LoadPixelatedSun ();
 		else
 		{
 			RESOURCE maskAnim = SUNYELLOW_MASK_PMAP_ANIM;
