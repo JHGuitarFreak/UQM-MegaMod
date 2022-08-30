@@ -102,7 +102,6 @@ FRAME SISIPFrame;
 FRAME SunFrame;
 FRAME OrbitalFrame;
 FRAME OrbitalShield;
-FRAME OldOrbitalFrame;
 FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
@@ -451,8 +450,6 @@ FreeIPData (void)
 	OrbitalFrame = 0;
 	DestroyDrawable (ReleaseDrawable (OrbitalShield));
 	OrbitalShield = 0;
-	DestroyDrawable (ReleaseDrawable (OldOrbitalFrame));
-	OldOrbitalFrame = 0;
 	DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 	SpaceJunkFrame = 0;
 	DestroyMusic (SpaceMusic);
@@ -479,11 +476,9 @@ LoadIPData (void)
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
-				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
+				LoadGraphic (isPC (optPlanetStyle) ? DOS_ORBPLAN_MASK_PMAP_ANIM : ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalShield = CaptureDrawable (
 				LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
-		OldOrbitalFrame = CaptureDrawable (
-				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
 
 		SetColorMap (GetColorMapAddress (SetAbsColorMapIndex(
@@ -922,6 +917,36 @@ FreeSolarSys (void)
 		}
 	// End clean up
 	}
+	else if (isPC (optPlanetStyle))
+	{// we need to destroy DOS style planets because they are cut from the main frame
+	 // and stored separately therefore they aren't destroyed with OrbitFrame
+		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
+			i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
+		{
+			DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
+			pCurDesc->image.frame = 0;
+		}
+
+		if (playerInInnerSystem())
+		{
+			COUNT numMoons;
+			if (worldIsMoon(pSolarSysState, pSolarSysState->pOrbitalDesc))
+				numMoons =
+					pSolarSysState->pOrbitalDesc->pPrevDesc->NumPlanets;
+			else
+				numMoons = pSolarSysState->pOrbitalDesc->NumPlanets;
+
+			for (i = 0, pCurDesc = pSolarSysState->MoonDesc;
+				i < numMoons; ++i, ++pCurDesc)
+			{
+				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
+				{					
+					DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
+					pCurDesc->image.frame = 0;
+				}
+			}
+		}
+	}
 	// FreeIPData ();
 }
 
@@ -1107,7 +1132,7 @@ SetPlanetOldFrame (COUNT index, COUNT color)
 	FRAME oldFrame, newFrame;
 	RECT r;
 
-	oldFrame = SetAbsFrameIndex (OldOrbitalFrame, index);
+	oldFrame = SetAbsFrameIndex (OrbitalFrame, index);
 	GetFrameRect(oldFrame, &r);
 
 	r.corner.y = 0; // messed because of sprite hotspot
@@ -1613,6 +1638,18 @@ leaveInnerSystem (PLANET_DESC *planet)
 			}
 		}
 	}	// End clean up
+	else if (isPC (optPlanetStyle))
+	{
+		for (i = 0, pMoonDesc = pSolarSysState->MoonDesc;
+			i < planet->NumPlanets; ++i, ++pMoonDesc)
+		{
+			if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
+			{
+				DestroyDrawable (ReleaseDrawable (pMoonDesc->image.frame));
+				pMoonDesc->image.frame = 0;
+			}
+		}
+	}
 
 	pSolarSysState->WaitIntersect = outerPlanetWait;
 	// See if we also intersect with another planet, and if we do,
