@@ -49,6 +49,7 @@
 #include "libs/log.h"
 #include "libs/misc.h"
 #include "scan.h"
+#include "libs/graphics/cmap.h"
 
 #include "../hyper.h"
 		// for SOL_X/Y
@@ -101,7 +102,6 @@ FRAME SISIPFrame;
 FRAME SunFrame;
 FRAME OrbitalFrame;
 FRAME OrbitalShield;
-FRAME OldOrbitalFrame;
 FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
@@ -366,6 +366,75 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 	(*system->genFuncs->generateMoons) (system, planet);
 }
 
+static void
+LoadPixelatedSun (void)
+{
+	if (optNebulae)
+	{
+		COUNT i;
+		BYTE *pix, *pIter;
+		Color *map, *mIter;
+		SIZE width, height;
+		RECT r;
+		Color AColor;
+
+		FRAME idxFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_RGB_PMAP_ANIM));
+
+		for (i = 0; i < 5; i++)
+		{		
+			SIZE x, y;
+			GetFrameRect (idxFrame, &r);
+			width = r.extent.width;
+			height = r.extent.height;
+
+			pix = HMalloc (sizeof (BYTE) * width * height);
+			map = HMalloc (sizeof (Color) * width * height);
+
+			pIter = pix;
+			mIter = map;
+
+			ReadFramePixelIndexes (idxFrame, pix, width, height, TRUE);
+			ReadFramePixelColors (SunFrame, map, width, height);
+
+			AColor = GetColorMapColor (56, 239);
+
+
+			for (y = 0; y < height; ++y)
+				for (x = 0; x < width; ++x, ++pIter, ++mIter)
+				{
+					if (mIter->a == 0)// Fully transparent color
+						continue;
+
+					if (mIter->a != 0xFF)// partially transparent
+					{
+						mIter->r = AColor.r;
+						mIter->g = AColor.g;
+						mIter->b = AColor.b;
+					}
+
+					if (mIter->a == 0xFF)// opaque
+					{
+						*mIter = GetColorMapColor (56, *pIter);
+					}
+				}
+
+			WriteFramePixelColors (SunFrame, map, width, height);
+
+			HFree (map);
+			HFree (pix);
+
+			idxFrame = IncFrameIndex (idxFrame);
+			SunFrame = IncFrameIndex (SunFrame);			
+		}
+
+		DestroyDrawable (ReleaseDrawable (idxFrame));
+		idxFrame = 0;
+	}
+	else
+		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+}
+
 void
 FreeIPData (void)
 {
@@ -381,8 +450,6 @@ FreeIPData (void)
 	OrbitalFrame = 0;
 	DestroyDrawable (ReleaseDrawable (OrbitalShield));
 	OrbitalShield = 0;
-	DestroyDrawable (ReleaseDrawable (OldOrbitalFrame));
-	OldOrbitalFrame = 0;
 	DestroyDrawable (ReleaseDrawable (SpaceJunkFrame));
 	SpaceJunkFrame = 0;
 	DestroyMusic (SpaceMusic);
@@ -409,18 +476,16 @@ LoadIPData (void)
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
-				LoadGraphic (ORBPLAN_MASK_PMAP_ANIM));
+				LoadGraphic (isPC (optPlanetStyle) ? DOS_ORBPLAN_MASK_PMAP_ANIM : ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalShield = CaptureDrawable (
 				LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
-		OldOrbitalFrame = CaptureDrawable (
-				LoadGraphic (DOS_ORBPLAN_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
 
-		SetColorMap(GetColorMapAddress(SetAbsColorMapIndex(
-			SunCMap, STAR_COLOR(CurStarDescPtr->Type))));
+		SetColorMap (GetColorMapAddress (SetAbsColorMapIndex(
+			SunCMap, STAR_COLOR (CurStarDescPtr->Type))));
 
 		if (!IS_HD)
-			SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+			LoadPixelatedSun ();
 		else
 		{
 			RESOURCE maskAnim = SUNYELLOW_MASK_PMAP_ANIM;
@@ -852,6 +917,36 @@ FreeSolarSys (void)
 		}
 	// End clean up
 	}
+	else if (isPC (optPlanetStyle))
+	{// we need to destroy DOS style planets because they are cut from the main frame
+	 // and stored separately therefore they aren't destroyed with OrbitFrame
+		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
+			i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
+		{
+			DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
+			pCurDesc->image.frame = 0;
+		}
+
+		if (playerInInnerSystem())
+		{
+			COUNT numMoons;
+			if (worldIsMoon(pSolarSysState, pSolarSysState->pOrbitalDesc))
+				numMoons =
+					pSolarSysState->pOrbitalDesc->pPrevDesc->NumPlanets;
+			else
+				numMoons = pSolarSysState->pOrbitalDesc->NumPlanets;
+
+			for (i = 0, pCurDesc = pSolarSysState->MoonDesc;
+				i < numMoons; ++i, ++pCurDesc)
+			{
+				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
+				{					
+					DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
+					pCurDesc->image.frame = 0;
+				}
+			}
+		}
+	}
 	// FreeIPData ();
 }
 
@@ -1037,7 +1132,7 @@ SetPlanetOldFrame (COUNT index, COUNT color)
 	FRAME oldFrame, newFrame;
 	RECT r;
 
-	oldFrame = SetAbsFrameIndex (OldOrbitalFrame, index);
+	oldFrame = SetAbsFrameIndex (OrbitalFrame, index);
 	GetFrameRect(oldFrame, &r);
 
 	r.corner.y = 0; // messed because of sprite hotspot
@@ -1543,6 +1638,18 @@ leaveInnerSystem (PLANET_DESC *planet)
 			}
 		}
 	}	// End clean up
+	else if (isPC (optPlanetStyle))
+	{
+		for (i = 0, pMoonDesc = pSolarSysState->MoonDesc;
+			i < planet->NumPlanets; ++i, ++pMoonDesc)
+		{
+			if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
+			{
+				DestroyDrawable (ReleaseDrawable (pMoonDesc->image.frame));
+				pMoonDesc->image.frame = 0;
+			}
+		}
+	}
 
 	pSolarSysState->WaitIntersect = outerPlanetWait;
 	// See if we also intersect with another planet, and if we do,

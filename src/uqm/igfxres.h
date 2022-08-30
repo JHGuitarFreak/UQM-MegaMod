@@ -338,6 +338,7 @@
 #define SUNYELLOW_MASK_PMAP_ANIM "graphics.truespacesunyellow"
 #define SUN_DEVICE_MASK_PMAP_ANIM "graphics.sundevice"
 #define SUN_MASK_PMAP_ANIM "graphics.truespacesun"
+#define SUN_MASK_RGB_PMAP_ANIM "graphics.rgb.truespacesun"
 #define TAALO_DEVICE_MASK_PMAP_ANIM "graphics.taalodevice"
 #define TITAN_MASK_ANIM "graphics.titanmask"
 #define TITLE_ANIM "graphics.title"
