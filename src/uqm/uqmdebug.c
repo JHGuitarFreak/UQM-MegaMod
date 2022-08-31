@@ -498,6 +498,12 @@ raceName (BYTE func_index)
 			return "Syreen";
 		case KOHR_AH_ID:
 			return "Kohr-Ah";
+		case ANDROSYNTH_ID:
+			return "Androsynth";
+		case CHENJESU_ID:
+			return "Chenjesu";
+		case MMRNMHRM_ID:
+			return "Mmrnmhrm";
 		default:
 			// Should not happen
 			return "???";

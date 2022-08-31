@@ -789,8 +789,10 @@ InitialSyreen (RESPONSE_REF R)
 static void
 PlanAmbush (RESPONSE_REF R)
 {
-	HFLEETINFO hSyreen = GetStarShipFromIndex(&GLOBAL(avail_race_q), SYREEN_SHIP);
-	FLEET_INFO *SyreenPtr = LockFleetInfo(&GLOBAL(avail_race_q), hSyreen);
+	HFLEETINFO hSyreen =
+			GetStarShipFromIndex (&GLOBAL (avail_race_q), SYREEN_SHIP);
+	FLEET_INFO *SyreenPtr =
+			LockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
 	(void) R;  // ignored
 	NPCPhrase (OK_FOUND_VAULT);
 
@@ -800,17 +802,15 @@ PlanAmbush (RESPONSE_REF R)
 
 	// Send ambush fleet to Organon.  EncounterPercent for the
 	// Syreen is 0, so this is purely decorative.
-	if (EXTENDED) 
+	if (EXTENDED && SyreenPtr)
 	{
-		if (SyreenPtr)
-		{
-			SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
-			SyreenPtr->loc.x = 4125;
-			SyreenPtr->loc.y = 3770;
-			StartSphereTracking(SYREEN_SHIP);
-			SetRaceDest(SYREEN_SHIP, 6858, 577, 15, (BYTE)~0);
-		}
-		UnlockFleetInfo(&GLOBAL(avail_race_q), hSyreen);
+		SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
+		SyreenPtr->loc.x = 4125;
+		SyreenPtr->loc.y = 3770;
+		StartSphereTracking (SYREEN_SHIP);
+		SetRaceDest (SYREEN_SHIP, 6858, 577, 15, (BYTE)~0);
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
 	}
 
 	Response (whats_my_reward, Foreplay);

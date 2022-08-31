@@ -931,24 +931,24 @@ FreeSolarSys (void)
 				}
 			}
 		}
-	// End clean up
 	}
 	else if (isPC (optPlanetStyle))
-	{// we need to destroy DOS style planets because they are cut from the main frame
-	 // and stored separately therefore they aren't destroyed with OrbitFrame
+	{	// we need to destroy DOS style planets because they are cut from
+		// the main frame and stored separately therefore they aren't
+		// destroyed with OrbitFrame
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
-			i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
+				i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
 			DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
 			pCurDesc->image.frame = 0;
 		}
 
-		if (playerInInnerSystem())
+		if (playerInInnerSystem ())
 		{
 			COUNT numMoons;
-			if (worldIsMoon(pSolarSysState, pSolarSysState->pOrbitalDesc))
+			if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 				numMoons =
-					pSolarSysState->pOrbitalDesc->pPrevDesc->NumPlanets;
+				pSolarSysState->pOrbitalDesc->pPrevDesc->NumPlanets;
 			else
 				numMoons = pSolarSysState->pOrbitalDesc->NumPlanets;
 
@@ -956,8 +956,9 @@ FreeSolarSys (void)
 				i < numMoons; ++i, ++pCurDesc)
 			{
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
-				{					
-					DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
+				{
+					DestroyDrawable (ReleaseDrawable (
+							pCurDesc->image.frame));
 					pCurDesc->image.frame = 0;
 				}
 			}
@@ -1258,8 +1259,8 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 			}
 		}
 
-		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING(
-			ANGLE_TO_FACING(angle));
+		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING (
+			ANGLE_TO_FACING (angle));
 
 		if (!planet->image.frame || (offset != planet->offset_index))
 		{

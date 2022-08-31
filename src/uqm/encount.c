@@ -954,9 +954,8 @@ UninitEncounter (void)
 					if (IS_HD && classicPackPresent)
 						DrawStamp (&saveFrame[1]);
 					else
-					{						
 						DrawFilledRectangle (&r);
-					}
+
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
@@ -968,7 +967,7 @@ UninitEncounter (void)
 							BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x18), 0x50));
 					font_DrawText (&t);
 
-					if (IS_HD)				
+					if (IS_HD)
 						DestroyDrawable (ReleaseDrawable (saveFrame[0].frame));
 
 
@@ -977,8 +976,8 @@ UninitEncounter (void)
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 
-					if (IS_HD)					
-						saveFrame[0] = SetTextFrameRect (str1, str2, &scavenge_r);					
+					if (IS_HD)
+						saveFrame[0] = SetTextFrameRect (str1, str2, &scavenge_r);
 
 					DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame[0]);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
