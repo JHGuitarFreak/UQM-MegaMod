@@ -241,6 +241,22 @@ playerInInnerSystem (void)
 }
 
 static void
+DrawIntersectFrame (PLANET_DESC *pPlanDesc)
+{// Do NOT use in inner system - works janky
+ // Feel free to fix it :)
+ // For DEBUG only
+	STAMP debug;
+
+	SetContextForeGroundColor (BUILD_COLOR_RGBA(0xFF, 0x69, 0xB4, 0xFF));
+
+	debug.origin = pPlanDesc->image.origin;
+	debug.frame = CaptureDrawable (CloneFrame (pPlanDesc->intersect.frame));
+	DrawFilledStamp (&debug);
+	DestroyDrawable (ReleaseDrawable (debug.frame));
+	debug.frame = 0;
+}
+
+static void
 GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 {
 	COUNT i;
@@ -476,7 +492,7 @@ LoadIPData (void)
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
-				LoadGraphic (isPC (optPlanetStyle) ? DOS_ORBPLAN_MASK_PMAP_ANIM : ORBPLAN_MASK_PMAP_ANIM));
+				LoadGraphic ((!optTexturedPlanets && isPC(optPlanetStyle)) ? DOS_ORBPLAN_MASK_PMAP_ANIM : ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalShield = CaptureDrawable (
 				LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
@@ -2597,7 +2613,7 @@ DrawInnerPlanets (PLANET_DESC *planet)
 	{	// Draw the planet image
 		RotatePlanets (TRUE);
 		DrawTexturedBody (planet, s);
-		
+
 		// Draw the moon images
 		for (i = planet->NumPlanets, moon = pSolarSysState->MoonDesc;
 				i; --i, ++moon)
@@ -2671,6 +2687,10 @@ DrawOuterPlanets (SIZE radius)
 				SetPlanetColorMap (pCurDesc);
 				DrawStamp (&pCurDesc->image);
 			}
+#ifdef NEVER
+			DrawIntersectFrame (pCurDesc);
+#endif
+
 		}
 		if (index == pSolarSysState->LastPlanetIndex)
 			break;
