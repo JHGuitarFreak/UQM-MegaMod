@@ -2687,7 +2687,7 @@ DrawOuterPlanets (SIZE radius)
 				SetPlanetColorMap (pCurDesc);
 				DrawStamp (&pCurDesc->image);
 			}
-#ifdef DEBUG
+#ifdef NEVER
 			DrawIntersectFrame (pCurDesc);
 #endif
 
