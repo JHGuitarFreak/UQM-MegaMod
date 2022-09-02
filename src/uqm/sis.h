@@ -135,6 +135,7 @@ enum
 #define LEGACY_SAVE_NAME_SIZE 32
 #define LEGACY_SAVE_NAME_CHECKER "superbutcherX !"
 #define SAVE_CHECKER_SIZE SIS_NAME_SIZE
+#define LEGACY_SAVE_CHECKER_SIZE LEGACY_SIS_NAME_SIZE
 
 typedef struct
 {

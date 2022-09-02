@@ -1019,13 +1019,13 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 
 	// First we check if there is a savegamename identifier.
 	// The identifier tells us whether the name exists at all.
-	read_str (fp, SummPtr->SaveNameChecker, SAVE_CHECKER_SIZE);
+	read_str (fp, SummPtr->SaveNameChecker, LEGACY_SAVE_CHECKER_SIZE);
 		
 	// If the name doesn't exist (because this most probably
 	// is a savegame from an older version), we have to rewind the
 	// savefile to be able to read the saved variables into their
 	// correct places.
-	if (strncmp(SummPtr->SaveNameChecker, LEGACY_SAVE_NAME_CHECKER, SAVE_CHECKER_SIZE))
+	if (strncmp(SummPtr->SaveNameChecker, LEGACY_SAVE_NAME_CHECKER, LEGACY_SAVE_CHECKER_SIZE))
 	{
 		COUNT i;
 			
@@ -1039,11 +1039,11 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 		memcpy(&temp_fuel, &(SummPtr->SaveNameChecker[2 * sizeof(SDWORD)+ sizeof(DWORD)]), sizeof(DWORD));
 			
 		// Rewind the position in savefile.
-		for (i = 0; i < SAVE_CHECKER_SIZE; i++)
+		for (i = 0; i < LEGACY_SAVE_CHECKER_SIZE; i++)
 			uio_backtrack (1, (uio_Stream *) fp);
 			
 		// Zero the bogus savenamechecker.
-		for (i = 0; i < SAVE_CHECKER_SIZE; i++)
+		for (i = 0; i < LEGACY_SAVE_CHECKER_SIZE; i++)
 			SummPtr->SaveNameChecker[i] = 0;
 			
 		// Make sure the save's name is empty.
