@@ -213,7 +213,9 @@ overlay_blend (Uint8 dc, Uint8 sc)
 static inline Uint8
 screen_blend (Uint8 dc, Uint8 sc, int alpha)
 {	// Custom "screen" blend mode
-	return 255 - (((255 - sc) * (255 - dc)) / 255);
+	(void)alpha;
+
+	return (255 - (((255 - sc) * (255 - dc)) >> 8));
 }
 
 // Assumes 8 bits/channel, a safe assumption for 32bpp surfaces
@@ -381,6 +383,8 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_multiply;
 	case renderOverlay:
 		return &renderpixel_overlay;
+	case renderScreen:
+		return &renderpixel_screen;
 	}
 	// should not ever get here
 	return NULL;
