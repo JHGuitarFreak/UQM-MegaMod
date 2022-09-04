@@ -441,31 +441,31 @@ FuelRequiredTo (POINT dest)
 #define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X)? 1 : 0))
 
 POINT
-GetPointOfEllipse(double a, double b, double radian)
+GetPointOfEllipse (double a, double b, double radian)
 {
-	double t[2] = { a * cos(radian), b * sin(radian) };
-	return (POINT) { (COORD)MATH_ROUND(t[0]), (COORD)MATH_ROUND(t[1]) };
+	double t[2] = { a * cos (radian), b * sin (radian) };
+	return (POINT) { (COORD)MATH_ROUND (t[0]), (COORD)MATH_ROUND (t[1]) };
 }
 
 POINT
-ShiftPoint(POINT p, POINT S)
+ShiftPoint (POINT p, POINT S)
 {
 	return (POINT) { p.x + S.x, p.y + S.y };
 }
 
 POINT
-RotatePoint(POINT p, POINT Pivot, double radian)
+RotatePoint (POINT p, POINT Pivot, double radian)
 {
 	double d[2] = { p.x - Pivot.x, p.y - Pivot.y };
-	double cosine[2] = { cos(radian), sin(radian) };
+	double cosine[2] = { cos (radian), sin (radian) };
 	double x = Pivot.x + (d[0] * cosine[0] - d[1] * cosine[1]);
 	double y = Pivot.y + (d[0] * cosine[1] + d[1] * cosine[0]);
 
-	return (POINT) { MATH_ROUND(x), MATH_ROUND(y) };
+	return (POINT) { MATH_ROUND (x), MATH_ROUND (y) };
 }
 
 BOOLEAN
-onScreen (LINE* l, BOOLEAN ignoreX, BOOLEAN ignoreY)
+onScreen (LINE *l, BOOLEAN ignoreX, BOOLEAN ignoreY)
 {
 	return !((l->first.x < 0 && l->second.x < 0 && !ignoreX)
 			|| (l->first.x >= SIS_SCREEN_WIDTH
