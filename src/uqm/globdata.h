@@ -1170,6 +1170,12 @@ enum {
 #define GET_GAME_STATE(SName) \
 		getGameStateUint (#SName)
 
+// For dynamic variable names
+#define D_SET_GAME_STATE(SName, val) \
+		setGameStateUint (SName, (val))
+#define D_GET_GAME_STATE(SName) \
+		getGameStateUint (SName)
+
 extern CONTEXT RadarContext;
 
 extern void FreeSC2Data (void);

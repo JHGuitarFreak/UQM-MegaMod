@@ -2174,84 +2174,40 @@ playSpaceMusic (void)
 	}
 }
 
-DWORD
-starSwitch (int Index)
+const char *
+visitedBuf (int Index)
 {
-	switch (Index / 32)
-	{
-		case 0: return GET_GAME_STATE (SYS_VISITED_00);
-		case 1: return GET_GAME_STATE (SYS_VISITED_01);
-		case 2: return GET_GAME_STATE (SYS_VISITED_02);
-		case 3: return GET_GAME_STATE (SYS_VISITED_03);
-		case 4: return GET_GAME_STATE (SYS_VISITED_04);
-		case 5: return GET_GAME_STATE (SYS_VISITED_05);
-		case 6: return GET_GAME_STATE (SYS_VISITED_06);
-		case 7: return GET_GAME_STATE (SYS_VISITED_07);
-		case 8: return GET_GAME_STATE (SYS_VISITED_08);
-		case 9: return GET_GAME_STATE (SYS_VISITED_09);
-		case 10: return GET_GAME_STATE (SYS_VISITED_10);
-		case 11: return GET_GAME_STATE (SYS_VISITED_11);
-		case 12: return GET_GAME_STATE (SYS_VISITED_12);
-		case 13: return GET_GAME_STATE (SYS_VISITED_13);
-		case 14: return GET_GAME_STATE (SYS_VISITED_14);
-		case 15: return GET_GAME_STATE (SYS_VISITED_15);
-		default: return 0;
-	}
-}
+	char *buf[255];
 
-void
-starSave (int Index, DWORD starData)
-{
-	switch (Index / 32)
-	{
-		case 0: SET_GAME_STATE (SYS_VISITED_00, starData); break;
-		case 1: SET_GAME_STATE (SYS_VISITED_01, starData); break;
-		case 2: SET_GAME_STATE (SYS_VISITED_02, starData); break;
-		case 3: SET_GAME_STATE (SYS_VISITED_03, starData); break;
-		case 4: SET_GAME_STATE (SYS_VISITED_04, starData); break;
-		case 5: SET_GAME_STATE (SYS_VISITED_05, starData); break;
-		case 6: SET_GAME_STATE (SYS_VISITED_06, starData); break;
-		case 7: SET_GAME_STATE (SYS_VISITED_07, starData); break;
-		case 8: SET_GAME_STATE (SYS_VISITED_08, starData); break;
-		case 9: SET_GAME_STATE (SYS_VISITED_09, starData); break;
-		case 10: SET_GAME_STATE (SYS_VISITED_10, starData); break;
-		case 11: SET_GAME_STATE (SYS_VISITED_11, starData); break;
-		case 12: SET_GAME_STATE (SYS_VISITED_12, starData); break;
-		case 13: SET_GAME_STATE (SYS_VISITED_13, starData); break;
-		case 14: SET_GAME_STATE (SYS_VISITED_14, starData); break;
-		case 15: SET_GAME_STATE (SYS_VISITED_15, starData); break;
-		default: return;
-	}
-}
+	snprintf (buf, sizeof (buf), "SYS_VISITED_%02u", Index / 32);
 
-#define INTERNAL_STAR_INDEX -1
+	return buf;
+}
 
 BOOLEAN
-isStarVisited (int Index)
+isStarVisited (int star_index)
 {
-	COUNT star_index;
+	COUNT starIndex = star_index;
 	DWORD starData;
 
-	if (Index == INTERNAL_STAR_INDEX)
-		star_index = (COUNT)(CurStarDescPtr - star_array);
-	else
-		star_index = Index;
+	if (starIndex == INTERNAL_STAR_INDEX)
+		starIndex = (COUNT)(CurStarDescPtr - star_array);
 
-	starData = starSwitch (star_index);
+	starData = D_GET_GAME_STATE (visitedBuf (starIndex));
 
-	return (starData >> (star_index % 32)) & 1;
+	return (starData >> (starIndex % 32)) & 1;
 }
 
 void
 setStarVisited (void)
 {
-	long star_index;
-	int starData;
+	COUNT star_index;
+	DWORD starData;
 
 	star_index = (COUNT)(CurStarDescPtr - star_array);
-	starData = starSwitch (star_index);
+	starData = D_GET_GAME_STATE (visitedBuf (star_index));
 	starData |= (1 << (star_index % 32));
-	starSave (star_index, starData);
+	D_SET_GAME_STATE (visitedBuf (star_index), starData);
 }
 
 void
@@ -2445,8 +2401,8 @@ InitSolarSys (void)
 		if (!isStarVisited (INTERNAL_STAR_INDEX))
 			setStarVisited ();
 
-		if (isStarReticuled (INTERNAL_STAR_INDEX))
-			setStarReticuled ((COUNT)(CurStarDescPtr - star_array));
+		if (isStarMarked (INTERNAL_STAR_INDEX))
+			setStarMarked (INTERNAL_STAR_INDEX);
 
 		// JMS: This is to prevent flashing the 3do "navigate"
 		// unnecessarily whilst starting a new game.
