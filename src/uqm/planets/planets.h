@@ -392,6 +392,8 @@ extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
 
 extern BOOLEAN isStarVisited (int Index);
+extern BOOLEAN isStarReticuled (int Index);
+extern void setStarReticuled (COUNT star_index);
 
 #if defined(__cplusplus)
 }

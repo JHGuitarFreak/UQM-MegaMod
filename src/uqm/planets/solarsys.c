@@ -2445,6 +2445,9 @@ InitSolarSys (void)
 		if (!isStarVisited (INTERNAL_STAR_INDEX))
 			setStarVisited ();
 
+		if (isStarReticuled (INTERNAL_STAR_INDEX))
+			setStarReticuled ((COUNT)(CurStarDescPtr - star_array));
+
 		// JMS: This is to prevent flashing the 3do "navigate"
 		// unnecessarily whilst starting a new game.
 		// SetFlashRect (NULL);
