@@ -120,6 +120,7 @@ BOOLEAN optShowVisitedStars;
 BOOLEAN optUnscaledStarSystem;
 int optScanSphere;
 int optNebulaeVolume;
+BOOLEAN optSlaughterMode;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

@@ -1006,7 +1006,58 @@ UninitEncounter (void)
 			SET_GAME_STATE (THRADDASH_BODY_COUNT, ships_killed);
 		}
 
-		
+		if (optSlaughterMode && CheckSphereTracking (EncounterRace)
+				&& ships_killed)
+		{
+			HFLEETINFO hEncounter;
+			FLEET_INFO *EncounterPtr;
+			BOOLEAN isBanned = FALSE;
+			BYTE j;
+			const BYTE bannedShip[7] =
+				{
+					PKUNK_SHIP,
+					SHOFIXTI_SHIP,
+					THRADDASH_SHIP,
+					YEHAT_SHIP,
+					MELNORME_SHIP,
+					ILWRATH_SHIP,
+					SLYLANDRO_SHIP
+				};
+
+			for (j = 0; i < ARRAY_SIZE (bannedShip); i++)
+			{
+				if (bannedShip[i] == EncounterRace)
+				{
+					isBanned = TRUE;
+					break;
+				}
+			}
+
+			if (!isBanned)
+			{
+				hEncounter = GetStarShipFromIndex (&GLOBAL (avail_race_q),
+						EncounterRace);
+				EncounterPtr =
+						LockFleetInfo (&GLOBAL (avail_race_q), hEncounter);
+
+				if (EncounterPtr->actual_strength > 0)
+				{
+					SIZE actualStrength = EncounterPtr->actual_strength;
+
+					actualStrength -= ships_killed;
+
+					if (actualStrength <= 0)
+					{
+						EncounterPtr->actual_strength = 0;
+						EncounterPtr->allied_state = DEAD_GUY;
+					}
+					else
+						EncounterPtr->actual_strength = actualStrength;
+				}
+
+				UnlockFleetInfo (&GLOBAL (avail_race_q), hEncounter);
+			}
+		}
 	}
 ExitUninitEncounter:
 

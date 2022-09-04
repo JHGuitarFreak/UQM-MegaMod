@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       77
+#define CHOICE_COUNT       78
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -228,6 +228,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[53]),   // Difficulty
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
+	(WIDGET *)(&choices[77]),   // Slaughter Mode
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[32]),   // Skip Intro
@@ -619,6 +620,7 @@ SetDefaults (void)
 	choices[74].selected = opts.showVisitedStars;
 	choices[75].selected = opts.unscaledStarSystem;
 	choices[76].selected = opts.scanSphere;
+	choices[77].selected = opts.slaughterMode;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -711,6 +713,7 @@ PropagateResults (void)
 	opts.showVisitedStars = choices[74].selected;
 	opts.unscaledStarSystem = choices[75].selected;
 	opts.scanSphere = choices[76].selected;
+	opts.slaughterMode = choices[77].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1674,6 +1677,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->scanSphere = (optScanSphere == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->nebulaevol = res_GetInteger ("mm.nebulaevol");
+	opts->slaughterMode = optSlaughterMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2174,6 +2178,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutInteger ("mm.nebulaevol", opts->nebulaevol);
 	optNebulaeVolume = opts->nebulaevol;
+
+	res_PutBoolean ("mm.slaughterMode", opts->slaughterMode == OPTVAL_ENABLED);
+	optSlaughterMode = opts->slaughterMode == OPTVAL_ENABLED;
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

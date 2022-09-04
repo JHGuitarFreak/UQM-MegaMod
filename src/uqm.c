@@ -202,6 +202,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
 	DECL_CONFIG_OPTION(int,  scanSphere);
 	DECL_CONFIG_OPTION(int,  nebulaevol);
+	DECL_CONFIG_OPTION(bool, slaughterMode);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -408,6 +409,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
 		INIT_CONFIG_OPTION(  scanSphere,        OPT_PC ),
 		INIT_CONFIG_OPTION(  nebulaevol,        25),
+		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -628,6 +630,7 @@ main (int argc, char *argv[])
 	optUnscaledStarSystem = options.unscaledStarSystem.value;
 	optScanSphere = options.scanSphere.value;
 	optNebulaeVolume = options.nebulaevol.value;
+	optSlaughterMode = options.slaughterMode.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1045,6 +1048,8 @@ getUserConfigOptions (struct options_struct *options)
 	{
 		options->nebulaevol.value = res_GetInteger ("mm.nebulaevol");
 	}
+
+	getBoolConfigValue (&options->slaughterMode, "mm.slaughterMode");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1136,6 +1141,7 @@ enum
 	SHOWSTARS_OPT,
 	UNSCALEDSS_OPT,
 	SCANSPH_OPT,
+	SLAUGHTER_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1240,6 +1246,7 @@ static struct option longOptions[] =
 	{"unscaledstarsystem", 0, NULL, UNSCALEDSS_OPT},
 	{"scansphere", 1, NULL, SCANSPH_OPT},
 	{"nebulaevol", 1, NULL, NEBUVOL_OPT},
+	{"slaughtermode", 0, NULL, SLAUGHTER_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1846,6 +1853,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					badArg = true;
 				}
 				break;
+			case SLAUGHTER_OPT:
+				setBoolOption (&options->slaughterMode, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2210,6 +2220,9 @@ usage (FILE *out, const struct options_struct *defaults)
 			" or 3DO scan sphere styles (default: %s)",
 			choiceOptString (&defaults->scanSphere));
 	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
+	log_add (log_User, "  --slaughtermode : Affect a race's SOI by "
+			"destroying their ships in battle (default: %s)",
+			boolOptString (&defaults->slaughterMode));
 
 	log_setOutput (old);
 }

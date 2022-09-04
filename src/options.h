@@ -107,6 +107,7 @@ extern BOOLEAN optShowVisitedStars;
 extern BOOLEAN optUnscaledStarSystem;
 extern int optScanSphere;
 extern int optNebulaeVolume;
+extern BOOLEAN optSlaughterMode;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
