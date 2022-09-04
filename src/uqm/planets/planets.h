@@ -391,8 +391,6 @@ extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
 
-extern BOOLEAN isStarVisited (int Index);
-
 #if defined(__cplusplus)
 }
 #endif

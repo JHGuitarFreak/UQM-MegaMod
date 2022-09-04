@@ -30,15 +30,16 @@ extern POINT *constel_array;
 
 #define NUM_SOLAR_SYSTEMS 502
 
-#define INTERNAL_STAR_INDEX -1
-
 extern STAR_DESC* FindStar (STAR_DESC *pLastStar, POINT *puniverse,
 		SIZE xbounds, SIZE ybounds);
 
 extern void GetClusterName (const STAR_DESC *pSD, UNICODE buf[]);
 
-extern BOOLEAN isStarMarked (int Index);
-extern void setStarMarked (COUNT star_index);
+#define INTERNAL_STAR_INDEX -1
+
+extern BOOLEAN isStarMarked (const int star_index,
+		const char *marker_state);
+extern void setStarMarked (const int star_index, const char *marker_state);
 
 #if defined(__cplusplus)
 }

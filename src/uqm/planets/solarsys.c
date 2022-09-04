@@ -2174,42 +2174,6 @@ playSpaceMusic (void)
 	}
 }
 
-const char *
-visitedBuf (int Index)
-{
-	char *buf[255];
-
-	snprintf (buf, sizeof (buf), "SYS_VISITED_%02u", Index / 32);
-
-	return buf;
-}
-
-BOOLEAN
-isStarVisited (int star_index)
-{
-	COUNT starIndex = star_index;
-	DWORD starData;
-
-	if (starIndex == INTERNAL_STAR_INDEX)
-		starIndex = (COUNT)(CurStarDescPtr - star_array);
-
-	starData = D_GET_GAME_STATE (visitedBuf (starIndex));
-
-	return (starData >> (starIndex % 32)) & 1;
-}
-
-void
-setStarVisited (void)
-{
-	COUNT star_index;
-	DWORD starData;
-
-	star_index = (COUNT)(CurStarDescPtr - star_array);
-	starData = D_GET_GAME_STATE (visitedBuf (star_index));
-	starData |= (1 << (star_index % 32));
-	D_SET_GAME_STATE (visitedBuf (star_index), starData);
-}
-
 void
 ResetSolarSys (void)
 {
@@ -2398,11 +2362,11 @@ InitSolarSys (void)
 
 		ResetSolarSys ();
 
-		if (!isStarVisited (INTERNAL_STAR_INDEX))
-			setStarVisited ();
+		if (!isStarMarked (INTERNAL_STAR_INDEX, "VISITED"))
+			setStarMarked (INTERNAL_STAR_INDEX, "VISITED");
 
-		if (isStarMarked (INTERNAL_STAR_INDEX))
-			setStarMarked (INTERNAL_STAR_INDEX);
+		if (isStarMarked (INTERNAL_STAR_INDEX, "PLYR_MARKER"))
+			setStarMarked (INTERNAL_STAR_INDEX, "PLYR_MARKER");
 
 		// JMS: This is to prevent flashing the 3do "navigate"
 		// unnecessarily whilst starting a new game.

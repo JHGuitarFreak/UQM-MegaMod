@@ -59,7 +59,6 @@ typedef enum {
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
-
 static POINT cursorLoc;
 static POINT mapOrigin;
 static int zoomLevel;
@@ -829,41 +828,46 @@ isHomeworld (BYTE Index)
 }
 
 const char *
-reticuleBuf (int Index)
+markerBuf (const int star_index, const char* marker_state)
 {
 	char *buf[255];
 
-	snprintf (buf, sizeof (buf), "SYS_RETICULE_%02u", Index / 32);
+	// marker_state is the middle part of the Game States
+	// "SYS_VISITED_##" or "SYS_PLYR_MARKER_##" which is used to
+	// differentiate between which kind of marker we're working with.
+
+	snprintf (buf, sizeof (buf), "SYS_%s_%02u", marker_state,
+			star_index / 32);
 
 	return buf;
 }
 
 BOOLEAN
-isStarMarked (int star_index)
+isStarMarked (const int star_index, const char *marker_state)
 {
-	COUNT starIndex = star_index;
+	int starIndex = star_index;
 	DWORD starData;
 
-	if (starIndex == INTERNAL_STAR_INDEX)
+	if (star_index == INTERNAL_STAR_INDEX)
 		starIndex = (COUNT)(CurStarDescPtr - star_array);
 
-	starData = D_GET_GAME_STATE (reticuleBuf (starIndex));
+	starData = D_GET_GAME_STATE (markerBuf (starIndex, marker_state));
 
 	return (starData >> (starIndex % 32)) & 1;
 }
 
 void
-setStarMarked (COUNT star_index)
+setStarMarked (const int star_index, const char *marker_state)
 {
-	COUNT starIndex = star_index;
+	int starIndex = star_index;
 	DWORD starData;
 
 	if (starIndex == INTERNAL_STAR_INDEX)
 		starIndex = (COUNT)(CurStarDescPtr - star_array);
 
-	starData = D_GET_GAME_STATE (reticuleBuf (starIndex));
+	starData = D_GET_GAME_STATE (markerBuf (starIndex, marker_state));
 	starData ^= (1 << (starIndex % 32));
-	D_SET_GAME_STATE (reticuleBuf (starIndex), starData);
+	D_SET_GAME_STATE (markerBuf (starIndex, marker_state), starData);
 }
 
 static void
@@ -1187,12 +1191,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		if (which_space <= 1)
 		{
 			if (which_starmap == NORMAL_STARMAP
-					&& isStarMarked (i))
+					&& isStarMarked (i, "PLYR_MARKER"))
 			{	// This draws reticules over tagged star systems
 				DrawReticule (SDPtr->star_pt, 2);
 			}
 
-			if (optShowVisitedStars && isStarVisited (i)
+			if (optShowVisitedStars && isStarMarked (i, "VISITED")
 					&& which_starmap == NORMAL_STARMAP
 					&& SDPtr->Index != SOL_DEFINED)
 			{
@@ -1527,7 +1531,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 		if (BestSDPtr)
 		{
 			if (optShowVisitedStars
-				&& isStarVisited (starIndex (BestSDPtr->star_pt)))
+					&& isStarMarked (starIndex (BestSDPtr->star_pt),
+						"VISITED"))
 			{
 				UNICODE visBuf[CURSOR_INFO_BUFSIZE] = "";
 
@@ -2207,7 +2212,7 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{
-			setStarMarked (starIndex (cursorLoc));
+			setStarMarked (starIndex (cursorLoc), "PLYR_MARKER");
 
 			DrawStarMap (0, NULL);
 		}
@@ -2224,9 +2229,9 @@ DoMoveCursor (MENU_STATE *pMS)
 
 			for (i = 0; i <= NUM_SOLAR_SYSTEMS; i++)
 			{
-				if (isStarMarked (i))
+				if (isStarMarked (i, "PLYR_MARKER"))
 				{
-					setStarMarked (i);
+					setStarMarked (i, "PLYR_MARKER");
 					DrawStarMap (0, NULL);
 					SleepThread (ONE_SECOND / 8);
 				}
