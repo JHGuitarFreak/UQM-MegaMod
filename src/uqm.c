@@ -2220,7 +2220,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			" or 3DO scan sphere styles (default: %s)",
 			choiceOptString (&defaults->scanSphere));
 	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
-	log_add (log_User, "  --slaughtermode : Affect a race's SOI by "
+	log_add (log_User, "--slaughtermode : Affect a race's SOI by "
 			"destroying their ships in battle (default: %s)",
 			boolOptString (&defaults->slaughterMode));
 
