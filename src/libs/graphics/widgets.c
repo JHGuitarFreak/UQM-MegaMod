@@ -53,6 +53,8 @@ WIDGET *widget_focus = NULL;
 		BUILD_COLOR(MAKE_RGB15(0xD2, 0xB4, 0x8C), 0x00)
 #define WIDGET_LABEL_COLOR \
 		BUILD_COLOR_RGBA (0,119,119, 0)
+#define WIDGET_WARNING_COLOR \
+		BUILD_COLOR_RGBA (177, 39, 71, 255)
 
 #define ONSCREEN 13
 #define SCROLL_OFFSET 3 // The pos from the page edge where we need to start scrolling
@@ -235,6 +237,9 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	Color oldtext = SetContextForeGroundColor (WIDGET_TOOLTIP_COLOR);
 	TEXT t;
 	int i;
+	const UNICODE *amperBang = "&!";
+	const size_t abSize = strlen (amperBang);
+	BOOLEAN warning = FALSE;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -253,7 +258,19 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	for (i = 0; i < numlines; i++)
 	{
 		t.pStr = tips[i];
-		font_DrawText(&t);
+		warning = strncmp (amperBang, t.pStr, abSize) == 0;
+
+		if (warning)
+		{
+			t.pStr += abSize;
+			SetContextForeGroundColor (WIDGET_WARNING_COLOR);
+		}
+
+		font_DrawText (&t);
+
+		if (warning)
+			SetContextForeGroundColor (WIDGET_TOOLTIP_COLOR);
+
 		t.baseline.y += RES_SCALE (9);
 	}
 
