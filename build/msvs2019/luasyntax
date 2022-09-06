@@ -7,3 +7,57 @@ This function returns the Player's flagship name and displays it in the subtitle
 
 Example 2: <% (function() if state.escort.canAddShips("marauder") >= 2 then state.escort.addShips("marauder", 2) end return "" end)() %>
 This function checks to see if your fleet has room for some Marauders and adds 2 Marauders if it does.
+
+List of current Lua UQM functions:
+
+STATE FUNCTIONS
+state.clock.getDate()                                   // Returns a table with the fields 'year', 'month', and 'day'.
+
+state.escort.addShips(string "shipname", int amount)    // Adds the ships from "shipname" and the "amount" of ships to your fleet
+state.escort.canAddShips(string "shipname")             // Checks to see if you have room for "shipname" in your fleet
+state.escort.removeShips(string "shipname", int amount) // Removes the "amount" of "shipname" from your fleet
+state.escort.shipCount(string "shipname")               // Returns the amount of "shipname" you have in your fleet
+state.escort.totalValue()                               // Returns the total value of all the ships in your fleet
+
+state.race.isAlive(string "alienrace")                  // Returns true if "alienrace" is currently alive
+state.race.isKnown(string "alienrace")                  // Returns true if you've met "alienrace" before
+state.race.setAlive(string "alienrace", bool)           // Currently only allows you to kill an "alienrace" by setting "bool" to false
+state.race.setAllied(string "alienrace", bool)          // Change the allegiance of an "alienrace" by setting the "bool" to either true or false
+state.race.setKnown(string "alienrace", bool)           // Change whether the "alienrace" is known by setting the "bool" to either true or false
+
+state.sis.addCrew(int amount)                           // Adds the "amount" of crew to your flagship
+state.sis.addFuel(int amount)                           // Adds the "amount" of fuel to your flagship
+state.sis.addLanders(int amount)                        // Adds the "amount" of landers
+state.sis.addResUnits(int amount)                       // Adds the "amount" of Resource Units
+state.sis.getCaptainName()                              // Returns the Player's Captain name
+state.sis.getCrew()                                     // Returns the Flagship's current amount of crew
+state.sis.getFuel()                                     // Returns the Flagships current amount of fuel
+state.sis.getResUnits()                                 // Returns the Player's current amount of Resource Units
+state.sis.getLanders()                                  // Returns the Player's current amount of landers
+state.sis.getShipName()                                 // Returns the Player's Flagship name
+
+state.prop.get(int name)                                // Returns the gamestate "name" currently set value
+state.prop.set(int name, int|bool|string value)         // Sets the gamestate "name" to "value"
+
+COMM FUNCTIONS
+comm.isPhraseEnabled(string "phraseIdStr")
+comm.disablePhrase(string "phraseIdStr")
+comm.doNpcPhrase(string "phraseIdStr")
+comm.addResponse(string "phraseIdStr", function callback)
+comm.getPhrase(string "phraseIdStr")
+comm.getSegue(int)
+comm.setSegue(int)
+comm.isInOuttakes()
+
+EVENT FUNCTIONS
+event.addAbsolute(int year, int month, int day, string "eventIdStr")
+event.addRelative(int year, int month, int day, string "eventIdStr")
+event.register(string "eventIdStr", function eventFunc)
+event.unregister(string "eventIdStr", function eventFunc)
+
+LOG FUNCTIONS
+log.debug(string "logMessage")
+log.error(string "logMessage")
+log.fatal(string "logMessage")
+log.info(string "logMessage")
+log.warn(string "logMessage")
