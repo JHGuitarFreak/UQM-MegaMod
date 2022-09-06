@@ -1,0 +1,9 @@
+This is a basic rundown on how to write Lua script in the comm dialog files
+
+Lua script is loaded on a single line between a beginning bracket, "<%" and ending bracket, "%>".
+
+Example 1: <% state.sis.getShipName() %>
+This function returns the Player's flagship name and displays it in the subtitles.
+
+Example 2: <% (function() if state.escort.canAddShips("marauder") >= 2 then state.escort.addShips("marauder", 2) end return "" end)() %>
+This function checks to see if your fleet has room for some Marauders and adds 2 Marauders if it does.

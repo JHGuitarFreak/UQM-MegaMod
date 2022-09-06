@@ -110,7 +110,7 @@ luaUqm_state_open(lua_State *luaState) {
 	lua_setfield(luaState, -2, "prop");
 
 	luaL_newlib(luaState, stateRaceFuncs);
-	lua_setfield(luaState,  -2,"race");
+	lua_setfield(luaState, -2, "race");
 
 	luaL_newlib(luaState, stateSisFuncs);
 	lua_setfield(luaState, -2, "sis");
@@ -205,7 +205,7 @@ luaUqm_state_escort_addShips(lua_State *luaState) {
 
 	count = luaL_checkint(luaState, 2);
 
-	numAdded = AddEscortShips(shipId, count);
+	numAdded = AddEscortShips(shipId - 1, count);
 	lua_pushinteger(luaState, numAdded);
 	return 1;
 }
@@ -222,7 +222,7 @@ luaUqm_state_escort_canAddShips(lua_State *luaState) {
 		return 1;
 	}
 
-	result = EscortFeasibilityStudy(shipId);
+	result = EscortFeasibilityStudy(shipId - 1);
 	lua_pushinteger(luaState, result);
 	return 1;
 }
@@ -241,10 +241,10 @@ luaUqm_state_escort_removeShips(lua_State *luaState) {
 	}
 
 	if (lua_isnil(luaState, 2)) {
-		numRemoved = RemoveEscortShips(shipId);
+		numRemoved = RemoveEscortShips(shipId - 1);
 	} else {
 		int count = luaL_checkint(luaState, 2);
-		numRemoved = RemoveSomeEscortShips(shipId, count);
+		numRemoved = RemoveSomeEscortShips(shipId - 1, count);
 	}
 
 	lua_pushinteger(luaState, numRemoved);
@@ -263,7 +263,7 @@ luaUqm_state_escort_shipCount(lua_State *luaState) {
 		return 1;
 	}
 
-	result = CountEscortShips(shipId);
+	result = CountEscortShips(shipId - 1);
 	lua_pushinteger(luaState, result);
 	return 1;
 }

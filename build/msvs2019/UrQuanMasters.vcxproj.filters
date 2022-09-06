@@ -2942,5 +2942,8 @@
     <Text Include="..\..\doc\devel\fntformat">
       <Filter>Doc\Devel</Filter>
     </Text>
+    <Text Include="luasyntax">
+      <Filter>Doc\Devel</Filter>
+    </Text>
   </ItemGroup>
 </Project>
