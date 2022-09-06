@@ -96,15 +96,23 @@ DrawCurrentPlanetSphere (void)
 
 // Draw the planet sphere and any extra graphic (like a shield) if present
 void
-DrawPlanetSphere (int x, int y)
+DrawPlanetSphere (int x, int y, bool back)
 {
 	STAMP s;
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 
+	BatchGraphics ();
+	// Draw background on static image and not during zoom
+	if (Orbit->BackFrame && back)
+	{
+		s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		s.origin.y = PLANET_ORG_Y;
+		s.frame = Orbit->BackFrame;
+		DrawStamp (&s);
+	}
+
 	s.origin.x = x;
 	s.origin.y = y;
-
-	BatchGraphics ();
 	s.frame = Orbit->SphereFrame;
 	DrawStamp (&s);
 	if (Orbit->ObjectFrame)
@@ -122,7 +130,7 @@ DrawDefaultPlanetSphere (void)
 
 	oldContext = SetContext (PlanetContext);
 	DrawPlanetSphere (
-			RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y);
+			RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1), PLANET_ORG_Y, TRUE);
 	SetContext (oldContext);
 }
 
@@ -371,7 +379,7 @@ ZoomInPlanetSphere (void)
 
 		oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
 		oldScale = SetGraphicScale ((int)(base * scale + 0.5));
-		DrawPlanetSphere (pt.x, pt.y);
+		DrawPlanetSphere (pt.x, pt.y, FALSE);
 		SetGraphicScale (oldScale);
 		SetGraphicScaleMode (oldMode);
 

@@ -106,6 +106,9 @@ DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
 	DestroyDrawable (ReleaseDrawable (Orbit->WorkFrame));
 	Orbit->WorkFrame = 0;
 
+	DestroyDrawable (ReleaseDrawable (Orbit->BackFrame));
+	Orbit->BackFrame = 0;
+
 	if (Orbit->light_diff)
 	{
 		COUNT j;
@@ -132,6 +135,12 @@ DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
 
 	DestroyDrawable (ReleaseDrawable (Orbit->TopoMask));
 	Orbit->TopoMask = 0;
+
+	if (Orbit->sphereBytes)
+	{
+		HFree (Orbit->sphereBytes);
+		Orbit->sphereBytes = NULL;
+	}
 
 	DestroyColorMap (ReleaseColorMap (Orbit->sphereMap));
 	Orbit->sphereMap = 0;
