@@ -922,9 +922,9 @@ FreeSolarSys (void)
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 				i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
-			if (isPC(optPlanetStyle))
+			if (isPC (optPlanetStyle))
 			{
-				DestroyDrawable(ReleaseDrawable(pCurDesc->image.frame));
+				DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
 				pCurDesc->image.frame = 0;
 			}
 			pCurDesc->frame_offset = 0xFF;
@@ -944,7 +944,7 @@ FreeSolarSys (void)
 					i < numMoons; ++i, ++pCurDesc)
 			{
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL) &&
-					isPC(optPlanetStyle))
+					isPC (optPlanetStyle))
 				{
 					DestroyDrawable (ReleaseDrawable (
 							pCurDesc->image.frame));
@@ -1231,7 +1231,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		{	// Moon
 			angle = ARCTAN (planet->pPrevDesc->location.x,
 					planet->pPrevDesc->location.y);
-		}			
+		}
 
 		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING(
 			ANGLE_TO_FACING(angle));
@@ -1270,7 +1270,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 				break;
 			case SA_MATRA:
 				frameNum = 19;
-				break;			
+				break;
 			case HIERARCHY_STARBASE:
 			default:
 				frameNum = 16;
