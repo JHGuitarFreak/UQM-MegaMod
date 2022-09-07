@@ -180,7 +180,6 @@ struct planet_desc
 	Color temp_color;				// color of planet orbit
 	COUNT NextIndex;				// index to a next planet
 	STAMP image;					// image of a planet in IP view
-	STAMP intersect, dosIntersect;	// special cases for HD and DOS planets in SDL1
 
 	PLANET_DESC *pPrevDesc;
 			// The Sun or planet that this world is orbiting around.
@@ -188,7 +187,6 @@ struct planet_desc
 	// BW : new stuff for animated solar systems
 	PLANET_ORBIT orbit;				// Link to moon(s)
 	COUNT size;						// size of a planet
-	BYTE offset_index;
 	
 	COUNT angle;
 	int rotFrameIndex, rotPointIndex, rotwidth, rotheight;

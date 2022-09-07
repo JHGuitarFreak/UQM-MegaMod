@@ -241,22 +241,6 @@ playerInInnerSystem (void)
 }
 
 static void
-DrawIntersectFrame (PLANET_DESC *pPlanDesc)
-{// Do NOT use in inner system - works janky
- // Feel free to fix it :)
- // For DEBUG only
-	STAMP debug;
-
-	SetContextForeGroundColor (BUILD_COLOR_RGBA(0xFF, 0x69, 0xB4, 0xFF));
-
-	debug.origin = pPlanDesc->image.origin;
-	debug.frame = CaptureDrawable (CloneFrame (pPlanDesc->intersect.frame));
-	DrawFilledStamp (&debug);
-	DestroyDrawable (ReleaseDrawable (debug.frame));
-	debug.frame = 0;
-}
-
-static void
 GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 {
 	COUNT i;
@@ -441,7 +425,7 @@ LoadPixelatedSun (void)
 			HFree (pix);
 
 			idxFrame = IncFrameIndex (idxFrame);
-			SunFrame = IncFrameIndex (SunFrame);			
+			SunFrame = IncFrameIndex (SunFrame);
 		}
 
 		DestroyDrawable (ReleaseDrawable (idxFrame));
@@ -876,23 +860,11 @@ FreeSolarSys (void)
 	
 	StopMusic ();
 
-	if (IS_HD && HDPackPresent)
-	{
-		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
-			i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
-		{
-			DestroyDrawable(ReleaseDrawable(pCurDesc->intersect.frame));
-			pCurDesc->intersect.frame = 0;
-			DestroyDrawable(ReleaseDrawable(pCurDesc->dosIntersect.frame));
-			pCurDesc->dosIntersect.frame = 0;
-		}
-	}
-
 	if (optTexturedPlanets)
 	{
 		// BW: clean up data generated for textured IP planets
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
-			 i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
+				i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
 			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
 			// JMS: Not sure if these do any good...
@@ -919,13 +891,13 @@ FreeSolarSys (void)
 				numMoons = pSolarSysState->pOrbitalDesc->NumPlanets;
 		
 			for (i = 0, pCurDesc = pSolarSysState->MoonDesc;
-				 i < numMoons; ++i, ++pCurDesc)
+					i < numMoons; ++i, ++pCurDesc)
 			{
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
 				{
 					SIZE diameterPick =
 							pCurDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
-						LARGE_MOON_DIAMETER : MOON_DIAMETER;
+								LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
 					DestroyOrbitStruct (&pCurDesc->orbit, diameterPick);
 				}
@@ -948,12 +920,13 @@ FreeSolarSys (void)
 			COUNT numMoons;
 			if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 				numMoons =
-				pSolarSysState->pOrbitalDesc->pPrevDesc->NumPlanets;
+						pSolarSysState->pOrbitalDesc->pPrevDesc->
+							NumPlanets;
 			else
 				numMoons = pSolarSysState->pOrbitalDesc->NumPlanets;
 
 			for (i = 0, pCurDesc = pSolarSysState->MoonDesc;
-				i < numMoons; ++i, ++pCurDesc)
+					i < numMoons; ++i, ++pCurDesc)
 			{
 				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
 				{
@@ -973,18 +946,16 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 	if (pSolarSysState->WaitIntersect != (COUNT)~0
 			&& pSolarSysState->WaitIntersect != WaitPlanet)
 	{
-		if (!IS_HD)
-			return DecFrameIndex (stars_in_space);
-		else
-			return planet->intersect.frame;
+		return DecFrameIndex (stars_in_space);
 	}
 	else
 	{	// Existing collisions are cleared only once the ship does not
 		// intersect anymore with a full planet image
 #if SDL_MAJOR_VERSION == 1
 		if (!optTexturedPlanets && isPC (optPlanetStyle)
-			&& planet->data_index < PRECURSOR_STARBASE)
-			return planet->dosIntersect.frame;
+				&& planet->data_index < PRECURSOR_STARBASE)
+			return SetAbsFrameIndex (OrbitalFrame,
+					(planet->size << FACING_SHIFT));
 		else
 #endif
 		return planet->image.frame;
@@ -1211,7 +1182,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		BYTE Type;
 		COUNT Size;
 		COUNT angle;
-		BYTE offset;
+		BYTE offset = 0;
 
 		Type = PlanData[index].Type;
 		Size = PLANSIZE (Type);
@@ -1239,6 +1210,7 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 			angle = ARCTAN (planet->pPrevDesc->location.x,
 					planet->pPrevDesc->location.y);
 		}
+
 		if (optTexturedPlanets)
 		{
 			// Those match the sizes of the png planets
@@ -1258,81 +1230,45 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					break;
 			}
 		}
+		else
+			planet->size = Size;
 
-		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING (
-			ANGLE_TO_FACING (angle));
-
-		if (!planet->image.frame || (offset != planet->offset_index))
+		if (!planet->image.frame || !offset)
 		{
-			planet->offset_index = offset;
+			offset = (Size << FACING_SHIFT) + NORMALIZE_FACING (
+				ANGLE_TO_FACING (angle));
+
 			if (!optTexturedPlanets && isPC (optPlanetStyle))
 			{
-				DestroyDrawable (ReleaseDrawable (planet->image.frame));
-				planet->image.frame = 0;
-
 				planet->image.frame =
-					SetPlanetOldFrame (offset, PLANCOLOR (Type));
-#if SDL_MAJOR_VERSION == 1
-				planet->dosIntersect.frame = SetAbsFrameIndex(OrbitalFrame,
-					(Size << FACING_SHIFT));
-#endif
+						SetPlanetOldFrame (offset, PLANCOLOR (Type));
 			}
 			else
 				planet->image.frame = SetAbsFrameIndex (OrbitalFrame,
-					offset);
-		}
-
-		if (IS_HD && HDPackPresent && !planet->intersect.frame)
-		{
-			planet->intersect.frame =
-					CaptureDrawable (
-						RescalePercentage (planet->image.frame, 50));
-#if SDL_MAJOR_VERSION == 1
-			if (!optTexturedPlanets && isPC (optPlanetStyle))
-			{
-				planet->intersect.frame =
-						CaptureDrawable (
-							RescalePercentage (
-								planet->dosIntersect.frame, 50)
-						);
-			}
-#endif
+						offset);
 		}
 	}
-	else if (!planet->image.frame && !planet->intersect.frame)
+	else if (!planet->image.frame)
 	{
-		COUNT percent = 0;
 		BYTE frameNum = 0;
 
-		// HD sprites have differents sizes, so intersect must be
-		// calculated accordingly
 		switch (planet->data_index)
 		{
 			case SA_MATRA:
 				frameNum = 19;
-				percent = 50;
 				break;
 			case DESTROYED_STARBASE:
 				frameNum = 22;
-				percent = 90;
 				break;
 			case PRECURSOR_STARBASE:
 				frameNum = 23;
-				percent = 50;
 				break;
 			case HIERARCHY_STARBASE:
 			default:
 				frameNum = 16;
-				percent = 90;
 				break;
 		}
 		planet->image.frame = SetAbsFrameIndex (SpaceJunkFrame, frameNum);
-
-		if (IS_HD && HDPackPresent)
-			planet->intersect.frame =
-			CaptureDrawable(
-				RescalePercentage (planet->image.frame, percent)
-			);
 	}
 }
 
@@ -1901,30 +1837,29 @@ DrawTexturedBody (PLANET_DESC* planet, STAMP s)
 	
 	BatchGraphics ();
 	oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
-	if (worldIsMoon (pSolarSysState, planet)) 
+
+	if (worldIsMoon (pSolarSysState, planet))
 	{
-		moonDiameter =
-				planet->data_index > LAST_SMALL_ROCKY_WORLD ?
-						LARGE_MOON_DIAMETER : MOON_DIAMETER;
-		oldScale =
-				SetGraphicScale (
-						GSCALE_IDENTITY
-						* RES_SCALE (planet->size) / moonDiameter
-					);
+		moonDiameter = planet->data_index > LAST_SMALL_ROCKY_WORLD ?
+				LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+		oldScale = SetGraphicScale (
+				GSCALE_IDENTITY * RES_SCALE (planet->size) / moonDiameter);
 	}
 	else
-		oldScale =
-			SetGraphicScale (
-					GSCALE_IDENTITY
-					* RES_SCALE (planet->size) / PLANET_DIAMETER
-				);
+		oldScale = SetGraphicScale (
+				GSCALE_IDENTITY * RES_SCALE (planet->size)
+					/ PLANET_DIAMETER);
 
 	s.frame = planet->orbit.SphereFrame;
 	DrawStamp (&s);
-	if (planet->orbit.ObjectFrame) {
+
+	if (planet->orbit.ObjectFrame)
+	{
 		s.frame = planet->orbit.ObjectFrame;
 		DrawStamp (&s);
 	}
+
 	SetGraphicScale (oldScale);
 	SetGraphicScaleMode (oldMode);
 	
@@ -2611,10 +2546,6 @@ DrawOuterPlanets (SIZE radius)
 				SetPlanetColorMap (pCurDesc);
 				DrawStamp (&pCurDesc->image);
 			}
-#ifdef NEVER
-			DrawIntersectFrame (pCurDesc);
-#endif
-
 		}
 		if (index == pSolarSysState->LastPlanetIndex)
 			break;
