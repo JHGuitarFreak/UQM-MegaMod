@@ -844,12 +844,12 @@ CreateShieldMask (COUNT radius)
 	COUNT shielddiam = (shieldradius << 1) + 1;
 
 	ShieldFrame = CaptureDrawable (
-			CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
-				shielddiam, shielddiam, 1));
+		CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
+			shielddiam, shielddiam, 1));
 
 	pix = Orbit->ScratchArray;
 	//  This is 100% transparent.
-	clear = BUILD_COLOR_RGBA (0, 0, 0, 0);
+	clear = BUILD_COLOR_RGBA (0, 0, 0, 0);	
 
 	for (y = -shieldradius; y <= shieldradius; y++)
 	{
@@ -890,7 +890,15 @@ CreateShieldMask (COUNT radius)
 					red = 0;
 			}
 			
-			*pix = BUILD_COLOR_RGBA (red, 0, 0, alpha);
+			if (optNebulae)
+			{
+				if (alpha != 255)
+					*pix = BUILD_COLOR_RGBA(red, 0, 0, alpha);
+				else
+					*pix = BUILD_COLOR_RGBA(255, 0, 0, red);
+			}
+			else
+				*pix = BUILD_COLOR_RGBA(red, 0, 0, alpha);
 		}
 	}
 	
@@ -900,6 +908,30 @@ CreateShieldMask (COUNT radius)
 				shieldradius + 1));
 	
 	return ShieldFrame;
+}
+
+FRAME
+SaveBackFrame (COUNT radius)
+{
+	RECT r;
+	CONTEXT oldContext;
+	FRAME BackFrame;
+	COUNT shieldradius = SHIELD_RADIUS * radius / RADIUS;
+	COUNT shielddiam = (shieldradius << 1) + 1;
+
+	oldContext = SetContext (PlanetContext);
+
+	r.corner = MAKE_POINT ((RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1)) - (shieldradius + 1), PLANET_ORG_Y - (shieldradius + 1));
+	r.extent.height = r.extent.width = shielddiam;
+
+	BackFrame = CaptureDrawable (CopyContextRect (&r));
+
+	SetFrameHot (BackFrame, MAKE_HOT_SPOT (shieldradius + 1,
+		shieldradius + 1));
+
+	SetContext (oldContext);
+
+	return BackFrame;
 }
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
@@ -946,15 +978,22 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 	{
 		Color p = *pix;
 
-		if (p.a == 255)
-		{	// adjust color data for full-alpha pixels
-			p.r = p.r * level / THROB_MAX_LEVEL;
-			p.g = p.g * level / THROB_MAX_LEVEL;
-			p.b = p.b * level / THROB_MAX_LEVEL;
-		}
-		else if (p.a > 0)
-		{	// adjust alpha for translucent pixels
+		if (optNebulae)
+		{
 			p.a = p.a * level / THROB_MAX_LEVEL;
+		}
+		else
+		{
+			if (p.a == 255)
+			{	// adjust color data for full-alpha pixels
+				p.r = p.r * level / THROB_MAX_LEVEL;
+				p.g = p.g * level / THROB_MAX_LEVEL;
+				p.b = p.b * level / THROB_MAX_LEVEL;
+			}
+			else if (p.a > 0)
+			{	// adjust alpha for translucent pixels
+				p.a = p.a * level / THROB_MAX_LEVEL;
+			}
 		}
 
 		*pix = p;
@@ -1185,8 +1224,8 @@ RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
 		return;
 	else
 	{	// Prepare new frame (oh god...)
-		BYTE *pix, *origin;
-		Color *mask, *color;
+		BYTE *pix;
+		Color *color;
 		COUNT x, y;
 		SIZE width = MaskFrame->Bounds.width;
 		SIZE height = Orbit->TopoMask->Bounds.height;
@@ -1201,8 +1240,6 @@ RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
 
 		// Get rect with offset 
 		dupeframe = CaptureDrawable (CopyFrameRect (Orbit->TopoMask, &r));
-
-		mask = HMalloc (sizeof (Color) * width * height);
 
 		if (PlanetInfo->AxialTilt != 0)
 		{	// We need to tilt the frame
@@ -1236,18 +1273,15 @@ RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
 			SetContext (oldContext);
 
 			// We got our colors - dump everything to avoid memory leak
-			ReadFramePixelColors (baseframe, mask, width, trueheight);
+			ReadFramePixelColors (baseframe, Orbit->ScratchArray, width, trueheight);
 			DestroyDrawable (ReleaseDrawable (baseframe));
 			DestroyDrawable (ReleaseDrawable (rotFrame));
 		}
 		else
-			ReadFramePixelColors (dupeframe, mask, width, height);
+			ReadFramePixelColors (dupeframe, Orbit->ScratchArray, width, height);
 
-		origin = HMalloc (sizeof (BYTE) * width * height);
-		ReadFramePixelIndexes (MaskFrame, origin, width, height, TRUE);
-
-		pix = origin;
-		color = mask;
+		pix = Orbit->sphereBytes;
+		color = Orbit->ScratchArray;
 
 		// Set indexes for sphere frame pixel by pixel
 		for (y = 0; y < MaskFrame->Bounds.height; ++y)
@@ -1261,11 +1295,10 @@ RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
 				}
 			}
 		}
-		WriteFramePixelIndexes (MaskFrame, origin, width, height);
+		WriteFramePixelIndexes (MaskFrame, Orbit->sphereBytes, MaskFrame->Bounds.width, MaskFrame->Bounds.height);
 
-		HFree (origin);
-		HFree (mask);
 		DestroyDrawable (ReleaseDrawable (dupeframe));
+		dupeframe = 0;
 	}
 }
 
@@ -1762,6 +1795,12 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 		Orbit->TopoMask = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP, (SIZE)width, (SIZE)height, 1));
+
+		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0]) * 
+				GetFrameWidth (Orbit->SphereFrame) * GetFrameHeight (Orbit->SphereFrame));
+
+		Orbit->sphereBytes = HMalloc (sizeof (BYTE) * GetFrameWidth (Orbit->SphereFrame) * 
+				GetFrameHeight (Orbit->SphereFrame));
 	}
 	else
 	{
@@ -1771,6 +1810,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		// unused here
 		Orbit->TopoMask = NULL;
 		Orbit->sphereMap = NULL;
+		Orbit->sphereBytes = NULL;
 	}
 
 	// tints for 3DO scan
@@ -1815,7 +1855,6 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	else
 	{	// to avoid memory leak declare these as null
 		Orbit->TopoColors = NULL;
-		Orbit->ScratchArray = NULL;
 		Orbit->map_rotate = NULL;
 		Orbit->light_diff = NULL;
 	}
@@ -2652,11 +2691,22 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 				NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (loc.x, loc.y)));
 		Orbit->SphereFrame =
 				SetAbsFrameIndex (Orbit->SphereFrame, facing & 14);
+
+		ReadFramePixelIndexes (Orbit->SphereFrame, Orbit->sphereBytes, GetFrameWidth (Orbit->SphereFrame), 
+				GetFrameHeight (Orbit->SphereFrame), TRUE);
 	}
 	if (shielded)
+	{
 		Orbit->ObjectFrame = ((useDosSpheres && !ForIP) ?
 				CaptureDrawable (LoadGraphic (DOS_SHIELD_MASK_ANIM))
 				: CreateShieldMask (radius));
+
+		// Create background frame if we have nebula on
+		// but not for IP and if we're using DOS shield
+		if (optNebulae && !ForIP && !useDosSpheres)
+			Orbit->BackFrame = SaveBackFrame (radius);
+	}
+
 
 	InitSphereRotation (PlanetRotation, shielded, width, height);
 	

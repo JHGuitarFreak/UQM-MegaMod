@@ -153,6 +153,8 @@ struct planet_orbit
 			// temp RGBA data for whatever transforms (nuked often)
 	FRAME WorkFrame;
 			// any extra frame workspace (for dynamic objects)
+	FRAME BackFrame;
+			// background frame to make shields transparent with nebulae on
 	// BW: extra stuff for animated IP
 	DWORD **light_diff;
 	MAP3D_POINT **map_rotate;
@@ -160,6 +162,7 @@ struct planet_orbit
 
 	// stuff to draw DOS spheres
 	FRAME TopoMask;
+	BYTE *sphereBytes;
 	COLORMAP sphereMap;
 	COUNT scanType;
 };
@@ -360,7 +363,7 @@ extern void InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, CO
 extern void UninitSphereRotation (void);
 extern void PrepareNextRotationFrame (void);
 extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter);
-extern void DrawPlanetSphere (int x, int y);
+extern void DrawPlanetSphere (int x, int y, bool back);
 extern void DrawDefaultPlanetSphere (void);
 extern void RerenderPlanetSphere (void);
 extern void RenderDOSPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset);
