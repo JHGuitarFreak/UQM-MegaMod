@@ -33,6 +33,7 @@
 #include "uqm/commglue.h"
 #include "uqm/battle.h"
 		// For instantVictory
+#include "uqm/comm.h"
 
 
 static const char npcPhraseCallbackRegistryKey[] =
@@ -53,22 +54,24 @@ static int luaUqm_comm_getPhrase(lua_State *luaState);
 static int luaUqm_comm_getSegue(lua_State *luaState);
 static int luaUqm_comm_setSegue(lua_State *luaState);
 static int luaUqm_comm_isInOuttakes(lua_State *luaState);
+static char *luaUqm_comm_setCustomBaseline (lua_State *luaState);
 
 static const luaL_Reg commFuncs[] = {
-	{ "addResponse",     luaUqm_comm_addResponse },
-	{ "disablePhrase",   luaUqm_comm_disablePhrase },
-	{ "doNpcPhrase",     luaUqm_comm_doNpcPhrase },
-	{ "getPhrase",       luaUqm_comm_getPhrase },
-	{ "getSegue",        luaUqm_comm_getSegue },
-	{ "isInOuttakes",    luaUqm_comm_isInOuttakes },
-	{ "isPhraseEnabled", luaUqm_comm_isPhraseEnabled },
-	{ "setSegue",        luaUqm_comm_setSegue },
+	{ "addResponse",       luaUqm_comm_addResponse },
+	{ "disablePhrase",     luaUqm_comm_disablePhrase },
+	{ "doNpcPhrase",       luaUqm_comm_doNpcPhrase },
+	{ "getPhrase",         luaUqm_comm_getPhrase },
+	{ "getSegue",          luaUqm_comm_getSegue },
+	{ "isInOuttakes",      luaUqm_comm_isInOuttakes },
+	{ "isPhraseEnabled",   luaUqm_comm_isPhraseEnabled },
+	{ "setSegue",          luaUqm_comm_setSegue },
+	{ "setCustomBaseline", luaUqm_comm_setCustomBaseline },
 	{ NULL,              NULL },
 };
 
 static const luaUqm_EnumValue segueEnum[] = {
-	{ /* .name = */ "peace",   /* .value = */ Segue_peace  },
-	{ /* .name = */ "hostile", /* .value = */ Segue_hostile  },
+	{ /* .name = */ "peace",   /* .value = */ Segue_peace   },
+	{ /* .name = */ "hostile", /* .value = */ Segue_hostile },
 	{ /* .name = */ "victory", /* .value = */ Segue_victory },
 	{ /* .name = */ "defeat",  /* .value = */ Segue_defeat  },
 	{ /* .name = */ NULL,      /* .value = */ 0             },
@@ -334,6 +337,29 @@ static int
 luaUqm_comm_isInOuttakes(lua_State *luaState) {
 	BOOLEAN result = (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE);
 	lua_pushboolean(luaState, result);
+	return 1;
+}
+
+// [1] -> int lineNumber
+// [2] -> int baseLineX
+// [3] -> int baseLineY
+// [4] -> string alignment
+static char *
+luaUqm_comm_setCustomBaseline (lua_State *luaState)
+{
+	static const char *const textAlign[] =
+			{ "ALIGN_LEFT", "ALIGN_CENTER", "ALIGN_RIGHT", NULL };
+	COUNT lineNumber = luaL_checkint (luaState, 1);
+	COORD baselineX = luaL_checkint (luaState, 2);
+	COORD baselineY = luaL_checkint (luaState, 3);
+	int alignment =
+			luaL_checkoption (luaState, 4, "ALIGN_LEFT", textAlign);
+
+	SetCustomBaseLine (lineNumber, (POINT) { baselineX, baselineY },
+			alignment);
+
+	lua_pushstring (luaState, "");
+
 	return 1;
 }
 

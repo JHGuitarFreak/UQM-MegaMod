@@ -30,8 +30,8 @@ state.sis.addFuel(int amount)                           // Adds the "amount" of 
 state.sis.addLanders(int amount)                        // Adds the "amount" of landers
 state.sis.addResUnits(int amount)                       // Adds the "amount" of Resource Units
 state.sis.getCaptainName()                              // Returns the Player's Captain name
-state.sis.getCrew()                                     // Returns the Flagship's current amount of crew
-state.sis.getFuel()                                     // Returns the Flagships current amount of fuel
+state.sis.getCrew()                                     // Returns the Player's current amount of flagship crew
+state.sis.getFuel()                                     // Returns the Player's current amount of fuel
 state.sis.getResUnits()                                 // Returns the Player's current amount of Resource Units
 state.sis.getLanders()                                  // Returns the Player's current amount of landers
 state.sis.getShipName()                                 // Returns the Player's Flagship name
@@ -45,9 +45,10 @@ comm.disablePhrase(string "phraseIdStr")
 comm.doNpcPhrase(string "phraseIdStr")
 comm.addResponse(string "phraseIdStr", function callback)
 comm.getPhrase(string "phraseIdStr")
-comm.getSegue(int)
-comm.setSegue(int)
+comm.getSegue(int segue)
+comm.setSegue(int segue)
 comm.isInOuttakes()
+comm.setCustomBaseLine(int lineNumber, int baselineX, int baselineY, string "alignment")
 
 EVENT FUNCTIONS
 event.addAbsolute(int year, int month, int day, string "eventIdStr")
