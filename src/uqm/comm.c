@@ -2437,7 +2437,8 @@ SetCustomBaseLine (COUNT sentence, POINT bl, TEXT_ALIGN align)
 
 	cur = HCalloc (sizeof (*cur));
 	cur->index = sentence;
-	cur->baseline = bl;
+	cur->baseline.x = RES_SCALE (bl.x);
+	cur->baseline.y = RES_SCALE (bl.y);
 	cur->align = align;
 
 	if (head_node == NULL)

@@ -232,12 +232,9 @@ FriendlyExit (RESPONSE_REF R)
 	{
 		if (PLAYER_SAID (R, hands_off))
 		{
-			SetCustomBaseLine (3,
-					MAKE_POINT (RES_SCALE (108), RES_SCALE (81)), ALIGN_CENTER);
-			SetCustomBaseLine (4,
-					MAKE_POINT (RES_SCALE (80), RES_SCALE (49)), ALIGN_CENTER);
-			SetCustomBaseLine (5,
-					MAKE_POINT (RES_SCALE (121), RES_SCALE (27)), ALIGN_CENTER);
+			SetCustomBaseLine (3, MAKE_POINT (108, 81), ALIGN_CENTER);
+			SetCustomBaseLine (4, MAKE_POINT ( 80, 49), ALIGN_CENTER);
+			SetCustomBaseLine (5, MAKE_POINT (121, 27), ALIGN_CENTER);
 
 			NPCPhrase (OK_WONT_USE_HANDS);
 		}
@@ -287,29 +284,20 @@ Sex (RESPONSE_REF R)
 {
 	if (PLAYER_SAID (R, in_the_spirit))
 	{
-		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE (98), RES_SCALE (21)), ALIGN_CENTER);
-		SetCustomBaseLine (4,
-				MAKE_POINT (RES_SCALE (156), RES_SCALE (51)), ALIGN_CENTER);
-		SetCustomBaseLine (5,
-				MAKE_POINT (RES_SCALE (169), RES_SCALE (79)), ALIGN_CENTER);
+		SetCustomBaseLine (3, MAKE_POINT ( 98, 21), ALIGN_CENTER);
+		SetCustomBaseLine (4, MAKE_POINT (156, 51), ALIGN_CENTER);
+		SetCustomBaseLine (5, MAKE_POINT (169, 79), ALIGN_CENTER);
 
 		NPCPhrase (OK_SPIRIT);
 	}
 	else if (PLAYER_SAID (R, what_in_mind))
 	{
-		SetCustomBaseLine (0,
-				MAKE_POINT (RES_SCALE (3), RES_SCALE (0)), ALIGN_LEFT);
-		SetCustomBaseLine (1,
-				MAKE_POINT (RES_SCALE (3), RES_SCALE (0)), ALIGN_LEFT);
-		SetCustomBaseLine (2,
-				MAKE_POINT (RES_SCALE (3), RES_SCALE (55)), ALIGN_LEFT);
-		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE (125), RES_SCALE (67)), ALIGN_CENTER);
-		SetCustomBaseLine (4,
-				MAKE_POINT (RES_SCALE (240), RES_SCALE (10)), ALIGN_RIGHT);
-		SetCustomBaseLine (5,
-				MAKE_POINT (RES_SCALE (240), RES_SCALE (10)), ALIGN_RIGHT);
+		SetCustomBaseLine (0, MAKE_POINT (  3,  0), ALIGN_LEFT);
+		SetCustomBaseLine (1, MAKE_POINT (  3,  0), ALIGN_LEFT);
+		SetCustomBaseLine (2, MAKE_POINT (  3, 55), ALIGN_LEFT);
+		SetCustomBaseLine (3, MAKE_POINT (125, 67), ALIGN_CENTER);
+		SetCustomBaseLine (4, MAKE_POINT (240, 10), ALIGN_RIGHT);
+		SetCustomBaseLine (5, MAKE_POINT (240, 10), ALIGN_RIGHT);
 
 		NPCPhrase (SOMETHING_LIKE_THIS);
 	}
@@ -388,12 +376,9 @@ Foreplay (RESPONSE_REF R)
 	}
 	else if (PLAYER_SAID (R, why_lights_off))
 	{
-		SetCustomBaseLine (1,
-				MAKE_POINT (RES_SCALE (60), RES_SCALE (41)), ALIGN_CENTER);
-		SetCustomBaseLine (2,
-				MAKE_POINT (RES_SCALE (180), RES_SCALE (41)), ALIGN_CENTER);
-		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE (120), RES_SCALE (81)), ALIGN_CENTER);
+		SetCustomBaseLine (1, MAKE_POINT ( 60, 41), ALIGN_CENTER);
+		SetCustomBaseLine (2, MAKE_POINT (180, 41), ALIGN_CENTER);
+		SetCustomBaseLine (3, MAKE_POINT (120, 81), ALIGN_CENTER);
 
 		NPCPhrase (LIGHTS_OFF_BECAUSE);
 
