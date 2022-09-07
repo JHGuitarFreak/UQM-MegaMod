@@ -203,6 +203,7 @@ struct planet_desc
 	BYTE PlanetByte;
 	BYTE MoonByte;
 			// Handles hard coded planets/moons for Custom Seed
+	BYTE frame_offset;
 };
 
 struct star_desc

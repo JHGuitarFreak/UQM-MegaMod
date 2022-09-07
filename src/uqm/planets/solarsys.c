@@ -120,6 +120,13 @@ static FRAME SolarSysFrame;
 static RECT scaleRect;
 		// system zooms in when the flagship enters this rect
 
+static COUNT PBodySize[7] = { 0, 3, 4, 7, 11, 15, 29 };
+		// Planet sizes primary used for textured planets
+		// There are actually only 6 sizes, but 0 is reached
+		// only for WORLD_TYPE_SPECIAL and '!= 0' check prevents
+		// from nuking SpaceJunkFrame in SetPlanetOldFrame()
+#define UNDEFINED_OFFSET 0xFF
+
 RandomContext *SysGenRNG;
 RandomContext* SysGenRNGDebug;
 
@@ -145,9 +152,9 @@ displayToLocation (POINT pt, SIZE scaleRadius)
 	POINT out;
 
 	out.x = (((long)pt.x - RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1))
-			* scaleRadius / DISPLAY_TO_LOC);
+		* scaleRadius / DISPLAY_TO_LOC);
 	out.y = (((long)pt.y - RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1))
-			* scaleRadius / DISPLAY_TO_LOC);
+		* scaleRadius / DISPLAY_TO_LOC);
 
 	return out;
 }
@@ -359,6 +366,7 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 			continue;
 		
 		pMoonDesc->temp_color = planet->temp_color;
+		pMoonDesc->frame_offset = UNDEFINED_OFFSET;
 	}
 
 	// These are moved down here to satisfy the ComputeSpeed function
@@ -768,6 +776,7 @@ LoadSolarSys (void)
 				index = NUM_TEMP_RANGES - 1;
 			pCurDesc->temp_color = temp_color_array[index];
 		}
+		pCurDesc->frame_offset = UNDEFINED_OFFSET;
 	}
 
 	sortPlanetPositions ();
@@ -900,19 +909,25 @@ FreeSolarSys (void)
 								LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
 					DestroyOrbitStruct (&pCurDesc->orbit, diameterPick);
+					pCurDesc->frame_offset = UNDEFINED_OFFSET;
 				}
 			}
 		}
 	}
-	else if (isPC (optPlanetStyle))
+	else
 	{	// we need to destroy DOS style planets because they are cut from
 		// the main frame and stored separately therefore they aren't
 		// destroyed with OrbitFrame
+		// also reset all planet offsets
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
 				i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
 		{
-			DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
-			pCurDesc->image.frame = 0;
+			if (isPC (optPlanetStyle))
+			{
+				DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
+				pCurDesc->image.frame = 0;
+			}
+			pCurDesc->frame_offset = 0xFF;
 		}
 
 		if (playerInInnerSystem ())
@@ -928,12 +943,14 @@ FreeSolarSys (void)
 			for (i = 0, pCurDesc = pSolarSysState->MoonDesc;
 					i < numMoons; ++i, ++pCurDesc)
 			{
-				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL))
+				if (!(pCurDesc->data_index & WORLD_TYPE_SPECIAL) &&
+					isPC (optPlanetStyle))
 				{
 					DestroyDrawable (ReleaseDrawable (
 							pCurDesc->image.frame));
 					pCurDesc->image.frame = 0;
 				}
+				pCurDesc->frame_offset = UNDEFINED_OFFSET;
 			}
 		}
 	}
@@ -955,7 +972,7 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 		if (!optTexturedPlanets && isPC (optPlanetStyle)
 				&& planet->data_index < PRECURSOR_STARBASE)
 			return SetAbsFrameIndex (OrbitalFrame,
-					(planet->size << FACING_SHIFT));
+					(PBodySize[planet->size] << FACING_SHIFT));
 		else
 #endif
 		return planet->image.frame;
@@ -1114,28 +1131,33 @@ GetPlanetOrbitRect (RECT *r, PLANET_DESC *planet, int sizeNumer,
 	GetOrbitRect (r, dx, dy, planet->radius, sizeNumer, dyNumer, denom);
 }
 
-static FRAME
-SetPlanetOldFrame (COUNT index, COUNT color)
+static void
+SetPlanetOldFrame (PLANET_DESC *planet, COUNT index, COUNT color)
 {
-	FRAME oldFrame, newFrame;
+	FRAME oldFrame;
 	RECT r;
 
 	oldFrame = SetAbsFrameIndex (OrbitalFrame, index);
-	GetFrameRect(oldFrame, &r);
+	GetFrameRect (oldFrame, &r);
 
 	r.corner.y = 0; // messed because of sprite hotspot
 	r.corner.x = (r.extent.width / NUM_PLANET_COLORS) * color;
 	r.extent.width /= NUM_PLANET_COLORS;
 
-	newFrame = CaptureDrawable (CopyFrameRect (oldFrame, &r));
-	SetFrameHot (newFrame, GetFrameHot (oldFrame));
+	// If previous frame wasn't SpaceJunkFrame
+	if (planet->image.frame && planet->size != 0)
+	{
+		DestroyDrawable (ReleaseDrawable (planet->image.frame));
+		planet->image.frame = 0;
+	}
+
+	planet->image.frame = CaptureDrawable (CopyFrameRect (oldFrame, &r));
+	SetFrameHot (planet->image.frame, GetFrameHot (oldFrame));
 	// CaptureDrawable destroys transparency, so it has to be setted again
 #if SDL_MAJOR_VERSION == 1
-	SetFrameTransparentColor (newFrame,
+	SetFrameTransparentColor (planet->image.frame,
 			BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0xFF));
 #endif
-
-	return newFrame;
 }
 
 static void
@@ -1211,57 +1233,43 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					planet->pPrevDesc->location.y);
 		}
 
-		if (optTexturedPlanets)
-		{
-			// Those match the sizes of the png planets
-			switch (Size)
-			{
-				case 0: planet->size = 3;
-					break;
-				case 1: planet->size = 4;
-					break;
-				case 2: planet->size = 7;
-					break;
-				case 3: planet->size = 11;
-					break;
-				case 4: planet->size = 15;
-					break;
-				case 5: planet->size = 29;
-					break;
-			}
-		}
-		else
-			planet->size = Size;
+		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING(
+			ANGLE_TO_FACING(angle));
 
-		if (!planet->image.frame || !offset)
+		if (planet->frame_offset != offset)
 		{
-			offset = (Size << FACING_SHIFT) + NORMALIZE_FACING (
-				ANGLE_TO_FACING (angle));
+			planet->frame_offset = offset;
 
-			if (!optTexturedPlanets && isPC (optPlanetStyle))
-			{
-				planet->image.frame =
-						SetPlanetOldFrame (offset, PLANCOLOR (Type));
-			}
+			if (isPC (optPlanetStyle))
+				SetPlanetOldFrame (planet, offset, PLANCOLOR (Type));
 			else
 				planet->image.frame = SetAbsFrameIndex (OrbitalFrame,
 						offset);
+
+			// Normal planets hace sizes start from 1st array element
+			planet->size = Size + 1;
 		}
 	}
-	else if (!planet->image.frame)
+	else if (planet->data_index > WORLD_TYPE_SPECIAL &&
+			planet->frame_offset == UNDEFINED_OFFSET)
 	{
 		BYTE frameNum = 0;
 
+		// these have no animations - so set the frame once
+		// it'll reset on leave
+		planet->frame_offset = 0;
+		planet->size = 0;
+
 		switch (planet->data_index)
 		{
-			case SA_MATRA:
-				frameNum = 19;
+			case PRECURSOR_STARBASE:
+				frameNum = 23;
 				break;
 			case DESTROYED_STARBASE:
 				frameNum = 22;
 				break;
-			case PRECURSOR_STARBASE:
-				frameNum = 23;
+			case SA_MATRA:
+				frameNum = 19;
 				break;
 			case HIERARCHY_STARBASE:
 			default:
@@ -1589,6 +1597,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 
 				DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
 			}
+			pMoonDesc->frame_offset = UNDEFINED_OFFSET;
 		}
 	}	// End clean up
 	else if (isPC (optPlanetStyle))
@@ -1601,6 +1610,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 				DestroyDrawable (ReleaseDrawable (pMoonDesc->image.frame));
 				pMoonDesc->image.frame = 0;
 			}
+			pMoonDesc->frame_offset = UNDEFINED_OFFSET;
 		}
 	}
 
@@ -1834,6 +1844,7 @@ DrawTexturedBody (PLANET_DESC* planet, STAMP s)
 	int oldScale;
 	int oldMode;
 	SIZE moonDiameter;
+	COUNT size = PBodySize[planet->size];
 	
 	BatchGraphics ();
 	oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
@@ -1844,11 +1855,11 @@ DrawTexturedBody (PLANET_DESC* planet, STAMP s)
 				LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
 		oldScale = SetGraphicScale (
-				GSCALE_IDENTITY * RES_SCALE (planet->size) / moonDiameter);
+				GSCALE_IDENTITY * RES_SCALE (size) / moonDiameter);
 	}
 	else
 		oldScale = SetGraphicScale (
-				GSCALE_IDENTITY * RES_SCALE (planet->size)
+				GSCALE_IDENTITY * RES_SCALE (size)
 					/ PLANET_DIAMETER);
 
 	s.frame = planet->orbit.SphereFrame;
