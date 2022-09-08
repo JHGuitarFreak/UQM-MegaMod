@@ -125,7 +125,7 @@ static COUNT PBodySize[7] = { 0, 3, 4, 7, 11, 15, 29 };
 		// There are actually only 6 sizes, but 0 is reached
 		// only for WORLD_TYPE_SPECIAL and '!= 0' check prevents
 		// from nuking SpaceJunkFrame in SetPlanetOldFrame()
-#define UNDEFINED_OFFSET 0xFF
+#define UNDEFINED_OFFSET ((BYTE)~0)
 
 RandomContext *SysGenRNG;
 RandomContext* SysGenRNGDebug;
@@ -386,7 +386,8 @@ LoadPixelatedSun (void)
 		RECT r;
 		Color AColor;
 
-		FRAME idxFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+		FRAME idxFrame =
+				CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
 		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_RGB_PMAP_ANIM));
 
 		for (i = 0; i < 5; i++)
@@ -484,7 +485,9 @@ LoadIPData (void)
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
-				LoadGraphic ((!optTexturedPlanets && isPC(optPlanetStyle)) ? DOS_ORBPLAN_MASK_PMAP_ANIM : ORBPLAN_MASK_PMAP_ANIM));
+				LoadGraphic ((!optTexturedPlanets && isPC(optPlanetStyle))
+					? DOS_ORBPLAN_MASK_PMAP_ANIM
+						: ORBPLAN_MASK_PMAP_ANIM));
 		OrbitalShield = CaptureDrawable (
 				LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
 		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
@@ -2126,9 +2129,9 @@ playSpaceMusic (void)
 void
 ResetSolarSys (void)
 {
-	// Originally there was a flash_task test here, however, I found no cases
-	// where flash_task could be set at the time of call. The test was
-	// probably needed on 3DO when IP_frame() was a task.
+	// Originally there was a flash_task test here, however, I found no
+	// cases where flash_task could be set at the time of call. The test
+	// was probably needed on 3DO when IP_frame() was a task.
 	assert (!pSolarSysState->InIpFlight);
 
 	DrawMenuStateStrings (PM_STARMAP, -(PM_NAVIGATE - PM_SCAN));
@@ -2949,53 +2952,47 @@ GetNamedPlanetaryBody (void)
 	{	// Sa-Matra
 		return GAME_STRING (PLANET_NUMBER_BASE + 32);
 	}
-	else if (CurStarDescPtr->Index > 0 
+	else if (CurStarDescPtr->Index > 0
 			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
-			pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))
+				pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		if (CurStarDescPtr->Index == START_COLONY_DEFINED)
-		{	// Unzervalt
-			return GAME_STRING (PLANET_NUMBER_BASE + 33);
-		}
-		else if (CurStarDescPtr->Index == SHOFIXTI_DEFINED
-				&& GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-		{	// Kyabetsu
-			return GAME_STRING (PLANET_NUMBER_BASE + 35);
-		}
-		else if (CurStarDescPtr->Index == SLYLANDRO_DEFINED
-				&& GET_GAME_STATE (SLYLANDRO_HOME_VISITS))
-		{	// Source
-			return GAME_STRING (PLANET_NUMBER_BASE + 36);
-		}
-		else if (CurStarDescPtr->Index == SPATHI_DEFINED
-				&& GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
-		{	// Spathiwa
-			return GAME_STRING (PLANET_NUMBER_BASE + 37);
-		}
-		else if (CurStarDescPtr->Index == SUPOX_DEFINED 
-				&& GET_GAME_STATE (SUPOX_STACK1) > 2)
-		{	// Vlik
-			return GAME_STRING (PLANET_NUMBER_BASE + 38);
-		}
-		else if (CurStarDescPtr->Index == SYREEN_DEFINED 
-				&& (GET_GAME_STATE (SYREEN_HOME_VISITS)
-				|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
-		{	// Gaia
-			return GAME_STRING (PLANET_NUMBER_BASE + 39);
-		}
-		else if (CurStarDescPtr->Index == UTWIG_DEFINED
-				&& GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
-		{	// Fahz
-			return GAME_STRING (PLANET_NUMBER_BASE + 40);
-		}
-		else if (CurStarDescPtr->Index == DRUUGE_DEFINED
-				&& GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
-		{	// Trade HQ
-			return GAME_STRING (PLANET_NUMBER_BASE + 41);
-		}
-		else if (CurStarDescPtr->Index == EGG_CASE0_DEFINED)
-		{	// Syra
-			return GAME_STRING (PLANET_NUMBER_BASE + 42);
+		switch (CurStarDescPtr->Index)
+		{
+			case SHOFIXTI_DEFINED:     // Kyabetsu
+				if (GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+					return GAME_STRING (PLANET_NUMBER_BASE + 35);
+				break;
+			case START_COLONY_DEFINED: // Unzervalt
+				return GAME_STRING (PLANET_NUMBER_BASE + 33);
+			case SPATHI_DEFINED:       // Spathiwa
+				if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
+					return GAME_STRING (PLANET_NUMBER_BASE + 37);
+				break;
+			case SYREEN_DEFINED:       // Gaia
+				if ((GET_GAME_STATE (SYREEN_HOME_VISITS)
+						|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
+					return GAME_STRING (PLANET_NUMBER_BASE + 39);
+				break;
+			case SLYLANDRO_DEFINED:    // Source
+				if (GET_GAME_STATE (SLYLANDRO_HOME_VISITS))
+					return GAME_STRING (PLANET_NUMBER_BASE + 36);
+				break;
+			case DRUUGE_DEFINED:       // Trade HQ
+				if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
+					return GAME_STRING (PLANET_NUMBER_BASE + 41);
+				break;
+			case EGG_CASE0_DEFINED:    // Syra
+				return GAME_STRING (PLANET_NUMBER_BASE + 42);
+			case UTWIG_DEFINED:        // Fahz
+				if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
+					return GAME_STRING (PLANET_NUMBER_BASE + 40);
+				break;
+			case SUPOX_DEFINED:        // Vlik
+				if (GET_GAME_STATE (SUPOX_STACK1) > 2)
+					return GAME_STRING (PLANET_NUMBER_BASE + 38);
+				break;
+			default:
+				return "Should not happen";
 		}
 	}
 	return NULL;
@@ -3006,8 +3003,7 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 {
 	UNICODE *named;
 	UNICODE *tempbuf;
-	int		moon;
-	int		i;
+	int moon, i;
 	BOOLEAN name_has_suffix = FALSE;
 
 	named = GetNamedPlanetaryBody ();
@@ -3020,8 +3016,8 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 	// Either not named or we already have a name
 	utf8StringCopy (buf, bufsize, GLOBAL_SIS (PlanetName));
 
-	if (!playerInSolarSystem () || !playerInInnerSystem () ||
-			worldIsPlanet (pSolarSysState, pSolarSysState->pOrbitalDesc)
+	if (!playerInSolarSystem () || !playerInInnerSystem ()
+			|| worldIsPlanet (pSolarSysState, pSolarSysState->pOrbitalDesc)
 			|| is3DO (optWhichFonts))
 	{	// Outer or inner system or orbiting a planet
 		return;
@@ -3039,7 +3035,7 @@ GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize)
 	// screen.
 	if (i > 0)
 	{
-		if(tempbuf[i-1] == 'A' || tempbuf[i-1] == 'B' 
+		if(tempbuf[i-1] == 'A' || tempbuf[i-1] == 'B'
 				|| tempbuf[i-1] == 'C' || tempbuf[i-1] == 'D')
 			name_has_suffix = TRUE;
 	}
