@@ -272,17 +272,8 @@ TFB_SwapBuffers (int force_full_redraw)
 	}
 
 	if (fade_amount != 255)
-	{
-		if (fade_amount < 255)
-		{
-			graphics_backend->color (0, 0, 0, 255 - fade_amount, NULL);
-		}
-		else
-		{
-			graphics_backend->color (255, 255, 255,
-					fade_amount - 255, NULL);
-		}
-	}
+		graphics_backend->color (fade_amount, NULL);
+
 
 	if (system_box_active)
 	{

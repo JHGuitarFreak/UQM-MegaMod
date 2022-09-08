@@ -32,7 +32,7 @@ typedef struct _tfb_graphics_backend {
 	void (*postprocess) (void);
 	void (*uploadTransitionScreen) (void);
 	void (*screen) (SCREEN screen, Uint8 alpha, SDL_Rect *rect);
-	void (*color) (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
+	void (*color) (Uint32 fade, SDL_Rect *rect);
 } TFB_GRAPHICS_BACKEND;
 
 extern TFB_GRAPHICS_BACKEND *graphics_backend;

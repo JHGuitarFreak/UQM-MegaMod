@@ -969,7 +969,8 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 		if (!IS_HD)
 			return DecFrameIndex (stars_in_space);
 		else
-			return stars_in_space;
+			return SetAbsFrameIndex(SpaceJunkFrame, 24);
+
 	}
 	else
 	{	// Existing collisions are cleared only once the ship does not
