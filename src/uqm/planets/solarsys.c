@@ -927,7 +927,7 @@ FreeSolarSys (void)
 				DestroyDrawable (ReleaseDrawable (pCurDesc->image.frame));
 				pCurDesc->image.frame = 0;
 			}
-			pCurDesc->frame_offset = 0xFF;
+			pCurDesc->frame_offset = UNDEFINED_OFFSET;
 		}
 
 		if (playerInInnerSystem ())
