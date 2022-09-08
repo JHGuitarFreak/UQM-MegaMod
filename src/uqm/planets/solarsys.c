@@ -965,11 +965,8 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 	{
 		if (!IS_HD)
 			return DecFrameIndex (stars_in_space);
-		else if (planet->data_index > PLANET_SHIELDED)
-			return stars_in_space;
 		else
-			return CaptureDrawable (
-					RescalePercentage (planet->image.frame, 25));
+			return stars_in_space;
 	}
 	else
 	{	// Existing collisions are cleared only once the ship does not
