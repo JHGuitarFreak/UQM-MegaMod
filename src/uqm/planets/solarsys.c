@@ -963,7 +963,13 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 	if (pSolarSysState->WaitIntersect != (COUNT)~0
 			&& pSolarSysState->WaitIntersect != WaitPlanet)
 	{
-		return DecFrameIndex (stars_in_space);
+		if (!IS_HD)
+			return DecFrameIndex (stars_in_space);
+		else if (planet->data_index > PLANET_SHIELDED)
+			return stars_in_space;
+		else
+			return CaptureDrawable (
+					RescalePercentage (planet->image.frame, 25));
 	}
 	else
 	{	// Existing collisions are cleared only once the ship does not
@@ -972,7 +978,7 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 		if (!optTexturedPlanets && isPC (optPlanetStyle)
 				&& planet->data_index < PRECURSOR_STARBASE)
 			return SetAbsFrameIndex (OrbitalFrame,
-					(PBodySize[planet->size] << FACING_SHIFT));
+					((planet->size - 1) << FACING_SHIFT));
 		else
 #endif
 		return planet->image.frame;
@@ -1233,20 +1239,20 @@ ValidateOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 					planet->pPrevDesc->location.y);
 		}
 
-		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING(
-			ANGLE_TO_FACING(angle));
+		offset = (Size << FACING_SHIFT) + NORMALIZE_FACING (
+				ANGLE_TO_FACING (angle));
 
 		if (planet->frame_offset != offset)
 		{
 			planet->frame_offset = offset;
 
-			if (isPC (optPlanetStyle))
+			if (!optTexturedPlanets && isPC (optPlanetStyle))
 				SetPlanetOldFrame (planet, offset, PLANCOLOR (Type));
 			else
 				planet->image.frame = SetAbsFrameIndex (OrbitalFrame,
 						offset);
 
-			// Normal planets hace sizes start from 1st array element
+			// Normal planets have sizes start from 1st array element
 			planet->size = Size + 1;
 		}
 	}
