@@ -50,12 +50,12 @@
 #include "libs/misc.h"
 #include "scan.h"
 #include "libs/graphics/cmap.h"
-
 #include "../hyper.h"
 		// for SOL_X/Y
-
 #include <math.h>
 #include <time.h>
+#include "libs/graphics/drawable.h"
+		// for SetFrameBounds()
 
 #include SDL_INCLUDE(SDL_version.h)
 
@@ -969,7 +969,7 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 		if (!IS_HD)
 			return DecFrameIndex (stars_in_space);
 		else
-			return stars_in_space;
+			return SetAbsFrameIndex (SpaceJunkFrame, 24);
 	}
 	else
 	{	// Existing collisions are cleared only once the ship does not
@@ -977,8 +977,14 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 #if SDL_MAJOR_VERSION == 1
 		if (!optTexturedPlanets && isPC (optPlanetStyle)
 				&& planet->data_index < PRECURSOR_STARBASE)
-			return SetAbsFrameIndex (OrbitalFrame,
+		{
+			FRAME temp = SetAbsFrameIndex (OrbitalFrame,
 					((planet->size - 1) << FACING_SHIFT));
+
+			SetFrameBounds (temp, RES_SCALE (PBodySize[planet->size]),
+					GetFrameHeight (temp));
+			return temp;
+		}
 		else
 #endif
 		return planet->image.frame;
