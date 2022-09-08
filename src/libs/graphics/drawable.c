@@ -545,7 +545,7 @@ RescalePercentage (FRAME frame, float percentage)
 
 	assert(frame->Type != SCREEN_DRAWABLE);
 
-	percentage = (100 - percentage) / 100;
+	percentage = percentage / 100;
 
 	newFrame = makeMatchingFrame (frame,
 			(int)(frame->Bounds.width * percentage),
