@@ -464,9 +464,13 @@ TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 static void
 TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 {
-	SDL_SetRenderDrawBlendMode (renderer, a == 255 ? SDL_BLENDMODE_NONE 
-			: SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor (renderer, r, g, b, a);
+	//SDL_SetRenderDrawBlendMode (renderer, a == 255 ? SDL_BLENDMODE_NONE 
+	//		: SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawBlendMode (renderer, SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE, 
+			SDL_BLENDFACTOR_ONE, r, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
+				SDL_BLENDOPERATION_MAXIMUM));
+
+	SDL_SetRenderDrawColor (renderer, a, a, a, 255);
 	SDL_RenderFillRect (renderer, rect);
 }
 

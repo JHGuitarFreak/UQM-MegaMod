@@ -969,18 +969,12 @@ getCollisionFrame (PLANET_DESC *planet, COUNT WaitPlanet)
 		if (!IS_HD)
 			return DecFrameIndex (stars_in_space);
 		else
-			return stars_in_space;
+			return SetAbsFrameIndex (SpaceJunkFrame, 24);
+
 	}
 	else
 	{	// Existing collisions are cleared only once the ship does not
 		// intersect anymore with a full planet image
-#if SDL_MAJOR_VERSION == 1
-		if (!optTexturedPlanets && isPC (optPlanetStyle)
-				&& planet->data_index < PRECURSOR_STARBASE)
-			return SetAbsFrameIndex (OrbitalFrame,
-					((planet->size - 1) << FACING_SHIFT));
-		else
-#endif
 		return planet->image.frame;
 	}
 }
@@ -1159,11 +1153,6 @@ SetPlanetOldFrame (PLANET_DESC *planet, COUNT index, COUNT color)
 
 	planet->image.frame = CaptureDrawable (CopyFrameRect (oldFrame, &r));
 	SetFrameHot (planet->image.frame, GetFrameHot (oldFrame));
-	// CaptureDrawable destroys transparency, so it has to be setted again
-#if SDL_MAJOR_VERSION == 1
-	SetFrameTransparentColor (planet->image.frame,
-			BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0xFF));
-#endif
 }
 
 static void
