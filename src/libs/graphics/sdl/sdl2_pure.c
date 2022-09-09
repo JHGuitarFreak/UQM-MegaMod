@@ -56,7 +56,7 @@ static void TFB_SDL2_Postprocess (void);
 static void TFB_SDL2_UploadTransitionScreen (void);
 static void TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
-static void TFB_SDL2_ColorLayer (Uint32 fade, SDL_Rect *rect);
+static void TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
 
 static TFB_GRAPHICS_BACKEND sdl2_scaled_backend = {
         TFB_SDL2_Preprocess,
@@ -462,30 +462,13 @@ TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 }
 
 static void
-TFB_SDL2_ColorLayer (Uint32 fade, SDL_Rect *rect)
+TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 {
 	//SDL_SetRenderDrawBlendMode (renderer, a == 255 ? SDL_BLENDMODE_NONE 
 	//		: SDL_BLENDMODE_BLEND);
-	Uint8 a;
-	if (fade != 255)
-	{
-		if (fade < 255)
-		{
-			a = 255 - fade;
-			SDL_SetRenderDrawBlendMode (renderer, SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE, 
-				SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
-					SDL_BLENDOPERATION_MAXIMUM));
-		}
-		else
-		{
-			a = fade - 255;
-			SDL_SetRenderDrawBlendMode(renderer, SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE, 
-				SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, 
-					SDL_BLENDOPERATION_MAXIMUM));
-		}
-	}
-	else
-		a = fade;
+	SDL_SetRenderDrawBlendMode (renderer, SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE, 
+			SDL_BLENDFACTOR_ONE, r, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
+				SDL_BLENDOPERATION_MAXIMUM));
 
 	SDL_SetRenderDrawColor (renderer, a, a, a, 255);
 	SDL_RenderFillRect (renderer, rect);
