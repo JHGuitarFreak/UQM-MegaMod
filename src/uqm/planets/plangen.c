@@ -1026,7 +1026,7 @@ Draw3DOShield (STAMP ShieldFrame)
 
 	DrawStamp (&ShieldFrame);
 
-	SetContextDrawMode(oldmode);
+	SetContextDrawMode (oldmode);
 
 	i++;
 }
