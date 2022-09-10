@@ -1373,7 +1373,7 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset, COUNT r
 						*c = apply_alpha_pixel (
 							*c, Orbit->scanType);
 					else if (optScanStyle == OPT_PC)
-						TransformColor(c, Orbit->scanType);
+						TransformColor (c, Orbit->scanType);
 				}
 			}
 		}
@@ -1381,106 +1381,6 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset, COUNT r
 
 	WriteFramePixelColors (MaskFrame, Orbit->ScratchArray, diameter, diameter);
 	SetFrameHot (MaskFrame, MAKE_HOT_SPOT (radius + 1, radius + 1));
-/*	if (!Orbit->TopoMask)
-		return;
-	else
-	{
-		Color *mask, *pmask;
-		Color *shade, *pshade;
-		COUNT x, y;
-		SIZE width = MaskFrame->Bounds.width;
-		SIZE height = MaskFrame->Bounds.height;
-		SIZE mheight = Orbit->TopoMask->Bounds.height;
-		RECT r;
-		FRAME dupeframe;
-		PLANET_INFO* PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
-
-		printf ("%d\n", height);
-		r.corner.y = 0;
-		r.corner.x = offset;
-		r.extent.width = width;
-		r.extent.height = mheight;
-
-		// Get rect with offset 
-		dupeframe = CaptureDrawable (CopyFrameRect (Orbit->TopoMask, &r));
-
-		mask = HMalloc (sizeof (Color) * width * height);
-		shade = HMalloc (sizeof (Color) * width * height);
-
-		pmask = mask;
-		pshade = shade;
-
-		{	// We need to tilt the frame
-			STAMP s;
-			FRAME rotFrame;
-			DrawMode oldMode;
-			CONTEXT oldContext;
-
-			if (PlanetInfo->AxialTilt != 0)
-				rotFrame = CaptureDrawable (
-						RotateFrame (dupeframe, -(PlanetInfo->AxialTilt)));
-						// other side in 3DO
-			else
-				rotFrame = CaptureDrawable (
-						CloneFrame (dupeframe));
-
-			GetFrameRect (rotFrame, &r);
-
-			// Draw everything in offscreen context
-			oldContext = SetContext (OffScreenContext);
-			SetContextFGFrame (MaskFrame);
-			ClearDrawable ();
-			SetContextClipRect (NULL);
-
-			oldMode = SetContextDrawMode (DRAW_REPLACE_MODE);
-
-			SetFrameHot (rotFrame, MAKE_HOT_SPOT (0, 0));
-
-			s.origin.x = -(r.extent.width / 2);
-			s.origin.y = -(r.extent.height / 2);
-			s.frame = rotFrame;
-			DrawStamp (&s);
-
-			SetContextDrawMode (oldMode);
-			SetContext (oldContext);
-
-			ReadFramePixelColors (MaskFrame, mask, width, height);
-			ReadFramePixelColors (Orbit->Shade, shade, width, height);
-
-			for (y = 0; y < height; ++y)
-				for (x = 0; x < width; ++x, ++pmask, ++pshade)
-				{
-					if (pshade->r == 0xFF)
-					{
-						pmask->a = 0x00;
-						continue;
-					}
-
-					pmask->r = clip_channel (pmask->r - pshade->r);
-					pmask->g = clip_channel (pmask->g - pshade->g);
-					pmask->b = clip_channel (pmask->b - pshade->b);
-
-					if (optTintPlanSphere == OPT_PC
-							&& Orbit->scanType < NUM_SCAN_TYPES)
-					{
-						if (optScanStyle == OPT_3DO)
-							*pmask = apply_alpha_pixel (
-									*pmask, Orbit->scanType);
-						else if (optScanStyle == OPT_PC)
-							TransformColor (pmask, Orbit->scanType);
-					}
-
-				}
-
-			WriteFramePixelColors (MaskFrame, mask, width, height);
-
-			HFree (mask);
-			HFree (shade);
-
-			DestroyDrawable (ReleaseDrawable (dupeframe));
-			DestroyDrawable (ReleaseDrawable (rotFrame));
-		}
-	}*/
 }
 
 #define RANGE_SHIFT 6
