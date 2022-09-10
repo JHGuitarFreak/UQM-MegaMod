@@ -619,7 +619,7 @@ SetDefaults (void)
 	choices[73].selected = opts.meleeObstacles;
 	choices[74].selected = opts.showVisitedStars;
 	choices[75].selected = opts.unscaledStarSystem;
-	choices[76].selected = opts.scanSphere;
+	choices[76].selected = opts.sphereType;
 	choices[77].selected = opts.slaughterMode;
 
 	sliders[0].value = opts.musicvol;
@@ -712,7 +712,7 @@ PropagateResults (void)
 	opts.meleeObstacles = choices[73].selected;
 	opts.showVisitedStars = choices[74].selected;
 	opts.unscaledStarSystem = choices[75].selected;
-	opts.scanSphere = choices[76].selected;
+	opts.sphereType = choices[76].selected;
 	opts.slaughterMode = choices[77].selected;
 
 	opts.musicvol = sliders[0].value;
@@ -1675,7 +1675,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->scanSphere = (optScanSphere == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->sphereType = res_GetInteger ("mm.sphereType");
 	opts->nebulaevol = res_GetInteger ("mm.nebulaevol");
 	opts->slaughterMode = optSlaughterMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
@@ -2173,8 +2173,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
 	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
 
-	optScanSphere = (opts->scanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.scanSphere", opts->scanSphere == OPTVAL_3DO);
+	res_PutInteger ("mm.sphereType", opts->sphereType);
+	optScanSphere = opts->sphereType;
 
 	res_PutInteger ("mm.nebulaevol", opts->nebulaevol);
 	optNebulaeVolume = opts->nebulaevol;

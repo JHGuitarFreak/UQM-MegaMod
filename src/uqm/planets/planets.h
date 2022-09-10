@@ -102,7 +102,7 @@ enum
 #define THREEDO_ROTATION_RATE (ONE_SECOND * 5 / RES_SCALE (SC2_MAP_WIDTH))
 
 #define PLANET_ROTATION_RATE \
-		(is3DO (optWhichCoarseScan) ? THREEDO_ROTATION_RATE : PC_ROTATION_RATE)
+		(optScanSphere == 1 ? THREEDO_ROTATION_RATE : PC_ROTATION_RATE)
 #define PLANET_ORG_Y ((SCAN_SCREEN_HEIGHT - SIS_ORG_Y) / 2)
 
 #define NUM_RACE_RUINS 16
@@ -165,6 +165,9 @@ struct planet_orbit
 	BYTE *sphereBytes;
 	COLORMAP sphereMap;
 	COUNT scanType;
+
+	FRAME Shade;
+	Color *ShadeColors;
 };
 
 #if defined(__cplusplus)
@@ -316,6 +319,7 @@ extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
 extern BOOLEAN actuallyInOrbit;
 extern BOOLEAN useDosSpheres;
+extern BOOLEAN use3DOSpheres;
 
 // Random context used for all solar system, planets and surfaces generation
 extern RandomContext *SysGenRNG;
@@ -368,10 +372,12 @@ extern void DrawPlanetSphere (int x, int y, bool back);
 extern void DrawDefaultPlanetSphere (void);
 extern void RerenderPlanetSphere (void);
 extern void RenderDOSPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset);
+extern void Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset, COUNT rotwidth, COUNT height);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame,
 		int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width,
 		COUNT height, COUNT radius);
 extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
+extern void Draw3DOShield (STAMP ShieldFrame);
 
 extern void ZoomInPlanetSphere (void);
 extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop);

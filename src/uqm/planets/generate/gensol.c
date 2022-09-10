@@ -465,7 +465,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{	// For Sol Textures
 			RESOURCE maskAnim = NULL;
 
-			if (is3DO (optScanSphere))
+			if (optScanSphere == 2)
 			{
 				switch (planetNr)
 				{
@@ -620,7 +620,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{	// For Sol Textures
 			RESOURCE maskAnim = NULL;
 
-			if (is3DO (optScanSphere))
+			if (optScanSphere == 2)
 			{
 				switch (planetNr)
 				{
