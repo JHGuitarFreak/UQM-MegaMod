@@ -1014,7 +1014,7 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 	SetFrameHot (ThrobFrame, GetFrameHot (ShieldFrame));
 }
 
-static BYTE opacity[16] = {0xDF, 0xCA, 0xCA, 0xA7, 0xA7, 0x80, 0x80, 0x62, 0x62, 0x80, 0x80, 0xA7, 0xA7, 0xCA, 0xCA, 0xDF};
+static BYTE opacity[20] = { 0xFF, 0xE6, 0xE6, 0xC5, 0xC5, 0xA4, 0xA4, 0x83, 0x83, 0x62, 0x62, 0x83, 0x83, 0xA4, 0xA4, 0xC5, 0xC5, 0xE6, 0xE6, 0xFF };
 
 void
 Draw3DOShield (STAMP ShieldFrame)
@@ -1022,7 +1022,7 @@ Draw3DOShield (STAMP ShieldFrame)
 	static COUNT i = 0;
 	DrawMode oldmode;
 
-	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ALPHA, opacity[i % 16]));
+	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ADDITIVE, opacity[i % 20]));
 
 	DrawStamp (&ShieldFrame);
 
@@ -2941,7 +2941,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		{
 			CreateSphereTiltMap (PlanetInfo->AxialTilt, height, radius);
 			Orbit->Shade =
-					SetAbsFrameIndex (Orbit->Shade, 0);
+					SetAbsFrameIndex (Orbit->Shade, facing);
 			ReadFramePixelColors (Orbit->Shade, Orbit->ShadeColors, 
 					GetFrameWidth (Orbit->Shade), GetFrameHeight (Orbit->Shade));
 		}
