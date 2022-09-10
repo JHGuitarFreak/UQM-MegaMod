@@ -60,24 +60,31 @@ DrawCurrentPlanetSphere (void)
 		else if (rotPointIndex >= rotwidth)
 			rotPointIndex = 0;
 
-		if (!useDosSpheres)
-		{
-			Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame,
-				rotFrameIndex);
-			RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
-				pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-				throbShield, rotwidth, rotheight,
-				(rotheight >> 1) - IF_HD (2));
-		}
-		else
+		if (useDosSpheres)
 		{
 			if (rotFrameIndex)
 				Orbit->SphereFrame = IncFrameIndex (Orbit->SphereFrame);
-			else
-				Orbit->SphereFrame = DecFrameIndex (Orbit->SphereFrame);
 
 			RenderDOSPlanetSphere (
 					Orbit, Orbit->SphereFrame, rotPointIndex);
+		}
+		else if (use3DOSpheres)
+		{
+			Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame,
+					rotFrameIndex);
+
+			Render3DOPlanetSphere (
+					Orbit, Orbit->SphereFrame, rotPointIndex, rotwidth, rotheight);
+		}
+		else
+		{
+			Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame,
+					rotFrameIndex);
+			RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
+					pSolarSysState->pOrbitalDesc->data_index
+						& PLANET_SHIELDED,
+					throbShield, rotwidth, rotheight,
+					(rotheight >> 1) - IF_HD (2));
 		}
 	}
 	BatchGraphics ();
@@ -86,7 +93,11 @@ DrawCurrentPlanetSphere (void)
 	if (Orbit->ObjectFrame)
 	{
 		s.frame = Orbit->ObjectFrame;
-		DrawStamp (&s);
+
+		if (use3DOSpheres)
+			Draw3DOShield (s);
+		else
+			DrawStamp (&s);
 	}
 	UnbatchGraphics ();
 	SetContext (oldContext);
@@ -118,7 +129,10 @@ DrawPlanetSphere (int x, int y, bool back)
 	if (Orbit->ObjectFrame)
 	{
 		s.frame = Orbit->ObjectFrame;
-		DrawStamp (&s);
+		if (use3DOSpheres)
+			Draw3DOShield (s);
+		else
+			DrawStamp (&s);
 	}
 	UnbatchGraphics ();
 }
@@ -172,7 +186,7 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width,
 
 	rotDirection = direction;
 	rotPointIndex = 0;
-	throbShield = shielded && optWhichShield == OPT_3DO && !useDosSpheres;
+	throbShield = shielded && optWhichShield == OPT_3DO && !(useDosSpheres || use3DOSpheres);
 
 	if (throbShield)
 	{
@@ -225,23 +239,32 @@ PrepareNextRotationFrame (void)
 		rotPointIndex = 0;
 
 	// prepare the next sphere frame
-	if (!useDosSpheres)
+	if (useDosSpheres)
 	{
-		Orbit->SphereFrame =
-				SetAbsFrameIndex (Orbit->SphereFrame, rotFrameIndex);
-		RenderPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
-				pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
-				throbShield, rotwidth, rotheight,
-				(rotheight >> 1) - IF_HD(2)); // RADIUS
+		if (rotFrameIndex)
+			Orbit->SphereFrame = IncFrameIndex(Orbit->SphereFrame);
+		else
+			Orbit->SphereFrame = DecFrameIndex(Orbit->SphereFrame);
+
+		RenderDOSPlanetSphere(
+			Orbit, Orbit->SphereFrame, rotPointIndex);
+	}
+	else if (use3DOSpheres)
+	{
+		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame,
+			rotFrameIndex);
+
+		Render3DOPlanetSphere (
+				Orbit, Orbit->SphereFrame, rotPointIndex, rotwidth, rotheight);
 	}
 	else
 	{
-		if (rotFrameIndex)
-			Orbit->SphereFrame = IncFrameIndex (Orbit->SphereFrame);
-		else
-			Orbit->SphereFrame = DecFrameIndex (Orbit->SphereFrame);
-
-		RenderDOSPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex);
+		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame,
+			rotFrameIndex);
+		RenderPlanetSphere(Orbit, Orbit->SphereFrame, rotPointIndex,
+			pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED,
+			throbShield, rotwidth, rotheight,
+			(rotheight >> 1) - IF_HD(2));
 	}
 	
 	if (throbShield)

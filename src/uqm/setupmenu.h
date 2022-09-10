@@ -122,6 +122,12 @@ typedef enum {
 	OPTVAL_TRILINEAR
 } OPT_MELEEZOOM;
 
+typedef enum {
+	OPTVAL_PC_SPHERE,
+	OPTVAL_3DO_SPHERE,
+	OPTVAL_UQM_SPHERE
+} OPT_SPHERETYPE;
+
 /* At the moment, CONTROL_TEMPLATE is directly in this structure.  If
  * CONTROL_TEMPLATE and the options available diverge, this will need
  * to change */
@@ -139,6 +145,7 @@ typedef struct globalopts_struct {
 	OPT_MELEEZOOM meleezoom;
 	OPT_CONTROLLER controllerType;
 	OPT_FUELRANGE fuelRange;
+	OPT_SPHERETYPE sphereType;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
@@ -151,7 +158,7 @@ typedef struct globalopts_struct {
 			showVisitedStars, unscaledStarSystem, slaughterMode;
 	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
-			scopeStyle, landerStyle, flagshipColor, scanSphere;
+			scopeStyle, landerStyle, flagshipColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol;
 	int gamma, customSeed, starBackground;
