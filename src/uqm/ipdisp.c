@@ -35,6 +35,7 @@
 
 BOOLEAN legacySave;
 BYTE GTFO = 0;
+extern FRAME SpaceJunkFrame;
 
 void
 NotifyOthers (COUNT which_race, BYTE target_loc)
@@ -707,8 +708,9 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 
 		SetUpElement (IPSHIPElementPtr);
 		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame =
-				DecFrameIndex (stars_in_space);
-
+				(IS_HD ? SetAbsFrameIndex (SpaceJunkFrame, 24) :
+					DecFrameIndex (stars_in_space));
+		
 		UnlockElement (hIPSHIPElement);
 
 		PutElement (hIPSHIPElement);
