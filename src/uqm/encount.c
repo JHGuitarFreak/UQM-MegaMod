@@ -302,7 +302,8 @@ InitEncounter (void)
 
 	MR = LoadMusic (REDALERT_MUSIC);
 	PlayMusic (MR, FALSE, 1);
-	SegueFrame = CaptureDrawable (LoadGraphic (SEGUE_PMAP_ANIM));
+	SegueFrame = optNebulae ? CreateStarBackGround (TRUE) :
+			CaptureDrawable (LoadGraphic (SEGUE_PMAP_ANIM));
 	WaitForSoundEnd (TFBSOUND_WAIT_ALL);
 	StopMusic ();
 	DestroyMusic (MR);
@@ -313,7 +314,7 @@ InitEncounter (void)
 	
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
-	s.frame = optNebulae ? CreateStarBackGround(TRUE) : SegueFrame;
+	s.frame = SegueFrame;
 	DrawStamp (&s);
 
 //    t.baseline.x = SIS_SCREEN_WIDTH >> 1;

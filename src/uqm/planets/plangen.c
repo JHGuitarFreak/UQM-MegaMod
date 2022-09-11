@@ -939,7 +939,16 @@ SaveBackFrame (COUNT radius)
 	COUNT shieldradius = SHIELD_RADIUS * radius / RADIUS;
 	COUNT shielddiam = (shieldradius << 1) + 1;
 
+	// Kruzen: prepare back frame in OffScreenContext.
+	// Cannot do it directly in planet context
+	// because on game load Star background being drawn after
+	// this part. Drawing Star background to PlanetContext
+	// kills smooth transition
 	oldContext = SetContext (PlanetContext);
+	GetContextClipRect (&r);
+	SetContext (OffScreenContext);
+	SetContextClipRect (&r);
+	DrawStarBackGround ();
 
 	r.corner = MAKE_POINT ((RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1))
 			- (shieldradius + 1), PLANET_ORG_Y - (shieldradius + 1));
@@ -1024,24 +1033,30 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 	SetFrameHot (ThrobFrame, GetFrameHot (ShieldFrame));
 }
 
-static BYTE opacity[20] =
-		{ 0xFF, 0xE6, 0xE6, 0xC5, 0xC5, 0xA4, 0xA4, 0x83, 0x83, 0x62, 0x62,
-			0x83, 0x83, 0xA4, 0xA4, 0xC5, 0xC5, 0xE6, 0xE6, 0xFF };
+static BYTE opacity[10] =
+		{ 0xFF, 0xE6, 0xC5, 0xA4, 0x83, 0x62,
+			0x83, 0xA4, 0xC5, 0xE6 };
+
+#define FRAME_SKIP RES_DBL (2)
 
 void
 Draw3DOShield (STAMP ShieldFrame)
 {
-	static COUNT i = 0;
+	static DWORD i = 0;
+	static DWORD cr = 0;
 	DrawMode oldmode;
 
 	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ADDITIVE,
-			opacity[i % 20]));
+			opacity[i % 10]));
 
 	DrawStamp (&ShieldFrame);
 
 	SetContextDrawMode (oldmode);
 
-	i++;
+	if (cr % FRAME_SKIP == 0)
+		i++;
+
+	cr++;
 }
 
 // Apply the shield to the topo image
@@ -1110,6 +1125,20 @@ apply_alpha_pixel (Color pix, int scan)
 			+ (pix.g * 0xFF * (0xFF - 0x45) / (255 * 255));
 	c.b = (tintColors[scan].b * 0x45 / 0xFF)
 			+ (pix.b * 0xFF * (0xFF - 0x45) / (255 * 255));
+
+	return c;
+}
+
+static inline Color
+apply_additive_pixel (Color pix, int scan)
+{
+	Color c;
+	c.r = clip_channel (pix.r + ((tintColors[scan].r 
+		* 0x45) >> 8));
+	c.g = clip_channel (pix.g + ((tintColors[scan].g 
+		* 0x45) >> 8));
+	c.b = clip_channel (pix.b + ((tintColors[scan].b 
+		* 0x45) >> 8));
 
 	return c;
 }
@@ -1400,7 +1429,7 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset,
 					&& Orbit->scanType < NUM_SCAN_TYPES)
 				{
 					if (optScanStyle == OPT_3DO)
-						*c = apply_alpha_pixel (
+						*c = apply_additive_pixel (
 							*c, Orbit->scanType);
 					else if (optScanStyle == OPT_PC)
 						TransformColor (c, Orbit->scanType);
