@@ -2436,10 +2436,10 @@ GenerateLightMap (SBYTE *pTopo, int w, int h)
 
 void
 load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
-	PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN ForIP)
+		PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN ForIP)
 {
 	if (CheckColorMap (pPlanetDesc->alternate_colormap)
-			&& optScanSphere == 2 && !ForIP)
+			&& optScanSphere && !ForIP)
 	{	// JMS: Planets with special colormaps
 		pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (pPlanetDesc->alternate_colormap));
@@ -2695,7 +2695,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			log_add (log_Warning, "No planet mask generated.\n");
 	}
 
-	if (!ForIP && optScanStyle == OPT_PC && !shielded)
+	if (!ForIP && isPC (optScanStyle) && !shielded)
 	{
 		COUNT i;
 
@@ -2800,7 +2800,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 				width + spherespanx, height);
 		// Extend the width from MAP_WIDTH to MAP_WIDTH+SPHERE_SPAN_X
 		for (y = 0; y < (DWORD)(height * (width + spherespanx));
-			y += width + spherespanx)
+				y += width + spherespanx)
 			memcpy(Orbit->TopoColors + y + width, Orbit->TopoColors + y,
 					spherespanx * sizeof(Orbit->TopoColors[0]));
 	}
@@ -2877,7 +2877,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	if (shielded)
 	{
 		Orbit->ObjectFrame =
-				(((useDosSpheres || use3DOSpheres) && !ForIP) ?
+				((optScanSphere < 2 && !ForIP) ?
 					(useDosSpheres ?
 					CaptureDrawable (LoadGraphic (DOS_SHIELD_MASK_ANIM)) :
 					CaptureDrawable (LoadGraphic (TDO_SHIELD_MASK_ANIM)))
