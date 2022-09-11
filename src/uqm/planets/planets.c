@@ -453,7 +453,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
 
-	if (optIPScaler != OPT_3DO)
+	if (isPC (optSuperPC))
 		SleepThread (ONE_SECOND);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
@@ -461,7 +461,7 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	if (WaitMode)
 	{
-		if (optIPScaler == OPT_3DO)
+		if (is3DO (optIPScaler) || optScanSphere == 1)
 			ZoomInPlanetSphere ();
 		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE);
 	}

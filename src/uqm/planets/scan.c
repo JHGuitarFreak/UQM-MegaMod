@@ -846,11 +846,16 @@ drawLandingFuelUsage (COUNT fuel)
 	StatMsgMode old_status_message_mode = SMM_UNDEFINED;
 	UNICODE buf[100];
 
-	if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel) <= (SDWORD)(get_fuel_to_sol ()))
-	{ /* We will not have enough fuel to get to Sol if we dispatch the lander */
+	if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel)
+			<= (SDWORD)(get_fuel_to_sol ()))
+	{	// We will not have enough fuel to get to Sol if we dispatch the
+		// lander
 		old_status_message_mode = SetStatusMessageMode (SMM_ALERT);
-	} else if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel) <= (SDWORD)(get_fuel_to_sol () + (5 * FUEL_TANK_SCALE)))
-	{ /* We will have enough fuel to get to Sol if we dispatch the lander, but will have less than 5 to spare */
+	}
+	else if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel)
+			<= (SDWORD)(get_fuel_to_sol () + (5 * FUEL_TANK_SCALE)))
+	{	// We will have enough fuel to get to Sol if we dispatch the lander
+		// but will have less than 5 to spare
 		old_status_message_mode = SetStatusMessageMode (SMM_WARNING);
 	}
 
@@ -1069,7 +1074,8 @@ DrawPCScannedStuff (COUNT scan)
 		RotatePlanetSphere (TRUE, NULL);
 	}
 	if (hElement)
-	{	// scan aborted - make everything scanned, workaround for singular scan
+	{	// scan aborted - make everything scanned, workaround for singular
+		// scan
 		while (hElement)
 		{
 			LockElement (hElement, &ElementPtr);

@@ -80,8 +80,9 @@
 #endif
 
 // BW: dynamically allocated in the orbit structure
-// JMS_GFX: Changed initialization to constant numbers since DIAMETER is now variably defined
-// The value 330 is the value that's reached at the biggest resolution, 4x.
+// JMS_GFX: Changed initialization to constant numbers since DIAMETER is
+// now variably defined The value 330 is the value that's reached at the
+// biggest resolution, 4x.
 // DWORD light_diff[330][330]; //DWORD light_diff[DIAMETER][DIAMETER];
 
 // BW: Moved to planets.h
@@ -92,9 +93,11 @@
 // } MAP3D_POINT;
 
 // BW: dynamically allocated in the orbit structure
-// JMS_GFX: Changed initialization to constant numbers since DIAMETER is now variably defined
-// The value 330 is the value that's reached at the biggest resolution, 4x.
-// MAP3D_POINT map_rotate[330][330];//MAP3D_POINT map_rotate[DIAMETER][DIAMETER];
+// JMS_GFX: Changed initialization to constant numbers since DIAMETER is
+// now variably defined The value 330 is the value that's reached at the
+// biggest resolution, 4x.
+// MAP3D_POINT map_rotate[330][330];
+// //MAP3D_POINT map_rotate[DIAMETER][DIAMETER];
 
 typedef struct
 {
@@ -174,7 +177,8 @@ void
 SetPlanetColors (COLORMAPPTR cmap)
 {	// Setting colors for table that is used to color spheres
 	// Hacky, but imitates the original rather well
-	// That way we can have only 1 set of spheres and color them appropriately
+	// That way we can have only 1 set of spheres and color them
+	// appropriately
 	BYTE *cbase, *ctab;
 	Color *colors, *c;
 	COUNT i;
@@ -417,7 +421,8 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h,
 		// There is currently nothing we can do w/o an xlat table
 		// This is still called for Earth for 4x scaled topo, but we
 		// do not need it because we cannot land on Earth.
-		log_add (log_Warning, "No xlat table -- could not generate surface.\n");
+		log_add (log_Warning,
+				"No xlat table -- could not generate surface.\n");
 	}
 	else
 	{
@@ -453,7 +458,8 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h,
 		AlgoType = PLANALGO (PlanDataPtr->Type);
 
 		if (SurfDef)
-		{	// Planets given by a pixmap have elevations between -128 and +128
+		{	// Planets given by a pixmap have elevations between -128 and
+			// +128
 			base = 256;
 		}
 		else
@@ -787,7 +793,9 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 			double dx, dy, newx, newy;
 			double da, rad, rad_2;
 			double xa, ya;
-			MAP3D_POINT *ppt = &pSolarSysState->Orbit.map_rotate[y + radius][x + radius];
+			MAP3D_POINT *ppt =
+					&pSolarSysState->Orbit.map_rotate[y + radius]
+						[x + radius];
 			
 			rad_2 = x * x + y_2;
 
@@ -830,16 +838,17 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 //CreateShieldMask
 // The shield is created in two parts.  This routine creates the Halo.
 // The red tint of the planet is currently applied in RenderPlanetSphere
-// This was done because the shield glows and needs to modify how the planet
-// gets lit. Currently, the planet area is transparent in the mask made by
-// this routine, but a filter can be applied if desired too.
+// This was done because the shield glows and needs to modify how the
+// planet gets lit. Currently, the planet area is transparent in the mask
+// made by this routine, but a filter can be applied if desired too.
 
 // HALO rim size
 #define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? 5 : 16)
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
-#define SHIELD_RADIUS_THRES  ((SHIELD_RADIUS + RES_SCALE (1)) * (SHIELD_RADIUS + RES_SCALE (1)))
+#define SHIELD_RADIUS_THRES \
+		((SHIELD_RADIUS + RES_SCALE (1)) * (SHIELD_RADIUS + RES_SCALE (1)))
 #define SHIELD_HALO_GLOW     (SHIELD_GLOW_COMP + SHIELD_REFLECT_COMP)
 #define SHIELD_HALO_GLOW_MIN (SHIELD_HALO_GLOW >> 2)
 
@@ -932,7 +941,8 @@ SaveBackFrame (COUNT radius)
 
 	oldContext = SetContext (PlanetContext);
 
-	r.corner = MAKE_POINT ((RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1)) - (shieldradius + 1), PLANET_ORG_Y - (shieldradius + 1));
+	r.corner = MAKE_POINT ((RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1))
+			- (shieldradius + 1), PLANET_ORG_Y - (shieldradius + 1));
 	r.extent.height = r.extent.width = shielddiam;
 
 	BackFrame = CaptureDrawable (CopyContextRect (&r));
@@ -1014,7 +1024,9 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 	SetFrameHot (ThrobFrame, GetFrameHot (ShieldFrame));
 }
 
-static BYTE opacity[20] = { 0xFF, 0xE6, 0xE6, 0xC5, 0xC5, 0xA4, 0xA4, 0x83, 0x83, 0x62, 0x62, 0x83, 0x83, 0xA4, 0xA4, 0xC5, 0xC5, 0xE6, 0xE6, 0xFF };
+static BYTE opacity[20] =
+		{ 0xFF, 0xE6, 0xE6, 0xC5, 0xC5, 0xA4, 0xA4, 0x83, 0x83, 0x62, 0x62,
+			0x83, 0x83, 0xA4, 0xA4, 0xC5, 0xC5, 0xE6, 0xE6, 0xFF };
 
 void
 Draw3DOShield (STAMP ShieldFrame)
@@ -1022,7 +1034,8 @@ Draw3DOShield (STAMP ShieldFrame)
 	static COUNT i = 0;
 	DrawMode oldmode;
 
-	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ADDITIVE, opacity[i % 20]));
+	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ADDITIVE,
+			opacity[i % 20]));
 
 	DrawStamp (&ShieldFrame);
 
@@ -1079,8 +1092,11 @@ calc_map_light (UBYTE val, DWORD dif, int lvf)
 static inline Color
 get_map_pixel (Color *pixels, int x, int y, COUNT width, COUNT spherespanx)
 {
-	/*if (y * (width + spherespanx) + x > 463000)
-		log_add(log_Warning,"x:%u, y:%u, width:%u, spherespanx:%u, slot:%u. Max:%u", x, y, width, spherespanx, y * (width + spherespanx) + x, (MAP_HEIGHT+1) * (MAP_WIDTH + spherespanx)); */
+	/* if (y * (width + spherespanx) + x > 463000)
+		log_add (log_Warning,"x:%u, y:%u, width:%u, spherespanx:%u, "
+				"slot:%u. Max:%u", x, y, width, spherespanx,
+				y * (width + spherespanx) + x,
+				(MAP_HEIGHT + 1) * (MAP_WIDTH + spherespanx)); */
 	return pixels[y * (width + spherespanx) + x];
 }
 
@@ -1088,9 +1104,12 @@ static inline Color
 apply_alpha_pixel (Color pix, int scan)
 {
 	Color c;
-	c.r = (tintColors[scan].r * 0x45 / 0xFF) + (pix.r * 0xFF * (0xFF - 0x45) / (255 * 255));
-	c.g = (tintColors[scan].g * 0x45 / 0xFF) + (pix.g * 0xFF * (0xFF - 0x45) / (255 * 255));
-	c.b = (tintColors[scan].b * 0x45 / 0xFF) + (pix.b * 0xFF * (0xFF - 0x45) / (255 * 255));
+	c.r = (tintColors[scan].r * 0x45 / 0xFF)
+			+ (pix.r * 0xFF * (0xFF - 0x45) / (255 * 255));
+	c.g = (tintColors[scan].g * 0x45 / 0xFF)
+			+ (pix.g * 0xFF * (0xFF - 0x45) / (255 * 255));
+	c.b = (tintColors[scan].b * 0x45 / 0xFF)
+			+ (pix.b * 0xFF * (0xFF - 0x45) / (255 * 255));
 
 	return c;
 }
@@ -1103,7 +1122,8 @@ get_map_elev (SBYTE *elevs, int x, int y, int offset, COUNT width)
 
 // RenderPlanetSphere builds a frame for the rotating planet view
 // offset is effectively the angle of rotation around the planet's axis
-// We use the SDL routines to directly write to the SDL_Surface to improve performance
+// We use the SDL routines to directly write to the SDL_Surface to improve
+// performance
 void
 RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 		BOOLEAN shielded, BOOLEAN doThrob, COUNT width, COUNT height,
@@ -1158,8 +1178,10 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 			// get pixel from topo map and factor from light variance map
 			if (ppt->m[0] == 0) 
 			{	// exact pixel from the topo map
-				c = get_map_pixel (pixels, ppt->p[0].x, ppt->p[0].y, width, spherespanx);
-				lvf = get_map_elev (elevs, ppt->p[0].x, ppt->p[0].y, offset, width);
+				c = get_map_pixel (pixels, ppt->p[0].x, ppt->p[0].y, width,
+						spherespanx);
+				lvf = get_map_elev (elevs, ppt->p[0].x, ppt->p[0].y,
+						offset, width);
 			}
 			else
 			{	// fractional pixel -- blend from 4
@@ -1168,7 +1190,8 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 
 				// compute 'ideal' pixel
 				for (i = 0; i < 4; i++)
-					p[i] = get_map_pixel (pixels, ppt->p[i].x, ppt->p[i].y, width, spherespanx);
+					p[i] = get_map_pixel (pixels, ppt->p[i].x, ppt->p[i].y,
+							width, spherespanx);
 				
 				c.r = get_avg_channel (p, ppt->m, 0);
 				c.g = get_avg_channel (p, ppt->m, 1);
@@ -1177,7 +1200,7 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 				// compute 'ideal' light variance
 				for (i = 0, lvsum = 0; i < 4; i++)
 					lvsum += get_map_elev (elevs, ppt->p[0].x, ppt->p[0].y,
-							       offset, width) * ppt->m[i];
+							offset, width) * ppt->m[i];
 				lvf = lvsum >> AA_WEIGHT_BITS;
 			}
 		
@@ -1226,7 +1249,8 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 		}
 	}
 	
-	WriteFramePixelColors (MaskFrame, Orbit->ScratchArray, diameter, diameter);
+	WriteFramePixelColors (MaskFrame, Orbit->ScratchArray, diameter,
+			diameter);
 	SetFrameHot (MaskFrame, MAKE_HOT_SPOT (radius + 1, radius + 1));
 
 #if PROFILE_ROTATION
@@ -1247,7 +1271,7 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 
 void
 RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
-{	// Kruzen: Yes, I know what to say to Apostle Peter when my time will come.
+{
 	if (!Orbit->TopoMask)
 		return;
 	else
@@ -1301,12 +1325,14 @@ RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
 			SetContext (oldContext);
 
 			// We got our colors - dump everything to avoid memory leak
-			ReadFramePixelColors (baseframe, Orbit->ScratchArray, width, trueheight);
+			ReadFramePixelColors (baseframe, Orbit->ScratchArray, width,
+					trueheight);
 			DestroyDrawable (ReleaseDrawable (baseframe));
 			DestroyDrawable (ReleaseDrawable (rotFrame));
 		}
 		else
-			ReadFramePixelColors (dupeframe, Orbit->ScratchArray, width, height);
+			ReadFramePixelColors (dupeframe, Orbit->ScratchArray, width,
+					height);
 
 		pix = Orbit->sphereBytes;
 		color = Orbit->ScratchArray;
@@ -1323,7 +1349,8 @@ RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
 				}
 			}
 		}
-		WriteFramePixelIndexes (MaskFrame, Orbit->sphereBytes, MaskFrame->Bounds.width, MaskFrame->Bounds.height);
+		WriteFramePixelIndexes (MaskFrame, Orbit->sphereBytes,
+				MaskFrame->Bounds.width, MaskFrame->Bounds.height);
 
 		DestroyDrawable (ReleaseDrawable (dupeframe));
 		dupeframe = 0;
@@ -1331,7 +1358,8 @@ RenderDOSPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset)
 }
 
 void
-Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset, COUNT rotwidth, COUNT height)
+Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset,
+		COUNT rotwidth, COUNT height)
 {
 	int x, y;
 	Color *c, *pixels, *shade;
@@ -1349,18 +1377,20 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset, COUNT r
 
 	for (pt.y = 0, y = -radius; pt.y <= tworadius; ++pt.y, ++y)
 	{
-		for (pt.x = 0, x = -radius; pt.x <= tworadius; ++pt.x, ++x, ++c, ++shade)
+		for (pt.x = 0, x = -radius; pt.x <= tworadius; ++pt.x, ++x, ++c,
+				++shade)
 		{
 			MAP3D_POINT* ppt = &Orbit->map_rotate[pt.y][pt.x];
 
 			if (ppt->m[0] == 0 || shade->r == 0xFF)
-			{	// exact pixel from the topo map					
+			{	// exact pixel from the topo map
 				*c = clear;
 				continue;
 			}
 			else
 			{
-				*c = get_map_pixel(pixels, ppt->p[0].x, ppt->p[0].y, rotwidth, spherespanx);
+				*c = get_map_pixel (pixels, ppt->p[0].x, ppt->p[0].y,
+						rotwidth, spherespanx);
 
 				c->r = clip_channel (c->r - shade->r);
 				c->g = clip_channel (c->g - shade->g);
@@ -1379,7 +1409,8 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset, COUNT r
 		}
 	}
 
-	WriteFramePixelColors (MaskFrame, Orbit->ScratchArray, diameter, diameter);
+	WriteFramePixelColors (MaskFrame, Orbit->ScratchArray, diameter,
+			diameter);
 	SetFrameHot (MaskFrame, MAKE_HOT_SPOT (radius + 1, radius + 1));
 }
 
@@ -1393,7 +1424,8 @@ DitherMap (SBYTE *DepthArray, COUNT width, COUNT height)
 	SBYTE *elev;
 	DWORD rand_val = 0;
 
-	for (i = 0, elev = DepthArray; i < (DWORD)(width * height); ++i, ++elev)
+	for (i = 0, elev = DepthArray; i < (DWORD)(width * height); ++i,
+			++elev)
 	{
 		// Use up the random value byte by byte
 		if ((i & 3) == 0)
@@ -1412,9 +1444,9 @@ MakeCrater (RECT *pRect, SBYTE *DepthArray, SIZE rim_delta, SIZE
 {
 	COORD x, y, lf_x, rt_x;
 	SIZE A, B;
-	SDWORD Asquared, TwoAsquared, Bsquared, TwoBsquared;// JMS_GFX: Was 'long' - type changed to conform to UQM's own types
-	SDWORD d, dx, dy;									// JMS_GFX: Was 'long' - type changed to conform to UQM's own types
-	DWORD TopIndex, BotIndex, rim_pixels;				// JMS_GFX: Was COUNT - type changed because of overflow in HD
+	SDWORD Asquared, TwoAsquared, Bsquared, TwoBsquared;
+	SDWORD d, dx, dy;
+	DWORD TopIndex, BotIndex, rim_pixels;
  
 
 	A = pRect->extent.width >> 1;
@@ -1599,7 +1631,8 @@ MakeCrater (RECT *pRect, SBYTE *DepthArray, SIZE rim_delta, SIZE
 #define NUM_BAND_COLORS 4
 
 static void
-MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
+MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width,
+		COUNT height)
 {
 #define MAX_STORMS 8
 	COUNT i;
@@ -1661,10 +1694,14 @@ MakeStorms (COUNT storm_count, SBYTE *DepthArray, COUNT width, COUNT height)
 			pstorm_r->corner.y = LOBYTE (loword)
 					% (ORIGINAL_MAP_HEIGHT - pstorm_r->extent.height);
 
-			pstorm_r->corner.x = pstorm_r->corner.x * width / ORIGINAL_MAP_WIDTH;
-			pstorm_r->extent.width = pstorm_r->extent.width * width / ORIGINAL_MAP_WIDTH;
-			pstorm_r->corner.y = pstorm_r->corner.y * height / ORIGINAL_MAP_HEIGHT;
-			pstorm_r->extent.height = pstorm_r->extent.height * height / ORIGINAL_MAP_HEIGHT;
+			pstorm_r->corner.x = pstorm_r->corner.x * width
+					/ ORIGINAL_MAP_WIDTH;
+			pstorm_r->extent.width = pstorm_r->extent.width * width
+					/ ORIGINAL_MAP_WIDTH;
+			pstorm_r->corner.y = pstorm_r->corner.y * height
+					/ ORIGINAL_MAP_HEIGHT;
+			pstorm_r->extent.height = pstorm_r->extent.height * height
+					/ ORIGINAL_MAP_HEIGHT;
 
 			for (j = i + 1; j < storm_count; ++j)
 			{
@@ -1773,9 +1810,11 @@ MakeGasGiant (COUNT num_bands, SBYTE *DepthArray, RECT *pRect, SIZE
 			cur_y = cur_y * pRect->extent.height / ORIGINAL_MAP_HEIGHT;
 			r.corner.x = r.corner.y = 0;
 			r.extent.width = pRect->extent.width;
-			r.extent.height = 5 * pRect->extent.height / ORIGINAL_MAP_HEIGHT;
+			r.extent.height = 5 * pRect->extent.height
+					/ ORIGINAL_MAP_HEIGHT;
 			DeltaTopography (50,
-					&DepthArray[(cur_y - (r.extent.height >> 1)) * r.extent.width],
+					&DepthArray[(cur_y - (r.extent.height >> 1))
+						* r.extent.width],
 					&r, depth_delta);
 		}
 
@@ -1805,7 +1844,7 @@ ValidateMap (SBYTE *DepthArray, COUNT width, COUNT height)
 	BYTE state;
 	BYTE pixel_count[2], lb[2];
 	SBYTE last_byte;
-	DWORD i;  // JMS_GFX: changed from COUNT to avoid overflow at higher resolutions.
+	DWORD i;
 	SBYTE *lpDst;
 
 	i = width - 1;
@@ -1864,12 +1903,8 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 	// always needed
 	Orbit->lpTopoData = HCalloc (width * height);
-	
-	if (!forOrbit || !(use3DOSpheres || useDosSpheres))
-	{// UQM sphere
-		Orbit->SphereFrame = CaptureDrawable (CreateDrawable (
-				WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));
 
+	{
 		Orbit->ObjectFrame = 0;
 
 		// tints for 3DO scan
@@ -1879,10 +1914,34 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 		Orbit->TintColor = BLACK_COLOR;
 
+		Orbit->TopoColors = NULL;
+		Orbit->ScanColors = NULL;
+
+		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
+				* (shielddiam) * (shielddiam));
+
+		Orbit->WorkFrame = 0;
+		Orbit->BackFrame = 0;
+
+		Orbit->Shade = 0;
+		Orbit->ShadeColors = NULL;
+
+		Orbit->TopoMask = 0;
+		Orbit->sphereBytes = NULL;
+		Orbit->sphereMap = 0;
+		Orbit->scanType = NUM_SCAN_TYPES;
+	}
+	
+	if (!forOrbit || optScanSphere)
+	{	// UQM & 3DO sphere
+		Orbit->SphereFrame = CaptureDrawable (CreateDrawable (
+				WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));
+
 		Orbit->TopoColors = HMalloc (sizeof (Orbit->TopoColors[0])
 				* (height * (width + spherespanx)));
 
-		if (forOrbit && isPC (optScanStyle) && isPC (optTintPlanSphere))
+		if (forOrbit && isPC (optScanStyle) && isPC (optTintPlanSphere)
+				&& !use3DOSpheres)
 		{	// generate only on that conditions and then use if not NULL
 			Orbit->ScanColors =
 				HMalloc (sizeof (Color*) * NUM_SCAN_TYPES);
@@ -1893,113 +1952,47 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 						* (height * (width + spherespanx)));
 			}
 		}
+
+		if (!use3DOSpheres)
+			Orbit->light_diff = HMalloc (sizeof (DWORD *) * diameter);
 		else
-			Orbit->ScanColors = NULL;
+			Orbit->light_diff = NULL;
 
-		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
-				* (shielddiam) * (shielddiam));
-
-		Orbit->WorkFrame = 0;
-		Orbit->BackFrame = 0;
-
-		Orbit->light_diff = HMalloc (sizeof (DWORD *) * diameter);
 		Orbit->map_rotate = HMalloc (sizeof (MAP3D_POINT *) * diameter);
 
 		for (i = 0; i < diameter; i++)
 		{
-			Orbit->light_diff[i] = HMalloc (sizeof (DWORD) * diameter);
+			if (!use3DOSpheres)
+				Orbit->light_diff[i] = HMalloc (sizeof (DWORD) * diameter);
 			Orbit->map_rotate[i] =
 					HMalloc (sizeof (MAP3D_POINT) * diameter);
 		}
 
-		Orbit->TopoMask = 0;
-		Orbit->sphereBytes = NULL;
-		Orbit->sphereMap = 0;
-		Orbit->scanType = NUM_SCAN_TYPES;
-		Orbit->Shade = 0;
-		Orbit->ShadeColors = NULL;
+		if (use3DOSpheres)
+		{
+			Orbit->Shade =
+					CaptureDrawable (LoadGraphic (PLANET_MASK_SHADE));
+
+			Orbit->ShadeColors = Orbit->ShadeColors =
+					HMalloc (sizeof (Color) * GetFrameWidth (Orbit->Shade)
+					* GetFrameHeight (Orbit->Shade));
+		}
 	}
-	else if (useDosSpheres)
-	{ // DOS sphere
+	else
+	{	// DOS sphere
 		Orbit->SphereFrame = 
 			CaptureDrawable (LoadGraphic (DOS_PLANET_MASK_ANIM));
-
-		Orbit->ObjectFrame = 0;
-
-		// tints for 3DO scan
-		if (forOrbit && optScanStyle != OPT_PC)
-			Orbit->TintFrame = CaptureDrawable(CreateDrawable(
-				WANT_PIXMAP, width, height, 1));
-
-		Orbit->TintColor = BLACK_COLOR;
-
-		Orbit->TopoColors = NULL;
-		Orbit->ScanColors = NULL;
-
-		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
-			* (shielddiam) * (shielddiam));
-
-		Orbit->WorkFrame = 0;
-		Orbit->BackFrame = 0;
-
-		Orbit->light_diff = NULL;
-		Orbit->map_rotate = NULL;
 
 		Orbit->TopoMask = CaptureDrawable (CreateDrawable (
 				WANT_PIXMAP, (SIZE)width, (SIZE)height, 1));
 
-		Orbit->sphereBytes = HMalloc (sizeof (BYTE) * GetFrameWidth (Orbit->SphereFrame) * 
-				GetFrameHeight (Orbit->SphereFrame));
+		Orbit->sphereBytes = HMalloc (sizeof (BYTE)
+				* GetFrameWidth (Orbit->SphereFrame)
+				* GetFrameHeight (Orbit->SphereFrame));
 
 		Orbit->sphereMap =
 			CaptureColorMap (LoadColorMap (DOS_SPHERE_COLOR_TAB));
 		SetColorMap (GetColorMapAddress (Orbit->sphereMap));
-
-		Orbit->scanType = NUM_SCAN_TYPES;
-		Orbit->Shade = 0;
-		Orbit->ShadeColors = NULL;
-	}
-	else if (use3DOSpheres)
-	{// 3DO spheres
-		Orbit->SphereFrame = CaptureDrawable (CreateDrawable (
-					WANT_PIXMAP | WANT_ALPHA, diameter, diameter, 2));
-
-		Orbit->ObjectFrame = 0;
-
-		// tints for 3DO scan
-		if (forOrbit && optScanStyle != OPT_PC)
-			Orbit->TintFrame = CaptureDrawable (CreateDrawable (
-				WANT_PIXMAP, width, height, 1));
-
-		Orbit->TintColor = BLACK_COLOR;
-
-		Orbit->TopoColors = HMalloc (sizeof (Orbit->TopoColors[0])
-				* (height * (width + spherespanx)));
-
-		Orbit->ScanColors = NULL;
-
-		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
-			* (shielddiam) * (shielddiam));
-
-		Orbit->WorkFrame = 0;
-		Orbit->BackFrame = 0;
-
-		Orbit->light_diff = NULL;
-		Orbit->map_rotate = HMalloc (sizeof (MAP3D_POINT *) * diameter);
-
-		for (i = 0; i < diameter; i++)
-			Orbit->map_rotate[i] =
-					HMalloc (sizeof (MAP3D_POINT) * diameter);
-
-		Orbit->TopoMask = 0;
-		Orbit->sphereBytes = NULL;
-		Orbit->sphereMap = 0;
-		Orbit->scanType = NUM_SCAN_TYPES;
-
-		Orbit->Shade = CaptureDrawable(LoadGraphic(PLANET_MASK_SHADE));;
-
-		Orbit->ShadeColors = Orbit->ShadeColors = HMalloc (sizeof (Color) * GetFrameWidth (Orbit->Shade) *
-				GetFrameHeight (Orbit->Shade));
 	}
 }
 
@@ -2032,7 +2025,8 @@ TopoVarianceCalc (int factor)
 }
 
 static void
-TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
+TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults,
+		int fault_var)
 {
 		// Interpolate the topographical data by connecting the elevations
 		// to their nearest neighboors using straight lines (in random
@@ -2085,7 +2079,8 @@ TopoScale4x (SBYTE *pDstTopo, SBYTE *pSrcTopo, int num_faults, int fault_var)
 		},
 	};
 	
-	prevrow = (int *) HMalloc ((SCALED_MAP_WIDTH * 4 + 1) * sizeof(prevrow[0]));
+	prevrow = (int *) HMalloc ((SCALED_MAP_WIDTH * 4 + 1)
+			* sizeof(prevrow[0]));
 
 	var_allow = (num_faults << SCALE_SHIFT) / AVG_VARIANCE;
 	var_min = fault_var << SCALE_SHIFT;
@@ -2247,7 +2242,8 @@ typedef struct
 } elev_block_t;
 
 static inline void
-get_vblock_avg (elev_block_t *pblk, SBYTE *pTopo, int x, int y, COUNT width, COUNT height)
+get_vblock_avg (elev_block_t *pblk, SBYTE *pTopo, int x, int y,
+		COUNT width, COUNT height)
 {
 	SBYTE *elev = pTopo;
 	int y0, y1, i;
@@ -2552,8 +2548,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 	BOOLEAN SurfDef = FALSE;
 	BOOLEAN shielded = (pPlanetDesc->data_index & PLANET_SHIELDED) != 0;
-	SDWORD PlanetRotation = (CurStarDescPtr->Index == SOL_DEFINED ? -1
-			: 1 - 2 * (PlanetInfo->AxialTilt & 1));
+	SDWORD PlanetRotation;
 	COUNT spherespanx, radius;
 	BOOLEAN ForIP;
 	BOOLEAN customTexture =
@@ -2729,7 +2724,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		}
 	}
 
-	if (!ForIP && !shielded && PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
+	if (!ForIP && !shielded
+			&& PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
 	{	// produce 4x scaled topo image for Planetside
 		// for the planets that we can land on
 
@@ -2800,7 +2796,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		}
 	}
 
-	if (PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO || customTexture)
+	if (PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO
+			|| (customTexture && use3DOSpheres))
 	{	// convert topo data to a light map, based on relative
 		// map point elevations
 		memset (Orbit->lpTopoData, 0, width * height);
@@ -2834,7 +2831,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		{
 			Orbit->SphereFrame =
 					SetAbsFrameIndex (Orbit->SphereFrame, facing & 14);
-			ReadFramePixelIndexes (Orbit->SphereFrame, Orbit->sphereBytes, GetFrameWidth(Orbit->SphereFrame),
+			ReadFramePixelIndexes (Orbit->SphereFrame, Orbit->sphereBytes,
+					GetFrameWidth(Orbit->SphereFrame),
 					GetFrameHeight(Orbit->SphereFrame), TRUE);
 		}
 		else if (use3DOSpheres)
@@ -2842,16 +2840,19 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			CreateSphereTiltMap (PlanetInfo->AxialTilt, height, radius);
 			Orbit->Shade =
 					SetAbsFrameIndex (Orbit->Shade, facing);
-			ReadFramePixelColors (Orbit->Shade, Orbit->ShadeColors, 
-					GetFrameWidth (Orbit->Shade), GetFrameHeight (Orbit->Shade));
+			ReadFramePixelColors (Orbit->Shade, Orbit->ShadeColors,
+					GetFrameWidth (Orbit->Shade),
+					GetFrameHeight (Orbit->Shade));
 		}
 	}
 	if (shielded)
 	{
-		Orbit->ObjectFrame = (((useDosSpheres || use3DOSpheres) && !ForIP) ?
-				(useDosSpheres ? CaptureDrawable (LoadGraphic (DOS_SHIELD_MASK_ANIM)) :
-				CaptureDrawable (LoadGraphic (TDO_SHIELD_MASK_ANIM)))
-				: CreateShieldMask (radius));
+		Orbit->ObjectFrame =
+				(((useDosSpheres || use3DOSpheres) && !ForIP) ?
+					(useDosSpheres ?
+					CaptureDrawable (LoadGraphic (DOS_SHIELD_MASK_ANIM)) :
+					CaptureDrawable (LoadGraphic (TDO_SHIELD_MASK_ANIM)))
+					: CreateShieldMask (radius));
 
 		// Create background frame if we have nebula on
 		// but not for IP and if we're using DOS shield
@@ -2859,6 +2860,9 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			Orbit->BackFrame = SaveBackFrame (radius);
 	}
 
+	
+	PlanetRotation = (CurStarDescPtr->Index == SOL_DEFINED ? -1
+			: 1 - 2 * (PlanetInfo->AxialTilt & 1));
 
 	InitSphereRotation (PlanetRotation, shielded, width, height);
 	

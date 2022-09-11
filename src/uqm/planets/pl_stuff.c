@@ -27,6 +27,7 @@
 #include "libs/log.h"
 #include <math.h>
 
+#include SDL_INCLUDE(SDL.h)
 
 // define USE_ADDITIVE_SCAN_BLIT to use additive blittting
 // instead of transparency for the planet scans.
@@ -74,7 +75,8 @@ DrawCurrentPlanetSphere (void)
 					rotFrameIndex);
 
 			Render3DOPlanetSphere (
-					Orbit, Orbit->SphereFrame, rotPointIndex, rotwidth, rotheight);
+					Orbit, Orbit->SphereFrame, rotPointIndex, rotwidth,
+						rotheight);
 		}
 		else
 		{
@@ -186,7 +188,8 @@ InitSphereRotation (int direction, BOOLEAN shielded, COUNT width,
 
 	rotDirection = direction;
 	rotPointIndex = 0;
-	throbShield = shielded && optWhichShield == OPT_3DO && !(useDosSpheres || use3DOSpheres);
+	throbShield = shielded && optWhichShield == OPT_3DO
+			&& !(useDosSpheres || use3DOSpheres);
 
 	if (throbShield)
 	{
@@ -242,20 +245,19 @@ PrepareNextRotationFrame (void)
 	if (useDosSpheres)
 	{
 		if (rotFrameIndex)
-			Orbit->SphereFrame = IncFrameIndex(Orbit->SphereFrame);
+			Orbit->SphereFrame = IncFrameIndex (Orbit->SphereFrame);
 		else
-			Orbit->SphereFrame = DecFrameIndex(Orbit->SphereFrame);
+			Orbit->SphereFrame = DecFrameIndex (Orbit->SphereFrame);
 
-		RenderDOSPlanetSphere(
-			Orbit, Orbit->SphereFrame, rotPointIndex);
+		RenderDOSPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex);
 	}
 	else if (use3DOSpheres)
 	{
-		Orbit->SphereFrame = SetAbsFrameIndex(Orbit->SphereFrame,
-			rotFrameIndex);
+		Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame,
+				rotFrameIndex);
 
-		Render3DOPlanetSphere (
-				Orbit, Orbit->SphereFrame, rotPointIndex, rotwidth, rotheight);
+		Render3DOPlanetSphere (Orbit, Orbit->SphereFrame, rotPointIndex,
+				rotwidth, rotheight);
 	}
 	else
 	{
@@ -290,8 +292,8 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 #if defined(ANDROID) || defined(__ANDROID__)
 	{
 		COUNT framerate;
-		// Optimization : the smallest worlds are rotated only once in a while
-		// The framerate is fine-tuned so that the planet is updated
+		// Optimization : the smallest worlds are rotated only once in a
+		// while. The framerate is fine-tuned so that the planet is updated
 		// when the landscape has moved 1 pixel approximately
 		switch (pPlanetDesc->size)
 		{
@@ -326,13 +328,16 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 		return;
 
 	// Generate the next rotation frame
-	// We alternate between the frames because we do not call FlushGraphics()
-	// The frame we just drew may not have made it to the screen yet
+	// We alternate between the frames because we do not call
+	// FlushGraphics(). The frame we just drew may not have made it to the
+	// screen yet
 	pPlanetDesc->rotFrameIndex ^= 1;
 
 	// prepare the next sphere frame
-	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame, pPlanetDesc->rotFrameIndex);
-	RenderPlanetSphere (Orbit, Orbit->SphereFrame, pPlanetDesc->rotPointIndex,
+	Orbit->SphereFrame = SetAbsFrameIndex (Orbit->SphereFrame,
+			pPlanetDesc->rotFrameIndex);
+	RenderPlanetSphere (Orbit, Orbit->SphereFrame,
+			pPlanetDesc->rotPointIndex,
 			pPlanetDesc->data_index & PLANET_SHIELDED,
 			FALSE, pPlanetDesc->rotwidth, pPlanetDesc->rotheight,
 			(pPlanetDesc->rotheight >> 1) - IF_HD (2)); // RADIUS
@@ -341,8 +346,13 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	// to DrawStamp won't re-blit the frame unless scale has changed.
 }
 
-#define ZOOM_RATE  RES_DBL (24)
+#if SDL_MAJOR_VERSION == 1
+#define ZOOM_RATE  RES_BOOL (24, 42)
+#else
+#define ZOOM_RATE  60
+#endif
 #define ZOOM_TIME  (ONE_SECOND * 6 / 5)
+
 
 // This takes care of zooming the planet sphere into place
 // when entering orbit
@@ -381,15 +391,16 @@ ZoomInPlanetSphere (void)
 
 		NextTime = GetTimeCounter () + (ONE_SECOND / ZOOM_RATE);
 
-		// Use 1 + e^-2 - e^(-2x / frameCount)) function to get a decelerating
-		// zoom like the one 3DO does (supposedly)
+		// Use 1 + e^-2 - e^(-2x / frameCount)) function to get a
+		// decelerating zoom like the one 3DO does (supposedly)
 		if (i < frameCount)
 			scale = 1.134 - exp (-2.0 * i / frameCount);
 		else
 			scale = 1.0; // final frame
 
 		// start from beyond the screen
-		pt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + (int) (dx * (1.0 - scale)
+		pt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) 
+				+ (int) (dx * (1.0 - scale)
 				* RES_SCALE (ORIG_SIS_SCREEN_WIDTH * 6 / 10) + 0.5);
 		pt.y = PLANET_ORG_Y + (int) (dy * (1.0 - scale)
 				* (SCAN_SCREEN_HEIGHT * 6 / 10) + 0.5);
@@ -417,7 +428,13 @@ ZoomInPlanetSphere (void)
 	}
 }
 
+
+
+#if SDL_MAJOR_VERSION == 1
 #define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL (24, 42))
+#else
+#define PLANET_ROTATION_FPS (ONE_SECOND / 60)
+#endif
 
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
@@ -500,7 +517,8 @@ DrawPCScanTint (COUNT scan)
 	s.origin.y = 0;
 
 	s.frame = pSolarSysState->ScanFrame[scan];
-	//XFormColorMap(GetColorMapAddress(SetAbsColorMapIndex(Orbit->sphereMap, scan+1)), 0);
+	//XFormColorMap (GetColorMapAddress (SetAbsColorMapIndex (
+	//		Orbit->sphereMap, scan + 1)), 0);
 	
 	DrawStamp (&s);
 }
