@@ -200,7 +200,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, meleeObstacles);
 	DECL_CONFIG_OPTION(bool, showVisitedStars);
 	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
-	DECL_CONFIG_OPTION(int,  scanSphere);
+	DECL_CONFIG_OPTION(int,  sphereType);
 	DECL_CONFIG_OPTION(int,  nebulaevol);
 	DECL_CONFIG_OPTION(bool, slaughterMode);
 
@@ -407,7 +407,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  meleeObstacles,    false ),
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
 		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
-		INIT_CONFIG_OPTION(  scanSphere,        OPT_PC ),
+		INIT_CONFIG_OPTION(  sphereType,        2 ),
 		INIT_CONFIG_OPTION(  nebulaevol,        25),
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 	};
@@ -628,7 +628,7 @@ main (int argc, char *argv[])
 	optMeleeObstacles = options.meleeObstacles.value;
 	optShowVisitedStars = options.showVisitedStars.value;
 	optUnscaledStarSystem = options.unscaledStarSystem.value;
-	optScanSphere = options.scanSphere.value;
+	optScanSphere = options.sphereType.value;
 	optNebulaeVolume = options.nebulaevol.value;
 	optSlaughterMode = options.slaughterMode.value;
 
@@ -1041,8 +1041,10 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->unscaledStarSystem, "mm.unscaledStarSystem");
 
-	getBoolConfigValueXlat (&options->scanSphere, "mm.scanSphere",
-		OPT_3DO, OPT_PC);
+	if (res_IsInteger("mm.sphereType") && !options->sphereType.set)
+	{
+		options->sphereType.value = res_GetInteger("mm.sphereType");
+	}
 
 	if (res_IsInteger ("mm.nebulaevol") && !options->nebulaevol.set)
 	{
@@ -1244,7 +1246,7 @@ static struct option longOptions[] =
 	{"nomeleeobstacles", 0, NULL, NOMELEEOBJ_OPT},
 	{"showvisitstars", 0, NULL, SHOWSTARS_OPT},
 	{"unscaledstarsystem", 0, NULL, UNSCALEDSS_OPT},
-	{"scansphere", 1, NULL, SCANSPH_OPT},
+	{"spheretype", 1, NULL, SCANSPH_OPT},
 	{"nebulaevol", 1, NULL, NEBUVOL_OPT},
 	{"slaughtermode", 0, NULL, SLAUGHTER_OPT},
 #ifdef NETPLAY
@@ -1847,12 +1849,22 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->unscaledStarSystem, true);
 				break;
 			case SCANSPH_OPT:
-				if (!setChoiceOption (&options->scanSphere, optarg))
-				{
-					InvalidArgument (optarg, "--scansphere");
+			{
+				int temp;
+				if (parseIntOption(optarg, &temp, "Sphere Type") == -1) {
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2) {
+					saveError("\nSphere Type has to be between 0-2\n");
 					badArg = true;
 				}
+				else {
+					options->sphereType.value = temp;
+					options->sphereType.set = true;
+				}
 				break;
+			}
 			case SLAUGHTER_OPT:
 				setBoolOption (&options->slaughterMode, true);
 				break;
@@ -2216,9 +2228,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --unscaledstarsystem : Show the classic HD-mod "
 			" Beta Star System view (default: %s)",
 			boolOptString (&defaults->unscaledStarSystem));
-	log_add (log_User, "  --scansphere : Choose between either the PC"
-			" or 3DO scan sphere styles (default: %s)",
-			choiceOptString (&defaults->scanSphere));
+	log_add (log_User, "  --spheretype : Choose between PC, 3DO, or UQM"
+			" scan sphere styles (default: %s)",
+			choiceOptString (&defaults->sphereType));
 	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
 	log_add (log_User, "--slaughtermode : Affect a race's SOI by "
 			"destroying their ships in battle (default: %s)",

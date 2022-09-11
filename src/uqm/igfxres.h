@@ -31,6 +31,7 @@
 #define DOS_ORBPLAN_MASK_PMAP_ANIM "graphics.dos.planets"
 #define EARTH_MASK_ANIM "graphics.earthmask"
 #define DOS_SHIELD_MASK_ANIM "graphics.dos.shield"
+#define TDO_SHIELD_MASK_ANIM "graphics.3do.shield"
 #define EGG_CASE_MASK_PMAP_ANIM "graphics.eggcase"
 #define EUROPA_MASK_ANIM "graphics.europamask"
 #define EXCAVATION_SITE_MASK_PMAP_ANIM "graphics.excavationsite"
@@ -351,3 +352,4 @@
 #define VISITED_STARS_ANIM "graphics.visitedstars"
 #define WRECK_MASK_PMAP_ANIM "graphics.urquanwreck"
 #define DOS_PLANET_MASK_ANIM "graphics.dossphere"
+#define PLANET_MASK_SHADE "graphics.3do.shade"

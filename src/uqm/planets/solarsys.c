@@ -2981,7 +2981,7 @@ GetNamedPlanetaryBody (void)
 					return GAME_STRING (PLANET_NUMBER_BASE + 38);
 				break;
 			default:
-				return "Should not happen";
+				return NULL;
 		}
 	}
 	return NULL;

@@ -2046,7 +2046,7 @@ InitCommunication (CONVERSATION which_comm)
 					}
 				}
 
-				DrawSISTitle(GLOBAL_SIS(PlanetName));
+				DrawSISTitle (GLOBAL_SIS(PlanetName));
 			}
 		}
 	}
