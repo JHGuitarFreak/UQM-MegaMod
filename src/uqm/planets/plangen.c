@@ -2439,7 +2439,7 @@ load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
 	PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN ForIP)
 {
 	if (CheckColorMap (pPlanetDesc->alternate_colormap)
-			&& !useDosSpheres && !ForIP)
+			&& optScanSphere == 2 && !ForIP)
 	{	// JMS: Planets with special colormaps
 		pSolarSysState->OrbitalCMap = CaptureColorMap (
 				LoadColorMap (pPlanetDesc->alternate_colormap));
