@@ -1915,16 +1915,18 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	COUNT diameter = height + 1;
 	COUNT i;
 
-	// always needed
-	Orbit->lpTopoData = HCalloc (width * height);
+	{// always needed
+		Orbit->lpTopoData = HCalloc(width * height);
 
-	{
+		Orbit->TopoZoomFrame = 0;
 		Orbit->ObjectFrame = 0;
 
 		// tints for 3DO scan
 		if (forOrbit && optScanStyle != OPT_PC)
 			Orbit->TintFrame = CaptureDrawable (CreateDrawable (
 					WANT_PIXMAP, width, height, 1));
+		else
+			Orbit->TintFrame = 0;
 
 		Orbit->TintColor = BLACK_COLOR;
 
@@ -1937,13 +1939,16 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		Orbit->WorkFrame = 0;
 		Orbit->BackFrame = 0;
 
-		Orbit->Shade = 0;
-		Orbit->ShadeColors = NULL;
+		Orbit->light_diff = NULL;
+		Orbit->map_rotate = NULL;
 
 		Orbit->TopoMask = 0;
 		Orbit->sphereBytes = NULL;
 		Orbit->sphereMap = 0;
 		Orbit->scanType = NUM_SCAN_TYPES;
+
+		Orbit->Shade = 0;
+		Orbit->ShadeColors = NULL;		
 	}
 	
 	if (!forOrbit || optScanSphere)
@@ -1969,8 +1974,6 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 		if (!use3DOSpheres)
 			Orbit->light_diff = HMalloc (sizeof (DWORD *) * diameter);
-		else
-			Orbit->light_diff = NULL;
 
 		Orbit->map_rotate = HMalloc (sizeof (MAP3D_POINT *) * diameter);
 
