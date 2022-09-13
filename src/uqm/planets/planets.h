@@ -360,6 +360,7 @@ extern void FreeLanderFont (PLANET_INFO *info);
 
 extern void ExploreSolarSys (void);
 extern void DrawStarBackGround (void);
+extern FRAME GetStarBackFround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
 extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
 extern void DrawFilledOval (RECT *pRect);

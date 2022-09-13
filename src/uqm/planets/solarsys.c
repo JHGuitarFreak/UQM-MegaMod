@@ -2638,6 +2638,15 @@ DrawStarBackGround (void)
 }
 
 FRAME
+GetStarBackFround (void)
+{
+	if (StarsFrame)
+		return StarsFrame;
+	else
+		return NULL;
+}
+
+void
 BrightenNebula (FRAME nebula, BYTE factor)
 {
 	COUNT x, y;
@@ -2696,7 +2705,7 @@ DrawNebula (POINT star_point)
 			s.frame = SetAbsFrameIndex (NebulaeFrame,
 					star_point.x % numNebulae);
 			if (optNebulaeVolume != 24)
-				s.frame = BrightenNebula (s.frame, optNebulaeVolume);
+				BrightenNebula (s.frame, optNebulaeVolume);
 
 			DrawStamp (&s);
 		}

@@ -933,32 +933,18 @@ FRAME
 SaveBackFrame (COUNT radius)
 {
 	RECT r;
-	CONTEXT oldContext;
 	FRAME BackFrame;
 	COUNT shieldradius = SHIELD_RADIUS * radius / RADIUS;
 	COUNT shielddiam = (shieldradius << 1) + 1;
-
-	// Kruzen: prepare back frame in OffScreenContext.
-	// Cannot do it directly in planet context
-	// because on game load Star background being drawn after
-	// this part. Drawing Star background to PlanetContext
-	// kills smooth transition
-	oldContext = SetContext (PlanetContext);
-	GetContextClipRect (&r);
-	SetContext (OffScreenContext);
-	SetContextClipRect (&r);
-	DrawStarBackGround ();
 
 	r.corner = MAKE_POINT ((RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1))
 			- (shieldradius + 1), PLANET_ORG_Y - (shieldradius + 1));
 	r.extent.height = r.extent.width = shielddiam;
 
-	BackFrame = CaptureDrawable (CopyContextRect (&r));
+	BackFrame = CaptureDrawable (CopyFrameRect (GetStarBackFround (), &r));
 
 	SetFrameHot (BackFrame, MAKE_HOT_SPOT (shieldradius + 1,
 		shieldradius + 1));
-
-	SetContext (oldContext);
 
 	return BackFrame;
 }
@@ -967,7 +953,7 @@ SaveBackFrame (COUNT radius)
 //  the throbbing cycle is tied to the planet rotation cycle
 #define SHIELD_THROBS 12
 		// throb cycles per revolution
-#define THROB_CYCLE (((MAP_WIDTH - RES_SCALE (1)) << 8) / SHIELD_THROBS)
+#define THROB_CYCLE (((ORIGINAL_MAP_WIDTH - RES_SCALE (1)) << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
 
 #define THROB_MAX_LEVEL 256
