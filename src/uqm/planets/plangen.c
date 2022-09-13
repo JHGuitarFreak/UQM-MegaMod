@@ -933,32 +933,18 @@ FRAME
 SaveBackFrame (COUNT radius)
 {
 	RECT r;
-	CONTEXT oldContext;
 	FRAME BackFrame;
 	COUNT shieldradius = SHIELD_RADIUS * radius / RADIUS;
 	COUNT shielddiam = (shieldradius << 1) + 1;
-
-	// Kruzen: prepare back frame in OffScreenContext.
-	// Cannot do it directly in planet context
-	// because on game load Star background being drawn after
-	// this part. Drawing Star background to PlanetContext
-	// kills smooth transition
-	oldContext = SetContext (PlanetContext);
-	GetContextClipRect (&r);
-	SetContext (OffScreenContext);
-	SetContextClipRect (&r);
-	DrawStarBackGround ();
 
 	r.corner = MAKE_POINT ((RES_SCALE(ORIG_SIS_SCREEN_WIDTH >> 1))
 			- (shieldradius + 1), PLANET_ORG_Y - (shieldradius + 1));
 	r.extent.height = r.extent.width = shielddiam;
 
-	BackFrame = CaptureDrawable (CopyContextRect (&r));
+	BackFrame = CaptureDrawable (CopyFrameRect (GetStarBackFround (), &r));
 
 	SetFrameHot (BackFrame, MAKE_HOT_SPOT (shieldradius + 1,
 		shieldradius + 1));
-
-	SetContext (oldContext);
 
 	return BackFrame;
 }
@@ -967,7 +953,7 @@ SaveBackFrame (COUNT radius)
 //  the throbbing cycle is tied to the planet rotation cycle
 #define SHIELD_THROBS 12
 		// throb cycles per revolution
-#define THROB_CYCLE (((MAP_WIDTH - RES_SCALE (1)) << 8) / SHIELD_THROBS)
+#define THROB_CYCLE (((ORIGINAL_MAP_WIDTH - RES_SCALE (1)) << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
 
 #define THROB_MAX_LEVEL 256
@@ -1929,16 +1915,18 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 	COUNT diameter = height + 1;
 	COUNT i;
 
-	// always needed
-	Orbit->lpTopoData = HCalloc (width * height);
+	{// always needed
+		Orbit->lpTopoData = HCalloc(width * height);
 
-	{
+		Orbit->TopoZoomFrame = 0;
 		Orbit->ObjectFrame = 0;
 
 		// tints for 3DO scan
 		if (forOrbit && optScanStyle != OPT_PC)
 			Orbit->TintFrame = CaptureDrawable (CreateDrawable (
 					WANT_PIXMAP, width, height, 1));
+		else
+			Orbit->TintFrame = 0;
 
 		Orbit->TintColor = BLACK_COLOR;
 
@@ -1951,13 +1939,16 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		Orbit->WorkFrame = 0;
 		Orbit->BackFrame = 0;
 
-		Orbit->Shade = 0;
-		Orbit->ShadeColors = NULL;
+		Orbit->light_diff = NULL;
+		Orbit->map_rotate = NULL;
 
 		Orbit->TopoMask = 0;
 		Orbit->sphereBytes = NULL;
 		Orbit->sphereMap = 0;
 		Orbit->scanType = NUM_SCAN_TYPES;
+
+		Orbit->Shade = 0;
+		Orbit->ShadeColors = NULL;		
 	}
 	
 	if (!forOrbit || optScanSphere)
@@ -1983,8 +1974,6 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 
 		if (!use3DOSpheres)
 			Orbit->light_diff = HMalloc (sizeof (DWORD *) * diameter);
-		else
-			Orbit->light_diff = NULL;
 
 		Orbit->map_rotate = HMalloc (sizeof (MAP3D_POINT *) * diameter);
 
