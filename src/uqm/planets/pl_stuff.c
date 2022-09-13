@@ -453,8 +453,7 @@ RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)
 
 	if (Now >= NextTime)
 	{
-		NextTime = Now + (useDosSpheres ? (ONE_SECOND / RES_SCALE (12))
-				: PLANET_ROTATION_RATE);
+		NextTime = Now + PLANET_ROTATION_RATE (optScanSphere);
 
 		if (Now >= OutNextTime)
 		{

@@ -843,12 +843,11 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // made by this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? 5 : 16)
+#define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? 7 : 14)
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
-#define SHIELD_RADIUS_THRES \
-		((SHIELD_RADIUS + RES_SCALE (1)) * (SHIELD_RADIUS + RES_SCALE (1)))
+#define SHIELD_RADIUS_THRES  ((SHIELD_RADIUS + 1) * (SHIELD_RADIUS + 1))
 #define SHIELD_HALO_GLOW     (SHIELD_GLOW_COMP + SHIELD_REFLECT_COMP)
 #define SHIELD_HALO_GLOW_MIN (SHIELD_HALO_GLOW >> 2)
 
@@ -869,7 +868,7 @@ CreateShieldMask (COUNT radius)
 
 	pix = Orbit->ScratchArray;
 	//  This is 100% transparent.
-	clear = BUILD_COLOR_RGBA (0, 0, 0, 0);	
+	clear = BUILD_COLOR_RGBA (0, 0, 0, 0);
 
 	for (y = -shieldradius; y <= shieldradius; y++)
 	{
@@ -913,19 +912,19 @@ CreateShieldMask (COUNT radius)
 			if (optNebulae)
 			{
 				if (alpha != 255)
-					*pix = BUILD_COLOR_RGBA(red, 0, 0, alpha);
+					*pix = BUILD_COLOR_RGBA (red, 0, 0, alpha);
 				else
-					*pix = BUILD_COLOR_RGBA(255, 0, 0, red);
+					*pix = BUILD_COLOR_RGBA (255, 0, 0, red);
 			}
 			else
-				*pix = BUILD_COLOR_RGBA(red, 0, 0, alpha);
+				*pix = BUILD_COLOR_RGBA (red, 0, 0, alpha);
 		}
 	}
 	
 	WriteFramePixelColors (ShieldFrame, Orbit->ScratchArray,
 			shielddiam, shielddiam);
 	SetFrameHot (ShieldFrame, MAKE_HOT_SPOT (shieldradius + 1,
-				shieldradius + 1));
+			shieldradius + 1));
 	
 	return ShieldFrame;
 }
@@ -966,9 +965,9 @@ SaveBackFrame (COUNT radius)
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
 //  the throbbing cycle is tied to the planet rotation cycle
-#define SHIELD_THROBS 7
+#define SHIELD_THROBS 12
 		// throb cycles per revolution
-#define THROB_CYCLE      ((MAP_WIDTH << 8) / SHIELD_THROBS)
+#define THROB_CYCLE (((MAP_WIDTH - RES_SCALE (1)) << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
 
 #define THROB_MAX_LEVEL 256
