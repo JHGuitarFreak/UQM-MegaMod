@@ -42,11 +42,14 @@ enum PlanetScanTypes
 #define SC2_MAP_HEIGHT 67
 #define UQM_MAP_WIDTH 243
 #define UQM_MAP_HEIGHT 75
-#define ORIGINAL_MAP_WIDTH (optPlanetTexture ? UQM_MAP_WIDTH-1 : SC2_MAP_WIDTH)
-#define ORIGINAL_MAP_HEIGHT (optPlanetTexture ? UQM_MAP_HEIGHT : SC2_MAP_HEIGHT)
+#define ORIGINAL_MAP_WIDTH \
+		(optPlanetTexture ? UQM_MAP_WIDTH-1 : SC2_MAP_WIDTH)
+#define ORIGINAL_MAP_HEIGHT \
+		(optPlanetTexture ? UQM_MAP_HEIGHT : SC2_MAP_HEIGHT)
 #define MAP_WIDTH RES_SCALE (UQM_MAP_WIDTH)
 #define MAP_HEIGHT RES_SCALE (SC2_MAP_HEIGHT)
-#define SCALED_MAP_WIDTH RES_SCALE (is3DO (optSuperPC) ? UQM_MAP_WIDTH : SC2_MAP_WIDTH)
+#define SCALED_MAP_WIDTH RES_SCALE \
+		(is3DO (optSuperPC) ? UQM_MAP_WIDTH : SC2_MAP_WIDTH)
 
 enum
 {
@@ -67,8 +70,8 @@ enum
 	LANDER_DESTROYED
 };
 
-#define MAX_SCROUNGED (isPC (optSuperPC) ? 64 : 50) /* max units lander can hold (was 64 in SC2 DOS) */
-#define MAX_HOLD_BARS (isPC (optSuperPC) ? 64 : 50) /* number of bars on the lander screen */
+#define MAX_SCROUNGED (isPC (optSuperPC) ? 64 : 50)
+#define MAX_HOLD_BARS (isPC (optSuperPC) ? 64 : 50)
 
 #define SCALE_RADIUS(r) ((r) << 6)
 #define UNSCALE_RADIUS(r) ((r) >> 6)
@@ -176,23 +179,23 @@ extern "C" {
 
 struct planet_desc
 {
-	DWORD rand_seed;				// seed for topography and node generation
+	DWORD rand_seed;			// seed for topography and node generation
 
-	BYTE data_index;				// what planet is this
-	BYTE NumPlanets;				// number of moons
-	SIZE radius;					// radius of planet orbit
-	POINT location;					// coords on screen
+	BYTE data_index;			// what planet is this
+	BYTE NumPlanets;			// number of moons
+	SIZE radius;				// radius of planet orbit
+	POINT location;				// coords on screen
 
-	Color temp_color;				// color of planet orbit
-	COUNT NextIndex;				// index to a next planet
-	STAMP image;					// image of a planet in IP view
+	Color temp_color;			// color of planet orbit
+	COUNT NextIndex;			// index to a next planet
+	STAMP image;				// image of a planet in IP view
 
 	PLANET_DESC *pPrevDesc;
 			// The Sun or planet that this world is orbiting around.
 	
 	// BW : new stuff for animated solar systems
-	PLANET_ORBIT orbit;				// Link to moon(s)
-	COUNT size;						// size of a planet
+	PLANET_ORBIT orbit;			// Link to moon(s)
+	COUNT size;					// size of a planet
 	
 	COUNT angle;
 	int rotFrameIndex, rotPointIndex, rotwidth, rotheight;
@@ -232,10 +235,10 @@ struct node_info
 	COUNT type;
 			// For minerals: the type of element
 			// For bio: the type of the creature.
-			//          0 through NUM_CREATURE_TYPES - 1 are normal creatures,
-			//          NUM_CREATURE_TYPES     is an Evil One
-			//          NUM_CREATURE_TYPES + 1 is a Brainbox Bulldozer
-			//          NUM_CREATURE_TYPES + 2 is Zex' Beauty
+			//       0 through NUM_CREATURE_TYPES - 1 are normal creatures,
+			//       NUM_CREATURE_TYPES     is an Evil One
+			//       NUM_CREATURE_TYPES + 1 is a Brainbox Bulldozer
+			//       NUM_CREATURE_TYPES + 2 is Zex' Beauty
 			// For energy: undefined
 };
 
@@ -251,10 +254,11 @@ struct solarsys_state
 			// Reset to FALSE when going into orbit or encounter
 
 	COUNT WaitIntersect;
-			// Planet/moon number with which the flagship should not collide
-			// For example, if the player just left the planet or inner system
-			// If set to (COUNT)~0, all planet collisions are disabled until
-			// the flagship stops intersecting with all planets.
+			// Planet/moon number with which the flagship should not
+			// collide. For example, if the player just left the planet or
+			// inner system. If set to (COUNT)~0, all planet collisions are
+			// disabled until the flagship stops intersecting with all
+			// planets.
 	PLANET_DESC SunDesc[MAX_SUNS];
 	PLANET_DESC PlanetDesc[MAX_PLANETS];
 			// Description of the planets in the system.
@@ -328,9 +332,12 @@ extern RandomContext* SysGenRNGDebug;
 bool playerInSolarSystem (void);
 bool playerInPlanetOrbit (void);
 bool playerInInnerSystem (void);
-bool worldIsPlanet (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world);
-bool worldIsMoon (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world);
-COUNT planetIndex (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world);
+bool worldIsPlanet (const SOLARSYS_STATE *solarSys,
+		const PLANET_DESC *world);
+bool worldIsMoon (const SOLARSYS_STATE *solarSys,
+		const PLANET_DESC *world);
+COUNT planetIndex (const SOLARSYS_STATE *solarSys,
+		const PLANET_DESC *world);
 COUNT moonIndex (const SOLARSYS_STATE *solarSys, const PLANET_DESC *moon);
 #define MATCH_PLANET ((BYTE) -1)
 bool matchWorld (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
@@ -355,28 +362,36 @@ extern void DrawStarBackGround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
 extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
 extern void DrawFilledOval (RECT *pRect);
-extern void DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted);
-extern void DrawRotatedEllipse (int cx, int cy, int rx, int ry, int angle_deg, int filled, int dotted);
-extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val);
+extern void DrawEllipse (int cx, int cy, int rx, int ry, int shear,
+		int filled, int dotted);
+extern void DrawRotatedEllipse (int cx, int cy, int rx, int ry,
+		int angle_deg, int filled, int dotted);
+extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons,
+		UWORD rand_val);
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 		PLANET_DESC *pBaseDesc, BOOLEAN TypesDefined);
 extern void InitLander (BYTE LanderFlags);
 extern void InitPCLander (BOOLEAN Loading);
 extern void DestroyPCLanderContext (void);
 
-extern void InitSphereRotation (int direction, BOOLEAN shielded, COUNT width, COUNT height);
+extern void InitSphereRotation (int direction, BOOLEAN shielded,
+		COUNT width, COUNT height);
 extern void UninitSphereRotation (void);
 extern void PrepareNextRotationFrame (void);
-extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter);
+extern void PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc,
+		SIZE frameCounter);
 extern void DrawPlanetSphere (int x, int y, bool back);
 extern void DrawDefaultPlanetSphere (void);
 extern void RerenderPlanetSphere (void);
-extern void RenderDOSPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset);
-extern void Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset, COUNT rotwidth, COUNT height);
+extern void RenderDOSPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame,
+		int offset);
+extern void Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame,
+		int offset, COUNT rotwidth, COUNT height);
 extern void RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME Frame,
 		int offset, BOOLEAN shielded, BOOLEAN doThrob, COUNT width,
 		COUNT height, COUNT radius);
-extern void SetShieldThrobEffect (FRAME FromFrame, int offset, FRAME ToFrame);
+extern void SetShieldThrobEffect (FRAME FromFrame, int offset,
+		FRAME ToFrame);
 extern void Draw3DOShield (STAMP ShieldFrame);
 
 extern void ZoomInPlanetSphere (void);
