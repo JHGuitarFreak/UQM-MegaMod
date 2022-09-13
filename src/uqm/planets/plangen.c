@@ -234,6 +234,46 @@ AdjustColor (Color *c, COUNT scan, COUNT height, COUNT width, SBYTE diff)
 	}
 }
 
+RESOURCE
+GetAltColorMap (PLANET_DESC *pPlanetDesc)
+{
+	switch (pPlanetDesc->data_index)
+	{
+	case METAL_WORLD:					/* MERCURY */
+		return MERCURY_COLOR_TAB;
+	case PRIMORDIAL_WORLD:				/* VENUS */
+		return VENUS_COLOR_TAB;
+	case DUST_WORLD:					/* MARS */
+		return MARS_COLOR_TAB;
+	case PELLUCID_WORLD:				/* PLUTO & CALLISTO */
+	{
+		if (worldIsPlanet (pSolarSysState, pPlanetDesc))
+			return PLUTO_COLOR_TAB;
+		else
+			return CALLISTO_COLOR_TAB;
+	}
+	case SELENIC_WORLD:					/* LUNA & CHARON */
+	{
+		if (planetIndex (pSolarSysState, pPlanetDesc) == 2)
+			return LUNA_COLOR_TAB;
+		else
+			return CHARON_COLOR_TAB;
+	}
+	case RADIOACTIVE_WORLD:				/* IO */
+		return IO_COLOR_TAB;
+	case HALIDE_WORLD:					/* EUROPA */
+		return EUROPA_COLOR_TAB;
+	case CYANIC_WORLD:					/* GANYMEDE */
+		return GANYMEDE_COLOR_TAB;
+	case ALKALI_WORLD:					/* TITAN */
+		return TITAN_COLOR_TAB;
+	case VINYLOGOUS_WORLD:				/* TRITON */
+		return TRITON_COLOR_TAB;
+	default:
+		return NULL;
+	}
+}
+
 static void
 ExpandLevelMasks (PLANET_ORBIT* Orbit)
 {	// Expand mask frame to avoid null spaces
@@ -953,7 +993,7 @@ SaveBackFrame (COUNT radius)
 //  the throbbing cycle is tied to the planet rotation cycle
 #define SHIELD_THROBS 12
 		// throb cycles per revolution
-#define THROB_CYCLE (((ORIGINAL_MAP_WIDTH - RES_SCALE (1)) << 8) / SHIELD_THROBS)
+#define THROB_CYCLE ((RES_SCALE (ORIGINAL_MAP_WIDTH) << 8) / SHIELD_THROBS)
 #define THROB_HALF_CYCLE (THROB_CYCLE >> 1)
 
 #define THROB_MAX_LEVEL 256
@@ -2424,39 +2464,42 @@ GenerateLightMap (SBYTE *pTopo, int w, int h)
 
 void
 load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
-		PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN ForIP)
+		PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN LoadCustomColorTable)
 {
-	if (CheckColorMap (pPlanetDesc->alternate_colormap)
-			&& optScanSphere && !ForIP)
+	if (LoadCustomColorTable)
 	{	// JMS: Planets with special colormaps
 		pSolarSysState->OrbitalCMap = CaptureColorMap (
-				LoadColorMap (pPlanetDesc->alternate_colormap));
-		pSolarSysState->XlatRef = CaptureStringTable (
+				LoadColorMap (GetAltColorMap (pPlanetDesc)));
+		if (pSolarSysState->OrbitalCMap != NULL)
+		{// Load successful - grab XLAT and return
+			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
+			return;
+		}// Else just load standard color table
 	}
-	else
-	{	// JMS: Normal planets
-		pSolarSysState->OrbitalCMap = CaptureColorMap (
-				LoadColorMap (dosshielded ? DOS_SHIELDED_COLOR_TAB
-					: PlanDataPtr->CMapInstance));
-		pSolarSysState->XlatRef = CaptureStringTable (
-				LoadStringTable (PlanDataPtr->XlatTabInstance));
 
-		if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
-		{
-			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-					pSolarSysState->OrbitalCMap, 2);
-			pSolarSysState->XlatRef = SetAbsStringTableIndex (
-					pSolarSysState->XlatRef, 2);
-		}
-		else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
-		{
-			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
-					pSolarSysState->OrbitalCMap, 1);
-			pSolarSysState->XlatRef = SetAbsStringTableIndex (
-					pSolarSysState->XlatRef, 1);
-		}
+	// JMS: Normal planets
+	pSolarSysState->OrbitalCMap = CaptureColorMap (
+			LoadColorMap (dosshielded ? DOS_SHIELDED_COLOR_TAB
+				: PlanDataPtr->CMapInstance));
+	pSolarSysState->XlatRef = CaptureStringTable (
+			LoadStringTable (PlanDataPtr->XlatTabInstance));
+
+	if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
+	{
+		pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+				pSolarSysState->OrbitalCMap, 2);
+		pSolarSysState->XlatRef = SetAbsStringTableIndex (
+				pSolarSysState->XlatRef, 2);
 	}
+	else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
+	{
+		pSolarSysState->OrbitalCMap = SetAbsColorMapIndex (
+				pSolarSysState->OrbitalCMap, 1);
+		pSolarSysState->XlatRef = SetAbsStringTableIndex (
+				pSolarSysState->XlatRef, 1);
+	}
+	
 	pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
 }
 
@@ -2605,7 +2648,9 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 
 	load_color_resources (
 			pPlanetDesc, PlanDataPtr, PlanetInfo,
-			shielded && useDosSpheres, ForIP);
+			shielded && useDosSpheres, (customTexture && !ForIP
+				&& !useDosSpheres && !shielded
+				&& PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE));
 
 	if (SurfDefFrame)
 	{	// This is a defined planet; pixmap for the topography and

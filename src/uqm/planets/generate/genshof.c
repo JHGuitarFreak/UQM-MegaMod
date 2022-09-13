@@ -181,7 +181,6 @@ GenerateShofixti_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 	if (NOMAD && matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 	}
 
 	return true;

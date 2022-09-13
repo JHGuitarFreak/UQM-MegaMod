@@ -87,7 +87,6 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 156L / 100;
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
 			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,

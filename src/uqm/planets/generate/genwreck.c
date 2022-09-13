@@ -64,10 +64,7 @@ GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
 	GeneratePlanets (solarSys);
 
 	if (!PrimeSeed)
-	{
 		solarSys->PlanetDesc[6].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
-		solarSys->PlanetDesc[6].alternate_colormap = NULL;
-	}
 
 	return true;
 }

@@ -76,7 +76,6 @@ GenerateSupox_generatePlanets (SOLARSYS_STATE *solarSys)
 	GeneratePlanets (solarSys);	
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 2;
 
 	if(!PrimeSeed)

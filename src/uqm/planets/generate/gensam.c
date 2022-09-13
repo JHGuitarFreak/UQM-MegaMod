@@ -198,7 +198,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!(GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ARILOU_SHIP) == DEAD_GUY))
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 		if (!PrimeSeed)
@@ -223,7 +222,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->SunDesc[0].PlanetByte = p;
 		solarSys->SunDesc[0].MoonByte = 0;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 		if (!PrimeSeed)
@@ -269,7 +267,6 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 				|| CurStarDescPtr->Index == KOHRAH_DEFINED)) 
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 		}
 		
 	}
