@@ -33,7 +33,7 @@ WIDGET *widget_focus = NULL;
 #define WIDGET_INACTIVE_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x18, 0x18, 0x1F), 0x00)
 #define PAGE_BUTTON_INACTIVE_COLOR \
-		BUILD_COLOR_RGBA (163,44,0, 0)
+		BUILD_COLOR_RGBA (0xA3, 0x2C, 0x00, 0xFF)
 #define WIDGET_INACTIVE_SELECTED_COLOR \
 		WHITE_COLOR
 #define WIDGET_CURSOR_COLOR \
@@ -43,18 +43,18 @@ WIDGET *widget_focus = NULL;
 #define WIDGET_DIALOG_TEXT_COLOR \
 		WIDGET_CURSOR_COLOR
 #define WIDGET_BONUS_COLOR \
-		BUILD_COLOR_RGBA (223,106,19, 0)
+		BUILD_COLOR_RGBA (0xDF, 0x6A, 0x13, 0xFF)
 
 #define WIDGET_ENABLED_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x18, 0x00), 0x00)
 #define WIDGET_DISABLED_COLOR \
 		PCMENU_TOP_LEFT_BORDER_COLOR
 #define WIDGET_TOOLTIP_COLOR \
-		BUILD_COLOR(MAKE_RGB15(0xD2, 0xB4, 0x8C), 0x00)
+		BUILD_COLOR (MAKE_RGB15 (0xD2, 0xB4, 0x8C), 0x00)
 #define WIDGET_LABEL_COLOR \
-		BUILD_COLOR_RGBA (0,119,119, 0)
+		BUILD_COLOR_RGBA (0x00, 0x77, 0x77, 0xFF)
 #define WIDGET_WARNING_COLOR \
-		BUILD_COLOR_RGBA (177, 39, 71, 255)
+		BUILD_COLOR_RGBA (0xB1, 0x27, 0x47, 0xFF)
 
 #define ONSCREEN 13
 #define SCROLL_OFFSET 3 // The pos from the page edge where we need to start scrolling
@@ -566,6 +566,7 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	int i;
+	RECT r;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -581,10 +582,18 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 		font_DrawText (&t);
 		t.baseline.y += RES_SCALE (10);
 	}
+
+	// Underline labels
+	r = font_GetTextRect (&t);
+	r.corner.y += RES_SCALE (1);
+	r.extent.height = RES_SCALE (1);
+	DrawFilledRectangle (&r);
+
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
 		SetContextFont (oldfont);
 	SetContextForeGroundColor (oldtext);
+
 	(void) x;
 }
 
