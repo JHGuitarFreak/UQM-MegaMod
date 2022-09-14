@@ -428,8 +428,6 @@ ZoomInPlanetSphere (void)
 	}
 }
 
-
-
 #if SDL_MAJOR_VERSION == 1
 #define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL (24, 42))
 #else

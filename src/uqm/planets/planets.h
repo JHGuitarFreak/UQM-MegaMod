@@ -295,8 +295,8 @@ struct solarsys_state
 	SYSTEM_INFO SysInfo;
 
 	const GenerateFunctions *genFuncs;
-			// Functions to call to fill in various parts of this structure.
-			// See generate.h, doc/devel/generate
+			// Functions to call to fill in various parts of this
+			// structure. See generate.h, doc/devel/generate
 
 	FRAME PlanetSideFrame[3 + MAX_LIFE_VARIATION];
 			/* Frames for planet-side elements.
@@ -323,7 +323,8 @@ extern BOOLEAN actuallyInOrbit;
 extern BOOLEAN useDosSpheres;
 extern BOOLEAN use3DOSpheres;
 
-// Random context used for all solar system, planets and surfaces generation
+// Random context used for all solar system, planets, and surfaces
+// generation
 extern RandomContext *SysGenRNG;
 extern RandomContext* SysGenRNGDebug;
 
