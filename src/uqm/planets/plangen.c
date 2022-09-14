@@ -1061,32 +1061,25 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 void
 Draw3DOShield (STAMP ShieldFrame)
 {
-	static DWORD i, cr;
-	static BOOLEAN flip;
+	static DWORD i = 0;
+	static BYTE factor = 0xFF;
+	static SBYTE inc = 26;
 	DrawMode oldmode;
-	const BYTE frameSkip = RES_BOOL (3, 5);
-	const BYTE opacity[6] = { 0xFF, 0xE6, 0xC5, 0xA4, 0x83, 0x62 };
 
-	if (i == ARRAY_SIZE (opacity) - 1)
-		flip = TRUE;
-	else if (i == 0)
-		flip = FALSE;
-
-	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ADDITIVE,
-			opacity[i]));
+	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ADDITIVE, factor));
 
 	DrawStamp (&ShieldFrame);
 
 	SetContextDrawMode (oldmode);
 
-	if (cr % frameSkip == 0)
+	if (i % RES_BOOL (3, 5) == 0)
 	{
-		if (flip)
-			i--;
-		else
-			i++;
+		if (factor == 0xFF || factor == 0x63)
+			inc = -inc;
+
+		factor += inc;
 	}
-	cr++;
+	i++;
 }
 
 // Apply the shield to the topo image
