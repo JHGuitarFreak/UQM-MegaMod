@@ -94,7 +94,6 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 		if (!PrimeSeed)
 			pMinPlanet->data_index = planetArray[RandomContext_Random(SysGenRNG) % 2];
 
-		pMinPlanet->alternate_colormap = NULL;
 		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
 		{
 			if (!(EXTENDED && GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ORZ_SHIP) == DEAD_GUY))
@@ -149,7 +148,6 @@ GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 #endif /* NOTYET */
 
 		solarSys->MoonDesc[0].data_index = PELLUCID_WORLD;
-		solarSys->MoonDesc[0].alternate_colormap = NULL;
 		
 		if (!PrimeSeed)
 		{

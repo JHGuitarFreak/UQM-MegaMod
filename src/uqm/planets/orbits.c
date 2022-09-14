@@ -563,8 +563,6 @@ char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 				pPD->data_index =
 						(BYTE)(HIBYTE (LOWORD (rand_val)) % MaxPlanet);
 
-			// JMS: This exists for special colormaps of Sol system planets.
-			pPD->alternate_colormap = NULL;
 
 			chance = PLANET_NEVER;
 			switch (StarColor)

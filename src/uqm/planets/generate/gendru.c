@@ -82,7 +82,6 @@ GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = DUST_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
 
 	if (!PrimeSeed)

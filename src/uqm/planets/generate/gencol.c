@@ -105,7 +105,6 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 		GeneratePlanets (solarSys);
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD | PLANET_SHIELDED;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
 	if (!PrimeSeed)
 	{

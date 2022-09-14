@@ -204,9 +204,6 @@ struct planet_desc
 	double rot_speed;
 			// Handles rotation and orbiting
 
-	RESOURCE alternate_colormap;
-			// JMS: Special color maps for Sol system planets
-
 	BYTE PlanetByte;
 	BYTE MoonByte;
 			// Handles hard coded planets/moons for Custom Seed

@@ -94,7 +94,6 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
 		if (!PrimeSeed)
 		{
@@ -134,7 +133,6 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 			|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 			if (!PrimeSeed)
 			{
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];

@@ -93,7 +93,6 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 				// called. Is it safe to remove one, or does this change
 				// the RNG so that the outcome is different?
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
 		if (PrimeSeed)
 		{
@@ -117,7 +116,6 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 		if (CurStarDescPtr->Index == VUX_DEFINED)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 			if (PrimeSeed)
@@ -144,7 +142,6 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 			}
 
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
 
 			if (PrimeSeed)

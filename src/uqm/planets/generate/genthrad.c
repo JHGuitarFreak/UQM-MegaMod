@@ -75,8 +75,6 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 	
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
-	
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
 	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED)
 	{
