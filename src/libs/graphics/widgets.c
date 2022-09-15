@@ -567,6 +567,9 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	TEXT t;
 	int i;
 	RECT r;
+	const UNICODE *amperScore = "&_";
+	const size_t asSize = strlen (amperScore);
+	BOOLEAN underline = FALSE;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -579,15 +582,22 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	for (i = 0; i < self->line_count; i++)
 	{
 		t.pStr = self->lines[i];
+		underline = strncmp (amperScore, t.pStr, asSize) == 0;
+
+		if (underline)
+			t.pStr += asSize;
+
 		font_DrawText (&t);
 		t.baseline.y += RES_SCALE (10);
-	}
 
-	// Underline labels
-	r = font_GetTextRect (&t);
-	r.corner.y += RES_SCALE (1);
-	r.extent.height = RES_SCALE (1);
-	DrawFilledRectangle (&r);
+		if (underline)
+		{	// Underline labels
+			r = font_GetTextRect (&t);
+			r.corner.y += RES_SCALE (1);
+			r.extent.height = RES_SCALE (1);
+			DrawFilledRectangle (&r);
+		}
+	}
 
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
