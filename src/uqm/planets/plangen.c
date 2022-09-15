@@ -1078,7 +1078,7 @@ Draw3DOShield (STAMP ShieldFrame)
 
 	SetContextDrawMode (oldmode);
 
-	if (cr % RES_BOOL (3, 5) == 0)
+	if (cr % RES_BOOL (3, 4) == 0)
 		i += flip ? -1 : 1;
 
 	cr++;
