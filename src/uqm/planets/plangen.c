@@ -1066,9 +1066,6 @@ Draw3DOShield (STAMP ShieldFrame)
 	DrawMode oldmode;
 	const BYTE factor[6] = { 0xFF, 0xE6, 0xC5, 0xA4, 0x83, 0x62 };
 
-	if (cr == 0xFF)
-		cr = 0;
-
 	if (factor[i] == 0x62)
 		flip = TRUE;
 	else if (factor[i] == 0xFF)
