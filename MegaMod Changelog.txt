@@ -23,6 +23,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Show Auto-Pilot destination and distance to destination
 - HARDMODE: Keep time running while orbiting a planet & during a landing excursion
 - Added ability to toggle reticules on stars of interest on the StarMap
+- Transparent Suns for Vanilla graphics while nebulae are enabled - Kruzen
+- Added new "Slaughter Mode" that allows the player to affect Fleet SOI by destroying ships (does not work on the Pkunk, Yehat, Thraddash, and Ilwrath)
+- SETUPMENU: Added ability to turn any given Tooltip line red by adding "&!" to the beginning of the line
+- Added oldschool styled DOS fade-in/fade-out animation - Kruzen
+- Added faithful 3DO spheres and slave shield - Kruzen
+- SETUPMENU: Added ability to underline any given Label line by adding "&_" to the beginning of the line
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
@@ -41,6 +47,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Made directional text input look more like 3DO text input
 - Changed Starmap controls for gamepads and updated the in-game helpers to reflect the new controls
 - Expand the width of name variables to allow for unicode character widths.
+- "Rebrand" Precursor Mode back into "God Modes"
+- Remove reticule on marked systems when the players enters the marked system
+- HD: Use a 5x5 dot for planet/moon intersect frame
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
@@ -53,6 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Realigned the stars via the .ani to get rid of HD compensation code for the Starmap - Kruzen
 - Fixed bug when exiting game via F10 while entering a captain's name on a new game then immediately starting a new game autofills the captain's name as "UNNAMED"
 - Fixed bug with No Melee Obstacles cheat that caused hard crashes
+- HARDMODE: Fixed oversight that caused the Pkunk to never migrate
 
 
 ## [v0.8.1]
