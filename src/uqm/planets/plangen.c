@@ -1061,31 +1061,29 @@ SetShieldThrobEffect (FRAME ShieldFrame, int offset, FRAME ThrobFrame)
 void
 Draw3DOShield (STAMP ShieldFrame)
 {
-	static DWORD i, cr;
+	static BYTE i, cr;
 	static BOOLEAN flip;
 	DrawMode oldmode;
-	const BYTE frameSkip = RES_BOOL (3, 5);
-	const BYTE opacity[6] = { 0xFF, 0xE6, 0xC5, 0xA4, 0x83, 0x62 };
+	const BYTE factor[6] = { 0xFF, 0xE6, 0xC5, 0xA4, 0x83, 0x62 };
 
-	if (i == ARRAY_SIZE (opacity) - 1)
+	if (cr == 0xFF)
+		cr = 0;
+
+	if (factor[i] == 0x62)
 		flip = TRUE;
-	else if (i == 0)
+	else if (factor[i] == 0xFF)
 		flip = FALSE;
 
 	oldmode = SetContextDrawMode (MAKE_DRAW_MODE (DRAW_ADDITIVE,
-			opacity[i]));
+			factor[i]));
 
 	DrawStamp (&ShieldFrame);
 
 	SetContextDrawMode (oldmode);
 
-	if (cr % frameSkip == 0)
-	{
-		if (flip)
-			i--;
-		else
-			i++;
-	}
+	if (cr % RES_BOOL (3, 5) == 0)
+		i += flip ? -1 : 1;
+
 	cr++;
 }
 
