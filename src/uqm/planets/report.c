@@ -58,12 +58,12 @@ ClearReportArea (void)
 
 	BatchGraphics ();
 
-	if (actuallyInOrbit || is3DO (optSuperPC))
+	if (actuallyInOrbit || !isPC (optSuperPC))
 	{
 		SetContextBackGroundColor (BLACK_COLOR);
 		ClearDrawable ();
 
-		startx = (is3DO (optSuperPC) ? 0 : RES_SCALE (1)) + 1
+		startx = (!isPC (optSuperPC) ? 0 : RES_SCALE (1)) + 1
 				+ (r.extent.width >> 1) - (RES_SCALE (1) - IF_HD (1));
 		starty = RES_SCALE (1);
 	}
@@ -74,12 +74,11 @@ ClearReportArea (void)
 		rPC.extent.height = (r.extent.height + RES_SCALE (1))
 			* NUM_CELL_ROWS + RES_SCALE (1);
 		rPC.corner.x = (SIS_SCREEN_WIDTH - rPC.extent.width) / 2;
-		rPC.corner.y = RES_SCALE (2);
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&rPC);
 
 		startx = rPC.corner.x + RES_SCALE (1);
-		starty = rPC.corner.y + RES_SCALE (1);
+		starty = RES_SCALE (1);
 	}
 
 	SetContextForeGroundColor (
