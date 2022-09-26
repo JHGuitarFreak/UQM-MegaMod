@@ -8,8 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Special game over sequence for the Death March while hiding in QuasiSpace - Jo Li KMC
 - Extend custom border to the playback bar during coversations
 - Extend custom border and HD-default UI to all aspects of the Super Melee UI
-- Restored PC-DOS script when opting out of 3DO voices or if the add-on isn't available
-- EXTENDED: Add a single ruin to Zex's planet
+- Restored DOS script when opting out of 3DO voices or if the add-on isn't available
 
 ## [v0.8.2]
 ### Added
@@ -76,16 +75,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - If the Captain and/or Flagship names are left blank at game start then the default names are used.
 - Gave the Kohr-Ah a new bottom-eye animation - Kruzen
 - EXTENDED: Charon, the moon of Pluto, is now explorable
-- Kruzenshtern: Added support for displaying PC-DOS styled planets while traversing solar systems
+- Kruzenshtern: Added support for displaying DOS styled planets while traversing solar systems
 - Kruzenshtern: Added the leading edge to the planet scan mimicing the 3DO scan
-- Kruzenshtern: Option to have the planet scan also color the spinning planet a la the PC-DOS version
-- SETUPMENU: Added an option to pick between PC-DOS, 3DO, and Vanilla UQM styled star backgrounds (The stars while in a solar system) [When not using a custom seed]
-- Added option for PC-DOS scan style (static color while minerals are revealed) - Kruzen
-- Kruzenshtern: Recreated the PC-DOS style flashing cursor for text input
-- Kruzenshtern: Add function that mimics the pulsing purple box from PC-DOS ver. when picking a ship
-- Added pulsing purple box selector "universally" when using PC menus, mimicking PC-DOS UI
+- Kruzenshtern: Option to have the planet scan also color the spinning planet a la the DOS version
+- SETUPMENU: Added an option to pick between DOS, 3DO, and Vanilla UQM styled star backgrounds (The stars while in a solar system) [When not using a custom seed]
+- Added option for DOS scan style (static color while minerals are revealed) - Kruzen
+- Kruzenshtern: Recreated the DOS style flashing cursor for text input
+- Kruzenshtern: Add function that mimics the pulsing purple box from DOS ver. when picking a ship
+- Added pulsing purple box selector "universally" when using PC menus, mimicking DOS UI
 - HD: Added an option to switch between unfaithful animated HyperSpace stars and faithful HD recreations of the static HyperSpace stars
-- Added PC-DOS style lander mechanics with the help of Kruzenshtern
+- Added DOS style lander mechanics with the help of Kruzenshtern
 - Added option to switch between PC or 3DO comm oscilloscope
 - Kruzenshtern: Added "Non-Stop Oscilloscope" ability where, if speech is enabled, the Oscilloscope will switch over to music for its data when nobody is talking
 - Kruzenshtern Non-HD: Added a couple of frames to the dispatch/return lander animation so it clears the UI nicely
@@ -104,12 +103,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - EXTENDED: Ability to fill Syreen crew to max in the Shipyard
 - Add ability to sell your remaining credits to the Melnorme for fuel
 - HD: Added an attribution file for the various art I've used from the internet to the HD content folder
-- Kruzenshtern: Added the full Syreen "sex scene" from the PC-DOS version
+- Kruzenshtern: Added the full Syreen "sex scene" from the DOS version
 - HARDMODE: Limit the amount of crew one can buy, in total, to 2000 and lock the player out of buying crew until they revive the Shofixti - Idea by Murus.
 - HARDMODE: Show the remaining amount of Starbase crew on the Shipyard screen. Underneath the blueprint of the Flagship.
 - EXTENDED: New Androsynth excavation site on Alpha Lalande 1. Idea, art, and lander report by Kruzen
 - EXTENDED: New Precursor artifact on Alpha Apodis 4. Idea, art, and lander report by Kruzen
-- Extra flashing rectangle on the Outfit screen for the Flagship's side-view like the PC-DOS version - Kruzen
+- Extra flashing rectangle on the Outfit screen for the Flagship's side-view like the DOS version - Kruzen
 - Added a "Known Homeworlds" map that shows a reticule over alien homeworlds as you learn of them
 - Added option to enable Auto-Pilot to find the shortest route out of the solar system
 - Added option to show visited stars by dimming them on the starmap and surrounding the star name in parenthesis.
@@ -132,7 +131,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 
 ### Changed
-- Scaled the outer border of the viewport to match PC-DOS
+- Scaled the outer border of the viewport to match DOS
 - HD: Corrected the UI scaling in HD to be more faithful to Vanilla UQM
 - Created a new set of Sol Textures to accomodate the new UI scale
 - HD: Created a new set of mineral, bio, and energy icons
@@ -152,7 +151,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Reconfigured the War Era StarMap to be more faithful against the official paper StarMap
 - EXTENDED: Changed the size and location of the Chmmr SOI to be more logical (Combined Chenjesu & Mmrnmhrm SOI size and location)
 - HD: Tamed the planet scan speed to match vanilla speed
-- Subtitle location and spacing now matches more faithfully to the PC-DOS version
+- Subtitle location and spacing now matches more faithfully to the DOS version
 - EXTENDED: Make Beta Arae (933.3:093.7) an Orange Super Giant (Because there are no Orange Super Giants)
 - Adjusted FPS and Lander values to be as close as possible to its PC and 3DO counterparts
 - Lander reports now only respond to the "action keys" instead of every mappable key
@@ -223,7 +222,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fix Flagship speed doubling when going from Save/Load screen straight to navigation
 - HD: Remove red outline of defeated ships on the debris screen - Kruzen
 - Remove all alliances that have a broken alliance value during load
-- Fixed planet scan rotation value display so that it's accurate to the PC-DOS version
+- Fixed planet scan rotation value display so that it's accurate to the DOS version
 - Show the Spathi SOI and give the player the Spathi password when using the Head Start cheat
 - Fixed planet map texture rescaling - Kruzen
 
@@ -307,8 +306,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Switch Melnorme and Druuge font over to "MicroFont" so as to match with Vanilla UQM
 - HD: Proper thick borders around stylized text in slides and convos - Elestan
 - Skip Intro now also skips naming Captain/Ship when starting a New Game
-- Aligned the player response text to match the PC-DOS spacing in both Classic and HD
-- Aligned the PC scan screen to match the alignment of the PC-DOS version
+- Aligned the player response text to match the DOS spacing in both Classic and HD
+- Aligned the PC scan screen to match the alignment of the DOS version
 - HD: Scale the SOI borders up to a thickness of 3 pixels
 - Slow down the movement of SOI to mimic PC/3DO versions
 - Moved cut Commander and Supox dialog to Extended Lore
