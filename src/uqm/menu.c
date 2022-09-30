@@ -629,21 +629,16 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	}
 	else
 	{
-		if (optWhichMenu == OPT_PC)
+		if (!optCustomBorder && !classicPackPresent)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= RES_SCALE (1);
 			r.extent.width += RES_SCALE (1);
-			r.extent.height = RADAR_HEIGHT + RES_SCALE (9);
+			r.extent.height = RADAR_HEIGHT
+					+ RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
+			DrawFilledRectangle (&r);
 		}
 		else
-		{
-			r.corner.x -= RES_SCALE (1);
-			r.extent.width += RES_SCALE (1);
-			r.extent.height = RES_SCALE (11);
-		}
-		if (!optCustomBorder && !classicPackPresent)
-			DrawFilledRectangle (&r);
-		DrawBorder (8, FALSE);
+			DrawBorder (8, FALSE);
 	}
 	if (s.frame)
 	{
