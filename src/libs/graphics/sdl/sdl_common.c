@@ -239,6 +239,7 @@ TFB_SwapBuffers (int force_full_redraw)
 {
 	static int last_fade_amount = 255, last_transition_amount = 255;
 	static int fade_amount = 255, transition_amount = 255;
+	Uint8 sfx;
 
 	fade_amount = GetFadeAmount ();
 	transition_amount = TransitionAmount;
@@ -252,6 +253,8 @@ TFB_SwapBuffers (int force_full_redraw)
 			(fade_amount != 255 || transition_amount != 255 ||
 			last_fade_amount != 255 || last_transition_amount != 255))
 		force_full_redraw = TFB_REDRAW_FADING;
+
+	sfx = last_fade_amount > fade_amount ? 1 : 0;
 
 	last_fade_amount = fade_amount;
 	last_transition_amount = transition_amount;
@@ -284,13 +287,28 @@ TFB_SwapBuffers (int force_full_redraw)
 				fade_amount - 255, NULL);
 		}
 #else
-		if (fade_amount < 255)
+		if (TRUE) // opt
 		{
-			graphics_backend->color(SDL_BLENDOPERATION_REV_SUBTRACT, 0, 0, 255 - fade_amount, NULL);
+			if (fade_amount < 255)
+			{
+				graphics_backend->color(SDL_BLENDOPERATION_REV_SUBTRACT, sfx, 0, 255 - fade_amount, NULL);
+			}
+			else
+			{
+				graphics_backend->color(SDL_BLENDOPERATION_ADD, 0, 0, fade_amount - 255, NULL);
+			}
 		}
 		else
 		{
-			graphics_backend->color(SDL_BLENDOPERATION_ADD, 0, 0, fade_amount - 255, NULL);
+			if (fade_amount < 255)
+			{
+				graphics_backend->color(0, 0, 0, 255 - fade_amount, NULL);
+			}
+			else
+			{
+				graphics_backend->color(255, 255, 255,
+					fade_amount - 255, NULL);
+			}
 		}
 #endif
 	}
