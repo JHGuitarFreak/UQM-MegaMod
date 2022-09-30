@@ -74,6 +74,8 @@ ClearReportArea (void)
 		rPC.extent.height = (r.extent.height + RES_SCALE (1))
 			* NUM_CELL_ROWS + RES_SCALE (1);
 		rPC.corner.x = (SIS_SCREEN_WIDTH - rPC.extent.width) / 2;
+		rPC.corner.y = 0;
+
 		SetContextForeGroundColor (BLACK_COLOR);
 		DrawFilledRectangle (&rPC);
 
