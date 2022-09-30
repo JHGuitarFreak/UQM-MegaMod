@@ -798,7 +798,7 @@ DoOutfit (MENU_STATE *pMS)
 			if (optWhichFonts == OPT_PC)
 				DrawFlagshipStats ();
 
-			ScreenTransition (optIPScaler, NULL);
+			ScreenTransition (optScrTrans, NULL);
 			PlayMusic (pMS->hMusic, TRUE, 1);
 			UnbatchGraphics ();
 			

@@ -174,7 +174,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, wholeFuel);
 	DECL_CONFIG_OPTION(bool, directionalJoystick);
 	DECL_CONFIG_OPTION(int,  landerHold);
-	DECL_CONFIG_OPTION(int,  ipTrans);
+	DECL_CONFIG_OPTION(int,  scrTrans);
 	DECL_CONFIG_OPTION(int,  optDifficulty);
 	DECL_CONFIG_OPTION(int,  optFuelRange);
 	DECL_CONFIG_OPTION(bool, extended);
@@ -381,7 +381,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  directionalJoystick, false ),
 #endif
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
-		INIT_CONFIG_OPTION(  ipTrans,           OPT_3DO ),
+		INIT_CONFIG_OPTION(  scrTrans,           OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     3 ),
 		INIT_CONFIG_OPTION(  optFuelRange,      0 ),
 		INIT_CONFIG_OPTION(  extended,          false ),
@@ -602,7 +602,7 @@ main (int argc, char *argv[])
 	optWholeFuel = options.wholeFuel.value;
 	optDirectionalJoystick = options.directionalJoystick.value;
 	optLanderHold = options.landerHold.value;
-	optIPScaler = options.ipTrans.value;
+	optScrTrans = options.scrTrans.value;
 	optDifficulty = options.optDifficulty.value;
 	optFuelRange = options.optFuelRange.value;
 	optExtended = options.extended.value;
@@ -984,7 +984,7 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
 		OPT_3DO, OPT_PC);
-	getBoolConfigValueXlat (&options->ipTrans, "mm.ipTransition",
+	getBoolConfigValueXlat (&options->scrTrans, "mm.scrTransition",
 		OPT_3DO, OPT_PC);
 	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set) {
 		options->optDifficulty.value = res_GetInteger ("mm.difficulty");
@@ -1116,7 +1116,7 @@ enum
 	WHOLEFUEL_OPT,
 	DIRJOY_OPT,
 	LANDHOLD_OPT,
-	IPTRANS_OPT,
+	SCRTRANS_OPT,
 	DIFFICULTY_OPT,
 	FUELRANGE_OPT,
 	EXTENDED_OPT,
@@ -1219,7 +1219,7 @@ static struct option longOptions[] =
 	{"wholefuel", 0, NULL, WHOLEFUEL_OPT},
 	{"dirjoystick", 0, NULL, DIRJOY_OPT},
 	{"landerhold", 0, NULL, LANDHOLD_OPT},
-	{"iptrans", 1, NULL, IPTRANS_OPT},
+	{"scrtrans", 1, NULL, SCRTRANS_OPT},
 	{"melee", 0, NULL, MELEE_OPT},
 	{"loadgame", 0, NULL, LOADGAME_OPT},
 	{"difficulty", 1, NULL, DIFFICULTY_OPT},
@@ -1671,9 +1671,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					badArg = true;
 				}
 				break;
-			case IPTRANS_OPT:
-				if (!setChoiceOption (&options->ipTrans, optarg)) {
-					InvalidArgument (optarg, "--iptrans");
+			case SCRTRANS_OPT:
+				if (!setChoiceOption (&options->scrTrans, optarg)) {
+					InvalidArgument (optarg, "--scrtrans");
 					badArg = true;
 				}
 				break;
@@ -2154,9 +2154,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander "
 			"hold, pc=64, 3do=50 (default: %s)",
 			choiceOptString (&defaults->landerHold));
-	log_add (log_User, "  --iptrans : Interplanetary transitions, "
-			"pc=stepped, 3do=crossfade (default: %s)",
-			choiceOptString (&defaults->ipTrans));
+	log_add (log_User, "  --scrtrans : Screen transitions, "
+			"pc=instantaneous, 3do=crossfade (default: %s)",
+			choiceOptString (&defaults->scrTrans));
 	log_add (log_User, "  --difficulty : 0: Normal | 1: Easy | 2: Hard"
 			"| 3: Choose at Start (default: 0)");
 	log_add (log_User, "  --fuelrange : Enables extra fuel range "

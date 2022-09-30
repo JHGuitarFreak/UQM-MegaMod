@@ -411,7 +411,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode != DRAW_ORBITAL_UPDATE)
 	{
-		ScreenTransition (optIPScaler, &r);
+		ScreenTransition (optScrTrans, &r);
 	}
 
 	UnbatchGraphics ();
@@ -461,7 +461,7 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	if (WaitMode)
 	{
-		if (is3DO (optIPScaler) || optScanSphere == 1)
+		if (is3DO (optScrTrans) || optScanSphere == 1)
 			ZoomInPlanetSphere ();
 		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE);
 	}

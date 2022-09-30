@@ -146,6 +146,7 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[13]),   // Melee Zoom
 #endif
 	(WIDGET *)(&choices[70]),   // Flagship Style
+	(WIDGET *)(&choices[52]),   // Screen Transitions
 
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[6]),     // Comm Label
@@ -156,7 +157,6 @@ static WIDGET *engine_widgets[] = {
 
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[7]),     // IP Label
-	(WIDGET *)(&choices[52]),   // IP Transitions
 	(WIDGET *)(&choices[62]),   // Interplanetary Style
 	(WIDGET *)(&choices[63]),   // Star Background
 
@@ -601,7 +601,7 @@ SetDefaults (void)
 	choices[50].selected = opts.meleezoom;
 #endif
 	choices[51].selected = opts.landerHold;
-	choices[52].selected = opts.ipTrans;
+	choices[52].selected = opts.scrTrans;
 	choices[53].selected = opts.difficulty;
 	choices[54].selected = opts.extended;
 	choices[55].selected = opts.nomad;
@@ -694,7 +694,7 @@ PropagateResults (void)
 	opts.meleezoom = choices[50].selected;
 #endif
 	opts.landerHold = choices[51].selected;
-	opts.ipTrans = choices[52].selected;
+	opts.scrTrans = choices[52].selected;
 	opts.difficulty = choices[53].selected;
 	opts.extended = choices[54].selected;
 	opts.nomad = choices[55].selected;
@@ -1655,7 +1655,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->wholeFuel = optWholeFuel ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->directionalJoystick = optDirectionalJoystick ? OPTVAL_ENABLED : OPTVAL_DISABLED;	// For Android
 	opts->landerHold = (optLanderHold == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->ipTrans = (optIPScaler == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->scrTrans = (optScrTrans == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->difficulty = res_GetInteger ("mm.difficulty");
 	opts->fuelRange = res_GetInteger ("mm.fuelRange");
 	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -2099,8 +2099,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optLanderHold = (opts->landerHold == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.landerHold", opts->landerHold == OPTVAL_3DO);
 
-	optIPScaler = (opts->ipTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
+	optScrTrans = (opts->scrTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.scrTransition", opts->scrTrans == OPTVAL_3DO);
 
 	optDifficulty = opts->difficulty;
 	res_PutInteger ("mm.difficulty", opts->difficulty);

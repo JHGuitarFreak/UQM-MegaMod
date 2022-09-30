@@ -423,7 +423,7 @@ InitEncounter (void)
 
 	UnbatchGraphics ();
 	DestroyDrawable (ReleaseDrawable (SegueFrame));
-	ScreenTransition (optIPScaler, NULL);
+	ScreenTransition (optScrTrans, NULL);
 	
 
 	{

@@ -1808,7 +1808,7 @@ InitPlanetSide (POINT pt)
 					DrawMineralHelpers (FALSE);
 			}
 			else
-				ScreenTransition (optIPScaler, &r);
+				ScreenTransition (optScrTrans, &r);
 		}		
 		UnbatchGraphics ();
 	}
@@ -2153,7 +2153,7 @@ ReturnToOrbit (void)
 		DrawDefaultPlanetSphere ();
 		DrawPlanetSurfaceBorder ();
 		RedrawSurfaceScan (NULL);
-		ScreenTransition (optIPScaler, &r);
+		ScreenTransition (optScrTrans, &r);
 		UnbatchGraphics ();
 	}
 	else
@@ -2191,9 +2191,9 @@ ReturnToOrbit (void)
 				DrawMineralHelpers (FALSE);
 		}
 		else
-			ScreenTransition (optIPScaler, &r);
+			ScreenTransition (optScrTrans, &r);
 
-		RedrawSurfaceScan(NULL);
+		RedrawSurfaceScan (NULL);
 		UnbatchGraphics ();
 	}
 

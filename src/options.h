@@ -79,7 +79,7 @@ extern BOOLEAN optVolasMusic;
 extern BOOLEAN optWholeFuel;
 extern BOOLEAN optDirectionalJoystick;
 extern int optLanderHold;
-extern int optIPScaler;
+extern int optScrTrans;
 extern int optDifficulty;
 extern int optFuelRange;
 extern BOOLEAN optExtended;

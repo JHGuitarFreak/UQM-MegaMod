@@ -1714,7 +1714,7 @@ DrawSystemTransition (BOOLEAN inner)
 	else
 		DrawOuterSystem ();
 	RedrawQueue (FALSE);
-	ScreenTransition (optIPScaler, NULL);
+	ScreenTransition (optScrTrans, NULL);
 	UnbatchGraphics ();
 }
 
@@ -1784,7 +1784,7 @@ ScaleSystem (SIZE new_radius)
 	BatchGraphics ();
 	DrawOuterSystem ();
 	RedrawQueue (FALSE);
-	ScreenTransition (optIPScaler, &r);
+	ScreenTransition (optScrTrans, &r);
 	UnbatchGraphics ();
 #endif // SMOOTH_SYSTEM_ZOOM
 }
@@ -2343,7 +2343,7 @@ InitSolarSys (void)
 				DrawOuterSystem ();
 			}
 			RedrawQueue (FALSE);
-			ScreenTransition (optIPScaler, NULL);
+			ScreenTransition (optScrTrans, NULL);
 			UnbatchGraphics ();
 
 			LastActivity &= ~CHECK_LOAD;

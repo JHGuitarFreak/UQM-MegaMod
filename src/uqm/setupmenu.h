@@ -156,7 +156,7 @@ typedef struct globalopts_struct {
 			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
 			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
 			showVisitedStars, unscaledStarSystem, slaughterMode;
-	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans,
+	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;
 	CONTROL_TEMPLATE player1, player2;

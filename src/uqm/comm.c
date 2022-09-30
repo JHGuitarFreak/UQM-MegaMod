@@ -1227,7 +1227,7 @@ CommIntroTransition (void)
 {
 	if (curIntroMode == CIM_CROSSFADE_SCREEN)
 	{
-		ScreenTransition (optIPScaler, NULL);
+		ScreenTransition (optScrTrans, NULL);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_CROSSFADE_SPACE)
@@ -1237,12 +1237,12 @@ CommIntroTransition (void)
 		r.corner.y = SIS_ORG_Y;
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SIS_SCREEN_HEIGHT;
-		ScreenTransition (optIPScaler, &r);
+		ScreenTransition (optScrTrans, &r);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_CROSSFADE_WINDOW)
 	{
-		ScreenTransition (optIPScaler, &CommWndRect);
+		ScreenTransition (optScrTrans, &CommWndRect);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_FADE_IN_SCREEN)
@@ -1285,7 +1285,7 @@ AlienTalkSegue (COUNT wait_track)
 
 		InitCommAnimations ();
 
-		if (optIPScaler && !optSpeech)
+		if (optScrTrans && !optSpeech)
 		{	// short pause to compensate instant fading (conditions to be adjusted)
 			// I think it is for optIPScaler
 			TimeCount timeout = GetTimeCounter() + ONE_SECOND / 4;

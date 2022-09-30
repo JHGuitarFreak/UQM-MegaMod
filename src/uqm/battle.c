@@ -348,7 +348,7 @@ DoBattle (BATTLE_STATE *bs)
 	if (bs->first_time)
 	{
 		bs->first_time = FALSE;
-		ScreenTransition (optIPScaler, &r);
+		ScreenTransition (optScrTrans, &r);
 	}
 	UnbatchGraphics ();
 	if ((!(GLOBAL (CurrentActivity) & IN_BATTLE)) ||
