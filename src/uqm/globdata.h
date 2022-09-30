@@ -1215,6 +1215,7 @@ extern void UninitGameStructures (void);
 
 // Extended
 #define EXTENDED (GLOBAL_SIS (Extended) ? TRUE : FALSE)
+#define EXT_CASE(a,b) (!EXTENDED ? (a) : (b))
 // Nomad
 #define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
 

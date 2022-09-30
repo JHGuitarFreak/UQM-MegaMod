@@ -565,6 +565,11 @@
 #define SCAN_BIOLOGICAL_TINT_COLOR \
 		BRIGHT_GREEN_COLOR_INIT
 
+#define SCAN_PC_TITLE_COLOR_6014 \
+		BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x14), 0x3B)
+
+#define OUTLINE_COLOR (BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x66))
+
 
 // Temporary, until we can use C'99 features:
 #define BLACK_COLOR_INIT \

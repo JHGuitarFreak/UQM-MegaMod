@@ -100,13 +100,32 @@ static void
 PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 {
 	t->baseline.x = xpos;
-	SetContextForeGroundColor (SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (
+			EXT_CASE (SCAN_PC_TITLE_COLOR, SCAN_PC_TITLE_COLOR_6014));
 	t->pStr = txt;
 	t->CharCount = (COUNT)~0;
-	font_DrawText (t);
+
+	if (!optNebulae)
+		font_DrawText (t);
+	else
+		font_DrawTracedText (t,
+				EXT_CASE (GetContextForeGroundColor (),
+					SCAN_PC_TITLE_COLOR_6014),
+					OUTLINE_COLOR);
+
 	TextRect (t, r, NULL);
 	t->baseline.x += r->extent.width;
 	SetContextForeGroundColor (SCAN_INFO_COLOR);
+}
+
+static void
+PrintScanText (TEXT *t)
+{
+	if (!optNebulae)
+		font_DrawText (t);
+	else
+		font_DrawTracedText (t, GetContextForeGroundColor (),
+				OUTLINE_COLOR);
 }
 
 static void
@@ -221,7 +240,7 @@ PrintCoarseScanPC (void)
 
 	SetContextForeGroundColor (SCAN_PC_TITLE_COLOR);
 	SetContextFont (MicroFont);
-	font_DrawText (&t);
+	PrintScanText (&t);
 
 	SetContextFont (TinyFont);
 
@@ -241,7 +260,7 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 1)); // " a.u."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 2),
@@ -261,7 +280,7 @@ PrintCoarseScanPC (void)
 	}
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 6),
@@ -274,7 +293,7 @@ PrintCoarseScanPC (void)
 
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 7),
@@ -293,7 +312,7 @@ PrintCoarseScanPC (void)
 		HazardCase (LIGHTNING_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 10),
@@ -313,7 +332,7 @@ PrintCoarseScanPC (void)
 		HazardCase (EARTHQUAKE_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 
@@ -329,7 +348,7 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 12)); // " e.s."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 13),
@@ -339,7 +358,7 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 12)); // " e.s."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 14),
@@ -351,7 +370,7 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 15)); // " g."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 16),
@@ -365,7 +384,7 @@ PrintCoarseScanPC (void)
 				GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 18),
@@ -376,7 +395,7 @@ PrintCoarseScanPC (void)
 	t.pStr = buf;
 	sprintf (buf, "%d" STR_DEGREE_SIGN, val);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 }
 
 static void
@@ -399,7 +418,7 @@ PrintCoarseScan3DO (void)
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (SCAN_INFO_COLOR);
 	SetContextFont (MicroFont);
-	font_DrawText (&t);
+	PrintScanText (&t);
 
 #define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15)
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
@@ -419,7 +438,7 @@ PrintCoarseScan3DO (void)
 			+ (EARTH_RADIUS >> 1)) / EARTH_RADIUS);
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -432,7 +451,7 @@ PrintCoarseScan3DO (void)
 		MakeScanValue (buf, val, STR_EARTH_SIGN);
 	}
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -443,7 +462,7 @@ PrintCoarseScan3DO (void)
 		HazardCase (LAVASPOT_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -454,7 +473,7 @@ PrintCoarseScan3DO (void)
 		HazardCase (LIGHTNING_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -468,7 +487,7 @@ PrintCoarseScan3DO (void)
 		HazardCase (EARTHQUAKE_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 
 	t.baseline.x = RIGHT_SIDE_BASELINE_X - RES_SCALE (3);
 	t.baseline.y = SCAN_BASELINE_Y;
@@ -487,7 +506,7 @@ PrintCoarseScan3DO (void)
 		SetContextForeGroundColor (SCAN_INFO_COLOR);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -495,7 +514,7 @@ PrintCoarseScan3DO (void)
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -504,7 +523,7 @@ PrintCoarseScan3DO (void)
 		val = 1;
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -513,7 +532,7 @@ PrintCoarseScan3DO (void)
 		val = -val;
 	sprintf (buf, "%d" STR_DEGREE_SIGN, val);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -523,7 +542,7 @@ PrintCoarseScan3DO (void)
 	else
 		sprintf (buf, "%u.%u%s", val / 10, val % 10, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 }
 
 static void
