@@ -467,36 +467,43 @@ TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 	if (r == 0 || r == 255)
 	{
 		SDL_SetRenderDrawBlendMode (renderer, a == 255 ? SDL_BLENDMODE_NONE
-					: SDL_BLENDMODE_BLEND);
+				: SDL_BLENDMODE_BLEND);
 
-		SDL_SetRenderDrawColor (renderer, r, g, b, 255);
+		SDL_SetRenderDrawColor (renderer, r, g, b, a);
 		SDL_RenderFillRect (renderer, rect);
 	}
 	else
 	{
 		if (g == 0)
 		{
-			SDL_SetRenderDrawBlendMode(renderer, SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE,
-				SDL_BLENDFACTOR_ONE, r, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
-				SDL_BLENDOPERATION_MAXIMUM));
+			SDL_SetRenderDrawBlendMode (renderer,
+					SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE, r, SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_MAXIMUM));
 
-			SDL_SetRenderDrawColor(renderer, a, a, a, 255);
-			SDL_RenderFillRect(renderer, rect);
+			SDL_SetRenderDrawColor (renderer, a, a, a, 255);
+			SDL_RenderFillRect (renderer, rect);
 		}
 		else
 		{
-			Uint8 c = a > 200 ? 200 : a;// threshold
-			SDL_SetRenderDrawBlendMode(renderer, SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE,
-				SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
-				SDL_BLENDOPERATION_MAXIMUM));
-			SDL_SetRenderDrawColor(renderer, c, c, c, 255);
-			SDL_RenderFillRect(renderer, rect);
+			Uint8 c = a > 175 ? 200 : a;
+			SDL_SetRenderDrawBlendMode (renderer,
+					SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD,
+						SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_MAXIMUM));
+			SDL_SetRenderDrawColor (renderer, c, c, c, 255);
+			SDL_RenderFillRect (renderer, rect);
 
-			SDL_SetRenderDrawBlendMode(renderer, SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE,
-				SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
-				SDL_BLENDOPERATION_MAXIMUM));
-			SDL_SetRenderDrawColor(renderer, a, a, a, 255);
-			SDL_RenderFillRect(renderer, rect);
+			SDL_SetRenderDrawBlendMode (renderer,
+					SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_REV_SUBTRACT,
+						SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_MAXIMUM));
+			SDL_SetRenderDrawColor (renderer, a, a, a, 255);
+			SDL_RenderFillRect (renderer, rect);
 		}
 	}
 }

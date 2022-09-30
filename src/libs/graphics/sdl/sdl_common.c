@@ -33,8 +33,8 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
-#include "../../../uqm/units.h"
-#include "../../../options.h"
+#include "uqm/units.h"
+#include "uqm/globdata.h"
 
 #include <time.h>
 
@@ -279,35 +279,37 @@ TFB_SwapBuffers (int force_full_redraw)
 #if SDL_MAJOR_VERSION == 1
 		if (fade_amount < 255)
 		{
-			graphics_backend->color(0, 0, 0, 255 - fade_amount, NULL);
+			graphics_backend->color (0, 0, 0, 255 - fade_amount, NULL);
 		}
 		else
 		{
-			graphics_backend->color(255, 255, 255,
-				fade_amount - 255, NULL);
+			graphics_backend->color (255, 255, 255,
+					fade_amount - 255, NULL);
 		}
 #else
-		if (TRUE) // opt
+		if (isPC (optScrTrans))
 		{
 			if (fade_amount < 255)
 			{
-				graphics_backend->color(SDL_BLENDOPERATION_REV_SUBTRACT, sfx, 0, 255 - fade_amount, NULL);
+				graphics_backend->color (SDL_BLENDOPERATION_REV_SUBTRACT,
+						sfx, 0, 255 - fade_amount, NULL);
 			}
 			else
 			{
-				graphics_backend->color(SDL_BLENDOPERATION_ADD, 0, 0, fade_amount - 255, NULL);
+				graphics_backend->color (SDL_BLENDOPERATION_ADD, 0, 0,
+						fade_amount - 255, NULL);
 			}
 		}
 		else
 		{
 			if (fade_amount < 255)
 			{
-				graphics_backend->color(0, 0, 0, 255 - fade_amount, NULL);
+				graphics_backend->color (0, 0, 0, 255 - fade_amount, NULL);
 			}
 			else
 			{
-				graphics_backend->color(255, 255, 255,
-					fade_amount - 255, NULL);
+				graphics_backend->color (255, 255, 255,
+						fade_amount - 255, NULL);
 			}
 		}
 #endif
