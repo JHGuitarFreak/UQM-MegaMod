@@ -122,7 +122,6 @@ int optScanSphere;
 int optNebulaeVolume;
 BOOLEAN optSlaughterMode;
 int quickSaveSlot;
-int autoSaveSlot;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

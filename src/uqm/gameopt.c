@@ -1323,22 +1323,10 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
 			success = SaveGame (gameIndex, desc, nameBuf);
 
-			if (success)
+			if (success && strcmp (nameBuf,
+					GAME_STRING (SAVEGAME_STRING_BASE + 5)) == 0)
 			{
-				if (strcmp (nameBuf,
-						GAME_STRING (SAVEGAME_STRING_BASE + 5)) == 0)
-				{
-					quickSaveSlot = gameIndex;
-					printf ("QuickSave registered on slot: %d\n",
-							quickSaveSlot);
-				}
-				else if (strcmp (nameBuf,
-						GAME_STRING (SAVEGAME_STRING_BASE + 6)) == 0)
-				{
-					autoSaveSlot = gameIndex;
-					printf ("AutoSave registered on slot: %d\n",
-							autoSaveSlot);
-				}
+				quickSaveSlot = gameIndex;
 			}
 		}
 		else
