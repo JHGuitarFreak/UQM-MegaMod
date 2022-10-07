@@ -1322,6 +1322,24 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 			PlayMenuSound (MENU_SOUND_SUCCESS);
 			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
 			success = SaveGame (gameIndex, desc, nameBuf);
+
+			if (success)
+			{
+				if (strcmp (nameBuf,
+						GAME_STRING (SAVEGAME_STRING_BASE + 5)) == 0)
+				{
+					quickSaveSlot = gameIndex;
+					printf ("QuickSave registered on slot: %d\n",
+							quickSaveSlot);
+				}
+				else if (strcmp (nameBuf,
+						GAME_STRING (SAVEGAME_STRING_BASE + 6)) == 0)
+				{
+					autoSaveSlot = gameIndex;
+					printf ("AutoSave registered on slot: %d\n",
+							autoSaveSlot);
+				}
+			}
 		}
 		else
 		{
@@ -1341,6 +1359,37 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 	{	// restore the screen under "SAVING..." message
 		DrawStamp (&saveStamp);
 	}
+
+	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
+
+	return success;
+}
+
+BOOLEAN
+QuickSave (void)
+{
+	PICK_GAME_STATE pickState;
+	UNICODE nameBuf[256];
+	SUMMARY_DESC *desc;
+	STAMP saveStamp;
+	BOOLEAN success;
+	RECT r;
+
+	GetContextClipRect (&r);
+	saveStamp.frame = NULL;
+
+	memset (&pickState, 0, sizeof pickState);
+	LoadGameDescriptions (pickState.summary);
+	desc = pickState.summary + quickSaveSlot;
+
+	// Initialize the save name with whatever name is there already
+	// SAVE_NAME_SIZE is less than 256, so this is safe.
+	strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
+	nameBuf[SAVE_NAME_SIZE] = 0;
+
+	ConfirmSaveLoad (&saveStamp);
+	success = SaveGame (quickSaveSlot, desc, nameBuf);
+	SleepThread (ONE_SECOND);
 
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
 

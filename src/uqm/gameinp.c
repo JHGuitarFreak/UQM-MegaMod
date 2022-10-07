@@ -37,6 +37,7 @@
 #include "setup.h"
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
+#include "gameopt.h"
 
 #ifdef defined(ANDROID) || defined(__ANDROID__)
 #define ACCELERATION_INCREMENT(ONE_SECOND)
@@ -285,6 +286,17 @@ UpdateInputState (void)
 
 	if (CurrentInputState.menu[KEY_EXIT])
 		ExitRequested = TRUE;
+
+	if (CurrentInputState.menu[KEY_QUICKSAVE] && inSavablePos ())
+	{
+		FlushInput ();
+
+		if (quickSaveSlot != NULL)
+		{
+			if (QuickSave ())
+				printf ("QuickSave successful!\n");
+		}
+	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])

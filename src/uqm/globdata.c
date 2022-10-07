@@ -729,6 +729,15 @@ inSuperMelee (void)
 			// TODO: && !inMainMenu ()
 }
 
+BOOLEAN
+inSavablePos (void)
+{
+	ACTIVITY act = LOBYTE (GLOBAL (CurrentActivity));
+	return (act == IN_ENCOUNTER || act == IN_HYPERSPACE ||
+			act == IN_INTERPLANETARY || act == IN_PLANET_ORBIT ||
+			act == IN_STARBASE);
+}
+
 #if 0
 BOOLEAN
 inBattle (void)
