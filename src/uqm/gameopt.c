@@ -1366,30 +1366,48 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 }
 
 BOOLEAN
-QuickSave (void)
+QuickSaveLoad (BOOLEAN saving)
 {
 	PICK_GAME_STATE pickState;
 	UNICODE nameBuf[256];
 	SUMMARY_DESC *desc;
 	STAMP saveStamp;
-	BOOLEAN success;
+	BOOLEAN success = FALSE;
 	RECT r;
 
 	GetContextClipRect (&r);
 	saveStamp.frame = NULL;
 
 	memset (&pickState, 0, sizeof pickState);
+	pickState.saving = saving;
+
 	LoadGameDescriptions (pickState.summary);
 	desc = pickState.summary + quickSaveSlot;
 
-	// Initialize the save name with whatever name is there already
-	// SAVE_NAME_SIZE is less than 256, so this is safe.
-	strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
-	nameBuf[SAVE_NAME_SIZE] = 0;
+	if (pickState.saving)
+	{
+		// Initialize the save name with whatever name is there already
+		// SAVE_NAME_SIZE is less than 256, so this is safe.
+		strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
+		nameBuf[SAVE_NAME_SIZE] = 0;
 
-	ConfirmSaveLoad (&saveStamp);
-	success = SaveGame (quickSaveSlot, desc, nameBuf);
-	SleepThread (ONE_SECOND);
+		success = SaveGame (quickSaveSlot, desc, nameBuf);
+
+		if (!success)
+			return FALSE;
+	}
+	else
+	{
+		success = LoadGame (quickSaveSlot, NULL, NULL, FALSE);
+
+		if (success)
+			GLOBAL (CurrentActivity) |= CHECK_LOAD;
+		else
+			return FALSE;
+	}
+
+	ConfirmSaveLoad (pickState.saving ? &saveStamp : NULL);
+	SleepThread (ONE_SECOND / 2);
 
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
 

@@ -287,15 +287,18 @@ UpdateInputState (void)
 	if (CurrentInputState.menu[KEY_EXIT])
 		ExitRequested = TRUE;
 
-	if (CurrentInputState.menu[KEY_QUICKSAVE] && inSavablePos ())
+	if (PulsedInputState.menu[KEY_MENU_NEXT])
 	{
 		FlushInput ();
-
 		if (quickSaveSlot != NULL)
-		{
-			if (QuickSave ())
-				printf ("QuickSave successful!\n");
-		}
+			QuickSaveLoad (FALSE);
+	}
+	
+	if (PulsedInputState.menu[KEY_QUICKSAVE])
+	{
+		FlushInput ();
+		if (inSavablePos () && quickSaveSlot != NULL)
+			QuickSaveLoad (TRUE);
 	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
