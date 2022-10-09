@@ -487,7 +487,7 @@ TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 		}
 		else
 		{
-			Uint8 c = a > 175 ? 200 : a;
+			Uint8 c = a > 175 ? 175 : a;
 			SDL_SetRenderDrawBlendMode (renderer,
 					SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE,
 						SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD,
