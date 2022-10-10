@@ -409,15 +409,36 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 	UniChar next_ch;
 	const char* pStr;
 	POINT origin;
-	TFB_Image* backing;
+	TFB_Image *backing, *stock, *ext;
 	DrawMode mode = _get_context_draw_mode();
 	BYTE swap = 0;
 
 	FontPtr = _CurFontPtr;
 	if (FontPtr == NULL)
 		return;
-	backing = _get_context_font_backing();
-	if (!backing)
+	stock = _get_context_font_backing();
+	if (!stock)
+		return;
+
+	if (AltFontPtr != NULL)
+	{// Local backing needed for alt font
+	 // Create one
+		SIZE w, h;
+		RECT r;
+		Color color = _get_context_fg_color();
+		w = (SIZE)AltFontPtr->disp.width;
+		h = (SIZE)AltFontPtr->disp.height;
+		if (w == 0 || h == 0)
+			return;
+
+		ext = TFB_DrawImage_CreateForScreen (w, h, TRUE);
+
+		r.corner = MAKE_HOT_SPOT(0, 0);
+		r.extent = MAKE_EXTENT (w, h);
+
+		TFB_DrawImage_Rect (&r, color, DRAW_REPLACE_MODE, ext);
+	}
+	else
 		return;
 
 	origin.x = pClipRect->corner.x;
@@ -431,6 +452,7 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 	next_ch = getCharFromString(&pStr);
 	if (next_ch == '\0')
 		num_chars = 0;
+	backing = stock;
 	while (num_chars--)
 	{
 		UniChar ch;
@@ -446,11 +468,15 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 
 		if (ch == key)
 		{
-			fontChar = getCharFrame(AltFontPtr, ch);
+			fontChar = getCharFrame (AltFontPtr, ch);
+			backing = ext;
 			swap ^= 1; // switch current font
 		}
 		else
-			fontChar = getCharFrame(swap ? AltFontPtr : FontPtr, ch);
+		{
+			fontChar = getCharFrame (swap ? AltFontPtr : FontPtr, ch);
+			backing = swap ? ext : stock;
+		}
 
 		if (fontChar != NULL && fontChar->disp.width)
 		{
@@ -474,6 +500,9 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 				origin.x -= FontPtr->KernAmount;
 		}
 	}
+
+	if (ext)
+		TFB_DrawImage_Delete (ext);
 }
 
 static inline TFB_Char *
