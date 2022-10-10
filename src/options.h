@@ -108,7 +108,7 @@ extern BOOLEAN optUnscaledStarSystem;
 extern int optScanSphere;
 extern int optNebulaeVolume;
 extern BOOLEAN optSlaughterMode;
-extern int quickSaveSlot;
+extern BYTE quickSaveSlot;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;

@@ -121,7 +121,7 @@ BOOLEAN optUnscaledStarSystem;
 int optScanSphere;
 int optNebulaeVolume;
 BOOLEAN optSlaughterMode;
-int quickSaveSlot;
+BYTE quickSaveSlot;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

@@ -429,6 +429,8 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
+
+	quickSaveSlot = (BYTE)~0;
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{

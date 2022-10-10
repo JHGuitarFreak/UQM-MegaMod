@@ -287,17 +287,17 @@ UpdateInputState (void)
 	if (CurrentInputState.menu[KEY_EXIT])
 		ExitRequested = TRUE;
 
-	if (PulsedInputState.menu[KEY_MENU_NEXT])
+	if (PulsedInputState.menu[KEY_QUICKLOAD])
 	{
 		FlushInput ();
-		if (quickSaveSlot != NULL)
+		if (quickSaveSlot != (BYTE)~0)
 			QuickSaveLoad (FALSE);
 	}
 	
 	if (PulsedInputState.menu[KEY_QUICKSAVE])
 	{
 		FlushInput ();
-		if (inSavablePos () && quickSaveSlot != NULL)
+		if (inSavablePos () && quickSaveSlot != (BYTE)~0)
 			QuickSaveLoad (TRUE);
 	}
 

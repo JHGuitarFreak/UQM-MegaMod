@@ -1304,6 +1304,7 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 	STAMP saveStamp;
 	BOOLEAN success;
 	RECT r;
+	BOOLEAN initQS = FALSE;
 
 	GetContextClipRect(&r);
 
@@ -1327,6 +1328,7 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 					GAME_STRING (SAVEGAME_STRING_BASE + 5)) == 0)
 			{
 				quickSaveSlot = gameIndex;
+				initQS = TRUE;
 			}
 		}
 		else
@@ -1350,56 +1352,84 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
 
+	if (initQS)
+		DoPopupWindow (GAME_STRING (SAVEGAME_STRING_BASE + 6));
+
 	return success;
 }
 
 BOOLEAN
 QuickSaveLoad (BOOLEAN saving)
 {
+	CONTEXT OldContext;
 	PICK_GAME_STATE pickState;
-	UNICODE nameBuf[256];
-	SUMMARY_DESC *desc;
-	STAMP saveStamp;
-	BOOLEAN success = FALSE;
-	RECT r;
-
-	GetContextClipRect (&r);
-	saveStamp.frame = NULL;
+	TimeCount TimeOut;
+	InputFrameCallback *oldCallback;
 
 	memset (&pickState, 0, sizeof pickState);
 	pickState.saving = saving;
 
+	TimeOut = FadeMusic (0, ONE_SECOND / 2);
+
+	// Deactivate any background drawing, like planet rotation
+	oldCallback = SetInputCallback (NULL);
+
 	LoadGameDescriptions (pickState.summary);
-	desc = pickState.summary + quickSaveSlot;
 
-	if (pickState.saving)
+	OldContext = SetContext (SpaceContext);
+
+	SleepThreadUntil (TimeOut);
+	PauseMusic ();
+	StopSound ();
+	FadeMusic (NORMAL_VOLUME, 0);
+
+	// draw the current savegame and fade in
+	SetTransitionSource (NULL);
+	BatchGraphics ();
+
+	SetContextBackGroundColor (BLACK_COLOR);
+	ClearDrawable ();
+
 	{
-		// Initialize the save name with whatever name is there already
-		// SAVE_NAME_SIZE is less than 256, so this is safe.
-		strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
-		nameBuf[SAVE_NAME_SIZE] = 0;
+		RECT ctxRect;
 
-		success = SaveGame (quickSaveSlot, desc, nameBuf);
-
-		if (!success)
-			return FALSE;
+		GetContextClipRect (&ctxRect);
+		ScreenTransition (3, &ctxRect);
+		UnbatchGraphics ();
 	}
-	else
-	{
-		success = LoadGame (quickSaveSlot, NULL, NULL, FALSE);
 
-		if (success)
-			GLOBAL (CurrentActivity) |= CHECK_LOAD;
+	{
+		SUMMARY_DESC *desc = pickState.summary + quickSaveSlot;
+		UNICODE nameBuf[256];
+		BOOLEAN success;
+
+		if (pickState.saving)
+		{
+			// Initialize the save name with whatever name is there already
+			// SAVE_NAME_SIZE is less than 256, so this is safe.
+			strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
+			nameBuf[SAVE_NAME_SIZE] = 0;
+			pickState.success = SaveGame (quickSaveSlot, desc, nameBuf);
+		}
 		else
-			return FALSE;
+		{
+			pickState.success = LoadGame (quickSaveSlot, NULL, NULL, FALSE);
+		}
 	}
 
-	ConfirmSaveLoad (pickState.saving ? &saveStamp : NULL);
-	SleepThread (ONE_SECOND / 2);
+	if (pickState.success && !saving)
+	{	// Load succeeded, signal up the chain
+		GLOBAL (CurrentActivity) |= CHECK_LOAD;
+	}
 
-	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
+	SetContext (OldContext);
 
-	return success;
+	ResumeMusic ();
+
+	// Reactivate any background drawing, like planet rotation
+	SetInputCallback (oldCallback);
+
+	return pickState.success;
 }
 
 static BOOLEAN
