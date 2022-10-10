@@ -223,7 +223,11 @@ add_text (int status, TEXT *pTextIn)
 		}
 
 		text_width = CommData.AlienTextWidth;
-		SetContextFont (CommData.AlienFont);
+		if (CommData.AlienConv == ORZ_CONVERSATION && optOrzCompFont && 
+				CommData.AlienTalkDesc.AnimFlags & PAUSE_TALKING)
+			SetContextFont (ComputerFont);// Orz intro
+		else
+			SetContextFont (CommData.AlienFont);
 		GetContextFontLeading (&leading);
 
 		pText = pTextIn;
@@ -339,7 +343,7 @@ add_text (int status, TEXT *pTextIn)
 				font_DrawTracedTextAlt (pText,
 					CommData.AlienTextFColor,
 					CommData.AlienTextBColor,
-					ComputerFont, '*', CommData.AlienTalkDesc.AnimFlags & PAUSE_TALKING);
+					ComputerFont, '*');
 			}
 			else
 			{
@@ -1885,7 +1889,8 @@ HailAlien (void)
 	DestroyDrawable (ReleaseDrawable (TextCacheFrame));
 
 	DestroyFont (PlayerFont);
-	DestroyFont (ComputerFont);
+	if (optOrzCompFont)
+		DestroyFont (ComputerFont);
 
 	ReleaseTalkingAnim ();
 	DisengageFilters ();

@@ -127,7 +127,7 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 
 // Alt stuff to handle 2 fonts at once (for Orz)
 void
-font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key, BOOLEAN force)
+font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key)
 {
 	RECT ClipRect;
 	POINT origin;
@@ -142,12 +142,12 @@ font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key, BOOLEAN force)
 	if (!TextRect (&text, &ClipRect, NULL))
 		return;
 	// ClipRect is relative to origin
-	_text_blt_alt (&ClipRect, &text, origin, AltFontPtr, key, force);
+	_text_blt_alt (&ClipRect, &text, origin, AltFontPtr, key);
 }
 
 void
 font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr, 
-		UniChar key, BOOLEAN force)
+		UniChar key)
 {
 	// Preserve current foreground color for full correctness
 	const Color oldfg = SetContextForeGroundColor (trace);
@@ -165,13 +165,13 @@ font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 					t_baseline.x + offset.x,
 					t_baseline.y + offset.y
 				);
-			font_DrawTextAlt (pText, AltFontPtr, key, force);
+			font_DrawTextAlt (pText, AltFontPtr, key);
 		}
 	}
 	pText->baseline = t_baseline;
 
 	SetContextForeGroundColor (text);
-	font_DrawTextAlt (pText, AltFontPtr, key, force);
+	font_DrawTextAlt (pText, AltFontPtr, key);
 	SetContextForeGroundColor (oldfg);
 }
 
@@ -398,7 +398,7 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 
 void
 _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr, 
-		UniChar key, BOOLEAN force)
+		UniChar key)
 {// Kruzen: To create text using 2 fonts (Orz case)
  // Safest way to do so without going too deep into
  // original code
@@ -444,9 +444,7 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 				num_chars = 0;
 		}
 
-		if (force) // use alt font no matter what
-			fontChar = getCharFrame(AltFontPtr, ch);
-		else if (ch == key)
+		if (ch == key)
 		{
 			fontChar = getCharFrame(AltFontPtr, ch);
 			swap ^= 1; // switch current font
