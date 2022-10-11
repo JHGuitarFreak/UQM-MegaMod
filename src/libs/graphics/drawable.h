@@ -83,7 +83,7 @@ extern FRAME _CurFramePtr;
 
 // ClipRect is relative to ctxOrigin
 extern void _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin);
-extern void _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr, UniChar key, BOOLEAN force);
+extern void _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr, UniChar key);
 
 #endif /* LIBS_GRAPHICS_DRAWABLE_H_ */
 

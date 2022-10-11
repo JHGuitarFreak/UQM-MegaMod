@@ -497,9 +497,9 @@ extern void InstaLine (int x1, int y1, int x2, int y2);
 extern RECT font_GetTextRect (TEXT* pText);
 extern void font_DrawText (TEXT *pText);
 extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
-extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key, BOOLEAN force);
+extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key);
 extern void font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
-		UniChar key, BOOLEAN force);
+		UniChar key);
 extern void DrawBatch (PRIMITIVE *pBasePrim, PRIM_LINKS PrimLinks,
 		BATCH_FLAGS BatchFlags);
 extern void BatchGraphics (void);
