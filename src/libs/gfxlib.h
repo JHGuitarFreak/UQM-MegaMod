@@ -539,6 +539,7 @@ extern FONT SetContextFont (FONT Font);
 extern BOOLEAN DestroyFont (FONT FontRef);
 // The returned pRect is relative to the context drawing origin
 extern BOOLEAN TextRect (TEXT *pText, RECT *pRect, BYTE *pdelta);
+extern BOOLEAN TextRectAlt (TEXT* lpText, RECT* pRect, BYTE* pdelta, UniChar key, FONT AltFontPtr);
 extern BOOLEAN GetContextFontLeading (SIZE *pheight);
 extern BOOLEAN GetContextFontDispHeight (SIZE *pheight);
 extern BOOLEAN GetContextFontDispWidth (SIZE *pwidth);
