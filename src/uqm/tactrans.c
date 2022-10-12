@@ -41,6 +41,7 @@
 #include "settings.h"
 #include "sounds.h"
 #include "libs/mathlib.h"
+#include "intel.h"
 
 
 static void cleanup_dead_ship (ELEMENT *ElementPtr);
@@ -706,7 +707,8 @@ StartShipExplosion (ELEMENT *ShipPtr, bool playSound)
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 
-	ZeroVelocityComponents (&ShipPtr->velocity);
+	if (!optExtended || isNetwork ())
+		ZeroVelocityComponents (&ShipPtr->velocity);
 
 	DeltaEnergy (ShipPtr,
 			-(SIZE)StarShipPtr->RaceDescPtr->ship_info.energy_level);
