@@ -191,7 +191,6 @@ add_text (int status, TEXT *pTextIn)
 	static COORD last_baseline;
 	BOOLEAN eol;
 	CONTEXT OldContext = NULL;
-	COUNT computerOn = 0;
 	RECT arrow;
 	
 	BatchGraphics ();
