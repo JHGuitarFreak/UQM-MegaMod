@@ -1762,7 +1762,17 @@ HailAlien (void)
 		PlayerFont = LoadFont (TINY_FONT_BOLD);
 
 	if (optOrzCompFont)
+	{
 		ComputerFont = LoadFont (COMPUTER_FONT);
+
+		if (ComputerFont == NULL)
+		{
+			log_add (log_Warning,
+					"ComputerFont didn't load properly. "
+					"Disabling Alternate Orz Font");
+			optOrzCompFont = FALSE;
+		}
+	}
 
 	CommData.AlienFrame = CaptureDrawable (
 			LoadGraphic (CommData.AlienFrameRes));
