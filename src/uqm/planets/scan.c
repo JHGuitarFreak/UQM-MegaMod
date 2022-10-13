@@ -1393,12 +1393,12 @@ DoScan (MENU_STATE *pMS)
 }
 
 static CONTEXT
-CreateScanContext (void)
+CreateScanContext (BOOLEAN inSpace)
 {
 	CONTEXT oldContext;
 	CONTEXT context;
 	RECT r;
-	COORD mapWidth = actuallyInOrbit ? SCALED_MAP_WIDTH : MAP_WIDTH;
+	COORD x_offset;
 
 	// ScanContext rect is relative to SpaceContext
 	oldContext = SetContext (SpaceContext);
@@ -1407,9 +1407,15 @@ CreateScanContext (void)
 	context = CreateContext ("ScanContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - mapWidth;
+	x_offset = RES_DESCALE (r.extent.width - SCALED_MAP_WIDTH);
+	if (inSpace && x_offset > 0)
+	{
+		x_offset >>= 1;
+		x_offset++;
+	}
+	r.corner.x += RES_SCALE (x_offset);
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = mapWidth;
+	r.extent.width = SCALED_MAP_WIDTH;
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
@@ -1430,8 +1436,12 @@ GetScanContext (BOOLEAN *owner)
 	else
 	{
 		if (owner)
+		{
 			*owner = TRUE;
-		ScanContext = CreateScanContext ();
+			ScanContext = CreateScanContext (TRUE);
+		}
+		else
+			ScanContext = CreateScanContext (FALSE);
 	}
 	return ScanContext;
 }

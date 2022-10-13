@@ -2570,7 +2570,7 @@ StarMap (void)
 
 	if (optWhichMenu == OPT_PC)
 	{
-		if (actuallyInOrbit)
+		if (playerInPlanetOrbit ())
 			DrawMenuStateStrings (PM_ALT_SCAN, 1);
 		else
 			DrawMenuStateStrings (PM_ALT_STARMAP, 0);
