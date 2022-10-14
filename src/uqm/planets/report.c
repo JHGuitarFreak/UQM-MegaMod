@@ -61,7 +61,7 @@ ClearReportArea (void)
 
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
-	SetContextForeGroundColor(
+	SetContextForeGroundColor (
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 
 	startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
@@ -81,7 +81,7 @@ ClearReportArea (void)
 		s.origin.y += r.extent.height + RES_SCALE (1);
 	}
 
-	UnbatchGraphics();
+	UnbatchGraphics ();
 }
 
 static void
@@ -97,7 +97,8 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	TEXT t;
 	Color fgcolor;
 
-	sprintf (end_page_buf, "%s\n", GAME_STRING (SCAN_STRING_BASE + NUM_SCAN_TYPES));
+	sprintf (end_page_buf, "%s\n",
+			GAME_STRING (SCAN_STRING_BASE + NUM_SCAN_TYPES));
 	end_page_len = utf8StringCount (end_page_buf);
 
 	GetFrameRect (SetAbsFrameIndex (SpaceJunkFrame, 18), &r);
@@ -110,7 +111,8 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 
 	FlushInput ();
 
-	t.baseline.y = r.extent.height + RES_SCALE (1); // Text vertical alignment
+	t.baseline.y = r.extent.height + RES_SCALE (1);
+			// Text vertical alignment
 	row_cells = 0;
 	fgcolor = BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF);
 	startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
@@ -147,7 +149,8 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			StrLen += end_page_len; 
 		}
 
-		t.baseline.x = startx + (col_cells * (r.extent.width + RES_SCALE (1)));
+		t.baseline.x = startx + (col_cells *
+				(r.extent.width + RES_SCALE (1)));
 
 		do
 		{
@@ -173,7 +176,8 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 					pNextStr = t.pStr;
 					c = getCharFromString (&pNextStr);
 					
-					if (!Sleepy || (GLOBAL (CurrentActivity) & CHECK_ABORT))
+					if (!Sleepy
+							|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
 						font_DrawText (&t);
 					else
 					{
@@ -187,7 +191,8 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 								GAME_SOUND_PRIORITY);
 
 						if (last_c && last_c != ' ' && last_c != ',' &&
-								last_c != '.' && last_c != '!' && last_c != '?')
+								last_c != '.' && last_c != '!' &&
+								last_c != '?')
 						{
 							if (c == ',')
 								TimeOut += ONE_SECOND / ( 4 * LeftRight);
@@ -211,16 +216,19 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						}
 					}
 					t.pStr = pNextStr;
-					t.baseline.x += r.extent.width + RES_SCALE (1); // Text spacing
+					t.baseline.x += r.extent.width + RES_SCALE (1);
+							// Text spacing
 				}
 
 				++col_cells;
 				last_c = getCharFromString (&t.pStr);
-				t.baseline.x += r.extent.width + RES_SCALE (1); // Space spacing
+				t.baseline.x += r.extent.width + RES_SCALE (1);
+						// Space spacing
 			}
 		} while (col_cells <= NUM_CELL_COLS && last_c != '\n' && StrLen);
 
-		t.baseline.y += r.extent.height + RES_SCALE (1); // Text vertical spacing
+		t.baseline.y += r.extent.height + RES_SCALE (1);
+				// Text vertical spacing
 		if (++row_cells == NUM_CELL_ROWS || StrLen == 0)
 		{
 			t.pStr = pLastStr;
@@ -232,7 +240,8 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			if (!WaitForActButton (TRUE, WAIT_INFINITE, FALSE))
 				break;
 
-			t.baseline.y = r.extent.height + RES_SCALE (1); // Text vertical alignment
+			t.baseline.y = r.extent.height + RES_SCALE (1);
+					// Text vertical alignment
 			row_cells = 0;
 			if (StrLen)
 			{
@@ -274,8 +283,10 @@ DoDiscoveryReport (SOUND ReadOutSounds)
 			OldFontEffect = SetContextFontEffect (NULL);
 
 		MakeReport (ReadOutSounds,
-			(UNICODE *)GetStringAddress (pSolarSysState->SysInfo.PlanetInfo.DiscoveryString),
-			GetStringLength (pSolarSysState->SysInfo.PlanetInfo.DiscoveryString));
+				(UNICODE *)GetStringAddress (
+					pSolarSysState->SysInfo.PlanetInfo.DiscoveryString),
+				GetStringLength (
+					pSolarSysState->SysInfo.PlanetInfo.DiscoveryString));
 		
 		SetContextFontEffect (OldFontEffect);
 		SetContextFont (OldFont);
