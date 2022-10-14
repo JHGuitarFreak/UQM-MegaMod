@@ -36,19 +36,20 @@
 #include <string.h>
 
 
-#define NUM_CELL_COLS (isPC (optSuperPC) ? 34 : (UQM_MAP_WIDTH / 6))
+#define COL_MULTIPLIER (isPC (optSuperPC) ? 7 : 6)
+#define NUM_CELL_COLS (UQM_MAP_WIDTH / COL_MULTIPLIER)
 #define NUM_CELL_ROWS (SC2_MAP_HEIGHT / 6)
 #define MAX_CELL_COLS 40 // Why is this is never used???
 
 extern FRAME SpaceJunkFrame;
-COORD startx, starty;
 
 static void
 ClearReportArea (void)
 {
 	COUNT x, y;
-	RECT r, rPC;
+	RECT r;
 	STAMP s;
+	COORD startx;
 
 	if (optWhichFonts == OPT_PC)
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 21);
@@ -58,35 +59,13 @@ ClearReportArea (void)
 
 	BatchGraphics ();
 
-	if (actuallyInOrbit || !isPC (optSuperPC))
-	{
-		SetContextBackGroundColor (BLACK_COLOR);
-		ClearDrawable ();
+	SetContextBackGroundColor (BLACK_COLOR);
+	ClearDrawable ();
+	SetContextForeGroundColor(
+		BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 
-		startx = (!isPC (optSuperPC) ? 0 : RES_SCALE (1)) + 1
-				+ (r.extent.width >> 1) - (RES_SCALE (1) - IF_HD (1));
-		starty = RES_SCALE (1);
-	}
-	else if (isPC (optSuperPC))
-	{
-		rPC.extent.width = (r.extent.width + RES_SCALE (1))
-			* NUM_CELL_COLS + RES_SCALE (1);
-		rPC.extent.height = (r.extent.height + RES_SCALE (1))
-			* NUM_CELL_ROWS + RES_SCALE (1);
-		rPC.corner.x = (SIS_SCREEN_WIDTH - rPC.extent.width) / 2;
-		rPC.corner.y = 0;
-
-		SetContextForeGroundColor (BLACK_COLOR);
-		DrawFilledRectangle (&rPC);
-
-		startx = rPC.corner.x + RES_SCALE (1);
-		starty = RES_SCALE (1);
-	}
-
-	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
-
-	s.origin.y = starty; // Cell vertical alignment
+	startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+	s.origin.y = RES_SCALE (1);
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
 		s.origin.x = startx;
@@ -96,26 +75,27 @@ ClearReportArea (void)
 				DrawStamp (&s);
 			else
 				DrawFilledStamp (&s);
-			
+
 			s.origin.x += r.extent.width + RES_SCALE (1);
 		}
 		s.origin.y += r.extent.height + RES_SCALE (1);
 	}
 
-	UnbatchGraphics ();
+	UnbatchGraphics();
 }
 
 static void
 MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 {
-	BYTE ButtonState;
 	int end_page_len;
 	UNICODE end_page_buf[200];
 	UniChar last_c = 0;
 	COUNT row_cells;
 	BOOLEAN Sleepy;
+	COORD startx;
 	RECT r;
 	TEXT t;
+	Color fgcolor;
 
 	sprintf (end_page_buf, "%s\n", GAME_STRING (SCAN_STRING_BASE + NUM_SCAN_TYPES));
 	end_page_len = utf8StringCount (end_page_buf);
@@ -129,8 +109,17 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	Sleepy = TRUE;
 
 	FlushInput ();
-	// XXX: this is a pretty ugly goto
-	goto InitPageCell;
+
+	t.baseline.y = r.extent.height + RES_SCALE (1); // Text vertical alignment
+	row_cells = 0;
+	fgcolor = BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF);
+	startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+
+	if (StrLen)
+	{
+		ClearReportArea ();
+		SetContextForeGroundColor (fgcolor);
+	}
 
 	while (StrLen)
 	{
@@ -138,7 +127,6 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		const UNICODE *pLastStr;
 		const UNICODE *pNextStr;
 		COUNT lf_pos;
-		BYTE NextPageHD = 0;
 
 		pLastStr = t.pStr;
 
@@ -157,11 +145,9 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
 			StrLen += end_page_len; 
-			NextPageHD = isPC (optSuperPC) ? 42 : 52;
 		}
 
-		t.baseline.x = startx + (col_cells * (r.extent.width + 1))
-				+ IF_HD (NextPageHD);
+		t.baseline.x = startx + (col_cells * (r.extent.width + RES_SCALE (1)));
 
 		do
 		{
@@ -246,18 +232,15 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			if (!WaitForActButton (TRUE, WAIT_INFINITE, FALSE))
 				break;
 
-InitPageCell:
-			ButtonState = 1;
+			t.baseline.y = r.extent.height + RES_SCALE (1); // Text vertical alignment
 			row_cells = 0;
 			if (StrLen)
 			{
 				if (!Sleepy)
 					BatchGraphics ();
 				ClearReportArea();
-				SetContextForeGroundColor (
-						BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF));
+				SetContextForeGroundColor (fgcolor);
 			}
-			t.baseline.y = r.extent.height + starty; // Text vertical alignment
 		}
 	}
 }
