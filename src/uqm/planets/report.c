@@ -67,10 +67,10 @@ ClearReportArea (void)
 	SetContextForeGroundColor (
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 
-	columnWidth = NUM_CELL_COLS * (r.extent.width + RES_SCALE (1))
-			- RES_SCALE (1);
+	columnWidth = NUM_CELL_COLS * (RES_DESCALE (r.extent.width) + 1) - 1;
 
-	startx = (clipRect.extent.width - columnWidth) / 2;
+	startx = RES_SCALE (
+			(RES_DESCALE (clipRect.extent.width) - columnWidth) / 2);
 	s.origin.y = RES_SCALE (1);
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
