@@ -1411,7 +1411,7 @@ CreateScanContext (BOOLEAN inSpace)
 	if (inSpace && x_offset > 0)
 	{
 		x_offset >>= 1;
-		x_offset++;
+		//x_offset++;
 	}
 	r.corner.x += RES_SCALE (x_offset);
 	r.corner.y += r.extent.height - MAP_HEIGHT;
