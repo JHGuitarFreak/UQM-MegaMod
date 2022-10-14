@@ -43,19 +43,22 @@
 
 extern FRAME SpaceJunkFrame;
 
+COORD startx;
+
 static void
 ClearReportArea (void)
 {
 	COUNT x, y;
-	RECT r;
+	RECT r, clipRect;
 	STAMP s;
-	COORD startx;
+	COORD columnWidth;
 
 	if (optWhichFonts == OPT_PC)
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 21);
 	else
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 18);
 	GetFrameRect (s.frame, &r);
+	GetContextClipRect (&clipRect);
 
 	BatchGraphics ();
 
@@ -64,7 +67,10 @@ ClearReportArea (void)
 	SetContextForeGroundColor (
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 
-	startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+	columnWidth = NUM_CELL_COLS * (r.extent.width + RES_SCALE (1))
+			- RES_SCALE (1);
+
+	startx = (clipRect.extent.width - columnWidth) / 2;
 	s.origin.y = RES_SCALE (1);
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
@@ -92,7 +98,6 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	UniChar last_c = 0;
 	COUNT row_cells;
 	BOOLEAN Sleepy;
-	COORD startx;
 	RECT r;
 	TEXT t;
 	Color fgcolor;
@@ -115,7 +120,6 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			// Text vertical alignment
 	row_cells = 0;
 	fgcolor = BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF);
-	startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
 
 	if (StrLen)
 	{
