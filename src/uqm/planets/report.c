@@ -43,23 +43,18 @@
 
 extern FRAME SpaceJunkFrame;
 
-COORD startx;
-
 static void
-ClearReportArea (void)
+ClearReportArea (COORD startx)
 {
 	COUNT x, y;
-	RECT r, clipRect;
+	RECT r;
 	STAMP s;
-	COORD columnWidth;
 
 	if (optWhichFonts == OPT_PC)
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 21);
 	else
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 18);
 	GetFrameRect (s.frame, &r);
-	GetContextClipRect (&clipRect);
-
 	BatchGraphics ();
 
 	SetContextBackGroundColor (BLACK_COLOR);
@@ -67,10 +62,6 @@ ClearReportArea (void)
 	SetContextForeGroundColor (
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 
-	columnWidth = NUM_CELL_COLS * (RES_DESCALE (r.extent.width) + 1) - 1;
-
-	startx = RES_SCALE (
-			(RES_DESCALE (clipRect.extent.width) - columnWidth) / 2);
 	s.origin.y = RES_SCALE (1);
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{
@@ -98,32 +89,40 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	UniChar last_c = 0;
 	COUNT row_cells;
 	BOOLEAN Sleepy;
-	RECT r;
+	RECT r, contextRect;
 	TEXT t;
 	Color fgcolor;
+	COORD startx;
+	BYTE fastForward = 0;
 
 	sprintf (end_page_buf, "%s\n",
 			GAME_STRING (SCAN_STRING_BASE + NUM_SCAN_TYPES));
 	end_page_len = utf8StringCount (end_page_buf);
 
 	GetFrameRect (SetAbsFrameIndex (SpaceJunkFrame, 18), &r);
+	GetContextClipRect (&contextRect);
 
 	t.align = ALIGN_LEFT;
 	t.CharCount = 1;
 	t.pStr = pStr;
-
 	Sleepy = TRUE;
 
 	FlushInput ();
 
-	t.baseline.y = r.extent.height + RES_SCALE (1);
 			// Text vertical alignment
+	t.baseline.y = r.extent.height + RES_SCALE (1);
 	row_cells = 0;
 	fgcolor = BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF);
 
+	if (contextRect.extent.width < SCALED_MAP_WIDTH)
+		startx = RES_SCALE (1); // Special case if we're in space
+	else// In DOS version first cell is 3p away from the edge of the context, and 2 in UQM		
+		startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1) 
+				+ (isPC (optSuperPC) ? RES_SCALE (1) : 0);
+
 	if (StrLen)
 	{
-		ClearReportArea ();
+		ClearReportArea (startx);
 		SetContextForeGroundColor (fgcolor);
 	}
 
@@ -185,32 +184,54 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						font_DrawText (&t);
 					else
 					{
-						BYTE LeftRight = 1;
+						fastForward = 0;
 						font_DrawText (&t);
 
 						if (CurrentInputState.menu[KEY_MENU_RIGHT])
-							LeftRight = 4;
+							fastForward = 2;
 
 						PlaySound (ReadOutSounds, NotPositional (), NULL,
 								GAME_SOUND_PRIORITY);
 
-						if (last_c && last_c != ' ' && last_c != ',' &&
-								last_c != '.' && last_c != '!' &&
-								last_c != '?')
+						switch (c)
 						{
-							if (c == ',')
-								TimeOut += ONE_SECOND / ( 4 * LeftRight);
-							if (c == '.' || c == '!' || c == '?')
-								TimeOut += ONE_SECOND / (2 * LeftRight);
-							else
-								TimeOut += ONE_SECOND / (20 * LeftRight);
+							case ',':
+							{
+								TimeOut += ONE_SECOND / (4 << fastForward);
+								break;
+							}
+							case '.':
+							{
+								TimeOut += ONE_SECOND / (2 << fastForward);
+								break;
+							}
+							case '!':
+							{
+								if (last_c != '!' && last_c != ' ')
+									TimeOut += ONE_SECOND / (2 << fastForward);
+								else
+									TimeOut += ONE_SECOND / (20 << fastForward);
+								break;
+							}
+							case '?':
+							{
+								if (last_c != '?' && last_c != ' ')
+									TimeOut += ONE_SECOND / (2 << fastForward);
+								else
+									TimeOut += ONE_SECOND / (20 << fastForward);
+								break;
+							}
+							default:
+							{
+								TimeOut += ONE_SECOND / (20 << fastForward);
+								break;
+							}
 						}
-						else
-							TimeOut += ONE_SECOND / (20 * LeftRight);
+
 						last_c = c;
 
 						if (word_chars == 0)
-							TimeOut += ONE_SECOND / (20 * LeftRight);
+							TimeOut += ONE_SECOND / (20 << fastForward);
 
 						if (WaitForActButtonUntil (TRUE, TimeOut, FALSE))
 						{
@@ -251,7 +272,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			{
 				if (!Sleepy)
 					BatchGraphics ();
-				ClearReportArea();
+				ClearReportArea (startx);
 				SetContextForeGroundColor (fgcolor);
 			}
 		}

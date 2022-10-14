@@ -1408,19 +1408,17 @@ CreateScanContext (BOOLEAN inSpace)
 	SetContext (context);
 	SetContextFGFrame (Screen);
 	x_offset = RES_DESCALE (r.extent.width - SCALED_MAP_WIDTH);
+	r.extent.width = SCALED_MAP_WIDTH;	
 	if (inSpace && x_offset > 0)
 	{
 		x_offset >>= 1;
-
-		if (inSpace && optNebulae && isPC (optSuperPC))
-			x_offset += 2;
+		x_offset += 2;
+		r.extent.width -= RES_SCALE (5);
 	}
 	r.corner.x += RES_SCALE (x_offset);
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = SCALED_MAP_WIDTH;
-	if (inSpace && optNebulae && isPC (optSuperPC))
-		r.extent.width -= RES_SCALE (5);
 	r.extent.height = MAP_HEIGHT;
+
 	SetContextClipRect (&r);
 
 	SetContext (oldContext);
