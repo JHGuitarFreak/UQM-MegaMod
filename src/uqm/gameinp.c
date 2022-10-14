@@ -533,8 +533,7 @@ ActKeysPress (void)
 		CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
 		CurrentInputState.menu[KEY_MENU_SELECT] ||
 		CurrentInputState.menu[KEY_MENU_CANCEL] ||
-		CurrentInputState.menu[KEY_MENU_SPECIAL] ||
-		CurrentInputState.menu[KEY_EXIT]
+		CurrentInputState.menu[KEY_MENU_SPECIAL]
 	);
 }
 
