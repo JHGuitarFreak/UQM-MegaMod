@@ -49,14 +49,16 @@ static void
 ClearReportArea (void)
 {
 	COUNT x, y;
-	RECT r;
+	RECT r, clipRect;
 	STAMP s;
+	COORD columnWidth;
 
 	if (optWhichFonts == OPT_PC)
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 21);
 	else
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 18);
 	GetFrameRect (s.frame, &r);
+	GetContextClipRect (&clipRect);
 
 	BatchGraphics ();
 
@@ -65,21 +67,10 @@ ClearReportArea (void)
 	SetContextForeGroundColor (
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x07, 0x00), 0x57));
 
-	{
-		COORD columnWidth = 0;
-		RECT cR;
-		COORD i;
+	columnWidth = NUM_CELL_COLS * (r.extent.width + RES_SCALE (1))
+			- RES_SCALE (1);
 
-		GetContextClipRect (&cR);
-
-		for (i = 0; i < NUM_CELL_COLS; ++i)
-			columnWidth += r.extent.width + RES_SCALE (1);
-
-		columnWidth -= RES_SCALE (1);
-
-		startx = (cR.extent.width - columnWidth) / 2;
-	}
-
+	startx = (clipRect.extent.width - columnWidth) / 2;
 	s.origin.y = RES_SCALE (1);
 	for (y = 0; y < NUM_CELL_ROWS; ++y)
 	{

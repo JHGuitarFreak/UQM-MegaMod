@@ -1411,11 +1411,15 @@ CreateScanContext (BOOLEAN inSpace)
 	if (inSpace && x_offset > 0)
 	{
 		x_offset >>= 1;
-		//x_offset++;
+
+		if (inSpace && optNebulae && isPC (optSuperPC))
+			x_offset += 2;
 	}
 	r.corner.x += RES_SCALE (x_offset);
 	r.corner.y += r.extent.height - MAP_HEIGHT;
 	r.extent.width = SCALED_MAP_WIDTH;
+	if (inSpace && optNebulae && isPC (optSuperPC))
+		r.extent.width -= RES_SCALE (5);
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
