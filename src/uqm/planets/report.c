@@ -148,7 +148,6 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 				if (total_lines == 0)
 					first_line_length++;
 			}
-			first_line_length -= 2;// First space and newLine
 		}
 	}
 
