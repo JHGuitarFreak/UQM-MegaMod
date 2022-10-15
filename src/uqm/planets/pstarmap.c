@@ -2140,7 +2140,16 @@ DoMoveCursor (MENU_STATE *pMS)
 					&& GLOBAL (autopilot.y) == cursorLoc.y)
 				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
 			else
+			{
 				GLOBAL (autopilot) = cursorLoc;
+
+				if (EXTENDED)
+				{
+					GLOBAL (last_location) =  MAKE_POINT (
+							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
+				}
+			}
 			DrawStarMap (0, NULL);
 		}
 	}
@@ -2637,9 +2646,9 @@ StarMap (void)
 	if (optSubmenu)
 		DrawMineralHelpers (TRUE);
 
-	if (GLOBAL (autopilot.x) == universe.x
+	/*if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)
-		GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
+		GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;*/
 
 	return (GLOBAL (autopilot.x) != ~0
 			&& GLOBAL (autopilot.y) != ~0);
