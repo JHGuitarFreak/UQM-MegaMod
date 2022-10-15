@@ -94,6 +94,10 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	Color fgcolor;
 	COORD startx;
 
+	SIZE total_lines = -1;
+	SIZE curr_line = -1;
+	COUNT first_line_length = 0;
+
 	sprintf (end_page_buf, "%s\n",
 			GAME_STRING (SCAN_STRING_BASE + NUM_SCAN_TYPES));
 	end_page_len = utf8StringCount (end_page_buf);
@@ -126,6 +130,26 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	{
 		ClearReportArea (startx);
 		SetContextForeGroundColor (fgcolor);
+
+		if (is3DO (optSuperPC))
+		{
+			const UNICODE* pCurrStr;
+			COUNT length;
+
+			pCurrStr = t.pStr;
+			total_lines = 0;
+			curr_line = 0;
+
+			for (length = StrLen; length > 0; length--)
+			{
+				if (getCharFromString (&pCurrStr) == '\n')
+					total_lines++;
+
+				if (total_lines == 0)
+					first_line_length++;
+			}
+			first_line_length -= 2;// First space and newLine
+		}
 	}
 
 	while (StrLen)
@@ -151,7 +175,19 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		{
 			col_cells = (NUM_CELL_COLS >> 1) - (end_page_len >> 1);
 			t.pStr = end_page_buf;
-			StrLen += end_page_len; 
+			StrLen += end_page_len;
+
+			// We're adding lines - compensate for it
+			if (curr_line >= 0)
+				curr_line--;
+		}
+		if (total_lines >= 0)
+		{
+			if (curr_line == 0)
+				col_cells = (NUM_CELL_COLS - first_line_length) >> 1;
+
+			if (curr_line == total_lines)
+				col_cells = (NUM_CELL_COLS - StrLen - 3) >> 1;
 		}
 
 		t.baseline.x = startx + (col_cells *
@@ -242,6 +278,9 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 				last_c = getCharFromString (&t.pStr);
 				t.baseline.x += r.extent.width + RES_SCALE (1);
 						// Space spacing
+
+				if (curr_line >= 0 && last_c == '\n')
+					curr_line++;
 			}
 		} while (col_cells <= NUM_CELL_COLS && last_c != '\n' && StrLen);
 
