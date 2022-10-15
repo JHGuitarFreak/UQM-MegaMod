@@ -542,6 +542,13 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 	w = fontChar->extent.width;
 	h = fontChar->extent.height;
 
+	if (w < 0 || h < 0)
+	{
+		log_add(log_Warning, "ERROR: "
+			"TFB_DrawCanvas_FontChar have invalid dimensions");
+		return;
+	}
+
 	LockMutex (backing->mutex);
 
 	surf = backing->NormalImg;
