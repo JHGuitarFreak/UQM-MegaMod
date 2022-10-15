@@ -756,13 +756,14 @@ ArilouSpaceTransition (void)
 			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (ARILOU_SPACE_X);
 			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (ARILOU_SPACE_Y);
 		}
-		else
+		else if (EXTENDED)
 		{
 			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (GLOBAL (last_location.x));
 			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (GLOBAL (last_location.y));
+
+			ZeroPoint (&GLOBAL (last_location));
 		}
 		SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
-		// last_location
 	}
 }
 

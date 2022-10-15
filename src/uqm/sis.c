@@ -1788,6 +1788,9 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 		{	// AutoPilot aborted -- clear the AUTO-PILOT message
 			DrawSISMessage (NULL);
 			cycle_index = 0;
+
+			if (EXTENDED)
+				ZeroPoint (&GLOBAL (last_location));
 		}
 		else if (GetTimeCounter () >= NextTime)
 		{
@@ -1834,16 +1837,19 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 							RECT r;
 							UNICODE cluster[256];
 
-							if (!pointsEqual (GLOBAL (last_location), dest))
+							if (!pointsEqual (
+									GLOBAL (last_location), dest))
 							{
 								GetClusterName (SDPtr, cluster);
 
 								// "AUTO-PILOT to [StarName] - [distance]
 								snprintf (buf, sizeof buf,
-									"%s to %s - %.1f",
-									GAME_STRING (
-										NAVIGATION_STRING_BASE + 3),
-									cluster, dist
+										"%s %s %s - %.1f",
+										GAME_STRING (
+											NAVIGATION_STRING_BASE + 3),
+										GAME_STRING (
+											NAVIGATION_STRING_BASE + 6),
+										cluster, dist
 								);
 
 								temp.pStr = buf;
@@ -1853,7 +1859,11 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 								{	// If the full text is too large then
 									// use "->" instead of "AUTO-PILOT"
 									snprintf (buf, sizeof buf,
-										"-> %s - %.1f", cluster, dist);
+											"%s %s - %.1f",
+											GAME_STRING (
+												NAVIGATION_STRING_BASE
+												+ 7),
+											cluster, dist);
 
 									temp.pStr = buf;
 									r = font_GetTextRect (&temp);
@@ -1861,21 +1871,24 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 									{	// If shortened text is *still* too
 										// large then just show distance
 										snprintf (buf, sizeof buf,
-											"%s - %.1f",
-											GAME_STRING (
-												NAVIGATION_STRING_BASE
-												+ 3),
-											dist);
+												"%s - %.1f",
+												GAME_STRING (
+													NAVIGATION_STRING_BASE
+													+ 3),
+												dist);
 									}
 								}
 							}
 							else
 							{
 								snprintf (buf, sizeof buf,
-									"%s to %s",
-									GAME_STRING (
-										NAVIGATION_STRING_BASE + 3),
-									GAME_STRING (NAVIGATION_STRING_BASE)
+										"%s %s %s",
+										GAME_STRING (
+											NAVIGATION_STRING_BASE + 3),
+										GAME_STRING (
+											NAVIGATION_STRING_BASE + 6),
+										GAME_STRING (
+											NAVIGATION_STRING_BASE)
 								);
 							}
 						}
@@ -1884,10 +1897,12 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 							// destination is not a star
 							// AUTO-PILOT to ###.#:###.# - [distance]
 							snprintf (buf, sizeof buf,
-									"%s to %03u.%01u:%03u.%01u"
+									"%s %s %03u.%01u:%03u.%01u"
 									" - %.1f",
 									GAME_STRING (
 										NAVIGATION_STRING_BASE + 3),
+									GAME_STRING (
+										NAVIGATION_STRING_BASE + 6),
 									dest.x / 10, dest.x % 10,
 									dest.y / 10, dest.y % 10,
 									dist

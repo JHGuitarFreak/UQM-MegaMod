@@ -318,6 +318,12 @@ printRect (RECT r, UNICODE *Str)
 	printf ("%s.extent = %d x %d\n", Str, r.extent.width, r.extent.height);
 }
 
+static inline void
+ZeroPoint (POINT *pt)
+{
+	pt->x = pt->y = 0;
+}
+
 typedef enum
 {
 	ALIGN_LEFT,
