@@ -93,7 +93,6 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	TEXT t;
 	Color fgcolor;
 	COORD startx;
-	BYTE fastForward = 0;
 
 	sprintf (end_page_buf, "%s\n",
 			GAME_STRING (SCAN_STRING_BASE + NUM_SCAN_TYPES));
@@ -107,18 +106,24 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	t.pStr = pStr;
 	Sleepy = TRUE;
 
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		Sleepy = FALSE;
+
 	FlushInput ();
 
-			// Text vertical alignment
 	t.baseline.y = r.extent.height + RES_SCALE (1);
+			// Text vertical alignment
 	row_cells = 0;
 	fgcolor = BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0xFF);
 
 	if (contextRect.extent.width < SCALED_MAP_WIDTH)
 		startx = RES_SCALE (1); // Special case if we're in space
-	else// In DOS version first cell is 3p away from the edge of the context, and 2 in UQM		
-		startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1) 
-				+ (isPC (optSuperPC) ? RES_SCALE (1) : 0);
+	else
+	{	// In DOS version first cell is 3p away from the edge of the
+		// context, and 2 in UQM
+		startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1)
+			+ (isPC (optSuperPC) ? RES_SCALE (1) : 0);
+	}
 
 	if (StrLen)
 	{
@@ -184,11 +189,11 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						font_DrawText (&t);
 					else
 					{
-						fastForward = 0;
+						BYTE scale = 0;
 						font_DrawText (&t);
 
 						if (CurrentInputState.menu[KEY_MENU_RIGHT])
-							fastForward = 2;
+							scale = 2;
 
 						PlaySound (ReadOutSounds, NotPositional (), NULL,
 								GAME_SOUND_PRIORITY);
@@ -196,42 +201,32 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 						switch (c)
 						{
 							case ',':
-							{
-								TimeOut += ONE_SECOND / (4 << fastForward);
+								TimeOut += ONE_SECOND / (4 << scale);
 								break;
-							}
 							case '.':
-							{
-								TimeOut += ONE_SECOND / (2 << fastForward);
+								TimeOut += ONE_SECOND / (2 << scale);
 								break;
-							}
 							case '!':
-							{
 								if (last_c != '!' && last_c != ' ')
-									TimeOut += ONE_SECOND / (2 << fastForward);
+									TimeOut += ONE_SECOND / (2 << scale);
 								else
-									TimeOut += ONE_SECOND / (20 << fastForward);
+									TimeOut += ONE_SECOND / (20 << scale);
 								break;
-							}
 							case '?':
-							{
 								if (last_c != '?' && last_c != ' ')
-									TimeOut += ONE_SECOND / (2 << fastForward);
+									TimeOut += ONE_SECOND / (2 << scale);
 								else
-									TimeOut += ONE_SECOND / (20 << fastForward);
+									TimeOut += ONE_SECOND / (20 << scale);
 								break;
-							}
 							default:
-							{
-								TimeOut += ONE_SECOND / (20 << fastForward);
+								TimeOut += ONE_SECOND / (20 << scale);
 								break;
-							}
 						}
 
 						last_c = c;
 
 						if (word_chars == 0)
-							TimeOut += ONE_SECOND / (20 << fastForward);
+							TimeOut += ONE_SECOND / (20 << scale);
 
 						if (WaitForActButtonUntil (TRUE, TimeOut, FALSE))
 						{
