@@ -106,9 +106,6 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	t.pStr = pStr;
 	Sleepy = TRUE;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		Sleepy = FALSE;
-
 	FlushInput ();
 
 	t.baseline.y = r.extent.height + RES_SCALE (1);
@@ -184,8 +181,9 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 					pNextStr = t.pStr;
 					c = getCharFromString (&pNextStr);
 					
-					if (!Sleepy
-							|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
+					if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+						return;
+					if (!Sleepy)
 						font_DrawText (&t);
 					else
 					{
