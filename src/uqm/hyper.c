@@ -751,9 +751,18 @@ ArilouSpaceTransition (void)
 	{
 		// From QuasiSpace to HyperSpace through the periodically appearing
 		// portal.
-		GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (ARILOU_SPACE_X);
-		GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (ARILOU_SPACE_Y);
+		if (GLOBAL (last_location.x) == 0 && GLOBAL (last_location.y) == 0)
+		{
+			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (ARILOU_SPACE_X);
+			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (ARILOU_SPACE_Y);
+		}
+		else
+		{
+			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (GLOBAL (last_location.x));
+			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (GLOBAL (last_location.y));
+		}
 		SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
+		// last_location
 	}
 }
 

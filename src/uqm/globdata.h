@@ -1100,7 +1100,7 @@ typedef struct
 
 	CLOCK_STATE GameClock;
 
-	POINT autopilot;
+	POINT autopilot, last_location;
 	POINT ip_location;
 	STAMP ShipStamp;
 	UWORD ShipFacing;
