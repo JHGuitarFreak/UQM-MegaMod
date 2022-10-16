@@ -186,7 +186,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 				col_cells = (NUM_CELL_COLS - first_line_length) >> 1;
 
 			if (curr_line == total_lines)
-				col_cells = (NUM_CELL_COLS - StrLen - 3) >> 1;
+				col_cells = ((NUM_CELL_COLS - (StrLen - 2)) >> 1) - 2;
 		}
 
 		t.baseline.x = startx + (col_cells *

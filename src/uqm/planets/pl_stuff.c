@@ -349,7 +349,7 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 #if SDL_MAJOR_VERSION == 1
 #define ZOOM_RATE  RES_BOOL (24, 42)
 #else
-#define ZOOM_RATE  60
+#define ZOOM_RATE  RES_SCALE (35)
 #endif
 #define ZOOM_TIME  (ONE_SECOND * 6 / 5)
 
@@ -369,7 +369,7 @@ ZoomInPlanetSphere (void)
 	int zoomCorner;
 	RECT frameRect;
 	RECT repairRect;
-	TimeCount NextTime;
+	TimeCount NextTime, Now, RenderNextTime;
 
 	frameCount = ZOOM_TIME / (ONE_SECOND / ZOOM_RATE);
 
@@ -383,13 +383,15 @@ ZoomInPlanetSphere (void)
 	else
 		GetFrameRect (Orbit->SphereFrame, &frameRect);
 	repairRect = frameRect;
+	RenderNextTime = 0;
 
 	for (i = 0; i <= frameCount; ++i)
 	{
 		double scale;
 		POINT pt;
 
-		NextTime = GetTimeCounter () + (ONE_SECOND / ZOOM_RATE);
+		Now = GetTimeCounter ();
+		NextTime = Now + (ONE_SECOND / ZOOM_RATE);
 
 		// Use 1 + e^-2 - e^(-2x / frameCount)) function to get a
 		// decelerating zoom like the one 3DO does (supposedly)
@@ -422,7 +424,11 @@ ZoomInPlanetSphere (void)
 		repairRect.corner.x = pt.x + frameRect.corner.x;
 		repairRect.corner.y = pt.y + frameRect.corner.y;
 
-		PrepareNextRotationFrame ();
+		if (Now >= RenderNextTime)
+		{
+			RenderNextTime = Now + PLANET_ROTATION_RATE (optScanSphere);
+			PrepareNextRotationFrame ();
+		}
 
 		SleepThreadUntil (NextTime);
 	}

@@ -909,8 +909,6 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 	cread_16  (fh, &GSPtr->ShipFacing);
 	cread_8   (fh, &GSPtr->ip_planet);
 	cread_8   (fh, &GSPtr->in_orbit);
-
-	actuallyInOrbit = GSPtr->in_orbit;
 	
 	// JMS: Let's make savegames work even between different resolution modes.
 	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR;

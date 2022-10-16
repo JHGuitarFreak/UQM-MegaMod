@@ -2143,6 +2143,39 @@ ResetSolarSys (void)
 }
 
 static void
+ReloadSolarSys (void)
+{
+	// START_ENCOUNTER could be set by Devices menu a number of ways:
+	// Talking Pet, Sun Device or a Caster over Chmmr, or
+	// a Caster for Ilwrath
+	// Could also have blown self up with Utwig Bomb
+	if (!(GLOBAL(CurrentActivity) & (START_ENCOUNTER |
+		CHECK_ABORT | CHECK_LOAD))
+		&& GLOBAL_SIS(CrewEnlisted) != (COUNT)~0)
+	{	// Reload the system and return to the inner view
+		PLANET_DESC* orbital = LoadSolarSys();
+		assert(!orbital);
+		CheckZoomLevel();
+		ValidateOrbits();
+		ValidateInnerOrbits();
+		ResetSolarSys();
+
+		if (optTexturedPlanets)
+		{
+			if (worldIsMoon(pSolarSysState, pSolarSysState->pOrbitalDesc))
+				GenerateTexturedMoons(pSolarSysState,
+					pSolarSysState->pOrbitalDesc->pPrevDesc);
+			else
+				GenerateTexturedMoons(pSolarSysState,
+					pSolarSysState->pOrbitalDesc);
+		}
+
+		RepairSISBorder();
+		TransitionSystemIn();
+	}
+}
+
+static void
 EnterPlanetOrbit (void)
 {
 	if (pSolarSysState->InIpFlight)
@@ -2200,35 +2233,6 @@ EnterPlanetOrbit (void)
 	}
 	// Otherwise, generateOrbital function started a homeworld
 	// conversation, and we did not get to the planet no matter what.
-
-	// START_ENCOUNTER could be set by Devices menu a number of ways:
-	// Talking Pet, Sun Device or a Caster over Chmmr, or
-	// a Caster for Ilwrath
-	// Could also have blown self up with Utwig Bomb
-	if (!(GLOBAL (CurrentActivity) & (START_ENCOUNTER |
-			CHECK_ABORT | CHECK_LOAD))
-			&& GLOBAL_SIS (CrewEnlisted) != (COUNT)~0)
-	{	// Reload the system and return to the inner view
-		PLANET_DESC *orbital = LoadSolarSys ();
-		assert (!orbital);
-		CheckZoomLevel ();
-		ValidateOrbits ();
-		ValidateInnerOrbits ();
-		ResetSolarSys ();
-
-		if (optTexturedPlanets)
-		{
-			if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-				GenerateTexturedMoons (pSolarSysState,
-						pSolarSysState->pOrbitalDesc->pPrevDesc);
-			else
-				GenerateTexturedMoons (pSolarSysState,
-						pSolarSysState->pOrbitalDesc);
-		}
-
-		RepairSISBorder ();
-		TransitionSystemIn ();
-	}
 }
 
 static void
@@ -3197,6 +3201,7 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 #endif
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 		pSS->InOrbit = FALSE;
+		ReloadSolarSys ();
 	}
 	else if (!NewGameInit && (cancel || LastActivity == CHECK_LOAD))
 	{
