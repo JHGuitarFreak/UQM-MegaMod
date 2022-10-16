@@ -174,6 +174,22 @@ ColorDelta (COUNT scan, DWORD avg)
 }
 
 void
+RepairColorOpacity (Color* TopoColors, int width, int height)
+{
+	Color *c;
+	int x,y;
+
+	c = TopoColors;
+	
+	for (y = 0; y < height; y++)
+		for (x = 0; x < width; x++, c++)
+		{
+			if (c->a != 0xFF)
+				c->a = 0xFF;
+		}
+}
+
+void
 SetPlanetColors (COLORMAPPTR cmap)
 {	// Setting colors for table that is used to color spheres
 	// Hacky, but imitates the original rather well
@@ -1449,7 +1465,6 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset,
 				c->r = clip_channel (c->r - shade->r);
 				c->g = clip_channel (c->g - shade->g);
 				c->b = clip_channel (c->b - shade->b);
-				c->a = 0xFF;
 
 				if (optTintPlanSphere == OPT_PC
 					&& Orbit->scanType < NUM_SCAN_TYPES)
@@ -2830,12 +2845,14 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		// instead of the FRAMPTR though.
 		DWORD y;
 
-		ReadFramePixelColors(pSolarSysState->TopoFrame, Orbit->TopoColors,
+		ReadFramePixelColors (pSolarSysState->TopoFrame, Orbit->TopoColors,
 				width + spherespanx, height);
+		if (SurfDef)
+			RepairColorOpacity (Orbit->TopoColors, width + spherespanx, height);
 		// Extend the width from MAP_WIDTH to MAP_WIDTH+SPHERE_SPAN_X
 		for (y = 0; y < (DWORD)(height * (width + spherespanx));
 				y += width + spherespanx)
-			memcpy(Orbit->TopoColors + y + width, Orbit->TopoColors + y,
+			memcpy (Orbit->TopoColors + y + width, Orbit->TopoColors + y,
 					spherespanx * sizeof(Orbit->TopoColors[0]));
 	}
 
