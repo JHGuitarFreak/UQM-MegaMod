@@ -319,7 +319,6 @@ struct solarsys_state
 extern SOLARSYS_STATE *pSolarSysState;
 extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
-extern BOOLEAN actuallyInOrbit;
 extern BOOLEAN useDosSpheres;
 extern BOOLEAN use3DOSpheres;
 

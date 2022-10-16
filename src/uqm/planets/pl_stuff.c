@@ -349,7 +349,7 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 #if SDL_MAJOR_VERSION == 1
 #define ZOOM_RATE  RES_BOOL (24, 42)
 #else
-#define ZOOM_RATE  60
+#define ZOOM_RATE  42
 #endif
 #define ZOOM_TIME  (ONE_SECOND * 6 / 5)
 

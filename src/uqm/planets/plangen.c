@@ -883,7 +883,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // made by this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? 7 : 14)
+#define SHIELD_HALO          RES_SCALE (playerInPlanetOrbit () ? 7 : 14)
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
@@ -1449,6 +1449,7 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset,
 				c->r = clip_channel (c->r - shade->r);
 				c->g = clip_channel (c->g - shade->g);
 				c->b = clip_channel (c->b - shade->b);
+				c->a = 0xFF;
 
 				if (optTintPlanSphere == OPT_PC
 					&& Orbit->scanType < NUM_SCAN_TYPES)
@@ -2474,6 +2475,8 @@ load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
 		{// Load successful - grab XLAT and return
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
+			pSolarSysState->XlatPtr = GetStringAddress (
+				pSolarSysState->XlatRef);
 			return;
 		}// Else just load standard color table
 	}
@@ -2634,8 +2637,6 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		useDosSpheres = FALSE;
 		use3DOSpheres = FALSE;
 	}
-
-	actuallyInOrbit = !ForIP;
 
 	RandomContext_SeedRandom (SysGenRNG, pPlanetDesc->rand_seed);
 
