@@ -468,9 +468,11 @@ InvokeDevice (BYTE which_device)
 					GLOBAL_SIS (FuelOnBoard) -= PORTAL_FUEL_COST;
 
 				if (EXTENDED && inHyperSpace ())
-					GLOBAL (last_location) = MAKE_POINT (
+				{
+					SaveLastLoc (MAKE_POINT (
 							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
+							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+				}
 
 				SET_GAME_STATE (PORTAL_COUNTER, 1);
 				return DEVICE_SUCCESS;

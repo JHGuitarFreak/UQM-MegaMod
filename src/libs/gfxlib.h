@@ -321,7 +321,13 @@ printRect (RECT r, UNICODE *Str)
 static inline void
 ZeroPoint (POINT *pt)
 {
-	pt->x = pt->y = 0;
+	pt->x = pt->y = ~0;
+}
+
+static inline BOOLEAN
+ValidPoint (POINT pt)
+{
+	return (pt.x != ~0 && pt.y != ~0);
 }
 
 typedef enum

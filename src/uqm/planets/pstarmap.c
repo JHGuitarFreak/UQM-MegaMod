@@ -2119,6 +2119,15 @@ DoMoveCursor (MENU_STATE *pMS)
 		{
 			DoBubbleWarp (TRUE);
 		}
+
+		if (EXTENDED && !inQuasiSpace () 
+				&& ValidPoint (GLOBAL (autopilot)))
+		{
+			SaveLastLoc (MAKE_POINT (
+				LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+		}
+
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
@@ -2142,13 +2151,6 @@ DoMoveCursor (MENU_STATE *pMS)
 			else
 			{
 				GLOBAL (autopilot) = cursorLoc;
-
-				if (EXTENDED)
-				{
-					GLOBAL (last_location) =  MAKE_POINT (
-							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
-				}
 			}
 			DrawStarMap (0, NULL);
 		}

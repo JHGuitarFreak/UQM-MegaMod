@@ -1790,7 +1790,7 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 			cycle_index = 0;
 
 			if (EXTENDED)
-				ZeroPoint (&GLOBAL (last_location));
+				ZeroLastLoc ();
 		}
 		else if (GetTimeCounter () >= NextTime)
 		{
@@ -1837,8 +1837,7 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 							RECT r;
 							UNICODE cluster[256];
 
-							if (!pointsEqual (
-									GLOBAL (last_location), dest))
+							if (!pointsEqual (LoadLastLoc (), dest))
 							{
 								GetClusterName (SDPtr, cluster);
 
