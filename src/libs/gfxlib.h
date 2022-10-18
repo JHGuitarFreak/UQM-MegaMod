@@ -318,6 +318,18 @@ printRect (RECT r, UNICODE *Str)
 	printf ("%s.extent = %d x %d\n", Str, r.extent.width, r.extent.height);
 }
 
+static inline void
+ZeroPoint (POINT *pt)
+{
+	pt->x = pt->y = ~0;
+}
+
+static inline BOOLEAN
+ValidPoint (POINT pt)
+{
+	return (pt.x != ~0 && pt.y != ~0);
+}
+
 typedef enum
 {
 	ALIGN_LEFT,
@@ -497,6 +509,9 @@ extern void InstaLine (int x1, int y1, int x2, int y2);
 extern RECT font_GetTextRect (TEXT* pText);
 extern void font_DrawText (TEXT *pText);
 extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
+extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key);
+extern void font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
+		UniChar key);
 extern void DrawBatch (PRIMITIVE *pBasePrim, PRIM_LINKS PrimLinks,
 		BATCH_FLAGS BatchFlags);
 extern void BatchGraphics (void);
@@ -536,6 +551,7 @@ extern FONT SetContextFont (FONT Font);
 extern BOOLEAN DestroyFont (FONT FontRef);
 // The returned pRect is relative to the context drawing origin
 extern BOOLEAN TextRect (TEXT *pText, RECT *pRect, BYTE *pdelta);
+extern BOOLEAN TextRectAlt (TEXT* lpText, RECT* pRect, BYTE* pdelta, UniChar key, FONT AltFontPtr);
 extern BOOLEAN GetContextFontLeading (SIZE *pheight);
 extern BOOLEAN GetContextFontDispHeight (SIZE *pheight);
 extern BOOLEAN GetContextFontDispWidth (SIZE *pwidth);

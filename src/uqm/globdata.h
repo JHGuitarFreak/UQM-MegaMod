@@ -972,6 +972,9 @@ START_GAME_STATE
 	ADD_GAME_STATE (SYS_PLYR_MARKER_14, 32)
 	ADD_GAME_STATE (SYS_PLYR_MARKER_15, 32)
 
+	ADD_GAME_STATE (LAST_LOCATION_X, 16)
+	ADD_GAME_STATE (LAST_LOCATION_Y, 16)
+
 END_GAME_STATE
 
 // JMS: For making array of Quasispace portal name flags
@@ -1217,6 +1220,28 @@ extern void UninitGameStructures (void);
 // Extended
 #define EXTENDED (GLOBAL_SIS (Extended) ? TRUE : FALSE)
 #define EXT_CASE(a,b) (!EXTENDED ? (a) : (b))
+
+static inline POINT
+LoadLastLoc (void)
+{
+	return (POINT) { GET_GAME_STATE (LAST_LOCATION_X),
+			GET_GAME_STATE (LAST_LOCATION_Y) };
+}
+
+static inline void
+SaveLastLoc (POINT pt)
+{
+	SET_GAME_STATE (LAST_LOCATION_X, pt.x);
+	SET_GAME_STATE (LAST_LOCATION_Y, pt.y);
+}
+
+static inline void
+ZeroLastLoc (void)
+{
+	SET_GAME_STATE (LAST_LOCATION_X, ~0);
+	SET_GAME_STATE (LAST_LOCATION_Y, ~0);
+}
+
 // Nomad
 #define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
 

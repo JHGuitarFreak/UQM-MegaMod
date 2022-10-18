@@ -2119,6 +2119,15 @@ DoMoveCursor (MENU_STATE *pMS)
 		{
 			DoBubbleWarp (TRUE);
 		}
+
+		if (EXTENDED && !inQuasiSpace () 
+				&& ValidPoint (GLOBAL (autopilot)))
+		{
+			SaveLastLoc (MAKE_POINT (
+				LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+		}
+
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
@@ -2140,7 +2149,9 @@ DoMoveCursor (MENU_STATE *pMS)
 					&& GLOBAL (autopilot.y) == cursorLoc.y)
 				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
 			else
+			{
 				GLOBAL (autopilot) = cursorLoc;
+			}
 			DrawStarMap (0, NULL);
 		}
 	}
@@ -2570,7 +2581,7 @@ StarMap (void)
 
 	if (optWhichMenu == OPT_PC)
 	{
-		if (actuallyInOrbit)
+		if (playerInPlanetOrbit ())
 			DrawMenuStateStrings (PM_ALT_SCAN, 1);
 		else
 			DrawMenuStateStrings (PM_ALT_STARMAP, 0);
@@ -2637,9 +2648,9 @@ StarMap (void)
 	if (optSubmenu)
 		DrawMineralHelpers (TRUE);
 
-	if (GLOBAL (autopilot.x) == universe.x
+	/*if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)
-		GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
+		GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;*/
 
 	return (GLOBAL (autopilot.x) != ~0
 			&& GLOBAL (autopilot.y) != ~0);

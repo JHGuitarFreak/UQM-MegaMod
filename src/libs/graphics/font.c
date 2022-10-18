@@ -125,6 +125,56 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 	SetContextForeGroundColor (oldfg);
 }
 
+// Alt stuff to handle 2 fonts at once (for Orz)
+void
+font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key)
+{
+	RECT ClipRect;
+	POINT origin;
+	TEXT text;
+
+	FixContextFontEffect ();
+	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
+		return;
+
+	// TextRect() clobbers TEXT.CharCount so we have to make a copy
+	text = *lpText;
+	if (!TextRectAlt (&text, &ClipRect, NULL, key, AltFontPtr))
+		return;
+	// ClipRect is relative to origin
+	_text_blt_alt (&ClipRect, &text, origin, AltFontPtr, key);
+}
+
+void
+font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr, 
+		UniChar key)
+{
+	// Preserve current foreground color for full correctness
+	const Color oldfg = SetContextForeGroundColor (trace);
+	const BYTE stroke = RES_SCALE(1);
+	const POINT t_baseline = pText->baseline;
+	POINT offset;
+
+	for (offset.x = -stroke; offset.x <= stroke; ++offset.x)
+	{
+		for (offset.y = -stroke; offset.y <= stroke; ++offset.y)
+		{
+			if (hypot (offset.x, offset.y) > stroke) continue;
+			pText->baseline =
+				MAKE_POINT (
+					t_baseline.x + offset.x,
+					t_baseline.y + offset.y
+				);
+			font_DrawTextAlt (pText, AltFontPtr, key);
+		}
+	}
+	pText->baseline = t_baseline;
+
+	SetContextForeGroundColor (text);
+	font_DrawTextAlt (pText, AltFontPtr, key);
+	SetContextForeGroundColor (oldfg);
+}
+
 BOOLEAN
 GetContextFontLeading (SIZE *pheight)
 {
@@ -344,6 +394,248 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 				origin.x -= FontPtr->KernAmount;
 		}
 	}
+}
+
+BOOLEAN
+TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontPtr)
+{
+	BYTE char_delta_array[MAX_DELTAS];
+	FONT FontPtr;
+	BYTE swap = 0;
+
+	FontPtr = _CurFontPtr;
+	if (FontPtr != 0 && lpText->CharCount != 0)
+	{
+		COORD top_y, bot_y;
+		SIZE width;
+		UniChar next_ch = 0;
+		const char *pStr;
+		COUNT num_chars;
+	
+		num_chars = lpText->CharCount;
+		/* At this point lpText->CharCount contains the *maximum* number of
+		 * characters that lpText->pStr may contain.
+		 * After the while loop below, it will contain the actual number.
+		 */
+		if (pdelta == 0)
+		{
+			pdelta = char_delta_array;
+			if (num_chars > MAX_DELTAS)
+			{
+				num_chars = MAX_DELTAS;
+				lpText->CharCount = MAX_DELTAS;
+			}
+		}
+
+		top_y = 0;
+		bot_y = 0;
+		width = 0;
+		pStr = lpText->pStr;
+		if (num_chars > 0)
+		{
+			next_ch = getCharFromString (&pStr);
+			if (next_ch == '\0')
+				num_chars = 0;
+		}
+		while (num_chars--)
+		{
+			UniChar ch;
+			SIZE last_width;
+			TFB_Char *charFrame;
+
+			last_width = width;
+
+			ch = next_ch;
+			if (num_chars > 0)
+			{
+				next_ch = getCharFromString (&pStr);
+				if (next_ch == '\0')
+				{
+					lpText->CharCount -= num_chars;
+					num_chars = 0;
+				}
+			}
+
+			if (ch == key)
+			{
+				charFrame = getCharFrame (AltFontPtr, ch);
+				swap ^= 1; // switch current font
+				FontPtr = swap ? AltFontPtr : _CurFontPtr;
+			}
+			else
+			{
+				FontPtr = swap ? AltFontPtr : _CurFontPtr;
+				charFrame = getCharFrame (FontPtr, ch);
+			}
+
+			if (charFrame != NULL && charFrame->disp.width)
+			{
+				COORD y;
+
+				y = -charFrame->HotSpot.y;
+				if (y < top_y)
+					top_y = y;
+				y += charFrame->disp.height;
+				if (y > bot_y)
+					bot_y = y;
+
+				width += charFrame->disp.width + FontPtr->CharSpace;
+
+				if (num_chars && FontPtr->KernTab[ch] != NULL
+						&& !(FontPtr->KernTab[ch]
+						& (FontPtr->KernTab[next_ch] >> 2)))
+					width -= FontPtr->KernAmount;
+			}
+
+			*pdelta++ = (BYTE)(width - last_width);
+		}
+
+		if (width > 0 && (bot_y -= top_y) > 0)
+		{
+			/* subtract off character spacing */
+			if (pdelta[-1] > 0)
+			{
+				--pdelta[-1];
+				width -= FontPtr->CharSpace;
+			}
+
+			if (lpText->align == ALIGN_LEFT)
+				pRect->corner.x = 0;
+			else if (lpText->align == ALIGN_CENTER)
+				pRect->corner.x = -RES_SCALE ((RES_DESCALE (width) >> 1));
+			else
+				pRect->corner.x = -width;
+			pRect->corner.y = top_y;
+			pRect->extent.width = width;
+			pRect->extent.height = bot_y;
+
+			pRect->corner.x += lpText->baseline.x;
+			pRect->corner.y += lpText->baseline.y;
+
+			return (TRUE);
+		}
+	}
+
+	pRect->corner = lpText->baseline;
+	pRect->extent.width = 0;
+	pRect->extent.height = 0;
+
+	return (FALSE);
+}
+
+void
+_text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr, 
+		UniChar key)
+{// Kruzen: To create text using 2 fonts (Orz case)
+ // Safest way to do so without going too deep into
+ // original code
+ // Warning: GetTextRect doesn't quite work since it looks
+ // for chars only in 1 font
+	FONT FontPtr;
+	COUNT num_chars;
+	UniChar next_ch;
+	const char* pStr;
+	POINT origin;
+	TFB_Image *backing, *stock, *ext;
+	DrawMode mode = _get_context_draw_mode();
+	BYTE swap = 0;
+	BYTE leading_step;
+
+	FontPtr = _CurFontPtr;
+	if (FontPtr == NULL)
+		return;
+	stock = _get_context_font_backing();
+	if (!stock)
+		return;
+
+	if (AltFontPtr != NULL)
+	{// Local backing needed for alt font
+	 // Create one
+		SIZE w, h;
+		RECT r;
+		Color color = _get_context_fg_color();
+		w = (SIZE)AltFontPtr->disp.width;
+		h = (SIZE)AltFontPtr->disp.height;
+		if (w == 0 || h == 0)
+			return;
+
+		ext = TFB_DrawImage_CreateForScreen (w, h, TRUE);
+
+		r.corner = MAKE_HOT_SPOT(0, 0);
+		r.extent = MAKE_EXTENT (w, h);
+
+		TFB_DrawImage_Rect (&r, color, DRAW_REPLACE_MODE, ext);
+	}
+	else
+		return;
+
+	origin.x = pClipRect->corner.x;
+	origin.y = TextPtr->baseline.y;
+	num_chars = TextPtr->CharCount;
+	if (num_chars == 0)
+		return;
+
+	leading_step = AltFontPtr->Leading - _CurFontPtr->Leading;
+	pStr = TextPtr->pStr;
+
+	next_ch = getCharFromString(&pStr);
+	if (next_ch == '\0')
+		num_chars = 0;
+	backing = stock;
+	while (num_chars--)
+	{
+		UniChar ch;
+		TFB_Char* fontChar;
+
+		ch = next_ch;
+		if (num_chars > 0)
+		{
+			next_ch = getCharFromString(&pStr);
+			if (next_ch == '\0')
+				num_chars = 0;
+		}
+
+		if (ch == key)
+		{
+			fontChar = getCharFrame (AltFontPtr, ch);
+			backing = ext;
+			swap ^= 1; // switch current font
+			FontPtr = swap ? AltFontPtr : _CurFontPtr;
+			origin.y = TextPtr->baseline.y + leading_step;
+		}
+		else
+		{
+			FontPtr = swap ? AltFontPtr : _CurFontPtr;
+			fontChar = getCharFrame (FontPtr, ch);
+			backing = swap ? ext : stock;
+			origin.y = TextPtr->baseline.y + (swap ? leading_step : 0);
+		}
+
+		if (fontChar != NULL && fontChar->disp.width)
+		{
+			RECT r;
+
+			r.corner.x = origin.x - fontChar->HotSpot.x;
+			r.corner.y = origin.y - fontChar->HotSpot.y;
+			r.extent.width = fontChar->disp.width;
+			r.extent.height = fontChar->disp.height;
+			if (BoxIntersect(&r, pClipRect, &r))
+			{
+				TFB_Prim_FontChar(origin, fontChar, backing, mode,
+					ctxOrigin);
+			}
+
+			origin.x += fontChar->disp.width + FontPtr->CharSpace;
+
+			if (num_chars && FontPtr->KernTab[ch] != NULL
+				&& !(FontPtr->KernTab[ch]
+					& (FontPtr->KernTab[next_ch] >> 2)))
+				origin.x -= FontPtr->KernAmount;
+		}
+	}
+
+	if (ext)
+		TFB_DrawImage_Delete (ext);
 }
 
 static inline TFB_Char *

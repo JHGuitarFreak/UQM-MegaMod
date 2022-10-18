@@ -174,6 +174,22 @@ ColorDelta (COUNT scan, DWORD avg)
 }
 
 void
+RepairColorOpacity (Color* TopoColors, int width, int height)
+{
+	Color *c;
+	int x,y;
+
+	c = TopoColors;
+	
+	for (y = 0; y < height; y++)
+		for (x = 0; x < width; x++, c++)
+		{
+			if (c->a != 0xFF)
+				c->a = 0xFF;
+		}
+}
+
+void
 SetPlanetColors (COLORMAPPTR cmap)
 {	// Setting colors for table that is used to color spheres
 	// Hacky, but imitates the original rather well
@@ -883,7 +899,7 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 // made by this routine, but a filter can be applied if desired too.
 
 // HALO rim size
-#define SHIELD_HALO          RES_SCALE (actuallyInOrbit ? 7 : 14)
+#define SHIELD_HALO          RES_SCALE (playerInPlanetOrbit () ? 7 : 14)
 #define SHIELD_RADIUS        (RADIUS + SHIELD_HALO)
 #define SHIELD_DIAM          ((SHIELD_RADIUS << 1) + 1)
 #define SHIELD_RADIUS_2      (SHIELD_RADIUS * SHIELD_RADIUS)
@@ -2474,6 +2490,8 @@ load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
 		{// Load successful - grab XLAT and return
 			pSolarSysState->XlatRef = CaptureStringTable (
 				LoadStringTable (SPECIAL_CMAP_XLAT_TAB));
+			pSolarSysState->XlatPtr = GetStringAddress (
+				pSolarSysState->XlatRef);
 			return;
 		}// Else just load standard color table
 	}
@@ -2634,8 +2652,6 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		useDosSpheres = FALSE;
 		use3DOSpheres = FALSE;
 	}
-
-	actuallyInOrbit = !ForIP;
 
 	RandomContext_SeedRandom (SysGenRNG, pPlanetDesc->rand_seed);
 
@@ -2829,12 +2845,14 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		// instead of the FRAMPTR though.
 		DWORD y;
 
-		ReadFramePixelColors(pSolarSysState->TopoFrame, Orbit->TopoColors,
+		ReadFramePixelColors (pSolarSysState->TopoFrame, Orbit->TopoColors,
 				width + spherespanx, height);
+		if (SurfDef)
+			RepairColorOpacity (Orbit->TopoColors, width + spherespanx, height);
 		// Extend the width from MAP_WIDTH to MAP_WIDTH+SPHERE_SPAN_X
 		for (y = 0; y < (DWORD)(height * (width + spherespanx));
 				y += width + spherespanx)
-			memcpy(Orbit->TopoColors + y + width, Orbit->TopoColors + y,
+			memcpy (Orbit->TopoColors + y + width, Orbit->TopoColors + y,
 					spherespanx * sizeof(Orbit->TopoColors[0]));
 	}
 

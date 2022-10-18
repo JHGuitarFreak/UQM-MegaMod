@@ -791,6 +791,9 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "SYS_PLYR_MARKER_14", 32 },
 	{ "SYS_PLYR_MARKER_15", 32 },
 
+	{ "LAST_LOCATION_X", 16 },
+	{ "LAST_LOCATION_Y", 16 },
+
 	/* end rev 3, MegaMod v0.8.2 */
 	{ NULL, 0 },
 };

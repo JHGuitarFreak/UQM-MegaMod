@@ -145,7 +145,8 @@ SIZE
 GetRotationalPeriod (void)
 {
 	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
-		return (SIZE)(pSolarSysState->SysInfo.PlanetInfo.RotationPeriod * 10 / 24);
+		return (SIZE)(pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
+				* 10 / 24);
 	else
 		return (SIZE)((pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
 				+ (24 >> 1)) / 24);
@@ -192,23 +193,29 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 static void
 HazardCase (BYTE hazard)
 {
-#define HAZARD_CASE(a,b) ((a) ? DULL_YELLOW_COLOR : ((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
+#define HAZARD_CASE(a,b) \
+		((a) ? DULL_YELLOW_COLOR : \
+		((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
 	Color HazardColor;
 
-	UWORD Temperature = GetThermalHazardRating (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	UWORD Temperature = GetThermalHazardRating (
+			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
 	UWORD Weather = pSolarSysState->SysInfo.PlanetInfo.Weather + 1;
 	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;
 
 	switch (hazard)
 	{
 		case LAVASPOT_DISASTER:
-			HazardColor = HAZARD_CASE ((Temperature > 1 && Temperature < 5), (Temperature > 4));
+			HazardColor = HAZARD_CASE (Temperature > 1 && Temperature < 5,
+					Temperature > 4);
 			break;
 		case LIGHTNING_DISASTER:
-			HazardColor = HAZARD_CASE ((Weather > 2 && Weather < 5), (Weather > 4));
+			HazardColor =
+					HAZARD_CASE (Weather > 2 && Weather < 5, Weather > 4);
 			break;
 		case EARTHQUAKE_DISASTER:
-			HazardColor = HAZARD_CASE ((Tectonics > 2 && Tectonics < 6), (Tectonics > 5));
+			HazardColor = HAZARD_CASE (Tectonics > 2 && Tectonics < 6,
+					Tectonics > 5);
 			break;
 		default:
 			HazardColor = SCAN_INFO_COLOR;
@@ -265,7 +272,8 @@ PrintCoarseScanPC (void)
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 2),
 			LEFT_SIDE_BASELINE_X_PC); // "Atmo: "
-	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == GAS_GIANT_ATMOSPHERE)
+	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity
+			== GAS_GIANT_ATMOSPHERE)
 		utf8StringCopy (buf, sizeof (buf),
 				GAME_STRING (ORBITSCAN_STRING_BASE + 3)); // "Super Thick"
 	else if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0)
@@ -442,7 +450,8 @@ PrintCoarseScan3DO (void)
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == GAS_GIANT_ATMOSPHERE)
+	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity
+			== GAS_GIANT_ATMOSPHERE)
 		strcpy (buf, STR_INFINITY_SIGN);
 	else
 	{
@@ -466,8 +475,9 @@ PrintCoarseScan3DO (void)
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	sprintf (buf, "<%u>", pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
-			? 0 : (pSolarSysState->SysInfo.PlanetInfo.Weather + 1));
+	sprintf (buf, "<%u>",
+			pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
+				? 0 : (pSolarSysState->SysInfo.PlanetInfo.Weather + 1));
 
 	if (optHazardColors) // Weather
 		HazardCase (LIGHTNING_DISASTER);
@@ -646,9 +656,11 @@ flashPlanetLocation (void)
 		c += val;
 
 		if (Now - NextTime > FLASH_FRAME_DELAY)
-			NextTime = Now + FLASH_FRAME_DELAY; // missed timing by too much
+			NextTime = Now + FLASH_FRAME_DELAY;
+					// missed timing by too much
 		else
-			NextTime += FLASH_FRAME_DELAY; // stable frame rate
+			NextTime += FLASH_FRAME_DELAY;
+					// stable frame rate
 	}
 
 	SetContext (ScanContext);
@@ -1012,7 +1024,8 @@ DrawScannedStuff (COUNT y, COUNT scan)
 			if (dy > nodeSize)
 				dy = nodeSize;
 			
-			s.frame = SetRelFrameIndex (ElementPtr->current.image.frame, dy);
+			s.frame =
+					SetRelFrameIndex (ElementPtr->current.image.frame, dy);
 			DrawFilledStamp (&s);
 		}
 
@@ -1116,7 +1129,8 @@ DrawPCScannedStuff (COUNT scan)
 
 COUNT
 callGenerateForScanType (const SOLARSYS_STATE *solarSys,
-		const PLANET_DESC *world, COUNT node, BYTE scanType, NODE_INFO *info)
+		const PLANET_DESC *world, COUNT node, BYTE scanType,
+		NODE_INFO *info)
 {
 	switch (scanType)
 	{
@@ -1280,7 +1294,8 @@ ScanPlanet (COUNT scanType)
 			if (scanType == AUTO_SCAN)
 			{	// delay between scans
 				TimeOut = GetTimeCounter () + ONE_SECOND;
-				while (GetTimeCounter () < TimeOut && !AnyButtonPress (TRUE))
+				while (GetTimeCounter () < TimeOut
+						&& !AnyButtonPress (TRUE))
 					RotatePlanetSphere (TRUE, NULL);
 			}
 			else
@@ -1340,9 +1355,9 @@ DoScan (MENU_STATE *pMS)
 		{
 			COUNT fuel_required;
 
-			if ((pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED)
-					|| (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity ==
-						GAS_GIANT_ATMOSPHERE))
+			if (pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED
+					|| pSolarSysState->SysInfo.PlanetInfo.AtmoDensity ==
+						GAS_GIANT_ATMOSPHERE)
 			{	// cannot dispatch to shielded planets or gas giants
 				PlayMenuSound (MENU_SOUND_FAILURE);
 				return TRUE;
@@ -1393,12 +1408,12 @@ DoScan (MENU_STATE *pMS)
 }
 
 static CONTEXT
-CreateScanContext (void)
+CreateScanContext (BOOLEAN inSpace)
 {
 	CONTEXT oldContext;
 	CONTEXT context;
 	RECT r;
-	COORD mapWidth = actuallyInOrbit ? SCALED_MAP_WIDTH : MAP_WIDTH;
+	COORD x_offset;
 
 	// ScanContext rect is relative to SpaceContext
 	oldContext = SetContext (SpaceContext);
@@ -1407,10 +1422,18 @@ CreateScanContext (void)
 	context = CreateContext ("ScanContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - mapWidth;
+	x_offset = RES_DESCALE (r.extent.width - SCALED_MAP_WIDTH);
+	r.extent.width = SCALED_MAP_WIDTH;
+	if (inSpace && x_offset > 0)
+	{
+		x_offset >>= 1;
+		x_offset += 2;
+		r.extent.width -= RES_SCALE (5);
+	}
+	r.corner.x += RES_SCALE (x_offset);
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = mapWidth;
 	r.extent.height = MAP_HEIGHT;
+
 	SetContextClipRect (&r);
 
 	SetContext (oldContext);
@@ -1430,8 +1453,12 @@ GetScanContext (BOOLEAN *owner)
 	else
 	{
 		if (owner)
+		{
 			*owner = TRUE;
-		ScanContext = CreateScanContext ();
+			ScanContext = CreateScanContext (TRUE);
+		}
+		else
+			ScanContext = CreateScanContext (FALSE);
 	}
 	return ScanContext;
 }
@@ -1512,17 +1539,23 @@ generateBioNode (SOLARSYS_STATE *system, ELEMENT *NodeElementPtr,
 	DWORD j;
 
 	if (DIF_HARD) {
-		CreatureData[EVIL_ONE].Attributes = BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_SLOW | DANGER_MONSTROUS;
-		CreatureData[EVIL_ONE].ValueAndHitPoints = MAKE_BYTE(5, 5);
-		// CreatureData[ZEX_BEAUTY].Attributes = BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST | DANGER_MONSTROUS;
+		CreatureData[EVIL_ONE].Attributes =
+				BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_SLOW |
+					DANGER_MONSTROUS;
+		CreatureData[EVIL_ONE].ValueAndHitPoints = MAKE_BYTE (5, 5);
+		// CreatureData[ZEX_BEAUTY].Attributes =
+		//		BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST |
+		//			DANGER_MONSTROUS;
 		// CreatureData[ZEX_BEAUTY].ValueAndHitPoints = MAKE_BYTE(15, 30);
 	} else if (DIF_EASY) {
-		CreatureData[ZEX_BEAUTY].Attributes = BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_SLOW | DANGER_MONSTROUS;
-		CreatureData[ZEX_BEAUTY].ValueAndHitPoints = MAKE_BYTE(15, 8);
+		CreatureData[ZEX_BEAUTY].Attributes =
+				BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_SLOW |
+					DANGER_MONSTROUS;
+		CreatureData[ZEX_BEAUTY].ValueAndHitPoints = MAKE_BYTE (15, 8);
 	}
 
-	// NOTE: TFB_Random() calls here are NOT part of the deterministic planet
-	//   generation PRNG flow.
+	// NOTE: TFB_Random() calls here are NOT part of the deterministic
+	// planet generation PRNG flow.
 	if (CreatureData[creatureType].Attributes & SPEED_MASK)
 	{
 		// Place moving creatures at a random location.
@@ -1533,7 +1566,8 @@ generateBioNode (SOLARSYS_STATE *system, ELEMENT *NodeElementPtr,
 				((RES_BOOL (LOBYTE (i), LOWORD (j)) %
 					(SCALED_MAP_WIDTH - (8 << 1))) + 8);
 		NodeElementPtr->current.location.y = 
-				(RES_BOOL (HIBYTE (i), HIWORD (j)) % (MAP_HEIGHT - (8 << 1))) + 8;
+				(RES_BOOL (HIBYTE (i), HIWORD (j)) %
+					(MAP_HEIGHT - (8 << 1))) + 8;
 	}
 
 	if (system->PlanetSideFrame[0] == 0)
@@ -1612,14 +1646,17 @@ GeneratePlanetSide (void)
 			NodeElementPtr->current.location.x = info.loc_pt.x;
 			NodeElementPtr->current.location.y = info.loc_pt.y;
 
-			SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMP_PRIM);
+			SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex],
+					STAMP_PRIM);
 			if (scan == MINERAL_SCAN)
 			{
 				NodeElementPtr->turn_wait = info.type;
 
-				// JMS: Partially scavenged energy blips won't return anymore to original size after leaving planet.
+				// JMS: Partially scavenged energy blips won't return
+				// anymore to original size after leaving planet.
 				NodeElementPtr->mass_points = HIBYTE (info.density)
-				- pSolarSysState->SysInfo.PlanetInfo.PartiallyScavengedList[scan][num_nodes];
+						- pSolarSysState->SysInfo.PlanetInfo.
+							PartiallyScavengedList[scan][num_nodes];
 
 				NodeElementPtr->current.image.frame = SetAbsFrameIndex (
 						MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
@@ -1640,8 +1677,8 @@ GeneratePlanetSide (void)
 				if (scan == ENERGY_SCAN)
 				{
 					NodeElementPtr->mass_points = MAX_SCROUNGED;
-					DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
-							pSolarSysState->PlanetSideFrame[1];
+					DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.
+							frame = pSolarSysState->PlanetSideFrame[1];
 				}
 				else /* (scan == BIOLOGICAL_SCAN) */
 				{

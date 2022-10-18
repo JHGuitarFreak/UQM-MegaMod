@@ -191,7 +191,6 @@ add_text (int status, TEXT *pTextIn)
 	static COORD last_baseline;
 	BOOLEAN eol;
 	CONTEXT OldContext = NULL;
-	COUNT computerOn = 0;
 	RECT arrow;
 	
 	BatchGraphics ();
@@ -223,7 +222,11 @@ add_text (int status, TEXT *pTextIn)
 		}
 
 		text_width = CommData.AlienTextWidth;
-		SetContextFont (CommData.AlienFont);
+		if (CommData.AlienConv == ORZ_CONVERSATION && optOrzCompFont && 
+				CommData.AlienTalkDesc.AnimFlags & PAUSE_TALKING)
+			SetContextFont (ComputerFont);// Orz intro
+		else
+			SetContextFont (CommData.AlienFont);
 		GetContextFontLeading (&leading);
 
 		pText = pTextIn;
@@ -334,105 +337,12 @@ add_text (int status, TEXT *pTextIn)
 		else
 		{
 			// Alien speech
-			if (CommData.AlienConv == ORZ_CONVERSATION)
-			{	// BW : special case for the Orz conversations
-				// the character $ is recycled as a marker to
-				// switch from and to computer font
-				
-				const char *ptr;
-				RECT rect;
-				COORD baselinex = pText->baseline.x;
-				COORD width = 0;
-				COUNT remChars = pText->CharCount;
-					// Remaining chars until end of line within width
-				const char *bakptr;
-				COUNT bakChars = remChars;
-				COUNT bakcompOn = computerOn;
-				FONT bakFont = SetContextFont (ComputerFont);
-				
-				SetContextFont (bakFont);
-				ptr = pText->pStr;
-				bakptr = ptr;
-				
-				// We need to manually center the line because
-				// the computer font is larger than the Orzfont
-				
-				// This loop computes the width of the line
-				while (remChars > 0)
-				{
-					while ((*ptr != '$') && remChars > 0)
-					{
-						getCharFromString (&ptr);
-						remChars--;
-					}
-						
-					pText->CharCount -= remChars;
-					TextRect (pText, &rect, NULL);
-						
-					width += rect.extent.width;
-						
-					if (*ptr == '$')
-					{
-						getCharFromString (&ptr);
-						remChars--;
-						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
-							SetContextFont (ComputerFont);
-						else
-							SetContextFont (CommData.AlienFont);
-					}
-
-					pText->CharCount = remChars;
-					pText->pStr = ptr;
-				}
-
-				// This to simulate a centered line
-				pText->baseline.x = baselinex - (width >> 1);
-				pText->align = ALIGN_LEFT;
-				
-				// Put everything back in place for the
-				// actual display 
-				remChars = bakChars;
-				pText->CharCount = bakChars;
-				ptr = bakptr;
-				pText->pStr = bakptr;
-				computerOn = bakcompOn;
-				SetContextFont (bakFont);
-				
-				// This loop is used to look up for $
-				while (remChars > 0)
-				{
-					while ((*ptr != '$') && remChars > 0)
-					{
-						getCharFromString (&ptr);
-						remChars--;
-					}
-						
-					pText->CharCount -= remChars;
-					TextRect (pText, &rect, NULL);
-						
-					font_DrawTracedText (pText,
-							CommData.AlienTextFColor,
-							CommData.AlienTextBColor);
-						
-					pText->baseline.x += rect.extent.width;
-						
-					if (*ptr == '$')
-					{
-						getCharFromString (&ptr);
-						remChars--;
-						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
-							SetContextFont (ComputerFont);
-						else
-							SetContextFont (CommData.AlienFont);
-					}
-
-					pText->CharCount = remChars;
-					pText->pStr = ptr;
-				}
-				pText->baseline.x = baselinex;
-				pText->align = ALIGN_CENTER;
+			if (CommData.AlienConv == ORZ_CONVERSATION && optOrzCompFont)
+			{
+				font_DrawTracedTextAlt (pText,
+					CommData.AlienTextFColor,
+					CommData.AlienTextBColor,
+					ComputerFont, '*');
 			}
 			else
 			{
@@ -1852,7 +1762,17 @@ HailAlien (void)
 		PlayerFont = LoadFont (TINY_FONT_BOLD);
 
 	if (optOrzCompFont)
+	{
 		ComputerFont = LoadFont (COMPUTER_FONT);
+
+		if (ComputerFont == NULL)
+		{
+			log_add (log_Warning,
+					"ComputerFont didn't load properly. "
+					"Disabling Alternate Orz Font");
+			optOrzCompFont = FALSE;
+		}
+	}
 
 	CommData.AlienFrame = CaptureDrawable (
 			LoadGraphic (CommData.AlienFrameRes));
@@ -1978,7 +1898,8 @@ HailAlien (void)
 	DestroyDrawable (ReleaseDrawable (TextCacheFrame));
 
 	DestroyFont (PlayerFont);
-	DestroyFont (ComputerFont);
+	if (optOrzCompFont)
+		DestroyFont (ComputerFont);
 
 	ReleaseTalkingAnim ();
 	DisengageFilters ();
