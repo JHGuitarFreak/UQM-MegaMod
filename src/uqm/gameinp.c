@@ -291,14 +291,14 @@ UpdateInputState (void)
 	{
 		FlushInput ();
 		if (quickSaveSlot != (BYTE)~0)
-			QuickStub (FALSE);
+			QuickLoad ();
 	}
 	
 	if (PulsedInputState.menu[KEY_QUICKSAVE])
 	{
 		FlushInput ();
 		if (inSavablePos () && quickSaveSlot != (BYTE)~0)
-			QuickStub (TRUE);
+			QuickSave ();
 	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)

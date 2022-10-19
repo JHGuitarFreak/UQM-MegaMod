@@ -1345,6 +1345,7 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 		else
 		{
 			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
+			SleepThread (ONE_SECOND / 2);
 			success = SaveGame (gameIndex, desc, nameBuf);
 		}
 	}
@@ -1554,9 +1555,22 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu, BOOLEAN quicksave)
 }
 
 BOOLEAN
-QuickStub (BOOLEAN saving)
+QuickLoad (void)
 {
-	return PickGame (saving, FALSE, TRUE);
+	return PickGame (FALSE, FALSE, TRUE);
+}
+
+BOOLEAN
+QuickSave (void)
+{
+	PICK_GAME_STATE pickState;
+
+	memset (&pickState, 0, sizeof pickState);
+	pickState.saving = TRUE;
+
+	LoadGameDescriptions (pickState.summary);
+
+	return SaveLoadGame (&pickState, quickSaveSlot, FALSE, TRUE);
 }
 
 static BOOLEAN

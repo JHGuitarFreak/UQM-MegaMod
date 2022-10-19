@@ -25,7 +25,8 @@ extern "C" {
 
 extern void ConfirmSaveLoad (STAMP *MsgStamp);
 extern BOOLEAN GameOptions (void);
-extern BOOLEAN QuickStub (BOOLEAN saving);
+extern BOOLEAN QuickLoad (void);
+extern BOOLEAN QuickSave (void);
 
 typedef void (NamingCallback) (void);
 extern void SetNamingCallback (NamingCallback *);
