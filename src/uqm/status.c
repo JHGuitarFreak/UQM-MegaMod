@@ -43,11 +43,154 @@ InitStatusOffsets (void)
 	status_y_offsets[1] = BAD_GUY_YOFFS;  // top player
 }
 
+bool
+animIsInTransition (CAPTAIN_STUFF* CSPtr)
+{
+	return (CSPtr->thrust_offset == 1) ||
+			(CSPtr->weapon_offset == 1) ||
+			(CSPtr->special_offset == 1) ||
+			(CSPtr->tl_offset == 1) ||
+			(CSPtr->tr_offset == 1);
+}
+
+static void
+CalculateAnimOffsets (CAPTAIN_STUFF* CSPtr, 
+		STATUS_FLAGS delta_status_flags, STATUS_FLAGS cur_status_flags,
+		BYTE *redraw_flag)
+{
+	if (delta_status_flags & LEFT || CSPtr->tl_offset == 1)
+	{
+		if (!(delta_status_flags & RIGHT))
+		{
+			CSPtr->tr_offset = 0;
+
+			if (cur_status_flags & LEFT)
+				CSPtr->tl_offset++;
+			else
+				CSPtr->tl_offset--;
+
+			*redraw_flag |= LEFT;
+		}
+		else if (cur_status_flags & RIGHT)
+		{
+			CSPtr->tl_offset = 0;
+			CSPtr->tr_offset = 1;
+
+			*redraw_flag |= (RIGHT | DRAW_ZERO_FRAME);
+		}
+		else
+		{
+			CSPtr->tr_offset = 0;
+			CSPtr->tl_offset = 1;
+
+			*redraw_flag |= (LEFT | DRAW_ZERO_FRAME);
+		}
+	}
+	else if (delta_status_flags & RIGHT || CSPtr->tr_offset == 1)
+	{
+		CSPtr->tl_offset = 0;
+
+		if (cur_status_flags & RIGHT)
+			CSPtr->tr_offset++;
+		else
+			CSPtr->tr_offset--;
+
+		*redraw_flag |= RIGHT;
+	}
+
+	if (delta_status_flags & THRUST || CSPtr->thrust_offset == 1)
+	{
+		if (cur_status_flags & THRUST)
+			CSPtr->thrust_offset++;
+		else
+			CSPtr->thrust_offset--;
+
+		*redraw_flag |= THRUST;
+	}
+	if (delta_status_flags & WEAPON || CSPtr->weapon_offset == 1)
+	{
+		if (cur_status_flags & WEAPON)
+			CSPtr->weapon_offset++;
+		else
+			CSPtr->weapon_offset--;
+
+		*redraw_flag |= WEAPON;
+	}
+	if (delta_status_flags & SPECIAL || CSPtr->special_offset == 1)
+	{
+		if (cur_status_flags & SPECIAL)
+			CSPtr->special_offset++;
+		else
+			CSPtr->special_offset--;
+
+		*redraw_flag |= SPECIAL;
+	}
+}
+
+static void
+DrawCaptainWindowAnimation (CAPTAIN_STUFF* CSPtr, COORD y, 
+		BYTE redraw_flag)
+{
+	STAMP Stamp;
+
+	Stamp.origin.x = CAPTAIN_XOFFS;
+	Stamp.origin.y = y + CAPTAIN_YOFFS;
+
+	if (redraw_flag & (LEFT | RIGHT))
+	{
+		if (redraw_flag & DRAW_ZERO_FRAME)
+		{// draw neutral frame in case of 1-frame direction switch
+			if (redraw_flag & RIGHT)
+			{
+				Stamp.frame = SetRelFrameIndex (CSPtr->turn, 3);
+				DrawStamp (&Stamp);
+				Stamp.frame = DecFrameIndex (Stamp.frame);
+			}
+			else if (redraw_flag & LEFT)
+			{
+				Stamp.frame = SetRelFrameIndex (CSPtr->turn, 1);
+				DrawStamp (&Stamp);
+				Stamp.frame = IncFrameIndex (Stamp.frame);
+			}			
+			DrawStamp (&Stamp);
+		}
+
+		if (redraw_flag & LEFT)
+		{
+			Stamp.frame = SetRelFrameIndex (CSPtr->turn, 2 + CSPtr->tl_offset);
+			DrawStamp (&Stamp);
+		}
+		else if (redraw_flag & RIGHT)
+		{
+			Stamp.frame = SetRelFrameIndex (CSPtr->turn, 2 - CSPtr->tr_offset);
+			DrawStamp (&Stamp);
+		}
+	}
+
+	if (redraw_flag & THRUST)
+	{
+		Stamp.frame = SetRelFrameIndex (CSPtr->thrust, CSPtr->thrust_offset);
+		DrawStamp (&Stamp);
+	}
+
+	if (redraw_flag & WEAPON)
+	{
+		Stamp.frame = SetRelFrameIndex (CSPtr->weapon, CSPtr->weapon_offset);
+		DrawStamp (&Stamp);
+	}
+
+	if (redraw_flag & SPECIAL)
+	{
+		Stamp.frame = SetRelFrameIndex (CSPtr->special, CSPtr->special_offset);
+		DrawStamp (&Stamp);
+	}
+}
+
 static void
 CaptainsWindow (CAPTAIN_STUFF *CSPtr, COORD y,
 		STATUS_FLAGS delta_status_flags, STATUS_FLAGS cur_status_flags,
 		COUNT Pass)
-{
+{// Kruzen: og method. now redundant
 	STAMP Stamp;
 
 	Stamp.origin.x = CAPTAIN_XOFFS;
@@ -391,6 +534,7 @@ PreProcessStatus (ELEMENT *ShipPtr)
 	{	// All except Sa-Matra, no captain's window there
 		STATUS_FLAGS old_status_flags, cur_status_flags;
 		CAPTAIN_STUFF *CSPtr;
+		BYTE redraw_flags = 0;
 
 		cur_status_flags = StarShipPtr->cur_status_flags;
 		old_status_flags = StarShipPtr->old_status_flags;
@@ -398,12 +542,14 @@ PreProcessStatus (ELEMENT *ShipPtr)
 
 		CSPtr = &StarShipPtr->RaceDescPtr->ship_data.captain_control;
 		old_status_flags &= (LEFT | RIGHT | THRUST | WEAPON | SPECIAL);
-		if (old_status_flags)
+		if (old_status_flags || animIsInTransition (CSPtr))
 		{
 			assert (StarShipPtr->playerNr >= 0);
-			CaptainsWindow (CSPtr, status_y_offsets[StarShipPtr->playerNr],
-					old_status_flags, cur_status_flags, 1);
+			CalculateAnimOffsets (CSPtr, old_status_flags, cur_status_flags, 
+					&redraw_flags);
 		}
+
+		CSPtr->redraw_flags = redraw_flags;
 	}
 }
 
@@ -418,6 +564,8 @@ PostProcessStatus (ELEMENT *ShipPtr)
 	{	// All except Sa-Matra, no captain's window there
 		COORD y;
 		STATUS_FLAGS cur_status_flags, old_status_flags;
+		CAPTAIN_STUFF *CSPtr;
+		BYTE redraw_flags;
 
 		cur_status_flags = StarShipPtr->cur_status_flags;
 
@@ -572,7 +720,10 @@ PostProcessStatus (ELEMENT *ShipPtr)
 		old_status_flags = (old_status_flags ^ cur_status_flags) &
 				(LEFT | RIGHT | THRUST | WEAPON | SPECIAL | LOW_ON_ENERGY);
 
-		if (old_status_flags)
+		CSPtr = &StarShipPtr->RaceDescPtr->ship_data.captain_control;
+		redraw_flags = CSPtr->redraw_flags;
+
+		if (old_status_flags || redraw_flags)
 		{
 			if (old_status_flags & LOW_ON_ENERGY)
 			{
@@ -583,15 +734,14 @@ PostProcessStatus (ELEMENT *ShipPtr)
 			}
 
 			old_status_flags &= (LEFT | RIGHT | THRUST | WEAPON | SPECIAL);
-			if (old_status_flags && ShipPtr->crew_level != 0)
+			if (redraw_flags && ShipPtr->crew_level != 0)
 			{
-				CaptainsWindow (
-						&StarShipPtr->RaceDescPtr->ship_data.captain_control,
-						y, old_status_flags, cur_status_flags, 2);
+				DrawCaptainWindowAnimation (CSPtr, y, redraw_flags);
 			}
 		}
 
 		StarShipPtr->old_status_flags = cur_status_flags;
+		CSPtr->redraw_flags = 0;
 	}
 }
 
