@@ -47,32 +47,47 @@ spawn_planet (void)
 		LockElement (hPlanetElement, &PlanetElementPtr);
 		PlanetElementPtr->playerNr = NEUTRAL_PLAYER_NUM;
 		PlanetElementPtr->hit_points = 200;
-		PlanetElementPtr->state_flags =
-				optMeleeObstacles && !isNetwork ()
-					? DISAPPEARING : APPEARING;
+		PlanetElementPtr->state_flags = APPEARING;
 		PlanetElementPtr->life_span = NORMAL_LIFE + 1;
-		SetPrimType (&DisplayArray[PlanetElementPtr->PrimIndex], STAMP_PRIM);
-		PlanetElementPtr->current.image.farray = planet;
-		PlanetElementPtr->current.image.frame =
-				PlanetElementPtr->current.image.farray[0];
-		PlanetElementPtr->collision_func = collision;
-		PlanetElementPtr->postprocess_func =
-				(void (*) (struct element *ElementPtr))CalculateGravity;
-		ZeroVelocityComponents (&PlanetElementPtr->velocity);
-		do
-		{
+		if (optMeleeObstacles && !isNetwork ())
+		{// Invisible planet with cheats
+			PlanetElementPtr->state_flags |= NONSOLID;
+			SetPrimType (&DisplayArray[PlanetElementPtr->PrimIndex], POINT_PRIM);
+			SetPrimColor (&DisplayArray[PlanetElementPtr->PrimIndex],
+					BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x00));
 			PlanetElementPtr->current.location.x =
-					WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
+						WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
 			PlanetElementPtr->current.location.y =
-					WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
-		} while (CalculateGravity (PlanetElementPtr)
-				|| TimeSpaceMatterConflict (PlanetElementPtr));
+						WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
+			PlanetElementPtr->collision_func = NULL;
+			PlanetElementPtr->postprocess_func = NULL;
+			ZeroVelocityComponents (&PlanetElementPtr->velocity);
+		}
+		else
+		{
+			SetPrimType (&DisplayArray[PlanetElementPtr->PrimIndex], STAMP_PRIM);
+			PlanetElementPtr->current.image.farray = planet;
+			PlanetElementPtr->current.image.frame =
+					PlanetElementPtr->current.image.farray[0];
+			PlanetElementPtr->collision_func = collision;
+			PlanetElementPtr->postprocess_func =
+					(void (*) (struct element *ElementPtr))CalculateGravity;
+			ZeroVelocityComponents (&PlanetElementPtr->velocity);
+			do
+			{
+				PlanetElementPtr->current.location.x =
+						WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
+				PlanetElementPtr->current.location.y =
+						WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
+			} while (CalculateGravity (PlanetElementPtr)
+					|| TimeSpaceMatterConflict (PlanetElementPtr));
+		}
 		PlanetElementPtr->mass_points = PlanetElementPtr->hit_points;
 		pt = PlanetElementPtr->current.location;
 
-		UnlockElement(hPlanetElement);
+		UnlockElement (hPlanetElement);
 
-		PutElement(hPlanetElement);
+		PutElement (hPlanetElement);
 	}
 	if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA))
 	{	// Works inconsistently because planet is on top star layer

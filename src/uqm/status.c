@@ -43,11 +43,172 @@ InitStatusOffsets (void)
 	status_y_offsets[1] = BAD_GUY_YOFFS;  // top player
 }
 
+bool
+animIsInTransition (CAPTAIN_STUFF *CSPtr)
+{
+	return (CSPtr->thrust_offset & 1) ||
+			(CSPtr->weapon_offset & 1) ||
+			(CSPtr->special_offset & 1) ||
+			(CSPtr->tl_offset & 1) ||
+			(CSPtr->tr_offset & 1);
+}
+
+static BYTE
+CalculateAnimOffsets (CAPTAIN_STUFF* CSPtr, 
+		STATUS_FLAGS delta_status_flags, STATUS_FLAGS cur_status_flags)
+{
+	BYTE redraw_flag = 0;
+
+	if (delta_status_flags & LEFT || CSPtr->tl_offset & 1)
+	{
+		if (!(delta_status_flags & RIGHT))
+		{
+			CSPtr->tr_offset = 0;
+
+			if (cur_status_flags & LEFT)
+				CSPtr->tl_offset++;
+			else
+				CSPtr->tl_offset--;
+
+			redraw_flag |= LEFT;
+		}
+		else if (cur_status_flags & RIGHT)
+		{
+			CSPtr->tl_offset = 0;
+			CSPtr->tr_offset = 1;
+
+			redraw_flag |= RIGHT;
+		}
+		else
+		{
+			CSPtr->tr_offset = 0;
+			CSPtr->tl_offset = 1;
+
+			redraw_flag |= LEFT;
+		}
+	}
+	else if (delta_status_flags & RIGHT || CSPtr->tr_offset & 1)
+	{
+		CSPtr->tl_offset = 0;
+
+		if (cur_status_flags & RIGHT)
+			CSPtr->tr_offset++;
+		else
+			CSPtr->tr_offset--;
+
+		redraw_flag |= RIGHT;
+	}
+
+	if (delta_status_flags & THRUST || CSPtr->thrust_offset & 1)
+	{
+		if (cur_status_flags & THRUST)
+			CSPtr->thrust_offset++;
+		else
+			CSPtr->thrust_offset--;
+
+		redraw_flag |= THRUST;
+	}
+
+	if (delta_status_flags & WEAPON || CSPtr->weapon_offset & 1)
+	{
+		if (cur_status_flags & WEAPON)
+			CSPtr->weapon_offset++;
+		else
+			CSPtr->weapon_offset--;
+
+		redraw_flag |= WEAPON;
+	}
+
+	if (delta_status_flags & SPECIAL || CSPtr->special_offset & 1)
+	{
+		if (cur_status_flags & SPECIAL)
+			CSPtr->special_offset++;
+		else
+			CSPtr->special_offset--;
+
+		redraw_flag |= SPECIAL;
+	}
+
+	return redraw_flag;
+}
+
+static void
+DrawCaptainWindowAnimation (CAPTAIN_STUFF* CSPtr, COORD y, 
+		BYTE redraw_flag)
+{
+	STAMP Stamp;
+
+	Stamp.origin.x = CAPTAIN_XOFFS;
+	Stamp.origin.y = y + CAPTAIN_YOFFS;
+
+	if (redraw_flag & LEFT)
+	{
+		BYTE i;
+
+		Stamp.frame = SetRelFrameIndex (CSPtr->turn, 1);
+		DrawStamp (&Stamp);
+		Stamp.frame = IncFrameIndex (Stamp.frame);
+		DrawStamp (&Stamp);
+
+		for (i = 0; i < CSPtr->tl_offset; i++)
+		{
+			Stamp.frame = IncFrameIndex (Stamp.frame);
+			DrawStamp (&Stamp);
+		}
+	}
+	else if (redraw_flag & RIGHT)
+	{
+		BYTE i;
+
+		Stamp.frame = SetRelFrameIndex (CSPtr->turn, 3);
+		DrawStamp (&Stamp);
+		Stamp.frame = DecFrameIndex (Stamp.frame);
+		DrawStamp (&Stamp);
+
+		for (i = 0; i < CSPtr->tr_offset; i++)
+		{
+			Stamp.frame = DecFrameIndex (Stamp.frame);
+			DrawStamp (&Stamp);
+		}
+	}
+
+	if (redraw_flag & THRUST)
+	{
+		Stamp.frame = SetRelFrameIndex (CSPtr->thrust, CSPtr->thrust_offset);
+		DrawStamp (&Stamp);
+	}
+
+	if (redraw_flag & WEAPON)
+	{
+		Stamp.frame = SetRelFrameIndex (CSPtr->weapon, CSPtr->weapon_offset);
+		DrawStamp (&Stamp);
+	}
+
+	if (redraw_flag & SPECIAL)
+	{
+		Stamp.frame = SetRelFrameIndex (CSPtr->special, CSPtr->special_offset);
+		DrawStamp (&Stamp);
+	}
+}
+
+static void
+DrawCaptainWindowFrame (FRAME fr, COORD y)
+{
+	STAMP Stamp;
+
+	Stamp.origin.x = CAPTAIN_XOFFS;
+	Stamp.origin.y = y + CAPTAIN_YOFFS;
+
+	Stamp.frame = fr;
+
+	DrawStamp (&Stamp);
+}
+
 static void
 CaptainsWindow (CAPTAIN_STUFF *CSPtr, COORD y,
 		STATUS_FLAGS delta_status_flags, STATUS_FLAGS cur_status_flags,
 		COUNT Pass)
-{
+{// Kruzen: og method. now redundant
 	STAMP Stamp;
 
 	Stamp.origin.x = CAPTAIN_XOFFS;
@@ -391,6 +552,7 @@ PreProcessStatus (ELEMENT *ShipPtr)
 	{	// All except Sa-Matra, no captain's window there
 		STATUS_FLAGS old_status_flags, cur_status_flags;
 		CAPTAIN_STUFF *CSPtr;
+		BYTE redraw_flags = 0;
 
 		cur_status_flags = StarShipPtr->cur_status_flags;
 		old_status_flags = StarShipPtr->old_status_flags;
@@ -398,11 +560,13 @@ PreProcessStatus (ELEMENT *ShipPtr)
 
 		CSPtr = &StarShipPtr->RaceDescPtr->ship_data.captain_control;
 		old_status_flags &= (LEFT | RIGHT | THRUST | WEAPON | SPECIAL);
-		if (old_status_flags)
+		if (old_status_flags || animIsInTransition (CSPtr))
 		{
 			assert (StarShipPtr->playerNr >= 0);
-			CaptainsWindow (CSPtr, status_y_offsets[StarShipPtr->playerNr],
-					old_status_flags, cur_status_flags, 1);
+			redraw_flags = CalculateAnimOffsets (CSPtr, old_status_flags, cur_status_flags);
+
+			if (redraw_flags)
+				DrawCaptainWindowAnimation (CSPtr, status_y_offsets[StarShipPtr->playerNr], redraw_flags);
 		}
 	}
 }
@@ -418,6 +582,7 @@ PostProcessStatus (ELEMENT *ShipPtr)
 	{	// All except Sa-Matra, no captain's window there
 		COORD y;
 		STATUS_FLAGS cur_status_flags, old_status_flags;
+		
 
 		cur_status_flags = StarShipPtr->cur_status_flags;
 
@@ -429,80 +594,95 @@ PostProcessStatus (ELEMENT *ShipPtr)
 			StarShipPtr->cur_status_flags &=
 					~(LEFT | RIGHT | THRUST | WEAPON | SPECIAL);
 
-			if (StarShipPtr->RaceDescPtr->ship_info.crew_level == 0)
-			{
+			if (StarShipPtr->RaceDescPtr->ship_info.crew_level == 0 &&
+					ShipPtr->state_flags & FINITE_LIFE)
+			{// Kruzen: FINITE_LIFE check was added in case if crew-level == 0
+			 // Is triggered by the ship itself (shofixti glory device) and
+			 // avoiding drawing black area
 				BYTE i, j;
 				Color c;
 				RECT r;
 
 				i = (BYTE)(NUM_EXPLOSION_FRAMES * 3 - 1) - ShipPtr->life_span;
-				if (i <= 4)
-				{
-					static const Color flash_tab0[] =
-					{
-						BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
-						BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x19, 0x19), 0x24),
-						BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x11, 0x00), 0x7B),
-						BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1C, 0x00), 0x78),
-						BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x1F), 0x0F),
-					};
 
-					c = flash_tab0[i];
-					r.corner.x = CAPTAIN_XOFFS;
-					r.corner.y = y + CAPTAIN_YOFFS;
-					r.extent.width = CAPTAIN_WIDTH;
-					r.extent.height = CAPTAIN_HEIGHT;
+				if (cur_status_flags & SHOFIXTI_EXPLOSION && i == 0)
+				{// Special case: Instead of first orange rectangle we will draw the last
+				 // frame from captain avatars (used for shofixti glory device)
+					CAPTAIN_STUFF *CSPtr;
+					CSPtr = &StarShipPtr->RaceDescPtr->ship_data.captain_control;
+
+					cur_status_flags &= ~SHOFIXTI_EXPLOSION;
+					DrawCaptainWindowFrame (DecFrameIndex (CSPtr->background), y);
 				}
 				else
 				{
-					SetContextForeGroundColor (BLACK_COLOR);
-					i -= 5;
-					if (i <= 14)
+					if (i <= 4)
 					{
-						static const Color flash_tab1[] =
+						static const Color flash_tab0[] =
 						{
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1E, 0x1F, 0x12), 0x70),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x0A), 0x0E),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x00), 0x71),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1C, 0x00), 0x78),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x18, 0x00), 0x79),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x15, 0x00), 0x7A),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x11, 0x00), 0x7B),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0E, 0x00), 0x7C),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0A, 0x00), 0x7D),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x07, 0x00), 0x7E),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x03, 0x00), 0x7F),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x1B, 0x00, 0x00), 0x2A),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
-							BUILD_COLOR (MAKE_RGB15_INIT (0x13, 0x00, 0x00), 0x2C),
 							BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
+							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x19, 0x19), 0x24),
+							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x11, 0x00), 0x7B),
+							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1C, 0x00), 0x78),
+							BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x1F), 0x0F),
 						};
 
-						c = flash_tab1[i];
-						r.corner.x = CAPTAIN_XOFFS + RES_SCALE (i);
-						r.corner.y = y + CAPTAIN_YOFFS + RES_SCALE (i);
-						r.extent.width = CAPTAIN_WIDTH - RES_SCALE ((i << 1));
-						r.extent.height = CAPTAIN_HEIGHT - RES_SCALE ((i << 1));
-
-						if (r.extent.height == RES_SCALE (2))
-							r.extent.height += RES_SCALE (1);
-
-						for (j = 0; j < RES_SCALE (1); j++)
-						{	
-							DrawRectangle (&r, FALSE);
-							++r.corner.x;
-							++r.corner.y;
-							r.extent.width -= 2;
-							r.extent.height -= 2;
-						}
+						c = flash_tab0[i];
+						r.corner.x = CAPTAIN_XOFFS;
+						r.corner.y = y + CAPTAIN_YOFFS;
+						r.extent.width = CAPTAIN_WIDTH;
+						r.extent.height = CAPTAIN_HEIGHT;
 					}
-					else if ((i -= 15) <= 4)
+					else
 					{
-						r.corner.y = y + (CAPTAIN_YOFFS + RES_SCALE (15)); 
-						r.extent.width = RES_SCALE (i + 1); 
-						r.extent.height = RES_SCALE (1);
-						switch (i)
+						SetContextForeGroundColor (BLACK_COLOR);
+						i -= 5;
+						if (i <= 14)
 						{
+							static const Color flash_tab1[] =
+							{
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1E, 0x1F, 0x12), 0x70),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x0A), 0x0E),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x00), 0x71),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1C, 0x00), 0x78),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x18, 0x00), 0x79),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x15, 0x00), 0x7A),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x11, 0x00), 0x7B),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0E, 0x00), 0x7C),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0A, 0x00), 0x7D),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x07, 0x00), 0x7E),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x03, 0x00), 0x7F),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x1B, 0x00, 0x00), 0x2A),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x13, 0x00, 0x00), 0x2C),
+								BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
+							};
+
+							c = flash_tab1[i];
+							r.corner.x = CAPTAIN_XOFFS + RES_SCALE (i);
+							r.corner.y = y + CAPTAIN_YOFFS + RES_SCALE (i);
+							r.extent.width = CAPTAIN_WIDTH - RES_SCALE ((i << 1));
+							r.extent.height = CAPTAIN_HEIGHT - RES_SCALE ((i << 1));
+
+							if (r.extent.height == RES_SCALE (2))
+								r.extent.height += RES_SCALE (1);
+
+							for (j = 0; j < RES_SCALE (1); j++)
+							{
+								DrawRectangle (&r, FALSE);
+								++r.corner.x;
+								++r.corner.y;
+								r.extent.width -= 2;
+								r.extent.height -= 2;
+							}
+						}
+						else if ((i -= 15) <= 4)
+						{
+							r.corner.y = y + (CAPTAIN_YOFFS + RES_SCALE (15));
+							r.extent.width = RES_SCALE (i + 1);
+							r.extent.height = RES_SCALE (1);
+							switch (i)
+							{
 							case 0:
 								r.corner.x = CAPTAIN_XOFFS + RES_SCALE (15);
 								i = CAPTAIN_WIDTH - RES_SCALE ((15 + 1) << 1);
@@ -533,38 +713,39 @@ PostProcessStatus (ELEMENT *ShipPtr)
 								// Should not happen.
 								c = UNDEFINED_COLOR;  // Keeping compiler quiet.
 								break;
+							}
+							DrawFilledRectangle (&r);
+							r.corner.x += i + r.extent.width;
+							DrawFilledRectangle (&r);
+							r.corner.x -= i;
+							r.extent.width = i;
 						}
-						DrawFilledRectangle (&r);
-						r.corner.x += i + r.extent.width;
-						DrawFilledRectangle (&r);
-						r.corner.x -= i;
-						r.extent.width = i;
-					}
-					else
-					{
-						if ((i -= 5) > 2)
-							c = BLACK_COLOR;
 						else
 						{
-							static const Color flash_tab2[] =
+							if ((i -= 5) > 2)
+								c = BLACK_COLOR;
+							else
 							{
-								BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
-								BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
-								BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x00, 0x00), 0x2E),
-							};
+								static const Color flash_tab2[] =
+								{
+									BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
+									BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
+									BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x00, 0x00), 0x2E),
+								};
 
-							c = flash_tab2[i];
-						}
-						r.corner.x = CAPTAIN_XOFFS
+								c = flash_tab2[i];
+							}
+							r.corner.x = CAPTAIN_XOFFS
 								+ (CAPTAIN_WIDTH >> 1) - IF_HD (2);
-						r.corner.y = y + CAPTAIN_YOFFS
-								 + ((CAPTAIN_HEIGHT + RES_SCALE (1)) >> 1) - IF_HD (2);
-						r.extent.width = RES_SCALE (1);
-						r.extent.height = RES_SCALE (1);
+							r .corner.y = y + CAPTAIN_YOFFS
+								+ ((CAPTAIN_HEIGHT + RES_SCALE (1)) >> 1) - IF_HD (2);
+							r.extent.width = RES_SCALE (1);
+							r.extent.height = RES_SCALE (1);
+						}
 					}
+					SetContextForeGroundColor (c);
+					DrawFilledRectangle (&r);
 				}
-				SetContextForeGroundColor (c);
-				DrawFilledRectangle (&r);
 			}
 		}
 
@@ -580,14 +761,6 @@ PostProcessStatus (ELEMENT *ShipPtr)
 					DrawCrewFuelString (y, 1);
 				else
 					DrawCrewFuelString (y, -1);
-			}
-
-			old_status_flags &= (LEFT | RIGHT | THRUST | WEAPON | SPECIAL);
-			if (old_status_flags && ShipPtr->crew_level != 0)
-			{
-				CaptainsWindow (
-						&StarShipPtr->RaceDescPtr->ship_data.captain_control,
-						y, old_status_flags, cur_status_flags, 2);
 			}
 		}
 

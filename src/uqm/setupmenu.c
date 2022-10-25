@@ -1600,9 +1600,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	 * for config.alwaysgl, then overwrite it if it was set previously. */
 	opts->driver = OPTVAL_PURE_IF_POSSIBLE;
 
-	if (res_IsBoolean ("config.alwaysgl"))
+	if (res_IsBoolean("config.alwaysgl"))
 	{
-		if (res_GetBoolean ("config.alwaysgl"))
+		if (res_GetBoolean("config.alwaysgl"))
 		{
 			opts->driver = OPTVAL_ALWAYS_GL;
 		}

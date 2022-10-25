@@ -73,6 +73,9 @@ typedef UWORD STATUS_FLAGS;
 #define SHIP_IN_GRAVITY_WELL   (1 << 8)
 #define PLAY_VICTORY_DITTY     (1 << 9)
 
+#define SHOFIXTI_EXPLOSION	   (1 << 10)
+#define ANDROSYN_COMET_TOGGLE  (1 << 11)
+
 /* These track the old resource package orderings for the ship resource indices */
 typedef enum
 {
@@ -117,6 +120,11 @@ typedef struct captain_stuff
 	FRAME thrust;
 	FRAME weapon;
 	FRAME special;
+	BYTE tl_offset;
+	BYTE tr_offset;
+	BYTE thrust_offset;
+	BYTE weapon_offset;
+	BYTE special_offset;
 } CAPTAIN_STUFF;
 
 typedef enum

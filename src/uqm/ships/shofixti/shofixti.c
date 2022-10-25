@@ -395,6 +395,7 @@ self_destruct (ELEMENT *ElementPtr)
 
 	// Must kill off the remaining crew ourselves
 	DeltaCrew (ElementPtr, -(int)ElementPtr->crew_level);
+	ZeroVelocityComponents (&ElementPtr->velocity);
 
 	ElementPtr->state_flags |= NONSOLID;
 	ElementPtr->life_span = 0;
@@ -425,10 +426,7 @@ shofixti_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		lpWeaponEvalDesc = &ObjectsOfConcern[ENEMY_WEAPON_INDEX];
 		lpShipEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
 		if (StarShipPtr->RaceDescPtr->ship_data.special[0]
-				&& (GetFrameCount (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special)
-				- GetFrameIndex (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special) > 5
+				&& (StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset < 4
 				|| (lpShipEvalDesc->ObjectPtr != NULL
 				&& lpShipEvalDesc->which_turn <= 4)
 				|| (lpWeaponEvalDesc->ObjectPtr != NULL
@@ -444,22 +442,32 @@ shofixti_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 }
 
 static void
-shofixti_postprocess (ELEMENT *ElementPtr)
+shofixti_preprocess (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	if ((StarShipPtr->cur_status_flags
-			^ StarShipPtr->old_status_flags) & SPECIAL)
+			^ StarShipPtr->old_status_flags) & SPECIAL &&
+			!(StarShipPtr->cur_status_flags & SPECIAL))
 	{
-		StarShipPtr->RaceDescPtr->ship_data.captain_control.special =
-				IncFrameIndex (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special);
-		if (GetFrameCount (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special)
-				- GetFrameIndex (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special) == 3)
-			self_destruct (ElementPtr);
+		if (!(StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset & 1))
+			StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset++;
+		else
+			StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset += 2;
+	}
+}
+
+static void
+shofixti_postprocess (ELEMENT *ElementPtr)
+{
+	STARSHIP *StarShipPtr;
+
+	GetElementStarShip (ElementPtr, &StarShipPtr);
+	if (StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset == 5)
+	{
+		self_destruct (ElementPtr);
+		StarShipPtr->cur_status_flags |= SHOFIXTI_EXPLOSION;
 	}
 }
 
@@ -476,6 +484,7 @@ init_shofixti (void)
 		shofixti_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
 
+	shofixti_desc.preprocess_func = shofixti_preprocess;
 	shofixti_desc.postprocess_func = shofixti_postprocess;
 	shofixti_desc.init_weapon_func = initialize_standard_missile;
 	shofixti_desc.cyborg_control.intelligence_func = shofixti_intelligence;
