@@ -395,6 +395,7 @@ self_destruct (ELEMENT *ElementPtr)
 
 	// Must kill off the remaining crew ourselves
 	DeltaCrew (ElementPtr, -(int)ElementPtr->crew_level);
+	ZeroVelocityComponents (&ElementPtr->velocity);
 
 	ElementPtr->state_flags |= NONSOLID;
 	ElementPtr->life_span = 0;
