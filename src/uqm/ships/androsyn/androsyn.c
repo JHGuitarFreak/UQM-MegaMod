@@ -375,14 +375,14 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 			/* take care of blazer effect */
 	if (ElementPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.special)
 	{
-		if ((StarShipPtr->cur_status_flags & SPECIAL)
+		if ((StarShipPtr->cur_status_flags & ANDROSYN_COMET_TOGGLE)
 				|| StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 		{
 			StarShipPtr->RaceDescPtr->characteristics.energy_regeneration =
 					(BYTE)BLAZER_DEGENERATION;
 			StarShipPtr->energy_counter = ENERGY_WAIT;
 
-			if (StarShipPtr->cur_status_flags & SPECIAL)
+			if (StarShipPtr->cur_status_flags & ANDROSYN_COMET_TOGGLE)
 			{
 				ProcessSound (SetAbsSoundIndex (
 						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1),
@@ -394,6 +394,7 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 				ElementPtr->mass_points = BLAZER_MASS;
 				StarShipPtr->RaceDescPtr->characteristics.turn_wait
 						= BLAZER_TURN_WAIT;
+				StarShipPtr->cur_status_flags &= ~ANDROSYN_COMET_TOGGLE;
 
 				/* Save the current collision func because we were not the
 				 * ones who set it */
@@ -408,9 +409,14 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 		if (StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 				/* if blazer wasn't able to change back into ship
 				 * give it a little more juice to try to get out
-				 * of its predicament.
+				 * of its predicament. Kruzen: also keep track
+				 * of turn speed.
 				 */
 		{
+			StarShipPtr->RaceDescPtr->characteristics.special_wait =
+					StarShipPtr->RaceDescPtr->characteristics.turn_wait;
+			StarShipPtr->RaceDescPtr->characteristics.turn_wait
+					= BLAZER_TURN_WAIT;
 			DeltaEnergy (ElementPtr, -BLAZER_DEGENERATION);
 			StarShipPtr->energy_counter = 1;
 		}
@@ -431,7 +437,9 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 		if (cur_status_flags & SPECIAL)
 		{
 			if (StarShipPtr->RaceDescPtr->ship_info.energy_level < SPECIAL_ENERGY_COST)
-				DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST); /* so text will flash */
+			{
+				cur_status_flags |= LOW_ON_ENERGY; /* so text will flash */
+			}
 			else
 			{
 				cur_status_flags &= ~WEAPON;
@@ -442,18 +450,15 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 						SetEquFrameIndex (StarShipPtr->RaceDescPtr->ship_data.special[0],
 						ElementPtr->next.image.frame);
 				ElementPtr->state_flags |= CHANGING;
+				cur_status_flags |= ANDROSYN_COMET_TOGGLE;
 			}
 		}
 	}
 	else
 	{
-		cur_status_flags &= ~(THRUST | WEAPON | SPECIAL);
+		cur_status_flags &= ~(THRUST | WEAPON);
 
-		/* keep the special "on" for the duration of blazer mode, a la SC1 */
-		StarShipPtr->RaceDescPtr->ship_data.captain_control.special =
-			SetRelFrameIndex(StarShipPtr->RaceDescPtr->ship_data.captain_control.special, 2);
-
-					/* protection against vux */
+						/* protection against vux */
 		if (StarShipPtr->RaceDescPtr->characteristics.turn_wait > BLAZER_TURN_WAIT)
 		{
 			StarShipPtr->RaceDescPtr->characteristics.special_wait +=
@@ -464,15 +469,9 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 
 		if (StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 		{
-			/* turn special off */
-			StarShipPtr->RaceDescPtr->ship_data.captain_control.special =
-				SetRelFrameIndex(StarShipPtr->RaceDescPtr->ship_data.captain_control.special, -2);
-
 			ZeroVelocityComponents (&ElementPtr->velocity);
 			cur_status_flags &= ~(LEFT | RIGHT
 					| SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
-
-			DrawCaptainsWindow (StarShipPtr);
 
 			StarShipPtr->RaceDescPtr->characteristics.turn_wait =
 					StarShipPtr->RaceDescPtr->characteristics.special_wait;
@@ -489,6 +488,8 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 		}
 		else
 		{
+			cur_status_flags |= SPECIAL;
+
 			if (ElementPtr->thrust_wait)
 				--ElementPtr->thrust_wait;
 			else

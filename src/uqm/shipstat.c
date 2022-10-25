@@ -161,14 +161,13 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 		y = status_y_offsets[StarShipPtr->playerNr];
 
 		{
-			CAPTAIN_STUFF* cs = &StarShipPtr->RaceDescPtr->ship_data.captain_control;
+			CAPTAIN_STUFF *cs = &StarShipPtr->RaceDescPtr->ship_data.captain_control;
 
 			cs->tl_offset = 0;
 			cs->tr_offset = 0;
 			cs->thrust_offset = 0;
 			cs->weapon_offset = 0;
 			cs->special_offset = 0;
-			cs->redraw_flags = 0;
 		}
 	}
 
