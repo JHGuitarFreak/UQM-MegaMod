@@ -319,6 +319,8 @@ new_pkunk (ELEMENT *ElementPtr)
 	} while (CalculateGravity (ElementPtr)
 			|| TimeSpaceMatterConflict (ElementPtr));
 
+	ZeroVelocityComponents (&ElementPtr->velocity);
+
 	// XXX: Hack: Set hTarget!=0 so that ship_preprocess() does not
 	//   call ship_transition() for us.
 	ElementPtr->hTarget = StarShipPtr->hShip;
