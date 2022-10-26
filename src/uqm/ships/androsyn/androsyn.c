@@ -421,6 +421,14 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 			StarShipPtr->energy_counter = 1;
 		}
 	}
+	else if (StarShipPtr->cur_status_flags & SPECIAL)
+				/* Kruzen: If we failed to transform into
+				 * comet due to collision failed in Process() -
+				 * remove the special flag.
+				 */
+	{
+		StarShipPtr->cur_status_flags &= ~ANDROSYN_COMET_TOGGLE;
+	}
 }
 
 static void
