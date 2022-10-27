@@ -208,7 +208,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 		energy_height = (((SIPtr->max_energy + 1) >> 1) << RES_TRP (1)) + RES_SCALE (1);
 #undef MIN
 		
-		// Dark gray line on the right of energy box
+		// Dark gray line on the bottom of crew box
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
 		r.corner.x = CREW_XOFFS - RES_SCALE (1);
@@ -267,6 +267,61 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 		r.extent.height = energy_height;
 		r.corner.y = y - r.extent.height + GAUGE_YOFFS + RES_SCALE (1);
 		DrawFilledRectangle (&r);
+
+		if (IS_HD)
+		{
+			int i;
+
+			// Middle bevel frame
+			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 41);
+
+			// Middle bevel of the crew boxes
+			Stamp.origin.x = CREW_XOFFS;
+			for (i = 0; i < crew_height; i++)
+			{
+				if (i % 4 == 0)
+				{
+					Stamp.origin.y = GAUGE_YOFFS + y - i;
+					DrawStamp (&Stamp);
+				}
+			}
+
+			// Middle bevel of the energy boxes
+			Stamp.origin.x = ENERGY_XOFFS;
+			for (i = 0; i < energy_height; i++)
+			{
+				if (i % 4 == 0)
+				{
+					Stamp.origin.y = GAUGE_YOFFS + y - i;
+					DrawStamp (&Stamp);
+				}
+			}
+
+			// Bottom bevel frame
+			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 40);
+
+			// Bottom bevel of the crew boxes
+			Stamp.origin.x = CREW_XOFFS;
+			Stamp.origin.y = GAUGE_YOFFS + y;
+			DrawStamp (&Stamp);
+
+			// Bottom bevel of the energy boxes
+			Stamp.origin.x = ENERGY_XOFFS;
+			DrawStamp (&Stamp);
+
+			// Top bevel frame
+			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 42);
+
+			// Top bevel of the crew boxes
+			Stamp.origin.x = CREW_XOFFS;
+			Stamp.origin.y = GAUGE_YOFFS - crew_height + y;
+			DrawStamp (&Stamp);
+
+			// Top bevel of the energy boxes
+			Stamp.origin.x = ENERGY_XOFFS;
+			Stamp.origin.y = GAUGE_YOFFS - energy_height + y;
+			DrawStamp (&Stamp);
+		}
 	}
 
 	if (!StarShipPtr || StarShipPtr->captains_name_index)

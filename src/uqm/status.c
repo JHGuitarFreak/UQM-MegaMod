@@ -426,6 +426,21 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	s.origin.y = y;
 	DrawStamp (&s);
 
+	if (IS_HD)
+	{
+		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
+			DrawBorder (35, TRUE);
+		DrawBorder (36, TRUE);
+
+		if (StarShipPtr->playerNr == RPG_PLAYER_NUM)
+		{
+			if (!(RDPtr->ship_info.ship_flags & PLAYER_CAPTAIN))
+				DrawBorder (39, TRUE);
+		}
+		else if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
+			DrawBorder (38, TRUE);
+	}
+
 	if (StarShipPtr->captains_name_index == 0
 			&& StarShipPtr->playerNr == RPG_PLAYER_NUM)
 	{	// This is SIS
@@ -447,13 +462,6 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		// All crew doesn't fit in the graphics; print a number.
 		// Always print a number for the SIS in the full game.
 		DrawBattleCrewAmount (&RDPtr->ship_info, y_offs);
-	}
-
-	if (IS_HD)
-	{
-		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawBorder (35, TRUE);
-		DrawBorder (36, TRUE);
 	}
 
 	UnbatchGraphics ();
