@@ -509,7 +509,7 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 	FlushInput ();
 	TimeIn = GetTimeCounter ();
 	if (!IS_HD)
-	{// Original code for SD
+	{	// Original code for SD
 		if (fade_in)
 		{
 			for (i = 0; i < (SIZE)NUM_FADES; ++i)
@@ -772,13 +772,23 @@ UninitEncounter (void)
 								t.align = ALIGN_CENTER;
 								t.pStr = buf;
 								t.CharCount = (COUNT)~0;
-								font_DrawText (&t);
+								if (!classicPackPresent)
+									font_DrawText (&t);
+								else
+									font_DrawTracedText (&t,
+											GetContextForeGroundColor (),
+											BLACK_COLOR);
 								t.baseline.y += RES_SCALE (6);
 								t.pStr = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 3);
 										// "BATTLE GROUP"
 								t.CharCount = (COUNT)~0;
-								font_DrawText (&t);
+								if (!classicPackPresent)
+									font_DrawText (&t);
+								else
+									font_DrawTracedText (&t,
+											GetContextForeGroundColor (),
+											BLACK_COLOR);
 
 								ship_s.frame = FragPtr->icons;
 
