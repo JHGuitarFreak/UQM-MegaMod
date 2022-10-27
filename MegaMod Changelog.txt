@@ -7,7 +7,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Special captain graphics in melee for Fwiffo's ship - Jo Li KMC
 - Special game over sequence for the Death March while hiding in QuasiSpace - Jo Li KMC
 - Extend custom border to the playback bar during coversations
-- Extend custom border and HD-default UI to all aspects of the Super Melee UI
 - Restored DOS script when opting out of 3DO voices or if the add-on isn't available
 
 ## [v0.8.2]
@@ -25,9 +24,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Transparent Suns for Vanilla graphics while nebulae are enabled - Kruzen
 - Added new "Slaughter Mode" that allows the player to affect Fleet SOI by destroying ships (does not work on the Pkunk, Yehat, Thraddash, and Ilwrath)
 - SETUPMENU: Added ability to turn any given Tooltip line red by adding "&!" to the beginning of the line
+- SETUPMENU: Added ability to underline any given Label line by adding "&_" to the beginning of the line
 - Added oldschool styled DOS fade-in/fade-out animation - Kruzen
 - Added faithful 3DO spheres and slave shield - Kruzen
 - SETUPMENU: Added ability to underline any given Label line by adding "&_" to the beginning of the line
+- EXTENDED: Added ability to open up a HyperSpace portal in QuasiSpace to go right back to where you opened up the initial QuasiSpace portal
+- Centered annotations (REPORT FROM SURFACE, END OF REPORT, etc) for full screen width reports - Kruzen
+- EXTENDED: Ships exploding in Super Melee do not lose all velocity
+- New logo animation graphics created by Kruzen
 
 ### Changed
 - Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
@@ -47,8 +51,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Changed Starmap controls for gamepads and updated the in-game helpers to reflect the new controls
 - Expand the width of name variables to allow for unicode character widths.
 - "Rebrand" Precursor Mode back into "God Modes"
-- Remove reticule on marked systems when the players enters the marked system
 - HD: Use a 5x5 dot for planet/moon intersect frame
+- Captain avatar animation system rework: Super Melee captain's middle or "tween" animations now play properly instead of relying directly on CPU speed - Kruzen
+- Extended HD-default UI to all aspects of the Super Melee UI
+- Setting Auto-Pilot destination to the current star system sets Auto-Pilot directly to HyperSpace
+- EXTENDED: Give Zex an alternate uniform and more medals differing him from other VUX - Kruzen
+- EXTENDED: Give the Kzer-Za their baton on the comm screen - Kruzen
+- HARDMODE: Set crew remaining on the Starbase to 1900 per Hayes' dialog
+- Draw traced fonts on scan screen when nebulae are enabled
+- SETUPMENU: Change "IP Transitions" into "Screen Transitions"
+- Better font switching code for the Alternate Orz Font option - Kruzen
+- Orbit reports now aligned properly when using DOS Lander style - Kruzen
+- HD: Maka Talana's eye glow animation more dramatic to match Vanilla
+- HD: Rerender Arilou, Orz, and Alternate Orz fonts for HD-mod Classic Pack
+- HD: Rerender updated Commander, StarCon, Tiny, Player, and Chmmr font
+- HD: Minor HD fixes and Major revamps for a few race's comm screens. All images are now using proper code for palettes - Kruzen
+- Update the font gradients to be more faithful to the DOS colors
+
 
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
@@ -62,6 +81,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed bug when exiting game via F10 while entering a captain's name on a new game then immediately starting a new game autofills the captain's name as "UNNAMED"
 - Fixed bug with No Melee Obstacles cheat that caused hard crashes
 - HARDMODE: Fixed oversight that caused the Pkunk to never migrate
+- EXTENDED: Fixed planet names at Gamma Ophiuchi
+- Fixed DOS Lander border not erasing when returning to orbit
+
 
 
 ## [v0.8.1]
