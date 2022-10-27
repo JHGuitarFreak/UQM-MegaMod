@@ -739,7 +739,8 @@ UninitEncounter (void)
 								ship_s.frame = IncFrameIndex (FragPtr->icons);
 								DrawStamp (&ship_s);
 								SetContextForeGroundColor (
-										BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
+										!classicPackPresent ?
+											MDKGRAY_COLOR : MLTGRAY_COLOR);
 								if (isPC (optWhichFonts))
 									SetContextFont (TinyFont);
 								else
@@ -772,23 +773,13 @@ UninitEncounter (void)
 								t.align = ALIGN_CENTER;
 								t.pStr = buf;
 								t.CharCount = (COUNT)~0;
-								if (!classicPackPresent)
-									font_DrawText (&t);
-								else
-									font_DrawTracedText (&t,
-											GetContextForeGroundColor (),
-											BLACK_COLOR);
+								font_DrawText (&t);
 								t.baseline.y += RES_SCALE (6);
 								t.pStr = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 3);
 										// "BATTLE GROUP"
 								t.CharCount = (COUNT)~0;
-								if (!classicPackPresent)
-									font_DrawText (&t);
-								else
-									font_DrawTracedText (&t,
-											GetContextForeGroundColor (),
-											BLACK_COLOR);
+								font_DrawText (&t);
 
 								ship_s.frame = FragPtr->icons;
 
