@@ -29,9 +29,9 @@ static FRAME BuildPickFrame;
 void
 BuildBuildPickFrame (void)
 {
-	STAMP	s;
-	RECT    r;
-	COUNT   i;
+	STAMP s;
+	RECT  r;
+	COUNT i;
 	CONTEXT OldContext = SetContext (OffScreenContext);
 	
 	// create team building ship selection box
@@ -69,8 +69,10 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 
 	GetFrameRect (BuildPickFrame, &r);
 
-	s.origin.x = r.corner.x + RES_SCALE (20) + (ship % NUM_PICK_COLS) * RES_SCALE (18);
-	s.origin.y = r.corner.y +  RES_SCALE (5) + (ship / NUM_PICK_COLS) * RES_SCALE (18);
+	s.origin.x = r.corner.x + RES_SCALE (20) + (ship % NUM_PICK_COLS)
+			* RES_SCALE (18);
+	s.origin.y = r.corner.y +  RES_SCALE (5) + (ship / NUM_PICK_COLS)
+			* RES_SCALE (18);
 
 	s.frame = GetShipIconsFromIndex (ship);
 	if (DrawErase)
@@ -92,7 +94,7 @@ DrawPickFrame (MELEE_STATE *pMS)
 {
 	RECT r, r0, r1, ship_r;
 	STAMP s;
-				
+
 	GetShipBox (&r0, 0, 0, 0),
 	GetShipBox (&r1, 1, NUM_MELEE_ROWS - 1, NUM_MELEE_COLUMNS - 1),
 	BoxUnion (&r0, &r1, &ship_r);
@@ -220,4 +222,3 @@ BuildPickShip (MELEE_STATE *pMS)
 	
 	return pMS->buildPickConfirmed;
 }
-

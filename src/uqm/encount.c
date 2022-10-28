@@ -690,16 +690,16 @@ UninitEncounter (void)
 						{	// HD classic pack only.
 							// To save the metal texture
 							RECT temp = { {222, 190}, {528, 88} };
-							saveFrame[1] = SaveContextFrame(&temp);
+							saveFrame[1] = SaveContextFrame (&temp);
 									// main frame
 
 							temp.extent.width = 392;
-							saveFrame[2] = SaveContextFrame(&temp);
+							saveFrame[2] = SaveContextFrame (&temp);
 									// Ship x5 Cover
 
 							temp.corner.x += 392;
 							temp.extent.width = 528 - 392;
-							saveFrame[3] = SaveContextFrame(&temp);
+							saveFrame[3] = SaveContextFrame (&temp);
 									// Salvage Cover
 						}
 					}
@@ -707,8 +707,6 @@ UninitEncounter (void)
 				pQueue = &GLOBAL (npc_built_ship_q);
 			}
 
-			
-				
 			ReinitQueue (&race_q[(NUM_SIDES - 1) - i]);
 
 			for (hStarShip = GetHeadLink (pQueue); hStarShip;

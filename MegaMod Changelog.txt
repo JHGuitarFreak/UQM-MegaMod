@@ -43,7 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Slylandro Gas-Bags now have working color transforms - Kruzen
 - EXTENDED: Add small chance of weather and tectonic hazards to level 2 
 - HD: Shipyard powerlines now have smoother gradients - Kruzen
-- HD: Fuel guage for shipyard and outfit now have smoother gradients - Kruzen
+- HD: Fuel gauge for shipyard and outfit now have smoother gradients - Kruzen
 - Updated cursor speed modifier to 3x for picking a landing zone
 - HD: Melnorme background color changes done via colortable - Kruzen
 - HD: Slylandro, Chmmr, Hayes, Orz, Talking Pet, VUX, Safe Ones, and Syreen color changes all done via color filters - Kruzen

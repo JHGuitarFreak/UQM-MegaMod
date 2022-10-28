@@ -453,9 +453,9 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	GetFrameRect (frame, &r);
 	r.extent.width -= RES_SCALE (4);
 	t.baseline.x = r.extent.width;
-	r.corner.x = r.extent.width - RES_SCALE (6 * 3); 
-	r.corner.y = RES_SCALE (2); 
-	r.extent.width = RES_SCALE (6 * 3); 
+	r.corner.x = r.extent.width - RES_SCALE (6 * 3);
+	r.corner.y = RES_SCALE (2);
+	r.extent.width = RES_SCALE (6 * 3);
 	r.extent.height = RES_SCALE (7 - 2);
 	SetContextForeGroundColor (PICK_BG_COLOR);
 	DrawFilledRectangle (&r);
@@ -482,7 +482,7 @@ void
 BuildPickMeleeFrame (void)
 {
 	STAMP s;
-	CONTEXT	OldContext = SetContext (OffScreenContext);
+	CONTEXT OldContext = SetContext (OffScreenContext);
 
 	if (PickMeleeFrame)
 		DestroyDrawable (ReleaseDrawable (PickMeleeFrame));
@@ -543,7 +543,7 @@ FillPickMeleeFrame (MeleeSetup *setup)
 		SetContextForeGroundColor (PICK_BG_COLOR);
 		DrawFilledRectangle (&r);
 
-		r.corner.x += RES_SCALE (2); 
+		r.corner.x += RES_SCALE (2);
 		r.extent.width += RES_SCALE ((RES_DESCALE (ICON_WIDTH) + 2) - (2 * 2));
 		r.corner.y += r.extent.height;
 		r.extent.height = NAME_AREA_HEIGHT;
