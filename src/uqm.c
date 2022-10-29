@@ -332,7 +332,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  use3doMusic,       true ),
 		INIT_CONFIG_OPTION(  useRemixMusic,     false ),
 		INIT_CONFIG_OPTION(  useSpeech,         true ),
-		INIT_CONFIG_OPTION(  whichCoarseScan,   OPT_PC ),
+		INIT_CONFIG_OPTION(  whichCoarseScan,   0 ),
 		INIT_CONFIG_OPTION(  whichMenu,         OPT_PC ),
 		INIT_CONFIG_OPTION(  whichFonts,        OPT_PC ),
 		INIT_CONFIG_OPTION(  whichIntro,        OPT_PC ),
@@ -896,8 +896,8 @@ getUserConfigOptions (struct options_struct *options)
 			OPT_PC, OPT_3DO);
 	getBoolConfigValueXlat (&options->whichFonts, "config.textgradients",
 			OPT_PC, OPT_3DO);
-	getBoolConfigValueXlat (&options->whichCoarseScan, "config.iconicscan",
-			OPT_3DO, OPT_PC);
+	if (res_IsInteger ("config.iconicscan") && !options->whichCoarseScan.set)
+		options->whichCoarseScan.value = res_GetInteger ("config.iconicscan");
 	getBoolConfigValueXlat (&options->smoothScroll, "config.smoothscroll",
 			OPT_3DO, OPT_PC);
 	getBoolConfigValueXlat (&options->whichShield, "config.pulseshield",
@@ -1471,12 +1471,24 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			case CSCAN_OPT:
-				if (!setChoiceOption (&options->whichCoarseScan, optarg))
 				{
-					InvalidArgument (optarg, "--cscan");
-					badArg = true;
+					int temp;
+					if (parseIntOption (optarg, &temp, "Coarse Scans") == -1)
+					{
+						badArg = true;
+						break;
+					}
+					else if (temp < 0 || temp > 2)
+					{
+						saveError("\nCoarse Scan has to be 0, 1, 2 or 3.\n");
+						badArg = true;
+					}
+					else
+					{
+						options->whichCoarseScan.value = temp;
+					}
+					break;
 				}
-				break;
 			case MENU_OPT:
 				if (!setChoiceOption (&options->whichMenu, optarg))
 				{

@@ -2765,7 +2765,7 @@ CreateStarBackGround (BOOLEAN encounter)
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForVar (starPoint));
 
 #define NUM_DIM_PIECES 8
-	s.frame = SetAbsFrameIndex (SpaceJunkFrame, hdScaled ? 0 : 25);
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, hdScaled ? 0 : 26);
 	for (i = 0; i < NUM_DIM_PIECES; ++i)
 	{
 #define NUM_DIM_DRAWN 5

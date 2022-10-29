@@ -100,8 +100,8 @@ static void
 PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 {
 	t->baseline.x = xpos;
-	SetContextForeGroundColor (
-			EXT_CASE (SCAN_PC_TITLE_COLOR, SCAN_PC_TITLE_COLOR_6014));
+	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_PC_TITLE_COLOR_6014 : SCAN_PC_TITLE_COLOR);
+
 	t->pStr = txt;
 	t->CharCount = (COUNT)~0;
 
@@ -245,7 +245,7 @@ PrintCoarseScanPC (void)
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
 	SetContextFont (MicroFont);
 	PrintScanText (&t);
 
@@ -414,6 +414,10 @@ PrintCoarseScan3DO (void)
 	TEXT t;
 	STAMP s;
 	UNICODE buf[40];
+	COUNT frameIndex = 20;
+
+	if (optWhichCoarseScan == 3)
+		frameIndex = (IS_HD ? 25 : 24);
 
 	SetContext (PlanetContext);
 
@@ -438,7 +442,7 @@ PrintCoarseScan3DO (void)
 
 	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
 	s.origin.x = 0;
-	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
 	DrawStamp (&s);
 
 	t.pStr = buf;
@@ -759,10 +763,10 @@ DispatchLander (void)
 		return FALSE;
 	}
 
-	if (optWhichCoarseScan == OPT_PC)
-		PrintCoarseScanPC ();
-	else
+	if (optWhichCoarseScan & 1)
 		PrintCoarseScan3DO ();
+	else
+		PrintCoarseScanPC ();
 
 	// Reactivate planet rotation callback
 	SetInputCallback (oldCallback);
@@ -1506,10 +1510,10 @@ ScanSystem (void)
 
 	SetFlashRect (SFR_MENU_3DO, FALSE);
 
-	if (optWhichCoarseScan == OPT_PC)
-		PrintCoarseScanPC ();
-	else
+	if (optWhichCoarseScan & 1)
 		PrintCoarseScan3DO ();
+	else
+		PrintCoarseScanPC ();
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
