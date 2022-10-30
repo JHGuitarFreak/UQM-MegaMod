@@ -1552,7 +1552,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 		OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->menu = (optWhichMenu == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->text = (optWhichFonts == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->cscan = (optWhichCoarseScan == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->cscan = res_GetInteger ("config.iconicscan");
 	opts->scroll = (optSmoothScroll == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->intro = (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->shield = (optWhichShield == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
@@ -2273,7 +2273,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optSubtitles = (opts->subtitles == OPTVAL_ENABLED) ? TRUE : FALSE;
 	optWhichMenu = (opts->menu == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichFonts = (opts->text == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	optWhichCoarseScan = (opts->cscan == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	optWhichCoarseScan = opts->cscan;
 	optSmoothScroll = (opts->scroll == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 #if !(defined(ANDROID) || defined(__ANDROID__))
@@ -2297,7 +2297,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("config.subtitles", opts->subtitles == OPTVAL_ENABLED);
 	res_PutBoolean ("config.textmenu", opts->menu == OPTVAL_PC);
 	res_PutBoolean ("config.textgradients", opts->text == OPTVAL_PC);
-	res_PutBoolean ("config.iconicscan", opts->cscan == OPTVAL_3DO);
+	res_PutInteger ("config.iconicscan", opts->cscan);
 	res_PutBoolean ("config.smoothscroll", opts->scroll == OPTVAL_3DO);
 
 	res_PutBoolean ("config.3domusic", opts->music3do == OPTVAL_ENABLED);
