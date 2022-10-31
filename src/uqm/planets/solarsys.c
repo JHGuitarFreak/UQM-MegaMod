@@ -2685,8 +2685,6 @@ BrightenNebula (FRAME nebula, BYTE factor)
 	WriteFramePixelColors (nebula, map, width, height);
 
 	HFree (map);
-
-	return nebula;
 }
 
 void

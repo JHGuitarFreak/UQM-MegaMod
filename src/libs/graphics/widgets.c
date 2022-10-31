@@ -189,7 +189,7 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE (8); 
+		t.baseline.y += RES_SCALE (8);
 	}
 
 	UnbatchGraphics ();
