@@ -162,7 +162,8 @@ DoConfirmExit (void)
 				done = TRUE;
 				response = FALSE;
 			}
-			else if (PulsedInputState.menu[KEY_MENU_LEFT] || PulsedInputState.menu[KEY_MENU_RIGHT])
+			else if (PulsedInputState.menu[KEY_MENU_LEFT]
+					|| PulsedInputState.menu[KEY_MENU_RIGHT])
 			{
 				response = !response;
 				DrawConfirmationWindow (response);
@@ -214,7 +215,7 @@ DoPopup (struct popup_state *self)
 {
 	(void)self;
 	SleepThread (ONE_SECOND / 20);
-	return !(PulsedInputState.menu[KEY_MENU_SELECT] || 
+	return !(PulsedInputState.menu[KEY_MENU_SELECT] ||
 			PulsedInputState.menu[KEY_MENU_CANCEL] ||
 			(GLOBAL (CurrentActivity) & CHECK_ABORT));
 }
@@ -235,7 +236,8 @@ DoPopupWindow (const char *msg)
 
 	if (!bank)
 	{
-		log_add (log_Fatal, "FATAL: Memory exhaustion when preparing popup window");
+		log_add (log_Fatal, "FATAL: Memory exhaustion when preparing popup"
+				" window");
 		exit (EXIT_FAILURE);
 	}
 
@@ -260,8 +262,8 @@ DoPopupWindow (const char *msg)
 	s = SaveContextFrame (NULL);
 
 	Widget_SetFont (StarConFont);
-	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR, SHADOWBOX_DARK_COLOR,
-			SHADOWBOX_MEDIUM_COLOR);
+	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR,
+			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 	DrawLabelAsWindow (&label, &windowRect);
 	SetSystemRect (&windowRect);
 
