@@ -41,6 +41,7 @@
 #include "libs/inplib.h"
 #include "libs/log.h"
 #include "libs/memlib.h"
+#include "colors.h"
 
 // Status boolean. If for some insane reason you need to
 // save games in different threads, you'll need to
@@ -1318,12 +1319,10 @@ SaveProblemMessage (STAMP *MsgStamp)
 	*MsgStamp = SaveContextFrame (&r);
 
 	BatchGraphics ();
-	DrawStarConBox (&r, 2,
-			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
-			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F),
-			TRUE, BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	DrawStarConBox (&r, RES_SCALE (2), SHADOWBOX_MEDIUM_COLOR,
+			SHADOWBOX_DARK_COLOR, TRUE, DKGRAY_COLOR);
 	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x14, 0x14, 0x14), 0x0F));
+			isPC (optWhichFonts) ? WHITE_COLOR : LTGRAY_COLOR);
 
 	for (i = 0; i < MAX_MSG_LINES; ++i)
 	{

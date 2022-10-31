@@ -114,10 +114,8 @@ ClearSISRect (BYTE ClearFlags)
 		r.extent.width = RADAR_WIDTH + RES_SCALE (2);
 		r.extent.height = RADAR_HEIGHT + RES_SCALE (2);
 
-		DrawStarConBox (&r, RES_SCALE (1);,
-				BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
-				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F),
-				TRUE, BUILD_COLOR (MAKE_RGB15 (0x00, 0x0E, 0x00), 0x6C));
+		DrawStarConBox (&r, RES_SCALE (1), SHADOWBOX_MEDIUM_COLOR,
+				SHADOWBOX_DARK_COLOR, TRUE, SCAN_BIOLOGICAL_TEXT_COLOR);
 #endif /* NEVER */
 	}
 	UnbatchGraphics ();
