@@ -895,6 +895,33 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 }
 
 static void
+DrawSuperPC (void)
+{
+	if (!IS_HD)
+	{
+		RECT r;
+
+		GetContextClipRect (&r);
+		r.corner.x = r.corner.y = 0;
+
+		r.corner.x--;
+		r.corner.y--;
+		r.extent.height += 2;
+		r.extent.width += 2;
+
+		DrawStarConBox (&r, 1,
+			SIS_LEFT_BORDER_COLOR,
+			SIS_BOTTOM_RIGHT_BORDER_COLOR,
+			FALSE, TRANSPARENT);
+	}
+	else
+		DrawBorder (32, FALSE);
+
+	if (optSubmenu)
+		DrawMineralHelpers (FALSE);
+}
+
+static void
 CheckObjectCollision (COUNT index)
 {
 	INTERSECT_CONTROL LanderControl;
@@ -995,30 +1022,7 @@ CheckObjectCollision (COUNT index)
 					{
 						// noop; handled by generation funcs, see below
 						if (isPC (optSuperPC))
-						{
-							if (!IS_HD)
-							{
-								RECT r;
-
-								GetContextClipRect (&r);
-								r.corner.x = r.corner.y = 0;
-
-								r.corner.x--;
-								r.corner.y--;
-								r.extent.height += 2;
-								r.extent.width += 2;
-
-								DrawStarConBox (&r, 1,
-										SIS_LEFT_BORDER_COLOR,
-										SIS_BOTTOM_RIGHT_BORDER_COLOR,
-										FALSE, TRANSPARENT);
-							}
-							else
-								DrawBorder (32, FALSE);
-
-							if (optSubmenu)
-								DrawMineralHelpers (FALSE);
-						}
+							DrawSuperPC ();
 					}
 					else if (scan == BIOLOGICAL_SCAN
 							&& ElementPtr->hit_points)
@@ -1779,34 +1783,7 @@ InitPlanetSide (POINT pt)
 			DrawStamp (&s);
 
 			if (isPC (optSuperPC))
-			{
-				if (!IS_HD)
-				{
-					RECT b;
-					CONTEXT oldContext;
-
-					GetContextClipRect(&b);
-
-					oldContext = SetContext(ScreenContext);
-
-					b.corner.x--;
-					b.corner.y--;
-					b.extent.height += 2;
-					b.extent.width += 2;
-
-					DrawStarConBox (&b, 1,
-							SIS_LEFT_BORDER_COLOR,
-							SIS_BOTTOM_RIGHT_BORDER_COLOR,
-							FALSE, TRANSPARENT);
-
-					SetContext(oldContext);
-				}
-				else
-					DrawBorder (32, FALSE);
-
-				if (optSubmenu)
-					DrawMineralHelpers (FALSE);
-			}
+				DrawSuperPC ();
 			else
 				ScreenTransition (optScrTrans, &r);
 		}		
@@ -2171,25 +2148,7 @@ ReturnToOrbit (void)
 		ClearDrawable ();// TODO: color this frame smh
 
 		if (isPC (optSuperPC))
-		{
-			if (!IS_HD)
-			{
-				b.corner.x--;
-				b.corner.y--;
-				b.extent.height += 2;
-				b.extent.width += 2;
-
-				DrawStarConBox (&b, 1,
-						SIS_LEFT_BORDER_COLOR,
-						SIS_BOTTOM_RIGHT_BORDER_COLOR,
-						FALSE, TRANSPARENT);
-			}
-			else
-				DrawBorder (32, FALSE);
-
-			if (optSubmenu)
-				DrawMineralHelpers (FALSE);
-		}
+			DrawSuperPC ();
 		else
 			ScreenTransition (optScrTrans, &r);
 
