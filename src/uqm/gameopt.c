@@ -83,12 +83,10 @@ ConfirmSaveLoad (STAMP *MsgStamp)
 	{
 		*MsgStamp = SaveContextFrame (&r);
 	}
-	DrawStarConBox(&r, 2,
-		BUILD_COLOR(MAKE_RGB15(0x10, 0x10, 0x10), 0x19),
-		BUILD_COLOR(MAKE_RGB15(0x08, 0x08, 0x08), 0x1F),
-		TRUE, BUILD_COLOR(MAKE_RGB15(0x0A, 0x0A, 0x0A), 0x08));
-	SetContextForeGroundColor(
-			BUILD_COLOR(MAKE_RGB15(0x14, 0x14, 0x14), 0x0F));
+	DrawStarConBox (&r, RES_SCALE (2), SHADOWBOX_MEDIUM_COLOR,
+		SHADOWBOX_DARK_COLOR, TRUE, DKGRAY_COLOR);
+	SetContextForeGroundColor (
+			isPC (optWhichFonts) ? WHITE_COLOR : LTGRAY_COLOR);
 	font_DrawText (&t);
 }
 
