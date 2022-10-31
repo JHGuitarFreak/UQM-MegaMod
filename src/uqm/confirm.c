@@ -41,7 +41,7 @@ BOOLEAN WarpFromMenu = FALSE;
 static void
 DrawConfirmationWindow (BOOLEAN answer)
 {
-	Color oldfg = SetContextForeGroundColor (MENU_TEXT_COLOR);
+	Color oldfg = SetContextForeGroundColor (SHADOWBOX_DARK_COLOR);
 	FONT  oldfont = SetContextFont (StarConFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	RECT r;
@@ -59,7 +59,7 @@ DrawConfirmationWindow (BOOLEAN answer)
 	}
 #endif
 	r.extent.height = CONFIRM_WIN_HEIGHT;
-	DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR, 
+	DrawShadowedBox (&r, ALT_SHADOWBOX_BACKGROUND_COLOR,
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
@@ -68,14 +68,15 @@ DrawConfirmationWindow (BOOLEAN answer)
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
-	t.baseline.y += RES_SCALE (10); 
+	t.baseline.y += RES_SCALE (10);
 	t.baseline.x = r.corner.x + (r.extent.width >> 2);
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
 		t.baseline.x -= RES_BOOL (5, 0);
 #endif
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 1); // "Yes"
-	SetContextForeGroundColor (answer ? MENU_HIGHLIGHT_COLOR : MENU_TEXT_COLOR);
+	SetContextForeGroundColor (
+			answer ? MENU_HIGHLIGHT_COLOR : BLACK_COLOR);
 	font_DrawText (&t);
 	t.baseline.x += (r.extent.width >> 1);
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 2); // "No"
@@ -86,7 +87,8 @@ DrawConfirmationWindow (BOOLEAN answer)
 		t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 3); // "Escape Unit"
 	}
 #endif
-	SetContextForeGroundColor (answer ? MENU_TEXT_COLOR : MENU_HIGHLIGHT_COLOR);	
+	SetContextForeGroundColor (
+			answer ? BLACK_COLOR : MENU_HIGHLIGHT_COLOR);
 	font_DrawText (&t);
 
 	UnbatchGraphics ();

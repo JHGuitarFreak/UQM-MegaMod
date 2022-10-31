@@ -183,6 +183,11 @@
 #define SHADOWBOX_DARK_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F)
 
+// Alternate Shadowed Box colors
+
+#define ALT_SHADOWBOX_BACKGROUND_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x0E, 0x0E, 0x0E), 0x00)
+
 
 // === SIS ===
 
