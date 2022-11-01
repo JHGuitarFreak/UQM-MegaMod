@@ -2610,7 +2610,7 @@ StarMap (void)
 			DrawBorder (18 + optControllerType, FALSE);
 		}
 		else
-			DrawSubmenu (4 + optControllerType);
+			DrawSubmenu (4 + optControllerType, FALSE);
 	}
 
 	DrawStarMap (0, (RECT*)-1);
@@ -2644,9 +2644,9 @@ StarMap (void)
 	else
 		DrawSISMessage (NULL);
 	DrawStatusMessage (NULL);
-
+	
 	if (optSubmenu)
-		DrawMineralHelpers (TRUE);
+		DrawSubmenu (4, TRUE);
 
 	/*if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)

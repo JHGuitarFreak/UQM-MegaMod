@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Special game over sequence for the Death March while hiding in QuasiSpace - Jo Li KMC
 - Extend custom border to the playback bar during coversations
 - Restored DOS script when opting out of 3DO voices or if the add-on isn't available
+- Consolidate in-engine drawn shadow boxes
 
 ## [v0.8.2]
 ### Added
@@ -67,6 +68,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Rerender updated Commander, StarCon, Tiny, Player, and Chmmr font
 - HD: Minor HD fixes and Major revamps for a few race's comm screens. All images are now using proper code for palettes - Kruzen
 - Update the font gradients to be more faithful to the DOS colors
+- EXTENDED: Use alternate color palette for the Ur-Quan's talking pet - Kruzen
 
 
 ### Fixed
@@ -83,6 +85,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HARDMODE: Fixed oversight that caused the Pkunk to never migrate
 - EXTENDED: Fixed planet names at Gamma Ophiuchi
 - Fixed DOS Lander border not erasing when returning to orbit
+- HD: Fixed the borders of various dialog boxes
+- HD: Fixed bevel inconsistencies for the 3DO pictograph menu
 
 
 

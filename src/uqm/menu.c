@@ -688,7 +688,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 }
 
 void
-DrawSubmenu (BYTE Visible)
+DrawSubmenu (BYTE Visible, BOOLEAN cleanup)
 {
 	STAMP s;
 	CONTEXT OldContext;
@@ -699,7 +699,22 @@ DrawSubmenu (BYTE Visible)
 
 	s.frame = SetAbsFrameIndex (SubmenuFrame, Visible);
 
-	DrawStamp (&s);
+	if (!cleanup)
+		DrawStamp (&s);
+	else
+	{
+		RECT r;
+
+		if (optCustomBorder || classicPackPresent)
+			DrawBorder (14, FALSE);
+		else
+		{
+			GetFrameRect (s.frame, &r);
+			r.corner = s.origin;
+			SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+			DrawFilledRectangle (&r);
+		}
+	}
 	
 	SetContext (OldContext);
 }
@@ -744,7 +759,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 			);
 
 		if (IS_HD)
-			DrawSubmenu (1);
+			DrawSubmenu (1, FALSE);
 	}
 	else
 		DrawBorder (14, FALSE);
