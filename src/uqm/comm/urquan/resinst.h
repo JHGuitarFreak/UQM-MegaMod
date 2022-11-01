@@ -3,6 +3,7 @@
    instead and regenerate. */
 
 #define URQUAN_COLOR_MAP "comm.urquan.colortable"
+#define URQUAN_ALTCOLOR_MAP "comm.urquan.alt.colortable"
 #define URQUAN_CONVERSATION_PHRASES "comm.urquan.dialogue"
 #define URQUAN_FONT "comm.urquan.font"
 #define URQUAN_MUSIC "comm.urquan.music"

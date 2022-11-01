@@ -38,7 +38,7 @@ static LOCDATA urquan_desc =
 	URQUAN_MUSIC, /* AlienSong */
 	{
 		NULL_RESOURCE, /* AlienAltFrame */
-		NULL_RESOURCE, /* AlienAltColorMap */
+		URQUAN_ALTCOLOR_MAP, /* AlienAltColorMap */
 		URQUAN_PROBE_MUSIC, /* AlienAltSong */
 	},
 	URQUAN_CONVERSATION_PHRASES, /* PlayerPhrases */
@@ -567,6 +567,9 @@ init_urquan_comm (void)
 	// use alternate "Probe" track if available
 	if (IsProbe == TRUE)
 		altResFlags |= USE_ALT_SONG;
+
+	if (EXTENDED)
+		altResFlags |= USE_ALT_COLORMAP;
 
 	if (GET_GAME_STATE (PLAYER_HYPNOTIZED)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE
