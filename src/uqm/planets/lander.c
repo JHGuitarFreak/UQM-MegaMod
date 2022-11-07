@@ -736,6 +736,14 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 		
 			PartialPickup = TRUE;
 		}
+
+		if (Scan == BIOLOGICAL_SCAN && optPartialPickup)
+		{
+			// Lander full
+			PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_FULL),
+					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+			return false;
+		}
 	}
 
 	FillLanderHold (pPSD, Scan, NumRetrieved);

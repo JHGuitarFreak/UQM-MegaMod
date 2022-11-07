@@ -69,6 +69,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Minor HD fixes and Major revamps for a few race's comm screens. All images are now using proper code for palettes - Kruzen
 - Update the font gradients to be more faithful to the DOS colors
 - EXTENDED: Use alternate color palette for the Ur-Quan's talking pet - Kruzen
+- SETUPMENU: Partial Mineral Pickup changed to Partial Pickup
+- When Partial Pickup is enabled biological data will not be picked up if it is larger than the remaining lander hold
 
 
 ### Fixed
