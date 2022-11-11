@@ -1229,7 +1229,10 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\doc\devel\fntformat" />
-    <Text Include="luasyntax" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\doc\devel\lua" />
+    <None Include="..\..\doc\devel\luasyntax" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
