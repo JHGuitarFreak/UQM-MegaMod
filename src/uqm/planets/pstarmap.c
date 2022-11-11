@@ -830,7 +830,7 @@ isHomeworld (BYTE Index)
 const char *
 markerBuf (const int star_index, const char* marker_state)
 {
-	char *buf[255];
+	static char *buf[255];
 
 	// marker_state is the middle part of the Game States
 	// "SYS_VISITED_##" or "SYS_PLYR_MARKER_##" which is used to
