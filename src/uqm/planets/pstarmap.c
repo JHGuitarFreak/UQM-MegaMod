@@ -1212,6 +1212,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						* NUM_STAR_COLORS
 						+ STAR_COLOR (star_type));
 			}
+
+			++i;
 		}
 		else if (SDPtr->star_pt.x == ARILOU_HOME_X
 				&& SDPtr->star_pt.y == ARILOU_HOME_Y)
@@ -1222,7 +1224,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					GIANT_STAR * NUM_STAR_COLORS + GREEN_BODY);
 		DrawStamp (&s);
 
-		++i;
 		++SDPtr;
 	} while (SDPtr->star_pt.x <= MAX_X_UNIVERSE
 			&& SDPtr->star_pt.y <= MAX_Y_UNIVERSE);
