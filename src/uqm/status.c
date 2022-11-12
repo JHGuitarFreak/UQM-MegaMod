@@ -435,10 +435,10 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		if (StarShipPtr->playerNr == RPG_PLAYER_NUM)
 		{
 			if (!(RDPtr->ship_info.ship_flags & PLAYER_CAPTAIN))
-				DrawBorder (39, TRUE);
+				DrawBorder (MENU_BOOL (41, 39), TRUE);
 		}
 		else if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawBorder (38, TRUE);
+			DrawBorder (MENU_BOOL (40, 38), TRUE);
 	}
 
 	if (StarShipPtr->captains_name_index == 0

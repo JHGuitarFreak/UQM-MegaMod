@@ -273,7 +273,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			int i;
 
 			// Middle bevel frame
-			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 41);
+			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 43);
 
 			// Middle bevel of the crew boxes
 			Stamp.origin.x = CREW_XOFFS;
@@ -298,7 +298,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			}
 
 			// Bottom bevel frame
-			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 40);
+			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 42);
 
 			// Bottom bevel of the crew boxes
 			Stamp.origin.x = CREW_XOFFS;
@@ -310,7 +310,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			DrawStamp (&Stamp);
 
 			// Top bevel frame
-			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 42);
+			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 44);
 
 			// Top bevel of the crew boxes
 			Stamp.origin.x = CREW_XOFFS;
