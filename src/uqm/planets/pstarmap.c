@@ -2121,7 +2121,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			DoBubbleWarp (TRUE);
 		}
 
-		if (EXTENDED && !inQuasiSpace () 
+		if (optSmartAutoPilot && !inQuasiSpace ()
 				&& ValidPoint (GLOBAL (autopilot)))
 		{
 			SaveLastLoc (MAKE_POINT (
