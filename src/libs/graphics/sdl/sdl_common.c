@@ -286,6 +286,16 @@ TFB_SwapBuffers (int force_full_redraw)
 			graphics_backend->color (255, 255, 255,
 					fade_amount - 255, NULL);
 		}
+#elif defined (__APPLE__)
+		if (fade_amount < 255)
+		{
+			graphics_backend->color(0, 0, 0, 255 - fade_amount, NULL);
+		}
+		else
+		{
+			graphics_backend->color(255, 255, 255,
+				fade_amount - 255, NULL);
+		}
 #else
 		if (isPC (optScrTrans))
 		{

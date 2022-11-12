@@ -1807,7 +1807,7 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 				}
 				else
 				{
-					if (!EXTENDED)
+					if (!optSmartAutoPilot)
 					{
 						DrawSISMessageEx (
 								GAME_STRING (NAVIGATION_STRING_BASE + 3),

@@ -353,7 +353,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  loresBlowupScale,  1),
 #endif
 		INIT_CONFIG_OPTION(  cheatMode,         false ),
-		INIT_CONFIG_OPTION(  optGodModes,  0 ),
+		INIT_CONFIG_OPTION(  optGodModes,       0 ),
 		INIT_CONFIG_OPTION(  timeDilationScale, 0 ),
 		INIT_CONFIG_OPTION(  bubbleWarp,        false ),
 		INIT_CONFIG_OPTION(  unlockShips,       false ),
@@ -381,7 +381,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  directionalJoystick, false ),
 #endif
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
-		INIT_CONFIG_OPTION(  scrTrans,           OPT_3DO ),
+		INIT_CONFIG_OPTION(  scrTrans,          OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     3 ),
 		INIT_CONFIG_OPTION(  optFuelRange,      0 ),
 		INIT_CONFIG_OPTION(  extended,          false ),
@@ -408,7 +408,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
 		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
 		INIT_CONFIG_OPTION(  sphereType,        2 ),
-		INIT_CONFIG_OPTION(  nebulaevol,        25),
+		INIT_CONFIG_OPTION(  nebulaevol,        24 ),
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 	};
 	struct options_struct defaults = options;

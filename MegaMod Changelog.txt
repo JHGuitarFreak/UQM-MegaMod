@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Recreated DOS planet scan sphere graphics from scratch - Kruzen
 - Added ability to set nebulae brightness via slider option (when nebulae are enabled) - Kruzen
 - EXTENDED: The Kohr-Ah lose a tiny fraction of their SOI when the Supox and Utwig attack them.
-- EXTENDED: Show Auto-Pilot destination and distance to destination
+- Show Auto-Pilot destination and distance to destination when Smart Auto-Pilot is enabled.
 - HARDMODE: Keep time running while orbiting a planet & during a landing excursion
 - Added ability to toggle reticules on stars of interest on the StarMap
 - Transparent Suns for Vanilla graphics while nebulae are enabled - Kruzen
