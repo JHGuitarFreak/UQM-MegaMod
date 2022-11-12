@@ -11,24 +11,23 @@
 # should generally already have those in your path.
 
 NSH_FILE="packages.nsh"
-PKG_VERSION="0.8.1"
-PREV_VERSION="0.8.0.85"
+PKG_VERSION="0.8.2"
 
 CONTENT_PKG="mm-$PKG_VERSION-content.uqm"
 HD_CONTENT_PKG="mm-$PKG_VERSION-hd.uqm"
-MUSIC_PKG="uqm-0.7.0-3DOMusicRemastered.uqm"
+MUSIC_PKG="uqm-0.8.0-3DOMusicRemastered.uqm"
 VOICE_PKG="mm-$PKG_VERSION-3dovoice.uqm"
-VIDEO_PKG="uqm-0.7.0-3dovideo.uqm"
-VOLS_REMIX="mm-$PKG_VERSION-vols-remix.uqm"
-VOL_SPACE="mm-$PREV_VERSION-vol-space.uqm"
-RMX_UTWIG="mm-$PREV_VERSION-rmx-utwig.uqm"
+VIDEO_PKG="uqm-0.8.0-3dovideo.uqm"
+VOLS_REMIX="mm-vols-remix.uqm"
+VOL_SPACE="mm-vols-space.uqm"
+RMX_UTWIG="mm-rmx-utwig.uqm"
 MEL_FIX="MelnormeVoiceFixMMAddon.uqm"
 SYR_FIX="SyreenVoiceFixMMAddon.uqm"
 REMIX1_PKG="uqm-remix-disc1.uqm"
 REMIX2_PKG="uqm-remix-disc2.uqm"
 REMIX3_PKG="uqm-remix-disc3.uqm"
 REMIX4_PKG="uqm-remix-disc4-1.uqm"
-REMIX5_PKG="mm-$PREV_VERSION-remix-timing.uqm"
+REMIX5_PKG="mm-remix-timing.uqm"
 
 check_pkg() {
     if [ ! -f "$1" ]; then
