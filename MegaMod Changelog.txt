@@ -89,6 +89,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed DOS Lander border not erasing when returning to orbit
 - HD: Fixed the borders of various dialog boxes
 - HD: Fixed bevel inconsistencies for the 3DO pictograph menu
+- HD: Fixed "Fuel Range at Destination" indicator when in HyperSpace
 
 
 
