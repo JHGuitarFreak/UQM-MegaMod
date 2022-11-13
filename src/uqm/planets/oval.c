@@ -25,10 +25,9 @@
 #include <math.h>
 
 #include "planets.h"
+#include "uqm/setup.h"
 
 #define NUM_QUADS 4
-
-extern FRAME SpaceJunkFrame;
 
 void
 DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
@@ -142,7 +141,7 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 			{
 				SetPrimType(&prim[x], STAMPFILL_PRIM); // Orbit dots
 				prim[x].Object.Stamp.frame =
-						SetAbsFrameIndex (SpaceJunkFrame, 24);
+						SetAbsFrameIndex (MiscDataFrame, 106);
 			}
 			else
 				SetPrimType (&prim[x], !scaled ? POINT_PRIM : POINT_PRIM_HD); // Orbit dots
