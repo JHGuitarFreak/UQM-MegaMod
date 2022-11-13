@@ -1953,7 +1953,7 @@ SeedUniverse (void)
 			}
 			else
 			{	// BW: first the actual star
-				if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 
+				if ((optHyperStars && GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 						|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
 						&& STAR_COLOR (star_type) == YELLOW_BODY))
 				{
@@ -1969,26 +1969,22 @@ SeedUniverse (void)
 				
 					// JMS_GFX: Draw stars in hyperspace.
 					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-					{	
-						if (optHyperStars)
-						{	// The color, then the size and finally
-							// the frame offset for the actual animation
-							HyperSpaceElementPtr->current.image.frame =
-									SetAbsFrameIndex (
-										hyperspacesuns,
-										STAR_COLOR (star_type)
-											* NUM_STAR_TYPES * NUM_FRAMES
-											+ STAR_TYPE (star_type)
-											* NUM_FRAMES + frameCounter
-											% NUM_FRAMES);
+					{	// The color, then the size and finally
+						// the frame offset for the actual animation
+						HyperSpaceElementPtr->current.image.frame =
+								SetAbsFrameIndex (
+									hyperspacesuns,
+									STAR_COLOR (star_type)
+										* NUM_STAR_TYPES * NUM_FRAMES
+										+ STAR_TYPE (star_type)
+										* NUM_FRAMES + frameCounter
+										% NUM_FRAMES);
 
-							HyperSpaceElementPtr->current.image.farray =
-									&hyperspacesuns;
-							HyperSpaceElementPtr->death_func = NULL;
-						}
+						HyperSpaceElementPtr->current.image.farray =
+								&hyperspacesuns;
+						HyperSpaceElementPtr->death_func = NULL;
 					}
-					else if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
-							&& STAR_COLOR (star_type) == YELLOW_BODY)
+					else if (STAR_COLOR (star_type) == YELLOW_BODY)
 					{	// Draw animated Arilou homeworld
 						HyperSpaceElementPtr->current.image.frame =
 								SetAbsFrameIndex (Falayalaralfali,
