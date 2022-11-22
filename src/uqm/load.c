@@ -350,12 +350,6 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	read_8   (fh, &GSPtr->CrewCost);
 	read_8   (fh, &GSPtr->FuelCost);
 
-	// JMS: If fuel cost doesn't match FUEL_COST_RU we must cease
-	// reading the savefile, close it, then re-open it again. This
-	// time using the vanilla-reading method.
-	if (GSPtr->FuelCost != FUEL_COST_RU)
-		return FALSE;
-		
 	read_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
 	read_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
 	read_16  (fh, &GSPtr->CurrentActivity);
@@ -374,7 +368,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	read_8   (fh, &GSPtr->in_orbit);
 
 	// Let's make savegames work even between different resolution modes.
-	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
+	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR;
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
 	/* VELOCITY_DESC velocity */
