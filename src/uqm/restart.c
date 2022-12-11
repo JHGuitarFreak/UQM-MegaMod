@@ -65,6 +65,8 @@ enum
 	HARD_DIFF
 };
 
+FRAME mainMenu;
+
 static BOOLEAN
 PacksInstalled (void)
 {
@@ -94,10 +96,10 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 
 	SetContextFont (TinyFont);
 
-	GetFrameRect (SetRelFrameIndex (pMS->CurFrame, 6), &r);
+	GetFrameRect (SetRelFrameIndex (mainMenu, 6), &r);
 	r.corner.y += CHOOSER_Y + r.extent.height + RES_SCALE (1);
 
-	s.frame = SetRelFrameIndex (pMS->CurFrame, 7);
+	s.frame = SetRelFrameIndex (mainMenu, 7);
 	r.extent = GetFrameBounds (s.frame);
 	r.corner.x = RES_SCALE (
 		(RES_DESCALE (ScreenWidth) - RES_DESCALE (r.extent.width)) >> 1);
@@ -134,7 +136,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	COUNT i;
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
-	s.frame = SetRelFrameIndex (pMS->CurFrame, 6);
+	s.frame = SetRelFrameIndex (mainMenu, 6);
 	DrawStamp (&s);
 
 	DrawToolTips (pMS, answer);
@@ -303,27 +305,31 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	// Load the different menus and fonts depending on the resolution factor
 	if (!IS_HD)
 	{
+
 		if (optRequiresRestart || !PacksInstalled ())
 		{
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
 			StarConFont = LoadFont (STARCON_FONT_FB);
 		}
-		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (
-					LoadGraphic (RESTART_PMAP_ANIM));
+
+		mainMenu = CaptureDrawable (LoadGraphic (RESTART_PMAP_ANIM));
+		pMS->CurFrame =
+				SetAbsFrameIndex (mainMenu, is3DO (optWhichMenu) ? 0 : 8);
 	}
 	else
 	{
+
 		if (optRequiresRestart || !PacksInstalled ())
 		{
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
 			StarConFont = LoadFont (STARCON_FONT_HD);
 		}
-		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (
-					LoadGraphic (RESTART_PMAP_ANIM_HD));
+
+		mainMenu = CaptureDrawable (LoadGraphic (RESTART_PMAP_ANIM_HD));
+		pMS->CurFrame =
+				SetAbsFrameIndex (mainMenu, is3DO (optWhichMenu) ? 0 : 8);
 	}
 
 	s.frame = pMS->CurFrame;
@@ -371,7 +377,21 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 	POINT origin;
 	origin.x = 0;
 	origin.y = 0;
-	Flash_setOverlay (pMS->flashContext, &origin, SetAbsFrameIndex (f, NewState + 1), FALSE);
+
+	if (is3DO (optWhichMenu))
+		Flash_setOverlay (pMS->flashContext, &origin, SetAbsFrameIndex (f, NewState + 1), FALSE);
+	else
+	{
+		STAMP s;
+
+		s.frame = SetAbsFrameIndex (f, NewState + 9);
+		s.origin = origin;
+
+		BatchGraphics ();
+		DrawRestartMenuGraphic (pMS);
+		DrawStamp (&s);
+		UnbatchGraphics ();
+	}
 }
 
 static BOOLEAN
@@ -429,6 +449,8 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
+
+	printf ("Is it looping?\n");
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{
