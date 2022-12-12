@@ -484,7 +484,7 @@ InitGameStructures (void)
 			FleetPtr->days_left = 0;
 			FleetPtr->func_index = ~0;
 			FleetPtr->can_build = FALSE;
-			if (optUnlockShips && i <= LAST_MELEE_ID)
+			if (optUnlockShips && i < LAST_MELEE_ID)
 				FleetPtr->can_build = TRUE;
 
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
