@@ -121,6 +121,7 @@ BOOLEAN optUnscaledStarSystem;
 int optScanSphere;
 int optNebulaeVolume;
 BOOLEAN optSlaughterMode;
+BOOLEAN optMaskOfDeceit;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

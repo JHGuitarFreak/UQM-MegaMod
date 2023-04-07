@@ -232,14 +232,17 @@ while (--ac > 0)
 		Logo ();
 
 	{
-		srand(time(NULL));
-		
+		time_t t = time (NULL);
+		struct tm tm = *localtime (&t);
+
+		srand (t);
 		Rando = (rand() % NUM_MM_THEMES);
+		optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
 
 		// printf("Random Music #: %d\n", Rando);
 
-		FadeMusic(0,0);
-		PlayMusic (loadMainMenuMusic(Rando), TRUE, 1);
+		FadeMusic (0, 0);
+		PlayMusic (loadMainMenuMusic (Rando), TRUE, 1);
 		
 		if (optMainMenuMusic)
 			FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);

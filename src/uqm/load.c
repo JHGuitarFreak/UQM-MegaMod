@@ -475,7 +475,7 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
 			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1))
 		)
 		return FALSE;
- 	else 
+ 	else
  	{
 		if (try_core)
 		{	// Use old Log X to Universe code to get proper coordinates from core saves
