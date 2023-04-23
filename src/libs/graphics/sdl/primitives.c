@@ -358,6 +358,31 @@ renderpixel_screen (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
 }
 
+static void
+renderpixel_grayscale(SDL_Surface* surface, int x, int y, Uint32 pixel,
+	int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 avr, min, max;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	(void)factor;
+
+	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	max = sg > sb ? sg : sb;
+	max = max > sr ? max : sr;
+	min = sg > sb ? sb : sg;
+	min = min > sr ? sr : min;
+	avr = overlay_blend ((max + min) >> 1, r);
+	*p = PACK_PIXEL_32(fmt, avr, avr, avr);
+}
+
 RenderPixelFn
 renderpixel_for(SDL_Surface *surface, RenderKind kind)
 {
@@ -385,6 +410,8 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_overlay;
 	case renderScreen:
 		return &renderpixel_screen;
+	case renderGrayscale:
+		return &renderpixel_grayscale;
 	}
 	// should not ever get here
 	return NULL;

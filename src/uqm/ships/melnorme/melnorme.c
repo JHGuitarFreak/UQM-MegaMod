@@ -23,6 +23,7 @@
 #include "../../setupmenu.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
+#include "uqm/tactrans.h"
 
 // Core characteristics
 #define MAX_CREW 20
@@ -196,7 +197,7 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 				EPtr->current.image.frame = SetRelFrameIndex (
 						EPtr->current.image.frame, NUM_PUMP_ANIMS);
 				ProcessSound (SetAbsSoundIndex (
-						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2),
+						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 0),
 						EPtr);
 			}
 			if (antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
@@ -254,7 +255,7 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 					SINE (angle, WORLD_TO_VELOCITY (PUMPUP_SPEED_HD)));
 
 			ProcessSound (SetAbsSoundIndex (
-					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 3), EPtr);
+					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), EPtr);
 		}
 
 		UnlockElement (hPumpUp);
@@ -366,6 +367,19 @@ initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 static void
 confuse_preprocess (ELEMENT *ElementPtr)
 {
+	static const Color colorTable[] =
+	{
+		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x00, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x15, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x1F, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x15), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x15, 0x1F), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x00, 0x1F), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x15, 0x00, 0x1F), 0x7a),
+	};
+	const size_t colorTabCount = ARRAY_SIZE(colorTable);
+
 	if (!(ElementPtr->state_flags & NONSOLID))
 	{
 		ElementPtr->next.image.frame = SetAbsFrameIndex (
@@ -402,6 +416,24 @@ confuse_preprocess (ELEMENT *ElementPtr)
 					& ~(LEFT | RIGHT | SPECIAL))
 					| ElementPtr->turn_wait;
 
+			if (ElementPtr->life_span > 1)
+			{
+				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+					STAMPFILL_PRIM);
+				SetPrimColor(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+					colorTable[ElementPtr->colorCycleIndex]);
+				ElementPtr->colorCycleIndex++;
+
+				if (ElementPtr->colorCycleIndex == colorTabCount)
+					ElementPtr->colorCycleIndex = 0;
+			}
+			else
+			{
+				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+					STAMP_PRIM);
+				BattleSong (TRUE);
+			}
+
 			hEffect = AllocElement ();
 			if (hEffect)
 			{
@@ -411,17 +443,15 @@ confuse_preprocess (ELEMENT *ElementPtr)
 				eptr->life_span = 1;
 				eptr->current = eptr->next = ElementPtr->next;
 				eptr->preprocess_func = confuse_preprocess;
-				SetPrimType (&(GLOBAL (DisplayArray))[eptr->PrimIndex],
-						STAMP_PRIM);
 
 				GetElementStarShip (ElementPtr, &StarShipPtr);
 				SetElementStarShip (eptr, StarShipPtr);
 				eptr->hTarget = ElementPtr->hTarget;
-
+				
 				UnlockElement (hEffect);
 				PutElement (hEffect);
 			}
-		}
+		}			
 
 		UnlockElement (ElementPtr->hTarget);
 	}
@@ -470,10 +500,14 @@ confusion_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				ConfusionPtr->playerNr = ElementPtr0->playerNr;
 				ConfusionPtr->state_flags = FINITE_LIFE | NONSOLID | CHANGING;
 				ConfusionPtr->preprocess_func = confuse_preprocess;
+				ConfusionPtr->colorCycleIndex = 0;
 				SetPrimType (
 						&(GLOBAL (DisplayArray))[ConfusionPtr->PrimIndex],
 						NO_PRIM
 						);
+				StopAllBattleMusic ();
+				ProcessSound(SetAbsSoundIndex(
+					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr0);
 
 				SetElementStarShip (ConfusionPtr, StarShipPtr);
 				GetElementStarShip (ElementPtr1, &StarShipPtr);

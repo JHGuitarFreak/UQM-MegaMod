@@ -37,6 +37,7 @@ typedef enum
 	renderMultiply,
 	renderOverlay,
 	renderScreen,
+	renderGrayscale,
 } RenderKind;
 
 #define FULLY_OPAQUE_ALPHA  255
