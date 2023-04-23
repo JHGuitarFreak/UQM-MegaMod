@@ -23,7 +23,7 @@
 #include "../../setupmenu.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
-#include "uqm/tactrans.h"
+#include "uqm/tactrans.h" // Kruzen: for sounds on April Fools
 
 // Core characteristics
 #define MAX_CREW 20
@@ -365,7 +365,7 @@ initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 }
 
 static void
-confuse_preprocess (ELEMENT *ElementPtr)
+confuse_preprocess_april (ELEMENT *ElementPtr)
 {
 	static const Color colorTable[] =
 	{
@@ -442,7 +442,7 @@ confuse_preprocess (ELEMENT *ElementPtr)
 				eptr->state_flags = FINITE_LIFE | NONSOLID | CHANGING;
 				eptr->life_span = 1;
 				eptr->current = eptr->next = ElementPtr->next;
-				eptr->preprocess_func = confuse_preprocess;
+				eptr->preprocess_func = confuse_preprocess_april;
 
 				GetElementStarShip (ElementPtr, &StarShipPtr);
 				SetElementStarShip (eptr, StarShipPtr);
@@ -452,6 +452,70 @@ confuse_preprocess (ELEMENT *ElementPtr)
 				PutElement (hEffect);
 			}
 		}			
+
+		UnlockElement (ElementPtr->hTarget);
+	}
+}
+
+static void
+confuse_preprocess (ELEMENT* ElementPtr)
+{
+	if (!(ElementPtr->state_flags & NONSOLID))
+	{
+		ElementPtr->next.image.frame = SetAbsFrameIndex (
+				ElementPtr->current.image.frame,
+				(GetFrameIndex (ElementPtr->current.image.frame) + 1) & 7);
+		ElementPtr->state_flags |= CHANGING;
+	}
+	else if (ElementPtr->hTarget == 0)
+	{
+		ElementPtr->life_span = 0;
+		ElementPtr->state_flags |= DISAPPEARING;
+	}
+	else
+	{
+		ELEMENT *eptr;
+
+		LockElement (ElementPtr->hTarget, &eptr);
+
+		ElementPtr->next.location = eptr->next.location;
+
+		if (ElementPtr->turn_wait)
+		{
+			HELEMENT hEffect;
+			STARSHIP *StarShipPtr;
+
+			if (GetFrameIndex (ElementPtr->next.image.frame =
+					IncFrameIndex (ElementPtr->current.image.frame)) == 0)
+				ElementPtr->next.image.frame =
+						SetRelFrameIndex (ElementPtr->next.image.frame, -8);
+
+			GetElementStarShip (eptr, &StarShipPtr);
+			StarShipPtr->ship_input_state =
+					(StarShipPtr->ship_input_state
+					& ~(LEFT | RIGHT | SPECIAL))
+					| ElementPtr->turn_wait;
+
+			hEffect = AllocElement ();
+			if (hEffect)
+			{
+				LockElement (hEffect, &eptr);
+				eptr->playerNr = ElementPtr->playerNr;
+				eptr->state_flags = FINITE_LIFE | NONSOLID | CHANGING;
+				eptr->life_span = 1;
+				eptr->current = eptr->next = ElementPtr->next;
+				eptr->preprocess_func = confuse_preprocess;
+				SetPrimType (&(GLOBAL (DisplayArray))[eptr->PrimIndex],
+						STAMP_PRIM);
+
+				GetElementStarShip (ElementPtr, &StarShipPtr);
+				SetElementStarShip (eptr, StarShipPtr);
+				eptr->hTarget = ElementPtr->hTarget;
+
+				UnlockElement (hEffect);
+				PutElement (hEffect);
+			}
+		}
 
 		UnlockElement (ElementPtr->hTarget);
 	}
@@ -500,14 +564,19 @@ confusion_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				ConfusionPtr->playerNr = ElementPtr0->playerNr;
 				ConfusionPtr->state_flags = FINITE_LIFE | NONSOLID | CHANGING;
 				ConfusionPtr->preprocess_func = confuse_preprocess;
-				ConfusionPtr->colorCycleIndex = 0;
 				SetPrimType (
 						&(GLOBAL (DisplayArray))[ConfusionPtr->PrimIndex],
 						NO_PRIM
 						);
-				StopAllBattleMusic ();
-				ProcessSound(SetAbsSoundIndex(
-					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr0);
+
+				/*if (AprilFools)
+				{
+					ConfusionPtr->preprocess_func = confuse_preprocess_april;
+					ConfusionPtr->colorCycleIndex = 0;
+					StopAllBattleMusic();
+					ProcessSound(SetAbsSoundIndex(
+						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr0);
+				}*/
 
 				SetElementStarShip (ConfusionPtr, StarShipPtr);
 				GetElementStarShip (ElementPtr1, &StarShipPtr);
