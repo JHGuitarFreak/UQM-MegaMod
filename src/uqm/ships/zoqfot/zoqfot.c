@@ -135,6 +135,8 @@ static RACE_DESC zoqfotpik_desc =
 static void
 spit_preprocess (ELEMENT *ElementPtr)
 {
+	ElementPtr->next.image.frame =
+				IncFrameIndex (ElementPtr->next.image.frame);
 	/* turn_wait is abused here to control the animation speed. */
 	if (ElementPtr->turn_wait > 0)
 		--ElementPtr->turn_wait;
@@ -142,11 +144,11 @@ spit_preprocess (ELEMENT *ElementPtr)
 	{
 		COUNT index, angle, speed;
 
-		ElementPtr->next.image.frame =
-				IncFrameIndex (ElementPtr->next.image.frame);
 		angle = GetVelocityTravelAngle (&ElementPtr->velocity);
 		if ((index = GetFrameIndex (ElementPtr->next.image.frame)) == 1)
 			angle = angle + (((COUNT)TFB_Random () % 3) - 1);
+		else
+			index >>= 1;
 
 		speed = WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (
 				RES_SCALE (GetFrameCount (ElementPtr->next.image.frame)) - index) << 1);

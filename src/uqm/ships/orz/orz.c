@@ -915,9 +915,9 @@ turret_postprocess (ELEMENT *ElementPtr)
 							&& (hTurretEffect = AllocElement ()))
 					{
 						TurretPtr->current.location.x -=
-								COSINE (facing, DISPLAY_TO_WORLD (2));
+								COSINE (facing, DISPLAY_TO_WORLD (RES_SCALE(2)));
 						TurretPtr->current.location.y -=
-								SINE (facing, DISPLAY_TO_WORLD (2));
+								SINE (facing, DISPLAY_TO_WORLD (RES_SCALE(2)));
 
 						LockElement (hTurretEffect, &TurretEffectPtr);
 						TurretEffectPtr->playerNr = ElementPtr->playerNr;

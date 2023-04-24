@@ -451,6 +451,7 @@ typedef enum
 			// RGBA targets (WANT_ALPHA): not yet supported
 	DRAW_OVERLAY,
 	DRAW_SCREEN,
+	DRAW_GRAYSCALE,
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;
