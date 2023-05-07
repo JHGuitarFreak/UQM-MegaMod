@@ -1383,6 +1383,91 @@ flagship_inertial_thrust (COUNT CurrentAngle)
 	}
 }
 
+static SIZE
+ScreenCompass (COUNT index)
+{
+	SIZE facing;
+	POINT scrLoc = GLOBAL (ShipStamp.origin);
+	EXTENT sisScr = { SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT };
+	BOOLEAN westOfCenter = scrLoc.x < (sisScr.width >> 1);
+	BOOLEAN northOfCenter = scrLoc.y < (sisScr.height >> 1);
+
+#define NORTH  0
+#define EAST   4
+#define SOUTH  8
+#define WEST  12
+
+	if (westOfCenter && northOfCenter)
+	{	// NorthWest Quadrant
+		if (scrLoc.x < scrLoc.y)
+			facing = WEST;
+		else
+			facing = NORTH;
+	}
+	else if (!westOfCenter && northOfCenter)
+	{	// NorthEast Quadrant
+		if ((sisScr.width - scrLoc.x) < scrLoc.y)
+			facing = EAST;
+		else
+			facing = NORTH;
+	}
+	else if (!westOfCenter && !northOfCenter)
+	{	// SouthEast Quadrant
+		if ((sisScr.width - scrLoc.x) < (sisScr.height - scrLoc.y))
+			facing = EAST;
+		else
+			facing = SOUTH;
+	}
+	else if (westOfCenter && !northOfCenter)
+	{	// SouthWest Quadrant
+		if (scrLoc.x < (sisScr.height - scrLoc.y))
+			facing = WEST;
+		else
+			facing = SOUTH;
+	}
+	else
+		facing = index;
+
+	return facing;
+}
+
+static POINT
+TurnAbout (SIZE delta_x, SIZE delta_y)
+{
+	SIZE facing;
+	COUNT frame_index;
+	POINT delta = { delta_x, delta_y };
+
+	if (!optSmartAutoPilot)
+	{
+		delta.y = -1;
+		return delta;
+	}
+
+	frame_index = GetFrameIndex (GLOBAL (ShipStamp.frame));
+
+	facing = ScreenCompass (frame_index);
+
+	if ((int)facing != frame_index)
+	{
+		if (NORMALIZE_FACING (frame_index - facing)
+				>= ANGLE_TO_FACING (HALF_CIRCLE))
+		{
+			facing = NORMALIZE_FACING (facing - 1);
+			delta.x++;
+		}
+		else if ((int)frame_index != (int)facing)
+		{
+			facing = NORMALIZE_FACING (facing + 1);
+			delta.x--;
+		}
+	}
+	else
+		delta.y = -1;
+
+	return delta;
+}
+
 static void
 ProcessShipControls (void)
 {
@@ -1422,74 +1507,11 @@ ProcessShipControls (void)
 	}
 	else if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
 	{
-		if (optSmartAutoPilot)
-		{
-#define NORTH  0
-#define EAST   4
-#define SOUTH  8
-#define WEST  12
-			SIZE facing;
-			COUNT frame_index;
+		POINT delta;
+		delta = TurnAbout (delta_x, delta_y);
 
-			POINT scrLoc = GLOBAL (ShipStamp.origin);
-			EXTENT sisScr = { SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT };
-			BOOLEAN westOfCenter = scrLoc.x < (sisScr.width >> 1);
-			BOOLEAN northOfCenter = scrLoc.y < (sisScr.height >> 1);
-
-			frame_index = GetFrameIndex (GLOBAL (ShipStamp.frame));
-
-			if (westOfCenter && northOfCenter)
-			{	// NorthWest Quadrant
-				if (scrLoc.x < scrLoc.y)
-					facing = WEST;
-				else
-					facing = NORTH;
-			}
-			else if (!westOfCenter && northOfCenter)
-			{	// NorthEast Quadrant
-				if ((sisScr.width - scrLoc.x) < scrLoc.y)
-					facing = EAST;
-				else
-					facing = NORTH;
-			}
-			else if (!westOfCenter && !northOfCenter)
-			{	// SouthEast Quadrant
-				if ((sisScr.width - scrLoc.x) < (sisScr.height - scrLoc.y))
-					facing = EAST;
-				else
-					facing = SOUTH;
-			}
-			else if (westOfCenter && !northOfCenter)
-			{	// SouthWest Quadrant
-				if (scrLoc.x < (sisScr.height - scrLoc.y))
-					facing = WEST;
-				else
-					facing = SOUTH;
-			}
-			else
-				facing = frame_index;
-
-			if ((int)facing != frame_index)
-			{
-				if (NORMALIZE_FACING (frame_index - facing)
-					>= ANGLE_TO_FACING (HALF_CIRCLE))
-				{
-					facing = NORMALIZE_FACING (facing - 1);
-					delta_x++;
-				}
-				else if ((int)frame_index != (int)facing)
-				{
-					facing = NORMALIZE_FACING (facing + 1);
-					delta_x--;
-				}
-			}
-			else
-				delta_y = -1;
-		}
-		else
-		{
-			delta_y = -1;
-		}
+		delta_x = delta.x;
+		delta_y = delta.y;
 	}
 	else
 		delta_y = 0;
