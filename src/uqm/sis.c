@@ -1758,6 +1758,114 @@ CountSISPieces (BYTE piece_type)
 	return num_pieces;
 }
 
+static void
+AutoPilotTextLogic (void)
+{
+	UNICODE buf[PATH_MAX];
+	UNICODE star_cluster[PATH_MAX];
+	POINT Falayalaralfali;
+	POINT destination;
+	POINT current_position;
+	STAR_DESC *StarPointer;
+	double target_distance;
+	TEXT temp;
+	RECT r;
+
+	if (GLOBAL_SIS (FuelOnBoard) == 0)
+	{
+		DrawSISMessageEx (
+				GAME_STRING (NAVIGATION_STRING_BASE + 2),
+				-1, -1, DSME_MYCOLOR);   // "OUT OF FUEL"
+		return;
+	}
+
+	if (!optSmartAutoPilot)
+	{
+		DrawSISMessageEx (
+				GAME_STRING (NAVIGATION_STRING_BASE + 3),
+				-1, -1, DSME_MYCOLOR);   // "AUTO-PILOT"
+		return;
+	}
+
+	// Show destination and distance to destination
+	Falayalaralfali.x = ARILOU_HOME_X;
+	Falayalaralfali.y = ARILOU_HOME_Y;
+	current_position.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
+	current_position.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+	destination = GLOBAL (autopilot);
+	target_distance = ptDistance (current_position, destination) / 10;
+	StarPointer = FindStar (NULL, &destination, 1, 1);
+
+	if (inQuasiSpace () && !pointsEqual (destination, Falayalaralfali))
+		StarPointer = NULL;
+
+	if (!StarPointer)
+	{	// Show the destination coordinates if the
+		// destination is not a star
+		// AUTO-PILOT to ###.#:###.# - [TargetDistance]
+		snprintf (buf, sizeof buf, "%s %s %03u.%01u:%03u.%01u - %.1f",
+				GAME_STRING (NAVIGATION_STRING_BASE + 3), // "AUTO-PILOT"
+				GAME_STRING (NAVIGATION_STRING_BASE + 6), // "to"
+				destination.x / 10, destination.x % 10,   // X Coordinates
+				destination.y / 10, destination.y % 10,   // Y Coordinates
+				target_distance
+			);
+
+		DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
+		return;
+	}
+
+	if (pointsEqual (LoadLastLoc (), destination))
+	{
+		snprintf (buf, sizeof buf, "%s %s %s",
+				GAME_STRING (NAVIGATION_STRING_BASE + 3), // "AUTO-PILOT"
+				GAME_STRING (NAVIGATION_STRING_BASE + 6), // "to"
+				GAME_STRING (NAVIGATION_STRING_BASE)      // "HyperSpace"
+			);
+
+		DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
+		return;
+	}
+
+	GetClusterName (StarPointer, star_cluster);
+
+	// AUTO-PILOT to [StarCluster] - [TargetDistance]
+	snprintf (buf, sizeof buf, "%s %s %s - %.1f",
+			GAME_STRING (NAVIGATION_STRING_BASE + 3), // "AUTO-PILOT"
+			GAME_STRING (NAVIGATION_STRING_BASE + 6), // "to"
+			star_cluster,
+			target_distance
+		);
+
+	temp.pStr = buf;
+	r = font_GetTextRect (&temp);
+
+	if (r.extent.width > SIS_MESSAGE_WIDTH)
+	{	// If the full text is too large then
+		// use "->" instead of "AUTO-PILOT"
+		// -> to [StarCluster] - [TargetDistance]
+		snprintf (buf, sizeof buf, "%s %s - %.1f",
+				GAME_STRING (NAVIGATION_STRING_BASE + 7), // "->"
+				star_cluster,
+				target_distance
+			);
+	}
+
+	temp.pStr = buf;
+	r = font_GetTextRect (&temp);
+
+	if (r.extent.width > SIS_MESSAGE_WIDTH)
+	{	// If shortened text is *still* too
+		// large then just show distance
+		snprintf (buf, sizeof buf, "%s - %.1f",
+				GAME_STRING (NAVIGATION_STRING_BASE + 3), // "AUTO-PILOT"
+				target_distance
+			);
+	}
+
+	DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
+}
+
 void
 DrawAutoPilotMessage (BOOLEAN Reset)
 {
@@ -1799,116 +1907,9 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 
 				OldContext = SetContext (OffScreenContext);
 				SetContextForeGroundColor (cycle_tab[cycle_index]);
-				if (GLOBAL_SIS (FuelOnBoard) == 0)
-				{
-					DrawSISMessageEx (
-							GAME_STRING (NAVIGATION_STRING_BASE + 2),
-							-1, -1, DSME_MYCOLOR);   // "OUT OF FUEL"
-				}
-				else
-				{
-					if (!optSmartAutoPilot)
-					{
-						DrawSISMessageEx (
-								GAME_STRING (NAVIGATION_STRING_BASE + 3),
-								-1, -1, DSME_MYCOLOR);   // "AUTO-PILOT"
-					}
-					else
-					{	// Show destination and distance to destination
-						UNICODE buf[256];
-						POINT Falayalaralfali =
-								{ ARILOU_HOME_X, ARILOU_HOME_Y };
-						POINT dest = GLOBAL (autopilot);
-						POINT curr = {
-								LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-								LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
-						STAR_DESC *SDPtr = FindStar (NULL, &dest, 1, 1);
-						double dist = ptDistance (curr, dest) / 10;
 
-						if (inQuasiSpace ()
-								&& !pointsEqual (dest, Falayalaralfali))
-							SDPtr = NULL;
+				AutoPilotTextLogic ();
 
-						if (SDPtr)
-						{
-							TEXT temp;
-							RECT r;
-							UNICODE cluster[256];
-
-							if (!pointsEqual (LoadLastLoc (), dest))
-							{
-								GetClusterName (SDPtr, cluster);
-
-								// "AUTO-PILOT to [StarName] - [distance]
-								snprintf (buf, sizeof buf,
-										"%s %s %s - %.1f",
-										GAME_STRING (
-											NAVIGATION_STRING_BASE + 3),
-										GAME_STRING (
-											NAVIGATION_STRING_BASE + 6),
-										cluster, dist
-								);
-
-								temp.pStr = buf;
-								r = font_GetTextRect (&temp);
-
-								if (r.extent.width > SIS_MESSAGE_WIDTH)
-								{	// If the full text is too large then
-									// use "->" instead of "AUTO-PILOT"
-									snprintf (buf, sizeof buf,
-											"%s %s - %.1f",
-											GAME_STRING (
-												NAVIGATION_STRING_BASE
-												+ 7),
-											cluster, dist);
-
-									temp.pStr = buf;
-									r = font_GetTextRect (&temp);
-									if (r.extent.width > SIS_MESSAGE_WIDTH)
-									{	// If shortened text is *still* too
-										// large then just show distance
-										snprintf (buf, sizeof buf,
-												"%s - %.1f",
-												GAME_STRING (
-													NAVIGATION_STRING_BASE
-													+ 3),
-												dist);
-									}
-								}
-							}
-							else
-							{
-								snprintf (buf, sizeof buf,
-										"%s %s %s",
-										GAME_STRING (
-											NAVIGATION_STRING_BASE + 3),
-										GAME_STRING (
-											NAVIGATION_STRING_BASE + 6),
-										GAME_STRING (
-											NAVIGATION_STRING_BASE)
-								);
-							}
-						}
-						else
-						{	// Show the destination coordinates if the
-							// destination is not a star
-							// AUTO-PILOT to ###.#:###.# - [distance]
-							snprintf (buf, sizeof buf,
-									"%s %s %03u.%01u:%03u.%01u"
-									" - %.1f",
-									GAME_STRING (
-										NAVIGATION_STRING_BASE + 3),
-									GAME_STRING (
-										NAVIGATION_STRING_BASE + 6),
-									dest.x / 10, dest.x % 10,
-									dest.y / 10, dest.y % 10,
-									dist
-								);
-						}
-						
-						DrawSISMessageEx (buf, -1, -1, DSME_MYCOLOR);
-					}
-				}
 				SetContext (OldContext);
 			}
 
