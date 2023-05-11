@@ -2077,6 +2077,55 @@ DoBubbleWarp (BOOLEAN UseFuel)
 	}
 }
 
+#define NUM_PORTALS 15
+#define PORTAL_FUEL_COST DIF_CASE(10, 5, 20)
+
+static void
+AdvancedAutoPilot (void)
+{
+	POINT current_position;
+	POINT destination = GLOBAL (autopilot);
+	POINT portal_pt[NUM_PORTALS] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
+	POINT portal_coordinates;
+	double distance, minimum, fuel_no_portal, fuel_with_portal;
+	BYTE i, index;
+
+	current_position.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
+	current_position.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+
+	if (pointsEqual (current_position, destination))
+		return;
+
+	for (i = 0; i < NUM_PORTALS; i++)
+	{
+		distance = ptDistance (destination, portal_pt[i]);
+
+		if (i == 0 || distance < minimum)
+		{
+			minimum = distance;
+			index = i;
+		}
+	}
+
+	portal_coordinates = star_array[NUM_SOLAR_SYSTEMS + index].star_pt;
+
+	fuel_no_portal = ptDistance (current_position, destination) / 100;
+	fuel_with_portal = minimum / 100 + PORTAL_FUEL_COST;
+
+	printf ("fuel_no_portal: %.2f, fuel_with_portal: %.2f\n", fuel_no_portal, fuel_with_portal);
+
+	if (fuel_no_portal < fuel_with_portal)
+		return;
+
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, destination.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, destination.y);
+
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, portal_coordinates.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, portal_coordinates.y);
+
+	GLOBAL (autopilot) = current_position;
+}
+
 static BOOLEAN
 DoMoveCursor (MENU_STATE *pMS)
 {
@@ -2152,6 +2201,13 @@ DoMoveCursor (MENU_STATE *pMS)
 			else
 			{
 				GLOBAL (autopilot) = cursorLoc;
+
+				if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1
+						&& GET_GAME_STATE (PORTAL_SPAWNER_ON_SHIP)
+						&& optSmartAutoPilot)
+				{
+					AdvancedAutoPilot ();
+				}
 			}
 			DrawStarMap (0, NULL);
 		}

@@ -487,6 +487,18 @@ InvokeDevice (BYTE which_device)
 	return DEVICE_FAILURE;
 }
 
+BOOLEAN
+InvokeSpawner (void)
+{
+	DeviceStatus status = InvokeDevice (PORTAL_SPAWNER_DEVICE);
+	if (status == DEVICE_FAILURE)
+		PlayMenuSound (MENU_SOUND_FAILURE);
+	else if (status == DEVICE_SUCCESS)
+		PlayMenuSound (MENU_SOUND_INVOKED);
+
+	return (status == DEVICE_FAILURE);
+}
+
 static BOOLEAN
 DoManipulateDevices (MENU_STATE *pMS)
 {

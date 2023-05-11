@@ -796,6 +796,16 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "LAST_LOCATION_Y", 16 },
 
 	/* end rev 3, MegaMod v0.8.2 */
+	{ NULL, 4 },
+	/* begin rev 4, MegaMod v0.8.3 */
+
+	{ "ADV_AUTOPILOT_SAVE_X", 16 },
+	{ "ADV_AUTOPILOT_SAVE_Y", 16 },
+
+	{ "ADV_AUTOPILOT_QUASI_X", 16 },
+	{ "ADV_AUTOPILOT_QUASI_Y", 16 },
+
+	/* end rev 3, MegaMod v0.8.2 */
 	{ NULL, 0 },
 };
 

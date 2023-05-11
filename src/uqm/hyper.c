@@ -2156,6 +2156,27 @@ SeedUniverse (void)
 		GLOBAL (ShipStamp.origin) = universe;
 		DrawHyperCoords (universe);
 	}
+
+	/*if (optSmartAutoPilot 
+			&& GET_GAME_STATE (ADV_AUTOPILOT_SAVE_X)
+			&& GET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y)
+			&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X)
+			&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y))
+	{
+		printf ("Something\n");
+		if (inHyperSpace ()
+				&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X)
+				&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y))
+		{
+			InvokeSpawner ();
+
+			GLOBAL (autopilot).x = GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X);
+			GLOBAL (autopilot).y = GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y);
+
+			SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, ~0);
+			SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, ~0);
+		}
+	}*/
 }
 
 static BOOLEAN
