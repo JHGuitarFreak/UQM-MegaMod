@@ -1897,12 +1897,6 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 
 			if (EXTENDED)
 				ZeroLastLoc ();
-
-			if (optSmartAutoPilot)
-			{
-				ZeroAdvancedAutoPilot (TRUE);
-				ZeroAdvancedAutoPilot (FALSE);
-			}
 		}
 		else if (GetTimeCounter () >= NextTime)
 		{
