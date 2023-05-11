@@ -648,6 +648,10 @@ InitGameStructures (void)
 	GLOBAL (autopilot.x) = ~0;
 	GLOBAL (autopilot.y) = ~0;
 
+	ZeroLastLoc ();
+	ZeroAdvancedAutoPilot (TRUE);
+	ZeroAdvancedAutoPilot (FALSE);
+
 	return (TRUE);
 }
 
