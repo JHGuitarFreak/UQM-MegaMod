@@ -893,12 +893,13 @@ hyper_transition (ELEMENT *ElementPtr)
 	else
 	{
 		COUNT frame_index;
+		BOOLEAN animation_stopped = FALSE;
+		POINT QuasiPilot = LoadAdvancedAutoPilot (TRUE);
+		POINT SavedPilot = LoadAdvancedAutoPilot (FALSE);
 
 		// JMS: If leaving interplanetary on autopilot, always arrive HS
 		// with the ship's nose pointed into correct direction.
-		if (optSmartAutoPilot
-				&& ((GLOBAL (autopilot)).x != ~0
-					&& (GLOBAL (autopilot)).y != ~0))
+		if (optSmartAutoPilot && ValidPoint (GLOBAL (autopilot)))
 		{
 			STARSHIP *StarShipPtr;
 			POINT universe;
@@ -933,6 +934,7 @@ hyper_transition (ELEMENT *ElementPtr)
 				ElementPtr->preprocess_func = ship_preprocess;
 				ElementPtr->postprocess_func = ship_postprocess;
 				ElementPtr->state_flags &= ~NONSOLID;
+				animation_stopped = TRUE;
 			}
 		}
 
@@ -940,6 +942,34 @@ hyper_transition (ELEMENT *ElementPtr)
 		ElementPtr->next.image.frame =
 				SetAbsFrameIndex (ElementPtr->current.image.frame,
 				frame_index);
+
+		//printf ("findex: %d, angle: %d\n", frame_index, angle);
+
+		if (optSmartAutoPilot && animation_stopped
+				&& ValidPoint (SavedPilot))
+		{
+			if (inHyperSpace ())
+			{
+				if (ValidPoint (QuasiPilot)
+						&& ValidPoint (GLOBAL (autopilot)))
+				{
+					InvokeSpawner ();
+				}
+				else
+				{
+					GLOBAL (autopilot) = LoadAdvancedAutoPilot (FALSE);
+					ZeroAdvancedAutoPilot (FALSE);
+				}
+			}
+			else
+			{
+				if (ValidPoint (QuasiPilot))
+				{
+					GLOBAL (autopilot) = LoadAdvancedAutoPilot (TRUE);
+					ZeroAdvancedAutoPilot (TRUE);
+				}
+			}
+		}
 
 		if (!(ElementPtr->state_flags & NONSOLID))
 		{
@@ -2156,27 +2186,6 @@ SeedUniverse (void)
 		GLOBAL (ShipStamp.origin) = universe;
 		DrawHyperCoords (universe);
 	}
-
-	/*if (optSmartAutoPilot 
-			&& GET_GAME_STATE (ADV_AUTOPILOT_SAVE_X)
-			&& GET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y)
-			&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X)
-			&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y))
-	{
-		printf ("Something\n");
-		if (inHyperSpace ()
-				&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X)
-				&& GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y))
-		{
-			InvokeSpawner ();
-
-			GLOBAL (autopilot).x = GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X);
-			GLOBAL (autopilot).y = GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y);
-
-			SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, ~0);
-			SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, ~0);
-		}
-	}*/
 }
 
 static BOOLEAN
