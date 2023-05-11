@@ -444,8 +444,8 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 
 		if (rev < 4)
 		{
-			ZeroAdvancedAutoPilot (TRUE);
-			ZeroAdvancedAutoPilot (FALSE);
+			ZeroAdvancedAutoPilot ();
+			ZeroAdvancedQuasiPilot ();
 		}
 
 		if (magic > gameStateByteCount)

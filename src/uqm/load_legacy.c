@@ -968,8 +968,8 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 
 	GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
 	ZeroLastLoc ();
-	ZeroAdvancedAutoPilot (TRUE);
-	ZeroAdvancedAutoPilot (FALSE);
+	ZeroAdvancedAutoPilot ();
+	ZeroAdvancedQuasiPilot ();
 
 	cread_8  (fh, NULL); /* GAME_STATE alignment padding */
 	

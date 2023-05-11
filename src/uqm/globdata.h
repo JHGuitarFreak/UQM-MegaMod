@@ -1251,48 +1251,45 @@ ZeroLastLoc (void)
 }
 
 static inline POINT
-LoadAdvancedAutoPilot (BOOLEAN Quasi)
+LoadAdvancedQuasiPilot (void)
 {
-	if (Quasi)
-	{
-		return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X),
-				GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y) };
-	}
-	else
-	{
-		return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_SAVE_X),
-				GET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y) };
-	}
+	return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X),
+			GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y) };
+}
+
+static inline POINT
+LoadAdvancedAutoPilot (void)
+{
+	return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_SAVE_X),
+			GET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y) };
 }
 
 static inline void
-SaveAdvancedAutoPilot (POINT pt, BOOLEAN Quasi)
+SaveAdvancedQuasiPilot (POINT pt)
 {
-	if (Quasi)
-	{
-		SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, pt.x);
-		SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, pt.y);
-	}
-	else
-	{
-		SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, pt.x);
-		SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, pt.y);
-	}
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, pt.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, pt.y);
 }
 
 static inline void
-ZeroAdvancedAutoPilot (BOOLEAN Quasi)
+SaveAdvancedAutoPilot (POINT pt)
 {
-	if (Quasi)
-	{
-		SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, ~0);
-		SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, ~0);
-	}
-	else
-	{
-		SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, ~0);
-		SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, ~0);
-	}
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, pt.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, pt.y);
+}
+
+static inline void
+ZeroAdvancedQuasiPilot (void)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, ~0);
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, ~0);
+}
+
+static inline void
+ZeroAdvancedAutoPilot (void)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, ~0);
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, ~0);
 }
 
 // Nomad
