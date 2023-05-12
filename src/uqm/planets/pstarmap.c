@@ -2077,6 +2077,54 @@ DoBubbleWarp (BOOLEAN UseFuel)
 	}
 }
 
+#define NUM_PORTALS 15
+#define PORTAL_FUEL_COST DIF_CASE(10, 5, 20)
+
+static void
+AdvancedAutoPilot (void)
+{
+	POINT current_position;
+	POINT destination = GLOBAL (autopilot);
+	POINT portal_pt[NUM_PORTALS] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
+	POINT portal_coordinates;
+	double distance, minimum, fuel_no_portal, fuel_with_portal;
+	BYTE i, index;
+
+	current_position.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
+	current_position.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+
+	if (pointsEqual (current_position, destination))
+		return;
+
+	for (i = 0; i < NUM_PORTALS; i++)
+	{
+		distance = ptDistance (destination, portal_pt[i]);
+
+		if (i == 0 || distance < minimum)
+		{
+			minimum = distance;
+			index = i + 1;
+		}
+	}
+
+	portal_coordinates = star_array[NUM_SOLAR_SYSTEMS + index].star_pt;
+
+	fuel_no_portal = ptDistance (current_position, destination) / 100;
+	fuel_with_portal = minimum / 100 + PORTAL_FUEL_COST;
+
+	if (fuel_no_portal < fuel_with_portal)
+		return;
+
+	SaveAdvancedAutoPilot (destination, FALSE);
+	SaveAdvancedQuasiPilot (portal_coordinates, TRUE);
+
+	if (playerInSolarSystem ())
+		GLOBAL (autopilot) = current_position;
+
+	if (inHyperSpace ())
+		InvokeSpawner ();
+}
+
 static BOOLEAN
 DoMoveCursor (MENU_STATE *pMS)
 {
@@ -2121,12 +2169,22 @@ DoMoveCursor (MENU_STATE *pMS)
 			DoBubbleWarp (TRUE);
 		}
 
-		if (optSmartAutoPilot && !inQuasiSpace ()
+		if (!inQuasiSpace ()
 				&& ValidPoint (GLOBAL (autopilot)))
 		{
-			SaveLastLoc (MAKE_POINT (
-				LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+			if (optSmartAutoPilot)
+			{
+				SaveLastLoc (
+						MAKE_POINT (
+							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+			}
+
+			if (optAdvancedAutoPilot
+					&& GET_GAME_STATE (PORTAL_SPAWNER_ON_SHIP))
+			{
+				AdvancedAutoPilot ();
+			}
 		}
 
 		return FALSE;

@@ -975,6 +975,15 @@ START_GAME_STATE
 	ADD_GAME_STATE (LAST_LOCATION_X, 16)
 	ADD_GAME_STATE (LAST_LOCATION_Y, 16)
 
+	/* end rev 3, MegaMod v0.8.2 */
+	/* begin rev 4, MegaMod v0.8.3 */
+
+	ADD_GAME_STATE (ADV_AUTOPILOT_SAVE_X, 16)
+	ADD_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, 16)
+
+	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_X, 16)
+	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, 16)
+
 END_GAME_STATE
 
 // JMS: For making array of Quasispace portal name flags
@@ -1239,6 +1248,48 @@ ZeroLastLoc (void)
 {
 	SET_GAME_STATE (LAST_LOCATION_X, ~0);
 	SET_GAME_STATE (LAST_LOCATION_Y, ~0);
+}
+
+static inline POINT
+LoadAdvancedQuasiPilot (void)
+{
+	return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X),
+			GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y) };
+}
+
+static inline POINT
+LoadAdvancedAutoPilot (void)
+{
+	return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_SAVE_X),
+			GET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y) };
+}
+
+static inline void
+SaveAdvancedQuasiPilot (POINT pt)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, pt.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, pt.y);
+}
+
+static inline void
+SaveAdvancedAutoPilot (POINT pt)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, pt.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, pt.y);
+}
+
+static inline void
+ZeroAdvancedQuasiPilot (void)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, ~0);
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, ~0);
+}
+
+static inline void
+ZeroAdvancedAutoPilot (void)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, ~0);
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, ~0);
 }
 
 // Nomad

@@ -1504,6 +1504,13 @@ ProcessShipControls (void)
 	{
 		GLOBAL (autopilot.x) = ~0;
 		GLOBAL (autopilot.y) = ~0;
+
+		if (ValidPoint (LoadAdvancedAutoPilot ())
+				|| ValidPoint (LoadAdvancedQuasiPilot ()))
+		{
+			ZeroAdvancedAutoPilot ();
+			ZeroAdvancedQuasiPilot ();
+		}
 	}
 	else if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
 	{

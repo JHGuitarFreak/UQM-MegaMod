@@ -419,9 +419,6 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		log_add (log_Debug, "Detected save game state rev %d: %s",
 				rev, gameStateBitMapRevTag[rev]);
 
-		if (rev <= 1)
-			GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
-
 		buf = HMalloc (gameStateByteCount);
 		if (buf == NULL)
 		{
@@ -437,6 +434,18 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		{
 			// An error message is already printed.
 			return FALSE;
+		}
+
+		if (rev < 2)
+			GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
+
+		if (rev < 3)
+			ZeroLastLoc ();
+
+		if (rev < 4)
+		{
+			ZeroAdvancedAutoPilot ();
+			ZeroAdvancedQuasiPilot ();
 		}
 
 		if (magic > gameStateByteCount)

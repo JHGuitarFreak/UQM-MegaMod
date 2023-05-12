@@ -893,12 +893,12 @@ hyper_transition (ELEMENT *ElementPtr)
 	else
 	{
 		COUNT frame_index;
+		BOOLEAN animation_stopped = FALSE;
+		POINT QuasiPilot, SavedPilot;
 
 		// JMS: If leaving interplanetary on autopilot, always arrive HS
 		// with the ship's nose pointed into correct direction.
-		if (optSmartAutoPilot
-				&& ((GLOBAL (autopilot)).x != ~0
-					&& (GLOBAL (autopilot)).y != ~0))
+		if (optSmartAutoPilot && ValidPoint (GLOBAL (autopilot)))
 		{
 			STARSHIP *StarShipPtr;
 			POINT universe;
@@ -933,6 +933,7 @@ hyper_transition (ELEMENT *ElementPtr)
 				ElementPtr->preprocess_func = ship_preprocess;
 				ElementPtr->postprocess_func = ship_postprocess;
 				ElementPtr->state_flags &= ~NONSOLID;
+				animation_stopped = TRUE;
 			}
 		}
 
@@ -940,6 +941,38 @@ hyper_transition (ELEMENT *ElementPtr)
 		ElementPtr->next.image.frame =
 				SetAbsFrameIndex (ElementPtr->current.image.frame,
 				frame_index);
+
+		if (optAdvancedAutoPilot && animation_stopped)
+		{
+			QuasiPilot = LoadAdvancedQuasiPilot ();
+			SavedPilot = LoadAdvancedAutoPilot ();
+		}
+
+		if (optAdvancedAutoPilot && animation_stopped
+				&& ValidPoint (SavedPilot))
+		{
+			if (inHyperSpace ())
+			{
+				if (ValidPoint (QuasiPilot)
+						&& ValidPoint (GLOBAL (autopilot)))
+				{
+					InvokeSpawner ();
+				}
+				else
+				{
+					GLOBAL (autopilot) = LoadAdvancedAutoPilot ();
+					ZeroAdvancedAutoPilot ();
+				}
+			}
+			else
+			{
+				if (ValidPoint (QuasiPilot))
+				{
+					GLOBAL (autopilot) = LoadAdvancedQuasiPilot ();
+					ZeroAdvancedQuasiPilot ();
+				}
+			}
+		}
 
 		if (!(ElementPtr->state_flags & NONSOLID))
 		{

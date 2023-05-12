@@ -155,7 +155,8 @@ typedef struct globalopts_struct {
 			extended, nomad, gameOver, shipDirectionIP, hazardColors,
 			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
 			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
-			showVisitedStars, unscaledStarSystem, slaughterMode;
+			showVisitedStars, unscaledStarSystem, slaughterMode,
+			advancedAutoPilot;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;

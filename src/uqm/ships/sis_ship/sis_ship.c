@@ -237,6 +237,7 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	++StarShipPtr->weapon_counter; /* no shooting in hyperspace! */
+
 	if ((GLOBAL (autopilot)).x == ~0
 		|| (GLOBAL (autopilot)).y == ~0
 			|| (StarShipPtr->cur_status_flags & (LEFT | RIGHT | THRUST)))
@@ -245,6 +246,14 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 
 		(GLOBAL(autopilot)).x =
 			(GLOBAL(autopilot)).y = ~0;
+
+		if ((StarShipPtr->cur_status_flags & (LEFT | RIGHT | THRUST))
+				&& (ValidPoint (LoadAdvancedAutoPilot ())
+				|| ValidPoint (LoadAdvancedQuasiPilot ())))
+		{
+			ZeroAdvancedAutoPilot ();
+			ZeroAdvancedQuasiPilot ();
+		}
 
 		if (!(StarShipPtr->cur_status_flags & THRUST)
 			|| (GLOBAL_SIS (FuelOnBoard) == 0
