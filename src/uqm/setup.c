@@ -153,8 +153,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		classicPackPresent = loadAddon ("classic-pack");
 	}
 
-	loadAddon ("ProfanePkunk");
-
 	usingSpeech = optSpeech;
 	if (optSpeech && !loadAddon ("3dovoice"))
 		usingSpeech = FALSE;
@@ -186,6 +184,9 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 
 	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
+
+	loadAddon ("ProfanePkunk");
+	loadAddon ("GlaDOS");
 
 	if (!IS_HD)
 	{
