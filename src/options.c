@@ -122,6 +122,7 @@ int optScanSphere;
 int optNebulaeVolume;
 BOOLEAN optSlaughterMode;
 BOOLEAN optMaskOfDeceit;
+BOOLEAN optAdvancedAutoPilot;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

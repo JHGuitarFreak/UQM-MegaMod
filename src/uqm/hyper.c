@@ -894,8 +894,7 @@ hyper_transition (ELEMENT *ElementPtr)
 	{
 		COUNT frame_index;
 		BOOLEAN animation_stopped = FALSE;
-		POINT QuasiPilot = LoadAdvancedQuasiPilot ();
-		POINT SavedPilot = LoadAdvancedAutoPilot ();
+		POINT QuasiPilot, SavedPilot;
 
 		// JMS: If leaving interplanetary on autopilot, always arrive HS
 		// with the ship's nose pointed into correct direction.
@@ -943,7 +942,13 @@ hyper_transition (ELEMENT *ElementPtr)
 				SetAbsFrameIndex (ElementPtr->current.image.frame,
 				frame_index);
 
-		if (optSmartAutoPilot && animation_stopped
+		if (optAdvancedAutoPilot && animation_stopped)
+		{
+			QuasiPilot = LoadAdvancedQuasiPilot ();
+			SavedPilot = LoadAdvancedAutoPilot ();
+		}
+
+		if (optAdvancedAutoPilot && animation_stopped
 				&& ValidPoint (SavedPilot))
 		{
 			if (inHyperSpace ())

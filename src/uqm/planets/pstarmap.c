@@ -2116,7 +2116,7 @@ AdvancedAutoPilot (void)
 		return;
 
 	SaveAdvancedAutoPilot (destination, FALSE);
-	SaveAdvancedAutoPilot (portal_coordinates, TRUE);
+	SaveAdvancedQuasiPilot (portal_coordinates, TRUE);
 
 	if (playerInSolarSystem ())
 		GLOBAL (autopilot) = current_position;
@@ -2169,15 +2169,22 @@ DoMoveCursor (MENU_STATE *pMS)
 			DoBubbleWarp (TRUE);
 		}
 
-		if (optSmartAutoPilot && !inQuasiSpace ()
+		if (!inQuasiSpace ()
 				&& ValidPoint (GLOBAL (autopilot)))
 		{
-			SaveLastLoc (MAKE_POINT (
-				LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+			if (optSmartAutoPilot)
+			{
+				SaveLastLoc (
+						MAKE_POINT (
+							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+			}
 
-			if (GET_GAME_STATE (PORTAL_SPAWNER_ON_SHIP))
+			if (optAdvancedAutoPilot
+					&& GET_GAME_STATE (PORTAL_SPAWNER_ON_SHIP))
+			{
 				AdvancedAutoPilot ();
+			}
 		}
 
 		return FALSE;

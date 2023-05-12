@@ -203,6 +203,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  sphereType);
 	DECL_CONFIG_OPTION(int,  nebulaevol);
 	DECL_CONFIG_OPTION(bool, slaughterMode);
+	DECL_CONFIG_OPTION(bool, advancedAutoPilot);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -410,6 +411,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  sphereType,        2 ),
 		INIT_CONFIG_OPTION(  nebulaevol,        24 ),
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
+		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -631,6 +633,7 @@ main (int argc, char *argv[])
 	optScanSphere = options.sphereType.value;
 	optNebulaeVolume = options.nebulaevol.value;
 	optSlaughterMode = options.slaughterMode.value;
+	optAdvancedAutoPilot = options.advancedAutoPilot.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1052,6 +1055,7 @@ getUserConfigOptions (struct options_struct *options)
 	}
 
 	getBoolConfigValue (&options->slaughterMode, "mm.slaughterMode");
+	getBoolConfigValue (&options->advancedAutoPilot, "mm.advancedAutoPilot");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1144,6 +1148,7 @@ enum
 	UNSCALEDSS_OPT,
 	SCANSPH_OPT,
 	SLAUGHTER_OPT,
+	SISADVAP_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1249,6 +1254,7 @@ static struct option longOptions[] =
 	{"spheretype", 1, NULL, SCANSPH_OPT},
 	{"nebulaevol", 1, NULL, NEBUVOL_OPT},
 	{"slaughtermode", 0, NULL, SLAUGHTER_OPT},
+	{"advancedautopilot", 0, NULL, SISADVAP_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1880,6 +1886,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SLAUGHTER_OPT:
 				setBoolOption (&options->slaughterMode, true);
 				break;
+			case SISADVAP_OPT:
+				setBoolOption (&options->advancedAutoPilot, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2143,7 +2152,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --dateformat : 0: MMM DD.YYYY | 1: MM.DD.YYYY | "
 			"2: DD MMM.YYYY | 3: DD.MM.YYYY (default: 0)");
 	log_add (log_User, "  --adddevices : Gives you all available "
-			"devices (default: %s)", boolOptString (&defaults->addDevices));
+			"devices (default: %s)",
+			boolOptString (&defaults->addDevices));
 	log_add (log_User, "  --melee : Takes you straight to Super Melee"
 			"after the splash screen.");
 	log_add (log_User, "  --loadgame : Takes you straight to the Load"
@@ -2154,8 +2164,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --customseed=# : Allows you to customize the "
 			"internal seed used to generate the solar systems in-game."
 			" (default: 16807)");
-	log_add (log_User, "  --spacemusic : Enables localized music for races "
-			"when you are in their sphere of influence (default: %s)",
+	log_add (log_User, "  --spacemusic : Enables localized music for races"
+			" when you are in their sphere of influence (default: %s)",
 			boolOptString (&defaults->spaceMusic));
 	log_add (log_User, "  --wholefuel : Enables the display of the whole "
 			"fuel value in the ship status (default: %s)",
@@ -2191,9 +2201,10 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --orzcompfont : Enable alternate font for"
 			"untranslatable Orz speech (default: %s)",
 			boolOptString (&defaults->orzCompFont));
-	log_add (log_User, "  --shipfacinghs : Enable flagship facing the"
-			"direction it entered HyperSpace while in auto-pilot "
-			"(default: %s)", boolOptString (&defaults->smartAutoPilot));
+	log_add (log_User, "  --advancedautopilot : Activating Auto-Pilot "
+			"within Solar System pilots the Flagship out via the shortest "
+			"route. (default: %s)",
+			boolOptString (&defaults->advancedAutoPilot));
 	log_add (log_User, "  --controllertype : 0: Keyboard | 1: Xbox | "
 			"2: PlayStation 4 (default: 0)");
 	log_add (log_User, "  --tintplansphere : Tint the planet sphere"
@@ -2206,7 +2217,8 @@ usage (FILE *out, const struct options_struct *defaults)
 			" in solar system between PC, 3DO, UQM, or HD-mod patterns "
 			"(default: pc)");
 	log_add (log_User, "  --scanstyle : Choose between PC or 3DO scanning"
-			" types (default: %s)", choiceOptString (&defaults->scanStyle));
+			" types (default: %s)",
+			choiceOptString (&defaults->scanStyle));
 	log_add (log_User, "  --nonstoposcill : Oscilloscope uses both voice "
 			" and music data (default: %s)",
 			boolOptString (&defaults->nonStopOscill));
@@ -2225,8 +2237,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --sisenginecolor : Choose between either the PC"
 			" or 3DO Flagship engine color (default: %s)",
 			choiceOptString (&defaults->flagshipColor));
-	log_add (log_User, "  --nohqencounters : Disables HyperSpace encounters"
-			" (default: %s)", boolOptString (&defaults->noHQEncounters));
+	log_add (log_User, "  --nohqencounters : Disables HyperSpace "
+			"encounters (default: %s)",
+			boolOptString (&defaults->noHQEncounters));
 	log_add (log_User, "  --decleanse : Moves the Death March 100 years"
 			" ahead from its actual start date [does not work once the"
 			" Death March has started] (default: %s)",
@@ -2247,6 +2260,10 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "--slaughtermode : Affect a race's SOI by "
 			"destroying their ships in battle (default: %s)",
 			boolOptString (&defaults->slaughterMode));
+	log_add (log_User, "  --advancedautopilot : Finds the route that uses"
+			"the least amount of fuel through HyperSpace or QuasiSpace "
+			"and Auto-Pilots the Flagship on the best route (default: %s)",
+			boolOptString (&defaults->advancedAutoPilot));
 
 	log_setOutput (old);
 }
