@@ -377,71 +377,76 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 static void
 LoadPixelatedSun (void)
 {
-	if (optNebulae)
+	COUNT i;
+	BYTE *pix, *pIter;
+	Color *map, *mIter;
+	SIZE width, height;
+	RECT r;
+	Color AColor;
+	FRAME idxFrame;
+
+	if (!optNebulae)
 	{
-		COUNT i;
-		BYTE *pix, *pIter;
-		Color *map, *mIter;
-		SIZE width, height;
-		RECT r;
-		Color AColor;
+		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+		return;
+	}
 
-		FRAME idxFrame =
-				CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
-		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_RGB_PMAP_ANIM));
+	idxFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+	SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_RGB_PMAP_ANIM));
 
-		for (i = 0; i < 5; i++)
-		{		
-			SIZE x, y;
-			GetFrameRect (idxFrame, &r);
-			width = r.extent.width;
-			height = r.extent.height;
+	for (i = 0; i < 5; i++)
+	{
+		SIZE x, y;
+		GetFrameRect (idxFrame, &r);
+		width = r.extent.width;
+		height = r.extent.height;
 
-			pix = HMalloc (sizeof (BYTE) * width * height);
-			map = HMalloc (sizeof (Color) * width * height);
+		pix = HMalloc (sizeof (BYTE) * width * height);
+		map = HMalloc (sizeof (Color) * width * height);
 
-			pIter = pix;
-			mIter = map;
+		pIter = pix;
+		mIter = map;
 
-			ReadFramePixelIndexes (idxFrame, pix, width, height, TRUE);
-			ReadFramePixelColors (SunFrame, map, width, height);
+		ReadFramePixelIndexes (idxFrame, pix, width, height, TRUE);
+		ReadFramePixelColors (SunFrame, map, width, height);
 
-			AColor = GetColorMapColor (56, 239);
+		AColor = GetColorMapColor (56, 239);
 
 
-			for (y = 0; y < height; ++y)
-				for (x = 0; x < width; ++x, ++pIter, ++mIter)
+		for (y = 0; y < height; ++y)
+		{
+			for (x = 0; x < width; ++x, ++pIter, ++mIter)
+			{
+				if (mIter->a == 0)// Fully transparent color
+					continue;
+
+				if (mIter->a != 0xFF)// partially transparent
 				{
-					if (mIter->a == 0)// Fully transparent color
-						continue;
-
-					if (mIter->a != 0xFF)// partially transparent
-					{
-						mIter->r = AColor.r;
-						mIter->g = AColor.g;
-						mIter->b = AColor.b;
-					}
-
-					if (mIter->a == 0xFF)// opaque
-					{
-						*mIter = GetColorMapColor (56, *pIter);
-					}
+					mIter->r = AColor.r;
+					mIter->g = AColor.g;
+					mIter->b = AColor.b;
 				}
 
-			WriteFramePixelColors (SunFrame, map, width, height);
-
-			HFree (map);
-			HFree (pix);
-
-			idxFrame = IncFrameIndex (idxFrame);
-			SunFrame = IncFrameIndex (SunFrame);
+				if (mIter->a == 0xFF)// opaque
+				{
+					*mIter = GetColorMapColor (56, *pIter);
+				}
+			}
 		}
 
-		DestroyDrawable (ReleaseDrawable (idxFrame));
-		idxFrame = 0;
+		WriteFramePixelColors (SunFrame, map, width, height);
+
+		HFree (map);
+		HFree (pix);
+
+		idxFrame = IncFrameIndex (idxFrame);
+		SunFrame = IncFrameIndex (SunFrame);
 	}
-	else
-		SunFrame = CaptureDrawable (LoadGraphic (SUN_MASK_PMAP_ANIM));
+
+	DestroyDrawable (ReleaseDrawable (idxFrame));
+	idxFrame = 0;
+
+	return;
 }
 
 void
@@ -621,7 +626,8 @@ GetRandomSeedForVar (const POINT point)
 	return MAKE_DWORD (point.x, point.y);
 }
 
-void GenerateTexturedPlanets (void)
+static void
+GenerateTexturedPlanets (void)
 {
 	COUNT i;
 	PLANET_DESC *pCurDesc;

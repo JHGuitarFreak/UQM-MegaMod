@@ -180,23 +180,23 @@ extern "C" {
 
 struct planet_desc
 {
-	DWORD rand_seed;			// seed for topography and node generation
+	DWORD rand_seed;    // seed for topography and node generation
 
-	BYTE data_index;			// what planet is this
-	BYTE NumPlanets;			// number of moons
-	SIZE radius;				// radius of planet orbit
-	POINT location;				// coords on screen
+	BYTE data_index;    // what planet is this
+	BYTE NumPlanets;    // number of moons
+	SIZE radius;        // radius of planet orbit
+	POINT location;     // coords on screen
 
-	Color temp_color;			// color of planet orbit
-	COUNT NextIndex;			// index to a next planet
-	STAMP image;				// image of a planet in IP view
+	Color temp_color;   // color of planet orbit
+	COUNT NextIndex;    // index to a next planet
+	STAMP image;        // image of a planet in IP view
 
 	PLANET_DESC *pPrevDesc;
 			// The Sun or planet that this world is orbiting around.
 	
 	// BW : new stuff for animated solar systems
-	PLANET_ORBIT orbit;			// Link to moon(s)
-	COUNT size;					// size of a planet
+	PLANET_ORBIT orbit; // Link to moon(s)
+	COUNT size;         // size of a planet
 	
 	COUNT angle;
 	int rotFrameIndex, rotPointIndex, rotwidth, rotheight;
@@ -240,8 +240,7 @@ struct node_info
 			// For energy: undefined
 };
 
-// See doc/devel/generate for information on how this structure is
-// filled.
+// See doc/devel/generate for information on how this structure is filled.
 struct solarsys_state
 {
 	// Standard field required by DoInput()
