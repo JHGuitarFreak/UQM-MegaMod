@@ -815,7 +815,8 @@ const char* gameStateBitMapRevTag[] = {
 	"Core UQM v0.8.0",
 	"MegaMod v0.8.0.85",
 	"MegaMod v0.8.1",
-	"MegaMod v0.8.2"
+	"MegaMod v0.8.2",
+	"MegaMod v0.8.3"
 };
 
 // XXX: these should handle endian conversions later
