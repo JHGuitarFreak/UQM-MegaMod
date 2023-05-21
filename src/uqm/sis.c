@@ -1878,7 +1878,7 @@ DrawAutoPilotMessage (BOOLEAN Reset)
 	const size_t cycleCount = ARRAY_SIZE (cycle_tab);
 #define BLINK_RATE (ONE_SECOND * 3 / 40) // 9 @ 120 ticks/second
 
-	if (Reset)
+	if (Reset || optBubbleWarp)
 	{	// Just a reset, not drawing
 		LastPilot = FALSE;
 		return;
