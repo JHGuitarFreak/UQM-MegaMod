@@ -3,7 +3,7 @@ A fork of The Ur-Quan Masters that remasters the HD mod with a veritable smorgas
 
 ## Changes from the original
 
-A full list of changes and features for the current release can be found on the [Main site](http://megamod.serosis.net/Features).
+A full list of changes and features for the current release can be found on the [Main site](https://uqm-mods.sourceforge.net/Features).
 
 And the full WIP changelog can be found in the root of this repository: [Changelog](https://github.com/JHGuitarFreak/UQM-MegaMod/blob/master/MegaMod%20Changelog.txt)
 
