@@ -759,6 +759,8 @@ Intro (void)
 		else
 		{
 			NumVisits = GET_GAME_STATE (THRADD_VISITS);
+			NumVisits = NumVisits > 1 ? 0 : NumVisits;
+
 			if (GET_GAME_STATE (THRADD_MANNER))
 			{
 				switch (NumVisits++)

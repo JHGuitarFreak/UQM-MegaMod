@@ -208,10 +208,6 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;libpng16.lib;zdll.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <HeapReserveSize>0</HeapReserveSize>
-      <HeapCommitSize>0</HeapCommitSize>
-      <StackReserveSize>0</StackReserveSize>
-      <StackCommitSize>0</StackCommitSize>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>false</DataExecutionPrevention>
       <SupportUnloadOfDelayLoadedDLL>false</SupportUnloadOfDelayLoadedDLL>
@@ -261,6 +257,11 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
       <AdditionalDependencies>SDL.lib;SDLmain.lib;libpng16.lib;zdll.lib;ws2_32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <CLRThreadAttribute>DefaultThreadingAttribute</CLRThreadAttribute>
+      <CLRUnmanagedCodeCheck>false</CLRUnmanagedCodeCheck>
+      <SupportUnloadOfDelayLoadedDLL>false</SupportUnloadOfDelayLoadedDLL>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"</Command>
