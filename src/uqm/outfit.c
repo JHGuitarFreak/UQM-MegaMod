@@ -147,7 +147,6 @@ DisplayLanders (MENU_STATE *pMS)
 	else
 	{
 		COUNT i;
-		DrawMode mode;
 
 		s.origin.x = LANDER_X;
 		s.origin.y = LANDER_Y;
@@ -158,14 +157,11 @@ DisplayLanders (MENU_STATE *pMS)
 		}
 
 		SetContextForeGroundColor (BLACK_COLOR);
-		mode = SetContextDrawMode (
-				MAKE_DRAW_MODE (DRAW_ALPHA, DRAW_FACTOR_1));
 		for (; i < MAX_LANDERS; ++i)
 		{
 			DrawFilledStamp (&s);
 			s.origin.x += LANDER_WIDTH;
 		}
-		SetContextDrawMode (mode);
 	}
 }
 
