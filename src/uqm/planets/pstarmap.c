@@ -56,6 +56,7 @@ typedef enum {
 	WAR_ERA_STARMAP,
 	CONSTELLATION_MAP,
 	HOMEWORLDS_MAP,
+	RAINBOW_MAP,
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
@@ -1164,19 +1165,34 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				DrawReticule (star_array[i].star_pt, TRUE);
 		}
 	}
-#ifdef NEVER
+
 	// This draws reticules over the Rainbow worlds
 	if (which_space <= 1 && which_starmap == RAINBOW_MAP)
 	{
-		COUNT i;
+		UWORD rainbow_mask;
 
-		for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
+		rainbow_mask = MAKE_WORD (
+			GET_GAME_STATE (RAINBOW_WORLD0),
+			GET_GAME_STATE (RAINBOW_WORLD1));
+
+		if (rainbow_mask == 0)
+			which_starmap = NORMAL_STARMAP;
+		else
 		{
-			if (star_array[i].Index == RAINBOW_DEFINED)
-				DrawReticule (star_array[i].star_pt, TRUE);
+			COUNT i, j = 0;
+
+			for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
+			{
+				if (star_array[i].Index == RAINBOW_DEFINED)
+				{
+					j++;
+					if (rainbow_mask & (1 << (j - 1)))
+						DrawReticule (star_array[i].star_pt, TRUE);
+				}
+			}
 		}
 	}
-#endif
+
 	do
 	{	// Draws all the stars
 		BYTE star_type;
@@ -2252,7 +2268,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			BYTE NewState;
 			NewState = which_starmap;
 
-			if (NewState == HOMEWORLDS_MAP)
+			if (NewState == RAINBOW_MAP)
 				NewState = NORMAL_STARMAP;
 			else
 				++NewState;
