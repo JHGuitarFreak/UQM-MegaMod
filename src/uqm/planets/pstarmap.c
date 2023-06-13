@@ -211,7 +211,7 @@ DrawCursor (COORD curs_x, COORD curs_y)
 }
 
 static void
-DrawReticule (POINT dest, BYTE type)
+DrawMarker (POINT dest, BYTE type)
 {
 	STAMP s;
 
@@ -1152,7 +1152,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	 	SetContextForeGroundColor (oldColor);
 	}
 
-	// This draws reticules over known alien Homeworlds
+	// This draws markers over known alien Homeworlds
 	if (which_space <= 1 && which_starmap == HOMEWORLDS_MAP)
 	{
 		COUNT i;
@@ -1162,11 +1162,11 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			BYTE Index = star_array[i].Index;
 
 			if (isHomeworld (Index))
-				DrawReticule (star_array[i].star_pt, TRUE);
+				DrawMarker (star_array[i].star_pt, TRUE);
 		}
 	}
 
-	// This draws reticules over the Rainbow worlds
+	// This draws markers over the Rainbow worlds
 	if (which_space <= 1 && which_starmap == RAINBOW_MAP)
 	{
 		UWORD rainbow_mask;
@@ -1187,7 +1187,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				{
 					j++;
 					if (rainbow_mask & (1 << (j - 1)))
-						DrawReticule (star_array[i].star_pt, TRUE);
+						DrawMarker (star_array[i].star_pt, TRUE);
 				}
 			}
 		}
@@ -1208,8 +1208,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		{
 			if (which_starmap == NORMAL_STARMAP
 					&& isStarMarked (i, "PLYR_MARKER"))
-			{	// This draws reticules over tagged star systems
-				DrawReticule (SDPtr->star_pt, 2);
+			{	// This draws markers over tagged star systems
+				DrawMarker (SDPtr->star_pt, 2);
 			}
 
 			if (optShowVisitedStars && isStarMarked (i, "VISITED")
@@ -1267,7 +1267,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		DrawAutoPilot (&GLOBAL (autopilot));
 		if (IS_HD)
-			DrawReticule (GLOBAL (autopilot), FALSE);
+			DrawMarker (GLOBAL (autopilot), FALSE);
 	}
 
 	if (transition_pending)
