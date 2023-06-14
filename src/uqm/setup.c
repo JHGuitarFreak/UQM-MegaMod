@@ -150,7 +150,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		HDPackPresent = TRUE;
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
-		classicPackPresent = loadAddon ("classic-pack");
+		//classicPackPresent = loadAddon ("classic-pack");
 	}
 
 	usingSpeech = optSpeech;
