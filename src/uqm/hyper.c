@@ -863,6 +863,39 @@ init_transition (ELEMENT *ElementPtr0, ELEMENT *ElementPtr1,
 			dx / num_turns, dy / num_turns);
 }
 
+void
+DoAdvancedAutoPilot (void)
+{
+	POINT QuasiPilot = LoadAdvancedQuasiPilot ();
+	POINT SavedPilot = LoadAdvancedAutoPilot ();
+
+	if (!ValidPoint (SavedPilot))
+		return;
+
+	if (inHyperSpace ())
+	{
+		if (ValidPoint (QuasiPilot)
+			&& ValidPoint (GLOBAL (autopilot)))
+		{
+			InvokeSpawner ();
+		}
+		else
+		{
+			GLOBAL (autopilot) = SavedPilot;
+			ZeroAdvancedAutoPilot ();
+		}
+
+		return;
+	}
+
+	if (!ValidPoint (QuasiPilot))
+		return;
+
+	GLOBAL (autopilot) = QuasiPilot;
+	ZeroAdvancedQuasiPilot ();
+
+}
+
 BOOLEAN
 hyper_transition (ELEMENT *ElementPtr)
 {
@@ -893,8 +926,6 @@ hyper_transition (ELEMENT *ElementPtr)
 	else
 	{
 		COUNT frame_index;
-		BOOLEAN animation_stopped = FALSE;
-		POINT QuasiPilot, SavedPilot;
 
 		// JMS: If leaving interplanetary on autopilot, always arrive HS
 		// with the ship's nose pointed into correct direction.
@@ -933,7 +964,6 @@ hyper_transition (ELEMENT *ElementPtr)
 				ElementPtr->preprocess_func = ship_preprocess;
 				ElementPtr->postprocess_func = ship_postprocess;
 				ElementPtr->state_flags &= ~NONSOLID;
-				animation_stopped = TRUE;
 			}
 		}
 
@@ -942,44 +972,15 @@ hyper_transition (ELEMENT *ElementPtr)
 				SetAbsFrameIndex (ElementPtr->current.image.frame,
 				frame_index);
 
-		if (optAdvancedAutoPilot && animation_stopped)
-		{
-			QuasiPilot = LoadAdvancedQuasiPilot ();
-			SavedPilot = LoadAdvancedAutoPilot ();
-		}
-
-		if (optAdvancedAutoPilot && animation_stopped
-				&& ValidPoint (SavedPilot))
-		{
-			if (inHyperSpace ())
-			{
-				if (ValidPoint (QuasiPilot)
-						&& ValidPoint (GLOBAL (autopilot)))
-				{
-					InvokeSpawner ();
-				}
-				else
-				{
-					GLOBAL (autopilot) = LoadAdvancedAutoPilot ();
-					ZeroAdvancedAutoPilot ();
-				}
-			}
-			else
-			{
-				if (ValidPoint (QuasiPilot))
-				{
-					GLOBAL (autopilot) = LoadAdvancedQuasiPilot ();
-					ZeroAdvancedQuasiPilot ();
-				}
-			}
-		}
-
 		if (!(ElementPtr->state_flags & NONSOLID))
 		{
 			ElementPtr->current = ElementPtr->next;
 			SetUpElement (ElementPtr);
 
 			ElementPtr->state_flags |= DEFY_PHYSICS;
+
+			if (optAdvancedAutoPilot)
+				DoAdvancedAutoPilot ();
 		}
 	}
 
