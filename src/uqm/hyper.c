@@ -672,6 +672,7 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 	else
 	{
 		POINT pt;
+		UWORD KnownQSPortals = GET_GAME_STATE (KNOW_QS_PORTAL);
 
 		GLOBAL (autopilot.x) = ~0;
 		GLOBAL (autopilot.y) = ~0;
@@ -697,7 +698,8 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			GLOBAL (CurrentActivity) |= START_ENCOUNTER;
 
 			// JMS: The arilou homeworld name can now be shown on QS map.
-			SET_GAME_STATE (KNOW_QS_PORTAL, 1 << 15);
+			KnownQSPortals |= (1 << 15);
+			SET_GAME_STATE (KNOW_QS_PORTAL, KnownQSPortals);
 		}
 		else
 		{
@@ -713,7 +715,8 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
-			SET_GAME_STATE (KNOW_QS_PORTAL, 1 << index);
+			KnownQSPortals |= (1 << index);
+			SET_GAME_STATE (KNOW_QS_PORTAL, KnownQSPortals);
 
 			SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
 		}
