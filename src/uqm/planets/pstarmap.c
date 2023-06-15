@@ -2104,6 +2104,7 @@ AdvancedAutoPilot (void)
 	POINT portal_coordinates;
 	double distance, minimum, fuel_no_portal, fuel_with_portal;
 	BYTE i, index;
+	UWORD KnownQSPortals = GET_GAME_STATE (KNOW_QS_PORTAL);
 
 	current_position.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 	current_position.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
@@ -2114,6 +2115,9 @@ AdvancedAutoPilot (void)
 	for (i = 0; i < NUM_PORTALS; i++)
 	{
 		distance = ptDistance (destination, portal_pt[i]);
+
+		if (!(KnownQSPortals & (1 << i)))
+			distance = MAX_X_UNIVERSE * 2;
 
 		if (i == 0 || distance < minimum)
 		{
