@@ -1796,7 +1796,9 @@ AutoPilotTextLogic (void)
 	target_distance = ptDistance (current_position, destination) / 10;
 	StarPointer = FindStar (NULL, &destination, 1, 1);
 
-	if (inQuasiSpace () && !pointsEqual (destination, Falayalaralfali))
+	if (inQuasiSpace () && (!pointsEqual (destination, Falayalaralfali)
+			|| (pointsEqual (destination, Falayalaralfali)
+			&& !(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << 15)))))
 		StarPointer = NULL;
 
 	if (!StarPointer)
