@@ -697,7 +697,7 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			GLOBAL (CurrentActivity) |= START_ENCOUNTER;
 
 			// JMS: The arilou homeworld name can now be shown on QS map.
-			SET_GAME_STATE (KNOW_QS_PORTAL_15, 1);
+			SET_GAME_STATE (KNOW_QS_PORTAL, 1 << 15);
 		}
 		else
 		{
@@ -713,7 +713,7 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
-			SET_QS_PORTAL_KNOWN (index);
+			SET_GAME_STATE (KNOW_QS_PORTAL, 1 << index);
 
 			SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
 		}

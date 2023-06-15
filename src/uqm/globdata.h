@@ -892,22 +892,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (AUTOPILOT_OK, 1)
 	
 	// JMS: Quasispace portal name flags
-	ADD_GAME_STATE (KNOW_QS_PORTAL_0, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_1, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_2, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_3, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_4, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_5, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_6, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_7, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_8, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_9, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_10, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_11, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_12, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_13, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_14, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_15, 1)
+	ADD_GAME_STATE (KNOW_QS_PORTAL, 16)
 
 	/* end rev 1, MegaMod v0.8.0.85 */
 	/* begin rev 2, MegaMod v0.8.1 */
@@ -985,81 +970,6 @@ START_GAME_STATE
 	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, 16)
 
 END_GAME_STATE
-
-// JMS: For making array of Quasispace portal name flags
-#define QS_PORTALS_KNOWN \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_0)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_1)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_2)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_3)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_4)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_5)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_6)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_7)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_8)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_9)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_10)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_11)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_12)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_13)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_14)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_15)),
-
-// JMS: For making array of Quasispace portal name flags
-#define SET_QS_PORTAL_KNOWN(val) \
-	switch (val)	\
-	{				\
-	case 0:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_0, 1);\
-		break; \
-	case 1:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_1, 1);\
-		break; \
-	case 2:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_2, 1);\
-		break; \
-	case 3:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_3, 1);\
-		break; \
-	case 4:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_4, 1);\
-		break; \
-	case 5:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_5, 1);\
-		break; \
-	case 6:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_6, 1);\
-		break; \
-	case 7:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_7, 1);\
-		break; \
-	case 8:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_8, 1);\
-		break; \
-	case 9:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_9, 1);\
-		break; \
-	case 10:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_10, 1);\
-		break; \
-	case 11:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_11, 1);\
-		break; \
-	case 12:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_12, 1);\
-		break; \
-	case 13:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_13, 1);\
-		break; \
-	case 14:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_14, 1);\
-		break; \
-	case 15:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_15, 1);\
-		break; \
-	default: \
-	break;\
-	}
 
 // Values for GAME_STATE.glob_flags:
 #define READ_SPEED_MASK ((1 << 3) - 1)

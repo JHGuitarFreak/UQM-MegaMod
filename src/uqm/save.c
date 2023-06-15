@@ -709,23 +709,8 @@ const GameStateBitMap gameStateBitMap[] = {
 	/* begin rev 1, MegaMod v0.8.0.85 */
 
 	{ "AUTOPILOT_OK", 1 },
-	
-	{ "KNOW_QS_PORTAL_0", 1 },
-	{ "KNOW_QS_PORTAL_1", 1 },
-	{ "KNOW_QS_PORTAL_2", 1 },
-	{ "KNOW_QS_PORTAL_3", 1 },
-	{ "KNOW_QS_PORTAL_4", 1 },
-	{ "KNOW_QS_PORTAL_5", 1 },
-	{ "KNOW_QS_PORTAL_6", 1 },
-	{ "KNOW_QS_PORTAL_7", 1 },
-	{ "KNOW_QS_PORTAL_8", 1 },
-	{ "KNOW_QS_PORTAL_9", 1 },
-	{ "KNOW_QS_PORTAL_10", 1 },
-	{ "KNOW_QS_PORTAL_11", 1 },
-	{ "KNOW_QS_PORTAL_12", 1 },
-	{ "KNOW_QS_PORTAL_13", 1 },
-	{ "KNOW_QS_PORTAL_14", 1 },
-	{ "KNOW_QS_PORTAL_15", 1 },
+
+	{ "KNOW_QS_PORTAL", 16 },
 
 	/* end rev 1, MegaMod v0.8.0.85 */
 	{ NULL, 2 },

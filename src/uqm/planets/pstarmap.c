@@ -1481,19 +1481,18 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	if (BestSDPtr)
 	{
 		// JMS: For masking the names of QS portals not yet entered.
-		BYTE QuasiPortalsKnown[] =
-		{
-			QS_PORTALS_KNOWN
-		};
+		BYTE whichPortal = BestSDPtr->Postfix - 133;
 		
 		// A star is near the cursor:
 		// Snap cursor onto star
 		cursorLoc = BestSDPtr->star_pt;
 		
 		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) >= 2
-			&& !(QuasiPortalsKnown[BestSDPtr->Postfix - 133]))
+				&& !(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << whichPortal)))
+		{
 			utf8StringCopy (buf, sizeof (buf),
-				GAME_STRING (STAR_STRING_BASE + 132));
+					GAME_STRING (STAR_STRING_BASE + 132));
+		}
 		else
 			GetClusterName (BestSDPtr, buf);
 	}
