@@ -793,7 +793,7 @@ Deselect (BYTE opt)
 			}
 			break;
 		case BUILD_PICK:
-			DrawPickIcon (pMeleeState->currentShip, true);
+			DrawPickIcon (pMeleeState->currentShip, false);
 			break;
 	}
 }
@@ -864,6 +864,7 @@ void
 Melee_flashSelection (MELEE_STATE *pMS)
 {
 #define FLASH_RATE (ONE_SECOND / 9)
+#define BLINK_RATE (ONE_SECOND / 16)
 	static TimeCount NextTime = 0;
 	static bool select = false;
 	TimeCount Now = GetTimeCounter ();
