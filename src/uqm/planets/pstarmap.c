@@ -2116,8 +2116,8 @@ AdvancedAutoPilot (void)
 	{
 		distance = ptDistance (destination, portal_pt[i]);
 
-		if (!(KnownQSPortals & (1 << i)))
-			distance = MAX_X_UNIVERSE * 2;
+		if (!DIF_EASY && !(KnownQSPortals & (1 << i)))
+			distance = MAX_X_UNIVERSE * MAX_Y_UNIVERSE;
 
 		if (i == 0 || distance < minimum)
 		{
