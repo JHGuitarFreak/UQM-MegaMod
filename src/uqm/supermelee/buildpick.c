@@ -60,12 +60,33 @@ DestroyBuildPickFrame (void)
 	BuildPickFrame = 0;
 }
 
+Color
+GetShipFlashColor (void)
+{
+	if (is3DO (optWhichMenu))
+	{
+		return BLACK_COLOR;
+	}
+	else
+	{
+		static BYTE cycle_index = 0;
+
+		static const Color cycle_tab[] = SHIP_SELECT_COLOR_CYCLE_TABLE;
+		const size_t cycleCount = ARRAY_SIZE (cycle_tab);
+
+		cycle_index = (cycle_index + 1) % cycleCount;
+
+		return cycle_tab[cycle_index];
+	}
+}
+
 // Draw a ship icon in the ship selection popup.
 void
 DrawPickIcon (MeleeShip ship, bool DrawErase)
 {
 	STAMP s;
 	RECT r;
+	Color OldColor;
 
 	GetFrameRect (BuildPickFrame, &r);
 
@@ -75,15 +96,23 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 			* RES_SCALE (18);
 
 	s.frame = GetShipIconsFromIndex (ship);
+
+	// Draw black rectangle below ship to remove artifacts in HD
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+	r.extent.width = r.extent.height = RES_SCALE (16);
+	r.corner = s.origin;
+
+	DrawFilledRectangle (&r);
+	SetContextForeGroundColor (OldColor);
+
 	if (DrawErase)
 	{	// draw icon
 		DrawStamp (&s);
 	}
 	else
-	{	// erase icon
-		Color OldColor;
+	{	// erase icon	
 
-		OldColor = SetContextForeGroundColor (BLACK_COLOR);
+		SetContextForeGroundColor (GetShipFlashColor ());
 		DrawFilledStamp (&s);
 		SetContextForeGroundColor (OldColor);
 	}
@@ -113,6 +142,12 @@ DrawPickFrame (MELEE_STATE *pMS)
 	s.origin.y = 0;
 	DrawStamp (&s);
 	DrawMeleeShipStrings (pMS, pMS->currentShip);
+
+	if (isPC (optWhichMenu))
+	{// if PC menu is selected - draw flash on the current ship as soon as we pop up
+	 // otherwise for 1 frame it will look like nothing is selected
+		DrawPickIcon (pMS->currentShip, false);
+	}
 }
 
 void

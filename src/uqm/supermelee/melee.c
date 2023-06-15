@@ -855,7 +855,7 @@ Select (BYTE opt)
 			}
 			break;
 		case BUILD_PICK:
-			DrawPickIcon (pMeleeState->currentShip, false);
+			DrawPickIcon (pMeleeState->currentShip, (true & is3DO (optWhichMenu)));
 			break;
 	}
 }
@@ -872,7 +872,7 @@ Melee_flashSelection (MELEE_STATE *pMS)
 	{
 		CONTEXT OldContext;
 
-		NextTime = Now + FLASH_RATE;
+		NextTime = Now + ((pMS->MeleeOption != BUILD_PICK || is3DO (optWhichMenu)) ? FLASH_RATE : BLINK_RATE);
 		select = !select;
 
 		OldContext = SetContext (SpaceContext);
@@ -1153,7 +1153,7 @@ DoEdit (MELEE_STATE *pMS)
 			&& PulsedInputState.menu[KEY_MENU_SELECT])
 	{
 		// Show a popup to add a new ship to the current team.
-		Deselect (EDIT_MELEE);
+		Select (EDIT_MELEE);
 		BuildPickShipPopup (pMS);
 	}
 	else if (pMS->row < NUM_MELEE_ROWS
