@@ -39,6 +39,8 @@
 		BUILD_COLOR (MAKE_RGB15 (0x0F, 0x10, 0x1B), 0x00)
 #define LOAD_TEAM_NAME_TEXT_COLOR_HILITE \
 		BUILD_COLOR (MAKE_RGB15 (0x17, 0x18, 0x1D), 0x00)
+#define LOAD_TEAM_NAME_BACKGROUND_COLOR \
+		BUILD_COLOR_RGBA (0x1E, 0x1E, 0x5D, 0xFF)
 
 
 #define LOAD_MELEE_BOX_WIDTH RES_SCALE (34) 
@@ -155,17 +157,25 @@ static void
 DrawFileString (const MeleeTeam *team, const POINT *origin,
 		BOOLEAN drawShips, BOOLEAN highlite)
 {
-	SetContextForeGroundColor (highlite ?
+	Color textColor = (highlite ?
 			LOAD_TEAM_NAME_TEXT_COLOR_HILITE : LOAD_TEAM_NAME_TEXT_COLOR);
 
 	// Print the name of the fleet
 	{
 		TEXT Text;
+		RECT r;
 
 		Text.baseline = *origin;
 		Text.align = ALIGN_LEFT;
 		Text.pStr = MeleeTeam_getTeamName(team);
 		Text.CharCount = (COUNT)~0;
+		r = font_GetTextRect (&Text);
+		// Adjust rect height so it won't overlap the ships or border
+		r.corner.y += RES_SCALE (3);
+		r.extent.height -= RES_SCALE (3);
+		SetContextForeGroundColor (LOAD_TEAM_NAME_BACKGROUND_COLOR);
+		DrawFilledRectangle (&r);
+		SetContextForeGroundColor (textColor);
 		font_DrawText (&Text);
 	}
 
@@ -173,6 +183,7 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 	{
 		TEXT Text;
 		UNICODE buf[60];
+		RECT r;
 
 		sprintf (buf, "%u", MeleeTeam_getValue (team));
 		Text.baseline = *origin;
@@ -181,6 +192,13 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 		Text.align = ALIGN_RIGHT;
 		Text.pStr = buf;
 		Text.CharCount = (COUNT)~0;
+		r = font_GetTextRect (&Text);
+		// Adjust rect height so it won't overlap the ships or border
+		r.corner.y += RES_SCALE (3);
+		r.extent.height -= RES_SCALE (3);
+		SetContextForeGroundColor (LOAD_TEAM_NAME_BACKGROUND_COLOR);
+		DrawFilledRectangle (&r);
+		SetContextForeGroundColor (textColor);
 		font_DrawText (&Text);
 	}
 
