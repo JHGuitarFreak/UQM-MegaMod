@@ -182,9 +182,9 @@ enum
 #define MELEE_STATUS_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02)
 
-
-FRAME MeleeFrame;
 		// Loaded from melee/melebkgd.ani
+FRAME MeleeFrame;
+FRAME TeamTextBackground[2];
 MELEE_STATE *pMeleeState;
 
 BOOLEAN DoMelee (MELEE_STATE *pMS);
@@ -437,6 +437,19 @@ RedrawMeleeFrame (void)
 	r.extent.height = SCREEN_HEIGHT;
 
 	RepairMeleeFrame (&r);
+}
+
+static void
+DrawTeamStringsBackGround (COUNT side)
+{
+	STAMP s;
+
+	s.origin.x = RES_SCALE (1);
+	s.origin.y = RES_SCALE (94 << side);
+
+	s.frame = TeamTextBackground[side];
+
+	DrawStamp (&s);
 }
 
 static void
@@ -785,6 +798,7 @@ Deselect (BYTE opt)
 				else if (pMeleeState->CurIndex == MELEE_STATE_INDEX_DONE)
 				{
 					// Not currently editing the team name.
+					DrawTeamStringsBackGround (pMeleeState->side);
 					DrawTeamString (pMeleeState, pMeleeState->side,
 							DTSHS_NORMAL, NULL);
 					DrawFleetValue (pMeleeState, pMeleeState->side,
@@ -847,6 +861,7 @@ Select (BYTE opt)
 				else if (pMeleeState->CurIndex == MELEE_STATE_INDEX_DONE)
 				{
 					// Not currently editing the team name.
+					DrawTeamStringsBackGround (pMeleeState->side);
 					DrawTeamString (pMeleeState, pMeleeState->side,
 							DTSHS_SELECTED, NULL);
 					DrawFleetValue (pMeleeState, pMeleeState->side,
@@ -886,6 +901,31 @@ Melee_flashSelection (MELEE_STATE *pMS)
 }
 
 static void
+InitTextBackgroundFrames (void)
+{
+	RECT r;
+	CONTEXT oldContext;
+	STAMP s;
+
+	oldContext = SetContext (OffScreenContext);
+	SetContextFGFrame (SetAbsFrameIndex (MeleeFrame, 0));
+	SetContextClipRect (NULL);
+
+	r.extent.width = RES_SCALE (245);
+	r.extent.height = RES_SCALE (13);
+	r.corner.x = RES_SCALE (1);
+	r.corner.y = RES_SCALE (94);
+
+	TeamTextBackground[0] = CaptureDrawable (CopyContextRect (&r));
+
+	r.corner.y <<= 1;
+
+	TeamTextBackground[1] = CaptureDrawable(CopyContextRect(&r));
+
+	SetContext (oldContext);
+}
+
+static void
 InitMelee (MELEE_STATE *pMS)
 {
 	RECT r;
@@ -903,6 +943,9 @@ InitMelee (MELEE_STATE *pMS)
 
 	r.corner.x = r.corner.y = 0;
 	RedrawMeleeFrame ();
+
+	InitTextBackgroundFrames();
+
 
 	(void) pMS;
 }
@@ -1458,6 +1501,7 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 static void
 FreeMeleeInfo (MELEE_STATE *pMS)
 {
+	COUNT i;
 	DestroyDirEntryTable (ReleaseDirEntryTable (pMS->load.dirEntries));
 	pMS->load.dirEntries = 0;
 
@@ -1472,6 +1516,11 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	DestroyPickMeleeFrame ();
 	DestroyDrawable (ReleaseDrawable (MeleeFrame));
 	MeleeFrame = 0;
+	for (i = 0; i < 2; i++)
+	{
+		DestroyDrawable (ReleaseDrawable (TeamTextBackground[i]));
+		TeamTextBackground[i] = 0;
+	}
 	DestroyBuildPickFrame ();
 
 #ifdef NETPLAY
