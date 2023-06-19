@@ -109,6 +109,7 @@ void RepairMeleeFrame (const RECT *pRect);
 void DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip);
 extern FRAME MeleeFrame;
 void Melee_flashSelection (MELEE_STATE *pMS);
+extern FRAME TeamNameBackground[7];
 
 COUNT GetShipValue (MeleeShip StarShip);
 
