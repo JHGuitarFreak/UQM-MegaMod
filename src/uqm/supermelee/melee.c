@@ -105,6 +105,18 @@ enum
 
 #define MENU_X_OFFS RES_SCALE (29)
 
+// Team names in main menu
+#define TEAM_NAME_BOX_WIDTH RES_SCALE (245)
+#define TEAM_NAME_BOX_HEIGHT RES_SCALE (13)
+#define TEAM_NAME_BOX_X_OFFS RES_SCALE (1)
+#define TEAM_NAME_BOX_Y_OFFS RES_SCALE (94)
+
+//Team names in loadmele.c
+#define TEAM_NAME_L_BOX_WIDTH RES_SCALE (244)
+#define TEAM_NAME_L_BOX_HEIGHT RES_SCALE (10)
+#define TEAM_NAME_L_BOX_X_OFFS RES_SCALE (3)
+#define TEAM_NAME_L_BOX_Y_OFFS RES_SCALE (32)
+
 #define INFO_ORIGIN_X RES_SCALE (4)
 #define INFO_WIDTH RES_SCALE (58)
 #define TEAM_INFO_ORIGIN_Y RES_SCALE (3)
@@ -184,7 +196,8 @@ enum
 
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
-FRAME TeamTextBackground[2];
+		// For rectangles that appear under flashing text (2 - for main melee menu, 5 - for loadmele.c)
+FRAME TeamNameBackground[7];
 MELEE_STATE *pMeleeState;
 
 BOOLEAN DoMelee (MELEE_STATE *pMS);
@@ -447,7 +460,7 @@ DrawTeamStringsBackGround (COUNT side)
 	s.origin.x = RES_SCALE (1);
 	s.origin.y = RES_SCALE (94 << side);
 
-	s.frame = TeamTextBackground[side];
+	s.frame = TeamNameBackground[side];
 
 	DrawStamp (&s);
 }
@@ -906,21 +919,35 @@ InitTextBackgroundFrames (void)
 	RECT r;
 	CONTEXT oldContext;
 	STAMP s;
+	COUNT i;
 
 	oldContext = SetContext (OffScreenContext);
 	SetContextFGFrame (SetAbsFrameIndex (MeleeFrame, 0));
 	SetContextClipRect (NULL);
 
-	r.extent.width = RES_SCALE (245);
-	r.extent.height = RES_SCALE (13);
-	r.corner.x = RES_SCALE (1);
-	r.corner.y = RES_SCALE (94);
+	r.extent.width = TEAM_NAME_BOX_WIDTH;
+	r.extent.height = TEAM_NAME_BOX_HEIGHT;
+	r.corner.x = TEAM_NAME_BOX_X_OFFS;
+	r.corner.y = TEAM_NAME_BOX_Y_OFFS;
 
-	TeamTextBackground[0] = CaptureDrawable (CopyContextRect (&r));
+	TeamNameBackground[0] = CaptureDrawable (CopyContextRect (&r));
 
 	r.corner.y <<= 1;
 
-	TeamTextBackground[1] = CaptureDrawable(CopyContextRect(&r));
+	TeamNameBackground[1] = CaptureDrawable (CopyContextRect (&r));
+
+	SetContextFGFrame (SetAbsFrameIndex (MeleeFrame, 30 + optControllerType));
+	SetContextClipRect (NULL);
+
+	r.extent.width = TEAM_NAME_L_BOX_WIDTH;
+	r.extent.height = TEAM_NAME_L_BOX_HEIGHT;
+	r.corner.x = r.corner.y = TEAM_NAME_L_BOX_X_OFFS;
+
+	for (i = 2; i < ARRAY_SIZE (TeamNameBackground); i++)
+	{
+		TeamNameBackground[i] = CaptureDrawable (CopyContextRect (&r));
+		r.corner.y += TEAM_NAME_L_BOX_Y_OFFS;
+	}
 
 	SetContext (oldContext);
 }
@@ -1516,10 +1543,10 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	DestroyPickMeleeFrame ();
 	DestroyDrawable (ReleaseDrawable (MeleeFrame));
 	MeleeFrame = 0;
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < ARRAY_SIZE (TeamNameBackground); i++)
 	{
-		DestroyDrawable (ReleaseDrawable (TeamTextBackground[i]));
-		TeamTextBackground[i] = 0;
+		DestroyDrawable (ReleaseDrawable (TeamNameBackground[i]));
+		TeamNameBackground[i] = 0;
 	}
 	DestroyBuildPickFrame ();
 
