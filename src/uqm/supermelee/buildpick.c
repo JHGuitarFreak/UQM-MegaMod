@@ -115,7 +115,7 @@ void
 DrawPickIcon (MeleeShip ship, bool DrawErase)
 {
 	STAMP s;
-	RECT r;	
+	RECT r;
 
 	GetFrameRect (BuildPickFrame, &r);
 
@@ -135,7 +135,7 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 		DrawStamp (&s);
 	}
 	else
-	{	// erase icon	
+	{	// erase icon
 		Color OldColor;
 
 		OldColor = SetContextForeGroundColor (GetShipFlashColor ());
