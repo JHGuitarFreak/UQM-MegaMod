@@ -80,13 +80,42 @@ GetShipFlashColor (void)
 	}
 }
 
+// Draw part of the frame underneath the ship (removes artifacts in HD)
+void
+RepairBuildPickFrame (RECT *pRect, POINT *origin)
+{
+	RECT r;
+	CONTEXT OldContext;
+	RECT OldRect;
+	POINT oldOrigin;
+	STAMP s;
+
+	r.corner.x = origin->x;
+	r.corner.y = origin->y;
+	r.extent.width = r.extent.height = RES_SCALE (16);
+
+	OldContext = SetContext (SpaceContext);
+	GetContextClipRect (&OldRect);
+	SetContextClipRect (&r);
+	oldOrigin = SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
+
+	s.origin.x = pRect->corner.x;
+	s.origin.y = pRect->corner.y;
+	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);;
+
+	DrawStamp (&s);
+
+	SetContextOrigin (oldOrigin);
+	SetContextClipRect (&OldRect);
+	SetContext (OldContext);
+}
+
 // Draw a ship icon in the ship selection popup.
 void
 DrawPickIcon (MeleeShip ship, bool DrawErase)
 {
 	STAMP s;
-	RECT r;
-	Color OldColor;
+	RECT r;	
 
 	GetFrameRect (BuildPickFrame, &r);
 
@@ -97,13 +126,9 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 
 	s.frame = GetShipIconsFromIndex (ship);
 
-	// Draw black rectangle below ship to remove artifacts in HD
-	OldColor = SetContextForeGroundColor (BLACK_COLOR);
-	r.extent.width = r.extent.height = RES_SCALE (16);
-	r.corner = s.origin;
-
-	DrawFilledRectangle (&r);
-	SetContextForeGroundColor (OldColor);
+	// Draw a rectangle below ship to remove artifacts in HD
+	if (IS_HD)
+		RepairBuildPickFrame (&r, &s.origin);
 
 	if (DrawErase)
 	{	// draw icon
@@ -111,8 +136,9 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 	}
 	else
 	{	// erase icon	
+		Color OldColor;
 
-		SetContextForeGroundColor (GetShipFlashColor ());
+		OldColor = SetContextForeGroundColor (GetShipFlashColor ());
 		DrawFilledStamp (&s);
 		SetContextForeGroundColor (OldColor);
 	}
