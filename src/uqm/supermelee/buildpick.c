@@ -204,6 +204,7 @@ DrawTooltip (SHIP_INFO *SIPtr)
 
 	SetContextForeGroundColor (TOOLTIP_COLOR_NAME_FRONT);
 	Text.baseline.x -= RES_SCALE (1);
+	Text.baseline.y -= RES_SCALE (1);
 	font_DrawText (&Text);
 
 	SetContextForeGroundColor (TOOLTIP_COLOR_DESC_FRONT);
@@ -212,7 +213,7 @@ DrawTooltip (SHIP_INFO *SIPtr)
 			GET_STRING (SIPtr->race_strings, RACE_DESC_OFFSET));
 	ptr = strtok (buf, delim);
 
-	Text.baseline.y += RES_SCALE (1);
+	Text.baseline.y += RES_SCALE (2);
 
 	while (ptr != NULL)
 	{
