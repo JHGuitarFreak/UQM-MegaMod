@@ -111,10 +111,12 @@ extern FRAME MeleeFrame;
 void Melee_flashSelection (MELEE_STATE *pMS);
 extern FRAME TeamNameBackground[7];
 
+extern void multiLineDrawText (TEXT *textIn, RECT *clipRect, COORD y);
+
 COUNT GetShipValue (MeleeShip StarShip);
 
 void updateRandomSeed (MELEE_STATE *pMS, COUNT side, DWORD seed);
-void confirmationCancelled(MELEE_STATE *pMS, COUNT side);
+void confirmationCancelled (MELEE_STATE *pMS, COUNT side);
 void connectedFeedback (NetConnection *conn);
 void abortFeedback (NetConnection *conn, NetplayAbortReason reason);
 void resetFeedback (NetConnection *conn, NetplayResetReason reason,

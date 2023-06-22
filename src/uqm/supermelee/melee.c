@@ -264,6 +264,65 @@ GetShipBox (RECT *pRect, COUNT side, COUNT row, COUNT col)
 	pRect->extent.height = MELEE_BOX_HEIGHT;
 }
 
+// This function is generic. It should probably be moved to elsewhere.
+// Kruzen: moved up and no longer static (so it could be used by others)
+void
+multiLineDrawText (TEXT *textIn, RECT *clipRect, COORD y) {
+	RECT oldRect;
+
+	SIZE leading;
+	TEXT text;
+	SIZE lineWidth;
+
+	GetContextClipRect (&oldRect);
+
+	SetContextClipRect (clipRect);
+	GetContextFontLeading (&leading);
+
+	text = *textIn;
+	switch (text.align)
+	{
+		case ALIGN_CENTER:
+		{
+			text.baseline.x = clipRect->extent.width >> 1;
+			break;
+		}
+		case ALIGN_RIGHT:
+		{
+			text.baseline.x = clipRect->extent.width - RES_SCALE (1);
+			break;
+		}
+		case ALIGN_LEFT:
+		default:
+		{
+			text.baseline.x = RES_SCALE (1);
+			break;
+		}
+	}
+	text.baseline.y = y;
+
+	if (clipRect->extent.width <= text.baseline.x)
+		goto out;
+
+	lineWidth = clipRect->extent.width - RES_SCALE (1);
+
+	while (*text.pStr != '\0') {
+		const char* nextLine;
+
+		text.baseline.y += leading;
+		text.CharCount = (COUNT) ~0;
+		getLineWithinWidth (&text, &nextLine, lineWidth, text.CharCount);
+		// This will also fill in text->CharCount.
+
+		font_DrawText (&text);
+
+		text.pStr = nextLine;
+	}
+
+out:
+	SetContextClipRect(&oldRect);
+}
+
 static void
 DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 {
@@ -278,7 +337,7 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 	if (IS_HD)
 	{// Draw prerendered rectangles in HD
 		STAMP s;
-#define HD_SHIPBOX_START_INDEX 43
+#define HD_SHIPBOX_START_INDEX 44
 
 		s.origin = r.corner;
 		s.frame = SetAbsFrameIndex (MeleeFrame, HD_SHIPBOX_START_INDEX 
@@ -633,46 +692,6 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 }
 
 #ifdef NETPLAY
-// This function is generic. It should probably be moved to elsewhere.
-static void
-multiLineDrawText (TEXT *textIn, RECT *clipRect) {
-	RECT oldRect;
-
-	SIZE leading;
-	TEXT text;
-	SIZE lineWidth;
-
-	GetContextClipRect (&oldRect);
-
-	SetContextClipRect (clipRect);
-	GetContextFontLeading (&leading);
-
-	text = *textIn;
-	text.baseline.x = RES_SCALE (1);
-	text.baseline.y = 0;
-
-	if (clipRect->extent.width <= text.baseline.x)
-		goto out;
-
-	lineWidth = clipRect->extent.width - text.baseline.x;
-
-	while (*text.pStr != '\0') {
-		const char *nextLine;
-
-		text.baseline.y += leading;
-		text.CharCount = (COUNT) ~0;
-		getLineWithinWidth (&text, &nextLine, lineWidth, text.CharCount);
-				// This will also fill in text->CharCount.
-			
-		font_DrawText (&text);
-
-		text.pStr = nextLine;
-	}
-
-out:
-	SetContextClipRect (&oldRect);
-}
-
 // Use an empty string to clear the status area.
 static void
 DrawMeleeStatusMessage (const char *message)
@@ -700,7 +719,7 @@ DrawMeleeStatusMessage (const char *message)
 		SetContextForeGroundColor (MELEE_STATUS_COLOR);
 		
 		BatchGraphics ();
-		multiLineDrawText (&lfText, &r);
+		multiLineDrawText (&lfText, &r, 0);
 		UnbatchGraphics ();
 	}
 
@@ -1033,6 +1052,9 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		MasterPtr = LockMasterShip (&master_q, hMasterShip);
 
 		InitShipStatus (&MasterPtr->ShipInfo, NULL, NULL, TRUE);
+		
+		if (pMS->MeleeOption == BUILD_PICK)
+			DrawTooltip (&MasterPtr->ShipInfo);
 
 		UnlockMasterShip (&master_q, hMasterShip);
 	}
@@ -1172,6 +1194,9 @@ BuildPickShipPopup (MELEE_STATE *pMS)
 		RECT r;
 			
 		GetBuildPickFrameRect (&r);
+		RepairMeleeFrame (&r);
+
+		GetTooltipBoxRect (&r);
 		RepairMeleeFrame (&r);
 	}
 

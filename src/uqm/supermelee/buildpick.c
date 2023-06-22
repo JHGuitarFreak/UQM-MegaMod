@@ -26,6 +26,15 @@
 
 static FRAME BuildPickFrame;
 
+#define TTIP_FRAME_OFFSET 43
+#define BUILDPICK_FRAME_OFFSET 27
+#define TOOLTIP_COLOR_NAME_BACK \
+		BUILD_COLOR_RGBA (0x2F, 0x2F, 0x2F, 0xFF)
+#define TOOLTIP_COLOR_NAME_FRONT \
+		BUILD_COLOR_RGBA (0xC7, 0xC7, 0xC7, 0xFF)
+#define TOOLTIP_COLOR_DESC_FRONT \
+		BUILD_COLOR_RGBA (0x81, 0x81, 0x81, 0xFF)
+
 void
 BuildBuildPickFrame (void)
 {
@@ -37,7 +46,7 @@ BuildBuildPickFrame (void)
 	// create team building ship selection box
 	s.origin.x = 0;
 	s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);
+	s.frame = SetAbsFrameIndex (MeleeFrame, BUILDPICK_FRAME_OFFSET + optControllerType);
 			// 5x5 grid of ships to pick from
 	GetFrameRect (s.frame, &r);
 
@@ -101,7 +110,7 @@ RepairBuildPickFrame (RECT *pRect, POINT *origin)
 
 	s.origin.x = pRect->corner.x;
 	s.origin.y = pRect->corner.y;
-	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);;
+	s.frame = SetAbsFrameIndex (MeleeFrame, BUILDPICK_FRAME_OFFSET + optControllerType);;
 
 	DrawStamp (&s);
 
@@ -142,6 +151,76 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 		DrawFilledStamp (&s);
 		SetContextForeGroundColor (OldColor);
 	}
+}
+
+static void 
+DrawTooltipBox (void)
+{
+	STAMP s;
+
+	s.origin.x = s.origin.y = 0;
+	s.frame = SetAbsFrameIndex (MeleeFrame, TTIP_FRAME_OFFSET);
+
+	DrawStamp (&s);
+}
+
+void
+GetTooltipBoxRect (RECT *r)
+{
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, TTIP_FRAME_OFFSET), r);
+}
+
+void
+DrawTooltip (SHIP_INFO *SIPtr)
+{
+	STRING raceName;
+	STRING shipName;
+	STRING descStrg;
+	UNICODE buf[30];
+	TEXT Text;
+	CONTEXT oldContext;
+	FONT oldFont;
+	Color oldColor;
+	RECT r;
+
+	GetTooltipBoxRect (&r);
+
+	raceName = SetAbsStringTableIndex (SIPtr->race_strings, RACE_NAME_OFFSET);
+	shipName = SetAbsStringTableIndex (SIPtr->race_strings, RACE_SHIP_OFFSET);
+	descStrg = SetAbsStringTableIndex (SIPtr->race_strings, RACE_DESC_OFFSET);
+	
+	sprintf (buf, "%s %s", (UNICODE *)GetStringAddress (raceName), (UNICODE *)GetStringAddress (shipName));
+
+	Text.pStr = buf;
+	Text.CharCount = GetStringLength (raceName) + GetStringLength (shipName) + 1;
+	Text.align = ALIGN_CENTER;
+	Text.baseline.y = r.corner.y + RES_SCALE (10);
+	Text.baseline.x = r.corner.x + (r.extent.width >> 1) + RES_SCALE (1);
+
+	oldContext = SetContext (SpaceContext);
+	DrawTooltipBox ();
+
+	oldFont = SetContextFont (StarConFont);
+	oldColor = SetContextForeGroundColor (TOOLTIP_COLOR_NAME_BACK);
+	font_DrawText (&Text);
+
+	SetContextForeGroundColor (TOOLTIP_COLOR_NAME_FRONT);
+	Text.baseline.y -= RES_SCALE (1);
+	Text.baseline.x -= RES_SCALE (1);
+	font_DrawText (&Text);
+
+	Text.pStr = (UNICODE *)GetStringAddress (descStrg);
+	SetContextForeGroundColor (TOOLTIP_COLOR_DESC_FRONT);
+	r.corner.x += RES_SCALE (4);
+	r.corner.y += RES_SCALE (13);
+	r.extent.width -= RES_SCALE (8);
+	r.extent.height -= RES_SCALE (17);
+	
+	multiLineDrawText (&Text, &r, - RES_SCALE (2));
+
+	
+	SetContextFont (oldFont);
+	SetContext (oldContext);
 }
 
 void
@@ -280,6 +359,6 @@ BuildPickShip (MELEE_STATE *pMS)
 
 	pMS->InputFunc = DoPickShip;
 	DoInput (pMS, FALSE);
-	
+
 	return pMS->buildPickConfirmed;
 }
