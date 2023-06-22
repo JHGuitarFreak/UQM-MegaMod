@@ -156,7 +156,10 @@ DrawToolTip (MeleeShip ship)
 			font_DrawText (&t);
 
 			t.baseline.y += RES_SCALE (3);
-			SetContextForeGroundColor (BUILD_SHADE_RGBA (0x81));
+			if (classicPackPresent)
+				SetContextForeGroundColor (BUILD_SHADE_RGBA (0xA1));
+			else
+				SetContextForeGroundColor (BUILD_SHADE_RGBA (0x81));
 		}
 
 		ptr = strtok (NULL, delim);
