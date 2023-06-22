@@ -93,7 +93,7 @@ load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData)
 
 	if (RDPtr->ship_info.race_strings_rsc != NULL_RESOURCE)
 	{
-		RDPtr->ship_info.race_strings =	CaptureStringTable (LoadStringTable (
+		RDPtr->ship_info.race_strings = CaptureStringTable (LoadStringTable (
 				RDPtr->ship_info.race_strings_rsc));
 		if (!RDPtr->ship_info.race_strings)
 		{

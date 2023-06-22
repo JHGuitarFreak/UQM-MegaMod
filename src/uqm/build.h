@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#define NAME_OFFSET 5
+#define NAME_OFFSET 6
 #define NUM_CAPTAINS_NAMES 16
 
 #define PickCaptainName() (((COUNT)TFB_Random () \
