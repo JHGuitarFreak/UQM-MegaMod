@@ -590,6 +590,12 @@
 
 #define OUTLINE_COLOR (BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x66))
 
+// === Super-Melee ToolTips ===
+
+#define TOOLTIP_COLOR_NAME_BACK  BUILD_SHADE_RGBA (0x2F)
+#define TOOLTIP_COLOR_NAME_FRONT BUILD_SHADE_RGBA (0xC7)
+#define TOOLTIP_COLOR_DESC_FRONT BUILD_SHADE_RGBA (0x81)
+
 
 // Temporary, until we can use C'99 features:
 #define BLACK_COLOR_INIT \

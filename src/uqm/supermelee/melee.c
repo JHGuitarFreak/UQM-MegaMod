@@ -231,14 +231,6 @@ DrawMeleeIcon (COUNT which_icon)
 	DrawStamp (&s);
 }
 
-// These icons come from ui/meleemenu.ani
-void
-DrawTeamBox (COUNT which_icon, STAMP s)
-{
-	s.frame = SetAbsFrameIndex (MeleeFrame, which_icon);
-	DrawStamp (&s);
-}
-
 static FleetShipIndex
 GetShipIndex (BYTE row, BYTE col)
 {
@@ -276,35 +268,38 @@ static void
 DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 {
 	RECT r;
-	STAMP s;
 	BYTE row = GetShipRow (index);
 	BYTE col = GetShipColumn (index);
-	BOOLEAN NoShip = (ship != MELEE_NONE);
+	BOOLEAN FilledSlot = (ship != MELEE_NONE);
 
 	GetShipBox (&r, side, row, col);
 
-	s.origin = r.corner;
-
 	BatchGraphics ();
-	if (HiLite) {
-		if (!IS_HD)
+	if (IS_HD)
+	{// Draw prerendered rectangles in HD
+		STAMP s;
+#define HD_SHIPBOX_START_INDEX 44
+
+		s.origin = r.corner;
+		s.frame = SetAbsFrameIndex (MeleeFrame, HD_SHIPBOX_START_INDEX 
+				+ FilledSlot + (HiLite << 1));
+		DrawStamp (&s);
+	}
+	else
+	{
+		if (HiLite)
 			DrawStarConBox (&r, 1,
-				SHIPBOX_TOPLEFT_COLOR_HILITE,
-				SHIPBOX_BOTTOMRIGHT_COLOR_HILITE,
-				NoShip, SHIPBOX_INTERIOR_COLOR_HILITE);
+					SHIPBOX_TOPLEFT_COLOR_HILITE,
+					SHIPBOX_BOTTOMRIGHT_COLOR_HILITE,
+					FilledSlot, SHIPBOX_INTERIOR_COLOR_HILITE);
 		else
-			DrawTeamBox (NoShip ? 45 : 46, s);
-	} else {
-		if (!IS_HD)
 			DrawStarConBox (&r, 1,
 					SHIPBOX_TOPLEFT_COLOR_NORMAL,
 					SHIPBOX_BOTTOMRIGHT_COLOR_NORMAL,
-					NoShip, SHIPBOX_INTERIOR_COLOR_NORMAL);
-		else
-			DrawTeamBox (NoShip ? 43 : 44, s);
+					FilledSlot, SHIPBOX_INTERIOR_COLOR_NORMAL);
 	}
 
-	if (NoShip)
+	if (FilledSlot)
 	{
 		STAMP s;
 		s.origin.x = r.corner.x + (r.extent.width >> 1);
@@ -1038,6 +1033,9 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 		MasterPtr = LockMasterShip (&master_q, hMasterShip);
 
 		InitShipStatus (&MasterPtr->ShipInfo, NULL, NULL, TRUE);
+		
+		if (optMeleeToolTips && pMS->MeleeOption == BUILD_PICK)
+			DrawTooltip (&MasterPtr->ShipInfo);
 
 		UnlockMasterShip (&master_q, hMasterShip);
 	}
@@ -1177,6 +1175,8 @@ BuildPickShipPopup (MELEE_STATE *pMS)
 		RECT r;
 			
 		GetBuildPickFrameRect (&r);
+		RepairMeleeFrame (&r);
+		GetToolTipFrameRect (&r);
 		RepairMeleeFrame (&r);
 	}
 

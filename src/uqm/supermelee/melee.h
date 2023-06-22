@@ -114,7 +114,7 @@ extern FRAME TeamNameBackground[7];
 COUNT GetShipValue (MeleeShip StarShip);
 
 void updateRandomSeed (MELEE_STATE *pMS, COUNT side, DWORD seed);
-void confirmationCancelled(MELEE_STATE *pMS, COUNT side);
+void confirmationCancelled (MELEE_STATE *pMS, COUNT side);
 void connectedFeedback (NetConnection *conn);
 void abortFeedback (NetConnection *conn, NetplayAbortReason reason);
 void resetFeedback (NetConnection *conn, NetplayResetReason reason,

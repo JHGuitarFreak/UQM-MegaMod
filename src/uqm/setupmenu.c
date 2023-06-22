@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       79
+#define CHOICE_COUNT       80
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -241,6 +241,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[60]),   // Smart Auto-Pilot
 	(WIDGET *)(&choices[78]),   // Advanced Auto-Pilot
 	(WIDGET *)(&choices[74]),   // Show Visited Stars
+	(WIDGET *)(&choices[79]),   // Melee Tool Tips
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -629,6 +630,7 @@ SetDefaults (void)
 	choices[76].selected = opts.sphereType;
 	choices[77].selected = opts.slaughterMode;
 	choices[78].selected = opts.advancedAutoPilot;
+	choices[79].selected = opts.meleeToolTips;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -723,6 +725,7 @@ PropagateResults (void)
 	opts.sphereType = choices[76].selected;
 	opts.slaughterMode = choices[77].selected;
 	opts.advancedAutoPilot = choices[78].selected;
+	opts.meleeToolTips = choices[79].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1688,6 +1691,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nebulaevol = res_GetInteger ("mm.nebulaevol");
 	opts->slaughterMode = optSlaughterMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->advancedAutoPilot = optAdvancedAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->meleeToolTips = optMeleeToolTips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2194,6 +2198,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.advancedAutoPilot", opts->advancedAutoPilot == OPTVAL_ENABLED);
 	optAdvancedAutoPilot = (opts->advancedAutoPilot == OPTVAL_ENABLED);
+
+	res_PutBoolean ("mm.meleeToolTips", opts->meleeToolTips == OPTVAL_ENABLED);
+	optMeleeToolTips = (opts->meleeToolTips == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

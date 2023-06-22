@@ -155,6 +155,9 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 #define BUILD_COLOR_RGBA(r, g, b, a) \
 		buildColorRgba ((r), (g), (b), (a))
 
+#define BUILD_SHADE_RGBA(s) \
+		buildColorRgba ((s), (s), (s), 0xFF)
+
 
 typedef BYTE CREATE_FLAGS;
 // WANT_MASK is deprecated (and non-functional). It used to generate a bitmap

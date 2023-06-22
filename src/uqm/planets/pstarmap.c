@@ -1071,7 +1071,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					
 					locString = SetAbsStringTableIndex (
 							FleetPtr->race_strings,
-							(index == ANDROSYNTH_SHIP? 0 : 1));
+							(index == ANDROSYNTH_SHIP ? 0 : 1));
 					t.CharCount = GetStringLength (locString);
 					t.pStr = (UNICODE *)GetStringAddress (locString);
 					

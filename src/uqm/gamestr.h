@@ -83,6 +83,7 @@ enum {
 
 
 #define GAME_STRING(i) ((UNICODE *)GetStringAddress (SetAbsStringTableIndex (GameStrings, (i))))
+#define GET_STRING(s,i) ((UNICODE *)GetStringAddress (SetAbsStringTableIndex ((s), (i))))
 
 extern STRING GameStrings;
 

@@ -23,8 +23,12 @@
 #include "../setup.h"
 #include "../sounds.h"
 #include "libs/gfxlib.h"
+#include "../gamestr.h"
 
 static FRAME BuildPickFrame;
+
+#define TTIP_FRAME_OFFSET 43
+#define BUILDPICK_FRAME_OFFSET 27
 
 void
 BuildBuildPickFrame (void)
@@ -37,7 +41,8 @@ BuildBuildPickFrame (void)
 	// create team building ship selection box
 	s.origin.x = 0;
 	s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			BUILDPICK_FRAME_OFFSET + optControllerType);
 			// 5x5 grid of ships to pick from
 	GetFrameRect (s.frame, &r);
 
@@ -101,7 +106,8 @@ RepairBuildPickFrame (RECT *pRect, POINT *origin)
 
 	s.origin.x = pRect->corner.x;
 	s.origin.y = pRect->corner.y;
-	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);;
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			BUILDPICK_FRAME_OFFSET + optControllerType);
 
 	DrawStamp (&s);
 
@@ -144,6 +150,84 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 	}
 }
 
+static void 
+DrawTooltipBox (void)
+{
+	STAMP s;
+
+	s.origin.x = s.origin.y = 0;
+	s.frame = SetAbsFrameIndex (MeleeFrame, TTIP_FRAME_OFFSET);
+
+	DrawStamp (&s);
+}
+
+void
+GetToolTipFrameRect (RECT *r)
+{
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, TTIP_FRAME_OFFSET), r);
+}
+
+#define RACE_NAME_OFFSET 0
+#define RACE_SHIP_OFFSET 3
+#define RACE_DESC_OFFSET 5
+
+void
+DrawTooltip (SHIP_INFO *SIPtr)
+{
+	UNICODE *ptr;
+	UNICODE buf[PATH_MAX];
+	TEXT Text;
+	CONTEXT oldContext;
+	FONT oldFont;
+	Color oldColor;
+	RECT r;
+	UNICODE delim[] = "\n";
+
+	GetToolTipFrameRect (&r);
+	
+	sprintf (buf, "%s %s",
+			GET_STRING (SIPtr->race_strings, RACE_NAME_OFFSET),
+			GET_STRING (SIPtr->race_strings, RACE_SHIP_OFFSET));
+
+	Text.pStr = buf;
+	Text.CharCount = utf8StringCount (buf);
+	Text.align = ALIGN_CENTER;
+	Text.baseline.y = r.corner.y + RES_SCALE (8) + RES_SCALE (1);
+	Text.baseline.x = r.corner.x + (r.extent.width >> 1) + RES_SCALE (1);
+
+	oldContext = SetContext (SpaceContext);
+	DrawTooltipBox ();
+
+	oldFont = SetContextFont (StarConFont);
+	oldColor = SetContextForeGroundColor (TOOLTIP_COLOR_NAME_BACK);
+	font_DrawText (&Text);
+
+	SetContextForeGroundColor (TOOLTIP_COLOR_NAME_FRONT);
+	Text.baseline.x -= RES_SCALE (1);
+	Text.baseline.y -= RES_SCALE (1);
+	font_DrawText (&Text);
+
+	SetContextForeGroundColor (TOOLTIP_COLOR_DESC_FRONT);
+
+	utf8StringCopy (buf, sizeof buf,
+			GET_STRING (SIPtr->race_strings, RACE_DESC_OFFSET));
+	ptr = strtok (buf, delim);
+
+	Text.baseline.y += RES_SCALE (2);
+
+	while (ptr != NULL)
+	{
+		Text.pStr = ptr;
+		Text.CharCount = utf8StringCount (ptr);
+		Text.baseline.y += RES_SCALE (9);
+		font_DrawText (&Text);
+		ptr = strtok (NULL, delim);
+	}
+	
+	SetContextFont (oldFont);
+	SetContext (oldContext);
+}
+
 void
 DrawPickFrame (MELEE_STATE *pMS)
 {
@@ -170,8 +254,9 @@ DrawPickFrame (MELEE_STATE *pMS)
 	DrawMeleeShipStrings (pMS, pMS->currentShip);
 
 	if (isPC (optWhichMenu))
-	{// if PC menu is selected - draw flash on the current ship as soon as we pop up
-	 // otherwise for 1 frame it will look like nothing is selected
+	{	// if PC menu is selected - draw flash on the current ship as soon
+		// as we pop up otherwise for 1 frame it will look like nothing is
+		// selected
 		DrawPickIcon (pMS->currentShip, false);
 	}
 }
@@ -280,6 +365,6 @@ BuildPickShip (MELEE_STATE *pMS)
 
 	pMS->InputFunc = DoPickShip;
 	DoInput (pMS, FALSE);
-	
+
 	return pMS->buildPickConfirmed;
 }
