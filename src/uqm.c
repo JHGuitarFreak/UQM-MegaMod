@@ -204,6 +204,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  nebulaevol);
 	DECL_CONFIG_OPTION(bool, slaughterMode);
 	DECL_CONFIG_OPTION(bool, advancedAutoPilot);
+	DECL_CONFIG_OPTION(bool, meleeToolTips);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -412,6 +413,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  nebulaevol,        24 ),
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
+		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -634,6 +636,7 @@ main (int argc, char *argv[])
 	optNebulaeVolume = options.nebulaevol.value;
 	optSlaughterMode = options.slaughterMode.value;
 	optAdvancedAutoPilot = options.advancedAutoPilot.value;
+	optMeleeToolTips = options.meleeToolTips.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1056,6 +1059,7 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->slaughterMode, "mm.slaughterMode");
 	getBoolConfigValue (&options->advancedAutoPilot, "mm.advancedAutoPilot");
+	getBoolConfigValue (&options->meleeToolTips, "mm.meleeToolTips");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1149,6 +1153,7 @@ enum
 	SCANSPH_OPT,
 	SLAUGHTER_OPT,
 	SISADVAP_OPT,
+	MELEETIPS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1255,6 +1260,7 @@ static struct option longOptions[] =
 	{"nebulaevol", 1, NULL, NEBUVOL_OPT},
 	{"slaughtermode", 0, NULL, SLAUGHTER_OPT},
 	{"advancedautopilot", 0, NULL, SISADVAP_OPT},
+	{"meleetooltips", 0, NULL, MELEETIPS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1889,6 +1895,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SISADVAP_OPT:
 				setBoolOption (&options->advancedAutoPilot, true);
 				break;
+			case MELEETIPS_OPT:
+				setBoolOption (&options->meleeToolTips, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2201,10 +2210,10 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --orzcompfont : Enable alternate font for"
 			"untranslatable Orz speech (default: %s)",
 			boolOptString (&defaults->orzCompFont));
-	log_add (log_User, "  --advancedautopilot : Activating Auto-Pilot "
+	log_add (log_User, "  --smartautopilot : Activating Auto-Pilot "
 			"within Solar System pilots the Flagship out via the shortest "
 			"route. (default: %s)",
-			boolOptString (&defaults->advancedAutoPilot));
+			boolOptString (&defaults->smartAutoPilot));
 	log_add (log_User, "  --controllertype : 0: Keyboard | 1: Xbox | "
 			"2: PlayStation 4 (default: 0)");
 	log_add (log_User, "  --tintplansphere : Tint the planet sphere"
@@ -2264,6 +2273,10 @@ usage (FILE *out, const struct options_struct *defaults)
 			"the least amount of fuel through HyperSpace or QuasiSpace "
 			"and Auto-Pilots the Flagship on the best route (default: %s)",
 			boolOptString (&defaults->advancedAutoPilot));
+	log_add (log_User, "  --advancedautopilot : Finds the route that uses"
+			"the least amount of fuel through HyperSpace or QuasiSpace "
+			"and Auto-Pilots the Flagship on the best route (default: %s)",
+			boolOptString (&defaults->meleeToolTips));
 
 	log_setOutput (old);
 }

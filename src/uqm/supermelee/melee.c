@@ -1034,7 +1034,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 
 		InitShipStatus (&MasterPtr->ShipInfo, NULL, NULL, TRUE);
 		
-		if (pMS->MeleeOption == BUILD_PICK)
+		if (optMeleeToolTips && pMS->MeleeOption == BUILD_PICK)
 			DrawTooltip (&MasterPtr->ShipInfo);
 
 		UnlockMasterShip (&master_q, hMasterShip);

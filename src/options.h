@@ -110,6 +110,7 @@ extern int optNebulaeVolume;
 extern BOOLEAN optSlaughterMode;
 extern BOOLEAN optMaskOfDeceit;
 extern BOOLEAN optAdvancedAutoPilot;
+extern BOOLEAN optMeleeToolTips;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
