@@ -1178,6 +1178,8 @@ BuildPickShipPopup (MELEE_STATE *pMS)
 			
 		GetBuildPickFrameRect (&r);
 		RepairMeleeFrame (&r);
+		GetToolTipFrameRect (&r);
+		RepairMeleeFrame (&r);
 	}
 
 	UpdateCurrentShip (pMS);

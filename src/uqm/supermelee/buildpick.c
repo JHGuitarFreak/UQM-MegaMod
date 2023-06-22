@@ -23,6 +23,7 @@
 #include "../setup.h"
 #include "../sounds.h"
 #include "libs/gfxlib.h"
+#include "../gamestr.h"
 
 static FRAME BuildPickFrame;
 
@@ -101,13 +102,67 @@ RepairBuildPickFrame (RECT *pRect, POINT *origin)
 
 	s.origin.x = pRect->corner.x;
 	s.origin.y = pRect->corner.y;
-	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);;
+	s.frame = SetAbsFrameIndex (MeleeFrame, 27 + optControllerType);
 
 	DrawStamp (&s);
 
 	SetContextOrigin (oldOrigin);
 	SetContextClipRect (&OldRect);
 	SetContext (OldContext);
+}
+
+void
+DrawToolTip (MeleeShip ship)
+{
+	RECT r;
+	STAMP s;
+	TEXT t;
+	UNICODE *ptr;
+	UNICODE str[PATH_MAX];
+	UNICODE delim[] = "\n";
+	COUNT i = 0;
+
+	SetContextFont (StarConFont);
+
+	s.frame = SetAbsFrameIndex (MeleeFrame, RES_BOOL (43, 47));
+	s.origin = MAKE_POINT (0, 0);
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	t.baseline.x = r.extent.width / 2 + r.corner.x + RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (8) + RES_SCALE (2);
+	t.align = ALIGN_CENTER;
+
+	SetContextForeGroundColor (BUILD_SHADE_RGBA (0x2F));
+
+	utf8StringCopy (str, sizeof str,
+			GAME_STRING (SHIP_DESC_STRING_BASE + ship));
+	ptr = strtok (str, delim);
+
+	while (ptr != NULL)
+	{
+		if (i == 3)
+			break;
+
+		t.pStr = ptr;
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+
+		if (i == 0)
+		{	// For drop shadow
+			t.baseline.x -= RES_SCALE (1);
+			t.baseline.y -= RES_SCALE (1);
+			SetContextForeGroundColor (BUILD_SHADE_RGBA (0xC7));
+			font_DrawText (&t);
+
+			t.baseline.y += RES_SCALE (3);
+			SetContextForeGroundColor (BUILD_SHADE_RGBA (0x81));
+		}
+
+		ptr = strtok (NULL, delim);
+		t.baseline.y += RES_SCALE (9);
+		i++;
+	}
 }
 
 // Draw a ship icon in the ship selection popup.
@@ -182,6 +237,12 @@ GetBuildPickFrameRect (RECT *r)
 	GetFrameRect (BuildPickFrame, r);
 }
 
+void
+GetToolTipFrameRect (RECT *r)
+{
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, RES_BOOL (43, 47)), r);
+}
+
 static BOOLEAN
 DoPickShip (MELEE_STATE *pMS)
 {
@@ -254,6 +315,8 @@ DoPickShip (MELEE_STATE *pMS)
 			DrawPickIcon (pMS->currentShip, true);
 			pMS->currentShip = newSelectedShip;
 			DrawMeleeShipStrings (pMS, newSelectedShip);
+
+			DrawToolTip (pMS->currentShip);
 		}
 	}
 
@@ -277,9 +340,11 @@ BuildPickShip (MELEE_STATE *pMS)
 		pMS->currentShip = 0;
 
 	DrawPickFrame (pMS);
+	DrawToolTip (pMS->currentShip);
 
 	pMS->InputFunc = DoPickShip;
 	DoInput (pMS, FALSE);
+
 	
 	return pMS->buildPickConfirmed;
 }
