@@ -1737,6 +1737,9 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 
 #define NUM_FRAMES 32
 
+BOOLEAN GetCounter = TRUE;
+DWORD TimeOut;
+
 void
 SeedUniverse (void)
 {
@@ -2203,9 +2206,21 @@ SeedUniverse (void)
 
 		if (HyperRaceSOI != spaceMusicBySOI)
 		{
-			FreeBattleSong ();
-			StopMusic ();
-			BattleSong (TRUE);
+			if (GetCounter)
+			{
+				TimeOut = FadeMusic (0, ONE_SECOND / 2);
+				GetCounter = FALSE;
+			}
+
+			if (TimeOut <= GetTimeCounter () && !GetCounter)
+			{
+				StopMusic ();
+				FreeBattleSong ();
+				BattleSong (TRUE);
+				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+				GetCounter = TRUE;
+				TimeOut = 0;
+			}
 		}
 	}
 }
