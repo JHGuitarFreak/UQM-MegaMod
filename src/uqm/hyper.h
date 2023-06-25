@@ -86,8 +86,6 @@ extern BOOLEAN hyper_transition (ELEMENT *ElementPtr);
 extern void HyperspaceMenu (void);
 extern void SaveSisHyperState (void);
 
-extern RESOURCE hyperSpaceMusicSwitch (BYTE SpeciesID);
-
 #if defined(__cplusplus)
 }
 #endif

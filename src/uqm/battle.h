@@ -60,6 +60,8 @@ extern void BattleSong (BOOLEAN DoPlay);
 extern void FreeBattleSong (void);
 extern BOOLEAN RunAwayAllowed (void);
 
+extern int HyperRaceSOI;
+
 #if defined(__cplusplus)
 }
 #endif

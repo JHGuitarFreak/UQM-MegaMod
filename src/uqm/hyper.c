@@ -45,6 +45,8 @@
 #include "libs/mathlib.h"
 #include "libs/log.h"
 #include "state.h"
+#include "settings.h"
+#include "battle.h"
 
 #define XOFFS ((RADAR_SCAN_WIDTH + (UNIT_SCREEN_WIDTH << 2)) >> 1)
 #define YOFFS ((RADAR_SCAN_HEIGHT + (UNIT_SCREEN_HEIGHT << 2)) >> 1)
@@ -187,53 +189,6 @@ decorate_vortex (ELEMENT *ElementPtr)
 	}
 }
 
-RESOURCE
-hyperSpaceMusicSwitch (BYTE SpeciesID)
-{
-	switch (SpeciesID)
-	{
-		case ARILOU_ID:
-			return ARILOU_HYPERSPACE_MUSIC;
-		case CHMMR_ID:
-			return CHMMR_HYPERSPACE_MUSIC;
-		case ORZ_ID:
-			return ORZ_HYPERSPACE_MUSIC;
-		case PKUNK_ID:
-			return PKUNK_HYPERSPACE_MUSIC;
-		case SPATHI_ID:
-			return SPATHI_HYPERSPACE_MUSIC;
-		case SUPOX_ID:
-			return SUPOX_HYPERSPACE_MUSIC;
-		case THRADDASH_ID:
-			return THRADDASH_HYPERSPACE_MUSIC;
-		case UTWIG_ID:
-			return UTWIG_HYPERSPACE_MUSIC;
-		case VUX_ID:
-			return VUX_HYPERSPACE_MUSIC;
-		case YEHAT_ID:
-			return YEHAT_HYPERSPACE_MUSIC;
-		case DRUUGE_ID:
-			return DRUUGE_HYPERSPACE_MUSIC;
-		case ILWRATH_ID:
-			return ILWRATH_HYPERSPACE_MUSIC;
-		case MYCON_ID:
-			return MYCON_HYPERSPACE_MUSIC;
-		case UMGAH_ID:
-			return UMGAH_HYPERSPACE_MUSIC;
-		case UR_QUAN_ID:
-		case KOHR_AH_ID:
-			return URQUAN_HYPERSPACE_MUSIC;
-		case ZOQFOTPIK_ID:
-			return ZOQFOTPIK_HYPERSPACE_MUSIC;
-		case SYREEN_ID:
-			return SYREEN_HYPERSPACE_MUSIC;
-		case SA_MATRA_ID:
-			return KOHRAH_HYPERSPACE_MUSIC;
-		default:
-			return HYPERSPACE_MUSIC;
-	}
-}
-
 void
 MoveSIS (SDWORD *pdx, SDWORD *pdy)
 {
@@ -332,9 +287,6 @@ MoveSIS (SDWORD *pdx, SDWORD *pdy)
 			fuel_ticks = (BYTE)cur_fuel_ticks;
 		}
 	}
-
-	findRaceSOI ();
-	printf ("%s\n", hyperSpaceMusicSwitch (spaceMusicBySOI));
 }
 
 void
@@ -2243,6 +2195,18 @@ SeedUniverse (void)
 	{
 		GLOBAL (ShipStamp.origin) = universe;
 		DrawHyperCoords (universe);
+	}
+
+	if (SpaceMusicOK && inHyperSpace ())
+	{
+		findRaceSOI ();
+
+		if (HyperRaceSOI != spaceMusicBySOI)
+		{
+			FreeBattleSong ();
+			StopMusic ();
+			BattleSong (TRUE);
+		}
 	}
 }
 

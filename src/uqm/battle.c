@@ -52,6 +52,8 @@
 #include "libs/input/sdl/vcontrol.h"
 #include "hyper.h"
 		// for EraseRadar()
+#include "uqm/state.h"
+#include "uqm/build.h"
 
 
 BYTE battle_counter[NUM_SIDES];
@@ -248,6 +250,55 @@ DWORD BattleSeed;
 
 static MUSIC_REF BattleRef;
 
+RESOURCE
+hyperSpaceMusicSwitch (BYTE SpeciesID)
+{
+	switch (SpeciesID)
+	{
+		case ARILOU_ID:
+			return ARILOU_HYPERSPACE_MUSIC;
+		case CHMMR_ID:
+			return CHMMR_HYPERSPACE_MUSIC;
+		case ORZ_ID:
+			return ORZ_HYPERSPACE_MUSIC;
+		case PKUNK_ID:
+			return PKUNK_HYPERSPACE_MUSIC;
+		case SPATHI_ID:
+			return SPATHI_HYPERSPACE_MUSIC;
+		case SUPOX_ID:
+			return SUPOX_HYPERSPACE_MUSIC;
+		case THRADDASH_ID:
+			return THRADDASH_HYPERSPACE_MUSIC;
+		case UTWIG_ID:
+			return UTWIG_HYPERSPACE_MUSIC;
+		case VUX_ID:
+			return VUX_HYPERSPACE_MUSIC;
+		case YEHAT_ID:
+			return YEHAT_HYPERSPACE_MUSIC;
+		case DRUUGE_ID:
+			return DRUUGE_HYPERSPACE_MUSIC;
+		case ILWRATH_ID:
+			return ILWRATH_HYPERSPACE_MUSIC;
+		case MYCON_ID:
+			return MYCON_HYPERSPACE_MUSIC;
+		case UMGAH_ID:
+			return UMGAH_HYPERSPACE_MUSIC;
+		case UR_QUAN_ID:
+		case KOHR_AH_ID:
+			return URQUAN_HYPERSPACE_MUSIC;
+		case ZOQFOTPIK_ID:
+			return ZOQFOTPIK_HYPERSPACE_MUSIC;
+		case SYREEN_ID:
+			return SYREEN_HYPERSPACE_MUSIC;
+		case SA_MATRA_ID:
+			return KOHRAH_HYPERSPACE_MUSIC;
+		default:
+			return HYPERSPACE_MUSIC;
+	}
+}
+
+int HyperRaceSOI;
+
 void
 BattleSong (BOOLEAN DoPlay)
 {
@@ -255,10 +306,17 @@ BattleSong (BOOLEAN DoPlay)
 	{
 		if (inHyperSpace ())
 		{
-			findRaceSOI ();
-			printf ("%s\n", hyperSpaceMusicSwitch (spaceMusicBySOI));
-
-			BattleRef = LoadMusic (HYPERSPACE_MUSIC);
+			if (SpaceMusicOK)
+			{
+				findRaceSOI ();
+				HyperRaceSOI = spaceMusicBySOI;
+				BattleRef =
+						LoadMusic (hyperSpaceMusicSwitch (HyperRaceSOI));
+			}
+			else
+			{
+				BattleRef = LoadMusic (HYPERSPACE_MUSIC);
+			}
 		}
 		else if (inQuasiSpace ())
 			BattleRef = LoadMusic (QUASISPACE_MUSIC);

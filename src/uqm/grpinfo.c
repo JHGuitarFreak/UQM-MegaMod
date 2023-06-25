@@ -432,6 +432,12 @@ findRaceSOI (void)
 		spaceMusicBySOI = speciesID[1];
 	else
 		spaceMusicBySOI = NO_ID;
+
+	if (inHQSpace () && spaceMusicBySOI != NO_ID
+			&& !CheckSphereTracking (spaceMusicBySOI - 1))
+	{
+		spaceMusicBySOI = NO_ID;
+	}
 }
 
 static void
