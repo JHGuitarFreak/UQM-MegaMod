@@ -1738,7 +1738,7 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 #define NUM_FRAMES 32
 
 BOOLEAN GetCounter = TRUE;
-DWORD TimeOut;
+DWORD TimeOut = (DWORD)~0;
 
 void
 SeedUniverse (void)
@@ -2219,7 +2219,7 @@ SeedUniverse (void)
 				BattleSong (TRUE);
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 				GetCounter = TRUE;
-				TimeOut = 0;
+				TimeOut = (DWORD)~0;
 			}
 		}
 	}
