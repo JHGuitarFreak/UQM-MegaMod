@@ -49,7 +49,7 @@ extern DWORD PutGroupInfo (DWORD offset, BYTE which_group);
 		// Write IP group list from ip_group_q to the list entry
 		// (GROUP_LIST) in one of the state files
 extern void BuildGroups (void);
-extern void findRaceSOI(void);
+extern void findRaceSOI (void);
 
 typedef struct GAME_STATE_FILE GAME_STATE_FILE;
 

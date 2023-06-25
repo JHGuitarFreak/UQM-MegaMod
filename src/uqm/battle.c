@@ -254,7 +254,12 @@ BattleSong (BOOLEAN DoPlay)
 	if (BattleRef == 0)
 	{
 		if (inHyperSpace ())
+		{
+			findRaceSOI ();
+			printf ("%s\n", hyperSpaceMusicSwitch (spaceMusicBySOI));
+
 			BattleRef = LoadMusic (HYPERSPACE_MUSIC);
+		}
 		else if (inQuasiSpace ())
 			BattleRef = LoadMusic (QUASISPACE_MUSIC);
 		else
