@@ -132,7 +132,7 @@ get_current_music_pos (MUSIC_REF MusicRef)
 SDWORD
 PLRGetPos (void)
 {
-	return get_current_music_pos (curMusicRef);
+	return curMusicRef != 0 ? get_current_music_pos (curMusicRef) : 0;
 }
 
 void
