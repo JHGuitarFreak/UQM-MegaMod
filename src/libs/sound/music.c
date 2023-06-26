@@ -104,6 +104,8 @@ get_current_music_pos (MUSIC_REF MusicRef)
 {
 	sint32 start_time, pos;
 	uint32 length = 0;
+	uint32 frames = 0;
+	BOOLEAN isTracker = FALSE;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return 0;
@@ -111,14 +113,29 @@ get_current_music_pos (MUSIC_REF MusicRef)
 	if (MusicRef == curMusicRef || MusicRef == (MUSIC_REF)~0)
 	{
 		LockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
+
+		isTracker = soundSource[MUSIC_SOURCE].sample->decoder->filetype
+				== AUDIO_TRACKER;
+
 		start_time = soundSource[MUSIC_SOURCE].start_time;
-		length = soundSource[MUSIC_SOURCE].sample->decoder->length * 1000;
+
+		if (isTracker)
+		{
+			length = soundSource[MUSIC_SOURCE].sample->decoder->length;
+			frames = GetStreamFrame (MUSIC_SOURCE);
+		}
+		else
+			length = soundSource[MUSIC_SOURCE].sample->decoder->length * 1000;
+
 		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 	}
 	else
 		return 0;
 
-	pos = (GetTimeCounter () - start_time);
+	if (isTracker)
+		pos = frames;
+	else
+		pos = (GetTimeCounter () - start_time);
 
 	printf ("start_time %d, length %d, pos %d\n", start_time, length, pos);
 

@@ -190,6 +190,17 @@ SeekStream (uint32 source, uint32 pos)
 	PlayStream (sample, source, looping, scope, false);
 }
 
+uint32
+GetStreamFrame (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return;
+
+	return SoundDecoder_GetFrame (sample->decoder);
+}
+
 BOOLEAN
 PlayingStream (uint32 source)
 {	

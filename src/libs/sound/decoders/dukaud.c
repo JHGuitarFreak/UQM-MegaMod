@@ -460,6 +460,8 @@ duka_Open (THIS_PTR, uio_DirHandle *dir, const char *file)
 	// estimate
 	This->length = (float) duka->cframes / DUCK_GENERAL_FPS;
 
+	This->filetype = AUDIO_DUK;
+
 	duka->last_error = 0;
 
 	return true;

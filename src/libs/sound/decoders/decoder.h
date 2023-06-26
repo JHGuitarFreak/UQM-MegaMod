@@ -41,6 +41,16 @@ typedef struct tfb_decoderformats
 	uint32 stereo16;
 } TFB_DecoderFormats;
 
+typedef enum
+{
+	AUDIO_WAV,
+	AUDIO_TRACKER,
+	AUDIO_OGG,
+	AUDIO_DUK,
+	AUDIO_AIF,
+	NUM_AUDIO_FILETYPES
+} AUDIO_FILETYPES;
+
 // forward-declare
 typedef struct tfb_sounddecoder TFB_SoundDecoder;
 
@@ -94,6 +104,7 @@ struct tfb_sounddecoder
 	uint32 pos;
 	uint32 start_sample;
 	uint32 end_sample;
+	uint8 filetype;
 
 };
 

@@ -322,6 +322,7 @@ wava_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 				wava_formats->stereo8 : wava_formats->stereo16)
 			);
 	This->frequency = wava->fmtHdr.samplesPerSec;
+	This->filetype = AUDIO_WAV;
 
 	uio_fseek (wava->fp, wava->data_ofs, SEEK_SET);
 	wava->max_pcm = wava->data_size / wava->fmtHdr.blockAlign;

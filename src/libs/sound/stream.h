@@ -26,6 +26,7 @@ void StopStream (uint32 source);
 void PauseStream (uint32 source);
 void ResumeStream (uint32 source);
 void SeekStream (uint32 source, uint32 pos);
+uint32 GetStreamFrame (uint32 source);
 BOOLEAN PlayingStream (uint32 source);
 
 int GraphForegroundStream (uint8 *data, sint32 width, sint32 height,
