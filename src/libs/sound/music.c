@@ -122,19 +122,18 @@ get_current_music_pos (MUSIC_REF MusicRef)
 		if (isTracker)
 		{
 			length = soundSource[MUSIC_SOURCE].sample->decoder->length;
-			frames = GetStreamFrame (MUSIC_SOURCE);
+			pos = GetStreamFrame (MUSIC_SOURCE);
 		}
 		else
-			length = soundSource[MUSIC_SOURCE].sample->decoder->length * 1000;
+			length = soundSource[MUSIC_SOURCE].sample->decoder->length
+					* 1000;
 
 		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 	}
 	else
 		return 0;
 
-	if (isTracker)
-		pos = frames;
-	else
+	if (!isTracker)
 		pos = (GetTimeCounter () - start_time);
 
 	printf ("start_time %d, length %d, pos %d\n", start_time, length, pos);
