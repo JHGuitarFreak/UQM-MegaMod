@@ -205,6 +205,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, slaughterMode);
 	DECL_CONFIG_OPTION(bool, advancedAutoPilot);
 	DECL_CONFIG_OPTION(bool, meleeToolTips);
+	DECL_CONFIG_OPTION(bool, musicResume);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -414,6 +415,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
+		INIT_CONFIG_OPTION(  musicResume,       false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -637,6 +639,7 @@ main (int argc, char *argv[])
 	optSlaughterMode = options.slaughterMode.value;
 	optAdvancedAutoPilot = options.advancedAutoPilot.value;
 	optMeleeToolTips = options.meleeToolTips.value;
+	optMusicResume = options.musicResume.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1060,6 +1063,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->slaughterMode, "mm.slaughterMode");
 	getBoolConfigValue (&options->advancedAutoPilot, "mm.advancedAutoPilot");
 	getBoolConfigValue (&options->meleeToolTips, "mm.meleeToolTips");
+	getBoolConfigValue (&options->musicResume, "mm.musicResume");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1154,6 +1158,7 @@ enum
 	SLAUGHTER_OPT,
 	SISADVAP_OPT,
 	MELEETIPS_OPT,
+	MUSICRESUME_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1261,6 +1266,7 @@ static struct option longOptions[] =
 	{"slaughtermode", 0, NULL, SLAUGHTER_OPT},
 	{"advancedautopilot", 0, NULL, SISADVAP_OPT},
 	{"meleetooltips", 0, NULL, MELEETIPS_OPT},
+	{"musicresume", 0, NULL, MUSICRESUME_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1898,6 +1904,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case MELEETIPS_OPT:
 				setBoolOption (&options->meleeToolTips, true);
 				break;
+			case MUSICRESUME_OPT:
+				setBoolOption (&options->musicResume, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2273,10 +2282,13 @@ usage (FILE *out, const struct options_struct *defaults)
 			"the least amount of fuel through HyperSpace or QuasiSpace "
 			"and Auto-Pilots the Flagship on the best route (default: %s)",
 			boolOptString (&defaults->advancedAutoPilot));
-	log_add (log_User, "  --advancedautopilot : Finds the route that uses"
-			"the least amount of fuel through HyperSpace or QuasiSpace "
-			"and Auto-Pilots the Flagship on the best route (default: %s)",
+	log_add (log_User, "  --meleetooltips : Show SC1-style ship"
+			"description tooltips at the bottom of the Super-Melee screen"
+			"when picking a ship for your fleet (default: %s)",
 			boolOptString (&defaults->meleeToolTips));
+	log_add (log_User, "  --musicresume : Resumes the music"
+			"in UQM where it last left off (default: %s)",
+			boolOptString (&defaults->musicResume));
 
 	log_setOutput (old);
 }

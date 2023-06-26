@@ -76,7 +76,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       80
+#define CHOICE_COUNT       81
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -190,6 +190,7 @@ static WIDGET *music_widgets[] = {
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[46]),   // Volasaurus' Space Music
 	(WIDGET *)(&choices[34]),   // Main Menu Music
+	(WIDGET *)(&choices[80]),   // Music Resume
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[1]),
 	NULL };
@@ -631,6 +632,7 @@ SetDefaults (void)
 	choices[77].selected = opts.slaughterMode;
 	choices[78].selected = opts.advancedAutoPilot;
 	choices[79].selected = opts.meleeToolTips;
+	choices[80].selected = opts.musicResume;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -726,6 +728,7 @@ PropagateResults (void)
 	opts.slaughterMode = choices[77].selected;
 	opts.advancedAutoPilot = choices[78].selected;
 	opts.meleeToolTips = choices[79].selected;
+	opts.musicResume = choices[80].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1692,6 +1695,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->slaughterMode = optSlaughterMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->advancedAutoPilot = optAdvancedAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeToolTips = optMeleeToolTips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->musicResume = optMusicResume ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2201,6 +2205,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.meleeToolTips", opts->meleeToolTips == OPTVAL_ENABLED);
 	optMeleeToolTips = (opts->meleeToolTips == OPTVAL_ENABLED);
+
+	res_PutBoolean ("mm.musicResume", opts->musicResume == OPTVAL_ENABLED);
+	optMusicResume = (opts->musicResume == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
