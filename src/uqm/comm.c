@@ -83,6 +83,8 @@ BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
 BYTE altResFlags = 0;
 static COUNT fadeIndex;
+
+DWORD CommMusicPos[NUM_CONVERSATIONS] = { 0 };
  
 typedef struct response_entry
 {
@@ -1187,11 +1189,23 @@ AlienTalkSegue (COUNT wait_track)
 		DrawAlienFrame (NULL, 0, TRUE);
 		UpdateSpeechGraphics ();
 		CommIntroTransition ();
+		BYTE AlienConv = CommData.AlienConv;
+		MUSIC_REF AlienSong = CommData.AlienSong;
 		
 		pCurInputState->Initialized = TRUE;
 
-		PlayMusic (CommData.AlienSong, TRUE, 1);
-		SetMusicVolume (BACKGROUND_VOL);
+		if (optMusicResume && CommMusicPos[AlienConv] > 0)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
+			PlayMusic (AlienSong, TRUE, 1);
+			SeekMusic (CommMusicPos[AlienConv]);
+			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
+		}
+		else
+		{
+			PlayMusic (AlienSong, TRUE, 1);
+			SetMusicVolume (BACKGROUND_VOL);
+		}
 
 		InitCommAnimations ();
 
@@ -1630,6 +1644,9 @@ DoCommunication (ENCOUNTER_STATE *pES)
 
 	if (IsDarkMode)
 		SetCommDarkMode (FALSE);
+
+	if (optMusicResume)
+		CommMusicPos[CommData.AlienConv] = PLRGetPos ();
 
 	StopMusic ();
 	StopSound ();
