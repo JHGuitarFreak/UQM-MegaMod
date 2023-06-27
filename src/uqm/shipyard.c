@@ -93,6 +93,7 @@ typedef enum {
 } DMS_Mode;
 
 static BOOLEAN DoShipSpins;
+DWORD ShipyardMusicPos = 0;
 
 static void
 showRemainingCrew (void)
@@ -1652,7 +1653,15 @@ DoShipyard (MENU_STATE *pMS)
 			ScreenTransition (optScrTrans, NULL);
 			UnbatchGraphics ();
 
-			PlayMusic (pMS->hMusic, TRUE, 1);
+			if (optMusicResume && ShipyardMusicPos > 0)
+			{
+				FadeMusic (MUTE_VOLUME, 0);
+				PlayMusic (pMS->hMusic, TRUE, 1);
+				SeekMusic (ShipyardMusicPos);
+				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+			}
+			else
+				PlayMusic (pMS->hMusic, TRUE, 1);
 
 			ShowCombatShip (pMS, (COUNT)~0, NULL);
 
@@ -1668,6 +1677,8 @@ DoShipyard (MENU_STATE *pMS)
 ExitShipyard:
 		SetInputCallback (NULL);
 
+
+
 		if (pMS->CurState < SHIPYARD_EXIT)
 			DrawMenuStateStrings (PM_CREW, SHIPYARD_EXIT);
 
@@ -1675,6 +1686,9 @@ ExitShipyard:
 		pMS->ModuleFrame = 0;
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
 		pMS->CurString = 0;
+
+		if (optMusicResume)
+			ShipyardMusicPos = PLRGetPos ();
 
 		return FALSE;
 	}
