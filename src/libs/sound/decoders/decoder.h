@@ -104,7 +104,12 @@ struct tfb_sounddecoder
 	uint32 pos;
 	uint32 start_sample;
 	uint32 end_sample;
+
 	uint8 filetype;
+		// for determining file type
+	uint16 numpos;
+		// for tracker modules
+
 
 };
 

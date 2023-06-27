@@ -102,10 +102,11 @@ PLRPause (MUSIC_REF MusicRef)
 static sint32
 get_current_music_pos (MUSIC_REF MusicRef)
 {
-	sint32 start_time, pos;
+	sint32 start_time, pos = 0;
 	uint32 length = 0;
 	uint32 frames = 0;
 	BOOLEAN isTracker = FALSE;
+	UNICODE *filename;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return 0;
@@ -121,12 +122,14 @@ get_current_music_pos (MUSIC_REF MusicRef)
 
 		if (isTracker)
 		{
-			length = soundSource[MUSIC_SOURCE].sample->decoder->length;
+			length = soundSource[MUSIC_SOURCE].sample->decoder->numpos;
 			pos = GetStreamFrame (MUSIC_SOURCE);
 		}
 		else
 			length = soundSource[MUSIC_SOURCE].sample->decoder->length
 					* 1000;
+
+		filename = soundSource[MUSIC_SOURCE].sample->decoder->filename;
 
 		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 	}
@@ -136,7 +139,7 @@ get_current_music_pos (MUSIC_REF MusicRef)
 	if (!isTracker)
 		pos = (GetTimeCounter () - start_time);
 
-	printf ("start_time %d, length %d, pos %d\n", start_time, length, pos);
+	printf ("filename: %s, start_time %d, length %d, pos %d\n", filename, start_time, length, pos);
 
 	if (pos < 0)
 		pos = 0;

@@ -373,7 +373,8 @@ moda_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 
 	This->format = moda_formats->stereo16;
 	This->frequency = md_mixfreq;
-	This->length = mod->numpos; // FIXME way to obtain this from mikmod?
+	This->length = 0; // FIXME way to obtain this from mikmod?
+	This->numpos = mod->numpos;
 	This->filetype = AUDIO_TRACKER;
 
 	moda->last_error = 0;
