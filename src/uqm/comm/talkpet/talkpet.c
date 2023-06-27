@@ -22,6 +22,7 @@
 
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
+#include "uqm/battle.h"
 
 #define STROBE_RATE   30
 #define STROBE_LENGTH (ONE_SECOND / 3)
@@ -669,6 +670,9 @@ Intro (void)
 		{
 			NPCPhrase (CYBORG_PEP_TALK);
 		}
+
+		BattleRefPos[0] = 0;
+		printf ("BattleRefPos[0]: %d\n", BattleRefPos[0]);
 	}
 	else if (GET_GAME_STATE (READY_TO_CONFUSE_URQUAN))
 	{
