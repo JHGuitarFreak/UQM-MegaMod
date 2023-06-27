@@ -65,6 +65,8 @@ enum
 	HARD_DIFF
 };
 
+DWORD MainMenuMusicPos = 0;
+
 static BOOLEAN
 PacksInstalled (void)
 {
@@ -448,6 +450,9 @@ DoRestart (MENU_STATE *pMS)
 	{
 		if (pMS->hMusic && !comingFromInit)
 		{
+			if (optMusicResume)
+				MainMenuMusicPos = PLRGetPos ();
+
 			StopMusic ();
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
@@ -461,12 +466,21 @@ DoRestart (MENU_STATE *pMS)
 		pMS->Initialized = TRUE;
 
 		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
-		if (!comingFromInit){
-			FadeMusic(0,0);
-			PlayMusic (pMS->hMusic, TRUE, 1);
+
+		if (!comingFromInit)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
+
+			if (optMusicResume && MainMenuMusicPos > 0)
+			{
+				PlayMusic (pMS->hMusic, TRUE, 1);
+				SeekMusic (MainMenuMusicPos);
+			}
+			else
+				PlayMusic (pMS->hMusic, TRUE, 1);
 		
 			if (optMainMenuMusic)
-				FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
+				FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);
 		}
 	}
 	else if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -624,6 +638,10 @@ DoRestart (MENU_STATE *pMS)
 			&& !optRequiresRestart && PacksInstalled ())
 		{
 			SleepThreadUntil (FadeMusic (0, ONE_SECOND/2));
+
+			if (optMusicResume)
+				MainMenuMusicPos = PLRGetPos ();
+
 			StopMusic ();
 			FadeMusic (NORMAL_VOLUME, 0);
 
@@ -722,7 +740,12 @@ RestartMenu (MENU_STATE *pMS)
 	DoInput (pMS, TRUE);
 	
 	if (optMainMenuMusic)
+	{
 		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
+
+		if (optMusicResume)
+			MainMenuMusicPos = PLRGetPos ();
+	}
 
 	StopMusic ();
 	if (pMS->hMusic)
