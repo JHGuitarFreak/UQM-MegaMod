@@ -65,19 +65,6 @@ enum
 	HARD_DIFF
 };
 
-static BOOLEAN
-PacksInstalled (void)
-{
-	BOOLEAN packsInstalled;
-
-	if (!IS_HD)
-		packsInstalled = TRUE;
-	else
-		packsInstalled = (HDPackPresent ? TRUE : FALSE);
-
-	return packsInstalled;
-}
-
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
 
@@ -248,7 +235,7 @@ DoDiffChooser (MENU_STATE *pMS)
 
 		}
 		else if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& !optRequiresRestart && PacksInstalled ())
+			&& !optRequiresRestart && HDPackPresent)
 		{	// timed out
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			done = TRUE;
@@ -276,7 +263,6 @@ DoDiffChooser (MENU_STATE *pMS)
 	return response;
 }
 
-
 // Draw the full restart menu. Nothing is done with selections.
 static void
 DrawRestartMenuGraphic (MENU_STATE *pMS)
@@ -288,7 +274,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 
 	// Re-load all of the restart menu fonts and graphics so the text and
 	// background show in the correct size and resolution.
-	if (optRequiresRestart || !PacksInstalled ())
+	if (optRequiresRestart || !HDPackPresent)
 	{
 		DestroyFont (TinyFont);
 		DestroyFont (PlyrFont);
@@ -303,7 +289,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	// Load the different menus and fonts depending on the resolution factor
 	if (!IS_HD)
 	{
-		if (optRequiresRestart || !PacksInstalled ())
+		if (optRequiresRestart || !HDPackPresent)
 		{
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
@@ -315,7 +301,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	}
 	else
 	{
-		if (optRequiresRestart || !PacksInstalled ())
+		if (optRequiresRestart || !HDPackPresent)
 		{
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
@@ -389,7 +375,7 @@ RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 		restartGame = TRUE;
 		return TRUE;
 	} 
-	else if (!PacksInstalled ())
+	else if (!HDPackPresent)
 	{
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
@@ -430,12 +416,12 @@ DoRestart (MENU_STATE *pMS)
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 	
-	if (optSuperMelee && !optLoadGame && PacksInstalled ())
+	if (optSuperMelee && !optLoadGame && HDPackPresent)
 	{
 		pMS->CurState = PLAY_SUPER_MELEE;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
-	else if (optLoadGame && !optSuperMelee && PacksInstalled ())
+	else if (optLoadGame && !optSuperMelee && HDPackPresent)
 	{
 		pMS->CurState = LOAD_SAVED_GAME;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
@@ -621,7 +607,7 @@ DoRestart (MENU_STATE *pMS)
 		// (until the next time the game is restarted). This is to prevent
 		// showing the credits with the wrong resolution mode's font&background.
 		if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& !optRequiresRestart && PacksInstalled ())
+			&& !optRequiresRestart && HDPackPresent)
 		{
 			SleepThreadUntil (FadeMusic (0, ONE_SECOND/2));
 			StopMusic ();
@@ -835,4 +821,3 @@ StartGame (void)
 
 	return (TRUE);
 }
-

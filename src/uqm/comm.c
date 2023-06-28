@@ -815,12 +815,7 @@ InitUIRects (BOOLEAN state)
 				SIS_SCREEN_HEIGHT - (SLIDER_Y + SLIDER_HEIGHT));
 	}
 	else
-	{
-		BYTE i;
-
-		for (i = 0; i < ARRAY_SIZE (DarkModeRect); i++)
-			memset (&DarkModeRect[i], 0, sizeof DarkModeRect[i]);
-	}
+		memset (&DarkModeRect, 0, sizeof (DarkModeRect));
 }
 
 static void
