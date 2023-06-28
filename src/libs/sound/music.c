@@ -102,10 +102,8 @@ PLRPause (MUSIC_REF MusicRef)
 static sint32
 get_current_music_pos (MUSIC_REF MusicRef)
 {
-	sint32 start_time, pos = 0;
-	uint32 length = 0;
-	uint32 frames = 0;
-	BOOLEAN isTracker = FALSE;
+	float pos = 0.0f;
+	float length = 0.0f;
 	UNICODE *filename;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -115,37 +113,30 @@ get_current_music_pos (MUSIC_REF MusicRef)
 	{
 		LockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 
-		isTracker = soundSource[MUSIC_SOURCE].sample->decoder->filetype
-				== AUDIO_TRACKER;
+		filename = soundSource[MUSIC_SOURCE].sample->decoder->filename;
 
-		start_time = soundSource[MUSIC_SOURCE].start_time;
-
-		if (isTracker)
+		if (IsTracker (MUSIC_SOURCE))
 		{
-			length = soundSource[MUSIC_SOURCE].sample->decoder->numpos;
-			pos = GetStreamFrame (MUSIC_SOURCE);
+			length = (float)GetNumTrackerPos (MUSIC_SOURCE);
+			pos = (float)GetStreamFrame (MUSIC_SOURCE);
 		}
 		else
-			length = soundSource[MUSIC_SOURCE].sample->decoder->length
-					* 1000;
-
-		filename = soundSource[MUSIC_SOURCE].sample->decoder->filename;
+		{
+			length = GetStreamLength (MUSIC_SOURCE);
+			pos = GetStreamTime (MUSIC_SOURCE);
+		}
 
 		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 	}
 	else
 		return 0;
 
-	if (!isTracker)
-		pos = (GetTimeCounter () - start_time);
+	printf ("filename: %s, length %f, pos %f\n", filename, length, pos);
 
-	printf ("filename: %s, start_time %d, length %d, pos %d\n", filename, start_time, length, pos);
-
-	if (pos < 0)
+	if (pos < 0 || pos > length)
 		pos = 0;
-	else if ((uint32)pos > length)
-		pos = length;
-	return pos;
+
+	return (sint32)pos;
 }
 
 SDWORD
