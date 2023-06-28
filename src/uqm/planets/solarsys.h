@@ -19,6 +19,8 @@
 #ifndef SOLARSYS_H
 #define SOLARSYS_H
 
+#include "uqm/races.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -27,6 +29,8 @@ extern void InitialIntersect (void);
 
 extern void LoadIPData (void);
 extern void FreeIPData (void);
+
+extern DWORD SpaceMusicPos[NUM_SPECIES_ID];
 
 #if defined(__cplusplus)
 }

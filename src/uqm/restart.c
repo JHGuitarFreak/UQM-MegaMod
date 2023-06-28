@@ -49,6 +49,12 @@
 #include "libs/resource/stringbank.h"
 // for StringBank_Create() & SplitString()
 
+// The next includes are specifically for music positions
+#include "comm.h"
+#include "starbase.h"
+#include "planets/solarsys.h"
+
+
 enum
 {
 	START_NEW_GAME = 0,
@@ -66,6 +72,19 @@ enum
 };
 
 DWORD MainMenuMusicPos = 0;
+
+void
+ResetMusicPositions (void)
+{
+	MeleeMenuMusicPos = 0;
+	StarBaseMusicPos = 0;
+	OutfitMusicPos = 0;
+	ShipyardMusicPos = 0;
+
+	memset (&CommMusicPos, 0, sizeof (CommMusicPos));
+	memset (&SpaceMusicPos, 0, sizeof (SpaceMusicPos));
+	memset (&BattleRefPos, 0, sizeof (BattleRefPos));
+}
 
 static BOOLEAN
 PacksInstalled (void)
@@ -431,6 +450,8 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
+
+	ResetMusicPositions ();
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{

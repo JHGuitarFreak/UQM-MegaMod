@@ -34,6 +34,9 @@ enum
 };
 typedef BYTE STARBASE_STATE;
 
+extern DWORD OutfitMusicPos;
+extern DWORD ShipyardMusicPos;
+extern DWORD StarBaseMusicPos;
 
 extern void InstallBombAtEarth (void);
 extern void VisitStarBase (void);

@@ -42,6 +42,7 @@ typedef struct melee_state MELEE_STATE;
 #define ICON_HEIGHT RES_SCALE (16)
 
 extern FRAME PickMeleeFrame;
+extern DWORD MeleeMenuMusicPos;
 
 #define PICK_BG_COLOR    BUILD_COLOR (MAKE_RGB15 (0x00, 0x01, 0x0F), 0x01)
 #define PICK_VALUE_COLOR BUILD_COLOR (MAKE_RGB15 (0x13, 0x00, 0x00), 0x2C)
