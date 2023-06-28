@@ -196,7 +196,7 @@ GetStreamFrame (uint32 source)
 	TFB_SoundSample* sample = soundSource[source].sample;
 
 	if (!sample)
-		return;
+		return 0;
 
 	return SoundDecoder_GetFrame (sample->decoder);
 }
@@ -207,7 +207,7 @@ GetNumTrackerPos (uint32 source)
 	TFB_SoundSample* sample = soundSource[source].sample;
 
 	if (!sample)
-		return;
+		return 0;
 
 	return sample->decoder->numpos;
 }
@@ -229,7 +229,7 @@ GetStreamLength (uint32 source)
 	TFB_SoundSample* sample = soundSource[source].sample;
 
 	if (!sample)
-		return;
+		return 0;
 
 	return sample->decoder->length * 1000;
 }
@@ -240,7 +240,7 @@ GetStreamTime (uint32 source)
 	TFB_SoundSample* sample = soundSource[source].sample;
 
 	if (!sample)
-		return;
+		return 0;
 
 	return SoundDecoder_GetTime (sample->decoder) * 1000;
 }
