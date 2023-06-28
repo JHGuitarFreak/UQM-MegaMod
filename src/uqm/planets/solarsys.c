@@ -106,7 +106,7 @@ FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
 MUSIC_REF SpaceMusic;
-DWORD SpaceMusicPos[21] = { 0 };
+DWORD SpaceMusicPos[NUM_SPECIES_ID] = { 0 };
 
 SIZE EncounterRace;
 BYTE EncounterGroup;
