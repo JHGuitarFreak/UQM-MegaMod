@@ -460,7 +460,9 @@ static BOOLEAN
 LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
 		BOOLEAN legacyMM)
 {
-	COUNT SisNameSize = legacyMM ? LEGACY_SIS_NAME_SIZE : SIS_NAME_SIZE;
+	COUNT SisNameSize = (legacyMM || try_core) ?
+			LEGACY_SIS_NAME_SIZE : SIS_NAME_SIZE;
+
 	if (
 			read_32s (fp, &SSPtr->log_x) != 1 ||
 			read_32s (fp, &SSPtr->log_y) != 1 ||
