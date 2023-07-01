@@ -63,7 +63,7 @@ volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
 int
-TFB_InitGraphics (int driver, int flags, const char* renderer, 
+TFB_InitGraphics (int driver, int flags, const char* renderer,
 		int width, int height, unsigned int *resFactor)
 {
 	int result, i;
@@ -146,7 +146,7 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 
 	TFB_InitOnScreenKeyboard();
 
-	return 0;
+	return result;
 }
 
 void

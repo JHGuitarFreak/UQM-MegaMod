@@ -807,7 +807,7 @@ void
 ShutYourMouth (void)
 {	// If talk animation is disabled set
 	// talk frame to default index (closed mouth)
-	if (Talk->CurIndex != 0 && Talk->CurIndex != NULL)
+	if (Talk->CurIndex != 0)
 	{
 		Talk->CurIndex = 0;
 	}

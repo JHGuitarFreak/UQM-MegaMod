@@ -888,7 +888,7 @@ GetTrackSubtitle (void)
 }
 
 COUNT
-GetSubtitleNumber (UNICODE *sub)
+GetSubtitleNumber (const UNICODE *sub)
 {
 	COUNT i = 0;
 	TFB_SoundChunk *now;

@@ -107,13 +107,16 @@ getGameStateRevByBytes (const GameStateBitMap *bm, int bytes)
 			totalBits += bmPtr->numBits;
 		else if (bmPtr->numBits == 0)
 			break;
-		else if ((totalBits + 7 >> 3) >= bytes)
+		else if ((int)((totalBits + 7) >> 3) >= bytes)
 			break;
 		else
 			rev = bmPtr->numBits;
 	}
 
-	return ((totalBits + 7 >> 3) == bytes) ? rev : -1;
+	if ((int)((totalBits + 7) >> 3) != bytes)
+		rev = -1;
+
+	return rev;
 }
 
 // Write 'valueBitCount' bits from 'value' into the buffer pointed to
@@ -822,7 +825,8 @@ is3DO (int optWhich)
 int
 replaceChar (char *pStr, const char find, const char replace)
 {
-	int i, count = 0;
+	int count = 0;
+	size_t i;
 	size_t len = strlen (pStr);
 
 	if (!pStr || !find || !replace)

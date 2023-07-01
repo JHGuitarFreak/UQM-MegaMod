@@ -1741,7 +1741,6 @@ HailAlien (void)
 {
 	ENCOUNTER_STATE ES;
 	FONT PlayerFont, OldFont;
-	MUSIC_REF SongRef = 0;
 	Color TextBack;
 
 	pCurInputState = &ES;

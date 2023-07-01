@@ -614,9 +614,6 @@ Intro (void)
 		}
 		else
 		{
-			HFLEETINFO hChmmr = GetStarShipFromIndex (&GLOBAL (avail_race_q), CHMMR_SHIP);
-			FLEET_INFO *ChmmrPtr = LockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
-
 			SetCommIntroMode (CIM_FADE_IN_SCREEN, ONE_SECOND * 2);
 			NPCPhrase (WE_ARE_FREE);
 
@@ -641,6 +638,11 @@ Intro (void)
 			// so this is purely decorative.
 			if (EXTENDED)
 			{
+				HFLEETINFO hChmmr = GetStarShipFromIndex (
+						&GLOBAL (avail_race_q), CHMMR_SHIP);
+				FLEET_INFO *ChmmrPtr = LockFleetInfo (
+						&GLOBAL (avail_race_q), hChmmr);
+
 				if (ChmmrPtr)
 				{
 					ChmmrPtr->actual_strength =
@@ -649,7 +651,7 @@ Intro (void)
 					ChmmrPtr->loc.y = 2509;
 					StartSphereTracking (CHMMR_SHIP);
 				}
-				UnlockFleetInfo(&GLOBAL(avail_race_q), hChmmr);
+				UnlockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
 			}
 		}
 		SET_GAME_STATE (CHMMR_HOME_VISITS, NumVisits);

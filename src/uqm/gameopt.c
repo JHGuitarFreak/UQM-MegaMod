@@ -463,7 +463,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 		t.pStr = Str;
 		t.CharCount = (COUNT)~0;
 		SetContextForeGroundColor (CAPTAIN_NAME_TEXT_COLOR);
-		font_DrawText (&lf);
+		font_DrawText (&t);
 	}
 	else
 	{	// editing state

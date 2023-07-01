@@ -684,7 +684,7 @@ DrawFuelCircle (BOOLEAN secondary)
 }
 
 // Taleden code of drawing ellipse. Unused because not precise enough
-static void
+/*static void
 DrawFuelEllipse ()
 {
 	Color OldColor;
@@ -719,7 +719,7 @@ DrawFuelEllipse ()
 	OldColor = SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
 	DrawRotatedEllipse (center.x, center.y, halfFuel, ry, angle, 1, 0);
 	SetContextForeGroundColor (OldColor);
-}
+}*/
 
 BOOLEAN
 isHomeworld (BYTE Index)
@@ -2134,8 +2134,8 @@ AdvancedAutoPilot (void)
 	if (fuel_no_portal < fuel_with_portal)
 		return;
 
-	SaveAdvancedAutoPilot (destination, FALSE);
-	SaveAdvancedQuasiPilot (portal_coordinates, TRUE);
+	SaveAdvancedAutoPilot (destination);
+	SaveAdvancedQuasiPilot (portal_coordinates);
 
 	if (playerInSolarSystem ())
 		GLOBAL (autopilot) = current_position;

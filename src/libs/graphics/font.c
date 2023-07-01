@@ -287,7 +287,7 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 
 				width += charFrame->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch] != NULL
+				if (num_chars && FontPtr->KernTab[ch]
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 					width -= FontPtr->KernAmount;
@@ -388,7 +388,7 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 
 			origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-			if (num_chars && FontPtr->KernTab[ch] != NULL
+			if (num_chars && FontPtr->KernTab[ch]
 					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
 				origin.x -= FontPtr->KernAmount;
@@ -481,7 +481,7 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 
 				width += charFrame->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch] != NULL
+				if (num_chars && FontPtr->KernTab[ch]
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 					width -= FontPtr->KernAmount;
@@ -627,7 +627,7 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 
 			origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-			if (num_chars && FontPtr->KernTab[ch] != NULL
+			if (num_chars && FontPtr->KernTab[ch]
 				&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
 				origin.x -= FontPtr->KernAmount;

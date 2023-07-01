@@ -270,7 +270,7 @@ NextMenuState (BYTE BaseState, BYTE CurState)
 		case PM_CYBORG_NORMAL:
 		case PM_CYBORG_DOUBLE:
 		case PM_CYBORG_SUPER:
-			if (isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu))
+			if ((isPC (optSmoothScroll) && !usingSpeech) || isPC (optWhichMenu))
 				NextState = PM_READ_VERY_SLOW;
 			else
 				NextState = PM_CHANGE_CAPTAIN;
@@ -323,7 +323,7 @@ PreviousMenuState (BYTE BaseState, BYTE CurState)
 			NextState = PM_CYBORG_OFF;
 			break;
 		case PM_CHANGE_CAPTAIN:
-			if (isPC (optSmoothScroll) && !usingSpeech || isPC (optWhichMenu))
+			if ((isPC (optSmoothScroll) && !usingSpeech) || isPC (optWhichMenu))
 				NextState = PM_READ_VERY_SLOW;
 			else
 				NextState = PM_CYBORG_OFF;

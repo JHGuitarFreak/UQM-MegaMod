@@ -1052,9 +1052,9 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 	COUNT loop;
 	COUNT DoLoop = 1;
 	RECT r;
-	SIZE remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
-			GET_GAME_STATE (CREW_PURCHASED0),
-			GET_GAME_STATE (CREW_PURCHASED1));
+	//SIZE remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
+	//		GET_GAME_STATE (CREW_PURCHASED0),
+	//		GET_GAME_STATE (CREW_PURCHASED1)); Unused
 
 	DoLoop = abs (dy);
 
@@ -1156,7 +1156,7 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 	BYTE MaxBuild = 2;
 	COUNT shipCost = ShipCost (Index);
 
-	if ((DIF_HARD && CountEscortShips (Index) < MaxBuild || !DIF_HARD)
+	if (((DIF_HARD && CountEscortShips (Index) < MaxBuild) || !DIF_HARD)
 			&& GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
 			&& CloneShipFragment (Index, &GLOBAL (built_ship_q), 1))
 	{
@@ -1248,12 +1248,12 @@ DMS_ScrapEscortShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 {
 	SHIP_FRAGMENT *StarShipPtr =
 			LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
-	BYTE slotNr;
+	//BYTE slotNr; Unused
 
 	SetFlashRect (NULL, FALSE);
 	ShowCombatShip (pMS, pMS->CurState, StarShipPtr);
 
-	slotNr = StarShipPtr->index;
+	// slotNr = StarShipPtr->index; Unused
 	UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 
 	RemoveQueue (&GLOBAL (built_ship_q), hStarShip);

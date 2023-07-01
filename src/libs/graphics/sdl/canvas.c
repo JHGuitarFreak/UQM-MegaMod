@@ -2153,7 +2153,8 @@ TFB_DrawCanvas_TransferIndexes (TFB_Canvas canvas, BOOLEAN write,
 	if (!TFB_DrawCanvas_IsPaletted (canvas) || fmt->BitsPerPixel != 8)
 	{
 		log_add (log_Warning, "ERROR: TFB_DrawCanvas_TransferIndexes "
-				"unimplemeted function: not an 8bpp indexed canvas", fmt->BitsPerPixel);
+				"unimplemeted function: not an 8bpp indexed canvas"
+				"Actual bits per pixel = %u", fmt->BitsPerPixel);
 		return FALSE;
 	}
 

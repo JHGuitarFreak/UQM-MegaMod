@@ -320,19 +320,19 @@ static float maxGamma = 2.5f;
 static float minGammaX;
 static float maxGammaX;
 
-
-static int
-number_res_options (void)
-{
-	if (TFB_SupportsHardwareScaling ())
-	{
-		return 4;
-	}
-	else
-	{
-		return 2;
-	}
-}
+//No longer used
+//static int
+//number_res_options (void)
+//{
+//	if (TFB_SupportsHardwareScaling ())
+//	{
+//		return 4;
+//	}
+//	else
+//	{
+//		return 2;
+//	}
+//}
 
 static int
 quit_main_menu (WIDGET *self, int event)
@@ -1567,8 +1567,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 #if defined(ANDROID) || defined(__ANDROID__)
 	opts->meleezoom = res_GetInteger("config.smoothmelee");
 #else
-	opts->meleezoom = (optMeleeScale == TFB_SCALE_STEP) ?
-		OPTVAL_PC : OPTVAL_3DO;
+	opts->meleezoom = (OPT_MELEEZOOM)((optMeleeScale == TFB_SCALE_STEP) ?
+		OPTVAL_PC : OPTVAL_3DO);
 #endif
 	opts->stereo = optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	/* These values are read in, but won't change during a run. */
@@ -2007,9 +2007,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
  		optRequiresRestart = TRUE;
 
-	if (opts->controllerType != optControllerType)
+	if ((int)opts->controllerType != optControllerType)
 	{
-		optControllerType = opts->controllerType;
+		optControllerType = (int)opts->controllerType;
 		TFB_UninitInput ();
 		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 	}
@@ -2291,7 +2291,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optSmoothScroll = (opts->scroll == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
+	optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 #endif
 	opt3doMusic = (opts->music3do == OPTVAL_ENABLED);
 	optRemixMusic = (opts->musicremix == OPTVAL_ENABLED);
@@ -2337,7 +2337,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	}
 	res_PutInteger("config.smoothmelee", opts->meleezoom);
 #else
-	res_PutBoolean("config.smoothmelee", opts->meleezoom == OPTVAL_3DO);
+	res_PutBoolean("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
 #endif
 	res_PutBoolean ("config.positionalsfx", opts->stereo == OPTVAL_ENABLED); 
 	res_PutBoolean ("config.pulseshield", opts->shield == OPTVAL_3DO);
