@@ -112,7 +112,8 @@ static RACE_DESC vux_desc =
 		},
 		{
 			VUX_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		VUX_VICTORY_SONG,
 		VUX_SHIP_SOUNDS,

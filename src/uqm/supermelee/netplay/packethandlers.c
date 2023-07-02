@@ -110,7 +110,7 @@ PacketHandler_Init(NetConnection *conn, const Packet_Init *packet) {
 		sendAbort (conn, AbortReason_versionMismatch);
 		abortFeedback(conn, AbortReason_versionMismatch);
 		log_add(log_Error, "Remote side is running a version of UQM that "
-				"is too old (%d.%d.%g; %d.%d.%g is required).\n",
+				"is too old (%d.%d.%d; %d.%d.%d is required).\n",
 				packet->uqmVersion.major, packet->uqmVersion.minor,
 				packet->uqmVersion.patch, NETPLAY_MIN_UQM_VERSION_MAJOR,
 				NETPLAY_MIN_UQM_VERSION_MINOR, NETPLAY_MIN_UQM_VERSION_PATCH);
@@ -436,8 +436,9 @@ PacketHandler_SeedRandom(NetConnection *conn,
 
 int
 PacketHandler_InputDelay(NetConnection *conn,
-		const Packet_InputDelay *packet) {
-	BattleStateData *battleStateData;
+		const Packet_InputDelay *packet)
+{
+	//BattleStateData *battleStateData;
 	uint32 delay;
 
 	if (conn->stateFlags.reset.localReset)
@@ -450,7 +451,7 @@ PacketHandler_InputDelay(NetConnection *conn,
 	if (!testNetState(conn->state == NetState_preBattle, PACKET_INPUTDELAY))
 		return -1;  // errno is set
 
-	battleStateData = (BattleStateData *) NetConnection_getStateData(conn);
+	// battleStateData = (BattleStateData *) NetConnection_getStateData(conn);
 	delay = ntoh32(packet->delay);
 	if (delay > BATTLE_FRAME_RATE) {
 		log_add(log_Error, "NETPLAY: [%d]     Received absurdly large "

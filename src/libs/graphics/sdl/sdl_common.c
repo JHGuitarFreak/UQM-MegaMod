@@ -129,7 +129,7 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 
 #if SDL_MAJOR_VERSION == 1
 	/* Other versions do this when setting up the window */
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s",
+	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 	SDL_WM_SetCaption (caption, NULL);
@@ -656,7 +656,7 @@ TFB_ScreenShot (void)
 	strftime (curTime, sizeof (curTime),
 		"%Y-%m-%d_%H-%M-%S", tm);
 	snprintf (fullPath, sizeof (fullPath),
-		"%s%s v%d.%d.%g %s.%s", shotDirName, curTime,
+		"%s%s v%d.%d.%d %s.%s", shotDirName, curTime,
 		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 		UQM_EXTRA_VERSION, "png");
 

@@ -726,7 +726,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	self->value[WIDGET_TEXTENTRY_WIDTH-RES_SCALE (1)] = 0;
 
 	t.baseline.y = y;
-	t.CharCount = utf8StringCount (self->value);
+	t.CharCount = (COUNT)utf8StringCount (self->value);
 	t.pStr = self->value;
 
 	if (!(self->state & WTE_EDITING))

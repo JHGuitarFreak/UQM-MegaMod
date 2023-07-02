@@ -215,7 +215,7 @@ DrawMarker (POINT dest, BYTE type)
 {
 	STAMP s;
 
-	if (type > 2 || type < 0)
+	if (type > 2)
 		return;
 
 	s.origin = MAKE_POINT (
@@ -367,8 +367,8 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 
 // For showing the War-Era situation in starmap
 static void
-GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
-		POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
+GetWarEraSphereRect (COUNT index, const COUNT war_era_strengths[],
+		const POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
 {
 	long diameter = (long)(war_era_strengths[index] * 2);
 
@@ -390,24 +390,27 @@ GetWarEraSphereRect (COUNT index, COUNT war_era_strengths[],
 	pRect->corner.x -= pRect->extent.width >> 1;
 	pRect->corner.y -= pRect->extent.height >> 1;
 
+	if (pRepairRect->corner.x <= 0)
+		pRepairRect->corner.x = RES_SCALE (1);
+	else if (pRepairRect->corner.x + pRepairRect->extent.width >=
+			SIS_SCREEN_WIDTH)
 	{
-		if (pRepairRect->corner.x <= 0)
-			pRepairRect->corner.x = RES_SCALE (1);
-		else if (pRepairRect->corner.x + pRepairRect->extent.width >=
-				SIS_SCREEN_WIDTH)
-			pRepairRect->corner.x = SIS_SCREEN_WIDTH
-				- pRepairRect->extent.width - RES_SCALE (1);
-		if (pRepairRect->corner.y <= 0)
-			pRepairRect->corner.y = RES_SCALE (1);
-		else if (pRepairRect->corner.y + pRepairRect->extent.height >=
-				SIS_SCREEN_HEIGHT)
-			pRepairRect->corner.y = SIS_SCREEN_HEIGHT
-				- pRepairRect->extent.height - RES_SCALE (1);
-
-		BoxUnion (pRepairRect, pRect, pRepairRect);
-		pRepairRect->extent.width += RES_SCALE (1);
-		pRepairRect->extent.height += RES_SCALE (1);
+		pRepairRect->corner.x = SIS_SCREEN_WIDTH -
+				pRepairRect->extent.width - RES_SCALE (1);
 	}
+
+	if (pRepairRect->corner.y <= 0)
+		pRepairRect->corner.y = RES_SCALE (1);
+	else if (pRepairRect->corner.y + pRepairRect->extent.height >=
+			SIS_SCREEN_HEIGHT)
+	{
+		pRepairRect->corner.y = SIS_SCREEN_HEIGHT -
+				pRepairRect->extent.height - RES_SCALE (1);
+	}
+
+	BoxUnion (pRepairRect, pRect, pRepairRect);
+	pRepairRect->extent.width += RES_SCALE (1);
+	pRepairRect->extent.height += RES_SCALE (1);
 }
 
 static unsigned int
@@ -831,7 +834,7 @@ isHomeworld (BYTE Index)
 const char *
 markerBuf (const int star_index, const char* marker_state)
 {
-	static char *buf[255];
+	static char buf[255];
 
 	// marker_state is the middle part of the Game States
 	// "SYS_VISITED_##" or "SYS_PLYR_MARKER_##" which is used to
@@ -1026,7 +1029,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				RECT repair_r;
 
 				if (show_war_era_situation)
-					GetWarEraSphereRect (index, war_era_strengths, 
+					GetWarEraSphereRect (index, war_era_strengths,
 							war_era_locations, &r, &repair_r);
 				else
 					GetSphereRect (FleetPtr, &r, &repair_r);
@@ -1988,7 +1991,7 @@ coords_only (UNICODE *s)
 {
 	BYTE i, count = 0;
 	BYTE countD = 0, countC = 0;
-	BYTE j = strlen (s);
+	BYTE j = (BYTE)strlen (s);
 	//const char *pattern = "^\d*(\.\d+)?:\d*(\.\d+)?$";
 
 	for (i = 0; i < j; i++)

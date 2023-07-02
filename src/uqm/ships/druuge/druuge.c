@@ -102,7 +102,8 @@ static RACE_DESC druuge_desc =
 		},
 		{
 			DRUUGE_CAPT_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		DRUUGE_VICTORY_SONG,
 		DRUUGE_SHIP_SOUNDS,

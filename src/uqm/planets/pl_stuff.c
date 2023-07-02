@@ -226,7 +226,6 @@ void
 PrepareNextRotationFrame (void)
 {
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
-	static BOOLEAN flag = TRUE;
 
 	// Generate the next rotation frame
 	// We alternate between the frames because we do not call
@@ -514,7 +513,6 @@ void
 DrawPCScanTint (COUNT scan)
 {
 	STAMP s;
-	PLANET_ORBIT* Orbit = &pSolarSysState->Orbit;
 
 	s.origin.x = 0;
 	s.origin.y = 0;

@@ -427,7 +427,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 			return FALSE;
 		}
 
-		read_a8 (fh, buf, gameStateByteCount);
+		read_a8 (fh, buf, (COUNT)gameStateByteCount);
 		result = deserialiseGameState (gameStateBitMap, buf, gameStateByteCount, rev);
 		HFree (buf);
 		if (result == FALSE)
@@ -450,7 +450,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 
 		if (magic > gameStateByteCount)
 		{
-			skip_8 (fh, magic - gameStateByteCount);
+			skip_8 (fh, (COUNT)(magic - gameStateByteCount));
 		}
 	}
 	return TRUE;

@@ -99,7 +99,8 @@ static RACE_DESC mycon_desc =
 		},
 		{
 			MYCON_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		MYCON_VICTORY_SONG,
 		MYCON_SHIP_SOUNDS,

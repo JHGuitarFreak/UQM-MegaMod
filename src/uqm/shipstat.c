@@ -361,7 +361,7 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 					replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
 
 				Text.pStr = buf;
-				Text.CharCount = utf8StringCount (buf);
+				Text.CharCount = (COUNT)utf8StringCount (buf);
 			}
 			Text.align = ALIGN_CENTER;
 

@@ -535,7 +535,7 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 	lfText.baseline.y = r.corner.y + r.extent.height - RES_SCALE (3);
 	lfText.baseline.x = r.corner.x + RES_SCALE (1);
 	lfText.align = ALIGN_LEFT;
-	lfText.CharCount = strlen (lfText.pStr);
+	lfText.CharCount = (COUNT)strlen (lfText.pStr);
 
 	BatchGraphics ();
 	if (!(HiLiteState & DTSHS_EDIT))
@@ -913,7 +913,7 @@ InitTextBackgroundFrames (void)
 {
 	RECT r;
 	CONTEXT oldContext;
-	STAMP s;
+	//STAMP s;
 	COUNT i;
 
 	oldContext = SetContext (OffScreenContext);
@@ -2556,7 +2556,8 @@ Melee_LocalChange_fleet (MELEE_STATE *pMS, size_t teamNr,
 
 	for (slotI = 0; slotI < MELEE_FLEET_SIZE; slotI++)
 	{
-		if (Melee_LocalChange_ship (pMS, teamNr, slotI, fleet[slotI]))
+		if (Melee_LocalChange_ship (
+				pMS, (COUNT)teamNr, slotI, fleet[slotI]))
 			changed = true;
 	}
 	return changed;
@@ -2572,7 +2573,7 @@ Melee_LocalChange_team (MELEE_STATE *pMS, size_t teamNr,
 
 	if (Melee_LocalChange_fleet (pMS, teamNr, fleet))
 		changed = true;
-	if (Melee_LocalChange_teamName (pMS, teamNr, name))
+	if (Melee_LocalChange_teamName (pMS, (COUNT)teamNr, name))
 		changed = true;
 
 	return changed;

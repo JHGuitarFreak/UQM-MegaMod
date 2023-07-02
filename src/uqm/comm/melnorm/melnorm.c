@@ -374,7 +374,7 @@ GrantTech (TechId_t techId)
 static int
 countTech (void)
 {
-	int numTech = 0;
+	BYTE numTech = 0;
 	TechId_t i = 0;
 
 	for (i = 0; i <= NUM_TECHNOLOGIES; ++i)
@@ -495,7 +495,7 @@ const size_t NUM_TECH_ITEMS = ARRAY_SIZE (tech_sale_catalog);
 
 // Return the next tech for sale that the player doesn't already have.
 // Returns NULL if the player has all the techs.
-static const TechSaleData*
+static TechSaleData *
 GetNextTechForSale (void)
 {
 	BYTE i = 0;

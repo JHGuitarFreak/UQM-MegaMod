@@ -94,8 +94,6 @@ spawn_planet (void)
 	 	// and Sa-Matra on second, therefore scrollig is a bit off
 		pt.x += 1200;
 		pt.y += 780;
-		WRAP_X (pt.x);
-		WRAP_Y (pt.y);
 
 		SetStarPoint (pt, 31);
 	}

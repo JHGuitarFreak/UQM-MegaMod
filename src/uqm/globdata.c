@@ -239,7 +239,8 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits)
 	{
 		// Can get the entire value from one byte.
 		// We want bits *bitPtr through (excluding) *bitPtr+numBits
-		DWORD result = ((*bytePtr)[0] >> *bitPtr) & bitmask32(numBits);
+		DWORD result =
+				((*bytePtr)[0] >> *bitPtr) & bitmask32((BYTE)numBits);
 
 		// Update the pointers.
 		if (numBits == (size_t) (8 - *bitPtr))
@@ -251,7 +252,7 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits)
 		else
 		{
 			// There are still unread bits in the byte.
-			*bitPtr += numBits;
+			*bitPtr += (BYTE)numBits;
 		}
 		return result;
 	}
@@ -264,9 +265,9 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits)
 		// the result.
 		DWORD result = (((*bytePtr)[0] >> *bitPtr)
 				| ((*bytePtr)[1] << (8 - *bitPtr))) &
-				bitmask32(numBits);
+				bitmask32((BYTE)numBits);
 		(*bytePtr)++;
-		*bitPtr += numBits - 8;
+		*bitPtr += (BYTE)numBits - 8;
 		return result;
 	}
 }

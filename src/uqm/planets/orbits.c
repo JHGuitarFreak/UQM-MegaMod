@@ -695,11 +695,11 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 	SIZE i;
 	BYTE planetByte = solarSys->SunDesc[0].PlanetByte;
 	BYTE numPlanets = solarSys->SunDesc[0].NumPlanets;
-	SIZE habitableRangeMin, habitableRangeMax, newRadius, radiusDiff;
+	SIZE habitableRangeMin, habitableRangeMax, newRadius; // , radiusDiff;
 	SIZE oldRadius;
 	DWORD planetRadii[MAX_GEN_PLANETS];
 	DWORD rand_val;
-	static SIZE diffCheck, min_radius;
+	// static SIZE diffCheck, min_radius;
 
 	starColor =  STAR_COLOR (CurStarDescPtr->Type);
 
@@ -709,7 +709,7 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 	habitableRangeMin = HabitableRanges[starColor][0];
 	habitableRangeMax = HabitableRanges[starColor][1];
 
-	if (oldRadius >= habitableRangeMin && oldRadius <= habitableRangeMax
+	if ((oldRadius >= habitableRangeMin && oldRadius <= habitableRangeMax)
 			|| starColor == RED_BODY || planetByte > 0)
 	{
 		return FALSE;
@@ -723,7 +723,7 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 	newRadius = (LOWORD (rand_val) % (
 			habitableRangeMax - habitableRangeMin) + habitableRangeMin);
 
-	radiusDiff = abs (oldRadius - newRadius);
+	// radiusDiff = abs (oldRadius - newRadius);
 
 	planetRadii[planetByte] = newRadius;
 

@@ -1132,7 +1132,7 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 		if (serialiseGameState (gameStateBitMap, &buf, &bufSize))
 		{
 			write_32  (fh, bufSize);
-			write_a8  (fh, buf, bufSize);
+			write_a8  (fh, buf, (COUNT)bufSize);
 			HFree(buf);
 		}
 		else
@@ -1188,7 +1188,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 	write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS);
 	write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES);
 	write_8  (fp, SummPtr->res_factor);
-	write_a8 (fp, (BYTE *) SummPtr->SaveName, strlen (SummPtr->SaveName));
+	write_a8 (fp, (BYTE *) SummPtr->SaveName, (COUNT)strlen (SummPtr->SaveName));
 }
 
 /* Save the Star Description chunk. This is not to be confused with
