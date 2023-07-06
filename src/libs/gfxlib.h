@@ -238,13 +238,20 @@ MAKE_DEXTENT (SDWORD width, SDWORD height)
 	return ext;
 }
 
+//static inline void
+//MAKE_LINE (LINE *line, int x1, int y1, int x2, int y2)
+//{
+//	line->first.x = x1;
+//	line->first.y = y1;
+//	line->second.x = x2;
+//	line->second.y = y2;
+//}
+
 static inline void
-MAKE_LINE (LINE *line, int x1, int y1, int x2, int y2)
+MAKE_LINE (LINE *line, POINT first, POINT second)
 {
-	line->first.x = x1;
-	line->first.y = y1;
-	line->second.x = x2;
-	line->second.y = y2;
+	line->first = first;
+	line->second = second;
 }
 
 static inline bool

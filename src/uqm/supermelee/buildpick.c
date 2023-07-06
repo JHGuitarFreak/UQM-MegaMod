@@ -223,7 +223,8 @@ DrawTooltip (SHIP_INFO *SIPtr)
 		font_DrawText (&Text);
 		ptr = strtok (NULL, delim);
 	}
-	
+
+	SetContextForeGroundColor (oldColor);
 	SetContextFont (oldFont);
 	SetContext (oldContext);
 }

@@ -524,6 +524,7 @@ DrawNoReturnZone (void)
 		if (rmax_y.y >= 0 || rmin_y.y < SIS_SCREEN_HEIGHT)
 		{// If the ellipse is completely off screen - drop it
 			LINE L;
+			LINE tempLine;
 			POINT prev = RotatePoint (ShiftPoint (GetPointOfEllipse (
 					halfFuel, ry, i - Step), center), center, rotation);
 			COORD dy;
@@ -549,8 +550,10 @@ DrawNoReturnZone (void)
 
 				dy = L.first.y - prev.y;
 
+				MAKE_LINE (&tempLine, L.first, prev);
+
 				if ((abs (dy) > 1)
-						&& onScreen (&(LINE) { L.first, prev }, TRUE,
+						&& onScreen (&tempLine, TRUE,
 							FALSE))
 				{
 					LINE L2;
@@ -2080,7 +2083,7 @@ DoBubbleWarp (BOOLEAN UseFuel)
 	PlayMenuSound (MENU_SOUND_BUBBLEWARP);
 
 	if (UseFuel)
-		DeltaSISGauges (0, -FuelRequired (), 0);
+		DeltaSISGauges (0, -(int)FuelRequired (), 0);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
 	{
