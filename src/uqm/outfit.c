@@ -101,7 +101,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 			SetContextFont (TinyFontBold);
 
 		if ((GLOBAL_SIS (ResUnits)) 
-				> (DWORD)((GLOBAL (ModuleCost[NewModule])
+				>= (DWORD)((GLOBAL (ModuleCost[NewModule])
 				* MODULE_COST_SCALE))) 
 			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 		else

@@ -169,7 +169,6 @@ GetToolTipFrameRect (RECT *r)
 
 #define RACE_NAME_OFFSET 0
 #define RACE_SHIP_OFFSET 3
-#define RACE_DESC_OFFSET 5
 
 void
 DrawTooltip (SHIP_INFO *SIPtr)
@@ -210,7 +209,8 @@ DrawTooltip (SHIP_INFO *SIPtr)
 	SetContextForeGroundColor (TOOLTIP_COLOR_DESC_FRONT);
 
 	utf8StringCopy (buf, sizeof buf,
-			GET_STRING (SIPtr->race_strings, RACE_DESC_OFFSET));
+			GET_STRING (SIPtr->race_strings, 
+				GetStringTableCount (SIPtr->race_strings) - 1));
 	ptr = strtok (buf, delim);
 
 	Text.baseline.y += RES_SCALE (2);
