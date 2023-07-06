@@ -40,9 +40,13 @@
 #define LOAD_TEAM_NAME_TEXT_COLOR_HILITE \
 		BUILD_COLOR (MAKE_RGB15 (0x17, 0x18, 0x1D), 0x00)
 
-#define LOAD_MELEE_BOX_WIDTH RES_SCALE (34) 
-#define LOAD_MELEE_BOX_HEIGHT RES_SCALE (34) 
-#define LOAD_MELEE_BOX_SPACE RES_SCALE (1) 
+#define LOAD_MELEE_BOX_WIDTH RES_SCALE (34)
+#define LOAD_MELEE_BOX_HEIGHT RES_SCALE (34)
+#define LOAD_MELEE_BOX_SPACE RES_SCALE (1)
+
+//Team names in loadmele.c
+#define TEAM_NAME_L_BOX_WIDTH RES_SCALE (244)
+#define TEAM_NAME_L_BOX_HEIGHT RES_SCALE (10)
 
 
 static void DrawFileStrings (MELEE_STATE *pMS);
@@ -154,21 +158,16 @@ static void
 DrawFileString (const MeleeTeam *team, const POINT *origin,
 		BOOLEAN drawShips, BOOLEAN highlite)
 {
-	// Draw the background of the text
-	{
-#define BG_OFFSET RES_SCALE (7)
-#define TEXT_HEIGHT 32
-		STAMP s;
-		COUNT whichTeam;
+	if (IS_HD)
+	{// Draw the background of the text
+		RECT r;
 
-		s.origin.x = origin->x;
-		s.origin.y = origin->y - BG_OFFSET;
+		r.corner.x = origin->x;
+		r.corner.y = origin->y - TEAM_NAME_L_BOX_HEIGHT + RES_SCALE (3);
+		r.extent.width = TEAM_NAME_L_BOX_WIDTH;
+		r.extent.height = TEAM_NAME_L_BOX_HEIGHT;
 
-		whichTeam = ((RES_DESCALE (origin->y) - TEXT_HEIGHT) >> 5) + 2;// 0 and 1 for different menu
-
-		s.frame = TeamNameBackground[whichTeam];
-
-		DrawStamp (&s);
+		QuickRepair (30 + optControllerType, &r);
 	}
 
 	SetContextForeGroundColor (highlite ?

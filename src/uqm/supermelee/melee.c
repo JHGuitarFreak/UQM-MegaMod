@@ -111,12 +111,6 @@ enum
 #define TEAM_NAME_BOX_X_OFFS RES_SCALE (1)
 #define TEAM_NAME_BOX_Y_OFFS RES_SCALE (94)
 
-//Team names in loadmele.c
-#define TEAM_NAME_L_BOX_WIDTH RES_SCALE (244)
-#define TEAM_NAME_L_BOX_HEIGHT RES_SCALE (10)
-#define TEAM_NAME_L_BOX_X_OFFS RES_SCALE (3)
-#define TEAM_NAME_L_BOX_Y_OFFS RES_SCALE (32)
-
 #define INFO_ORIGIN_X RES_SCALE (4)
 #define INFO_WIDTH RES_SCALE (58)
 #define TEAM_INFO_ORIGIN_Y RES_SCALE (3)
@@ -196,8 +190,6 @@ enum
 
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
-		// For rectangles that appear under flashing text (2 - for main melee menu, 5 - for loadmele.c)
-FRAME TeamNameBackground[7];
 MELEE_STATE *pMeleeState;
 
 BOOLEAN DoMelee (MELEE_STATE *pMS);
@@ -393,6 +385,31 @@ DrawTeams (void)
 }
 
 void
+QuickRepair (COUNT whichFrame, RECT *pRect)
+{
+	RECT r;
+	CONTEXT OldContext;
+	RECT OldRect;
+	POINT oldOrigin;
+
+	r.corner.x = pRect->corner.x;
+	r.corner.y = pRect->corner.y;
+	r.extent = pRect->extent;
+
+	OldContext = SetContext (SpaceContext);
+	GetContextClipRect (&OldRect);
+	SetContextClipRect (&r);
+
+	oldOrigin = SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
+
+	DrawMeleeIcon (whichFrame);
+
+	SetContextOrigin (oldOrigin);
+	SetContextClipRect (&OldRect);
+	SetContext (OldContext);
+}
+
+void
 RepairMeleeFrame (const RECT *pRect)
 {
 	RECT r;
@@ -448,19 +465,6 @@ RedrawMeleeFrame (void)
 }
 
 static void
-DrawTeamStringsBackGround (COUNT side)
-{
-	STAMP s;
-
-	s.origin.x = RES_SCALE (1);
-	s.origin.y = RES_SCALE (94 << side);
-
-	s.frame = TeamNameBackground[side];
-
-	DrawStamp (&s);
-}
-
-static void
 GetTeamStringRect (COUNT side, RECT *r)
 {
 	r->corner.x = MELEE_X_OFFS - RES_SCALE (1);
@@ -480,6 +484,24 @@ GetFleetValueRect (COUNT side, RECT *r)
 			+ ((MELEE_BOX_HEIGHT + MELEE_BOX_SPACE) * NUM_MELEE_ROWS + RES_SCALE (2)));
 	r->extent.width = RES_SCALE (29);
 	r->extent.height = RES_SCALE (13);
+}
+
+static void
+GetFullStringRect (COUNT side, RECT *r)
+{
+	r->extent.width = TEAM_NAME_BOX_WIDTH;
+	r->extent.height = TEAM_NAME_BOX_HEIGHT;
+	r->corner.x = TEAM_NAME_BOX_X_OFFS;
+	r->corner.y = TEAM_NAME_BOX_Y_OFFS << side;
+}
+
+static void
+DrawTeamStringsBackGround (COUNT side)
+{
+	RECT r;
+
+	GetFullStringRect (side, &r);
+	QuickRepair (0, &r);
 }
 
 static void
@@ -806,7 +828,9 @@ Deselect (BYTE opt)
 				else if (pMeleeState->CurIndex == MELEE_STATE_INDEX_DONE)
 				{
 					// Not currently editing the team name.
-					DrawTeamStringsBackGround (pMeleeState->side);
+					if (IS_HD)
+						DrawTeamStringsBackGround (pMeleeState->side);
+
 					DrawTeamString (pMeleeState, pMeleeState->side,
 							DTSHS_NORMAL, NULL);
 					DrawFleetValue (pMeleeState, pMeleeState->side,
@@ -869,7 +893,9 @@ Select (BYTE opt)
 				else if (pMeleeState->CurIndex == MELEE_STATE_INDEX_DONE)
 				{
 					// Not currently editing the team name.
-					DrawTeamStringsBackGround (pMeleeState->side);
+					if (IS_HD)
+						DrawTeamStringsBackGround (pMeleeState->side);
+
 					DrawTeamString (pMeleeState, pMeleeState->side,
 							DTSHS_SELECTED, NULL);
 					DrawFleetValue (pMeleeState, pMeleeState->side,
@@ -909,45 +935,6 @@ Melee_flashSelection (MELEE_STATE *pMS)
 }
 
 static void
-InitTextBackgroundFrames (void)
-{
-	RECT r;
-	CONTEXT oldContext;
-	STAMP s;
-	COUNT i;
-
-	oldContext = SetContext (OffScreenContext);
-	SetContextFGFrame (SetAbsFrameIndex (MeleeFrame, 0));
-	SetContextClipRect (NULL);
-
-	r.extent.width = TEAM_NAME_BOX_WIDTH;
-	r.extent.height = TEAM_NAME_BOX_HEIGHT;
-	r.corner.x = TEAM_NAME_BOX_X_OFFS;
-	r.corner.y = TEAM_NAME_BOX_Y_OFFS;
-
-	TeamNameBackground[0] = CaptureDrawable (CopyContextRect (&r));
-
-	r.corner.y <<= 1;
-
-	TeamNameBackground[1] = CaptureDrawable (CopyContextRect (&r));
-
-	SetContextFGFrame (SetAbsFrameIndex (MeleeFrame, 30 + optControllerType));
-	SetContextClipRect (NULL);
-
-	r.extent.width = TEAM_NAME_L_BOX_WIDTH;
-	r.extent.height = TEAM_NAME_L_BOX_HEIGHT;
-	r.corner.x = r.corner.y = TEAM_NAME_L_BOX_X_OFFS;
-
-	for (i = 2; i < ARRAY_SIZE (TeamNameBackground); i++)
-	{
-		TeamNameBackground[i] = CaptureDrawable (CopyContextRect (&r));
-		r.corner.y += TEAM_NAME_L_BOX_Y_OFFS;
-	}
-
-	SetContext (oldContext);
-}
-
-static void
 InitMelee (MELEE_STATE *pMS)
 {
 	RECT r;
@@ -965,9 +952,6 @@ InitMelee (MELEE_STATE *pMS)
 
 	r.corner.x = r.corner.y = 0;
 	RedrawMeleeFrame ();
-
-	InitTextBackgroundFrames();
-
 
 	(void) pMS;
 }
@@ -1176,8 +1160,12 @@ BuildPickShipPopup (MELEE_STATE *pMS)
 			
 		GetBuildPickFrameRect (&r);
 		RepairMeleeFrame (&r);
-		GetToolTipFrameRect (&r);
-		RepairMeleeFrame (&r);
+
+		if (optMeleeToolTips)
+		{
+			GetToolTipFrameRect (&r);
+			RepairMeleeFrame (&r);
+		}
 	}
 
 	UpdateCurrentShip (pMS);
@@ -1528,7 +1516,6 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 static void
 FreeMeleeInfo (MELEE_STATE *pMS)
 {
-	COUNT i;
 	DestroyDirEntryTable (ReleaseDirEntryTable (pMS->load.dirEntries));
 	pMS->load.dirEntries = 0;
 
@@ -1543,11 +1530,7 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	DestroyPickMeleeFrame ();
 	DestroyDrawable (ReleaseDrawable (MeleeFrame));
 	MeleeFrame = 0;
-	for (i = 0; i < ARRAY_SIZE (TeamNameBackground); i++)
-	{
-		DestroyDrawable (ReleaseDrawable (TeamNameBackground[i]));
-		TeamNameBackground[i] = 0;
-	}
+
 	DestroyBuildPickFrame ();
 
 #ifdef NETPLAY
