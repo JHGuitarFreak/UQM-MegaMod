@@ -83,8 +83,6 @@ BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
 BYTE altResFlags = 0;
 static COUNT fadeIndex;
-
-DWORD CommMusicPos[NUM_CONVERSATIONS] = { 0 };
  
 typedef struct response_entry
 {

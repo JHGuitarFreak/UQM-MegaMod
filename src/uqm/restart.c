@@ -49,12 +49,6 @@
 #include "libs/resource/stringbank.h"
 // for StringBank_Create() & SplitString()
 
-// The next includes are specifically for music positions
-#include "comm.h"
-#include "starbase.h"
-#include "planets/solarsys.h"
-
-
 enum
 {
 	START_NEW_GAME = 0,
@@ -70,8 +64,6 @@ enum
 	ORIGINAL_DIFF,
 	HARD_DIFF
 };
-
-DWORD MainMenuMusicPos = 0;
 
 void
 ResetMusicPositions (void)

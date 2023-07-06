@@ -30,8 +30,6 @@ extern void InitialIntersect (void);
 extern void LoadIPData (void);
 extern void FreeIPData (void);
 
-extern DWORD SpaceMusicPos[NUM_SPECIES_ID];
-
 #if defined(__cplusplus)
 }
 #endif

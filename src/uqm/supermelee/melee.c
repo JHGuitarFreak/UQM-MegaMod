@@ -200,8 +200,6 @@ FRAME MeleeFrame;
 FRAME TeamNameBackground[7];
 MELEE_STATE *pMeleeState;
 
-DWORD MeleeMenuMusicPos = 0;
-
 BOOLEAN DoMelee (MELEE_STATE *pMS);
 static BOOLEAN DoEdit (MELEE_STATE *pMS);
 static BOOLEAN DoConfirmSettings (MELEE_STATE *pMS);

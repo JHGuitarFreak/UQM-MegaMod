@@ -39,8 +39,6 @@
 
 static void CleanupAfterStarBase (void);
 
-DWORD StarBaseMusicPos = 0;
-
 static void
 DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 {

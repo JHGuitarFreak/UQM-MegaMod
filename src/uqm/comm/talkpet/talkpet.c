@@ -23,6 +23,7 @@
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/battle.h"
+#include "uqm/sounds.h"
 
 #define STROBE_RATE   30
 #define STROBE_LENGTH (ONE_SECOND / 3)

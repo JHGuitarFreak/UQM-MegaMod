@@ -93,7 +93,6 @@ typedef enum {
 } DMS_Mode;
 
 static BOOLEAN DoShipSpins;
-DWORD ShipyardMusicPos = 0;
 
 static void
 showRemainingCrew (void)

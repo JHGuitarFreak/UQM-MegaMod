@@ -148,7 +148,6 @@ BOOLEAN getLineWithinWidth(TEXT *pText, const char **startNext,
 		SIZE maxWidth, COUNT maxChars);
 
 extern RECT CommWndRect; /* comm window rect */
-extern DWORD CommMusicPos[NUM_CONVERSATIONS];
 
 typedef enum
 {

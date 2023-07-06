@@ -247,7 +247,6 @@ DWORD BattleSeed;
 #endif /* DEMO_MODE */
 
 static MUSIC_REF BattleRef;
-DWORD BattleRefPos[3] = { 0 };
 BYTE inHSpace = 0;
 
 void

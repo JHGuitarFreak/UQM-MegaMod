@@ -47,8 +47,6 @@ enum
 	OUTFIT_DOFUEL
 };
 
-DWORD OutfitMusicPos = 0;
-
 static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 {
