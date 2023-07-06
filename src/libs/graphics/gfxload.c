@@ -31,7 +31,6 @@
 #include "libs/graphics/drawable.h"
 #include "libs/graphics/font.h"
 
-
 typedef struct anidata
 {
 	int transparent_color;
@@ -465,7 +464,7 @@ _GetFontData (uio_Stream *fp, DWORD length)
 
 	if (cfgFile)
 	{
-		char *CurrentLine[PATH_MAX];
+		char CurrentLine[PATH_MAX];
 		int cel_index = 0;
 		int cel_total = 0;
 		DWORD opos = 0;

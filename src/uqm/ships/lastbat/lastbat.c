@@ -132,7 +132,8 @@ static RACE_DESC samatra_desc =
 		},
 		{
 			SAMATRA_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		NULL_RESOURCE,
 		SAMATRA_SHIP_SOUNDS,

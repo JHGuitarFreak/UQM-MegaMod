@@ -149,7 +149,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	{
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
 				+ (!i ? 1 : (i > 1 ? 2 : 0)));
-		t.CharCount = utf8StringCount (t.pStr);
+		t.CharCount = (COUNT)utf8StringCount (t.pStr);
 
 		SetContextForeGroundColor (
 				i == answer ?
@@ -344,7 +344,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
-	sprintf (buf, "v%d.%d.%g %s",
+	sprintf (buf, "v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 			UQM_EXTRA_VERSION);
 	SetContextForeGroundColor (WHITE_COLOR);
@@ -475,9 +475,6 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
-		//BYTE fade_buf[1];
-		COUNT oldresfactor;
-
 		switch (pMS->CurState)
 		{
 			case LOAD_SAVED_GAME:
@@ -536,8 +533,6 @@ DoRestart (MENU_STATE *pMS)
 					return TRUE;
 				break;
 			case SETUP_GAME:
-				oldresfactor = resolutionFactor;
-
 				Flash_terminate (pMS->flashContext);
 				SetupMenu ();
 				SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,

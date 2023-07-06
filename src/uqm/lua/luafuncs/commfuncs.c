@@ -54,7 +54,7 @@ static int luaUqm_comm_getPhrase(lua_State *luaState);
 static int luaUqm_comm_getSegue(lua_State *luaState);
 static int luaUqm_comm_setSegue(lua_State *luaState);
 static int luaUqm_comm_isInOuttakes(lua_State *luaState);
-static char *luaUqm_comm_setCustomBaseline (lua_State *luaState);
+static int luaUqm_comm_setCustomBaseline (lua_State *luaState);
 
 static const luaL_Reg commFuncs[] = {
 	{ "addResponse",       luaUqm_comm_addResponse },
@@ -344,7 +344,7 @@ luaUqm_comm_isInOuttakes(lua_State *luaState) {
 // [2] -> int baseLineX
 // [3] -> int baseLineY
 // [4] -> string alignment
-static char *
+static int
 luaUqm_comm_setCustomBaseline (lua_State *luaState)
 {
 	static const char *const textAlign[] =

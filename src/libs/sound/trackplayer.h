@@ -45,7 +45,7 @@ extern void JumpTrack (void);
 extern void PauseTrack (void);
 extern void ResumeTrack (void);
 extern COUNT PlayingTrack (void);
-extern COUNT GetSubtitleNumber (UNICODE *sub);
+extern COUNT GetSubtitleNumber (const UNICODE *sub);
 
 extern void FastReverse_Smooth (void);
 extern void FastForward_Smooth (void);

@@ -88,7 +88,7 @@ RepairSISBorder (void)
 void
 ClearSISRect (BYTE ClearFlags)
 {
-	RECT r;
+	//RECT r; Unused
 	Color OldColor;
 	CONTEXT OldContext;
 
@@ -96,8 +96,8 @@ ClearSISRect (BYTE ClearFlags)
 	OldColor = SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 
-	r.corner.x = RES_SCALE (2);
-	r.extent.width = STATUS_WIDTH - RES_SCALE (4);
+	//r.corner.x = RES_SCALE (2);
+	//r.extent.width = STATUS_WIDTH - RES_SCALE (4); Unused
 
 	BatchGraphics ();
 	if (ClearFlags & DRAW_SIS_DISPLAY)
@@ -152,8 +152,12 @@ DrawSISTitle (UNICODE *pStr)
 		SetContextFont (TinyFont);
 	else
 	{
+		UNICODE *buf = pStr;
+
 		SetContextFont (TinyFontBold);
-		replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+		replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
+		t.pStr = buf;
+		t.CharCount = (COUNT)~0;
 	}
 
 	BatchGraphics ();
@@ -305,8 +309,17 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 	else
 	{
 		SetContextFont (TinyFontBold);
+
 		if (CurPos < 0 && ExPos < 0)
-			replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+		{
+			UNICODE buf[100];
+
+			utf8StringCopy (buf, sizeof (buf), pStr);
+			replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
+
+			t.pStr = buf;
+			t.CharCount = (COUNT)~0;
+		}
 	}
 
 	if (flags & DSME_CLEARFR)
@@ -570,8 +583,15 @@ DrawStatusMessage (const UNICODE *pStr)
 		SetContextFont (TinyFont);
 	else
 	{
+		UNICODE buf[100];
+
 		SetContextFont (TinyFontBold);
-		replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+
+		utf8StringCopy (buf, sizeof (buf), pStr);
+		replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
+
+		t.pStr = buf;
+		t.CharCount = (COUNT)~0;
 	}
 
 	SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
@@ -1574,7 +1594,7 @@ GetSBayCapacity (POINT *ppt)
 	COUNT cellNr;
 
 	COUNT rowNr;
-	COUNT colNr;
+	// COUNT colNr; Unused
 
 	static const Color colorBars[] = STORAGE_BAY_COLOR_TABLE;
 
@@ -1586,7 +1606,7 @@ GetSBayCapacity (POINT *ppt)
 	}
 
 	rowNr = cellNr / SBAY_MASS_PER_ROW;
-	colNr = cellNr % SBAY_MASS_PER_ROW;
+	// colNr = cellNr % SBAY_MASS_PER_ROW; Unused
 
 	if (rowNr == 0)
 		SetContextForeGroundColor (BLACK_COLOR);

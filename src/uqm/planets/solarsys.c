@@ -106,7 +106,7 @@ FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
 MUSIC_REF SpaceMusic;
-static DWORD SpaceMusicPos[21];
+// static DWORD SpaceMusicPos[21];
 
 SIZE EncounterRace;
 BYTE EncounterGroup;
@@ -351,13 +351,13 @@ static void
 GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 {
 	COUNT i;
-	COUNT facing;
+	//COUNT facing; ununsed
 	PLANET_DESC *pMoonDesc;
 
 	RandomContext_SeedRandom (SysGenRNG, planet->rand_seed);
 	
-	facing = NORMALIZE_FACING (ANGLE_TO_FACING (
-			ARCTAN (planet->location.x, planet->location.y)));
+	//facing = NORMALIZE_FACING (ANGLE_TO_FACING (
+	//		ARCTAN (planet->location.x, planet->location.y))); unused
 	for (i = 0, pMoonDesc = &system->MoonDesc[0];
 			i < MAX_GEN_MOONS; ++i, ++pMoonDesc)
 	{
@@ -1841,7 +1841,7 @@ static void
 AnimateSun (SIZE radius)
 {
 	PLANET_DESC *pSunDesc = &pSolarSysState->SunDesc[0];
-	PLANET_DESC *pNearestPlanetDesc = &pSolarSysState->PlanetDesc[0];
+	//PLANET_DESC *pNearestPlanetDesc = &pSolarSysState->PlanetDesc[0];
 	static COUNT sunAnimIndex = 0;
 	COUNT zoomLevelIndex = 0;
 	
@@ -3220,7 +3220,7 @@ SolarSysMenu (void)
 static BOOLEAN
 DoIpFlight (SOLARSYS_STATE *pSS)
 {
-	static TimeCount NextTime;
+	//static TimeCount NextTime; unused
 	BOOLEAN cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
 
 	if (pSS->InOrbit)

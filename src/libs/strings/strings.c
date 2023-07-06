@@ -200,7 +200,8 @@ GetStringLength (STRING String)
 	{
 		return 0;
 	}
-	return utf8StringCountN (String->data, String->data + String->length);
+	return (COUNT)utf8StringCountN (
+			String->data, String->data + String->length);
 }
 
 COUNT

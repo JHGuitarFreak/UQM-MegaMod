@@ -190,7 +190,7 @@ DrawTooltip (SHIP_INFO *SIPtr)
 			GET_STRING (SIPtr->race_strings, RACE_SHIP_OFFSET));
 
 	Text.pStr = buf;
-	Text.CharCount = utf8StringCount (buf);
+	Text.CharCount = (COUNT)utf8StringCount (buf);
 	Text.align = ALIGN_CENTER;
 	Text.baseline.y = r.corner.y + RES_SCALE (8) + RES_SCALE (1);
 	Text.baseline.x = r.corner.x + (r.extent.width >> 1) + RES_SCALE (1);
@@ -218,12 +218,13 @@ DrawTooltip (SHIP_INFO *SIPtr)
 	while (ptr != NULL)
 	{
 		Text.pStr = ptr;
-		Text.CharCount = utf8StringCount (ptr);
+		Text.CharCount = (COUNT)utf8StringCount (ptr);
 		Text.baseline.y += RES_SCALE (9);
 		font_DrawText (&Text);
 		ptr = strtok (NULL, delim);
 	}
-	
+
+	SetContextForeGroundColor (oldColor);
 	SetContextFont (oldFont);
 	SetContext (oldContext);
 }

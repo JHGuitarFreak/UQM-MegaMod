@@ -98,7 +98,8 @@ static RACE_DESC umgah_desc =
 		},
 		{
 			UMGAH_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		UMGAH_VICTORY_SONG,
 		UMGAH_SHIP_SOUNDS,

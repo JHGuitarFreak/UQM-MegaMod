@@ -375,6 +375,11 @@ renderpixel_grayscale(SDL_Surface* surface, int x, int y, Uint32 pixel,
 	sp = *p;
 	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
 	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+
+	// To satisfy compiler warnings
+	(void)g;
+	(void)b;
+
 	max = sg > sb ? sg : sb;
 	max = max > sr ? max : sr;
 	min = sg > sb ? sb : sg;

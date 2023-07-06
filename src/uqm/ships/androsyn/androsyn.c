@@ -105,7 +105,8 @@ static RACE_DESC androsynth_desc =
 		},
 		{
 			ANDROSYNTH_CAPT_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		ANDROSYNTH_VICTORY_SONG,
 		ANDROSYNTH_SHIP_SOUNDS,
@@ -524,11 +525,11 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 	StarShipPtr->cur_status_flags = cur_status_flags;
 }
 
-static void
-uninit_androsynth (RACE_DESC *pRaceDesc)
-{
-	SetCustomShipData (pRaceDesc, NULL);
-}
+//static void
+//uninit_androsynth (RACE_DESC *pRaceDesc)
+//{
+//	SetCustomShipData (pRaceDesc, NULL);
+//}
 
 
 RACE_DESC*

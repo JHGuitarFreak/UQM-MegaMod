@@ -392,7 +392,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	{
 		strcpy (Setting, GAME_STRING // Zelnick & Vindicator
 				(NAMING_STRING_BASE + 2 + nameCaptain));
-		CursPos = strlen (GAME_STRING 
+		CursPos = (COUNT)strlen (GAME_STRING
 				(NAMING_STRING_BASE + 2 + nameCaptain));
 	}
 
@@ -463,7 +463,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 		t.pStr = Str;
 		t.CharCount = (COUNT)~0;
 		SetContextForeGroundColor (CAPTAIN_NAME_TEXT_COLOR);
-		font_DrawText (&lf);
+		font_DrawText (&t);
 	}
 	else
 	{	// editing state
@@ -487,7 +487,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 
 		pchar_deltas = char_deltas;
 
-		FullCursorPos = CursorPos + strlen(dateStr) - 1;
+		FullCursorPos = CursorPos + (COUNT)strlen(dateStr) - 1;
 		for (i = FullCursorPos; i > 0; --i)
 			text_r.corner.x += *pchar_deltas++;
 
@@ -543,7 +543,7 @@ static BOOLEAN
 NameSaveGame (COUNT gameIndex, UNICODE *buf)
 {
 	TEXTENTRY_STATE tes;
-	COUNT CursPos = strlen(buf);
+	COUNT CursPos = (COUNT)strlen(buf);
 	COUNT *gIndex = HMalloc (sizeof (COUNT));
 	RECT r;
 	*gIndex = gameIndex;

@@ -85,7 +85,8 @@ static RACE_DESC probe_desc =
 		},
 		{
 			NULL_RESOURCE,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		NULL_RESOURCE,
 		NULL_RESOURCE,

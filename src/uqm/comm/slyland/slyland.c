@@ -166,7 +166,7 @@ static COUNT probe_tens_names[] =
 	ENUMERATE_NINETY,
 };
 
-static COUNT random_ramble[] =
+static DWORD random_ramble[] =
 {
 	1,
 	15,

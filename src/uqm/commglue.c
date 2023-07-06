@@ -230,7 +230,7 @@ construct_response (UNICODE *buf, int R /* promoted from RESPONSE_REF */, ...)
 		
 		strcpy (buf, (UNICODE *)GetStringAddress (S));
 		
-		len = strlen (buf);
+		len = (COUNT)strlen (buf);
 		
 		buf += len;
 		
@@ -238,7 +238,7 @@ construct_response (UNICODE *buf, int R /* promoted from RESPONSE_REF */, ...)
 		
 		if (name)
 		{
-			len = strlen (name);
+			len = (COUNT)strlen (name);
 			strcpy (buf, name);
 			buf += len;
 			

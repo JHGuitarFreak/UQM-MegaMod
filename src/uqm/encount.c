@@ -911,9 +911,9 @@ UninitEncounter (void)
 					SLYLANDRO_SHIP
 				};
 
-			for (j = 0; i < ARRAY_SIZE (bannedShip); i++)
+			for (j = 0; j < ARRAY_SIZE (bannedShip); j++)
 			{
-				if (bannedShip[i] == EncounterRace)
+				if (bannedShip[j] == EncounterRace)
 				{
 					isBanned = TRUE;
 					break;

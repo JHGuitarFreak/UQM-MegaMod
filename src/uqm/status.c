@@ -204,7 +204,7 @@ DrawCaptainWindowFrame (FRAME fr, COORD y)
 	DrawStamp (&Stamp);
 }
 
-static void
+/*static void
 CaptainsWindow (CAPTAIN_STUFF *CSPtr, COORD y,
 		STATUS_FLAGS delta_status_flags, STATUS_FLAGS cur_status_flags,
 		COUNT Pass)
@@ -289,7 +289,7 @@ CaptainsWindow (CAPTAIN_STUFF *CSPtr, COORD y,
 			Stamp.frame = SetRelFrameIndex (Stamp.frame, 2);
 		DrawStamp (&Stamp);
 	}
-}
+}*/
 
 void
 DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)

@@ -772,6 +772,31 @@ showSpheres (BOOLEAN Animated)
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		}
 	}
+
+	if (EXTENDED)
+	{
+		HFLEETINFO hSyreen = GetStarShipFromIndex (
+				&GLOBAL (avail_race_q), SYREEN_SHIP);
+		FLEET_INFO *SyreenPtr = LockFleetInfo (
+				&GLOBAL (avail_race_q), hSyreen);
+		HFLEETINFO hChmmr = GetStarShipFromIndex (
+				&GLOBAL (avail_race_q), CHMMR_SHIP);
+		FLEET_INFO *ChmmrPtr = LockFleetInfo (
+				&GLOBAL (avail_race_q), hChmmr);
+
+		SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
+		SyreenPtr->loc.x = 4125;
+		SyreenPtr->loc.y = 3770;
+		StartSphereTracking (SYREEN_SHIP);
+
+		ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
+		ChmmrPtr->loc.x = 577;
+		ChmmrPtr->loc.y = 2509;
+		StartSphereTracking (CHMMR_SHIP);
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -805,7 +830,6 @@ void
 forAllStars (void (*callback) (STAR_DESC *, void *), void *arg)
 {
 	int i;
-	extern STAR_DESC starmap_array[];
 
 	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
 		callback (&star_array[i], arg);
@@ -1900,7 +1924,7 @@ dumpStrings (FILE *out)
 				stringI >= categories[categoryI + 1].base)
 			categoryI++;
 		fprintf(out, "[ %s + %d ]  %s\n", categories[categoryI].name,
-				stringI - categories[categoryI].base, GAME_STRING(stringI));
+				stringI - categories[categoryI].base, GAME_STRING((COUNT)stringI));
 	}
 }
 
@@ -1982,7 +2006,7 @@ countVisibleContexts (void)
 static void
 drawContext (CONTEXT context, double hue /* no pun intended */)
 {
-	FRAME drawFrame;
+	//FRAME drawFrame; unused
 	CONTEXT oldContext;
 	FONT oldFont;
 	DrawMode oldMode;
@@ -1990,13 +2014,13 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	Color rectCol;
 	Color lineCol;
 	Color textCol;
-	bool haveClippingRect;
+	//bool haveClippingRect; unused
 	RECT rect;
 	LINE line;
 	TEXT text;
 	POINT p1, p2, p3, p4;
 
-	drawFrame = GetContextFGFrame ();
+	//drawFrame = GetContextFGFrame (); unused
 	rectCol = hsvaToRgba (hue, 1.0, 0.5, 100);
 	lineCol = hsvaToRgba (hue, 1.0, 1.0, 90);
 	textCol = lineCol;
@@ -2005,7 +2029,7 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	oldContext = SetContext (context);
 	
 	// Get the clipping rectangle of the specified context.
-	haveClippingRect = GetContextClipRect (&rect);
+	GetContextClipRect (&rect);
 
 	// Switch back the old context; we're going to draw in it.
 	(void) SetContext (oldContext);

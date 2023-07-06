@@ -148,7 +148,8 @@ static RACE_DESC sis_desc =
 		},
 		{
 			SIS_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		SIS_VICTORY_SONG,
 		SIS_SHIP_SOUNDS,

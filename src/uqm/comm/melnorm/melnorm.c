@@ -374,7 +374,7 @@ GrantTech (TechId_t techId)
 static int
 countTech (void)
 {
-	int numTech = 0;
+	BYTE numTech = 0;
 	TechId_t i = 0;
 
 	for (i = 0; i <= NUM_TECHNOLOGIES; ++i)
@@ -495,7 +495,7 @@ const size_t NUM_TECH_ITEMS = ARRAY_SIZE (tech_sale_catalog);
 
 // Return the next tech for sale that the player doesn't already have.
 // Returns NULL if the player has all the techs.
-static const TechSaleData*
+static TechSaleData *
 GetNextTechForSale (void)
 {
 	BYTE i = 0;
@@ -1324,7 +1324,7 @@ DoSell (RESPONSE_REF R)
 			GET_GAME_STATE (RAINBOW_WORLD0),
 			GET_GAME_STATE (RAINBOW_WORLD1)
 			);
-	num_new_rainbows = (BYTE)(-GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
+	num_new_rainbows = -(SBYTE)(GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
 	while (rainbow_mask)
 	{
 		if (rainbow_mask & 1)
@@ -1548,7 +1548,7 @@ NatureOfConversation (RESPONSE_REF R)
 			GET_GAME_STATE (RAINBOW_WORLD0),
 			GET_GAME_STATE (RAINBOW_WORLD1)
 			);
-	num_new_rainbows = (BYTE)(-GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
+	num_new_rainbows = -(SBYTE)(GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
 	while (rainbow_mask)
 	{
 		if (rainbow_mask & 1)
