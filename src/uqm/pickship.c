@@ -42,19 +42,52 @@
 #define FLAGSHIP_WIDTH RES_SCALE (22)
 #define FLAGSHIP_HEIGHT RES_SCALE (48)
 
+FRAME PickFrame;
+POINT frameOrigin;
+
+void
+InitPickFrame (void)
+{
+	PickFrame = CaptureDrawable (LoadGraphic (SC2_PICK_PMAP_ANIM));
+	PickFrame = SetAbsFrameIndex (PickFrame, isPC (optFlagshipColor) ? 0 : 2);
+}
+
+void
+DestroyPickFrame (void)
+{
+	DestroyDrawable (ReleaseDrawable (PickFrame));
+	PickFrame = 0;
+}
+
+void
+RepairPickFrame (RECT *pRect, COUNT frame)
+{
+	RECT OldRect;
+	STAMP s;
+	RECT r;
+
+	GetContextClipRect (&OldRect);
+
+	r.corner.x = pRect->corner.x + OldRect.corner.x;
+	r.corner.y = pRect->corner.y + OldRect.corner.y;
+	r.extent = pRect->extent;
+
+	SetContextClipRect (&r);
+
+	s.origin.x = frameOrigin.x - pRect->corner.x;
+	s.origin.y = frameOrigin.y - pRect->corner.y;
+	s.frame = SetAbsFrameIndex (PickFrame, frame);
+	DrawStamp (&s);
+
+	SetContextClipRect (&OldRect);
+}
+
 static BOOLEAN
 DoPickBattleShip (MENU_STATE *pMS)
 {
-	static STAMP statCover[2];
-
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
 		pMS->CurFrame = 0;
-		if (classicPackPresent)
-		{
-			DestroyDrawable (ReleaseDrawable (statCover[0].frame));
-			DestroyDrawable (ReleaseDrawable (statCover[1].frame));
-		}
 		return (FALSE);
 	}
 
@@ -65,15 +98,6 @@ DoPickBattleShip (MENU_STATE *pMS)
 		pMS->Initialized = TRUE;
 		pMS->InputFunc = DoPickBattleShip;
 
-		if (classicPackPresent)
-		{
-			RECT temp = { {228,362}, {224, 28} };
-			statCover[0] = SaveContextFrame (&temp);
-
-			temp.corner.x += 344;
-			statCover[1] = SaveContextFrame(&temp);
-		}
-
 		goto ChangeSelection;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
@@ -81,12 +105,6 @@ DoPickBattleShip (MENU_STATE *pMS)
 		if ((HSTARSHIP)pMS->CurFrame)
 		{
 			PlayMenuSound (MENU_SOUND_SUCCESS);
-
-			if (classicPackPresent)
-			{
-				DestroyDrawable (ReleaseDrawable (statCover[0].frame));
-				DestroyDrawable (ReleaseDrawable (statCover[1].frame));
-			}
 			return (FALSE);
 		}
 	}
@@ -190,8 +208,8 @@ ChangeSelection:
 			r.extent.width = ((ICON_WIDTH + RES_SCALE (4)) * 3) - RES_SCALE (4);
 			r.extent.height = RES_SCALE (7);
 
-			if (classicPackPresent)
-				DrawStamp (&statCover[0]);
+			if (IS_HD)
+				RepairPickFrame (&r, 0);
 			else
 				DrawFilledRectangle (&r);
 
@@ -203,10 +221,7 @@ ChangeSelection:
 			}
 			else
 			{
-				if (isPC (optWhichFonts))
-					SetContextFont (TinyFont);
-				else
-					SetContextFont (TinyFontBold);
+				SetContextFont (isPC (optWhichFonts) ? TinyFont : TinyFontBold);
 
 				t.baseline.x = r.corner.x + (r.extent.width >> 1);
 				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE (1)); 
@@ -251,8 +266,9 @@ ChangeSelection:
 			r.corner.x += (ICON_WIDTH + RES_SCALE (4))
 				* ((NUM_PICK_SHIP_COLUMNS >> 1) + 1)
 					+ FLAGSHIP_WIDTH - ICON_WIDTH;
-			if (classicPackPresent)
-				DrawStamp (&statCover[1]);
+
+			if (IS_HD)
+				RepairPickFrame (&r, 0);
 			else
 				DrawFilledRectangle (&r);
 
@@ -303,7 +319,8 @@ GetArmadaStarShip (void)
 	
 //    MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
 
-OldContext = SetContext (SpaceContext);
+	InitPickFrame ();
+	OldContext = SetContext (SpaceContext);
 	DrawArmadaPickShip (FALSE, &pick_r);
 
 	{
@@ -337,7 +354,8 @@ OldContext = SetContext (SpaceContext);
 
 //    DestroySound (ReleaseSound (MenuSounds));
 	
-SetContext (OldContext);
+	SetContext (OldContext);
+	DestroyPickFrame ();
 
 	return (hBattleShip);
 }
@@ -432,51 +450,41 @@ void
 DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 {
 #define PICK_NAME_HEIGHT RES_SCALE (6);
-	//COUNT i;
 	HSTARSHIP hBattleShip, hNextShip;
 	STARSHIP *StarShipPtr;
 	RECT r, pick_r;
 	STAMP s;
 	TEXT t;
 	CONTEXT OldContext;
-	FRAME PickFrame;
 	FRAME OldFontEffect;
 
 	OldContext = SetContext (SpaceContext);
 
-	PickFrame = CaptureDrawable (LoadGraphic (SC2_PICK_PMAP_ANIM));
-
-	if (optFlagshipColor == OPT_3DO)
-		PickFrame = SetAbsFrameIndex (PickFrame, 2);
-	else
-		PickFrame = SetAbsFrameIndex (PickFrame, 0);
-
 	BatchGraphics ();
 
 	s.frame = PickFrame;
-	SetFrameHot (s.frame, MAKE_HOT_SPOT (0, 0));
 	GetFrameRect (s.frame, &pick_r);
 	GetContextClipRect (&r);
 	pick_r.corner.x = (r.extent.width >> 1) - (pick_r.extent.width >> 1);
 	pick_r.corner.y = (r.extent.height >> 1) - (pick_r.extent.height >> 1);
 	
 	if (!draw_salvage_frame)
+	{
 		*pPickRect = pick_r;
+		frameOrigin = pick_r.corner;
+	}
 	else
 	{
 		s.origin.x = r.extent.width >> 1;
 		s.frame = SetAbsFrameIndex (s.frame, 1);
-		SetFrameHot (s.frame, MAKE_HOT_SPOT (0, 0));
 		GetFrameRect (s.frame, &r);
 		s.origin.x -= r.extent.width >> 1;
 		s.origin.y = pick_r.corner.y - (r.extent.height >> 1);
 		DrawStamp (&s);
 
-		if (optFlagshipColor == OPT_3DO)
-			s.frame = SetAbsFrameIndex (s.frame, 2);
-		else
-			s.frame = SetAbsFrameIndex (s.frame, 0);
+		frameOrigin = s.origin;
 
+		s.frame = SetAbsFrameIndex (s.frame, isPC (optFlagshipColor) ? 0 : 2);
 		pick_r.corner.y = s.origin.y + r.extent.height;
 
 		r.corner.x = pick_r.corner.x;
@@ -517,7 +525,6 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 		if (StarShipPtr->captains_name_index)
 		{	// Escort ship, not SIS
 			COUNT ship_index;
-			STAMP cover;
 
 			ship_index = StarShipPtr->index;
 
@@ -532,16 +539,10 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 					* (ship_index / NUM_PICK_SHIP_COLUMNS))); 
 			s.frame = StarShipPtr->icons;
 			r.corner = s.origin;
-			if (classicPackPresent)
-			{
-				cover = SaveContextFrame (&r);
-				DrawStamp (&cover);
-			}
-			else
-			{
-				SetContextForeGroundColor (BLACK_COLOR);
-				DrawFilledRectangle (&r);
-			}
+
+			SetContextForeGroundColor (BLACK_COLOR);
+			DrawFilledRectangle (&r);
+
 			if ((StarShipPtr->SpeciesID != NO_ID) || (StarShipPtr->crew_level == 0))
 			{
 				DrawStamp (&s);
@@ -549,8 +550,6 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 				{
 					/* Dead ship - mark with an X. */
 					s.origin.x -= RES_SCALE (1);
-					if (IS_HD)
-						s.origin.y -= RES_SCALE (1);
 					s.frame = SetAbsFrameIndex (StatusFrame, 3);
 					DrawStamp (&s);
 				}
@@ -562,8 +561,6 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 						BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
 				DrawFilledStamp (&s);
 			}
-			if (classicPackPresent)
-				DestroyDrawable (ReleaseDrawable (cover.frame));
 		}
 
 		hNextShip = _GetSuccLink (StarShipPtr);
@@ -571,8 +568,6 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	}
 
 	UnbatchGraphics ();
-	
-	DestroyDrawable (ReleaseDrawable (PickFrame));
 
 	SetContext (OldContext);
 }

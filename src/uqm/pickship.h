@@ -28,6 +28,10 @@ extern HSTARSHIP GetEncounterStarShip (STARSHIP *LastStarShipPtr,
 		COUNT which_player);
 extern void DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect);
 
+extern void InitPickFrame (void);
+extern void DestroyPickFrame (void);
+extern void RepairPickFrame (RECT *pRect, COUNT frame);
+
 #if defined(__cplusplus)
 }
 #endif

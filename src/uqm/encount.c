@@ -51,7 +51,7 @@
 
 
 static void DrawFadeText (const UNICODE *str1, const UNICODE *str2,
-		BOOLEAN fade_in, RECT *pRect, STAMP saveframe);
+		BOOLEAN fade_in, RECT *pRect);
 
 
 static BOOLEAN
@@ -459,8 +459,8 @@ SetTextFrameRect (const UNICODE* str1, const UNICODE* str2, RECT* pRect)
 	t2.baseline.y += RES_SCALE(11);
 	t2.pStr = str2;
 
-	TextRect(&t1, &r1, NULL);
-	TextRect(&t2, &r2, NULL);
+	TextRect (&t1, &r1, NULL);
+	TextRect (&t2, &r2, NULL);
 
 	// Take the closest X to the origin point.
 	res.corner.x = (r1.corner.x < r2.corner.x ? r1.corner.x : r2.corner.x);
@@ -479,22 +479,13 @@ SetTextFrameRect (const UNICODE* str1, const UNICODE* str2, RECT* pRect)
 
 static void
 DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
-		RECT *pRect, STAMP saveframe)
+		RECT *pRect)
 {
 	SIZE i;
 	DWORD TimeIn;
 	TEXT t1, t2;
 	RECT r1, r2;
-	static const Color fade_cycle[] =
-	{
-		BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x0A, 0x0A), 0x1D),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x09, 0x09), 0x1E),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x08, 0x08, 0x08), 0x1F),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x20),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x05, 0x05, 0x05), 0x21),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x04, 0x04, 0x04), 0x22),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x03, 0x03, 0x03), 0x23),
-	};
+	static const Color fade_cycle[] = SCAVENGE_TEXT_COLOR_TABLE;
 #define NUM_FADES (ARRAY_SIZE (fade_cycle))
 
 	t1.baseline.x = pRect->corner.x + RES_SCALE (100);
@@ -506,79 +497,52 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 	t2.baseline.y += RES_SCALE (11);
 	t2.pStr = str2;
 
+	TextRect (&t1, &r1, NULL);
+	TextRect (&t2, &r2, NULL);
+	 
 	FlushInput ();
 	TimeIn = GetTimeCounter ();
-	if (!IS_HD)
-	{	// Original code for SD
-		if (fade_in)
-		{
-			for (i = 0; i < (SIZE)NUM_FADES; ++i)
-			{
-				if (AnyButtonPress(TRUE))
-					i = NUM_FADES - 1;
 
-				SetContextForeGroundColor (fade_cycle[i]);
-				font_DrawText (&t1);
-				font_DrawText (&t2);
-				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-				TimeIn = GetTimeCounter();
-			}
+	for (i = 0; i < (SIZE)NUM_FADES; ++i)
+	{
+		if (AnyButtonPress (TRUE))
+			i = NUM_FADES - 1;
+
+		if (IS_HD)
+		{
+			RepairPickFrame (&r1, 1);
+			RepairPickFrame (&r2, 1);
+		}
+
+		SetContextForeGroundColor (fade_cycle[fade_in ? i : (NUM_FADES - i - 1)]);
+		font_DrawText (&t1);
+		font_DrawText (&t2);
+		SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
+		TimeIn = GetTimeCounter();
+	}
+	if (!fade_in)
+	{// Clear the remaining text
+		if (IS_HD)
+		{
+			RepairPickFrame (&r1, 1);
+			RepairPickFrame (&r2, 1);
 		}
 		else
 		{
-			for (i = NUM_FADES - 1; i >= 0; --i)
-			{
-				if (AnyButtonPress(TRUE))
-					i = 0;
-
-				SetContextForeGroundColor (fade_cycle[i]);
-				font_DrawText (&t1);
-				font_DrawText (&t2);
-				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-				TimeIn = GetTimeCounter();
-			}
-			SetContextForeGroundColor(
-				BUILD_COLOR_RGBA(0x50, 0x50, 0x50, 0xff));
-			TextRect (&t1, &r1, NULL);
-			TextRect (&t2, &r2, NULL);
+			SetContextForeGroundColor (BUILD_SHADE_RGBA (0x50));
 			DrawFilledRectangle (&r1);
 			DrawFilledRectangle (&r2);
 		}
 	}
+}
+
+static void
+ClearRectBack (RECT *pRect)
+{
+	if (IS_HD)
+		RepairPickFrame (pRect, 1);
 	else
-	{// For HD to hadle transparency in text to avoid rough edges
-		if (fade_in)
-		{
-			for (i = 0; i < (SIZE)NUM_FADES; ++i)
-			{
-				if (AnyButtonPress(TRUE))
-					i = NUM_FADES - 1;
-
-				DrawStamp (&saveframe);
-				SetContextForeGroundColor (fade_cycle[i]);
-				font_DrawText (&t1);
-				font_DrawText (&t2);
-				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-				TimeIn = GetTimeCounter();
-			}
-		}
-		else
-		{
-			for (i = NUM_FADES - 1; i >= 0; --i)
-			{
-				if (AnyButtonPress(TRUE))
-					i = 0;
-
-				DrawStamp (&saveframe);
-				SetContextForeGroundColor (fade_cycle[i]);
-				font_DrawText (&t1);
-				font_DrawText (&t2);
-				SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-				TimeIn = GetTimeCounter();
-			}
-			DrawStamp (&saveframe);
-		}
-	}
+		DrawFilledRectangle (pRect);
 }
 
 COUNT
@@ -608,7 +572,6 @@ UninitEncounter (void)
 		COUNT RecycleAmount = 0;
 		RECT r;
 		RECT scavenge_r = {{0, 0}, {0, 0}};
-		RECT ship_c;
 		TEXT t;
 		STAMP ship_s;
 		const UNICODE *str1 = NULL;
@@ -617,22 +580,8 @@ UninitEncounter (void)
 		UNICODE buf[80];
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
-		STAMP saveFrame[5];
-		static const Color fade_ship_cycle[] =
-		{
-			BUILD_COLOR (MAKE_RGB15_INIT (0x07, 0x00, 0x00), 0x2F),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0A, 0x0A), 0x27),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x14, 0x14), 0x25),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x1F), 0x0F),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x14, 0x14), 0x25),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0A, 0x0A), 0x27),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1B, 0x00, 0x00), 0x2A),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
-		};
-#define NUM_SHIP_FADES (sizeof (fade_ship_cycle) / \
-		sizeof (fade_ship_cycle[0]))
+		static const Color fade_ship_cycle[] = SCAVENGE_SCREEN_COLOR_TABLE;
+#define NUM_SHIP_FADES (ARRAY_SIZE (fade_ship_cycle))
 
 		SET_GAME_STATE (BATTLE_SEGUE, 0);
 		SET_GAME_STATE (BOMB_CARRIER, 0);
@@ -654,7 +603,7 @@ UninitEncounter (void)
 		UnlockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);
 
 		if (VictoryState > 0) // Set RU only when we get them
-			prevMsgMode = SetStatusMessageMode(SMM_RES_UNITS);
+			prevMsgMode = SetStatusMessageMode (SMM_RES_UNITS);
 
 		ship_s.origin.x = 0;
 		ship_s.origin.y = 0;
@@ -684,24 +633,8 @@ UninitEncounter (void)
 					SetContext (SpaceContext);
 					if (VictoryState)
 					{
+						InitPickFrame ();
 						DrawArmadaPickShip (TRUE, &scavenge_r);
-
-						if (classicPackPresent && i == NUM_SIDES - 1)
-						{	// HD classic pack only.
-							// To save the metal texture
-							RECT temp = { {222, 190}, {528, 88} };
-							saveFrame[1] = SaveContextFrame (&temp);
-									// main frame
-
-							temp.extent.width = 392;
-							saveFrame[2] = SaveContextFrame (&temp);
-									// Ship x5 Cover
-
-							temp.corner.x += 392;
-							temp.extent.width = 528 - 392;
-							saveFrame[3] = SaveContextFrame (&temp);
-									// Salvage Cover
-						}
 					}
 				}
 				pQueue = &GLOBAL (npc_built_ship_q);
@@ -736,14 +669,9 @@ UninitEncounter (void)
 								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE (56);
 								ship_s.frame = IncFrameIndex (FragPtr->icons);
 								DrawStamp (&ship_s);
-								SetContextForeGroundColor (
-										!classicPackPresent ?
-											MDKGRAY_COLOR : MLTGRAY_COLOR);
-								if (isPC (optWhichFonts))
-									SetContextFont (TinyFont);
-								else
-									SetContextFont (TinyFontBold);
+								SetContextForeGroundColor (MDKGRAY_COLOR);
 
+								SetContextFont (isPC (optWhichFonts) ? TinyFont : TinyFontBold);
 
 								utf8StringCopy (buf, sizeof buf,
 										GetStringAddress (FragPtr->race_strings));
@@ -790,9 +718,7 @@ UninitEncounter (void)
 										ENCOUNTER_STRING_BASE + 5);
 										// "Destroyed"
 
-								if (IS_HD)
-									saveFrame[0] = SetTextFrameRect (str1, str2, &scavenge_r);
-								DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame[0]);
+								DrawFadeText (str1, str2, TRUE, &scavenge_r);
 							}
 
 							r.corner.y = scavenge_r.corner.y + RES_SCALE (9);
@@ -806,10 +732,8 @@ UninitEncounter (void)
 								- (RES_SCALE (10) + r.extent.width);
 							BatchGraphics (); // to avoid blinking text
 
-							if (classicPackPresent)
-								DrawStamp (&saveFrame[3]);
-							else
-								DrawFilledRectangle (&r);
+							// Back of the RU counter
+							ClearRectBack (&r);
 
 							/* collect bounty ResUnits */
 							j = ShipCost (EncounterRace) >> 3;
@@ -850,31 +774,18 @@ UninitEncounter (void)
 										- (textRect.extent.width
 										+ RES_SCALE (1));
 
-								if (classicPackPresent)
-									DrawStamp (&saveFrame[2]);
-								else
-									DrawFilledRectangle (&r);
+								// Pause between erasing
+								if (Sleepy)
+									SleepThread (ONE_SECOND / 15);
+
+								// MAX_DEAD_DISPLAYED reached - erase
+								ClearRectBack (&r);
 
 								ship_s.origin.x =
 										r.corner.x + RES_SCALE (2);
 								ship_s.origin.y =
 										scavenge_r.corner.y
 										+ RES_SCALE (12);
-							}
-
-							if (IS_HD)
-							{
-								POINT p;
-
-								GetFrameRect (ship_s.frame, &ship_c);
-								p = GetFrameHot (ship_s.frame);
-
-								ship_c.corner = ship_s.origin;
-								ship_c.corner.x -= p.x;
-								ship_c.corner.y -= p.y;
-
-								if (classicPackPresent)
-									saveFrame[4] = SaveContextFrame (&ship_c);// Ship Cover
 							}
 
 							if (Sleepy)
@@ -884,18 +795,23 @@ UninitEncounter (void)
 								{
 									Sleepy = (BOOLEAN)!AnyButtonPress (TRUE) &&
 											!(GLOBAL (CurrentActivity) & CHECK_ABORT);
-									if (!Sleepy)
-										break;
 
 									if (IS_HD)
-									{
-										SetContextForeGroundColor (BLACK_COLOR);
+									{// Back of the current ship
+										POINT p;
+										RECT ship_r;
 
-										if (classicPackPresent)
-											DrawStamp (&saveFrame[4]);
-										else
-											DrawFilledRectangle (&ship_c);
+										GetFrameRect (ship_s.frame, &ship_r);
+										p = GetFrameHot (ship_s.frame);
+
+										ship_r.corner = ship_s.origin;
+										ship_r.corner.x -= p.x;
+										ship_r.corner.y -= p.y;
+										RepairPickFrame (&ship_r, 1);
 									}
+
+									if (!Sleepy)
+										break;
 
 									SetContextForeGroundColor (fade_ship_cycle[j]);
 									DrawFilledStamp (&ship_s);
@@ -904,20 +820,7 @@ UninitEncounter (void)
 									Time = GetTimeCounter ();
 								}
 							}
-
-							if (IS_HD)
-							{
-								SetContextForeGroundColor (BLACK_COLOR);
-
-								if (classicPackPresent)
-								{
-									DrawStamp (&saveFrame[4]);
-									DestroyDrawable (ReleaseDrawable (saveFrame[4].frame));
-								}
-								else
-									DrawFilledRectangle (&ship_c);
-							}
-
+							
 							DrawStamp (&ship_s);
 						}
 					}
@@ -944,17 +847,15 @@ UninitEncounter (void)
 			WaitForAnyButton (TRUE, ONE_SECOND * 3, FALSE);
 			if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 			{
-				DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame[0]);
+				DrawFadeText (str1, str2, FALSE, &scavenge_r);
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
 					SetContextForeGroundColor (BLACK_COLOR);
 					r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
 					r.extent.width = RES_SCALE(132);
 
-					if (IS_HD && classicPackPresent)
-						DrawStamp (&saveFrame[1]);
-					else
-						DrawFilledRectangle (&r);
+					// The whole stat stripe
+					ClearRectBack (&r);
 
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
@@ -967,34 +868,20 @@ UninitEncounter (void)
 							BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x18), 0x50));
 					font_DrawText (&t);
 
-					if (IS_HD)
-						DestroyDrawable (ReleaseDrawable (saveFrame[0].frame));
-
 
 					str1 = GAME_STRING (ENCOUNTER_STRING_BASE + 6);
 							// "Debris"
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 
-					if (IS_HD)
-						saveFrame[0] = SetTextFrameRect (str1, str2, &scavenge_r);
-
-					DrawFadeText (str1, str2, TRUE, &scavenge_r, saveFrame[0]);
+					DrawFadeText (str1, str2, TRUE, &scavenge_r);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
 					if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
-						DrawFadeText (str1, str2, FALSE, &scavenge_r, saveFrame[0]);
+						DrawFadeText (str1, str2, FALSE, &scavenge_r);
 				}
 			}
 			DrawStatusMessage (NULL);
-
-			if (IS_HD)
-				DestroyDrawable (ReleaseDrawable (saveFrame[0].frame));
-
-			if (classicPackPresent)
-			{
-				for (i = 1; i < 4; i++)
-					DestroyDrawable (ReleaseDrawable (saveFrame[i].frame));
-			}
+			DestroyPickFrame ();
 		}
 
 		if (ships_killed && EncounterRace == THRADDASH_SHIP
