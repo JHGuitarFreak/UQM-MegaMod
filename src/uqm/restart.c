@@ -673,17 +673,18 @@ RestartMenu (MENU_STATE *pMS)
 	{
 		TimeOut = ONE_SECOND / 2;
 
-		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) 
+		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0)
 		{
 			GLOBAL(CurrentActivity) = IN_ENCOUNTER;
 
-			if (DeathByMelee && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
+			if (DeathByMelee)
+			{
 				if (optGameOver)
 					GameOver (DIED_IN_BATTLE);
 				DeathByMelee = FALSE;
 			}
-
-			if (DeathBySurrender && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
+			else if (DeathBySurrender)
+			{
 				if (optGameOver)
 					GameOver (SURRENDERED);
 				DeathBySurrender = FALSE;
