@@ -244,12 +244,12 @@ while (--ac > 0)
 		struct tm tm = *localtime (&t);
 
 		srand (t);
-		Rando = (rand() % NUM_MM_THEMES);
+		Rando = (rand () % NUM_MM_THEMES);
 		optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
 
 		// printf("Random Music #: %d\n", Rando);
 
-		FadeMusic (0, 0);
+		FadeMusic (MUTE_VOLUME, 0);
 		PlayMusic (loadMainMenuMusic (Rando), TRUE, 1);
 		
 		if (optMainMenuMusic)

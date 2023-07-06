@@ -2113,10 +2113,13 @@ LoadLanderData (void)
 	}
 }
 
-void
+BYTE
 SetPlanetMusic (BYTE planet_type)
 {
-	LanderMusic = OrbitMusic[planet_type % num_orbit_themes ()];
+	BYTE OrbitNum = planet_type % num_orbit_themes ();
+	LanderMusic = OrbitMusic[OrbitNum];
+
+	return !(opt3doMusic || optRemixMusic || optVolasMusic) ? 0 : OrbitNum;
 }
 
 static void

@@ -190,6 +190,61 @@ SeekStream (uint32 source, uint32 pos)
 	PlayStream (sample, source, looping, scope, false);
 }
 
+uint32
+GetStreamFrame (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return SoundDecoder_GetFrame (sample->decoder);
+}
+
+uint16
+GetNumTrackerPos (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return sample->decoder->numpos;
+}
+
+BOOLEAN
+IsTracker (uint32 source)
+{
+	TFB_SoundSample * sample = soundSource[source].sample;
+
+	if (!sample)
+		return FALSE;
+
+	return sample->decoder->filetype == AUDIO_TRACKER;
+}
+
+float
+GetStreamLength (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return sample->decoder->length * 1000;
+}
+
+float
+GetStreamTime (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return SoundDecoder_GetTime (sample->decoder) * 1000;
+}
+
 BOOLEAN
 PlayingStream (uint32 source)
 {	

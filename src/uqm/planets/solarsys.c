@@ -106,7 +106,6 @@ FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
 MUSIC_REF SpaceMusic;
-// static DWORD SpaceMusicPos[21];
 
 SIZE EncounterRace;
 BYTE EncounterGroup;
@@ -875,6 +874,9 @@ FreeSolarSys (void)
 	
 	DestroyDrawable (ReleaseDrawable (SolarSysFrame));
 	SolarSysFrame = NULL;
+
+	if (optMusicResume)
+		SpaceMusicPos[spaceMusicBySOI] = PLRGetPos ();
 	
 	StopMusic ();
 
@@ -2138,15 +2140,15 @@ playSpaceMusic (void)
 	if (!PLRPlaying((MUSIC_REF)~0) &&
 		(LastActivity != CHECK_LOAD || NextActivity))
 	{
-		PlayMusic (SpaceMusic, TRUE, 1);
-
-		// Commented out for use in future version.
-		//if (SpaceMusicPos[spaceMusicBySOI] > 0)
-		//{
-		//	FadeMusic (0, 0);
-		//	FadeMusic (NORMAL_VOLUME, ONE_SECOND);
-		//	SeekMusic (SpaceMusicPos[spaceMusicBySOI]);
-		//}
+		if (optMusicResume && SpaceMusicPos[spaceMusicBySOI] > 0)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
+			PlayMusic (SpaceMusic, TRUE, 1);
+			SeekMusic (SpaceMusicPos[spaceMusicBySOI]);
+			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+		}
+		else
+			PlayMusic (SpaceMusic, TRUE, 1);
 	}
 }
 
@@ -2904,15 +2906,6 @@ ExploreSolarSys (void)
 #else
 	DoInput (&SolarSysState, FALSE);
 #endif
-
-	// Commented out for use in future version.
-	/*if (LastActivity != CHECK_LOAD)
-	{
-		if (!SpaceMusicOK)
-			spaceMusicBySOI = 0;
-
-		SpaceMusicPos[spaceMusicBySOI] = PLRGetPos ();
-	}*/
 
 	UninitSolarSys ();
 	pSolarSysState = 0;

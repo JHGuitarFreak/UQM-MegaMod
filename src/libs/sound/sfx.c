@@ -60,7 +60,7 @@ PlayChannel (COUNT channel, SOUND snd, SoundPosition pos,
 }
 
 void
-StopChannel (COUNT channel, unsigned char Priority)
+StopChannel (COUNT channel, BYTE Priority)
 {
 	StopSource (channel);
 	(void)Priority; // ignored

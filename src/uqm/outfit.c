@@ -47,7 +47,6 @@ enum
 	OUTFIT_DOFUEL
 };
 
-
 static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 {
@@ -795,7 +794,17 @@ DoOutfit (MENU_STATE *pMS)
 				DrawFlagshipStats ();
 
 			ScreenTransition (optScrTrans, NULL);
-			PlayMusic (pMS->hMusic, TRUE, 1);
+
+			if (optMusicResume && OutfitMusicPos > 0)
+			{
+				FadeMusic (MUTE_VOLUME, 0);
+				PlayMusic (pMS->hMusic, TRUE, 1);
+				SeekMusic (OutfitMusicPos);
+				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+			}
+			else
+				PlayMusic (pMS->hMusic, TRUE, 1);
+
 			UnbatchGraphics ();
 			
 			SetFlashRect (SFR_MENU_3DO, FALSE);
@@ -827,6 +836,9 @@ ExitOutfit:
 			pMS->CurFrame = 0;
 			DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
 			pMS->ModuleFrame = 0;
+
+			if (optMusicResume)
+				OutfitMusicPos = PLRGetPos ();
 
 			SetNamingCallback (NULL);
 

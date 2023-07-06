@@ -1557,6 +1557,10 @@ StartMelee (MELEE_STATE *pMS)
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2)
 				+ ONE_SECOND / 60);
 		FlushColorXForms ();
+
+		if (optMusicResume)
+			MeleeMenuMusicPos = PLRGetPos ();
+
 		StopMusic ();
 	}
 	FadeMusic (NORMAL_VOLUME, 0);
@@ -1961,7 +1965,18 @@ DoMelee (MELEE_STATE *pMS)
 		pMS->MeleeOption = START_MELEE;
 
 		if (optMainMenuMusic)
-			PlayMusic (pMS->hMusic, TRUE, 1);
+		{
+			if (optMusicResume && MeleeMenuMusicPos > 0)
+			{
+				FadeMusic (MUTE_VOLUME, 0);
+				PlayMusic (pMS->hMusic, TRUE, 1);
+				SeekMusic (MeleeMenuMusicPos);
+				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+			}
+			else
+				PlayMusic (pMS->hMusic, TRUE, 1);
+		}
+
 		InitMelee (pMS);
 
 		FadeScreen (FadeAllToColor, ONE_SECOND / 2);

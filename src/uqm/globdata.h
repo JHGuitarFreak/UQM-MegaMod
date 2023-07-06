@@ -122,6 +122,8 @@ typedef enum {
 	URQUAN_DRONE_CONVERSATION,
 	YEHAT_REBEL_CONVERSATION,
 	INVALID_CONVERSATION,
+
+	NUM_CONVERSATIONS,
 } CONVERSATION;
 
 typedef struct
@@ -171,7 +173,7 @@ typedef struct
 	FONT AlienFont;
 	COLORMAP AlienColorMap;
 	MUSIC_REF AlienSong;
-	STRING ConversationPhrases;	
+	STRING ConversationPhrases;
 } LOCDATA;
 
 enum

@@ -346,6 +346,17 @@ DoStarBase (MENU_STATE *pMS)
 		DrawBaseStateStrings ((STARBASE_STATE)~0, pMS->CurState);
 		ScreenTransition (optScrTrans, NULL);
 		PlayMusic (pMS->hMusic, TRUE, 1);
+
+		if (optMusicResume && StarBaseMusicPos > 0)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
+			PlayMusic (pMS->hMusic, TRUE, 1);
+			SeekMusic (StarBaseMusicPos);
+			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+		}
+		else
+			PlayMusic (pMS->hMusic, TRUE, 1);
+
 		UnbatchGraphics ();
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
@@ -353,6 +364,10 @@ DoStarBase (MENU_STATE *pMS)
 ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;
+
+		if (optMusicResume)
+			StarBaseMusicPos = PLRGetPos ();
+
 		StopMusic ();
 		if (pMS->hMusic)
 		{

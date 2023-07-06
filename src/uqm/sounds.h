@@ -22,6 +22,8 @@
 #include "element.h"
 #include "libs/compiler.h"
 #include "libs/sndlib.h"
+#include "races.h"
+#include "globdata.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -80,6 +82,16 @@ extern SoundPosition NotPositional (void);
 extern void UpdateSoundPositions (void);
 extern void FlushSounds (void);
 extern void RemoveSoundsForObject (ELEMENT *PosObj);
+
+// For music resume option
+extern DWORD MainMenuMusicPos;
+extern DWORD MeleeMenuMusicPos;
+extern DWORD StarBaseMusicPos;
+extern DWORD OutfitMusicPos;
+extern DWORD ShipyardMusicPos;
+extern DWORD CommMusicPos[NUM_CONVERSATIONS];
+extern DWORD SpaceMusicPos[NUM_SPECIES_ID];
+extern DWORD BattleRefPos[3];
 
 #if defined(__cplusplus)
 }

@@ -64,6 +64,7 @@ extern BOOLEAN DestroyMusic (MUSIC_REF MusicRef);
 #define MAX_CHANNELS 8
 #define MAX_VOLUME 255
 #define NORMAL_VOLUME 160
+#define MUTE_VOLUME 0
 
 #define FIRST_SFX_CHANNEL  0
 #define MIN_FX_CHANNEL     1

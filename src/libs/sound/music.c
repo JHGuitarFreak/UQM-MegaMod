@@ -102,8 +102,9 @@ PLRPause (MUSIC_REF MusicRef)
 static sint32
 get_current_music_pos (MUSIC_REF MusicRef)
 {
-	sint32 start_time, pos;
-	uint32 length = 0;
+	float pos = 0.0f;
+	float length = 0.0f;
+	UNICODE *filename;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return 0;
@@ -111,28 +112,37 @@ get_current_music_pos (MUSIC_REF MusicRef)
 	if (MusicRef == curMusicRef || MusicRef == (MUSIC_REF)~0)
 	{
 		LockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
-		start_time = soundSource[MUSIC_SOURCE].start_time;
-		length = soundSource[MUSIC_SOURCE].sample->decoder->length * 1000;
+
+		filename = soundSource[MUSIC_SOURCE].sample->decoder->filename;
+
+		if (IsTracker (MUSIC_SOURCE))
+		{
+			length = (float)GetNumTrackerPos (MUSIC_SOURCE);
+			pos = (float)GetStreamFrame (MUSIC_SOURCE);
+		}
+		else
+		{
+			length = GetStreamLength (MUSIC_SOURCE);
+			pos = GetStreamTime (MUSIC_SOURCE);
+		}
+
 		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 	}
 	else
 		return 0;
 
-	pos = (GetTimeCounter () - start_time);
+	printf ("filename: %s, length %f, pos %f\n", filename, length, pos);
 
-	printf ("start_time %d, length %d, pos %d\n", start_time, length, pos);
-
-	if (pos < 0)
+	if (pos < 0 || pos > length)
 		pos = 0;
-	else if ((uint32)pos > length)
-		pos = length;
-	return pos;
+
+	return (sint32)pos;
 }
 
 SDWORD
 PLRGetPos (void)
 {
-	return get_current_music_pos (curMusicRef);
+	return curMusicRef != 0 ? get_current_music_pos (curMusicRef) : 0;
 }
 
 void
