@@ -2108,8 +2108,10 @@ AdvancedAutoPilot (void)
 	POINT destination = GLOBAL (autopilot);
 	POINT portal_pt[NUM_PORTALS] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
 	POINT portal_coordinates;
-	double distance, minimum, fuel_no_portal, fuel_with_portal;
-	BYTE i, index;
+	double distance, fuel_no_portal, fuel_with_portal;
+	double minimum = 0.0;
+	BYTE i;
+	BYTE index = 0;
 	UWORD KnownQSPortals = GET_GAME_STATE (KNOW_QS_PORTAL);
 
 	current_position.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
@@ -2690,8 +2692,8 @@ StarMap (void)
 		if(optCustomBorder)
 		{
 			if(optWhichMenu != OPT_PC)
-				DrawBorder (14, FALSE);
-			DrawBorder (18 + optControllerType, FALSE);
+				DrawBorder (14);
+			DrawBorder (18 + optControllerType);
 		}
 		else
 			DrawSubmenu (4 + optControllerType, FALSE);

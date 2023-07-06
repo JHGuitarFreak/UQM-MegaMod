@@ -100,7 +100,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	if (!optCustomBorder && !classicPackPresent)
 		DrawFilledRectangle (&rt);
 
-	DrawBorder (8, FALSE);
+	DrawBorder (8);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
@@ -109,7 +109,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE (3);
 	DrawPCMenuFrame (r);
 
-	DrawBorder (28 - num_items, FALSE);
+	DrawBorder (28 - num_items);
 
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
@@ -638,7 +638,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			DrawFilledRectangle (&r);
 		}
 		else
-			DrawBorder (8, FALSE);
+			DrawBorder (8);
 	}
 	if (s.frame)
 	{
@@ -706,7 +706,7 @@ DrawSubmenu (BYTE Visible, BOOLEAN cleanup)
 		RECT r;
 
 		if (optCustomBorder || classicPackPresent)
-			DrawBorder (14, FALSE);
+			DrawBorder (14);
 		else
 		{
 			GetFrameRect (s.frame, &r);
@@ -738,7 +738,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 	if (cleanup)
 	{
 		if (optCustomBorder || classicPackPresent)
-			DrawBorder (14, FALSE);
+			DrawBorder (14);
 		else
 		{
 			SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
@@ -762,7 +762,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 			DrawSubmenu (1, FALSE);
 	}
 	else
-		DrawBorder (14, FALSE);
+		DrawBorder (14);
 
 #define ELEMENT_ORG_X      (r.corner.x + RES_SCALE (7))
 #define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE (6))
@@ -825,31 +825,43 @@ DrawMineralHelpers (BOOLEAN cleanup)
 }
 
 void
-DrawBorder (BYTE Visible, BOOLEAN InBattle)
+DrawBorder (BYTE Visible)
 {
 	STAMP s;
 	CONTEXT OldContext;
 
-	if (!InBattle)
-		OldContext = SetContext (ScreenContext);
+	OldContext = SetContext (ScreenContext);
 
 	s.origin.x = 0;
 	s.origin.y = 0;
 
-	if (optCustomBorder && !InBattle)
+	if (optCustomBorder)
 	{
 		s.frame = SetAbsFrameIndex (BorderFrame, Visible);
 		DrawStamp (&s);
 	}
-
-	if (IS_HD && (!optCustomBorder || InBattle))
+	else if (IS_HD)
 	{
 		s.frame = SetAbsFrameIndex (HDBorderFrame, Visible);
 		DrawStamp (&s);
 	}
 	
-	if (!InBattle)
-		SetContext (OldContext);
+	SetContext (OldContext);
+}
+
+void
+DrawMeleeBorder (BYTE Visible)
+{
+	STAMP s;
+
+	s.origin.x = 0;
+	s.origin.y = 0;
+
+	if (IS_HD)
+	{
+		s.frame = SetAbsFrameIndex (HDBorderFrame, Visible);
+		DrawStamp (&s);
+	}
 }
 
 void

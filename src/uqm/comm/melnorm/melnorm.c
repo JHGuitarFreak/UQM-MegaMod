@@ -375,7 +375,7 @@ static int
 countTech (void)
 {
 	BYTE numTech = 0;
-	TechId_t i = 0;
+	BYTE i = 0;
 
 	for (i = 0; i <= NUM_TECHNOLOGIES; ++i)
 		numTech += HasTech (i);

@@ -164,9 +164,9 @@ ColorDelta (COUNT scan, DWORD avg)
 	{
 		SBYTE diff = 0;
 
-		if (avg > MAX_BRIGHTNESS (scan))
+		if (avg > (DWORD)MAX_BRIGHTNESS (scan))
 			diff = -(SBYTE)(avg - MAX_BRIGHTNESS (scan));
-		else if (avg < MIN_BRIGHTNESS (scan))
+		else if (avg < (DWORD)MIN_BRIGHTNESS (scan))
 			diff = MIN_BRIGHTNESS (scan) - avg;
 
 		return diff;
@@ -2674,7 +2674,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		// elevation data is supplied in Surface Definition frame
 		BOOLEAN DeleteDef = FALSE;
 		BOOLEAN DeleteElev = FALSE;
-		FRAME ElevFrame;
+		FRAME ElevFrame = 0;
 		COUNT index = 0;
 
 		// load special frame to render Earth with DOS spheres on

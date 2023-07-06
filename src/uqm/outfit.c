@@ -67,8 +67,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r); // drawn over anyway
 	if (classicPackPresent)
-		DrawBorder (14, FALSE);
-	DrawBorder (8, FALSE);
+		DrawBorder (14);
+	DrawBorder (8);
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
@@ -383,7 +383,7 @@ DoInstallModule (MENU_STATE *pMS)
 		{
 			SetContext (StatusContext);
 			if (classicPackPresent)
-				DrawBorder (14, FALSE);
+				DrawBorder (14);
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState = OUTFIT_MODULES);
 			SetFlashRect (SFR_MENU_3DO, FALSE);
 

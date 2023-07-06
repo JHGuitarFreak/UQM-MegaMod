@@ -544,7 +544,7 @@ DrawCommBorder (RECT r)
 
 	SetContextClipRect (&oldClipRect);
 
-	DrawBorder (11, FALSE);
+	DrawBorder (11);
 }
 
 static void

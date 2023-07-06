@@ -2178,7 +2178,7 @@ SeedUniverse (void)
 		DrawFilledRectangle (&r);
 	}
 	else
-		DrawBorder (31, FALSE);
+		DrawBorder (31);
 
 	UnbatchGraphics ();
 

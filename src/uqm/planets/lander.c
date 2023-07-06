@@ -922,7 +922,7 @@ DrawSuperPC (void)
 			FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (32, FALSE);
+		DrawBorder (32);
 
 	if (optSubmenu)
 		DrawMineralHelpers (FALSE);

@@ -292,7 +292,7 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 		delta_y = WORLD_TO_DISPLAY (delta_y);
 		dist = delta_x * delta_x + delta_y * delta_y;
 		if (delta_x <= DESTRUCT_RANGE && delta_y <= DESTRUCT_RANGE
-				&& dist <= DESTRUCT_RANGE * DESTRUCT_RANGE)
+				&& (int)dist <= DESTRUCT_RANGE * DESTRUCT_RANGE)
 		{
 			int destruction = 1 + MAX_DESTRUCTION *
 					(DESTRUCT_RANGE - square_root (dist)) / DESTRUCT_RANGE;

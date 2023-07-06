@@ -268,7 +268,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		DrawFilledRectangle (&r);
 
 		if (optCustomBorder)
-			DrawBorder (12, FALSE);
+			DrawBorder (12);
 
 		pchar_deltas = char_deltas;
 		for (i = CursorPos; i > 0; --i)
@@ -402,7 +402,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_NORMAL);
 
-	DrawBorder (12, FALSE);
+	DrawBorder (12);
 
 	TextEntry3DO = FALSE;
 
@@ -906,7 +906,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		DateToString (buf, sizeof buf,
 				pSD->month_index, pSD->day_index, pSD->year_index);
 		ClearSISRect (DRAW_SIS_DISPLAY);
-		DrawBorder (37, FALSE);
+		DrawBorder (37);
 		DrawStatusMessage (buf);
 		UninitQueue (&GLOBAL (built_ship_q));
 

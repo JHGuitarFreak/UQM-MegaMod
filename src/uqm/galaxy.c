@@ -359,7 +359,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 
 	if (view_state != VIEW_STABLE)
 	{
-		COUNT reduction, i, iss, scale;
+		COUNT reduction, i, iss, scale = 0;
 		DPOINT *ppt;
 		FRAME tempframe;
 		int wrap_around;

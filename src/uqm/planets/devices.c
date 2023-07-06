@@ -159,7 +159,7 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, DEVICES_BACK_COLOR);
 	else
-		DrawBorder (13, FALSE);
+		DrawBorder (13);
 
 	// print the "DEVICES" title
 	SetContextFont (StarConFont);
@@ -457,7 +457,7 @@ InvokeDevice (BYTE which_device)
 		case PORTAL_SPAWNER_DEVICE:
 #define PORTAL_FUEL_COST (DIF_CASE(10, 5, 20) * FUEL_TANK_SCALE)
 			if ((inHyperSpace () || (EXTENDED && inHQSpace ()))
-					&& GLOBAL_SIS (FuelOnBoard) >= PORTAL_FUEL_COST)
+					&& GLOBAL_SIS (FuelOnBoard) >= (DWORD)PORTAL_FUEL_COST)
 			{
 				/* No DeltaSISGauges because the flagship picture
 				 * is currently obscured.

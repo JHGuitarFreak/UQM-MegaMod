@@ -297,8 +297,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r);
 	if (classicPackPresent)
-		DrawBorder (14, FALSE);
-	DrawBorder (8, FALSE);
+		DrawBorder (14);
+	DrawBorder (8);
 	r.corner = s.origin;
 	r.extent.width = RADAR_WIDTH;
 	r.extent.height = RADAR_HEIGHT;
@@ -1202,7 +1202,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
 		SetFlashRect (NULL, FALSE);
 		if (classicPackPresent)
-			DrawBorder (14, FALSE);
+			DrawBorder (14);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 				// twice to reset menu selection
@@ -1638,7 +1638,7 @@ DoShipyard (MENU_STATE *pMS)
 			DrawStamp (&s);
 
 			if (optCustomBorder)
-				DrawBorder (9, FALSE);
+				DrawBorder (9);
 
 			SetContextClipRect (&old_r);
 			animatePowerLines (pMS);
