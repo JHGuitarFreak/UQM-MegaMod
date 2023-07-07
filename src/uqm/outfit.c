@@ -366,6 +366,9 @@ DoInstallModule (MENU_STATE *pMS)
 		if (pMS->CurState < EMPTY_SLOT)
 		{
 			pMS->CurState += EMPTY_SLOT - 1;
+			if ((pMS->CurState == EMPTY_SLOT - 1) &&
+					pMS->delta_item + 1 > GLOBAL_SIS (NumLanders))
+				new_slot_piece = old_slot_piece;
 			if (pMS->CurState < EMPTY_SLOT)
 				pMS->CurState = EMPTY_SLOT + 3;
 			else if (pMS->CurState > EMPTY_SLOT + 2)
@@ -376,7 +379,12 @@ DoInstallModule (MENU_STATE *pMS)
 		}
 		else if (!cancel)
 		{
-			pMS->CurState = new_slot_piece;
+			if ((new_slot_piece == EMPTY_SLOT + 3) &&
+					(old_slot_piece == PLANET_LANDER) &&
+					(pMS->delta_item < GLOBAL_SIS (NumLanders)))
+				new_slot_piece = old_slot_piece;
+			else
+				pMS->CurState = new_slot_piece;
 			goto InitFlash;
 		}
 		else
@@ -453,7 +461,7 @@ DoInstallModule (MENU_STATE *pMS)
 		else if (NewItem != pMS->delta_item || NewState != pMS->CurState)
 		{
 			SIZE w;
-				
+
 			switch (NewState)
 			{
 				case PLANET_LANDER:
