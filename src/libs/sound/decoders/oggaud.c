@@ -212,6 +212,8 @@ ova_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 	else
 		This->format = ova_formats->stereo16;
 
+	This->filetype = AUDIO_OGG;
+
 	ova->last_error = 0;
 
 	return true;

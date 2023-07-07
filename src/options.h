@@ -111,6 +111,7 @@ extern BOOLEAN optSlaughterMode;
 extern BOOLEAN optMaskOfDeceit;
 extern BOOLEAN optAdvancedAutoPilot;
 extern BOOLEAN optMeleeToolTips;
+extern BOOLEAN optMusicResume;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;

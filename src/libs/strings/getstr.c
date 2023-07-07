@@ -119,7 +119,7 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 	void *result;
 	int stringI;
 	int path_len;
-	int num_data_sets;
+	// int num_data_sets; unused
 	DWORD opos;
 	
 	char *namedata = NULL;
@@ -403,7 +403,7 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 		uio_fclose (timestamp_fp);
 
 	result = NULL;
-	num_data_sets = (ClipOffs ? 1 : 0) + (TSOffs ? 1 : 0) + 1;
+	// num_data_sets = (ClipOffs ? 1 : 0) + (TSOffs ? 1 : 0) + 1; unused
 	if (++stringI)
 	{
 		int flags = 0;

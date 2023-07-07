@@ -63,7 +63,7 @@ volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
 int
-TFB_InitGraphics (int driver, int flags, const char* renderer, 
+TFB_InitGraphics (int driver, int flags, const char* renderer,
 		int width, int height, unsigned int *resFactor)
 {
 	int result, i;
@@ -129,7 +129,7 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 
 #if SDL_MAJOR_VERSION == 1
 	/* Other versions do this when setting up the window */
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s",
+	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 	SDL_WM_SetCaption (caption, NULL);
@@ -146,7 +146,7 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 
 	TFB_InitOnScreenKeyboard();
 
-	return 0;
+	return result;
 }
 
 void
@@ -656,7 +656,7 @@ TFB_ScreenShot (void)
 	strftime (curTime, sizeof (curTime),
 		"%Y-%m-%d_%H-%M-%S", tm);
 	snprintf (fullPath, sizeof (fullPath),
-		"%s%s v%d.%d.%g %s.%s", shotDirName, curTime,
+		"%s%s v%d.%d.%d %s.%s", shotDirName, curTime,
 		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 		UQM_EXTRA_VERSION, "png");
 

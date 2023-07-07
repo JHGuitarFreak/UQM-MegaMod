@@ -38,7 +38,7 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 
-#ifdef defined(ANDROID) || defined(__ANDROID__)
+#if defined(ANDROID) || defined(__ANDROID__)
 #define ACCELERATION_INCREMENT(ONE_SECOND)
 #define MENU_REPEAT_DELAY(ONE_SECOND)
 #else

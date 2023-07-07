@@ -78,7 +78,7 @@ RepairSISBorder (void)
 	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
-	DrawBorder (9, FALSE);
+	DrawBorder (9);
 
 	UnbatchGraphics ();
 
@@ -88,7 +88,7 @@ RepairSISBorder (void)
 void
 ClearSISRect (BYTE ClearFlags)
 {
-	RECT r;
+	//RECT r; Unused
 	Color OldColor;
 	CONTEXT OldContext;
 
@@ -96,8 +96,8 @@ ClearSISRect (BYTE ClearFlags)
 	OldColor = SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 
-	r.corner.x = RES_SCALE (2);
-	r.extent.width = STATUS_WIDTH - RES_SCALE (4);
+	//r.corner.x = RES_SCALE (2);
+	//r.extent.width = STATUS_WIDTH - RES_SCALE (4); Unused
 
 	BatchGraphics ();
 	if (ClearFlags & DRAW_SIS_DISPLAY)
@@ -152,8 +152,12 @@ DrawSISTitle (UNICODE *pStr)
 		SetContextFont (TinyFont);
 	else
 	{
+		UNICODE *buf = pStr;
+
 		SetContextFont (TinyFontBold);
-		replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+		replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
+		t.pStr = buf;
+		t.CharCount = (COUNT)~0;
 	}
 
 	BatchGraphics ();
@@ -162,7 +166,7 @@ DrawSISTitle (UNICODE *pStr)
 	SetContextBackGroundColor (SIS_TITLE_BACKGROUND_COLOR);
 	ClearDrawable ();
 	
-	DrawBorder (3, FALSE);
+	DrawBorder (3);
 
 	// Text color
 	SetContextForeGroundColor (SIS_TITLE_TEXT_COLOR);
@@ -305,8 +309,17 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 	else
 	{
 		SetContextFont (TinyFontBold);
+
 		if (CurPos < 0 && ExPos < 0)
-			replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+		{
+			UNICODE buf[100];
+
+			utf8StringCopy (buf, sizeof (buf), pStr);
+			replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
+
+			t.pStr = buf;
+			t.CharCount = (COUNT)~0;
+		}
 	}
 
 	if (flags & DSME_CLEARFR)
@@ -316,7 +329,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 	{	// normal state
 		ClearDrawable ();
 
-		DrawBorder (2, FALSE);
+		DrawBorder (2);
 		t.align = ALIGN_CENTER;
 		font_DrawText (&t);
 	}
@@ -347,7 +360,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 #endif
 
 		ClearDrawable ();
-		DrawBorder (2, FALSE);
+		DrawBorder (2);
 
 		if (CurPos >= 0 && CurPos <= t.CharCount)
 		{	// calc and draw the cursor
@@ -512,7 +525,7 @@ DrawStatusMessage (const UNICODE *pStr)
 	SetContextBackGroundColor (STATUS_MESSAGE_BACKGROUND_COLOR);
 	ClearDrawable ();
 
-	DrawBorder (7, FALSE);
+	DrawBorder (7);
 
 	if (!pStr)
 	{
@@ -570,8 +583,15 @@ DrawStatusMessage (const UNICODE *pStr)
 		SetContextFont (TinyFont);
 	else
 	{
+		UNICODE buf[100];
+
 		SetContextFont (TinyFontBold);
-		replaceChar (t.pStr, UNICHAR_SPACE, UNICHAR_TAB);
+
+		utf8StringCopy (buf, sizeof (buf), pStr);
+		replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
+
+		t.pStr = buf;
+		t.CharCount = (COUNT)~0;
 	}
 
 	SetContextForeGroundColor (STATUS_MESSAGE_TEXT_COLOR);
@@ -615,7 +635,7 @@ DrawCaptainsName (bool NewGame)
 	DrawFilledRectangle (&r);
 
 	if(!NewGame)
-		DrawBorder (6, FALSE);
+		DrawBorder (6);
 
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (6);
@@ -701,7 +721,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	}
 
 	if (!NewGame)
-		DrawBorder (12, FALSE);
+		DrawBorder (12);
 
 	t.baseline.x =
 			r.corner.x + RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
@@ -1070,7 +1090,7 @@ DrawPC_SIS (void)
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	DrawBorder (4, FALSE);
+	DrawBorder (4);
 
 	// Text "CAPTAIN".
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);
@@ -1355,12 +1375,12 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 
 		DrawStamp (&s);
 
-		DrawBorder (1, FALSE);
+		DrawBorder (1);
 
 		if (optWhichFonts == OPT_PC)
 			DrawPC_SIS();
 		else
-			DrawBorder (4, FALSE);
+			DrawBorder (4);
 
 		DrawThrusters ();
 		DrawTurningJets ();
@@ -1380,7 +1400,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	if (fuel_delta == UNDEFINED_DELTA)
 	{
 		if(optWhichFonts == OPT_3DO)
-			DrawBorder (5, FALSE);
+			DrawBorder (5);
 		DrawFlagshipName (TRUE, FALSE);
 		DrawCaptainsName (FALSE);
 		DrawLanders ();
@@ -1574,7 +1594,7 @@ GetSBayCapacity (POINT *ppt)
 	COUNT cellNr;
 
 	COUNT rowNr;
-	COUNT colNr;
+	// COUNT colNr; Unused
 
 	static const Color colorBars[] = STORAGE_BAY_COLOR_TABLE;
 
@@ -1586,7 +1606,7 @@ GetSBayCapacity (POINT *ppt)
 	}
 
 	rowNr = cellNr / SBAY_MASS_PER_ROW;
-	colNr = cellNr % SBAY_MASS_PER_ROW;
+	// colNr = cellNr % SBAY_MASS_PER_ROW; Unused
 
 	if (rowNr == 0)
 		SetContextForeGroundColor (BLACK_COLOR);

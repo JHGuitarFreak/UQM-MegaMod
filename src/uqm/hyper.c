@@ -76,7 +76,7 @@ enum HyperMenuItems
  * draws the melee icon for the battle group inside the black holes,
  * so you can see who's chasing you.
  */
-static void
+/*static void
 decorate_vortex (ELEMENT *ElementPtr)
 {
 	HENCOUNTER hEncounter, hNextEncounter;
@@ -187,7 +187,7 @@ decorate_vortex (ELEMENT *ElementPtr)
 		}
 		UnlockEncounter (hEncounter);
 	}
-}
+}*/
 
 void
 MoveSIS (SDWORD *pdx, SDWORD *pdy)
@@ -2184,7 +2184,7 @@ SeedUniverse (void)
 		DrawFilledRectangle (&r);
 	}
 	else
-		DrawBorder (31, FALSE);
+		DrawBorder (31);
 
 	UnbatchGraphics ();
 

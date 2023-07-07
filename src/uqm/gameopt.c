@@ -268,7 +268,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		DrawFilledRectangle (&r);
 
 		if (optCustomBorder)
-			DrawBorder (12, FALSE);
+			DrawBorder (12);
 
 		pchar_deltas = char_deltas;
 		for (i = CursorPos; i > 0; --i)
@@ -392,7 +392,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	{
 		strcpy (Setting, GAME_STRING // Zelnick & Vindicator
 				(NAMING_STRING_BASE + 2 + nameCaptain));
-		CursPos = strlen (GAME_STRING 
+		CursPos = (COUNT)strlen (GAME_STRING
 				(NAMING_STRING_BASE + 2 + nameCaptain));
 	}
 
@@ -402,7 +402,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 
 	DrawNameString (nameCaptain, buf, CursPos, DDSHS_NORMAL);
 
-	DrawBorder (12, FALSE);
+	DrawBorder (12);
 
 	TextEntry3DO = FALSE;
 
@@ -463,7 +463,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 		t.pStr = Str;
 		t.CharCount = (COUNT)~0;
 		SetContextForeGroundColor (CAPTAIN_NAME_TEXT_COLOR);
-		font_DrawText (&lf);
+		font_DrawText (&t);
 	}
 	else
 	{	// editing state
@@ -487,7 +487,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 
 		pchar_deltas = char_deltas;
 
-		FullCursorPos = CursorPos + strlen(dateStr) - 1;
+		FullCursorPos = CursorPos + (COUNT)strlen(dateStr) - 1;
 		for (i = FullCursorPos; i > 0; --i)
 			text_r.corner.x += *pchar_deltas++;
 
@@ -543,7 +543,7 @@ static BOOLEAN
 NameSaveGame (COUNT gameIndex, UNICODE *buf)
 {
 	TEXTENTRY_STATE tes;
-	COUNT CursPos = strlen(buf);
+	COUNT CursPos = (COUNT)strlen(buf);
 	COUNT *gIndex = HMalloc (sizeof (COUNT));
 	RECT r;
 	*gIndex = gameIndex;
@@ -906,7 +906,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		DateToString (buf, sizeof buf,
 				pSD->month_index, pSD->day_index, pSD->year_index);
 		ClearSISRect (DRAW_SIS_DISPLAY);
-		DrawBorder (37, FALSE);
+		DrawBorder (37);
 		DrawStatusMessage (buf);
 		UninitQueue (&GLOBAL (built_ship_q));
 

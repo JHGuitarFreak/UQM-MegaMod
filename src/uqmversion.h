@@ -26,7 +26,7 @@
 #define UQM_PATCH_VERSION    1
 #define UQM_REVISION_VERSION 0
 #else
-#define UQM_PATCH_VERSION     3.0f
+#define UQM_PATCH_VERSION     3
 #endif
 #define UQM_PATCH_VERSION_S  "3"
 #if defined(DEBUG)

@@ -297,8 +297,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r);
 	if (classicPackPresent)
-		DrawBorder (14, FALSE);
-	DrawBorder (8, FALSE);
+		DrawBorder (14);
+	DrawBorder (8);
 	r.corner = s.origin;
 	r.extent.width = RADAR_WIDTH;
 	r.extent.height = RADAR_HEIGHT;
@@ -1052,9 +1052,9 @@ DMS_ModifyCrew (MENU_STATE *pMS, HSHIPFRAG hStarShip, SBYTE dy)
 	COUNT loop;
 	COUNT DoLoop = 1;
 	RECT r;
-	SIZE remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
-			GET_GAME_STATE (CREW_PURCHASED0),
-			GET_GAME_STATE (CREW_PURCHASED1));
+	//SIZE remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
+	//		GET_GAME_STATE (CREW_PURCHASED0),
+	//		GET_GAME_STATE (CREW_PURCHASED1)); Unused
 
 	DoLoop = abs (dy);
 
@@ -1156,7 +1156,7 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 	BYTE MaxBuild = 2;
 	COUNT shipCost = ShipCost (Index);
 
-	if ((DIF_HARD && CountEscortShips (Index) < MaxBuild || !DIF_HARD)
+	if (((DIF_HARD && CountEscortShips (Index) < MaxBuild) || !DIF_HARD)
 			&& GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
 			&& CloneShipFragment (Index, &GLOBAL (built_ship_q), 1))
 	{
@@ -1202,7 +1202,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
 		SetFlashRect (NULL, FALSE);
 		if (classicPackPresent)
-			DrawBorder (14, FALSE);
+			DrawBorder (14);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 				// twice to reset menu selection
@@ -1248,12 +1248,12 @@ DMS_ScrapEscortShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 {
 	SHIP_FRAGMENT *StarShipPtr =
 			LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
-	BYTE slotNr;
+	//BYTE slotNr; Unused
 
 	SetFlashRect (NULL, FALSE);
 	ShowCombatShip (pMS, pMS->CurState, StarShipPtr);
 
-	slotNr = StarShipPtr->index;
+	// slotNr = StarShipPtr->index; Unused
 	UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 
 	RemoveQueue (&GLOBAL (built_ship_q), hStarShip);
@@ -1638,7 +1638,7 @@ DoShipyard (MENU_STATE *pMS)
 			DrawStamp (&s);
 
 			if (optCustomBorder)
-				DrawBorder (9, FALSE);
+				DrawBorder (9);
 
 			SetContextClipRect (&old_r);
 			animatePowerLines (pMS);
@@ -1652,7 +1652,15 @@ DoShipyard (MENU_STATE *pMS)
 			ScreenTransition (optScrTrans, NULL);
 			UnbatchGraphics ();
 
-			PlayMusic (pMS->hMusic, TRUE, 1);
+			if (optMusicResume && ShipyardMusicPos > 0)
+			{
+				FadeMusic (MUTE_VOLUME, 0);
+				PlayMusic (pMS->hMusic, TRUE, 1);
+				SeekMusic (ShipyardMusicPos);
+				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+			}
+			else
+				PlayMusic (pMS->hMusic, TRUE, 1);
 
 			ShowCombatShip (pMS, (COUNT)~0, NULL);
 
@@ -1668,6 +1676,8 @@ DoShipyard (MENU_STATE *pMS)
 ExitShipyard:
 		SetInputCallback (NULL);
 
+
+
 		if (pMS->CurState < SHIPYARD_EXIT)
 			DrawMenuStateStrings (PM_CREW, SHIPYARD_EXIT);
 
@@ -1675,6 +1685,9 @@ ExitShipyard:
 		pMS->ModuleFrame = 0;
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
 		pMS->CurString = 0;
+
+		if (optMusicResume)
+			ShipyardMusicPos = PLRGetPos ();
 
 		return FALSE;
 	}

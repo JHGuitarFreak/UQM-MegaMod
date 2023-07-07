@@ -55,6 +55,8 @@ CONTEXT PlanetContext;
 
 BOOLEAN useDosSpheres = FALSE;
 BOOLEAN use3DOSpheres = FALSE;
+BYTE OrbitNum = 0;
+DWORD OrbitMusicPos[6] = {0};
 
 void
 DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
@@ -299,10 +301,10 @@ DrawPlanetSurfaceBorder (void)
 		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		DrawFilledRectangle (&r);
 
-		DrawBorder (30, FALSE);
+		DrawBorder (30);
 	}
 	else
-		DrawBorder (10, FALSE);
+		DrawBorder (10);
 	
 	UnbatchGraphics ();
 
@@ -446,7 +448,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	StopMusic ();
 
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
-	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, NULL, NULL);
+	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, 0, 0);
 	SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
 
@@ -454,7 +456,17 @@ LoadPlanet (FRAME SurfDefFrame)
 		SleepThread (ONE_SECOND);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
-		PlayMusic (LanderMusic, TRUE, 1);
+	{
+		if (optMusicResume && OrbitMusicPos[OrbitNum] > 0)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
+			PlayMusic (LanderMusic, TRUE, 1);
+			SeekMusic (OrbitMusicPos[OrbitNum]);
+			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+		}
+		else
+			PlayMusic (LanderMusic, TRUE, 1);
+	}
 
 	if (WaitMode)
 	{
@@ -494,6 +506,9 @@ FreePlanet (void)
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 
 	UninitSphereRotation ();
+
+	if (optMusicResume)
+		OrbitMusicPos[OrbitNum] = PLRGetPos ();
 
 	StopMusic ();
 

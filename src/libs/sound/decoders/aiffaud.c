@@ -524,6 +524,9 @@ aifa_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 	aifa->max_pcm = aifa->fmtHdr.sampleFrames;
 	aifa->cur_pcm = 0;
 	This->length = (float) aifa->max_pcm / aifa->fmtHdr.sampleRate;
+
+	This->filetype = AUDIO_AIF;
+
 	aifa->last_error = 0;
 
 	return true;

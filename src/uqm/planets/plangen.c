@@ -164,9 +164,9 @@ ColorDelta (COUNT scan, DWORD avg)
 	{
 		SBYTE diff = 0;
 
-		if (avg > MAX_BRIGHTNESS (scan))
+		if (avg > (DWORD)MAX_BRIGHTNESS (scan))
 			diff = -(SBYTE)(avg - MAX_BRIGHTNESS (scan));
-		else if (avg < MIN_BRIGHTNESS (scan))
+		else if (avg < (DWORD)MIN_BRIGHTNESS (scan))
 			diff = MIN_BRIGHTNESS (scan) - avg;
 
 		return diff;
@@ -2004,7 +2004,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		Orbit->scanType = NUM_SCAN_TYPES;
 
 		Orbit->Shade = 0;
-		Orbit->ShadeColors = NULL;		
+		Orbit->ShadeColors = NULL;
 	}
 	
 	if (!forOrbit || optScanSphere)
@@ -2046,7 +2046,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 			Orbit->Shade =
 					CaptureDrawable (LoadGraphic (PLANET_MASK_SHADE));
 
-			Orbit->ShadeColors = Orbit->ShadeColors =
+			Orbit->ShadeColors =
 					HMalloc (sizeof (Color) * GetFrameWidth (Orbit->Shade)
 					* GetFrameHeight (Orbit->Shade));
 		}
@@ -2479,8 +2479,9 @@ GenerateLightMap (SBYTE *pTopo, int w, int h)
 }
 
 void
-load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
-		PLANET_INFO *PlanetInfo, BOOLEAN dosshielded, BOOLEAN LoadCustomColorTable)
+load_color_resources (PLANET_DESC *pPlanetDesc,
+		const PlanetFrame *PlanDataPtr, PLANET_INFO *PlanetInfo,
+		BOOLEAN dosshielded, BOOLEAN LoadCustomColorTable)
 {
 	if (LoadCustomColorTable)
 	{	// JMS: Planets with special colormaps
@@ -2523,7 +2524,7 @@ load_color_resources (PLANET_DESC *pPlanetDesc, PlanetFrame *PlanDataPtr,
 
 void
 generate_surface_frame (COUNT width, COUNT height, PLANET_ORBIT *Orbit,
-	PlanetFrame *PlanDataPtr)
+		const PlanetFrame *PlanDataPtr)
 {	// Generate planet surface elevation data and look
 	RECT r;
 	COUNT i;
@@ -2632,7 +2633,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	BOOLEAN customTexture =
 			solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED;
 
-	if (width == NULL && height == NULL)
+	if (!width && !height)
 	{
 		width = SCALED_MAP_WIDTH;
 		height = MAP_HEIGHT;
@@ -2673,7 +2674,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		// elevation data is supplied in Surface Definition frame
 		BOOLEAN DeleteDef = FALSE;
 		BOOLEAN DeleteElev = FALSE;
-		FRAME ElevFrame;
+		FRAME ElevFrame = 0;
 		COUNT index = 0;
 
 		// load special frame to render Earth with DOS spheres on

@@ -47,7 +47,6 @@ enum
 	OUTFIT_DOFUEL
 };
 
-
 static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 {
@@ -68,8 +67,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 	DrawFilledRectangle (&r); // drawn over anyway
 	if (classicPackPresent)
-		DrawBorder (14, FALSE);
-	DrawBorder (8, FALSE);
+		DrawBorder (14);
+	DrawBorder (8);
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
@@ -101,7 +100,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 			SetContextFont (TinyFontBold);
 
 		if ((GLOBAL_SIS (ResUnits)) 
-				> (DWORD)((GLOBAL (ModuleCost[NewModule])
+				>= (DWORD)((GLOBAL (ModuleCost[NewModule])
 				* MODULE_COST_SCALE))) 
 			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 		else
@@ -384,7 +383,7 @@ DoInstallModule (MENU_STATE *pMS)
 		{
 			SetContext (StatusContext);
 			if (classicPackPresent)
-				DrawBorder (14, FALSE);
+				DrawBorder (14);
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState = OUTFIT_MODULES);
 			SetFlashRect (SFR_MENU_3DO, FALSE);
 
@@ -795,7 +794,17 @@ DoOutfit (MENU_STATE *pMS)
 				DrawFlagshipStats ();
 
 			ScreenTransition (optScrTrans, NULL);
-			PlayMusic (pMS->hMusic, TRUE, 1);
+
+			if (optMusicResume && OutfitMusicPos > 0)
+			{
+				FadeMusic (MUTE_VOLUME, 0);
+				PlayMusic (pMS->hMusic, TRUE, 1);
+				SeekMusic (OutfitMusicPos);
+				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+			}
+			else
+				PlayMusic (pMS->hMusic, TRUE, 1);
+
 			UnbatchGraphics ();
 			
 			SetFlashRect (SFR_MENU_3DO, FALSE);
@@ -827,6 +836,9 @@ ExitOutfit:
 			pMS->CurFrame = 0;
 			DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
 			pMS->ModuleFrame = 0;
+
+			if (optMusicResume)
+				OutfitMusicPos = PLRGetPos ();
 
 			SetNamingCallback (NULL);
 

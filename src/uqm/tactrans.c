@@ -736,6 +736,9 @@ ship_death (ELEMENT *ShipPtr)
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 
+	if (optMusicResume)
+		BattleRefPos[0] = PLRGetPos ();
+
 	StopAllBattleMusic ();
 
 	// If the winning ship dies before the ditty starts, do not play it.

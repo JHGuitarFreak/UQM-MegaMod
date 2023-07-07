@@ -204,7 +204,7 @@ DrawCaptainWindowFrame (FRAME fr, COORD y)
 	DrawStamp (&Stamp);
 }
 
-static void
+/*static void
 CaptainsWindow (CAPTAIN_STUFF *CSPtr, COORD y,
 		STATUS_FLAGS delta_status_flags, STATUS_FLAGS cur_status_flags,
 		COUNT Pass)
@@ -289,7 +289,7 @@ CaptainsWindow (CAPTAIN_STUFF *CSPtr, COORD y,
 			Stamp.frame = SetRelFrameIndex (Stamp.frame, 2);
 		DrawStamp (&Stamp);
 	}
-}
+}*/
 
 void
 DrawBattleCrewAmount (SHIP_INFO *ShipInfoPtr, COORD y_offs)
@@ -429,16 +429,16 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	if (IS_HD)
 	{
 		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawBorder (35, TRUE);
-		DrawBorder (36, TRUE);
+			DrawMeleeBorder (35);
+		DrawMeleeBorder (36);
 
 		if (StarShipPtr->playerNr == RPG_PLAYER_NUM)
 		{
 			if (!(RDPtr->ship_info.ship_flags & PLAYER_CAPTAIN))
-				DrawBorder (MENU_BOOL (41, 39), TRUE);
+				DrawMeleeBorder (MENU_BOOL (41, 39));
 		}
 		else if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawBorder (MENU_BOOL (40, 38), TRUE);
+			DrawMeleeBorder (MENU_BOOL (40, 38));
 	}
 
 	if (StarShipPtr->captains_name_index == 0

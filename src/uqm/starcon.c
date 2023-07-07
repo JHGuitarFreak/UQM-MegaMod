@@ -214,10 +214,18 @@ while (--ac > 0)
 
 	if (!LoadKernel (0,0, FALSE))
 	{
-		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic content ***\n\nUQM requires at least the base content pack to run properly.");
-		log_add (log_Fatal, "This file is typically called mm-%d.%d.%d-content.uqm.  UQM was expecting", UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION);
-		log_add (log_Fatal, "it in the %s/packages directory.", baseContentPath);
-		log_add (log_Fatal, "Either your installation did not install the content pack at all, or it\ninstalled it in a different directory.\n\nFix your installation and rerun UQM.\n\n  *******************\n");
+		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic "
+				"content ***\n\nUQM requires at least the base content "
+				"pack to run properly.");
+		log_add (log_Fatal, "This file is typically called "
+				"mm-%d.%d.%d-content.uqm.  UQM was expecting",
+				UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION);
+		log_add (log_Fatal, "it in the %s/packages directory.",
+				baseContentPath);
+		log_add (log_Fatal, "Either your installation did not install the "
+				"content pack at all, or it\ninstalled it in a different "
+				"directory.\n\nFix your installation and rerun UQM.\n\n  "
+				"*******************\n");
 		log_showBox (true, true);
 
 		MainExited = TRUE;
@@ -236,12 +244,12 @@ while (--ac > 0)
 		struct tm tm = *localtime (&t);
 
 		srand (t);
-		Rando = (rand() % NUM_MM_THEMES);
+		Rando = (rand () % NUM_MM_THEMES);
 		optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
 
 		// printf("Random Music #: %d\n", Rando);
 
-		FadeMusic (0, 0);
+		FadeMusic (MUTE_VOLUME, 0);
 		PlayMusic (loadMainMenuMusic (Rando), TRUE, 1);
 		
 		if (optMainMenuMusic)

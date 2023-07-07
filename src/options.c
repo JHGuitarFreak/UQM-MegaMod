@@ -124,6 +124,7 @@ BOOLEAN optSlaughterMode;
 BOOLEAN optMaskOfDeceit;
 BOOLEAN optAdvancedAutoPilot;
 BOOLEAN optMeleeToolTips;
+BOOLEAN optMusicResume;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

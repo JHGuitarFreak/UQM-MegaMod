@@ -116,7 +116,8 @@ static RACE_DESC chenjesu_desc =
 		},
 		{
 			CHENJESU_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		CHENJESU_VICTORY_SONG,
 		CHENJESU_SHIP_SOUNDS,
@@ -530,7 +531,7 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 			{
 				if (IS_HD)
 				{
-					COUNT num_weapons;
+					//COUNT num_weapons;
 					ELEMENT Ship;
 					HELEMENT Weapon[6];
 					HELEMENT *WeaponPtr,w;
@@ -539,7 +540,7 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 					
 					Ship = *ShipPtr;
 					GetElementStarShip (&Ship, &StarShipPtr2);
-					num_weapons = (*StarShipPtr->RaceDescPtr->init_weapon_func) (ShipPtr, Weapon);
+					//num_weapons = (*StarShipPtr->RaceDescPtr->init_weapon_func) (ShipPtr, Weapon);
 					WeaponPtr = &Weapon[0];
 					
 					w = *WeaponPtr;

@@ -367,6 +367,12 @@ findRaceSOI (void)
 	BYTE HomeWorld[] = { HOMEWORLD_LOC };
 	BYTE speciesID[4] = { 0 };
 
+	if (!SpaceMusicOK)
+	{
+		spaceMusicBySOI = NO_ID;
+		return;
+	}
+
 	if (GET_GAME_STATE (KOHR_AH_FRENZY))
 	{
 		spaceMusicBySOI = SA_MATRA_ID;

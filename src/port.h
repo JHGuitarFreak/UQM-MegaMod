@@ -23,7 +23,9 @@
 
 // Compilation related
 #ifdef _MSC_VER
+#	if (_MSC_VER < 1900)
 #	define inline __inline
+#	endif
 #elif defined(__SYMBIAN32__)
 #else
 #	define inline __inline__

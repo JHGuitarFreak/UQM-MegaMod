@@ -1153,14 +1153,14 @@ static BOOLEAN
 DiscussDevices (BOOLEAN TalkAbout)
 {
 	COUNT i, VuxBeastIndex, PhraseIndex;
-	BOOLEAN Undiscussed;
+	//BOOLEAN Undiscussed; unused
 
 	if (TalkAbout)
 		NPCPhrase (DEVICE_HEAD);
 	PhraseIndex = 2;
 
 	VuxBeastIndex = 0;
-	Undiscussed = FALSE;
+	//Undiscussed = FALSE; unused
 	for (i = 0; i < NUM_DEVICES; ++i)
 	{
 		RESPONSE_REF pStr;

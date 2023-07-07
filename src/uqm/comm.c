@@ -544,7 +544,7 @@ DrawCommBorder (RECT r)
 
 	SetContextClipRect (&oldClipRect);
 
-	DrawBorder (11, FALSE);
+	DrawBorder (11);
 }
 
 static void
@@ -815,12 +815,7 @@ InitUIRects (BOOLEAN state)
 				SIS_SCREEN_HEIGHT - (SLIDER_Y + SLIDER_HEIGHT));
 	}
 	else
-	{
-		BYTE i;
-
-		for (i = 0; i < ARRAY_SIZE (DarkModeRect); i++)
-			memset (&DarkModeRect[i], 0, sizeof DarkModeRect[i]);
-	}
+		memset (&DarkModeRect, 0, sizeof (DarkModeRect));
 }
 
 static void
@@ -1187,11 +1182,23 @@ AlienTalkSegue (COUNT wait_track)
 		DrawAlienFrame (NULL, 0, TRUE);
 		UpdateSpeechGraphics ();
 		CommIntroTransition ();
+		BYTE AlienConv = CommData.AlienConv;
+		MUSIC_REF AlienSong = CommData.AlienSong;
 		
 		pCurInputState->Initialized = TRUE;
 
-		PlayMusic (CommData.AlienSong, TRUE, 1);
-		SetMusicVolume (BACKGROUND_VOL);
+		if (optMusicResume && CommMusicPos[AlienConv] > 0)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
+			PlayMusic (AlienSong, TRUE, 1);
+			SeekMusic (CommMusicPos[AlienConv]);
+			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
+		}
+		else
+		{
+			PlayMusic (AlienSong, TRUE, 1);
+			SetMusicVolume (BACKGROUND_VOL);
+		}
 
 		InitCommAnimations ();
 
@@ -1631,6 +1638,9 @@ DoCommunication (ENCOUNTER_STATE *pES)
 	if (IsDarkMode)
 		SetCommDarkMode (FALSE);
 
+	if (optMusicResume)
+		CommMusicPos[CommData.AlienConv] = PLRGetPos ();
+
 	StopMusic ();
 	StopSound ();
 	StopTrack ();
@@ -1746,7 +1756,6 @@ HailAlien (void)
 {
 	ENCOUNTER_STATE ES;
 	FONT PlayerFont, OldFont;
-	MUSIC_REF SongRef = 0;
 	Color TextBack;
 
 	pCurInputState = &ES;

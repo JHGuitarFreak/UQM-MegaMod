@@ -143,7 +143,7 @@ typedef struct {
 	struct {
 		uint8 major;
 		uint8 minor;
-		float patch;
+		uint8 patch;
 	} uqmVersion; /* Protocol version */
 	uint8 padding1;  /* Set to 0 */
 } Packet_Init;

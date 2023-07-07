@@ -559,7 +559,7 @@ read_32s (void *fp, SDWORD *v)
 	DWORD t;
 	COUNT ret;
 	// value was converted to unsigned when saved
-	ret = read_32 (fp, &t);
+	ret = (COUNT)read_32 (fp, &t);
 	// unsigned to signed conversion
 	if (v)
 		*v = t;
@@ -942,7 +942,7 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 		BYTE *buf = HMalloc (numBytes);
 		if (buf != NULL)
 		{
-			cread_a8  (fh, buf, numBytes);
+			cread_a8  (fh, buf, (COUNT)numBytes);
 			deserialiseGameState (
 					legacyGameStateBitMap,
 					buf,

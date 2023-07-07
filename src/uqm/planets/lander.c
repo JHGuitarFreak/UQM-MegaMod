@@ -337,20 +337,21 @@ object_animation (ELEMENT *ElementPtr)
 			}
 			else if (ElementPtr->mass_points == EARTHQUAKE_DISASTER)
 			{
-				SIZE s;
+				//SIZE s; unused
 				SIZE frame_amount = 13; 
 
-				if (frame_index >= (frame_amount))
+
+				// XXX: Was 0x8000 the background flag on 3DO?
+				/*if (frame_index >= (frame_amount)) unused
 					s = 0;
 				else
 					s = ((frame_amount + 1)- frame_index) >> 1;
-				// XXX: Was 0x8000 the background flag on 3DO?
-				/*SetPrimColor (pPrim,
-						BUILD_COLOR (
-							0x8000 | MAKE_RGB15 (0x1F, 0x1F, 0x1F),
-						s));*/
+
 				SetPrimColor (pPrim,
-						BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), s));
+						BUILD_COLOR (
+							0x8000 | MAKE_RGB15 (0x1F, 0x1F, 0x1F), s));*/
+
+				SetPrimColor (pPrim, WHITE_COLOR);
 				if (frame_index == (frame_amount))
 					PlaySound (
 							SetAbsSoundIndex (LanderSounds,
@@ -590,8 +591,6 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	COUNT start_count, tmpholdint;
 	STAMP s;
 	CONTEXT OldContext;
-	SIZE  rounding_error_startcount = 0; 
-	SIZE  rounding_error_numretrieved = 0; 
 
 	PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_PICKUP),
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
@@ -773,7 +772,7 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	{
 		// Name contains a space. Print over
 		// two lines.
-		pPSD->MineralText[1].CharCount = utf8StringCountN (
+		pPSD->MineralText[1].CharCount = (COUNT)utf8StringCountN (
 				pPSD->MineralText[1].pStr, pStr - 1);
 		pPSD->MineralText[2].pStr = pStr;
 		pPSD->MineralText[2].CharCount = (COUNT)~0;
@@ -923,7 +922,7 @@ DrawSuperPC (void)
 			FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (32, FALSE);
+		DrawBorder (32);
 
 	if (optSubmenu)
 		DrawMineralHelpers (FALSE);
@@ -1619,7 +1618,7 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 	num_frames = GetFrameCount (s.frame);
 	NextTime = GetTimeCounter () + (ONE_SECOND / 22);
 	psNextTime = GetTimeCounter () + PLANET_SIDE_RATE;
-	while (num_frames >= 0)
+	while (num_frames > 0)
 	{
 		RotatePlanetSphere (TRUE, &s);
 
@@ -1657,13 +1656,13 @@ AnimateLanderWarmup (void)
 {
 	SIZE num_crew;
 	STAMP s;
-	CONTEXT OldContext;
+	//CONTEXT OldContext; unused
 	TimeCount TimeIn = GetTimeCounter ();
 
 	if(is3DO (optSuperPC))
-		OldContext = SetContext (RadarContext);
+		SetContext (RadarContext);
 	else
-		OldContext = SetContext (PCLanderContext);
+		SetContext (PCLanderContext);
 
 	s.origin.x = 0;
 	s.origin.y = 0;
@@ -2114,10 +2113,13 @@ LoadLanderData (void)
 	}
 }
 
-void
+BYTE
 SetPlanetMusic (BYTE planet_type)
 {
-	LanderMusic = OrbitMusic[planet_type % num_orbit_themes ()];
+	BYTE OrbitNum = planet_type % num_orbit_themes ();
+	LanderMusic = OrbitMusic[OrbitNum];
+
+	return !(opt3doMusic || optRemixMusic || optVolasMusic) ? 0 : OrbitNum;
 }
 
 static void

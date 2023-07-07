@@ -115,7 +115,8 @@ static RACE_DESC orz_desc =
 		},
 		{
 			ORZ_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		ORZ_VICTORY_SONG,
 		ORZ_SHIP_SOUNDS,

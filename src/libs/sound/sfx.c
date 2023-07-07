@@ -60,7 +60,7 @@ PlayChannel (COUNT channel, SOUND snd, SoundPosition pos,
 }
 
 void
-StopChannel (COUNT channel, unsigned char Priority)
+StopChannel (COUNT channel, BYTE Priority)
 {
 	StopSource (channel);
 	(void)Priority; // ignored
@@ -159,7 +159,6 @@ void *
 _GetSoundBankData (uio_Stream *fp, DWORD length)
 {
 	int snd_ct, n;
-	DWORD opos;
 	char CurrentLine[1024], filename[1024];
 #define MAX_FX 256
 	TFB_SoundSample *sndfx[MAX_FX];
@@ -168,7 +167,7 @@ _GetSoundBankData (uio_Stream *fp, DWORD length)
 	int i;
 
 	(void) length;  // ignored
-	opos = uio_ftell (fp);
+	uio_ftell (fp);
 
 	{
 		char *s1, *s2;

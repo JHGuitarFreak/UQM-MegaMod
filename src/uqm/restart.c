@@ -78,6 +78,19 @@ PacksInstalled (void)
 	return packsInstalled;
 }
 
+void
+ResetMusicPositions (void)
+{
+	MeleeMenuMusicPos = 0;
+	StarBaseMusicPos = 0;
+	OutfitMusicPos = 0;
+	ShipyardMusicPos = 0;
+
+	memset (&CommMusicPos, 0, sizeof (CommMusicPos));
+	memset (&SpaceMusicPos, 0, sizeof (SpaceMusicPos));
+	memset (&BattleRefPos, 0, sizeof (BattleRefPos));
+}
+
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
 
@@ -149,7 +162,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	{
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
 				+ (!i ? 1 : (i > 1 ? 2 : 0)));
-		t.CharCount = utf8StringCount (t.pStr);
+		t.CharCount = (COUNT)utf8StringCount (t.pStr);
 
 		SetContextForeGroundColor (
 				i == answer ?
@@ -344,7 +357,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
-	sprintf (buf, "v%d.%d.%g %s",
+	sprintf (buf, "v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 			UQM_EXTRA_VERSION);
 	SetContextForeGroundColor (WHITE_COLOR);
@@ -429,6 +442,8 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
+
+	ResetMusicPositions ();
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{
@@ -448,6 +463,9 @@ DoRestart (MENU_STATE *pMS)
 	{
 		if (pMS->hMusic && !comingFromInit)
 		{
+			if (optMusicResume)
+				MainMenuMusicPos = PLRGetPos ();
+
 			StopMusic ();
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
@@ -461,12 +479,21 @@ DoRestart (MENU_STATE *pMS)
 		pMS->Initialized = TRUE;
 
 		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
-		if (!comingFromInit){
-			FadeMusic(0,0);
-			PlayMusic (pMS->hMusic, TRUE, 1);
+
+		if (!comingFromInit)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
+
+			if (optMusicResume && MainMenuMusicPos > 0)
+			{
+				PlayMusic (pMS->hMusic, TRUE, 1);
+				SeekMusic (MainMenuMusicPos);
+			}
+			else
+				PlayMusic (pMS->hMusic, TRUE, 1);
 		
 			if (optMainMenuMusic)
-				FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
+				FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);
 		}
 	}
 	else if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -475,9 +502,6 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
-		//BYTE fade_buf[1];
-		COUNT oldresfactor;
-
 		switch (pMS->CurState)
 		{
 			case LOAD_SAVED_GAME:
@@ -536,8 +560,6 @@ DoRestart (MENU_STATE *pMS)
 					return TRUE;
 				break;
 			case SETUP_GAME:
-				oldresfactor = resolutionFactor;
-
 				Flash_terminate (pMS->flashContext);
 				SetupMenu ();
 				SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
@@ -624,6 +646,10 @@ DoRestart (MENU_STATE *pMS)
 			&& !optRequiresRestart && PacksInstalled ())
 		{
 			SleepThreadUntil (FadeMusic (0, ONE_SECOND/2));
+
+			if (optMusicResume)
+				MainMenuMusicPos = PLRGetPos ();
+
 			StopMusic ();
 			FadeMusic (NORMAL_VOLUME, 0);
 
@@ -678,17 +704,18 @@ RestartMenu (MENU_STATE *pMS)
 	{
 		TimeOut = ONE_SECOND / 2;
 
-		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) 
+		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0)
 		{
 			GLOBAL(CurrentActivity) = IN_ENCOUNTER;
 
-			if (DeathByMelee && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
+			if (DeathByMelee)
+			{
 				if (optGameOver)
 					GameOver (DIED_IN_BATTLE);
 				DeathByMelee = FALSE;
 			}
-
-			if (DeathBySurrender && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
+			else if (DeathBySurrender)
+			{
 				if (optGameOver)
 					GameOver (SURRENDERED);
 				DeathBySurrender = FALSE;
@@ -722,7 +749,12 @@ RestartMenu (MENU_STATE *pMS)
 	DoInput (pMS, TRUE);
 	
 	if (optMainMenuMusic)
+	{
 		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
+
+		if (optMusicResume)
+			MainMenuMusicPos = PLRGetPos ();
+	}
 
 	StopMusic ();
 	if (pMS->hMusic)

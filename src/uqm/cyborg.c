@@ -426,7 +426,7 @@ ship_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	BOOLEAN ShipMoved, ShipFired;
 	COUNT margin_of_error;
 	STARSHIP *StarShipPtr;
-	EVALUATE_DESC *ObjectsOfConcernEWeapon;
+	// EVALUATE_DESC *ObjectsOfConcernEWeapon; unused
 	
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 	
@@ -453,7 +453,7 @@ ship_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	
 	ObjectsOfConcern += ConcernCounter;
 	
-	ObjectsOfConcernEWeapon = ObjectsOfConcern - ConcernCounter + ENEMY_WEAPON_INDEX;
+	// ObjectsOfConcernEWeapon = ObjectsOfConcern - ConcernCounter + ENEMY_WEAPON_INDEX;
 	
 	while (ConcernCounter--)
 	{

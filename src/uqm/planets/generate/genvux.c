@@ -66,7 +66,7 @@ const GenerateFunctions generateVuxFunctions = {
 static bool
 GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	COUNT angle = 0;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;

@@ -354,6 +354,7 @@ GetLastCharacter (void)
 
 volatile int MouseButtonDown = 0;
 
+#if 0
 static void
 ProcessMouseEvent (const SDL_Event *e)
 {
@@ -369,6 +370,7 @@ ProcessMouseEvent (const SDL_Event *e)
 		break;
 	}
 }
+#endif
 
 #if SDL_MAJOR_VERSION == 1
 

@@ -115,7 +115,8 @@ static RACE_DESC black_urquan_desc =
 		},
 		{
 			KOHR_AH_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		KOHR_AH_VICTORY_SONG,
 		KOHR_AH_SHIP_SOUNDS,
