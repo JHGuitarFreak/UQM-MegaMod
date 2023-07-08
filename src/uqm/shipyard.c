@@ -1652,11 +1652,11 @@ DoShipyard (MENU_STATE *pMS)
 			ScreenTransition (optScrTrans, NULL);
 			UnbatchGraphics ();
 
-			if (optMusicResume && ShipyardMusicPos > 0)
+			if (OkayToResume (ShipyardMusic))
 			{
 				FadeMusic (MUTE_VOLUME, 0);
 				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (ShipyardMusicPos);
+				SeekMusic (ShipyardMusic.position);
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 			}
 			else
@@ -1686,8 +1686,7 @@ ExitShipyard:
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
 		pMS->CurString = 0;
 
-		if (optMusicResume)
-			ShipyardMusicPos = PLRGetPos ();
+		GetMusicPosition (&ShipyardMusic);
 
 		return FALSE;
 	}

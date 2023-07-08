@@ -1187,11 +1187,11 @@ AlienTalkSegue (COUNT wait_track)
 		
 		pCurInputState->Initialized = TRUE;
 
-		if (optMusicResume && CommMusicPos[AlienConv] > 0)
+		if (OkayToResume (CommMusic[AlienConv]))
 		{
 			FadeMusic (MUTE_VOLUME, 0);
 			PlayMusic (AlienSong, TRUE, 1);
-			SeekMusic (CommMusicPos[AlienConv]);
+			SeekMusic (CommMusic[AlienConv].position);
 			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
 		}
 		else
@@ -1638,9 +1638,7 @@ DoCommunication (ENCOUNTER_STATE *pES)
 	if (IsDarkMode)
 		SetCommDarkMode (FALSE);
 
-	if (optMusicResume)
-		CommMusicPos[CommData.AlienConv] = PLRGetPos ();
-
+	GetMusicPosition (&CommMusic[CommData.AlienConv]);
 	StopMusic ();
 	StopSound ();
 	StopTrack ();

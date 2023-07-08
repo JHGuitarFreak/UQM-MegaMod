@@ -64,8 +64,8 @@ typedef UWORD MENU_SOUND_FLAGS;
 #define MENU_SOUND_PAGEDOWN ((MENU_SOUND_FLAGS)(1 << 8))
 #define MENU_SOUND_DELETE   ((MENU_SOUND_FLAGS)(1 << 9))
 #define MENU_SOUND_ARROWS   (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_LEFT | MENU_SOUND_RIGHT)
-#define MENU_SOUND_PAGE		(MENU_SOUND_PAGEUP | MENU_SOUND_PAGEDOWN)
-#define MENU_SOUND_ACTION	(MENU_SOUND_SELECT | MENU_SOUND_CANCEL)
+#define MENU_SOUND_PAGE     (MENU_SOUND_PAGEUP | MENU_SOUND_PAGEDOWN)
+#define MENU_SOUND_ACTION   (MENU_SOUND_SELECT | MENU_SOUND_CANCEL)
 #define MENU_SOUND_NONE     ((MENU_SOUND_FLAGS)0)
 
 extern void SetMenuSounds (MENU_SOUND_FLAGS sound_0,
@@ -84,14 +84,23 @@ extern void FlushSounds (void);
 extern void RemoveSoundsForObject (ELEMENT *PosObj);
 
 // For music resume option
-extern DWORD MainMenuMusicPos;
-extern DWORD MeleeMenuMusicPos;
-extern DWORD StarBaseMusicPos;
-extern DWORD OutfitMusicPos;
-extern DWORD ShipyardMusicPos;
-extern DWORD CommMusicPos[NUM_CONVERSATIONS];
-extern DWORD SpaceMusicPos[NUM_SPECIES_ID];
-extern DWORD BattleRefPos[3];
+typedef struct music_position
+{
+	DWORD position;
+	DWORD last_played;
+} MUSIC_POSITION;
+
+extern MUSIC_POSITION MainMenuMusic;
+extern MUSIC_POSITION MeleeMenuMusic;
+extern MUSIC_POSITION StarBaseMusic;
+extern MUSIC_POSITION OutfitMusic;
+extern MUSIC_POSITION ShipyardMusic;
+extern MUSIC_POSITION CommMusic[NUM_CONVERSATIONS];
+extern MUSIC_POSITION IPMusic[NUM_SPECIES_ID];
+extern MUSIC_POSITION BattleRefPos[3];
+
+extern void GetMusicPosition (MUSIC_POSITION *music_position);
+extern BOOLEAN OkayToResume (MUSIC_POSITION music_position);
 
 #if defined(__cplusplus)
 }

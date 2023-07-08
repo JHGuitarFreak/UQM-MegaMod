@@ -81,13 +81,13 @@ PacksInstalled (void)
 void
 ResetMusicPositions (void)
 {
-	MeleeMenuMusicPos = 0;
-	StarBaseMusicPos = 0;
-	OutfitMusicPos = 0;
-	ShipyardMusicPos = 0;
+	MeleeMenuMusic.position = 0;
+	StarBaseMusic.position = 0;
+	OutfitMusic.position = 0;
+	ShipyardMusic.position = 0;
 
-	memset (&CommMusicPos, 0, sizeof (CommMusicPos));
-	memset (&SpaceMusicPos, 0, sizeof (SpaceMusicPos));
+	memset (&CommMusic, 0, sizeof (CommMusic));
+	memset (&IPMusic, 0, sizeof (IPMusic));
 	memset (&BattleRefPos, 0, sizeof (BattleRefPos));
 }
 
@@ -463,9 +463,7 @@ DoRestart (MENU_STATE *pMS)
 	{
 		if (pMS->hMusic && !comingFromInit)
 		{
-			if (optMusicResume)
-				MainMenuMusicPos = PLRGetPos ();
-
+			GetMusicPosition (&MainMenuMusic);
 			StopMusic ();
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
@@ -484,10 +482,10 @@ DoRestart (MENU_STATE *pMS)
 		{
 			FadeMusic (MUTE_VOLUME, 0);
 
-			if (optMusicResume && MainMenuMusicPos > 0)
+			if (OkayToResume (MainMenuMusic))
 			{
 				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (MainMenuMusicPos);
+				SeekMusic (MainMenuMusic.position);
 			}
 			else
 				PlayMusic (pMS->hMusic, TRUE, 1);
@@ -646,10 +644,7 @@ DoRestart (MENU_STATE *pMS)
 			&& !optRequiresRestart && PacksInstalled ())
 		{
 			SleepThreadUntil (FadeMusic (0, ONE_SECOND/2));
-
-			if (optMusicResume)
-				MainMenuMusicPos = PLRGetPos ();
-
+			GetMusicPosition (&MainMenuMusic);
 			StopMusic ();
 			FadeMusic (NORMAL_VOLUME, 0);
 
@@ -751,9 +746,7 @@ RestartMenu (MENU_STATE *pMS)
 	if (optMainMenuMusic)
 	{
 		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
-
-		if (optMusicResume)
-			MainMenuMusicPos = PLRGetPos ();
+		GetMusicPosition (&MainMenuMusic);
 	}
 
 	StopMusic ();

@@ -1558,9 +1558,7 @@ StartMelee (MELEE_STATE *pMS)
 				+ ONE_SECOND / 60);
 		FlushColorXForms ();
 
-		if (optMusicResume)
-			MeleeMenuMusicPos = PLRGetPos ();
-
+		GetMusicPosition (&MeleeMenuMusic);
 		StopMusic ();
 	}
 	FadeMusic (NORMAL_VOLUME, 0);
@@ -1966,11 +1964,11 @@ DoMelee (MELEE_STATE *pMS)
 
 		if (optMainMenuMusic)
 		{
-			if (optMusicResume && MeleeMenuMusicPos > 0)
+			if (OkayToResume (MeleeMenuMusic))
 			{
 				FadeMusic (MUTE_VOLUME, 0);
 				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (MeleeMenuMusicPos);
+				SeekMusic (MeleeMenuMusic.position);
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 			}
 			else

@@ -28,14 +28,14 @@ static SOUND sound_buf[MAX_SOUNDS];
 static ELEMENT *sound_posobj[MAX_SOUNDS];
 
 // For music resume option
-DWORD MainMenuMusicPos = 0;
-DWORD MeleeMenuMusicPos;
-DWORD StarBaseMusicPos;
-DWORD OutfitMusicPos;
-DWORD ShipyardMusicPos;
-DWORD CommMusicPos[NUM_CONVERSATIONS];
-DWORD SpaceMusicPos[NUM_SPECIES_ID];
-DWORD BattleRefPos[3];
+MUSIC_POSITION MainMenuMusic;
+MUSIC_POSITION MeleeMenuMusic;
+MUSIC_POSITION StarBaseMusic;
+MUSIC_POSITION OutfitMusic;
+MUSIC_POSITION ShipyardMusic;
+MUSIC_POSITION CommMusic[NUM_CONVERSATIONS];
+MUSIC_POSITION IPMusic[NUM_SPECIES_ID];
+MUSIC_POSITION BattleRefPos[3];
 
 void
 PlaySound (SOUND S, SoundPosition Pos, ELEMENT *PositionalObject,
@@ -208,4 +208,32 @@ RemoveSoundsForObject (ELEMENT *PosObj)
 	}
 }
 
+void
+GetMusicPosition (MUSIC_POSITION *music_position)
+{
+	if (!optMusicResume)
+		return;
 
+	music_position->position = PLRGetPos ();
+	music_position->last_played = GetTimeCounter ();
+}
+
+#define FIVE_MINUTES (1000 * 300)
+
+BOOLEAN
+OkayToResume (MUSIC_POSITION music_position)
+{
+	TimeCount TimeIn, difference;
+
+	if (!optMusicResume || !music_position.last_played 
+			|| !music_position.position)
+		return FALSE;
+
+	TimeIn = GetTimeCounter ();
+	difference = TimeIn - music_position.last_played;
+
+	if (difference < FIVE_MINUTES)
+		return TRUE;
+
+	return FALSE;
+}

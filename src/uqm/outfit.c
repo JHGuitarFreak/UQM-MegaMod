@@ -803,11 +803,11 @@ DoOutfit (MENU_STATE *pMS)
 
 			ScreenTransition (optScrTrans, NULL);
 
-			if (optMusicResume && OutfitMusicPos > 0)
+			if (OkayToResume (OutfitMusic))
 			{
 				FadeMusic (MUTE_VOLUME, 0);
 				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (OutfitMusicPos);
+				SeekMusic (OutfitMusic.position);
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 			}
 			else
@@ -845,8 +845,7 @@ ExitOutfit:
 			DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
 			pMS->ModuleFrame = 0;
 
-			if (optMusicResume)
-				OutfitMusicPos = PLRGetPos ();
+			GetMusicPosition (&OutfitMusic);
 
 			SetNamingCallback (NULL);
 

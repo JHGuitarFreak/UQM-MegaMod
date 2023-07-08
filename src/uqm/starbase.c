@@ -347,11 +347,11 @@ DoStarBase (MENU_STATE *pMS)
 		ScreenTransition (optScrTrans, NULL);
 		PlayMusic (pMS->hMusic, TRUE, 1);
 
-		if (optMusicResume && StarBaseMusicPos > 0)
+		if (OkayToResume (StarBaseMusic))
 		{
 			FadeMusic (MUTE_VOLUME, 0);
 			PlayMusic (pMS->hMusic, TRUE, 1);
-			SeekMusic (StarBaseMusicPos);
+			SeekMusic (StarBaseMusic.position);
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
@@ -365,8 +365,7 @@ ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;
 
-		if (optMusicResume)
-			StarBaseMusicPos = PLRGetPos ();
+		GetMusicPosition (&StarBaseMusic);
 
 		StopMusic ();
 		if (pMS->hMusic)
