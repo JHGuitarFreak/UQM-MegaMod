@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 - Fixed Unlock Ships cheat from showing a second Yehat Terminator
 - Fixed loading of Core saves
+- "Fixed" lander module display in outfit menu to correspond with current selection position - Kruzen
 
 
 
