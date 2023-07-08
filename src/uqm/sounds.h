@@ -24,6 +24,7 @@
 #include "libs/sndlib.h"
 #include "races.h"
 #include "globdata.h"
+#include "cons_res.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -97,10 +98,29 @@ extern MUSIC_POSITION OutfitMusic;
 extern MUSIC_POSITION ShipyardMusic;
 extern MUSIC_POSITION CommMusic[NUM_CONVERSATIONS];
 extern MUSIC_POSITION IPMusic[NUM_SPECIES_ID];
-extern MUSIC_POSITION BattleRefPos[3];
+extern MUSIC_POSITION PlanetMusic[NUM_ORBIT_THEMES];
+extern MUSIC_POSITION BattleRefMusic[3];
 
 extern void GetMusicPosition (MUSIC_POSITION *music_position);
 extern BOOLEAN OkayToResume (MUSIC_POSITION music_position);
+
+static inline void
+print_mp_array (const MUSIC_POSITION arr[], const int n)
+{
+	int i;
+
+	printf ("----MUSIC_POSITION----\n");
+	printf ("----------------------\n");
+
+	for (i = 0; i < n; i++)
+	{
+		printf ("Index: %d, %d, %d\n",
+				i, arr[i].position, arr[i].last_played);
+	}
+
+	printf ("----------------------\n");
+	printf ("----------------------\n");
+}
 
 #if defined(__cplusplus)
 }

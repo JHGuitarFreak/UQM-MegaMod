@@ -672,8 +672,8 @@ Intro (void)
 			NPCPhrase (CYBORG_PEP_TALK);
 		}
 
-		BattleRefPos[0].position = 0;
-		printf ("BattleRefPos[0]: %d\n", BattleRefPos[0].position);
+		BattleRefMusic[0].position = 0;
+		printf ("BattleRefMusic[0]: %d\n", BattleRefMusic[0].position);
 	}
 	else if (GET_GAME_STATE (READY_TO_CONFUSE_URQUAN))
 	{

@@ -56,7 +56,6 @@ CONTEXT PlanetContext;
 BOOLEAN useDosSpheres = FALSE;
 BOOLEAN use3DOSpheres = FALSE;
 BYTE OrbitNum = 0;
-DWORD OrbitMusicPos[6] = {0};
 
 void
 DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
@@ -449,7 +448,7 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, 0, 0);
-	SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
+	OrbitNum = SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
 
 	if (isPC (optSuperPC))
@@ -457,11 +456,11 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 	{
-		if (optMusicResume && OrbitMusicPos[OrbitNum] > 0)
+		if (OkayToResume (PlanetMusic[OrbitNum]))
 		{
 			FadeMusic (MUTE_VOLUME, 0);
 			PlayMusic (LanderMusic, TRUE, 1);
-			SeekMusic (OrbitMusicPos[OrbitNum]);
+			SeekMusic (PlanetMusic[OrbitNum].position);
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
@@ -507,8 +506,7 @@ FreePlanet (void)
 
 	UninitSphereRotation ();
 
-	if (optMusicResume)
-		OrbitMusicPos[OrbitNum] = PLRGetPos ();
+	GetMusicPosition (&PlanetMusic[OrbitNum]);
 
 	StopMusic ();
 

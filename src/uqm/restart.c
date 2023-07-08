@@ -88,7 +88,8 @@ ResetMusicPositions (void)
 
 	memset (&CommMusic, 0, sizeof (CommMusic));
 	memset (&IPMusic, 0, sizeof (IPMusic));
-	memset (&BattleRefPos, 0, sizeof (BattleRefPos));
+	memset (&PlanetMusic, 0, sizeof (PlanetMusic));
+	memset (&BattleRefMusic, 0, sizeof (BattleRefMusic));
 }
 
 #define CHOOSER_X (SCREEN_WIDTH >> 1)

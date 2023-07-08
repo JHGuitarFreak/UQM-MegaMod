@@ -35,7 +35,8 @@ MUSIC_POSITION OutfitMusic;
 MUSIC_POSITION ShipyardMusic;
 MUSIC_POSITION CommMusic[NUM_CONVERSATIONS];
 MUSIC_POSITION IPMusic[NUM_SPECIES_ID];
-MUSIC_POSITION BattleRefPos[3];
+MUSIC_POSITION PlanetMusic[NUM_ORBIT_THEMES];
+MUSIC_POSITION BattleRefMusic[3];
 
 void
 PlaySound (SOUND S, SoundPosition Pos, ELEMENT *PositionalObject,
@@ -216,6 +217,20 @@ GetMusicPosition (MUSIC_POSITION *music_position)
 
 	music_position->position = PLRGetPos ();
 	music_position->last_played = GetTimeCounter ();
+}
+
+MUSIC_POSITION
+GetMusicPosition2 (void)
+{
+	MUSIC_POSITION temp = { 0, 0 };
+
+	if (!optMusicResume)
+		return temp;
+
+	temp.position = PLRGetPos ();
+	temp.last_played = GetTimeCounter ();
+
+	return temp;
 }
 
 #define FIVE_MINUTES (1000 * 300)
