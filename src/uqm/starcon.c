@@ -135,6 +135,10 @@ ProcessUtilityKeys (void)
 	if (ImmediateInputState.menu[KEY_FULLSCREEN])
 	{
 		int flags = GfxFlags ^ TFB_GFXFLAGS_FULLSCREEN;
+
+		if (IS_HD)
+			flags ^= TFB_GFXFLAGS_SCALE_BILINEAR;
+
 		// clear ImmediateInputState so we don't repeat this next frame
 		FlushInput ();
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, flags, ScreenWidthActual,
