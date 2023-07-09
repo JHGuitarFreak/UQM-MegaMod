@@ -485,12 +485,12 @@ dukv_RenderFrame (THIS_PTR)
 				if (IS_HD && y % scale != 0)
 					dec -= dukv->decoder.w;
 
-				for (x = 0; x < dukv->decoder.w; ++x, ++dst0, ++dst1)
+				for (x = 0; x < dukv->decoder.w; ++x, RES_BOOL (++dec, ++bufInc), ++dst0, ++dst1)
 				{
-					if (!IS_HD)
+					/*if (IS_HD)
 						++bufInc;
 					else
-						++dec;
+						++dec;*/
 
 					if (bufInc % scale == 0 && IS_HD)
 						dec++;
@@ -513,12 +513,12 @@ dukv_RenderFrame (THIS_PTR)
 				if (IS_HD && y % scale != 0)
 					dec -= dukv->decoder.w;
 
-				for (x = 0; x < dukv->decoder.w; ++x, dst0 += 3, dst1 += 3)
+				for (x = 0; x < dukv->decoder.w; ++x, RES_BOOL (++dec, ++bufInc), dst0 += 3, dst1 += 3)
 				{
-					if (!IS_HD)
+					/*if (IS_HD)
 						++bufInc;
 					else
-						++dec;
+						++dec;*/
 
 					if (bufInc % scale == 0 && IS_HD)
 						dec++;
@@ -544,12 +544,12 @@ dukv_RenderFrame (THIS_PTR)
 				if (IS_HD && y % scale != 0)
 					dec -= RES_DESCALE (dukv->decoder.w);
 
-				for (x = 0; x < dukv->decoder.w; ++x, ++dst0, ++dst1)
+				for (x = 0; x < dukv->decoder.w; ++x, RES_BOOL (++dec, ++bufInc), ++dst0, ++dst1)
 				{
-					if (!IS_HD)
+					/*if (IS_HD)
 						++bufInc;
 					else
-						++dec;
+						++dec;*/
 
 					if (bufInc % scale == 0 && IS_HD)
 						dec++;
