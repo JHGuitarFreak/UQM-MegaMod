@@ -464,7 +464,7 @@ DoRestart (MENU_STATE *pMS)
 	{
 		if (pMS->hMusic && !comingFromInit)
 		{
-			GetMusicPosition (&MainMenuMusic);
+			SetMusicPosition ();
 			StopMusic ();
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
@@ -482,14 +482,10 @@ DoRestart (MENU_STATE *pMS)
 		if (!comingFromInit)
 		{
 			FadeMusic (MUTE_VOLUME, 0);
+			PlayMusic (pMS->hMusic, TRUE, 1);
 
-			if (OkayToResume (MainMenuMusic))
-			{
-				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (MainMenuMusic.position);
-			}
-			else
-				PlayMusic (pMS->hMusic, TRUE, 1);
+			if (OkayToResume ())
+				SeekMusic (GetMusicPosition ());
 		
 			if (optMainMenuMusic)
 				FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);
@@ -645,7 +641,7 @@ DoRestart (MENU_STATE *pMS)
 			&& !optRequiresRestart && PacksInstalled ())
 		{
 			SleepThreadUntil (FadeMusic (0, ONE_SECOND/2));
-			GetMusicPosition (&MainMenuMusic);
+			SetMusicPosition ();
 			StopMusic ();
 			FadeMusic (NORMAL_VOLUME, 0);
 
@@ -747,7 +743,7 @@ RestartMenu (MENU_STATE *pMS)
 	if (optMainMenuMusic)
 	{
 		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
-		GetMusicPosition (&MainMenuMusic);
+		SetMusicPosition ();
 	}
 
 	StopMusic ();

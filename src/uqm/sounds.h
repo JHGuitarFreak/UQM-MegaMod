@@ -87,6 +87,7 @@ extern void RemoveSoundsForObject (ELEMENT *PosObj);
 // For music resume option
 typedef struct music_position
 {
+	UNICODE filename[PATH_MAX];
 	DWORD position;
 	DWORD last_played;
 } MUSIC_POSITION;
@@ -101,8 +102,10 @@ extern MUSIC_POSITION IPMusic[NUM_SPECIES_ID];
 extern MUSIC_POSITION PlanetMusic[NUM_ORBIT_THEMES];
 extern MUSIC_POSITION BattleRefMusic[3];
 
-extern void GetMusicPosition (MUSIC_POSITION *music_position);
-extern BOOLEAN OkayToResume (MUSIC_POSITION music_position);
+extern void InitializeMusicArray (void);
+extern void SetMusicPosition (void);
+extern BOOLEAN OkayToResume (void);
+extern DWORD GetMusicPosition (void);
 
 static inline void
 print_mp_array (const MUSIC_POSITION arr[], const int n)
@@ -120,6 +123,12 @@ print_mp_array (const MUSIC_POSITION arr[], const int n)
 
 	printf ("----------------------\n");
 	printf ("----------------------\n");
+}
+
+static inline void
+print_mp (const MUSIC_POSITION arr)
+{
+	printf ("%s -> position: %d, last_playes: %d\n", &arr.filename, arr.position, arr.last_played);
 }
 
 #if defined(__cplusplus)

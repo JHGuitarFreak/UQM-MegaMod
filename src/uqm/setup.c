@@ -141,14 +141,14 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (!IS_HD)
 	{
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
-		solTexturesPresent = loadAddon ("sol-textures-sd");
+		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
 		log_add (log_Debug, "loading HD addon pack");
 		HDPackPresent = TRUE;
-		solTexturesPresent = loadAddon ("sol-textures-hd");
+		//solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		//classicPackPresent = loadAddon ("classic-pack");
 	}

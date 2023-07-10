@@ -56,6 +56,7 @@
 #include "settings.h"
 #include "cons_res.h"
 #include <time.h>//required to use 'srand(time(NULL))'
+#include "sounds.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP
@@ -259,6 +260,8 @@ while (--ac > 0)
 		if (optMainMenuMusic)
 			FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
 		comingFromInit = TRUE;
+
+		InitializeMusicArray ();
 	}
 
 	SplashScreen (BackgroundInitKernel);

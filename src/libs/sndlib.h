@@ -96,6 +96,7 @@ extern void StopSound (void);
 extern BOOLEAN SoundPlaying (void);
 
 extern SDWORD PLRGetPos (void);
+extern UNICODE *PLRGetFilename (void);
 
 extern void WaitForSoundEnd (COUNT Channel);
 #define TFBSOUND_WAIT_ALL ((COUNT)~0)

@@ -18,7 +18,6 @@
 #include "sounds.h"
 #include "units.h"
 
-
 SOUND MenuSounds;
 SOUND GameSounds;
 
@@ -209,43 +208,134 @@ RemoveSoundsForObject (ELEMENT *PosObj)
 	}
 }
 
+static MUSIC_POSITION resumeMusicArray[PATH_MAX];
+
 void
-GetMusicPosition (MUSIC_POSITION *music_position)
+InitializeMusicArray (void)
 {
+	int i;
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		utf8StringCopy (&resumeMusicArray[i].filename,
+				sizeof resumeMusicArray[i].filename, STR_NULL);
+	}
+}
+
+static void
+SetGlobalMusicPosition (void)
+{
+	MUSIC_POSITION temp;
+	int i, j;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return;
 	if (!optMusicResume)
 		return;
 
-	music_position->position = PLRGetPos ();
-	music_position->last_played = GetTimeCounter ();
-}
-
-MUSIC_POSITION
-GetMusicPosition2 (void)
-{
-	MUSIC_POSITION temp = { 0, 0 };
-
-	if (!optMusicResume)
-		return temp;
-
+	utf8StringCopy (temp.filename, sizeof temp.filename,PLRGetFilename ());
 	temp.position = PLRGetPos ();
 	temp.last_played = GetTimeCounter ();
 
-	return temp;
+	if (temp.filename == NULL)
+		return;
+	if (&resumeMusicArray[0].filename == NULL)
+		return;
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		if (strcmp (&resumeMusicArray[i].filename, STR_NULL) == 0)
+			break;
+	}
+
+	for (j = 0; j < i; ++j)
+	{
+		if (strcmp (&resumeMusicArray[j].filename, temp.filename) == 0)
+			break;
+	}
+
+	if (j < PATH_MAX &&
+			strcmp (&resumeMusicArray[j].filename, temp.filename) == 0)
+	{
+		resumeMusicArray[j].position = temp.position;
+		resumeMusicArray[j].last_played = temp.last_played;
+		print_mp (resumeMusicArray[j]);
+	}
+	else
+	{
+		resumeMusicArray[i] = temp;
+		print_mp (resumeMusicArray[i]);
+	}
+}
+
+void
+SetMusicPosition (void)
+{
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return;
+	if (!optMusicResume)
+		return;
+	if (!PLRPlaying ((MUSIC_REF)~0))
+		return;
+
+	SetGlobalMusicPosition ();
+}
+
+DWORD
+GetMusicPosition (void)
+{
+	UNICODE *filename;
+	int i;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return 0;
+	if (!optMusicResume)
+		return 0;
+
+	filename = PLRGetFilename ();
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		if (strcmp (&resumeMusicArray[i].filename, filename) == 0)
+			break;
+	}
+
+	return resumeMusicArray[i].position;
 }
 
 #define FIVE_MINUTES (1000 * 300)
 
 BOOLEAN
-OkayToResume (MUSIC_POSITION music_position)
+OkayToResume (void)
 {
 	TimeCount TimeIn, difference;
+	UNICODE *filename;
+	int i;
 
-	if (!optMusicResume || !music_position.last_played 
-			|| !music_position.position)
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return FALSE;
+	if (!optMusicResume)
+		return FALSE;
+
+	filename = PLRGetFilename ();
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		if (strcmp (&resumeMusicArray[i].filename, filename) == 0)
+			break;
+	}
+
+	if (i == PATH_MAX)
+		return FALSE;
+
+	print_mp (resumeMusicArray[i]);
+
+	if (!resumeMusicArray[i].last_played
+			|| !resumeMusicArray[i].position)
 		return FALSE;
 
 	TimeIn = GetTimeCounter ();
-	difference = TimeIn - music_position.last_played;
+	difference = TimeIn - resumeMusicArray[i].last_played;
 
 	if (difference < FIVE_MINUTES)
 		return TRUE;

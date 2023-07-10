@@ -131,8 +131,6 @@ get_current_music_pos (MUSIC_REF MusicRef)
 	else
 		return 0;
 
-	printf ("filename: %s, length %f, pos %f\n", filename, length, pos);
-
 	if (pos < 0 || pos > length)
 		pos = 0;
 
@@ -143,6 +141,32 @@ SDWORD
 PLRGetPos (void)
 {
 	return curMusicRef != 0 ? get_current_music_pos (curMusicRef) : 0;
+}
+
+static char *
+get_current_music_filename (MUSIC_REF MusicRef)
+{
+	UNICODE *filename;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return 0;
+
+	if (MusicRef == curMusicRef || MusicRef == (MUSIC_REF)~0)
+	{
+		LockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
+		filename = soundSource[MUSIC_SOURCE].sample->decoder->filename;
+		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
+
+		return filename;
+	}
+	else
+		return 0;
+}
+
+UNICODE *
+PLRGetFilename (void)
+{
+	return curMusicRef != 0 ? get_current_music_filename (curMusicRef) : 0;
 }
 
 void

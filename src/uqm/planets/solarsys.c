@@ -875,7 +875,7 @@ FreeSolarSys (void)
 	DestroyDrawable (ReleaseDrawable (SolarSysFrame));
 	SolarSysFrame = NULL;
 
-	GetMusicPosition (&IPMusic[spaceMusicBySOI]);
+	SetMusicPosition ();
 	
 	StopMusic ();
 
@@ -2139,15 +2139,16 @@ playSpaceMusic (void)
 	if (!PLRPlaying((MUSIC_REF)~0) &&
 		(LastActivity != CHECK_LOAD || NextActivity))
 	{
-		if (OkayToResume (IPMusic[spaceMusicBySOI]))
+		SetMusicVolume (MUTE_VOLUME);
+		PlayMusic (SpaceMusic, TRUE, 1);
+
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (SpaceMusic, TRUE, 1);
-			SeekMusic (IPMusic[spaceMusicBySOI].position);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
-			PlayMusic (SpaceMusic, TRUE, 1);
+			SetMusicVolume (NORMAL_VOLUME);
 	}
 }
 

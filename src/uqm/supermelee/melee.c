@@ -1558,7 +1558,7 @@ StartMelee (MELEE_STATE *pMS)
 				+ ONE_SECOND / 60);
 		FlushColorXForms ();
 
-		GetMusicPosition (&MeleeMenuMusic);
+		SetMusicPosition ();
 		StopMusic ();
 	}
 	FadeMusic (NORMAL_VOLUME, 0);
@@ -1964,15 +1964,16 @@ DoMelee (MELEE_STATE *pMS)
 
 		if (optMainMenuMusic)
 		{
-			if (OkayToResume (MeleeMenuMusic))
+			SetMusicVolume (MUTE_VOLUME);
+			PlayMusic (pMS->hMusic, TRUE, 1);
+
+			if (OkayToResume ())
 			{
-				FadeMusic (MUTE_VOLUME, 0);
-				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (MeleeMenuMusic.position);
+				SeekMusic (GetMusicPosition ());
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 			}
 			else
-				PlayMusic (pMS->hMusic, TRUE, 1);
+				SetMusicVolume (NORMAL_VOLUME);
 		}
 
 		InitMelee (pMS);

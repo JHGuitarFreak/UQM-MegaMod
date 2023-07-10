@@ -803,15 +803,16 @@ DoOutfit (MENU_STATE *pMS)
 
 			ScreenTransition (optScrTrans, NULL);
 
-			if (OkayToResume (OutfitMusic))
+			SetMusicVolume (MUTE_VOLUME);
+			PlayMusic (pMS->hMusic, TRUE, 1);
+
+			if (OkayToResume ())
 			{
-				FadeMusic (MUTE_VOLUME, 0);
-				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (OutfitMusic.position);
+				SeekMusic (GetMusicPosition ());
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 			}
 			else
-				PlayMusic (pMS->hMusic, TRUE, 1);
+				SetMusicVolume (NORMAL_VOLUME);
 
 			UnbatchGraphics ();
 			
@@ -845,7 +846,7 @@ ExitOutfit:
 			DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
 			pMS->ModuleFrame = 0;
 
-			GetMusicPosition (&OutfitMusic);
+			SetMusicPosition ();
 
 			SetNamingCallback (NULL);
 
