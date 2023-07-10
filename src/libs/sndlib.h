@@ -98,6 +98,25 @@ extern BOOLEAN SoundPlaying (void);
 extern SDWORD PLRGetPos (void);
 extern UNICODE *PLRGetFilename (void);
 
+// For music resume option
+typedef struct music_position
+{
+	DWORD filehash;
+	DWORD position;
+	DWORD last_played;
+} MUSIC_POSITION;
+
+extern void SetMusicPosition (void);
+extern BOOLEAN OkayToResume (void);
+extern DWORD GetMusicPosition (void);
+
+static inline void
+print_mp (const MUSIC_POSITION arr)
+{
+	printf ("0x%X -> position: %d, last_played: %d\n",
+		arr.filehash, arr.position, arr.last_played);
+}
+
 extern void WaitForSoundEnd (COUNT Channel);
 #define TFBSOUND_WAIT_ALL ((COUNT)~0)
 

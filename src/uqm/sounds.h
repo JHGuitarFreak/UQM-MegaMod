@@ -84,53 +84,6 @@ extern void UpdateSoundPositions (void);
 extern void FlushSounds (void);
 extern void RemoveSoundsForObject (ELEMENT *PosObj);
 
-// For music resume option
-typedef struct music_position
-{
-	UNICODE filename[PATH_MAX];
-	DWORD position;
-	DWORD last_played;
-} MUSIC_POSITION;
-
-extern MUSIC_POSITION MainMenuMusic;
-extern MUSIC_POSITION MeleeMenuMusic;
-extern MUSIC_POSITION StarBaseMusic;
-extern MUSIC_POSITION OutfitMusic;
-extern MUSIC_POSITION ShipyardMusic;
-extern MUSIC_POSITION CommMusic[NUM_CONVERSATIONS];
-extern MUSIC_POSITION IPMusic[NUM_SPECIES_ID];
-extern MUSIC_POSITION PlanetMusic[NUM_ORBIT_THEMES];
-extern MUSIC_POSITION BattleRefMusic[3];
-
-extern void InitializeMusicArray (void);
-extern void SetMusicPosition (void);
-extern BOOLEAN OkayToResume (void);
-extern DWORD GetMusicPosition (void);
-
-static inline void
-print_mp_array (const MUSIC_POSITION arr[], const int n)
-{
-	int i;
-
-	printf ("----MUSIC_POSITION----\n");
-	printf ("----------------------\n");
-
-	for (i = 0; i < n; i++)
-	{
-		printf ("Index: %d, %d, %d\n",
-				i, arr[i].position, arr[i].last_played);
-	}
-
-	printf ("----------------------\n");
-	printf ("----------------------\n");
-}
-
-static inline void
-print_mp (const MUSIC_POSITION arr)
-{
-	printf ("%s -> position: %d, last_playes: %d\n", &arr.filename, arr.position, arr.last_played);
-}
-
 #if defined(__cplusplus)
 }
 #endif

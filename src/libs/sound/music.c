@@ -24,10 +24,12 @@
 #include "libs/memlib.h"
 #include "uqm/globdata.h"
 #include "uqm/setup.h"
+#include "libs/mathlib.h"
 
 
 static MUSIC_REF curMusicRef;
 static MUSIC_REF curSpeechRef;
+static MUSIC_POSITION resumeMusicArray[PATH_MAX];
 
 void
 PLRPlaySong (MUSIC_REF MusicRef, BOOLEAN Continuous, BYTE Priority)
@@ -179,6 +181,148 @@ PLRResume (MUSIC_REF MusicRef)
 		UnlockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 	}
 }
+
+static void
+SetGlobalMusicPosition (void)
+{
+	MUSIC_POSITION temp;
+	UNICODE *filename;
+	int i, j;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return;
+	if (!optMusicResume)
+		return;
+
+	filename = PLRGetFilename ();
+
+	if (filename == NULL)
+		return;
+
+	temp.filehash = crc32b (filename);
+	temp.position = PLRGetPos ();
+	temp.last_played = GetTimeCounter ();
+
+	if (!temp.filehash)
+		return;
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		if (!resumeMusicArray[i].filehash)
+			break;
+	}
+
+	for (j = 0; j < i; ++j)
+	{
+		if (resumeMusicArray[j].filehash == temp.filehash)
+			break;
+	}
+
+	if (j < PATH_MAX &&resumeMusicArray[j].filehash == temp.filehash)
+	{
+		resumeMusicArray[j].position = temp.position;
+		resumeMusicArray[j].last_played = temp.last_played;
+	}
+	else
+		resumeMusicArray[i] = temp;
+
+	system ("cls");
+
+	for (i = PATH_MAX - 1; i > 0; --i)
+	{
+		printf ("Index: %d -> ", i);
+		print_mp (resumeMusicArray[i]);
+	}
+	printf ("Index: 0 -> ");
+	print_mp (resumeMusicArray[0]);
+}
+
+void
+SetMusicPosition (void)
+{
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return;
+	if (!optMusicResume)
+		return;
+	if (!PLRPlaying ((MUSIC_REF)~0))
+		return;
+
+	SetGlobalMusicPosition ();
+}
+
+DWORD
+GetMusicPosition (void)
+{
+	DWORD filehash;
+	UNICODE *filename;
+	int i;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return 0;
+	if (!optMusicResume)
+		return 0;
+
+	filename = PLRGetFilename ();
+
+	if (filename == NULL)
+		return 0;
+
+	filehash = crc32b (filename);
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		if (resumeMusicArray[i].filehash == filehash)
+			break;
+	}
+
+	return resumeMusicArray[i].position;
+}
+
+#define FIVE_MINUTES (1000 * 300)
+
+BOOLEAN
+OkayToResume (void)
+{
+	TimeCount TimeIn, difference;
+	DWORD filehash;
+	UNICODE *filename;
+	int i;
+
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return FALSE;
+	if (!optMusicResume)
+		return FALSE;
+
+	filename = PLRGetFilename ();
+
+	if (filename == NULL)
+		return FALSE;
+
+	filehash = crc32b (filename);
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		if (resumeMusicArray[i].filehash == filehash)
+			break;
+	}
+
+	if (i == PATH_MAX)
+		return FALSE;
+
+	if (!resumeMusicArray[i].last_played
+		|| !resumeMusicArray[i].position)
+		return FALSE;
+
+	TimeIn = GetTimeCounter ();
+	difference = TimeIn - resumeMusicArray[i].last_played;
+
+	if (difference < FIVE_MINUTES)
+		return TRUE;
+
+	return FALSE;
+}
+
+
 
 void
 snd_PlaySpeech (MUSIC_REF SpeechRef)

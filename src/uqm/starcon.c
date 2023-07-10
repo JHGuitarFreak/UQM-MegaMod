@@ -260,8 +260,6 @@ while (--ac > 0)
 		if (optMainMenuMusic)
 			FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
 		comingFromInit = TRUE;
-
-		InitializeMusicArray ();
 	}
 
 	SplashScreen (BackgroundInitKernel);

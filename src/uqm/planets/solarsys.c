@@ -867,15 +867,16 @@ FreeSolarSys (void)
 	if (pSolarSysState->InIpFlight)
 	{
 		pSolarSysState->InIpFlight = FALSE;
-			
+
 		if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
+		{
 			saveNonOrbitalLocation ();
+			SetMusicPosition ();
+		}
 	}
 	
 	DestroyDrawable (ReleaseDrawable (SolarSysFrame));
 	SolarSysFrame = NULL;
-
-	SetMusicPosition ();
 	
 	StopMusic ();
 

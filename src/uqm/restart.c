@@ -78,20 +78,6 @@ PacksInstalled (void)
 	return packsInstalled;
 }
 
-void
-ResetMusicPositions (void)
-{
-	MeleeMenuMusic.position = 0;
-	StarBaseMusic.position = 0;
-	OutfitMusic.position = 0;
-	ShipyardMusic.position = 0;
-
-	memset (&CommMusic, 0, sizeof (CommMusic));
-	memset (&IPMusic, 0, sizeof (IPMusic));
-	memset (&PlanetMusic, 0, sizeof (PlanetMusic));
-	memset (&BattleRefMusic, 0, sizeof (BattleRefMusic));
-}
-
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
 
@@ -443,8 +429,6 @@ DoRestart (MENU_STATE *pMS)
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
-
-	ResetMusicPositions ();
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{
