@@ -456,15 +456,16 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 	{
-		if (OkayToResume (PlanetMusic[OrbitNum]))
+		SetMusicVolume (MUTE_VOLUME);
+		PlayMusic (LanderMusic, TRUE, 1);
+
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (LanderMusic, TRUE, 1);
-			SeekMusic (PlanetMusic[OrbitNum].position);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
-			PlayMusic (LanderMusic, TRUE, 1);
+			SetMusicVolume (NORMAL_VOLUME);
 	}
 
 	if (WaitMode)
@@ -506,7 +507,7 @@ FreePlanet (void)
 
 	UninitSphereRotation ();
 
-	GetMusicPosition (&PlanetMusic[OrbitNum]);
+	SetMusicPosition ();
 
 	StopMusic ();
 

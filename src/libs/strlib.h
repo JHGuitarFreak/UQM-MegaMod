@@ -87,6 +87,8 @@ extern const char *LoadStringInstance (RESOURCE res);
 #define UNICHAR_CIRCLE        0x25EF
 #define STR_CIRCLE          "\xE2\x97\xAf"
 
+#define STR_NULL "null"
+
 #if defined(__cplusplus)
 }
 #endif

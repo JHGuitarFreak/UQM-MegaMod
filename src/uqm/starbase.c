@@ -345,17 +345,17 @@ DoStarBase (MENU_STATE *pMS)
 		rotateStarbase (pMS, pMS->CurFrame);
 		DrawBaseStateStrings ((STARBASE_STATE)~0, pMS->CurState);
 		ScreenTransition (optScrTrans, NULL);
+
+		SetMusicVolume (MUTE_VOLUME);
 		PlayMusic (pMS->hMusic, TRUE, 1);
 
-		if (OkayToResume (StarBaseMusic))
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (pMS->hMusic, TRUE, 1);
-			SeekMusic (StarBaseMusic.position);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
-			PlayMusic (pMS->hMusic, TRUE, 1);
+			SetMusicVolume (NORMAL_VOLUME);
 
 		UnbatchGraphics ();
 	}
@@ -365,7 +365,7 @@ ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;
 
-		GetMusicPosition (&StarBaseMusic);
+		SetMusicPosition ();
 
 		StopMusic ();
 		if (pMS->hMusic)

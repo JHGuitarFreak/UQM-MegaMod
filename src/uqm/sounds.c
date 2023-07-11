@@ -18,7 +18,6 @@
 #include "sounds.h"
 #include "units.h"
 
-
 SOUND MenuSounds;
 SOUND GameSounds;
 
@@ -26,17 +25,6 @@ SOUND GameSounds;
 static BYTE num_sounds = 0;
 static SOUND sound_buf[MAX_SOUNDS];
 static ELEMENT *sound_posobj[MAX_SOUNDS];
-
-// For music resume option
-MUSIC_POSITION MainMenuMusic;
-MUSIC_POSITION MeleeMenuMusic;
-MUSIC_POSITION StarBaseMusic;
-MUSIC_POSITION OutfitMusic;
-MUSIC_POSITION ShipyardMusic;
-MUSIC_POSITION CommMusic[NUM_CONVERSATIONS];
-MUSIC_POSITION IPMusic[NUM_SPECIES_ID];
-MUSIC_POSITION PlanetMusic[NUM_ORBIT_THEMES];
-MUSIC_POSITION BattleRefMusic[3];
 
 void
 PlaySound (SOUND S, SoundPosition Pos, ELEMENT *PositionalObject,
@@ -207,48 +195,4 @@ RemoveSoundsForObject (ELEMENT *PosObj)
 		if (sound_posobj[i] == PosObj)
 			sound_posobj[i] = NULL;
 	}
-}
-
-void
-GetMusicPosition (MUSIC_POSITION *music_position)
-{
-	if (!optMusicResume)
-		return;
-
-	music_position->position = PLRGetPos ();
-	music_position->last_played = GetTimeCounter ();
-}
-
-MUSIC_POSITION
-GetMusicPosition2 (void)
-{
-	MUSIC_POSITION temp = { 0, 0 };
-
-	if (!optMusicResume)
-		return temp;
-
-	temp.position = PLRGetPos ();
-	temp.last_played = GetTimeCounter ();
-
-	return temp;
-}
-
-#define FIVE_MINUTES (1000 * 300)
-
-BOOLEAN
-OkayToResume (MUSIC_POSITION music_position)
-{
-	TimeCount TimeIn, difference;
-
-	if (!optMusicResume || !music_position.last_played 
-			|| !music_position.position)
-		return FALSE;
-
-	TimeIn = GetTimeCounter ();
-	difference = TimeIn - music_position.last_played;
-
-	if (difference < FIVE_MINUTES)
-		return TRUE;
-
-	return FALSE;
 }

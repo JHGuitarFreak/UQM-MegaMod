@@ -1652,15 +1652,16 @@ DoShipyard (MENU_STATE *pMS)
 			ScreenTransition (optScrTrans, NULL);
 			UnbatchGraphics ();
 
-			if (OkayToResume (ShipyardMusic))
+			SetMusicVolume (MUTE_VOLUME);
+			PlayMusic (pMS->hMusic, TRUE, 1);
+
+			if (OkayToResume ())
 			{
-				FadeMusic (MUTE_VOLUME, 0);
-				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (ShipyardMusic.position);
+				SeekMusic (GetMusicPosition ());
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 			}
 			else
-				PlayMusic (pMS->hMusic, TRUE, 1);
+				SetMusicVolume (NORMAL_VOLUME);
 
 			ShowCombatShip (pMS, (COUNT)~0, NULL);
 
@@ -1686,7 +1687,7 @@ ExitShipyard:
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
 		pMS->CurString = 0;
 
-		GetMusicPosition (&ShipyardMusic);
+		SetMusicPosition ();
 
 		return FALSE;
 	}

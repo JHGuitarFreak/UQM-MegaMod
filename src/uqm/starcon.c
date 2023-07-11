@@ -56,6 +56,7 @@
 #include "settings.h"
 #include "cons_res.h"
 #include <time.h>//required to use 'srand(time(NULL))'
+#include "sounds.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP

@@ -25,7 +25,6 @@ extern "C" {
 
 
 extern BOOLEAN StartGame (void);
-extern void ResetMusicPositions (void);
 
 #if defined(__cplusplus)
 }

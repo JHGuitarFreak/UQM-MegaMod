@@ -1176,29 +1176,28 @@ AlienTalkSegue (COUNT wait_track)
 
 	if (!pCurInputState->Initialized)
 	{
+		BYTE AlienConv = CommData.AlienConv;
+		MUSIC_REF AlienSong = CommData.AlienSong;
+
 		InitSpeechGraphics ();
 		SetColorMap (GetColorMapAddress (CommData.AlienColorMap));
 		SetContext (AnimContext);
 		DrawAlienFrame (NULL, 0, TRUE);
 		UpdateSpeechGraphics ();
 		CommIntroTransition ();
-		BYTE AlienConv = CommData.AlienConv;
-		MUSIC_REF AlienSong = CommData.AlienSong;
 		
 		pCurInputState->Initialized = TRUE;
 
-		if (OkayToResume (CommMusic[AlienConv]))
+		SetMusicVolume (MUTE_VOLUME);
+		PlayMusic (AlienSong, TRUE, 1);
+
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (AlienSong, TRUE, 1);
-			SeekMusic (CommMusic[AlienConv].position);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
 		}
 		else
-		{
-			PlayMusic (AlienSong, TRUE, 1);
 			SetMusicVolume (BACKGROUND_VOL);
-		}
 
 		InitCommAnimations ();
 
@@ -1638,7 +1637,7 @@ DoCommunication (ENCOUNTER_STATE *pES)
 	if (IsDarkMode)
 		SetCommDarkMode (FALSE);
 
-	GetMusicPosition (&CommMusic[CommData.AlienConv]);
+	SetMusicPosition ();
 	StopMusic ();
 	StopSound ();
 	StopTrack ();
