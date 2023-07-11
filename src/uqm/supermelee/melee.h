@@ -38,8 +38,8 @@ typedef struct melee_state MELEE_STATE;
 #define NUM_MELEE_COLUMNS 7
 //#define NUM_MELEE_COLUMNS 6
 #define MELEE_FLEET_SIZE (NUM_MELEE_ROWS * NUM_MELEE_COLUMNS)
-#define ICON_WIDTH RES_SCALE(16)
-#define ICON_HEIGHT RES_SCALE(16)
+#define ICON_WIDTH RES_SCALE (16)
+#define ICON_HEIGHT RES_SCALE (16)
 
 extern FRAME PickMeleeFrame;
 
@@ -109,11 +109,12 @@ void RepairMeleeFrame (const RECT *pRect);
 void DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip);
 extern FRAME MeleeFrame;
 void Melee_flashSelection (MELEE_STATE *pMS);
+extern void QuickRepair (COUNT whichFrame, RECT *pRect);
 
 COUNT GetShipValue (MeleeShip StarShip);
 
 void updateRandomSeed (MELEE_STATE *pMS, COUNT side, DWORD seed);
-void confirmationCancelled(MELEE_STATE *pMS, COUNT side);
+void confirmationCancelled (MELEE_STATE *pMS, COUNT side);
 void connectedFeedback (NetConnection *conn);
 void abortFeedback (NetConnection *conn, NetplayAbortReason reason);
 void resetFeedback (NetConnection *conn, NetplayResetReason reason,

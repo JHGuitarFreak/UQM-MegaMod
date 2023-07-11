@@ -41,8 +41,11 @@ static LOCDATA thradd_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	THRADD_COLOR_MAP, /* AlienColorMap */
 	THRADD_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	THRADD_CONVERSATION_PHRASES, /* PlayerPhrases */
 	8, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -701,7 +704,7 @@ Intro (void)
 		return;
 	}
 
-	if (GET_GAME_STATE(AQUA_HELIX) && (EXTENDED && ThraddPtr->allied_state != GOOD_GUY))
+	if (GET_GAME_STATE (AQUA_HELIX) && !(EXTENDED && ThraddPtr->allied_state == GOOD_GUY))
 	{
 		NumVisits = GET_GAME_STATE (HELIX_VISITS);
 		switch (NumVisits++)
@@ -720,36 +723,74 @@ Intro (void)
 	}
 	else if (GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH))
 	{
-		NumVisits = GET_GAME_STATE (THRADD_VISITS);
-		if (GET_GAME_STATE (THRADD_MANNER))
+		if (DIF_HARD && GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 		{
-			switch (NumVisits++)
+			RESPONSE_REF pStr0, pStr1;
+
+			if (GET_GAME_STATE (THRADD_MANNER))
 			{
+				pStr0 = WELCOME_HELIX0;
+				pStr1 = WELCOME_HELIX1;
+
+				NPCPhrase (pStr0);
+				NPCPhrase (GetCultureName ());
+				NPCPhrase (pStr1);
+
+				ThraddAllies ((RESPONSE_REF)0);
+			}
+			else
+			{
+				NumVisits = GET_GAME_STATE (HELIX_VISITS);
+				switch (NumVisits++)
+				{
 				case 0:
-					NPCPhrase (HAVING_FUN_WITH_ILWRATH_1);
+					NPCPhrase (HOSTILE_HELIX_HELLO_1);
 					break;
 				case 1:
-					NPCPhrase (HAVING_FUN_WITH_ILWRATH_2);
+					NPCPhrase (HOSTILE_HELIX_HELLO_2);
 					--NumVisits;
 					break;
+				}
+				SET_GAME_STATE (HELIX_VISITS, NumVisits);
+
+				HelixWorld ((RESPONSE_REF)0);
 			}
 		}
 		else
 		{
-			switch (NumVisits++)
-			{
-				case 0:
-					NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_1);
-					break;
-				case 1:
-					NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_2);
-					--NumVisits;
-					break;
-			}
-		}
-		SET_GAME_STATE (THRADD_VISITS, NumVisits);
+			NumVisits = GET_GAME_STATE (THRADD_VISITS);
+			NumVisits = NumVisits > 1 ? 0 : NumVisits;
 
-		setSegue (Segue_peace);
+			if (GET_GAME_STATE (THRADD_MANNER))
+			{
+				switch (NumVisits++)
+				{
+					case 0:
+						NPCPhrase (HAVING_FUN_WITH_ILWRATH_1);
+						break;
+					case 1:
+						NPCPhrase (HAVING_FUN_WITH_ILWRATH_2);
+						--NumVisits;
+						break;
+				}
+			}
+			else
+			{
+				switch (NumVisits++)
+				{
+					case 0:
+						NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_1);
+						break;
+					case 1:
+						NPCPhrase (GO_AWAY_FIGHTING_ILWRATH_2);
+						--NumVisits;
+						break;
+				}
+			}
+			SET_GAME_STATE (THRADD_VISITS, NumVisits);
+	
+			setSegue (Segue_peace);
+		}
 	}
 	else if (GET_GAME_STATE (THRADD_MANNER))
 	{
@@ -785,6 +826,8 @@ Intro (void)
 		{
 			pStr0 = WELCOME_HOMEWORLD0;
 			pStr1 = WELCOME_HOMEWORLD1;
+			if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
+				SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
 		}
 		else
 		{
@@ -814,7 +857,8 @@ Intro (void)
 
 		HelixWorld ((RESPONSE_REF)0);
 	}
-	else if (GET_GAME_STATE (THRADDASH_BODY_COUNT) >= THRADDASH_BODY_THRESHOLD)
+	else if (GET_GAME_STATE (THRADDASH_BODY_COUNT)
+			>= (BYTE)THRADDASH_BODY_THRESHOLD)
 	{
 		NPCPhrase (AMAZING_PERFORMANCE);
 
@@ -857,6 +901,9 @@ Intro (void)
 						break;
 				}
 				SET_GAME_STATE (THRADD_HOME_VISITS, NumVisits);
+
+				if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
+					SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
 			}
 			else if ((NumVisits = GET_GAME_STATE (THRADD_MISSION)) == 0
 					|| NumVisits > 3)
@@ -939,7 +986,7 @@ init_thradd_comm (void)
 
 	thradd_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	thradd_desc.AlienTextBaseline.y = 0;
-	thradd_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	thradd_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (THRADD_MANNER)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

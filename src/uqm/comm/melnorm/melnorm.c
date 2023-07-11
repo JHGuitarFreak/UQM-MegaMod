@@ -33,11 +33,13 @@
 #include "uqm/sis.h"
 #include "../../gendef.h"
 #include "../../starmap.h"
+#include "uqm/oscill.h"
+#include "uqm/controls.h"
 
 
 static const NUMBER_SPEECH_DESC melnorme_numbers_english;
 
-static LOCDATA melnorme_desc_orig =
+static LOCDATA melnorme_desc =
 {
 	MELNORME_CONVERSATION, /* AlienConv */
 	NULL, /* init_encounter_func */
@@ -53,10 +55,13 @@ static LOCDATA melnorme_desc_orig =
 	VALIGN_TOP, /* AlienTextValign */
 	MELNORME_COLOR_MAP, /* AlienColorMap */
 	MELNORME_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	MELNORME_CONVERSATION_PHRASES, /* PlayerPhrases */
-	4, /* NumAnimations */
+	5, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			6, /* StartIndex */
@@ -90,138 +95,13 @@ static LOCDATA melnorme_desc_orig =
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			0, /* BlockMask */
 		},
-	},
-	{ /* AlienTransitionDesc */
-		0, /* StartIndex */
-		0, /* NumFrames */
-		0, /* AnimFlags */
-		0, 0, /* FrameRate */
-		0, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	{ /* AlienTalkDesc */
-		1, /* StartIndex */
-		5, /* NumFrames */
-		0, /* AnimFlags */
-		ONE_SECOND / 15, 0, /* FrameRate */
-		ONE_SECOND / 12, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	&melnorme_numbers_english, /* AlienNumberSpeech - default */
-	/* Filler for loaded resources */
-	NULL, NULL, NULL,
-	NULL,
-	NULL,
-};
-
-static LOCDATA melnorme_desc_hd =
-{
-	MELNORME_CONVERSATION, /* AlienConv */
-	NULL, /* init_encounter_func */
-	NULL, /* post_encounter_func */
-	NULL, /* uninit_encounter_func */
-	MELNORME_PMAP_ANIM, /* AlienFrame */
-	MELNORME_FONT, /* AlienFont */
-	WHITE_COLOR_INIT, /* AlienTextFColor */
-	BLACK_COLOR_INIT, /* AlienTextBColor */
-	{0, 0}, /* AlienTextBaseline */
-	0, /* SIS_TEXT_WIDTH - 16, */ /* AlienTextWidth */
-	ALIGN_CENTER, /* AlienTextAlign */
-	VALIGN_TOP, /* AlienTextValign */
-	MELNORME_COLOR_MAP, /* AlienColorMap */
-	MELNORME_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
-	MELNORME_CONVERSATION_PHRASES, /* PlayerPhrases */
-	11, /* NumAnimations */
-	{ /* AlienAmbientArray (ambient animations) */
-		{
-			6, /* StartIndex */
-			5, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 12, 0, /* FrameRate */
-			ONE_SECOND * 4, ONE_SECOND * 4,/* RestartRate */
-			(1 << 1), /* BlockMask */
-		},
-		{
-			11, /* StartIndex */
-			9, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 20, 0, /* FrameRate */
-			ONE_SECOND * 4, ONE_SECOND * 4,/* RestartRate */
-			(1 << 0), /* BlockMask */
-		},
-		{
-			20, /* StartIndex */
-			2, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 10), /* BlockMask */
-		},
-		{
-			22, /* StartIndex */
-			2, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 10), /* BlockMask */
-		},
-		{
+		{ /* Flagship picture */
 			24, /* StartIndex */
-			11, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 11, 0, /* FrameRate */
+			1, /* NumFrames */
+			CIRCULAR_ANIM | ANIM_DISABLED, /* AnimFlags */
+			0, 0, /* FrameRate */
 			0, 0, /* RestartRate */
 			0, /* BlockMask */
-		},
-		{
-			35, /* StartIndex */
-			2, /* NumFrames */
-			YOYO_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			37, /* StartIndex */
-			2, /* NumFrames */
-			YOYO_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			39, /* StartIndex */
-			10, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 10, 0, /* FrameRate */
-			0, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			49, /* StartIndex */
-			2, /* NumFrames */
-			YOYO_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			51, /* StartIndex */
-			2, /* NumFrames */
-			YOYO_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			53, /* StartIndex */
-			11, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 11, 0, /* FrameRate */
-			0, 0, /* RestartRate */
-			(1 << 2) | (1 << 3) /* BlockMask */
 		},
 	},
 	{ /* AlienTransitionDesc */
@@ -494,8 +374,8 @@ GrantTech (TechId_t techId)
 static int
 countTech (void)
 {
-	int numTech = 0;
-	TechId_t i = 0;
+	BYTE numTech = 0;
+	BYTE i = 0;
 
 	for (i = 0; i <= NUM_TECHNOLOGIES; ++i)
 		numTech += HasTech (i);
@@ -615,7 +495,7 @@ const size_t NUM_TECH_ITEMS = ARRAY_SIZE (tech_sale_catalog);
 
 // Return the next tech for sale that the player doesn't already have.
 // Returns NULL if the player has all the techs.
-static const TechSaleData*
+static TechSaleData *
 GetNextTechForSale (void)
 {
 	BYTE i = 0;
@@ -626,15 +506,15 @@ GetNextTechForSale (void)
 		switch (CurStarDescPtr->Index)
 		{
 			case MELNORME0_DEFINED:
-				i = TECH_MODULE_CANNON;	 
+				i = TECH_MODULE_CANNON;
 				j = i + 1;
 				break;
 			case MELNORME1_DEFINED:
-				i = TECH_MODULE_BLASTER; 
+				i = TECH_MODULE_BLASTER;
 				j = i + 1;
 				break;
 			case MELNORME2_DEFINED:
-				i = TECH_LANDER_SHIELD_BIO;	
+				i = TECH_LANDER_SHIELD_BIO;
 				j = i + 2; // TECH_LANDER_CARGO
 				break;
 			case MELNORME3_DEFINED:
@@ -642,24 +522,24 @@ GetNextTechForSale (void)
 				j = i + 2; // TECH_LANDER_SHIELD_QUAKE
 				break;
 			case MELNORME4_DEFINED:
-				i = TECH_MODULE_BIGFUELTANK;	
-				j = i + 1; 
+				i = TECH_MODULE_BIGFUELTANK;
+				j = i + 1;
 				break;
 			case MELNORME5_DEFINED:
 				i = TECH_LANDER_SPEED;
 				j = i + 2; // TECH_MODULE_ANTIMISSILE
 				break;
 			case MELNORME6_DEFINED:
-				i = TECH_MODULE_TRACKING;	
-				j = i + 1; 
+				i = TECH_MODULE_TRACKING;
+				j = i + 1;
 				break;
 			case MELNORME7_DEFINED:
-				i = TECH_LANDER_SHIELD_LIGHTNING;	
-				j = i + 2; // TECH_LANDER_SHIELD_HEAT 
+				i = TECH_LANDER_SHIELD_LIGHTNING;
+				j = i + 2; // TECH_LANDER_SHIELD_HEAT
 				break;
 			case MELNORME8_DEFINED:
 				i = TECH_MODULE_FURNACE;
-				j = i + 1; 
+				j = i + 1;
 				break;
 			default:
 				i = 0; j = i;
@@ -670,7 +550,7 @@ GetNextTechForSale (void)
 			if (!HasTech (tech_sale_catalog[i].techId))
 				return &tech_sale_catalog[i];
 		}
-	} 
+	}
 	else if (DIF_HARD && !CurStarDescPtr)
 	{
 		return NULL;
@@ -1110,6 +990,17 @@ CurrentEvents (void)
 {
 	BYTE stack = GET_GAME_STATE (MELNORME_EVENTS_INFO_STACK);
 	const int phraseId = GetLineSafe (ok_buy_event_lines, stack);
+	switch (phraseId)
+	{
+		case OK_BUY_EVENT_1:
+			if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+			break;
+		case OK_BUY_EVENT_6:
+			if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+			break;
+	}
 	NPCPhrase (phraseId);
 	SET_GAME_STATE (MELNORME_EVENTS_INFO_STACK, stack + 1);
 }
@@ -1122,12 +1013,34 @@ AlienRaces (void)
 	// Two pieces of alien knowledge trigger state changes.
 	switch (phraseId)
 	{
+		case OK_BUY_ALIEN_RACE_5:
+			if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
+				SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+			break;
+		case OK_BUY_ALIEN_RACE_7:
+			if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
+				SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+			break;
+		case OK_BUY_ALIEN_RACE_8:
+			if (!GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD))
+				SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
+			break;
+		case OK_BUY_ALIEN_RACE_12:
+			if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+			break;
+		case OK_BUY_ALIEN_RACE_13:
+			if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+			break;
 		case OK_BUY_ALIEN_RACE_14:
 			if (!GET_GAME_STATE (FOUND_PLUTO_SPATHI))
 			{
 				SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 1);
 				SET_GAME_STATE (SPATHI_HOME_VISITS, 7);
 			}
+			if (!GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
 			break;
 		case OK_BUY_ALIEN_RACE_15:
 			if (GET_GAME_STATE (KNOW_ABOUT_SHATTERED) < 2)
@@ -1135,6 +1048,12 @@ AlienRaces (void)
 				SET_GAME_STATE (KNOW_ABOUT_SHATTERED, 2);
 			}
 			SET_GAME_STATE (KNOW_SYREEN_WORLD_SHATTERED, 1);
+			if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+			break;
+		case OK_BUY_ALIEN_RACE_16:
+			if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
+				SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
 			break;
 	}
 	NPCPhrase (phraseId);
@@ -1170,7 +1089,7 @@ DoBuy (RESPONSE_REF R)
 	SIZE needed_credit;
 	BYTE slot;
 	DWORD capacity; 
-	BYTE FuelCost = IF_HARD((BIO_CREDIT_VALUE / 2), (FUEL_COST_RU / 2));
+	BYTE FuelCost = BIO_CREDIT_VALUE / 2;
 
 	credit = GetAvailableCredits ();
 
@@ -1214,9 +1133,16 @@ DoBuy (RESPONSE_REF R)
 		else if (PLAYER_SAID (R, buy_25_fuel))
 			needed_credit = 25;
 		else if (PLAYER_SAID (R, fill_me_up))
-			needed_credit = (capacity - GLOBAL_SIS (FuelOnBoard)
+		{
+			SIZE remainingCapacity = (capacity - GLOBAL_SIS(FuelOnBoard)
 					+ FUEL_TANK_SCALE - 1)
 				/ FUEL_TANK_SCALE;
+
+			if (credit < remainingCapacity)
+				needed_credit = credit;
+			else
+				needed_credit = remainingCapacity;
+		}
 
 		if (needed_credit == 0)
 		{
@@ -1308,9 +1234,9 @@ TryFuelAgain:
 
 		NPCPhrase (nextTech->sale_line);
 
-		if (DIF_HARD && countTech())
+		if (DIF_HARD && countTech ())
 		{
-			nextTech->price += countTech() * 50;
+			nextTech->price = TECHPRICE + countTech () * 50;
 			NPCPhrase (NEED_MORE_CREDIT0);
 			NPCNumber (nextTech->price - TECHPRICE, NULL);
 			NPCPhrase (NEED_MORE_CREDIT1);
@@ -1392,12 +1318,13 @@ DoSell (RESPONSE_REF R)
 	UWORD rainbow_mask;
 	SIZE added_credit;
 	int what_to_sell_queued = 0;
+	BYTE BioCreditValue = IF_HARD (BIO_CREDIT_VALUE, 1);
 
 	rainbow_mask = MAKE_WORD (
 			GET_GAME_STATE (RAINBOW_WORLD0),
 			GET_GAME_STATE (RAINBOW_WORLD1)
 			);
-	num_new_rainbows = (BYTE)(-GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
+	num_new_rainbows = -(SBYTE)(GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
 	while (rainbow_mask)
 	{
 		if (rainbow_mask & 1)
@@ -1411,8 +1338,14 @@ DoSell (RESPONSE_REF R)
 		if (PLAYER_SAID (R, sell_life_data))
 		{
 			DWORD TimeIn;
+			SIZE beast_value = 0;
+			BOOLEAN Sleepy = TRUE;
 
-			added_credit = GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE;
+			if (EXTENDED && GET_GAME_STATE (VUX_BEAST_ON_SHIP) == 2
+					&& GET_GAME_STATE (VUX_BEAST) == 2)
+				SET_GAME_STATE (VUX_BEAST_ON_SHIP, 0);
+			
+			added_credit = GLOBAL_SIS (TotalBioMass) * BioCreditValue + beast_value;
 
 			NPCPhrase (SOLD_LIFE_DATA1);
 			NPCNumber (GLOBAL_SIS (TotalBioMass), NULL);
@@ -1425,46 +1358,67 @@ DoSell (RESPONSE_REF R)
 				NPCPhrase (WHAT_TO_SELL);
 				what_to_sell_queued = 1;
 			}
+
 			AlienTalkSegue (1);
 
+			FlushInput ();
+
 			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
-			SleepThread (ONE_SECOND / 2);
-			TimeIn = GetTimeCounter ();
+			TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+			while (GetTimeCounter () < TimeIn && Sleepy)
+			{
+				UpdateDuty(TRUE);
+				Sleepy = !(AnyButtonPress (TRUE) ||
+					GLOBAL (CurrentActivity) & CHECK_ABORT);
+			}
 			DrawCargoStrings (
 					(BYTE)NUM_ELEMENT_CATEGORIES,
 					(BYTE)NUM_ELEMENT_CATEGORIES
 					);
 
-			if (EXTENDED && GLOBAL_SIS (TotalBioMass)
-					&& GET_GAME_STATE (VUX_BEAST_ON_SHIP) == 2
-					&& GET_GAME_STATE (VUX_BEAST) == 2)
-				SET_GAME_STATE (VUX_BEAST_ON_SHIP, 0);
-
-			do
+			while (GLOBAL_SIS (TotalBioMass) && Sleepy)
 			{
-				TimeIn = GetTimeCounter ();
-				if (AnyButtonPress (TRUE))
-				{
-					DeltaCredit (GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE);
-					GLOBAL_SIS (TotalBioMass) = 0;
-				}
-				else
-				{
-					--GLOBAL_SIS (TotalBioMass);
-					DeltaCredit (BIO_CREDIT_VALUE);
-				}
-				DrawCargoStrings (
-						(BYTE)NUM_ELEMENT_CATEGORIES,
-						(BYTE)NUM_ELEMENT_CATEGORIES
-						);
-			} while (GLOBAL_SIS (TotalBioMass));
-			SleepThread (ONE_SECOND / 2);
+				Sleepy = !(AnyButtonPress (TRUE)
+						|| GLOBAL (CurrentActivity) & CHECK_ABORT);
+				
+				UpdateDuty (TRUE);
 
+				--GLOBAL_SIS (TotalBioMass);
+				TaskSwitch ();
+				DeltaCredit (BioCreditValue);
+				DrawCargoStrings(
+					(BYTE)NUM_ELEMENT_CATEGORIES,
+					(BYTE)NUM_ELEMENT_CATEGORIES
+				);
+			}
+
+			if (!Sleepy && GLOBAL_SIS (TotalBioMass))
+			{
+				DeltaCredit (
+						GLOBAL_SIS (TotalBioMass)
+						* BioCreditValue);
+				GLOBAL_SIS (TotalBioMass) = 0;
+			}
+			else
+			{
+				TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+				while (GetTimeCounter () < TimeIn && Sleepy)
+				{
+					UpdateDuty (TRUE);
+					Sleepy = !(AnyButtonPress (TRUE) ||
+						GLOBAL (CurrentActivity) & CHECK_ABORT);
+				}
+			}
 			ClearSISRect (DRAW_SIS_DISPLAY);
 		}
 		else /* if (R == sell_rainbow_locations) */
 		{
-			added_credit = num_new_rainbows * (DIF_CASE(250, 500, 125) * BIO_CREDIT_VALUE);
+			DWORD TimeIn;
+			BOOLEAN Sleepy = TRUE;
+			BYTE planets;
+			int diffCase = DIF_CASE (250, 500, 125);
+
+			added_credit = num_new_rainbows * (diffCase * BioCreditValue);
 
 			NPCPhrase (SOLD_RAINBOW_LOCATIONS1);
 			NPCNumber (num_new_rainbows, NULL);
@@ -1472,11 +1426,72 @@ DoSell (RESPONSE_REF R)
 			NPCNumber (added_credit, NULL);
 			NPCPhrase (SOLD_RAINBOW_LOCATIONS3);
 
+			planets = num_new_rainbows;
 			num_new_rainbows += GET_GAME_STATE (MELNORME_RAINBOW_COUNT);
 			SET_GAME_STATE (MELNORME_RAINBOW_COUNT, num_new_rainbows);
 			num_new_rainbows = 0;
 
-			DeltaCredit (added_credit);
+			if (!EXTENDED)
+				DeltaCredit (added_credit);
+			else
+			{
+				// queue WHAT_TO_SELL before talk-segue
+				if (GLOBAL_SIS (TotalBioMass))
+				{
+					NPCPhrase (WHAT_TO_SELL);
+					what_to_sell_queued = 1;
+				}
+
+				AlienTalkSegue (1);
+
+				FlushInput ();
+
+				DrawRainbowPlanet (planets);
+				TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+				while (GetTimeCounter () < TimeIn && Sleepy)
+				{
+					UpdateDuty (TRUE);
+					Sleepy = !(AnyButtonPress (TRUE) ||
+							GLOBAL(CurrentActivity) & CHECK_ABORT);
+				}
+
+				DrawRainbowPlanet (planets);
+
+				TimeIn = GetTimeCounter () + ONE_SECOND / 10;
+
+				while (planets != 0 && Sleepy)
+				{
+					Sleepy = !(AnyButtonPress (TRUE)
+							|| GLOBAL (CurrentActivity) & CHECK_ABORT);
+
+					UpdateDuty (TRUE);
+
+					if (GetTimeCounter () > TimeIn)
+					{
+						--planets;
+						DeltaCredit (diffCase * BioCreditValue);
+						DrawRainbowPlanet (planets);
+						TimeIn = GetTimeCounter () + ONE_SECOND / 6;
+					}
+				}
+
+				if (!Sleepy && planets != 0)
+				{
+					DeltaCredit (planets * diffCase * BioCreditValue);
+					planets = 0;
+				}
+				else
+				{
+					TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+					while (GetTimeCounter () < TimeIn && Sleepy)
+					{
+						UpdateDuty (TRUE);
+						Sleepy = !(AnyButtonPress (TRUE) ||
+								GLOBAL (CurrentActivity) & CHECK_ABORT);
+					}
+				}
+				ClearSISRect (DRAW_SIS_DISPLAY);
+			}
 		}
 		
 		AskedToBuy = FALSE;
@@ -1533,7 +1548,7 @@ NatureOfConversation (RESPONSE_REF R)
 			GET_GAME_STATE (RAINBOW_WORLD0),
 			GET_GAME_STATE (RAINBOW_WORLD1)
 			);
-	num_new_rainbows = (BYTE)(-GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
+	num_new_rainbows = -(SBYTE)(GET_GAME_STATE (MELNORME_RAINBOW_COUNT));
 	while (rainbow_mask)
 	{
 		if (rainbow_mask & 1)
@@ -1560,22 +1575,9 @@ NatureOfConversation (RESPONSE_REF R)
 			NPCPhrase (BUY_OR_SELL);
 			AlienTalkSegue (1);
 
-			if (!IS_HD) {
-				XFormColorMap (GetColorMapAddress (
-					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
-					), ONE_SECOND / 2);
-			} else {
-				CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
-				CommData.AlienAmbientArray[3].AnimFlags |= ANIM_DISABLED;
-				CommData.AlienAmbientArray[4].AnimFlags &= ~ANIM_DISABLED;
-				CommData.AlienAmbientArray[5].AnimFlags &= ~ANIM_DISABLED;
-				CommData.AlienAmbientArray[6].AnimFlags &= ~ANIM_DISABLED;
-				CommData.AlienAmbientArray[7].AnimFlags |= ANIM_DISABLED;
-				CommData.AlienAmbientArray[8].AnimFlags |= ANIM_DISABLED;
-				CommData.AlienAmbientArray[9].AnimFlags |= ANIM_DISABLED;
-				
-				CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 33);
-			} 
+			XFormColorMap(GetColorMapAddress(
+				SetAbsColorMapIndex(CommData.AlienColorMap, 1)
+				), ONE_SECOND / 2);
 
 			AlienTalkSegue ((COUNT)~0);
 		}
@@ -1642,21 +1644,9 @@ DoBluster (RESPONSE_REF R)
 		NPCPhrase (WERE_NOT_AFRAID);
 		AlienTalkSegue ((COUNT)~0);
 
-		if (!IS_HD) {
-			XFormColorMap (GetColorMapAddress (
-				SetAbsColorMapIndex (CommData.AlienColorMap, 2)
-				), ONE_SECOND / 2);
-		} else {
-			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[3].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[7].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[8].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[9].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 48);
-		}
+		XFormColorMap(GetColorMapAddress(
+			SetAbsColorMapIndex(CommData.AlienColorMap, 2)
+			), ONE_SECOND / 2);
 
 		SET_GAME_STATE (MELNORME_YACK_STACK2, 4);
 	}
@@ -1842,24 +1832,9 @@ DoFirstMeeting (RESPONSE_REF R)
 		NPCPhrase (TEST_RESULTS);
 		AlienTalkSegue ((COUNT)~0);
 		
-		if (!IS_HD) {
-			XFormColorMap (GetColorMapAddress (
-				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
-				), ONE_SECOND / 2);
-		} else {
-	
-			CommData.AlienAmbientArray[10].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[2].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[3].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[7].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[8].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[9].AnimFlags |= ANIM_DISABLED;
-			
-			CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 0);
-		}
+		XFormColorMap(GetColorMapAddress(
+			SetAbsColorMapIndex(CommData.AlienColorMap, 0)
+			), ONE_SECOND / 2);
 	}
 	else if (PLAYER_SAID (R, we_apologize))
 	{
@@ -1867,25 +1842,9 @@ DoFirstMeeting (RESPONSE_REF R)
 		NPCPhrase (APOLOGY_ACCEPTED);
 		AlienTalkSegue ((COUNT)~0);
 		
-		if (!IS_HD) {
-			XFormColorMap (GetColorMapAddress (
-				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
-				), ONE_SECOND / 2);
-		} else {
-			
-			CommData.AlienAmbientArray[10].AnimFlags &= ~ANIM_DISABLED;	
-			CommData.AlienAmbientArray[2].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[3].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[7].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[8].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[9].AnimFlags |= ANIM_DISABLED;
-			
-			CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 0);
-			
-		}
+		XFormColorMap(GetColorMapAddress(
+			SetAbsColorMapIndex(CommData.AlienColorMap, 0)
+			), ONE_SECOND / 2);
 	}
 
 	temp_func = stack_func[0];
@@ -1922,23 +1881,9 @@ DoMelnormeMiffed (RESPONSE_REF R)
 
 		AlienTalkSegue ((COUNT)~0);
 		
-		if (!IS_HD) {
-			XFormColorMap (GetColorMapAddress (
- 				SetAbsColorMapIndex (CommData.AlienColorMap, 2)
- 				), ONE_SECOND / 2);
-		} else {
-			
-			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[3].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[7].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[8].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[9].AnimFlags &= ~ANIM_DISABLED;
-			
-			CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 48);
-		}
+		XFormColorMap(GetColorMapAddress(
+			SetAbsColorMapIndex(CommData.AlienColorMap, 2)
+			), ONE_SECOND / 2);
 	}
 	else if (PLAYER_SAID (R, explore_relationship))
 	{
@@ -2010,23 +1955,9 @@ DoMelnormePissed (RESPONSE_REF R)
 
 		AlienTalkSegue ((COUNT)~0);
 		
-		if (!IS_HD) {
-			XFormColorMap (GetColorMapAddress (
- 				SetAbsColorMapIndex (CommData.AlienColorMap, 2)
- 				), ONE_SECOND / 2);
-		} else {
-			
-			CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[3].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
-			CommData.AlienAmbientArray[7].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[8].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienAmbientArray[9].AnimFlags &= ~ANIM_DISABLED;
-			
-			CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 48);
-		} 
+		XFormColorMap(GetColorMapAddress(
+			SetAbsColorMapIndex(CommData.AlienColorMap, 2)
+			), ONE_SECOND / 2);
 	}
 	else if (PLAYER_SAID (R, beg_forgiveness))
 	{
@@ -2081,23 +2012,9 @@ DoMelnormeHate (RESPONSE_REF R)
 
 	AlienTalkSegue ((COUNT)~0);
 	
-	if (!IS_HD) {
-		XFormColorMap (GetColorMapAddress (
- 			SetAbsColorMapIndex (CommData.AlienColorMap, 2)
- 			), ONE_SECOND / 2);
-	} else {
-		
-		CommData.AlienAmbientArray[2].AnimFlags |= ANIM_DISABLED;
-		CommData.AlienAmbientArray[3].AnimFlags |= ANIM_DISABLED;
-		CommData.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
-		CommData.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
-		CommData.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
-		CommData.AlienAmbientArray[7].AnimFlags &= ~ANIM_DISABLED;
-		CommData.AlienAmbientArray[8].AnimFlags &= ~ANIM_DISABLED;
-		CommData.AlienAmbientArray[9].AnimFlags &= ~ANIM_DISABLED;
-
-		CommData.AlienFrame = SetAbsFrameIndex (CommData.AlienFrame, 48);
-	} 
+	XFormColorMap(GetColorMapAddress(
+		SetAbsColorMapIndex(CommData.AlienColorMap, 2)
+		), ONE_SECOND / 2);
 
 	Response (well_if_thats_the_way_you_feel, ExitConversation);
 	Response (you_hate_us_so_we_go_away, ExitConversation);
@@ -2107,6 +2024,13 @@ static void
 Intro (void)
 {
 	prevMsgMode = SetStatusMessageMode (SMM_CREDITS);
+
+	if (IS_HD)
+	{
+		CommData.AlienAmbientArray[2].AnimFlags |= TRIGGER_FULL_REDRAW;
+		CommData.AlienAmbientArray[3].AnimFlags |= TRIGGER_FULL_REDRAW;
+		CommData.AlienAmbientArray[4].AnimFlags &= ~CIRCULAR_ANIM;
+	}
 
 	if (GET_GAME_STATE (MET_MELNORME) == 0)
 	{
@@ -2154,10 +2078,7 @@ post_melnorme_enc (void)
 LOCDATA*
 init_melnorme_comm (void)
 {
-	static LOCDATA melnorme_desc;
  	LOCDATA *retval;
-
-	melnorme_desc = RES_BOOL(melnorme_desc_orig, melnorme_desc_hd);
 
 	melnorme_desc.init_encounter_func = Intro;
 	melnorme_desc.post_encounter_func = post_melnorme_enc;
@@ -2167,21 +2088,10 @@ init_melnorme_comm (void)
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	melnorme_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	melnorme_desc.AlienTextBaseline.x =
+			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	melnorme_desc.AlienTextBaseline.y = 0;
-	melnorme_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
-
-	if (IS_HD) {
-		melnorme_desc.AlienAmbientArray[2].AnimFlags &= ~ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[3].AnimFlags &= ~ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[4].AnimFlags |= ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[5].AnimFlags |= ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[6].AnimFlags |= ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[7].AnimFlags |= ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[8].AnimFlags |= ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[9].AnimFlags |= ANIM_DISABLED;
-		melnorme_desc.AlienAmbientArray[10].AnimFlags |= ANIM_DISABLED;
-	}
+	melnorme_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	local_stack0 = 0;
 	local_stack1 = 0;

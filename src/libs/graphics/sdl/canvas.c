@@ -72,7 +72,7 @@ checkPrimitiveMode (SDL_Surface *surf, Color *color, DrawMode *mode)
 
 void
 TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
-		DrawMode mode, TFB_Canvas target)
+		DrawMode mode, TFB_Canvas target, BYTE thickness)
 {
 	SDL_Surface *dst = target;
 	SDL_PixelFormat *fmt = dst->format;
@@ -91,7 +91,7 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 	}
 
 	SDL_LockSurface (dst);
-	line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst);
+	line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst, thickness);
 	SDL_UnlockSurface (dst);
 }
 
@@ -131,6 +131,9 @@ TFB_DrawCanvas_Rect (RECT *rect, Color color, DrawMode mode, TFB_Canvas target)
 			return;
 		}
 
+		if (mode.kind >= DRAW_MULTIPLY)
+			mode.factor = FULLY_OPAQUE_ALPHA;
+
 		SDL_LockSurface (dst);
 		fillrect_prim (sr, sdlColor, plotFn, mode.factor, dst);
 		SDL_UnlockSurface (dst);
@@ -168,6 +171,9 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 					"unsupported draw mode (%d)", (int)mode.kind);
 			return;
 		}
+
+		if (mode.kind >= DRAW_MULTIPLY)
+			mode.factor = FULLY_OPAQUE_ALPHA;
 
 		if (!src_r)
 		{	// blit whole image; generate rect
@@ -343,7 +349,6 @@ TFB_DrawCanvas_Fill (SDL_Surface *src, Uint32 fillcolor, SDL_Surface *dst)
 	}
 	else if (TFB_GetColorKey (src, &srckey) == 0)
 	{	// colorkey-based fill
-
 		for (y = 0; y < height; ++y, dst_p += ddst, src_p += dsrc)
 		{
 			for (x = 0; x < width; ++x, ++src_p, ++dst_p)
@@ -355,9 +360,18 @@ TFB_DrawCanvas_Fill (SDL_Surface *src, Uint32 fillcolor, SDL_Surface *dst)
 		}
 	}
 	else
-	{
-		log_add (log_Warning, "TFB_DrawCanvas_Fill: Unsupported source"
-				"surface format\n");
+	{	// We don't know what is that - just draw the color dammit
+		// Added by Kruzen during HD filter optimization
+		// Before it couldn't draw some filled stamps because they didn't
+		// have any transparencies and supposedly nothing from existing
+		// before DrawFilledStamp usages cannot reach that
+		for (y = 0; y < height; ++y, dst_p += ddst, src_p += dsrc)
+		{
+			for (x = 0; x < width; ++x, ++src_p, ++dst_p)
+				*dst_p = fillcolor;
+		}
+		//log_add (log_Warning, "TFB_DrawCanvas_Fill: Unsupported source"
+		//		"surface format\n");
 	}
 
 	SDL_UnlockSurface(dst);
@@ -527,6 +541,13 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 
 	w = fontChar->extent.width;
 	h = fontChar->extent.height;
+
+	if (w < 0 || h < 0)
+	{
+		log_add(log_Warning, "ERROR: "
+			"TFB_DrawCanvas_FontChar have invalid dimensions");
+		return;
+	}
 
 	LockMutex (backing->mutex);
 
@@ -2132,7 +2153,8 @@ TFB_DrawCanvas_TransferIndexes (TFB_Canvas canvas, BOOLEAN write,
 	if (!TFB_DrawCanvas_IsPaletted (canvas) || fmt->BitsPerPixel != 8)
 	{
 		log_add (log_Warning, "ERROR: TFB_DrawCanvas_TransferIndexes "
-				"unimplemeted function: not an 8bpp indexed canvas", fmt->BitsPerPixel);
+				"unimplemeted function: not an 8bpp indexed canvas"
+				"Actual bits per pixel = %u", fmt->BitsPerPixel);
 		return FALSE;
 	}
 

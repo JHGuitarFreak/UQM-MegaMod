@@ -22,7 +22,10 @@
 #include "../../globdata.h"
 #include "../../nameref.h"
 #include "../../resinst.h"
+#include "../../state.h"
+#include "../../build.h"
 #include "libs/mathlib.h"
+#include "../../comm.h"
 
 static bool GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys,
@@ -61,10 +64,7 @@ GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
 	GeneratePlanets (solarSys);
 
 	if (!PrimeSeed)
-	{
 		solarSys->PlanetDesc[6].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
-		solarSys->PlanetDesc[6].alternate_colormap = NULL;
-	}
 
 	return true;
 }
@@ -74,6 +74,55 @@ GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
 	{
+		if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS)
+				& 1 << PROBE_ENCOUNTER))
+		{
+			COUNT sum, i;
+
+			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+			ReinitQueue (&GLOBAL (ip_group_q));
+			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+			if (GET_GAME_STATE (DESTRUCT_CODE_ON_SHIP))
+				sum = 2;
+			else
+				sum = 4;
+
+			for (i = 0; i < sum; ++i)
+				CloneShipFragment (SLYLANDRO_SHIP,
+					&GLOBAL (npc_built_ship_q), 0);
+
+			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
+			GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+			InitCommunication (SLYLANDRO_CONVERSATION);
+
+			if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+				return true;
+
+			{
+				BOOLEAN Survivors =
+						GetHeadLink (&GLOBAL(npc_built_ship_q)) != 0;
+
+				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+				ReinitQueue (&GLOBAL (npc_built_ship_q));
+				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
+				if (Survivors)
+					return true;
+
+				{
+					UWORD state;
+
+					state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+					state |= 1 << PROBE_ENCOUNTER;
+
+					SET_GAME_STATE (HM_ENCOUNTERS, state);
+				}
+
+				RepairSISBorder ();
+			}
+		}
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
 				CaptureDrawable (LoadGraphic (WRECK_MASK_PMAP_ANIM));

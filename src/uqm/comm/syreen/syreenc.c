@@ -25,7 +25,7 @@
 #include "uqm/setup.h"
 
 
-static LOCDATA syreen_desc_orig =
+static LOCDATA syreen_desc =
 {
 	SYREEN_CONVERSATION, /* AlienConv */
 	NULL, /* init_encounter_func */
@@ -41,8 +41,11 @@ static LOCDATA syreen_desc_orig =
 	VALIGN_TOP, /* AlienTextValign */
 	SYREEN_COLOR_MAP, /* AlienColorMap */
 	SYREEN_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SYREEN_CONVERSATION_PHRASES, /* PlayerPhrases */
 	15, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -192,191 +195,18 @@ static LOCDATA syreen_desc_orig =
 	NULL,
 };
 
-static LOCDATA syreen_desc_hd =
+static FILTER_DESC syreen_filters =
 {
-	SYREEN_CONVERSATION, /* AlienConv */
-	NULL, /* init_encounter_func */
-	NULL, /* post_encounter_func */
-	NULL, /* uninit_encounter_func */
-	SYREEN_PMAP_ANIM, /* AlienFrame */
-	SYREEN_FONT, /* AlienFont */
-	WHITE_COLOR_INIT, /* AlienTextFColor */
-	BLACK_COLOR_INIT, /* AlienTextBColor */
-	{0, 0}, /* AlienTextBaseline */
-	0, /* SIS_TEXT_WIDTH - 16, */ /* AlienTextWidth */
-	ALIGN_CENTER, /* AlienTextAlign */
-	VALIGN_TOP, /* AlienTextValign */
-	SYREEN_COLOR_MAP, /* AlienColorMap */
-	SYREEN_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
-	SYREEN_CONVERSATION_PHRASES, /* PlayerPhrases */
-	17, /* NumAnimations */
-	{ /* AlienAmbientArray (ambient animations) */
+	1, /* Number of filters */
+	{ /* Filter array */
 		{
-			5, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
+			0, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_ALPHA, /* DrawKind*/ //maybe try multiply?
+			SWITCH_OFF_ANIMS, /* Flags */
 		},
-		{
-			7, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			9, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			11, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			13, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			15, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 12), /* BlockMask */
-		},
-		{
-			17, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			19, /* StartIndex */
-			2, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			(1 << 13),
-		},
-		{
-			21, /* StartIndex */
-			6, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			27, /* StartIndex */
-			4, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND * 10, ONE_SECOND * 3, /* RestartRate */
-			(1 << 14), /* BlockMask */
-		},
-		{
-			31, /* StartIndex */
-			6, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			37, /* StartIndex */
-			4, /* NumFrames */
-			RANDOM_ANIM, /* AnimFlags */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND / 15, ONE_SECOND / 15, /* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			41, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM, /* AnimFlags */
-			ONE_SECOND / 10, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND * 10, ONE_SECOND * 3, /* RestartRate */
-			(1 << 5), /* BlockMask */
-		},
-		{
-			44, /* StartIndex */
-			4, /* NumFrames */
-			YOYO_ANIM
-					| WAIT_TALKING, /* AnimFlags */
-			ONE_SECOND / 6, 0, /* FrameRate */
-			ONE_SECOND * 3, ONE_SECOND, /* RestartRate */
-			(1 << 7) | (1 << 14), /* BlockMask */
-		},
-		{
-			48, /* StartIndex */
-			3, /* NumFrames */
-			YOYO_ANIM
-					| WAIT_TALKING, /* AnimFlags */
-			ONE_SECOND * 2 / 15, ONE_SECOND / 15, /* FrameRate */
-			ONE_SECOND * 10, ONE_SECOND,/* RestartRate */
-			(1 << 9) | (1 << 13), /* BlockMask */
-		},
-		{
-			51, /* StartIndex */
-			13, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM 
-				| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 15, 0, /* FrameRate */
-			0, 0,/* RestartRate */
-			0, /* BlockMask */
-		},
-		{
-			64, /* StartIndex */
-			13, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM
-				| WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 15, 0, /* FrameRate */
-			0, 0,/* RestartRate */
-			(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) |
-			(1 << 4) | (1 << 5) | (1 << 6) | (1 << 7) |
-			(1 << 8) | (1 << 10) | (1 << 11), /* BlockMask */
-		},
-	},
-	{ /* AlienTransitionDesc */
-		0, /* StartIndex */
-		0, /* NumFrames */
-		0, /* AnimFlags */
-		0, 0, /* FrameRate */
-		0, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	{ /* AlienTalkDesc */
-		1, /* StartIndex */
-		4, /* NumFrames */
-		0, /* AnimFlags */
-		ONE_SECOND / 15, 0, /* FrameRate */
-		ONE_SECOND / 12, 0, /* RestartRate */
-		0, /* BlockMask */
-	},
-	NULL, /* AlienNumberSpeech - none */
-	/* Filler for loaded resources */
-	NULL, NULL, NULL,
-	NULL,
-	NULL,
+	}
 };
 
 static void
@@ -402,12 +232,9 @@ FriendlyExit (RESPONSE_REF R)
 	{
 		if (PLAYER_SAID (R, hands_off))
 		{
-			SetCustomBaseLine (3,
-					MAKE_POINT (RES_SCALE(108), RES_SCALE(81)), ALIGN_CENTER);
-			SetCustomBaseLine (4,
-					MAKE_POINT (RES_SCALE(80), RES_SCALE(49)), ALIGN_CENTER);
-			SetCustomBaseLine (5,
-					MAKE_POINT (RES_SCALE(121), RES_SCALE(27)), ALIGN_CENTER);
+			SetCustomBaseLine (3, MAKE_POINT (108, 81), ALIGN_CENTER);
+			SetCustomBaseLine (4, MAKE_POINT ( 80, 49), ALIGN_CENTER);
+			SetCustomBaseLine (5, MAKE_POINT (121, 27), ALIGN_CENTER);
 
 			NPCPhrase (OK_WONT_USE_HANDS);
 		}
@@ -426,7 +253,6 @@ FriendlyExit (RESPONSE_REF R)
 
 		CommData.AlienTextFColor = WHITE_COLOR;
 		FadeScreen (FadeAllToBlack, 0);
-		BlockTalkingAnim (1, 2); // Several hours later block (New)	
 
 		DrawSISFrame ();
 		DrawSISMessage (NULL);
@@ -434,31 +260,19 @@ FriendlyExit (RESPONSE_REF R)
 		SetCommDarkMode (FALSE);
 		RedrawSISComWindow ();
 
-		if (!IS_HD) {
-			XFormColorMap (GetColorMapAddress (
- 				SetAbsColorMapIndex (CommData.AlienColorMap, 0)
- 				), ONE_SECOND / 2);
-			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
-			AlienTalkSegue ((COUNT)~0);
-		} 
-		else 
+		CommData.AlienColorMap =
+				SetAbsColorMapIndex (CommData.AlienColorMap, 0);
+
+		BlockTalkingAnim (1, 2); // Several hours later block (New)
+
+		if (IS_HD)
 		{
-			COUNT i = 0;
-			COUNT limit = CommData.NumAnimations;
-			
-			CommData.AlienAmbientArray[limit-1].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienFrame = SetAbsFrameIndex
-				(CommData.AlienFrame, 0);
-			
-			CommData.AlienTalkDesc.AnimFlags &= ~PAUSE_TALKING;
-			FadeScreen (FadeAllToColor, ONE_SECOND / 2);
-			AlienTalkSegue ((COUNT)~0);
-			
-			for (i = 0; i < limit; i++)
-				CommData.AlienAmbientArray[i].AnimFlags &= ~ANIM_DISABLED;
-			
-			CommData.AlienAmbientArray[limit-2].AnimFlags |= ANIM_DISABLED;
+			SwitchSequences (TRUE);
+			EnableTalkingAnim (TRUE);
+			DisengageFilters ();
 		}
+		FadeScreen (FadeAllToColor, ONE_SECOND / 2);
+		AlienTalkSegue ((COUNT)~0);
 
 		SET_GAME_STATE (PLAYER_HAD_SEX, 1);
 		SET_GAME_STATE (PLAYER_HAVING_SEX, 0);
@@ -470,29 +284,20 @@ Sex (RESPONSE_REF R)
 {
 	if (PLAYER_SAID (R, in_the_spirit))
 	{
-		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE(98), RES_SCALE(21)), ALIGN_CENTER);
-		SetCustomBaseLine (4,
-				MAKE_POINT (RES_SCALE(156), RES_SCALE(51)), ALIGN_CENTER);
-		SetCustomBaseLine (5,
-				MAKE_POINT (RES_SCALE(169), RES_SCALE(79)), ALIGN_CENTER);
+		SetCustomBaseLine (3, MAKE_POINT ( 98, 21), ALIGN_CENTER);
+		SetCustomBaseLine (4, MAKE_POINT (156, 51), ALIGN_CENTER);
+		SetCustomBaseLine (5, MAKE_POINT (169, 79), ALIGN_CENTER);
 
 		NPCPhrase (OK_SPIRIT);
 	}
 	else if (PLAYER_SAID (R, what_in_mind))
 	{
-		SetCustomBaseLine (0,
-				MAKE_POINT (RES_SCALE(3), RES_SCALE(0)), ALIGN_LEFT);
-		SetCustomBaseLine (1,
-				MAKE_POINT (RES_SCALE(3), RES_SCALE(0)), ALIGN_LEFT);
-		SetCustomBaseLine (2,
-				MAKE_POINT (RES_SCALE(3), RES_SCALE(55)), ALIGN_LEFT);
-		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE(125), RES_SCALE(67)), ALIGN_CENTER);
-		SetCustomBaseLine (4,
-				MAKE_POINT (RES_SCALE(240), RES_SCALE(10)), ALIGN_RIGHT);
-		SetCustomBaseLine (5,
-				MAKE_POINT (RES_SCALE(240), RES_SCALE(10)), ALIGN_RIGHT);
+		SetCustomBaseLine (0, MAKE_POINT (  3,  0), ALIGN_LEFT);
+		SetCustomBaseLine (1, MAKE_POINT (  3,  0), ALIGN_LEFT);
+		SetCustomBaseLine (2, MAKE_POINT (  3, 55), ALIGN_LEFT);
+		SetCustomBaseLine (3, MAKE_POINT (125, 67), ALIGN_CENTER);
+		SetCustomBaseLine (4, MAKE_POINT (240, 10), ALIGN_RIGHT);
+		SetCustomBaseLine (5, MAKE_POINT (240, 10), ALIGN_RIGHT);
 
 		NPCPhrase (SOMETHING_LIKE_THIS);
 	}
@@ -551,37 +356,29 @@ Foreplay (RESPONSE_REF R)
 		CommData.AlienTextFColor = BUILD_COLOR_RGBA (85, 255, 255, 0);
 		SetCommDarkMode (TRUE);
 
-		if (!IS_HD) {
-			XFormColorMap (GetColorMapAddress (
-					SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+		XFormColorMap (GetColorMapAddress (
+				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
 					), ONE_SECOND);
-		} 
-		else 
-		{
-			COUNT i = 0;
-			COUNT limit = CommData.NumAnimations - 2;
-			
-			for (i = 0; i < limit; i++)
-				CommData.AlienAmbientArray[i].AnimFlags |= ANIM_DISABLED;
-				
-			CommData.AlienAmbientArray[limit].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienFrame = SetAbsFrameIndex 
-				(CommData.AlienFrame, 63);
-				
-			CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
-		}
+
+		if (IS_HD)
+			EngageFilters (&syreen_filters);
+		
+		/*if (!EXTENDED)
+			{
+				CommData.AlienFrame = SetAbsFrameIndex
+					(CommData.AlienFrame, 63);
+				CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+				RunOneTimeSequence(16, 0);
+		}*/ // For future ideas maybe
 	
-		AlienTalkSegue ((COUNT)~0);			
+		AlienTalkSegue ((COUNT)~0);
 		SET_GAME_STATE (PLAYER_HAVING_SEX, 1);
 	}
 	else if (PLAYER_SAID (R, why_lights_off))
 	{
-		SetCustomBaseLine (1,
-				MAKE_POINT (RES_SCALE(60), RES_SCALE(41)), ALIGN_CENTER);
-		SetCustomBaseLine (2,
-				MAKE_POINT (RES_SCALE(180), RES_SCALE(41)), ALIGN_CENTER);
-		SetCustomBaseLine (3,
-				MAKE_POINT (RES_SCALE(120), RES_SCALE(81)), ALIGN_CENTER);
+		SetCustomBaseLine (1, MAKE_POINT ( 60, 41), ALIGN_CENTER);
+		SetCustomBaseLine (2, MAKE_POINT (180, 41), ALIGN_CENTER);
+		SetCustomBaseLine (3, MAKE_POINT (120, 81), ALIGN_CENTER);
 
 		NPCPhrase (LIGHTS_OFF_BECAUSE);
 
@@ -977,8 +774,6 @@ InitialSyreen (RESPONSE_REF R)
 static void
 PlanAmbush (RESPONSE_REF R)
 {
-	HFLEETINFO hSyreen = GetStarShipFromIndex(&GLOBAL(avail_race_q), SYREEN_SHIP);
-	FLEET_INFO *SyreenPtr = LockFleetInfo(&GLOBAL(avail_race_q), hSyreen);
 	(void) R;  // ignored
 	NPCPhrase (OK_FOUND_VAULT);
 
@@ -988,18 +783,25 @@ PlanAmbush (RESPONSE_REF R)
 
 	// Send ambush fleet to Organon.  EncounterPercent for the
 	// Syreen is 0, so this is purely decorative.
-	if (EXTENDED) 
+	if (EXTENDED)
 	{
+		HFLEETINFO hSyreen =
+				GetStarShipFromIndex (&GLOBAL (avail_race_q), SYREEN_SHIP);
+		FLEET_INFO *SyreenPtr =
+				LockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
+
 		if (SyreenPtr)
 		{
 			SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
 			SyreenPtr->loc.x = 4125;
 			SyreenPtr->loc.y = 3770;
-			StartSphereTracking(SYREEN_SHIP);
-			SetRaceDest(SYREEN_SHIP, 6858, 577, 15, (BYTE)~0);
+			StartSphereTracking (SYREEN_SHIP);
+			SetRaceDest (SYREEN_SHIP, 6858, 577, 15, (BYTE)~0);
 		}
-		UnlockFleetInfo(&GLOBAL(avail_race_q), hSyreen);
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
 	}
+
 
 	Response (whats_my_reward, Foreplay);
 	Response (bye_after_vault, FriendlyExit);
@@ -1026,6 +828,9 @@ static void
 Intro (void)
 {
 	BYTE NumVisits;
+
+	if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
+		SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{
@@ -1158,10 +963,7 @@ post_syreen_enc (void)
 LOCDATA*
 init_syreen_comm (void)
 {
-	static LOCDATA syreen_desc;
  	LOCDATA *retval;
-	
-	syreen_desc = RES_BOOL(syreen_desc_orig, syreen_desc_hd);
 
 	syreen_desc.init_encounter_func = Intro;
 	syreen_desc.post_encounter_func = post_syreen_enc;
@@ -1173,7 +975,7 @@ init_syreen_comm (void)
 
 	syreen_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	syreen_desc.AlienTextBaseline.y = 0;
-	syreen_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	syreen_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_peace);
 	retval = &syreen_desc;

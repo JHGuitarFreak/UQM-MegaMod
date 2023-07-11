@@ -19,6 +19,7 @@
 #include "port.h"
 #include "sdl_common.h"
 #include "primitives.h"
+#include "uqm/units.h"
 
 
 // Pixel drawing routines
@@ -188,6 +189,35 @@ alpha_blend(Uint8 dc, Uint8 sc, int alpha)
 	return (((sc - dc) * alpha) >> 8) + dc;
 }
 
+static inline Uint8
+multiply_blend (Uint8 dc, Uint8 sc, int alpha)
+{	// Kruzen: custom blend for multiply
+	(void)alpha;
+
+	return (sc * dc) >> 8;
+}
+
+static inline Uint8
+overlay_blend (Uint8 dc, Uint8 sc)
+{	// Custom "overlay" blend mode
+	// Funky math to compensate for slow division by 127.5
+	// Original formula copied from Wikipedia:
+	// https://en.wikipedia.org/wiki/Blend_modes#Overlay
+
+	if (dc < 128)
+		return ((dc * sc) >> 7);
+	else
+		return clip_channel (((dc + sc) << 1) - 255 - ((dc * sc) >> 7));
+}
+
+static inline Uint8
+screen_blend (Uint8 dc, Uint8 sc, int alpha)
+{	// Custom "screen" blend mode
+	(void)alpha;
+
+	return (255 - (((255 - sc) * (255 - dc)) >> 8));
+}
+
 // Assumes 8 bits/channel, a safe assumption for 32bpp surfaces
 #define UNPACK_PIXEL_32(p, fmt, r, g, b) \
 	do { \
@@ -266,6 +296,98 @@ renderpixel_alpha(SDL_Surface *surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_32(fmt, sr, sg, sb);
 }
 
+static void
+renderpixel_multiply (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	sr = multiply_blend (sr, r, factor);
+	sg = multiply_blend (sg, g, factor);
+	sb = multiply_blend (sb, b, factor);
+	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+}
+
+static void
+renderpixel_overlay (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	(void)factor;
+
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	sr = overlay_blend (sr, r);
+	sg = overlay_blend (sg, g);
+	sb = overlay_blend (sb, b);
+	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+}
+
+static void
+renderpixel_screen (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	sr = screen_blend (sr, r, factor);
+	sg = screen_blend (sg, g, factor);
+	sb = screen_blend (sb, b, factor);
+	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+}
+
+static void
+renderpixel_grayscale(SDL_Surface* surface, int x, int y, Uint32 pixel,
+	int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 avr, min, max;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	(void)factor;
+
+	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+
+	// To satisfy compiler warnings
+	(void)g;
+	(void)b;
+
+	max = sg > sb ? sg : sb;
+	max = max > sr ? max : sr;
+	min = sg > sb ? sb : sg;
+	min = min > sr ? sr : min;
+	avr = overlay_blend ((max + min) >> 1, r);
+	*p = PACK_PIXEL_32(fmt, avr, avr, avr);
+}
+
 RenderPixelFn
 renderpixel_for(SDL_Surface *surface, RenderKind kind)
 {
@@ -287,6 +409,14 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_additive;
 	case renderAlpha:
 		return &renderpixel_alpha;
+	case renderMultiply:
+		return &renderpixel_multiply;
+	case renderOverlay:
+		return &renderpixel_overlay;
+	case renderScreen:
+		return &renderpixel_screen;
+	case renderGrayscale:
+		return &renderpixel_grayscale;
 	}
 	// should not ever get here
 	return NULL;
@@ -297,8 +427,8 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
  * 3 Sep 85; taken from Graphics Gems I */
 
 void
-line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
-		int factor, SDL_Surface *dst)
+line_prim (int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
+		int factor, SDL_Surface *dst, BYTE thickness)
 {
 	int d, x, y, ax, ay, sx, sy, dx, dy;
 	SDL_Rect clip_r;
@@ -306,6 +436,14 @@ line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	SDL_GetClipRect (dst, &clip_r);
 	if (!clip_line (&x1, &y1, &x2, &y2, &clip_r))
 		return; // line is completely outside clipping rectangle
+
+	thickness = !thickness ? 1 : thickness;
+
+	if (thickness > 1)
+	{
+		clip_r.w = thickness;
+		clip_r.h = thickness;
+	}
 
 	dx = x2-x1;
 	ax = ((dx < 0) ? -dx : dx) << 1;
@@ -319,7 +457,15 @@ line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	if (ax > ay) {
 		d = ay - (ax >> 1);
 		for (;;) {
-			(*plot)(dst, x, y, color, factor);
+			if (thickness > 1)
+			{
+				clip_r.x = x;
+				clip_r.y = y;
+
+				fillrect_prim (clip_r, color, plot, factor, dst);
+			}
+			else
+				(*plot)(dst, x, y, color, factor);
 			if (x == x2)
 				return;
 			if (d >= 0) {
@@ -332,7 +478,15 @@ line_prim(int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	} else {
 		d = ax - (ay >> 1);
 		for (;;) {
-			(*plot)(dst, x, y, color, factor);
+			if (thickness > 1)
+			{
+				clip_r.x = x;
+				clip_r.y = y;
+
+				fillrect_prim (clip_r, color, plot, factor, dst);
+			}
+			else
+				(*plot)(dst, x, y, color, factor);
 			if (y == y2)
 				return;
 			if (d >= 0) {

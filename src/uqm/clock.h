@@ -29,6 +29,12 @@ extern "C" {
 
 #define START_YEAR 2155
 
+	// the running of the game-clock is based on game framerates
+	// *not* on the system (or translated) timer
+	// and is hard-coded to the original 24 fps
+#define CLOCK_BASE_FRAMERATE 24
+#define CLOCK_FRAME_RATE  (ONE_SECOND / CLOCK_BASE_FRAMERATE)
+
 typedef struct
 {
 	BYTE day_index, month_index;

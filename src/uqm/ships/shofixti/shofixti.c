@@ -40,8 +40,8 @@
 
 // Dart Gun
 #define WEAPON_ENERGY_COST 1
-#define SHOFIXTI_OFFSET RES_BOOL(15, 51)
-#define MISSILE_OFFSET RES_SCALE(1)
+#define SHOFIXTI_OFFSET RES_BOOL (15, 51)
+#define MISSILE_OFFSET RES_SCALE (1)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (24)
 #define MISSILE_LIFE 10
 #define MISSILE_HITS 1
@@ -50,14 +50,14 @@
 // Glory Device
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_SAUCE 180
-#define DESTRUCT_RANGE RES_SCALE(SPECIAL_SAUCE)
+#define DESTRUCT_RANGE RES_SCALE (SPECIAL_SAUCE)
 #define MAX_DESTRUCTION (SPECIAL_SAUCE / 10)
 
 // Full game: Tanaka/Katana's damaged ships
 #define NUM_LIMPETS 3
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC shofixti_desc =
 {
@@ -109,9 +109,10 @@ static RACE_DESC shofixti_desc =
 		},
 		{
 			SHOFIXTI_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
-	        SHOFIXTI_VICTORY_SONG,
+		SHOFIXTI_VICTORY_SONG,
 		SHOFIXTI_SHIP_SOUNDS,
 		{ NULL, NULL, NULL },
 		{ NULL, NULL, NULL },
@@ -291,7 +292,7 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 		delta_y = WORLD_TO_DISPLAY (delta_y);
 		dist = delta_x * delta_x + delta_y * delta_y;
 		if (delta_x <= DESTRUCT_RANGE && delta_y <= DESTRUCT_RANGE
-				&& dist <= DESTRUCT_RANGE * DESTRUCT_RANGE)
+				&& (int)dist <= DESTRUCT_RANGE * DESTRUCT_RANGE)
 		{
 			int destruction = 1 + MAX_DESTRUCTION *
 					(DESTRUCT_RANGE - square_root (dist)) / DESTRUCT_RANGE;
@@ -299,8 +300,8 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 			// XXX: Why not simply call do_damage()?
 			if (ObjPtr->state_flags & PLAYER_SHIP)
 			{
-				if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
-					|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+				if (!(antiCheat (ElementPtr, TRUE, OPTVAL_INF_HEALTH)
+						|| antiCheat (ElementPtr, TRUE, OPTVAL_FULL_GOD)))
 				{
 					if (!DeltaCrew (ObjPtr, -destruction))
 						ObjPtr->life_span = 0;
@@ -395,6 +396,7 @@ self_destruct (ELEMENT *ElementPtr)
 
 	// Must kill off the remaining crew ourselves
 	DeltaCrew (ElementPtr, -(int)ElementPtr->crew_level);
+	ZeroVelocityComponents (&ElementPtr->velocity);
 
 	ElementPtr->state_flags |= NONSOLID;
 	ElementPtr->life_span = 0;
@@ -425,10 +427,7 @@ shofixti_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		lpWeaponEvalDesc = &ObjectsOfConcern[ENEMY_WEAPON_INDEX];
 		lpShipEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
 		if (StarShipPtr->RaceDescPtr->ship_data.special[0]
-				&& (GetFrameCount (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special)
-				- GetFrameIndex (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special) > 5
+				&& (StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset < 4
 				|| (lpShipEvalDesc->ObjectPtr != NULL
 				&& lpShipEvalDesc->which_turn <= 4)
 				|| (lpWeaponEvalDesc->ObjectPtr != NULL
@@ -444,22 +443,32 @@ shofixti_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 }
 
 static void
-shofixti_postprocess (ELEMENT *ElementPtr)
+shofixti_preprocess (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	if ((StarShipPtr->cur_status_flags
-			^ StarShipPtr->old_status_flags) & SPECIAL)
+			^ StarShipPtr->old_status_flags) & SPECIAL &&
+			!(StarShipPtr->cur_status_flags & SPECIAL))
 	{
-		StarShipPtr->RaceDescPtr->ship_data.captain_control.special =
-				IncFrameIndex (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special);
-		if (GetFrameCount (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special)
-				- GetFrameIndex (StarShipPtr->RaceDescPtr->ship_data.
-				captain_control.special) == 3)
-			self_destruct (ElementPtr);
+		if (!(StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset & 1))
+			StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset++;
+		else
+			StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset += 2;
+	}
+}
+
+static void
+shofixti_postprocess (ELEMENT *ElementPtr)
+{
+	STARSHIP *StarShipPtr;
+
+	GetElementStarShip (ElementPtr, &StarShipPtr);
+	if (StarShipPtr->RaceDescPtr->ship_data.captain_control.special_offset == 5)
+	{
+		self_destruct (ElementPtr);
+		StarShipPtr->cur_status_flags |= SHOFIXTI_EXPLOSION;
 	}
 }
 
@@ -470,13 +479,10 @@ init_shofixti (void)
 	// The caller of this func will copy the struct
 	static RACE_DESC new_shofixti_desc;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		shofixti_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		shofixti_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		shofixti_desc.cyborg_control.WeaponRange =
-				MISSILE_SPEED_HD * MISSILE_LIFE;
+		shofixti_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		shofixti_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
 	else
 	{
@@ -486,6 +492,7 @@ init_shofixti (void)
 				MISSILE_SPEED * MISSILE_LIFE;
 	}
 
+	shofixti_desc.preprocess_func = shofixti_preprocess;
 	shofixti_desc.postprocess_func = shofixti_postprocess;
 	shofixti_desc.init_weapon_func = initialize_standard_missile;
 	shofixti_desc.cyborg_control.intelligence_func = shofixti_intelligence;
@@ -522,7 +529,7 @@ init_shofixti (void)
 					--new_shofixti_desc.characteristics.thrust_wait;
 
 				/* This should be the same as MIN_THRUST_INCREMENT in vux.c */
-#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (RES_SCALE(1))
+#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (RES_SCALE (1))
 
 				if (new_shofixti_desc.characteristics.thrust_increment <=
 					MIN_THRUST_INCREMENT)
@@ -536,7 +543,7 @@ init_shofixti (void)
 
 					num_thrusts = new_shofixti_desc.characteristics.max_thrust /
 						new_shofixti_desc.characteristics.thrust_increment;
-					new_shofixti_desc.characteristics.thrust_increment -= RES_SCALE(1); 
+					new_shofixti_desc.characteristics.thrust_increment -= RES_SCALE (1); 
 					new_shofixti_desc.characteristics.max_thrust =
 						new_shofixti_desc.characteristics.thrust_increment *
 						num_thrusts;

@@ -34,10 +34,10 @@ extern FRAME Screen;
 extern FRAME ActivityFrame;
 extern FRAME StatusFrame;
 extern FRAME SubmenuFrame;
-extern FRAME NebulaeFrame;
 extern FRAME hyperspacesuns;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
+extern FRAME visitedStarsFrame;
 extern FRAME FontGradFrame;
 extern FRAME BorderFrame;
 extern FRAME HDBorderFrame;
@@ -77,6 +77,7 @@ extern BOOLEAN DeathByMelee;
 extern BOOLEAN DeathBySuicide;
 extern BOOLEAN SpaceMusicOK;
 extern BOOLEAN oldPlanetsPresent;
+extern BOOLEAN classicPackPresent;
 
 extern ACTIVITY LastActivity;
 

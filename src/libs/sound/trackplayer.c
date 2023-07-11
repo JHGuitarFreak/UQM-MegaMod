@@ -25,7 +25,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <memory.h>
-
+// for GLOBAL (glob_flags) & READ_SPEED_MASK
+#include "uqm/globdata.h"
+// for usingSpeech bool
+#include "uqm/setup.h"
 
 static int track_count;       // total number of tracks
 static int no_page_break;     // set when combining several tracks into one
@@ -343,9 +346,20 @@ SplitSubPages (UNICODE *text, UNICODE *pages[], sint32 timestamp[], int size)
 		pages[page][lead_ellips + pos] = '\0'; // string term
 		if (aft_ellips)
 			strcpy (pages[page] + lead_ellips + pos, "...");
-		timestamp[page] = pos * TEXT_SPEED;
-		if (timestamp[page] < 1000)
-			timestamp[page] = 1000;
+
+		if (optSmoothScroll == OPT_PC && !usingSpeech
+				&& (LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE))
+		{
+			timestamp[page] =
+					RecalculateDelay (lead_ellips + pos + aft_ellips, TRUE);
+		}
+		else
+		{
+			timestamp[page] = pos * TEXT_SPEED;
+
+			if (timestamp[page] < 1000)
+				timestamp[page] = 1000;
+		}
 		lead_ellips = aft_ellips ? 3 : 0;
 		text += pos;
 		// Skip any EOL
@@ -874,7 +888,7 @@ GetTrackSubtitle (void)
 }
 
 COUNT
-GetSubtitleNumber (UNICODE *sub)
+GetSubtitleNumber (const UNICODE *sub)
 {
 	COUNT i = 0;
 	TFB_SoundChunk *now;
@@ -885,7 +899,7 @@ GetSubtitleNumber (UNICODE *sub)
 	if (sub == NULL)// Nothing playing - no subs
 		return -1;
 
-	now = chunks_head;	
+	now = chunks_head;
 
 	while (now->text != sub && now->next != NULL)
 	{
@@ -919,4 +933,27 @@ GetSubtitleNumberByTrack (COUNT track)
 		i++;
 
 	return i;
+}
+
+DWORD
+RecalculateDelay (DWORD numChars, BOOLEAN talk)
+{
+	DWORD silence_length;
+	DWORD talk_length = ONE_SECOND * numChars / MODERATE_SPEED;
+	BYTE read_speed = speed_array[GLOBAL (glob_flags) & READ_SPEED_MASK];
+
+	if (read_speed)
+	{
+		silence_length = ONE_SECOND * (numChars + MODERATE_SPEED) / read_speed;
+		if (silence_length < talk_length)
+			talk_length = silence_length;
+		silence_length -= talk_length;
+	}
+	else
+		silence_length = 0;
+
+	if (talk)
+		return talk_length;
+	else
+		return silence_length;
 }

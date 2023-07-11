@@ -20,6 +20,7 @@
 #include "scalers.h"
 #include "libs/log.h"
 #include "../../../uqm/units.h"
+#include "png2sdl.h"
 
 #if SDL_MAJOR_VERSION == 1
 
@@ -520,6 +521,21 @@ Scale_PerfTest (void)
 
 	SDL_UnlockSurface (scaled_display);
 	SDL_UnlockSurface (SDL_Screen);
+}
+
+BOOLEAN
+TFB_SDL_ScreenShot (const char *path)
+{
+	SDL_Surface *tmp = SDL_PNGFormatAlpha (SDL_Screen);
+	BOOLEAN successful = FALSE;
+
+	SDL_LockSurface (tmp);
+	if (SDL_SavePNG (tmp, path) == 0)
+		successful = TRUE;
+	SDL_UnlockSurface (tmp);
+	SDL_FreeSurface (tmp);
+
+	return successful;
 }
 
 #endif

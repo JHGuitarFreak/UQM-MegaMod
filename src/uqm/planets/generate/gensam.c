@@ -41,6 +41,10 @@ static bool GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *planet);
 static bool GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
+static COUNT GenerateSaMatra_generateEnergy (const SOLARSYS_STATE *solarSys,
+	const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info);
+static bool GenerateSaMatra_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+	COUNT whichNode);
 
 static void BuildUrquanGuard (SOLARSYS_STATE *solarSys);
 
@@ -54,10 +58,10 @@ const GenerateFunctions generateSaMatraFunctions = {
 	/* .generateName     = */ GenerateDefault_generateName,
 	/* .generateOrbital  = */ GenerateSaMatra_generateOrbital,
 	/* .generateMinerals = */ GenerateDefault_generateMinerals,
-	/* .generateEnergy   = */ GenerateDefault_generateEnergy,
+	/* .generateEnergy   = */ GenerateSaMatra_generateEnergy,
 	/* .generateLife     = */ GenerateDefault_generateLife,
 	/* .pickupMinerals   = */ GenerateDefault_pickupMinerals,
-	/* .pickupEnergy     = */ GenerateDefault_pickupEnergy,
+	/* .pickupEnergy     = */ GenerateSaMatra_pickupEnergy,
 	/* .pickupLife       = */ GenerateDefault_pickupLife,
 };
 
@@ -157,8 +161,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		if (CurStarDescPtr->Index >= SAMATRA_DEFINED)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 5) + 5);
-		else if (EXTENDED)
-			solarSys->SunDesc[0].NumPlanets = 9;
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -186,22 +188,27 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 	
 	if (EXTENDED && CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
 	{
+		int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+
 		solarSys->SunDesc[0].PlanetByte = 0;
 		solarSys->SunDesc[0].MoonByte = 0;
 
-		if (!PrimeSeed)
-			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random(SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+				planetArray[RandomContext_Random (SysGenRNG) % 2];
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index | PLANET_SHIELDED;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
+		if (!(GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ARILOU_SHIP) == DEAD_GUY))
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index | PLANET_SHIELDED;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-			solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets =
+					(RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			solarSys->SunDesc[0].MoonByte =
+					(RandomContext_Random(SysGenRNG)
+					% solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 		}
+		CheckForHabitable (solarSys);
 	}
 
 	if (EXTENDED
@@ -215,7 +222,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->SunDesc[0].PlanetByte = p;
 		solarSys->SunDesc[0].MoonByte = 0;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 		if (!PrimeSeed)
@@ -256,12 +262,11 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		}
 
 
-		if (EXTENDED && (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED 
+		if (EXTENDED && (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
 				|| CurStarDescPtr->Index == URQUAN_DEFINED 
 				|| CurStarDescPtr->Index == KOHRAH_DEFINED)) 
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 		}
 		
 	}
@@ -327,6 +332,10 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				}
 				else
 				{
+					if (DIF_HARD && (GET_GAME_STATE(HM_ENCOUNTERS)
+						& 1 << NO_HELP_FROM_PKUNK))
+						return true;
+
 					EncounterGroup = 0;
 					EncounterRace = -1;
 					GLOBAL (CurrentActivity) = IN_LAST_BATTLE | START_ENCOUNTER;
@@ -339,54 +348,78 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			return true;
 		}
 
-		if (EXTENDED && CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
+		if (EXTENDED)
 		{
-			/* Starbase */
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+			UWORD Index = CurStarDescPtr->Index;
 
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				CaptureStringTable (
-					LoadStringTable (DESTROYED_BASE_STRTAB));
+			if (Index == URQUAN_DEFINED
+				|| Index == KOHRAH_DEFINED
+				|| Index == DESTROYED_STARBASE_DEFINED)
+			{
 
-			// use alternate text if the player
-			// hasn't freed the Earth starbase yet
-			if (!GET_GAME_STATE (STARBASE_AVAILABLE))
-				solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
-					solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
+				/* Starbase */
+				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 
+				if (Index == DESTROYED_STARBASE_DEFINED)
+				{
+					solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						CaptureStringTable (
+							LoadStringTable (DESTROYED_BASE_STRTAB));
 
-			DoDiscoveryReport (MenuSounds);
+					// use alternate text if the player
+					// hasn't freed the Earth starbase yet
+					if (!GET_GAME_STATE (STARBASE_AVAILABLE))
+						solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						SetRelStringTableIndex (
+							solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
+				}
+				else
+				{
+					solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						SetRelStringTableIndex (
+							CaptureStringTable (
+								LoadStringTable (URQUAN_BASE_STRTAB)),
+								Index == KOHRAH_DEFINED);
+				}
 
-			DestroyStringTable (ReleaseStringTable (
-				solarSys->SysInfo.PlanetInfo.DiscoveryString));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
-			return true;
+				DoDiscoveryReport (MenuSounds);
+
+				DestroyStringTable (ReleaseStringTable (
+					solarSys->SysInfo.PlanetInfo.DiscoveryString));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
+				FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
+
+				return true;
+			}
+		}
+	}
+	else if (EXTENDED && CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
+			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+				CaptureDrawable (LoadGraphic(RUINS_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (LoadStringTable(RUINS_STRTAB));
+
+		GenerateDefault_generateOrbital (solarSys, world);
+
+		solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 202 / 100;
+		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 22;
+		solarSys->SysInfo.PlanetInfo.Weather = 1;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+		if (!PrimeSeed)
+		{
+			solarSys->SysInfo.PlanetInfo.PlanetDensity = 97;
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 78;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 75;
+			solarSys->SysInfo.PlanetInfo.RotationPeriod = 212;
+			solarSys->SysInfo.PlanetInfo.AxialTilt = -6;
+			solarSys->SysInfo.PlanetInfo.LifeChance = 810;
 		}
 
-		if (EXTENDED && (CurStarDescPtr->Index == URQUAN_DEFINED
-			|| CurStarDescPtr->Index == KOHRAH_DEFINED))
-		{
-			BYTE Index = CurStarDescPtr->Index == URQUAN_DEFINED ? 0 : 1;
-
-			/* Starbase */
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
-					CaptureStringTable (
-						LoadStringTable (URQUAN_BASE_STRTAB)), Index);
-
-
-			DoDiscoveryReport (MenuSounds);
-
-			DestroyStringTable (ReleaseStringTable (
-				solarSys->SysInfo.PlanetInfo.DiscoveryString));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
-			return true;
-		}
+		return true;
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
@@ -487,4 +520,36 @@ BuildUrquanGuard (SOLARSYS_STATE *solarSys)
 
 	(void) solarSys;
 }
+
+static COUNT
+GenerateSaMatra_generateEnergy (const SOLARSYS_STATE *solarSys,
+	const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
+{
+	if (EXTENDED
+		&& CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		return GenerateDefault_generateRuins (solarSys, whichNode, info);
+	}
+
+	return 0;
+}
+
+static bool
+GenerateSaMatra_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+	COUNT whichNode)
+{
+	if (EXTENDED
+		&& CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		GenerateDefault_landerReportCycle (solarSys);
+
+		return false; // do not remove the node
+	}	
+
+	(void) whichNode;
+	return false;
+}
+
 

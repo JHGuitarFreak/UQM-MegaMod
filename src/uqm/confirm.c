@@ -33,15 +33,15 @@
 #include <stdlib.h>
 
 
-#define CONFIRM_WIN_WIDTH RES_SCALE(80) 
-#define CONFIRM_WIN_HEIGHT RES_SCALE(22) 
+#define CONFIRM_WIN_WIDTH RES_SCALE (80) 
+#define CONFIRM_WIN_HEIGHT RES_SCALE (22) 
 
 BOOLEAN WarpFromMenu = FALSE;
 
 static void
 DrawConfirmationWindow (BOOLEAN answer)
 {
-	Color oldfg = SetContextForeGroundColor (MENU_TEXT_COLOR);
+	Color oldfg = SetContextForeGroundColor (SHADOWBOX_DARK_COLOR);
 	FONT  oldfont = SetContextFont (StarConFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	RECT r;
@@ -54,39 +54,41 @@ DrawConfirmationWindow (BOOLEAN answer)
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL (CurrentActivity) & IN_BATTLE && RunAwayAllowed ())
 	{
-		r.corner.x -= RES_BOOL(40, 0);
-		r.extent.width += RES_BOOL(40, 0);
+		r.corner.x -= RES_BOOL (40, 0);
+		r.extent.width += RES_BOOL (40, 0);
 	}
 #endif
 	r.extent.height = CONFIRM_WIN_HEIGHT;
-	DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR, 
+	DrawShadowedBox (&r, ALT_SHADOWBOX_BACKGROUND_COLOR,
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + RES_SCALE(8); 
+	t.baseline.y = r.corner.y + RES_SCALE (8); 
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE); // "Really Quit?"
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
-	t.baseline.y += RES_SCALE(10); 
+	t.baseline.y += RES_SCALE (10);
 	t.baseline.x = r.corner.x + (r.extent.width >> 2);
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
-		t.baseline.x -= RES_BOOL(5, 0);
+		t.baseline.x -= RES_BOOL (5, 0);
 #endif
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 1); // "Yes"
-	SetContextForeGroundColor (answer ? MENU_HIGHLIGHT_COLOR : MENU_TEXT_COLOR);
+	SetContextForeGroundColor (
+			answer ? MENU_HIGHLIGHT_COLOR : BLACK_COLOR);
 	font_DrawText (&t);
 	t.baseline.x += (r.extent.width >> 1);
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 2); // "No"
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
 	{
-		t.baseline.x -= RES_BOOL(10, 20);
+		t.baseline.x -= RES_BOOL (10, 20);
 		t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 3); // "Escape Unit"
 	}
 #endif
-	SetContextForeGroundColor (answer ? MENU_TEXT_COLOR : MENU_HIGHLIGHT_COLOR);	
+	SetContextForeGroundColor (
+			answer ? BLACK_COLOR : MENU_HIGHLIGHT_COLOR);
 	font_DrawText (&t);
 
 	UnbatchGraphics ();
@@ -119,8 +121,8 @@ DoConfirmExit (void)
 		SetContextClipRect (NULL);
 
 		GetContextClipRect (&ctxRect);
-		r.extent.width = CONFIRM_WIN_WIDTH + 4;
-		r.extent.height = CONFIRM_WIN_HEIGHT + 4;
+		r.extent.width = CONFIRM_WIN_WIDTH + RES_SCALE (4);
+		r.extent.height = CONFIRM_WIN_HEIGHT + RES_SCALE (4);
 		r.corner.x = (ctxRect.extent.width - r.extent.width) >> 1;
 		r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
 		s = SaveContextFrame (&r);
@@ -160,7 +162,8 @@ DoConfirmExit (void)
 				done = TRUE;
 				response = FALSE;
 			}
-			else if (PulsedInputState.menu[KEY_MENU_LEFT] || PulsedInputState.menu[KEY_MENU_RIGHT])
+			else if (PulsedInputState.menu[KEY_MENU_LEFT]
+					|| PulsedInputState.menu[KEY_MENU_RIGHT])
 			{
 				response = !response;
 				DrawConfirmationWindow (response);
@@ -212,7 +215,7 @@ DoPopup (struct popup_state *self)
 {
 	(void)self;
 	SleepThread (ONE_SECOND / 20);
-	return !(PulsedInputState.menu[KEY_MENU_SELECT] || 
+	return !(PulsedInputState.menu[KEY_MENU_SELECT] ||
 			PulsedInputState.menu[KEY_MENU_CANCEL] ||
 			(GLOBAL (CurrentActivity) & CHECK_ABORT));
 }
@@ -233,7 +236,8 @@ DoPopupWindow (const char *msg)
 
 	if (!bank)
 	{
-		log_add (log_Fatal, "FATAL: Memory exhaustion when preparing popup window");
+		log_add (log_Fatal, "FATAL: Memory exhaustion when preparing popup"
+				" window");
 		exit (EXIT_FAILURE);
 	}
 
@@ -258,8 +262,8 @@ DoPopupWindow (const char *msg)
 	s = SaveContextFrame (NULL);
 
 	Widget_SetFont (StarConFont);
-	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR, SHADOWBOX_DARK_COLOR,
-			SHADOWBOX_MEDIUM_COLOR);
+	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR,
+			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 	DrawLabelAsWindow (&label, &windowRect);
 	SetSystemRect (&windowRect);
 

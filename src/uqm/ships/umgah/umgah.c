@@ -46,7 +46,7 @@
 // Retropropulsion
 #define SPECIAL_ENERGY_COST 1
 #define SPECIAL_WAIT 2
-#define JUMP_DIST DISPLAY_TO_WORLD (RES_SCALE(40))
+#define JUMP_DIST DISPLAY_TO_WORLD (RES_SCALE (40))
 
 static RACE_DESC umgah_desc =
 {
@@ -98,7 +98,8 @@ static RACE_DESC umgah_desc =
 		},
 		{
 			UMGAH_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		UMGAH_VICTORY_SONG,
 		UMGAH_SHIP_SOUNDS,
@@ -234,7 +235,7 @@ umgah_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		else
 			this_turn = (BYTE)lpEvalDesc->which_turn;
 
-		EnoughJuice = (BOOLEAN)((WORLD_TO_TURN (RES_DESCALE(
+		EnoughJuice = (BOOLEAN)((WORLD_TO_TURN (RES_DESCALE (
 				JUMP_DIST * StarShipPtr->RaceDescPtr->ship_info.energy_level
 				/ SPECIAL_ENERGY_COST
 				))) > this_turn); 
@@ -422,13 +423,10 @@ init_umgah (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		umgah_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		umgah_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		umgah_desc.cyborg_control.WeaponRange =
-				(LONG_RANGE_WEAPON_HD << 2);
+		umgah_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		umgah_desc.cyborg_control.WeaponRange = (LONG_RANGE_WEAPON_HD << 2);
 	}
 	else
 	{

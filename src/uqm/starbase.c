@@ -43,14 +43,14 @@ static void
 DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 {
 	TEXT t;
-	COUNT text_base_y = RES_SCALE(106 + 28);
-	COUNT text_spacing_y = RES_SCALE(23 - 4);
+	COUNT text_base_y = RES_SCALE (106 + 28);
+	COUNT text_spacing_y = RES_SCALE (23 - 4);
 
 	SetContext (ScreenContext);
 	SetContextFont (StarConFont);
 	SetContextForeGroundColor (BLACK_COLOR);
 
-	t.baseline.x = RES_SCALE(73 - 4);
+	t.baseline.x = RES_SCALE (73 - 4);
 	t.align = ALIGN_CENTER;
 
 	if (OldState == (STARBASE_STATE)~0)
@@ -155,22 +155,22 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 	{
 		r.corner = Side.origin;
 		r.extent.width = SHIP_PIECE_OFFSET;
-		r.extent.height = RES_SCALE(1);
+		r.extent.height = RES_SCALE (1);
 		OldColor = SetContextForeGroundColor (BLACK_COLOR);
 		if (!IS_HD)
 			DrawFilledRectangle (&r);
-		r.corner.y += RES_SCALE(32 - 1);
+		r.corner.y += RES_SCALE (23 - 1);
 		if (!IS_HD)
 			DrawFilledRectangle (&r);
 
-		r.extent.width = RES_SCALE(1);
-		r.extent.height = RES_SCALE(8);
+		r.extent.width = RES_SCALE (1);
+		r.extent.height = RES_SCALE (8);
 		if (RepairSlot == 2)
 		{
 			r.corner = Side.origin;
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(15);
+			r.corner.y += RES_SCALE (15);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
 		}
@@ -180,7 +180,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			r.corner.x += SHIP_PIECE_OFFSET;
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(15);
+			r.corner.y += RES_SCALE (15);
 			if (!IS_HD)
 				DrawFilledRectangle (&r);
 		}
@@ -205,28 +205,34 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 		{
 			r.corner = Top.origin;
 			r.extent.width = SHIP_PIECE_OFFSET;
-			r.extent.height = RES_SCALE(1);
-			DrawFilledRectangle (&r);
-			r.corner.y += RES_SCALE(32 - 1);
-			DrawFilledRectangle (&r);
+			r.extent.height = RES_SCALE (1);
+			if (!IS_HD)
+				DrawFilledRectangle (&r);
+			r.corner.y += RES_SCALE (32 - 1);
+			if (!IS_HD)
+				DrawFilledRectangle (&r);
 
-			r.extent.width = RES_SCALE(1);
-			r.extent.height = RES_SCALE(12);
+			r.extent.width = RES_SCALE (1);
+			r.extent.height = RES_SCALE (12);
 			if (RepairSlot == 2)
 			{
 				r.corner = Top.origin;
-				DrawFilledRectangle (&r);
-				r.corner.y += RES_SCALE(20);
-				DrawFilledRectangle (&r);
+				if (!IS_HD)
+					DrawFilledRectangle (&r);
+				r.corner.y += RES_SCALE (20);
+				if (!IS_HD)
+					DrawFilledRectangle (&r);
 			}
 			RepairSlot = (which_slot < NUM_MODULE_SLOTS - 1);
 			if (RepairSlot)
 			{
 				r.corner = Top.origin;
 				r.corner.x += SHIP_PIECE_OFFSET;
-				DrawFilledRectangle (&r);
-				r.corner.y += RES_SCALE(20); 
-				DrawFilledRectangle (&r);
+				if (!IS_HD)
+					DrawFilledRectangle (&r);
+				r.corner.y += RES_SCALE (20); 
+				if (!IS_HD)
+					DrawFilledRectangle (&r);
 			}
 		}
 
@@ -338,8 +344,19 @@ DoStarBase (MENU_STATE *pMS)
 		ClearDrawable ();
 		rotateStarbase (pMS, pMS->CurFrame);
 		DrawBaseStateStrings ((STARBASE_STATE)~0, pMS->CurState);
-		ScreenTransition (optIPScaler, NULL);
+		ScreenTransition (optScrTrans, NULL);
+
+		SetMusicVolume (MUTE_VOLUME);
 		PlayMusic (pMS->hMusic, TRUE, 1);
+
+		if (OkayToResume ())
+		{
+			SeekMusic (GetMusicPosition ());
+			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+		}
+		else
+			SetMusicVolume (NORMAL_VOLUME);
+
 		UnbatchGraphics ();
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
@@ -347,6 +364,9 @@ DoStarBase (MENU_STATE *pMS)
 ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;
+
+		SetMusicPosition ();
+
 		StopMusic ();
 		if (pMS->hMusic)
 		{
@@ -376,6 +396,10 @@ ExitStarBase:
 		{
 			BYTE OldState;
 
+			if (IS_HD && !hdFuelFrame)
+				hdFuelFrame =
+						CaptureDrawable (LoadGraphic (FUEL_PMAP_ANIM));
+
 			switch (OldState = pMS->CurState)
 			{
 				case OUTFIT_STARSHIP:
@@ -388,6 +412,12 @@ ExitStarBase:
 
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 			DoInput (pMS, TRUE);
+
+			if (IS_HD)
+			{
+				DestroyDrawable (ReleaseDrawable (hdFuelFrame));
+				hdFuelFrame = 0;
+			}
 
 			pMS->Initialized = FALSE;
 			pMS->CurState = OldState;
@@ -450,8 +480,8 @@ DoTimePassage (void)
 		//log_add (log_Debug, "startangle:%d angle:%f, radius:%d, speed:%f, days:%f X:%d, y:%d", 10, newAngle, MIN_MOON_RADIUS, FULL_CIRCLE / 11.46, daysElapsed(), starbase_coords.x, starbase_coords.y);
 		
 		// Translate the coordinates on a circle to an ellipse and update the ship's graphics' coordinates on the screen.
-		GLOBAL (ShipStamp.origin.x) = (SIS_SCREEN_WIDTH >> 1) + starbase_coords.x;
-		GLOBAL (ShipStamp.origin.y) = (SIS_SCREEN_HEIGHT >> 1) + (starbase_coords.y >> 1);
+		GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + starbase_coords.x;
+		GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + (starbase_coords.y >> 1);
 	}
 }
 
@@ -561,8 +591,8 @@ InstallBombAtEarth (void)
 {
 	DoTimePassage ();
 
-	GLOBAL (ShipStamp.origin.x) = SIS_SCREEN_WIDTH >> 1;
-	GLOBAL (ShipStamp.origin.y) = SIS_SCREEN_HEIGHT >> 1;
+	GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 
 	SetContext (ScreenContext);
 	SetTransitionSource (NULL);

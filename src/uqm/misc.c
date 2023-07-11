@@ -36,7 +36,7 @@ void
 spawn_planet (void)
 {
 	HELEMENT hPlanetElement;
-	POINT pt;
+	POINT pt = MAKE_POINT (0, 0);
 
 	hPlanetElement = AllocElement ();
 	if (hPlanetElement)
@@ -49,36 +49,54 @@ spawn_planet (void)
 		PlanetElementPtr->hit_points = 200;
 		PlanetElementPtr->state_flags = APPEARING;
 		PlanetElementPtr->life_span = NORMAL_LIFE + 1;
-		SetPrimType (&DisplayArray[PlanetElementPtr->PrimIndex], STAMP_PRIM);
-		PlanetElementPtr->current.image.farray = planet;
-		PlanetElementPtr->current.image.frame =
-				PlanetElementPtr->current.image.farray[0];
-		PlanetElementPtr->collision_func = collision;
-		PlanetElementPtr->postprocess_func =
-				(void (*) (struct element *ElementPtr))CalculateGravity;
-		ZeroVelocityComponents (&PlanetElementPtr->velocity);
-		do
-		{
+		if (optMeleeObstacles && !isNetwork ())
+		{// Invisible planet with cheats
+			PlanetElementPtr->state_flags |= NONSOLID;
+			SetPrimType (&DisplayArray[PlanetElementPtr->PrimIndex], POINT_PRIM);
+			SetPrimColor (&DisplayArray[PlanetElementPtr->PrimIndex],
+					BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x00));
 			PlanetElementPtr->current.location.x =
-					WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
+						WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
 			PlanetElementPtr->current.location.y =
-					WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
-		} while (CalculateGravity (PlanetElementPtr)
-				|| TimeSpaceMatterConflict (PlanetElementPtr));
+						WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
+			PlanetElementPtr->collision_func = NULL;
+			PlanetElementPtr->postprocess_func = NULL;
+			ZeroVelocityComponents (&PlanetElementPtr->velocity);
+		}
+		else
+		{
+			SetPrimType (&DisplayArray[PlanetElementPtr->PrimIndex], STAMP_PRIM);
+			PlanetElementPtr->current.image.farray = planet;
+			PlanetElementPtr->current.image.frame =
+					PlanetElementPtr->current.image.farray[0];
+			PlanetElementPtr->collision_func = collision;
+			PlanetElementPtr->postprocess_func =
+					(void (*) (struct element *ElementPtr))CalculateGravity;
+			ZeroVelocityComponents (&PlanetElementPtr->velocity);
+			do
+			{
+				PlanetElementPtr->current.location.x =
+						WRAP_X (DISPLAY_ALIGN_X (TFB_Random ()));
+				PlanetElementPtr->current.location.y =
+						WRAP_Y (DISPLAY_ALIGN_Y (TFB_Random ()));
+			} while (CalculateGravity (PlanetElementPtr)
+					|| TimeSpaceMatterConflict (PlanetElementPtr));
+		}
 		PlanetElementPtr->mass_points = PlanetElementPtr->hit_points;
 		pt = PlanetElementPtr->current.location;
 
-		UnlockElement(hPlanetElement);
+		UnlockElement (hPlanetElement);
 
-		PutElement(hPlanetElement);
+		PutElement (hPlanetElement);
 	}
 	if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA))
 	{	// Works inconsistently because planet is on top star layer
 	 	// and Sa-Matra on second, therefore scrollig is a bit off
 		pt.x += 1200;
 		pt.y += 780;
-		WRAP_X (pt.x);
-		WRAP_Y (pt.y);
+
+		pt.x = WRAP_X (pt.x);
+		pt.y = WRAP_Y (pt.y);
 
 		SetStarPoint (pt, 31);
 	}
@@ -168,7 +186,9 @@ spawn_asteroid (ELEMENT *ElementPtr)
 		AsteroidElementPtr->playerNr = NEUTRAL_PLAYER_NUM;
 		AsteroidElementPtr->hit_points = 1;
 		AsteroidElementPtr->mass_points = 3;
-		AsteroidElementPtr->state_flags = APPEARING;
+		AsteroidElementPtr->state_flags =
+				optMeleeObstacles && !isNetwork ()
+					? DISAPPEARING : APPEARING;
 		AsteroidElementPtr->life_span = NORMAL_LIFE;
 		SetPrimType (&DisplayArray[AsteroidElementPtr->PrimIndex], STAMP_PRIM);
 		if ((val = (COUNT)TFB_Random ()) & (1 << 0))
@@ -222,8 +242,8 @@ void
 do_damage (ELEMENT *ElementPtr, SIZE damage)
 {
 	// God Mode, borrowed from the UQM-HD debug invincibility code
-	if (antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-		|| antiCheat(ElementPtr, FALSE, OPTVAL_SEKHMET))
+	if (antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+			|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD))
 	{
 		damage = 0;
 	}
@@ -284,7 +304,7 @@ crew_preprocess (ELEMENT *ElementPtr)
 
 	if (hTarget)
 	{
-#define CREW_DELTA RES_SCALE(SCALED_ONE)
+#define CREW_DELTA RES_SCALE (SCALED_ONE)
 		SIZE delta;
 		ELEMENT *ShipPtr;
 
@@ -356,7 +376,7 @@ AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 		dx = dy = 0;
 	else
 	{
-#define MORE_THAN_ENOUGH RES_SCALE(100) 
+#define MORE_THAN_ENOUGH RES_SCALE (100) 
 		direction += HALF_CIRCLE;
 		dx = COSINE (direction, MORE_THAN_ENOUGH);
 		dy = SINE (direction, MORE_THAN_ENOUGH);

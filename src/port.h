@@ -23,7 +23,9 @@
 
 // Compilation related
 #ifdef _MSC_VER
+#	if (_MSC_VER < 1900)
 #	define inline __inline
+#	endif
 #elif defined(__SYMBIAN32__)
 #else
 #	define inline __inline__
@@ -182,7 +184,7 @@ extern "C" {
 #endif
 #if (_MSC_VER < 1500) 
 // Use Windows SDK version of snprintf & vsnprintf when building with Visual Studio
-// versions higher than 2005 - Serosis
+// versions higher than 2005
 int snprintf(char* str, size_t size, const char* format, ...);
 int vsnprintf(char *str, size_t size, const char *format, va_list args);
 #endif

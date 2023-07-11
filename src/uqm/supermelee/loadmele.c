@@ -40,10 +40,13 @@
 #define LOAD_TEAM_NAME_TEXT_COLOR_HILITE \
 		BUILD_COLOR (MAKE_RGB15 (0x17, 0x18, 0x1D), 0x00)
 
+#define LOAD_MELEE_BOX_WIDTH RES_SCALE (34)
+#define LOAD_MELEE_BOX_HEIGHT RES_SCALE (34)
+#define LOAD_MELEE_BOX_SPACE RES_SCALE (1)
 
-#define LOAD_MELEE_BOX_WIDTH RES_SCALE(34) 
-#define LOAD_MELEE_BOX_HEIGHT RES_SCALE(34) 
-#define LOAD_MELEE_BOX_SPACE RES_SCALE(1) 
+//Team names in loadmele.c
+#define TEAM_NAME_L_BOX_WIDTH RES_SCALE (244)
+#define TEAM_NAME_L_BOX_HEIGHT RES_SCALE (10)
 
 
 static void DrawFileStrings (MELEE_STATE *pMS);
@@ -155,6 +158,18 @@ static void
 DrawFileString (const MeleeTeam *team, const POINT *origin,
 		BOOLEAN drawShips, BOOLEAN highlite)
 {
+	if (IS_HD)
+	{// Draw the background of the text
+		RECT r;
+
+		r.corner.x = origin->x;
+		r.corner.y = origin->y - TEAM_NAME_L_BOX_HEIGHT + RES_SCALE (3);
+		r.extent.width = TEAM_NAME_L_BOX_WIDTH;
+		r.extent.height = TEAM_NAME_L_BOX_HEIGHT;
+
+		QuickRepair (30 + optControllerType, &r);
+	}
+
 	SetContextForeGroundColor (highlite ?
 			LOAD_TEAM_NAME_TEXT_COLOR_HILITE : LOAD_TEAM_NAME_TEXT_COLOR);
 
@@ -177,7 +192,7 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 		sprintf (buf, "%u", MeleeTeam_getValue (team));
 		Text.baseline = *origin;
 		Text.baseline.x += NUM_MELEE_COLUMNS *
-				(LOAD_MELEE_BOX_WIDTH + LOAD_MELEE_BOX_SPACE) - IF_HD(1);
+				(LOAD_MELEE_BOX_WIDTH + LOAD_MELEE_BOX_SPACE) - RES_SCALE (1);
 		Text.align = ALIGN_RIGHT;
 		Text.pStr = buf;
 		Text.CharCount = (COUNT)~0;
@@ -190,18 +205,18 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 		STAMP s;
 		FleetShipIndex slotI;
 
-		s.origin.x = origin->x + RES_SCALE(1); 
-		s.origin.y = origin->y + RES_SCALE(4); 
+		s.origin.x = origin->x + RES_SCALE (1);
+		s.origin.y = origin->y + RES_SCALE (4);
 		for (slotI = 0; slotI < MELEE_FLEET_SIZE; slotI++)
 		{
 			BYTE StarShip;
-				
+
 			StarShip = team->ships[slotI];
 			if (StarShip != MELEE_NONE)
 			{
 				s.frame = GetShipIconsFromIndex (StarShip);
 				DrawStamp (&s);
-				s.origin.x += RES_SCALE(17); 
+				s.origin.x += RES_SCALE (17);
 			}
 		}
 	}
@@ -230,9 +245,9 @@ FillFileView (MELEE_STATE *pMS)
 	return true;
 }
 
-#define FILE_STRING_ORIGIN_X RES_SCALE(5) - IF_HD(2)
-#define FILE_STRING_ORIGIN_Y RES_SCALE(32)
-#define ENTRY_HEIGHT RES_SCALE(32) 
+#define FILE_STRING_ORIGIN_X RES_SCALE (5)
+#define FILE_STRING_ORIGIN_Y RES_SCALE (32)
+#define ENTRY_HEIGHT RES_SCALE (32) 
 
 static void
 SelectFileString (MELEE_STATE *pMS, bool hilite)

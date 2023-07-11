@@ -66,14 +66,16 @@ const GenerateFunctions generateVuxFunctions = {
 static bool
 GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	COUNT angle = 0;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
 	if (!PrimeSeed)
+	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+	}
 	
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
@@ -91,7 +93,6 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 				// called. Is it safe to remove one, or does this change
 				// the RNG so that the outcome is different?
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
 		if (PrimeSeed)
 		{
@@ -107,17 +108,14 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 		else
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
+			CheckForHabitable (solarSys);
 		}
 	}
 	else
 	{
 		if (CurStarDescPtr->Index == VUX_DEFINED)
 		{
-			if (!PrimeSeed)				
-				solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 			if (PrimeSeed)
@@ -130,6 +128,7 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 			{
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+				CheckForHabitable (solarSys);
 			}
 		}
 		else /* if (CurStarDescPtr->Index == VUX_BEAST_DEFINED) */
@@ -143,7 +142,6 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 			}
 
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
 
 			if (PrimeSeed)
@@ -156,6 +154,7 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 			{
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+				CheckForHabitable (solarSys);
 			}
 		}
 
@@ -230,6 +229,29 @@ GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						CaptureStringTable (
 						LoadStringTable (MAIDENS_STRTAB));
 			}
+
+			GenerateDefault_generateOrbital (solarSys, world);
+
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 2;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+			}
+
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 26 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 39;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 102;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 96;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 97;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 251;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 12;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 760;
+			}
+
+			return true;
 		}
 		else if (CurStarDescPtr->Index == VUX_BEAST_DEFINED)
 		{
@@ -241,6 +263,29 @@ GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						CaptureStringTable (
 						LoadStringTable (BEAST_STRTAB));
 			}
+
+			GenerateDefault_generateOrbital (solarSys, world);
+
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 2;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+			}
+
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 218 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 20;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 96;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 99;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 95;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 206;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 16;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
+			}
+
+			return true;
 		}
 		else
 		{
@@ -249,16 +294,33 @@ GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
+			GenerateDefault_generateOrbital (solarSys, world);
+
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 2;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+			}
+
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 24 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 14;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 96;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 93;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 89;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 289;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 23;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 760;
+			}
+
+			return true;
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
-
-	if (matchWorld (solarSys, world, 0, MATCH_PLANET) && PrimeSeed)
-	{
-		solarSys->SysInfo.PlanetInfo.Weather = 2;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-	}
 
 	return true;
 }
@@ -348,19 +410,10 @@ GenerateVux_generateLife (const SOLARSYS_STATE *solarSys,
 			ZEX_BEAUTY, /* VUX Beast */
 			-1 /* term */
 		};
-		static const SBYTE lifeExDM[] =
-		{
-			9,  9,  9,  9,  9, /* Carousel Beast */
-			18, 18, 18, 18, 18, /* Penguin Cyclops */
-			-1 /* term */
-		};
 
 		return GeneratePresetLife (
-				&solarSys->SysInfo,
-				LIFE_BOOL && GET_GAME_STATE (VUX_BEAST_ON_SHIP)
-					? lifeExDM : LIFE_BOOL ? lifeEx : life,
-				whichNode,
-				info);
+				&solarSys->SysInfo, EXTENDED ? lifeEx : life,
+				whichNode, info);
 	}
 
 	if (CurStarDescPtr->Index == VUX_BEAST_DEFINED
@@ -404,20 +457,29 @@ GenerateVux_pickupLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if (LIFE_BOOL && CurStarDescPtr->Index == MAIDENS_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-
 		if (whichNode == 10)
 		{	// Picked up Zex' Beauty... Again.
 			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
-					CaptureStringTable (
-						LoadStringTable (BEAST_STRTAB)), 1);
+					SetRelStringTableIndex (
+						CaptureStringTable (
+							LoadStringTable (BEAST_STRTAB)), 1);
 
 			GenerateDefault_landerReport (solarSys);
 			SetLanderTakeoff ();
 
 			SET_GAME_STATE (VUX_BEAST, 2);
 			SET_GAME_STATE (VUX_BEAST_ON_SHIP, 2);
+
+			if (!GET_GAME_STATE (SHOFIXTI_MAIDENS))
+			{	// Reinitialize the Maiden's report as the Beast report overrides it
+				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+				solarSys->PlanetSideFrame[1] = CaptureDrawable (
+						LoadGraphic (MAIDENS_MASK_PMAP_ANIM));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString =
+						CaptureStringTable (
+							LoadStringTable (MAIDENS_STRTAB));
+			}
 		}
 
 		return true; // picked up

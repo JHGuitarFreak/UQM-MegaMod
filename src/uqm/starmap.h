@@ -35,6 +35,12 @@ extern STAR_DESC* FindStar (STAR_DESC *pLastStar, POINT *puniverse,
 
 extern void GetClusterName (const STAR_DESC *pSD, UNICODE buf[]);
 
+#define INTERNAL_STAR_INDEX -1
+
+extern BOOLEAN isStarMarked (const int star_index,
+		const char *marker_state);
+extern void setStarMarked (const int star_index, const char *marker_state);
+
 #if defined(__cplusplus)
 }
 #endif

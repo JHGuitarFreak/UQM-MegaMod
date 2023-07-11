@@ -27,6 +27,7 @@
 #include "tfb_prim.h"
 #include "cmap.h"
 #include "libs/log.h"
+#include "uqm/units.h"
 
 void
 TFB_Prim_Point (POINT *p, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN scaled)
@@ -104,7 +105,8 @@ TFB_Prim_FillRect (RECT *r, Color color, DrawMode mode, POINT ctxOrigin)
 }
 
 void
-TFB_Prim_Line (LINE *line, Color color, DrawMode mode, POINT ctxOrigin)
+TFB_Prim_Line (LINE *line, Color color, DrawMode mode, POINT ctxOrigin,
+		BYTE thickness)
 {
 	int x1, y1, x2, y2;
 
@@ -115,9 +117,9 @@ TFB_Prim_Line (LINE *line, Color color, DrawMode mode, POINT ctxOrigin)
 	y2=line->second.y + ctxOrigin.y;
 
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
-		TFB_DrawScreen_Line (x1, y1, x2, y2, color, mode, TFB_SCREEN_MAIN);
+		TFB_DrawScreen_Line (x1, y1, x2, y2, color, mode, TFB_SCREEN_MAIN, thickness);
 	else
-		TFB_DrawImage_Line (x1, y1, x2, y2, color, mode, _CurFramePtr->image);
+		TFB_DrawImage_Line (x1, y1, x2, y2, color, mode, _CurFramePtr->image, thickness);
 }
 
 void

@@ -28,12 +28,14 @@ extern "C" {
 #include "math/random.h"
 
 extern COUNT square_root (DWORD value);
+extern uint32_t crc32b (const UNICODE *str);
 
 inline static float
-scaleThingUp (float original, float thingToScale)
+scaleThing (float original, float thingToScale)
 {
-	return ((original - thingToScale) / thingToScale + 1);
+	return (original / thingToScale);
 }
+
 
 #if defined(__cplusplus)
 }

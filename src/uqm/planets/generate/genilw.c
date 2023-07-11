@@ -65,7 +65,7 @@ GenerateIlwrath_generatePlanets (SOLARSYS_STATE *solarSys)
 	if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % 3);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -77,6 +77,7 @@ GenerateIlwrath_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		CheckForHabitable (solarSys);
 	}
 	else
 	{
@@ -129,16 +130,32 @@ GenerateIlwrath_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
+			GenerateDefault_generateOrbital (solarSys, world);
+
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 3;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+			}
+			if (!PrimeSeed)
+			{
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+					EARTH_ATMOSPHERE * 556 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 61;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 98;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 89;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 87;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 258;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 8;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+			}
+
+			return true;
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
-
-	if (PrimeSeed && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-	{
-		solarSys->SysInfo.PlanetInfo.Weather = 2;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 3;
-	}
 
 	return true;
 }

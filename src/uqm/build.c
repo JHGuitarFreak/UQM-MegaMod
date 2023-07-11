@@ -291,10 +291,9 @@ GetRaceKnownSize (RACE_ID race)
  * in the shipyard.
  * flag == TRUE: start an alliance
  * flag == FALSE: end an alliance
- * flag == 3: Can build their ships regardless
  */
 BOOLEAN
-SetRaceAllied (RACE_ID race, BYTE flag)
+SetRaceAllied (RACE_ID race, BOOLEAN flag)
 {
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
@@ -307,12 +306,11 @@ SetRaceAllied (RACE_ID race, BYTE flag)
 
 	if (FleetPtr->allied_state == DEAD_GUY)
 	{
-		if (flag == 3)
-			FleetPtr->allied_state = CAN_BUILD;
+		/* Strange request, silently ignore it */
 	}
 	else
 	{
-		FleetPtr->allied_state = (flag == 1 ? GOOD_GUY : flag == 3 ? CAN_BUILD : BAD_GUY);
+		FleetPtr->allied_state = (flag ? GOOD_GUY : BAD_GUY);
 	}
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
@@ -701,6 +699,31 @@ loadGameCheats (void)
 		oldRU = GlobData.SIS_state.ResUnits;
 	else
 		oldRU = 0;
+
+	/*for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
+	{
+		StartSphereTracking (i);
+		KillRace (i);
+	}*/
+
+	/*SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+	SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);*/
 		
 	if(optInfiniteFuel)
 	{
@@ -709,15 +732,6 @@ loadGameCheats (void)
 	} 
 	else
 		loadFuel = 0;
-
-	if (optUnlockShips)
-	{
-		for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
-		{
-			if (CheckAlliance (i) != GOOD_GUY)
-				SetRaceAllied (i, 3);
-		}
-	}
 	
 	if (optUnlockUpgrades)
 	{
@@ -744,7 +758,7 @@ loadGameCheats (void)
 		SET_GAME_STATE (SUN_DEVICE_ON_SHIP, 1);
 		SET_GAME_STATE (UTWIG_BOMB_ON_SHIP, 1);
 		SET_GAME_STATE (ULTRON_CONDITION, 1);
-		//SET_GAME_STATE (MAIDENS_ON_SHIP, 1);
+		SET_GAME_STATE (MAIDENS_ON_SHIP, 1);
 		SET_GAME_STATE (TALKING_PET_ON_SHIP, 1);
 		SET_GAME_STATE (AQUA_HELIX_ON_SHIP, 1);
 		SET_GAME_STATE (CLEAR_SPINDLE_ON_SHIP, 1);

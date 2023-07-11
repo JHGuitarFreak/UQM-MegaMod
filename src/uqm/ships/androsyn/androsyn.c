@@ -37,9 +37,9 @@
 // Bubbles
 #define WEAPON_ENERGY_COST 3
 #define WEAPON_WAIT 0
-#define ANDROSYNTH_OFFSET RES_SCALE(14)
-#define MISSILE_OFFSET RES_SCALE(3)
-#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
+#define ANDROSYNTH_OFFSET RES_SCALE (14)
+#define MISSILE_OFFSET RES_SCALE (3)
+#define MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (8))
 #define MISSILE_LIFE 200
 #define MISSILE_HITS 3
 #define MISSILE_DAMAGE 2
@@ -49,8 +49,8 @@
 #define SPECIAL_ENERGY_COST 2
 #define BLAZER_DEGENERATION (-1)
 #define SPECIAL_WAIT 0
-#define BLAZER_OFFSET RES_SCALE(10)
-#define BLAZER_THRUST RES_SCALE(60)
+#define BLAZER_OFFSET RES_SCALE (10)
+#define BLAZER_THRUST RES_SCALE (60)
 #define BLAZER_TURN_WAIT 1
 #define BLAZER_DAMAGE 3
 #define BLAZER_MASS 1
@@ -105,7 +105,8 @@ static RACE_DESC androsynth_desc =
 		},
 		{
 			ANDROSYNTH_CAPT_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		ANDROSYNTH_VICTORY_SONG,
 		ANDROSYNTH_SHIP_SOUNDS,
@@ -301,7 +302,7 @@ androsynth_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 			if (lpEvalDesc->which_turn <= 16
 					&& (StarShipPtr->special_counter > 0
 					|| StarShipPtr->RaceDescPtr->ship_info.energy_level < MAX_ENERGY / 3
-					|| ((WEAPON_RANGE (&pEnemyStarShip->RaceDescPtr->cyborg_control) <= RES_SCALE(CLOSE_RANGE_WEAPON)
+					|| ((WEAPON_RANGE (&pEnemyStarShip->RaceDescPtr->cyborg_control) <= RES_SCALE (CLOSE_RANGE_WEAPON)
 					&& lpEvalDesc->ObjectPtr->crew_level > BLAZER_DAMAGE)
 					|| (lpEvalDesc->ObjectPtr->crew_level > (BLAZER_DAMAGE * 3)
 					&& MANEUVERABILITY (&pEnemyStarShip->RaceDescPtr->cyborg_control) > RESOLUTION_COMPENSATED(SLOW_SHIP)))))
@@ -320,7 +321,7 @@ androsynth_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 					&& (WEAPON_RANGE (&pEnemyStarShip->RaceDescPtr->cyborg_control) >=
 					WEAPON_RANGE (&StarShipPtr->RaceDescPtr->cyborg_control) << 1
 					|| (lpEvalDesc->which_turn < 16
-					&& (WEAPON_RANGE (&pEnemyStarShip->RaceDescPtr->cyborg_control) > RES_SCALE(CLOSE_RANGE_WEAPON)
+					&& (WEAPON_RANGE (&pEnemyStarShip->RaceDescPtr->cyborg_control) > RES_SCALE (CLOSE_RANGE_WEAPON)
 					|| lpEvalDesc->ObjectPtr->crew_level <= BLAZER_DAMAGE)
 					&& (lpEvalDesc->ObjectPtr->crew_level <= (BLAZER_DAMAGE * 3)
 					|| MANEUVERABILITY (&pEnemyStarShip->RaceDescPtr->cyborg_control) <=
@@ -375,14 +376,14 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 			/* take care of blazer effect */
 	if (ElementPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.special)
 	{
-		if ((StarShipPtr->cur_status_flags & SPECIAL)
+		if ((StarShipPtr->cur_status_flags & ANDROSYN_COMET_TOGGLE)
 				|| StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 		{
 			StarShipPtr->RaceDescPtr->characteristics.energy_regeneration =
 					(BYTE)BLAZER_DEGENERATION;
 			StarShipPtr->energy_counter = ENERGY_WAIT;
 
-			if (StarShipPtr->cur_status_flags & SPECIAL)
+			if (StarShipPtr->cur_status_flags & ANDROSYN_COMET_TOGGLE)
 			{
 				ProcessSound (SetAbsSoundIndex (
 						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1),
@@ -394,6 +395,7 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 				ElementPtr->mass_points = BLAZER_MASS;
 				StarShipPtr->RaceDescPtr->characteristics.turn_wait
 						= BLAZER_TURN_WAIT;
+				StarShipPtr->cur_status_flags &= ~ANDROSYN_COMET_TOGGLE;
 
 				/* Save the current collision func because we were not the
 				 * ones who set it */
@@ -408,12 +410,26 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 		if (StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 				/* if blazer wasn't able to change back into ship
 				 * give it a little more juice to try to get out
-				 * of its predicament.
+				 * of its predicament. Kruzen: also keep track
+				 * of turn speed.
 				 */
 		{
+			StarShipPtr->RaceDescPtr->characteristics.special_wait =
+					StarShipPtr->RaceDescPtr->characteristics.turn_wait;
+			StarShipPtr->RaceDescPtr->characteristics.turn_wait
+					= BLAZER_TURN_WAIT;
 			DeltaEnergy (ElementPtr, -BLAZER_DEGENERATION);
 			StarShipPtr->energy_counter = 1;
 		}
+	}
+	else if ((StarShipPtr->cur_status_flags & SPECIAL) &&
+				(StarShipPtr->cur_status_flags & ANDROSYN_COMET_TOGGLE))
+				/* Kruzen: If we failed to transform into
+				 * comet due to collision failed in Process() -
+				 * remove the special flag.
+				 */
+	{
+		StarShipPtr->cur_status_flags &= ~ANDROSYN_COMET_TOGGLE;
 	}
 }
 
@@ -431,7 +447,9 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 		if (cur_status_flags & SPECIAL)
 		{
 			if (StarShipPtr->RaceDescPtr->ship_info.energy_level < SPECIAL_ENERGY_COST)
-				DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST); /* so text will flash */
+			{
+				cur_status_flags |= LOW_ON_ENERGY; /* so text will flash */
+			}
 			else
 			{
 				cur_status_flags &= ~WEAPON;
@@ -442,18 +460,15 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 						SetEquFrameIndex (StarShipPtr->RaceDescPtr->ship_data.special[0],
 						ElementPtr->next.image.frame);
 				ElementPtr->state_flags |= CHANGING;
+				cur_status_flags |= ANDROSYN_COMET_TOGGLE;
 			}
 		}
 	}
 	else
 	{
-		cur_status_flags &= ~(THRUST | WEAPON | SPECIAL);
+		cur_status_flags &= ~(THRUST | WEAPON);
 
-		/* keep the special "on" for the duration of blazer mode, a la SC1 */
-		StarShipPtr->RaceDescPtr->ship_data.captain_control.special =
-			SetRelFrameIndex(StarShipPtr->RaceDescPtr->ship_data.captain_control.special, 2);
-
-					/* protection against vux */
+						/* protection against vux */
 		if (StarShipPtr->RaceDescPtr->characteristics.turn_wait > BLAZER_TURN_WAIT)
 		{
 			StarShipPtr->RaceDescPtr->characteristics.special_wait +=
@@ -464,15 +479,9 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 
 		if (StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 		{
-			/* turn special off */
-			StarShipPtr->RaceDescPtr->ship_data.captain_control.special =
-				SetRelFrameIndex(StarShipPtr->RaceDescPtr->ship_data.captain_control.special, -2);
-
 			ZeroVelocityComponents (&ElementPtr->velocity);
 			cur_status_flags &= ~(LEFT | RIGHT
 					| SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
-
-			DrawCaptainsWindow (StarShipPtr);
 
 			StarShipPtr->RaceDescPtr->characteristics.turn_wait =
 					StarShipPtr->RaceDescPtr->characteristics.special_wait;
@@ -489,6 +498,8 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 		}
 		else
 		{
+			cur_status_flags |= SPECIAL;
+
 			if (ElementPtr->thrust_wait)
 				--ElementPtr->thrust_wait;
 			else
@@ -514,11 +525,11 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 	StarShipPtr->cur_status_flags = cur_status_flags;
 }
 
-static void
-uninit_androsynth (RACE_DESC *pRaceDesc)
-{
-	SetCustomShipData (pRaceDesc, NULL);
-}
+//static void
+//uninit_androsynth (RACE_DESC *pRaceDesc)
+//{
+//	SetCustomShipData (pRaceDesc, NULL);
+//}
 
 
 RACE_DESC*
@@ -526,14 +537,10 @@ init_androsynth (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
-		androsynth_desc.characteristics.max_thrust =
-				RES_SCALE (MAX_THRUST);
-		androsynth_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		androsynth_desc.cyborg_control.WeaponRange =
-				LONG_RANGE_WEAPON_HD >> 2;
+	if (IS_HD) {
+		androsynth_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		androsynth_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		androsynth_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD >> 2;
 	}
 	else
 	{

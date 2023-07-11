@@ -37,10 +37,50 @@
 #define NUM_PICK_SHIP_ROWS 2
 #define NUM_PICK_SHIP_COLUMNS 6
 
-#define FLAGSHIP_X_OFFS RES_SCALE(65)
-#define FLAGSHIP_Y_OFFS RES_SCALE(4)
-#define FLAGSHIP_WIDTH RES_SCALE(22)
-#define FLAGSHIP_HEIGHT RES_SCALE(48)
+#define FLAGSHIP_X_OFFS RES_SCALE (65)
+#define FLAGSHIP_Y_OFFS RES_SCALE (4)
+#define FLAGSHIP_WIDTH RES_SCALE (22)
+#define FLAGSHIP_HEIGHT RES_SCALE (48)
+
+FRAME PickFrame;
+POINT frameOrigin;
+
+void
+InitPickFrame (void)
+{
+	PickFrame = CaptureDrawable (LoadGraphic (SC2_PICK_PMAP_ANIM));
+	PickFrame = SetAbsFrameIndex (PickFrame, isPC (optFlagshipColor) ? 0 : 2);
+}
+
+void
+DestroyPickFrame (void)
+{
+	DestroyDrawable (ReleaseDrawable (PickFrame));
+	PickFrame = 0;
+}
+
+void
+RepairPickFrame (RECT *pRect, COUNT frame)
+{
+	RECT OldRect;
+	STAMP s;
+	RECT r;
+
+	GetContextClipRect (&OldRect);
+
+	r.corner.x = pRect->corner.x + OldRect.corner.x;
+	r.corner.y = pRect->corner.y + OldRect.corner.y;
+	r.extent = pRect->extent;
+
+	SetContextClipRect (&r);
+
+	s.origin.x = frameOrigin.x - pRect->corner.x;
+	s.origin.y = frameOrigin.y - pRect->corner.y;
+	s.frame = SetAbsFrameIndex (PickFrame, frame);
+	DrawStamp (&s);
+
+	SetContextClipRect (&OldRect);
+}
 
 static BOOLEAN
 DoPickBattleShip (MENU_STATE *pMS)
@@ -57,7 +97,6 @@ DoPickBattleShip (MENU_STATE *pMS)
 	{
 		pMS->Initialized = TRUE;
 		pMS->InputFunc = DoPickBattleShip;
-
 
 		goto ChangeSelection;
 	}
@@ -115,28 +154,28 @@ ChangeSelection:
 			if (pMS->first_item.x == (NUM_PICK_SHIP_COLUMNS >> 1))
 			{
 				pMS->flash_rect0.corner.x =
-						pMS->flash_rect1.corner.x - RES_SCALE(2) + FLAGSHIP_X_OFFS;
+						pMS->flash_rect1.corner.x - RES_SCALE (2) + FLAGSHIP_X_OFFS;
 				pMS->flash_rect0.corner.y =
-						pMS->flash_rect1.corner.y - RES_SCALE(2) + FLAGSHIP_Y_OFFS;
-				pMS->flash_rect0.extent.width = FLAGSHIP_WIDTH + RES_SCALE(4);
-				pMS->flash_rect0.extent.height = FLAGSHIP_HEIGHT + RES_SCALE(4);
+						pMS->flash_rect1.corner.y - RES_SCALE (2) + FLAGSHIP_Y_OFFS;
+				pMS->flash_rect0.extent.width = FLAGSHIP_WIDTH + RES_SCALE (4);
+				pMS->flash_rect0.extent.height = FLAGSHIP_HEIGHT + RES_SCALE (4);
 
 				hBattleShip = GetTailLink (&race_q[0]); /* Flagship */
 			}
 			else
 			{
 				new_col = pMS->first_item.x;
-				pMS->flash_rect0.corner.x = RES_SCALE(5) + pMS->flash_rect1.corner.x
-						- RES_SCALE(2) + ((ICON_WIDTH + RES_SCALE(4)) * new_col); 
+				pMS->flash_rect0.corner.x = RES_SCALE (5) + pMS->flash_rect1.corner.x
+						- RES_SCALE (2) + ((ICON_WIDTH + RES_SCALE (4)) * new_col); 
 				if (new_col > (NUM_PICK_SHIP_COLUMNS >> 1))
 				{
 					--new_col;
 					pMS->flash_rect0.corner.x += FLAGSHIP_WIDTH - ICON_WIDTH;
 				}
-				pMS->flash_rect0.corner.y = RES_SCALE(16) + pMS->flash_rect1.corner.y
-						- RES_SCALE(2) + ((ICON_HEIGHT + RES_SCALE(4)) * pMS->first_item.y);
-				pMS->flash_rect0.extent.width = ICON_WIDTH + RES_SCALE(4);
-				pMS->flash_rect0.extent.height = ICON_HEIGHT + RES_SCALE(4);
+				pMS->flash_rect0.corner.y = RES_SCALE (16) + pMS->flash_rect1.corner.y
+						- RES_SCALE (2) + ((ICON_HEIGHT + RES_SCALE (4)) * pMS->first_item.y);
+				pMS->flash_rect0.extent.width = ICON_WIDTH + RES_SCALE (4);
+				pMS->flash_rect0.extent.height = ICON_HEIGHT + RES_SCALE (4);
 
 				ship_index = (pMS->first_item.y * NUM_PICK_SHIP_COLUMNS)
 						+ new_col;
@@ -164,11 +203,15 @@ ChangeSelection:
 			pMS->CurFrame = (FRAME)hBattleShip;
 
 			SetContextForeGroundColor (BLACK_COLOR);
-			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE(6) - RES_SCALE(1);
-			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE(5) - RES_SCALE(1);
-			r.extent.width = ((ICON_WIDTH + RES_SCALE(4)) * 3) - RES_SCALE(4);
-			r.extent.height = RES_SCALE(7); 
-			DrawFilledRectangle (&r);
+			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE (6) - RES_SCALE (1);
+			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE (5) - RES_SCALE (1);
+			r.extent.width = ((ICON_WIDTH + RES_SCALE (4)) * 3) - RES_SCALE (4);
+			r.extent.height = RES_SCALE (7);
+
+			if (IS_HD)
+				RepairPickFrame (&r, 0);
+			else
+				DrawFilledRectangle (&r);
 
 			if (hBattleShip == 0)
 			{
@@ -178,10 +221,10 @@ ChangeSelection:
 			}
 			else
 			{
-				SetContextFont (TinyFont);
+				SetContextFont (isPC (optWhichFonts) ? TinyFont : TinyFontBold);
 
 				t.baseline.x = r.corner.x + (r.extent.width >> 1);
-				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE(1)); 
+				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE (1)); 
 				t.align = ALIGN_CENTER;
 
 				StarShipPtr = LockStarShip (&race_q[0], hBattleShip);
@@ -207,7 +250,7 @@ ChangeSelection:
 				UnlockStarShip (&race_q[0], hBattleShip);
 
 				// Code to make use of the PC version's font gradient
-				/*if (optWhichFonts == OPT_PC)
+				/*if (isPC (optWhichFonts))
 					SetContextForeGroundColor (WHITE_COLOR);
 				else
 					SetContextForeGroundColor (
@@ -220,10 +263,14 @@ ChangeSelection:
 				SetContextForeGroundColor (BLACK_COLOR);
 			}
 
-			r.corner.x += (ICON_WIDTH + RES_SCALE(4))
+			r.corner.x += (ICON_WIDTH + RES_SCALE (4))
 				* ((NUM_PICK_SHIP_COLUMNS >> 1) + 1)
 					+ FLAGSHIP_WIDTH - ICON_WIDTH;
-			DrawFilledRectangle (&r);
+
+			if (IS_HD)
+				RepairPickFrame (&r, 0);
+			else
+				DrawFilledRectangle (&r);
 
 			if (crew_level)
 			{
@@ -238,7 +285,7 @@ ChangeSelection:
 					sprintf (buf, "%u/%u", crew_level, max_crew);
 
 				// Code to make use of the PC version's font gradient
-				/*if (optWhichFonts == OPT_PC)
+				/*if (isPC (optWhichFonts))
 					SetContextForeGroundColor (WHITE_COLOR);
 				else
 					SetContextForeGroundColor (
@@ -272,7 +319,8 @@ GetArmadaStarShip (void)
 	
 //    MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
 
-OldContext = SetContext (SpaceContext);
+	InitPickFrame ();
+	OldContext = SetContext (SpaceContext);
 	DrawArmadaPickShip (FALSE, &pick_r);
 
 	{
@@ -306,7 +354,8 @@ OldContext = SetContext (SpaceContext);
 
 //    DestroySound (ReleaseSound (MenuSounds));
 	
-SetContext (OldContext);
+	SetContext (OldContext);
+	DestroyPickFrame ();
 
 	return (hBattleShip);
 }
@@ -400,52 +449,42 @@ GetEncounterStarShip (STARSHIP *LastStarShipPtr, COUNT which_player)
 void
 DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 {
-#define PICK_NAME_HEIGHT RES_SCALE(6);
-	//COUNT i;
+#define PICK_NAME_HEIGHT RES_SCALE (6);
 	HSTARSHIP hBattleShip, hNextShip;
 	STARSHIP *StarShipPtr;
 	RECT r, pick_r;
 	STAMP s;
 	TEXT t;
 	CONTEXT OldContext;
-	FRAME PickFrame;
 	FRAME OldFontEffect;
 
 	OldContext = SetContext (SpaceContext);
 
-	PickFrame = CaptureDrawable (LoadGraphic (SC2_PICK_PMAP_ANIM));
-
-	if (optFlagshipColor == OPT_3DO)
-		PickFrame = SetAbsFrameIndex (PickFrame, 2);
-	else
-		PickFrame = SetAbsFrameIndex (PickFrame, 0);
-
 	BatchGraphics ();
 
 	s.frame = PickFrame;
-	SetFrameHot (s.frame, MAKE_HOT_SPOT (0, 0));
 	GetFrameRect (s.frame, &pick_r);
 	GetContextClipRect (&r);
 	pick_r.corner.x = (r.extent.width >> 1) - (pick_r.extent.width >> 1);
 	pick_r.corner.y = (r.extent.height >> 1) - (pick_r.extent.height >> 1);
 	
 	if (!draw_salvage_frame)
+	{
 		*pPickRect = pick_r;
+		frameOrigin = pick_r.corner;
+	}
 	else
 	{
 		s.origin.x = r.extent.width >> 1;
 		s.frame = SetAbsFrameIndex (s.frame, 1);
-		SetFrameHot (s.frame, MAKE_HOT_SPOT (0, 0));
 		GetFrameRect (s.frame, &r);
 		s.origin.x -= r.extent.width >> 1;
 		s.origin.y = pick_r.corner.y - (r.extent.height >> 1);
 		DrawStamp (&s);
 
-		if (optFlagshipColor == OPT_3DO)
-			s.frame = SetAbsFrameIndex (s.frame, 2);
-		else
-			s.frame = SetAbsFrameIndex (s.frame, 0);
+		frameOrigin = s.origin;
 
+		s.frame = SetAbsFrameIndex (s.frame, isPC (optFlagshipColor) ? 0 : 2);
 		pick_r.corner.y = s.origin.y + r.extent.height;
 
 		r.corner.x = pick_r.corner.x;
@@ -458,14 +497,14 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	OldFontEffect = SetContextFontEffect (NULL);
 
 	t.baseline.x = pick_r.corner.x + (pick_r.extent.width >> 1);
-	t.baseline.y = pick_r.corner.y + pick_r.extent.height - RES_SCALE(5); 
+	t.baseline.y = pick_r.corner.y + pick_r.extent.height - RES_SCALE (5); 
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (ShipName);
 	t.CharCount = (COUNT)~0;
 
 	// Code to make use of the PC version's font gradient
 	// Along with the FRAME "OldFontEffect"
-	if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 6));
 	else
 		SetContextForeGroundColor (
@@ -490,25 +529,27 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 			ship_index = StarShipPtr->index;
 
 			s.origin.x = pick_r.corner.x
-					+ (RES_SCALE(5) + ((ICON_WIDTH + RES_SCALE(4))
+					+ (RES_SCALE (5) + ((ICON_WIDTH + RES_SCALE (4))
 					* (ship_index % NUM_PICK_SHIP_COLUMNS))); 
 			if ((ship_index % NUM_PICK_SHIP_COLUMNS) >=
 					(NUM_PICK_SHIP_COLUMNS >> 1))
-				s.origin.x += FLAGSHIP_WIDTH + RES_SCALE(4); 
+				s.origin.x += FLAGSHIP_WIDTH + RES_SCALE (4); 
 			s.origin.y = pick_r.corner.y
-					+ (RES_SCALE(16) + ((ICON_HEIGHT + RES_SCALE(4))
+					+ (RES_SCALE (16) + ((ICON_HEIGHT + RES_SCALE (4))
 					* (ship_index / NUM_PICK_SHIP_COLUMNS))); 
 			s.frame = StarShipPtr->icons;
 			r.corner = s.origin;
+
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
+
 			if ((StarShipPtr->SpeciesID != NO_ID) || (StarShipPtr->crew_level == 0))
 			{
 				DrawStamp (&s);
 				if (StarShipPtr->SpeciesID == NO_ID)
 				{
 					/* Dead ship - mark with an X. */
-					s.origin.x -= RES_SCALE(1);
+					s.origin.x -= RES_SCALE (1);
 					s.frame = SetAbsFrameIndex (StatusFrame, 3);
 					DrawStamp (&s);
 				}
@@ -527,8 +568,6 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	}
 
 	UnbatchGraphics ();
-	
-	DestroyDrawable (ReleaseDrawable (PickFrame));
 
 	SetContext (OldContext);
 }

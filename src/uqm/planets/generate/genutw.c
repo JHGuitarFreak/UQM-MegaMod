@@ -100,7 +100,6 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 		GeneratePlanets (solarSys);
 
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 		if(PrimeSeed)
@@ -115,15 +114,16 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 		}
 		else
-		{			
+		{
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			CheckForHabitable (solarSys);
 		}
 	} 
 	else if (CurStarDescPtr->Index == BOMB_DEFINED) 
-	{		
-		solarSys->SunDesc[0].PlanetByte = 5;		
+	{
+		solarSys->SunDesc[0].PlanetByte = 5;
 		solarSys->SunDesc[0].MoonByte = 1;
 
 		if (!PrimeSeed)
@@ -133,10 +133,10 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 		GeneratePlanets (solarSys);
 
 		if (!PrimeSeed)
-		{		
+		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random (SysGenRNG) % (YEL_GAS_GIANT - BLU_GAS_GIANT) + BLU_GAS_GIANT);
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (4 - 2) + 2);
-		}		
+		}
 	}
 
 	return true;
@@ -146,7 +146,8 @@ static bool
 GenerateUtwig_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (MET_AN_UTWIG && CurStarDescPtr->Index == UTWIG_DEFINED
+	if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD)
+		&& CurStarDescPtr->Index == UTWIG_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
@@ -205,12 +206,13 @@ GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				&& StartSphereTracking (DRUUGE_SHIP))
 		{
 			COUNT i;
+			COUNT sum = DIF_CASE (5, 4, 14);
 
 			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 			ReinitQueue (&GLOBAL (ip_group_q));
 			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-			for (i = 0; i < 5; ++i)
+			for (i = 0; i < sum; ++i)
 			{
 				CloneShipFragment (DRUUGE_SHIP,
 						&GLOBAL (npc_built_ship_q), 0);
@@ -255,17 +257,34 @@ GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
+			GenerateDefault_generateOrbital (solarSys, world);
+
+			if (!DIF_HARD)
+			{
+				solarSys->SysInfo.PlanetInfo.Weather = 1;
+				solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+			}
+
+			if (!PrimeSeed)
+			{
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 2;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 35;
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 105;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 107;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 112;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 169;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 3;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
+			}
+
+			return true;
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
-
-	if (CurStarDescPtr->Index == UTWIG_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) && PrimeSeed)
-	{
-		solarSys->SysInfo.PlanetInfo.Weather = 1;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 1;
-	}
 
 	return true;
 }

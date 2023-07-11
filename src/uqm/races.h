@@ -73,6 +73,9 @@ typedef UWORD STATUS_FLAGS;
 #define SHIP_IN_GRAVITY_WELL   (1 << 8)
 #define PLAY_VICTORY_DITTY     (1 << 9)
 
+#define SHOFIXTI_EXPLOSION	   (1 << 10)
+#define ANDROSYN_COMET_TOGGLE  (1 << 11)
+
 /* These track the old resource package orderings for the ship resource indices */
 typedef enum
 {
@@ -117,6 +120,11 @@ typedef struct captain_stuff
 	FRAME thrust;
 	FRAME weapon;
 	FRAME special;
+	BYTE tl_offset;
+	BYTE tr_offset;
+	BYTE thrust_offset;
+	BYTE weapon_offset;
+	BYTE special_offset;
 } CAPTAIN_STUFF;
 
 typedef enum
@@ -382,6 +390,9 @@ typedef struct
 			 * '(BYTE) ~0' means no function to call. */
 	POINT dest_loc;
 			/* Location to which the fleet (center) is moving. */
+	BOOLEAN can_build;
+			/* Determines if you can build the ship regardless
+			 * of allegiance */
 
 } FLEET_INFO;
 
@@ -391,7 +402,6 @@ enum
 	DEAD_GUY = 0,  // Race is extinct
 	GOOD_GUY,      // Race is allied with the player
 	BAD_GUY,       // Race is not allied with the player
-	CAN_BUILD,	   // Ships can be built regardless
 };
 
 static inline FLEET_INFO *
@@ -532,32 +542,32 @@ typedef enum
 
 #define LOG_TO_HYPER(s) (WORLD_TO_VELOCITY (s) >> 1)
 #define RACE_HYPER_SPEED \
-		LOG_TO_HYPER (RES_SCALE(40)),  /* ARILOU_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(27)),  /* CHMMR_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(24)),  /* HUMAN_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(40)),  /* ORZ_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(40)),  /* PKUNK_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(35)),  /* SHOFIXTI_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(48)),  /* SPATHI_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(40)),  /* SUPOX_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(50)),  /* THRADDASH_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(30)),  /* UTWIG_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(21)),  /* VUX_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(30)),  /* YEHAT_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(40)),  /* MELNORME_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(20)),  /* DRUUGE_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(25)),  /* ILWRATH_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(27)),  /* MYCON_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(60)),  /* SLYLANDRO_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(18)),  /* UMGAH_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(30)),  /* URQUAN_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(40)),  /* ZOQFOTPIK_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(36)),  /* SYREEN_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(30)),  /* BLACK_URQUAN_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(40)),  /* ANDROSYNTH_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(30)),  /* CHENJESU_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(42)),  /* MMRNMHRM_SHIP */ \
-		LOG_TO_HYPER (RES_SCALE(30)),  /* YEHAT_REBEL_SHIP */
+		LOG_TO_HYPER (RES_SCALE (40)),  /* ARILOU_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (27)),  /* CHMMR_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (24)),  /* HUMAN_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (40)),  /* ORZ_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (40)),  /* PKUNK_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (35)),  /* SHOFIXTI_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (48)),  /* SPATHI_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (40)),  /* SUPOX_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (50)),  /* THRADDASH_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (30)),  /* UTWIG_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (21)),  /* VUX_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (30)),  /* YEHAT_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (40)),  /* MELNORME_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (20)),  /* DRUUGE_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (25)),  /* ILWRATH_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (27)),  /* MYCON_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (60)),  /* SLYLANDRO_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (18)),  /* UMGAH_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (30)),  /* URQUAN_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (40)),  /* ZOQFOTPIK_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (36)),  /* SYREEN_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (30)),  /* BLACK_URQUAN_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (40)),  /* ANDROSYNTH_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (30)),  /* CHENJESU_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (42)),  /* MMRNMHRM_SHIP */ \
+		LOG_TO_HYPER (RES_SCALE (30)),  /* YEHAT_REBEL_SHIP */
 
 #define RACE_HYPERSPACE_PERCENT \
 		20,  /* ARILOU_SHIP */ \
@@ -647,32 +657,32 @@ typedef enum
 		0,  /* URQUAN_DRONE_SHIP */
 
 #define HOMEWORLD_LOC \
-		0,					/* ARILOU_SHIP */ \
-		CHMMR_DEFINED,		/* CHMMR_SHIP */ \
-		0,					/* HUMAN_SHIP */ \
-		ORZ_DEFINED,		/* ORZ_SHIP */ \
-		PKUNK_DEFINED,		/* PKUNK_SHIP */ \
-		0,					/* SHOFIXTI_SHIP */ \
-		SPATHI_DEFINED,		/* SPATHI_SHIP */ \
-		SUPOX_DEFINED,		/* SUPOX_SHIP */ \
-		THRADD_DEFINED,		/* THRADDASH_SHIP */ \
-		UTWIG_DEFINED,		/* UTWIG_SHIP */ \
-		VUX_DEFINED,		/* VUX_SHIP */ \
-		YEHAT_DEFINED,		/* YEHAT_SHIP */ \
-		0,					/* MELNORME_SHIP */ \
-		DRUUGE_DEFINED,		/* DRUUGE_SHIP */ \
-		ILWRATH_DEFINED,	/* ILWRATH_SHIP */ \
-		MYCON_DEFINED,		/* MYCON_SHIP */ \
-		0,					/* SLYLANDRO_SHIP */ \
-		UMGAH_DEFINED,		/* UMGAH_SHIP */ \
-		0,					/* URQUAN_SHIP */ \
-		ZOQFOT_DEFINED,		/* ZOQFOTPIK_SHIP */ \
-		SYREEN_DEFINED,		/* SYREEN_SHIP */ \
-		0,					/* BLACK_URQUAN_SHIP */ \
-		0,					/* ANDROSYNTH_SHIP */ \
-		0,					/* CHENJESU_SHIP */ \
-		0,					/* MMRNMHRM_SHIP */ \
-		0,					/* YEHAT_REBEL_SHIP */ \
+		0,                  /* ARILOU_SHIP */ \
+		CHMMR_DEFINED,      /* CHMMR_SHIP */ \
+		0,                  /* HUMAN_SHIP */ \
+		ORZ_DEFINED,        /* ORZ_SHIP */ \
+		PKUNK_DEFINED,      /* PKUNK_SHIP */ \
+		0,                  /* SHOFIXTI_SHIP */ \
+		SPATHI_DEFINED,     /* SPATHI_SHIP */ \
+		SUPOX_DEFINED,      /* SUPOX_SHIP */ \
+		THRADD_DEFINED,     /* THRADDASH_SHIP */ \
+		UTWIG_DEFINED,      /* UTWIG_SHIP */ \
+		VUX_DEFINED,        /* VUX_SHIP */ \
+		YEHAT_DEFINED,      /* YEHAT_SHIP */ \
+		0,                  /* MELNORME_SHIP */ \
+		DRUUGE_DEFINED,     /* DRUUGE_SHIP */ \
+		ILWRATH_DEFINED,    /* ILWRATH_SHIP */ \
+		MYCON_DEFINED,      /* MYCON_SHIP */ \
+		0,                  /* SLYLANDRO_SHIP */ \
+		UMGAH_DEFINED,      /* UMGAH_SHIP */ \
+		0,                  /* URQUAN_SHIP */ \
+		ZOQFOT_DEFINED,     /* ZOQFOTPIK_SHIP */ \
+		SYREEN_DEFINED,     /* SYREEN_SHIP */ \
+		0,                  /* BLACK_URQUAN_SHIP */ \
+		0,                  /* ANDROSYNTH_SHIP */ \
+		0,                  /* CHENJESU_SHIP */ \
+		0,                  /* MMRNMHRM_SHIP */ \
+		0,                  /* YEHAT_REBEL_SHIP */ \
 
 // How many ships will an encounter consist of.
 // The first number specifies the minimum, the second the maximum.
@@ -700,15 +710,15 @@ typedef enum
 		MAKE_BYTE (1, 5),  /* ZOQFOTPIK_SHIP */ \
 		0,                 /* SYREEN_SHIP */ \
 		MAKE_BYTE (1, 5),  /* BLACK_URQUAN_SHIP */ \
-		0,				   /* ANDROSYNTH_SHIP*/ \
-		0,				   /* CHENJESU_SHIP */\
-		0,				   /* MMRNMHRM_SHIP */\
+		0,                 /* ANDROSYNTH_SHIP*/ \
+		0,                 /* CHENJESU_SHIP */\
+		0,                 /* MMRNMHRM_SHIP */\
 		MAKE_BYTE (1, 5),  /* YEHAT_REBEL_SHIP */
 
 #define RACE_COLORS \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x10), 0x53),  /* ARILOU_SHIP */ \
-		BUILD_COLOR (MAKE_RGB15_INIT (0x96, 0x96, 0x96), 0xFF),  /* CHMMR_SHIP */ \
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x01, 0x1f), 0x4D),  /* HUMAN_SHIP */ \
+		             MAKE_RGBA_INIT  (0xB5, 0xB5, 0xB5, 0xFF),   /* CHMMR_SHIP */ \
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x01, 0x1F), 0x4D),  /* HUMAN_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0E, 0x00, 0x0E), 0x36),  /* ORZ_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x62),  /* PKUNK_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x06, 0x00), 0x77),  /* SHOFIXTI_SHIP */ \
@@ -726,7 +736,7 @@ typedef enum
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x00, 0x11), 0x3D),  /* UMGAH_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x08, 0x00), 0x6E),  /* URQUAN_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),  /* ZOQFOTPIK_SHIP */ \
-		BUILD_COLOR (MAKE_RGB15_INIT (0x66, 0x00, 0xCC), 0xFF),  /* SYREEN_SHIP */ \
+		             MAKE_RGBA_INIT  (0x51, 0x18, 0x8B,  0xFF),  /* SYREEN_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x20),  /* BLACK_URQUAN_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x12, 0x10, 0x1F), 0x00),  /* ANDROSYNTH_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x15, 0x1C), 0x00),  /* CHENJESU_SHIP */ \

@@ -200,7 +200,8 @@ GetStringLength (STRING String)
 	{
 		return 0;
 	}
-	return utf8StringCountN(String->data, String->data + String->length);
+	return (COUNT)utf8StringCountN (
+			String->data, String->data + String->length);
 }
 
 COUNT
@@ -344,4 +345,18 @@ GetStringByName (STRING_TABLE StringTable, const char *index)
 	return (STRING) StringHashTable_find (StringTable->nameIndex, index);
 }
 
+BOOLEAN
+CheckResString (RESOURCE res)
+{
+	BOOLEAN check = FALSE;
+	STRING string = CaptureStringTable (LoadStringTableInstance (res));
+
+	if (string != NULL)
+		check = TRUE;
+
+	DestroyStringTable (ReleaseStringTable (string));
+	string = 0;
+
+	return check;
+}
 

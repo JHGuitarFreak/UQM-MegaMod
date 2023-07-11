@@ -34,6 +34,8 @@
 #include "setup.h"
 
 BOOLEAN legacySave;
+BYTE GTFO = 0;
+extern FRAME SpaceJunkFrame;
 
 void
 NotifyOthers (COUNT which_race, BYTE target_loc)
@@ -95,8 +97,9 @@ NotifyOthers (COUNT which_race, BYTE target_loc)
 		else
 		{	// Send the group to the location.
 			// XXX: There is currently no use of such notify that I know of.
-			GroupPtr->task |= IGNORE_FLAGSHIP;
-			GroupPtr->dest_loc = target_loc;
+			GroupPtr->task &= REFORM_GROUP;
+			GroupPtr->task |= FLEE | IGNORE_FLAGSHIP;
+			GroupPtr->dest_loc = 0;
 		}
 
 		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
@@ -172,6 +175,20 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 	InitIntersectStartPoint (EPtr);
 
 	flagship_loc = getFlagshipLocation ();
+
+	if ((GET_GAME_STATE (KOHR_AH_FRENZY)
+		 && CheckAlliance (GroupPtr->race_id) == DEAD_GUY)
+		|| (GTFO == 1 && GroupPtr->race_id == ILWRATH_SHIP))
+	{
+		GTFO = 0;
+		NotifyOthers (GroupPtr->race_id, IPNL_FLEE);
+	}
+
+	if (GTFO == 2 && GroupPtr->race_id == ILWRATH_SHIP)
+	{
+		GTFO = 0;
+		NotifyOthers (ILWRATH_SHIP, IPNL_INTERCEPT_PLAYER);
+	}
 
 	task = GroupPtr->task;
 
@@ -451,9 +468,9 @@ CheckGetAway:
 					// different from how the flagship enters, but similar
 					// in the way that the group will never show up in any
 					// of the corners.
-					entryPt.x = (SIS_SCREEN_WIDTH >> 1) - COSINE (angle,
+					entryPt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) - COSINE (angle,
 							SIS_SCREEN_WIDTH * 9 / 16);
-					entryPt.y = (SIS_SCREEN_HEIGHT >> 1) - SINE (angle,
+					entryPt.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - SINE (angle,
 							SIS_SCREEN_HEIGHT * 9 / 16);
 					GroupPtr->loc = displayToLocation (entryPt,
 							MAX_ZOOM_RADIUS);
@@ -517,12 +534,6 @@ CheckGetAway:
 		}
 		else
 			EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame); // Probe will wobble while reforming
-	}
-
-	if (GET_GAME_STATE(KOHR_AH_FRENZY) && CheckAlliance(GroupPtr->race_id) == DEAD_GUY)
-	{
-		GroupPtr->task = FLEE;
-		EPtr->state_flags |= NONSOLID;
 	}
 
 	radius = zoomRadiusForLocation (group_loc);
@@ -590,6 +601,11 @@ ip_group_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 	GetElementStarShip (ElementPtr0, &GroupPtr);
 	GetElementStarShip (ElementPtr1, &OtherPtr);
+
+	if (!(GLOBAL (autopilot.x) == ~0 && GLOBAL (autopilot.y) == ~0)
+			&& (CheckAlliance (GroupPtr->race_id) == GOOD_GUY))
+		return; // Ignore collisions when allied during Auto-Pilot
+
 	if (OtherPtr)
 	{	// Collision with another group
 		// Prevent the groups from coalescing into a single ship icon
@@ -692,8 +708,9 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 
 		SetUpElement (IPSHIPElementPtr);
 		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame =
-				DecFrameIndex (stars_in_space);
-
+				(IS_HD ? SetAbsFrameIndex (SpaceJunkFrame, 24) :
+					DecFrameIndex (stars_in_space));
+		
 		UnlockElement (hIPSHIPElement);
 
 		PutElement (hIPSHIPElement);
@@ -739,8 +756,9 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 			vdx >>= 1;
 			vdy >>= 1;
 		}
-		else if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+		else if ((CurrentInputState.key[PlayerControls[0]][KEY_UP]
 			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
+			|| (vdx == 0 && vdy == 0))
 		{
 			legacySave = FALSE;
 		}

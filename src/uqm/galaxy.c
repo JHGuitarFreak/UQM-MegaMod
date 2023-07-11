@@ -263,6 +263,7 @@ InitGalaxy (void)
 
 		if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA) 
 				&& LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE 
+				&& LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE
 				&& i == BIG_STAR_COUNT + 1)
 		{	//Set SA-MATRA as background image on the second Star layer
 			SetPrimType (&DisplayArray[p], MISC_PRIM);
@@ -358,7 +359,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 
 	if (view_state != VIEW_STABLE)
 	{
-		COUNT reduction, i, iss, scale;
+		COUNT reduction, i, iss, scale = 0;
 		DPOINT *ppt;
 		FRAME tempframe;
 		int wrap_around;
@@ -591,7 +592,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 }
 
 void
-SetStarPoint(POINT pt, COUNT i)
+SetStarPoint (POINT pt, COUNT i)
 {
 	log_star_array[i].x = pt.x;
 	log_star_array[i].y = pt.y;

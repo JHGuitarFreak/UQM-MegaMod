@@ -18,7 +18,6 @@
 #include "sounds.h"
 #include "units.h"
 
-
 SOUND MenuSounds;
 SOUND GameSounds;
 
@@ -197,5 +196,3 @@ RemoveSoundsForObject (ELEMENT *PosObj)
 			sound_posobj[i] = NULL;
 	}
 }
-
-

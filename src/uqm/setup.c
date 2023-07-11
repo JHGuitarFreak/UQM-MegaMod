@@ -66,9 +66,9 @@ FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
 FRAME hyperspacesuns;
-FRAME NebulaeFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
+FRAME visitedStarsFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
 FRAME HDBorderFrame;
@@ -87,6 +87,7 @@ BOOLEAN DeathByMelee = FALSE;
 BOOLEAN DeathBySuicide = FALSE;
 BOOLEAN SpaceMusicOK;
 BOOLEAN oldPlanetsPresent;
+BOOLEAN classicPackPresent;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -140,18 +141,17 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (!IS_HD)
 	{
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
-		solTexturesPresent = loadAddon ("sol-textures-sd");
+		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
 		log_add (log_Debug, "loading HD addon pack");
 		HDPackPresent = TRUE;
-		solTexturesPresent = loadAddon ("sol-textures-hd");
+		//solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
+		//classicPackPresent = loadAddon ("classic-pack");
 	}
-
-	loadAddon ("ProfanePkunk");
 
 	usingSpeech = optSpeech;
 	if (optSpeech && !loadAddon ("3dovoice"))
@@ -185,10 +185,29 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
 
+	loadAddon ("ProfanePkunk");
+	loadAddon ("GlaDOS");
+
 	if (!IS_HD)
+	{
+		// Localization addons
+		loadAddon ("xlat-finnish-sd");
+		loadAddon ("xlat-german-sd");
+		loadAddon ("xlat-japanese-sd");
+		loadAddon ("xlat-russian-sd");
+		
 		loadAddon ("automods-sd");
+	}
 	else if (HDPackPresent)
+	{
+		// Localization addons
+		loadAddon ("xlat-finnish-hd");
+		loadAddon ("xlat-german-hd");
+		loadAddon ("xlat-japanese-hd");
+		loadAddon ("xlat-russian-hd");
+
 		loadAddon ("automods-hd");
+	}
 
 
 	/* Now load the rest of the addons, in order. */
@@ -297,10 +316,6 @@ InitKernel (void)
 		if (hyperspacesuns == NULL)
 			return FALSE;
 	}
-
-	NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
-	if (NebulaeFrame == NULL || !NebulaeFrame)
-		return FALSE;
 
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)

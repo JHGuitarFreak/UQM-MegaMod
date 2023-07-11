@@ -41,6 +41,16 @@ typedef struct tfb_decoderformats
 	uint32 stereo16;
 } TFB_DecoderFormats;
 
+typedef enum
+{
+	AUDIO_WAV,
+	AUDIO_TRACKER,
+	AUDIO_OGG,
+	AUDIO_DUK,
+	AUDIO_AIF,
+	NUM_AUDIO_FILETYPES
+} AUDIO_FILETYPES;
+
 // forward-declare
 typedef struct tfb_sounddecoder TFB_SoundDecoder;
 
@@ -95,6 +105,10 @@ struct tfb_sounddecoder
 	uint32 start_sample;
 	uint32 end_sample;
 
+	uint16 numpos;
+		// for tracker modules
+	uint32 filename_hash;
+		// for music resume
 };
 
 // return values
@@ -125,5 +139,7 @@ void SoundDecoder_Seek (TFB_SoundDecoder *decoder, uint32 msecs);
 void SoundDecoder_Rewind (TFB_SoundDecoder *decoder);
 void SoundDecoder_Free (TFB_SoundDecoder *decoder);
 const char* SoundDecoder_GetName (TFB_SoundDecoder *decoder);
+
+extern uint32_t crc32b (const char *str);
 
 #endif

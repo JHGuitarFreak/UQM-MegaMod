@@ -22,9 +22,11 @@
 
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
+#include "uqm/battle.h"
+#include "uqm/sounds.h"
 
-#define STROBE_RATE   10
-#define STROBE_LENGTH (ONE_SECOND * 3 / 2)
+#define STROBE_RATE   30
+#define STROBE_LENGTH (ONE_SECOND / 3)
 #define NUM_STROBES   (STROBE_LENGTH * STROBE_RATE / ONE_SECOND)
 
 static LOCDATA talkpet_desc =
@@ -43,10 +45,13 @@ static LOCDATA talkpet_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	TALKING_PET_COLOR_MAP, /* AlienColorMap */
 	TALKING_PET_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	TALKING_PET_CONVERSATION_PHRASES, /* PlayerPhrases */
-	17, /* NumAnimations */
+	18, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			7, /* StartIndex */
@@ -212,6 +217,20 @@ static LOCDATA talkpet_desc =
 	NULL,
 };
 
+static FILTER_DESC talkpet_filters =
+{
+	1, /* Number of filters */
+	{ /* Filter array */
+		{
+			0, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
+};
+
 static void
 ExitConversation (RESPONSE_REF R)
 {
@@ -279,6 +298,9 @@ MindControlStrobe (void)
 {
 	// Enable the one-shot strobe animation
 	CommData.AlienAmbientArray[16].AnimFlags &= ~ANIM_DISABLED;
+
+	if (IS_HD)
+		EngageFilters (&talkpet_filters);
 }
 
 static void
@@ -813,7 +835,7 @@ init_talkpet_comm (void)
 
 	talkpet_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	talkpet_desc.AlienTextBaseline.y = 0;
-	talkpet_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	talkpet_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
 	{

@@ -27,6 +27,10 @@
 void
 removeSubstr (char *str, const char *toRemove)
 {
+	const size_t remLen = strlen (toRemove);
+	char *copyEnd;
+	char *copyFrom;
+
 	if (NULL == (str = strstr (str, toRemove)))
 	{  
 		// no match.
@@ -35,9 +39,8 @@ removeSubstr (char *str, const char *toRemove)
 	}
 
 	// str points to toRemove in str now.
-	const size_t remLen = strlen (toRemove);
-	char *copyEnd;
-	char *copyFrom = str + remLen;
+	copyFrom = str + remLen;
+
 	while (NULL != (copyEnd = strstr (copyFrom, toRemove)))
 	{
 		//printf ("match at %3ld in %s\n", copyEnd - str, str);

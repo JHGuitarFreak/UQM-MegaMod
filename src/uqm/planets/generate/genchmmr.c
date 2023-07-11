@@ -123,7 +123,6 @@ GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
 		else
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 
 		if (PrimeSeed)
 		{
@@ -163,32 +162,71 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					return true;
 				}
 				else if (GET_GAME_STATE (SUN_DEVICE_ON_SHIP)
-					&& !GET_GAME_STATE (ILWRATH_DECEIVED)
-					&& StartSphereTracking (ILWRATH_SHIP))
+						&& ((!GET_GAME_STATE (ILWRATH_DECEIVED)
+						&& StartSphereTracking (ILWRATH_SHIP))
+						|| (!(GET_GAME_STATE (HM_ENCOUNTERS)
+						& 1 << ILWRATH_ENCOUNTER)
+						&& DIF_HARD && !(GET_GAME_STATE (KOHR_AH_FRENZY)))))
 				{
 					PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 					ReinitQueue (&GLOBAL (ip_group_q));
 					assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-					CloneShipFragment (ILWRATH_SHIP,
-						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
+					if (GET_GAME_STATE (ILWRATH_DECEIVED) && DIF_HARD)
+					{
+						COUNT lim, i;
+
+						if (StartSphereTracking (ILWRATH_SHIP))
+							lim = 14;
+						else
+							lim = 6;
+
+						for (i = 0; i < lim; ++i)
+							CloneShipFragment (ILWRATH_SHIP,
+								&GLOBAL(npc_built_ship_q), 0);
+					}
+					else
+						CloneShipFragment (ILWRATH_SHIP,
+							&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
 
 					SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
 					GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
 					InitCommunication (ILWRATH_CONVERSATION);
 
-					if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
+					if (GLOBAL(CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+						return true;
+
 					{
+						BOOLEAN Survivors =
+								GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
+
 						GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 						ReinitQueue (&GLOBAL (npc_built_ship_q));
 						GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
+						if (Survivors)
+							return true;
+
+						{
+							UWORD state;
+
+							state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+							state |= 1 << ILWRATH_ENCOUNTER;
+
+							SET_GAME_STATE (HM_ENCOUNTERS, state);
+						}
+
+						RepairSISBorder ();
 					}
+					
+					GenerateDefault_generateOrbital (solarSys, world);
 
 					return true;
 				}
 			}
 			else if (matchWorld (solarSys, world,
-					solarSys->SunDesc[0].PlanetByte, 
+					solarSys->SunDesc[0].PlanetByte,
 					solarSys->SunDesc[0].MoonByte))
 			{
 				/* Starbase */
@@ -218,7 +256,7 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 							LoadGraphic (RUINS_MASK_PMAP_ANIM));
 				solarSys->SysInfo.PlanetInfo.DiscoveryString =
 						CaptureStringTable (
-							LoadStringTable (RUINS_STRTAB));
+							LoadStringTable (CHMMR_HOME_STRTAB));
 			}
 			else if (matchWorld (solarSys, world,
 					solarSys->SunDesc[0].PlanetByte, 
@@ -249,9 +287,6 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		BOOLEAN MelnormeInfo = GET_GAME_STATE (MELNORME_ALIEN_INFO_STACK) >= 8;
 		BOOLEAN ChmmrStack = GET_GAME_STATE (CHMMR_HOME_VISITS);
 
-		solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 2;
-
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
 			CaptureDrawable (LoadGraphic (MOTHER_ARK_MASK_PMAP_ANIM));
@@ -262,6 +297,13 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				SetRelStringTableIndex (
 					solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
+
+		GenerateDefault_generateOrbital (solarSys, world);
+
+		solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+
+		return true;
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);

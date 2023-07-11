@@ -36,10 +36,13 @@ static LOCDATA urquan_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	URQUAN_COLOR_MAP, /* AlienColorMap */
 	URQUAN_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		URQUAN_ALTCOLOR_MAP, /* AlienAltColorMap */
+		URQUAN_PROBE_MUSIC, /* AlienAltSong */
+	},
 	URQUAN_CONVERSATION_PHRASES, /* PlayerPhrases */
-	7, /* NumAnimations */
+	9, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			7, /* StartIndex */
@@ -97,12 +100,28 @@ static LOCDATA urquan_desc =
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			0, /* BlockMask */
 		},
+		{
+			44, /* StartIndex */
+			5, /* NumFrames */
+			CIRCULAR_ANIM | ANIM_DISABLED, /* AnimFlags */
+			ONE_SECOND / 20, 0, /* FrameRate */
+			ONE_SECOND * 3, ONE_SECOND * 5, /* RestartRate */
+			0, /* BlockMask */
+		},
+		{
+			49, /* StartIndex */
+			1, /* NumFrames */
+			CIRCULAR_ANIM | ANIM_DISABLED, /* AnimFlags */
+			0, 0, /* FrameRate */
+			0, 0, /* RestartRate */
+			0, /* BlockMask */
+		},
 	},
 	{ /* AlienTransitionDesc */
 		1, /* StartIndex */
 		2, /* NumFrames */
 		0, /* AnimFlags */
-		ONE_SECOND / 6, 0, /* FrameRate */
+		ONE_SECOND / 30, 0, /* FrameRate */
 		0, 0, /* RestartRate */
 		0, /* BlockMask */
 	},
@@ -410,6 +429,12 @@ Intro (void)
 {
 	DWORD GrpOffs;
 
+	if (EXTENDED)
+	{
+		CommData.AlienAmbientArray[7].AnimFlags &= ~ANIM_DISABLED;
+		CommData.AlienAmbientArray[8].AnimFlags &= ~CIRCULAR_ANIM;
+	}
+
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{
 		NPCPhrase (OUT_TAKES);
@@ -535,18 +560,16 @@ init_urquan_comm (void)
 
 	urquan_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	urquan_desc.AlienTextBaseline.y = 0;
-	urquan_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	urquan_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	GrpOffs = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 	
-	if (IsProbe == TRUE){
-		// use alternate "Probe" track if available
-		urquan_desc.AlienAltSongRes = URQUAN_PROBE_MUSIC;
-		urquan_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	} else {
-		// regular track -- let's make sure
-		urquan_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
+	// use alternate "Probe" track if available
+	if (IsProbe == TRUE)
+		altResFlags |= USE_ALT_SONG;
+
+	if (EXTENDED)
+		altResFlags |= USE_ALT_COLORMAP;
 
 	if (GET_GAME_STATE (PLAYER_HYPNOTIZED)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE

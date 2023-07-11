@@ -190,6 +190,10 @@ LoadRaceQueue (void *fh, QUEUE *pQueue, DWORD size)
 
 		// Read FLEET_INFO elements
 		read_16 (fh, &FleetPtr->allied_state);
+
+		if (FleetPtr->allied_state > 2)
+			FleetPtr->allied_state = BAD_GUY;
+
 		read_8  (fh, &FleetPtr->days_left);
 		read_8  (fh, &FleetPtr->growth_fract);
 		read_16 (fh, &FleetPtr->crew_level);
@@ -307,6 +311,25 @@ LoadClockState (CLOCK_STATE *ClockPtr, void *fh)
 	read_16s (fh, &ClockPtr->day_in_ticks);
 }
 
+// Assumes little endian
+void
+printBits (size_t const size, void const *const ptr)
+{
+	unsigned char *b = (unsigned char *)ptr;
+	unsigned char byte;
+	int i, j;
+
+	for (i = size - 1; i >= 0; i--)
+	{
+		for (j = 7; j >= 0; j--)
+		{
+			byte = (b[i] >> j) & 1;
+			printf ("%u", byte);
+		}
+	}
+	puts ("");
+}
+
 static BOOLEAN
 LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 {
@@ -327,12 +350,6 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	read_8   (fh, &GSPtr->CrewCost);
 	read_8   (fh, &GSPtr->FuelCost);
 
-	// JMS: If fuel cost doesn't match FUEL_COST_RU we must cease
-	// reading the savefile, close it, then re-open it again. This
-	// time using the vanilla-reading method.
-	if (GSPtr->FuelCost != FUEL_COST_RU)
-		return FALSE;
-		
 	read_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
 	read_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
 	read_16  (fh, &GSPtr->CurrentActivity);
@@ -351,7 +368,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	read_8   (fh, &GSPtr->in_orbit);
 
 	// Let's make savegames work even between different resolution modes.
-	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR; 
+	GSPtr->ShipStamp.origin.x <<= RESOLUTION_FACTOR;
 	GSPtr->ShipStamp.origin.y <<= RESOLUTION_FACTOR;
 
 	/* VELOCITY_DESC velocity */
@@ -366,15 +383,15 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 	read_16s (fh, &GSPtr->velocity.incr.height);
 	
 	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
-	{	// Let's make savegames work even between different resolution modes.	
+	{	// Let's make savegames work even between different resolution modes.
 		GSPtr->velocity.vector.width  <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.vector.height <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.fract.width	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.fract.width   <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.fract.height  <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.error.width	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.error.width   <<= RESOLUTION_FACTOR;
 		GSPtr->velocity.error.height  <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.incr.width	  <<= RESOLUTION_FACTOR;
-		GSPtr->velocity.incr.height	  <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.incr.width    <<= RESOLUTION_FACTOR;
+		GSPtr->velocity.incr.height   <<= RESOLUTION_FACTOR;
 	}
 
 	read_32 (fh, &magic);
@@ -383,50 +400,69 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		return FALSE;
 	}
 	{
-		size_t gameStateByteCount;
 		BYTE *buf;
 		BOOLEAN result;
-
-		gameStateByteCount = ((NUM_GAME_STATE_BITS + 7) >> 3) 
-				- (try_core ? 2 : 0);
+		int rev;
+		size_t gameStateByteCount;
 
 		read_32 (fh, &magic);
-		if (magic < gameStateByteCount)
+		rev = (try_core ? 0 : getGameStateRevByBytes (gameStateBitMap, magic));
+		gameStateByteCount = (totalBitsForGameState (gameStateBitMap, rev) + 7) >> 3;
+
+		if (rev < 0 || magic < gameStateByteCount)
 		{
 			log_add (log_Error, "Warning: Savegame is corrupt: saved game "
 					"state is too small.");
 			return FALSE;
 		}
 
+		log_add (log_Debug, "Detected save game state rev %d: %s",
+				rev, gameStateBitMapRevTag[rev]);
+
 		buf = HMalloc (gameStateByteCount);
 		if (buf == NULL)
 		{
 			log_add (log_Error, "Warning: Cannot allocate enough bytes for "
-					"the saved game state (%zu bytes).", gameStateByteCount);
+					"the saved game state (%lu bytes).", (unsigned long)gameStateByteCount);
 			return FALSE;
 		}
 
-		read_a8 (fh, buf, gameStateByteCount);
-		result = deserialiseGameState ((try_core ? coreGameStateBitMap  : gameStateBitMap),
-				buf, gameStateByteCount);
-		HFree(buf);
+		read_a8 (fh, buf, (COUNT)gameStateByteCount);
+		result = deserialiseGameState (gameStateBitMap, buf, gameStateByteCount, rev);
+		HFree (buf);
 		if (result == FALSE)
 		{
 			// An error message is already printed.
 			return FALSE;
 		}
 
+		if (rev < 2)
+			GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
+
+		if (rev < 3)
+			ZeroLastLoc ();
+
+		if (rev < 4)
+		{
+			ZeroAdvancedAutoPilot ();
+			ZeroAdvancedQuasiPilot ();
+		}
+
 		if (magic > gameStateByteCount)
 		{
-			skip_8 (fh, magic - gameStateByteCount);
+			skip_8 (fh, (COUNT)(magic - gameStateByteCount));
 		}
 	}
 	return TRUE;
 }
 
 static BOOLEAN
-LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core)
+LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
+		BOOLEAN legacyMM)
 {
+	COUNT SisNameSize = (legacyMM || try_core) ?
+			LEGACY_SIS_NAME_SIZE : SIS_NAME_SIZE;
+
 	if (
 			read_32s (fp, &SSPtr->log_x) != 1 ||
 			read_32s (fp, &SSPtr->log_y) != 1 ||
@@ -441,16 +477,16 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core)
 			read_8   (fp, &SSPtr->NumLanders) != 1 ||
 			read_a16 (fp, SSPtr->ElementAmounts, NUM_ELEMENT_CATEGORIES) != 1 ||
 
-			read_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1 ||
+			read_str (fp, SSPtr->ShipName, SisNameSize) != 1 ||
+			read_str (fp, SSPtr->CommanderName, SisNameSize) != 1 ||
+			read_str (fp, SSPtr->PlanetName, SisNameSize) != 1 ||
 			(!try_core && (read_8 (fp, &SSPtr->Difficulty) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Extended) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Nomad) != 1)) ||
 			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1))
 		)
 		return FALSE;
- 	else 
+ 	else
  	{
 		if (try_core)
 		{	// Use old Log X to Universe code to get proper coordinates from core saves
@@ -470,12 +506,16 @@ static BOOLEAN
 LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 {
 	DWORD magic;
-	DWORD magicTag = try_core ? SAVEFILE_TAG : MEGA_TAG;
+	DWORD magicTag = try_core ? SAVEFILE_TAG : MMV3_TAG;
 	DWORD nameSize = 0;
+	BOOLEAN legacyMM = FALSE;
 	if (!read_32 (fp, &magic))
 		return FALSE;
-	if (magic == magicTag)
+	if (magic == magicTag || magic == MEGA_TAG)
 	{
+		if (magic == MEGA_TAG)
+			legacyMM = TRUE;
+
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
 		if (read_32 (fp, &magic) != 1 || magic < 160)
@@ -487,7 +527,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 		return FALSE;
 	}
 
-	if (!LoadSisState (&SummPtr->SS, fp, try_core))
+	if (!LoadSisState (&SummPtr->SS, fp, try_core, legacyMM))
 		return FALSE;
 	
 	if (try_core)
@@ -759,6 +799,8 @@ LoadCoreGame (COUNT which_game, SUMMARY_DESC* SummPtr)
 		res_CloseResFile (in_fp);
 		return FALSE;
 	}
+
+	return FALSE;
 }
 
 BOOLEAN
@@ -864,6 +906,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 			{
 				HEVENT hEvent;
 				EVENT *EventPtr;
+				BOOLEAN DeCleanse = FALSE;
 
 				hEvent = AllocEvent ();
 				LockEvent (hEvent, &EventPtr);
@@ -877,8 +920,25 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 						 EventPtr->year_index,
 						 EventPtr->func_index);
 #endif /* DEBUG_LOAD */
+				if (optDeCleansing && EventPtr->func_index == KOHR_AH_VICTORIOUS_EVENT)
+				{
+					UnlockEvent (hEvent);
+					printf("EventPtr->year_index: %d\n", EventPtr->year_index);
+
+					if (EventPtr->year_index == 2158)
+					{
+						FreeEvent (hEvent);
+						DeCleanse = TRUE;
+					}
+					continue;
+				}
+
 				UnlockEvent (hEvent);
 				PutEvent (hEvent);
+
+				if (optDeCleansing && DeCleanse)
+					AddEvent (ABSOLUTE_EVENT, 2, 17, START_YEAR + YEARS_TO_KOHRAH_VICTORY,
+							KOHR_AH_VICTORIOUS_EVENT);
 			}
 			break;
 		case STAR_TAG:

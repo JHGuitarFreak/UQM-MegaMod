@@ -275,6 +275,21 @@ enum
 	new_devices,
 	how_get_strong,
 	what_do_now,
+
+	CARGO_LIST,
+	ELLIPSES,
+	BLANK,
+	KILOTONS_OF,
+	COMMONR,
+	CORROSR,
+	BASEMER,
+	NOBLESR,
+	RAREEAR,
+	PRECIOR,
+	RADIOAR,
+	EXOTICR,
+	FOR,
+	RESUNITS,
 };
 
 #endif /* UQM_COMM_STARBAS_STRINGS_H */

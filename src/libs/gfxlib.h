@@ -23,6 +23,7 @@
 
 #include "port.h"
 #include "libs/compiler.h"
+#include <math.h>
 
 typedef struct Color Color;
 struct Color {
@@ -62,6 +63,14 @@ sameColor(Color c1, Color c2)
 			c1.g == c2.g &&
 			c1.b == c2.b &&
 			c1.a == c2.a;
+}
+
+static inline bool
+sameColor24(Color c1, Color c2)
+{
+	return c1.r == c2.r &&
+		c1.g == c2.g &&
+		c1.b == c2.b;
 }
 
 // Transform a 5-bits color component to an 8-bits color component.
@@ -146,6 +155,9 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 #define BUILD_COLOR_RGBA(r, g, b, a) \
 		buildColorRgba ((r), (g), (b), (a))
 
+#define BUILD_SHADE_RGBA(s) \
+		buildColorRgba ((s), (s), (s), 0xFF)
+
 
 typedef BYTE CREATE_FLAGS;
 // WANT_MASK is deprecated (and non-functional). It used to generate a bitmap
@@ -205,11 +217,41 @@ MAKE_POINT (COORD x, COORD y)
 	return pt;
 }
 
+static inline DPOINT
+MAKE_DPOINT (SDWORD x, SDWORD y)
+{
+	DPOINT pt = { x, y };
+	return pt;
+}
+
 static inline EXTENT
 MAKE_EXTENT (COORD width, COORD height)
 {
 	EXTENT ext = {width, height};
 	return ext;
+}
+
+static inline DEXTENT
+MAKE_DEXTENT (SDWORD width, SDWORD height)
+{
+	DEXTENT ext = {width, height};
+	return ext;
+}
+
+//static inline void
+//MAKE_LINE (LINE *line, int x1, int y1, int x2, int y2)
+//{
+//	line->first.x = x1;
+//	line->first.y = y1;
+//	line->second.x = x2;
+//	line->second.y = y2;
+//}
+
+static inline void
+MAKE_LINE (LINE *line, POINT first, POINT second)
+{
+	line->first = first;
+	line->second = second;
 }
 
 static inline bool
@@ -237,6 +279,65 @@ pointWithinRect (RECT r, POINT p)
 	return p.x >= r.corner.x && p.y >= r.corner.y
 			&& p.x < r.corner.x + r.extent.width
 			&& p.y < r.corner.y + r.extent.height;
+}
+
+static inline double
+ptDistance (POINT p1, POINT p2)
+{
+	return (sqrt (pow ((double)p2.x - (double)p1.x, 2)
+			+ pow ((double)p2.y - (double)p1.y, 2)));
+}
+
+static inline double
+calcDistance (COORD x1, COORD y1, COORD x2, COORD y2)
+{
+	double dx = (double)x2 - (double)x1;
+	double dy = (double)y2 - (double)y1;
+
+	return (sqrt (pow (dx, 2) + pow (dy, 2)));
+}
+
+static inline void
+printPt (POINT pt, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, pt.x, pt.y);
+}
+
+static inline void
+printDPt (DPOINT dPt, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, dPt.x, dPt.y);
+}
+
+static inline void
+printExt (EXTENT ext, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, ext.width, ext.height);
+}
+
+static inline void
+printDExt (DEXTENT dExt, UNICODE *Str)
+{
+	printf ("%s = %d x %d\n", Str, dExt.width, dExt.height);
+}
+
+static inline void
+printRect (RECT r, UNICODE *Str)
+{
+	printf ("%s.corner = %d x %d\n", Str, r.corner.x, r.corner.y);
+	printf ("%s.extent = %d x %d\n", Str, r.extent.width, r.extent.height);
+}
+
+static inline void
+ZeroPoint (POINT *pt)
+{
+	pt->x = pt->y = ~0;
+}
+
+static inline BOOLEAN
+ValidPoint (POINT pt)
+{
+	return (pt.x != ~0 && pt.y != ~0);
 }
 
 typedef enum
@@ -349,6 +450,18 @@ typedef enum
 			// Text: supported
 			// RGBA sources (WANT_ALPHA): alpha channel ignored
 			// RGBA targets (WANT_ALPHA): not yet supported
+	DRAW_MULTIPLY,
+			// Pixel channels of the source FRAME or Color channels of
+			// a primitive are modulated by (channel / 255) and multiplied
+			// by pixel channels of the target FRAME, modulated by
+			// (channel / 255)
+			// DrawMode.factor range: not yet supported
+			// Text: supported
+			// RGBA sources (WANT_ALPHA): alpha channel ignored
+			// RGBA targets (WANT_ALPHA): not yet supported
+	DRAW_OVERLAY,
+	DRAW_SCREEN,
+	DRAW_GRAYSCALE,
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;
@@ -399,10 +512,17 @@ extern void DrawFilledStamp (STAMP *pStamp);
 extern void DrawPoint (POINT *pPoint);
 extern void DrawRectangle (RECT *pRect, BOOLEAN scaled);
 extern void DrawFilledRectangle (RECT *pRect);
-extern void DrawLine (LINE *pLine);
+extern void DrawLine (LINE *pLine, BYTE thickness);
+extern void InstaPoint (int x, int y);
+extern void InstaRect (int x, int y, int w, int h, BOOLEAN scaled);
+extern void InstaFilledRect (int x, int y, int w, int h);
+extern void InstaLine (int x1, int y1, int x2, int y2);
 extern RECT font_GetTextRect (TEXT* pText);
 extern void font_DrawText (TEXT *pText);
 extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
+extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key);
+extern void font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
+		UniChar key);
 extern void DrawBatch (PRIMITIVE *pBasePrim, PRIM_LINKS PrimLinks,
 		BATCH_FLAGS BatchFlags);
 extern void BatchGraphics (void);
@@ -442,8 +562,10 @@ extern FONT SetContextFont (FONT Font);
 extern BOOLEAN DestroyFont (FONT FontRef);
 // The returned pRect is relative to the context drawing origin
 extern BOOLEAN TextRect (TEXT *pText, RECT *pRect, BYTE *pdelta);
+extern BOOLEAN TextRectAlt (TEXT* lpText, RECT* pRect, BYTE* pdelta, UniChar key, FONT AltFontPtr);
 extern BOOLEAN GetContextFontLeading (SIZE *pheight);
-extern BOOLEAN GetContextFontLeadingWidth (SIZE *pwidth);
+extern BOOLEAN GetContextFontDispHeight (SIZE *pheight);
+extern BOOLEAN GetContextFontDispWidth (SIZE *pwidth);
 extern COUNT GetFrameCount (FRAME Frame);
 extern COUNT GetFrameIndex (FRAME Frame);
 extern FRAME SetAbsFrameIndex (FRAME Frame, COUNT FrameIndex);
@@ -467,6 +589,7 @@ extern BOOLEAN ReadFramePixelIndexes (FRAME frame, BYTE *pixels,
 extern BOOLEAN WriteFramePixelIndexes (FRAME frame, const BYTE *pixels,
 		int width, int height);
 extern void SetFrameTransparentColor (FRAME, Color);
+extern BOOLEAN IsFrameIndexed (FRAME Frame);
 
 // If the frame is an active SCREEN_DRAWABLE, this call must be
 // preceeded by FlushGraphics() for draw commands to have taken effect
@@ -493,6 +616,7 @@ extern void FlushColorXForms (void);
 #define SetAbsColorMapIndex SetAbsStringTableIndex
 #define SetRelColorMapIndex SetRelStringTableIndex
 #define GetColorMapLength GetStringLengthBin
+#define CheckColorMap CheckResString
 
 extern COLORMAPPTR GetColorMapAddress (COLORMAP);
 

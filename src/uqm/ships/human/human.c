@@ -29,7 +29,7 @@
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 8
 #define MAX_THRUST /* DISPLAY_TO_WORLD (6) */ 24
-#define MAX_THRUST_HD RES_SCALE(MAX_THRUST)
+#define MAX_THRUST_HD RES_SCALE (MAX_THRUST)
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 3
 #define THRUST_WAIT 4
 #define TURN_WAIT 1
@@ -38,13 +38,13 @@
 // Nuke
 #define WEAPON_ENERGY_COST 9
 #define WEAPON_WAIT 10
-#define HUMAN_OFFSET RES_SCALE(42)
-#define NUKE_OFFSET RES_SCALE(8)
-#define MIN_MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(10))
-#define MAX_MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(20))
+#define HUMAN_OFFSET RES_SCALE (42)
+#define NUKE_OFFSET RES_SCALE (8)
+#define MIN_MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (10))
+#define MAX_MISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (20))
 #define MISSILE_SPEED (MAX_THRUST_HD >= MIN_MISSILE_SPEED ? \
 		MAX_THRUST_HD : MIN_MISSILE_SPEED)
-#define THRUST_SCALE DISPLAY_TO_WORLD (RES_SCALE(1))
+#define THRUST_SCALE DISPLAY_TO_WORLD (RES_SCALE (1))
 #define MISSILE_LIFE 60
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 4
@@ -53,7 +53,7 @@
 // Point-Defense Laser
 #define SPECIAL_ENERGY_COST 4
 #define SPECIAL_WAIT 9
-#define LASER_RANGE (UWORD)RES_SCALE(100)
+#define LASER_RANGE (UWORD)RES_SCALE (100)
 
 RACE_DESC human_desc =
 {
@@ -105,7 +105,8 @@ RACE_DESC human_desc =
 		},
 		{
 			HUMAN_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		HUMAN_VICTORY_SONG,
 		HUMAN_SHIP_SOUNDS,
@@ -284,7 +285,7 @@ initialize_nuke (ELEMENT *ShipPtr, HELEMENT NukeArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = 0;
 	MissileBlock.pixoffs = HUMAN_OFFSET;
-	MissileBlock.speed = RES_SCALE(MISSILE_SPEED);
+	MissileBlock.speed = RES_SCALE (MISSILE_SPEED);
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;
@@ -354,8 +355,7 @@ init_human (void)
 	if (IS_HD)
 	{
 		human_desc.characteristics.max_thrust = MAX_THRUST_HD;
-		human_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
+		human_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		human_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD;
 	}
 	else

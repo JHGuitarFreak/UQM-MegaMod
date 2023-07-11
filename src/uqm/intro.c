@@ -179,7 +179,7 @@ Present_UnbatchGraphics (PRESENTATION_INPUT_STATE* pPIS, BOOLEAN bYield)
 static void
 Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 {
-#define MODULE_YOFS_P  -(RES_SCALE(79) + IF_HD(33))
+#define MODULE_YOFS_P  -(RES_SCALE (79) + IF_HD (33))
 #define DRIVE_TOP_Y_P  (DRIVE_TOP_Y + MODULE_YOFS_P)
 #define JET_TOP_Y_P    (JET_TOP_Y + MODULE_YOFS_P)
 #define MODULE_TOP_Y_P (MODULE_TOP_Y + MODULE_YOFS_P)
@@ -352,8 +352,8 @@ DoPresentation (void *pIS)
 			int w, h;
 			if (2 == sscanf (pStr, "%d %d", &w, &h))
 			{
-				w <<= RESOLUTION_FACTOR; 
-				h <<= RESOLUTION_FACTOR; 
+				w <<= RESOLUTION_FACTOR;
+				h <<= RESOLUTION_FACTOR;
 
 				pPIS->clip_r.extent.width = w;
 				pPIS->clip_r.extent.height = h;
@@ -468,6 +468,19 @@ DoPresentation (void *pIS)
 			pPIS->MusicRef = LoadMusicFile (pPIS->Buffer);
 			PlayMusic (pPIS->MusicRef, FALSE, 1);
 		}
+		else if (strcmp (Opcode, "DITTY") == 0)
+		{	/* set ditty */
+			snprintf (pPIS->Buffer, sizeof (pPIS->Buffer), "ship.%s.ditty", pStr);
+
+			if (pPIS->MusicRef)
+			{
+				StopMusic ();
+				DestroyMusic (pPIS->MusicRef);
+			}
+
+			pPIS->MusicRef = LoadMusic (pPIS->Buffer);
+			PlayMusic (pPIS->MusicRef, FALSE, 1);
+		}
 		else if (strcmp (Opcode, "WAIT") == 0)
 		{	/* wait */
 			int msecs;
@@ -542,8 +555,8 @@ DoPresentation (void *pIS)
 				t.align = ALIGN_CENTER;
 				t.pStr = pPIS->Buffer;
 				t.CharCount = (COUNT)~0;
-				t.baseline.x = RES_SCALE(x);
-				t.baseline.y = RES_SCALE(y);
+				t.baseline.x = RES_SCALE (x);
+				t.baseline.y = RES_SCALE (y);
 				DrawTextEffect (&t, pPIS->TextColor, pPIS->TextBackColor,
 						pPIS->TextEffect);
 			}
@@ -565,7 +578,7 @@ DoPresentation (void *pIS)
 			switch (pPIS->TextVPos)
 			{
 			case 'T': /* top */
-				y = leading + IF_HD(15);
+				y = leading / pPIS->LinesCount + leading;
 				break;
 			case 'M': /* middle */
 				y = (pPIS->clip_r.extent.height
@@ -575,8 +588,8 @@ DoPresentation (void *pIS)
 				y = pPIS->clip_r.extent.height - pPIS->LinesCount * leading;
 			}
 			pPIS->tfade_r = pPIS->clip_r;
-			pPIS->tfade_r.corner.y += y - leading;
-			pPIS->tfade_r.extent.height = (pPIS->LinesCount + 1) * leading;
+			pPIS->tfade_r.corner.y = 0;
+			pPIS->tfade_r.extent.height = SCREEN_HEIGHT;
 			for (i = 0; i < pPIS->LinesCount; ++i, y += leading)
 			{
 				pPIS->TextLines[i].align = ALIGN_CENTER;
@@ -669,8 +682,8 @@ DoPresentation (void *pIS)
 				y = 0;
 			}
 
-			x <<= RESOLUTION_FACTOR; 
-			y <<= RESOLUTION_FACTOR; 
+			x <<= RESOLUTION_FACTOR;
+			y <<= RESOLUTION_FACTOR;
 
 			s.frame = NULL;
 			if (draw_what == PRES_DRAW_INDEX)
@@ -748,13 +761,13 @@ DoPresentation (void *pIS)
 			{
 				LINE l;
 
-				l.first.x = RES_SCALE(x1);
-				l.first.y = RES_SCALE(y1);
-				l.second.x = RES_SCALE(x2);
-				l.second.y = RES_SCALE(y2);
+				l.first.x = RES_SCALE (x1);
+				l.first.y = RES_SCALE (y1);
+				l.second.x = RES_SCALE (x2);
+				l.second.y = RES_SCALE (y2);
 				
 				SetContextForeGroundColor (pPIS->TextColor);
-				DrawLine (&l);
+				DrawLine (&l, 1);
 			}
 			else
 			{

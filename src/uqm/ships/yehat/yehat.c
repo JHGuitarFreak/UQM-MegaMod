@@ -36,13 +36,13 @@
 // Twin Pulse Cannon
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
-#define YEHAT_OFFSET RES_SCALE(16)
-#define LAUNCH_OFFS DISPLAY_TO_WORLD (RES_SCALE(8))
+#define YEHAT_OFFSET RES_SCALE (16)
+#define LAUNCH_OFFS DISPLAY_TO_WORLD (RES_SCALE (8))
 #define MISSILE_SPEED DISPLAY_TO_WORLD (20)
 #define MISSILE_LIFE 10
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET RES_SCALE(1)
+#define MISSILE_OFFSET RES_SCALE (1)
 
 // Force Shield
 #define SPECIAL_ENERGY_COST 3
@@ -50,7 +50,7 @@
 #define SHIELD_LIFE 10
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC yehat_desc =
 {
@@ -102,7 +102,8 @@ static RACE_DESC yehat_desc =
 		},
 		{
 			YEHAT_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		YEHAT_VICTORY_SONG,
 		YEHAT_SHIP_SOUNDS,
@@ -362,13 +363,10 @@ init_yehat (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		yehat_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		yehat_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		yehat_desc.cyborg_control.WeaponRange =
-				MISSILE_SPEED_HD * MISSILE_LIFE / 3;
+		yehat_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		yehat_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE / 3;
 	}
 	else
 	{

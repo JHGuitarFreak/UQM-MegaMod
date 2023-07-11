@@ -37,18 +37,17 @@ extern int ScreenHeight;
 #define IS_HD (RESOLUTION_FACTOR != HD ? FALSE : TRUE)
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)
 #define RES_DESCALE(a) ((a) >> RESOLUTION_FACTOR)
-#define RES_BOOL(a,b) (!IS_HD ? (a) : (b))	
-#define RES_DBL(a) (RES_BOOL((a), (a) * RESOLUTION_FACTOR))
-#define RES_TRP(a) (RES_BOOL((a), (a) * 3))
-#define IF_HD(a) (RES_BOOL(0, (a)))
-#define UNSCALED_PLANETS(a,b) ((IS_HD && HDPackPresent && !optScalePlanets) ? (a) : (b))
+#define RES_BOOL(a,b) (!IS_HD ? (a) : (b))
+#define RES_DBL(a) (RES_BOOL ((a), (a) * RESOLUTION_FACTOR))
+#define RES_TRP(a) (RES_BOOL ((a), (a) * 3))
+#define IF_HD(a) (RES_BOOL (0, (a)))
 
 		/* Margins. */
-#define SIS_ORG_X RES_SCALE(6)
-#define SIS_ORG_Y RES_SCALE(9)
+#define SIS_ORG_X RES_SCALE (6)
+#define SIS_ORG_Y RES_SCALE (9)
 
 /* Status bar & play area sizes. */
-#define STATUS_WIDTH RES_SCALE(64)
+#define STATUS_WIDTH RES_SCALE (64)
 /* Width of the status "window" (the right part of the screen) */
 #define STATUS_HEIGHT SCREEN_HEIGHT
 /* Height of the status "window" (the right part of the screen) */
@@ -56,38 +55,41 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT SCREEN_HEIGHT
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE(13))
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE (13))
 /* Width of the usable part of the space "window" */
-#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE(13))
+#define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE (13))
 /* Height of the usable part of the space "window" */
 
-#define ORIG_SIS_SCREEN_WIDTH (RES_DESCALE(SIS_SCREEN_WIDTH))
-#define ORIG_SIS_SCREEN_HEIGHT (RES_DESCALE(SIS_SCREEN_HEIGHT))
+#define ORIG_SIS_SCREEN_WIDTH (RES_DESCALE (SIS_SCREEN_WIDTH))
+#define ORIG_SIS_SCREEN_HEIGHT (RES_DESCALE (SIS_SCREEN_HEIGHT))
 #define PC_SIS_SCREEN_HEIGHT (187)
 #define THREEDO_SIS_SCREEN_WIDTH (210)
 #define THREEDO_SIS_SCREEN_HEIGHT (195)
+#define HDMOD_SIS_SCREEN_WIDTH (1074)
+#define HDMOD_SIS_SCREEN_HEIGHT (924)
+
 
 		/* Radar. */
-#define RADAR_X (RES_SCALE(4) + SPACE_WIDTH)
-#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE(8))
-#define RADAR_HEIGHT RES_SCALE(53)
+#define RADAR_X (RES_SCALE (4) + SPACE_WIDTH)
+#define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE (8))
+#define RADAR_HEIGHT RES_SCALE (53)
 #define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)
 
 		/* Blue boxes which display messages and the green date box. */
-#define SIS_TITLE_BOX_WIDTH    RES_SCALE(57)
-#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE(2))
-#define SIS_TITLE_HEIGHT       RES_SCALE(8)
-#define SIS_SPACER_BOX_WIDTH   RES_SCALE(12)
+#define SIS_TITLE_BOX_WIDTH    RES_SCALE (57)
+#define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE (2))
+#define SIS_TITLE_HEIGHT       RES_SCALE (8)
+#define SIS_SPACER_BOX_WIDTH   RES_SCALE (12)
 
 #define SIS_MESSAGE_BOX_WIDTH  (SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - SIS_SPACER_BOX_WIDTH)
-#define SIS_MESSAGE_WIDTH      (SIS_MESSAGE_BOX_WIDTH - RES_SCALE(2))
+#define SIS_MESSAGE_WIDTH      (SIS_MESSAGE_BOX_WIDTH - RES_SCALE (2))
 #define SIS_MESSAGE_HEIGHT     SIS_TITLE_HEIGHT
 
-#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_SCALE(4))
-#define STATUS_MESSAGE_HEIGHT  RES_SCALE(7) 
+#define STATUS_MESSAGE_WIDTH   (STATUS_WIDTH - RES_SCALE (4))
+#define STATUS_MESSAGE_HEIGHT  RES_SCALE (7)
 
-#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE(4))
-#define SHIP_NAME_HEIGHT       RES_SCALE(7) 
+#define SHIP_NAME_WIDTH        (STATUS_WIDTH - RES_SCALE (4))
+#define SHIP_NAME_HEIGHT       RES_SCALE (7)
 
 		/* A lot of other shit. */
 #define MAX_REDUCTION 3
@@ -128,8 +130,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 // XXX: These corrected for the weird screen aspect ratio on DOS
 //   In part because of them, hyperflight is slower vertically
-#define UNIT_SCREEN_WIDTH RES_SCALE(63)
-#define UNIT_SCREEN_HEIGHT RES_SCALE(50)
+#define UNIT_SCREEN_WIDTH RES_SCALE (63)
+#define UNIT_SCREEN_HEIGHT RES_SCALE (50)
 
 
 // Bug #945: Simplified, these set the speed of SIS in Hyperspace and
@@ -142,11 +144,11 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 
 #define UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4))
 #define UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
-#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE(16))) 
-#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE(16))) 
+#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE (16))) 
+#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE (16))) 
 
 // Original (and now broken) Hyperspace speed factors
-// Serosis: Now being utilized to load Vanilla saves properly
+// Now being utilized to load Vanilla saves properly
 #define SECTOR_WIDTH 195
 #define SECTOR_HEIGHT 25
 

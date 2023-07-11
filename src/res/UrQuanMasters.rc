@@ -37,8 +37,8 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "See http://megamod.serosis.net\0"
-            VALUE "CompanyName", "megamod.serosis.net\0"
+            VALUE "Comments", "See https://uqm-mods.sourceforge.net\0"
+            VALUE "CompanyName", "uqm-mods.sourceforge.net\0"
             VALUE "FileDescription", "The Ur-Quan Masters MegaMod main executable\0"
             VALUE "FileVersion", UQM_STRING_VERSION "\0"
             VALUE "InternalName", "UrQuanMasters\0"
@@ -68,7 +68,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 SDL_app            ICON    PRELOAD DISCARDABLE "kohr-ah.ico"
-101				   ICON	   DISCARDABLE	   "kohr-ah1.ico"
+101                ICON    DISCARDABLE     "kohr-ah1.ico"
 102                ICON    DISCARDABLE     "ur-quan-icon-std.ico"
 103                ICON    DISCARDABLE     "ur-quan1.ico"
 104                ICON    DISCARDABLE     "sis1.ico"

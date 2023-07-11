@@ -31,35 +31,6 @@
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
 
-const RESOURCE ditties[25] =
-{
-	"ship.androsynth.ditty",
-	"ship.arilou.ditty",
-	"ship.chenjesu.ditty",
-	"ship.chmmr.ditty",
-	"ship.druuge.ditty",
-	"ship.earthling.ditty",
-	"ship.ilwrath.ditty",
-	"ship.kohrah.ditty",
-	"ship.melnorme.ditty",
-	"ship.mmrnmhrm.ditty",
-	"ship.mycon.ditty",
-	"ship.orz.ditty",
-	"ship.pkunk.ditty",
-	"ship.shofixti.ditty",
-	"ship.slylandro.ditty",
-	"ship.spathi.ditty",
-	"ship.supox.ditty",
-	"ship.syreen.ditty",
-	"ship.thraddash.ditty",
-	"ship.umgah.ditty",
-	"ship.urquan.ditty",
-	"ship.utwig.ditty",
-	"ship.vux.ditty",
-	"ship.yehat.ditty",
-	"ship.zoqfotpik.ditty"
-};
-
 void
 DoShipSpin (COUNT index, MUSIC_REF hMusic)
 {
@@ -84,9 +55,6 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
 
-	if (optWhichIntro == OPT_PC)
-		PlayMusic (LoadMusic (ditties[index]), FALSE, 1);
-
 	ShowPresentation (vnbuf);
 
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
@@ -100,7 +68,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	if (hMusic && optMainMenuMusic)
 		PlayMusic (hMusic, TRUE, 1);
 	else
-		FadeMusic(0, 0);
+		FadeMusic (0, 0);
 		
 	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
 	FlushColorXForms ();
@@ -112,35 +80,30 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	STAMP s;
 	DWORD TimeOut;
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
-	SetContext (ScreenContext);
-	s.origin.x = s.origin.y = 0;
+	if (!optSkipIntro)
+	{
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
+		SetContext (ScreenContext);
+		s.origin.x = s.origin.y = 0;
 
-	//DC: Title Splashscreen.
-	if (!IS_HD) {
-		printf("Loading Splashscreen\n\n");
-		s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
-	} else {
-		printf("Loading HD Splashscreen\n\n");
-		s.frame = CaptureDrawable (LoadGraphic (TITLE_HD));
+		s.frame = CaptureDrawable (LoadGraphic (
+			RES_BOOL (TITLE_ANIM, TITLE_HD)));
+
+		if (optFlagshipColor == OPT_3DO)
+			s.frame = SetAbsFrameIndex (s.frame, 1);
+		else
+			s.frame = SetAbsFrameIndex (s.frame, 0);
+
+		DrawStamp (&s);
+		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
-
-	if (optFlagshipColor == OPT_3DO)
-		s.frame = SetAbsFrameIndex (s.frame, 1);
-	else
-		s.frame = SetAbsFrameIndex (s.frame, 0);
-
-	DrawStamp (&s);
-	DestroyDrawable (ReleaseDrawable (s.frame));
 
 	TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
 
 	if (DoProcessing)
 		DoProcessing (TimeOut);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-	{
 		return;
-	}
 	
 	/* There was a forcible setting of CHECK_ABORT here.  I cannot
 	 * find any purpose for this that DoRestart doesn't handle
@@ -149,14 +112,14 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	 * with the proper operation of the quit operation.
 	 * --Michael */
 
-	WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
+	if (!optSkipIntro)
+		WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-	{
 		return;
-	}
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	if (!optSkipIntro)
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
 
 void
@@ -206,7 +169,7 @@ GameOver (BYTE DeathType)
 
 void
 Logo (void)
-{	
+{
 	ShowPresentation (LOGOPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
@@ -217,6 +180,3 @@ Drumall (void)
 	ShowPresentation (DRUMALLPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
-
-
-

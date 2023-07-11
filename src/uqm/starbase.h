@@ -34,7 +34,6 @@ enum
 };
 typedef BYTE STARBASE_STATE;
 
-
 extern void InstallBombAtEarth (void);
 extern void VisitStarBase (void);
 extern BOOLEAN DoStarBase (MENU_STATE *pMS);

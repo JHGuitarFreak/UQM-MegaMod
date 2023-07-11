@@ -44,6 +44,10 @@
 #include "libs/log.h"
 #include "options.h"
 #include "cons_res.h"
+#include "build.h"
+
+#include "libs/resource/stringbank.h"
+// for StringBank_Create() & SplitString()
 
 enum
 {
@@ -54,8 +58,16 @@ enum
 	QUIT_GAME
 };
 
+enum
+{
+	EASY_DIFF = 0,
+	ORIGINAL_DIFF,
+	HARD_DIFF
+};
+
 static BOOLEAN
-PacksInstalled(void){
+PacksInstalled (void)
+{
 	BOOLEAN packsInstalled;
 
 	if (!IS_HD)
@@ -66,44 +78,252 @@ PacksInstalled(void){
 	return packsInstalled;
 }
 
+#define CHOOSER_X (SCREEN_WIDTH >> 1)
+#define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
+
+void
+DrawToolTips (MENU_STATE *pMS, int answer)
+{
+	COUNT i;
+	TEXT t;
+	stringbank *bank = StringBank_Create ();
+	const char *lines[30];
+	int line_count;
+	RECT r;
+	STAMP s;
+
+	SetContextFont (TinyFont);
+
+	GetFrameRect (SetRelFrameIndex (pMS->CurFrame, 6), &r);
+	r.corner.y += CHOOSER_Y + r.extent.height + RES_SCALE (1);
+
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 7);
+	r.extent = GetFrameBounds (s.frame);
+	r.corner.x = RES_SCALE (
+		(RES_DESCALE (ScreenWidth) - RES_DESCALE (r.extent.width)) >> 1);
+	s.origin = r.corner;
+	DrawStamp (&s);
+
+	SetContextForeGroundColor (BLACK_COLOR);
+
+	t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 66 + answer);
+	line_count = SplitString (t.pStr, '\n', 30, lines, bank);
+
+	t.baseline.x = r.corner.x
+		+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+	t.baseline.y = r.corner.y + RES_SCALE (10)
+			+ RES_SCALE (line_count < 2 ? 8 : (line_count > 2 ? 0 : 3));
+	for (i = 0; i < line_count; i++)
+	{
+		t.pStr = lines[i];
+		t.align = ALIGN_CENTER;
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+		t.baseline.y += RES_SCALE (8);
+	}
+
+	StringBank_Free (bank);
+}
+
+static void
+DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
+{
+	STAMP s;
+	FONT oldFont;
+	TEXT t;
+	COUNT i;
+
+	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 6);
+	DrawStamp (&s);
+
+	DrawToolTips (pMS, answer);
+
+	oldFont = SetContextFont (MicroFont);
+
+	t.align = ALIGN_CENTER;
+	t.baseline.x = s.origin.x;
+	t.baseline.y = s.origin.y - RES_SCALE (20);
+
+	for (i = 0; i <= 2; i++)
+	{
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
+				+ (!i ? 1 : (i > 1 ? 2 : 0)));
+		t.CharCount = (COUNT)utf8StringCount (t.pStr);
+
+		SetContextForeGroundColor (
+				i == answer ?
+				(confirm ? MENU_BACKGROUND_COLOR
+				: MENU_HIGHLIGHT_COLOR) : BLACK_COLOR
+			);
+		font_DrawText (&t);
+
+		t.baseline.y += RES_SCALE (23);
+	}
+
+	SetContextFont (oldFont);
+}
+
+static BOOLEAN
+DoDiffChooser (MENU_STATE *pMS)
+{
+	static TimeCount LastInputTime;
+	static TimeCount InactTimeOut;
+	RECT oldRect;
+	STAMP s;
+	CONTEXT oldContext;
+	BOOLEAN response = FALSE;
+	BOOLEAN done = FALSE;
+	BYTE a = 1;
+
+	InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
+	LastInputTime = GetTimeCounter ();
+
+	oldContext = SetContext (ScreenContext);
+	GetContextClipRect (&oldRect);
+	s = SaveContextFrame (NULL);
+
+	DrawDiffChooser (pMS, a, FALSE);
+
+	FlushGraphics ();
+	FlushInput ();
+
+	while (!done)
+	{
+		UpdateInputState ();
+
+		if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		{
+			return FALSE;
+		}
+		else if (PulsedInputState.menu[KEY_MENU_SELECT])
+		{
+			done = TRUE;
+			response = TRUE;
+			DrawDiffChooser (pMS, a, TRUE);
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+		}
+		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
+				|| CurrentInputState.menu[KEY_EXIT])
+		{
+			done = TRUE;
+			response = FALSE;
+			DrawStamp (&s);
+		}
+		else if (PulsedInputState.menu[KEY_MENU_UP] ||
+				PulsedInputState.menu[KEY_MENU_DOWN] ||
+				PulsedInputState.menu[KEY_MENU_LEFT] ||
+				PulsedInputState.menu[KEY_MENU_RIGHT])
+		{
+			BYTE NewState;
+
+			NewState = a;
+			if (PulsedInputState.menu[KEY_MENU_UP]
+					|| PulsedInputState.menu[KEY_MENU_LEFT])
+			{
+				if (NewState == EASY_DIFF)
+					NewState = HARD_DIFF;
+				else
+					--NewState;
+			}
+			else if (PulsedInputState.menu[KEY_MENU_DOWN]
+					|| PulsedInputState.menu[KEY_MENU_RIGHT])
+			{
+				if (NewState == HARD_DIFF)
+					NewState = EASY_DIFF;
+				else
+					++NewState;
+			}
+			if (NewState != a)
+			{
+				BatchGraphics ();
+				DrawDiffChooser (pMS, NewState, FALSE);
+				UnbatchGraphics ();
+				a = NewState;
+			}
+
+			PlayMenuSound (MENU_SOUND_MOVE);
+
+			LastInputTime = GetTimeCounter ();
+
+		}
+		else if (GetTimeCounter () - LastInputTime > InactTimeOut
+			&& !optRequiresRestart && PacksInstalled ())
+		{	// timed out
+			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
+			done = TRUE;
+			response = FALSE;
+		}
+
+		SleepThread (ONE_SECOND / 30);
+	}
+
+	if (response)
+	{
+		optDifficulty = (!a ? OPTVAL_EASY :
+				(a > 1 ? OPTVAL_HARD : OPTVAL_NORMAL));
+
+		res_PutInteger ("mm.difficulty", OPTVAL_IMPO);
+		SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
+	}
+
+	DestroyDrawable (ReleaseDrawable (s.frame));
+	FlushInput ();
+	
+	SetContextClipRect (&oldRect);
+	SetContext (oldContext);
+
+	return response;
+}
+
+
 // Draw the full restart menu. Nothing is done with selections.
 static void
 DrawRestartMenuGraphic (MENU_STATE *pMS)
 {
 	RECT r;
 	STAMP s;
-	TEXT t; 
-	char *Credit;
+	TEXT t;
 	UNICODE buf[64];
 
-	// Re-load all of the restart menu fonts and graphics so the text and background show in the correct size and resolution.
-	if (optRequiresRestart || !PacksInstalled()) {	
+	// Re-load all of the restart menu fonts and graphics so the text and
+	// background show in the correct size and resolution.
+	if (optRequiresRestart || !PacksInstalled ())
+	{
 		DestroyFont (TinyFont);
 		DestroyFont (PlyrFont);
 		DestroyFont (StarConFont);
-		if (pMS->CurFrame) {
+		if (pMS->CurFrame)
+		{
 			DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 			pMS->CurFrame = 0;
 		}
-	}	
+	}
 
-	// DC: Load the different menus and fonts depending on the resolution factor
-	if (!IS_HD) {
-		if (optRequiresRestart || !PacksInstalled()) {
+	// Load the different menus and fonts depending on the resolution factor
+	if (!IS_HD)
+	{
+		if (optRequiresRestart || !PacksInstalled ())
+		{
 			TinyFont = LoadFont (TINY_FONT_FB);
 			PlyrFont = LoadFont (PLAYER_FONT_FB);
 			StarConFont = LoadFont (STARCON_FONT_FB);
 		}
 		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM));
-	} else {
-		if (optRequiresRestart || !PacksInstalled()) {
+			pMS->CurFrame = CaptureDrawable (
+					LoadGraphic (RESTART_PMAP_ANIM));
+	}
+	else
+	{
+		if (optRequiresRestart || !PacksInstalled ())
+		{
 			TinyFont = LoadFont (TINY_FONT_HD);
 			PlyrFont = LoadFont (PLAYER_FONT_HD);
 			StarConFont = LoadFont (STARCON_FONT_HD);
 		}
 		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (LoadGraphic(RESTART_PMAP_ANIM_HD));
+			pMS->CurFrame = CaptureDrawable (
+					LoadGraphic (RESTART_PMAP_ANIM_HD));
 	}
 
 	s.frame = pMS->CurFrame;
@@ -120,11 +340,13 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	// Put the version number in the bottom right corner.
 	SetContextFont (TinyFont);
 	t.pStr = buf;
-	t.baseline.x = SCREEN_WIDTH - RES_SCALE(2);
-	t.baseline.y = SCREEN_HEIGHT - RES_SCALE(2);
+	t.baseline.x = SCREEN_WIDTH - RES_SCALE (2);
+	t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
-	sprintf (buf, "v%d.%d.%g %s", UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
+	sprintf (buf, "v%d.%d.%d %s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			UQM_EXTRA_VERSION);
 	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 
@@ -132,11 +354,11 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	if (optMainMenuMusic)
 	{
 		memset (&buf[0], 0, sizeof (buf));
-		t.baseline.x = RES_SCALE(2);
-		t.baseline.y = SCREEN_HEIGHT - RES_SCALE(2);
+		t.baseline.x = RES_SCALE (2);
+		t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 		t.align = ALIGN_LEFT;
-		Credit = (Rando == 0 ? "Saibuster" : (Rando == 1 ? "Rush AX" : "Mark Vera"));
-		sprintf(buf, "Main Menu Music by %s", Credit);
+		sprintf (buf, "%s %s", GAME_STRING (MAINMENU_STRING_BASE + 61),
+				GAME_STRING (MAINMENU_STRING_BASE + 62 + Rando));
 		font_DrawText (&t);
 	}
 
@@ -153,14 +375,14 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 }
 
 static BOOLEAN
-RestartMessage(MENU_STATE *pMS, TimeCount TimeIn)
+RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 {	
 	if (!PacksInstalled ())
 	{
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
 		// Could not find graphics pack - message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
+		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
 		SetTransitionSource (NULL);
 		Flash_continue (pMS->flashContext);
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);
@@ -180,6 +402,7 @@ InitFlash (MENU_STATE *pMS)
 	Flash_setFrameTime (pMS->flashContext, ONE_SECOND / 16);
 	Flash_setState (pMS->flashContext, FlashState_fadeIn,
 		(3 * ONE_SECOND) / 16);
+	Flash_setPulseBox (pMS->flashContext, FALSE);
 
 	DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
 	Flash_start (pMS->flashContext);
@@ -213,6 +436,7 @@ DoRestart (MENU_STATE *pMS)
 	{
 		if (pMS->hMusic && !comingFromInit)
 		{
+			SetMusicPosition ();
 			StopMusic ();
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
@@ -226,12 +450,19 @@ DoRestart (MENU_STATE *pMS)
 		pMS->Initialized = TRUE;
 
 		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
-		if (!comingFromInit){
-			FadeMusic(0,0);
+
+		if (!comingFromInit)
+		{
+			FadeMusic (MUTE_VOLUME, 0);
 			PlayMusic (pMS->hMusic, TRUE, 1);
+
+			if (OkayToResume ())
+				SeekMusic (GetMusicPosition ());
+
+			ResetMusicResume ();
 		
 			if (optMainMenuMusic)
-				FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
+				FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);
 		}
 	}
 	else if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -240,45 +471,64 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
-		//BYTE fade_buf[1];
-		COUNT oldresfactor;
-
 		switch (pMS->CurState)
 		{
 			case LOAD_SAVED_GAME:
-				if (!RestartMessage (pMS, TimeIn)) {
+				if (!RestartMessage (pMS, TimeIn))
+				{
 					LastActivity = CHECK_LOAD;
 					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
 					optLoadGame = FALSE;
-				} else
+				}
+				else
 					return TRUE;
 				break;
 			case START_NEW_GAME:
-				if (optCustomSeed == 404) {
+				if (optCustomSeed == 404)
+				{
 					SetFlashRect (NULL, FALSE);
-					DoPopupWindow ("Error 404: Universe Not Found");
+					DoPopupWindow (
+							GAME_STRING (MAINMENU_STRING_BASE + 65));
 					// Got to restart -message
-					SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
+					SetMenuSounds (
+							MENU_SOUND_UP | MENU_SOUND_DOWN,
+							MENU_SOUND_SELECT);
 					SetTransitionSource (NULL);
-					SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+					SleepThreadUntil (
+							FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 					GLOBAL (CurrentActivity) = CHECK_ABORT;
 					restartGame = TRUE;
-				} else if (!RestartMessage (pMS, TimeIn)) {
+				}
+				else if (!RestartMessage (pMS, TimeIn))
+				{
+					if (optDifficulty == OPTVAL_IMPO
+							|| res_GetInteger ("mm.difficulty") == OPTVAL_IMPO)
+					{
+						Flash_terminate (pMS->flashContext); //so it won't visibly stuck
+						if (!DoDiffChooser (pMS))
+						{
+							LastInputTime = GetTimeCounter ();// if we timed out - don't start second credit roll
+							InitFlash (pMS);// reinit flash
+							return TRUE;
+						}
+						InitFlash(pMS);// reinit flash
+					}
 					LastActivity = CHECK_LOAD | CHECK_RESTART;
 					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
-				} else
+				}
+				else
 					return TRUE;
 				break;
 			case PLAY_SUPER_MELEE:
-				if (!RestartMessage (pMS, TimeIn)) {
+				if (!RestartMessage (pMS, TimeIn)) 
+				{
 					GLOBAL (CurrentActivity) = SUPER_MELEE;
 					optSuperMelee = FALSE;
-				} else
+				} 
+				else
 					return TRUE;
 				break;
 			case SETUP_GAME:
-				oldresfactor = resolutionFactor;
-
 				Flash_terminate (pMS->flashContext);
 				SetupMenu ();
 				SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
@@ -365,6 +615,7 @@ DoRestart (MENU_STATE *pMS)
 			&& !optRequiresRestart && PacksInstalled ())
 		{
 			SleepThreadUntil (FadeMusic (0, ONE_SECOND/2));
+			SetMusicPosition ();
 			StopMusic ();
 			FadeMusic (NORMAL_VOLUME, 0);
 
@@ -419,17 +670,18 @@ RestartMenu (MENU_STATE *pMS)
 	{
 		TimeOut = ONE_SECOND / 2;
 
-		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) 
+		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0)
 		{
 			GLOBAL(CurrentActivity) = IN_ENCOUNTER;
 
-			if (DeathByMelee && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
+			if (DeathByMelee)
+			{
 				if (optGameOver)
 					GameOver (DIED_IN_BATTLE);
 				DeathByMelee = FALSE;
 			}
-
-			if (DeathBySurrender && GLOBAL_SIS (CrewEnlisted) == (COUNT)~0) {
+			else if (DeathBySurrender)
+			{
 				if (optGameOver)
 					GameOver (SURRENDERED);
 				DeathBySurrender = FALSE;
@@ -463,7 +715,10 @@ RestartMenu (MENU_STATE *pMS)
 	DoInput (pMS, TRUE);
 	
 	if (optMainMenuMusic)
+	{
 		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
+		SetMusicPosition ();
+	}
 
 	StopMusic ();
 	if (pMS->hMusic)

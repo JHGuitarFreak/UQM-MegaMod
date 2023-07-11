@@ -29,6 +29,8 @@
 #include "setup.h"
 #include "gamestr.h"
 #include "colors.h"
+// for bool TextEntry3DO
+#include "gameopt.h"
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL/SDL_screenkeyboard.h>
@@ -177,10 +179,10 @@ FlashCursor (void)
 		{
 			RECT r;
 
-			r.corner.x = SIS_ORG_X + RES_SCALE(1);
+			r.corner.x = SIS_ORG_X + RES_SCALE (1);
 			r.corner.y = SIS_ORG_Y - SIS_MESSAGE_HEIGHT;
 			r.extent.width = SIS_MESSAGE_WIDTH;
-			r.extent.height = SIS_MESSAGE_HEIGHT - RES_SCALE(1);
+			r.extent.height = SIS_MESSAGE_HEIGHT - RES_SCALE (1);
 			SetContextFGFrame (Screen);
 			SetContextClipRect (&r);
 		}
@@ -223,7 +225,7 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 		pTES->Success = FALSE;
 		pTES->Initialized = TRUE;
 		pTES->JoystickMode = FALSE;
-		pTES->UpperRegister = TRUE;
+		pTES->UpperRegister = FALSE;
 	
 		// init insertion point
 		if ((size_t)pTES->CursorPos > utf8StringCount (pTES->BaseStr))
@@ -279,6 +281,8 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 
 	// process the pending character buffer
 	ch = GetNextCharacter ();
+	if (TextEntry3DO && ch == UNICHAR_SPACE)
+		ch = UNICHAR_TAB;
 	if (!ch && PulsedInputState.menu[KEY_MENU_ANY])
 	{	// keyboard repeat, but only when buffer empty
 		ch = GetLastCharacter ();
@@ -307,6 +311,8 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 			}
 		}
 		ch = GetNextCharacter ();
+		if (TextEntry3DO && ch == UNICHAR_SPACE)
+			ch = UNICHAR_TAB;
 	}
 
 	if (PulsedInputState.menu[KEY_MENU_DELETE])

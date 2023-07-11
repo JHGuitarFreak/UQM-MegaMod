@@ -46,8 +46,8 @@ InitOscilloscope (FRAME scopeBg)
 				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = size.width - RES_SCALE(2);
-		scopeSize.height = size.height - RES_SCALE(2);
+		scopeSize.width = RES_DESCALE (size.width) - 2;
+		scopeSize.height = RES_DESCALE (size.height) - 2;
 
 		scope_init = 1;
 	}
@@ -62,8 +62,33 @@ UninitOscilloscope (void)
 	scope_init = 0;
 }
 
+BYTE
+ScaleHeightByVolume (uint8 scope_data, BOOLEAN toScale)
+{
+	if (!toScale || musicVolume == NORMAL_VOLUME)
+		return scope_data;
+	else
+	{
+		float scale = (float)musicVolume / NORMAL_VOLUME;
+		float res;
+
+		if (scope_data >= (scopeSize.height / 2))
+		{
+			res = scope_data - (scopeSize.height / 2);
+			res *= scale;
+			return (BYTE)((scopeSize.height / 2) + res);
+		}
+		else
+		{
+			res = (scopeSize.height / 2) - scope_data;
+			res *= scale;
+			return (BYTE)((scopeSize.height / 2) - res);
+		}
+	}
+}
+
 void
-DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
+DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toScale)
 {
 	int i;
 	CONTEXT oldContext;
@@ -96,48 +121,26 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop)
 
 	if (scope_data)
 	{
-		for (i = 0; i < scopeSize.width - RES_SCALE(1); ++i)
+		for (i = 0; i < scopeSize.width - 1; ++i)
 		{
 			LINE line;
-			BYTE j;
 
-			line.first.x = i + RES_SCALE(1);
-			line.first.y = scope_data[i] + RES_DBL(1);
-			line.second.x = i + RES_SCALE(2);
-			line.second.y = scope_data[i + RES_SCALE(1)] + RES_DBL(1);
-			DrawLine (&line);
-
-			if (IS_HD)
-			{
-				for (j = 0; j < 3; j++)
-				{
-					line.first.y += 1;
-					line.second.y += 1;
-					DrawLine (&line);
-				}
-			}
+			line.first.x = RES_SCALE (i + 1);
+			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i], toScale) + 1);
+			line.second.x = RES_SCALE (i + 2);
+			line.second.y = RES_SCALE (ScaleHeightByVolume (scope_data[i + 1], toScale) + 1);
+			DrawLine (&line, RES_SCALE (1));
 		}
 	}
 	else
 	{
 		LINE line;
-		BYTE j;
 
-		line.first.x = RES_SCALE(1);
-		line.first.y = (scopeSize.height / 2) + RES_DBL(1);
-		line.second.x = scopeSize.width + IF_HD(3);
+		line.first.x = RES_SCALE (1);
+		line.first.y = RES_SCALE ((scopeSize.height / 2) + 1);
+		line.second.x = RES_SCALE (scopeSize.width);
 		line.second.y = line.first.y;
-		DrawLine (&line);
-
-		if (IS_HD)
-		{
-			for (j = 0; j < 3; j++)
-			{
-				line.first.y += 1;
-				line.second.y += 1;
-				DrawLine (&line);
-			}
-		}
+		DrawLine (&line, RES_SCALE (1));
 	}
 
 	SetContext (oldContext);
@@ -150,14 +153,8 @@ void
 DrawOscilloscope (void)
 {
 	STAMP s;
-	BYTE scope_data[256];
-	// JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would
-	// really require this to be less than 256. This "fix" messes up how the
-	// oscilloscope looks, but it works for now (doesn't get caught in
-	// asserts). We need to fix this later.
+	BYTE scope_data[128];
 
-	// BW: fixed. With narrow status panel at 4x, scope width (and data)
-	// are never more than 192.
 	if (oscillDisabled)
 		return;
 
@@ -166,25 +163,21 @@ DrawOscilloscope (void)
 	//		sizeof (scope_data));
 	
 	assert ((size_t)scopeSize.width <= sizeof (scope_data));
-	assert (scopeSize.height < 256);
-	// JMS_GFX: was 128... FIXME:This is a hack: GraphForeGroundStream would
-	// really require this to be less than 256. This "fix" messes up how the
-	// oscilloscope looks, but it works for now (doesn't get caught in
-	// asserts). We need to fix this later.
+	assert (scopeSize.height < 128);
 
 	if (GraphForegroundStream (
 			scope_data, scopeSize.width, scopeSize.height, usingSpeech))
 	{
-		DrawOscilloscopeLines (&s, scope_data, FALSE);
+		DrawOscilloscopeLines (&s, scope_data, FALSE, !usingSpeech);
 	}
 	else if (GraphForegroundStream (
 			scope_data, scopeSize.width, scopeSize.height, FALSE)
 			&& usingSpeech && optNonStopOscill)
 	{
-		DrawOscilloscopeLines (&s, scope_data, TRUE);
+		DrawOscilloscopeLines (&s, scope_data, TRUE, TRUE);
 	}
 	else
-		DrawOscilloscopeLines (&s, NULL, FALSE);
+		DrawOscilloscopeLines (&s, NULL, FALSE, FALSE);
 
 	// draw the final scope image to screen
 	s.origin.x = 0;
@@ -200,7 +193,7 @@ FlattenOscilloscope (void)
 
 	OldContext = SetContext (RadarContext);
 
-	DrawOscilloscopeLines (&s, NULL, FALSE);
+	DrawOscilloscopeLines (&s, NULL, FALSE, FALSE);
 	s.origin = MAKE_POINT(0, 0);
 	DrawStamp (&s);
 	SetContext (OldContext);

@@ -31,7 +31,6 @@
 #include "libs/graphics/drawable.h"
 #include "libs/graphics/font.h"
 
-
 typedef struct anidata
 {
 	int transparent_color;
@@ -110,7 +109,7 @@ process_image (FRAME FramePtr, TFB_Canvas img[], AniData *ani, int cel_ct)
 }
 
 static void
-processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
+processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, FONT fontPtr)
 {
 	BYTE* newdata;
 	size_t dpitch;
@@ -118,46 +117,34 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas)
 	TFB_DrawCanvas_GetExtent (canvas, &CharPtr->extent);
 
 	// Currently, each font char has its own separate data
-	//  but that can change to common mem area
+	// but that can change to common mem area
 	dpitch = CharPtr->extent.width;
 	newdata = HMalloc (dpitch * CharPtr->extent.height * sizeof (BYTE));
 	TFB_DrawCanvas_GetFontCharData (canvas, newdata, dpitch);
 
 	CharPtr->data = newdata;
 	CharPtr->pitch = dpitch;
-	CharPtr->disp.width = CharPtr->extent.width + RES_SCALE(1);
-	CharPtr->disp.height = CharPtr->extent.height + RES_SCALE(1);
-			// XXX: why the +1?
-			// I brought it into this function from the only calling
-			// function, but I don't know why it was there in the first
-			// place.
-			// XXX: the +1 appears to be for character and line spacing
-			//  text_blt just adds the frame width to move to the next char
+	CharPtr->disp.width = CharPtr->extent.width;
+	CharPtr->disp.height = CharPtr->extent.height;
+	CharPtr->HotSpot.x = 0;
 	
 	{
 		// This tunes the font positioning to be about what it should
 		// TODO: prolly needs a little tweaking still
 
-		int tune_amount_x = 0;
-		int tune_amount_y = 0;
+		int tune_amount = 0;
 
-		if (CharPtr->extent.height == RES_SCALE(8))
-		{
-			tune_amount_y = -RES_SCALE(1);
-		}
-		else if (CharPtr->extent.height == RES_SCALE(9))
-		{
-			tune_amount_y = -RES_SCALE(2);
-			tune_amount_x = IF_HD(-3);
-		}
-		else if (CharPtr->extent.height > RES_SCALE(9))
-		{
-			tune_amount_y = -RES_SCALE(3);
-			tune_amount_x = IF_HD(-2);
-		}
+		if (CharPtr->disp.height <= RES_SCALE (8))
+			tune_amount = RES_SCALE (1);
+		else if (CharPtr->disp.height == RES_SCALE (9))
+			tune_amount = RES_SCALE (2);
+		else if (CharPtr->disp.height > RES_SCALE (9))
+			tune_amount = RES_SCALE (3);
 
-		CharPtr->HotSpot = MAKE_HOT_SPOT (tune_amount_x,
-				CharPtr->extent.height + tune_amount_y);
+		if (fontPtr->HaveFntData)
+			tune_amount = fontPtr->VertAlign;
+
+		CharPtr->HotSpot.y = CharPtr->disp.height - tune_amount;
 	}
 }
 
@@ -178,7 +165,7 @@ _GetCelData (uio_Stream *fp, DWORD length)
 
 	{
 		char *s1, *s2;
-		char aniDirName[PATH_MAX];			
+		char aniDirName[PATH_MAX];
 		const char *aniFileName;
 		uint8 buf[4] = { 0, 0, 0, 0 };
 		uint32 header;
@@ -257,9 +244,11 @@ _GetCelData (uio_Stream *fp, DWORD length)
 	uio_fseek (aniFile, opos, SEEK_SET);
 	while (uio_fgets (CurrentLine, sizeof (CurrentLine), aniFile) && cel_index < cel_total)
 	{
-		sscanf (CurrentLine, "%s %d %d %d %d", &filename[n], 
-			&ani[cel_index].transparent_color, &ani[cel_index].colormap_index, 
-			&ani[cel_index].hotspot_x, &ani[cel_index].hotspot_y);
+		if (sscanf (CurrentLine, "%s %d %d %d %d", &filename[n],
+				&ani[cel_index].transparent_color,
+				&ani[cel_index].colormap_index,
+				&ani[cel_index].hotspot_x, &ani[cel_index].hotspot_y) != 5)
+			break;
 	
 		img[cel_index] = TFB_DrawCanvas_LoadFromFile (aniDir, filename);
 		if (img[cel_index] == NULL)
@@ -378,6 +367,8 @@ _GetFontData (uio_Stream *fp, DWORD length)
 	uio_DirHandle *fontDirHandle = NULL;
 	uio_MountHandle *fontMount = NULL;
 	FONT fontPtr = NULL;
+	uio_Stream *cfgFile = 0;
+	const char *cfg_name = "kerndat.fnt";
 
 	if (_cur_resfile_name == 0)
 		goto err;
@@ -439,10 +430,14 @@ _GetFontData (uio_Stream *fp, DWORD length)
 
 		char_name = GetDirEntryAddress (SetAbsDirEntryTableIndex (
 				fontDir, dirEntryI));
+
+		if (strcmp (char_name, cfg_name) == 0)
+			continue;
+
 		if (sscanf (char_name, "%x.", &charIndex) != 1)
 			continue;
 			
-		if (charIndex > 0xffff)
+		if (charIndex > MAX_UNICODE)
 			continue;
 
 		canvas = TFB_DrawCanvas_LoadFromFile (fontDirHandle, char_name);
@@ -460,10 +455,77 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		bcds[numBCDs].index = charIndex;
 		numBCDs++;
 	}
+
+	fontPtr = AllocFont (0);
+	if (fontPtr == NULL)
+		goto err;
+
+	cfgFile = uio_fopen (fontDirHandle, cfg_name, "r");
+
+	if (cfgFile)
+	{
+		char CurrentLine[PATH_MAX];
+		int cel_index = 0;
+		int cel_total = 0;
+		DWORD opos = 0;
+
+		uio_fseek (cfgFile, opos, SEEK_SET);
+		while (uio_fgets (CurrentLine, sizeof (CurrentLine), cfgFile))
+		{
+			++cel_total;
+			if (cel_total == MAX_UNICODE)
+				break;
+		}
+
+		uio_fseek (cfgFile, opos, SEEK_SET);
+		while (uio_fgets (
+				CurrentLine, sizeof (CurrentLine),
+				cfgFile) && cel_index < cel_total)
+		{
+			if (cel_index > 0)
+			{
+				SDWORD KernChar, kernLBits, kernRBits;
+
+				if (sscanf (CurrentLine, "%x %u %u", &KernChar,
+						&kernLBits, &kernRBits) == 3)
+				{
+					if (kernLBits > 3 || kernLBits < 0)
+						kernLBits = 3;
+					if (kernRBits > 3 || kernRBits < 0)
+						kernRBits = 3;
+
+					fontPtr->KernTab[KernChar] =
+							(kernLBits << 2) | kernRBits;
+				}
+			}
+			else
+			{
+				if (sscanf (CurrentLine, "%s %hhu %hhu %hhu %hhd",
+						fontPtr->filename, &fontPtr->Leading,
+						&fontPtr->CharSpace, &fontPtr->KernAmount,
+						&fontPtr->VertAlign) == 5)
+				{
+					fontPtr->HaveFntData = TRUE;
+				}
+				else
+					break;
+			}
+
+			++cel_index;
+			if (cel_index == MAX_UNICODE)
+				break;
+
+			if ((int)uio_ftell (cfgFile) - (int)opos
+					>= (int)LengthResFile (cfgFile))
+				break;
+		}
+		uio_fclose (cfgFile);
+	}
+
 	uio_closeDir (fontDirHandle);
 	DestroyDirEntryTable (ReleaseDirEntryTable (fontDir));
 	if (fontMount != 0)
-		uio_unmountDir(fontMount);
+		uio_unmountDir (fontMount);
 
 #if 0
 	if (numBCDs == 0)
@@ -472,13 +534,6 @@ _GetFontData (uio_Stream *fp, DWORD length)
 
 	// sort on the character index
 	qsort (bcds, numBCDs, sizeof (BuildCharDesc), compareBCDIndex);
-
-	fontPtr = AllocFont (0);
-	if (fontPtr == NULL)
-		goto err;
-	
-	fontPtr->Leading = 0;
-	fontPtr->LeadingWidth = 0;
 
 	{
 		size_t startBCD = 0;
@@ -523,13 +578,13 @@ _GetFontData (uio_Stream *fp, DWORD length)
 						continue;
 					}
 					
-					processFontChar (destChar, bcd->canvas);
+					processFontChar (destChar, bcd->canvas, fontPtr);
 					TFB_DrawCanvas_Delete (bcd->canvas);
 
-					if (destChar->disp.height > fontPtr->Leading)
-						fontPtr->Leading = destChar->disp.height;
-					if (destChar->disp.width > fontPtr->LeadingWidth)
-						fontPtr->LeadingWidth = destChar->disp.width;
+					if (destChar->disp.height > fontPtr->disp.height)
+						fontPtr->disp.height = destChar->disp.height;
+					if (destChar->disp.width > fontPtr->disp.width)
+						fontPtr->disp.width = destChar->disp.width;
 				}
 			}
 
@@ -538,7 +593,11 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		*pageEndPtr = NULL;
 	}
 
-	fontPtr->Leading += RES_SCALE(1);
+	if (!fontPtr->HaveFntData)
+	{
+		fontPtr->Leading = fontPtr->disp.height + RES_SCALE (1);
+		fontPtr->CharSpace = RES_SCALE (1);
+	}
 
 	HFree (bcds);
 

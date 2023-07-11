@@ -34,6 +34,7 @@
 #include "nameref.h"
 #include "setup.h"
 #include "units.h"
+#include "intel.h"
 
 
 FRAME stars_in_space;
@@ -129,7 +130,7 @@ InitSpace (void)
 
 		misc_in_space = CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
 
-		if(IS_HD)
+		if (IS_HD)
 		{
 			StarPoints = CaptureDrawable (LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
 			if (StarPoints == NULL)

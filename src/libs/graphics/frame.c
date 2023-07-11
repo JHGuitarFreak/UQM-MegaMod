@@ -20,6 +20,7 @@
 #include "gfx_common.h"
 #include "tfb_draw.h"
 #include "tfb_prim.h"
+#include "uqm/units.h"
 
 HOT_SPOT
 MAKE_HOT_SPOT (COORD x, COORD y)
@@ -154,7 +155,7 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 				case LINE_PRIM:
 					color = GetPrimColor (lpWorkPrim);
 					TFB_Prim_Line (&lpWorkPrim->Object.Line, color,
-							mode, origin);
+							mode, origin, RES_BOOL (1, 3));
 					break;
 				case TEXT_PRIM:
 					if (!TextRect (&lpWorkPrim->Object.Text, &ClipRect, NULL))
@@ -209,6 +210,13 @@ DrawPoint (POINT *lpPoint)
 }
 
 void
+InstaPoint (int x, int y)
+{
+	POINT origin = { x, y };
+	DrawPoint (&origin);
+}
+
+void
 DrawRectangle (RECT *lpRect, BOOLEAN scaled)
 {
 	POINT origin;
@@ -219,6 +227,13 @@ DrawRectangle (RECT *lpRect, BOOLEAN scaled)
 		DrawMode mode = _get_context_draw_mode ();
 		TFB_Prim_Rect (lpRect, color, mode, origin, scaled);
 	}
+}
+
+void
+InstaRect (int x, int y, int w, int h, BOOLEAN scaled)
+{
+	RECT r = { {x, y}, { w, h } };
+	DrawRectangle (&r, scaled);
 }
 
 void
@@ -235,7 +250,14 @@ DrawFilledRectangle (RECT *lpRect)
 }
 
 void
-DrawLine (LINE *lpLine)
+InstaFilledRect (int x, int y, int w, int h)
+{
+	RECT r = { {x, y}, { w, h } };
+	DrawFilledRectangle (&r);
+}
+
+void
+DrawLine (LINE *lpLine, BYTE thickness)
 {
 	POINT origin;
 
@@ -243,8 +265,15 @@ DrawLine (LINE *lpLine)
 	{
 		Color color = GetPrimColor (&_locPrim);
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_Line (lpLine, color, mode, origin);
+		TFB_Prim_Line (lpLine, color, mode, origin, thickness);
 	}
+}
+
+void
+InstaLine (int x1, int y1, int x2, int y2)
+{
+	LINE line = { { x1, y1 }, { x2, y2 } };
+	DrawLine (&line, 1);
 }
 
 void

@@ -56,6 +56,7 @@
 #include "settings.h"
 #include "cons_res.h"
 #include <time.h>//required to use 'srand(time(NULL))'
+#include "sounds.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP
@@ -135,24 +136,42 @@ ProcessUtilityKeys (void)
 	if (ImmediateInputState.menu[KEY_FULLSCREEN])
 	{
 		int flags = GfxFlags ^ TFB_GFXFLAGS_FULLSCREEN;
+
+		if (IS_HD)
+			flags ^= TFB_GFXFLAGS_SCALE_BILINEAR;
+
 		// clear ImmediateInputState so we don't repeat this next frame
 		FlushInput ();
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, flags, ScreenWidthActual,
 				ScreenHeightActual);
 	}
 
+	if (ImmediateInputState.menu[KEY_SCREENSHOT])
+		TFB_ScreenShot ();
+
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	{	// Only call the debug func on the rising edge of
 		// ImmediateInputState[KEY_DEBUG] so it does not execute repeatedly.
 		// This duplicates the PulsedInputState somewhat, but we cannot
 		// use PulsedInputState here because it is meant for another thread.
-		static int debugKeyState;
+		static int debugKeyState, debugKey2State,
+				debugKey3State, debugKey4State;
 
 		if (ImmediateInputState.menu[KEY_DEBUG] && debugKeyState == 0)
-		{
 			debugKeyPressed ();
-		}
 		debugKeyState = ImmediateInputState.menu[KEY_DEBUG];
+
+		if (ImmediateInputState.menu[KEY_DEBUG_2] && debugKey2State == 0)
+			debugKey2Pressed ();
+		debugKey2State = ImmediateInputState.menu[KEY_DEBUG_2];
+
+		if (ImmediateInputState.menu[KEY_DEBUG_3] && debugKey3State == 0)
+			debugKey3Pressed ();
+		debugKey3State = ImmediateInputState.menu[KEY_DEBUG_3];
+
+		if (ImmediateInputState.menu[KEY_DEBUG_4] && debugKey4State == 0)
+			debugKey4Pressed ();
+		debugKey4State = ImmediateInputState.menu[KEY_DEBUG_4];
 	}
 #endif  /* DEBUG */
 }
@@ -200,10 +219,18 @@ while (--ac > 0)
 
 	if (!LoadKernel (0,0, FALSE))
 	{
-		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic content ***\n\nUQM requires at least the base content pack to run properly.");
-		log_add (log_Fatal, "This file is typically called mm-%d.%d.0.%g-content.uqm.  UQM was expecting", UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION);
-		log_add (log_Fatal, "it in the %s/packages directory.", baseContentPath);
-		log_add (log_Fatal, "Either your installation did not install the content pack at all, or it\ninstalled it in a different directory.\n\nFix your installation and rerun UQM.\n\n  *******************\n");
+		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic "
+				"content ***\n\nUQM requires at least the base content "
+				"pack to run properly.");
+		log_add (log_Fatal, "This file is typically called "
+				"mm-%d.%d.%d-content.uqm.  UQM was expecting",
+				UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION);
+		log_add (log_Fatal, "it in the %s/packages directory.",
+				baseContentPath);
+		log_add (log_Fatal, "Either your installation did not install the "
+				"content pack at all, or it\ninstalled it in a different "
+				"directory.\n\nFix your installation and rerun UQM.\n\n  "
+				"*******************\n");
 		log_showBox (true, true);
 
 		MainExited = TRUE;
@@ -218,14 +245,17 @@ while (--ac > 0)
 		Logo ();
 
 	{
-		srand(time(NULL));
-		
-		Rando = (rand() % NUM_MM_THEMES);
+		time_t t = time (NULL);
+		struct tm tm = *localtime (&t);
+
+		srand (t);
+		Rando = (rand () % NUM_MM_THEMES);
+		optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
 
 		// printf("Random Music #: %d\n", Rando);
 
-		FadeMusic(0,0);
-		PlayMusic (loadMainMenuMusic(Rando), TRUE, 1);
+		FadeMusic (MUTE_VOLUME, 0);
+		PlayMusic (loadMainMenuMusic (Rando), TRUE, 1);
 		
 		if (optMainMenuMusic)
 			FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
@@ -236,14 +266,14 @@ while (--ac > 0)
 
 #ifdef DEBUG
 	printf("Set Seed: %d\n", optCustomSeed);
-	printf("Set Difficulty: %s\n", DIF_STR(optDifficulty));
-	printf("Set Extended: %s\n", EXT_STR(optExtended));
-	printf("Set Nomad: %s\n\n", NOMAD_STR(optNomad));
+	printf("Set Difficulty: %s\n", DIF_STR (optDifficulty));
+	printf("Set Extended: %s\n", BOOL_STR (optExtended));
+	printf("Set Nomad: %s\n\n", BOOL_STR (optNomad));
 #endif
 	log_add(log_Info, "Set Seed: %d\n", optCustomSeed);
-	log_add(log_Info, "Set Difficulty: %s\n", DIF_STR(optDifficulty));
-	log_add(log_Info, "Set Extended: %s\n", EXT_STR(optExtended));
-	log_add(log_Info, "Set Nomad: %s\n\n", NOMAD_STR(optNomad));
+	log_add(log_Info, "Set Difficulty: %s\n", DIF_STR (optDifficulty));
+	log_add(log_Info, "Set Extended: %s\n", BOOL_STR (optExtended));
+	log_add(log_Info, "Set Nomad: %s\n\n", BOOL_STR (optNomad));
 
 //	OpenJournal ();
 	while (StartGame ())
@@ -258,7 +288,7 @@ while (--ac > 0)
 		InitGameStructures ();
 		InitGameClock ();
 		initEventSystem ();
-		AddInitialGameEvents();
+		AddInitialGameEvents ();
 
 		// Reset Debug Key
 		DebugKeyPressed = FALSE;
@@ -266,15 +296,15 @@ while (--ac > 0)
 		// Debug info when starting a new game
 		if (LastActivity == (CHECK_LOAD | CHECK_RESTART)){
 #ifdef DEBUG
-			printf("New Game Seed: %d\n", GLOBAL_SIS(Seed));
-			printf("New Game Difficulty: %s\n", DIF_STR(GLOBAL_SIS(Difficulty)));
-			printf("New Game Extended: %s\n", EXT_STR(GLOBAL_SIS(Extended)));
-			printf("New Game Nomad: %s\n\n", NOMAD_STR(GLOBAL_SIS(Nomad)));
+			printf("New Game Seed: %d\n", GLOBAL_SIS (Seed));
+			printf("New Game Difficulty: %s\n", DIF_STR (GLOBAL_SIS (Difficulty)));
+			printf("New Game Extended: %s\n", BOOL_STR (GLOBAL_SIS (Extended)));
+			printf("New Game Nomad: %s\n\n", BOOL_STR (GLOBAL_SIS (Nomad)));
 #endif
-			log_add(log_Info, "New Game Seed: %d\n", GLOBAL_SIS(Seed));
-			log_add(log_Info, "New Game Difficulty: %s\n", DIF_STR(GLOBAL_SIS(Difficulty)));
-			log_add(log_Info, "New Game Extended: %s\n", EXT_STR(GLOBAL_SIS(Extended)));
-			log_add(log_Info, "New Game Nomad: %s\n\n", NOMAD_STR(GLOBAL_SIS(Nomad)));
+			log_add(log_Info, "New Game Seed: %d\n", GLOBAL_SIS (Seed));
+			log_add(log_Info, "New Game Difficulty: %s\n", DIF_STR (GLOBAL_SIS (Difficulty)));
+			log_add(log_Info, "New Game Extended: %s\n", BOOL_STR (GLOBAL_SIS (Extended)));
+			log_add(log_Info, "New Game Nomad: %s\n\n", BOOL_STR (GLOBAL_SIS (Nomad)));
 		}
 
 #if defined(ANDROID) || defined(__ANDROID__)

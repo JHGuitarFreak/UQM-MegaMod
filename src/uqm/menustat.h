@@ -41,7 +41,7 @@ typedef struct menu_state
 	SIZE delta_item;
 
 	FRAME ModuleFrame;
-	RECT flash_rect0, flash_rect1;
+	RECT flash_rect0, flash_rect1, flash_rect2;
 	FRAME flash_frame0, flash_frame1;
 	FlashContext *flashContext;
 
@@ -98,6 +98,13 @@ enum
 	PM_CYBORG_NORMAL,
 	PM_CYBORG_DOUBLE,
 	PM_CYBORG_SUPER,
+
+	PM_READ_VERY_SLOW,
+	PM_READ_SLOW,
+	PM_READ_MODERATE,
+	PM_READ_FAST,
+	PM_READ_VERY_FAST,
+
 	PM_CHANGE_CAPTAIN,
 	PM_CHANGE_SHIP,
 	PM_EXIT_SETTINGS,
@@ -123,9 +130,10 @@ enum
 
 extern BOOLEAN DoMenuChooser (MENU_STATE *pMS, BYTE BaseState);
 extern void DrawMenuStateStrings (BYTE beg_index, SWORD NewState);
-extern void DrawSubmenu (BYTE Visible);
+extern void DrawSubmenu (BYTE Visible, BOOLEAN cleanup);
 extern void DrawMineralHelpers (BOOLEAN cleanup);
-extern void DrawBorder (BYTE Visible, BOOLEAN InBattle);
+extern void DrawBorder (BYTE Visible);
+extern void DrawMeleeBorder (BYTE Visible);
 
 #if defined(__cplusplus)
 }

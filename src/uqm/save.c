@@ -41,6 +41,7 @@
 #include "libs/inplib.h"
 #include "libs/log.h"
 #include "libs/memlib.h"
+#include "colors.h"
 
 // Status boolean. If for some insane reason you need to
 // save games in different threads, you'll need to
@@ -114,8 +115,8 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * open or opening.
 			 */
 	{ "ARILOU_SPACE_SIDE", 2 },
-			/* 0 if in HyperSpace and not just emerged from the periodically
-			 * opening QuasiSpace portal.
+			/* 0 if in HyperSpace and not just emerged from the
+			 * periodically opening QuasiSpace portal.
 			 * 1 if in HyperSpace and just emerged from the periodically
 			 * QuasiSpace portal (still on the portal).
 			 * 2 if in QuasiSpace and just emerged from the periodically
@@ -307,9 +308,9 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "TALKING_PET_VISITS", 3 },
 	{ "TALKING_PET_HOME_VISITS", 3 },
 	{ "UMGAH_ZOMBIE_BLOBBIES", 1 },
-			/* The Umgah have come under the influence of the Talking Pet */
+			// The Umgah have come under the influence of the Talking Pet
 	{ "KNOW_UMGAH_ZOMBIES", 1 },
-			/* The Captain is aware that something is up with the Umgah */
+			// The Captain is aware that something is up with the Umgah
 
 	{ "ARILOU_VISITS", 3 },
 	{ "ARILOU_HOME_VISITS", 3 },
@@ -342,7 +343,8 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * 1 - The captain knows from the Chmmr that some extremely
 			 *     powerful weapon is needed to destroy the Sa-Matra.
 			 * 2 - Installation of the precursor bomb has started.
-			 * 3 - Left the starbase after installation of the Precursor bomb.
+			 * 3 - Left the starbase after installation of the Precursor
+			 * bomb.
 			 */
 
 	{ "DRUUGE_DISCLAIMER", 1 },
@@ -379,11 +381,13 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "HELIX_UNPROTECTED", 1 },
 	{ "THRADD_CULTURE", 2 },
 	{ "THRADD_MISSION", 3 },
-			/* 0 if the Thraddash fleet hasn't left the Thraddash home world.
+			/* 0 if the Thraddash fleet hasn't left the Thraddash home
+			 * world.
 			 * 1 if the Thraddash are heading towards Kohr-Ah territory.
 			 * 2 if the Thraddash are fighting the Kohr-Ah.
 			 * 3 if the Thraddash are returning from Kohr-Ah territory.
-			 * 4 if the Thraddash fleet is back at the Thraddash home world.
+			 * 4 if the Thraddash fleet is back at the Thraddash home
+			 * world.
 			 */
 
 	{ "DRUUGE_VISITS", 3 },
@@ -434,7 +438,7 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * is the low byte.
 			 */
 	{ "MELNORME_RAINBOW_COUNT", 4 },
-			/* The number of rainbow world locations sold to the Melnorme. */
+			// The number of rainbow world locations sold to the Melnorme.
 
 	{ "USED_BROADCASTER", 1 },
 	{ "BROADCASTER_RESPONSE", 1 },
@@ -466,11 +470,12 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "THRADDASH_BODY_COUNT", 5 },
 
 	{ "UTWIG_SUPOX_MISSION", 3 },
-			/* 0 if the Utwig and Supox fleet haven't left their home world.
+			/* 0 if the Utwig and Supox fleet haven't left their home
+			 * world.
 			 * 1 if the U&S are on their way towards the Kohr-Ah
 			 * 2 if the U&S are fighting the Kohr-Ah (first 80 days)
 			 * 3 does not occur
-             * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
+			 * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
 			 * 5 if the U&S are returning home.
 			 * 6 if the U&S are back at their home world.
 			 */
@@ -564,9 +569,10 @@ const GameStateBitMap gameStateBitMap[] = {
 			/* 0 when the flagship is not in battle, or it doesn't have the
 			 *   enhanced precursor bomb installed.
 			 * 1 when the flagship is in battle and the bomb is installed.
-			 * This determines whether you can flee (if the warp escape unit
-			 * is installed at all), and whether taking the ship into the
-			 * Sa-Matra defense structure will trigger the end of the game.
+			 * This determines whether you can flee (if the warp escape
+			 * unit is installed at all), and whether taking the ship into
+			 * the Sa-Matra defense structure will trigger the end of the
+			 * game.
 			 */
 	
 	{ "THRADD_MANNER", 1 },
@@ -697,29 +703,106 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "URQUAN_PROBE_GRPOFFS", 32 },
 	{ "COLONY_GRPOFFS", 32 },
 	{ "SAMATRA_GRPOFFS", 32 },
-	
+
+	/* end rev 0, Core UQM v0.8.0 */
+	{ NULL, 1 },
+	/* begin rev 1, MegaMod v0.8.0.85 */
+
 	{ "AUTOPILOT_OK", 1 },
-	
-	{ "KNOW_QS_PORTAL_0", 1 },
-	{ "KNOW_QS_PORTAL_1", 1 },
-	{ "KNOW_QS_PORTAL_2", 1 },
-	{ "KNOW_QS_PORTAL_3", 1 },
-	{ "KNOW_QS_PORTAL_4", 1 },
-	{ "KNOW_QS_PORTAL_5", 1 },
-	{ "KNOW_QS_PORTAL_6", 1 },
-	{ "KNOW_QS_PORTAL_7", 1 },
-	{ "KNOW_QS_PORTAL_8", 1 },
-	{ "KNOW_QS_PORTAL_9", 1 },
-	{ "KNOW_QS_PORTAL_10", 1 },
-	{ "KNOW_QS_PORTAL_11", 1 },
-	{ "KNOW_QS_PORTAL_12", 1 },
-	{ "KNOW_QS_PORTAL_13", 1 },
-	{ "KNOW_QS_PORTAL_14", 1 },
-	{ "KNOW_QS_PORTAL_15", 1 },
-	
+
+	{ "KNOW_QS_PORTAL", 16 },
+
+	/* end rev 1, MegaMod v0.8.0.85 */
+	{ NULL, 2 },
+	/* begin rev 2, MegaMod v0.8.1 */
+
+	{ "SYS_VISITED_00", 32 },
+	{ "SYS_VISITED_01", 32 },
+	{ "SYS_VISITED_02", 32 },
+	{ "SYS_VISITED_03", 32 },
+	{ "SYS_VISITED_04", 32 },
+	{ "SYS_VISITED_05", 32 },
+	{ "SYS_VISITED_06", 32 },
+	{ "SYS_VISITED_07", 32 },
+	{ "SYS_VISITED_08", 32 },
+	{ "SYS_VISITED_09", 32 },
+	{ "SYS_VISITED_10", 32 },
+	{ "SYS_VISITED_11", 32 },
+	{ "SYS_VISITED_12", 32 },
+	{ "SYS_VISITED_13", 32 },
+	{ "SYS_VISITED_14", 32 },
+	{ "SYS_VISITED_15", 32 },
+
+	{ "KNOW_CHMMR_HOMEWORLD", 1 },
+	{ "KNOW_ORZ_HOMEWORLD", 1 },
+	{ "KNOW_PKUNK_HOMEWORLD", 1 },
+	{ "KNOW_SHOFIXTI_HOMEWORLD", 1 },
+	{ "KNOW_SPATHI_HOMEWORLD", 1 },
+	{ "KNOW_SUPOX_HOMEWORLD", 1 },
+	{ "KNOW_THRADD_HOMEWORLD", 1 },
+	{ "KNOW_UTWIG_HOMEWORLD", 1 },
+	{ "KNOW_VUX_HOMEWORLD", 1 },
+	{ "KNOW_YEHAT_HOMEWORLD", 1 },
+	{ "KNOW_DRUUGE_HOMEWORLD", 1 },
+	{ "KNOW_ILWRATH_HOMEWORLD", 1 },
+	{ "KNOW_MYCON_HOMEWORLD", 1 },
+	{ "KNOW_SLYLANDRO_HOMEWORLD", 1 },
+	{ "KNOW_UMGAH_HOMEWORLD", 1 },
+	{ "KNOW_ZOQFOT_HOMEWORLD", 1 },
+	{ "KNOW_SYREEN_HOMEWORLD", 1 },
+	{ "KNOW_ANDROSYNTH_HOMEWORLD", 1 },
+
+	{ "HM_ENCOUNTERS", 9 },
+
+	{ "RESERVED", 32 },
+
+	/* end rev 2, MegaMod v0.8.1 */
+	{ NULL, 3 },
+	/* begin rev 3, MegaMod v0.8.2 */
+
+	{ "SYS_PLYR_MARKER_00", 32 },
+	{ "SYS_PLYR_MARKER_01", 32 },
+	{ "SYS_PLYR_MARKER_02", 32 },
+	{ "SYS_PLYR_MARKER_03", 32 },
+	{ "SYS_PLYR_MARKER_04", 32 },
+	{ "SYS_PLYR_MARKER_05", 32 },
+	{ "SYS_PLYR_MARKER_06", 32 },
+	{ "SYS_PLYR_MARKER_07", 32 },
+	{ "SYS_PLYR_MARKER_08", 32 },
+	{ "SYS_PLYR_MARKER_09", 32 },
+	{ "SYS_PLYR_MARKER_10", 32 },
+	{ "SYS_PLYR_MARKER_11", 32 },
+	{ "SYS_PLYR_MARKER_12", 32 },
+	{ "SYS_PLYR_MARKER_13", 32 },
+	{ "SYS_PLYR_MARKER_14", 32 },
+	{ "SYS_PLYR_MARKER_15", 32 },
+
+	{ "LAST_LOCATION_X", 16 },
+	{ "LAST_LOCATION_Y", 16 },
+
+	/* end rev 3, MegaMod v0.8.2 */
+	{ NULL, 4 },
+	/* begin rev 4, MegaMod v0.8.3 */
+
+	{ "ADV_AUTOPILOT_SAVE_X", 16 },
+	{ "ADV_AUTOPILOT_SAVE_Y", 16 },
+
+	{ "ADV_AUTOPILOT_QUASI_X", 16 },
+	{ "ADV_AUTOPILOT_QUASI_Y", 16 },
+
+	/* end rev 3, MegaMod v0.8.2 */
 	{ NULL, 0 },
 };
 
+// This describes the release version corresponding to each game state
+// flag revision chunk.
+const char* gameStateBitMapRevTag[] = {
+	"Core UQM v0.8.0",
+	"MegaMod v0.8.0.85",
+	"MegaMod v0.8.1",
+	"MegaMod v0.8.2",
+	"MegaMod v0.8.3"
+};
 
 // XXX: these should handle endian conversions later
 static inline void
@@ -782,7 +865,8 @@ SaveShipQueue (uio_Stream *fh, QUEUE *pQueue, DWORD tag)
 	if (num_links == 0)
 		return;
 	write_32 (fh, tag);
-	write_32 (fh, num_links * 11); // Size of chunk: each entry is 11 bytes long.
+	write_32 (fh, num_links * 11);
+			// Size of chunk: each entry is 11 bytes long.
 
 	hStarShip = GetHeadLink (pQueue);
 	while (num_links--)
@@ -943,8 +1027,8 @@ SaveEncounters (uio_Stream *fh)
 		}
 
 		// Save the stuff after the BRIEF_SHIP_INFO array
-		write_32  (fh, RES_DESCALE(EncounterPtr->log_x));
-		write_32  (fh, RES_DESCALE(EncounterPtr->log_y));
+		write_32  (fh, RES_DESCALE (EncounterPtr->log_x));
+		write_32  (fh, RES_DESCALE (EncounterPtr->log_y));
 
 		UnlockEncounter (hEncounter);
 		hEncounter = hNextEncounter;
@@ -1001,7 +1085,7 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 	BYTE res_scale;
 
 	if (LOBYTE (GSPtr->CurrentActivity) != IN_INTERPLANETARY)
-		res_scale = RESOLUTION_FACTOR; 
+		res_scale = RESOLUTION_FACTOR;
 	else
 		res_scale = 0;
 
@@ -1021,8 +1105,8 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 	write_16  (fh, GSPtr->ip_location.x);
 	write_16  (fh, GSPtr->ip_location.y);
 	/* STAMP ShipStamp */
-	write_16  (fh, RES_DESCALE(GSPtr->ShipStamp.origin.x));
-	write_16  (fh, RES_DESCALE(GSPtr->ShipStamp.origin.y));
+	write_16  (fh, RES_DESCALE (GSPtr->ShipStamp.origin.x));
+	write_16  (fh, RES_DESCALE (GSPtr->ShipStamp.origin.y));
 	write_16  (fh, GSPtr->ShipFacing);
 	write_8   (fh, GSPtr->ip_planet);
 	write_8   (fh, GSPtr->in_orbit);
@@ -1048,7 +1132,7 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 		if (serialiseGameState (gameStateBitMap, &buf, &bufSize))
 		{
 			write_32  (fh, bufSize);
-			write_a8  (fh, buf, bufSize);
+			write_a8  (fh, buf, (COUNT)bufSize);
 			HFree(buf);
 		}
 		else
@@ -1061,8 +1145,8 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 static void
 SaveSisState (const SIS_STATE *SSPtr, void *fp)
 {
-	write_32  (fp, RES_DESCALE(SSPtr->log_x));
-	write_32  (fp, RES_DESCALE(SSPtr->log_y));
+	write_32  (fp, RES_DESCALE (SSPtr->log_x));
+	write_32  (fp, RES_DESCALE (SSPtr->log_y));
 	write_32  (fp, SSPtr->ResUnits);
 	write_32  (fp, SSPtr->FuelOnBoard);
 	write_16  (fp, SSPtr->CrewEnlisted);
@@ -1089,7 +1173,7 @@ static void
 SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 {
 	write_32 (fp, SUMMARY_TAG);
-	write_32 (fp, 160 + strlen(SummPtr->SaveName));
+	write_32 (fp, 160 + strlen (SummPtr->SaveName));
 	SaveSisState (&SummPtr->SS, fp);
 
 	write_8  (fp, SummPtr->Activity);
@@ -1104,7 +1188,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 	write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS);
 	write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES);
 	write_8  (fp, SummPtr->res_factor);
-	write_a8 (fp, (BYTE *) SummPtr->SaveName, strlen(SummPtr->SaveName));
+	write_a8 (fp, (BYTE *) SummPtr->SaveName, (COUNT)strlen (SummPtr->SaveName));
 }
 
 /* Save the Star Description chunk. This is not to be confused with
@@ -1157,8 +1241,9 @@ PrepareSummary (SUMMARY_DESC *SummPtr, const char *name)
 	{
 		HSHIPFRAG hStarShip, hNextShip;
 
-		for (hStarShip = GetHeadLink (&GLOBAL (built_ship_q)), SummPtr->NumShips = 0;
-				hStarShip; hStarShip = hNextShip, ++SummPtr->NumShips)
+		for (hStarShip = GetHeadLink (&GLOBAL (built_ship_q)),
+				SummPtr->NumShips = 0; hStarShip; hStarShip = hNextShip,
+				++SummPtr->NumShips)
 		{
 			SHIP_FRAGMENT *StarShipPtr;
 
@@ -1218,24 +1303,22 @@ SaveProblemMessage (STAMP *MsgStamp)
 			BoxUnion (&tr, &r, &r);
 		t.baseline.y += 11;
 	}
-	t.baseline.x = ((SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1))
-			- r.corner.x;
-	t.baseline.y = ((SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1))
-			- r.corner.y;
-	r.corner.x += t.baseline.x - RES_SCALE(4);
-	r.corner.y += t.baseline.y - RES_SCALE(4);
-	r.extent.width += RES_SCALE(8);
-	r.extent.height += RES_SCALE(8);
+	t.baseline.x = (RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
+			- (r.extent.width >> 1)) - r.corner.x;
+	t.baseline.y = (RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
+			- (r.extent.height >> 1)) - r.corner.y;
+	r.corner.x += t.baseline.x - RES_SCALE (4);
+	r.corner.y += t.baseline.y - RES_SCALE (4);
+	r.extent.width += RES_SCALE (8);
+	r.extent.height += RES_SCALE (8);
 
 	*MsgStamp = SaveContextFrame (&r);
 
 	BatchGraphics ();
-	DrawStarConBox (&r, 2,
-			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
-			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F),
-			TRUE, BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	DrawStarConBox (&r, RES_SCALE (2), SHADOWBOX_MEDIUM_COLOR,
+			SHADOWBOX_DARK_COLOR, TRUE, DKGRAY_COLOR);
 	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x14, 0x14, 0x14), 0x0F));
+			isPC (optWhichFonts) ? WHITE_COLOR : LTGRAY_COLOR);
 
 	for (i = 0; i < MAX_MSG_LINES; ++i)
 	{
@@ -1291,7 +1374,8 @@ SaveStarInfo (uio_Stream *fh)
 		DWORD flen = LengthStateFile (fp);
 		if (flen % 4)
 		{
-			log_add (log_Warning, "Unexpected Star Info length! Expected an integral number of DWORDS.\n");
+			log_add (log_Warning, "Unexpected Star Info length! Expected "
+					"an integral number of DWORDS.\n");
 		}
 		else
 		{
@@ -1310,7 +1394,8 @@ SaveStarInfo (uio_Stream *fh)
 }
 
 static void
-SaveBattleGroup (GAME_STATE_FILE *fp, DWORD encounter_id, DWORD grpoffs, uio_Stream *fh)
+SaveBattleGroup (GAME_STATE_FILE *fp, DWORD encounter_id, DWORD grpoffs,
+		uio_Stream *fh)
 {
 	GROUP_HEADER h;
 	DWORD size = 12;
@@ -1328,7 +1413,8 @@ SaveBattleGroup (GAME_STATE_FILE *fp, DWORD encounter_id, DWORD grpoffs, uio_Str
 	write_32 (fh, BATTLE_GROUP_TAG);
 	write_32 (fh, size);
 	write_32 (fh, encounter_id);
-	write_8  (fh, (grpoffs && (GLOBAL (BattleGroupRef) == grpoffs)) ? 1 : 0); // current
+	write_8  (fh,
+			(grpoffs && (GLOBAL (BattleGroupRef) == grpoffs)) ? 1 : 0);
 	write_16 (fh, h.star_index);
 	write_8  (fh, h.day_index);
 	write_8  (fh, h.month_index);
@@ -1384,8 +1470,8 @@ GetBattleGroupOffset (int encounterIndex)
 		case 13: return GET_GAME_STATE (COLONY_GRPOFFS);
 		case 14: return GET_GAME_STATE (SAMATRA_GRPOFFS);
 		default:
-			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter "
-					"index.\n");
+			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter"
+					" index.\n");
 			return 0;
 	}
 }
@@ -1402,7 +1488,7 @@ SaveGroups (uio_Stream *fh)
 		int i;
 		ReadGroupHeader (fp, &h);
 		/* Group List */
-		SeekStateFile (fp, h.GroupOffset[0], SEEK_SET);	
+		SeekStateFile (fp, h.GroupOffset[0], SEEK_SET);
 		sread_8 (fp, &lastenc);
 		sread_8 (fp, &count);
 		write_32 (fh, GROUP_LIST_TAG);
@@ -1473,7 +1559,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 	if ((out_fp = res_OpenResFile (saveDir, file, "wb")))
 	{
 		io_ok = TRUE;
-		write_32 (out_fp, MEGA_TAG);
+		write_32 (out_fp, MMV3_TAG);
 
 		PrepareSummary (SummPtr, name);
 		SaveSummary (SummPtr, out_fp);
@@ -1494,8 +1580,10 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 		if (!(GLOBAL (CurrentActivity) & START_INTERPLANETARY))
 		{
 			if (GLOBAL (CurrentActivity) & START_ENCOUNTER)
-				SaveShipQueue (out_fp, &GLOBAL (npc_built_ship_q), NPC_SHIP_Q_TAG);
-			else if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
+				SaveShipQueue (out_fp, &GLOBAL (npc_built_ship_q),
+						NPC_SHIP_Q_TAG);
+			else if (LOBYTE (GLOBAL (CurrentActivity))
+					== IN_INTERPLANETARY)
 				// XXX: Technically, this queue does not need to be
 				//   saved/loaded at all. IP groups will be reloaded
 				//   from group state files. But the original code did,

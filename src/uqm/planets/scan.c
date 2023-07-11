@@ -100,13 +100,32 @@ static void
 PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 {
 	t->baseline.x = xpos;
-	SetContextForeGroundColor (SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_PC_TITLE_COLOR_6014 : SCAN_PC_TITLE_COLOR);
+
 	t->pStr = txt;
 	t->CharCount = (COUNT)~0;
-	font_DrawText (t);
+
+	if (!optNebulae)
+		font_DrawText (t);
+	else
+		font_DrawTracedText (t,
+				EXT_CASE (GetContextForeGroundColor (),
+					SCAN_PC_TITLE_COLOR_6014),
+					OUTLINE_COLOR);
+
 	TextRect (t, r, NULL);
 	t->baseline.x += r->extent.width;
 	SetContextForeGroundColor (SCAN_INFO_COLOR);
+}
+
+static void
+PrintScanText (TEXT *t)
+{
+	if (!optNebulae)
+		font_DrawText (t);
+	else
+		font_DrawTracedText (t, GetContextForeGroundColor (),
+				OUTLINE_COLOR);
 }
 
 static void
@@ -120,6 +139,17 @@ MakeScanValue (UNICODE *buf, long val, const UNICODE *extra)
 	{	// 2 decimal places
 		sprintf (buf, "%ld.%02ld%s", val / 100, val % 100, extra);
 	}
+}
+
+SIZE
+GetRotationalPeriod (void)
+{
+	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
+		return (SIZE)(pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
+				* 10 / 24);
+	else
+		return (SIZE)((pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
+				+ (24 >> 1)) / 24);
 }
 
 void
@@ -163,23 +193,29 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 static void
 HazardCase (BYTE hazard)
 {
-#define HAZARD_CASE(a,b) ((a) ? DULL_YELLOW_COLOR : ((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
+#define HAZARD_CASE(a,b) \
+		((a) ? DULL_YELLOW_COLOR : \
+		((b) ? BRIGHT_RED_COLOR : SCAN_INFO_COLOR))
 	Color HazardColor;
 
-	UWORD Temperature = GetThermalHazardRating (pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	UWORD Temperature = GetThermalHazardRating (
+			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
 	UWORD Weather = pSolarSysState->SysInfo.PlanetInfo.Weather + 1;
 	UWORD Tectonics = pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1;
 
 	switch (hazard)
 	{
 		case LAVASPOT_DISASTER:
-			HazardColor = HAZARD_CASE ((Temperature > 1 && Temperature < 5), (Temperature > 4));
+			HazardColor = HAZARD_CASE (Temperature > 1 && Temperature < 5,
+					Temperature > 4);
 			break;
 		case LIGHTNING_DISASTER:
-			HazardColor = HAZARD_CASE ((Weather > 2 && Weather < 5), (Weather > 4));
+			HazardColor =
+					HAZARD_CASE (Weather > 2 && Weather < 5, Weather > 4);
 			break;
 		case EARTHQUAKE_DISASTER:
-			HazardColor = HAZARD_CASE ((Tectonics > 2 && Tectonics < 6), (Tectonics > 5));
+			HazardColor = HAZARD_CASE (Tectonics > 2 && Tectonics < 6,
+					Tectonics > 5);
 			break;
 		default:
 			HazardColor = SCAN_INFO_COLOR;
@@ -189,12 +225,11 @@ HazardCase (BYTE hazard)
 	SetContextForeGroundColor (HazardColor);
 }
 
-#define SCAN_TITLE_Y RES_SCALE(16)
+#define SCAN_TITLE_Y RES_SCALE (13)
 
 static void
 PrintCoarseScanPC (void)
 {
-#define SCAN_LEADING_PC RES_SCALE(10) 
 	SDWORD val;
 	TEXT t;
 	RECT r;
@@ -205,20 +240,21 @@ PrintCoarseScanPC (void)
 	SetContext (PlanetContext);
 
 	t.align = ALIGN_CENTER;
-	t.baseline.x = SIS_SCREEN_WIDTH >> 1;
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	t.baseline.y = SCAN_TITLE_Y;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
 	SetContextFont (MicroFont);
-	font_DrawText (&t);
+	PrintScanText (&t);
 
 	SetContextFont (TinyFont);
 
-#define LEFT_SIDE_BASELINE_X_PC RES_SCALE(2) 
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE(72)) 
-#define SCAN_BASELINE_Y_PC RES_SCALE(51) 
+#define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2)
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72))
+#define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (14))
+#define SCAN_LEADING_PC RES_SCALE (10)
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
@@ -231,12 +267,13 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 1)); // " a.u."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 2),
 			LEFT_SIDE_BASELINE_X_PC); // "Atmo: "
-	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == GAS_GIANT_ATMOSPHERE)
+	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity
+			== GAS_GIANT_ATMOSPHERE)
 		utf8StringCopy (buf, sizeof (buf),
 				GAME_STRING (ORBITSCAN_STRING_BASE + 3)); // "Super Thick"
 	else if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0)
@@ -251,7 +288,7 @@ PrintCoarseScanPC (void)
 	}
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 6),
@@ -264,7 +301,7 @@ PrintCoarseScanPC (void)
 
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 7),
@@ -283,7 +320,7 @@ PrintCoarseScanPC (void)
 		HazardCase (LIGHTNING_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 10),
@@ -303,7 +340,7 @@ PrintCoarseScanPC (void)
 		HazardCase (EARTHQUAKE_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 
@@ -319,7 +356,7 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 12)); // " e.s."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 13),
@@ -329,7 +366,7 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 12)); // " e.s."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 14),
@@ -341,18 +378,21 @@ PrintCoarseScanPC (void)
 			GAME_STRING (ORBITSCAN_STRING_BASE + 15)); // " g."
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 16),
 			RIGHT_SIDE_BASELINE_X_PC); // "Day: "
-	val = (SDWORD)pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
-			* 10 / 24;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
+	val = GetRotationalPeriod ();
+	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
+		sprintf (buf, "%u.%02u%s", val / 100, val % 100,
+				GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
+	else
+		sprintf (buf, "%u.%u%s", val / 10, val % 10,
+				GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
 	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 18),
@@ -363,55 +403,59 @@ PrintCoarseScanPC (void)
 	t.pStr = buf;
 	sprintf (buf, "%d" STR_DEGREE_SIGN, val);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 }
 
 static void
 PrintCoarseScan3DO (void)
 {
-#define SCAN_LEADING RES_SCALE(19) 
+#define SCAN_LEADING RES_SCALE (19)
 	SDWORD val;
 	TEXT t;
 	STAMP s;
-	UNICODE buf[200];
+	UNICODE buf[40];
+	COUNT frameIndex = 20;
 
-	GetPlanetTitle (buf, sizeof (buf));
+	if (optWhichCoarseScan == 3)
+		frameIndex = (IS_HD ? 25 : 24);
 
 	SetContext (PlanetContext);
 
+	GetPlanetTitle (buf, sizeof (buf));
+
 	t.align = ALIGN_CENTER;
-	t.baseline.x = SIS_SCREEN_WIDTH >> 1;
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	t.baseline.y = SCAN_TITLE_Y;
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
-
 	SetContextForeGroundColor (SCAN_INFO_COLOR);
 	SetContextFont (MicroFont);
-	font_DrawText (&t);
+	PrintScanText (&t);
 
-	s.origin.y = RES_SCALE(9);
-	s.origin.x = RES_SCALE(16);
-	s.frame = SetAbsFrameIndex (SpaceJunkFrame, 20);
-	DrawStamp (&s);
-
-#define LEFT_SIDE_BASELINE_X RES_SCALE(27 + 16) 
+#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15)
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y RES_SCALE(34) 
+#define SCAN_BASELINE_Y RES_SCALE (25 + 12)
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_LEFT;
+
+	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
+	s.origin.x = 0;
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
+	DrawStamp (&s);
 
 	t.pStr = buf;
 	val = ((pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist * 100L
 			+ (EARTH_RADIUS >> 1)) / EARTH_RADIUS);
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == GAS_GIANT_ATMOSPHERE)
+	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity
+			== GAS_GIANT_ATMOSPHERE)
 		strcpy (buf, STR_INFINITY_SIGN);
 	else
 	{
@@ -420,7 +464,7 @@ PrintCoarseScan3DO (void)
 		MakeScanValue (buf, val, STR_EARTH_SIGN);
 	}
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -431,18 +475,19 @@ PrintCoarseScan3DO (void)
 		HazardCase (LAVASPOT_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	sprintf (buf, "<%u>", pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
-			? 0 : (pSolarSysState->SysInfo.PlanetInfo.Weather + 1));
+	sprintf (buf, "<%u>",
+			pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
+				? 0 : (pSolarSysState->SysInfo.PlanetInfo.Weather + 1));
 
 	if (optHazardColors) // Weather
 		HazardCase (LIGHTNING_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -456,9 +501,9 @@ PrintCoarseScan3DO (void)
 		HazardCase (EARTHQUAKE_DISASTER);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 
-	t.baseline.x = RIGHT_SIDE_BASELINE_X + IF_HD(3);
+	t.baseline.x = RIGHT_SIDE_BASELINE_X - RES_SCALE (3);
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 
@@ -475,7 +520,7 @@ PrintCoarseScan3DO (void)
 		SetContextForeGroundColor (SCAN_INFO_COLOR);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -483,7 +528,7 @@ PrintCoarseScan3DO (void)
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
 
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -492,7 +537,7 @@ PrintCoarseScan3DO (void)
 		val = 1;
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
@@ -501,15 +546,17 @@ PrintCoarseScan3DO (void)
 		val = -val;
 	sprintf (buf, "%d" STR_DEGREE_SIGN, val);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
 	t.pStr = buf;
-	val = (SDWORD)pSolarSysState->SysInfo.PlanetInfo.RotationPeriod
-			* 10 / 24;
-	MakeScanValue (buf, val, STR_EARTH_SIGN);
+	val = GetRotationalPeriod ();
+	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
+		sprintf (buf, "%u.%02u%s", val / 100, val % 100, STR_EARTH_SIGN);
+	else
+		sprintf (buf, "%u.%u%s", val / 10, val % 10, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
+	PrintScanText (&t);
 }
 
 static void
@@ -613,9 +660,11 @@ flashPlanetLocation (void)
 		c += val;
 
 		if (Now - NextTime > FLASH_FRAME_DELAY)
-			NextTime = Now + FLASH_FRAME_DELAY; // missed timing by too much
+			NextTime = Now + FLASH_FRAME_DELAY;
+					// missed timing by too much
 		else
-			NextTime += FLASH_FRAME_DELAY; // stable frame rate
+			NextTime += FLASH_FRAME_DELAY;
+					// stable frame rate
 	}
 
 	SetContext (ScanContext);
@@ -714,10 +763,10 @@ DispatchLander (void)
 		return FALSE;
 	}
 
-	if (optWhichCoarseScan == OPT_PC)
-		PrintCoarseScanPC ();
-	else
+	if (optWhichCoarseScan & 1)
 		PrintCoarseScan3DO ();
+	else
+		PrintCoarseScanPC ();
 
 	// Reactivate planet rotation callback
 	SetInputCallback (oldCallback);
@@ -761,30 +810,30 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	{
 		SIZE dx = 0;
 		SIZE dy = 0;
-		POINT new_pt; 
+		POINT new_pt;
 		static DWORD tNext;
 
 		new_pt = planetLoc;
 
 		if (tNext && TimeIn >= tNext)
-			tNext = NULL;
+			tNext = 0;
 
 		if (!tNext || TimeIn >= tNext)
 		{
 			if (CurrentInputState.menu[KEY_MENU_LEFT])
-				dx = -RES_SCALE(1);
+				dx = -RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_RIGHT])
-				dx = RES_SCALE(1);
+				dx =  RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_UP])
-				dy = -RES_SCALE(1);
+				dy = -RES_SCALE (1);
 			if (CurrentInputState.menu[KEY_MENU_DOWN])
-				dy = RES_SCALE(1);
+				dy =  RES_SCALE (1);
 
-			// Double the cursor speed when the Zoom Out key is held down
-			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_ZOOM_OUT])
+			// Triple the cursor speed when the "Next" key is held down
+			if (DirKeysPress () && CurrentInputState.menu[KEY_MENU_NEXT])
 			{
-					dx *= 2;
-					dy *= 2;
+				dx *= 3;
+				dy *= 3;
 			}
 		}
 
@@ -832,11 +881,16 @@ drawLandingFuelUsage (COUNT fuel)
 	StatMsgMode old_status_message_mode = SMM_UNDEFINED;
 	UNICODE buf[100];
 
-	if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel) <= (SDWORD)(get_fuel_to_sol ()))
-	{ /* We will not have enough fuel to get to Sol if we dispatch the lander */
+	if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel)
+			<= (SDWORD)(get_fuel_to_sol ()))
+	{	// We will not have enough fuel to get to Sol if we dispatch the
+		// lander
 		old_status_message_mode = SetStatusMessageMode (SMM_ALERT);
-	} else if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel) <= (SDWORD)(get_fuel_to_sol () + (5 * FUEL_TANK_SCALE)))
-	{ /* We will have enough fuel to get to Sol if we dispatch the lander, but will have less than 5 to spare */
+	}
+	else if (((SDWORD) (GLOBAL_SIS (FuelOnBoard)) - fuel)
+			<= (SDWORD)(get_fuel_to_sol () + (5 * FUEL_TANK_SCALE)))
+	{	// We will have enough fuel to get to Sol if we dispatch the lander
+		// but will have less than 5 to spare
 		old_status_message_mode = SetStatusMessageMode (SMM_WARNING);
 	}
 
@@ -866,7 +920,7 @@ PickPlanetSide (void)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &PickState;
 
-	if (optSuperPC != OPT_PC)
+	if (is3DO (optSuperPC))
 		ClearSISRect (CLEAR_SIS_RADAR);
 
 	SetContext (ScanContext);
@@ -880,7 +934,7 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	if (optSuperPC != OPT_PC)
+	if (is3DO (optSuperPC))
 		InitLander (0);
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
@@ -974,7 +1028,8 @@ DrawScannedStuff (COUNT y, COUNT scan)
 			if (dy > nodeSize)
 				dy = nodeSize;
 			
-			s.frame = SetRelFrameIndex (ElementPtr->current.image.frame, dy);
+			s.frame =
+					SetRelFrameIndex (ElementPtr->current.image.frame, dy);
 			DrawFilledStamp (&s);
 		}
 
@@ -1039,7 +1094,7 @@ DrawPCScannedStuff (COUNT scan)
 						DrawStamp (&s);
 						growth++;
 					}
-					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+					RotatePlanetSphere (TRUE, NULL);
 				}
 				if (growth < NUM_FLASH_COLORS)
 				{	// didn't finish - draw 
@@ -1052,10 +1107,11 @@ DrawPCScannedStuff (COUNT scan)
 				hElement = hNextElement;
 			}
 		}
-		RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+		RotatePlanetSphere (TRUE, NULL);
 	}
 	if (hElement)
-	{	// scan aborted - make everything scanned, workaround for singular scan
+	{	// scan aborted - make everything scanned, workaround for singular
+		// scan
 		while (hElement)
 		{
 			LockElement (hElement, &ElementPtr);
@@ -1077,7 +1133,8 @@ DrawPCScannedStuff (COUNT scan)
 
 COUNT
 callGenerateForScanType (const SOLARSYS_STATE *solarSys,
-		const PLANET_DESC *world, COUNT node, BYTE scanType, NODE_INFO *info)
+		const PLANET_DESC *world, COUNT node, BYTE scanType,
+		NODE_INFO *info)
 {
 	switch (scanType)
 	{
@@ -1120,11 +1177,13 @@ callPickupForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 static void
 ScanPlanet (COUNT scanType)
 {
-#define SCAN_DURATION   ((ONE_SECOND * 7 / 4 + RES_BOOL(UINT8_MAX, 0)))
+#define SCAN_DURATION   ((ONE_SECOND * 7 / 4 + RES_BOOL (UINT8_MAX, 0)))
 // NUM_FLASH_COLORS for flashing blips; 1 for the final frame
-#define SCAN_LINES_OG   (UQM_MAP_HEIGHT + NUM_FLASH_COLORS + 1)
-#define SCAN_LINES      RES_SCALE(SCAN_LINES_OG)
+#define SCAN_LINES_OG   (ORIGINAL_MAP_HEIGHT + NUM_FLASH_COLORS + 1)
+#define SCAN_LINES      RES_SCALE (SCAN_LINES_OG)
 #define SCAN_LINE_WAIT  (SCAN_DURATION / SCAN_LINES_OG)
+	// For taming the scan FPS on underpowered devices
+#define SCAN_LINE_FPS  (ONE_SECOND / RES_BOOL (42, 60))
 
 	COUNT startScan, endScan;
 	COUNT scan;
@@ -1164,11 +1223,11 @@ ScanPlanet (COUNT scanType)
 		SWORD i = 0;
 		Color tintColor;
 				// Alpha value will be ignored.
-		static TimeCount TimeOut;
-		TimeCount Now, Delay;
+		static TimeCount TimeOut, TimeOutDraw;
+		TimeCount Now;
 
-		t.baseline.x = SIS_SCREEN_WIDTH >> 1;
-		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE(7); 
+		t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		t.baseline.y = SIS_SCREEN_HEIGHT - MAP_HEIGHT - RES_SCALE (7);
 		t.align = ALIGN_CENTER;
 		t.CharCount = (COUNT)~0;
 
@@ -1176,9 +1235,9 @@ ScanPlanet (COUNT scanType)
 
 		SetContext (PlanetContext);
 		r.corner.x = 0;
-		r.corner.y = t.baseline.y - RES_SCALE(10);
+		r.corner.y = t.baseline.y - RES_SCALE (10);
 		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE(1);
+		r.extent.height = t.baseline.y - r.corner.y + RES_SCALE (1);
 		RepairBackRect (&r);
 
 		SetContextFont (MicroFont);
@@ -1189,13 +1248,15 @@ ScanPlanet (COUNT scanType)
 		
 		// Draw a virgin surface
 		if (optScanStyle != OPT_PC)
-			DrawPlanet(0, BLACK_COLOR);
+			DrawPlanet (0, BLACK_COLOR);
 
 		tintColor = tintColors[scan];
 
-		// Draw the scan slowly line by line
-		TimeOut = GetTimeCounter () + SCAN_LINE_WAIT;
 		FlushInput ();
+
+		pSolarSysState->Orbit.scanType = scan;
+		RerenderPlanetSphere ();
+
 		if (optScanStyle != OPT_PC)
 		{
 			while (i < SCAN_LINES)
@@ -1211,19 +1272,19 @@ ScanPlanet (COUNT scanType)
 
 					TimeOut = Now + SCAN_LINE_WAIT;
 
-					i += RES_SCALE(1);
+					i += RES_SCALE (1);
 
-					BatchGraphics ();
+					if (Now >= TimeOutDraw)
+					{
+						TimeOutDraw = Now + SCAN_LINE_FPS;
 
-					DrawPlanet (i, tintColor);
-					
-					DrawScannedStuff (i, scan);
-					UnbatchGraphics ();
+						BatchGraphics ();
+						DrawPlanet (i, tintColor);
+						DrawScannedStuff (i, scan);
+						UnbatchGraphics ();
+					}
 				}
-				RotatePlanetSphere (TRUE, NULL,
-					BUILD_COLOR_RGBA (
-						tintColor.r, tintColor.g, tintColor.b, 0x45
-					));
+				RotatePlanetSphere (TRUE, NULL);
 			}
 		}
 		else
@@ -1237,13 +1298,14 @@ ScanPlanet (COUNT scanType)
 			if (scanType == AUTO_SCAN)
 			{	// delay between scans
 				TimeOut = GetTimeCounter () + ONE_SECOND;
-				while (GetTimeCounter () < TimeOut && !AnyButtonPress (TRUE))
-					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+				while (GetTimeCounter () < TimeOut
+						&& !AnyButtonPress (TRUE))
+					RotatePlanetSphere (TRUE, NULL);
 			}
 			else
 			{	// endless state - mimics PC "Exit Scan"
 				while (!AnyButtonPress (TRUE))
-					RotatePlanetSphere (TRUE, NULL, TRANSPARENT);
+					RotatePlanetSphere (TRUE, NULL);
 			}
 		}
 
@@ -1261,6 +1323,10 @@ ScanPlanet (COUNT scanType)
 	RepairBackRect (&r);
 
 	SetContext (ScanContext);
+	pSolarSysState->Orbit.scanType = NUM_SCAN_TYPES;
+
+	if (optScanStyle == OPT_PC || useDosSpheres)
+		RerenderPlanetSphere ();
 
 	if (scanType == AUTO_SCAN || optScanStyle == OPT_PC)
 	{	// clear the last scan
@@ -1293,9 +1359,9 @@ DoScan (MENU_STATE *pMS)
 		{
 			COUNT fuel_required;
 
-			if ((pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED)
-					|| (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity ==
-						GAS_GIANT_ATMOSPHERE))
+			if (pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED
+					|| pSolarSysState->SysInfo.PlanetInfo.AtmoDensity ==
+						GAS_GIANT_ATMOSPHERE)
 			{	// cannot dispatch to shielded planets or gas giants
 				PlayMenuSound (MENU_SOUND_FAILURE);
 				return TRUE;
@@ -1346,12 +1412,12 @@ DoScan (MENU_STATE *pMS)
 }
 
 static CONTEXT
-CreateScanContext (void)
+CreateScanContext (BOOLEAN inSpace)
 {
 	CONTEXT oldContext;
 	CONTEXT context;
 	RECT r;
-	COORD mapWidth = actuallyInOrbit ? SCALED_MAP_WIDTH : MAP_WIDTH;
+	COORD x_offset;
 
 	// ScanContext rect is relative to SpaceContext
 	oldContext = SetContext (SpaceContext);
@@ -1360,10 +1426,18 @@ CreateScanContext (void)
 	context = CreateContext ("ScanContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - mapWidth;
+	x_offset = RES_DESCALE (r.extent.width - SCALED_MAP_WIDTH);
+	r.extent.width = SCALED_MAP_WIDTH;
+	if (inSpace && x_offset > 0)
+	{
+		x_offset >>= 1;
+		x_offset += 2;
+		r.extent.width -= RES_SCALE (5);
+	}
+	r.corner.x += RES_SCALE (x_offset);
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = mapWidth;
 	r.extent.height = MAP_HEIGHT;
+
 	SetContextClipRect (&r);
 
 	SetContext (oldContext);
@@ -1383,8 +1457,12 @@ GetScanContext (BOOLEAN *owner)
 	else
 	{
 		if (owner)
+		{
 			*owner = TRUE;
-		ScanContext = CreateScanContext ();
+			ScanContext = CreateScanContext (TRUE);
+		}
+		else
+			ScanContext = CreateScanContext (FALSE);
 	}
 	return ScanContext;
 }
@@ -1405,6 +1483,8 @@ ScanSystem (void)
 	MENU_STATE MenuState;
 
 	memset (&MenuState, 0, sizeof MenuState);
+
+	// fprintfWorld (pSolarSysState->pOrbitalDesc);
 
 	GetScanContext (NULL);
 
@@ -1430,10 +1510,10 @@ ScanSystem (void)
 
 	SetFlashRect (SFR_MENU_3DO, FALSE);
 
-	if (optWhichCoarseScan == OPT_PC)
-		PrintCoarseScanPC ();
-	else
+	if (optWhichCoarseScan & 1)
 		PrintCoarseScan3DO ();
+	else
+		PrintCoarseScanPC ();
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
@@ -1463,17 +1543,23 @@ generateBioNode (SOLARSYS_STATE *system, ELEMENT *NodeElementPtr,
 	DWORD j;
 
 	if (DIF_HARD) {
-		CreatureData[EVIL_ONE].Attributes = BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_SLOW | DANGER_MONSTROUS;
-		CreatureData[EVIL_ONE].ValueAndHitPoints = MAKE_BYTE(5, 5);
-		// CreatureData[ZEX_BEAUTY].Attributes = BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST | DANGER_MONSTROUS;
+		CreatureData[EVIL_ONE].Attributes =
+				BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_SLOW |
+					DANGER_MONSTROUS;
+		CreatureData[EVIL_ONE].ValueAndHitPoints = MAKE_BYTE (5, 5);
+		// CreatureData[ZEX_BEAUTY].Attributes =
+		//		BEHAVIOR_HUNT | AWARENESS_HIGH | SPEED_FAST |
+		//			DANGER_MONSTROUS;
 		// CreatureData[ZEX_BEAUTY].ValueAndHitPoints = MAKE_BYTE(15, 30);
 	} else if (DIF_EASY) {
-		CreatureData[ZEX_BEAUTY].Attributes = BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_SLOW | DANGER_MONSTROUS;
-		CreatureData[ZEX_BEAUTY].ValueAndHitPoints = MAKE_BYTE(15, 8);
+		CreatureData[ZEX_BEAUTY].Attributes =
+				BEHAVIOR_HUNT | AWARENESS_LOW | SPEED_SLOW |
+					DANGER_MONSTROUS;
+		CreatureData[ZEX_BEAUTY].ValueAndHitPoints = MAKE_BYTE (15, 8);
 	}
 
-	// NOTE: TFB_Random() calls here are NOT part of the deterministic planet
-	//   generation PRNG flow.
+	// NOTE: TFB_Random() calls here are NOT part of the deterministic
+	// planet generation PRNG flow.
 	if (CreatureData[creatureType].Attributes & SPEED_MASK)
 	{
 		// Place moving creatures at a random location.
@@ -1481,10 +1567,11 @@ generateBioNode (SOLARSYS_STATE *system, ELEMENT *NodeElementPtr,
 		j = (DWORD)TFB_Random ();
 
 		NodeElementPtr->current.location.x = 
-				((RES_BOOL(LOBYTE (i), LOWORD (j)) %
+				((RES_BOOL (LOBYTE (i), LOWORD (j)) %
 					(SCALED_MAP_WIDTH - (8 << 1))) + 8);
 		NodeElementPtr->current.location.y = 
-				(RES_BOOL(HIBYTE (i), HIWORD (j)) % (MAP_HEIGHT - (8 << 1))) + 8;
+				(RES_BOOL (HIBYTE (i), HIWORD (j)) %
+					(MAP_HEIGHT - (8 << 1))) + 8;
 	}
 
 	if (system->PlanetSideFrame[0] == 0)
@@ -1563,14 +1650,17 @@ GeneratePlanetSide (void)
 			NodeElementPtr->current.location.x = info.loc_pt.x;
 			NodeElementPtr->current.location.y = info.loc_pt.y;
 
-			SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMP_PRIM);
+			SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex],
+					STAMP_PRIM);
 			if (scan == MINERAL_SCAN)
 			{
 				NodeElementPtr->turn_wait = info.type;
 
-				// JMS: Partially scavenged energy blips won't return anymore to original size after leaving planet.
+				// JMS: Partially scavenged energy blips won't return
+				// anymore to original size after leaving planet.
 				NodeElementPtr->mass_points = HIBYTE (info.density)
-				- pSolarSysState->SysInfo.PlanetInfo.PartiallyScavengedList[scan][num_nodes];
+						- pSolarSysState->SysInfo.PlanetInfo.
+							PartiallyScavengedList[scan][num_nodes];
 
 				NodeElementPtr->current.image.frame = SetAbsFrameIndex (
 						MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
@@ -1591,8 +1681,8 @@ GeneratePlanetSide (void)
 				if (scan == ENERGY_SCAN)
 				{
 					NodeElementPtr->mass_points = MAX_SCROUNGED;
-					DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
-							pSolarSysState->PlanetSideFrame[1];
+					DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.
+							frame = pSolarSysState->PlanetSideFrame[1];
 				}
 				else /* (scan == BIOLOGICAL_SCAN) */
 				{

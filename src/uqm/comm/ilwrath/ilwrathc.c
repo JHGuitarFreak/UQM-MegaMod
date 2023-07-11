@@ -21,6 +21,7 @@
 #include "strings.h"
 
 #include "uqm/gameev.h"
+#include "uqm/build.h"
 
 
 static LOCDATA ilwrath_desc =
@@ -39,8 +40,11 @@ static LOCDATA ilwrath_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	ILWRATH_COLOR_MAP, /* AlienColorMap */
 	ILWRATH_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	ILWRATH_CONVERSATION_PHRASES, /* PlayerPhrases */
 	4, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -103,6 +107,7 @@ static LOCDATA ilwrath_desc =
 static void
 CombatIsInevitable (RESPONSE_REF R)
 {
+	BOOLEAN isGTFO = PLAYER_SAID (R, gtfo);
 	setSegue (Segue_hostile);
 
 	if (PLAYER_SAID (R, you_are_weak))
@@ -121,9 +126,11 @@ CombatIsInevitable (RESPONSE_REF R)
 		NPCPhrase (NO_ALLIANCE);
 	else if (PLAYER_SAID (R, but_evil_is_defined))
 		NPCPhrase (DONT_CONFUSE_US);
-	else if (PLAYER_SAID (R, bye_gods))
+	else if (PLAYER_SAID (R, bye_gods) || isGTFO)
 	{
 		NPCPhrase (GOODBYE_GODS);
+
+		GTFO = isGTFO;
 
 		setSegue (Segue_peace);
 	}
@@ -151,6 +158,8 @@ CombatIsInevitable (RESPONSE_REF R)
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_SPACE_3);
+				if (!GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD))
+					SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_SPACE_4);
@@ -426,6 +435,10 @@ GodsSpeak (RESPONSE_REF R)
 		else
 		{
 			NumVisits = GET_GAME_STATE (ILWRATH_GODS_SPOKEN);
+
+			if (NumVisits > 3)
+				NumVisits = 0;
+
 			switch (NumVisits++)
 			{
 				case 0:
@@ -574,8 +587,8 @@ Intro (void)
 		}
 		SET_GAME_STATE (ILWRATH_CHMMR_VISITS, NumVisits);
 
-		Response (whats_up, CombatIsInevitable);
-		Response (bye, CombatIsInevitable);
+		Response(whats_up, CombatIsInevitable);
+		Response(bye, CombatIsInevitable);
 	}
 	else if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 5))
 	{
@@ -585,9 +598,48 @@ Intro (void)
 		else if (GET_GAME_STATE (ILWRATH_DECEIVED))
 			NPCPhrase (FAST_AS_CAN);
 		else
-			NPCPhrase (JUST_GRUNTS);
+		{
+			if (EXTENDED)
+			{
+				NumVisits = GET_GAME_STATE (ILWRATH_GODS_SPOKEN);
 
-		setSegue (Segue_peace);
+				if (NumVisits < 5)
+				{
+					Response (gtfo, CombatIsInevitable);
+					Response (bye_gods, CombatIsInevitable);
+				}
+
+				switch (NumVisits++)
+				{
+					case 0:
+						NPCPhrase (JUST_GRUNTS);
+						break;
+					case 1:
+						NPCPhrase (ILWRATH_BELIEVE);
+						break;
+					case 2:
+						NPCPhrase (GODS_RETURN_1);
+						break;
+					case 3:
+						NPCPhrase (GODS_RETURN_2);
+						break;
+					case 4:
+						NPCPhrase (GODS_RETURN_3);
+						break;
+					case 5:
+						NPCPhrase (DECEIVERS);
+						GTFO = 2;
+						--NumVisits;
+						break;
+				}
+				SET_GAME_STATE (ILWRATH_GODS_SPOKEN, NumVisits);
+			}
+			else
+				NPCPhrase (JUST_GRUNTS);
+
+			setSegue (Segue_peace);
+		}
+
 	}
 	else if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 4))
 	{
@@ -630,8 +682,8 @@ init_ilwrath_comm (void)
 	ilwrath_desc.uninit_encounter_func = uninit_ilwrath;
 
 	ilwrath_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	ilwrath_desc.AlienTextBaseline.y = RES_SCALE(70);
-	ilwrath_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	ilwrath_desc.AlienTextBaseline.y = RES_SCALE (64);
+	ilwrath_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (PROBE_ILWRATH_ENCOUNTER)
 			|| (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA)

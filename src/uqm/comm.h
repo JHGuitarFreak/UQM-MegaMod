@@ -26,8 +26,8 @@
 
 #ifdef COMM_INTERNAL
 
-#define SLIDER_Y (RES_SCALE(107)) 
-#define SLIDER_HEIGHT RES_SCALE(!usingSpeech && optSmoothScroll == OPT_PC ? 4 : 15)
+#define SLIDER_Y (RES_SCALE (107))
+#define SLIDER_HEIGHT RES_SCALE (!usingSpeech && optSmoothScroll == OPT_PC ? 4 : 15)
 
 #include "commanim.h"
 
@@ -97,17 +97,44 @@ clearStopTalkingAnim (void)
 	CommData.AlienTalkDesc.AnimFlags &= ~TALK_DONE;
 }
 
+static inline void
+restartStopTalkingAnim (void)
+{
+	CommData.AlienTalkDesc.AnimFlags &= TALK_DONE;
+}
+
 static inline BOOLEAN
 signaledStopTalkingAnim (void)
 {
 	return CommData.AlienTalkDesc.AnimFlags & TALK_DONE;
 }
 
+static inline void
+freezeTalkingAnim(void)
+{
+	CommData.AlienTalkDesc.AnimFlags |= FREEZE_TALKING;
+}
+
+static inline void
+unFreezeTalkingAnim(void)
+{
+	CommData.AlienTalkDesc.AnimFlags &= ~FREEZE_TALKING;
+}
+
+static inline BOOLEAN
+signaledFreezeTalkingAnim(void)
+{
+	return CommData.AlienTalkDesc.AnimFlags & FREEZE_TALKING;
+}
+
 #endif
 
-#define TEXT_X_OFFS RES_SCALE(1) 
-#define TEXT_Y_OFFS RES_SCALE(1) 
+#define TEXT_X_OFFS RES_SCALE (1)
+#define TEXT_Y_OFFS RES_SCALE (1)
 #define SIS_TEXT_WIDTH (SIS_SCREEN_WIDTH - (TEXT_X_OFFS << 1))
+
+#define BACKGROUND_VOL (usingSpeech && !VolasPackPresent ? (NORMAL_VOLUME / 2) : NORMAL_VOLUME)
+#define FOREGROUND_VOL NORMAL_VOLUME
 
 extern void init_communication (void);
 extern void uninit_communication (void);
@@ -139,10 +166,16 @@ extern void RedrawSISComWindow (void);
 extern void SetCustomBaseLine (COUNT sentence, POINT bl, TEXT_ALIGN align);
 extern void FlushCustomBaseLine (void);
 extern void BlockTalkingAnim (COUNT trackStart, COUNT trackEnd);
+extern void UpdateDuty (BOOLEAN talk);
 
 extern BOOLEAN IsProbe;
-extern BOOLEAN IsAltSong;
 extern BOOLEAN cwLock;
+
+#define USE_ALT_FRAME (1 << 0)
+#define USE_ALT_COLORMAP (1 << 1)
+#define USE_ALT_SONG (1 << 2)
+#define USE_ALT_ALL (USE_ALT_FRAME | USE_ALT_COLORMAP | USE_ALT_SONG)
+extern BYTE altResFlags;
 
 #if defined(__cplusplus)
 }

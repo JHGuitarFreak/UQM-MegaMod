@@ -11,7 +11,7 @@
 #define CONFIG_VC6_H_
 
 /* Directory where the UQM game data is located */
-#define CONTENTDIR "../content/"
+#define CONTENTDIR "./content/"
 
 /* Directory where game data will be stored */
 #define USERDIR "%APPDATA%/UQM-MegaMod/"
@@ -24,6 +24,9 @@
 
 /* Directory where save games will be stored */
 #define SAVEDIR "%UQM_CONFIG_DIR%/save/"
+
+/* Directory where screenshots will be stored */
+#define SCRSHOTDIR "%UQM_CONFIG_DIR%/screenshots/"
 
 /* Define if words are stored with the most significant byte first */
 #undef WORDS_BIGENDIAN

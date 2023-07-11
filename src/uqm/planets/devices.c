@@ -48,24 +48,24 @@
 // devices the player actually possesses.
 //#define DEBUG_DEVICES
 
-#define DEVICE_ICON_WIDTH  RES_SCALE(16) 
-#define DEVICE_ICON_HEIGHT RES_SCALE(16) 
+#define DEVICE_ICON_WIDTH  RES_SCALE (16)
+#define DEVICE_ICON_HEIGHT RES_SCALE (16)
 
-#define DEVICE_ORG_Y       RES_SCALE(33) 
-#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_SCALE(2)) 
+#define DEVICE_ORG_Y       RES_SCALE (33)
+#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_SCALE (2))
 
-#define DEVICE_COL_0       RES_SCALE(4) 
-#define DEVICE_COL_1       RES_SCALE(40) 
+#define DEVICE_COL_0       RES_SCALE (4)
+#define DEVICE_COL_1       RES_SCALE (40)
 
 #define DEVICE_SEL_ORG_X  (DEVICE_COL_0 + DEVICE_ICON_WIDTH)
-#define DEVICE_SEL_WIDTH  (FIELD_WIDTH + RES_SCALE(2) - DEVICE_SEL_ORG_X) 
+#define DEVICE_SEL_WIDTH  (FIELD_WIDTH + RES_SCALE (2) - DEVICE_SEL_ORG_X)
 
-#define ICON_OFS_Y         RES_SCALE(1) 
-#define NAME_OFS_Y         RES_SCALE(2) 
-#define TEXT_BASELINE      RES_SCALE(6) 
-#define TEXT_SPACING_Y     RES_SCALE(7) 
+#define ICON_OFS_Y         RES_SCALE (1)
+#define NAME_OFS_Y         RES_SCALE (2)
+#define TEXT_BASELINE      RES_SCALE (6)
+#define TEXT_SPACING_Y     RES_SCALE (7)
 
-#define MAX_VIS_DEVICES    ((RES_SCALE(129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y) 
+#define MAX_VIS_DEVICES    ((RES_SCALE (129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y)
 
 
 typedef enum
@@ -92,8 +92,8 @@ EraseDevicesBackground (void)
 {
 	RECT r;
 
-	r.corner.x = RES_SCALE(3); 
-	r.extent.width = FIELD_WIDTH - RES_SCALE(1); 
+	r.corner.x = RES_SCALE (3); 
+	r.extent.width = FIELD_WIDTH - RES_SCALE (1); 
 	r.corner.y = DEVICE_ORG_Y;
 	r.extent.height = MAX_VIS_DEVICES * DEVICE_SPACING_Y;
 	SetContextForeGroundColor (DEVICES_BACK_COLOR);
@@ -120,7 +120,10 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 			DEVICES_SELECTED_BACK_COLOR : DEVICES_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
-	SetContextFont (TinyFont);
+	if (isPC (optWhichFonts))
+		SetContextFont (TinyFont);
+	else
+		SetContextFont (TinyFontBold);
 
 	// print device name
 	SetContextForeGroundColor (selected ?
@@ -144,22 +147,24 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	COORD cy;
 	COUNT i;
 
-	r.corner.x = RES_SCALE(2);
-	r.corner.y = RES_SCALE(20);
-	r.extent.width = FIELD_WIDTH + RES_SCALE(1);
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
 	// XXX: Shouldn't the height be 1 less? This draws the bottom border
 	//   1 pixel too low. Or if not, why do we need another box anyway?
-	r.extent.height = (RES_SCALE(129) - r.corner.y);
-	DrawStarConBox (&r, RES_SCALE(1),
-			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
-			TRUE, DEVICES_BACK_COLOR);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
 
-	DrawBorder(13, FALSE);
+	if (!optCustomBorder && !IS_HD)
+		DrawStarConBox (&r, RES_SCALE (1),
+				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+				TRUE, DEVICES_BACK_COLOR);
+	else
+		DrawBorder (13);
 
 	// print the "DEVICES" title
 	SetContextFont (StarConFont);
-	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE(1);
-	t.baseline.y = r.corner.y + RES_SCALE(7);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
 	t.pStr = GAME_STRING (DEVICE_STRING_BASE);
 	t.CharCount = (COUNT)~0;
@@ -451,14 +456,23 @@ InvokeDevice (BYTE which_device)
 			break;
 		case PORTAL_SPAWNER_DEVICE:
 #define PORTAL_FUEL_COST (DIF_CASE(10, 5, 20) * FUEL_TANK_SCALE)
-			if (inHyperSpace ()
-					&& GLOBAL_SIS (FuelOnBoard) >= PORTAL_FUEL_COST)
+			if ((inHyperSpace () || (EXTENDED && inHQSpace ()))
+					&& GLOBAL_SIS (FuelOnBoard) >= (DWORD)PORTAL_FUEL_COST)
 			{
 				/* No DeltaSISGauges because the flagship picture
 				 * is currently obscured.
 				 */
-				if (!optInfiniteFuel)
+				if (!optInfiniteFuel
+						|| (EXTENDED && !optInfiniteFuel
+						&& inHyperSpace ()))
 					GLOBAL_SIS (FuelOnBoard) -= PORTAL_FUEL_COST;
+
+				if (EXTENDED && inHyperSpace ())
+				{
+					SaveLastLoc (MAKE_POINT (
+							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))));
+				}
 
 				SET_GAME_STATE (PORTAL_COUNTER, 1);
 				return DEVICE_SUCCESS;
@@ -471,6 +485,18 @@ InvokeDevice (BYTE which_device)
 	}
 
 	return DEVICE_FAILURE;
+}
+
+BOOLEAN
+InvokeSpawner (void)
+{
+	DeviceStatus status = InvokeDevice (PORTAL_SPAWNER_DEVICE);
+	if (status == DEVICE_FAILURE)
+		PlayMenuSound (MENU_SOUND_FAILURE);
+	else if (status == DEVICE_SUCCESS)
+		PlayMenuSound (MENU_SOUND_INVOKED);
+
+	return (status == DEVICE_FAILURE);
 }
 
 static BOOLEAN

@@ -59,6 +59,26 @@ extern "C" {
 #define WHEN_TALKING (1L << 7) // JMS
 #define ANIM_DISABLED (1L << 8) // BW (needed for news anchor and animated background)
 
+#define FREEZE_TALKING (1 << 9)
+		// Kr (needed for blocking animations that are WAIT_TALKING even
+		// if talking itself is stopped. Used only in PS-DOS style scrolling)
+
+#define RESTART_ALL_AFTER (1 << 10)
+#define STOP_ALL_AFTER (1 << 11)
+		// Kruzen: Needed for ONE_SHOT_ANIM in HD to define - should we restart
+		// other ambient animations or no
+
+#define IMMUME_TO_RESTART (1 << 12)
+#define IMMUME_TO_STOP (1 << 13)
+		// Kruzen: Some animations needed to be handled individually
+
+#define ALPHA_MASK_ANIM (1 << 14)
+		// Kruzen: New type of animations: Draw transparent frames
+		// on top of all (sets fullRedraw to TRUE
+
+#define TRIGGER_FULL_REDRAW (1 << 15)
+		// When animation plays - it triggers full redraw
+
 #define FAST_STOP_AT_TALK_START (TALK_DONE) // JMS: If there's a very loooong animation, it can be forced to stop when talking with this.
 // (otherwise there'll be nasty, unwanted pauses in the conversation.) 
 
@@ -67,6 +87,8 @@ extern "C" {
 #define ONE_SHOT_ANIM  TALK_INTRO
 		// Set in AlienAmbientArray for animations that should be
 		// disabled after they run once.
+
+#define BLOCK_ALL_BEFORE_ME(m) ((1 << m) - 1)
 
 typedef struct
 {
@@ -134,16 +156,70 @@ struct SEQUENCE
 
 typedef struct SEQUENCE SEQUENCE;
 
+// Kruzen: HD filters that are layered on top
+// and all stuff needed.
+// Because this basically imitates color xform in HD
+// in truecolor format - all color transformations
+// are hadled by the same algorithms as in SD.
+// We just need to take current color and draw whatever
+// nessessary.
+// Although new .ct need to be created
+
+#define COMM_COLORMAP_INDEX 10
+#define MAX_FILTERS 3 // Could be more, but for now more that enough
+
+#define TURN_OFF_OFT (1 << 0) // on full transparency
+#define TURN_OFF_OFO (1 << 1) // on full opacity
+#define FRAMED_FILTER (1 << 2) // filter draws frame and nothing else
+#define FILTER_DISABLED (1 << 3)
+#define SWITCH_OFF_ANIMS (1 << 4)
+#define SWITCH_ON_ANIMS (1 << 5)
+
+typedef struct
+{
+	BYTE ColorIndex;
+	// Index of filter color in color
+	// table with index 10 aka alienrace.ct
+	// Can be used as frame offset for FRAMED_FILTER
+
+	BYTE OpacityIndex;
+	// Index of opacity color in color
+	// table with index 10 aka alienrace.ct
+	// RED channel would be used as alpha channel
+
+	SIZE FrameIndex;
+	// If we want to use frame from CommData.AlienFrame
+	// If -1 then we will draw a rectangle that covers all context
+
+	BYTE Kind;
+	// A drawkind from DrawKind enum
+
+	BYTE Flags;
+	// Any possible flags
+} FILTER;
+
+typedef struct
+{
+	BYTE NumFilters;
+
+	FILTER FilterArray[MAX_FILTERS];
+
+} FILTER_DESC;
+
+extern FILTER_DESC FilterData;
+
 // Returns TRUE if there was an animation change
 extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
 extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
 extern void ShutYourMouth (void);
+extern void SwitchSequences (BOOLEAN enableAll);
+extern void RunOneTimeSequence (COUNT animIndex, COUNT flags);
+extern void EngageFilters (FILTER_DESC* f_desc);
+extern void DisengageFilters (void);
 
 #if defined(__cplusplus)
 }
 #endif
 
 #endif  /* UQM_COMMANIM_H_ */
-
-

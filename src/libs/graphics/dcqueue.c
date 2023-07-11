@@ -497,7 +497,8 @@ TFB_FlushGraphics (void)
 				}
 				TFB_DrawCanvas_Line (cmd->x1, cmd->y1, cmd->x2, cmd->y2,
 						cmd->color, cmd->drawMode,
-						TFB_GetScreenCanvas (cmd->destBuffer));
+						TFB_GetScreenCanvas (cmd->destBuffer),
+						cmd->thickness);
 				break;
 			}
 			

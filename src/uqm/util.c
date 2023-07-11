@@ -36,57 +36,57 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 	RECT locRect;
 
 	if (BorderWidth == 0)
-		BorderWidth = 2;
+		BorderWidth = RES_SCALE (2);
 	else
 	{
 		SetContextForeGroundColor (TopLeftColor);
 		locRect.corner = pRect->corner;
 		locRect.extent.width = pRect->extent.width;
-		locRect.extent.height = RES_SCALE(1);
+		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
-		if (BorderWidth == 2)
+		if (BorderWidth == RES_SCALE (2))
 		{
-			++locRect.corner.x;
-			++locRect.corner.y;
-			locRect.extent.width -= 2;
+			locRect.corner.x += RES_SCALE (1);
+			locRect.corner.y += RES_SCALE (1);
+			locRect.extent.width -= RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
 		}
 
 		locRect.corner = pRect->corner;
-		locRect.extent.width = RES_SCALE(1);
+		locRect.extent.width = RES_SCALE (1);
 		locRect.extent.height = pRect->extent.height;
 		DrawFilledRectangle (&locRect);
-		if (BorderWidth == 2)
+		if (BorderWidth == RES_SCALE (2))
 		{
-			++locRect.corner.x;
-			++locRect.corner.y;
-			locRect.extent.height -= 2;
+			locRect.corner.x += RES_SCALE (1);
+			locRect.corner.y += RES_SCALE (1);
+			locRect.extent.height -= RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
 		}
 
 		SetContextForeGroundColor (BottomRightColor);
-		locRect.corner.x = pRect->corner.x + pRect->extent.width - RES_SCALE(1);
-		locRect.corner.y = pRect->corner.y + RES_SCALE(1);
-		locRect.extent.height = pRect->extent.height - RES_SCALE(1);
+		locRect.corner.x = pRect->corner.x + pRect->extent.width - RES_SCALE (1);
+		locRect.corner.y = pRect->corner.y + RES_SCALE (1);
+		locRect.extent.height = pRect->extent.height - RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
-		if (BorderWidth == 2)
+		if (BorderWidth == RES_SCALE (2))
 		{
-			--locRect.corner.x;
-			++locRect.corner.y;
-			locRect.extent.height -= 2;
+			locRect.corner.x -= RES_SCALE (1);
+			locRect.corner.y += RES_SCALE (1);
+			locRect.extent.height -= RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
 		}
 
 		locRect.corner.x = pRect->corner.x;
 		locRect.extent.width = pRect->extent.width;
-		locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE(1);
-		locRect.extent.height = RES_SCALE(1);
+		locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE (1);
+		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
-		if (BorderWidth == 2)
+		if (BorderWidth == RES_SCALE (2))
 		{
-			++locRect.corner.x;
-			--locRect.corner.y;
-			locRect.extent.width -= 2;
+			locRect.corner.x += RES_SCALE (1);
+			locRect.corner.y -= RES_SCALE (1);
+			locRect.extent.width -= RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
 		}
 	}

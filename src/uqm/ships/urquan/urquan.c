@@ -44,24 +44,24 @@
 #define MISSILE_LIFE 20
 #define MISSILE_HITS 10
 #define MISSILE_DAMAGE 6
-#define MISSILE_OFFSET RES_BOOL(8, 21)
-#define URQUAN_OFFSET RES_SCALE(32)
+#define MISSILE_OFFSET RES_BOOL (8, 21)
+#define URQUAN_OFFSET RES_SCALE (32)
 
 // Fighters
 #define SPECIAL_ENERGY_COST 8
 #define SPECIAL_WAIT 9
-#define FIGHTER_OFFSET RES_SCALE(4)
-#define FIGHTER_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
+#define FIGHTER_OFFSET RES_SCALE (4)
+#define FIGHTER_SPEED DISPLAY_TO_WORLD (RES_SCALE (8))
 #define ONE_WAY_FLIGHT 125
 #define TRACK_THRESHOLD 6
 #define FIGHTER_LIFE (ONE_WAY_FLIGHT + ONE_WAY_FLIGHT + 150)
 #define FIGHTER_HITS 1
 #define FIGHTER_MASS 0
 #define FIGHTER_WEAPON_WAIT 8
-#define FIGHTER_LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE(40) + FIGHTER_OFFSET)
+#define FIGHTER_LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE (40) + FIGHTER_OFFSET)
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC urquan_desc =
 {
@@ -113,7 +113,8 @@ static RACE_DESC urquan_desc =
 		},
 		{
 			URQUAN_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		URQUAN_VICTORY_SONG,
 		URQUAN_SHIP_SOUNDS,
@@ -283,16 +284,16 @@ fighter_preprocess (ELEMENT *ElementPtr)
 				if (ElementPtr->turn_wait & LEFT)
 				{
 					delta_x += COSINE (FACING_TO_ANGLE (facing - 4),
-							DISPLAY_TO_WORLD (RES_SCALE(30)));
+							DISPLAY_TO_WORLD (RES_SCALE (30)));
 					delta_y += SINE (FACING_TO_ANGLE (facing - 4),
-							DISPLAY_TO_WORLD (RES_SCALE(30)));
+							DISPLAY_TO_WORLD (RES_SCALE (30)));
 				}
 				else
 				{
 					delta_x += COSINE (FACING_TO_ANGLE (facing + 4),
-							DISPLAY_TO_WORLD (RES_SCALE(30)));
+							DISPLAY_TO_WORLD (RES_SCALE (30)));
 					delta_y += SINE (FACING_TO_ANGLE (facing + 4),
-							DISPLAY_TO_WORLD (RES_SCALE(30)));
+							DISPLAY_TO_WORLD (RES_SCALE (30)));
 				}
 				facing = NORMALIZE_FACING (
 						ANGLE_TO_FACING (ARCTAN (delta_x, delta_y))
@@ -409,8 +410,8 @@ spawn_fighters (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	facing = StarShipPtr->ShipFacing + ANGLE_TO_FACING (HALF_CIRCLE);
-	delta_x = COSINE (FACING_TO_ANGLE (facing), DISPLAY_TO_WORLD (RES_SCALE(14)));
-	delta_y = SINE (FACING_TO_ANGLE (facing), DISPLAY_TO_WORLD (RES_SCALE(14)));
+	delta_x = COSINE (FACING_TO_ANGLE (facing), DISPLAY_TO_WORLD (RES_SCALE (14)));
+	delta_y = SINE (FACING_TO_ANGLE (facing), DISPLAY_TO_WORLD (RES_SCALE (14)));
 
 	i = ElementPtr->crew_level > 2 ? 2 : 1;
 	while (i-- && (hFighterElement = AllocElement ()))
@@ -419,8 +420,8 @@ spawn_fighters (ELEMENT *ElementPtr)
 		COUNT fighter_facing;
 		ELEMENT *FighterElementPtr;
 
-		if (!(antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-			|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET)))
+		if (!(antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+				|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD)))
 		{
 			DeltaCrew (ElementPtr, -1);
 		}
@@ -554,13 +555,10 @@ init_urquan (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		urquan_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		urquan_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		urquan_desc.cyborg_control.WeaponRange =
-				MISSILE_SPEED_HD * MISSILE_LIFE;
+		urquan_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		urquan_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
 	else
 	{

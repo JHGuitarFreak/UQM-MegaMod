@@ -74,6 +74,7 @@ DoSelectAction (MENU_STATE *pMS)
 		{
 			case HAIL:
 			case ATTACK:
+				DrawMenuStateStrings (PM_CONVERSE, pMS->CurState);
 				if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
 					pMS->CurState = HAIL;
 				return (FALSE);
@@ -301,7 +302,8 @@ InitEncounter (void)
 
 	MR = LoadMusic (REDALERT_MUSIC);
 	PlayMusic (MR, FALSE, 1);
-	SegueFrame = CaptureDrawable (LoadGraphic (SEGUE_PMAP_ANIM));
+	SegueFrame = optNebulae ? CreateStarBackGround (TRUE) :
+			CaptureDrawable (LoadGraphic (SEGUE_PMAP_ANIM));
 	WaitForSoundEnd (TFBSOUND_WAIT_ALL);
 	StopMusic ();
 	DestroyMusic (MR);
@@ -312,12 +314,12 @@ InitEncounter (void)
 	
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
-	s.frame = optNebulae ? CreateStarBackGround(TRUE) : SegueFrame;
+	s.frame = SegueFrame;
 	DrawStamp (&s);
 
 //    t.baseline.x = SIS_SCREEN_WIDTH >> 1;
-	t.baseline.x = (SIS_SCREEN_WIDTH >> 1) + 1;
-	t.baseline.y = RES_SCALE(10);
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	t.baseline.y = RES_SCALE (10);
 	t.align = ALIGN_CENTER;
 
 	SetContextForeGroundColor (
@@ -328,7 +330,7 @@ InitEncounter (void)
 				// "ENCOUNTER IN"
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); 
+		t.baseline.y += RES_SCALE (12); 
 		t.pStr = GAME_STRING (ENCOUNTER_STRING_BASE + 1);
 				// "DEEP SPACE"
 		t.CharCount = (COUNT)~0;
@@ -342,19 +344,19 @@ InitEncounter (void)
 				// "ENCOUNTER AT"
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); 
+		t.baseline.y += RES_SCALE (12); 
 		GetClusterName (CurStarDescPtr, buf);
 		t.pStr = buf;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
-		t.baseline.y += RES_SCALE(12); 
+		t.baseline.y += RES_SCALE (12); 
 		t.pStr = GLOBAL_SIS (PlanetName);
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 	}
 	DrawSISMessage (NULL);
 
-	s.origin.x = SIS_SCREEN_WIDTH >> 1;
+	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	s.origin.y = SIS_SCREEN_HEIGHT >> 1;
 	s.frame = planet[0];
 	DrawStamp (&s);
@@ -411,8 +413,8 @@ InitEncounter (void)
 			}
 			s.frame = SetAbsFrameIndex (FragPtr->icons, 0);
 			GetFrameRect (s.frame, &r);
-			s.origin.x += (SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1);
-			s.origin.y += (SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1);
+			s.origin.x += RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) - (r.extent.width >> 1);
+			s.origin.y += RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - (r.extent.height >> 1);
 			DrawStamp (&s);
 
 			UnlockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);
@@ -421,7 +423,7 @@ InitEncounter (void)
 
 	UnbatchGraphics ();
 	DestroyDrawable (ReleaseDrawable (SegueFrame));
-	ScreenTransition (optIPScaler, NULL);
+	ScreenTransition (optScrTrans, NULL);
 	
 
 	{
@@ -435,11 +437,44 @@ InitEncounter (void)
 
 		DoInput (&MenuState, TRUE);
 
-		DrawMenuStateStrings(PM_CONVERSE, MenuState.CurState);
 		SetFlashRect (NULL, FALSE);
 
 		return (MenuState.CurState);
 	}
+}
+
+static STAMP
+SetTextFrameRect (const UNICODE* str1, const UNICODE* str2, RECT* pRect)
+{
+	STAMP s;
+	TEXT t1, t2;
+	RECT r1, r2, res;
+
+	t1.baseline.x = pRect->corner.x + RES_SCALE(100);
+	t1.baseline.y = pRect->corner.y + RES_SCALE(45);
+	t1.align = ALIGN_CENTER;
+	t1.pStr = str1;
+	t1.CharCount = (COUNT)~0;
+	t2 = t1;
+	t2.baseline.y += RES_SCALE(11);
+	t2.pStr = str2;
+
+	TextRect (&t1, &r1, NULL);
+	TextRect (&t2, &r2, NULL);
+
+	// Take the closest X to the origin point.
+	res.corner.x = (r1.corner.x < r2.corner.x ? r1.corner.x : r2.corner.x);
+	// r1 always on top
+	res.corner.y = r1.corner.y;
+
+	// Take the widest extent
+	res.extent.width = (r1.extent.width > r2.extent.width ? r1.extent.width : r2.extent.width);
+	// Height is the gap between texts plus height of the second one
+	res.extent.height = r2.corner.y - r1.corner.y + r2.extent.height;
+
+	s = SaveContextFrame(&res);
+
+	return s;
 }
 
 static void
@@ -450,63 +485,64 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 	DWORD TimeIn;
 	TEXT t1, t2;
 	RECT r1, r2;
-	static const Color fade_cycle[] =
-	{
-		BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x0A, 0x0A), 0x1D),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x09, 0x09), 0x1E),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x08, 0x08, 0x08), 0x1F),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x20),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x05, 0x05, 0x05), 0x21),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x04, 0x04, 0x04), 0x22),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x03, 0x03, 0x03), 0x23),
-	};
+	static const Color fade_cycle[] = SCAVENGE_TEXT_COLOR_TABLE;
 #define NUM_FADES (ARRAY_SIZE (fade_cycle))
 
-	t1.baseline.x = pRect->corner.x + RES_SCALE(100); 
-	t1.baseline.y = pRect->corner.y + RES_SCALE(45); 
+	t1.baseline.x = pRect->corner.x + RES_SCALE (100);
+	t1.baseline.y = pRect->corner.y + RES_SCALE (45);
 	t1.align = ALIGN_CENTER;
 	t1.pStr = str1;
 	t1.CharCount = (COUNT)~0;
 	t2 = t1;
-	t2.baseline.y += RES_SCALE(11); 
+	t2.baseline.y += RES_SCALE (11);
 	t2.pStr = str2;
 
+	TextRect (&t1, &r1, NULL);
+	TextRect (&t2, &r2, NULL);
+	 
 	FlushInput ();
 	TimeIn = GetTimeCounter ();
-	if (fade_in)
-	{
-		for (i = 0; i < (SIZE) NUM_FADES; ++i)
-		{
-			if (AnyButtonPress (TRUE))
-				i = NUM_FADES - 1;
 
-			SetContextForeGroundColor (fade_cycle[i]);
-			font_DrawText (&t1);
-			font_DrawText (&t2);
-			SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-			TimeIn = GetTimeCounter ();
+	for (i = 0; i < (SIZE)NUM_FADES; ++i)
+	{
+		if (AnyButtonPress (TRUE))
+			i = NUM_FADES - 1;
+
+		if (IS_HD)
+		{
+			RepairPickFrame (&r1, 1);
+			RepairPickFrame (&r2, 1);
+		}
+
+		SetContextForeGroundColor (fade_cycle[fade_in ? i : (NUM_FADES - i - 1)]);
+		font_DrawText (&t1);
+		font_DrawText (&t2);
+		SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
+		TimeIn = GetTimeCounter();
+	}
+	if (!fade_in)
+	{// Clear the remaining text
+		if (IS_HD)
+		{
+			RepairPickFrame (&r1, 1);
+			RepairPickFrame (&r2, 1);
+		}
+		else
+		{
+			SetContextForeGroundColor (BUILD_SHADE_RGBA (0x50));
+			DrawFilledRectangle (&r1);
+			DrawFilledRectangle (&r2);
 		}
 	}
+}
+
+static void
+ClearRectBack (RECT *pRect)
+{
+	if (IS_HD)
+		RepairPickFrame (pRect, 1);
 	else
-	{
-		for (i = NUM_FADES - 1; i >= 0; --i)
-		{
-			if (AnyButtonPress (TRUE))
-				i = 0;
-
-			SetContextForeGroundColor (fade_cycle[i]);
-			font_DrawText (&t1);
-			font_DrawText (&t2);
-			SleepThreadUntil (TimeIn + (ONE_SECOND / 20));
-			TimeIn = GetTimeCounter ();
-		}
-		SetContextForeGroundColor (
-				BUILD_COLOR_RGBA (0x50, 0x50, 0x50, 0xff));
-		TextRect(&t1, &r1, NULL);
-		TextRect(&t2, &r2, NULL);
-		DrawFilledRectangle (&r1);
-		DrawFilledRectangle (&r2);
-	}
+		DrawFilledRectangle (pRect);
 }
 
 COUNT
@@ -540,25 +576,12 @@ UninitEncounter (void)
 		STAMP ship_s;
 		const UNICODE *str1 = NULL;
 		const UNICODE *str2 = NULL;
-		StatMsgMode prevMsgMode;
+		StatMsgMode prevMsgMode = SMM_UNDEFINED;
 		UNICODE buf[80];
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
-		static const Color fade_ship_cycle[] =
-		{
-			BUILD_COLOR (MAKE_RGB15_INIT (0x07, 0x00, 0x00), 0x2F),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0A, 0x0A), 0x27),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x14, 0x14), 0x25),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x1F, 0x1F), 0x0F),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x14, 0x14), 0x25),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x0A, 0x0A), 0x27),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x1B, 0x00, 0x00), 0x2A),
-			BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x00, 0x00), 0x2B),
-		};
-#define NUM_SHIP_FADES (sizeof (fade_ship_cycle) / \
-		sizeof (fade_ship_cycle[0]))
+		static const Color fade_ship_cycle[] = SCAVENGE_SCREEN_COLOR_TABLE;
+#define NUM_SHIP_FADES (ARRAY_SIZE (fade_ship_cycle))
 
 		SET_GAME_STATE (BATTLE_SEGUE, 0);
 		SET_GAME_STATE (BOMB_CARRIER, 0);
@@ -579,7 +602,9 @@ UninitEncounter (void)
 		}
 		UnlockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);
 
-		prevMsgMode = SetStatusMessageMode (SMM_RES_UNITS);
+		if (VictoryState > 0) // Set RU only when we get them
+			prevMsgMode = SetStatusMessageMode (SMM_RES_UNITS);
+
 		ship_s.origin.x = 0;
 		ship_s.origin.y = 0;
 		Sleepy = TRUE;
@@ -607,11 +632,14 @@ UninitEncounter (void)
 
 					SetContext (SpaceContext);
 					if (VictoryState)
+					{
+						InitPickFrame ();
 						DrawArmadaPickShip (TRUE, &scavenge_r);
+					}
 				}
 				pQueue = &GLOBAL (npc_built_ship_q);
 			}
-				
+
 			ReinitQueue (&race_q[(NUM_SIDES - 1) - i]);
 
 			for (hStarShip = GetHeadLink (pQueue); hStarShip;
@@ -637,13 +665,13 @@ UninitEncounter (void)
 
 								DrawStatusMessage (NULL);
 								
-								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE(32); 
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(56); 
+								ship_s.origin.x = scavenge_r.corner.x + RES_SCALE (32);
+								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE (56);
 								ship_s.frame = IncFrameIndex (FragPtr->icons);
 								DrawStamp (&ship_s);
-								SetContextForeGroundColor (
-										BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
-								SetContextFont (TinyFont);
+								SetContextForeGroundColor (MDKGRAY_COLOR);
+
+								SetContextFont (isPC (optWhichFonts) ? TinyFont : TinyFontBold);
 
 								utf8StringCopy (buf, sizeof buf,
 										GetStringAddress (FragPtr->race_strings));
@@ -666,13 +694,13 @@ UninitEncounter (void)
 									}
 								}
 
-								t.baseline.x = scavenge_r.corner.x + RES_SCALE(100);
-								t.baseline.y = scavenge_r.corner.y + RES_SCALE(68);
+								t.baseline.x = scavenge_r.corner.x + RES_SCALE (100);
+								t.baseline.y = scavenge_r.corner.y + RES_SCALE (68);
 								t.align = ALIGN_CENTER;
 								t.pStr = buf;
 								t.CharCount = (COUNT)~0;
 								font_DrawText (&t);
-								t.baseline.y += RES_SCALE(6);
+								t.baseline.y += RES_SCALE (6);
 								t.pStr = GAME_STRING (
 										ENCOUNTER_STRING_BASE + 3);
 										// "BATTLE GROUP"
@@ -687,21 +715,25 @@ UninitEncounter (void)
 										ENCOUNTER_STRING_BASE + 4);
 										// "Enemy Ships"
 								str2 = GAME_STRING (
-										ENCOUNTER_STRING_BASE + 5),
+										ENCOUNTER_STRING_BASE + 5);
 										// "Destroyed"
+
 								DrawFadeText (str1, str2, TRUE, &scavenge_r);
 							}
 
-							r.corner.y = scavenge_r.corner.y + RES_SCALE(9);
-							r.extent.height = RES_SCALE(22);
+							r.corner.y = scavenge_r.corner.y + RES_SCALE (9);
+							r.extent.height = RES_SCALE (22);
 
 							SetContextForeGroundColor (BLACK_COLOR);
 
-							r.extent.width = RES_SCALE(34);
+							r.extent.width = RES_SCALE (34);
 							r.corner.x = scavenge_r.corner.x +
-									scavenge_r.extent.width
-									- (RES_SCALE(10) + r.extent.width);
-							DrawFilledRectangle (&r);
+								scavenge_r.extent.width
+								- (RES_SCALE (10) + r.extent.width);
+							BatchGraphics (); // to avoid blinking text
+
+							// Back of the RU counter
+							ClearRectBack (&r);
 
 							/* collect bounty ResUnits */
 							j = ShipCost (EncounterRace) >> 3;
@@ -712,28 +744,48 @@ UninitEncounter (void)
 
 							RecycleAmount += j;
 							sprintf (buf, "%u", RecycleAmount);
-							t.baseline.x = r.corner.x + r.extent.width - RES_SCALE(1);
-							t.baseline.y = r.corner.y + RES_SCALE(14);
+							t.baseline.x =
+									r.corner.x + r.extent.width
+									- RES_SCALE (1);
+							t.baseline.y = r.corner.y + RES_SCALE (14);
 							t.align = ALIGN_RIGHT;
 							t.pStr = buf;
 							t.CharCount = (COUNT)~0;
 							SetContextForeGroundColor (
-									BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x18), 0x50));
+									BUILD_COLOR (
+										MAKE_RGB15 (0x00, 0x00, 0x18), 0x50
+									));
 							font_DrawText (&t);
+							UnbatchGraphics ();
 							DeltaSISGauges (0, 0, j);
 
 							if ((VictoryState++ - 1) % MAX_DEAD_DISPLAYED)
-								ship_s.origin.x += RES_SCALE(17);
+								ship_s.origin.x += RES_SCALE (17);
 							else
 							{
+								RECT textRect = font_GetTextRect (&t);
 								SetContextForeGroundColor (BLACK_COLOR);
 
-								r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
-								r.extent.width = RES_SCALE(104);
-								DrawFilledRectangle (&r);
+								r.corner.x =
+										scavenge_r.corner.x
+										+ RES_SCALE (10);
+								r.extent.width =
+										RES_SCALE (132)
+										- (textRect.extent.width
+										+ RES_SCALE (1));
 
-								ship_s.origin.x = r.corner.x + RES_SCALE(2);
-								ship_s.origin.y = scavenge_r.corner.y + RES_SCALE(12);
+								// Pause between erasing
+								if (Sleepy)
+									SleepThread (ONE_SECOND / 15);
+
+								// MAX_DEAD_DISPLAYED reached - erase
+								ClearRectBack (&r);
+
+								ship_s.origin.x =
+										r.corner.x + RES_SCALE (2);
+								ship_s.origin.y =
+										scavenge_r.corner.y
+										+ RES_SCALE (12);
 							}
 
 							if (Sleepy)
@@ -743,6 +795,21 @@ UninitEncounter (void)
 								{
 									Sleepy = (BOOLEAN)!AnyButtonPress (TRUE) &&
 											!(GLOBAL (CurrentActivity) & CHECK_ABORT);
+
+									if (IS_HD)
+									{// Back of the current ship
+										POINT p;
+										RECT ship_r;
+
+										GetFrameRect (ship_s.frame, &ship_r);
+										p = GetFrameHot (ship_s.frame);
+
+										ship_r.corner = ship_s.origin;
+										ship_r.corner.x -= p.x;
+										ship_r.corner.y -= p.y;
+										RepairPickFrame (&ship_r, 1);
+									}
+
 									if (!Sleepy)
 										break;
 
@@ -753,7 +820,7 @@ UninitEncounter (void)
 									Time = GetTimeCounter ();
 								}
 							}
-
+							
 							DrawStamp (&ship_s);
 						}
 					}
@@ -768,7 +835,8 @@ UninitEncounter (void)
 				UnlockShipFrag (pQueue, hStarShip);
 			}
 		}
-		SetStatusMessageMode (prevMsgMode);
+		if (prevMsgMode) // Set Status back only when we get RU
+			SetStatusMessageMode (prevMsgMode);
 
 		if (VictoryState)
 		{
@@ -783,19 +851,23 @@ UninitEncounter (void)
 				if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 				{
 					SetContextForeGroundColor (BLACK_COLOR);
-					r.corner.x = scavenge_r.corner.x + RES_SCALE(10); 
-					r.extent.width = RES_SCALE(132); 
-					DrawFilledRectangle (&r);
+					r.corner.x = scavenge_r.corner.x + RES_SCALE(10);
+					r.extent.width = RES_SCALE(132);
+
+					// The whole stat stripe
+					ClearRectBack (&r);
+
 					sprintf (buf, "%u %s", RecycleAmount,
 							GAME_STRING (STATUS_STRING_BASE + 1)); // "RU"
 					t.baseline.x = r.corner.x + (r.extent.width >> 1);
-					t.baseline.y = r.corner.y + RES_SCALE(14); 
+					t.baseline.y = r.corner.y + RES_SCALE (14);
 					t.align = ALIGN_CENTER;
 					t.pStr = buf;
 					t.CharCount = (COUNT)~0;
 					SetContextForeGroundColor (
 							BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x18), 0x50));
 					font_DrawText (&t);
+
 
 					str1 = GAME_STRING (ENCOUNTER_STRING_BASE + 6);
 							// "Debris"
@@ -808,8 +880,8 @@ UninitEncounter (void)
 						DrawFadeText (str1, str2, FALSE, &scavenge_r);
 				}
 			}
-
 			DrawStatusMessage (NULL);
+			DestroyPickFrame ();
 		}
 
 		if (ships_killed && EncounterRace == THRADDASH_SHIP
@@ -819,6 +891,59 @@ UninitEncounter (void)
 					THRADDASH_BODY_THRESHOLD)
 				ships_killed = THRADDASH_BODY_THRESHOLD;
 			SET_GAME_STATE (THRADDASH_BODY_COUNT, ships_killed);
+		}
+
+		if (optSlaughterMode && CheckSphereTracking (EncounterRace)
+				&& ships_killed)
+		{
+			HFLEETINFO hEncounter;
+			FLEET_INFO *EncounterPtr;
+			BOOLEAN isBanned = FALSE;
+			BYTE j;
+			const BYTE bannedShip[7] =
+				{
+					PKUNK_SHIP,
+					SHOFIXTI_SHIP,
+					THRADDASH_SHIP,
+					YEHAT_SHIP,
+					MELNORME_SHIP,
+					ILWRATH_SHIP,
+					SLYLANDRO_SHIP
+				};
+
+			for (j = 0; j < ARRAY_SIZE (bannedShip); j++)
+			{
+				if (bannedShip[j] == EncounterRace)
+				{
+					isBanned = TRUE;
+					break;
+				}
+			}
+
+			if (!isBanned)
+			{
+				hEncounter = GetStarShipFromIndex (&GLOBAL (avail_race_q),
+						EncounterRace);
+				EncounterPtr =
+						LockFleetInfo (&GLOBAL (avail_race_q), hEncounter);
+
+				if (EncounterPtr->actual_strength > 0)
+				{
+					SIZE actualStrength = EncounterPtr->actual_strength;
+
+					actualStrength -= ships_killed;
+
+					if (actualStrength <= 0)
+					{
+						EncounterPtr->actual_strength = 0;
+						EncounterPtr->allied_state = DEAD_GUY;
+					}
+					else
+						EncounterPtr->actual_strength = actualStrength;
+				}
+
+				UnlockFleetInfo (&GLOBAL (avail_race_q), hEncounter);
+			}
 		}
 	}
 ExitUninitEncounter:
@@ -872,7 +997,7 @@ EncounterBattle (void)
 	if(DIF_EASY)
 		PlayerControl[1] = CYBORG_CONTROL | STANDARD_RATING;
 
-	// PlayerControl[1] = HUMAN_CONTROL | STANDARD_RATING; // Serosis: Yes, you can make Adventure mode 2-player
+	// PlayerControl[1] = HUMAN_CONTROL | STANDARD_RATING; // Yes, you can make Adventure mode 2-player
 
 	GameSounds = CaptureSound (LoadSound (GAME_SOUNDS));
 

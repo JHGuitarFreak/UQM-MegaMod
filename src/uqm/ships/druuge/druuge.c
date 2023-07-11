@@ -34,14 +34,14 @@
 // Mass Driver
 #define WEAPON_ENERGY_COST 4
 #define WEAPON_WAIT 10
-#define DRUUGE_OFFSET RES_SCALE(24)
-#define MISSILE_OFFSET RES_SCALE(6)
+#define DRUUGE_OFFSET RES_SCALE (24)
+#define MISSILE_OFFSET RES_SCALE (6)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 20
 #define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
 #define MISSILE_HITS 4
 #define MISSILE_DAMAGE 6
-#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(6)))
+#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE (6)))
 #define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
 
 // Furnace
@@ -49,7 +49,7 @@
 #define SPECIAL_WAIT 30
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 #define MISSILE_RANGE_HD (MISSILE_SPEED_HD * MISSILE_LIFE)
 
 static RACE_DESC druuge_desc =
@@ -102,7 +102,8 @@ static RACE_DESC druuge_desc =
 		},
 		{
 			DRUUGE_CAPT_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		DRUUGE_VICTORY_SONG,
 		DRUUGE_SHIP_SOUNDS,
@@ -177,7 +178,7 @@ initialize_cannon (ELEMENT *ShipPtr, HELEMENT CannonArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = DRUUGE_OFFSET;
-	MissileBlock.speed = RES_BOOL(MISSILE_SPEED, MISSILE_SPEED_HD);
+	MissileBlock.speed = RES_BOOL (MISSILE_SPEED, MISSILE_SPEED_HD);
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;
@@ -317,11 +318,9 @@ init_druuge (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		druuge_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		druuge_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
+		druuge_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		druuge_desc.cyborg_control.WeaponRange = MISSILE_RANGE_HD;
 	}
 	else

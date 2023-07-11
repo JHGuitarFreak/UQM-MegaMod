@@ -49,8 +49,8 @@
 // Marine
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_WAIT 12
-#define MARINE_MAX_THRUST RES_SCALE(32)
-#define MARINE_THRUST_INCREMENT RES_SCALE(8)
+#define MARINE_MAX_THRUST RES_SCALE (32)
+#define MARINE_THRUST_INCREMENT RES_SCALE (8)
 #define MARINE_HIT_POINTS 3
 #define MARINE_MASS_POINTS 1
 #define MAX_MARINES 8
@@ -59,11 +59,11 @@
 #define START_ION_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
 
 // Rotating Turret
-#define TURRET_OFFSET RES_SCALE(14)
+#define TURRET_OFFSET RES_SCALE (14)
 #define TURRET_WAIT 3
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 
 static RACE_DESC orz_desc =
 {
@@ -115,7 +115,8 @@ static RACE_DESC orz_desc =
 		},
 		{
 			ORZ_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		ORZ_VICTORY_SONG,
 		ORZ_SHIP_SOUNDS,
@@ -399,13 +400,8 @@ intruder_preprocess (ELEMENT *ElementPtr)
 			{
 				--ElementPtr->thrust_wait;
 
-				if (!IS_HD) {
-					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
-					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
-				} else {
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-				}
+				s.origin.x = RES_SCALE (16 + (ElementPtr->turn_wait & 3) * 9);
+				s.origin.y = RES_SCALE (14 + (ElementPtr->turn_wait >> 2) * 11);
 				s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
 						GetFrameCount (ElementPtr->next.image.farray[0]) - 2);
 				ModifySilhouette (ShipPtr, &s, 0);
@@ -419,13 +415,8 @@ intruder_preprocess (ELEMENT *ElementPtr)
 				UnlockElement (hElement);
 				hElement = 0;
 LeftShip:
-				if (!IS_HD) {
-					s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
-					s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
-				} else {
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-					s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-				}
+				s.origin.x = RES_SCALE (16 + (ElementPtr->turn_wait & 3) * 9);
+				s.origin.y = RES_SCALE (14 + (ElementPtr->turn_wait >> 2) * 11);
 				s.frame = ElementPtr->next.image.frame;
 				ModifySilhouette (ShipPtr, &s, MODIFY_SWAP);
 			}
@@ -447,21 +438,17 @@ LeftShip:
 				}
 				else if (randval < (0x0100 / 2 + 0x0100 / 16))
 				{
-					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_HORUS)
-						|| antiCheat (ElementPtr, TRUE, OPTVAL_SEKHMET)))
+					if (!(antiCheat (ElementPtr, TRUE, OPTVAL_INF_HEALTH)
+							|| antiCheat (
+								ElementPtr, TRUE, OPTVAL_FULL_GOD)))
 					{
 						if (!DeltaCrew (ShipPtr, -1))
 							ShipPtr->life_span = 0;
 					}
 
 					++ElementPtr->thrust_wait;
-					if (!IS_HD) {
-						s.origin.x = 16 + (ElementPtr->turn_wait & 3) * 9;
-						s.origin.y = 14 + (ElementPtr->turn_wait >> 2) * 11;
-					} else {
-						s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-						s.origin.y = RES_SCALE(14 + (ElementPtr->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-					}
+					s.origin.x = RES_SCALE (16 + (ElementPtr->turn_wait & 3) * 9);
+					s.origin.y = RES_SCALE (14 + (ElementPtr->turn_wait >> 2) * 11);
 					s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
 							GetFrameCount (ElementPtr->next.image.farray[0]) - 1);
 					ModifySilhouette (ShipPtr, &s, 0);
@@ -526,9 +513,9 @@ spawn_marine_ion_trail (ELEMENT *ElementPtr, STARSHIP *StarShipPtr,
 		IonElementPtr->colorCycleIndex = 0;
 		IonElementPtr->current.location = ElementPtr->current.location;
 		IonElementPtr->current.location.x +=
-				(COORD)COSINE (angle, DISPLAY_TO_WORLD (RES_SCALE(2)));
+				(COORD)COSINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
 		IonElementPtr->current.location.y +=
-				(COORD)SINE (angle, DISPLAY_TO_WORLD (RES_SCALE(2)));
+				(COORD)SINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
 		IonElementPtr->death_func = ion_preprocess;
 
 		SetElementStarShip (IonElementPtr, StarShipPtr);
@@ -671,7 +658,7 @@ marine_preprocess (ELEMENT *ElementPtr)
 					ElementPtr->state_flags |= CHANGING;
 				}
 
-				num_frames = RES_DESCALE(WORLD_TO_TURN (
+				num_frames = RES_DESCALE (WORLD_TO_TURN (
 						square_root ((long)delta_x * delta_x
 						+ (long)delta_y * delta_y)));
 
@@ -806,8 +793,9 @@ marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 				GetElementStarShip (ElementPtr0, &StarShipPtr);
 
-				if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
-					|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
+				if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_INF_HEALTH)
+						|| antiCheat (
+							ElementPtr1, FALSE, OPTVAL_FULL_GOD)))
 				{
 					if (!DeltaCrew (ElementPtr1, -1))
 						ElementPtr1->life_span = 0;
@@ -825,16 +813,8 @@ marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 						ElementPtr0->PrimIndex
 						], NO_PRIM);
 				ElementPtr0->preprocess_func = intruder_preprocess;
-				if (!IS_HD)
-				{
-					s.origin.x = 16 + (ElementPtr0->turn_wait & 3) * 9;
-					s.origin.y = 14 + (ElementPtr0->turn_wait >> 2) * 11;
-				}
-				else
-				{
-					s.origin.x = RES_SCALE(16 - (RESOLUTION_FACTOR * 3 / 2) + (ElementPtr0->turn_wait & 3) * (9 + RESOLUTION_FACTOR * 3 / 2)); 
-					s.origin.y = RES_SCALE(14 + (ElementPtr0->turn_wait >> 2) * (11 + RESOLUTION_FACTOR)); 
-				}
+				s.origin.x = RES_SCALE (16 + (ElementPtr0->turn_wait & 3) * 9);
+				s.origin.y = RES_SCALE (14 + (ElementPtr0->turn_wait >> 2) * 11);
 				s.frame = ElementPtr0->next.image.frame;
 				ModifySilhouette (ElementPtr1, &s, 0);
 
@@ -936,9 +916,9 @@ turret_postprocess (ELEMENT *ElementPtr)
 							&& (hTurretEffect = AllocElement ()))
 					{
 						TurretPtr->current.location.x -=
-								COSINE (facing, DISPLAY_TO_WORLD (2));
+								COSINE (facing, DISPLAY_TO_WORLD (RES_SCALE(2)));
 						TurretPtr->current.location.y -=
-								SINE (facing, DISPLAY_TO_WORLD (2));
+								SINE (facing, DISPLAY_TO_WORLD (RES_SCALE(2)));
 
 						LockElement (hTurretEffect, &TurretEffectPtr);
 						TurretEffectPtr->playerNr = ElementPtr->playerNr;
@@ -1036,8 +1016,8 @@ turret_postprocess (ELEMENT *ElementPtr)
 				UnlockElement (hSpaceMarine);
 				PutElement (hSpaceMarine);
 
-				if (!(antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-					|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET)))
+				if (!(antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+						|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD)))
 				{
 					DeltaCrew (ShipPtr, -1);
 				}
@@ -1112,13 +1092,10 @@ init_orz (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		orz_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		orz_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		orz_desc.cyborg_control.WeaponRange =
-				MISSILE_SPEED_HD * MISSILE_LIFE;
+		orz_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		orz_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
 	else
 	{

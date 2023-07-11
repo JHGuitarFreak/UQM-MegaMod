@@ -374,6 +374,8 @@ moda_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 	This->format = moda_formats->stereo16;
 	This->frequency = md_mixfreq;
 	This->length = 0; // FIXME way to obtain this from mikmod?
+	This->numpos = mod->numpos;
+	This->filename_hash = crc32b (filename);
 
 	moda->last_error = 0;
 
@@ -414,10 +416,7 @@ moda_Seek (THIS_PTR, uint32 pcm_pos)
 	TFB_ModSoundDecoder* moda = (TFB_ModSoundDecoder*) This;
 	
 	Player_Start (moda->module);
-	if (pcm_pos)
-		log_add (log_Debug, "moda_Seek(): "
-				"non-zero seek positions not supported for mod");
-	Player_SetPosition (0);
+	Player_SetPosition (pcm_pos);
 
 	return 0;
 }

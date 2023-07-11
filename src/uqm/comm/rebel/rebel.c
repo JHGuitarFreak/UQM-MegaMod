@@ -39,8 +39,11 @@ static LOCDATA yehat_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	YEHAT_COLOR_MAP, /* AlienColorMap */
 	YEHAT_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		REBEL_MUSIC, /* AlienAltSong */
+	},
 	REBEL_CONVERSATION_PHRASES, /* PlayerPhrases */
 	15, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -241,6 +244,8 @@ RebelInfo (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, what_about_war))
 	{
 		NPCPhrase (ABOUT_WAR);
+		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
 
 		DISABLE_PHRASE (what_about_war);
 	}
@@ -329,7 +334,7 @@ Rebels (RESPONSE_REF R)
 			NPCPhrase (NO_ROOM);
 		else
 		{
-#define NUM_YEHAT_SHIPS 4
+#define NUM_YEHAT_SHIPS DIF_CASE (4, 4, 2)
 			if (NumVisits < NUM_YEHAT_SHIPS)
 				NPCPhrase (HAVE_FEW_SHIPS);
 			else
@@ -385,7 +390,7 @@ Intro (void)
 
 		NumVisits = (BYTE) EscortFeasibilityStudy (YEHAT_REBEL_SHIP);
 		if (NumVisits > 8)
-			NumVisits = 8;
+			NumVisits = DIF_CASE(8, 8, 4);
 		AddEscortShips (YEHAT_REBEL_SHIP, NumVisits - (NumVisits >> 1));
 		AddEscortShips (PKUNK_SHIP, NumVisits >> 1);
 	}
@@ -436,12 +441,11 @@ init_rebel_yehat_comm (void)
 	yehat_desc.uninit_encounter_func = uninit_yehat;
 
 	yehat_desc.AlienTextBaseline.x = SIS_SCREEN_WIDTH * 2 / 3;
-	yehat_desc.AlienTextBaseline.y = RES_SCALE(70);
-	yehat_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE(16)) * 2 / 3;
+	yehat_desc.AlienTextBaseline.y = RES_SCALE (107 * 2 / 3);
+	yehat_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) * 2 / 3;
 
 	// use alternate "Rebels" track if available
-	yehat_desc.AlienAltSongRes = REBEL_MUSIC;
-	yehat_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
+	altResFlags |= USE_ALT_SONG;
 
 	setSegue (Segue_peace);
 	retval = &yehat_desc;

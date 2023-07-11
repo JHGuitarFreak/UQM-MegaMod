@@ -739,7 +739,7 @@ zip_fillDirStructureCentralProcessEntry(uio_GPDir *topGPDir,
 	uio_uint32 signature;
 	uio_uint16 lastModTime;
 	uio_uint16 lastModDate;
-	uio_uint32 crc;
+	//uio_uint32 crc; unused
 	uio_uint16 fileNameLength;
 	uio_uint16 extraFieldLength;
 	uio_uint16 fileCommentLength;
@@ -768,7 +768,7 @@ zip_fillDirStructureCentralProcessEntry(uio_GPDir *topGPDir,
 	gPFileData->atime = (time_t) 0;
 	gPFileData->mtime = dosToUnixTime(lastModDate, lastModTime);
 	gPFileData->ctime = (time_t) 0;
-	crc = makeUInt32(buf[16], buf[17], buf[18], buf[19]);
+	//crc = makeUInt32(buf[16], buf[17], buf[18], buf[19]); unused
 	gPFileData->compressedSize =
 			makeUInt32(buf[20], buf[21], buf[22], buf[23]);
 	gPFileData->uncompressedSize =

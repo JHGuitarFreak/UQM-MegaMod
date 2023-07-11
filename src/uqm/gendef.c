@@ -105,6 +105,7 @@ getGenerateFunctions (BYTE Index)
 		case EGG_CASE2_DEFINED:
 			return &generateMyconFunctions;
 		case ANDROSYNTH_DEFINED:
+		case EXCAVATION_SITE_DEFINED:
 			return &generateAndrosynthFunctions;
 		case TAALO_PROTECTOR_DEFINED:
 		case ORZ_DEFINED:
@@ -122,8 +123,9 @@ getGenerateFunctions (BYTE Index)
 		case DESTROYED_STARBASE_DEFINED:
 		case SAMATRA_DEFINED:
 			return &generateSaMatraFunctions; 
-		case ZOQ_COLONY_DEFINED:
 		case ZOQFOT_DEFINED:
+		case ZOQ_COLONY0_DEFINED:
+		case ZOQ_COLONY1_DEFINED:
 			return &generateZoqFotPikFunctions;
 		case ZOQ_SCOUT_DEFINED:
 			return &generateZoqFotPikScoutFunctions;

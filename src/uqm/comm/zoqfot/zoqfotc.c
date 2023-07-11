@@ -28,7 +28,7 @@
 #define ZOQ_FG_COLOR WHITE_COLOR
 #define ZOQ_BG_COLOR BLACK_COLOR
 #define ZOQ_BASE_X (TEXT_X_OFFS + ((SIS_TEXT_WIDTH >> 1) >> 1))
-#define ZOQ_BASE_Y RES_SCALE(24)
+#define ZOQ_BASE_Y RES_SCALE (24)
 #define ZOQ_TALK_INDEX 18
 #define ZOQ_TALK_FRAMES 5
 #define FOT_TO_ZOQ 23
@@ -36,7 +36,7 @@
 #define PIK_FG_COLOR WHITE_COLOR
 #define PIK_BG_COLOR BLACK_COLOR
 #define PIK_BASE_X (SIS_SCREEN_WIDTH - (TEXT_X_OFFS + ((SIS_TEXT_WIDTH >> 1) >> 1)))
-#define PIK_BASE_Y RES_SCALE(24)
+#define PIK_BASE_Y RES_SCALE (24)
 #define PIK_TALK_INDEX 29
 #define PIK_TALK_FRAMES 2
 #define FOT_TO_PIK 26
@@ -57,8 +57,11 @@ static LOCDATA zoqfot_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	ZOQFOTPIK_COLOR_MAP, /* AlienColorMap */
 	ZOQFOTPIK_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	ZOQFOTPIK_CONVERSATION_PHRASES, /* PlayerPhrases */
 	3, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -214,6 +217,9 @@ ExitConversation (RESPONSE_REF R)
 		NPCPhrase_cb (EMMISSARIES6, &SelectAlienZOQ);
 		NPCPhrase_cb (EMMISSARIES7, &SelectAlienPIK);
 		ZFPTalkSegue ((COUNT)~0);
+
+		if (!GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD))
+			SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, sure))
 	{
@@ -747,6 +753,9 @@ Intro (void)
 {
 	BYTE NumVisits;
 
+	if (!GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD))
+		SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
+
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{
 		NPCPhrase_cb (OUT_TAKES0, &SelectAlienZOQ);
@@ -839,7 +848,7 @@ Intro (void)
 	{
 		if (GET_GAME_STATE (ZOQFOT_DISTRESS))
 		{
-#define MAX_ZFP_SHIPS 4
+#define MAX_ZFP_SHIPS DIF_CASE (4, 4, 2)
 			NPCPhrase_cb (THANKS_FOR_RESCUE0, &SelectAlienZOQ);
 			NPCPhrase_cb (THANKS_FOR_RESCUE1, &SelectAlienPIK);
 			NPCPhrase_cb (THANKS_FOR_RESCUE2, &SelectAlienZOQ);

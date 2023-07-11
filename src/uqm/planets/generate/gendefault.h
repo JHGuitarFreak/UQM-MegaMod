@@ -55,9 +55,22 @@ COUNT GenerateDefault_generateRuins (const SOLARSYS_STATE *,
 bool GenerateDefault_landerReport (SOLARSYS_STATE *);
 bool GenerateDefault_landerReportCycle (SOLARSYS_STATE *);
 extern void GeneratePlanets (SOLARSYS_STATE *system);
+extern SIZE CheckForHabitable (SOLARSYS_STATE *solarSys);
 
 
 extern const GenerateFunctions generateDefaultFunctions;
+
+typedef enum {
+	ILWRATH_ENCOUNTER, // 14/6 ships at procyon even if ilwrath left
+	PROBE_ENCOUNTER, // 4/2 probes at dreadnought wreck
+	URQUAN_ENCOUNTER, // 6 dreadnoughts at vault if the shuttle is on board
+	EGGCASE00_ENCOUNTER, // 4 mycon
+	EGGCASE01_ENCOUNTER, // 4 mycon 
+	EGGCASE02_ENCOUNTER, // 4 mycon
+	THRADDASH_ENCOUNTER, // 12/6 thraddash minimum at all time
+	NO_HELP_FROM_PKUNK, // no help before final battle if pkunk are absorbed before the revolt
+	READY_TO_BARGAIN // druuge sell rosy sphere on second deal
+} HARDMODE_ENCOUNTERS;
 
 #if defined(__cplusplus)
 }

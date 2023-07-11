@@ -22,6 +22,9 @@
 #include "element.h"
 #include "libs/compiler.h"
 #include "libs/sndlib.h"
+#include "races.h"
+#include "globdata.h"
+#include "cons_res.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -62,8 +65,8 @@ typedef UWORD MENU_SOUND_FLAGS;
 #define MENU_SOUND_PAGEDOWN ((MENU_SOUND_FLAGS)(1 << 8))
 #define MENU_SOUND_DELETE   ((MENU_SOUND_FLAGS)(1 << 9))
 #define MENU_SOUND_ARROWS   (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_LEFT | MENU_SOUND_RIGHT)
-#define MENU_SOUND_PAGE		(MENU_SOUND_PAGEUP | MENU_SOUND_PAGEDOWN)
-#define MENU_SOUND_ACTION	(MENU_SOUND_SELECT | MENU_SOUND_CANCEL)
+#define MENU_SOUND_PAGE     (MENU_SOUND_PAGEUP | MENU_SOUND_PAGEDOWN)
+#define MENU_SOUND_ACTION   (MENU_SOUND_SELECT | MENU_SOUND_CANCEL)
 #define MENU_SOUND_NONE     ((MENU_SOUND_FLAGS)0)
 
 extern void SetMenuSounds (MENU_SOUND_FLAGS sound_0,

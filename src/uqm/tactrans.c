@@ -41,6 +41,7 @@
 #include "settings.h"
 #include "sounds.h"
 #include "libs/mathlib.h"
+#include "intel.h"
 
 
 static void cleanup_dead_ship (ELEMENT *ElementPtr);
@@ -596,9 +597,9 @@ explosion_preprocess (ELEMENT *ShipPtr)
 			ElementPtr->current.image.frame = explosion[0];
 			rand_val = TFB_Random ();
 			angle = LOBYTE (HIWORD (rand_val));
-			dist = DISPLAY_TO_WORLD (LOBYTE (LOWORD (rand_val)) % 8);
+			dist = DISPLAY_TO_WORLD (RES_SCALE (LOBYTE (LOWORD (rand_val)) % 8));
 			if (HIBYTE (LOWORD (rand_val)) < 256 * 1 / 3)
-				dist += DISPLAY_TO_WORLD (8);
+				dist += DISPLAY_TO_WORLD (RES_SCALE (8));
 			ElementPtr->current.location.x =
 					ShipPtr->current.location.x + COSINE (angle, dist);
 			ElementPtr->current.location.y =
@@ -607,7 +608,7 @@ explosion_preprocess (ELEMENT *ShipPtr)
 			rand_val = TFB_Random ();
 			angle = LOBYTE (LOWORD (rand_val));
 			dist = WORLD_TO_VELOCITY (
-					DISPLAY_TO_WORLD (HIBYTE (LOWORD (rand_val)) % 5));
+					DISPLAY_TO_WORLD (RES_SCALE (HIBYTE (LOWORD (rand_val)) % 5)));
 			SetVelocityComponents (&ElementPtr->velocity,
 					COSINE (angle, dist), SINE (angle, dist));
 			UnlockElement (hElement);
@@ -706,7 +707,8 @@ StartShipExplosion (ELEMENT *ShipPtr, bool playSound)
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 
-	ZeroVelocityComponents (&ShipPtr->velocity);
+	if (!optExtended || isNetwork ())
+		ZeroVelocityComponents (&ShipPtr->velocity);
 
 	DeltaEnergy (ShipPtr,
 			-(SIZE)StarShipPtr->RaceDescPtr->ship_info.energy_level);
@@ -734,6 +736,7 @@ ship_death (ELEMENT *ShipPtr)
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 
+	SetMusicPosition ();
 	StopAllBattleMusic ();
 
 	// If the winning ship dies before the ditty starts, do not play it.
@@ -916,7 +919,7 @@ ship_transition (ELEMENT *ElementPtr)
 		}
 		else if ((hShipImage = AllocElement ()))
 		{
-#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE(40)) 
+#define TRANSITION_SPEED DISPLAY_TO_WORLD (RES_SCALE (40)) 
 #define TRANSITION_LIFE 1
 			COUNT angle;
 

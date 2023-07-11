@@ -126,7 +126,7 @@ GenerateShofixti_uninitNpcs (SOLARSYS_STATE *solarSys)
 		{
 			SET_GAME_STATE (SHOFIXTI_KIA, 1);
 			SET_GAME_STATE (SHOFIXTI_VISITS, 0);
-			if(DIF_HARD)
+			if (DIF_HARD)
 				SET_GAME_STATE(SHOFIXTI_BRO_KIA, 1);
 		}
 		else if (GET_GAME_STATE (MAIDENS_ON_SHIP))
@@ -144,7 +144,7 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 {
 	COUNT i;
 
-	solarSys->SunDesc[0].NumPlanets = 6; 
+	solarSys->SunDesc[0].NumPlanets = 6;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
@@ -164,6 +164,9 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
 
+	if (!PrimeSeed)
+		CheckForHabitable (solarSys);
+
 	if (NOMAD && CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
@@ -178,7 +181,6 @@ GenerateShofixti_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 	if (NOMAD && matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 	}
 
 	return true;

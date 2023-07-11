@@ -35,6 +35,10 @@ static bool GenerateMelnorme_generateMoons (SOLARSYS_STATE *solarSys,
 	PLANET_DESC *planet);
 static bool GenerateMelnorme_generateOrbital(SOLARSYS_STATE *solarSys,
 	PLANET_DESC *world);
+static COUNT GenerateMelnorme_generateEnergy (const SOLARSYS_STATE *,
+		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *);
+static bool GenerateMelnorme_pickupEnergy (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world, COUNT whichNode);
 
 static DWORD GetMelnormeRef (void);
 static void SetMelnormeRef (DWORD Ref);
@@ -49,10 +53,10 @@ const GenerateFunctions generateMelnormeFunctions = {
 	/* .generateName     = */ GenerateDefault_generateName,
 	/* .generateOrbital  = */ GenerateMelnorme_generateOrbital,
 	/* .generateMinerals = */ GenerateDefault_generateMinerals,
-	/* .generateEnergy   = */ GenerateDefault_generateEnergy,
+	/* .generateEnergy   = */ GenerateMelnorme_generateEnergy,
 	/* .generateLife     = */ GenerateDefault_generateLife,
 	/* .pickupMinerals   = */ GenerateDefault_pickupMinerals,
-	/* .pickupEnergy     = */ GenerateDefault_pickupEnergy,
+	/* .pickupEnergy     = */ GenerateMelnorme_pickupEnergy,
 	/* .pickupLife       = */ GenerateDefault_pickupLife,
 };
 
@@ -86,7 +90,9 @@ GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
 	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 3) + 3);
+	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
@@ -103,6 +109,22 @@ GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
+	}
+
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED)
+	{
+		solarSys->SunDesc[0].PlanetByte = 3;
+
+		if (!PrimeSeed)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
+					RandomContext_Random (SysGenRNG) % LAST_LARGE_ROCKY_WORLD;
+
+			if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
+			else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+		}
 	}
 
 	return true;
@@ -125,8 +147,8 @@ GenerateMelnorme_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 static bool
 GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED &&
+			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
 	{
 		/* Starbase */
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
@@ -145,9 +167,51 @@ GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		return true;
 	}
 
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED &&
+			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+			CaptureDrawable (LoadGraphic (STELE_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+			CaptureStringTable (LoadStringTable (STELE_STRTAB));
+	}
+
 	GenerateDefault_generateOrbital (solarSys, world);
 
 	return true;
+}
+
+static COUNT
+GenerateMelnorme_generateEnergy (const SOLARSYS_STATE *solarSys,
+		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
+{
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED
+			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+	}
+
+	return 0;
+}
+
+static bool
+GenerateMelnorme_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+		COUNT whichNode)
+{
+	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED &&
+			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	{
+		assert (whichNode == 0);
+
+		GenerateDefault_landerReport (solarSys);
+
+		// The cheese can not be "picked up". It is always on the surface.
+		return false;
+	}
+
+	(void) whichNode;
+	return false;
 }
 
 static DWORD

@@ -19,6 +19,8 @@
 #ifndef SOLARSYS_H
 #define SOLARSYS_H
 
+#include "uqm/races.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif

@@ -7,4 +7,5 @@
 #define SHOFIXTI_FONT "comm.shofixti.font"
 #define SHOFIXTI_MUSIC "comm.shofixti.music"
 #define SHOFIXTI_PMAP_ANIM "comm.shofixti.graphics"
+#define SHOFIXTI_ALT_PMAP_ANIM "comm.shofixti.alt.graphics"
 #define SHOFIXTI_SCRIPT "comm.shofixti.script"

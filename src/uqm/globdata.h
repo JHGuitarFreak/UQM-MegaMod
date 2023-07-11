@@ -122,7 +122,16 @@ typedef enum {
 	URQUAN_DRONE_CONVERSATION,
 	YEHAT_REBEL_CONVERSATION,
 	INVALID_CONVERSATION,
+
+	NUM_CONVERSATIONS,
 } CONVERSATION;
+
+typedef struct
+{
+	RESOURCE AlienFrameRes;
+	RESOURCE AlienColorMapRes;
+	RESOURCE AlienSongRes;
+} ALT_RESOURCE;
 
 typedef struct
 {
@@ -143,8 +152,7 @@ typedef struct
 	TEXT_VALIGN AlienTextValign;
 	RESOURCE AlienColorMapRes;
 	RESOURCE AlienSongRes;
-	RESOURCE AlienAltSongRes;
-	LDAS_FLAGS AlienSongFlags;
+	ALT_RESOURCE AltRes;
 
 	RESOURCE ConversationPhrasesRes;
 
@@ -166,7 +174,6 @@ typedef struct
 	COLORMAP AlienColorMap;
 	MUSIC_REF AlienSong;
 	STRING ConversationPhrases;
-	
 } LOCDATA;
 
 enum
@@ -203,7 +210,7 @@ enum
 	NUM_DEVICES
 };
 
-#define YEARS_TO_KOHRAH_VICTORY 4
+#define YEARS_TO_KOHRAH_VICTORY (optDeCleansing ? 100 : 4)
 
 // A structure describing how many bits are used for each game state value.
 typedef struct GameStateBitMap GameStateBitMap;
@@ -212,10 +219,12 @@ struct GameStateBitMap {
 	BYTE numBits;
 };
 
+size_t totalBitsForGameState (const GameStateBitMap *bm, int rev);
+int getGameStateRevByBytes (const GameStateBitMap *bm, int bytes);
 BOOLEAN serialiseGameState (const GameStateBitMap *bm,
 		BYTE **buf, size_t *numBytes);
 BOOLEAN deserialiseGameState (const GameStateBitMap *bm,
-		const BYTE *buf, size_t numBytes);
+		const BYTE *buf, size_t numBytes, int rev);
 
 #define START_GAME_STATE enum {
 #define ADD_GAME_STATE(SName,NumBits) SName, END_##SName = SName + NumBits - 1,
@@ -588,7 +597,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (MELNORME_TECH_PROCEDURE, 1)
 	ADD_GAME_STATE (MELNORME_INFO_PROCEDURE, 1)
 
-	ADD_GAME_STATE (MELNORME_TECH_STACK, 4)
+	ADD_GAME_STATE (MELNORME_TECH_STACK, 4) // Unused
 			/* MELNORME_TECH_STACK is now unused */
 	ADD_GAME_STATE (MELNORME_EVENTS_INFO_STACK, 5)
 	ADD_GAME_STATE (MELNORME_ALIEN_INFO_STACK, 5)
@@ -640,7 +649,7 @@ START_GAME_STATE
 
 	ADD_GAME_STATE (URQUAN_PROTECTING_SAMATRA, 1)
 
-#define THRADDASH_BODY_THRESHOLD DIF_CASE(25, 15, 35)
+#define THRADDASH_BODY_THRESHOLD DIF_CASE(25, 15, 30)
 	ADD_GAME_STATE (THRADDASH_BODY_COUNT, 5)
 
 	ADD_GAME_STATE (UTWIG_SUPOX_MISSION, 3)
@@ -878,108 +887,99 @@ START_GAME_STATE
 	ADD_GAME_STATE (COLONY_GRPOFFS, 32)
 	ADD_GAME_STATE (SAMATRA_GRPOFFS, 32)
 
+	/* end rev 0, Core UQM v0.8.0 */
+	/* begin rev 1, MegaMod v0.8.0.85 */
+
 	// JMS: It is allowed for the autopilot to engage
 	ADD_GAME_STATE (AUTOPILOT_OK, 1)
-
+	
 	// JMS: Quasispace portal name flags
-	ADD_GAME_STATE (KNOW_QS_PORTAL_0, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_1, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_2, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_3, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_4, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_5, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_6, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_7, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_8, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_9, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_10, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_11, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_12, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_13, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_14, 1)
-	ADD_GAME_STATE (KNOW_QS_PORTAL_15, 1)
+	ADD_GAME_STATE (KNOW_QS_PORTAL, 16)
+
+	/* end rev 1, MegaMod v0.8.0.85 */
+	/* begin rev 2, MegaMod v0.8.1 */
+
+	ADD_GAME_STATE (SYS_VISITED_00, 32)
+	ADD_GAME_STATE (SYS_VISITED_01, 32)
+	ADD_GAME_STATE (SYS_VISITED_02, 32)
+	ADD_GAME_STATE (SYS_VISITED_03, 32)
+	ADD_GAME_STATE (SYS_VISITED_04, 32)
+	ADD_GAME_STATE (SYS_VISITED_05, 32)
+	ADD_GAME_STATE (SYS_VISITED_06, 32)
+	ADD_GAME_STATE (SYS_VISITED_07, 32)
+	ADD_GAME_STATE (SYS_VISITED_08, 32)
+	ADD_GAME_STATE (SYS_VISITED_09, 32)
+	ADD_GAME_STATE (SYS_VISITED_10, 32)
+	ADD_GAME_STATE (SYS_VISITED_11, 32)
+	ADD_GAME_STATE (SYS_VISITED_12, 32)
+	ADD_GAME_STATE (SYS_VISITED_13, 32)
+	ADD_GAME_STATE (SYS_VISITED_14, 32)
+	ADD_GAME_STATE (SYS_VISITED_15, 32)
+
+	ADD_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_VUX_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1)
+	ADD_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1)
+
+	ADD_GAME_STATE (HM_ENCOUNTERS, 9)
+
+	ADD_GAME_STATE (RESERVED, 32)
+
+	/* end rev 2, MegaMod v0.8.1 */
+	/* begin rev 3, MegaMod v0.8.2 */
+
+	ADD_GAME_STATE (SYS_PLYR_MARKER_00, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_01, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_02, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_03, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_04, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_05, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_06, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_07, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_08, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_09, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_10, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_11, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_12, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_13, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_14, 32)
+	ADD_GAME_STATE (SYS_PLYR_MARKER_15, 32)
+
+	ADD_GAME_STATE (LAST_LOCATION_X, 16)
+	ADD_GAME_STATE (LAST_LOCATION_Y, 16)
+
+	/* end rev 3, MegaMod v0.8.2 */
+	/* begin rev 4, MegaMod v0.8.3 */
+
+	ADD_GAME_STATE (ADV_AUTOPILOT_SAVE_X, 16)
+	ADD_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, 16)
+
+	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_X, 16)
+	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, 16)
 
 END_GAME_STATE
 
-// JMS: For making array of Quasispace portal name flags
-#define QS_PORTALS_KNOWN \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_0)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_1)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_2)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_3)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_4)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_5)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_6)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_7)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_8)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_9)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_10)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_11)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_12)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_13)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_14)), \
-	(GET_GAME_STATE (KNOW_QS_PORTAL_15)),
-
-// JMS: For making array of Quasispace portal name flags
-#define SET_QS_PORTAL_KNOWN(val) \
-	switch (val)	\
-	{				\
-	case 0:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_0, 1);\
-		break; \
-	case 1:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_1, 1);\
-		break; \
-	case 2:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_2, 1);\
-		break; \
-	case 3:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_3, 1);\
-		break; \
-	case 4:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_4, 1);\
-		break; \
-	case 5:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_5, 1);\
-		break; \
-	case 6:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_6, 1);\
-		break; \
-	case 7:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_7, 1);\
-		break; \
-	case 8:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_8, 1);\
-		break; \
-	case 9:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_9, 1);\
-		break; \
-	case 10:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_10, 1);\
-		break; \
-	case 11:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_11, 1);\
-		break; \
-	case 12:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_12, 1);\
-		break; \
-	case 13:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_13, 1);\
-		break; \
-	case 14:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_14, 1);\
-		break; \
-	case 15:			\
-		SET_GAME_STATE (KNOW_QS_PORTAL_15, 1);\
-		break; \
-	default: \
-	break;\
-	}
-
 // Values for GAME_STATE.glob_flags:
+#define READ_SPEED_MASK ((1 << 3) - 1)
+#define NUM_READ_SPEEDS 5
 #define COMBAT_SPEED_SHIFT 6
 #define COMBAT_SPEED_MASK (((1 << 2) - 1) << COMBAT_SPEED_SHIFT)
 #define NUM_COMBAT_SPEEDS 4
+
 #define MUSIC_DISABLED (1 << 3)
 #define SOUND_DISABLED (1 << 4)
 #define CYBORG_ENABLED (1 << 5)
@@ -1094,6 +1094,12 @@ enum {
 #define GET_GAME_STATE(SName) \
 		getGameStateUint (#SName)
 
+// For dynamic variable names
+#define D_SET_GAME_STATE(SName, val) \
+		setGameStateUint (SName, (val))
+#define D_GET_GAME_STATE(SName) \
+		getGameStateUint (SName)
+
 extern CONTEXT RadarContext;
 
 extern void FreeSC2Data (void);
@@ -1110,6 +1116,9 @@ BOOLEAN inSuperMelee (void);
 BOOLEAN inHQSpace (void);
 BOOLEAN inHyperSpace (void);
 BOOLEAN inQuasiSpace (void);
+BOOLEAN isPC (int optWhich);
+BOOLEAN is3DO (int optWhich);
+extern int replaceChar (char *pStr, const char find, const char replace);
 
 extern BOOLEAN InitGameStructures (void);
 extern void UninitGameStructures (void);
@@ -1118,7 +1127,7 @@ extern void UninitGameStructures (void);
 #define NORM 0
 #define EASY 1
 #define HARD 2
-#define DIFFICULTY (GLOBAL_SIS(Difficulty) ? GLOBAL_SIS(Difficulty) : NORM)
+#define DIFFICULTY (GLOBAL_SIS (Difficulty) ? GLOBAL_SIS (Difficulty) : NORM)
 #define DIF_CASE(a,b,c) (DIFFICULTY == NORM ? (a) : (DIFFICULTY == EASY ? (b) : (c)))
 #define DIF_NORM (DIFFICULTY == NORM ? true : false)
 #define DIF_EASY (DIFFICULTY == EASY ? true : false)
@@ -1126,25 +1135,79 @@ extern void UninitGameStructures (void);
 #define IF_NORM(a,b) (!DIF_NORM ? (a) : (b))
 #define IF_EASY(a,b) (!DIF_EASY ? (a) : (b))
 #define IF_HARD(a,b) (!DIF_HARD ? (a) : (b))
-#define DIF_STR(a) ((a) == NORM ? "Normal" : ((a) == EASY ? "Easy" : "Hard"))
+#define DIF_STR(a) ((a) == NORM ? "Normal" : ((a) == EASY ? "Easy" : (a) == HARD ? "Hard" : "CYO"))
 
 // Extended
 #define EXTENDED (GLOBAL_SIS (Extended) ? TRUE : FALSE)
-#define EXT_STR(a) ((a) ? "True" : "False")
+#define EXT_CASE(a,b) (!EXTENDED ? (a) : (b))
+
+static inline POINT
+LoadLastLoc (void)
+{
+	return (POINT) { GET_GAME_STATE (LAST_LOCATION_X),
+			GET_GAME_STATE (LAST_LOCATION_Y) };
+}
+
+static inline void
+SaveLastLoc (POINT pt)
+{
+	SET_GAME_STATE (LAST_LOCATION_X, pt.x);
+	SET_GAME_STATE (LAST_LOCATION_Y, pt.y);
+}
+
+static inline void
+ZeroLastLoc (void)
+{
+	SET_GAME_STATE (LAST_LOCATION_X, ~0);
+	SET_GAME_STATE (LAST_LOCATION_Y, ~0);
+}
+
+static inline POINT
+LoadAdvancedQuasiPilot (void)
+{
+	return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_QUASI_X),
+			GET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y) };
+}
+
+static inline POINT
+LoadAdvancedAutoPilot (void)
+{
+	return (POINT) { GET_GAME_STATE (ADV_AUTOPILOT_SAVE_X),
+			GET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y) };
+}
+
+static inline void
+SaveAdvancedQuasiPilot (POINT pt)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, pt.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, pt.y);
+}
+
+static inline void
+SaveAdvancedAutoPilot (POINT pt)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, pt.x);
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, pt.y);
+}
+
+static inline void
+ZeroAdvancedQuasiPilot (void)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_X, ~0);
+	SET_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, ~0);
+}
+
+static inline void
+ZeroAdvancedAutoPilot (void)
+{
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, ~0);
+	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, ~0);
+}
 
 // Nomad
 #define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
-#define NOMAD_STR(a) ((a) ? "True" : "False")
 
-// Planet Name Units
-#define MET_A_SPATHI (GET_GAME_STATE (KNOW_SPATHI_QUEST) || GET_GAME_STATE (FOUND_PLUTO_SPATHI) \
-					|| GET_GAME_STATE (SPATHI_VISITS))
-
-#define MET_AN_UTWIG (GET_GAME_STATE (UTWIG_HAVE_ULTRON) || GET_GAME_STATE (UTWIG_WAR_NEWS))
-
-#define MET_A_DRUUGE ((!GET_GAME_STATE (DRUUGE_MANNER) && GET_GAME_STATE (DRUUGE_VISITS)) \
-					|| GET_GAME_STATE (DRUUGE_HOME_VISITS) || GET_GAME_STATE (DRUUGE_HOME_INFO) \
-					|| GET_GAME_STATE (DRUUGE_SPACE_INFO) || GET_GAME_STATE (KNOW_DRUUGE_SLAVERS))
+#define BOOL_STR(a) ((a) ? "True" : "False")
 
 // Earth Coordinates
 #define EARTH_OUTER_X -725
@@ -1153,6 +1216,26 @@ extern void UninitGameStructures (void);
 // Druuge Crew Values
 #define MIN_SOLD DIF_CASE(100, 200, 10)
 #define MAX_SOLD DIF_CASE(250, 500, 25)
+
+#define KNOW_A_HOMEWORLD \
+	(GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_ORZ_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_THRADD_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_VUX_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_MYCON_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD) \
+	|| GET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD))
 
 #if defined(__cplusplus)
 }

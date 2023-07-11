@@ -58,10 +58,12 @@ unsigned int loresBlowupScale;
 unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
+
+// Added options
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;
 BOOLEAN optCheatMode;
-int optPrecursorMode;
+int optGodModes;
 int timeDilationScale;
 BOOLEAN optBubbleWarp;
 BOOLEAN optUnlockShips;
@@ -80,7 +82,6 @@ DWORD loadFuel;
 BOOLEAN optPartialPickup;
 BOOLEAN optSubmenu;
 BOOLEAN optAddDevices;
-BOOLEAN optScalePlanets;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 BOOLEAN optCustomBorder;
@@ -91,9 +92,9 @@ BOOLEAN optVolasMusic;
 BOOLEAN optWholeFuel;
 BOOLEAN optDirectionalJoystick;
 int optLanderHold;
-int optIPScaler;
+int optScrTrans;
 int optDifficulty;
-BOOLEAN optFuelRange;
+int optFuelRange;
 BOOLEAN optExtended;
 BOOLEAN optNomad;
 BOOLEAN optGameOver;
@@ -101,8 +102,8 @@ BOOLEAN optShipDirectionIP;
 BOOLEAN optHazardColors;
 BOOLEAN optOrzCompFont;
 int optControllerType;
-BOOLEAN optShipFacingHS;
-int optColoredPlanet;
+BOOLEAN optSmartAutoPilot;
+int optTintPlanSphere;
 int optPlanetStyle;
 int optStarBackground;
 int optScanStyle;
@@ -112,6 +113,19 @@ int optSuperPC;
 BOOLEAN optHyperStars;
 BOOLEAN optPlanetTexture;
 int optFlagshipColor;
+BOOLEAN optNoHQEncounters;
+BOOLEAN optDeCleansing;
+BOOLEAN optMeleeObstacles;
+BOOLEAN optShowVisitedStars;
+BOOLEAN optUnscaledStarSystem;
+int optScanSphere;
+int optNebulaeVolume;
+BOOLEAN optSlaughterMode;
+BOOLEAN optMaskOfDeceit;
+BOOLEAN optAdvancedAutoPilot;
+BOOLEAN optMeleeToolTips;
+BOOLEAN optMusicResume;
+
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSpeech;
@@ -123,6 +137,7 @@ uio_DirHandle *contentDir;
 uio_DirHandle *configDir;
 uio_DirHandle *saveDir;
 uio_DirHandle *meleeDir;
+uio_DirHandle *scrShotDir;
 uio_MountHandle* contentMountHandle;
 
 char baseContentPath[PATH_MAX];
@@ -200,9 +215,7 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 		// Try the default content locations.
 		const char *locs[] = {
 			CONTENTDIR, /* defined in config.h */
-			"",
 			"content",
-			"../../content" /* For running from MSVC */
 		};
 		loc = findFileInDirs (locs, ARRAY_SIZE (locs), testFile);
 
@@ -378,6 +391,42 @@ prepareMeleeDir (void) {
 	if (meleeDir == NULL)
 	{
 		log_add (log_Fatal, "Fatal error: Could not open melee teams dir: %s",
+				strerror (errno));
+		exit (EXIT_FAILURE);
+	}
+}
+
+void
+prepareScrShotDir (void)
+{
+	char buf[PATH_MAX];
+	const char *shotDirName;
+
+	shotDirName = getenv ("UQM_SCR_SHOT_DIR");
+	if (shotDirName == NULL)
+		shotDirName = SCRSHOTDIR;
+	
+	if (expandPath (buf, PATH_MAX - 13, shotDirName, EP_ALL_SYSTEM) == -1)
+	{
+		// Doesn't have to be fatal, but might mess up things when saving
+		// config files.
+		log_add (log_Fatal, "Fatal error: Invalid path to config files.");
+		exit (EXIT_FAILURE);
+	}
+
+	shotDirName = buf;
+	setenv("UQM_SCR_SHOT_DIR", shotDirName, 1);
+
+	// Create the path upto the save dir, if not already existing.
+	if (mkdirhier (shotDirName) == -1)
+		exit (EXIT_FAILURE);
+
+	scrShotDir = uio_openDirRelative (configDir, "screenshots", 0);
+			// TODO: this doesn't work if the save dir is not
+			//       "screenshots" in the SCRSHOTDIR macro.
+	if (scrShotDir == NULL)
+	{
+		log_add (log_Fatal, "Fatal error: Could not open screenshot dir: %s",
 				strerror (errno));
 		exit (EXIT_FAILURE);
 	}
@@ -563,7 +612,7 @@ loadIndices (uio_DirHandle *dir)
 					indices->names[i]);
 			LoadResourceIndex (dir, indices->names[i], NULL);
 			numLoaded++;
-		}			
+		}
 	}
 	uio_DirList_free (indices);
 	
@@ -689,6 +738,11 @@ unprepareAllDirs (void)
 	{
 		uio_closeDir (configDir);
 		configDir = 0;
+	}
+	if (scrShotDir)
+	{
+		uio_closeDir (scrShotDir);
+		scrShotDir = 0;
 	}
 }
 

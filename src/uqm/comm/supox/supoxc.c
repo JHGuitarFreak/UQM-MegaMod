@@ -40,8 +40,11 @@ static LOCDATA supox_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SUPOX_COLOR_MAP, /* AlienColorMap */
 	SUPOX_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SUPOX_CONVERSATION_PHRASES, /* PlayerPhrases */
 	4, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -135,7 +138,7 @@ ExitConversation (RESPONSE_REF R)
 			NPCPhrase (HAVE_4_SHIPS);
 
 			AlienTalkSegue ((COUNT)~0);
-			AddEscortShips (SUPOX_SHIP, 4);
+			AddEscortShips (SUPOX_SHIP, DIF_CASE(4, 4, 2));
 		}
 	}
 }
@@ -626,6 +629,9 @@ Intro (void)
 					break;
 			}
 			SET_GAME_STATE (SUPOX_HOME_VISITS, NumVisits);
+
+			if (!GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
 		}
 		else
 		{
@@ -675,7 +681,7 @@ init_supox_comm (void)
 
 	supox_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	supox_desc.AlienTextBaseline.y = 0;
-	supox_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	supox_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (!GET_GAME_STATE (SUPOX_HOSTILE)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

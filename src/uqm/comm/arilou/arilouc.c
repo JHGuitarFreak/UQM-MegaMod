@@ -39,8 +39,11 @@ static LOCDATA arilou_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	ARILOU_COLOR_MAP, /* AlienColorMap */
 	ARILOU_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	ARILOU_CONVERSATION_PHRASES, /* PlayerPhrases */
 	20, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -276,12 +279,17 @@ ArilouHome (RESPONSE_REF R)
 		NPCPhrase (ABOUT_WAR);
 
 		SET_GAME_STATE (ARILOU_STACK_1, 1);
+		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_urquan))
 	{
 		NPCPhrase (ABOUT_URQUAN);
 
 		SET_GAME_STATE (ARILOU_STACK_1, 2);
+
+		if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, tell_arilou_about_tpet))
 	{
@@ -306,6 +314,9 @@ ArilouHome (RESPONSE_REF R)
 			NPCPhrase (UMGAH_UNDER_COMPULSION);
 
 			LastStack = 1;
+
+			if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
+				SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
 		}
 
 		DISABLE_PHRASE (learned_about_umgah);
@@ -323,6 +334,9 @@ ArilouHome (RESPONSE_REF R)
 		NPCPhrase (GO_FIND_OUT);
 
 		SET_GAME_STATE (ARILOU_CHECKED_UMGAH, 3);
+
+		if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
+			SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, what_did_on_earth))
 	{
@@ -850,7 +864,7 @@ init_arilou_comm (void)
 
 	arilou_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	arilou_desc.AlienTextBaseline.y = 0;
-	arilou_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	arilou_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1
 			|| GET_GAME_STATE (ARILOU_MANNER) == 3

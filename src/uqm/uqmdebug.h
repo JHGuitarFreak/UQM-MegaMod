@@ -50,9 +50,15 @@ extern BOOLEAN disableInteractivity;
 // Called on the main() thread when the debug key (symbol 'Debug' in the
 // keys.cfg) is pressed
 void debugKeyPressed (void);
+void debugKey2Pressed (void);
+void debugKey3Pressed (void);
+void debugKey4Pressed (void);
 // Called on the Starcon2Main() thread when the debug key (symbol 'Debug'
 // in the keys.cfg) is pressed.
 void debugKeyPressedSynchronous (void);
+void debugKey2PressedSynchronous (void);
+void debugKey3PressedSynchronous (void);
+void debugKey4PressedSynchronous (void);
 
 // Forward time to the next event. If skipHEE is set, the event named
 // HYPERSPACE_ENCOUNTER_EVENT, which normally occurs every game day,
@@ -189,6 +195,8 @@ void dumpStrings(FILE *out);
 // Graphically and textually show all the contexts.
 // Must be called on the Starcon2Main thread.
 void debugContexts (void);
+
+void fprintfWorld (const PLANET_DESC *world);
 
 
 // To add some day:

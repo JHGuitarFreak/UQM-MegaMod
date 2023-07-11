@@ -45,10 +45,13 @@ static LOCDATA orz_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	ORZ_COLOR_MAP, /* AlienColorMap */
 	ORZ_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	ORZ_CONVERSATION_PHRASES, /* PlayerPhrases */
-	14, /* NumAnimations */
+	13, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			4, /* StartIndex */
@@ -154,14 +157,6 @@ static LOCDATA orz_desc =
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			(1 << 10), /* BlockMask */
 		},
-		{
-			129, /* StartIndex */
-			5, /* NumFrames */
-			CIRCULAR_ANIM | ONE_SHOT_ANIM | WAIT_TALKING | ANIM_DISABLED, /* AnimFlags */
-			ONE_SECOND / 20, 0, /* FrameRate */
-			0, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
 	},
 	{ /* AlienTransitionDesc */
 		0, /* StartIndex */
@@ -177,13 +172,27 @@ static LOCDATA orz_desc =
 		0, /* AnimFlags */
 		ONE_SECOND / 15, ONE_SECOND / 15, /* FrameRate */
 		ONE_SECOND / 12, ONE_SECOND * 3 / 8, /* RestartRate */
-		(1 << 13), /* BlockMask */
+		0, /* BlockMask */
 	},
 	NULL, /* AlienNumberSpeech - none */
 	/* Filler for loaded resources */
 	NULL, NULL, NULL,
 	NULL,
 	NULL,
+};
+
+static FILTER_DESC orz_filters =
+{
+	1, /* Number of filters */
+	{ /* Filter array */
+		{
+			0, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_MULTIPLY, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
 };
 
 static void
@@ -239,31 +248,18 @@ ExitConversation (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, about_andro_3)
 			|| PLAYER_SAID (R, must_know_about_androsyn))
 	{
-		// JMS_GFX: Use separate graphics in hires instead of colormap transform.
+		// Run filter for HD
 		if (IS_HD)
-		{
-			int ii;
-			for (ii = 0; ii < CommData.NumAnimations - 1; ii++)
-				CommData.AlienAmbientArray[ii].AnimFlags |= ANIM_DISABLED;
-			
-			CommData.AlienAmbientArray[13].AnimFlags &= ~ANIM_DISABLED;
-			CommData.AlienFrameRes = ORZ_ANGRY_PMAP_ANIM;
-			CommData.AlienFrame = CaptureDrawable (LoadGraphic (CommData.AlienFrameRes));
-		}
+			EngageFilters (&orz_filters);
+
+		XFormColorMap (GetColorMapAddress (
+				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
+					), ONE_SECOND / 2);
 
 		if (PLAYER_SAID (R, about_andro_3))
 			NPCPhrase (BLEW_IT);
 		else
 			NPCPhrase (KNOW_TOO_MUCH);
-
-		// JMS_GFX: Use separate graphics in hires instead of colormap transform.
-		if (IS_HD)
-		{
-			int ii;
-			AlienTalkSegue (1);
-			for (ii = 0; ii < CommData.NumAnimations - 1; ii++)
-				CommData.AlienAmbientArray[ii].AnimFlags &= ~ANIM_DISABLED;
-		}
 
 		SET_GAME_STATE (ORZ_VISITS, 0);
 		SET_GAME_STATE (ORZ_MANNER, 2);
@@ -274,9 +270,7 @@ ExitConversation (RESPONSE_REF R)
 			RemoveEscortShips (ORZ_SHIP);
 		}
 
-		XFormColorMap (GetColorMapAddress (
-				SetAbsColorMapIndex (CommData.AlienColorMap, 1)
-				), ONE_SECOND / 2);
+		
 	}
 	else /* insults */
 	{
@@ -333,7 +327,11 @@ TaaloWorld (RESPONSE_REF R)
 		if (Manner != 1)
 			NPCPhrase (FRIENDLY_PLACE);
 		else
+		{
 			NPCPhrase (ANGRY_PLACE);
+			if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
+				SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
+		}
 
 		DISABLE_PHRASE (what_is_this_place);
 	}
@@ -346,6 +344,8 @@ TaaloWorld (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, make_alliance))
 	{
 		NPCPhrase (CANT_ALLY_HERE);
+		if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
+			SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
 
 		DISABLE_PHRASE (make_alliance);
 	}
@@ -673,15 +673,16 @@ Intro (void)
 	Manner = GET_GAME_STATE (ORZ_MANNER);
 	if (Manner == 2)
 	{
-		CommData.AlienColorMap =
-				SetAbsColorMapIndex (CommData.AlienColorMap, 1);
-
 		// JMS_GFX: Use separate red angry graphics in hires instead of colormap transform.
-		if (IS_HD) {
+		if (IS_HD) 
+		{
 			CommData.AlienFrameRes = ORZ_ANGRY_PMAP_ANIM;
 			CommData.AlienFrame = CaptureDrawable (
-				LoadGraphic (CommData.AlienFrameRes));
+				LoadGraphic (CommData.AlienFrameRes));			
 		}
+		else
+			CommData.AlienColorMap =
+			SetAbsColorMapIndex(CommData.AlienColorMap, 1);
 
 		NumVisits = GET_GAME_STATE (ORZ_VISITS);
 		switch (NumVisits++)
@@ -910,7 +911,7 @@ init_orz_comm (void)
 
 	orz_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	orz_desc.AlienTextBaseline.y = 0;
-	orz_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	orz_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (ORZ_MANNER) == 3
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

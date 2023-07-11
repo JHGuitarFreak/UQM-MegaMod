@@ -25,6 +25,8 @@
 #include "uqm/gameev.h"
 #include "libs/mathlib.h"
 
+#include "uqm/planets/generate/gendefault.h"
+
 
 static LOCDATA yehat_desc =
 {
@@ -42,8 +44,11 @@ static LOCDATA yehat_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	YEHAT_COLOR_MAP, /* AlienColorMap */
 	YEHAT_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	YEHAT_CONVERSATION_PHRASES, /* PlayerPhrases */
 	15, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -246,6 +251,17 @@ ExitConversation (RESPONSE_REF R)
 		SET_GAME_STATE (YEHAT_REBEL_TOLD_PKUNK, 0);
 		SET_GAME_STATE (NO_YEHAT_INFO, 0);
 
+		if (GET_GAME_STATE (YEHAT_ABSORBED_PKUNK) && DIF_HARD)
+		{	// absorbed before revolution
+			UWORD state;
+
+			state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+			state |= 1 << NO_HELP_FROM_PKUNK;
+
+			SET_GAME_STATE (HM_ENCOUNTERS, state);
+		}
+
 		AddEvent (RELATIVE_EVENT, 0, 0, 0, YEHAT_REBEL_EVENT);
 	}
 }
@@ -321,6 +337,9 @@ StartRevolt (RESPONSE_REF R)
 static void
 YehatHome (RESPONSE_REF R)
 {
+
+	if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
+		SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
 
 	if (PLAYER_SAID (R, whats_up_homeworld))
 	{
@@ -401,6 +420,9 @@ YehatSpace (RESPONSE_REF R)
 				break;
 			case 1:
 				NPCPhrase (GENERAL_INFO_SPACE_2);
+
+				if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
+					SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_SPACE_3);
@@ -636,8 +658,8 @@ init_yehat_comm (void)
 			// generalised in the future.
 
 	yehat_desc.AlienTextBaseline.x = SIS_SCREEN_WIDTH * 2 / 3;
-	yehat_desc.AlienTextBaseline.y = RES_SCALE(70);
-	yehat_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE(16)) * 2 / 3;
+	yehat_desc.AlienTextBaseline.y = RES_SCALE (107 * 2 / 3);
+	yehat_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) * 2 / 3;
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE)
 	{

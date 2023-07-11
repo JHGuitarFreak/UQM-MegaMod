@@ -18,4 +18,4 @@ for name in F:
 		FullDir = str(FontStem.joinpath(filename))
 		print("Exporting " + filename)
 		F[name].export(FullDir, FontSize)
-		system('mogrify -negate "'+FullDir+'"')
+		system('mogrify -negate -define png:color-type=0 "'+FullDir+'"')

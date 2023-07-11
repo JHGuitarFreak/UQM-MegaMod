@@ -32,8 +32,7 @@ typedef enum {
 
 typedef enum {
 	OPTVAL_PC,
-	OPTVAL_3DO,
-	OPTVAL_UQM
+	OPTVAL_3DO
 } OPT_CONSOLETYPE;
 
 typedef enum {
@@ -47,7 +46,7 @@ typedef enum {
 
 typedef enum {
 	OPTVAL_320_240,
-	OPTVAL_REAL_1280_960, 
+	OPTVAL_REAL_1280_960,
 } OPT_RESTYPE;
 
 typedef enum {
@@ -77,10 +76,10 @@ typedef enum {
 } OPT_AQUALITYTYPE;
 
 typedef enum {
-	OPTVAL_HUMAN,
-	OPTVAL_ANHUR,
-	OPTVAL_HORUS,
-	OPTVAL_SEKHMET
+	OPTVAL_NO_GOD,
+	OPTVAL_INF_ENERGY,
+	OPTVAL_INF_HEALTH,
+	OPTVAL_FULL_GOD
 } OPT_GODTYPE;
  
 typedef enum {
@@ -110,11 +109,24 @@ typedef enum {
 } OPT_CONTROLLER;
 
 typedef enum {
+	OPTVAL_FUEL_NORM,
+	OPTVAL_FUEL_AT_DEST,
+	OPTVAL_FUEL_TO_SOL,
+	OPTVAL_FUEL_ALL
+} OPT_FUELRANGE;
+
+typedef enum {
 	OPTVAL_STEP,
 	OPTVAL_NEAREST,
 	OPTVAL_BILINEAR,
 	OPTVAL_TRILINEAR
 } OPT_MELEEZOOM;
+
+typedef enum {
+	OPTVAL_PC_SPHERE,
+	OPTVAL_3DO_SPHERE,
+	OPTVAL_UQM_SPHERE
+} OPT_SPHERETYPE;
 
 /* At the moment, CONTROL_TEMPLATE is directly in this structure.  If
  * CONTROL_TEMPLATE and the options available diverge, this will need
@@ -126,23 +138,31 @@ typedef struct globalopts_struct {
 	OPT_DRIVERTYPE driver;
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;
-	OPT_GODTYPE precursorMode;
+	OPT_GODTYPE godModes;
 	OPT_TDTYPE tdType;
 	OPT_DATETYPE dateType;
 	OPT_DIFFICULTY difficulty;
 	OPT_MELEEZOOM meleezoom;
 	OPT_CONTROLLER controllerType;
-	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix, speech, keepaspect,
-				cheatMode, mainMenuMusic, nebulae, orbitingPlanets, texturedPlanets, godMode,
-				bubbleWarp, unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro, infiniteFuel,
-				partialPickup, submenu, addDevices, scalePlanets, customBorder, spaceMusic, volasMusic,
-				directionalJoystick, wholeFuel, fuelRange, extended, nomad, gameOver, shipDirectionIP, 
-				hazardColors, orzCompFont, shipFacingHS, nonStopOscill, hyperStars, planetTexture;
-	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, shield, ipTrans, landerHold, coloredPlanet,
-				planetStyle, starBackground, scanStyle, scopeStyle, landerStyle, flagshipColor;
+	OPT_FUELRANGE fuelRange;
+	OPT_SPHERETYPE sphereType;
+	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
+			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
+			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
+			unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro,
+			infiniteFuel, partialPickup, submenu, addDevices, customBorder,
+			spaceMusic, volasMusic, directionalJoystick, wholeFuel,
+			extended, nomad, gameOver, shipDirectionIP, hazardColors,
+			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
+			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
+			showVisitedStars, unscaledStarSystem, slaughterMode,
+			advancedAutoPilot, meleeToolTips, musicResume;
+	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
+			landerHold, tintPlanSphere, planetStyle, scanStyle,
+			scopeStyle, landerStyle, flagshipColor;
 	CONTROL_TEMPLATE player1, player2;
-	int speechvol, musicvol, sfxvol;
-	int gamma, customSeed;
+	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
+	int gamma, customSeed, starBackground;
 } GLOBALOPTS;
 
 void SetupMenu (void);

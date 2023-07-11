@@ -49,7 +49,7 @@ extern SPECIES_ID ShipIdStrToIndex (const char *shipIdStr);
 extern RACE_ID RaceIdStrToIndex (const char *raceIdStr);
 extern COUNT AddEscortShips (RACE_ID race, SIZE count);
 extern COUNT CalculateEscortsWorth (void);
-extern BOOLEAN SetRaceAllied (RACE_ID race, BYTE flag);
+extern BOOLEAN SetRaceAllied (RACE_ID race, BOOLEAN flag);
 extern COUNT StartSphereTracking (RACE_ID race);
 extern BOOLEAN CheckSphereTracking (RACE_ID race);
 extern BOOLEAN KillRace (RACE_ID race);
@@ -65,6 +65,7 @@ extern void free_ship (RACE_DESC *RaceDescPtr, BOOLEAN FreeIconData,
 		BOOLEAN FreeBattleData);
 extern void loadGameCheats (void);
 extern BOOLEAN legacySave;
+extern BYTE GTFO;
 
 #if defined(__cplusplus)
 }

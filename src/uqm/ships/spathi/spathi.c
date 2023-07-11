@@ -34,28 +34,28 @@
 // Forward gun
 #define WEAPON_ENERGY_COST 2
 #define WEAPON_WAIT 0
-#define SPATHI_FORWARD_OFFSET RES_BOOL(16, 59)
+#define SPATHI_FORWARD_OFFSET RES_BOOL (16, 59)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET RES_SCALE(1)
+#define MISSILE_OFFSET RES_SCALE (1)
 #define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
 		/* This is for the cyborg only. */
 
 // B.U.T.T.
 #define SPECIAL_ENERGY_COST 3
 #define SPECIAL_WAIT 7
-#define SPATHI_REAR_OFFSET RES_BOOL(20, 71)
-#define DISCRIMINATOR_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
+#define SPATHI_REAR_OFFSET RES_BOOL (20, 71)
+#define DISCRIMINATOR_SPEED DISPLAY_TO_WORLD (RES_SCALE (8))
 #define DISCRIMINATOR_LIFE 30
 #define DISCRIMINATOR_HITS 1
 #define DISCRIMINATOR_DAMAGE 2
-#define DISCRIMINATOR_OFFSET RES_SCALE(4)
+#define DISCRIMINATOR_OFFSET RES_SCALE (4)
 #define TRACK_WAIT 1
 
 // HD
-#define MISSILE_SPEED_HD RES_SCALE(MISSILE_SPEED)
+#define MISSILE_SPEED_HD RES_SCALE (MISSILE_SPEED)
 #define MISSILE_RANGE_HD (MISSILE_SPEED_HD * MISSILE_LIFE)
 
 static RACE_DESC spathi_desc =
@@ -108,7 +108,8 @@ static RACE_DESC spathi_desc =
 		},
 		{
 			SPATHI_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		SPATHI_VICTORY_SONG,
 		SPATHI_SHIP_SOUNDS,
@@ -296,11 +297,9 @@ init_spathi (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		spathi_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		spathi_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
+		spathi_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		spathi_desc.cyborg_control.WeaponRange = MISSILE_RANGE_HD;
 	}
 	else

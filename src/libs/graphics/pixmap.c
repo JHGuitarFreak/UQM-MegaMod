@@ -88,7 +88,6 @@ SetAbsFrameIndex (FRAME FramePtr, COUNT FrameIndex)
 		FrameIndex = FrameIndex	% (DrawablePtr->MaxIndex + 1);
 		FramePtr = &DrawablePtr->Frame[FrameIndex];
 	}
-
 	return FramePtr;
 }
 
@@ -167,4 +166,10 @@ DecFrameIndex (FRAME FramePtr)
 		DrawablePtr = GetFrameParentDrawable (FramePtr);
 		return &DrawablePtr->Frame[DrawablePtr->MaxIndex];
 	}
+}
+
+BOOLEAN
+IsFrameIndexed (FRAME FramePtr)
+{
+	return TFB_DrawCanvas_IsPaletted (FramePtr->image->NormalImg);
 }

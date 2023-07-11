@@ -46,8 +46,11 @@ static LOCDATA chmmr_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	CHMMR_COLOR_MAP, /* AlienColorMap */
 	CHMMR_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		CHMMR_PROCESS_MUSIC, /* AlienAltSong */
+	},
 	CHMMR_CONVERSATION_PHRASES, /* PlayerPhrases */
 	6, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -123,6 +126,34 @@ static LOCDATA chmmr_desc =
 	NULL,
 };
 
+static FILTER_DESC chmmr_filters =
+{
+	3, /* Number of filters */
+	{ /* Filter array */
+		{
+			1, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_GRAYSCALE, /* DrawKind*/
+			0, /* Flags */
+		},
+		{
+			0, /* Color index */
+			0, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
+			0, /* Flags */
+		},
+		{
+			0, /* Color index */
+			2, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_ALPHA, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
+};
+
 static void
 ExitConversation (RESPONSE_REF R)
 {
@@ -182,8 +213,8 @@ ExitConversation (RESPONSE_REF R)
 			/* XXX : this should be unhardcoded eventually */
 			/* transport to Starbase */
 			/* note: if optOrbitingPlanets is enabled, this will be corrected in DoTimePassage */
-			GLOBAL (ShipStamp.origin.x) = (SIS_SCREEN_WIDTH >> 1) + COSINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS);
-			GLOBAL (ShipStamp.origin.y) = (SIS_SCREEN_HEIGHT >> 1) + SINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS >> 1);
+			GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + COSINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS);
+			GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + SINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS >> 1);
 		}
 		else
 		{	/* 'Beating Game Differently' mode - never visited Starbase,
@@ -554,18 +585,13 @@ Intro (void)
 		NumVisits = GET_GAME_STATE (CHMMR_HOME_VISITS);
 		if (!GET_GAME_STATE (CHMMR_EMERGING))
 		{
-			if (!IS_HD)
-				CommData.AlienColorMap = SetAbsColorMapIndex (
-						CommData.AlienColorMap, 1
-						);
-
-			// JMS_GFX: Use separate graphics in hires instead of colormap transform.
+			// Run filter for HD
 			if (IS_HD)
-			{
-				CommData.AlienFrameRes = CHMMR_RED_PMAP_ANIM;
-				CommData.AlienFrame = CaptureDrawable (
-					LoadGraphic (CommData.AlienFrameRes));
-			}
+				EngageFilters (&chmmr_filters);
+
+			CommData.AlienColorMap = SetAbsColorMapIndex (
+					CommData.AlienColorMap, 1
+				);
 
 			switch (NumVisits++)
 			{
@@ -588,9 +614,6 @@ Intro (void)
 		}
 		else
 		{
-			HFLEETINFO hChmmr = GetStarShipFromIndex (&GLOBAL (avail_race_q), CHMMR_SHIP);
-			FLEET_INFO *ChmmrPtr = LockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
-
 			SetCommIntroMode (CIM_FADE_IN_SCREEN, ONE_SECOND * 2);
 			NPCPhrase (WE_ARE_FREE);
 
@@ -615,14 +638,20 @@ Intro (void)
 			// so this is purely decorative.
 			if (EXTENDED)
 			{
+				HFLEETINFO hChmmr = GetStarShipFromIndex (
+						&GLOBAL (avail_race_q), CHMMR_SHIP);
+				FLEET_INFO *ChmmrPtr = LockFleetInfo (
+						&GLOBAL (avail_race_q), hChmmr);
+
 				if (ChmmrPtr)
 				{
-					ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
+					ChmmrPtr->actual_strength =
+							986 / SPHERE_RADIUS_INCREMENT * 2;
 					ChmmrPtr->loc.x = 577;
 					ChmmrPtr->loc.y = 2509;
 					StartSphereTracking (CHMMR_SHIP);
 				}
-				UnlockFleetInfo(&GLOBAL(avail_race_q), hChmmr);
+				UnlockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
 			}
 		}
 		SET_GAME_STATE (CHMMR_HOME_VISITS, NumVisits);
@@ -655,18 +684,14 @@ init_chmmr_comm (void)
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	if (GET_GAME_STATE(CHMMR_UNLEASHED) || GET_GAME_STATE(CHMMR_EMERGING)) {
-		// use alternate "Process Complete" track if available
-		chmmr_desc.AlienAltSongRes = CHMMR_PROCESS_MUSIC;
-		chmmr_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	} else {
-		// regular track -- let's make sure
-		chmmr_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
+	// use alternate "Process Complete" track if available
+	if (GET_GAME_STATE (CHMMR_UNLEASHED)
+			|| GET_GAME_STATE (CHMMR_EMERGING))
+		altResFlags |= USE_ALT_SONG;
 
 	chmmr_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	chmmr_desc.AlienTextBaseline.y = 0;
-	chmmr_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	chmmr_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_peace);
 	retval = &chmmr_desc;

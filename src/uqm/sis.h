@@ -49,7 +49,7 @@ extern "C" {
 #define CREW_PER_ROW 5
 #define SBAY_MASS_PER_ROW 50
 
-#define MAX_FUEL_BARS RES_SCALE(10)
+#define MAX_FUEL_BARS 10
 #define FUEL_VOLUME_PER_ROW (HEFUEL_TANK_CAPACITY / MAX_FUEL_BARS)
 #define FUEL_RESERVE (10 * FUEL_TANK_SCALE)
 #define FUEL_COST_RU 20
@@ -95,22 +95,22 @@ enum
 #define EMPTY_SLOT NUM_MODULES
 #define NUM_BOMB_MODULES 10
 
-#define DRIVE_SIDE_X RES_SCALE(31)
-#define DRIVE_SIDE_Y RES_SCALE(56)
-#define DRIVE_TOP_X RES_SCALE(33)
-#define DRIVE_TOP_Y RES_SCALE(86)
+#define DRIVE_SIDE_X RES_SCALE (31)
+#define DRIVE_SIDE_Y RES_SCALE (56)
+#define DRIVE_TOP_X RES_SCALE (33)
+#define DRIVE_TOP_Y RES_SCALE (86)
 
-#define JET_SIDE_X RES_SCALE(71)
-#define JET_SIDE_Y RES_SCALE(48)
-#define JET_TOP_X RES_SCALE(70)
-#define JET_TOP_Y RES_SCALE(94)
+#define JET_SIDE_X RES_SCALE (71)
+#define JET_SIDE_Y RES_SCALE (48)
+#define JET_TOP_X RES_SCALE (70)
+#define JET_TOP_Y RES_SCALE (94)
 
-#define MODULE_SIDE_X RES_SCALE(17)
-#define MODULE_SIDE_Y RES_SCALE(14)
-#define MODULE_TOP_X RES_SCALE(17)
-#define MODULE_TOP_Y RES_SCALE(117)
+#define MODULE_SIDE_X RES_SCALE (17)
+#define MODULE_SIDE_Y RES_SCALE (14)
+#define MODULE_TOP_X RES_SCALE (17)
+#define MODULE_TOP_Y RES_SCALE (117)
 
-#define SHIP_PIECE_OFFSET RES_SCALE(12)
+#define SHIP_PIECE_OFFSET RES_SCALE (12)
 
 #define MAX_BUILT_SHIPS 12
 		/* Maximum number of ships escorting the SIS */
@@ -130,10 +130,12 @@ enum
 	{3 +  0, 30 + (5 * 16)}, \
 	{3 + 42, 30 + (5 * 16)},
 
-#define SIS_NAME_SIZE 16
+#define SIS_NAME_SIZE 32
+#define LEGACY_SIS_NAME_SIZE 16
 #define LEGACY_SAVE_NAME_SIZE 32
 #define LEGACY_SAVE_NAME_CHECKER "superbutcherX !"
 #define SAVE_CHECKER_SIZE SIS_NAME_SIZE
+#define LEGACY_SAVE_CHECKER_SIZE LEGACY_SIS_NAME_SIZE
 
 typedef struct
 {
@@ -170,16 +172,18 @@ extern void InitSISContexts (void);
 extern void DrawSISFrame (void);
 extern void ClearSISRect (BYTE ClearFlags);
 extern void SetFlashRect (const RECT *pRect, BOOLEAN purple);
+extern void SetAdditionalRect (const RECT *pRect, COUNT number);
+extern void DumpAdditionalRect (void);
 extern void PreUpdateFlashRect (void);
 extern void PostUpdateFlashRect (void);
 extern void PauseFlash (void);
 extern void ContinueFlash (void);
-extern BOOLEAN pcRectBool;
 
 #define SFR_MENU_3DO ((RECT*)~0L)
 #define SFR_MENU_ANY ((RECT*)~1L)
 extern void DrawHyperCoords (POINT puniverse);
-extern void DrawDiffSeed(SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad);
+extern void DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended,
+		BOOLEAN nomad);
 extern void DrawSISTitle (UNICODE *pStr);
 
 // Flags for DrawSISMessageEx (may be OR'ed):
@@ -238,12 +242,14 @@ extern COUNT GetSBayCapacity (POINT *ppt);
 
 extern DWORD GetModuleFuelCapacity (BYTE moduleType);
 extern DWORD GetFuelTankCapacity (void);
-extern DWORD GetFTankCapacity (POINT *ppt);
 
 extern COUNT CountSISPieces (BYTE piece_type);
 
 extern void DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame);
 extern void DrawCaptainsName (bool NewGame);
+
+extern void DrawFuelInFTanks (BOOLEAN isOutfit);
+extern FRAME hdFuelFrame;// Frame for HD fuel with smooth gradient
 
 #if defined(__cplusplus)
 }

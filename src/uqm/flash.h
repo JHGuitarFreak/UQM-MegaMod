@@ -166,6 +166,7 @@ struct FlashContext {
 
 	BOOLEAN started;
 	BOOLEAN paused;
+	BOOLEAN isPulsing;
 
 	FRAME *cache;
 	COUNT cacheSize;
@@ -205,6 +206,8 @@ void Flash_setSpeed (FlashContext *context, TimeCount fadeInTime,
 void Flash_setMergeFactors(FlashContext *context, int startNumer,
 		int endNumer, int denom);
 void Flash_setFrameTime (FlashContext *context, TimeCount frameTime);
+void Flash_setPulseBox (FlashContext *context, BOOLEAN isPulsing);
+BOOLEAN Flash_getPulseBox (FlashContext *context);
 TimeCount Flash_nextTime (FlashContext *context);
 void Flash_setRect (FlashContext *context, const RECT *rect);
 void Flash_getRect (FlashContext *context, RECT *rect);

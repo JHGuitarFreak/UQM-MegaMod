@@ -66,6 +66,9 @@ PlayStream (TFB_SoundSample *sample, uint32 source, bool looping, bool scope,
 	else
 		offset += (sint32)(SoundDecoder_GetTime (decoder) * ONE_SECOND);
 	
+	if (source == MUSIC_SOURCE)
+		soundSource[source].start_time = 0;
+
 	soundSource[source].sample = sample;
 	decoder->looping = looping;
 	audio_Sourcei (soundSource[source].handle, audio_LOOPING, false);
@@ -185,6 +188,64 @@ SeekStream (uint32 source, uint32 pos)
 	StopSource (source);
 	SoundDecoder_Seek (sample->decoder, pos);
 	PlayStream (sample, source, looping, scope, false);
+}
+
+uint32
+GetStreamFrame (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return SoundDecoder_GetFrame (sample->decoder);
+}
+
+uint16
+GetNumTrackerPos (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return sample->decoder->numpos;
+}
+
+BOOLEAN
+IsTracker (uint32 source)
+{
+	TFB_SoundSample * sample = soundSource[source].sample;
+	const UNICODE *filetype;
+
+	if (!sample)
+		return FALSE;
+
+	filetype = SoundDecoder_GetName (sample->decoder);
+
+	return (strcmp (filetype, "MikMod") == 0);
+}
+
+float
+GetStreamLength (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return sample->decoder->length * 1000;
+}
+
+float
+GetStreamTime (uint32 source)
+{
+	TFB_SoundSample* sample = soundSource[source].sample;
+
+	if (!sample)
+		return 0;
+
+	return SoundDecoder_GetTime (sample->decoder) * 1000;
 }
 
 BOOLEAN

@@ -40,15 +40,18 @@ static LOCDATA slylandro_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SLYLANDRO_COLOR_MAP, /* AlienColorMap */
 	SLYLANDRO_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SLYLANDRO_CONVERSATION_PHRASES, /* PlayerPhrases */
 	13, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			0, /* StartIndex */
 			5, /* NumFrames */
-			RANDOM_ANIM | COLORXFORM_ANIM, /* AnimFlags */
+			RANDOM_ANIM | COLORXFORM_ANIM | ANIM_DISABLED, /* AnimFlags */
 			ONE_SECOND / 8, ONE_SECOND * 5 / 8, /* FrameRate */
 			ONE_SECOND / 8, ONE_SECOND * 5 / 8, /* RestartRate */
 			0, /* BlockMask */
@@ -171,6 +174,20 @@ static LOCDATA slylandro_desc =
 	NULL, NULL, NULL,
 	NULL,
 	NULL,
+};
+
+static FILTER_DESC slyhome_filters =
+{
+	1, /* Number of filters */
+	{ /* Filter array */
+		{
+			0, /* Color index */
+			1, /* Opacity index */
+			-1, /* Frame index */
+			DRAW_OVERLAY, /* DrawKind*/
+			0, /* Flags */
+		},
+	}
 };
 
 static void
@@ -842,6 +859,12 @@ Intro (void)
 {
 	BYTE NumVisits;
 
+
+	if (IS_HD)
+		EngageFilters (&slyhome_filters);
+
+	CommData.AlienAmbientArray[0].AnimFlags &= ~ANIM_DISABLED;
+
 	if (GET_GAME_STATE (SLYLANDRO_KNOW_BROKEN)
 			&& (NumVisits = GET_GAME_STATE (RECALL_VISITS)) == 0)
 	{
@@ -892,9 +915,6 @@ init_slylandro_comm (void)
 {
 	LOCDATA *retval;
 
-	if (IS_HD)
-		slylandro_desc.AlienAmbientArray[0].AnimFlags |= ANIM_DISABLED;
-
 	slylandro_desc.init_encounter_func = Intro;
 	slylandro_desc.post_encounter_func = post_slylandro_enc;
 	slylandro_desc.uninit_encounter_func = uninit_slylandro;
@@ -903,7 +923,8 @@ init_slylandro_comm (void)
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	slylandro_desc.AlienTextBaseline.x =
+			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	slylandro_desc.AlienTextBaseline.y = 0;
 	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH;
 

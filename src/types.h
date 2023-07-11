@@ -174,11 +174,6 @@ UQM_COMPILE_TIME_ASSERT(uint64, sizeof(uint64) == 8);
 #undef SINT64_MIN
 #undef SINT64_MAX
 
-#undef UINT8_MAX
-#undef UINT16_MAX
-#undef UINT32_MAX
-#undef UINT64_MAX
-
 #define SINT8_MIN  (-128)
 #define SINT8_MAX  127
 #define SINT16_MIN (-32767-1)
@@ -188,12 +183,26 @@ UQM_COMPILE_TIME_ASSERT(uint64, sizeof(uint64) == 8);
 #define SINT64_MIN (-281474976710655-1)
 #define SINT64_MAX 281474976710655
 
-#define UINT8_MAX  0xff /* 255U */
-#define UINT16_MAX 0xffff /* 65535U */
-#define UINT32_MAX 0xffffffff /* 4294967295U */
-#define UINT64_MAX 0xffffffffffffffff /* 18446744073709551615U */
-
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(*array))
+
+// Lifted from SDL_config.h
+#if !defined(HAVE_STDINT_H) && !defined(_STDINT_H_)
+/* Most everything except Visual Studio 2008 and earlier has stdint.h now */
+#	if defined(_MSC_VER) && (_MSC_VER < 1600)
+#		undef UINT8_MAX
+#		undef UINT16_MAX
+#		undef UINT32_MAX
+#		undef UINT64_MAX
+
+#		define UINT8_MAX  0xff /* 255U */
+#		define UINT16_MAX 0xffff /* 65535U */
+#		define UINT32_MAX 0xffffffff /* 4294967295U */
+#		define UINT64_MAX 0xffffffffffffffff /* 18446744073709551615U */
+#	else
+#		define HAVE_STDINT_H 1
+#		include <stdint.h>
+#	endif /* Visual Studio 2008 */
+#endif /* !_STDINT_H_ && !HAVE_STDINT_H */
 
 #if defined(__cplusplus)
 }

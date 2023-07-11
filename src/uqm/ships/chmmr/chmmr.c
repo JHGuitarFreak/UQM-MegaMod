@@ -38,8 +38,8 @@
 // Laser
 #define WEAPON_ENERGY_COST 2
 #define WEAPON_WAIT 0
-#define CHMMR_OFFSET RES_SCALE(18)
-#define LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE(150))
+#define CHMMR_OFFSET RES_SCALE (18)
+#define LASER_RANGE DISPLAY_TO_WORLD (RES_SCALE (150))
 #define NUM_CYCLES 4
 
 // Tractor Beam
@@ -49,10 +49,10 @@
 
 // Satellites
 #define NUM_SATELLITES 3
-#define SATELLITE_OFFSET DISPLAY_TO_WORLD (RES_SCALE(64))
+#define SATELLITE_OFFSET DISPLAY_TO_WORLD (RES_SCALE (64))
 #define SATELLITE_HITPOINTS 10
 #define SATELLITE_MASS 10
-#define DEFENSE_RANGE (UWORD)RES_SCALE(64)
+#define DEFENSE_RANGE (UWORD)RES_SCALE (64)
 #define DEFENSE_WAIT 2
 
 static RACE_DESC chmmr_desc =
@@ -105,7 +105,8 @@ static RACE_DESC chmmr_desc =
 		},
 		{
 			CHMMR_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		CHMMR_VICTORY_SONG,
 		CHMMR_SHIP_SOUNDS,
@@ -165,8 +166,8 @@ laser_death (ELEMENT *ElementPtr)
 				- ShipPtr->current.location.y;
 		if (((BYTE)TFB_Random () & 0x07)
 				&& (dist = (long)dx * dx + (long)dy * dy) >=
-				(long)DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) 
-				* DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)) 
+				(long)DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE (10)) 
+				* DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE (10)) 
 				&& (hIonSpots = AllocElement ()))
 		{
 			COUNT angle, magnitude;
@@ -182,8 +183,8 @@ laser_death (ELEMENT *ElementPtr)
 			angle = ARCTAN (dx, dy);
 			magnitude = ((COUNT)TFB_Random ()
 					% ((square_root (dist) + 1)
-					- DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)))) 
-					+ DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE(10)); 
+					- DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE (10)))) 
+					+ DISPLAY_TO_WORLD (CHMMR_OFFSET + RES_SCALE (10)); 
 			IonSpotsPtr->current.location.x =
 					ShipPtr->current.location.x
 					+ COSINE (angle, magnitude);
@@ -387,7 +388,7 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 						+ DISPLAY_TO_WORLD (CHMMR_OFFSET)))
 						- ShipElementPtr->next.location.y;
 				angle = ARCTAN (dx, dy);
-				magnitude = WORLD_TO_VELOCITY (RES_SCALE(12)) /
+				magnitude = WORLD_TO_VELOCITY (RES_SCALE (12)) /
 						ShipElementPtr->mass_points;
 				DeltaVelocityComponents (&ShipElementPtr->velocity,
 						COSINE (angle, magnitude), SINE (angle, magnitude));
@@ -427,9 +428,9 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 
 						ShadowElementPtr->current = ShipElementPtr->next;
 						ShadowElementPtr->current.location.x +=
-								COSINE (angle, RES_SCALE(shadow_offs[i]));
+								COSINE (angle, RES_SCALE (shadow_offs[i]));
 						ShadowElementPtr->current.location.y +=
-								SINE (angle, RES_SCALE(shadow_offs[i]));
+								SINE (angle, RES_SCALE (shadow_offs[i]));
 						ShadowElementPtr->next = ShadowElementPtr->current;
 
 						SetElementStarShip (ShadowElementPtr, EnemyStarShipPtr);
@@ -490,7 +491,7 @@ satellite_preprocess (ELEMENT *ElementPtr)
 		dx = WRAP_DELTA_X (dx);
 		dy = WRAP_DELTA_Y (dy);
 		if ((long)dx * dx + (long)dy * dy
-				<= DISPLAY_TO_WORLD (RES_SCALE(20L)) * DISPLAY_TO_WORLD (RES_SCALE(20L)))
+				<= DISPLAY_TO_WORLD (RES_SCALE (20L)) * DISPLAY_TO_WORLD (RES_SCALE (20L)))
 			SetVelocityComponents (&ElementPtr->velocity,
 					WORLD_TO_VELOCITY (dx),
 					WORLD_TO_VELOCITY (dy));
@@ -500,8 +501,8 @@ satellite_preprocess (ELEMENT *ElementPtr)
 
 			angle = ARCTAN (dx, dy);
 			SetVelocityComponents (&ElementPtr->velocity,
-					COSINE (angle, WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(20)))),
-					SINE (angle, WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE(20)))));
+					COSINE (angle, WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE (20)))),
+					SINE (angle, WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (RES_SCALE (20)))));
 		}
 
 		UnlockElement (StarShipPtr->hShip);
@@ -521,7 +522,7 @@ spawn_point_defense (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	hBestObject = 0;
-	best_dist = DEFENSE_RANGE + RES_SCALE(1);
+	best_dist = DEFENSE_RANGE + RES_SCALE (1);
 	weakest = 255;
 	LockElement (StarShipPtr->hShip, &ShipPtr);
 	LockElement (ElementPtr->hTarget, &SattPtr);
@@ -779,11 +780,9 @@ init_chmmr (void)
 {
 	RACE_DESC *RaceDescPtr;	
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		chmmr_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		chmmr_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
+		chmmr_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		chmmr_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
 	else

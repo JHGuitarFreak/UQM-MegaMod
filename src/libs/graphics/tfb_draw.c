@@ -25,7 +25,7 @@ static const HOT_SPOT NullHs = {0, 0};
 
 void
 TFB_DrawScreen_Line (int x1, int y1, int x2, int y2, Color color,
-		DrawMode mode, SCREEN dest)
+		DrawMode mode, SCREEN dest, BYTE thickness)
 {
 	TFB_DrawCommand DC;
 
@@ -37,6 +37,7 @@ TFB_DrawScreen_Line (int x1, int y1, int x2, int y2, Color color,
 	DC.data.line.color = color;
 	DC.data.line.drawMode = mode;
 	DC.data.line.destBuffer = dest;
+	DC.data.line.thickness = thickness;
 
 	TFB_EnqueueDrawCommand (&DC);
 }
@@ -236,10 +237,10 @@ TFB_DrawScreen_Callback (void (*callback) (void *arg), void *arg)
 
 void
 TFB_DrawImage_Line (int x1, int y1, int x2, int y2, Color color,
-		DrawMode mode, TFB_Image *target)
+		DrawMode mode, TFB_Image *target, BYTE thickness)
 {
 	LockMutex (target->mutex);
-	TFB_DrawCanvas_Line (x1, y1, x2, y2, color, mode, target->NormalImg);
+	TFB_DrawCanvas_Line (x1, y1, x2, y2, color, mode, target->NormalImg, thickness);
 	target->dirty = TRUE;
 	UnlockMutex (target->mutex);
 }

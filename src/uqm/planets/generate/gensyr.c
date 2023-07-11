@@ -80,7 +80,6 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 	GeneratePlanets (solarSys);	
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
 	if (!PrimeSeed)
@@ -88,6 +87,7 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
+		CheckForHabitable (solarSys);
 	}
 
 	if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
@@ -107,7 +107,6 @@ GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
 		else
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].alternate_colormap = NULL;
 
 		if (PrimeSeed)
 		{
@@ -143,9 +142,10 @@ GenerateSyreen_generateName (const SOLARSYS_STATE *solarSys,
 static bool
 GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
+
 	if (matchWorld (solarSys, world,
 			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-	{
+	{	/* Gaia */
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
 				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
@@ -155,9 +155,23 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		GenerateDefault_generateOrbital (solarSys, world);
 
 		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 19;
-		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-		solarSys->SysInfo.PlanetInfo.Weather = 0;
-		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 9 / 10;
+		if (!DIF_HARD)
+		{
+			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+			solarSys->SysInfo.PlanetInfo.Weather = 0;
+		}
+		solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 9 / 10;
+
+		if (!PrimeSeed)
+		{
+			solarSys->SysInfo.PlanetInfo.PlanetDensity = 97;
+			solarSys->SysInfo.PlanetInfo.PlanetRadius = 85;
+			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 82;
+			solarSys->SysInfo.PlanetInfo.RotationPeriod = 244;
+			solarSys->SysInfo.PlanetInfo.AxialTilt = 3;
+			solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+		}
 
 		return true;
 	}
@@ -169,6 +183,7 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{
 			/* Starbase */
 			InitCommunication (SYREEN_CONVERSATION);
+
 			return true;
 		}
 		else
@@ -176,9 +191,9 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			/* Starbase */
 			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				SetRelStringTableIndex (
 					CaptureStringTable (
-						LoadStringTable (URQUAN_BASE_STRTAB)), 0);
+						LoadStringTable (SYREEN_BASE_STRTAB)
+					);
 
 			DoDiscoveryReport (MenuSounds);
 
@@ -191,7 +206,7 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		}
 	}
 
-	GenerateDefault_generateOrbital(solarSys, world);
+	GenerateDefault_generateOrbital (solarSys, world);
 
 	return true;
 }

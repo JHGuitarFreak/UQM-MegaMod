@@ -37,6 +37,7 @@
 #include "state.h"
 #include "libs/mathlib.h"
 #include "lua/luadebug.h"
+#include "tactrans.h"
 
 #include <stdio.h>
 #include <errno.h>
@@ -128,7 +129,7 @@ resetEnergyBattle (void)
 	
 	if (!(GLOBAL (CurrentActivity) & IN_BATTLE) ||
 			inHQSpace())
-		return;	
+		return;
 
 	if (PlayerControl[1] & HUMAN_CONTROL){
 		StarShipPtr = findPlayerShip (NPC_PLAYER_NUM);
@@ -147,6 +148,64 @@ resetEnergyBattle (void)
 	OldContext = SetContext (StatusContext);
 	DeltaEnergy (StarShipPtr->hShip, delta);
 	SetContext (OldContext);
+}
+
+// Kills the opponent of the player controlled ship
+static void
+scuttleOpponent (void)
+{
+	STARSHIP *StarShipPtr;
+	COUNT delta;
+	CONTEXT OldContext;
+	
+	if (!(GLOBAL (CurrentActivity) & IN_BATTLE) ||
+			inHQSpace())
+		return;
+
+	if (PlayerControl[1] & HUMAN_CONTROL)
+		StarShipPtr = findPlayerShip (RPG_PLAYER_NUM);
+	else if (PlayerControl[0] & HUMAN_CONTROL)
+		StarShipPtr = findPlayerShip (NPC_PLAYER_NUM);
+	else
+		StarShipPtr = NULL;
+
+	if (StarShipPtr == NULL || StarShipPtr->RaceDescPtr == NULL)
+		return;
+
+	delta = StarShipPtr->RaceDescPtr->ship_info.crew_level;
+
+	if (delta > 0)
+	{
+		OldContext = SetContext (StatusContext);
+		DeltaCrew (StarShipPtr->hShip, -delta);
+		SetContext (OldContext);
+		ship_death (StarShipPtr->hShip);
+	}
+}
+
+// Zeroes out all ship's velocity, freezing them in their tracks
+static void
+HaltShips (void)
+{
+	STARSHIP *StarShipPtr;
+	ELEMENT *ElementPtr;
+	BYTE i;
+
+	if (!(GLOBAL (CurrentActivity) & IN_BATTLE) ||
+		inHQSpace ())
+		return;
+
+	for (i = 0; i < 2; i++)
+	{
+		StarShipPtr = findPlayerShip (i);
+
+		if (StarShipPtr == NULL || StarShipPtr->RaceDescPtr == NULL)
+			return;
+
+		LockElement (StarShipPtr->hShip, &ElementPtr);
+		ZeroVelocityComponents (&ElementPtr->velocity);
+		UnlockElement (StarShipPtr->hShip);
+	}
 }
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
@@ -190,7 +249,7 @@ debugKeyPressedSynchronous (void)
 	{
 		printf("Debug Key Activated\n\n");
 		equipShip ();
-		showSpheres (TRUE);
+		showSpheres (FALSE);
 	}
 
 	forwardToNextEvent (TRUE);
@@ -232,6 +291,23 @@ debugKeyPressedSynchronous (void)
 	DebugKeyPressed = TRUE;
 }
 
+void
+debugKey2PressedSynchronous (void)
+{
+	scuttleOpponent ();
+}
+
+void
+debugKey3PressedSynchronous (void)
+{
+	HaltShips ();
+}
+
+void
+debugKey4PressedSynchronous (void)
+{
+}
+
 // Can be called on any thread, but usually on main()
 // This function is called asynchronously wrt the game logic thread,
 // which means locking applies. Use carefully.
@@ -246,7 +322,6 @@ debugKeyPressed (void)
 		// Tests
 		Scale_PerfTest ();
 #endif
-
 		// Informational:
 		dumpStrings (stdout);
 		dumpPlanetTypes (stderr);
@@ -263,6 +338,21 @@ debugKeyPressed (void)
 		uio_debugInteractive (stdin, stdout, stderr);
 		luaUqm_debug_run ();
 	}
+}
+
+void
+debugKey2Pressed (void)
+{
+}
+
+void
+debugKey3Pressed (void)
+{
+}
+
+void
+debugKey4Pressed (void)
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -408,6 +498,12 @@ raceName (BYTE func_index)
 			return "Syreen";
 		case KOHR_AH_ID:
 			return "Kohr-Ah";
+		case ANDROSYNTH_ID:
+			return "Androsynth";
+		case CHENJESU_ID:
+			return "Chenjesu";
+		case MMRNMHRM_ID:
+			return "Mmrnmhrm";
 		default:
 			// Should not happen
 			return "???";
@@ -676,6 +772,31 @@ showSpheres (BOOLEAN Animated)
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		}
 	}
+
+	if (EXTENDED)
+	{
+		HFLEETINFO hSyreen = GetStarShipFromIndex (
+				&GLOBAL (avail_race_q), SYREEN_SHIP);
+		FLEET_INFO *SyreenPtr = LockFleetInfo (
+				&GLOBAL (avail_race_q), hSyreen);
+		HFLEETINFO hChmmr = GetStarShipFromIndex (
+				&GLOBAL (avail_race_q), CHMMR_SHIP);
+		FLEET_INFO *ChmmrPtr = LockFleetInfo (
+				&GLOBAL (avail_race_q), hChmmr);
+
+		SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
+		SyreenPtr->loc.x = 4125;
+		SyreenPtr->loc.y = 3770;
+		StartSphereTracking (SYREEN_SHIP);
+
+		ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
+		ChmmrPtr->loc.x = 577;
+		ChmmrPtr->loc.y = 2509;
+		StartSphereTracking (CHMMR_SHIP);
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -709,7 +830,6 @@ void
 forAllStars (void (*callback) (STAR_DESC *, void *), void *arg)
 {
 	int i;
-	extern STAR_DESC starmap_array[];
 
 	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
 		callback (&star_array[i], arg);
@@ -1223,6 +1343,66 @@ dumpWorld (FILE *out, const PLANET_DESC *world)
 	fprintf (out, "          Bio: %4d    Min: %4d\n",
 			calculateBioValue (pSolarSysState, world),
 			calculateMineralValue (pSolarSysState, world));
+}
+
+void
+fprintfWorld (const PLANET_DESC *world)
+{
+	PLANET_INFO *info;
+	UNICODE buf[200];
+	FILE *fp = fopen ("planetLog.txt", "a");
+	POINT universe = CurStarDescPtr->star_pt;
+
+	if (world->data_index == HIERARCHY_STARBASE
+		|| world->data_index == SA_MATRA
+		|| world->data_index == DESTROYED_STARBASE
+		|| world->data_index == PRECURSOR_STARBASE)
+	{
+		return;
+	}
+
+	fprintf (fp, "Coords:     %03u.%01u : %03u.%01u\n",
+			universe.x / 10, universe.x % 10,
+			universe.y / 10, universe.y % 10);
+	
+	GetClusterName (CurStarDescPtr, buf);
+
+	fprintf (fp, "Star:       %s\n", buf);
+
+	GetPlanetTitle (buf, sizeof (buf));
+
+	if (strcmp (buf, GLOBAL_SIS (PlanetName)) != 0)
+		fprintf (fp, "Planet:     %s\n", GLOBAL_SIS (PlanetName));
+
+	info = &pSolarSysState->SysInfo.PlanetInfo;
+	fprintf (fp, "World:      %s\n\n", buf);
+	fprintf (fp, "DistToSun:  %d\n", info->PlanetToSunDist);
+	fprintf (fp, "Atmosphere: %d\n", info->AtmoDensity);
+	fprintf (fp, "Temp:       %d\n", info->SurfaceTemperature);
+	fprintf (fp, "Weather:    %d\n", info->Weather);
+	fprintf (fp, "Tectonics:  %d\n\n", info->Tectonics);
+	fprintf (fp, "Density:    %d\n", info->PlanetDensity);
+	fprintf (fp, "Radius:     %d\n", info->PlanetRadius);
+	fprintf (fp, "Gravity:    %d\n", info->SurfaceGravity);
+	fprintf (fp, "Day:        %d\n", info->RotationPeriod);
+	fprintf (fp, "AxialTilt:  %d\n\n", info->AxialTilt);
+
+	if (world->data_index & PLANET_SHIELDED)
+	{	// Slave-shielded planet
+		fprintf (fp, "LifeChance: %d\n", info->LifeChance);
+		fprintf (fp, "____________________________________\n\n");
+		fclose (fp);
+		return;
+	}
+	else
+		fprintf (fp, "LifeChance: %d\n", info->LifeChance);
+
+	fprintf (fp, "Bio: %4d    Min: %4d\n",
+			calculateBioValue (pSolarSysState, world),
+			calculateMineralValue (pSolarSysState, world));
+	fprintf (fp, "____________________________________\n\n");
+
+	fclose (fp);
 }
 
 COUNT
@@ -1744,7 +1924,7 @@ dumpStrings (FILE *out)
 				stringI >= categories[categoryI + 1].base)
 			categoryI++;
 		fprintf(out, "[ %s + %d ]  %s\n", categories[categoryI].name,
-				stringI - categories[categoryI].base, GAME_STRING(stringI));
+				stringI - categories[categoryI].base, GAME_STRING((COUNT)stringI));
 	}
 }
 
@@ -1826,7 +2006,7 @@ countVisibleContexts (void)
 static void
 drawContext (CONTEXT context, double hue /* no pun intended */)
 {
-	FRAME drawFrame;
+	//FRAME drawFrame; unused
 	CONTEXT oldContext;
 	FONT oldFont;
 	DrawMode oldMode;
@@ -1834,13 +2014,13 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	Color rectCol;
 	Color lineCol;
 	Color textCol;
-	bool haveClippingRect;
+	//bool haveClippingRect; unused
 	RECT rect;
 	LINE line;
 	TEXT text;
 	POINT p1, p2, p3, p4;
 
-	drawFrame = GetContextFGFrame ();
+	//drawFrame = GetContextFGFrame (); unused
 	rectCol = hsvaToRgba (hue, 1.0, 0.5, 100);
 	lineCol = hsvaToRgba (hue, 1.0, 1.0, 90);
 	textCol = lineCol;
@@ -1849,7 +2029,7 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	oldContext = SetContext (context);
 	
 	// Get the clipping rectangle of the specified context.
-	haveClippingRect = GetContextClipRect (&rect);
+	GetContextClipRect (&rect);
 
 	// Switch back the old context; we're going to draw in it.
 	(void) SetContext (oldContext);
@@ -1866,12 +2046,12 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	DrawFilledRectangle (&rect);
 
 	SetContextForeGroundColor (lineCol);
-	line.first = p1; line.second = p2; DrawLine (&line);
-	line.first = p2; line.second = p4; DrawLine (&line);
-	line.first = p1; line.second = p3; DrawLine (&line);
-	line.first = p3; line.second = p4; DrawLine (&line);
-	line.first = p1; line.second = p4; DrawLine (&line);
-	line.first = p2; line.second = p3; DrawLine (&line);
+	line.first = p1; line.second = p2; DrawLine (&line, 1);
+	line.first = p2; line.second = p4; DrawLine (&line, 1);
+	line.first = p1; line.second = p3; DrawLine (&line, 1);
+	line.first = p3; line.second = p4; DrawLine (&line, 1);
+	line.first = p1; line.second = p4; DrawLine (&line, 1);
+	line.first = p2; line.second = p3; DrawLine (&line, 1);
 	// Gimme C'99! So I can do:
 	//     DrawLine ((LINE) { .first = p1, .second = p2 })
 

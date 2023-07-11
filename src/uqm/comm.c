@@ -46,12 +46,12 @@
 #include "libs/sound/trackplayer.h"
 #include "libs/log.h"
 #include "menustat.h"
+// for free_gravity_well() & load_gravity_well()
+#include "cons_res.h"
 
 #include <ctype.h>
 
 #define MAX_RESPONSES 8
-#define BACKGROUND_VOL (usingSpeech && !VolasPackPresent ? (NORMAL_VOLUME / 2) : NORMAL_VOLUME)
-#define FOREGROUND_VOL NORMAL_VOLUME
 
 // Oscilloscope frame rate
 // Should be <= COMM_ANIM_RATE
@@ -77,11 +77,11 @@ static CommIntroMode curIntroMode = CIM_DEFAULT;
 static TimeCount fadeTime;
 
 BOOLEAN IsProbe;
-BOOLEAN IsAltSong;
 
 // Dark mode
 BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
+BYTE altResFlags = 0;
 static COUNT fadeIndex;
  
 typedef struct response_entry
@@ -122,11 +122,12 @@ static CUSTOM_BASELINE *cur_node; // not null if current sentence number has bee
 // Used to disable/enable talking animation
 // Better than current because it works with rewind
 static BOOLEAN haveTalkingLock = FALSE;
-static COUNT startSentence, endSentence; 
+static COUNT startSentence, endSentence;
 
 static ENCOUNTER_STATE *pCurInputState;
 
 static BOOLEAN clear_subtitles;
+static BOOLEAN next_page = FALSE;
 static TEXT SubtitleText;
 static const UNICODE *last_subtitle;
 
@@ -141,8 +142,10 @@ RECT CommWndRect = {
 };
 
 static void ClearSubtitles (void);
-static void CheckSubtitles (void);
+static void CheckSubtitles (BOOLEAN really);
 static void RedrawSubtitles (void);
+static void runCommAnimFrame (void);
+static BOOLEAN PauseSubtitles(BOOLEAN force);
 
 
 /* _count_lines - sees how many lines a given input string would take to
@@ -171,50 +174,6 @@ _count_lines (TEXT *pText)
 	return numLines;
 }
 
-const SIZE
-ReContextualizeLeading (void)
-{
-	switch (CommData.AlienConv)
-	{
-	case UMGAH_CONVERSATION:
-		return RES_SCALE(8);
-	case COMMANDER_CONVERSATION:
-		return RES_SCALE(9);
-	case ARILOU_CONVERSATION:
-	case ZOQFOTPIK_CONVERSATION:
-		return RES_SCALE(10);
-	case CHMMR_CONVERSATION:
-	case DRUUGE_CONVERSATION:
-	case MELNORME_CONVERSATION:
-	case PKUNK_CONVERSATION:
-	case SLYLANDRO_CONVERSATION:
-	case SUPOX_CONVERSATION:
-	case TALKING_PET_CONVERSATION:
-	case THRADD_CONVERSATION:
-	case VUX_CONVERSATION:
-	case YEHAT_CONVERSATION:
-	case YEHAT_REBEL_CONVERSATION:
-		return RES_SCALE(11);
-	case ILWRATH_CONVERSATION:
-		return RES_SCALE(12);
-	case SPATHI_CONVERSATION:
-		return RES_SCALE(14);
-	case SLYLANDRO_HOME_CONVERSATION:
-	case UTWIG_CONVERSATION:
-		return RES_SCALE(15);
-	case BLACKURQ_CONVERSATION:
-	case MYCON_CONVERSATION:
-	case ORZ_CONVERSATION:
-	case SHOFIXTI_CONVERSATION:
-	case SYREEN_CONVERSATION:
-	case URQUAN_CONVERSATION:
-	case URQUAN_DRONE_CONVERSATION:
-		return RES_SCALE(17);
-	default:
-		return 0;
-	}
-}
-
 // status == -1: draw highlighted player dialog option
 // status == -2: draw non-highlighted player dialog option
 // status == -4: use current context, and baseline from pTextIn
@@ -232,9 +191,11 @@ add_text (int status, TEXT *pTextIn)
 	static COORD last_baseline;
 	BOOLEAN eol;
 	CONTEXT OldContext = NULL;
-	COUNT computerOn = 0;
+	RECT arrow;
 	
 	BatchGraphics ();
+
+	GetFrameRect (SetAbsFrameIndex (ActivityFrame, 6), &arrow);
 
 	maxchars = (COUNT)~0;
 	if (status == 1)
@@ -261,34 +222,48 @@ add_text (int status, TEXT *pTextIn)
 		}
 
 		text_width = CommData.AlienTextWidth;
-		SetContextFont (CommData.AlienFont);
-		//GetContextFontLeading (&leading);
-
-		leading = ReContextualizeLeading();
+		if (CommData.AlienConv == ORZ_CONVERSATION && optOrzCompFont && 
+				CommData.AlienTalkDesc.AnimFlags & PAUSE_TALKING)
+			SetContextFont (ComputerFont);// Orz intro
+		else
+			SetContextFont (CommData.AlienFont);
+		GetContextFontLeading (&leading);
 
 		pText = pTextIn;
 	}
 	else if (GetContextFontLeading (&leading), status <= -4)
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8) - (TEXT_X_OFFS << 2));
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE (8)
+					- (TEXT_X_OFFS << 2)
+					- (arrow.extent.width + RES_SCALE (2)));
 
 		pText = pTextIn;
 	}
 	else
 	{
-		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE(8) - (TEXT_X_OFFS << 2));
+		text_width = (SIZE) (SIS_SCREEN_WIDTH - RES_SCALE (8)
+					- (TEXT_X_OFFS << 2)
+					- (arrow.extent.width + RES_SCALE (2)));
 
 		switch (status)
 		{
 			case -3:
-				// Unknown. Never reached; color matches the background color.
-				SetContextForeGroundColor (
-						BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
-				break;
+				{
+					// Unknown. Never reached; color matches the background color.
+					// reused to mimic DOS
+					if (!IsDarkMode)
+						SetContextForeGroundColor (
+								BUILD_COLOR (
+									MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
+					else
+						SetContextForeGroundColor(BLACK_COLOR);
+					break;
+				}
 			case -2:
 				{	// Not highlighted dialog options.
 					if (!IsDarkMode)
-						SetContextForeGroundColor (COMM_PLAYER_TEXT_NORMAL_COLOR);
+						SetContextForeGroundColor (
+								COMM_PLAYER_TEXT_NORMAL_COLOR);
 					else
 						SetContextForeGroundColor (
 								BUILD_COLOR_RGBA (0x00, 0x00, 0xAA, 0xFF));
@@ -297,17 +272,18 @@ add_text (int status, TEXT *pTextIn)
 			case -1:
 				{	// Currently highlighted dialog option.
 					if (!IsDarkMode)
-						SetContextForeGroundColor (COMM_PLAYER_TEXT_HIGHLIGHT_COLOR);
+						SetContextForeGroundColor (
+								COMM_PLAYER_TEXT_HIGHLIGHT_COLOR);
 					else
 						SetContextForeGroundColor (
-								BUILD_COLOR_RGBA(0x55, 0x55, 0xFF, 0xFF));
+								BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF));
 					break;
 				}
 		}
 
 		maxchars = pTextIn->CharCount;
 		locText = *pTextIn;
-		locText.baseline.x -= RES_SCALE(8); 
+		locText.baseline.x -= RES_SCALE (8);
 		locText.CharCount = (COUNT)~0;
 		locText.pStr = STR_BULLET;
 		font_DrawText (&locText);
@@ -361,106 +337,12 @@ add_text (int status, TEXT *pTextIn)
 		else
 		{
 			// Alien speech
-			if (CommData.AlienConv == ORZ_CONVERSATION)
+			if (CommData.AlienConv == ORZ_CONVERSATION && optOrzCompFont)
 			{
-				// BW : special case for the Orz conversations
-				// the character $ is recycled as a marker to
-				// switch from and to computer font
-				
-				const char *ptr;
-				RECT rect;
-				COORD baselinex = pText->baseline.x;
-				COORD width = 0;
-				COUNT remChars = pText->CharCount;
-					// Remaining chars until end of line within width
-				const char *bakptr;
-				COUNT bakChars = remChars;
-				COUNT bakcompOn = computerOn;
-				FONT bakFont = SetContextFont (ComputerFont);
-				
-				SetContextFont (bakFont);
-				ptr = pText->pStr;
-				bakptr = ptr;
-				
-				// We need to manually center the line because
-				// the computer font is larger than the Orzfont
-				
-				// This loop computes the width of the line
-				while (remChars > 0)
-				{
-					while ((*ptr != '$') && remChars > 0)
-					{
-						getCharFromString (&ptr);
-						remChars--;
-					}
-						
-					pText->CharCount -= remChars;
-					TextRect (pText, &rect, NULL);
-						
-					width += rect.extent.width;
-						
-					if (*ptr == '$')
-					{
-						getCharFromString (&ptr);
-						remChars--;
-						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
-							SetContextFont (ComputerFont);
-						else
-							SetContextFont (CommData.AlienFont);
-					}
-
-					pText->CharCount = remChars;
-					pText->pStr = ptr;
-				}
-
-				// This to simulate a centered line
-				pText->baseline.x = baselinex - (width >> 1);
-				pText->align = ALIGN_LEFT;
-				
-				// Put everything back in place for the
-				// actual display 
-				remChars = bakChars;
-				pText->CharCount = bakChars;
-				ptr = bakptr;
-				pText->pStr = bakptr;
-				computerOn = bakcompOn;
-				SetContextFont (bakFont);
-				
-				// This loop is used to look up for $
-				while (remChars > 0)
-				{
-					while ((*ptr != '$') && remChars > 0)
-					{
-						getCharFromString (&ptr);
-						remChars--;
-					}
-						
-					pText->CharCount -= remChars;
-					TextRect (pText, &rect, NULL);
-						
-					font_DrawTracedText (pText,
-							CommData.AlienTextFColor,
-							CommData.AlienTextBColor);
-						
-					pText->baseline.x += rect.extent.width;
-						
-					if (*ptr == '$')
-					{
-						getCharFromString (&ptr);
-						remChars--;
-						computerOn = 1 - computerOn;
-						if (computerOn && optOrzCompFont)
-							SetContextFont (ComputerFont);
-						else
-							SetContextFont (CommData.AlienFont);
-					}
-
-					pText->CharCount = remChars;
-					pText->pStr = ptr;
-				}
-				pText->baseline.x = baselinex;
-				pText->align = ALIGN_CENTER;
+				font_DrawTracedTextAlt (pText,
+					CommData.AlienTextFColor,
+					CommData.AlienTextBColor,
+					ComputerFont, '*');
 			}
 			else
 			{
@@ -496,8 +378,8 @@ GetCustomBaseline (COUNT i)
 	if (head_node == NULL)
 		return;
 	else
-	{// Set cur_node if current sentence number equals to one of list indices
-	 // MUST be NULL otherwise
+	{	// Set cur_node if current sentence number equals to one of list
+		// indices. MUST be NULL otherwise
 		cur_node = head_node;
 		while (cur_node != NULL && cur_node->index != i)
 			cur_node = cur_node->next;
@@ -581,7 +463,7 @@ getLineWithinWidth(TEXT *pText, const char **startNext,
 
 	//GetContextClipRect (&rect);
 
-	eol = FALSE;	
+	eol = FALSE;
 	done = FALSE;
 	oldCount = 1;
 	charCount = 0;
@@ -639,8 +521,8 @@ DrawCommBorder (RECT r)
 
 	// Expand the context clip-rect so that we can tweak the existing border
 	clipRect = oldClipRect;
-	clipRect.corner.x -= RES_SCALE(1);
-	clipRect.extent.width += RES_SCALE(2);
+	clipRect.corner.x -= RES_SCALE (1);
+	clipRect.extent.width += RES_SCALE (2);
 	SetContextClipRect (&clipRect);
 
 	// Border foreground
@@ -652,17 +534,17 @@ DrawCommBorder (RECT r)
 
 	// Border top shadow line
 	SetContextForeGroundColor (SIS_BOTTOM_RIGHT_BORDER_COLOR);
-	r.extent.height = RES_SCALE(1);
+	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	// Border bottom shadow line
 	SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
-	r.corner.y += SLIDER_HEIGHT - RES_SCALE(1);
+	r.corner.y += SLIDER_HEIGHT - RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
 	SetContextClipRect (&oldClipRect);
 
-	DrawBorder (11, FALSE);
+	DrawBorder (11);
 }
 
 static void
@@ -706,6 +588,36 @@ uninit_communication (void)
 }
 
 static void
+RefreshResponsesSpecial (ENCOUNTER_STATE *pES)
+{	// PC style repsonses
+	COORD y;
+	BYTE response;
+	SIZE leading;
+
+	SetContext (SpaceContext);
+	GetContextFontLeading (&leading);
+	BatchGraphics ();
+
+	DrawSISComWindow ();
+	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO (optWhichFonts));
+	for (response = pES->top_response; response < pES->num_responses;
+		++response)
+	{
+		pES->response_list[response].response_text.baseline.x =
+				TEXT_X_OFFS + RES_SCALE (8);
+		pES->response_list[response].response_text.baseline.y =
+				y + leading;
+		pES->response_list[response].response_text.align = ALIGN_LEFT;
+		if (response == pES->cur_response)
+			y = add_text (-1, &pES->response_list[response].response_text);
+		else
+			y = add_text (-3, &pES->response_list[response].response_text);
+	}
+
+	UnbatchGraphics ();
+}
+
+static void
 RefreshResponses (ENCOUNTER_STATE *pES)
 {
 	COORD y;
@@ -719,12 +631,14 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	BatchGraphics ();
 
 	DrawSISComWindow ();
-	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1);
+	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO (optWhichFonts));
 	for (response = pES->top_response; response < pES->num_responses;
 			++response)
 	{
-		pES->response_list[response].response_text.baseline.x = TEXT_X_OFFS + RES_SCALE(8);
-		pES->response_list[response].response_text.baseline.y = y + leading;
+		pES->response_list[response].response_text.baseline.x =
+					TEXT_X_OFFS + RES_SCALE (8);
+		pES->response_list[response].response_text.baseline.y =
+					y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
 		if (response == pES->cur_response)
 			y = add_text (-1, &pES->response_list[response].response_text);
@@ -734,12 +648,12 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 	if (pES->top_response)
 	{
-		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(1);
+		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (1);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 6);
 	}
 	else if (y > SIS_SCREEN_HEIGHT)
 	{
-		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE(2);
+		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE (2);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 7);
 	}
 	else
@@ -749,7 +663,7 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 		RECT r;
 
 		GetFrameRect (s.frame, &r);
-		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE(1);
+		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE (1);
 		DrawStamp (&s);
 	}
 
@@ -767,8 +681,8 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 	{
 		TEXT ct;
 
-		ct.baseline.x = SIS_SCREEN_WIDTH >> 1;
-		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE(13); 
+		ct.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		ct.baseline.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (13);
 		ct.align = ALIGN_CENTER;
 		ct.CharCount = (COUNT)~0;
 
@@ -785,7 +699,7 @@ FeedbackPlayerPhrase (UNICODE *pStr)
 			SetContextForeGroundColor (
 					BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF));
 
-		ct.baseline.y += RES_SCALE(16); 
+		ct.baseline.y += RES_SCALE (16);
 		ct.pStr = pStr;
 		add_text (-4, &ct);
 	}
@@ -846,6 +760,19 @@ UpdateAnimations (BOOLEAN paused)
 	SetContext (OldContext);
 }
 
+void
+UpdateDuty (BOOLEAN talk)
+{
+	if (talk)
+	{
+		if (!TalkingFinished)
+			setRunTalkingAnim ();
+		CheckSubtitles (TRUE);
+		UpdateAnimations (FALSE);
+	}
+	UpdateSpeechGraphics ();
+}
+
 RECT DarkModeRect[6];
 
 void
@@ -888,12 +815,7 @@ InitUIRects (BOOLEAN state)
 				SIS_SCREEN_HEIGHT - (SLIDER_Y + SLIDER_HEIGHT));
 	}
 	else
-	{
-		BYTE i;
-
-		for (i = 0; i < ARRAY_SIZE (DarkModeRect); i++)
-			memset (&DarkModeRect[i], 0, sizeof DarkModeRect[i]);
-	}
+		memset (&DarkModeRect, 0, sizeof (DarkModeRect));
 }
 
 static void
@@ -906,6 +828,11 @@ FadePlayerUI (void)
 		static TimeCount NextTime;
 		CONTEXT OldContext;
 		BYTE i;
+
+		// emulating as close as possible PC-DOS text glow
+		static const Color DarkModeFGTextColor[] = DARKMODE_FG_TABLE;
+		// it was not instantanious, but also looked like fading shenanigans
+		static const Color DarkModeBGTextColor[] = DARKMODE_BG_TABLE;
 
 		if (fadeIndex > 50)
 		{
@@ -924,11 +851,20 @@ FadePlayerUI (void)
 				BUILD_COLOR_RGBA (
 					0x00, 0x00, 0x00, DRAW_FACTOR_1 * 0.02 * fadeIndex
 				));
+				
 		BatchGraphics ();
 
 		for (i = 0; i < (ARRAY_SIZE (DarkModeRect) - 1); i++)
 			DrawFilledRectangle (&DarkModeRect[i]);
 
+		if (fadeIndex < 16)
+		{
+			ClearSubtitles ();
+			CommData.AlienTextFColor = DarkModeFGTextColor[fadeIndex];
+			CommData.AlienTextBColor = DarkModeBGTextColor[fadeIndex];
+			RedrawSubtitles ();
+		}
+		
 		if (cwLock)
 			DrawFilledRectangle (&DarkModeRect[5]);
 
@@ -973,71 +909,145 @@ DoTalkSegue (TALKING_STATE *pTS)
 		return FALSE;
 	}
 	
-	if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (optSpeech || optSmoothScroll == OPT_3DO || (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
 	{
-		JumpTrack ();
-		pTS->ended = true;
-		return FALSE;
-	}
+		if (PulsedInputState.menu[KEY_MENU_CANCEL])
+		{
+			JumpTrack ();
+			pTS->ended = true;
+			return FALSE;
+		}
 
-	if (optSmoothScroll == OPT_PC)
-	{
-		left = PulsedInputState.menu[KEY_MENU_LEFT] != 0;
-		right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0;
-	}
-	else if (optSmoothScroll == OPT_3DO)
-	{
-		left = CurrentInputState.menu[KEY_MENU_LEFT] != 0;
-		right = CurrentInputState.menu[KEY_MENU_RIGHT] != 0;
-	}
+		if (optSmoothScroll == OPT_PC || !optSpeech)
+		{
+			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0;
+			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0;
+		}
+		else if (optSmoothScroll == OPT_3DO)
+		{
+			left = CurrentInputState.menu[KEY_MENU_LEFT] != 0;
+			right = CurrentInputState.menu[KEY_MENU_RIGHT] != 0;
+		}
 
 #if DEMO_MODE || CREATE_JOURNAL
-	left = false;
-	right = false;
+		left = false;
+		right = false;
 #endif
-	curTrack = PlayingTrack();
+		curTrack = PlayingTrack();
 
-	if (right)
-	{
-		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 3));
-		if (optSmoothScroll == OPT_PC)
-			FastForward_Page ();
-		else if (optSmoothScroll == OPT_3DO)
-			FastForward_Smooth ();
-		pTS->seeking = true;
-	}
-	else if (left || pTS->rewind)
-	{
-		pTS->rewind = false;
-		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 4));
-		if (optSmoothScroll == OPT_PC)
-			FastReverse_Page ();
-		else if (optSmoothScroll == OPT_3DO)
-			FastReverse_Smooth ();
-		pTS->seeking = true;
-	}
-	else if (pTS->seeking)
-	{
-		// This is only done once the seeking is over (in the smooth
-		// scroll case, once the user releases the seek button)
-		pTS->seeking = false;
-		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 2));
+		if (right)
+		{
+			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 3));
+			if (optSmoothScroll == OPT_PC || !optSpeech)
+				FastForward_Page ();
+			else if (optSmoothScroll == OPT_3DO)
+				FastForward_Smooth ();
+			pTS->seeking = true;
+		}
+		else if (left || pTS->rewind)
+		{
+			pTS->rewind = false;
+			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 4));
+			if (optSmoothScroll == OPT_PC || !optSpeech)
+				FastReverse_Page ();
+			else if (optSmoothScroll == OPT_3DO)
+				FastReverse_Smooth ();
+			pTS->seeking = true;
+		}
+		else if (pTS->seeking)
+		{
+			// This is only done once the seeking is over (in the smooth
+			// scroll case, once the user releases the seek button)
+			pTS->seeking = false;
+			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 2));
+		}
+		else
+		{
+			// This used to have a buggy guard condition, which
+			// would cause the animations to remain paused in a couple cases
+			// after seeking back to the beginning.
+			// Broken cases were: Syreen "several hours later" and Starbase
+			// VUX Beast analysis by the scientist.
+
+			// Kruzen - Now paused animations handled differently
+			CheckSubtitles (curTrack && curTrack <= pTS->waitTrack);
+		}
 	}
 	else
 	{
-		// This used to have a buggy guard condition, which
-		// would cause the animations to remain paused in a couple cases
-		// after seeking back to the beginning.
-		// Broken cases were: Syreen "several hours later" and Starbase
-		// VUX Beast analysis by the scientist.
+		curTrack = PlayingTrack ();
 
-		// Kruzen - Now paused animations handled differently
-		// This check avoids text redraw 1 tick early
-		// Current track set in AlienTalkSegue(x) reached
-		// But didn't return anything yet
-		// Preventing subs blinking during fade in in syreen.c
-		if (curTrack && curTrack <= pTS->waitTrack)
-			CheckSubtitles ();
+		if (PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| PulsedInputState.menu[KEY_MENU_RIGHT])
+		{
+			FastForward_Page ();
+			FlushInput ();
+			next_page = TRUE;
+			return TRUE;
+		}
+		else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+		{
+			JumpTrack();
+			pTS->ended = true;
+			return FALSE;
+		}
+		else if (PauseSubtitles (next_page))
+		{
+			/* I would like to NOT count ellipses but whatever */
+			DWORD delay = RecalculateDelay (strlen (SubtitleText.pStr), FALSE);
+			BYTE read_speed = speed_array[GLOBAL (glob_flags) & READ_SPEED_MASK];
+
+			if (delay > 0 || read_speed == VERY_SLOW)
+			{
+				BOOLEAN awake = FALSE;
+				BOOLEAN block = (!wantTalkingAnim () || IsDarkMode
+								|| !haveTalkingAnim ());
+				TimeCount TimeOut;
+
+				PauseTrack ();
+
+				if (!block)
+					freezeTalkingAnim ();
+				
+				TimeOut = GetTimeCounter () + delay;
+
+				while (!awake)
+				{
+					if (read_speed != VERY_SLOW
+							&& GetTimeCounter () >= TimeOut)
+						awake = TRUE;
+
+					UpdateCommGraphics ();
+					UpdateInputState ();
+
+					if (PulsedInputState.menu[KEY_MENU_CANCEL]
+						|| PulsedInputState.menu[KEY_MENU_RIGHT]
+						|| (GLOBAL( CurrentActivity) & CHECK_ABORT))
+					{
+						awake = TRUE;
+					}
+					else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+					{
+						JumpTrack ();
+						pTS->ended = true;
+
+						if (!block)
+							unFreezeTalkingAnim ();
+
+						return FALSE;
+					}
+				}
+
+				if (!block)
+					unFreezeTalkingAnim ();
+
+				ResumeTrack ();
+			}
+		}
+
+		next_page = FALSE;
+
+		CheckSubtitles (curTrack && curTrack <= pTS->waitTrack);
 	}
 
 	// XXX: When seeking, all animations (talking and ambient) stop
@@ -1099,10 +1109,9 @@ TalkSegue (COUNT wait_track)
 	talkingState.waitTrack = wait_track;
 	DoInput (&talkingState, FALSE);
 
-	ClearSubtitles ();
-
 	if (talkingState.ended)
 	{	// reached the end; set STOP icon
+		ClearSubtitles ();
 		SetSliderImage (SetAbsFrameIndex (ActivityFrame, 8));
 		cwLock = FALSE;// Do not update comWindow
 	}
@@ -1123,7 +1132,7 @@ CommIntroTransition (void)
 {
 	if (curIntroMode == CIM_CROSSFADE_SCREEN)
 	{
-		ScreenTransition (optIPScaler, NULL);
+		ScreenTransition (optScrTrans, NULL);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_CROSSFADE_SPACE)
@@ -1133,12 +1142,12 @@ CommIntroTransition (void)
 		r.corner.y = SIS_ORG_Y;
 		r.extent.width = SIS_SCREEN_WIDTH;
 		r.extent.height = SIS_SCREEN_HEIGHT;
-		ScreenTransition (optIPScaler, &r);
+		ScreenTransition (optScrTrans, &r);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_CROSSFADE_WINDOW)
 	{
-		ScreenTransition (optIPScaler, &CommWndRect);
+		ScreenTransition (optScrTrans, &CommWndRect);
 		UnbatchGraphics ();
 	}
 	else if (curIntroMode == CIM_FADE_IN_SCREEN)
@@ -1167,6 +1176,9 @@ AlienTalkSegue (COUNT wait_track)
 
 	if (!pCurInputState->Initialized)
 	{
+		BYTE AlienConv = CommData.AlienConv;
+		MUSIC_REF AlienSong = CommData.AlienSong;
+
 		InitSpeechGraphics ();
 		SetColorMap (GetColorMapAddress (CommData.AlienColorMap));
 		SetContext (AnimContext);
@@ -1176,10 +1188,29 @@ AlienTalkSegue (COUNT wait_track)
 		
 		pCurInputState->Initialized = TRUE;
 
-		PlayMusic (CommData.AlienSong, TRUE, 1);
-		SetMusicVolume (BACKGROUND_VOL);
+		SetMusicVolume (MUTE_VOLUME);
+		PlayMusic (AlienSong, TRUE, 1);
+
+		if (OkayToResume ())
+		{
+			SeekMusic (GetMusicPosition ());
+			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
+		}
+		else
+			SetMusicVolume (BACKGROUND_VOL);
 
 		InitCommAnimations ();
+
+		if (optScrTrans && !optSpeech)
+		{	// short pause to compensate instant fading (conditions to be adjusted)
+			// I think it is for optIPScaler
+			TimeCount timeout = GetTimeCounter() + ONE_SECOND / 4;
+			while (GetTimeCounter() < timeout)
+			{
+				UpdateDuty(FALSE);
+				UpdateAnimations(FALSE);
+			}
+		}
 
 		LastActivity &= ~CHECK_LOAD;
 	}
@@ -1205,7 +1236,8 @@ typedef struct summary_state
 
 static void 
 remove_char_from_string (UNICODE* str, const UNICODE c)
-{	// MB: Hack for removing '$' characters from Orz dialogue when viewing summary conversation - Used by DoConvSummary below
+{	// MB: Hack for removing '$' characters from Orz dialogue when viewing
+	// summary conversation - Used by DoConvSummary below
 	UNICODE *pr = str, *pw = str;
 
 	while (*pr)
@@ -1219,7 +1251,7 @@ remove_char_from_string (UNICODE* str, const UNICODE c)
 static BOOLEAN
 DoConvSummary (SUMMARY_STATE *pSS)
 {
-#define DELTA_Y_SUMMARY RES_SCALE(8)
+#define DELTA_Y_SUMMARY RES_SCALE (8)
 #define MAX_SUMM_ROWS (SLIDER_Y / DELTA_Y_SUMMARY) - 1
 
 	if (!pSS->Initialized)
@@ -1265,10 +1297,11 @@ DoConvSummary (SUMMARY_STATE *pSS)
 
 		SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
-		r.extent.width -= RES_SCALE(2 + 2);
-		t.baseline.x = RES_SCALE(2); 
+		r.extent.width -= RES_SCALE (2 + 2);
+		t.baseline.x = RES_SCALE (2); 
 		t.align = ALIGN_LEFT;
 		t.baseline.y = DELTA_Y_SUMMARY;
+
 		SetContextFont (TinyFont);
 
 		for (row = 0; row < MAX_SUMM_ROWS && pSS->NextSub;
@@ -1290,11 +1323,13 @@ DoConvSummary (SUMMARY_STATE *pSS)
 
 			t.CharCount = (COUNT)~0;
 			for ( ; row < MAX_SUMM_ROWS &&
-					!getLineWithinWidth (&t, &next, r.extent.width, (COUNT)~0);
+					!getLineWithinWidth (
+						&t, &next, r.extent.width, (COUNT)~0);
 					++row)
 			{
 				if (CommData.AlienConv == ORZ_CONVERSATION)
-				{	// MB: nasty hack: remove '$'s from conversation for Orz
+				{	// MB: nasty hack: remove '$'s from conversation for
+					// Orz
 					UNICODE my_copy[128];
 					
 					strcpy (my_copy, t.pStr);
@@ -1338,7 +1373,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 			TEXT mt;
 			UNICODE buffer[128];
 
-			mt.baseline.x = SIS_SCREEN_WIDTH >> 1;
+			mt.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 			mt.baseline.y = t.baseline.y;
 			mt.align = ALIGN_CENTER;
 			snprintf (buffer, sizeof (buffer), "%s%s%s", // "MORE"
@@ -1390,7 +1425,20 @@ SelectResponse (ENCOUNTER_STATE *pES)
 			&pES->response_list[pES->cur_response].response_text;
 	utf8StringCopy (pES->phrase_buf, sizeof pES->phrase_buf,
 			response_text->pStr);
-	FeedbackPlayerPhrase (pES->phrase_buf);
+			
+	if (!optSpeech && optSmoothScroll == OPT_PC)
+	{	// short pause after choosing response to mimic PC behaviour
+		TimeCount timeout = GetTimeCounter () + ONE_SECOND / 2;
+		RefreshResponsesSpecial (pES);
+		while (GetTimeCounter () < timeout)
+		{
+			UpdateDuty (FALSE);
+			UpdateAnimations (FALSE);
+		}
+	}
+	else
+		FeedbackPlayerPhrase (pES->phrase_buf);
+		
 	StopTrack ();
 	ClearSubtitles ();
 	SetSliderImage (SetAbsFrameIndex (ActivityFrame, 2));
@@ -1458,7 +1506,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	else
 	{
 		response = pES->cur_response;
-		if (PulsedInputState.menu[KEY_MENU_LEFT])
+		if (PulsedInputState.menu[KEY_MENU_LEFT] && (optSpeech || optSmoothScroll == OPT_3DO))
 		{
 			SelectReplay (pES);
 
@@ -1479,8 +1527,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			COORD y;
 
 			BatchGraphics ();
-			add_text(-2,
-				&pES->response_list[pES->cur_response].response_text);
+			add_text (-2,
+					&pES->response_list[pES->cur_response].response_text);
 
 			pES->cur_response = response;
 
@@ -1489,13 +1537,16 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			if (response < pES->top_response)
 			{
 				pES->top_response = 0;
-				RefreshResponses(pES);
+				RefreshResponses (pES);
 			}
 			else if (y > SIS_SCREEN_HEIGHT)
 			{
 				pES->top_response = response;
-				RefreshResponses(pES);
+				RefreshResponses (pES);
 			}
+			else if (IS_HD)
+				RefreshResponses (pES);
+
 			UnbatchGraphics ();
 		}
 
@@ -1536,9 +1587,9 @@ DoLastReplay (LAST_REPLAY_STATE *pLRS)
 		pLRS->TimeOut = FadeMusic (0, ONE_SECOND * 2) + ONE_SECOND / 60;
 	}
 
-	UpdateCommGraphics ();
-	
-	SleepThreadUntil (pLRS->NextTime);
+	while (GetTimeCounter() < pLRS->NextTime)
+		UpdateCommGraphics ();
+		
 	pLRS->NextTime = GetTimeCounter () + COMM_ANIM_RATE;
 
 	return TRUE;
@@ -1586,6 +1637,7 @@ DoCommunication (ENCOUNTER_STATE *pES)
 	if (IsDarkMode)
 		SetCommDarkMode (FALSE);
 
+	SetMusicPosition ();
 	StopMusic ();
 	StopSound ();
 	StopTrack ();
@@ -1637,15 +1689,71 @@ DoResponsePhrase (RESPONSE_REF R, RESPONSE_FUNC response_func,
 	++pES->num_responses;
 }
 
+void
+SetUpCommData (void)
+{	// Kruzen: Better loading alt resources
+	// Loading alien frame
+	if (altResFlags & USE_ALT_FRAME)
+	{
+		CommData.AlienFrame = CaptureDrawable (
+				LoadGraphic (CommData.AltRes.AlienFrameRes));
+
+		if (!CommData.AlienFrame)// Failed to load
+		{
+			CommData.AlienFrame = CaptureDrawable (
+					LoadGraphic (CommData.AlienFrameRes));
+			altResFlags &= ~USE_ALT_FRAME;
+		}
+	}
+	else
+		CommData.AlienFrame = CaptureDrawable (
+				LoadGraphic (CommData.AlienFrameRes));
+
+	// Loading alien font
+	CommData.AlienFont = LoadFont (CommData.AlienFontRes);
+
+	// Loading alien colormap
+	if (altResFlags & USE_ALT_COLORMAP)
+	{
+		CommData.AlienColorMap = CaptureColorMap (
+				LoadColorMap (CommData.AltRes.AlienColorMapRes));
+
+		if (!CommData.AlienColorMap)// Failed to load
+		{
+			CommData.AlienColorMap = CaptureColorMap (
+					LoadColorMap (CommData.AlienColorMapRes));
+			altResFlags &= ~USE_ALT_COLORMAP;
+		}
+	}
+	else
+		CommData.AlienColorMap = CaptureColorMap (
+				LoadColorMap (CommData.AlienColorMapRes));
+
+	// Loading alien song
+	if (altResFlags & USE_ALT_SONG)
+	{
+		CommData.AlienSong = LoadMusic (CommData.AltRes.AlienSongRes);
+
+		if (!CommData.AlienSong)// Failed to load
+		{
+			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
+			altResFlags &= ~USE_ALT_SONG;
+		}
+	}
+	else
+		CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
+
+	// Load alien convo lines
+	CommData.ConversationPhrases = CaptureStringTable (
+			LoadStringTable (CommData.ConversationPhrasesRes));
+}
+
 static void
 HailAlien (void)
 {
 	ENCOUNTER_STATE ES;
 	FONT PlayerFont, OldFont;
-	MUSIC_REF SongRef = 0;
 	Color TextBack;
-
-	IsAltSong = FALSE;
 
 	pCurInputState = &ES;
 	memset (pCurInputState, 0, sizeof (*pCurInputState));
@@ -1653,33 +1761,32 @@ HailAlien (void)
 	TalkingFinished = FALSE;
 
 	ES.InputFunc = DoCommunication;
-	PlayerFont = LoadFont (PLAYER_FONT);
 
-	/*if (optWhichFonts == OPT_PC)
+	if (isPC (optWhichFonts))
 		PlayerFont = LoadFont (PLAYER_FONT);
 	else
-		PlayerFont = LoadFont (TINY_FONT_HD);*/
+		PlayerFont = LoadFont (TINY_FONT_BOLD);
 
-	ComputerFont = LoadFont (COMPUTER_FONT);
+	if (optOrzCompFont)
+	{
+		ComputerFont = LoadFont (COMPUTER_FONT);
+
+		if (ComputerFont == NULL)
+		{
+			log_add (log_Warning,
+					"ComputerFont didn't load properly. "
+					"Disabling Alternate Orz Font");
+			optOrzCompFont = FALSE;
+		}
+	}
 
 	CommData.AlienFrame = CaptureDrawable (
 			LoadGraphic (CommData.AlienFrameRes));
 	CommData.AlienFont = LoadFont (CommData.AlienFontRes);
 	CommData.AlienColorMap = CaptureColorMap (
 			LoadColorMap (CommData.AlienColorMapRes));
-	if ((CommData.AlienSongFlags & LDASF_USE_ALTERNATE)
-			&& CommData.AlienAltSongRes)
-		SongRef = LoadMusic (CommData.AlienAltSongRes);
-	if (SongRef)
-	{
-		CommData.AlienSong = SongRef;
-		IsAltSong = TRUE;
-	}
-	else
-		CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 
-	CommData.ConversationPhrases = CaptureStringTable (
-			LoadStringTable (CommData.ConversationPhrasesRes));
+	SetUpCommData ();
 
 	SubtitleText.baseline = CommData.AlienTextBaseline;
 	SubtitleText.align = CommData.AlienTextAlign;
@@ -1724,7 +1831,7 @@ HailAlien (void)
 		{
 			// set the position of outtakes comm
 			CommWndRect.corner.x = ((SCREEN_WIDTH - CommWndRect.extent.width) / 2);
-			CommWndRect.corner.y = RES_SCALE(5);
+			CommWndRect.corner.y = RES_SCALE (5);
 			r.corner = CommWndRect.corner;
 			SetContextClipRect (&r);
 		}
@@ -1797,7 +1904,12 @@ HailAlien (void)
 	DestroyDrawable (ReleaseDrawable (TextCacheFrame));
 
 	DestroyFont (PlayerFont);
-	DestroyFont (ComputerFont);
+	if (optOrzCompFont)
+		DestroyFont (ComputerFont);
+
+	ReleaseTalkingAnim ();
+	DisengageFilters ();
+	altResFlags &= ~USE_ALT_ALL;
 
 	// Some support code tests either of these to see if the
 	// game is currently in comm or encounter
@@ -1848,10 +1960,10 @@ InitCommunication (CONVERSATION which_comm)
 				DrawHyperCoords (CurStarDescPtr->star_pt);
 			else
 			{	// to fix moon suffix on load
-				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE 
+				if (pSolarSysState && LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE
 					&& worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
 				{
-					if (!(GetNamedPlanetaryBody ())
+					if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
 						&& (pSolarSysState->pOrbitalDesc->data_index != HIERARCHY_STARBASE
 						&& pSolarSysState->pOrbitalDesc->data_index != DESTROYED_STARBASE
 						&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
@@ -1861,7 +1973,7 @@ InitCommunication (CONVERSATION which_comm)
 					}
 				}
 
-				DrawSISTitle(GLOBAL_SIS(PlanetName));
+				DrawSISTitle (GLOBAL_SIS(PlanetName));
 			}
 		}
 	}
@@ -2147,13 +2259,44 @@ ClearSubtitles (void)
 	SubtitleText.CharCount = 0;
 }
 
+static BOOLEAN
+PauseSubtitles (BOOLEAN force)
+{
+	const UNICODE *pStr;
+	static COUNT num = 0;
+
+	pStr = GetTrackSubtitle ();
+	
+	if (GetSubtitleNumber (pStr) == 0 || SubtitleText.pStr == NULL)
+	{
+		num = GetSubtitleNumber (pStr);
+		return FALSE;
+	}
+
+	if (num != GetSubtitleNumber (pStr) && !force)
+	{
+		num = GetSubtitleNumber (pStr);
+		return TRUE;
+	}
+
+	num = GetSubtitleNumber (pStr);
+	return FALSE;
+}
+
 static void
-CheckSubtitles (void)
+CheckSubtitles (BOOLEAN really)
 {
 	const UNICODE *pStr;
 	POINT baseline;
 	TEXT_ALIGN align;
 	COUNT num;
+
+	if (!really)
+	{	// New check - blocks subtitle change on switching tracks so any code 
+		// that was waiting through AlienTalkSegue(x) would be completed first
+		next_page = TRUE;
+		return;
+	}
 
 	pStr = GetTrackSubtitle ();
 	baseline = CommData.AlienTextBaseline;
@@ -2174,7 +2317,8 @@ CheckSubtitles (void)
 		// Make a note in the logs if the update was multiframe
 		if (SubtitleText.pStr == pStr)
 		{
-			log_add(log_Warning, "Dialog text and location changed out of sync");
+			log_add (log_Warning,
+					"Dialog text and location changed out of sync");
 		}
 
 		SubtitleText.pStr = pStr;
@@ -2220,7 +2364,8 @@ SetCustomBaseLine (COUNT sentence, POINT bl, TEXT_ALIGN align)
 
 	cur = HCalloc (sizeof (*cur));
 	cur->index = sentence;
-	cur->baseline = bl;
+	cur->baseline.x = RES_SCALE (bl.x);
+	cur->baseline.y = RES_SCALE (bl.y);
 	cur->align = align;
 
 	if (head_node == NULL)

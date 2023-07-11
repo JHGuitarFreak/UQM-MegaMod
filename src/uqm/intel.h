@@ -51,7 +51,7 @@ extern "C" {
 #define SLOW_SHIP_HD 400
 
 
-#define RESOLUTION_COMPENSATED(speed) (RES_SCALE(RES_SCALE(speed)))
+#define RESOLUTION_COMPENSATED(speed) (RES_SCALE (RES_SCALE (speed)))
 
 enum
 {
@@ -92,33 +92,35 @@ extern BOOLEAN ThrustShip (ELEMENT *ShipPtr, COUNT angle);
 #define AWESOME_RATING (BYTE)(1 << 6)
 
 static inline BOOLEAN
-antiCheat (ELEMENT *ElementPtr, BOOLEAN SwapBool, int PrecursorType) 
+antiCheat (ELEMENT *ElementPtr, BOOLEAN SwapBool, int GodModeType)
 {
-	if ( !(PlayerControl[0] & COMPUTER_CONTROL && PlayerControl[1] & COMPUTER_CONTROL) 
-		&& (optPrecursorMode == PrecursorType
-		&& (((PlayerControl[0] & COMPUTER_CONTROL) && ElementPtr->playerNr == (SwapBool ? 0 : 1))
-		|| ((PlayerControl[1] & COMPUTER_CONTROL) && ElementPtr->playerNr == (SwapBool ? 1 : 0)))))
-	{
-		return TRUE;
-	} 
-	else 
-		return FALSE;
+	return !(PlayerControl[0] & COMPUTER_CONTROL
+			&& PlayerControl[1] & COMPUTER_CONTROL)
+			&& (optGodModes == GodModeType
+			&& (((PlayerControl[0] & COMPUTER_CONTROL)
+				&& ElementPtr->playerNr == (SwapBool ? 0 : 1))
+			|| ((PlayerControl[1] & COMPUTER_CONTROL)
+				&& ElementPtr->playerNr == (SwapBool ? 1 : 0))));
 }
 
 static inline BOOLEAN
-antiCheatAlt (int PrecursorType)
+antiCheatAlt (int GodModeType)
 {
-	if (!(PlayerControl[0] & COMPUTER_CONTROL && PlayerControl[1] & COMPUTER_CONTROL)
-		&& (optPrecursorMode == PrecursorType
-		&& (((PlayerControl[0] & COMPUTER_CONTROL) && PlayerControl[1] & HUMAN_CONTROL)
-		|| ((PlayerControl[1] & COMPUTER_CONTROL) && PlayerControl[0] & HUMAN_CONTROL))))
-	{
-		return TRUE;
-	} 
-	else
-		return FALSE;
+	return !(PlayerControl[0] & COMPUTER_CONTROL
+			&& PlayerControl[1] & COMPUTER_CONTROL)
+			&& (optGodModes == GodModeType
+			&& (((PlayerControl[0] & COMPUTER_CONTROL)
+				&& PlayerControl[1] & HUMAN_CONTROL)
+			|| ((PlayerControl[1] & COMPUTER_CONTROL)
+				&& PlayerControl[0] & HUMAN_CONTROL)));
 }
 
+static inline BOOLEAN
+isNetwork (void)
+{
+	return (PlayerControl[0] & NETWORK_CONTROL
+			|| PlayerControl[1] & NETWORK_CONTROL);
+}
 
 #if defined(__cplusplus)
 }

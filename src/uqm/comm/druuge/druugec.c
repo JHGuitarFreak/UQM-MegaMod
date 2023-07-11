@@ -24,6 +24,7 @@
 #include "uqm/setup.h"
 #include "uqm/sis.h"
 		// for DeltaSISGauges()
+#include "uqm/planets/generate/gendefault.h"
 
 
 static LOCDATA druuge_desc =
@@ -42,8 +43,11 @@ static LOCDATA druuge_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	DRUUGE_COLOR_MAP, /* AlienColorMap */
 	DRUUGE_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	DRUUGE_CONVERSATION_PHRASES, /* PlayerPhrases */
 	11, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -393,6 +397,17 @@ DoTransaction (RESPONSE_REF R)
 		BYTE trade_gas;
 		BYTE ship_slots, ships_to_trade;
 
+		if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << READY_TO_BARGAIN))
+		{
+			UWORD state;
+
+			state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+			state |= 1 << READY_TO_BARGAIN;
+
+			SET_GAME_STATE (HM_ENCOUNTERS, state);
+		}
+
 		trade_gas = 0;
 		ships_to_trade = 0;
 		ship_slots = EscortFeasibilityStudy (DRUUGE_SHIP);
@@ -520,7 +535,12 @@ Sell (RESPONSE_REF R)
 	}
 
 	if (!GET_GAME_STATE (ROSY_SPHERE))
+	{
+		if ((DIF_HARD && GET_GAME_STATE( HM_ENCOUNTERS) & 1 << READY_TO_BARGAIN) || !DIF_HARD)
 		RespFunc = (RESPONSE_FUNC)Trade;
+		else
+			RespFunc = (RESPONSE_FUNC)Sell;
+	}		
 	else
 		RespFunc = (RESPONSE_FUNC)Sell;
 	if (GET_GAME_STATE (MAIDENS_ON_SHIP))
@@ -869,6 +889,8 @@ Intro (void)
 			{
 				case 0:
 					NPCPhrase (INIT_SPACE_HELLO);
+					if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
+						SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
 					break;
 				case 1:
 					NPCPhrase (SUBSEQUENT_SPACE_HELLO);
@@ -916,8 +938,8 @@ init_druuge_comm (void)
 	druuge_desc.uninit_encounter_func = uninit_druuge;
 
 	druuge_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	druuge_desc.AlienTextBaseline.y = RES_SCALE(70);
-	druuge_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	druuge_desc.AlienTextBaseline.y = RES_SCALE (64);
+	druuge_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if ((GET_GAME_STATE (DRUUGE_MANNER) == 0
 			&& (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 7)))

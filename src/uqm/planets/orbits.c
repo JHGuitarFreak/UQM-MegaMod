@@ -23,6 +23,7 @@
 #include "libs/log.h"
 #include "../clock.h"
 #include <math.h>
+#include <stdlib.h>
 
 //#define DEBUG_ORBITS
 
@@ -91,6 +92,7 @@ BlueDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_NEVER,  /* MAGMA_WORLD */
 		PLANET_NEVER,  /* MAROON_WORLD */
+		//PLANET_NEVER,  /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -162,6 +164,7 @@ GreenDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_NEVER,  /* MAGMA_WORLD */
 		PLANET_NEVER,  /* MAROON_WORLD */
+		//PLANET_NEVER,  /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -233,6 +236,7 @@ OrangeDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_ALWAYS, /* MAGMA_WORLD */
 		PLANET_ALWAYS, /* MAROON_WORLD */
+		//PLANET_ALWAYS, /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -304,6 +308,7 @@ RedDistribution (BYTE which_world)
 		PLANET_ALWAYS, /* RUBY_WORLD */
 		PLANET_ALWAYS, /* MAGMA_WORLD */
 		PLANET_ALWAYS, /* MAROON_WORLD */
+		//PLANET_ALWAYS, /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -375,6 +380,7 @@ WhiteDistribution (BYTE which_world)
 		PLANET_ALWAYS, /* RUBY_WORLD */
 		PLANET_NEVER,  /* MAGMA_WORLD */
 		PLANET_NEVER,  /* MAROON_WORLD */
+		//PLANET_NEVER,  /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -446,6 +452,7 @@ YellowDistribution (BYTE which_world)
 		PLANET_NEVER,  /* RUBY_WORLD */
 		PLANET_ALWAYS, /* MAGMA_WORLD */
 		PLANET_ALWAYS, /* MAROON_WORLD */
+		//PLANET_ALWAYS, /* DIAMOND_WORLD */
 
 		PLANET_ALWAYS, /* BLU_GAS_GIANT */
 		PLANET_ALWAYS, /* CYA_GAS_GIANT */
@@ -470,7 +477,7 @@ YellowDistribution (BYTE which_world)
 #define SUPERGIANT_ROCK_DIST SCALE_RADIUS (16)
 #define SUPERGIANT_GASG_DIST SCALE_RADIUS (33)
 
-void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val)
+void ComputeSpeed (PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val)
 {
 	//BW : empiric values, which would give roughly correct
 	// rotation periods for most moons in the solar system
@@ -556,8 +563,6 @@ char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 				pPD->data_index =
 						(BYTE)(HIBYTE (LOWORD (rand_val)) % MaxPlanet);
 
-			// JMS: This exists for special colormaps of Sol system planets.
-			pPD->alternate_colormap = NULL;
 
 			chance = PLANET_NEVER;
 			switch (StarColor)
@@ -639,8 +644,8 @@ RelocatePlanet:
 		pPD->location.y = SINE (pPD->angle, pPD->radius);
 		if (GeneratingMoons) {
 			pPD->rand_seed = MAKE_DWORD (
-				 COSINE (pPD->angle, RES_DESCALE(pPD->radius)),
-				 SINE (pPD->angle, RES_DESCALE(pPD->radius)));
+				 COSINE (pPD->angle, RES_DESCALE (pPD->radius)),
+				 SINE (pPD->angle, RES_DESCALE (pPD->radius)));
 		} else {
 			pPD->rand_seed = MAKE_DWORD (pPD->location.x, pPD->location.y);
 		}
@@ -671,5 +676,141 @@ RelocatePlanet:
 			}
 		}
 	}
+}
+
+BOOLEAN
+CheckForHabitable (SOLARSYS_STATE *solarSys)
+{
+	const SIZE HabitableRanges[NUM_STAR_COLORS][2] = {
+		{  853, 1790 },
+		{  544, 1151 },
+		{  139,  287 },
+		{   68,   68 },
+		{ 1231, 2569 },
+		{  312,  778 }
+	};
+#define CLOSEST_RADIUS HabitableRanges[ORANGE_BODY][0]
+	PLANET_DESC *pPD;
+	BYTE starColor;
+	SIZE i;
+	BYTE planetByte = solarSys->SunDesc[0].PlanetByte;
+	BYTE numPlanets = solarSys->SunDesc[0].NumPlanets;
+	SIZE habitableRangeMin, habitableRangeMax, newRadius; // , radiusDiff;
+	SIZE oldRadius;
+	DWORD planetRadii[MAX_GEN_PLANETS];
+	DWORD rand_val;
+	// static SIZE diffCheck, min_radius;
+
+	starColor =  STAR_COLOR (CurStarDescPtr->Type);
+
+	pPD = solarSys->PlanetDesc;
+	oldRadius = pPD[planetByte].radius;
+
+	habitableRangeMin = HabitableRanges[starColor][0];
+	habitableRangeMax = HabitableRanges[starColor][1];
+
+	if ((oldRadius >= habitableRangeMin && oldRadius <= habitableRangeMax)
+			|| starColor == RED_BODY || planetByte > 0)
+	{
+		return FALSE;
+	}
+
+	for (i = 0; i < numPlanets; ++i)
+		planetRadii[i] = pPD[i].radius;
+
+	rand_val = RandomContext_Random (SysGenRNG);
+
+	newRadius = (LOWORD (rand_val) % (
+			habitableRangeMax - habitableRangeMin) + habitableRangeMin);
+
+	// radiusDiff = abs (oldRadius - newRadius);
+
+	planetRadii[planetByte] = newRadius;
+
+	if (planetRadii[planetByte] < planetRadii[planetByte + 1])
+	{
+		pPD[planetByte].radius = planetRadii[planetByte];
+		pPD[planetByte].angle = NORMALIZE_ANGLE (LOWORD (rand_val));
+		pPD[planetByte].location.x =
+			COSINE (pPD[planetByte].angle, pPD[planetByte].radius);
+		pPD[planetByte].location.y =
+			SINE (pPD[planetByte].angle, pPD[planetByte].radius);
+		ComputeSpeed (&pPD[planetByte], FALSE, HIWORD (rand_val));
+
+		return TRUE;
+	}
+	else return FALSE;
+
+	/*if (planetByte > 0 && newRadius < pPD[planetByte-1].radius)
+	{
+		DWORD radialSection = planetRadii[planetByte] - CLOSEST_RADIUS;
+		BYTE numRockySections = radialSection / DWARF_ROCK_DIST;
+		BYTE numGassySections = radialSection / DWARF_GASG_DIST;
+
+		printf ("radialSection %d, numRockySections %d, numGassySections %d\n", radialSection, numRockySections, numGassySections);
+
+		for (i = planetByte - 1; i > -1; --i)
+		{
+			rand_val = RandomContext_Random (SysGenRNG);
+
+			planetRadii[i] = (LOWORD (rand_val) % (
+				planetRadii[(i + 1)] - CLOSEST_RADIUS) + CLOSEST_RADIUS);
+		}
+
+		for (i = planetByte - 1; i > -1; --i)
+		{
+			if (pPD[i].data_index < FIRST_GAS_GIANT)
+				min_radius = DWARF_ROCK_DIST;
+			else
+				min_radius = DWARF_GASG_DIST;
+
+			if (i > -1)
+			{
+				if (planetRadii[i] < planetRadii[i - 1])
+					planetRadii[i] = planetRadii[i - 1];
+			}
+
+			radiusDiff = planetRadii[(i + 1)] - min_radius;
+
+			if (planetRadii[i] > radiusDiff)
+				planetRadii[i] = radiusDiff;
+		}
+
+		for (i = planetByte - 1; i > -1; --i)
+		{
+			if (planetRadii[i] > CLOSEST_RADIUS)
+			{
+				rand_val = RandomContext_Random (SysGenRNG);
+				pPD[i].radius = planetRadii[i];
+				pPD[i].angle = NORMALIZE_ANGLE (LOWORD (rand_val));
+				pPD[i].location.x =
+					COSINE (pPD[i].angle, pPD[i].radius);
+				pPD[i].location.y =
+					SINE (pPD[i].angle, pPD[i].radius);
+				ComputeSpeed (&pPD[i], FALSE, HIWORD (rand_val));
+			}
+		}
+	}*/
+
+	//{	// Renumber all the planets
+	//	BYTE i;
+
+	//	for (i = 0; i < numPlanets; ++i)
+	//	{
+	//		BYTE j;
+
+	//		for (j = (BYTE)(numPlanets - 1); j > i; --j)
+	//		{
+	//			if (solarSys->PlanetDesc[i].radius > solarSys->PlanetDesc[j].radius)
+	//			{
+	//				PLANET_DESC temp;
+
+	//				temp = solarSys->PlanetDesc[i];
+	//				solarSys->PlanetDesc[i] = solarSys->PlanetDesc[j];
+	//				solarSys->PlanetDesc[j] = temp;
+	//			}
+	//		}
+	//	}
+	//}
 }
 

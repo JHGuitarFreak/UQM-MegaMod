@@ -33,7 +33,10 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
-#include "../../../uqm/units.h"
+#include "uqm/units.h"
+#include "uqm/globdata.h"
+
+#include <time.h>
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL/SDL_screenkeyboard.h>
@@ -60,7 +63,7 @@ volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
 int
-TFB_InitGraphics (int driver, int flags, const char* renderer, 
+TFB_InitGraphics (int driver, int flags, const char* renderer,
 		int width, int height, unsigned int *resFactor)
 {
 	int result, i;
@@ -126,7 +129,7 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 
 #if SDL_MAJOR_VERSION == 1
 	/* Other versions do this when setting up the window */
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s",
+	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 	SDL_WM_SetCaption (caption, NULL);
@@ -143,7 +146,7 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 
 	TFB_InitOnScreenKeyboard();
 
-	return 0;
+	return result;
 }
 
 void
@@ -236,6 +239,7 @@ TFB_SwapBuffers (int force_full_redraw)
 {
 	static int last_fade_amount = 255, last_transition_amount = 255;
 	static int fade_amount = 255, transition_amount = 255;
+	Uint8 sfx;
 
 	fade_amount = GetFadeAmount ();
 	transition_amount = TransitionAmount;
@@ -249,6 +253,8 @@ TFB_SwapBuffers (int force_full_redraw)
 			(fade_amount != 255 || transition_amount != 255 ||
 			last_fade_amount != 255 || last_transition_amount != 255))
 		force_full_redraw = TFB_REDRAW_FADING;
+
+	sfx = last_fade_amount > fade_amount ? 1 : 0;
 
 	last_fade_amount = fade_amount;
 	last_transition_amount = transition_amount;
@@ -270,6 +276,7 @@ TFB_SwapBuffers (int force_full_redraw)
 
 	if (fade_amount != 255)
 	{
+#if SDL_MAJOR_VERSION == 1
 		if (fade_amount < 255)
 		{
 			graphics_backend->color (0, 0, 0, 255 - fade_amount, NULL);
@@ -279,7 +286,45 @@ TFB_SwapBuffers (int force_full_redraw)
 			graphics_backend->color (255, 255, 255,
 					fade_amount - 255, NULL);
 		}
+#elif defined (__APPLE__)
+		if (fade_amount < 255)
+		{
+			graphics_backend->color(0, 0, 0, 255 - fade_amount, NULL);
+		}
+		else
+		{
+			graphics_backend->color(255, 255, 255,
+				fade_amount - 255, NULL);
+		}
+#else
+		if (isPC (optScrTrans))
+		{
+			if (fade_amount < 255)
+			{
+				graphics_backend->color (SDL_BLENDOPERATION_REV_SUBTRACT,
+						sfx, 0, 255 - fade_amount, NULL);
+			}
+			else
+			{
+				graphics_backend->color (SDL_BLENDOPERATION_ADD, 0, 0,
+						fade_amount - 255, NULL);
+			}
+		}
+		else
+		{
+			if (fade_amount < 255)
+			{
+				graphics_backend->color (0, 0, 0, 255 - fade_amount, NULL);
+			}
+			else
+			{
+				graphics_backend->color (255, 255, 255,
+						fade_amount - 255, NULL);
+			}
+		}
+#endif
 	}
+
 
 	if (system_box_active)
 	{
@@ -596,6 +641,32 @@ TFB_HasColorKey (SDL_Surface *surface)
 {
 	Uint32 key;
 	return TFB_GetColorKey (surface, &key) == 0;
+}
+
+void
+TFB_ScreenShot (void)
+{
+
+	char curTime[PATH_MAX], fullPath[PATH_MAX];
+	time_t t = time (NULL);
+	struct tm *tm = localtime (&t);
+	const char *shotDirName = getenv ("UQM_SCR_SHOT_DIR");
+	struct stat sb;
+
+	strftime (curTime, sizeof (curTime),
+		"%Y-%m-%d_%H-%M-%S", tm);
+	snprintf (fullPath, sizeof (fullPath),
+		"%s%s v%d.%d.%d %s.%s", shotDirName, curTime,
+		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+		UQM_EXTRA_VERSION, "png");
+
+	if (stat (shotDirName, &sb) == 0 && S_ISDIR (sb.st_mode))
+	{
+		if (TFB_SDL_ScreenShot (fullPath))
+			log_add (log_Info, "Screenshot saved at path, '%s'", fullPath);
+		else
+			log_add (log_Debug, "Screenshot not saved due to an error");
+	}
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)

@@ -66,26 +66,22 @@ static int quit_sub_menu (WIDGET *self, int event);
 static int do_graphics (WIDGET *self, int event);
 static int do_audio (WIDGET *self, int event);
 static int do_engine (WIDGET *self, int event);
-static int do_more_engine (WIDGET *self, int event);
-static int do_prev_engine (WIDGET *self, int event);
 static int do_cheats (WIDGET *self, int event);
 static int do_keyconfig (WIDGET *self, int event);
 static int do_advanced (WIDGET *self, int event);
 static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
-static int do_more_visual (WIDGET *self, int event);
-static int do_prev_visual (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         12
-#define CHOICE_COUNT       71
-#define SLIDER_COUNT        4
-#define BUTTON_COUNT       16
-#define LABEL_COUNT         5
+#define MENU_COUNT         10
+#define CHOICE_COUNT       81
+#define SLIDER_COUNT        5
+#define BUTTON_COUNT       12
+#define LABEL_COUNT         9
 #define TEXTENTRY_COUNT     2
 #define CONTROLENTRY_COUNT  8
 
@@ -102,23 +98,10 @@ static WIDGET_CONTROLENTRY controlentries[CONTROLENTRY_COUNT];
 
 typedef int (*HANDLER)(WIDGET *, int);
 
-// Each number corresponds to a choice widget in order starting from choices[0]
-// The value determines how many columns the choice has.
-static int choice_widths[CHOICE_COUNT] = {
-	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 0-9
-	2, 2, 2, 2, 2, 3, 3, 2, 3, 3,   // 10-19
-	3, 2, 2, 2, 2, 3, 3, 2, 2, 2,   // 20-29
-	2, 2, 2, 2, 2, 2, 2, 2, 3, 2,   // 30-39
-	2, 2, 3, 2, 2, 2, 2, 2, 2, 2,   // 40-49
-	3, 2, 2, 3, 2, 2, 2, 2, 2, 3,   // 50-59
-	2, 2, 2, 3, 2, 2, 2, 2, 2, 2,   // 60-69
-	2 };                            // 70
-
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
-	do_keyconfig, do_music, do_visual, do_more_engine, do_prev_engine,
-	do_more_visual, do_prev_visual };
+	do_keyconfig, do_music, do_visual };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -142,8 +125,8 @@ static WIDGET *graphics_widgets[] = {
 #if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
-#endif
 	(WIDGET *)(&choices[23]),   // Aspect Ratio
+#endif
 	(WIDGET *)(&choices[10]),   // Display
 #if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
@@ -155,40 +138,38 @@ static WIDGET *graphics_widgets[] = {
 	NULL };
 
 static WIDGET *engine_widgets[] = {
+	(WIDGET *)(&labels[5]),     // UI Label
 	(WIDGET *)(&choices[4]),    // Menu Style
 	(WIDGET *)(&choices[5]),    // Font Style
-	(WIDGET *)(&choices[6]),    // Scan Style
-	(WIDGET *)(&choices[7]),    // Scroll Style
-	(WIDGET *)(&choices[22]),   // Speech
-	(WIDGET *)(&choices[8]),    // Subtitles
+	(WIDGET *)(&choices[11]),   // Cutscenes
 #if defined(ANDROID) || defined(__ANDROID__)
 	(WIDGET *)(&choices[50]),   // Android: Melee Zoom
 #else
 	(WIDGET *)(&choices[13]),   // Melee Zoom
 #endif
-	(WIDGET *)(&choices[11]),   // Cutscenes
-	(WIDGET *)(&choices[17]),   // Slave Shields
-#if !defined(ANDROID) || !defined(__ANDROID__)
-	(WIDGET *)(&labels[4]),     // Spacer
-#endif
-	(WIDGET *)(&buttons[12]),   // Next PC/3DO Page
-	(WIDGET *)(&buttons[1]),
-	NULL };
-
-static WIDGET *more_engine_widgets[] = {
-	(WIDGET *)(&choices[52]),   // IP Transitions
-	(WIDGET *)(&choices[51]),   // Lander Hold Size
-#if SDL_MAJOR_VERSION == 2
-	(WIDGET *)(&choices[62]),   // Interplanetary Style
-#endif
-	(WIDGET *)(&choices[63]),   // Star Background
-	(WIDGET *)(&choices[64]),   // Scan Style
-	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
-	(WIDGET *)(&choices[66]),   // Oscilloscope Style
-	(WIDGET *)(&choices[68]),   // Lander Style
 	(WIDGET *)(&choices[70]),   // Flagship Style
+	(WIDGET *)(&choices[52]),   // Screen Transitions
+
 	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[13]),   // Prev PC/3DO Page
+	(WIDGET *)(&labels[6]),     // Comm Label
+	(WIDGET *)(&choices[7]),    // Scroll Style
+	(WIDGET *)(&choices[22]),   // Speech
+	(WIDGET *)(&choices[8]),    // Subtitles
+	(WIDGET *)(&choices[66]),   // Oscilloscope Style
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[7]),     // IP Label
+	(WIDGET *)(&choices[62]),   // Interplanetary Style
+	(WIDGET *)(&choices[63]),   // Star Background
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[8]),     // Scan Label
+	(WIDGET *)(&choices[6]),    // Scan Style
+	(WIDGET *)(&choices[17]),   // Slave Shields
+	(WIDGET *)(&choices[64]),   // Scan Style
+	(WIDGET *)(&choices[76]),   // Scan Sphere Type
+	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
+	(WIDGET *)(&choices[68]),   // Lander Style
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -211,26 +192,30 @@ static WIDGET *music_widgets[] = {
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[46]),   // Volasaurus' Space Music
 	(WIDGET *)(&choices[34]),   // Main Menu Music
+	(WIDGET *)(&choices[80]),   // Music Resume
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[24]),   // JMS: cheatMode on/off
+	(WIDGET *)(&choices[72]),   // Kohr-Ah DeCleansing mode
 	(WIDGET *)(&choices[25]),   // Precursor Mode
 	(WIDGET *)(&choices[26]),   // Time Dilation
 	(WIDGET *)(&choices[27]),   // Bubble Warp
-	(WIDGET *)(&choices[28]),   // Unlock Ships
 	(WIDGET *)(&choices[29]),   // Head Start
+	(WIDGET *)(&choices[28]),   // Unlock Ships
 	(WIDGET *)(&choices[30]),   // Unlock Upgrades
 	(WIDGET *)(&choices[31]),   // Infinite RU
 	(WIDGET *)(&choices[39]),   // Infinite Fuel
 	(WIDGET *)(&choices[43]),   // Add Devices
+	(WIDGET *)(&choices[71]),   // No HyperSpace Encounters
+	(WIDGET *)(&choices[73]),   // No Planets in melee
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
-#if !(defined(ANDROID) || defined(__ANDROID__))
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 	(WIDGET *)(&choices[59]),   // Control Display
 #endif
 	(WIDGET *)(&choices[18]),   // Bottom Player
@@ -249,58 +234,62 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[53]),   // Difficulty
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
+	(WIDGET *)(&choices[77]),   // Slaughter Mode
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[32]),   // Skip Intro
 	(WIDGET *)(&choices[40]),   // Partial Pickup switch
 	(WIDGET *)(&choices[56]),   // Game Over switch
 	(WIDGET *)(&choices[41]),   // Submenu switch
-	(WIDGET *)(&choices[60]),   // SIS Facing HyperSpace
+	(WIDGET *)(&choices[60]),   // Smart Auto-Pilot
+	(WIDGET *)(&choices[78]),   // Advanced Auto-Pilot
+	(WIDGET *)(&choices[74]),   // Show Visited Stars
+	(WIDGET *)(&choices[79]),   // Melee Tool Tips
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *visual_widgets[] = {
-	(WIDGET *)(&choices[35]),   // IP nebulae on/off
-	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
-	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
-	(WIDGET *)(&choices[44]),   // Hazard Colors
+	(WIDGET *)(&labels[5]),     // UI Label
 	(WIDGET *)(&choices[38]),   // Switch date formats
 	(WIDGET *)(&choices[45]),   // Custom Border switch
 	(WIDGET *)(&choices[48]),   // Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),   // Fuel Range
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[14]),   // Next Visual Page
-	(WIDGET *)(&buttons[1]),    // Exit to Menu
-	NULL };
+	(WIDGET *)(&choices[67]),   // Animated HyperStars
 
-static WIDGET *more_visual_widgets[] = {
-	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[6]),     // Comm Label
 	(WIDGET *)(&choices[58]),   // Alternate Orz font
 	(WIDGET *)(&choices[65]),   // Non-Stop Scope
-	(WIDGET *)(&choices[67]),   // Animated HyperStars
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[7]),     // IP Label
+	(WIDGET *)(&choices[35]),   // IP nebulae on/off
+	(WIDGET *)(&sliders[4]),    // Nebulae Volume
+	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
+	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
+	(WIDGET *)(&choices[75]),   // T6014's Classic Star System View
+	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
+
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&labels[8]),     // Scan Label
+	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[15]),   // Prev. Visual Page
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&choices[20]),
-	(WIDGET *)(&labels[2]),
-	(WIDGET *)(&textentries[0]),
-	(WIDGET *)(&controlentries[0]),
-	(WIDGET *)(&controlentries[1]),
-	(WIDGET *)(&controlentries[2]),
-	(WIDGET *)(&controlentries[3]),
-	(WIDGET *)(&controlentries[4]),
-	(WIDGET *)(&controlentries[5]),
-	(WIDGET *)(&controlentries[6]),
-	(WIDGET *)(&controlentries[7]),
-	(WIDGET *)(&buttons[9]),
+	(WIDGET *)(&choices[20]),       // Current layout
+	(WIDGET *)(&textentries[0]),    // Layout name
+	(WIDGET *)(&labels[2]),         // "Tap to Edit..."
+	(WIDGET *)(&controlentries[0]), // Up
+	(WIDGET *)(&controlentries[1]), // Down
+	(WIDGET *)(&controlentries[2]), // Left
+	(WIDGET *)(&controlentries[3]), // Right
+	(WIDGET *)(&controlentries[4]), // Weapon
+	(WIDGET *)(&controlentries[5]), // Special
+	(WIDGET *)(&controlentries[6]), // Escape
+	(WIDGET *)(&controlentries[7]), // Thrust
+	(WIDGET *)(&buttons[9]),        // Previous menu
 	NULL };
 
 static const struct
@@ -320,8 +309,6 @@ menu_defs[] =
 	{editkeys_widgets, 7},
 	{music_widgets, 8},
 	{visual_widgets, 9},
-	{more_engine_widgets, 3},
-	{more_visual_widgets, 9},
 	{NULL, 0}
 };
 
@@ -336,19 +323,19 @@ static float maxGamma = 2.5f;
 static float minGammaX;
 static float maxGammaX;
 
-
-static int
-number_res_options (void)
-{
-	if (TFB_SupportsHardwareScaling ())
-	{
-		return 4;
-	}
-	else
-	{
-		return 2;
-	}
-}
+//No longer used
+//static int
+//number_res_options (void)
+//{
+//	if (TFB_SupportsHardwareScaling ())
+//	{
+//		return 4;
+//	}
+//	else
+//	{
+//		return 2;
+//	}
+//}
 
 static int
 quit_main_menu (WIDGET *self, int event)
@@ -367,6 +354,7 @@ quit_sub_menu (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
+		ResetOffset ();
 		next = (WIDGET *)(&menus[0]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_SELECT);
 		return TRUE;
@@ -403,32 +391,6 @@ do_audio (WIDGET *self, int event)
 
 static int
 do_engine (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[3]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_more_engine (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[10]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_prev_engine (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
@@ -503,32 +465,6 @@ do_music (WIDGET *self, int event)
 
 static int
 do_visual (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[9]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_more_visual (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[11]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_prev_visual (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
@@ -641,7 +577,7 @@ SetDefaults (void)
 	choices[22].selected = opts.speech;
 	choices[23].selected = opts.keepaspect;
  	choices[24].selected = opts.cheatMode;
-	choices[25].selected = opts.precursorMode;
+	choices[25].selected = opts.godModes;
 	choices[26].selected = opts.tdType;
 	choices[27].selected = opts.bubbleWarp;
 	choices[28].selected = opts.unlockShips;
@@ -670,7 +606,7 @@ SetDefaults (void)
 	choices[50].selected = opts.meleezoom;
 #endif
 	choices[51].selected = opts.landerHold;
-	choices[52].selected = opts.ipTrans;
+	choices[52].selected = opts.scrTrans;
 	choices[53].selected = opts.difficulty;
 	choices[54].selected = opts.extended;
 	choices[55].selected = opts.nomad;
@@ -678,8 +614,8 @@ SetDefaults (void)
 	choices[57].selected = opts.shipDirectionIP;
 	choices[58].selected = opts.orzCompFont;
 	choices[59].selected = opts.controllerType;
-	choices[60].selected = opts.shipFacingHS;
-	choices[61].selected = opts.coloredPlanet;
+	choices[60].selected = opts.smartAutoPilot;
+	choices[61].selected = opts.tintPlanSphere;
 	choices[62].selected = opts.planetStyle;
 	choices[63].selected = opts.starBackground;
 	choices[64].selected = opts.scanStyle;
@@ -689,11 +625,22 @@ SetDefaults (void)
 	choices[68].selected = opts.landerStyle;
 	choices[69].selected = opts.planetTexture;
 	choices[70].selected = opts.flagshipColor;
+	choices[71].selected = opts.noHQEncounters;
+	choices[72].selected = opts.deCleansing;
+	choices[73].selected = opts.meleeObstacles;
+	choices[74].selected = opts.showVisitedStars;
+	choices[75].selected = opts.unscaledStarSystem;
+	choices[76].selected = opts.sphereType;
+	choices[77].selected = opts.slaughterMode;
+	choices[78].selected = opts.advancedAutoPilot;
+	choices[79].selected = opts.meleeToolTips;
+	choices[80].selected = opts.musicResume;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
 	sliders[3].value = opts.gamma;
+	sliders[4].value = opts.nebulaevol;
 }
 
 static void
@@ -726,7 +673,7 @@ PropagateResults (void)
 	opts.speech = choices[22].selected;
 	opts.keepaspect = choices[23].selected;
  	opts.cheatMode = choices[24].selected;
-	opts.precursorMode = choices[25].selected;
+	opts.godModes = choices[25].selected;
 	opts.tdType = choices[26].selected;
 	opts.bubbleWarp = choices[27].selected;
 	opts.unlockShips = choices[28].selected;
@@ -755,7 +702,7 @@ PropagateResults (void)
 	opts.meleezoom = choices[50].selected;
 #endif
 	opts.landerHold = choices[51].selected;
-	opts.ipTrans = choices[52].selected;
+	opts.scrTrans = choices[52].selected;
 	opts.difficulty = choices[53].selected;
 	opts.extended = choices[54].selected;
 	opts.nomad = choices[55].selected;
@@ -763,8 +710,8 @@ PropagateResults (void)
 	opts.shipDirectionIP = choices[57].selected;
 	opts.orzCompFont = choices[58].selected;
 	opts.controllerType = choices[59].selected;
-	opts.shipFacingHS = choices[60].selected;
-	opts.coloredPlanet = choices[61].selected;
+	opts.smartAutoPilot = choices[60].selected;
+	opts.tintPlanSphere = choices[61].selected;
 	opts.planetStyle = choices[62].selected;
 	opts.starBackground = choices[63].selected;
 	opts.scanStyle = choices[64].selected;
@@ -774,11 +721,22 @@ PropagateResults (void)
 	opts.landerStyle = choices[68].selected;
 	opts.planetTexture = choices[69].selected;
 	opts.flagshipColor = choices[70].selected;
+	opts.noHQEncounters = choices[71].selected;
+	opts.deCleansing = choices[72].selected;
+	opts.meleeObstacles = choices[73].selected;
+	opts.showVisitedStars = choices[74].selected;
+	opts.unscaledStarSystem = choices[75].selected;
+	opts.sphereType = choices[76].selected;
+	opts.slaughterMode = choices[77].selected;
+	opts.advancedAutoPilot = choices[78].selected;
+	opts.meleeToolTips = choices[79].selected;
+	opts.musicResume = choices[80].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
 	opts.speechvol = sliders[2].value;
 	opts.gamma = sliders[3].value;
+	opts.nebulaevol = sliders[4].value;
 	SetGlobalOptions (&opts);
 }
 
@@ -1032,14 +990,14 @@ gamma_HandleEventSlider (WIDGET *_self, int event)
 	// Grow or shrink the range based on accepted values
 	if (gamma < minGamma || (!set && event == WIDGET_EVENT_LEFT))
 	{
-		minGamma = gamma;
+		gamma = minGamma;
 		updateGammaBounds (true);
 		// at the lowest end
 		self->value = 0;
 	}
 	else if (gamma > maxGamma || (!set && event == WIDGET_EVENT_RIGHT))
 	{
-		maxGamma = gamma;
+		gamma = maxGamma;
 		updateGammaBounds (false);
 		// at the highest end
 		self->value = 100;
@@ -1055,9 +1013,9 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 	float gamma = sliderToGamma (self->value);
 	snprintf (buf, sizeof buf, "%.4f", gamma);
 
-	t.baseline.x = x;
+	t.baseline.x = x + RES_SCALE(6);
 	t.baseline.y = y;
-	t.align = ALIGN_CENTER;
+	t.align = ALIGN_LEFT;
 	t.CharCount = ~0;
 	t.pStr = buf;
 
@@ -1116,7 +1074,8 @@ init_widgets (void)
 	if (setup_frame == NULL || optRequiresRestart)
 	{
 		// JMS: Load the different menus depending on the resolution factor.
-		setup_frame = CaptureDrawable (LoadGraphic (RES_BOOL(MENUBKG_PMAP_ANIM, MENUBKG_PMAP_ANIM_HD)));
+		setup_frame = CaptureDrawable (LoadGraphic (RES_BOOL (MENUBKG_PMAP_ANIM, MENUBKG_PMAP_ANIM_HD)));
+		LoadArrows ();
 	}
 
 	count = GetStringTableCount (SetupTab);
@@ -1180,7 +1139,6 @@ init_widgets (void)
 		choices[i].options = NULL;
 		choices[i].selected = 0;
 		choices[i].highlighted = 0;
-		choices[i].maxcolumns = choice_widths[i];
 		choices[i].onChange = NULL;
 	}
 
@@ -1216,7 +1174,7 @@ init_widgets (void)
 				exit (EXIT_FAILURE);
 			}
 			str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
-			tipcount = SplitString (str, '\n', 100, buffer, bank);			
+			tipcount = SplitString (str, '\n', 100, buffer, bank);
 			if (tipcount > 3)
 			{
 				tipcount = 3;
@@ -1277,6 +1235,9 @@ init_widgets (void)
 	sliders[3].handleEvent = gamma_HandleEventSlider;
 	sliders[3].draw_value = gamma_DrawValue;
 
+	// nebulaevol is a special case
+	sliders[4].step = 1;
+
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{
 		int j, tipcount;
@@ -1318,20 +1279,7 @@ init_widgets (void)
 		buttons[i].parent = NULL;
 		buttons[i].handleEvent = button_handlers[i];
 		buttons[i].receiveFocus = Widget_ReceiveFocusSimple;
-		switch (i)
-		{
-		case 12:
-		case 14:
-			buttons[i].draw = Widget_DrawRightButton;
-			break;
-		case 13:
-		case 15:
-			buttons[i].draw = Widget_DrawLeftButton;
-			break;
-		default:
-			buttons[i].draw = Widget_DrawButton;
-
-		}
+		buttons[i].draw = Widget_DrawButton;
 		buttons[i].height = Widget_HeightOneLine;
 		buttons[i].width = Widget_WidthFullScreen;
 		buttons[i].name = buffer[i];
@@ -1546,6 +1494,7 @@ clean_up_widgets (void)
 	{
 		DestroyDrawable (ReleaseDrawable (setup_frame));
 		setup_frame = NULL;
+		ReleaseArrows ();
 	}
 }
 
@@ -1614,7 +1563,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 		OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->menu = (optWhichMenu == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->text = (optWhichFonts == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->cscan = (optWhichCoarseScan == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->cscan = res_GetInteger ("config.iconicscan");
 	opts->scroll = (optSmoothScroll == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->intro = (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->shield = (optWhichShield == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
@@ -1623,8 +1572,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 #if defined(ANDROID) || defined(__ANDROID__)
 	opts->meleezoom = res_GetInteger("config.smoothmelee");
 #else
-	opts->meleezoom = (optMeleeScale == TFB_SCALE_STEP) ?
-		OPTVAL_PC : OPTVAL_3DO;
+	opts->meleezoom = (OPT_MELEEZOOM)((optMeleeScale == TFB_SCALE_STEP) ?
+		OPTVAL_PC : OPTVAL_3DO);
 #endif
 	opts->stereo = optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	/* These values are read in, but won't change during a run. */
@@ -1662,9 +1611,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	 * for config.alwaysgl, then overwrite it if it was set previously. */
 	opts->driver = OPTVAL_PURE_IF_POSSIBLE;
 
-	if (res_IsBoolean ("config.alwaysgl"))
+	if (res_IsBoolean("config.alwaysgl"))
 	{
-		if (res_GetBoolean ("config.alwaysgl"))
+		if (res_GetBoolean("config.alwaysgl"))
 		{
 			opts->driver = OPTVAL_ALWAYS_GL;
 		}
@@ -1692,7 +1641,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 
  	opts->cheatMode = optCheatMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->precursorMode = res_GetInteger("cheat.precursorMode");
+	opts->godModes = res_GetInteger ("cheat.godModes");
 	opts->tdType = res_GetInteger ("cheat.timeDilation");
 	opts->bubbleWarp = optBubbleWarp ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->unlockShips = optUnlockShips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1709,7 +1658,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->partialPickup = optPartialPickup ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->submenu = optSubmenu ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->addDevices = optAddDevices ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->scalePlanets = optScalePlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->customBorder = optCustomBorder ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->customSeed = res_GetInteger ("mm.customSeed");
 	opts->spaceMusic = optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1718,9 +1666,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->wholeFuel = optWholeFuel ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->directionalJoystick = optDirectionalJoystick ? OPTVAL_ENABLED : OPTVAL_DISABLED;	// For Android
 	opts->landerHold = (optLanderHold == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->ipTrans = (optIPScaler == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->difficulty = res_GetInteger("mm.difficulty");
-	opts->fuelRange = optFuelRange ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->scrTrans = (optScrTrans == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->difficulty = res_GetInteger ("mm.difficulty");
+	opts->fuelRange = res_GetInteger ("mm.fuelRange");
 	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->gameOver = optGameOver ? OPTVAL_ENABLED : OPTVAL_DISABLED;
@@ -1728,8 +1676,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->hazardColors = optHazardColors ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->controllerType = res_GetInteger ("mm.controllerType");
-	opts->shipFacingHS = optShipFacingHS ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->coloredPlanet = (optColoredPlanet == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->smartAutoPilot = optSmartAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->tintPlanSphere = (optTintPlanSphere == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->planetStyle = (optPlanetStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->starBackground = res_GetInteger ("mm.starBackground");
 	opts->scanStyle = (optScanStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
@@ -1739,6 +1687,17 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->landerStyle = (optSuperPC == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
 	opts->planetTexture = optPlanetTexture ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->flagshipColor = (optFlagshipColor == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
+	opts->noHQEncounters = optNoHQEncounters ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->sphereType = res_GetInteger ("mm.sphereType");
+	opts->nebulaevol = res_GetInteger ("mm.nebulaevol");
+	opts->slaughterMode = optSlaughterMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->advancedAutoPilot = optAdvancedAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->meleeToolTips = optMeleeToolTips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->musicResume = optMusicResume ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -1824,7 +1783,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewGfxFlags = GfxFlags;
 	int NewWidth = ScreenWidthActual;
 	int NewHeight = ScreenHeightActual;
-	int NewDriver = GraphicsDriver;	
+	int NewDriver = GraphicsDriver;
 	int SeedStuff;
 	
 	unsigned int oldResFactor = resolutionFactor; 
@@ -1859,10 +1818,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 
-#if SDL_MAJOR_VERSION == 1
-	if (NewWidth == 320 && NewHeight == 240) // MB: Moved code to here to make it work with 320x240 resolutions before opts->loresBlowup switch after
-#endif
-	{
+	if (NewWidth == 320 && NewHeight == 240)
+	{	// MB: Moved code to here to make it work with 320x240 resolutions
+		// before opts->loresBlowup switch after
 		switch (opts->scaler)
 		{
 			case OPTVAL_BILINEAR_SCALE:
@@ -1885,33 +1843,24 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				NewGfxFlags |= TFB_GFXFLAGS_SCALE_HQXX;
 				res_PutString ("config.scaler", "hq");
 				break;
+			case OPTVAL_NO_SCALE:
 			default:
 				/* OPTVAL_NO_SCALE has no equivalent in gfxflags. */
 				res_PutString ("config.scaler", "no");
 				break;
 		}
 	}
-#if SDL_MAJOR_VERSION == 1
 	else
-	{
-		// For now, only bilinear works in HD with SDL1.
-		switch (opts->scaler)
+	{	// Anything higher than bilinear in HD is a massive
+		// performance hit with no visual benefit
+		if (opts->scaler > OPTVAL_NO_SCALE)
 		{
-			case OPTVAL_BILINEAR_SCALE:
-			case OPTVAL_BIADAPT_SCALE:
-			case OPTVAL_BIADV_SCALE:
-			case OPTVAL_TRISCAN_SCALE:
-			case OPTVAL_HQXX_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-				res_PutString ("config.scaler", "bilinear");
-				break;
-			default:
-				/* OPTVAL_NO_SCALE has no equivalent in gfxflags. */
-				res_PutString ("config.scaler", "no");
-				break;
+			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
+			res_PutString ("config.scaler", "bilinear");
 		}
+		else	// OPTVAL_NO_SCALE has no equivalent in gfxflags.
+			res_PutString ("config.scaler", "no");
 	}
-#endif
 
 	if (NewWidth == 320 && NewHeight == 240)
 	{	
@@ -2032,7 +1981,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 	}
 
-	// Serosis: To force the game to reload content when changing music, video, and speech options
+	// To force the game to reload content when changing music, video, and speech options
  	if ((opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
 		(opts->intro != (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC) ||
 		(opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
@@ -2064,9 +2013,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
  		optRequiresRestart = TRUE;
 
-	if (opts->controllerType != optControllerType)
+	if ((int)opts->controllerType != optControllerType)
 	{
-		optControllerType = opts->controllerType;
+		optControllerType = (int)opts->controllerType;
 		TFB_UninitInput ();
 		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 	}
@@ -2082,8 +2031,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("cheat.kohrStahp", opts->cheatMode == OPTVAL_ENABLED);
 	optCheatMode = opts->cheatMode == OPTVAL_ENABLED;
 
-	res_PutInteger ("cheat.precursorMode", opts->precursorMode);
-	optPrecursorMode = opts->precursorMode;
+	res_PutInteger ("cheat.godModes", opts->godModes);
+	optGodModes = opts->godModes;
 
 	res_PutInteger ("cheat.timeDilation", opts->tdType);
 	timeDilationScale = opts->tdType;
@@ -2109,9 +2058,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.mainMenuMusic", opts->mainMenuMusic == OPTVAL_ENABLED);
 	optMainMenuMusic = opts->mainMenuMusic == OPTVAL_ENABLED;
 	if(!optMainMenuMusic)
-		FadeMusic (0,ONE_SECOND);
+		FadeMusic (0, ONE_SECOND);
 	else
-		FadeMusic (NORMAL_VOLUME+70, ONE_SECOND);
+		FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND);
 
 	res_PutBoolean ("mm.nebulae", opts->nebulae == OPTVAL_ENABLED);
 	optNebulae = opts->nebulae == OPTVAL_ENABLED;
@@ -2141,19 +2090,19 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optCustomBorder = opts->customBorder == OPTVAL_ENABLED;
 
 	SeedStuff = res_GetInteger ("mm.customSeed");
-	if(!SANE_SEED(SeedStuff))
+	if(!SANE_SEED (SeedStuff))
 		opts->customSeed = PrimeA;
 	else 
 		opts->customSeed = optCustomSeed;
 	res_PutInteger ("mm.customSeed", opts->customSeed);
 
-	res_PutBoolean("mm.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
 	optSpaceMusic = opts->spaceMusic == OPTVAL_ENABLED;
 
-	res_PutBoolean("mm.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
 	optVolasMusic = (opts->volasMusic == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
 	optWholeFuel = (opts->wholeFuel == OPTVAL_ENABLED);
 
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -2162,43 +2111,45 @@ SetGlobalOptions (GLOBALOPTS *opts)
 #endif
 
 	optLanderHold = (opts->landerHold == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean("mm.landerHold", opts->landerHold == OPTVAL_3DO);
+	res_PutBoolean ("mm.landerHold", opts->landerHold == OPTVAL_3DO);
 
-	optIPScaler = (opts->ipTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean("mm.ipTransition", opts->ipTrans == OPTVAL_3DO);
+	optScrTrans = (opts->scrTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.scrTransition", opts->scrTrans == OPTVAL_3DO);
 
 	optDifficulty = opts->difficulty;
-	res_PutInteger("mm.difficulty", opts->difficulty);
+	res_PutInteger ("mm.difficulty", opts->difficulty);
 
-	res_PutBoolean("mm.fuelRange", opts->fuelRange == OPTVAL_ENABLED);
-	optFuelRange = (opts->fuelRange == OPTVAL_ENABLED);
+	optFuelRange = opts->fuelRange;
+	res_PutInteger ("mm.fuelRange", opts->fuelRange);
 
-	res_PutBoolean("mm.extended", opts->extended == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.extended", opts->extended == OPTVAL_ENABLED);
 	optExtended = (opts->extended == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.nomad", opts->nomad == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.nomad", opts->nomad == OPTVAL_ENABLED);
 	optNomad = (opts->nomad == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.gameOver", opts->gameOver == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.gameOver", opts->gameOver == OPTVAL_ENABLED);
 	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
 	optShipDirectionIP = (opts->shipDirectionIP == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
 	optHazardColors = (opts->hazardColors == OPTVAL_ENABLED);
 
-	res_PutBoolean("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
 	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
 
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
 	res_PutInteger ("mm.controllerType", opts->controllerType);
 	optControllerType = opts->controllerType;
+#endif
 
-	res_PutBoolean ("mm.shipFacingHS", opts->shipFacingHS == OPTVAL_ENABLED);
-	optShipFacingHS = (opts->shipFacingHS == OPTVAL_ENABLED);
+	res_PutBoolean ("mm.smartAutoPilot", opts->smartAutoPilot == OPTVAL_ENABLED);
+	optSmartAutoPilot = (opts->smartAutoPilot == OPTVAL_ENABLED);
 
-	optColoredPlanet = (opts->coloredPlanet == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.coloredPlanet", opts->coloredPlanet == OPTVAL_3DO);
+	optTintPlanSphere = (opts->tintPlanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	res_PutBoolean ("mm.tintPlanSphere", opts->tintPlanSphere == OPTVAL_3DO);
 
 	optPlanetStyle = (opts->planetStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.planetStyle", opts->planetStyle == OPTVAL_3DO);
@@ -2227,29 +2178,72 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optFlagshipColor = (opts->flagshipColor == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	res_PutBoolean ("mm.flagshipColor", opts->flagshipColor == OPTVAL_3DO);
 
-	if (opts->scanlines && !IS_HD) {
+	res_PutBoolean ("cheat.noHQEncounters", opts->noHQEncounters == OPTVAL_ENABLED);
+	optNoHQEncounters = (opts->noHQEncounters == OPTVAL_ENABLED);
+
+	res_PutBoolean ("cheat.deCleansing", opts->deCleansing == OPTVAL_ENABLED);
+	optDeCleansing = opts->deCleansing == OPTVAL_ENABLED;
+
+	res_PutBoolean ("cheat.meleeObstacles", opts->meleeObstacles == OPTVAL_ENABLED);
+	optMeleeObstacles = opts->meleeObstacles == OPTVAL_ENABLED;
+
+	res_PutBoolean ("mm.showVisitedStars", opts->showVisitedStars == OPTVAL_ENABLED);
+	optShowVisitedStars = opts->showVisitedStars == OPTVAL_ENABLED;
+
+	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
+	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
+
+	res_PutInteger ("mm.sphereType", opts->sphereType);
+	optScanSphere = opts->sphereType;
+
+	res_PutInteger ("mm.nebulaevol", opts->nebulaevol);
+	optNebulaeVolume = opts->nebulaevol;
+
+	res_PutBoolean ("mm.slaughterMode", opts->slaughterMode == OPTVAL_ENABLED);
+	optSlaughterMode = opts->slaughterMode == OPTVAL_ENABLED;
+
+	res_PutBoolean ("mm.advancedAutoPilot", opts->advancedAutoPilot == OPTVAL_ENABLED);
+	optAdvancedAutoPilot = (opts->advancedAutoPilot == OPTVAL_ENABLED);
+
+	res_PutBoolean ("mm.meleeToolTips", opts->meleeToolTips == OPTVAL_ENABLED);
+	optMeleeToolTips = (opts->meleeToolTips == OPTVAL_ENABLED);
+
+	res_PutBoolean ("mm.musicResume", opts->musicResume == OPTVAL_ENABLED);
+	optMusicResume = (opts->musicResume == OPTVAL_ENABLED);
+
+	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
-	} else {
+	else
 		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
-	}
 
 #if !(defined(ANDROID) || defined(__ANDROID__))
 	if (opts->fullscreen)
+	{
 		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-	else
-		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-	// In HD, force the usage of no filter in 1280x960 windowed mode
-	// while forcing the usage of a filter in scaled modes.
-	if(IS_HD) {
-		if (NewWidth == 1280 && !opts->fullscreen)
-		{
-			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
-			res_PutString ("config.scaler", "no");
-		}
-		else if (!(NewGfxFlags & TFB_GFXFLAGS_SCALE_ANY))
+		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
+		if (IS_HD)
 		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
+		}
+	}
+	else
+	{
+		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+		// Force the usage of no filter in 1280x960 windowed mode.
+		// While forcing the usage of bilinear filter in scaled windowed modes.
+		if (IS_HD)
+		{
+			if (NewWidth == 1280)
+			{
+				NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
+				res_PutString ("config.scaler", "no");
+			}
+			else
+			{
+				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
+				res_PutString ("config.scaler", "bilinear");
+			}
 		}
 	}
 #endif
@@ -2305,11 +2299,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optSubtitles = (opts->subtitles == OPTVAL_ENABLED) ? TRUE : FALSE;
 	optWhichMenu = (opts->menu == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichFonts = (opts->text == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	optWhichCoarseScan = (opts->cscan == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	optWhichCoarseScan = opts->cscan;
 	optSmoothScroll = (opts->scroll == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
+	optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 #endif
 	opt3doMusic = (opts->music3do == OPTVAL_ENABLED);
 	optRemixMusic = (opts->musicremix == OPTVAL_ENABLED);
@@ -2329,7 +2323,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("config.subtitles", opts->subtitles == OPTVAL_ENABLED);
 	res_PutBoolean ("config.textmenu", opts->menu == OPTVAL_PC);
 	res_PutBoolean ("config.textgradients", opts->text == OPTVAL_PC);
-	res_PutBoolean ("config.iconicscan", opts->cscan == OPTVAL_3DO);
+	res_PutInteger ("config.iconicscan", opts->cscan);
 	res_PutBoolean ("config.smoothscroll", opts->scroll == OPTVAL_3DO);
 
 	res_PutBoolean ("config.3domusic", opts->music3do == OPTVAL_ENABLED);
@@ -2355,7 +2349,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	}
 	res_PutInteger("config.smoothmelee", opts->meleezoom);
 #else
-	res_PutBoolean("config.smoothmelee", opts->meleezoom == OPTVAL_3DO);
+	res_PutBoolean("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
 #endif
 	res_PutBoolean ("config.positionalsfx", opts->stereo == OPTVAL_ENABLED); 
 	res_PutBoolean ("config.pulseshield", opts->shield == OPTVAL_3DO);

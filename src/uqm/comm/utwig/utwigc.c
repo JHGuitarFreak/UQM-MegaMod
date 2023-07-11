@@ -41,8 +41,11 @@ static LOCDATA utwig_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	UTWIG_COLOR_MAP, /* AlienColorMap */
 	UTWIG_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		UTWIG_ULTRON_MUSIC, /* AlienAltSong */
+	},
 	UTWIG_CONVERSATION_PHRASES, /* PlayerPhrases */
 	16, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -228,6 +231,9 @@ ExitConversation (RESPONSE_REF R)
 			NPCPhrase (NO_ULTRON_AT_BOMB);
 
 			SET_GAME_STATE (REFUSED_ULTRON_AT_BOMB, 1);
+
+			if (!GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
+				SET_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1);
 		}
 		else
 		{
@@ -305,7 +311,7 @@ ExitConversation (RESPONSE_REF R)
 			NPCPhrase (HAVE_4_SHIPS);
 
 			AlienTalkSegue ((COUNT)~0);
-			AddEscortShips (UTWIG_SHIP, 4);
+			AddEscortShips (UTWIG_SHIP, DIF_CASE(4, 4, 2));
 		}
 	}
 }
@@ -535,6 +541,8 @@ NeutralUtwig (RESPONSE_REF R)
 		NPCPhrase (ABOUT_US_3);
 		
 		SET_GAME_STATE (UTWIG_WAR_NEWS, 3);
+		if (!GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_urquan_1))
 	{
@@ -952,18 +960,13 @@ init_utwig_comm (void)
 			// generalised in the future.
 
 	utwig_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	utwig_desc.AlienTextBaseline.y = RES_SCALE(64);
-	utwig_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	utwig_desc.AlienTextBaseline.y = RES_SCALE (64);
+	utwig_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
+	// use alternate 'Happy Utwig!' track
 	if (GET_GAME_STATE (UTWIG_HAVE_ULTRON))
-	{	// use alternate 'Happy Utwig!' track
-		utwig_desc.AlienAltSongRes = UTWIG_ULTRON_MUSIC;
-		utwig_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
-	}
-	else
-	{	// regular track -- let's make sure
-		utwig_desc.AlienSongFlags &= ~LDASF_USE_ALTERNATE;
-	}
+		altResFlags |= USE_ALT_SONG;
+
 
 	if (GET_GAME_STATE (UTWIG_HAVE_ULTRON)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

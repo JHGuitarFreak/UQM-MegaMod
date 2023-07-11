@@ -40,7 +40,17 @@ static SEQUENCE* Talk;
 static SEQUENCE* Transit;
 static COUNT FirstAmbient;
 static COUNT TotalSequences;
+static BOOLEAN doFullRedraw = FALSE;
 
+//stuff for Alpha animation in HD
+BOOLEAN filterEnabled = FALSE;
+FILTER_DESC FilterData;
+
+static inline SWORD
+getAlphaChannel (BYTE index)
+{
+	return (SWORD)GetColorMapColor (COMM_COLORMAP_INDEX, index).r;
+}
 
 static inline DWORD
 randomFrameRate (SEQUENCE *pSeq)
@@ -252,6 +262,11 @@ AdvanceTalkingSequence (SEQUENCE *pSeq, DWORD ElapsedTicks)
 		ADPtr->AnimFlags &= ~ANIM_DISABLED;
 	}
 
+	if (pSeq->CurIndex == 0 && signaledFreezeTalkingAnim ())
+	{	// drop routine if we are freezed
+		return;
+	}
+
 	if (pSeq->Alarm > ElapsedTicks)
 	{	// Not time yet
 		pSeq->Alarm -= ElapsedTicks;
@@ -264,8 +279,10 @@ AdvanceTalkingSequence (SEQUENCE *pSeq, DWORD ElapsedTicks)
 	// Talking animation is like RANDOM_ANIM, except that
 	// random frames always alternate with the neutral one
 	// The animation does not stop until we reset it
-	if (pSeq->CurIndex == 0)
-	{	// random frame next
+	// Kruzen: do not advance sequence if we're freezed
+	// (all other animations still will be blocked)
+	if (pSeq->CurIndex == 0 && !signaledFreezeTalkingAnim ())
+	{	// random frame next if not freezed		
 		pSeq->CurIndex = randomFrameIndex (pSeq, 1);
 		pSeq->Alarm += randomRestartRate (pSeq);
 	}
@@ -383,7 +400,12 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 {
 	if (paused)
 	{	// Drive colormap xforms and nothing else
-		XFormColorMap_step ();
+		// Triggered only during seeking
+		if (XFormColorMap_step ())
+		{	// Once seeking is done and colors have
+			// changed - redraw a full frame
+			doFullRedraw = TRUE;
+		}
 		return FALSE;
 	}
 	else
@@ -400,6 +422,13 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 		ElapsedTicks = CurTime - LastTime;
 		LastTime = CurTime;
 
+		if (doFullRedraw)
+		{	// to make frame colors in sync
+			// mostly for HD
+			FullRedraw = TRUE;
+			doFullRedraw = FALSE;
+		}
+			
 		// Process ambient animations
 		NextActiveMask = ActiveMask;
 		pSeq = Sequences + FirstAmbient;
@@ -410,10 +439,10 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 
 			if (ADPtr->AnimFlags & ANIM_DISABLED)
 				continue;
-			
+
 			if (pSeq->Direction == NO_DIR)
 			{	// animation is paused
-				if (!conflictsWithTalkingAnim (pSeq))
+				if (!conflictsWithTalkingAnim(pSeq))
 				{	// start it up
 					pSeq->Direction = UP_DIR;
 				}
@@ -424,16 +453,16 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 			}
 			else if (ActiveMask & ADPtr->BlockMask)
 			{	// animation is blocked
-				assert (!(ActiveMask & ActiveBit) &&
-						"Check animations' mutual blocking masks");
-				assert (animAtNeutralIndex (pSeq));
+				assert(!(ActiveMask & ActiveBit) &&
+					"Check animations' mutual blocking masks");
+				assert(animAtNeutralIndex(pSeq));
 				// reschedule
-				pSeq->Alarm = randomRestartRate (pSeq) + 1;
+				pSeq->Alarm = randomRestartRate(pSeq) + 1;
 				continue;
 			}
 			else
 			{	// Time to start or advance the animation
-				if (AdvanceAmbientSequence (pSeq))
+				if (AdvanceAmbientSequence(pSeq))
 				{	// Animation is active this frame and the next
 					ActiveMask |= ActiveBit;
 					NextActiveMask |= ActiveBit;
@@ -448,12 +477,12 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 			}
 
 			if (pSeq->AnimType == PICTURE_ANIM && pSeq->Direction != NO_DIR
-					&& conflictsWithTalkingAnim (pSeq))
+				&& conflictsWithTalkingAnim(pSeq))
 			{
 				// We want to talk, but this is a running picture animation
 				// which conflicts with the talking animation
 				// See if it is safe to stop it now.
-				if (animAtNeutralIndex (pSeq))
+				if (animAtNeutralIndex(pSeq))
 				{	// pause the animation
 					pSeq->Direction = NO_DIR;
 					NextActiveMask &= ~ActiveBit;
@@ -465,37 +494,10 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 				{	// Otherwise, let the animation run until it's safe
 					CanTalk = FALSE;
 				}
-			}			
-			
-			// BW: to be checked. I've tried to remove what's supposed to be removed while keeping the Syreen zoom-in feature.
-			// It may have to be re-programmed in the new commanim style.
-			if (pSeq->AnimType == PICTURE_ANIM
-				&& (ADPtr->AnimFlags & CommData.AlienTalkDesc.AnimFlags & WAIT_TALKING)
-				&& pSeq->Direction != NO_DIR)
-			{
-				// JMS: Cut marked animations short when starting talk.
-				// The animations are marked with FAST_STOP_AT_TALK_START in the races' comm source codes.
-				if (ADPtr->AnimFlags & FAST_STOP_AT_TALK_START)
-				{	CanTalk = TRUE;
-					//pSeq->AnimObj.CurFrame = SetAbsFrameIndex(pSeq->AnimObj.CurFrame, ADPtr->StartIndex);
-					pSeq->Direction = NO_DIR;
-				}
 			}
-			
-			// JMS: This handles ambient animations which should occur only during talk
-			// A lot of conditions are necessary to eliminate unwanted animations
-			// from the duration of talk transition!
-			if (pSeq->AnimType == PICTURE_ANIM
-				&& ADPtr->AnimFlags & WHEN_TALKING 
-				&& (!(CommData.AlienTalkDesc.AnimFlags & WAIT_TALKING) 
-					|| (CommData.AlienTalkDesc.AnimFlags & TALK_INTRO)
-					|| (CommData.AlienTalkDesc.AnimFlags & TALK_DONE))
-				&& !(CommData.AlienTransitionDesc.AnimFlags & PAUSE_TALKING)
-				&& pSeq->Direction != NO_DIR)
-			{
-				// Stop the anim if not talking
-				pSeq->Direction = NO_DIR;
-			}
+
+			if (pSeq->Change && ADPtr->AnimFlags & TRIGGER_FULL_REDRAW)
+				FullRedraw = TRUE;
 		}
 		// All ambient animations have been processed. Advance the mask.
 		ActiveMask = NextActiveMask;
@@ -512,7 +514,8 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 			}
 
 			if (CommData.AlienTransitionDesc.AnimFlags
-					& (TALK_INTRO | TALK_DONE))
+					& (TALK_INTRO | TALK_DONE)
+					&& !signaledFreezeTalkingAnim ())
 			{	// Transitioning in or out of talking
 				if ((CommData.AlienTransitionDesc.AnimFlags & TALK_DONE)
 						&& Transit->Direction == NO_DIR)
@@ -580,10 +583,60 @@ ProcessCommAnimations (BOOLEAN FullRedraw, BOOLEAN paused)
 					&& !(NextActiveMask & ActiveBit))
 			{	// One-shot animation, inactive next frame
 				ADPtr->AnimFlags |= ANIM_DISABLED;
+
+				if (ADPtr->AnimFlags & RESTART_ALL_AFTER)
+					SwitchSequences (TRUE);
+
+				if (ADPtr->AnimFlags & STOP_ALL_AFTER)
+				{
+					SwitchSequences (FALSE);
+					CommData.AlienTalkDesc.AnimFlags |= PAUSE_TALKING;
+					TalkDesc.AnimFlags |= ANIM_DISABLED;
+					CommData.AlienFrame = SetAbsFrameIndex
+						(CommData.AlienFrame, ADPtr->StartIndex);
+				}
 			}
 		}
 
 		return Change;
+	}
+}
+
+static void
+ApplyFilterToStamp (STAMP s)
+{
+	COUNT i;
+
+	for (i = 0; i < FilterData.NumFilters; i++)
+	{
+		DrawMode mode, oldMode;
+		Color oldColor, FGColor;
+		SWORD factor;
+		FILTER *FTPtr = &FilterData.FilterArray[i];
+
+		if (FTPtr->Flags & FILTER_DISABLED)
+			continue;
+
+		// Get color from colormap
+		FGColor = GetColorMapColor (COMM_COLORMAP_INDEX,
+				FTPtr->ColorIndex);
+
+		// Get DRAW_FACTOR from red channel of color from colormap
+		// with set index
+		factor = getAlphaChannel (FTPtr->OpacityIndex);
+
+		// Image is transparent anyway
+		if (factor == 0x00 && FTPtr->Kind == DRAW_ALPHA)
+			continue;
+
+		mode = MAKE_DRAW_MODE (FTPtr->Kind, factor);
+		oldMode = SetContextDrawMode (mode);
+		oldColor = SetContextForeGroundColor (FGColor);
+
+		DrawFilledStamp (&s);
+
+		SetContextDrawMode (oldMode);
+		SetContextForeGroundColor (oldColor);
 	}
 }
 
@@ -597,7 +650,7 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 	BatchGraphics ();
 
 	s.origin.x = s.origin.y = 0;
-	
+
 	if (fullRedraw)
 	{
 		// Draw the main frame
@@ -631,19 +684,117 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 			ANIMATION_DESC *ADPtr = pSeq->ADPtr;
 
 			if ((ADPtr->AnimFlags & ANIM_DISABLED)
-					|| pSeq->AnimType != PICTURE_ANIM)
+				|| pSeq->AnimType != PICTURE_ANIM)
 				continue;
 
 			// Draw current animation frame only if changed
 			if (!fullRedraw && !pSeq->Change)
 				continue;
 
+			// Take into account masks to avoid forbidden overdraws
+			if (fullRedraw && ADPtr->BlockMask & ActiveMask)
+				continue;
+
 			s.frame = SetAbsFrameIndex (CommData.AlienFrame,
-					ADPtr->StartIndex + pSeq->CurIndex);
+				ADPtr->StartIndex + pSeq->CurIndex);
+			
 			DrawStamp (&s);
+			if (!fullRedraw && filterEnabled)
+				ApplyFilterToStamp (s);
+
 			pSeq->Change = FALSE;
 
 			Change = TRUE;
+		}
+	}
+	if (filterEnabled && fullRedraw)
+	{	// Kruzen: draw any filter if there are any and we need to
+		// No need to set Change to TRUE since it's already TRUE on
+		// fullRedraw
+		for (i = 0; i < FilterData.NumFilters; i++)
+		{
+			DrawMode mode, oldMode;
+			Color oldColor, FGColor;
+			SWORD factor;
+			FILTER *FTPtr = &FilterData.FilterArray[i];
+
+			if (FTPtr->Flags & FILTER_DISABLED)
+				continue;
+
+			if (FTPtr->Flags & FRAMED_FILTER)
+			{	// Special case - just draw plain frame
+				factor = getAlphaChannel (FTPtr->ColorIndex);
+
+				// Don't draw if index is outside or no frame is set
+				if (factor > FTPtr->OpacityIndex
+						|| FTPtr->FrameIndex == -1)
+					continue;
+
+				s.frame = SetAbsFrameIndex (CommData.AlienFrame,
+						FTPtr->FrameIndex + factor);
+
+				DrawStamp (&s);
+			}
+			else
+			{	// Get color from colormap
+				FGColor = GetColorMapColor (COMM_COLORMAP_INDEX,
+						FTPtr->ColorIndex);
+
+				// Get DRAW_FACTOR from red channel of color from colormap
+				// with set index
+				factor = getAlphaChannel (FTPtr->OpacityIndex);
+
+				// Image is transparent anyway
+				if (factor == 0x00 && FTPtr->Kind == DRAW_ALPHA)
+					goto postprocess;
+
+				mode = MAKE_DRAW_MODE (FTPtr->Kind, factor);
+				oldMode = SetContextDrawMode (mode);
+				oldColor = SetContextForeGroundColor (FGColor);
+
+				if (FTPtr->FrameIndex == -1)
+				{	// Don't have frame - draw rect on top of everything
+					RECT r;
+
+					GetContextClipRect (&r);
+					r.corner.x = r.corner.y = 0;
+
+					DrawFilledRectangle(&r);
+				}
+				else
+				{	// Draw filled stamp
+					s.frame = SetAbsFrameIndex (CommData.AlienFrame,
+							FTPtr->FrameIndex);
+
+					DrawFilledStamp (&s);
+				}
+
+				SetContextDrawMode (oldMode);
+				SetContextForeGroundColor (oldColor);
+			}
+
+			// postprocess stuff
+postprocess:
+			if (FTPtr->Flags & TURN_OFF_OFT && factor == 0x00)
+			{
+				filterEnabled = FALSE;
+			}
+
+			if (FTPtr->Flags & TURN_OFF_OFO && factor == 0xFF)
+			{
+				filterEnabled = FALSE;
+			}
+
+			if (FTPtr->Flags & SWITCH_OFF_ANIMS && factor == 0xFF)
+			{
+				SwitchSequences (FALSE);
+				EnableTalkingAnim (FALSE);
+			}
+			if (FTPtr->Flags & SWITCH_ON_ANIMS && factor != 0xFF)
+			{
+				SwitchSequences (TRUE);
+				EnableTalkingAnim (TRUE);
+			}
 		}
 	}
 
@@ -654,7 +805,75 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 void
 ShutYourMouth (void)
-{	// If talk animation is disabled - set talk frame to default index (closed mouth)
-	if (Talk->CurIndex != 0 && Talk->CurIndex != NULL)
+{	// If talk animation is disabled set
+	// talk frame to default index (closed mouth)
+	if (Talk->CurIndex != 0)
+	{
 		Talk->CurIndex = 0;
+	}
+}
+
+void
+SwitchSequences (BOOLEAN enableAll)
+{	// Kruzen: Needed for disabling animations during
+	// HD one-time transitions (i.e. orz frumple)
+	COUNT i;
+
+	for (i = 0; i < CommData.NumAnimations; ++i)
+	{
+		// skip one-shot anim
+		if (CommData.AlienAmbientArray[i].AnimFlags & ONE_SHOT_ANIM)
+			continue;
+
+		if (!enableAll)
+		{
+			if (CommData.AlienAmbientArray[i].AnimFlags & IMMUME_TO_STOP)
+				continue;
+
+			CommData.AlienAmbientArray[i].AnimFlags |= ANIM_DISABLED;
+		}
+		else
+		{
+			if (CommData.AlienAmbientArray[i].AnimFlags
+					& IMMUME_TO_RESTART)
+				continue;
+
+			CommData.AlienAmbientArray[i].AnimFlags &= ~ANIM_DISABLED;
+		}
+
+	}
+}
+
+void
+RunOneTimeSequence (COUNT animIndex, COUNT flags)
+{	// Kruzen: HD-only
+	if (!(CommData.AlienAmbientArray[animIndex].AnimFlags
+			& COLORXFORM_ANIM)
+			&& CommData.AlienAmbientArray[animIndex].AnimFlags
+				& ONE_SHOT_ANIM)
+	{
+		CommData.AlienAmbientArray[animIndex].AnimFlags &= ~ANIM_DISABLED;
+
+		CommData.AlienAmbientArray[animIndex].AnimFlags |= flags;
+
+		if (!(CommData.AlienAmbientArray[animIndex].AnimFlags
+				& ALPHA_MASK_ANIM))
+			SwitchSequences (FALSE);
+	}
+}
+
+void
+EngageFilters (FILTER_DESC* f_desc)
+{
+	if (!f_desc)
+		return;
+
+	FilterData = *f_desc;
+	filterEnabled = TRUE;
+}
+
+void
+DisengageFilters (void)
+{
+	filterEnabled = FALSE;
 }

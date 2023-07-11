@@ -61,7 +61,13 @@ extern STRINGPTR GetStringName (STRING String);
 extern STRINGPTR GetStringSoundClip (STRING String);
 extern STRINGPTR GetStringTimeStamp (STRING String);
 extern STRING GetStringByName (STRING_TABLE StringTable, const char *index);
+extern BOOLEAN CheckResString (RESOURCE res);
+extern const char *LoadStringInstance (RESOURCE res);
 
+#define UNICHAR_TAB           0x0009
+#define STR_TAB             "\x09"
+#define UNICHAR_SPACE         0x0020
+#define STR_SPACE           "\x20"
 #define UNICHAR_DEGREE_SIGN   0x00b0
 #define STR_DEGREE_SIGN     "\xC2\xB0"
 #define UNICHAR_INFINITY_SIGN 0x221e
@@ -80,6 +86,8 @@ extern STRING GetStringByName (STRING_TABLE StringTable, const char *index);
 #define STR_TRIANGLE        "\xE2\x96\xB3"
 #define UNICHAR_CIRCLE        0x25EF
 #define STR_CIRCLE          "\xE2\x97\xAf"
+
+#define STR_NULL "null"
 
 #if defined(__cplusplus)
 }

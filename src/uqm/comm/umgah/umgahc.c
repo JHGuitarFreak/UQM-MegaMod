@@ -40,8 +40,11 @@ static LOCDATA umgah_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	UMGAH_COLOR_MAP, /* AlienColorMap */
 	UMGAH_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	UMGAH_CONVERSATION_PHRASES, /* PlayerPhrases */
 	16, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -244,7 +247,7 @@ CombatIsInevitable (RESPONSE_REF R)
 		NPCPhrase (FUNNY_IDEA);
 
 		AlienTalkSegue ((COUNT)~0);
-		AddEscortShips (UMGAH_SHIP, 4);
+		AddEscortShips (UMGAH_SHIP, DIF_CASE(4, 4, 2));
 		SET_GAME_STATE (UMGAH_HOSTILE, 1);
 	}
 }
@@ -703,8 +706,8 @@ init_umgah_comm (void)
 			// generalised in the future.
 
 	umgah_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	umgah_desc.AlienTextBaseline.y = RES_SCALE(4);
-	umgah_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	umgah_desc.AlienTextBaseline.y = 0;
+	umgah_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if ((GET_GAME_STATE (TALKING_PET) && !GET_GAME_STATE (UMGAH_HOSTILE))
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

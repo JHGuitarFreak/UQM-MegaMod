@@ -2938,4 +2938,17 @@
       <Filter>Resources</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\doc\devel\fntformat">
+      <Filter>Doc\Devel</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\doc\devel\luasyntax">
+      <Filter>Doc\Devel</Filter>
+    </None>
+    <None Include="..\..\doc\devel\lua">
+      <Filter>Doc\Devel</Filter>
+    </None>
+  </ItemGroup>
 </Project>

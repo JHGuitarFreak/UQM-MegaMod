@@ -36,8 +36,9 @@
 #include "libs/input/sdl/vcontrol.h"
 #include "setup.h"
 #include "setupmenu.h"
+#include "libs/graphics/gfx_common.h"
 
-#ifdef defined(ANDROID) || defined(__ANDROID__)
+#if defined(ANDROID) || defined(__ANDROID__)
 #define ACCELERATION_INCREMENT(ONE_SECOND)
 #define MENU_REPEAT_DELAY(ONE_SECOND)
 #else
@@ -50,7 +51,7 @@ typedef struct
 	BOOLEAN (*InputFunc) (void *pInputState);
 } INPUT_STATE_DESC;
 
-/* These static variables are the values that are set by the controllers. */
+// These static variables are the values that are set by the controllers.
 
 typedef struct
 {
@@ -266,8 +267,9 @@ UpdateInputState (void)
 			for (j = 0; j < NUM_KEYS; j++)
 			{
 				_check_for_pulse (&PulsedInputState.key[i][j],
-						&CachedInputState.key[i][j], &OldInputState.key[i][j],
-						&RepeatDelays.key[i][j], &NewTime, &Times.key[i][j]);
+						&CachedInputState.key[i][j],
+						&OldInputState.key[i][j], &RepeatDelays.key[i][j],
+						&NewTime, &Times.key[i][j]);
 			}
 		}
 		for (i = 0; i < NUM_MENU_KEYS; i++)
@@ -287,6 +289,12 @@ UpdateInputState (void)
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])
 		debugKeyPressedSynchronous ();
+	if (PulsedInputState.menu[KEY_DEBUG_2])
+		debugKey2PressedSynchronous ();
+	if (PulsedInputState.menu[KEY_DEBUG_3])
+		debugKey3PressedSynchronous ();
+	if (PulsedInputState.menu[KEY_DEBUG_4])
+		debugKey4PressedSynchronous ();
 #endif
 }
 
@@ -445,15 +453,15 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 	}
 	if (keyState[KEY_WEAPON])
 	{
-		if (antiCheatAlt (OPTVAL_ANHUR)
-			|| antiCheatAlt (OPTVAL_SEKHMET))
+		if (antiCheatAlt (OPTVAL_INF_ENERGY)
+				|| antiCheatAlt (OPTVAL_FULL_GOD))
 			resetEnergyBattle ();
 		InputState |= BATTLE_WEAPON;
 	}
 	if (keyState[KEY_SPECIAL])
 	{
-		if (antiCheatAlt (OPTVAL_ANHUR)
-			|| antiCheatAlt (OPTVAL_SEKHMET))
+		if (antiCheatAlt (OPTVAL_INF_ENERGY)
+				|| antiCheatAlt (OPTVAL_FULL_GOD))
 			resetEnergyBattle ();
 		InputState |= BATTLE_SPECIAL;
 	}

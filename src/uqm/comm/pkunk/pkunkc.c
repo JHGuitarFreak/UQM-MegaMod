@@ -19,7 +19,6 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
-
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
@@ -41,8 +40,11 @@ static LOCDATA pkunk_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	PKUNK_COLOR_MAP, /* AlienColorMap */
 	PKUNK_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	PKUNK_CONVERSATION_PHRASES, /* PlayerPhrases */
 	3, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -111,7 +113,7 @@ ShipsReady (void)
 static void
 PrepareShip (void)
 {
-#define MAX_PKUNK_SHIPS 4
+#define MAX_PKUNK_SHIPS DIF_CASE (4, 4, 2)
 	if (AddEscortShips (PKUNK_SHIP, MAX_PKUNK_SHIPS))
 	{
 		BYTE mi, di, yi;
@@ -159,6 +161,7 @@ ExitConversation (RESPONSE_REF R)
 		SET_GAME_STATE (PKUNK_INFO, 0);
 
 		AddEvent (RELATIVE_EVENT, 6, 0, 0, ADVANCE_PKUNK_MISSION);
+
 		if (EscortFeasibilityStudy (PKUNK_SHIP) == 0)
 			NPCPhrase (INIT_NO_ROOM);
 		else
@@ -570,6 +573,8 @@ PkunkHome (RESPONSE_REF R)
 			SET_GAME_STATE (CLEAR_SPINDLE_ON_SHIP, 1);
 		}
 		NPCPhrase (CAN_BE_FRIENDS);
+		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
+			SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
 
 		SET_GAME_STATE (PKUNK_MANNER, 3);
 		SET_GAME_STATE (PKUNK_VISITS, 0);
@@ -767,12 +772,16 @@ PkunkNeutralSpace (RESPONSE_REF R)
 	if (PLAYER_SAID (R, form_alliance))
 	{
 		NPCPhrase (GO_TO_HOMEWORLD);
+		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
+			SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
 
 		DISABLE_PHRASE (form_alliance);
 	}
 	else if (PLAYER_SAID (R, can_you_help))
 	{
 		NPCPhrase (GO_TO_HOMEWORLD_AGAIN);
+		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
+			SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
 
 		DISABLE_PHRASE (can_you_help);
 	}
@@ -1039,6 +1048,8 @@ Intro (void)
 					break;
 				case 3:
 					NPCPhrase (NEUTRAL_SPACE_HELLO_4);
+					if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
+						SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
 					--NumVisits;
 					break;
 			}
@@ -1126,8 +1137,8 @@ init_pkunk_comm (void)
 			// generalised in the future.
 
 	pkunk_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	pkunk_desc.AlienTextBaseline.y = RES_SCALE(4);
-	pkunk_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	pkunk_desc.AlienTextBaseline.y = 0;
+	pkunk_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (GET_GAME_STATE (PKUNK_MANNER) == 3
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)

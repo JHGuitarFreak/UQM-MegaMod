@@ -20,6 +20,7 @@
 #include "libs/log.h"
 #include "scalers.h"
 #include "uqmversion.h"
+#include "png2sdl.h"
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -35,8 +36,6 @@ static TFB_SDL2_SCREENINFO SDL2_Screens[TFB_GFX_NUMSCREENS];
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static const char* rendererBackend = NULL;
-
-static int ScreenFilterMode;
 
 static TFB_ScaleFunc scaler = NULL;
 
@@ -134,7 +133,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		SDL_RendererInfo info;
 		char caption[200];
 
-		sprintf (caption, "The Ur-Quan Masters v%d.%d.%g %s",
+		sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
 				UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 		window = SDL_CreateWindow (caption,
@@ -465,10 +464,48 @@ TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 static void
 TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 {
-	SDL_SetRenderDrawBlendMode (renderer, a == 255 ? SDL_BLENDMODE_NONE 
-			: SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor (renderer, r, g, b, a);
-	SDL_RenderFillRect (renderer, rect);
+	if (r == 0 || r == 255)
+	{
+		SDL_SetRenderDrawBlendMode (renderer, a == 255 ? SDL_BLENDMODE_NONE
+				: SDL_BLENDMODE_BLEND);
+
+		SDL_SetRenderDrawColor (renderer, r, g, b, a);
+		SDL_RenderFillRect (renderer, rect);
+	}
+	else
+	{
+		if (g == 0)
+		{
+			SDL_SetRenderDrawBlendMode (renderer,
+					SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE, r, SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_MAXIMUM));
+
+			SDL_SetRenderDrawColor (renderer, a, a, a, 255);
+			SDL_RenderFillRect (renderer, rect);
+		}
+		else
+		{
+			Uint8 c = a > 175 ? 175 : a;
+			SDL_SetRenderDrawBlendMode (renderer,
+					SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD,
+						SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_MAXIMUM));
+			SDL_SetRenderDrawColor (renderer, c, c, c, 255);
+			SDL_RenderFillRect (renderer, rect);
+
+			SDL_SetRenderDrawBlendMode (renderer,
+					SDL_ComposeCustomBlendMode (SDL_BLENDFACTOR_ONE,
+						SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_REV_SUBTRACT,
+						SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE,
+						SDL_BLENDOPERATION_MAXIMUM));
+			SDL_SetRenderDrawColor (renderer, a, a, a, 255);
+			SDL_RenderFillRect (renderer, rect);
+		}
+	}
 }
 
 static void
@@ -478,6 +515,44 @@ TFB_SDL2_Postprocess (void)
 		TFB_SDL2_ScanLines ();
 
 	SDL_RenderPresent (renderer);
+}
+
+bool
+TFB_SDL2_GammaCorrection (float gamma)
+{
+	return (SDL_SetWindowBrightness(window, gamma) == 0);
+}
+
+BOOLEAN
+TFB_SDL_ScreenShot (const char *path)
+{
+	SDL_Surface *tmp = SDL_GetWindowSurface (window);
+	BOOLEAN successful = FALSE;
+
+	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+	{
+		float width, height;
+		width = (float)tmp->w / 320;
+		height = (float)tmp->h / 240;
+
+		if (width > height)
+			tmp->w = width * 320;
+		else if (height > width)
+			tmp->h = width * 240;
+	}
+
+	tmp = SDL_CreateRGBSurfaceWithFormat (0, tmp->w, tmp->h, 32,
+			SDL_PIXELFORMAT_RGBA32);
+
+	SDL_LockSurface (tmp);
+	SDL_RenderReadPixels (renderer, NULL, tmp->format->format,
+		tmp->pixels, tmp->pitch);
+	if (SDL_SavePNG (tmp, path) == 0)
+		successful = TRUE;
+	SDL_UnlockSurface (tmp);
+	SDL_FreeSurface (tmp);
+
+	return successful;
 }
 
 #endif

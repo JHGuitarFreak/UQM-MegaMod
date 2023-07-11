@@ -36,10 +36,13 @@ static LOCDATA blackurq_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	BLACKURQ_COLOR_MAP, /* AlienColorMap */
 	BLACKURQ_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	BLACKURQ_CONVERSATION_PHRASES, /* PlayerPhrases */
-	8, /* NumAnimations */
+	9, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			7, /* StartIndex */
@@ -59,7 +62,7 @@ static LOCDATA blackurq_desc =
 		},
 		{	// New eye animation
 			42, /* StartIndex */
-			8, /* NumFrames */
+			7, /* NumFrames */
 			CIRCULAR_ANIM, /* AnimFlags */
 			ONE_SECOND / 15, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
@@ -97,16 +100,15 @@ static LOCDATA blackurq_desc =
 			ONE_SECOND / 10, 0, /* RestartRate */
 			0, /* BlockMask */
 		},
-		{
+		{	// "Left" extremity
 			33, /* StartIndex */
 			5, /* NumFrames */
-			CIRCULAR_ANIM
-					| WAIT_TALKING, /* AnimFlags */
+			CIRCULAR_ANIM | WAIT_TALKING, /* AnimFlags */
 			ONE_SECOND / 10, 0, /* FrameRate */
 			ONE_SECOND, ONE_SECOND * 3, /* RestartRate */
 			0, /* BlockMask */
 		},
-		{
+		{	// "Right" extremeity
 			38, /* StartIndex */
 			4, /* NumFrames */
 			CIRCULAR_ANIM, /* AnimFlags */
@@ -119,7 +121,7 @@ static LOCDATA blackurq_desc =
 		1, /* StartIndex */
 		2, /* NumFrames */
 		0, /* AnimFlags */
-		ONE_SECOND / 6, 0, /* FrameRate */
+		ONE_SECOND / 30, 0, /* FrameRate */
 		0, 0, /* RestartRate */
 		0, /* BlockMask */
 	},
@@ -559,7 +561,7 @@ init_blackurq_comm (void)
 
 	blackurq_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	blackurq_desc.AlienTextBaseline.y = 0;
-	blackurq_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	blackurq_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	if (!GET_GAME_STATE (KOHR_AH_KILLED_ALL)
 			&& LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE)

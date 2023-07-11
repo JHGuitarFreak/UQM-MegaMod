@@ -36,16 +36,16 @@
 // Buzzsaw
 #define WEAPON_ENERGY_COST 6
 #define WEAPON_WAIT 6
-#define MISSILE_OFFSET RES_SCALE(9)
-#define KOHR_AH_OFFSET RES_SCALE(28)
-#define MISSILE_SPEED RES_SCALE(64)
+#define MISSILE_OFFSET RES_SCALE (9)
+#define KOHR_AH_OFFSET RES_SCALE (28)
+#define MISSILE_SPEED RES_SCALE (64)
 #define MISSILE_LIFE 64
 		/* actually, it's as long as you hold the button down.*/
 #define MISSILE_HITS 10
 #define MISSILE_DAMAGE 4
 #define SAW_RATE 0
 #define MAX_SAWS 8
-#define ACTIVATE_RANGE RES_SCALE(224)
+#define ACTIVATE_RANGE RES_SCALE (224)
 		/* Originally SPACE_WIDTH - the distance within which
 		 * stationary sawblades will home */
 #define TRACK_WAIT 4
@@ -56,8 +56,8 @@
 // F.R.I.E.D.
 #define SPECIAL_ENERGY_COST (MAX_ENERGY_SIZE / 2)
 #define SPECIAL_WAIT 9
-#define GAS_OFFSET RES_SCALE(2)
-#define GAS_SPEED RES_SCALE(16)
+#define GAS_OFFSET RES_SCALE (2)
+#define GAS_SPEED RES_SCALE (16)
 #define GAS_RATE 2 /* Controls animation of the gas cloud decay - the decay
                     * animation advances one frame every GAS_RATE frames. */
 #define GAS_HITS 100
@@ -115,7 +115,8 @@ static RACE_DESC black_urquan_desc =
 		},
 		{
 			KOHR_AH_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		KOHR_AH_VICTORY_SONG,
 		KOHR_AH_SHIP_SOUNDS,
@@ -224,7 +225,7 @@ buzztrack_preprocess (ELEMENT *ElementPtr)
 			{
 				ElementPtr->thrust_wait = TRACK_WAIT;
 				SetVelocityVector (&ElementPtr->velocity,
-						DISPLAY_TO_WORLD (RES_SCALE(2)), facing);
+						DISPLAY_TO_WORLD (RES_SCALE (2)), facing);
 			}
 		}
 	}
@@ -485,7 +486,7 @@ spawn_gas_cloud (ELEMENT *ElementPtr)
 	MissileBlock.index = 0;
 	MissileBlock.sender = ElementPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
-	MissileBlock.pixoffs = RES_SCALE(20);
+	MissileBlock.pixoffs = RES_SCALE (20);
 	MissileBlock.speed = GAS_SPEED;
 	MissileBlock.hit_points = GAS_HITS;
 	MissileBlock.damage = GAS_DAMAGE;
@@ -557,14 +558,10 @@ init_black_urquan (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
-		black_urquan_desc.characteristics.max_thrust =
-				RES_SCALE (MAX_THRUST);
-		black_urquan_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		black_urquan_desc.cyborg_control.WeaponRange =
-				CLOSE_RANGE_WEAPON_HD;
+	if (IS_HD) {
+		black_urquan_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
+		black_urquan_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		black_urquan_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
 	else
 	{

@@ -22,12 +22,12 @@
 #include "libs/graphics/drawable.h"
 #include "../nameref.h"
 #include "../igfxres.h"
+#include <math.h>
 
 #include "planets.h"
+#include "uqm/setup.h"
 
 #define NUM_QUADS 4
-
-extern FRAME SpaceJunkFrame;
 
 void
 DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
@@ -64,7 +64,7 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		if (corners.second.y < corners.first.y)
 			corners.second.y = corners.first.y;
 
-		DrawLine (&corners);
+		DrawLine (&corners, 1);
 		return;
 	}
 
@@ -140,7 +140,8 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 			if (num_off_pixels > 1)
 			{
 				SetPrimType(&prim[x], STAMPFILL_PRIM); // Orbit dots
-				prim[x].Object.Stamp.frame = SetAbsFrameIndex (SpaceJunkFrame, 29);
+				prim[x].Object.Stamp.frame =
+						SetAbsFrameIndex (MiscDataFrame, 106);
 			}
 			else
 				SetPrimType (&prim[x], !scaled ? POINT_PRIM : POINT_PRIM_HD); // Orbit dots
@@ -250,7 +251,7 @@ DrawFilledOval (RECT *pRect)
 		if (corners.second.y < corners.first.y)
 			corners.second.y = corners.first.y;
 
-		DrawLine (&corners);
+		DrawLine (&corners, 1);
 		return;
 	}
 
@@ -298,7 +299,9 @@ DrawFilledOval (RECT *pRect)
 			prim[0].Object.Rect.corner.y = B - y;
 			prim[1].Object.Rect.corner.y = B + y;
 
-			DrawBatch (prim, StartPrim, 0);
+			if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT)
+					|| ((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+				DrawBatch (prim, StartPrim, 0);
 
 			--y;
 			dy -= TwoAsquared;
@@ -321,7 +324,9 @@ DrawFilledOval (RECT *pRect)
 		prim[0].Object.Rect.corner.y = B - y;
 		prim[1].Object.Rect.corner.y = B + y;
 
-		DrawBatch (prim, StartPrim, 0);
+		if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT)
+				|| ((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+			DrawBatch (prim, StartPrim, 0);
 
 		if (d < 0)
 		{
@@ -336,4 +341,124 @@ DrawFilledOval (RECT *pRect)
 	}
 }
 
+void
+DrawEllipseQuadrants (int cx, int cy, int x, int y, int shear, int filled)
+{
+	POINT p;
+	LINE l;
 
+	if (filled && y != 0)
+	{
+		l.first.x = l.second.x = cx - x;
+		l.first.y = cy - shear - y;
+		l.second.y = cy - shear + y;
+		DrawLine (&l, 1);
+
+		if (x != 0)
+		{
+			l.first.x = l.second.x = cx + x;
+			l.first.y = cy + shear - y;
+			l.second.y = cy + shear + y;
+			DrawLine (&l, 1);
+		}
+	}
+	else
+	{
+		p.x = cx - x;
+		p.y = cy - shear - y;
+		DrawPoint (&p);
+		p.y = cy - shear + y;
+		DrawPoint (&p);
+
+		if (x != 0)
+		{
+			p.x = cx + x;
+			p.y = cy + shear - y;
+			DrawPoint (&p);
+			p.y = cy + shear + y;
+			DrawPoint (&p);
+		}
+	}
+}
+
+void
+DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
+{
+	// adapted from https://zingl.github.io/Bresenham.pdf section 2.1
+	int x = rx;
+	int y = 0;
+	int s = shear;
+	int d = 0;
+	const int sRound = (shear < 0) ? -(rx / 2) : (rx / 2);
+	FWORD dex = 2 * (long)ry * ry;
+	FWORD ex = (long)ry * ry - (long)rx * dex;
+	FWORD dey = 2 * (long)rx * rx;
+	FWORD ey = (long)rx * rx;
+	FWORD e = ex + ey;
+	FWORD e2;
+
+	if (rx < 0)
+		rx = 0;
+	if (ry < 0)
+		ry = 0;
+	if (!rx || !ry)
+	{
+		LINE l;
+		l.first.x = cx - rx;
+		l.first.y = cy - ry - shear;
+		l.second.x = cx + rx;
+		l.second.y = cy + ry + shear;
+		DrawLine (&l, 1);
+		return;
+	}
+
+	do
+	{
+		if (!filled && !d--)
+		{
+			d = dotted;
+			s = (int)(((FWORD)x * shear + sRound) / rx);
+			DrawEllipseQuadrants (cx, cy, x, y, -s, 0);
+		}
+
+		e2 = e * 2;
+		if (e2 >= ex)
+		{
+			if (filled)
+			{
+				s = (int)(((FWORD)x * shear + sRound) / rx);
+				DrawEllipseQuadrants (cx, cy, x, y, -s, 1);
+			}
+			x--;
+			ex += dex;
+			e += ex;
+		}
+		if (e2 <= ey)
+		{
+			y++;
+			ey += dey;
+			e += ey;
+		}
+	} while (x > 0);
+
+	// when x=0, y must be ry and s must be 0
+	DrawEllipseQuadrants (cx, cy, 0, ry, 0, filled);
+}
+
+void
+DrawRotatedEllipse (int cx, int cy, int rx, int ry, int angle_deg, int filled, int dotted)
+{
+	// based on https://zingl.github.io/Bresenham.pdf section 4.3
+	double rx2 = (double)rx * rx;
+	double ry2 = (double)ry * ry;
+	double theta = (angle_deg % 90) * M_PI / 180.0;
+	double st = sin (theta);
+	double ct = cos (theta);
+	double xd2 = rx2 * ct * ct + ry2 * st * st;
+	double xd = sqrt (xd2);
+	int shear = (int)(((rx2 - ry2) * st * ct) / xd + 0.5);
+
+	rx = (int)(xd + 0.5);
+	ry = (int)(sqrt ((rx2 * ry2) / xd2) + 0.5);
+	DrawEllipse (cx, cy, rx, ry, shear, filled, dotted);
+}

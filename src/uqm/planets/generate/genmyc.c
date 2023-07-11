@@ -62,6 +62,55 @@ const GenerateFunctions generateMyconFunctions = {
 	/* .pickupLife       = */ GenerateDefault_pickupLife,
 };
 
+static bool
+GenerateMyconDefenders (BYTE index)
+{
+#define STATE_OFFSET 29
+	BYTE shift = index - STATE_OFFSET;
+
+	if (!(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << shift))
+	{
+		COUNT i;
+
+		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+		ReinitQueue (&GLOBAL (ip_group_q));
+		assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+		for (i = 0; i < 4; ++i)
+			CloneShipFragment (MYCON_SHIP,
+				&GLOBAL (npc_built_ship_q), 0);
+
+		GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+		InitCommunication (MYCON_CONVERSATION);
+
+		if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+			return true;
+
+		{
+			BOOLEAN Survivors = GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
+
+			GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+			ReinitQueue (&GLOBAL (npc_built_ship_q));
+			GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
+			if (Survivors)
+				return true;
+
+			{
+				UWORD state;
+
+				state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+				state |= 1 << shift;
+
+				SET_GAME_STATE (HM_ENCOUNTERS, state);
+			}
+
+			RepairSISBorder ();
+		}
+	}
+	return false;
+}
 
 static bool
 GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
@@ -75,7 +124,7 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-	} 	
+	}
 	
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
@@ -95,6 +144,8 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
+	else
+		CheckForHabitable (solarSys);
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
 
@@ -144,8 +195,9 @@ GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				else
 				{
 					COUNT i;
+					COUNT sum = DIF_CASE (5, 3, 12);
 
-					for (i = 0; i < 5; ++i)
+					for (i = 0; i < sum; ++i)
 						CloneShipFragment (MYCON_SHIP,
 								&GLOBAL (npc_built_ship_q), 0);
 				}
@@ -202,6 +254,12 @@ GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			case EGG_CASE2_DEFINED:
 				if (GET_GAME_STATE (KNOW_ABOUT_SHATTERED) == 0)
 					SET_GAME_STATE (KNOW_ABOUT_SHATTERED, 1);
+
+				if (DIF_HARD && StartSphereTracking (MYCON_SHIP))
+				{
+					if (GenerateMyconDefenders (CurStarDescPtr->Index))
+						return true;
+				}
 
 				if (!isNodeRetrieved (&solarSys->SysInfo.PlanetInfo,
 						ENERGY_SCAN, 0))

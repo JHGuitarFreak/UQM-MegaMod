@@ -47,7 +47,7 @@
 #define HYPER_LIFE 5
 
 // HD Values
-#define LASER_RANGE_HD RES_SCALE(LASER_RANGE)
+#define LASER_RANGE_HD RES_SCALE (LASER_RANGE)
 
 static RACE_DESC arilou_desc =
 {
@@ -99,7 +99,8 @@ static RACE_DESC arilou_desc =
 		},
 		{
 			ARILOU_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		ARILOU_VICTORY_SONG,
 		ARILOU_SHIP_SOUNDS,
@@ -128,7 +129,7 @@ initialize_autoaim_laser (ELEMENT *ShipPtr, HELEMENT LaserArray[])
 	SIZE delta_facing;
 	STARSHIP *StarShipPtr;
 	LASER_BLOCK LaserBlock;
-	COUNT LaserRange = RES_BOOL(LASER_RANGE, LASER_RANGE_HD);
+	COUNT LaserRange = RES_BOOL (LASER_RANGE, LASER_RANGE_HD);
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 	LaserBlock.face = orig_facing = StarShipPtr->ShipFacing;
@@ -142,7 +143,7 @@ initialize_autoaim_laser (ELEMENT *ShipPtr, HELEMENT LaserArray[])
 	LaserBlock.ey = SINE (FACING_TO_ANGLE (LaserBlock.face), LaserRange);
 	LaserBlock.sender = ShipPtr->playerNr;
 	LaserBlock.flags = IGNORE_SIMILAR;
-	LaserBlock.pixoffs = RES_SCALE(ARILOU_OFFSET);
+	LaserBlock.pixoffs = RES_SCALE (ARILOU_OFFSET);
 	LaserBlock.color = BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x0A), 0x0E);
 	LaserArray[0] = initialize_laser (&LaserBlock);
 
@@ -298,7 +299,7 @@ arilou_preprocess (ELEMENT *ElementPtr)
 
 						dist = sqrt(dx*dx + dy*dy);
 					}
-					while (dist < (RES_SCALE(2800)));
+					while (dist < (RES_SCALE (2800)));
 				}
 				else
 				{
@@ -319,11 +320,9 @@ init_arilou (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		arilou_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		arilou_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
+		arilou_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		arilou_desc.cyborg_control.WeaponRange = LASER_RANGE_HD >> 1;
 	}
 	else

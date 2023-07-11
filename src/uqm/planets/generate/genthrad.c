@@ -75,8 +75,6 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 	
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
-	
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].alternate_colormap = NULL;
 
 	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED)
 	{
@@ -163,7 +161,58 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					&& (BYTE)(GET_GAME_STATE (THRADD_MISSION) - 1) >= 3))
 				return true;
 
-			RepairSISBorder ();
+			RepairSISBorder (); // reachable if you're frendly with thraddsh and talk to them at helix world
+		}
+		else if (DIF_HARD 
+					&& CurStarDescPtr->Index == AQUA_HELIX_DEFINED
+					&& !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << THRADDASH_ENCOUNTER) 
+					&& (StartSphereTracking (THRADDASH_SHIP) || !(GET_GAME_STATE(KOHR_AH_FRENZY))))
+		{
+			COUNT sum, i;
+
+			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+			ReinitQueue (&GLOBAL (ip_group_q));
+			assert (CountLinks (&GLOBAL(npc_built_ship_q)) == 0);
+
+			if (!StartSphereTracking (THRADDASH_SHIP)
+					|| GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH))
+				sum = 6;
+			else
+				sum = 12;
+
+			for (i = 0; i < sum; ++i)
+				CloneShipFragment (THRADDASH_SHIP,
+					&GLOBAL (npc_built_ship_q), 0);
+
+			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
+			GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+			InitCommunication (THRADD_CONVERSATION);
+
+			if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+				return true;
+
+			{
+				BOOLEAN Survivors = GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
+
+				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+				ReinitQueue (&GLOBAL(npc_built_ship_q));
+				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+
+				if (Survivors)
+					return true;
+
+				{
+					UWORD state;
+
+					state = GET_GAME_STATE (HM_ENCOUNTERS);
+
+					state |= 1 << THRADDASH_ENCOUNTER;
+
+					SET_GAME_STATE (HM_ENCOUNTERS, state);
+				}
+
+				RepairSISBorder ();
+			}
 		}
 
 		if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED
@@ -174,6 +223,28 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					CaptureDrawable (LoadGraphic (AQUA_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (AQUA_STRTAB));
+
+			if (!PrimeSeed)
+			{
+				GenerateDefault_generateOrbital (solarSys, world);
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 160 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = -66;
+				if (!DIF_HARD)
+				{
+					solarSys->SysInfo.PlanetInfo.Weather = 3;
+					solarSys->SysInfo.PlanetInfo.Tectonics = 6;
+				}
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 105;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 97;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 101;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 205;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 10;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+
+				return true;
+			}
 		}
 		else if (CurStarDescPtr->Index == THRADD_DEFINED)
 		{
@@ -182,6 +253,28 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+
+			if (!PrimeSeed)
+			{
+				GenerateDefault_generateOrbital (solarSys, world);
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 194 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 38;
+				if (!DIF_HARD)
+				{
+					solarSys->SysInfo.PlanetInfo.Weather = 3;
+					solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+				}
+				solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
+				solarSys->SysInfo.PlanetInfo.PlanetRadius = 84;
+				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 86;
+				solarSys->SysInfo.PlanetInfo.RotationPeriod = 252;
+				solarSys->SysInfo.PlanetInfo.AxialTilt = 21;
+				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
+
+				return true;
+			}
 		}
 	}
 

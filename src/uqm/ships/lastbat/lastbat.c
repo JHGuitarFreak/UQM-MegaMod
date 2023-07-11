@@ -47,27 +47,28 @@
 #define WEAPON_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 10)
 #define COMET_DAMAGE 2
 #define COMET_OFFSET 0
-#define COMET_HITS DIF_CASE(12, 10, 15)
-#define COMET_SPEED DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE(12), RES_SCALE(10), RES_SCALE(17)))
+#define COMET_HITS DIF_CASE (12, 10, 15)
+#define COMET_SPEED RES_SCALE (DISPLAY_TO_WORLD (IF_EASY (10, 12))) // Kryzen: 17
 #define COMET_LIFE 2
-#define COMET_TURN_WAIT DIF_CASE(3, 3, 2)// compensate high speed with lesser maneuverability
-#define MAX_COMETS DIF_CASE(3, 2, 4)
+#define COMET_TURN_WAIT 3 // Kruzen: 2
+		// compensate high speed with lesser maneuverability
+#define MAX_COMETS DIF_CASE (3, 2, 4)
 #define WEAPON_ENERGY_COST 2
 		/* Used for samatra_desc.weapon_energy_cost, but the value isn't
 		 * actually used. */
 
 // Green sentinel
 #define SPECIAL_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 3)
-#define SENTINEL_SPEED DISPLAY_TO_WORLD (RES_SCALE(8))
+#define SENTINEL_SPEED DISPLAY_TO_WORLD (RES_SCALE (8))
 #define SENTINEL_LIFE 2
 #define SENTINEL_OFFSET 0
 #define SENTINEL_HITS DIF_CASE(10, 9, 12)
 #define SENTINEL_DAMAGE DIF_CASE(1, 1, 2)
 #define TRACK_WAIT 1
 #define ANIMATION_WAIT 1
-#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (DIF_CASE(RES_SCALE(10), RES_SCALE(8), RES_SCALE(10))))
+#define RECOIL_VELOCITY WORLD_TO_VELOCITY (RES_SCALE (DISPLAY_TO_WORLD (IF_EASY (8, 10))))
 #define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
-#define MAX_SENTINELS DIF_CASE(4, 4, 5)
+#define MAX_SENTINELS DIF_CASE (4, 4, 5)
 #define SPECIAL_ENERGY_COST 3
 		/* Used for samatra_desc.special_energy_cost, but the value isn't
 		 * actually used. */
@@ -78,7 +79,7 @@
 #define GATE_HITS 100
 
 // Red generators
-#define GENERATOR_HITS DIF_CASE(15, 12, 18)
+#define GENERATOR_HITS DIF_CASE (15, 12, 18)
 #define MAX_GENERATORS 8
 
 static RACE_DESC samatra_desc =
@@ -131,7 +132,8 @@ static RACE_DESC samatra_desc =
 		},
 		{
 			SAMATRA_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		NULL_RESOURCE,
 		SAMATRA_SHIP_SOUNDS,
@@ -673,7 +675,7 @@ sentinel_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 						COSINE (angle, MAX_RECOIL_VELOCITY),
 						SINE (angle, MAX_RECOIL_VELOCITY));
 			}
-			if (DIFFICULTY == HARD)
+			if (DIF_HARD)
 			{
 				if (StarShipPtr->RaceDescPtr->ship_info.energy_level < ENERGY_DRAIN)
 					DeltaEnergy(ElementPtr1, -StarShipPtr->RaceDescPtr->ship_info.energy_level);
@@ -820,7 +822,7 @@ samatra_preprocess (ELEMENT *ElementPtr)
 			{ -580 + 32,  188 - 24},
 		};
 
-		offs = RES_BOOL(offs_orig, offs_hd);
+		offs = RES_BOOL (offs_orig, offs_hd);
 
 		for (StarShipPtr->RaceDescPtr->num_generators = 0;
 				StarShipPtr->RaceDescPtr->num_generators < MAX_GENERATORS;

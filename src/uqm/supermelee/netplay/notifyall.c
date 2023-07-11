@@ -75,7 +75,8 @@ void
 Netplay_NotifyAll_setShip (MELEE_STATE *pMS, size_t playerNr, size_t index)
 {
 	MeleeSetup *setup = pMS->meleeSetup;
-	MeleeShip ship = MeleeSetup_getShip (setup, playerNr, index);
+	MeleeShip ship = MeleeSetup_getShip (
+			setup, playerNr, (FleetShipIndex)index);
 
 	size_t playerI;
 	for (playerI = 0; playerI < NUM_PLAYERS; playerI++)
@@ -91,7 +92,8 @@ Netplay_NotifyAll_setShip (MELEE_STATE *pMS, size_t playerNr, size_t index)
 		if (NetConnection_getState (conn) != NetState_inSetup)
 			continue;
 
-		Netplay_Notify_setShip (conn, playerNr, index, ship);
+		Netplay_Notify_setShip (
+				conn, playerNr, (FleetShipIndex)index, ship);
 	}
 }
 

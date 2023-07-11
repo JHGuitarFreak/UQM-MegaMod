@@ -19,7 +19,7 @@
 #include "../commall.h"
 #include "../comandr/resinst.h"
 #include "strings.h"
-#include "../../../options.h"
+#include "options.h"
 #include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/setup.h"
@@ -31,6 +31,7 @@
 #include "libs/inplib.h"
 #include "uqm/oscill.h"
 #include "uqm/nameref.h"
+#include "uqm/controls.h"
 
 
 static void TellMission (RESPONSE_REF R);
@@ -53,8 +54,11 @@ static LOCDATA commander_desc =
 	VALIGN_MIDDLE, /* AlienTextValign */
 	COMMANDER_COLOR_MAP, /* AlienColorMap */
 	COMMANDER_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		COMMANDER_PMAP_ANIM_RED, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		STARBASE_ALT_MUSIC, /* AlienAltSong */
+	},
 	STARBASE_CONVERSATION_PHRASES, /* PlayerPhrases */
 	10, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -164,6 +168,158 @@ static LOCDATA commander_desc =
 
 static DWORD CurBulletinMask;
 
+static COUNT
+DoSellMinerals (void)
+{
+	COUNT i;
+	COUNT total = 0;
+	BOOLEAN Sleepy = TRUE;
+
+	FlushInput ();
+
+	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+	{
+		COUNT amount;
+		DWORD TimeIn = 0;
+
+		if (i == 0)
+		{
+			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
+			TimeIn = GetTimeCounter () + ONE_SECOND / 2;
+			while (GetTimeCounter () <= TimeIn)
+			{
+				if (AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					Sleepy = FALSE;
+					break;
+				}
+				UpdateDuty (FALSE);
+			}
+
+			if (Sleepy)
+				DrawCargoStrings ((BYTE)0, (BYTE)0);
+		}
+		else if (Sleepy)
+		{
+			DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
+		}
+
+		if ((amount = GLOBAL_SIS (ElementAmounts[i])) != 0)
+		{
+			total += amount * GLOBAL (ElementWorth[i]);
+			do
+			{
+				if (!Sleepy || AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					Sleepy = FALSE;
+					GLOBAL_SIS (ElementAmounts[i]) = 0;
+					GLOBAL_SIS (TotalElementMass) -= amount;
+					DeltaSISGauges (0, 0,
+							amount * GLOBAL (ElementWorth[i]));
+					break;
+				}
+
+				UpdateDuty (FALSE);
+
+				--GLOBAL_SIS (ElementAmounts[i]);
+				--GLOBAL_SIS (TotalElementMass);
+				TaskSwitch ();
+				DrawCargoStrings ((BYTE)i, (BYTE)i);
+				ShowRemainingCapacity ();
+				DeltaSISGauges (0, 0, GLOBAL(ElementWorth[i]));
+			} while (--amount);
+		}
+		if (Sleepy)
+		{
+			TimeIn = GetTimeCounter () + (ONE_SECOND / 4);
+			while (GetTimeCounter () <= TimeIn)
+			{
+				if (AnyButtonPress (TRUE) ||
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					Sleepy = FALSE;
+					break;
+				}
+				UpdateDuty (FALSE);
+			}
+		}
+	}
+
+	SleepThread (ONE_SECOND / 2);
+
+	ClearSISRect (DRAW_SIS_DISPLAY);
+
+	return total;
+}
+
+static RESPONSE_REF
+EveryOnesACritic (COUNT total)
+{
+	RESPONSE_REF pStr;
+
+	if (total < 1000)
+	{
+		total = GET_GAME_STATE (LIGHT_MINERAL_LOAD);
+		switch (total++)
+		{
+		case 0: pStr = LIGHT_LOAD_A; break;
+		case 1: pStr = LIGHT_LOAD_B; break;
+		case 2:
+			// There are two separate sound samples in this case.
+			pStr = LIGHT_LOAD_C0;
+			//pStr2 = LIGHT_LOAD_C1; Kruzen: processed outside this func now
+			break;
+		case 3: pStr = LIGHT_LOAD_D; break;
+		case 4: pStr = LIGHT_LOAD_E; break;
+		case 5: pStr = LIGHT_LOAD_F; break;
+		case 6: --total;
+			pStr = LIGHT_LOAD_G;
+			break;
+		}
+		SET_GAME_STATE (LIGHT_MINERAL_LOAD, total);
+	}
+	else if (total < 2500)
+	{
+		total = GET_GAME_STATE (MEDIUM_MINERAL_LOAD);
+		switch (total++)
+		{
+		case 0: pStr = MEDIUM_LOAD_A; break;
+		case 1: pStr = MEDIUM_LOAD_B; break;
+		case 2: pStr = MEDIUM_LOAD_C; break;
+		case 3: pStr = MEDIUM_LOAD_D; break;
+		case 4: pStr = MEDIUM_LOAD_E; break;
+		case 5: pStr = MEDIUM_LOAD_F; break;
+		case 6:
+			--total;
+			pStr = MEDIUM_LOAD_G;
+			break;
+		}
+		SET_GAME_STATE (MEDIUM_MINERAL_LOAD, total);
+	}
+	else
+	{
+		total = GET_GAME_STATE (HEAVY_MINERAL_LOAD);
+		switch (total++)
+		{
+		case 0: pStr = HEAVY_LOAD_A; break;
+		case 1: pStr = HEAVY_LOAD_B; break;
+		case 2: pStr = HEAVY_LOAD_C; break;
+		case 3: pStr = HEAVY_LOAD_D; break;
+		case 4: pStr = HEAVY_LOAD_E; break;
+		case 5: pStr = HEAVY_LOAD_F; break;
+		case 6:
+			--total;
+			pStr = HEAVY_LOAD_G;
+			break;
+		}
+		SET_GAME_STATE (HEAVY_MINERAL_LOAD, total);
+	}
+
+	return pStr;
+}
+
 static void
 ByeBye (RESPONSE_REF R)
 {
@@ -224,6 +380,8 @@ AllianceInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_SHOFIXTI);
 		AllianceMask |= ALLIANCE_SHOFIXTI;
+		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, yehat))
 	{
@@ -307,6 +465,7 @@ HierarchyInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_ANDROSYNTH);
 		HierarchyMask |= HIERARCHY_ANDROSYNTH;
+		SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);
 	}
 	else if (PLAYER_SAID (R, ilwrath))
 	{
@@ -994,14 +1153,14 @@ static BOOLEAN
 DiscussDevices (BOOLEAN TalkAbout)
 {
 	COUNT i, VuxBeastIndex, PhraseIndex;
-	BOOLEAN Undiscussed;
+	//BOOLEAN Undiscussed; unused
 
 	if (TalkAbout)
 		NPCPhrase (DEVICE_HEAD);
 	PhraseIndex = 2;
 
 	VuxBeastIndex = 0;
-	Undiscussed = FALSE;
+	//Undiscussed = FALSE; unused
 	for (i = 0; i < NUM_DEVICES; ++i)
 	{
 		RESPONSE_REF pStr;
@@ -1634,127 +1793,63 @@ NormalStarbase (RESPONSE_REF R)
 static void
 SellMinerals (RESPONSE_REF R)
 {
-	COUNT i, total;
-	BOOLEAN Sleepy;
-	RESPONSE_REF pStr1 = 0;
-	RESPONSE_REF pStr2 = 0;
+	COUNT total = 0;
+	RESPONSE_REF pStr = 0;
 
-	FlattenOscilloscope ();
-	total = 0;
-	Sleepy = TRUE;
-	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+	if (optSpeech)
 	{
-		COUNT amount;
-		DWORD TimeIn = 0;
+		total = DoSellMinerals ();
 
-		if (i == 0)
-		{
-			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
-			SleepThread (ONE_SECOND / 2);
-			TimeIn = GetTimeCounter ();
-			DrawCargoStrings ((BYTE)0, (BYTE)0);
-		}
-		else if (Sleepy)
-		{
-			DrawCargoStrings ((BYTE)(i - 1), (BYTE)i);
-			TimeIn = GetTimeCounter ();
-		}
+		pStr = EveryOnesACritic (total);
 
-		if ((amount = GLOBAL_SIS (ElementAmounts[i])) != 0)
-		{
-			total += amount * GLOBAL (ElementWorth[i]);
-			do
-			{
-				if (!Sleepy || AnyButtonPress (TRUE) ||
-						(GLOBAL (CurrentActivity) & CHECK_ABORT))
-				{
-					Sleepy = FALSE;
-					GLOBAL_SIS (ElementAmounts[i]) = 0;
-					GLOBAL_SIS (TotalElementMass) -= amount;
-					DeltaSISGauges (0, 0, amount * GLOBAL (ElementWorth[i]));
-					break;
-				}
-				
-				--GLOBAL_SIS (ElementAmounts[i]);
-				--GLOBAL_SIS (TotalElementMass);
-				TaskSwitch ();
-				TimeIn = GetTimeCounter ();
-				DrawCargoStrings ((BYTE)i, (BYTE)i);
-				ShowRemainingCapacity ();
-				DeltaSISGauges (0, 0, GLOBAL (ElementWorth[i]));
-			} while (--amount);
-		}
-		if (Sleepy) {
-			SleepThreadUntil (TimeIn + (ONE_SECOND / 4));
-			TimeIn = GetTimeCounter ();
-		}
-	}
-	SleepThread (ONE_SECOND / 2);
-
-	ClearSISRect (DRAW_SIS_DISPLAY);
-// DrawStorageBays (FALSE);
-
-	if (total < 1000)
-	{
-		total = GET_GAME_STATE (LIGHT_MINERAL_LOAD);
-		switch (total++)
-		{
-			case 0: pStr1 = LIGHT_LOAD_A; break;
-			case 1: pStr1 = LIGHT_LOAD_B; break;
-			case 2:
-				// There are two separate sound samples in this case.
-				pStr1 = LIGHT_LOAD_C0;
-				pStr2 = LIGHT_LOAD_C1;
-				break;
-			case 3: pStr1 = LIGHT_LOAD_D; break;
-			case 4: pStr1 = LIGHT_LOAD_E; break;
-			case 5: pStr1 = LIGHT_LOAD_F; break;
-			case 6: --total;
-				pStr1 = LIGHT_LOAD_G;
-				break;
-		}
-		SET_GAME_STATE (LIGHT_MINERAL_LOAD, total);
-	}
-	else if (total < 2500)
-	{
-		total = GET_GAME_STATE (MEDIUM_MINERAL_LOAD);
-		switch (total++)
-		{
-			case 0: pStr1 = MEDIUM_LOAD_A; break;
-			case 1: pStr1 = MEDIUM_LOAD_B; break;
-			case 2: pStr1 = MEDIUM_LOAD_C; break;
-			case 3: pStr1 = MEDIUM_LOAD_D; break;
-			case 4: pStr1 = MEDIUM_LOAD_E; break;
-			case 5: pStr1 = MEDIUM_LOAD_F; break;
-			case 6:
-				--total;
-				pStr1 = MEDIUM_LOAD_G;
-				break;
-		}
-		SET_GAME_STATE (MEDIUM_MINERAL_LOAD, total);
+		NPCPhrase (pStr);
+		if (pStr == LIGHT_LOAD_C0)
+			NPCPhrase (LIGHT_LOAD_C1);
 	}
 	else
 	{
-		total = GET_GAME_STATE (HEAVY_MINERAL_LOAD);
-		switch (total++)
-		{
-			case 0: pStr1 = HEAVY_LOAD_A; break;
-			case 1: pStr1 = HEAVY_LOAD_B; break;
-			case 2: pStr1 = HEAVY_LOAD_C; break;
-			case 3: pStr1 = HEAVY_LOAD_D; break;
-			case 4: pStr1 = HEAVY_LOAD_E; break;
-			case 5: pStr1 = HEAVY_LOAD_F; break;
-			case 6:
-				--total;
-				pStr1 = HEAVY_LOAD_G;
-				break;
-		}
-		SET_GAME_STATE (HEAVY_MINERAL_LOAD, total);
-	}
+		COUNT amount[NUM_ELEMENT_CATEGORIES], Ru[NUM_ELEMENT_CATEGORIES];
+		COUNT i, sseg;
+		COUNT seg = 0;
+		COUNT count = 0;
 
-	NPCPhrase (pStr1);
-	if (pStr2 != (RESPONSE_REF) 0)
-		NPCPhrase (pStr2);
+		NPCPhrase (CARGO_LIST);
+		for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
+		{
+			if ((amount[seg] = GLOBAL_SIS (ElementAmounts[i])) != 0)
+			{
+				Ru[seg] = amount[seg] * GLOBAL (ElementWorth[i]);
+				if (count > 0)
+					NPCPhrase (ELLIPSES);
+				else
+					NPCPhrase (BLANK);
+				NPCNumber(amount[seg], NULL);
+				NPCPhrase_splice (KILOTONS_OF);
+				NPCPhrase_splice (COMMONR + i);
+				NPCPhrase_splice (FOR);
+				NPCNumber (Ru[seg], NULL);
+				NPCPhrase (RESUNITS);
+				total += Ru[seg];
+				seg++;
+				GLOBAL_SIS (ElementAmounts[i]) = 0;
+				++count;
+			}
+		}
+
+		pStr = EveryOnesACritic (total);
+
+		NPCPhrase (pStr);
+		if (pStr == LIGHT_LOAD_C0)
+			NPCPhrase (LIGHT_LOAD_C1);
+
+		for (sseg = 1; sseg < seg + 1; sseg++)
+		{
+			AlienTalkSegue (sseg);
+			GLOBAL_SIS (TotalElementMass) -= amount[sseg - 1];
+			DeltaSISGauges (0, 0, Ru[sseg - 1]);
+			ClearSISRect (DRAW_SIS_DISPLAY);
+		}
+	}
 
 	NormalStarbase (R);
 }
@@ -1762,6 +1857,9 @@ SellMinerals (RESPONSE_REF R)
 static void
 Intro (void)
 {
+	if (IS_HD)// To smooth out HD blink animation
+		CommData.AlienAmbientArray[0].BaseFrameRate = ONE_SECOND / 40;
+
 	NormalStarbase (0);
 }
 
@@ -1791,22 +1889,21 @@ init_starbase_comm ()
 	commander_desc.post_encounter_func = post_starbase_enc;
 	commander_desc.uninit_encounter_func = uninit_starbase;
 
-	if (optFlagshipColor == OPT_3DO)
-		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM_RED;
-	else
-		commander_desc.AlienFrameRes = COMMANDER_PMAP_ANIM;
+	
 
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	commander_desc.AlienTextWidth = RES_SCALE(143);
-	commander_desc.AlienTextBaseline.x = RES_SCALE(164);
-	commander_desc.AlienTextBaseline.y = RES_SCALE(20);
+	commander_desc.AlienTextWidth = RES_SCALE (143);
+	commander_desc.AlienTextBaseline.x = RES_SCALE (164);
+	commander_desc.AlienTextBaseline.y = RES_SCALE (20);
 
 	// use alternate Starbase track if available
-	commander_desc.AlienAltSongRes = STARBASE_ALT_MUSIC;
-	commander_desc.AlienSongFlags |= LDASF_USE_ALTERNATE;
+	altResFlags |= USE_ALT_SONG;
+
+	if (is3DO (optFlagshipColor))
+		altResFlags |= USE_ALT_FRAME;
 
 	CurBulletinMask = 0;
 	setSegue (Segue_peace);

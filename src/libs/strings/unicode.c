@@ -528,9 +528,9 @@ UniChar_isGraph(UniChar ch)
 int
 UniChar_isPrint(UniChar ch)
 {	// this is not technically sufficient, but close enough for us
-	// chars in 'print' class are 'graph' + 'space' classes
-	// the only space we currently have defined is 0x20
-	return (ch == 0x20) || UniChar_isGraph(ch);
+	// chars in 'print' class are 'graph' + 'space' + 'tab' classes
+	// the only spaces we currently have defined are 0x20 and 0x09
+	return (ch == 0x20) || (ch == 0x09) || UniChar_isGraph(ch);
 }
 
 UniChar

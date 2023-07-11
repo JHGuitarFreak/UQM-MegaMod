@@ -628,10 +628,16 @@ SoundDecoder_Seek (TFB_SoundDecoder *decoder, uint32 seekTime)
 		return;
 	}
 
-	pcm_pos = (uint32) (seekTime / 1000.0f * decoder->frequency);
-	pcm_pos = decoder->funcs->Seek (decoder,
-			decoder->start_sample + pcm_pos);
-	decoder->pos = pcm_pos * decoder->bytes_per_samp;
+	if (strcmp (SoundDecoder_GetName (decoder), "MikMod") != 0)
+	{
+		pcm_pos = (uint32)(seekTime / 1000.0f * decoder->frequency);
+		pcm_pos = decoder->funcs->Seek (decoder,
+				decoder->start_sample + pcm_pos);
+		decoder->pos = pcm_pos * decoder->bytes_per_samp;
+	}
+	else
+		decoder->funcs->Seek (decoder, seekTime);
+
 	decoder->error = SOUNDDECODER_OK;
 }
 
@@ -684,7 +690,6 @@ SoundDecoder_GetFrame (TFB_SoundDecoder *decoder)
 
 	return decoder->funcs->GetFrame (decoder);
 }
-
 
 #define THIS_PTR TFB_SoundDecoder* This
 

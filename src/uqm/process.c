@@ -33,6 +33,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/log.h"
 #include "libs/misc.h"
+#include "intel.h"
 
 
 //#define DEBUG_PROCESS
@@ -232,8 +233,8 @@ CalcReduction (SDWORD dx, SDWORD dy)
 		if (next_reduction < zoom_out
 				&& zoom_out <= MAX_VIS_REDUCTION)
 		{
-#define HYSTERESIS_X DISPLAY_TO_WORLD(RES_SCALE(24)) 
-#define HYSTERESIS_Y DISPLAY_TO_WORLD(RES_SCALE(20)) 
+#define HYSTERESIS_X DISPLAY_TO_WORLD(RES_SCALE (24))
+#define HYSTERESIS_Y DISPLAY_TO_WORLD(RES_SCALE (20))
 		if (((sdx + HYSTERESIS_X)
 				<< (MAX_VIS_REDUCTION - next_reduction)) > TRANSITION_WIDTH
 				|| ((sdy + HYSTERESIS_Y)
@@ -294,7 +295,7 @@ CalcView (DPOINT *pNewScrollPt, SIZE next_reduction,
 	dy = ((SDWORD)(LOG_SPACE_HEIGHT >> 1) - pNewScrollPt->y);
 	dx = WRAP_DELTA_X (dx);
 	dy = WRAP_DELTA_Y (dy);
-	if (ships_alive == 1)
+	if (ships_alive == 1 && (optMeleeScale != TFB_SCALE_STEP || isNetwork ()))
 	{
 #define ORG_JUMP_X ((SDWORD)DISPLAY_ALIGN(LOG_SPACE_WIDTH / 75))
 #define ORG_JUMP_Y ((SDWORD)DISPLAY_ALIGN(LOG_SPACE_HEIGHT / 75))

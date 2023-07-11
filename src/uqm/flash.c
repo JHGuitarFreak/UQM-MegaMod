@@ -60,11 +60,11 @@ static void Flash_makeFrame (FlashContext *context,
 static inline void Flash_prepareCacheFrame (FlashContext *context,
 		COUNT index);
 static void Flash_drawFrame (FlashContext *context, FRAME frame, BOOLEAN pcRect);
-static void Flash_drawCacheFrame (FlashContext *context, COUNT index, BOOLEAN pcRect);
+static void Flash_drawCacheFrame (FlashContext *context, COUNT index);
 static inline void Flash_drawUncachedFrame (FlashContext *context,
 		int numer, int denom);
 static inline void Flash_drawCachedFrame (FlashContext *context,
-		int numer, int denom, BOOLEAN pcRect);
+		int numer, int denom);
 static void Flash_drawCurrentFrame (FlashContext *context);
 
 static CONTEXT workGfxContext;
@@ -372,6 +372,19 @@ void
 Flash_setFrameTime (FlashContext *context, TimeCount frameTime)
 {
 	context->frameTime = frameTime;
+}
+
+// Set the time between updates of the flash area.
+void
+Flash_setPulseBox (FlashContext *context, BOOLEAN isPulsing)
+{
+	context->isPulsing = isPulsing;
+}
+
+BOOLEAN
+Flash_getPulseBox (FlashContext *context)
+{
+	return context->isPulsing;
 }
 
 // Returns the time when the flash area is to be updated.
@@ -684,8 +697,8 @@ Flash_prepareCacheFrame (FlashContext *context, COUNT index)
 	}
 }
 
-void
-PC_Rect (RECT r)
+Color
+GetFlashPCColor (void)
 {
 	static TimeCount NextTime = 0;
 	static DWORD cycle_index = 0;
@@ -696,17 +709,12 @@ PC_Rect (RECT r)
 
 	if (GetTimeCounter () >= NextTime)
 	{
-		Color color;
-
 		NextTime = GetTimeCounter () + BLINK_RATE;
-
-		color = cycle_tab[cycle_index];
-
-		DrawStarConBox (
-			&r, RES_SCALE(1), color, color, FALSE, TRANSPARENT);
 
 		cycle_index = (cycle_index + 1) % cycleCount;
 	}
+
+	return cycle_tab[cycle_index];
 }
 
 static void
@@ -723,14 +731,20 @@ Flash_drawFrame (FlashContext *context, FRAME frame, BOOLEAN pcRect)
 		stamp.frame = frame;
 		DrawStamp (&stamp);
 	}
-	else
-		PC_Rect (context->rect);
+	else if (!context->paused)
+	{
+		Color color = GetFlashPCColor ();
+		DrawStarConBox (
+				&context->rect, RES_SCALE (1), color, color, FALSE,
+				TRANSPARENT
+			);
+	}
 
 	SetContext (oldGfxContext);
 }
 
 static void
-Flash_drawCacheFrame (FlashContext *context, COUNT index, BOOLEAN pcRect)
+Flash_drawCacheFrame (FlashContext *context, COUNT index)
 {
 	FRAME frame;
 
@@ -739,7 +753,7 @@ Flash_drawCacheFrame (FlashContext *context, COUNT index, BOOLEAN pcRect)
 
 	frame = context->cache[index];
 	
-	Flash_drawFrame (context, frame, pcRect);
+	Flash_drawFrame (context, frame, context->isPulsing);
 
 	context->lastFrameIndex = index;
 }
@@ -796,13 +810,13 @@ Flash_drawUncachedFrame (FlashContext *context, int numer, int denom)
 }
 
 static inline void
-Flash_drawCachedFrame (FlashContext *context, int numer, int denom, BOOLEAN pcRect)
+Flash_drawCachedFrame (FlashContext *context, int numer, int denom)
 {
 	COUNT cachePos;
 
 	cachePos = ((context->cacheSize - 1) * numer + (denom / 2)) / denom;
 	Flash_prepareCacheFrame (context, cachePos);
-	Flash_drawCacheFrame (context, cachePos, pcRect);
+	Flash_drawCacheFrame (context, cachePos);
 }
 
 static void
@@ -811,8 +825,8 @@ Flash_drawCurrentFrame (FlashContext *context)
 	int numer;
 	int denom;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		pcRectBool = FALSE;
+	/*if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		pcRectBool = FALSE;*/
 
 	if (context->state == FlashState_off)
 	{
@@ -845,6 +859,6 @@ Flash_drawCurrentFrame (FlashContext *context)
 	if (context->cacheSize == 0)
 		Flash_drawUncachedFrame (context, numer, denom);
 	else
-		Flash_drawCachedFrame (context, numer, denom, pcRectBool);
+		Flash_drawCachedFrame (context, numer, denom);
 }
 

@@ -38,7 +38,7 @@
 
 /* Link function between SDL_RWops and PNG's data source */
 static void
-png_read_data(png_structp ctx, png_bytep area, png_size_t size)
+png_read_data (png_structp ctx, png_bytep area, png_size_t size)
 {
 	SDL_RWops *src = (SDL_RWops *)png_get_io_ptr (ctx);
 	SDL_RWread (src, area, size, 1);
@@ -227,7 +227,7 @@ TFB_png_to_sdl (SDL_RWops *src)
 	for (row = 0; row < (int)height; row++)
 	{
 		row_pointers[row] = (png_bytep)
-			(Uint8 *)surface->pixels + row*surface->pitch;
+			(Uint8 *)surface->pixels + row * surface->pitch;
 	}
 
 	/* Read the entire image in one go */
@@ -297,4 +297,182 @@ done:	/* Clean up and return */
 		fprintf (stderr, "%s", error);
 	}
 	return surface;
+}
+
+/* SDL2PNG
+ * Based entirely on driedfruit's SDL_SavePNG
+ * A libpng-based SDL_Surface writer.
+ * https://github.com/driedfruit/SDL_SavePNG/
+ */
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#define A_MASK 0xff000000
+#define B_MASK 0x00ff0000
+#define G_MASK 0x0000ff00
+#define R_MASK 0x000000ff
+#else
+#define A_MASK 0x000000ff
+#define B_MASK 0x0000ff00
+#define G_MASK 0x00ff0000
+#define R_MASK 0xff000000
+#endif
+
+static void
+png_write_data (png_structp ctx, png_bytep area, png_size_t size)
+{
+	SDL_RWops *rw = (SDL_RWops *)png_get_io_ptr (ctx);
+	SDL_RWwrite (rw, area, sizeof (png_byte), size);
+}
+
+SDL_Surface *
+SDL_PNGFormatAlpha (SDL_Surface *src)
+{
+	SDL_Surface *surf;
+	SDL_Rect rect = { 0 };
+
+	/* NO-OP for images < 32bpp and 32bpp images that already have Alpha channel */
+	if (src->format->BitsPerPixel <= 24 || src->format->Amask)
+	{
+		src->refcount++;
+		return src;
+	}
+
+	/* Convert 32bpp alpha-less image to 24bpp alpha-less image */
+	rect.w = src->w;
+	rect.h = src->h;
+	surf = SDL_CreateRGBSurface (src->flags, src->w, src->h, 24,
+		src->format->Rmask, src->format->Gmask, src->format->Bmask, 0);
+	SDL_LowerBlit (src, &rect, surf, &rect);
+
+	return surf;
+}
+
+int
+TFB_sdl_to_png (SDL_Surface *surface, SDL_RWops *dst, int freedst)
+{
+	png_structp png_ptr;
+	png_infop info_ptr;
+	png_colorp pal_ptr;
+	SDL_Palette *pal;
+	int i, colortype;
+	png_bytep *row_pointers;
+	const char *error;
+
+	/* Initialize the data we will clean up when we're done */
+	error = NULL;
+	png_ptr = NULL;
+	info_ptr = NULL;
+	row_pointers = NULL;
+
+	/* Initialize and do basic error checking */
+	if (!dst)
+	{
+		error = "Argument 2 to TFB_sdl_to_png can't be NULL\n";
+		goto done;
+	}
+	if (!surface)
+	{
+		error = "Argument 1 to TFB_sdl_to_png can't be NULL\n";
+		goto done;
+	}
+
+	/* Create the PNG writing context structure */
+	png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING,
+			NULL, NULL, NULL);
+	if (png_ptr == NULL)
+	{
+		error = "Couldn't allocate memory for PNG file";
+		goto done;
+	}
+
+	/* Allocate/initialize the memory for image information */
+	info_ptr = png_create_info_struct (png_ptr);
+	if (info_ptr == NULL)
+	{
+		error = "Couldn't create image information for PNG file";
+		goto done;
+	}
+
+	/* Set error handling */
+	if (setjmp (png_jmpbuf (png_ptr)))
+	{
+		error = "Error reading the PNG file.";
+		goto done;
+	}
+
+	/* Set up the output control */
+	png_set_write_fn (png_ptr, dst, png_write_data, NULL);
+
+	/* Prepare chunks */
+	colortype = PNG_COLOR_MASK_COLOR;
+	if (surface->format->BytesPerPixel > 0
+		&& surface->format->BytesPerPixel <= 8
+		&& (pal = surface->format->palette))
+	{
+		colortype |= PNG_COLOR_MASK_PALETTE;
+		pal_ptr = (png_colorp)malloc (pal->ncolors * sizeof (png_color));
+		for (i = 0; i < pal->ncolors; i++)
+		{
+			pal_ptr[i].red = pal->colors[i].r;
+			pal_ptr[i].green = pal->colors[i].g;
+			pal_ptr[i].blue = pal->colors[i].b;
+		}
+		png_set_PLTE (png_ptr, info_ptr, pal_ptr, pal->ncolors);
+		free (pal_ptr);
+	}
+	else if (surface->format->BytesPerPixel > 3 || surface->format->Amask)
+		colortype |= PNG_COLOR_MASK_ALPHA;
+
+	/* Set the PNG header info */
+	png_set_IHDR (png_ptr, info_ptr, surface->w, surface->h, 8, colortype,
+			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+			PNG_FILTER_TYPE_DEFAULT);
+
+	png_set_packing (png_ptr);
+
+		/* Allow BGR surfaces */
+	if (surface->format->Rmask == B_MASK
+		&& surface->format->Gmask == G_MASK
+		&& surface->format->Bmask == R_MASK)
+		png_set_bgr (png_ptr);
+
+	/* Write everything */
+	png_write_info (png_ptr, info_ptr);
+
+	/* Create the array of pointers to image data */
+	row_pointers =
+			(png_bytep *)SDL_malloc (sizeof (png_bytep) * surface->h);
+	if (!row_pointers)
+	{
+		error = "Out of memory";
+		goto done;
+	}
+	for (i = 0; i < surface->h; i++)
+	{
+		row_pointers[i] = (png_bytep)
+			(Uint8 *)surface->pixels + i * surface->pitch;
+	}
+
+	png_write_image (png_ptr, row_pointers);
+	png_write_end (png_ptr, info_ptr);
+
+done:	/* Clean up and return */
+	if (freedst)
+		SDL_RWclose (dst);
+	if (row_pointers)
+		SDL_free (row_pointers);
+	if (png_ptr)
+		png_destroy_write_struct (&png_ptr,
+				info_ptr ? &info_ptr : (png_infopp)0);
+	if (error)
+	{
+		if (surface)
+		{
+			SDL_FreeSurface (surface);
+			surface = NULL;
+		}
+		fprintf (stderr, "%s", error);
+		return (-1);
+	}
+	return (0);
 }

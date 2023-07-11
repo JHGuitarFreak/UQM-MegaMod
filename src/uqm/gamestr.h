@@ -31,25 +31,25 @@ extern "C" {
 
 #define STAR_STRING_COUNT       149
 #define DEVICE_STRING_COUNT      29
-#define CARGO_STRING_COUNT       10
+#define CARGO_STRING_COUNT       14
 #define ELEMENTS_STRING_COUNT   133
 #define SCAN_STRING_COUNT        66
 #define STAR_NUMBER_COUNT        14
 #define PLANET_NUMBER_COUNT      43
 #define MONTHS_STRING_COUNT      12
-#define FEEDBACK_STRING_COUNT     5
-#define STARBASE_STRING_COUNT     5
+#define FEEDBACK_STRING_COUNT     8
+#define STARBASE_STRING_COUNT     8
 #define ENCOUNTER_STRING_COUNT    8
-#define NAVIGATION_STRING_COUNT   6
-#define NAMING_STRING_COUNT       7
+#define NAVIGATION_STRING_COUNT   8
+#define NAMING_STRING_COUNT       8
 #define MELEE_STRING_COUNT        9
 #define SAVEGAME_STRING_COUNT     5
-#define OPTION_STRING_COUNT       5
+#define OPTION_STRING_COUNT      10
 #define QUITMENU_STRING_COUNT     4
 #define STATUS_STRING_COUNT       6
 #define FLAGSHIP_STRING_COUNT    13
 #define ORBITSCAN_STRING_COUNT   19
-#define MAINMENU_STRING_COUNT    55
+#define MAINMENU_STRING_COUNT    69
 #define NETMELEE_STRING_COUNT    34
 #define BIOLOGICAL_STRING_COUNT  26
 
@@ -83,6 +83,7 @@ enum {
 
 
 #define GAME_STRING(i) ((UNICODE *)GetStringAddress (SetAbsStringTableIndex (GameStrings, (i))))
+#define GET_STRING(s,i) ((UNICODE *)GetStringAddress (SetAbsStringTableIndex ((s), (i))))
 
 extern STRING GameStrings;
 

@@ -23,6 +23,7 @@
 #include "../../setupmenu.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
+#include "uqm/tactrans.h" // Kruzen: for sounds on April Fools
 
 // Core characteristics
 #define MAX_CREW 20
@@ -38,7 +39,7 @@
 // Blaster Pulse
 #define WEAPON_ENERGY_COST 5
 #define WEAPON_WAIT 1
-#define MELNORME_OFFSET RES_SCALE(24)
+#define MELNORME_OFFSET RES_SCALE (24)
 #define LEVEL_COUNTER 72
 #define MAX_PUMP 4
 #define PUMPUP_SPEED DISPLAY_TO_WORLD (45)
@@ -51,14 +52,14 @@
 // Confusion Pulse
 #define SPECIAL_ENERGY_COST 20
 #define SPECIAL_WAIT 20
-#define CMISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE(30))
+#define CMISSILE_SPEED DISPLAY_TO_WORLD (RES_SCALE (30))
 #define CMISSILE_LIFE 20
 #define CMISSILE_HITS 200
 #define CMISSILE_DAMAGE 0
-#define CMISSILE_OFFSET RES_SCALE(4)
+#define CMISSILE_OFFSET RES_SCALE (4)
 
 // HD
-#define PUMPUP_SPEED_HD RES_SCALE(PUMPUP_SPEED)
+#define PUMPUP_SPEED_HD RES_SCALE (PUMPUP_SPEED)
 
 static RACE_DESC melnorme_desc =
 {
@@ -110,7 +111,8 @@ static RACE_DESC melnorme_desc =
 		},
 		{
 			MELNORME_CAPTAIN_MASK_PMAP_ANIM,
-			NULL, NULL, NULL, NULL, NULL
+			NULL, NULL, NULL, NULL, NULL,
+			0, 0, 0, 0, 0
 		},
 		MELNORME_VICTORY_SONG,
 		MELNORME_SHIP_SOUNDS,
@@ -196,11 +198,11 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 				EPtr->current.image.frame = SetRelFrameIndex (
 						EPtr->current.image.frame, NUM_PUMP_ANIMS);
 				ProcessSound (SetAbsSoundIndex (
-						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2),
+						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 0),
 						EPtr);
 			}
-			if (antiCheat (ElementPtr, FALSE, OPTVAL_HORUS)
-				|| antiCheat (ElementPtr, FALSE, OPTVAL_SEKHMET))
+			if (antiCheat (ElementPtr, FALSE, OPTVAL_INF_HEALTH)
+					|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD))
 			{
 				EPtr->thrust_wait = 5;
 			} else {
@@ -254,7 +256,7 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 					SINE (angle, WORLD_TO_VELOCITY (PUMPUP_SPEED_HD)));
 
 			ProcessSound (SetAbsSoundIndex (
-					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 3), EPtr);
+					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), EPtr);
 		}
 
 		UnlockElement (hPumpUp);
@@ -350,8 +352,8 @@ initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 		PumpUpPtr->postprocess_func = pump_up_postprocess;
 		PumpUpPtr->collision_func = pump_up_collision;
 
-		if (antiCheat (ShipPtr, FALSE, OPTVAL_HORUS)
-			|| antiCheat (ShipPtr, FALSE, OPTVAL_SEKHMET))
+		if (antiCheat (ShipPtr, FALSE, OPTVAL_INF_HEALTH)
+				|| antiCheat (ShipPtr, FALSE, OPTVAL_FULL_GOD))
 		{
 			PumpUpPtr->thrust_wait = 5;
 		} else
@@ -364,7 +366,100 @@ initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 }
 
 static void
-confuse_preprocess (ELEMENT *ElementPtr)
+confuse_preprocess_april (ELEMENT *ElementPtr)
+{
+	static const Color colorTable[] =
+	{
+		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x00, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x15, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x1F, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x00), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x15), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x15, 0x1F), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x00, 0x1F), 0x7a),
+		BUILD_COLOR(MAKE_RGB15_INIT(0x15, 0x00, 0x1F), 0x7a),
+	};
+	const size_t colorTabCount = ARRAY_SIZE(colorTable);
+
+	if (!(ElementPtr->state_flags & NONSOLID))
+	{
+		ElementPtr->next.image.frame = SetAbsFrameIndex (
+				ElementPtr->current.image.frame,
+				(GetFrameIndex (ElementPtr->current.image.frame) + 1) & 7);
+		ElementPtr->state_flags |= CHANGING;
+	}
+	else if (ElementPtr->hTarget == 0)
+	{
+		ElementPtr->life_span = 0;
+		ElementPtr->state_flags |= DISAPPEARING;
+	}
+	else
+	{
+		ELEMENT *eptr;
+
+		LockElement (ElementPtr->hTarget, &eptr);
+
+		ElementPtr->next.location = eptr->next.location;
+
+		if (ElementPtr->turn_wait)
+		{
+			HELEMENT hEffect;
+			STARSHIP *StarShipPtr;
+
+			if (GetFrameIndex (ElementPtr->next.image.frame =
+					IncFrameIndex (ElementPtr->current.image.frame)) == 0)
+				ElementPtr->next.image.frame =
+						SetRelFrameIndex (ElementPtr->next.image.frame, -8);
+
+			GetElementStarShip (eptr, &StarShipPtr);
+			StarShipPtr->ship_input_state =
+					(StarShipPtr->ship_input_state
+					& ~(LEFT | RIGHT | SPECIAL))
+					| ElementPtr->turn_wait;
+
+			if (ElementPtr->life_span > 1)
+			{
+				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+					STAMPFILL_PRIM);
+				SetPrimColor(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+					colorTable[ElementPtr->colorCycleIndex]);
+				ElementPtr->colorCycleIndex++;
+
+				if (ElementPtr->colorCycleIndex == colorTabCount)
+					ElementPtr->colorCycleIndex = 0;
+			}
+			else
+			{
+				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+					STAMP_PRIM);
+				BattleSong (TRUE);
+			}
+
+			hEffect = AllocElement ();
+			if (hEffect)
+			{
+				LockElement (hEffect, &eptr);
+				eptr->playerNr = ElementPtr->playerNr;
+				eptr->state_flags = FINITE_LIFE | NONSOLID | CHANGING;
+				eptr->life_span = 1;
+				eptr->current = eptr->next = ElementPtr->next;
+				eptr->preprocess_func = confuse_preprocess_april;
+
+				GetElementStarShip (ElementPtr, &StarShipPtr);
+				SetElementStarShip (eptr, StarShipPtr);
+				eptr->hTarget = ElementPtr->hTarget;
+				
+				UnlockElement (hEffect);
+				PutElement (hEffect);
+			}
+		}			
+
+		UnlockElement (ElementPtr->hTarget);
+	}
+}
+
+static void
+confuse_preprocess (ELEMENT* ElementPtr)
 {
 	if (!(ElementPtr->state_flags & NONSOLID))
 	{
@@ -475,13 +570,22 @@ confusion_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 						NO_PRIM
 						);
 
+				/*if (AprilFools)
+				{
+					ConfusionPtr->preprocess_func = confuse_preprocess_april;
+					ConfusionPtr->colorCycleIndex = 0;
+					StopAllBattleMusic();
+					ProcessSound(SetAbsSoundIndex(
+						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr0);
+				}*/
+
 				SetElementStarShip (ConfusionPtr, StarShipPtr);
 				GetElementStarShip (ElementPtr1, &StarShipPtr);
 				ConfusionPtr->hTarget = StarShipPtr->hShip;
 			}
 
-			if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_HORUS)
-				|| antiCheat (ElementPtr1, FALSE, OPTVAL_SEKHMET)))
+			if (!(antiCheat (ElementPtr1, FALSE, OPTVAL_INF_HEALTH)
+					|| antiCheat (ElementPtr1, FALSE, OPTVAL_FULL_GOD)))
 			{
 				ConfusionPtr->life_span = 400;
 			}
@@ -669,13 +773,10 @@ init_melnorme (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD)
-	{
+	if (IS_HD) {
 		melnorme_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		melnorme_desc.characteristics.thrust_increment =
-				RES_SCALE (THRUST_INCREMENT);
-		melnorme_desc.cyborg_control.WeaponRange =
-				PUMPUP_SPEED_HD * PUMPUP_LIFE;
+		melnorme_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		melnorme_desc.cyborg_control.WeaponRange = PUMPUP_SPEED_HD * PUMPUP_LIFE;
 	}
 	else
 	{

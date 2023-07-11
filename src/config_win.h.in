@@ -11,7 +11,7 @@
 #define CONFIG_WIN_H_
 
 /* Directory where the UQM game data is located */
-#define CONTENTDIR "../content/"
+#define CONTENTDIR "./content/"
 
 /* Directory where game data will be stored */
 //#define USERDIR "../userdata/"
@@ -25,6 +25,9 @@
 
 /* Directory where save games will be stored */
 #define SAVEDIR "%UQM_CONFIG_DIR%/save/"
+
+/* Directory where screenshots will be stored */
+#define SCRSHOTDIR "%UQM_CONFIG_DIR%/screenshots/"
 
 /* Defined if words are stored with the most significant byte first */
 @WORDS_BIGENDIAN@

@@ -44,8 +44,11 @@ static LOCDATA slylandro_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	SLYLAND_COLOR_MAP, /* AlienColorMap */
 	SLYLAND_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	SLYLAND_CONVERSATION_PHRASES, /* PlayerPhrases */
 	6, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
@@ -161,6 +164,27 @@ static COUNT probe_tens_names[] =
 	ENUMERATE_SEVENTY,
 	ENUMERATE_EIGHTY,
 	ENUMERATE_NINETY,
+};
+
+static DWORD random_ramble[] =
+{
+	1,
+	15,
+	48,
+	312,
+	7,
+	4000,
+	668,
+	46,
+	4,
+	8,
+	15,
+	16,
+	23,
+	42,
+	998,
+	80556,
+	1337
 };
 
 static const NUMBER_SPEECH_DESC probe_numbers_english =
@@ -450,11 +474,30 @@ CombatIsInevitable (RESPONSE_REF R)
 static void
 Intro (void)
 {
-	BYTE  NumVisits;
-
-	NumVisits = GET_GAME_STATE (SLYLANDRO_PROBE_VISITS);
-	switch (NumVisits++)
+	if (DIF_HARD && GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
 	{
+		COUNT i;
+
+		NPCPhrase (COORD_POINT);
+		for (i = 0; i < 16; i++)
+		{
+			NPCNumber (random_ramble[i], "%d ");
+		}
+		NPCNumber (random_ramble[16], "%d");
+		NPCPhrase (COORD_POINT);
+
+		NPCPhrase (HOSTILE);
+
+		SET_GAME_STATE (PROBE_EXHIBITED_BUG, 1);
+		setSegue (Segue_hostile);
+	}
+	else
+	{
+		BYTE  NumVisits;
+
+		NumVisits = GET_GAME_STATE (SLYLANDRO_PROBE_VISITS);
+		switch (NumVisits++)
+		{
 		case 0:
 			NPCPhrase (WE_COME_IN_PEACE_1);
 			break;
@@ -480,10 +523,11 @@ Intro (void)
 			NPCPhrase (WE_COME_IN_PEACE_8);
 			--NumVisits;
 			break;
-	}
-	SET_GAME_STATE (SLYLANDRO_PROBE_VISITS, NumVisits);
+		}
+		SET_GAME_STATE (SLYLANDRO_PROBE_VISITS, NumVisits);
 
-	CombatIsInevitable ((RESPONSE_REF)0);
+		CombatIsInevitable ((RESPONSE_REF)0);
+	}
 }
 
 static COUNT
@@ -507,9 +551,10 @@ init_slyland_comm (void)
 	slylandro_desc.post_encounter_func = post_slyland_enc;
 	slylandro_desc.uninit_encounter_func = uninit_slyland;
 
-	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	slylandro_desc.AlienTextBaseline.x =
+			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	slylandro_desc.AlienTextBaseline.y = 0;
-	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	slylandro_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	setSegue (Segue_hostile);
 	retval = &slylandro_desc;

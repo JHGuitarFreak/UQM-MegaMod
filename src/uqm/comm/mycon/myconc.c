@@ -40,27 +40,35 @@ static LOCDATA mycon_desc =
 	VALIGN_TOP, /* AlienTextValign */
 	MYCON_COLOR_MAP, /* AlienColorMap */
 	MYCON_MUSIC, /* AlienSong */
-	NULL_RESOURCE, /* AlienAltSong */
-	0, /* AlienSongFlags */
+	{
+		NULL_RESOURCE, /* AlienAltFrame */
+		NULL_RESOURCE, /* AlienAltColorMap */
+		NULL_RESOURCE, /* AlienAltSong */
+	},
 	MYCON_CONVERSATION_PHRASES, /* PlayerPhrases */
-	5, /* NumAnimations */
+	4, /* NumAnimations */
 	{ /* AlienAmbientArray (ambient animations) */
 		{
 			12, /* StartIndex */
-			6, /* NumFrames */
+			10, /* NumFrames */
 			CIRCULAR_ANIM, /* AnimFlags */
 			ONE_SECOND * 3 / 40, 0, /* FrameRate */
-			ONE_SECOND * 3 / 40, 0, /* RestartRate */
+			ONE_SECOND * 3 / 80, 0, /* RestartRate */
 			0, /* BlockMask */
 		},
-		{
-			18, /* StartIndex */
-			4, /* NumFrames */
-			CIRCULAR_ANIM, /* AnimFlags */
-			ONE_SECOND * 3 / 40, 0, /* FrameRate */
-			ONE_SECOND * 3 / 40, 0, /* RestartRate */
-			0, /* BlockMask */
-		},
+	//	{// It was 2 differtent animations that blocks each other
+	//	 // but after the commit BlockMask algorithm was changed
+	//	 // https://sourceforge.net/p/sc2/uqm/ci/5be8df3e5f4a957fa1ee63851e7e064731aadb20/
+	//   // and these animations completely cancel each other.
+	//   // Removing BlockMask messes with the animations restart rate,
+	//   // so these animations are now merged together
+	//		18, /* StartIndex */
+	//		4, /* NumFrames */
+	//		CIRCULAR_ANIM, /* AnimFlags */
+	//		ONE_SECOND * 3 / 40, 0, /* FrameRate */
+	//		ONE_SECOND * 3 / 40, 0, /* RestartRate */
+	//		(1 << 0), /* BlockMask */
+	//	},
 		{
 			22, /* StartIndex */
 			6, /* NumFrames */
@@ -521,6 +529,8 @@ Intro (void)
 		{
 			case 0:
 				NPCPhrase (HELLO_SUN_DEVICE_WORLD_1);
+				if (!GET_GAME_STATE (KNOW_MYCON_HOMEWORLD))
+					SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
 				break;
 			case 1:
 				NPCPhrase (HELLO_SUN_DEVICE_WORLD_2);
@@ -573,6 +583,8 @@ Intro (void)
 		{
 			case 0:
 				NPCPhrase (HELLO_SPACE_1);
+				if (!GET_GAME_STATE (KNOW_MYCON_HOMEWORLD))
+					SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
 				break;
 			case 1:
 				NPCPhrase (HELLO_SPACE_2);
@@ -626,7 +638,7 @@ init_mycon_comm (void)
 
 	mycon_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	mycon_desc.AlienTextBaseline.y = 0;
-	mycon_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE(16);
+	mycon_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
 
 	MadeChoice = 0;
 

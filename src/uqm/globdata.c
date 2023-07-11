@@ -73,16 +73,50 @@ shl32 (DWORD value, BYTE shift)
 
 // Returns the total number of bits which are needed to store a game state
 // according to 'bm'.
-static size_t
-totalBitsForGameState (const GameStateBitMap *bm)
+size_t
+totalBitsForGameState (const GameStateBitMap *bm, int rev)
 {
 	size_t totalBits = 0;
 	const GameStateBitMap *bmPtr;
 
-	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
-		totalBits += bmPtr->numBits;
+	for (bmPtr = bm; bmPtr; bmPtr++)
+	{
+		if (bmPtr->name != NULL)
+			totalBits += bmPtr->numBits;
+		else if (bmPtr->numBits == 0)
+			break;
+		else if (rev >= 0 && bmPtr->numBits > rev)
+			break;
+	}
 
 	return totalBits;
+}
+
+// Returns the game state revision number that requires the specified
+// number of 'bytes' according to 'bm', or -1 if no match
+int
+getGameStateRevByBytes (const GameStateBitMap *bm, int bytes)
+{
+	int rev = 0;
+	size_t totalBits = 0;
+	const GameStateBitMap *bmPtr;
+
+	for (bmPtr = bm; bmPtr; bmPtr++)
+	{
+		if (bmPtr->name != NULL)
+			totalBits += bmPtr->numBits;
+		else if (bmPtr->numBits == 0)
+			break;
+		else if ((int)((totalBits + 7) >> 3) >= bytes)
+			break;
+		else
+			rev = bmPtr->numBits;
+	}
+
+	if ((int)((totalBits + 7) >> 3) != bytes)
+		rev = -1;
+
+	return rev;
 }
 
 // Write 'valueBitCount' bits from 'value' into the buffer pointed to
@@ -122,7 +156,8 @@ serialiseBits (BYTE **bufPtrPtr, DWORD *restBitsPtr, size_t *restBitCount,
 // '*numBytes' with its size. The caller becomes the owner of '*buf' and
 // is responsible for freeing it.
 BOOLEAN
-serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
+serialiseGameState (const GameStateBitMap *bm, BYTE **buf,
+		size_t *numBytes)
 {
 	size_t totalBits;
 	size_t totalBytes;
@@ -131,12 +166,12 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 	BYTE *bufPtr;
 
 	DWORD restBits = 0;
-			// Bits which have not yet been stored because they did not form
-			// an entire byte.
+			// Bits which have not yet been stored because they did not
+			// form an entire byte.
 	size_t restBitCount = 0;
 
 	// Determine the total number of bits/bytes required.
-	totalBits = totalBitsForGameState (bm);
+	totalBits = totalBitsForGameState (bm, -1);
 	totalBytes = (totalBits + 7) / 8;
 
 	// Allocate memory for the serialised data.
@@ -145,38 +180,46 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 		return FALSE;
 
 	bufPtr = result;
-	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
+	for (bmPtr = bm; bmPtr; bmPtr++)
 	{
-		DWORD value = getGameStateUint (bmPtr->name);
-		BYTE numBits = bmPtr->numBits;
+		if (bmPtr->name != NULL)
+		{
+			DWORD value = getGameStateUint (bmPtr->name);
+			BYTE numBits = bmPtr->numBits;
 
 #ifdef STATE_DEBUG
-		log_add (log_Debug, "Saving: GameState[\'%s\'] = %u", bmPtr->name,
-				value);
+			log_add (log_Debug, "Saving: GameState[\'%s\'] = %u",
+					bmPtr->name, value);
 #endif  /* STATE_DEBUG */
 
-		if (value > bitmask32(numBits))
-		{
-			log_add (log_Error, "Warning: serialiseGameState(): the value "
-					"of the property '%s' (%u) does not fit in the reserved "
-					"number of bits (%d).", bmPtr->name, value, numBits);
-		}
+			if (value > bitmask32(numBits))
+			{
+				log_add (log_Error, "Warning: serialiseGameState(): the "
+						"value of the property '%s' (%u) does not fit in "
+						"the reserved number of bits (%d).",
+						bmPtr->name, value, numBits);
+			}
 
-		// Store multi-byte values with the least significant byte first.
-		while (numBits >= 8)
-		{
-		
-			serialiseBits (&bufPtr, &restBits, &restBitCount, value & 0xff, 8);
-			value >>= 8;
-			numBits -= 8;
+			// Store multi-byte values with the least significant byte 1st.
+			while (numBits >= 8)
+			{
+				serialiseBits (&bufPtr, &restBits, &restBitCount,
+						value & 0xff, 8);
+				value >>= 8;
+				numBits -= 8;
+			}
+			if (numBits > 0)
+				serialiseBits (&bufPtr, &restBits, &restBitCount, value,
+						numBits);
 		}
-		if (numBits > 0)
-			serialiseBits (&bufPtr, &restBits, &restBitCount, value, numBits);
+		else if (bmPtr->numBits == 0)
+			break;
 	}
 
 	// Pad the end up to a byte.
 	if (restBitCount > 0)
-		serialiseBits (&bufPtr, &restBits, &restBitCount, 0, 8 - restBitCount);
+		serialiseBits (&bufPtr, &restBits, &restBitCount, 0,
+				8 - restBitCount);
 
 	*buf = result;
 	*numBytes = totalBytes;
@@ -187,7 +230,8 @@ serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 // '*bitPtr'. The result is returned.
 // '*bitPtr' and '*bytePtr' are updated by this function.
 static inline DWORD
-deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
+deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits)
+{
 	assert (*bitPtr < 8);
 	assert (numBits <= 8);
 
@@ -195,7 +239,8 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
 	{
 		// Can get the entire value from one byte.
 		// We want bits *bitPtr through (excluding) *bitPtr+numBits
-		DWORD result = ((*bytePtr)[0] >> *bitPtr) & bitmask32(numBits);
+		DWORD result =
+				((*bytePtr)[0] >> *bitPtr) & bitmask32((BYTE)numBits);
 
 		// Update the pointers.
 		if (numBits == (size_t) (8 - *bitPtr))
@@ -207,7 +252,7 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
 		else
 		{
 			// There are still unread bits in the byte.
-			*bitPtr += numBits;
+			*bitPtr += (BYTE)numBits;
 		}
 		return result;
 	}
@@ -215,14 +260,14 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
 	{
 		// The result comes from two bytes.
 		// We get the *bitPtr most significant bits from [0], as the least
-		// significant bits of the result, and the (numBits - *bitPtr) least
-		// significant bits from [1], as the most significant bits of the
-		// result.
+		// significant bits of the result, and the (numBits - *bitPtr)
+		// least significant bits from [1], as the most significant bits of
+		// the result.
 		DWORD result = (((*bytePtr)[0] >> *bitPtr)
 				| ((*bytePtr)[1] << (8 - *bitPtr))) &
-				bitmask32(numBits);
+				bitmask32((BYTE)numBits);
 		(*bytePtr)++;
-		*bitPtr += numBits - 8;
+		*bitPtr += (BYTE)numBits - 8;
 		return result;
 	}
 }
@@ -231,7 +276,7 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
 // has size 'numBytes', according to the GameStateBitMap 'bm'.
 BOOLEAN
 deserialiseGameState (const GameStateBitMap *bm,
-		const BYTE *buf, size_t numBytes)
+		const BYTE *buf, size_t numBytes, int rev)
 {
 	size_t totalBits;
 	const GameStateBitMap *bmPtr;
@@ -240,10 +285,11 @@ deserialiseGameState (const GameStateBitMap *bm,
 	BYTE bitPtr = 0;
 			// Number of bits already processed from the byte pointed at by
 			// bytePtr.
+	BOOLEAN matchRev = TRUE;
 
 	// Sanity check: determine the number of bits required, and check
 	// whether 'numBytes' is large enough.
-	totalBits = totalBitsForGameState (bm);
+	totalBits = totalBitsForGameState (bm, rev);
 	if (numBytes * 8 < totalBits)
 	{
 		log_add (log_Error, "Warning: deserialiseGameState(): Corrupt "
@@ -251,31 +297,43 @@ deserialiseGameState (const GameStateBitMap *bm,
 		return FALSE;
 	}
 
-	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
+	for (bmPtr = bm; bmPtr; bmPtr++)
 	{
-		DWORD value = 0;
-		BYTE numBits = bmPtr->numBits;
-		BYTE bitsLeft = numBits;
-
-		// Multi-byte values are stored with the least significant byte
-		// first.
-		while (bitsLeft >= 8)
+		if (bmPtr->name != NULL)
 		{
-			DWORD bits = deserialiseBits (&bytePtr, &bitPtr, 8);
-			value |= shl32(bits, numBits - bitsLeft);
-			bitsLeft -= 8;
-		}
-		if (bitsLeft > 0) {
-			value |= shl32(deserialiseBits (&bytePtr, &bitPtr, bitsLeft),
-					numBits - bitsLeft);
-		}
+			DWORD value = 0;
+			BYTE numBits = bmPtr->numBits;
+			BYTE bitsLeft = numBits;
+
+			if (matchRev)
+			{
+				// Multi-byte values are stored with the least significant
+				// byte first.
+				while (bitsLeft >= 8)
+				{
+					DWORD bits = deserialiseBits (&bytePtr, &bitPtr, 8);
+					value |= shl32 (bits, numBits - bitsLeft);
+					bitsLeft -= 8;
+				}
+				if (bitsLeft > 0)
+				{
+					value |= shl32 (
+							deserialiseBits (&bytePtr, &bitPtr, bitsLeft),
+							numBits - bitsLeft);
+				}
 	
 #ifdef STATE_DEBUG
-		log_add (log_Debug, "Loading: GameState[\'%s\'] = %u", bmPtr->name,
-				value);
+				log_add (log_Debug, "Loading: GameState[\'%s\'] = %u",
+						bmPtr->name, value);
 #endif  /* STATE_DEBUG */
+			}
 
-		setGameStateUint (bmPtr->name, value);
+			setGameStateUint (bmPtr->name, value);
+		}
+		else if (bmPtr->numBits == 0)
+			break;
+		else if (bmPtr->numBits > rev)
+			matchRev = FALSE;
 	}
 #ifdef STATE_DEBUG
 	fflush (stderr);
@@ -317,6 +375,11 @@ LoadSC2Data (void)
 		MiscDataFrame = CaptureDrawable (
 				LoadGraphic (MISCDATA_MASK_PMAP_ANIM));
 		if (MiscDataFrame == NULL)
+			return FALSE;
+
+		visitedStarsFrame = CaptureDrawable (
+				LoadGraphic (VISITED_STARS_ANIM));
+		if (visitedStarsFrame == NULL)
 			return FALSE;
 
 		FontGradFrame = CaptureDrawable (
@@ -424,6 +487,9 @@ InitGameStructures (void)
 			FleetPtr->growth_err_term = 255 >> 1;
 			FleetPtr->days_left = 0;
 			FleetPtr->func_index = ~0;
+			FleetPtr->can_build = FALSE;
+			if (optUnlockShips && i < LAST_MELEE_ID)
+				FleetPtr->can_build = TRUE;
 
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 			PutQueue (&GLOBAL (avail_race_q), hFleet);
@@ -436,16 +502,17 @@ InitGameStructures (void)
 	InitPlanetInfo ();
 	InitGroupInfo (TRUE);
 
-	GLOBAL (glob_flags) = 0;
+	GLOBAL (glob_flags) = NUM_READ_SPEEDS >> 1;
 	
 	GLOBAL_SIS (Difficulty) = optDifficulty;
 	GLOBAL_SIS (Extended) = optExtended;
 	GLOBAL_SIS (Nomad) = optNomad;
 	GLOBAL_SIS (Seed) = optCustomSeed;
 
-	if (DIF_HARD && !PrimeSeed) {
-		srand(time(NULL));
-		GLOBAL_SIS(Seed) = (rand() % ((MAX_SEED - MIN_SEED) + MIN_SEED));
+	if (DIF_HARD && !PrimeSeed)
+	{
+		srand (time (NULL));
+		GLOBAL_SIS (Seed) = (rand () % ((MAX_SEED - MIN_SEED) + MIN_SEED));
 	}
 
 	GLOBAL (ElementWorth[COMMON]) = 1;
@@ -475,6 +542,8 @@ InitGameStructures (void)
 			break;
 		case HARD:
 			GLOBAL (ElementWorth[EXOTIC]) = 16;
+			SET_GAME_STATE (CREW_PURCHASED0, LOBYTE (100));
+			SET_GAME_STATE (CREW_PURCHASED1, HIBYTE (100));
 			break;
 	}
 
@@ -490,7 +559,11 @@ InitGameStructures (void)
 		GLOBAL_SIS (ModuleSlots[i]) = EMPTY_SLOT + 2;
 	GLOBAL_SIS (ModuleSlots[15]) = GUN_WEAPON;
 	GLOBAL_SIS (ModuleSlots[2]) = CREW_POD;
-	GLOBAL_SIS (CrewEnlisted) =  IF_HARD(CREW_POD_CAPACITY, 31);
+	// Make crew 31 at start to align with the amount of crew lost on the
+	// Tobermoon during the journey from Vela to Sol, Hard and/or Extended
+	// mode only
+	GLOBAL_SIS (CrewEnlisted) =
+			(DIF_HARD || EXTENDED) ? 31 : CREW_POD_CAPACITY;
 	GLOBAL_SIS (ModuleSlots[8]) = STORAGE_BAY;
 	GLOBAL_SIS (ModuleSlots[1]) = FUEL_TANK;
 	GLOBAL_SIS (FuelOnBoard) = IF_EASY(10 * FUEL_TANK_SCALE, 4338);
@@ -515,18 +588,14 @@ InitGameStructures (void)
 	if (optHeadStart)
 	{
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 2);
+		SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 1);
+		SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
 		if (!NOMAD) 
 		{
 			SET_GAME_STATE (MOONBASE_ON_SHIP, 1);
 			SET_GAME_STATE (MOONBASE_DESTROYED, 1);
-			GLOBAL_SIS (ModuleSlots[7]) = STORAGE_BAY;
-			GLOBAL_SIS (ElementAmounts[COMMON]) = 178;
-			GLOBAL_SIS (ElementAmounts[CORROSIVE]) = 66;
-			GLOBAL_SIS (ElementAmounts[BASE_METAL]) = 378;
-			GLOBAL_SIS (ElementAmounts[PRECIOUS]) = 29;
-			GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) = 219;
-			GLOBAL_SIS (ElementAmounts[EXOTIC]) = 5;
-			GLOBAL_SIS (TotalElementMass) = 875;
+			GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) = 1;
+			GLOBAL_SIS (TotalElementMass) = 1;
 		}
 	}
 
@@ -558,10 +627,10 @@ InitGameStructures (void)
 
 	utf8StringCopy (GLOBAL_SIS (ShipName),
 			sizeof (GLOBAL_SIS (ShipName)),
-			GAME_STRING(NAMING_STRING_BASE + 6));
-	/*utf8StringCopy (GLOBAL_SIS (CommanderName),
+			GAME_STRING (NAMING_STRING_BASE + 6)); // UNNAMED
+	utf8StringCopy (GLOBAL_SIS (CommanderName),
 			sizeof (GLOBAL_SIS (CommanderName)),
-			GAME_STRING (NAMING_STRING_BASE + 3));*/
+			GAME_STRING (NAMING_STRING_BASE + 6)); // UNNAMED
 
 	SetRaceAllied (HUMAN_SHIP, TRUE);
 	CloneShipFragment (HUMAN_SHIP, &GLOBAL (built_ship_q), 0);
@@ -570,8 +639,11 @@ InitGameStructures (void)
 	{
 		BYTE SpaCrew = IF_EASY(1, 30);
 		AddEscortShips (SPATHI_SHIP, 1);
-		/* Make the Eluder escort captained by Fwiffo alone or have a full compliment for Easy mode. */
-		SetEscortCrewComplement (SPATHI_SHIP, SpaCrew, NAME_OFFSET + NUM_CAPTAINS_NAMES);
+		// Make the Eluder escort captained by Fwiffo alone or have a full
+		// compliment for Easy mode.
+		SetEscortCrewComplement (SPATHI_SHIP,
+				SpaCrew, NAME_OFFSET + NUM_CAPTAINS_NAMES);
+		StartSphereTracking (SPATHI_SHIP);
 	}
 
 	GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
@@ -579,6 +651,10 @@ InitGameStructures (void)
 	CurStarDescPtr = 0;
 	GLOBAL (autopilot.x) = ~0;
 	GLOBAL (autopilot.y) = ~0;
+
+	ZeroLastLoc ();
+	ZeroAdvancedAutoPilot ();
+	ZeroAdvancedQuasiPilot ();
 
 	return (TRUE);
 }
@@ -592,6 +668,8 @@ FreeSC2Data (void)
 	FontGradFrame = 0;
 	DestroyDrawable (ReleaseDrawable (MiscDataFrame));
 	MiscDataFrame = 0;
+	DestroyDrawable (ReleaseDrawable (visitedStarsFrame));
+	visitedStarsFrame = 0;
 	DestroyDrawable (ReleaseDrawable (FlagStatFrame));
 	FlagStatFrame = 0;
 }
@@ -728,3 +806,45 @@ inQuasiSpace (void)
 			// IN_HYPERSPACE is also set for QuasiSpace
 }
 
+BOOLEAN
+isPC (int optWhich)
+{
+	return optWhich == OPT_PC;
+}
+
+BOOLEAN
+is3DO (int optWhich)
+{
+	return optWhich == OPT_3DO;
+}
+
+// Does not work with UTF encoding!
+// Basic function for replacing all instances of character "find"
+// with character "replace"
+// Returns the number of replaced characters on success
+// -1 if any input is NULL, and 0 if 'find' isn't found
+int
+replaceChar (char *pStr, const char find, const char replace)
+{
+	int count = 0;
+	size_t i;
+	size_t len = strlen (pStr);
+
+	if (!pStr || !find || !replace)
+		return -1; // pStr, find, or replace is NULL
+
+	if (utf8StringPos (pStr, find) == -1)
+		return 0; // 'find' not found
+
+	for (i = 0; i < len; i++)
+	{
+		if (pStr[i] == find)
+		{
+			pStr[i] = replace;
+			if (pStr[i] == replace)
+				count++;
+		}
+	}
+
+	return count;
+}
