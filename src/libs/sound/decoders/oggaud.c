@@ -212,7 +212,7 @@ ova_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 	else
 		This->format = ova_formats->stereo16;
 
-	This->filetype = AUDIO_OGG;
+	This->filename_hash = crc32b (filename);
 
 	ova->last_error = 0;
 

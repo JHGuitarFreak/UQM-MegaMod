@@ -375,7 +375,7 @@ moda_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 	This->frequency = md_mixfreq;
 	This->length = 0; // FIXME way to obtain this from mikmod?
 	This->numpos = mod->numpos;
-	This->filetype = AUDIO_TRACKER;
+	This->filename_hash = crc32b (filename);
 
 	moda->last_error = 0;
 

@@ -96,12 +96,16 @@ extern void StopSound (void);
 extern BOOLEAN SoundPlaying (void);
 
 extern SDWORD PLRGetPos (void);
-extern UNICODE *PLRGetFilename (void);
+
+extern void WaitForSoundEnd (COUNT Channel);
+#define TFBSOUND_WAIT_ALL ((COUNT)~0)
+
+extern DWORD FadeMusic (BYTE end_vol, SIZE TimeInterval);
 
 // For music resume option
 typedef struct music_position
 {
-	DWORD filehash;
+	DWORD filename_hash;
 	DWORD position;
 	DWORD last_played;
 } MUSIC_POSITION;
@@ -109,18 +113,31 @@ typedef struct music_position
 extern void SetMusicPosition (void);
 extern BOOLEAN OkayToResume (void);
 extern DWORD GetMusicPosition (void);
+extern void ResetMusicResume (void);
 
 static inline void
-print_mp (const MUSIC_POSITION arr)
+print_mp (const MUSIC_POSITION mp)
 {
-	printf ("0x%X -> position: %d, last_played: %d\n",
-		arr.filehash, arr.position, arr.last_played);
+	printf ("filename_hash: 0x%X, position: %d, last_played: %d\n",
+		mp.filename_hash, mp.position, mp.last_played);
 }
 
-extern void WaitForSoundEnd (COUNT Channel);
-#define TFBSOUND_WAIT_ALL ((COUNT)~0)
+static inline void
+print_mp_array (const MUSIC_POSITION mp_array[], const COUNT num_items)
+{
+	COUNT i;
 
-extern DWORD FadeMusic (BYTE end_vol, SIZE TimeInterval);
+	system ("cls");
+	printf ("--------------------\n\n");
+	for (i = num_items; i > 0; --i)
+	{
+		printf ("Index %d -> ", i);
+		print_mp (mp_array[i]);
+	}
+	printf ("Index 0 -> ");
+	print_mp (mp_array[0]);
+	printf ("\n--------------------\n\n");
+}
 
 #if defined(__cplusplus)
 }

@@ -628,7 +628,7 @@ SoundDecoder_Seek (TFB_SoundDecoder *decoder, uint32 seekTime)
 		return;
 	}
 
-	if (decoder->filetype != AUDIO_TRACKER)
+	if (strcmp (SoundDecoder_GetName (decoder), "MikMod") != 0)
 	{
 		pcm_pos = (uint32)(seekTime / 1000.0f * decoder->frequency);
 		pcm_pos = decoder->funcs->Seek (decoder,

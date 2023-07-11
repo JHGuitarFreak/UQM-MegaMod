@@ -216,11 +216,14 @@ BOOLEAN
 IsTracker (uint32 source)
 {
 	TFB_SoundSample * sample = soundSource[source].sample;
+	const UNICODE *filetype;
 
 	if (!sample)
 		return FALSE;
 
-	return sample->decoder->filetype == AUDIO_TRACKER;
+	filetype = SoundDecoder_GetName (sample->decoder);
+
+	return (strcmp (filetype, "MikMod") == 0);
 }
 
 float

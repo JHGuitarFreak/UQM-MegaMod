@@ -470,6 +470,8 @@ DoRestart (MENU_STATE *pMS)
 
 			if (OkayToResume ())
 				SeekMusic (GetMusicPosition ());
+
+			ResetMusicResume ();
 		
 			if (optMainMenuMusic)
 				FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);

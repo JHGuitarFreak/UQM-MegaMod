@@ -647,7 +647,7 @@ GiveRadios (RESPONSE_REF R)
 			StopMusic ();
 			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 
-			FadeMusic (MUTE_VOLUME, 0);
+			SetMusicVolume (MUTE_VOLUME);
 			PlayMusic (CommData.AlienSong, TRUE, 1);
 			SeekMusic (MusicPos);
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND);
