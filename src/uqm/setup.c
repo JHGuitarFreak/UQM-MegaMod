@@ -206,7 +206,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("automods-hd");
 	}
 
-
 	/* Now load the rest of the addons, in order. */
 	prepareAddons (optAddons);
 
@@ -220,12 +219,7 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		DestroyColorMap (ReleaseColorMap (ColorMapTab));
 	}
 
-	if (!ReloadPackages)
-	{
-		InitPlayerInput ();
-		//optRequiresReload = FALSE;
-	}
-
+	InitPlayerInput ();
 	GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 
 	return TRUE;

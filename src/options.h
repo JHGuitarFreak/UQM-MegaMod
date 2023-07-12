@@ -131,6 +131,9 @@ extern uio_DirHandle *meleeDir;
 extern uio_DirHandle *scrShotDir;
 extern char baseContentPath[PATH_MAX];
 
+extern char *contentDirPath;
+extern char *addonDirPath;
+
 extern const char **optAddons;
 
 /* These get edited by TEXTENTRY widgets, so they should have room to

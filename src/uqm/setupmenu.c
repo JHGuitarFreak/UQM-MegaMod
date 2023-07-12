@@ -2407,13 +2407,19 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	if (optRequiresReload || optRequiresRestart)
 	{
-		LoadKernel (0, 0, TRUE);
-		UninitGameKernel ();
-		InitGameKernel ();
+		//FreeKernel (); Crashes when going from HD to SD
 		UninitGameStructures ();
+		ClearPlayerInputAll ();
+		UninitGameKernel ();
 		FreeMasterShipList ();
-		LoadMasterShipList (TaskSwitch);
-		UninitSpace ();
-		InitSpace ();
+
+		prepareContentDir (contentDirPath, addonDirPath, 0);
+
+		if (LoadKernel (0, 0, TRUE))
+		{
+			LoadMasterShipList (TaskSwitch);
+			TaskSwitch ();
+			InitGameKernel ();
+		}
 	}
 }

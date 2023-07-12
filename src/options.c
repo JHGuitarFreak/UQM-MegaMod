@@ -140,6 +140,9 @@ uio_DirHandle *meleeDir;
 uio_DirHandle *scrShotDir;
 uio_MountHandle* contentMountHandle;
 
+char *contentDirPath;
+char *addonDirPath;
+
 char baseContentPath[PATH_MAX];
 
 extern uio_Repository *repository;
@@ -262,8 +265,16 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 	log_add (log_Debug, "Using '%s' as base content dir.", baseContentPath);
 	contentMountHandle = mountContentDir (repository, baseContentPath);
 
+	if (contentDirName && contentDirPath == NULL)
+		contentDirPath = contentDirName;
+
 	if (addonDirName)
+	{
+		if (addonDirPath == NULL)
+			addonDirPath = addonDirName;
+
 		log_add (log_Debug, "Using '%s' as addon dir.", addonDirName);
+	}
 	mountAddonDir (repository, contentMountHandle, addonDirName);
 
 #ifndef __APPLE__
