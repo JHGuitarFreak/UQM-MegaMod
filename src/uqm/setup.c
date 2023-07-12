@@ -109,7 +109,7 @@ UninitPlayerInput (void)
 }
 
 BOOLEAN
-LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
+LoadKernel (int argc, char *argv[])
 {
 	InitSound (argc, argv);
 	InitVideoPlayer (TRUE);
