@@ -111,11 +111,8 @@ UninitPlayerInput (void)
 BOOLEAN
 LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 {
-	if(!ReloadPackages) 
-	{
-		InitSound (argc, argv);
-		InitVideoPlayer (TRUE);
-	}
+	InitSound (argc, argv);
+	InitVideoPlayer (TRUE);
 
 	ScreenContext = CreateContext ("ScreenContext");
 	if (ScreenContext == NULL)
@@ -226,12 +223,10 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 	if (!ReloadPackages)
 	{
 		InitPlayerInput ();
-
-		GLOBAL (CurrentActivity) = (ACTIVITY)~0;
+		//optRequiresReload = FALSE;
 	}
 
-	if (ReloadPackages)
-		optRequiresReload = FALSE;
+	GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 
 	return TRUE;
 }

@@ -248,7 +248,7 @@ DoDiffChooser (MENU_STATE *pMS)
 
 		}
 		else if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& !optRequiresRestart && PacksInstalled ())
+			&& PacksInstalled ())
 		{	// timed out
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			done = TRUE;
@@ -537,11 +537,11 @@ DoRestart (MENU_STATE *pMS)
 				InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
 				LastInputTime = GetTimeCounter ();
+
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
 				ScreenTransition (3, NULL);
-				
 				InitFlash (pMS);
 				UnbatchGraphics ();
 				return TRUE;
@@ -663,10 +663,10 @@ RestartMenu (MENU_STATE *pMS)
 
 		DeathBySuicide = FALSE;
 
-		FreeGameData();
+		FreeGameData ();
 		GLOBAL(CurrentActivity) = CHECK_ABORT;
 	}
-	else 
+	else
 	{
 		TimeOut = ONE_SECOND / 2;
 
@@ -795,10 +795,19 @@ StartGame (void)
 			if (GLOBAL (CurrentActivity) == (ACTIVITY)~0)
 			{	// timed out
 				GLOBAL (CurrentActivity) = 0;
-				SplashScreen (0);
-				if (optWhichIntro == OPT_3DO)
-					Drumall ();
-				Credits (FALSE);
+
+				if (optRequiresRestart || optRequiresReload)
+				{
+					Reload ();
+					optRequiresRestart = optRequiresReload = FALSE;
+				}
+				else
+				{
+					SplashScreen (0);
+					if (optWhichIntro == OPT_3DO)
+						Drumall ();
+					Credits (FALSE);
+				}
 			}
 
 			if (GLOBAL (CurrentActivity) & CHECK_ABORT)

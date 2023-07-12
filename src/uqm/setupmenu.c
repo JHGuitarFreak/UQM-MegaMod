@@ -2250,44 +2250,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("config.scanlines", (BOOLEAN)opts->scanlines);
 	res_PutBoolean ("config.fullscreen", (BOOLEAN)opts->fullscreen);
-	
-	if ((NewWidth != ScreenWidthActual) ||
-	    (NewHeight != ScreenHeightActual) ||
-	    (NewDriver != GraphicsDriver) ||
-		(optRequiresRestart) || 
-	    (NewGfxFlags != GfxFlags)) 
-	{
-		FlushGraphics ();
-		UninitVideoPlayer ();
-		
-		
-		if (optRequiresRestart)
-		{
-			ScreenWidth  = 320 << resolutionFactor;
-			ScreenHeight = 240 << resolutionFactor;
-
-			RESOLUTION_FACTOR = resolutionFactor;
-			resolutionFactor = RESOLUTION_FACTOR;
-			
-			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
-				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);
-			
-			// These solve the context problem that plagued the setupmenu when changing to higher resolution.
-			TFB_BBox_Reset ();
-			TFB_BBox_Init (ScreenWidth, ScreenHeight);
-			
-			// Change how big area of the screen is update-able.
-			DestroyDrawable (ReleaseDrawable (Screen));
-			Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP, &screen_width, &screen_height));
-			SetContext (ScreenContext);
-			SetContextFGFrame ((FRAME)NULL);
-			SetContextFGFrame (Screen);
-		}
-		
-		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth, NewHeight);
-		FlushGraphics ();
-		InitVideoPlayer (TRUE);
-	}
 
 	// Avoid setting gamma when it is not necessary
 	if (optGamma != 1.0f || sliderToGamma (opts->gamma) != 1.0f)
@@ -2410,16 +2372,48 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
 
+	if ((NewWidth != ScreenWidthActual) ||
+		(NewHeight != ScreenHeightActual) ||
+		(NewDriver != GraphicsDriver) ||
+		(NewGfxFlags != GfxFlags) ||
+		optRequiresReload ||
+		optRequiresRestart)
+	{
+		FlushGraphics ();
+		UninitVideoPlayer ();
+
+		if (optRequiresRestart || optRequiresReload)
+		{
+			ScreenWidth = 320 << resolutionFactor;
+			ScreenHeight = 240 << resolutionFactor;
+
+			RESOLUTION_FACTOR = resolutionFactor;
+			resolutionFactor = RESOLUTION_FACTOR;
+
+			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
+				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);
+
+			// These solve the context problem that plagued the setupmenu when changing to higher resolution.
+			TFB_BBox_Reset ();
+			TFB_BBox_Init (ScreenWidth, ScreenHeight);
+
+			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+			FlushColorXForms ();
+		}
+
+		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth, NewHeight);
+		InitVideoPlayer (TRUE);
+	}
+
 	if (optRequiresReload || optRequiresRestart)
 	{
-		LoadKernel(0, 0, TRUE);
-		UninitGameKernel();
-		InitGameKernel();
-		UninitGameStructures(); 
-		FreeMasterShipList();
-		LoadMasterShipList(TaskSwitch); 
-		UninitSpace();
-		InitSpace();
-		optRequiresRestart = optRequiresReload = FALSE;
+		LoadKernel (0, 0, TRUE);
+		UninitGameKernel ();
+		InitGameKernel ();
+		UninitGameStructures ();
+		FreeMasterShipList ();
+		LoadMasterShipList (TaskSwitch);
+		UninitSpace ();
+		InitSpace ();
 	}
 }
