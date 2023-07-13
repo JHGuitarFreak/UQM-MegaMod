@@ -799,24 +799,24 @@ DoPresentation (void *pIS)
 		}
 		else if (strcmp (Opcode, "ANIMATE") == 0)
 		{	// basic frame animation
-			int first_frame, last_frame, num_loops, seconds;
+			int first_frame, last_frame, num_loops, milliseconds, fps;
 
-			if (4 == sscanf (pStr, "%d %d %d %d", &first_frame,
-					&last_frame, &num_loops, &seconds))
+			if (5 == sscanf (pStr, "%d %d %d %d %d", &first_frame,
+					&last_frame, &num_loops, &milliseconds, &fps))
 			{
 				STAMP s;
 				int loops = 0;
 				COUNT index = 0;
 				TimeCount Now, timeout, NextTime;
-				int animation_rate = ONE_SECOND / 10;
+				int animation_rate = ONE_SECOND / fps;
 
 				s.origin.x = 0;
 				s.origin.y = 0;
 
-				timeout = GetTimeCounter () + (seconds * 1000);
+				timeout = GetTimeCounter () + milliseconds;
 				NextTime = GetTimeCounter () + animation_rate;
 
-				while (num_loops || seconds)
+				while (num_loops || milliseconds)
 				{
 					Now = GetTimeCounter ();
 
