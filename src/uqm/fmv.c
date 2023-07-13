@@ -184,27 +184,6 @@ Drumall (void)
 void
 Reload (void)
 {
-	STAMP s;
-
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
-	SetContext (ScreenContext);
-	s.origin.x = s.origin.y = 0;
-
-	s.frame = CaptureDrawable (LoadGraphic (
-			RES_BOOL (RELOAD_PMAP_ANIM, RELOAD_PMAP_ANIM_HD)));
-	DrawStamp (&s);
-	DestroyDrawable (ReleaseDrawable (s.frame));
-
-	FadeScreen (FadeAllToColor, ONE_SECOND / 2);
-
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		return;
-
-	WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
-
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		return;
-	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
-
+	ShowPresentation (RELOADPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }

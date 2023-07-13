@@ -305,8 +305,6 @@
 #define PLUTO_MASK_ANIM "graphics.plutomask"
 #define QUAKE_MASK_PMAP_ANIM "graphics.quake"
 #define QUASIPORTAL_MASK_PMAP_ANIM "graphics.quasiportal"
-#define RELOAD_PMAP_ANIM "graphics.reload"
-#define RELOAD_PMAP_ANIM_HD "graphics.reload.hd"
 #define RESTART_PMAP_ANIM "graphics.newgame"
 #define RESTART_PMAP_ANIM_HD "graphics.newgamehd"
 #define RUINS_MASK_PMAP_ANIM "graphics.ruins"
