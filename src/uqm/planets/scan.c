@@ -432,16 +432,16 @@ PrintCoarseScan3DO (void)
 	SetContextFont (MicroFont);
 	PrintScanText (&t);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE (27) + (RES_SCALE (15) - SAFE_X)
+#define LEFT_SIDE_BASELINE_X RES_SCALE (27) + (RES_SCALE (15) - SAFE_NEG (1))
 #define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y (RES_SCALE (25 + 12) - SAFE_Y)
+#define SCAN_BASELINE_Y (RES_SCALE (25 + 12) - SAFE_NEG (4))
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_LEFT;
 
 	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
-	s.origin.x = -SAFE_X;
+	s.origin.x = -SAFE_NEG (1);
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
 	DrawStamp (&s);
 
