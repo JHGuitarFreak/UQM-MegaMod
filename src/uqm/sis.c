@@ -1511,7 +1511,7 @@ GetCPodCapacity (POINT *ppt)
 		SetContextForeGroundColor (THREEDO_CREW_COLOR);
 		
 	ppt->x = RES_SCALE (27) + (slotNr * SHIP_PIECE_OFFSET)
-			- RES_SCALE (colNr * 2);
+			- RES_SCALE (colNr * 2) + SAFE_X_OUT;
 	ppt->y = RES_SCALE (34 - rowNr * 2) + IF_HD (2);
 
 	return GetCrewPodCapacity ();
@@ -1616,7 +1616,7 @@ GetSBayCapacity (POINT *ppt)
 		SetContextForeGroundColor (colorBars[rowNr]);
 	}
 		
-	ppt->x = RES_SCALE (19) + (slotNr * SHIP_PIECE_OFFSET);
+	ppt->x = RES_SCALE (19) + (slotNr * SHIP_PIECE_OFFSET) + SAFE_X_OUT;
 	ppt->y = RES_SCALE (34 - (rowNr * 2)) + IF_HD (2);
 
 	return GetStorageBayCapacity ();
@@ -1728,7 +1728,7 @@ GetFTankScreenPos (POINT *ppt)
 			/ HEFUEL_TANK_CAPACITY);
 
 	ppt->x = RES_SCALE (21) + (slotNr * SHIP_PIECE_OFFSET)
-			+ IF_HD (OutfitOrShipyard == 2 ? 0 : 2);
+			+ IF_HD (OutfitOrShipyard == 2 ? 0 : 2) + SAFE_X_OUT;
 	if (volume == FUEL_TANK_CAPACITY)
 		ppt->y = RES_SCALE (27 - rowNr);
 	else
