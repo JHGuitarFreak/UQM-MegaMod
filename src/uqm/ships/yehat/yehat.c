@@ -368,6 +368,13 @@ init_yehat (void)
 		yehat_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		yehat_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE / 3;
 	}
+	else
+	{
+		yehat_desc.characteristics.max_thrust = MAX_THRUST;
+		yehat_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		yehat_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED * MISSILE_LIFE / 3;
+	}
 
 	yehat_desc.preprocess_func = yehat_preprocess;
 	yehat_desc.postprocess_func = yehat_postprocess;

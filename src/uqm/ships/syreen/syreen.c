@@ -290,6 +290,13 @@ init_syreen (void)
 		syreen_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		syreen_desc.cyborg_control.WeaponRange = (MISSILE_SPEED_HD * MISSILE_LIFE * 2 / 3);
 	}
+	else
+	{
+		syreen_desc.characteristics.max_thrust = MAX_THRUST;
+		syreen_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		syreen_desc.cyborg_control.WeaponRange =
+				(MISSILE_SPEED * MISSILE_LIFE * 2 / 3);
+	}
 
 	syreen_desc.postprocess_func = syreen_postprocess;
 	syreen_desc.init_weapon_func = initialize_dagger;

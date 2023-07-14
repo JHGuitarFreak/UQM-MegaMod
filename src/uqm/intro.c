@@ -32,6 +32,7 @@
 #include "libs/sound/sound.h"
 #include "libs/vidlib.h"
 #include "libs/log.h"
+#include "libs/inplib.h"
 
 #include <ctype.h>
 
@@ -794,6 +795,60 @@ DoPresentation (void *pIS)
 			else
 			{
 				log_add (log_Warning, "Bad MOVIE command '%s'", pStr);
+			}
+		}
+		else if (strcmp (Opcode, "ANIMATE") == 0)
+		{	// basic frame animation
+			int first_frame, last_frame, num_loops, milliseconds, fps;
+
+			if (5 == sscanf (pStr, "%d %d %d %d %d", &first_frame,
+					&last_frame, &num_loops, &milliseconds, &fps))
+			{
+				STAMP s;
+				int loops = 0;
+				COUNT index = 0;
+				TimeCount Now, timeout, NextTime;
+				int animation_rate = ONE_SECOND / fps;
+
+				s.origin.x = 0;
+				s.origin.y = 0;
+
+				timeout = GetTimeCounter () + milliseconds;
+				NextTime = GetTimeCounter () + animation_rate;
+
+				while (num_loops || milliseconds)
+				{
+					Now = GetTimeCounter ();
+
+					if (ActKeysPress ())
+						break;
+
+					if (Now >= NextTime)
+					{
+						s.frame = SetAbsFrameIndex (pPIS->Frame, index);
+						DrawStamp (&s);
+						index++;
+
+						if (index == last_frame)
+						{
+							loops++;
+							index = first_frame;
+						}
+
+						if (num_loops > 0 && loops == num_loops)
+							break;
+
+						if (Now >= timeout)
+							break;
+
+						NextTime = Now + animation_rate;
+					}
+				}
+				return TRUE;
+			}
+			else
+			{
+				log_add (log_Warning, "Bad ANIMATION command '%s'", pStr);
 			}
 		}
 		else if (strcmp (Opcode, "NOOP") == 0)

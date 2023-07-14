@@ -40,6 +40,7 @@ extern void GameOver (BYTE DeathType);
 extern void DoShipSpin (COUNT index, MUSIC_REF hMusic);
 extern void Logo (void);
 extern void Drumall (void);
+extern void Reload (void);
 
 extern BOOLEAN ShowPresentation (RESOURCE presentation);
 

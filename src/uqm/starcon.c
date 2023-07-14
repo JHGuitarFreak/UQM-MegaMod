@@ -217,7 +217,7 @@ while (--ac > 0)
 		initAudio (snddriver, soundflags);
 	}
 
-	if (!LoadKernel (0,0, FALSE))
+	if (!LoadKernel (0,0))
 	{
 		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic "
 				"content ***\n\nUQM requires at least the base content "

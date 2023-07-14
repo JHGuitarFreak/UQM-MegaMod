@@ -119,8 +119,9 @@ static BYTE space_ini_cnt;
 BOOLEAN
 InitSpace (void)
 {
-	if (space_ini_cnt++ == 0
+	if ((space_ini_cnt++ == 0
 			&& LOBYTE (GLOBAL (CurrentActivity)) <= IN_ENCOUNTER)
+			|| optRequiresRestart)
 	{
 		stars_in_space = CaptureDrawable (
 				LoadGraphic (STAR_MASK_PMAP_ANIM));

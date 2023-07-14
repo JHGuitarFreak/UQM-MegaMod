@@ -1097,6 +1097,12 @@ init_orz (void)
 		orz_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		orz_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
+	else
+	{
+		orz_desc.characteristics.max_thrust = MAX_THRUST;
+		orz_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		orz_desc.cyborg_control.WeaponRange = MISSILE_SPEED * MISSILE_LIFE;
+	}
 
 	orz_desc.preprocess_func = orz_preprocess;
 	orz_desc.init_weapon_func = initialize_turret_missile;

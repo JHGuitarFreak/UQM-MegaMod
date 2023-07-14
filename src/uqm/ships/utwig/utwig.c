@@ -375,6 +375,12 @@ init_utwig (void)
 		utwig_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		utwig_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
+	else
+	{
+		utwig_desc.characteristics.max_thrust = MAX_THRUST;
+		utwig_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		utwig_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON;
+	}
 
 	utwig_desc.preprocess_func = utwig_preprocess;
 	utwig_desc.init_weapon_func = initialize_lance;

@@ -92,7 +92,7 @@ void UninitPlayerInput (void);
 BOOLEAN InitGameKernel (void);
 void UninitGameKernel (void);
 
-extern BOOLEAN LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages);
+extern BOOLEAN LoadKernel (int argc, char *argv[]);
 extern void FreeKernel (void);
 
 int initIO (void);

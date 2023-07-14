@@ -109,30 +109,27 @@ UninitPlayerInput (void)
 }
 
 BOOLEAN
-LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
+LoadKernel (int argc, char *argv[])
 {
-	if (!ReloadPackages)
-	{
-		InitSound (argc, argv);
-		InitVideoPlayer (TRUE);
+	InitSound (argc, argv);
+	InitVideoPlayer (TRUE);
 
-		ScreenContext = CreateContext ("ScreenContext");
-		if (ScreenContext == NULL)
-			return FALSE;
+	ScreenContext = CreateContext ("ScreenContext");
+	if (ScreenContext == NULL)
+		return FALSE;
 
-		Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP,
-					&screen_width, &screen_height));
-		if (Screen == NULL)
-			return FALSE;
+	Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP,
+				&screen_width, &screen_height));
+	if (Screen == NULL)
+		return FALSE;
 
-		SetContext (ScreenContext);
-		SetContextFGFrame (Screen);
-		SetContextOrigin (MAKE_POINT (0, 0));
+	SetContext (ScreenContext);
+	SetContextFGFrame (Screen);
+	SetContextOrigin (MAKE_POINT (0, 0));
 
-		hResIndex = (RESOURCE_INDEX) InitResourceSystem ();
-		if (hResIndex == 0)
-			return FALSE;
-	}
+	hResIndex = (RESOURCE_INDEX) InitResourceSystem ();
+	if (hResIndex == 0)
+		return FALSE;
 	
 	/* Load base content. */
 	if (loadIndices (contentDir) == 0)
@@ -209,7 +206,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("automods-hd");
 	}
 
-
 	/* Now load the rest of the addons, in order. */
 	prepareAddons (optAddons);
 
@@ -223,15 +219,8 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		DestroyColorMap (ReleaseColorMap (ColorMapTab));
 	}
 
-	if (!ReloadPackages)
-	{
-		InitPlayerInput ();
-
-		GLOBAL (CurrentActivity) = (ACTIVITY)~0;
-	}
-
-	if (ReloadPackages)
-		optRequiresReload = FALSE;
+	InitPlayerInput ();
+	GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 
 	return TRUE;
 }

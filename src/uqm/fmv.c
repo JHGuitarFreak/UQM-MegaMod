@@ -180,3 +180,10 @@ Drumall (void)
 	ShowPresentation (DRUMALLPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
+
+void
+Reload (void)
+{
+	ShowPresentation (RELOADPRES_STRTAB);
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+}

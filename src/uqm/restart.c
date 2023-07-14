@@ -248,7 +248,7 @@ DoDiffChooser (MENU_STATE *pMS)
 
 		}
 		else if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& !optRequiresRestart && PacksInstalled ())
+			&& PacksInstalled ())
 		{	// timed out
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			done = TRUE;
@@ -377,19 +377,7 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 static BOOLEAN
 RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 {	
-	if (optRequiresRestart)
-	{
-		SetFlashRect (NULL, FALSE);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
-		// Got to restart -message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
-		SetTransitionSource (NULL);
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
-		GLOBAL (CurrentActivity) = CHECK_ABORT;
-		restartGame = TRUE;
-		return TRUE;
-	} 
-	else if (!PacksInstalled ())
+	if (!PacksInstalled ())
 	{
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
@@ -549,11 +537,11 @@ DoRestart (MENU_STATE *pMS)
 				InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
 				LastInputTime = GetTimeCounter ();
+
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
 				ScreenTransition (3, NULL);
-				
 				InitFlash (pMS);
 				UnbatchGraphics ();
 				return TRUE;
@@ -675,10 +663,10 @@ RestartMenu (MENU_STATE *pMS)
 
 		DeathBySuicide = FALSE;
 
-		FreeGameData();
+		FreeGameData ();
 		GLOBAL(CurrentActivity) = CHECK_ABORT;
 	}
-	else 
+	else
 	{
 		TimeOut = ONE_SECOND / 2;
 
@@ -807,10 +795,19 @@ StartGame (void)
 			if (GLOBAL (CurrentActivity) == (ACTIVITY)~0)
 			{	// timed out
 				GLOBAL (CurrentActivity) = 0;
-				SplashScreen (0);
-				if (optWhichIntro == OPT_3DO)
-					Drumall ();
-				Credits (FALSE);
+
+				if (optRequiresRestart || optRequiresReload)
+				{
+					Reload ();
+					optRequiresRestart = optRequiresReload = FALSE;
+				}
+				else
+				{
+					SplashScreen (0);
+					if (optWhichIntro == OPT_3DO)
+						Drumall ();
+					Credits (FALSE);
+				}
 			}
 
 			if (GLOBAL (CurrentActivity) & CHECK_ABORT)

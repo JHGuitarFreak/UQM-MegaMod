@@ -484,6 +484,13 @@ init_shofixti (void)
 		shofixti_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		shofixti_desc.cyborg_control.WeaponRange = MISSILE_SPEED_HD * MISSILE_LIFE;
 	}
+	else
+	{
+		shofixti_desc.characteristics.max_thrust = MAX_THRUST;
+		shofixti_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		shofixti_desc.cyborg_control.WeaponRange =
+				MISSILE_SPEED * MISSILE_LIFE;
+	}
 
 	shofixti_desc.preprocess_func = shofixti_preprocess;
 	shofixti_desc.postprocess_func = shofixti_postprocess;
