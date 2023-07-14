@@ -649,7 +649,8 @@ DrawAlienFrame (SEQUENCE *Sequences, COUNT Num, BOOLEAN fullRedraw)
 
 	BatchGraphics ();
 
-	s.origin.x = s.origin.y = 0;
+	s.origin.x = -SAFE_X;
+	s.origin.y = 0;
 
 	if (fullRedraw)
 	{

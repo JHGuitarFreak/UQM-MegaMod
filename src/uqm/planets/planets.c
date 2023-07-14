@@ -346,10 +346,11 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 		SetContext (GetScanContext (NULL));
 
-		s.origin.x = 0;
-		s.origin.y = 0;
 		s.frame = SetAbsFrameIndex (CaptureDrawable
 				(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
+
+		s.origin.x = -SAFE_X;
+		s.origin.y = 0;
 
 		if (isPC (optSuperPC))
 			s.origin.x -= RES_SCALE ((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2);

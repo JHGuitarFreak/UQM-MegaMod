@@ -39,9 +39,9 @@ enum PlanetScanTypes
 };
 
 #define SC2_MAP_WIDTH 210
-#define SC2_MAP_HEIGHT 67
+#define SC2_MAP_HEIGHT (67 - SAFE_Y)
 #define UQM_MAP_WIDTH 243
-#define UQM_MAP_HEIGHT 75
+#define UQM_MAP_HEIGHT (75 - SAFE_Y)
 #define ORIGINAL_MAP_WIDTH \
 		(optPlanetTexture ? UQM_MAP_WIDTH-1 : SC2_MAP_WIDTH)
 #define ORIGINAL_MAP_HEIGHT \

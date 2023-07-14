@@ -43,17 +43,21 @@ extern int ScreenHeight;
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
 		/* Margins. */
-#define SIS_ORG_X RES_SCALE (6)
-#define SIS_ORG_Y RES_SCALE (9)
+#define SAFE_X 0
+		/* Left and right screen margin to be left unused */
+#define SAFE_Y 0
+		/* Top and bottom screen margin to be left unused */
+#define SIS_ORG_X (RES_SCALE (6) + SAFE_X)
+#define SIS_ORG_Y (RES_SCALE (9) + SAFE_Y)
 
 /* Status bar & play area sizes. */
 #define STATUS_WIDTH RES_SCALE (64)
 /* Width of the status "window" (the right part of the screen) */
 #define STATUS_HEIGHT SCREEN_HEIGHT
 /* Height of the status "window" (the right part of the screen) */
-#define SPACE_WIDTH (SCREEN_WIDTH - STATUS_WIDTH)
+#define SPACE_WIDTH (SCREEN_WIDTH - STATUS_WIDTH - (SAFE_X * 2))
 /* Width of the space "window" (the left part of the screen) */
-#define SPACE_HEIGHT SCREEN_HEIGHT
+#define SPACE_HEIGHT (SCREEN_HEIGHT - (SAFE_Y * 2))
 /* Height of the space "window" (the left part of the screen) */
 #define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE (13))
 /* Width of the usable part of the space "window" */
@@ -68,9 +72,8 @@ extern int ScreenHeight;
 #define HDMOD_SIS_SCREEN_WIDTH (1074)
 #define HDMOD_SIS_SCREEN_HEIGHT (924)
 
-
 		/* Radar. */
-#define RADAR_X (RES_SCALE (4) + SPACE_WIDTH)
+#define RADAR_X (RES_SCALE (4) + (SPACE_WIDTH - SAFE_X))
 #define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE (8))
 #define RADAR_HEIGHT RES_SCALE (53)
 #define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)

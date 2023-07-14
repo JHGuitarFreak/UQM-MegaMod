@@ -54,7 +54,8 @@ DrawSISFrame (void)
 	{
 		SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 
-		// Top horizontal border behind SIS Title & Message (Small block in between as well)
+		// Top horizontal border behind SIS Title & Message (Small block in
+		// between as well)
 		r.corner.x = 0;
 		r.corner.y = 0;
 		r.extent.width = SIS_ORG_X + SIS_SCREEN_WIDTH + 1;
@@ -112,15 +113,15 @@ DrawSISFrame (void)
 
 		// Black border between menu area and space window area
 		SetContextForeGroundColor (BLACK_COLOR);
-		r.corner.x = SPACE_WIDTH - RES_SCALE (1);
+		r.corner.x = SAFE_X + SPACE_WIDTH - RES_SCALE (1);
 		r.corner.y = 0;
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = SCREEN_HEIGHT;
 		DrawFilledRectangle (&r);
 		
 		// Bottom corners of the SIS gauges
-		r.corner.x = SPACE_WIDTH;
-		r.corner.y = RES_SCALE (139);
+		r.corner.x = SAFE_X + SPACE_WIDTH;
+		r.corner.y = SAFE_Y + RES_SCALE (139);
 		if (!IS_HD)
 			DrawPoint (&r.corner);
 		else
@@ -144,23 +145,25 @@ DrawSISFrame (void)
 		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		r.corner.y = RES_SCALE (1);
 		r.extent.width = RES_SCALE (1);
-		r.extent.height = SIS_TITLE_HEIGHT;
+		r.extent.height = SAFE_Y + SIS_TITLE_HEIGHT;
 		r.corner.x = SIS_ORG_X - RES_SCALE (1);
 		DrawFilledRectangle (&r);
 		
 		// Light grey border on the left side of SIS Title
-		r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - RES_SCALE (1);
+		r.corner.x = SIS_ORG_X + SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
+				- RES_SCALE (1);
 		DrawFilledRectangle (&r);
 
-		// Light grey horizontal line at the bottom of the screen, space window side
+		// Light grey horizontal line at the bottom of the screen, space
+		// window side
 		r.corner.x = 0;
 		r.corner.y = SCREEN_HEIGHT - RES_SCALE (1);
-		r.extent.width = SPACE_WIDTH - RES_SCALE (1);
+		r.extent.width = SAFE_X + SPACE_WIDTH - RES_SCALE (1);
 		r.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&r);
 		
 		// Light grey vertical line at the right side of space window
-		r.corner.x = SPACE_WIDTH - RES_SCALE (2);
+		r.corner.x = SAFE_X + SPACE_WIDTH - RES_SCALE (2);
 		r.corner.y = 0;
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = SCREEN_HEIGHT - RES_SCALE (1);
@@ -170,7 +173,7 @@ DrawSISFrame (void)
 		r.corner.x = SCREEN_WIDTH - RES_SCALE (1);
 		r.corner.y = 0;
 		r.extent.width = RES_SCALE (1);
-		r.extent.height = RES_SCALE (139); 
+		r.extent.height = SAFE_Y + RES_SCALE (139);
 		DrawFilledRectangle (&r);
 		
 		// Horizontal line below the in-game menu
@@ -182,7 +185,7 @@ DrawSISFrame (void)
 		
 		// Vertical line at the right side in-game menu
 		r.corner.x = SCREEN_WIDTH - RES_SCALE (1);
-		r.corner.y = RES_SCALE (140);
+		r.corner.y = SAFE_Y + RES_SCALE (140);
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = (SCREEN_HEIGHT - RES_SCALE (1)) - r.corner.y;
 		DrawFilledRectangle (&r);
@@ -192,7 +195,7 @@ DrawSISFrame (void)
 		// Vertical line on the right side of SIS Message
 		r.corner.y = RES_SCALE (1);
 		r.extent.width = RES_SCALE (1);
-		r.extent.height = SIS_MESSAGE_HEIGHT;
+		r.extent.height = SAFE_Y + SIS_MESSAGE_HEIGHT;
 		r.corner.x = SIS_ORG_X + SIS_MESSAGE_BOX_WIDTH;
 		DrawFilledRectangle (&r);
 
@@ -202,7 +205,8 @@ DrawSISFrame (void)
 		DrawFilledRectangle (&r);
 		//
 		r.corner.y = 0;
-		r.extent.width = (SPACE_WIDTH - RES_SCALE (2)) - r.corner.x;
+		r.extent.width = (SAFE_X + SPACE_WIDTH - RES_SCALE (2))
+				- r.corner.x;
 		r.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&r);
 		//
@@ -222,22 +226,22 @@ DrawSISFrame (void)
 		DrawFilledRectangle (&r);
 
 		// Dark verticle line accent for the top left of the right panel
-		r.corner.x = SPACE_WIDTH;
+		r.corner.x = SAFE_X + SPACE_WIDTH;
 		r.corner.y = 0;
 		r.extent.width = RES_SCALE (1);
-		r.extent.height = RES_SCALE (139);  
+		r.extent.height = SAFE_Y + RES_SCALE (139);
 		DrawFilledRectangle (&r);
 
 		// Horizontal line of the separator below the SIS gauges 
-		r.corner.x = SPACE_WIDTH + RES_SCALE (1);
-		r.corner.y = RES_SCALE (139); 
+		r.corner.x = SAFE_X + SPACE_WIDTH + RES_SCALE (1);
+		r.corner.y = SAFE_Y + RES_SCALE (139);
 		r.extent.width = STATUS_WIDTH - RES_SCALE (2);
 		r.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&r);
 
 		// Dark verticle line to the left of in-game menu
-		r.corner.x = SPACE_WIDTH;
-		r.corner.y = RES_SCALE (140); 
+		r.corner.x = SAFE_X + SPACE_WIDTH;
+		r.corner.y = SAFE_Y + RES_SCALE (140);
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = SCREEN_HEIGHT - r.corner.y;
 		DrawFilledRectangle (&r);

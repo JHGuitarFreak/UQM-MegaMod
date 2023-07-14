@@ -49,7 +49,7 @@ extern "C" {
 #define STARCON_TEXT_HEIGHT RES_SCALE (7)
 #define TINY_TEXT_HEIGHT RES_SCALE (9)
 #define BATTLE_CREW_X RES_SCALE (8)
-#define BATTLE_CREW_Y RES_SCALE (64)
+#define BATTLE_CREW_Y (RES_SCALE (64) - SAFE_Y)
 
 extern COORD status_y_offsets[];
 

@@ -239,8 +239,8 @@ InitShips (void)
 		RECT r;
 
 		SetContextFGFrame (Screen);
-		r.corner.x = 0;
-		r.corner.y = 0;
+		r.corner.x = SAFE_X;
+		r.corner.y = SAFE_Y;
 		r.extent.width = SPACE_WIDTH;
 		r.extent.height = SPACE_HEIGHT;
 		SetContextClipRect (&r);
