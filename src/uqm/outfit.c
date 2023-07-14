@@ -125,7 +125,7 @@ RedistributeFuel (void)
 	SetContext (OldContext);
 }
 
-#define LANDER_X RES_SCALE (24)
+#define LANDER_X (RES_SCALE (24) + SAFE_X_OUT)
 #define LANDER_Y RES_SCALE (67)
 #define LANDER_WIDTH RES_SCALE (15)
 
@@ -722,7 +722,8 @@ DoOutfit (MENU_STATE *pMS)
 			pMS->CurState = OUTFIT_FUEL;
 			pMS->ModuleFrame = CaptureDrawable (
 					LoadGraphic (SISMODS_MASK_PMAP_ANIM));
-			s.origin.x = s.origin.y = 0;
+			s.origin.x = SAFE_X ? (-SAFE_X + RES_SCALE (3)) : 0;
+			s.origin.y = 0;
 			s.frame = CaptureDrawable (
 					LoadGraphic (OUTFIT_PMAP_ANIM));
 

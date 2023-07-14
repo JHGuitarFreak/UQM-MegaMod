@@ -43,9 +43,9 @@ extern int ScreenHeight;
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
 		/* Margins. */
-#define SAFE_X 0
+#define SAFE_X 16
 		/* Left and right screen margin to be left unused */
-#define SAFE_Y 0
+#define SAFE_Y 16
 		/* Top and bottom screen margin to be left unused */
 #define SIS_ORG_X (RES_SCALE (6) + SAFE_X)
 #define SIS_ORG_Y (RES_SCALE (9) + SAFE_Y)
@@ -73,7 +73,7 @@ extern int ScreenHeight;
 #define HDMOD_SIS_SCREEN_HEIGHT (924)
 
 		/* Radar. */
-#define RADAR_X (RES_SCALE (4) + (SPACE_WIDTH - SAFE_X))
+#define RADAR_X (RES_SCALE (4) + (SPACE_WIDTH + SAFE_X))
 #define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE (8))
 #define RADAR_HEIGHT RES_SCALE (53)
 #define RADAR_Y (SIS_ORG_Y + SIS_SCREEN_HEIGHT - RADAR_HEIGHT)
