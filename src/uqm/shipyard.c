@@ -40,26 +40,35 @@
 #include "uqmdebug.h"
 #include "libs/graphics/drawable.h"
 
+#if (SAFE_X || SAFE_Y > 0)
+#define USE_3DO_HANGAR 1
+#endif
+
 #ifdef USE_3DO_HANGAR
 // 3DO 4x3 hangar layout
-#	define HANGAR_SHIPS_ROW  4
-#	define HANGAR_Y          64
-#	define HANGAR_DY         44
+#	define HANGAR_SHIPS_ROW     4
+#	define HANGAR_Y  RES_SCALE (64)
+#	define HANGAR_DY RES_SCALE (44)
 
-static const COORD hangar_x_coords[HANGAR_SHIPS_ROW] =
+static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW] =
 {
 	19, 60, 116, 157
 };
 
+static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW] =
+{
+	76, 240, 464, 628
+};
+
 #else // use PC hangar
 // modified PC 6x2 hangar layout
-#	define HANGAR_SHIPS_ROW  6
+#	define HANGAR_SHIPS_ROW     6
 
 // The Y position of the upper line of hangar bay doors.
-# define HANGAR_Y	RES_SCALE (88)
+#	define HANGAR_Y  RES_SCALE (88)
 
 // The Y position of the lower line of hangar bay doors.
-# define HANGAR_DY	RES_SCALE (84)
+#	define HANGAR_DY RES_SCALE (84)
 
 
 // The X positions of the hangar bay doors for each resolution mode.
@@ -154,6 +163,9 @@ animatePowerLines (MENU_STATE *pMS)
 	static COLORMAP ColorMap;
 	static TimeCount NextTime = 0;
 	TimeCount Now = GetTimeCounter ();
+
+	if (SAFE_X)
+		return;
 
 	if (pMS)
 	{	// Init animation
@@ -1614,10 +1626,11 @@ DoShipyard (MENU_STATE *pMS)
 			SetContext (SpaceContext);
 			s.origin.x = 0;
 			s.origin.y = 0;
-			s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 0);
 #ifdef USE_3DO_HANGAR
+			s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 29);
 			DrawStamp (&s);
 #else // PC hangar
+			s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 0);
 			// the PC ship dock needs to overwrite the border
 			// expand the clipping rect by 1 pixel
 			GetContextClipRect (&old_r);
@@ -1641,6 +1654,7 @@ DoShipyard (MENU_STATE *pMS)
 				DrawBorder (9);
 
 			SetContextClipRect (&old_r);
+
 			animatePowerLines (pMS);
 #endif // USE_3DO_HANGAR
 			
