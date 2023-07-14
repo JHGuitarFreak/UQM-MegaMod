@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added option to resume all music where it last left off
 - Added a map that shows Rainbow Worlds that have been discovered
 - Added option to show short tooltips at the bottom of the melee screen when picking a ship a la SC1 - Kruzen
+- Added ability to change graphics and sound options without restarting
 
 ### Changed
 
