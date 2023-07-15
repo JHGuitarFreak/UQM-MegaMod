@@ -134,6 +134,11 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
 	(WIDGET *)(&choices[12]),   // Show FPS
+	(WIDGET *)(&labels[4]),     // Spacer
+
+	(WIDGET *)(&choices[81]),   // 3DO Padding
+	(WIDGET *)(&labels[4]),     // Spacer
+
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -274,7 +279,6 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&choices[81]),   // 3DO Padding
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
