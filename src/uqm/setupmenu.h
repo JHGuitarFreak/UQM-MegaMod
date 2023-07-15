@@ -156,7 +156,7 @@ typedef struct globalopts_struct {
 			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
 			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
 			showVisitedStars, unscaledStarSystem, slaughterMode,
-			advancedAutoPilot, meleeToolTips, musicResume;
+			advancedAutoPilot, meleeToolTips, musicResume, tdoPadding;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;

@@ -206,6 +206,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, advancedAutoPilot);
 	DECL_CONFIG_OPTION(bool, meleeToolTips);
 	DECL_CONFIG_OPTION(bool, musicResume);
+	DECL_CONFIG_OPTION(bool, tdoPadding);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -416,6 +417,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
 		INIT_CONFIG_OPTION(  musicResume,       false ),
+		INIT_CONFIG_OPTION(  tdoPadding,        false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -640,6 +642,7 @@ main (int argc, char *argv[])
 	optAdvancedAutoPilot = options.advancedAutoPilot.value;
 	optMeleeToolTips = options.meleeToolTips.value;
 	optMusicResume = options.musicResume.value;
+	opt3DOPadding = options.tdoPadding.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -1064,6 +1067,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->advancedAutoPilot, "mm.advancedAutoPilot");
 	getBoolConfigValue (&options->meleeToolTips, "mm.meleeToolTips");
 	getBoolConfigValue (&options->musicResume, "mm.musicResume");
+	getBoolConfigValue (&options->tdoPadding, "mm.tdoPadding");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1159,6 +1163,7 @@ enum
 	SISADVAP_OPT,
 	MELEETIPS_OPT,
 	MUSICRESUME_OPT,
+	TDOPADDING_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1267,6 +1272,7 @@ static struct option longOptions[] =
 	{"advancedautopilot", 0, NULL, SISADVAP_OPT},
 	{"meleetooltips", 0, NULL, MELEETIPS_OPT},
 	{"musicresume", 0, NULL, MUSICRESUME_OPT},
+	{"tdopadding", 0, NULL, TDOPADDING_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1907,6 +1913,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case MUSICRESUME_OPT:
 				setBoolOption (&options->musicResume, true);
 				break;
+			case TDOPADDING_OPT:
+				setBoolOption (&options->tdoPadding, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2289,6 +2298,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --musicresume : Resumes the music"
 			"in UQM where it last left off (default: %s)",
 			boolOptString (&defaults->musicResume));
+	log_add (log_User, "  --musicresume : Resumes the music"
+			"in UQM where it last left off (default: %s)",
+			boolOptString (&defaults->tdoPadding));
 
 	log_setOutput (old);
 }

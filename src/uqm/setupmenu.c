@@ -78,7 +78,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       81
+#define CHOICE_COUNT       82
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -274,6 +274,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
+	(WIDGET *)(&choices[81]),   // 3DO Padding
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
@@ -635,6 +636,7 @@ SetDefaults (void)
 	choices[78].selected = opts.advancedAutoPilot;
 	choices[79].selected = opts.meleeToolTips;
 	choices[80].selected = opts.musicResume;
+	choices[81].selected = opts.tdoPadding;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -731,6 +733,7 @@ PropagateResults (void)
 	opts.advancedAutoPilot = choices[78].selected;
 	opts.meleeToolTips = choices[79].selected;
 	opts.musicResume = choices[80].selected;
+	opts.tdoPadding = choices[81].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1698,6 +1701,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->advancedAutoPilot = optAdvancedAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeToolTips = optMeleeToolTips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->musicResume = optMusicResume ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->tdoPadding = opt3DOPadding ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 
 	if (!IS_HD)
 	{
@@ -2008,10 +2012,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	// MB: To force the game to restart when changing resolution options (otherwise they will not be changed)
 	if(oldResFactor != resolutionFactor ||
-		audioDriver != opts->adriver ||
-		audioQuality != opts->aquality ||
-		(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
- 		optRequiresRestart = TRUE;
+			audioDriver != opts->adriver ||
+			audioQuality != opts->aquality ||
+			opt3DOPadding != opts->tdoPadding ||
+			(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
+	{
+		optRequiresRestart = TRUE;
+	}
 
 	if ((int)opts->controllerType != optControllerType)
 	{
@@ -2210,6 +2217,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.musicResume", opts->musicResume == OPTVAL_ENABLED);
 	optMusicResume = (opts->musicResume == OPTVAL_ENABLED);
+
+	res_PutBoolean ("mm.tdoPadding", opts->tdoPadding == OPTVAL_ENABLED);
+	opt3DOPadding = (opts->tdoPadding == OPTVAL_ENABLED);
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

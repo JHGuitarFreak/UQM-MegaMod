@@ -43,7 +43,7 @@ extern int ScreenHeight;
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
 		/* Margins. */
-#define SAFE_X RES_SCALE (16)
+#define SAFE_X (opt3DOPadding ? RES_SCALE (16) : 0)
 		/* Left and right screen margin to be left unused */
 #define SAFE_Y SAFE_X
 		/* Top and bottom screen margin to be left unused */
