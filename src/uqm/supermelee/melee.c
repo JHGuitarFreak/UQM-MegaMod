@@ -120,7 +120,7 @@ enum
 #define RACE_INFO_ORIGIN_Y (SHIP_INFO_HEIGHT + RES_SCALE (6))
 #define RACE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE (3)) - RACE_INFO_ORIGIN_Y)
 
-#define MELEE_STATUS_X_OFFS RES_SCALE (1)
+#define MELEE_STATUS_X_OFFS (RES_SCALE (1))
 #define MELEE_STATUS_Y_OFFS RES_SCALE (201)
 #define MELEE_STATUS_WIDTH  (NUM_MELEE_COLUMNS * \
 		(MELEE_BOX_WIDTH + MELEE_BOX_SPACE))
@@ -217,7 +217,7 @@ DrawMeleeIcon (COUNT which_icon)
 {
 	STAMP s;
 
-	s.origin.x = 0;
+	s.origin.x = 0 - (SAFE_X << 1);
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (MeleeFrame, which_icon);
 	DrawStamp (&s);
@@ -450,6 +450,8 @@ RepairMeleeFrame (const RECT *pRect)
 	SetContextOrigin (oldOrigin);
 	SetContextClipRect (&OldRect);
 	SetContext (OldContext);
+
+	DrawBorderPadding ();
 }
 
 static void
@@ -947,8 +949,8 @@ InitMelee (MELEE_STATE *pMS)
 	ClearDrawable ();
 	r.corner.x = SAFE_X;
 	r.corner.y = SAFE_Y;
-	r.extent.width = SCREEN_WIDTH - (SAFE_X * 2);
-	r.extent.height = SCREEN_HEIGHT - (SAFE_Y * 2);
+	r.extent.width = SCREEN_WIDTH - (SAFE_X << 1);
+	r.extent.height = SCREEN_HEIGHT - (SAFE_Y << 1);
 	SetContextClipRect (&r);
 
 	r.corner.x = r.corner.y = 0;
@@ -966,7 +968,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&OldRect);
 	r = OldRect;
-	r.corner.x += ((SAFE_X << 1) - RES_SCALE (32)) + MENU_X_OFFS;
+	r.corner.x += RES_SCALE (32) + MENU_X_OFFS - (SAFE_X << 2);
 	r.corner.y += RES_SCALE (76);
 	r.extent.height = SHIP_INFO_HEIGHT;
 	SetContextClipRect (&r);
