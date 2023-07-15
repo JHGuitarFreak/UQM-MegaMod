@@ -51,6 +51,7 @@ extern int ScreenHeight;
 #define IS_PAD (SAFE_X ? TRUE : FALSE)
 #define SAFE_NEG(a) (IS_PAD ? SAFE_X - RES_SCALE(a) : 0)
 #define SAFE_POS(a) (IS_PAD ? SAFE_X + RES_SCALE(a) : 0)
+#define SAFE_BOOL(a,b) (IS_PAD ? (b) : (a))
 
 #define SIS_ORG_X (RES_SCALE (6) + SAFE_X)
 #define SIS_ORG_Y (RES_SCALE (9) + SAFE_Y)
