@@ -102,6 +102,46 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 	}
 }
 
+void
+DrawBorderPadding ()
+{
+	RECT r;
+	CONTEXT OldContext;
+
+	if (!SAFE_X)
+		return;
+
+	OldContext = SetContext (ScreenContext);
+
+	SetContextForeGroundColor (BLACK_COLOR);
+	// Top bar
+	r.corner = MAKE_POINT (0, 0);
+	r.extent.width = ScreenWidth;
+	r.extent.height = SAFE_Y;
+	DrawFilledRectangle (&r);
+
+	// Right bar
+	/*r.corner.x = r.extent.width - SAFE_X;
+	r.extent.width = SAFE_X;
+	r.extent.height = ScreenHeight;
+	DrawFilledRectangle (&r);*/
+
+	// Bottom bar
+	r.corner.x = 0;
+	r.corner.y = ScreenHeight - SAFE_Y;
+	r.extent.width = ScreenWidth;
+	r.extent.height = SAFE_Y;
+	DrawFilledRectangle (&r);
+
+	// Left bar
+	r.corner = MAKE_POINT (0, 0);
+	r.extent.width = SAFE_X;
+	r.extent.height = ScreenHeight;
+	DrawFilledRectangle (&r);
+
+	SetContext (OldContext);
+}
+
 DWORD
 SeedRandomNumbers (void)
 {
