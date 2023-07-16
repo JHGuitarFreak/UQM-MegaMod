@@ -754,7 +754,7 @@ DrawBlankSavegameDisplay (PICK_GAME_STATE *pickState)
 	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
-			GetFrameCount (pickState->SummaryFrame) - SAFE_BOOL (2, 1));
+			GetFrameCount (pickState->SummaryFrame) - 1);
 	DrawStamp (&s);
 }
 
@@ -765,7 +765,7 @@ DrawSaveLoad (PICK_GAME_STATE *pickState)
 	RECT r;
 
 	s.frame = SetAbsFrameIndex(pickState->SummaryFrame,
-		GetFrameCount(pickState->SummaryFrame) - 3);
+		GetFrameCount(pickState->SummaryFrame) - 2);
 
 	GetFrameRect (s.frame, &r);
 
@@ -871,7 +871,15 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 	if (pSD->year_index == 0)
 	{
 		// Unused save slot, draw 'Empty Game' message.
-		EXTENT ext;
+		s.origin.x = 0;
+		s.origin.y = 0;
+		s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
+				GetFrameCount (pickState->SummaryFrame) - 4);
+
+		DrawStamp (&s);
+		DrawDiffSeed (0, 0, FALSE, FALSE);
+
+		/*EXTENT ext;
 
 		r.corner.x = RES_SCALE (1);
 		r.corner.y = RES_SCALE (1);
@@ -883,13 +891,10 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		ext = r.extent;
 
 		s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
-				GetFrameCount (pickState->SummaryFrame) - 5);
+				GetFrameCount (pickState->SummaryFrame) - 4);
 		GetFrameRect (s.frame, &r);
 		s.origin.x = ((ext.width + RES_SCALE (2)) - r.extent.width) >> 1;
-		s.origin.y = (ext.height - r.extent.height) >> 1;
-
-		DrawStamp (&s);
-		DrawDiffSeed(0, 0, FALSE, FALSE);
+		s.origin.y = (ext.height - r.extent.height) >> 1;*/
 	}
 	else
 	{
@@ -1065,8 +1070,9 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
 		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
-				+ SAFE_BOOL (0, 1) - SAFE_BOOL (RES_SCALE (4), 0)
+				- SAFE_BOOL (RES_SCALE (4), -RES_SCALE (1))
 				+ RES_SCALE (RES_DESCALE (SIS_TITLE_WIDTH) >> 1);
+
 		switch (pSD->Activity)
 		{
 			case IN_STARBASE:

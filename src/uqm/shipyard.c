@@ -40,50 +40,47 @@
 #include "uqmdebug.h"
 #include "libs/graphics/drawable.h"
 
-#if (SAFE_X || SAFE_Y > 0)
-#define USE_3DO_HANGAR 1
-#endif
-
-#ifdef USE_3DO_HANGAR
 // 3DO 4x3 hangar layout
-#	define HANGAR_SHIPS_ROW     4
-#	define HANGAR_Y  RES_SCALE (64)
-#	define HANGAR_DY RES_SCALE (44)
+#	define HANGAR_SHIPS_ROW_3DO     4
+#	define HANGAR_Y_3DO  RES_SCALE (64)
+#	define HANGAR_DY_3DO RES_SCALE (44)
 
-static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW] =
+static const COORD hangar_x_coords_3do_orig[HANGAR_SHIPS_ROW_3DO] =
 {
 	19, 60, 116, 157
 };
 
-static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW] =
+static const COORD hangar_x_coords_3do_hd[HANGAR_SHIPS_ROW_3DO] =
 {
 	76, 240, 464, 628
 };
 
-#else // use PC hangar
 // modified PC 6x2 hangar layout
-#	define HANGAR_SHIPS_ROW     6
-
+#define HANGAR_SHIPS_ROW_DOS     6
 // The Y position of the upper line of hangar bay doors.
-#	define HANGAR_Y  RES_SCALE (88)
-
+#define HANGAR_Y  SAFE_BOOL (RES_SCALE (88), HANGAR_Y_3DO)
 // The Y position of the lower line of hangar bay doors.
-#	define HANGAR_DY RES_SCALE (84)
-
+#define HANGAR_DY SAFE_BOOL (RES_SCALE (84), HANGAR_DY_3DO)
 
 // The X positions of the hangar bay doors for each resolution mode.
 // Calculated from the right edge of the left grey border bar on the
 // screen.
-static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW] = {
+static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW_DOS] =
+{
 	0, 38, 76, 131, 169, 207
 };
-static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW] = {
+static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW_DOS] =
+{
 	0, 152, 304, 524, 676, 828
 };
-#endif // USE_3DO_HANGAR
 
 #define HANGAR_SHIPS      12
-#define HANGAR_ROWS       (HANGAR_SHIPS / HANGAR_SHIPS_ROW)
+#define HANGAR_SHIPS_ROW SAFE_BOOL (HANGAR_SHIPS_ROW_DOS, \
+		HANGAR_SHIPS_ROW_3DO)
+
+#define HANGAR_ROWS       (HANGAR_SHIPS / \
+		SAFE_BOOL (HANGAR_SHIPS_ROW_DOS, HANGAR_SHIPS_ROW_3DO))
+
 #define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
 
 enum
@@ -448,7 +445,16 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 		STAMP rtdoor_s;
 	} ship_win_info[MAX_BUILT_SHIPS], *pship_win_info;
 
-	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
+	if (IS_PAD)
+	{
+		hangar_x_coords = RES_BOOL (hangar_x_coords_3do_orig,
+				hangar_x_coords_3do_hd);
+	}
+	else
+	{
+		hangar_x_coords = RES_BOOL (hangar_x_coords_orig,
+				hangar_x_coords_hd);
+	}
 
 	num_ships = 1;
 	pship_win_info = &ship_win_info[0];
@@ -681,7 +687,7 @@ DMS_FlashFlagShip (void)
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
 	if (optWhichMenu != OPT_PC)
-		r.extent.height = RES_SCALE (63);
+		r.extent.height = RES_SCALE (63) - SAFE_NUM (2);
 	else
 		r.extent.height = RES_SCALE (74);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
@@ -694,7 +700,16 @@ DMS_GetEscortShipRect (RECT *rOut, BYTE slotNr)
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
 	static const COORD *hangar_x_coords;
 
-	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
+	if (IS_PAD)
+	{
+		hangar_x_coords = RES_BOOL (hangar_x_coords_3do_orig,
+				hangar_x_coords_3do_hd);
+	}
+	else
+	{
+		hangar_x_coords = RES_BOOL (hangar_x_coords_orig,
+				hangar_x_coords_hd);
+	}
 
 	rOut->corner.x = hangar_x_coords[col];
 	rOut->corner.y = HANGAR_Y + (HANGAR_DY * row);
@@ -728,7 +743,16 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
 	static const COORD *hangar_x_coords;
 
-	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
+	if (IS_PAD)
+	{
+		hangar_x_coords = RES_BOOL (hangar_x_coords_3do_orig,
+				hangar_x_coords_3do_hd);
+	}
+	else
+	{
+		hangar_x_coords = RES_BOOL (hangar_x_coords_orig,
+				hangar_x_coords_hd);
+	}
 
 	r.corner.x = hangar_x_coords[col];
 	r.corner.y = (HANGAR_Y + (HANGAR_DY * row))
@@ -1626,37 +1650,39 @@ DoShipyard (MENU_STATE *pMS)
 			SetContext (SpaceContext);
 			s.origin.x = 0;
 			s.origin.y = 0;
-#ifdef USE_3DO_HANGAR
-			s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 29);
-			DrawStamp (&s);
-#else // PC hangar
 			s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 0);
-			// the PC ship dock needs to overwrite the border
-			// expand the clipping rect by 1 pixel
-			GetContextClipRect (&old_r);
-			r = old_r;
-			r.corner.x -= RES_SCALE (1);
-			r.extent.width += RES_SCALE (2);
-			r.extent.height += RES_SCALE (1);
 
-			if (IS_HD && classicPackPresent)
+			if (!IS_PAD)
 			{
+				// PC hangar
+				// the PC ship dock needs to overwrite the border
+				// expand the clipping rect by 1 pixel
+				GetContextClipRect (&old_r);
 				r = old_r;
-				r.corner.x = 0;
-				r.extent.width = GetFrameWidth (s.frame);
-				r.extent.height += 16;
+				r.corner.x -= RES_SCALE (1);
+				r.extent.width += RES_SCALE (2);
+				r.extent.height += RES_SCALE (1);
+
+				if (IS_HD && classicPackPresent)
+				{
+					r = old_r;
+					r.corner.x = 0;
+					r.extent.width = GetFrameWidth (s.frame);
+					r.extent.height += 16;
+				}
+
+				SetContextClipRect (&r);
+				DrawStamp (&s);
+
+				if (optCustomBorder)
+					DrawBorder (9);
+
+				SetContextClipRect (&old_r);
+
+				animatePowerLines (pMS);
 			}
-
-			SetContextClipRect (&r);
-			DrawStamp (&s);
-
-			if (optCustomBorder)
-				DrawBorder (9);
-
-			SetContextClipRect (&old_r);
-
-			animatePowerLines (pMS);
-#endif // USE_3DO_HANGAR
+			else
+				DrawStamp (&s);
 			
 			if (isPC (optWhichFonts))
 				SetContextFont (TinyFont);
