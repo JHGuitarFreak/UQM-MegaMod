@@ -42,16 +42,18 @@ extern int ScreenHeight;
 #define RES_TRP(a) (RES_BOOL ((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
+#define IS_PAD ((opt3DOPadding && paddingPackPresent) ? TRUE : FALSE)
+#define SAFE_BOOL(a,b) (IS_PAD ? (b) : RES_SCALE(a))
+#define SAFE_NUM(a) (SAFE_BOOL (0,(a)))
+
 		/* Margins. */
-#define SAFE_X (opt3DOPadding ? RES_SCALE (16) : 0)
+#define SAFE_X (IS_PAD ? RES_SCALE (16) : 0)
 		/* Left and right screen margin to be left unused */
 #define SAFE_Y SAFE_X
 		/* Top and bottom screen margin to be left unused */
 
-#define IS_PAD (SAFE_X ? TRUE : FALSE)
 #define SAFE_NEG(a) (IS_PAD ? SAFE_X - RES_SCALE(a) : 0)
 #define SAFE_POS(a) (IS_PAD ? SAFE_X + RES_SCALE(a) : 0)
-#define SAFE_BOOL(a,b) (IS_PAD ? (b) : (a))
 
 #define SIS_ORG_X (RES_SCALE (6) + SAFE_X)
 #define SIS_ORG_Y (RES_SCALE (9) + SAFE_Y)

@@ -137,6 +137,8 @@ extern char *addonDirPath;
 
 extern const char **optAddons;
 
+extern BOOLEAN paddingPackPresent;
+
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
 typedef struct _input_template {

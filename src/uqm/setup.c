@@ -88,6 +88,7 @@ BOOLEAN DeathBySuicide = FALSE;
 BOOLEAN SpaceMusicOK;
 BOOLEAN oldPlanetsPresent;
 BOOLEAN classicPackPresent;
+BOOLEAN paddingPackPresent;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -140,11 +141,15 @@ LoadKernel (int argc, char *argv[])
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
 		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
+
+		if (opt3DOPadding)
+			paddingPackPresent = loadAddon ("3dopadding");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
 		log_add (log_Debug, "loading HD addon pack");
 		HDPackPresent = TRUE;
+		paddingPackPresent = FALSE;
 		//solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		//classicPackPresent = loadAddon ("classic-pack");
