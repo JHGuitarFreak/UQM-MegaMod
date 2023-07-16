@@ -82,9 +82,9 @@ enum
 	LOAD_BOT,
 	SAVE_BOT,
 	CONTROLS_BOT,
-#ifdef NETPLAY
-	NET_BOT,
-#endif
+//#ifdef NETPLAY
+//	NET_BOT,
+//#endif
 	QUIT_BOT,
 	EDIT_MELEE, // Editing a fleet or the team name
 	BUILD_PICK  // Selecting a ship to add to a fleet
@@ -217,7 +217,7 @@ DrawMeleeIcon (COUNT which_icon)
 {
 	STAMP s;
 
-	s.origin.x = 0 - (SAFE_X << 1);
+	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (MeleeFrame, which_icon);
 	DrawStamp (&s);
@@ -376,6 +376,10 @@ DrawTeams (void)
 		{
 			MeleeShip ship = MeleeSetup_getShip(pMeleeState->meleeSetup,
 					side, index);
+
+			if (index == TRUE_MELEE_FLEET_SIZE)
+				break;
+
 			DrawShipBox (side, index, ship, FALSE);
 		}
 
@@ -437,7 +441,7 @@ RepairMeleeFrame (const RECT *pRect)
 	DrawMeleeIcon (0);   /* Entire melee screen */
 #ifdef NETPLAY
 	DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
-	DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
+	//DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
 #endif
 	DrawMeleeIcon (26);  /* "Battle!" (highlighted) */
 
@@ -807,9 +811,9 @@ Deselect (BYTE opt)
 		case NET_TOP:
 			DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
 			break;
-		case NET_BOT:
-			DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
-			break;
+		//case NET_BOT:
+		//	DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
+		//	break;
 #endif
 		case QUIT_BOT:
 			DrawMeleeIcon (33);  /* "Quit" (not highlighted) */
@@ -872,9 +876,9 @@ Select (BYTE opt)
 		case NET_TOP:
 			DrawMeleeIcon (40);  /* "Net..." (top; highlighted) */
 			break;
-		case NET_BOT:
-			DrawMeleeIcon (42);  /* "Net..." (bottom; highlighted) */
-			break;
+		//case NET_BOT:
+		//	DrawMeleeIcon (42);  /* "Net..." (bottom; highlighted) */
+		//	break;
 #endif
 		case QUIT_BOT:
 			DrawMeleeIcon (34);  /* "Quit" (highlighted) */
@@ -968,7 +972,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&OldRect);
 	r = OldRect;
-	r.corner.x += RES_SCALE (32) + MENU_X_OFFS - (SAFE_X << 2);
+	//r.corner.x += RES_SCALE (32) + MENU_X_OFFS - (SAFE_X << 2) + SAFE_NUM(2);
 	r.corner.y += RES_SCALE (76);
 	r.extent.height = SHIP_INFO_HEIGHT;
 	SetContextClipRect (&r);
@@ -1873,7 +1877,7 @@ nextControlType (COUNT which_side)
 static MELEE_OPTIONS
 MeleeOptionDown (MELEE_OPTIONS current) {
 	if (current == QUIT_BOT)
-		return QUIT_BOT;
+		return TOP_ENTRY;
 	return current + 1;
 }
 
@@ -1881,7 +1885,7 @@ static MELEE_OPTIONS
 MeleeOptionUp (MELEE_OPTIONS current)
 {
 	if (current == TOP_ENTRY)
-		return TOP_ENTRY;
+		return QUIT_BOT;
 	return current - 1;
 }
 
@@ -1912,7 +1916,7 @@ MeleeOptionSelect (MELEE_STATE *pMS)
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-		case NET_BOT:
+		//case NET_BOT:
 		{
 			COUNT which_side;
 			BOOLEAN confirmed;

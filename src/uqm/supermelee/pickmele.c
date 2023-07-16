@@ -148,9 +148,12 @@ static void
 PickMelee_ChangedSelection (GETMELEE_STATE *gms, COUNT playerI)
 {
 	RECT r;
-	r.corner.x = PICK_X_OFFS + ((ICON_WIDTH + RES_SCALE (2)) * gms->player[playerI].col);
-	r.corner.y = PICK_Y_OFFS + ((ICON_HEIGHT + RES_SCALE (2)) * gms->player[playerI].row)
-			+ ((1 - playerI) * PICK_SIDE_OFFS);
+
+	r.corner.x = SAFE_X + PICK_X_OFFS + ((ICON_WIDTH + RES_SCALE (2))
+			* gms->player[playerI].col);
+	r.corner.y = SAFE_Y + PICK_Y_OFFS + ((ICON_HEIGHT + RES_SCALE (2))
+			* gms->player[playerI].row) + ((1 - playerI) * PICK_SIDE_OFFS);
+
 	r.extent.width = (ICON_WIDTH + RES_SCALE (2));
 	r.extent.height = (ICON_HEIGHT + RES_SCALE (2));
 	Flash_setRect (gms->player[playerI].flashContext, &r);

@@ -121,10 +121,10 @@ DrawBorderPadding ()
 	DrawFilledRectangle (&r);
 
 	// Right bar
-	/*r.corner.x = r.extent.width - SAFE_X;
+	r.corner.x = r.extent.width - SAFE_X;
 	r.extent.width = SAFE_X;
 	r.extent.height = ScreenHeight;
-	DrawFilledRectangle (&r);*/
+	DrawFilledRectangle (&r);
 
 	// Bottom bar
 	r.corner.x = 0;
