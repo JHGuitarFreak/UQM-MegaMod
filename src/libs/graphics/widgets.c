@@ -24,6 +24,7 @@
 #include "libs/strlib.h"
 #include "uqm/colors.h"
 #include "uqm/units.h"
+#include "uqm/util.h"
 
 WIDGET *widget_focus = NULL;
 
@@ -107,40 +108,7 @@ ReleaseArrows (void)
 void
 DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium)
 {	// Dialog box
-	RECT t;
-	Color oldcolor;
-
-	BatchGraphics ();
-
-	t.corner.x = r->corner.x - RES_SCALE (2);
-	t.corner.y = r->corner.y - RES_SCALE (2);
-	t.extent.width  = r->extent.width + RES_SCALE (4);
-	t.extent.height  = r->extent.height + RES_SCALE (4);
-	oldcolor = SetContextForeGroundColor (dark);
-	DrawFilledRectangle (&t);
-
-	t.corner.x += RES_SCALE (2);
-	t.corner.y += RES_SCALE (2);
-	t.extent.width -= RES_SCALE (2);
-	t.extent.height -= RES_SCALE (2);
-	SetContextForeGroundColor (medium);
-	DrawFilledRectangle (&t);
-
-	t.corner.x -= RES_SCALE (1);
-	t.corner.y += r->extent.height + RES_SCALE (1);
-	t.extent.height = RES_SCALE (1);
-	DrawFilledRectangle (&t);
-
-	t.corner.x += r->extent.width + RES_SCALE (2);
-	t.corner.y -= r->extent.height + RES_SCALE (2);
-	t.extent.width = RES_SCALE (1);
-	DrawFilledRectangle (&t);
-
-	SetContextForeGroundColor (bg);
-	DrawFilledRectangle (r);
-
-	SetContextForeGroundColor (oldcolor);
-	UnbatchGraphics ();
+	DrawStarConBox (r, RES_SCALE (2), dark, medium, TRUE, bg);
 }
 
 // windowRect, if not NULL, will be filled with the dimensions of the
@@ -198,16 +166,6 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 	if (oldfont)
 		SetContextFont (oldfont);
 	SetContextForeGroundColor (oldfg);
-
-	if (windowRect != NULL)
-	{	// Add the outer border added by DrawShadowedBox.
-		// XXX: It may be nicer to add a border size parameter to
-		// DrawShadowedBox, instead of assuming 2 here.
-		windowRect->corner.x = r.corner.x - RES_SCALE (2);
-		windowRect->corner.y = r.corner.y - RES_SCALE (2);
-		windowRect->extent.width = r.extent.width + RES_SCALE (4);
-		windowRect->extent.height = r.extent.height + RES_SCALE (4);
-	}
 }
 
 void
