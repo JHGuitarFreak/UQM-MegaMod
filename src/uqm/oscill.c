@@ -46,8 +46,8 @@ InitOscilloscope (FRAME scopeBg)
 				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = RES_DESCALE (size.width) - 2;
-		scopeSize.height = RES_DESCALE (size.height) - 2;
+		scopeSize.width = RES_DESCALE (size.width) - SAFE_BOOL(2,0);
+		scopeSize.height = RES_DESCALE (size.height) - SAFE_BOOL (2, 0);
 
 		scope_init = 1;
 	}
@@ -125,10 +125,12 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 		{
 			LINE line;
 
-			line.first.x = RES_SCALE (i + 1);
-			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i], toScale) + 1);
+			line.first.x = RES_SCALE (i + SAFE_BOOL (1, 0));
+			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i],
+					toScale) + SAFE_BOOL (1, 0));
 			line.second.x = RES_SCALE (i + 2);
-			line.second.y = RES_SCALE (ScaleHeightByVolume (scope_data[i + 1], toScale) + 1);
+			line.second.y = RES_SCALE (ScaleHeightByVolume (
+					scope_data[i + 1], toScale) + SAFE_BOOL (1, 0));
 			DrawLine (&line, RES_SCALE (1));
 		}
 	}
@@ -136,8 +138,9 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 	{
 		LINE line;
 
-		line.first.x = RES_SCALE (1);
-		line.first.y = RES_SCALE ((scopeSize.height / 2) + 1);
+		line.first.x = SAFE_BOOL (RES_SCALE (1), 0);
+		line.first.y = RES_SCALE ((scopeSize.height / 2)
+				+ SAFE_BOOL (1, 0));
 		line.second.x = RES_SCALE (scopeSize.width);
 		line.second.y = line.first.y;
 		DrawLine (&line, RES_SCALE (1));
