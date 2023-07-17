@@ -268,7 +268,7 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 
 	BatchGraphics ();
 	if (IS_HD)
-	{// Draw prerendered rectangles in HD
+	{	// Draw prerendered rectangles in HD
 		STAMP s;
 #define HD_SHIPBOX_START_INDEX 44
 
@@ -283,12 +283,14 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 			DrawStarConBox (&r, 1,
 					SHIPBOX_TOPLEFT_COLOR_HILITE,
 					SHIPBOX_BOTTOMRIGHT_COLOR_HILITE,
-					FilledSlot, SHIPBOX_INTERIOR_COLOR_HILITE);
+					FilledSlot, SHIPBOX_INTERIOR_COLOR_HILITE, FALSE,
+					TRANSPARENT);
 		else
 			DrawStarConBox (&r, 1,
 					SHIPBOX_TOPLEFT_COLOR_NORMAL,
 					SHIPBOX_BOTTOMRIGHT_COLOR_NORMAL,
-					FilledSlot, SHIPBOX_INTERIOR_COLOR_NORMAL);
+					FilledSlot, SHIPBOX_INTERIOR_COLOR_NORMAL, FALSE,
+					TRANSPARENT);
 	}
 
 	if (FilledSlot)

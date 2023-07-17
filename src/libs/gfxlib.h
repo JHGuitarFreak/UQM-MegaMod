@@ -168,7 +168,7 @@ AreTheyShades (Color first_color, Color second_color)
 }
 
 static inline Color
-CreateShade (Color first_color, Color second_color)
+CreateAvgShade (Color first_color, Color second_color)
 {
 	Color temp;
 
@@ -198,7 +198,8 @@ CreateShade (Color first_color, Color second_color)
 		temp.b = temp.r;
 	}
 
-	temp.a = 255;
+	if (temp.r > 0)
+		temp.a = 255;
 
 	return temp;
 }

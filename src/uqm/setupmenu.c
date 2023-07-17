@@ -2411,7 +2411,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			TFB_BBox_Reset ();
 			TFB_BBox_Init (ScreenWidth, ScreenHeight);
 
-			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 3));
 			FlushColorXForms ();
 		}
 

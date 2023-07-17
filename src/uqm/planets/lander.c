@@ -919,7 +919,7 @@ DrawSuperPC (void)
 		DrawStarConBox (&r, 1,
 			SIS_LEFT_BORDER_COLOR,
 			SIS_BOTTOM_RIGHT_BORDER_COLOR,
-			FALSE, TRANSPARENT);
+			FALSE, TRANSPARENT, FALSE, TRANSPARENT);
 	}
 	else
 		DrawBorder (32);

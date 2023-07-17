@@ -108,7 +108,8 @@ ReleaseArrows (void)
 void
 DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium)
 {	// Dialog box
-	DrawStarConBox (r, RES_SCALE (2), dark, medium, TRUE, bg);
+	DrawStarConBox (r, RES_SCALE (2), dark, medium, TRUE, bg, TRUE,
+			TRANSPARENT);
 }
 
 // windowRect, if not NULL, will be filled with the dimensions of the

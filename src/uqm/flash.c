@@ -736,7 +736,7 @@ Flash_drawFrame (FlashContext *context, FRAME frame, BOOLEAN pcRect)
 		Color color = GetFlashPCColor ();
 		DrawStarConBox (
 				&context->rect, RES_SCALE (1), color, color, FALSE,
-				TRANSPARENT
+				TRANSPARENT, FALSE, TRANSPARENT
 			);
 	}
 

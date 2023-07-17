@@ -31,7 +31,8 @@
 
 void
 DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
-		Color BottomRightColor, BOOLEAN FillInterior, Color InteriorColor)
+		Color BottomRightColor, BOOLEAN FillInterior, Color InteriorColor,
+		BOOLEAN CreateCorners, Color CornerColor)
 {
 	RECT locRect;
 	Color oldcolor;
@@ -106,19 +107,25 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 			DrawFilledRectangle (&locRect);
 		}
 
-		// Let's do corners if top-left and bottom-right are shades of grey
-		if (AreTheyShades (TopLeftColor, BottomRightColor))
+		if (CreateCorners)
 		{
-			SetContextForeGroundColor (
-					CreateShade (TopLeftColor, BottomRightColor));
+			if (sameColor (TRANSPARENT, CornerColor)
+					&& AreTheyShades (TopLeftColor, BottomRightColor))
+			{
+				SetContextForeGroundColor (
+						CreateAvgShade (TopLeftColor, BottomRightColor));
+			}
+			else
+				SetContextForeGroundColor (CornerColor);
+
 			locRect.corner.x = pRect->corner.x;
 			locRect.corner.y = pRect->corner.y + pRect->extent.height
-					- RES_SCALE (1);
+				- RES_SCALE (1);
 			locRect.extent.width = RES_SCALE (1);
 			locRect.extent.height = RES_SCALE (1);
 			DrawFilledRectangle (&locRect);
 			locRect.corner.x = pRect->corner.x + pRect->extent.width
-					- RES_SCALE (1);
+				- RES_SCALE (1);
 			locRect.corner.y = pRect->corner.y;
 			DrawFilledRectangle (&locRect);
 
@@ -129,7 +136,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 				DrawFilledRectangle (&locRect);
 				locRect.corner.x = pRect->corner.x + RES_SCALE (1);
 				locRect.corner.y = pRect->corner.y + pRect->extent.height
-						- RES_SCALE (2);
+					- RES_SCALE (2);
 				DrawFilledRectangle (&locRect);
 			}
 		}

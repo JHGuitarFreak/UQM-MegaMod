@@ -157,7 +157,7 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	if (!optCustomBorder && !IS_HD)
 		DrawStarConBox (&r, RES_SCALE (1),
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
-				TRUE, DEVICES_BACK_COLOR);
+				TRUE, DEVICES_BACK_COLOR, FALSE, TRANSPARENT);
 	else
 		DrawBorder (13);
 
