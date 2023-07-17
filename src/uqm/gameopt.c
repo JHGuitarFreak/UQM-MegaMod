@@ -773,6 +773,13 @@ DrawSaveLoad (PICK_GAME_STATE *pickState)
 			- RES_DESCALE (r.extent.width)) / 2);
 	s.origin.y = 0;
 
+	r.corner.x = RES_SCALE (1);
+	r.corner.y -= RES_SCALE (SAFE_BOOL (2, 1));
+	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE (SAFE_BOOL (2, 1));
+	r.extent.height += RES_SCALE (SAFE_BOOL (4, 3));
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
+
 	if (pickState->saving)
 		s.frame = DecFrameIndex (s.frame);
 	DrawStamp (&s);
@@ -1018,7 +1025,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		// print the location
 		t.baseline.x = RES_SCALE (1) + (SIS_MESSAGE_WIDTH >> 1);
-		t.baseline.y = RES_SCALE (139 + 6) + SAFE_BOOL(0,2);
+		t.baseline.y = RES_SCALE (139 + 6) + SAFE_BOOL (0, RES_SCALE (2));
 		t.align = ALIGN_CENTER;
 		t.pStr = buf;
 		starPt.x = LOGX_TO_UNIVERSE (pSD->SS.log_x);
@@ -1070,7 +1077,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		font_DrawText (&t);
 		t.align = ALIGN_CENTER;
 		t.baseline.x = SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH
-				- SAFE_BOOL (RES_SCALE (4), -RES_SCALE (1))
+				- RES_SCALE (SAFE_BOOL (4, -1))
 				+ RES_SCALE (RES_DESCALE (SIS_TITLE_WIDTH) >> 1);
 
 		switch (pSD->Activity)
@@ -1150,11 +1157,14 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 	SetContextFont (TinyFont);
 
+	DrawSaveLoad (pickState);
+
 	// Erase the selection menu
-	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE (2);
-	r.extent.height = RES_SCALE (65);
 	r.corner.x = RES_SCALE (1);
 	r.corner.y = RES_SCALE (160);
+	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE (2) + SAFE_NUM (1);
+	r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y
+			- SAFE_BOOL (RES_SCALE (1), 0);
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
 
@@ -1169,40 +1179,47 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	{
 		SUMMARY_DESC *desc = &pickState->summary[curSlot];
 
-		SetContextForeGroundColor((curSlot == selSlot) ? Selected : UnSelected);
+		SetContextForeGroundColor(
+				(curSlot == selSlot) ? Selected : UnSelected);
 		r.extent.width = RES_SCALE (15);
 		if (MAX_SAVED_GAMES > 99)
 			r.extent.width += RES_SCALE (5);
 		r.extent.height = RES_SCALE (11);
-		r.corner.x = RES_SCALE (8); 
+		r.corner.x = RES_SCALE (8);
 		r.corner.y = RES_SCALE (160 + (i * 13));
 		DrawRectangle (&r, IS_HD);
 
 		t.baseline.x = r.corner.x + RES_SCALE (3);
 		t.baseline.y = r.corner.y + RES_SCALE (8);
-		snprintf (buf, sizeof buf, (MAX_SAVED_GAMES > 99) ? "%03u" : "%02u",
-				curSlot);
+		snprintf (buf, sizeof buf,
+				(MAX_SAVED_GAMES > 99) ? "%03u" : "%02u", curSlot);
 		font_DrawText (&t);
 
-		r.extent.width = RES_SCALE (204) + (SIS_SCREEN_WIDTH - RES_SCALE (242));// -SAFE_X;
-		r.corner.x = RES_SCALE (30);// +SAFE_X;
+		r.extent.width = RES_SCALE (204) +
+				(SIS_SCREEN_WIDTH - RES_SCALE (242));// -SAFE_X;
+		r.corner.x = RES_SCALE (30); // +SAFE_X;
 		DrawRectangle (&r, IS_HD);
 
 		t.baseline.x = r.corner.x + RES_SCALE (3);
 		if (desc->year_index == 0)
 		{
 			utf8StringCopy (buf, sizeof buf,
-					GAME_STRING (SAVEGAME_STRING_BASE + 3)); // "Empty Slot"
+					GAME_STRING (SAVEGAME_STRING_BASE + 3));
+					// "Empty Slot"
 		}
 		else
 		{
 			DateToString (buf2, sizeof buf2, desc->month_index,
 					desc->day_index, desc->year_index);
 
-			if (!(strncmp(desc->SaveNameChecker, LEGACY_SAVE_NAME_CHECKER, SAVE_CHECKER_SIZE)))
+			if (!(strncmp(desc->SaveNameChecker, LEGACY_SAVE_NAME_CHECKER,
+					SAVE_CHECKER_SIZE)))
+			{
 				SaveName = desc->LegacySaveName;
+			}
 			else
-				SaveName = desc->SaveName[0] ? desc->SaveName : GAME_STRING (SAVEGAME_STRING_BASE + 4);
+				SaveName = desc->SaveName[0] ? desc->SaveName :
+						GAME_STRING (SAVEGAME_STRING_BASE + 4);
 
 			snprintf (buf, sizeof buf, "%s: %s", buf2, SaveName);
 
@@ -1428,7 +1445,6 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
 	RedrawPickDisplay (&pickState, MenuState.CurState);
-	DrawSaveLoad (&pickState);
 
 	if (fromMainMenu)
 	{

@@ -43,8 +43,8 @@ extern int ScreenHeight;
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
 #define IS_PAD ((opt3DOPadding && paddingPackPresent) ? TRUE : FALSE)
-#define SAFE_BOOL(a,b) (IS_PAD ? (b) : RES_SCALE(a))
-#define SAFE_NUM(a) (SAFE_BOOL (0,(a)))
+#define SAFE_BOOL(a,b) (IS_PAD ? (b) : (a))
+#define SAFE_NUM(a) (SAFE_BOOL (0, (a)))
 
 		/* Margins. */
 #define SAFE_X (IS_PAD ? RES_SCALE (16) : 0)
@@ -53,10 +53,10 @@ extern int ScreenHeight;
 		/* Top and bottom screen margin to be left unused */
 
 #define SAFE_NEG(a) (IS_PAD ? SAFE_X - RES_SCALE(a) : 0)
-#define SAFE_POS(a) (IS_PAD ? SAFE_X + RES_SCALE(a) : 0)
+#define SAFE_POS(a) (IS_PAD ? SAFE_X + RES_SCALE((a)) : 0)
 
-#define SIS_ORG_X (RES_SCALE (6) + SAFE_X)
-#define SIS_ORG_Y (RES_SCALE (9) + SAFE_Y)
+#define SIS_ORG_X (RES_SCALE (6) + SAFE_POS (1))
+#define SIS_ORG_Y (RES_SCALE (9) + SAFE_POS (1))
 
 /* Status bar & play area sizes. */
 #define STATUS_WIDTH RES_SCALE (64)
@@ -67,7 +67,7 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT (SCREEN_HEIGHT - (SAFE_Y * 2))
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - RES_SCALE (13))
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - (RES_SCALE (13) + SAFE_NUM (1)))
 /* Width of the usable part of the space "window" */
 #define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE (13))
 /* Height of the usable part of the space "window" */
