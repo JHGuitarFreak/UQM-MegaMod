@@ -172,22 +172,31 @@ CreateShade (Color first_color, Color second_color)
 {
 	Color temp;
 
+	temp = buildColorRgba (0, 0, 0, 0);
+
 	if (first_color.r > second_color.r)
 	{
 		temp.r = first_color.r - second_color.r;
-		temp.g = first_color.g - second_color.g;
-		temp.b = first_color.b - second_color.b;
+		temp.g = temp.r;
+		temp.b = temp.r;
 	}
 	
 	if (first_color.r < second_color.r)
 	{
 		temp.r = second_color.r - first_color.r;
-		temp.g = second_color.g - first_color.g;
-		temp.b = second_color.b - first_color.b;
+		temp.g = temp.r;
+		temp.b = temp.r;
 	}
 
-	if (first_color.r == second_color.r)
+	if (sameColor (first_color, second_color))
 		return first_color;
+
+	if (temp.r == first_color.r || temp.r == second_color.r)
+	{
+		temp.r = (first_color.r + second_color.r) >> 1;
+		temp.g = temp.r;
+		temp.b = temp.r;
+	}
 
 	temp.a = 255;
 

@@ -141,11 +141,14 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 
 	BatchGraphics ();
 	r.corner.x = RES_SCALE (
-			(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w)) >> 1);
+			(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w)) >> 1)
+			- RES_SCALE (2);
 	r.corner.y = RES_SCALE (
-			(RES_DESCALE (ScreenHeight) - RES_DESCALE (win_h)) >> 1);
-	r.extent.width = win_w;
-	r.extent.height = win_h;
+			(RES_DESCALE (ScreenHeight) - RES_DESCALE (win_h)) >> 1)
+			- RES_SCALE (2);
+	r.extent.width = win_w + RES_SCALE (4);
+	r.extent.height = win_h + RES_SCALE (4);
+
 	DrawShadowedBox (&r, win_bg_clr, win_dark_clr, win_medium_clr);
 
 	t.baseline.x = r.corner.x
@@ -166,6 +169,16 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 	if (oldfont)
 		SetContextFont (oldfont);
 	SetContextForeGroundColor (oldfg);
+
+	if (windowRect != NULL)
+	{	// Add the outer border added by DrawShadowedBox.
+		// XXX: It may be nicer to add a border size parameter to
+		// DrawShadowedBox, instead of assuming 2 here.
+		windowRect->corner.x = r.corner.x;
+		windowRect->corner.y = r.corner.y;
+		windowRect->extent.width = r.extent.width;
+		windowRect->extent.height = r.extent.height;
+	}
 }
 
 void

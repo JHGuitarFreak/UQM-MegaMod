@@ -111,13 +111,15 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		{
 			SetContextForeGroundColor (
 					CreateShade (TopLeftColor, BottomRightColor));
-			locRect.corner.x = 0;
-			locRect.corner.y = pRect->extent.height - RES_SCALE (1);
+			locRect.corner.x = pRect->corner.x;
+			locRect.corner.y = pRect->corner.y + pRect->extent.height
+					- RES_SCALE (1);
 			locRect.extent.width = RES_SCALE (1);
 			locRect.extent.height = RES_SCALE (1);
 			DrawFilledRectangle (&locRect);
-			locRect.corner.x = pRect->extent.width - RES_SCALE (1);
-			locRect.corner.y = 0;
+			locRect.corner.x = pRect->corner.x + pRect->extent.width
+					- RES_SCALE (1);
+			locRect.corner.y = pRect->corner.y;
 			DrawFilledRectangle (&locRect);
 
 			if (BorderWidth == RES_SCALE (2))
@@ -125,8 +127,9 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 				locRect.corner.x -= RES_SCALE (1);
 				locRect.corner.y += RES_SCALE (1);
 				DrawFilledRectangle (&locRect);
-				locRect.corner.x = RES_SCALE (1);
-				locRect.corner.y = pRect->extent.height - RES_SCALE (2);
+				locRect.corner.x = pRect->corner.x + RES_SCALE (1);
+				locRect.corner.y = pRect->corner.y + pRect->extent.height
+						- RES_SCALE (2);
 				DrawFilledRectangle (&locRect);
 			}
 		}
