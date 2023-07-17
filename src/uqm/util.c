@@ -34,16 +34,29 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		Color BottomRightColor, BOOLEAN FillInterior, Color InteriorColor)
 {
 	RECT locRect;
+	Color oldcolor;
+
+	BatchGraphics ();
+
+	if (FillInterior)
+	{
+		oldcolor = SetContextForeGroundColor (InteriorColor);
+		DrawFilledRectangle (pRect);
+	}
 
 	if (BorderWidth == 0)
 		BorderWidth = RES_SCALE (2);
 	else
 	{
-		SetContextForeGroundColor (TopLeftColor);
+		if (FillInterior)
+			SetContextForeGroundColor (TopLeftColor);
+		else
+			oldcolor = SetContextForeGroundColor (TopLeftColor);
 		locRect.corner = pRect->corner;
 		locRect.extent.width = pRect->extent.width;
 		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x += RES_SCALE (1);
@@ -56,6 +69,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		locRect.extent.width = RES_SCALE (1);
 		locRect.extent.height = pRect->extent.height;
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x += RES_SCALE (1);
@@ -69,6 +83,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		locRect.corner.y = pRect->corner.y + RES_SCALE (1);
 		locRect.extent.height = pRect->extent.height - RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x -= RES_SCALE (1);
@@ -82,6 +97,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE (1);
 		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x += RES_SCALE (1);
@@ -89,17 +105,36 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 			locRect.extent.width -= RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
 		}
+
+		// Let's do corners if top-left and bottom-right are shades of grey
+		if (AreTheyShades (TopLeftColor, BottomRightColor))
+		{
+			SetContextForeGroundColor (
+					CreateShade (TopLeftColor, BottomRightColor));
+			locRect.corner.x = 0;
+			locRect.corner.y = pRect->extent.height - RES_SCALE (1);
+			locRect.extent.width = RES_SCALE (1);
+			locRect.extent.height = RES_SCALE (1);
+			DrawFilledRectangle (&locRect);
+			locRect.corner.x = pRect->extent.width - RES_SCALE (1);
+			locRect.corner.y = 0;
+			DrawFilledRectangle (&locRect);
+
+			if (BorderWidth == RES_SCALE (2))
+			{
+				locRect.corner.x -= RES_SCALE (1);
+				locRect.corner.y += RES_SCALE (1);
+				DrawFilledRectangle (&locRect);
+				locRect.corner.x = RES_SCALE (1);
+				locRect.corner.y = pRect->extent.height - RES_SCALE (2);
+				DrawFilledRectangle (&locRect);
+			}
+		}
 	}
 
-	if (FillInterior)
-	{
-		SetContextForeGroundColor (InteriorColor);
-		locRect.corner.x = pRect->corner.x + BorderWidth;
-		locRect.corner.y = pRect->corner.y + BorderWidth;
-		locRect.extent.width = pRect->extent.width - (BorderWidth << 1);
-		locRect.extent.height = pRect->extent.height - (BorderWidth << 1);
-		DrawFilledRectangle (&locRect);
-	}
+	SetContextForeGroundColor (oldcolor);
+
+	UnbatchGraphics ();
 }
 
 void

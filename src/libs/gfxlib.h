@@ -158,6 +158,42 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 #define BUILD_SHADE_RGBA(s) \
 		buildColorRgba ((s), (s), (s), 0xFF)
 
+static inline BOOLEAN
+AreTheyShades (Color first_color, Color second_color)
+{
+	return ((first_color.r == first_color.g
+			&& first_color.g == first_color.b)
+			&& (second_color.r == second_color.g
+			&& second_color.g == second_color.b));
+}
+
+static inline Color
+CreateShade (Color first_color, Color second_color)
+{
+	Color temp;
+
+	if (first_color.r > second_color.r)
+	{
+		temp.r = first_color.r - second_color.r;
+		temp.g = first_color.g - second_color.g;
+		temp.b = first_color.b - second_color.b;
+	}
+	
+	if (first_color.r < second_color.r)
+	{
+		temp.r = second_color.r - first_color.r;
+		temp.g = second_color.g - first_color.g;
+		temp.b = second_color.b - first_color.b;
+	}
+
+	if (first_color.r == second_color.r)
+		return first_color;
+
+	temp.a = 255;
+
+	return temp;
+}
+
 
 typedef BYTE CREATE_FLAGS;
 // WANT_MASK is deprecated (and non-functional). It used to generate a bitmap
