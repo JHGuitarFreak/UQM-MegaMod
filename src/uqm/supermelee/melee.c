@@ -457,7 +457,7 @@ RepairMeleeFrame (const RECT *pRect)
 	SetContextClipRect (&OldRect);
 	SetContext (OldContext);
 
-	DrawBorderPadding ();
+	DrawBorderPadding (0);
 }
 
 static void

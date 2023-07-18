@@ -148,17 +148,23 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 }
 
 void
-DrawBorderPadding ()
+DrawBorderPadding (DWORD videoWidth)
 {
 	RECT r;
 	CONTEXT OldContext;
+	UWORD safe_x =
+			(videoWidth && videoWidth < 280 ? SAFE_NEG (4) * 2 : SAFE_X);
 
-	if (!SAFE_X)
+	if (!safe_x)
 		return;
 
 	OldContext = SetContext (ScreenContext);
 
-	SetContextForeGroundColor (BLACK_COLOR);
+	if (videoWidth)
+		SetContextForeGroundColor (BUILD_SHADE_RGBA (0x0C));
+	else
+		SetContextForeGroundColor (BLACK_COLOR);
+
 	// Top bar
 	r.corner = MAKE_POINT (0, 0);
 	r.extent.width = ScreenWidth;
@@ -166,8 +172,8 @@ DrawBorderPadding ()
 	DrawFilledRectangle (&r);
 
 	// Right bar
-	r.corner.x = r.extent.width - SAFE_X;
-	r.extent.width = SAFE_X;
+	r.corner.x = r.extent.width - safe_x;
+	r.extent.width = safe_x;
 	r.extent.height = ScreenHeight;
 	DrawFilledRectangle (&r);
 
@@ -180,7 +186,7 @@ DrawBorderPadding ()
 
 	// Left bar
 	r.corner = MAKE_POINT (0, 0);
-	r.extent.width = SAFE_X;
+	r.extent.width = safe_x;
 	r.extent.height = ScreenHeight;
 	DrawFilledRectangle (&r);
 

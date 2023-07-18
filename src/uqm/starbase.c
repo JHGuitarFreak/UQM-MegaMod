@@ -358,7 +358,7 @@ DoStarBase (MENU_STATE *pMS)
 		else
 			SetMusicVolume (NORMAL_VOLUME);
 
-		DrawBorderPadding ();
+		DrawBorderPadding (0);
 
 		UnbatchGraphics ();
 	}
@@ -454,7 +454,7 @@ ExitStarBase:
 
 		rotateStarbase (pMS, NULL);
 
-		DrawBorderPadding ();
+		DrawBorderPadding (0);
 
 		UnbatchGraphics ();
 

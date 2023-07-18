@@ -18,7 +18,7 @@
 #include "video.h"
 #include "vidplayer.h"
 #include "libs/memlib.h"
-
+#include "uqm/util.h"
 
 LEGACY_VIDEO_REF
 PlayLegacyVideo (LEGACY_VIDEO vid)
@@ -41,6 +41,9 @@ PlayLegacyVideo (LEGACY_VIDEO vid)
 	ref->vidref = LoadVideoFile (name);
 	if (!ref->vidref)
 		return NULL;
+
+	DrawBorderPadding (ref->vidref->w);
+
 	if (audname)
 		ref->audref = LoadMusicFile (audname);
 	if (speechname)
