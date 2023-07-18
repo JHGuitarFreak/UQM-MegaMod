@@ -433,9 +433,8 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	r.corner.y = RES_SCALE (160 + ((gameIndex % SAVES_PER_PAGE) * 13));
 	DrawRectangle (&r, IS_HD);
 
-	r.extent.width = RES_SCALE (204) + (SIS_SCREEN_WIDTH - RES_SCALE (242))
-			- SAFE_X;
-	r.corner.x = RES_SCALE (30) + SAFE_X;
+	r.extent.width = RES_SCALE (204) + (SIS_SCREEN_WIDTH - RES_SCALE (242));
+	r.corner.x = RES_SCALE (30);
 	DrawRectangle (&r, IS_HD);
 
 	Font = TinyFont;
@@ -560,10 +559,10 @@ NameSaveGame (COUNT gameIndex, UNICODE *buf)
 	tes.CbParam = gIndex;
 	tes.ChangeCallback = OnSaveNameChange;
 	tes.FrameCallback = 0;
-	r.extent.width = RES_SCALE (204) + (SIS_SCREEN_WIDTH - RES_SCALE (242))
-			- SAFE_X;
+	r.extent.width = RES_SCALE (204)
+			+ (SIS_SCREEN_WIDTH - RES_SCALE (242));
 	r.extent.height = RES_SCALE (11);
-	r.corner.x = RES_SCALE (30) + SAFE_X;
+	r.corner.x = RES_SCALE (30);
 	r.corner.y = (RES_SCALE (160) + ((gameIndex % SAVES_PER_PAGE)
 			* RES_SCALE (13)));
 	SetFlashRect (&r, FALSE);
@@ -1196,8 +1195,8 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		font_DrawText (&t);
 
 		r.extent.width = RES_SCALE (204) +
-				(SIS_SCREEN_WIDTH - RES_SCALE (242));// -SAFE_X;
-		r.corner.x = RES_SCALE (30); // +SAFE_X;
+				(SIS_SCREEN_WIDTH - RES_SCALE (242));
+		r.corner.x = RES_SCALE (30);
 		DrawRectangle (&r, IS_HD);
 
 		t.baseline.x = r.corner.x + RES_SCALE (3);
