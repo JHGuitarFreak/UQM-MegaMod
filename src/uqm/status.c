@@ -393,6 +393,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 
 	y = y_offs + CAPTAIN_YOFFS;
 
+	// Actual Captain's Window
 	// Darker grey rectangle at bottom and right of captain's window
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
@@ -461,6 +462,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	{
 		// All crew doesn't fit in the graphics; print a number.
 		// Always print a number for the SIS in the full game.
+		y_offs += SAFE_X;
 		DrawBattleCrewAmount (&RDPtr->ship_info, y_offs);
 	}
 
