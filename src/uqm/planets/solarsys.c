@@ -1560,17 +1560,19 @@ ProcessShipControls (void)
 static void
 enterInnerSystem (PLANET_DESC *planet)
 {
-#define INNER_ENTRY_DISTANCE  (MIN_MOON_RADIUS + ((MAX_GEN_MOONS - 1) \
-		* MOON_DELTA) + (MOON_DELTA / 4)) + RES_SCALE (5)
+#define INNER_ENTRY_DISTANCE (MIN_MOON_RADIUS + ((MAX_GEN_MOONS - 1) \
+		* MOON_DELTA) + (MOON_DELTA >> 2)) + RES_SCALE (SAFE_BOOL (5, 0))
 	COUNT angle;
 
 	// Calculate the inner system entry location and facing
 	angle = FACING_TO_ANGLE (GetFrameIndex (GLOBAL (ShipStamp.frame)))
 			+ HALF_CIRCLE;
+
 	GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
 			+ COSINE (angle, INNER_ENTRY_DISTANCE);
 	GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
 			+ SINE (angle, INNER_ENTRY_DISTANCE);
+
 	if (GLOBAL (ShipStamp.origin.y) < 0)
 		GLOBAL (ShipStamp.origin.y) = RES_SCALE (1);
 	else if (GLOBAL (ShipStamp.origin.y) >= SIS_SCREEN_HEIGHT)
