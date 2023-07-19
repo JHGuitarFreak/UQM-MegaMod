@@ -982,7 +982,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		if (pSD->Flags & AFTER_BOMB_INSTALLED)
 		{
 			// draw the bomb and the escape pod
-			s.origin.x = SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + RES_SCALE (6);
+			s.origin.x = SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS
+					+ RES_SCALE (SAFE_BOOL (6, 0));
 			s.origin.y = 0;
 			s.frame = SetRelFrameIndex (pickState->SummaryFrame, 0);
 			DrawStamp (&s);
