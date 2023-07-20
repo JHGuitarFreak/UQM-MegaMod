@@ -1465,7 +1465,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	if (which_starmap == NORMAL_STARMAP)
 	{	// "(Star Search: F6 | Toggle Maps: F7)"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (
-				FEEDBACK_STRING_BASE + 2 + is3DO (optWhichFonts)));
+				FEEDBACK_STRING_BASE + 2
+				+ (is3DO (optWhichFonts) || opt3DOPadding)));
 	}
 	else
 		utf8StringCopy (buf, sizeof (buf),
