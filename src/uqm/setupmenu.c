@@ -640,7 +640,7 @@ SetDefaults (void)
 	choices[78].selected = opts.advancedAutoPilot;
 	choices[79].selected = opts.meleeToolTips;
 	choices[80].selected = opts.musicResume;
-	choices[81].selected = opts.tdoPadding;
+	choices[81].selected = opts.windowType;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -737,7 +737,7 @@ PropagateResults (void)
 	opts.advancedAutoPilot = choices[78].selected;
 	opts.meleeToolTips = choices[79].selected;
 	opts.musicResume = choices[80].selected;
-	opts.tdoPadding = choices[81].selected;
+	opts.windowType = choices[81].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1705,7 +1705,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->advancedAutoPilot = optAdvancedAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->meleeToolTips = optMeleeToolTips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->musicResume = optMusicResume ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->tdoPadding = opt3DOPadding ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->windowType = res_GetInteger ("mm.windowType");
 
 	if (!IS_HD)
 	{
@@ -2018,7 +2018,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if(oldResFactor != resolutionFactor ||
 			audioDriver != opts->adriver ||
 			audioQuality != opts->aquality ||
-			opt3DOPadding != opts->tdoPadding ||
+			optWindowType != opts->windowType ||
 			(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
 	{
 		optRequiresRestart = TRUE;
@@ -2222,8 +2222,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.musicResume", opts->musicResume == OPTVAL_ENABLED);
 	optMusicResume = (opts->musicResume == OPTVAL_ENABLED);
 
-	res_PutBoolean ("mm.tdoPadding", opts->tdoPadding == OPTVAL_ENABLED);
-	opt3DOPadding = (opts->tdoPadding == OPTVAL_ENABLED);
+	res_PutInteger ("mm.windowType", opts->windowType);
+	optWindowType = opts->windowType;
 
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;

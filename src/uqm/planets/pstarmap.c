@@ -50,6 +50,7 @@
 #include <math.h> // sqrt()
 #include "../build.h"
 		// For StartSphereTracking()
+#include "uqm/setupmenu.h"
 
 typedef enum {
 	NORMAL_STARMAP,
@@ -1466,7 +1467,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	{	// "(Star Search: F6 | Toggle Maps: F7)"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (
 				FEEDBACK_STRING_BASE + 2
-				+ (is3DO (optWhichFonts) || opt3DOPadding)));
+				+ (is3DO (optWhichFonts)
+					|| optWindowType == OPTVAL_3DO_WINDOW)));
 	}
 	else
 		utf8StringCopy (buf, sizeof (buf),

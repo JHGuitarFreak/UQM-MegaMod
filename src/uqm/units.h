@@ -42,7 +42,7 @@ extern int ScreenHeight;
 #define RES_TRP(a) (RES_BOOL ((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
-#define IS_PAD ((opt3DOPadding && paddingPackPresent) ? TRUE : FALSE)
+#define IS_PAD ((optWindowType == 1 && paddingPackPresent) ? TRUE : FALSE)
 #define SAFE_BOOL(a,b) (IS_PAD ? (b) : (a))
 #define SAFE_NUM(a) (SAFE_BOOL (0, (a)))
 

@@ -142,7 +142,7 @@ LoadKernel (int argc, char *argv[])
 		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
 
-		if (opt3DOPadding)
+		if (optWindowType == 1)
 			paddingPackPresent = loadAddon ("3dopadding");
 	} 
 	else if (loadAddon ("mm-hd"))
