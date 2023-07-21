@@ -57,9 +57,9 @@ WIDGET *widget_focus = NULL;
 #define WIDGET_WARNING_COLOR \
 		BUILD_COLOR_RGBA (0xB1, 0x27, 0x47, 0xFF)
 
-#define ONSCREEN 13
+#define ONSCREEN DOS_BOOL (13, 10)
 #define SCROLL_OFFSET 3 // The pos from the page edge where we need to start scrolling
-#define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2);
+#define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2)
 #define LSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 - 7)
 #define RSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 + 7)
 
@@ -73,7 +73,7 @@ static Color win_dark_clr =
 static FONT cur_font;
 
 static COUNT offset_t = 0; // Top widget offset
-static COUNT offset_b = ONSCREEN; // Bottom widget offset
+static COUNT offset_b;// = ONSCREEN; // Bottom widget offset
 static FRAME arrow_frame = NULL; // Frames for additional graphics
 
 void
@@ -260,10 +260,12 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	int widget_index, height, widget_y, on_screen;
-	
+	int widget_index, height, widget_y, on_screen;	
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
+
+	if (!offset_b)
+		offset_b = ONSCREEN;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);

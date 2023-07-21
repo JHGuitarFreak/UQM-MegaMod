@@ -590,13 +590,15 @@ TFB_FlushGraphics (void)
 				int oldWidth = ScreenWidthActual;
 				int oldHeight = ScreenHeightActual;
 				if (TFB_ReInitGraphics (cmd->driver, cmd->flags,
-						cmd->width, cmd->height, &resolutionFactor))
+						cmd->width, cmd->height, &resolutionFactor,
+						&optWindowType))
 				{
 					log_add (log_Error, "Could not provide requested mode: "
 							"reverting to last known driver.");
 					// We don't know what exactly failed, so roll it all back
 					if (TFB_ReInitGraphics (oldDriver, oldFlags,
-							oldWidth, oldHeight, &resolutionFactor))
+							oldWidth, oldHeight, &resolutionFactor,
+							&optWindowType))
 					{
 						log_add (log_Fatal,
 								"Couldn't reinit at that point either. "

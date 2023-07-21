@@ -21,10 +21,12 @@
 
 #include "libs/graphics/sdl/sdl_common.h"
 
-int TFB_Pure_InitGraphics (int driver, int flags, const char* renderer, 
-		int width, int height, unsigned int resFactor);
+int TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
+		int width, int height, unsigned int resFactor,
+		unsigned int windowType);
 void TFB_Pure_UninitGraphics (void);
-int TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor);
+int TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
+		int togglefullscreen, unsigned int resFactor);
 void Scale_PerfTest (void);
 bool TFB_SDL2_GammaCorrection (float gamma);
 

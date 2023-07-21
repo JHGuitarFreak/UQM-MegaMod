@@ -112,7 +112,7 @@ extern BOOLEAN optMaskOfDeceit;
 extern BOOLEAN optAdvancedAutoPilot;
 extern BOOLEAN optMeleeToolTips;
 extern BOOLEAN optMusicResume;
-extern int optWindowType;
+extern DWORD optWindowType;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
@@ -138,6 +138,7 @@ extern char *addonDirPath;
 extern const char **optAddons;
 
 extern BOOLEAN paddingPackPresent;
+extern BOOLEAN dosPackPresent;
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */

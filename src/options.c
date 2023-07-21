@@ -125,7 +125,7 @@ BOOLEAN optMaskOfDeceit;
 BOOLEAN optAdvancedAutoPilot;
 BOOLEAN optMeleeToolTips;
 BOOLEAN optMusicResume;
-int optWindowType;
+DWORD optWindowType;
 
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;

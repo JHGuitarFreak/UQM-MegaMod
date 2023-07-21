@@ -1588,16 +1588,17 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->musicremix = optRemixMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->speech = optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->keepaspect = optKeepAspectRatio ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	switch (snddriver) {
-	case audio_DRIVER_OPENAL:
-		opts->adriver = OPTVAL_OPENAL;
-		break;
-	case audio_DRIVER_MIXSDL:
-		opts->adriver = OPTVAL_MIXSDL;
-		break;
-	default:
-		opts->adriver = OPTVAL_SILENCE;
-		break;
+	switch (snddriver)
+	{
+		case audio_DRIVER_OPENAL:
+			opts->adriver = OPTVAL_OPENAL;
+			break;
+		case audio_DRIVER_MIXSDL:
+			opts->adriver = OPTVAL_MIXSDL;
+			break;
+		default:
+			opts->adriver = OPTVAL_SILENCE;
+			break;
 	}
 	audioDriver = opts->adriver;
 	if (soundflags & audio_QUALITY_HIGH)
@@ -1707,83 +1708,14 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->musicResume = optMusicResume ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->windowType = res_GetInteger ("mm.windowType");
 
-	if (!IS_HD)
-	{
-		switch (ScreenWidthActual)
-		{
-			case 320:
-				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
-				{
-					opts->screenResolution = OPTVAL_320_240;
-				}
-				else
-				{
-					opts->screenResolution = OPTVAL_320_240;
-					opts->driver = OPTVAL_ALWAYS_GL;
-				}
-				break;
-			case 640:
-				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
-				{
-					opts->screenResolution = OPTVAL_320_240;
-					opts->loresBlowup = OPTVAL_SCALE_640_480;
-				}
-				else
-				{
-					opts->screenResolution = OPTVAL_320_240;
-					opts->loresBlowup = OPTVAL_SCALE_640_480;
-					opts->driver = OPTVAL_ALWAYS_GL;
-				}
-				break;
-			case 960:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_960_720;
-				break;
-			case 1280:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_1280_960;
-				break;
-			case 1600:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_1600_1200;
-				break;
-			case 1920:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_1920_1440;
-				break;
-			default:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = NO_BLOWUP;
-				break;
-		}		
-	}
-	else
-	{	// HD - 1280x960
-		switch (ScreenWidthActual)
-		{
-			case 640:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_640_480;
-				break;
-			case 960:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_960_720;
-				break;
-			case 1600:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_1600_1200;
-				break;
-			case 1920:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_1920_1440;
-				break;
-			case 1280:
-			default:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_1280_960;
-		}
-	}
+	opts->screenResolution =
+			RES_BOOL (OPTVAL_320_240, OPTVAL_REAL_1280_960);
+	opts->loresBlowup = ScreenWidthActual / 320 - 1;
+	if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
+		opts->driver = OPTVAL_ALWAYS_GL;
 }
+
+#define SCR_BOOL(a,b) (!opts->windowType ? (b) : (a))
 
 void
 SetGlobalOptions (GLOBALOPTS *opts)
@@ -1798,12 +1730,15 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
 	
-	
-	switch (opts->screenResolution) {
+	if (!dosPackPresent)
+		opts->windowType = optWindowType;
+
+	switch (opts->screenResolution)
+	{
 		case OPTVAL_320_240:
 			NewWidth = 320;
-			NewHeight = 240;
-#ifdef HAVE_OPENGL	       
+			NewHeight = SCR_BOOL (240, 200);
+#ifdef HAVE_OPENGL
 			NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1812,8 +1747,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 		case OPTVAL_REAL_1280_960:
 			NewWidth = 1280;
-			NewHeight = 960;
-#ifdef HAVE_OPENGL	       
+			NewHeight = SCR_BOOL (960, 800);
+#ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1822,11 +1757,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 		default:
 			/* Don't mess with the custom value */
-			resolutionFactor = 0; 
+			resolutionFactor = 0;
 			break;
 	}
 
-	if (NewWidth == 320 && NewHeight == 240)
+	if (NewWidth == 320 && NewHeight == SCR_BOOL (240, 200))
 	{	// MB: Moved code to here to make it work with 320x240 resolutions
 		// before opts->loresBlowup switch after
 		switch (opts->scaler)
@@ -1870,16 +1805,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			res_PutString ("config.scaler", "no");
 	}
 
-	if (NewWidth == 320 && NewHeight == 240)
-	{	
+	if (NewWidth == 320 && NewHeight == SCR_BOOL (240, 200))
+	{
 		switch (opts->loresBlowup) {
 			case NO_BLOWUP:
 				// JMS: Default value: Don't do anything.
 				break;
 			case OPTVAL_SCALE_640_480:
 				NewWidth = 640;
-				NewHeight = 480;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (480, 400);
+#ifdef HAVE_OPENGL
 				NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
 #else
 				NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1888,8 +1823,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_960_720:
 				NewWidth = 960;
-				NewHeight = 720;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (720, 600);
+#ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 				NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1898,8 +1833,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1280_960:
 				NewWidth = 1280;
-				NewHeight = 960;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (960, 800);
+#ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 				NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1908,8 +1843,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1600_1200:
 				NewWidth = 1600;
-				NewHeight = 1200;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (1200, 1000);
+#ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 				NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1918,8 +1853,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1920_1440:
 				NewWidth = 1920;
-				NewHeight = 1440;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (1440, 1200);
+#ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 				NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1931,13 +1866,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 	}
 	else
-	{	
+	{
 		switch (opts->loresBlowup) {
 			case OPTVAL_SCALE_640_480:
 				NewWidth = 640;
-				NewHeight = 480;
+				NewHeight = SCR_BOOL (480, 400);
 				resolutionFactor = 2;
-#ifdef HAVE_OPENGL	       
+#ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1945,8 +1880,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_960_720:
 				NewWidth = 960;
-				NewHeight = 720;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (720, 600);
+#ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1956,8 +1891,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			case NO_BLOWUP:
 			case OPTVAL_SCALE_1280_960:
 				NewWidth = 1280;
-				NewHeight = 960;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (960, 800);
+#ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1966,8 +1901,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1600_1200:
 				NewWidth = 1600;
-				NewHeight = 1200;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (1200, 1000);
+#ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1976,8 +1911,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1920_1440:
 				NewWidth = 1920;
-				NewHeight = 1440;
-#ifdef HAVE_OPENGL	       
+				NewHeight = SCR_BOOL (1440, 1200);
+#ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -2396,10 +2331,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		FlushGraphics ();
 		UninitVideoPlayer ();
 
+		ResetOffset ();
+
 		if (optRequiresRestart || optRequiresReload)
 		{
+			printf ("NewHeight: %d\n", NewHeight);
 			ScreenWidth = 320 << resolutionFactor;
-			ScreenHeight = 240 << resolutionFactor;
+			ScreenHeight = SCR_BOOL (240, 200) << resolutionFactor;
 
 			RESOLUTION_FACTOR = resolutionFactor;
 			resolutionFactor = RESOLUTION_FACTOR;

@@ -123,7 +123,9 @@ FindBestRenderDriver (void)
 }
 
 int
-TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
+TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
+		int togglefullscreen, unsigned int resFactor,
+		unsigned int windowType)
 {
 	int i;
 	GraphicsDriver = driver;
@@ -242,9 +244,13 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 				SDL_DestroyTexture (SDL2_Screens[i].texture);
 				SDL2_Screens[i].texture = NULL;
 			}
-			SDL2_Screens[i].texture = SDL_CreateTexture (renderer, SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING, ScreenWidth * 2, ScreenHeight * 2);
+			SDL2_Screens[i].texture = SDL_CreateTexture (renderer,
+					SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING,
+					ScreenWidth * 2, ScreenHeight * 2);
 			SDL_LockSurface (SDL2_Screens[i].scaled);
-			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL, SDL2_Screens[i].scaled->pixels, SDL2_Screens[i].scaled->pitch);
+			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL,
+					SDL2_Screens[i].scaled->pixels,
+					SDL2_Screens[i].scaled->pitch);
 			SDL_UnlockSurface (SDL2_Screens[i].scaled);
 		}
 		scaler = Scale_PrepPlatform (flags, SDL2_Screens[0].scaled->format);
@@ -264,9 +270,12 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 				SDL_DestroyTexture (SDL2_Screens[i].texture);
 				SDL2_Screens[i].texture = NULL;
 			}
-			SDL2_Screens[i].texture = SDL_CreateTexture (renderer, SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING, ScreenWidth, ScreenHeight);
+			SDL2_Screens[i].texture = SDL_CreateTexture (renderer,
+					SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING,
+					ScreenWidth, ScreenHeight);
 			SDL_LockSurface (SDL_Screens[i]);
-			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL, SDL_Screens[i]->pixels, SDL_Screens[i]->pitch);
+			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL,
+					SDL_Screens[i]->pixels, SDL_Screens[i]->pitch);
 			SDL_UnlockSurface (SDL_Screens[i]);
 		}
 		scaler = NULL;
@@ -278,22 +287,25 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	ScreenHeightActual = height;
 
 	(void) resFactor; /* satisfy compiler (unused parameter) */
+	(void) windowType; /* satisfy compiler (unused parameter) */
 	return 0;
 }
 
 int
-TFB_Pure_InitGraphics (int driver, int flags, const char* renderer, 
-		int width, int height, unsigned int resFactor)
+TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
+		int width, int height, unsigned int resFactor,
+		unsigned int windowType)
 {
 	log_add (log_Info, "Initializing SDL.");
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");
 
 	ScreenWidth = (320 << resFactor);
-	ScreenHeight = (240 << resFactor);
+	ScreenHeight = ((!windowType ? 200 : 240) << resFactor);
 	rendererBackend = renderer;
 
-	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0, resFactor))
+	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0,
+			resFactor, windowType))
 	{
 		log_add (log_Fatal, "Could not initialize video: %s",
 				SDL_GetError ());

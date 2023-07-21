@@ -89,6 +89,7 @@ BOOLEAN SpaceMusicOK;
 BOOLEAN oldPlanetsPresent;
 BOOLEAN classicPackPresent;
 BOOLEAN paddingPackPresent;
+BOOLEAN dosPackPresent;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -142,8 +143,10 @@ LoadKernel (int argc, char *argv[])
 		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
 
-		if (optWindowType == 1)
+		if (IS_PAD)
 			paddingPackPresent = loadAddon ("3dopadding");
+		if (IS_DOS)
+			dosPackPresent = loadAddon ("DOSwind");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
