@@ -34,6 +34,7 @@
 #include "planets/planets.h"
 		// for xxx_DISASTER
 #include "libs/graphics/gfx_common.h"
+#include "util.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
 #define SHIELD_LOCATION_IN_MODULE_ANI (RES_BOOL (5, 9))
@@ -58,17 +59,24 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - RES_SCALE (1);
-	r.corner.y = s.origin.y - RES_SCALE (11);
-	r.extent.width = RADAR_WIDTH + RES_SCALE (2);
-	r.extent.height = RES_SCALE (11);
+
 	BatchGraphics ();
-//	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
-	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-	DrawFilledRectangle (&r); // drawn over anyway
+
+	if (!IS_DOS)
+	{
+		r.corner.x = s.origin.x - RES_SCALE (1);
+		r.corner.y = s.origin.y - RES_SCALE (11);
+		r.extent.width = RADAR_WIDTH + RES_SCALE (2);
+		r.extent.height = RES_SCALE (11);
+		//	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
+		SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+		DrawFilledRectangle (&r); // drawn over anyway
+	}
+
 	if (classicPackPresent)
 		DrawBorder (14);
 	DrawBorder (8);
+
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
@@ -81,6 +89,20 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	{
 		TEXT t;
 		UNICODE buf[40];
+
+		if (IS_DOS)
+		{
+			RECT dosRect;
+
+			dosRect.corner.x = RES_SCALE (2);
+			dosRect.corner.y = RADAR_Y - RES_SCALE (1);
+			dosRect.extent.width = RADAR_WIDTH + RES_SCALE (4);
+			dosRect.extent.height = RADAR_HEIGHT + RES_SCALE (2);
+
+			DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
+					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+					FALSE, TRANSPARENT);
+		}
 
 		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);

@@ -39,6 +39,7 @@
 #include "libs/inplib.h"
 #include "uqmdebug.h"
 #include "libs/graphics/drawable.h"
+#include "util.h"
 
 // 3DO 4x3 hangar layout
 #	define HANGAR_SHIPS_ROW_3DO     4
@@ -325,15 +326,36 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-	DrawFilledRectangle (&r);
+
+	if (!IS_DOS)
+		DrawFilledRectangle (&r);
+
 	if (classicPackPresent)
 		DrawBorder (14);
 	DrawBorder (8);
-	r.corner = s.origin;
-	r.extent.width = RADAR_WIDTH;
-	r.extent.height = RADAR_HEIGHT;
-	SetContextForeGroundColor (BLACK_COLOR);
-	DrawFilledRectangle (&r);
+
+	if (!IS_DOS)
+	{
+		r.corner = s.origin;
+		r.extent.width = RADAR_WIDTH;
+		r.extent.height = RADAR_HEIGHT;
+		SetContextForeGroundColor (BLACK_COLOR);
+		DrawFilledRectangle (&r);
+	}
+	else
+	{
+		RECT dosRect;
+
+		dosRect.corner.x = RES_SCALE (3);
+		dosRect.corner.y = RADAR_Y + RES_SCALE (1);
+		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (2);
+		dosRect.extent.height = RADAR_HEIGHT - RES_SCALE (2);
+
+		DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
+			PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+			FALSE, TRANSPARENT);
+	}
+
 	if (NewRaceItem != (BYTE)~0)
 	{
 		TEXT t;
@@ -349,14 +371,16 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 
 		// Draw the ship name, above the ship image.
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 3 + NewRaceItem);
-		DrawStamp (&s);
+		if (!IS_DOS)
+			DrawStamp (&s);
 
 		// Draw the ship image.
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		s.frame = FleetPtr->melee_icon;
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2);
+		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2)
+				- RES_SCALE (DOS_NUM (2));
 		s.origin.x += (RADAR_WIDTH >> 1);
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
@@ -781,7 +805,7 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 			break;
 		case DMS_Mode_addEscort:
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SetFlashRect (SFR_MENU_ANY, FALSE);
+			SetFlashRect (DOS_BOOL (SFR_MENU_ANY ,SFR_MENU_3DO), FALSE);
 			break;
 		case DMS_Mode_editCrew:
 			SetMenuSounds (MENU_SOUND_ARROWS,

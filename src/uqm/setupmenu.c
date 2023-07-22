@@ -2339,7 +2339,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 		if (optRequiresRestart || optRequiresReload)
 		{
-			printf ("NewHeight: %d\n", NewHeight);
 			ScreenWidth = 320 << resolutionFactor;
 			ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
 

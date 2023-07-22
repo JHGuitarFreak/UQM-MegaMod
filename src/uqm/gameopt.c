@@ -40,7 +40,7 @@
 extern FRAME PlayFrame;
 
 #define MAX_SAVED_GAMES 50
-#define SAVES_PER_PAGE SAFE_BOOL (5, 2)
+#define SAVES_PER_PAGE (optWindowType < 2 ? 2 : 5)
 #define MAX_NAME_SIZE SIS_NAME_SIZE
 
 #define SUMMARY_X_OFFS (SAFE_BOOL (RES_SCALE (14), 0))

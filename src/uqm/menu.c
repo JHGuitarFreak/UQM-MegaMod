@@ -88,15 +88,17 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	TEXT t;
 	UNICODE buf[256];
 	RECT rt;
+
 	pos = beg_index + NewState;
 	num_items = 1 + end_index - beg_index;
-	r->corner.x -= RES_SCALE (1);
-	r->extent.width += RES_SCALE (1);
+	r->extent.width -= RES_SCALE (1);
 
 	// Gray rectangle behind PC menu
 	rt = *r;
-	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE (12);
-	rt.extent.height += 2;
+	rt.corner.x -= RES_SCALE (1);
+	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE (DOS_BOOL (12, 3));
+	rt.extent.width += RES_SCALE (2);
+	rt.extent.height += DOS_BOOL (2, -6);
 	if (!optCustomBorder && !classicPackPresent)
 		DrawFilledRectangle (&rt);
 
@@ -105,8 +107,11 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
 	else
-		r->corner.y += (r->extent.height - num_items * PC_MENU_HEIGHT) / 2;
+		r->corner.y += (r->extent.height - (num_items * PC_MENU_HEIGHT)) / 2;
 	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE (3);
+	
+	r->corner.y += RES_SCALE (DOS_NUM (1));
+
 	DrawPCMenuFrame (r);
 
 	DrawBorder (28 - num_items);
@@ -632,9 +637,10 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 		if (!optCustomBorder && !classicPackPresent)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= RES_SCALE (1);
+			r.corner.y += RES_SCALE (DOS_NUM (5));
 			r.extent.width += RES_SCALE (1);
-			r.extent.height = RADAR_HEIGHT
-					+ RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
+			r.extent.height = RADAR_HEIGHT + RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
+			r.extent.height -= RES_SCALE (DOS_NUM (4));
 			DrawFilledRectangle (&r);
 		}
 		else
