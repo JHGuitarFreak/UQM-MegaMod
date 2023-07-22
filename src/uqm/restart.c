@@ -418,7 +418,7 @@ DoRestart (MENU_STATE *pMS)
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
-	if (optWindowType)
+	if (optWindowType < 2)
 	{
 		optSubmenu = FALSE;
 		optCustomBorder = FALSE;

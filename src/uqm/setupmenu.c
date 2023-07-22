@@ -136,7 +136,7 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices[12]),   // Show FPS
 	(WIDGET *)(&labels[4]),     // Spacer
 
-	(WIDGET *)(&choices[81]),   // 3DO Padding
+	(WIDGET *)(&choices[81]),   // Window Type
 	(WIDGET *)(&labels[4]),     // Spacer
 
 	(WIDGET *)(&buttons[1]),
@@ -1715,8 +1715,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 		opts->driver = OPTVAL_ALWAYS_GL;
 }
 
-#define SCR_BOOL(a,b) (!opts->windowType ? (b) : (a))
-
 void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
@@ -1729,15 +1727,20 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	unsigned int oldResFactor = resolutionFactor; 
 
 	NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
-	
-	if (!dosPackPresent)
-		opts->windowType = optWindowType;
+
+	{
+		if (optWindowType != opts->windowType)
+			optRequiresRestart = TRUE;
+
+		res_PutInteger ("mm.windowType", opts->windowType);
+		optWindowType = opts->windowType;
+	}
 
 	switch (opts->screenResolution)
 	{
 		case OPTVAL_320_240:
 			NewWidth = 320;
-			NewHeight = SCR_BOOL (240, 200);
+			NewHeight = DOS_BOOL (240, 200);
 #ifdef HAVE_OPENGL
 			NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
 #else
@@ -1747,7 +1750,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 		case OPTVAL_REAL_1280_960:
 			NewWidth = 1280;
-			NewHeight = SCR_BOOL (960, 800);
+			NewHeight = DOS_BOOL (960, 800);
 #ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1761,7 +1764,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 
-	if (NewWidth == 320 && NewHeight == SCR_BOOL (240, 200))
+	if (NewWidth == 320 && NewHeight == DOS_BOOL (240, 200))
 	{	// MB: Moved code to here to make it work with 320x240 resolutions
 		// before opts->loresBlowup switch after
 		switch (opts->scaler)
@@ -1805,7 +1808,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			res_PutString ("config.scaler", "no");
 	}
 
-	if (NewWidth == 320 && NewHeight == SCR_BOOL (240, 200))
+	if (NewWidth == 320 && NewHeight == DOS_BOOL (240, 200))
 	{
 		switch (opts->loresBlowup) {
 			case NO_BLOWUP:
@@ -1813,7 +1816,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_640_480:
 				NewWidth = 640;
-				NewHeight = SCR_BOOL (480, 400);
+				NewHeight = DOS_BOOL (480, 400);
 #ifdef HAVE_OPENGL
 				NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
 #else
@@ -1823,7 +1826,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_960_720:
 				NewWidth = 960;
-				NewHeight = SCR_BOOL (720, 600);
+				NewHeight = DOS_BOOL (720, 600);
 #ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1833,7 +1836,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1280_960:
 				NewWidth = 1280;
-				NewHeight = SCR_BOOL (960, 800);
+				NewHeight = DOS_BOOL (960, 800);
 #ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1843,7 +1846,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1600_1200:
 				NewWidth = 1600;
-				NewHeight = SCR_BOOL (1200, 1000);
+				NewHeight = DOS_BOOL (1200, 1000);
 #ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1853,7 +1856,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1920_1440:
 				NewWidth = 1920;
-				NewHeight = SCR_BOOL (1440, 1200);
+				NewHeight = DOS_BOOL (1440, 1200);
 #ifdef HAVE_OPENGL
 				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1870,7 +1873,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		switch (opts->loresBlowup) {
 			case OPTVAL_SCALE_640_480:
 				NewWidth = 640;
-				NewHeight = SCR_BOOL (480, 400);
+				NewHeight = DOS_BOOL (480, 400);
 				resolutionFactor = 2;
 #ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
@@ -1880,7 +1883,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_960_720:
 				NewWidth = 960;
-				NewHeight = SCR_BOOL (720, 600);
+				NewHeight = DOS_BOOL (720, 600);
 #ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1891,7 +1894,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			case NO_BLOWUP:
 			case OPTVAL_SCALE_1280_960:
 				NewWidth = 1280;
-				NewHeight = SCR_BOOL (960, 800);
+				NewHeight = DOS_BOOL (960, 800);
 #ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1901,7 +1904,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1600_1200:
 				NewWidth = 1600;
-				NewHeight = SCR_BOOL (1200, 1000);
+				NewHeight = DOS_BOOL (1200, 1000);
 #ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1911,7 +1914,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				break;
 			case OPTVAL_SCALE_1920_1440:
 				NewWidth = 1920;
-				NewHeight = SCR_BOOL (1440, 1200);
+				NewHeight = DOS_BOOL (1440, 1200);
 #ifdef HAVE_OPENGL
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
@@ -1953,7 +1956,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if(oldResFactor != resolutionFactor ||
 			audioDriver != opts->adriver ||
 			audioQuality != opts->aquality ||
-			optWindowType != opts->windowType ||
 			(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
 	{
 		optRequiresRestart = TRUE;
@@ -2157,9 +2159,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("mm.musicResume", opts->musicResume == OPTVAL_ENABLED);
 	optMusicResume = (opts->musicResume == OPTVAL_ENABLED);
 
-	res_PutInteger ("mm.windowType", opts->windowType);
-	optWindowType = opts->windowType;
-
 	if (opts->scanlines && !IS_HD)
 		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
 	else
@@ -2169,7 +2168,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if (opts->fullscreen)
 	{
 		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
+		// JMS: Force the usage of bilinear scaler in 1280x960 fullscreen.
 		if (IS_HD)
 		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
@@ -2179,8 +2178,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	else
 	{
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-		// Force the usage of no filter in 1280x960 windowed mode.
-		// While forcing the usage of bilinear filter in scaled windowed modes.
+		// Force the usage of no filter in 1280x960 windowed mode. While
+		// forcing the usage of bilinear filter in scaled windowed modes.
 		if (IS_HD)
 		{
 			if (NewWidth == 1280)
@@ -2214,7 +2213,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optSmoothScroll = (opts->scroll == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
+	optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO) ?
+			TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 #endif
 	opt3doMusic = (opts->music3do == OPTVAL_ENABLED);
 	optRemixMusic = (opts->musicremix == OPTVAL_ENABLED);
@@ -2238,7 +2238,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("config.smoothscroll", opts->scroll == OPTVAL_3DO);
 
 	res_PutBoolean ("config.3domusic", opts->music3do == OPTVAL_ENABLED);
-	res_PutBoolean ("config.remixmusic", opts->musicremix == OPTVAL_ENABLED);
+	res_PutBoolean ("config.remixmusic",
+			opts->musicremix == OPTVAL_ENABLED);
 	res_PutBoolean ("config.speech", opts->speech == OPTVAL_ENABLED);
 	res_PutBoolean ("config.3domovies", opts->intro == OPTVAL_3DO);
 	res_PutBoolean ("config.showfps", opts->fps == OPTVAL_ENABLED);
@@ -2260,11 +2261,14 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	}
 	res_PutInteger("config.smoothmelee", opts->meleezoom);
 #else
-	res_PutBoolean("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
+	res_PutBoolean("config.smoothmelee",
+			(int)opts->meleezoom == OPTVAL_3DO);
 #endif
-	res_PutBoolean ("config.positionalsfx", opts->stereo == OPTVAL_ENABLED); 
+	res_PutBoolean ("config.positionalsfx",
+			opts->stereo == OPTVAL_ENABLED);
 	res_PutBoolean ("config.pulseshield", opts->shield == OPTVAL_3DO);
-	res_PutBoolean ("config.keepaspectratio", opts->keepaspect == OPTVAL_ENABLED);
+	res_PutBoolean ("config.keepaspectratio",
+			opts->keepaspect == OPTVAL_ENABLED);
 	res_PutInteger ("config.gamma", (int) (optGamma * GAMMA_SCALE + 0.5));
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
@@ -2337,7 +2341,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		{
 			printf ("NewHeight: %d\n", NewHeight);
 			ScreenWidth = 320 << resolutionFactor;
-			ScreenHeight = SCR_BOOL (240, 200) << resolutionFactor;
+			ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
 
 			RESOLUTION_FACTOR = resolutionFactor;
 			resolutionFactor = RESOLUTION_FACTOR;

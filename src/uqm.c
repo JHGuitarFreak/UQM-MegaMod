@@ -206,7 +206,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, advancedAutoPilot);
 	DECL_CONFIG_OPTION(bool, meleeToolTips);
 	DECL_CONFIG_OPTION(bool, musicResume);
-	DECL_CONFIG_OPTION(bool, windowType);
+	DECL_CONFIG_OPTION(int,  windowType);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -417,7 +417,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
 		INIT_CONFIG_OPTION(  musicResume,       false ),
-		INIT_CONFIG_OPTION(  windowType,        false ),
+		INIT_CONFIG_OPTION(  windowType,        2 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -697,7 +697,8 @@ main (int argc, char *argv[])
 	assert (sizeof (int [NUM_TEMPLATES * NUM_KEYS]) ==
 			sizeof (int [NUM_TEMPLATES][NUM_KEYS]));
 	TFB_SetInputVectors (ImmediateInputState.menu, NUM_MENU_KEYS,
-			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
+			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES,
+			NUM_KEYS);
 	TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 
 	StartThread (Starcon2Main, NULL, 1024, "Starcon2Main");
@@ -876,7 +877,8 @@ getUserConfigOptions (struct options_struct *options)
 	// Most of the user config options are only applied if they
 	// have not already been set (i.e. on the commandline)
 
-	if (res_IsInteger ("config.reswidth") && res_IsInteger ("config.resheight")
+	if (res_IsInteger ("config.reswidth")
+			&& res_IsInteger ("config.resheight")
 			&& !options->resolution.set)
 	{
 		options->resolution.width = res_GetInteger ("config.reswidth");
@@ -900,7 +902,8 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->fullscreen, "config.fullscreen");
 	getBoolConfigValue (&options->scanlines, "config.scanlines");
 	getBoolConfigValue (&options->showFps, "config.showfps");
-	getBoolConfigValue (&options->keepAspectRatio, "config.keepaspectratio");
+	getBoolConfigValue (&options->keepAspectRatio,
+			"config.keepaspectratio");
 	getGammaConfigValue (&options->gamma, "config.gamma");
 
 	getBoolConfigValue (&options->subtitles, "config.subtitles");
@@ -909,8 +912,12 @@ getUserConfigOptions (struct options_struct *options)
 			OPT_PC, OPT_3DO);
 	getBoolConfigValueXlat (&options->whichFonts, "config.textgradients",
 			OPT_PC, OPT_3DO);
-	if (res_IsInteger ("config.iconicscan") && !options->whichCoarseScan.set)
-		options->whichCoarseScan.value = res_GetInteger ("config.iconicscan");
+	if (res_IsInteger ("config.iconicscan")
+			&& !options->whichCoarseScan.set)
+	{
+		options->whichCoarseScan.value =
+				res_GetInteger ("config.iconicscan");
+	}
 	getBoolConfigValueXlat (&options->smoothScroll, "config.smoothscroll",
 			OPT_3DO, OPT_PC);
 	getBoolConfigValueXlat (&options->whichShield, "config.pulseshield",
@@ -924,7 +931,8 @@ getUserConfigOptions (struct options_struct *options)
 
 
 #if defined(ANDROID) || defined(__ANDROID__)
-	if (res_IsInteger("config.smoothmelee") && !options->meleeScale.set) {
+	if (res_IsInteger("config.smoothmelee") && !options->meleeScale.set)
+	{
 		options->meleeScale.value = res_GetInteger("config.smoothmelee");
 		options->meleeScale.set = true;
 	}
@@ -943,16 +951,19 @@ getUserConfigOptions (struct options_struct *options)
 	getVolumeConfigValue (&options->speechVolumeScale, "config.speechvol");
 	
 	
-	if (res_IsInteger ("config.resolutionfactor") && !options->resolutionFactor.set)
+	if (res_IsInteger ("config.resolutionfactor")
+			&& !options->resolutionFactor.set)
 	{
-		options->resolutionFactor.value = res_GetInteger ("config.resolutionfactor");
+		options->resolutionFactor.value =
+				res_GetInteger ("config.resolutionfactor");
 		options->resolutionFactor.set = true;
 	}
 	
 	
 	if (res_IsInteger ("config.loresBlowupScale"))
 	{
-		options->loresBlowupScale.value = res_GetInteger ("config.loresBlowupScale");
+		options->loresBlowupScale.value =
+				res_GetInteger ("config.loresBlowupScale");
 		options->loresBlowupScale.set = true;
 	}
 
@@ -961,8 +972,11 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("cheat.godModes") && !options->optGodModes.set)
 		options->optGodModes.value = res_GetInteger ("cheat.godModes");
 
-	if (res_IsInteger ("cheat.timeDilation") && !options->timeDilationScale.set){
-		options->timeDilationScale.value = res_GetInteger ("cheat.timeDilation");
+	if (res_IsInteger ("cheat.timeDilation")
+			&& !options->timeDilationScale.set)
+	{
+		options->timeDilationScale.value =
+				res_GetInteger ("cheat.timeDilation");
 	}
 	getBoolConfigValue (&options->bubbleWarp, "cheat.bubbleWarp");
 	getBoolConfigValue (&options->unlockShips, "cheat.unlockShips");
@@ -975,7 +989,8 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->orbitingPlanets, "mm.orbitingPlanets");
 	getBoolConfigValue (&options->texturedPlanets, "mm.texturedPlanets");
 		
-	if (res_IsInteger ("mm.dateFormat") && !options->optDateFormat.set) {
+	if (res_IsInteger ("mm.dateFormat") && !options->optDateFormat.set)
+	{
 		options->optDateFormat.value = res_GetInteger ("mm.dateFormat");
 	}
 		
@@ -984,7 +999,8 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->submenu, "mm.submenu");
 	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
 	getBoolConfigValue (&options->customBorder, "mm.customBorder");
-	if (res_IsInteger ("mm.customSeed") && !options->customSeed.set) {
+	if (res_IsInteger ("mm.customSeed") && !options->customSeed.set)
+	{
 		options->customSeed.value = res_GetInteger ("mm.customSeed");
 	}
 	getBoolConfigValue (&options->spaceMusic, "mm.spaceMusic");
@@ -992,17 +1008,20 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
 #if defined(ANDROID) || defined(__ANDROID__)
-	getBoolConfigValue (&options->directionalJoystick, "mm.directionalJoystick"); // For Android
+	getBoolConfigValue (&options->directionalJoystick,
+			"mm.directionalJoystick"); // For Android
 #endif
 
 	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
 		OPT_3DO, OPT_PC);
 	getBoolConfigValueXlat (&options->scrTrans, "mm.scrTransition",
 		OPT_3DO, OPT_PC);
-	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set) {
+	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set)
+	{
 		options->optDifficulty.value = res_GetInteger ("mm.difficulty");
 	}
-	if (res_IsInteger ("mm.fuelRange") && !options->optFuelRange.set) {
+	if (res_IsInteger ("mm.fuelRange") && !options->optFuelRange.set)
+	{
 		options->optFuelRange.value = res_GetInteger ("mm.fuelRange");
 	}
 	getBoolConfigValue (&options->extended, "mm.extended");
@@ -1012,37 +1031,43 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->hazardColors, "mm.hazardColors");
 	getBoolConfigValue (&options->orzCompFont, "mm.orzCompFont");
 
-	if (res_IsInteger ("mm.controllerType") && !options->optControllerType.set) {
-		options->optControllerType.value = res_GetInteger ("mm.controllerType");
+	if (res_IsInteger ("mm.controllerType")
+			&& !options->optControllerType.set)
+	{
+		options->optControllerType.value =
+				res_GetInteger ("mm.controllerType");
 	}
 
 	getBoolConfigValue (&options->smartAutoPilot, "mm.smartAutoPilot");
 	getBoolConfigValueXlat (&options->tintPlanSphere, "mm.tintPlanSphere",
-		OPT_3DO, OPT_PC);
+			OPT_3DO, OPT_PC);
 	getBoolConfigValueXlat (&options->planetStyle, "mm.planetStyle",
-		OPT_3DO, OPT_PC);
+			OPT_3DO, OPT_PC);
 
-	if (res_IsInteger ("mm.starBackground") && !options->starBackground.set) {
-		options->starBackground.value = res_GetInteger ("mm.starBackground");
+	if (res_IsInteger ("mm.starBackground")
+			&& !options->starBackground.set)
+	{
+		options->starBackground.value =
+				res_GetInteger ("mm.starBackground");
 	}
 
 	getBoolConfigValueXlat (&options->scanStyle, "mm.scanStyle",
-		OPT_3DO, OPT_PC);
+			OPT_3DO, OPT_PC);
 
 	getBoolConfigValue (&options->nonStopOscill, "mm.nonStopOscill");
 
 	getBoolConfigValueXlat (&options->scopeStyle, "mm.scopeStyle",
-		OPT_3DO, OPT_PC);
+			OPT_3DO, OPT_PC);
 
 	getBoolConfigValue (&options->hyperStars, "mm.hyperStars");
 
 	getBoolConfigValueXlat (&options->landerStyle, "mm.landerStyle",
-		OPT_3DO, OPT_PC);
+			OPT_3DO, OPT_PC);
 
 	getBoolConfigValue (&options->planetTexture, "mm.planetTexture");
 
 	getBoolConfigValueXlat (&options->flagshipColor, "mm.flagshipColor",
-		OPT_3DO, OPT_PC);
+			OPT_3DO, OPT_PC);
 
 	getBoolConfigValue (&options->noHQEncounters, "cheat.noHQEncounters");
 
@@ -1052,7 +1077,8 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->showVisitedStars, "mm.showVisitedStars");
 
-	getBoolConfigValue (&options->unscaledStarSystem, "mm.unscaledStarSystem");
+	getBoolConfigValue (&options->unscaledStarSystem,
+			"mm.unscaledStarSystem");
 
 	if (res_IsInteger("mm.sphereType") && !options->sphereType.set)
 	{
@@ -1065,7 +1091,8 @@ getUserConfigOptions (struct options_struct *options)
 	}
 
 	getBoolConfigValue (&options->slaughterMode, "mm.slaughterMode");
-	getBoolConfigValue (&options->advancedAutoPilot, "mm.advancedAutoPilot");
+	getBoolConfigValue (&options->advancedAutoPilot,
+			"mm.advancedAutoPilot");
 	getBoolConfigValue (&options->meleeToolTips, "mm.meleeToolTips");
 	getBoolConfigValue (&options->musicResume, "mm.musicResume");
 
@@ -1502,14 +1529,16 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case CSCAN_OPT:
 				{
 					int temp;
-					if (parseIntOption (optarg, &temp, "Coarse Scans") == -1)
+					if (parseIntOption (optarg, &temp,
+							"Coarse Scans") == -1)
 					{
 						badArg = true;
 						break;
 					}
 					else if (temp < 0 || temp > 2)
 					{
-						saveError("\nCoarse Scan has to be 0, 1, 2 or 3.\n");
+						saveError("\nCoarse Scan has to be "
+								"0, 1, 2 or 3.\n");
 						badArg = true;
 					}
 					else
@@ -1610,15 +1639,23 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
-			case TDM_OPT:{
+			case TDM_OPT:
+			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Time Dilation scale") == -1) {
+				if (parseIntOption (optarg, &temp,
+						"Time Dilation scale") == -1)
+				{
 					badArg = true;
 					break;
-				} else if (temp < 0 || temp > 2) {					
-					saveError ("\nTime Dilation scale has to be 0, 1, or 2.\n");
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nTime Dilation scale has to be "
+							"0, 1, or 2.\n");
 					badArg = true;
-				} else {
+				}
+				else
+				{
 					options->timeDilationScale.value = temp;
 					options->timeDilationScale.set = true;
 				}
@@ -1654,15 +1691,21 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case TEXTPLAN_OPT:
 				setBoolOption (&options->texturedPlanets, true);
 				break;
-			case DATE_OPT:{
+			case DATE_OPT:
+			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Date Format") == -1) {
+				if (parseIntOption (optarg, &temp, "Date Format") == -1)
+				{
 					badArg = true;
 					break;
-				} else if (temp < 0 || temp > 3) {					
+				}
+				else if (temp < 0 || temp > 3)
+				{
 					saveError ("\nDate Format has to be 0, 1, 2, or 3.\n");
 					badArg = true;
-				} else {
+				}
+				else
+				{
 					options->optDateFormat.value = temp;
 					options->optDateFormat.set = true;
 				}
@@ -1683,15 +1726,22 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case CUSTBORD_OPT:
 				setBoolOption (&options->customBorder, true);
 				break;
-			case EXSEED_OPT:{
+			case EXSEED_OPT:
+			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Custom Seed") == -1) {
+				if (parseIntOption (optarg, &temp, "Custom Seed") == -1)
+				{
 					badArg = true;
 					break;
-				} else if (!SANE_SEED (temp)) {
-					saveError ("\nCustom Seed can not be less than %d or greater than %d.\n", MIN_SEED, MAX_SEED);
+				}
+				else if (!SANE_SEED (temp))
+				{
+					saveError ("\nCustom Seed can not be less than %d or "
+							"greater than %d.\n", MIN_SEED, MAX_SEED);
 					badArg = true;
-				} else {
+				}
+				else
+				{
 					options->customSeed.value = temp;
 					options->customSeed.set = true;
 				}
@@ -1721,15 +1771,18 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case DIFFICULTY_OPT:
 			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Difficulty") == -1) {
+				if (parseIntOption (optarg, &temp, "Difficulty") == -1)
+				{
 					badArg = true;
 					break;
 				}
-				else if (temp < 0 || temp > 3) {
+				else if (temp < 0 || temp > 3)
+				{
 					saveError ("\nDifficulty has to be 0, 1, 2, or 3.\n");
 					badArg = true;
 				}
-				else {
+				else
+				{
 					options->optDifficulty.value = temp;
 					options->optDifficulty.set = true;
 				}
@@ -1778,14 +1831,20 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case CONTYPE_OPT:
 			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Controller Type") == -1) {
+				if (parseIntOption (optarg, &temp,
+						"Controller Type") == -1)
+				{
 					badArg = true;
 					break;
 				}
-				else if (temp < 0 || temp > 2) {
-					saveError ("\nController type has to be 0, 1, or 2.\n");
+				else if (temp < 0 || temp > 2)
+				{
+					saveError (
+							"\nController type has to be 0, 1, or 2.\n");
 					badArg = true;
-				} else {
+				}
+				else
+				{
 					options->optControllerType.value = temp;
 					options->optControllerType.set = true;
 				}
@@ -1811,14 +1870,16 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case STARBACK_OPT:
 			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Star Background") == -1)
+				if (parseIntOption (optarg, &temp,
+						"Star Background") == -1)
 				{
 					badArg = true;
 					break;
 				}
 				else if (temp < 0 || temp > 3)
 				{
-					saveError ("\nStar background has to be between 0-3.\n");
+					saveError (
+							"\nStar background has to be between 0-3.\n");
 					badArg = true;
 				}
 				else
@@ -1863,7 +1924,8 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				else
 				{
 					InvalidArgument (optarg, "--planettexture");
-					saveError ("\nPlanet Texture can only be set to '3do' or 'uqm'\n");
+					saveError ("\nPlanet Texture can only be set to '3do' "
+							"or 'uqm'\n");
 					badArg = true;
 				}
 				break;
@@ -1892,15 +1954,18 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SCANSPH_OPT:
 			{
 				int temp;
-				if (parseIntOption(optarg, &temp, "Sphere Type") == -1) {
+				if (parseIntOption(optarg, &temp, "Sphere Type") == -1)
+				{
 					badArg = true;
 					break;
 				}
-				else if (temp < 0 || temp > 2) {
+				else if (temp < 0 || temp > 2)
+				{
 					saveError("\nSphere Type has to be between 0-2\n");
 					badArg = true;
 				}
-				else {
+				else
+				{
 					options->sphereType.value = temp;
 					options->sphereType.set = true;
 				}
@@ -1921,15 +1986,18 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case WINDTYPE_OPT:
 			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Window Type") == -1) {
+				if (parseIntOption (optarg, &temp, "Window Type") == -1)
+				{
 					badArg = true;
 					break;
 				}
-				else if (temp < 0 || temp > 2) {
+				else if (temp < 0 || temp > 2)
+				{
 					saveError ("\nWindow type has to be between 0-2\n");
 					badArg = true;
 				}
-				else {
+				else
+				{
 					options->windowType.value = temp;
 					options->windowType.set = true;
 				}
@@ -1944,14 +2012,18 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case NEBUVOL_OPT:
 			{
 				int temp;
-				if (parseIntOption (optarg, &temp, "Nebulae Volume") == -1) {
+				if (parseIntOption (optarg, &temp, "Nebulae Volume") == -1)
+				{
 					badArg = true;
 					break;
 				}
-				else if (temp < 0 || temp > 50) {
+				else if (temp < 0 || temp > 50)
+				{
 					saveError ("\nNebulae volume has to be between 0-50\n");
 					badArg = true;
-				} else {
+				}
+				else
+				{
 					options->nebulaevol.value = temp;
 					options->nebulaevol.set = true;
 				}
@@ -2317,9 +2389,6 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --musicresume : Resumes the music"
 			"in UQM where it last left off (default: %s)",
 			boolOptString (&defaults->musicResume));
-	log_add (log_User, "  --musicresume : Resumes the music"
-			"in UQM where it last left off (default: %s)",
-			boolOptString (&defaults->windowType));
 	log_add (log_User, "  --windowtype : Choose between DOS, 3DO or "
 			"UQM window types (default: UQM)");
 

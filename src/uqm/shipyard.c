@@ -45,34 +45,32 @@
 #	define HANGAR_Y_3DO  RES_SCALE (64)
 #	define HANGAR_DY_3DO RES_SCALE (44)
 
-static const COORD hangar_x_coords_3do_orig[HANGAR_SHIPS_ROW_3DO] =
+const COORD hangar_x_coords_3do_orig[HANGAR_SHIPS_ROW_3DO] =
 {
 	19, 60, 116, 157
-};
-
-static const COORD hangar_x_coords_3do_hd[HANGAR_SHIPS_ROW_3DO] =
-{
-	76, 240, 464, 628
 };
 
 // modified PC 6x2 hangar layout
 #define HANGAR_SHIPS_ROW_DOS     6
 // The Y position of the upper line of hangar bay doors.
-#define HANGAR_Y  SAFE_BOOL (RES_SCALE (88), HANGAR_Y_3DO)
+#define HANGAR_Y  RES_SCALE (SAFE_BOOL (DOS_BOOL (88, 71), HANGAR_Y_3DO)) 
 // The Y position of the lower line of hangar bay doors.
-#define HANGAR_DY SAFE_BOOL (RES_SCALE (84), HANGAR_DY_3DO)
+#define HANGAR_DY RES_SCALE (SAFE_BOOL (DOS_BOOL (84, 76), HANGAR_DY_3DO))
 
 // The X positions of the hangar bay doors for each resolution mode.
 // Calculated from the right edge of the left grey border bar on the
 // screen.
-static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW_DOS] =
+const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW_DOS] =
 {
 	0, 38, 76, 131, 169, 207
 };
-static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW_DOS] =
+
+const COORD hangar_x_coords_dos_orig[HANGAR_SHIPS_ROW_DOS] =
 {
-	0, 152, 304, 524, 676, 828
+	0, 38, 76, 133, 171, 209
 };
+
+COORD hangar_x_coords[HANGAR_SHIPS_ROW_DOS];
 
 #define HANGAR_SHIPS      12
 #define HANGAR_SHIPS_ROW SAFE_BOOL (HANGAR_SHIPS_ROW_DOS, \
@@ -82,6 +80,7 @@ static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW_DOS] =
 		SAFE_BOOL (HANGAR_SHIPS_ROW_DOS, HANGAR_SHIPS_ROW_3DO))
 
 #define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
+
 
 enum
 {
@@ -99,6 +98,28 @@ typedef enum {
 } DMS_Mode;
 
 static BOOLEAN DoShipSpins;
+
+void
+FillHangarX (void)
+{
+	BYTE i;
+
+	for (i = 0; i < HANGAR_SHIPS_ROW; i++)
+	{
+		if (IS_PAD)
+			hangar_x_coords[i] = hangar_x_coords_3do_orig[i];
+		else
+		{
+			if (!IS_DOS)
+				hangar_x_coords[i] = hangar_x_coords_orig[i];
+			else
+				hangar_x_coords[i] = hangar_x_coords_dos_orig[i];
+		}
+
+		if (IS_HD)
+			hangar_x_coords[i] <<= RESOLUTION_FACTOR;
+	}
+}
 
 static void
 showRemainingCrew (void)
@@ -365,7 +386,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 #define SHIP_WIN_WIDTH RES_SCALE (34) 
 
 // Height of an escort ship window.
-#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE (6)) 
+#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE (6))
 
 // For how many animation frames' time the escort ship bay doors
 // are slid left and right when opening them. If this number is not large
@@ -435,7 +456,6 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 	COUNT num_ships;
 	HSHIPFRAG hStarShip, hNextShip;
 	SHIP_FRAGMENT *StarShipPtr;
-	static const COORD *hangar_x_coords;
 	struct
 	{
 		SHIP_FRAGMENT *StarShipPtr;
@@ -444,17 +464,6 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 		STAMP lfdoor_s;
 		STAMP rtdoor_s;
 	} ship_win_info[MAX_BUILT_SHIPS], *pship_win_info;
-
-	if (IS_PAD)
-	{
-		hangar_x_coords = RES_BOOL (hangar_x_coords_3do_orig,
-				hangar_x_coords_3do_hd);
-	}
-	else
-	{
-		hangar_x_coords = RES_BOOL (hangar_x_coords_orig,
-				hangar_x_coords_hd);
-	}
 
 	num_ships = 1;
 	pship_win_info = &ship_win_info[0];
@@ -689,7 +698,7 @@ DMS_FlashFlagShip (void)
 	if (optWhichMenu != OPT_PC)
 		r.extent.height = RES_SCALE (63) - SAFE_NUM (2);
 	else
-		r.extent.height = RES_SCALE (74);
+		r.extent.height = RES_SCALE (74) - DOS_NUM (9);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
@@ -698,18 +707,6 @@ DMS_GetEscortShipRect (RECT *rOut, BYTE slotNr)
 {
 	BYTE row = slotNr / HANGAR_SHIPS_ROW;
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
-	static const COORD *hangar_x_coords;
-
-	if (IS_PAD)
-	{
-		hangar_x_coords = RES_BOOL (hangar_x_coords_3do_orig,
-				hangar_x_coords_3do_hd);
-	}
-	else
-	{
-		hangar_x_coords = RES_BOOL (hangar_x_coords_orig,
-				hangar_x_coords_hd);
-	}
 
 	rOut->corner.x = hangar_x_coords[col];
 	rOut->corner.y = HANGAR_Y + (HANGAR_DY * row);
@@ -741,18 +738,6 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	RECT r;
 	BYTE row = slotNr / HANGAR_SHIPS_ROW;
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
-	static const COORD *hangar_x_coords;
-
-	if (IS_PAD)
-	{
-		hangar_x_coords = RES_BOOL (hangar_x_coords_3do_orig,
-				hangar_x_coords_3do_hd);
-	}
-	else
-	{
-		hangar_x_coords = RES_BOOL (hangar_x_coords_orig,
-				hangar_x_coords_hd);
-	}
 
 	r.corner.x = hangar_x_coords[col];
 	r.corner.y = (HANGAR_Y + (HANGAR_DY * row))
@@ -1618,6 +1603,8 @@ DoShipyard (MENU_STATE *pMS)
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
 
 	OutfitOrShipyard = 3;
+
+	FillHangarX ();
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	if (!pMS->Initialized)

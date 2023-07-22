@@ -234,8 +234,17 @@ DrawSISFrame (void)
 		r.extent.height = SCREEN_HEIGHT - r.corner.y;
 		DrawFilledRectangle (&r);
 	}
+	else
+	{
+		SetContextForeGroundColor (BLACK_COLOR);
+		r.corner.x = SIS_ORG_X - RES_SCALE (1);
+		r.corner.y = SIS_ORG_Y - RES_SCALE (1);
+		r.extent.width = SIS_SCREEN_WIDTH + RES_SCALE (2);
+		r.extent.height = SIS_SCREEN_HEIGHT + RES_SCALE (2);
+		DrawFilledRectangle (&r);
 
-	DrawBorder (0);
+		DrawBorder (0);
+	}
 
 	InitSISContexts ();
 	ClearSISRect (DRAW_SIS_DISPLAY);

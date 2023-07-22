@@ -95,7 +95,7 @@ enum
 #define EMPTY_SLOT NUM_MODULES
 #define NUM_BOMB_MODULES 10
 
-#define SAFE_X_OUT (SAFE_X ? (-SAFE_X + RES_SCALE (3)) : 0)
+#define SAFE_X_OUT (IS_PAD ? (-SAFE_X + RES_SCALE (3)) : 0)
 
 #define DRIVE_SIDE_X (RES_SCALE (31) + SAFE_X_OUT)
 #define DRIVE_SIDE_Y RES_SCALE (56)
