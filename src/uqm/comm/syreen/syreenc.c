@@ -260,8 +260,9 @@ FriendlyExit (RESPONSE_REF R)
 		SetCommDarkMode (FALSE);
 		RedrawSISComWindow ();
 
-		CommData.AlienColorMap =
-				SetAbsColorMapIndex (CommData.AlienColorMap, 0);
+		XFormColorMap (GetColorMapAddress (
+					SetAbsColorMapIndex (CommData.AlienColorMap, 0)
+						), 0);
 
 		BlockTalkingAnim (1, 2); // Several hours later block (New)
 
