@@ -1739,6 +1739,20 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->musicResume = optMusicResume ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->windowType = res_GetInteger ("mm.windowType");
 
+	switch (opts->windowType)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (DOS_WIND))
+				opts->windowType = 2;
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (PAD_3DO))
+				opts->windowType = 2;
+			break;
+		default:
+			break;
+	}
+
 	opts->screenResolution =
 			RES_BOOL (OPTVAL_320_240, OPTVAL_REAL_1280_960);
 	opts->loresBlowup = ScreenWidthActual / 320 - 1;

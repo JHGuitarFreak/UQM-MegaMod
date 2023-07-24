@@ -499,7 +499,7 @@ main (int argc, char *argv[])
 		log_add(log_Info, "MINGW64_VERSION: %d.%d\n", __MINGW64_MAJOR_VERSION, __MINGW64_MINOR_VERSION);
 #endif // __MINGW64__
 
-		printf("Buid Time: %s %s\n\n", __DATE__, __TIME__);
+		printf("Build Time: %s %s\n\n", __DATE__, __TIME__);
 
 	if (errBuffer[0] != '\0')
 	{	// Have some saved error to log
@@ -645,6 +645,32 @@ main (int argc, char *argv[])
 	optWindowType = options.windowType.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
+
+	switch (optWindowType)
+	{
+		case 0:
+			if (!isAddonAvailable (DOS_WIND))
+			{
+				optWindowType = 2;
+				options.windowType.value = 2;
+				options.windowType.set = true;
+				options.resolution.width = 320 * (loresBlowupScale + 1);
+				options.resolution.height = 240 * (loresBlowupScale + 1);
+			}
+			break;
+		case 1:
+			if (!isAddonAvailable (PAD_3DO))
+			{
+				optWindowType = options.windowType.value = 2;
+				options.windowType.set = true;
+			}
+			break;
+		default:
+			break;
+	}
+
+	printf ("windowType: %d %d\n", optWindowType, options.windowType.value);
+
 	prepareMeleeDir ();
 	prepareSaveDir ();
 	prepareScrShotDir ();
