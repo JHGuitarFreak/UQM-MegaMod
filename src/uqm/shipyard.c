@@ -46,7 +46,7 @@
 #	define HANGAR_Y_3DO  RES_SCALE (64)
 #	define HANGAR_DY_3DO RES_SCALE (44)
 
-const COORD hangar_x_coords_3do_orig[HANGAR_SHIPS_ROW_3DO] =
+const COORD hangar_x_coords_3do[HANGAR_SHIPS_ROW_3DO] =
 {
 	19, 60, 116, 157
 };
@@ -54,19 +54,19 @@ const COORD hangar_x_coords_3do_orig[HANGAR_SHIPS_ROW_3DO] =
 // modified PC 6x2 hangar layout
 #define HANGAR_SHIPS_ROW_DOS     6
 // The Y position of the upper line of hangar bay doors.
-#define HANGAR_Y  RES_SCALE (SAFE_BOOL (DOS_BOOL (88, 71), HANGAR_Y_3DO)) 
+#define HANGAR_Y  RES_SCALE (SAFE_BOOL (DOS_BOOL (88, 71), HANGAR_Y_3DO))
 // The Y position of the lower line of hangar bay doors.
 #define HANGAR_DY RES_SCALE (SAFE_BOOL (DOS_BOOL (84, 76), HANGAR_DY_3DO))
 
 // The X positions of the hangar bay doors for each resolution mode.
 // Calculated from the right edge of the left grey border bar on the
 // screen.
-const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW_DOS] =
+const COORD hangar_x_coords_uqm[HANGAR_SHIPS_ROW_DOS] =
 {
 	0, 38, 76, 131, 169, 207
 };
 
-const COORD hangar_x_coords_dos_orig[HANGAR_SHIPS_ROW_DOS] =
+const COORD hangar_x_coords_dos[HANGAR_SHIPS_ROW_DOS] =
 {
 	0, 38, 76, 133, 171, 209
 };
@@ -77,8 +77,7 @@ COORD hangar_x_coords[HANGAR_SHIPS_ROW_DOS];
 #define HANGAR_SHIPS_ROW SAFE_BOOL (HANGAR_SHIPS_ROW_DOS, \
 		HANGAR_SHIPS_ROW_3DO)
 
-#define HANGAR_ROWS       (HANGAR_SHIPS / \
-		SAFE_BOOL (HANGAR_SHIPS_ROW_DOS, HANGAR_SHIPS_ROW_3DO))
+#define HANGAR_ROWS       (HANGAR_SHIPS / HANGAR_SHIPS_ROW)
 
 #define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
 
@@ -108,13 +107,13 @@ FillHangarX (void)
 	for (i = 0; i < HANGAR_SHIPS_ROW; i++)
 	{
 		if (IS_PAD)
-			hangar_x_coords[i] = hangar_x_coords_3do_orig[i];
+			hangar_x_coords[i] = hangar_x_coords_3do[i];
 		else
 		{
 			if (!IS_DOS)
-				hangar_x_coords[i] = hangar_x_coords_orig[i];
+				hangar_x_coords[i] = hangar_x_coords_uqm[i];
 			else
-				hangar_x_coords[i] = hangar_x_coords_dos_orig[i];
+				hangar_x_coords[i] = hangar_x_coords_dos[i];
 		}
 
 		if (IS_HD)
@@ -805,7 +804,8 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 			break;
 		case DMS_Mode_addEscort:
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SetFlashRect (DOS_BOOL (SFR_MENU_ANY ,SFR_MENU_3DO), FALSE);
+			if (!IS_DOS)
+				SetFlashRect (SFR_MENU_ANY, FALSE);
 			break;
 		case DMS_Mode_editCrew:
 			SetMenuSounds (MENU_SOUND_ARROWS,
