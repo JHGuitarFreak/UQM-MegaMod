@@ -669,8 +669,6 @@ main (int argc, char *argv[])
 			break;
 	}
 
-	printf ("windowType: %d %d\n", optWindowType, options.windowType.value);
-
 	prepareMeleeDir ();
 	prepareSaveDir ();
 	prepareScrShotDir ();

@@ -57,6 +57,22 @@ typedef struct setup_menu_state {
 	DWORD NextTime;
 } SETUP_MENU_STATE;
 
+struct option_list_value
+{
+	const char *str;
+	int value;
+};
+
+const struct option_list_value scalerList[6] =
+{
+	{"no",       0},
+	{"bilinear", TFB_GFXFLAGS_SCALE_BILINEAR},
+	{"biadapt",  TFB_GFXFLAGS_SCALE_BIADAPT},
+	{"biadv",    TFB_GFXFLAGS_SCALE_BIADAPTADV},
+	{"triscan",  TFB_GFXFLAGS_SCALE_TRISCAN},
+	{"hq",       TFB_GFXFLAGS_SCALE_HQXX}
+};
+
 static BOOLEAN DoSetupMenu (SETUP_MENU_STATE *pInputState);
 static BOOLEAN done;
 static WIDGET *current, *next;
@@ -1769,7 +1785,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewDriver = GraphicsDriver;
 	int SeedStuff;
 	
-	unsigned int oldResFactor = resolutionFactor; 
+	unsigned int oldResFactor = resolutionFactor;
 
 	NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
 
@@ -1786,21 +1802,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		case OPTVAL_320_240:
 			NewWidth = 320;
 			NewHeight = DOS_BOOL (240, 200);
-#ifdef HAVE_OPENGL
-			NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
 			resolutionFactor = 0;
 			break;
 		case OPTVAL_REAL_1280_960:
 			NewWidth = 1280;
 			NewHeight = DOS_BOOL (960, 800);
-#ifdef HAVE_OPENGL
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
 			resolutionFactor = 2;
 			break;
 		default:
@@ -1809,41 +1815,35 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			break;
 	}
 
-	if (NewWidth == 320 && NewHeight == DOS_BOOL (240, 200))
-	{	// MB: Moved code to here to make it work with 320x240 resolutions
-		// before opts->loresBlowup switch after
-		switch (opts->scaler)
-		{
-			case OPTVAL_BILINEAR_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-				res_PutString ("config.scaler", "bilinear");
-				break;
-			case OPTVAL_BIADAPT_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BIADAPT;
-				res_PutString ("config.scaler", "biadapt");
-				break;
-			case OPTVAL_BIADV_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BIADAPTADV;
-				res_PutString ("config.scaler", "biadv");
-				break;
-			case OPTVAL_TRISCAN_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_TRISCAN;
-				res_PutString ("config.scaler", "triscan");
-				break;
-			case OPTVAL_HQXX_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_HQXX;
-				res_PutString ("config.scaler", "hq");
-				break;
-			case OPTVAL_NO_SCALE:
-			default:
-				/* OPTVAL_NO_SCALE has no equivalent in gfxflags. */
-				res_PutString ("config.scaler", "no");
-				break;
-		}
+	switch (opts->loresBlowup)
+	{
+		case OPTVAL_SCALE_640_480:
+			NewWidth = 640;
+			NewHeight = DOS_BOOL (480, 400);
+			break;
+		case OPTVAL_SCALE_960_720:
+			NewWidth = 960;
+			NewHeight = DOS_BOOL (720, 600);
+			break;
+		case OPTVAL_SCALE_1280_960:
+			NewWidth = 1280;
+			NewHeight = DOS_BOOL (960, 800);
+			break;
+		case OPTVAL_SCALE_1600_1200:
+			NewWidth = 1600;
+			NewHeight = DOS_BOOL (1200, 1000);
+			break;
+		case OPTVAL_SCALE_1920_1440:
+			NewWidth = 1920;
+			NewHeight = DOS_BOOL (1440, 1200);
+			break;
+		case NO_BLOWUP:
+		default:
+			break;
 	}
-	else
-	{	// Anything higher than bilinear in HD is a massive
-		// performance hit with no visual benefit
+
+	if (resolutionFactor)
+	{
 		if (opts->scaler > OPTVAL_NO_SCALE)
 		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
@@ -1852,125 +1852,24 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		else	// OPTVAL_NO_SCALE has no equivalent in gfxflags.
 			res_PutString ("config.scaler", "no");
 	}
-
-	if (NewWidth == 320 && NewHeight == DOS_BOOL (240, 200))
-	{
-		switch (opts->loresBlowup) {
-			case NO_BLOWUP:
-				// JMS: Default value: Don't do anything.
-				break;
-			case OPTVAL_SCALE_640_480:
-				NewWidth = 640;
-				NewHeight = DOS_BOOL (480, 400);
-#ifdef HAVE_OPENGL
-				NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_960_720:
-				NewWidth = 960;
-				NewHeight = DOS_BOOL (720, 600);
-#ifdef HAVE_OPENGL
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_1280_960:
-				NewWidth = 1280;
-				NewHeight = DOS_BOOL (960, 800);
-#ifdef HAVE_OPENGL
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_1600_1200:
-				NewWidth = 1600;
-				NewHeight = DOS_BOOL (1200, 1000);
-#ifdef HAVE_OPENGL
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_1920_1440:
-				NewWidth = 1920;
-				NewHeight = DOS_BOOL (1440, 1200);
-#ifdef HAVE_OPENGL
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			default:
-				break;
-		}
-	}
 	else
 	{
-		switch (opts->loresBlowup) {
-			case OPTVAL_SCALE_640_480:
-				NewWidth = 640;
-				NewHeight = DOS_BOOL (480, 400);
-				resolutionFactor = 2;
-#ifdef HAVE_OPENGL
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				break;
-			case OPTVAL_SCALE_960_720:
-				NewWidth = 960;
-				NewHeight = DOS_BOOL (720, 600);
-#ifdef HAVE_OPENGL
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			case NO_BLOWUP:
-			case OPTVAL_SCALE_1280_960:
-				NewWidth = 1280;
-				NewHeight = DOS_BOOL (960, 800);
-#ifdef HAVE_OPENGL
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			case OPTVAL_SCALE_1600_1200:
-				NewWidth = 1600;
-				NewHeight = DOS_BOOL (1200, 1000);
-#ifdef HAVE_OPENGL
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			case OPTVAL_SCALE_1920_1440:
-				NewWidth = 1920;
-				NewHeight = DOS_BOOL (1440, 1200);
-#ifdef HAVE_OPENGL
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			default:
-				break;
+		if (opts->scaler < OPTVAL_NO_SCALE
+				|| opts->scaler > OPTVAL_HQXX_SCALE)
+		{
+			opts->scaler = 0;
 		}
+
+		NewGfxFlags |= scalerList[opts->scaler].value;
+		res_PutString ("config.scaler", scalerList[opts->scaler].str);
 	}
+
+#ifdef HAVE_OPENGL
+	NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ?
+			TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
+#else
+	NewDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
 
 	// To force the game to reload content when changing music, video, and speech options
  	if ((opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
@@ -2289,21 +2188,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("config.3domovies", opts->intro == OPTVAL_3DO);
 	res_PutBoolean ("config.showfps", opts->fps == OPTVAL_ENABLED);
 #if defined(ANDROID) || defined(__ANDROID__)
-	switch (opts->meleezoom) {
-		case TFB_SCALE_NEAREST:
-			optMeleeScale = OPTVAL_NEAREST;
-			break;
-		case TFB_SCALE_BILINEAR:
-			optMeleeScale = OPTVAL_BILINEAR;
-			break;
-		case TFB_SCALE_TRILINEAR:
-			optMeleeScale = OPTVAL_TRILINEAR;
-			break;
-		case TFB_SCALE_STEP:
-		default:
-			optMeleeScale = OPTVAL_STEP;
-			break;
-	}
+	optMeleeScale = opts->meleezoom;
 	res_PutInteger("config.smoothmelee", opts->meleezoom);
 #else
 	res_PutBoolean("config.smoothmelee",
@@ -2390,10 +2275,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			RESOLUTION_FACTOR = resolutionFactor;
 			resolutionFactor = RESOLUTION_FACTOR;
 
-			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
-				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);
+			log_add (log_Debug,
+					"ScrWidth:%d, ScrHeight:%d, Wactual:%d, Hactual:%d",
+					ScreenWidth, ScreenHeight, ScreenWidthActual,
+					ScreenHeightActual);
 
-			// These solve the context problem that plagued the setupmenu when changing to higher resolution.
+			// These solve the context problem that plagued the setupmenu
+			// when changing to higher resolution.
 			TFB_BBox_Reset ();
 			TFB_BBox_Init (ScreenWidth, ScreenHeight);
 
@@ -2401,7 +2289,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			FlushColorXForms ();
 		}
 
-		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth, NewHeight);
+		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth,
+				NewHeight);
 		InitVideoPlayer (TRUE);
 	}
 
