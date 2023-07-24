@@ -147,8 +147,7 @@ char *addonDirPath;
 char baseContentPath[PATH_MAX];
 
 // addon availability
-BOOLEAN isDOSwindAvailable;
-BOOLEAN is3dopaddingAvailable;
+DWORD addonList[PATH_MAX];
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;
@@ -559,10 +558,7 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
 
-			if (strcmp (addon, DOS_WIND) == 0)
-				isDOSwindAvailable = TRUE;
-			if (strcmp (addon, PAD_3DO) == 0)
-				is3dopaddingAvailable = TRUE;
+			addonList[i] = crc32b (addon);
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
@@ -584,6 +580,27 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 
 	uio_DirList_free (availableAddons);
 	uio_closeDir (addonsDir);
+}
+
+BOOLEAN
+isAddonAvailable (const char *addon_name)
+{
+	COUNT i;
+	DWORD name_hash = crc32b (addon_name);
+
+	if (!name_hash)
+		return FALSE;
+
+	for (i = 0; i < PATH_MAX; i++)
+	{
+		if (!addonList[i])
+			break;
+
+		if (addonList[i] == name_hash)
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 static void

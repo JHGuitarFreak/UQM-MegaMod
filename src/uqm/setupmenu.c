@@ -537,11 +537,11 @@ check_availability (WIDGET_CHOICE *self, int oldval)
 	switch (self->selected)
 	{
 		case OPTVAL_PC_WINDOW:
-			if (!isDOSwindAvailable)
+			if (!isAddonAvailable (DOS_WIND))
 				addon_unavailable (self, oldval);
 			break;
 		case OPTVAL_3DO_WINDOW:
-			if (!is3dopaddingAvailable)
+			if (!isAddonAvailable (PAD_3DO))
 				addon_unavailable (self, oldval);
 			break;
 		case OPTVAL_UQM_WINDOW:
@@ -2394,6 +2394,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if (optRequiresReload || optRequiresRestart)
 	{
 		//FreeKernel (); Crashes when going from HD to SD
+		memset (&addonList, 0, sizeof (addonList));
 		UninitGameStructures ();
 		ClearPlayerInputAll ();
 		UninitGameKernel ();

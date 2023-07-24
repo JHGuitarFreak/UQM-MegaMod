@@ -88,8 +88,6 @@ BOOLEAN DeathBySuicide = FALSE;
 BOOLEAN SpaceMusicOK;
 BOOLEAN oldPlanetsPresent;
 BOOLEAN classicPackPresent;
-BOOLEAN paddingPackPresent;
-BOOLEAN dosPackPresent;
 
 uio_Repository *repository;
 uio_DirHandle *rootDir;
@@ -143,9 +141,9 @@ LoadKernel (int argc, char *argv[])
 		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
 
-		if (IS_PAD && is3dopaddingAvailable)
+		if (IS_PAD && isAddonAvailable (PAD_3DO))
 			loadAddon (PAD_3DO);
-		if (IS_DOS && isDOSwindAvailable)
+		if (IS_DOS && isAddonAvailable (DOS_WIND))
 			loadAddon (DOS_WIND);
 	} 
 	else if (loadAddon ("mm-hd"))

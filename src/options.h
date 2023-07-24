@@ -137,11 +137,8 @@ extern char *addonDirPath;
 
 extern const char **optAddons;
 
-extern BOOLEAN paddingPackPresent;
-extern BOOLEAN dosPackPresent;
-
-extern BOOLEAN isDOSwindAvailable;
-extern BOOLEAN is3dopaddingAvailable;
+// addon availability
+extern DWORD addonList[PATH_MAX];
 
 #define DOS_WIND "DOSwind"
 #define PAD_3DO "3dopadding"
@@ -171,6 +168,7 @@ void unprepareAllDirs (void);
 
 BOOLEAN loadAddon (const char *addon);
 int loadIndices (uio_DirHandle *baseDir);
+BOOLEAN isAddonAvailable (const char *addon_name);
 
 bool setGammaCorrection (float gamma);
 
