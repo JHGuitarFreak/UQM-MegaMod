@@ -146,6 +146,10 @@ char *addonDirPath;
 
 char baseContentPath[PATH_MAX];
 
+// addon availability
+BOOLEAN isDOSwindAvailable;
+BOOLEAN is3dopaddingAvailable;
+
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;
 
@@ -554,6 +558,11 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
+
+			if (strcmp (addon, DOS_WIND) == 0)
+				isDOSwindAvailable = TRUE;
+			if (strcmp (addon, PAD_3DO) == 0)
+				is3dopaddingAvailable = TRUE;
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 

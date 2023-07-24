@@ -140,6 +140,13 @@ extern const char **optAddons;
 extern BOOLEAN paddingPackPresent;
 extern BOOLEAN dosPackPresent;
 
+extern BOOLEAN isDOSwindAvailable;
+extern BOOLEAN is3dopaddingAvailable;
+
+#define DOS_WIND "DOSwind"
+#define PAD_3DO "3dopadding"
+
+
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
 typedef struct _input_template {

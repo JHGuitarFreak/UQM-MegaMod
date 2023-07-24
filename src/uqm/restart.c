@@ -387,7 +387,7 @@ RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 		Flash_continue (pMS->flashContext);
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 		return TRUE;
-	} else 
+	} else
 		return FALSE;
 }
 

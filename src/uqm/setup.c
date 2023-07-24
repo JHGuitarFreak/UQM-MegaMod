@@ -143,16 +143,15 @@ LoadKernel (int argc, char *argv[])
 		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
 
-		if (IS_PAD)
-			paddingPackPresent = loadAddon ("3dopadding");
-		if (IS_DOS)
-			dosPackPresent = loadAddon ("DOSwind");
+		if (IS_PAD && is3dopaddingAvailable)
+			loadAddon (PAD_3DO);
+		if (IS_DOS && isDOSwindAvailable)
+			loadAddon (DOS_WIND);
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
 		log_add (log_Debug, "loading HD addon pack");
 		HDPackPresent = TRUE;
-		paddingPackPresent = FALSE;
 		//solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		//classicPackPresent = loadAddon ("classic-pack");

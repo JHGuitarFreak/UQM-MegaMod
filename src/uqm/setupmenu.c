@@ -523,6 +523,34 @@ change_template (WIDGET_CHOICE *self, int oldval)
 }
 
 static void
+addon_unavailable (WIDGET_CHOICE *self, int oldval)
+{
+	self->selected = OPTVAL_UQM_WINDOW;
+	oldval = OPTVAL_UQM_WINDOW;
+	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 36));
+	Widget_SetFont (PlyrFont);
+}
+
+static void
+check_availability (WIDGET_CHOICE *self, int oldval)
+{
+	switch (self->selected)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isDOSwindAvailable)
+				addon_unavailable (self, oldval);
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!is3dopaddingAvailable)
+				addon_unavailable (self, oldval);
+			break;
+		case OPTVAL_UQM_WINDOW:
+		default:
+			break;
+	}
+}
+
+static void
 rename_template (WIDGET_TEXTENTRY *self)
 {
 	/* TODO: This will have to change if the size of the
@@ -1203,6 +1231,9 @@ init_widgets (void)
 
 	/* Choice 20 has a special onChange handler, too. */
 	choices[20].onChange = change_template;
+
+	/* Check  the availability of the Window Type option's addon */
+	choices[81].onChange = check_availability;
 
 	/* Sliders */
 	if (index >= count)
