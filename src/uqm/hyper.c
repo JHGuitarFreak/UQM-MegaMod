@@ -1749,8 +1749,10 @@ DrawRadarBorder (void)
 		return;
 	}
 
-	r.corner = MAKE_POINT (0, 0);
-	r.extent = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
+	r.corner.x = RES_SCALE (4) - RES_SCALE (DOS_NUM (1));
+	r.corner.y = RADAR_Y - RES_SCALE (DOS_NUM (1));
+	r.extent.width = RADAR_WIDTH + DOS_NUM (2);
+	r.extent.height = RADAR_HEIGHT + DOS_NUM (2);
 
 	DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
 			ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, TRUE,
@@ -2164,11 +2166,11 @@ SeedUniverse (void)
 	s.frame = blip_frame;
 	DrawStamp (&s);
 
+	SetContext (StatusContext);
+
 	DrawRadarBorder ();
 
 	UnbatchGraphics ();
-
-	SetContext (StatusContext);
 
 	if (!(LOWORD (TFB_Random ()) & 7))
 		AddAmbientElement ();
