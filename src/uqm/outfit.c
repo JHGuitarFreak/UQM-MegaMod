@@ -48,6 +48,11 @@ enum
 	OUTFIT_DOFUEL
 };
 
+static const POINT lander_pos[MAX_LANDERS] =
+{
+	LANDER_DOS_PTS
+};
+
 static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 {
@@ -169,19 +174,37 @@ DisplayLanders (MENU_STATE *pMS)
 	{
 		COUNT i;
 
-		s.origin.x = LANDER_X;
-		s.origin.y = LANDER_Y;
-		for (i = 0; i < GLOBAL_SIS (NumLanders); ++i)
+		if (!IS_DOS)
 		{
-			DrawStamp (&s);
-			s.origin.x += LANDER_WIDTH;
-		}
+			s.origin.x = LANDER_X;
+			s.origin.y = LANDER_Y;
+			for (i = 0; i < GLOBAL_SIS (NumLanders); ++i)
+			{
+				DrawStamp (&s);
+				s.origin.x += LANDER_WIDTH;
+			}
 
-		SetContextForeGroundColor (BLACK_COLOR);
-		for (; i < MAX_LANDERS; ++i)
+			SetContextForeGroundColor (BLACK_COLOR);
+			for (; i < MAX_LANDERS; ++i)
+			{
+				DrawFilledStamp (&s);
+				s.origin.x += LANDER_WIDTH;
+			}
+		}
+		else
 		{
-			DrawFilledStamp (&s);
-			s.origin.x += LANDER_WIDTH;
+			for (i = 0; i < GLOBAL_SIS (NumLanders); ++i)
+			{
+				s.origin = lander_pos[i];
+				DrawStamp (&s);
+			}
+
+			SetContextForeGroundColor (BLACK_COLOR);
+			for (; i < MAX_LANDERS; ++i)
+			{
+				s.origin = lander_pos[i];
+				DrawFilledStamp (&s);
+			}
 		}
 	}
 }
@@ -508,14 +531,24 @@ DoInstallModule (MENU_STATE *pMS)
 
 			if (NewState == pMS->CurState)
 			{
+				SIZE h = 0;
 				if (NewState == PLANET_LANDER
 						|| NewState == EMPTY_SLOT + 3)
+				{
 					w = LANDER_WIDTH;
+				}
 				else
 					w = SHIP_PIECE_OFFSET;
 
 				w *= (NewItem - pMS->delta_item);
-				pMS->flash_rect0.corner.x += w;
+				if (IS_DOS && (NewState == PLANET_LANDER
+					|| NewState == EMPTY_SLOT + 3))
+				{
+					pMS->flash_rect0.corner.x = lander_pos[NewItem].x - 1;
+					pMS->flash_rect0.corner.y = lander_pos[NewItem].y - 1;
+				}
+				else
+					pMS->flash_rect0.corner.x += w;
 				pMS->flash_rect1.corner.x += w;
 				//pMS->flash_rect2.corner.x += w;
 				pMS->delta_item = NewItem;
@@ -530,9 +563,11 @@ InitFlash:
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
 						pMS->flash_rect0.corner.x =
-								LANDER_X - RES_SCALE (1);
+								DOS_BOOL (LANDER_X, LANDER_DOS_X)
+								- RES_SCALE (1);
 						pMS->flash_rect0.corner.y =
-								LANDER_Y - RES_SCALE (1);
+								DOS_BOOL (LANDER_Y, LANDER_DOS_Y)
+								- RES_SCALE (1);
 						pMS->flash_rect0.extent.width =
 								RES_SCALE (11 + 2);
 						pMS->flash_rect0.extent.height =
@@ -602,7 +637,16 @@ InitFlash:
 				}
 
 				w *= pMS->delta_item;
-				pMS->flash_rect0.corner.x += w;
+				if (IS_DOS && (NewState == PLANET_LANDER
+					|| NewState == EMPTY_SLOT + 3))
+				{
+					pMS->flash_rect0.corner.x =
+							lander_pos[pMS->delta_item].x - 1;
+					pMS->flash_rect0.corner.y =
+							lander_pos[pMS->delta_item].y - 1;
+				}
+				else
+					pMS->flash_rect0.corner.x += w;
 				pMS->flash_rect1.corner.x += w;
 				//pMS->flash_rect2.corner.x += w;
 			}
@@ -625,19 +669,27 @@ InitFlash:
 						case EMPTY_SLOT + 0:
 						case EMPTY_SLOT + 1:
 						{	// thruster and jets
-							SetAdditionalRect (&pMS->flash_rect1, 1);
+							SetAdditionalRect (&pMS->flash_rect1, TRUE);
 							// SetAdditionalRect (&pMS->flash_rect2, 2);
 							break;
 						}
 						default:
 						{	// everything else
 							DumpAdditionalRect ();
-							SetAdditionalRect (&pMS->flash_rect1, 1);
+							SetAdditionalRect (&pMS->flash_rect1, TRUE);
 							break;
 						}
 					}
 				}
-				SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
+
+				if (IS_DOS && (pMS->CurState == EMPTY_SLOT + 3
+						|| pMS->CurState == PLANET_LANDER)
+						&& is3DO (optWhichMenu))
+				{
+					SetFlashRect (&pMS->flash_rect0, TRUE);
+				}
+				else
+					SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 			}
 		}
 	}

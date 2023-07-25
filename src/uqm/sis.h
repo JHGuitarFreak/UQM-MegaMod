@@ -100,17 +100,17 @@ enum
 #define DRIVE_SIDE_X (RES_SCALE (31) + SAFE_X_OUT)
 #define DRIVE_SIDE_Y RES_SCALE (56)
 #define DRIVE_TOP_X (RES_SCALE (33) + SAFE_X_OUT)
-#define DRIVE_TOP_Y RES_SCALE (86)
+#define DRIVE_TOP_Y (RES_SCALE (86) - DOS_NUM (21))
 
 #define JET_SIDE_X (RES_SCALE (71) + SAFE_X_OUT)
 #define JET_SIDE_Y RES_SCALE (48)
 #define JET_TOP_X (RES_SCALE (70) + SAFE_X_OUT)
-#define JET_TOP_Y RES_SCALE (94)
+#define JET_TOP_Y (RES_SCALE (94) - DOS_NUM (21))
 
 #define MODULE_SIDE_X (RES_SCALE (17) + SAFE_X_OUT)
 #define MODULE_SIDE_Y RES_SCALE (14)
 #define MODULE_TOP_X (RES_SCALE (17) + SAFE_X_OUT)
-#define MODULE_TOP_Y RES_SCALE (117)
+#define MODULE_TOP_Y (RES_SCALE (117) - DOS_NUM (21))
 
 #define SHIP_PIECE_OFFSET RES_SCALE (12)
 
@@ -131,6 +131,21 @@ enum
 	{3 + 42, 30 + (0 * 16)}, \
 	{3 +  0, 30 + (5 * 16)}, \
 	{3 + 42, 30 + (5 * 16)},
+
+#define LANDER_DOS_X 206
+#define LANDER_DOS_Y 59
+
+#define LANDER_DOS_PTS \
+	{LANDER_DOS_X,      LANDER_DOS_Y     }, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y -  6}, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y +  9}, \
+	{LANDER_DOS_X,      LANDER_DOS_Y - 15}, \
+	{LANDER_DOS_X,      LANDER_DOS_Y + 15}, \
+	{LANDER_DOS_X - 14, LANDER_DOS_Y -  9}, \
+	{LANDER_DOS_X - 14, LANDER_DOS_Y +  6}, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y - 21}, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y + 24}, \
+	{LANDER_DOS_X - 28, LANDER_DOS_Y -  3},
 
 #define SIS_NAME_SIZE 32
 #define LEGACY_SIS_NAME_SIZE 16
