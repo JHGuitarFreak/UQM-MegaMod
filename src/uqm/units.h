@@ -93,7 +93,7 @@ extern int ScreenHeight;
 		/* Blue boxes which display messages and the green date box. */
 #define SIS_TITLE_BOX_WIDTH    RES_SCALE (57)
 #define SIS_TITLE_WIDTH        (SIS_TITLE_BOX_WIDTH - RES_SCALE (2))
-#define SIS_TITLE_HEIGHT       RES_SCALE (SAFE_BOOL (7, 8))
+#define SIS_TITLE_HEIGHT       RES_SCALE (8)
 #define SIS_SPACER_BOX_WIDTH   RES_SCALE (12)
 
 #define SIS_MESSAGE_BOX_WIDTH  (SIS_SCREEN_WIDTH - SIS_TITLE_BOX_WIDTH - SIS_SPACER_BOX_WIDTH)

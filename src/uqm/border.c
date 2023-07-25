@@ -181,7 +181,7 @@ DrawSISFrame (void)
 		// Vertical line on the right side of SIS Message
 		r.corner.y = 1;
 		r.extent.width = 1;
-		r.extent.height = SAFE_Y + SIS_MESSAGE_HEIGHT;
+		r.extent.height = SAFE_Y + SIS_MESSAGE_HEIGHT - DOS_NUM (1);
 		r.corner.x = SIS_ORG_X + SIS_MESSAGE_BOX_WIDTH;
 		DrawFilledRectangle (&r);
 
