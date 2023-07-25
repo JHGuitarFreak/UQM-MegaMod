@@ -656,7 +656,7 @@ RestartMenu (MENU_STATE *pMS)
 		FlushColorXForms ();
 		TimeOut = ONE_SECOND / 8;
 
-		GLOBAL(CurrentActivity) = IN_ENCOUNTER;
+		GLOBAL (CurrentActivity) = IN_ENCOUNTER;
 
 		if (optGameOver)
 			GameOver (SUICIDE);
@@ -664,7 +664,7 @@ RestartMenu (MENU_STATE *pMS)
 		DeathBySuicide = FALSE;
 
 		FreeGameData ();
-		GLOBAL(CurrentActivity) = CHECK_ABORT;
+		GLOBAL (CurrentActivity) = CHECK_ABORT;
 	}
 	else
 	{
@@ -672,7 +672,7 @@ RestartMenu (MENU_STATE *pMS)
 
 		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0)
 		{
-			GLOBAL(CurrentActivity) = IN_ENCOUNTER;
+			GLOBAL (CurrentActivity) = IN_ENCOUNTER;
 
 			if (DeathByMelee)
 			{
@@ -704,9 +704,12 @@ RestartMenu (MENU_STATE *pMS)
 
 	// TODO: This fade is not always necessary, especially after a splash
 	//   screen. It only makes a user wait.
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, TimeOut));
-	if (TimeOut == ONE_SECOND / 8)
-		SleepThread (ONE_SECOND * 3);
+	if (!comingFromInit)
+	{
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, TimeOut));
+		if (TimeOut == ONE_SECOND / 8)
+			SleepThread (ONE_SECOND * 3);
+	}
 
 	DrawRestartMenuGraphic (pMS);
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
@@ -714,20 +717,24 @@ RestartMenu (MENU_STATE *pMS)
 	SetDefaultMenuRepeatDelay ();
 	DoInput (pMS, TRUE);
 	
-	if (optMainMenuMusic)
+	if (!(optRequiresRestart || optRequiresReload))
 	{
-		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
-		SetMusicPosition ();
-	}
-
-	StopMusic ();
-	if (pMS->hMusic)
-	{
-		DestroyMusic (pMS->hMusic);
-		pMS->hMusic = 0;
-
 		if (optMainMenuMusic)
-			FadeMusic (NORMAL_VOLUME, 0);
+		{
+			SleepThreadUntil (FadeMusic (0, ONE_SECOND));
+			SetMusicPosition ();
+		}
+
+		StopMusic ();
+
+		if (pMS->hMusic)
+		{
+			DestroyMusic (pMS->hMusic);
+			pMS->hMusic = 0;
+
+			if (optMainMenuMusic)
+				FadeMusic (NORMAL_VOLUME, 0);
+		}
 	}
 
 	Flash_terminate (pMS->flashContext);
@@ -798,7 +805,7 @@ StartGame (void)
 
 				if (optRequiresRestart || optRequiresReload)
 				{
-					Reload ();
+					comingFromInit = TRUE;
 					optRequiresRestart = optRequiresReload = FALSE;
 				}
 				else

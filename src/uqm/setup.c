@@ -30,6 +30,7 @@
 #include "status.h"
 #include "resinst.h"
 #include "sounds.h"
+#include "fmv.h"
 #include "libs/compiler.h"
 #include "libs/uio.h"
 #include "libs/file.h"
@@ -229,12 +230,14 @@ BOOLEAN
 InitContexts (void)
 {
 	RECT r;
+	CONTEXT oldContext;
 	
 	StatusContext = CreateContext ("StatusContext");
 	if (StatusContext == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
-	SetContext (StatusContext);
+	oldContext = SetContext (StatusContext);
 	SetContextFGFrame (Screen);
 	r.corner.x = SPACE_WIDTH + SAFE_X;
 	r.corner.y = SAFE_Y;
@@ -245,13 +248,17 @@ InitContexts (void)
 	SpaceContext = CreateContext ("SpaceContext");
 	if (SpaceContext == NULL)
 		return FALSE;
+	SetContext (oldContext);
+	AdvanceLoadProgress ();
 		
 	OffScreenContext = CreateContext ("OffScreenContext");
 	if (OffScreenContext == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	if (!InitQueue (&disp_q, MAX_DISPLAY_ELEMENTS, sizeof (ELEMENT)))
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	return TRUE;
 }
@@ -267,22 +274,27 @@ InitKernel (void)
 	StarConFont = LoadFont (STARCON_FONT);
 	if (StarConFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	TinyFont = LoadFont (TINY_FONT);
 	if (TinyFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	TinyFontBold = LoadFont (TINY_FONT_BOLD);
 	if (TinyFontBold == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	PlyrFont = LoadFont (PLAYER_FONT);
 	if (PlyrFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	BorderFrame = CaptureDrawable (LoadGraphic (BORDER_MASK_PMAP_ANIM));
 	if (BorderFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	if (HDPackPresent)
 	{
@@ -294,10 +306,12 @@ InitKernel (void)
 	ActivityFrame = CaptureDrawable (LoadGraphic (ACTIVITY_ANIM));
 	if (ActivityFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	if (HDPackPresent)
 	{ 
@@ -309,21 +323,26 @@ InitKernel (void)
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));
 	if (GameStrings == 0)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	MicroFont = LoadFont(MICRO_FONT);
 	if (MicroFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
 	if (MenuSounds == 0)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	InitStatusOffsets ();
 	InitSpace ();
+	AdvanceLoadProgress ();
 
 	return TRUE;
 }

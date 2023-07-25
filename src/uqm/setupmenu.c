@@ -23,6 +23,7 @@
 #include "setup.h"
 #include "sounds.h"
 #include "colors.h"
+#include "fmv.h"
 #include "libs/gfxlib.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/graphics/widgets.h"
@@ -41,8 +42,6 @@
 #include "gamestr.h"
 #include "libs/graphics/bbox.h"
 #include "libs/math/random.h"
-#include "master.h"
-#include "init.h"
 #include "libs/input/input_common.h"
 
 #include SDL_INCLUDE(SDL_version.h)
@@ -2403,25 +2402,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth, NewHeight);
 		InitVideoPlayer (TRUE);
-	}
 
-	if (optRequiresReload || optRequiresRestart)
-	{
-		//FreeKernel (); Crashes when going from HD to SD
-		UninitGameStructures ();
-		ClearPlayerInputAll ();
-		UninitGameKernel ();
-		FreeMasterShipList ();
-		TFB_UninitInput ();
-
-		prepareContentDir (contentDirPath, addonDirPath, 0);
-
-		if (LoadKernel (0, 0))
-		{
-			TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
-			LoadMasterShipList (TaskSwitch);
-			TaskSwitch ();
-			InitGameKernel ();
-		}
-	}
+		if (optRequiresReload || optRequiresRestart)
+			Reload ();
+	}	
 }
