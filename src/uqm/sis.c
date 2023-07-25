@@ -757,8 +757,10 @@ DrawFlagshipStats (void)
 	SIZE leading;
 	BYTE i;
 	BYTE energy_regeneration, energy_wait, turn_wait;
+	BYTE num_dynamos, num_shivas;
 	COUNT max_thrust;
 	DWORD fuel;
+	SIZE base_y;
 
 	/* collect stats */
 #define ENERGY_REGENERATION 1
@@ -770,6 +772,8 @@ DrawFlagshipStats (void)
 	max_thrust = MAX_THRUST;
 	turn_wait = TURN_WAIT;
 	fuel = 10 * FUEL_TANK_SCALE;
+	num_dynamos = 0;
+	num_shivas = 0;
 
 	for (i = 0; i < NUM_MODULE_SLOTS; i++)
 	{
@@ -782,11 +786,13 @@ DrawFlagshipStats (void)
 				break;
 			case DYNAMO_UNIT:
 				energy_wait -= 2;
+				num_dynamos++;
 				if (energy_wait < 4)
 					energy_wait = 4;
 				break;
 			case SHIVA_FURNACE:
 				energy_regeneration++;
+				num_shivas++;
 				break;
 		}
 	}
@@ -807,9 +813,9 @@ DrawFlagshipStats (void)
 
 	/* we need room to play.  full screen width, 4 lines tall */
 	r.corner.x = 0;
-	r.corner.y = SIS_SCREEN_HEIGHT - (4 * leading);
+	r.corner.y = SIS_SCREEN_HEIGHT - (DOS_BOOL (4, 3) * leading);
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = (4 * leading);
+	r.extent.height = (DOS_BOOL (4, 3) * leading);
 
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -818,9 +824,11 @@ DrawFlagshipStats (void)
 	   now that we've cleared out our playground, compensate for the
 	   fact that the leading is way more than is generally needed.
 	*/
-	leading -= RES_SCALE (3);
-	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH / 6);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	leading -= RES_SCALE (2);
+	base_y = r.corner.y + leading - RES_SCALE (2);
+
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH / 6 + 1);
+	t.baseline.y = base_y;
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
 
@@ -838,8 +846,8 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 3); // "tail:"
 	font_DrawText (&t);
 
-	t.baseline.x += RES_SCALE (5);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	t.baseline.x += RES_SCALE (3);
+	t.baseline.y = base_y;
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 
@@ -859,8 +867,8 @@ DrawFlagshipStats (void)
 			describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - RES_SCALE (25);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	t.baseline.x = r.extent.width - RES_SCALE (26);
+	t.baseline.y = base_y;
 	t.align = ALIGN_RIGHT;
 
 	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 5));
@@ -878,7 +886,7 @@ DrawFlagshipStats (void)
 	font_DrawText (&t);
 
 	t.baseline.x = r.extent.width - RES_SCALE (2);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	t.baseline.y = base_y;
 	t.pStr = buf;
 
 	snprintf (buf, sizeof buf, "%4u", max_thrust * 4);
@@ -887,12 +895,18 @@ DrawFlagshipStats (void)
 	snprintf (buf, sizeof buf, "%4u", 1 + TURN_WAIT - turn_wait);
 	font_DrawText (&t);
 	t.baseline.y += leading;
+	if (!IS_DOS)
 	{
 		unsigned int energy_per_10_sec =
 				(((100 * ONE_SECOND * energy_regeneration) /
 				((1 + energy_wait) * BATTLE_FRAME_RATE)) + 5) / 10;
 		snprintf (buf, sizeof buf, "%2u.%1u",
 				energy_per_10_sec / 10, energy_per_10_sec % 10);
+	}
+	else
+	{
+		snprintf (buf, sizeof buf, "%u",
+				(num_dynamos * 30) + (num_shivas * 60));
 	}
 	font_DrawText (&t);
 	t.baseline.y += leading;

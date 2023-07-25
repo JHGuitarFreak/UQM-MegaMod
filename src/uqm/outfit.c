@@ -37,7 +37,7 @@
 #include "util.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
-#define SHIELD_LOCATION_IN_MODULE_ANI (RES_BOOL (5, 9))
+#define SHIELD_LOCATION_IN_MODULE_ANI 51
 
 enum
 {
@@ -166,8 +166,7 @@ DisplayLanders (MENU_STATE *pMS)
 	{
 		s.origin.x = s.origin.y = 0;
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
-				GetFrameCount (pMS->ModuleFrame)
-				- SHIELD_LOCATION_IN_MODULE_ANI + 4);
+				SHIELD_LOCATION_IN_MODULE_ANI + 4);
 		DrawStamp (&s);
 	}
 	else
@@ -856,8 +855,7 @@ DoOutfit (MENU_STATE *pMS)
 				ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 
 				s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
-						GetFrameCount (pMS->ModuleFrame)
-						- SHIELD_LOCATION_IN_MODULE_ANI);
+						SHIELD_LOCATION_IN_MODULE_ANI);
 				if (ShieldFlags & (1 << EARTHQUAKE_DISASTER))
 					DrawStamp (&s);
 				s.frame = IncFrameIndex (s.frame);
@@ -873,7 +871,7 @@ DoOutfit (MENU_STATE *pMS)
 
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 			DrawFlagshipName (FALSE, FALSE);
-			if (optWhichFonts == OPT_PC)
+			if (optWhichFonts == OPT_PC && optWindowType != 1)
 				DrawFlagshipStats ();
 
 			ScreenTransition (optScrTrans, NULL);
