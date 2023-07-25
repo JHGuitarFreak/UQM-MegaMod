@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border to the playback bar during coversations
 - Restored DOS script when opting out of 3DO voices or if the add-on isn't available
 - Consolidate in-engine drawn shadow boxes
+- Remove bottom "NET..." from Super Melee and add top/bottom player option to connect dialog
 
 ## [v0.8.3]
 ### Added
