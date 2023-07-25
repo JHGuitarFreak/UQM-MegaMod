@@ -571,7 +571,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	if (optWhichMenu == OPT_PC)
 		r.corner.y = s.origin.y - PC_MENU_HEIGHT - IF_HD (2);
 	else
-		r.corner.y = s.origin.y - RES_SCALE (11);
+		r.corner.y = s.origin.y - RES_SCALE (11) + DOS_NUM(3);
 	r.extent.width = RADAR_WIDTH + RES_SCALE (3);
 	BatchGraphics ();
 	SetContextForeGroundColor (
@@ -639,8 +639,9 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			r.corner.x -= RES_SCALE (1);
 			r.corner.y += RES_SCALE (DOS_NUM (5));
 			r.extent.width += RES_SCALE (1);
-			r.extent.height = RADAR_HEIGHT + RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
-			r.extent.height -= RES_SCALE (DOS_NUM (4));
+			r.extent.height = RADAR_HEIGHT
+					+ RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
+			r.extent.height -= RES_SCALE (DOS_NUM (6));
 			DrawFilledRectangle (&r);
 		}
 		else
