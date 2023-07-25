@@ -30,6 +30,9 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
+#include "libs/input/input_common.h"
+
+#define MAX_LOAD_ENTRIES 40
 
 void
 DoShipSpin (COUNT index, MUSIC_REF hMusic)
@@ -79,10 +82,10 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 {
 	STAMP s;
 	DWORD TimeOut;
+	TimeCount OverallWait = GetTimeCounter () + (ONE_SECOND * 3);
 
 	if (!optSkipIntro)
 	{
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
 		SetContext (ScreenContext);
 		s.origin.x = s.origin.y = 0;
 
@@ -99,7 +102,7 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	}
 
 	TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
-
+	
 	if (DoProcessing)
 		DoProcessing (TimeOut);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -113,7 +116,7 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	 * --Michael */
 
 	if (!optSkipIntro)
-		WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
+		SleepThreadUntil (OverallWait);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return;
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
@@ -171,7 +174,7 @@ void
 Logo (void)
 {
 	ShowPresentation (LOGOPRES_STRTAB);
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	FadeScreen (FadeAllToBlack, 0);
 }
 
 void
@@ -184,6 +187,52 @@ Drumall (void)
 void
 Reload (void)
 {
+	//FreeKernel (); Crashes when going from HD to SD
 	ShowPresentation (RELOADPRES_STRTAB);
+
+	memset (&addonList, 0, sizeof (addonList));
+	UninitGameStructures();
+	ClearPlayerInputAll();
+	UninitGameKernel();
+	FreeMasterShipList();
+	TFB_UninitInput();
+
+	prepareContentDir (contentDirPath, addonDirPath, 0);
+
+	if (LoadKernel(0, 0))
+	{
+		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+		LoadMasterShipList (TaskSwitch);
+		TaskSwitch ();
+		InitGameKernel ();
+	}	
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+}
+
+void
+AdvanceLoadProgress (void)
+{
+	if (!comingFromInit)
+	{
+		RECT r;
+		static COUNT i = 0;
+
+		r.corner.x = RES_SCALE (16);
+		r.corner.y = RES_SCALE (210);
+		r.extent.height = RES_SCALE (15);
+		r.extent.width = RES_SCALE ((i + 1) * 7);
+
+		if (i == MAX_LOAD_ENTRIES)
+		{
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0, 192, 0, 255));
+			i = 0;
+		}
+		else
+		{
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0, 128, 192, 255));
+			i++;
+		}
+		DrawFilledRectangle (&r);
+	}
 }

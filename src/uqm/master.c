@@ -21,6 +21,7 @@
 #include "build.h"
 #include "resinst.h"
 #include "displist.h"
+#include "fmv.h"
 #include "supermelee/melee.h"
 
 
@@ -87,6 +88,7 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 				break;
 		}
 		InsertQueue (&master_q, hBuiltShip, hStarShip);
+		AdvanceLoadProgress ();
 	}
 }
 

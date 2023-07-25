@@ -890,9 +890,12 @@ ShowSlidePresentation (STRING PresStr)
 	pis.LastSyncTime = pis.StartTime;
 	DoInput(&pis, TRUE);
 
-	SleepThreadUntil (FadeMusic (0, ONE_SECOND));
-	StopMusic ();
-	FadeMusic (NORMAL_VOLUME, 0);
+	if (pis.MusicRef)
+	{
+		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
+		StopMusic ();
+		FadeMusic (NORMAL_VOLUME, 0);
+	}
 
 	DestroyMusic (pis.MusicRef);
 	DestroyDrawable (ReleaseDrawable (pis.RotatedFrame));
