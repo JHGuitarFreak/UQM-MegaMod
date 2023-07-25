@@ -26,6 +26,8 @@
 #include "libs/sound/trackplayer.h"
 #include "libs/log.h"
 #include "colors.h"
+#include "menustat.h"
+#include "util.h"
 
 static FRAME scope_frame;
 static int scope_init = 0;
@@ -46,8 +48,8 @@ InitOscilloscope (FRAME scopeBg)
 				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = RES_DESCALE (size.width) - SAFE_BOOL(2,0);
-		scopeSize.height = RES_DESCALE (size.height) - SAFE_BOOL (2, 0);
+		scopeSize.width = RES_DESCALE (size.width) ;
+		scopeSize.height = RES_DESCALE (size.height);
 
 		scope_init = 1;
 	}
@@ -103,7 +105,7 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 	s->origin.y = 0;
 	s->frame = scope_frame;
 
-	DrawStamp(s);
+	DrawStamp (s);
 
 	// Set oscilloscope line color
 	scopeColor = optScopeStyle != OPT_PC ?
@@ -125,12 +127,12 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 		{
 			LINE line;
 
-			line.first.x = RES_SCALE (i + SAFE_BOOL (1, 0));
+			line.first.x = RES_SCALE (i);
 			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i],
-					toScale) + SAFE_BOOL (1, 0));
+					toScale));
 			line.second.x = RES_SCALE (i + 2);
 			line.second.y = RES_SCALE (ScaleHeightByVolume (
-					scope_data[i + 1], toScale) + SAFE_BOOL (1, 0));
+					scope_data[i + 1], toScale));
 			DrawLine (&line, RES_SCALE (1));
 		}
 	}
@@ -138,9 +140,8 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 	{
 		LINE line;
 
-		line.first.x = SAFE_BOOL (RES_SCALE (1), 0);
-		line.first.y = RES_SCALE ((scopeSize.height / 2)
-				+ SAFE_BOOL (1, 0));
+		line.first.x = 0;
+		line.first.y = RES_SCALE ((scopeSize.height / 2));
 		line.second.x = RES_SCALE (scopeSize.width);
 		line.second.y = line.first.y;
 		DrawLine (&line, RES_SCALE (1));
@@ -149,6 +150,35 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 	SetContext (oldContext);
 
 	s->frame = scopeWork;
+}
+
+static void
+DrawRadarBorder (void)
+{
+	RECT r;
+	CONTEXT OldContext;
+
+	if (IS_PAD)
+		return;
+
+	OldContext = SetContext (StatusContext);
+
+	if (IS_HD)
+	{
+		DrawBorder (31);
+		return;
+	}
+
+	r.corner.x = RES_SCALE (4) - RES_SCALE (DOS_NUM (1));
+	r.corner.y = RADAR_Y - RES_SCALE (DOS_NUM (1));
+	r.extent.width = RADAR_WIDTH + DOS_NUM (2);
+	r.extent.height = RADAR_HEIGHT + DOS_NUM (2);
+
+	DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
+			ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, TRUE,
+			ALT_SHADOWBOX_CORNERS);
+
+	SetContext (OldContext);
 }
 
 // draws the oscilloscope
@@ -186,6 +216,8 @@ DrawOscilloscope (void)
 	s.origin.x = 0;
 	s.origin.y = 0;
 	DrawStamp (&s);
+
+	DrawRadarBorder ();
 }
 
 void

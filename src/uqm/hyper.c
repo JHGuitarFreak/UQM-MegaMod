@@ -1739,9 +1739,12 @@ static void
 DrawRadarBorder (void)
 {
 	RECT r;
+	CONTEXT OldContext;
 
 	if (IS_PAD)
 		return;
+
+	OldContext = SetContext (StatusContext);
 
 	if (IS_HD)
 	{
@@ -1755,8 +1758,10 @@ DrawRadarBorder (void)
 	r.extent.height = RADAR_HEIGHT + DOS_NUM (2);
 
 	DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
-			ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, TRUE,
-			ALT_SHADOWBOX_CORNERS);
+		ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, TRUE,
+		ALT_SHADOWBOX_CORNERS);
+
+	SetContext (OldContext);
 }
 
 void
@@ -2166,11 +2171,11 @@ SeedUniverse (void)
 	s.frame = blip_frame;
 	DrawStamp (&s);
 
-	SetContext (StatusContext);
-
 	DrawRadarBorder ();
 
 	UnbatchGraphics ();
+
+	SetContext (StatusContext);
 
 	if (!(LOWORD (TFB_Random ()) & 7))
 		AddAmbientElement ();
