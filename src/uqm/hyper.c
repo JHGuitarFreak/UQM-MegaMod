@@ -1735,35 +1735,6 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 
 #define NUM_FRAMES 32
 
-static void
-DrawRadarBorder (void)
-{
-	RECT r;
-	CONTEXT OldContext;
-
-	if (IS_PAD)
-		return;
-
-	OldContext = SetContext (StatusContext);
-
-	if (IS_HD)
-	{
-		DrawBorder (31);
-		return;
-	}
-
-	r.corner.x = RES_SCALE (4) - RES_SCALE (DOS_NUM (1));
-	r.corner.y = RADAR_Y - RES_SCALE (DOS_NUM (1));
-	r.extent.width = RADAR_WIDTH + DOS_NUM (2);
-	r.extent.height = RADAR_HEIGHT + DOS_NUM (2);
-
-	DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
-		ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, TRUE,
-		ALT_SHADOWBOX_CORNERS);
-
-	SetContext (OldContext);
-}
-
 void
 SeedUniverse (void)
 {

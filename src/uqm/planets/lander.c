@@ -1574,6 +1574,9 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	if (lander_flags & KILL_CREW)
 		DeltaLanderCrew (-1, LIGHTNING_DISASTER);
 
+	if (isPC (optSuperPC))
+		DrawRadarBorder ();
+
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
