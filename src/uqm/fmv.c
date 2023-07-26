@@ -81,7 +81,7 @@ void
 SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 {
 	STAMP s;
-	DWORD TimeOut;
+	DWORD TimeOut = 0;
 	TimeCount OverallWait = GetTimeCounter () + (ONE_SECOND * 3);
 
 	if (!optSkipIntro)
@@ -89,8 +89,7 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 		SetContext (ScreenContext);
 		s.origin.x = s.origin.y = 0;
 
-		s.frame = CaptureDrawable (LoadGraphic (
-			RES_BOOL (TITLE_ANIM, TITLE_HD)));
+		s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
 
 		if (optFlagshipColor == OPT_3DO)
 			s.frame = SetAbsFrameIndex (s.frame, 1);
@@ -99,9 +98,9 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 
 		DrawStamp (&s);
 		DestroyDrawable (ReleaseDrawable (s.frame));
-	}
 
-	TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
+		TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
+	}
 	
 	if (DoProcessing)
 		DoProcessing (TimeOut);
@@ -187,15 +186,27 @@ Drumall (void)
 void
 Reload (void)
 {
-	//FreeKernel (); Crashes when going from HD to SD
-	ShowPresentation (RELOADPRES_STRTAB);
+	STAMP s;
+	CONTEXT oldContext;	
+	
+	oldContext = SetContext (ScreenContext);
+	s.origin.x = s.origin.y = 0;
 
+	s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
+	s.frame = SetAbsFrameIndex (s.frame, 2);
+
+	DrawStamp (&s);
+	DestroyDrawable (ReleaseDrawable (s.frame));
+	SetContext (oldContext);
+	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
+
+	//FreeKernel (); Crashes when going from HD to SD
 	memset (&addonList, 0, sizeof (addonList));
-	UninitGameStructures();
-	ClearPlayerInputAll();
-	UninitGameKernel();
-	FreeMasterShipList();
-	TFB_UninitInput();
+	UninitGameStructures ();
+	ClearPlayerInputAll ();
+	UninitGameKernel ();
+	FreeMasterShipList ();
+	TFB_UninitInput ();
 
 	prepareContentDir (contentDirPath, addonDirPath, 0);
 
@@ -212,7 +223,7 @@ Reload (void)
 void
 AdvanceLoadProgress (void)
 {
-	if (!comingFromInit)
+	if (optRequiresReload || optRequiresRestart)
 	{
 		RECT r;
 		static COUNT i = 0;

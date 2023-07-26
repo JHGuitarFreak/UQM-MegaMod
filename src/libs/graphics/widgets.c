@@ -89,9 +89,7 @@ LoadArrows (void)
 	if (arrow_frame == NULL || optRequiresRestart)
 	{
 		// Load the different arrows depending on the resolution factor.
-		arrow_frame = CaptureDrawable (
-				LoadGraphic (
-					RES_BOOL (MENUARR_PMAP_ANIM, MENUARR_PMAP_ANIM_HD)));
+		arrow_frame = CaptureDrawable (LoadGraphic (MENUARR_PMAP_ANIM));
 	}
 }
 

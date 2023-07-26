@@ -78,7 +78,6 @@ QUEUE disp_q;
 
 BOOLEAN solTexturesPresent;
 BOOLEAN SyreenVoiceFix;
-BOOLEAN comingFromInit;
 BOOLEAN EndlessSCLoaded;
 BYTE Rando;
 BOOLEAN HDPackPresent;

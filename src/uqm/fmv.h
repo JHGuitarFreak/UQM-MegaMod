@@ -43,6 +43,9 @@ extern void Drumall (void);
 extern void Reload (void);
 extern void AdvanceLoadProgress (void);
 
+extern void InitMenuMusic (void);
+extern void UninitMenuMusic (void);
+
 extern BOOLEAN ShowPresentation (RESOURCE presentation);
 
 #if defined(__cplusplus)
