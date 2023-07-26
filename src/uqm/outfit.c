@@ -113,6 +113,22 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
 
+		if (IS_DOS)
+		{	// Print the module name.
+			t.baseline.x = s.origin.x + RES_SCALE (1);
+			t.baseline.y = s.origin.y + RES_SCALE (7);
+			t.align = ALIGN_LEFT;
+			sprintf (buf, "%s",
+					GAME_STRING (NewModule + OUTFIT_STRING_BASE + 1));
+			t.pStr = buf;
+			t.CharCount = utf8StringPos (t.pStr, ' ');
+			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
+			t.baseline.y += RES_SCALE (7);
+			t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
+			t.CharCount = (COUNT)~0;
+			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
+		}
+
 		// Print the module cost.
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
 		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2);
