@@ -176,6 +176,17 @@ ProcessUtilityKeys (void)
 #endif  /* DEBUG */
 }
 
+static void
+SetRandomMenuMusic (void)
+{
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+
+	srand(t);
+	Rando = (rand() % NUM_MM_THEMES);
+	optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
+}
+
 /* TODO: Remove these declarations once threading is gone. */
 extern int snddriver, soundflags;
 
@@ -244,23 +255,8 @@ while (--ac > 0)
 	if(!optSkipIntro)
 		Logo ();
 
-	{
-		time_t t = time (NULL);
-		struct tm tm = *localtime (&t);
-
-		srand (t);
-		Rando = (rand () % NUM_MM_THEMES);
-		optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
-
-		// printf("Random Music #: %d\n", Rando);
-
-		FadeMusic (MUTE_VOLUME, 0);
-		PlayMusic (loadMainMenuMusic (Rando), TRUE, 1);
-		
-		if (optMainMenuMusic)
-			FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
-		comingFromInit = TRUE;
-	}
+	SetRandomMenuMusic ();
+	InitMenuMusic ();
 
 	SplashScreen (BackgroundInitKernel);
 
