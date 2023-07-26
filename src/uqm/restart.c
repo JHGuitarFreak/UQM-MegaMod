@@ -704,9 +704,12 @@ RestartMenu (MENU_STATE *pMS)
 
 	// TODO: This fade is not always necessary, especially after a splash
 	//   screen. It only makes a user wait.
+	// Kruzen: This fade is needed when going from SUPER-MELEE and LOAD menus
+	// and when Skip Intro option is enabled, 3 second pause goes when
+	// the player used the Utwig bomb
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, TimeOut));
 	if (!comingFromInit)
-	{
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, TimeOut));
+	{// Just to be safe, it's never 1/8th when coming from init
 		if (TimeOut == ONE_SECOND / 8)
 			SleepThread (ONE_SECOND * 3);
 	}
