@@ -1073,7 +1073,7 @@ init_widgets (void)
 	if (setup_frame == NULL || optRequiresRestart)
 	{
 		// JMS: Load the different menus depending on the resolution factor.
-		setup_frame = CaptureDrawable (LoadGraphic (RES_BOOL (MENUBKG_PMAP_ANIM, MENUBKG_PMAP_ANIM_HD)));
+		setup_frame = CaptureDrawable (LoadGraphic (MENUBKG_PMAP_ANIM));
 		LoadArrows ();
 	}
 
@@ -2056,10 +2056,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("mm.mainMenuMusic", opts->mainMenuMusic == OPTVAL_ENABLED);
 	optMainMenuMusic = opts->mainMenuMusic == OPTVAL_ENABLED;
-	if(!optMainMenuMusic)
-		FadeMusic (0, ONE_SECOND);
+	if (optMainMenuMusic)
+		InitMenuMusic ();
 	else
-		FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND);
+		UninitMenuMusic ();
 
 	res_PutBoolean ("mm.nebulae", opts->nebulae == OPTVAL_ENABLED);
 	optNebulae = opts->nebulae == OPTVAL_ENABLED;
