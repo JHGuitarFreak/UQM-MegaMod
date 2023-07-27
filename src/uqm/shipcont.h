@@ -44,4 +44,3 @@ extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
 #endif
 
 #endif /* UQM_SHIPCONT_H_ */
-

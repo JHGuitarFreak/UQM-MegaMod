@@ -35,6 +35,7 @@
 		// for xxx_DISASTER
 #include "libs/graphics/gfx_common.h"
 #include "util.h"
+#include "shipcont.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
 #define SHIELD_LOCATION_IN_MODULE_ANI 51
@@ -52,6 +53,196 @@ static const POINT lander_pos[MAX_LANDERS] =
 {
 	LANDER_DOS_PTS
 };
+
+#define DEVICE_ICON_WIDTH  RES_SCALE (16)
+#define DEVICE_ICON_HEIGHT RES_SCALE (16)
+
+#define DEVICE_ORG_Y       RES_SCALE (33)
+#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_SCALE (2))
+
+#define DEVICE_COL_0       RES_SCALE (5)
+#define DEVICE_COL_1       RES_SCALE (61)
+
+#define DEVICE_SEL_ORG_X  (DEVICE_COL_0 - RES_SCALE (1))
+#define DEVICE_SEL_WIDTH  (FIELD_WIDTH - RES_SCALE (3))
+
+#define ICON_OFS_Y         RES_SCALE (1)
+#define NAME_OFS_Y         RES_SCALE (2)
+#define TEXT_BASELINE      RES_SCALE (6)
+#define TEXT_SPACING_Y     RES_SCALE (7)
+
+#define MODULE_PRICE_COLOR BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF)
+
+#define MAX_VIS_DEVICES    ((RES_SCALE (129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y)
+
+typedef struct
+{
+	BYTE list[NUM_PURCHASE_MODULES];
+	// List of all devices player has
+	COUNT count;
+	// Number of devices in the list
+	COUNT topIndex;
+	// Index of the top device displayed
+} DEVICES_STATE;
+
+DEVICES_STATE DeviceState;
+
+static void
+DrawDevice (COUNT device, COUNT pos, bool selected)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[10];
+
+	t.align = ALIGN_LEFT;
+	t.baseline.x = DEVICE_COL_0;
+
+	r.extent.width = DEVICE_SEL_WIDTH;
+	r.extent.height = TEXT_SPACING_Y * 2;
+	r.corner.x = DEVICE_SEL_ORG_X;
+
+	// draw line background
+	r.corner.y = DEVICE_ORG_Y + pos * DEVICE_SPACING_Y + NAME_OFS_Y;
+	SetContextForeGroundColor (selected ?
+		DEVICES_SELECTED_BACK_COLOR : DEVICES_BACK_COLOR);
+	DrawFilledRectangle (&r);
+	SetContextFont (TinyFont);
+
+	// print device name
+	SetContextForeGroundColor (selected ?
+		DEVICES_SELECTED_NAME_COLOR : DEVICES_NAME_COLOR);
+	t.baseline.y = r.corner.y + TEXT_BASELINE;
+	t.pStr = GAME_STRING (device + OUTFIT_STRING_BASE + 1);
+	t.CharCount = utf8StringPos (t.pStr, ' ');
+	font_DrawText (&t);
+	t.baseline.y += TEXT_SPACING_Y;
+	t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+
+	SetContextForeGroundColor (selected ?
+		DEVICES_SELECTED_NAME_COLOR : MODULE_PRICE_COLOR);
+	t.align = ALIGN_RIGHT;
+	t.baseline.x = DEVICE_COL_1 - RES_SCALE (2);
+	t.baseline.y -= RES_SCALE (3);
+	snprintf (buf, sizeof (buf), "%u",
+			GLOBAL (ModuleCost[device]) * MODULE_COST_SCALE);
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+}
+
+static void
+DrawModuleDisplay (void)
+{
+	TEXT t;
+	RECT r;
+	COUNT i;
+	CONTEXT OldContext;
+	DEVICES_STATE *devState = &DeviceState;
+
+	OldContext = SetContext (StatusContext);
+
+	BatchGraphics ();
+
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	// XXX: Shouldn't the height be 1 less? This draws the bottom border
+	//   1 pixel too low. Or if not, why do we need another box anyway?
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
+
+	if (!optCustomBorder && !IS_HD)
+		DrawStarConBox (&r, RES_SCALE (1),
+			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+			TRUE, DEVICES_BACK_COLOR, FALSE, TRANSPARENT);
+	else
+		DrawBorder (13);
+
+	// print the "MODULES" title
+	SetContextFont (StarConFont);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
+	t.align = ALIGN_CENTER;
+	t.pStr = GAME_STRING (OUTFIT_STRING_BASE);
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (DEVICES_SELECTED_NAME_COLOR);
+	font_DrawText (&t);
+
+	// draw device icons and print names
+	for (i = 0; i < MAX_VIS_DEVICES; ++i)
+	{
+		COUNT devIndex = devState->topIndex + i;
+
+		if (devIndex >= devState->count)
+			break;
+
+		DrawDevice (devState->list[devIndex], i, false);
+	}
+
+	UnbatchGraphics ();
+
+	SetContext (OldContext);
+}
+
+static void
+DrawDevices (COUNT OldDevice, COUNT NewDevice)
+{
+	BYTE curState = OldDevice;
+	BatchGraphics ();
+
+	SetContext (StatusContext);
+
+	if (curState > NUM_PURCHASE_MODULES)
+	{	// Asked for the initial display or refresh
+		DrawModuleDisplay ();
+
+		// do not draw unselected again this time
+		curState = NewDevice;
+	}
+
+	if (curState != NewDevice)
+	{	// unselect the previous element
+		DrawDevice (DeviceState.list[curState], curState - DeviceState.topIndex,
+			false);
+	}
+
+	if (NewDevice < NUM_PURCHASE_MODULES)
+	{	// select the new element
+		DrawDevice (DeviceState.list[NewDevice], NewDevice - DeviceState.topIndex,
+			true);
+	}
+
+	UnbatchGraphics ();
+}
+
+SIZE
+InventoryModules (BYTE *pDeviceMap, COUNT Size)
+{
+	BYTE i;
+	SIZE DevicesOnBoard;
+
+	DevicesOnBoard = 0;
+	for (i = 0; i < NUM_PURCHASE_MODULES && Size > 0; ++i)
+	{
+		BYTE ModuleState;
+
+		ModuleState = 0;
+		ModuleState = GLOBAL (ModuleCost[i]);
+
+#ifndef DEBUG_DEVICES
+		if (ModuleState)
+#endif /* DEBUG_DEVICES */
+		{
+			*pDeviceMap++ = i;
+			++DevicesOnBoard;
+			--Size;
+		}
+	}
+
+	return DevicesOnBoard;
+}
 
 static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
@@ -516,6 +707,8 @@ DoInstallModule (MENU_STATE *pMS)
 				PreUpdateFlashRect ();
 				DrawModuleStrings (pMS, NewItem);
 				PostUpdateFlashRect ();
+
+				DrawDevices (pMS->CurState, NewItem);
 			}
 		}
 		else if (NewItem != pMS->delta_item || NewState != pMS->CurState)
@@ -706,6 +899,8 @@ InitFlash:
 				else
 					SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 			}
+
+			DrawDevices (pMS->CurState, new_slot_piece);
 		}
 	}
 
@@ -798,6 +993,10 @@ DoOutfit (MENU_STATE *pMS)
 #if defined(ANDROID) || defined(__ANDROID__)
 		TFB_SetOnScreenKeyboard_Starmap();
 #endif
+		memset (&DeviceState, 0, sizeof DeviceState);
+
+		DeviceState.count = InventoryModules (DeviceState.list,
+				NUM_PURCHASE_MODULES);
 
 		SetNamingCallback (onNamingDone);
 
