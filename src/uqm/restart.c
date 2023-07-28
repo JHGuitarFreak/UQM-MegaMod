@@ -86,6 +86,10 @@ InitMenuMusic (void)
 		FadeMusic (MUTE_VOLUME, 0);
 		menuMusic = loadMainMenuMusic (Rando);
 		PlayMusic (menuMusic, TRUE, 1);
+		
+		if (OkayToResume ())
+			SeekMusic (GetMusicPosition ());
+
 		FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);
 	}
 }
@@ -95,11 +99,10 @@ UninitMenuMusic (void)
 {
 	if (menuMusic)
 	{
-		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
+		SleepThreadUntil (FadeMusic (MUTE_VOLUME, ONE_SECOND));
+
 		SetMusicPosition ();
-
 		StopMusic ();
-
 		DestroyMusic (menuMusic);
 		menuMusic = 0;
 
@@ -406,6 +409,7 @@ DoRestart (MENU_STATE *pMS)
 		pMS->hMusic = 0;
 
 		InitMenuMusic ();
+		ResetMusicResume ();
 		
 		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
