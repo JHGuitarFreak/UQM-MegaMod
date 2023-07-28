@@ -35,6 +35,7 @@
 		// for xxx_DISASTER
 #include "libs/graphics/gfx_common.h"
 #include "util.h"
+#include "shipcont.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
 #define SHIELD_LOCATION_IN_MODULE_ANI 51
@@ -52,6 +53,192 @@ static const POINT lander_pos[MAX_LANDERS] =
 {
 	LANDER_DOS_PTS
 };
+
+// This is all for drawing the DOS version modules menu
+#define MODULE_ORG_Y       RES_SCALE (33)
+#define MODULE_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+
+#define MODULE_COL_0       RES_SCALE (5)
+#define MODULE_COL_1       RES_SCALE (61)
+
+#define MODULE_SEL_ORG_X  (MODULE_COL_0 - RES_SCALE (1))
+#define MODULE_SEL_WIDTH  (FIELD_WIDTH - RES_SCALE (3))
+
+#define NAME_OFS_Y         RES_SCALE (2)
+#define TEXT_BASELINE      RES_SCALE (6)
+#define TEXT_SPACING_Y     RES_SCALE (7)
+
+#define MAX_VIS_MODULES  5
+
+typedef struct
+{
+	BYTE list[NUM_PURCHASE_MODULES];
+	// List of all modules player has
+	COUNT count;
+	// Number of modules in the list
+	COUNT topIndex;
+	// Index of the top module displayed
+} MODULES_STATE;
+
+MODULES_STATE ModuleState;
+
+static void
+DrawModuleStatus (COUNT index, COUNT pos, bool selected)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[10];
+
+	t.align = ALIGN_LEFT;
+	t.baseline.x = MODULE_COL_0;
+
+	r.extent.width = MODULE_SEL_WIDTH;
+	r.extent.height = TEXT_SPACING_Y * 2;
+	r.corner.x = MODULE_SEL_ORG_X;
+
+	// draw line background
+	r.corner.y = MODULE_ORG_Y + pos * MODULE_SPACING_Y + NAME_OFS_Y;
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_BACK_COLOR : MODULE_BACK_COLOR);
+	DrawFilledRectangle (&r);
+	SetContextFont (TinyFont);
+
+
+	if (GLOBAL (ModuleCost[index]))
+	{	// print module name
+		SetContextForeGroundColor (selected ?
+				MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
+		t.baseline.y = r.corner.y + TEXT_BASELINE;
+		t.pStr = GAME_STRING (index + OUTFIT_STRING_BASE + 1);
+		t.CharCount = utf8StringPos (t.pStr, ' ');
+		font_DrawText (&t);
+		t.baseline.y += TEXT_SPACING_Y;
+		t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+		
+		// print module cost
+		SetContextForeGroundColor (selected ?
+				MODULE_SELECTED_COLOR : MODULE_PRICE_COLOR);
+		t.align = ALIGN_RIGHT;
+		t.baseline.x = MODULE_COL_1 - RES_SCALE (2);
+		t.baseline.y -= RES_SCALE (3);
+		snprintf (buf, sizeof (buf), "%u",
+				GLOBAL (ModuleCost[index]) * MODULE_COST_SCALE);
+		t.pStr = buf;
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+	}
+	else
+	{
+		SetContextForeGroundColor (MODULE_PRICE_COLOR);
+		r.corner.x += RES_SCALE (21);
+		r.corner.y += RES_SCALE (6);
+		r.extent.width >>= 2;
+		r.extent.height = RES_SCALE (2);
+		DrawFilledRectangle (&r);
+	}
+}
+
+static void
+DrawModuleDisplay (MODULES_STATE *modState)
+{
+	TEXT t;
+	RECT r;
+	COUNT i;
+
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
+
+	if (!optCustomBorder && !IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+				TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
+	}
+	else
+		DrawBorder (13);
+
+	// print the "MODULES" title
+	SetContextFont (StarConFont);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
+	t.align = ALIGN_CENTER;
+	t.pStr = GAME_STRING (OUTFIT_STRING_BASE);
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
+	font_DrawText (&t);
+
+	// print names and costs
+	for (i = 0; i < MAX_VIS_MODULES; ++i)
+	{
+		COUNT modIndex = modState->topIndex + i;
+
+		if (modIndex >= modState->count)
+			break;
+
+		DrawModuleStatus (modState->list[modIndex], i, false);
+	}
+}
+
+static void
+DrawModules (MODULES_STATE *modState, COUNT NewItem)
+{
+	CONTEXT OldContext = SetContext (StatusContext);
+
+	BatchGraphics ();
+
+	DrawModuleDisplay (modState);
+	DrawModuleStatus (modState->list[NewItem],
+			NewItem - modState->topIndex, true);
+
+	UnbatchGraphics ();
+
+	SetContext (OldContext);
+}
+
+static void
+ManipulateModules (MENU_STATE *pMS, SIZE NewState)
+{
+	MODULES_STATE *modState = &ModuleState;
+	SIZE NewTop = modState->topIndex;
+
+	if (NewState > NUM_PURCHASE_MODULES)
+	{
+		DrawModules (modState, NewState);
+		return;
+	}
+
+	if (NewState < NewTop || NewState >= NewTop + MAX_VIS_MODULES)
+		modState->topIndex = NewState - NewState % MAX_VIS_MODULES;
+
+	DrawModules (modState, NewState);
+}
+
+SIZE
+InventoryModules (BYTE *pModuleMap, COUNT Size)
+{
+	BYTE i;
+	SIZE ModulesOnBoard;
+
+	ModulesOnBoard = 0;
+	for (i = 0; i < NUM_PURCHASE_MODULES && Size > 0; ++i)
+	{
+		BYTE ActiveModule;
+
+		ActiveModule = GLOBAL (ModuleCost[i]);
+
+		{
+			*pModuleMap++ = i;
+			++ModulesOnBoard;
+			--Size;
+		}
+	}
+
+	return ModulesOnBoard;
+}
 
 static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
@@ -112,22 +299,6 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
-
-		if (IS_DOS)
-		{	// Print the module name.
-			t.baseline.x = s.origin.x + RES_SCALE (1);
-			t.baseline.y = s.origin.y + RES_SCALE (7);
-			t.align = ALIGN_LEFT;
-			sprintf (buf, "%s",
-					GAME_STRING (NewModule + OUTFIT_STRING_BASE + 1));
-			t.pStr = buf;
-			t.CharCount = utf8StringPos (t.pStr, ' ');
-			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
-			t.baseline.y += RES_SCALE (7);
-			t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
-			t.CharCount = (COUNT)~0;
-			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
-		}
 
 		// Print the module cost.
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
@@ -515,6 +686,8 @@ DoInstallModule (MENU_STATE *pMS)
 				pMS->CurState = NewItem;
 				PreUpdateFlashRect ();
 				DrawModuleStrings (pMS, NewItem);
+				if (IS_DOS)
+					ManipulateModules (pMS, NewItem);
 				PostUpdateFlashRect ();
 			}
 		}
@@ -667,6 +840,8 @@ InitFlash:
 			}
 
 			DrawModuleStrings (pMS, new_slot_piece);
+			if (IS_DOS)
+				ManipulateModules (pMS, new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
 				// flash with PC menus too
 				SetFlashRect (SFR_MENU_ANY, FALSE);
@@ -962,6 +1137,14 @@ ExitOutfit:
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case OUTFIT_MODULES:
+
+				if (IS_DOS)
+				{
+					memset (&ModuleState, 0, sizeof ModuleState);
+					ModuleState.count = InventoryModules (ModuleState.list,
+							NUM_PURCHASE_MODULES);
+				}
+
 				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 				pMS->CurState = EMPTY_SLOT + 2;
 				if (GET_GAME_STATE (CHMMR_BOMB_STATE) != 3)

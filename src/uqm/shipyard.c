@@ -306,6 +306,34 @@ ShipCost (BYTE race_id)
 	return shipCost;
 }
 
+const char *
+ShipName (BYTE race_id)
+{
+	HFLEETINFO hStarShip =
+			GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
+	FLEET_INFO *FleetPtr;
+	RACE_DESC *RDPtr;
+	static char buf[255];
+
+	if (!hStarShip)
+		return "";
+
+	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+	RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
+
+	snprintf (&buf, sizeof (buf), "%s %s",
+			(UNICODE *)GetStringAddress (
+				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 1)),
+			(UNICODE *)GetStringAddress (
+				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 3))
+		);
+
+	free_ship (RDPtr, TRUE, TRUE);
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+	return buf;
+}
+
 static void
 DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 {
@@ -377,14 +405,28 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		s.frame = FleetPtr->melee_icon;
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2)
-				- RES_SCALE (DOS_NUM (2));
 		s.origin.x += (RADAR_WIDTH >> 1);
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
 
+		if (IS_DOS)
+		{	// Print the module name.
+			t.baseline.x = RES_SCALE (4) + RES_SCALE (1);
+			t.baseline.y = RADAR_Y + RES_SCALE (9);
+			t.align = ALIGN_LEFT;
+			t.pStr = ShipName (NewRaceItem);
+			t.CharCount = utf8StringPos (t.pStr, ' ');
+			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
+			t.baseline.y += RES_SCALE (7);
+			t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
+			t.CharCount = (COUNT)~0;
+			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
+		}
+
 		// Print the ship cost.
+		t.baseline.x = RES_SCALE (4) + RADAR_WIDTH - RES_SCALE (2);
+		t.baseline.y = RADAR_Y + RADAR_HEIGHT - RES_SCALE (2)
+				- RES_SCALE (DOS_NUM (2));
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
