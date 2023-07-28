@@ -54,17 +54,14 @@ static const POINT lander_pos[MAX_LANDERS] =
 	LANDER_DOS_PTS
 };
 
-#define DEVICE_ICON_WIDTH  RES_SCALE (16)
-#define DEVICE_ICON_HEIGHT RES_SCALE (16)
+#define MODULE_ORG_Y       RES_SCALE (33)
+#define MODULE_SPACING_Y   (RES_SCALE (16) + RES_SCALE (2))
 
-#define DEVICE_ORG_Y       RES_SCALE (33)
-#define DEVICE_SPACING_Y   (DEVICE_ICON_HEIGHT + RES_SCALE (2))
+#define MODULE_COL_0       RES_SCALE (5)
+#define MODULE_COL_1       RES_SCALE (61)
 
-#define DEVICE_COL_0       RES_SCALE (5)
-#define DEVICE_COL_1       RES_SCALE (61)
-
-#define DEVICE_SEL_ORG_X  (DEVICE_COL_0 - RES_SCALE (1))
-#define DEVICE_SEL_WIDTH  (FIELD_WIDTH - RES_SCALE (3))
+#define MODULE_SEL_ORG_X  (MODULE_COL_0 - RES_SCALE (1))
+#define MODULE_SEL_WIDTH  (FIELD_WIDTH - RES_SCALE (3))
 
 #define ICON_OFS_Y         RES_SCALE (1)
 #define NAME_OFS_Y         RES_SCALE (2)
@@ -73,7 +70,7 @@ static const POINT lander_pos[MAX_LANDERS] =
 
 #define MODULE_PRICE_COLOR BUILD_COLOR_RGBA (0x55, 0x55, 0xFF, 0xFF)
 
-#define MAX_VIS_DEVICES    ((RES_SCALE (129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y)
+#define MAX_VIS_MODULES    ((RES_SCALE (129) - MODULE_ORG_Y) / MODULE_SPACING_Y)
 
 typedef struct
 {
@@ -83,32 +80,32 @@ typedef struct
 	// Number of devices in the list
 	COUNT topIndex;
 	// Index of the top device displayed
-} DEVICES_STATE;
+} MODULES_STATE;
 
-DEVICES_STATE DeviceState;
+MODULES_STATE ModuleState;
 
 static void
-DrawDevice (COUNT device, COUNT pos, bool selected)
+DrawModuleStatus (COUNT device, COUNT pos, bool selected)
 {
 	RECT r;
 	TEXT t;
 	UNICODE buf[10];
 
 	t.align = ALIGN_LEFT;
-	t.baseline.x = DEVICE_COL_0;
+	t.baseline.x = MODULE_COL_0;
 
-	r.extent.width = DEVICE_SEL_WIDTH;
+	r.extent.width = MODULE_SEL_WIDTH;
 	r.extent.height = TEXT_SPACING_Y * 2;
-	r.corner.x = DEVICE_SEL_ORG_X;
+	r.corner.x = MODULE_SEL_ORG_X;
 
 	// draw line background
-	r.corner.y = DEVICE_ORG_Y + pos * DEVICE_SPACING_Y + NAME_OFS_Y;
+	r.corner.y = MODULE_ORG_Y + pos * MODULE_SPACING_Y + NAME_OFS_Y;
 	SetContextForeGroundColor (selected ?
 		DEVICES_SELECTED_BACK_COLOR : DEVICES_BACK_COLOR);
 	DrawFilledRectangle (&r);
 	SetContextFont (TinyFont);
 
-	// print device name
+	// print module name
 	SetContextForeGroundColor (selected ?
 		DEVICES_SELECTED_NAME_COLOR : DEVICES_NAME_COLOR);
 	t.baseline.y = r.corner.y + TEXT_BASELINE;
@@ -120,11 +117,11 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
-
+	// print module cost
 	SetContextForeGroundColor (selected ?
 		DEVICES_SELECTED_NAME_COLOR : MODULE_PRICE_COLOR);
 	t.align = ALIGN_RIGHT;
-	t.baseline.x = DEVICE_COL_1 - RES_SCALE (2);
+	t.baseline.x = MODULE_COL_1 - RES_SCALE (2);
 	t.baseline.y -= RES_SCALE (3);
 	snprintf (buf, sizeof (buf), "%u",
 			GLOBAL (ModuleCost[device]) * MODULE_COST_SCALE);
@@ -134,23 +131,15 @@ DrawDevice (COUNT device, COUNT pos, bool selected)
 }
 
 static void
-DrawModuleDisplay (void)
+DrawModuleDisplay (MODULES_STATE *modState)
 {
 	TEXT t;
 	RECT r;
 	COUNT i;
-	CONTEXT OldContext;
-	DEVICES_STATE *devState = &DeviceState;
-
-	OldContext = SetContext (StatusContext);
-
-	BatchGraphics ();
 
 	r.corner.x = RES_SCALE (2);
 	r.corner.y = RES_SCALE (20);
 	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
-	// XXX: Shouldn't the height be 1 less? This draws the bottom border
-	//   1 pixel too low. Or if not, why do we need another box anyway?
 	r.extent.height = (RES_SCALE (129) - r.corner.y);
 
 	if (!optCustomBorder && !IS_HD)
@@ -170,15 +159,44 @@ DrawModuleDisplay (void)
 	SetContextForeGroundColor (DEVICES_SELECTED_NAME_COLOR);
 	font_DrawText (&t);
 
-	// draw device icons and print names
-	for (i = 0; i < MAX_VIS_DEVICES; ++i)
+	// print names and costs
+	for (i = 0; i < MAX_VIS_MODULES; ++i)
 	{
-		COUNT devIndex = devState->topIndex + i;
+		COUNT devIndex = modState->topIndex + i;
 
-		if (devIndex >= devState->count)
+		if (devIndex >= modState->count)
 			break;
 
-		DrawDevice (devState->list[devIndex], i, false);
+		DrawModuleStatus (modState->list[devIndex], i, false);
+	}
+}
+
+static void
+DrawModules (MODULES_STATE *modState, COUNT OldDevice, COUNT NewDevice)
+{
+	CONTEXT OldContext;
+	BYTE curState = OldDevice;
+	BatchGraphics ();
+
+	OldContext = SetContext (StatusContext);
+
+	if (curState > NUM_PURCHASE_MODULES)
+	{
+		DrawModuleDisplay (modState);
+		curState = NewDevice;
+	}
+
+
+	if (curState != NewDevice)
+	{	// unselect the previous element
+		DrawModuleStatus (modState->list[curState],
+				curState - modState->topIndex, false);
+	}
+
+	if (NewDevice < NUM_PURCHASE_MODULES)
+	{	// select the new element
+		DrawModuleStatus (modState->list[NewDevice],
+				NewDevice - modState->topIndex, true);
 	}
 
 	UnbatchGraphics ();
@@ -187,34 +205,30 @@ DrawModuleDisplay (void)
 }
 
 static void
-DrawDevices (COUNT OldDevice, COUNT NewDevice)
+ManipulateModules (MENU_STATE *pMS, SIZE NewState)
 {
-	BYTE curState = OldDevice;
-	BatchGraphics ();
+	SIZE NewTop;
+	MODULES_STATE *modState = &ModuleState;
 
-	SetContext (StatusContext);
+	NewTop = modState->topIndex;
 
-	if (curState > NUM_PURCHASE_MODULES)
-	{	// Asked for the initial display or refresh
-		DrawModuleDisplay ();
+	if (NewState < 0)
+		NewState = 0;
+	else if (NewState >= modState->count)
+		NewState = modState->count - 1;
 
-		// do not draw unselected again this time
-		curState = NewDevice;
+	if (NewState < NewTop || NewState >= NewTop + MAX_VIS_MODULES)
+		NewTop = NewState - NewState % MAX_VIS_MODULES;
+
+	if (NewTop != modState->topIndex)
+	{	// redraw the display
+		modState->topIndex = NewTop;
+		DrawModules (modState, (COUNT)~0, NewState);
 	}
-
-	if (curState != NewDevice)
-	{	// unselect the previous element
-		DrawDevice (DeviceState.list[curState], curState - DeviceState.topIndex,
-			false);
+	else
+	{	// move selection to new device
+		DrawModules (modState, pMS->CurState, NewState);
 	}
-
-	if (NewDevice < NUM_PURCHASE_MODULES)
-	{	// select the new element
-		DrawDevice (DeviceState.list[NewDevice], NewDevice - DeviceState.topIndex,
-			true);
-	}
-
-	UnbatchGraphics ();
 }
 
 SIZE
@@ -226,13 +240,12 @@ InventoryModules (BYTE *pDeviceMap, COUNT Size)
 	DevicesOnBoard = 0;
 	for (i = 0; i < NUM_PURCHASE_MODULES && Size > 0; ++i)
 	{
-		BYTE ModuleState;
+		BYTE ActiveModule;
 
-		ModuleState = 0;
-		ModuleState = GLOBAL (ModuleCost[i]);
+		ActiveModule = GLOBAL (ModuleCost[i]);
 
 #ifndef DEBUG_DEVICES
-		if (ModuleState)
+		if (ActiveModule)
 #endif /* DEBUG_DEVICES */
 		{
 			*pDeviceMap++ = i;
@@ -303,22 +316,6 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
-
-		if (IS_DOS)
-		{	// Print the module name.
-			t.baseline.x = s.origin.x + RES_SCALE (1);
-			t.baseline.y = s.origin.y + RES_SCALE (7);
-			t.align = ALIGN_LEFT;
-			sprintf (buf, "%s",
-					GAME_STRING (NewModule + OUTFIT_STRING_BASE + 1));
-			t.pStr = buf;
-			t.CharCount = utf8StringPos (t.pStr, ' ');
-			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
-			t.baseline.y += RES_SCALE (7);
-			t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
-			t.CharCount = (COUNT)~0;
-			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
-		}
 
 		// Print the module cost.
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
@@ -706,9 +703,9 @@ DoInstallModule (MENU_STATE *pMS)
 				pMS->CurState = NewItem;
 				PreUpdateFlashRect ();
 				DrawModuleStrings (pMS, NewItem);
+				if (IS_DOS)
+					ManipulateModules (pMS, NewItem);
 				PostUpdateFlashRect ();
-
-				DrawDevices (pMS->CurState, NewItem);
 			}
 		}
 		else if (NewItem != pMS->delta_item || NewState != pMS->CurState)
@@ -860,6 +857,8 @@ InitFlash:
 			}
 
 			DrawModuleStrings (pMS, new_slot_piece);
+			if (IS_DOS)
+				ManipulateModules (pMS, new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
 				// flash with PC menus too
 				SetFlashRect (SFR_MENU_ANY, FALSE);
@@ -899,8 +898,6 @@ InitFlash:
 				else
 					SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 			}
-
-			DrawDevices (pMS->CurState, new_slot_piece);
 		}
 	}
 
@@ -993,10 +990,6 @@ DoOutfit (MENU_STATE *pMS)
 #if defined(ANDROID) || defined(__ANDROID__)
 		TFB_SetOnScreenKeyboard_Starmap();
 #endif
-		memset (&DeviceState, 0, sizeof DeviceState);
-
-		DeviceState.count = InventoryModules (DeviceState.list,
-				NUM_PURCHASE_MODULES);
 
 		SetNamingCallback (onNamingDone);
 
@@ -1161,6 +1154,14 @@ ExitOutfit:
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case OUTFIT_MODULES:
+
+				if (IS_DOS)
+				{
+					memset (&ModuleState, 0, sizeof ModuleState);
+					ModuleState.count = InventoryModules (ModuleState.list,
+							NUM_PURCHASE_MODULES);
+				}
+
 				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 				pMS->CurState = EMPTY_SLOT + 2;
 				if (GET_GAME_STATE (CHMMR_BOMB_STATE) != 3)
