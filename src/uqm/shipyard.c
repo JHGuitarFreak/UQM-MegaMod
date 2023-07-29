@@ -175,7 +175,8 @@ DrawShipsStatus (COUNT index, COUNT pos, bool selected)
 	t.align = ALIGN_RIGHT;
 	t.baseline.x = SHIPS_COL_1 - RES_SCALE (2);
 	t.baseline.y -= RES_SCALE (3);
-	snprintf (buf, sizeof (buf), "%u", ShipState.ShipStats[index].ShipCost);
+	snprintf (buf, sizeof (buf), "%u",
+			ShipState.ShipStats[index].ShipCost);
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -350,6 +351,11 @@ showRemainingCrew (void)
 	r.extent = MAKE_EXTENT (RES_SCALE (122), RES_SCALE (7));
 	r.corner = MAKE_POINT (RES_SCALE (2),
 			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
+
+	if (optWindowType < 2)
+	{
+		r.corner = MAKE_POINT (RES_SCALE (1), RES_SCALE (1));
+	}
 
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -937,7 +943,7 @@ DMS_FlashFlagShip (void)
 	if (optWhichMenu != OPT_PC)
 		r.extent.height = RES_SCALE (63) - SAFE_NUM (2);
 	else
-		r.extent.height = RES_SCALE (74) - DOS_NUM (9);
+		r.extent.height = RES_SCALE (74) - DOS_NUM (9) - SAFE_NEG (3);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
