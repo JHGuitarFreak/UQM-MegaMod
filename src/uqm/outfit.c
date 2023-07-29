@@ -200,10 +200,16 @@ DrawModules (MODULES_STATE *modState, COUNT NewItem)
 }
 
 static void
-ManipulateModules (MENU_STATE *pMS, SIZE NewState)
+ManipulateModules (SIZE NewState)
 {
-	MODULES_STATE *modState = &ModuleState;
-	SIZE NewTop = modState->topIndex;
+	MODULES_STATE *modState;
+	SIZE NewTop;
+
+	if (!IS_DOS)
+		return;
+
+	modState = &ModuleState;
+	NewTop = modState->topIndex;
 
 	if (NewState > NUM_PURCHASE_MODULES)
 	{
@@ -686,8 +692,7 @@ DoInstallModule (MENU_STATE *pMS)
 				pMS->CurState = NewItem;
 				PreUpdateFlashRect ();
 				DrawModuleStrings (pMS, NewItem);
-				if (IS_DOS)
-					ManipulateModules (pMS, NewItem);
+				ManipulateModules (NewItem);
 				PostUpdateFlashRect ();
 			}
 		}
@@ -840,8 +845,7 @@ InitFlash:
 			}
 
 			DrawModuleStrings (pMS, new_slot_piece);
-			if (IS_DOS)
-				ManipulateModules (pMS, new_slot_piece);
+			ManipulateModules (new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
 				// flash with PC menus too
 				SetFlashRect (SFR_MENU_ANY, FALSE);
