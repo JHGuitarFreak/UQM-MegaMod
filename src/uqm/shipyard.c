@@ -118,18 +118,23 @@ static BOOLEAN DoShipSpins;
 
 typedef struct
 {
+	UNICODE ShipName[30];
+	COUNT ShipCost;
+} SHIP_STATS;
+
+typedef struct
+{
 	BYTE list[NUM_BUILDABLE_SHIPS];
 	// List of all modules player has
 	COUNT count;
 	// Number of modules in the list
 	COUNT topIndex;
 	// Index of the top module displayed
+	SHIP_STATS ShipStats[NUM_BUILDABLE_SHIPS];
+
 } SHIPS_STATE;
 
 SHIPS_STATE ShipState;
-
-const char *ShipName (BYTE race_id);
-BOOLEAN CanBuild (BYTE race_id);
 
 static void
 DrawShipsStatus (COUNT index, COUNT pos, bool selected)
@@ -156,7 +161,7 @@ DrawShipsStatus (COUNT index, COUNT pos, bool selected)
 	SetContextForeGroundColor (selected ?
 			MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
 	t.baseline.y = r.corner.y + TEXT_BASELINE;
-	t.pStr = ShipName (index);
+	t.pStr = ShipState.ShipStats[index].ShipName;
 	t.CharCount = utf8StringPos (t.pStr, ' ');
 	font_DrawText (&t);
 	t.baseline.y += TEXT_SPACING_Y;
@@ -170,7 +175,7 @@ DrawShipsStatus (COUNT index, COUNT pos, bool selected)
 	t.align = ALIGN_RIGHT;
 	t.baseline.x = SHIPS_COL_1 - RES_SCALE (2);
 	t.baseline.y -= RES_SCALE (3);
-	snprintf (buf, sizeof (buf), "%u", ShipCost (index));
+	snprintf (buf, sizeof (buf), "%u", ShipState.ShipStats[index].ShipCost);
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -215,7 +220,7 @@ DrawShipsDisplay (SHIPS_STATE *shipState)
 		if (modIndex >= shipState->count)
 			break;
 
-		DrawShipsStatus (shipState->list[modIndex], i, false);
+		DrawShipsStatus (modIndex, i, false);
 	}
 }
 
@@ -223,12 +228,12 @@ static void
 DrawShips (SHIPS_STATE *shipState, COUNT NewItem)
 {
 	CONTEXT OldContext = SetContext (StatusContext);
+	COUNT pos = NewItem - shipState->topIndex;
 
 	BatchGraphics ();
 
 	DrawShipsDisplay (shipState);
-	DrawShipsStatus (shipState->list[NewItem],
-		NewItem - shipState->topIndex, true);
+	DrawShipsStatus (NewItem, pos, true);
 
 	UnbatchGraphics ();
 
@@ -259,8 +264,25 @@ ManipulateShips (SIZE NewState)
 	DrawShips (shipState, NewState);
 }
 
-SIZE
-InventoryShips (BYTE *pModuleMap, SIZE Size)
+static void
+GetShipStats (SHIP_STATS *ship_stats, SPECIES_ID species_id)
+{
+	RACE_DESC *RDPtr = load_ship (species_id, FALSE);
+
+	snprintf (ship_stats->ShipName, sizeof (ship_stats->ShipName), "%s %s",
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+					RDPtr->ship_info.race_strings, 2)),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+					RDPtr->ship_info.race_strings, 4))
+		);
+
+	ship_stats->ShipCost = RDPtr->ship_info.ship_cost * 100;
+
+	free_ship (RDPtr, TRUE, TRUE);
+}
+
+static void
+InventoryShips (SHIPS_STATE *ship_state, SIZE Size)
 {
 	COUNT i;
 	SIZE ShipsOnBoard;
@@ -269,15 +291,25 @@ InventoryShips (BYTE *pModuleMap, SIZE Size)
 
 	for (i = 0; i < NUM_BUILDABLE_SHIPS && Size > 0; ++i)
 	{
-		if (CanBuild (i))
+		HFLEETINFO hStarShip =
+				GetStarShipFromIndex (&GLOBAL (avail_race_q), i);
+		FLEET_INFO *FleetPtr =
+				LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+		if (FleetPtr->allied_state == GOOD_GUY || FleetPtr->can_build)
 		{
-			*pModuleMap++ = i;
+			GetShipStats (&ship_state->ShipStats[ShipsOnBoard],
+					FleetPtr->SpeciesID);
+
+			ship_state->list[ShipsOnBoard] = i;
 			++ShipsOnBoard;
 			--Size;
 		}
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 	}
 
-	return ShipsOnBoard;
+	ship_state->count = ShipsOnBoard;
 }
 
 void
@@ -485,55 +517,6 @@ ShipCost (BYTE race_id)
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 
 	return shipCost;
-}
-
-const char *
-ShipName (BYTE race_id)
-{
-	HFLEETINFO hStarShip =
-			GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
-	FLEET_INFO *FleetPtr;
-	RACE_DESC *RDPtr;
-	static char buf[255];
-
-	if (!hStarShip)
-		return "";
-
-	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-	RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
-
-	snprintf (&buf, sizeof (buf), "%s %s",
-			(UNICODE *)GetStringAddress (
-				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 2)),
-			(UNICODE *)GetStringAddress (
-				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 4))
-		);
-
-	free_ship (RDPtr, TRUE, TRUE);
-	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-
-	return buf;
-}
-
-BOOLEAN
-CanBuild (BYTE race_id)
-{
-	HFLEETINFO hStarShip =
-			GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
-	FLEET_INFO *FleetPtr;
-	BOOLEAN temp = FALSE;
-
-	if (!hStarShip)
-		return FALSE;
-
-	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-
-	if (FleetPtr->allied_state == GOOD_GUY || FleetPtr->can_build)
-		temp = TRUE;
-
-	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-
-	return temp;
 }
 
 static void
@@ -1883,8 +1866,7 @@ DoShipyard (MENU_STATE *pMS)
 		if (IS_DOS)
 		{
 			memset (&ShipState, 0, sizeof ShipState);
-			ShipState.count = InventoryShips (ShipState.list,
-					NUM_BUILDABLE_SHIPS);
+			InventoryShips (&ShipState, NUM_BUILDABLE_SHIPS);
 		}
 
 		{
