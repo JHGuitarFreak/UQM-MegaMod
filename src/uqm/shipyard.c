@@ -40,6 +40,7 @@
 #include "uqmdebug.h"
 #include "libs/graphics/drawable.h"
 #include "util.h"
+#include "shipcont.h"
 
 // 3DO 4x3 hangar layout
 #	define HANGAR_SHIPS_ROW_3DO     4
@@ -81,7 +82,6 @@ COORD hangar_x_coords[HANGAR_SHIPS_ROW_DOS];
 
 #define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
 
-
 enum
 {
 	SHIPYARD_CREW,
@@ -98,6 +98,187 @@ typedef enum {
 } DMS_Mode;
 
 static BOOLEAN DoShipSpins;
+
+
+// This is all for drawing the DOS version modules menu
+#define SHIPS_ORG_Y       RES_SCALE (33)
+#define SHIPS_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+
+#define SHIPS_COL_0       RES_SCALE (5)
+#define SHIPS_COL_1       RES_SCALE (61)
+
+#define SHIPS_SEL_ORG_X  (SHIPS_COL_0 - RES_SCALE (1))
+#define SHIPS_SEL_WIDTH  (FIELD_WIDTH - RES_SCALE (3))
+
+#define NAME_OFS_Y         RES_SCALE (2)
+#define TEXT_BASELINE      RES_SCALE (6)
+#define TEXT_SPACING_Y     RES_SCALE (7)
+
+#define MAX_VIS_MODULES  5
+
+typedef struct
+{
+	BYTE list[NUM_BUILDABLE_SHIPS];
+	// List of all modules player has
+	COUNT count;
+	// Number of modules in the list
+	COUNT topIndex;
+	// Index of the top module displayed
+} SHIPS_STATE;
+
+SHIPS_STATE ShipState;
+
+const char *ShipName (BYTE race_id);
+BOOLEAN CanBuild (BYTE race_id);
+
+static void
+DrawShipsStatus (COUNT index, COUNT pos, bool selected)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[10];
+
+	t.align = ALIGN_LEFT;
+	t.baseline.x = SHIPS_COL_0;
+
+	r.extent.width = SHIPS_SEL_WIDTH;
+	r.extent.height = TEXT_SPACING_Y * 2;
+	r.corner.x = SHIPS_SEL_ORG_X;
+
+	// draw line background
+	r.corner.y = SHIPS_ORG_Y + pos * SHIPS_SPACING_Y + NAME_OFS_Y;
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_BACK_COLOR : MODULE_BACK_COLOR);
+	DrawFilledRectangle (&r);
+	SetContextFont (TinyFont);
+
+	// print ship name
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
+	t.baseline.y = r.corner.y + TEXT_BASELINE;
+	t.pStr = ShipName (index);
+	t.CharCount = utf8StringPos (t.pStr, ' ');
+	font_DrawText (&t);
+	t.baseline.y += TEXT_SPACING_Y;
+	t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	// print ship cost
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_COLOR : MODULE_PRICE_COLOR);
+	t.align = ALIGN_RIGHT;
+	t.baseline.x = SHIPS_COL_1 - RES_SCALE (2);
+	t.baseline.y -= RES_SCALE (3);
+	snprintf (buf, sizeof (buf), "%u", ShipCost (index));
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+}
+
+static void
+DrawShipsDisplay (SHIPS_STATE *shipState)
+{
+	TEXT t;
+	RECT r;
+	COUNT i;
+
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
+
+	if (!optCustomBorder && !IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
+	}
+	else
+		DrawBorder (13);
+
+	// print the "MODULES" title
+	SetContextFont (StarConFont);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
+	t.align = ALIGN_CENTER;
+	t.pStr = GAME_STRING (OUTFIT_STRING_BASE);
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
+	font_DrawText (&t);
+
+	// print names and costs
+	for (i = 0; i < MAX_VIS_MODULES; ++i)
+	{
+		COUNT modIndex = shipState->topIndex + i;
+
+		if (modIndex >= shipState->count)
+			break;
+
+		DrawShipsStatus (shipState->list[modIndex], i, false);
+	}
+}
+
+static void
+DrawShips (SHIPS_STATE *shipState, COUNT NewItem)
+{
+	CONTEXT OldContext = SetContext (StatusContext);
+
+	BatchGraphics ();
+
+	DrawShipsDisplay (shipState);
+	DrawShipsStatus (shipState->list[NewItem],
+		NewItem - shipState->topIndex, true);
+
+	UnbatchGraphics ();
+
+	SetContext (OldContext);
+}
+
+static void
+ManipulateShips (SIZE NewState)
+{
+	SHIPS_STATE *shipState;
+	SIZE NewTop;
+
+	if (!IS_DOS)
+		return;
+
+	shipState = &ShipState;
+	NewTop = shipState->topIndex;
+
+	if (NewState > NUM_BUILDABLE_SHIPS)
+	{
+		DrawShips (&ShipState, NewState);
+		return;
+	}
+
+	if (NewState < NewTop || NewState >= NewTop + MAX_VIS_MODULES)
+		shipState->topIndex = NewState - NewState % MAX_VIS_MODULES;
+
+	DrawShips (shipState, NewState);
+}
+
+SIZE
+InventoryShips (BYTE *pModuleMap, SIZE Size)
+{
+	COUNT i;
+	SIZE ShipsOnBoard;
+
+	ShipsOnBoard = 0;
+
+	for (i = 0; i < NUM_BUILDABLE_SHIPS && Size > 0; ++i)
+	{
+		if (CanBuild (i))
+		{
+			*pModuleMap++ = i;
+			++ShipsOnBoard;
+			--Size;
+		}
+	}
+
+	return ShipsOnBoard;
+}
 
 void
 FillHangarX (void)
@@ -323,15 +504,36 @@ ShipName (BYTE race_id)
 
 	snprintf (&buf, sizeof (buf), "%s %s",
 			(UNICODE *)GetStringAddress (
-				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 1)),
+				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 2)),
 			(UNICODE *)GetStringAddress (
-				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 3))
+				SetAbsStringTableIndex (RDPtr->ship_info.race_strings, 4))
 		);
 
 	free_ship (RDPtr, TRUE, TRUE);
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 
 	return buf;
+}
+
+BOOLEAN
+CanBuild (BYTE race_id)
+{
+	HFLEETINFO hStarShip =
+			GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
+	FLEET_INFO *FleetPtr;
+	BOOLEAN temp = FALSE;
+
+	if (!hStarShip)
+		return FALSE;
+
+	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+	if (FleetPtr->allied_state == GOOD_GUY || FleetPtr->can_build)
+		temp = TRUE;
+
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+	return temp;
 }
 
 static void
@@ -378,9 +580,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (2);
 		dosRect.extent.height = RADAR_HEIGHT - RES_SCALE (2);
 
-		DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
-			PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
-			FALSE, TRANSPARENT);
+		DrawStarConBox (&dosRect, RES_SCALE (1),
+				PCMENU_TOP_LEFT_BORDER_COLOR,
+				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+				FALSE, TRANSPARENT);
 	}
 
 	if (NewRaceItem != (BYTE)~0)
@@ -390,6 +593,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		FLEET_INFO *FleetPtr;
 		UNICODE buf[30];
 		COUNT shipCost;
+
+		ManipulateShips (NewRaceItem);
 
 		hStarShip = GetAvailableRaceFromIndex (NewRaceItem);
 		NewRaceItem = GetIndexFromStarShip (&GLOBAL (avail_race_q),
@@ -409,24 +614,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
 
-		if (IS_DOS)
-		{	// Print the module name.
-			t.baseline.x = RES_SCALE (4) + RES_SCALE (1);
-			t.baseline.y = RADAR_Y + RES_SCALE (9);
-			t.align = ALIGN_LEFT;
-			t.pStr = ShipName (NewRaceItem);
-			t.CharCount = utf8StringPos (t.pStr, ' ');
-			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
-			t.baseline.y += RES_SCALE (7);
-			t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
-			t.CharCount = (COUNT)~0;
-			font_DrawTracedText (&t, WHITE_COLOR, BLACK_COLOR);
-		}
-
 		// Print the ship cost.
 		t.baseline.x = RES_SCALE (4) + RADAR_WIDTH - RES_SCALE (2);
 		t.baseline.y = RADAR_Y + RADAR_HEIGHT - RES_SCALE (2)
-				- RES_SCALE (DOS_NUM (2));
+				- RES_SCALE (DOS_NUM (2)) - SAFE_Y;
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
@@ -1294,12 +1485,24 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 				// twice to reset menu selection
 		DMS_SetMode (pMS, DMS_Mode_navigate);
+
+		if (IS_DOS)
+		{
+			DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA,
+					UNDEFINED_DELTA);
+		}
 	}
 	else if (select)
 	{
 		// Selected a ship to be inserted in an empty escort
 		// ship slot.
 		DMS_TryAddEscortShip (pMS);
+
+		if (IS_DOS)
+		{
+			DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA,
+					UNDEFINED_DELTA);
+		}
 	}
 	else if (dx || dy)
 	{
@@ -1307,6 +1510,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		// inserted in an empty escort ship slot.
 		COUNT availableCount = GetAvailableRaceCount ();
 		BYTE currentShip = LOBYTE (pMS->delta_item);
+
 		if (dx < 0 || dy < 0)
 		{
 			if (currentShip-- == 0)
@@ -1676,6 +1880,13 @@ DoShipyard (MENU_STATE *pMS)
 	if (!pMS->Initialized)
 	{
 		pMS->InputFunc = DoShipyard;
+
+		if (IS_DOS)
+		{
+			memset (&ShipState, 0, sizeof ShipState);
+			ShipState.count = InventoryShips (ShipState.list,
+					NUM_BUILDABLE_SHIPS);
+		}
 
 		{
 			STAMP s;
