@@ -1037,8 +1037,7 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 			break;
 		case DMS_Mode_addEscort:
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			if (!IS_DOS)
-				SetFlashRect (SFR_MENU_ANY, FALSE);
+			SetFlashRect (DOS_BOOL (SFR_MENU_3DO, SFR_MENU_NON), FALSE);
 			break;
 		case DMS_Mode_editCrew:
 			SetMenuSounds (MENU_SOUND_ARROWS,

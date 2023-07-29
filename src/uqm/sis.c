@@ -2123,13 +2123,15 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 	RECT temp_r;
 	COUNT i;
 	
-	if (pRect != SFR_MENU_3DO && pRect != SFR_MENU_ANY)
+	if (pRect != SFR_MENU_3DO && pRect != SFR_MENU_ANY
+			&& pRect != SFR_MENU_NON)
 	{	// The caller specified their own flash area, or NULL (stop flashing).
 		GetContextClipRect (&clip_r);
 	}
 	else
 	{
- 		if (optWhichMenu == OPT_PC && pRect != SFR_MENU_ANY)
+		if ((optWhichMenu == OPT_PC && pRect != SFR_MENU_ANY)
+				|| pRect == SFR_MENU_NON)
  		{
 			// The player wants PC menus and this flash is not used
 			// for a PC menu.
