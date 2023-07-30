@@ -27,7 +27,8 @@
 #ifdef COMM_INTERNAL
 
 #define SLIDER_Y (RES_SCALE (107))
-#define SLIDER_HEIGHT RES_SCALE (!usingSpeech && optSmoothScroll == OPT_PC ? 4 : 15)
+#define SLIDER_HEIGHT RES_SCALE (!usingSpeech && optSmoothScroll == \
+		OPT_PC ? 4 : DOS_BOOL (15, 4))
 
 #include "commanim.h"
 
