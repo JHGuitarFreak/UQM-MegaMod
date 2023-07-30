@@ -254,8 +254,8 @@ PrintCoarseScanPC (void)
 	SetContextFont (TinyFont);
 
 #define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2)
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72))
-#define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (14))
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (73))
+#define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (13))
 #define SCAN_LEADING_PC RES_SCALE (10)
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
@@ -440,7 +440,7 @@ PrintCoarseScan3DO (void)
 	GetFrameRect (s.frame, &r);
 
 	s.origin.x = t.baseline.x - (r.extent.width >> 1) - RES_SCALE (2);
-	s.origin.y = PLANET_ORG_Y - (r.extent.height >> 1) + RES_SCALE (1);
+	s.origin.y = PLANET_ORG_Y - (r.extent.height >> 1);
 	DrawStamp (&s);
 
 #define SCAN_BASELINE_Y (s.origin.y + RES_SCALE (10))
