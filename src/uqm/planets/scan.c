@@ -100,7 +100,8 @@ static void
 PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 {
 	t->baseline.x = xpos;
-	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_PC_TITLE_COLOR_6014 : SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (optWhichCoarseScan ?
+			SCAN_PC_TITLE_COLOR_6014 : SCAN_PC_TITLE_COLOR);
 
 	t->pStr = txt;
 	t->CharCount = (COUNT)~0;
@@ -245,7 +246,8 @@ PrintCoarseScanPC (void)
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (optWhichCoarseScan ?
+			SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
 	SetContextFont (MicroFont);
 	PrintScanText (&t);
 
@@ -415,6 +417,7 @@ PrintCoarseScan3DO (void)
 	STAMP s;
 	UNICODE buf[40];
 	COUNT frameIndex = 20;
+	RECT r;
 
 	if (optWhichCoarseScan == 3)
 		frameIndex = (IS_HD ? 25 : 24);
@@ -432,18 +435,21 @@ PrintCoarseScan3DO (void)
 	SetContextFont (MicroFont);
 	PrintScanText (&t);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE (27) + (RES_SCALE (15) - SAFE_NEG (1))
-#define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y (RES_SCALE (25 + 12) - SAFE_NEG (4))
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
+
+	GetFrameRect (s.frame, &r);
+
+	s.origin.x = t.baseline.x - (r.extent.width >> 1) - RES_SCALE (2);
+	s.origin.y = PLANET_ORG_Y - (r.extent.height >> 1) + RES_SCALE (1);
+	DrawStamp (&s);
+
+#define SCAN_BASELINE_Y (s.origin.y + RES_SCALE (10))
+#define LEFT_SIDE_BASELINE_X (s.origin.x + RES_SCALE (29))
+#define RIGHT_SIDE_BASELINE_X (s.origin.x + r.extent.width - RES_SCALE (25))
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_LEFT;
-
-	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
-	s.origin.x = -SAFE_NEG (1);
-	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
-	DrawStamp (&s);
 
 	t.pStr = buf;
 	val = ((pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist * 100L
@@ -503,7 +509,7 @@ PrintCoarseScan3DO (void)
 	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 
-	t.baseline.x = RIGHT_SIDE_BASELINE_X - RES_SCALE (3);
+	t.baseline.x = RIGHT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 
