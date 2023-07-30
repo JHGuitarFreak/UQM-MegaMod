@@ -186,20 +186,7 @@ Drumall (void)
 void
 Reload (void)
 {
-	STAMP s;
-	CONTEXT oldContext;	
-	
-	oldContext = SetContext (ScreenContext);
-	s.origin.x = s.origin.y = 0;
-
-	s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
-	s.frame = SetAbsFrameIndex (s.frame, 2);
-
-	DrawStamp (&s);
-	DestroyDrawable (ReleaseDrawable (s.frame));
-	SetContext (oldContext);
-	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
-
+	ShowPresentation (RELOADPRES_STRTAB);
 	//FreeKernel (); Crashes when going from HD to SD
 	memset (&addonList, 0, sizeof (addonList));
 	UninitGameStructures ();
@@ -229,7 +216,7 @@ AdvanceLoadProgress (void)
 		static COUNT i = 0;
 
 		r.corner.x = RES_SCALE (16);
-		r.corner.y = RES_SCALE (210);
+		r.corner.y = ScreenHeight - RES_SCALE (DOS_BOOL (50, 30));
 		r.extent.height = RES_SCALE (15);
 		r.extent.width = RES_SCALE ((i + 1) * 7);
 
