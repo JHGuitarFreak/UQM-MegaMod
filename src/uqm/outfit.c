@@ -275,6 +275,20 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		DrawBorder (14);
 	DrawBorder (8);
 
+	if (IS_DOS)
+	{
+		RECT dosRect;
+
+		dosRect.corner.x = RES_SCALE (2);
+		dosRect.corner.y = RADAR_Y - RES_SCALE (1);
+		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (4);
+		dosRect.extent.height = RADAR_HEIGHT + RES_SCALE (2);
+
+		DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
+			PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+			FALSE, TRANSPARENT);
+	}
+
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
@@ -287,20 +301,6 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	{
 		TEXT t;
 		UNICODE buf[40];
-
-		if (IS_DOS)
-		{
-			RECT dosRect;
-
-			dosRect.corner.x = RES_SCALE (2);
-			dosRect.corner.y = RADAR_Y - RES_SCALE (1);
-			dosRect.extent.width = RADAR_WIDTH + RES_SCALE (4);
-			dosRect.extent.height = RADAR_HEIGHT + RES_SCALE (2);
-
-			DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
-					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
-					FALSE, TRANSPARENT);
-		}
 
 		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
@@ -326,7 +326,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		else
 			SetContextForeGroundColor (BRIGHT_RED_COLOR);
 
-		font_DrawText (&t);
+		if (!IS_DOS)
+			font_DrawText (&t);
 	}
 	UnbatchGraphics ();
 	SetContext (OldContext);
@@ -848,7 +849,7 @@ InitFlash:
 			ManipulateModules (new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
 				// flash with PC menus too
-				SetFlashRect (SFR_MENU_ANY, FALSE);
+				SetFlashRect (DOS_BOOL (SFR_MENU_ANY, SFR_MENU_NON), FALSE);
 			else
 			{
 				if (optWhichMenu == OPT_PC)
