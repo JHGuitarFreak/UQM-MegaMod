@@ -208,7 +208,7 @@ DrawShipsDisplay (SHIPS_STATE *shipState)
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
-	t.pStr = GAME_STRING (OUTFIT_STRING_BASE);
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 8);
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
 	font_DrawText (&t);

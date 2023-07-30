@@ -109,7 +109,7 @@ DrawModuleStatus (COUNT index, COUNT pos, bool selected)
 		SetContextForeGroundColor (selected ?
 				MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
 		t.baseline.y = r.corner.y + TEXT_BASELINE;
-		t.pStr = GAME_STRING (index + OUTFIT_STRING_BASE + 1);
+		t.pStr = GAME_STRING (index + STARBASE_STRING_BASE + 10);
 		t.CharCount = utf8StringPos (t.pStr, ' ');
 		font_DrawText (&t);
 		t.baseline.y += TEXT_SPACING_Y;
@@ -166,7 +166,7 @@ DrawModuleDisplay (MODULES_STATE *modState)
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
-	t.pStr = GAME_STRING (OUTFIT_STRING_BASE);
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 9);
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
 	font_DrawText (&t);
