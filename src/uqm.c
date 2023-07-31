@@ -176,6 +176,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  landerHold);
 	DECL_CONFIG_OPTION(int,  scrTrans);
 	DECL_CONFIG_OPTION(int,  optDifficulty);
+	DECL_CONFIG_OPTION(int,  optDiffChooser);
 	DECL_CONFIG_OPTION(int,  optFuelRange);
 	DECL_CONFIG_OPTION(bool, extended);
 	DECL_CONFIG_OPTION(bool, nomad);
@@ -386,7 +387,8 @@ main (int argc, char *argv[])
 #endif
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  scrTrans,          OPT_3DO ),
-		INIT_CONFIG_OPTION(  optDifficulty,     3 ),
+		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
+		INIT_CONFIG_OPTION(  optDiffChooser,    3 ),
 		INIT_CONFIG_OPTION(  optFuelRange,      0 ),
 		INIT_CONFIG_OPTION(  extended,          false ),
 		INIT_CONFIG_OPTION(  nomad,             false ),
@@ -612,6 +614,7 @@ main (int argc, char *argv[])
 	optLanderHold = options.landerHold.value;
 	optScrTrans = options.scrTrans.value;
 	optDifficulty = options.optDifficulty.value;
+	optDiffChooser = options.optDiffChooser.value;
 	optFuelRange = options.optFuelRange.value;
 	optExtended = options.extended.value;
 	optNomad = options.nomad.value;
@@ -933,15 +936,11 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->subtitles, "config.subtitles");
 	
 	getBoolConfigValueXlat (&options->whichMenu, "config.textmenu",
-			OPT_PC, OPT_3DO);
+			OPT_3DO, OPT_PC);
 	getBoolConfigValueXlat (&options->whichFonts, "config.textgradients",
-			OPT_PC, OPT_3DO);
-	if (res_IsInteger ("config.iconicscan")
-			&& !options->whichCoarseScan.set)
-	{
-		options->whichCoarseScan.value =
-				res_GetInteger ("config.iconicscan");
-	}
+			OPT_3DO, OPT_PC);
+	if (res_IsInteger ("config.iconicscan") && !options->whichCoarseScan.set)
+		options->whichCoarseScan.value = res_GetInteger ("config.iconicscan");
 	getBoolConfigValueXlat (&options->smoothScroll, "config.smoothscroll",
 			OPT_3DO, OPT_PC);
 	getBoolConfigValueXlat (&options->whichShield, "config.pulseshield",
@@ -1026,6 +1025,8 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("mm.customSeed") && !options->customSeed.set)
 	{
 		options->customSeed.value = res_GetInteger ("mm.customSeed");
+		if (!SANE_SEED (options->customSeed.value))
+			options->customSeed.value = PrimeA;
 	}
 	getBoolConfigValue (&options->spaceMusic, "mm.spaceMusic");
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
@@ -1043,6 +1044,9 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set)
 	{
 		options->optDifficulty.value = res_GetInteger ("mm.difficulty");
+		options->optDiffChooser.value = options->optDifficulty.value;
+		if (options->optDifficulty.value > 2)
+			options->optDifficulty.value = 0;
 	}
 	if (res_IsInteger ("mm.fuelRange") && !options->optFuelRange.set)
 	{
@@ -1805,9 +1809,10 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					saveError ("\nDifficulty has to be 0, 1, 2, or 3.\n");
 					badArg = true;
 				}
-				else
-				{
-					options->optDifficulty.value = temp;
+				else {
+					options->optDiffChooser.value = options->optDifficulty.value = temp;
+					if (temp > 2)
+						options->optDifficulty.value = 0;
 					options->optDifficulty.set = true;
 				}
 				break;

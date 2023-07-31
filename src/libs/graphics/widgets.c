@@ -1036,11 +1036,15 @@ Widget_HandleEventSlider (WIDGET *_self, int event)
 		self->value -= self->step;
 		if (self->value < self->min)
 			self->value = self->min;
+		if (self->onChange)
+			(*(self->onChange))(self);
 		return TRUE;
 	case WIDGET_EVENT_RIGHT:
 		self->value += self->step;
 		if (self->value > self->max)
 			self->value = self->max;
+		if (self->onChange)
+			(*(self->onChange))(self);
 		return TRUE;
 	default:
 		return FALSE;

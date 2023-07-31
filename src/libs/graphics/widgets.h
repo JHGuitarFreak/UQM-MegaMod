@@ -129,6 +129,7 @@ typedef struct _widget_slider {
 	int value;
 	const char *category;
 	const char *tooltip[3];
+	void (*onChange)(struct _widget_slider *self);
 } WIDGET_SLIDER;
 
 typedef enum {

@@ -101,3 +101,11 @@ PlaySoundEffect (SOUND S, COUNT Channel, SoundPosition Pos,
 	}
 }
 
+void
+PlaySpeechEffect (SOUND S, SoundPosition Pos, void *PositionalObject, BYTE Priority)
+{
+	if (!(GLOBAL(glob_flags) & SOUND_DISABLED))
+	{
+		PlayChannel (6, S, Pos, PositionalObject, Priority);
+	}
+}

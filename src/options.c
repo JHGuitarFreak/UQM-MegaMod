@@ -94,6 +94,7 @@ BOOLEAN optDirectionalJoystick;
 int optLanderHold;
 int optScrTrans;
 int optDifficulty;
+int optDiffChooser;
 int optFuelRange;
 BOOLEAN optExtended;
 BOOLEAN optNomad;

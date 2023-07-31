@@ -52,7 +52,7 @@ static TFB_ScaleFunc scaler = NULL;
 #endif
 
 static void TFB_SDL2_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
-static void TFB_SDL2_Postprocess (void);
+static void TFB_SDL2_Postprocess (bool hd);
 static void TFB_SDL2_UploadTransitionScreen (void);
 static void TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
@@ -371,16 +371,20 @@ TFB_SDL2_UpdateTexture (SDL_Texture *dest, SDL_Surface *src, SDL_Rect *rect)
 }
 
 static void
-TFB_SDL2_ScanLines (void)
+TFB_SDL2_ScanLines (bool hd)
 {
 	int y;
 	SDL_SetRenderDrawColor (renderer, 0, 0, 0, 64);
 	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
 	SDL_RenderSetLogicalSize (renderer, ScreenWidth * 2, ScreenHeight * 2);
+	if (hd)
+		SDL_RenderSetScale (renderer, 1, 2);
 	for (y = 0; y < ScreenHeight * 2; y += 2)
 	{
 		SDL_RenderDrawLine (renderer, 0, y, ScreenWidth * 2 - 1, y);
 	}
+	if (hd)
+		SDL_RenderSetScale(renderer, 1, 1);
 	SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
 }
 
@@ -521,10 +525,10 @@ TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 }
 
 static void
-TFB_SDL2_Postprocess (void)
+TFB_SDL2_Postprocess (bool hd)
 {
 	if (GfxFlags & TFB_GFXFLAGS_SCANLINES)
-		TFB_SDL2_ScanLines ();
+		TFB_SDL2_ScanLines (hd);
 
 	SDL_RenderPresent (renderer);
 }

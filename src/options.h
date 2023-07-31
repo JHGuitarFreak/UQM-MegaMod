@@ -81,6 +81,7 @@ extern BOOLEAN optDirectionalJoystick;
 extern int optLanderHold;
 extern int optScrTrans;
 extern int optDifficulty;
+extern int optDiffChooser;
 extern int optFuelRange;
 extern BOOLEAN optExtended;
 extern BOOLEAN optNomad;

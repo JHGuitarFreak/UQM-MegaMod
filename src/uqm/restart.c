@@ -291,9 +291,6 @@ DoDiffChooser (MENU_STATE *pMS)
 	{
 		optDifficulty = (!a ? OPTVAL_EASY :
 				(a > 1 ? OPTVAL_HARD : OPTVAL_NORMAL));
-
-		res_PutInteger ("mm.difficulty", OPTVAL_IMPO);
-		SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	}
 
 	DestroyDrawable (ReleaseDrawable (s.frame));
@@ -468,8 +465,7 @@ DoRestart (MENU_STATE *pMS)
 					break;
 				}
 
-				if (optDifficulty == OPTVAL_IMPO
-					|| res_GetInteger("mm.difficulty") == OPTVAL_IMPO)
+				if (optDiffChooser == OPTVAL_IMPO)
 				{
 					Flash_pause (pMS->flashContext);
 					Flash_setState (pMS->flashContext, FlashState_fadeIn,
