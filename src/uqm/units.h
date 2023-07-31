@@ -44,22 +44,38 @@ extern int ScreenHeight;
 
 #define IS_DOS ((optWindowType == 0) ? TRUE : FALSE)
 #define DOS_BOOL(a,b) (IS_DOS ? (b) : (a))
+		// Returns the 2nd input in DOS mode, the 1st input otherwise
+#define DOS_BOOL_SCL(a,b) (RES_SCALE (IS_DOS ? (b) : (a)))
+		// Same as DOS_BOOL but scaled to HD
 #define DOS_NUM(a) (DOS_BOOL (0, (a)))
-#define DOS_NUM_SCL(a) (RES_SCALE (DOS_BOOL (0, (a))))
+		// Returns the input number if 3DO mode is active
+#define DOS_NUM_SCL(a) (RES_SCALE (DOS_NUM ((a))))
+		// Same as DOS_NUM but scales it to HD
 
 #define IS_PAD ((optWindowType == 1) ? TRUE : FALSE)
 #define SAFE_BOOL(a,b) (IS_PAD ? (b) : (a))
+		// Returns the 2nd input in 3DO mode, the 1st input otherwise
+#define SAFE_BOOL_SCL(a,b) (RES_SCALE (SAFE_BOOL ((a),(b))))
+		// Same as SAFE_BOOL but scaled to HD
 #define SAFE_NUM(a) (SAFE_BOOL (0, (a)))
-#define SAFE_NUM_SCL(a) (RES_SCALE (SAFE_BOOL (0, (a))))
+		// Returns the input number if 3DO mode is active
+#define SAFE_NUM_SCL(a) (RES_SCALE (SAFE_NUM ((a))))
+		// Same as SAFE_NUM but scaled it to HD
+#define NSAFE_NUM(a) (SAFE_BOOL ((a), 0))
+		// Returns the input number if 3DO mode is active
+#define NSAFE_NUM_SCL(a) (RES_SCALE (NSAFE_NUM ((a))))
+		// Same as SAFE_NUM but scaled it to HD
 
-		/* Margins. */
-#define SAFE_X (IS_PAD ? RES_SCALE (16) : 0)
-		/* Left and right screen margin to be left unused */
+		// Margins
+#define SAFE_X (SAFE_NUM_SCL (16))
+		// Left and right screen margin used for 3DO mode
 #define SAFE_Y SAFE_X
-		/* Top and bottom screen margin to be left unused */
+		// Top and bottom screen margin used for 3DO mode
 
-#define SAFE_NEG(a) (IS_PAD ? SAFE_X - RES_SCALE(a) : 0)
-#define SAFE_POS(a) (IS_PAD ? SAFE_X + RES_SCALE((a)) : 0)
+#define SAFE_NEG(a) (SAFE_NUM (SAFE_X - RES_SCALE((a))))
+		// Returns SAFE_X minus the input number, scaled to HD
+#define SAFE_POS(a) (SAFE_NUM (SAFE_X + RES_SCALE((a))))
+		// Returns SAFE_X plus the input number, scaled to HD
 
 #define SIS_ORG_X (RES_SCALE (6) + SAFE_POS (1))
 #define SIS_ORG_Y (RES_SCALE (9) + SAFE_POS (1))

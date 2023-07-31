@@ -1767,7 +1767,7 @@ DrawBluePrint (MENU_STATE *pMS)
 
 	ModuleFrame = CaptureDrawable (LoadGraphic (SISBLU_MASK_ANIM));
 
-	s.origin.x = SAFE_X_OUT;
+	s.origin.x = -SAFE_PAD;
 	s.origin.y = 0;
 	s.frame = DecFrameIndex (ModuleFrame);
 	SetContextForeGroundColor (BLUEPRINT_COLOR);

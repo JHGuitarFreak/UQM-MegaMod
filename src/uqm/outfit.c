@@ -346,7 +346,7 @@ RedistributeFuel (void)
 	SetContext (OldContext);
 }
 
-#define LANDER_X (RES_SCALE (24) + SAFE_X_OUT)
+#define LANDER_X (RES_SCALE (24) - SAFE_PAD)
 #define LANDER_Y RES_SCALE (67)
 #define LANDER_WIDTH RES_SCALE (15)
 
@@ -848,8 +848,9 @@ InitFlash:
 			DrawModuleStrings (pMS, new_slot_piece);
 			ManipulateModules (new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
-				// flash with PC menus too
+			{	// flash with PC menus too
 				SetFlashRect (DOS_BOOL (SFR_MENU_ANY, SFR_MENU_NON), FALSE);
+			}
 			else
 			{
 				if (optWhichMenu == OPT_PC)

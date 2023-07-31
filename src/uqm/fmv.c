@@ -216,7 +216,7 @@ AdvanceLoadProgress (void)
 		static COUNT i = 0;
 
 		r.corner.x = RES_SCALE (16);
-		r.corner.y = ScreenHeight - RES_SCALE (DOS_BOOL (50, 30));
+		r.corner.y = ScreenHeight - DOS_BOOL_SCL (50, 30);
 		r.extent.height = RES_SCALE (15);
 		r.extent.width = RES_SCALE ((i + 1) * 7);
 

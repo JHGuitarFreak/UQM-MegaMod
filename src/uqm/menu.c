@@ -96,9 +96,9 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	// Gray rectangle behind PC menu
 	rt = *r;
 	rt.corner.x -= RES_SCALE (1);
-	rt.corner.y += PC_MENU_HEIGHT - RES_SCALE (DOS_BOOL (12, 3));
+	rt.corner.y += PC_MENU_HEIGHT - DOS_BOOL_SCL (12, 3);
 	rt.extent.width += RES_SCALE (2);
-	rt.extent.height += DOS_BOOL (2, -6);
+	rt.extent.height += DOS_BOOL_SCL (2, -6);
 	if (!optCustomBorder && !classicPackPresent)
 		DrawFilledRectangle (&rt);
 
