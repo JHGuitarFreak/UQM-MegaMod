@@ -532,10 +532,13 @@ static void
 change_seed(WIDGET_TEXTENTRY *self)
 {
 	int NewSeed = atoi(self->value);
-	if (!SANE_SEED(NewSeed))
+	if (!SANE_SEED (NewSeed))
+	{
+		snprintf (self->value, sizeof (self->value), "%d", PrimeA);
 		optCustomSeed = PrimeA;
+	}
 	else
-		optCustomSeed = atoi(self->value);
+		optCustomSeed = atoi (self->value);
 }
 
 #define NUM_STEPS 20
