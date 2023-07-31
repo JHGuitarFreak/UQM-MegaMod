@@ -177,7 +177,7 @@ typedef struct textentry_state
 
 extern BOOLEAN DoTextEntry (TEXTENTRY_STATE *pTES);
 
-extern void TestSpeechSound (void);
+extern void TestSpeechSound (STRING snd);
 
 #if defined(__cplusplus)
 }

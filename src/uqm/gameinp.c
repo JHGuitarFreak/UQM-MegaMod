@@ -558,9 +558,9 @@ ConfirmExit (void)
 }
 
 void
-TestSpeechSound (void)
+TestSpeechSound (STRING snd)
 {
-	PlaySpeechEffect (SetAbsSoundIndex (MenuSounds, MENU_SOUND_HAYES), NotPositional (), NULL, 0);
+	PlaySpeechEffect ((SOUND)snd, NotPositional (), NULL, 0);
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)
