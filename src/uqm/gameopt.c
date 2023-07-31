@@ -1162,7 +1162,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	// Erase the selection menu
 	r.corner.x = RES_SCALE (1);
 	r.corner.y = RES_SCALE (160);
-	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE (2) + SAFE_NUM (1);
+	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE (2) + SAFE_NUM_SCL (1);
 	r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y
 			- SAFE_BOOL (RES_SCALE (1), 0);
 	SetContextForeGroundColor (BLACK_COLOR);

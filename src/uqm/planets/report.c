@@ -126,7 +126,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 			+ (isPC (optSuperPC) ? RES_SCALE (1) : 0);
 	}
 
-	startx += RES_SCALE (SAFE_NUM (1));
+	startx += SAFE_NUM_SCL (1);
 
 	if (StrLen)
 	{

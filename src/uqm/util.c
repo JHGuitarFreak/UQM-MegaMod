@@ -210,10 +210,10 @@ DrawRadarBorder (void)
 		return;
 	}
 
-	r.corner.x = RES_SCALE (4) - RES_SCALE (DOS_NUM (1));
-	r.corner.y = RADAR_Y - RES_SCALE (DOS_NUM (1));
-	r.extent.width = RADAR_WIDTH + DOS_NUM (2);
-	r.extent.height = RADAR_HEIGHT + DOS_NUM (2);
+	r.corner.x = RES_SCALE (4) - DOS_NUM_SCL (1);
+	r.corner.y = RADAR_Y - DOS_NUM_SCL (1);
+	r.extent.width = RADAR_WIDTH + DOS_NUM_SCL (2);
+	r.extent.height = RADAR_HEIGHT + DOS_NUM_SCL (2);
 
 	DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
 		ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, FALSE,

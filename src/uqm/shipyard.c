@@ -606,7 +606,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		// Print the ship cost.
 		t.baseline.x = RES_SCALE (4) + RADAR_WIDTH - RES_SCALE (2);
 		t.baseline.y = RADAR_Y + RADAR_HEIGHT - RES_SCALE (2)
-				- RES_SCALE (DOS_NUM (2)) - SAFE_Y;
+				- DOS_NUM_SCL (2) - SAFE_Y;
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
@@ -941,9 +941,9 @@ DMS_FlashFlagShip (void)
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
 	if (optWhichMenu != OPT_PC)
-		r.extent.height = RES_SCALE (63) - SAFE_NUM (2);
+		r.extent.height = RES_SCALE (63) - SAFE_NUM_SCL (2);
 	else
-		r.extent.height = RES_SCALE (74) - DOS_NUM (9) - SAFE_NEG (3);
+		r.extent.height = RES_SCALE (74) - DOS_NUM_SCL (9) - SAFE_NEG (3);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 

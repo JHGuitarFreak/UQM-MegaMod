@@ -45,10 +45,12 @@ extern int ScreenHeight;
 #define IS_DOS ((optWindowType == 0) ? TRUE : FALSE)
 #define DOS_BOOL(a,b) (IS_DOS ? (b) : (a))
 #define DOS_NUM(a) (DOS_BOOL (0, (a)))
+#define DOS_NUM_SCL(a) (RES_SCALE (DOS_BOOL (0, (a))))
 
 #define IS_PAD ((optWindowType == 1) ? TRUE : FALSE)
 #define SAFE_BOOL(a,b) (IS_PAD ? (b) : (a))
 #define SAFE_NUM(a) (SAFE_BOOL (0, (a)))
+#define SAFE_NUM_SCL(a) (RES_SCALE (SAFE_BOOL (0, (a))))
 
 		/* Margins. */
 #define SAFE_X (IS_PAD ? RES_SCALE (16) : 0)
