@@ -70,7 +70,6 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	SetContext (OldContext);
 
 	GetContextClipRect (&old_r);
-	printRect (old_r, "old_r");
 	SetContextClipRect (NULL);
 	DrawFromExtraScreen (NULL);
 	SetContextClipRect (&old_r);

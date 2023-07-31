@@ -649,10 +649,19 @@ main (int argc, char *argv[])
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
+	if (resolutionFactor && !isAddonAvailable (HD_MODE))
+	{
+		resolutionFactor = 0;
+		options.resolutionFactor.value = 0;
+		options.resolutionFactor.set = true;
+		options.resolution.width = 320 * (loresBlowupScale + 1);
+		options.resolution.height = 240 * (loresBlowupScale + 1);
+	}
+
 	switch (optWindowType)
 	{
 		case 0:
-			if (!isAddonAvailable (DOS_WIND))
+			if (!isAddonAvailable (DOS_MODE (resolutionFactor)))
 			{
 				optWindowType = 2;
 				options.windowType.value = 2;
@@ -662,9 +671,10 @@ main (int argc, char *argv[])
 			}
 			break;
 		case 1:
-			if (!isAddonAvailable (PAD_3DO))
+			if (!isAddonAvailable (THREEDO_MODE (resolutionFactor)))
 			{
-				optWindowType = options.windowType.value = 2;
+				optWindowType = 2;
+				options.windowType.value = 2;
 				options.windowType.set = true;
 			}
 			break;

@@ -140,11 +140,6 @@ LoadKernel (int argc, char *argv[])
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
 		//solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
-
-		if (IS_PAD && isAddonAvailable (PAD_3DO))
-			loadAddon (PAD_3DO);
-		if (IS_DOS && isAddonAvailable (DOS_WIND))
-			loadAddon (DOS_WIND);
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
@@ -154,6 +149,11 @@ LoadKernel (int argc, char *argv[])
 		loadAddon ("yellow-fried-hd");
 		//classicPackPresent = loadAddon ("classic-pack");
 	}
+
+	if (IS_PAD && isAddonAvailable (THREEDO_MODE (IS_HD)))
+		loadAddon (THREEDO_MODE (IS_HD));
+	if (IS_DOS && isAddonAvailable (DOS_MODE (IS_HD)))
+		loadAddon (DOS_MODE (IS_HD));
 
 	usingSpeech = optSpeech;
 	if (optSpeech && !loadAddon ("3dovoice"))

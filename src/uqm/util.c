@@ -28,6 +28,7 @@
 #include "hyper.h"
 #include "colors.h"
 #include "sis.h"
+#include "menustat.h"
 
 void
 DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,

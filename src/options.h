@@ -139,10 +139,19 @@ extern char *addonDirPath;
 extern const char **optAddons;
 
 // addon availability
-extern DWORD addonList[PATH_MAX];
+typedef struct
+{
+	DWORD name_hash[PATH_MAX];
+	DWORD amount;
+} ADDON_COUNT;
 
-#define DOS_WIND "DOSwind"
-#define PAD_3DO "3dopadding"
+extern ADDON_COUNT addonList;
+
+// addon names to check against
+#define HD_MODE      ("mm-hd")
+
+#define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
+#define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */

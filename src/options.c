@@ -148,7 +148,7 @@ char *addonDirPath;
 char baseContentPath[PATH_MAX];
 
 // addon availability
-DWORD addonList[PATH_MAX];
+ADDON_COUNT addonList;
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;
@@ -546,6 +546,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		log_add (log_Info, "%d available addon pack%s.", count,
 				count == 1 ? "" : "s");
 
+		addonList.amount = count;
+
 		count = 0;
 		for (i = 0; i < availableAddons->numNames; ++i)
 		{
@@ -559,7 +561,7 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
 
-			addonList[i] = crc32b (addon);
+			addonList.name_hash[i] = crc32b (addon);
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
@@ -592,12 +594,9 @@ isAddonAvailable (const char *addon_name)
 	if (!name_hash)
 		return FALSE;
 
-	for (i = 0; i < PATH_MAX; i++)
+	for (i = 0; i < addonList.amount; i++)
 	{
-		if (!addonList[i])
-			break;
-
-		if (addonList[i] == name_hash)
+		if (addonList.name_hash[i] == name_hash)
 			return TRUE;
 	}
 

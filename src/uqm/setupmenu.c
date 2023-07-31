@@ -597,29 +597,99 @@ change_template (WIDGET_CHOICE *self, int oldval)
 static void
 addon_unavailable (WIDGET_CHOICE *self, int oldval)
 {
-	self->selected = OPTVAL_UQM_WINDOW;
-	oldval = OPTVAL_UQM_WINDOW;
+	self->selected = oldval;
 	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 36));
 	Widget_SetFont (PlyrFont);
 }
 
 static void
-check_availability (WIDGET_CHOICE *self, int oldval)
+check_for_hd (WIDGET_CHOICE *self, int oldval)
+{
+	if (self->selected != OPTVAL_REAL_1280_960)
+		return;
+
+	if (!isAddonAvailable (HD_MODE))
+	{
+		oldval = OPTVAL_320_240;
+		addon_unavailable (self, OPTVAL_320_240);
+	}
+
+	switch (choices[81].selected)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (DOS_MODE (HD)))
+			{
+				optWindowType = OPTVAL_UQM_WINDOW;
+				choices[81].selected = OPTVAL_UQM_WINDOW;
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (THREEDO_MODE (HD)))
+			{
+				optWindowType = OPTVAL_UQM_WINDOW;
+				choices[81].selected = OPTVAL_UQM_WINDOW;
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+static void
+check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 {
 	switch (self->selected)
 	{
 		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (DOS_WIND))
+			if (!isAddonAvailable (DOS_MODE (IS_HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, oldval);
+			}
 			break;
 		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (PAD_3DO))
-				addon_unavailable (self, oldval);
+			if (!isAddonAvailable (THREEDO_MODE (IS_HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
+				addon_unavailable (self, OPTVAL_UQM_WINDOW);
+			}
 			break;
-		case OPTVAL_UQM_WINDOW:
 		default:
 			break;
 	}
+
+	if (!choices[0].selected)
+		return;
+
+	switch (self->selected)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (DOS_MODE (HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
+				addon_unavailable (self, oldval);
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (THREEDO_MODE (HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
+				addon_unavailable (self, OPTVAL_UQM_WINDOW);
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+static void
+check_availability (WIDGET_CHOICE *self, int oldval)
+{
+	if (self->choice_num == 0)
+		check_for_hd (self, oldval);
+
+	if (self->choice_num == 81)
+		check_dos_3do_modes (self, oldval);
 }
 
 static void
@@ -1289,6 +1359,7 @@ init_widgets (void)
 		optcount = SplitString (str, '\n', 100, buffer, bank);
 		choices[i].numopts = optcount;
 		choices[i].options = HMalloc (optcount * sizeof (CHOICE_OPTION));
+		choices[i].choice_num = i;
 		for (j = 0; j < optcount; j++)
 		{
 			choices[i].options[j].optname = buffer[j];
@@ -1329,7 +1400,8 @@ init_widgets (void)
 	/* Choice 20 has a special onChange handler, too. */
 	choices[20].onChange = change_template;
 
-	/* Check  the availability of the Window Type option's addon */
+	/* Check the availability of HD mode and the DOS/3DO mode addons */
+	choices[0].onChange = check_availability;
 	choices[81].onChange = check_availability;
 
 	/* Sliders */
@@ -1735,17 +1807,20 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	switch (opts->windowType)
 	{
 		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (DOS_WIND))
+			if (!isAddonAvailable (DOS_MODE (IS_HD)))
+			{
 				opts->windowType = 2;
+			}
 			break;
 		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (PAD_3DO))
+			if (!isAddonAvailable (THREEDO_MODE (IS_HD)))
+			{
 				opts->windowType = 2;
+			}
 			break;
 		default:
 			break;
 	}
-
 
 /*
  *		Audio options
@@ -1878,7 +1953,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->deCleansing = optDeCleansing;
 	opts->meleeObstacles = optMeleeObstacles;
 
-	testSounds = CaptureSound (LoadSound (TEST_SOUNDS));
+	testSounds = CaptureSound (LoadSound (TEST_SOUNDS)); 
 }
 
 void
@@ -1895,7 +1970,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 /*
  *		Graphics options
  */
-	PutIntegerOption (&optWindowType, &opts->windowType, "mm.windowType", &optRequiresReload);
 
 	newFactor = (int)(opts->screenResolution << 1);
 	PutIntegerOption ((int*)(&resolutionFactor), &newFactor, "config.resolutionfactor", &optRequiresReload);
@@ -1930,7 +2004,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		res_PutBoolean ("config.fullscreen", opts->fullscreen);
 		res_PutBoolean ("config.showfps", opts->fps);
 		res_PutBoolean ("config.scanlines", opts->scanlines);
-		res_PutString ("config.scaler", scalerList[opts->scaler].str);		
+		res_PutString  ("config.scaler", scalerList[opts->scaler].str);
 	}
 
 	PutBooleanOption (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", NULL);
@@ -1943,15 +2017,19 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		res_PutInteger ("config.gamma", (int) (optGamma * GAMMA_SCALE + 0.5));
 	}
 
+	// This has to be put here to initialize DOS_BOOL
+	PutIntegerOption ((int *)&optWindowType, (int *)&opts->windowType,
+			"mm.windowType", &optRequiresReload);
+
 	if (!opts->loresBlowup)
 	{// No blowup
 		NewWidth = RES_SCALE (320);
-		NewHeight = RES_SCALE (240);
+		NewHeight = RES_SCALE (DOS_BOOL (240, 200));
 	}
 	else
 	{
 		NewWidth = 320 * (1 + opts->loresBlowup);
-		NewHeight = 240 * (1 + opts->loresBlowup);
+		NewHeight = DOS_BOOL (240, 200) * (1 + opts->loresBlowup);
 	}
 
 	PutIntegerOption ((int*)(&loresBlowupScale), (int*)(&opts->loresBlowup), "config.loresBlowupScale", NULL);
