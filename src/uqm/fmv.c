@@ -39,6 +39,10 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 {
 	char vnbuf[24]; // From 32 to 24
 	RECT old_r;
+	CONTEXT OldContext;
+
+	OldContext = SetContext (ScreenContext);
+
 
 	LoadIntoExtraScreen (NULL);
 #if 0
@@ -63,7 +67,10 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
 	FlushColorXForms ();
 
+	SetContext (OldContext);
+
 	GetContextClipRect (&old_r);
+	printRect (old_r, "old_r");
 	SetContextClipRect (NULL);
 	DrawFromExtraScreen (NULL);
 	SetContextClipRect (&old_r);
