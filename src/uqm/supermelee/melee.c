@@ -2452,6 +2452,7 @@ Melee_Change_ship (MELEE_STATE *pMS, COUNT side, FleetShipIndex index,
 	if (!MeleeSetup_setShip (pMS->meleeSetup, side, index, ship))
 	{
 		// No change.
+		Melee_UpdateView_ship (pMS, side, index);
 		return false;
 	}
 

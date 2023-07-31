@@ -384,7 +384,7 @@ TFB_SDL2_ScanLines (bool hd)
 		SDL_RenderDrawLine (renderer, 0, y, ScreenWidth * 2 - 1, y);
 	}
 	if (hd)
-		SDL_RenderSetScale(renderer, 1, 1);
+		SDL_RenderSetScale (renderer, 1, 1);
 	SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
 }
 
