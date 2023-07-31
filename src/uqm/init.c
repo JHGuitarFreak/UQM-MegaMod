@@ -121,7 +121,7 @@ InitSpace (void)
 {
 	if ((space_ini_cnt++ == 0
 			&& LOBYTE (GLOBAL (CurrentActivity)) <= IN_ENCOUNTER)
-			|| optRequiresRestart)
+			|| optRequiresReload)
 	{
 		stars_in_space = CaptureDrawable (
 				LoadGraphic (STAR_MASK_PMAP_ANIM));

@@ -85,7 +85,7 @@ ResetOffset (void)
 void
 LoadArrows (void)
 {	
-	if (arrow_frame == NULL || optRequiresRestart)
+	if (arrow_frame == NULL || optRequiresReload)
 	{
 		// Load the different arrows depending on the resolution factor.
 		arrow_frame = CaptureDrawable (LoadGraphic (MENUARR_PMAP_ANIM));

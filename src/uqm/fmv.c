@@ -222,7 +222,7 @@ Reload (void)
 void
 AdvanceLoadProgress (void)
 {
-	if (optRequiresReload || optRequiresRestart)
+	if (optRequiresReload)
 	{
 		RECT r;
 		static COUNT i = 0;
