@@ -1273,7 +1273,7 @@ init_widgets (void)
 		bank = StringBank_Create ();
 	}
 	
-	if (setup_frame == NULL || optRequiresRestart)
+	if (setup_frame == NULL || optRequiresReload)
 	{
 		// JMS: Load the different menus depending on the resolution factor.
 		setup_frame = CaptureDrawable (LoadGraphic (MENUBKG_PMAP_ANIM));
@@ -2277,15 +2277,14 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		(NewHeight != ScreenHeightActual) ||
 		(NewDriver != GraphicsDriver) ||
 		(NewGfxFlags != GfxFlags) ||
-		optRequiresReload ||
-		optRequiresRestart)
+		optRequiresReload)
 	{
 		FlushGraphics ();
 		UninitVideoPlayer ();
 
 		ResetOffset ();
 
-		if (optRequiresRestart || optRequiresReload)
+		if (optRequiresReload)
 		{
 			ScreenWidth = 320 << resolutionFactor;
 			ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
@@ -2311,7 +2310,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				NewHeight);
 		InitVideoPlayer (TRUE);
 
-		if (optRequiresReload || optRequiresRestart)
+		if (optRequiresReload)
 			Reload ();
 	}
 }
