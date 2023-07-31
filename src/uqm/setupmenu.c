@@ -76,6 +76,7 @@ static int SfxVol;
 static int MusVol;
 static int SpcVol;
 static int optMScale;
+static SOUND testSounds;
 
 static int
 whichPlatformRef (BOOLEAN opt)
@@ -632,7 +633,7 @@ adjustSpeech (WIDGET_SLIDER *self)
 	speechVolumeScale = self->value / 100.0f;
 	SetSpeechVolume (speechVolumeScale);
 
-	TestSpeechSound ();
+	TestSpeechSound (SetAbsSoundIndex (testSounds, (self->value == 100)));
 }
 
 #define NUM_STEPS 20
@@ -1823,6 +1824,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->noHQEncounters = optNoHQEncounters;
 	opts->deCleansing = optDeCleansing;
 	opts->meleeObstacles = optMeleeObstacles;
+
+	testSounds = CaptureSound (LoadSound (TEST_SOUNDS));
 }
 
 void
@@ -2134,6 +2137,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	
 	SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
+
+	DestroySound (ReleaseSound (testSounds));
 
 	if ((NewWidth != ScreenWidthActual) ||
 		(NewHeight != ScreenHeightActual) ||
