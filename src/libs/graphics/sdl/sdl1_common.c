@@ -77,7 +77,8 @@ TFB_PreQuit (void)
 }
 
 int
-TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *resFactor)
+TFB_ReInitGraphics (int driver, int flags, int width, int height,
+		unsigned int *resFactor)
 {
 	int result;
 	int togglefullscreen = 0;
@@ -114,7 +115,7 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *
 	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION,
-			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION)));
+			(*resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
 	SDL_WM_SetCaption (caption, NULL);
 
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)
