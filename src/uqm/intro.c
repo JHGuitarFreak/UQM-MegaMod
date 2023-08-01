@@ -746,7 +746,7 @@ DoPresentation (void *pIS)
 		{	/* clear screen */
 			Present_UnbatchGraphics (pPIS, TRUE);
 
-			ClearDrawable ();	
+			ClearScreen ();
 		}
 		else if (strcmp (Opcode, "CALL") == 0)
 		{	/* call another script */

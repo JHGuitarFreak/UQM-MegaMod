@@ -1635,8 +1635,9 @@ SetupMenu (void)
 	{
 		clean_up_widgets ();
 	}
+
 	if (optRequiresReload)
-		DoReload ();
+		Reload ();
 }
 
 void
@@ -2155,22 +2156,27 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		UninitVideoPlayer ();
 
 		if (optRequiresReload)
-		{// These solve the context problem that plagued the setupmenu when changing to higher resolution.
+		{
 			ScreenWidth = 320 << resolutionFactor;
 			ScreenHeight = 240 << resolutionFactor;
 
 			RESOLUTION_FACTOR = resolutionFactor;
 
-			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
-				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);
-			
-			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
+					"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
+					ScreenWidthActual, ScreenHeightActual);
+
+			// These solve the context problem that plagued the setupmenu
+			// when changing to higher resolution.
 			TFB_BBox_Reset ();
 			TFB_BBox_Init (ScreenWidth, ScreenHeight);
+
+			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 			FlushColorXForms ();
 		}
 
-		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth, NewHeight);
+		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth,
+				NewHeight);
 		InitVideoPlayer (TRUE);
 	}
 }

@@ -529,6 +529,7 @@ extern void BatchGraphics (void);
 extern void UnbatchGraphics (void);
 extern void FlushGraphics (void);
 extern void ClearDrawable (void);
+extern void ClearScreen (void);
 #ifdef DEBUG
 extern CONTEXT CreateContextAux (const char *name);
 #define CreateContext(name) CreateContextAux((name))

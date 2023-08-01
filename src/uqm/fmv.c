@@ -29,6 +29,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
+#include "init.h"
 
 #define MAX_LOAD_ENTRIES 40
 
@@ -185,6 +186,9 @@ void
 Reload (void)
 {
 	ShowPresentation (RELOADPRES_STRTAB);
+
+	ReloadGameContent ();
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
 
 void

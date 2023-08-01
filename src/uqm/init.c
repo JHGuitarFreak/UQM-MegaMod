@@ -389,19 +389,20 @@ UninitShips (void)
 void
 ReloadGameContent (void)
 {
-	UninitGameStructures();
-	ClearPlayerInputAll();
-	UninitGameKernel();
-	FreeMasterShipList();
-	TFB_UninitInput();
+	//FreeKernel (); Crashes when going from HD to SD
+	UninitGameStructures ();
+	ClearPlayerInputAll ();
+	UninitGameKernel ();
+	FreeMasterShipList ();
+	TFB_UninitInput ();
 
-	prepareContentDir(contentDirPath, addonDirPath, 0);
+	prepareContentDir (contentDirPath, addonDirPath, 0);
 
-	if (LoadKernel(0, 0))
+	if (LoadKernel (0, 0))
 	{
-		TFB_InitInput(TFB_INPUTDRIVER_SDL, 0);
-		LoadMasterShipList(TaskSwitch);
-		TaskSwitch();
-		InitGameKernel();
+		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+		LoadMasterShipList (TaskSwitch);
+		TaskSwitch ();
+		InitGameKernel ();
 	}
 }
