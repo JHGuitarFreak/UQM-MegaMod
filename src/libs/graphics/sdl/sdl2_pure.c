@@ -369,16 +369,25 @@ TFB_SDL2_ScanLines (bool hd)
 	int y;
 	SDL_SetRenderDrawColor (renderer, 0, 0, 0, 64);
 	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
-	SDL_RenderSetLogicalSize (renderer, ScreenWidth * 2, ScreenHeight * 2);
-	if (hd)
-		SDL_RenderSetScale (renderer, 1, 2);
-	for (y = 0; y < ScreenHeight * 2; y += 2)
-	{
-		SDL_RenderDrawLine (renderer, 0, y, ScreenWidth * 2 - 1, y);
+	if (!hd)
+	{		
+		SDL_RenderSetLogicalSize (renderer, ScreenWidth << 1, ScreenHeight << 1);
+		for (y = 0; y < (ScreenHeight << 1); y += 2)
+		{
+			SDL_RenderDrawLine(renderer, 0, y, (ScreenWidth << 1) - 1, y);
+		}
+		SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
 	}
-	if (hd)
-		SDL_RenderSetScale (renderer, 1, 1);
-	SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+	else
+	{
+		for (y = 0; y < ScreenHeight; y++)
+		{
+			if (y & 2)
+				continue;
+
+			SDL_RenderDrawLine (renderer, 0, y, ScreenWidth - 1, y);
+		}
+	}	
 }
 
 static void
