@@ -501,8 +501,8 @@ DoRestart (MENU_STATE *pMS)
 				Flash_setState (pMS->flashContext, FlashState_fadeIn,
 						(3 * ONE_SECOND) / 16);
 				SetupMenu ();
-				SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
-						MENU_SOUND_SELECT);
+				if (optRequiresReload)
+					return FALSE;
 
 				LastInputTime = GetTimeCounter ();
 
@@ -690,6 +690,9 @@ RestartMenu (MENU_STATE *pMS)
 	pMS->flashContext = 0;
 	DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 	pMS->CurFrame = 0;
+
+	if (optRequiresReload)
+		Reload ();
 
 	if (GLOBAL (CurrentActivity) == (ACTIVITY)~0)
 		return (FALSE); // timed out
