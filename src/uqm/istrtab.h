@@ -46,6 +46,7 @@
 #define DEIMOS_COLOR_TAB "planet.deimos.colortable"
 #define DESTROYED_BASE_STRTAB "text.destroyedbase"
 #define DRUMALLPRES_STRTAB "slides.drumall"
+#define RELOADPRES_STRTAB "slides.reload"
 #define DRUUGE_RUINS_STRTAB "text.sphere"
 #define DUST_COLOR_TAB "planet.dust.colortable"
 #define DUST_XLAT_TAB "planet.dust.translatetable"

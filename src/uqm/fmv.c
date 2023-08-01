@@ -17,7 +17,6 @@
  */
 
 #include "fmv.h"
-
 #include "controls.h"
 #include "hyper.h"
 #include "options.h"
@@ -30,7 +29,6 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
-#include "libs/input/input_common.h"
 
 #define MAX_LOAD_ENTRIES 40
 
@@ -186,37 +184,7 @@ Drumall (void)
 void
 Reload (void)
 {
-	STAMP s;
-	CONTEXT oldContext;	
-	
-	oldContext = SetContext (ScreenContext);
-	s.origin.x = s.origin.y = 0;
-
-	s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
-	s.frame = SetAbsFrameIndex (s.frame, 2);
-
-	DrawStamp (&s);
-	DestroyDrawable (ReleaseDrawable (s.frame));
-	SetContext (oldContext);
-	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
-
-	//FreeKernel (); Crashes when going from HD to SD
-	UninitGameStructures ();
-	ClearPlayerInputAll ();
-	UninitGameKernel ();
-	FreeMasterShipList ();
-	TFB_UninitInput ();
-
-	prepareContentDir (contentDirPath, addonDirPath, 0);
-
-	if (LoadKernel(0, 0))
-	{
-		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
-		LoadMasterShipList (TaskSwitch);
-		TaskSwitch ();
-		InitGameKernel ();
-	}	
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	ShowPresentation (RELOADPRES_STRTAB);
 }
 
 void
