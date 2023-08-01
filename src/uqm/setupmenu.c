@@ -1636,8 +1636,8 @@ SetupMenu (void)
 		clean_up_widgets ();
 	}
 
-	if (optRequiresReload)
-		Reload ();
+	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
+						MENU_SOUND_SELECT);
 }
 
 void
