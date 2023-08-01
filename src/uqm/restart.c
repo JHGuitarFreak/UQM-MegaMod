@@ -332,7 +332,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	t.CharCount = (COUNT)~0;
 	sprintf (buf, "v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-			UQM_EXTRA_VERSION);
+			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
 	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 

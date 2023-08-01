@@ -126,17 +126,20 @@ int
 TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
 {
 	int i;
+	char buf[50];
+
 	GraphicsDriver = driver;
 	(void) togglefullscreen;
+
+	snprintf (buf, sizeof (buf), "The Ur-Quan Masters v%d.%d.%d %s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
+
 	if (window == NULL)
 	{
 		SDL_RendererInfo info;
-		char caption[200];
 
-		sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
-				UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-		window = SDL_CreateWindow (caption,
+		window = SDL_CreateWindow ("",
 				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 				width, height, 0);
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
@@ -212,6 +215,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 			SDL_SetWindowSize (window, width, height);
 		}
 	}
+
+	SDL_SetWindowTitle (window, &buf);
 
 	if (GfxFlags & TFB_GFXFLAGS_SCALE_ANY)
 	{
