@@ -636,6 +636,27 @@ adjustSpeech (WIDGET_SLIDER *self)
 	TestSpeechSound (SetAbsSoundIndex (testSounds, (self->value == 100)));
 }
 
+static void
+toggle_scanlines (WIDGET_CHOICE *self, int OldVal)
+{
+	int NewGfxFlags = GfxFlags;
+
+	if (OldVal == self->selected)
+		return;
+
+	if (self->selected == 1)
+		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
+	else
+		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
+
+	FlushGraphics ();
+	UninitVideoPlayer ();
+
+	TFB_DrawScreen_ReinitVideo (GraphicsDriver, NewGfxFlags,
+			ScreenWidthActual, ScreenHeightActual);
+	InitVideoPlayer (TRUE);
+}
+
 #define NUM_STEPS 20
 #define X_STEP (SCREEN_WIDTH / NUM_STEPS)
 #define Y_STEP (SCREEN_HEIGHT / NUM_STEPS)
@@ -1291,6 +1312,8 @@ init_widgets (void)
 		choices[20].options[i].optname = input_templates[i].name;
 	}
 
+	choices[3].onChange = toggle_scanlines;
+
 	/* Choice 20 has a special onChange handler, too. */
 	choices[20].onChange = change_template;
 
@@ -1873,9 +1896,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	if (opts->fps)
 		NewGfxFlags |= TFB_GFXFLAGS_SHOWFPS;
-
-	if (opts->scanlines)
-		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
 
 	NewGfxFlags |= scalerList[opts->scaler].value;
 
