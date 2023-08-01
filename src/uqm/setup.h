@@ -96,6 +96,7 @@ extern void FreeKernel (void);
 
 int initIO (void);
 void uninitIO (void);
+void DoReload (void);
 
 bool SetPlayerInput (COUNT playerI);
 bool SetPlayerInputAll (void);

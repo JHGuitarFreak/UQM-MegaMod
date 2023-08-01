@@ -1557,6 +1557,8 @@ init_widgets (void)
 		log_add (log_Warning, "WARNING: Setup strings had %d garbage entries at the end.",
 				count - index);
 	}
+
+	testSounds = CaptureSound (LoadSound (TEST_SOUNDS));
 }
 
 static void
@@ -1598,6 +1600,12 @@ clean_up_widgets (void)
 		setup_frame = NULL;
 		ReleaseArrows ();
 	}
+
+	if (testSounds)
+	{
+		DestroySound (ReleaseSound (testSounds));
+		testSounds = 0;
+	}
 }
 
 void
@@ -1627,6 +1635,8 @@ SetupMenu (void)
 	{
 		clean_up_widgets ();
 	}
+	if (optRequiresReload)
+		DoReload ();
 }
 
 void
@@ -1824,8 +1834,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->noHQEncounters = optNoHQEncounters;
 	opts->deCleansing = optDeCleansing;
 	opts->meleeObstacles = optMeleeObstacles;
-
-	testSounds = CaptureSound (LoadSound (TEST_SOUNDS));
 }
 
 void
@@ -1900,9 +1908,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	}
 
 	PutIntegerOption ((int*)(&loresBlowupScale), (int*)(&opts->loresBlowup), "config.loresBlowupScale", NULL);
-
-	res_PutInteger("config.reswidth", NewWidth);// Move down
-	res_PutInteger("config.resheight", NewHeight);
+	res_PutInteger ("config.reswidth", NewWidth);
+	res_PutInteger ("config.resheight", NewHeight);
 	
 #ifdef HAVE_OPENGL	       
 	NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
@@ -2138,8 +2145,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
 
-	DestroySound (ReleaseSound (testSounds));
-
 	if ((NewWidth != ScreenWidthActual) ||
 		(NewHeight != ScreenHeightActual) ||
 		(NewDriver != GraphicsDriver) ||
@@ -2150,28 +2155,22 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		UninitVideoPlayer ();
 
 		if (optRequiresReload)
-		{
+		{// These solve the context problem that plagued the setupmenu when changing to higher resolution.
 			ScreenWidth = 320 << resolutionFactor;
 			ScreenHeight = 240 << resolutionFactor;
 
 			RESOLUTION_FACTOR = resolutionFactor;
-			resolutionFactor = RESOLUTION_FACTOR;
 
 			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
 				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);
-
-			// These solve the context problem that plagued the setupmenu when changing to higher resolution.
+			
+			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 			TFB_BBox_Reset ();
 			TFB_BBox_Init (ScreenWidth, ScreenHeight);
-
-			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 			FlushColorXForms ();
 		}
 
 		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth, NewHeight);
 		InitVideoPlayer (TRUE);
-
-		if (optRequiresReload)
-			Reload ();
 	}
 }

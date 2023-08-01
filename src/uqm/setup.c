@@ -448,3 +448,10 @@ uninitIO (void)
 	uio_unInit ();
 }
 
+void
+DoReload (void)
+{
+	Reload ();
+	ReloadGameContent ();
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+}

@@ -35,6 +35,8 @@
 #include "setup.h"
 #include "units.h"
 #include "intel.h"
+#include "master.h"
+#include "libs/input/input_common.h"
 
 
 FRAME stars_in_space;
@@ -384,4 +386,22 @@ UninitShips (void)
 	}
 }
 
+void
+ReloadGameContent (void)
+{
+	UninitGameStructures();
+	ClearPlayerInputAll();
+	UninitGameKernel();
+	FreeMasterShipList();
+	TFB_UninitInput();
 
+	prepareContentDir(contentDirPath, addonDirPath, 0);
+
+	if (LoadKernel(0, 0))
+	{
+		TFB_InitInput(TFB_INPUTDRIVER_SDL, 0);
+		LoadMasterShipList(TaskSwitch);
+		TaskSwitch();
+		InitGameKernel();
+	}
+}
