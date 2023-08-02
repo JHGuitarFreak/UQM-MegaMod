@@ -234,7 +234,7 @@ TFB_DrawCanvas_OverBlit (SDL_Surface* src, SDL_Rect* src_r,
 
 	// Custom blit
 	SDL_Rect loc_src_r, loc_dst_r;
-	RenderPixelFn plotFn = renderpixel_for(dst, DRAW_REPLACE);
+	RenderPixelFn plotFn = renderpixel_for(dst, DRAW_ALPHA);
 	if (!plotFn)
 	{
 		log_add(log_Warning, "ERROR: TFB_DrawCanvas_Blit "
