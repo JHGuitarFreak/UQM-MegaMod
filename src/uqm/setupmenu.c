@@ -2364,8 +2364,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 		ResetOffset ();
 
-		ScreenWidth = 320 << resolutionFactor;
-		ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
+		ScreenWidth = 320 << resFactor;
+		ScreenHeight = DOS_BOOL (240, 200) << resFactor;
 
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
 				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
