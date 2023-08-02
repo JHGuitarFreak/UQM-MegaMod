@@ -2238,8 +2238,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		FlushGraphics ();
 		UninitVideoPlayer ();
 
-		ScreenWidth = 320 << resolutionFactor;
-		ScreenHeight = 240 << resolutionFactor;
+		ScreenWidth = 320 << resFactor;
+		ScreenHeight = 240 << resFactor;
 
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
 				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
