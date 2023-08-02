@@ -1975,8 +1975,8 @@ void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
 	int NewSndFlags = 0;
-	int newFactor, resFactor;
-
+	int newFactor;
+	int resFactor = resolutionFactor;
 
 /*
  *		Graphics options
