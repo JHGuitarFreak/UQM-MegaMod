@@ -698,6 +698,9 @@ RestartMenu (MENU_STATE *pMS)
 	DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 	pMS->CurFrame = 0;
 
+	if (optRequiresReload)
+		Reload ();
+
 	if (GLOBAL (CurrentActivity) == (ACTIVITY)~0)
 		return (FALSE); // timed out
 
