@@ -1975,14 +1975,14 @@ void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
 	int NewSndFlags = 0;
-	int newFactor;
+	int newFactor, resFactor;
 
 
 /*
  *		Graphics options
  */
 	newFactor = (int)(opts->screenResolution << 1);
-	PutIntegerOption ((int*)(&resolutionFactor), &newFactor, "config.resolutionfactor", &optRequiresReload);
+	PutIntegerOption (&resFactor, &newFactor, "config.resolutionfactor", &optRequiresReload);
 
 //#if !(defined(ANDROID) || defined(__ANDROID__))
 //	if (opts->fullscreen)
@@ -2241,8 +2241,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		ScreenWidth = 320 << resolutionFactor;
 		ScreenHeight = 240 << resolutionFactor;
 
-		RESOLUTION_FACTOR = resolutionFactor;
-
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
 				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
 				ScreenWidthActual, ScreenHeightActual);
@@ -2254,6 +2252,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		FlushColorXForms ();
+
+		resolutionFactor = resFactor;
+		RESOLUTION_FACTOR = resolutionFactor;
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				ScreenWidthActual, ScreenHeightActual);
