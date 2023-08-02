@@ -452,7 +452,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	OrbitNum = SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
 
-	if (isPC (optSuperPC))
+	if (isPC (optScrTrans))
 		SleepThread (ONE_SECOND);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))

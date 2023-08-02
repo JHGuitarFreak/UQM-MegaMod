@@ -613,6 +613,21 @@ fillrect_prim(SDL_Rect r, Uint32 color, RenderPixelFn plot, int factor,
 	}
 }
 
+void
+fillrect_over (SDL_Rect r, Uint32 color, RenderPixelFn plot, SDL_Surface *dst)
+{
+	int x, y;
+	int x1, y1;
+
+	x1 = r.x + r.w;
+	y1 = r.y + r.h;
+	for (y = r.y; y < y1; ++y)
+	{
+		for (x = r.x; x < x1; ++x)
+			plot(dst, x, y, color, 0xff);
+	}
+}
+
 // clip the rectangle against the clip rectangle
 int
 clip_rect(SDL_Rect *r, const SDL_Rect *clip_r)
@@ -680,6 +695,60 @@ blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 		src_r.w = src->w - src_r.x;
 	if (src_r.y + src_r.h > src->h)
 		src_r.h = src->h - src_r.y;
+
+	// use colorkeys where appropriate
+	if (srcfmt->Amask)
+	{	// alpha transparency
+		mask = srcfmt->Amask;
+		key = 0;
+	}
+	else if (TFB_GetColorKey (src, &key) == 0)
+	{
+		mask = ~0;
+	}
+	// TODO: calculate the source and destination pointers directly
+	//   instead of using the plot(x,y) version
+	for (y = 0; y < src_r.h; ++y)
+	{
+		for (x = 0; x < src_r.w; ++x)
+		{
+			Uint8 r, g, b, a;
+			Uint32 p;
+			
+			p = getpix(src, src_r.x + x, src_r.y + y);
+			if (srcpal)
+			{	// source is paletted, colorkey does not use mask
+				if (p == key)
+					continue; // transparent pixel
+			}
+			else
+			{	// source is RGB(A), colorkey uses mask
+				if ((p & mask) == key)
+					continue; // transparent pixel
+			}
+
+			// convert pixel format to destination
+			SDL_GetRGBA(p, srcfmt, &r, &g, &b, &a);
+			// TODO: handle source pixel alpha; plot() should probably
+			//   get a source alpha parameter
+			p = SDL_MapRGBA(dstfmt, r, g, b, a);
+			
+			plot(dst, dst_r.x + x, dst_r.y + y, p, factor);
+		}
+	}
+}
+
+void
+blt_over(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
+		SDL_Surface *dst, SDL_Rect dst_r)
+{
+	SDL_PixelFormat *srcfmt = src->format;
+	SDL_Palette *srcpal = srcfmt->palette;
+	SDL_PixelFormat *dstfmt = dst->format;
+	Uint32 mask = 0;
+	Uint32 key = ~0;
+	GetPixelFn getpix = getpixel_for(src);
+	int x, y;
 
 	// use colorkeys where appropriate
 	if (srcfmt->Amask)

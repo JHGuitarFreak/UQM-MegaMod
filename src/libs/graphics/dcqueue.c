@@ -27,6 +27,8 @@
 #include "libs/misc.h"
 		// for TFB_DEBUG_HALT
 #include "options.h"
+#include "libs/graphics/font.h"
+#include "uqm/setup.h"
 
 static RecursiveMutex DCQ_Mutex;
 
@@ -295,27 +297,90 @@ TFB_EnqueueDrawCommand (TFB_DrawCommand* DrawCommand)
 }
 
 static void
-computeFPS (void)
+computeFPS (int *fps)
 {
 	static TimeCount last_time;
 	static TimePeriod fps_counter;
 	TimeCount current_time;
 	TimePeriod delta_time;
 
-	current_time = GetTimeCounter ();
+	current_time = GetTimeCounter();
 	delta_time = current_time - last_time;
 	last_time = current_time;
-	
+
 	fps_counter += delta_time;
 	if (fps_counter > FPS_PERIOD)
 	{
-		log_add (log_User, "fps %.2f, effective %.2f",
-				(float)ONE_SECOND / delta_time,
-				(float)ONE_SECOND * RenderedFrames / fps_counter);
+		*fps = (int)((float)ONE_SECOND * RenderedFrames / fps_counter);
+		log_add(log_User, "fps %.2f, effective %.2f",
+			(float)ONE_SECOND / delta_time,	*fps);
 
 		fps_counter = 0;
 		RenderedFrames = 0;
-	}
+		if (*fps > 99)
+			*fps = 99;
+	}	
+}
+
+static void
+RenderFPS (int *fps)
+{
+	if (GoodToGoFPS ())
+	{
+		RECT tr;
+		RECT r;
+		SIZE w, h;
+		int i;
+		int max;
+		UNICODE buf[3];
+		TFB_Char *ch;
+		TFB_Image *img;
+
+		r.corner = MAKE_POINT (0, 0);
+		r.extent.width = 19 << resolutionFactor;
+		r.extent.height = 9 << resolutionFactor;
+
+		int x;
+		int y = r.corner.y + (7 << resolutionFactor);
+
+		sprintf (buf, "%ld", *fps);
+		max = (COUNT)utf8StringCount(buf);
+		x = r.corner.x + ((11 - (6 * (max - 1))) << resolutionFactor);
+
+		GetFontDims (&w, &h);
+		
+		img = TFB_DrawImage_CreateForScreen (w, h, TRUE);
+		tr.corner.x = tr.corner.y = 0;
+		tr.extent.width = w;
+		tr.extent.height = h;
+
+		TFB_DrawImage_Over (&tr, BUILD_COLOR_RGBA (0x00, 0xFF, 0x00, 0xFF), img);
+
+		TFB_BBox_RegisterSR (&r);
+		TFB_DrawCanvas_Over (&r, BUILD_SHADE_RGBA (85), TFB_GetScreenCanvas (TFB_SCREEN_MAIN));
+		r.extent.height = 1 << resolutionFactor;
+		TFB_DrawCanvas_Over(&r, BUILD_SHADE_RGBA(60), TFB_GetScreenCanvas(TFB_SCREEN_MAIN));
+		r.extent.height = 9 << resolutionFactor;
+		r.extent.width = 1 << resolutionFactor;
+		TFB_DrawCanvas_Over (&r, BUILD_SHADE_RGBA (60), TFB_GetScreenCanvas (TFB_SCREEN_MAIN));
+		r.corner.x = 19 << resolutionFactor;
+		TFB_DrawCanvas_Over (&r, BUILD_SHADE_RGBA (110), TFB_GetScreenCanvas (TFB_SCREEN_MAIN));
+		r.corner.y = r.extent.height - (1 << resolutionFactor);
+		r.corner.x = r.extent.width;
+		r.extent.width = 19 << resolutionFactor;
+		r.extent.height = r.corner.x;
+		TFB_DrawCanvas_Over (&r, BUILD_SHADE_RGBA (110), TFB_GetScreenCanvas (TFB_SCREEN_MAIN));
+
+		for (i = max; i > 0; i--)
+		{
+			ch = GetFrameForFPS (buf[max - i]);
+			if (ch)
+			{
+				TFB_DrawCanvas_FontOver (ch, img, x, y, TFB_GetScreenCanvas (TFB_SCREEN_MAIN));
+				x += (6 << resolutionFactor);
+			}
+		}
+	}	
 }
 
 // Only call from main() thread!!
@@ -323,6 +388,7 @@ void
 TFB_FlushGraphics (void)
 {
 	int commands_handled;
+	int fps = 0;
 	BOOLEAN livelock_deterrence;
 
 	// This is technically a locking violation on DrawCommandQueue.Size,
@@ -355,7 +421,7 @@ TFB_FlushGraphics (void)
 	}
 
 	if (GfxFlags & TFB_GFXFLAGS_SHOWFPS)
-		computeFPS ();
+		computeFPS (&fps);
 
 	commands_handled = 0;
 	livelock_deterrence = FALSE;
@@ -615,10 +681,13 @@ TFB_FlushGraphics (void)
 			}
 		}
 	}
-	
+
 	if (livelock_deterrence)
 		Unlock_DCQ ();
 
+	if (GfxFlags & TFB_GFXFLAGS_SHOWFPS)
+		RenderFPS (&fps);
+	
 	TFB_SwapBuffers (TFB_REDRAW_NO);
 	RenderedFrames++;
 	BroadcastCondVar (RenderingCond);

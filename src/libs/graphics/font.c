@@ -23,8 +23,31 @@
 #include "libs/log.h"
 #include "uqm/units.h"
 
+#include "uqm/setup.h"
+
 static inline TFB_Char *getCharFrame (FONT_DESC *fontPtr, UniChar ch);
 
+TFB_Char*
+GetFrameForFPS (UniChar ch)
+{
+	if (StarConFont && !(GLOBAL (CurrentActivity) & CHECK_ABORT))
+		return getCharFrame (StarConFont, ch);
+	else
+		return NULL;
+}
+
+BOOLEAN
+GoodToGoFPS (void)
+{
+	return (StarConFont && !(GLOBAL (CurrentActivity) & CHECK_ABORT) && !optRequiresReload);
+}
+
+void
+GetFontDims (SIZE *w, SIZE *h)
+{
+	*w = (SIZE)StarConFont->disp.width;
+	*h = (SIZE)StarConFont->disp.height;
+}
 
 FONT
 SetContextFont (FONT Font)
