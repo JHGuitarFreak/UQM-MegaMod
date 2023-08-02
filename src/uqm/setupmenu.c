@@ -2098,7 +2098,7 @@ void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
 	int NewSndFlags = 0;
-	int newFactor;
+	int newFactor, resFactor;
 
 
 /*
@@ -2106,7 +2106,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
  */
 
 	newFactor = (int)(opts->screenResolution << 1);
-	PutIntegerOption ((int*)(&resolutionFactor), &newFactor, "config.resolutionfactor", &optRequiresReload);
+	PutIntegerOption (&resFactor, &newFactor, "config.resolutionfactor", &optRequiresReload);
 
 //#if !(defined(ANDROID) || defined(__ANDROID__))
 //	if (opts->fullscreen)
@@ -2367,11 +2367,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		ScreenWidth = 320 << resolutionFactor;
 		ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
 
-		RESOLUTION_FACTOR = resolutionFactor;
-
-		printf ("ScrWidth:%d, ScrHeight:%d, Wactual:%d, Hactual:%d",
-				ScreenWidth, ScreenHeight, ScreenWidthActual,
-				ScreenHeightActual);
+		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
+				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
+				ScreenWidthActual, ScreenHeightActual);
 
 		// These solve the context problem that plagued the setupmenu
 		// when changing to higher resolution.
@@ -2380,6 +2378,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 3));
 		FlushColorXForms ();
+
+		resolutionFactor = resFactor;
+		RESOLUTION_FACTOR = resolutionFactor;
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				ScreenWidthActual, ScreenHeightActual);
