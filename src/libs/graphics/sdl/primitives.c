@@ -787,7 +787,7 @@ blt_over(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 			//   get a source alpha parameter
 			p = SDL_MapRGBA(dstfmt, r, g, b, a);
 			
-			plot(dst, dst_r.x + x, dst_r.y + y, p, factor);
+			plot(dst, dst_r.x + x, dst_r.y + y, p, a);
 		}
 	}
 }
