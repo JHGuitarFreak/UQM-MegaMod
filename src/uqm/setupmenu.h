@@ -162,7 +162,7 @@ typedef struct globalopts_struct {
 			scopeStyle, landerStyle, flagshipColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
-	int gamma, customSeed, starBackground;
+	int gamma, starBackground;
 } GLOBALOPTS;
 
 void SetupMenu (void);

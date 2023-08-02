@@ -501,8 +501,8 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed (void)
 {	
-	sprintf (textentries[1].value, "%d", optCustomSeed); 
-	if (!SANE_SEED(optCustomSeed))
+	sprintf (textentries[1].value, "%d", optCustomSeed);
+	if (!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
 }
 
@@ -602,14 +602,8 @@ rename_template (WIDGET_TEXTENTRY *self)
 static void
 change_seed (WIDGET_TEXTENTRY *self)
 {
-	int NewSeed = atoi(self->value);
-	if (!SANE_SEED (NewSeed))
-	{
+	if (!SANE_SEED (atoi (self->value)))
 		snprintf (self->value, sizeof (self->value), "%d", PrimeA);
-		optCustomSeed = PrimeA;
-	}
-	else
-		optCustomSeed = atoi (self->value);
 }
 
 static void
@@ -1931,7 +1925,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->shield = is3DO (optWhichShield);
 
 	// Game modes
-	opts->customSeed = optCustomSeed;
 	opts->difficulty = optDiffChooser;
 	opts->extended = optExtended;
 	opts->nomad = optNomad;
@@ -2174,9 +2167,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutSwitchOption (&optWhichShield, &opts->shield, "config.pulseshield", NULL);
 
 	// Game modes
-	if (!SANE_SEED (opts->customSeed))
-		opts->customSeed = PrimeA;
-	PutIntegerOption (&optCustomSeed, &opts->customSeed, "mm.customSeed", NULL);
+	{
+		int customSeed = atoi (textentries[1].value);
+		if (!SANE_SEED (customSeed))
+			customSeed = PrimeA;
+		PutIntegerOption (&optCustomSeed, &customSeed, "mm.customSeed", NULL);
+	}
+
 	PutIntegerOption (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", NULL);
 	if ((optDifficulty = opts->difficulty) == OPTVAL_IMPO)
 		optDifficulty = OPTVAL_NORM;

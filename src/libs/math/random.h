@@ -46,8 +46,8 @@ struct RandomContext {
 #endif
 
 #define PrimeA 16807
-#define MAX_SEED 2147483645
-#define MIN_SEED 2
+#define MAX_SEED 2147483644
+#define MIN_SEED 3
 #define SANE_SEED(a) (((a) < MIN_SEED || (a) > MAX_SEED) ? false : true)
 #define SeedA (SANE_SEED (GLOBAL_SIS (Seed)) ? GLOBAL_SIS (Seed) : PrimeA)  // Default: 16807 - a relatively prime number - also M div Q
 #define SeedM (UINT32_MAX / 2) // 0xFFFFFFFF div 2
