@@ -2098,8 +2098,8 @@ void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
 	int NewSndFlags = 0;
-	int newFactor;
 	int resFactor = resolutionFactor;
+	int newFactor;
 
 /*
  *		Graphics options
@@ -2107,6 +2107,12 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	newFactor = (int)(opts->screenResolution << 1);
 	PutIntegerOption (&resFactor, &newFactor, "config.resolutionfactor", &optRequiresReload);
+
+	if (resFactor != resolutionFactor)
+	{
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+		resolutionFactor = resFactor;
+	}
 
 //#if !(defined(ANDROID) || defined(__ANDROID__))
 //	if (opts->fullscreen)
@@ -2359,13 +2365,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	if (optRequiresReload)
 	{
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+
 		FlushGraphics ();
 		UninitVideoPlayer ();
 
 		ResetOffset ();
 
-		ScreenWidth = 320 << resFactor;
-		ScreenHeight = DOS_BOOL (240, 200) << resFactor;
+		RESOLUTION_FACTOR = resolutionFactor;
+		ScreenWidth = 320 << resolutionFactor;
+		ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
 
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
 				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
@@ -2375,12 +2384,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		// when changing to higher resolution.
 		TFB_BBox_Reset ();
 		TFB_BBox_Init (ScreenWidth, ScreenHeight);
-
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 3));
 		FlushColorXForms ();
-
-		resolutionFactor = resFactor;
-		RESOLUTION_FACTOR = resolutionFactor;
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				ScreenWidthActual, ScreenHeightActual);
