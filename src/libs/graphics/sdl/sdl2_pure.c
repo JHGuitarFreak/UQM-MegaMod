@@ -128,17 +128,20 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		unsigned int windowType)
 {
 	int i;
+	char buf[50];
+
 	GraphicsDriver = driver;
 	(void) togglefullscreen;
+
+	snprintf (buf, sizeof (buf), "The Ur-Quan Masters v%d.%d.%d %s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
+
 	if (window == NULL)
 	{
 		SDL_RendererInfo info;
-		char caption[200];
 
-		sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
-				UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-		window = SDL_CreateWindow (caption,
+		window = SDL_CreateWindow ("",
 				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 				width, height, 0);
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
@@ -214,6 +217,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			SDL_SetWindowSize (window, width, height);
 		}
 	}
+
+	SDL_SetWindowTitle (window, &buf);
 
 	if (GfxFlags & TFB_GFXFLAGS_SCALE_ANY)
 	{
@@ -301,7 +306,7 @@ TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
 	log_add (log_Info, "Initializing Screen.");
 
 	ScreenWidth = (320 << resFactor);
-	ScreenHeight = ((!windowType ? 200 : 240) << resFactor);
+	ScreenHeight = ((windowType ? 240 : 200) << resFactor);
 	rendererBackend = renderer;
 
 	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0,
@@ -376,16 +381,25 @@ TFB_SDL2_ScanLines (bool hd)
 	int y;
 	SDL_SetRenderDrawColor (renderer, 0, 0, 0, 64);
 	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
-	SDL_RenderSetLogicalSize (renderer, ScreenWidth * 2, ScreenHeight * 2);
-	if (hd)
-		SDL_RenderSetScale (renderer, 1, 2);
-	for (y = 0; y < ScreenHeight * 2; y += 2)
-	{
-		SDL_RenderDrawLine (renderer, 0, y, ScreenWidth * 2 - 1, y);
+	if (!hd)
+	{		
+		SDL_RenderSetLogicalSize (renderer, ScreenWidth << 1, ScreenHeight << 1);
+		for (y = 0; y < (ScreenHeight << 1); y += 2)
+		{
+			SDL_RenderDrawLine(renderer, 0, y, (ScreenWidth << 1) - 1, y);
+		}
+		SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
 	}
-	if (hd)
-		SDL_RenderSetScale (renderer, 1, 1);
-	SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+	else
+	{
+		for (y = 0; y < ScreenHeight; y++)
+		{
+			if (y & 2)
+				continue;
+
+			SDL_RenderDrawLine (renderer, 0, y, ScreenWidth - 1, y);
+		}
+	}	
 }
 
 static void

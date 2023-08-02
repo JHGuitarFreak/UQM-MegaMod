@@ -17,7 +17,6 @@
  */
 
 #include "fmv.h"
-
 #include "controls.h"
 #include "hyper.h"
 #include "options.h"
@@ -30,7 +29,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
-#include "libs/input/input_common.h"
+#include "init.h"
 
 #define MAX_LOAD_ENTRIES 40
 
@@ -193,23 +192,8 @@ void
 Reload (void)
 {
 	ShowPresentation (RELOADPRES_STRTAB);
-	//FreeKernel (); Crashes when going from HD to SD
-	memset (&addonList, 0, sizeof (addonList));
-	UninitGameStructures ();
-	ClearPlayerInputAll ();
-	UninitGameKernel ();
-	FreeMasterShipList ();
-	TFB_UninitInput ();
 
-	prepareContentDir (contentDirPath, addonDirPath, 0);
-
-	if (LoadKernel(0, 0))
-	{
-		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
-		LoadMasterShipList (TaskSwitch);
-		TaskSwitch ();
-		InitGameKernel ();
-	}	
+	ReloadGameContent ();
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
 

@@ -332,7 +332,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	t.CharCount = (COUNT)~0;
 	sprintf (buf, "v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-			UQM_EXTRA_VERSION);
+			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
 	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 
@@ -508,8 +508,8 @@ DoRestart (MENU_STATE *pMS)
 				Flash_setState (pMS->flashContext, FlashState_fadeIn,
 						(3 * ONE_SECOND) / 16);
 				SetupMenu ();
-				SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
-						MENU_SOUND_SELECT);
+				if (optRequiresReload)
+					return FALSE;
 
 				LastInputTime = GetTimeCounter ();
 

@@ -452,4 +452,3 @@ uninitIO (void)
 	uio_closeRepository (repository);
 	uio_unInit ();
 }
-

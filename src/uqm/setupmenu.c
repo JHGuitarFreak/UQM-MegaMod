@@ -200,9 +200,7 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices[23]),   // Aspect Ratio
 #endif
 	(WIDGET *)(&choices[10]),   // Display
-#if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
-#endif
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
 	(WIDGET *)(&choices[12]),   // Show FPS
@@ -635,51 +633,35 @@ check_for_hd (WIDGET_CHOICE *self, int oldval)
 	}
 }
 
-static void
+static BOOLEAN
 check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 {
 	switch (self->selected)
 	{
 		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (DOS_MODE (IS_HD)))
+			if (!isAddonAvailable (
+					DOS_MODE (choices[0].selected && !IS_HD ? HD : IS_HD)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, oldval);
+				return FALSE;
 			}
 			break;
 		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (THREEDO_MODE (IS_HD)))
+			if (!isAddonAvailable (
+					THREEDO_MODE (
+						choices[0].selected && !IS_HD ? HD : IS_HD)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, OPTVAL_UQM_WINDOW);
+				return FALSE;
 			}
 			break;
 		default:
 			break;
 	}
 
-	if (!choices[0].selected)
-		return;
-
-	switch (self->selected)
-	{
-		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (DOS_MODE (HD)))
-			{
-				oldval = OPTVAL_UQM_WINDOW;
-				addon_unavailable (self, oldval);
-			}
-			break;
-		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (THREEDO_MODE (HD)))
-			{
-				oldval = OPTVAL_UQM_WINDOW;
-				addon_unavailable (self, OPTVAL_UQM_WINDOW);
-			}
-			break;
-		default:
-			break;
-	}
+	return TRUE;
 }
 
 static void
@@ -688,8 +670,20 @@ check_availability (WIDGET_CHOICE *self, int oldval)
 	if (self->choice_num == 0)
 		check_for_hd (self, oldval);
 
-	if (self->choice_num == 81)
-		check_dos_3do_modes (self, oldval);
+	if (self->choice_num == 81 && check_dos_3do_modes (self, oldval))
+	{
+		int NewHeight = ScreenHeightActual;
+
+		PutIntegerOption ((int *)&optWindowType, (int *)&self->selected,
+				"mm.windowType", &optRequiresReload);
+
+		NewHeight = DOS_BOOL (240, 200) * (1 + choices[42].selected);
+
+		if (NewHeight != ScreenHeightActual)
+			ScreenHeightActual = NewHeight;
+
+		res_PutInteger ("config.resheight", ScreenHeightActual);
+	}
 }
 
 static void
@@ -737,6 +731,133 @@ adjustSpeech (WIDGET_SLIDER *self)
 	SetSpeechVolume (speechVolumeScale);
 
 	TestSpeechSound (SetAbsSoundIndex (testSounds, (self->value == 100)));
+}
+
+static void
+toggle_scanlines (WIDGET_CHOICE *self, int *NewGfxFlags)
+{
+	if (self->selected == 1)
+		*NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
+	else
+		*NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
+	res_PutBoolean ("config.scanlines", self->selected);
+}
+
+static void
+change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
+{
+	if (!self->selected)
+	{	// No blowup
+		*NewWidth = RES_SCALE (320);
+		*NewHeight = RES_SCALE (DOS_BOOL (240, 200));
+	}
+	else
+	{
+		*NewWidth = 320 * (1 + self->selected);
+		*NewHeight = DOS_BOOL (240, 200) * (1 + self->selected);
+	}
+
+	PutIntegerOption ((int *)(&loresBlowupScale), (int *)(&self->selected),
+			"config.loresBlowupScale", NULL);
+	res_PutInteger ("config.reswidth", *NewWidth);
+	res_PutInteger ("config.resheight", *NewHeight);
+}
+
+static void
+toggle_fullscreen (WIDGET_CHOICE *self, int *NewGfxFlags)
+{
+	if (self->selected == 1)
+		*NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+	else
+		*NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+	res_PutBoolean ("config.fullscreen", self->selected);
+}
+
+static void
+change_scaler (WIDGET_CHOICE *self, int OldVal, int *NewGfxFlags)
+{
+	*NewGfxFlags &= ~scalerList[OldVal].value;
+	*NewGfxFlags |= scalerList[self->selected].value;
+	res_PutString ("config.scaler", scalerList[self->selected].str);
+}
+
+static void
+toggle_showfps (WIDGET_CHOICE *self, int *NewGfxFlags)
+{
+	if (self->selected == 1)
+		*NewGfxFlags |= TFB_GFXFLAGS_SHOWFPS;
+	else
+		*NewGfxFlags &= ~TFB_GFXFLAGS_SHOWFPS;
+	res_PutBoolean ("config.showfps", self->selected);
+}
+
+static void
+change_gfxdriver (WIDGET_CHOICE *self, int *NewGfxDriver)
+{
+#ifdef HAVE_OPENGL
+	*NewGfxDriver = (self->selected == OPTVAL_ALWAYS_GL ?
+			TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
+#else
+	*NewGfxDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
+	if (GraphicsDriver != *NewGfxDriver)
+	{
+		res_PutBoolean ("config.alwaysgl", self->selected);
+		res_PutBoolean ("config.usegl",
+				*NewGfxDriver == TFB_GFXDRIVER_SDL_OPENGL);
+	}
+}
+
+void
+process_graphics_options (WIDGET_CHOICE *self, int OldVal)
+{
+	int NewGfxFlags = GfxFlags;
+	int NewGfxDriver = GraphicsDriver;
+	int NewWidth = ScreenWidthActual;
+	int NewHeight = ScreenHeightActual;
+
+	if (OldVal == self->selected)
+		return;
+
+	switch (self->choice_num)
+	{
+		case 1:
+			change_gfxdriver (self, &NewGfxDriver);
+			break;
+		case 2:
+			change_scaler (self, OldVal, &NewGfxFlags);
+			break;
+		case 3:
+			toggle_scanlines (self, &NewGfxFlags);
+			break;
+		case 10:
+			toggle_fullscreen (self, &NewGfxFlags);
+			break;
+		case 12:
+			toggle_showfps (self, &NewGfxFlags);
+			break;
+		case 42:
+			change_scaling (self, &NewWidth, &NewHeight);
+			break;
+		default:
+			return;
+	}
+
+	if (NewWidth != ScreenWidthActual || NewHeight != ScreenHeightActual)
+	{
+		ScreenWidthActual = NewWidth;
+		ScreenHeightActual = NewHeight;
+	}
+
+	if (NewGfxFlags != GfxFlags)
+		GfxFlags = NewGfxFlags;
+
+	if (NewGfxDriver != GraphicsDriver)
+		GraphicsDriver = NewGfxDriver;
+
+	FlushInput ();
+	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+			ScreenWidthActual, ScreenHeightActual);
 }
 
 #define NUM_STEPS 20
@@ -1404,6 +1525,14 @@ init_widgets (void)
 	choices[0].onChange = check_availability;
 	choices[81].onChange = check_availability;
 
+	// Handle display option
+	choices[ 1].onChange = process_graphics_options;
+	choices[ 2].onChange = process_graphics_options;
+	choices[ 3].onChange = process_graphics_options;
+	choices[10].onChange = process_graphics_options;
+	choices[12].onChange = process_graphics_options;
+	choices[42].onChange = process_graphics_options;
+
 	/* Sliders */
 	if (index >= count)
 	{
@@ -1667,6 +1796,8 @@ init_widgets (void)
 		log_add (log_Warning, "WARNING: Setup strings had %d garbage entries at the end.",
 				count - index);
 	}
+
+	testSounds = CaptureSound (LoadSound (TEST_SOUNDS));
 }
 
 static void
@@ -1708,6 +1839,12 @@ clean_up_widgets (void)
 		setup_frame = NULL;
 		ReleaseArrows ();
 	}
+
+	if (testSounds)
+	{
+		DestroySound (ReleaseSound (testSounds));
+		testSounds = 0;
+	}
 }
 
 void
@@ -1737,6 +1874,9 @@ SetupMenu (void)
 	{
 		clean_up_widgets ();
 	}
+
+	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
+						MENU_SOUND_SELECT);
 }
 
 void
@@ -1952,18 +2092,12 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->noHQEncounters = optNoHQEncounters;
 	opts->deCleansing = optDeCleansing;
 	opts->meleeObstacles = optMeleeObstacles;
-
-	testSounds = CaptureSound (LoadSound (TEST_SOUNDS)); 
 }
 
 void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
-	int NewGfxFlags = 0;
 	int NewSndFlags = 0;
-	int NewWidth = ScreenWidthActual;
-	int NewHeight = ScreenHeightActual;
-	int NewDriver = GraphicsDriver;
 	int newFactor;
 
 
@@ -1974,38 +2108,22 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	newFactor = (int)(opts->screenResolution << 1);
 	PutIntegerOption ((int*)(&resolutionFactor), &newFactor, "config.resolutionfactor", &optRequiresReload);
 
-#if !(defined(ANDROID) || defined(__ANDROID__))
-	if (opts->fullscreen)
-		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-#endif
-	if (IS_HD)
-	{// Kruzen - adjust scalers for HD
-		if (opts->scaler != OPTVAL_BILINEAR_SCALE)
-			opts->scaler = OPTVAL_BILINEAR_SCALE;
-
-#if !(defined(ANDROID) || defined(__ANDROID__))
-		if (!(NewGfxFlags & TFB_GFXFLAGS_FULLSCREEN) &&
-			(opts->loresBlowup == NO_BLOWUP ||
-				opts->loresBlowup == OPTVAL_SCALE_1280_960))
-			opts->scaler = OPTVAL_NO_SCALE;
-#endif
-	}
-
-	if (opts->fps)
-		NewGfxFlags |= TFB_GFXFLAGS_SHOWFPS;
-
-	if (opts->scanlines)
-		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
-
-	NewGfxFlags |= scalerList[opts->scaler].value;
-
-	if (NewGfxFlags != GfxFlags)
-	{
-		res_PutBoolean ("config.fullscreen", opts->fullscreen);
-		res_PutBoolean ("config.showfps", opts->fps);
-		res_PutBoolean ("config.scanlines", opts->scanlines);
-		res_PutString  ("config.scaler", scalerList[opts->scaler].str);
-	}
+//#if !(defined(ANDROID) || defined(__ANDROID__))
+//	if (opts->fullscreen)
+//		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+//#endif
+//	if (IS_HD)
+//	{// Kruzen - adjust scalers for HD
+//		if (opts->scaler != OPTVAL_BILINEAR_SCALE)
+//			opts->scaler = OPTVAL_BILINEAR_SCALE;
+//
+//#if !(defined(ANDROID) || defined(__ANDROID__))
+//		if (!(NewGfxFlags & TFB_GFXFLAGS_FULLSCREEN) &&
+//			(opts->loresBlowup == NO_BLOWUP ||
+//				opts->loresBlowup == OPTVAL_SCALE_1280_960))
+//			opts->scaler = OPTVAL_NO_SCALE;
+//#endif
+//	}
 
 	PutBooleanOption (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", NULL);
 
@@ -2015,38 +2133,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		optGamma = sliderToGamma (opts->gamma);
 		setGammaCorrection (optGamma);
 		res_PutInteger ("config.gamma", (int) (optGamma * GAMMA_SCALE + 0.5));
-	}
-
-	// This has to be put here to initialize DOS_BOOL
-	PutIntegerOption ((int *)&optWindowType, (int *)&opts->windowType,
-			"mm.windowType", &optRequiresReload);
-
-	if (!opts->loresBlowup)
-	{// No blowup
-		NewWidth = RES_SCALE (320);
-		NewHeight = RES_SCALE (DOS_BOOL (240, 200));
-	}
-	else
-	{
-		NewWidth = 320 * (1 + opts->loresBlowup);
-		NewHeight = DOS_BOOL (240, 200) * (1 + opts->loresBlowup);
-	}
-
-	PutIntegerOption ((int*)(&loresBlowupScale), (int*)(&opts->loresBlowup), "config.loresBlowupScale", NULL);
-
-	res_PutInteger("config.reswidth", NewWidth);// Move down
-	res_PutInteger("config.resheight", NewHeight);
-	
-#ifdef HAVE_OPENGL	       
-	NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
-#else
-	NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-
-	if (GraphicsDriver != NewDriver)
-	{
-		res_PutBoolean ("config.alwaysgl", opts->driver);
-		res_PutBoolean ("config.usegl", NewDriver == TFB_GFXDRIVER_SDL_OPENGL);
 	}
 
 
@@ -2271,46 +2357,34 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
 
-	DestroySound (ReleaseSound (testSounds));
-
-	if ((NewWidth != ScreenWidthActual) ||
-		(NewHeight != ScreenHeightActual) ||
-		(NewDriver != GraphicsDriver) ||
-		(NewGfxFlags != GfxFlags) ||
-		optRequiresReload)
+	if (optRequiresReload)
 	{
 		FlushGraphics ();
 		UninitVideoPlayer ();
 
 		ResetOffset ();
 
-		if (optRequiresReload)
-		{
-			ScreenWidth = 320 << resolutionFactor;
-			ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
+		ScreenWidth = 320 << resolutionFactor;
+		ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
 
-			RESOLUTION_FACTOR = resolutionFactor;
-			resolutionFactor = RESOLUTION_FACTOR;
+		RESOLUTION_FACTOR = resolutionFactor;
 
-			log_add (log_Debug,
-					"ScrWidth:%d, ScrHeight:%d, Wactual:%d, Hactual:%d",
-					ScreenWidth, ScreenHeight, ScreenWidthActual,
-					ScreenHeightActual);
+		printf ("ScrWidth:%d, ScrHeight:%d, Wactual:%d, Hactual:%d",
+				ScreenWidth, ScreenHeight, ScreenWidthActual,
+				ScreenHeightActual);
 
-			// These solve the context problem that plagued the setupmenu
-			// when changing to higher resolution.
-			TFB_BBox_Reset ();
-			TFB_BBox_Init (ScreenWidth, ScreenHeight);
+		// These solve the context problem that plagued the setupmenu
+		// when changing to higher resolution.
+		TFB_BBox_Reset ();
+		TFB_BBox_Init (ScreenWidth, ScreenHeight);
 
-			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 3));
-			FlushColorXForms ();
-		}
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 3));
+		FlushColorXForms ();
 
-		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth,
-				NewHeight);
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				ScreenWidthActual, ScreenHeightActual);
 		InitVideoPlayer (TRUE);
 
-		if (optRequiresReload)
-			Reload ();
+		Reload ();
 	}
 }
