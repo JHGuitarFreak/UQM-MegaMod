@@ -327,10 +327,10 @@ RenderFPS (int *fps)
 	if (GoodToGoFPS () && (prevFPS != *fps))
 	{
 		RECT tr;
-		RECT r;
 		SIZE w, h;
 		int i;
 		int max;
+		int step = 6;
 		UNICODE buf[4];
 		TFB_Char *ch;
 		TFB_Image *img;
@@ -339,17 +339,13 @@ RenderFPS (int *fps)
 
 		TFB_ClearFPSCanvas ();
 
-		r.corner = MAKE_POINT (0, 0);
-		r.extent.width = 25 << resolutionFactor;
-		r.extent.height = 10 << resolutionFactor;
-
 		int x = 14 << resolutionFactor;
 		int y = 7 << resolutionFactor;
 
 		sprintf (buf, "%d", *fps);
 		max = (COUNT)utf8StringCount(buf);
 
-		GetFontDims (&w, &h);		
+		GetFontDims (&w, &h);
 		img = TFB_DrawImage_CreateForScreen (w, h, TRUE);
 		tr.corner.x = tr.corner.y = 0;
 		tr.extent.width = w;
@@ -362,7 +358,11 @@ RenderFPS (int *fps)
 			if (ch)
 			{
 				TFB_DrawCanvas_FontChar (ch, img, x, y, MAKE_DRAW_MODE(DRAW_ALPHA, 0xff), TFB_GetFPSCanvas ());
-				x -= 6 << resolutionFactor;
+				if ((i > 0) && (buf[i - 1] == '1'))
+					step = 5;
+				else
+					step = 6;
+				x -= step << resolutionFactor;
 			}
 		}
 	}	
