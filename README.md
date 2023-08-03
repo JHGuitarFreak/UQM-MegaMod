@@ -1,5 +1,5 @@
-# The Ur-Quan Masters MegaMod
-A fork of The Ur-Quan Masters that remasters the HD mod with a veritable smorgasbord of extra features and options.
+# The Ur-Quan Masters HD MegaMod
+A fork of The Ur-Quan Masters + HD that remasters the graphics with a veritable smorgasbord of extra features and options.
 
 ## Changes from the original
 
