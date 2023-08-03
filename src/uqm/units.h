@@ -62,9 +62,9 @@ extern int ScreenHeight;
 #define SAFE_NUM_SCL(a) (RES_SCALE (SAFE_NUM ((a))))
 		// Same as SAFE_NUM but scaled it to HD
 #define NSAFE_NUM(a) (SAFE_BOOL ((a), 0))
-		// Returns the input number if 3DO mode is active
+		// Returns the input number if 3DO mode is disabled
 #define NSAFE_NUM_SCL(a) (RES_SCALE (NSAFE_NUM ((a))))
-		// Same as SAFE_NUM but scaled it to HD
+		// Same as NSAFE_NUM but scaled it to HD
 
 		// Margins
 #define SAFE_X (SAFE_NUM_SCL (16))
