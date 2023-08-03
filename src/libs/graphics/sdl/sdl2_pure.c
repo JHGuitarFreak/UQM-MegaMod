@@ -199,7 +199,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 				return -1;
 		}
 		else
-			SDL_FreeSurface (&SDL_Screen_fps);
+			UnInit_Screen (&SDL_Screen_fps);
 		SDL2_Screens[1].active = FALSE;
 		SDL_Screen = SDL_Screens[0];
 		TransitionScreen = SDL_Screens[2];
@@ -225,16 +225,16 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 					return -1;
 				}
 			}
-			if (flags & TFB_GFXFLAGS_SHOWFPS)
-			{
-				if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight))
-					return -1;
-			}
-			else
-				SDL_FreeSurface (&SDL_Screen_fps);
 			SDL_Screen = SDL_Screens[0];
 			TransitionScreen = SDL_Screens[2];
 		}
+		if (flags & TFB_GFXFLAGS_SHOWFPS)
+		{
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight))
+				return -1;
+		}
+		else
+			UnInit_Screen (&SDL_Screen_fps);
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
 			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -288,7 +288,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 				return -1;
 		}
 		else
-			SDL_FreeSurface (&SDL_Screen_fps);
+			UnInit_Screen (&SDL_Screen_fps);
 		scaler = Scale_PrepPlatform (flags, SDL2_Screens[0].scaled->format);
 		graphics_backend = &sdl2_scaled_backend;
 	}
