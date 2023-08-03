@@ -85,14 +85,14 @@ whichPlatformRef (BOOLEAN opt)
 }
 
 static BOOLEAN
-PutBooleanOption (BOOLEAN *glob, BOOLEAN *set, const char *key, BOOLEAN *reload)
+PutBoolOpt (BOOLEAN *glob, BOOLEAN *set, const char *key, BOOLEAN reload)
 {
 	if (*glob != *set)
 	{
 		*glob = *set;
 		res_PutBoolean (key, *set);
 		if (reload)
-			*reload = TRUE;
+			optRequiresReload = TRUE;
 		return TRUE;
 	}
 
@@ -100,14 +100,14 @@ PutBooleanOption (BOOLEAN *glob, BOOLEAN *set, const char *key, BOOLEAN *reload)
 }
 
 static BOOLEAN
-PutIntegerOption (int *glob, int *set, const char *key, BOOLEAN *reload)
+PutIntOpt (int *glob, int *set, const char *key, BOOLEAN reload)
 {
 	if (*glob != *set)
 	{
 		*glob = *set;
 		res_PutInteger (key, *set);
 		if (reload)
-			*reload = TRUE;
+			optRequiresReload = TRUE;
 		return TRUE;
 	}
 
@@ -115,14 +115,14 @@ PutIntegerOption (int *glob, int *set, const char *key, BOOLEAN *reload)
 }
 
 static BOOLEAN
-PutSwitchOption (int *glob, BOOLEAN *set, const char *key, BOOLEAN *reload)
+PutConsOpt (int *glob, BOOLEAN *set, const char *key, BOOLEAN reload)
 {
 	if (*glob != whichPlatformRef (*set))
 	{
 		*glob = whichPlatformRef (*set);
 		res_PutBoolean (key, *set);
 		if (reload)
-			*reload = TRUE;
+			optRequiresReload = TRUE;
 		return TRUE;
 	}
 
@@ -1975,7 +1975,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
  *		Graphics options
  */
 	newFactor = (int)(opts->screenResolution << 1);
-	PutIntegerOption (&resFactor, &newFactor, "config.resolutionfactor", &optRequiresReload);
+	PutIntOpt (&resFactor, &newFactor, "config.resolutionfactor", TRUE);
 
 	if (resFactor != resolutionFactor)
 	{
@@ -2000,7 +2000,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 //#endif
 //	}
 
-	PutBooleanOption (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", NULL);
+	PutBoolOpt (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", FALSE);
 
 	// Avoid setting gamma when it is not necessary
 	if (optGamma != 1.0f || sliderToGamma (opts->gamma) != 1.0f)
@@ -2014,13 +2014,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 /*
  *		Audio options
  */
-	PutBooleanOption (&optStereoSFX, &opts->stereo, "config.positionalsfx", &optRequiresReload);
-	PutBooleanOption (&opt3doMusic, &opts->music3do, "config.3domusic", &optRequiresReload);
-	PutBooleanOption (&optRemixMusic, &opts->musicremix, "config.remixmusic", &optRequiresReload);
-	PutBooleanOption (&optVolasMusic, &opts->volasMusic, "mm.volasMusic", &optRequiresReload);
-	PutBooleanOption (&optSpaceMusic, &opts->spaceMusic, "mm.spaceMusic", &optRequiresReload);
+	PutBoolOpt (&optStereoSFX, &opts->stereo, "config.positionalsfx", TRUE);
+	PutBoolOpt (&opt3doMusic, &opts->music3do, "config.3domusic", TRUE);
+	PutBoolOpt (&optRemixMusic, &opts->musicremix, "config.remixmusic", TRUE);
+	PutBoolOpt (&optVolasMusic, &opts->volasMusic, "mm.volasMusic", TRUE);
+	PutBoolOpt (&optSpaceMusic, &opts->spaceMusic, "mm.spaceMusic", TRUE);
 
-	if (PutBooleanOption (&optMainMenuMusic, &opts->mainMenuMusic, "mm.mainMenuMusic", NULL))
+	if (PutBoolOpt (&optMainMenuMusic, &opts->mainMenuMusic, "mm.mainMenuMusic", FALSE))
 	{
 		if (optMainMenuMusic)
 			InitMenuMusic ();
@@ -2028,8 +2028,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			UninitMenuMusic ();
 	}
 
-	PutBooleanOption (&optMusicResume, &opts->musicResume, "mm.musicResume", NULL);
-	PutBooleanOption (&optSpeech, &opts->speech, "config.speech", &optRequiresReload);
+	PutBoolOpt (&optMusicResume, &opts->musicResume, "mm.musicResume", FALSE);
+	PutBoolOpt (&optSpeech, &opts->speech, "config.speech", TRUE);
 
 	if (audioDriver != opts->adriver)
 	{
@@ -2083,22 +2083,22 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	}
 
 	// update actual volumes
-	PutIntegerOption (&SfxVol, &opts->sfxvol, "config.sfxvol", NULL);
-	PutIntegerOption (&MusVol, &opts->musicvol, "config.musicvol", NULL);
-	PutIntegerOption (&SpcVol, &opts->speechvol, "config.speechvol", NULL);
+	PutIntOpt (&SfxVol, &opts->sfxvol, "config.sfxvol", FALSE);
+	PutIntOpt (&MusVol, &opts->musicvol, "config.musicvol", FALSE);
+	PutIntOpt (&SpcVol, &opts->speechvol, "config.speechvol", FALSE);
 
 
 /*
  *		Engine&Visuals options
  */
 	// Mics
-	PutBooleanOption (&optSubtitles, &opts->subtitles, "config.subtitles", NULL);
-	PutSwitchOption (&optWhichMenu, &opts->menu, "config.textmenu", NULL);
-	PutBooleanOption (&optSubmenu, &opts->submenu, "mm.submenu", NULL);
-	PutSwitchOption (&optWhichFonts, &opts->text, "config.textgradients", NULL);
-	PutSwitchOption (&optScrTrans, &opts->scrTrans, "mm.scrTransition", NULL);
-	PutSwitchOption (&optWhichIntro, &opts->intro, "config.3domovies", &optRequiresReload);
-	PutBooleanOption (&optSkipIntro, &opts->skipIntro, "mm.skipIntro", NULL);
+	PutBoolOpt (&optSubtitles, &opts->subtitles, "config.subtitles", FALSE);
+	PutConsOpt (&optWhichMenu, &opts->menu, "config.textmenu", FALSE);
+	PutBoolOpt (&optSubmenu, &opts->submenu, "mm.submenu", FALSE);
+	PutConsOpt (&optWhichFonts, &opts->text, "config.textgradients", FALSE);
+	PutConsOpt (&optScrTrans, &opts->scrTrans, "mm.scrTransition", FALSE);
+	PutConsOpt (&optWhichIntro, &opts->intro, "config.3domovies", TRUE);
+	PutBoolOpt (&optSkipIntro, &opts->skipIntro, "mm.skipIntro", FALSE);
 	if (optMScale != (int)opts->meleezoom)
 	{
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -2120,77 +2120,78 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		}
 		res_PutInteger ("config.smoothmelee", opts->meleezoom);
 #else
-		optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
+		optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO)
+				? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 		res_PutBoolean ("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
 #endif
 	}
 #if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
 		opts->controllerType = 0;
 #endif
-	if (PutIntegerOption (&optControllerType, (int*)(&opts->controllerType), "mm.controllerType", NULL))
+	if (PutIntOpt (&optControllerType, (int*)(&opts->controllerType), "mm.controllerType", FALSE))
 	{
 		TFB_UninitInput ();
 		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 	}
 #if defined(ANDROID) || defined(__ANDROID__)
-	PutBooleanOption (&optDirectionalJoystick, opts->directionalJoystick, "mm.directionalJoystick", FALSE);
+	PutBoolOpt (&optDirectionalJoystick, opts->directionalJoystick, "mm.directionalJoystick", FALSE);
 #endif
-	PutIntegerOption (&optDateFormat, (int*)(&opts->dateType), "mm.dateFormat", NULL);
-	PutBooleanOption (&optCustomBorder, &opts->customBorder, "mm.customBorder", NULL);
-	PutSwitchOption (&optFlagshipColor, &opts->flagshipColor, "mm.flagshipColor", NULL);
-	PutBooleanOption (&optGameOver, &opts->gameOver, "mm.gameOver", NULL);
-	PutBooleanOption (&optHyperStars, &opts->hyperStars, "mm.hyperStars", NULL);
-	PutBooleanOption (&optShowVisitedStars, &opts->showVisitedStars, "mm.showVisitedStars", NULL);
-	PutIntegerOption (&optFuelRange, (int*)(&opts->fuelRange), "mm.fuelRange", NULL);
-	PutBooleanOption (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", NULL);
-	PutBooleanOption (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", NULL);
+	PutIntOpt  (&optDateFormat, (int*)(&opts->dateType), "mm.dateFormat", FALSE);
+	PutBoolOpt (&optCustomBorder, &opts->customBorder, "mm.customBorder", FALSE);
+	PutConsOpt (&optFlagshipColor, &opts->flagshipColor, "mm.flagshipColor", FALSE);
+	PutBoolOpt (&optGameOver, &opts->gameOver, "mm.gameOver", FALSE);
+	PutBoolOpt (&optHyperStars, &opts->hyperStars, "mm.hyperStars", FALSE);
+	PutBoolOpt (&optShowVisitedStars, &opts->showVisitedStars, "mm.showVisitedStars", FALSE);
+	PutIntOpt  (&optFuelRange, (int*)(&opts->fuelRange), "mm.fuelRange", FALSE);
+	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
+	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
 	
 	// Interplanetary
-	PutBooleanOption (&optNebulae, &opts->nebulae, "mm.nebulae", NULL);
-	PutIntegerOption (&optNebulaeVolume, &opts->nebulaevol, "mm.nebulaevol", NULL);
-	PutIntegerOption (&optStarBackground, &opts->starBackground, "mm.starBackground", NULL);
-	PutBooleanOption (&optUnscaledStarSystem, &opts->unscaledStarSystem, "mm.unscaledStarSystem", NULL);
-	PutSwitchOption (&optPlanetStyle, &opts->planetStyle, "mm.planetStyle", NULL);
-	PutBooleanOption (&optOrbitingPlanets, &opts->orbitingPlanets, "mm.orbitingPlanets", NULL);
-	PutBooleanOption (&optTexturedPlanets, &opts->texturedPlanets, "mm.texturedPlanets", NULL);
+	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);
+	PutIntOpt  (&optNebulaeVolume, &opts->nebulaevol, "mm.nebulaevol", FALSE);
+	PutIntOpt  (&optStarBackground, &opts->starBackground, "mm.starBackground", FALSE);
+	PutBoolOpt (&optUnscaledStarSystem, &opts->unscaledStarSystem, "mm.unscaledStarSystem", FALSE);
+	PutConsOpt (&optPlanetStyle, &opts->planetStyle, "mm.planetStyle", FALSE);
+	PutBoolOpt (&optOrbitingPlanets, &opts->orbitingPlanets, "mm.orbitingPlanets", FALSE);
+	PutBoolOpt (&optTexturedPlanets, &opts->texturedPlanets, "mm.texturedPlanets", FALSE);
 	
 	// Orbit
-	PutSwitchOption (&optLanderHold, &opts->landerHold, "mm.landerHold", NULL);
-	PutBooleanOption (&optPartialPickup, &opts->partialPickup, "mm.partialPickup", NULL);
-	PutIntegerOption (&optWhichCoarseScan, &opts->cscan, "config.iconicscan", NULL);
-	PutBooleanOption (&optHazardColors, &opts->hazardColors, "mm.hazardColors", NULL);
-	PutSwitchOption (&optScanStyle, &opts->scanStyle, "mm.scanStyle", NULL);
-	PutSwitchOption (&optSuperPC, &opts->landerStyle, "mm.landerStyle", NULL);
-	PutBooleanOption (&optPlanetTexture, &opts->planetTexture, "mm.planetTexture", NULL);
-	PutIntegerOption (&optScanSphere, (int*)&opts->sphereType, "mm.sphereType", NULL);
-	PutSwitchOption (&optTintPlanSphere, &opts->tintPlanSphere, "mm.tintPlanSphere", NULL);
-	PutSwitchOption (&optWhichShield, &opts->shield, "config.pulseshield", NULL);
+	PutConsOpt (&optLanderHold, &opts->landerHold, "mm.landerHold", FALSE);
+	PutBoolOpt (&optPartialPickup, &opts->partialPickup, "mm.partialPickup", FALSE);
+	PutIntOpt  (&optWhichCoarseScan, &opts->cscan, "config.iconicscan", FALSE);
+	PutBoolOpt (&optHazardColors, &opts->hazardColors, "mm.hazardColors", FALSE);
+	PutConsOpt (&optScanStyle, &opts->scanStyle, "mm.scanStyle", FALSE);
+	PutConsOpt (&optSuperPC, &opts->landerStyle, "mm.landerStyle", FALSE);
+	PutBoolOpt (&optPlanetTexture, &opts->planetTexture, "mm.planetTexture", FALSE);
+	PutIntOpt  (&optScanSphere, (int*)&opts->sphereType, "mm.sphereType", FALSE);
+	PutConsOpt (&optTintPlanSphere, &opts->tintPlanSphere, "mm.tintPlanSphere", FALSE);
+	PutConsOpt (&optWhichShield, &opts->shield, "config.pulseshield", FALSE);
 
 	// Game modes
 	{
 		int customSeed = atoi (textentries[1].value);
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;
-		PutIntegerOption (&optCustomSeed, &customSeed, "mm.customSeed", NULL);
+		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
 	}
 
-	PutIntegerOption (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", NULL);
+	PutIntOpt (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", FALSE);
 	if ((optDifficulty = opts->difficulty) == OPTVAL_IMPO)
 		optDifficulty = OPTVAL_NORM;
-	PutBooleanOption (&optExtended, &opts->extended, "mm.extended", NULL);
-	PutBooleanOption (&optNomad, &opts->nomad, "mm.nomad", NULL);
-	PutBooleanOption (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", NULL);
+	PutBoolOpt (&optExtended, &opts->extended, "mm.extended", FALSE);
+	PutBoolOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
+	PutBoolOpt (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", FALSE);
 
 	// Comm screen
-	PutSwitchOption (&optSmoothScroll, &opts->scroll, "config.smoothscroll", NULL);
-	PutBooleanOption (&optOrzCompFont, &opts->orzCompFont, "mm.orzCompFont", NULL);
-	PutSwitchOption (&optScopeStyle, &opts->scopeStyle, "mm.scopeStyle", NULL);
-	PutBooleanOption (&optNonStopOscill, &opts->nonStopOscill, "mm.nonStopOscill", NULL);
+	PutConsOpt (&optSmoothScroll, &opts->scroll, "config.smoothscroll", FALSE);
+	PutBoolOpt (&optOrzCompFont, &opts->orzCompFont, "mm.orzCompFont", FALSE);
+	PutConsOpt (&optScopeStyle, &opts->scopeStyle, "mm.scopeStyle", FALSE);
+	PutBoolOpt (&optNonStopOscill, &opts->nonStopOscill, "mm.nonStopOscill", FALSE);
 
 	// Auto-Pilot
-	PutBooleanOption (&optSmartAutoPilot, &opts->smartAutoPilot, "mm.smartAutoPilot", NULL);
-	PutBooleanOption (&optAdvancedAutoPilot, &opts->advancedAutoPilot, "mm.advancedAutoPilot", NULL);
-	PutBooleanOption (&optShipDirectionIP, &opts->shipDirectionIP, "mm.shipDirectionIP", NULL);
+	PutBoolOpt (&optSmartAutoPilot, &opts->smartAutoPilot, "mm.smartAutoPilot", FALSE);
+	PutBoolOpt (&optAdvancedAutoPilot, &opts->advancedAutoPilot, "mm.advancedAutoPilot", FALSE);
+	PutBoolOpt (&optShipDirectionIP, &opts->shipDirectionIP, "mm.shipDirectionIP", FALSE);
 
 	// Controls
 	PlayerControls[1] = opts->player2;
@@ -2216,19 +2217,19 @@ SetGlobalOptions (GLOBALOPTS *opts)
 /*
  *		Cheats
  */
-	PutBooleanOption (&optCheatMode, &opts->cheatMode, "cheat.kohrStahp", NULL);
-	PutIntegerOption (&optGodModes, (int*)&opts->godModes, "cheat.godModes", NULL);
-	PutIntegerOption (&timeDilationScale, (int*)&opts->tdType, "cheat.timeDilation", NULL);
-	PutBooleanOption (&optBubbleWarp, &opts->bubbleWarp, "cheat.bubbleWarp", NULL);
-	PutBooleanOption (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", NULL);
-	PutBooleanOption (&optHeadStart, &opts->headStart, "cheat.headStart", NULL);
-	PutBooleanOption (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", NULL);
-	PutBooleanOption (&optAddDevices, &opts->addDevices, "cheat.addDevices", NULL);
-	PutBooleanOption (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", NULL);
-	PutBooleanOption (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", NULL);
-	PutBooleanOption (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", NULL);
-	PutBooleanOption (&optDeCleansing, &opts->deCleansing, "cheat.deCleansing", NULL);
-	PutBooleanOption(&optMeleeObstacles, &opts->meleeObstacles, "cheat.meleeObstacles", NULL);
+	PutBoolOpt (&optCheatMode, &opts->cheatMode, "cheat.kohrStahp", FALSE);
+	PutIntOpt  (&optGodModes, (int*)&opts->godModes, "cheat.godModes", FALSE);
+	PutIntOpt  (&timeDilationScale, (int*)&opts->tdType, "cheat.timeDilation", FALSE);
+	PutBoolOpt (&optBubbleWarp, &opts->bubbleWarp, "cheat.bubbleWarp", FALSE);
+	PutBoolOpt (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", FALSE);
+	PutBoolOpt (&optHeadStart, &opts->headStart, "cheat.headStart", FALSE);
+	PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
+	PutBoolOpt (&optAddDevices, &opts->addDevices, "cheat.addDevices", FALSE);
+	PutBoolOpt (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", FALSE);
+	PutBoolOpt (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", FALSE);
+	PutBoolOpt (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", FALSE);
+	PutBoolOpt (&optDeCleansing, &opts->deCleansing, "cheat.deCleansing", FALSE);
+	PutBoolOpt (&optMeleeObstacles, &opts->meleeObstacles, "cheat.meleeObstacles", FALSE);
 
 	SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
 	SaveKeyConfiguration (configDir, "flight.cfg");
