@@ -338,12 +338,11 @@ RenderFPS (int *fps)
 		r.extent.width = ScreenWidth >> 4;
 		r.extent.height = ScreenHeight >> 5;
 
-		int x;
+		int x = 14 << resolutionFactor;
 		int y = 7 << resolutionFactor;
 
 		sprintf (buf, "%ld", *fps);
 		max = (COUNT)utf8StringCount(buf);
-		x = 14 << resolutionFactor;//(15 - (6 * (max - 1))) << resolutionFactor;
 
 		GetFontDims (&w, &h);		
 		img = TFB_DrawImage_CreateForScreen (w, h, TRUE);
@@ -363,7 +362,7 @@ RenderFPS (int *fps)
 			{
 				TFB_DrawCanvas_FontChar (ch, img, x, y, DRAW_REPLACE_MODE, TFB_GetScreenCanvas (TFB_SCREEN_EXTRA));
 				x -= 6 << resolutionFactor;
-			}			
+			}
 		}
 	}	
 }
@@ -674,7 +673,6 @@ TFB_FlushGraphics (void)
 		RenderFPS (&fps);
 	
 	TFB_SwapBuffers (TFB_REDRAW_NO);
-
 	RenderedFrames++;
 	BroadcastCondVar (RenderingCond);
 }
