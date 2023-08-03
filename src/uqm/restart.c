@@ -515,7 +515,8 @@ DoRestart (MENU_STATE *pMS)
 				UnbatchGraphics ();
 				return TRUE;
 			case QUIT_GAME:
-				SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+				SleepThreadUntil (
+						FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 				GLOBAL (CurrentActivity) = CHECK_ABORT;
 				break;
 		}

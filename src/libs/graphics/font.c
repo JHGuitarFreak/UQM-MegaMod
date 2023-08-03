@@ -39,7 +39,8 @@ GetFrameForFPS (UniChar ch)
 BOOLEAN
 GoodToGoFPS (void)
 {
-	return (StarConFont && !(GLOBAL (CurrentActivity) & CHECK_ABORT) && !optRequiresReload);
+	return (StarConFont && !(GLOBAL (CurrentActivity) & CHECK_ABORT)
+			&& !optRequiresReload);
 }
 
 void

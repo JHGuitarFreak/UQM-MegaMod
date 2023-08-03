@@ -285,7 +285,7 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
-#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[59]),   // Control Display
 #endif
 	(WIDGET *)(&choices[18]),   // Bottom Player
@@ -551,14 +551,17 @@ populate_editkeys (int templat)
 {
 	int i, j;
 	
-	strncpy (textentries[0].value, input_templates[templat].name, textentries[0].maxlen);
+	strncpy (textentries[0].value, input_templates[templat].name,
+			textentries[0].maxlen);
 	textentries[0].value[textentries[0].maxlen-1] = 0;
 	
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		for (j = 0; j < 2; j++)
 		{
-			InterrogateInputState (templat, i, j, controlentries[i].controlname[j], WIDGET_CONTROLENTRY_WIDTH);
+			InterrogateInputState (templat, i, j,
+					controlentries[i].controlname[j],
+					WIDGET_CONTROLENTRY_WIDTH);
 		}
 	}
 }
@@ -652,8 +655,8 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 		*NewHeight = 240 * (1 + self->selected);
 	}
 
-	PutIntegerOption ((int *)(&loresBlowupScale), (int *)(&self->selected),
-			"config.loresBlowupScale", NULL);
+	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
+			"config.loresBlowupScale", FALSE);
 	res_PutInteger ("config.reswidth", *NewWidth);
 	res_PutInteger ("config.resheight", *NewHeight);
 }
@@ -967,7 +970,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 		SetDefaultMenuRepeatDelay ();
 		pInputState->NextTime = GetTimeCounter ();
 		SetDefaults ();
-		Widget_SetFont (PlyrFont); // Was StarConFont: Switched for better readability
+		Widget_SetFont (PlyrFont);
 		Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR,
 				SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
@@ -1289,7 +1292,7 @@ init_widgets (void)
 	
 	if (setup_frame == NULL || optRequiresReload)
 	{
-		// JMS: Load the different menus depending on the resolution factor.
+		// Load the different menus depending on the resolution factor.
 		setup_frame = CaptureDrawable (LoadGraphic (MENUBKG_PMAP_ANIM));
 		LoadArrows ();
 	}
@@ -1298,13 +1301,16 @@ init_widgets (void)
 
 	if (count < 3)
 	{
-		log_add (log_Fatal, "PANIC: Setup string table too short to even hold all indices!");
+		log_add (log_Fatal, "PANIC: Setup string table too short to even "
+				"hold all indices!");
 		exit (EXIT_FAILURE);
 	}
 
 	/* Menus */
-	title = StringBank_AddOrFindString (bank, GetStringAddress (SetAbsStringTableIndex (SetupTab, 0)));
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, 1)), '\n', 100, buffer, bank) != MENU_COUNT)
+	title = StringBank_AddOrFindString (bank,
+			GetStringAddress (SetAbsStringTableIndex (SetupTab, 0)));
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, 1)), '\n', 100, buffer, bank) != MENU_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Menu Subtitles");
@@ -1324,7 +1330,8 @@ init_widgets (void)
 		menus[i].subtitle = buffer[i];
 		menus[i].bgStamp.origin.x = 0;
 		menus[i].bgStamp.origin.y = 0;
-		menus[i].bgStamp.frame = SetAbsFrameIndex (setup_frame, menu_defs[i].bgIndex);
+		menus[i].bgStamp.frame =
+				SetAbsFrameIndex (setup_frame, menu_defs[i].bgIndex);
 		menus[i].num_children = count_widgets (menu_defs[i].widgets);
 		menus[i].child = menu_defs[i].widgets;
 		menus[i].highlighted = 0;
@@ -1335,9 +1342,14 @@ init_widgets (void)
 	}
 		
 	/* Options */
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, 2)), '\n', 100, buffer, bank) != CHOICE_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, 2)), '\n', 100, buffer, bank) != CHOICE_COUNT)
 	{
-		log_add (log_Fatal, "PANIC: Incorrect number of Choice Options: %d. Should be %d", CHOICE_COUNT, SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, 2)), '\n', 100, buffer, bank));
+		log_add (log_Fatal, "PANIC: Incorrect number of Choice Options: "
+				"%d. Should be %d", CHOICE_COUNT,
+				SplitString (GetStringAddress (
+					SetAbsStringTableIndex (SetupTab, 2)),
+					'\n', 100, buffer, bank));
 		exit (EXIT_FAILURE);
 	}
 
@@ -1366,10 +1378,12 @@ init_widgets (void)
 
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading choices");
+			log_add (log_Fatal, "PANIC: String table cut short while "
+					"reading choices");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		optcount = SplitString (str, '\n', 100, buffer, bank);
 		choices[i].numopts = optcount;
 		choices[i].options = HMalloc (optcount * sizeof (CHOICE_OPTION));
@@ -1387,10 +1401,12 @@ init_widgets (void)
 
 			if (index >= count)
 			{
-				log_add (log_Fatal, "PANIC: String table cut short while reading choices");
+				log_add (log_Fatal, "PANIC: String table cut short while "
+						"reading choices");
 				exit (EXIT_FAILURE);
 			}
-			str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+			str = GetStringAddress (
+					SetAbsStringTableIndex (SetupTab, index++));
 			tipcount = SplitString (str, '\n', 100, buffer, bank);
 			if (tipcount > 3)
 			{
@@ -1403,7 +1419,8 @@ init_widgets (void)
 		}
 	}
 
-	/* Choices 18-20 are also special, being the names of the key configurations */
+	// Choices 18-20 are also special, being the names of the key
+	// configurations
 	for (i = 0; i < 6; i++)
 	{
 		choices[18].options[i].optname = input_templates[i].name;
@@ -1425,11 +1442,13 @@ init_widgets (void)
 	/* Sliders */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading sliders");
+		log_add (log_Fatal,
+				"PANIC: String table cut short while reading sliders");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != SLIDER_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank) != SLIDER_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Slider Options");
@@ -1474,10 +1493,12 @@ init_widgets (void)
 		
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading sliders");
+			log_add (log_Fatal,
+					"PANIC: String table cut short while reading sliders");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		tipcount = SplitString (str, '\n', 100, buffer, bank);
 		if (tipcount > 3)
 		{
@@ -1492,11 +1513,13 @@ init_widgets (void)
 	/* Buttons */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading buttons");
+		log_add (log_Fatal,
+				"PANIC: String table cut short while reading buttons");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != BUTTON_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank) != BUTTON_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Button Options");
@@ -1524,10 +1547,12 @@ init_widgets (void)
 		
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading buttons");
+			log_add (log_Fatal,
+					"PANIC: String table cut short while reading buttons");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		tipcount = SplitString (str, '\n', 100, buffer, bank);
 		if (tipcount > 3)
 		{
@@ -1542,11 +1567,13 @@ init_widgets (void)
 	/* Labels */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading labels");
+		log_add (log_Fatal,
+				"PANIC: String table cut short while reading labels");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != LABEL_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank) != LABEL_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Label Options");
@@ -1572,13 +1599,16 @@ init_widgets (void)
 		
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading labels");
+			log_add (log_Fatal, "PANIC: String table cut short while "
+					"reading labels");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		linecount = SplitString (str, '\n', 100, buffer, bank);
 		labels[i].line_count = linecount;
-		labels[i].lines = (const char **)HMalloc(linecount * sizeof(const char *));
+		labels[i].lines =
+				(const char **)HMalloc(linecount * sizeof(const char *));
 		for (j = 0; j < linecount; j++)
 		{
 			labels[i].lines[j] = buffer[j];
@@ -1588,11 +1618,14 @@ init_widgets (void)
 	/* Text Entry boxes */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading text entries");
+		log_add (log_Fatal, "PANIC: String table cut short while reading "
+				"text entries");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != TEXTENTRY_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank)
+			!= TEXTENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Text Entries");
 		exit (EXIT_FAILURE);
@@ -1616,7 +1649,9 @@ init_widgets (void)
 		textentries[i].tooltip[1] = "";
 		textentries[i].tooltip[2] = "";
 	}
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != TEXTENTRY_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank)
+			!= TEXTENTRY_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Text Entries");
@@ -1631,7 +1666,8 @@ init_widgets (void)
 
 		if (index >= count)
 		{
-			log_add(log_Fatal, "PANIC: String table cut short while reading text entries");
+			log_add(log_Fatal, "PANIC: String table cut short while "
+					"reading text entries");
 			exit(EXIT_FAILURE);
 		}
 		str = GetStringAddress(SetAbsStringTableIndex(SetupTab, index++));
@@ -1652,11 +1688,14 @@ init_widgets (void)
 	/* Control Entry boxes */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading control entries");
+		log_add (log_Fatal, "PANIC: String table cut short while reading "
+				"control entries");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != CONTROLENTRY_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank)
+			!= CONTROLENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Control Entries");
 		exit (EXIT_FAILURE);
@@ -1682,8 +1721,8 @@ init_widgets (void)
 	/* Check for garbage at the end */
 	if (index < count)
 	{
-		log_add (log_Warning, "WARNING: Setup strings had %d garbage entries at the end.",
-				count - index);
+		log_add (log_Warning, "WARNING: Setup strings had %d garbage "
+				"entries at the end.", count - index);
 	}
 
 	testSounds = CaptureSound (LoadSound (TEST_SOUNDS));
@@ -1751,7 +1790,8 @@ SetupMenu (void)
 	}
 	else
 	{
-		log_add (log_Fatal, "PANIC: Could not find strings for the setup menu!");
+		log_add (log_Fatal,
+				"PANIC: Could not find strings for the setup menu!");
 		exit (EXIT_FAILURE);
 	}
 	done = FALSE;
@@ -1869,9 +1909,11 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	audioQuality = opts->aquality;
 
-	SfxVol = opts->musicvol = (((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
+	SfxVol = opts->musicvol =
+			(((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
 	MusVol = opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
-	SpcVol = opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
+	SpcVol = opts->speechvol =
+			(((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 
 
 /*
@@ -1888,11 +1930,11 @@ GetGlobalOptions (GLOBALOPTS *opts)
 #if defined(ANDROID) || defined(__ANDROID__)
 	optMScale = opts->meleezoom = optMeleeScale;
 #else
-	optMScale = opts->meleezoom = (OPT_MELEEZOOM)((optMeleeScale == TFB_SCALE_STEP) ?
-		OPTVAL_PC : OPTVAL_3DO);
+	optMScale = opts->meleezoom = optMeleeScale == TFB_SCALE_STEP ?
+			OPTVAL_PC : OPTVAL_3DO;
 #endif
 	opts->controllerType = optControllerType;
-	opts->directionalJoystick = optDirectionalJoystick;	// For Android	
+	opts->directionalJoystick = optDirectionalJoystick; // For Android
 	opts->dateType = optDateFormat;
 	opts->customBorder = optCustomBorder;
 	opts->flagshipColor = is3DO (optFlagshipColor);

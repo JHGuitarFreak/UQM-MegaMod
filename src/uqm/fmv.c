@@ -211,7 +211,8 @@ AdvanceLoadProgress (void)
 		}
 		else
 		{
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0, 128, 192, 255));
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0, 128, 192, 255));
 			i++;
 		}
 		DrawFilledRectangle (&r);

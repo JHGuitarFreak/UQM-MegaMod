@@ -130,11 +130,13 @@ InitSpace (void)
 		if (stars_in_space == NULL)
 			return FALSE;
 
-		misc_in_space = CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
+		misc_in_space =
+				CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
 
 		if (IS_HD)
 		{
-			StarPoints = CaptureDrawable (LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
+			StarPoints = CaptureDrawable (
+					LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
 			if (StarPoints == NULL)
 				return FALSE;
 			
