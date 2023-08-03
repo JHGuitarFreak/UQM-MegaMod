@@ -255,15 +255,6 @@ TFB_DrawImage_Rect (RECT *rect, Color color, DrawMode mode, TFB_Image *target)
 }
 
 void
-TFB_DrawImage_Over (RECT *rect, Color color, TFB_Image *target)
-{
-	LockMutex (target->mutex);
-	TFB_DrawCanvas_Over (rect, color, target->NormalImg);
-	target->dirty = TRUE;
-	UnlockMutex (target->mutex);
-}
-
-void
 TFB_DrawImage_Image (TFB_Image *img, int x, int y, int scale,
 		int scaleMode, TFB_ColorMap *cmap, DrawMode mode, TFB_Image *target)
 {

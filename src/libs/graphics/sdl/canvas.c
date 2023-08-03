@@ -140,33 +140,6 @@ TFB_DrawCanvas_Rect (RECT *rect, Color color, DrawMode mode, TFB_Canvas target)
 	}
 }
 
-void
-TFB_DrawCanvas_Over (RECT* rect, Color color, TFB_Canvas target)
-{
-	SDL_Surface* dst = target;
-	SDL_PixelFormat* fmt = dst->format;
-	Uint32 sdlColor;
-	SDL_Rect sr;
-	sr.x = rect->corner.x;
-	sr.y = rect->corner.y;
-	sr.w = rect->extent.width;
-	sr.h = rect->extent.height;
-
-	sdlColor = SDL_MapRGBA (fmt, color.r, color.g, color.b, 0xff);
-
-	RenderPixelFn plotFn = renderpixel_for(target, DRAW_REPLACE);
-	if (!plotFn)
-	{
-		log_add(log_Warning, "ERROR: TFB_DrawCanvas_Rect "
-			"unsupported draw mode (%d)", DRAW_REPLACE);
-		return;
-	}
-
-	SDL_LockSurface(dst);
-	fillrect_over(sr, sdlColor, plotFn, dst);
-	SDL_UnlockSurface(dst);
-}
-
 static void
 TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 		SDL_Surface *dst, SDL_Rect *dst_r, DrawMode mode)
@@ -224,45 +197,6 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 		blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r);
 		SDL_UnlockSurface (dst);
 	}
-}
-
-static void
-TFB_DrawCanvas_OverBlit (SDL_Surface* src, SDL_Rect* src_r,
-	SDL_Surface* dst, SDL_Rect* dst_r)
-{
-	SDL_PixelFormat* srcfmt = src->format;
-
-	// Custom blit
-	SDL_Rect loc_src_r, loc_dst_r;
-	RenderPixelFn plotFn = renderpixel_for(dst, DRAW_ALPHA);
-	if (!plotFn)
-	{
-		log_add(log_Warning, "ERROR: TFB_DrawCanvas_Blit "
-			"unsupported draw mode (%d)", DRAW_REPLACE);
-		return;
-	}
-
-	if (!src_r)
-	{	// blit whole image; generate rect
-		loc_src_r.x = 0;
-		loc_src_r.y = 0;
-		loc_src_r.w = src->w;
-		loc_src_r.h = src->h;
-		src_r = &loc_src_r;
-	}
-
-	if (!dst_r)
-	{	// blit to 0,0; generate rect
-		loc_dst_r.x = 0;
-		loc_dst_r.y = 0;
-		loc_dst_r.w = dst->w;
-		loc_dst_r.h = dst->h;
-		dst_r = &loc_dst_r;
-	}
-
-	SDL_LockSurface(dst);
-	blt_over (src, *src_r, plotFn, 0xff, dst, *dst_r);
-	SDL_UnlockSurface (dst);
 }
 
 // XXX: If a colormap is passed in, it has to have been acquired via
@@ -688,85 +622,6 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 	SDL_UnlockSurface (surf);
 
 	TFB_DrawCanvas_Blit (surf, &srcRect, dst, &targetRect, mode);
-	UnlockMutex (backing->mutex);
-}
-
-void
-TFB_DrawCanvas_FontOver (TFB_Char *fontChar, TFB_Image *backing,
-		int x, int y, TFB_Canvas target)
-{
-	SDL_Surface *dst = target;
-	SDL_Rect srcRect, targetRect;
-	SDL_Surface *surf;
-	int w, h;
-
-	if (fontChar == 0)
-	{
-		log_add (log_Warning, "ERROR: "
-				"TFB_DrawCanvas_FontChar passed null char ptr");
-		return;
-	}
-	if (backing == 0)
-	{
-		log_add (log_Warning, "ERROR: "
-				"TFB_DrawCanvas_FontOver passed null backing ptr");
-		return;
-	}
-
-	w = fontChar->extent.width;
-	h = fontChar->extent.height;
-
-	if (w < 0 || h < 0)
-	{
-		log_add(log_Warning, "ERROR: "
-			"TFB_DrawCanvas_FontOver have invalid dimensions");
-		return;
-	}
-
-	LockMutex (backing->mutex);
-
-	surf = backing->NormalImg;
-	if (surf->format->BytesPerPixel != 4
-			|| surf->w < w || surf->h < h)
-	{
-		log_add (log_Warning, "ERROR: "
-				"TFB_DrawCanvas_FontOver bad backing surface: %dx%dx%d; "
-				"char: %dx%d",
-				surf->w, surf->h, (int)surf->format->BytesPerPixel, w, h);
-		UnlockMutex (backing->mutex);
-		return;
-	}
-
-	srcRect.x = 0;
-	srcRect.y = 0;
-	srcRect.w = fontChar->extent.width;
-	srcRect.h = fontChar->extent.height;
-
-	targetRect.x = x - fontChar->HotSpot.x;
-	targetRect.y = y - fontChar->HotSpot.y;
-
-	// transfer the alpha channel to the backing surface
-	SDL_LockSurface (surf);
-	{
-		int x, y;
-		const int sskip = fontChar->pitch - w;
-		const int dskip = (surf->pitch / 4) - w;
-		const Uint32 dmask = ~surf->format->Amask;
-		const int ashift = surf->format->Ashift;
-		Uint8 *src_p = fontChar->data;
-		Uint32 *dst_p = (Uint32 *)surf->pixels;
-
-		for (y = 0; y < h; ++y, src_p += sskip, dst_p += dskip)
-		{
-			for (x = 0; x < w; ++x, ++src_p, ++dst_p)
-			{
-				*dst_p = (*dst_p & dmask) | ((Uint32)*src_p << ashift);
-			}
-		}
-	}
-	SDL_UnlockSurface (surf);
-
-	TFB_DrawCanvas_OverBlit (surf, &srcRect, dst, &targetRect);
 	UnlockMutex (backing->mutex);
 }
 
