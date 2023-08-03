@@ -113,7 +113,6 @@ void TFB_DrawImage_CopyRect (TFB_Image *source, const RECT *srcRect,
 void TFB_DrawImage_Line (int x1, int y1, int x2, int y2, Color color,
 		DrawMode, TFB_Image *target, BYTE thickness);
 void TFB_DrawImage_Rect (RECT *rect, Color, DrawMode, TFB_Image *target);
-void TFB_DrawImage_Over (RECT* rect, Color, TFB_Image* target);
 void TFB_DrawImage_Image (TFB_Image *img, int x, int y, int scale,
 		int scaleMode, TFB_ColorMap *, DrawMode, TFB_Image *target);
 void TFB_DrawImage_FilledImage (TFB_Image *img, int x, int y, int scale,
@@ -152,15 +151,12 @@ void TFB_DrawCanvas_Delete (TFB_Canvas canvas);
 void TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 		DrawMode, TFB_Canvas target, BYTE thickness);
 void TFB_DrawCanvas_Rect (RECT *rect, Color, DrawMode, TFB_Canvas target);
-void TFB_DrawCanvas_Over (RECT *rect, Color color, TFB_Canvas target);
 void TFB_DrawCanvas_Image (TFB_Image *img, int x, int y, int scale,
 		int scaleMode, TFB_ColorMap *, DrawMode, TFB_Canvas target);
 void TFB_DrawCanvas_FilledImage (TFB_Image *img, int x, int y, int scale,
 		int scaleMode, Color, DrawMode, TFB_Canvas target);
 void TFB_DrawCanvas_FontChar (TFB_Char *, TFB_Image *backing, int x, int y,
 		DrawMode, TFB_Canvas target);
-void TFB_DrawCanvas_FontOver (TFB_Char *fontChar, TFB_Image *backing,
-		int x, int y, TFB_Canvas target);
 void TFB_DrawCanvas_CopyRect (TFB_Canvas source, const RECT *srcRect,
 		TFB_Canvas target, POINT dstPt);
 

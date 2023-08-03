@@ -37,7 +37,6 @@ extern TFB_BoundingBox TFB_BBox;
 
 void TFB_BBox_RegisterPoint (int x, int y);
 void TFB_BBox_RegisterRect (const RECT *r);
-void TFB_BBox_RegisterSR (const RECT* r);
 void TFB_BBox_RegisterCanvas (TFB_Canvas c, int x, int y);
 
 void TFB_BBox_Init (int width, int height);
