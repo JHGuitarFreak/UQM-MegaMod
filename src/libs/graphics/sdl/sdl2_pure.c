@@ -123,7 +123,8 @@ FindBestRenderDriver (void)
 }
 
 int
-TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
+TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
+		int togglefullscreen, int resFactor)
 {
 	int i;
 	char buf[50];
@@ -216,7 +217,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 		}
 	}
 
-	SDL_SetWindowTitle (window, &buf);
+	SDL_SetWindowTitle (window, buf);
 
 	if (GfxFlags & TFB_GFXFLAGS_SCALE_ANY)
 	{
@@ -288,7 +289,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 
 int
 TFB_Pure_InitGraphics (int driver, int flags, const char* renderer, 
-		int width, int height, unsigned int resFactor)
+		int width, int height, int resFactor)
 {
 	log_add (log_Info, "Initializing SDL.");
 	log_add (log_Info, "SDL initialized.");

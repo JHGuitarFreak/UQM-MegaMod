@@ -768,7 +768,8 @@ GetMeleeStarShips (COUNT playerMask, HSTARSHIP *ships)
 				2, 3, 2);
 		Flash_setFrameTime (gmstate.player[playerI].flashContext,
 				ONE_SECOND / 16);
-		Flash_setPulseBox(gmstate.player[playerI].flashContext, isPC (optWhichMenu));
+		Flash_setPulseBox(gmstate.player[playerI].flashContext,
+				(BOOLEAN)isPC (optWhichMenu));
 #ifdef NETPLAY
 		if (PlayerControl[playerI] & NETWORK_CONTROL)
 			Flash_setSpeed (gmstate.player[playerI].flashContext,

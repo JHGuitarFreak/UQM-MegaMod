@@ -78,7 +78,8 @@ TFB_PreQuit (void)
 }
 
 int
-TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *resFactor)
+TFB_ReInitGraphics (int driver, int flags, int width, int height,
+		int *resFactor)
 {
 	int result;
 	int togglefullscreen = 0;

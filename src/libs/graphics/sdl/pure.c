@@ -131,7 +131,8 @@ CalcAlphaFormat (const SDL_PixelFormat* video, SDL_PixelFormat* ours)
 }
 
 int
-TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
+TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int togglefullscreen,
+		int resFactor)
 {
 	int i, videomode_flags;
 	SDL_PixelFormat conv_fmt;
@@ -289,7 +290,7 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int toggle
 
 int
 TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
-		int width, int height, unsigned int resFactor)
+		int width, int height, int resFactor)
 {
 	char VideoName[256];
 

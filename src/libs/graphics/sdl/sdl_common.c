@@ -64,7 +64,7 @@ volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
 int
 TFB_InitGraphics (int driver, int flags, const char* renderer,
-		int width, int height, unsigned int *resFactor)
+		int width, int height, int *resFactor)
 {
 	int result, i;
 	char caption[200];

@@ -312,8 +312,8 @@ computeFPS (int *fps)
 	if (fps_counter > FPS_PERIOD)
 	{
 		*fps = (int)((float)ONE_SECOND * RenderedFrames / fps_counter);
-		log_add(log_User, "fps %.2f, effective %.2f",
-			(float)ONE_SECOND / delta_time,	*fps);
+		log_add(log_User, "fps %.2f, effective %d",
+			(float)ONE_SECOND / delta_time, *fps);
 
 		fps_counter = 0;
 		RenderedFrames = 0;
@@ -341,7 +341,7 @@ RenderFPS (int *fps)
 		int x = 14 << resolutionFactor;
 		int y = 7 << resolutionFactor;
 
-		sprintf (buf, "%ld", *fps);
+		sprintf (buf, "%d", *fps);
 		max = (COUNT)utf8StringCount(buf);
 
 		GetFontDims (&w, &h);		

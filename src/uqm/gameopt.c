@@ -364,7 +364,7 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 	{
 		Setting = GLOBAL_SIS (CommanderName);
 		tes.MaxSize = sizeof (GLOBAL_SIS (CommanderName));
-		TextEntry3DO = is3DO (optWhichFonts);
+		TextEntry3DO = (BOOLEAN)is3DO (optWhichFonts);
 	}
 	else
 	{

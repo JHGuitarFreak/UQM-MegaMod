@@ -98,7 +98,7 @@ ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
 }
 
 static int
-AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFactor)
+AttemptColorDepth (int flags, int width, int height, int bpp, int resFactor)
 {
 	SDL_Surface *SDL_Video;
 	int videomode_flags;
@@ -193,7 +193,8 @@ AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFa
 }
 
 int
-TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
+TFB_GL_ConfigureVideo (int driver, int flags, int width, int height,
+		int togglefullscreen, int resFactor)
 {
 	int i, texture_width, texture_height;
 	GraphicsDriver = driver;
@@ -303,7 +304,8 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 }
 
 int
-TFB_GL_InitGraphics (int driver, int flags, int width, int height, unsigned int resFactor)
+TFB_GL_InitGraphics (int driver, int flags, int width, int height,
+		int resFactor)
 {
 	char VideoName[256];
 

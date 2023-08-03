@@ -79,18 +79,19 @@ static int optMScale;
 static SOUND testSounds;
 
 static int
-whichPlatformRef (BOOLEAN opt)
+whichPlatformRef (OPT_CONSOLETYPE opt)
 {// Returns 1 if OPTVAL_3DO and 2 of OPTVAL_PC (1 and 0 respectively)
 	return (opt ? OPT_3DO : OPT_PC);
 }
 
 static BOOLEAN
-PutBoolOpt (BOOLEAN *glob, BOOLEAN *set, const char *key, BOOLEAN reload)
+PutBoolOpt (OPT_ENABLABLE *glob, OPT_ENABLABLE *set, const char *key,
+		BOOLEAN reload)
 {
 	if (*glob != *set)
 	{
 		*glob = *set;
-		res_PutBoolean (key, *set);
+		res_PutBoolean (key, (BOOLEAN)*set);
 		if (reload)
 			optRequiresReload = TRUE;
 		return TRUE;
@@ -115,12 +116,13 @@ PutIntOpt (int *glob, int *set, const char *key, BOOLEAN reload)
 }
 
 static BOOLEAN
-PutConsOpt (int *glob, BOOLEAN *set, const char *key, BOOLEAN reload)
+PutConsOpt (int *glob, OPT_CONSOLETYPE *set, const char *key,
+		BOOLEAN reload)
 {
 	if (*glob != whichPlatformRef (*set))
 	{
 		*glob = whichPlatformRef (*set);
-		res_PutBoolean (key, *set);
+		res_PutBoolean (key, (BOOLEAN)*set);
 		if (reload)
 			optRequiresReload = TRUE;
 		return TRUE;
@@ -1930,8 +1932,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 #if defined(ANDROID) || defined(__ANDROID__)
 	optMScale = opts->meleezoom = optMeleeScale;
 #else
-	optMScale = opts->meleezoom = optMeleeScale == TFB_SCALE_STEP ?
-			OPTVAL_PC : OPTVAL_3DO;
+	optMScale = opts->meleezoom =
+			(OPT_MELEEZOOM)(optMeleeScale == TFB_SCALE_STEP ?
+			OPTVAL_PC : OPTVAL_3DO);
 #endif
 	opts->controllerType = optControllerType;
 	opts->directionalJoystick = optDirectionalJoystick; // For Android
@@ -2214,7 +2217,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		int customSeed = atoi (textentries[1].value);
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;
-		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
+		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE); 
 	}
 
 	PutIntOpt (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", FALSE);

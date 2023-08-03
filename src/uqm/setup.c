@@ -150,7 +150,7 @@ LoadKernel (int argc, char *argv[])
 		//classicPackPresent = loadAddon ("classic-pack");
 	}
 
-	usingSpeech = optSpeech;
+	usingSpeech = (BOOLEAN)optSpeech;
 	if (optSpeech && !loadAddon ("3dovoice"))
 		usingSpeech = FALSE;
 	

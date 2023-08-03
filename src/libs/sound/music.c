@@ -106,7 +106,7 @@ get_current_music_pos (MUSIC_REF MusicRef)
 {
 	float pos = 0.0f;
 	float length = 0.0f;
-	UNICODE *filename;
+	//UNICODE *filename;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return 0;
@@ -115,7 +115,7 @@ get_current_music_pos (MUSIC_REF MusicRef)
 	{
 		LockMutex (soundSource[MUSIC_SOURCE].stream_mutex);
 
-		filename = soundSource[MUSIC_SOURCE].sample->decoder->filename;
+		//filename = soundSource[MUSIC_SOURCE].sample->decoder->filename;
 
 		if (IsTracker (MUSIC_SOURCE))
 		{

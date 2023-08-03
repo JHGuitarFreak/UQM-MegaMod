@@ -2030,7 +2030,7 @@ DoStarSearch (MENU_STATE *pMS)
 
 	DrawSISMessageEx ("", 0, 0, DSME_SETFR);
 
-	TextEntry3DO = is3DO (optWhichFonts);
+	TextEntry3DO = (BOOLEAN)is3DO (optWhichFonts);
 
 	pss->pMS = pMS;
 	pss->LastChangeTime = 0;

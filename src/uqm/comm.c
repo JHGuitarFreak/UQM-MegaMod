@@ -1176,7 +1176,6 @@ AlienTalkSegue (COUNT wait_track)
 
 	if (!pCurInputState->Initialized)
 	{
-		BYTE AlienConv = CommData.AlienConv;
 		MUSIC_REF AlienSong = CommData.AlienSong;
 
 		InitSpeechGraphics ();
@@ -1776,7 +1775,7 @@ HailAlien (void)
 			log_add (log_Warning,
 					"ComputerFont didn't load properly. "
 					"Disabling Alternate Orz Font");
-			optOrzCompFont = FALSE;
+			optOrzCompFont = OPTVAL_DISABLED;
 		}
 	}
 
