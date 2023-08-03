@@ -114,6 +114,7 @@ extern int ScreenColorDepth;
 extern int GraphicsDriver;
 
 void TFB_ScreenShot (void);
+void TFB_ClearFPSCanvas (void);
 void TFB_SetOnScreenKeyboard_Hidden(void);
 void TFB_SetOnScreenKeyboard_HiddenPermanently(void);
 void TFB_SetOnScreenKeyboard_Menu(void);

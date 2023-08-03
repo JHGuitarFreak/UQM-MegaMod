@@ -38,7 +38,7 @@ TFB_DrawCommand DCQ[DCQ_MAX];
 
 TFB_DrawCommandQueue DrawCommandQueue;
 
-#define FPS_PERIOD  (ONE_SECOND / 100)
+#define FPS_PERIOD  (ONE_SECOND / 20)
 int RenderedFrames = 0;
 
 
@@ -323,7 +323,8 @@ computeFPS (int *fps)
 static void
 RenderFPS (int *fps)
 {
-	if (GoodToGoFPS ())
+	static int prevFPS = 0;
+	if (GoodToGoFPS () && (prevFPS != *fps))
 	{
 		RECT tr;
 		RECT r;
@@ -334,9 +335,13 @@ RenderFPS (int *fps)
 		TFB_Char *ch;
 		TFB_Image *img;
 
+		prevFPS = *fps;
+
+		TFB_ClearFPSCanvas ();
+
 		r.corner = MAKE_POINT (0, 0);
-		r.extent.width = ScreenWidth >> 4;
-		r.extent.height = ScreenHeight >> 5;
+		r.extent.width = 25 << resolutionFactor;
+		r.extent.height = 10 << resolutionFactor;
 
 		int x = 14 << resolutionFactor;
 		int y = 7 << resolutionFactor;
@@ -351,16 +356,12 @@ RenderFPS (int *fps)
 		tr.extent.height = h;
 		TFB_DrawImage_Rect (&tr, BUILD_COLOR_RGBA (0x00, 0xFF, 0x00, 0xFF), DRAW_REPLACE_MODE, img);
 
-		TFB_DrawCanvas_CopyRect	(
-						TFB_GetScreenCanvas (TFB_SCREEN_MAIN), &r,
-						TFB_GetScreenCanvas (TFB_SCREEN_EXTRA), r.corner);
-
 		for (i = max - 1; i >= 0; i--)
 		{
 			ch = GetFrameForFPS (buf[i]);
 			if (ch)
 			{
-				TFB_DrawCanvas_FontChar (ch, img, x, y, DRAW_REPLACE_MODE, TFB_GetScreenCanvas (TFB_SCREEN_EXTRA));
+				TFB_DrawCanvas_FontChar (ch, img, x, y, MAKE_DRAW_MODE(DRAW_ALPHA, 0xff), TFB_GetFPSCanvas ());
 				x -= 6 << resolutionFactor;
 			}
 		}

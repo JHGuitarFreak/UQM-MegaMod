@@ -46,6 +46,7 @@ SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
 
 SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
+SDL_Surface *SDL_Screen_fps;
 
 SDL_Surface *format_conv_surf = NULL;
 
@@ -159,6 +160,8 @@ TFB_UninitGraphics (void)
 
 	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		UnInit_Screen (&SDL_Screens[i]);
+
+	UnInit_Screen (&SDL_Screen_fps);
 
 	TFB_Pure_UninitGraphics ();
 #ifdef HAVE_OPENGL
@@ -332,7 +335,7 @@ TFB_SwapBuffers (int force_full_redraw)
 		graphics_backend->screen (TFB_SCREEN_MAIN, 255, &system_box);
 	}
 
-	graphics_backend->postprocess (IS_HD, ((fade_amount != 255) || (transition_amount != 255)));
+	graphics_backend->postprocess (IS_HD);
 }
 
 /* Probably ought to clean this away at some point. */
@@ -375,6 +378,12 @@ TFB_Canvas
 TFB_GetScreenCanvas (SCREEN screen)
 {
 	return SDL_Screens[screen];
+}
+
+TFB_Canvas
+TFB_GetFPSCanvas (void)
+{
+	return SDL_Screen_fps;
 }
 
 void
@@ -668,6 +677,12 @@ TFB_ScreenShot (void)
 		else
 			log_add (log_Debug, "Screenshot not saved due to an error");
 	}
+}
+
+void
+TFB_ClearFPSCanvas (void)
+{
+	SDL_FillRect (SDL_Screen_fps, NULL, 0x00000000);
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)

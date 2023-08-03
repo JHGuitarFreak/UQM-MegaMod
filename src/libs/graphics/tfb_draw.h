@@ -194,6 +194,7 @@ BOOLEAN TFB_DrawCanvas_SetPixelIndexes (TFB_Canvas, const BYTE *data,
 const char *TFB_DrawCanvas_GetError (void);
 
 TFB_Canvas TFB_GetScreenCanvas (SCREEN screen);
+TFB_Canvas TFB_GetFPSCanvas (void);
 
 #endif
 

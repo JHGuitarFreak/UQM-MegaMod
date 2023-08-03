@@ -29,7 +29,7 @@
 // The Graphics Backend vtable
 typedef struct _tfb_graphics_backend {
 	void (*preprocess) (int force_redraw, int transition_amount, int fade_amount);
-	void (*postprocess) (bool hd, bool inTransition);
+	void (*postprocess) (bool hd);
 	void (*uploadTransitionScreen) (void);
 	void (*screen) (SCREEN screen, Uint8 alpha, SDL_Rect *rect);
 	void (*color) (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
@@ -41,6 +41,7 @@ extern SDL_Surface *SDL_Screen;
 extern SDL_Surface *TransitionScreen;
 
 extern SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
+extern SDL_Surface *SDL_Screen_fps;
 
 extern SDL_Surface *format_conv_surf;
 
