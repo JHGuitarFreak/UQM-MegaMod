@@ -109,10 +109,9 @@ PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 	if (!optNebulae)
 		font_DrawText (t);
 	else
-		font_DrawTracedText (t,
-				EXT_CASE (GetContextForeGroundColor (),
-					SCAN_PC_TITLE_COLOR_6014),
-					OUTLINE_COLOR);
+		font_DrawTracedText (t, (
+				optWhichCoarseScan ? SCAN_PC_TITLE_COLOR_6014
+				: GetContextForeGroundColor ()), OUTLINE_COLOR);
 
 	TextRect (t, r, NULL);
 	t->baseline.x += r->extent.width;
