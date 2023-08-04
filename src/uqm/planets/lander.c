@@ -216,7 +216,7 @@ CreatePCLanderContext (void)
 			+ (SAFE_X * 2 + SAFE_NUM_SCL (1));
 	r.corner.y += r.extent.height - MAP_HEIGHT;
 	r.extent.width = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH) - SIS_ORG_X
-			+ RES_SCALE (1) + SAFE_X;
+			+ SAFE_POS (1);
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
@@ -1577,7 +1577,12 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		DeltaLanderCrew (-1, LIGHTNING_DISASTER);
 
 	if (isPC (optSuperPC))
+	{
 		DrawRadarBorder ();
+		RotatePlanetSphere (TRUE, NULL);
+	}
+
+
 
 	UnbatchGraphics ();
 
