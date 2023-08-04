@@ -43,8 +43,8 @@ extern FRAME PlayFrame;
 #define SAVES_PER_PAGE   (optWindowType < 2 ? 2 : 5)
 #define MAX_NAME_SIZE     SIS_NAME_SIZE
 
-#define SUMMARY_X_OFFS    SAFE_BOOL_SCL (14, 0)
-#define SUMMARY_SIDE_OFFS SAFE_BOOL_SCL ( 7, 0)
+#define SUMMARY_X_OFFS    NSAFE_NUM_SCL (14)
+#define SUMMARY_SIDE_OFFS NSAFE_NUM_SCL (7)
 
 static COUNT lastUsedSlot;
 
@@ -816,11 +816,11 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
 	s.origin.x = RES_SCALE (7) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS
-			+ SAFE_BOOL_SCL (3, 0) + HD_ALIGN_DOTS;
+			+ NSAFE_NUM_SCL (3) + HD_ALIGN_DOTS;
 	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
 	// setup element amounts
 	t.baseline.x = RES_SCALE (33) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS
-			+ SAFE_BOOL_SCL (3, 0);
+			+ NSAFE_NUM_SCL (3);
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
@@ -924,7 +924,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		r.corner.x = SIS_ORG_X
 				+ RES_SCALE (
 						RES_DESCALE (SIS_SCREEN_WIDTH - STATUS_WIDTH) >> 1
-						) - SAFE_BOOL_SCL (16, 0) + SUMMARY_X_OFFS;
+						) - NSAFE_NUM_SCL (16) + SUMMARY_X_OFFS;
 		r.corner.y = SIS_ORG_Y;
 		r.extent.width = STATUS_WIDTH;
 		r.extent.height = STATUS_HEIGHT;
@@ -983,7 +983,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		{
 			// draw the bomb and the escape pod
 			s.origin.x = SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS
-					+ SAFE_BOOL_SCL (6, 0);
+					+ NSAFE_NUM_SCL (6);
 			s.origin.y = 0;
 			s.frame = SetRelFrameIndex (pickState->SummaryFrame, 0);
 			DrawStamp (&s);
@@ -1163,8 +1163,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	r.corner.x = RES_SCALE (1);
 	r.corner.y = RES_SCALE (160);
 	r.extent.width = SIS_SCREEN_WIDTH - RES_SCALE (2) + SAFE_NUM_SCL (1);
-	r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y
-			- SAFE_BOOL_SCL (1, 0);
+	r.extent.height = SIS_SCREEN_HEIGHT - r.corner.y - NSAFE_NUM_SCL (1);
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
 

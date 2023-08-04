@@ -1467,8 +1467,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	{	// "(Star Search: F6 | Toggle Maps: F7)"
 		utf8StringCopy (buf, sizeof (buf), GAME_STRING (
 				FEEDBACK_STRING_BASE + 2
-				+ (is3DO (optWhichFonts)
-					|| optWindowType == OPTVAL_3DO_WINDOW)));
+				+ (is3DO (optWhichFonts) || IS_PAD)));
 	}
 	else
 		utf8StringCopy (buf, sizeof (buf),

@@ -1561,7 +1561,7 @@ static void
 enterInnerSystem (PLANET_DESC *planet)
 {
 #define INNER_ENTRY_DISTANCE (MIN_MOON_RADIUS + ((MAX_GEN_MOONS - 1) \
-		* MOON_DELTA) + (MOON_DELTA >> 2)) + SAFE_BOOL_SCL (5, 0)
+		* MOON_DELTA) + (MOON_DELTA >> 2)) + NSAFE_NUM_SCL (5)
 	COUNT angle;
 
 	// Calculate the inner system entry location and facing

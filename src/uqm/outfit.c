@@ -1068,7 +1068,7 @@ DoOutfit (MENU_STATE *pMS)
 
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 			DrawFlagshipName (FALSE, FALSE);
-			if (optWhichFonts == OPT_PC && optWindowType != 1)
+			if (optWhichFonts == OPT_PC && !IS_PAD)
 				DrawFlagshipStats ();
 
 			ScreenTransition (optScrTrans, NULL);

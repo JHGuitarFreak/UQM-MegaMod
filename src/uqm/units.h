@@ -38,6 +38,7 @@ extern int ScreenHeight;
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)
 #define RES_DESCALE(a) ((a) >> RESOLUTION_FACTOR)
 #define RES_BOOL(a,b) (!IS_HD ? (a) : (b))
+#define NRES_BOOL(a) (!IS_HD ? (a) : 0)
 #define RES_DBL(a) (RES_BOOL ((a), (a) * RESOLUTION_FACTOR))
 #define RES_TRP(a) (RES_BOOL ((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL (0, (a)))

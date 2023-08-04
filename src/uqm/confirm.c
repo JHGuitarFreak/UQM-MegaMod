@@ -54,8 +54,8 @@ DrawConfirmationWindow (BOOLEAN answer)
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL (CurrentActivity) & IN_BATTLE && RunAwayAllowed ())
 	{
-		r.corner.x -= RES_BOOL (40, 0);
-		r.extent.width += RES_BOOL (40, 0);
+		r.corner.x -= NRES_BOOL (40);
+		r.extent.width += NRES_BOOL (40);
 	}
 #endif
 	r.extent.height = CONFIRM_WIN_HEIGHT;
@@ -72,7 +72,7 @@ DrawConfirmationWindow (BOOLEAN answer)
 	t.baseline.x = r.corner.x + (r.extent.width >> 2);
 #if defined(ANDROID) || defined(__ANDROID__)
 	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
-		t.baseline.x -= RES_BOOL (5, 0);
+		t.baseline.x -= NRES_BOOL (5);
 #endif
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 1); // "Yes"
 	SetContextForeGroundColor (
