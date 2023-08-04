@@ -48,9 +48,13 @@ extern int ScreenHeight;
 #define DOS_BOOL_SCL(a,b) (RES_SCALE (IS_DOS ? (b) : (a)))
 		// Same as DOS_BOOL but scaled to HD
 #define DOS_NUM(a) (DOS_BOOL (0, (a)))
-		// Returns the input number if 3DO mode is active
+		// Returns the input number if DOS mode is active
 #define DOS_NUM_SCL(a) (RES_SCALE (DOS_NUM ((a))))
 		// Same as DOS_NUM but scales it to HD
+#define NDOS_NUM(a) (DOS_BOOL ((a), 0))
+		// Returns the input number if DOS mode is not active
+#define NDOS_NUM_SCL(a) (RES_SCALE (NDOS_NUM ((a))))
+		// Same as NDOS_NUM but scales it to HD
 
 #define IS_PAD ((optWindowType == 1) ? TRUE : FALSE)
 #define SAFE_BOOL(a,b) (IS_PAD ? (b) : (a))
@@ -62,7 +66,7 @@ extern int ScreenHeight;
 #define SAFE_NUM_SCL(a) (RES_SCALE (SAFE_NUM ((a))))
 		// Same as SAFE_NUM but scaled it to HD
 #define NSAFE_NUM(a) (SAFE_BOOL ((a), 0))
-		// Returns the input number if 3DO mode is disabled
+		// Returns the input number if 3DO mode is not active
 #define NSAFE_NUM_SCL(a) (RES_SCALE (NSAFE_NUM ((a))))
 		// Same as NSAFE_NUM but scaled it to HD
 

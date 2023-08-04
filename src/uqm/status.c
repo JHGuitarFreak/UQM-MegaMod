@@ -354,7 +354,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	r.corner.y = y_offs + SHIP_INFO_HEIGHT;
 	r.extent.width = STATUS_WIDTH - CAPTAIN_XOFFS + IF_HD (4);
 	r.extent.height = SHIP_STATUS_HEIGHT - CAPTAIN_YOFFS
-			+ RES_SCALE (MENU_BOOL (2, 1));
+			+ RES_SCALE (MENU_BOOL (NDOS_NUM (2), 1));
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 	DrawFilledRectangle (&r);

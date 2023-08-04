@@ -97,8 +97,8 @@ enum
 #endif
 
 // Top Melee Menu
-#define MELEE_X_OFFS RES_SCALE (2)
-#define MELEE_Y_OFFS RES_SCALE (22)
+#define MELEE_X_OFFS RES_SCALE (2 + DOS_NUM (2))
+#define MELEE_Y_OFFS RES_SCALE (22 - DOS_NUM (1))
 #define MELEE_BOX_WIDTH RES_SCALE (34)
 #define MELEE_BOX_HEIGHT RES_SCALE (34)
 #define MELEE_BOX_SPACE RES_SCALE (1)
@@ -164,8 +164,12 @@ enum
 
 #define TEAM_NAME_TEXT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x0F, 0x10, 0x1B), 0x00)
+#define TEAM_NAME_TEXT_COLOR_DOS \
+		BUILD_COLOR_RGBA (0xAA, 0x00, 0x00, 0xFF)
 #define TEAM_NAME_EDIT_TEXT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x17, 0x18, 0x1D), 0x00)
+#define TEAM_NAME_EDIT_TEXT_COLOR_DOS \
+		BUILD_COLOR_RGBA (0xFF, 0x55, 0xFF, 0xFF)
 #define TEAM_NAME_EDIT_RECT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x14, 0x00, 0x14), 0x05)
 #define TEAM_NAME_EDIT_CURS_COLOR \
@@ -540,7 +544,9 @@ DrawFleetValue (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState)
 	rtText.baseline.x = r.corner.x + r.extent.width;
 
 	SetContextForeGroundColor (!(HiLiteState & DTSHS_SELECTED)
-			? TEAM_NAME_TEXT_COLOR : TEAM_NAME_EDIT_TEXT_COLOR);
+			? DOS_BOOL (TEAM_NAME_TEXT_COLOR, TEAM_NAME_TEXT_COLOR_DOS)
+			: DOS_BOOL (TEAM_NAME_EDIT_TEXT_COLOR,
+				TEAM_NAME_EDIT_TEXT_COLOR_DOS));
 	font_DrawText (&rtText);
 }
 
@@ -572,7 +578,9 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 	if (!(HiLiteState & DTSHS_EDIT))
 	{	// normal or selected state
 		SetContextForeGroundColor (!(HiLiteState & DTSHS_SELECTED)
-				? TEAM_NAME_TEXT_COLOR : TEAM_NAME_EDIT_TEXT_COLOR);
+				? DOS_BOOL (TEAM_NAME_TEXT_COLOR, TEAM_NAME_TEXT_COLOR_DOS)
+				: DOS_BOOL (TEAM_NAME_EDIT_TEXT_COLOR,
+					TEAM_NAME_EDIT_TEXT_COLOR_DOS));
 		font_DrawText (&lfText);
 	}
 	else
@@ -655,7 +663,8 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 
 		SetCursorRect (&text_r, SpaceContext);
 
-		SetContextForeGroundColor (BLACK_COLOR); // TEAM_NAME_EDIT_TEXT_COLOR);
+		SetContextForeGroundColor (DOS_BOOL (BLACK_COLOR,
+				TEAM_NAME_EDIT_TEXT_COLOR_DOS));
 		font_DrawText (&lfText);
 	}
 	UnbatchGraphics ();

@@ -249,9 +249,9 @@ FillFileView (MELEE_STATE *pMS)
 	return true;
 }
 
-#define FILE_STRING_ORIGIN_X RES_SCALE (5)
-#define FILE_STRING_ORIGIN_Y RES_SCALE (32)
-#define ENTRY_HEIGHT RES_SCALE (32) 
+#define FILE_STRING_ORIGIN_X RES_SCALE (5 + DOS_NUM (2))
+#define FILE_STRING_ORIGIN_Y RES_SCALE (32 - DOS_NUM (1))
+#define ENTRY_HEIGHT RES_SCALE (32)
 
 static void
 SelectFileString (MELEE_STATE *pMS, bool hilite)
