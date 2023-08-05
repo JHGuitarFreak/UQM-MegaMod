@@ -762,6 +762,9 @@ DrawFlagshipStats (void)
 	DWORD fuel;
 	SIZE base_y;
 
+	if (is3DO (optWhichFonts) || optWindowType == 1)
+		return;
+
 	/* collect stats */
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 10

@@ -593,8 +593,8 @@ DoInstallModule (MENU_STATE *pMS)
 					if (new_slot_piece > TURNING_JETS
 							&& old_slot_piece > TURNING_JETS)
 						RedistributeFuel ();
-					if (optWhichFonts == OPT_PC)
-						DrawFlagshipStats ();
+
+					DrawFlagshipStats ();
 				}
 			}
 
@@ -1068,8 +1068,8 @@ DoOutfit (MENU_STATE *pMS)
 
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 			DrawFlagshipName (FALSE, FALSE);
-			if (optWhichFonts == OPT_PC && !IS_PAD)
-				DrawFlagshipStats ();
+
+			DrawFlagshipStats ();
 
 			ScreenTransition (optScrTrans, NULL);
 
