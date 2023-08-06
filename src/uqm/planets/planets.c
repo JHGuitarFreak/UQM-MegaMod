@@ -470,7 +470,7 @@ LoadPlanet (FRAME SurfDefFrame)
 		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
 
 	if (isPC (optScrTrans))
-		SleepThread (ONE_SECOND);
+		SleepThread (ONE_SECOND * 6 / 5);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 	{
