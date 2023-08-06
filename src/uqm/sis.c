@@ -2150,8 +2150,10 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
  			pRect = &temp_r;
  			temp_r.corner.x = RADAR_X - clip_r.corner.x;
  			temp_r.corner.y = RADAR_Y - clip_r.corner.y;
+			temp_r.corner.y += DOS_NUM_SCL (10);
  			temp_r.extent.width = RADAR_WIDTH;
  			temp_r.extent.height = RADAR_HEIGHT;
+			temp_r.extent.height -= DOS_NUM_SCL (10);
  			SetContext (OldContext);
 		}
 	}
