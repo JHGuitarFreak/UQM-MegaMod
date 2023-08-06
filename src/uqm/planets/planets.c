@@ -321,6 +321,62 @@ typedef enum
 
 } DRAW_ORBITAL_MODE;
 
+void
+DrawOrbitMapGraphic (void)
+{
+	STAMP s;
+	FRAME SurfDefFrame = NULL;
+
+	SetContext (GetScanContext (NULL));
+
+	if (isPC (optScrTrans))
+	{
+		s.frame = SetAbsFrameIndex (CaptureDrawable
+		(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
+
+		s.origin.x = -SAFE_X;
+		s.origin.y = 0;
+
+		if (isPC (optSuperPC))
+		{
+			s.origin.x -=
+				RES_SCALE (((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2)
+					+ SAFE_NUM (5));
+		}
+
+		DrawStamp (&s);
+
+		DestroyDrawable (ReleaseDrawable (s.frame));
+	}
+	else
+		DrawPlanet (0, BLACK_COLOR);
+
+#if 0
+	if (never)
+	{
+		STAMP ss;
+		PLANET_DESC *pPlanetDesc;
+		PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+		int PlanetScale = RES_BOOL (319, 512);
+		int PlanetRescale = 1275;
+
+		pPlanetDesc = pSolarSysState->pOrbitalDesc;
+		GeneratePlanetSurface (
+			pPlanetDesc, NULL, PlanetScale, PlanetScale);
+		ss.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		ss.origin.y = RES_SCALE (191);
+
+		ss.frame = RES_BOOL (Orbit->SphereFrame, CaptureDrawable (
+			RescaleFrame (
+				Orbit->SphereFrame, PlanetRescale, PlanetRescale
+			)));
+
+		DrawStamp (&ss);
+		DestroyDrawable (ReleaseDrawable (ss.frame));
+	}
+#endif
+}
+
 static void
 DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 {
@@ -343,80 +399,10 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode == DRAW_ORBITAL_WAIT)
 	{
-		STAMP s;
-
-		SetContext (GetScanContext (NULL));
-
-		if (isPC (optScrTrans))
-		{
-			s.frame = SetAbsFrameIndex (CaptureDrawable
-					(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
-
-			s.origin.x = -SAFE_X;
-			s.origin.y = 0;
-
-			if (isPC (optSuperPC))
-			{
-				s.origin.x -=
-						RES_SCALE (((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2)
-						+ SAFE_NUM (5));
-			}
-		}
-		else
-		{
-			PLANET_DESC *pPlanetDesc = pSolarSysState->pOrbitalDesc;
-			FRAME SurfDefFrame = NULL;
-
-			if (solTexturesPresent && CurStarDescPtr->Index == SOL_DEFINED)
-			{
-				BOOLEAN WorldIsPlanet =
-						worldIsPlanet (pSolarSysState, pPlanetDesc);
-
-				SurfDefFrame = CaptureDrawable (LoadGraphic (SolTextures (
-						pSolarSysState, pPlanetDesc, WorldIsPlanet)));
-			}
-
-			GeneratePlanetSurface (pPlanetDesc, SurfDefFrame,
-					SCALED_MAP_WIDTH, MAP_HEIGHT);
-
-			s.origin.x = 0;
-			s.origin.y = 0;
-
-			s.frame = pSolarSysState->TopoFrame;
-		}
-
-#if 0
-		if (never)
-		{
-			STAMP ss;
-			PLANET_DESC *pPlanetDesc;
-			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
-			int PlanetScale = RES_BOOL (319, 512);
-			int PlanetRescale = 1275;
-
-			pPlanetDesc = pSolarSysState->pOrbitalDesc;
-			GeneratePlanetSurface (
-				pPlanetDesc, NULL, PlanetScale, PlanetScale);
-			ss.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-			ss.origin.y = RES_SCALE (191);
-
-			ss.frame = RES_BOOL (Orbit->SphereFrame, CaptureDrawable (
-				RescaleFrame (
-					Orbit->SphereFrame, PlanetRescale, PlanetRescale
-				)));
-
-			DrawStamp (&ss);
-			DestroyDrawable (ReleaseDrawable (ss.frame));
-		}
-#endif
-
-		DrawStamp (&s);
-
+		DrawOrbitMapGraphic ();
 
 		if (isPC (optSuperPC))
 			InitPCLander (TRUE);
-
-		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
 	else if (Mode == DRAW_ORBITAL_FULL)
 	{
@@ -473,15 +459,15 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	CreatePlanetContext ();
 
-	if (WaitMode)
-		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
-
 	StopMusic ();
 
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, 0, 0);
 	OrbitNum = SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
+
+	if (WaitMode)
+		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
 
 	if (isPC (optScrTrans))
 		SleepThread (ONE_SECOND);
@@ -726,94 +712,4 @@ PlanetOrbitMenu (void)
 	SetFlashRect (NULL, FALSE);
 	if (!(GLOBAL(CurrentActivity) & CHECK_LOAD))
 		DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
-}
-
-RESOURCE
-SolTextures (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
-		BOOLEAN worldIsPlanet)
-{
-	COUNT planet_number = planetIndex (solarSys, world);
-	RESOURCE maskAnim = NULL;
-
-	if (!optScanSphere)
-	{
-		if (planet_number == 2)
-			return EARTH_MASK_ANIM;
-
-		return NULL;
-	}
-
-	if (worldIsPlanet)
-	{
-		switch (planet_number)
-		{
-			case 0: // MERCURY
-				maskAnim = MERCURY_MASK_ANIM;
-				break;
-			case 1: // VENUS
-				maskAnim = VENUS_MASK_ANIM;
-				break;
-			case 2: // EARTH
-				maskAnim = EARTH_MASK_ANIM;
-				break;
-			case 3: // MARS
-				maskAnim = MARS_MASK_ANIM;
-				break;
-			case 4: // JUPITER
-				maskAnim = JUPITER_MASK_ANIM;
-				break;
-			case 5: // SATURN
-				maskAnim = SATURN_MASK_ANIM;
-				break;
-			case 6: // URANUS
-				maskAnim = URANUS_MASK_ANIM;
-				break;
-			case 7: // NEPTUNE
-				maskAnim = NEPTUNE_MASK_ANIM;
-				break;
-			case 8: // PLUTO
-				maskAnim = PLUTO_MASK_ANIM;
-				break;
-		}
-	}
-	else
-	{
-		COUNT moon_number = moonIndex (solarSys, world);
-
-		switch (planet_number)
-		{
-			case 2: // moon of EARTH: LUNA
-				if (moon_number == 1)
-					maskAnim = LUNA_MASK_ANIM;
-				break;
-			case 4: // moons of JUPITER
-				switch (moon_number)
-				{
-					case 0: // IO
-						maskAnim = IO_MASK_ANIM;
-						break;
-					case 1: // EUROPA
-						maskAnim = EUROPA_MASK_ANIM;
-						break;
-					case 2: // GANYMEDE
-						maskAnim = GANYMEDE_MASK_ANIM;
-						break;
-					case 3: // CALLISTO
-						maskAnim = CALLISTO_MASK_ANIM;
-						break;
-				}
-				break;
-			case 5: // moon of SATURN: TITAN
-				maskAnim = TITAN_MASK_ANIM;
-				break;
-			case 7: // moon of NEPTUNE : TRITON
-				maskAnim = TRITON_MASK_ANIM;
-				break;
-			case 8: // moon of PLUTO: CHARON
-				maskAnim = CHARON_MASK_ANIM;
-				break;
-		}
-	}
-
-	return maskAnim;
 }

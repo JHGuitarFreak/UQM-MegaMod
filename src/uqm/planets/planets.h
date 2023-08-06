@@ -412,8 +412,6 @@ extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 
 extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
-extern RESOURCE SolTextures (const SOLARSYS_STATE *solarSys,
-		const PLANET_DESC *world, BOOLEAN worldIsPlanet);
 
 #if defined(__cplusplus)
 }
