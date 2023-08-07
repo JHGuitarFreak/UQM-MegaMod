@@ -103,7 +103,7 @@ ClearShipStatus (COORD y)
 	r.corner.x = RES_SCALE (2);
 	r.corner.y = RES_SCALE (3) + y;
 	r.extent.width = STATUS_WIDTH - RES_SCALE (4);
-	r.extent.height = SHIP_INFO_HEIGHT - RES_SCALE (3); 
+	r.extent.height = SHIP_INFO_HEIGHT - RES_SCALE (3);
 	DrawFilledRectangle (&r);
 }
 
@@ -499,6 +499,7 @@ DeltaStatistics (SHIP_INFO *ShipInfoPtr, COORD y_offs,
 		{
 			// All crew doesn't fit in the graphics; print a number.
 			// Always print a number for the SIS in the full game.
+			y_offs += SAFE_X;
 			DrawBattleCrewAmount (ShipInfoPtr, y_offs);
 		}
 	}

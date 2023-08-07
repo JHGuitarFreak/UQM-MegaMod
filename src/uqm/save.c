@@ -1316,7 +1316,7 @@ SaveProblemMessage (STAMP *MsgStamp)
 
 	BatchGraphics ();
 	DrawStarConBox (&r, RES_SCALE (2), SHADOWBOX_MEDIUM_COLOR,
-			SHADOWBOX_DARK_COLOR, TRUE, DKGRAY_COLOR);
+			SHADOWBOX_DARK_COLOR, TRUE, DKGRAY_COLOR, TRUE, TRANSPARENT);
 	SetContextForeGroundColor (
 			isPC (optWhichFonts) ? WHITE_COLOR : LTGRAY_COLOR);
 

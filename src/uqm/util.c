@@ -28,22 +28,37 @@
 #include "hyper.h"
 #include "colors.h"
 #include "sis.h"
+#include "menustat.h"
 
 void
 DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
-		Color BottomRightColor, BOOLEAN FillInterior, Color InteriorColor)
+		Color BottomRightColor, BOOLEAN FillInterior, Color InteriorColor,
+		BOOLEAN CreateCorners, Color CornerColor)
 {
 	RECT locRect;
+	Color oldcolor;
+
+	BatchGraphics ();
+
+	if (FillInterior)
+	{
+		oldcolor = SetContextForeGroundColor (InteriorColor);
+		DrawFilledRectangle (pRect);
+	}
 
 	if (BorderWidth == 0)
 		BorderWidth = RES_SCALE (2);
 	else
 	{
-		SetContextForeGroundColor (TopLeftColor);
+		if (FillInterior)
+			SetContextForeGroundColor (TopLeftColor);
+		else
+			oldcolor = SetContextForeGroundColor (TopLeftColor);
 		locRect.corner = pRect->corner;
 		locRect.extent.width = pRect->extent.width;
 		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x += RES_SCALE (1);
@@ -56,6 +71,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		locRect.extent.width = RES_SCALE (1);
 		locRect.extent.height = pRect->extent.height;
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x += RES_SCALE (1);
@@ -69,6 +85,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		locRect.corner.y = pRect->corner.y + RES_SCALE (1);
 		locRect.extent.height = pRect->extent.height - RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x -= RES_SCALE (1);
@@ -82,6 +99,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 		locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE (1);
 		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
+
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x += RES_SCALE (1);
@@ -89,17 +107,120 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 			locRect.extent.width -= RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
 		}
+
+		if (CreateCorners)
+		{
+			if (sameColor (TRANSPARENT, CornerColor)
+					&& AreTheyShades (TopLeftColor, BottomRightColor))
+			{
+				SetContextForeGroundColor (
+						CreateAvgShade (TopLeftColor, BottomRightColor));
+			}
+			else
+				SetContextForeGroundColor (CornerColor);
+
+			locRect.corner.x = pRect->corner.x;
+			locRect.corner.y = pRect->corner.y + pRect->extent.height
+				- RES_SCALE (1);
+			locRect.extent.width = RES_SCALE (1);
+			locRect.extent.height = RES_SCALE (1);
+			DrawFilledRectangle (&locRect);
+			locRect.corner.x = pRect->corner.x + pRect->extent.width
+				- RES_SCALE (1);
+			locRect.corner.y = pRect->corner.y;
+			DrawFilledRectangle (&locRect);
+
+			if (BorderWidth == RES_SCALE (2))
+			{
+				locRect.corner.x -= RES_SCALE (1);
+				locRect.corner.y += RES_SCALE (1);
+				DrawFilledRectangle (&locRect);
+				locRect.corner.x = pRect->corner.x + RES_SCALE (1);
+				locRect.corner.y = pRect->corner.y + pRect->extent.height
+					- RES_SCALE (2);
+				DrawFilledRectangle (&locRect);
+			}
+		}
 	}
 
-	if (FillInterior)
+	SetContextForeGroundColor (oldcolor);
+
+	UnbatchGraphics ();
+}
+
+void
+DrawBorderPadding (DWORD videoWidth)
+{
+	RECT r;
+	CONTEXT OldContext;
+	UWORD safe_x =
+			(videoWidth && videoWidth < 280 ? SAFE_NEG (4) * 2 : SAFE_X);
+
+	if (!safe_x)
+		return;
+
+	OldContext = SetContext (ScreenContext);
+
+	if (videoWidth)
+		SetContextForeGroundColor (BUILD_SHADE_RGBA (0x0C));
+	else
+		SetContextForeGroundColor (BLACK_COLOR);
+
+	// Top bar
+	r.corner = MAKE_POINT (0, 0);
+	r.extent.width = ScreenWidth;
+	r.extent.height = SAFE_Y;
+	DrawFilledRectangle (&r);
+
+	// Right bar
+	r.corner.x = r.extent.width - safe_x;
+	r.extent.width = safe_x;
+	r.extent.height = ScreenHeight;
+	DrawFilledRectangle (&r);
+
+	// Bottom bar
+	r.corner.x = 0;
+	r.corner.y = ScreenHeight - SAFE_Y;
+	r.extent.width = ScreenWidth;
+	r.extent.height = SAFE_Y;
+	DrawFilledRectangle (&r);
+
+	// Left bar
+	r.corner = MAKE_POINT (0, 0);
+	r.extent.width = safe_x;
+	r.extent.height = ScreenHeight;
+	DrawFilledRectangle (&r);
+
+	SetContext (OldContext);
+}
+
+void
+DrawRadarBorder (void)
+{
+	RECT r;
+	CONTEXT OldContext;
+
+	if (IS_PAD)
+		return;
+
+	OldContext = SetContext (StatusContext);
+
+	if (IS_HD)
 	{
-		SetContextForeGroundColor (InteriorColor);
-		locRect.corner.x = pRect->corner.x + BorderWidth;
-		locRect.corner.y = pRect->corner.y + BorderWidth;
-		locRect.extent.width = pRect->extent.width - (BorderWidth << 1);
-		locRect.extent.height = pRect->extent.height - (BorderWidth << 1);
-		DrawFilledRectangle (&locRect);
+		DrawBorder (31);
+		return;
 	}
+
+	r.corner.x = RES_SCALE (4) - DOS_NUM_SCL (1);
+	r.corner.y = RADAR_Y - DOS_NUM_SCL (1);
+	r.extent.width = RADAR_WIDTH + DOS_NUM_SCL (2);
+	r.extent.height = RADAR_HEIGHT + DOS_NUM_SCL (2);
+
+	DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
+			ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, FALSE,
+			TRANSPARENT);
+
+	SetContext (OldContext);
 }
 
 DWORD

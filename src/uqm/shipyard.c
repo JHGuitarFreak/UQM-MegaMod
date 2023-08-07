@@ -39,42 +39,47 @@
 #include "libs/inplib.h"
 #include "uqmdebug.h"
 #include "libs/graphics/drawable.h"
+#include "util.h"
+#include "shipcont.h"
 
-#ifdef USE_3DO_HANGAR
 // 3DO 4x3 hangar layout
-#	define HANGAR_SHIPS_ROW  4
-#	define HANGAR_Y          64
-#	define HANGAR_DY         44
+#	define HANGAR_SHIPS_ROW_3DO     4
+#	define HANGAR_Y_3DO  RES_SCALE (64)
+#	define HANGAR_DY_3DO RES_SCALE (44)
 
-static const COORD hangar_x_coords[HANGAR_SHIPS_ROW] =
+const COORD hangar_x_coords_3do[HANGAR_SHIPS_ROW_3DO] =
 {
 	19, 60, 116, 157
 };
 
-#else // use PC hangar
 // modified PC 6x2 hangar layout
-#	define HANGAR_SHIPS_ROW  6
-
+#define HANGAR_SHIPS_ROW_DOS     6
 // The Y position of the upper line of hangar bay doors.
-# define HANGAR_Y	RES_SCALE (88)
-
+#define HANGAR_Y  RES_SCALE (SAFE_BOOL (DOS_BOOL (88, 71), HANGAR_Y_3DO))
 // The Y position of the lower line of hangar bay doors.
-# define HANGAR_DY	RES_SCALE (84)
-
+#define HANGAR_DY RES_SCALE (SAFE_BOOL (DOS_BOOL (84, 76), HANGAR_DY_3DO))
 
 // The X positions of the hangar bay doors for each resolution mode.
 // Calculated from the right edge of the left grey border bar on the
 // screen.
-static const COORD hangar_x_coords_orig[HANGAR_SHIPS_ROW] = {
+const COORD hangar_x_coords_uqm[HANGAR_SHIPS_ROW_DOS] =
+{
 	0, 38, 76, 131, 169, 207
 };
-static const COORD hangar_x_coords_hd[HANGAR_SHIPS_ROW] = {
-	0, 152, 304, 524, 676, 828
+
+const COORD hangar_x_coords_dos[HANGAR_SHIPS_ROW_DOS] =
+{
+	0, 38, 76, 133, 171, 209
 };
-#endif // USE_3DO_HANGAR
+
+COORD hangar_x_coords[HANGAR_SHIPS_ROW_DOS];
 
 #define HANGAR_SHIPS      12
+#define HANGAR_SHIPS_ROW SAFE_BOOL (HANGAR_SHIPS_ROW_DOS, \
+		HANGAR_SHIPS_ROW_3DO)
+
 #define HANGAR_ROWS       (HANGAR_SHIPS / HANGAR_SHIPS_ROW)
+
 #define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
 
 enum
@@ -94,6 +99,242 @@ typedef enum {
 
 static BOOLEAN DoShipSpins;
 
+
+// This is all for drawing the DOS version modules menu
+#define SHIPS_ORG_Y       RES_SCALE (33)
+#define SHIPS_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+
+#define SHIPS_COL_0       RES_SCALE (5)
+#define SHIPS_COL_1       RES_SCALE (61)
+
+#define SHIPS_SEL_ORG_X  (SHIPS_COL_0 - RES_SCALE (1))
+#define SHIPS_SEL_WIDTH  (FIELD_WIDTH - RES_SCALE (3))
+
+#define NAME_OFS_Y         RES_SCALE (2)
+#define TEXT_BASELINE      RES_SCALE (6)
+#define TEXT_SPACING_Y     RES_SCALE (7)
+
+#define MAX_VIS_MODULES  5
+
+typedef struct
+{
+	UNICODE ShipName[30];
+	COUNT ShipCost;
+} SHIP_STATS;
+
+typedef struct
+{
+	BYTE list[NUM_BUILDABLE_SHIPS];
+	// List of all modules player has
+	COUNT count;
+	// Number of modules in the list
+	COUNT topIndex;
+	// Index of the top module displayed
+	SHIP_STATS ShipStats[NUM_BUILDABLE_SHIPS];
+
+} SHIPS_STATE;
+
+SHIPS_STATE ShipState;
+
+static void
+DrawShipsStatus (COUNT index, COUNT pos, bool selected)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[10];
+
+	t.align = ALIGN_LEFT;
+	t.baseline.x = SHIPS_COL_0;
+
+	r.extent.width = SHIPS_SEL_WIDTH;
+	r.extent.height = TEXT_SPACING_Y * 2;
+	r.corner.x = SHIPS_SEL_ORG_X;
+
+	// draw line background
+	r.corner.y = SHIPS_ORG_Y + pos * SHIPS_SPACING_Y + NAME_OFS_Y;
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_BACK_COLOR : MODULE_BACK_COLOR);
+	DrawFilledRectangle (&r);
+	SetContextFont (TinyFont);
+
+	// print ship name
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
+	t.baseline.y = r.corner.y + TEXT_BASELINE;
+	t.pStr = ShipState.ShipStats[index].ShipName;
+	t.CharCount = utf8StringPos (t.pStr, ' ');
+	font_DrawText (&t);
+	t.baseline.y += TEXT_SPACING_Y;
+	t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	// print ship cost
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_COLOR : MODULE_PRICE_COLOR);
+	t.align = ALIGN_RIGHT;
+	t.baseline.x = SHIPS_COL_1 - RES_SCALE (2);
+	t.baseline.y -= RES_SCALE (3);
+	snprintf (buf, sizeof (buf), "%u",
+			ShipState.ShipStats[index].ShipCost);
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+}
+
+static void
+DrawShipsDisplay (SHIPS_STATE *shipState)
+{
+	TEXT t;
+	RECT r;
+	COUNT i;
+
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
+
+	if (!optCustomBorder && !IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
+	}
+	else
+		DrawBorder (13);
+
+	// print the "MODULES" title
+	SetContextFont (StarConFont);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
+	t.align = ALIGN_CENTER;
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 8);
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
+	font_DrawText (&t);
+
+	// print names and costs
+	for (i = 0; i < MAX_VIS_MODULES; ++i)
+	{
+		COUNT modIndex = shipState->topIndex + i;
+
+		if (modIndex >= shipState->count)
+			break;
+
+		DrawShipsStatus (modIndex, i, false);
+	}
+}
+
+static void
+DrawShips (SHIPS_STATE *shipState, COUNT NewItem)
+{
+	CONTEXT OldContext = SetContext (StatusContext);
+	COUNT pos = NewItem - shipState->topIndex;
+
+	BatchGraphics ();
+
+	DrawShipsDisplay (shipState);
+	DrawShipsStatus (NewItem, pos, true);
+
+	UnbatchGraphics ();
+
+	SetContext (OldContext);
+}
+
+static void
+ManipulateShips (SIZE NewState)
+{
+	SHIPS_STATE *shipState;
+	SIZE NewTop;
+
+	if (!IS_DOS)
+		return;
+
+	shipState = &ShipState;
+	NewTop = shipState->topIndex;
+
+	if (NewState > NUM_BUILDABLE_SHIPS)
+	{
+		DrawShips (&ShipState, NewState);
+		return;
+	}
+
+	if (NewState < NewTop || NewState >= NewTop + MAX_VIS_MODULES)
+		shipState->topIndex = NewState - NewState % MAX_VIS_MODULES;
+
+	DrawShips (shipState, NewState);
+}
+
+static void
+GetShipStats (SHIP_STATS *ship_stats, SPECIES_ID species_id)
+{
+	RACE_DESC *RDPtr = load_ship (species_id, FALSE);
+
+	snprintf (ship_stats->ShipName, sizeof (ship_stats->ShipName), "%s %s",
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+					RDPtr->ship_info.race_strings, 2)),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+					RDPtr->ship_info.race_strings, 4))
+		);
+
+	ship_stats->ShipCost = RDPtr->ship_info.ship_cost * 100;
+
+	free_ship (RDPtr, TRUE, TRUE);
+}
+
+static void
+InventoryShips (SHIPS_STATE *ship_state, SIZE Size)
+{
+	COUNT i;
+	SIZE ShipsOnBoard;
+
+	ShipsOnBoard = 0;
+
+	for (i = 0; i < NUM_BUILDABLE_SHIPS && Size > 0; ++i)
+	{
+		HFLEETINFO hStarShip =
+				GetStarShipFromIndex (&GLOBAL (avail_race_q), i);
+		FLEET_INFO *FleetPtr =
+				LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+		if (FleetPtr->allied_state == GOOD_GUY || FleetPtr->can_build)
+		{
+			GetShipStats (&ship_state->ShipStats[ShipsOnBoard],
+					FleetPtr->SpeciesID);
+
+			ship_state->list[ShipsOnBoard] = i;
+			++ShipsOnBoard;
+			--Size;
+		}
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+	}
+
+	ship_state->count = ShipsOnBoard;
+}
+
+void
+FillHangarX (void)
+{
+	BYTE i;
+
+	for (i = 0; i < HANGAR_SHIPS_ROW; i++)
+	{
+		if (IS_PAD)
+			hangar_x_coords[i] = hangar_x_coords_3do[i];
+		else
+		{
+			if (!IS_DOS)
+				hangar_x_coords[i] = hangar_x_coords_uqm[i];
+			else
+				hangar_x_coords[i] = hangar_x_coords_dos[i];
+		}
+
+		if (IS_HD)
+			hangar_x_coords[i] <<= RESOLUTION_FACTOR;
+	}
+}
+
 static void
 showRemainingCrew (void)
 {
@@ -110,6 +351,11 @@ showRemainingCrew (void)
 	r.extent = MAKE_EXTENT (RES_SCALE (122), RES_SCALE (7));
 	r.corner = MAKE_POINT (RES_SCALE (2),
 			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
+
+	if (optWindowType < 2)
+	{
+		r.corner = MAKE_POINT (RES_SCALE (1), RES_SCALE (1));
+	}
 
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -154,6 +400,9 @@ animatePowerLines (MENU_STATE *pMS)
 	static COLORMAP ColorMap;
 	static TimeCount NextTime = 0;
 	TimeCount Now = GetTimeCounter ();
+
+	if (SAFE_X)
+		return;
 
 	if (pMS)
 	{	// Init animation
@@ -295,15 +544,37 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-	DrawFilledRectangle (&r);
+
+	if (!IS_DOS)
+		DrawFilledRectangle (&r);
+
 	if (classicPackPresent)
 		DrawBorder (14);
 	DrawBorder (8);
-	r.corner = s.origin;
-	r.extent.width = RADAR_WIDTH;
-	r.extent.height = RADAR_HEIGHT;
-	SetContextForeGroundColor (BLACK_COLOR);
-	DrawFilledRectangle (&r);
+
+	if (!IS_DOS)
+	{
+		r.corner = s.origin;
+		r.extent.width = RADAR_WIDTH;
+		r.extent.height = RADAR_HEIGHT;
+		SetContextForeGroundColor (BLACK_COLOR);
+		DrawFilledRectangle (&r);
+	}
+	else
+	{
+		RECT dosRect;
+
+		dosRect.corner.x = RES_SCALE (3);
+		dosRect.corner.y = RADAR_Y + RES_SCALE (1);
+		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (2);
+		dosRect.extent.height = RADAR_HEIGHT - RES_SCALE (2);
+
+		DrawStarConBox (&dosRect, RES_SCALE (1),
+				PCMENU_TOP_LEFT_BORDER_COLOR,
+				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+				FALSE, TRANSPARENT);
+	}
+
 	if (NewRaceItem != (BYTE)~0)
 	{
 		TEXT t;
@@ -312,6 +583,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		UNICODE buf[30];
 		COUNT shipCost;
 
+		ManipulateShips (NewRaceItem);
+
 		hStarShip = GetAvailableRaceFromIndex (NewRaceItem);
 		NewRaceItem = GetIndexFromStarShip (&GLOBAL (avail_race_q),
 				hStarShip);
@@ -319,19 +592,21 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 
 		// Draw the ship name, above the ship image.
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 3 + NewRaceItem);
-		DrawStamp (&s);
+		if (!IS_DOS)
+			DrawStamp (&s);
 
 		// Draw the ship image.
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		s.frame = FleetPtr->melee_icon;
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
-		t.baseline.y = s.origin.y + RADAR_HEIGHT - RES_SCALE (2);
 		s.origin.x += (RADAR_WIDTH >> 1);
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
 
 		// Print the ship cost.
+		t.baseline.x = RES_SCALE (4) + RADAR_WIDTH - RES_SCALE (2);
+		t.baseline.y = RADAR_Y + RADAR_HEIGHT - RES_SCALE (2)
+				- DOS_NUM_SCL (2) - SAFE_Y;
 		t.align = ALIGN_RIGHT;
 		t.CharCount = (COUNT)~0;
 		t.pStr = buf;
@@ -356,7 +631,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 #define SHIP_WIN_WIDTH RES_SCALE (34) 
 
 // Height of an escort ship window.
-#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE (6)) 
+#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE (6))
 
 // For how many animation frames' time the escort ship bay doors
 // are slid left and right when opening them. If this number is not large
@@ -426,7 +701,6 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 	COUNT num_ships;
 	HSHIPFRAG hStarShip, hNextShip;
 	SHIP_FRAGMENT *StarShipPtr;
-	static const COORD *hangar_x_coords;
 	struct
 	{
 		SHIP_FRAGMENT *StarShipPtr;
@@ -435,8 +709,6 @@ ShowCombatShip (MENU_STATE *pMS, COUNT which_window,
 		STAMP lfdoor_s;
 		STAMP rtdoor_s;
 	} ship_win_info[MAX_BUILT_SHIPS], *pship_win_info;
-
-	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	num_ships = 1;
 	pship_win_info = &ship_win_info[0];
@@ -669,9 +941,9 @@ DMS_FlashFlagShip (void)
 	r.corner.y = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
 	if (optWhichMenu != OPT_PC)
-		r.extent.height = RES_SCALE (63);
+		r.extent.height = RES_SCALE (63) - SAFE_NUM_SCL (2);
 	else
-		r.extent.height = RES_SCALE (74);
+		r.extent.height = RES_SCALE (74) - DOS_NUM_SCL (9) - SAFE_NEG (3);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
@@ -680,9 +952,6 @@ DMS_GetEscortShipRect (RECT *rOut, BYTE slotNr)
 {
 	BYTE row = slotNr / HANGAR_SHIPS_ROW;
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
-	static const COORD *hangar_x_coords;
-
-	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	rOut->corner.x = hangar_x_coords[col];
 	rOut->corner.y = HANGAR_Y + (HANGAR_DY * row);
@@ -714,9 +983,6 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	RECT r;
 	BYTE row = slotNr / HANGAR_SHIPS_ROW;
 	BYTE col = slotNr % HANGAR_SHIPS_ROW;
-	static const COORD *hangar_x_coords;
-
-	hangar_x_coords = RES_BOOL (hangar_x_coords_orig, hangar_x_coords_hd);
 
 	r.corner.x = hangar_x_coords[col];
 	r.corner.y = (HANGAR_Y + (HANGAR_DY * row))
@@ -760,7 +1026,7 @@ DMS_SetMode (MENU_STATE *pMS, DMS_Mode mode)
 			break;
 		case DMS_Mode_addEscort:
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
-			SetFlashRect (SFR_MENU_ANY, FALSE);
+			SetFlashRect (DOS_BOOL (SFR_MENU_3DO, SFR_MENU_NON), FALSE);
 			break;
 		case DMS_Mode_editCrew:
 			SetMenuSounds (MENU_SOUND_ARROWS,
@@ -1207,12 +1473,24 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 				// twice to reset menu selection
 		DMS_SetMode (pMS, DMS_Mode_navigate);
+
+		if (IS_DOS)
+		{
+			DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA,
+					UNDEFINED_DELTA);
+		}
 	}
 	else if (select)
 	{
 		// Selected a ship to be inserted in an empty escort
 		// ship slot.
 		DMS_TryAddEscortShip (pMS);
+
+		if (IS_DOS)
+		{
+			DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA,
+					UNDEFINED_DELTA);
+		}
 	}
 	else if (dx || dy)
 	{
@@ -1220,6 +1498,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		// inserted in an empty escort ship slot.
 		COUNT availableCount = GetAvailableRaceCount ();
 		BYTE currentShip = LOBYTE (pMS->delta_item);
+
 		if (dx < 0 || dy < 0)
 		{
 			if (currentShip-- == 0)
@@ -1488,7 +1767,7 @@ DrawBluePrint (MENU_STATE *pMS)
 
 	ModuleFrame = CaptureDrawable (LoadGraphic (SISBLU_MASK_ANIM));
 
-	s.origin.x = 0;
+	s.origin.x = -SAFE_PAD;
 	s.origin.y = 0;
 	s.frame = DecFrameIndex (ModuleFrame);
 	SetContextForeGroundColor (BLUEPRINT_COLOR);
@@ -1583,10 +1862,18 @@ DoShipyard (MENU_STATE *pMS)
 
 	OutfitOrShipyard = 3;
 
+	FillHangarX ();
+
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	if (!pMS->Initialized)
 	{
 		pMS->InputFunc = DoShipyard;
+
+		if (IS_DOS)
+		{
+			memset (&ShipState, 0, sizeof ShipState);
+			InventoryShips (&ShipState, NUM_BUILDABLE_SHIPS);
+		}
 
 		{
 			STAMP s;
@@ -1615,34 +1902,38 @@ DoShipyard (MENU_STATE *pMS)
 			s.origin.x = 0;
 			s.origin.y = 0;
 			s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 0);
-#ifdef USE_3DO_HANGAR
-			DrawStamp (&s);
-#else // PC hangar
-			// the PC ship dock needs to overwrite the border
-			// expand the clipping rect by 1 pixel
-			GetContextClipRect (&old_r);
-			r = old_r;
-			r.corner.x -= RES_SCALE (1);
-			r.extent.width += RES_SCALE (2);
-			r.extent.height += RES_SCALE (1);
 
-			if (IS_HD && classicPackPresent)
+			if (!IS_PAD)
 			{
+				// PC hangar
+				// the PC ship dock needs to overwrite the border
+				// expand the clipping rect by 1 pixel
+				GetContextClipRect (&old_r);
 				r = old_r;
-				r.corner.x = 0;
-				r.extent.width = GetFrameWidth (s.frame);
-				r.extent.height += 16;
+				r.corner.x -= RES_SCALE (1);
+				r.extent.width += RES_SCALE (2);
+				r.extent.height += RES_SCALE (1);
+
+				if (IS_HD && classicPackPresent)
+				{
+					r = old_r;
+					r.corner.x = 0;
+					r.extent.width = GetFrameWidth (s.frame);
+					r.extent.height += 16;
+				}
+
+				SetContextClipRect (&r);
+				DrawStamp (&s);
+
+				if (optCustomBorder)
+					DrawBorder (9);
+
+				SetContextClipRect (&old_r);
+
+				animatePowerLines (pMS);
 			}
-
-			SetContextClipRect (&r);
-			DrawStamp (&s);
-
-			if (optCustomBorder)
-				DrawBorder (9);
-
-			SetContextClipRect (&old_r);
-			animatePowerLines (pMS);
-#endif // USE_3DO_HANGAR
+			else
+				DrawStamp (&s);
 			
 			if (isPC (optWhichFonts))
 				SetContextFont (TinyFont);

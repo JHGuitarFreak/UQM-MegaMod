@@ -152,7 +152,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       81
+#define CHOICE_COUNT       82
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -206,6 +206,11 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
 	(WIDGET *)(&choices[12]),   // Show FPS
+	(WIDGET *)(&labels[4]),     // Spacer
+
+	(WIDGET *)(&choices[81]),   // Window Type
+	(WIDGET *)(&labels[4]),     // Spacer
+
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -593,6 +598,100 @@ change_template (WIDGET_CHOICE *self, int oldval)
 }
 
 static void
+addon_unavailable (WIDGET_CHOICE *self, int oldval)
+{
+	self->selected = oldval;
+	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 36));
+	Widget_SetFont (PlyrFont);
+}
+
+static void
+check_for_hd (WIDGET_CHOICE *self, int oldval)
+{
+	if (self->selected != OPTVAL_REAL_1280_960)
+		return;
+
+	if (!isAddonAvailable (HD_MODE))
+	{
+		oldval = OPTVAL_320_240;
+		addon_unavailable (self, OPTVAL_320_240);
+	}
+
+	switch (choices[81].selected)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (DOS_MODE (HD)))
+			{
+				optWindowType = OPTVAL_UQM_WINDOW;
+				choices[81].selected = OPTVAL_UQM_WINDOW;
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (THREEDO_MODE (HD)))
+			{
+				optWindowType = OPTVAL_UQM_WINDOW;
+				choices[81].selected = OPTVAL_UQM_WINDOW;
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+static BOOLEAN
+check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
+{
+	switch (self->selected)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (
+					DOS_MODE (choices[0].selected && !IS_HD ? HD : IS_HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
+				addon_unavailable (self, oldval);
+				return FALSE;
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (
+					THREEDO_MODE (
+						choices[0].selected && !IS_HD ? HD : IS_HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
+				addon_unavailable (self, OPTVAL_UQM_WINDOW);
+				return FALSE;
+			}
+			break;
+		default:
+			break;
+	}
+
+	return TRUE;
+}
+
+static void
+check_availability (WIDGET_CHOICE *self, int oldval)
+{
+	if (self->choice_num == 0)
+		check_for_hd (self, oldval);
+
+	if (self->choice_num == 81 && check_dos_3do_modes (self, oldval))
+	{
+		int NewHeight = ScreenHeightActual;
+
+		PutIntOpt ((int *)&optWindowType, (int *)&self->selected,
+				"mm.windowType", TRUE);
+
+		NewHeight = DOS_BOOL (240, 200) * (1 + choices[42].selected);
+
+		if (NewHeight != ScreenHeightActual)
+			ScreenHeightActual = NewHeight;
+
+		res_PutInteger ("config.resheight", ScreenHeightActual);
+	}
+}
+
+static void
 rename_template (WIDGET_TEXTENTRY *self)
 {
 	/* TODO: This will have to change if the size of the
@@ -649,12 +748,12 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 	if (!self->selected)
 	{	// No blowup
 		*NewWidth = RES_SCALE (320);
-		*NewHeight = RES_SCALE (240);
+		*NewHeight = RES_SCALE (DOS_BOOL (240, 200));
 	}
 	else
 	{
 		*NewWidth = 320 * (1 + self->selected);
-		*NewHeight = 240 * (1 + self->selected);
+		*NewHeight = DOS_BOOL (240, 200) * (1 + self->selected);
 	}
 
 	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
@@ -708,7 +807,7 @@ change_gfxdriver (WIDGET_CHOICE *self, int *NewGfxDriver)
 	}
 }
 
-static void
+void
 process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 {
 	int NewGfxFlags = GfxFlags;
@@ -856,6 +955,7 @@ SetDefaults (void)
 	choices[78].selected = opts.advancedAutoPilot;
 	choices[79].selected = opts.meleeToolTips;
 	choices[80].selected = opts.musicResume;
+	choices[81].selected = opts.windowType;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -952,6 +1052,7 @@ PropagateResults (void)
 	opts.advancedAutoPilot = choices[78].selected;
 	opts.meleeToolTips = choices[79].selected;
 	opts.musicResume = choices[80].selected;
+	opts.windowType = choices[81].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1433,6 +1534,10 @@ init_widgets (void)
 	/* Choice 20 has a special onChange handler, too. */
 	choices[20].onChange = change_template;
 
+	/* Check the availability of HD mode and the DOS/3DO mode addons */
+	choices[0].onChange = check_availability;
+	choices[81].onChange = check_availability;
+
 	// Handle display option
 	choices[ 1].onChange = process_graphics_options;
 	choices[ 2].onChange = process_graphics_options;
@@ -1874,6 +1979,24 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	else
 		opts->driver = OPTVAL_PURE_IF_POSSIBLE;
 
+	opts->windowType = optWindowType;
+	switch (opts->windowType)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (DOS_MODE (IS_HD)))
+			{
+				opts->windowType = 2;
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (THREEDO_MODE (IS_HD)))
+			{
+				opts->windowType = 2;
+			}
+			break;
+		default:
+			break;
+	}
 
 /*
  *		Audio options
@@ -2019,6 +2142,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 /*
  *		Graphics options
  */
+
 	newFactor = (int)(opts->screenResolution << 1);
 	PutIntOpt (&resFactor, &newFactor, "config.resolutionfactor", TRUE);
 
@@ -2289,10 +2413,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		FlushGraphics ();
 		UninitVideoPlayer ();
 
-		RESOLUTION_FACTOR = resolutionFactor;
+		ResetOffset ();
 
+		RESOLUTION_FACTOR = resolutionFactor;
 		ScreenWidth = 320 << resolutionFactor;
-		ScreenHeight = 240 << resolutionFactor;
+		ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
 
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
 				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
@@ -2307,5 +2432,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				ScreenWidthActual, ScreenHeightActual);
 		InitVideoPlayer (TRUE);
+
+		Reload ();
 	}
 }

@@ -2942,8 +2942,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 
 	
-	PlanetRotation = (CurStarDescPtr->Index == SOL_DEFINED ? -1
-			: 1 - 2 * (PlanetInfo->AxialTilt & 1));
+	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));
 
 	InitSphereRotation (PlanetRotation, shielded, width, height);
 	

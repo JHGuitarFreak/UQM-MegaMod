@@ -35,6 +35,7 @@
 #include "libs/log.h"
 #include "planets/planets.h"
 #include <math.h>
+#include "util.h"
 
 
 static void CleanupAfterStarBase (void);
@@ -357,6 +358,8 @@ DoStarBase (MENU_STATE *pMS)
 		else
 			SetMusicVolume (NORMAL_VOLUME);
 
+		DrawBorderPadding (0);
+
 		UnbatchGraphics ();
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
@@ -450,6 +453,8 @@ ExitStarBase:
 		}
 
 		rotateStarbase (pMS, NULL);
+
+		DrawBorderPadding (0);
 
 		UnbatchGraphics ();
 

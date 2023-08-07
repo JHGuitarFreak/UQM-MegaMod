@@ -115,7 +115,8 @@ ClearSISRect (BYTE ClearFlags)
 		r.extent.height = RADAR_HEIGHT + RES_SCALE (2);
 
 		DrawStarConBox (&r, RES_SCALE (1), SHADOWBOX_MEDIUM_COLOR,
-				SHADOWBOX_DARK_COLOR, TRUE, SCAN_BIOLOGICAL_TEXT_COLOR);
+				SHADOWBOX_DARK_COLOR, TRUE, SCAN_BIOLOGICAL_TEXT_COLOR,
+				FALSE, TRANSPARENT);
 #endif /* NEVER */
 	}
 	UnbatchGraphics ();
@@ -756,8 +757,13 @@ DrawFlagshipStats (void)
 	SIZE leading;
 	BYTE i;
 	BYTE energy_regeneration, energy_wait, turn_wait;
+	BYTE num_dynamos, num_shivas;
 	COUNT max_thrust;
 	DWORD fuel;
+	SIZE base_y;
+
+	if (is3DO (optWhichFonts) || optWindowType == 1)
+		return;
 
 	/* collect stats */
 #define ENERGY_REGENERATION 1
@@ -769,6 +775,8 @@ DrawFlagshipStats (void)
 	max_thrust = MAX_THRUST;
 	turn_wait = TURN_WAIT;
 	fuel = 10 * FUEL_TANK_SCALE;
+	num_dynamos = 0;
+	num_shivas = 0;
 
 	for (i = 0; i < NUM_MODULE_SLOTS; i++)
 	{
@@ -781,11 +789,13 @@ DrawFlagshipStats (void)
 				break;
 			case DYNAMO_UNIT:
 				energy_wait -= 2;
+				num_dynamos++;
 				if (energy_wait < 4)
 					energy_wait = 4;
 				break;
 			case SHIVA_FURNACE:
 				energy_regeneration++;
+				num_shivas++;
 				break;
 		}
 	}
@@ -806,9 +816,9 @@ DrawFlagshipStats (void)
 
 	/* we need room to play.  full screen width, 4 lines tall */
 	r.corner.x = 0;
-	r.corner.y = SIS_SCREEN_HEIGHT - (4 * leading);
+	r.corner.y = SIS_SCREEN_HEIGHT - (DOS_BOOL_SCL (4, 3) * leading);
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = (4 * leading);
+	r.extent.height = (DOS_BOOL_SCL (4, 3) * leading);
 
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -817,9 +827,11 @@ DrawFlagshipStats (void)
 	   now that we've cleared out our playground, compensate for the
 	   fact that the leading is way more than is generally needed.
 	*/
-	leading -= RES_SCALE (3);
-	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH / 6);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	leading -= RES_SCALE (2);
+	base_y = r.corner.y + leading - RES_SCALE (2);
+
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH / 6 + 1);
+	t.baseline.y = base_y;
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
 
@@ -837,8 +849,8 @@ DrawFlagshipStats (void)
 	t.pStr = GAME_STRING (FLAGSHIP_STRING_BASE + 3); // "tail:"
 	font_DrawText (&t);
 
-	t.baseline.x += RES_SCALE (5);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	t.baseline.x += RES_SCALE (3);
+	t.baseline.y = base_y;
 	t.align = ALIGN_LEFT;
 	t.pStr = buf;
 
@@ -858,8 +870,8 @@ DrawFlagshipStats (void)
 			describeWeapon (GLOBAL_SIS (ModuleSlots[0])));
 	font_DrawText (&t);
 
-	t.baseline.x = r.extent.width - RES_SCALE (25);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	t.baseline.x = r.extent.width - RES_SCALE (26);
+	t.baseline.y = base_y;
 	t.align = ALIGN_RIGHT;
 
 	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 5));
@@ -877,7 +889,7 @@ DrawFlagshipStats (void)
 	font_DrawText (&t);
 
 	t.baseline.x = r.extent.width - RES_SCALE (2);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (3);
+	t.baseline.y = base_y;
 	t.pStr = buf;
 
 	snprintf (buf, sizeof buf, "%4u", max_thrust * 4);
@@ -886,12 +898,18 @@ DrawFlagshipStats (void)
 	snprintf (buf, sizeof buf, "%4u", 1 + TURN_WAIT - turn_wait);
 	font_DrawText (&t);
 	t.baseline.y += leading;
+	if (!IS_DOS)
 	{
 		unsigned int energy_per_10_sec =
 				(((100 * ONE_SECOND * energy_regeneration) /
 				((1 + energy_wait) * BATTLE_FRAME_RATE)) + 5) / 10;
 		snprintf (buf, sizeof buf, "%2u.%1u",
 				energy_per_10_sec / 10, energy_per_10_sec % 10);
+	}
+	else
+	{
+		snprintf (buf, sizeof buf, "%u",
+				(num_dynamos * 30) + (num_shivas * 60));
 	}
 	font_DrawText (&t);
 	t.baseline.y += leading;
@@ -1511,7 +1529,7 @@ GetCPodCapacity (POINT *ppt)
 		SetContextForeGroundColor (THREEDO_CREW_COLOR);
 		
 	ppt->x = RES_SCALE (27) + (slotNr * SHIP_PIECE_OFFSET)
-			- RES_SCALE (colNr * 2);
+			- RES_SCALE (colNr * 2) - SAFE_PAD;
 	ppt->y = RES_SCALE (34 - rowNr * 2) + IF_HD (2);
 
 	return GetCrewPodCapacity ();
@@ -1616,7 +1634,7 @@ GetSBayCapacity (POINT *ppt)
 		SetContextForeGroundColor (colorBars[rowNr]);
 	}
 		
-	ppt->x = RES_SCALE (19) + (slotNr * SHIP_PIECE_OFFSET);
+	ppt->x = RES_SCALE (19) + (slotNr * SHIP_PIECE_OFFSET) - SAFE_PAD;
 	ppt->y = RES_SCALE (34 - (rowNr * 2)) + IF_HD (2);
 
 	return GetStorageBayCapacity ();
@@ -1728,7 +1746,7 @@ GetFTankScreenPos (POINT *ppt)
 			/ HEFUEL_TANK_CAPACITY);
 
 	ppt->x = RES_SCALE (21) + (slotNr * SHIP_PIECE_OFFSET)
-			+ IF_HD (OutfitOrShipyard == 2 ? 0 : 2);
+			+ IF_HD (OutfitOrShipyard == 2 ? 0 : 2) - SAFE_PAD;
 	if (volume == FUEL_TANK_CAPACITY)
 		ppt->y = RES_SCALE (27 - rowNr);
 	else
@@ -2108,13 +2126,15 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
 	RECT temp_r;
 	COUNT i;
 	
-	if (pRect != SFR_MENU_3DO && pRect != SFR_MENU_ANY)
+	if (pRect != SFR_MENU_3DO && pRect != SFR_MENU_ANY
+			&& pRect != SFR_MENU_NON)
 	{	// The caller specified their own flash area, or NULL (stop flashing).
 		GetContextClipRect (&clip_r);
 	}
 	else
 	{
- 		if (optWhichMenu == OPT_PC && pRect != SFR_MENU_ANY)
+		if ((optWhichMenu == OPT_PC && pRect != SFR_MENU_ANY)
+				|| pRect == SFR_MENU_NON)
  		{
 			// The player wants PC menus and this flash is not used
 			// for a PC menu.
@@ -2130,8 +2150,10 @@ SetFlashRect (const RECT *pRect, BOOLEAN pcRect)
  			pRect = &temp_r;
  			temp_r.corner.x = RADAR_X - clip_r.corner.x;
  			temp_r.corner.y = RADAR_Y - clip_r.corner.y;
+			temp_r.corner.y += DOS_NUM_SCL (10);
  			temp_r.extent.width = RADAR_WIDTH;
  			temp_r.extent.height = RADAR_HEIGHT;
+			temp_r.extent.height -= DOS_NUM_SCL (10);
  			SetContext (OldContext);
 		}
 	}

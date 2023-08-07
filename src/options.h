@@ -110,10 +110,11 @@ extern OPT_ENABLABLE optUnscaledStarSystem;
 extern int optScanSphere;
 extern int optNebulaeVolume;
 extern OPT_ENABLABLE optSlaughterMode;
-extern OPT_ENABLABLE optMaskOfDeceit;
+extern BOOLEAN optMaskOfDeceit;
 extern OPT_ENABLABLE optAdvancedAutoPilot;
 extern OPT_ENABLABLE optMeleeToolTips;
 extern OPT_ENABLABLE optMusicResume;
+extern DWORD optWindowType;;
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
@@ -137,6 +138,21 @@ extern char *contentDirPath;
 extern char *addonDirPath;
 
 extern const char **optAddons;
+
+// addon availability
+typedef struct
+{
+	DWORD name_hash[PATH_MAX];
+	DWORD amount;
+} ADDON_COUNT;
+
+extern ADDON_COUNT addonList;
+
+// addon names to check against
+#define HD_MODE      ("mm-hd")
+
+#define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
+#define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
@@ -162,6 +178,7 @@ void unprepareAllDirs (void);
 
 BOOLEAN loadAddon (const char *addon);
 int loadIndices (uio_DirHandle *baseDir);
+BOOLEAN isAddonAvailable (const char *addon_name);
 
 bool setGammaCorrection (float gamma);
 

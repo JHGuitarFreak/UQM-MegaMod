@@ -95,20 +95,22 @@ enum
 #define EMPTY_SLOT NUM_MODULES
 #define NUM_BOMB_MODULES 10
 
-#define DRIVE_SIDE_X RES_SCALE (31)
+#define SAFE_PAD SAFE_NEG (3)
+
+#define DRIVE_SIDE_X (RES_SCALE (31) - SAFE_PAD)
 #define DRIVE_SIDE_Y RES_SCALE (56)
-#define DRIVE_TOP_X RES_SCALE (33)
-#define DRIVE_TOP_Y RES_SCALE (86)
+#define DRIVE_TOP_X (RES_SCALE (33) - SAFE_PAD)
+#define DRIVE_TOP_Y (RES_SCALE (86) - DOS_NUM_SCL (21))
 
-#define JET_SIDE_X RES_SCALE (71)
+#define JET_SIDE_X (RES_SCALE (71) - SAFE_PAD)
 #define JET_SIDE_Y RES_SCALE (48)
-#define JET_TOP_X RES_SCALE (70)
-#define JET_TOP_Y RES_SCALE (94)
+#define JET_TOP_X (RES_SCALE (70) - SAFE_PAD)
+#define JET_TOP_Y (RES_SCALE (94) - DOS_NUM_SCL (21))
 
-#define MODULE_SIDE_X RES_SCALE (17)
+#define MODULE_SIDE_X (RES_SCALE (17) - SAFE_PAD)
 #define MODULE_SIDE_Y RES_SCALE (14)
-#define MODULE_TOP_X RES_SCALE (17)
-#define MODULE_TOP_Y RES_SCALE (117)
+#define MODULE_TOP_X (RES_SCALE (17) - SAFE_PAD)
+#define MODULE_TOP_Y (RES_SCALE (117) - DOS_NUM_SCL (21))
 
 #define SHIP_PIECE_OFFSET RES_SCALE (12)
 
@@ -129,6 +131,21 @@ enum
 	{3 + 42, 30 + (0 * 16)}, \
 	{3 +  0, 30 + (5 * 16)}, \
 	{3 + 42, 30 + (5 * 16)},
+
+#define LANDER_DOS_X 206
+#define LANDER_DOS_Y 59
+
+#define LANDER_DOS_PTS \
+	{LANDER_DOS_X,      LANDER_DOS_Y     }, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y -  6}, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y +  9}, \
+	{LANDER_DOS_X,      LANDER_DOS_Y - 15}, \
+	{LANDER_DOS_X,      LANDER_DOS_Y + 15}, \
+	{LANDER_DOS_X - 14, LANDER_DOS_Y -  9}, \
+	{LANDER_DOS_X - 14, LANDER_DOS_Y +  6}, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y - 21}, \
+	{LANDER_DOS_X + 14, LANDER_DOS_Y + 24}, \
+	{LANDER_DOS_X - 28, LANDER_DOS_Y -  3},
 
 #define SIS_NAME_SIZE 32
 #define LEGACY_SIS_NAME_SIZE 16
@@ -181,6 +198,7 @@ extern void ContinueFlash (void);
 
 #define SFR_MENU_3DO ((RECT*)~0L)
 #define SFR_MENU_ANY ((RECT*)~1L)
+#define SFR_MENU_NON ((RECT*)~2L)
 extern void DrawHyperCoords (POINT puniverse);
 extern void DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended,
 		BOOLEAN nomad);

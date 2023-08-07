@@ -122,10 +122,11 @@ OPT_ENABLABLE optUnscaledStarSystem;
 int optScanSphere;
 int optNebulaeVolume;
 OPT_ENABLABLE optSlaughterMode;
-OPT_ENABLABLE optMaskOfDeceit;
+BOOLEAN optMaskOfDeceit;
 OPT_ENABLABLE optAdvancedAutoPilot;
 OPT_ENABLABLE optMeleeToolTips;
 OPT_ENABLABLE optMusicResume;
+DWORD optWindowType;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;
@@ -145,6 +146,9 @@ char *contentDirPath;
 char *addonDirPath;
 
 char baseContentPath[PATH_MAX];
+
+// addon availability
+ADDON_COUNT addonList;
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;
@@ -542,6 +546,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		log_add (log_Info, "%d available addon pack%s.", count,
 				count == 1 ? "" : "s");
 
+		addonList.amount = count;
+
 		count = 0;
 		for (i = 0; i < availableAddons->numNames; ++i)
 		{
@@ -554,6 +560,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
+
+			addonList.name_hash[i] = crc32b (addon);
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
@@ -575,6 +583,24 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 
 	uio_DirList_free (availableAddons);
 	uio_closeDir (addonsDir);
+}
+
+BOOLEAN
+isAddonAvailable (const char *addon_name)
+{
+	COUNT i;
+	DWORD name_hash = crc32b (addon_name);
+
+	if (!name_hash)
+		return FALSE;
+
+	for (i = 0; i < addonList.amount; i++)
+	{
+		if (addonList.name_hash[i] == name_hash)
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 static void

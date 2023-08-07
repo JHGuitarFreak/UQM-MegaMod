@@ -26,6 +26,8 @@
 #include "libs/sound/trackplayer.h"
 #include "libs/log.h"
 #include "colors.h"
+#include "menustat.h"
+#include "util.h"
 
 static FRAME scope_frame;
 static int scope_init = 0;
@@ -46,8 +48,8 @@ InitOscilloscope (FRAME scopeBg)
 				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = RES_DESCALE (size.width) - 2;
-		scopeSize.height = RES_DESCALE (size.height) - 2;
+		scopeSize.width = RES_DESCALE (size.width) ;
+		scopeSize.height = RES_DESCALE (size.height);
 
 		scope_init = 1;
 	}
@@ -103,7 +105,7 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 	s->origin.y = 0;
 	s->frame = scope_frame;
 
-	DrawStamp(s);
+	DrawStamp (s);
 
 	// Set oscilloscope line color
 	scopeColor = optScopeStyle != OPT_PC ?
@@ -125,10 +127,12 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 		{
 			LINE line;
 
-			line.first.x = RES_SCALE (i + 1);
-			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i], toScale) + 1);
+			line.first.x = RES_SCALE (i);
+			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i],
+					toScale));
 			line.second.x = RES_SCALE (i + 2);
-			line.second.y = RES_SCALE (ScaleHeightByVolume (scope_data[i + 1], toScale) + 1);
+			line.second.y = RES_SCALE (ScaleHeightByVolume (
+					scope_data[i + 1], toScale));
 			DrawLine (&line, RES_SCALE (1));
 		}
 	}
@@ -136,8 +140,8 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 	{
 		LINE line;
 
-		line.first.x = RES_SCALE (1);
-		line.first.y = RES_SCALE ((scopeSize.height / 2) + 1);
+		line.first.x = 0;
+		line.first.y = RES_SCALE ((scopeSize.height / 2));
 		line.second.x = RES_SCALE (scopeSize.width);
 		line.second.y = line.first.y;
 		DrawLine (&line, RES_SCALE (1));
@@ -183,6 +187,8 @@ DrawOscilloscope (void)
 	s.origin.x = 0;
 	s.origin.y = 0;
 	DrawStamp (&s);
+
+	DrawRadarBorder ();
 }
 
 void

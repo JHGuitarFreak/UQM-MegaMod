@@ -132,6 +132,7 @@
 #define REDUX_XLAT_TAB "planet.redux.translatetable"
 #define RED_GAS_COLOR_TAB "planet.redgas.colortable"
 #define RED_GAS_XLAT_TAB "planet.redgas.translatetable"
+#define RELOADPRES_STRTAB "slides.reload"
 #define RUBY_COLOR_TAB "planet.ruby.colortable"
 #define RUBY_XLAT_TAB "planet.ruby.translatetable"
 #define RUINS_STRTAB "text.ruins"

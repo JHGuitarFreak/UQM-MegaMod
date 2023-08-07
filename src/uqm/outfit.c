@@ -34,9 +34,11 @@
 #include "planets/planets.h"
 		// for xxx_DISASTER
 #include "libs/graphics/gfx_common.h"
+#include "util.h"
+#include "shipcont.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
-#define SHIELD_LOCATION_IN_MODULE_ANI (RES_BOOL (5, 9))
+#define SHIELD_LOCATION_IN_MODULE_ANI 51
 
 enum
 {
@@ -46,6 +48,203 @@ enum
 	OUTFIT_EXIT,
 	OUTFIT_DOFUEL
 };
+
+static const POINT lander_pos[MAX_LANDERS] =
+{
+	LANDER_DOS_PTS
+};
+
+// This is all for drawing the DOS version modules menu
+#define MODULE_ORG_Y       RES_SCALE (33)
+#define MODULE_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+
+#define MODULE_COL_0       RES_SCALE (5)
+#define MODULE_COL_1       RES_SCALE (61)
+
+#define MODULE_SEL_ORG_X  (MODULE_COL_0 - RES_SCALE (1))
+#define MODULE_SEL_WIDTH  (FIELD_WIDTH - RES_SCALE (3))
+
+#define NAME_OFS_Y         RES_SCALE (2)
+#define TEXT_BASELINE      RES_SCALE (6)
+#define TEXT_SPACING_Y     RES_SCALE (7)
+
+#define MAX_VIS_MODULES  5
+
+typedef struct
+{
+	BYTE list[NUM_PURCHASE_MODULES];
+	// List of all modules player has
+	COUNT count;
+	// Number of modules in the list
+	COUNT topIndex;
+	// Index of the top module displayed
+} MODULES_STATE;
+
+MODULES_STATE ModuleState;
+
+static void
+DrawModuleStatus (COUNT index, COUNT pos, bool selected)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[10];
+
+	t.align = ALIGN_LEFT;
+	t.baseline.x = MODULE_COL_0;
+
+	r.extent.width = MODULE_SEL_WIDTH;
+	r.extent.height = TEXT_SPACING_Y * 2;
+	r.corner.x = MODULE_SEL_ORG_X;
+
+	// draw line background
+	r.corner.y = MODULE_ORG_Y + pos * MODULE_SPACING_Y + NAME_OFS_Y;
+	SetContextForeGroundColor (selected ?
+			MODULE_SELECTED_BACK_COLOR : MODULE_BACK_COLOR);
+	DrawFilledRectangle (&r);
+	SetContextFont (TinyFont);
+
+
+	if (GLOBAL (ModuleCost[index]))
+	{	// print module name
+		SetContextForeGroundColor (selected ?
+				MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
+		t.baseline.y = r.corner.y + TEXT_BASELINE;
+		t.pStr = GAME_STRING (index + STARBASE_STRING_BASE + 10);
+		t.CharCount = utf8StringPos (t.pStr, ' ');
+		font_DrawText (&t);
+		t.baseline.y += TEXT_SPACING_Y;
+		t.pStr = skipUTF8Chars (t.pStr, t.CharCount + 1);
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+		
+		// print module cost
+		SetContextForeGroundColor (selected ?
+				MODULE_SELECTED_COLOR : MODULE_PRICE_COLOR);
+		t.align = ALIGN_RIGHT;
+		t.baseline.x = MODULE_COL_1 - RES_SCALE (2);
+		t.baseline.y -= RES_SCALE (3);
+		snprintf (buf, sizeof (buf), "%u",
+				GLOBAL (ModuleCost[index]) * MODULE_COST_SCALE);
+		t.pStr = buf;
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+	}
+	else
+	{
+		SetContextForeGroundColor (MODULE_PRICE_COLOR);
+		r.corner.x += RES_SCALE (21);
+		r.corner.y += RES_SCALE (6);
+		r.extent.width >>= 2;
+		r.extent.height = RES_SCALE (2);
+		DrawFilledRectangle (&r);
+	}
+}
+
+static void
+DrawModuleDisplay (MODULES_STATE *modState)
+{
+	TEXT t;
+	RECT r;
+	COUNT i;
+
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
+
+	if (!optCustomBorder && !IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+				TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
+	}
+	else
+		DrawBorder (13);
+
+	// print the "MODULES" title
+	SetContextFont (StarConFont);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
+	t.align = ALIGN_CENTER;
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 9);
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
+	font_DrawText (&t);
+
+	// print names and costs
+	for (i = 0; i < MAX_VIS_MODULES; ++i)
+	{
+		COUNT modIndex = modState->topIndex + i;
+
+		if (modIndex >= modState->count)
+			break;
+
+		DrawModuleStatus (modState->list[modIndex], i, false);
+	}
+}
+
+static void
+DrawModules (MODULES_STATE *modState, COUNT NewItem)
+{
+	CONTEXT OldContext = SetContext (StatusContext);
+
+	BatchGraphics ();
+
+	DrawModuleDisplay (modState);
+	DrawModuleStatus (modState->list[NewItem],
+			NewItem - modState->topIndex, true);
+
+	UnbatchGraphics ();
+
+	SetContext (OldContext);
+}
+
+static void
+ManipulateModules (SIZE NewState)
+{
+	MODULES_STATE *modState;
+	SIZE NewTop;
+
+	if (!IS_DOS)
+		return;
+
+	modState = &ModuleState;
+	NewTop = modState->topIndex;
+
+	if (NewState > NUM_PURCHASE_MODULES)
+	{
+		DrawModules (modState, NewState);
+		return;
+	}
+
+	if (NewState < NewTop || NewState >= NewTop + MAX_VIS_MODULES)
+		modState->topIndex = NewState - NewState % MAX_VIS_MODULES;
+
+	DrawModules (modState, NewState);
+}
+
+SIZE
+InventoryModules (BYTE *pModuleMap, COUNT Size)
+{
+	BYTE i;
+	SIZE ModulesOnBoard;
+
+	ModulesOnBoard = 0;
+	for (i = 0; i < NUM_PURCHASE_MODULES && Size > 0; ++i)
+	{
+		BYTE ActiveModule;
+
+		ActiveModule = GLOBAL (ModuleCost[i]);
+
+		{
+			*pModuleMap++ = i;
+			++ModulesOnBoard;
+			--Size;
+		}
+	}
+
+	return ModulesOnBoard;
+}
 
 static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
@@ -58,17 +257,38 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 	GetContextClipRect (&r);
 	s.origin.x = RADAR_X - r.corner.x;
 	s.origin.y = RADAR_Y - r.corner.y;
-	r.corner.x = s.origin.x - RES_SCALE (1);
-	r.corner.y = s.origin.y - RES_SCALE (11);
-	r.extent.width = RADAR_WIDTH + RES_SCALE (2);
-	r.extent.height = RES_SCALE (11);
+
 	BatchGraphics ();
-//	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
-	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-	DrawFilledRectangle (&r); // drawn over anyway
+
+	if (!IS_DOS)
+	{
+		r.corner.x = s.origin.x - RES_SCALE (1);
+		r.corner.y = s.origin.y - RES_SCALE (11);
+		r.extent.width = RADAR_WIDTH + RES_SCALE (2);
+		r.extent.height = RES_SCALE (11);
+		//	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
+		SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+		DrawFilledRectangle (&r); // drawn over anyway
+	}
+
 	if (classicPackPresent)
 		DrawBorder (14);
 	DrawBorder (8);
+
+	if (IS_DOS)
+	{
+		RECT dosRect;
+
+		dosRect.corner.x = RES_SCALE (2);
+		dosRect.corner.y = RADAR_Y - RES_SCALE (1);
+		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (4);
+		dosRect.extent.height = RADAR_HEIGHT + RES_SCALE (2);
+
+		DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
+			PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+			FALSE, TRANSPARENT);
+	}
+
 	if (NewModule >= EMPTY_SLOT)
 	{
 		r.corner = s.origin;
@@ -106,7 +326,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		else
 			SetContextForeGroundColor (BRIGHT_RED_COLOR);
 
-		font_DrawText (&t);
+		if (!IS_DOS)
+			font_DrawText (&t);
 	}
 	UnbatchGraphics ();
 	SetContext (OldContext);
@@ -125,7 +346,7 @@ RedistributeFuel (void)
 	SetContext (OldContext);
 }
 
-#define LANDER_X RES_SCALE (24)
+#define LANDER_X (RES_SCALE (24) - SAFE_PAD)
 #define LANDER_Y RES_SCALE (67)
 #define LANDER_WIDTH RES_SCALE (15)
 
@@ -139,27 +360,44 @@ DisplayLanders (MENU_STATE *pMS)
 	{
 		s.origin.x = s.origin.y = 0;
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
-				GetFrameCount (pMS->ModuleFrame)
-				- SHIELD_LOCATION_IN_MODULE_ANI + 4);
+				SHIELD_LOCATION_IN_MODULE_ANI + 4);
 		DrawStamp (&s);
 	}
 	else
 	{
 		COUNT i;
 
-		s.origin.x = LANDER_X;
-		s.origin.y = LANDER_Y;
-		for (i = 0; i < GLOBAL_SIS (NumLanders); ++i)
+		if (!IS_DOS)
 		{
-			DrawStamp (&s);
-			s.origin.x += LANDER_WIDTH;
-		}
+			s.origin.x = LANDER_X;
+			s.origin.y = LANDER_Y;
+			for (i = 0; i < GLOBAL_SIS (NumLanders); ++i)
+			{
+				DrawStamp (&s);
+				s.origin.x += LANDER_WIDTH;
+			}
 
-		SetContextForeGroundColor (BLACK_COLOR);
-		for (; i < MAX_LANDERS; ++i)
+			SetContextForeGroundColor (BLACK_COLOR);
+			for (; i < MAX_LANDERS; ++i)
+			{
+				DrawFilledStamp (&s);
+				s.origin.x += LANDER_WIDTH;
+			}
+		}
+		else
 		{
-			DrawFilledStamp (&s);
-			s.origin.x += LANDER_WIDTH;
+			for (i = 0; i < GLOBAL_SIS (NumLanders); ++i)
+			{
+				s.origin = lander_pos[i];
+				DrawStamp (&s);
+			}
+
+			SetContextForeGroundColor (BLACK_COLOR);
+			for (; i < MAX_LANDERS; ++i)
+			{
+				s.origin = lander_pos[i];
+				DrawFilledStamp (&s);
+			}
 		}
 	}
 }
@@ -355,8 +593,8 @@ DoInstallModule (MENU_STATE *pMS)
 					if (new_slot_piece > TURNING_JETS
 							&& old_slot_piece > TURNING_JETS)
 						RedistributeFuel ();
-					if (optWhichFonts == OPT_PC)
-						DrawFlagshipStats ();
+
+					DrawFlagshipStats ();
 				}
 			}
 
@@ -455,6 +693,7 @@ DoInstallModule (MENU_STATE *pMS)
 				pMS->CurState = NewItem;
 				PreUpdateFlashRect ();
 				DrawModuleStrings (pMS, NewItem);
+				ManipulateModules (NewItem);
 				PostUpdateFlashRect ();
 			}
 		}
@@ -486,14 +725,24 @@ DoInstallModule (MENU_STATE *pMS)
 
 			if (NewState == pMS->CurState)
 			{
+				SIZE h = 0;
 				if (NewState == PLANET_LANDER
 						|| NewState == EMPTY_SLOT + 3)
+				{
 					w = LANDER_WIDTH;
+				}
 				else
 					w = SHIP_PIECE_OFFSET;
 
 				w *= (NewItem - pMS->delta_item);
-				pMS->flash_rect0.corner.x += w;
+				if (IS_DOS && (NewState == PLANET_LANDER
+					|| NewState == EMPTY_SLOT + 3))
+				{
+					pMS->flash_rect0.corner.x = lander_pos[NewItem].x - 1;
+					pMS->flash_rect0.corner.y = lander_pos[NewItem].y - 1;
+				}
+				else
+					pMS->flash_rect0.corner.x += w;
 				pMS->flash_rect1.corner.x += w;
 				//pMS->flash_rect2.corner.x += w;
 				pMS->delta_item = NewItem;
@@ -508,9 +757,11 @@ InitFlash:
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
 						pMS->flash_rect0.corner.x =
-								LANDER_X - RES_SCALE (1);
+								DOS_BOOL (LANDER_X, LANDER_DOS_X)
+								- RES_SCALE (1);
 						pMS->flash_rect0.corner.y =
-								LANDER_Y - RES_SCALE (1);
+								DOS_BOOL (LANDER_Y, LANDER_DOS_Y)
+								- RES_SCALE (1);
 						pMS->flash_rect0.extent.width =
 								RES_SCALE (11 + 2);
 						pMS->flash_rect0.extent.height =
@@ -580,15 +831,26 @@ InitFlash:
 				}
 
 				w *= pMS->delta_item;
-				pMS->flash_rect0.corner.x += w;
+				if (IS_DOS && (NewState == PLANET_LANDER
+					|| NewState == EMPTY_SLOT + 3))
+				{
+					pMS->flash_rect0.corner.x =
+							lander_pos[pMS->delta_item].x - 1;
+					pMS->flash_rect0.corner.y =
+							lander_pos[pMS->delta_item].y - 1;
+				}
+				else
+					pMS->flash_rect0.corner.x += w;
 				pMS->flash_rect1.corner.x += w;
 				//pMS->flash_rect2.corner.x += w;
 			}
 
 			DrawModuleStrings (pMS, new_slot_piece);
+			ManipulateModules (new_slot_piece);
 			if (pMS->CurState < EMPTY_SLOT)
-				// flash with PC menus too
-				SetFlashRect (SFR_MENU_ANY, FALSE);
+			{	// flash with PC menus too
+				SetFlashRect (DOS_BOOL (SFR_MENU_ANY, SFR_MENU_NON), FALSE);
+			}
 			else
 			{
 				if (optWhichMenu == OPT_PC)
@@ -603,19 +865,27 @@ InitFlash:
 						case EMPTY_SLOT + 0:
 						case EMPTY_SLOT + 1:
 						{	// thruster and jets
-							SetAdditionalRect (&pMS->flash_rect1, 1);
+							SetAdditionalRect (&pMS->flash_rect1, TRUE);
 							// SetAdditionalRect (&pMS->flash_rect2, 2);
 							break;
 						}
 						default:
 						{	// everything else
 							DumpAdditionalRect ();
-							SetAdditionalRect (&pMS->flash_rect1, 1);
+							SetAdditionalRect (&pMS->flash_rect1, TRUE);
 							break;
 						}
 					}
 				}
-				SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
+
+				if (IS_DOS && (pMS->CurState == EMPTY_SLOT + 3
+						|| pMS->CurState == PLANET_LANDER)
+						&& is3DO (optWhichMenu))
+				{
+					SetFlashRect (&pMS->flash_rect0, TRUE);
+				}
+				else
+					SetFlashRect (&pMS->flash_rect0, optWhichMenu == OPT_PC);
 			}
 		}
 	}
@@ -722,7 +992,8 @@ DoOutfit (MENU_STATE *pMS)
 			pMS->CurState = OUTFIT_FUEL;
 			pMS->ModuleFrame = CaptureDrawable (
 					LoadGraphic (SISMODS_MASK_PMAP_ANIM));
-			s.origin.x = s.origin.y = 0;
+			s.origin.x = SAFE_X ? (-SAFE_X + RES_SCALE (3)) : 0;
+			s.origin.y = 0;
 			s.frame = CaptureDrawable (
 					LoadGraphic (OUTFIT_PMAP_ANIM));
 
@@ -781,8 +1052,7 @@ DoOutfit (MENU_STATE *pMS)
 				ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 
 				s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
-						GetFrameCount (pMS->ModuleFrame)
-						- SHIELD_LOCATION_IN_MODULE_ANI);
+						SHIELD_LOCATION_IN_MODULE_ANI);
 				if (ShieldFlags & (1 << EARTHQUAKE_DISASTER))
 					DrawStamp (&s);
 				s.frame = IncFrameIndex (s.frame);
@@ -798,8 +1068,8 @@ DoOutfit (MENU_STATE *pMS)
 
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 			DrawFlagshipName (FALSE, FALSE);
-			if (optWhichFonts == OPT_PC)
-				DrawFlagshipStats ();
+
+			DrawFlagshipStats ();
 
 			ScreenTransition (optScrTrans, NULL);
 
@@ -873,6 +1143,14 @@ ExitOutfit:
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case OUTFIT_MODULES:
+
+				if (IS_DOS)
+				{
+					memset (&ModuleState, 0, sizeof ModuleState);
+					ModuleState.count = InventoryModules (ModuleState.list,
+							NUM_PURCHASE_MODULES);
+				}
+
 				DrawMenuStateStrings (PM_FUEL, pMS->CurState);
 				pMS->CurState = EMPTY_SLOT + 2;
 				if (GET_GAME_STATE (CHMMR_BOMB_STATE) != 3)

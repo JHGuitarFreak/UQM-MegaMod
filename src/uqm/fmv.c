@@ -38,6 +38,10 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 {
 	char vnbuf[24]; // From 32 to 24
 	RECT old_r;
+	CONTEXT OldContext;
+
+	OldContext = SetContext (ScreenContext);
+
 
 	LoadIntoExtraScreen (NULL);
 #if 0
@@ -61,6 +65,8 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
 	FlushColorXForms ();
+
+	SetContext (OldContext);
 
 	GetContextClipRect (&old_r);
 	SetContextClipRect (NULL);
@@ -200,7 +206,7 @@ AdvanceLoadProgress (void)
 		static COUNT i = 0;
 
 		r.corner.x = RES_SCALE (16);
-		r.corner.y = RES_SCALE (210);
+		r.corner.y = ScreenHeight - DOS_BOOL_SCL (50, 30);
 		r.extent.height = RES_SCALE (15);
 		r.extent.width = RES_SCALE ((i + 1) * 7);
 

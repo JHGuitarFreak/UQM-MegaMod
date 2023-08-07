@@ -131,8 +131,9 @@ CalcAlphaFormat (const SDL_PixelFormat* video, SDL_PixelFormat* ours)
 }
 
 int
-TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int togglefullscreen,
-		int resFactor)
+TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height,
+		int togglefullscreen, unsigned int resFactor,
+		unsigned int windowType)
 {
 	int i, videomode_flags;
 	SDL_PixelFormat conv_fmt;
@@ -146,7 +147,7 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int toggle
 	{
 		videomode_flags = SDL_SWSURFACE;
 		ScreenWidthActual = 320;
-		ScreenHeightActual = 240;
+		ScreenHeightActual = windowType ? 240 : 200;
 		graphics_backend = &pure_unscaled_backend;
 	}
 	else
@@ -163,7 +164,7 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int toggle
 					"under pure SDL, using 640x480", width, height);
 
 				width = 640;
-				height = 480;
+				height = windowType ? 480 : 400;
 			}
 
 			ScreenWidthActual = width;
@@ -173,7 +174,7 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int toggle
 		else
 		{
 			ScreenWidthActual = (320 << resFactor);
-			ScreenHeightActual = (240 << resFactor);
+			ScreenHeightActual = ((windowType ? 240 : 200) << resFactor);
 			graphics_backend = &pure_unscaled_backend;
 		}
 	}
@@ -290,7 +291,8 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height, int toggle
 
 int
 TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
-		int width, int height, int resFactor)
+		int width, int height, unsigned int resFactor,
+		unsigned int windowType)
 {
 	char VideoName[256];
 
@@ -309,9 +311,10 @@ TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
 	log_add (log_Info, "Initializing Screen.");
 
 	ScreenWidth = (320 << resFactor); // 320
-	ScreenHeight = (240 << resFactor); // 240
+	ScreenHeight = ((windowType ? 240 : 200) << resFactor); // 240
 
-	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0, resFactor))
+	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0,
+			resFactor, windowType))
 	{
 		log_add (log_Fatal, "Could not initialize video: "
 				"no fallback at start of program!");

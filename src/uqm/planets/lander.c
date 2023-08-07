@@ -212,9 +212,11 @@ CreatePCLanderContext (void)
 	context = CreateContext ("PCLanderContext");
 	SetContext (context);
 	SetContextFGFrame (Screen);
-	r.corner.x += r.extent.width - MAP_WIDTH;
+	r.corner.x += (r.extent.width - MAP_WIDTH)
+			+ (SAFE_X * 2 + SAFE_NUM_SCL (1));
 	r.corner.y += r.extent.height - MAP_HEIGHT;
-	r.extent.width = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH) - SIS_ORG_X;
+	r.extent.width = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH) - SIS_ORG_X
+			+ SAFE_POS (1);
 	r.extent.height = MAP_HEIGHT;
 	SetContextClipRect (&r);
 
@@ -919,7 +921,7 @@ DrawSuperPC (void)
 		DrawStarConBox (&r, 1,
 			SIS_LEFT_BORDER_COLOR,
 			SIS_BOTTOM_RIGHT_BORDER_COLOR,
-			FALSE, TRANSPARENT);
+			FALSE, TRANSPARENT, FALSE, TRANSPARENT);
 	}
 	else
 		DrawBorder (32);
@@ -1573,6 +1575,14 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 
 	if (lander_flags & KILL_CREW)
 		DeltaLanderCrew (-1, LIGHTNING_DISASTER);
+
+	if (isPC (optSuperPC))
+	{
+		DrawRadarBorder ();
+		RotatePlanetSphere (TRUE, NULL);
+	}
+
+
 
 	UnbatchGraphics ();
 

@@ -305,7 +305,7 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height,
 
 int
 TFB_GL_InitGraphics (int driver, int flags, int width, int height,
-		int resFactor)
+		unsigned int resFactor, unsigned int windowType)
 {
 	char VideoName[256];
 
@@ -317,7 +317,7 @@ TFB_GL_InitGraphics (int driver, int flags, int width, int height,
 	log_add (log_Info, "Initializing Screen.");
 
 	ScreenWidth = (320 << resFactor);
-	ScreenHeight = (240 << resFactor);
+	ScreenHeight = ((windowType ? 240 : 200) << resFactor);
 
 	if (TFB_GL_ConfigureVideo (driver, flags, width, height, 0, resFactor))
 	{

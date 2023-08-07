@@ -35,6 +35,7 @@
 #include "../util.h"
 #include "options.h"
 #include "libs/graphics/gfx_common.h"
+#include "../gendef.h"
 
 
 // PlanetOrbitMenu() items
@@ -280,7 +281,7 @@ DrawPlanetSurfaceBorder (void)
 	if (isPC (optSuperPC))
 	{
 		r.corner.x = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH)
-				- SIS_ORG_X + RES_SCALE (1);
+				- SIS_ORG_X + RES_SCALE (1) + SAFE_POS (1);
 		r.corner.y = clipRect.extent.height - MAP_HEIGHT - RES_SCALE (1);
 		r.extent.width = RES_SCALE (1);
 		r.extent.height = MAP_HEIGHT;
@@ -320,6 +321,62 @@ typedef enum
 
 } DRAW_ORBITAL_MODE;
 
+void
+DrawOrbitMapGraphic (void)
+{
+	STAMP s;
+	FRAME SurfDefFrame = NULL;
+
+	SetContext (GetScanContext (NULL));
+
+	if (isPC (optScrTrans))
+	{
+		s.frame = SetAbsFrameIndex (CaptureDrawable
+		(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
+
+		s.origin.x = -SAFE_X;
+		s.origin.y = 0;
+
+		if (isPC (optSuperPC))
+		{
+			s.origin.x -=
+				RES_SCALE (((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2)
+					+ SAFE_NUM (5));
+		}
+
+		DrawStamp (&s);
+
+		DestroyDrawable (ReleaseDrawable (s.frame));
+	}
+	else
+		DrawPlanet (0, BLACK_COLOR);
+
+#if 0
+	if (never)
+	{
+		STAMP ss;
+		PLANET_DESC *pPlanetDesc;
+		PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+		int PlanetScale = RES_BOOL (319, 512);
+		int PlanetRescale = 1275;
+
+		pPlanetDesc = pSolarSysState->pOrbitalDesc;
+		GeneratePlanetSurface (
+			pPlanetDesc, NULL, PlanetScale, PlanetScale);
+		ss.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		ss.origin.y = RES_SCALE (191);
+
+		ss.frame = RES_BOOL (Orbit->SphereFrame, CaptureDrawable (
+			RescaleFrame (
+				Orbit->SphereFrame, PlanetRescale, PlanetRescale
+			)));
+
+		DrawStamp (&ss);
+		DestroyDrawable (ReleaseDrawable (ss.frame));
+	}
+#endif
+}
+
 static void
 DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 {
@@ -342,50 +399,10 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 
 	if (Mode == DRAW_ORBITAL_WAIT)
 	{
-		STAMP s;
-
-		SetContext (GetScanContext (NULL));
-
-		s.frame = SetAbsFrameIndex (CaptureDrawable
-				(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
-
-		s.origin.x = -SAFE_X;
-		s.origin.y = 0;
-
-		if (isPC (optSuperPC))
-			s.origin.x -= RES_SCALE ((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2);
-
-#if 0
-		if (never)
-		{
-			STAMP ss;
-			PLANET_DESC *pPlanetDesc;
-			PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
-			int PlanetScale = RES_BOOL (319, 512);
-			int PlanetRescale = 1275;
-
-			pPlanetDesc = pSolarSysState->pOrbitalDesc;
-			GeneratePlanetSurface (
-					pPlanetDesc, NULL, PlanetScale, PlanetScale);
-			ss.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-			ss.origin.y = RES_SCALE (191);
-			
-			ss.frame = RES_BOOL (Orbit->SphereFrame, CaptureDrawable (
-					RescaleFrame (
-						Orbit->SphereFrame, PlanetRescale, PlanetRescale
-					)));
-
-			DrawStamp (&ss);
-			DestroyDrawable (ReleaseDrawable (ss.frame));
-		}
-#endif
-
-		DrawStamp (&s);
+		DrawOrbitMapGraphic ();
 
 		if (isPC (optSuperPC))
 			InitPCLander (TRUE);
-
-		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
 	else if (Mode == DRAW_ORBITAL_FULL)
 	{
@@ -442,9 +459,6 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	CreatePlanetContext ();
 
-	if (WaitMode)
-		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
-
 	StopMusic ();
 
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
@@ -452,8 +466,11 @@ LoadPlanet (FRAME SurfDefFrame)
 	OrbitNum = SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
 
+	if (WaitMode)
+		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
+
 	if (isPC (optScrTrans))
-		SleepThread (ONE_SECOND);
+		SleepThread (ONE_SECOND * 6 / 5);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 	{
