@@ -607,6 +607,23 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 				}
 			}
 		}
+		else if (mode.kind == DRAW_GRAYSCALE)
+		{	// For wiping char background
+			mode.kind = DRAW_REPLACE;
+
+			for (y = 0; y < h; ++y, src_p += sskip, dst_p += dskip)
+			{
+				for (x = 0; x < w; ++x, ++src_p, ++dst_p)
+				{
+					Uint32 p = *dst_p & dmask;
+					Uint32 a = *src_p;
+
+					if (a != 0x00)
+						a = 0xff;
+					*dst_p = p | (a << ashift);
+				}
+			}
+		}
 		else /* if (mode.kind != DRAW_ALPHA) */
 		{	// Transfer the alpha channel to the backing surface
 			// DRAW_REPLACE + Color.a is NOT supported right now
