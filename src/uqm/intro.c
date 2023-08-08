@@ -33,6 +33,7 @@
 #include "libs/vidlib.h"
 #include "libs/log.h"
 #include "libs/inplib.h"
+#include "util.h"
 
 #include <ctype.h>
 
@@ -105,7 +106,7 @@ ParseColorString (const char *Src, Color* pColor)
 		return FALSE;
 
 	*pColor = BUILD_COLOR_RGBA (
-			(clr >> 16) & 0xff, (clr >> 8) & 0xff, clr & 0xff, 0);
+			(clr >> 16) & 0xff, (clr >> 8) & 0xff, clr & 0xff, 0xff);
 	return TRUE;
 }
 
@@ -265,6 +266,117 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 	FlushGraphics ();
 
 	pPIS->SisFrame = SisFrame;
+}
+
+static BOOLEAN
+DoSpinText (UNICODE *buf, COORD x, COORD y, FRAME repair)
+{
+	TEXT Text;
+
+	Text.pStr = buf;
+	Text.CharCount = (COUNT)utf8StringCount (buf);
+	Text.align = ALIGN_LEFT;
+	Text.baseline.y = y;
+	Text.baseline.x = x;
+
+	return font_DrawText_Fade (&Text, repair);
+}
+
+static void
+DoSpinLine (LINE *l, Color front, Color back)
+{
+	SetContextForeGroundColor (back);
+	DrawLine (l, RES_SCALE (1));
+	PlayMenuSound (MENU_SOUND_MOVE);
+	SleepThread (ONE_SECOND / 16);
+	SetContextForeGroundColor (front);
+	DrawLine (l, RES_SCALE (1));
+}
+
+static void
+DoSpinStatBox (RECT *r, Color front, Color back)
+{
+	DrawStarConBox (r, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+	PlayMenuSound (MENU_SOUND_MOVE);
+	SleepThread (ONE_SECOND / 16);
+	DrawStarConBox (r, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+}
+
+static BOOLEAN
+DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color front, Color back)
+{
+	TEXT Text;
+	COUNT i;
+	RECT sq;
+	POINT c;
+	RECT chd;
+
+	sq.corner.x = x + RES_SCALE (64);
+	sq.corner.y = y - RES_SCALE (5);
+	sq.extent.width = sq.extent.height = RES_SCALE (5);
+
+	chd.extent.width = chd.extent.height = 4;
+
+	Text.pStr = buf;
+	Text.CharCount = (COUNT)utf8StringCount (buf);
+	Text.align = ALIGN_LEFT;
+	Text.baseline.y = y;
+	Text.baseline.x = x;
+
+	SetContextForeGroundColor (back);
+	font_DrawText (&Text);
+	PlayMenuSound (MENU_SOUND_MOVE);
+	SleepThread (ONE_SECOND / 16);
+	SetContextForeGroundColor (front);
+	font_DrawText (&Text);
+
+	for (i = 0; i < filled; i++)
+	{
+		SetContextForeGroundColor (back);
+		DrawFilledRectangle (&sq);
+		PlayMenuSound (MENU_SOUND_MOVE);
+		SleepThread (ONE_SECOND / 16);
+		SetContextForeGroundColor (front);
+		DrawFilledRectangle (&sq);
+		sq.corner.x += RES_SCALE (6);
+
+		UpdateInputState ();
+		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			return FALSE;
+	}
+	for (i = 0; i < empty; i++)
+	{
+		c.x = sq.corner.x + RES_SCALE (2);
+		c.y = sq.corner.y + RES_SCALE (2);
+		SetContextForeGroundColor (back);
+		DrawStarConBox (&sq, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+		if (IS_HD)
+		{
+			chd.corner = c;
+			DrawFilledRectangle (&chd);
+		}
+		else
+			DrawPoint (&c);
+		PlayMenuSound (MENU_SOUND_MOVE);
+		SleepThread (ONE_SECOND / 16);
+		SetContextForeGroundColor (front);
+		DrawStarConBox (&sq, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+		if (IS_HD)
+		{
+			chd.corner = c;
+			DrawFilledRectangle (&chd);
+		}
+		else
+			DrawPoint (&c);
+		sq.corner.x += RES_SCALE (6);
+
+		UpdateInputState ();
+		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			return FALSE;
+	}
+	return TRUE;
 }
 
 static void
@@ -494,6 +606,17 @@ DoPresentation (void *pIS)
 				return TRUE;
 			}
 		}
+		else if (strcmp (Opcode, "WAITDITTY") == 0)
+		{	/* set music */
+			while (PlayingStream (MUSIC_SOURCE))
+			{
+				if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+					return FALSE;
+				SleepThread (ONE_SECOND / 10);
+				UpdateInputState ();
+			}
+		}
 		else if (strcmp (Opcode, "SYNC") == 0)
 		{	/* absolute time-sync */
 			int msecs;
@@ -560,6 +683,30 @@ DoPresentation (void *pIS)
 				t.baseline.y = RES_SCALE (y);
 				DrawTextEffect (&t, pPIS->TextColor, pPIS->TextBackColor,
 						pPIS->TextEffect);
+			}
+		}
+		else if (strcmp (Opcode, "TEXTSPIN") == 0)
+		{	/* spin text draw */
+			int x, y;
+
+			assert (sizeof (pPIS->Buffer) >= 256);
+
+			if (3 == sscanf (pStr, "%d %d %255[^\n]", &x, &y, pPIS->Buffer))
+			{
+				SetContextForeGroundColor (pPIS->TextColor);
+				SetContextBackGroundColor (pPIS->TextBackColor);
+				return DoSpinText (pPIS->Buffer, RES_SCALE (x), RES_SCALE (y), SetAbsFrameIndex (pPIS->Frame, 0));
+			}
+		}
+		else if (strcmp (Opcode, "SPINSTAT") == 0)
+		{	/* spin text draw */
+			int x, y, f, e;
+
+			assert (sizeof (pPIS->Buffer) >= 256);
+
+			if (5 == sscanf (pStr, "%d %d %d %d %255[^\n]", &x, &y, &f, &e, pPIS->Buffer))
+			{
+				return DoSpinStat (pPIS->Buffer, RES_SCALE (x), RES_SCALE (y), f, e, pPIS->TextColor, pPIS->TextBackColor);
 			}
 		}
 		else if (strcmp (Opcode, "TFI") == 0)
@@ -775,6 +922,44 @@ DoPresentation (void *pIS)
 				log_add (log_Warning, "Bad LINE command '%s'", pStr);
 			}
 		}
+		else if (strcmp (Opcode, "LINESPIN") == 0)
+		{
+			int x1, x2, y1, y2;
+			if (4 == sscanf (pStr, "%d %d %d %d", &x1, &y1, &x2, &y2))
+			{
+				LINE l;
+
+				l.first.x = RES_SCALE (x1);
+				l.first.y = RES_SCALE (y1);
+				l.second.x = RES_SCALE (x2);
+				l.second.y = RES_SCALE (y2);
+				
+				DoSpinLine (&l, pPIS->TextColor, pPIS->TextBackColor);
+			}
+			else
+			{
+				log_add (log_Warning, "Bad LINESPIN command '%s'", pStr);
+			}
+		}
+		else if (strcmp (Opcode, "STATBOX") == 0)
+		{
+			int x, y, w, h;
+			if (4 == sscanf (pStr, "%d %d %d %d", &x, &y, &w, &h))
+			{
+				RECT r;
+
+				r.corner.x = RES_SCALE (x);
+				r.corner.y = RES_SCALE (y);
+				r.extent.width = RES_SCALE (w);
+				r.extent.height = RES_SCALE (h);
+				
+				DoSpinStatBox (&r, pPIS->TextColor, pPIS->TextBackColor);
+			}
+			else
+			{
+				log_add (log_Warning, "Bad STATBOX command '%s'", pStr);
+			}
+		}
 		else if (strcmp (Opcode, "MOVIE") == 0)
 		{
 			int fps, from, to;
@@ -890,7 +1075,7 @@ ShowSlidePresentation (STRING PresStr)
 	pis.LastSyncTime = pis.StartTime;
 	DoInput(&pis, TRUE);
 
-	if (pis.MusicRef)
+	if (pis.MusicRef && PlayingStream (MUSIC_SOURCE))
 	{
 		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
 		StopMusic ();
