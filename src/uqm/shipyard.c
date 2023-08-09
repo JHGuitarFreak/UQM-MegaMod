@@ -435,6 +435,8 @@ SpinStarShip (MENU_STATE *pMS, HFLEETINFO hStarShip)
 
 	if (Index >= 0 && Index < NUM_MELEE_SHIPS)
 	{
+		if (isPC (optWhichIntro))
+			PlayMenuSound (MENU_SOUND_SUCCESS);
 		DoShipSpins = TRUE;
 		DoShipSpin (Index, pMS->hMusic);
 	}
