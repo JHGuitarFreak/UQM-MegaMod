@@ -548,7 +548,7 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 				UnbatchGraphics ();
 			}
 
-			if (next_ch == '\n')
+			if (next_ch == '\n' || next_ch == '\r')
 			{
 				origin.x = pClipRect->corner.x;
 				origin.y += leading;

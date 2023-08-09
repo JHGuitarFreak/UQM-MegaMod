@@ -56,7 +56,10 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	FreeHyperData ();
 
 	if (isPC (optWhichIntro))
+	{
 		ShowPresentation (ACCESSDATA_STRTAB);
+		SleepThread (ONE_SECOND);
+	}
 
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
