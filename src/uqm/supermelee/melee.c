@@ -1975,13 +1975,14 @@ DoMelee (MELEE_STATE *pMS)
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
 		}
-		pMS->hMusic = LoadMusic (MELEE_MUSIC);
+		pMS->hMusic = 0;
 		pMS->Initialized = TRUE;
 		
 		pMS->MeleeOption = START_MELEE;
 
 		if (optMainMenuMusic)
 		{
+			pMS->hMusic = LoadMusic (MELEE_MUSIC);
 			SetMusicVolume (MUTE_VOLUME);
 			PlayMusic (pMS->hMusic, TRUE, 1);
 

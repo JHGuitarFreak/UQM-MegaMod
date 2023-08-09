@@ -50,26 +50,21 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	FlushColorXForms ();
 #endif
 	
-	if (hMusic && optMainMenuMusic)
+	if (hMusic)
 		StopMusic ();
-
-	if (!optMainMenuMusic && musicVolume == 0)
-		FadeMusic (NORMAL_VOLUME, 0);
 
 	FreeHyperData ();
 
 	if (isPC (optWhichIntro))
-	{
 		ShowPresentation (ACCESSDATA_STRTAB);
-		SleepThread (ONE_SECOND);
-	}
 
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
 
 	ShowPresentation (vnbuf);
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
+	if (is3DO (optWhichIntro))
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
 	FlushColorXForms ();
 
 	SetContext (OldContext);
@@ -79,12 +74,11 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 	DrawFromExtraScreen (NULL);
 	SetContextClipRect (&old_r);
 
-	if (hMusic && optMainMenuMusic)
+	if (hMusic)
 		PlayMusic (hMusic, TRUE, 1);
-	else
-		FadeMusic (0, 0);
 		
-	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
+	if (is3DO (optWhichIntro))
+		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
 	FlushColorXForms ();
 }
 

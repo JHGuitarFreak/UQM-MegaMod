@@ -295,7 +295,9 @@ DoPickShip (MELEE_STATE *pMS)
 	if (PulsedInputState.menu[KEY_MENU_SPECIAL]
 			&& (pMS->currentShip != MELEE_NONE))
 	{
-		// Show ship spin video.
+		if (isPC (optWhichIntro))
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+		// Show ship spin video.		
 		DoShipSpin (pMS->currentShip, pMS->hMusic);
 
 		return TRUE;
