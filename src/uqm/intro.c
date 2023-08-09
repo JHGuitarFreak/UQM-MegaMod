@@ -287,7 +287,7 @@ DoSpinLine (LINE *l, Color front, Color back)
 {
 	SetContextForeGroundColor (back);
 	DrawLine (l, RES_SCALE (1));
-	PlayMenuSound (MENU_SOUND_MOVE);
+	PlayMenuSound (MENU_SOUND_TEXT);
 	SleepThread (ONE_SECOND / 16);
 	SetContextForeGroundColor (front);
 	DrawLine (l, RES_SCALE (1));
@@ -297,7 +297,7 @@ static void
 DoSpinStatBox (RECT *r, Color front, Color back)
 {
 	DrawStarConBox (r, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
-	PlayMenuSound (MENU_SOUND_MOVE);
+	PlayMenuSound (MENU_SOUND_TEXT);
 	SleepThread (ONE_SECOND / 16);
 	DrawStarConBox (r, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
 }
@@ -325,7 +325,7 @@ DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color fro
 
 	SetContextForeGroundColor (back);
 	font_DrawText (&Text);
-	PlayMenuSound (MENU_SOUND_MOVE);
+	PlayMenuSound (MENU_SOUND_TEXT);
 	SleepThread (ONE_SECOND / 16);
 	SetContextForeGroundColor (front);
 	font_DrawText (&Text);
@@ -334,7 +334,7 @@ DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color fro
 	{
 		SetContextForeGroundColor (back);
 		DrawFilledRectangle (&sq);
-		PlayMenuSound (MENU_SOUND_MOVE);
+		PlayMenuSound (MENU_SOUND_TEXT);
 		SleepThread (ONE_SECOND / 16);
 		SetContextForeGroundColor (front);
 		DrawFilledRectangle (&sq);
@@ -358,7 +358,7 @@ DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color fro
 		}
 		else
 			DrawPoint (&c);
-		PlayMenuSound (MENU_SOUND_MOVE);
+		PlayMenuSound (MENU_SOUND_TEXT);
 		SleepThread (ONE_SECOND / 16);
 		SetContextForeGroundColor (front);
 		DrawStarConBox (&sq, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
@@ -663,7 +663,7 @@ DoPresentation (void *pIS)
 			pPIS->TextVPos = toupper (*pStr);
 		}
 		else if (strcmp (Opcode, "TE") == 0)
-		{	/* text vertical align */
+		{	/* text effect */
 			pPIS->TextEffect = toupper (*pStr);
 		}
 		else if (strcmp (Opcode, "TEXT") == 0)
@@ -691,11 +691,13 @@ DoPresentation (void *pIS)
 
 			assert (sizeof (pPIS->Buffer) >= 256);
 
-			if (3 == sscanf (pStr, "%d %d %255[^\n]", &x, &y, pPIS->Buffer))
+			if (3 == sscanf (pStr, "%d %d %255[^#]", &x, &y, pPIS->Buffer))
 			{
 				SetContextForeGroundColor (pPIS->TextColor);
 				SetContextBackGroundColor (pPIS->TextBackColor);
-				return DoSpinText (pPIS->Buffer, RES_SCALE (x), RES_SCALE (y), SetAbsFrameIndex (pPIS->Frame, 0));
+				return DoSpinText (pPIS->Buffer,
+						RES_SCALE (x), RES_SCALE (y),
+						SetAbsFrameIndex (pPIS->Frame, 0));
 			}
 		}
 		else if (strcmp (Opcode, "SPINSTAT") == 0)

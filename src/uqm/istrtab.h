@@ -2,6 +2,7 @@
    should not be edited directly.  Modify the master resource list
    instead and regenerate. */
 
+#define ACCESSDATA_STRTAB "slides.accessdata"
 #define ACID_COLOR_TAB "planet.acid.colortable"
 #define ACID_XLAT_TAB "planet.acid.translatetable"
 #define ALGOLITE_RUINS_STRTAB "text.algoliteruins"

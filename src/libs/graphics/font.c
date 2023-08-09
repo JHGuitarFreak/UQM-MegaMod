@@ -334,7 +334,11 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 				if (num_chars && FontPtr->KernTab[ch]
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
+				{
 					width -= FontPtr->KernAmount;
+
+					printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+				}
 			}
 
 			*pdelta++ = (BYTE)(width - last_width);
@@ -435,7 +439,11 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 			if (num_chars && FontPtr->KernTab[ch]
 					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
+			{
 				origin.x -= FontPtr->KernAmount;
+
+				printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+			}
 		}
 	}
 }
@@ -523,7 +531,7 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 				{
 					TFB_Prim_FontChar (origin, fontChar, b_first, mode,
 								ctxOrigin);
-					PlayMenuSound (MENU_SOUND_MOVE);
+					PlayMenuSound (MENU_SOUND_TEXT);
 
 					SleepThread (ONE_SECOND / 16);
 				}
@@ -540,7 +548,7 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 				UnbatchGraphics ();
 			}
 
-			if (next_ch == '#')
+			if (next_ch == '\n')
 			{
 				origin.x = pClipRect->corner.x;
 				origin.y += leading;
@@ -555,7 +563,11 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 				if (num_chars && FontPtr->KernTab[ch]
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
+				{
 					origin.x -= FontPtr->KernAmount;
+
+					printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+				}
 			}
 		}
 		UpdateInputState ();
@@ -661,7 +673,11 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 				if (num_chars && FontPtr->KernTab[ch]
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
+				{
 					width -= FontPtr->KernAmount;
+
+					printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+				}
 			}
 
 			*pdelta++ = (BYTE)(width - last_width);
@@ -807,7 +823,11 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 			if (num_chars && FontPtr->KernTab[ch]
 				&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
+			{
 				origin.x -= FontPtr->KernAmount;
+
+				printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+			}
 		}
 	}
 
