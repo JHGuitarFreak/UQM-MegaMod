@@ -78,6 +78,9 @@ typedef struct
 	// For DOS Spins
 	RECT StatBox;
 	COUNT NumSpinStat;
+	RECT GetRect;
+	COUNT CurrentFrameIndex;
+	BOOLEAN HaveFrame;
 
 } PRESENTATION_INPUT_STATE;
 
@@ -707,6 +710,14 @@ DoPresentation (void *pIS)
 
 			if (3 == sscanf (pStr, "%d %d %255[^#]", &x, &y, pPIS->Buffer))
 			{
+				if (pPIS->HaveFrame
+							&&(pPIS->GetRect.extent.width > 0
+							&& pPIS->GetRect.extent.height > 0))
+				{
+					x += pPIS->GetRect.corner.x;
+					y += pPIS->GetRect.corner.y;
+				}
+
 				SetContextForeGroundColor (pPIS->TextColor);
 				SetContextBackGroundColor (pPIS->TextBackColor);
 				return DoSpinText (pPIS->Buffer,
@@ -878,6 +889,7 @@ DoPresentation (void *pIS)
 			if (cargs < 1)
 			{
 				log_add (log_Warning, "Bad DRAW command '%s'", pStr);
+				pPIS->HaveFrame = FALSE;
 				continue;
 			}
 			if (cargs < 5)
@@ -897,6 +909,8 @@ DoPresentation (void *pIS)
 			if (draw_what == PRES_DRAW_INDEX)
 			{	/* draw stamp by index */
 				s.frame = SetAbsFrameIndex (pPIS->Frame, (COUNT)index);
+				pPIS->CurrentFrameIndex = (COUNT)index;
+				pPIS->HaveFrame = TRUE;
 			}
 			else if (draw_what == PRES_DRAW_SIS)
 			{	/* draw dynamic SIS image with player's modules */
@@ -989,6 +1003,16 @@ DoPresentation (void *pIS)
 			{
 				LINE l;
 
+				if (pPIS->HaveFrame
+						&& (pPIS->GetRect.extent.width > 0
+						&& pPIS->GetRect.extent.height > 0))
+				{
+					x1 += pPIS->GetRect.corner.x;
+					x2 += pPIS->GetRect.corner.x;
+					y1 += pPIS->GetRect.corner.y;
+					y2 += pPIS->GetRect.corner.y;
+				}
+
 				l.first.x = RES_SCALE (x1);
 				l.first.y = RES_SCALE (y1);
 				l.second.x = RES_SCALE (x2);
@@ -1001,6 +1025,21 @@ DoPresentation (void *pIS)
 				log_add (log_Warning, "Bad LINESPIN command '%s'", pStr);
 			}
 		}
+		else if (strcmp (Opcode, "GETRECT") == 0)
+		{	/* Get currently drawn FRAME rect */
+			if (pPIS->HaveFrame)
+			{
+				GetFrameRect (SetAbsFrameIndex (
+						pPIS->Frame, pPIS->CurrentFrameIndex),
+						&pPIS->GetRect);
+			}
+			else
+			{
+				log_add (log_Warning, "Bad GETRECT command, can not use "
+						"GETRECT without drawing a frame first '%s'",
+						pStr);
+			}
+		}
 		else if (strcmp (Opcode, "STATBOX") == 0)
 		{
 #define STATBOX_WIDTH  RES_SCALE (122)
@@ -1009,6 +1048,14 @@ DoPresentation (void *pIS)
 			if (2 == sscanf (pStr, "%d %d", &x, &y))
 			{
 				pPIS->NumSpinStat = 0;
+
+				if (pPIS->HaveFrame
+							&&(pPIS->GetRect.extent.width > 0
+							&& pPIS->GetRect.extent.height > 0))
+				{
+					x += pPIS->GetRect.corner.x;
+					y += pPIS->GetRect.corner.y;
+				}
 
 				pPIS->StatBox.corner =
 						MAKE_POINT (RES_SCALE (x), RES_SCALE (y));
