@@ -44,11 +44,6 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 
 	LoadIntoExtraScreen (NULL);
-#if 0
-	/* This is cut out right now but should be part of the 3DO side */
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
-	FlushColorXForms ();
-#endif
 	
 	if (hMusic)
 		StopMusic ();
@@ -57,8 +52,10 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	if (isPC (optWhichIntro))
 	{
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
+		FlushColorXForms ();
+
 		ShowPresentation (ACCESSDATA_STRTAB);
-		SleepThread (ONE_SECOND);
 	}
 
 	// TODO: It would be nice to have better resource names for these.
@@ -79,7 +76,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	if (hMusic)
 		PlayMusic (hMusic, TRUE, 1);
-		
+
 	if (is3DO (optWhichIntro))
 		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
 	FlushColorXForms ();

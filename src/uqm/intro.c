@@ -75,6 +75,10 @@ typedef struct
 	int MovieEndFrame;
 	int InterframeDelay;
 
+	// For DOS Spins
+	RECT StatBox;
+	COUNT NumSpinStat;
+
 } PRESENTATION_INPUT_STATE;
 
 typedef struct {
@@ -311,7 +315,7 @@ DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color fro
 	POINT c;
 	RECT chd;
 
-	sq.corner.x = x + RES_SCALE (64);
+	sq.corner.x = x + RES_SCALE (63);
 	sq.corner.y = y - RES_SCALE (5);
 	sq.extent.width = sq.extent.height = RES_SCALE (5);
 
@@ -583,7 +587,8 @@ DoPresentation (void *pIS)
 		}
 		else if (strcmp (Opcode, "DITTY") == 0)
 		{	/* set ditty */
-			snprintf (pPIS->Buffer, sizeof (pPIS->Buffer), "ship.%s.ditty", pStr);
+			snprintf (pPIS->Buffer, sizeof (pPIS->Buffer),
+					"ship.%s.ditty", pStr);
 
 			if (pPIS->MusicRef)
 			{
@@ -610,9 +615,11 @@ DoPresentation (void *pIS)
 		{	/* set music */
 			while (PlayingStream (MUSIC_SOURCE))
 			{
-				if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
-					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+				if (CurrentInputState.menu[KEY_MENU_CANCEL]
+						|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
 					return FALSE;
+				}
 				SleepThread (ONE_SECOND / 10);
 				UpdateInputState ();
 			}
@@ -645,6 +652,13 @@ DoPresentation (void *pIS)
 				pPIS->TimeOutOnSkip = FALSE;
 				return TRUE;
 			}
+		}
+		else if (strcmp (Opcode, "BGC") == 0)
+		{	/* text fore color */
+			Color temp;
+			ParseColorString (pStr, &temp);
+
+			SetContextBackGroundColor (temp);
 		}
 		else if (strcmp (Opcode, "TC") == 0)
 		{	/* text fore color */
@@ -696,19 +710,63 @@ DoPresentation (void *pIS)
 				SetContextForeGroundColor (pPIS->TextColor);
 				SetContextBackGroundColor (pPIS->TextBackColor);
 				return DoSpinText (pPIS->Buffer,
-						RES_SCALE (x), RES_SCALE (y),
+						RES_SCALE (x), RES_SCALE (y + 7),
 						SetAbsFrameIndex (pPIS->Frame, 0));
 			}
 		}
 		else if (strcmp (Opcode, "SPINSTAT") == 0)
 		{	/* spin text draw */
 			int x, y, f, e;
+			SIZE leading;
 
 			assert (sizeof (pPIS->Buffer) >= 256);
 
-			if (5 == sscanf (pStr, "%d %d %d %d %255[^\n]", &x, &y, &f, &e, pPIS->Buffer))
+			if (3 == sscanf (pStr, "%d %d %255[^\n]", &f, &e, pPIS->Buffer))
 			{
-				return DoSpinStat (pPIS->Buffer, RES_SCALE (x), RES_SCALE (y), f, e, pPIS->TextColor, pPIS->TextBackColor);
+				GetContextFontLeading (&leading);
+
+				pPIS->NumSpinStat++;
+
+				x = pPIS->StatBox.corner.x + RES_SCALE (3);
+				y = pPIS->StatBox.corner.y + RES_SCALE (1)
+						+ (leading * pPIS->NumSpinStat);
+
+				if (pPIS->NumSpinStat > 8)
+				{
+					log_add (log_Warning, "SPINSTAT: Number of SPINSTAT "
+						"entries exceeds max amount '%s'", pStr);
+					return FALSE;
+				}
+
+				if (f > 9 || (f + e) > 9)
+				{
+					char buf[40];
+					TEXT t;
+
+					log_add (log_Warning, "SPINSTAT: Stats exceed max "
+							"values '%s'", pStr);
+					snprintf (buf, sizeof (buf), "%s %s", pPIS->Buffer,
+							"Exceed max!");
+
+					t.align = ALIGN_LEFT;
+					t.pStr = buf;
+					t.CharCount = (COUNT)~0;
+					t.baseline = MAKE_POINT (x, y);
+					DrawTextEffect (&t,
+							BUILD_COLOR_RGBA (0xFF, 0x55, 0x55, 0xFF),
+							pPIS->TextBackColor, pPIS->TextEffect);
+					
+				}
+				else
+				{
+					return DoSpinStat (pPIS->Buffer,
+							RES_SCALE (x), RES_SCALE (y), f, e,
+							pPIS->TextColor, pPIS->TextBackColor);
+				}
+			}
+			else
+			{
+				log_add (log_Warning, "Bad SPINSTAT command '%s'", pStr);
 			}
 		}
 		else if (strcmp (Opcode, "TFI") == 0)
@@ -945,17 +1003,20 @@ DoPresentation (void *pIS)
 		}
 		else if (strcmp (Opcode, "STATBOX") == 0)
 		{
-			int x, y, w, h;
-			if (4 == sscanf (pStr, "%d %d %d %d", &x, &y, &w, &h))
+#define STATBOX_WIDTH  RES_SCALE (122)
+#define STATBOX_HEIGHT RES_SCALE (60)
+			int x, y;
+			if (2 == sscanf (pStr, "%d %d", &x, &y))
 			{
-				RECT r;
+				pPIS->NumSpinStat = 0;
 
-				r.corner.x = RES_SCALE (x);
-				r.corner.y = RES_SCALE (y);
-				r.extent.width = RES_SCALE (w);
-				r.extent.height = RES_SCALE (h);
+				pPIS->StatBox.corner =
+						MAKE_POINT (RES_SCALE (x), RES_SCALE (y));
+				pPIS->StatBox.extent =
+						MAKE_EXTENT (STATBOX_WIDTH, STATBOX_HEIGHT);
 				
-				DoSpinStatBox (&r, pPIS->TextColor, pPIS->TextBackColor);
+				DoSpinStatBox (&pPIS->StatBox, pPIS->TextColor,
+						pPIS->TextBackColor);
 			}
 			else
 			{
