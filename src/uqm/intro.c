@@ -710,6 +710,9 @@ DoPresentation (void *pIS)
 
 			if (3 == sscanf (pStr, "%d %d %255[^#]", &x, &y, pPIS->Buffer))
 			{
+				x <<= RESOLUTION_FACTOR;
+				y <<= RESOLUTION_FACTOR;
+
 				if (pPIS->HaveFrame
 							&&(pPIS->GetRect.extent.width > 0
 							&& pPIS->GetRect.extent.height > 0))
@@ -720,8 +723,7 @@ DoPresentation (void *pIS)
 
 				SetContextForeGroundColor (pPIS->TextColor);
 				SetContextBackGroundColor (pPIS->TextBackColor);
-				return DoSpinText (pPIS->Buffer,
-						RES_SCALE (x), RES_SCALE (y + 7),
+				return DoSpinText (pPIS->Buffer, x, y + RES_SCALE (7),
 						SetAbsFrameIndex (pPIS->Frame, 0));
 			}
 		}
@@ -771,7 +773,7 @@ DoPresentation (void *pIS)
 				else
 				{
 					return DoSpinStat (pPIS->Buffer,
-							RES_SCALE (x), RES_SCALE (y), f, e,
+							x, y, f, e,
 							pPIS->TextColor, pPIS->TextBackColor);
 				}
 			}
@@ -1003,6 +1005,11 @@ DoPresentation (void *pIS)
 			{
 				LINE l;
 
+				x1 <<= RESOLUTION_FACTOR;
+				x2 <<= RESOLUTION_FACTOR;
+				y1 <<= RESOLUTION_FACTOR;
+				y2 <<= RESOLUTION_FACTOR;
+
 				if (pPIS->HaveFrame
 						&& (pPIS->GetRect.extent.width > 0
 						&& pPIS->GetRect.extent.height > 0))
@@ -1013,10 +1020,10 @@ DoPresentation (void *pIS)
 					y2 += pPIS->GetRect.corner.y;
 				}
 
-				l.first.x = RES_SCALE (x1);
-				l.first.y = RES_SCALE (y1);
-				l.second.x = RES_SCALE (x2);
-				l.second.y = RES_SCALE (y2);
+				l.first.x = x1;
+				l.first.y = y1;
+				l.second.x = x2;
+				l.second.y = y2;
 				
 				DoSpinLine (&l, pPIS->TextColor, pPIS->TextBackColor);
 			}
@@ -1049,6 +1056,9 @@ DoPresentation (void *pIS)
 			{
 				pPIS->NumSpinStat = 0;
 
+				x <<= RESOLUTION_FACTOR;
+				y <<= RESOLUTION_FACTOR;
+
 				if (pPIS->HaveFrame
 							&&(pPIS->GetRect.extent.width > 0
 							&& pPIS->GetRect.extent.height > 0))
@@ -1057,8 +1067,7 @@ DoPresentation (void *pIS)
 					y += pPIS->GetRect.corner.y;
 				}
 
-				pPIS->StatBox.corner =
-						MAKE_POINT (RES_SCALE (x), RES_SCALE (y));
+				pPIS->StatBox.corner = MAKE_POINT (x, y);
 				pPIS->StatBox.extent =
 						MAKE_EXTENT (STATBOX_WIDTH, STATBOX_HEIGHT);
 				
