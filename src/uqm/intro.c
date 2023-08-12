@@ -705,13 +705,17 @@ DoPresentation (void *pIS)
 		else if (strcmp (Opcode, "TEXTSPIN") == 0)
 		{	/* spin text draw */
 			int x, y;
+			int n = 0;
 
 			assert (sizeof (pPIS->Buffer) >= 256);
 
-			if (3 == sscanf (pStr, "%d %d %255[^#]", &x, &y, pPIS->Buffer))
+			if (2 == sscanf (pStr, "%d %d %n", &x, &y, &n))
 			{
 				x <<= RESOLUTION_FACTOR;
 				y <<= RESOLUTION_FACTOR;
+
+				utf8StringCopy (
+						pPIS->Buffer, sizeof (pPIS->Buffer), pStr + n);
 
 				if (pPIS->HaveFrame
 							&&(pPIS->GetRect.extent.width > 0
