@@ -90,9 +90,32 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 		return;
 	}
 
-	SDL_LockSurface (dst);
-	line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst, thickness);
-	SDL_UnlockSurface (dst);
+	if (thickness < 2)
+	{// Ususal SD line
+		SDL_LockSurface (dst);
+		line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst);
+		SDL_UnlockSurface (dst);
+	}
+	else
+	{// Lines for HD with Anti-aliasing (WIP)
+		if (x1 == x2 || y1 == y2)
+		{// Vertical/horizontal
+			SDL_Rect sr;
+			sr.x = min (x1, x2);
+			sr.y = min (y1, y2);
+			sr.w = abs (x1 - x2) + thickness;
+			sr.h = abs (y1 - y2) + thickness;
+			SDL_LockSurface (dst);
+			fillrect_prim (sr, sdlColor, plotFn, mode.factor, dst);
+			SDL_UnlockSurface (dst);
+		}
+		else
+		{
+			SDL_LockSurface (dst);
+			line_aa_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst, thickness);
+			SDL_UnlockSurface (dst);
+		}
+	}
 }
 
 void

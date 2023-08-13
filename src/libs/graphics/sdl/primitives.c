@@ -428,7 +428,7 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 
 void
 line_prim (int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
-		int factor, SDL_Surface *dst, BYTE thickness)
+		int factor, SDL_Surface *dst)
 {
 	int d, x, y, ax, ay, sx, sy, dx, dy;
 	SDL_Rect clip_r;
@@ -436,14 +436,6 @@ line_prim (int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	SDL_GetClipRect (dst, &clip_r);
 	if (!clip_line (&x1, &y1, &x2, &y2, &clip_r))
 		return; // line is completely outside clipping rectangle
-
-	thickness = !thickness ? 1 : thickness;
-
-	if (thickness > 1)
-	{
-		clip_r.w = thickness;
-		clip_r.h = thickness;
-	}
 
 	dx = x2-x1;
 	ax = ((dx < 0) ? -dx : dx) << 1;
@@ -456,16 +448,10 @@ line_prim (int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 	y = y1;
 	if (ax > ay) {
 		d = ay - (ax >> 1);
-		for (;;) {
-			if (thickness > 1)
-			{
-				clip_r.x = x;
-				clip_r.y = y;
+		for (;;) 
+		{
+			(*plot)(dst, x, y, color, factor);
 
-				fillrect_prim (clip_r, color, plot, factor, dst);
-			}
-			else
-				(*plot)(dst, x, y, color, factor);
 			if (x == x2)
 				return;
 			if (d >= 0) {
@@ -477,16 +463,74 @@ line_prim (int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
 		}
 	} else {
 		d = ax - (ay >> 1);
-		for (;;) {
-			if (thickness > 1)
-			{
-				clip_r.x = x;
-				clip_r.y = y;
+		for (;;) 
+		{
+			(*plot)(dst, x, y, color, factor);
 
-				fillrect_prim (clip_r, color, plot, factor, dst);
+			if (y == y2)
+				return;
+			if (d >= 0) {
+				x += sx;
+				d -= ay;
 			}
-			else
-				(*plot)(dst, x, y, color, factor);
+			y += sy;
+			d += ax;
+		}
+	}
+}
+
+void
+line_aa_prim (int x1, int y1, int x2, int y2, Uint32 color, RenderPixelFn plot,
+	int factor, SDL_Surface *dst, BYTE thickness)
+{
+	int d, x, y, ax, ay, sx, sy, dx, dy;
+	SDL_Rect clip_r;
+
+	SDL_GetClipRect (dst, &clip_r);
+	if (!clip_line (&x1, &y1, &x2, &y2, &clip_r))
+		return; // line is completely outside clipping rectangle
+
+	clip_r.w = clip_r.h = thickness;
+
+	dx = x2-x1;
+	ax = ((dx < 0) ? -dx : dx) << 1;
+	sx = (dx < 0) ? -1 : 1;
+	dy = y2-y1;
+	ay = ((dy < 0) ? -dy : dy) << 1;
+	sy = (dy < 0) ? -1 : 1;
+
+	x = x1;
+	y = y1;
+	if (ax > ay) 
+	{
+		d = ay - (ax >> 1);
+		for (;;) 
+		{
+			clip_r.x = x;
+			clip_r.y = y;
+
+			fillrect_prim (clip_r, color, plot, factor, dst);
+			
+			if (x == x2)
+				return;
+			if (d >= 0) {
+				y += sy;
+				d -= ax;
+			}
+			x += sx;
+			d += ay;
+		}
+	} 
+	else 
+	{
+		d = ax - (ay >> 1);
+		for (;;) 
+		{
+			clip_r.x = x;
+			clip_r.y = y;
+
+			fillrect_prim (clip_r, color, plot, factor, dst);
+			
 			if (y == y2)
 				return;
 			if (d >= 0) {
