@@ -814,11 +814,10 @@ DrawFlagshipStats (void)
 	OldFontEffect = SetContextFontEffect (NULL);
 	GetContextFontLeading (&leading);
 
-	/* we need room to play.  full screen width, 4 lines tall */
 	r.corner.x = 0;
-	r.corner.y = SIS_SCREEN_HEIGHT - (DOS_BOOL_SCL (4, 3) * leading);
+	r.corner.y = SIS_SCREEN_HEIGHT - (DOS_BOOL (4, 3) * leading);
 	r.extent.width = SIS_SCREEN_WIDTH;
-	r.extent.height = (DOS_BOOL_SCL (4, 3) * leading);
+	r.extent.height = (DOS_BOOL (4, 3) * leading);
 
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
