@@ -30,6 +30,7 @@
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
 #include "init.h"
+#include "gameopt.h"
 
 #define MAX_LOAD_ENTRIES 40
 
@@ -52,8 +53,11 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	if (isPC (optWhichIntro))
 	{
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
-		FlushColorXForms ();
+		if (optWindowType == 1 || OutfitOrShipyard == 3)
+		{
+			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
+			FlushColorXForms ();
+		}
 
 		ShowPresentation (ACCESSDATA_STRTAB);
 	}
