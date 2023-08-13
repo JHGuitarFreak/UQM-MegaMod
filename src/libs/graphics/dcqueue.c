@@ -357,7 +357,7 @@ RenderFPS (int *fps)
 			ch = GetFrameForFPS (buf[i]);
 			if (ch)
 			{
-				TFB_DrawCanvas_FontChar (ch, img, x, y, MAKE_DRAW_MODE(DRAW_ALPHA, 0xff), TFB_GetFPSCanvas ());
+				TFB_DrawCanvas_FontChar (ch, img, x, y, MAKE_DRAW_MODE (DRAW_ALPHA, 0xff), TFB_GetFPSCanvas ());
 				if ((i > 0) && (buf[i - 1] == '1'))
 					step = 5;
 				else
@@ -365,6 +365,7 @@ RenderFPS (int *fps)
 				x -= step << resolutionFactor;
 			}
 		}
+		TFB_DrawImage_Delete (img);
 	}	
 }
 
@@ -543,8 +544,13 @@ TFB_FlushGraphics (void)
 
 				if (cmd->destBuffer == TFB_SCREEN_MAIN)
 				{
-					TFB_BBox_RegisterPoint (cmd->x1, cmd->y1);
-					TFB_BBox_RegisterPoint (cmd->x2, cmd->y2);
+					RECT r;
+					r.corner.x = min (cmd->x1, cmd->x2);
+					r.corner.y = min (cmd->y1, cmd->y2);
+					r.extent.width = abs (cmd->x1 - cmd->x2) + cmd->thickness;
+					r.extent.height = abs (cmd->y1 - cmd->y2) + cmd->thickness;
+
+					TFB_BBox_RegisterRect (&r);
 				}
 				TFB_DrawCanvas_Line (cmd->x1, cmd->y1, cmd->x2, cmd->y2,
 						cmd->color, cmd->drawMode,

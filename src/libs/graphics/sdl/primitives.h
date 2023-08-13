@@ -51,7 +51,9 @@ typedef void (*RenderPixelFn)(SDL_Surface *, int x, int y, Uint32 pixel,
 RenderPixelFn renderpixel_for(SDL_Surface *surface, RenderKind);
 
 void line_prim(int x1, int y1, int x2, int y2, Uint32 color,
-		RenderPixelFn plot, int factor, SDL_Surface *dst,
+		RenderPixelFn plot, int factor, SDL_Surface *dst);
+void line_aa_prim(int x1, int y1, int x2, int y2, Uint32 color,
+		RenderPixelFn plot,	int factor, SDL_Surface* dst,
 		BYTE thickness);
 void fillrect_prim(SDL_Rect r, Uint32 color,
 		RenderPixelFn plot, int factor, SDL_Surface *dst);
