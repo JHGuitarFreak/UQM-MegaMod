@@ -119,22 +119,22 @@ font_DrawText (TEXT *lpText)
 	_text_blt (&ClipRect, &text, origin);
 }
 
-BOOLEAN
-font_DrawText_Fade (TEXT *lpText, FRAME repair)
+void
+font_DrawText_Fade (TEXT *lpText, FRAME repair, BOOLEAN *skip)
 {
 	RECT ClipRect;
 	POINT origin;
 	TEXT text;
 
 	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
-		return FALSE;
+		return;
 
 	// TextRect() clobbers TEXT.CharCount so we have to make a copy
 	text = *lpText;
 	if (!TextRect (&text, &ClipRect, NULL))
-		return FALSE;
+		return;
 	// ClipRect is relative to origin
-	 return _text_blt_fade (&ClipRect, &text, origin, repair);
+	_text_blt_fade (&ClipRect, &text, origin, repair, skip);
 }
 
 /* Draw the stroke by drawing the same text in the
@@ -448,8 +448,8 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 	}
 }
 
-BOOLEAN
-_text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
+void
+_text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair, BOOLEAN *skip)
 {
 	FONT FontPtr;
 	COUNT num_chars;
@@ -457,7 +457,6 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 	const char *pStr;
 	POINT origin;
 	SIZE leading;
-	BOOLEAN Sleepy = TRUE;
 	TFB_Image *b_first, *b_second, *b_clear;
 	DrawMode mode = _get_context_draw_mode ();
 
@@ -527,7 +526,7 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 			r.extent.height = fontChar->disp.height;
 			if (BoxIntersect (&r, pClipRect, &r))
 			{
-				if (Sleepy)
+				if (!*skip)
 				{
 					TFB_Prim_FontChar (origin, fontChar, b_first, mode,
 								ctxOrigin);
@@ -536,7 +535,7 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 					SleepThread (ONE_SECOND / 16);
 				}
 				BatchGraphics ();
-				if (repair && Sleepy)
+				if (repair && !*skip)
 				{
 					TFB_DrawImage_Image (repair->image, -r.corner.x, -r.corner.y,
 							0, 0, NULL, DRAW_REPLACE_MODE, b_clear);
@@ -573,7 +572,7 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 		UpdateInputState ();
 		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
 					(GLOBAL (CurrentActivity) & CHECK_ABORT))
-			Sleepy = FALSE;
+			*skip = TRUE;
 	}
 	if (b_first)
 		TFB_DrawScreen_DeleteImage (b_first);
@@ -581,8 +580,6 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair)
 		TFB_DrawScreen_DeleteImage (b_second);
 	if (b_clear)
 		TFB_DrawScreen_DeleteImage (b_clear);
-
-	return Sleepy;
 }
 
 BOOLEAN

@@ -565,7 +565,7 @@ extern void InstaFilledRect (int x, int y, int w, int h);
 extern void InstaLine (int x1, int y1, int x2, int y2);
 extern RECT font_GetTextRect (TEXT* pText);
 extern void font_DrawText (TEXT *pText);
-extern BOOLEAN font_DrawText_Fade (TEXT *lpText, FRAME repair);
+extern void font_DrawText_Fade (TEXT *lpText, FRAME repair, BOOLEAN *skip);
 extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
 extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key);
 extern void font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
