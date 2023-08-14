@@ -81,6 +81,7 @@ typedef struct
 	RECT GetRect;
 	COUNT CurrentFrameIndex;
 	BOOLEAN HaveFrame;
+	BOOLEAN Skip;
 
 } PRESENTATION_INPUT_STATE;
 
@@ -275,8 +276,8 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 	pPIS->SisFrame = SisFrame;
 }
 
-static BOOLEAN
-DoSpinText (UNICODE *buf, COORD x, COORD y, FRAME repair)
+static void
+DoSpinText (UNICODE *buf, COORD x, COORD y, FRAME repair, BOOLEAN *skip)
 {
 	TEXT Text;
 
@@ -286,31 +287,38 @@ DoSpinText (UNICODE *buf, COORD x, COORD y, FRAME repair)
 	Text.baseline.y = y;
 	Text.baseline.x = x;
 
-	return font_DrawText_Fade (&Text, repair);
+	font_DrawText_Fade (&Text, repair, skip);
 }
 
 static void
-DoSpinLine (LINE *l, Color front, Color back)
+DoSpinLine (LINE *l, Color front, Color back, BOOLEAN *skip)
 {
-	SetContextForeGroundColor (back);
-	DrawLine (l, RES_SCALE (1));
-	PlayMenuSound (MENU_SOUND_TEXT);
-	SleepThread (ONE_SECOND / 16);
+	if (!*skip)
+	{
+		SetContextForeGroundColor (back);
+		DrawLine (l, RES_SCALE (1));
+		PlayMenuSound (MENU_SOUND_TEXT);
+		SleepThread (ONE_SECOND / 16);
+	}
 	SetContextForeGroundColor (front);
 	DrawLine (l, RES_SCALE (1));
 }
 
 static void
-DoSpinStatBox (RECT *r, Color front, Color back)
+DoSpinStatBox (RECT *r, Color front, Color back, BOOLEAN *skip)
 {
-	DrawStarConBox (r, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
-	PlayMenuSound (MENU_SOUND_TEXT);
-	SleepThread (ONE_SECOND / 16);
+	if (!*skip)
+	{
+		DrawStarConBox (r, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+		PlayMenuSound (MENU_SOUND_TEXT);
+		SleepThread (ONE_SECOND / 16);
+	}
 	DrawStarConBox (r, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
 }
 
-static BOOLEAN
-DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color front, Color back)
+static void
+DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color front, Color back,
+		BOOLEAN *skip)
 {
 	TEXT Text;
 	COUNT i;
@@ -330,19 +338,25 @@ DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color fro
 	Text.baseline.y = y;
 	Text.baseline.x = x;
 
-	SetContextForeGroundColor (back);
-	font_DrawText (&Text);
-	PlayMenuSound (MENU_SOUND_TEXT);
-	SleepThread (ONE_SECOND / 16);
+	if (!*skip)
+	{
+		SetContextForeGroundColor (back);
+		font_DrawText (&Text);
+		PlayMenuSound (MENU_SOUND_TEXT);
+		SleepThread (ONE_SECOND / 16);
+	}
 	SetContextForeGroundColor (front);
 	font_DrawText (&Text);
 
 	for (i = 0; i < filled; i++)
 	{
-		SetContextForeGroundColor (back);
-		DrawFilledRectangle (&sq);
-		PlayMenuSound (MENU_SOUND_TEXT);
-		SleepThread (ONE_SECOND / 16);
+		if (!*skip)
+		{
+			SetContextForeGroundColor (back);
+			DrawFilledRectangle (&sq);
+			PlayMenuSound (MENU_SOUND_TEXT);
+			SleepThread (ONE_SECOND / 16);
+		}
 		SetContextForeGroundColor (front);
 		DrawFilledRectangle (&sq);
 		sq.corner.x += RES_SCALE (6);
@@ -350,23 +364,26 @@ DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color fro
 		UpdateInputState ();
 		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
 					(GLOBAL (CurrentActivity) & CHECK_ABORT))
-			return FALSE;
+			*skip = TRUE;
 	}
 	for (i = 0; i < empty; i++)
 	{
 		c.x = sq.corner.x + RES_SCALE (2);
 		c.y = sq.corner.y + RES_SCALE (2);
-		SetContextForeGroundColor (back);
-		DrawStarConBox (&sq, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
-		if (IS_HD)
+		if (!*skip)
 		{
-			chd.corner = c;
-			DrawFilledRectangle (&chd);
+			SetContextForeGroundColor (back);
+			DrawStarConBox (&sq, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+			if (IS_HD)
+			{
+				chd.corner = c;
+				DrawFilledRectangle (&chd);
+			}
+			else
+				DrawPoint (&c);
+			PlayMenuSound (MENU_SOUND_TEXT);
+			SleepThread (ONE_SECOND / 16);
 		}
-		else
-			DrawPoint (&c);
-		PlayMenuSound (MENU_SOUND_TEXT);
-		SleepThread (ONE_SECOND / 16);
 		SetContextForeGroundColor (front);
 		DrawStarConBox (&sq, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
 		if (IS_HD)
@@ -381,9 +398,8 @@ DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color fro
 		UpdateInputState ();
 		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
 					(GLOBAL (CurrentActivity) & CHECK_ABORT))
-			return FALSE;
+			*skip = TRUE;
 	}
-	return TRUE;
 }
 
 static void
@@ -615,16 +631,40 @@ DoPresentation (void *pIS)
 			}
 		}
 		else if (strcmp (Opcode, "WAITDITTY") == 0)
-		{	/* set music */
+		{	/* wait for ditty to end */
 			while (PlayingStream (MUSIC_SOURCE))
 			{
 				if (CurrentInputState.menu[KEY_MENU_CANCEL]
 						|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
 				{
-					return FALSE;
+					StopMusic ();
+					pPIS->Skip = TRUE;
+					return TRUE;
 				}
 				SleepThread (ONE_SECOND / 10);
 				UpdateInputState ();
+			}
+		}
+		else if (strcmp (Opcode, "SPINWAIT") == 0)
+		{	/* special wait during spin */
+			int msecs;
+			TimeCount TimeOut;
+			if (1 == sscanf (pStr, "%d", &msecs) && !pPIS->Skip)
+			{
+				TimeOut = GetTimeCounter ()
+						+ msecs * ONE_SECOND / 1000;
+				while (GetTimeCounter () < TimeOut)
+				{
+					if (CurrentInputState.menu[KEY_MENU_CANCEL]
+						|| (GLOBAL(CurrentActivity) & CHECK_ABORT))
+					{
+						Present_BatchGraphics (pPIS);
+						pPIS->Skip = TRUE;
+						return TRUE;
+					}
+					SleepThread (ONE_SECOND / 84);
+					UpdateInputState ();
+				}	
 			}
 		}
 		else if (strcmp (Opcode, "SYNC") == 0)
@@ -727,12 +767,15 @@ DoPresentation (void *pIS)
 
 				SetContextForeGroundColor (pPIS->TextColor);
 				SetContextBackGroundColor (pPIS->TextBackColor);
-				return DoSpinText (pPIS->Buffer, x, y + RES_SCALE (7),
-						SetAbsFrameIndex (pPIS->Frame, 0));
+				DoSpinText (pPIS->Buffer, x, y + RES_SCALE (7),
+						SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+
+				if (pPIS->Skip)
+					Present_BatchGraphics (pPIS);
 			}
 		}
 		else if (strcmp (Opcode, "SPINSTAT") == 0)
-		{	/* spin text draw */
+		{	/* spin stat draw */
 			int x, y, f, e;
 			SIZE leading;
 
@@ -776,9 +819,12 @@ DoPresentation (void *pIS)
 				}
 				else
 				{
-					return DoSpinStat (pPIS->Buffer,
+					DoSpinStat (pPIS->Buffer,
 							x, y, f, e,
-							pPIS->TextColor, pPIS->TextBackColor);
+							pPIS->TextColor, pPIS->TextBackColor, &pPIS->Skip);
+
+					if (pPIS->Skip)
+						Present_BatchGraphics (pPIS);
 				}
 			}
 			else
@@ -983,7 +1029,7 @@ DoPresentation (void *pIS)
 			ShowPresentationFile (pPIS->Buffer);
 		}
 		else if (strcmp (Opcode, "LINE") == 0)
-		{
+		{	/* draw simple line */
 			int x1, x2, y1, y2;
 			if (4 == sscanf (pStr, "%d %d %d %d", &x1, &y1, &x2, &y2))
 			{
@@ -1003,7 +1049,7 @@ DoPresentation (void *pIS)
 			}
 		}
 		else if (strcmp (Opcode, "LINESPIN") == 0)
-		{
+		{	/* draw line for spin */
 			int x1, x2, y1, y2;
 			if (4 == sscanf (pStr, "%d %d %d %d", &x1, &y1, &x2, &y2))
 			{
@@ -1029,7 +1075,10 @@ DoPresentation (void *pIS)
 				l.second.x = x2;
 				l.second.y = y2;
 				
-				DoSpinLine (&l, pPIS->TextColor, pPIS->TextBackColor);
+				DoSpinLine (&l, pPIS->TextColor, pPIS->TextBackColor, &pPIS->Skip);
+
+				if (pPIS->Skip)
+					Present_BatchGraphics (pPIS);
 			}
 			else
 			{
@@ -1052,7 +1101,7 @@ DoPresentation (void *pIS)
 			}
 		}
 		else if (strcmp (Opcode, "STATBOX") == 0)
-		{
+		{	/* draw stat box for spin */
 #define STATBOX_WIDTH  RES_SCALE (122)
 #define STATBOX_HEIGHT RES_SCALE (60)
 			int x, y;
@@ -1076,7 +1125,10 @@ DoPresentation (void *pIS)
 						MAKE_EXTENT (STATBOX_WIDTH, STATBOX_HEIGHT);
 				
 				DoSpinStatBox (&pPIS->StatBox, pPIS->TextColor,
-						pPIS->TextBackColor);
+						pPIS->TextBackColor, &pPIS->Skip);
+
+				if (pPIS->Skip)
+					Present_BatchGraphics (pPIS);
 			}
 			else
 			{
@@ -1084,7 +1136,7 @@ DoPresentation (void *pIS)
 			}
 		}
 		else if (strcmp (Opcode, "MOVIE") == 0)
-		{
+		{	/* play movie */
 			int fps, from, to;
 		
 			if (3 == sscanf (pStr, "%d %d %d", &fps, &from, &to) &&
@@ -1106,7 +1158,7 @@ DoPresentation (void *pIS)
 			}
 		}
 		else if (strcmp (Opcode, "ANIMATE") == 0)
-		{	// basic frame animation
+		{	/* basic frame animation */
 			int first_frame, last_frame, num_loops, milliseconds, fps;
 
 			if (5 == sscanf (pStr, "%d %d %d %d %d", &first_frame,
