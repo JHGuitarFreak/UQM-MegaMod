@@ -337,7 +337,8 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 				{
 					width -= FontPtr->KernAmount;
 
-					printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+					//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+					//		FontPtr->KernTab[next_ch] >> 2, next_ch);
 				}
 			}
 
@@ -442,7 +443,8 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 			{
 				origin.x -= FontPtr->KernAmount;
 
-				printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+				//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+				//		FontPtr->KernTab[next_ch] >> 2, next_ch);
 			}
 		}
 	}
@@ -565,7 +567,8 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair, B
 				{
 					origin.x -= FontPtr->KernAmount;
 
-					printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+					//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+					//		FontPtr->KernTab[next_ch] >> 2, next_ch);
 				}
 			}
 		}
@@ -673,7 +676,8 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 				{
 					width -= FontPtr->KernAmount;
 
-					printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+					//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+					//		FontPtr->KernTab[next_ch] >> 2, next_ch);
 				}
 			}
 
@@ -823,7 +827,8 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 			{
 				origin.x -= FontPtr->KernAmount;
 
-				printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch], FontPtr->KernTab[next_ch] >> 2, next_ch);
+				//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+				//		FontPtr->KernTab[next_ch] >> 2, next_ch);
 			}
 		}
 	}
