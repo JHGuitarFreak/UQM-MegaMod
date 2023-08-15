@@ -143,8 +143,11 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 	(void) caption; /* satisfy compiler (unused parameter) */
 #endif
 
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+	{
 		SDL_ShowCursor (SDL_DISABLE);
+	}
 
 	Init_DrawCommandQueue ();
 

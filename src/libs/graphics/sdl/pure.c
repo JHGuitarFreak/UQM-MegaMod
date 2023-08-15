@@ -188,8 +188,11 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height,
 #endif
 
 	videomode_flags |= SDL_ANYFORMAT;
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+	{
 		videomode_flags |= SDL_FULLSCREEN;
+	}
 
 	/* We'll ask for a 32bpp frame, but it doesn't really matter, because we've set
 	   SDL_ANYFORMAT */

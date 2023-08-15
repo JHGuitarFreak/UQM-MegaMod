@@ -138,11 +138,15 @@ AttemptColorDepth (int flags, int width, int height, int bpp, int resFactor)
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
 
 	videomode_flags = SDL_OPENGL;
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+	{
 		videomode_flags |= SDL_FULLSCREEN;
+	}
 	videomode_flags |= SDL_ANYFORMAT;
 
-	if (resFactor == HD && flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (resFactor == HD && (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN))
 	{
 		height = fs_height;
 		width  = fs_width;
@@ -161,7 +165,8 @@ AttemptColorDepth (int flags, int width, int height, int bpp, int resFactor)
 				ScreenWidthActual, ScreenHeightActual, bpp,
 				SDL_GetError ());
 
-		if (flags & TFB_GFXFLAGS_FULLSCREEN)
+		if (flags & TFB_GFXFLAGS_FULLSCREEN
+				|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
 		{
 			videomode_flags &= ~SDL_FULLSCREEN;
 			log_add (log_Error, "Falling back to windowed mode!!");

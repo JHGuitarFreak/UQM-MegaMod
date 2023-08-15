@@ -165,6 +165,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			 * no icon if and when it becomes windowed. */
 			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		}
+		else if (flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+		{
+			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
+		}
 		if (!window) 
 		{
 			return -1;
@@ -239,6 +243,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
 			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		}
+		else if (flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+		{
+			SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
 		}
 		else
 		{
@@ -613,7 +621,8 @@ TFB_SDL_ScreenShot (const char *path)
 	SDL_Surface *tmp = SDL_GetWindowSurface (window);
 	BOOLEAN successful = FALSE;
 
-	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN
+			|| GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN)
 	{
 		float width, height;
 		width = (float)tmp->w / 320;

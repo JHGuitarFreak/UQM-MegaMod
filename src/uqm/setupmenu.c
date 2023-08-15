@@ -766,9 +766,20 @@ static void
 toggle_fullscreen (WIDGET_CHOICE *self, int *NewGfxFlags)
 {
 	if (self->selected == 1)
-		*NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-	else
+	{
 		*NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+		*NewGfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
+	else if (self->selected == 2)
+	{
+		*NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+		*NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+	}
+	else
+	{
+		*NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+		*NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
 	res_PutBoolean ("config.fullscreen", self->selected);
 }
 
@@ -1926,8 +1937,14 @@ GetGlobalOptions (GLOBALOPTS *opts)
  */
 	opts->screenResolution = resolutionFactor >> 1;
 
-	opts->fullscreen = (GfxFlags & TFB_GFXFLAGS_FULLSCREEN) ?
-		OPTVAL_ENABLED : OPTVAL_DISABLED;
+	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+		opts->fullscreen = 2;
+	else if (GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN)
+		opts->fullscreen = 1;
+	else
+		opts->fullscreen = 0;
+	/*opts->fullscreen = (GfxFlags & TFB_GFXFLAGS_FULLSCREEN) ?
+		OPTVAL_ENABLED : OPTVAL_DISABLED;*/
 	opts->fps = (GfxFlags & TFB_GFXFLAGS_SHOWFPS) ?
 		OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->scanlines = (GfxFlags & TFB_GFXFLAGS_SCANLINES) ?

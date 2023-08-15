@@ -123,7 +123,7 @@ struct options_struct
 	// Commandline and user config options
 	DECL_CONFIG_OPTION(bool, opengl);
 	DECL_CONFIG_OPTION2(int, resolution, width, height);
-	DECL_CONFIG_OPTION(bool, fullscreen);
+	DECL_CONFIG_OPTION(int,  fullscreen);
 	DECL_CONFIG_OPTION(bool, scanlines);
 	DECL_CONFIG_OPTION(int,  scaler);
 	DECL_CONFIG_OPTION(bool, showFps);
@@ -321,11 +321,11 @@ main (int argc, char *argv[])
 #if defined(ANDROID) || defined(__ANDROID__)
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        320, 240 ),
-		INIT_CONFIG_OPTION(  fullscreen,        true ),
+		INIT_CONFIG_OPTION(  fullscreen,        1 ),
 #else
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-		INIT_CONFIG_OPTION(  fullscreen,        false ),
+		INIT_CONFIG_OPTION(  fullscreen,        0 ),
 #endif
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
@@ -713,7 +713,12 @@ main (int argc, char *argv[])
 #endif
 	gfxFlags = options.scaler.value;
 	if (options.fullscreen.value)
-		gfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+	{
+		if (options.fullscreen.value > 1)
+			gfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+		else
+			gfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
 	if (options.scanlines.value)
 		gfxFlags |= TFB_GFXFLAGS_SCANLINES;
 	if (options.showFps.value)
@@ -938,7 +943,9 @@ getUserConfigOptions (struct options_struct *options)
 
 	getListConfigValue (&options->scaler, "config.scaler", scalerList);
 
-	getBoolConfigValue (&options->fullscreen, "config.fullscreen");
+	//getBoolConfigValue (&options->fullscreen, "config.fullscreen");
+	if (res_IsInteger ("config.fullscreen") && !options->fullscreen.set)
+		options->fullscreen.value = res_GetInteger ("config.fullscreen");
 	getBoolConfigValue (&options->scanlines, "config.scanlines");
 	getBoolConfigValue (&options->showFps, "config.showfps");
 	getBoolConfigValue (&options->keepAspectRatio,
@@ -1252,7 +1259,7 @@ static const char *optString = "+r:foc:b:spC:n:?hM:S:T:q:ug:l:i:vwxk";
 static struct option longOptions[] = 
 {
 	{"res", 1, NULL, 'r'},
-	{"fullscreen", 0, NULL, 'f'},
+	{"fullscreen", 1, NULL, 'f'},
 	{"opengl", 0, NULL, 'o'},
 	{"scale", 1, NULL, 'c'},
 	{"meleezoom", 1, NULL, 'b'},
@@ -1476,10 +1483,28 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			}
 			case 'f':
-				setBoolOption (&options->fullscreen, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Fullscreen") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nFullscreen has to be 0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->fullscreen.value = temp;
+					options->fullscreen.set = true;
+				}
 				break;
+			}
 			case 'w':
-				setBoolOption (&options->fullscreen, false);
+				options->fullscreen.value = 0;
+				options->fullscreen.set = true;
 				break;
 			case 'o':
 				setBoolOption (&options->opengl, true);
@@ -2194,10 +2219,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "Options:");
 	log_add (log_User, "  -r, --res=WIDTHxHEIGHT (default: 640x480, bigger "
 			"works only with --opengl)");
-	log_add (log_User, "  -f, --fullscreen (default: %s)",
-			boolOptString (&defaults->fullscreen));
-	log_add (log_User, "  -w, --windowed (default: %s)",
-			boolNotOptString (&defaults->fullscreen));
+	log_add (log_User, "  -f, --fullscreen (default: 0)");
+	log_add (log_User, "  -w, --windowed (default: true)");
 	log_add (log_User, "  -o, --opengl (default: %s)",
 			boolOptString (&defaults->opengl));
 	log_add (log_User, "  -x, --nogl (default: %s)",

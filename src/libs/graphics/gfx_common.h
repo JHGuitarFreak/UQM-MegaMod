@@ -57,6 +57,7 @@ enum
 		  TFB_GFXFLAGS_SCALE_HQXX )
 #define TFB_GFXFLAGS_SCALE_SOFT_ONLY \
 		( TFB_GFXFLAGS_SCALE_ANY & ~TFB_GFXFLAGS_SCALE_BILINEAR )
+#define TFB_GFXFLAGS_EX_FULLSCREEN      (1<<8)
 
 // The flag variable itself
 extern int GfxFlags;
