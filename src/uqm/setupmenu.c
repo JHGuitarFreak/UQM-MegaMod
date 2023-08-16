@@ -780,7 +780,7 @@ toggle_fullscreen (WIDGET_CHOICE *self, int *NewGfxFlags)
 		*NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
 		*NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 	}
-	res_PutBoolean ("config.fullscreen", self->selected);
+	res_PutInteger ("config.fullscreen", self->selected);
 }
 
 static void
@@ -825,6 +825,7 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 	int NewGfxDriver = GraphicsDriver;
 	int NewWidth = ScreenWidthActual;
 	int NewHeight = ScreenHeightActual;
+	BOOLEAN isExclusive = FALSE;
 
 	if (OldVal == self->selected)
 		return;
@@ -848,6 +849,7 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			break;
 		case 42:
 			change_scaling (self, &NewWidth, &NewHeight);
+			isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
 			break;
 		default:
 			return;
@@ -857,6 +859,9 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 	{
 		ScreenWidthActual = NewWidth;
 		ScreenHeightActual = NewHeight;
+
+		if (isExclusive)
+			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 	}
 
 	if (NewGfxFlags != GfxFlags)
@@ -868,6 +873,14 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 	FlushInput ();
 	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 			ScreenWidthActual, ScreenHeightActual);
+
+	if (isExclusive)
+	{	// needed twice to reinitialize Exclusive Full Screen after a 
+		// resolution change
+		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				ScreenWidthActual, ScreenHeightActual);
+	}
 }
 
 #define NUM_STEPS 20
