@@ -940,7 +940,10 @@ PickPlanetSide (void)
 	savePlanetLocationImage ();
 
 	if (is3DO (optSuperPC))
+	{
 		InitLander (0);
+		DrawRadarBorder ();
+	}
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
 

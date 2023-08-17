@@ -904,27 +904,9 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 }
 
 static void
-DrawSuperPC (void)
+DrawRadarArea (void)
 {
-	if (!IS_HD)
-	{
-		RECT r;
-
-		GetContextClipRect (&r);
-		r.corner.x = r.corner.y = 0;
-
-		r.corner.x--;
-		r.corner.y--;
-		r.extent.height += 2;
-		r.extent.width += 2;
-
-		DrawStarConBox (&r, 1,
-			SIS_LEFT_BORDER_COLOR,
-			SIS_BOTTOM_RIGHT_BORDER_COLOR,
-			FALSE, TRANSPARENT, FALSE, TRANSPARENT);
-	}
-	else
-		DrawBorder (32);
+	DrawRadarBorder ();
 
 	if (optSubmenu)
 		DrawMineralHelpers (FALSE);
@@ -1030,8 +1012,7 @@ CheckObjectCollision (COUNT index)
 					else if (scan == ENERGY_SCAN)
 					{
 						// noop; handled by generation funcs, see below
-						if (isPC (optSuperPC))
-							DrawSuperPC ();
+						DrawRadarArea ();
 					}
 					else if (scan == BIOLOGICAL_SCAN
 							&& ElementPtr->hit_points)
@@ -1799,9 +1780,9 @@ InitPlanetSide (POINT pt)
 			s.origin.x -= SCALED_MAP_WIDTH << (MAG_SHIFT + 1);
 			DrawStamp (&s);
 
-			if (isPC (optSuperPC))
-				DrawSuperPC ();
-			else
+			DrawRadarArea ();
+
+			if (!isPC (optSuperPC))
 				ScreenTransition (optScrTrans, &r);
 		}		
 		UnbatchGraphics ();
@@ -2167,9 +2148,9 @@ ReturnToOrbit (void)
 		BatchGraphics ();
 		ClearDrawable ();// TODO: color this frame smh
 
-		if (isPC (optSuperPC))
-			DrawSuperPC ();
-		else
+		DrawRadarArea ();
+
+		if (!isPC (optSuperPC))
 			ScreenTransition (optScrTrans, &r);
 
 		RedrawSurfaceScan (NULL);
