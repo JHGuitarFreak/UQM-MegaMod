@@ -156,7 +156,7 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
-#define TEXTENTRY_COUNT     2
+#define TEXTENTRY_COUNT     3
 #define CONTROLENTRY_COUNT  8
 
 /* The space for our widgets */
@@ -174,7 +174,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
-	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
+	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
 	do_keyconfig, do_music, do_visual };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
@@ -193,15 +193,16 @@ static WIDGET *main_widgets[] = {
 	NULL };
 
 static WIDGET *graphics_widgets[] = {
-	(WIDGET *)(&choices[0]),    // Resolution
-	(WIDGET *)(&choices[42]),   // Scale GFX
+	(WIDGET *)(&choices[0]),    // Graphics
+	(WIDGET *)(&choices[42]),   // Resolution
+	(WIDGET *)(&textentries[2]),// Custom Seed entry
 #if	SDL_MAJOR_VERSION == 1
 #if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
 	(WIDGET *)(&choices[23]),   // Aspect Ratio
 #endif
-	(WIDGET *)(&choices[10]),   // Display
+	(WIDGET *)(&choices[10]),   // Display Mode
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
@@ -440,12 +441,20 @@ quit_sub_menu (WIDGET *self, int event)
 	return FALSE;
 }
 
+static void
+populate_res (void)
+{
+	sprintf (textentries[2].value, "%dx%d",
+			ScreenWidthActual, ScreenHeightActual);
+}
+
 static int
 do_graphics (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[1]);
+		populate_res ();
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -745,15 +754,18 @@ toggle_scanlines (WIDGET_CHOICE *self, int *NewGfxFlags)
 static void
 change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 {
-	if (!self->selected)
-	{	// No blowup
-		*NewWidth = RES_SCALE (320);
-		*NewHeight = RES_SCALE (DOS_BOOL (240, 200));
-	}
-	else
+	if (self->selected < 6)
 	{
-		*NewWidth = 320 * (1 + self->selected);
-		*NewHeight = DOS_BOOL (240, 200) * (1 + self->selected);
+		if (!self->selected)
+		{	// No blowup
+			*NewWidth = RES_SCALE (320);
+			*NewHeight = RES_SCALE (DOS_BOOL (240, 200));
+		}
+		else
+		{
+			*NewWidth = 320 * (1 + self->selected);
+			*NewHeight = DOS_BOOL (240, 200) * (1 + self->selected);
+		}
 	}
 
 	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
@@ -874,6 +886,58 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 			ScreenWidthActual, ScreenHeightActual);
 
+
+	populate_res ();
+}
+
+static BOOLEAN
+res_check (int width, int height)
+{
+	if (width % 320)
+		return FALSE;
+
+	if (height % DOS_BOOL (240, 200))
+		return FALSE;
+
+	if (width > 1920 || height > 1440)
+		return FALSE;
+
+	return TRUE;
+}
+
+static void
+change_res (WIDGET_TEXTENTRY *self)
+{
+	int NewWidth = ScreenWidthActual;
+	int NewHeight = ScreenHeightActual;
+	int NewGfxFlags = GfxFlags;
+	BOOLEAN isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
+
+	if (sscanf (self->value, "%dx%d", &NewWidth, &NewHeight) != 2)
+	{
+		populate_res ();
+		return;
+	}
+	
+	if (NewWidth != ScreenWidthActual || NewHeight != ScreenHeightActual)
+	{
+		ScreenWidthActual = NewWidth;
+		ScreenHeightActual = NewHeight;
+
+		if (isExclusive)
+			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
+	else
+		return;
+
+	if (NewGfxFlags != GfxFlags)
+		GfxFlags = NewGfxFlags;
+
+	FlushInput ();
+
+	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+		ScreenWidthActual, ScreenHeightActual);
+
 	if (isExclusive)
 	{	// needed twice to reinitialize Exclusive Full Screen after a 
 		// resolution change
@@ -881,6 +945,18 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				ScreenWidthActual, ScreenHeightActual);
 	}
+
+	if (res_check (NewWidth, NewHeight))
+	{
+		choices[42].selected = (NewWidth / 320) - 1;
+	}
+	else
+		choices[42].selected = 6;
+
+	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&choices[42].selected),
+			"config.loresBlowupScale", FALSE);
+	res_PutInteger ("config.reswidth", NewWidth);
+	res_PutInteger ("config.resheight", NewHeight);
 }
 
 #define NUM_STEPS 20
@@ -1815,6 +1891,7 @@ init_widgets (void)
 
 	textentries[0].onChange = rename_template;
 	textentries[1].onChange = change_seed;
+	textentries[2].onChange = change_res;
 
 	/* Control Entry boxes */
 	if (index >= count)
@@ -1998,6 +2075,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 		maxGamma = optGamma + 0.3f;
 	updateGammaBounds (whichBound);
 	opts->gamma = gammaToSlider (optGamma);
+
+
 
 	opts->loresBlowup = loresBlowupScale;
 	/* Work out resolution.  On the way, try to guess a good default
