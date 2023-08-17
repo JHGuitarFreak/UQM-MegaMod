@@ -242,9 +242,9 @@ DrawSISFrame (void)
 		r.extent.width = SIS_SCREEN_WIDTH + RES_SCALE (2);
 		r.extent.height = SIS_SCREEN_HEIGHT + RES_SCALE (2);
 		DrawFilledRectangle (&r);
-
-		DrawBorder (0);
 	}
+
+	DrawBorder (0);
 
 	InitSISContexts ();
 	ClearSISRect (DRAW_SIS_DISPLAY);
