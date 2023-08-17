@@ -886,6 +886,13 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 			ScreenWidthActual, ScreenHeightActual);
 
+	if (isExclusive)
+	{	// needed twice to reinitialize Exclusive Full Screen after a 
+		// resolution change 
+		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				ScreenWidthActual, ScreenHeightActual);
+	}
 
 	populate_res ();
 }
