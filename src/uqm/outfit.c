@@ -49,10 +49,26 @@ enum
 	OUTFIT_DOFUEL
 };
 
-static const POINT lander_pos[MAX_LANDERS] =
-{
-	LANDER_DOS_PTS
-};
+POINT lander_pos[MAX_LANDERS];
+
+static void
+InitializeDOSLanderPos (void)
+{	// Initialize the DOS lander icon positions
+	int i;
+	POINT temp[MAX_LANDERS] = { LANDER_DOS_PTS };
+
+	if (!IS_DOS)
+		return;
+
+	if (lander_pos[0].x != RES_SCALE (temp[0].x))
+	{
+		for (i = 0; i < MAX_LANDERS; i++)
+		{
+			lander_pos[i].x = RES_SCALE (temp[i].x);
+			lander_pos[i].y = RES_SCALE (temp[i].y);
+		}
+	}
+}
 
 // This is all for drawing the DOS version modules menu
 #define MODULE_ORG_Y       RES_SCALE (33)
@@ -284,9 +300,14 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (4);
 		dosRect.extent.height = RADAR_HEIGHT + RES_SCALE (2);
 
-		DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
-			PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
-			FALSE, TRANSPARENT);
+		if (!IS_HD)
+		{
+			DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
+					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+					FALSE, TRANSPARENT);
+		}
+
+		DrawBorder (32);
 	}
 
 	if (NewModule >= EMPTY_SLOT)
@@ -738,8 +759,10 @@ DoInstallModule (MENU_STATE *pMS)
 				if (IS_DOS && (NewState == PLANET_LANDER
 					|| NewState == EMPTY_SLOT + 3))
 				{
-					pMS->flash_rect0.corner.x = lander_pos[NewItem].x - 1;
-					pMS->flash_rect0.corner.y = lander_pos[NewItem].y - 1;
+					pMS->flash_rect0.corner.x = lander_pos[NewItem].x
+							- RES_SCALE (1);
+					pMS->flash_rect0.corner.y = lander_pos[NewItem].y
+							- RES_SCALE (1);
 				}
 				else
 					pMS->flash_rect0.corner.x += w;
@@ -757,10 +780,10 @@ InitFlash:
 					case PLANET_LANDER:
 					case EMPTY_SLOT + 3:
 						pMS->flash_rect0.corner.x =
-								DOS_BOOL (LANDER_X, LANDER_DOS_X)
+								DOS_BOOL (LANDER_X, RES_SCALE (LANDER_DOS_X))
 								- RES_SCALE (1);
 						pMS->flash_rect0.corner.y =
-								DOS_BOOL (LANDER_Y, LANDER_DOS_Y)
+								DOS_BOOL (LANDER_Y, RES_SCALE (LANDER_DOS_Y))
 								- RES_SCALE (1);
 						pMS->flash_rect0.extent.width =
 								RES_SCALE (11 + 2);
@@ -835,9 +858,9 @@ InitFlash:
 					|| NewState == EMPTY_SLOT + 3))
 				{
 					pMS->flash_rect0.corner.x =
-							lander_pos[pMS->delta_item].x - 1;
+							lander_pos[pMS->delta_item].x - RES_SCALE (1);
 					pMS->flash_rect0.corner.y =
-							lander_pos[pMS->delta_item].y - 1;
+							lander_pos[pMS->delta_item].y - RES_SCALE (1);
 				}
 				else
 					pMS->flash_rect0.corner.x += w;
@@ -979,6 +1002,7 @@ DoOutfit (MENU_STATE *pMS)
 #if defined(ANDROID) || defined(__ANDROID__)
 		TFB_SetOnScreenKeyboard_Starmap();
 #endif
+		InitializeDOSLanderPos ();
 
 		SetNamingCallback (onNamingDone);
 
