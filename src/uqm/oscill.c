@@ -48,7 +48,7 @@ InitOscilloscope (FRAME scopeBg)
 				size.width, size.height, 1));
 
 		// assume and subtract the borders
-		scopeSize.width = RES_DESCALE (size.width) ;
+		scopeSize.width = RES_DESCALE (size.width);
 		scopeSize.height = RES_DESCALE (size.height);
 
 		scope_init = 1;
@@ -130,7 +130,7 @@ DrawOscilloscopeLines (STAMP *s, uint8 *scope_data, BOOLEAN nonStop, BOOLEAN toS
 			line.first.x = RES_SCALE (i);
 			line.first.y = RES_SCALE (ScaleHeightByVolume (scope_data[i],
 					toScale));
-			line.second.x = RES_SCALE (i + 2);
+			line.second.x = RES_SCALE (i + 1);
 			line.second.y = RES_SCALE (ScaleHeightByVolume (
 					scope_data[i + 1], toScale));
 			DrawLine (&line, RES_SCALE (1));
