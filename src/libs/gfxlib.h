@@ -158,6 +158,32 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 #define BUILD_SHADE_RGBA(s) \
 		buildColorRgba ((s), (s), (s), 0xFF)
 
+static inline void
+MultiplyBrightness (Color *color, float value)
+{
+	if (color->r)
+	{
+		if (color->r * value > 255)
+			color->r = 255;
+		else
+			color->r *= value;
+	}
+	if (color->g)
+	{
+		if (color->g * value > 255)
+			color->g = 255;
+		else
+			color->g *= value;
+	}
+	if (color->b)
+	{
+		if (color->b * value > 255)
+			color->b = 255;
+		else
+			color->b *= value;
+	}
+}
+
 static inline BOOLEAN
 AreTheyShades (Color first_color, Color second_color)
 {

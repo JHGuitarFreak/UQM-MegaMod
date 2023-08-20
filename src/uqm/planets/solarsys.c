@@ -715,6 +715,27 @@ GenerateTexturedPlanets (void)
 	pSolarSysState->pOrbitalDesc = previousOrbitalDesc;
 }
 
+BOOLEAN HaveNebula;
+
+static float
+CalcNebulaBrightness (void)
+{
+	float brightness;
+
+	if (!(optNebulae && HaveNebula && optNebulaeVolume))
+		return 1.0;
+
+	if (optNebulaeVolume > 24)
+		brightness = 100 / optNebulaeVolume + 1.75;
+	else
+		brightness = 1.75 * ((float)optNebulaeVolume / 24);
+
+	if (brightness < 1.0)
+		return 1.0;
+	else
+		return brightness;
+}
+
 // Returns an orbital PLANET_DESC when player is in orbit
 static PLANET_DESC *
 LoadSolarSys (void)
@@ -731,10 +752,6 @@ LoadSolarSys (void)
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
 	};
-
-	if (optUnscaledStarSystem && IS_HD)
-		temp_color_array[0] =
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 19), 0x54);
 
 	RandomContext_SeedRandom (SysGenRNG,
 			GetRandomSeedForStar (CurStarDescPtr));
@@ -782,7 +799,14 @@ LoadSolarSys (void)
 			index = (SysInfo.PlanetInfo.SurfaceTemperature + 250) / 100;
 			if (index >= NUM_TEMP_RANGES)
 				index = NUM_TEMP_RANGES - 1;
+
 			pCurDesc->temp_color = temp_color_array[index];
+
+			if (optUnscaledStarSystem && IS_HD)
+			{
+				MultiplyBrightness (&pCurDesc->temp_color,
+						CalcNebulaBrightness ());
+			}
 		}
 		pCurDesc->frame_offset = UNDEFINED_OFFSET;
 	}
@@ -2726,17 +2750,16 @@ BrightenNebula (FRAME nebula, BYTE factor)
 
 	HFree (map);
 }
-
 void
 DrawNebula (POINT star_point)
 {
 	const POINT solPoint = { SOL_X, SOL_Y };
 	
 	if (!pointsEqual (star_point, solPoint) || (classicPackPresent &&
-			(LastActivity != CHECK_LOAD || NextActivity)))
+		(LastActivity != CHECK_LOAD || NextActivity)))
 	{	// To avoid loading nebulae in loading menu (Yay optimization)
 		FRAME NebulaeFrame =
-				CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
+			CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
 		const BYTE numNebulae = GetFrameCount (NebulaeFrame);
 
 		if ((star_point.y % (numNebulae + 6)) < numNebulae
@@ -2745,15 +2768,19 @@ DrawNebula (POINT star_point)
 			STAMP s;
 			s.origin = MAKE_POINT (0, 0);
 			s.frame = SetAbsFrameIndex (NebulaeFrame,
-					star_point.x % numNebulae);
+				star_point.x % numNebulae);
 			if (optNebulaeVolume != 24)
 				BrightenNebula (s.frame, optNebulaeVolume);
 
 			DrawStamp (&s);
+
+			HaveNebula = TRUE;
 		}
 		DestroyDrawable (ReleaseDrawable (NebulaeFrame));
 		NebulaeFrame = 0;
 	}
+	else
+		HaveNebula = FALSE;
 }
 
 FRAME
