@@ -721,14 +721,12 @@ static float
 CalcNebulaBrightness (void)
 {
 	float brightness;
-
-	if (!(optNebulae && HaveNebula && optNebulaeVolume))
-		return 1.0;
+	float scale = optUnscaledStarSystem ? 1.75 : 1.0;
 
 	if (optNebulaeVolume > 24)
-		brightness = 100 / optNebulaeVolume + 1.75;
+		brightness = (((float)optNebulaeVolume - 24) / 24) + scale;
 	else
-		brightness = 1.75 * ((float)optNebulaeVolume / 24);
+		brightness = scale * ((float)optNebulaeVolume / 24);
 
 	if (brightness < 1.0)
 		return 1.0;
@@ -802,7 +800,10 @@ LoadSolarSys (void)
 
 			pCurDesc->temp_color = temp_color_array[index];
 
-			if (optUnscaledStarSystem && IS_HD)
+			if (IS_HD && ((optUnscaledStarSystem && optNebulae
+					&& HaveNebula && optNebulaeVolume)
+					|| (!optUnscaledStarSystem && optNebulae
+					&& HaveNebula && optNebulaeVolume > 24)))
 			{
 				MultiplyBrightness (&pCurDesc->temp_color,
 						CalcNebulaBrightness ());
