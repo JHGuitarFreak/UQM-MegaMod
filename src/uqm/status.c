@@ -26,6 +26,7 @@
 #include "init.h"
 		// for NUM_PLAYERS
 #include "menustat.h"
+#include "util.h"
 
 #include <stdio.h>
 #include <string.h>

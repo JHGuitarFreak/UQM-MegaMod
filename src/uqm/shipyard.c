@@ -353,9 +353,7 @@ showRemainingCrew (void)
 			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
 
 	if (optWindowType < 2)
-	{
-		r.corner = MAKE_POINT (RES_SCALE (1), RES_SCALE (1));
-	}
+		r.corner = MAKE_POINT (RES_SCALE (20), RES_SCALE (1));
 
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
