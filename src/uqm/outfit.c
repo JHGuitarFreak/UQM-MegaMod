@@ -304,8 +304,11 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
 					FALSE, TRANSPARENT);
 		}
-
-		DrawBorder (27);
+		else
+		{
+			DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
+					THIN_INNER_BEVEL);
+		}
 	}
 
 	if (NewModule >= EMPTY_SLOT)

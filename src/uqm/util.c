@@ -183,7 +183,8 @@ DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, SCB_TYPE type)
 		SetContextForeGroundColor (OldColor);
 	}
 
-	stamp.frame = optCustomBorder ? BorderFrame : HDBorderFrame;
+	stamp.frame = optCustomBorder && LOBYTE (GLOBAL (CurrentActivity))
+			!= SUPER_MELEE ? BorderFrame : HDBorderFrame;
 
 	if (type == SPECIAL_BEVEL)
 	{

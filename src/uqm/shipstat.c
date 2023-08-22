@@ -357,13 +357,6 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 		DeltaStatistics (SIPtr, y, crew_delta, energy_delta);
 	}
 
-	if (IS_HD && !inMeleeMenu)
-	{
-		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawMeleeBorder (28);
-		DrawMeleeBorder (29);
-	}
-
 	UnbatchGraphics ();
 
 	if (pClipRect)

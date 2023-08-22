@@ -438,13 +438,6 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	s.origin.y = y;
 	DrawStamp (&s);
 
-	if (IS_HD)
-	{
-		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawMeleeBorder (30);
-		DrawMeleeBorder (31);
-	}
-
 	if (StarShipPtr->captains_name_index == 0
 			&& StarShipPtr->playerNr == RPG_PLAYER_NUM)
 	{	// This is SIS

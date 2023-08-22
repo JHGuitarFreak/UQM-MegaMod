@@ -34,6 +34,7 @@
 #include "setup.h"
 #include "sounds.h"
 #include "libs/mathlib.h"
+#include "util.h"
 
 
 void
@@ -147,6 +148,26 @@ inertial_thrust (ELEMENT *ElementPtr)
 }
 
 void
+DrawHDMeleeBorder (STARSHIP *StarShipPtr)
+{
+	COORD y = 0;
+	RECT r;
+
+	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE
+			&& StarShipPtr->playerNr != RPG_PLAYER_NUM)
+		return;
+
+	y = status_y_offsets[StarShipPtr->playerNr];
+
+	r.corner.x = 0;
+	r.corner.y = 4 + y;
+	r.extent.width = STATUS_WIDTH;
+	r.extent.height = SHIP_STATUS_HEIGHT - 4;
+
+	DrawRenderedBox (&r, FALSE, NULL_COLOR, THICK_OUTER_BEVEL);
+}
+
+void
 ship_preprocess (ELEMENT *ElementPtr)
 {
 	STATUS_FLAGS cur_status_flags;
@@ -189,6 +210,10 @@ ship_preprocess (ELEMENT *ElementPtr)
 			InitShipStatus (&RDPtr->ship_info, StarShipPtr, NULL, FALSE);
 			OldContext = SetContext (StatusContext);
 			DrawCaptainsWindow (StarShipPtr);
+
+			if (IS_HD)
+				DrawHDMeleeBorder (StarShipPtr);
+
 			SetContext (OldContext);
 			if (RDPtr->preprocess_func)
 				(*RDPtr->preprocess_func) (ElementPtr);
