@@ -31,6 +31,18 @@ extern void DrawBorderPadding (DWORD videoWidth);
 extern void DrawRadarBorder (void);
 extern DWORD SeedRandomNumbers (void);
 
+typedef enum
+{
+	SPECIAL_BEVEL = 18,
+	THIN_INNER_BEVEL = 33,
+	THICK_INNER_BEVEL = THIN_INNER_BEVEL + 8,
+	THIN_OUTER_BEVEL = THICK_INNER_BEVEL + 8,
+	THICK_OUTER_BEVEL = THIN_OUTER_BEVEL + 8
+} SCB_TYPE;
+
+extern void DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color,
+		SCB_TYPE type);
+
 // saveRect can be NULL to save the entire context frame
 extern STAMP SaveContextFrame (const RECT *saveRect);
 

@@ -57,7 +57,8 @@
 		BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), 0x0F)
 #endif
 
-
+#define NULL_COLOR \
+		BUILD_COLOR_RGBA (0,0,0,0)
 #define BLACK_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x00), 0x00)
 #define LTGRAY_COLOR \

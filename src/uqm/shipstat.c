@@ -23,6 +23,7 @@
 #include "setup.h"
 #include "libs/gfxlib.h"
 #include "menustat.h"
+#include "util.h"
 
 void
 DrawCrewFuelString (COORD y, SIZE state)
@@ -208,119 +209,83 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 		energy_height = (((SIPtr->max_energy + 1) >> 1) << RES_TRP (1)) + RES_SCALE (1);
 #undef MIN
 		
-		// Dark gray line on the bottom of crew box
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
-		r.corner.x = CREW_XOFFS - RES_SCALE (1);
-		r.corner.y = GAUGE_YOFFS + RES_SCALE (1) + y;
-		r.extent.width = STAT_WIDTH + RES_SCALE (2);
-		r.extent.height = RES_SCALE (1);
-		DrawFilledRectangle (&r);
-		// Dark gray line on the right of crew box
-		r.corner.x = ENERGY_XOFFS - RES_SCALE (1);
-		DrawFilledRectangle (&r);
-		// Dark gray line on the right of energy box
-		r.corner.x = ENERGY_XOFFS + STAT_WIDTH;
-		r.corner.y -= energy_height;
-		r.extent.width = RES_SCALE (1);
-		r.extent.height = energy_height;
-		DrawFilledRectangle (&r);
-		// Dark gray line on the right of crew box
-		r.corner.x = CREW_XOFFS + STAT_WIDTH;
-		r.corner.y = (GAUGE_YOFFS + RES_SCALE (1) + y) - crew_height;
-		r.extent.width = RES_SCALE (1);
-		r.extent.height = crew_height;
-		DrawFilledRectangle (&r);
-
-		// Light gray line on the top of crew box
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
-		r.corner.x = CREW_XOFFS - RES_SCALE (1);
-		r.corner.y = GAUGE_YOFFS - crew_height + y;
-		r.extent.width = STAT_WIDTH + RES_SCALE (2);
-		r.extent.height = RES_SCALE (1);
-		DrawFilledRectangle (&r);
-		// Light gray line on the top of energy box
-		r.corner.x = ENERGY_XOFFS - RES_SCALE (1);
-		r.corner.y = GAUGE_YOFFS - energy_height + y;
-		DrawFilledRectangle (&r);
-		// Light gray line on the left of energy box
-		r.extent.width = RES_SCALE (1);
-		r.extent.height = energy_height + RES_SCALE (1);
-		DrawFilledRectangle (&r);
-		// Light gray line on the left of crew box
-		r.corner.x = CREW_XOFFS - RES_SCALE (1);
-		r.corner.y = GAUGE_YOFFS - crew_height + y;
-		r.extent.height = crew_height + RES_SCALE (1);
-		DrawFilledRectangle (&r);
-		
-		SetContextForeGroundColor (BLACK_COLOR);
-		
-		// Black rectangle behind green crew boxes
-		r.extent.width = STAT_WIDTH;
-		r.corner.x = CREW_XOFFS;
-		r.extent.height = crew_height;
-		r.corner.y = y - r.extent.height + GAUGE_YOFFS + RES_SCALE (1);
-		DrawFilledRectangle (&r);
-		// Black rectangle behind red energy boxes
-		r.corner.x = ENERGY_XOFFS;
-		r.extent.height = energy_height;
-		r.corner.y = y - r.extent.height + GAUGE_YOFFS + RES_SCALE (1);
-		DrawFilledRectangle (&r);
-
-		if (IS_HD)
+		if (!IS_HD)
 		{
-			int i;
+			// Dark gray line on the bottom of crew box
+			SetContextForeGroundColor (
+				BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
+			r.corner.x = CREW_XOFFS - RES_SCALE (1);
+			r.corner.y = GAUGE_YOFFS + RES_SCALE (1) + y;
+			r.extent.width = STAT_WIDTH + RES_SCALE (2);
+			r.extent.height = RES_SCALE (1);
+			DrawFilledRectangle (&r);
+			// Dark gray line on the right of crew box
+			r.corner.x = ENERGY_XOFFS - RES_SCALE (1);
+			DrawFilledRectangle (&r);
+			// Dark gray line on the right of energy box
+			r.corner.x = ENERGY_XOFFS + STAT_WIDTH;
+			r.corner.y -= energy_height;
+			r.extent.width = RES_SCALE (1);
+			r.extent.height = energy_height;
+			DrawFilledRectangle (&r);
+			// Dark gray line on the right of crew box
+			r.corner.x = CREW_XOFFS + STAT_WIDTH;
+			r.corner.y = (GAUGE_YOFFS + RES_SCALE (1) + y) - crew_height;
+			r.extent.width = RES_SCALE (1);
+			r.extent.height = crew_height;
+			DrawFilledRectangle (&r);
 
-			// Middle bevel frame
-			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 43);
+			// Light gray line on the top of crew box
+			SetContextForeGroundColor (
+				BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
+			r.corner.x = CREW_XOFFS - RES_SCALE (1);
+			r.corner.y = GAUGE_YOFFS - crew_height + y;
+			r.extent.width = STAT_WIDTH + RES_SCALE (2);
+			r.extent.height = RES_SCALE (1);
+			DrawFilledRectangle (&r);
+			// Light gray line on the top of energy box
+			r.corner.x = ENERGY_XOFFS - RES_SCALE (1);
+			r.corner.y = GAUGE_YOFFS - energy_height + y;
+			DrawFilledRectangle (&r);
+			// Light gray line on the left of energy box
+			r.extent.width = RES_SCALE (1);
+			r.extent.height = energy_height + RES_SCALE (1);
+			DrawFilledRectangle (&r);
+			// Light gray line on the left of crew box
+			r.corner.x = CREW_XOFFS - RES_SCALE (1);
+			r.corner.y = GAUGE_YOFFS - crew_height + y;
+			r.extent.height = crew_height + RES_SCALE (1);
+			DrawFilledRectangle (&r);
 
-			// Middle bevel of the crew boxes
-			Stamp.origin.x = CREW_XOFFS;
-			for (i = 0; i < crew_height; i++)
-			{
-				if (i % 4 == 0)
-				{
-					Stamp.origin.y = GAUGE_YOFFS + y - i;
-					DrawStamp (&Stamp);
-				}
-			}
+			SetContextForeGroundColor (BLACK_COLOR);
 
-			// Middle bevel of the energy boxes
-			Stamp.origin.x = ENERGY_XOFFS;
-			for (i = 0; i < energy_height; i++)
-			{
-				if (i % 4 == 0)
-				{
-					Stamp.origin.y = GAUGE_YOFFS + y - i;
-					DrawStamp (&Stamp);
-				}
-			}
+			// Black rectangle behind green crew boxes
+			r.extent.width = STAT_WIDTH;
+			r.corner.x = CREW_XOFFS;
+			r.extent.height = crew_height;
+			r.corner.y = y - r.extent.height + GAUGE_YOFFS + RES_SCALE (1);
+			DrawFilledRectangle (&r);
 
-			// Bottom bevel frame
-			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 42);
+			// Black rectangle behind red energy boxes
+			r.extent.width = STAT_WIDTH;
+			r.corner.x = ENERGY_XOFFS;
+			r.extent.height = energy_height;
+			r.corner.y = y - r.extent.height + GAUGE_YOFFS + RES_SCALE (1);
+			DrawFilledRectangle (&r);
+		}
+		else
+		{
+			r.corner.x = CREW_XOFFS - 4;
+			r.corner.y = GAUGE_YOFFS - crew_height + y;
+			r.extent.width = STAT_WIDTH + 8;
+			r.extent.height = crew_height + 8;
+			DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL);
 
-			// Bottom bevel of the crew boxes
-			Stamp.origin.x = CREW_XOFFS;
-			Stamp.origin.y = GAUGE_YOFFS + y;
-			DrawStamp (&Stamp);
-
-			// Bottom bevel of the energy boxes
-			Stamp.origin.x = ENERGY_XOFFS;
-			DrawStamp (&Stamp);
-
-			// Top bevel frame
-			Stamp.frame = SetAbsFrameIndex (HDBorderFrame, 44);
-
-			// Top bevel of the crew boxes
-			Stamp.origin.x = CREW_XOFFS;
-			Stamp.origin.y = GAUGE_YOFFS - crew_height + y;
-			DrawStamp (&Stamp);
-
-			// Top bevel of the energy boxes
-			Stamp.origin.x = ENERGY_XOFFS;
-			Stamp.origin.y = GAUGE_YOFFS - energy_height + y;
-			DrawStamp (&Stamp);
+			r.corner.x = ENERGY_XOFFS - 4;
+			r.corner.y = GAUGE_YOFFS - energy_height + y;
+			r.extent.width = STAT_WIDTH + 8;
+			r.extent.height = energy_height + 8;
+			DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL);
 		}
 	}
 
@@ -395,8 +360,8 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 	if (IS_HD && !inMeleeMenu)
 	{
 		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawMeleeBorder (33);
-		DrawMeleeBorder (34);
+			DrawMeleeBorder (28);
+		DrawMeleeBorder (29);
 	}
 
 	UnbatchGraphics ();

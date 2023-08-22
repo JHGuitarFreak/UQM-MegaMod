@@ -44,106 +44,192 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 	{
 		oldcolor = SetContextForeGroundColor (InteriorColor);
 		DrawFilledRectangle (pRect);
+		SetContextForeGroundColor (TopLeftColor);
 	}
+	else
+		oldcolor = SetContextForeGroundColor (TopLeftColor);
 
 	if (BorderWidth == 0)
 		BorderWidth = RES_SCALE (2);
-	else
+
+	locRect.corner = pRect->corner;
+	locRect.extent.width = pRect->extent.width;
+	locRect.extent.height = RES_SCALE (1);
+	DrawFilledRectangle (&locRect);
+
+	if (BorderWidth == RES_SCALE (2))
 	{
-		if (FillInterior)
-			SetContextForeGroundColor (TopLeftColor);
+		locRect.corner.x += RES_SCALE (1);
+		locRect.corner.y += RES_SCALE (1);
+		locRect.extent.width -= RES_SCALE (2);
+		DrawFilledRectangle (&locRect);
+	}
+
+	locRect.corner = pRect->corner;
+	locRect.extent.width = RES_SCALE (1);
+	locRect.extent.height = pRect->extent.height;
+	DrawFilledRectangle (&locRect);
+
+	if (BorderWidth == RES_SCALE (2))
+	{
+		locRect.corner.x += RES_SCALE (1);
+		locRect.corner.y += RES_SCALE (1);
+		locRect.extent.height -= RES_SCALE (2);
+		DrawFilledRectangle (&locRect);
+	}
+
+	SetContextForeGroundColor (BottomRightColor);
+	locRect.corner.x = pRect->corner.x + pRect->extent.width - RES_SCALE (1);
+	locRect.corner.y = pRect->corner.y + RES_SCALE (1);
+	locRect.extent.height = pRect->extent.height - RES_SCALE (1);
+	DrawFilledRectangle (&locRect);
+
+	if (BorderWidth == RES_SCALE (2))
+	{
+		locRect.corner.x -= RES_SCALE (1);
+		locRect.corner.y += RES_SCALE (1);
+		locRect.extent.height -= RES_SCALE (2);
+		DrawFilledRectangle (&locRect);
+	}
+
+	locRect.corner.x = pRect->corner.x;
+	locRect.extent.width = pRect->extent.width;
+	locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE (1);
+	locRect.extent.height = RES_SCALE (1);
+	DrawFilledRectangle (&locRect);
+
+	if (BorderWidth == RES_SCALE (2))
+	{
+		locRect.corner.x += RES_SCALE (1);
+		locRect.corner.y -= RES_SCALE (1);
+		locRect.extent.width -= RES_SCALE (2);
+		DrawFilledRectangle (&locRect);
+	}
+
+	if (CreateCorners)
+	{
+		if (sameColor (TRANSPARENT, CornerColor)
+				&& AreTheyShades (TopLeftColor, BottomRightColor))
+		{
+			SetContextForeGroundColor (
+					CreateAvgShade (TopLeftColor, BottomRightColor));
+		}
 		else
-			oldcolor = SetContextForeGroundColor (TopLeftColor);
-		locRect.corner = pRect->corner;
-		locRect.extent.width = pRect->extent.width;
+			SetContextForeGroundColor (CornerColor);
+
+		locRect.corner.x = pRect->corner.x;
+		locRect.corner.y = pRect->corner.y + pRect->extent.height
+			- RES_SCALE (1);
+		locRect.extent.width = RES_SCALE (1);
 		locRect.extent.height = RES_SCALE (1);
 		DrawFilledRectangle (&locRect);
-
-		if (BorderWidth == RES_SCALE (2))
-		{
-			locRect.corner.x += RES_SCALE (1);
-			locRect.corner.y += RES_SCALE (1);
-			locRect.extent.width -= RES_SCALE (2);
-			DrawFilledRectangle (&locRect);
-		}
-
-		locRect.corner = pRect->corner;
-		locRect.extent.width = RES_SCALE (1);
-		locRect.extent.height = pRect->extent.height;
-		DrawFilledRectangle (&locRect);
-
-		if (BorderWidth == RES_SCALE (2))
-		{
-			locRect.corner.x += RES_SCALE (1);
-			locRect.corner.y += RES_SCALE (1);
-			locRect.extent.height -= RES_SCALE (2);
-			DrawFilledRectangle (&locRect);
-		}
-
-		SetContextForeGroundColor (BottomRightColor);
-		locRect.corner.x = pRect->corner.x + pRect->extent.width - RES_SCALE (1);
-		locRect.corner.y = pRect->corner.y + RES_SCALE (1);
-		locRect.extent.height = pRect->extent.height - RES_SCALE (1);
+		locRect.corner.x = pRect->corner.x + pRect->extent.width
+			- RES_SCALE (1);
+		locRect.corner.y = pRect->corner.y;
 		DrawFilledRectangle (&locRect);
 
 		if (BorderWidth == RES_SCALE (2))
 		{
 			locRect.corner.x -= RES_SCALE (1);
 			locRect.corner.y += RES_SCALE (1);
-			locRect.extent.height -= RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
-		}
-
-		locRect.corner.x = pRect->corner.x;
-		locRect.extent.width = pRect->extent.width;
-		locRect.corner.y = pRect->corner.y + pRect->extent.height - RES_SCALE (1);
-		locRect.extent.height = RES_SCALE (1);
-		DrawFilledRectangle (&locRect);
-
-		if (BorderWidth == RES_SCALE (2))
-		{
-			locRect.corner.x += RES_SCALE (1);
-			locRect.corner.y -= RES_SCALE (1);
-			locRect.extent.width -= RES_SCALE (2);
-			DrawFilledRectangle (&locRect);
-		}
-
-		if (CreateCorners)
-		{
-			if (sameColor (TRANSPARENT, CornerColor)
-					&& AreTheyShades (TopLeftColor, BottomRightColor))
-			{
-				SetContextForeGroundColor (
-						CreateAvgShade (TopLeftColor, BottomRightColor));
-			}
-			else
-				SetContextForeGroundColor (CornerColor);
-
-			locRect.corner.x = pRect->corner.x;
+			locRect.corner.x = pRect->corner.x + RES_SCALE (1);
 			locRect.corner.y = pRect->corner.y + pRect->extent.height
-				- RES_SCALE (1);
-			locRect.extent.width = RES_SCALE (1);
-			locRect.extent.height = RES_SCALE (1);
+				- RES_SCALE (2);
 			DrawFilledRectangle (&locRect);
-			locRect.corner.x = pRect->corner.x + pRect->extent.width
-				- RES_SCALE (1);
-			locRect.corner.y = pRect->corner.y;
-			DrawFilledRectangle (&locRect);
-
-			if (BorderWidth == RES_SCALE (2))
-			{
-				locRect.corner.x -= RES_SCALE (1);
-				locRect.corner.y += RES_SCALE (1);
-				DrawFilledRectangle (&locRect);
-				locRect.corner.x = pRect->corner.x + RES_SCALE (1);
-				locRect.corner.y = pRect->corner.y + pRect->extent.height
-					- RES_SCALE (2);
-				DrawFilledRectangle (&locRect);
-			}
 		}
 	}
 
 	SetContextForeGroundColor (oldcolor);
+
+	UnbatchGraphics ();
+}
+
+void
+DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, SCB_TYPE type)
+{
+	int i;
+	STAMP stamp;
+	COORD columns = r->extent.width;
+	COORD rows = r->extent.height;
+
+	if (!r->extent.width || !r->extent.height)
+		return;
+
+	BatchGraphics ();
+
+	if (filled)
+	{
+		Color OldColor = SetContextForeGroundColor (fill_color);
+
+		if (type == SPECIAL_BEVEL)
+		{
+			r->corner.x += RES_SCALE (4);
+			r->corner.y += RES_SCALE (4);
+			r->extent.width -= RES_SCALE (8);
+			r->extent.height -= RES_SCALE (8);
+		}
+
+		DrawFilledRectangle (r);
+
+		if (type == SPECIAL_BEVEL)
+		{
+			r->corner.x -= RES_SCALE (4);
+			r->corner.y -= RES_SCALE (4);
+			r->extent.width += RES_SCALE (8);
+			r->extent.height += RES_SCALE (8);
+		}
+
+		SetContextForeGroundColor (OldColor);
+	}
+
+	stamp.frame = optCustomBorder ? BorderFrame : HDBorderFrame;
+
+	if (type == SPECIAL_BEVEL)
+	{
+		columns -= RES_SCALE (8);
+		rows -= RES_SCALE (8);
+	}
+
+	for (i = 0; i < columns; i++)
+	{	// Draw top and bottom borders
+		stamp.frame = SetAbsFrameIndex (stamp.frame, type + 4);
+		stamp.origin.x = r->corner.x + i;
+		stamp.origin.y = r->corner.y;
+		DrawStamp (&stamp);
+		stamp.frame = SetAbsFrameIndex (stamp.frame, type + 6);
+		stamp.origin.y = r->corner.y + r->extent.height;
+		DrawStamp (&stamp);
+	}
+
+	for (i = 0; i < rows; i++)
+	{	// Draw right and left borders
+		stamp.frame = SetAbsFrameIndex (stamp.frame, type + 5);
+		stamp.origin.x = r->corner.x + r->extent.width;
+		stamp.origin.y = r->corner.y + i;
+		DrawStamp (&stamp);
+		stamp.frame = SetAbsFrameIndex (stamp.frame, type + 7);
+		stamp.origin.x = r->corner.x;
+		DrawStamp (&stamp);
+	}
+
+	// Draw corners clockwise from the top-left
+	stamp.frame = SetAbsFrameIndex (stamp.frame, type);
+	stamp.origin.x = r->corner.x;
+	stamp.origin.y = r->corner.y;
+	DrawStamp (&stamp);
+
+	stamp.frame = SetAbsFrameIndex (stamp.frame, type + 1);
+	stamp.origin.x = r->corner.x + r->extent.width;
+	DrawStamp (&stamp);
+
+	stamp.frame = SetAbsFrameIndex (stamp.frame, type + 2);
+	stamp.origin.y = r->corner.y + r->extent.height;
+	DrawStamp (&stamp);
+
+	stamp.frame = SetAbsFrameIndex (stamp.frame, type + 3);
+	stamp.origin.x = r->corner.x;
+	DrawStamp (&stamp);
 
 	UnbatchGraphics ();
 }
@@ -205,20 +291,21 @@ DrawRadarBorder (void)
 
 	OldContext = SetContext (StatusContext);
 
-	if (optCustomBorder || IS_HD)
-	{
-		DrawBorder (31);
-		return;
-	}
-
 	r.corner.x = RES_SCALE (4) - RES_SCALE (1);
 	r.corner.y = RADAR_Y - RES_SCALE (1);
 	r.extent.width = RADAR_WIDTH + RES_SCALE (2);
 	r.extent.height = RADAR_HEIGHT + RES_SCALE (2);
 
-	DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
-			ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, FALSE,
-			TRANSPARENT);
+	if (IS_HD || optCustomBorder)
+	{
+		DrawRenderedBox (&r, FALSE, NULL_COLOR, THIN_INNER_BEVEL);
+	}
+	else
+	{
+		DrawStarConBox (&r, RES_SCALE (1), ALT_SHADOWBOX_TOP_LEFT,
+				ALT_SHADOWBOX_BOTTOM_RIGHT, FALSE, TRANSPARENT, FALSE,
+				TRANSPARENT);
+	}
 
 	SetContext (OldContext);
 }

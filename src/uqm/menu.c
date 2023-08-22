@@ -44,11 +44,18 @@ void FunkyMenu (BYTE m, STAMP stmp);
 static void
 DrawPCMenuFrame (RECT *r)
 {
-	// Draw the top and left of the outer border.
-	// This actually draws a rectangle, but the bottom and right parts
-	// are drawn over in the next step.
-	SetContextForeGroundColor (PCMENU_TOP_LEFT_BORDER_COLOR);
-	DrawFilledRectangle (r);
+
+	if (IS_HD || optCustomBorder)
+	{
+		DrawRenderedBox (r, TRUE, PCMENU_BACKGROUND_COLOR,
+				optCustomBorder ? SPECIAL_BEVEL : THIN_INNER_BEVEL);
+	}
+	else
+	{
+		DrawStarConBox (r, RES_SCALE (1), PCMENU_TOP_LEFT_BORDER_COLOR,
+				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE,
+				PCMENU_BACKGROUND_COLOR, FALSE, NULL_COLOR);
+	}
 
 	// Draw the right and bottom of the outer border.
 	// This actually draws a rectangle, with the top and left segments just
@@ -56,16 +63,8 @@ DrawPCMenuFrame (RECT *r)
 	// step.
 	r->corner.x += RES_SCALE (1);
 	r->corner.y += RES_SCALE (1);
-	r->extent.height -= RES_SCALE (1);
-	r->extent.width -= RES_SCALE (1);
-	SetContextForeGroundColor (PCMENU_BOTTOM_RIGHT_BORDER_COLOR);
-	DrawFilledRectangle(r);
-
-	// Draw the background.
-	r->extent.height -= RES_SCALE (1);
-	r->extent.width -= RES_SCALE (1);
-	SetContextForeGroundColor (PCMENU_BACKGROUND_COLOR);
-	DrawFilledRectangle (r);
+	r->extent.height -= RES_SCALE (2);
+	r->extent.width -= RES_SCALE (2);
 }
 
 #define ALT_MANIFEST 0x80
@@ -99,7 +98,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	rt.corner.y += PC_MENU_HEIGHT - DOS_BOOL_SCL (12, 3);
 	rt.extent.width += RES_SCALE (2);
 	rt.extent.height += DOS_BOOL_SCL (2, -6);
-	if (!optCustomBorder && !classicPackPresent)
+	if (!optCustomBorder)
 		DrawFilledRectangle (&rt);
 
 	DrawBorder (8);
@@ -113,8 +112,6 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	r->corner.y += DOS_NUM_SCL (1);
 
 	DrawPCMenuFrame (r);
-
-	DrawBorder (28 - num_items);
 
 	OldFont = SetContextFont (StarConFont);
 	t.align = ALIGN_LEFT;
@@ -150,7 +147,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 					s.origin = r->corner;
 
-					s.frame = SetAbsFrameIndex (BorderFrame, 29);
+					s.frame = SetAbsFrameIndex (BorderFrame, 26);
 					DrawStamp (&s);
 				}
 				else
@@ -634,7 +631,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	}
 	else
 	{
-		if (!optCustomBorder && !classicPackPresent)
+		if (!optCustomBorder)
 		{	// Gray rectangle behind Lander and HyperSpace radar
 			r.corner.x -= RES_SCALE (1);
 			r.corner.y += DOS_NUM_SCL (5);
@@ -712,7 +709,7 @@ DrawSubmenu (BYTE Visible, BOOLEAN cleanup)
 	{
 		RECT r;
 
-		if (optCustomBorder || classicPackPresent)
+		if (optCustomBorder)
 			DrawBorder (14);
 		else
 		{
@@ -744,7 +741,7 @@ DrawMineralHelpers (BOOLEAN cleanup)
 
 	if (cleanup)
 	{
-		if (optCustomBorder || classicPackPresent)
+		if (optCustomBorder)
 			DrawBorder (14);
 		else
 		{
@@ -759,13 +756,18 @@ DrawMineralHelpers (BOOLEAN cleanup)
 
 	if (!optCustomBorder)
 	{
-		DrawStarConBox (
-				&r, RES_SCALE (1), PCMENU_TOP_LEFT_BORDER_COLOR,
-				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE,
-				PCMENU_BACKGROUND_COLOR, TRUE, TRANSPARENT);
-
-		if (IS_HD)
-			DrawSubmenu (1, FALSE);
+		if (!IS_HD)
+		{
+			DrawStarConBox (
+					&r, RES_SCALE (1), PCMENU_TOP_LEFT_BORDER_COLOR,
+					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE,
+					PCMENU_BACKGROUND_COLOR, TRUE, TRANSPARENT);
+		}
+		else
+		{
+			DrawRenderedBox (&r, TRUE, PCMENU_BACKGROUND_COLOR,
+					THIN_INNER_BEVEL);
+		}
 	}
 	else
 		DrawBorder (14);

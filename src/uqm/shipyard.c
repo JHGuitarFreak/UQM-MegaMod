@@ -550,8 +550,6 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	if (!IS_DOS)
 		DrawFilledRectangle (&r);
 
-	if (classicPackPresent)
-		DrawBorder (14);
 	DrawBorder (8);
 
 	if (!IS_DOS)
@@ -1469,8 +1467,7 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		// Cancel selecting an escort ship.
 		pMS->delta_item &= ~MODIFY_CREW_FLAG;
 		SetFlashRect (NULL, FALSE);
-		if (classicPackPresent)
-			DrawBorder (14);
+
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 		DrawMenuStateStrings (PM_CREW, SHIPYARD_CREW);
 				// twice to reset menu selection

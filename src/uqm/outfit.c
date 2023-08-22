@@ -287,8 +287,6 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		DrawFilledRectangle (&r); // drawn over anyway
 	}
 
-	if (classicPackPresent)
-		DrawBorder (14);
 	DrawBorder (8);
 
 	if (IS_DOS)
@@ -307,7 +305,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 					FALSE, TRANSPARENT);
 		}
 
-		DrawBorder (32);
+		DrawBorder (27);
 	}
 
 	if (NewModule >= EMPTY_SLOT)
@@ -649,8 +647,6 @@ DoInstallModule (MENU_STATE *pMS)
 		else
 		{
 			SetContext (StatusContext);
-			if (classicPackPresent)
-				DrawBorder (14);
 			DrawMenuStateStrings (PM_FUEL, pMS->CurState = OUTFIT_MODULES);
 			SetFlashRect (SFR_MENU_3DO, FALSE);
 

@@ -393,34 +393,45 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 
 	y = y_offs + CAPTAIN_YOFFS;
 
-	// Actual Captain's Window
-	// Darker grey rectangle at bottom and right of captain's window
-	SetContextForeGroundColor (
+	if (!IS_HD)
+	{
+		// Actual Captain's Window
+		// Darker grey rectangle at bottom and right of captain's window
+		SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x08, 0x08, 0x08), 0x1F));
-	r.corner.x = CAPTAIN_WIDTH + CAPTAIN_XOFFS;
-	r.corner.y = y;
-	r.extent.width = RES_SCALE (1);
-	r.extent.height = CAPTAIN_HEIGHT;
-	DrawFilledRectangle (&r);
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
-	r.corner.y += CAPTAIN_HEIGHT;
-	r.extent.width = CAPTAIN_WIDTH + RES_SCALE (2);
-	r.extent.height = RES_SCALE (1);
-	DrawFilledRectangle (&r);
+		r.corner.x = CAPTAIN_WIDTH + CAPTAIN_XOFFS;
+		r.corner.y = y;
+		r.extent.width = RES_SCALE (1);
+		r.extent.height = CAPTAIN_HEIGHT;
+		DrawFilledRectangle (&r);
+		r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
+		r.corner.y += CAPTAIN_HEIGHT;
+		r.extent.width = CAPTAIN_WIDTH + RES_SCALE (2);
+		r.extent.height = RES_SCALE (1);
+		DrawFilledRectangle (&r);
 
-	// Light grey rectangle at top and left of captains window
-	SetContextForeGroundColor (
+		// Light grey rectangle at top and left of captains window
+		SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19));
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
-	r.extent.width = CAPTAIN_WIDTH + RES_SCALE (2);
-	r.corner.y = y - RES_SCALE (1);
-	r.extent.height = RES_SCALE (1);
-	DrawFilledRectangle (&r);
-	r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
-	r.extent.width = RES_SCALE (1);
-	r.corner.y = y;
-	r.extent.height = CAPTAIN_HEIGHT;
-	DrawFilledRectangle (&r);
+		r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
+		r.extent.width = CAPTAIN_WIDTH + RES_SCALE (2);
+		r.corner.y = y - RES_SCALE (1);
+		r.extent.height = RES_SCALE (1);
+		DrawFilledRectangle (&r);
+		r.corner.x = CAPTAIN_XOFFS - RES_SCALE (1);
+		r.extent.width = RES_SCALE (1);
+		r.corner.y = y;
+		r.extent.height = CAPTAIN_HEIGHT;
+		DrawFilledRectangle (&r);
+	}
+	else
+	{
+		r.corner.x = CAPTAIN_XOFFS - 4;
+		r.corner.y = y - 4;
+		r.extent.width = CAPTAIN_WIDTH + 8;
+		r.extent.height = CAPTAIN_HEIGHT + 8;
+		DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL);
+	}
 
 	s.frame = RDPtr->ship_data.captain_control.background;
 	s.origin.x = CAPTAIN_XOFFS;
@@ -430,16 +441,8 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 	if (IS_HD)
 	{
 		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawMeleeBorder (35);
-		DrawMeleeBorder (36);
-
-		if (StarShipPtr->playerNr == RPG_PLAYER_NUM)
-		{
-			if (!(RDPtr->ship_info.ship_flags & PLAYER_CAPTAIN))
-				DrawMeleeBorder (MENU_BOOL (41, 39));
-		}
-		else if (LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
-			DrawMeleeBorder (MENU_BOOL (40, 38));
+			DrawMeleeBorder (30);
+		DrawMeleeBorder (31);
 	}
 
 	if (StarShipPtr->captains_name_index == 0

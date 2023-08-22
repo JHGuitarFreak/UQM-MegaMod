@@ -2695,7 +2695,7 @@ StarMap (void)
 		{
 			if(optWhichMenu != OPT_PC)
 				DrawBorder (14);
-			DrawBorder (18 + optControllerType);
+			DrawBorder (15 + optControllerType);
 		}
 		else
 			DrawSubmenu (4 + optControllerType, FALSE);
