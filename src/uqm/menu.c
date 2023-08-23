@@ -743,14 +743,15 @@ DrawMineralHelpers (void)
 
 	OldContext = SetContext (StatusContext);
 
-	DrawFlagStatDisplay ("minerals");
+	DrawFlagStatDisplay (GAME_STRING (STATUS_STRING_BASE + 6));
 
 	SetContextFont (TinyFont);
 
 	GetContextFontLeading (&leading);
+	leading -= RES_SCALE (1);
 
 #define ELEMENT_ORG_X      RES_SCALE (22)
-#define ELEMENT_ORG_Y      RES_SCALE (38)
+#define ELEMENT_ORG_Y      RES_SCALE (34)
 #define ELEMENT_SPACING_Y  RES_SCALE (9)
 #define ELEMENT_SPACING_X  RES_SCALE (32)
 #define HD_ALIGN_DOTS IF_HD (2)
@@ -791,7 +792,7 @@ DrawMineralHelpers (void)
 	}
 
 	r.corner.x = RES_SCALE (4);
-	r.corner.y = RES_SCALE (109) - RES_SCALE (2);
+	r.corner.y = t.baseline.y - RES_SCALE (7);
 	r.extent.width = FIELD_WIDTH - RES_SCALE (3);
 	r.extent.height = RES_SCALE (1);
 	SetContextForeGroundColor (CARGO_SELECTED_BACK_COLOR);
@@ -801,14 +802,22 @@ DrawMineralHelpers (void)
 	t.align = ALIGN_LEFT;
 	t.baseline.x = r.corner.x + RES_SCALE (2);
 	t.baseline.y = r.corner.y + leading + RES_SCALE (1);
-	snprintf (buf, sizeof (buf), "%s:", GAME_STRING (STATUS_STRING_BASE + 3));
-	t.pStr = buf;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 8); // FUEL:
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
 	t.baseline.y += leading;
-	snprintf (buf, sizeof (buf), "%s:", GAME_STRING (STATUS_STRING_BASE + 4));
-	t.pStr = buf;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 9); // CREW:
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	t.baseline.y += leading;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 10); // LAND.:
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	t.baseline.y += leading;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 11); // CARGO:
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
@@ -822,6 +831,19 @@ DrawMineralHelpers (void)
 
 	t.baseline.y += leading;
 	snprintf (buf, sizeof (buf), "%u", GLOBAL_SIS (CrewEnlisted));
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	t.baseline.y += leading;
+	snprintf (buf, sizeof (buf), "%u", GLOBAL_SIS (NumLanders));
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	t.baseline.y += leading;
+	snprintf (buf, sizeof (buf), "%u",
+			GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass));
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
