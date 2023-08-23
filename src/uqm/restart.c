@@ -402,7 +402,6 @@ DoRestart (MENU_STATE *pMS)
 	if (optWindowType < 2)
 	{
 		optSubmenu = FALSE;
-		optCustomBorder = FALSE;
 		optMeleeToolTips = FALSE;
 	}
 	

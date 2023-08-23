@@ -567,10 +567,18 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (2);
 		dosRect.extent.height = RADAR_HEIGHT - RES_SCALE (2);
 
-		DrawStarConBox (&dosRect, RES_SCALE (1),
-				PCMENU_TOP_LEFT_BORDER_COLOR,
-				PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
-				FALSE, TRANSPARENT);
+		if (!IS_HD)
+		{
+			DrawStarConBox (&dosRect, RES_SCALE (1),
+					PCMENU_TOP_LEFT_BORDER_COLOR,
+					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
+					FALSE, TRANSPARENT);
+		}
+		else
+		{
+			DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
+					THIN_INNER_BEVEL);
+		}
 	}
 
 	if (NewRaceItem != (BYTE)~0)

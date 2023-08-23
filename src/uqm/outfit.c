@@ -298,16 +298,28 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		dosRect.extent.width = RADAR_WIDTH + RES_SCALE (4);
 		dosRect.extent.height = RADAR_HEIGHT + RES_SCALE (2);
 
-		if (!IS_HD)
+		if (optCustomBorder)
 		{
-			DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
-					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE, BLACK_COLOR,
-					FALSE, TRANSPARENT);
+			dosRect.corner.x += RES_SCALE (2);
+			dosRect.corner.y += RES_SCALE (2);
+			dosRect.extent.width -= RES_SCALE (4);
+			dosRect.extent.height -= RES_SCALE (4);
+			SetContextForeGroundColor (BLACK_COLOR);
+			DrawFilledRectangle (&dosRect);
 		}
 		else
 		{
-			DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
+			if (!IS_HD)
+			{
+				DrawStarConBox (&dosRect, 1, PCMENU_TOP_LEFT_BORDER_COLOR,
+						PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE,
+						BLACK_COLOR, FALSE, TRANSPARENT);
+			}
+			else
+			{
+				DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
 					THIN_INNER_BEVEL);
+			}
 		}
 	}
 
