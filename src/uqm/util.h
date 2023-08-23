@@ -47,6 +47,7 @@ extern void DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color,
 extern STAMP SaveContextFrame (const RECT *saveRect);
 
 extern DWORD get_fuel_to_sol (void);
+extern void DrawFlagStatDisplay (UNICODE *str);
 
 #if defined(__cplusplus)
 }

@@ -29,6 +29,8 @@
 #include "colors.h"
 #include "sis.h"
 #include "menustat.h"
+#include "gamestr.h"
+#include "shipcont.h"
 
 void
 DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
@@ -578,4 +580,35 @@ get_fuel_to_sol (void)
 		return 0;
 	else
 		return (square_root (f) + (FUEL_TANK_SCALE / 20));
+}
+
+void
+DrawFlagStatDisplay (UNICODE *str)
+{
+	TEXT t;
+	RECT r;
+
+	r.corner.x = RES_SCALE (2);
+	r.corner.y = RES_SCALE (20);
+	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
+	r.extent.height = (RES_SCALE (129) - r.corner.y);
+
+	if (!optCustomBorder && !IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+			SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
+			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
+	}
+	else
+		DrawBorder (13);
+
+	// print the "str" title
+	SetContextFont (StarConFont);
+	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + RES_SCALE (7);
+	t.align = ALIGN_CENTER;
+	t.pStr = str;
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
+	font_DrawText (&t);
 }

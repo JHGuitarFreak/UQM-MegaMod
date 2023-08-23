@@ -2691,14 +2691,7 @@ StarMap (void)
 
 	if (optSubmenu)
 	{
-		if(optCustomBorder)
-		{
-			if(optWhichMenu != OPT_PC)
-				DrawBorder (14);
-			DrawBorder (15 + optControllerType);
-		}
-		else
-			DrawSubmenu (4 + optControllerType, FALSE);
+		DrawSubmenu ("starmap", FALSE);
 	}
 
 	DrawStarMap (0, (RECT*)-1);
@@ -2734,7 +2727,7 @@ StarMap (void)
 	DrawStatusMessage (NULL);
 	
 	if (optSubmenu)
-		DrawSubmenu (4, TRUE);
+		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 
 	/*if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)

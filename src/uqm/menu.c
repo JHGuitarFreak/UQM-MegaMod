@@ -29,6 +29,7 @@
 #include "libs/log.h"
 #include "util.h"
 #include "planets/planets.h"
+#include "shipcont.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -692,88 +693,64 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 }
 
 void
-DrawSubmenu (BYTE Visible, BOOLEAN cleanup)
+DrawSubmenu (UNICODE *str, BOOLEAN cleanup)
 {
-	STAMP s;
 	CONTEXT OldContext;
 	
 	OldContext = SetContext (StatusContext);
 
-	s.origin = MAKE_POINT (RES_SCALE (1), RES_SCALE (141));
-
-	s.frame = SetAbsFrameIndex (SubmenuFrame, Visible);
-
 	if (!cleanup)
-		DrawStamp (&s);
+		DrawFlagStatDisplay (str);
 	else
-	{
-		RECT r;
-
-		if (optCustomBorder)
-			DrawBorder (14);
-		else
-		{
-			GetFrameRect (s.frame, &r);
-			r.corner = s.origin;
-			SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-			DrawFilledRectangle (&r);
-		}
-	}
+		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 	
 	SetContext (OldContext);
 }
 
-void
-DrawMineralHelpers (BOOLEAN cleanup)
+static UNICODE *
+WholeFuelValue (void)
 {
-	RECT r;
+	static UNICODE buf[7];
+	DWORD CoarseFuel = GLOBAL_SIS (FuelOnBoard);
+
+	double dblFuelOnBoard = (double)CoarseFuel / FUEL_TANK_SCALE;
+
+	if (!optInfiniteFuel)
+	{
+		if (!optWholeFuel)
+			snprintf (buf, sizeof buf, "%u", CoarseFuel);
+		else if (dblFuelOnBoard > 999.99)
+			snprintf (buf, sizeof buf, "%.1f", dblFuelOnBoard);
+		else
+			snprintf (buf, sizeof buf, "%.2f", dblFuelOnBoard);
+	}
+	else
+		snprintf (buf, sizeof buf, "%s", STR_INFINITY_SIGN);
+
+	return buf;
+}
+
+void
+DrawMineralHelpers (void)
+{
 	CONTEXT OldContext;
 	COUNT i, digit;
 	STAMP s;
 	TEXT t;
 	UNICODE buf[40];
+	RECT r;
+	SIZE leading;
 
 	OldContext = SetContext (StatusContext);
+
+	DrawFlagStatDisplay ("minerals");
+
 	SetContextFont (TinyFont);
 
-	r.corner = MAKE_POINT (RES_SCALE (1), RES_SCALE (141));
-	r.extent = MAKE_EXTENT(RES_SCALE (62), RES_SCALE (40));
+	GetContextFontLeading (&leading);
 
-	if (cleanup)
-	{
-		if (optCustomBorder)
-			DrawBorder (14);
-		else
-		{
-			SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-			DrawFilledRectangle (&r);
-		}
-
-		return;
-	}
-
-	BatchGraphics ();
-
-	if (!optCustomBorder)
-	{
-		if (!IS_HD)
-		{
-			DrawStarConBox (
-					&r, RES_SCALE (1), PCMENU_TOP_LEFT_BORDER_COLOR,
-					PCMENU_BOTTOM_RIGHT_BORDER_COLOR, TRUE,
-					PCMENU_BACKGROUND_COLOR, TRUE, TRANSPARENT);
-		}
-		else
-		{
-			DrawRenderedBox (&r, TRUE, PCMENU_BACKGROUND_COLOR,
-					THIN_INNER_BEVEL);
-		}
-	}
-	else
-		DrawBorder (14);
-
-#define ELEMENT_ORG_X      (r.corner.x + RES_SCALE (7))
-#define ELEMENT_ORG_Y      (r.corner.y + RES_SCALE (6))
+#define ELEMENT_ORG_X      RES_SCALE (22)
+#define ELEMENT_ORG_Y      RES_SCALE (38)
 #define ELEMENT_SPACING_Y  RES_SCALE (9)
 #define ELEMENT_SPACING_X  RES_SCALE (32)
 #define HD_ALIGN_DOTS IF_HD (2)
@@ -784,48 +761,70 @@ DrawMineralHelpers (BOOLEAN cleanup)
 	s.origin.x = ELEMENT_ORG_X + HD_ALIGN_DOTS;
 	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
 	// setup element worths
-	t.baseline.x = ELEMENT_ORG_X + RES_SCALE (5);
+	t.baseline.x = ELEMENT_ORG_X + RES_SCALE (12);
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
 
 	// draw element icons and worths
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
 	{
-		if (i == NUM_ELEMENT_CATEGORIES / 2)
-		{
-			s.origin.x += ELEMENT_SPACING_X;
-			s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
-			t.baseline.x += ELEMENT_SPACING_X;
-			t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
-		}
-
 		// draw element icon
 		DrawStamp (&s);
 		s.frame = SetRelFrameIndex (s.frame, 5);
 		s.origin.y += ELEMENT_SPACING_Y;
 
 		// print x'es
-		if (!optCustomBorder)
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x10, 0x21, 0xF7, 0xFF));
-		else
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x31, 0x31, 0x31, 0xFF));
+		SetContextForeGroundColor (MODULE_PRICE_COLOR);
 		snprintf (buf, sizeof buf, "%s", "x");
 		font_DrawText (&t);
 
 		// print element worth
-		if (!optCustomBorder)
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0xAD, 0xAD, 0xFF));
-		else
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0x74, 0x74, 0x74, 0xFF));
+		SetContextForeGroundColor (MODULE_NAME_COLOR);
 		snprintf (buf, sizeof buf, "%u", GLOBAL (ElementWorth[i]));
-		digit = RES_SCALE (!strncmp (buf, "1", 1) ? 4 : 5);
+		digit = RES_SCALE (11);
 		t.baseline.x += digit;
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.baseline.x -= digit;
 		t.baseline.y += ELEMENT_SPACING_Y;
 	}
+
+	r.corner.x = RES_SCALE (4);
+	r.corner.y = RES_SCALE (109) - RES_SCALE (2);
+	r.extent.width = FIELD_WIDTH - RES_SCALE (3);
+	r.extent.height = RES_SCALE (1);
+	SetContextForeGroundColor (CARGO_SELECTED_BACK_COLOR);
+	DrawFilledRectangle (&r);
+
+	SetContextForeGroundColor (MODULE_NAME_COLOR);
+	t.align = ALIGN_LEFT;
+	t.baseline.x = r.corner.x + RES_SCALE (2);
+	t.baseline.y = r.corner.y + leading + RES_SCALE (1);
+	snprintf (buf, sizeof (buf), "%s:", GAME_STRING (STATUS_STRING_BASE + 3));
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	t.baseline.y += leading;
+	snprintf (buf, sizeof (buf), "%s:", GAME_STRING (STATUS_STRING_BASE + 4));
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	SetContextForeGroundColor (MODULE_PRICE_COLOR);
+	t.align = ALIGN_RIGHT;
+	t.baseline.x = r.extent.width + RES_SCALE (2);
+	t.baseline.y = r.corner.y + leading + RES_SCALE (1);
+	t.pStr = WholeFuelValue ();
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	t.baseline.y += leading;
+	snprintf (buf, sizeof (buf), "%u", GLOBAL_SIS (CrewEnlisted));
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
 
 	UnbatchGraphics ();
 
@@ -884,7 +883,7 @@ FunkyMenu (BYTE m, STAMP stmp)
 		if (stmp.frame)
 			DrawStamp (&stmp);
 
-		DrawMineralHelpers (FALSE);
+		DrawMineralHelpers ();
 
 		subMenuFlag = TRUE;
 
@@ -893,7 +892,7 @@ FunkyMenu (BYTE m, STAMP stmp)
 	}
 	else if (subMenuFlag == TRUE)
 	{
-		DrawMineralHelpers (TRUE);
+		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 		subMenuFlag = FALSE;
 	}
 

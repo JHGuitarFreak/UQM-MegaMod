@@ -747,7 +747,14 @@ DispatchLander (void)
 	oldCallback = SetInputCallback (NULL);
 
 	if (!optInfiniteFuel)
-		DeltaSISGauges (0, -landingFuel, 0);
+	{
+		GLOBAL_SIS (FuelOnBoard) -= landingFuel;
+
+		if (optSubmenu)
+			DrawMineralHelpers ();
+		else
+			DeltaSISGauges (0, UNDEFINED_DELTA, 0);
+	}
 
 	SetContext (ScanContext);
 	drawPlanetCursor (FALSE);
