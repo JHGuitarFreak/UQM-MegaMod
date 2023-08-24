@@ -909,7 +909,7 @@ DrawRadarArea (void)
 	DrawRadarBorder ();
 
 	if (optSubmenu)
-		DrawMineralHelpers (FALSE);
+		DrawMineralHelpers ();
 }
 
 static void
@@ -1670,8 +1670,14 @@ AnimateLanderWarmup (void)
 			&& GLOBAL_SIS (CrewEnlisted); ++num_crew)
 	{
 		animationInterframe (&TimeIn, 1);
-		
-		DeltaSISGauges (-1, 0, 0);
+
+		--GLOBAL_SIS (CrewEnlisted);
+
+		if (optSubmenu)
+			DrawMineralHelpers ();
+		else
+			DeltaSISGauges (UNDEFINED_DELTA, 0, 0);
+
 		DeltaLanderCrew (1, 0);
 	}
 
@@ -1741,7 +1747,7 @@ InitPlanetSide (POINT pt)
 		MapSurface = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
 
 		if (optSubmenu)
-			DrawMineralHelpers (FALSE);
+			DrawMineralHelpers ();
 	}
 	else
 	{
@@ -2500,7 +2506,7 @@ InitLander (BYTE LanderFlags)
 			ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 			capacity_shift = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
 			if (optSubmenu)
-				DrawMineralHelpers (FALSE);
+				DrawMineralHelpers ();
 		}
 		else
 		{
