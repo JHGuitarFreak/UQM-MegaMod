@@ -2690,9 +2690,7 @@ StarMap (void)
 	}
 
 	if (optSubmenu)
-	{
-		DrawSubmenu ("starmap", FALSE);
-	}
+		DrawStarmapHelper ();
 
 	DrawStarMap (0, (RECT*)-1);
 	transition_pending = FALSE;

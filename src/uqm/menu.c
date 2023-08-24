@@ -693,44 +693,6 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 }
 
 void
-DrawSubmenu (UNICODE *str, BOOLEAN cleanup)
-{
-	CONTEXT OldContext;
-	
-	OldContext = SetContext (StatusContext);
-
-	if (!cleanup)
-		DrawFlagStatDisplay (str);
-	else
-		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
-	
-	SetContext (OldContext);
-}
-
-static UNICODE *
-WholeFuelValue (void)
-{
-	static UNICODE buf[7];
-	DWORD CoarseFuel = GLOBAL_SIS (FuelOnBoard);
-
-	double dblFuelOnBoard = (double)CoarseFuel / FUEL_TANK_SCALE;
-
-	if (!optInfiniteFuel)
-	{
-		if (!optWholeFuel)
-			snprintf (buf, sizeof buf, "%u", CoarseFuel);
-		else if (dblFuelOnBoard > 999.99)
-			snprintf (buf, sizeof buf, "%.1f", dblFuelOnBoard);
-		else
-			snprintf (buf, sizeof buf, "%.2f", dblFuelOnBoard);
-	}
-	else
-		snprintf (buf, sizeof buf, "%s", STR_INFINITY_SIGN);
-
-	return buf;
-}
-
-void
 DrawMineralHelpers (void)
 {
 	CONTEXT OldContext;
