@@ -804,8 +804,18 @@ DrawMineralHelpers (void)
 	font_DrawText (&t);
 
 	t.baseline.y += leading;
-	snprintf (buf, sizeof (buf), "%u",
-			GetStorageBayCapacity () - GLOBAL_SIS (TotalElementMass));
+
+	if (GetStorageBayCapacity ())
+	{
+		snprintf (buf, sizeof (buf), "%g%%",
+				(float)GLOBAL_SIS (TotalElementMass)
+				/ (float)GetStorageBayCapacity () * 100);
+	}
+	else
+	{
+		snprintf (buf, sizeof (buf), "---");
+	}
+
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
