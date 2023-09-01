@@ -94,7 +94,7 @@ extern int ScreenHeight;
 /* Width of the space "window" (the left part of the screen) */
 #define SPACE_HEIGHT (SCREEN_HEIGHT - (SAFE_Y * 2))
 /* Height of the space "window" (the left part of the screen) */
-#define SIS_SCREEN_WIDTH (SPACE_WIDTH - (RES_SCALE (13) + SAFE_NUM (1)))
+#define SIS_SCREEN_WIDTH (SPACE_WIDTH - (RES_SCALE (13) + SAFE_NUM_SCL (1)))
 /* Width of the usable part of the space "window" */
 #define SIS_SCREEN_HEIGHT (SPACE_HEIGHT - RES_SCALE (13))
 /* Height of the usable part of the space "window" */
