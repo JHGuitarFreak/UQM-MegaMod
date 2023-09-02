@@ -1366,6 +1366,15 @@ DeltaSISGauges_resunitDelta (SIZE resunit_delta)
 	DrawStatusMessage (NULL);
 }
 
+static BOOLEAN
+isUndefinedDelta (SIZE size, SDWORD sdword, int integer)
+{
+
+	return ((size && sdword && integer) &&
+			(size == UNDEFINED_DELTA || sdword == UNDEFINED_DELTA ||
+			integer == UNDEFINED_DELTA));
+}
+
 void
 DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 {
@@ -1377,8 +1386,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	OldContext = SetContext (StatusContext);
 
 	BatchGraphics ();
-	if (crew_delta == UNDEFINED_DELTA && fuel_delta == UNDEFINED_DELTA
-			&& resunit_delta == UNDEFINED_DELTA)
+	if (isUndefinedDelta (crew_delta, fuel_delta, resunit_delta))
 	{
 		STAMP s;
 		s.origin.x = 0;
@@ -1415,8 +1423,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	DeltaSISGauges_crewDelta (crew_delta);
 	DeltaSISGauges_fuelDelta (fuel_delta);
 
-	if (crew_delta == UNDEFINED_DELTA && fuel_delta == UNDEFINED_DELTA
-			&& resunit_delta == UNDEFINED_DELTA)
+	if (isUndefinedDelta (crew_delta, fuel_delta, resunit_delta))
 	{
 		if(optWhichFonts == OPT_3DO)
 			DrawBorder (5);
