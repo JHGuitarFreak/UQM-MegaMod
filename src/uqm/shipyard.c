@@ -43,9 +43,9 @@
 #include "shipcont.h"
 
 // 3DO 4x3 hangar layout
-#	define HANGAR_SHIPS_ROW_3DO     4
-#	define HANGAR_Y_3DO  RES_SCALE (64)
-#	define HANGAR_DY_3DO RES_SCALE (44)
+#	define HANGAR_SHIPS_ROW_3DO  4
+#	define HANGAR_Y_3DO         64
+#	define HANGAR_DY_3DO        44
 
 const COORD hangar_x_coords_3do[HANGAR_SHIPS_ROW_3DO] =
 {
@@ -1490,12 +1490,6 @@ DMS_AddEscortShip (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		// Selected a ship to be inserted in an empty escort
 		// ship slot.
 		DMS_TryAddEscortShip (pMS);
-
-		if (IS_DOS)
-		{
-			DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA,
-					UNDEFINED_DELTA);
-		}
 	}
 	else if (dx || dy)
 	{
