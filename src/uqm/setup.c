@@ -149,6 +149,8 @@ LoadKernel (int argc, char *argv[])
 		loadAddon ("yellow-fried-hd");
 		if (optWindowType == 2)
 			classicPackPresent = loadAddon ("classic-pack");
+		else
+			classicPackPresent = FALSE;
 	}
 
 	if (IS_PAD && isAddonAvailable (THREEDO_MODE (IS_HD)))
