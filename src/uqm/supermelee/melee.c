@@ -410,7 +410,11 @@ QuickRepair (COUNT whichFrame, RECT *pRect)
 	GetContextClipRect (&OldRect);
 	SetContextClipRect (&r);
 
-	oldOrigin = SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
+	if (IS_PAD)
+		oldOrigin = SetContextOrigin (MAKE_POINT (r.corner.x, r.corner.y));
+	else
+		oldOrigin =
+				SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
 
 	DrawMeleeIcon (whichFrame);
 
