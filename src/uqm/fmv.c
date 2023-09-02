@@ -53,7 +53,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	if (isPC (optWhichIntro))
 	{
-		if (optWindowType == 1 || OutfitOrShipyard == 3)
+		if (IS_PAD || OutfitOrShipyard == 3)
 		{
 			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
 			FlushColorXForms ();

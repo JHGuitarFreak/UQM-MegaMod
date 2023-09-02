@@ -762,7 +762,7 @@ DrawFlagshipStats (void)
 	DWORD fuel;
 	SIZE base_y;
 
-	if (is3DO (optWhichFonts) || optWindowType == 1)
+	if (is3DO (optWhichFonts) || IS_PAD)
 		return;
 
 	/* collect stats */
