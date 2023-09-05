@@ -111,6 +111,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	r->extent.height = num_items * PC_MENU_HEIGHT + RES_SCALE (3);
 	
 	r->corner.y += DOS_NUM_SCL (1);
+	r->corner.y -= SAFE_NUM_SCL (4);
 
 	DrawPCMenuFrame (r);
 
@@ -148,7 +149,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 					s.origin = r->corner;
 
-					s.frame = SetAbsFrameIndex (BorderFrame, 26);
+					s.frame = SetAbsFrameIndex (BorderFrame, 22);
 					DrawStamp (&s);
 				}
 				else
@@ -705,6 +706,8 @@ DrawMineralHelpers (void)
 
 	OldContext = SetContext (StatusContext);
 
+	BatchGraphics ();
+
 	DrawFlagStatDisplay (GAME_STRING (STATUS_STRING_BASE + 6));
 
 	SetContextFont (TinyFont);
@@ -848,21 +851,6 @@ DrawBorder (BYTE Visible)
 	}
 	
 	SetContext (OldContext);
-}
-
-void
-DrawMeleeBorder (BYTE Visible)
-{
-	STAMP s;
-
-	s.origin.x = 0;
-	s.origin.y = 0;
-
-	if (IS_HD)
-	{
-		s.frame = SetAbsFrameIndex (HDBorderFrame, Visible);
-		DrawStamp (&s);
-	}
 }
 
 void

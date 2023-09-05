@@ -33,8 +33,8 @@ extern DWORD SeedRandomNumbers (void);
 
 typedef enum
 {
-	SPECIAL_BEVEL = 18,
-	THIN_INNER_BEVEL = 29,
+	SPECIAL_BEVEL = 14,
+	THIN_INNER_BEVEL = 25,
 	THICK_INNER_BEVEL = THIN_INNER_BEVEL + 8,
 	THIN_OUTER_BEVEL = THICK_INNER_BEVEL + 8,
 	THICK_OUTER_BEVEL = THIN_OUTER_BEVEL + 8
@@ -48,7 +48,6 @@ extern STAMP SaveContextFrame (const RECT *saveRect);
 
 extern DWORD get_fuel_to_sol (void);
 extern void DrawFlagStatDisplay (UNICODE *str);
-extern void DrawStarmapHelper (void);
 extern UNICODE *WholeFuelValue (void);
 
 #if defined(__cplusplus)

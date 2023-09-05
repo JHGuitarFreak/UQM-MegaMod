@@ -1902,7 +1902,7 @@ DoShipyard (MENU_STATE *pMS)
 			s.origin.y = 0;
 			s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 0);
 
-			if (!IS_PAD)
+			if (!(IS_PAD || classicPackPresent))
 			{
 				// PC hangar
 				// the PC ship dock needs to overwrite the border
@@ -1912,14 +1912,6 @@ DoShipyard (MENU_STATE *pMS)
 				r.corner.x -= RES_SCALE (1);
 				r.extent.width += RES_SCALE (2);
 				r.extent.height += RES_SCALE (1);
-
-				if (IS_HD && classicPackPresent)
-				{
-					r = old_r;
-					r.corner.x = 0;
-					r.extent.width = GetFrameWidth (s.frame);
-					r.extent.height += 16;
-				}
 
 				SetContextClipRect (&r);
 				DrawStamp (&s);
@@ -1932,7 +1924,12 @@ DoShipyard (MENU_STATE *pMS)
 				animatePowerLines (pMS);
 			}
 			else
+			{
 				DrawStamp (&s);
+
+				if (classicPackPresent)
+					animatePowerLines (pMS);
+			}
 			
 			if (isPC (optWhichFonts))
 				SetContextFont (TinyFont);

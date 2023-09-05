@@ -944,7 +944,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		DateToString (buf, sizeof buf,
 				pSD->month_index, pSD->day_index, pSD->year_index);
 		ClearSISRect (DRAW_SIS_DISPLAY);
-		DrawBorder (28);
+		DrawBorder (24);
 		DrawStatusMessage (buf);
 		UninitQueue (&GLOBAL (built_ship_q));
 
