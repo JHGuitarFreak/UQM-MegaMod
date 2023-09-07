@@ -300,46 +300,50 @@ hyperSpaceMusicSwitch (BYTE SpeciesID)
 
 int HyperRaceSOI;
 
+static void
+LoadBattleSong (void)
+{
+	if (inHyperSpace ())
+	{
+		if (SpaceMusicOK)
+		{
+			findRaceSOI ();
+			HyperRaceSOI = spaceMusicBySOI;
+			BattleRef =
+				LoadMusic (hyperSpaceMusicSwitch (HyperRaceSOI));
+		}
+		else
+		{
+			BattleRef = LoadMusic (HYPERSPACE_MUSIC);
+		}
+		inHSpace = 1;
+	}
+	else if (inQuasiSpace ())
+	{
+		BattleRef = LoadMusic (QUASISPACE_MUSIC);
+		inHSpace = 2;
+	}
+	else
+	{
+		if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
+		{
+			BattleRef = LoadMusic (BATTLE_MUSIC_SAMATRA);
+
+			if (BattleRef == 0)
+				BattleRef = LoadMusic (BATTLE_MUSIC);
+		}
+		else
+			BattleRef = LoadMusic (BATTLE_MUSIC);
+
+		inHSpace = 0;
+	}
+}
+
 void
 BattleSong (BOOLEAN DoPlay)
 {
 	if (BattleRef == 0)
-	{
-		if (inHyperSpace ())
-		{
-			if (SpaceMusicOK)
-			{
-				findRaceSOI ();
-				HyperRaceSOI = spaceMusicBySOI;
-				BattleRef =
-						LoadMusic (hyperSpaceMusicSwitch (HyperRaceSOI));
-			}
-			else
-			{
-				BattleRef = LoadMusic (HYPERSPACE_MUSIC);
-			}
-			inHSpace = 1;
-		}
-		else if (inQuasiSpace ())
-		{
-			BattleRef = LoadMusic (QUASISPACE_MUSIC);
-			inHSpace = 2;
-		}
-		else
-		{
-			if (LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
-			{
-				BattleRef = LoadMusic (BATTLE_MUSIC_SAMATRA);
-
-				if (BattleRef == 0)
-					BattleRef = LoadMusic (BATTLE_MUSIC);
-			}
-			else
-				BattleRef = LoadMusic (BATTLE_MUSIC);
-
-			inHSpace = 0;
-		}
-	}
+		LoadBattleSong ();
 
 	if (DoPlay)
 	{
