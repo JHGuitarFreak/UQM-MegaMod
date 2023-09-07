@@ -506,6 +506,12 @@ init_mmrnmhrm (void)
 		mmrnmhrm_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		mmrnmhrm_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
+	else
+	{
+		mmrnmhrm_desc.characteristics.max_thrust = MAX_THRUST;
+		mmrnmhrm_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		mmrnmhrm_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON;
+	}
 
 	mmrnmhrm_desc.uninit_func = uninit_mmrnmhrm;
 	mmrnmhrm_desc.preprocess_func = mmrnmhrm_preprocess;

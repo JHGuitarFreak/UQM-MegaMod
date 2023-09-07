@@ -542,6 +542,14 @@ init_androsynth (void)
 		androsynth_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		androsynth_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD >> 2;
 	}
+	else
+	{
+		androsynth_desc.characteristics.max_thrust = MAX_THRUST;
+		androsynth_desc.characteristics.thrust_increment =
+				THRUST_INCREMENT;
+		androsynth_desc.cyborg_control.WeaponRange =
+				LONG_RANGE_WEAPON >> 2;
+	}
 
 	androsynth_desc.preprocess_func = androsynth_preprocess;
 	androsynth_desc.postprocess_func = androsynth_postprocess;

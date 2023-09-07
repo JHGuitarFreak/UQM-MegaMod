@@ -30,6 +30,7 @@
 #include "status.h"
 #include "resinst.h"
 #include "sounds.h"
+#include "fmv.h"
 #include "libs/compiler.h"
 #include "libs/uio.h"
 #include "libs/file.h"
@@ -77,7 +78,6 @@ QUEUE disp_q;
 
 BOOLEAN solTexturesPresent;
 BOOLEAN SyreenVoiceFix;
-BOOLEAN comingFromInit;
 BOOLEAN EndlessSCLoaded;
 BYTE Rando;
 BOOLEAN HDPackPresent;
@@ -109,30 +109,27 @@ UninitPlayerInput (void)
 }
 
 BOOLEAN
-LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
+LoadKernel (int argc, char *argv[])
 {
-	if (!ReloadPackages)
-	{
-		InitSound (argc, argv);
-		InitVideoPlayer (TRUE);
+	InitSound (argc, argv);
+	InitVideoPlayer (TRUE);
 
-		ScreenContext = CreateContext ("ScreenContext");
-		if (ScreenContext == NULL)
-			return FALSE;
+	ScreenContext = CreateContext ("ScreenContext");
+	if (ScreenContext == NULL)
+		return FALSE;
 
-		Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP,
-					&screen_width, &screen_height));
-		if (Screen == NULL)
-			return FALSE;
+	Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP,
+				&screen_width, &screen_height));
+	if (Screen == NULL)
+		return FALSE;
 
-		SetContext (ScreenContext);
-		SetContextFGFrame (Screen);
-		SetContextOrigin (MAKE_POINT (0, 0));
+	SetContext (ScreenContext);
+	SetContextFGFrame (Screen);
+	SetContextOrigin (MAKE_POINT (0, 0));
 
-		hResIndex = (RESOURCE_INDEX) InitResourceSystem ();
-		if (hResIndex == 0)
-			return FALSE;
-	}
+	hResIndex = (RESOURCE_INDEX) InitResourceSystem ();
+	if (hResIndex == 0)
+		return FALSE;
 	
 	/* Load base content. */
 	if (loadIndices (contentDir) == 0)
@@ -150,8 +147,16 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		HDPackPresent = TRUE;
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
-		//classicPackPresent = loadAddon ("classic-pack");
+		if (optWindowType == 2)
+			classicPackPresent = loadAddon ("classic-pack");
+		else
+			classicPackPresent = FALSE;
 	}
+
+	if (IS_PAD && isAddonAvailable (THREEDO_MODE (IS_HD)))
+		loadAddon (THREEDO_MODE (IS_HD));
+	if (IS_DOS && isAddonAvailable (DOS_MODE (IS_HD)))
+		loadAddon (DOS_MODE (IS_HD));
 
 	usingSpeech = optSpeech;
 	if (optSpeech && !loadAddon ("3dovoice"))
@@ -209,7 +214,6 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		loadAddon ("automods-hd");
 	}
 
-
 	/* Now load the rest of the addons, in order. */
 	prepareAddons (optAddons);
 
@@ -223,15 +227,8 @@ LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages)
 		DestroyColorMap (ReleaseColorMap (ColorMapTab));
 	}
 
-	if (!ReloadPackages)
-	{
-		InitPlayerInput ();
-
-		GLOBAL (CurrentActivity) = (ACTIVITY)~0;
-	}
-
-	if (ReloadPackages)
-		optRequiresReload = FALSE;
+	InitPlayerInput ();
+	GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 
 	return TRUE;
 }
@@ -240,15 +237,17 @@ BOOLEAN
 InitContexts (void)
 {
 	RECT r;
+	CONTEXT oldContext;
 	
 	StatusContext = CreateContext ("StatusContext");
 	if (StatusContext == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
-	SetContext (StatusContext);
+	oldContext = SetContext (StatusContext);
 	SetContextFGFrame (Screen);
-	r.corner.x = SPACE_WIDTH;
-	r.corner.y = 0;
+	r.corner.x = SPACE_WIDTH + SAFE_X;
+	r.corner.y = SAFE_Y;
 	r.extent.width = STATUS_WIDTH;
 	r.extent.height = STATUS_HEIGHT;
 	SetContextClipRect (&r);
@@ -256,13 +255,17 @@ InitContexts (void)
 	SpaceContext = CreateContext ("SpaceContext");
 	if (SpaceContext == NULL)
 		return FALSE;
+	SetContext (oldContext);
+	AdvanceLoadProgress ();
 		
 	OffScreenContext = CreateContext ("OffScreenContext");
 	if (OffScreenContext == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	if (!InitQueue (&disp_q, MAX_DISPLAY_ELEMENTS, sizeof (ELEMENT)))
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	return TRUE;
 }
@@ -278,22 +281,27 @@ InitKernel (void)
 	StarConFont = LoadFont (STARCON_FONT);
 	if (StarConFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	TinyFont = LoadFont (TINY_FONT);
 	if (TinyFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	TinyFontBold = LoadFont (TINY_FONT_BOLD);
 	if (TinyFontBold == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	PlyrFont = LoadFont (PLAYER_FONT);
 	if (PlyrFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	BorderFrame = CaptureDrawable (LoadGraphic (BORDER_MASK_PMAP_ANIM));
 	if (BorderFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	if (HDPackPresent)
 	{
@@ -305,10 +313,12 @@ InitKernel (void)
 	ActivityFrame = CaptureDrawable (LoadGraphic (ACTIVITY_ANIM));
 	if (ActivityFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	if (HDPackPresent)
 	{ 
@@ -320,21 +330,26 @@ InitKernel (void)
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));
 	if (GameStrings == 0)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	MicroFont = LoadFont(MICRO_FONT);
 	if (MicroFont == NULL)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
 	if (MenuSounds == 0)
 		return FALSE;
+	AdvanceLoadProgress ();
 
 	InitStatusOffsets ();
 	InitSpace ();
+	AdvanceLoadProgress ();
 
 	return TRUE;
 }
@@ -440,4 +455,3 @@ uninitIO (void)
 	uio_closeRepository (repository);
 	uio_unInit ();
 }
-

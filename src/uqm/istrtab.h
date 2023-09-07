@@ -2,6 +2,7 @@
    should not be edited directly.  Modify the master resource list
    instead and regenerate. */
 
+#define ACCESSDATA_STRTAB "slides.accessdata"
 #define ACID_COLOR_TAB "planet.acid.colortable"
 #define ACID_XLAT_TAB "planet.acid.translatetable"
 #define ALGOLITE_RUINS_STRTAB "text.algoliteruins"
@@ -46,6 +47,7 @@
 #define DEIMOS_COLOR_TAB "planet.deimos.colortable"
 #define DESTROYED_BASE_STRTAB "text.destroyedbase"
 #define DRUMALLPRES_STRTAB "slides.drumall"
+#define RELOADPRES_STRTAB "slides.reload"
 #define DRUUGE_RUINS_STRTAB "text.sphere"
 #define DUST_COLOR_TAB "planet.dust.colortable"
 #define DUST_XLAT_TAB "planet.dust.translatetable"
@@ -131,6 +133,7 @@
 #define REDUX_XLAT_TAB "planet.redux.translatetable"
 #define RED_GAS_COLOR_TAB "planet.redgas.colortable"
 #define RED_GAS_XLAT_TAB "planet.redgas.translatetable"
+#define RELOADPRES_STRTAB "slides.reload"
 #define RUBY_COLOR_TAB "planet.ruby.colortable"
 #define RUBY_XLAT_TAB "planet.ruby.translatetable"
 #define RUINS_STRTAB "text.ruins"

@@ -379,6 +379,12 @@ init_zoqfotpik (void)
 		zoqfotpik_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		zoqfotpik_desc.cyborg_control.WeaponRange = MISSILE_RANGE_HD;
 	}
+	else
+	{
+		zoqfotpik_desc.characteristics.max_thrust = MAX_THRUST;
+		zoqfotpik_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		zoqfotpik_desc.cyborg_control.WeaponRange = MISSILE_RANGE;
+	}
 
 	zoqfotpik_desc.postprocess_func = zoqfotpik_postprocess;
 	zoqfotpik_desc.init_weapon_func = initialize_spit;

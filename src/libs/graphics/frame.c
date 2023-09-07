@@ -197,6 +197,21 @@ ClearDrawable (void)
 }
 
 void
+ClearScreen (void)
+{
+	RECT ValidRect;
+
+	if (!GraphicsSystemActive ())
+		return;
+
+	ValidRect.corner = MAKE_POINT (0, 0);
+	ValidRect.extent.width = ScreenWidth;
+	ValidRect.extent.height = ScreenHeight;
+
+	ClearBackGround (&ValidRect);
+}
+
+void
 DrawPoint (POINT *lpPoint)
 {
 	POINT origin;

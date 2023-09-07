@@ -24,6 +24,7 @@
 #include "libs/sndlib.h"
 #include "races.h"
 #include "globdata.h"
+#include "cons_res.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -46,6 +47,7 @@ typedef enum
 	MENU_SOUND_FAILURE,
 	MENU_SOUND_INVOKED,
 	MENU_SOUND_BUBBLEWARP,
+	MENU_SOUND_TEXT,
 } MENU_SOUND_EFFECT;
 
 extern SOUND MenuSounds;
@@ -64,8 +66,8 @@ typedef UWORD MENU_SOUND_FLAGS;
 #define MENU_SOUND_PAGEDOWN ((MENU_SOUND_FLAGS)(1 << 8))
 #define MENU_SOUND_DELETE   ((MENU_SOUND_FLAGS)(1 << 9))
 #define MENU_SOUND_ARROWS   (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_LEFT | MENU_SOUND_RIGHT)
-#define MENU_SOUND_PAGE		(MENU_SOUND_PAGEUP | MENU_SOUND_PAGEDOWN)
-#define MENU_SOUND_ACTION	(MENU_SOUND_SELECT | MENU_SOUND_CANCEL)
+#define MENU_SOUND_PAGE     (MENU_SOUND_PAGEUP | MENU_SOUND_PAGEDOWN)
+#define MENU_SOUND_ACTION   (MENU_SOUND_SELECT | MENU_SOUND_CANCEL)
 #define MENU_SOUND_NONE     ((MENU_SOUND_FLAGS)0)
 
 extern void SetMenuSounds (MENU_SOUND_FLAGS sound_0,
@@ -82,16 +84,6 @@ extern SoundPosition NotPositional (void);
 extern void UpdateSoundPositions (void);
 extern void FlushSounds (void);
 extern void RemoveSoundsForObject (ELEMENT *PosObj);
-
-// For music resume option
-extern DWORD MainMenuMusicPos;
-extern DWORD MeleeMenuMusicPos;
-extern DWORD StarBaseMusicPos;
-extern DWORD OutfitMusicPos;
-extern DWORD ShipyardMusicPos;
-extern DWORD CommMusicPos[NUM_CONVERSATIONS];
-extern DWORD SpaceMusicPos[NUM_SPECIES_ID];
-extern DWORD BattleRefPos[3];
 
 #if defined(__cplusplus)
 }

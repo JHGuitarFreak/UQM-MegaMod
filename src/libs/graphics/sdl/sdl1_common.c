@@ -77,13 +77,15 @@ TFB_PreQuit (void)
 }
 
 int
-TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *resFactor)
+TFB_ReInitGraphics (int driver, int flags, int width, int height,
+		unsigned int *resFactor, unsigned int *windowType)
 {
 	int result;
 	int togglefullscreen = 0;
 	char caption[200];
 
-	if (GfxFlags == (flags ^ TFB_GFXFLAGS_FULLSCREEN) &&
+	if ((GfxFlags == (flags ^ TFB_GFXFLAGS_FULLSCREEN) ||
+			GfxFlags == (flags ^ TFB_GFXFLAGS_EX_FULLSCREEN)) &&
 			driver == GraphicsDriver &&
 			width == ScreenWidthActual && height == ScreenHeightActual)
 	{
@@ -96,28 +98,32 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *
 	{
 #ifdef HAVE_OPENGL
 		result = TFB_GL_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen, *resFactor);
+				togglefullscreen, *resFactor, *windowType);
 #else
 		driver = TFB_GFXDRIVER_SDL_PURE;
 		log_add (log_Warning, "OpenGL support not compiled in,"
 				" so using pure SDL driver");
 		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen, *resFactor);
+				togglefullscreen, *resFactor, *windowType);
 #endif
 	}
 	else
 	{
 		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen, *resFactor);
+				togglefullscreen, *resFactor, *windowType);
 	}
 
 	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
+			UQM_PATCH_VERSION,
+			(*resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
 	SDL_WM_SetCaption (caption, NULL);
 
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+	{
 		SDL_ShowCursor (SDL_DISABLE);
+	}
 	else
 		SDL_ShowCursor (SDL_ENABLE);
 

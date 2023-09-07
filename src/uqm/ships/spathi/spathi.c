@@ -302,6 +302,12 @@ init_spathi (void)
 		spathi_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		spathi_desc.cyborg_control.WeaponRange = MISSILE_RANGE_HD;
 	}
+	else
+	{
+		spathi_desc.characteristics.max_thrust = MAX_THRUST;
+		spathi_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		spathi_desc.cyborg_control.WeaponRange = MISSILE_RANGE;
+	}
 
 	spathi_desc.postprocess_func = spathi_postprocess;
 	spathi_desc.init_weapon_func = initialize_standard_missile;

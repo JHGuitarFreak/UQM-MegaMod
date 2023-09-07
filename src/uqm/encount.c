@@ -514,7 +514,8 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 			RepairPickFrame (&r2, 1);
 		}
 
-		SetContextForeGroundColor (fade_cycle[fade_in ? i : (NUM_FADES - i - 1)]);
+		SetContextForeGroundColor (
+				fade_cycle[fade_in ? i : (SIZE)(NUM_FADES - i - 1)]);
 		font_DrawText (&t1);
 		font_DrawText (&t2);
 		SleepThreadUntil (TimeIn + (ONE_SECOND / 20));

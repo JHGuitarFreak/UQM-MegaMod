@@ -55,83 +55,85 @@ int optMeleeScale;
 const char **optAddons;
 
 unsigned int loresBlowupScale;
-unsigned int resolutionFactor;
+int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 
 // Added options
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;
-BOOLEAN optCheatMode;
+OPT_ENABLABLE optCheatMode;
 int optGodModes;
 int timeDilationScale;
-BOOLEAN optBubbleWarp;
-BOOLEAN optUnlockShips;
-BOOLEAN optHeadStart;
-BOOLEAN optUnlockUpgrades;
-BOOLEAN optInfiniteRU;
+OPT_ENABLABLE optBubbleWarp;
+OPT_ENABLABLE optUnlockShips;
+OPT_ENABLABLE optHeadStart;
+OPT_ENABLABLE optUnlockUpgrades;
+OPT_ENABLABLE optInfiniteRU;
 DWORD oldRU;
-BOOLEAN optSkipIntro;
-BOOLEAN optMainMenuMusic;
-BOOLEAN optNebulae;
-BOOLEAN optOrbitingPlanets;
-BOOLEAN optTexturedPlanets;
+OPT_ENABLABLE optSkipIntro;
+OPT_ENABLABLE optMainMenuMusic;
+OPT_ENABLABLE optNebulae;
+OPT_ENABLABLE optOrbitingPlanets;
+OPT_ENABLABLE optTexturedPlanets;
 int optDateFormat;
-BOOLEAN optInfiniteFuel;
+OPT_ENABLABLE optInfiniteFuel;
 DWORD loadFuel;
-BOOLEAN optPartialPickup;
-BOOLEAN optSubmenu;
-BOOLEAN optAddDevices;
+OPT_ENABLABLE optPartialPickup;
+OPT_ENABLABLE optSubmenu;
+OPT_ENABLABLE optAddDevices;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
-BOOLEAN optCustomBorder;
+OPT_ENABLABLE optCustomBorder;
 int optCustomSeed;
 int spaceMusicBySOI;
-BOOLEAN optSpaceMusic;
-BOOLEAN optVolasMusic;
-BOOLEAN optWholeFuel;
-BOOLEAN optDirectionalJoystick;
+OPT_ENABLABLE optSpaceMusic;
+OPT_ENABLABLE optVolasMusic;
+OPT_ENABLABLE optWholeFuel;
+OPT_ENABLABLE optDirectionalJoystick;
 int optLanderHold;
 int optScrTrans;
 int optDifficulty;
+int optDiffChooser;
 int optFuelRange;
-BOOLEAN optExtended;
-BOOLEAN optNomad;
-BOOLEAN optGameOver;
-BOOLEAN optShipDirectionIP;
-BOOLEAN optHazardColors;
-BOOLEAN optOrzCompFont;
+OPT_ENABLABLE optExtended;
+OPT_ENABLABLE optNomad;
+OPT_ENABLABLE optGameOver;
+OPT_ENABLABLE optShipDirectionIP;
+OPT_ENABLABLE optHazardColors;
+OPT_ENABLABLE optOrzCompFont;
 int optControllerType;
-BOOLEAN optSmartAutoPilot;
+OPT_ENABLABLE optSmartAutoPilot;
 int optTintPlanSphere;
 int optPlanetStyle;
 int optStarBackground;
 int optScanStyle;
-BOOLEAN optNonStopOscill;
+OPT_ENABLABLE optNonStopOscill;
 int optScopeStyle;
 int optSuperPC;
-BOOLEAN optHyperStars;
-BOOLEAN optPlanetTexture;
+OPT_ENABLABLE optHyperStars;
+OPT_ENABLABLE optPlanetTexture;
 int optFlagshipColor;
-BOOLEAN optNoHQEncounters;
-BOOLEAN optDeCleansing;
-BOOLEAN optMeleeObstacles;
-BOOLEAN optShowVisitedStars;
-BOOLEAN optUnscaledStarSystem;
+OPT_ENABLABLE optNoHQEncounters;
+OPT_ENABLABLE optDeCleansing;
+OPT_ENABLABLE optMeleeObstacles;
+OPT_ENABLABLE optShowVisitedStars;
+OPT_ENABLABLE optUnscaledStarSystem;
 int optScanSphere;
 int optNebulaeVolume;
-BOOLEAN optSlaughterMode;
+OPT_ENABLABLE optSlaughterMode;
 BOOLEAN optMaskOfDeceit;
-BOOLEAN optAdvancedAutoPilot;
-BOOLEAN optMeleeToolTips;
-BOOLEAN optMusicResume;
+OPT_ENABLABLE optAdvancedAutoPilot;
+OPT_ENABLABLE optMeleeToolTips;
+OPT_ENABLABLE optMusicResume;
+DWORD optWindowType;
 
-BOOLEAN opt3doMusic;
-BOOLEAN optRemixMusic;
-BOOLEAN optSpeech;
-BOOLEAN optSubtitles;
-BOOLEAN optStereoSFX;
-BOOLEAN optKeepAspectRatio;
+OPT_ENABLABLE opt3doMusic;
+OPT_ENABLABLE optRemixMusic;
+OPT_ENABLABLE optSpeech;
+OPT_ENABLABLE optSubtitles;
+OPT_ENABLABLE optStereoSFX;
+OPT_ENABLABLE optKeepAspectRatio;
 float optGamma;
 uio_DirHandle *contentDir;
 uio_DirHandle *configDir;
@@ -140,7 +142,13 @@ uio_DirHandle *meleeDir;
 uio_DirHandle *scrShotDir;
 uio_MountHandle* contentMountHandle;
 
+char *contentDirPath;
+char *addonDirPath;
+
 char baseContentPath[PATH_MAX];
+
+// addon availability
+ADDON_COUNT addonList;
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;
@@ -262,8 +270,16 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 	log_add (log_Debug, "Using '%s' as base content dir.", baseContentPath);
 	contentMountHandle = mountContentDir (repository, baseContentPath);
 
+	if (contentDirName && contentDirPath == NULL)
+		contentDirPath = contentDirName;
+
 	if (addonDirName)
+	{
+		if (addonDirPath == NULL)
+			addonDirPath = addonDirName;
+
 		log_add (log_Debug, "Using '%s' as addon dir.", addonDirName);
+	}
 	mountAddonDir (repository, contentMountHandle, addonDirName);
 
 #ifndef __APPLE__
@@ -530,6 +546,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		log_add (log_Info, "%d available addon pack%s.", count,
 				count == 1 ? "" : "s");
 
+		addonList.amount = count;
+
 		count = 0;
 		for (i = 0; i < availableAddons->numNames; ++i)
 		{
@@ -542,6 +560,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
+
+			addonList.name_hash[i] = crc32b (addon);
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
@@ -563,6 +583,24 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 
 	uio_DirList_free (availableAddons);
 	uio_closeDir (addonsDir);
+}
+
+BOOLEAN
+isAddonAvailable (const char *addon_name)
+{
+	COUNT i;
+	DWORD name_hash = crc32b (addon_name);
+
+	if (!name_hash)
+		return FALSE;
+
+	for (i = 0; i < addonList.amount; i++)
+	{
+		if (addonList.name_hash[i] == name_hash)
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 static void

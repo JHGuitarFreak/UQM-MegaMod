@@ -98,7 +98,7 @@ ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
 }
 
 static int
-AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFactor)
+AttemptColorDepth (int flags, int width, int height, int bpp, int resFactor)
 {
 	SDL_Surface *SDL_Video;
 	int videomode_flags;
@@ -138,11 +138,15 @@ AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFa
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
 
 	videomode_flags = SDL_OPENGL;
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+	{
 		videomode_flags |= SDL_FULLSCREEN;
+	}
 	videomode_flags |= SDL_ANYFORMAT;
 
-	if (resFactor == HD && flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (resFactor == HD && (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN))
 	{
 		height = fs_height;
 		width  = fs_width;
@@ -161,7 +165,8 @@ AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFa
 				ScreenWidthActual, ScreenHeightActual, bpp,
 				SDL_GetError ());
 
-		if (flags & TFB_GFXFLAGS_FULLSCREEN)
+		if (flags & TFB_GFXFLAGS_FULLSCREEN
+				|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
 		{
 			videomode_flags &= ~SDL_FULLSCREEN;
 			log_add (log_Error, "Falling back to windowed mode!!");
@@ -193,7 +198,8 @@ AttemptColorDepth (int flags, int width, int height, int bpp, unsigned int resFa
 }
 
 int
-TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor)
+TFB_GL_ConfigureVideo (int driver, int flags, int width, int height,
+		int togglefullscreen, int resFactor)
 {
 	int i, texture_width, texture_height;
 	GraphicsDriver = driver;
@@ -303,7 +309,8 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 }
 
 int
-TFB_GL_InitGraphics (int driver, int flags, int width, int height, unsigned int resFactor)
+TFB_GL_InitGraphics (int driver, int flags, int width, int height,
+		unsigned int resFactor, unsigned int windowType)
 {
 	char VideoName[256];
 
@@ -315,7 +322,7 @@ TFB_GL_InitGraphics (int driver, int flags, int width, int height, unsigned int 
 	log_add (log_Info, "Initializing Screen.");
 
 	ScreenWidth = (320 << resFactor);
-	ScreenHeight = (240 << resFactor);
+	ScreenHeight = ((windowType ? 240 : 200) << resFactor);
 
 	if (TFB_GL_ConfigureVideo (driver, flags, width, height, 0, resFactor))
 	{

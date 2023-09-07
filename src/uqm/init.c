@@ -35,6 +35,8 @@
 #include "setup.h"
 #include "units.h"
 #include "intel.h"
+#include "master.h"
+#include "libs/input/input_common.h"
 
 
 FRAME stars_in_space;
@@ -119,19 +121,22 @@ static BYTE space_ini_cnt;
 BOOLEAN
 InitSpace (void)
 {
-	if (space_ini_cnt++ == 0
+	if ((space_ini_cnt++ == 0
 			&& LOBYTE (GLOBAL (CurrentActivity)) <= IN_ENCOUNTER)
+			|| optRequiresReload)
 	{
 		stars_in_space = CaptureDrawable (
 				LoadGraphic (STAR_MASK_PMAP_ANIM));
 		if (stars_in_space == NULL)
 			return FALSE;
 
-		misc_in_space = CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
+		misc_in_space =
+				CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
 
 		if (IS_HD)
 		{
-			StarPoints = CaptureDrawable (LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
+			StarPoints = CaptureDrawable (
+					LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
 			if (StarPoints == NULL)
 				return FALSE;
 			
@@ -238,8 +243,8 @@ InitShips (void)
 		RECT r;
 
 		SetContextFGFrame (Screen);
-		r.corner.x = 0;
-		r.corner.y = 0;
+		r.corner.x = SAFE_X;
+		r.corner.y = SAFE_Y;
 		r.extent.width = SPACE_WIDTH;
 		r.extent.height = SPACE_HEIGHT;
 		SetContextClipRect (&r);
@@ -383,4 +388,23 @@ UninitShips (void)
 	}
 }
 
+void
+ReloadGameContent (void)
+{
+	//FreeKernel (); Crashes when going from HD to SD
+	UninitGameStructures ();
+	ClearPlayerInputAll ();
+	UninitGameKernel ();
+	FreeMasterShipList ();
+	TFB_UninitInput ();
 
+	prepareContentDir (contentDirPath, addonDirPath, 0);
+
+	if (LoadKernel (0, 0))
+	{
+		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+		LoadMasterShipList (TaskSwitch);
+		TaskSwitch ();
+		InitGameKernel ();
+	}
+}

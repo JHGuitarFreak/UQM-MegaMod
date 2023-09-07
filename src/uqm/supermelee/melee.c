@@ -82,9 +82,9 @@ enum
 	LOAD_BOT,
 	SAVE_BOT,
 	CONTROLS_BOT,
-#ifdef NETPLAY
-	NET_BOT,
-#endif
+//#ifdef NETPLAY
+//	NET_BOT,
+//#endif
 	QUIT_BOT,
 	EDIT_MELEE, // Editing a fleet or the team name
 	BUILD_PICK  // Selecting a ship to add to a fleet
@@ -97,8 +97,8 @@ enum
 #endif
 
 // Top Melee Menu
-#define MELEE_X_OFFS RES_SCALE (2)
-#define MELEE_Y_OFFS RES_SCALE (22)
+#define MELEE_X_OFFS RES_SCALE (2 + DOS_NUM (2))
+#define MELEE_Y_OFFS RES_SCALE (22 - DOS_NUM (1))
 #define MELEE_BOX_WIDTH RES_SCALE (34)
 #define MELEE_BOX_HEIGHT RES_SCALE (34)
 #define MELEE_BOX_SPACE RES_SCALE (1)
@@ -120,7 +120,7 @@ enum
 #define RACE_INFO_ORIGIN_Y (SHIP_INFO_HEIGHT + RES_SCALE (6))
 #define RACE_INFO_HEIGHT ((STATUS_HEIGHT - RES_SCALE (3)) - RACE_INFO_ORIGIN_Y)
 
-#define MELEE_STATUS_X_OFFS RES_SCALE (1)
+#define MELEE_STATUS_X_OFFS (RES_SCALE (1))
 #define MELEE_STATUS_Y_OFFS RES_SCALE (201)
 #define MELEE_STATUS_WIDTH  (NUM_MELEE_COLUMNS * \
 		(MELEE_BOX_WIDTH + MELEE_BOX_SPACE))
@@ -164,8 +164,12 @@ enum
 
 #define TEAM_NAME_TEXT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x0F, 0x10, 0x1B), 0x00)
+#define TEAM_NAME_TEXT_COLOR_DOS \
+		BUILD_COLOR_RGBA (0xAA, 0x00, 0x00, 0xFF)
 #define TEAM_NAME_EDIT_TEXT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x17, 0x18, 0x1D), 0x00)
+#define TEAM_NAME_EDIT_TEXT_COLOR_DOS \
+		BUILD_COLOR_RGBA (0xFF, 0x55, 0xFF, 0xFF)
 #define TEAM_NAME_EDIT_RECT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x14, 0x00, 0x14), 0x05)
 #define TEAM_NAME_EDIT_CURS_COLOR \
@@ -268,7 +272,7 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 
 	BatchGraphics ();
 	if (IS_HD)
-	{// Draw prerendered rectangles in HD
+	{	// Draw prerendered rectangles in HD
 		STAMP s;
 #define HD_SHIPBOX_START_INDEX 44
 
@@ -283,12 +287,14 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 			DrawStarConBox (&r, 1,
 					SHIPBOX_TOPLEFT_COLOR_HILITE,
 					SHIPBOX_BOTTOMRIGHT_COLOR_HILITE,
-					FilledSlot, SHIPBOX_INTERIOR_COLOR_HILITE);
+					FilledSlot, SHIPBOX_INTERIOR_COLOR_HILITE, FALSE,
+					TRANSPARENT);
 		else
 			DrawStarConBox (&r, 1,
 					SHIPBOX_TOPLEFT_COLOR_NORMAL,
 					SHIPBOX_BOTTOMRIGHT_COLOR_NORMAL,
-					FilledSlot, SHIPBOX_INTERIOR_COLOR_NORMAL);
+					FilledSlot, SHIPBOX_INTERIOR_COLOR_NORMAL, FALSE,
+					TRANSPARENT);
 	}
 
 	if (FilledSlot)
@@ -376,6 +382,10 @@ DrawTeams (void)
 		{
 			MeleeShip ship = MeleeSetup_getShip(pMeleeState->meleeSetup,
 					side, index);
+
+			if (index == TRUE_MELEE_FLEET_SIZE)
+				break;
+
 			DrawShipBox (side, index, ship, FALSE);
 		}
 
@@ -400,7 +410,11 @@ QuickRepair (COUNT whichFrame, RECT *pRect)
 	GetContextClipRect (&OldRect);
 	SetContextClipRect (&r);
 
-	oldOrigin = SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
+	if (IS_PAD)
+		oldOrigin = SetContextOrigin (MAKE_POINT (r.corner.x, r.corner.y));
+	else
+		oldOrigin =
+				SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
 
 	DrawMeleeIcon (whichFrame);
 
@@ -417,8 +431,8 @@ RepairMeleeFrame (const RECT *pRect)
 	RECT OldRect;
 	POINT oldOrigin;
 
-	r.corner.x = pRect->corner.x;
-	r.corner.y = pRect->corner.y;
+	r.corner.x = pRect->corner.x + SAFE_X;
+	r.corner.y = pRect->corner.y + SAFE_Y;
 	r.extent = pRect->extent;
 	if (r.corner.y & 1)
 	{
@@ -430,13 +444,14 @@ RepairMeleeFrame (const RECT *pRect)
 	GetContextClipRect (&OldRect);
 	SetContextClipRect (&r);
 	// Offset the origin so that we draw the correct gfx in the cliprect
-	oldOrigin = SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
+	oldOrigin = SetContextOrigin (MAKE_POINT (-r.corner.x + SAFE_X,
+			-r.corner.y + SAFE_Y));
 	BatchGraphics ();
 
 	DrawMeleeIcon (0);   /* Entire melee screen */
 #ifdef NETPLAY
 	DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
-	DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
+	//DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
 #endif
 	DrawMeleeIcon (26);  /* "Battle!" (highlighted) */
 
@@ -449,6 +464,8 @@ RepairMeleeFrame (const RECT *pRect)
 	SetContextOrigin (oldOrigin);
 	SetContextClipRect (&OldRect);
 	SetContext (OldContext);
+
+	DrawBorderPadding (0);
 }
 
 static void
@@ -531,7 +548,9 @@ DrawFleetValue (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState)
 	rtText.baseline.x = r.corner.x + r.extent.width;
 
 	SetContextForeGroundColor (!(HiLiteState & DTSHS_SELECTED)
-			? TEAM_NAME_TEXT_COLOR : TEAM_NAME_EDIT_TEXT_COLOR);
+			? DOS_BOOL (TEAM_NAME_TEXT_COLOR, TEAM_NAME_TEXT_COLOR_DOS)
+			: DOS_BOOL (TEAM_NAME_EDIT_TEXT_COLOR,
+				TEAM_NAME_EDIT_TEXT_COLOR_DOS));
 	font_DrawText (&rtText);
 }
 
@@ -563,7 +582,9 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 	if (!(HiLiteState & DTSHS_EDIT))
 	{	// normal or selected state
 		SetContextForeGroundColor (!(HiLiteState & DTSHS_SELECTED)
-				? TEAM_NAME_TEXT_COLOR : TEAM_NAME_EDIT_TEXT_COLOR);
+				? DOS_BOOL (TEAM_NAME_TEXT_COLOR, TEAM_NAME_TEXT_COLOR_DOS)
+				: DOS_BOOL (TEAM_NAME_EDIT_TEXT_COLOR,
+					TEAM_NAME_EDIT_TEXT_COLOR_DOS));
 		font_DrawText (&lfText);
 	}
 	else
@@ -646,7 +667,8 @@ DrawTeamString (MELEE_STATE *pMS, COUNT side, COUNT HiLiteState,
 
 		SetCursorRect (&text_r, SpaceContext);
 
-		SetContextForeGroundColor (BLACK_COLOR); // TEAM_NAME_EDIT_TEXT_COLOR);
+		SetContextForeGroundColor (DOS_BOOL (BLACK_COLOR,
+				TEAM_NAME_EDIT_TEXT_COLOR_DOS));
 		font_DrawText (&lfText);
 	}
 	UnbatchGraphics ();
@@ -804,9 +826,9 @@ Deselect (BYTE opt)
 		case NET_TOP:
 			DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
 			break;
-		case NET_BOT:
-			DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
-			break;
+		//case NET_BOT:
+		//	DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
+		//	break;
 #endif
 		case QUIT_BOT:
 			DrawMeleeIcon (33);  /* "Quit" (not highlighted) */
@@ -869,9 +891,9 @@ Select (BYTE opt)
 		case NET_TOP:
 			DrawMeleeIcon (40);  /* "Net..." (top; highlighted) */
 			break;
-		case NET_BOT:
-			DrawMeleeIcon (42);  /* "Net..." (bottom; highlighted) */
-			break;
+		//case NET_BOT:
+		//	DrawMeleeIcon (42);  /* "Net..." (bottom; highlighted) */
+		//	break;
 #endif
 		case QUIT_BOT:
 			DrawMeleeIcon (34);  /* "Quit" (highlighted) */
@@ -944,10 +966,10 @@ InitMelee (MELEE_STATE *pMS)
 	SetContextClipRect (NULL);
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
-	r.corner.x = 0;
-	r.corner.y = 0;
-	r.extent.width = SCREEN_WIDTH;
-	r.extent.height = SCREEN_HEIGHT;
+	r.corner.x = SAFE_X;
+	r.corner.y = SAFE_Y;
+	r.extent.width = SCREEN_WIDTH - (SAFE_X << 1);
+	r.extent.height = SCREEN_HEIGHT - (SAFE_Y << 1);
 	SetContextClipRect (&r);
 
 	r.corner.x = r.corner.y = 0;
@@ -965,7 +987,7 @@ DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&OldRect);
 	r = OldRect;
-	r.corner.x += -RES_SCALE (32) + MENU_X_OFFS;
+	r.corner.x -= NSAFE_NUM_SCL (3);
 	r.corner.y += RES_SCALE (76);
 	r.extent.height = SHIP_INFO_HEIGHT;
 	SetContextClipRect (&r);
@@ -1558,9 +1580,7 @@ StartMelee (MELEE_STATE *pMS)
 				+ ONE_SECOND / 60);
 		FlushColorXForms ();
 
-		if (optMusicResume)
-			MeleeMenuMusicPos = PLRGetPos ();
-
+		SetMusicPosition ();
 		StopMusic ();
 	}
 	FadeMusic (NORMAL_VOLUME, 0);
@@ -1872,7 +1892,7 @@ nextControlType (COUNT which_side)
 static MELEE_OPTIONS
 MeleeOptionDown (MELEE_OPTIONS current) {
 	if (current == QUIT_BOT)
-		return QUIT_BOT;
+		return TOP_ENTRY;
 	return current + 1;
 }
 
@@ -1880,7 +1900,7 @@ static MELEE_OPTIONS
 MeleeOptionUp (MELEE_OPTIONS current)
 {
 	if (current == TOP_ENTRY)
-		return TOP_ENTRY;
+		return QUIT_BOT;
 	return current - 1;
 }
 
@@ -1911,7 +1931,7 @@ MeleeOptionSelect (MELEE_STATE *pMS)
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-		case NET_BOT:
+		//case NET_BOT:
 		{
 			COUNT which_side;
 			BOOLEAN confirmed;
@@ -1959,22 +1979,24 @@ DoMelee (MELEE_STATE *pMS)
 			DestroyMusic (pMS->hMusic);
 			pMS->hMusic = 0;
 		}
-		pMS->hMusic = LoadMusic (MELEE_MUSIC);
+		pMS->hMusic = 0;
 		pMS->Initialized = TRUE;
 		
 		pMS->MeleeOption = START_MELEE;
 
 		if (optMainMenuMusic)
 		{
-			if (optMusicResume && MeleeMenuMusicPos > 0)
+			pMS->hMusic = LoadMusic (MELEE_MUSIC);
+			SetMusicVolume (MUTE_VOLUME);
+			PlayMusic (pMS->hMusic, TRUE, 1);
+
+			if (OkayToResume ())
 			{
-				FadeMusic (MUTE_VOLUME, 0);
-				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (MeleeMenuMusicPos);
+				SeekMusic (GetMusicPosition ());
 				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 			}
 			else
-				PlayMusic (pMS->hMusic, TRUE, 1);
+				SetMusicVolume (NORMAL_VOLUME);
 		}
 
 		InitMelee (pMS);
@@ -2445,6 +2467,7 @@ Melee_Change_ship (MELEE_STATE *pMS, COUNT side, FleetShipIndex index,
 	if (!MeleeSetup_setShip (pMS->meleeSetup, side, index, ship))
 	{
 		// No change.
+		Melee_UpdateView_ship (pMS, side, index);
 		return false;
 	}
 

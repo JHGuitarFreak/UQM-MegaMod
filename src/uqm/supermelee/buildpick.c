@@ -102,7 +102,15 @@ RepairBuildPickFrame (RECT *pRect, POINT *origin)
 	OldContext = SetContext (SpaceContext);
 	GetContextClipRect (&OldRect);
 	SetContextClipRect (&r);
-	oldOrigin = SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
+	if (IS_PAD)
+	{
+		oldOrigin = SetContextOrigin (MAKE_POINT (r.corner.x, r.corner.y));
+	}
+	else
+	{
+		oldOrigin =
+				SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
+	}
 
 	s.origin.x = pRect->corner.x;
 	s.origin.y = pRect->corner.y;
@@ -295,6 +303,8 @@ DoPickShip (MELEE_STATE *pMS)
 	if (PulsedInputState.menu[KEY_MENU_SPECIAL]
 			&& (pMS->currentShip != MELEE_NONE))
 	{
+		if (isPC (optWhichIntro))
+			PlayMenuSound (MENU_SOUND_SUCCESS);
 		// Show ship spin video.
 		DoShipSpin (pMS->currentShip, pMS->hMusic);
 

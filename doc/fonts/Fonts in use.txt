@@ -7,6 +7,8 @@ Credits            = OPTICirrus Bold (Modded)  - Defunct                 -> http
 Commander          = UQM Commander Regular     - CC BY-NC-SA 2.5         -> https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts
 Computer           = DJB Get Digital           - Free for personal use   -> https://www.dafont.com/djb-get-digital.font
 Druuge             = UQM Micro Regular         - CC BY-NC-SA 2.5         -> https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts
+DOS Ship Descs.    = UQM Micro Thin            - CC BY-NC-SA 2.5         -> https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts
+DOS Ship Descs.    = UQM Tiny Condensed        - CC BY-NC-SA 2.5         -> https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts
 GAME PAUSED text   = UQM Load Menu Labels Reg. - CC BY-NC-SA 2.5         -> https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts
 Ilwrath            = Times Old Attic (Modded)  - Free for commercial use -> https://www.1001fonts.com/times-old-attic-font.html
 Intro Card 1 [1st] = Nimbus Roman No. 9 L      - GPL Version 2           -> https://git.ghostscript.com/?p=user/tor/urw-base-12.git;a=tree

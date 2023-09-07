@@ -436,6 +436,13 @@ init_slylandro (void)
 		slylandro_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		slylandro_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD << 1;
 	}
+	else
+	{
+		slylandro_desc.characteristics.max_thrust = MAX_THRUST;
+		slylandro_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		slylandro_desc.cyborg_control.WeaponRange =
+				CLOSE_RANGE_WEAPON << 1;
+	}
 
 	slylandro_desc.preprocess_func = slylandro_preprocess;
 	slylandro_desc.postprocess_func = slylandro_postprocess;

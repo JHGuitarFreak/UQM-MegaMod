@@ -661,11 +661,11 @@ OutTakes (void)
 		ARILOU_CONVERSATION
 	};
 
-	BOOLEAN oldsubtitles = optSubtitles;
+	BOOLEAN oldsubtitles = (BOOLEAN)optSubtitles;
 	int i = 0;
 
 	// Outtakes have no voice tracks, so the subtitles are always on
-	optSubtitles = TRUE;
+	optSubtitles = OPTVAL_ENABLED;
 	sliderDisabled = TRUE;
 	oscillDisabled = TRUE;
 
@@ -676,7 +676,7 @@ OutTakes (void)
 		InitCommunication (outtake_list[i]);
 	}
 
-	optSubtitles = oldsubtitles;
+	optSubtitles = (OPT_ENABLABLE)oldsubtitles;
 	sliderDisabled = FALSE;
 	oscillDisabled = FALSE;
 }

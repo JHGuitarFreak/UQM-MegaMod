@@ -1896,7 +1896,8 @@ init_starbase_comm ()
 			// generalised in the future.
 
 	commander_desc.AlienTextWidth = RES_SCALE (143);
-	commander_desc.AlienTextBaseline.x = RES_SCALE (164);
+	commander_desc.AlienTextBaseline.x = RES_SCALE (164)
+			- (SAFE_NEG (2) * 2);
 	commander_desc.AlienTextBaseline.y = RES_SCALE (20);
 
 	// use alternate Starbase track if available

@@ -949,6 +949,12 @@ init_sis (void)
 		sis_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		sis_desc.cyborg_control.WeaponRange = BLASTER_SPEED_HD * BLASTER_LIFE;
 	}
+	else
+	{
+		sis_desc.characteristics.max_thrust = MAX_THRUST;
+		sis_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		sis_desc.cyborg_control.WeaponRange = BLASTER_SPEED * BLASTER_LIFE;
+	}
 
 	/* copy initial ship settings to new_sis_desc */
 	new_sis_desc = sis_desc;

@@ -88,7 +88,7 @@ typedef struct _widget_choice {
 	const char *category;
 	int numopts;
 	CHOICE_OPTION *options;
-	int selected, highlighted;
+	int selected, highlighted, choice_num;
 	void (*onChange)(struct _widget_choice *self, int oldval);
 } WIDGET_CHOICE;
 
@@ -129,6 +129,7 @@ typedef struct _widget_slider {
 	int value;
 	const char *category;
 	const char *tooltip[3];
+	void (*onChange)(struct _widget_slider *self);
 } WIDGET_SLIDER;
 
 typedef enum {

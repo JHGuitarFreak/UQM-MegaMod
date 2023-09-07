@@ -22,9 +22,35 @@
 #include "tfb_prim.h"
 #include "libs/log.h"
 #include "uqm/units.h"
+#include "uqm/sounds.h"
+#include "uqm/controls.h"
+
+#include "uqm/setup.h"
 
 static inline TFB_Char *getCharFrame (FONT_DESC *fontPtr, UniChar ch);
 
+TFB_Char*
+GetFrameForFPS (UniChar ch)
+{
+	if (StarConFont && !(GLOBAL (CurrentActivity) & CHECK_ABORT))
+		return getCharFrame (StarConFont, ch);
+	else
+		return NULL;
+}
+
+BOOLEAN
+GoodToGoFPS (void)
+{
+	return (StarConFont && !(GLOBAL (CurrentActivity) & CHECK_ABORT)
+			&& !optRequiresReload);
+}
+
+void
+GetFontDims (SIZE *w, SIZE *h)
+{
+	*w = (SIZE)StarConFont->disp.width;
+	*h = (SIZE)StarConFont->disp.height;
+}
 
 FONT
 SetContextFont (FONT Font)
@@ -91,6 +117,24 @@ font_DrawText (TEXT *lpText)
 		return;
 	// ClipRect is relative to origin
 	_text_blt (&ClipRect, &text, origin);
+}
+
+void
+font_DrawText_Fade (TEXT *lpText, FRAME repair, BOOLEAN *skip)
+{
+	RECT ClipRect;
+	POINT origin;
+	TEXT text;
+
+	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
+		return;
+
+	// TextRect() clobbers TEXT.CharCount so we have to make a copy
+	text = *lpText;
+	if (!TextRect (&text, &ClipRect, NULL))
+		return;
+	// ClipRect is relative to origin
+	_text_blt_fade (&ClipRect, &text, origin, repair, skip);
 }
 
 /* Draw the stroke by drawing the same text in the
@@ -290,7 +334,12 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 				if (num_chars && FontPtr->KernTab[ch]
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
+				{
 					width -= FontPtr->KernAmount;
+
+					//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+					//		FontPtr->KernTab[next_ch] >> 2, next_ch);
+				}
 			}
 
 			*pdelta++ = (BYTE)(width - last_width);
@@ -391,9 +440,149 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 			if (num_chars && FontPtr->KernTab[ch]
 					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
+			{
 				origin.x -= FontPtr->KernAmount;
+
+				//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+				//		FontPtr->KernTab[next_ch] >> 2, next_ch);
+			}
 		}
 	}
+}
+
+void
+_text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair, BOOLEAN *skip)
+{
+	FONT FontPtr;
+	COUNT num_chars;
+	UniChar next_ch;
+	const char *pStr;
+	POINT origin;
+	SIZE leading;
+	TFB_Image *b_first, *b_second, *b_clear;
+	DrawMode mode = _get_context_draw_mode ();
+
+	FontPtr = _CurFontPtr;
+	if (FontPtr != NULL)
+	{
+		RECT r;
+		SIZE w, h;
+
+		if (!GetContextFontDispHeight (&h) || !GetContextFontDispWidth (&w))
+			return;
+
+		b_first = TFB_DrawImage_CreateForScreen (w, h, TRUE);
+		b_second = TFB_DrawImage_CreateForScreen (w, h, TRUE);
+		b_clear = TFB_DrawImage_CreateForScreen (w, h, TRUE);
+
+		r.corner.x = r.corner.y = 0;
+		r.extent.width = w;
+		r.extent.height = h;
+
+		TFB_DrawImage_Rect (&r, _get_context_bg_color (), DRAW_REPLACE_MODE, b_first);
+		TFB_DrawImage_Rect (&r, _get_context_fg_color (), DRAW_REPLACE_MODE, b_second);
+	}
+	else
+		return;
+	
+	origin.x = pClipRect->corner.x;
+	origin.y = TextPtr->baseline.y;
+	GetContextFontLeading (&leading);
+	num_chars = TextPtr->CharCount;
+	if (num_chars == 0)
+		return;
+
+	pStr = TextPtr->pStr;
+	
+	next_ch = getCharFromString (&pStr);
+	if (next_ch == '\0')
+		num_chars = 0;
+	while (num_chars--)
+	{
+		UniChar ch;
+		TFB_Char* fontChar;
+
+		while (next_ch == ' ')
+		{
+			fontChar = getCharFrame (FontPtr, next_ch);
+			origin.x += fontChar->disp.width + FontPtr->CharSpace;
+			next_ch = getCharFromString (&pStr);
+			num_chars--;
+		}
+		ch = next_ch;
+		if (num_chars > 0)
+		{
+			next_ch = getCharFromString (&pStr);
+			if (next_ch == '\0')
+				num_chars = 0;
+		}
+
+		fontChar = getCharFrame (FontPtr, ch);
+		if (fontChar != NULL && fontChar->disp.width)
+		{
+			RECT r;
+
+			r.corner.x = origin.x - fontChar->HotSpot.x;
+			r.corner.y = origin.y - fontChar->HotSpot.y;
+			r.extent.width = fontChar->disp.width;
+			r.extent.height = fontChar->disp.height;
+			if (BoxIntersect (&r, pClipRect, &r))
+			{
+				if (!*skip)
+				{
+					TFB_Prim_FontChar (origin, fontChar, b_first, mode,
+								ctxOrigin);
+					PlayMenuSound (MENU_SOUND_TEXT);
+
+					SleepThread (ONE_SECOND / 16);
+				}
+				BatchGraphics ();
+				if (repair && !*skip)
+				{
+					TFB_DrawImage_Image (repair->image, -r.corner.x, -r.corner.y,
+							0, 0, NULL, DRAW_REPLACE_MODE, b_clear);
+					TFB_Prim_FontChar (origin, fontChar, b_clear, MAKE_DRAW_MODE (DRAW_GRAYSCALE, 0xff),
+							ctxOrigin);
+				}
+				TFB_Prim_FontChar (origin, fontChar, b_second, mode,
+						ctxOrigin);
+				UnbatchGraphics ();
+			}
+
+			if (next_ch == '\n' || next_ch == '\r')
+			{
+				origin.x = pClipRect->corner.x;
+				origin.y += leading;
+				pClipRect->extent.height += leading;
+				next_ch = getCharFromString(&pStr);
+				num_chars--;
+			}
+			else if (next_ch != '\0')
+			{
+				origin.x += fontChar->disp.width + FontPtr->CharSpace;
+
+				if (num_chars && FontPtr->KernTab[ch]
+						&& !(FontPtr->KernTab[ch]
+						& (FontPtr->KernTab[next_ch] >> 2)))
+				{
+					origin.x -= FontPtr->KernAmount;
+
+					//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+					//		FontPtr->KernTab[next_ch] >> 2, next_ch);
+				}
+			}
+		}
+		UpdateInputState ();
+		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			*skip = TRUE;
+	}
+	if (b_first)
+		TFB_DrawScreen_DeleteImage (b_first);
+	if (b_second)
+		TFB_DrawScreen_DeleteImage (b_second);
+	if (b_clear)
+		TFB_DrawScreen_DeleteImage (b_clear);
 }
 
 BOOLEAN
@@ -484,7 +673,12 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 				if (num_chars && FontPtr->KernTab[ch]
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
+				{
 					width -= FontPtr->KernAmount;
+
+					//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+					//		FontPtr->KernTab[next_ch] >> 2, next_ch);
+				}
 			}
 
 			*pdelta++ = (BYTE)(width - last_width);
@@ -630,7 +824,12 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 			if (num_chars && FontPtr->KernTab[ch]
 				&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
+			{
 				origin.x -= FontPtr->KernAmount;
+
+				//printf ("%c: %d -- %d :%c\n", ch, FontPtr->KernTab[ch],
+				//		FontPtr->KernTab[next_ch] >> 2, next_ch);
+			}
 		}
 	}
 

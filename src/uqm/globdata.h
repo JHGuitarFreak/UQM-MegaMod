@@ -1116,8 +1116,8 @@ BOOLEAN inSuperMelee (void);
 BOOLEAN inHQSpace (void);
 BOOLEAN inHyperSpace (void);
 BOOLEAN inQuasiSpace (void);
-BOOLEAN isPC (int optWhich);
-BOOLEAN is3DO (int optWhich);
+OPT_CONSOLETYPE isPC (int optWhich);
+OPT_CONSOLETYPE is3DO (int optWhich);
 extern int replaceChar (char *pStr, const char find, const char replace);
 
 extern BOOLEAN InitGameStructures (void);

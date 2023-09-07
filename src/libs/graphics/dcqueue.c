@@ -27,6 +27,8 @@
 #include "libs/misc.h"
 		// for TFB_DEBUG_HALT
 #include "options.h"
+#include "libs/graphics/font.h"
+#include "uqm/setup.h"
 
 static RecursiveMutex DCQ_Mutex;
 
@@ -36,7 +38,7 @@ TFB_DrawCommand DCQ[DCQ_MAX];
 
 TFB_DrawCommandQueue DrawCommandQueue;
 
-#define FPS_PERIOD  (ONE_SECOND / 100)
+#define FPS_PERIOD  (ONE_SECOND / 20)
 int RenderedFrames = 0;
 
 
@@ -295,27 +297,76 @@ TFB_EnqueueDrawCommand (TFB_DrawCommand* DrawCommand)
 }
 
 static void
-computeFPS (void)
+computeFPS (int *fps)
 {
 	static TimeCount last_time;
 	static TimePeriod fps_counter;
 	TimeCount current_time;
 	TimePeriod delta_time;
 
-	current_time = GetTimeCounter ();
+	current_time = GetTimeCounter();
 	delta_time = current_time - last_time;
 	last_time = current_time;
-	
+
 	fps_counter += delta_time;
 	if (fps_counter > FPS_PERIOD)
 	{
-		log_add (log_User, "fps %.2f, effective %.2f",
-				(float)ONE_SECOND / delta_time,
-				(float)ONE_SECOND * RenderedFrames / fps_counter);
+		*fps = (int)((float)ONE_SECOND * RenderedFrames / fps_counter);
+		log_add(log_User, "fps %.2f, effective %d",
+			(float)ONE_SECOND / delta_time, *fps);
 
 		fps_counter = 0;
 		RenderedFrames = 0;
-	}
+	}	
+}
+
+static void
+RenderFPS (int *fps)
+{
+	static int prevFPS = 0;
+	if (GoodToGoFPS () && (prevFPS != *fps))
+	{
+		RECT tr;
+		SIZE w, h;
+		int i;
+		int max;
+		int step = 6;
+		UNICODE buf[4];
+		TFB_Char *ch;
+		TFB_Image *img;
+
+		prevFPS = *fps;
+
+		TFB_ClearFPSCanvas ();
+
+		int x = 14 << resolutionFactor;
+		int y = 7 << resolutionFactor;
+
+		sprintf (buf, "%d", *fps);
+		max = (COUNT)utf8StringCount(buf);
+
+		GetFontDims (&w, &h);
+		img = TFB_DrawImage_CreateForScreen (w, h, TRUE);
+		tr.corner.x = tr.corner.y = 0;
+		tr.extent.width = w;
+		tr.extent.height = h;
+		TFB_DrawImage_Rect (&tr, BUILD_COLOR_RGBA (0x00, 0xFF, 0x00, 0xFF), DRAW_REPLACE_MODE, img);
+
+		for (i = max - 1; i >= 0; i--)
+		{
+			ch = GetFrameForFPS (buf[i]);
+			if (ch)
+			{
+				TFB_DrawCanvas_FontChar (ch, img, x, y, MAKE_DRAW_MODE (DRAW_ALPHA, 0xff), TFB_GetFPSCanvas ());
+				if ((i > 0) && (buf[i - 1] == '1'))
+					step = 5;
+				else
+					step = 6;
+				x -= step << resolutionFactor;
+			}
+		}
+		TFB_DrawImage_Delete (img);
+	}	
 }
 
 // Only call from main() thread!!
@@ -323,6 +374,7 @@ void
 TFB_FlushGraphics (void)
 {
 	int commands_handled;
+	static int fps = 0;
 	BOOLEAN livelock_deterrence;
 
 	// This is technically a locking violation on DrawCommandQueue.Size,
@@ -355,7 +407,7 @@ TFB_FlushGraphics (void)
 	}
 
 	if (GfxFlags & TFB_GFXFLAGS_SHOWFPS)
-		computeFPS ();
+		computeFPS (&fps);
 
 	commands_handled = 0;
 	livelock_deterrence = FALSE;
@@ -492,8 +544,13 @@ TFB_FlushGraphics (void)
 
 				if (cmd->destBuffer == TFB_SCREEN_MAIN)
 				{
-					TFB_BBox_RegisterPoint (cmd->x1, cmd->y1);
-					TFB_BBox_RegisterPoint (cmd->x2, cmd->y2);
+					RECT r;
+					r.corner.x = min (cmd->x1, cmd->x2);
+					r.corner.y = min (cmd->y1, cmd->y2);
+					r.extent.width = abs (cmd->x1 - cmd->x2) + cmd->thickness;
+					r.extent.height = abs (cmd->y1 - cmd->y2) + cmd->thickness;
+
+					TFB_BBox_RegisterRect (&r);
 				}
 				TFB_DrawCanvas_Line (cmd->x1, cmd->y1, cmd->x2, cmd->y2,
 						cmd->color, cmd->drawMode,
@@ -590,13 +647,15 @@ TFB_FlushGraphics (void)
 				int oldWidth = ScreenWidthActual;
 				int oldHeight = ScreenHeightActual;
 				if (TFB_ReInitGraphics (cmd->driver, cmd->flags,
-						cmd->width, cmd->height, &resolutionFactor))
+						cmd->width, cmd->height, &resolutionFactor,
+						&optWindowType))
 				{
 					log_add (log_Error, "Could not provide requested mode: "
 							"reverting to last known driver.");
 					// We don't know what exactly failed, so roll it all back
 					if (TFB_ReInitGraphics (oldDriver, oldFlags,
-							oldWidth, oldHeight, &resolutionFactor))
+							oldWidth, oldHeight, &resolutionFactor,
+							&optWindowType))
 					{
 						log_add (log_Fatal,
 								"Couldn't reinit at that point either. "
@@ -615,10 +674,13 @@ TFB_FlushGraphics (void)
 			}
 		}
 	}
-	
+
 	if (livelock_deterrence)
 		Unlock_DCQ ();
 
+	if (GfxFlags & TFB_GFXFLAGS_SHOWFPS)
+		RenderFPS (&fps);
+	
 	TFB_SwapBuffers (TFB_REDRAW_NO);
 	RenderedFrames++;
 	BroadcastCondVar (RenderingCond);

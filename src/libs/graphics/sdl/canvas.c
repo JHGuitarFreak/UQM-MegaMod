@@ -90,9 +90,32 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 		return;
 	}
 
-	SDL_LockSurface (dst);
-	line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst, thickness);
-	SDL_UnlockSurface (dst);
+	if (thickness < 2)
+	{// Ususal SD line
+		SDL_LockSurface (dst);
+		line_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst);
+		SDL_UnlockSurface (dst);
+	}
+	else
+	{// Lines for HD with Anti-aliasing (WIP)
+		if (x1 == x2 || y1 == y2)
+		{// Vertical/horizontal
+			SDL_Rect sr;
+			sr.x = min (x1, x2);
+			sr.y = min (y1, y2);
+			sr.w = abs (x1 - x2) + thickness;
+			sr.h = abs (y1 - y2) + thickness;
+			SDL_LockSurface (dst);
+			fillrect_prim (sr, sdlColor, plotFn, mode.factor, dst);
+			SDL_UnlockSurface (dst);
+		}
+		else
+		{
+			SDL_LockSurface (dst);
+			line_aa_prim (x1, y1, x2, y2, sdlColor, plotFn, mode.factor, dst, thickness);
+			SDL_UnlockSurface (dst);
+		}
+	}
 }
 
 void
@@ -603,6 +626,23 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 					{	// modulate the alpha channel
 						a = (a * alpha) >> 8;
 					}
+					*dst_p = p | (a << ashift);
+				}
+			}
+		}
+		else if (mode.kind == DRAW_GRAYSCALE)
+		{	// For wiping char background
+			mode.kind = DRAW_REPLACE;
+
+			for (y = 0; y < h; ++y, src_p += sskip, dst_p += dskip)
+			{
+				for (x = 0; x < w; ++x, ++src_p, ++dst_p)
+				{
+					Uint32 p = *dst_p & dmask;
+					Uint32 a = *src_p;
+
+					if (a != 0x00)
+						a = 0xff;
 					*dst_p = p | (a << ashift);
 				}
 			}

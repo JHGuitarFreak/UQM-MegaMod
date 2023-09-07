@@ -40,6 +40,7 @@ extern void UninitSpace (void);
 
 extern SIZE InitShips (void);
 extern void UninitShips (void);
+extern void ReloadGameContent (void);
 
 extern BOOLEAN load_animation (FRAME *pixarray, RESOURCE big_res,
 		RESOURCE med_res, RESOURCE sml_res);

@@ -557,6 +557,12 @@ ConfirmExit (void)
 	return result;
 }
 
+void
+TestSpeechSound (STRING snd)
+{
+	PlaySpeechEffect ((SOUND)snd, NotPositional (), NULL, 0);
+}
+
 #if defined(ANDROID) || defined(__ANDROID__)
 // Fast arctan2, returns angle in radians as integer, with fractional part in lower 16 bits
 // Stolen from http://www.dspguru.com/dsp/tricks/fixed-point-atan2-with-self-normalization , precision is said to be 0.07 rads

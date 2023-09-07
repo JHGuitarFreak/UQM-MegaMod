@@ -21,6 +21,8 @@ Explanation of the Setup Menu options:
       Resolution - Scales the graphics of Original and HD graphics to the selected resolution.
                     Disclaimer: When switching to HD graphics for the first time make sure to choose 'Default' resolution.
 
+      Gamma Correction - Adjusts the gamma of the screen.
+
 # PC / 3DO
 
       Melee Zoom - For Android the Melee Zoom option has been 'enhanced' to allow the user to choose which melee scaler to improve game speed. The choices are between Step, Nearest, Bilinear, and Trilinear.
@@ -70,6 +72,10 @@ Explanation of the Setup Menu options:
 
       Nebulae Brightness - A slider that adjusts the opacity of the pre-rendered nebulae.
 
+      Orbiting Planets - Planets/moons will orbit around their respective parental body.
+
+      Textured Planets - Planets/moons will be fully textured in solar system view so you can identify what they are before scanning.
+
       Unscaled View - HD-only: Orbit lines and background stars aren't scaled up.
 
       NPC Ship Orientation - Turn on/off whether NPC ships face their direction of travel.
@@ -83,6 +89,8 @@ Explanation of the Setup Menu options:
       Volasaurus' Remixes - Toggles on or off remixes made by Volasaurus. Only applicable if you have the package installed.
 
       Interplanetary Alien Ambience - This option enables music that plays when you are in the orbit of a star within an alien race's Sphere of Influence.
+
+      Music Resume - When enabled music will resume where it last left off.
 
 # Controls
 
@@ -114,7 +122,11 @@ Explanation of the Setup Menu options:
 
       Smart Auto-Pilot - Enables Auto-Pilot to find the shortest distance outside of the current solar system. Also shows Auto-Pilot destination and distance to destination.
 
+      Advanced Auto-Pilot - Finds the cheapest route (fuel-wise) through HyperSpace or QuasiSpace and pilots the ship for you on that route.
+
       Show Visited Stars - When enabled stars that you have visited will be dimmed Varyand their names will be encapsulated by parenthesis.
+
+      Super-Melee Ship Descriptions - Show Star Control 1-styled short ship descriptions at the bottom of the main Super-Melee menu while picking a ship for your fleet.
 
 # Cheats
     

@@ -420,7 +420,7 @@ FadeScreen (ScreenFadeType fadeType, SIZE TimeInterval)
 
 	finishPendingFade ();
 
-	if (TimeInterval <= 0)
+	if (TimeInterval <= 0 || fadeAmount == FadeEnd)
 	{	// end the fade immediately
 		fadeAmount = FadeEnd;
 		// cancel any pending fades

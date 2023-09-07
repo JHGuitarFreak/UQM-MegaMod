@@ -525,7 +525,7 @@ aifa_Open (THIS_PTR, uio_DirHandle *dir, const char *filename)
 	aifa->cur_pcm = 0;
 	This->length = (float) aifa->max_pcm / aifa->fmtHdr.sampleRate;
 
-	This->filetype = AUDIO_AIF;
+	This->filename_hash = crc32b (filename);
 
 	aifa->last_error = 0;
 

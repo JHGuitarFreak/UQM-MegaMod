@@ -23,6 +23,7 @@
 #include "setup.h"
 #include "sounds.h"
 #include "colors.h"
+#include "fmv.h"
 #include "libs/gfxlib.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/graphics/widgets.h"
@@ -55,6 +56,81 @@ typedef struct setup_menu_state {
 	DWORD NextTime;
 } SETUP_MENU_STATE;
 
+struct option_list_value
+{
+	const char *str;
+	int value;
+};
+
+const struct option_list_value scalerList[6] =
+{
+	{"no",       0},
+	{"bilinear", TFB_GFXFLAGS_SCALE_BILINEAR},
+	{"biadapt",  TFB_GFXFLAGS_SCALE_BIADAPT},
+	{"biadv",    TFB_GFXFLAGS_SCALE_BIADAPTADV},
+	{"triscan",  TFB_GFXFLAGS_SCALE_TRISCAN},
+	{"hq",       TFB_GFXFLAGS_SCALE_HQXX}
+};
+
+static int SfxVol;
+static int MusVol;
+static int SpcVol;
+static int optMScale;
+static SOUND testSounds;
+
+static int
+whichPlatformRef (OPT_CONSOLETYPE opt)
+{// Returns 1 if OPTVAL_3DO and 2 of OPTVAL_PC (1 and 0 respectively)
+	return (opt ? OPT_3DO : OPT_PC);
+}
+
+static BOOLEAN
+PutBoolOpt (OPT_ENABLABLE *glob, OPT_ENABLABLE *set, const char *key,
+		BOOLEAN reload)
+{
+	if (*glob != *set)
+	{
+		*glob = *set;
+		res_PutBoolean (key, (BOOLEAN)*set);
+		if (reload)
+			optRequiresReload = TRUE;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+PutIntOpt (int *glob, int *set, const char *key, BOOLEAN reload)
+{
+	if (*glob != *set)
+	{
+		*glob = *set;
+		res_PutInteger (key, *set);
+		if (reload)
+			optRequiresReload = TRUE;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+PutConsOpt (int *glob, OPT_CONSOLETYPE *set, const char *key,
+		BOOLEAN reload)
+{
+	if (*glob != whichPlatformRef (*set))
+	{
+		*glob = whichPlatformRef (*set);
+		res_PutBoolean (key, (BOOLEAN)*set);
+		if (reload)
+			optRequiresReload = TRUE;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static BOOLEAN DoSetupMenu (SETUP_MENU_STATE *pInputState);
 static BOOLEAN done;
 static WIDGET *current, *next;
@@ -76,11 +152,11 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       81
+#define CHOICE_COUNT       82
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
-#define TEXTENTRY_COUNT     2
+#define TEXTENTRY_COUNT     3
 #define CONTROLENTRY_COUNT  8
 
 /* The space for our widgets */
@@ -98,7 +174,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
-	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys, 
+	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
 	do_keyconfig, do_music, do_visual };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
@@ -117,21 +193,25 @@ static WIDGET *main_widgets[] = {
 	NULL };
 
 static WIDGET *graphics_widgets[] = {
-	(WIDGET *)(&choices[0]),    // Resolution
-	(WIDGET *)(&choices[42]),   // Scale GFX
+	(WIDGET *)(&choices[0]),    // Graphics
+	(WIDGET *)(&choices[42]),   // Resolution
+	(WIDGET *)(&textentries[2]),// Custom Seed entry
 #if	SDL_MAJOR_VERSION == 1
 #if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
 	(WIDGET *)(&choices[23]),   // Aspect Ratio
 #endif
-	(WIDGET *)(&choices[10]),   // Display
-#if SDL_MAJOR_VERSION == 1 // Gamma correction isn't supported on SDL2
+	(WIDGET *)(&choices[10]),   // Display Mode
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
-#endif
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
 	(WIDGET *)(&choices[12]),   // Show FPS
+	(WIDGET *)(&labels[4]),     // Spacer
+
+	(WIDGET *)(&choices[81]),   // Window Type
+	(WIDGET *)(&labels[4]),     // Spacer
+
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -213,7 +293,7 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
-#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
+#if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[59]),   // Control Display
 #endif
 	(WIDGET *)(&choices[18]),   // Bottom Player
@@ -361,12 +441,20 @@ quit_sub_menu (WIDGET *self, int event)
 	return FALSE;
 }
 
+static void
+populate_res (void)
+{
+	sprintf (textentries[2].value, "%dx%d",
+			ScreenWidthActual, ScreenHeightActual);
+}
+
 static int
 do_graphics (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[1]);
+		populate_res ();
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -429,8 +517,8 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed (void)
 {	
-	sprintf (textentries[1].value, "%d", optCustomSeed); 
-	if (!SANE_SEED(optCustomSeed))
+	sprintf (textentries[1].value, "%d", optCustomSeed);
+	if (!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
 }
 
@@ -479,14 +567,17 @@ populate_editkeys (int templat)
 {
 	int i, j;
 	
-	strncpy (textentries[0].value, input_templates[templat].name, textentries[0].maxlen);
+	strncpy (textentries[0].value, input_templates[templat].name,
+			textentries[0].maxlen);
 	textentries[0].value[textentries[0].maxlen-1] = 0;
 	
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		for (j = 0; j < 2; j++)
 		{
-			InterrogateInputState (templat, i, j, controlentries[i].controlname[j], WIDGET_CONTROLENTRY_WIDTH);
+			InterrogateInputState (templat, i, j,
+					controlentries[i].controlname[j],
+					WIDGET_CONTROLENTRY_WIDTH);
 		}
 	}
 }
@@ -516,6 +607,100 @@ change_template (WIDGET_CHOICE *self, int oldval)
 }
 
 static void
+addon_unavailable (WIDGET_CHOICE *self, int oldval)
+{
+	self->selected = oldval;
+	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 36));
+	Widget_SetFont (PlyrFont);
+}
+
+static void
+check_for_hd (WIDGET_CHOICE *self, int oldval)
+{
+	if (self->selected != OPTVAL_REAL_1280_960)
+		return;
+
+	if (!isAddonAvailable (HD_MODE))
+	{
+		oldval = OPTVAL_320_240;
+		addon_unavailable (self, OPTVAL_320_240);
+	}
+
+	switch (choices[81].selected)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (DOS_MODE (HD)))
+			{
+				optWindowType = OPTVAL_UQM_WINDOW;
+				choices[81].selected = OPTVAL_UQM_WINDOW;
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (THREEDO_MODE (HD)))
+			{
+				optWindowType = OPTVAL_UQM_WINDOW;
+				choices[81].selected = OPTVAL_UQM_WINDOW;
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+static BOOLEAN
+check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
+{
+	switch (self->selected)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (
+					DOS_MODE (choices[0].selected && !IS_HD ? HD : IS_HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
+				addon_unavailable (self, oldval);
+				return FALSE;
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (
+					THREEDO_MODE (
+						choices[0].selected && !IS_HD ? HD : IS_HD)))
+			{
+				oldval = OPTVAL_UQM_WINDOW;
+				addon_unavailable (self, OPTVAL_UQM_WINDOW);
+				return FALSE;
+			}
+			break;
+		default:
+			break;
+	}
+
+	return TRUE;
+}
+
+static void
+check_availability (WIDGET_CHOICE *self, int oldval)
+{
+	if (self->choice_num == 0)
+		check_for_hd (self, oldval);
+
+	if (self->choice_num == 81 && check_dos_3do_modes (self, oldval))
+	{
+		int NewHeight = ScreenHeightActual;
+
+		PutIntOpt ((int *)&optWindowType, (int *)&self->selected,
+				"mm.windowType", TRUE);
+
+		NewHeight = DOS_BOOL (240, 200) * (1 + choices[42].selected);
+
+		if (NewHeight != ScreenHeightActual)
+			ScreenHeightActual = NewHeight;
+
+		res_PutInteger ("config.resheight", ScreenHeightActual);
+	}
+}
+
+static void
 rename_template (WIDGET_TEXTENTRY *self)
 {
 	/* TODO: This will have to change if the size of the
@@ -528,13 +713,257 @@ rename_template (WIDGET_TEXTENTRY *self)
 }
 
 static void
-change_seed(WIDGET_TEXTENTRY *self)
+change_seed (WIDGET_TEXTENTRY *self)
 {
-	int NewSeed = atoi(self->value);
-	if (!SANE_SEED(NewSeed))
-		optCustomSeed = PrimeA;
+	if (!SANE_SEED (atoi (self->value)))
+		snprintf (self->value, sizeof (self->value), "%d", PrimeA);
+}
+
+static void
+adjustMusic (WIDGET_SLIDER *self)
+{
+	musicVolumeScale = self->value / 100.0f;
+	SetMusicVolume (musicVolume);
+}
+
+static void
+adjustSFX (WIDGET_SLIDER *self)
+{
+	sfxVolumeScale = self->value / 100.0f;
+}
+
+static void
+adjustSpeech (WIDGET_SLIDER *self)
+{
+	speechVolumeScale = self->value / 100.0f;
+	SetSpeechVolume (speechVolumeScale);
+
+	TestSpeechSound (SetAbsSoundIndex (testSounds, (self->value == 100)));
+}
+
+static void
+toggle_scanlines (WIDGET_CHOICE *self, int *NewGfxFlags)
+{
+	if (self->selected == 1)
+		*NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
 	else
-		optCustomSeed = atoi(self->value);
+		*NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
+	res_PutBoolean ("config.scanlines", self->selected);
+}
+
+static void
+change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
+{
+	if (self->selected < 6)
+	{
+		if (!self->selected)
+		{	// No blowup
+			*NewWidth = RES_SCALE (320);
+			*NewHeight = RES_SCALE (DOS_BOOL (240, 200));
+		}
+		else
+		{
+			*NewWidth = 320 * (1 + self->selected);
+			*NewHeight = DOS_BOOL (240, 200) * (1 + self->selected);
+		}
+	}
+
+	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
+			"config.loresBlowupScale", FALSE);
+	res_PutInteger ("config.reswidth", *NewWidth);
+	res_PutInteger ("config.resheight", *NewHeight);
+}
+
+static void
+toggle_fullscreen (WIDGET_CHOICE *self, int *NewGfxFlags)
+{
+	if (self->selected == 1)
+	{
+		*NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+		*NewGfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
+	else if (self->selected == 2)
+	{
+		*NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+		*NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+	}
+	else
+	{
+		*NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
+		*NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
+	res_PutInteger ("config.fullscreen", self->selected);
+}
+
+static void
+change_scaler (WIDGET_CHOICE *self, int OldVal, int *NewGfxFlags)
+{
+	*NewGfxFlags &= ~scalerList[OldVal].value;
+	*NewGfxFlags |= scalerList[self->selected].value;
+	res_PutString ("config.scaler", scalerList[self->selected].str);
+}
+
+static void
+toggle_showfps (WIDGET_CHOICE *self, int *NewGfxFlags)
+{
+	if (self->selected == 1)
+		*NewGfxFlags |= TFB_GFXFLAGS_SHOWFPS;
+	else
+		*NewGfxFlags &= ~TFB_GFXFLAGS_SHOWFPS;
+	res_PutBoolean ("config.showfps", self->selected);
+}
+
+static void
+change_gfxdriver (WIDGET_CHOICE *self, int *NewGfxDriver)
+{
+#ifdef HAVE_OPENGL
+	*NewGfxDriver = (self->selected == OPTVAL_ALWAYS_GL ?
+			TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
+#else
+	*NewGfxDriver = TFB_GFXDRIVER_SDL_PURE;
+#endif
+	if (GraphicsDriver != *NewGfxDriver)
+	{
+		res_PutBoolean ("config.alwaysgl", self->selected);
+		res_PutBoolean ("config.usegl",
+				*NewGfxDriver == TFB_GFXDRIVER_SDL_OPENGL);
+	}
+}
+
+void
+process_graphics_options (WIDGET_CHOICE *self, int OldVal)
+{
+	int NewGfxFlags = GfxFlags;
+	int NewGfxDriver = GraphicsDriver;
+	int NewWidth = ScreenWidthActual;
+	int NewHeight = ScreenHeightActual;
+	BOOLEAN isExclusive = FALSE;
+
+	if (OldVal == self->selected)
+		return;
+
+	switch (self->choice_num)
+	{
+		case 1:
+			change_gfxdriver (self, &NewGfxDriver);
+			break;
+		case 2:
+			change_scaler (self, OldVal, &NewGfxFlags);
+			break;
+		case 3:
+			toggle_scanlines (self, &NewGfxFlags);
+			break;
+		case 10:
+			toggle_fullscreen (self, &NewGfxFlags);
+			break;
+		case 12:
+			toggle_showfps (self, &NewGfxFlags);
+			break;
+		case 42:
+			change_scaling (self, &NewWidth, &NewHeight);
+			isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
+			break;
+		default:
+			return;
+	}
+
+	if (NewWidth != ScreenWidthActual || NewHeight != ScreenHeightActual)
+	{
+		ScreenWidthActual = NewWidth;
+		ScreenHeightActual = NewHeight;
+
+		if (isExclusive)
+			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
+
+	if (NewGfxFlags != GfxFlags)
+		GfxFlags = NewGfxFlags;
+
+	if (NewGfxDriver != GraphicsDriver)
+		GraphicsDriver = NewGfxDriver;
+
+	FlushInput ();
+	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+			ScreenWidthActual, ScreenHeightActual);
+
+	if (isExclusive)
+	{	// needed twice to reinitialize Exclusive Full Screen after a 
+		// resolution change 
+		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				ScreenWidthActual, ScreenHeightActual);
+	}
+
+	populate_res ();
+}
+
+static BOOLEAN
+res_check (int width, int height)
+{
+	if (width % 320)
+		return FALSE;
+
+	if (height % DOS_BOOL (240, 200))
+		return FALSE;
+
+	if (width > 1920 || height > 1440)
+		return FALSE;
+
+	return TRUE;
+}
+
+static void
+change_res (WIDGET_TEXTENTRY *self)
+{
+	int NewWidth = ScreenWidthActual;
+	int NewHeight = ScreenHeightActual;
+	int NewGfxFlags = GfxFlags;
+	BOOLEAN isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
+
+	if (sscanf (self->value, "%dx%d", &NewWidth, &NewHeight) != 2)
+	{
+		populate_res ();
+		return;
+	}
+	
+	if (NewWidth != ScreenWidthActual || NewHeight != ScreenHeightActual)
+	{
+		ScreenWidthActual = NewWidth;
+		ScreenHeightActual = NewHeight;
+
+		if (isExclusive)
+			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+	}
+	else
+		return;
+
+	if (NewGfxFlags != GfxFlags)
+		GfxFlags = NewGfxFlags;
+
+	FlushInput ();
+
+	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+		ScreenWidthActual, ScreenHeightActual);
+
+	if (isExclusive)
+	{	// needed twice to reinitialize Exclusive Full Screen after a 
+		// resolution change
+		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				ScreenWidthActual, ScreenHeightActual);
+	}
+
+	if (res_check (NewWidth, NewHeight))
+	{
+		choices[42].selected = (NewWidth / 320) - 1;
+	}
+	else
+		choices[42].selected = 6;
+
+	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&choices[42].selected),
+			"config.loresBlowupScale", FALSE);
+	res_PutInteger ("config.reswidth", NewWidth);
+	res_PutInteger ("config.resheight", NewHeight);
 }
 
 #define NUM_STEPS 20
@@ -633,6 +1062,7 @@ SetDefaults (void)
 	choices[78].selected = opts.advancedAutoPilot;
 	choices[79].selected = opts.meleeToolTips;
 	choices[80].selected = opts.musicResume;
+	choices[81].selected = opts.windowType;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -729,6 +1159,7 @@ PropagateResults (void)
 	opts.advancedAutoPilot = choices[78].selected;
 	opts.meleeToolTips = choices[79].selected;
 	opts.musicResume = choices[80].selected;
+	opts.windowType = choices[81].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -749,7 +1180,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 		SetDefaultMenuRepeatDelay ();
 		pInputState->NextTime = GetTimeCounter ();
 		SetDefaults ();
-		Widget_SetFont (PlyrFont); // Was StarConFont: Switched for better readability
+		Widget_SetFont (PlyrFont);
 		Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR,
 				SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 
@@ -1069,10 +1500,10 @@ init_widgets (void)
 		bank = StringBank_Create ();
 	}
 	
-	if (setup_frame == NULL || optRequiresRestart)
+	if (setup_frame == NULL || optRequiresReload)
 	{
-		// JMS: Load the different menus depending on the resolution factor.
-		setup_frame = CaptureDrawable (LoadGraphic (RES_BOOL (MENUBKG_PMAP_ANIM, MENUBKG_PMAP_ANIM_HD)));
+		// Load the different menus depending on the resolution factor.
+		setup_frame = CaptureDrawable (LoadGraphic (MENUBKG_PMAP_ANIM));
 		LoadArrows ();
 	}
 
@@ -1080,13 +1511,16 @@ init_widgets (void)
 
 	if (count < 3)
 	{
-		log_add (log_Fatal, "PANIC: Setup string table too short to even hold all indices!");
+		log_add (log_Fatal, "PANIC: Setup string table too short to even "
+				"hold all indices!");
 		exit (EXIT_FAILURE);
 	}
 
 	/* Menus */
-	title = StringBank_AddOrFindString (bank, GetStringAddress (SetAbsStringTableIndex (SetupTab, 0)));
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, 1)), '\n', 100, buffer, bank) != MENU_COUNT)
+	title = StringBank_AddOrFindString (bank,
+			GetStringAddress (SetAbsStringTableIndex (SetupTab, 0)));
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, 1)), '\n', 100, buffer, bank) != MENU_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Menu Subtitles");
@@ -1106,7 +1540,8 @@ init_widgets (void)
 		menus[i].subtitle = buffer[i];
 		menus[i].bgStamp.origin.x = 0;
 		menus[i].bgStamp.origin.y = 0;
-		menus[i].bgStamp.frame = SetAbsFrameIndex (setup_frame, menu_defs[i].bgIndex);
+		menus[i].bgStamp.frame =
+				SetAbsFrameIndex (setup_frame, menu_defs[i].bgIndex);
 		menus[i].num_children = count_widgets (menu_defs[i].widgets);
 		menus[i].child = menu_defs[i].widgets;
 		menus[i].highlighted = 0;
@@ -1117,9 +1552,14 @@ init_widgets (void)
 	}
 		
 	/* Options */
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, 2)), '\n', 100, buffer, bank) != CHOICE_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, 2)), '\n', 100, buffer, bank) != CHOICE_COUNT)
 	{
-		log_add (log_Fatal, "PANIC: Incorrect number of Choice Options: %d. Should be %d", CHOICE_COUNT, SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, 2)), '\n', 100, buffer, bank));
+		log_add (log_Fatal, "PANIC: Incorrect number of Choice Options: "
+				"%d. Should be %d", CHOICE_COUNT,
+				SplitString (GetStringAddress (
+					SetAbsStringTableIndex (SetupTab, 2)),
+					'\n', 100, buffer, bank));
 		exit (EXIT_FAILURE);
 	}
 
@@ -1148,13 +1588,16 @@ init_widgets (void)
 
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading choices");
+			log_add (log_Fatal, "PANIC: String table cut short while "
+					"reading choices");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		optcount = SplitString (str, '\n', 100, buffer, bank);
 		choices[i].numopts = optcount;
 		choices[i].options = HMalloc (optcount * sizeof (CHOICE_OPTION));
+		choices[i].choice_num = i;
 		for (j = 0; j < optcount; j++)
 		{
 			choices[i].options[j].optname = buffer[j];
@@ -1168,10 +1611,12 @@ init_widgets (void)
 
 			if (index >= count)
 			{
-				log_add (log_Fatal, "PANIC: String table cut short while reading choices");
+				log_add (log_Fatal, "PANIC: String table cut short while "
+						"reading choices");
 				exit (EXIT_FAILURE);
 			}
-			str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+			str = GetStringAddress (
+					SetAbsStringTableIndex (SetupTab, index++));
 			tipcount = SplitString (str, '\n', 100, buffer, bank);
 			if (tipcount > 3)
 			{
@@ -1184,7 +1629,8 @@ init_widgets (void)
 		}
 	}
 
-	/* Choices 18-20 are also special, being the names of the key configurations */
+	// Choices 18-20 are also special, being the names of the key
+	// configurations
 	for (i = 0; i < 6; i++)
 	{
 		choices[18].options[i].optname = input_templates[i].name;
@@ -1195,14 +1641,28 @@ init_widgets (void)
 	/* Choice 20 has a special onChange handler, too. */
 	choices[20].onChange = change_template;
 
+	/* Check the availability of HD mode and the DOS/3DO mode addons */
+	choices[0].onChange = check_availability;
+	choices[81].onChange = check_availability;
+
+	// Handle display option
+	choices[ 1].onChange = process_graphics_options;
+	choices[ 2].onChange = process_graphics_options;
+	choices[ 3].onChange = process_graphics_options;
+	choices[10].onChange = process_graphics_options;
+	choices[12].onChange = process_graphics_options;
+	choices[42].onChange = process_graphics_options;
+
 	/* Sliders */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading sliders");
+		log_add (log_Fatal,
+				"PANIC: String table cut short while reading sliders");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != SLIDER_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank) != SLIDER_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Slider Options");
@@ -1227,7 +1687,12 @@ init_widgets (void)
 		sliders[i].tooltip[0] = "";
 		sliders[i].tooltip[1] = "";
 		sliders[i].tooltip[2] = "";
+		sliders[i].onChange = NULL;
 	}
+	sliders[0].onChange = adjustMusic;
+	sliders[1].onChange = adjustSFX;
+	sliders[2].onChange = adjustSpeech;
+
 	// gamma is a special case
 	sliders[3].step = 1;
 	sliders[3].handleEvent = gamma_HandleEventSlider;
@@ -1242,10 +1707,12 @@ init_widgets (void)
 		
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading sliders");
+			log_add (log_Fatal,
+					"PANIC: String table cut short while reading sliders");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		tipcount = SplitString (str, '\n', 100, buffer, bank);
 		if (tipcount > 3)
 		{
@@ -1260,11 +1727,13 @@ init_widgets (void)
 	/* Buttons */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading buttons");
+		log_add (log_Fatal,
+				"PANIC: String table cut short while reading buttons");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != BUTTON_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank) != BUTTON_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Button Options");
@@ -1292,10 +1761,12 @@ init_widgets (void)
 		
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading buttons");
+			log_add (log_Fatal,
+					"PANIC: String table cut short while reading buttons");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		tipcount = SplitString (str, '\n', 100, buffer, bank);
 		if (tipcount > 3)
 		{
@@ -1310,11 +1781,13 @@ init_widgets (void)
 	/* Labels */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading labels");
+		log_add (log_Fatal,
+				"PANIC: String table cut short while reading labels");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != LABEL_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank) != LABEL_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Label Options");
@@ -1340,13 +1813,16 @@ init_widgets (void)
 		
 		if (index >= count)
 		{
-			log_add (log_Fatal, "PANIC: String table cut short while reading labels");
+			log_add (log_Fatal, "PANIC: String table cut short while "
+					"reading labels");
 			exit (EXIT_FAILURE);
 		}
-		str = GetStringAddress (SetAbsStringTableIndex (SetupTab, index++));
+		str = GetStringAddress (
+				SetAbsStringTableIndex (SetupTab, index++));
 		linecount = SplitString (str, '\n', 100, buffer, bank);
 		labels[i].line_count = linecount;
-		labels[i].lines = (const char **)HMalloc(linecount * sizeof(const char *));
+		labels[i].lines =
+				(const char **)HMalloc(linecount * sizeof(const char *));
 		for (j = 0; j < linecount; j++)
 		{
 			labels[i].lines[j] = buffer[j];
@@ -1356,11 +1832,14 @@ init_widgets (void)
 	/* Text Entry boxes */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading text entries");
+		log_add (log_Fatal, "PANIC: String table cut short while reading "
+				"text entries");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != TEXTENTRY_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank)
+			!= TEXTENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Text Entries");
 		exit (EXIT_FAILURE);
@@ -1384,7 +1863,9 @@ init_widgets (void)
 		textentries[i].tooltip[1] = "";
 		textentries[i].tooltip[2] = "";
 	}
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != TEXTENTRY_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank)
+			!= TEXTENTRY_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Text Entries");
@@ -1399,7 +1880,8 @@ init_widgets (void)
 
 		if (index >= count)
 		{
-			log_add(log_Fatal, "PANIC: String table cut short while reading text entries");
+			log_add(log_Fatal, "PANIC: String table cut short while "
+					"reading text entries");
 			exit(EXIT_FAILURE);
 		}
 		str = GetStringAddress(SetAbsStringTableIndex(SetupTab, index++));
@@ -1416,15 +1898,19 @@ init_widgets (void)
 
 	textentries[0].onChange = rename_template;
 	textentries[1].onChange = change_seed;
+	textentries[2].onChange = change_res;
 
 	/* Control Entry boxes */
 	if (index >= count)
 	{
-		log_add (log_Fatal, "PANIC: String table cut short while reading control entries");
+		log_add (log_Fatal, "PANIC: String table cut short while reading "
+				"control entries");
 		exit (EXIT_FAILURE);
 	}
 
-	if (SplitString (GetStringAddress (SetAbsStringTableIndex (SetupTab, index++)), '\n', 100, buffer, bank) != CONTROLENTRY_COUNT)
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+			SetupTab, index++)), '\n', 100, buffer, bank)
+			!= CONTROLENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Control Entries");
 		exit (EXIT_FAILURE);
@@ -1450,9 +1936,11 @@ init_widgets (void)
 	/* Check for garbage at the end */
 	if (index < count)
 	{
-		log_add (log_Warning, "WARNING: Setup strings had %d garbage entries at the end.",
-				count - index);
+		log_add (log_Warning, "WARNING: Setup strings had %d garbage "
+				"entries at the end.", count - index);
 	}
+
+	testSounds = CaptureSound (LoadSound (TEST_SOUNDS));
 }
 
 static void
@@ -1494,6 +1982,12 @@ clean_up_widgets (void)
 		setup_frame = NULL;
 		ReleaseArrows ();
 	}
+
+	if (testSounds)
+	{
+		DestroySound (ReleaseSound (testSounds));
+		testSounds = 0;
+	}
 }
 
 void
@@ -1511,7 +2005,8 @@ SetupMenu (void)
 	}
 	else
 	{
-		log_add (log_Fatal, "PANIC: Could not find strings for the setup menu!");
+		log_add (log_Fatal,
+				"PANIC: Could not find strings for the setup menu!");
 		exit (EXIT_FAILURE);
 	}
 	done = FALSE;
@@ -1523,103 +2018,60 @@ SetupMenu (void)
 	{
 		clean_up_widgets ();
 	}
+
+	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
+						MENU_SOUND_SELECT);
 }
 
 void
 GetGlobalOptions (GLOBALOPTS *opts)
 {
 	bool whichBound;
+	int flags;
 
-	if (GfxFlags & TFB_GFXFLAGS_SCALE_BILINEAR) 
-	{
-		opts->scaler = OPTVAL_BILINEAR_SCALE;
-	}
-	else if (GfxFlags & TFB_GFXFLAGS_SCALE_BIADAPT)
-	{
-		opts->scaler = OPTVAL_BIADAPT_SCALE;
-	}
-	else if (GfxFlags & TFB_GFXFLAGS_SCALE_BIADAPTADV) 
-	{
-		opts->scaler = OPTVAL_BIADV_SCALE;
-	}
-	else if (GfxFlags & TFB_GFXFLAGS_SCALE_TRISCAN) 
-	{
-		opts->scaler = OPTVAL_TRISCAN_SCALE;
-	} 
-	else if (GfxFlags & TFB_GFXFLAGS_SCALE_HQXX)
-	{
-		opts->scaler = OPTVAL_HQXX_SCALE;
-	}
+/*
+ *		Graphics options
+ */
+	opts->screenResolution = resolutionFactor >> 1;
+
+	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+		opts->fullscreen = 2;
+	else if (GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN)
+		opts->fullscreen = 1;
 	else
-	{
-		opts->scaler = OPTVAL_NO_SCALE;
-	}
-	opts->fullscreen = (GfxFlags & TFB_GFXFLAGS_FULLSCREEN) ?
-			OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->subtitles = optSubtitles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->scanlines = (GfxFlags & TFB_GFXFLAGS_SCANLINES) ? 
+		opts->fullscreen = 0;
+	/*opts->fullscreen = (GfxFlags & TFB_GFXFLAGS_FULLSCREEN) ?
+		OPTVAL_ENABLED : OPTVAL_DISABLED;*/
+	opts->fps = (GfxFlags & TFB_GFXFLAGS_SHOWFPS) ?
 		OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->menu = (optWhichMenu == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->text = (optWhichFonts == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->cscan = res_GetInteger ("config.iconicscan");
-	opts->scroll = (optSmoothScroll == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->intro = (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->shield = (optWhichShield == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->fps = (GfxFlags & TFB_GFXFLAGS_SHOWFPS) ? 
+	opts->scanlines = (GfxFlags & TFB_GFXFLAGS_SCANLINES) ?
 		OPTVAL_ENABLED : OPTVAL_DISABLED;
-#if defined(ANDROID) || defined(__ANDROID__)
-	opts->meleezoom = res_GetInteger("config.smoothmelee");
-#else
-	opts->meleezoom = (OPT_MELEEZOOM)((optMeleeScale == TFB_SCALE_STEP) ?
-		OPTVAL_PC : OPTVAL_3DO);
-#endif
-	opts->stereo = optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	/* These values are read in, but won't change during a run. */
-	opts->music3do = opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->musicremix = optRemixMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->speech = optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->keepaspect = optKeepAspectRatio ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	switch (snddriver) {
-	case audio_DRIVER_OPENAL:
-		opts->adriver = OPTVAL_OPENAL;
-		break;
-	case audio_DRIVER_MIXSDL:
-		opts->adriver = OPTVAL_MIXSDL;
-		break;
-	default:
-		opts->adriver = OPTVAL_SILENCE;
-		break;
-	}
-	audioDriver = opts->adriver;
-	if (soundflags & audio_QUALITY_HIGH)
-	{
-		opts->aquality = OPTVAL_HIGH;
-	}
-	else if (soundflags & audio_QUALITY_LOW)
-	{
-		opts->aquality = OPTVAL_LOW;
-	}
-	else
-	{
-		opts->aquality = OPTVAL_MEDIUM;
-	}
-	audioQuality = opts->aquality;
 
-	/* Work out resolution.  On the way, try to guess a good default
-	 * for config.alwaysgl, then overwrite it if it was set previously. */
-	opts->driver = OPTVAL_PURE_IF_POSSIBLE;
+	flags = GfxFlags & 248; // 11111000 - only scaler fralgs
 
-	if (res_IsBoolean("config.alwaysgl"))
-	{
-		if (res_GetBoolean("config.alwaysgl"))
-		{
-			opts->driver = OPTVAL_ALWAYS_GL;
-		}
-		else
-		{
-			opts->driver = OPTVAL_PURE_IF_POSSIBLE;
-		}
+	switch (flags)
+	{// this works because there is only 1 scaler flag at a time
+		case TFB_GFXFLAGS_SCALE_BILINEAR:
+			opts->scaler = OPTVAL_BILINEAR_SCALE;
+			break;
+		case TFB_GFXFLAGS_SCALE_BIADAPT:
+			opts->scaler = OPTVAL_BIADAPT_SCALE;
+			break;
+		case TFB_GFXFLAGS_SCALE_BIADAPTADV:
+			opts->scaler = OPTVAL_BIADV_SCALE;
+			break;
+		case TFB_GFXFLAGS_SCALE_TRISCAN:
+			opts->scaler = OPTVAL_TRISCAN_SCALE;
+			break;
+		case TFB_GFXFLAGS_SCALE_HQXX:
+			opts->scaler = OPTVAL_HQXX_SCALE;
+			break;
+		default:
+			opts->scaler = OPTVAL_NO_SCALE;
+			break;
 	}
+
+	opts->keepaspect = optKeepAspectRatio;
 
 	whichBound = (optGamma < maxGamma);
 	// The option supplied by the user may be beyond our starting range
@@ -1631,681 +2083,402 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	updateGammaBounds (whichBound);
 	opts->gamma = gammaToSlider (optGamma);
 
+
+
+	opts->loresBlowup = loresBlowupScale;
+	/* Work out resolution.  On the way, try to guess a good default
+	 * for config.alwaysgl, then overwrite it if it was set previously. */
+	if ((!IS_HD && (GraphicsDriver != TFB_GFXDRIVER_SDL_PURE) &&
+		((ScreenWidthActual == 320) || (ScreenWidthActual == 640))) ||
+		res_GetBoolean ("config.alwaysgl"))
+		opts->driver = OPTVAL_ALWAYS_GL;
+	else
+		opts->driver = OPTVAL_PURE_IF_POSSIBLE;
+
+	opts->windowType = optWindowType;
+	switch (opts->windowType)
+	{
+		case OPTVAL_PC_WINDOW:
+			if (!isAddonAvailable (DOS_MODE (IS_HD)))
+			{
+				opts->windowType = 2;
+			}
+			break;
+		case OPTVAL_3DO_WINDOW:
+			if (!isAddonAvailable (THREEDO_MODE (IS_HD)))
+			{
+				opts->windowType = 2;
+			}
+			break;
+		default:
+			break;
+	}
+
+/*
+ *		Audio options
+ */
+	opts->stereo = optStereoSFX;
+	opts->music3do = opt3doMusic;
+	opts->musicremix = optRemixMusic; // Precursors Pack
+	opts->volasMusic = optVolasMusic;
+
+	opts->spaceMusic = optSpaceMusic;
+	opts->mainMenuMusic = optMainMenuMusic;
+	opts->musicResume = optMusicResume;
+	opts->speech = optSpeech;
+
+	switch (snddriver) 
+	{
+		case audio_DRIVER_OPENAL:
+			opts->adriver = OPTVAL_OPENAL;
+			break;
+		case audio_DRIVER_MIXSDL:
+			opts->adriver = OPTVAL_MIXSDL;
+			break;
+		default:
+			opts->adriver = OPTVAL_SILENCE;
+			break;
+	}
+	audioDriver = opts->adriver;
+
+	if (soundflags & audio_QUALITY_HIGH)
+		opts->aquality = OPTVAL_HIGH;
+	else if (soundflags & audio_QUALITY_LOW)
+		opts->aquality = OPTVAL_LOW;
+	else
+		opts->aquality = OPTVAL_MEDIUM;
+
+	audioQuality = opts->aquality;
+
+	SfxVol = opts->musicvol =
+			(((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
+	MusVol = opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
+	SpcVol = opts->speechvol =
+			(((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
+
+
+/*
+ *		Engine&Visuals options
+ */
+	// Mics
+	opts->subtitles = optSubtitles;
+	opts->menu = is3DO (optWhichMenu);
+	opts->submenu = optSubmenu;
+	opts->text = is3DO (optWhichFonts);
+	opts->scrTrans = is3DO (optScrTrans);
+	opts->intro = is3DO (optWhichIntro);
+	opts->skipIntro = optSkipIntro;	
+#if defined(ANDROID) || defined(__ANDROID__)
+	optMScale = opts->meleezoom = optMeleeScale;
+#else
+	optMScale = opts->meleezoom =
+			(OPT_MELEEZOOM)(optMeleeScale == TFB_SCALE_STEP ?
+			OPTVAL_PC : OPTVAL_3DO);
+#endif
+	opts->controllerType = optControllerType;
+	opts->directionalJoystick = optDirectionalJoystick; // For Android
+	opts->dateType = optDateFormat;
+	opts->customBorder = optCustomBorder;
+	opts->flagshipColor = is3DO (optFlagshipColor);
+	opts->gameOver = optGameOver;
+	opts->hyperStars = optHyperStars;
+	opts->showVisitedStars = optShowVisitedStars;
+	opts->fuelRange = optFuelRange;
+	opts->wholeFuel = optWholeFuel;
+	opts->meleeToolTips = optMeleeToolTips;
+
+	// Interplanetary
+	opts->nebulae = optNebulae;
+	opts->nebulaevol = optNebulaeVolume;
+	opts->starBackground = optStarBackground;
+	opts->unscaledStarSystem = optUnscaledStarSystem;
+	opts->planetStyle = is3DO (optPlanetStyle);
+	opts->orbitingPlanets = optOrbitingPlanets;
+	opts->texturedPlanets = optTexturedPlanets;
+
+	// Orbit
+	opts->landerHold = is3DO (optLanderHold);
+	opts->partialPickup = optPartialPickup;
+	opts->cscan = optWhichCoarseScan;
+	opts->hazardColors = optHazardColors;
+	opts->scanStyle = is3DO (optScanStyle);
+	opts->landerStyle = is3DO (optSuperPC);
+	opts->planetTexture = optPlanetTexture;
+	opts->sphereType = optScanSphere;
+	opts->tintPlanSphere = is3DO (optTintPlanSphere);
+	opts->shield = is3DO (optWhichShield);
+
+	// Game modes
+	opts->difficulty = optDiffChooser;
+	opts->extended = optExtended;
+	opts->nomad = optNomad;
+	opts->slaughterMode = optSlaughterMode;
+	
+	// Comm screen
+	opts->scroll = is3DO (optSmoothScroll);
+	opts->orzCompFont = optOrzCompFont;
+	opts->scopeStyle = is3DO (optScopeStyle);
+	opts->nonStopOscill = optNonStopOscill;
+
+	// Auto-Pilot
+	opts->smartAutoPilot = optSmartAutoPilot;
+	opts->advancedAutoPilot = optAdvancedAutoPilot;
+	opts->shipDirectionIP = optShipDirectionIP;
+
+	// Controls
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
-	opts->musicvol = (((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
-	opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
-	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 
- 	opts->cheatMode = optCheatMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->godModes = res_GetInteger ("cheat.godModes");
-	opts->tdType = res_GetInteger ("cheat.timeDilation");
-	opts->bubbleWarp = optBubbleWarp ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->unlockShips = optUnlockShips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->headStart = optHeadStart ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->unlockUpgrades = optUnlockUpgrades ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->infiniteRU = optInfiniteRU ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->skipIntro = optSkipIntro ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->mainMenuMusic = optMainMenuMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->nebulae = optNebulae ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->orbitingPlanets = optOrbitingPlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->texturedPlanets = optTexturedPlanets ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->dateType = res_GetInteger ("mm.dateFormat");
-	opts->infiniteFuel = optInfiniteFuel ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->partialPickup = optPartialPickup ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->submenu = optSubmenu ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->addDevices = optAddDevices ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->customBorder = optCustomBorder ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->customSeed = res_GetInteger ("mm.customSeed");
-	opts->spaceMusic = optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->loresBlowup = res_GetInteger("config.loresBlowupScale");
-	opts->volasMusic = optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->wholeFuel = optWholeFuel ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->directionalJoystick = optDirectionalJoystick ? OPTVAL_ENABLED : OPTVAL_DISABLED;	// For Android
-	opts->landerHold = (optLanderHold == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->scrTrans = (optScrTrans == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->difficulty = res_GetInteger ("mm.difficulty");
-	opts->fuelRange = res_GetInteger ("mm.fuelRange");
-	opts->extended = optExtended ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->nomad = optNomad ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->gameOver = optGameOver ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->shipDirectionIP = optShipDirectionIP ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->hazardColors = optHazardColors ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->orzCompFont = optOrzCompFont ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->controllerType = res_GetInteger ("mm.controllerType");
-	opts->smartAutoPilot = optSmartAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->tintPlanSphere = (optTintPlanSphere == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->planetStyle = (optPlanetStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->starBackground = res_GetInteger ("mm.starBackground");
-	opts->scanStyle = (optScanStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->nonStopOscill = optNonStopOscill ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->scopeStyle = (optScopeStyle == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->hyperStars = optHyperStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->landerStyle = (optSuperPC == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->planetTexture = optPlanetTexture ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->flagshipColor = (optFlagshipColor == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC;
-	opts->noHQEncounters = optNoHQEncounters ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->deCleansing = optDeCleansing ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->meleeObstacles = optMeleeObstacles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->showVisitedStars = optShowVisitedStars ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->unscaledStarSystem = optUnscaledStarSystem ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->sphereType = res_GetInteger ("mm.sphereType");
-	opts->nebulaevol = res_GetInteger ("mm.nebulaevol");
-	opts->slaughterMode = optSlaughterMode ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->advancedAutoPilot = optAdvancedAutoPilot ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->meleeToolTips = optMeleeToolTips ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->musicResume = optMusicResume ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-
-	if (!IS_HD)
-	{
-		switch (ScreenWidthActual)
-		{
-			case 320:
-				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
-				{
-					opts->screenResolution = OPTVAL_320_240;
-				}
-				else
-				{
-					opts->screenResolution = OPTVAL_320_240;
-					opts->driver = OPTVAL_ALWAYS_GL;
-				}
-				break;
-			case 640:
-				if (GraphicsDriver == TFB_GFXDRIVER_SDL_PURE)
-				{
-					opts->screenResolution = OPTVAL_320_240;
-					opts->loresBlowup = OPTVAL_SCALE_640_480;
-				}
-				else
-				{
-					opts->screenResolution = OPTVAL_320_240;
-					opts->loresBlowup = OPTVAL_SCALE_640_480;
-					opts->driver = OPTVAL_ALWAYS_GL;
-				}
-				break;
-			case 960:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_960_720;
-				break;
-			case 1280:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_1280_960;
-				break;
-			case 1600:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_1600_1200;
-				break;
-			case 1920:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = OPTVAL_SCALE_1920_1440;
-				break;
-			default:
-				opts->screenResolution = OPTVAL_320_240;
-				opts->loresBlowup = NO_BLOWUP;
-				break;
-		}		
-	}
-	else
-	{	// HD - 1280x960
-		switch (ScreenWidthActual)
-		{
-			case 640:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_640_480;
-				break;
-			case 960:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_960_720;
-				break;
-			case 1600:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_1600_1200;
-				break;
-			case 1920:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_1920_1440;
-				break;
-			case 1280:
-			default:
-				opts->screenResolution = OPTVAL_REAL_1280_960;
-				opts->loresBlowup = OPTVAL_SCALE_1280_960;
-		}
-	}
+/*
+ *		Cheats
+ */
+ 	opts->cheatMode = optCheatMode;
+	opts->godModes = optGodModes;
+	opts->tdType = timeDilationScale;
+	opts->bubbleWarp = optBubbleWarp;
+	opts->unlockShips = optUnlockShips;
+	opts->headStart = optHeadStart;
+	opts->unlockUpgrades = optUnlockUpgrades;
+	opts->addDevices = optAddDevices;
+	opts->infiniteRU = optInfiniteRU;
+	opts->infiniteFuel = optInfiniteFuel;
+	opts->noHQEncounters = optNoHQEncounters;
+	opts->deCleansing = optDeCleansing;
+	opts->meleeObstacles = optMeleeObstacles;
 }
 
 void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
-	int NewGfxFlags = GfxFlags;
-	int NewWidth = ScreenWidthActual;
-	int NewHeight = ScreenHeightActual;
-	int NewDriver = GraphicsDriver;
-	int SeedStuff;
-	
-	unsigned int oldResFactor = resolutionFactor; 
+	int NewSndFlags = 0;
+	int resFactor = resolutionFactor;
+	int newFactor;
 
-	NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
-	
-	
-	switch (opts->screenResolution) {
-		case OPTVAL_320_240:
-			NewWidth = 320;
-			NewHeight = 240;
-#ifdef HAVE_OPENGL	       
-			NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-			resolutionFactor = 0;
-			break;
-		case OPTVAL_REAL_1280_960:
-			NewWidth = 1280;
-			NewHeight = 960;
-#ifdef HAVE_OPENGL	       
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-			resolutionFactor = 2;
-			break;
-		default:
-			/* Don't mess with the custom value */
-			resolutionFactor = 0; 
-			break;
-	}
+/*
+ *		Graphics options
+ */
 
-	if (NewWidth == 320 && NewHeight == 240)
-	{	// MB: Moved code to here to make it work with 320x240 resolutions
-		// before opts->loresBlowup switch after
-		switch (opts->scaler)
-		{
-			case OPTVAL_BILINEAR_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-				res_PutString ("config.scaler", "bilinear");
-				break;
-			case OPTVAL_BIADAPT_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BIADAPT;
-				res_PutString ("config.scaler", "biadapt");
-				break;
-			case OPTVAL_BIADV_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BIADAPTADV;
-				res_PutString ("config.scaler", "biadv");
-				break;
-			case OPTVAL_TRISCAN_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_TRISCAN;
-				res_PutString ("config.scaler", "triscan");
-				break;
-			case OPTVAL_HQXX_SCALE:
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_HQXX;
-				res_PutString ("config.scaler", "hq");
-				break;
-			case OPTVAL_NO_SCALE:
-			default:
-				/* OPTVAL_NO_SCALE has no equivalent in gfxflags. */
-				res_PutString ("config.scaler", "no");
-				break;
-		}
-	}
-	else
-	{	// Anything higher than bilinear in HD is a massive
-		// performance hit with no visual benefit
-		if (opts->scaler > OPTVAL_NO_SCALE)
-		{
-			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-			res_PutString ("config.scaler", "bilinear");
-		}
-		else	// OPTVAL_NO_SCALE has no equivalent in gfxflags.
-			res_PutString ("config.scaler", "no");
-	}
+	newFactor = (int)(opts->screenResolution << 1);
+	PutIntOpt (&resFactor, &newFactor, "config.resolutionfactor", TRUE);
 
-	if (NewWidth == 320 && NewHeight == 240)
-	{	
-		switch (opts->loresBlowup) {
-			case NO_BLOWUP:
-				// JMS: Default value: Don't do anything.
-				break;
-			case OPTVAL_SCALE_640_480:
-				NewWidth = 640;
-				NewHeight = 480;
-#ifdef HAVE_OPENGL	       
-				NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_960_720:
-				NewWidth = 960;
-				NewHeight = 720;
-#ifdef HAVE_OPENGL	       
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_1280_960:
-				NewWidth = 1280;
-				NewHeight = 960;
-#ifdef HAVE_OPENGL	       
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_1600_1200:
-				NewWidth = 1600;
-				NewHeight = 1200;
-#ifdef HAVE_OPENGL	       
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			case OPTVAL_SCALE_1920_1440:
-				NewWidth = 1920;
-				NewHeight = 1440;
-#ifdef HAVE_OPENGL	       
-				NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-				NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 0;
-				break;
-			default:
-				break;
-		}
-	}
-	else
-	{	
-		switch (opts->loresBlowup) {
-			case OPTVAL_SCALE_640_480:
-				NewWidth = 640;
-				NewHeight = 480;
-				resolutionFactor = 2;
-#ifdef HAVE_OPENGL	       
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				break;
-			case OPTVAL_SCALE_960_720:
-				NewWidth = 960;
-				NewHeight = 720;
-#ifdef HAVE_OPENGL	       
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			case NO_BLOWUP:
-			case OPTVAL_SCALE_1280_960:
-				NewWidth = 1280;
-				NewHeight = 960;
-#ifdef HAVE_OPENGL	       
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			case OPTVAL_SCALE_1600_1200:
-				NewWidth = 1600;
-				NewHeight = 1200;
-#ifdef HAVE_OPENGL	       
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			case OPTVAL_SCALE_1920_1440:
-				NewWidth = 1920;
-				NewHeight = 1440;
-#ifdef HAVE_OPENGL	       
-			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
-#else
-			NewDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
-				resolutionFactor = 2;
-				break;
-			default:
-				break;
-		}
-	}
-
-	// To force the game to reload content when changing music, video, and speech options
- 	if ((opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-		(opts->intro != (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC) ||
-		(opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-		(opts->musicremix != (optRemixMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-		(opts->volasMusic != (optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-		(opts->spaceMusic != (optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
+	if (resFactor != resolutionFactor)
 	{
-		if(opts->speech != (optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED)){
-			printf("Voice Option Changed\n");
-		}
-		if(opts->intro != (optWhichIntro == OPT_3DO) ? OPTVAL_3DO : OPTVAL_PC){
-			printf("Video/Slide Option Changed\n");
-		}
-		if((opts->music3do != (opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-			(opts->musicremix != (optRemixMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-			(opts->volasMusic != (optVolasMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)) ||
-			(opts->spaceMusic != (optSpaceMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
-		{
-			printf("Music Option Changed\n");
-			optRequiresRestart = TRUE;
-		}		
- 		optRequiresReload = TRUE;
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+		resolutionFactor = resFactor;
 	}
 
-	// MB: To force the game to restart when changing resolution options (otherwise they will not be changed)
-	if(oldResFactor != resolutionFactor ||
-		audioDriver != opts->adriver ||
-		audioQuality != opts->aquality ||
-		(opts->stereo != (optStereoSFX ? OPTVAL_ENABLED : OPTVAL_DISABLED)))
- 		optRequiresRestart = TRUE;
+//#if !(defined(ANDROID) || defined(__ANDROID__))
+//	if (opts->fullscreen)
+//		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+//#endif
+//	if (IS_HD)
+//	{// Kruzen - adjust scalers for HD
+//		if (opts->scaler != OPTVAL_BILINEAR_SCALE)
+//			opts->scaler = OPTVAL_BILINEAR_SCALE;
+//
+//#if !(defined(ANDROID) || defined(__ANDROID__))
+//		if (!(NewGfxFlags & TFB_GFXFLAGS_FULLSCREEN) &&
+//			(opts->loresBlowup == NO_BLOWUP ||
+//				opts->loresBlowup == OPTVAL_SCALE_1280_960))
+//			opts->scaler = OPTVAL_NO_SCALE;
+//#endif
+//	}
 
-	if ((int)opts->controllerType != optControllerType)
-	{
-		optControllerType = (int)opts->controllerType;
-		TFB_UninitInput ();
-		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
-	}
-
-	res_PutInteger ("config.reswidth", NewWidth);
-	res_PutInteger ("config.resheight", NewHeight);
-	res_PutBoolean ("config.alwaysgl", opts->driver == OPTVAL_ALWAYS_GL);
-	res_PutBoolean ("config.usegl", NewDriver == TFB_GFXDRIVER_SDL_OPENGL);
-
-	res_PutInteger ("config.resolutionfactor", resolutionFactor);
-	res_PutInteger ("config.loresBlowupScale", opts->loresBlowup);
-
-	res_PutBoolean ("cheat.kohrStahp", opts->cheatMode == OPTVAL_ENABLED);
-	optCheatMode = opts->cheatMode == OPTVAL_ENABLED;
-
-	res_PutInteger ("cheat.godModes", opts->godModes);
-	optGodModes = opts->godModes;
-
-	res_PutInteger ("cheat.timeDilation", opts->tdType);
-	timeDilationScale = opts->tdType;
-
-	res_PutBoolean ("cheat.bubbleWarp", opts->bubbleWarp == OPTVAL_ENABLED);
-	optBubbleWarp = opts->bubbleWarp == OPTVAL_ENABLED;
-
-	res_PutBoolean ("cheat.unlockShips", opts->unlockShips == OPTVAL_ENABLED);
-	optUnlockShips = opts->unlockShips == OPTVAL_ENABLED;
-
-	res_PutBoolean ("cheat.headStart", opts->headStart == OPTVAL_ENABLED);
-	optHeadStart = opts->headStart == OPTVAL_ENABLED;
-
-	res_PutBoolean ("cheat.unlockUpgrades", opts->unlockUpgrades == OPTVAL_ENABLED);
-	optUnlockUpgrades = opts->unlockUpgrades == OPTVAL_ENABLED;
-
-	res_PutBoolean ("cheat.infiniteRU", opts->infiniteRU == OPTVAL_ENABLED);
-	optInfiniteRU = opts->infiniteRU == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.skipIntro", opts->skipIntro == OPTVAL_ENABLED);
-	optSkipIntro = opts->skipIntro == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.mainMenuMusic", opts->mainMenuMusic == OPTVAL_ENABLED);
-	optMainMenuMusic = opts->mainMenuMusic == OPTVAL_ENABLED;
-	if(!optMainMenuMusic)
-		FadeMusic (0, ONE_SECOND);
-	else
-		FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND);
-
-	res_PutBoolean ("mm.nebulae", opts->nebulae == OPTVAL_ENABLED);
-	optNebulae = opts->nebulae == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.orbitingPlanets", opts->orbitingPlanets == OPTVAL_ENABLED);
-	optOrbitingPlanets = opts->orbitingPlanets == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.texturedPlanets", opts->texturedPlanets == OPTVAL_ENABLED);
-	optTexturedPlanets = opts->texturedPlanets == OPTVAL_ENABLED;
-
-	optDateFormat = opts->dateType;
-	res_PutInteger ("mm.dateFormat", opts->dateType);
-
-	res_PutBoolean ("cheat.infiniteFuel", opts->infiniteFuel == OPTVAL_ENABLED);
-	optInfiniteFuel = opts->infiniteFuel == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.partialPickup", opts->partialPickup == OPTVAL_ENABLED);
-	optPartialPickup = opts->partialPickup == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.submenu", opts->submenu == OPTVAL_ENABLED);
-	optSubmenu = opts->submenu == OPTVAL_ENABLED;
-
-	res_PutBoolean ("cheat.addDevices", opts->addDevices == OPTVAL_ENABLED);
-	optAddDevices = opts->addDevices == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.customBorder", opts->customBorder == OPTVAL_ENABLED);
-	optCustomBorder = opts->customBorder == OPTVAL_ENABLED;
-
-	SeedStuff = res_GetInteger ("mm.customSeed");
-	if(!SANE_SEED (SeedStuff))
-		opts->customSeed = PrimeA;
-	else 
-		opts->customSeed = optCustomSeed;
-	res_PutInteger ("mm.customSeed", opts->customSeed);
-
-	res_PutBoolean ("mm.spaceMusic", opts->spaceMusic == OPTVAL_ENABLED);
-	optSpaceMusic = opts->spaceMusic == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.volasMusic", opts->volasMusic == OPTVAL_ENABLED);
-	optVolasMusic = (opts->volasMusic == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.wholeFuel", opts->wholeFuel == OPTVAL_ENABLED);
-	optWholeFuel = (opts->wholeFuel == OPTVAL_ENABLED);
-
-#if defined(ANDROID) || defined(__ANDROID__)
-	res_PutBoolean("mm.directionalJoystick", opts->directionalJoystick == OPTVAL_ENABLED);
-	optDirectionalJoystick = (opts->directionalJoystick == OPTVAL_ENABLED);
-#endif
-
-	optLanderHold = (opts->landerHold == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.landerHold", opts->landerHold == OPTVAL_3DO);
-
-	optScrTrans = (opts->scrTrans == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.scrTransition", opts->scrTrans == OPTVAL_3DO);
-
-	optDifficulty = opts->difficulty;
-	res_PutInteger ("mm.difficulty", opts->difficulty);
-
-	optFuelRange = opts->fuelRange;
-	res_PutInteger ("mm.fuelRange", opts->fuelRange);
-
-	res_PutBoolean ("mm.extended", opts->extended == OPTVAL_ENABLED);
-	optExtended = (opts->extended == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.nomad", opts->nomad == OPTVAL_ENABLED);
-	optNomad = (opts->nomad == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.gameOver", opts->gameOver == OPTVAL_ENABLED);
-	optGameOver = (opts->gameOver == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.shipDirectionIP", opts->shipDirectionIP == OPTVAL_ENABLED);
-	optShipDirectionIP = (opts->shipDirectionIP == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.hazardColors", opts->hazardColors == OPTVAL_ENABLED);
-	optHazardColors = (opts->hazardColors == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.orzCompFont", opts->orzCompFont == OPTVAL_ENABLED);
-	optOrzCompFont = (opts->orzCompFont == OPTVAL_ENABLED);
-
-#if SDL_MAJOR_VERSION == 2 // Refined joypad controls aren't supported on SDL1
-	res_PutInteger ("mm.controllerType", opts->controllerType);
-	optControllerType = opts->controllerType;
-#endif
-
-	res_PutBoolean ("mm.smartAutoPilot", opts->smartAutoPilot == OPTVAL_ENABLED);
-	optSmartAutoPilot = (opts->smartAutoPilot == OPTVAL_ENABLED);
-
-	optTintPlanSphere = (opts->tintPlanSphere == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.tintPlanSphere", opts->tintPlanSphere == OPTVAL_3DO);
-
-	optPlanetStyle = (opts->planetStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.planetStyle", opts->planetStyle == OPTVAL_3DO);
-
-	res_PutInteger ("mm.starBackground", opts->starBackground);
-	optStarBackground = opts->starBackground;
-
-	optScanStyle = (opts->scanStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.scanStyle", opts->scanStyle == OPTVAL_3DO);
-
-	res_PutBoolean ("mm.nonStopOscill", opts->nonStopOscill == OPTVAL_ENABLED);
-	optNonStopOscill = (opts->nonStopOscill == OPTVAL_ENABLED);
-
-	optScopeStyle = (opts->scopeStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.scopeStyle", opts->scopeStyle == OPTVAL_3DO);
-
-	res_PutBoolean ("mm.hyperStars", opts->hyperStars == OPTVAL_ENABLED);
-	optHyperStars = (opts->hyperStars == OPTVAL_ENABLED);
-
-	optSuperPC = (opts->landerStyle == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.landerStyle", opts->landerStyle == OPTVAL_3DO);
-
-	res_PutBoolean ("mm.planetTexture", opts->planetTexture == OPTVAL_ENABLED);
-	optPlanetTexture = (opts->planetTexture == OPTVAL_ENABLED);
-
-	optFlagshipColor = (opts->flagshipColor == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	res_PutBoolean ("mm.flagshipColor", opts->flagshipColor == OPTVAL_3DO);
-
-	res_PutBoolean ("cheat.noHQEncounters", opts->noHQEncounters == OPTVAL_ENABLED);
-	optNoHQEncounters = (opts->noHQEncounters == OPTVAL_ENABLED);
-
-	res_PutBoolean ("cheat.deCleansing", opts->deCleansing == OPTVAL_ENABLED);
-	optDeCleansing = opts->deCleansing == OPTVAL_ENABLED;
-
-	res_PutBoolean ("cheat.meleeObstacles", opts->meleeObstacles == OPTVAL_ENABLED);
-	optMeleeObstacles = opts->meleeObstacles == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.showVisitedStars", opts->showVisitedStars == OPTVAL_ENABLED);
-	optShowVisitedStars = opts->showVisitedStars == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.unscaledStarSystem", opts->unscaledStarSystem == OPTVAL_ENABLED);
-	optUnscaledStarSystem = opts->unscaledStarSystem == OPTVAL_ENABLED;
-
-	res_PutInteger ("mm.sphereType", opts->sphereType);
-	optScanSphere = opts->sphereType;
-
-	res_PutInteger ("mm.nebulaevol", opts->nebulaevol);
-	optNebulaeVolume = opts->nebulaevol;
-
-	res_PutBoolean ("mm.slaughterMode", opts->slaughterMode == OPTVAL_ENABLED);
-	optSlaughterMode = opts->slaughterMode == OPTVAL_ENABLED;
-
-	res_PutBoolean ("mm.advancedAutoPilot", opts->advancedAutoPilot == OPTVAL_ENABLED);
-	optAdvancedAutoPilot = (opts->advancedAutoPilot == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.meleeToolTips", opts->meleeToolTips == OPTVAL_ENABLED);
-	optMeleeToolTips = (opts->meleeToolTips == OPTVAL_ENABLED);
-
-	res_PutBoolean ("mm.musicResume", opts->musicResume == OPTVAL_ENABLED);
-	optMusicResume = (opts->musicResume == OPTVAL_ENABLED);
-
-	if (opts->scanlines && !IS_HD)
-		NewGfxFlags |= TFB_GFXFLAGS_SCANLINES;
-	else
-		NewGfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
-
-#if !(defined(ANDROID) || defined(__ANDROID__))
-	if (opts->fullscreen)
-	{
-		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
-		if (IS_HD)
-		{
-			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-			res_PutString ("config.scaler", "bilinear");
-		}
-	}
-	else
-	{
-		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
-		// Force the usage of no filter in 1280x960 windowed mode.
-		// While forcing the usage of bilinear filter in scaled windowed modes.
-		if (IS_HD)
-		{
-			if (NewWidth == 1280)
-			{
-				NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
-				res_PutString ("config.scaler", "no");
-			}
-			else
-			{
-				NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
-				res_PutString ("config.scaler", "bilinear");
-			}
-		}
-	}
-#endif
-
-	res_PutBoolean ("config.scanlines", (BOOLEAN)opts->scanlines);
-	res_PutBoolean ("config.fullscreen", (BOOLEAN)opts->fullscreen);
-	
-	if ((NewWidth != ScreenWidthActual) ||
-	    (NewHeight != ScreenHeightActual) ||
-	    (NewDriver != GraphicsDriver) ||
-		(optRequiresRestart) || 
-	    (NewGfxFlags != GfxFlags)) 
-	{
-		FlushGraphics ();
-		UninitVideoPlayer ();
-		
-		
-		if (optRequiresRestart)
-		{
-			ScreenWidth  = 320 << resolutionFactor;
-			ScreenHeight = 240 << resolutionFactor;
-			
-			log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, Wactual:%d, Hactual:%d",
-				ScreenWidth, ScreenHeight, ScreenWidthActual, ScreenHeightActual);
-			
-			// These solve the context problem that plagued the setupmenu when changing to higher resolution.
-			TFB_BBox_Reset ();
-			TFB_BBox_Init (ScreenWidth, ScreenHeight);
-			
-			// Change how big area of the screen is update-able.
-			DestroyDrawable (ReleaseDrawable (Screen));
-			Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP, &screen_width, &screen_height));
-			SetContext (ScreenContext);
-			SetContextFGFrame ((FRAME)NULL);
-			SetContextFGFrame (Screen);
-		}
-		
-		TFB_DrawScreen_ReinitVideo (NewDriver, NewGfxFlags, NewWidth, NewHeight);
-		FlushGraphics ();
-		InitVideoPlayer (TRUE);
-	}
+	PutBoolOpt (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", FALSE);
 
 	// Avoid setting gamma when it is not necessary
 	if (optGamma != 1.0f || sliderToGamma (opts->gamma) != 1.0f)
 	{
 		optGamma = sliderToGamma (opts->gamma);
 		setGammaCorrection (optGamma);
+		res_PutInteger ("config.gamma", (int) (optGamma * GAMMA_SCALE + 0.5));
 	}
 
-	optSubtitles = (opts->subtitles == OPTVAL_ENABLED) ? TRUE : FALSE;
-	optWhichMenu = (opts->menu == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	optWhichFonts = (opts->text == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	optWhichCoarseScan = opts->cscan;
-	optSmoothScroll = (opts->scroll == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-#if !(defined(ANDROID) || defined(__ANDROID__))
-	optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
+
+/*
+ *		Audio options
+ */
+	PutBoolOpt (&optStereoSFX, &opts->stereo, "config.positionalsfx", TRUE);
+	PutBoolOpt (&opt3doMusic, &opts->music3do, "config.3domusic", TRUE);
+	PutBoolOpt (&optRemixMusic, &opts->musicremix, "config.remixmusic", TRUE);
+	PutBoolOpt (&optVolasMusic, &opts->volasMusic, "mm.volasMusic", TRUE);
+	PutBoolOpt (&optSpaceMusic, &opts->spaceMusic, "mm.spaceMusic", TRUE);
+
+	if (PutBoolOpt (&optMainMenuMusic, &opts->mainMenuMusic, "mm.mainMenuMusic", FALSE))
+	{
+		if (optMainMenuMusic)
+			InitMenuMusic ();
+		else
+			UninitMenuMusic ();
+	}
+
+	PutBoolOpt (&optMusicResume, &opts->musicResume, "mm.musicResume", FALSE);
+	PutBoolOpt (&optSpeech, &opts->speech, "config.speech", TRUE);
+
+	if (audioDriver != opts->adriver)
+	{
+		audioDriver = opts->adriver;
+		switch (opts->adriver)
+		{
+			case OPTVAL_SILENCE:
+				snddriver = audio_DRIVER_NOSOUND;
+				res_PutString ("config.audiodriver", "none");
+				break;
+			case OPTVAL_MIXSDL:
+				snddriver = audio_DRIVER_MIXSDL;
+				res_PutString ("config.audiodriver", "mixsdl");
+				break;
+			case OPTVAL_OPENAL:
+				snddriver = audio_DRIVER_OPENAL;
+				res_PutString ("config.audiodriver", "openal");
+				break;
+			default:
+				/* Shouldn't happen; leave config untouched */
+				break;
+		}
+
+		optRequiresRestart = TRUE;
+	}
+
+	if (audioQuality != opts->aquality)
+	{
+		audioQuality = opts->aquality;
+		switch (opts->aquality)
+		{
+			case OPTVAL_LOW:
+				NewSndFlags |= audio_QUALITY_LOW;
+				res_PutString ("config.audioquality", "low");
+				break;
+			case OPTVAL_MEDIUM:
+				NewSndFlags |= audio_QUALITY_MEDIUM;
+				res_PutString ("config.audioquality", "medium");
+				break;
+			case OPTVAL_HIGH:
+				NewSndFlags |= audio_QUALITY_HIGH;
+				res_PutString ("config.audioquality", "high");
+				break;
+			default:
+				/* Shouldn't happen; leave config untouched */
+				break;
+		}
+		soundflags = NewSndFlags;
+
+		optRequiresRestart = TRUE;
+	}
+
+	// update actual volumes
+	PutIntOpt (&SfxVol, &opts->sfxvol, "config.sfxvol", FALSE);
+	PutIntOpt (&MusVol, &opts->musicvol, "config.musicvol", FALSE);
+	PutIntOpt (&SpcVol, &opts->speechvol, "config.speechvol", FALSE);
+
+
+/*
+ *		Engine&Visuals options
+ */
+	// Mics
+	PutBoolOpt (&optSubtitles, &opts->subtitles, "config.subtitles", FALSE);
+	PutConsOpt (&optWhichMenu, &opts->menu, "config.textmenu", FALSE);
+	PutBoolOpt (&optSubmenu, &opts->submenu, "mm.submenu", FALSE);
+	PutConsOpt (&optWhichFonts, &opts->text, "config.textgradients", FALSE);
+	PutConsOpt (&optScrTrans, &opts->scrTrans, "mm.scrTransition", FALSE);
+	PutConsOpt (&optWhichIntro, &opts->intro, "config.3domovies", TRUE);
+	PutBoolOpt (&optSkipIntro, &opts->skipIntro, "mm.skipIntro", FALSE);
+	if (optMScale != (int)opts->meleezoom)
+	{
+#if defined(ANDROID) || defined(__ANDROID__)
+		switch (opts->meleezoom) 
+		{
+			case TFB_SCALE_NEAREST:
+				optMeleeScale = OPTVAL_NEAREST;
+				break;
+			case TFB_SCALE_BILINEAR:
+				optMeleeScale = OPTVAL_BILINEAR;
+				break;
+			case TFB_SCALE_TRILINEAR:
+				optMeleeScale = OPTVAL_TRILINEAR;
+				break;
+			case TFB_SCALE_STEP:
+			default:
+				optMeleeScale = OPTVAL_STEP;
+				break;
+		}
+		res_PutInteger ("config.smoothmelee", opts->meleezoom);
+#else
+		optMeleeScale = ((int)opts->meleezoom == OPTVAL_3DO)
+				? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
+		res_PutBoolean ("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
 #endif
-	opt3doMusic = (opts->music3do == OPTVAL_ENABLED);
-	optRemixMusic = (opts->musicremix == OPTVAL_ENABLED);
-	optSpeech = (opts->speech == OPTVAL_ENABLED);
-	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-	optStereoSFX = (opts->stereo == OPTVAL_ENABLED);
-	optKeepAspectRatio = (opts->keepaspect == OPTVAL_ENABLED);
+	}
+#if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
+		opts->controllerType = 0;
+#endif
+	if (PutIntOpt (&optControllerType, (int*)(&opts->controllerType), "mm.controllerType", FALSE))
+	{
+		TFB_UninitInput ();
+		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+	}
+#if defined(ANDROID) || defined(__ANDROID__)
+	PutBoolOpt (&optDirectionalJoystick, opts->directionalJoystick, "mm.directionalJoystick", FALSE);
+#endif
+	PutIntOpt  (&optDateFormat, (int*)(&opts->dateType), "mm.dateFormat", FALSE);
+	PutBoolOpt (&optCustomBorder, &opts->customBorder, "mm.customBorder", FALSE);
+	PutConsOpt (&optFlagshipColor, &opts->flagshipColor, "mm.flagshipColor", FALSE);
+	PutBoolOpt (&optGameOver, &opts->gameOver, "mm.gameOver", FALSE);
+	PutBoolOpt (&optHyperStars, &opts->hyperStars, "mm.hyperStars", FALSE);
+	PutBoolOpt (&optShowVisitedStars, &opts->showVisitedStars, "mm.showVisitedStars", FALSE);
+	PutIntOpt  (&optFuelRange, (int*)(&opts->fuelRange), "mm.fuelRange", FALSE);
+	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
+	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
+	
+	// Interplanetary
+	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);
+	PutIntOpt  (&optNebulaeVolume, &opts->nebulaevol, "mm.nebulaevol", FALSE);
+	PutIntOpt  (&optStarBackground, &opts->starBackground, "mm.starBackground", FALSE);
+	PutBoolOpt (&optUnscaledStarSystem, &opts->unscaledStarSystem, "mm.unscaledStarSystem", FALSE);
+	PutConsOpt (&optPlanetStyle, &opts->planetStyle, "mm.planetStyle", FALSE);
+	PutBoolOpt (&optOrbitingPlanets, &opts->orbitingPlanets, "mm.orbitingPlanets", FALSE);
+	PutBoolOpt (&optTexturedPlanets, &opts->texturedPlanets, "mm.texturedPlanets", FALSE);
+	
+	// Orbit
+	PutConsOpt (&optLanderHold, &opts->landerHold, "mm.landerHold", FALSE);
+	PutBoolOpt (&optPartialPickup, &opts->partialPickup, "mm.partialPickup", FALSE);
+	PutIntOpt  (&optWhichCoarseScan, &opts->cscan, "config.iconicscan", FALSE);
+	PutBoolOpt (&optHazardColors, &opts->hazardColors, "mm.hazardColors", FALSE);
+	PutConsOpt (&optScanStyle, &opts->scanStyle, "mm.scanStyle", FALSE);
+	PutConsOpt (&optSuperPC, &opts->landerStyle, "mm.landerStyle", FALSE);
+	PutBoolOpt (&optPlanetTexture, &opts->planetTexture, "mm.planetTexture", FALSE);
+	PutIntOpt  (&optScanSphere, (int*)&opts->sphereType, "mm.sphereType", FALSE);
+	PutConsOpt (&optTintPlanSphere, &opts->tintPlanSphere, "mm.tintPlanSphere", FALSE);
+	PutConsOpt (&optWhichShield, &opts->shield, "config.pulseshield", FALSE);
+
+	// Game modes
+	{
+		int customSeed = atoi (textentries[1].value);
+		if (!SANE_SEED (customSeed))
+			customSeed = PrimeA;
+		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE); 
+	}
+
+	PutIntOpt (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", FALSE);
+	if ((optDifficulty = opts->difficulty) == OPTVAL_IMPO)
+		optDifficulty = OPTVAL_NORM;
+	PutBoolOpt (&optExtended, &opts->extended, "mm.extended", FALSE);
+	PutBoolOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
+	PutBoolOpt (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", FALSE);
+
+	// Comm screen
+	PutConsOpt (&optSmoothScroll, &opts->scroll, "config.smoothscroll", FALSE);
+	PutBoolOpt (&optOrzCompFont, &opts->orzCompFont, "mm.orzCompFont", FALSE);
+	PutConsOpt (&optScopeStyle, &opts->scopeStyle, "mm.scopeStyle", FALSE);
+	PutBoolOpt (&optNonStopOscill, &opts->nonStopOscill, "mm.nonStopOscill", FALSE);
+
+	// Auto-Pilot
+	PutBoolOpt (&optSmartAutoPilot, &opts->smartAutoPilot, "mm.smartAutoPilot", FALSE);
+	PutBoolOpt (&optAdvancedAutoPilot, &opts->advancedAutoPilot, "mm.advancedAutoPilot", FALSE);
+	PutBoolOpt (&optShipDirectionIP, &opts->shipDirectionIP, "mm.shipDirectionIP", FALSE);
+
+	// Controls
 	PlayerControls[1] = opts->player2;
 
 	if (optControllerType == 2)
@@ -2315,85 +2488,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	else
 		PlayerControls[0] = opts->player1;
 
-	res_PutBoolean ("config.subtitles", opts->subtitles == OPTVAL_ENABLED);
-	res_PutBoolean ("config.textmenu", opts->menu == OPTVAL_PC);
-	res_PutBoolean ("config.textgradients", opts->text == OPTVAL_PC);
-	res_PutInteger ("config.iconicscan", opts->cscan);
-	res_PutBoolean ("config.smoothscroll", opts->scroll == OPTVAL_3DO);
-
-	res_PutBoolean ("config.3domusic", opts->music3do == OPTVAL_ENABLED);
-	res_PutBoolean ("config.remixmusic", opts->musicremix == OPTVAL_ENABLED);
-	res_PutBoolean ("config.speech", opts->speech == OPTVAL_ENABLED);
-	res_PutBoolean ("config.3domovies", opts->intro == OPTVAL_3DO);
-	res_PutBoolean ("config.showfps", opts->fps == OPTVAL_ENABLED);
-#if defined(ANDROID) || defined(__ANDROID__)
-	switch (opts->meleezoom) {
-		case TFB_SCALE_NEAREST:
-			optMeleeScale = OPTVAL_NEAREST;
-			break;
-		case TFB_SCALE_BILINEAR:
-			optMeleeScale = OPTVAL_BILINEAR;
-			break;
-		case TFB_SCALE_TRILINEAR:
-			optMeleeScale = OPTVAL_TRILINEAR;
-			break;
-		case TFB_SCALE_STEP:
-		default:
-			optMeleeScale = OPTVAL_STEP;
-			break;
-	}
-	res_PutInteger("config.smoothmelee", opts->meleezoom);
-#else
-	res_PutBoolean("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
-#endif
-	res_PutBoolean ("config.positionalsfx", opts->stereo == OPTVAL_ENABLED); 
-	res_PutBoolean ("config.pulseshield", opts->shield == OPTVAL_3DO);
-	res_PutBoolean ("config.keepaspectratio", opts->keepaspect == OPTVAL_ENABLED);
-	res_PutInteger ("config.gamma", (int) (optGamma * GAMMA_SCALE + 0.5));
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
-
-	switch (opts->adriver) {
-		case OPTVAL_SILENCE:
-			res_PutString ("config.audiodriver", "none");
-			break;
-		case OPTVAL_MIXSDL:
-			res_PutString ("config.audiodriver", "mixsdl");
-			break;
-		case OPTVAL_OPENAL:
-			res_PutString ("config.audiodriver", "openal");
-		default:
-			/* Shouldn't happen; leave config untouched */
-			break;
-	}
-
-	switch (opts->aquality) {
-		case OPTVAL_LOW:
-			res_PutString ("config.audioquality", "low");
-			break;
-		case OPTVAL_MEDIUM:
-			res_PutString ("config.audioquality", "medium");
-			break;
-		case OPTVAL_HIGH:
-			res_PutString ("config.audioquality", "high");
-			break;
-		default:
-			/* Shouldn't happen; leave config untouched */
-			break;
-	}
-	
-	if(optRequiresReload && LoadKernel(0,0,TRUE))
-		printf("Packages Reloaded\n");
-
-	res_PutInteger ("config.musicvol", opts->musicvol);
-	res_PutInteger ("config.sfxvol", opts->sfxvol);
-	res_PutInteger ("config.speechvol", opts->speechvol);
-	musicVolumeScale = opts->musicvol / 100.0f;
-	sfxVolumeScale = opts->sfxvol / 100.0f;
-	speechVolumeScale = opts->speechvol / 100.0f;
-	// update actual volumes
-	SetMusicVolume (musicVolume);
-	SetSpeechVolume (speechVolumeScale);
 
 	res_PutString ("keys.1.name", input_templates[0].name);
 	res_PutString ("keys.2.name", input_templates[1].name);
@@ -2402,9 +2498,57 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutString ("keys.5.name", input_templates[4].name);
 	res_PutString ("keys.6.name", input_templates[5].name);
 
+
+/*
+ *		Cheats
+ */
+	PutBoolOpt (&optCheatMode, &opts->cheatMode, "cheat.kohrStahp", FALSE);
+	PutIntOpt  (&optGodModes, (int*)&opts->godModes, "cheat.godModes", FALSE);
+	PutIntOpt  (&timeDilationScale, (int*)&opts->tdType, "cheat.timeDilation", FALSE);
+	PutBoolOpt (&optBubbleWarp, &opts->bubbleWarp, "cheat.bubbleWarp", FALSE);
+	PutBoolOpt (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", FALSE);
+	PutBoolOpt (&optHeadStart, &opts->headStart, "cheat.headStart", FALSE);
+	PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
+	PutBoolOpt (&optAddDevices, &opts->addDevices, "cheat.addDevices", FALSE);
+	PutBoolOpt (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", FALSE);
+	PutBoolOpt (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", FALSE);
+	PutBoolOpt (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", FALSE);
+	PutBoolOpt (&optDeCleansing, &opts->deCleansing, "cheat.deCleansing", FALSE);
+	PutBoolOpt (&optMeleeObstacles, &opts->meleeObstacles, "cheat.meleeObstacles", FALSE);
+
 	SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
 	SaveKeyConfiguration (configDir, "flight.cfg");
 	
 	SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
+
+	if (optRequiresReload)
+	{
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+
+		FlushGraphics ();
+		UninitVideoPlayer ();
+
+		ResetOffset ();
+
+		RESOLUTION_FACTOR = resolutionFactor;
+		ScreenWidth = 320 << resolutionFactor;
+		ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
+
+		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
+				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
+				ScreenWidthActual, ScreenHeightActual);
+
+		// These solve the context problem that plagued the setupmenu
+		// when changing to higher resolution.
+		TFB_BBox_Reset ();
+		TFB_BBox_Init (ScreenWidth, ScreenHeight);
+		FlushColorXForms ();
+
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				ScreenWidthActual, ScreenHeightActual);
+		InitVideoPlayer (TRUE);
+
+		Reload ();
+	}
 }

@@ -778,6 +778,13 @@ init_melnorme (void)
 		melnorme_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		melnorme_desc.cyborg_control.WeaponRange = PUMPUP_SPEED_HD * PUMPUP_LIFE;
 	}
+	else
+	{
+		melnorme_desc.characteristics.max_thrust = MAX_THRUST;
+		melnorme_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		melnorme_desc.cyborg_control.WeaponRange =
+				PUMPUP_SPEED * PUMPUP_LIFE;
+	}
 
 	melnorme_desc.postprocess_func = melnorme_postprocess;
 	melnorme_desc.init_weapon_func = initialize_pump_up;

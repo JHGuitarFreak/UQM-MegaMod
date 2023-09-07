@@ -57,15 +57,18 @@ enum
 		  TFB_GFXFLAGS_SCALE_HQXX )
 #define TFB_GFXFLAGS_SCALE_SOFT_ONLY \
 		( TFB_GFXFLAGS_SCALE_ANY & ~TFB_GFXFLAGS_SCALE_BILINEAR )
+#define TFB_GFXFLAGS_EX_FULLSCREEN      (1<<8)
 
 // The flag variable itself
 extern int GfxFlags;
 
 // The following functions are driver-defined
 void TFB_PreInit (void);
-int TFB_InitGraphics (int driver, int flags, const char* renderer, 
-		int width, int height, unsigned int *resFactor);
-int TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int *resFactor);
+int TFB_InitGraphics (int driver, int flags, const char* renderer,
+		int width, int height, unsigned int *resFactor,
+		unsigned int *windowType);
+int TFB_ReInitGraphics (int driver, int flags, int width, int height,
+		unsigned int *resFactor, unsigned int *windowType);
 void TFB_UninitGraphics (void);
 void TFB_ProcessEvents (void);
 bool TFB_SetGamma (float gamma);
@@ -113,6 +116,7 @@ extern int ScreenColorDepth;
 extern int GraphicsDriver;
 
 void TFB_ScreenShot (void);
+void TFB_ClearFPSCanvas (void);
 void TFB_SetOnScreenKeyboard_Hidden(void);
 void TFB_SetOnScreenKeyboard_HiddenPermanently(void);
 void TFB_SetOnScreenKeyboard_Menu(void);

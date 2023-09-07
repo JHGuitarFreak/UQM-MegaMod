@@ -660,6 +660,12 @@ init_chenjesu (void)
 		chenjesu_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		chenjesu_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD;
 	}
+	else
+	{
+		chenjesu_desc.characteristics.max_thrust = MAX_THRUST;
+		chenjesu_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		chenjesu_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON;
+	}
 
 	chenjesu_desc.preprocess_func = chenjesu_preprocess;
 	chenjesu_desc.postprocess_func = chenjesu_postprocess;

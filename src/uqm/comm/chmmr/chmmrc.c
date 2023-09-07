@@ -213,8 +213,8 @@ ExitConversation (RESPONSE_REF R)
 			/* XXX : this should be unhardcoded eventually */
 			/* transport to Starbase */
 			/* note: if optOrbitingPlanets is enabled, this will be corrected in DoTimePassage */
-			GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + COSINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS);
-			GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + SINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS >> 1);
+			GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + COSINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS) - SAFE_X;
+			GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + SINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS >> 1) - SAFE_Y;
 		}
 		else
 		{	/* 'Beating Game Differently' mode - never visited Starbase,

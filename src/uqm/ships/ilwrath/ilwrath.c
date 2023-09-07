@@ -405,6 +405,12 @@ init_ilwrath (void)
 		ilwrath_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		ilwrath_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
+	else
+	{
+		ilwrath_desc.characteristics.max_thrust = MAX_THRUST;
+		ilwrath_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		ilwrath_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON;
+	}
 
 	ilwrath_desc.preprocess_func = ilwrath_preprocess;
 	ilwrath_desc.init_weapon_func = initialize_flame;

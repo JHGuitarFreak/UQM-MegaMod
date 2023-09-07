@@ -22,9 +22,11 @@
 #include "libs/graphics/sdl/sdl_common.h"
 #if SDL_MAJOR_VERSION == 1
 
-int TFB_GL_InitGraphics (int driver, int flags, int width, int height, unsigned int resFactor);
+int TFB_GL_InitGraphics (int driver, int flags, int width, int height,
+		int resFactor);
 void TFB_GL_UninitGraphics (void);
-int TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen, unsigned int resFactor);
+int TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen,
+		int resFactor);
 
 #ifdef HAVE_OPENGL
 #ifdef WIN32

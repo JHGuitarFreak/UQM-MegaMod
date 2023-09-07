@@ -32,6 +32,8 @@
 #include "libs/sound/sound.h"
 #include "libs/vidlib.h"
 #include "libs/log.h"
+#include "libs/inplib.h"
+#include "util.h"
 
 #include <ctype.h>
 
@@ -73,6 +75,14 @@ typedef struct
 	int MovieEndFrame;
 	int InterframeDelay;
 
+	// For DOS Spins
+	RECT StatBox;
+	COUNT NumSpinStat;
+	RECT GetRect;
+	COUNT CurrentFrameIndex;
+	BOOLEAN HaveFrame;
+	BOOLEAN Skip;
+
 } PRESENTATION_INPUT_STATE;
 
 typedef struct {
@@ -104,7 +114,7 @@ ParseColorString (const char *Src, Color* pColor)
 		return FALSE;
 
 	*pColor = BUILD_COLOR_RGBA (
-			(clr >> 16) & 0xff, (clr >> 8) & 0xff, clr & 0xff, 0);
+			(clr >> 16) & 0xff, (clr >> 8) & 0xff, clr & 0xff, 0xff);
 	return TRUE;
 }
 
@@ -264,6 +274,132 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 	FlushGraphics ();
 
 	pPIS->SisFrame = SisFrame;
+}
+
+static void
+DoSpinText (UNICODE *buf, COORD x, COORD y, FRAME repair, BOOLEAN *skip)
+{
+	TEXT Text;
+
+	Text.pStr = buf;
+	Text.CharCount = (COUNT)utf8StringCount (buf);
+	Text.align = ALIGN_LEFT;
+	Text.baseline.y = y;
+	Text.baseline.x = x;
+
+	font_DrawText_Fade (&Text, repair, skip);
+}
+
+static void
+DoSpinLine (LINE *l, Color front, Color back, BOOLEAN *skip)
+{
+	if (!*skip)
+	{
+		SetContextForeGroundColor (back);
+		DrawLine (l, RES_SCALE (1));
+		PlayMenuSound (MENU_SOUND_TEXT);
+		SleepThread (ONE_SECOND / 16);
+	}
+	SetContextForeGroundColor (front);
+	DrawLine (l, RES_SCALE (1));
+}
+
+static void
+DoSpinStatBox (RECT *r, Color front, Color back, BOOLEAN *skip)
+{
+	if (!*skip)
+	{
+		DrawStarConBox (r, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+		PlayMenuSound (MENU_SOUND_TEXT);
+		SleepThread (ONE_SECOND / 16);
+	}
+	DrawStarConBox (r, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+}
+
+static void
+DoSpinStat (UNICODE *buf, COORD x, COORD y, COUNT filled, COUNT empty, Color front, Color back,
+		BOOLEAN *skip)
+{
+	TEXT Text;
+	COUNT i;
+	RECT sq;
+	POINT c;
+	RECT chd;
+
+	sq.corner.x = x + RES_SCALE (63);
+	sq.corner.y = y - RES_SCALE (5);
+	sq.extent.width = sq.extent.height = RES_SCALE (5);
+
+	chd.extent.width = chd.extent.height = 4;
+
+	Text.pStr = buf;
+	Text.CharCount = (COUNT)utf8StringCount (buf);
+	Text.align = ALIGN_LEFT;
+	Text.baseline.y = y;
+	Text.baseline.x = x;
+
+	if (!*skip)
+	{
+		SetContextForeGroundColor (back);
+		font_DrawText (&Text);
+		PlayMenuSound (MENU_SOUND_TEXT);
+		SleepThread (ONE_SECOND / 16);
+	}
+	SetContextForeGroundColor (front);
+	font_DrawText (&Text);
+
+	for (i = 0; i < filled; i++)
+	{
+		if (!*skip)
+		{
+			SetContextForeGroundColor (back);
+			DrawFilledRectangle (&sq);
+			PlayMenuSound (MENU_SOUND_TEXT);
+			SleepThread (ONE_SECOND / 16);
+		}
+		SetContextForeGroundColor (front);
+		DrawFilledRectangle (&sq);
+		sq.corner.x += RES_SCALE (6);
+
+		UpdateInputState ();
+		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			*skip = TRUE;
+	}
+	for (i = 0; i < empty; i++)
+	{
+		c.x = sq.corner.x + RES_SCALE (2);
+		c.y = sq.corner.y + RES_SCALE (2);
+		if (!*skip)
+		{
+			SetContextForeGroundColor (back);
+			DrawStarConBox (&sq, RES_SCALE (1), back, back, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+			if (IS_HD)
+			{
+				chd.corner = c;
+				DrawFilledRectangle (&chd);
+			}
+			else
+				DrawPoint (&c);
+			PlayMenuSound (MENU_SOUND_TEXT);
+			SleepThread (ONE_SECOND / 16);
+		}
+		SetContextForeGroundColor (front);
+		DrawStarConBox (&sq, RES_SCALE (1), front, front, FALSE, BLACK_COLOR, FALSE, BLACK_COLOR);
+		if (IS_HD)
+		{
+			chd.corner = c;
+			DrawFilledRectangle (&chd);
+		}
+		else
+			DrawPoint (&c);
+		sq.corner.x += RES_SCALE (6);
+
+		UpdateInputState ();
+		if (CurrentInputState.menu[KEY_MENU_CANCEL] || 
+					(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			*skip = TRUE;
+	}
 }
 
 static void
@@ -470,7 +606,8 @@ DoPresentation (void *pIS)
 		}
 		else if (strcmp (Opcode, "DITTY") == 0)
 		{	/* set ditty */
-			snprintf (pPIS->Buffer, sizeof (pPIS->Buffer), "ship.%s.ditty", pStr);
+			snprintf (pPIS->Buffer, sizeof (pPIS->Buffer),
+					"ship.%s.ditty", pStr);
 
 			if (pPIS->MusicRef)
 			{
@@ -491,6 +628,43 @@ DoPresentation (void *pIS)
 						+ msecs * ONE_SECOND / 1000;
 				pPIS->TimeOutOnSkip = TRUE;
 				return TRUE;
+			}
+		}
+		else if (strcmp (Opcode, "WAITDITTY") == 0)
+		{	/* wait for ditty to end */
+			while (PlayingStream (MUSIC_SOURCE))
+			{
+				if (CurrentInputState.menu[KEY_MENU_CANCEL]
+						|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
+				{
+					StopMusic ();
+					pPIS->Skip = TRUE;
+					return TRUE;
+				}
+				SleepThread (ONE_SECOND / 10);
+				UpdateInputState ();
+			}
+		}
+		else if (strcmp (Opcode, "SPINWAIT") == 0)
+		{	/* special wait during spin */
+			int msecs;
+			TimeCount TimeOut;
+			if (1 == sscanf (pStr, "%d", &msecs) && !pPIS->Skip)
+			{
+				TimeOut = GetTimeCounter ()
+						+ msecs * ONE_SECOND / 1000;
+				while (GetTimeCounter () < TimeOut)
+				{
+					if (CurrentInputState.menu[KEY_MENU_CANCEL]
+						|| (GLOBAL(CurrentActivity) & CHECK_ABORT))
+					{
+						Present_BatchGraphics (pPIS);
+						pPIS->Skip = TRUE;
+						return TRUE;
+					}
+					SleepThread (ONE_SECOND / 84);
+					UpdateInputState ();
+				}	
 			}
 		}
 		else if (strcmp (Opcode, "SYNC") == 0)
@@ -522,6 +696,13 @@ DoPresentation (void *pIS)
 				return TRUE;
 			}
 		}
+		else if (strcmp (Opcode, "BGC") == 0)
+		{	/* text fore color */
+			Color temp;
+			ParseColorString (pStr, &temp);
+
+			SetContextBackGroundColor (temp);
+		}
 		else if (strcmp (Opcode, "TC") == 0)
 		{	/* text fore color */
 			ParseColorString (pStr, &pPIS->TextColor);
@@ -539,7 +720,7 @@ DoPresentation (void *pIS)
 			pPIS->TextVPos = toupper (*pStr);
 		}
 		else if (strcmp (Opcode, "TE") == 0)
-		{	/* text vertical align */
+		{	/* text effect */
 			pPIS->TextEffect = toupper (*pStr);
 		}
 		else if (strcmp (Opcode, "TEXT") == 0)
@@ -559,6 +740,96 @@ DoPresentation (void *pIS)
 				t.baseline.y = RES_SCALE (y);
 				DrawTextEffect (&t, pPIS->TextColor, pPIS->TextBackColor,
 						pPIS->TextEffect);
+			}
+		}
+		else if (strcmp (Opcode, "TEXTSPIN") == 0)
+		{	/* spin text draw */
+			int x, y;
+			int n = 0;
+
+			assert (sizeof (pPIS->Buffer) >= 256);
+
+			if (2 == sscanf (pStr, "%d %d %n", &x, &y, &n))
+			{
+				x <<= RESOLUTION_FACTOR;
+				y <<= RESOLUTION_FACTOR;
+
+				utf8StringCopy (
+						pPIS->Buffer, sizeof (pPIS->Buffer), pStr + n);
+
+				if (pPIS->HaveFrame
+							&&(pPIS->GetRect.extent.width > 0
+							&& pPIS->GetRect.extent.height > 0))
+				{
+					x += pPIS->GetRect.corner.x;
+					y += pPIS->GetRect.corner.y;
+				}
+
+				SetContextForeGroundColor (pPIS->TextColor);
+				SetContextBackGroundColor (pPIS->TextBackColor);
+				DoSpinText (pPIS->Buffer, x, y + RES_SCALE (7),
+						SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+
+				if (pPIS->Skip)
+					Present_BatchGraphics (pPIS);
+			}
+		}
+		else if (strcmp (Opcode, "SPINSTAT") == 0)
+		{	/* spin stat draw */
+			int x, y, f, e;
+			SIZE leading;
+
+			assert (sizeof (pPIS->Buffer) >= 256);
+
+			if (3 == sscanf (pStr, "%d %d %255[^\n]", &f, &e, pPIS->Buffer))
+			{
+				GetContextFontLeading (&leading);
+
+				pPIS->NumSpinStat++;
+
+				x = pPIS->StatBox.corner.x + RES_SCALE (3);
+				y = pPIS->StatBox.corner.y + RES_SCALE (1)
+						+ (leading * pPIS->NumSpinStat);
+
+				if (pPIS->NumSpinStat > 8)
+				{
+					log_add (log_Warning, "SPINSTAT: Number of SPINSTAT "
+						"entries exceeds max amount '%s'", pStr);
+					return FALSE;
+				}
+
+				if (f > 9 || (f + e) > 9)
+				{
+					char buf[40];
+					TEXT t;
+
+					log_add (log_Warning, "SPINSTAT: Stats exceed max "
+							"values '%s'", pStr);
+					snprintf (buf, sizeof (buf), "%s %s", pPIS->Buffer,
+							"Exceed max!");
+
+					t.align = ALIGN_LEFT;
+					t.pStr = buf;
+					t.CharCount = (COUNT)~0;
+					t.baseline = MAKE_POINT (x, y);
+					DrawTextEffect (&t,
+							BUILD_COLOR_RGBA (0xFF, 0x55, 0x55, 0xFF),
+							pPIS->TextBackColor, pPIS->TextEffect);
+					
+				}
+				else
+				{
+					DoSpinStat (pPIS->Buffer,
+							x, y, f, e,
+							pPIS->TextColor, pPIS->TextBackColor, &pPIS->Skip);
+
+					if (pPIS->Skip)
+						Present_BatchGraphics (pPIS);
+				}
+			}
+			else
+			{
+				log_add (log_Warning, "Bad SPINSTAT command '%s'", pStr);
 			}
 		}
 		else if (strcmp (Opcode, "TFI") == 0)
@@ -670,6 +941,7 @@ DoPresentation (void *pIS)
 			if (cargs < 1)
 			{
 				log_add (log_Warning, "Bad DRAW command '%s'", pStr);
+				pPIS->HaveFrame = FALSE;
 				continue;
 			}
 			if (cargs < 5)
@@ -689,6 +961,8 @@ DoPresentation (void *pIS)
 			if (draw_what == PRES_DRAW_INDEX)
 			{	/* draw stamp by index */
 				s.frame = SetAbsFrameIndex (pPIS->Frame, (COUNT)index);
+				pPIS->CurrentFrameIndex = (COUNT)index;
+				pPIS->HaveFrame = TRUE;
 			}
 			else if (draw_what == PRES_DRAW_SIS)
 			{	/* draw dynamic SIS image with player's modules */
@@ -745,7 +1019,7 @@ DoPresentation (void *pIS)
 		{	/* clear screen */
 			Present_UnbatchGraphics (pPIS, TRUE);
 
-			ClearDrawable ();	
+			ClearScreen ();
 		}
 		else if (strcmp (Opcode, "CALL") == 0)
 		{	/* call another script */
@@ -755,7 +1029,7 @@ DoPresentation (void *pIS)
 			ShowPresentationFile (pPIS->Buffer);
 		}
 		else if (strcmp (Opcode, "LINE") == 0)
-		{
+		{	/* draw simple line */
 			int x1, x2, y1, y2;
 			if (4 == sscanf (pStr, "%d %d %d %d", &x1, &y1, &x2, &y2))
 			{
@@ -774,8 +1048,95 @@ DoPresentation (void *pIS)
 				log_add (log_Warning, "Bad LINE command '%s'", pStr);
 			}
 		}
+		else if (strcmp (Opcode, "LINESPIN") == 0)
+		{	/* draw line for spin */
+			int x1, x2, y1, y2;
+			if (4 == sscanf (pStr, "%d %d %d %d", &x1, &y1, &x2, &y2))
+			{
+				LINE l;
+
+				x1 <<= RESOLUTION_FACTOR;
+				x2 <<= RESOLUTION_FACTOR;
+				y1 <<= RESOLUTION_FACTOR;
+				y2 <<= RESOLUTION_FACTOR;
+
+				if (pPIS->HaveFrame
+						&& (pPIS->GetRect.extent.width > 0
+						&& pPIS->GetRect.extent.height > 0))
+				{
+					x1 += pPIS->GetRect.corner.x;
+					x2 += pPIS->GetRect.corner.x;
+					y1 += pPIS->GetRect.corner.y;
+					y2 += pPIS->GetRect.corner.y;
+				}
+
+				l.first.x = x1;
+				l.first.y = y1;
+				l.second.x = x2;
+				l.second.y = y2;
+				
+				DoSpinLine (&l, pPIS->TextColor, pPIS->TextBackColor, &pPIS->Skip);
+
+				if (pPIS->Skip)
+					Present_BatchGraphics (pPIS);
+			}
+			else
+			{
+				log_add (log_Warning, "Bad LINESPIN command '%s'", pStr);
+			}
+		}
+		else if (strcmp (Opcode, "GETRECT") == 0)
+		{	/* Get currently drawn FRAME rect */
+			if (pPIS->HaveFrame)
+			{
+				GetFrameRect (SetAbsFrameIndex (
+						pPIS->Frame, pPIS->CurrentFrameIndex),
+						&pPIS->GetRect);
+			}
+			else
+			{
+				log_add (log_Warning, "Bad GETRECT command, can not use "
+						"GETRECT without drawing a frame first '%s'",
+						pStr);
+			}
+		}
+		else if (strcmp (Opcode, "STATBOX") == 0)
+		{	/* draw stat box for spin */
+#define STATBOX_WIDTH  RES_SCALE (122)
+#define STATBOX_HEIGHT RES_SCALE (60)
+			int x, y;
+			if (2 == sscanf (pStr, "%d %d", &x, &y))
+			{
+				pPIS->NumSpinStat = 0;
+
+				x <<= RESOLUTION_FACTOR;
+				y <<= RESOLUTION_FACTOR;
+
+				if (pPIS->HaveFrame
+							&&(pPIS->GetRect.extent.width > 0
+							&& pPIS->GetRect.extent.height > 0))
+				{
+					x += pPIS->GetRect.corner.x;
+					y += pPIS->GetRect.corner.y;
+				}
+
+				pPIS->StatBox.corner = MAKE_POINT (x, y);
+				pPIS->StatBox.extent =
+						MAKE_EXTENT (STATBOX_WIDTH, STATBOX_HEIGHT);
+				
+				DoSpinStatBox (&pPIS->StatBox, pPIS->TextColor,
+						pPIS->TextBackColor, &pPIS->Skip);
+
+				if (pPIS->Skip)
+					Present_BatchGraphics (pPIS);
+			}
+			else
+			{
+				log_add (log_Warning, "Bad STATBOX command '%s'", pStr);
+			}
+		}
 		else if (strcmp (Opcode, "MOVIE") == 0)
-		{
+		{	/* play movie */
 			int fps, from, to;
 		
 			if (3 == sscanf (pStr, "%d %d %d", &fps, &from, &to) &&
@@ -794,6 +1155,60 @@ DoPresentation (void *pIS)
 			else
 			{
 				log_add (log_Warning, "Bad MOVIE command '%s'", pStr);
+			}
+		}
+		else if (strcmp (Opcode, "ANIMATE") == 0)
+		{	/* basic frame animation */
+			int first_frame, last_frame, num_loops, milliseconds, fps;
+
+			if (5 == sscanf (pStr, "%d %d %d %d %d", &first_frame,
+					&last_frame, &num_loops, &milliseconds, &fps))
+			{
+				STAMP s;
+				int loops = 0;
+				COUNT index = 0;
+				TimeCount Now, timeout, NextTime;
+				int animation_rate = ONE_SECOND / fps;
+
+				s.origin.x = 0;
+				s.origin.y = 0;
+
+				timeout = GetTimeCounter () + milliseconds;
+				NextTime = GetTimeCounter () + animation_rate;
+
+				while (num_loops || milliseconds)
+				{
+					Now = GetTimeCounter ();
+
+					if (ActKeysPress ())
+						break;
+
+					if (Now >= NextTime)
+					{
+						s.frame = SetAbsFrameIndex (pPIS->Frame, index);
+						DrawStamp (&s);
+						index++;
+
+						if (index == last_frame)
+						{
+							loops++;
+							index = first_frame;
+						}
+
+						if (num_loops > 0 && loops == num_loops)
+							break;
+
+						if (Now >= timeout)
+							break;
+
+						NextTime = Now + animation_rate;
+					}
+				}
+				return TRUE;
+			}
+			else
+			{
+				log_add (log_Warning, "Bad ANIMATION command '%s'", pStr);
 			}
 		}
 		else if (strcmp (Opcode, "NOOP") == 0)
@@ -835,9 +1250,12 @@ ShowSlidePresentation (STRING PresStr)
 	pis.LastSyncTime = pis.StartTime;
 	DoInput(&pis, TRUE);
 
-	SleepThreadUntil (FadeMusic (0, ONE_SECOND));
-	StopMusic ();
-	FadeMusic (NORMAL_VOLUME, 0);
+	if (pis.MusicRef && PlayingStream (MUSIC_SOURCE))
+	{
+		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
+		StopMusic ();
+		FadeMusic (NORMAL_VOLUME, 0);
+	}
 
 	DestroyMusic (pis.MusicRef);
 	DestroyDrawable (ReleaseDrawable (pis.RotatedFrame));

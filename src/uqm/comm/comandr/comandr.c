@@ -647,7 +647,7 @@ GiveRadios (RESPONSE_REF R)
 			StopMusic ();
 			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 
-			FadeMusic (MUTE_VOLUME, 0);
+			SetMusicVolume (MUTE_VOLUME);
 			PlayMusic (CommData.AlienSong, TRUE, 1);
 			SeekMusic (MusicPos);
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND);
@@ -758,7 +758,8 @@ init_commander_comm ()
 
 	
 	commander_desc.AlienTextWidth = RES_SCALE (143);
-	commander_desc.AlienTextBaseline.x = RES_SCALE (164);
+	commander_desc.AlienTextBaseline.x = RES_SCALE (164)
+			- (SAFE_NEG (2) * 2);
 	commander_desc.AlienTextBaseline.y = RES_SCALE (20);
 
 	setSegue (Segue_peace);

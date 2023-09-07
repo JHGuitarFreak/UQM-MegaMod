@@ -36,7 +36,7 @@
 #include <string.h>
 
 
-#define COL_MULTIPLIER (isPC (optSuperPC) ? 7 : 6)
+#define COL_MULTIPLIER (isPC (optSuperPC) || IS_PAD ? 7 : 6)
 #define NUM_CELL_COLS (UQM_MAP_WIDTH / COL_MULTIPLIER)
 #define NUM_CELL_ROWS (SC2_MAP_HEIGHT / 6)
 #define MAX_CELL_COLS 40 // Why is this is never used???
@@ -125,6 +125,8 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1)
 			+ (isPC (optSuperPC) ? RES_SCALE (1) : 0);
 	}
+
+	startx += SAFE_NUM_SCL (1);
 
 	if (StrLen)
 	{

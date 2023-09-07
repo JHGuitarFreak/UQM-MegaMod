@@ -17,7 +17,6 @@
  */
 
 #include "fmv.h"
-
 #include "controls.h"
 #include "hyper.h"
 #include "options.h"
@@ -30,47 +29,60 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
+#include "init.h"
+#include "gameopt.h"
+
+#define MAX_LOAD_ENTRIES 40
 
 void
 DoShipSpin (COUNT index, MUSIC_REF hMusic)
 {
 	char vnbuf[24]; // From 32 to 24
 	RECT old_r;
+	CONTEXT OldContext;
+
+	OldContext = SetContext (ScreenContext);
+
 
 	LoadIntoExtraScreen (NULL);
-#if 0
-	/* This is cut out right now but should be part of the 3DO side */
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
-	FlushColorXForms ();
-#endif
 	
-	if (hMusic && optMainMenuMusic)
+	if (hMusic)
 		StopMusic ();
 
-	if (!optMainMenuMusic && musicVolume == 0)
-		FadeMusic (NORMAL_VOLUME, 0);
-
 	FreeHyperData ();
+
+	if (isPC (optWhichIntro))
+	{
+		if (IS_PAD || OutfitOrShipyard == 3)
+		{
+			SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
+			FlushColorXForms ();
+		}
+
+		ShowPresentation (ACCESSDATA_STRTAB);
+	}
 
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
 
 	ShowPresentation (vnbuf);
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
+	if (is3DO (optWhichIntro))
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
 	FlushColorXForms ();
+
+	SetContext (OldContext);
 
 	GetContextClipRect (&old_r);
 	SetContextClipRect (NULL);
 	DrawFromExtraScreen (NULL);
 	SetContextClipRect (&old_r);
 
-	if (hMusic && optMainMenuMusic)
+	if (hMusic)
 		PlayMusic (hMusic, TRUE, 1);
-	else
-		FadeMusic (0, 0);
-		
-	SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
+
+	if (is3DO (optWhichIntro))
+		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 4));
 	FlushColorXForms ();
 }
 
@@ -78,16 +90,15 @@ void
 SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 {
 	STAMP s;
-	DWORD TimeOut;
+	DWORD TimeOut = 0;
+	TimeCount OverallWait = GetTimeCounter () + (ONE_SECOND * 3);
 
 	if (!optSkipIntro)
 	{
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
 		SetContext (ScreenContext);
 		s.origin.x = s.origin.y = 0;
 
-		s.frame = CaptureDrawable (LoadGraphic (
-			RES_BOOL (TITLE_ANIM, TITLE_HD)));
+		s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
 
 		if (optFlagshipColor == OPT_3DO)
 			s.frame = SetAbsFrameIndex (s.frame, 1);
@@ -96,10 +107,10 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 
 		DrawStamp (&s);
 		DestroyDrawable (ReleaseDrawable (s.frame));
+
+		TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
 	}
-
-	TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
-
+	
 	if (DoProcessing)
 		DoProcessing (TimeOut);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -113,7 +124,7 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	 * --Michael */
 
 	if (!optSkipIntro)
-		WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
+		SleepThreadUntil (OverallWait);
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return;
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
@@ -171,7 +182,7 @@ void
 Logo (void)
 {
 	ShowPresentation (LOGOPRES_STRTAB);
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	FadeScreen (FadeAllToBlack, 0);
 }
 
 void
@@ -179,4 +190,41 @@ Drumall (void)
 {
 	ShowPresentation (DRUMALLPRES_STRTAB);
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+}
+
+void
+Reload (void)
+{
+	ShowPresentation (RELOADPRES_STRTAB);
+
+	ReloadGameContent ();
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+}
+
+void
+AdvanceLoadProgress (void)
+{
+	if (optRequiresReload)
+	{
+		RECT r;
+		static COUNT i = 0;
+
+		r.corner.x = RES_SCALE (16);
+		r.corner.y = ScreenHeight - DOS_BOOL_SCL (50, 30);
+		r.extent.height = RES_SCALE (15);
+		r.extent.width = RES_SCALE ((i + 1) * 7);
+
+		if (i == MAX_LOAD_ENTRIES)
+		{
+			SetContextForeGroundColor (BUILD_COLOR_RGBA (0, 192, 0, 255));
+			i = 0;
+		}
+		else
+		{
+			SetContextForeGroundColor (
+					BUILD_COLOR_RGBA (0, 128, 192, 255));
+			i++;
+		}
+		DrawFilledRectangle (&r);
+	}
 }

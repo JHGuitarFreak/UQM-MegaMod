@@ -806,13 +806,13 @@ inQuasiSpace (void)
 			// IN_HYPERSPACE is also set for QuasiSpace
 }
 
-BOOLEAN
+OPT_CONSOLETYPE
 isPC (int optWhich)
 {
 	return optWhich == OPT_PC;
 }
 
-BOOLEAN
+OPT_CONSOLETYPE
 is3DO (int optWhich)
 {
 	return optWhich == OPT_3DO;

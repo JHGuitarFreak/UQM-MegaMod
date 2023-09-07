@@ -25,6 +25,7 @@
 #include "port.h"
 #include "libs/compiler.h"
 #include "libs/uio.h"
+#include "uqm/setupmenu.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -42,83 +43,85 @@ extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
 extern unsigned int loresBlowupScale;
-extern unsigned int resolutionFactor;
+extern int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
 
 // Added options
 extern BOOLEAN optRequiresReload;
 extern BOOLEAN optRequiresRestart;
-extern BOOLEAN optCheatMode;
+extern OPT_ENABLABLE optCheatMode;
 extern int optGodModes;
 extern int timeDilationScale;
-extern BOOLEAN optBubbleWarp;
-extern BOOLEAN optUnlockShips;
-extern BOOLEAN optHeadStart;
-extern BOOLEAN optUnlockUpgrades;
-extern BOOLEAN optInfiniteRU;
+extern OPT_ENABLABLE optBubbleWarp;
+extern OPT_ENABLABLE optUnlockShips;
+extern OPT_ENABLABLE optHeadStart;
+extern OPT_ENABLABLE optUnlockUpgrades;
+extern OPT_ENABLABLE optInfiniteRU;
 extern DWORD oldRU;
-extern BOOLEAN optSkipIntro;
-extern BOOLEAN optMainMenuMusic;
-extern BOOLEAN optNebulae;
-extern BOOLEAN optOrbitingPlanets;
-extern BOOLEAN optTexturedPlanets;
+extern OPT_ENABLABLE optSkipIntro;
+extern OPT_ENABLABLE optMainMenuMusic;
+extern OPT_ENABLABLE optNebulae;
+extern OPT_ENABLABLE optOrbitingPlanets;
+extern OPT_ENABLABLE optTexturedPlanets;
 extern int optDateFormat;
-extern BOOLEAN optInfiniteFuel;
+extern OPT_ENABLABLE optInfiniteFuel;
 extern DWORD loadFuel;
-extern BOOLEAN optPartialPickup;
-extern BOOLEAN optSubmenu;
-extern BOOLEAN optAddDevices;
+extern OPT_ENABLABLE optPartialPickup;
+extern OPT_ENABLABLE optSubmenu;
+extern OPT_ENABLABLE optAddDevices;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
-extern BOOLEAN optCustomBorder;
+extern OPT_ENABLABLE optCustomBorder;
 extern int optCustomSeed;
 extern int spaceMusicBySOI;
-extern BOOLEAN optSpaceMusic;
-extern BOOLEAN optVolasMusic;
-extern BOOLEAN optWholeFuel;
-extern BOOLEAN optDirectionalJoystick;
+extern OPT_ENABLABLE optSpaceMusic;
+extern OPT_ENABLABLE optVolasMusic;
+extern OPT_ENABLABLE optWholeFuel;
+extern OPT_ENABLABLE optDirectionalJoystick;
 extern int optLanderHold;
 extern int optScrTrans;
 extern int optDifficulty;
+extern int optDiffChooser;
 extern int optFuelRange;
-extern BOOLEAN optExtended;
-extern BOOLEAN optNomad;
-extern BOOLEAN optGameOver;
-extern BOOLEAN optShipDirectionIP;
-extern BOOLEAN optHazardColors;
-extern BOOLEAN optOrzCompFont;
+extern OPT_ENABLABLE optExtended;
+extern OPT_ENABLABLE optNomad;
+extern OPT_ENABLABLE optGameOver;
+extern OPT_ENABLABLE optShipDirectionIP;
+extern OPT_ENABLABLE optHazardColors;
+extern OPT_ENABLABLE optOrzCompFont;
 extern int optControllerType;
-extern BOOLEAN optSmartAutoPilot;
+extern OPT_ENABLABLE optSmartAutoPilot;
 extern int optTintPlanSphere;
 extern int optPlanetStyle;
 extern int optStarBackground;
 extern int optScanStyle;
-extern BOOLEAN optNonStopOscill;
+extern OPT_ENABLABLE optNonStopOscill;
 extern int optScopeStyle;
 extern int optSuperPC;
-extern BOOLEAN optHyperStars;
-extern BOOLEAN optPlanetTexture;
+extern OPT_ENABLABLE optHyperStars;
+extern OPT_ENABLABLE optPlanetTexture;
 extern int optFlagshipColor;
-extern BOOLEAN optNoHQEncounters;
-extern BOOLEAN optDeCleansing;
-extern BOOLEAN optMeleeObstacles;
-extern BOOLEAN optShowVisitedStars;
-extern BOOLEAN optUnscaledStarSystem;
+extern OPT_ENABLABLE optNoHQEncounters;
+extern OPT_ENABLABLE optDeCleansing;
+extern OPT_ENABLABLE optMeleeObstacles;
+extern OPT_ENABLABLE optShowVisitedStars;
+extern OPT_ENABLABLE optUnscaledStarSystem;
 extern int optScanSphere;
 extern int optNebulaeVolume;
-extern BOOLEAN optSlaughterMode;
+extern OPT_ENABLABLE optSlaughterMode;
 extern BOOLEAN optMaskOfDeceit;
-extern BOOLEAN optAdvancedAutoPilot;
-extern BOOLEAN optMeleeToolTips;
-extern BOOLEAN optMusicResume;
+extern OPT_ENABLABLE optAdvancedAutoPilot;
+extern OPT_ENABLABLE optMeleeToolTips;
+extern OPT_ENABLABLE optMusicResume;
+extern DWORD optWindowType;;
 
-extern BOOLEAN opt3doMusic;
-extern BOOLEAN optRemixMusic;
-extern BOOLEAN optSpeech;
-extern BOOLEAN optSubtitles;
-extern BOOLEAN optStereoSFX;
-extern BOOLEAN optKeepAspectRatio;
+extern OPT_ENABLABLE opt3doMusic;
+extern OPT_ENABLABLE optRemixMusic;
+extern OPT_ENABLABLE optSpeech;
+extern OPT_ENABLABLE optSubtitles;
+extern OPT_ENABLABLE optStereoSFX;
+extern OPT_ENABLABLE optKeepAspectRatio;
 extern BOOLEAN restartGame;
 
 #define GAMMA_SCALE  1000
@@ -131,7 +134,25 @@ extern uio_DirHandle *meleeDir;
 extern uio_DirHandle *scrShotDir;
 extern char baseContentPath[PATH_MAX];
 
+extern char *contentDirPath;
+extern char *addonDirPath;
+
 extern const char **optAddons;
+
+// addon availability
+typedef struct
+{
+	DWORD name_hash[PATH_MAX];
+	DWORD amount;
+} ADDON_COUNT;
+
+extern ADDON_COUNT addonList;
+
+// addon names to check against
+#define HD_MODE      ("mm-hd")
+
+#define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
+#define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
@@ -157,6 +178,7 @@ void unprepareAllDirs (void);
 
 BOOLEAN loadAddon (const char *addon);
 int loadIndices (uio_DirHandle *baseDir);
+BOOLEAN isAddonAvailable (const char *addon_name);
 
 bool setGammaCorrection (float gamma);
 

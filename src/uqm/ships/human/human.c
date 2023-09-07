@@ -352,10 +352,17 @@ init_human (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
+	if (IS_HD)
+	{
 		human_desc.characteristics.max_thrust = MAX_THRUST_HD;
 		human_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		human_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON_HD;
+	}
+	else
+	{
+		human_desc.characteristics.max_thrust = MAX_THRUST;
+		human_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		human_desc.cyborg_control.WeaponRange = LONG_RANGE_WEAPON;
 	}
 
 	human_desc.postprocess_func = human_postprocess;

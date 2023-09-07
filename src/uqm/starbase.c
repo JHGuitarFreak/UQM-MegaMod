@@ -35,6 +35,7 @@
 #include "libs/log.h"
 #include "planets/planets.h"
 #include <math.h>
+#include "util.h"
 
 
 static void CleanupAfterStarBase (void);
@@ -50,12 +51,12 @@ DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 	SetContextFont (StarConFont);
 	SetContextForeGroundColor (BLACK_COLOR);
 
-	t.baseline.x = RES_SCALE (73 - 4);
+	t.baseline.x = RES_SCALE (73 - 4) + SAFE_X;
 	t.align = ALIGN_CENTER;
 
 	if (OldState == (STARBASE_STATE)~0)
 	{
-		t.baseline.y = text_base_y;
+		t.baseline.y = text_base_y + SAFE_Y;
 		for (OldState = TALK_COMMANDER; OldState < DEPART_BASE; ++OldState)
 		{
 			if (OldState != NewState)
@@ -68,14 +69,14 @@ DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
 		}
 	}
 
-	t.baseline.y = text_base_y + (text_spacing_y * OldState);
+	t.baseline.y = text_base_y + SAFE_Y + (text_spacing_y * OldState);
 	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 1 + OldState);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x0A), 0x0E));
-	t.baseline.y = text_base_y + (text_spacing_y * NewState);
+	t.baseline.y = text_base_y + SAFE_Y + (text_spacing_y * NewState);
 	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 1 + NewState);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -283,8 +284,8 @@ rotateStarbase (MENU_STATE *pMS, FRAME AniFrame)
 	if (AniFrame)
 	{	// Setup the animation
 		pMS->flash_frame0 = AniFrame;
-		pMS->flash_rect0.corner.x = 0;
-		pMS->flash_rect0.corner.y = 0;
+		pMS->flash_rect0.corner.x = SAFE_X;
+		pMS->flash_rect0.corner.y = SAFE_Y;
 	}
 	
 	if (Now >= NextTime || AniFrame)
@@ -345,17 +346,19 @@ DoStarBase (MENU_STATE *pMS)
 		rotateStarbase (pMS, pMS->CurFrame);
 		DrawBaseStateStrings ((STARBASE_STATE)~0, pMS->CurState);
 		ScreenTransition (optScrTrans, NULL);
+
+		SetMusicVolume (MUTE_VOLUME);
 		PlayMusic (pMS->hMusic, TRUE, 1);
 
-		if (optMusicResume && StarBaseMusicPos > 0)
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (pMS->hMusic, TRUE, 1);
-			SeekMusic (StarBaseMusicPos);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
-			PlayMusic (pMS->hMusic, TRUE, 1);
+			SetMusicVolume (NORMAL_VOLUME);
+
+		DrawBorderPadding (0);
 
 		UnbatchGraphics ();
 	}
@@ -365,8 +368,7 @@ ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;
 
-		if (optMusicResume)
-			StarBaseMusicPos = PLRGetPos ();
+		SetMusicPosition ();
 
 		StopMusic ();
 		if (pMS->hMusic)
@@ -451,6 +453,8 @@ ExitStarBase:
 		}
 
 		rotateStarbase (pMS, NULL);
+
+		DrawBorderPadding (0);
 
 		UnbatchGraphics ();
 

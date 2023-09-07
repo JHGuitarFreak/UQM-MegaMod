@@ -18,7 +18,6 @@
 #include "sounds.h"
 #include "units.h"
 
-
 SOUND MenuSounds;
 SOUND GameSounds;
 
@@ -26,16 +25,6 @@ SOUND GameSounds;
 static BYTE num_sounds = 0;
 static SOUND sound_buf[MAX_SOUNDS];
 static ELEMENT *sound_posobj[MAX_SOUNDS];
-
-// For music resume option
-DWORD MainMenuMusicPos = 0;
-DWORD MeleeMenuMusicPos;
-DWORD StarBaseMusicPos;
-DWORD OutfitMusicPos;
-DWORD ShipyardMusicPos;
-DWORD CommMusicPos[NUM_CONVERSATIONS];
-DWORD SpaceMusicPos[NUM_SPECIES_ID];
-DWORD BattleRefPos[3];
 
 void
 PlaySound (SOUND S, SoundPosition Pos, ELEMENT *PositionalObject,
@@ -207,5 +196,3 @@ RemoveSoundsForObject (ELEMENT *PosObj)
 			sound_posobj[i] = NULL;
 	}
 }
-
-

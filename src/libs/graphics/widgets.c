@@ -24,6 +24,7 @@
 #include "libs/strlib.h"
 #include "uqm/colors.h"
 #include "uqm/units.h"
+#include "uqm/util.h"
 
 WIDGET *widget_focus = NULL;
 
@@ -56,9 +57,9 @@ WIDGET *widget_focus = NULL;
 #define WIDGET_WARNING_COLOR \
 		BUILD_COLOR_RGBA (0xB1, 0x27, 0x47, 0xFF)
 
-#define ONSCREEN 13
+#define ONSCREEN DOS_BOOL (13, 10)
 #define SCROLL_OFFSET 3 // The pos from the page edge where we need to start scrolling
-#define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2);
+#define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2)
 #define LSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 - 7)
 #define RSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 + 7)
 
@@ -72,7 +73,7 @@ static Color win_dark_clr =
 static FONT cur_font;
 
 static COUNT offset_t = 0; // Top widget offset
-static COUNT offset_b = ONSCREEN; // Bottom widget offset
+static COUNT offset_b;// = ONSCREEN; // Bottom widget offset
 static FRAME arrow_frame = NULL; // Frames for additional graphics
 
 void
@@ -85,12 +86,10 @@ ResetOffset (void)
 void
 LoadArrows (void)
 {	
-	if (arrow_frame == NULL || optRequiresRestart)
+	if (arrow_frame == NULL || optRequiresReload)
 	{
 		// Load the different arrows depending on the resolution factor.
-		arrow_frame = CaptureDrawable (
-				LoadGraphic (
-					RES_BOOL (MENUARR_PMAP_ANIM, MENUARR_PMAP_ANIM_HD)));
+		arrow_frame = CaptureDrawable (LoadGraphic (MENUARR_PMAP_ANIM));
 	}
 }
 
@@ -107,40 +106,8 @@ ReleaseArrows (void)
 void
 DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium)
 {	// Dialog box
-	RECT t;
-	Color oldcolor;
-
-	BatchGraphics ();
-
-	t.corner.x = r->corner.x - RES_SCALE (2);
-	t.corner.y = r->corner.y - RES_SCALE (2);
-	t.extent.width  = r->extent.width + RES_SCALE (4);
-	t.extent.height  = r->extent.height + RES_SCALE (4);
-	oldcolor = SetContextForeGroundColor (dark);
-	DrawFilledRectangle (&t);
-
-	t.corner.x += RES_SCALE (2);
-	t.corner.y += RES_SCALE (2);
-	t.extent.width -= RES_SCALE (2);
-	t.extent.height -= RES_SCALE (2);
-	SetContextForeGroundColor (medium);
-	DrawFilledRectangle (&t);
-
-	t.corner.x -= RES_SCALE (1);
-	t.corner.y += r->extent.height + RES_SCALE (1);
-	t.extent.height = RES_SCALE (1);
-	DrawFilledRectangle (&t);
-
-	t.corner.x += r->extent.width + RES_SCALE (2);
-	t.corner.y -= r->extent.height + RES_SCALE (2);
-	t.extent.width = RES_SCALE (1);
-	DrawFilledRectangle (&t);
-
-	SetContextForeGroundColor (bg);
-	DrawFilledRectangle (r);
-
-	SetContextForeGroundColor (oldcolor);
-	UnbatchGraphics ();
+	DrawStarConBox (r, RES_SCALE (2), dark, medium, TRUE, bg, TRUE,
+			TRANSPARENT);
 }
 
 // windowRect, if not NULL, will be filled with the dimensions of the
@@ -173,11 +140,14 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 
 	BatchGraphics ();
 	r.corner.x = RES_SCALE (
-			(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w)) >> 1);
+			(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w)) >> 1)
+			- RES_SCALE (2);
 	r.corner.y = RES_SCALE (
-			(RES_DESCALE (ScreenHeight) - RES_DESCALE (win_h)) >> 1);
-	r.extent.width = win_w;
-	r.extent.height = win_h;
+			(RES_DESCALE (ScreenHeight) - RES_DESCALE (win_h)) >> 1)
+			- RES_SCALE (2);
+	r.extent.width = win_w + RES_SCALE (4);
+	r.extent.height = win_h + RES_SCALE (4);
+
 	DrawShadowedBox (&r, win_bg_clr, win_dark_clr, win_medium_clr);
 
 	t.baseline.x = r.corner.x
@@ -203,10 +173,10 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 	{	// Add the outer border added by DrawShadowedBox.
 		// XXX: It may be nicer to add a border size parameter to
 		// DrawShadowedBox, instead of assuming 2 here.
-		windowRect->corner.x = r.corner.x - RES_SCALE (2);
-		windowRect->corner.y = r.corner.y - RES_SCALE (2);
-		windowRect->extent.width = r.extent.width + RES_SCALE (4);
-		windowRect->extent.height = r.extent.height + RES_SCALE (4);
+		windowRect->corner.x = r.corner.x;
+		windowRect->corner.y = r.corner.y;
+		windowRect->extent.width = r.extent.width;
+		windowRect->extent.height = r.extent.height;
 	}
 }
 
@@ -288,10 +258,12 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	int widget_index, height, widget_y, on_screen;
-	
+	int widget_index, height, widget_y, on_screen;	
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
+
+	if (!offset_b)
+		offset_b = ONSCREEN;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -1064,11 +1036,15 @@ Widget_HandleEventSlider (WIDGET *_self, int event)
 		self->value -= self->step;
 		if (self->value < self->min)
 			self->value = self->min;
+		if (self->onChange)
+			(*(self->onChange))(self);
 		return TRUE;
 	case WIDGET_EVENT_RIGHT:
 		self->value += self->step;
 		if (self->value > self->max)
 			self->value = self->max;
+		if (self->onChange)
+			(*(self->onChange))(self);
 		return TRUE;
 	default:
 		return FALSE;

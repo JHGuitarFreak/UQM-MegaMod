@@ -343,15 +343,16 @@ BattleSong (BOOLEAN DoPlay)
 
 	if (DoPlay)
 	{
-		if (optMusicResume && BattleRefPos[inHSpace] > 0)
+		SetMusicVolume (MUTE_VOLUME);
+		PlayMusic (BattleRef, TRUE, 1);
+
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (BattleRef, TRUE, 1);
-			SeekMusic (BattleRefPos[inHSpace]);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
-			PlayMusic (BattleRef, TRUE, 1);
+			SetMusicVolume (NORMAL_VOLUME);
 	}
 }
 
@@ -614,9 +615,7 @@ AbortBattle:
 		setBattleStateConnections (NULL);
 #endif  /* NETPLAY */
 
-		if (optMusicResume && inHSpace > 0)
-			BattleRefPos[inHSpace] = PLRGetPos ();
-
+		SetMusicPosition ();
 		StopDitty ();
 		StopMusic ();
 		StopSound ();

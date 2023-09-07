@@ -56,7 +56,7 @@
 // Oscilloscope frame rate
 // Should be <= COMM_ANIM_RATE
 // XXX: was 32 picked experimentally?
-#define OSCILLOSCOPE_RATE   (ONE_SECOND / 32)
+#define OSCILLOSCOPE_RATE   (ONE_SECOND / RES_BOOL (32, 60))
 
 // Maximum comm animation frame rate (actual execution rate)
 // A gfx frame is not always produced during an execution frame,
@@ -1176,29 +1176,27 @@ AlienTalkSegue (COUNT wait_track)
 
 	if (!pCurInputState->Initialized)
 	{
+		MUSIC_REF AlienSong = CommData.AlienSong;
+
 		InitSpeechGraphics ();
 		SetColorMap (GetColorMapAddress (CommData.AlienColorMap));
 		SetContext (AnimContext);
 		DrawAlienFrame (NULL, 0, TRUE);
 		UpdateSpeechGraphics ();
 		CommIntroTransition ();
-		BYTE AlienConv = CommData.AlienConv;
-		MUSIC_REF AlienSong = CommData.AlienSong;
 		
 		pCurInputState->Initialized = TRUE;
 
-		if (optMusicResume && CommMusicPos[AlienConv] > 0)
+		SetMusicVolume (MUTE_VOLUME);
+		PlayMusic (AlienSong, TRUE, 1);
+
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (AlienSong, TRUE, 1);
-			SeekMusic (CommMusicPos[AlienConv]);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
 		}
 		else
-		{
-			PlayMusic (AlienSong, TRUE, 1);
 			SetMusicVolume (BACKGROUND_VOL);
-		}
 
 		InitCommAnimations ();
 
@@ -1638,9 +1636,7 @@ DoCommunication (ENCOUNTER_STATE *pES)
 	if (IsDarkMode)
 		SetCommDarkMode (FALSE);
 
-	if (optMusicResume)
-		CommMusicPos[CommData.AlienConv] = PLRGetPos ();
-
+	SetMusicPosition ();
 	StopMusic ();
 	StopSound ();
 	StopTrack ();
@@ -1779,7 +1775,7 @@ HailAlien (void)
 			log_add (log_Warning,
 					"ComputerFont didn't load properly. "
 					"Disabling Alternate Orz Font");
-			optOrzCompFont = FALSE;
+			optOrzCompFont = OPTVAL_DISABLED;
 		}
 	}
 

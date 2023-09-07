@@ -26,13 +26,29 @@ extern "C" {
 
 extern void DrawStarConBox (RECT *pRect, SIZE BorderWidth,
 		Color TopLeftColor, Color BottomRightColor, BOOLEAN FillInterior,
-		Color InteriorColor);
+		Color InteriorColor, BOOLEAN CreateCorners, Color CornerColor);
+extern void DrawBorderPadding (DWORD videoWidth);
+extern void DrawRadarBorder (void);
 extern DWORD SeedRandomNumbers (void);
+
+typedef enum
+{
+	SPECIAL_BEVEL = 14,
+	THIN_INNER_BEVEL = 25,
+	THICK_INNER_BEVEL = THIN_INNER_BEVEL + 8,
+	THIN_OUTER_BEVEL = THICK_INNER_BEVEL + 8,
+	THICK_OUTER_BEVEL = THIN_OUTER_BEVEL + 8
+} SCB_TYPE;
+
+extern void DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color,
+		SCB_TYPE type);
 
 // saveRect can be NULL to save the entire context frame
 extern STAMP SaveContextFrame (const RECT *saveRect);
 
 extern DWORD get_fuel_to_sol (void);
+extern void DrawFlagStatDisplay (UNICODE *str);
+extern UNICODE *WholeFuelValue (void);
 
 #if defined(__cplusplus)
 }

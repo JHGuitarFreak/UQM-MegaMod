@@ -46,6 +46,7 @@ SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
 
 SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
+SDL_Surface *SDL_Screen_fps;
 
 SDL_Surface *format_conv_surf = NULL;
 
@@ -64,7 +65,8 @@ volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
 int
 TFB_InitGraphics (int driver, int flags, const char* renderer,
-		int width, int height, unsigned int *resFactor)
+		int width, int height, unsigned int *resFactor,
+		unsigned int *windowType)
 {
 	int result, i;
 	char caption[200];
@@ -114,31 +116,38 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
 	{
 #ifdef HAVE_OPENGL
-		result = TFB_GL_InitGraphics (driver, flags, width, height, *resFactor);
+		result = TFB_GL_InitGraphics (driver, flags, width, height,
+				*resFactor, *windowType);
 #else
 		driver = TFB_GFXDRIVER_SDL_PURE;
 		log_add (log_Warning, "OpenGL support not compiled in,"
 				" so using pure SDL driver");
-		result = TFB_Pure_InitGraphics (driver, flags, renderer, width, height, *resFactor);
+		result = TFB_Pure_InitGraphics (driver, flags, renderer, width,
+				height, *resFactor, *windowType);
 #endif
 	}
 	else
 	{
-		result = TFB_Pure_InitGraphics (driver, flags, renderer, width, height, *resFactor);
+		result = TFB_Pure_InitGraphics (driver, flags, renderer, width,
+				height, *resFactor, *windowType);
 	}
 
 #if SDL_MAJOR_VERSION == 1
 	/* Other versions do this when setting up the window */
 	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
+			UQM_PATCH_VERSION,
+			(*resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
 	SDL_WM_SetCaption (caption, NULL);
 #else
 	(void) caption; /* satisfy compiler (unused parameter) */
 #endif
 
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
+	if (flags & TFB_GFXFLAGS_FULLSCREEN
+			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+	{
 		SDL_ShowCursor (SDL_DISABLE);
+	}
 
 	Init_DrawCommandQueue ();
 
@@ -158,6 +167,8 @@ TFB_UninitGraphics (void)
 
 	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		UnInit_Screen (&SDL_Screens[i]);
+
+	UnInit_Screen (&SDL_Screen_fps);
 
 	TFB_Pure_UninitGraphics ();
 #ifdef HAVE_OPENGL
@@ -331,7 +342,7 @@ TFB_SwapBuffers (int force_full_redraw)
 		graphics_backend->screen (TFB_SCREEN_MAIN, 255, &system_box);
 	}
 
-	graphics_backend->postprocess ();
+	graphics_backend->postprocess (IS_HD);
 }
 
 /* Probably ought to clean this away at some point. */
@@ -374,6 +385,12 @@ TFB_Canvas
 TFB_GetScreenCanvas (SCREEN screen)
 {
 	return SDL_Screens[screen];
+}
+
+TFB_Canvas
+TFB_GetFPSCanvas (void)
+{
+	return SDL_Screen_fps;
 }
 
 void
@@ -658,7 +675,7 @@ TFB_ScreenShot (void)
 	snprintf (fullPath, sizeof (fullPath),
 		"%s%s v%d.%d.%d %s.%s", shotDirName, curTime,
 		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-		UQM_EXTRA_VERSION, "png");
+		RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION), "png");
 
 	if (stat (shotDirName, &sb) == 0 && S_ISDIR (sb.st_mode))
 	{
@@ -667,6 +684,12 @@ TFB_ScreenShot (void)
 		else
 			log_add (log_Debug, "Screenshot not saved due to an error");
 	}
+}
+
+void
+TFB_ClearFPSCanvas (void)
+{
+	SDL_FillRect (SDL_Screen_fps, NULL, 0x00000000);
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)

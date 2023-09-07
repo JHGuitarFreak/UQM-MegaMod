@@ -68,31 +68,47 @@ enum
 static BOOLEAN
 PacksInstalled (void)
 {
-	BOOLEAN packsInstalled;
-
-	if (!IS_HD)
-		packsInstalled = TRUE;
-	else
-		packsInstalled = (HDPackPresent ? TRUE : FALSE);
-
-	return packsInstalled;
-}
-
-void
-ResetMusicPositions (void)
-{
-	MeleeMenuMusicPos = 0;
-	StarBaseMusicPos = 0;
-	OutfitMusicPos = 0;
-	ShipyardMusicPos = 0;
-
-	memset (&CommMusicPos, 0, sizeof (CommMusicPos));
-	memset (&SpaceMusicPos, 0, sizeof (SpaceMusicPos));
-	memset (&BattleRefPos, 0, sizeof (BattleRefPos));
+	return (!IS_HD) | (IS_HD & HDPackPresent);
 }
 
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
+
+// Kruzen: Having this ref separated gains more control
+// We can load and free it whenever we want and not rely on menu volume
+MUSIC_REF menuMusic;
+
+void
+InitMenuMusic (void)
+{
+	if (optMainMenuMusic && !(menuMusic))
+	{
+		FadeMusic (MUTE_VOLUME, 0);
+		menuMusic = loadMainMenuMusic (Rando);
+		PlayMusic (menuMusic, TRUE, 1);
+		
+		if (OkayToResume ())
+			SeekMusic (GetMusicPosition ());
+
+		FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);
+	}
+}
+
+void
+UninitMenuMusic (void)
+{
+	if (menuMusic)
+	{
+		SleepThreadUntil (FadeMusic (MUTE_VOLUME, ONE_SECOND));
+
+		SetMusicPosition ();
+		StopMusic ();
+		DestroyMusic (menuMusic);
+		menuMusic = 0;
+
+		FadeMusic (NORMAL_VOLUME, 0);
+	}
+}
 
 void
 DrawToolTips (MENU_STATE *pMS, int answer)
@@ -261,7 +277,7 @@ DoDiffChooser (MENU_STATE *pMS)
 
 		}
 		else if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& !optRequiresRestart && PacksInstalled ())
+			&& PacksInstalled ())
 		{	// timed out
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			done = TRUE;
@@ -275,9 +291,6 @@ DoDiffChooser (MENU_STATE *pMS)
 	{
 		optDifficulty = (!a ? OPTVAL_EASY :
 				(a > 1 ? OPTVAL_HARD : OPTVAL_NORMAL));
-
-		res_PutInteger ("mm.difficulty", OPTVAL_IMPO);
-		SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 	}
 
 	DestroyDrawable (ReleaseDrawable (s.frame));
@@ -299,46 +312,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	TEXT t;
 	UNICODE buf[64];
 
-	// Re-load all of the restart menu fonts and graphics so the text and
-	// background show in the correct size and resolution.
-	if (optRequiresRestart || !PacksInstalled ())
-	{
-		DestroyFont (TinyFont);
-		DestroyFont (PlyrFont);
-		DestroyFont (StarConFont);
-		if (pMS->CurFrame)
-		{
-			DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
-			pMS->CurFrame = 0;
-		}
-	}
-
-	// Load the different menus and fonts depending on the resolution factor
-	if (!IS_HD)
-	{
-		if (optRequiresRestart || !PacksInstalled ())
-		{
-			TinyFont = LoadFont (TINY_FONT_FB);
-			PlyrFont = LoadFont (PLAYER_FONT_FB);
-			StarConFont = LoadFont (STARCON_FONT_FB);
-		}
-		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (
-					LoadGraphic (RESTART_PMAP_ANIM));
-	}
-	else
-	{
-		if (optRequiresRestart || !PacksInstalled ())
-		{
-			TinyFont = LoadFont (TINY_FONT_HD);
-			PlyrFont = LoadFont (PLAYER_FONT_HD);
-			StarConFont = LoadFont (STARCON_FONT_HD);
-		}
-		if (pMS->CurFrame == 0)
-			pMS->CurFrame = CaptureDrawable (
-					LoadGraphic (RESTART_PMAP_ANIM_HD));
-	}
-
 	s.frame = pMS->CurFrame;
 	GetFrameRect (s.frame, &r);
 	s.origin.x = (SCREEN_WIDTH - r.extent.width) >> 1;
@@ -359,7 +332,7 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	t.CharCount = (COUNT)~0;
 	sprintf (buf, "v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-			UQM_EXTRA_VERSION);
+			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
 	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 
@@ -390,19 +363,7 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 static BOOLEAN
 RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 {	
-	if (optRequiresRestart)
-	{
-		SetFlashRect (NULL, FALSE);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
-		// Got to restart -message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
-		SetTransitionSource (NULL);
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
-		GLOBAL (CurrentActivity) = CHECK_ABORT;
-		restartGame = TRUE;
-		return TRUE;
-	} 
-	else if (!PacksInstalled ())
+	if (!PacksInstalled ())
 	{
 		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
@@ -412,25 +373,20 @@ RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
 		Flash_continue (pMS->flashContext);
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 		return TRUE;
-	} else 
-		return FALSE;
-}
-
-static void
-InitFlash (MENU_STATE *pMS)
-{
-	pMS->flashContext = Flash_createOverlay (ScreenContext,
-		NULL, NULL);
-	Flash_setMergeFactors (pMS->flashContext, -3, 3, 16);
-	Flash_setSpeed (pMS->flashContext, (6 * ONE_SECOND) / 14, 0,
-		(6 * ONE_SECOND) / 14, 0);
-	Flash_setFrameTime (pMS->flashContext, ONE_SECOND / 16);
-	Flash_setState (pMS->flashContext, FlashState_fadeIn,
-		(3 * ONE_SECOND) / 16);
-	Flash_setPulseBox (pMS->flashContext, FALSE);
-
-	DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
-	Flash_start (pMS->flashContext);
+	}
+	else if (optRequiresRestart)
+	{
+		SetFlashRect (NULL, FALSE);
+		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
+		// Got to restart -message
+		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
+		SetTransitionSource (NULL);
+		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+		GLOBAL (CurrentActivity) = CHECK_ABORT;
+		restartGame = TRUE;
+		return TRUE;
+	}
+	return FALSE;
 }
 
 static BOOLEAN
@@ -443,7 +399,10 @@ DoRestart (MENU_STATE *pMS)
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
-	ResetMusicPositions ();
+	if (optWindowType < 2)
+	{
+		optMeleeToolTips = FALSE;
+	}
 	
 	if (optSuperMelee && !optLoadGame && PacksInstalled ())
 	{
@@ -460,60 +419,44 @@ DoRestart (MENU_STATE *pMS)
 		Flash_process (pMS->flashContext);
 
 	if (!pMS->Initialized)
-	{
-		if (pMS->hMusic && !comingFromInit)
-		{
-			if (optMusicResume)
-				MainMenuMusicPos = PLRGetPos ();
+	{// Kruzen: too much trouble using this one. Better to just turn it off
+		pMS->hMusic = 0;
 
-			StopMusic ();
-			DestroyMusic (pMS->hMusic);
-			pMS->hMusic = 0;
-		}
+		InitMenuMusic ();
+		ResetMusicResume ();
 		
-		pMS->hMusic = loadMainMenuMusic (Rando);
 		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
-		InitFlash (pMS);
+		pMS->flashContext = Flash_createOverlay (ScreenContext,
+				NULL, NULL);
+		Flash_setMergeFactors (pMS->flashContext, -3, 3, 16);
+		Flash_setSpeed (pMS->flashContext, (6 * ONE_SECOND) / 14, 0,
+				(6 * ONE_SECOND) / 14, 0);
+		Flash_setFrameTime (pMS->flashContext, ONE_SECOND / 16);
+		Flash_setState (pMS->flashContext, FlashState_fadeIn,
+				(3 * ONE_SECOND) / 16);
+		Flash_setPulseBox (pMS->flashContext, FALSE);
+
+		DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
+		Flash_start (pMS->flashContext);
+
 		LastInputTime = GetTimeCounter ();
 		pMS->Initialized = TRUE;
 
 		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
-
-		if (!comingFromInit)
-		{
-			FadeMusic (MUTE_VOLUME, 0);
-
-			if (optMusicResume && MainMenuMusicPos > 0)
-			{
-				PlayMusic (pMS->hMusic, TRUE, 1);
-				SeekMusic (MainMenuMusicPos);
-			}
-			else
-				PlayMusic (pMS->hMusic, TRUE, 1);
-		
-			if (optMainMenuMusic)
-				FadeMusic (NORMAL_VOLUME + 70, ONE_SECOND * 3);
-		}
 	}
 	else if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
-	{
+	{// Kruzen: soon to be unused since we can't get here if we not having the content in the first place
+		if (RestartMessage(pMS, TimeIn) &&
+				pMS->CurState <= PLAY_SUPER_MELEE)
+			return TRUE;
+
 		switch (pMS->CurState)
 		{
-			case LOAD_SAVED_GAME:
-				if (!RestartMessage (pMS, TimeIn))
-				{
-					LastActivity = CHECK_LOAD;
-					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
-					optLoadGame = FALSE;
-				}
-				else
-					return TRUE;
-				break;
 			case START_NEW_GAME:
 				if (optCustomSeed == 404)
 				{
@@ -529,55 +472,56 @@ DoRestart (MENU_STATE *pMS)
 							FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 					GLOBAL (CurrentActivity) = CHECK_ABORT;
 					restartGame = TRUE;
+					break;
 				}
-				else if (!RestartMessage (pMS, TimeIn))
+
+				if (optDiffChooser == OPTVAL_IMPO)
 				{
-					if (optDifficulty == OPTVAL_IMPO
-							|| res_GetInteger ("mm.difficulty") == OPTVAL_IMPO)
+					Flash_pause (pMS->flashContext);
+					Flash_setState (pMS->flashContext, FlashState_fadeIn,
+						 (3 * ONE_SECOND) / 16);
+					if (!DoDiffChooser (pMS))
 					{
-						Flash_terminate (pMS->flashContext); //so it won't visibly stuck
-						if (!DoDiffChooser (pMS))
-						{
-							LastInputTime = GetTimeCounter ();// if we timed out - don't start second credit roll
-							InitFlash (pMS);// reinit flash
-							return TRUE;
-						}
-						InitFlash(pMS);// reinit flash
+						LastInputTime = GetTimeCounter ();// if we timed out - don't start second credit roll
+						if (GLOBAL (CurrentActivity) != (ACTIVITY)~0)// just declined
+							Flash_continue (pMS->flashContext);
+						return TRUE;
 					}
-					LastActivity = CHECK_LOAD | CHECK_RESTART;
-					GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
+					Flash_continue (pMS->flashContext);
 				}
-				else
-					return TRUE;
+				LastActivity = CHECK_LOAD | CHECK_RESTART;
+				GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
+				break;
+			case LOAD_SAVED_GAME:
+				LastActivity = CHECK_LOAD;
+				GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
+				optLoadGame = FALSE;
 				break;
 			case PLAY_SUPER_MELEE:
-				if (!RestartMessage (pMS, TimeIn)) 
-				{
-					GLOBAL (CurrentActivity) = SUPER_MELEE;
-					optSuperMelee = FALSE;
-				} 
-				else
-					return TRUE;
+				GLOBAL (CurrentActivity) = SUPER_MELEE;
+				optSuperMelee = FALSE;
 				break;
 			case SETUP_GAME:
-				Flash_terminate (pMS->flashContext);
+				Flash_pause (pMS->flashContext);
+				Flash_setState (pMS->flashContext, FlashState_fadeIn,
+						(3 * ONE_SECOND) / 16);
 				SetupMenu ();
-				SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
-						MENU_SOUND_SELECT);
-
-				InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
+				if (optRequiresReload)
+					return FALSE;
 
 				LastInputTime = GetTimeCounter ();
+
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
 				ScreenTransition (3, NULL);
-				
-				InitFlash (pMS);
+				DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
+				Flash_continue (pMS->flashContext);
 				UnbatchGraphics ();
 				return TRUE;
 			case QUIT_GAME:
-				SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+				SleepThreadUntil (
+						FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 				GLOBAL (CurrentActivity) = CHECK_ABORT;
 				break;
 		}
@@ -623,7 +567,7 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else if (MouseButtonDown)
 	{
-		Flash_pause(pMS->flashContext);
+		Flash_pause (pMS->flashContext);
 		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
 				// Mouse not supported message
 		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
@@ -645,19 +589,11 @@ DoRestart (MENU_STATE *pMS)
 		if (GetTimeCounter () - LastInputTime > InactTimeOut
 			&& !optRequiresRestart && PacksInstalled ())
 		{
-			SleepThreadUntil (FadeMusic (0, ONE_SECOND/2));
-
-			if (optMusicResume)
-				MainMenuMusicPos = PLRGetPos ();
-
-			StopMusic ();
-			FadeMusic (NORMAL_VOLUME, 0);
-
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			return FALSE;
 		}
 	}
-	comingFromInit = FALSE;
+
 	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 
 	return TRUE;
@@ -690,23 +626,23 @@ RestartMenu (MENU_STATE *pMS)
 		FlushColorXForms ();
 		TimeOut = ONE_SECOND / 8;
 
-		GLOBAL(CurrentActivity) = IN_ENCOUNTER;
+		GLOBAL (CurrentActivity) = IN_ENCOUNTER;
 
 		if (optGameOver)
 			GameOver (SUICIDE);
 
 		DeathBySuicide = FALSE;
 
-		FreeGameData();
-		GLOBAL(CurrentActivity) = CHECK_ABORT;
+		FreeGameData ();
+		GLOBAL (CurrentActivity) = CHECK_ABORT;
 	}
-	else 
+	else
 	{
 		TimeOut = ONE_SECOND / 2;
 
 		if (GLOBAL_SIS (CrewEnlisted) == (COUNT)~0)
 		{
-			GLOBAL(CurrentActivity) = IN_ENCOUNTER;
+			GLOBAL (CurrentActivity) = IN_ENCOUNTER;
 
 			if (DeathByMelee)
 			{
@@ -738,9 +674,14 @@ RestartMenu (MENU_STATE *pMS)
 
 	// TODO: This fade is not always necessary, especially after a splash
 	//   screen. It only makes a user wait.
+	// Kruzen: This fade is needed when going from SUPER-MELEE and LOAD menus
+	// and when Skip Intro option is enabled, 3 second pause goes when
+	// the player used the Utwig bomb
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, TimeOut));
 	if (TimeOut == ONE_SECOND / 8)
 		SleepThread (ONE_SECOND * 3);
+
+	pMS->CurFrame = CaptureDrawable (LoadGraphic (RESTART_PMAP_ANIM));
 
 	DrawRestartMenuGraphic (pMS);
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
@@ -748,28 +689,16 @@ RestartMenu (MENU_STATE *pMS)
 	SetDefaultMenuRepeatDelay ();
 	DoInput (pMS, TRUE);
 	
-	if (optMainMenuMusic)
-	{
-		SleepThreadUntil (FadeMusic (0, ONE_SECOND));
-
-		if (optMusicResume)
-			MainMenuMusicPos = PLRGetPos ();
-	}
-
-	StopMusic ();
-	if (pMS->hMusic)
-	{
-		DestroyMusic (pMS->hMusic);
-		pMS->hMusic = 0;
-
-		if (optMainMenuMusic)
-			FadeMusic (NORMAL_VOLUME, 0);
-	}
+	if (!(optRequiresRestart || optRequiresReload))
+		UninitMenuMusic ();
 
 	Flash_terminate (pMS->flashContext);
 	pMS->flashContext = 0;
 	DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 	pMS->CurFrame = 0;
+
+	if (optRequiresReload)
+		Reload ();
 
 	if (GLOBAL (CurrentActivity) == (ACTIVITY)~0)
 		return (FALSE); // timed out
@@ -831,10 +760,16 @@ StartGame (void)
 			if (GLOBAL (CurrentActivity) == (ACTIVITY)~0)
 			{	// timed out
 				GLOBAL (CurrentActivity) = 0;
-				SplashScreen (0);
-				if (optWhichIntro == OPT_3DO)
-					Drumall ();
-				Credits (FALSE);
+
+				if (optRequiresRestart || optRequiresReload)
+					optRequiresRestart = optRequiresReload = FALSE;
+				else
+				{
+					SplashScreen (0);
+					if (optWhichIntro == OPT_3DO)
+						Drumall ();
+					Credits (FALSE);
+				}
 			}
 
 			if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -843,7 +778,6 @@ StartGame (void)
 
 		if (LastActivity & CHECK_RESTART)
 		{	// starting a new game
-			FadeMusic (NORMAL_VOLUME, 0);
 			if (!optSkipIntro)
 				Introduction ();
 		}

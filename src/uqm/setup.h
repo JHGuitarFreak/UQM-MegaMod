@@ -68,7 +68,6 @@ extern QUEUE race_q[];
 extern BOOLEAN solTexturesPresent;
 extern BOOLEAN SyreenVoiceFix;
 extern BOOLEAN HDPackPresent;
-extern BOOLEAN comingFromInit;
 extern BOOLEAN EndlessSCLoaded;
 extern BOOLEAN VolasPackPresent;
 extern BYTE Rando;
@@ -92,7 +91,7 @@ void UninitPlayerInput (void);
 BOOLEAN InitGameKernel (void);
 void UninitGameKernel (void);
 
-extern BOOLEAN LoadKernel (int argc, char *argv[], BOOLEAN ReloadPackages);
+extern BOOLEAN LoadKernel (int argc, char *argv[]);
 extern void FreeKernel (void);
 
 int initIO (void);

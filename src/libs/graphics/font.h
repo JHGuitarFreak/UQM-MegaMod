@@ -73,6 +73,9 @@ extern FONT _CurFontPtr;
 
 extern void *_GetFontData (uio_Stream *fp, DWORD length);
 extern BOOLEAN _ReleaseFontData (void *handle);
+extern TFB_Char *GetFrameForFPS (UniChar ch);
+extern void GetFontDims (SIZE* w, SIZE* h);
+extern BOOLEAN GoodToGoFPS (void);
 
 #endif /* LIBS_GRAPHICS_FONT_H_ */
 

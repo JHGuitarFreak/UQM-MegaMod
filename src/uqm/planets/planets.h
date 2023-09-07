@@ -49,7 +49,8 @@ enum PlanetScanTypes
 #define MAP_WIDTH RES_SCALE (UQM_MAP_WIDTH)
 #define MAP_HEIGHT RES_SCALE (SC2_MAP_HEIGHT)
 #define SCALED_MAP_WIDTH RES_SCALE \
-		(is3DO (optSuperPC) ? UQM_MAP_WIDTH : SC2_MAP_WIDTH)
+		(((is3DO (optSuperPC) ? UQM_MAP_WIDTH \
+		: SC2_MAP_WIDTH)) - SAFE_NUM (33))
 
 enum
 {
@@ -107,7 +108,7 @@ enum
 
 #define PLANET_ROTATION_RATE(a) (!a ? PC_ROTATION_RATE : \
 		(a == 1 ? THREEDO_ROTATION_RATE : UQM_ROTATION_RATE))
-#define PLANET_ORG_Y ((SCAN_SCREEN_HEIGHT - SIS_ORG_Y) / 2)
+#define PLANET_ORG_Y (SCAN_SCREEN_HEIGHT >> 1) - (useDosSpheres ? 2 : 0)
 
 #define NUM_RACE_RUINS 16
 

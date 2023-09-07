@@ -100,7 +100,8 @@ static void
 PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 {
 	t->baseline.x = xpos;
-	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_PC_TITLE_COLOR_6014 : SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (optWhichCoarseScan ?
+			SCAN_PC_TITLE_COLOR_6014 : SCAN_PC_TITLE_COLOR);
 
 	t->pStr = txt;
 	t->CharCount = (COUNT)~0;
@@ -108,10 +109,9 @@ PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 	if (!optNebulae)
 		font_DrawText (t);
 	else
-		font_DrawTracedText (t,
-				EXT_CASE (GetContextForeGroundColor (),
-					SCAN_PC_TITLE_COLOR_6014),
-					OUTLINE_COLOR);
+		font_DrawTracedText (t, (
+				optWhichCoarseScan ? SCAN_PC_TITLE_COLOR_6014
+				: GetContextForeGroundColor ()), OUTLINE_COLOR);
 
 	TextRect (t, r, NULL);
 	t->baseline.x += r->extent.width;
@@ -245,15 +245,16 @@ PrintCoarseScanPC (void)
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (optWhichCoarseScan ? SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
+	SetContextForeGroundColor (optWhichCoarseScan ?
+			SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
 	SetContextFont (MicroFont);
 	PrintScanText (&t);
 
 	SetContextFont (TinyFont);
 
 #define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2)
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (72))
-#define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (14))
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (73))
+#define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (13))
 #define SCAN_LEADING_PC RES_SCALE (10)
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
@@ -415,6 +416,7 @@ PrintCoarseScan3DO (void)
 	STAMP s;
 	UNICODE buf[40];
 	COUNT frameIndex = 20;
+	RECT r;
 
 	if (optWhichCoarseScan == 3)
 		frameIndex = (IS_HD ? 25 : 24);
@@ -432,18 +434,21 @@ PrintCoarseScan3DO (void)
 	SetContextFont (MicroFont);
 	PrintScanText (&t);
 
-#define LEFT_SIDE_BASELINE_X RES_SCALE (27 + 15)
-#define RIGHT_SIDE_BASELINE_X (SIS_SCREEN_WIDTH - LEFT_SIDE_BASELINE_X)
-#define SCAN_BASELINE_Y RES_SCALE (25 + 12)
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
+
+	GetFrameRect (s.frame, &r);
+
+	s.origin.x = t.baseline.x - (r.extent.width >> 1) - RES_SCALE (2);
+	s.origin.y = PLANET_ORG_Y - (r.extent.height >> 1);
+	DrawStamp (&s);
+
+#define SCAN_BASELINE_Y (s.origin.y + RES_SCALE (10))
+#define LEFT_SIDE_BASELINE_X (s.origin.x + RES_SCALE (29))
+#define RIGHT_SIDE_BASELINE_X (s.origin.x + r.extent.width - RES_SCALE (25))
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_LEFT;
-
-	s.origin.y = SCAN_BASELINE_Y - RES_SCALE (10);
-	s.origin.x = 0;
-	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
-	DrawStamp (&s);
 
 	t.pStr = buf;
 	val = ((pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist * 100L
@@ -503,7 +508,7 @@ PrintCoarseScan3DO (void)
 	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 
-	t.baseline.x = RIGHT_SIDE_BASELINE_X - RES_SCALE (3);
+	t.baseline.x = RIGHT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 
@@ -742,7 +747,14 @@ DispatchLander (void)
 	oldCallback = SetInputCallback (NULL);
 
 	if (!optInfiniteFuel)
-		DeltaSISGauges (0, -landingFuel, 0);
+	{
+		GLOBAL_SIS (FuelOnBoard) -= landingFuel;
+
+		if (optSubmenu)
+			DrawMineralHelpers ();
+		else
+			DeltaSISGauges (0, UNDEFINED_DELTA, 0);
+	}
 
 	SetContext (ScanContext);
 	drawPlanetCursor (FALSE);
@@ -935,7 +947,10 @@ PickPlanetSide (void)
 	savePlanetLocationImage ();
 
 	if (is3DO (optSuperPC))
+	{
 		InitLander (0);
+		DrawRadarBorder ();
+	}
 
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_SELECT);
 

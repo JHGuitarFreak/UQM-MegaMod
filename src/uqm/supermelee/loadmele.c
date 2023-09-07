@@ -192,7 +192,8 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 		sprintf (buf, "%u", MeleeTeam_getValue (team));
 		Text.baseline = *origin;
 		Text.baseline.x += NUM_MELEE_COLUMNS *
-				(LOAD_MELEE_BOX_WIDTH + LOAD_MELEE_BOX_SPACE) - RES_SCALE (1);
+				(LOAD_MELEE_BOX_WIDTH + LOAD_MELEE_BOX_SPACE)
+				- RES_SCALE (1);
 		Text.align = ALIGN_RIGHT;
 		Text.pStr = buf;
 		Text.CharCount = (COUNT)~0;
@@ -210,6 +211,9 @@ DrawFileString (const MeleeTeam *team, const POINT *origin,
 		for (slotI = 0; slotI < MELEE_FLEET_SIZE; slotI++)
 		{
 			BYTE StarShip;
+
+			if (slotI == TRUE_MELEE_FLEET_SIZE)
+				break;
 
 			StarShip = team->ships[slotI];
 			if (StarShip != MELEE_NONE)
@@ -245,9 +249,9 @@ FillFileView (MELEE_STATE *pMS)
 	return true;
 }
 
-#define FILE_STRING_ORIGIN_X RES_SCALE (5)
-#define FILE_STRING_ORIGIN_Y RES_SCALE (32)
-#define ENTRY_HEIGHT RES_SCALE (32) 
+#define FILE_STRING_ORIGIN_X RES_SCALE (5 + DOS_NUM (2))
+#define FILE_STRING_ORIGIN_Y RES_SCALE (32 - DOS_NUM (1))
+#define ENTRY_HEIGHT RES_SCALE (32)
 
 static void
 SelectFileString (MELEE_STATE *pMS, bool hilite)

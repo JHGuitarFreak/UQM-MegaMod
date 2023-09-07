@@ -56,6 +56,7 @@
 #include "settings.h"
 #include "cons_res.h"
 #include <time.h>//required to use 'srand(time(NULL))'
+#include "sounds.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP
@@ -134,11 +135,23 @@ ProcessUtilityKeys (void)
 	
 	if (ImmediateInputState.menu[KEY_FULLSCREEN])
 	{
-		int flags = GfxFlags ^ TFB_GFXFLAGS_FULLSCREEN;
+		int flags = GfxFlags;
+
+		if (flags & TFB_GFXFLAGS_EX_FULLSCREEN)
+		{
+			flags &= ~TFB_GFXFLAGS_FULLSCREEN;
+			flags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+		}
+		else
+			flags ^= TFB_GFXFLAGS_FULLSCREEN;
+
+		if (IS_HD)
+			flags ^= TFB_GFXFLAGS_SCALE_BILINEAR;
+
 		// clear ImmediateInputState so we don't repeat this next frame
 		FlushInput ();
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, flags, ScreenWidthActual,
-				ScreenHeightActual);
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, flags,
+				ScreenWidthActual, ScreenHeightActual);
 	}
 
 	if (ImmediateInputState.menu[KEY_SCREENSHOT])
@@ -169,6 +182,17 @@ ProcessUtilityKeys (void)
 		debugKey4State = ImmediateInputState.menu[KEY_DEBUG_4];
 	}
 #endif  /* DEBUG */
+}
+
+static void
+SetRandomMenuMusic (void)
+{
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+
+	srand(t);
+	Rando = (rand() % NUM_MM_THEMES);
+	optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
 }
 
 /* TODO: Remove these declarations once threading is gone. */
@@ -212,7 +236,7 @@ while (--ac > 0)
 		initAudio (snddriver, soundflags);
 	}
 
-	if (!LoadKernel (0,0, FALSE))
+	if (!LoadKernel (0,0))
 	{
 		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic "
 				"content ***\n\nUQM requires at least the base content "
@@ -239,23 +263,8 @@ while (--ac > 0)
 	if(!optSkipIntro)
 		Logo ();
 
-	{
-		time_t t = time (NULL);
-		struct tm tm = *localtime (&t);
-
-		srand (t);
-		Rando = (rand () % NUM_MM_THEMES);
-		optMaskOfDeceit = tm.tm_mon == 3 && tm.tm_mday == 1;
-
-		// printf("Random Music #: %d\n", Rando);
-
-		FadeMusic (MUTE_VOLUME, 0);
-		PlayMusic (loadMainMenuMusic (Rando), TRUE, 1);
-		
-		if (optMainMenuMusic)
-			FadeMusic (NORMAL_VOLUME+70, ONE_SECOND * 3);
-		comingFromInit = TRUE;
-	}
+	SetRandomMenuMusic ();
+	InitMenuMusic ();
 
 	SplashScreen (BackgroundInitKernel);
 

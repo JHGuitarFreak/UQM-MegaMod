@@ -325,6 +325,12 @@ init_arilou (void)
 		arilou_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		arilou_desc.cyborg_control.WeaponRange = LASER_RANGE_HD >> 1;
 	}
+	else
+	{
+		arilou_desc.characteristics.max_thrust = MAX_THRUST;
+		arilou_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		arilou_desc.cyborg_control.WeaponRange = LASER_RANGE >> 1;
+	}
 
 	arilou_desc.preprocess_func = arilou_preprocess;
 	arilou_desc.init_weapon_func = initialize_autoaim_laser;

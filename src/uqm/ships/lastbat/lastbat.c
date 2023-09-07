@@ -167,7 +167,7 @@ comet_preprocess (ELEMENT *ElementPtr)
 	{
 		if (frame_index == 25)
 		{
-			SDWORD cur_delta_x, cur_delta_y;
+			SIZE cur_delta_x, cur_delta_y;
 			STARSHIP *StarShipPtr;
 
 			GetElementStarShip (ElementPtr, &StarShipPtr);
@@ -175,10 +175,11 @@ comet_preprocess (ELEMENT *ElementPtr)
 			spawn_comet (ElementPtr);
 			ElementPtr->state_flags |= NONSOLID;
 
-			GetCurrentVelocityComponentsSdword (&ElementPtr->velocity,
+			GetCurrentVelocityComponents (&ElementPtr->velocity,
 					&cur_delta_x, &cur_delta_y);
 			SetVelocityComponents (&ElementPtr->velocity,
 					cur_delta_x / 2, cur_delta_y / 2);
+
 		}
 		++ElementPtr->life_span;
 	}
@@ -702,7 +703,7 @@ sentinel_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				ELEMENT *BlastElementPtr;
 
 				LockElement (hBlastElement, &BlastElementPtr);
-				BlastElementPtr->life_span = 6;
+				BlastElementPtr->life_span = 7;
 				BlastElementPtr->current.image.frame =
 						SetAbsFrameIndex (
 						BlastElementPtr->current.image.farray[0], 6

@@ -715,6 +715,25 @@ GenerateTexturedPlanets (void)
 	pSolarSysState->pOrbitalDesc = previousOrbitalDesc;
 }
 
+BOOLEAN HaveNebula;
+
+static float
+CalcNebulaBrightness (void)
+{
+	float brightness;
+	float scale = optUnscaledStarSystem ? 1.75 : 1.0;
+
+	if (optNebulaeVolume > 24)
+		brightness = (((float)optNebulaeVolume - 24) / 24) + scale;
+	else
+		brightness = scale * ((float)optNebulaeVolume / 24);
+
+	if (brightness < 1.0)
+		return 1.0;
+	else
+		return brightness;
+}
+
 // Returns an orbital PLANET_DESC when player is in orbit
 static PLANET_DESC *
 LoadSolarSys (void)
@@ -731,10 +750,6 @@ LoadSolarSys (void)
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
 	};
-
-	if (optUnscaledStarSystem && IS_HD)
-		temp_color_array[0] =
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 19), 0x54);
 
 	RandomContext_SeedRandom (SysGenRNG,
 			GetRandomSeedForStar (CurStarDescPtr));
@@ -782,7 +797,17 @@ LoadSolarSys (void)
 			index = (SysInfo.PlanetInfo.SurfaceTemperature + 250) / 100;
 			if (index >= NUM_TEMP_RANGES)
 				index = NUM_TEMP_RANGES - 1;
+
 			pCurDesc->temp_color = temp_color_array[index];
+
+			if (IS_HD && ((optUnscaledStarSystem && optNebulae
+					&& HaveNebula && optNebulaeVolume)
+					|| (!optUnscaledStarSystem && optNebulae
+					&& HaveNebula && optNebulaeVolume > 24)))
+			{
+				MultiplyBrightness (&pCurDesc->temp_color,
+						CalcNebulaBrightness ());
+			}
 		}
 		pCurDesc->frame_offset = UNDEFINED_OFFSET;
 	}
@@ -867,16 +892,16 @@ FreeSolarSys (void)
 	if (pSolarSysState->InIpFlight)
 	{
 		pSolarSysState->InIpFlight = FALSE;
-			
+
 		if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
+		{
 			saveNonOrbitalLocation ();
+			SetMusicPosition ();
+		}
 	}
 	
 	DestroyDrawable (ReleaseDrawable (SolarSysFrame));
 	SolarSysFrame = NULL;
-
-	if (optMusicResume)
-		SpaceMusicPos[spaceMusicBySOI] = PLRGetPos ();
 	
 	StopMusic ();
 
@@ -1560,17 +1585,19 @@ ProcessShipControls (void)
 static void
 enterInnerSystem (PLANET_DESC *planet)
 {
-#define INNER_ENTRY_DISTANCE  (MIN_MOON_RADIUS + ((MAX_GEN_MOONS - 1) \
-		* MOON_DELTA) + (MOON_DELTA / 4)) + RES_SCALE (5)
+#define INNER_ENTRY_DISTANCE (MIN_MOON_RADIUS + ((MAX_GEN_MOONS - 1) \
+		* MOON_DELTA) + (MOON_DELTA >> 2)) + NSAFE_NUM_SCL (5)
 	COUNT angle;
 
 	// Calculate the inner system entry location and facing
 	angle = FACING_TO_ANGLE (GetFrameIndex (GLOBAL (ShipStamp.frame)))
 			+ HALF_CIRCLE;
+
 	GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
 			+ COSINE (angle, INNER_ENTRY_DISTANCE);
 	GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
 			+ SINE (angle, INNER_ENTRY_DISTANCE);
+
 	if (GLOBAL (ShipStamp.origin.y) < 0)
 		GLOBAL (ShipStamp.origin.y) = RES_SCALE (1);
 	else if (GLOBAL (ShipStamp.origin.y) >= SIS_SCREEN_HEIGHT)
@@ -2139,15 +2166,16 @@ playSpaceMusic (void)
 	if (!PLRPlaying((MUSIC_REF)~0) &&
 		(LastActivity != CHECK_LOAD || NextActivity))
 	{
-		if (optMusicResume && SpaceMusicPos[spaceMusicBySOI] > 0)
+		SetMusicVolume (MUTE_VOLUME);
+		PlayMusic (SpaceMusic, TRUE, 1);
+
+		if (OkayToResume ())
 		{
-			FadeMusic (MUTE_VOLUME, 0);
-			PlayMusic (SpaceMusic, TRUE, 1);
-			SeekMusic (SpaceMusicPos[spaceMusicBySOI]);
+			SeekMusic (GetMusicPosition ());
 			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 		}
 		else
-			PlayMusic (SpaceMusic, TRUE, 1);
+			SetMusicVolume (NORMAL_VOLUME);
 	}
 }
 
@@ -2722,17 +2750,16 @@ BrightenNebula (FRAME nebula, BYTE factor)
 
 	HFree (map);
 }
-
 void
 DrawNebula (POINT star_point)
 {
 	const POINT solPoint = { SOL_X, SOL_Y };
 	
 	if (!pointsEqual (star_point, solPoint) || (classicPackPresent &&
-			(LastActivity != CHECK_LOAD || NextActivity)))
+		(LastActivity != CHECK_LOAD || NextActivity)))
 	{	// To avoid loading nebulae in loading menu (Yay optimization)
 		FRAME NebulaeFrame =
-				CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
+			CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
 		const BYTE numNebulae = GetFrameCount (NebulaeFrame);
 
 		if ((star_point.y % (numNebulae + 6)) < numNebulae
@@ -2741,15 +2768,19 @@ DrawNebula (POINT star_point)
 			STAMP s;
 			s.origin = MAKE_POINT (0, 0);
 			s.frame = SetAbsFrameIndex (NebulaeFrame,
-					star_point.x % numNebulae);
+				star_point.x % numNebulae);
 			if (optNebulaeVolume != 24)
 				BrightenNebula (s.frame, optNebulaeVolume);
 
 			DrawStamp (&s);
+
+			HaveNebula = TRUE;
 		}
 		DestroyDrawable (ReleaseDrawable (NebulaeFrame));
 		NebulaeFrame = 0;
 	}
+	else
+		HaveNebula = FALSE;
 }
 
 FRAME

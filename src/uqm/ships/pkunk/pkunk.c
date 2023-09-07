@@ -627,6 +627,12 @@ init_pkunk (void)
 		pkunk_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
 		pkunk_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD + 4;
 	}
+	else
+	{
+		pkunk_desc.characteristics.max_thrust = MAX_THRUST;
+		pkunk_desc.characteristics.thrust_increment = THRUST_INCREMENT;
+		pkunk_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON + 1;
+	}
 
 	// The caller of this func will copy the struct
 	memset (&empty_data, 0, sizeof (empty_data));
