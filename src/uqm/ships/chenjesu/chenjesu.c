@@ -464,12 +464,12 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 					if (!IS_HD || lpEvalDesc != &ObjectsOfConcern[ENEMY_SHIP_INDEX])
 					{
 						crystal_would_miss = ((which_turn = PlotIntercept (CrystalPtr,
-							ObjectsOfConcern[ENEMY_SHIP_INDEX].ObjectPtr,
-							CrystalPtr->life_span, FRAGMENT_RANGE / 2)) == 0
-						 || (which_turn == 1
-							 && PlotIntercept (CrystalPtr,
-								ObjectsOfConcern[ENEMY_SHIP_INDEX].ObjectPtr,
-								CrystalPtr->life_span, 0) == 0));
+						ObjectsOfConcern[ENEMY_SHIP_INDEX].ObjectPtr,
+						CrystalPtr->life_span, FRAGMENT_RANGE / 2)) == 0
+						|| (which_turn == 1
+						&& PlotIntercept (CrystalPtr,
+						ObjectsOfConcern[ENEMY_SHIP_INDEX].ObjectPtr,
+						CrystalPtr->life_span, 0) == 0));
 					} else {
 						DWORD curr_dist = 0;
 						SDWORD dx, dy;
@@ -531,7 +531,7 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 			{
 				if (IS_HD)
 				{
-					//COUNT num_weapons;
+					COUNT num_weapons;
 					ELEMENT Ship;
 					HELEMENT Weapon[6];
 					HELEMENT *WeaponPtr,w;
@@ -540,7 +540,8 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 					
 					Ship = *ShipPtr;
 					GetElementStarShip (&Ship, &StarShipPtr2);
-					//num_weapons = (*StarShipPtr->RaceDescPtr->init_weapon_func) (ShipPtr, Weapon);
+					num_weapons = (*StarShipPtr->RaceDescPtr->init_weapon_func) (ShipPtr, Weapon);
+					(void)num_weapons;
 					WeaponPtr = &Weapon[0];
 					
 					w = *WeaponPtr;
@@ -555,7 +556,8 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 							InitIntersectFrame (EPtr);
 						}
 							
-						if (PlotIntercept (EPtr, lpEvalDesc->ObjectPtr, EPtr->life_span, FRAGMENT_RANGE / 2) < 80)
+						if (PlotIntercept (EPtr, lpEvalDesc->ObjectPtr,
+								EPtr->life_span, FRAGMENT_RANGE / 2) < 80)
 						{
 							StarShipPtr->ship_input_state |= WEAPON;
 						}
