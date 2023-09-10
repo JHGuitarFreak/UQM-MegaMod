@@ -180,12 +180,11 @@ LoadKernel (int argc, char *argv[])
 	{
 		VolasPackPresent = loadAddon ("volasaurus-remix-pack");
 
-		if (optSpaceMusic)
-			SpaceMusicOK = VolasPackPresent;
+		SpaceMusicOK = optSpaceMusic && VolasPackPresent;
 	}
 
-	if (optSpaceMusic && !VolasPackPresent)
-		SpaceMusicOK = loadAddon ("SpaceMusic");
+	if (!VolasPackPresent)
+		SpaceMusicOK = optSpaceMusic && loadAddon ("SpaceMusic");
 
 	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
