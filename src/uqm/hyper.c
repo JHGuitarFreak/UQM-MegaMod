@@ -2178,10 +2178,11 @@ SeedUniverse (void)
 
 			if (TimeOut <= GetTimeCounter () && !GetCounter)
 			{
+				SetMusicPosition ();
 				StopMusic ();
 				FreeBattleSong ();
 				BattleSong (TRUE);
-				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
+				//FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 				GetCounter = TRUE;
 				TimeOut = (DWORD)~0;
 			}
