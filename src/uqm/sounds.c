@@ -84,16 +84,21 @@ PlayMenuSound (MENU_SOUND_EFFECT S)
 void
 PlayTuneSound (void)
 {
-	BYTE Rando;
+	BYTE random_track = (BYTE)~0;
+	static BYTE last_track;
 	time_t t = time (NULL);
 	struct tm tm = *localtime (&t);
 
 	srand (t);
-	Rando = (rand () % NUM_TUNE_SOUNDS);
+	random_track = (rand () % NUM_TUNE_SOUNDS);
 
-	PlaySoundEffect (SetAbsSoundIndex (TuneSounds, Rando),
-			0, NotPositional (), NULL,
-			GAME_SOUND_PRIORITY);
+	if (random_track == last_track)
+		random_track++;
+
+	PlaySoundEffect (SetAbsSoundIndex (TuneSounds, random_track),
+			0, NotPositional (), NULL, GAME_SOUND_PRIORITY);
+
+	last_track = random_track;
 }
 
 void
