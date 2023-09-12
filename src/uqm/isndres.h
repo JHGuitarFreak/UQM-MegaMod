@@ -6,3 +6,4 @@
 #define LANDER_SOUNDS "sounds.lander"
 #define MENU_SOUNDS "sounds.menu"
 #define TEST_SOUNDS "sounds.test"
+#define TUNE_SOUNDS "sounds.tune"

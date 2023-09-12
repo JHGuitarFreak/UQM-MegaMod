@@ -17,9 +17,11 @@
 #include "settings.h"
 #include "sounds.h"
 #include "units.h"
+#include <time.h>//required to use 'srand(time(NULL))'
 
 SOUND MenuSounds;
 SOUND GameSounds;
+SOUND TuneSounds;
 
 #define MAX_SOUNDS 8
 static BYTE num_sounds = 0;
@@ -75,6 +77,21 @@ void
 PlayMenuSound (MENU_SOUND_EFFECT S)
 {
 	PlaySoundEffect (SetAbsSoundIndex (MenuSounds, S),
+			0, NotPositional (), NULL,
+			GAME_SOUND_PRIORITY);
+}
+
+void
+PlayTuneSound (void)
+{
+	BYTE Rando;
+	time_t t = time (NULL);
+	struct tm tm = *localtime (&t);
+
+	srand (t);
+	Rando = (rand () % NUM_TUNE_SOUNDS);
+
+	PlaySoundEffect (SetAbsSoundIndex (TuneSounds, Rando),
 			0, NotPositional (), NULL,
 			GAME_SOUND_PRIORITY);
 }

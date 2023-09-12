@@ -52,6 +52,9 @@ typedef enum
 
 extern SOUND MenuSounds;
 extern SOUND GameSounds;
+extern SOUND TuneSounds;
+
+#define NUM_TUNE_SOUNDS 10
 
 /* Constants for DoInput */
 typedef UWORD MENU_SOUND_FLAGS;
@@ -78,6 +81,7 @@ extern void GetMenuSounds (MENU_SOUND_FLAGS *sound_0,
 extern void PlaySound (SOUND S, SoundPosition Pos,
 		ELEMENT *PositionalObject, BYTE Priority);
 extern void PlayMenuSound (MENU_SOUND_EFFECT S);
+extern void PlayTuneSound (void);
 extern void ProcessSound (SOUND Sound, ELEMENT *PositionalObject);
 extern SoundPosition CalcSoundPosition (ELEMENT *ElementPtr);
 extern SoundPosition NotPositional (void);

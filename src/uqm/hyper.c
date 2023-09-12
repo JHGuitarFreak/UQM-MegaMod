@@ -2172,6 +2172,7 @@ SeedUniverse (void)
 		{
 			if (GetCounter)
 			{
+				PlayTuneSound ();
 				TimeOut = FadeMusic (0, ONE_SECOND / 2);
 				GetCounter = FALSE;
 			}
@@ -2182,7 +2183,6 @@ SeedUniverse (void)
 				StopMusic ();
 				FreeBattleSong ();
 				BattleSong (TRUE);
-				//FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
 				GetCounter = TRUE;
 				TimeOut = (DWORD)~0;
 			}

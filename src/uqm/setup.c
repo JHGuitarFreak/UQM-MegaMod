@@ -346,6 +346,10 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
+	TuneSounds = CaptureSound (LoadSound (TUNE_SOUNDS));
+	if (TuneSounds == 0)
+		return FALSE;
+
 	InitStatusOffsets ();
 	InitSpace ();
 	AdvanceLoadProgress ();
