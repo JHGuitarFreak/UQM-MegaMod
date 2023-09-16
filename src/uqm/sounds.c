@@ -87,7 +87,6 @@ PlayTuneSound (void)
 	BYTE random_track = (BYTE)~0;
 	static BYTE last_track;
 	time_t t = time (NULL);
-	struct tm tm = *localtime (&t);
 
 	srand (t);
 	random_track = (rand () % NUM_TUNE_SOUNDS);

@@ -54,7 +54,7 @@ extern SOUND MenuSounds;
 extern SOUND GameSounds;
 extern SOUND TuneSounds;
 
-#define NUM_TUNE_SOUNDS 10
+#define NUM_TUNE_SOUNDS 20
 
 /* Constants for DoInput */
 typedef UWORD MENU_SOUND_FLAGS;
