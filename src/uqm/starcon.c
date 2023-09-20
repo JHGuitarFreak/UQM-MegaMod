@@ -390,13 +390,16 @@ while (--ac > 0)
 							// if died for some reason
 					|| GLOBAL_SIS (CrewEnlisted) == (COUNT)~0))
 			{
-				if (GET_GAME_STATE(KOHR_AH_KILLED_ALL)) {
-					InitCommunication(BLACKURQ_CONVERSATION);
+				if (GET_GAME_STATE (KOHR_AH_KILLED_ALL))
+				{
+					if ((optGameOver && !inQuasiSpace ()) || !optGameOver)
+						InitCommunication (BLACKURQ_CONVERSATION);
+
 					if (optGameOver)
-						GameOver (DEATH_MARCH);
+						GameOver (DEATH_MARCH + inQuasiSpace ());
 				}
-				else if (GLOBAL (CurrentActivity) & CHECK_RESTART){
-					// surrendered to Ur-Quan
+				else if (GLOBAL (CurrentActivity) & CHECK_RESTART)
+				{	// surrendered to Ur-Quan
 					DeathBySurrender = TRUE;
 					GLOBAL (CurrentActivity) &= ~CHECK_RESTART;
 				}

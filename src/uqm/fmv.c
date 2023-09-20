@@ -153,7 +153,7 @@ Victory (void)
 }
 
 void
-GameOver (BYTE DeathType) 
+GameOver (BYTE DeathType)
 {
 	if (DeathType != SUICIDE)
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
@@ -162,6 +162,9 @@ GameOver (BYTE DeathType)
 	{
 		case DEATH_MARCH:
 			ShowPresentation (DEATHMARCHPRES_STRTAB);
+			break;
+		case DEATH_MARCH_QUASI:
+			ShowPresentation (DEATHMARCHQUASIPRES_STRTAB);
 			break;
 		case SUICIDE:
 			SleepThreadUntil (FadeScreen (FadeAllToWhite, ONE_SECOND / 2));

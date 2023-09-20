@@ -43,6 +43,7 @@
 #define CYA_GAS_COLOR_TAB "planet.cyangas.colortable"
 #define CYA_GAS_XLAT_TAB "planet.cyangas.translatetable"
 #define DEATHMARCHPRES_STRTAB "slides.deathmarch"
+#define DEATHMARCHQUASIPRES_STRTAB "slides.deathmarchquasi"
 #define DEFEATEDPRES_STRTAB "slides.defeated"
 #define DEIMOS_COLOR_TAB "planet.deimos.colortable"
 #define DESTROYED_BASE_STRTAB "text.destroyedbase"

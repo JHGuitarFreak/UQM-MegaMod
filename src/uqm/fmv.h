@@ -28,6 +28,7 @@ extern "C" {
 typedef enum
 {
 	DEATH_MARCH,
+	DEATH_MARCH_QUASI,
 	DIED_IN_BATTLE,
 	SUICIDE,
 	SURRENDERED
