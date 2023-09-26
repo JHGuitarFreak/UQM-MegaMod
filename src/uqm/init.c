@@ -41,8 +41,6 @@
 
 FRAME stars_in_space;
 FRAME misc_in_space;
-FRAME StarPoints;
-FRAME stars_in_quasispace; 
 FRAME crew_dots[NUM_VIEWS]; 
 FRAME ion_trails[NUM_VIEWS]; 
 FRAME asteroid[NUM_VIEWS];
@@ -134,12 +132,7 @@ InitSpace (void)
 				CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
 
 		if (IS_HD)
-		{
-			StarPoints = CaptureDrawable (
-					LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
-			if (StarPoints == NULL)
-				return FALSE;
-			
+		{			
 			if (!load_animation (crew_dots,
 					CREW_BIG_MASK_PMAP_ANIM,
 					CREW_MED_MASK_PMAP_ANIM,
@@ -189,10 +182,8 @@ UninitSpace (void)
 		free_image (ion_trails);
 
 		DestroyDrawable (ReleaseDrawable (stars_in_space));
-		DestroyDrawable (ReleaseDrawable (StarPoints));
 		DestroyDrawable (ReleaseDrawable (misc_in_space));
 		stars_in_space = 0;
-		StarPoints = 0;
 		misc_in_space = 0;
 	}
 }
@@ -221,12 +212,6 @@ InitShips (void)
 
 	InitSpace ();
 
-	SetContext (StatusContext);
-	SetContext (SpaceContext);
-
-	InitDisplayList ();
-	InitGalaxy ();
-
 	if (inHQSpace ())
 	{
 		ReinitQueue (&race_q[0]);
@@ -235,12 +220,24 @@ InitShips (void)
 		BuildSIS ();
 		LoadHyperspace ();
 
+		// Kruzen: Moved and duped for melee to load correct stars in InitGalaxy()
+		// Depended on stars_in_space frame, which is redeclared in LoadHyperspace()
+		InitDisplayList();
+		InitGalaxy();
+
 		num_ships = 1;
 	}
 	else
 	{
 		COUNT i;
 		RECT r;
+
+		// Kruzen: Duped
+		SetContext (SpaceContext);
+
+		InitDisplayList ();
+		InitGalaxy ();
+		// End dupe
 
 		SetContextFGFrame (Screen);
 		r.corner.x = SAFE_X;

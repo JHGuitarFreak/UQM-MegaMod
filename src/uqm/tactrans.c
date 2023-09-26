@@ -822,7 +822,6 @@ spawn_ion_trail (ELEMENT *ElementPtr, SIZE x_offset, SIZE y_offset)
 				// 'cycle_ion_trail', it is given new life a number of
 				// times, by setting life_span to thrust_wait.
 
-		
 		if (!IS_HD) {
 			SetPrimType (&DisplayArray[IonElementPtr->PrimIndex], POINT_PRIM);
 			IonElementPtr->current.image.frame = DecFrameIndex (stars_in_space);
@@ -831,6 +830,8 @@ spawn_ion_trail (ELEMENT *ElementPtr, SIZE x_offset, SIZE y_offset)
 			SetPrimType (&DisplayArray[IonElementPtr->PrimIndex], STAMPFILL_PRIM);
 			IonElementPtr->current.image.frame = SetAbsFrameIndex (ion_trails[0], 0);
 			IonElementPtr->current.image.farray = ion_trails;
+			IonElementPtr->next.image.frame = IonElementPtr->current.image.frame;
+			IonElementPtr->next.image.farray = IonElementPtr->current.image.farray;
 		}
 		SetPrimColor (&DisplayArray[IonElementPtr->PrimIndex],
 				START_ION_COLOR);
@@ -841,11 +842,6 @@ spawn_ion_trail (ELEMENT *ElementPtr, SIZE x_offset, SIZE y_offset)
 		IonElementPtr->current.location.y +=
 				(COORD)SINE (angle, r.extent.height) + y_offset;
 		IonElementPtr->death_func = cycle_ion_trail;
-
-		if (IS_HD) {
-			IonElementPtr->next.image.frame = IonElementPtr->current.image.frame;
-			IonElementPtr->next.image.farray = IonElementPtr->current.image.farray;
-		}
 
 		SetElementStarShip (IonElementPtr, StarShipPtr);
 

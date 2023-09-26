@@ -241,7 +241,6 @@ InitGalaxy (void)
 	COUNT i, factor;
 	DPOINT *ppt;
 	PRIM_LINKS Links;
-	BOOLEAN HSorQS = (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 ? FALSE : TRUE);
 
 	log_add (log_Debug, "InitGalaxy(): transition_width = %d, "
 			"transition_height = %d",
@@ -277,26 +276,24 @@ InitGalaxy (void)
 				SetPrimColor (&DisplayArray[p],
 						BUILD_COLOR (MAKE_RGB15 (0x0B, 0x0B, 0x1F), 0x09));
 
-				// JMS_GFX: This was originally only "DisplayArray[p].Object.Stamp.frame = stars_in_space;"
-				if (!IS_HD || (GET_GAME_STATE(ARILOU_SPACE_SIDE) <= 1))
-					DisplayArray[p].Object.Stamp.frame = stars_in_space;
-				else
-					DisplayArray[p].Object.Stamp.frame = stars_in_quasispace;
+				DisplayArray[p].Object.Stamp.frame = stars_in_space;
 			}
 			else
 			{
 				if (IS_HD)
 				{	// In HD the starpoints in HS and QS are images
-					SetPrimType(&DisplayArray[p], STAMP_PRIM);
-					if (LOBYTE(GLOBAL(CurrentActivity)) != IN_HYPERSPACE)
+					if (LOBYTE (GLOBAL(CurrentActivity)) != IN_HYPERSPACE)
 					{
-						SetPrimType (&DisplayArray[p], POINT_PRIM);
-						SetPrimColor (&DisplayArray[p],
-							BUILD_COLOR (MAKE_RGB15(0x15, 0x15, 0x15), 0x07));
+						SetPrimType (&DisplayArray[p], STAMP_PRIM);
+						DisplayArray[p].Object.Stamp.frame =
+								SetAbsFrameIndex (stars_in_space, 3);
 					}
 					else
+					{
+						SetPrimType (&DisplayArray[p], STAMP_PRIM);
 						DisplayArray[p].Object.Stamp.frame =
-								SetAbsFrameIndex (StarPoints, HSorQS);
+							SetAbsFrameIndex (stars_in_space, 89);
+					}
 				}
 				else
 				{	// Pixel starpoints in original res
@@ -361,16 +358,9 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 	{
 		COUNT reduction, i, iss, scale = 0;
 		DPOINT *ppt;
-		FRAME tempframe;
 		int wrap_around;
 
 		reduction = zoom_out;
-
-		
-		if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-			tempframe = stars_in_space;
-		else
-			tempframe = stars_in_quasispace;
 
 		if (view_state == VIEW_CHANGE)
 		{
@@ -381,7 +371,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 					for (i = star_counts[iss]; i > 0; --i, ++pprim)
 					{
 						pprim->Object.Stamp.frame =	SetAbsFrameIndex (
-								tempframe,
+								stars_in_space,
 									(COUNT)(TFB_Random () & 31)
 									+ star_frame_ofs[iss]);
 					}

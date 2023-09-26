@@ -30,8 +30,6 @@ extern "C" {
 
 extern FRAME stars_in_space;
 extern FRAME misc_in_space;
-extern FRAME StarPoints;
-extern FRAME stars_in_quasispace; 
 extern FRAME crew_dots[NUM_VIEWS]; 
 extern FRAME ion_trails[NUM_VIEWS]; 
 

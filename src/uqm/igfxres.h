@@ -323,7 +323,6 @@
 #define MONUMENT_MASK_PMAP_ANIM "graphics.spathimonument"
 #define STARBASE_ANIM "graphics.starbase"
 #define STAR_MASK_PMAP_ANIM "graphics.stars"
-#define STARPOINT_MASK_PMAP_ANIM "graphics.starpoints"
 #define STARMISK_MASK_PMAP_ANIM "graphics.stars.misc"
 #define STATUS_MASK_PMAP_ANIM "graphics.status"
 #define STELE_MASK_PMAP_ANIM "graphics.stele"
