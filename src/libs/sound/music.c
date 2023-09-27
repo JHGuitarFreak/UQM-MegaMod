@@ -451,7 +451,7 @@ OkayToResume (void)
 	TimeIn = GetTimeCounter ();
 	difference = TimeIn - resumeMusicArray[i].last_played;
 
-	if (difference < FIVE_MINUTES)
+	if (optMusicResume == 2 || (difference < FIVE_MINUTES))
 		return TRUE;
 
 	return FALSE;
