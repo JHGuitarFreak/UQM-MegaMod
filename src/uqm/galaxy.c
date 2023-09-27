@@ -45,6 +45,7 @@ extern PRIM_LINKS DisplayLinks;
 
 DPOINT SpaceOrg;
 static DPOINT log_star_array[NUM_STARS];
+static COUNT num_sceneries;
 
 #define NUM_STAR_PLANES 3
 
@@ -241,7 +242,9 @@ InitGalaxy (void)
 	COUNT i, factor;
 	DPOINT *ppt;
 	PRIM_LINKS Links;
-	BOOLEAN HSorQS = (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 ? FALSE : TRUE);
+	BOOLEAN useScenery = (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA)
+							&& LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE
+							&& LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE);
 
 	log_add (log_Debug, "InitGalaxy(): transition_width = %d, "
 			"transition_height = %d",
@@ -249,6 +252,7 @@ InitGalaxy (void)
 
 	Links = MakeLinks (END_OF_LIST, END_OF_LIST);
 	factor = ONE_SHIFT + MAX_REDUCTION + (BACKGROUND_SHIFT - 3);
+	num_sceneries = 0;
 	for (i = 0, ppt = log_star_array; i < NUM_STARS; ++i, ++ppt)
 	{
 		COUNT p;
@@ -261,63 +265,56 @@ InitGalaxy (void)
 		ppt->x = (SDWORD)((UWORD)TFB_Random () % SPACE_WIDTH) << factor;
 		ppt->y = (SDWORD)((UWORD)TFB_Random () % SPACE_HEIGHT) << factor;
 
-		if (EXTENDED && GET_GAME_STATE (URQUAN_PROTECTING_SAMATRA) 
-				&& LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE 
-				&& LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE
-				&& i == BIG_STAR_COUNT + 1)
-		{	//Set SA-MATRA as background image on the second Star layer
-			SetPrimType (&DisplayArray[p], MISC_PRIM);
-			DisplayArray[p].Object.Stamp.frame = misc_in_space;
+		if (i < BIG_STAR_COUNT + MED_STAR_COUNT)
+		{
+			SetPrimType (&DisplayArray[p], STAMP_PRIM);
+			SetPrimColor (&DisplayArray[p],
+					BUILD_COLOR (MAKE_RGB15 (0x0B, 0x0B, 0x1F), 0x09));
+
+			if (useScenery && i == (BIG_STAR_COUNT + MED_STAR_COUNT - 1))
+			{	//Set SA-MATRA as background image on the second Star layer
+				SetPrimType(&DisplayArray[p], STAMP_PRIM);
+				DisplayArray[p].Object.Stamp.frame = scenery;
+				num_sceneries = 1;
+			}
+			else
+				DisplayArray[p].Object.Stamp.frame = stars_in_space;
 		}
 		else
 		{
-			if (i < BIG_STAR_COUNT + MED_STAR_COUNT)
-			{
-				SetPrimType (&DisplayArray[p], STAMP_PRIM);
-				SetPrimColor (&DisplayArray[p],
-						BUILD_COLOR (MAKE_RGB15 (0x0B, 0x0B, 0x1F), 0x09));
-
-				// JMS_GFX: This was originally only "DisplayArray[p].Object.Stamp.frame = stars_in_space;"
-				if (!IS_HD || (GET_GAME_STATE(ARILOU_SPACE_SIDE) <= 1))
-					DisplayArray[p].Object.Stamp.frame = stars_in_space;
+			if (IS_HD)
+			{	// In HD the smallest stars are images
+				if (LOBYTE (GLOBAL(CurrentActivity)) != IN_HYPERSPACE)
+				{
+					SetPrimType (&DisplayArray[p], UNSCALED_PRIM);
+					DisplayArray[p].Object.Stamp.frame =
+							SetAbsFrameIndex (stars_in_space, 3);
+				}
 				else
-					DisplayArray[p].Object.Stamp.frame = stars_in_quasispace;
+				{
+					SetPrimType (&DisplayArray[p], STAMP_PRIM);
+					DisplayArray[p].Object.Stamp.frame =
+						SetAbsFrameIndex (stars_in_space, 89);
+				}
 			}
 			else
-			{
-				if (IS_HD)
-				{	// In HD the starpoints in HS and QS are images
-					SetPrimType(&DisplayArray[p], STAMP_PRIM);
-					if (LOBYTE(GLOBAL(CurrentActivity)) != IN_HYPERSPACE)
-					{
-						SetPrimType (&DisplayArray[p], POINT_PRIM);
-						SetPrimColor (&DisplayArray[p],
-							BUILD_COLOR (MAKE_RGB15(0x15, 0x15, 0x15), 0x07));
-					}
-					else
-						DisplayArray[p].Object.Stamp.frame =
-								SetAbsFrameIndex (StarPoints, HSorQS);
-				}
+			{	// Pixel starpoints in original res
+				SetPrimType (&DisplayArray[p], POINT_PRIM);
+				if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
+					SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (
+								MAKE_RGB15 (0x15, 0x15, 0x15), 0x07)
+							);
+				else if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+					SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (
+								MAKE_RGB15 (0x14, 0x00, 0x00), 0x8C)
+							);
 				else
-				{	// Pixel starpoints in original res
-					SetPrimType(&DisplayArray[p], POINT_PRIM);
-					if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
-						SetPrimColor (&DisplayArray[p],
-								BUILD_COLOR (
-									MAKE_RGB15 (0x15, 0x15, 0x15), 0x07)
-								);
-					else if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-						SetPrimColor (&DisplayArray[p],
-								BUILD_COLOR (
-									MAKE_RGB15 (0x14, 0x00, 0x00), 0x8C)
-								);
-					else
-						SetPrimColor (&DisplayArray[p],
-								BUILD_COLOR (
-									MAKE_RGB15 (0x00, 0x0E, 0x00), 0x8C)
-								);
-				}
-
+					SetPrimColor (&DisplayArray[p],
+							BUILD_COLOR (
+								MAKE_RGB15 (0x00, 0x0E, 0x00), 0x8C)
+							);
 			}
 		}
 
@@ -361,154 +358,119 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 	{
 		COUNT reduction, i, iss, scale = 0;
 		DPOINT *ppt;
-		FRAME tempframe;
 		int wrap_around;
 
 		reduction = zoom_out;
 
-		
-		if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-			tempframe = stars_in_space;
-		else
-			tempframe = stars_in_quasispace;
-
 		if (view_state == VIEW_CHANGE)
 		{
-			if (inHQSpace ())
+			if (inHQSpace())
 			{
 				for (iss = 0, pprim = DisplayArray; iss < 2; ++iss)
 				{
 					for (i = star_counts[iss]; i > 0; --i, ++pprim)
 					{
-						pprim->Object.Stamp.frame =	SetAbsFrameIndex (
-								tempframe,
-									(COUNT)(TFB_Random () & 31)
-									+ star_frame_ofs[iss]);
+						pprim->Object.Stamp.frame = SetAbsFrameIndex(
+							stars_in_space,
+							(COUNT)(TFB_Random() & 31)
+							+ star_frame_ofs[iss]);
 					}
 				}
 			}
 			else
 			{
 				GRAPHICS_PRIM star_object[2];
-				FRAME star_frame[9]; // JMS_GFX: was 2. Added extra frames for more star .pngs.
+				FRAME star_frame[3];
 
-				star_frame[0] = IncFrameIndex (stars_in_space);
-				star_frame[1] = stars_in_space;
-			
 				if (optMeleeScale == TFB_SCALE_STEP)
-				{	/* on PC, the closest stars are images when zoomed out */
-					star_object[0] = STAMP_PRIM;
-					if (reduction > 0)
-					{
-						star_object[1] = POINT_PRIM;
-						star_frame[0] = star_frame[1];
+					scale = reduction;
+				else
+				{
+					if (reduction == (1 << (ZOOM_SHIFT + 2)))
+						scale = 2;
+					else if (reduction < (1 << (ZOOM_SHIFT + 2)) &&
+						reduction >= (1 << (ZOOM_SHIFT + 1)))
+						scale = 1;
+					else
+						scale = 0;
+				}
+
+				if (!IS_HD)
+				{
+					star_frame[0] = IncFrameIndex (stars_in_space);
+					star_frame[1] = stars_in_space;
+
+					if (optMeleeScale == TFB_SCALE_STEP)
+					{	/* on PC, the closest stars are images when zoomed out */						
+						star_object[0] = STAMP_PRIM;
+						if (reduction > 0)
+						{
+							star_object[1] = POINT_PRIM;
+							star_frame[0] = star_frame[1];
+						}
+						else
+						{
+							star_object[1] = STAMP_PRIM;
+						}
 					}
 					else
-					{
-						star_object[1] = STAMP_PRIM;
-					}
-				}
-				else
-				{	/* on 3DO, the closest stars are pixels when zoomed out */
-					star_object[1] = POINT_PRIM;
-					if (reduction > (1 << ZOOM_SHIFT))
-					{
-						// JMS_GFX: In hi-res modes, Closest stars are images when zoomed out.
-						if (!IS_HD)
+					{	/* on 3DO, the closest stars are pixels when zoomed out */
+						star_object[1] = POINT_PRIM;
+						if (reduction > (1 << ZOOM_SHIFT))
+						{
 							star_object[0] = POINT_PRIM;
+						}
 						else
 						{
 							star_object[0] = STAMP_PRIM;
-							star_object[1] = STAMP_PRIM;
-							star_frame[0] = stars_in_space;
-							star_frame[1] = IncFrameIndex (stars_in_space);
-							
-						}
-					}
-					else
-					{
-						star_object[0] = STAMP_PRIM;
-						star_object[1] = STAMP_PRIM;
-					}
-				}
-
-				// Normal handling of stars in 320x240.
-				if (!IS_HD)
-				{
-					for (iss = 0, pprim = DisplayArray; iss < 2; ++iss)
-					{
-						for (i = star_counts[iss]; i > 0; --i, ++pprim)
-						{
-							if (GetPrimType (pprim) != MISC_PRIM)
-							{
-								SetPrimType (pprim, star_object[iss]);
-								pprim->Object.Stamp.frame = star_frame[iss];
-							}
-							else
-							{
-								if (optMeleeScale != TFB_SCALE_STEP)
-								{
-									if (reduction < 512)
-										scale = 0;
-									if (reduction >= 512)
-										scale = 1;
-									if (reduction >= 1024)
-										scale = 2;
-								}
-								else
-									scale = reduction;
-								pprim->Object.Stamp.frame = SetAbsFrameIndex(misc_in_space, 2 - scale);
-							}
 						}
 					}
 				}
-				
-				// JMS_GFX: Advanced handling of stars in hi-res modes.
-				// Basically, draw a BIG star .png when zoomed close in
-				// medium-sized when at med distance and a small .png when far away.
 				else
 				{
-					COUNT zoomlevel;
-					COUNT med_sml_zoom_limit = optMeleeScale == TFB_SCALE_STEP ? 0 : (1 << (ZOOM_SHIFT + 1));
-					
-					if (reduction == MAX_ZOOM_OUT)
-						zoomlevel = 0;
-					else if (reduction <= med_sml_zoom_limit)
-						zoomlevel = 6;
-					else
-						zoomlevel = 3;
-					
-					for (i = 3; i < 9; i++)
+					star_frame[0] = stars_in_space;// large blue
+					star_frame[1] = IncFrameIndex (stars_in_space);// mid blue
+					star_frame[2] = SetAbsFrameIndex (stars_in_space, 2);// small blue
+
+					if (optMeleeScale == TFB_SCALE_STEP)
 					{
-						star_frame[i] = SetAbsFrameIndex (stars_in_space, i);
-					}
-				
-					for (iss = 0, pprim = DisplayArray; iss < 2; ++iss)
-					{
-						for (i = star_counts[iss]; i > 0; --i, ++pprim)
+						star_object[0] = star_object[1] = STAMP_PRIM;
+						if (reduction > 0)
 						{
-							if (GetPrimType (pprim) != MISC_PRIM)
-							{
-								SetPrimType (pprim, star_object[iss]);
-								pprim->Object.Stamp.frame = star_frame[iss + zoomlevel];
-							}
-							else
-							{
-								if (optMeleeScale != TFB_SCALE_STEP)
-								{
-									if (reduction < 512)
-										scale = 0;
-									if (reduction >= 512)
-										scale = 1;
-									if (reduction >= 1024)
-										scale = 2;
-								}
-								else
-									scale = reduction;
-								pprim->Object.Stamp.frame = SetAbsFrameIndex (misc_in_space, 2 - scale);
-							}
+							star_frame[0] = star_frame[1];
+							star_frame[1] = star_frame[2];
 						}
 					}
+					else
+					{
+						if (scale == 2)
+						{
+							star_object[0] = star_object[1] = STAMP_PRIM;
+							star_frame[0] = star_frame[1] = star_frame[2];
+						}
+						else if (scale == 1)
+						{
+							star_object[0] = STAMP_PRIM;
+							star_object[1] = UNSCALED_PRIM;
+							star_frame[0] = star_frame[1];
+							star_frame[1] = star_frame[2];
+
+						}
+						else
+							star_object[0] = star_object[1] = STAMP_PRIM;
+					}
+				}
+				for (iss = 0, pprim = DisplayArray; iss < 2; ++iss)
+				{
+					for (i = star_counts[iss]; i > (num_sceneries & iss); --i, ++pprim)
+					{
+						SetPrimType (pprim, star_object[iss]);
+						pprim->Object.Stamp.frame = star_frame[iss];
+					}
+				}
+				if (i > 0)
+				{
+					pprim->Object.Stamp.frame = SetAbsFrameIndex (scenery, scale);
 				}
 			}
 		}
@@ -545,10 +507,10 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 		}
 		else
 		{
-			dx = (SDWORD)(LOG_SPACE_WIDTH >> 1)
+			dx = (COORD)(LOG_SPACE_WIDTH >> 1)
 					- (LOG_SPACE_WIDTH >> ((MAX_REDUCTION + 1)
 					- MAX_VIS_REDUCTION));
-			dy = (SDWORD)(LOG_SPACE_HEIGHT >> 1)
+			dy = (COORD)(LOG_SPACE_HEIGHT >> 1)
 					- (LOG_SPACE_HEIGHT >> ((MAX_REDUCTION + 1)
 					- MAX_VIS_REDUCTION));
 			if (optMeleeScale == TFB_SCALE_STEP)

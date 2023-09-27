@@ -323,7 +323,7 @@ DrawRainbowPlanet (COUNT planet)
 	// rainbow world icon
 	s.origin.x = RES_SCALE (1);
 	s.origin.y = RES_SCALE (27);
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 110);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 109);
 	DrawStamp (&s);
 
 	// number of worlds

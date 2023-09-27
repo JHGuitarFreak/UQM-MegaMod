@@ -707,9 +707,8 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 		SetElementStarShip (IPSHIPElementPtr, GroupPtr);
 
 		SetUpElement (IPSHIPElementPtr);
-		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame =
-				(IS_HD ? SetAbsFrameIndex (SpaceJunkFrame, 24) :
-					DecFrameIndex (stars_in_space));
+		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame = 
+				DecFrameIndex (stars_in_space);
 		
 		UnlockElement (hIPSHIPElement);
 
