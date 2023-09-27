@@ -70,6 +70,9 @@ enum HyperMenuItems
 	NAVIGATION,
 };
 
+#define AMBIENT_MASK (IS_HD && GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) ? \
+						ARI_AMBIENT_MASK_PMAP_ANIM : AMBIENT_MASK_PMAP_ANIM)
+
 /*
  * draws the melee icon for the battle group inside the black holes,
  * so you can see who's chasing you.
@@ -489,8 +492,7 @@ LoadHyperData (void)
 	if (hyperstars[0] == 0)
 	{
 		hyperstars[0] = CaptureDrawable (
-				LoadGraphic ((IS_HD && GET_GAME_STATE(ARILOU_SPACE_SIDE) > 1) ?
-						ARI_AMBIENT_MASK_PMAP_ANIM : AMBIENT_MASK_PMAP_ANIM));
+				LoadGraphic (AMBIENT_MASK);
 		hyperstars[1] = CaptureDrawable (
 				LoadGraphic (HYPERSTARS_MASK_PMAP_ANIM));
 		hypercmaps[0] = CaptureColorMap (LoadColorMap (HYPER_COLOR_TAB));
@@ -520,7 +522,6 @@ LoadHyperspace (void)
 		F = hyperstars[0];
 		hyperstars[0] = stars_in_space;
 		stars_in_space = F;
-		printf ("reloaded\n");
 	}
 
 	if (!(LastActivity & CHECK_LOAD))
@@ -577,9 +578,7 @@ static void
 ReloadHyperSpace (void)
 {
 	DestroyDrawable (ReleaseDrawable (hyperstars[0]));
-	hyperstars[0] = CaptureDrawable(
-		LoadGraphic((IS_HD && GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) ?
-			ARI_AMBIENT_MASK_PMAP_ANIM : AMBIENT_MASK_PMAP_ANIM));
+	hyperstars[0] = CaptureDrawable (LoadGraphic (AMBIENT_MASK);
 }
 
 BOOLEAN

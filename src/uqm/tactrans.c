@@ -828,8 +828,8 @@ spawn_ion_trail (ELEMENT *ElementPtr, SIZE x_offset, SIZE y_offset)
 			IonElementPtr->current.image.farray = &stars_in_space;
 		} else {
 			SetPrimType (&DisplayArray[IonElementPtr->PrimIndex], STAMPFILL_PRIM);
-			IonElementPtr->current.image.frame = SetAbsFrameIndex (ion_trails[0], 0);
-			IonElementPtr->current.image.farray = ion_trails;
+			IonElementPtr->current.image.frame = SetAbsFrameIndex (stars_misc[0], 1);
+			IonElementPtr->current.image.farray = stars_misc;
 			IonElementPtr->next.image.frame = IonElementPtr->current.image.frame;
 			IonElementPtr->next.image.farray = IonElementPtr->current.image.farray;
 		}

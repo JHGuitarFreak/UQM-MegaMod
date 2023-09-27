@@ -419,7 +419,7 @@ PrintCoarseScan3DO (void)
 	RECT r;
 
 	if (optWhichCoarseScan == 3)
-		frameIndex = (IS_HD ? 25 : 24);
+		frameIndex = 24;
 
 	SetContext (PlanetContext);
 

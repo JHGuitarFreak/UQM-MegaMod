@@ -141,11 +141,11 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 					TFB_Prim_Point (&lpWorkPrim->Object.Point, color,
 							mode, origin, FALSE);
 					break;
-				case MISC_PRIM:
-					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin);
+				case UNSCALED_PRIM:
+					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, FALSE);
 					break;
 				case STAMP_PRIM:
-					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin);
+					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, TRUE);
 					break;
 				case STAMPFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
@@ -299,7 +299,7 @@ DrawStamp (STAMP *stmp)
 	if (GraphicsSystemActive () && GetContextValidRect (NULL, &origin))
 	{
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_Stamp (stmp, mode, origin);
+		TFB_Prim_Stamp (stmp, mode, origin, TRUE);
 	}
 }
 

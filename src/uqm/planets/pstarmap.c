@@ -35,6 +35,7 @@
 #include "../setup.h"
 #include "../sounds.h"
 #include "../state.h"
+#include "../init.h"
 #include "../uqmdebug.h"
 #include "options.h"
 #include "libs/inplib.h"
@@ -222,7 +223,7 @@ DrawMarker (POINT dest, BYTE type)
 	s.origin = MAKE_POINT (
 			UNIVERSE_TO_DISPX (dest.x),
 			UNIVERSE_TO_DISPY (dest.y));
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 107 + type);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 106 + type);
 
 	DrawStamp (&s);
 }
@@ -246,7 +247,7 @@ DrawAutoPilot (POINT *pDstPt)
 	}
 
 	if (IS_HD)
-		s.frame = SetAbsFrameIndex (MiscDataFrame, 106);
+		s.frame = DecFrameIndex (stars_in_space);
 
 	pt.x = UNIVERSE_TO_DISPX (pt.x);
 	pt.y = UNIVERSE_TO_DISPY (pt.y);
@@ -293,7 +294,7 @@ DrawAutoPilot (POINT *pDstPt)
 			}
 		}
 		else if (!(delta & 1))
-			DrawPoint(&pt);
+			DrawPoint (&pt);
 
 		if ((xerror -= dx) <= 0)
 		{
@@ -2507,8 +2508,8 @@ UpdateMap (void)
 				}
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				last_r.extent.width += RES_SCALE (1);
-				last_r.extent.height += RES_SCALE (1);
+				last_r.extent.width += RES_SCALE (1) + IF_HD (1);// dot in HD is 5px wide for AA to work
+				last_r.extent.height += RES_SCALE (1) + IF_HD (1);// so we have to add extra 1
 				VisibleChange = FALSE;
 				do
 				{
@@ -2543,8 +2544,8 @@ UpdateMap (void)
 						goto DoneSphereMove;
 					}
 
-					r.extent.width += RES_SCALE (1);
-					r.extent.height += RES_SCALE (1);
+					r.extent.width += RES_SCALE (1) + IF_HD (1);
+					r.extent.height += RES_SCALE (1) + IF_HD (1);
 					if (temp_r0.corner.x != temp_r1.corner.x
 							|| temp_r0.corner.y != temp_r1.corner.y)
 					{
@@ -2688,7 +2689,7 @@ DrawStarmapHelper (void)
 
 	s.origin.x = t.baseline.x + RES_SCALE (28);
 	s.origin.y += RES_SCALE (4);
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 109);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 108);
 	DrawStamp (&s);
 
 	// Cursor Speed
