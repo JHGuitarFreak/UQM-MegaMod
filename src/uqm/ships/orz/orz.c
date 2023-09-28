@@ -404,6 +404,8 @@ intruder_preprocess (ELEMENT *ElementPtr)
 				s.origin.y = RES_SCALE (14 + (ElementPtr->turn_wait >> 2) * 11);
 				s.frame = SetAbsFrameIndex (ElementPtr->next.image.farray[0],
 						GetFrameCount (ElementPtr->next.image.farray[0]) - 2);
+				if (IS_HD)// Clear background
+					ModifySilhouette (ShipPtr, &s, MODIFY_SWAP);
 				ModifySilhouette (ShipPtr, &s, 0);
 			}
 
