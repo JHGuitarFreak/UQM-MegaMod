@@ -294,7 +294,7 @@ InitGalaxy (void)
 				{
 					SetPrimType (&DisplayArray[p], STAMP_PRIM);
 					DisplayArray[p].Object.Stamp.frame =
-						SetAbsFrameIndex (stars_in_space, 89);
+						SetAbsFrameIndex (stars_in_space, 96);
 				}
 			}
 			else
