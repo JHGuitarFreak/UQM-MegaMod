@@ -187,6 +187,16 @@ initialize_spit (ELEMENT *ShipPtr, HELEMENT SpitArray[])
 	MissileBlock.blast_offs = MISSILE_OFFSET;
 	SpitArray[0] = initialize_missile (&MissileBlock);
 
+	if (IS_HD && SpitArray[0])
+	{
+		ELEMENT *SpitPtr;
+
+		LockElement (SpitArray[0], &SpitPtr);
+		SpitPtr->IntersectControl.IntersectStamp.frame =
+			DecFrameIndex (StarShipPtr->RaceDescPtr->ship_data.weapon[0]);
+		UnlockElement (SpitArray[0]);
+	}
+
 	return (1);
 }
 
