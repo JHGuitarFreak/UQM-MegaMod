@@ -65,12 +65,6 @@ enum
 	HARD_DIFF
 };
 
-static BOOLEAN
-PacksInstalled (void)
-{
-	return (!IS_HD) | (IS_HD & HDPackPresent);
-}
-
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
 
@@ -276,8 +270,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			LastInputTime = GetTimeCounter ();
 
 		}
-		else if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& PacksInstalled ())
+		else if (GetTimeCounter () - LastInputTime > InactTimeOut)
 		{	// timed out
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			done = TRUE;
@@ -361,32 +354,20 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 }
 
 static BOOLEAN
-RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
-{	
-	if (!PacksInstalled ())
-	{
-		Flash_pause (pMS->flashContext);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
-		// Could not find graphics pack - message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
-		SetTransitionSource (NULL);
-		Flash_continue (pMS->flashContext);
-		SleepThreadUntil (TimeIn + ONE_SECOND / 30);
-		return TRUE;
-	}
-	else if (optRequiresRestart)
-	{
-		SetFlashRect (NULL, FALSE);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
-		// Got to restart -message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
-		SetTransitionSource (NULL);
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
-		GLOBAL (CurrentActivity) = CHECK_ABORT;
-		restartGame = TRUE;
-		return TRUE;
-	}
-	return FALSE;
+RestartMessage (void)
+{
+	if (!optRequiresRestart)
+		return FALSE;
+
+	SetFlashRect (NULL, FALSE);
+	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
+	// Got to restart -message
+	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
+	SetTransitionSource (NULL);
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	GLOBAL (CurrentActivity) = CHECK_ABORT;
+	restartGame = TRUE;
+	return TRUE;
 }
 
 static BOOLEAN
@@ -404,12 +385,12 @@ DoRestart (MENU_STATE *pMS)
 		optMeleeToolTips = FALSE;
 	}
 	
-	if (optSuperMelee && !optLoadGame && PacksInstalled ())
+	if (optSuperMelee && !optLoadGame)
 	{
 		pMS->CurState = PLAY_SUPER_MELEE;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
-	else if (optLoadGame && !optSuperMelee && PacksInstalled ())
+	else if (optLoadGame && !optSuperMelee)
 	{
 		pMS->CurState = LOAD_SAVED_GAME;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
@@ -450,11 +431,7 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
-	{// Kruzen: soon to be unused since we can't get here if we not having the content in the first place
-		if (RestartMessage(pMS, TimeIn) &&
-				pMS->CurState <= PLAY_SUPER_MELEE)
-			return TRUE;
-
+	{
 		switch (pMS->CurState)
 		{
 			case START_NEW_GAME:
@@ -518,6 +495,7 @@ DoRestart (MENU_STATE *pMS)
 				DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
 				Flash_continue (pMS->flashContext);
 				UnbatchGraphics ();
+				RestartMessage ();
 				return TRUE;
 			case QUIT_GAME:
 				SleepThreadUntil (
@@ -583,11 +561,7 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else
 	{	// No input received, check if timed out
-		// JMS: After changing resolution mode, prevent displaying credits
-		// (until the next time the game is restarted). This is to prevent
-		// showing the credits with the wrong resolution mode's font&background.
-		if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& !optRequiresRestart && PacksInstalled ())
+		if (GetTimeCounter () - LastInputTime > InactTimeOut)
 		{
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			return FALSE;
