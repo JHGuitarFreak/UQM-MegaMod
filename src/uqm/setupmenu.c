@@ -678,11 +678,49 @@ check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 	return TRUE;
 }
 
+static BOOLEAN
+check_remixes (WIDGET_CHOICE *self, int oldval)
+{
+	BOOLEAN addon_available = FALSE;
+	switch (self->choice_num)
+	{
+		case 9:
+			addon_available = isAddonAvailable (THREEDO_MUSIC);
+			break;
+		case 21:
+			addon_available = isAddonAvailable (REMIX_MUSIC);
+			break;
+		case 47:
+			addon_available = isAddonAvailable (VOL_RMX_MUSIC);
+			break;
+		case 46:
+			addon_available = isAddonAvailable (VOL_RMX_MUSIC) ||
+					isAddonAvailable (REGION_MUSIC);
+			break;
+		default:
+			log_add (log_Error, "invalid choice_num in check_remixes()");
+			break;
+	}
+
+	if (!addon_available)
+	{
+		oldval = OPTVAL_DISABLED;
+		choices[self->choice_num].selected = oldval;
+		addon_unavailable (self, oldval);
+	}
+}
+
 static void
 check_availability (WIDGET_CHOICE *self, int oldval)
 {
 	if (self->choice_num == 0)
 		check_for_hd (self, oldval);
+
+	if (self->choice_num == 9 || self->choice_num == 21
+			|| self->choice_num == 46 || self->choice_num == 47)
+	{
+		check_remixes (self, oldval);
+	}
 
 	if (self->choice_num == 81 && check_dos_3do_modes (self, oldval))
 	{
@@ -1641,8 +1679,12 @@ init_widgets (void)
 	/* Choice 20 has a special onChange handler, too. */
 	choices[20].onChange = change_template;
 
-	/* Check the availability of HD mode and the DOS/3DO mode addons */
-	choices[0].onChange = check_availability;
+	// Check addon availability for HD mode, DOS/3DO mode, and music remixes
+	choices[ 0].onChange = check_availability;
+	choices[ 9].onChange = check_availability;
+	choices[21].onChange = check_availability;
+	choices[46].onChange = check_availability;
+	choices[47].onChange = check_availability;
 	choices[81].onChange = check_availability;
 
 	// Handle display option

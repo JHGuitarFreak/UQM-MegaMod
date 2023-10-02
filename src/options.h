@@ -149,7 +149,11 @@ typedef struct
 extern ADDON_COUNT addonList;
 
 // addon names to check against
-#define HD_MODE      ("mm-hd")
+#define THREEDO_MUSIC "3domusic"
+#define REMIX_MUSIC   "remix"
+#define VOL_RMX_MUSIC "volasaurus-remix-pack"
+#define REGION_MUSIC  "SpaceMusic"
+#define HD_MODE       "mm-hd"
 
 #define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
 #define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
