@@ -443,7 +443,7 @@ FuelRequiredTo (POINT dest)
 }
 
 // Begin Malin's fuel to Sol ellipse code. Edited by Kruzen
-#define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X)? 1 : 0))
+#define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X) ? 1 : 0))
 
 POINT
 GetPointOfEllipse (double a, double b, double radian)
@@ -469,6 +469,29 @@ RotatePoint (POINT p, POINT Pivot, double radian)
 	return (POINT) { MATH_ROUND (x), MATH_ROUND (y) };
 }
 
+// Kruzen: Merged together with overflow check. Functions above are redundant
+POINT
+CalcEllipsePoint (double a, double b, double rad_one, double rad_two, POINT Pivot)
+{
+	double q[2] = { a * cos (rad_one), b * sin (rad_one) };
+	double w[2] = { MATH_ROUND (q[0]) + Pivot.x, MATH_ROUND (q[1]) + Pivot.y };
+
+	double d[2] = { w[0] - Pivot.x, w[1] - Pivot.y};
+	double cosine[2] = { cos (rad_two), sin (rad_two) };
+	double x = Pivot.x + (d[0] * cosine[0] - d[1] * cosine[1]);
+	double y = Pivot.y + (d[0] * cosine[1] + d[1] * cosine[0]);
+
+	x = MATH_ROUND(x);
+	if (x > 32767.0) { x = 32767.0; }
+	if (x < -32768.0) { x = -32768.0; }
+
+	y = MATH_ROUND (y);
+	if (y > 32767.0) { y = 32767.0; }
+	if (y < -32768.0) { y = -32768.0; }
+
+	return (POINT) { UNIVERSE_TO_DISPX2 (x), UNIVERSE_TO_DISPY2 (y) };
+}
+
 BOOLEAN
 onScreen (LINE *l, BOOLEAN ignoreX, BOOLEAN ignoreY)
 {
@@ -491,7 +514,7 @@ DrawNoReturnZone (void)
 	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
 			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
 
-	dist = FuelRequiredTo (sol) / 2;
+	dist = (double)FuelRequiredTo (sol) / 2;
 	
 	if (dist <= halfFuel)
 	{	// do not draw ellipse when fuel is not enough to reach Sol
@@ -511,11 +534,7 @@ DrawNoReturnZone (void)
 
 		for (i = 0; i < M_PI * 2; i += Step)
 		{
-			curr = RotatePoint (ShiftPoint (GetPointOfEllipse (halfFuel,
-					ry, i), center), center, rotation);
-			curr.x = UNIVERSE_TO_DISPX2 (curr.x);
-			curr.y = UNIVERSE_TO_DISPY2 (curr.y);
-
+			curr = CalcEllipsePoint (halfFuel, ry, i, rotation, center);
 			if (curr.y > rmax_y.y)
 				rmax_y = curr;
 
@@ -527,22 +546,14 @@ DrawNoReturnZone (void)
 		{// If the ellipse is completely off screen - drop it
 			LINE L;
 			LINE tempLine;
-			POINT prev = RotatePoint (ShiftPoint (GetPointOfEllipse (
-					halfFuel, ry, i - Step), center), center, rotation);
+			POINT prev = CalcEllipsePoint (halfFuel, ry, i - Step, rotation, center);
 			COORD dy;
 			double err = ((double)rmax_y.x - (double)rmin_y.x)
 					/ ((double)rmax_y.y - (double)rmin_y.y);
 
-			prev.x = UNIVERSE_TO_DISPX2 (prev.x);
-			prev.y = UNIVERSE_TO_DISPY2 (prev.y);
-
 			for (i = 0; i < M_PI * 2; i += Step)
 			{
-				L.first = RotatePoint (ShiftPoint (GetPointOfEllipse (
-						halfFuel, ry, i), center), center, rotation);
-				L.first.x = UNIVERSE_TO_DISPX2 (L.first.x);
-				L.first.y = UNIVERSE_TO_DISPY2 (L.first.y);
-
+				L.first = CalcEllipsePoint (halfFuel, ry, i, rotation, center);
 				L.second.x = rmax_y.x
 						- (COORD)(err * (rmax_y.y - L.first.y));
 				L.second.y = L.first.y;
@@ -616,8 +627,11 @@ DrawFuelCircle (BOOLEAN secondary)
 		diameter = 0;
 
 	// Cap the diameter to a sane range
-	if (diameter > MAX_X_UNIVERSE * 4)
-		diameter = MAX_X_UNIVERSE * 4;
+	if (diameter > MAX_X_UNIVERSE * 2)
+	{
+		printf ("Capped!\n");
+		diameter = MAX_X_UNIVERSE * 2;
+	}
 
 	/* Draw circle*/
 	r.extent.width = UNIVERSE_TO_DISPX (diameter)
@@ -636,6 +650,8 @@ DrawFuelCircle (BOOLEAN secondary)
 			- (r.extent.width >> 1);
 	r.corner.y = UNIVERSE_TO_DISPY (corner.y)
 			- (r.extent.height >> 1);
+
+	printf("%d %d\n", r.corner.x, r.corner.y);
 
 	if (secondary)
 	{
@@ -664,24 +680,24 @@ DrawFuelCircle (BOOLEAN secondary)
 					diameter = MAX_X_UNIVERSE * 4;
 
 				/* Draw circle*/
-				r.extent.width = UNIVERSE_TO_DISPX(diameter)
+				r.extent.width = UNIVERSE_TO_DISPX (diameter)
 					- UNIVERSE_TO_DISPX(0);
 
 				if (r.extent.width < 0)
 					r.extent.width = -r.extent.width;
 
-				r.extent.height = UNIVERSE_TO_DISPY(diameter)
+				r.extent.height = UNIVERSE_TO_DISPY2 (diameter)
 					- UNIVERSE_TO_DISPY(0);
 
 				if (r.extent.height < 0)
 					r.extent.height = -r.extent.height;
 
-				r.corner.x = UNIVERSE_TO_DISPX(corner.x)
+				r.corner.x = UNIVERSE_TO_DISPX (corner.x)
 					- (r.extent.width >> 1);
-				r.corner.y = UNIVERSE_TO_DISPY(corner.y)
+				r.corner.y = UNIVERSE_TO_DISPY (corner.y)
 					- (r.extent.height >> 1);
 
-				DrawFilledOval(&r);
+				DrawFilledOval (&r);
 			}
 			else
 				DrawNoReturnZone ();
