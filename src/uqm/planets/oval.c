@@ -29,6 +29,7 @@
 #include "uqm/setup.h"
 
 #define NUM_QUADS 4
+#define OFFSCREEN_PRIM NUM_PRIMS
 
 void
 DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
@@ -234,6 +235,9 @@ DrawFilledOval (RECT *pRect)
 	LINE corners;
 	PRIMITIVE prim[NUM_QUADS >> 1];
 	COUNT StartPrim;
+	POINT first, second;
+
+	COUNT lines_r = 0;
 
 	corners.first.x = pRect->corner.x;
 	corners.first.y = pRect->corner.y;
@@ -255,9 +259,8 @@ DrawFilledOval (RECT *pRect)
 	for (x = 0; x < (NUM_QUADS >> 1); ++x)
 	{
 		SetPrimNextLink (&prim[x], StartPrim);
-		SetPrimType (&prim[x], RECTFILL_PRIM);
+		SetPrimType (&prim[x], LINE_PRIM);
 		SetPrimColor (&prim[x], _get_context_fg_color ());
-		prim[x].Object.Rect.extent.height = 1;
 
 		StartPrim = x;
 	}
@@ -288,15 +291,33 @@ DrawFilledOval (RECT *pRect)
 	{
 		if (d > 0)
 		{
-			prim[0].Object.Rect.corner.x =
-					prim[1].Object.Rect.corner.x = A - x;
-			prim[0].Object.Rect.extent.width =
-					prim[1].Object.Rect.extent.width = (x << 1) + 1;
-			prim[0].Object.Rect.corner.y = B - y;
-			prim[1].Object.Rect.corner.y = B + y;
+			lines_r = 0;
 
-			if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT)
-					|| ((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+			first.x = max (A - x, 0);
+			second.x = min (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
+			first.y = second.y = B - y;
+			if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT))
+			{
+				SetPrimType (&prim[0], LINE_PRIM);
+				prim[0].Object.Line.first = first;
+				prim[0].Object.Line.second = second;
+				lines_r++;
+			}
+			else
+				SetPrimType (&prim[0], OFFSCREEN_PRIM);
+
+			first.y = second.y = B + y;
+			if (((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+			{
+				SetPrimType (&prim[1], LINE_PRIM);
+				prim[1].Object.Line.first = first;
+				prim[1].Object.Line.second = second;
+				lines_r++;
+			}
+			else
+				SetPrimType (&prim[1], OFFSCREEN_PRIM);
+
+			if (lines_r > 0)
 				DrawBatch (prim, StartPrim, 0);
 
 			--y;
@@ -313,15 +334,32 @@ DrawFilledOval (RECT *pRect)
 
 	while (y >= 0)
 	{
-		prim[0].Object.Rect.corner.x =
-				prim[1].Object.Rect.corner.x = A - x;
-		prim[0].Object.Rect.extent.width =
-				prim[1].Object.Rect.extent.width = (x << 1) + 1;
-		prim[0].Object.Rect.corner.y = B - y;
-		prim[1].Object.Rect.corner.y = B + y;
+		lines_r = 0;
+		first.x = max (A - x, 0);
+		second.x = min (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
+		first.y = second.y = B - y;
+		if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT))
+		{
+			SetPrimType (&prim[0], LINE_PRIM);
+			prim[0].Object.Line.first = first;
+			prim[0].Object.Line.second = second;
+			lines_r++;
+		}
+		else
+			SetPrimType (&prim[0], OFFSCREEN_PRIM);
 
-		if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT)
-				|| ((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+		first.y = second.y = B + y;
+		if (((B + y) >= 0 && (B + y) <= SIS_SCREEN_HEIGHT))
+		{
+			SetPrimType (&prim[1], LINE_PRIM);
+			prim[1].Object.Line.first = first;
+			prim[1].Object.Line.second = second;
+			lines_r++;
+		}
+		else
+			SetPrimType (&prim[1], OFFSCREEN_PRIM);
+
+		if (lines_r > 0)
 			DrawBatch (prim, StartPrim, 0);
 
 		if (d < 0)
