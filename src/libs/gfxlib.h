@@ -277,6 +277,14 @@ typedef struct rect
 	EXTENT extent;
 } RECT;
 
+// Kruzen: Thanks to JMS, using this to draw ovals
+// Overflows happen in HD with Starmap and max zoom (Fuel circles)
+typedef struct drect
+{
+	DPOINT corner;
+	DEXTENT extent;
+} DRECT;
+
 typedef struct line
 {
 	POINT first, second;
@@ -308,6 +316,17 @@ MAKE_DEXTENT (SDWORD width, SDWORD height)
 {
 	DEXTENT ext = {width, height};
 	return ext;
+}
+
+// Kruzen: Some DrawOval() calls still use standard rect where overflow is impossible as it's 2 figures away from that
+// Used to draw SOI and planet orbits
+// To avoid any typedef conflicts - transform standard RECT to DRECT
+static inline DRECT
+RECT_TO_DRECT (RECT r)
+{
+	DRECT dr = { {r.corner.x, r.corner.y}, {r.extent.width, r.extent.height} };
+
+	return dr;
 }
 
 //static inline void

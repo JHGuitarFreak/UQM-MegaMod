@@ -1308,14 +1308,16 @@ static void
 DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 {
 	RECT r;
+	DRECT dr;
 
 	GetPlanetOrbitRect (&r, planet, sizeNumer, dyNumer, denom);
 
+	dr = RECT_TO_DRECT (r);
 	SetContextForeGroundColor (planet->temp_color);
 	if (!optUnscaledStarSystem)
-		DrawOval (&r, RES_BOOL (1, 6), FALSE);
+		DrawOval (&dr, RES_BOOL (1, 6), FALSE);
 	else
-		DrawOval (&r, 1, FALSE);
+		DrawOval (&dr, 1, FALSE);
 }
 
 static SIZE

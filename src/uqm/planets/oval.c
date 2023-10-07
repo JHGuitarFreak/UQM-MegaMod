@@ -31,13 +31,90 @@
 #define NUM_QUADS 4
 #define OFFSCREEN_PRIM NUM_PRIMS
 
-void
-DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
+static BOOLEAN
+DPointOnScreen (DPOINT *p)
+{
+	return (p->x >= 0 && p->x <= SIS_SCREEN_WIDTH
+			&& p->y >= 0 && p->y <= SIS_SCREEN_HEIGHT);
+}
+
+static BYTE
+CheckOvalCollision (DPOINT *ch_one, DPOINT *ch_two)
 {
 #define FIRST_QUAD (1 << 0)
 #define SECOND_QUAD (1 << 1)
 #define THIRD_QUAD (1 << 2)
 #define FOURTH_QUAD (1 << 3)
+	DPOINT mp;
+	BRESENHAM_LINE ClipLine;
+	DRECT ClipRect;
+	BYTE quad_visible = 0;
+
+	ClipRect.corner.x = ClipRect.corner.y = 0;
+	ClipRect.extent.width = SIS_SCREEN_WIDTH;
+	ClipRect.extent.height = SIS_SCREEN_HEIGHT;
+
+	mp.x = (ch_one->x + ch_two->x) >> 1;
+	mp.y = (ch_one->y + ch_two->y) >> 1;
+	ClipRect.corner.x = ClipRect.corner.y = 0;
+
+	if (ch_one->y >= 0 && ch_one->y < ClipRect.extent.height
+		&& ch_two->x >= 0 && ch_two->x < ClipRect.extent.width)
+		quad_visible |= FIRST_QUAD;
+	else
+	{
+		ClipLine.first.x = mp.x;
+		ClipLine.first.y = ch_one->y;
+		ClipLine.second.x = ch_two->x;
+		ClipLine.second.y = mp.y;
+		if (_clip_line (&ClipRect, &ClipLine))
+			quad_visible |= FIRST_QUAD;
+	}
+
+	if (ch_one->y >= 0 && ch_one->y < ClipRect.extent.height
+		&& ch_one->x >= 0 && ch_one->x < ClipRect.extent.width)
+		quad_visible |= SECOND_QUAD;
+	else
+	{
+		ClipLine.first.x = mp.x;
+		ClipLine.first.y = ch_one->y;
+		ClipLine.second.x = ch_one->x;
+		ClipLine.second.y = mp.y;
+		if (_clip_line (&ClipRect, &ClipLine))
+			quad_visible |= SECOND_QUAD;
+	}
+
+	if (ch_two->y >= 0 && ch_two->y < ClipRect.extent.height
+		&& ch_one->x >= 0 && ch_one->x < ClipRect.extent.width)
+		quad_visible |= THIRD_QUAD;
+	else
+	{
+		ClipLine.first.x = mp.x;
+		ClipLine.first.y = ch_two->y;
+		ClipLine.second.x = ch_one->x;
+		ClipLine.second.y = mp.y;
+		if (_clip_line (&ClipRect, &ClipLine))
+			quad_visible |= THIRD_QUAD;
+	}
+
+	if (ch_two->y >= 0 && ch_two->y < ClipRect.extent.height
+		&& ch_two->x >= 0 && ch_two->x < ClipRect.extent.width)
+		quad_visible |= FOURTH_QUAD;
+	else
+	{
+		ClipLine.first.x = mp.x;
+		ClipLine.first.y = ch_two->y;
+		ClipLine.second.x = ch_two->x;
+		ClipLine.second.y = mp.y;
+		if (_clip_line (&ClipRect, &ClipLine))
+			quad_visible |= FOURTH_QUAD;
+	}
+	return quad_visible;
+}
+
+void
+DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
+{
 	COUNT off;
 	COORD x, y;
 	SIZE A, B;
@@ -45,90 +122,49 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 			Bsquared, TwoBsquared;
 	FWORD d, dx, dy;
 	BYTE quad_visible;
-	LINE corners;
-	POINT mp;
 	PRIMITIVE prim[NUM_QUADS];
 	COUNT StartPrim;
-	RECT ClipRect;
-	BRESENHAM_LINE ClipLine;
-
-	ClipRect.corner.x = ClipRect.corner.y = 0;
-
-	corners.first.x = pRect->corner.x - ClipRect.corner.x;
-	corners.first.y = pRect->corner.y - ClipRect.corner.y;
-	corners.second.x = corners.first.x + pRect->extent.width - 1;
-	corners.second.y = corners.first.y + pRect->extent.height - 1;
-	if (corners.second.x <= corners.first.x
-			|| corners.second.y <= corners.first.y)
+	DPOINT check[2];
+	BOOLEAN use_pointprim = (!scaled && num_off_pixels <= 1);
+	
+	check[0].x = pRect->corner.x;
+	check[0].y = pRect->corner.y;
+	check[1].x = check[0].x + pRect->extent.width - 1;
+	check[1].y = check[0].y + pRect->extent.height - 1;
+	// Kruzen: adapted from the original code. If rect is defined incorrectly - make it flat as a pancake and draw a line.
+	if (check[1].x <= check[0].x
+		|| check[1].y <= check[0].y)
 	{
-		if (corners.second.x < corners.first.x)
-			corners.second.x = corners.first.x;
-		if (corners.second.y < corners.first.y)
-			corners.second.y = corners.first.y;
+		LINE corners;
+		BYTE i;
+
+		if (check[1].x < check[0].x)
+			check[1].x = check[0].x;
+		if (check[1].y < check[0].y)
+			check[1].y = check[0].y;
+
+		for (i = 0; i < 2; i++)
+		{
+			if (check[i].x > 32767) { check[i].x = 32767; }
+			if (check[i].x < -32768) { check[i].x = -32768; }
+			if (check[i].y > 32767) { check[i].y = 32767; }
+			if (check[i].y < -32768) { check[i].y = -32768; }
+		}
+
+		corners.first.x = (COORD)check[0].x;
+		corners.first.y = (COORD)check[0].y;
+
+		corners.second.x = (COORD)check[1].x;
+		corners.second.y = (COORD)check[1].y;
 
 		DrawLine (&corners, 1);
 		return;
 	}
 
-	ClipRect.extent.width = SIS_SCREEN_WIDTH;
-	ClipRect.extent.height = SIS_SCREEN_HEIGHT;
-
-	quad_visible = 0;
-	mp.x = (corners.first.x + corners.second.x) >> 1;
-	mp.y = (corners.first.y + corners.second.y) >> 1;
-	ClipRect.corner.x = ClipRect.corner.y = 0;
-
-	if (corners.first.y >= 0 && corners.first.y < ClipRect.extent.height
-			&& corners.second.x >= 0 && corners.second.x < ClipRect.extent.width)
-		quad_visible |= FIRST_QUAD;
+	if (DPointOnScreen (&check[0]) && DPointOnScreen(&check[1]))
+		quad_visible = 15;// Kruzen: entire circle is on screen
 	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = corners.first.y;
-		ClipLine.second.x = corners.second.x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
-			quad_visible |= FIRST_QUAD;
-	}
-
-	if (corners.first.y >= 0 && corners.first.y < ClipRect.extent.height
-			&& corners.first.x >= 0 && corners.first.x < ClipRect.extent.width)
-		quad_visible |= SECOND_QUAD;
-	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = corners.first.y;
-		ClipLine.second.x = corners.first.x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
-			quad_visible |= SECOND_QUAD;
-	}
-
-	if (corners.second.y >= 0 && corners.second.y < ClipRect.extent.height
-			&& corners.first.x >= 0 && corners.first.x < ClipRect.extent.width)
-		quad_visible |= THIRD_QUAD;
-	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = corners.second.y;
-		ClipLine.second.x = corners.first.x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
-			quad_visible |= THIRD_QUAD;
-	}
-
-	if (corners.second.y >= 0 && corners.second.y < ClipRect.extent.height
-			&& corners.second.x >= 0 && corners.second.x < ClipRect.extent.width)
-		quad_visible |= FOURTH_QUAD;
-	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = corners.second.y;
-		ClipLine.second.x = corners.second.x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
-			quad_visible |= FOURTH_QUAD;
-	}
+		quad_visible = CheckOvalCollision (&check[0], &check[1]);
 
 	if (!quad_visible)
 		return;
@@ -139,13 +175,15 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		if (quad_visible & (1 << x))
 		{
 			SetPrimNextLink (&prim[x], StartPrim);
-			SetPrimType (&prim[x], (!scaled && num_off_pixels <= 1) ? POINT_PRIM : STAMPFILL_PRIM); // Orbit dots
+			SetPrimType (&prim[x], use_pointprim ? POINT_PRIM : STAMPFILL_PRIM); // Orbit dots
 			prim[x].Object.Stamp.frame =
 						DecFrameIndex (stars_in_space);
 			SetPrimColor (&prim[x], _get_context_fg_color ());
 
 			StartPrim = x;
 		}
+		else// Kruzen: just to be sure so DrawBatch() skip it
+			SetPrimType (&prim[x], OFFSCREEN_PRIM);
 	}
 
 	A = pRect->extent.width >> 1;
@@ -171,85 +209,165 @@ DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 	off = 0;
 	A += pRect->corner.x;
 	B += pRect->corner.y;
-	while (dx < dy)
+
+	// Kruzen: a check for prim being on screen can be added, but checking quads is enough for now
+	if (use_pointprim)
 	{
-		if (off-- == 0)
+		while (dx < dy)
 		{
-			prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
-			prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
-			prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
-			prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
+			if (off-- == 0)
+			{
+				prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
+				prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
+				prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
+				prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
 
-			DrawBatch (prim, StartPrim, 0);
-			off = num_off_pixels;
+				DrawBatch (prim, StartPrim, 0);
+				off = num_off_pixels;
+			}
+
+			if (d > 0)
+			{
+				--y;
+				dy -= TwoAsquared;
+				d -= dy;
+			}
+
+			++x;
+			dx += TwoBsquared;
+			d += Bsquared + dx;
 		}
-
-		if (d > 0)
+	}
+	else
+	{
+		while (dx < dy)
 		{
-			--y;
-			dy -= TwoAsquared;
-			d -= dy;
-		}
+			if (off-- == 0)
+			{// Kruzen: Use correct struct for these. I have no idea how that worked before
+				prim[0].Object.Stamp.origin.x = prim[3].Object.Stamp.origin.x = A + x;
+				prim[0].Object.Stamp.origin.y = prim[1].Object.Stamp.origin.y = B - y;
+				prim[1].Object.Stamp.origin.x = prim[2].Object.Stamp.origin.x = A - x;
+				prim[2].Object.Stamp.origin.y = prim[3].Object.Stamp.origin.y = B + y;
 
-		++x;
-		dx += TwoBsquared;
-		d += Bsquared + dx;
+				DrawBatch (prim, StartPrim, 0);
+				off = num_off_pixels;
+			}
+
+			if (d > 0)
+			{
+				--y;
+				dy -= TwoAsquared;
+				d -= dy;
+			}
+
+			++x;
+			dx += TwoBsquared;
+			d += Bsquared + dx;
+		}
 	}
 
 	d += ((((Asquared - Bsquared) * 3) >> 1) - (dx + dy)) >> 1;
 
-	while (y >= 0)
+	if (use_pointprim)
 	{
-		if (off-- == 0)
+		while (y >= 0)
 		{
-			prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
-			prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
-			prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
-			prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
+			if (off-- == 0)
+			{
+				prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
+				prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
+				prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
+				prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
 
-			DrawBatch (prim, StartPrim, 0);
-			off = num_off_pixels;
+				DrawBatch (prim, StartPrim, 0);
+				off = num_off_pixels;
+			}
+
+			if (d < 0)
+			{
+				++x;
+				dx += TwoBsquared;
+				d += dx;
+			}
+
+			--y;
+			dy -= TwoAsquared;
+			d += Asquared - dy;
 		}
-
-		if (d < 0)
+	}
+	else
+	{
+		while (y >= 0)
 		{
-			++x;
-			dx += TwoBsquared;
-			d += dx;
-		}
+			if (off-- == 0)
+			{
+				prim[0].Object.Stamp.origin.x = prim[3].Object.Stamp.origin.x = A + x;
+				prim[0].Object.Stamp.origin.y = prim[1].Object.Stamp.origin.y = B - y;
+				prim[1].Object.Stamp.origin.x = prim[2].Object.Stamp.origin.x = A - x;
+				prim[2].Object.Stamp.origin.y = prim[3].Object.Stamp.origin.y = B + y;
 
-		--y;
-		dy -= TwoAsquared;
-		d += Asquared - dy;
+				DrawBatch (prim, StartPrim, 0);
+				off = num_off_pixels;
+			}
+
+			if (d < 0)
+			{
+				++x;
+				dx += TwoBsquared;
+				d += dx;
+			}
+
+			--y;
+			dy -= TwoAsquared;
+			d += Asquared - dy;
+		}
 	}
 }
 
 void
-DrawFilledOval (RECT *pRect)
-{
+DrawFilledOval (DRECT *pRect)
+{// Kruzen: originally there was standard rect, but drawing fuel circle in HD on max zoom causes overflow (Width ~65k)
+ // So unless we want to expand standard rect to support 4 bytes per dimension - use this
 	COORD x, y;
 	SIZE A, B;
 	FWORD Asquared, TwoAsquared,
 			Bsquared, TwoBsquared;
 	FWORD d, dx, dy;
-	LINE corners;
 	PRIMITIVE prim[NUM_QUADS >> 1];
 	COUNT StartPrim;
 	POINT first, second;
-
+	DPOINT check[2];
+	BYTE i;
 	COUNT lines_r = 0;
 
-	corners.first.x = pRect->corner.x;
-	corners.first.y = pRect->corner.y;
-	corners.second.x = corners.first.x + pRect->extent.width - 1;
-	corners.second.y = corners.first.y + pRect->extent.height - 1;
-	if (corners.second.x <= corners.first.x
-			|| corners.second.y <= corners.first.y)
+	check[0].x = pRect->corner.x;
+	check[0].y = pRect->corner.y;
+	check[1].x = check[0].x + pRect->extent.width - 1;
+	check[1].y = check[0].y + pRect->extent.height - 1;
+	// Kruzen: adapted from the original code. If rect is defined incorrectly - make it flat as a pancake and draw a line.
+	if (check[1].x <= check[0].x
+			|| check[1].y <= check[0].y)
 	{
-		if (corners.second.x < corners.first.x)
-			corners.second.x = corners.first.x;
-		if (corners.second.y < corners.first.y)
-			corners.second.y = corners.first.y;
+		LINE corners;
+
+		if (check[1].x < check[0].x)
+			check[1].x = check[0].x;
+		if (check[1].y < check[0].y)
+			check[1].y = check[0].y;
+
+		for (i = 0; i < 2; i++)
+		{
+			if (check[i].x > 32767) { check[i].x = 32767; }
+			if (check[i].x < -32768) { check[i].x = -32768; }
+			if (check[i].y > 32767) { check[i].y = 32767; }
+			if (check[i].y < -32768) { check[i].y = -32768; }
+		}
+
+		corners.first.x = (COORD)check[0].x;
+		corners.first.y = (COORD)check[0].y;
+
+		corners.second.x = (COORD)check[1].x;
+		corners.second.y = (COORD)check[1].y;
 
 		DrawLine (&corners, 1);
 		return;
@@ -290,7 +408,8 @@ DrawFilledOval (RECT *pRect)
 	while (dx < dy)
 	{
 		if (d > 0)
-		{
+		{// Kruzen: originally PrimType was FILLRECT with height of 1
+		 // Changed to line and added a skip if offscreen
 			lines_r = 0;
 
 			first.x = max (A - x, 0);
@@ -333,7 +452,8 @@ DrawFilledOval (RECT *pRect)
 	d += ((((Asquared - Bsquared) * 3) >> 1) - (dx + dy)) >> 1;
 
 	while (y >= 0)
-	{
+	{// Kruzen: originally PrimType was FILLRECT with height of 1
+	 // Changed to line and added a skip if offscreen
 		lines_r = 0;
 		first.x = max (A - x, 0);
 		second.x = min (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);

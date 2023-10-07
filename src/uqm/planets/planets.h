@@ -359,8 +359,8 @@ extern void ExploreSolarSys (void);
 extern void DrawStarBackGround (void);
 extern FRAME GetStarBackFround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
-extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
-extern void DrawFilledOval (RECT *pRect);
+extern void DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
+extern void DrawFilledOval (DRECT *pRect);
 extern void DrawEllipse (int cx, int cy, int rx, int ry, int shear,
 		int filled, int dotted);
 extern void DrawRotatedEllipse (int cx, int cy, int rx, int ry,

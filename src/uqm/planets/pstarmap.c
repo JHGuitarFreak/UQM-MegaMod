@@ -601,10 +601,48 @@ DrawNoReturnZone (void)
 }
 
 static void
+GetFuelRect (DRECT *r, SDWORD diameter, POINT corner)
+{// Operating with DRECT because of overflows in HD on max zoom
+	SDWORD x, y, width, height;
+
+	if (diameter < 0)
+		diameter = 0;
+
+	// Cap the diameter to a sane range
+	if (diameter > MAX_X_UNIVERSE * 4)
+		diameter = MAX_X_UNIVERSE * 4;
+
+	// Calculate in case of overflow
+	width = RES_SCALE (signedDivWithError (((diameter - mapOrigin.x) << zoomLevel)
+			* ORIG_SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
+			+ ((ORIG_SIS_SCREEN_WIDTH - 1) >> 1))
+			- UNIVERSE_TO_DISPX (0);// Cannot overflow in current HD resolution
+
+	if (width < 0)
+		width = -width;
+
+	height = RES_SCALE (signedDivWithError (((mapOrigin.y - diameter) << zoomLevel)
+			* ORIG_SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
+			+ ((ORIG_SIS_SCREEN_HEIGHT - 1) >> 1))
+			- UNIVERSE_TO_DISPY (0);// Cannot overflow in current HD resolution
+
+	if (height < 0)
+		height = -height;
+
+	// SIS cannot leave universe boundaries, so cannot overflow either
+	x = UNIVERSE_TO_DISPX (corner.x) - (width >> 1);
+	y = UNIVERSE_TO_DISPY (corner.y) - (height >> 1);
+
+	r->corner.x = x;
+	r->corner.y = y;
+	r->extent.width = width;
+	r->extent.height = height;	
+}
+
+static void
 DrawFuelCircle (BOOLEAN secondary)
 {
-	RECT r;
-	long diameter;
+	DRECT r;
 	POINT corner;
 	Color OldColor;
 	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
@@ -622,36 +660,7 @@ DrawFuelCircle (BOOLEAN secondary)
 		corner.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
-	diameter = OnBoardFuel << 1;
-	if (diameter < 0)
-		diameter = 0;
-
-	// Cap the diameter to a sane range
-	if (diameter > MAX_X_UNIVERSE * 2)
-	{
-		printf ("Capped!\n");
-		diameter = MAX_X_UNIVERSE * 2;
-	}
-
-	/* Draw circle*/
-	r.extent.width = UNIVERSE_TO_DISPX (diameter)
-			- UNIVERSE_TO_DISPX (0);
-
-	if (r.extent.width < 0)
-		r.extent.width = -r.extent.width;
-
-	r.extent.height = UNIVERSE_TO_DISPY (diameter)
-			- UNIVERSE_TO_DISPY (0);
-
-	if (r.extent.height < 0)
-		r.extent.height = -r.extent.height;
-
-	r.corner.x = UNIVERSE_TO_DISPX (corner.x)
-			- (r.extent.width >> 1);
-	r.corner.y = UNIVERSE_TO_DISPY (corner.y)
-			- (r.extent.height >> 1);
-
-	printf("%d %d\n", r.corner.x, r.corner.y);
+	GetFuelRect (&r, OnBoardFuel << 1, corner);
 
 	if (secondary)
 	{
@@ -661,6 +670,7 @@ DrawFuelCircle (BOOLEAN secondary)
 	}
 	else
 	{
+		/* Draw circle*/
 		OldColor = SetContextForeGroundColor (STARMAP_FUEL_RANGE_COLOR);
 		DrawFilledOval (&r);
 		SetContextForeGroundColor (OldColor);
@@ -669,34 +679,9 @@ DrawFuelCircle (BOOLEAN secondary)
 		{
 			OldColor =
 				SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-			if (pointsEqual(corner, (POINT) { SOL_X, SOL_Y }))
+			if (pointsEqual (corner, (POINT) { SOL_X, SOL_Y }))
 			{// We are at Sol, foci are equal - draw a standard oval
-				diameter = OnBoardFuel;
-				if (diameter < 0)
-					diameter = 0;
-
-				// Cap the diameter to a sane range
-				if (diameter > MAX_X_UNIVERSE * 4)
-					diameter = MAX_X_UNIVERSE * 4;
-
-				/* Draw circle*/
-				r.extent.width = UNIVERSE_TO_DISPX (diameter)
-					- UNIVERSE_TO_DISPX(0);
-
-				if (r.extent.width < 0)
-					r.extent.width = -r.extent.width;
-
-				r.extent.height = UNIVERSE_TO_DISPY2 (diameter)
-					- UNIVERSE_TO_DISPY(0);
-
-				if (r.extent.height < 0)
-					r.extent.height = -r.extent.height;
-
-				r.corner.x = UNIVERSE_TO_DISPX (corner.x)
-					- (r.extent.width >> 1);
-				r.corner.y = UNIVERSE_TO_DISPY (corner.y)
-					- (r.extent.height >> 1);
-
+				GetFuelRect (&r, OnBoardFuel, corner);
 				DrawFilledOval (&r);
 			}
 			else
@@ -1081,7 +1066,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 
 					if (!(which_starmap == WAR_ERA_STARMAP
 							&& war_era_strengths[index] == 0))
-						DrawOval (&r, 0, IS_HD);
+					{
+						DRECT dr = RECT_TO_DRECT (r);
+						DrawOval (&dr, 0, IS_HD);
+					}
 
 					if (isPC (optWhichFonts))
 						SetContextFont (TinyFont);
