@@ -26,9 +26,9 @@
 
 typedef struct bresenham_line
 {
-	POINT first, second;
-	SIZE abs_delta_x, abs_delta_y;
-	SIZE error_term;
+	DPOINT first, second;
+	SDWORD abs_delta_x, abs_delta_y;
+	SDWORD error_term;
 	BOOLEAN end_points_exchanged;
 	INTERSECT_CODE intersect_code;
 } BRESENHAM_LINE;
@@ -73,7 +73,7 @@ typedef struct
 	FRAME FramePtr;
 } IMAGE_BOX;
 
-extern INTERSECT_CODE _clip_line (const RECT *pClipRect,
+extern INTERSECT_CODE _clip_line (const DRECT *pClipRect,
 		BRESENHAM_LINE *pLine);
 
 extern void *_GetCelData (uio_Stream *fp, DWORD length);
