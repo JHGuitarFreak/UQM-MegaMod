@@ -80,6 +80,7 @@ BOOLEAN solTexturesPresent;
 BOOLEAN SyreenVoiceFix;
 BOOLEAN EndlessSCLoaded;
 BYTE Rando;
+BOOLEAN HDPackPresent;
 BOOLEAN VolasPackPresent;
 BOOLEAN DeathBySurrender = FALSE;
 BOOLEAN DeathByMelee = FALSE;
@@ -142,6 +143,7 @@ LoadKernel (int argc, char *argv[])
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
+		HDPackPresent = TRUE;
 		log_add (log_Debug, "loading HD addon pack");
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
@@ -200,7 +202,7 @@ LoadKernel (int argc, char *argv[])
 		
 		loadAddon ("automods-sd");
 	}
-	else
+	else if (HDPackPresent)
 	{
 		// Localization addons
 		loadAddon ("xlat-finnish-hd");
@@ -300,7 +302,7 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
-	if (IS_HD)
+	if (HDPackPresent)
 	{
 		HDBorderFrame = CaptureDrawable (LoadGraphic (HD_BORDER_MASK_PMAP_ANIM));
 		if (HDBorderFrame == NULL)
@@ -317,7 +319,7 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
-	if (IS_HD)
+	if (HDPackPresent)
 	{ 
 		hyperspacesuns = CaptureDrawable (LoadGraphic (HYPERSUNS_MASK_PMAP_ANIM));
 		if (hyperspacesuns == NULL)
