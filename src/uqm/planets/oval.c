@@ -31,6 +31,25 @@
 #define NUM_QUADS 4
 #define OFFSCREEN_PRIM NUM_PRIMS
 
+#define FIRST_QUAD (1 << 0)
+#define SECOND_QUAD (1 << 1)
+#define THIRD_QUAD (1 << 2)
+#define FOURTH_QUAD (1 << 3)
+#define FULL_VISIBILITY (1 << 4)
+#define ALL_QUAD (FIRST_QUAD | SECOND_QUAD | THIRD_QUAD | FOURTH_QUAD)
+
+static BOOLEAN
+PointOnScreen (SDWORD x, SDWORD y)
+{
+	SDWORD extend = 0;
+
+	if (IS_HD)
+		extend = 5;
+
+	return ((x + extend) >= 0 && x <= SIS_SCREEN_WIDTH
+			&& (y + extend) >= 0 && y <= SIS_SCREEN_HEIGHT);
+}
+
 static BOOLEAN
 DPointOnScreen (DPOINT *p)
 {
@@ -38,13 +57,172 @@ DPointOnScreen (DPOINT *p)
 			&& p->y >= 0 && p->y <= SIS_SCREEN_HEIGHT);
 }
 
-static BYTE
-CheckOvalCollision (DPOINT *ch_one, DPOINT *ch_two)
+static void
+TruncateDPoint (DPOINT *p)
 {
-#define FIRST_QUAD (1 << 0)
-#define SECOND_QUAD (1 << 1)
-#define THIRD_QUAD (1 << 2)
-#define FOURTH_QUAD (1 << 3)
+	if (p->x > 32767) { p->x = SIS_SCREEN_WIDTH; }
+	if (p->x < -32768) { p->x = 0; }
+	if (p->y > 32767) { p->y = SIS_SCREEN_HEIGHT; }
+	if (p->y < -32768) { p->y = 0; }
+}
+
+// Kruzen: This function checks how much of an oval is on screen (by me).
+// Check occurs in several steps of increasing complexity to sort off easy cases early.
+// Step 1: Check of the rectangle diagonal (top left and bottom right corners) -> if both are on screen, then the entire oval is on screen;
+// Step 2: Check of the inner rectangle diagonal (top left and bottom right corners are centers of II and IV quads). If both are offscreen,
+// then the oval is offscreen too 100%;
+// Step 3: Divide main rectangle into 4 quadrants and perform the next steps for every quadrant;
+// Step 4: Check if the quad is off screen entirely (by checking if max possible X coord is less than 0 and so on);
+// Step 5: Check if atleast one of curve edges of corresponding quad is on screen;
+// Step 6: Check the opposite corners of the screen. Corners should form a diagonal that potentially can cross the curve. Run their coordinates
+// through ellipse equation. If radius > 1 - point is outside of the ellipse, and if < 1 - inside. In case if one point is inside and the other is
+// outside - then the diagonal crosses the curve somewhere on the screen, therefore the curve is visible. Otherwise, if both points are 
+// inside/outside, then the curve is not on screen.
+static BYTE
+CheckOvalCollision (DPOINT *p0, DPOINT *p1)
+{
+	DPOINT mp;// Middle point
+	BYTE quad_visible = 0;
+	SDWORD x0, x1, y0, y1; // Coords of top left and bottom right corners of inner rect
+	double asquared, bsquared;
+	double a, b, x, y, r0, r1;
+
+	// Step 1
+	if (DPointOnScreen (p0) && DPointOnScreen (p1))
+	{
+		quad_visible = ALL_QUAD | FULL_VISIBILITY;
+		return quad_visible;
+	}
+
+	x0 = p0->x + ((p1->x - p0->x) >> 2);
+	x1 = x0 + ((x0 - p0->x) << 1);
+
+	y0 = p0->y + ((p1->y - p0->y) >> 2);
+	y1 = y0 + ((y0 - p0->y) << 1);
+
+	// Step 2
+	if (x0 < 0 && y0 < 0 && x1 > SIS_SCREEN_WIDTH &&
+			y1 > SIS_SCREEN_HEIGHT)
+		return quad_visible;
+
+	// Step 3
+	mp.x = (p0->x + p1->x) >> 1;
+	mp.y = (p0->y + p1->y) >> 1;
+
+	// Calculate major and minor radius
+	a = (p1->x - p0->x) >> 1;
+	b = (p1->y - p0->y) >> 1;
+	if (b > a)
+	{
+		double p = a;
+		a = b;
+		b = p;
+	}
+	asquared = a * a;
+	bsquared = b * b;
+
+	// Step 4
+	if (!(mp.x > SIS_SCREEN_WIDTH || p1->x < 0 ||
+		p0->y > SIS_SCREEN_HEIGHT || mp.y < 0 ||
+		(x1 > SIS_SCREEN_WIDTH && y0 < 0)))
+	{
+		// Step 5
+		if (PointOnScreen (mp.x, p0->y) || PointOnScreen (p1->x, mp.y))
+			quad_visible |= FIRST_QUAD;
+		else
+		{
+			// Step 6
+			x = (double)(SIS_SCREEN_WIDTH - mp.x);
+			y = (double)(0 - mp.y);
+			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
+			
+			x = (double)(max (0, mp.x) - mp.x);
+			y = (double)(min (SIS_SCREEN_HEIGHT, mp.y) - mp.y);
+			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
+
+			if (r0 >= 1.0f && r1 <= 1.0f)
+				quad_visible |= FIRST_QUAD;
+		}
+	}
+
+	// Step 4
+	if (!(p0->x > SIS_SCREEN_WIDTH || mp.x < 0 ||
+		p0->y > SIS_SCREEN_HEIGHT || mp.y < 0 ||
+		(x0 < 0 && y0 < 0)))
+	{
+		// Step 5
+		if (PointOnScreen (p0->x, mp.y) || PointOnScreen (mp.x, p0->y))
+			quad_visible |= SECOND_QUAD;
+		else
+		{
+			// Step 6
+			x = (double)(0 - mp.x);
+			y = (double)(0 - mp.y);
+			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
+
+			x = (double)(min (SIS_SCREEN_WIDTH, mp.x) - mp.x);
+			y = (double)(min (SIS_SCREEN_HEIGHT, mp.y) - mp.y);
+			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
+
+			if (r0 >= 1.0f && r1 <= 1.0f)
+				quad_visible |= SECOND_QUAD;
+		}
+	}
+
+	// Step 4
+	if (!(p0->x > SIS_SCREEN_WIDTH || mp.x < 0 ||
+		mp.y > SIS_SCREEN_HEIGHT || p1->y < 0 ||
+		(x0 < 0 && y1 > SIS_SCREEN_HEIGHT)))
+	{
+		// Step 5
+		if (PointOnScreen (p0->x, mp.y) || PointOnScreen (mp.x, p1->y))
+			quad_visible |= THIRD_QUAD;
+		else
+		{
+			// Step 6
+			x = (double)(0 - mp.x);
+			y = (double)(SIS_SCREEN_HEIGHT - mp.y);
+			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
+
+			x = (double)(min (SIS_SCREEN_WIDTH, mp.x) - mp.x);
+			y = (double)(max (0, mp.y) - mp.y);
+			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
+
+			if (r0 >= 1.0f && r1 <= 1.0f)
+				quad_visible |= THIRD_QUAD;
+		}
+	}
+
+	// Step 4
+	if (!(mp.x > SIS_SCREEN_WIDTH || p1->x < 0 ||
+		mp.y > SIS_SCREEN_HEIGHT || p1->y < 0 ||
+		(x1 > SIS_SCREEN_WIDTH && y1 > SIS_SCREEN_HEIGHT)))
+	{
+		// Step 5
+		if (PointOnScreen (mp.x, p1->y) || PointOnScreen (p1->x, mp.y))
+			quad_visible |= FOURTH_QUAD;
+		else
+		{
+			// Step 6
+			x = (double)(SIS_SCREEN_WIDTH - mp.x);
+			y = (double)(SIS_SCREEN_HEIGHT - mp.y);
+			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
+
+			x = (double)(max (0, mp.x) - mp.x);
+			y = (double)(max (0, mp.y) - mp.y);
+			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
+
+			if (r0 >= 1.0f && r1 <= 1.0f)
+				quad_visible |= FOURTH_QUAD;
+		}
+	}
+
+	return quad_visible;
+}
+
+static BYTE
+CheckOvalCollisionOld (DPOINT *ch_one, DPOINT *ch_two)
+{
 	DPOINT mp;
 	BRESENHAM_LINE ClipLine;
 	DRECT ClipRect;
@@ -56,7 +234,6 @@ CheckOvalCollision (DPOINT *ch_one, DPOINT *ch_two)
 
 	mp.x = (ch_one->x + ch_two->x) >> 1;
 	mp.y = (ch_one->y + ch_two->y) >> 1;
-	ClipRect.corner.x = ClipRect.corner.y = 0;
 
 	if (ch_one->y >= 0 && ch_one->y < ClipRect.extent.height
 		&& ch_two->x >= 0 && ch_two->x < ClipRect.extent.width)
@@ -109,6 +286,7 @@ CheckOvalCollision (DPOINT *ch_one, DPOINT *ch_two)
 		if (_clip_line (&ClipRect, &ClipLine))
 			quad_visible |= FOURTH_QUAD;
 	}
+
 	return quad_visible;
 }
 
@@ -124,47 +302,38 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 	BYTE quad_visible;
 	PRIMITIVE prim[NUM_QUADS];
 	COUNT StartPrim;
-	DPOINT check[2];
+	DPOINT p0, p1;
 	BOOLEAN use_pointprim = (!scaled && num_off_pixels <= 1);
+	BYTE render;
 	
-	check[0].x = pRect->corner.x;
-	check[0].y = pRect->corner.y;
-	check[1].x = check[0].x + pRect->extent.width - 1;
-	check[1].y = check[0].y + pRect->extent.height - 1;
+	p0.x = pRect->corner.x;
+	p0.y = pRect->corner.y;
+	p1.x = p0.x + pRect->extent.width - 1;
+	p1.y = p0.y + pRect->extent.height - 1;
 	// Kruzen: adapted from the original code. If rect is defined incorrectly - make it flat as a pancake and draw a line.
-	if (check[1].x <= check[0].x
-		|| check[1].y <= check[0].y)
+	if (p1.x <= p0.x || p1.y <= p0.y)
 	{
 		LINE corners;
-		BYTE i;
 
-		if (check[1].x < check[0].x)
-			check[1].x = check[0].x;
-		if (check[1].y < check[0].y)
-			check[1].y = check[0].y;
+		if (p1.x < p0.x)
+			p1.x = p0.x;
+		if (p1.y < p0.y)
+			p1.y = p0.y;
 
-		for (i = 0; i < 2; i++)
-		{
-			if (check[i].x > 32767) { check[i].x = 32767; }
-			if (check[i].x < -32768) { check[i].x = -32768; }
-			if (check[i].y > 32767) { check[i].y = 32767; }
-			if (check[i].y < -32768) { check[i].y = -32768; }
-		}
+		TruncateDPoint (&p0);
+		TruncateDPoint (&p1);
 
-		corners.first.x = (COORD)check[0].x;
-		corners.first.y = (COORD)check[0].y;
+		corners.first.x = (COORD)p0.x;
+		corners.first.y = (COORD)p0.y;
 
-		corners.second.x = (COORD)check[1].x;
-		corners.second.y = (COORD)check[1].y;
+		corners.second.x = (COORD)p1.x;
+		corners.second.y = (COORD)p1.y;
 
 		DrawLine (&corners, 1);
 		return;
 	}
 
-	if (DPointOnScreen (&check[0]) && DPointOnScreen(&check[1]))
-		quad_visible = 15;// Kruzen: entire circle is on screen
-	else
-		quad_visible = CheckOvalCollision (&check[0], &check[1]);
+	quad_visible = CheckOvalCollision (&p0, &p1);
 
 	if (!quad_visible)
 		return;
@@ -175,11 +344,10 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		if (quad_visible & (1 << x))
 		{
 			SetPrimNextLink (&prim[x], StartPrim);
-			SetPrimType (&prim[x], use_pointprim ? POINT_PRIM : STAMPFILL_PRIM); // Orbit dots
+			SetPrimType (&prim[x], use_pointprim ? POINT_PRIM : STAMPFILL_PRIM);
 			prim[x].Object.Stamp.frame =
 						DecFrameIndex (stars_in_space);
 			SetPrimColor (&prim[x], _get_context_fg_color ());
-
 			StartPrim = x;
 		}
 		else// Kruzen: just to be sure so DrawBatch() skip it
@@ -210,19 +378,72 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 	A += pRect->corner.x;
 	B += pRect->corner.y;
 
-	// Kruzen: a check for prim being on screen can be added, but checking quads is enough for now
+	// Kruzen: a check for prim being on screen is added
 	if (use_pointprim)
 	{
 		while (dx < dy)
 		{
 			if (off-- == 0)
 			{
+				render = 0;
 				prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
 				prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
 				prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
 				prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
 
-				DrawBatch (prim, StartPrim, 0);
+				if (quad_visible & FULL_VISIBILITY)
+				{
+					DrawBatch (prim, StartPrim, 0);
+				}
+				else
+				{
+					if (quad_visible & FIRST_QUAD)
+					{
+						if (PointOnScreen (A + x, B - y))
+						{
+							SetPrimType (&prim[0], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[0], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & SECOND_QUAD)
+					{
+						if (PointOnScreen (A - x, B - y))
+						{
+							SetPrimType (&prim[1], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[1], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & THIRD_QUAD)
+					{
+						if (PointOnScreen (A - x, B + y))
+						{
+							SetPrimType (&prim[2], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[2], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & FOURTH_QUAD)
+					{
+						if (PointOnScreen (A + x, B + y))
+						{
+							SetPrimType (&prim[3], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[3], OFFSCREEN_PRIM);
+					}				
+
+					if (render > 0)
+						DrawBatch (prim, StartPrim, 0);
+				}
 				off = num_off_pixels;
 			}
 
@@ -244,12 +465,65 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		{
 			if (off-- == 0)
 			{// Kruzen: Use correct struct for these. I have no idea how that worked before
+				render = 0;
 				prim[0].Object.Stamp.origin.x = prim[3].Object.Stamp.origin.x = A + x;
 				prim[0].Object.Stamp.origin.y = prim[1].Object.Stamp.origin.y = B - y;
 				prim[1].Object.Stamp.origin.x = prim[2].Object.Stamp.origin.x = A - x;
 				prim[2].Object.Stamp.origin.y = prim[3].Object.Stamp.origin.y = B + y;
 
-				DrawBatch (prim, StartPrim, 0);
+				if (quad_visible & FULL_VISIBILITY)
+				{
+					DrawBatch (prim, StartPrim, 0);
+				}
+				else
+				{
+					if (quad_visible & FIRST_QUAD)
+					{
+						if (PointOnScreen (A + x, B - y))
+						{
+							SetPrimType (&prim[0], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[0], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & SECOND_QUAD)
+					{
+						if (PointOnScreen (A - x, B - y))
+						{
+							SetPrimType (&prim[1], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[1], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & THIRD_QUAD)
+					{
+						if (PointOnScreen (A - x, B + y))
+						{
+							SetPrimType (&prim[2], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[2], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & FOURTH_QUAD)
+					{
+						if (PointOnScreen (A + x, B + y))
+						{
+							SetPrimType (&prim[3], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[3], OFFSCREEN_PRIM);
+					}				
+
+					if (render > 0)
+						DrawBatch (prim, StartPrim, 0);
+				}
 				off = num_off_pixels;
 			}
 
@@ -274,12 +548,65 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		{
 			if (off-- == 0)
 			{
+				render = 0;
 				prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
 				prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
 				prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
 				prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
 
-				DrawBatch (prim, StartPrim, 0);
+				if (quad_visible & FULL_VISIBILITY)
+				{
+					DrawBatch (prim, StartPrim, 0);
+				}
+				else
+				{
+					if (quad_visible & FIRST_QUAD)
+					{
+						if (PointOnScreen (A + x, B - y))
+						{
+							SetPrimType (&prim[0], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[0], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & SECOND_QUAD)
+					{
+						if (PointOnScreen (A - x, B - y))
+						{
+							SetPrimType (&prim[1], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[1], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & THIRD_QUAD)
+					{
+						if (PointOnScreen (A - x, B + y))
+						{
+							SetPrimType (&prim[2], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[2], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & FOURTH_QUAD)
+					{
+						if (PointOnScreen (A + x, B + y))
+						{
+							SetPrimType (&prim[3], POINT_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[3], OFFSCREEN_PRIM);
+					}				
+
+					if (render > 0)
+						DrawBatch (prim, StartPrim, 0);
+				}
 				off = num_off_pixels;
 			}
 
@@ -301,12 +628,65 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		{
 			if (off-- == 0)
 			{
+				render = 0;
 				prim[0].Object.Stamp.origin.x = prim[3].Object.Stamp.origin.x = A + x;
 				prim[0].Object.Stamp.origin.y = prim[1].Object.Stamp.origin.y = B - y;
 				prim[1].Object.Stamp.origin.x = prim[2].Object.Stamp.origin.x = A - x;
 				prim[2].Object.Stamp.origin.y = prim[3].Object.Stamp.origin.y = B + y;
 
-				DrawBatch (prim, StartPrim, 0);
+				if (quad_visible & FULL_VISIBILITY)
+				{
+					DrawBatch (prim, StartPrim, 0);
+				}
+				else
+				{
+					if (quad_visible & FIRST_QUAD)
+					{
+						if (PointOnScreen (A + x, B - y))
+						{
+							SetPrimType (&prim[0], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[0], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & SECOND_QUAD)
+					{
+						if (PointOnScreen (A - x, B - y))
+						{
+							SetPrimType (&prim[1], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[1], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & THIRD_QUAD)
+					{
+						if (PointOnScreen (A - x, B + y))
+						{
+							SetPrimType (&prim[2], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[2], OFFSCREEN_PRIM);
+					}
+
+					if (quad_visible & FOURTH_QUAD)
+					{
+						if (PointOnScreen (A + x, B + y))
+						{
+							SetPrimType (&prim[3], STAMPFILL_PRIM);
+							render++;
+						}
+						else
+							SetPrimType (&prim[3], OFFSCREEN_PRIM);
+					}				
+
+					if (render > 0)
+						DrawBatch (prim, StartPrim, 0);
+				}
 				off = num_off_pixels;
 			}
 
@@ -336,38 +716,31 @@ DrawFilledOval (DRECT *pRect)
 	PRIMITIVE prim[NUM_QUADS >> 1];
 	COUNT StartPrim;
 	POINT first, second;
-	DPOINT check[2];
-	BYTE i;
+	DPOINT p0, p1;
 	COUNT lines_r = 0;
 
-	check[0].x = pRect->corner.x;
-	check[0].y = pRect->corner.y;
-	check[1].x = check[0].x + pRect->extent.width - 1;
-	check[1].y = check[0].y + pRect->extent.height - 1;
+	p0.x = pRect->corner.x;
+	p0.y = pRect->corner.y;
+	p1.x = p0.x + pRect->extent.width - 1;
+	p1.y = p0.y + pRect->extent.height - 1;
 	// Kruzen: adapted from the original code. If rect is defined incorrectly - make it flat as a pancake and draw a line.
-	if (check[1].x <= check[0].x
-			|| check[1].y <= check[0].y)
+	if (p1.x <= p0.x || p1.y <= p0.y)
 	{
 		LINE corners;
 
-		if (check[1].x < check[0].x)
-			check[1].x = check[0].x;
-		if (check[1].y < check[0].y)
-			check[1].y = check[0].y;
+		if (p1.x < p0.x)
+			p1.x = p0.x;
+		if (p1.y < p0.y)
+			p1.y = p0.y;
 
-		for (i = 0; i < 2; i++)
-		{
-			if (check[i].x > 32767) { check[i].x = 32767; }
-			if (check[i].x < -32768) { check[i].x = -32768; }
-			if (check[i].y > 32767) { check[i].y = 32767; }
-			if (check[i].y < -32768) { check[i].y = -32768; }
-		}
+		TruncateDPoint (&p0);
+		TruncateDPoint (&p1);
 
-		corners.first.x = (COORD)check[0].x;
-		corners.first.y = (COORD)check[0].y;
+		corners.first.x = (COORD)p0.x;
+		corners.first.y = (COORD)p0.y;
 
-		corners.second.x = (COORD)check[1].x;
-		corners.second.y = (COORD)check[1].y;
+		corners.second.x = (COORD)p1.x;
+		corners.second.y = (COORD)p1.y;
 
 		DrawLine (&corners, 1);
 		return;
