@@ -221,11 +221,11 @@ CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 }
 
 static BYTE
-CheckOvalCollisionOld (DPOINT *ch_one, DPOINT *ch_two)
+CheckOvalCollisionOld (POINT *ch_one, POINT *ch_two)
 {
-	DPOINT mp;
+	POINT mp;
 	BRESENHAM_LINE ClipLine;
-	DRECT ClipRect;
+	RECT ClipRect;
 	BYTE quad_visible = 0;
 
 	ClipRect.corner.x = ClipRect.corner.y = 0;
