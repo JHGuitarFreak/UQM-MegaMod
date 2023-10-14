@@ -1243,7 +1243,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		}
 
-		printf ("Curr max: %d\n", currMax);
 		if (currMax > 0)
 		{
 			BYTE j, k;
