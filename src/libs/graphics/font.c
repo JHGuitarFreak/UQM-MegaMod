@@ -331,7 +331,8 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 
 				width += charFrame->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch]
+				if (num_chars && next_ch < MAX_UNICODE
+						&& FontPtr->HaveFntData
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 				{
@@ -437,7 +438,8 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 
 			origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-			if (num_chars && FontPtr->KernTab[ch]
+			if (num_chars && next_ch < MAX_UNICODE
+					&& FontPtr->HaveFntData
 					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
 			{
@@ -561,7 +563,8 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair, B
 			{
 				origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch]
+				if (num_chars && next_ch < MAX_UNICODE
+						&& FontPtr->HaveFntData
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 				{
@@ -670,7 +673,8 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 
 				width += charFrame->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch]
+				if (num_chars && next_ch < MAX_UNICODE
+						&& FontPtr->HaveFntData
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 				{
@@ -821,8 +825,9 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 
 			origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-			if (num_chars && FontPtr->KernTab[ch]
-				&& !(FontPtr->KernTab[ch]
+			if (num_chars && next_ch < MAX_UNICODE
+					&& FontPtr->HaveFntData
+					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
 			{
 				origin.x -= FontPtr->KernAmount;

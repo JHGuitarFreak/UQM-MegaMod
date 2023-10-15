@@ -469,6 +469,8 @@ _GetFontData (uio_Stream *fp, DWORD length)
 		int cel_total = 0;
 		DWORD opos = 0;
 
+		memset (&fontPtr->KernTab, 3, sizeof (fontPtr->KernTab));
+
 		uio_fseek (cfgFile, opos, SEEK_SET);
 		while (uio_fgets (CurrentLine, sizeof (CurrentLine), cfgFile))
 		{
