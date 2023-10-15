@@ -707,7 +707,10 @@ check_remixes (WIDGET_CHOICE *self, int oldval)
 		oldval = OPTVAL_DISABLED;
 		choices[self->choice_num].selected = oldval;
 		addon_unavailable (self, oldval);
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
 static void
