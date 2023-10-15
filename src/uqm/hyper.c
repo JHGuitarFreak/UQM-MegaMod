@@ -71,7 +71,7 @@ enum HyperMenuItems
 };
 
 #define AMBIENT_MASK (IS_HD && GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) ? \
-						ARI_AMBIENT_MASK_PMAP_ANIM : AMBIENT_MASK_PMAP_ANIM)
+		ARI_AMBIENT_MASK_PMAP_ANIM : AMBIENT_MASK_PMAP_ANIM)
 
 /*
  * draws the melee icon for the battle group inside the black holes,
