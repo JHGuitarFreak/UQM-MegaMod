@@ -62,12 +62,28 @@ typedef enum {
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
+typedef struct namePlate {
+	RECT rect;
+	TEXT text;
+	BYTE index;
+} NAMEPLATE;
+
+static void
+SwapPlates (NAMEPLATE *n1, NAMEPLATE *n2)
+{
+	NAMEPLATE temp = *n1;
+	*n1 = *n2;
+	*n2 = temp;
+}
+
+#define IGNORE_MOVING_SOI (1 << 5)
+#define PRE_DEATH_SOI (1 << 6)
+#define DEATH_SOI (1 << 7)
+
 static POINT cursorLoc;
 static POINT mapOrigin;
 static int zoomLevel;
 static FRAME StarMapFrame;
-
-static BOOLEAN show_war_era_situation;
 static CURRENT_STARMAP_SHOWN which_starmap;
 
 static inline long
@@ -880,6 +896,70 @@ setStarMarked (const int star_index, const char *marker_state)
 	D_SET_GAME_STATE (markerBuf (starIndex, marker_state), starData);
 }
 
+static COORD
+CheckTextsIntersect (RECT *curr, RECT *prev)
+{
+	if (((curr->corner.x + curr->extent.width) <= prev->corner.x) ||
+			((prev->corner.x + prev->extent.width) <= curr->corner.x))
+		return 0;
+
+	if (((curr->corner.y + curr->extent.height) <= prev->corner.y) ||
+			((prev->corner.y + prev->extent.height) <= curr->corner.y))
+		return 0;
+
+	return ((prev->extent.height + RES_SCALE (1)) - (curr->corner.y - prev->corner.y));
+}
+
+static void
+AdjustTextRect (RECT *r, TEXT *t)
+{
+	COORD offs;
+	if (r->corner.x <= 0)
+	{
+		offs = r->corner.x - RES_SCALE (1);
+		t->baseline.x -= offs;
+		r->corner.x -= offs;
+	}
+	else if (r->corner.x + r->extent.width
+		>= SIS_SCREEN_WIDTH)
+	{
+		offs = (r->corner.x + r->extent.width)
+			- SIS_SCREEN_WIDTH + RES_SCALE (1);
+		t->baseline.x -= offs;
+		r->corner.x -= offs;
+	}
+	if (r->corner.y <= 0)
+	{
+		offs = r->corner.y - RES_SCALE (1);
+		t->baseline.y -= offs;
+		r->corner.y -= offs;
+	}
+	else if (r->corner.y + r->extent.height
+		>= SIS_SCREEN_HEIGHT)
+	{
+		offs = (r->corner.y + r->extent.height)
+			- SIS_SCREEN_HEIGHT + RES_SCALE (1);
+		t->baseline.y -= offs;
+		r->corner.y -= offs;
+	}
+}
+
+static void
+DrawRaceName (TEXT *t, Color *c)
+{
+	// The text color is slightly lighter than the color of
+	// the SoI.
+	c->r = (c->r >= 0xff - CC5TO8 (0x03)) ?
+			0xff : c->r + CC5TO8 (0x03);
+	c->g = (c->g >= 0xff - CC5TO8 (0x03)) ?
+			0xff : c->g + CC5TO8 (0x03);
+	c->b = (c->b >= 0xff - CC5TO8 (0x03)) ?
+			0xff : c->b + CC5TO8 (0x03);
+
+	SetContextForeGroundColor (*c);
+	font_DrawText (t);
+}
+
 static void
 DrawStarMap (COUNT race_update, RECT *pClipRect)
 {
@@ -1004,7 +1084,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_space <= 1 && which_starmap != CONSTELLATION_MAP)
 	{
 		COUNT index;
+		COUNT race_index = (race_update & 0x1F) - 1;
 		HFLEETINFO hStarShip, hNextShip;
+		NAMEPLATE nameplate[26];
+		BYTE currMax = 0;
 		static const Color race_colors[] =
 		{
 			RACE_COLORS
@@ -1029,16 +1112,17 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 			hNextShip = _GetSuccLink (FleetPtr);
 
-			if (FleetPtr->known_strength || 
-				(show_war_era_situation && war_era_strengths[index]))
+			if ((FleetPtr->known_strength && which_starmap != WAR_ERA_STARMAP) ||
+				(which_starmap == WAR_ERA_STARMAP && war_era_strengths[index]))
 			{
 				RECT repair_r;
 
-				if (show_war_era_situation)
+				if (which_starmap == WAR_ERA_STARMAP)
 					GetWarEraSphereRect (index, war_era_strengths,
 							war_era_locations, &r, &repair_r);
 				else
 					GetSphereRect (FleetPtr, &r, &repair_r);
+
 
 				if (r.corner.x < SIS_SCREEN_WIDTH
 						&& r.corner.y < SIS_SCREEN_HEIGHT
@@ -1059,7 +1143,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					STRING locString;
 
 					c = race_colors[index];
-					if (index + 1 == race_update)
+					if (index == race_index)
 						SetContextForeGroundColor (WHITE_COLOR);
 					else
 						SetContextForeGroundColor (c);
@@ -1080,15 +1164,9 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					t.baseline.y = r.corner.y + (r.extent.height >> 1)
 							- RES_SCALE (1);
 					t.align = ALIGN_CENTER;
-					
-					locString = SetAbsStringTableIndex (
-							FleetPtr->race_strings,
-							(index == ANDROSYNTH_SHIP ? 0 : 1));
-					t.CharCount = GetStringLength (locString);
-					t.pStr = (UNICODE *)GetStringAddress (locString);
-					
+
 					// For drawing War-Era starmap.
-					if (show_war_era_situation)
+					if (which_starmap == WAR_ERA_STARMAP)
 					{
 						switch (index)
 						{
@@ -1096,45 +1174,161 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 							case THRADDASH_SHIP:
 							case DRUUGE_SHIP:
 								t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
+								t.CharCount = (COUNT)strlen (t.pStr);
 								break;
-						}
-						t.CharCount = (COUNT)strlen (t.pStr);
+							case ANDROSYNTH_SHIP:
+								locString = SetAbsStringTableIndex(
+												FleetPtr->race_strings, 0);
+								t.pStr = (UNICODE *)GetStringAddress (locString);
+								t.CharCount = GetStringLength (locString);
+								break;
+							default:
+								locString = SetAbsStringTableIndex (
+												FleetPtr->race_strings, 1);
+								t.CharCount = GetStringLength (locString);
+								t.pStr = (UNICODE *)GetStringAddress (locString);
+								break;
+						}						
+					}
+					else
+					{
+						locString = SetAbsStringTableIndex (
+										FleetPtr->race_strings, 1);
+						t.CharCount = GetStringLength (locString);
+						t.pStr = (UNICODE *)GetStringAddress (locString);
 					}
 
 					TextRect (&t, &r, NULL);
 
-					if (r.corner.x <= 0)
-						t.baseline.x -= r.corner.x - RES_SCALE (1);
-					else if (r.corner.x + r.extent.width
-							>= SIS_SCREEN_WIDTH)
-						t.baseline.x -= (r.corner.x + r.extent.width)
-								- SIS_SCREEN_WIDTH + RES_SCALE (1);
-					if (r.corner.y <= 0)
-						t.baseline.y -= r.corner.y - RES_SCALE (1);
-					else if (r.corner.y + r.extent.height
-							>= SIS_SCREEN_HEIGHT)
-						t.baseline.y -= (r.corner.y + r.extent.height)
-								- SIS_SCREEN_HEIGHT + RES_SCALE (1);
-
-					// The text color is slightly lighter than the color of
-					// the SoI.
-					c.r = (c.r >= 0xff - CC5TO8 (0x03)) ?
-							0xff : c.r + CC5TO8 (0x03);
-					c.g = (c.g >= 0xff - CC5TO8 (0x03)) ?
-							0xff : c.g + CC5TO8 (0x03);
-					c.b = (c.b >= 0xff - CC5TO8 (0x03)) ?
-							0xff : c.b + CC5TO8 (0x03);
-
-					SetContextForeGroundColor (c);
-					
-					if (!show_war_era_situation ||
-							(show_war_era_situation
-								&& war_era_strengths[index]))
-						font_DrawText (&t);
+					if (index == race_index && 
+							race_update & IGNORE_MOVING_SOI)
+					{
+						AdjustTextRect (&r, &t);
+						DrawRaceName (&t, &c);
+					}
+					else
+					{
+						nameplate[currMax].rect = r;
+						nameplate[currMax].text = t;
+						nameplate[currMax].index = index;
+						currMax++;
+					}
 				}
 			}
+			else if (index == race_index &&
+						race_update & (PRE_DEATH_SOI | DEATH_SOI))
+			{// Kruzen: SoI is dead, but we need to fade nameplate 
+				TEXT t;
+				STRING locString;
+				RECT repair_r;
 
+				locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
+				t.CharCount = GetStringLength (locString);
+				t.pStr = (UNICODE *)GetStringAddress (locString);
+
+				GetSphereRect (FleetPtr, &r, &repair_r);
+
+				t.baseline.x = r.corner.x + (r.extent.width >> 1);
+				t.baseline.y = r.corner.y + (r.extent.height >> 1)
+						- RES_SCALE (1);
+				t.align = ALIGN_CENTER;
+
+				TextRect (&t, &r, NULL);
+
+				nameplate[currMax].rect = r;
+				nameplate[currMax].text = t;
+				nameplate[currMax].index = race_update - 1;
+				currMax++;
+			}
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+		}
+
+		if (currMax > 0)
+		{
+			BYTE j, k;
+			BOOLEAN swapped;
+			COORD offs;
+			TEXT t;
+			Color c;
+			BYTE mid = currMax;
+
+			for (j = 0; j < currMax - 1; j++)
+			{// Sort nameplates by Y-axis from top to bottom
+				swapped = FALSE;
+				for (k = 0; k < currMax - j - 1; k++)
+				{
+					if (nameplate[k].rect.corner.y > nameplate[k + 1].rect.corner.y)
+					{
+						SwapPlates (&nameplate[k], &nameplate[k + 1]);
+						swapped = TRUE;
+					}
+				}
+				// If no two elements were swapped by inner loop,
+				// then break
+				if (swapped == FALSE)
+					break;
+			}
+
+			for (j = 0; j < currMax; j++, mid--)
+			{
+				if (nameplate[j].index & PRE_DEATH_SOI)
+					c = WHITE_COLOR;
+				else if (nameplate[j].index & DEATH_SOI)
+					c = BUILD_SHADE_RGBA (0x80);
+				else
+					c = race_colors[(nameplate[j].index & 0x1F)];
+				r = nameplate[j].rect;
+				t = nameplate[j].text;
+				
+				AdjustTextRect (&r, &t);
+
+				r.corner.y += RES_SCALE (1);
+				r.extent.height -= RES_SCALE (2);
+
+				if (r.corner.y > (SIS_SCREEN_HEIGHT >> 1))
+					break;
+
+				for (k = 0; k < j; k++)
+				{
+					if ((offs = CheckTextsIntersect (&r, &nameplate[k].rect)) != 0)
+					{
+						r.corner.y += offs;
+						t.baseline.y += offs;
+					}
+				}
+				nameplate[j].rect = r;
+
+				DrawRaceName (&t, &c);
+			}
+
+			for (j = 1; j <= mid; j++)
+			{
+				if (nameplate[currMax - j].index & PRE_DEATH_SOI)
+					c = WHITE_COLOR;
+				else if (nameplate[currMax - j].index & DEATH_SOI)
+					c = BUILD_SHADE_RGBA (0x80);
+				else
+					c = race_colors[(nameplate[currMax - j].index & 0x1F)];
+				r = nameplate[currMax - j].rect;
+				t = nameplate[currMax - j].text;
+
+				AdjustTextRect (&r, &t);
+
+				r.corner.y += RES_SCALE(1);
+				r.extent.height -= RES_SCALE(2);
+
+				for (k = 0; k < j; k++)
+				{
+					if ((offs = CheckTextsIntersect (&r, &nameplate[currMax - k].rect)) != 0)
+					{
+						r.corner.y -= offs;
+						t.baseline.y -= offs;
+					}
+				}
+				nameplate[currMax - j].rect = r;
+
+				DrawRaceName (&t, &c);
+			}
 		}
 	}
 
@@ -1580,7 +1774,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				CONTEXT OldContext;
 				OldContext = SetContext (OffScreenContext);
 				
-				if (show_war_era_situation)
+				if (which_starmap == WAR_ERA_STARMAP)
 					SetContextForeGroundColor (
 							BUILD_COLOR (
 								MAKE_RGB15 (0x18, 0x00, 0x00), 0x00));
@@ -2296,11 +2490,6 @@ DoMoveCursor (MENU_STATE *pMS)
 
 			PlayMenuSound (MENU_SOUND_MOVE);
 
-			if (which_starmap == WAR_ERA_STARMAP)
-				show_war_era_situation = TRUE;
-			else
-				show_war_era_situation = FALSE;
-
 			DrawStarMap (0, NULL);
 			last_buf[0] = '\0';
 			UpdateCursorInfo (last_buf);
@@ -2472,6 +2661,7 @@ UpdateMap (void)
 		{
 			SIZE dx, dy, delta;
 			RECT r, last_r, temp_r0, temp_r1;
+			COUNT str;
 
 			dx = FleetPtr->loc.x - FleetPtr->known_loc.x;
 			dy = FleetPtr->loc.y - FleetPtr->known_loc.y;
@@ -2552,9 +2742,9 @@ UpdateMap (void)
 					r.extent.height += RES_SCALE (1) + IF_HD (1);
 					if (temp_r0.corner.x != temp_r1.corner.x
 							|| temp_r0.corner.y != temp_r1.corner.y)
-					{
+					{// Ignore name stacking during movement
 						VisibleChange = TRUE;
-						RepairMap (index, &last_r, &r);
+						RepairMap (index | IGNORE_MOVING_SOI, &last_r, &r);
 						SleepThread (ONE_SECOND / 24);
 					}
 				} while (delta >= 0);
@@ -2586,10 +2776,14 @@ DoneSphereMove:
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
 				last_r.extent.width += RES_SCALE (1);
 				last_r.extent.height += RES_SCALE (1);
+				// Kruzen: Font size to clean up double space because of text stacking now
+				last_r.extent.height = max(last_r.extent.height, RES_SCALE (14));
 				VisibleChange = FALSE;
 
 				/*printf("%s: %d\n", raceName (index),
 						FleetPtr->actual_strength);*/
+
+				str = FleetPtr->known_strength;
 
 				GrowthFactor = delta > 0 ? FleetPtr->actual_strength
 						: FleetPtr->known_strength;
@@ -2619,12 +2813,21 @@ DoneSphereMove:
 					}
 					r.extent.width += RES_SCALE (1);
 					r.extent.height += RES_SCALE (1);
-					if (temp_r0.extent.height != temp_r1.extent.height)
-					{
+					if ((temp_r0.extent.height != temp_r1.extent.height) &&
+							!(str > 0 && FleetPtr->known_strength == 0))
+					{// Update race SOI size IF the race didn't die out
 						VisibleChange = TRUE;
 						RepairMap (index, &last_r, &r);
 						SleepThread (
 								ONE_SECOND / (12 + GrowthFactor / 44));
+					}
+					else if (str > 0 && FleetPtr->known_strength == 0)
+					{// Flash dying race name
+						VisibleChange = TRUE;
+						RepairMap (index | PRE_DEATH_SOI, &last_r, &r);
+						SleepThread (ONE_SECOND / 12);
+						RepairMap (index | DEATH_SOI, &last_r, &r);
+						SleepThread (ONE_SECOND / 12);
 					}
 				} while (delta >= 0);
 				if (VisibleChange
@@ -2784,8 +2987,6 @@ StarMap (void)
 
 	memset (&MenuState, 0, sizeof (MenuState));
 
-	// JMS: For showing SC1-era starmap / starmap with constellations.
-	show_war_era_situation = FALSE; 
 	which_starmap = NORMAL_STARMAP;
 
 	zoomLevel = 0;

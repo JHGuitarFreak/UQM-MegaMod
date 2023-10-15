@@ -26,9 +26,9 @@
 
 typedef struct bresenham_line
 {
-	DPOINT first, second;
-	SDWORD abs_delta_x, abs_delta_y;
-	SDWORD error_term;
+	POINT first, second;
+	SIZE abs_delta_x, abs_delta_y;
+	SIZE error_term;
 	BOOLEAN end_points_exchanged;
 	INTERSECT_CODE intersect_code;
 } BRESENHAM_LINE;
