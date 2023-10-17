@@ -40,4 +40,10 @@ actual largest height from your glyph `.png` files and plug it into the command.
 Add 3 pixels to the right of the canvas:
 `mogrify -splice 3x0 -gravity East -background black *.png`
 
+Remove 3 pixels to the right of the canvas:
+`mogrify -chop 3x0 -gravity East *.png`
+
+Trim the right side by color:
+`mogrify -fuzz 10% -define trim:edges=east -trim +repage *.png`
+
 DPComic font made by codeman38 - http://www.zone38.net/
