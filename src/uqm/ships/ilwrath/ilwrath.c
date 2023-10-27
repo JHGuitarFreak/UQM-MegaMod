@@ -42,7 +42,7 @@
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
 #define MISSILE_LIFE 8
-#define ILWRATH_OFFSET RES_BOOL (29, 86)
+#define ILWRATH_OFFSET RES_SCALE (29)
 #define MISSILE_SPEED RES_SCALE (MAX_THRUST)
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
@@ -400,9 +400,11 @@ init_ilwrath (void)
 {
 	RACE_DESC *RaceDescPtr;
 
-	if (IS_HD) {
+	if (IS_HD)
+	{
 		ilwrath_desc.characteristics.max_thrust = RES_SCALE (MAX_THRUST);
-		ilwrath_desc.characteristics.thrust_increment = RES_SCALE (THRUST_INCREMENT);
+		ilwrath_desc.characteristics.thrust_increment =
+				RES_SCALE (THRUST_INCREMENT);
 		ilwrath_desc.cyborg_control.WeaponRange = CLOSE_RANGE_WEAPON_HD;
 	}
 	else
