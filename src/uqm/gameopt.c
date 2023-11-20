@@ -424,7 +424,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	strncat (dateStr, ": ", sizeof(dateStr) - strlen(dateStr) -1);
 	snprintf (fullStr, sizeof fullStr, "%s%s", dateStr, Str);
 
-	SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
+	SetContextForeGroundColor (SAVE_SELECTED_COLOR);
 	r.extent.width = RES_SCALE (15);
 	if (MAX_SAVED_GAMES > 99)
 		r.extent.width += RES_SCALE (5);
@@ -441,8 +441,8 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	lf.baseline.x = r.corner.x + RES_SCALE (3);
 	lf.baseline.y = r.corner.y + RES_SCALE (8);
 
-	BackGround = BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33);
-	ForeGround = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01);
+	BackGround = SAVE_SELECTED_COLOR;
+	ForeGround = SAVE_UNSELECTED_COLOR;
 
 	lf.align = ALIGN_LEFT;
 
@@ -806,18 +806,8 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	STAMP s;
 	TEXT t;
 	UNICODE buf[40];
-	static const Color cargo_color[] =
-	{
-		BUILD_COLOR (MAKE_RGB15_INIT (0x02, 0x0E, 0x13), 0x00),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x19, 0x00, 0x00), 0x00),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x10, 0x10, 0x10), 0x00),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x03, 0x05, 0x1E), 0x00),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x18, 0x00), 0x00),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1B, 0x1B, 0x00), 0x00),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x1E, 0x0D, 0x00), 0x00),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x00, 0x14), 0x05),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x19), 0x00),
-	};
+#define NUM_COLORS 9
+	static const Color cargo_color[NUM_COLORS] = CARGO_COLOR_TABLE;
 #define ELEMENT_ORG_Y      RES_SCALE (17)
 #define ELEMENT_SPACING_Y  RES_SCALE (12)
 #define ELEMENT_SPACING_X  RES_SCALE (36)
@@ -1008,19 +998,19 @@ DrawEmptySlot (void)
 	t.baseline.y = RES_SCALE (66);
 
 	utf8StringCopy (buf, sizeof (buf),
-			GAME_STRING (LABEL_STRING_BASE + 1));
+			GAME_STRING (LABEL_STRING_BASE + 1)); // EMPTY SLOT
 
 	t.align = ALIGN_CENTER;
 
-	oldfg = SetContextForeGroundColor (BUILD_COLOR_RGBA (31,0,31,255));
+	oldfg = SetContextForeGroundColor (EMPTY_SLOT_STROKE_3_COLOR);
 	t_baseline = t.baseline;
 
 	for (stroke = RES_SCALE (3); stroke > 0; stroke -= RES_SCALE (1))
 	{
 		if (stroke == RES_SCALE (2))
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (62, 0, 62, 255));
+			SetContextForeGroundColor (EMPTY_SLOT_STROKE_2_COLOR);
 		else if (stroke == RES_SCALE (1))
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (93, 0, 93, 255));
+			SetContextForeGroundColor (EMPTY_SLOT_STROKE_1_COLOR);
 
 		for (offset.x = -stroke; offset.x <= stroke; ++offset.x)
 		{
@@ -1058,11 +1048,76 @@ DrawEmptySlot (void)
 
 	t.baseline.y += leading;
 
-	t.pStr = buf + utf8StringPos (buf, ' ');
+	t.pStr = buf + t.CharCount;
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
 	SetContextForeGroundColor (oldfg);
+}
+
+static void
+DrawNoLimit (void)
+{
+	RECT r;
+	TEXT t;
+	Color oldfg;
+	FONT OldFont;
+	BYTE stroke;
+	POINT offset;
+	POINT t_baseline;
+	SIZE leading;
+
+	r.corner.x = RES_SCALE (137) + SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
+	r.corner.y = RES_SCALE (93);
+	r.extent.width = RES_SCALE (75);
+	r.extent.height = RES_SCALE (17);
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
+
+	OldFont = SetContextFont (LabelFont);
+
+	GetContextFontLeading (&leading);
+
+	t.baseline.x = (r.extent.width >> 1) + r.corner.x;
+	t.baseline.y = r.corner.y + leading;
+
+	t.pStr = GAME_STRING (LABEL_STRING_BASE); // NO LIMIT
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+
+	oldfg = SetContextForeGroundColor (NO_LIMIT_STROKE_3_COLOR);
+	t_baseline = t.baseline;
+
+	for (stroke = RES_SCALE (3); stroke > 0; stroke -= RES_SCALE (1))
+	{
+		if (stroke == RES_SCALE (2))
+			SetContextForeGroundColor (NO_LIMIT_STROKE_2_COLOR);
+		else if (stroke == RES_SCALE (1))
+			SetContextForeGroundColor (NO_LIMIT_STROKE_1_COLOR);
+
+		for (offset.x = -stroke; offset.x <= stroke; ++offset.x)
+		{
+			for (offset.y = -stroke; offset.y <= stroke; ++offset.y)
+			{
+				if (hypot (offset.x, offset.y) > stroke) continue;
+				t.baseline =
+					MAKE_POINT (
+						t_baseline.x + offset.x,
+						t_baseline.y + offset.y
+					);
+
+				font_DrawText (&t);
+			}
+		}
+	}
+
+	t.baseline = t_baseline;
+
+	SetContextForeGroundColor (NO_LIMIT_TEXT_COLOR);
+	font_DrawText (&t);
+
+	SetContextForeGroundColor (oldfg);
+	SetContextFont (OldFont);
 }
 
 static void
@@ -1171,9 +1226,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 			s.frame = SetRelFrameIndex (pickState->SummaryFrame, 0);
 			DrawStamp (&s);
 			// draw RU "NO LIMIT" 
-			s.origin.x = SUMMARY_X_OFFS + SUMMARY_SIDE_OFFS;
-			s.frame = IncFrameIndex (s.frame);
-			DrawStamp (&s);
+			DrawNoLimit ();
 		}
 		else
 		{
@@ -1194,16 +1247,15 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 			snprintf (buf, sizeof buf, "%u", pSD->SS.ResUnits);
 			t.baseline.y = RES_SCALE (102);
-			SetContextForeGroundColor (
-					BUILD_COLOR (MAKE_RGB15 (0x10, 0x00, 0x10), 0x01));
+			SetContextForeGroundColor (SUMM_VALUE_COLOR);
 			font_DrawText (&t);
 			t.CharCount = (COUNT)~0;
 		}
+
 		t.baseline.y = RES_SCALE (126);
 		snprintf (buf, sizeof buf, "%u",
 				MAKE_WORD (pSD->MCreditLo, pSD->MCreditHi));
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x10, 0x00, 0x10), 0x01));
+		SetContextForeGroundColor (SUMM_VALUE_COLOR);
 		font_DrawText (&t);
 
 		// print the location
@@ -1252,8 +1304,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		else
 			SetContextFont (TinyFontBold);
 
-		SetContextForeGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
+		SetContextForeGroundColor (SAVE_SELECTED_COLOR);
 		t.CharCount = (COUNT)~0;
 		if (is3DO (optWhichFonts))
 			replaceChar (buf, UNICHAR_SPACE, UNICHAR_TAB);
