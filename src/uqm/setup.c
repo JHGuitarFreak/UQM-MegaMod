@@ -62,6 +62,7 @@ FONT MicroFont;
 FONT TinyFont;
 FONT TinyFontBold;
 FONT PlyrFont;
+FONT LabelFont;
 QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
@@ -336,10 +337,14 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
-	MicroFont = LoadFont(MICRO_FONT);
+	MicroFont = LoadFont (MICRO_FONT);
 	if (MicroFont == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
+
+	LabelFont = LoadFont (LABEL_FONT);
+	if (LabelFont == NULL)
+		return FALSE;
 
 	MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
 	if (MenuSounds == 0)

@@ -57,6 +57,7 @@ extern FONT MicroFont;
 extern FONT TinyFont;
 extern FONT TinyFontBold;
 extern FONT PlyrFont;
+extern FONT LabelFont;
 
 extern CondVar RenderingCond;
 
