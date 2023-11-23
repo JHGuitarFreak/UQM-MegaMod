@@ -1,4 +1,4 @@
-//Copyright Paul Reiche, Fred Ford. 1992-2002
+﻿//Copyright Paul Reiche, Fred Ford. 1992-2002
 
 /*
  *  This program is free software; you can redistribute it and/or modify
@@ -903,6 +903,34 @@ SCL_POINT (POINT pt)
 	return point; 
 }
 
+static int
+AlignText (UNICODE *str)
+{
+	UNICODE *found;
+	int modSize = 0;
+	int strSize = 0;
+	const UNICODE *delim = STR_PIPE;
+	const size_t delimSize = strlen (delim);
+
+	if (strncmp (delim, str, delimSize))
+		return 0;
+
+	str += delimSize;
+	strSize = strlen (str);
+
+	if (sscanf (str, "%d", &modSize) != 1)
+		return 0;
+
+	found = strstr (str, delim);
+
+	if (found == NULL)
+		return 0;
+
+	str += (int)(found - str) + delimSize;
+
+	return RES_SCALE (modSize);
+}
+
 static void
 DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 {
@@ -910,8 +938,6 @@ DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 	UNICODE buf[256];
 	SIZE leading;
 	FONT OldFont;
-	const UNICODE *amperBang = "&!";
-	const size_t abSize = strlen (amperBang);
 
 	DrawLines (SCL_POINT (pt), RES_SCALE (width));
 
@@ -928,11 +954,7 @@ DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 	t.CharCount = (COUNT)~0;
 	t.pStr = buf;
 
-	if (strncmp (amperBang, t.pStr, abSize) == 0)
-	{
-		t.pStr += abSize;
-		t.baseline.x += RES_SCALE (1);
-	}
+	t.baseline.x += AlignText (t.pStr);
 
 	font_DrawText (&t);
 
@@ -1056,6 +1078,79 @@ DrawEmptySlot (void)
 }
 
 static void
+DrawBombPodText (STAMP *s)
+{
+
+	TEXT t;
+	UNICODE buf[256];
+	SIZE leading;
+	FONT OldFont;
+	Color OldColor;
+	RECT r;
+	COORD og_baseline_x = 0;
+
+	OldFont = SetContextFont (SquareFont);
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+
+	GetContextFontLeading (&leading);
+
+	GetFrameRect (s->frame, &r);
+
+	r.corner.y += RES_SCALE (32);
+	r.extent.height = RES_SCALE (29);
+	DrawFilledRectangle (&r);
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (LABEL_STRING_BASE + 9));
+		// AMPLIFIED PRECURSOR BOMB
+
+	t.baseline.x = (r.extent.width >> 1) + r.corner.x;
+	t.baseline.y = r.corner.y + RES_SCALE (1);
+	og_baseline_x = t.baseline.x;
+
+	t.align = ALIGN_CENTER;
+	t.pStr = strtok (buf, " ");
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (BOMB_POD_TEXT_COLOR);
+
+	while (t.pStr != NULL)
+	{
+		t.baseline.x += AlignText (t.pStr);
+		font_DrawText (&t);
+		t.pStr = strtok (NULL, " ");
+		t.CharCount = (COUNT)~0;
+		t.baseline.y += leading;
+	}
+
+	r.corner.y += RES_SCALE (78);
+	r.extent.height = RES_SCALE (15);
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (LABEL_STRING_BASE + 10));
+		// ESCAPE POD
+
+	t.baseline.x = og_baseline_x;
+	t.baseline.y = r.corner.y + RES_SCALE (1);
+	t.pStr = strtok (buf, " ");
+	t.CharCount = (COUNT)~0;
+	SetContextForeGroundColor (BOMB_POD_TEXT_COLOR);
+
+	while (t.pStr != NULL)
+	{
+		t.baseline.x += AlignText (t.pStr);
+		font_DrawText (&t);
+		t.pStr = strtok (NULL, " ");
+		t.CharCount = (COUNT)~0;
+		t.baseline.y += leading;
+	}
+
+	SetContextForeGroundColor (OldColor);
+	SetContextFont (OldFont);
+}
+
+static void
 DrawNoLimit (void)
 {
 	RECT r;
@@ -1078,7 +1173,7 @@ DrawNoLimit (void)
 
 	GetContextFontLeading (&leading);
 
-	t.baseline.x = (r.extent.width >> 1) + r.corner.x;
+	t.baseline.x = (r.extent.width >> 1) + r.corner.x - IF_HD (2);
 	t.baseline.y = r.corner.y + leading;
 
 	t.pStr = GAME_STRING (LABEL_STRING_BASE); // NO LIMIT
@@ -1225,6 +1320,9 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 			s.origin.y = 0;
 			s.frame = SetRelFrameIndex (pickState->SummaryFrame, 0);
 			DrawStamp (&s);
+
+			DrawBombPodText (&s);
+
 			// draw RU "NO LIMIT" 
 			DrawNoLimit ();
 		}

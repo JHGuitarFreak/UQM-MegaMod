@@ -14,3 +14,4 @@
 #define TINY_FONT_COND "font.tiny.condensed"
 #define COMPUTER_FONT "comm.computer.font"
 #define LABEL_FONT "font.label"
+#define SQUARE_FONT "font.square"

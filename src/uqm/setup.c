@@ -63,6 +63,7 @@ FONT TinyFont;
 FONT TinyFontBold;
 FONT PlyrFont;
 FONT LabelFont;
+FONT SquareFont;
 QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
@@ -344,6 +345,10 @@ InitKernel (void)
 
 	LabelFont = LoadFont (LABEL_FONT);
 	if (LabelFont == NULL)
+		return FALSE;
+
+	SquareFont = LoadFont (SQUARE_FONT);
+	if (SquareFont == NULL)
 		return FALSE;
 
 	MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
