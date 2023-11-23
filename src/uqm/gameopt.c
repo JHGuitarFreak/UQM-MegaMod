@@ -1104,7 +1104,7 @@ DrawBombPodText (STAMP *s)
 			GAME_STRING (LABEL_STRING_BASE + 9));
 		// AMPLIFIED PRECURSOR BOMB
 
-	t.baseline.x = (r.extent.width >> 1) + r.corner.x;
+	t.baseline.x = (r.extent.width >> 1) + r.corner.x + s->origin.x;
 	t.baseline.y = r.corner.y + RES_SCALE (1);
 	og_baseline_x = t.baseline.x;
 
