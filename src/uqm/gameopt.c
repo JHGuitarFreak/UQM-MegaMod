@@ -912,11 +912,12 @@ AlignText (UNICODE *str)
 	const UNICODE *delim = STR_PIPE;
 	const size_t delimSize = strlen (delim);
 
-	if (strncmp (delim, str, delimSize))
+	found = strstr (str, delim);
+
+	if (found == NULL)
 		return 0;
 
-	str += delimSize;
-	strSize = strlen (str);
+	str += (int)(found - str) + delimSize;
 
 	if (sscanf (str, "%d", &modSize) != 1)
 		return 0;
@@ -1080,7 +1081,6 @@ DrawEmptySlot (void)
 static void
 DrawBombPodText (STAMP *s)
 {
-
 	TEXT t;
 	UNICODE buf[256];
 	SIZE leading;
