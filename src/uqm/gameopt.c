@@ -907,6 +907,7 @@ static int
 AlignText (UNICODE *str)
 {
 	UNICODE *found;
+	UNICODE *og_str = str;
 	int modSize = 0;
 	int strSize = 0;
 	const UNICODE *delim = STR_PIPE;
@@ -920,12 +921,23 @@ AlignText (UNICODE *str)
 	str += (int)(found - str) + delimSize;
 
 	if (sscanf (str, "%d", &modSize) != 1)
+	{
+		log_add (log_Debug,
+				"\nOpening delimiter found but the modifier variable has "
+				"not for string: %s\n", og_str);
+		str = og_str;
 		return 0;
+	}
 
 	found = strstr (str, delim);
 
 	if (found == NULL)
+	{
+		log_add (log_Debug,
+				"\nClosing delimiter not found for string: %s\n", og_str);
+		str = og_str;
 		return 0;
+	}
 
 	str += (int)(found - str) + delimSize;
 
