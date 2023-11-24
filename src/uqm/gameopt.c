@@ -913,12 +913,13 @@ AlignText (UNICODE *str)
 	const UNICODE *delim = STR_PIPE;
 	const size_t delimSize = strlen (delim);
 
-	found = strstr (str, delim);
-
-	if (found == NULL)
+	if (strncmp (delim, str, delimSize))
 		return 0;
 
-	str += (int)(found - str) + delimSize;
+	printf ("1: %s\n", str);
+
+	str += delimSize;
+	strSize = strlen (str);
 
 	if (sscanf (str, "%d", &modSize) != 1)
 	{
@@ -928,6 +929,8 @@ AlignText (UNICODE *str)
 		str = og_str;
 		return 0;
 	}
+
+	printf ("2: %s\n", str);
 
 	found = strstr (str, delim);
 
@@ -940,6 +943,8 @@ AlignText (UNICODE *str)
 	}
 
 	str += (int)(found - str) + delimSize;
+
+	printf ("3: %s\n", str);
 
 	return RES_SCALE (modSize);
 }
