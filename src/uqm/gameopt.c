@@ -904,7 +904,7 @@ SCL_POINT (POINT pt)
 }
 
 static int
-AlignText (UNICODE *str)
+AlignText (UNICODE *str, COORD *loc_x)
 {
 	UNICODE *found;
 	UNICODE *og_str = str;
@@ -919,7 +919,6 @@ AlignText (UNICODE *str)
 	printf ("1: %s\n", str);
 
 	str += delimSize;
-	strSize = strlen (str);
 
 	if (sscanf (str, "%d", &modSize) != 1)
 	{
@@ -943,10 +942,14 @@ AlignText (UNICODE *str)
 	}
 
 	str += (int)(found - str) + delimSize;
+	strSize = (int)(str - og_str);
 
 	printf ("3: %s\n", str);
+	printf ("strSize %d\n", strSize);
 
-	return RES_SCALE (modSize);
+	*loc_x += RES_SCALE (modSize);
+
+	return strSize;
 }
 
 static void
@@ -972,7 +975,7 @@ DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 	t.CharCount = (COUNT)~0;
 	t.pStr = buf;
 
-	t.baseline.x += AlignText (t.pStr);
+	t.pStr += AlignText (t.pStr, &t.baseline.x);
 
 	font_DrawText (&t);
 
@@ -1132,7 +1135,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.baseline.x += AlignText (t.pStr);
+		t.pStr += AlignText (t.pStr, &t.baseline.x);
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;
@@ -1156,7 +1159,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.baseline.x += AlignText (t.pStr);
+		t.pStr += AlignText (t.pStr, &t.baseline.x);
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;
