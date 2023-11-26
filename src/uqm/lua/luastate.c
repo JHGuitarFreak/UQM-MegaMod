@@ -36,6 +36,7 @@ static const char statePropRegistryKey[] =
 static const char eventRegistryKey[] =
 		"uqm_event_registryKey";
 
+DELTA_TYPES luaUqm_delta;
 
 // Init the global Lua state. Called at the start of the main loop.
 void
