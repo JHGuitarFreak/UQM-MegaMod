@@ -75,6 +75,9 @@ UninitKernel (void)
 	DestroyFont (TinyFontBold);
 	DestroyFont (StarConFont);
 	DestroyFont (PlyrFont);
+	DestroyFont (LabelFont);
+	DestroyFont (SlabFont);
+	DestroyFont (SquareFont);
 
 	UninitQueue (&race_q[0]);
 	UninitQueue (&race_q[1]);

@@ -15,3 +15,4 @@
 #define COMPUTER_FONT "comm.computer.font"
 #define LABEL_FONT "font.label"
 #define SQUARE_FONT "font.square"
+#define SLAB_FONT "font.slab"

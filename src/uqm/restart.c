@@ -295,6 +295,58 @@ DoDiffChooser (MENU_STATE *pMS)
 	return response;
 }
 
+#define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
+#define MAIN_TEXT_Y RES_SCALE (42)
+
+FRAME TextCache[5];
+
+static void
+InitPulseText (void)
+{
+	FRAME frame, OldFrame;
+	SIZE leading;
+	TEXT t;
+	COUNT i;
+
+	if (TextCache[0] != NULL)
+	{
+		printf ("TextCache already initialized!\n");
+		return;
+	}
+
+	SetContextFont (SlabFont);
+	GetContextFontLeading (&leading);
+
+	t.baseline.x = MAIN_TEXT_X;
+	t.baseline.y = MAIN_TEXT_Y;
+	t.align = ALIGN_CENTER;
+
+	for (i = START_NEW_GAME; i <= QUIT_GAME; i++)
+	{
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
+		t.CharCount = (COUNT)~0;
+
+		frame = CaptureDrawable (CreateDrawable (WANT_PIXMAP, SCREEN_WIDTH,
+			SCREEN_HEIGHT, 1));
+		SetFrameTransparentColor (frame, BLACK_COLOR);
+		OldFrame = SetContextFGFrame (frame);
+
+		SetContextBackGroundColor (BLACK_COLOR);
+		ClearDrawable ();
+		SetContextFGFrame (OldFrame);
+
+		OldFrame = SetContextFGFrame (frame);
+
+		SetContextForeGroundColor (WHITE_COLOR);
+		font_DrawText (&t);
+		SetContextFGFrame (OldFrame);
+
+		TextCache[i] = frame;
+
+		t.baseline.y += leading;
+	}
+}
+
 
 // Draw the full restart menu. Nothing is done with selections.
 static void
@@ -304,6 +356,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	STAMP s;
 	TEXT t;
 	UNICODE buf[64];
+	COUNT i;
+	SIZE leading;
 
 	s.frame = pMS->CurFrame;
 	GetFrameRect (s.frame, &r);
@@ -312,9 +366,33 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	
 	SetContextBackGroundColor (BLACK_COLOR);
 	BatchGraphics ();
+
+	InitPulseText ();
+
 	ClearDrawable ();
 	FlushColorXForms ();
 	DrawStamp (&s);
+
+	s.frame = IncFrameIndex (pMS->CurFrame);
+	DrawStamp (&s);
+
+	SetContextFont (SlabFont);
+
+	GetContextFontLeading (&leading);
+
+	t.baseline.x = MAIN_TEXT_X;
+	t.baseline.y = MAIN_TEXT_Y;
+	t.align = ALIGN_CENTER;
+
+	SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0x73, 0x00, 0xFF));
+
+	for (i = START_NEW_GAME; i <= QUIT_GAME; i++)
+	{
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
+		t.CharCount = (COUNT)~0;
+		font_DrawText (&t);
+		t.baseline.y += leading;
+	}
 
 	// Put the version number in the bottom right corner.
 	SetContextFont (TinyFont);
@@ -350,7 +428,9 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 	POINT origin;
 	origin.x = 0;
 	origin.y = 0;
-	Flash_setOverlay (pMS->flashContext, &origin, SetAbsFrameIndex (f, NewState + 1), FALSE);
+	Flash_setOverlay (pMS->flashContext, &origin, TextCache[NewState], FALSE);
+
+	(void)f; // Silence compiler warnings
 }
 
 static BOOLEAN
@@ -418,7 +498,7 @@ DoRestart (MENU_STATE *pMS)
 				(3 * ONE_SECOND) / 16);
 		Flash_setPulseBox (pMS->flashContext, FALSE);
 
-		DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
+		DrawRestartMenu (pMS, pMS->CurState, NULL);
 		Flash_start (pMS->flashContext);
 
 		LastInputTime = GetTimeCounter ();
@@ -492,7 +572,7 @@ DoRestart (MENU_STATE *pMS)
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
 				ScreenTransition (3, NULL);
-				DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
+				DrawRestartMenu (pMS, pMS->CurState, NULL);
 				Flash_continue (pMS->flashContext);
 				UnbatchGraphics ();
 				RestartMessage ();
@@ -531,7 +611,7 @@ DoRestart (MENU_STATE *pMS)
 		if (NewState != pMS->CurState)
 		{
 			BatchGraphics ();
-			DrawRestartMenu (pMS, NewState, pMS->CurFrame);
+			DrawRestartMenu (pMS, NewState, NULL);
 			UnbatchGraphics ();
 			pMS->CurState = NewState;
 		}
@@ -552,7 +632,7 @@ DoRestart (MENU_STATE *pMS)
 		SetTransitionSource (NULL);
 		BatchGraphics ();
 		DrawRestartMenuGraphic (pMS);
-		DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
+		DrawRestartMenu (pMS, pMS->CurState, NULL);
 		ScreenTransition (3, NULL);
 		UnbatchGraphics ();
 		Flash_continue (pMS->flashContext);
@@ -577,6 +657,7 @@ static BOOLEAN
 RestartMenu (MENU_STATE *pMS)
 {
 	TimeCount TimeOut;
+	COUNT i;
 
 	ReinitQueue (&race_q[0]);
 	ReinitQueue (&race_q[1]);
@@ -670,6 +751,12 @@ RestartMenu (MENU_STATE *pMS)
 	pMS->flashContext = 0;
 	DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 	pMS->CurFrame = 0;
+
+	for (i = START_NEW_GAME; i <= QUIT_GAME; i++)
+	{
+		DestroyDrawable (ReleaseDrawable (TextCache[i]));
+		TextCache[i] = 0;
+	}
 
 	if (optRequiresReload)
 		Reload ();

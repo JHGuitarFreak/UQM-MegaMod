@@ -916,8 +916,6 @@ AlignText (UNICODE *str, COORD *loc_x)
 	if (strncmp (delim, str, delimSize))
 		return 0;
 
-	printf ("1: %s\n", str);
-
 	str += delimSize;
 
 	if (sscanf (str, "%d", &modSize) != 1)
@@ -928,8 +926,6 @@ AlignText (UNICODE *str, COORD *loc_x)
 		str = og_str;
 		return 0;
 	}
-
-	printf ("2: %s\n", str);
 
 	found = strstr (str, delim);
 
@@ -943,9 +939,6 @@ AlignText (UNICODE *str, COORD *loc_x)
 
 	str += (int)(found - str) + delimSize;
 	strSize = (int)(str - og_str);
-
-	printf ("3: %s\n", str);
-	printf ("strSize %d\n", strSize);
 
 	*loc_x += RES_SCALE (modSize);
 
