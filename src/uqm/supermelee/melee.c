@@ -90,6 +90,68 @@ enum
 	BUILD_PICK  // Selecting a ship to add to a fleet
 };
 
+enum
+{	// meleemenu.ani enumerator
+	MELEE_BACKGROUND = 0,
+
+	HUMAN_CON_TOP,
+	WEAK_CYBORG_TOP,
+	GOOD_CYBORG_TOP,
+	AWES_CYBORG_TOP,
+
+	HUMAN_CON_TOP_HL,
+	WEAK_CYBORG_TOP_HL,
+	GOOD_CYBORG_TOP_HL,
+	AWES_CYBORG_TOP_HL,
+
+	HUMAN_CON_BOTT,
+	WEAK_CYBORG_BOTT,
+	GOOD_CYBORG_BOTT,
+	AWES_CYBORG_BOTT,
+
+	HUMAN_CON_BOTT_HL,
+	WEAK_CYBORG_BOTT_HL,
+	GOOD_CYBORG_BOTT_HL,
+	AWES_CYBORG_BOTT_HL,
+
+	LOAD_BUTTON_TOP,
+	SAVE_BUTTON_TOP,
+	LOAD_BUTTON_TOP_HL,
+	SAVE_BUTTON_TOP_HL,
+
+	SAVE_BUTTON_BOTT,
+	LOAD_BUTTON_BOTT,
+	SAVE_BUTTON_BOTT_HL,
+	LOAD_BUTTON_BOTT_HL,
+
+	BATTLE_BUTTON,
+	BATTLE_BUTTON_HL,
+
+	SHIP_PICK_KB,
+	SHIP_PICK_XB,
+	SHIP_PICK_PS,
+
+	TEAM_PICK_KB,
+	TEAM_PICK_XB,
+	TEAM_PICK_PS,
+
+	QUIT_BUTTON,
+	QUIT_BUTTON_HL,
+
+	NETWORK_CON_TOP,
+	NETWORK_CON_TOP_HL,
+
+	NETWORK_CON_BOTT,
+	NETWORK_CON_BOTT_HL,
+
+	NET_BUTTON_TOP,
+	NET_BUTTON_TOP_HL,
+	NET_BUTTON_BOTT,
+	NET_BUTTON_BOTT_HL,
+
+	SHIP_DESC,
+};
+
 #ifdef NETPLAY
 #define TOP_ENTRY NET_TOP
 #else
@@ -192,6 +254,12 @@ enum
 #define MELEE_STATUS_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02)
 
+#define BUTTON_LABEL_COLOR \
+		BUILD_SHADE_RGBA (0x8A)
+
+#define BUTTON_LABEL_HILITE \
+		BUILD_COLOR_RGBA (0xF8, 0xE0, 0x00, 0xFF)
+
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
 MELEE_STATE *pMeleeState;
@@ -214,17 +282,215 @@ static void Melee_UpdateView_ship (MELEE_STATE *pMS, COUNT side,
 		FleetShipIndex index);
 static void Melee_UpdateView_teamName (MELEE_STATE *pMS, COUNT side);
 
+static int
+ButtonText (COUNT which_icon)
+{
+	switch (which_icon)
+	{
+		case HUMAN_CON_TOP:
+		case HUMAN_CON_TOP_HL:
+		case HUMAN_CON_BOTT:
+		case HUMAN_CON_BOTT_HL:
+			return 10; // "HUMAN CONTROL"
+		case WEAK_CYBORG_TOP:
+		case WEAK_CYBORG_TOP_HL:
+		case WEAK_CYBORG_BOTT:
+		case WEAK_CYBORG_BOTT_HL:
+			return 11; // "WEAK CYBORG"
+		case GOOD_CYBORG_TOP:
+		case GOOD_CYBORG_TOP_HL:
+		case GOOD_CYBORG_BOTT:
+		case GOOD_CYBORG_BOTT_HL:
+			return 12; // "GOOD CYBORG"
+		case AWES_CYBORG_TOP:
+		case AWES_CYBORG_TOP_HL:
+		case AWES_CYBORG_BOTT:
+		case AWES_CYBORG_BOTT_HL:
+			return 13; // "AWESOME CYBORG"
+		case LOAD_BUTTON_TOP:
+		case LOAD_BUTTON_TOP_HL:
+		case LOAD_BUTTON_BOTT:
+		case LOAD_BUTTON_BOTT_HL:
+			return 14; // "LOAD"
+		case SAVE_BUTTON_TOP:
+		case SAVE_BUTTON_TOP_HL:
+		case SAVE_BUTTON_BOTT:
+		case SAVE_BUTTON_BOTT_HL:
+			return 15; // "SAVE"
+		case BATTLE_BUTTON:
+		case BATTLE_BUTTON_HL:
+			return 16; // "BATTLE!"
+		case QUIT_BUTTON:
+		case QUIT_BUTTON_HL:
+			return 17; // "QUIT"
+		case NETWORK_CON_TOP:
+		case NETWORK_CON_TOP_HL:
+		case NETWORK_CON_BOTT:
+		case NETWORK_CON_BOTT_HL:
+			return 18; // "NETWORK CONTROL"
+		case NET_BUTTON_TOP:
+		case NET_BUTTON_TOP_HL:
+		case NET_BUTTON_BOTT:
+		case NET_BUTTON_BOTT_HL:
+			return 19; // "NET..."
+		default:
+			return 0;
+	}
+}
+
+static void
+DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+{
+	RECT r;
+	TEXT t;
+	FONT OldFont;
+	Color OldColor;
+
+	if (!ButtonText (which_icon))
+		return;
+
+}
+
+static void
+DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+{
+	RECT r;
+	TEXT t;
+	FONT OldFont;
+	FRAME OldFontEffect;
+	Color Trace, TraceHL;
+	SIZE leading;
+
+	if (!ButtonText (which_icon))
+		return;
+
+	OldFont = SetContextFont (LoadFont (LABEL_FONT));
+
+	GetFrameRect (stamp.frame, &r);
+
+	GetContextFontLeading (&leading);
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon));
+
+	t.baseline.x = r.corner.x + (r.extent.width >> 1);
+	t.baseline.y = r.corner.y + r.extent.height - (leading >> 1) - RES_SCALE (1);
+
+	Trace = BUILD_COLOR_RGBA (0x1F, 0x00, 0x1F, 0xFF);
+	TraceHL = BUILD_COLOR_RGBA (0x3E, 0x00, 0x3E, 0xFF);
+
+	font_DrawTracedText (&t, TRANSPARENT, HiLite ? TraceHL : Trace);
+
+	OldFontEffect = SetContextFontEffect (
+			SetAbsFrameIndex (CaptureDrawable (
+				LoadGraphic (FONTGRAD_PMAP_ANIM)), 8 + HiLite));
+
+	font_DrawText (&t);
+
+	SetContextFontEffect (OldFontEffect);
+
+	SetContextFont (OldFont);
+}
+
+static void
+DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+{
+	RECT r;
+	TEXT t;
+	FONT OldFont;
+	Color OldColor;
+
+	if (!ButtonText (which_icon))
+		return;
+
+	OldFont = SetContextFont (LoadFont (BUTTON_FONT));
+	OldColor = SetContextForeGroundColor (
+			HiLite ? BUTTON_LABEL_HILITE : BUTTON_LABEL_COLOR);
+
+	GetFrameRect (stamp.frame, &r);
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon));
+
+	t.baseline.x = r.corner.x + (r.extent.width >> 1);
+	t.baseline.y = r.corner.y;
+
+	font_DrawText (&t);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+static void
+DrawMeleeIconText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+{
+	switch (which_icon)
+	{
+		case HUMAN_CON_TOP:
+		case HUMAN_CON_TOP_HL:
+		case HUMAN_CON_BOTT:
+		case HUMAN_CON_BOTT_HL:
+		case WEAK_CYBORG_TOP:
+		case WEAK_CYBORG_TOP_HL:
+		case WEAK_CYBORG_BOTT:
+		case WEAK_CYBORG_BOTT_HL:
+		case GOOD_CYBORG_TOP:
+		case GOOD_CYBORG_TOP_HL:
+		case GOOD_CYBORG_BOTT:
+		case GOOD_CYBORG_BOTT_HL:
+		case AWES_CYBORG_TOP:
+		case AWES_CYBORG_TOP_HL:
+		case AWES_CYBORG_BOTT:
+		case AWES_CYBORG_BOTT_HL:
+		case NETWORK_CON_TOP:
+		case NETWORK_CON_TOP_HL:
+		case NETWORK_CON_BOTT:
+		case NETWORK_CON_BOTT_HL:
+			DrawControlText (stamp, which_icon, HiLite);
+			break;
+		case LOAD_BUTTON_TOP:
+		case LOAD_BUTTON_TOP_HL:
+		case LOAD_BUTTON_BOTT:
+		case LOAD_BUTTON_BOTT_HL:
+		case SAVE_BUTTON_TOP:
+		case SAVE_BUTTON_TOP_HL:
+		case SAVE_BUTTON_BOTT:
+		case SAVE_BUTTON_BOTT_HL:
+		case QUIT_BUTTON:
+		case QUIT_BUTTON_HL:
+		case NET_BUTTON_TOP:
+		case NET_BUTTON_TOP_HL:
+		case NET_BUTTON_BOTT:
+		case NET_BUTTON_BOTT_HL:
+			DrawButtonText (stamp, which_icon, HiLite);
+			break;
+		case BATTLE_BUTTON:
+		case BATTLE_BUTTON_HL:
+			DrawBattleText (stamp, which_icon, HiLite);
+			break;
+		default:
+			break;
+	}
+}
 
 // These icons come from ui/meleemenu.ani
 void
-DrawMeleeIcon (COUNT which_icon)
+DrawMeleeIcon (COUNT which_icon, BOOLEAN HiLite)
 {
 	STAMP s;
+
+	BatchGraphics ();
 
 	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (MeleeFrame, which_icon);
 	DrawStamp (&s);
+
+	DrawMeleeIconText (s, which_icon, HiLite);
+
+	UnbatchGraphics ();
 }
 
 static FleetShipIndex
@@ -336,7 +602,7 @@ DrawControls (COUNT which_side, BOOLEAN HiLite)
 
 	if (PlayerControl[which_side] & NETWORK_CONTROL)
 	{
-		DrawMeleeIcon (35 + (HiLite ? 1 : 0) + 2 * (1 - which_side));
+		DrawMeleeIcon (35 + (HiLite ? 1 : 0) + 2 * (1 - which_side), HiLite);
 				/* "Network Control" */
 		return;
 	}
@@ -364,7 +630,7 @@ DrawControls (COUNT which_side, BOOLEAN HiLite)
 		}
 	}
 
-	DrawMeleeIcon (1 + (8 * (1 - which_side)) + (HiLite ? 4 : 0) + which_icon);
+	DrawMeleeIcon (1 + (8 * (1 - which_side)) + (HiLite ? 4 : 0) + which_icon, HiLite);
 }
 
 static void
@@ -416,11 +682,78 @@ QuickRepair (COUNT whichFrame, RECT *pRect)
 		oldOrigin =
 				SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
 
-	DrawMeleeIcon (whichFrame);
+	DrawMeleeIcon (whichFrame, FALSE);
 
 	SetContextOrigin (oldOrigin);
 	SetContextClipRect (&OldRect);
 	SetContext (OldContext);
+}
+
+static UNICODE *
+AlignText (UNICODE *str, COORD *loc_x)
+{
+	UNICODE *found;
+	UNICODE *og_str = str;
+	int modSize = 0;
+	int strSize = 0;
+	const UNICODE *delim = STR_PIPE;
+	const size_t delimSize = strlen (delim);
+
+	if (strncmp (delim, str, delimSize))
+		return og_str;
+
+	str += delimSize;
+
+	if (sscanf (str, "%d", &modSize) != 1)
+	{
+		log_add (log_Debug,
+			"\nOpening delimiter found but the modifier variable has "
+			"not for string: %s\n", og_str);
+		return og_str;
+	}
+
+	found = strstr (str, delim);
+
+	if (found == NULL)
+	{
+		log_add (log_Debug,
+			"\nClosing delimiter not found for string: %s\n", og_str);
+		return og_str;
+	}
+
+	str += (int)(found - str) + delimSize;
+	strSize = (int)(str - og_str);
+
+	*loc_x += RES_SCALE (modSize);
+
+	return str;
+}
+
+static void
+DrawSuperMeleeTitle (void)
+{
+	TEXT t;
+	FONT OldFont;
+	FRAME OldFontEffect;
+	UNICODE *buf = GAME_STRING (MELEE_STRING_BASE + 9);
+
+	if (strlen (buf) == 0)
+		return;
+
+	OldFont = SetContextFont (LoadFont (MELEE_TITLE_FONT));
+	OldFontEffect = SetContextFontEffect (SetAbsFrameIndex (CaptureDrawable (
+			LoadGraphic (FONTGRAD_PMAP_ANIM)), 7));
+
+	t.baseline.x = (SCREEN_WIDTH >> 1) - (SAFE_NEG (1) * 2);
+	t.baseline.y = RES_SCALE (4);
+	t.align = ALIGN_CENTER;
+	t.pStr = AlignText (buf, &t.baseline.x);
+	t.CharCount = (COUNT)~0;
+
+	font_DrawText (&t);
+
+	SetContextFont (OldFont);
+	SetContextFontEffect (OldFontEffect);
 }
 
 void
@@ -448,12 +781,21 @@ RepairMeleeFrame (const RECT *pRect)
 			-r.corner.y + SAFE_Y));
 	BatchGraphics ();
 
-	DrawMeleeIcon (0);   /* Entire melee screen */
+	DrawMeleeIcon (MELEE_BACKGROUND, FALSE); // Entire melee background
+
+	DrawSuperMeleeTitle ();           // "SUPER-MELEE"
+
+	DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);  // "LOAD" (top, not highlighted)
+	DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);  // "SAVE" (top, not highlighted)
+	DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE); // "LOAD" (bottom, not highlighted)
+	DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE); // "SAVE" (bottom, not highlighted)
+	DrawMeleeIcon (QUIT_BUTTON, FALSE);      // "QUIT" (not highlighted)
+
 #ifdef NETPLAY
-	DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
-	//DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
+	DrawMeleeIcon (NET_BUTTON_TOP, FALSE);   // "NET..." (top, not highlighted)
+  //DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);  // "NET..." (bottom, not highlighted)
 #endif
-	DrawMeleeIcon (26);  /* "Battle!" (highlighted) */
+	DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);  // "BATTLE!" (highlighted)
 
 	DrawTeams ();
 
@@ -808,30 +1150,38 @@ Deselect (BYTE opt)
 	switch (opt)
 	{
 		case START_MELEE:
-			DrawMeleeIcon (25);  /* "Battle!" (not highlighted) */
+			DrawMeleeIcon (BATTLE_BUTTON, FALSE);
+				// "Battle!" (not highlighted)
 			break;
 		case LOAD_TOP:
-			DrawMeleeIcon (17); /* "Load" (top, not highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);
+				// "Load" (top, not highlighted)
 			break;
 		case LOAD_BOT:
-			DrawMeleeIcon (22); /* "Load" (bottom, not highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE);
+				// "Load" (bottom, not highlighted)
 			break;
 		case SAVE_TOP:
-			DrawMeleeIcon (18);  /* "Save" (top, not highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);
+				// "Save" (top, not highlighted)
 			break;
 		case SAVE_BOT:
-			DrawMeleeIcon (21);  /* "Save" (bottom, not highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE);
+				// "Save" (bottom, not highlighted)
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-			DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
+			DrawMeleeIcon (NET_BUTTON_TOP, FALSE);
+				// "Net..." (top, not highlighted)
 			break;
 		//case NET_BOT:
-		//	DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
+		//	DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);
+		//		// "Net..." (bottom, not highlighted)
 		//	break;
 #endif
 		case QUIT_BOT:
-			DrawMeleeIcon (33);  /* "Quit" (not highlighted) */
+			DrawMeleeIcon (QUIT_BUTTON, FALSE);
+				// "Quit" (not highlighted)
 			break;
 		case CONTROLS_TOP:
 		case CONTROLS_BOT:
@@ -873,30 +1223,38 @@ Select (BYTE opt)
 	switch (opt)
 	{
 		case START_MELEE:
-			DrawMeleeIcon (26);  /* "Battle!" (highlighted) */
+			DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);
+				/* "Battle!" (highlighted) */
 			break;
 		case LOAD_TOP:
-			DrawMeleeIcon (19); /* "Load" (top, highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_TOP_HL, TRUE);
+				/* "Load" (top, highlighted) */
 			break;
 		case LOAD_BOT:
-			DrawMeleeIcon (24); /* "Load" (bottom, highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_BOTT_HL, TRUE);
+				/* "Load" (bottom, highlighted) */
 			break;
 		case SAVE_TOP:
-			DrawMeleeIcon (20);  /* "Save" (top; highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_TOP_HL, TRUE);
+				/* "Save" (top; highlighted) */
 			break;
 		case SAVE_BOT:
-			DrawMeleeIcon (23);  /* "Save" (bottom; highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_BOTT_HL, TRUE);
+				/* "Save" (bottom; highlighted) */
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-			DrawMeleeIcon (40);  /* "Net..." (top; highlighted) */
+			DrawMeleeIcon (NET_BUTTON_TOP_HL, TRUE);
+				/* "Net..." (top; highlighted) */
 			break;
 		//case NET_BOT:
-		//	DrawMeleeIcon (42);  /* "Net..." (bottom; highlighted) */
+		//	DrawMeleeIcon (NET_BUTTON_BOTT_HL, TRUE);
+		//		/* "Net..." (bottom; highlighted) */
 		//	break;
 #endif
 		case QUIT_BOT:
-			DrawMeleeIcon (34);  /* "Quit" (highlighted) */
+			DrawMeleeIcon (QUIT_BUTTON_HL, TRUE);
+				/* "Quit" (highlighted) */
 			break;
 		case CONTROLS_TOP:
 		case CONTROLS_BOT:

@@ -287,7 +287,7 @@ DrawFileStrings (MELEE_STATE *pMS)
 	SetContextFont (MicroFont);
 	BatchGraphics ();
 
-	DrawMeleeIcon (30 + optControllerType);  /* The load team frame */
+	DrawMeleeIcon (30 + optControllerType, FALSE);  /* The load team frame */
 
 	if (FillFileView (pMS))
 	{
