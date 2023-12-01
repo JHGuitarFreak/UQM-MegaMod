@@ -403,7 +403,6 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	TEXT t;
 	FONT OldFont;
 	SIZE leading;
-	Color OldColor;
 	UNICODE buf[256];
 
 	if (!ButtonText (which_icon))
@@ -412,11 +411,6 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	OldFont = SetContextFont (LoadFont (MICRO_THIN_FONT));
 
 	GetFrameRect (stamp.frame, &r);
-
-	r.corner.x += RES_SCALE (2);
-	r.corner.y += RES_SCALE (2);
-	r.extent.width -= RES_SCALE (4);
-	r.extent.height -= RES_SCALE (4);
 
 	GetContextFontLeading (&leading);
 
@@ -428,12 +422,7 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	t.CharCount = (COUNT)~0;
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + leading + RES_SCALE (2);
-
-	OldColor = SetContextForeGroundColor (
-			HiLite ? CONTROL_BOX_HL_COLOR : CONTROL_BOX_COLOR);
-
-	DrawFilledRectangle (&r);
+	t.baseline.y = r.corner.y + leading + RES_SCALE (4);
 
 	while (t.pStr != NULL)
 	{
@@ -449,7 +438,6 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 		t.baseline.y += leading;
 	}
 
-	SetContextBackGroundColor (OldColor);
 	SetContextFont (OldFont);
 }
 
