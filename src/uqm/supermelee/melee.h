@@ -104,7 +104,7 @@ extern void Melee (void);
 
 // Some prototypes for use by loadmele.c:
 BOOLEAN DoMelee (MELEE_STATE *pMS);
-void DrawMeleeIcon (COUNT which_icon);
+void DrawMeleeIcon (COUNT which_icon, BOOLEAN HiLite);
 void GetShipBox (RECT *pRect, COUNT side, COUNT row, COUNT col);
 void RepairMeleeFrame (const RECT *pRect);
 void DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip);

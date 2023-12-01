@@ -4,6 +4,7 @@
 
 #define LANDER_FONT "font.lander"
 #define MICRO_FONT "font.micro"
+#define MICRO_THIN_FONT "font.micro.thin"
 #define PLAYER_FONT "font.player"
 #define PT13AA_FONT "credits.font.pt13"
 #define PT17AA_FONT "credits.font.pt17"

@@ -256,9 +256,27 @@ enum
 
 #define BUTTON_LABEL_COLOR \
 		BUILD_SHADE_RGBA (0x8A)
-
 #define BUTTON_LABEL_HILITE \
 		BUILD_COLOR_RGBA (0xF8, 0xE0, 0x00, 0xFF)
+
+#define BATTLE_TRACE_COLOR \
+		BUILD_COLOR_RGBA (0x1F, 0x00, 0x1F, 0xFF)
+#define BATTLE_TRACE_HL_COLOR \
+		BUILD_COLOR_RGBA (0x3E, 0x00, 0x3E, 0xFF)
+
+#define CONTROL_BOX_COLOR \
+		BUILD_COLOR_RGBA (0x02, 0x04, 0x3E, 0xFF)
+#define CONTROL_BOX_HL_COLOR \
+		BUILD_COLOR_RGBA (0x04, 0x08, 0x7C, 0xFF)
+#define CONTROL_TEXT_COLOR \
+		BUILD_COLOR_RGBA (0x23, 0x8C, 0xD2, 0xFF)
+#define CONTROL_TEXT_HL_COLOR \
+		BUILD_COLOR_RGBA (0x28, 0xA0, 0xF0, 0xFF)
+#define CONTROL_TEXT_TRACE_COLOR \
+		BUILD_COLOR_RGBA (0x28, 0x28, 0x7C, 0xFF)
+#define CONTROL_TEXT_TRACE_HL_COLOR \
+		BUILD_COLOR_RGBA (0x3C, 0x3C, 0xBA, 0xFF)
+
 
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
@@ -338,17 +356,101 @@ ButtonText (COUNT which_icon)
 	}
 }
 
+static UNICODE *
+AlignText (UNICODE *str, COORD *loc_x)
+{
+	UNICODE *found;
+	UNICODE *og_str = str;
+	int modSize = 0;
+	int strSize = 0;
+	const UNICODE *delim = STR_PIPE;
+	const size_t delimSize = strlen (delim);
+
+	if (strncmp (delim, str, delimSize))
+		return og_str;
+
+	str += delimSize;
+
+	if (sscanf (str, "%d", &modSize) != 1)
+	{
+		log_add (log_Debug,
+			"\nOpening delimiter found but the modifier variable has "
+			"not for string: %s\n", og_str);
+		return og_str;
+	}
+
+	found = strstr (str, delim);
+
+	if (found == NULL)
+	{
+		log_add (log_Debug,
+			"\nClosing delimiter not found for string: %s\n", og_str);
+		return og_str;
+	}
+
+	str += (int)(found - str) + delimSize;
+	strSize = (int)(str - og_str);
+
+	*loc_x += RES_SCALE (modSize);
+
+	return str;
+}
+
 static void
 DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 {
 	RECT r;
 	TEXT t;
 	FONT OldFont;
+	SIZE leading;
 	Color OldColor;
+	UNICODE buf[256];
 
 	if (!ButtonText (which_icon))
 		return;
 
+	OldFont = SetContextFont (LoadFont (MICRO_THIN_FONT));
+
+	GetFrameRect (stamp.frame, &r);
+
+	r.corner.x += RES_SCALE (2);
+	r.corner.y += RES_SCALE (2);
+	r.extent.width -= RES_SCALE (4);
+	r.extent.height -= RES_SCALE (4);
+
+	GetContextFontLeading (&leading);
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
+
+	t.align = ALIGN_CENTER;
+	t.pStr = strtok (buf, " ");
+	t.CharCount = (COUNT)~0;
+
+	t.baseline.x = r.corner.x + (r.extent.width >> 1);
+	t.baseline.y = r.corner.y + leading + RES_SCALE (2);
+
+	OldColor = SetContextForeGroundColor (
+			HiLite ? CONTROL_BOX_HL_COLOR : CONTROL_BOX_COLOR);
+
+	DrawFilledRectangle (&r);
+
+	while (t.pStr != NULL)
+	{
+		t.pStr = AlignText (t.pStr, &t.baseline.x);
+		t.CharCount = (COUNT)~0;
+
+		font_DrawTracedText (&t,
+				HiLite ? CONTROL_TEXT_HL_COLOR : CONTROL_TEXT_COLOR,
+				HiLite ? CONTROL_TEXT_TRACE_HL_COLOR : CONTROL_TEXT_TRACE_COLOR);
+
+		t.pStr = strtok (NULL, " ");
+		t.CharCount = (COUNT)~0;
+		t.baseline.y += leading;
+	}
+
+	SetContextBackGroundColor (OldColor);
+	SetContextFont (OldFont);
 }
 
 static void
@@ -358,7 +460,6 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	TEXT t;
 	FONT OldFont;
 	FRAME OldFontEffect;
-	Color Trace, TraceHL;
 	SIZE leading;
 
 	if (!ButtonText (which_icon))
@@ -375,12 +476,11 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	t.pStr = GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon));
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + r.extent.height - (leading >> 1) - RES_SCALE (1);
+	t.baseline.y = r.corner.y + r.extent.height - (leading >> 1)
+			- RES_SCALE (1);
 
-	Trace = BUILD_COLOR_RGBA (0x1F, 0x00, 0x1F, 0xFF);
-	TraceHL = BUILD_COLOR_RGBA (0x3E, 0x00, 0x3E, 0xFF);
-
-	font_DrawTracedText (&t, TRANSPARENT, HiLite ? TraceHL : Trace);
+	font_DrawTracedText (&t, TRANSPARENT,
+			HiLite ? BATTLE_TRACE_HL_COLOR : BATTLE_TRACE_COLOR);
 
 	OldFontEffect = SetContextFontEffect (
 			SetAbsFrameIndex (CaptureDrawable (
@@ -687,46 +787,6 @@ QuickRepair (COUNT whichFrame, RECT *pRect)
 	SetContextOrigin (oldOrigin);
 	SetContextClipRect (&OldRect);
 	SetContext (OldContext);
-}
-
-static UNICODE *
-AlignText (UNICODE *str, COORD *loc_x)
-{
-	UNICODE *found;
-	UNICODE *og_str = str;
-	int modSize = 0;
-	int strSize = 0;
-	const UNICODE *delim = STR_PIPE;
-	const size_t delimSize = strlen (delim);
-
-	if (strncmp (delim, str, delimSize))
-		return og_str;
-
-	str += delimSize;
-
-	if (sscanf (str, "%d", &modSize) != 1)
-	{
-		log_add (log_Debug,
-			"\nOpening delimiter found but the modifier variable has "
-			"not for string: %s\n", og_str);
-		return og_str;
-	}
-
-	found = strstr (str, delim);
-
-	if (found == NULL)
-	{
-		log_add (log_Debug,
-			"\nClosing delimiter not found for string: %s\n", og_str);
-		return og_str;
-	}
-
-	str += (int)(found - str) + delimSize;
-	strSize = (int)(str - og_str);
-
-	*loc_x += RES_SCALE (modSize);
-
-	return str;
 }
 
 static void
