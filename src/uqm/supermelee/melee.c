@@ -281,6 +281,8 @@ enum
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
 MELEE_STATE *pMeleeState;
+FONT MicroThinFont;
+FONT ButtonFont;
 
 BOOLEAN DoMelee (MELEE_STATE *pMS);
 static BOOLEAN DoEdit (MELEE_STATE *pMS);
@@ -408,7 +410,7 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	if (!ButtonText (which_icon))
 		return;
 
-	OldFont = SetContextFont (LoadFont (MICRO_THIN_FONT));
+	OldFont = SetContextFont (MicroThinFont);
 
 	GetFrameRect (stamp.frame, &r);
 
@@ -449,23 +451,27 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	FONT OldFont;
 	FRAME OldFontEffect;
 	SIZE leading;
+	UNICODE buf[256];
 
 	if (!ButtonText (which_icon))
 		return;
 
-	OldFont = SetContextFont (LoadFont (LABEL_FONT));
+	OldFont = SetContextFont (LabelFont);
 
 	GetFrameRect (stamp.frame, &r);
 
 	GetContextFontLeading (&leading);
 
-	t.align = ALIGN_CENTER;
-	t.CharCount = (COUNT)~0;
-	t.pStr = GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon));
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y + r.extent.height - (leading >> 1)
 			- RES_SCALE (1);
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = AlignText (buf, &t.baseline.x);
 
 	font_DrawTracedText (&t, TRANSPARENT,
 			HiLite ? BATTLE_TRACE_HL_COLOR : BATTLE_TRACE_COLOR);
@@ -488,22 +494,26 @@ DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	TEXT t;
 	FONT OldFont;
 	Color OldColor;
+	UNICODE buf[256];
 
 	if (!ButtonText (which_icon))
 		return;
 
-	OldFont = SetContextFont (LoadFont (BUTTON_FONT));
+	OldFont = SetContextFont (ButtonFont);
 	OldColor = SetContextForeGroundColor (
 			HiLite ? BUTTON_LABEL_HILITE : BUTTON_LABEL_COLOR);
 
 	GetFrameRect (stamp.frame, &r);
 
-	t.align = ALIGN_CENTER;
-	t.CharCount = (COUNT)~0;
-	t.pStr = GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon));
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y;
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = AlignText (buf, &t.baseline.x);
 
 	font_DrawText (&t);
 
@@ -511,8 +521,8 @@ DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	SetContextForeGroundColor (OldColor);
 }
 
-static void
-DrawMeleeIconText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+static int
+WhichText (COUNT which_icon)
 {
 	switch (which_icon)
 	{
@@ -536,8 +546,7 @@ DrawMeleeIconText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 		case NETWORK_CON_TOP_HL:
 		case NETWORK_CON_BOTT:
 		case NETWORK_CON_BOTT_HL:
-			DrawControlText (stamp, which_icon, HiLite);
-			break;
+			return 1;
 		case LOAD_BUTTON_TOP:
 		case LOAD_BUTTON_TOP_HL:
 		case LOAD_BUTTON_BOTT:
@@ -552,14 +561,12 @@ DrawMeleeIconText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 		case NET_BUTTON_TOP_HL:
 		case NET_BUTTON_BOTT:
 		case NET_BUTTON_BOTT_HL:
-			DrawButtonText (stamp, which_icon, HiLite);
-			break;
+			return 3;
 		case BATTLE_BUTTON:
 		case BATTLE_BUTTON_HL:
-			DrawBattleText (stamp, which_icon, HiLite);
-			break;
+			return 2;
 		default:
-			break;
+			return 0;
 	}
 }
 
@@ -568,17 +575,29 @@ void
 DrawMeleeIcon (COUNT which_icon, BOOLEAN HiLite)
 {
 	STAMP s;
+	int which_text = WhichText (which_icon);
+	BOOLEAN NeedBatch = which_text && which_text < 3;
 
-	BatchGraphics ();
+	if (NeedBatch)
+		BatchGraphics ();
 
 	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (MeleeFrame, which_icon);
 	DrawStamp (&s);
 
-	DrawMeleeIconText (s, which_icon, HiLite);
+	if (!which_text)
+		return;
 
-	UnbatchGraphics ();
+	if (which_text == 1)
+		DrawControlText (s, which_icon, HiLite);
+	if (which_text == 2)
+		DrawBattleText (s, which_icon, HiLite);
+	else
+		DrawButtonText (s, which_icon, HiLite);
+
+	if (NeedBatch)
+		UnbatchGraphics ();
 }
 
 static FleetShipIndex
@@ -831,21 +850,29 @@ RepairMeleeFrame (const RECT *pRect)
 
 	DrawMeleeIcon (MELEE_BACKGROUND, FALSE); // Entire melee background
 
-	DrawSuperMeleeTitle ();           // "SUPER-MELEE"
+	DrawTeams ();
 
-	DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);  // "LOAD" (top, not highlighted)
-	DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);  // "SAVE" (top, not highlighted)
-	DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE); // "LOAD" (bottom, not highlighted)
-	DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE); // "SAVE" (bottom, not highlighted)
-	DrawMeleeIcon (QUIT_BUTTON, FALSE);      // "QUIT" (not highlighted)
+	MAKE_POINT ();
+
+	if (pRect->corner.x == 0 && pRect->corner.y == 0
+			&& pRect->extent.width == SCREEN_WIDTH
+			&& pRect->extent.height == SCREEN_HEIGHT)
+	{	// Only draw these on a full screen redraw
+
+		DrawSuperMeleeTitle ();
+
+		DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);
+		DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);
+		DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE);
+		DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE);
+		DrawMeleeIcon (QUIT_BUTTON, FALSE);
 
 #ifdef NETPLAY
-	DrawMeleeIcon (NET_BUTTON_TOP, FALSE);   // "NET..." (top, not highlighted)
-  //DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);  // "NET..." (bottom, not highlighted)
+		DrawMeleeIcon (NET_BUTTON_TOP, FALSE);
+		//DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);
 #endif
-	DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);  // "BATTLE!" (highlighted)
-
-	DrawTeams ();
+		DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);
+	}
 
 	if (pMeleeState->MeleeOption == BUILD_PICK)
 		DrawPickFrame (pMeleeState);
@@ -1935,6 +1962,8 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 	BuildPickMeleeFrame ();
 	MeleeFrame = CaptureDrawable (LoadGraphic (MELEE_SCREEN_PMAP_ANIM));
 	BuildBuildPickFrame ();
+	MicroThinFont = LoadFont (MICRO_THIN_FONT);
+	ButtonFont = LoadFont (BUTTON_FONT);
 
 	InitSpace ();
 
@@ -1960,6 +1989,8 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	MeleeFrame = 0;
 
 	DestroyBuildPickFrame ();
+	DestroyFont (MicroThinFont);
+	DestroyFont (ButtonFont);
 
 #ifdef NETPLAY
 	closeAllConnections ();
