@@ -451,6 +451,7 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	FONT OldFont;
 	FRAME OldFontEffect;
 	SIZE leading;
+	UNICODE buf[256];
 
 	if (!ButtonText (which_icon))
 		return;
@@ -461,13 +462,16 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 	GetContextFontLeading (&leading);
 
-	t.align = ALIGN_CENTER;
-	t.CharCount = (COUNT)~0;
-	t.pStr = GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon));
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y + r.extent.height - (leading >> 1)
 			- RES_SCALE (1);
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = AlignText (buf, &t.baseline.x);
 
 	font_DrawTracedText (&t, TRANSPARENT,
 			HiLite ? BATTLE_TRACE_HL_COLOR : BATTLE_TRACE_COLOR);
@@ -490,6 +494,7 @@ DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	TEXT t;
 	FONT OldFont;
 	Color OldColor;
+	UNICODE buf[256];
 
 	if (!ButtonText (which_icon))
 		return;
@@ -500,12 +505,15 @@ DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 	GetFrameRect (stamp.frame, &r);
 
-	t.align = ALIGN_CENTER;
-	t.CharCount = (COUNT)~0;
-	t.pStr = GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon));
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y;
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = AlignText (buf, &t.baseline.x);
 
 	font_DrawText (&t);
 
@@ -842,26 +850,29 @@ RepairMeleeFrame (const RECT *pRect)
 
 	DrawMeleeIcon (MELEE_BACKGROUND, FALSE); // Entire melee background
 
+	DrawTeams ();
+
+	MAKE_POINT ();
+
 	if (pRect->corner.x == 0 && pRect->corner.y == 0
 			&& pRect->extent.width == SCREEN_WIDTH
 			&& pRect->extent.height == SCREEN_HEIGHT)
 	{	// Only draw these on a full screen redraw
-		DrawSuperMeleeTitle ();           // "SUPER-MELEE"
 
-		DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);  // "LOAD" (top, not highlighted)
-		DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);  // "SAVE" (top, not highlighted)
-		DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE); // "LOAD" (bottom, not highlighted)
-		DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE); // "SAVE" (bottom, not highlighted)
-		DrawMeleeIcon (QUIT_BUTTON, FALSE);      // "QUIT" (not highlighted)
-	}
+		DrawSuperMeleeTitle ();
+
+		DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);
+		DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);
+		DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE);
+		DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE);
+		DrawMeleeIcon (QUIT_BUTTON, FALSE);
 
 #ifdef NETPLAY
-	DrawMeleeIcon (NET_BUTTON_TOP, FALSE);   // "NET..." (top, not highlighted)
-  //DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);  // "NET..." (bottom, not highlighted)
+		DrawMeleeIcon (NET_BUTTON_TOP, FALSE);
+		//DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);
 #endif
-	DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);  // "BATTLE!" (highlighted)
-
-	DrawTeams ();
+		DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);
+	}
 
 	if (pMeleeState->MeleeOption == BUILD_PICK)
 		DrawPickFrame (pMeleeState);
