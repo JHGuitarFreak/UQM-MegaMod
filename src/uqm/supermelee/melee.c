@@ -433,7 +433,8 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 		font_DrawTracedText (&t,
 				HiLite ? CONTROL_TEXT_HL_COLOR : CONTROL_TEXT_COLOR,
-				HiLite ? CONTROL_TEXT_TRACE_HL_COLOR : CONTROL_TEXT_TRACE_COLOR);
+				HiLite ? CONTROL_TEXT_TRACE_HL_COLOR
+					: CONTROL_TEXT_TRACE_COLOR);
 
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;
@@ -521,6 +522,82 @@ DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	SetContextForeGroundColor (OldColor);
 }
 
+#define PADDING RES_SCALE (3)
+
+static void
+DrawTeamPickerText (STAMP stamp)
+{
+	RECT r, text_r;
+	POINT pt;
+	TEXT t;
+	FONT OldFont;
+	Color OldColor;
+	UNICODE buf[256];
+	STAMP s;
+	COUNT i;
+	SIZE leading;
+
+	for (i = 0; i < 3; i++)
+	{	// Check if we actually have text to print
+		utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + 20 + i));
+
+		if (!strlen (buf))
+			return;
+	}
+
+	OldFont = SetContextFont (LabelFont);
+	OldColor = SetContextForeGroundColor (
+			BUILD_COLOR_RGBA (0x32, 0x32, 0x9B, 0xFF));
+
+	GetFrameRect (stamp.frame, &r);
+	GetContextFontLeading (&leading);
+
+	pt.x = r.corner.x + PADDING;
+	pt.y = r.corner.y + r.extent.height - PADDING;
+
+	s.frame = SetAbsFrameIndex (MeleeFrame, 44 + (optControllerType * 4));
+
+	GetFrameRect (s.frame, &r);
+	pt.y -= r.extent.height;
+	s.origin = pt;
+
+	DrawStamp (&s);
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + 20));
+
+	t.baseline.x = r.extent.width + pt.x + PADDING;
+	t.baseline.y = pt.y + leading - RES_SCALE (1);
+
+	t.align = ALIGN_LEFT;
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+
+	for (i = 0; i < 3; ++i)
+	{
+		font_DrawText (&t);
+		text_r = font_GetTextRect (&t);
+
+		if (i == 2)
+			break;
+
+		s.frame = SetAbsFrameIndex (MeleeFrame,
+				45 + i + (optControllerType * 4));
+		s.origin.x = text_r.extent.width + t.baseline.x + PADDING
+				+ RES_SCALE (1);
+		DrawStamp (&s);
+
+		utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + 21 + i));
+		t.baseline.x = s.origin.x + r.extent.width + PADDING;
+		t.CharCount = (COUNT)~0;
+	}
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 static int
 WhichText (COUNT which_icon)
 {
@@ -565,6 +642,14 @@ WhichText (COUNT which_icon)
 		case BATTLE_BUTTON:
 		case BATTLE_BUTTON_HL:
 			return 2;
+		case SHIP_PICK_KB:
+		case SHIP_PICK_XB:
+		case SHIP_PICK_PS:
+			return 4;
+		case TEAM_PICK_KB:
+		case TEAM_PICK_XB:
+		case TEAM_PICK_PS:
+			return 5;
 		default:
 			return 0;
 	}
@@ -589,12 +674,26 @@ DrawMeleeIcon (COUNT which_icon, BOOLEAN HiLite)
 	if (!which_text)
 		return;
 
-	if (which_text == 1)
-		DrawControlText (s, which_icon, HiLite);
-	if (which_text == 2)
-		DrawBattleText (s, which_icon, HiLite);
-	else
-		DrawButtonText (s, which_icon, HiLite);
+	switch (which_text)
+	{
+		case 1:
+			DrawControlText (s, which_icon, HiLite);
+			break;
+		case 2:
+			DrawBattleText (s, which_icon, HiLite);
+			break;
+		case 3:
+			DrawButtonText (s, which_icon, HiLite);
+			break;
+		case 4:
+			break;
+		case 5:
+			DrawTeamPickerText (s);
+			break;
+		default:
+			// should not happen
+			break;
+	}
 
 	if (NeedBatch)
 		UnbatchGraphics ();
@@ -851,8 +950,6 @@ RepairMeleeFrame (const RECT *pRect)
 	DrawMeleeIcon (MELEE_BACKGROUND, FALSE); // Entire melee background
 
 	DrawTeams ();
-
-	MAKE_POINT ();
 
 	if (pRect->corner.x == 0 && pRect->corner.y == 0
 			&& pRect->extent.width == SCREEN_WIDTH
