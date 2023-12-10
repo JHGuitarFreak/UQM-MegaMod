@@ -158,6 +158,9 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 #define BUILD_SHADE_RGBA(s) \
 		buildColorRgba ((s), (s), (s), 0xFF)
 
+#define BUILD_COLOR_RGB(r, g, b) \
+		buildColorRgba ((r), (g), (b), 0xFF)
+
 static inline void
 MultiplyBrightness (Color *color, float value)
 {

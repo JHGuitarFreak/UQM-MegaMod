@@ -90,68 +90,6 @@ enum
 	BUILD_PICK  // Selecting a ship to add to a fleet
 };
 
-enum
-{	// meleemenu.ani enumerator
-	MELEE_BACKGROUND = 0,
-
-	HUMAN_CON_TOP,
-	WEAK_CYBORG_TOP,
-	GOOD_CYBORG_TOP,
-	AWES_CYBORG_TOP,
-
-	HUMAN_CON_TOP_HL,
-	WEAK_CYBORG_TOP_HL,
-	GOOD_CYBORG_TOP_HL,
-	AWES_CYBORG_TOP_HL,
-
-	HUMAN_CON_BOTT,
-	WEAK_CYBORG_BOTT,
-	GOOD_CYBORG_BOTT,
-	AWES_CYBORG_BOTT,
-
-	HUMAN_CON_BOTT_HL,
-	WEAK_CYBORG_BOTT_HL,
-	GOOD_CYBORG_BOTT_HL,
-	AWES_CYBORG_BOTT_HL,
-
-	LOAD_BUTTON_TOP,
-	SAVE_BUTTON_TOP,
-	LOAD_BUTTON_TOP_HL,
-	SAVE_BUTTON_TOP_HL,
-
-	SAVE_BUTTON_BOTT,
-	LOAD_BUTTON_BOTT,
-	SAVE_BUTTON_BOTT_HL,
-	LOAD_BUTTON_BOTT_HL,
-
-	BATTLE_BUTTON,
-	BATTLE_BUTTON_HL,
-
-	SHIP_PICK_KB,
-	SHIP_PICK_XB,
-	SHIP_PICK_PS,
-
-	TEAM_PICK_KB,
-	TEAM_PICK_XB,
-	TEAM_PICK_PS,
-
-	QUIT_BUTTON,
-	QUIT_BUTTON_HL,
-
-	NETWORK_CON_TOP,
-	NETWORK_CON_TOP_HL,
-
-	NETWORK_CON_BOTT,
-	NETWORK_CON_BOTT_HL,
-
-	NET_BUTTON_TOP,
-	NET_BUTTON_TOP_HL,
-	NET_BUTTON_BOTT,
-	NET_BUTTON_BOTT_HL,
-
-	SHIP_DESC,
-};
-
 #ifdef NETPLAY
 #define TOP_ENTRY NET_TOP
 #else
@@ -277,6 +215,14 @@ enum
 #define CONTROL_TEXT_TRACE_HL_COLOR \
 		BUILD_COLOR_RGBA (0x3C, 0x3C, 0xBA, 0xFF)
 
+#define SHIP_PICK_TEXT_SHADED_COLOR \
+		BUILD_SHADE_RGBA (0x45)
+#define SHIP_PICK_TEXT_COLOR \
+		BUILD_SHADE_RGBA (0x74)
+
+#define TEAM_PICK_TEXT_COLOR \
+		BUILD_COLOR_RGB (0x32, 0x32, 0x9B)
+
 
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
@@ -366,6 +312,46 @@ AlignText (UNICODE *str, COORD *loc_x)
 	int modSize = 0;
 	int strSize = 0;
 	const UNICODE *delim = STR_PIPE;
+	const size_t delimSize = strlen (delim);
+
+	if (strncmp (delim, str, delimSize))
+		return og_str;
+
+	str += delimSize;
+
+	if (sscanf (str, "%d", &modSize) != 1)
+	{
+		log_add (log_Debug,
+			"\nOpening delimiter found but the modifier variable has "
+			"not for string: %s\n", og_str);
+		return og_str;
+	}
+
+	found = strstr (str, delim);
+
+	if (found == NULL)
+	{
+		log_add (log_Debug,
+			"\nClosing delimiter not found for string: %s\n", og_str);
+		return og_str;
+	}
+
+	str += (int)(found - str) + delimSize;
+	strSize = (int)(str - og_str);
+
+	*loc_x += RES_SCALE (modSize);
+
+	return str;
+}
+
+static UNICODE *
+AddPadding (UNICODE *str, COORD *loc_x)
+{
+	UNICODE *found;
+	UNICODE *og_str = str;
+	int modSize = 0;
+	int strSize = 0;
+	const UNICODE *delim = STR_COLON;
 	const size_t delimSize = strlen (delim);
 
 	if (strncmp (delim, str, delimSize))
@@ -522,7 +508,110 @@ DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 	SetContextForeGroundColor (OldColor);
 }
 
-#define PADDING RES_SCALE (3)
+static void
+DrawVerticalText (UNICODE *str, POINT point)
+{
+	TEXT t;
+	COUNT i;
+	SIZE leading;
+	size_t str_len;
+	UNICODE buf[256];
+	Color OldColor;
+
+	GetContextFontLeading (&leading);
+	
+	t.baseline = point;
+
+	utf8StringCopy (buf, sizeof (buf),
+			AlignText (AddPadding(str, &leading), &t.baseline.x));
+
+	str_len = strlen (buf);
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = 1;
+	t.pStr = buf;
+
+	OldColor = GetContextForeGroundColor ();
+
+	for (i = 0; i < str_len; i++)
+	{
+		SetContextForeGroundColor (SHIP_PICK_TEXT_SHADED_COLOR);
+		t.baseline.x -= RES_SCALE (1);
+		font_DrawText (&t);
+
+		SetContextForeGroundColor (SHIP_PICK_TEXT_COLOR);
+		t.baseline.x += RES_SCALE (1);
+		font_DrawText (&t);
+
+		t.pStr = skipUTF8Chars (t.pStr, 1);
+		t.baseline.y += leading;
+	}
+
+	SetContextForeGroundColor (OldColor);
+}
+
+#define SP_X_PADDING RES_SCALE (2)
+#define SP_Y_PADDING RES_SCALE (3)
+
+void
+DrawShipPickerText (STAMP stamp)
+{
+	RECT r;
+	FONT OldFont;
+	COUNT i;
+	STAMP s;
+	POINT pt;
+	SIZE leading;
+
+	for (i = 0; i < 2; i++)
+	{	// Check if we actually have text to print
+		if (!strlen (GAME_STRING (MELEE_STRING_BASE + 23 + i)))
+			return;
+	}
+
+	OldFont = SetContextFont (LabelFont);
+
+	GetFrameRect (stamp.frame, &r);
+
+	pt.x = r.corner.x + SP_X_PADDING;
+	pt.y = r.corner.y + SP_Y_PADDING;
+
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			CONFIRM_PC + (optControllerType * 4));
+	s.origin = pt;
+
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+
+	pt.x = s.origin.x + (r.extent.width >> 1);
+	pt.y = s.origin.y + r.extent.height + RES_SCALE (9);
+
+	DrawVerticalText (GAME_STRING (MELEE_STRING_BASE + 23), pt);
+
+	GetFrameRect (stamp.frame, &r);
+
+	pt.x = r.corner.x + r.extent.width - SP_X_PADDING;
+	pt.y = r.corner.y + SP_Y_PADDING;
+
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			SPECIAL_PC + (optControllerType * 4));
+
+	GetFrameRect (s.frame, &r);
+	pt.x -= r.extent.width;
+	s.origin = pt;
+
+	DrawStamp (&s);
+
+	pt.x = s.origin.x + (r.extent.width >> 1);
+	pt.y = s.origin.y + r.extent.height + RES_SCALE (9);
+
+	DrawVerticalText (GAME_STRING (MELEE_STRING_BASE + 24), pt);
+
+	SetContextFont (OldFont);
+}
+
+#define TP_PADDING RES_SCALE (3)
 
 static void
 DrawTeamPickerText (STAMP stamp)
@@ -547,16 +636,16 @@ DrawTeamPickerText (STAMP stamp)
 	}
 
 	OldFont = SetContextFont (LabelFont);
-	OldColor = SetContextForeGroundColor (
-			BUILD_COLOR_RGBA (0x32, 0x32, 0x9B, 0xFF));
+	OldColor = SetContextForeGroundColor (TEAM_PICK_TEXT_COLOR);
 
 	GetFrameRect (stamp.frame, &r);
 	GetContextFontLeading (&leading);
 
-	pt.x = r.corner.x + PADDING;
-	pt.y = r.corner.y + r.extent.height - PADDING;
+	pt.x = r.corner.x + TP_PADDING;
+	pt.y = r.corner.y + r.extent.height - TP_PADDING;
 
-	s.frame = SetAbsFrameIndex (MeleeFrame, 44 + (optControllerType * 4));
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			CONFIRM_PC + (optControllerType * 4));
 
 	GetFrameRect (s.frame, &r);
 	pt.y -= r.extent.height;
@@ -567,7 +656,7 @@ DrawTeamPickerText (STAMP stamp)
 	utf8StringCopy (buf, sizeof (buf),
 			GAME_STRING (MELEE_STRING_BASE + 20));
 
-	t.baseline.x = r.extent.width + pt.x + PADDING;
+	t.baseline.x = r.extent.width + pt.x + TP_PADDING;
 	t.baseline.y = pt.y + leading - RES_SCALE (1);
 
 	t.align = ALIGN_LEFT;
@@ -583,14 +672,14 @@ DrawTeamPickerText (STAMP stamp)
 			break;
 
 		s.frame = SetAbsFrameIndex (MeleeFrame,
-				45 + i + (optControllerType * 4));
-		s.origin.x = text_r.extent.width + t.baseline.x + PADDING
+				CANCEL_PC + i + (optControllerType * 4));
+		s.origin.x = text_r.extent.width + t.baseline.x + TP_PADDING
 				+ RES_SCALE (1);
 		DrawStamp (&s);
 
 		utf8StringCopy (buf, sizeof (buf),
-			GAME_STRING (MELEE_STRING_BASE + 21 + i));
-		t.baseline.x = s.origin.x + r.extent.width + PADDING;
+				GAME_STRING (MELEE_STRING_BASE + 21 + i));
+		t.baseline.x = s.origin.x + r.extent.width + TP_PADDING;
 		t.CharCount = (COUNT)~0;
 	}
 
@@ -642,14 +731,10 @@ WhichText (COUNT which_icon)
 		case BATTLE_BUTTON:
 		case BATTLE_BUTTON_HL:
 			return 2;
-		case SHIP_PICK_KB:
-		case SHIP_PICK_XB:
-		case SHIP_PICK_PS:
-			return 4;
 		case TEAM_PICK_KB:
 		case TEAM_PICK_XB:
 		case TEAM_PICK_PS:
-			return 5;
+			return 4;
 		default:
 			return 0;
 	}
@@ -686,8 +771,6 @@ DrawMeleeIcon (COUNT which_icon, BOOLEAN HiLite)
 			DrawButtonText (s, which_icon, HiLite);
 			break;
 		case 4:
-			break;
-		case 5:
 			DrawTeamPickerText (s);
 			break;
 		default:

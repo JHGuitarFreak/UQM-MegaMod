@@ -87,7 +87,11 @@ extern const char *LoadStringInstance (RESOURCE res);
 #define UNICHAR_CIRCLE        0x25EF
 #define STR_CIRCLE          "\xE2\x97\xAf"
 #define UNICHAR_PIPE          0x007C
-#define STR_PIPE             "\x7C"
+#define STR_PIPE            "\x7C"
+#define UNICHAR_AMP           0x0026
+#define STR_AMP             "\x26"
+#define UNICHAR_COLON         0x003A
+#define STR_COLON           "\x3A"
 
 
 #define STR_NULL "null"
