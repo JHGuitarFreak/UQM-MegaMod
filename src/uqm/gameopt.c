@@ -900,7 +900,7 @@ SCL_POINT (POINT pt)
 
 	point.x = RES_SCALE (pt.x);
 	point.y = RES_SCALE (pt.y);
-	return point; 
+	return point;
 }
 
 static int
@@ -916,7 +916,7 @@ AlignText (UNICODE *str, COORD *loc_x)
 	if (strncmp (delim, str, delimSize))
 		return 0;
 
-	str += delimSize;
+	str = skipUTF8Chars (str, delimSize);
 
 	if (sscanf (str, "%d", &modSize) != 1)
 	{
@@ -937,7 +937,7 @@ AlignText (UNICODE *str, COORD *loc_x)
 		return 0;
 	}
 
-	str += (int)(found - str) + delimSize;
+	str = skipUTF8Chars (str, (int)(found - str) + delimSize);
 	strSize = (int)(str - og_str);
 
 	*loc_x += RES_SCALE (modSize);
@@ -968,7 +968,7 @@ DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 	t.CharCount = (COUNT)~0;
 	t.pStr = buf;
 
-	t.pStr += AlignText (t.pStr, &t.baseline.x);
+	t.pStr = skipUTF8Chars (t.pStr, AlignText (t.pStr, &t.baseline.x));
 
 	font_DrawText (&t);
 
@@ -1065,7 +1065,7 @@ DrawEmptySlot (void)
 
 				t.baseline.y += leading;
 
-				t.pStr = buf + t.CharCount;
+				t.pStr = skipUTF8Chars (buf, t.CharCount);
 				t.CharCount = (COUNT)~0;
 				font_DrawText (&t);
 
@@ -1084,7 +1084,7 @@ DrawEmptySlot (void)
 
 	t.baseline.y += leading;
 
-	t.pStr = buf + t.CharCount;
+	t.pStr = skipUTF8Chars (buf, t.CharCount);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
@@ -1128,7 +1128,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.pStr += AlignText (t.pStr, &t.baseline.x);
+		t.pStr = skipUTF8Chars (t.pStr, AlignText (t.pStr, &t.baseline.x));
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;
@@ -1152,7 +1152,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.pStr += AlignText (t.pStr, &t.baseline.x);
+		t.pStr = skipUTF8Chars (t.pStr, AlignText (t.pStr, &t.baseline.x));
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;
