@@ -993,7 +993,7 @@ DrawSuperMeleeTitle (void)
 	OldFontEffect = SetContextFontEffect (SetAbsFrameIndex (CaptureDrawable (
 			LoadGraphic (FONTGRAD_PMAP_ANIM)), 7));
 
-	t.baseline.x = (SCREEN_WIDTH >> 1) - (SAFE_NEG (1) * 2);
+	t.baseline.x = (SCREEN_WIDTH >> 1) - (SAFE_NEG (1));
 	t.baseline.y = RES_SCALE (4);
 	t.align = ALIGN_CENTER;
 	t.pStr = AlignText (buf, &t.baseline.x);
