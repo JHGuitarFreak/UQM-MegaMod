@@ -1,4 +1,4 @@
-﻿//Copyright Paul Reiche, Fred Ford. 1992-2002
+//Copyright Paul Reiche, Fred Ford. 1992-2002
 
 /*
  *  This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@
 #include "util.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/log/uqmlog.h"
+#include "comm.h"
 
 #include <ctype.h>
 
@@ -903,46 +904,29 @@ SCL_POINT (POINT pt)
 	return point;
 }
 
-static int
+static UNICODE *
 AlignText (UNICODE *str, COORD *loc_x)
 {
-	UNICODE *found;
-	UNICODE *og_str = str;
 	int modSize = 0;
-	int strSize = 0;
-	const UNICODE *delim = STR_PIPE;
-	const size_t delimSize = strlen (delim);
+	int first_pos = utf8StringPos (str, UNICHAR_PIPE);
+	int last_pos = utf8StringLastPos (str, UNICHAR_PIPE);
 
-	if (strncmp (delim, str, delimSize))
-		return 0;
+	if (utf8CharCount (str, UNICHAR_PIPE) != 2 || str == NULL
+			|| first_pos != 0 || last_pos == -1 || last_pos == 0)
+		return str;
 
-	str = skipUTF8Chars (str, delimSize);
-
-	if (sscanf (str, "%d", &modSize) != 1)
+	if (sscanf (str, "|%d|", &modSize) != 1)
 	{
 		log_add (log_Debug,
-				"\nOpening delimiter found but the modifier variable has "
-				"not for string: %s\n", og_str);
-		str = og_str;
-		return 0;
+			"\nVariable between delimiters is missing, corrupt, or "
+			"not an integer: %s\n", str);
+		return str;
 	}
 
-	found = strstr (str, delim);
+	if (modSize != 0)
+		*loc_x += RES_SCALE (modSize);
 
-	if (found == NULL)
-	{
-		log_add (log_Debug,
-				"\nClosing delimiter not found for string: %s\n", og_str);
-		str = og_str;
-		return 0;
-	}
-
-	str = skipUTF8Chars (str, (int)(found - str) + delimSize);
-	strSize = (int)(str - og_str);
-
-	*loc_x += RES_SCALE (modSize);
-
-	return strSize;
+	return skipUTF8Chars (str, last_pos + 1);
 }
 
 static void
@@ -966,9 +950,7 @@ DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 	t.baseline.y = RES_SCALE (pt.y + 5);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
-	t.pStr = buf;
-
-	t.pStr = skipUTF8Chars (t.pStr, AlignText (t.pStr, &t.baseline.x));
+	t.pStr = AlignText (buf, &t.baseline.x);
 
 	font_DrawText (&t);
 
@@ -1128,7 +1110,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.pStr = skipUTF8Chars (t.pStr, AlignText (t.pStr, &t.baseline.x));
+		t.pStr = AlignText (t.pStr, &t.baseline.x);
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;
@@ -1152,7 +1134,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.pStr = skipUTF8Chars (t.pStr, AlignText (t.pStr, &t.baseline.x));
+		t.pStr = AlignText (t.pStr, &t.baseline.x);
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;

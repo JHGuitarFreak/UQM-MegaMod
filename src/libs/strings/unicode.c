@@ -249,6 +249,20 @@ utf8StringCountN(const unsigned char *start, const unsigned char *end) {
 	}
 }
 
+size_t
+utf8CharCount (const unsigned char *start, UniChar uni_char) {
+	size_t count = 0;
+	UniChar ch;
+
+	for (;;) {
+		ch = getCharFromString (&start);
+		if (ch == '\0')
+			return count;
+		if (ch == uni_char)
+			count++;
+	}
+}
+
 // Locates a unicode character (ch) in a UTF-8 string (pStr)
 // returns the char positions when found
 //  -1 when not found
@@ -262,6 +276,30 @@ utf8StringPos (const unsigned char *pStr, UniChar ch)
 		if (getCharFromString (&pStr) == ch)
 			return pos;
 	}
+
+	if (ch == '\0' && *pStr == '\0')
+		return pos;
+
+	return -1;
+}
+
+// Locates a unicode character (ch) in a UTF-8 string (pStr)
+// returns the char positions when found
+//  -1 when not found
+int
+utf8StringLastPos (const unsigned char *pStr, UniChar ch)
+{
+	int pos;
+	int last_pos = -1;
+ 
+	for (pos = 0; *pStr != '\0'; ++pos)
+	{
+		if (getCharFromString (&pStr) == ch)
+			last_pos = pos;
+	}
+
+	if (last_pos != -1)
+		return last_pos;
 
 	if (ch == '\0' && *pStr == '\0')
 		return pos;

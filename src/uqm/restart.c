@@ -296,7 +296,7 @@ DoDiffChooser (MENU_STATE *pMS)
 }
 
 #define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
-#define MAIN_TEXT_Y RES_SCALE (42)
+#define MAIN_TEXT_Y (RES_SCALE (42) - DOS_NUM_SCL (20))
 
 FRAME TextCache[5];
 

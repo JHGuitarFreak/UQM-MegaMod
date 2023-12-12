@@ -307,81 +307,51 @@ ButtonText (COUNT which_icon)
 static UNICODE *
 AlignText (UNICODE *str, COORD *loc_x)
 {
-	UNICODE *found;
-	UNICODE *og_str = str;
 	int modSize = 0;
-	int strSize = 0;
-	const UNICODE *delim = STR_PIPE;
-	const size_t delimSize = strlen (delim);
+	int first_pos = utf8StringPos (str, UNICHAR_PIPE);
+	int last_pos = utf8StringLastPos (str, UNICHAR_PIPE);
 
-	if (strncmp (delim, str, delimSize))
-		return og_str;
+	if (utf8CharCount (str, UNICHAR_PIPE) != 2 || str == NULL
+		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
+		return str;
 
-	str += delimSize;
-
-	if (sscanf (str, "%d", &modSize) != 1)
+	if (sscanf (str, "|%d|", &modSize) != 1)
 	{
 		log_add (log_Debug,
-			"\nOpening delimiter found but the modifier variable has "
-			"not for string: %s\n", og_str);
-		return og_str;
+			"\nVariable between delimiters is missing, corrupt, or "
+			"not an integer: %s\n", str);
+		return str;
 	}
 
-	found = strstr (str, delim);
+	if (modSize != 0)
+		*loc_x += RES_SCALE (modSize);
 
-	if (found == NULL)
-	{
-		log_add (log_Debug,
-			"\nClosing delimiter not found for string: %s\n", og_str);
-		return og_str;
-	}
-
-	str += (int)(found - str) + delimSize;
-	strSize = (int)(str - og_str);
-
-	*loc_x += RES_SCALE (modSize);
-
-	return str;
+	return skipUTF8Chars (str, last_pos + 1);
 }
 
 static UNICODE *
-AddPadding (UNICODE *str, COORD *loc_x)
+AddPadd (UNICODE *str, COORD *padding)
 {
-	UNICODE *found;
-	UNICODE *og_str = str;
 	int modSize = 0;
-	int strSize = 0;
-	const UNICODE *delim = STR_COLON;
-	const size_t delimSize = strlen (delim);
+	int first_pos = utf8StringPos (str, UNICHAR_COLON);
+	int last_pos = utf8StringLastPos (str, UNICHAR_COLON);
 
-	if (strncmp (delim, str, delimSize))
-		return og_str;
+	if (utf8CharCount (str, UNICHAR_COLON) != 2 || str == NULL
+		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
+		return str;
 
-	str += delimSize;
-
-	if (sscanf (str, "%d", &modSize) != 1)
+	if (sscanf (str, ":%d:", &modSize) != 1)
 	{
 		log_add (log_Debug,
-			"\nOpening delimiter found but the modifier variable has "
-			"not for string: %s\n", og_str);
-		return og_str;
+			"\nVariable between delimiters is missing, corrupt, or "
+			"not an integer: %s\n", str);
+		return str;
 	}
 
-	found = strstr (str, delim);
+	if (modSize != 0)
+		*padding += RES_SCALE (modSize);
 
-	if (found == NULL)
-	{
-		log_add (log_Debug,
-			"\nClosing delimiter not found for string: %s\n", og_str);
-		return og_str;
-	}
-
-	str += (int)(found - str) + delimSize;
-	strSize = (int)(str - og_str);
-
-	*loc_x += RES_SCALE (modSize);
-
-	return str;
+	return skipUTF8Chars (str, last_pos + 1);
 }
 
 static void
@@ -523,7 +493,7 @@ DrawVerticalText (UNICODE *str, POINT point)
 	t.baseline = point;
 
 	utf8StringCopy (buf, sizeof (buf),
-			AlignText (AddPadding(str, &leading), &t.baseline.x));
+			AlignText (AddPadd (str, &leading), &t.baseline.x));
 
 	str_len = strlen (buf);
 
