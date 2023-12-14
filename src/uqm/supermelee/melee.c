@@ -423,8 +423,8 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
-	t.baseline.y = r.corner.y + r.extent.height - (leading >> 1)
-			- RES_SCALE (1);
+	t.baseline.y = r.corner.y + r.extent.height
+			- RES_SCALE (RES_DESCALE (leading) >> 1) - RES_SCALE (1);
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
@@ -799,7 +799,7 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 	if (IS_HD)
 	{	// Draw prerendered rectangles in HD
 		STAMP s;
-#define HD_SHIPBOX_START_INDEX 44
+#define HD_SHIPBOX_START_INDEX (GetFrameCount (MeleeFrame) - 4)
 
 		s.origin = r.corner;
 		s.frame = SetAbsFrameIndex (MeleeFrame, HD_SHIPBOX_START_INDEX 
