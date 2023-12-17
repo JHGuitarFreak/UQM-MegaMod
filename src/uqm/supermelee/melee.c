@@ -434,8 +434,7 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 			HiLite ? BATTLE_TRACE_HL_COLOR : BATTLE_TRACE_COLOR);
 
 	OldFontEffect = SetContextFontEffect (
-			SetAbsFrameIndex (CaptureDrawable (
-				LoadGraphic (FONTGRAD_PMAP_ANIM)), 8 + HiLite));
+			SetAbsFrameIndex (FontGradFrame, 8 + HiLite));
 
 	font_DrawText (&t);
 
@@ -960,8 +959,8 @@ DrawSuperMeleeTitle (void)
 		return;
 
 	OldFont = SetContextFont (LoadFont (MELEE_TITLE_FONT));
-	OldFontEffect = SetContextFontEffect (SetAbsFrameIndex (CaptureDrawable (
-			LoadGraphic (FONTGRAD_PMAP_ANIM)), 7));
+	OldFontEffect = SetContextFontEffect (
+			SetAbsFrameIndex (FontGradFrame, 7));
 
 	t.baseline.x = (SCREEN_WIDTH >> 1) - (SAFE_NEG (1));
 	t.baseline.y = RES_SCALE (4);
@@ -2114,6 +2113,8 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 	BuildBuildPickFrame ();
 	MicroThinFont = LoadFont (MICRO_THIN_FONT);
 	ButtonFont = LoadFont (BUTTON_FONT);
+	FontGradFrame = CaptureDrawable (
+			LoadGraphic (FONTGRAD_PMAP_ANIM));
 
 	InitSpace ();
 
@@ -2141,6 +2142,8 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	DestroyBuildPickFrame ();
 	DestroyFont (MicroThinFont);
 	DestroyFont (ButtonFont);
+	DestroyDrawable (ReleaseDrawable (FontGradFrame));
+	FontGradFrame = 0;
 
 #ifdef NETPLAY
 	closeAllConnections ();
