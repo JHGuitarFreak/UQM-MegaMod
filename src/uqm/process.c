@@ -93,6 +93,7 @@ AllocElement (void)
 			explode ();
 		}
 		SetPrimType (&DisplayArray[ElementPtr->PrimIndex], NO_PRIM);
+		SetPrimFlags (&DisplayArray[ElementPtr->PrimIndex], 0);
 		UnlockElement (hElement);
 	}
 

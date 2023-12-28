@@ -123,7 +123,7 @@ TFB_Prim_Line (LINE *line, Color color, DrawMode mode, POINT ctxOrigin,
 }
 
 void
-TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin, BOOLEAN scaled)
+TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin, BOOLEAN unscaled)
 {
 	int x, y;
 	FRAME SrcFramePtr;
@@ -161,10 +161,10 @@ TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin, BOOLEAN scaled)
 
 	UnlockMutex (img->mutex);
 
-	if (scaled)
-		scaleMode = GetGraphicScale ();
-	else
+	if (unscaled)
 		scaleMode = GSCALE_IDENTITY;
+	else
+		scaleMode = GetGraphicScale();
 
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 	{
@@ -179,11 +179,12 @@ TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin, BOOLEAN scaled)
 }
 
 void
-TFB_Prim_StampFill (STAMP *stmp, Color color, DrawMode mode, POINT ctxOrigin)
+TFB_Prim_StampFill (STAMP *stmp, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN unscaled)
 {
 	int x, y;
 	FRAME SrcFramePtr;
 	TFB_Image *img;
+	int scaleMode;
 
 	SrcFramePtr = stmp->frame;
 	if (!SrcFramePtr)
@@ -209,14 +210,19 @@ TFB_Prim_StampFill (STAMP *stmp, Color color, DrawMode mode, POINT ctxOrigin)
 
 	UnlockMutex (img->mutex);
 
+	if (unscaled)
+		scaleMode = GSCALE_IDENTITY;
+	else
+		scaleMode = GetGraphicScale ();
+
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 	{
-		TFB_DrawScreen_FilledImage (img, x, y, GetGraphicScale (),
+		TFB_DrawScreen_FilledImage (img, x, y, scaleMode,
 				GetGraphicScaleMode (), color, mode, TFB_SCREEN_MAIN);
 	}
 	else
 	{
-		TFB_DrawImage_FilledImage (img, x, y, GetGraphicScale (),
+		TFB_DrawImage_FilledImage (img, x, y, scaleMode,
 				GetGraphicScaleMode (), color, mode, _CurFramePtr->image);
 	}
 }

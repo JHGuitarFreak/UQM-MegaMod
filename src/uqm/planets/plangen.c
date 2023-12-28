@@ -390,6 +390,7 @@ RenderLevelMasks (FRAME mask, SBYTE *pTopoData, BOOLEAN SurfDef)
 	{
 		SetPrimNextLink (pBatch, i + 1);
 		SetPrimType (pBatch, POINT_PRIM);
+		SetPrimFlags (pBatch, 0);
 	}
 	SetPrimNextLink (&pBatch[-1], END_OF_LIST);
 
@@ -505,6 +506,7 @@ RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h,
 		{
 			SetPrimNextLink (pBatch, i + 1);
 			SetPrimType (pBatch, POINT_PRIM);
+			SetPrimFlags (pBatch, 0);
 		}
 		SetPrimNextLink (&pBatch[-1], END_OF_LIST);
 

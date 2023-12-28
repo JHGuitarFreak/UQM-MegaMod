@@ -126,11 +126,13 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 			PRIMITIVE *lpWorkPrim;
 			RECT ClipRect;
 			Color color;
+			BYTE flags;
 
 			lpPrim = &lpBasePrim[CurIndex];
 			PrimType = GetPrimType (lpPrim);
 			if (!ValidPrimType (PrimType))
 				continue;
+			flags = GetPrimFlags (lpPrim);
 
 			lpWorkPrim = lpPrim;
 
@@ -141,16 +143,13 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 					TFB_Prim_Point (&lpWorkPrim->Object.Point, color,
 							mode, origin, FALSE);
 					break;
-				case UNSCALED_PRIM:
-					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, FALSE);
-					break;
 				case STAMP_PRIM:
-					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, TRUE);
+					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, flags & UNSCALED_STAMP);
 					break;
 				case STAMPFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
 					TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
-							mode, origin);
+							mode, origin, flags & UNSCALED_STAMP);
 					break;
 				case LINE_PRIM:
 					color = GetPrimColor (lpWorkPrim);
@@ -312,7 +311,7 @@ DrawFilledStamp (STAMP *stmp)
 	{
 		Color color = GetPrimColor (&_locPrim);
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_StampFill (stmp, color, mode, origin);
+		TFB_Prim_StampFill (stmp, color, mode, origin, FALSE);
 	}
 }
 

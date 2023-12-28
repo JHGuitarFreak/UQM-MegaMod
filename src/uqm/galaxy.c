@@ -258,6 +258,7 @@ InitGalaxy (void)
 		COUNT p;
 
 		p = AllocDisplayPrim ();
+		SetPrimFlags (&DisplayArray[p], 0);
 
 		if (i == BIG_STAR_COUNT || i == BIG_STAR_COUNT + MED_STAR_COUNT)
 			++factor;
@@ -284,18 +285,16 @@ InitGalaxy (void)
 		{
 			if (IS_HD)
 			{	// In HD the smallest stars are images
+				SetPrimType (&DisplayArray[p], STAMP_PRIM);
 				if (LOBYTE (GLOBAL(CurrentActivity)) != IN_HYPERSPACE)
 				{
-					SetPrimType (&DisplayArray[p], UNSCALED_PRIM);
+					SetPrimFlags (&DisplayArray[p], UNSCALED_STAMP);
 					DisplayArray[p].Object.Stamp.frame =
 							SetAbsFrameIndex (stars_in_space, 3);
 				}
 				else
-				{
-					SetPrimType (&DisplayArray[p], STAMP_PRIM);
 					DisplayArray[p].Object.Stamp.frame =
 						SetAbsFrameIndex (stars_in_space, 96);
-				}
 			}
 			else
 			{	// Pixel starpoints in original res
@@ -432,39 +431,32 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 					star_frame[1] = IncFrameIndex (stars_in_space);// mid blue
 					star_frame[2] = SetAbsFrameIndex (stars_in_space, 2);// small blue
 
-					if (optMeleeScale == TFB_SCALE_STEP)
-					{
-						star_object[0] = star_object[1] = STAMP_PRIM;
-						if (reduction > 0)
-						{
-							star_frame[0] = star_frame[1];
-							star_frame[1] = star_frame[2];
-						}
+					star_object[0] = star_object[1] = STAMP_PRIM;
+
+					if (optMeleeScale == TFB_SCALE_STEP && reduction > 0)
+					{						
+						star_frame[0] = star_frame[1];
+						star_frame[1] = star_frame[2];
 					}
 					else
-					{
+					{						
 						if (scale == 2)
-						{
-							star_object[0] = star_object[1] = STAMP_PRIM;
 							star_frame[0] = star_frame[1] = star_frame[2];
-						}
 						else if (scale == 1)
 						{
-							star_object[0] = STAMP_PRIM;
-							star_object[1] = UNSCALED_PRIM;
+							/* Kruzen: a hack to slip in unscaled flag */
+							star_object[1] |= (UNSCALED_STAMP << 7);
 							star_frame[0] = star_frame[1];
 							star_frame[1] = star_frame[2];
-
 						}
-						else
-							star_object[0] = star_object[1] = STAMP_PRIM;
 					}
 				}
 				for (iss = 0, pprim = DisplayArray; iss < 2; ++iss)
 				{
 					for (i = star_counts[iss]; i > (num_sceneries & iss); --i, ++pprim)
 					{
-						SetPrimType (pprim, star_object[iss]);
+						SetPrimType (pprim, star_object[iss] & 15);
+						SetPrimFlags (pprim, star_object[iss] >> 7);
 						pprim->Object.Stamp.frame = star_frame[iss];
 					}
 				}
