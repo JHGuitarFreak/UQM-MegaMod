@@ -348,6 +348,7 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 			prim[x].Object.Stamp.frame =
 						DecFrameIndex (stars_in_space);
 			SetPrimColor (&prim[x], _get_context_fg_color ());
+			SetPrimFlags (&prim[x], 0);
 			StartPrim = x;
 		}
 		else// Kruzen: just to be sure so DrawBatch() skip it

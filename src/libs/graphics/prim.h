@@ -26,7 +26,6 @@ enum gfx_object
 	RECT_PRIM,
 	RECTFILL_PRIM,
 	POINT_PRIM_HD,
-	UNSCALED_PRIM,
 
 	NUM_PRIMS
 };
@@ -49,9 +48,14 @@ typedef struct
 	GRAPHICS_PRIM Type;
 	Color color;
 	PRIM_DESC Object;
+	BYTE flags;
 } PRIMITIVE;
 
 #define END_OF_LIST ((COUNT)0xFFFF)
+
+/* Primitive flags */
+#define UNSCALED_STAMP (1 << 0) // Stamp will not be scaled via smooth scaler
+#define HYPER_TO_QUASI_COLOR (1 << 1) // Stamp be rendered with quasispace filter (for ambience in HD only)
 
 #define GetPredLink(l) LOWORD(l)
 #define GetSuccLink(l) HIWORD(l)
@@ -62,6 +66,8 @@ typedef struct
 #define GetPrimType(pPrim) ((pPrim)->Type)
 #define SetPrimColor(pPrim,c) ((pPrim)->color = c)
 #define GetPrimColor(pPrim) ((pPrim)->color)
+#define SetPrimFlags(pPrim,f) ((pPrim)->flags = f)
+#define GetPrimFlags(pPrim) ((pPrim)->flags)
 
 static inline void
 SetPrimNextLink (PRIMITIVE *pPrim, COUNT Link)

@@ -359,13 +359,13 @@ renderpixel_screen (SDL_Surface* surface, int x, int y, Uint32 pixel,
 }
 
 static void
-renderpixel_grayscale(SDL_Surface* surface, int x, int y, Uint32 pixel,
-	int factor)
+renderpixel_grayscale (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
 	Uint32* p;
 	Uint32 sp;
-	Uint8 avr, min, max;
+	Uint8 avr;
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
@@ -376,16 +376,32 @@ renderpixel_grayscale(SDL_Surface* surface, int x, int y, Uint32 pixel,
 	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
 	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
 
-	// To satisfy compiler warnings
-	(void)g;
-	(void)b;
+	avr = ((sr + sg + sb) * 341) >> 10;
+	avr = overlay_blend (avr, r);
+	*p = PACK_PIXEL_32 (fmt, avr, avr, avr);
+}
 
-	max = sg > sb ? sg : sb;
-	max = max > sr ? max : sr;
-	min = sg > sb ? sb : sg;
-	min = min > sr ? sr : min;
-	avr = overlay_blend ((max + min) >> 1, r);
-	*p = PACK_PIXEL_32(fmt, avr, avr, avr);
+/* Kruzen: special instant blend to transform HD hyperspace ambience to quasispace one*/
+static void
+renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint8 rg, a, sg;
+	int r, g, b;
+
+	(void)factor;
+
+	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+	sg = (*p >> fmt->Gshift) & 0xff;
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	a = pixel & 0xff;
+
+	rg = ((255 - (((r + g + b) * 341) >> 10)) * 0x9A) >> 8;
+	if (a < 0xff)
+		rg = alpha_blend (sg, rg, a);
+	*p = PACK_PIXEL_32 (fmt, 0, rg, 0);
 }
 
 RenderPixelFn
@@ -417,6 +433,8 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_screen;
 	case renderGrayscale:
 		return &renderpixel_grayscale;
+	case renderHypToQuas:
+		return &renderpixel_hypertoquasi;
 	}
 	// should not ever get here
 	return NULL;
@@ -702,7 +720,7 @@ clip_rect(SDL_Rect *r, const SDL_Rect *clip_r)
 
 void
 blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
-		SDL_Surface *dst, SDL_Rect dst_r)
+		SDL_Surface *dst, SDL_Rect dst_r, bool alp_tr)
 {
 	SDL_PixelFormat *srcfmt = src->format;
 	SDL_Palette *srcpal = srcfmt->palette;
@@ -760,8 +778,10 @@ blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 			SDL_GetRGBA(p, srcfmt, &r, &g, &b, &a);
 			// TODO: handle source pixel alpha; plot() should probably
 			//   get a source alpha parameter
+			// Kruzen: for now aplha transfered only to selected few blendmodes
 			p = SDL_MapRGBA(dstfmt, r, g, b, a);
-			
+			if (alp_tr)
+				p |= a;
 			plot(dst, dst_r.x + x, dst_r.y + y, p, factor);
 		}
 	}
