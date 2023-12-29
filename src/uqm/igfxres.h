@@ -5,7 +5,6 @@
 #define ACTIVITY_ANIM "graphics.activity"
 #define AMBIENT_MASK_PMAP_ANIM "graphics.ambient"
 #define AQUA_MASK_PMAP_ANIM "graphics.aquahelix"
-#define ARI_AMBIENT_MASK_PMAP_ANIM "graphics.ambientquasispace"
 #define ARIHOLES_MASK_PMAP_ANIM "graphics.quasiholes"
 #define ARISPACE_MASK_PMAP_ANIM "graphics.quasispace"
 #define ASTEROID_BIG_MASK_PMAP_ANIM "graphics.asteroid.large"

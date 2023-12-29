@@ -293,8 +293,12 @@ InitGalaxy (void)
 							SetAbsFrameIndex (stars_in_space, 3);
 				}
 				else
+				{
 					DisplayArray[p].Object.Stamp.frame =
 						SetAbsFrameIndex (stars_in_space, 96);
+					if (inQuasiSpace ())
+						SetPrimFlags (&DisplayArray[p], HYPER_TO_QUASI_COLOR);
+				}
 			}
 			else
 			{	// Pixel starpoints in original res
@@ -373,6 +377,9 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 							stars_in_space,
 							(COUNT)(TFB_Random() & 31)
 							+ star_frame_ofs[iss]);
+
+						if (IS_HD && inQuasiSpace ())
+							SetPrimFlags (pprim, HYPER_TO_QUASI_COLOR);
 					}
 				}
 			}

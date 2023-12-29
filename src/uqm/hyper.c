@@ -70,9 +70,6 @@ enum HyperMenuItems
 	NAVIGATION,
 };
 
-#define AMBIENT_MASK (IS_HD && GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) ? \
-		ARI_AMBIENT_MASK_PMAP_ANIM : AMBIENT_MASK_PMAP_ANIM)
-
 /*
  * draws the melee icon for the battle group inside the black holes,
  * so you can see who's chasing you.
@@ -492,7 +489,7 @@ LoadHyperData (void)
 	if (hyperstars[0] == 0)
 	{
 		hyperstars[0] = CaptureDrawable (
-				LoadGraphic (AMBIENT_MASK);
+				LoadGraphic (AMBIENT_MASK_PMAP_ANIM));
 		hyperstars[1] = CaptureDrawable (
 				LoadGraphic (HYPERSTARS_MASK_PMAP_ANIM));
 		hypercmaps[0] = CaptureColorMap (LoadColorMap (HYPER_COLOR_TAB));
@@ -574,13 +571,6 @@ EraseRadar (void)
 	UnbatchGraphics ();
 }
 
-static void
-ReloadHyperSpace (void)
-{
-	DestroyDrawable (ReleaseDrawable (hyperstars[0]));
-	hyperstars[0] = CaptureDrawable (LoadGraphic (AMBIENT_MASK);
-}
-
 BOOLEAN
 FreeHyperspace (void)
 {
@@ -592,8 +582,8 @@ FreeHyperspace (void)
 		stars_in_space = F;
 	}
 	// Kruzen: To load correct set of frames until we'll use 1 with space filters
-	if (IS_HD)
-		ReloadHyperSpace ();
+	//if (IS_HD)
+	//	ReloadHyperSpace ();
 
 	//FreeHyperData ();
 
@@ -1141,6 +1131,10 @@ AddAmbientElement (void)
 		SetPrimType (&DisplayArray[HyperSpaceElementPtr->PrimIndex],
 				STAMP_PRIM);
 		HyperSpaceElementPtr->preprocess_func = animation_preprocess;
+
+		if (IS_HD && inQuasiSpace ())
+			SetPrimFlags (&DisplayArray[HyperSpaceElementPtr->PrimIndex],
+				HYPER_TO_QUASI_COLOR);
 
 		rand_val = TFB_Random ();
 		dy = LOWORD (rand_val);

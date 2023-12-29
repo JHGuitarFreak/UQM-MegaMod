@@ -144,7 +144,10 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 							mode, origin, FALSE);
 					break;
 				case STAMP_PRIM:
-					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, flags & UNSCALED_STAMP);
+					if (flags & HYPER_TO_QUASI_COLOR)
+						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, MAKE_DRAW_MODE(DRAW_HYPTOQUAS, 0xFF), origin, flags & UNSCALED_STAMP);
+					else
+						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, flags & UNSCALED_STAMP);
 					break;
 				case STAMPFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
