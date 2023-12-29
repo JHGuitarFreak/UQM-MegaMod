@@ -387,21 +387,15 @@ renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
-	Uint32* p;
-	Uint8 rg, a, sg;
-	int r, g, b;
+	Uint8 rg;
+	int r, g, b, a;
 
 	(void)factor;
-
-	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
-	sg = (*p >> fmt->Gshift) & 0xff;
-	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-	a = pixel & 0xff;
-
-	rg = ((255 - (((r + g + b) * 341) >> 10)) * 0x9A) >> 8;
-	if (a < 0xff)
-		rg = alpha_blend (sg, rg, a);
-	*p = PACK_PIXEL_32 (fmt, 0, rg, 0);
+	
+	SDL_GetRGBA (pixel, fmt, &r, &g, &b, &a);
+	rg = ((255 - (((r + g + b) * 341) >> 10)) * 0x90) >> 8;
+	pixel = SDL_MapRGBA (fmt, 0, rg, 0, a);
+	putpixel_32 (surface, x, y, pixel);
 }
 
 RenderPixelFn
@@ -719,8 +713,8 @@ clip_rect(SDL_Rect *r, const SDL_Rect *clip_r)
 }
 
 void
-blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
-		SDL_Surface *dst, SDL_Rect dst_r, bool alp_tr)
+blt_prim (SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
+			SDL_Surface *dst, SDL_Rect dst_r, bool alp_tr)
 {
 	SDL_PixelFormat *srcfmt = src->format;
 	SDL_Palette *srcpal = srcfmt->palette;
@@ -775,14 +769,42 @@ blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 			}
 
 			// convert pixel format to destination
-			SDL_GetRGBA(p, srcfmt, &r, &g, &b, &a);
+			SDL_GetRGBA (p, srcfmt, &r, &g, &b, &a);
 			// TODO: handle source pixel alpha; plot() should probably
 			//   get a source alpha parameter
-			// Kruzen: for now aplha transfered only to selected few blendmodes
-			p = SDL_MapRGBA(dstfmt, r, g, b, a);
-			if (alp_tr)
-				p |= a;
+			p = SDL_MapRGBA (dstfmt, r, g, b, a);
+
 			plot(dst, dst_r.x + x, dst_r.y + y, p, factor);
+		}
+	}
+}
+
+// Kruzen: Special blit to transform src image. DO NOT use for paletted
+void
+blt_filtered_prim (SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
+			SDL_Surface *dst)
+{
+	SDL_PixelFormat *srcfmt = src->format;
+	GetPixelFn getpix = getpixel_for (src);
+	int x, y;
+
+	// Not for paletted!
+	if (srcfmt->palette)
+		return;
+
+	for (y = 0; y < src_r.h; ++y)
+	{
+		for (x = 0; x < src_r.w; ++x)
+		{
+			Uint8 r, g, b, a;
+			Uint32 p;
+			
+			p = getpix (src, src_r.x + x, src_r.y + y);
+			
+			if ((p & srcfmt->Amask) == 0)
+				continue; // transparent pixel
+		
+			plot (dst, src_r.x + x, src_r.y + y, p, factor);
 		}
 	}
 }

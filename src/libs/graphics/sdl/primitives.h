@@ -61,6 +61,9 @@ void fillrect_prim(SDL_Rect r, Uint32 color,
 void blt_prim(SDL_Surface *src, SDL_Rect src_r,
 		RenderPixelFn plot, int factor,
 		SDL_Surface *dst, SDL_Rect dst_r, bool alp_tr);
+void blt_filtered_prim(SDL_Surface *src, SDL_Rect src_r, 
+		RenderPixelFn plot, int factor,
+		SDL_Surface *dst);
 
 int clip_line(int *lx1, int *ly1, int *lx2, int *ly2, const SDL_Rect *clip_r);
 int clip_rect(SDL_Rect *r, const SDL_Rect *clip_r);
