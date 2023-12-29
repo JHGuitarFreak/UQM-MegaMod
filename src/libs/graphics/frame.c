@@ -301,7 +301,7 @@ DrawStamp (STAMP *stmp)
 	if (GraphicsSystemActive () && GetContextValidRect (NULL, &origin))
 	{
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_Stamp (stmp, mode, origin, TRUE);
+		TFB_Prim_Stamp (stmp, mode, origin, FALSE);
 	}
 }
 
