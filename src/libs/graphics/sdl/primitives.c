@@ -226,6 +226,14 @@ screen_blend (Uint8 dc, Uint8 sc, int alpha)
 		(b) = ((p) >> (fmt)->Bshift) & 0xff; \
 	} while (0)
 
+#define UNPACK_PIXEL_32_ALPHA(p, fmt, r, g, b, a) \
+	do { \
+		(r) = ((p) >> (fmt)->Rshift) & 0xff; \
+		(g) = ((p) >> (fmt)->Gshift) & 0xff; \
+		(b) = ((p) >> (fmt)->Bshift) & 0xff; \
+		(a) = ((p) >> (fmt)->Ashift) & 0xff; \
+	} while (0)
+
 // Assumes the channels already clipped to 8 bits
 static inline Uint32
 PACK_PIXEL_32(const SDL_PixelFormat *fmt,
@@ -233,6 +241,14 @@ PACK_PIXEL_32(const SDL_PixelFormat *fmt,
 {
 	return ((Uint32)r << fmt->Rshift) | ((Uint32)g << fmt->Gshift)
 			| ((Uint32)b << fmt->Bshift);
+}
+
+static inline Uint32
+PACK_PIXEL_32_ALPHA(const SDL_PixelFormat* fmt,
+		Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+	return ((Uint32)r << fmt->Rshift) | ((Uint32)g << fmt->Gshift)
+		| ((Uint32)b << fmt->Bshift) | ((Uint32)a << fmt->Ashift);
 }
 
 static void
@@ -387,15 +403,16 @@ renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
 	Uint8 rg;
 	int r, g, b, a;
 
 	(void)factor;
-	
-	SDL_GetRGBA (pixel, fmt, &r, &g, &b, &a);
-	rg = ((255 - (((r + g + b) * 341) >> 10)) * 0x90) >> 8;
-	pixel = SDL_MapRGBA (fmt, 0, rg, 0, a);
-	putpixel_32 (surface, x, y, pixel);
+	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+
+	UNPACK_PIXEL_32_ALPHA (pixel, fmt, r, g, b, a);
+	rg = ((255 - (((r + g + b) * 341) >> 10)) * 0x78) >> 8;
+	*p = PACK_PIXEL_32_ALPHA (fmt, 0, rg, 0, a);
 }
 
 RenderPixelFn
