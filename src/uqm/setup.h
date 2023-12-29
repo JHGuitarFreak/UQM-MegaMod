@@ -56,6 +56,7 @@ extern FONT StarConFont;
 extern FONT MicroFont;
 extern FONT TinyFont;
 extern FONT TinyFontBold;
+extern FONT TinyFontCond;
 extern FONT PlyrFont;
 extern FONT LabelFont;
 extern FONT SlabFont;

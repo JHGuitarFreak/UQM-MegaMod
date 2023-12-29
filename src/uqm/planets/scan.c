@@ -249,11 +249,11 @@ PrintCoarseScanPC (void)
 			SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
 	SetContextFont (MicroFont);
 	PrintScanText (&t);
-
-	SetContextFont (TinyFont);
+	
+	SetContextFont (SAFE_BOOL (TinyFont, TinyFontCond));
 
 #define LEFT_SIDE_BASELINE_X_PC RES_SCALE (2)
-#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (73))
+#define RIGHT_SIDE_BASELINE_X_PC (SIS_SCREEN_WIDTH - RES_SCALE (73) + SAFE_X)
 #define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (13))
 #define SCAN_LEADING_PC RES_SCALE (10)
 

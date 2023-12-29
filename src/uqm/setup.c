@@ -61,6 +61,7 @@ FONT StarConFont;
 FONT MicroFont;
 FONT TinyFont;
 FONT TinyFontBold;
+FONT TinyFontCond;
 FONT PlyrFont;
 FONT LabelFont;
 FONT SlabFont;
@@ -294,6 +295,10 @@ InitKernel (void)
 	if (TinyFontBold == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
+
+	TinyFontCond = LoadFont (TINY_FONT_COND);
+	if (TinyFontCond == NULL)
+		return FALSE;
 
 	PlyrFont = LoadFont (PLAYER_FONT);
 	if (PlyrFont == NULL)
