@@ -216,9 +216,28 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 			dst_r = &loc_dst_r;
 		}
 
-		SDL_LockSurface (dst);
-		blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r, mode.kind >= DRAW_HYPTOQUAS);
-		SDL_UnlockSurface (dst);
+		if (mode.kind >= DRAW_HYPTOQUAS)
+		{
+			SDL_Surface *newsrc;
+			newsrc = SDL_CreateRGBSurface (SDL_SWSURFACE,
+				src->w, src->h,
+				src->format->BitsPerPixel,
+				src->format->Rmask,
+				src->format->Gmask,
+				src->format->Bmask,
+				src->format->Amask);
+			SDL_LockSurface (newsrc);
+			blt_filtered_prim (src, *src_r, plotFn, mode.factor, newsrc);
+			SDL_UnlockSurface (newsrc);
+			SDL_BlitSurface (newsrc, src_r, dst, dst_r);
+			SDL_FreeSurface (newsrc);
+		}
+		else
+		{
+			SDL_LockSurface (dst);
+			blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r, mode.kind >= DRAW_HYPTOQUAS);
+			SDL_UnlockSurface (dst);
+		}
 	}
 }
 
