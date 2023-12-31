@@ -97,6 +97,20 @@ ClearBackGround (RECT *pClipRect)
 			pClipRect->corner);
 }
 
+DrawMode
+GetDrawModeByFlag (BYTE flag)
+{
+	switch (flag)
+	{
+		case HYPER_TO_QUASI_COLOR:
+			return MAKE_DRAW_MODE (DRAW_HYPTOQUAS, 0xFF);
+		case HYPER_SHIP:
+			return MAKE_DRAW_MODE (DRAW_SHIPHYPER, 0xFF);
+		case QUASI_SHIP:
+			return MAKE_DRAW_MODE (DRAW_SHIPQUASI, 0xFF);
+	}
+}
+
 void
 DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks, 
 		BATCH_FLAGS BatchFlags)
@@ -144,8 +158,8 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 							mode, origin, FALSE);
 					break;
 				case STAMP_PRIM:
-					if (flags & HYPER_TO_QUASI_COLOR)
-						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, MAKE_DRAW_MODE(DRAW_HYPTOQUAS, 0xFF), origin, flags & UNSCALED_STAMP);
+					if (flags > 1)
+						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, GetDrawModeByFlag (flags), origin, flags & UNSCALED_STAMP);
 					else
 						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, flags & UNSCALED_STAMP);
 					break;

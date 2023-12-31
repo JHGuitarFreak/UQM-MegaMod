@@ -39,6 +39,8 @@ typedef enum
 	renderScreen,
 	renderGrayscale,
 	renderHypToQuas,
+	renderShipHyper,
+	renderShipQuasi,
 } RenderKind;
 
 #define FULLY_OPAQUE_ALPHA  255
@@ -60,7 +62,7 @@ void fillrect_prim(SDL_Rect r, Uint32 color,
 		RenderPixelFn plot, int factor, SDL_Surface *dst);
 void blt_prim(SDL_Surface *src, SDL_Rect src_r,
 		RenderPixelFn plot, int factor,
-		SDL_Surface *dst, SDL_Rect dst_r, bool alp_tr);
+		SDL_Surface *dst, SDL_Rect dst_r);
 void blt_filtered_prim(SDL_Surface *src, SDL_Rect src_r, 
 		RenderPixelFn plot, int factor,
 		SDL_Surface *dst);
