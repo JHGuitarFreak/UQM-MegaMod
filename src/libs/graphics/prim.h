@@ -56,6 +56,8 @@ typedef struct
 /* Primitive flags */
 #define UNSCALED_STAMP (1 << 0) // Stamp will not be scaled via smooth scaler
 #define HYPER_TO_QUASI_COLOR (1 << 1) // Stamp be rendered with quasispace filter (for ambience in HD only)
+#define HYPER_SHIP (1 << 2)
+#define QUASI_SHIP (1 << 3)
 
 #define GetPredLink(l) LOWORD(l)
 #define GetSuccLink(l) HIWORD(l)

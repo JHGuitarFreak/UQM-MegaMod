@@ -492,6 +492,9 @@ spawn_ship (STARSHIP *StarShipPtr)
 				//   in sis.c. See also r1614.
 				//GLOBAL (ShipFacing) = StarShipPtr->ShipFacing + 1;
 				StarShipPtr->ShipFacing = facing;
+
+				if (IS_HD)
+					SetPrimFlags (&DisplayArray[ShipElementPtr->PrimIndex], inHyperSpace () ? HYPER_SHIP : QUASI_SHIP);
 			}
 			ShipElementPtr->current.image.frame =
 					SetAbsFrameIndex (RDPtr->ship_data.ship[0],

@@ -218,6 +218,16 @@ screen_blend (Uint8 dc, Uint8 sc, int alpha)
 	return (255 - (((255 - sc) * (255 - dc)) >> 8));
 }
 
+static inline Uint8
+subtract_blend (Uint8 dc, Uint8 sc)
+{	// Custom "subtract" blend mode
+
+	if (dc + sc < 0xff)
+		return 0;
+	else
+		return dc + sc - 0xff;
+}
+
 // Assumes 8 bits/channel, a safe assumption for 32bpp surfaces
 #define UNPACK_PIXEL_32(p, fmt, r, g, b) \
 	do { \
@@ -397,7 +407,7 @@ renderpixel_grayscale (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_32 (fmt, avr, avr, avr);
 }
 
-/* Kruzen: special instant blend to transform HD hyperspace ambience to quasispace one*/
+/* Kruzen: special instant blend to transform HD hyperspace ambience to quasispace one */
 static void
 renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
 		int factor)
@@ -413,6 +423,42 @@ renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	UNPACK_PIXEL_32_ALPHA (pixel, fmt, r, g, b, a);
 	rg = ((255 - (((r + g + b) * 341) >> 10)) * 0x78) >> 8;
 	*p = PACK_PIXEL_32_ALPHA (fmt, 0, rg, 0, a);
+}
+
+/* Kruzen: special blend to transform HD SIS to hyperspace red colors */
+static void
+renderpixel_shipinhyper (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	int r, g, b, a;
+
+	(void)factor;
+	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+
+	UNPACK_PIXEL_32_ALPHA (pixel, fmt, r, g, b, a);
+	
+	*p = PACK_PIXEL_32_ALPHA (fmt, r, 0, 0, a);
+}
+
+/* Kruzen: special blend to transform HD SIS to quasispace green colors */
+static void
+renderpixel_shipinquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	int r, g, b, a;
+
+	(void)factor;
+	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+
+	UNPACK_PIXEL_32_ALPHA (pixel, fmt, r, g, b, a);
+	
+	g = subtract_blend (g, 0xe4);
+
+	*p = PACK_PIXEL_32_ALPHA (fmt, 0, g, 0, a);
 }
 
 RenderPixelFn
@@ -446,6 +492,10 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_grayscale;
 	case renderHypToQuas:
 		return &renderpixel_hypertoquasi;
+	case renderShipHyper:
+		return &renderpixel_shipinhyper;
+	case renderShipQuasi:
+		return &renderpixel_shipinquasi;
 	}
 	// should not ever get here
 	return NULL;
@@ -731,7 +781,7 @@ clip_rect(SDL_Rect *r, const SDL_Rect *clip_r)
 
 void
 blt_prim (SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
-			SDL_Surface *dst, SDL_Rect dst_r, bool alp_tr)
+			SDL_Surface *dst, SDL_Rect dst_r)
 {
 	SDL_PixelFormat *srcfmt = src->format;
 	SDL_Palette *srcpal = srcfmt->palette;

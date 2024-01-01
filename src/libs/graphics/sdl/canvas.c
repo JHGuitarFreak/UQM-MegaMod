@@ -235,7 +235,7 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 		else
 		{
 			SDL_LockSurface (dst);
-			blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r, mode.kind >= DRAW_HYPTOQUAS);
+			blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r);
 			SDL_UnlockSurface (dst);
 		}
 	}
