@@ -369,6 +369,10 @@ RenderFPS (int *fps)
 	}	
 }
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b)) ? (a) : (b))
+#endif
+
 // Only call from main() thread!!
 void
 TFB_FlushGraphics (void)
@@ -545,8 +549,8 @@ TFB_FlushGraphics (void)
 				if (cmd->destBuffer == TFB_SCREEN_MAIN)
 				{
 					RECT r;
-					r.corner.x = min (cmd->x1, cmd->x2);
-					r.corner.y = min (cmd->y1, cmd->y2);
+					r.corner.x = MIN (cmd->x1, cmd->x2);
+					r.corner.y = MIN (cmd->y1, cmd->y2);
 					r.extent.width = abs (cmd->x1 - cmd->x2) + cmd->thickness;
 					r.extent.height = abs (cmd->y1 - cmd->y2) + cmd->thickness;
 

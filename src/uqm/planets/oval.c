@@ -28,6 +28,14 @@
 #include "planets.h"
 #include "uqm/setup.h"
 
+
+#ifndef MIN
+#define MIN(a,b) (((a)<(b)) ? (a) : (b))
+#endif
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
 #define NUM_QUADS 4
 #define OFFSCREEN_PRIM NUM_PRIMS
 
@@ -136,8 +144,8 @@ CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 			y = (double)(0 - mp.y);
 			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
 			
-			x = (double)(max (0, mp.x) - mp.x);
-			y = (double)(min (SIS_SCREEN_HEIGHT, mp.y) - mp.y);
+			x = (double)(MAX (0, mp.x) - mp.x);
+			y = (double)(MIN (SIS_SCREEN_HEIGHT, mp.y) - mp.y);
 			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
 
 			if (r0 >= 1.0f && r1 <= 1.0f)
@@ -160,8 +168,8 @@ CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 			y = (double)(0 - mp.y);
 			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
 
-			x = (double)(min (SIS_SCREEN_WIDTH, mp.x) - mp.x);
-			y = (double)(min (SIS_SCREEN_HEIGHT, mp.y) - mp.y);
+			x = (double)(MIN (SIS_SCREEN_WIDTH, mp.x) - mp.x);
+			y = (double)(MIN (SIS_SCREEN_HEIGHT, mp.y) - mp.y);
 			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
 
 			if (r0 >= 1.0f && r1 <= 1.0f)
@@ -184,8 +192,8 @@ CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 			y = (double)(SIS_SCREEN_HEIGHT - mp.y);
 			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
 
-			x = (double)(min (SIS_SCREEN_WIDTH, mp.x) - mp.x);
-			y = (double)(max (0, mp.y) - mp.y);
+			x = (double)(MIN (SIS_SCREEN_WIDTH, mp.x) - mp.x);
+			y = (double)(MAX (0, mp.y) - mp.y);
 			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
 
 			if (r0 >= 1.0f && r1 <= 1.0f)
@@ -208,8 +216,8 @@ CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 			y = (double)(SIS_SCREEN_HEIGHT - mp.y);
 			r0 = ((x * x) / asquared) + ((y * y) / bsquared);
 
-			x = (double)(max (0, mp.x) - mp.x);
-			y = (double)(max (0, mp.y) - mp.y);
+			x = (double)(MAX (0, mp.x) - mp.x);
+			y = (double)(MAX (0, mp.y) - mp.y);
 			r1 = ((x * x) / asquared) + ((y * y) / bsquared);
 
 			if (r0 >= 1.0f && r1 <= 1.0f)
@@ -786,8 +794,8 @@ DrawFilledOval (DRECT *pRect)
 		 // Changed to line and added a skip if offscreen
 			lines_r = 0;
 
-			first.x = max (A - x, 0);
-			second.x = min (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
+			first.x = MAX (A - x, 0);
+			second.x = MIN (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
 			first.y = second.y = B - y;
 			if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT))
 			{
@@ -829,8 +837,8 @@ DrawFilledOval (DRECT *pRect)
 	{// Kruzen: originally PrimType was FILLRECT with height of 1
 	 // Changed to line and added a skip if offscreen
 		lines_r = 0;
-		first.x = max (A - x, 0);
-		second.x = min (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
+		first.x = MAX (A - x, 0);
+		second.x = MIN (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
 		first.y = second.y = B - y;
 		if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT))
 		{

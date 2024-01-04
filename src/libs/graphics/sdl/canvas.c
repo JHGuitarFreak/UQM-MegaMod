@@ -70,6 +70,10 @@ checkPrimitiveMode (SDL_Surface *surf, Color *color, DrawMode *mode)
 	}
 }
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b)) ? (a) : (b))
+#endif
+
 void
 TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 		DrawMode mode, TFB_Canvas target, BYTE thickness)
@@ -101,8 +105,8 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 		if (x1 == x2 || y1 == y2)
 		{// Vertical/horizontal
 			SDL_Rect sr;
-			sr.x = min (x1, x2);
-			sr.y = min (y1, y2);
+			sr.x = MIN (x1, x2);
+			sr.y = MIN (y1, y2);
 			sr.w = abs (x1 - x2) + thickness;
 			sr.h = abs (y1 - y2) + thickness;
 			SDL_LockSurface (dst);

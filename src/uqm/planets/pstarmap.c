@@ -2625,6 +2625,10 @@ RepairMap (COUNT update_race, RECT *pLastRect, RECT *pNextRect)
 	DrawStarMap (update_race, &r);
 }
 
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
 static void
 UpdateMap (void)
 {
@@ -2777,7 +2781,7 @@ DoneSphereMove:
 				last_r.extent.width += RES_SCALE (1);
 				last_r.extent.height += RES_SCALE (1);
 				// Kruzen: Font size to clean up double space because of text stacking now
-				last_r.extent.height = max(last_r.extent.height, RES_SCALE (14));
+				last_r.extent.height = MAX (last_r.extent.height, RES_SCALE (14));
 				VisibleChange = FALSE;
 
 				/*printf("%s: %d\n", raceName (index),
