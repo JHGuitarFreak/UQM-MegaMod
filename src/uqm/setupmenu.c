@@ -2464,7 +2464,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 	}
 #if defined(ANDROID) || defined(__ANDROID__)
-	PutBoolOpt (&optDirectionalJoystick, opts->directionalJoystick, "mm.directionalJoystick", FALSE);
+	PutBoolOpt (&optDirectionalJoystick, &opts->directionalJoystick, "mm.directionalJoystick", FALSE);
 #endif
 	PutIntOpt  (&optDateFormat, (int*)(&opts->dateType), "mm.dateFormat", FALSE);
 	PutBoolOpt (&optCustomBorder, &opts->customBorder, "mm.customBorder", FALSE);

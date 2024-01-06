@@ -855,6 +855,7 @@ TFB_SetOnScreenKeyboard_TwoPlayersMelee (void)
 /* Stubs */
 void TFB_InitOnScreenKeyboard(void) { }
 void TFB_SetOnScreenKeyboard_Hidden(void) { }
+void TFB_SetOnScreenKeyboard_HiddenPermanently (void) { }
 void TFB_SetOnScreenKeyboard_Menu(void) { }
 void TFB_SetOnScreenKeyboard_Starmap(void) { }
 void TFB_SetOnScreenKeyboard_Melee(void) { }

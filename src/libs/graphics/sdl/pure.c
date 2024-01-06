@@ -34,9 +34,9 @@ static TFB_ScaleFunc scaler = NULL;
 static Uint32 fade_color;
 
 static void TFB_Pure_Scaled_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
-static void TFB_Pure_Scaled_Postprocess (void);
+static void TFB_Pure_Scaled_Postprocess (bool hd);
 static void TFB_Pure_Unscaled_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
-static void TFB_Pure_Unscaled_Postprocess (void);
+static void TFB_Pure_Unscaled_Postprocess (bool hd);
 static void TFB_Pure_UploadTransitionScreen (void);
 static void TFB_Pure_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_Pure_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
@@ -422,7 +422,7 @@ TFB_Pure_Unscaled_Preprocess (int force_full_redraw, int transition_amount, int 
 }
 
 static void
-TFB_Pure_Scaled_Postprocess (void)
+TFB_Pure_Scaled_Postprocess (bool hd)
 {
 	SDL_LockSurface (scalebuffer);
 	SDL_LockSurface (backbuffer);
@@ -444,13 +444,17 @@ TFB_Pure_Scaled_Postprocess (void)
 		SDL_BlitSurface (scalebuffer, &updated, SDL_Video, &updated);
 
 	SDL_UpdateRects (SDL_Video, 1, &updated);
+
+	(void)hd;
 }
 
 static void
-TFB_Pure_Unscaled_Postprocess (void)
+TFB_Pure_Unscaled_Postprocess (bool hd)
 {
 	SDL_UpdateRect (SDL_Video, updated.x, updated.y,
-			updated.w, updated.h);
+			updated.w, updated.h);	
+
+	(void)hd;
 }
 
 static void
