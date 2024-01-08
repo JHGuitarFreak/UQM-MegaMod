@@ -546,8 +546,6 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		log_add (log_Info, "%d available addon pack%s.", count,
 				count == 1 ? "" : "s");
 
-		addonList.amount = count;
-
 		count = 0;
 		for (i = 0; i < availableAddons->numNames; ++i)
 		{
@@ -558,10 +556,10 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			if (!addon)
 				continue;
 
+			addonList.name_hash[count] = crc32b (addon);
+
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
-
-			addonList.name_hash[i] = crc32b (addon);
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
@@ -575,6 +573,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			mountDirZips (addonDir, mountname, uio_MOUNT_BELOW, mountHandle);
 			uio_closeDir (addonDir);
 		}
+
+		addonList.amount = count;
 	}
 	else
 	{
