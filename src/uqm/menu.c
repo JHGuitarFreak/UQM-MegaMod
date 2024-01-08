@@ -810,9 +810,13 @@ DrawMineralHelpers (void)
 
 	if (GetStorageBayCapacity ())
 	{
-		snprintf (buf, sizeof (buf), "%g%%",
-				(float)GLOBAL_SIS (TotalElementMass)
-				/ (float)GetStorageBayCapacity () * 100);
+		float totalCapacity = (float)GLOBAL_SIS (TotalElementMass)
+				/ (float)GetStorageBayCapacity () * 100;
+
+		if (totalCapacity > 9)
+			snprintf (buf, sizeof (buf), "%.1f%%", totalCapacity);
+		else
+			snprintf (buf, sizeof (buf), "%.2f%%", totalCapacity);
 	}
 	else
 	{
