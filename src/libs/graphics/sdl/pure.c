@@ -158,15 +158,19 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height,
 		if (resFactor != HD)
 		{
 			// Check the sanity of resolution.
-			if (width != 640 || height != 480)
+#if !(defined(ANDROID) || defined(__ANDROID__))
+			if (width > 640 || height > 480)
+#else
+			if (width > 320 || height > 240)
+#endif
 			{
 				log_add(log_Error, "Screen resolution of %dx%d not supported "
-					"under pure SDL, using 640x480", width, height);
+					"under pure SDL, using 320x240", width, height);
 
-				width = 640;
-				height = windowType ? 480 : 400;
+				width = 320;
+				height = windowType ? 240 : 200;
 			}
-
+			
 			ScreenWidthActual = width;
 			ScreenHeightActual = height;
 			graphics_backend = &pure_scaled_backend;

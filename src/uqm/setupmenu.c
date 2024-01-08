@@ -206,7 +206,9 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
+#if	SDL_MAJOR_VERSION == 2
 	(WIDGET *)(&choices[12]),   // Show FPS
+#endif
 	(WIDGET *)(&labels[4]),     // Spacer
 
 	(WIDGET *)(&choices[81]),   // Window Type
@@ -797,6 +799,7 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 {
 	if (self->selected < 6)
 	{
+#if !(defined(ANDROID) || defined(__ANDROID__))
 		if (!self->selected)
 		{	// No blowup
 			*NewWidth = RES_SCALE (320);
@@ -807,6 +810,18 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 			*NewWidth = 320 * (1 + self->selected);
 			*NewHeight = DOS_BOOL (240, 200) * (1 + self->selected);
 		}
+#else
+		if (!self->selected)
+		{	// No blowup
+			*NewWidth = RES_SCALE (320);
+			*NewHeight = RES_SCALE (240);
+		}
+		else
+		{
+			*NewWidth = 320 * (1 + self->selected);
+			*NewHeight = 240 * (1 + self->selected);
+		}
+#endif
 	}
 
 	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
