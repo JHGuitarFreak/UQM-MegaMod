@@ -67,7 +67,12 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
 	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+	{
+		if (CurStarDescPtr->Index == CHMMR_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+		if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
+	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 	GeneratePlanets (solarSys);
@@ -89,7 +94,7 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!GET_GAME_STATE (CHMMR_UNLEASHED))
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
-	} 
+	}
 	
 	if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
 	{
