@@ -65,19 +65,6 @@ BOOLEAN restartGame;
 			// Including this is actually necessary on OSX.
 #endif
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#	include <SDL_android.h>
-static void AndroidAppPutToBackgroundCallback(void) {
-	SDL_ANDROID_PauseAudioPlayback();
-	GameActive = FALSE;
-}
-
-static void SDLCALL AndroidAppRestoredCallback(void) {
-	SDL_ANDROID_ResumeAudioPlayback();
-	GameActive = TRUE;
-}
-#endif
-
 struct bool_option
 {
 	bool value;
@@ -522,7 +509,11 @@ main (int argc, char *argv[])
 	{	// Options parsing failed. Oh, well.
 		log_add (log_Fatal, "Run with -h to see the allowed arguments.");
 		return optionsResult;
-	}
+	}	
+
+#if defined(ANDROID) || defined(__ANDROID__)
+	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+#endif
 
 	TFB_PreInit ();
 	mem_init ();
@@ -801,7 +792,11 @@ main (int argc, char *argv[])
 	}
 
 	HFree (options.addons);
-	
+
+#if defined(ANDROID) || defined(__ANDROID__)
+	exit (EXIT_SUCCESS);
+#endif
+
 	return EXIT_SUCCESS;
 }
 

@@ -33,6 +33,7 @@
 #include "libs/memlib.h"
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
+#include "types.h"
 
 #include <stdlib.h>
 #include <stdio.h>

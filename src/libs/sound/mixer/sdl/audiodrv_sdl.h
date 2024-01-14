@@ -24,6 +24,7 @@
 #include "libs/sound/sound.h"
 #include "libs/sound/mixer/mixer.h"
 #include SDL_INCLUDE(SDL.h)
+#include SDL_INCLUDE(SDL_audio.h)
 
 /* General */
 sint32 mixSDL_Init (audio_Driver *driver, sint32 flags);

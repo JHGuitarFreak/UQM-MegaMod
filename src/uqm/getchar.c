@@ -32,10 +32,6 @@
 // for bool TextEntry3DO
 #include "gameopt.h"
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#include <SDL/SDL_screenkeyboard.h>
-#endif
-
 static RECT cursor;
 static CONTEXT curContext;
 static BOOLEAN block = FALSE;
@@ -217,7 +213,7 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 		int lwlen;
 
 #if defined(ANDROID) || defined(__ANDROID__)
-		SDL_ANDROID_ToggleScreenKeyboardTextInput (pTES->BaseStr);
+		//SDL_ANDROID_ToggleScreenKeyboardTextInput (pTES->BaseStr);
 		pTES->BaseStr[0] = 0;
 #endif
 

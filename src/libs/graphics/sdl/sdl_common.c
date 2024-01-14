@@ -38,10 +38,6 @@
 
 #include <time.h>
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#include <SDL/SDL_screenkeyboard.h>
-#endif
-
 SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
 
@@ -692,7 +688,7 @@ TFB_ClearFPSCanvas (void)
 	SDL_FillRect (SDL_Screen_fps, NULL, 0x00000000);
 }
 
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef NEVER
 
 static SDL_Rect SDL_LeftJoystickRect, SDL_RightJoystickRect, SDL_TextInputRect;
 static BOOLEAN HideScreenKeyboard = FALSE;

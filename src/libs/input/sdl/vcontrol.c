@@ -894,7 +894,7 @@ VControl_ProcessJoyAxis (int port, int axis, int value)
 #if defined(ANDROID) || defined(__ANDROID__)
 		if (port == 2) {
 		// Gamepad used - hide on-screen keys
-			TFB_SetOnScreenKeyboard_HiddenPermanently();
+			//TFB_SetOnScreenKeyboard_HiddenPermanently();
 		}
 #endif
 	}

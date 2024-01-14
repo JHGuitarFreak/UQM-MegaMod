@@ -152,6 +152,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
 
+#if defined(ANDROID) || defined(__ANDROID__)
+	SDL_SetHint (SDL_HINT_ORIENTATIONS, "LandscapeRight LandscapeLeft");
+#endif
+
 	if (window == NULL)
 	{
 		SDL_RendererInfo info;
@@ -208,6 +212,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		SDL2_Screens[1].active = FALSE;
 		SDL_Screen = SDL_Screens[0];
 		TransitionScreen = SDL_Screens[2];
+
 		format_conv_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 0, 0,
 				32, R_MASK, G_MASK, B_MASK, A_MASK);
 		if (!format_conv_surf)

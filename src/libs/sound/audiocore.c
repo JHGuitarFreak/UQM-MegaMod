@@ -69,6 +69,8 @@ initAudio (sint32 driver, sint32 flags)
 		ret = noSound_Init (&audiodrv, flags);
 #endif
 
+	// ret = noSound_Init (&audiodrv, flags);
+
 	if (ret != 0)
 	{
 		log_add (log_Fatal, "Sound driver initialization failed.\n"
