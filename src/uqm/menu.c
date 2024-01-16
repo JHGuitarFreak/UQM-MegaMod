@@ -959,7 +959,9 @@ DrawMineralHelpers (void)
 		float totalCapacity = (float)GLOBAL_SIS (TotalElementMass)
 				/ (float)GetStorageBayCapacity () * 100;
 
-		if (totalCapacity > 9)
+		if (totalCapacity == 100)
+			snprintf (buf, sizeof (buf), "%.0f%%", totalCapacity);
+		else if (totalCapacity > 9)
 			snprintf (buf, sizeof (buf), "%.1f%%", totalCapacity);
 		else
 			snprintf (buf, sizeof (buf), "%.2f%%", totalCapacity);
