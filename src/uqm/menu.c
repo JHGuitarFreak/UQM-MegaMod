@@ -30,6 +30,8 @@
 #include "util.h"
 #include "planets/planets.h"
 #include "shipcont.h"
+#include "nameref.h"
+#include "ifontres.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -530,6 +532,148 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	return TRUE;
 }
 
+static UNICODE *
+AlignText (UNICODE *str, COORD *loc_x)
+{
+	int modSize = 0;
+	int first_pos = utf8StringPos (str, UNICHAR_PIPE);
+	int last_pos = utf8StringLastPos (str, UNICHAR_PIPE);
+
+	if (utf8CharCount (str, UNICHAR_PIPE) != 2 || str == NULL
+		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
+		return str;
+
+	if (sscanf (str, "|%d|", &modSize) != 1)
+	{
+		log_add (log_Debug,
+			"\nVariable between delimiters is missing, corrupt, or "
+			"not an integer: %s\n", str);
+		return str;
+	}
+
+	if (modSize != 0)
+		*loc_x += RES_SCALE (modSize);
+
+	return skipUTF8Chars (str, last_pos + 1);
+}
+
+static UNICODE *
+IndexToText (int Index)
+{
+	int i = -1;
+	UNICODE temp_str[255];
+
+	if (Index < PM_EXIT_GAME_MENU)
+		i = Index;
+
+	switch (Index)
+	{
+		case PM_ENCOUNTER_GAME_MENU:
+		case PM_OUTFIT_GAME_MENU:
+		case PM_SHIPYARD_GAME_MENU:
+			i = GAMESTR_GAME_MENU;
+			break;
+		case PM_EXIT_GAME_MENU:
+		case PM_EXIT_OUTFIT:
+		case PM_EXIT_SHIPYARD:
+		case PM_EXIT_SETTINGS:
+			i = GAMESTR_EXIT_MENU;
+			break;
+		case PM_CONVERSE:
+			i = GAMESTR_CONVERSE;
+			break;
+		case PM_ATTACK:
+			i = GAMESTR_ATTACK;
+			break;
+		case PM_FUEL:
+			i = GAMESTR_FUEL;
+			break;
+		case PM_MODULE:
+			i = GAMESTR_MODULE;
+			break;
+		case PM_CREW:
+			i = GAMESTR_CREW;
+			break;
+		case PM_SOUND_ON:
+			i = GAMESTR_SND_ON;
+			break;
+		case PM_SOUND_OFF:
+			i = GAMESTR_SND_OFF;
+			break;
+		case PM_MUSIC_ON:
+			i = GAMESTR_MUS_ON;
+			break;
+		case PM_MUSIC_OFF:
+			i = GAMESTR_MUS_OFF;
+			break;
+		case PM_CYBORG_OFF:
+		case PM_CYBORG_NORMAL:
+		case PM_CYBORG_DOUBLE:
+		case PM_CYBORG_SUPER:
+			i = GAMESTR_COMBAT;
+			break;
+		case PM_READ_VERY_SLOW:
+		case PM_READ_SLOW:
+		case PM_READ_MODERATE:
+		case PM_READ_FAST:
+		case PM_READ_VERY_FAST:
+			i = GAMESTR_READING;
+			break;
+		case PM_CHANGE_CAPTAIN:
+			i = GAMESTR_CHANGE_CAP;
+			break;
+		case PM_CHANGE_SHIP:
+			i = GAMESTR_CHANGE_SIS;
+			break;
+		default:
+			break;
+	}
+
+	if (i == -1)
+		return NULL;
+
+	return GAME_STRING (PLAYMENU_STRING_BASE + i);
+}
+
+static void
+Draw3DOMenuText (RECT *r, int Index)
+{
+	TEXT text;
+	FONT thisFont = LoadFont (PLAYMENU_FONT);
+	SIZE leading;
+	RECT block;
+	COORD modSize = 0;
+
+	if (IndexToText (Index) == NULL)
+		return;
+
+	SetContextFont (thisFont);
+	
+	GetContextFontLeading (&leading);
+
+	text.align = ALIGN_CENTER;
+	text.pStr = AlignText (IndexToText (Index), &modSize);
+	text.CharCount = (COUNT)~0;
+
+	text.baseline.x = r->corner.x + (r->extent.width >> 1) + modSize
+			- RES_SCALE (1);
+	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
+
+	SetContextForeGroundColor (
+			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	block = *r;
+	block.extent.height = leading;
+	DrawFilledRectangle (&block);
+
+	SetContextForeGroundColor (BUILD_SHADE_RGBA (0x31));
+	font_DrawText (&text);
+
+	SetContextForeGroundColor (BUILD_SHADE_RGBA (0x74));
+	text.baseline.x += RES_SCALE (1);
+	text.baseline.y += RES_SCALE (1);
+	font_DrawText (&text);
+}
+
 void
 DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 {
@@ -652,6 +796,8 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			FunkyMenu (beg_index + (BYTE)NewState, s);
 		else
 			DrawStamp (&s);
+
+		Draw3DOMenuText (&r, beg_index + NewState);
 
 		switch (beg_index + NewState)
 		{
