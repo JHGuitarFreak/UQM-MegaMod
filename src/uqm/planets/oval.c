@@ -795,7 +795,7 @@ DrawFilledOval (DRECT *pRect)
 			lines_r = 0;
 
 			first.x = MAX (A - x, 0);
-			second.x = MIN (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
+			second.x = MIN (A - x + (x << 1) + 1, SIS_SCREEN_WIDTH);
 			first.y = second.y = B - y;
 			if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT))
 			{
@@ -838,7 +838,7 @@ DrawFilledOval (DRECT *pRect)
 	 // Changed to line and added a skip if offscreen
 		lines_r = 0;
 		first.x = MAX (A - x, 0);
-		second.x = MIN (first.x + (x << 1) + 1, SIS_SCREEN_WIDTH);
+		second.x = MIN (A - x + (x << 1) + 1, SIS_SCREEN_WIDTH);
 		first.y = second.y = B - y;
 		if (((B - y) >= 0 && (B - y) <= SIS_SCREEN_HEIGHT))
 		{
