@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Extend custom border to the playback bar during coversations
 - Restored DOS script when opting out of 3DO voices or if the add-on isn't available
 - Remove bottom "NET..." from Super Melee and add top/bottom player option to connect dialog
+- Game over screen for the Slylandro Probes taking over the entire sector
 
 ## [v0.8.3]
 ### Added
@@ -20,15 +21,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added option to switch between DOS, 3DO, and UQM "window modes"
 - Added option to set a custom resolution
 - Added option to choose between borderless and exclusive fullscreen (SDL2 builds only)
+- Added SC1 style ship spins with new pop-up animation - Kruzen
+- Graphics and sound volume settings now activate immediately within the setup menu
+- Added a custom resolution text entry option in the graphics menu
+- HD: Draw HD and custom border bevels dynamically
+- All text on-screen is now drawn in-engine to help with modding and translations (WIP)
 
 ### Changed
 - Cleaned up the Setup Menu code to make it more readable - Kruzen
 - Consolidate in-engine drawn shadow boxes
-- HD: Slides, Tiny, Player, StarCon, and Commander fonts updated
+- HD: Slides, Tiny, Player, StarCon, PlayMenu, Label, and Commander fonts updated
 - HD: Ilwrath, Ur-Quan, and Spathi fonts fully remade
 - HD: Enhance HyperSpace stars - Kruzen
 - HD: HD content check now happens during game startup and within the setup menu (instead of on the main menu screen)
 - HD: Now using Bummer6's Ilwrath Avenger concept art
+- HD: Use color filters to change the colors of the flagship and hyperspace "Nngh" between Hyper and QuasiSpace - Kruzen
+- Moved Starmap keys and mineral helpers to the Flagship status area (Top-right of the screen)
+- Made the FPS counter show on-screen instead of in the console - Kruzen
+- HD: Refined melee projectiles and assets - Kruzen
+- HD: Color-corrected ZFP ship - Kruzen
+- Optimized DrawGalaxy() func that draws stars in melee and hyperspace - Kruzen
+- HD: Stars in HD melee now resembles SD more that ever (with unscaled stamp option) - Kruzen
+- Dying SoI now have a brief animation of the race's name to make it more noticeable - Kruzen
+- HD: Circles appear with smooth edges (fake AA) - Kruzen
+- Race names don't overlap and stack on top of each other now - Kruzen
+- Draw bigger radar border in all non-3DO modes
+- HD: Brighten orbit dots when nebulae are enabled
+- HARDMODE: Moved remaining crew above the flagship to fit on-screen in all screen modes
+
 
 ### Fixed
 - Fixed Unlock Ships cheat from showing a second Yehat Terminator
@@ -39,10 +59,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added Tarp and Bummer6 to the credits
 - HD: HyperSpace ambience (*Nnngn*) fixed - Kruzen
 - HD: Color corrected Orz marines - Kruzen
-- HD: Refined ZFP primary w/ scaling - Kruzen
+- HD: Fix Chenjesu intelligence crash
 - Optimized fuel circles to prevent graphical glitches - Kruzen
 - Fixed kerning when kerndata for a character equals zero
 - Fix kerning when the kerndata only has the opening line
+- Fixed a bug when some SoI circles sometimes disappear with big enough zoom-in - Kruzen
+- HD: Fix oscilloscope lines and scale it to 60fps
+- Fixed Procyon not generating the Chmmr homeworld in some custom seeds
+- Fixed the Mother Ark star system from not generating the amount of planets necessary in some custom seeds
 
 
 
