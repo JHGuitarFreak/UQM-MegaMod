@@ -684,6 +684,12 @@
 			BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x19), 0x00),\
 		}
 
+// === Play Menu ===
+
+#define PM_RECT_COLOR   DKGRAY_COLOR
+#define PM_TEXT_COLOR   BUILD_SHADE_RGBA (0x74)
+#define PM_SHADOW_COLOR BUILD_SHADE_RGBA (0x31)
+
 // Temporary, until we can use C'99 features:
 #define BLACK_COLOR_INIT \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x00), 0x00)

@@ -629,7 +629,7 @@ IndexToText (int Index)
 			break;
 	}
 
-	if (i == -1)
+	if (i == -1 || !strlen (GAME_STRING (PLAYMENU_STRING_BASE + i)))
 		return NULL;
 
 	return GAME_STRING (PLAYMENU_STRING_BASE + i);
@@ -657,18 +657,18 @@ Draw3DOMenuText (RECT *r, int Index)
 
 	text.baseline.x = r->corner.x + (r->extent.width >> 1) + modSize
 			- RES_SCALE (1);
-	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
+	text.baseline.y = r->corner.y + leading - NDOS_NUM_SCL (2)
+			- RES_SCALE (1);
 
-	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	SetContextForeGroundColor (PM_RECT_COLOR);
 	block = *r;
 	block.extent.height = leading;
 	DrawFilledRectangle (&block);
 
-	SetContextForeGroundColor (BUILD_SHADE_RGBA (0x31));
+	SetContextForeGroundColor (PM_SHADOW_COLOR);
 	font_DrawText (&text);
 
-	SetContextForeGroundColor (BUILD_SHADE_RGBA (0x74));
+	SetContextForeGroundColor (PM_TEXT_COLOR);
 	text.baseline.x += RES_SCALE (1);
 	text.baseline.y += RES_SCALE (1);
 	font_DrawText (&text);
