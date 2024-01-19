@@ -219,6 +219,58 @@ font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 	SetContextForeGroundColor (oldfg);
 }
 
+void
+font_DrawShadowedText (TEXT *pText, BYTE direction,
+	Color text_color, Color shadow_color)
+{
+	POINT shadow_angle = { 0, 0 };
+	Color OldColor;
+
+	switch (direction)
+	{
+		case NORTH_SHADOW:
+			shadow_angle = MAKE_POINT (0, -1);
+			break;
+		case NORTH_EAST_SHADOW:
+			shadow_angle = MAKE_POINT (1, -1);
+			break;
+		case EAST_SHADOW:
+			shadow_angle = MAKE_POINT (1, 0);
+			break;
+		case SOUTH_EAST_SHADOW:
+			shadow_angle = MAKE_POINT (1, 1);
+			break;
+		case SOUTH_SHADOW:
+			shadow_angle = MAKE_POINT (0, 1);
+			break;
+		case SOUTH_WEST_SHADOW:
+			shadow_angle = MAKE_POINT (-1, 1);
+			break;
+		case WEST_SHADOW:
+			shadow_angle = MAKE_POINT (-1, 0);
+			break;
+		case NORTH_WEST_SHADOW:
+			shadow_angle = MAKE_POINT (-1, -1);
+			break;
+	}
+
+	pText->baseline.x += RES_SCALE (shadow_angle.x);
+	pText->baseline.y += RES_SCALE (shadow_angle.y);
+
+	OldColor = SetContextForeGroundColor (shadow_color);
+
+	font_DrawText (pText);
+
+	pText->baseline.x -= RES_SCALE (shadow_angle.x);
+	pText->baseline.y -= RES_SCALE (shadow_angle.y);
+
+	SetContextForeGroundColor (text_color);
+
+	font_DrawText (pText);
+
+	SetContextForeGroundColor (OldColor);
+}
+
 BOOLEAN
 GetContextFontLeading (SIZE *pheight)
 {

@@ -533,31 +533,6 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 }
 
 static UNICODE *
-AlignText (UNICODE *str, COORD *loc_x)
-{
-	int modSize = 0;
-	int first_pos = utf8StringPos (str, UNICHAR_PIPE);
-	int last_pos = utf8StringLastPos (str, UNICHAR_PIPE);
-
-	if (utf8CharCount (str, UNICHAR_PIPE) != 2 || str == NULL
-		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
-		return str;
-
-	if (sscanf (str, "|%d|", &modSize) != 1)
-	{
-		log_add (log_Debug,
-			"\nVariable between delimiters is missing, corrupt, or "
-			"not an integer: %s\n", str);
-		return str;
-	}
-
-	if (modSize != 0)
-		*loc_x += RES_SCALE (modSize);
-
-	return skipUTF8Chars (str, last_pos + 1);
-}
-
-static UNICODE *
 IndexToText (int Index)
 {
 	int i = -1;
@@ -639,39 +614,34 @@ static void
 Draw3DOMenuText (RECT *r, int Index)
 {
 	TEXT text;
-	FONT thisFont = LoadFont (PLAYMENU_FONT);
 	SIZE leading;
 	RECT block;
-	COORD modSize = 0;
+	FONT OldFont;
+	Color OldColor;
 
 	if (IndexToText (Index) == NULL)
 		return;
 
-	SetContextFont (thisFont);
-	
+	OldFont = SetContextFont (LoadFont (PLAYMENU_FONT));
+	OldColor = SetContextForeGroundColor (PM_RECT_COLOR);
+
 	GetContextFontLeading (&leading);
 
-	text.align = ALIGN_CENTER;
-	text.pStr = AlignText (IndexToText (Index), &modSize);
-	text.CharCount = (COUNT)~0;
-
-	text.baseline.x = r->corner.x + (r->extent.width >> 1) + modSize
-			- RES_SCALE (1);
-	text.baseline.y = r->corner.y + leading - NDOS_NUM_SCL (2)
-			- RES_SCALE (1);
-
-	SetContextForeGroundColor (PM_RECT_COLOR);
 	block = *r;
 	block.extent.height = leading;
-	DrawFilledRectangle (&block);
+	DrawFilledRectangle (&block); // with PM_RECT_COLOR
 
-	SetContextForeGroundColor (PM_SHADOW_COLOR);
-	font_DrawText (&text);
+	text.align = ALIGN_CENTER;
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading - NDOS_NUM_SCL (2);
+	text.pStr = AlignText (IndexToText (Index), &text.baseline.x);
+	text.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (PM_TEXT_COLOR);
-	text.baseline.x += RES_SCALE (1);
-	text.baseline.y += RES_SCALE (1);
-	font_DrawText (&text);
+	font_DrawShadowedText (&text, NORTH_WEST_SHADOW, PM_TEXT_COLOR,
+			PM_SHADOW_COLOR);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
 }
 
 void

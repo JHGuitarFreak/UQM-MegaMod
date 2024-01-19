@@ -263,6 +263,54 @@ InventoryModules (BYTE *pModuleMap, COUNT Size)
 }
 
 static void
+DrawModuleMenuText (RECT *r, int Index)
+{
+	TEXT text;
+	FONT thisFont = LoadFont (MODULE_FONT);
+	SIZE leading;
+	RECT block;
+	UNICODE buf[256];
+	COORD og_baseline_x;
+
+	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 24 + Index)))
+		return;
+
+	SetContextFont (thisFont);
+
+	GetContextFontLeading (&leading);
+
+	SetContextForeGroundColor (MDL_RECT_COLOR);
+	block = *r;
+	block.extent.height = (leading << 1) - RES_SCALE (1);
+	DrawFilledRectangle (&block);
+
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
+	og_baseline_x = text.baseline.x;
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (STARBASE_STRING_BASE + 24 + Index));
+
+	text.align = ALIGN_CENTER;
+	text.pStr = strtok (buf, " ");
+	text.CharCount = (COUNT)~0;
+
+	while (text.pStr != NULL)
+	{
+		text.pStr = AlignText (text.pStr, &text.baseline.x);
+		text.CharCount = (COUNT)~0;
+
+		font_DrawShadowedText (&text, WEST_SHADOW, MDL_TEXT_COLOR,
+				MDL_SHADOW_COLOR);
+
+		text.pStr = strtok (NULL, " ");
+		text.CharCount = (COUNT)~0;
+		text.baseline.y += leading;
+		text.baseline.x = og_baseline_x;
+	}
+}
+
+static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 {
 	RECT r;
@@ -339,6 +387,9 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
+
+		/// HERE!
+		DrawModuleMenuText (&r, NewModule);
 
 		// Print the module cost.
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);

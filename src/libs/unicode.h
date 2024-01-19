@@ -22,6 +22,8 @@
 		// for uint32
 #include <sys/types.h>
 		// For size_t
+#include "compiler.h"
+		// for UNICODE
 
 #if defined(__cplusplus)
 extern "C" {
@@ -63,6 +65,9 @@ int UniChar_isGraph(UniChar ch);
 int UniChar_isPrint(UniChar ch);
 UniChar UniChar_toUpper(UniChar ch);
 UniChar UniChar_toLower(UniChar ch);
+
+UNICODE *AlignText (const UNICODE *str, sint16 *loc_x);
+UNICODE *AddPadd (const UNICODE *str, sint16 *padding);
 
 #undef UNICODE_CHAR
 

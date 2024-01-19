@@ -20,3 +20,4 @@
 #define MELEE_TITLE_FONT "font.melee.title"
 #define BUTTON_FONT "font.button"
 #define PLAYMENU_FONT "font.playmenu"
+#define MODULE_FONT "font.module"

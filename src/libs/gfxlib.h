@@ -581,6 +581,18 @@ MAKE_DRAW_MODE (DrawKind kind, SWORD factor)
 	return mode;
 }
 
+typedef enum
+{
+	NORTH_SHADOW,
+	NORTH_EAST_SHADOW,
+	EAST_SHADOW,
+	SOUTH_EAST_SHADOW,
+	SOUTH_SHADOW,
+	SOUTH_WEST_SHADOW,
+	WEST_SHADOW,
+	NORTH_WEST_SHADOW,
+} SHADOW_ANGLE;
+
 extern CONTEXT SetContext (CONTEXT Context);
 extern Color SetContextForeGroundColor (Color Color);
 extern Color GetContextForeGroundColor (void);
@@ -621,6 +633,8 @@ extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
 extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key);
 extern void font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 		UniChar key);
+extern void font_DrawShadowedText (TEXT *pText, BYTE direction,
+		Color text_color, Color shadow_color);
 extern void DrawBatch (PRIMITIVE *pBasePrim, PRIM_LINKS PrimLinks,
 		BATCH_FLAGS BatchFlags);
 extern void BatchGraphics (void);
