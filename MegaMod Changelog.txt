@@ -48,6 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Draw bigger radar border in all non-3DO modes
 - HD: Brighten orbit dots when nebulae are enabled
 - HARDMODE: Moved remaining crew above the flagship to fit on-screen in all screen modes
+- Sound slider improved and now you can hear the corresponding volume setting changes "live" - Kruzen
 
 
 ### Fixed
