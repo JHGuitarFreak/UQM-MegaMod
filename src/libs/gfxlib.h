@@ -633,6 +633,8 @@ extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
 extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key);
 extern void font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 		UniChar key);
+extern void font_DrawShadowedText (TEXT *pText, BYTE direction,
+		Color text_color, Color shadow_color);
 extern void DrawBatch (PRIMITIVE *pBasePrim, PRIM_LINKS PrimLinks,
 		BATCH_FLAGS BatchFlags);
 extern void BatchGraphics (void);

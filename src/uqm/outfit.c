@@ -262,58 +262,6 @@ InventoryModules (BYTE *pModuleMap, COUNT Size)
 	return ModulesOnBoard;
 }
 
-void
-font_DrawShadowedText (TEXT *pText, BYTE direction,
-		Color text_color, Color shadow_color)
-{
-	POINT shadow_angle = {0, 0};
-	Color OldColor;
-
-	switch (direction)
-	{
-		case NORTH_SHADOW:
-			shadow_angle = MAKE_POINT (0, -1);
-			break;
-		case NORTH_EAST_SHADOW:
-			shadow_angle = MAKE_POINT (1, -1);
-			break;
-		case EAST_SHADOW:
-			shadow_angle = MAKE_POINT (1, 0);
-			break;
-		case SOUTH_EAST_SHADOW:
-			shadow_angle = MAKE_POINT (1, 1);
-			break;
-		case SOUTH_SHADOW:
-			shadow_angle = MAKE_POINT (0, 1);
-			break;
-		case SOUTH_WEST_SHADOW:
-			shadow_angle = MAKE_POINT (-1, 1);
-			break;
-		case WEST_SHADOW:
-			shadow_angle = MAKE_POINT (-1, 0);
-			break;
-		case NORTH_WEST_SHADOW:
-			shadow_angle = MAKE_POINT (-1, -1);
-			break;
-	}
-
-	pText->baseline.x += RES_SCALE (shadow_angle.x);
-	pText->baseline.y += RES_SCALE (shadow_angle.y);
-
-	OldColor = SetContextForeGroundColor (shadow_color);
-
-	font_DrawText (pText);
-
-	pText->baseline.x -= RES_SCALE (shadow_angle.x);
-	pText->baseline.y -= RES_SCALE (shadow_angle.y);
-
-	SetContextForeGroundColor (text_color);
-
-	font_DrawText (pText);
-
-	SetContextForeGroundColor (OldColor);
-}
-
 static void
 DrawModuleMenuText (RECT *r, int Index)
 {
@@ -321,8 +269,8 @@ DrawModuleMenuText (RECT *r, int Index)
 	FONT thisFont = LoadFont (MODULE_FONT);
 	SIZE leading;
 	RECT block;
-	COORD modSize = 0;
 	UNICODE buf[256];
+	COORD og_baseline_x;
 
 	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 24 + Index)))
 		return;
@@ -331,10 +279,17 @@ DrawModuleMenuText (RECT *r, int Index)
 
 	GetContextFontLeading (&leading);
 
-	text.baseline.x = r->corner.x + (r->extent.width >> 1) + modSize;
-	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
+	SetContextForeGroundColor (MDL_RECT_COLOR);
+	block = *r;
+	block.extent.height = (leading << 1) - RES_SCALE (1);
+	DrawFilledRectangle (&block);
 
-	utf8StringCopy (buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 24 + Index));
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
+	og_baseline_x = text.baseline.x;
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (STARBASE_STRING_BASE + 24 + Index));
 
 	text.align = ALIGN_CENTER;
 	text.pStr = strtok (buf, " ");
@@ -345,26 +300,14 @@ DrawModuleMenuText (RECT *r, int Index)
 		text.pStr = AlignText (text.pStr, &text.baseline.x);
 		text.CharCount = (COUNT)~0;
 
-		font_DrawShadowedText (&text, WEST_SHADOW, BRIGHT_GREEN_COLOR,
-				BRIGHT_BLUE_COLOR);
+		font_DrawShadowedText (&text, WEST_SHADOW, MDL_TEXT_COLOR,
+				MDL_SHADOW_COLOR);
 
 		text.pStr = strtok (NULL, " ");
 		text.CharCount = (COUNT)~0;
 		text.baseline.y += leading;
+		text.baseline.x = og_baseline_x;
 	}
-
-	//SetContextForeGroundColor (PM_RECT_COLOR);
-	//block = *r;
-	//block.extent.height = leading;
-	////DrawFilledRectangle (&block);
-
-	//SetContextForeGroundColor (PM_SHADOW_COLOR);
-	////font_DrawText (&text);
-
-	//
-	//text.baseline.x += RES_SCALE (1);
-	//text.baseline.y += RES_SCALE (1);
-	//font_DrawText (&text);
 }
 
 static void
