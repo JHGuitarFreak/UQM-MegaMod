@@ -581,6 +581,18 @@ MAKE_DRAW_MODE (DrawKind kind, SWORD factor)
 	return mode;
 }
 
+typedef enum
+{
+	NORTH_SHADOW,
+	NORTH_EAST_SHADOW,
+	EAST_SHADOW,
+	SOUTH_EAST_SHADOW,
+	SOUTH_SHADOW,
+	SOUTH_WEST_SHADOW,
+	WEST_SHADOW,
+	NORTH_WEST_SHADOW,
+} SHADOW_ANGLE;
+
 extern CONTEXT SetContext (CONTEXT Context);
 extern Color SetContextForeGroundColor (Color Color);
 extern Color GetContextForeGroundColor (void);

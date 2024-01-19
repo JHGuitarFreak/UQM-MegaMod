@@ -304,56 +304,6 @@ ButtonText (COUNT which_icon)
 	}
 }
 
-static UNICODE *
-AlignText (UNICODE *str, COORD *loc_x)
-{
-	int modSize = 0;
-	int first_pos = utf8StringPos (str, UNICHAR_PIPE);
-	int last_pos = utf8StringLastPos (str, UNICHAR_PIPE);
-
-	if (utf8CharCount (str, UNICHAR_PIPE) != 2 || str == NULL
-		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
-		return str;
-
-	if (sscanf (str, "|%d|", &modSize) != 1)
-	{
-		log_add (log_Debug,
-			"\nVariable between delimiters is missing, corrupt, or "
-			"not an integer: %s\n", str);
-		return str;
-	}
-
-	if (modSize != 0)
-		*loc_x += RES_SCALE (modSize);
-
-	return skipUTF8Chars (str, last_pos + 1);
-}
-
-static UNICODE *
-AddPadd (UNICODE *str, COORD *padding)
-{
-	int modSize = 0;
-	int first_pos = utf8StringPos (str, UNICHAR_COLON);
-	int last_pos = utf8StringLastPos (str, UNICHAR_COLON);
-
-	if (utf8CharCount (str, UNICHAR_COLON) != 2 || str == NULL
-		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
-		return str;
-
-	if (sscanf (str, ":%d:", &modSize) != 1)
-	{
-		log_add (log_Debug,
-			"\nVariable between delimiters is missing, corrupt, or "
-			"not an integer: %s\n", str);
-		return str;
-	}
-
-	if (modSize != 0)
-		*padding += RES_SCALE (modSize);
-
-	return skipUTF8Chars (str, last_pos + 1);
-}
-
 static void
 DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 {
