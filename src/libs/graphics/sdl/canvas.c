@@ -199,9 +199,6 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 			return;
 		}
 
-		if (mode.kind >= DRAW_MULTIPLY)
-			mode.factor = FULLY_OPAQUE_ALPHA;
-
 		if (!src_r)
 		{	// blit whole image; generate rect
 			loc_src_r.x = 0;

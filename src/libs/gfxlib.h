@@ -556,6 +556,7 @@ typedef enum
 	DRAW_OVERLAY,
 	DRAW_SCREEN,
 	DRAW_GRAYSCALE,
+	DRAW_HSTARMASK,
 	DRAW_HYPTOQUAS,
 	DRAW_SHIPHYPER,
 	DRAW_SHIPQUASI,
@@ -571,6 +572,7 @@ typedef struct
 
 #define DRAW_REPLACE_MODE   MAKE_DRAW_MODE (DRAW_REPLACE, 0)
 #define DRAW_FACTOR_1       0xff
+#define TRANSFER_ALPHA      0x7fff
 
 static inline DrawMode
 MAKE_DRAW_MODE (DrawKind kind, SWORD factor)
