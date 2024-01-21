@@ -34,7 +34,6 @@ extern FRAME Screen;
 extern FRAME ActivityFrame;
 extern FRAME StatusFrame;
 extern FRAME SubmenuFrame;
-extern FRAME hyperspacesuns;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME visitedStarsFrame;

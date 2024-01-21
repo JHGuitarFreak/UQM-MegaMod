@@ -69,7 +69,6 @@ UninitKernel (void)
 	DestroyDrawable (ReleaseDrawable (HDBorderFrame));
 	DestroyDrawable (ReleaseDrawable (StatusFrame));
 	DestroyDrawable (ReleaseDrawable (SubmenuFrame));
-	DestroyDrawable (ReleaseDrawable (hyperspacesuns));
 	DestroyDrawable (ReleaseDrawable (ActivityFrame));
 	DestroyFont (TinyFont);
 	DestroyFont (TinyFontBold);

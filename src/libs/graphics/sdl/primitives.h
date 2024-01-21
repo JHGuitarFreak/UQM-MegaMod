@@ -38,6 +38,7 @@ typedef enum
 	renderOverlay,
 	renderScreen,
 	renderGrayscale,
+	renderHyperstarMask,
 	renderHypToQuas,
 	renderShipHyper,
 	renderShipQuasi,

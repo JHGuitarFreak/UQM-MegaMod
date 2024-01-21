@@ -190,10 +190,8 @@ alpha_blend(Uint8 dc, Uint8 sc, int alpha)
 }
 
 static inline Uint8
-multiply_blend (Uint8 dc, Uint8 sc, int alpha)
+multiply_blend (Uint8 dc, Uint8 sc)
 {	// Kruzen: custom blend for multiply
-	(void)alpha;
-
 	return (sc * dc) >> 8;
 }
 
@@ -211,10 +209,8 @@ overlay_blend (Uint8 dc, Uint8 sc)
 }
 
 static inline Uint8
-screen_blend (Uint8 dc, Uint8 sc, int alpha)
+screen_blend (Uint8 dc, Uint8 sc)
 {	// Custom "screen" blend mode
-	(void)alpha;
-
 	return (255 - (((255 - sc) * (255 - dc)) >> 8));
 }
 
@@ -332,13 +328,15 @@ renderpixel_multiply (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
+	(void)factor;
+
 	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
 	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
 	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-	sr = multiply_blend (sr, r, factor);
-	sg = multiply_blend (sg, g, factor);
-	sb = multiply_blend (sb, b, factor);
+	sr = multiply_blend (sr, r);
+	sg = multiply_blend (sg, g);
+	sb = multiply_blend (sb, b);
 	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
 }
 
@@ -374,13 +372,15 @@ renderpixel_screen (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
+	(void)factor;
+
 	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
 	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
 	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-	sr = screen_blend (sr, r, factor);
-	sg = screen_blend (sg, g, factor);
-	sb = screen_blend (sb, b, factor);
+	sr = screen_blend (sr, r);
+	sg = screen_blend (sg, g);
+	sb = screen_blend (sb, b);
 	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
 }
 
@@ -461,6 +461,26 @@ renderpixel_shipinquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_32_ALPHA (fmt, 0, g, 0, a);
 }
 
+static void
+renderpixel_hyperstarmask (SDL_Surface *surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
+	r = alpha_blend (sr, overlay_blend (sr, r), factor);
+	g = alpha_blend (sg, overlay_blend (sg, g), factor);
+	b = alpha_blend (sb, overlay_blend (sb, b), factor);
+	*p = PACK_PIXEL_32 (fmt, r, g, b);
+}
+
 RenderPixelFn
 renderpixel_for(SDL_Surface *surface, RenderKind kind)
 {
@@ -490,6 +510,8 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_screen;
 	case renderGrayscale:
 		return &renderpixel_grayscale;
+	case renderHyperstarMask:
+		return &renderpixel_hyperstarmask;
 	case renderHypToQuas:
 		return &renderpixel_hypertoquasi;
 	case renderShipHyper:
@@ -790,6 +812,7 @@ blt_prim (SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 	Uint32 key = ~0;
 	GetPixelFn getpix = getpixel_for(src);
 	SDL_Rect clip_r;
+	BOOLEAN prop_a = FALSE;
 	int x, y;
 
 	SDL_GetClipRect (dst, &clip_r);
@@ -803,6 +826,9 @@ blt_prim (SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 		src_r.w = src->w - src_r.x;
 	if (src_r.y + src_r.h > src->h)
 		src_r.h = src->h - src_r.y;
+
+	if (factor == TRANSFER_ALPHA)
+		prop_a = TRUE;
 
 	// use colorkeys where appropriate
 	if (srcfmt->Amask)
@@ -840,6 +866,9 @@ blt_prim (SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 			// TODO: handle source pixel alpha; plot() should probably
 			//   get a source alpha parameter
 			p = SDL_MapRGBA (dstfmt, r, g, b, a);
+
+			if (prop_a)
+				factor = a;
 
 			plot(dst, dst_r.x + x, dst_r.y + y, p, factor);
 		}

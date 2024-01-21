@@ -70,7 +70,6 @@ QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
-FRAME hyperspacesuns;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME visitedStarsFrame;
@@ -326,13 +325,6 @@ InitKernel (void)
 	if (StatusFrame == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
-
-	if (HDPackPresent)
-	{ 
-		hyperspacesuns = CaptureDrawable (LoadGraphic (HYPERSUNS_MASK_PMAP_ANIM));
-		if (hyperspacesuns == NULL)
-			return FALSE;
-	}
 
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)
