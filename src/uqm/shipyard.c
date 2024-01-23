@@ -274,7 +274,7 @@ GetShipStats (SHIP_STATS *ship_stats, SPECIES_ID species_id)
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
 					RDPtr->ship_info.race_strings, 2)),
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-					RDPtr->ship_info.race_strings, 4))
+					RDPtr->ship_info.race_strings, 5))
 		);
 
 	ship_stats->ShipCost = RDPtr->ship_info.ship_cost * 100;
@@ -526,9 +526,72 @@ ShipCost (BYTE race_id)
 }
 
 static void
+DrawShipyardShipText (RECT *r, int Index)
+{
+	RACE_DESC *RDPtr;
+	UNICODE race_name[64];
+	UNICODE ship_name[64];
+	FONT OldFont;
+	Color OldColor;
+	SIZE leading;
+	RECT block;
+	TEXT text;
+	COORD og_baseline_x;
+
+	if (IS_DOS)
+		return;
+
+	RDPtr = load_ship (Index + 1, FALSE);
+
+	utf8StringCopy (&race_name, sizeof (race_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings, 3)));
+
+	utf8StringCopy (&ship_name, sizeof (ship_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings, 6)));
+
+	free_ship (RDPtr, TRUE, TRUE);
+
+	if (!strlen (&race_name) || !strlen (&ship_name))
+		return;
+
+	OldFont = SetContextFont (LoadFont (MODULE_FONT));
+	OldColor = SetContextForeGroundColor (SHP_RECT_COLOR);
+
+	GetContextFontLeading (&leading);
+	
+	block = *r;
+	block.extent.height = (leading << 1);
+	DrawFilledRectangle (&block);
+
+	text.align = ALIGN_CENTER;
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading;
+	og_baseline_x = text.baseline.x;
+
+	text.pStr = AlignText (&race_name, &text.baseline.x);
+	text.CharCount = (COUNT)~0;
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
+
+	if (text.baseline.x != og_baseline_x)
+		text.baseline.x = og_baseline_x;
+
+	text.baseline.y += leading;
+	text.pStr = AlignText (&ship_name, &text.baseline.x);
+	text.CharCount = (COUNT)~0;
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+static void
 DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 {
-	RECT r;
+	RECT r, textRect;
 	STAMP s;
 	CONTEXT OldContext;
 	
@@ -546,7 +609,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
 
 	if (!IS_DOS)
+	{
 		DrawFilledRectangle (&r);
+		textRect = r;
+	}
 
 	DrawBorder (8);
 
@@ -599,7 +665,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		// Draw the ship name, above the ship image.
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 3 + NewRaceItem);
 		if (!IS_DOS)
+		{
 			DrawStamp (&s);
+			DrawShipyardShipText (&textRect, NewRaceItem);
+		}
 
 		// Draw the ship image.
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);

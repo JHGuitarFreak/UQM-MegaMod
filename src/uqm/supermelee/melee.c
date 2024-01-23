@@ -480,7 +480,6 @@ DrawShipPickerText (STAMP stamp)
 	COUNT i;
 	STAMP s;
 	POINT pt;
-	SIZE leading;
 
 	for (i = 0; i < 2; i++)
 	{	// Check if we actually have text to print
