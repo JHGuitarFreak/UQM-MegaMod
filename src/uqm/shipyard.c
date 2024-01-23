@@ -201,7 +201,7 @@ DrawShipsDisplay (SHIPS_STATE *shipState)
 			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "MODULES" title
 	SetContextFont (StarConFont);
@@ -557,13 +557,18 @@ DrawShipyardShipText (RECT *r, int Index)
 		return;
 
 	OldFont = SetContextFont (LoadFont (MODULE_FONT));
-	OldColor = SetContextForeGroundColor (SHP_RECT_COLOR);
+	OldColor = SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 
 	GetContextFontLeading (&leading);
 	
-	block = *r;
-	block.extent.height = (leading << 1);
-	DrawFilledRectangle (&block);
+	if (!optCustomBorder)
+	{
+		block = *r;
+		block.extent.height = (leading << 1);
+		DrawFilledRectangle (&block);
+	}
+	else
+		DrawBorder (TEXT_LABEL_FRAME);
 
 	text.align = ALIGN_CENTER;
 	text.baseline.x = r->corner.x + (r->extent.width >> 1);
@@ -606,15 +611,17 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	r.extent.height = RES_SCALE (12);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
-	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+	SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 
 	if (!IS_DOS)
 	{
-		DrawFilledRectangle (&r);
+		if (!optCustomBorder)
+			DrawFilledRectangle (&r);
+
 		textRect = r;
 	}
 
-	DrawBorder (8);
+	DrawBorder (SIS_RADAR_FRAME);
 
 	if (!IS_DOS)
 	{
@@ -667,7 +674,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		if (!IS_DOS)
 		{
 			DrawStamp (&s);
-			DrawShipyardShipText (&textRect, NewRaceItem);
+			//DrawShipyardShipText (&textRect, NewRaceItem);
 		}
 
 		// Draw the ship image.
@@ -1986,7 +1993,7 @@ DoShipyard (MENU_STATE *pMS)
 				DrawStamp (&s);
 
 				if (optCustomBorder)
-					DrawBorder (9);
+					DrawBorder (SIS_REPAIR_FRAME);
 
 				SetContextClipRect (&old_r);
 

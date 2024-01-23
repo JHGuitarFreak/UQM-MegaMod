@@ -104,7 +104,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	if (!optCustomBorder)
 		DrawFilledRectangle (&rt);
 
-	DrawBorder (8);
+	DrawBorder (SIS_RADAR_FRAME);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
@@ -151,7 +151,8 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 					s.origin = r->corner;
 
-					s.frame = SetAbsFrameIndex (BorderFrame, 22);
+					s.frame = SetAbsFrameIndex (BorderFrame,
+							DOS_MENU_HILITE);
 					DrawStamp (&s);
 				}
 				else
@@ -623,13 +624,24 @@ Draw3DOMenuText (RECT *r, int Index)
 		return;
 
 	OldFont = SetContextFont (LoadFont (PLAYMENU_FONT));
-	OldColor = SetContextForeGroundColor (PM_RECT_COLOR);
+	OldColor = SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 
 	GetContextFontLeading (&leading);
 
 	block = *r;
+	block.corner.y += DOS_NUM_SCL (2);
 	block.extent.height = leading;
 	DrawFilledRectangle (&block); // with PM_RECT_COLOR
+
+	if (!optCustomBorder)
+	{
+		block = *r;
+		block.corner.y += DOS_NUM_SCL (2);
+		block.extent.height = leading;
+		DrawFilledRectangle (&block); // with PM_RECT_COLOR
+	}
+	else
+		DrawBorder (TEXT_LABEL_FRAME);
 
 	text.align = ALIGN_CENTER;
 	text.baseline.x = r->corner.x + (r->extent.width >> 1);
@@ -747,18 +759,18 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	}
 	else
 	{
+		// Gray rectangle behind Lander and HyperSpace radar
+		r.corner.x -= RES_SCALE (1);
+		r.corner.y += DOS_NUM_SCL (5);
+		r.extent.width += RES_SCALE (1);
+		r.extent.height = RADAR_HEIGHT
+				+ RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
+		r.extent.height -= DOS_NUM_SCL (6);
+
 		if (!optCustomBorder)
-		{	// Gray rectangle behind Lander and HyperSpace radar
-			r.corner.x -= RES_SCALE (1);
-			r.corner.y += DOS_NUM_SCL (5);
-			r.extent.width += RES_SCALE (1);
-			r.extent.height = RADAR_HEIGHT
-					+ RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
-			r.extent.height -= DOS_NUM_SCL (6);
 			DrawFilledRectangle (&r);
-		}
 		else
-			DrawBorder (8);
+			DrawBorder (SIS_RADAR_FRAME);
 	}
 	if (s.frame)
 	{

@@ -175,7 +175,7 @@ DrawModuleDisplay (MODULES_STATE *modState)
 				TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "MODULES" title
 	SetContextFont (StarConFont);
@@ -279,10 +279,16 @@ DrawModuleMenuText (RECT *r, int Index)
 
 	GetContextFontLeading (&leading);
 
-	SetContextForeGroundColor (MDL_RECT_COLOR);
-	block = *r;
-	block.extent.height = (leading << 1) - RES_SCALE (1);
-	DrawFilledRectangle (&block);
+	SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+
+	if (!optCustomBorder)
+	{
+		block = *r;
+		block.extent.height = (leading << 1) - RES_SCALE (1);
+		DrawFilledRectangle (&block);
+	}
+	else
+		DrawBorder (TEXT_LABEL_FRAME);
 
 	text.baseline.x = r->corner.x + (r->extent.width >> 1);
 	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
@@ -335,7 +341,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		DrawFilledRectangle (&r); // drawn over anyway
 	}
 
-	DrawBorder (8);
+	DrawBorder (SIS_RADAR_FRAME);
 
 	if (IS_DOS)
 	{

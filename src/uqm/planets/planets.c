@@ -301,10 +301,10 @@ DrawPlanetSurfaceBorder (void)
 		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		DrawFilledRectangle (&r);
 
-		DrawBorder (23);
+		DrawBorder (LANDER_DOS_FRAME);
 	}
 	else
-		DrawBorder (10);
+		DrawBorder (LANDER_3DO_FRAME);
 	
 	UnbatchGraphics ();
 

@@ -148,7 +148,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 }
 
 void
-DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, SCB_TYPE type)
+DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, int type)
 {
 	int i;
 	STAMP stamp;
@@ -186,7 +186,7 @@ DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, SCB_TYPE type)
 	}
 
 	stamp.frame = optCustomBorder && LOBYTE (GLOBAL (CurrentActivity))
-			!= SUPER_MELEE ? BorderFrame : HDBorderFrame;
+			!= SUPER_MELEE ? CustBevelFrame : DefBevelFrame;
 
 	if (type == SPECIAL_BEVEL)
 	{
@@ -600,7 +600,7 @@ DrawFlagStatDisplay (UNICODE *str)
 			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "str" title
 	SetContextFont (StarConFont);

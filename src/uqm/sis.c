@@ -78,7 +78,7 @@ RepairSISBorder (void)
 	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
-	DrawBorder (9);
+	DrawBorder (SIS_REPAIR_FRAME);
 
 	UnbatchGraphics ();
 
@@ -167,7 +167,7 @@ DrawSISTitle (UNICODE *pStr)
 	SetContextBackGroundColor (SIS_TITLE_BACKGROUND_COLOR);
 	ClearDrawable ();
 	
-	DrawBorder (3);
+	DrawBorder (SIS_TITLE_FRAME);
 
 	// Text color
 	SetContextForeGroundColor (SIS_TITLE_TEXT_COLOR);
@@ -330,7 +330,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 	{	// normal state
 		ClearDrawable ();
 
-		DrawBorder (2);
+		DrawBorder (SIS_MSG_FRAME);
 		t.align = ALIGN_CENTER;
 		font_DrawText (&t);
 	}
@@ -361,7 +361,7 @@ DrawSISMessageEx (const UNICODE *pStr, SIZE CurPos, SIZE ExPos,
 #endif
 
 		ClearDrawable ();
-		DrawBorder (2);
+		DrawBorder (SIS_MSG_FRAME);
 
 		if (CurPos >= 0 && CurPos <= t.CharCount)
 		{	// calc and draw the cursor
@@ -526,7 +526,7 @@ DrawStatusMessage (const UNICODE *pStr)
 	SetContextBackGroundColor (STATUS_MESSAGE_BACKGROUND_COLOR);
 	ClearDrawable ();
 
-	DrawBorder (7);
+	DrawBorder (STAT_MSG_FRAME);
 
 	if (!pStr)
 	{
@@ -636,7 +636,7 @@ DrawCaptainsName (bool NewGame)
 	DrawFilledRectangle (&r);
 
 	if(!NewGame)
-		DrawBorder (6);
+		DrawBorder (CAP_NAME_FRAME);
 
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (6);
@@ -722,7 +722,7 @@ DrawFlagshipName (BOOLEAN InStatusArea, bool NewGame)
 	}
 
 	if (!NewGame)
-		DrawBorder (12);
+		DrawBorder (SIS_STAT_REPAIR_FRAME);
 
 	t.baseline.x =
 			r.corner.x + RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
@@ -1107,7 +1107,7 @@ DrawPC_SIS (void)
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_BACKGROUND_COLOR);
 	DrawFilledRectangle (&r);
 
-	DrawBorder (4);
+	DrawBorder (CAPTAIN_FRAME);
 
 	// Text "CAPTAIN".
 	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);
@@ -1401,12 +1401,12 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 
 		DrawStamp (&s);
 
-		DrawBorder (1);
+		DrawBorder (SIS_STAT_FRAME);
 
 		if (optWhichFonts == OPT_PC)
 			DrawPC_SIS();
 		else
-			DrawBorder (4);
+			DrawBorder (CAPTAIN_FRAME);
 
 		DrawThrusters ();
 		DrawTurningJets ();
@@ -1426,7 +1426,7 @@ DeltaSISGauges (SIZE crew_delta, SDWORD fuel_delta, int resunit_delta)
 	if (isUndefinedDelta (crew_delta, fuel_delta, resunit_delta))
 	{
 		if(optWhichFonts == OPT_3DO)
-			DrawBorder (5);
+			DrawBorder (CAPTAIN_ALT_FRAME);
 		DrawFlagshipName (TRUE, FALSE);
 		DrawCaptainsName (FALSE);
 		DrawLanders ();
