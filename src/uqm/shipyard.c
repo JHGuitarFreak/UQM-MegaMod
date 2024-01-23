@@ -274,7 +274,7 @@ GetShipStats (SHIP_STATS *ship_stats, SPECIES_ID species_id)
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
 					RDPtr->ship_info.race_strings, 2)),
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-					RDPtr->ship_info.race_strings, 4))
+					RDPtr->ship_info.race_strings, 5))
 		);
 
 	ship_stats->ShipCost = RDPtr->ship_info.ship_cost * 100;
@@ -528,86 +528,61 @@ ShipCost (BYTE race_id)
 static void
 DrawShipyardShipText (RECT *r, int Index)
 {
-	TEXT text;
+	RACE_DESC *RDPtr;
+	UNICODE race_name[64];
+	UNICODE ship_name[64];
 	FONT OldFont;
+	Color OldColor;
 	SIZE leading;
 	RECT block;
-	UNICODE race_name[256], ship_name[256];
+	TEXT text;
 	COORD og_baseline_x;
-	Color OldColor;
-	COORD max_width = r->extent.width;
 
 	if (IS_DOS)
 		return;
 
+	RDPtr = load_ship (Index + 1, FALSE);
+
+	utf8StringCopy (&race_name, sizeof (race_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings, 3)));
+
+	utf8StringCopy (&ship_name, sizeof (ship_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings, 6)));
+
+	free_ship (RDPtr, TRUE, TRUE);
+
+	if (!strlen (&race_name) || !strlen (&ship_name))
+		return;
+
 	OldFont = SetContextFont (LoadFont (MODULE_FONT));
-	OldColor = SetContextForeGroundColor (MDL_RECT_COLOR);
+	OldColor = SetContextForeGroundColor (SHP_RECT_COLOR);
 
 	GetContextFontLeading (&leading);
-
 	
 	block = *r;
-	block.extent.height = (leading << 1) - RES_SCALE (1);
-	//DrawFilledRectangle (&block);
-
+	block.extent.height = (leading << 1);
+	DrawFilledRectangle (&block);
 
 	text.align = ALIGN_CENTER;
 	text.baseline.x = r->corner.x + (r->extent.width >> 1);
 	text.baseline.y = r->corner.y + leading;
 	og_baseline_x = text.baseline.x;
 
-	{
-		RACE_DESC *RDPtr = load_ship (Index + 1, FALSE);
-		TEXT temp;
-		COORD textWidth;
-
-		utf8StringCopy (&race_name, sizeof (race_name),
-				(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-					RDPtr->ship_info.race_strings, 0)));
-
-		temp.pStr = &race_name;
-		temp.CharCount = (COUNT)~0;
-		textWidth = font_GetTextRect (&temp).extent.width;
-
-		if (textWidth > max_width)
-		{
-			utf8StringCopy (&race_name, sizeof (race_name),
-					(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-						RDPtr->ship_info.race_strings, 1)));
-		}
-
-		utf8StringCopy (&ship_name, sizeof (ship_name),
-				(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-					RDPtr->ship_info.race_strings, 3)));
-
-		temp.pStr = &ship_name;
-		temp.CharCount = (COUNT)~0;
-		textWidth = font_GetTextRect (&temp).extent.width;
-
-		if (textWidth > max_width)
-		{
-			utf8StringCopy (&ship_name, sizeof (ship_name),
-					(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-						RDPtr->ship_info.race_strings, 4)));
-		}
-
-		free_ship (RDPtr, TRUE, TRUE);
-	}
-
-	SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
-
-	text.pStr = &race_name;
+	text.pStr = AlignText (&race_name, &text.baseline.x);
 	text.CharCount = (COUNT)~0;
-	font_DrawText (&text);
-	/*font_DrawShadowedText (&text, WEST_SHADOW, MDL_TEXT_COLOR,
-			MDL_SHADOW_COLOR);*/
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
+
+	if (text.baseline.x != og_baseline_x)
+		text.baseline.x = og_baseline_x;
 
 	text.baseline.y += leading;
-	text.pStr = &ship_name;
+	text.pStr = AlignText (&ship_name, &text.baseline.x);
 	text.CharCount = (COUNT)~0;
-	font_DrawText (&text);
-	/*font_DrawShadowedText (&text, WEST_SHADOW, MDL_TEXT_COLOR,
-			MDL_SHADOW_COLOR);*/
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
 
 	SetContextFont (OldFont);
 	SetContextForeGroundColor (OldColor);
