@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Restored DOS script when opting out of 3DO voices or if the add-on isn't available
 - Remove bottom "NET..." from Super Melee and add top/bottom player option to connect dialog
 - Game over screen for the Slylandro Probes taking over the entire sector
+- Standalone application that comes with MegaMod that can download and set up MegaMod content
 
 ## [v0.8.3]
 ### Added
