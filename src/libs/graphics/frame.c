@@ -165,9 +165,15 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 					break;
 				case STAMPFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
-					if (flags & HS_STARMASK)
-						TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
-								MAKE_DRAW_MODE (DRAW_HSTARMASK, TRANSFER_ALPHA), origin, flags & UNSCALED_STAMP);
+					if (flags > 1)
+					{
+						if (flags & HS_STARMASK)
+							TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
+									MAKE_DRAW_MODE (DRAW_HSTARMASK, TRANSFER_ALPHA), origin, flags & UNSCALED_STAMP);
+						if (flags & ORANGE_HUE)
+							TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, BUILD_COLOR_RGB (0xF8, 0x55, 0x20),
+									MAKE_DRAW_MODE (DRAW_HSTARMASK, TRANSFER_ALPHA), origin, flags & UNSCALED_STAMP);
+					}
 					else
 						TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
 								mode, origin, flags & UNSCALED_STAMP);

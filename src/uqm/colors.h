@@ -684,6 +684,19 @@
 			BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x19), 0x00),\
 		}
 
+// === Hyperspace Star Colors ===
+#define BLUE_STAR_COLOR \
+			BUILD_COLOR_RGB (0x48, 0x60, 0xF0)
+#define GREEN_STAR_COLOR \
+			BUILD_COLOR_RGB (0x00, 0xC8, 0x00)
+#define ORANGE_STAR_COLOR \
+			BUILD_COLOR_RGB (0xD1, 0xD7, 0x10)
+#define RED_STAR_COLOR \
+			BUILD_COLOR_RGB (0xF8, 0x20, 0x20)
+#define YELLOW_STAR_COLOR \
+			BUILD_COLOR_RGB (0xDE, 0xC8, 0x10)
+
+
 // === Play Menu ===
 
 #define PM_RECT_COLOR   DKGRAY_COLOR
