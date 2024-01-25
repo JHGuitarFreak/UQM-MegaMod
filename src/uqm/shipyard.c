@@ -557,7 +557,7 @@ DrawShipyardShipText (RECT *r, int Index)
 		return;
 
 	OldFont = SetContextFont (LoadFont (MODULE_FONT));
-	OldColor = SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	OldColor = SetContextForeGroundColor (SHP_RECT_COLOR);
 
 	GetContextFontLeading (&leading);
 	
@@ -674,7 +674,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		if (!IS_DOS)
 		{
 			DrawStamp (&s);
-			//DrawShipyardShipText (&textRect, NewRaceItem);
+			DrawShipyardShipText (&textRect, NewRaceItem);
 		}
 
 		// Draw the ship image.

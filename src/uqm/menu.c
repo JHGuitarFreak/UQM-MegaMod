@@ -151,7 +151,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 					s.origin = r->corner;
 
-					s.frame = SetAbsFrameIndex (BorderFrame,
+					s.frame = SetAbsFrameIndex (CustBevelFrame,
 							DOS_MENU_HILITE);
 					DrawStamp (&s);
 				}
@@ -624,14 +624,9 @@ Draw3DOMenuText (RECT *r, int Index)
 		return;
 
 	OldFont = SetContextFont (LoadFont (PLAYMENU_FONT));
-	OldColor = SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	OldColor = SetContextForeGroundColor (PM_RECT_COLOR);
 
 	GetContextFontLeading (&leading);
-
-	block = *r;
-	block.corner.y += DOS_NUM_SCL (2);
-	block.extent.height = leading;
-	DrawFilledRectangle (&block); // with PM_RECT_COLOR
 
 	if (!optCustomBorder)
 	{

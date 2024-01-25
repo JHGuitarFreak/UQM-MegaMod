@@ -279,7 +279,7 @@ DrawModuleMenuText (RECT *r, int Index)
 
 	GetContextFontLeading (&leading);
 
-	SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	SetContextForeGroundColor (MDL_RECT_COLOR);
 
 	if (!optCustomBorder)
 	{
@@ -338,7 +338,8 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		r.extent.height = RES_SCALE (11);
 		//	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
 		SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-		DrawFilledRectangle (&r); // drawn over anyway
+		if (!optCustomBorder)
+			DrawFilledRectangle (&r); // drawn over anyway
 	}
 
 	DrawBorder (SIS_RADAR_FRAME);
