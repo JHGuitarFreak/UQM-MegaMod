@@ -100,15 +100,8 @@ ClearBackGround (RECT *pClipRect)
 DrawMode
 GetDrawModeByFlag (BYTE flag)
 {
-	switch (flag)
-	{
-		case HYPER_TO_QUASI_COLOR:
-			return MAKE_DRAW_MODE (DRAW_HYPTOQUAS, 0xFF);
-		case HYPER_SHIP:
-			return MAKE_DRAW_MODE (DRAW_SHIPHYPER, 0xFF);
-		case QUASI_SHIP:
-			return MAKE_DRAW_MODE (DRAW_SHIPQUASI, 0xFF);
-	}
+	if (flag & HYPER_TO_QUASI_COLOR)
+		return MAKE_DRAW_MODE (DRAW_HYPTOQUAS, TRANSFER_ALPHA);
 }
 
 void
@@ -158,21 +151,18 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 							mode, origin, FALSE);
 					break;
 				case STAMP_PRIM:
-					if (flags > 1)
+					if (flags & 0xFE)
 						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, GetDrawModeByFlag (flags), origin, flags & UNSCALED_STAMP);
 					else
 						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, flags & UNSCALED_STAMP);
 					break;
 				case STAMPFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
-					if (flags > 1)
+					if (flags & 0xFE)
 					{
 						if (flags & HS_STARMASK)
 							TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
-									MAKE_DRAW_MODE (DRAW_HSTARMASK, TRANSFER_ALPHA), origin, flags & UNSCALED_STAMP);
-						if (flags & ORANGE_HUE)
-							TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, BUILD_COLOR_RGB (0xF8, 0x55, 0x20),
-									MAKE_DRAW_MODE (DRAW_HSTARMASK, TRANSFER_ALPHA), origin, flags & UNSCALED_STAMP);
+									MAKE_DRAW_MODE (DRAW_OVERLAY, TRANSFER_ALPHA), origin, flags & UNSCALED_STAMP);
 					}
 					else
 						TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
@@ -339,6 +329,23 @@ DrawFilledStamp (STAMP *stmp)
 		Color color = GetPrimColor (&_locPrim);
 		DrawMode mode = _get_context_draw_mode ();
 		TFB_Prim_StampFill (stmp, color, mode, origin, FALSE);
+	}
+}
+
+// Kruzen: Permanently applies layer frame to base via masking
+// until base frame is unloaded from memory.
+// Layer frame should be the same size or larger that base frame.
+// Works with paletted but only with REPLACE mode (doesn't alter the palette).
+// If layer frame is NULL and color pointer is not NULL - blend will be
+// applied to every pixel equally with alpha = 255
+void
+ApplyMask (FRAME layer, FRAME base, DrawMode mode, Color *fill)
+{	
+	POINT origin;
+
+	if (GraphicsSystemActive () && GetContextValidRect (NULL, &origin))
+	{
+		TFB_Prim_MaskFrame (layer, base, mode, fill);
 	}
 }
 

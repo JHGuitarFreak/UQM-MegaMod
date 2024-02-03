@@ -132,6 +132,17 @@ RandomContext* SysGenRNGDebug;
 #define DISPLAY_TO_LOC  (DISPLAY_FACTOR >> 1)
 #define DISPLAY_TO_LOC_US  (DISPLAY_FACTOR_US >> 1)
 
+// Star characteristics
+#define SUN_ANIMFRAMES_NUM 32
+#define SUN_ZOOM_SIZES 5
+
+// Resources to load
+#define SIS_IP_MASK (is3DO (optFlagshipColor) ? SISIP_MASK_PMAP_ANIM_RED : \
+						SISIP_MASK_PMAP_ANIM)
+#define PLANETS_MASK ((isPC (optPlanetStyle) && !optTexturedPlanets) ? \
+						DOS_ORBPLAN_MASK_PMAP_ANIM : ORBPLAN_MASK_PMAP_ANIM)
+
+
 POINT
 locationToDisplay (POINT pt, SIZE scaleRadius)
 {
@@ -449,6 +460,32 @@ LoadPixelatedSun (void)
 }
 
 void
+LoadHighDefinitionSun (void)
+{
+	Color c;
+	BYTE starSize = STAR_TYPE (CurStarDescPtr->Type);
+	COUNT i, j, maskOffset, sizeIter;
+	DrawMode mode;
+
+	SunFrame = CaptureDrawable (LoadGraphic (SUNANIM_MASK_PMAP_ANIM));
+	
+	c = GetColorMapColor (56, 239);
+	mode = MAKE_DRAW_MODE (DRAW_ALPHA, TRANSFER_ALPHA);
+	maskOffset = GetFrameCount (SunFrame) - SUN_ZOOM_SIZES;
+	sizeIter = maskOffset / SUN_ZOOM_SIZES;
+
+	for (i = starSize; i <= starSize + 2; i++)
+	{
+		FRAME mask = SetAbsFrameIndex (SunFrame, maskOffset + i);
+		for (j = 0; j < sizeIter; j++)
+		{			
+			FRAME star = SetAbsFrameIndex (SunFrame, i * sizeIter + j);
+			ApplyMask (mask, star, mode, &c);
+		}
+	}
+}
+
+void
 FreeIPData (void)
 {
 	DestroyDrawable (ReleaseDrawable (SISIPFrame));
@@ -480,52 +517,25 @@ LoadIPData (void)
 		SpaceJunkFrame = CaptureDrawable (
 				LoadGraphic (IPBKGND_MASK_PMAP_ANIM));
 
-		if (optFlagshipColor == OPT_3DO)
-			SISIPFrame =
-				CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM_RED));
-		else
-			SISIPFrame =
-				CaptureDrawable (LoadGraphic (SISIP_MASK_PMAP_ANIM));
+		SISIPFrame = CaptureDrawable (
+				LoadGraphic (SIS_IP_MASK));
 
-		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
+		OrbitalCMap = CaptureColorMap (
+				LoadColorMap (ORBPLAN_COLOR_MAP));
 		OrbitalFrame = CaptureDrawable (
-				LoadGraphic ((!optTexturedPlanets && isPC(optPlanetStyle))
-					? DOS_ORBPLAN_MASK_PMAP_ANIM
-						: ORBPLAN_MASK_PMAP_ANIM));
+				LoadGraphic (PLANETS_MASK));
 		OrbitalShield = CaptureDrawable (
 				LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
-		SunCMap = CaptureColorMap (LoadColorMap (IPSUN_COLOR_MAP));
 
-		SetColorMap (GetColorMapAddress (SetAbsColorMapIndex(
-			SunCMap, STAR_COLOR (CurStarDescPtr->Type))));
+		SunCMap = CaptureColorMap (
+				LoadColorMap (IPSUN_COLOR_MAP));
+		SetColorMap (GetColorMapAddress (SetAbsColorMapIndex (
+				SunCMap, STAR_COLOR (CurStarDescPtr->Type))));
 
 		if (!IS_HD)
 			LoadPixelatedSun ();
 		else
-		{
-			RESOURCE maskAnim = SUNYELLOW_MASK_PMAP_ANIM;
-
-			switch (STAR_COLOR (CurStarDescPtr->Type))
-			{
-				case BLUE_BODY:
-					maskAnim = SUNBLUE_MASK_PMAP_ANIM;
-					break;
-				case GREEN_BODY:
-					maskAnim = SUNGREEN_MASK_PMAP_ANIM;
-					break;
-				case ORANGE_BODY:
-					maskAnim = SUNORANGE_MASK_PMAP_ANIM;
-					break;
-				case RED_BODY:
-					maskAnim = SUNRED_MASK_PMAP_ANIM;
-					break;
-				case WHITE_BODY:
-					maskAnim = SUNWHITE_MASK_PMAP_ANIM;
-					break;
-			}
-
-			SunFrame = CaptureDrawable (LoadGraphic (maskAnim));
-		}
+			LoadHighDefinitionSun ();
 
 		SpaceMusic = 0;
 	}
@@ -1863,7 +1873,6 @@ RestoreSystemView (void)
 }
 
 // JMS: This animates the truespace suns!
-#define SUN_ANIMFRAMES_NUM 32
 static void
 AnimateSun (SIZE radius)
 {
@@ -2606,6 +2615,9 @@ DrawOuterPlanets (SIZE radius)
 				AnimateSun (radius);
 			else
 				DrawStamp (&pCurDesc->image);
+			//printf ("%d %d\n", pCurDesc->image.origin.x, pCurDesc->image.origin.y);
+			//SetContextForeGroundColor (BUILD_COLOR_RGB (255, 0, 0));
+			//DrawPoint (&pCurDesc->image.origin);
 		}
 		else
 		{	// It's a planet

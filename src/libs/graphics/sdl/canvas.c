@@ -86,7 +86,7 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 	checkPrimitiveMode (dst, &color, &mode);
 	sdlColor = SDL_MapRGBA (fmt, color.r, color.g, color.b, color.a);
 
-	plotFn = renderpixel_for (target, mode.kind);
+	plotFn = renderpixel_for (target, mode.kind, FALSE);
 	if (!plotFn)
 	{
 		log_add (log_Warning, "ERROR: TFB_DrawCanvas_Line "
@@ -150,16 +150,13 @@ TFB_DrawCanvas_Rect (RECT *rect, Color color, DrawMode mode, TFB_Canvas target)
 	}
 	else
 	{	// Custom fillrect rendering
-		RenderPixelFn plotFn = renderpixel_for (target, mode.kind);
+		RenderPixelFn plotFn = renderpixel_for (target, mode.kind, FALSE);
 		if (!plotFn)
 		{
 			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Rect "
 					"unsupported draw mode (%d)", (int)mode.kind);
 			return;
 		}
-
-		if (mode.kind >= DRAW_MULTIPLY)
-			mode.factor = FULLY_OPAQUE_ALPHA;
 
 		SDL_LockSurface (dst);
 		fillrect_prim (sr, sdlColor, plotFn, mode.factor, dst);
@@ -191,7 +188,7 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 	else
 	{	// Custom blit
 		SDL_Rect loc_src_r, loc_dst_r;
-		RenderPixelFn plotFn = renderpixel_for (dst, mode.kind);
+		RenderPixelFn plotFn = renderpixel_for (dst, mode.kind, FALSE);
 		if (!plotFn)
 		{
 			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Blit "
@@ -216,29 +213,9 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 			loc_dst_r.h = dst->h;
 			dst_r = &loc_dst_r;
 		}
-
-		if (mode.kind >= DRAW_HYPTOQUAS)
-		{
-			SDL_Surface *newsrc;
-			newsrc = SDL_CreateRGBSurface (SDL_SWSURFACE,
-				src->w, src->h,
-				src->format->BitsPerPixel,
-				src->format->Rmask,
-				src->format->Gmask,
-				src->format->Bmask,
-				src->format->Amask);
-			SDL_LockSurface (newsrc);
-			blt_filtered_prim (src, *src_r, plotFn, mode.factor, newsrc);
-			SDL_UnlockSurface (newsrc);
-			SDL_BlitSurface (newsrc, src_r, dst, dst_r);
-			SDL_FreeSurface (newsrc);
-		}
-		else
-		{
-			SDL_LockSurface (dst);
-			blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r);
-			SDL_UnlockSurface (dst);
-		}
+		SDL_LockSurface (dst);
+		blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r);
+		SDL_UnlockSurface (dst);
 	}
 }
 
@@ -683,6 +660,75 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 
 	TFB_DrawCanvas_Blit (surf, &srcRect, dst, &targetRect, mode);
 	UnlockMutex (backing->mutex);
+}
+
+static void
+TFB_DrawCanvas_FillMask (SDL_Surface *base, DrawMode mode, Color *fill)
+{
+	if (!fill)
+	{// Layer should be the same size or larger than base
+		log_add (log_Warning, "ERROR: TFB_DrawCanvas_FillMask "
+					"no color were passed down");
+		return;
+	}
+	else
+	{// Applying blit
+		RenderPixelFn plotFn = renderpixel_for (base, mode.kind, TRUE);
+		
+		if (!plotFn)
+		{
+			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Mask "
+					"unsupported draw mode (%d)", (int)mode.kind);
+			return;
+		}
+
+		if (mode.factor == TRANSFER_ALPHA)
+			mode.factor = 0xFF;
+
+		SDL_LockSurface (base);
+		blt_filtered_fill (base, plotFn, mode.factor, fill);
+		SDL_UnlockSurface (base);
+	}
+}
+
+static void
+TFB_DrawCanvas_Mask (SDL_Surface *layer, SDL_Surface *base, DrawMode mode, Color *fill)
+{
+	if (layer->w < base->w || layer->h < base->h)
+	{// Layer should be the same size or larger than base
+		log_add (log_Warning, "ERROR: TFB_DrawCanvas_Mask "
+					"layered surface should be not less than base");
+		return;
+	}
+	else
+	{// Applying blit
+		RenderPixelFn plotFn = renderpixel_for (base, mode.kind, TRUE);
+		if (!plotFn)
+		{
+			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Mask "
+					"unsupported draw mode (%d)", (int)mode.kind);
+			return;
+		}
+
+		SDL_LockSurface (base);
+		blt_filtered_prim (layer, plotFn, mode.factor, base, fill);
+		SDL_UnlockSurface (base);
+	}
+}
+
+void
+TFB_DrawCanvas_MaskImage (TFB_Image *img, DrawMode mode, TFB_Canvas target,	Color *fill)
+{
+	if (!img)// No layer - do a fill instead
+		TFB_DrawCanvas_FillMask (target, mode, fill);
+	else
+	{
+		SDL_Surface *surf;
+		LockMutex (img->mutex);
+		surf = img->NormalImg;
+		TFB_DrawCanvas_Mask (surf, target, mode, fill);
+		UnlockMutex (img->mutex);
+	}
 }
 
 TFB_Canvas

@@ -1697,7 +1697,7 @@ GetMaskColor (BYTE startype)
 		case RED_BODY:
 			return RED_STAR_COLOR;
 		case ORANGE_BODY:
-			return ORANGE_STAR_COLOR;// Actually yellowish - Red + Yellow is closer to original orange
+			return ORANGE_STAR_COLOR;
 		case YELLOW_BODY:
 			return YELLOW_STAR_COLOR;
 		case GREEN_BODY:
@@ -1943,10 +1943,6 @@ SeedUniverse (void)
 						SetPrimType (&DisplayArray[HyperSpaceElementPtr->PrimIndex], STAMPFILL_PRIM);
 						SetPrimColor (&DisplayArray[HyperSpaceElementPtr->PrimIndex], GetMaskColor (STAR_COLOR (star_type)));
 						SetPrimFlags (&DisplayArray[HyperSpaceElementPtr->PrimIndex], HS_STARMASK);
-
-						// Kruzen: Special case for orange stars, I don't know how to make them look like original with 1 blend
-						if (STAR_COLOR (star_type) == ORANGE_BODY)
-							SetPrimFlags (&DisplayArray[HyperSpaceElementPtr->PrimIndex], HS_STARMASK | ORANGE_HUE);
 
 						HyperSpaceElementPtr->state_flags =
 									APPEARING | FINITE_LIFE | NONSOLID;

@@ -139,7 +139,7 @@ static FILTER_DESC chmmr_filters =
 		},
 		{
 			0, /* Color index */
-			0, /* Opacity index */
+			3, /* Opacity index */
 			-1, /* Frame index */
 			DRAW_OVERLAY, /* DrawKind*/
 			0, /* Flags */
