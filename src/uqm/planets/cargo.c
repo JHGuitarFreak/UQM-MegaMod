@@ -157,7 +157,7 @@ DrawCargoDisplay (void)
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, CARGO_BACK_COLOR, FALSE, TRANSPARENT);
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// draw the "CARGO" title
 	SetContextFont (StarConFont);
@@ -308,7 +308,7 @@ DrawRainbowPlanet (COUNT planet)
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, CARGO_BACK_COLOR, FALSE, TRANSPARENT);
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// draw the "DATALOG" title
 	SetContextFont (StarConFont);

@@ -40,6 +40,8 @@ extern FRAME visitedStarsFrame;
 extern FRAME FontGradFrame;
 extern FRAME BorderFrame;
 extern FRAME HDBorderFrame;
+extern FRAME CustBevelFrame;
+extern FRAME DefBevelFrame;
 
 extern CONTEXT OffScreenContext;
 		// OffScreenContext can often refer to a deleted ForeGroundFrame

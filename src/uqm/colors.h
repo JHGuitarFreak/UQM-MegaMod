@@ -213,6 +213,10 @@
 #define PC_CAPTAIN_STRING_TEXT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x02, 0x04, 0x1E), 0x38)
 
+// Text color of the string "CAPTAIN", when using PC fonts.
+#define THREEDO_CAPTAIN_STRING_TEXT_COLOR \
+		BUILD_COLOR_RGB (0x48, 0x98, 0xC0)
+
 // Background color of the string "CAPTAIN", when using PC fonts.
 #define PC_CAPTAIN_STRING_BACKGROUND_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01)

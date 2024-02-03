@@ -159,7 +159,7 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, DEVICES_BACK_COLOR, FALSE, TRANSPARENT);
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "DEVICES" title
 	SetContextFont (StarConFont);

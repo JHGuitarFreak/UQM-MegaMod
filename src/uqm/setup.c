@@ -76,6 +76,8 @@ FRAME visitedStarsFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
 FRAME HDBorderFrame;
+FRAME CustBevelFrame;
+FRAME DefBevelFrame;
 STRING GameStrings;
 QUEUE disp_q;
 
@@ -309,10 +311,18 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
+	CustBevelFrame = CaptureDrawable (LoadGraphic (CUST_BEVEL_MASK_PMAP_ANIM));
+	if (CustBevelFrame == NULL)
+		return FALSE;
+
 	if (HDPackPresent)
 	{
 		HDBorderFrame = CaptureDrawable (LoadGraphic (HD_BORDER_MASK_PMAP_ANIM));
 		if (HDBorderFrame == NULL)
+			return FALSE;
+
+		DefBevelFrame = CaptureDrawable (LoadGraphic (DEF_BEVEL_MASK_PMAP_ANIM));
+		if (DefBevelFrame == NULL)
 			return FALSE;
 	}
 
