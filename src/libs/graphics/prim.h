@@ -59,6 +59,7 @@ typedef struct
 #define HYPER_SHIP (1 << 2)
 #define QUASI_SHIP (1 << 3)
 #define HS_STARMASK (1 << 4)
+#define ORANGE_HUE (1 << 5) // Compose another mask layer to produce orange tint (use for orange stars only!)
 
 #define GetPredLink(l) LOWORD(l)
 #define GetSuccLink(l) HIWORD(l)
