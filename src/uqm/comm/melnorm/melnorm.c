@@ -1165,6 +1165,9 @@ DoBuy (RESPONSE_REF R)
 			{
 				DWORD f;
 
+				if (EXTENDED && PLAYER_SAID (R, fill_me_up))
+					NPCPhrase (OK_FILL_YOU_UP);
+
 				NPCPhrase (GOT_FUEL);
 
 				f = (DWORD)needed_credit * FUEL_TANK_SCALE;
