@@ -286,6 +286,15 @@ TFB_DrawImage_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 	UnlockMutex (target->mutex);
 }
 
+void
+TFB_DrawImage_MaskImage (TFB_Image *img, DrawMode mode, TFB_Image *target, Color *fill)
+{
+	LockMutex (target->mutex);
+	TFB_DrawCanvas_MaskImage (img, mode, target->NormalImg, fill);
+	target->dirty = TRUE;
+	UnlockMutex (target->mutex);
+}
+
 
 TFB_Image *
 TFB_DrawImage_New (TFB_Canvas canvas)

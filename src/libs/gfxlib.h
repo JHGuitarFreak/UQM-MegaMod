@@ -555,11 +555,9 @@ typedef enum
 			// RGBA targets (WANT_ALPHA): not yet supported
 	DRAW_OVERLAY,
 	DRAW_SCREEN,
-	DRAW_GRAYSCALE,
-	DRAW_HSTARMASK,
+	DRAW_GRAYSCALE, // To get true grayscale - factor should be == 128
+	DRAW_LINEARBURN,
 	DRAW_HYPTOQUAS,
-	DRAW_SHIPHYPER,
-	DRAW_SHIPQUASI,
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;
@@ -624,6 +622,7 @@ extern void DrawPoint (POINT *pPoint);
 extern void DrawRectangle (RECT *pRect, BOOLEAN scaled);
 extern void DrawFilledRectangle (RECT *pRect);
 extern void DrawLine (LINE *pLine, BYTE thickness);
+extern void ApplyMask (FRAME layer, FRAME base, DrawMode mode, Color *fill);
 extern void InstaPoint (int x, int y);
 extern void InstaRect (int x, int y, int w, int h, BOOLEAN scaled);
 extern void InstaFilledRect (int x, int y, int w, int h);

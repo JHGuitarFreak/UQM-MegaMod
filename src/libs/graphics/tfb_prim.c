@@ -250,3 +250,38 @@ TFB_Prim_FontChar (POINT charOrigin, TFB_Char *fontChar, TFB_Image *backing,
 }
 
 // Text rendering is in font.c, under the name _text_blt
+
+void
+TFB_Prim_MaskFrame (FRAME layer, FRAME base, DrawMode mode, Color *fill)
+{
+	TFB_Image *img;
+	TFB_Image *bas;
+
+	if (!base)
+	{
+		log_add (log_Warning, "TFB_Prim_MaskFrame: NULL frame passed");
+		return;
+	}
+
+	if (!layer)
+		img = NULL;
+	else
+	{
+		img = layer->image;
+		if (!img)
+		{
+			log_add (log_Warning, "Non-existent layer image to TFB_Prim_MaskFrame()");
+			return;
+		}
+	}
+	
+	bas = base->image;
+
+	if (!bas)
+	{
+		log_add(log_Warning, "Non-existent base image to TFB_Prim_MaskFrame()");
+		return;
+	}
+
+	TFB_DrawImage_MaskImage (img, mode, bas, fill);
+}

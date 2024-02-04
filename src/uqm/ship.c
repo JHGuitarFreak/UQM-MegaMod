@@ -494,7 +494,20 @@ spawn_ship (STARSHIP *StarShipPtr)
 				StarShipPtr->ShipFacing = facing;
 
 				if (IS_HD)
-					SetPrimFlags (&DisplayArray[ShipElementPtr->PrimIndex], inHyperSpace () ? HYPER_SHIP : QUASI_SHIP);
+				{
+					COUNT i;
+					COUNT numFrames = GetFrameCount (RDPtr->ship_data.ship[0]);
+					DrawMode mode = MAKE_DRAW_MODE (DRAW_LINEARBURN, 0xFF);
+					Color c;
+
+					if (inHyperSpace ())
+						c = BUILD_COLOR_RGB (0xFF, 0x00, 0x00);
+					else
+						c = BUILD_COLOR_RGB (0x00, 0xE4, 0x00);
+
+					for (i = 0; i < numFrames; i++)
+						ApplyMask (NULL, SetAbsFrameIndex (RDPtr->ship_data.ship[0], i), mode, &c);
+				}
 			}
 			ShipElementPtr->current.image.frame =
 					SetAbsFrameIndex (RDPtr->ship_data.ship[0],
