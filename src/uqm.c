@@ -1255,7 +1255,7 @@ enum
 #endif
 };
 
-static const char *optString = "+r:foc:b:spC:n:?hM:S:T:q:ug:l:i:vwxk";
+static const char *optString = "+r:f:oc:b:spC:n:?hM:S:T:q:ug:l:i:vwxk";
 static struct option longOptions[] = 
 {
 	{"res", 1, NULL, 'r'},
@@ -2172,7 +2172,7 @@ parseIntOption (const char *str, int *result, const char *optName)
 	char *endPtr;
 	int temp;
 
-	if (str[0] == '\0')
+	if (str == NULL || str[0] == '\0')
 	{
 		saveError ("Error: Invalid value for '%s'.", optName);
 		return -1;
