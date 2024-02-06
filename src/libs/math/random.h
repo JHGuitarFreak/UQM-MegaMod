@@ -54,6 +54,7 @@ struct RandomContext {
 #define SeedQ (SeedM / SeedA)  // Default: 127773L - M div A
 #define SeedR (SeedM % SeedA)  // Default: 2836 - M mod A 
 #define PrimeSeed (SeedA == PrimeA ? true : false)
+#define SEED_BOOL(a,b) (!PrimeSeed ? (b) : (a))
 
 RandomContext *RandomContext_New (void);
 RandomContext *RandomContext_Set(DWORD Context);

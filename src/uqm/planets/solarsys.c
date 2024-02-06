@@ -2761,51 +2761,94 @@ BrightenNebula (FRAME nebula, BYTE factor)
 
 	HFree (map);
 }
-void
-DrawNebula (POINT star_point)
-{
-	const POINT solPoint = { SOL_X, SOL_Y };
-	
-	if (!pointsEqual (star_point, solPoint) || (classicPackPresent &&
-		(LastActivity != CHECK_LOAD || NextActivity)))
-	{	// To avoid loading nebulae in loading menu (Yay optimization)
-		FRAME NebulaeFrame =
-			CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
-		const BYTE numNebulae = GetFrameCount (NebulaeFrame);
 
-		if ((star_point.y % (numNebulae + 6)) < numNebulae
-			|| classicPackPresent)
+static void
+DrawNebula (POINT star_point, DWORD rand_val)
+{
+	FRAME NebulaeFrame;
+	BYTE numNebulae;
+	STAMP s;
+	DPOINT neb_seed;
+	const POINT solPoint = { SOL_X, SOL_Y };
+
+	if ((pointsEqual (star_point, solPoint) && !classicPackPresent)
+			|| (LastActivity == CHECK_LOAD && !NextActivity))
+	{
+		HaveNebula = FALSE;
+		return;
+	}
+
+	neb_seed.x = SEED_BOOL (star_point.x, rand_val);
+	neb_seed.y = SEED_BOOL (star_point.y, rand_val);
+
+	NebulaeFrame = CaptureDrawable (LoadGraphic (NEBULAE_PMAP_ANIM));
+	numNebulae = GetFrameCount (NebulaeFrame);
+
+	if ((neb_seed.y % (numNebulae + 6)) > numNebulae
+			&& !classicPackPresent)
+	{
+		HaveNebula = FALSE;
+		return;
+	}
+
+	s.origin = MAKE_POINT (0, 0);
+	s.frame = SetAbsFrameIndex (NebulaeFrame, neb_seed.x % numNebulae);
+	if (optNebulaeVolume != 24)
+		BrightenNebula (s.frame, optNebulaeVolume);
+
+	DrawStamp (&s);
+
+	HaveNebula = TRUE;
+
+	DestroyDrawable (ReleaseDrawable (NebulaeFrame));
+	NebulaeFrame = 0;
+}
+
+#define NUM_DIM_PIECES 8
+#define NUM_DIM_DRAWN 5
+#define NUM_BRT_PIECES 8
+#define NUM_BRT_DRAWN 30
+
+static void
+DrawStarBackground (BYTE num_pieces, BYTE num_drawn, BYTE start_index)
+{
+	STAMP s;
+	COUNT i, j;
+	DWORD rand_val;
+
+	s.frame = SetAbsFrameIndex (SpaceJunkFrame, start_index);
+	for (i = 0; i < num_pieces; ++i)
+	{
+		for (j = 0; j < num_drawn; ++j)
 		{
-			STAMP s;
-			s.origin = MAKE_POINT (0, 0);
-			s.frame = SetAbsFrameIndex (NebulaeFrame,
-				star_point.x % numNebulae);
-			if (optNebulaeVolume != 24)
-				BrightenNebula (s.frame, optNebulaeVolume);
+			rand_val = RandomContext_Random (SysGenRNG);
+			s.origin.x = RES_SCALE (
+				scaleSISDimensions (TRUE,
+					LOWORD (rand_val) % widthHeightPicker (TRUE)
+				));
+			s.origin.y = RES_SCALE (
+				scaleSISDimensions (FALSE,
+					HIWORD (rand_val) % widthHeightPicker (FALSE)
+				));
 
 			DrawStamp (&s);
-
-			HaveNebula = TRUE;
 		}
-		DestroyDrawable (ReleaseDrawable (NebulaeFrame));
-		NebulaeFrame = 0;
+		s.frame = IncFrameIndex (s.frame);
 	}
-	else
-		HaveNebula = FALSE;
 }
 
 FRAME
 CreateStarBackGround (BOOLEAN encounter)
 {
-	COUNT i, j;
-	DWORD rand_val;
-	STAMP s;
 	CONTEXT oldContext;
 	RECT clipRect;
 	FRAME frame;
 	POINT starPoint;
 	RandomContext *OldSysGenRNG = SysGenRNG;
 	BOOLEAN hdScaled = (!optUnscaledStarSystem || !IS_HD);
+	DWORD neb_seed;
+	BYTE num_brt_drawn;
+	BYTE start_index;
 
 	if (encounter && !playerInSolarSystem ())
 	{
@@ -2840,50 +2883,17 @@ CreateStarBackGround (BOOLEAN encounter)
 
 	RandomContext_SeedRandom (SysGenRNG, GetRandomSeedForVar (starPoint));
 
-#define NUM_DIM_PIECES 8
-	s.frame = SetAbsFrameIndex (SpaceJunkFrame, hdScaled ? 0 : 25);
-	for (i = 0; i < NUM_DIM_PIECES; ++i)
-	{
-#define NUM_DIM_DRAWN 5
-		for (j = 0; j < NUM_DIM_DRAWN; ++j)
-		{
-			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = RES_SCALE (
-					scaleSISDimensions (TRUE,
-					LOWORD (rand_val) % widthHeightPicker (TRUE)
-				));
-			s.origin.y = RES_SCALE (
-					scaleSISDimensions (FALSE,
-					HIWORD (rand_val) % widthHeightPicker (FALSE)
-				));
+	start_index = hdScaled ? 0 : 25;
+	DrawStarBackground (NUM_DIM_PIECES, NUM_DIM_DRAWN, start_index);
 
-			DrawStamp (&s);
-		}
-		s.frame = IncFrameIndex (s.frame);
-	}
-#define NUM_BRT_PIECES 8
-	for (i = 0; i < NUM_BRT_PIECES; ++i)
-	{
-#define NUM_BRT_DRAWN 30
-		for (j = 0; j < (hdScaled ? NUM_BRT_DRAWN : 90); ++j)
-		{
-			rand_val = RandomContext_Random (SysGenRNG);
-			s.origin.x = RES_SCALE (
-					scaleSISDimensions (TRUE,
-					LOWORD (rand_val) % widthHeightPicker (TRUE)
-				));
-			s.origin.y = RES_SCALE (
-					scaleSISDimensions (FALSE,
-					HIWORD (rand_val) % widthHeightPicker (FALSE)
-				));
+	neb_seed = RandomContext_GetSeed (SysGenRNG);
 
-			DrawStamp (&s);
-		}
-		s.frame = IncFrameIndex (s.frame);
-	}
+	start_index += NUM_DIM_PIECES;
+	num_brt_drawn = NUM_BRT_DRAWN + (hdScaled ? 0 : 60);
+	DrawStarBackground (NUM_BRT_PIECES, num_brt_drawn, start_index);
 
 	if (optNebulae)
-		DrawNebula (starPoint);
+		DrawNebula (starPoint, neb_seed);
 
 	SetContext (oldContext);
 
