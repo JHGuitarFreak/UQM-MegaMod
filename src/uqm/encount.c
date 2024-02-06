@@ -129,18 +129,30 @@ BuildBattle (COUNT which_player)
 				break;
 			case IN_HYPERSPACE:
 			{
-				BYTE selector = (BYTE)((COUNT)TFB_Random () % NUMBER_OF_PLANET_TYPES);
-				if (EXTENDED && (selector == RAINBOW_WORLD || selector == SHATTERED_WORLD))
-					selector += 2;// No rainbow or shattered worlds in hyperspace
+				DWORD log_seed = MAKE_DWORD (
+						LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+						LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x))
+					);
+				BYTE selector = (BYTE)(log_seed % NUMBER_OF_PLANET_TYPES);
+				if (EXTENDED && (selector == RAINBOW_WORLD
+						|| selector == SHATTERED_WORLD))
+				{
+					if (selector == RAINBOW_WORLD)
+						selector--;
+					if (selector == SHATTERED_WORLD)
+						selector++;
+				}
 				load_gravity_well (selector);
 				break;
 			}
 			default:
 				SET_GAME_STATE (ESCAPE_COUNTER, 110);
-				if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED && pSolarSysState
-					&& pSolarSysState->MoonDesc->data_index == SA_MATRA)
+				if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED
+						&& pSolarSysState
+						&& pSolarSysState->MoonDesc->data_index == SA_MATRA)
 				{
-					utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+					utf8StringCopy (GLOBAL_SIS (PlanetName),
+							sizeof (GLOBAL_SIS (PlanetName)),
 							GAME_STRING (PLANET_NUMBER_BASE + 32));
 					DrawSISTitle (GAME_STRING (PLANET_NUMBER_BASE + 32));
 					load_gravity_well (PLANET_SA_MATRA);
@@ -148,12 +160,18 @@ BuildBattle (COUNT which_player)
 				else
 				{
 					if (EXTENDED && pSolarSysState 
-						&& worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-					{	// Set gravity well to moon if encounter takes place there (Spathiwa moon, Taalo HW, Utwig Bomb Loc)
+							&& worldIsMoon (pSolarSysState,
+								pSolarSysState->pOrbitalDesc))
+					{	// Set gravity well to moon if encounter takes
+						// place there (Spathiwa moon, Taalo HW,
+						// Utwig Bomb Loc)
 						// Only if encounter starts with moon collision
-						// colliding with IP group in inner system still uses main planet for gravity well
-						COUNT moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
-						SET_GAME_STATE (BATTLE_PLANET, pSolarSysState->MoonDesc[moon].data_index);
+						// colliding with IP group in inner system still
+						// uses main planet for gravity well
+						COUNT moon = moonIndex (pSolarSysState,
+								pSolarSysState->pOrbitalDesc);
+						SET_GAME_STATE (BATTLE_PLANET,
+								pSolarSysState->MoonDesc[moon].data_index);
 					}
 					load_gravity_well (GET_GAME_STATE(BATTLE_PLANET));
 				}

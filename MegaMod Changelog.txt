@@ -51,6 +51,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Brighten orbit dots when nebulae are enabled
 - HARDMODE: Moved remaining crew above the flagship to fit on-screen in all screen modes
 - Sound slider improved and now you can hear the corresponding volume setting changes "live" - Kruzen
+- Randomize nebulae using system seed when custom seed is set
+- Loading into an encounter no longer re-rolls the planet for the arena
 
 
 ### Fixed
