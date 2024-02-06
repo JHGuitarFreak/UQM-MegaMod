@@ -1501,7 +1501,7 @@ DitherMap (SBYTE *DepthArray, COUNT width, COUNT height)
 	{
 		// Use up the random value byte by byte
 		if ((i & 3) == 0)
-			rand_val = TFB_Random ();
+			rand_val = RandomContext_Random (SysGenRNG);
 		else
 			rand_val >>= 8;
 
