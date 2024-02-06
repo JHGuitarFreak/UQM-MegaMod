@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Remove bottom "NET..." from Super Melee and add top/bottom player option to connect dialog
 - Game over screen for the Slylandro Probes taking over the entire sector
 - Standalone application that comes with MegaMod that can download and set up MegaMod content
+- text search for game options
 
 ## [v0.8.3]
 ### Added
@@ -20,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added option to show short tooltips at the bottom of the melee screen when picking a ship a la SC1 - Kruzen
 - Added ability to change graphics and music options without restarting
 - Added option to switch between DOS, 3DO, and UQM "window modes"
-- Added option to set a custom resolution
+- Added option to set a custom resolution via text input
 - Added option to choose between borderless and exclusive fullscreen (SDL2 builds only)
 - Added SC1 style ship spins with new pop-up animation - Kruzen
 - Graphics and sound volume settings now activate immediately within the setup menu
@@ -69,6 +70,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Fix oscilloscope lines and scale it to 60fps
 - Fixed Procyon not generating the Chmmr homeworld in some custom seeds
 - Fixed the Mother Ark star system from not generating the amount of planets necessary in some custom seeds
+- Fixed dithering on planets from re-rolling their RNG resulting in a slightly changed texture - Kruzen
 
 
 
