@@ -304,9 +304,9 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 	COUNT off;
 	COORD x, y;
 	SIZE A, B;
-	FWORD Asquared, TwoAsquared,
+	SQWORD Asquared, TwoAsquared,
 			Bsquared, TwoBsquared;
-	FWORD d, dx, dy;
+	SQWORD d, dx, dy;
 	BYTE quad_visible;
 	PRIMITIVE prim[NUM_QUADS];
 	COUNT StartPrim;
@@ -369,8 +369,8 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 	x = 0;
 	y = B;
 
-	Asquared = ((FWORD)A * A) << 1;
-	Bsquared = ((FWORD)B * B) << 1;
+	Asquared = ((SQWORD)A * A) << 1;
+	Bsquared = ((SQWORD)B * B) << 1;
 	do
 	{
 		Asquared >>= 1;
@@ -719,9 +719,9 @@ DrawFilledOval (DRECT *pRect)
  // So unless we want to expand standard rect to support 4 bytes per dimension - use this
 	COORD x, y;
 	SIZE A, B;
-	FWORD Asquared, TwoAsquared,
+	SQWORD Asquared, TwoAsquared,
 			Bsquared, TwoBsquared;
-	FWORD d, dx, dy;
+	SQWORD d, dx, dy;
 	PRIMITIVE prim[NUM_QUADS >> 1];
 	COUNT StartPrim;
 	POINT first, second;
@@ -771,8 +771,8 @@ DrawFilledOval (DRECT *pRect)
 	x = 0;
 	y = B;
 
-	Asquared = ((FWORD)A * A) << 1;
-	Bsquared = ((FWORD)B * B) << 1;
+	Asquared = ((SQWORD)A * A) << 1;
+	Bsquared = ((SQWORD)B * B) << 1;
 	do
 	{
 		Asquared >>= 1;
@@ -926,12 +926,12 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 	int s = shear;
 	int d = 0;
 	const int sRound = (shear < 0) ? -(rx / 2) : (rx / 2);
-	FWORD dex = 2 * (long)ry * ry;
-	FWORD ex = (long)ry * ry - (long)rx * dex;
-	FWORD dey = 2 * (long)rx * rx;
-	FWORD ey = (long)rx * rx;
-	FWORD e = ex + ey;
-	FWORD e2;
+	SQWORD dex = 2 * (long)ry * ry;
+	SQWORD ex = (long)ry * ry - (long)rx * dex;
+	SQWORD dey = 2 * (long)rx * rx;
+	SQWORD ey = (long)rx * rx;
+	SQWORD e = ex + ey;
+	SQWORD e2;
 
 	if (rx < 0)
 		rx = 0;
@@ -953,7 +953,7 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 		if (!filled && !d--)
 		{
 			d = dotted;
-			s = (int)(((FWORD)x * shear + sRound) / rx);
+			s = (int)(((SQWORD)x * shear + sRound) / rx);
 			DrawEllipseQuadrants (cx, cy, x, y, -s, 0);
 		}
 
@@ -962,7 +962,7 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 		{
 			if (filled)
 			{
-				s = (int)(((FWORD)x * shear + sRound) / rx);
+				s = (int)(((SQWORD)x * shear + sRound) / rx);
 				DrawEllipseQuadrants (cx, cy, x, y, -s, 1);
 			}
 			x--;
