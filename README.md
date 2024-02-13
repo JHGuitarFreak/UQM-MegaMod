@@ -97,6 +97,10 @@ The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar
 
 And the default Super Melee menu music is by Flashira Nakirov.
 
+## Donation
+
+If you'd like to donate towards The Eternal Doctrine you may do so via Ko-Fi: https://ko-fi.com/jhguitarfreak
+
 ## License
 
 The code in this repository is under GNU General Public License, version 2 http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
