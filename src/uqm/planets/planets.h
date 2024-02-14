@@ -406,7 +406,7 @@ extern void TransformColor (Color *c, COUNT scan);
 
 extern void DrawPlanetSurfaceBorder (void);
 
-extern FRAME CreateStarBackGround (BOOLEAN encounter);
+extern FRAME GetStarBackGround (BOOLEAN encounter);
 extern UNICODE* GetNamedPlanetaryBody (void);
 extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 

@@ -294,6 +294,44 @@ TFB_DrawCanvas_Image (TFB_Image *img, int x, int y, int scale,
 		TFB_ReturnColorMap (cmap);
 	}
 
+	if (mode.kind == DRAW_ALPHA && surf->format->Amask != 0)
+	{	// Per-pixel alpha and surface alpha will not work together
+		// We have to handle DRAW_ALPHA differently by modulating
+		// the backing surface alpha channel ourselves.
+		// The existing backing surface alpha channel is ignored.
+		int alpha = mode.factor;
+		mode.kind = DRAW_REPLACE;
+
+		if (alpha != 0xFF)
+		{
+			SDL_LockSurface (surf);
+			{
+				int i, length;
+				const Uint32 smask = ~surf->format->Amask;
+				const int ashift = surf->format->Ashift;
+				Uint32 p;
+				Uint32 a;
+				Uint32 *src_p = (Uint32 *)surf->pixels;
+
+				length = surf->h * surf->w;
+
+				for (i = 0; i < length; ++i, ++src_p)
+				{
+					p = *src_p & smask;
+					a = (*src_p >> ashift) & 0xFF;
+
+					if (a != 0)
+					{	// modulate the alpha channel
+						a = (a * alpha) >> 8;
+					}
+
+					*src_p = p | (a << ashift);
+				}
+			}
+			SDL_UnlockSurface (surf);
+		}
+	}
+
 	TFB_DrawCanvas_Blit (surf, pSrcRect, target, &targetRect, mode);
 	UnlockMutex (img->mutex);
 }
@@ -710,9 +748,28 @@ TFB_DrawCanvas_Mask (SDL_Surface *layer, SDL_Surface *base, DrawMode mode, Color
 			return;
 		}
 
-		SDL_LockSurface (base);
-		blt_filtered_prim (layer, plotFn, mode.factor, base, fill);
-		SDL_UnlockSurface (base);
+		if (layer->format->palette && base->format->Amask)
+		{// Layering 8-bit image to 32-bit mask
+			Color *pal;
+			SDL_Palette *palette = layer->format->palette;
+			int i;
+
+			pal = HCalloc (sizeof (Color) * 256);
+			assert (palette->ncolors <= 256);
+			for (i = 0; i < palette->ncolors; ++i)
+				pal[i] = NativeToColor (palette->colors[i]);
+
+			SDL_LockSurface (base);
+			blt_filtered_pal (layer, plotFn, mode.factor, base, pal);
+			SDL_UnlockSurface (base);
+			HFree (pal);
+		}
+		else
+		{
+			SDL_LockSurface (base);
+			blt_filtered_prim (layer, plotFn, mode.factor, base, fill);
+			SDL_UnlockSurface (base);
+		}
 	}
 }
 
@@ -724,8 +781,18 @@ TFB_DrawCanvas_MaskImage (TFB_Image *img, DrawMode mode, TFB_Canvas target,	Colo
 	else
 	{
 		SDL_Surface *surf;
+
 		LockMutex (img->mutex);
 		surf = img->NormalImg;
+
+		if (surf->format->palette)
+		{
+			TFB_ColorMap *cmap = NULL;
+			cmap = TFB_GetColorMap (img->colormap_index);
+			TFB_SetColors (img->NormalImg, cmap->palette->colors, 0, 256);
+			TFB_ReturnColorMap (cmap);
+		}
+
 		TFB_DrawCanvas_Mask (surf, target, mode, fill);
 		UnlockMutex (img->mutex);
 	}

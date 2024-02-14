@@ -1760,6 +1760,7 @@ init_widgets (void)
 
 	// nebulaevol is a special case
 	sliders[4].step = 1;
+	sliders[4].max = 50;
 
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{

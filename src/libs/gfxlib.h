@@ -162,29 +162,21 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 		buildColorRgba ((r), (g), (b), 0xFF)
 
 static inline void
-MultiplyBrightness (Color *color, float value)
+IncreaseBrightness (BYTE *ch, BYTE value)
 {
-	if (color->r)
-	{
-		if (color->r * value > 255)
-			color->r = 255;
-		else
-			color->r *= value;
-	}
-	if (color->g)
-	{
-		if (color->g * value > 255)
-			color->g = 255;
-		else
-			color->g *= value;
-	}
-	if (color->b)
-	{
-		if (color->b * value > 255)
-			color->b = 255;
-		else
-			color->b *= value;
-	}
+	int c;
+	if (*ch < 128)
+		c = ((*ch * 255) >> 7);
+	else
+		c = (((*ch + 255) << 1) - 255 - ((255 * *ch) >> 7));
+
+	if (c > 0xFF)
+		c = 0xFF;
+
+	if (value == 0xFF)
+		*ch = (BYTE)c;
+	else
+		*ch = (BYTE)(((c - *ch) * value) >> 8) + *ch;
 }
 
 static inline BOOLEAN
@@ -718,6 +710,7 @@ extern BOOLEAN SetColorMap (COLORMAPPTR ColorMapPtr);
 extern DWORD XFormColorMap (COLORMAPPTR ColorMapPtr, SIZE TimeInterval);
 extern DWORD FadeScreen (ScreenFadeType fadeType, SIZE TimeInterval);
 extern void FlushColorXForms (void);
+extern UBYTE GetColorMapTableIndex (COLORMAP map);
 #define InitColorMapResources InitStringTableResources
 #define LoadColorMapFile LoadStringTableFile
 #define LoadColorMapInstance LoadStringTableInstance
@@ -726,7 +719,7 @@ extern void FlushColorXForms (void);
 #define DestroyColorMap DestroyStringTable
 #define GetColorMapRef GetStringTable
 #define GetColorMapCount GetStringTableCount
-#define GetColorMapIndex GetStringTableIndex
+#define GetColorMapIndex GetColorMapTableIndex //Originally used GetStringTableIndex, but there were no macro calls and it didn't do what it's supposed to do
 #define SetAbsColorMapIndex SetAbsStringTableIndex
 #define SetRelColorMapIndex SetRelStringTableIndex
 #define GetColorMapLength GetStringLengthBin
