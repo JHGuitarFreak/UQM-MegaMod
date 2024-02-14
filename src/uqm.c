@@ -1135,6 +1135,8 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("mm.nebulaevol") && !options->nebulaevol.set)
 	{
 		options->nebulaevol.value = res_GetInteger ("mm.nebulaevol");
+		if (options->nebulaevol.value > 50)
+			options->nebulaevol.value = 11;
 	}
 
 	getBoolConfigValue (&options->slaughterMode, "mm.slaughterMode");
