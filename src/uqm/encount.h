@@ -100,7 +100,7 @@ enum
 };
 
 extern void EncounterBattle (void);
-extern void BuildBattle (COUNT which_player);
+extern void BuildBattle (COUNT which_player, BOOLEAN *fromLoad);
 extern COUNT InitEncounter (void);
 extern COUNT UninitEncounter (void);
 extern BOOLEAN FleetIsInfinite (COUNT playerNr);

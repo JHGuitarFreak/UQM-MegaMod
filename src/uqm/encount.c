@@ -104,7 +104,7 @@ GetShipFragQueueForPlayer (COUNT playerNr)
 
 // Called by comm code to intialize battle fleets during encounter
 void
-BuildBattle (COUNT which_player)
+BuildBattle (COUNT which_player, BOOLEAN *fromLoad)
 {
 	QUEUE *pQueue;
 	HSHIPFRAG hStarShip, hNextShip;
@@ -129,25 +129,29 @@ BuildBattle (COUNT which_player)
 				break;
 			case IN_HYPERSPACE:
 			{
-				if (TRUE)
-				{	// TODO: create a condition to determine if we just
-					// loaded the game
-					BYTE selector = (BYTE)((COUNT)TFB_Random ()
-							% NUMBER_OF_PLANET_TYPES);
+				BYTE selector;
 
-					if (EXTENDED && (selector == RAINBOW_WORLD
-						|| selector == SHATTERED_WORLD))
-					{	// No rainbow or shattered worlds in hyperspace
-						if (selector == RAINBOW_WORLD)
-							selector--;
-						if (selector == SHATTERED_WORLD)
-							selector++;
-					}
-					// Serialize rolled planet so it's the same on load
-					SET_GAME_STATE (BATTLE_PLANET, selector);
+				if (*fromLoad)
+				{	// Load serialized planet
+					*fromLoad = FALSE;
+					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+					break;
 				}
 
-				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+				selector = (BYTE)((COUNT)TFB_Random ()
+						% NUMBER_OF_PLANET_TYPES);
+
+				if (EXTENDED && (selector == RAINBOW_WORLD
+					|| selector == SHATTERED_WORLD))
+				{	// No rainbow or shattered worlds in hyperspace
+					if (selector == RAINBOW_WORLD)
+						selector--;
+					if (selector == SHATTERED_WORLD)
+						selector++;
+				}
+				// Serialize rolled planet so it's the same on load
+				SET_GAME_STATE (BATTLE_PLANET, selector);
+				load_gravity_well (selector);
 				break;
 			}
 			default:
@@ -190,6 +194,10 @@ BuildBattle (COUNT which_player)
 			}
 		}
 	}
+
+	if (*fromLoad)
+		*fromLoad = FALSE;
+
 	pQueue = GetShipFragQueueForPlayer (which_player);
 
 	ReinitQueue (&race_q[which_player]);
