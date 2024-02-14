@@ -717,3 +717,11 @@ GetColorMapColor (COUNT ColorMapIndex, COUNT ColorIndex)
 	return GetNativePaletteColor (colormaps[ColorMapIndex]->palette,
 			ColorIndex);
 }
+
+UBYTE
+GetColorMapTableIndex (COLORMAP map)
+{
+	UBYTE *index = (UBYTE*)GetColorMapAddress (map);
+
+	return *index;
+}

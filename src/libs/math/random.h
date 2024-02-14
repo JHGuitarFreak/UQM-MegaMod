@@ -63,6 +63,7 @@ RandomContext *RandomContext_Copy (const RandomContext *source);
 DWORD RandomContext_Random (RandomContext *context);
 DWORD RandomContext_SeedRandom (RandomContext *context, DWORD new_seed);
 DWORD RandomContext_GetSeed (RandomContext *context);
+DWORD RandomContext_FastRandom (DWORD seed);
 
 
 #endif  /* LIBS_MATH_RANDOM_H_ */

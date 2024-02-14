@@ -919,6 +919,40 @@ blt_filtered_fill (SDL_Surface *base, RenderPixelFn plot, int factor,
 	}
 }
 
+void
+blt_filtered_pal (SDL_Surface *layer, RenderPixelFn plot, int factor,
+			SDL_Surface *base, Color *fill)
+{
+	SDL_PixelFormat *lrfmt = layer->format;
+	SDL_PixelFormat *bsfmt = base->format;
+	int x, y;	
+
+	// Not for paletted yet!
+	if (!lrfmt->palette)
+		return;
+
+	for (y = 0; y < base->h; ++y)
+	{
+		for (x = 0; x < base->w; ++x)
+		{
+			Uint8 ab;
+			Uint8 *lp;
+			Uint32 *bp;
+			
+			bp = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
+			
+			if ((*bp & bsfmt->Amask) == 0)
+				continue; // transparent pixel
+
+			lp = (Uint8 *)layer->pixels + y * layer->pitch + x;
+
+			ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
+
+			*bp = PACK_PIXEL_RGBA (bsfmt, fill[*lp].r, fill[*lp].g, fill[*lp].b, ab);
+		}
+	}
+}
+
 // clip the source and destination rectangles against the clip rectangle
 int
 clip_blt_rects(SDL_Rect *src_r, SDL_Rect *dst_r, const SDL_Rect *clip_r)

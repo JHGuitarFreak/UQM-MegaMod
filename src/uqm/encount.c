@@ -129,53 +129,54 @@ BuildBattle (COUNT which_player)
 				break;
 			case IN_HYPERSPACE:
 			{
-				DWORD log_seed = MAKE_DWORD (
-						LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-						LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x))
-					);
-				BYTE selector = (BYTE)(log_seed % NUMBER_OF_PLANET_TYPES);
-				if (EXTENDED && (selector == RAINBOW_WORLD
-						|| selector == SHATTERED_WORLD))
+				if (TRUE)// TODO: create a condition to determine if we just loaded the game
 				{
-					if (selector == RAINBOW_WORLD)
-						selector--;
-					if (selector == SHATTERED_WORLD)
-						selector++;
+					BYTE selector = (BYTE)((COUNT)TFB_Random () % NUMBER_OF_PLANET_TYPES);
+					if (EXTENDED && (selector == RAINBOW_WORLD
+						|| selector == SHATTERED_WORLD))
+					{// No rainbow or shattered worlds in hyperspace
+						if (selector == RAINBOW_WORLD)
+							selector--;
+						if (selector == SHATTERED_WORLD)
+							selector++;
+					}
+					// Serialize rolled planet so it's the same on load
+					SET_GAME_STATE (BATTLE_PLANET, selector);
 				}
-				load_gravity_well (selector);
+
+				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
 				break;
 			}
 			default:
+			{
 				SET_GAME_STATE (ESCAPE_COUNTER, 110);
-				if (EXTENDED && CurStarDescPtr->Index == SAMATRA_DEFINED
-						&& pSolarSysState
-						&& pSolarSysState->MoonDesc->data_index == SA_MATRA)
+
+				if (EXTENDED && pSolarSysState)
 				{
-					utf8StringCopy (GLOBAL_SIS (PlanetName),
-							sizeof (GLOBAL_SIS (PlanetName)),
-							GAME_STRING (PLANET_NUMBER_BASE + 32));
-					DrawSISTitle (GAME_STRING (PLANET_NUMBER_BASE + 32));
-					load_gravity_well (PLANET_SA_MATRA);
-				}
-				else
-				{
-					if (EXTENDED && pSolarSysState 
-							&& worldIsMoon (pSolarSysState,
-								pSolarSysState->pOrbitalDesc))
-					{	// Set gravity well to moon if encounter takes
-						// place there (Spathiwa moon, Taalo HW,
-						// Utwig Bomb Loc)
-						// Only if encounter starts with moon collision
-						// colliding with IP group in inner system still
-						// uses main planet for gravity well
-						COUNT moon = moonIndex (pSolarSysState,
-								pSolarSysState->pOrbitalDesc);
-						SET_GAME_STATE (BATTLE_PLANET,
-								pSolarSysState->MoonDesc[moon].data_index);
+					if (CurStarDescPtr->Index == SAMATRA_DEFINED &&
+							pSolarSysState->MoonDesc->data_index == SA_MATRA)
+					{// Set Sa-Matra planet graphics for battlegroup segue screen
+					 // It'll be reloaded when the battle starts to the planet type
+					 // Sa-matra is orbiting
+						utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+								GAME_STRING (PLANET_NUMBER_BASE + 32));
+						DrawSISTitle (GAME_STRING (PLANET_NUMBER_BASE + 32));
+						load_gravity_well (PLANET_SA_MATRA);
+						break;
 					}
-					load_gravity_well (GET_GAME_STATE(BATTLE_PLANET));
+					else if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+					{// Set gravity well to moon if encounter takes place there (Spathiwa moon, Taalo HW, Utwig Bomb Loc)
+					 // Only if encounter starts with moon collision
+					 // colliding with IP group in inner system still uses main planet for gravity well
+						COUNT moon = moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
+						load_gravity_well (pSolarSysState->MoonDesc[moon].data_index);
+						break;
+					}
 				}
+
+				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
 				break;
+			}
 		}
 	}
 	pQueue = GetShipFragQueueForPlayer (which_player);
@@ -320,8 +321,7 @@ InitEncounter (void)
 
 	MR = LoadMusic (REDALERT_MUSIC);
 	PlayMusic (MR, FALSE, 1);
-	SegueFrame = optNebulae ? CreateStarBackGround (TRUE) :
-			CaptureDrawable (LoadGraphic (SEGUE_PMAP_ANIM));
+	SegueFrame = GetStarBackGround (TRUE);
 	WaitForSoundEnd (TFBSOUND_WAIT_ALL);
 	StopMusic ();
 	DestroyMusic (MR);

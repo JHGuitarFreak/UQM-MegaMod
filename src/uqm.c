@@ -414,7 +414,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
 		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
 		INIT_CONFIG_OPTION(  sphereType,        2 ),
-		INIT_CONFIG_OPTION(  nebulaevol,        24 ),
+		INIT_CONFIG_OPTION(  nebulaevol,        11 ),
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
@@ -2438,7 +2438,7 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --spheretype : Choose between PC, 3DO, or UQM"
 			" scan sphere styles (default: %s)",
 			choiceOptString (&defaults->sphereType));
-	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
+	log_add (log_User, "--nebulaevol=VOLUME (0-50, default 11)");
 	log_add (log_User, "--slaughtermode : Affect a race's SOI by "
 			"destroying their ships in battle (default: %s)",
 			boolOptString (&defaults->slaughterMode));
