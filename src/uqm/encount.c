@@ -102,9 +102,30 @@ GetShipFragQueueForPlayer (COUNT playerNr)
 		return &GLOBAL (npc_built_ship_q);
 }
 
+void
+SetBattlePlanet (void)
+{
+	BYTE selector;
+
+	selector = (BYTE)((COUNT)TFB_Random ()
+		% NUMBER_OF_PLANET_TYPES);
+
+	if (EXTENDED && (selector == RAINBOW_WORLD
+		|| selector == SHATTERED_WORLD))
+	{	// No rainbow or shattered worlds in hyperspace
+		if (selector == RAINBOW_WORLD)
+			selector--;
+		if (selector == SHATTERED_WORLD)
+			selector++;
+	}
+
+	// Set BATTLE_PLANET state so it can be serialized if game is saved
+	SET_GAME_STATE (BATTLE_PLANET, selector);
+}
+
 // Called by comm code to intialize battle fleets during encounter
 void
-BuildBattle (COUNT which_player, BOOLEAN *fromLoad)
+BuildBattle (COUNT which_player)
 {
 	QUEUE *pQueue;
 	HSHIPFRAG hStarShip, hNextShip;
@@ -128,75 +149,49 @@ BuildBattle (COUNT which_player, BOOLEAN *fromLoad)
 				load_gravity_well (SA_MATRA);
 				break;
 			case IN_HYPERSPACE:
-			{
-				BYTE selector;
+			{	// If somehow BATTLE_PLANET is invalid (maybe Core game load missalign)
+				if (GET_GAME_STATE (BATTLE_PLANET) > NUMBER_OF_PLANET_TYPES)
+					SetBattlePlanet ();
 
-				if (*fromLoad)
-				{	// Load serialized planet
-					*fromLoad = FALSE;
-					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
-					break;
-				}
-
-				selector = (BYTE)((COUNT)TFB_Random ()
-						% NUMBER_OF_PLANET_TYPES);
-
-				if (EXTENDED && (selector == RAINBOW_WORLD
-					|| selector == SHATTERED_WORLD))
-				{	// No rainbow or shattered worlds in hyperspace
-					if (selector == RAINBOW_WORLD)
-						selector--;
-					if (selector == SHATTERED_WORLD)
-						selector++;
-				}
-				// Serialize rolled planet so it's the same on load
-				SET_GAME_STATE (BATTLE_PLANET, selector);
-				load_gravity_well (selector);
+				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
 				break;
 			}
 			default:
 			{
 				SET_GAME_STATE (ESCAPE_COUNTER, 110);
 
-				if (EXTENDED && pSolarSysState)
-				{
-					if (CurStarDescPtr->Index == SAMATRA_DEFINED &&
-							pSolarSysState->MoonDesc->data_index == SA_MATRA)
-					{	// Set Sa-Matra planet graphics for battlegroup
-						// segue screen. It'll be reloaded when the battle
-						// starts to the planet type Sa-matra is orbiting
-						utf8StringCopy (GLOBAL_SIS (PlanetName),
-								sizeof (GLOBAL_SIS (PlanetName)),
-								GAME_STRING (PLANET_NUMBER_BASE + 32));
-						DrawSISTitle (
-								GAME_STRING (PLANET_NUMBER_BASE + 32));
-						load_gravity_well (PLANET_SA_MATRA);
-						break;
-					}
-					else if (worldIsMoon (pSolarSysState,
-							pSolarSysState->pOrbitalDesc))
-					{	// Set gravity well to moon if encounter takes
-						// place there (Spathiwa moon, Taalo HW,
-						// Utwig Bomb Loc)
-						// Only if encounter starts with moon collision
-						// colliding with IP group in inner system still
-						// uses main planet for gravity well
-						COUNT moon = moonIndex (pSolarSysState,
-								pSolarSysState->pOrbitalDesc);
-						load_gravity_well (
-								pSolarSysState->MoonDesc[moon].data_index);
-						break;
-					}
-				}
+				if (EXTENDED && pSolarSysState && worldIsMoon (
+						pSolarSysState,	pSolarSysState->pOrbitalDesc))
+				{// Set gravity well to moon if encounter takes
+				 // place there (Spathiwa moon, Taalo HW,
+				 // Utwig Bomb Loc)
+				 // Only if encounter starts with moon collision
+				 // colliding with IP group in inner system still
+				 // uses main planet for gravity well
 
-				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
-				break;
+					BYTE selector = pSolarSysState->MoonDesc[moonIndex (
+						pSolarSysState,	pSolarSysState->pOrbitalDesc)].data_index;
+
+					if (selector == SA_MATRA)
+					{
+						utf8StringCopy (GLOBAL_SIS (PlanetName),
+							sizeof (GLOBAL_SIS (PlanetName)),
+							GAME_STRING (PLANET_NUMBER_BASE + 32));
+						DrawSISTitle (
+							GAME_STRING (PLANET_NUMBER_BASE + 32));
+					}
+
+					load_gravity_well (selector);
+					break;
+				}
+				else
+				{
+					load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
+					break;
+				}
 			}
 		}
 	}
-
-	if (*fromLoad)
-		*fromLoad = FALSE;
 
 	pQueue = GetShipFragQueueForPlayer (which_player);
 

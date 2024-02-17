@@ -174,7 +174,7 @@ GetPlanetTitle (UNICODE *buf, COUNT bufsize)
 					GAME_STRING (SCAN_STRING_BASE + 4 + 51));
 							// Gas Giant
 		}
-		else if (val <= PLANET_SA_MATRA)
+		else if (val <= NUMBER_OF_PLANET_TYPES)
 		{
 			sprintf (buf, "%s",
 					GAME_STRING (SCAN_STRING_BASE + 4 + 2 + val));
