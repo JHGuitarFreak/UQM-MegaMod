@@ -277,6 +277,7 @@ ZapToUrquanEncounter (void)
 		}
 
 		GLOBAL (CurrentActivity) = MAKE_WORD (IN_HYPERSPACE, 0) | START_ENCOUNTER;
+		SetBattlePlanet ();
 
 		dx = CurStarDescPtr->star_pt.x - EncounterPtr->loc_pt.x;
 		dy = CurStarDescPtr->star_pt.y - EncounterPtr->loc_pt.y;

@@ -1929,7 +1929,6 @@ InitCommunication (CONVERSATION which_comm)
 {
 	COUNT status;
 	LOCDATA *LocDataPtr;
-	BOOLEAN fromLoad = FALSE;
 
 	IsProbe = FALSE;
 
@@ -1942,7 +1941,6 @@ InitCommunication (CONVERSATION which_comm)
 	if (LastActivity & CHECK_LOAD)
 	{
 		LastActivity &= ~CHECK_LOAD;
-		fromLoad = TRUE;
 		if (which_comm != COMMANDER_CONVERSATION)
 		{
 			if (LOBYTE (LastActivity) == 0)
@@ -2013,7 +2011,7 @@ InitCommunication (CONVERSATION which_comm)
 				|| (which_comm != CHMMR_CONVERSATION
 				&& which_comm != SYREEN_CONVERSATION
 				))//&& CheckAlliance (status) == BAD_GUY))
-			BuildBattle (NPC_PLAYER_NUM, &fromLoad);
+			BuildBattle (NPC_PLAYER_NUM);
 	}
 
 	LocDataPtr = init_race (
@@ -2075,7 +2073,7 @@ InitCommunication (CONVERSATION which_comm)
 				free_gravity_well ();
 				load_gravity_well (GET_GAME_STATE (BATTLE_PLANET));
 			}
-			BuildBattle (RPG_PLAYER_NUM, &fromLoad);
+			BuildBattle (RPG_PLAYER_NUM);
 			EncounterBattle ();
 		}
 		else

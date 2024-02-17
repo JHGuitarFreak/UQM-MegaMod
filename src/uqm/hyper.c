@@ -769,6 +769,7 @@ unhyper_transition (ELEMENT *ElementPtr)
 		{
 			case RANDOM_ENCOUNTER_TRANSITION:
 				SaveSisHyperState ();
+				SetBattlePlanet ();
 				GLOBAL (CurrentActivity) |= START_ENCOUNTER;
 				break;
 			case INTERPLANETARY_TRANSITION:
