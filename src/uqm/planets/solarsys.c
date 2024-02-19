@@ -72,7 +72,6 @@
 #define GENERATE_PERIMETER(a) \
 		(a * ORIGINAL_MAP_WIDTH / ORIGINAL_MAP_HEIGHT)
 
-static void AnimateSun (SIZE radius);
 static BOOLEAN DoIpFlight (SOLARSYS_STATE *pSS);
 static void DrawInnerPlanets (PLANET_DESC* planet);
 static void DrawOuterPlanets(SIZE radius);
@@ -128,7 +127,7 @@ static COUNT PBodySize[7] = { 0, 3, 4, 7, 11, 15, 29 };
 #define UNDEFINED_OFFSET ((BYTE)~0)
 
 RandomContext *SysGenRNG;
-RandomContext* SysGenRNGDebug;
+RandomContext *SysGenRNGDebug;
 
 #define DISPLAY_TO_LOC  (DISPLAY_FACTOR >> 1)
 #define DISPLAY_TO_LOC_US  (DISPLAY_FACTOR_US >> 1)
@@ -136,6 +135,10 @@ RandomContext* SysGenRNGDebug;
 // Star characteristics
 #define SUN_ANIMFRAMES_NUM 32
 #define SUN_ZOOM_SIZES 5
+#define SUN_INDEX_OFFSET ((GetFrameCount (SunFrame) - SUN_ZOOM_SIZES) / \
+						SUN_ZOOM_SIZES)
+#define STAR_INDEX_MULTIPLIER (SUN_INDEX_OFFSET ? SUN_INDEX_OFFSET : 1)
+
 #define USE_RGB_STARS ((!IS_HD && NebulaFrame) || (IS_HD))
 
 // Resources to load
@@ -702,23 +705,6 @@ GenerateTexturedPlanets (void)
 	pSolarSysState->pOrbitalDesc = previousOrbitalDesc;
 }
 
-static float
-CalcNebulaBrightness (void)
-{
-	float brightness;
-	float scale = optUnscaledStarSystem ? 1.75 : 1.0;
-
-	if (optNebulaeVolume > 24)
-		brightness = (((float)optNebulaeVolume - 24) / 24) + scale;
-	else
-		brightness = scale * ((float)optNebulaeVolume / 24);
-
-	if (brightness < 1.0)
-		return 1.0;
-	else
-		return brightness;
-}
-
 // Returns an orbital PLANET_DESC when player is in orbit
 static PLANET_DESC *
 LoadSolarSys (void)
@@ -750,13 +736,8 @@ LoadSolarSys (void)
 	RandomContext_SeedRandom (SysGenRNG,
 			GetRandomSeedForStar (CurStarDescPtr));
 
-	// JMS: Animating IP sun in hi-res...
-	if (!IS_HD)
-		SunFrame = SetAbsFrameIndex (SunFrame,
-				STAR_TYPE (CurStarDescPtr->Type));
-	else
-		SunFrame = SetAbsFrameIndex (SunFrame,
-				STAR_TYPE (CurStarDescPtr->Type) * 32);
+	SunFrame = SetAbsFrameIndex (SunFrame,
+			STAR_TYPE (CurStarDescPtr->Type) * STAR_INDEX_MULTIPLIER);
 
 	pCurDesc = &pSolarSysState->SunDesc[0];
 	pCurDesc->pPrevDesc = 0;
@@ -1849,38 +1830,6 @@ RestoreSystemView (void)
 	DrawStamp (&s);
 }
 
-// JMS: This animates the truespace suns!
-static void
-AnimateSun (SIZE radius)
-{
-	PLANET_DESC *pSunDesc = &pSolarSysState->SunDesc[0];
-	//PLANET_DESC *pNearestPlanetDesc = &pSolarSysState->PlanetDesc[0];
-	static COUNT sunAnimIndex = 0;
-	COUNT zoomLevelIndex = 0;
-	
-	// Advance to the next frame.
-	sunAnimIndex++;
-	
-	// Go back to start of the anim after advancing past the last frame.
-	if (sunAnimIndex % SUN_ANIMFRAMES_NUM == 0)
-		sunAnimIndex = 0;
-	
-	// Zoom according to how close we are to the sun.
-	if (radius <= (MAX_ZOOM_RADIUS >> 1))
-	{
-		zoomLevelIndex += SUN_ANIMFRAMES_NUM;
-		if (radius <= (MAX_ZOOM_RADIUS >> 2))
-			zoomLevelIndex += SUN_ANIMFRAMES_NUM;
-	}
-	
-	// Tell the imageset which frame it should use.
-	pSunDesc->image.frame = SetRelFrameIndex (
-			SunFrame, zoomLevelIndex + sunAnimIndex);
-	
-	// Draw the image.
-	DrawStamp (&pSunDesc->image);
-}
-
 static void
 DrawTexturedBody (PLANET_DESC* planet, STAMP s)
 {
@@ -2492,6 +2441,7 @@ UninitSolarSys (void)
 static void
 CalcSunSize (PLANET_DESC *pSunDesc, SIZE radius)
 {
+	static BYTE frameCount = 0;
 	SIZE index = 0;
 
 	if (radius <= (MAX_ZOOM_RADIUS >> 1))
@@ -2505,11 +2455,15 @@ CalcSunSize (PLANET_DESC *pSunDesc, SIZE radius)
 	pSunDesc->image.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 	
 	// JMS: Animating IP sun in hi-res modes...
-	if (!IS_HD)
-		pSunDesc->image.frame = SetRelFrameIndex (SunFrame, index);
-	else
+	if (IS_HD)
+	{
 		pSunDesc->image.frame =
-				SetRelFrameIndex (SunFrame, index * SUN_ANIMFRAMES_NUM);
+				SetRelFrameIndex (SunFrame, index * SUN_ANIMFRAMES_NUM +
+					frameCount);
+		frameCount = (frameCount + 1) & 0x1F;
+	}
+	else
+		pSunDesc->image.frame = SetRelFrameIndex (SunFrame, index);
 }
 
 static void
@@ -2591,14 +2545,7 @@ DrawOuterPlanets (SIZE radius)
 
 		if (pCurDesc == &pSolarSysState->SunDesc[0])
 		{	// It's a sun
-			// Core part that animates sun
-			if (IS_HD)
-				AnimateSun (radius);
-			else
-				DrawStamp (&pCurDesc->image);
-			//printf ("%d %d\n", pCurDesc->image.origin.x, pCurDesc->image.origin.y);
-			//SetContextForeGroundColor (BUILD_COLOR_RGB (255, 0, 0));
-			//DrawPoint (&pCurDesc->image.origin);
+			DrawStamp (&pCurDesc->image);
 		}
 		else
 		{	// It's a planet
