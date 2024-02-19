@@ -469,122 +469,81 @@ static void
 RenderTopography (FRAME DstFrame, SBYTE *pTopoData, int w, int h,
 		BOOLEAN SurfDef, COLORMAP scanTable)
 {
-	FRAME OldFrame;
-
-	OldFrame = SetContextFGFrame (DstFrame);
+	BYTE AlgoType;
+	SIZE base, d;
+	SBYTE *pSrc;
+	BYTE *ctab;
+	BYTE *cbase;
+	Color *pix;
+	Color *map;
+	DWORD i, sqr;
+	const PlanetFrame *PlanDataPtr;
+	const XLAT_DESC *xlatDesc;
+	const BYTE *xlat_tab;
 
 	if (pSolarSysState->XlatRef == 0)
-	{
-		// There is currently nothing we can do w/o an xlat table
+	{	// There is currently nothing we can do w/o an xlat table
 		// This is still called for Earth for 4x scaled topo, but we
 		// do not need it because we cannot land on Earth.
 		log_add (log_Warning,
 				"No xlat table -- could not generate surface.\n");
+		return;
+	}
+
+	PlanDataPtr = &PlanData[
+		pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED
+	];
+	AlgoType = PLANALGO (PlanDataPtr->Type);
+
+	if (SurfDef)
+	{	// Planets given by a pixmap have elevations between -128 and
+		// +128
+		base = 256;
 	}
 	else
+		base = PlanDataPtr->base_elevation;
+
+	xlatDesc = (const XLAT_DESC *)pSolarSysState->XlatPtr;
+	xlat_tab = (const BYTE *)xlatDesc->xlat_tab;
+
+	if (scanTable == NULL)
+		cbase = GetColorMapAddress (pSolarSysState->OrbitalCMap);
+	else
+		cbase = GetColorMapAddress (scanTable);
+
+	pSrc = pTopoData;
+	sqr = w * h;
+
+	map = HMalloc (sizeof (Color) * sqr);
+	pix = map;
+
+	for (i = 0; i < sqr; ++i, ++pSrc, ++pix)
 	{
-		COUNT i;
-		BYTE AlgoType;
-		SIZE base, d;
-		const XLAT_DESC *xlatDesc;
-		POINT pt;
-		const PlanetFrame *PlanDataPtr;
-		PRIMITIVE BatchArray[NUM_BATCH_POINTS];
-		PRIMITIVE *pBatch;
-		SBYTE *pSrc;
-		const BYTE *xlat_tab;
-		BYTE *cbase;
-		POINT oldOrigin;
-		RECT ClipRect;
-
-		oldOrigin = SetContextOrigin (MAKE_POINT (0, 0));
-		GetContextClipRect (&ClipRect);
-		SetContextClipRect (NULL);
-
-		pBatch = &BatchArray[0];
-		for (i = 0; i < NUM_BATCH_POINTS; ++i, ++pBatch)
-		{
-			SetPrimNextLink (pBatch, i + 1);
-			SetPrimType (pBatch, POINT_PRIM);
-			SetPrimFlags (pBatch, 0);
-		}
-		SetPrimNextLink (&pBatch[-1], END_OF_LIST);
-
-		PlanDataPtr = &PlanData[
-			pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED
-		];
-		AlgoType = PLANALGO (PlanDataPtr->Type);
-
-		if (SurfDef)
-		{	// Planets given by a pixmap have elevations between -128 and
-			// +128
-			base = 256;
+		d = *pSrc;
+		if (AlgoType == GAS_GIANT_ALGO)
+		{	// make elevation value non-negative
+			if (optScanSphere == 1)
+				d += base;
+			d &= 255;
 		}
 		else
-			base = PlanDataPtr->base_elevation;
-
-		xlatDesc = (const XLAT_DESC *)pSolarSysState->XlatPtr;
-		xlat_tab = (const BYTE *)xlatDesc->xlat_tab;
-
-		if (scanTable == NULL)
-			cbase = GetColorMapAddress (pSolarSysState->OrbitalCMap);
-		else
-			cbase = GetColorMapAddress (scanTable);
-
-		pSrc = pTopoData;
-
-		for (pt.y = 0; pt.y < h; ++pt.y)
 		{
-			for (pt.x = 0; pt.x < w; ++pt.x, ++pSrc)
-			{
-				BYTE *ctab;
-
-				d = *pSrc;
-				if (AlgoType == GAS_GIANT_ALGO)
-				{	// make elevation value non-negative
-					if (optScanSphere == 1)
-						d += base;
-					d &= 255;
-				}
-				else
-				{
-					d += base;
-					if (d < 0)
-						d = 0;
-					else if (d > 255)
-						d = 255;
-				}
-
-				--pBatch;
-				pBatch->Object.Point.x = pt.x;
-				pBatch->Object.Point.y = pt.y;
-
-				d = xlat_tab[d] - cbase[0];
-				ctab = (cbase + 2) + d * 3;
-
-				// using new truecolor tables ripped from DOS version
-				SetPrimColor (pBatch, BUILD_COLOR_RGBA (ctab[0], ctab[1],
-						ctab[2], 0xFF));
-
-				if (--i == 0)
-				{	// flush the batch and start the next one
-					DrawBatch (BatchArray, 0, 0);
-					i = NUM_BATCH_POINTS;
-					pBatch = &BatchArray[i];
-				}
-			}
+			d += base;
+			if (d < 0)
+				d = 0;
+			else if (d > 255)
+				d = 255;
 		}
 
-		if (i < NUM_BATCH_POINTS)
-		{
-			DrawBatch (BatchArray, i, 0);
-		}
+		d = xlat_tab[d] - cbase[0];
+		ctab = (cbase + 2) + d * 3;
 
-		SetContextClipRect (&ClipRect);
-		SetContextOrigin (oldOrigin);
+		// using new truecolor tables ripped from DOS version
+		*pix = BUILD_COLOR_RGB (ctab[0], ctab[1], ctab[2]);
 	}
 
-	SetContextFGFrame (OldFrame);
+	WriteFramePixelColors (DstFrame, map, w, h);
+	HFree (map);
 }
 
 static inline void
