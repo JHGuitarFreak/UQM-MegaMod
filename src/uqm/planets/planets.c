@@ -329,7 +329,7 @@ DrawOrbitMapGraphic (void)
 
 	SetContext (GetScanContext (NULL));
 
-	if (isPC (optScrTrans))
+	if (optScanSphere != 1)
 	{
 		s.frame = SetAbsFrameIndex (CaptureDrawable
 		(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
