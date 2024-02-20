@@ -438,6 +438,105 @@ RedistributeFuel (void)
 	SetContext (OldContext);
 }
 
+static void
+DrawEscapePodText (RECT rect )
+{
+	TEXT text;
+	FONT OldFont;
+	Color OldColor;
+	SIZE leading;
+	RECT block;
+	UNICODE buf[256];
+	COORD og_baseline_x;
+
+	if (!strlen (GAME_STRING (STARBASE_STRING_BASE + 39)))
+		return;
+
+	OldFont = SetContextFont (LoadFont (SQUARE_FONT));
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+	
+	block = rect;
+	block.corner.x += RES_SCALE (171);
+	block.corner.y += RES_SCALE (38);
+	block.extent.width = RES_SCALE (36);
+	block.extent.height = RES_SCALE (6);
+	DrawFilledRectangle (&block);
+
+	block.corner.x += RES_SCALE (9);
+	block.corner.y += block.extent.height;
+	block.extent.width = RES_SCALE (19);
+	DrawFilledRectangle (&block);
+
+	GetContextFontLeading (&leading);
+
+	text.baseline = rect.corner;
+	text.baseline.x += RES_SCALE (189);
+	text.baseline.y += RES_SCALE (39);
+	text.align = ALIGN_CENTER;
+
+	og_baseline_x = text.baseline.x;
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (STARBASE_STRING_BASE + 39));
+
+	text.align = ALIGN_CENTER;
+	text.pStr = strtok (buf, " ");
+	text.CharCount = (COUNT)~0;
+
+	SetContextForeGroundColor (LANDER_POD_TEXT_COLOR);
+
+	while (text.pStr != NULL)
+	{
+		text.pStr = AlignText (text.pStr, &text.baseline.x);
+		text.CharCount = (COUNT)~0;
+
+		font_DrawText (&text);
+
+		text.pStr = strtok (NULL, " ");
+		text.CharCount = (COUNT)~0;
+		text.baseline.y += leading;
+		text.baseline.x = og_baseline_x;
+	}
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+static void
+DrawNoLandersText (RECT rect)
+{
+	TEXT text;
+	FONT OldFont;
+	Color OldColor;
+	RECT block;
+
+	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 38)))
+		return;
+
+	OldFont = SetContextFont (LoadFont (SQUARE_FONT));
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+
+	block = rect;
+	block.corner.y += RES_SCALE (9);
+	block.extent.width = RES_SCALE (162) - IF_HD (3);
+	block.extent.height = RES_SCALE (20);
+	DrawFilledRectangle (&block);
+
+	text.baseline = rect.corner;
+	text.baseline.x += RES_SCALE (81);
+	text.baseline.y += RES_SCALE (17);
+	text.align = ALIGN_CENTER;
+	text.pStr = AlignText (GAME_STRING (STARBASE_STRING_BASE + 38),
+			&text.baseline.x);
+	text.CharCount = (COUNT)~0;
+
+	SetContextForeGroundColor (LANDER_POD_TEXT_COLOR);
+	font_DrawText (&text);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 #define LANDER_X (RES_SCALE (24) - SAFE_PAD)
 #define LANDER_Y RES_SCALE (67)
 #define LANDER_WIDTH RES_SCALE (15)
@@ -450,10 +549,18 @@ DisplayLanders (MENU_STATE *pMS)
 	s.frame = pMS->ModuleFrame;
 	if (GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 	{
-		s.origin.x = s.origin.y = 0;
+		RECT rect;
+		s.origin.x = -SAFE_X;
+		s.origin.y = 0;
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
 				SHIELD_LOCATION_IN_MODULE_ANI + 4);
 		DrawStamp (&s);
+
+		GetFrameRect (s.frame, &rect);
+		rect.corner.x += s.origin.x;
+
+		DrawNoLandersText (rect);
+		DrawEscapePodText (rect);
 	}
 	else
 	{

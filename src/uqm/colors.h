@@ -615,6 +615,11 @@
 #define ROSTER_MODIFY_SHIP_COLOR \
 		WHITE_COLOR
 
+// === No Room For Landers & Escape Pod text ===
+
+#define LANDER_POD_TEXT_COLOR \
+		BUILD_COLOR_RGB (0x00, 0xF8, 0x00)
+
 // === Scan menu and general ===
 
 #define SCAN_PC_TITLE_COLOR \
