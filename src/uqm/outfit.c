@@ -456,7 +456,7 @@ DrawEscapePodText (RECT rect )
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
 	
 	block = rect;
-	block.corner.x += RES_SCALE (171);
+	block.corner.x += DOS_BOOL_SCL (171, 9);
 	block.corner.y += RES_SCALE (38);
 	block.extent.width = RES_SCALE (36);
 	block.extent.height = RES_SCALE (6);
@@ -470,7 +470,7 @@ DrawEscapePodText (RECT rect )
 	GetContextFontLeading (&leading);
 
 	text.baseline = rect.corner;
-	text.baseline.x += RES_SCALE (189);
+	text.baseline.x += DOS_BOOL_SCL (189, 27);
 	text.baseline.y += RES_SCALE (39);
 	text.align = ALIGN_CENTER;
 
