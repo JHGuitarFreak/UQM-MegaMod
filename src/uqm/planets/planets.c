@@ -36,6 +36,7 @@
 #include "options.h"
 #include "libs/graphics/gfx_common.h"
 #include "../gendef.h"
+#include "uqm/gamestr.h"
 
 
 // PlanetOrbitMenu() items
@@ -321,6 +322,52 @@ typedef enum
 
 } DRAW_ORBITAL_MODE;
 
+static void
+DrawEnterOrbitText (RECT rect)
+{
+	TEXT text;
+	FONT OldFont;
+	FRAME OldFontEffect;
+	SIZE leading;
+	UNICODE buf[256];
+	COORD og_baseline_x;
+
+	OldFont = SetContextFont (MicroFont);
+	OldFontEffect = SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 12));
+
+	GetContextFontLeading (&leading);
+
+	text.baseline = rect.corner;
+	text.baseline.x += rect.extent.width >> 1;
+	text.baseline.y += RES_SCALE (4) + leading - RES_SCALE (4);
+	text.align = ALIGN_CENTER;
+
+	og_baseline_x = text.baseline.x;
+
+	utf8StringCopy (buf, sizeof (buf),
+		GAME_STRING (NAVIGATION_STRING_BASE + 8));
+
+	text.align = ALIGN_CENTER;
+	text.pStr = strtok (buf, "\n");
+	text.CharCount = (COUNT)~0;
+
+	while (text.pStr != NULL)
+	{
+		text.pStr = AlignText (text.pStr, &text.baseline.x);
+		text.CharCount = (COUNT)~0;
+
+		font_DrawText (&text);
+
+		text.pStr = strtok (NULL, "\n");
+		text.CharCount = (COUNT)~0;
+		text.baseline.y += leading;
+		text.baseline.x = og_baseline_x;
+	}
+
+	SetContextFont (OldFont);
+	SetContextFontEffect (OldFontEffect);
+}
+
 void
 DrawOrbitMapGraphic (void)
 {
@@ -331,8 +378,11 @@ DrawOrbitMapGraphic (void)
 
 	if (optScanSphere != 1)
 	{
-		s.frame = SetAbsFrameIndex (CaptureDrawable
-		(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
+		BOOLEAN HaveString =
+				strlen (GAME_STRING (NAVIGATION_STRING_BASE + 8)) > 0;
+
+		s.frame = SetAbsFrameIndex (CaptureDrawable (
+				LoadGraphic (ORBENTER_PMAP_ANIM)), HaveString);
 
 		s.origin.x = -SAFE_X;
 		s.origin.y = 0;
@@ -345,6 +395,15 @@ DrawOrbitMapGraphic (void)
 		}
 
 		DrawStamp (&s);
+
+		if (HaveString)
+		{
+			RECT rect;
+
+			GetFrameRect (s.frame, &rect);
+			rect.corner.x += s.origin.x;
+			DrawEnterOrbitText (rect);
+		}
 
 		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
