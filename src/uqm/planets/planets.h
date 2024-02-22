@@ -397,6 +397,7 @@ extern void ZoomInPlanetSphere (void);
 extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop);
 
 extern void DrawScannedObjects (BOOLEAN Reversed);
+extern void GetPlanetTopography (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame);
 extern void GeneratePlanetSurface (PLANET_DESC *pPlanetDesc,
 		FRAME SurfDefFrame, COUNT width, COUNT height);
 extern void DeltaTopography (COUNT num_iterations, SBYTE *DepthArray,
