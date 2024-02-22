@@ -140,6 +140,8 @@ LoadKernel (int argc, char *argv[])
 	if (loadIndices (contentDir) == 0)
 		return FALSE; // Must have at least one index in content dir
 
+	classicPackPresent = FALSE;
+
 	if (!IS_HD)
 	{
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
@@ -154,8 +156,6 @@ LoadKernel (int argc, char *argv[])
 		loadAddon ("yellow-fried-hd");
 		if (optWindowType == 2)
 			classicPackPresent = loadAddon ("classic-pack");
-		else
-			classicPackPresent = FALSE;
 	}
 
 	if (IS_PAD && isAddonAvailable (THREEDO_MODE (IS_HD)))
