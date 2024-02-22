@@ -408,8 +408,11 @@ DrawOrbitMapGraphic (void)
 		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
 	else
+	{
 		DrawPlanet (0, BLACK_COLOR);
-
+		DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
+		pSolarSysState->TopoFrame = 0;
+	}
 #if 0
 	if (never)
 	{
@@ -508,6 +511,7 @@ LoadPlanet (FRAME SurfDefFrame)
 {
 	bool WaitMode = !(LastActivity & CHECK_LOAD);
 	PLANET_DESC *pPlanetDesc;
+	TimeCount sleep;
 
 #ifdef DEBUG
 	if (disableInteractivity)
@@ -520,16 +524,22 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	StopMusic ();
 
+	sleep = GetTimeCounter () + (ONE_SECOND * 6 / 5);
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
+
+	if (WaitMode)
+	{
+		if (optScanSphere == 1)
+			GetPlanetTopography (pPlanetDesc, SurfDefFrame);
+		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
+	}
+
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, 0, 0);
 	OrbitNum = SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
 
-	if (WaitMode)
-		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
-
 	if (isPC (optScrTrans))
-		SleepThread (ONE_SECOND * 6 / 5);
+		SleepThreadUntil (sleep);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 	{

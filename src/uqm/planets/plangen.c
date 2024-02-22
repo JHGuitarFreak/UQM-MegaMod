@@ -2576,6 +2576,68 @@ generate_surface_frame (COUNT width, COUNT height, PLANET_ORBIT *Orbit,
 
 }
 
+void
+GetPlanetTopography (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame)
+{
+	const PlanetFrame *PlanDataPtr;
+	PLANET_INFO *PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
+	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+	COUNT width, height;
+	BOOLEAN shielded = (pPlanetDesc->data_index & PLANET_SHIELDED);
+
+	width = SCALED_MAP_WIDTH;
+	height = MAP_HEIGHT;
+
+	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
+
+	if (SurfDefFrame)
+	{
+		if (GetFrameWidth (SurfDefFrame) != width
+				|| GetFrameHeight (SurfDefFrame) != height)
+			pSolarSysState->TopoFrame = CaptureDrawable (RescaleFrame (
+					SurfDefFrame, width, height));
+		else
+			pSolarSysState->TopoFrame = CaptureDrawable (CloneFrame
+					(SurfDefFrame));
+	}
+	else
+	{
+		pSolarSysState->OrbitalCMap = CaptureColorMap(
+			LoadColorMap(shielded && useDosSpheres ? DOS_SHIELDED_COLOR_TAB
+				: PlanDataPtr->CMapInstance));
+		pSolarSysState->XlatRef = CaptureStringTable(
+			LoadStringTable(PlanDataPtr->XlatTabInstance));
+
+		if (PlanetInfo->SurfaceTemperature > HOT_THRESHOLD)
+		{
+			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex(
+				pSolarSysState->OrbitalCMap, 2);
+			pSolarSysState->XlatRef = SetAbsStringTableIndex(
+				pSolarSysState->XlatRef, 2);
+		}
+		else if (PlanetInfo->SurfaceTemperature > COLD_THRESHOLD)
+		{
+			pSolarSysState->OrbitalCMap = SetAbsColorMapIndex(
+				pSolarSysState->OrbitalCMap, 1);
+			pSolarSysState->XlatRef = SetAbsStringTableIndex(
+				pSolarSysState->XlatRef, 1);
+		}
+
+		pSolarSysState->XlatPtr = GetStringAddress (pSolarSysState->XlatRef);
+
+		Orbit->lpTopoData = HCalloc (width * height);
+		RandomContext_SeedRandom (SysGenRNG, pPlanetDesc->rand_seed);
+		generate_surface_frame (width, height, Orbit, PlanDataPtr);
+
+		DestroyColorMap (ReleaseColorMap (pSolarSysState->OrbitalCMap));
+		pSolarSysState->OrbitalCMap = 0;
+		DestroyStringTable (ReleaseStringTable (pSolarSysState->XlatRef));
+		pSolarSysState->XlatRef = 0;
+		HFree (Orbit->lpTopoData);
+		Orbit->lpTopoData = 0;
+	}
+}
+
 // Sets the SysGenRNG to the required state first.
 void
 GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
