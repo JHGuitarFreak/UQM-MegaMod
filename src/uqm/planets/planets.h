@@ -51,6 +51,13 @@ enum PlanetScanTypes
 #define SCALED_MAP_WIDTH RES_SCALE \
 		(((is3DO (optSuperPC) ? UQM_MAP_WIDTH \
 		: SC2_MAP_WIDTH)) - SAFE_NUM (33))
+#define UNSCALED_MAP_WIDTH \
+		(((is3DO (optSuperPC) ? UQM_MAP_WIDTH \
+		: SC2_MAP_WIDTH)) - SAFE_NUM (33))
+
+#define MAP_DIMENSIONS \
+		{SC2_MAP_WIDTH,     SC2_MAP_HEIGHT}, \
+		{(UQM_MAP_WIDTH-1), UQM_MAP_HEIGHT}, \
 
 enum
 {

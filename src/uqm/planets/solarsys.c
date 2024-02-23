@@ -81,8 +81,10 @@ static void DrawOuterSystem (void);
 static void SetPlanetColorMap (PLANET_DESC *planet);
 static void ValidateInnerOrbits (void);
 static void ValidateOrbits (void);
-static COORD scaleSISDimensions (BOOLEAN is_width, COORD value);
-static int widthHeightPicker (BOOLEAN width);
+static COORD scaleSISWidth (COORD value);
+static COORD scaleSISHeight (COORD value);
+static COORD widthPick (void);
+static COORD heightPick (void);
 
 // SolarSysMenu() items
 enum SolarSysMenuMenuItems
@@ -2672,15 +2674,8 @@ DrawBackgroundStars (BYTE num_pieces, BYTE num_drawn, BYTE start_index,
 		for (j = 0; j < num_drawn; ++j)
 		{
 			rand_val = RandomContext_Random (SysRNG);
-			s.origin.x = RES_SCALE (
-					scaleSISDimensions (TRUE,
-						LOWORD (rand_val) % widthHeightPicker (TRUE)
-				));
-			s.origin.y = RES_SCALE (
-					scaleSISDimensions (FALSE,
-						HIWORD (rand_val) % widthHeightPicker (FALSE)
-				));
-
+			s.origin.x = scaleSISWidth (LOWORD (rand_val) % widthPick ());
+			s.origin.y = scaleSISHeight (HIWORD (rand_val) % heightPick ());
 			DrawStamp (&s);
 		}
 		s.frame = IncFrameIndex (s.frame);
@@ -3213,40 +3208,42 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 			&& GLOBAL_SIS (CrewEnlisted) != (COUNT)~0);
 }
 
-static int
-widthHeightPicker (BOOLEAN is_width)
+static COORD
+widthPick (void)
 {
-	switch (optStarBackground)
-	{
-	case 0:
-		return (is_width ? ORIG_SIS_SCREEN_WIDTH : PC_SIS_SCREEN_HEIGHT);
-	case 1:
-		return (is_width ? THREEDO_SIS_SCREEN_WIDTH
-				: THREEDO_SIS_SCREEN_HEIGHT);
-	case 2:
-		return (is_width ? (ORIG_SIS_SCREEN_WIDTH - 1)
-				: ORIG_SIS_SCREEN_HEIGHT);
-	case 3:
-	default:
-		return (is_width ? HDMOD_SIS_SCREEN_WIDTH
-				: HDMOD_SIS_SCREEN_HEIGHT);
-	}
+	EXTENT sis_screen_dimensions[] = { SIS_SCREEN_DIMENSIONS };
+
+	return sis_screen_dimensions[optStarBackground].width;
 }
 
 static COORD
-scaleSISDimensions (BOOLEAN is_width, COORD value)
+heightPick (void)
 {
-	float percentage;
-	int widthOrHeight = is_width ?
-			ORIG_SIS_SCREEN_WIDTH : ORIG_SIS_SCREEN_HEIGHT;
+	EXTENT sis_screen_dimensions[] = { SIS_SCREEN_DIMENSIONS };
 
-	if (widthOrHeight == widthHeightPicker (is_width))
-		percentage = 1;
-	else
-		percentage = scaleThing (widthOrHeight,
-				widthHeightPicker (is_width));
+	return sis_screen_dimensions[optStarBackground].height;
+}
 
-	return (COORD)(value * percentage);
+static COORD
+scaleSISWidth (COORD value)
+{
+	float percent = 1;
+
+	if (widthPick () != ORIG_SIS_SCREEN_WIDTH)
+		percent = scaleThing (ORIG_SIS_SCREEN_WIDTH, widthPick ());
+
+	return RES_SCALE ((COORD)(value * percent));
+}
+
+static COORD
+scaleSISHeight (COORD value)
+{
+	float percent = 1;
+
+	if (heightPick () != ORIG_SIS_SCREEN_HEIGHT)
+		percent = scaleThing (ORIG_SIS_SCREEN_HEIGHT, heightPick ());
+
+	return RES_SCALE ((COORD)(value * percent));
 }
 
 void
