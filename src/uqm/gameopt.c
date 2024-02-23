@@ -747,19 +747,168 @@ typedef struct
 } PICK_GAME_STATE;
 
 static void
+DrawLines (POINT pt, SIZE width)
+{
+	RECT r;
+
+	// Top Bar
+	r.corner = pt;
+	r.extent.width = width;
+	r.extent.height = RES_SCALE (1);
+	SetContextForeGroundColor (LABEL_LINE_TOP_COLOR);
+	DrawFilledRectangle (&r);
+
+	// Bottom Bar
+	r.corner.y += RES_SCALE (4);
+	SetContextForeGroundColor (LABEL_LINE_BOT_COLOR);
+	DrawFilledRectangle (&r);
+
+	// Middle Bar
+	r.corner.y -= RES_SCALE (2);
+	r.corner.x += RES_SCALE (1);
+	r.extent.width -= RES_SCALE (2);
+	SetContextForeGroundColor (LABEL_LINE_MID_COLOR);
+	DrawFilledRectangle (&r);
+}
+
+static POINT
+SCL_POINT (POINT pt)
+{
+	POINT point;
+
+	point.x = RES_SCALE (pt.x);
+	point.y = RES_SCALE (pt.y);
+	return point;
+}
+
+static void
+DrawLabel (POINT pt, SIZE width, DWORD gamestr)
+{
+	TEXT t;
+	UNICODE buf[256];
+	SIZE leading;
+	FONT OldFont;
+	Color OldColor;
+
+	DrawLines (SCL_POINT (pt), RES_SCALE (width));
+
+	utf8StringCopy (buf, sizeof (buf), GAME_STRING (gamestr));
+
+	OldFont = SetContextFont (LabelFont);
+	OldColor = SetContextForeGroundColor (SUMM_TEXT_COLOR);
+
+	GetContextFontLeading (&leading);
+
+	t.baseline.x = RES_SCALE ((width >> 1) + pt.x);
+	t.baseline.y = RES_SCALE (pt.y + 5);
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = AlignText (buf, &t.baseline.x);
+
+	font_DrawText (&t);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+#define SUMM_LABEL_LEFT_X (11 - SAFE_NUM (9))
+#define SUMM_LABEL_LEFT_W 69 // Nice
+#define SUMM_LABEL_RIGHT_X (158 - SAFE_NUM (20))
+#define SUMM_LABEL_RIGHT_W 72
+#define SUMM_LABEL_TOP_Y 5
+
+static void
+DrawAllLabels (RECT rect)
+{
+	POINT pt;
+	SIZE width;
+	COUNT i;
+	Color OldColor;
+
+	for (i = 4; i <= 8; i++)
+	{
+		if (!strlen (GAME_STRING (LABEL_STRING_BASE + i)))
+			return;
+	}
+
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+
+	rect.corner.x += RES_SCALE (1);
+	rect.corner.y += RES_SCALE (1);
+	rect.extent.width -= RES_SCALE (2);
+	rect.extent.height = RES_SCALE (137 - SAFE_NUM (1));
+
+	DrawFilledRectangle (&rect);
+	SetContextForeGroundColor (OldColor);
+
+	width = SUMM_LABEL_LEFT_W;
+	pt.x = SUMM_LABEL_LEFT_X;
+	pt.y = SUMM_LABEL_TOP_Y;
+	DrawLabel (pt, width, LABEL_STRING_BASE + 4); // CARGO
+
+	pt.y = 76;
+	DrawLabel (pt, width, LABEL_STRING_BASE + 5); // LANDER
+
+	width = SUMM_LABEL_RIGHT_W;
+	pt.x = SUMM_LABEL_RIGHT_X;
+	pt.y = SUMM_LABEL_TOP_Y;
+	DrawLabel (pt, width, LABEL_STRING_BASE + 6); // DEVICES
+
+	pt.y = 87;
+	DrawLabel (pt, width, LABEL_STRING_BASE + 7); // R.U.
+
+	pt.y = 111;
+	DrawLabel (pt, width, LABEL_STRING_BASE + 8); // CREDITS
+}
+
+static void
 DrawBlankSavegameDisplay (PICK_GAME_STATE *pickState)
 {
 	STAMP s;
+	RECT rect;
 
 	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (pickState->SummaryFrame,
 			GetFrameCount (pickState->SummaryFrame) - 1);
 	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &rect);
+	rect.corner.x += s.origin.x;
+	rect.corner.y += s.origin.y;
+
+	DrawAllLabels (rect);
 }
 
 static void
 DrawSaveLoad (PICK_GAME_STATE *pickState)
+{
+	STAMP s;
+	RECT r;
+
+	s.frame = SetAbsFrameIndex(pickState->SummaryFrame,
+		GetFrameCount (pickState->SummaryFrame) - 2);
+
+	GetFrameRect (s.frame, &r);
+
+	s.origin.x = RES_SCALE ((ORIG_SIS_SCREEN_WIDTH
+			- RES_DESCALE (r.extent.width)) / 2);
+	s.origin.y = 0;
+
+	r.corner.x = RES_SCALE (1);
+	r.corner.y -= SAFE_BOOL_SCL (2, 1);
+	r.extent.width = SIS_SCREEN_WIDTH - SAFE_BOOL_SCL (2, 1);
+	r.extent.height += SAFE_BOOL_SCL (4, 3);
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
+
+	if (pickState->saving)
+		s.frame = DecFrameIndex (s.frame);
+	DrawStamp (&s);
+}
+
+static void
+DrawSaveLoadText (PICK_GAME_STATE *pickState)
 {
 	RECT r;
 	FONT OldFont;
@@ -770,6 +919,13 @@ DrawSaveLoad (PICK_GAME_STATE *pickState)
 
 #define SAVE_LOAD_Y RES_SCALE (151)
 #define SAVE_LOAD_H RES_SCALE (7)
+
+	if (!strlen (
+			GAME_STRING (LABEL_STRING_BASE + (3 - pickState->saving))))
+	{
+		DrawSaveLoad (pickState);
+		return;
+	}
 
 	r.corner.x = RES_SCALE (1);
 	r.corner.y = SAVE_LOAD_Y - SAFE_BOOL_SCL (2, 1);
@@ -870,101 +1026,6 @@ DrawSavegameCargo (SIS_STATE *sisState)
 }
 
 static void
-DrawLines (POINT pt, SIZE width)
-{
-	RECT r;
-
-	// Top Bar
-	r.corner = pt;
-	r.extent.width = width;
-	r.extent.height = RES_SCALE (1);
-	SetContextForeGroundColor (LABEL_LINE_TOP_COLOR);
-	DrawFilledRectangle (&r);
-
-	// Bottom Bar
-	r.corner.y += RES_SCALE (4);
-	SetContextForeGroundColor (LABEL_LINE_BOT_COLOR);
-	DrawFilledRectangle (&r);
-
-	// Middle Bar
-	r.corner.y -= RES_SCALE (2);
-	r.corner.x += RES_SCALE (1);
-	r.extent.width -= RES_SCALE (2);
-	SetContextForeGroundColor (LABEL_LINE_MID_COLOR);
-	DrawFilledRectangle (&r);
-}
-
-static POINT
-SCL_POINT (POINT pt)
-{
-	POINT point;
-
-	point.x = RES_SCALE (pt.x);
-	point.y = RES_SCALE (pt.y);
-	return point;
-}
-
-static void
-DrawLabel (POINT pt, SIZE width, DWORD gamestr)
-{
-	TEXT t;
-	UNICODE buf[256];
-	SIZE leading;
-	FONT OldFont;
-
-	DrawLines (SCL_POINT (pt), RES_SCALE (width));
-
-	utf8StringCopy (buf, sizeof (buf), GAME_STRING (gamestr));
-
-	OldFont = SetContextFont (LabelFont);
-
-	SetContextForeGroundColor (SUMM_TEXT_COLOR);
-	GetContextFontLeading (&leading);
-
-	t.baseline.x = RES_SCALE ((width >> 1) + pt.x);
-	t.baseline.y = RES_SCALE (pt.y + 5);
-	t.align = ALIGN_CENTER;
-	t.CharCount = (COUNT)~0;
-	t.pStr = AlignText (buf, &t.baseline.x);
-
-	font_DrawText (&t);
-
-	SetContextFont (OldFont);
-}
-
-#define SUMM_LABEL_LEFT_X (11 - SAFE_NUM (9))
-#define SUMM_LABEL_LEFT_W 69 // Nice
-#define SUMM_LABEL_RIGHT_X (158 - SAFE_NUM (20))
-#define SUMM_LABEL_RIGHT_W 72
-#define SUMM_LABEL_TOP_Y 5
-
-static void
-DrawAllLabels (void)
-{
-	POINT pt;
-	SIZE width;
-
-	width = SUMM_LABEL_LEFT_W;
-	pt.x = SUMM_LABEL_LEFT_X;
-	pt.y = SUMM_LABEL_TOP_Y;
-	DrawLabel (pt, width, LABEL_STRING_BASE + 4); // CARGO
-
-	pt.y = 76;
-	DrawLabel (pt, width, LABEL_STRING_BASE + 5); // LANDER
-
-	width = SUMM_LABEL_RIGHT_W;
-	pt.x = SUMM_LABEL_RIGHT_X;
-	pt.y = SUMM_LABEL_TOP_Y;
-	DrawLabel (pt, width, LABEL_STRING_BASE + 6); // DEVICES
-
-	pt.y = 87;
-	DrawLabel (pt, width, LABEL_STRING_BASE + 7); // R.U.
-
-	pt.y = 111;
-	DrawLabel (pt, width, LABEL_STRING_BASE + 8); // CREDITS
-}
-
-static void
 DrawEmptySlot (void)
 {
 	RECT r;
@@ -1058,6 +1119,12 @@ DrawBombPodText (STAMP *s)
 	Color OldColor;
 	RECT r;
 	COORD og_baseline_x = 0;
+
+	if (!strlen (GAME_STRING (LABEL_STRING_BASE + 9))
+			|| !strlen (GAME_STRING (LABEL_STRING_BASE + 10)))
+	{
+		return;
+	}
 
 	OldFont = SetContextFont (SquareFont);
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
@@ -1251,8 +1318,6 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		SetContextClipRect (&OldRect);
 
 		SetContext (SpaceContext);
-
-		DrawAllLabels ();
 
 		// draw devices
 		s.origin.y = RES_SCALE (13);
@@ -1459,7 +1524,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 	SetContextFont (TinyFont);
 
-	DrawSaveLoad (pickState);
+	DrawSaveLoadText (pickState);
 
 	// Erase the selection menu
 	r.corner.x = RES_SCALE (1);
