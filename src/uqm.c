@@ -414,7 +414,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
 		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
 		INIT_CONFIG_OPTION(  sphereType,        2 ),
-		INIT_CONFIG_OPTION(  nebulaevol,        11 ),
+		INIT_CONFIG_OPTION(  nebulaevol,        16 ),
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
