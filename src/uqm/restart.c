@@ -117,10 +117,10 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 
 	SetContextFont (TinyFont);
 
-	GetFrameRect (SetRelFrameIndex (pMS->CurFrame, 6), &r);
+	GetFrameRect (SetRelFrameIndex (pMS->CurFrame, 2), &r);
 	r.corner.y += CHOOSER_Y + r.extent.height + RES_SCALE (1);
 
-	s.frame = SetRelFrameIndex (pMS->CurFrame, 7);
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 3);
 	r.extent = GetFrameBounds (s.frame);
 	r.corner.x = RES_SCALE (
 		(RES_DESCALE (ScreenWidth) - RES_DESCALE (r.extent.width)) >> 1);
@@ -157,7 +157,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	COUNT i;
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
-	s.frame = SetRelFrameIndex (pMS->CurFrame, 6);
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 2);
 	DrawStamp (&s);
 
 	DrawToolTips (pMS, answer);
@@ -310,7 +310,7 @@ InitPulseText (void)
 
 	if (TextCache[0] != NULL)
 	{
-		printf ("TextCache already initialized!\n");
+		//printf ("TextCache already initialized!\n");
 		return;
 	}
 
