@@ -212,16 +212,15 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 
 	GetFrameRect (SkelFrame, &r);
 	SisFrame = CaptureDrawable (CreateDrawable (
-			WANT_PIXMAP, r.extent.width, r.extent.height, 1
+			WANT_PIXMAP | WANT_ALPHA, r.extent.width, r.extent.height, 1
 			));
 	SetContextFGFrame (SisFrame);
 	SetContextClipRect (NULL);
-	SisBack = BUILD_COLOR (MAKE_RGB15 (0x01, 0x01, 0x01), 0x07);
+	SisBack = BUILD_COLOR_RGBA (0, 0, 0, 0);
 	SetContextBackGroundColor (SisBack);
 	ClearDrawable ();
-	SetFrameTransparentColor (SisFrame, SisBack);
 
-	s.frame = SetAbsFrameIndex (SkelFrame, optFlagshipColor == OPT_3DO ? 1 : 0);
+	s.frame = SetAbsFrameIndex (SkelFrame, is3DO (optFlagshipColor));
 	s.origin.x = 0;
 	s.origin.y = 0;
 	DrawStamp (&s);
