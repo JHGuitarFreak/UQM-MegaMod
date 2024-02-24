@@ -103,8 +103,8 @@ static BOOLEAN DoShipSpins;
 
 
 // This is all for drawing the DOS version modules menu
-#define SHIPS_ORG_Y       RES_SCALE (33)
-#define SHIPS_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+#define SHIPS_ORG_Y       RES_SCALE (36)
+#define SHIPS_SPACING_Y   RES_SCALE (16)
 
 #define SHIPS_COL_0       RES_SCALE (5)
 #define SHIPS_COL_1       RES_SCALE (61)

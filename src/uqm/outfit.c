@@ -72,8 +72,8 @@ InitializeDOSLanderPos (void)
 }
 
 // This is all for drawing the DOS version modules menu
-#define MODULE_ORG_Y       RES_SCALE (33)
-#define MODULE_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+#define MODULE_ORG_Y       RES_SCALE (36)
+#define MODULE_SPACING_Y   RES_SCALE (16)
 
 #define MODULE_COL_0       RES_SCALE (5)
 #define MODULE_COL_1       RES_SCALE (61)
