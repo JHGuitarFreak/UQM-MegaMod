@@ -66,6 +66,7 @@ FONT PlyrFont;
 FONT LabelFont;
 FONT SlabFont;
 FONT SquareFont;
+FONT PlayMenuFont;
 QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
@@ -305,6 +306,10 @@ InitKernel (void)
 	if (PlyrFont == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
+
+	PlayMenuFont = LoadFont (PLAYMENU_FONT);
+	if (PlayMenuFont == NULL)
+		return FALSE;
 
 	BorderFrame = CaptureDrawable (LoadGraphic (BORDER_MASK_PMAP_ANIM));
 	if (BorderFrame == NULL)

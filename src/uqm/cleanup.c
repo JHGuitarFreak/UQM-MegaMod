@@ -79,6 +79,7 @@ UninitKernel (void)
 	DestroyFont (LabelFont);
 	DestroyFont (SlabFont);
 	DestroyFont (SquareFont);
+	DestroyFont (PlayMenuFont);
 
 	UninitQueue (&race_q[0]);
 	UninitQueue (&race_q[1]);

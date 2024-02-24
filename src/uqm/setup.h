@@ -62,6 +62,7 @@ extern FONT PlyrFont;
 extern FONT LabelFont;
 extern FONT SlabFont;
 extern FONT SquareFont;
+extern FONT PlayMenuFont;
 
 extern CondVar RenderingCond;
 

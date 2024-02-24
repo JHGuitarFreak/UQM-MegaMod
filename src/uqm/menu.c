@@ -623,7 +623,7 @@ Draw3DOMenuText (RECT *r, int Index)
 	if (IndexToText (Index) == NULL)
 		return;
 
-	OldFont = SetContextFont (LoadFont (PLAYMENU_FONT));
+	OldFont = SetContextFont (PlayMenuFont);
 	OldColor = SetContextForeGroundColor (PM_RECT_COLOR);
 
 	GetContextFontLeading (&leading);

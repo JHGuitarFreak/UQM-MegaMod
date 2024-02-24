@@ -50,6 +50,7 @@ enum
 };
 
 POINT lander_pos[MAX_LANDERS];
+FONT ModuleFont;
 
 static void
 InitializeDOSLanderPos (void)
@@ -266,7 +267,6 @@ static void
 DrawModuleMenuText (RECT *r, int Index)
 {
 	TEXT text;
-	FONT thisFont = LoadFont (MODULE_FONT);
 	SIZE leading;
 	RECT block;
 	UNICODE buf[256];
@@ -275,7 +275,7 @@ DrawModuleMenuText (RECT *r, int Index)
 	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 24 + Index)))
 		return;
 
-	SetContextFont (thisFont);
+	SetContextFont (ModuleFont);
 
 	GetContextFontLeading (&leading);
 
@@ -452,7 +452,7 @@ DrawEscapePodText (RECT rect )
 	if (!strlen (GAME_STRING (STARBASE_STRING_BASE + 39)))
 		return;
 
-	OldFont = SetContextFont (LoadFont (SQUARE_FONT));
+	OldFont = SetContextFont (SquareFont);
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
 	
 	block = rect;
@@ -513,7 +513,7 @@ DrawNoLandersText (RECT rect)
 	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 38)))
 		return;
 
-	OldFont = SetContextFont (LoadFont (SQUARE_FONT));
+	OldFont = SetContextFont (SquareFont);
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
 
 	block = rect;
@@ -1186,6 +1186,9 @@ DoOutfit (MENU_STATE *pMS)
 			COUNT num_frames;
 			STAMP s;
 
+			if (!IS_DOS)
+				ModuleFont = LoadFont (MODULE_FONT);
+
 			pMS->CurFrame = CaptureDrawable (
 					LoadGraphic (MODULES_PMAP_ANIM));
 			pMS->hMusic = LoadMusic (OUTFIT_MUSIC);
@@ -1315,6 +1318,10 @@ ExitOutfit:
 			pMS->CurFrame = 0;
 			DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
 			pMS->ModuleFrame = 0;
+
+			// Release Fonts
+			if (!IS_DOS)
+				DestroyFont (ModuleFont);
 
 			SetMusicPosition ();
 

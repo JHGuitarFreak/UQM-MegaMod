@@ -82,6 +82,8 @@ COORD hangar_x_coords[HANGAR_SHIPS_ROW_DOS];
 
 #define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
 
+FONT ModuleFont;
+
 enum
 {
 	SHIPYARD_CREW,
@@ -556,7 +558,7 @@ DrawShipyardShipText (RECT *r, int Index)
 	if (!strlen (&race_name) || !strlen (&ship_name))
 		return;
 
-	OldFont = SetContextFont (LoadFont (MODULE_FONT));
+	OldFont = SetContextFont (ModuleFont);
 	OldColor = SetContextForeGroundColor (SHP_RECT_COLOR);
 
 	GetContextFontLeading (&leading);
@@ -1950,6 +1952,9 @@ DoShipyard (MENU_STATE *pMS)
 			InventoryShips (&ShipState, NUM_BUILDABLE_SHIPS);
 		}
 
+		if (!IS_DOS)
+			ModuleFont = LoadFont (MODULE_FONT);
+
 		{
 			STAMP s;
 			RECT r, old_r;
@@ -2049,6 +2054,10 @@ ExitShipyard:
 		pMS->ModuleFrame = 0;
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
 		pMS->CurString = 0;
+
+		// Release Fonts
+		if (!IS_DOS)
+			DestroyFont (ModuleFont);
 
 		SetMusicPosition ();
 
