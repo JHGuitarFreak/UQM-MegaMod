@@ -141,7 +141,9 @@ RandomContext *SysGenRNGDebug;
 						SUN_ZOOM_SIZES)
 #define STAR_INDEX_MULTIPLIER (SUN_INDEX_OFFSET ? SUN_INDEX_OFFSET : 1)
 
-#define USE_RGB_STARS ((!IS_HD && NebulaFrame) || (IS_HD))
+#define USE_RGB_STARS ((!IS_HD && NebulaFrame) || (IS_HD && optHyperStars))
+#define ANIMATED_SUN (GetFrameCount (SunFrame) > 10)
+
 
 // Resources to load
 #define SIS_IP_MASK (is3DO (optFlagshipColor) ? SISIP_MASK_PMAP_ANIM_RED : \
@@ -1934,7 +1936,7 @@ IP_frame (void)
 	{	// Just flying around, minding own business..
 		BatchGraphics ();
 		RestoreSystemView ();
-		if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
+		if (ANIMATED_SUN || optOrbitingPlanets || optTexturedPlanets)
 		{
 			// BW: recompute planet position to account for orbiting
 			if (playerInInnerSystem ())
@@ -2017,7 +2019,7 @@ DrawInnerSystem (void)
 {
 	ValidateInnerOrbits ();
 	DrawSystem (pSolarSysState->pOrbitalDesc->radius, TRUE);
-	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
+	if (ANIMATED_SUN || optOrbitingPlanets || optTexturedPlanets)
 		DrawInnerPlanets (pSolarSysState->pOrbitalDesc);
 	DrawSISTitle (GLOBAL_SIS (PlanetName));
 }
@@ -2027,7 +2029,7 @@ DrawOuterSystem (void)
 {
 	ValidateOrbits ();
 	DrawSystem (pSolarSysState->SunDesc[0].radius, FALSE);
-	if (IS_HD || optOrbitingPlanets || optTexturedPlanets)
+	if (ANIMATED_SUN || optOrbitingPlanets || optTexturedPlanets)
 		DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 	DrawHyperCoords (CurStarDescPtr->star_pt);
 }
@@ -2457,7 +2459,7 @@ CalcSunSize (PLANET_DESC *pSunDesc, SIZE radius)
 	pSunDesc->image.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 	
 	// JMS: Animating IP sun in hi-res modes...
-	if (IS_HD)
+	if (ANIMATED_SUN)
 	{
 		pSunDesc->image.frame =
 				SetRelFrameIndex (SunFrame, index * SUN_ANIMFRAMES_NUM +
