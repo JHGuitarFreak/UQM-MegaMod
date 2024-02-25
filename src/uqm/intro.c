@@ -258,6 +258,29 @@ Present_GenerateSIS (PRESENTATION_INPUT_STATE* pPIS)
 			s.origin.y = MODULE_TOP_Y_P;
 			s.origin.x += slot * SHIP_PIECE_OFFSET;
 			s.frame = SetAbsFrameIndex (ModuleFrame, piece);
+			if (piece >= BOMB_MODULE_0)
+			{// Blue glow around the bomb - mimic PC-DOS pre-rendered cutscene
+				Color oldColor = SetContextForeGroundColor (
+						BUILD_COLOR_RGB (0x00, 0x00, 0x5F));
+
+				s.origin.y += RES_SCALE (2);
+				DrawFilledStamp (&s);
+
+				s.origin.y -= RES_SCALE (4);
+				DrawFilledStamp (&s);
+
+				SetContextForeGroundColor (
+						BUILD_COLOR_RGB (0x00, 0x07, 0xFF));
+
+				s.origin.y += RES_SCALE (1);
+				DrawFilledStamp (&s);
+
+				s.origin.y += RES_SCALE (2);
+				DrawFilledStamp (&s);
+
+				s.origin.y -= RES_SCALE (1);
+				SetContextForeGroundColor (oldColor);
+			}
 			DrawStamp (&s);
 		}
 	}
