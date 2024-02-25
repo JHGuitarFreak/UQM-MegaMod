@@ -485,8 +485,6 @@ DoRestart (MENU_STATE *pMS)
 
 		InitMenuMusic ();
 		ResetMusicResume ();
-		
-		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
 		pMS->flashContext = Flash_createOverlay (ScreenContext,
 				NULL, NULL);
@@ -571,6 +569,7 @@ DoRestart (MENU_STATE *pMS)
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
+				Flash_UpdateOriginal (pMS->flashContext);
 				ScreenTransition (3, NULL);
 				DrawRestartMenu (pMS, pMS->CurState, NULL);
 				Flash_continue (pMS->flashContext);
@@ -641,6 +640,7 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else
 	{	// No input received, check if timed out
+		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 		if (GetTimeCounter () - LastInputTime > InactTimeOut)
 		{
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
