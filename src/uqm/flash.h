@@ -217,6 +217,7 @@ void Flash_preUpdate (FlashContext *context);
 void Flash_postUpdate (FlashContext *context);
 void Flash_setCacheSize (FlashContext *context, COUNT size);
 COUNT Flash_getCacheSize (const FlashContext *context);
+void Flash_UpdateOriginal (FlashContext *context);
 
 
 #if defined(__cplusplus)
