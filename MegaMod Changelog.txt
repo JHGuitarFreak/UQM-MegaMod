@@ -27,7 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Graphics and sound volume settings now activate immediately within the setup menu
 - Added a custom resolution text entry option in the graphics menu
 - HD: Draw HD and custom border bevels dynamically
-- All text on-screen is now drawn in-engine to help with modding and translations (WIP)
+- All text on-screen is now drawn in-engine to help with modding and translations
 
 ### Changed
 - Cleaned up the Setup Menu code to make it more readable - Kruzen
