@@ -652,7 +652,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		else
 		{
 			DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
-					THIN_INNER_BEVEL);
+					THIN_INNER_BEVEL, optCustomBorder);
 		}
 	}
 

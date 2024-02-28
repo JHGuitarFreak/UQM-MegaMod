@@ -164,7 +164,7 @@ DrawHDMeleeBorder (STARSHIP *StarShipPtr)
 	r.extent.width = STATUS_WIDTH;
 	r.extent.height = SHIP_STATUS_HEIGHT - 4;
 
-	DrawRenderedBox (&r, FALSE, NULL_COLOR, THICK_OUTER_BEVEL);
+	DrawRenderedBox (&r, FALSE, NULL_COLOR, THICK_OUTER_BEVEL, FALSE);
 }
 
 void

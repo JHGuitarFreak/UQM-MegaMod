@@ -148,7 +148,8 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 }
 
 void
-DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, int type)
+DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, int type,
+		BOOLEAN custom)
 {
 	int i;
 	STAMP stamp;
@@ -185,8 +186,7 @@ DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, int type)
 		SetContextForeGroundColor (OldColor);
 	}
 
-	stamp.frame = optCustomBorder && LOBYTE (GLOBAL (CurrentActivity))
-			!= SUPER_MELEE ? CustBevelFrame : DefBevelFrame;
+	stamp.frame = custom ? CustBevelFrame : DefBevelFrame;
 
 	if (type == SPECIAL_BEVEL)
 	{
@@ -301,7 +301,8 @@ DrawRadarBorder (void)
 
 	if (IS_HD || optCustomBorder)
 	{
-		DrawRenderedBox (&r, FALSE, NULL_COLOR, THIN_INNER_BEVEL);
+		DrawRenderedBox (&r, FALSE, NULL_COLOR, THIN_INNER_BEVEL,
+				optCustomBorder);
 	}
 	else
 	{

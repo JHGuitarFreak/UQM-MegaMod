@@ -51,7 +51,8 @@ DrawPCMenuFrame (RECT *r)
 	if (IS_HD || optCustomBorder)
 	{
 		DrawRenderedBox (r, TRUE, PCMENU_BACKGROUND_COLOR,
-				optCustomBorder ? SPECIAL_BEVEL : THIN_INNER_BEVEL);
+				optCustomBorder ? SPECIAL_BEVEL : THIN_INNER_BEVEL,
+				optCustomBorder);
 	}
 	else
 	{

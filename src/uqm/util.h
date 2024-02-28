@@ -32,7 +32,7 @@ extern void DrawRadarBorder (void);
 extern DWORD SeedRandomNumbers (void);
 
 extern void DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color,
-		int type);
+		int type, BOOLEAN custom);
 
 // saveRect can be NULL to save the entire context frame
 extern STAMP SaveContextFrame (const RECT *saveRect);

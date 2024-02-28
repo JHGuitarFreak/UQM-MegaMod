@@ -279,13 +279,15 @@ InitShipStatus (SHIP_INFO *SIPtr, STARSHIP *StarShipPtr, RECT *pClipRect, BOOLEA
 			r.corner.y = GAUGE_YOFFS - crew_height + y;
 			r.extent.width = STAT_WIDTH + 8;
 			r.extent.height = crew_height + 8;
-			DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL);
+			DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL,
+					FALSE);
 
 			r.corner.x = ENERGY_XOFFS - 4;
 			r.corner.y = GAUGE_YOFFS - energy_height + y;
 			r.extent.width = STAT_WIDTH + 8;
 			r.extent.height = energy_height + 8;
-			DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL);
+			DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL,
+					FALSE);
 		}
 	}
 
