@@ -210,15 +210,13 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices[12]),   // Show FPS
 #endif
 	(WIDGET *)(&labels[4]),     // Spacer
-
-	(WIDGET *)(&choices[81]),   // Window Type
-	(WIDGET *)(&labels[4]),     // Spacer
-
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&labels[5]),     // UI Label
+	(WIDGET *)(&choices[81]),   // Window Type
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[4]),    // Menu Style
 	(WIDGET *)(&choices[5]),    // Font Style
 	(WIDGET *)(&choices[11]),   // Cutscenes
