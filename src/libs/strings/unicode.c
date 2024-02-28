@@ -595,49 +595,51 @@ UNICODE *
 AlignText (const UNICODE *str, sint16 *loc_x)
 {
 	int modSize = 0;
-	int first_pos = utf8StringPos (str, UNICHAR_PIPE);
-	int last_pos = utf8StringLastPos (str, UNICHAR_PIPE);
+	int first_pos = utf8StringPos ((unsigned char *)str, UNICHAR_PIPE);
+	int last_pos = utf8StringLastPos ((unsigned char *)str, UNICHAR_PIPE);
 
-	if (utf8CharCount (str, UNICHAR_PIPE) != 2 || str == NULL
-		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
-		return str;
+	if (utf8CharCount ((unsigned char *)str, UNICHAR_PIPE) != 2
+			|| str == NULL || first_pos != 0 || last_pos == -1
+			|| last_pos == 0)
+		return (UNICODE *)str;
 
 	if (sscanf (str, "|%d|", &modSize) != 1)
 	{
 		log_add (log_Debug,
 			"\nVariable between delimiters is missing, corrupt, or "
 			"not an integer: %s\n", str);
-		return str;
+		return (UNICODE *)str;
 	}
 
 	if (modSize != 0)
 		*loc_x += RES_SCALE (modSize);
 
-	return skipUTF8Chars (str, last_pos + 1);
+	return (UNICODE *)skipUTF8Chars ((unsigned char *)str, last_pos + 1);
 }
 
 UNICODE *
 AddPadd (const UNICODE *str, sint16 *padding)
 {
 	int modSize = 0;
-	int first_pos = utf8StringPos (str, UNICHAR_COLON);
-	int last_pos = utf8StringLastPos (str, UNICHAR_COLON);
+	int first_pos = utf8StringPos ((unsigned char *)str, UNICHAR_COLON);
+	int last_pos = utf8StringLastPos ((unsigned char *)str, UNICHAR_COLON);
 
-	if (utf8CharCount (str, UNICHAR_COLON) != 2 || str == NULL
-		|| first_pos != 0 || last_pos == -1 || last_pos == 0)
-		return str;
+	if (utf8CharCount ((unsigned char *)str, UNICHAR_COLON) != 2
+			|| str == NULL || first_pos != 0 || last_pos == -1
+			|| last_pos == 0)
+		return (UNICODE *)str;
 
 	if (sscanf (str, ":%d:", &modSize) != 1)
 	{
 		log_add (log_Debug,
 			"\nVariable between delimiters is missing, corrupt, or "
 			"not an integer: %s\n", str);
-		return str;
+		return (UNICODE *)str;
 	}
 
 	if (modSize != 0)
 		*padding += RES_SCALE (modSize);
 
-	return skipUTF8Chars (str, last_pos + 1);
+	return (UNICODE *)skipUTF8Chars ((unsigned char *)str, last_pos + 1);
 }
 
