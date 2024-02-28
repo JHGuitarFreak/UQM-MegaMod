@@ -345,6 +345,46 @@ SaveContextFrame (const RECT *saveRect)
 	return s;
 }
 
+static void
+DrawPauseText (RECT *rect)
+{
+	TEXT text;
+	FONT OldFont;
+	Color OldColor;
+	RECT block;
+
+	if (!strlen (GAME_STRING (QUITMENU_STRING_BASE + 4)))
+		return;
+
+	OldFont = SetContextFont (DOS_BOOL (LabelFont, StarConFont));
+	OldColor = SetContextForeGroundColor (
+			BUILD_SHADE_RGBA (DOS_BOOL (0x74, 0x6B)));
+
+	// Blank out the text
+	block = *rect;
+	block.extent.width -= RES_SCALE (4);
+	block.extent.height -= RES_SCALE (4);
+	block.corner.x += RES_SCALE (2);
+	block.corner.y += RES_SCALE (2);
+	DrawFilledRectangle (&block);
+
+	SetContextForeGroundColor (
+			DOS_BOOL (SHADOWBOX_DARK_COLOR, WHITE_COLOR));
+
+	text.baseline = rect->corner;
+	text.baseline.x += rect->extent.width >> 1;
+	text.baseline.y += RES_SCALE (10);
+	text.align = ALIGN_CENTER;
+	text.pStr = AlignText (GAME_STRING (QUITMENU_STRING_BASE + 4),
+			&text.baseline.x);
+	text.CharCount = (COUNT)~0;
+
+	font_DrawText (&text);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 BOOLEAN
 PauseGame (void)
 {
@@ -353,7 +393,7 @@ PauseGame (void)
 	CONTEXT OldContext;
 	STAMP saveStamp;
 	RECT ctxRect;
-	POINT oldOrigin;
+	POINT OldOrigin;
 	RECT OldRect;
 
 	if (ActivityFrame == 0
@@ -367,7 +407,7 @@ PauseGame (void)
 		PauseTrack ();
 
 	OldContext = SetContext (ScreenContext);
-	oldOrigin = SetContextOrigin (MAKE_POINT (0, 0));
+	OldOrigin = SetContextOrigin (MAKE_POINT (0, 0));
 	GetContextClipRect (&OldRect);
 	SetContextClipRect (NULL);
 
@@ -377,11 +417,11 @@ PauseGame (void)
 	r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
 	saveStamp = SaveContextFrame (&r);
 
-	// TODO: This should draw a localizable text message instead
 	s.origin = r.corner;
 	s.frame = ActivityFrame;
 	SetSystemRect (&r);
 	DrawStamp (&s);
+	DrawPauseText (&r);
 
 	FlushGraphics ();
 
@@ -410,7 +450,7 @@ PauseGame (void)
 	ClearSystemRect ();
 
 	SetContextClipRect (&OldRect);
-	SetContextOrigin (oldOrigin);
+	SetContextOrigin (OldOrigin);
 	SetContext (OldContext);
 
 	WaitForNoInput (ONE_SECOND / 4, TRUE);
