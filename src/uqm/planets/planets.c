@@ -333,7 +333,8 @@ DrawEnterOrbitText (RECT rect)
 	COORD og_baseline_x;
 
 	OldFont = SetContextFont (MicroFont);
-	OldFontEffect = SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 12));
+	OldFontEffect = SetContextFontEffect (
+			SetAbsFrameIndex (FontGradFrame, 12));
 
 	GetContextFontLeading (&leading);
 
@@ -344,7 +345,7 @@ DrawEnterOrbitText (RECT rect)
 
 	og_baseline_x = text.baseline.x;
 
-	utf8StringCopy (buf, sizeof (buf),
+	utf8StringCopy ((char *)buf, sizeof (buf),
 		GAME_STRING (NAVIGATION_STRING_BASE + 8));
 
 	text.align = ALIGN_CENTER;
@@ -353,7 +354,8 @@ DrawEnterOrbitText (RECT rect)
 
 	while (text.pStr != NULL)
 	{
-		text.pStr = AlignText (text.pStr, &text.baseline.x);
+		text.pStr = AlignText ((const UNICODE *)text.pStr,
+				&text.baseline.x);
 		text.CharCount = (COUNT)~0;
 
 		font_DrawText (&text);

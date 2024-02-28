@@ -792,7 +792,7 @@ DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 
 	DrawLines (SCL_POINT (pt), RES_SCALE (width));
 
-	utf8StringCopy (buf, sizeof (buf), GAME_STRING (gamestr));
+	utf8StringCopy ((char *)buf, sizeof (buf), GAME_STRING (gamestr));
 
 	OldFont = SetContextFont (LabelFont);
 	OldColor = SetContextForeGroundColor (SUMM_TEXT_COLOR);
@@ -803,7 +803,7 @@ DrawLabel (POINT pt, SIZE width, DWORD gamestr)
 	t.baseline.y = RES_SCALE (pt.y + 5);
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
-	t.pStr = AlignText (buf, &t.baseline.x);
+	t.pStr = AlignText ((const UNICODE*)buf, &t.baseline.x);
 
 	font_DrawText (&t);
 
@@ -1152,7 +1152,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.pStr = AlignText (t.pStr, &t.baseline.x);
+		t.pStr = AlignText ((const UNICODE *)t.pStr, &t.baseline.x);
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;
@@ -1164,7 +1164,7 @@ DrawBombPodText (STAMP *s)
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
 
-	utf8StringCopy (buf, sizeof (buf),
+	utf8StringCopy ((char *)buf, sizeof (buf),
 			GAME_STRING (LABEL_STRING_BASE + 10));
 		// ESCAPE POD
 
@@ -1176,7 +1176,7 @@ DrawBombPodText (STAMP *s)
 
 	while (t.pStr != NULL)
 	{
-		t.pStr = AlignText (t.pStr, &t.baseline.x);
+		t.pStr = AlignText ((const UNICODE *)t.pStr, &t.baseline.x);
 		font_DrawText (&t);
 		t.pStr = strtok (NULL, " ");
 		t.CharCount = (COUNT)~0;

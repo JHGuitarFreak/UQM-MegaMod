@@ -375,7 +375,8 @@ DrawPauseText (RECT *rect)
 	text.baseline.x += rect->extent.width >> 1;
 	text.baseline.y += RES_SCALE (10);
 	text.align = ALIGN_CENTER;
-	text.pStr = AlignText (GAME_STRING (QUITMENU_STRING_BASE + 4),
+	text.pStr = AlignText (
+			(const UNICODE *)GAME_STRING (QUITMENU_STRING_BASE + 4),
 			&text.baseline.x);
 	text.CharCount = (COUNT)~0;
 

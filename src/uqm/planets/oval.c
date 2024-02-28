@@ -252,7 +252,7 @@ CheckOvalCollisionOld (POINT *ch_one, POINT *ch_two)
 		ClipLine.first.y = ch_one->y;
 		ClipLine.second.x = ch_two->x;
 		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
+		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
 			quad_visible |= FIRST_QUAD;
 	}
 
@@ -265,7 +265,7 @@ CheckOvalCollisionOld (POINT *ch_one, POINT *ch_two)
 		ClipLine.first.y = ch_one->y;
 		ClipLine.second.x = ch_one->x;
 		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
+		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
 			quad_visible |= SECOND_QUAD;
 	}
 
@@ -278,7 +278,7 @@ CheckOvalCollisionOld (POINT *ch_one, POINT *ch_two)
 		ClipLine.first.y = ch_two->y;
 		ClipLine.second.x = ch_one->x;
 		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
+		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
 			quad_visible |= THIRD_QUAD;
 	}
 
@@ -291,7 +291,7 @@ CheckOvalCollisionOld (POINT *ch_one, POINT *ch_two)
 		ClipLine.first.y = ch_two->y;
 		ClipLine.second.x = ch_two->x;
 		ClipLine.second.y = mp.y;
-		if (_clip_line (&ClipRect, &ClipLine))
+		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
 			quad_visible |= FOURTH_QUAD;
 	}
 

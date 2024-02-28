@@ -294,7 +294,7 @@ DrawModuleMenuText (RECT *r, int Index)
 	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
 	og_baseline_x = text.baseline.x;
 
-	utf8StringCopy (buf, sizeof (buf),
+	utf8StringCopy ((char *)buf, sizeof (buf),
 			GAME_STRING (STARBASE_STRING_BASE + 24 + Index));
 
 	text.align = ALIGN_CENTER;
@@ -303,7 +303,8 @@ DrawModuleMenuText (RECT *r, int Index)
 
 	while (text.pStr != NULL)
 	{
-		text.pStr = AlignText (text.pStr, &text.baseline.x);
+		text.pStr = AlignText ((const UNICODE *)text.pStr,
+				&text.baseline.x);
 		text.CharCount = (COUNT)~0;
 
 		font_DrawShadowedText (&text, WEST_SHADOW, MDL_TEXT_COLOR,
@@ -476,7 +477,7 @@ DrawEscapePodText (RECT rect )
 
 	og_baseline_x = text.baseline.x;
 
-	utf8StringCopy (buf, sizeof (buf),
+	utf8StringCopy ((char *)buf, sizeof (buf),
 			GAME_STRING (STARBASE_STRING_BASE + 39));
 
 	text.align = ALIGN_CENTER;
@@ -487,7 +488,8 @@ DrawEscapePodText (RECT rect )
 
 	while (text.pStr != NULL)
 	{
-		text.pStr = AlignText (text.pStr, &text.baseline.x);
+		text.pStr = AlignText ((const UNICODE *)text.pStr,
+				&text.baseline.x);
 		text.CharCount = (COUNT)~0;
 
 		font_DrawText (&text);
@@ -526,7 +528,8 @@ DrawNoLandersText (RECT rect)
 	text.baseline.x += RES_SCALE (81);
 	text.baseline.y += RES_SCALE (17);
 	text.align = ALIGN_CENTER;
-	text.pStr = AlignText (GAME_STRING (STARBASE_STRING_BASE + 38),
+	text.pStr = AlignText (
+			(const UNICODE *)GAME_STRING (STARBASE_STRING_BASE + 38),
 			&text.baseline.x);
 	text.CharCount = (COUNT)~0;
 

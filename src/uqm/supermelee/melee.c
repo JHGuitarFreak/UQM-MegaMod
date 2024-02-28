@@ -322,7 +322,7 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 	GetContextFontLeading (&leading);
 
-	utf8StringCopy (buf, sizeof (buf),
+	utf8StringCopy ((char *)buf, sizeof (buf),
 			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
 
 	t.align = ALIGN_CENTER;
@@ -334,7 +334,7 @@ DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 	while (t.pStr != NULL)
 	{
-		t.pStr = AlignText (t.pStr, &t.baseline.x);
+		t.pStr = AlignText ((const UNICODE *)t.pStr, &t.baseline.x);
 		t.CharCount = (COUNT)~0;
 
 		font_DrawTracedText (&t,
@@ -369,7 +369,7 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 	GetContextFontLeading (&leading);
 
-	utf8StringCopy (buf, sizeof (buf),
+	utf8StringCopy ((char *)buf, sizeof (buf),
 			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
@@ -378,7 +378,7 @@ DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
-	t.pStr = AlignText (buf, &t.baseline.x);
+	t.pStr = AlignText ((const UNICODE *)buf, &t.baseline.x);
 
 	font_DrawTracedText (&t, TRANSPARENT,
 			HiLite ? BATTLE_TRACE_HL_COLOR : BATTLE_TRACE_COLOR);
@@ -419,7 +419,7 @@ DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = (COUNT)~0;
-	t.pStr = AlignText (buf, &t.baseline.x);
+	t.pStr = AlignText ((const UNICODE *)buf, &t.baseline.x);
 
 	font_DrawText (&t);
 
@@ -442,7 +442,8 @@ DrawVerticalText (UNICODE *str, POINT point)
 	t.baseline = point;
 
 	utf8StringCopy (buf, sizeof (buf),
-			AlignText (AddPadd (str, &leading), &t.baseline.x));
+			AlignText ((const UNICODE *)AddPadd (
+					(const UNICODE *)str, &leading), &t.baseline.x));
 
 	str_len = strlen (buf);
 
@@ -914,7 +915,7 @@ DrawSuperMeleeTitle (void)
 	t.baseline.x = (SCREEN_WIDTH >> 1) - (SAFE_NEG (1));
 	t.baseline.y = RES_SCALE (4);
 	t.align = ALIGN_CENTER;
-	t.pStr = AlignText (buf, &t.baseline.x);
+	t.pStr = AlignText ((const UNICODE *)buf, &t.baseline.x);
 	t.CharCount = (COUNT)~0;
 
 	font_DrawText (&t);

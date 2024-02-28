@@ -43,7 +43,7 @@ extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
 extern unsigned int loresBlowupScale;
-extern int resolutionFactor;
+extern unsigned int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
 

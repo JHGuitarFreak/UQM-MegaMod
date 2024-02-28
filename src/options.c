@@ -55,7 +55,7 @@ int optMeleeScale;
 const char **optAddons;
 
 unsigned int loresBlowupScale;
-int resolutionFactor;
+unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 

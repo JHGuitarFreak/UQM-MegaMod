@@ -534,11 +534,10 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	return TRUE;
 }
 
-static UNICODE *
+const UNICODE *
 IndexToText (int Index)
 {
 	int i = -1;
-	UNICODE temp_str[255];
 
 	if (Index < PM_EXIT_GAME_MENU)
 		i = Index;
@@ -642,7 +641,8 @@ Draw3DOMenuText (RECT *r, int Index)
 	text.align = ALIGN_CENTER;
 	text.baseline.x = r->corner.x + (r->extent.width >> 1);
 	text.baseline.y = r->corner.y + leading - NDOS_NUM_SCL (2);
-	text.pStr = AlignText (IndexToText (Index), &text.baseline.x);
+	text.pStr = AlignText (IndexToText (Index),
+			&text.baseline.x);
 	text.CharCount = (COUNT)~0;
 
 	font_DrawShadowedText (&text, NORTH_WEST_SHADOW, PM_TEXT_COLOR,
