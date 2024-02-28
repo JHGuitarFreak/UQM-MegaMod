@@ -82,8 +82,6 @@ COORD hangar_x_coords[HANGAR_SHIPS_ROW_DOS];
 
 #define HANGAR_ANIM_RATE  RES_SCALE (15) // fps
 
-FONT ModuleFont;
-
 enum
 {
 	SHIPYARD_CREW,

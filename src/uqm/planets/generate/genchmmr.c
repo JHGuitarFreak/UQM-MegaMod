@@ -62,7 +62,7 @@ static bool
 GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 {
 	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
-	BYTE NumPlanets = (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED ? 4 : 1);
+	//BYTE NumPlanets = (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED ? 4 : 2);
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
