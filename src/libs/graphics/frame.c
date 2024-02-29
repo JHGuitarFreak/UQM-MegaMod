@@ -97,13 +97,6 @@ ClearBackGround (RECT *pClipRect)
 			pClipRect->corner);
 }
 
-DrawMode
-GetDrawModeByFlag (BYTE flag)
-{
-	if (flag & HYPER_TO_QUASI_COLOR)
-		return MAKE_DRAW_MODE (DRAW_HYPTOQUAS, TRANSFER_ALPHA);
-}
-
 void
 DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks, 
 		BATCH_FLAGS BatchFlags)
@@ -151,19 +144,20 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 							mode, origin, FALSE);
 					break;
 				case STAMP_PRIM:
-					if (flags & 0xFE)
-						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, GetDrawModeByFlag (flags), origin, flags & UNSCALED_STAMP);
+					if (flags & HYPER_TO_QUASI_COLOR)
+						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, 
+							MAKE_DRAW_MODE (DRAW_HYPTOQUAS, TRANSFER_ALPHA),
+							origin, flags & UNSCALED_STAMP);
 					else
-						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin, flags & UNSCALED_STAMP);
+						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode,
+							origin, flags & UNSCALED_STAMP);
 					break;
 				case STAMPFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
-					if (flags & 0xFE)
-					{
-						if (flags & HS_STARMASK)
-							TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
-									MAKE_DRAW_MODE (DRAW_OVERLAY, TRANSFER_ALPHA), origin, flags & UNSCALED_STAMP);
-					}
+					if (flags & HS_STARMASK)
+						TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
+							MAKE_DRAW_MODE (DRAW_OVERLAY, TRANSFER_ALPHA), 
+							origin, flags & UNSCALED_STAMP);
 					else
 						TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
 								mode, origin, flags & UNSCALED_STAMP);

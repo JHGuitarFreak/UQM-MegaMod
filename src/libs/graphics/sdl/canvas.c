@@ -760,7 +760,7 @@ TFB_DrawCanvas_Mask (SDL_Surface *layer, SDL_Surface *base, DrawMode mode, Color
 				pal[i] = NativeToColor (palette->colors[i]);
 
 			SDL_LockSurface (base);
-			blt_filtered_pal (layer, plotFn, mode.factor, base, pal);
+			blt_filtered_pal (layer, base, pal);
 			SDL_UnlockSurface (base);
 			HFree (pal);
 		}
