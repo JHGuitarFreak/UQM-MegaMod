@@ -619,14 +619,14 @@ GetDirectionalJoystickInput(int direction, int player)
 		return InputState;
 	}
 
-	axisX = VControl_GetJoyAxis(0, player * 2);
-	axisY = VControl_GetJoyAxis(0, player * 2 + 1);
+	axisX = VControl_GetJoyAxis (0, player * 2);
+	axisY = VControl_GetJoyAxis (0, player * 2 + 1);
 
 	if (axisX == 0 && axisY == 0)
 	{	// Some basic gamepad input support
 		axisX = VControl_GetJoyAxis(2, player * 2);
 		axisY = VControl_GetJoyAxis(2, player * 2 + 1);
-		if (abs(axisX) > 5000 || abs(axisY) > 5000)
+		if (abs (axisX) > 5000 || abs (axisY) > 5000)
 		{	// Deadspot at the center
 			JoystickTapFlag[player] = TRUE;
 			JoystickThrust[player] = FALSE;
@@ -689,16 +689,16 @@ GetDirectionalJoystickInput(int direction, int player)
 		if (diff > SHIP_DIRECTIONS / 2)
 			InputState |= BATTLE_RIGHT;
 
-		// if (!JoystickTapFlag[player])
-		// {
-		// 	JoystickTapFlag[player] = TRUE;
-		// 	if (GetTimeCounter () < JoystickTapTime[player] + ONE_SECOND)
-		// 		JoystickThrust[player] = !JoystickThrust[player];
-		// 	else
-		// 		JoystickThrust[player] = TRUE;
-		// }
-		// if (JoystickThrust[player])
-		// 	InputState |= BATTLE_THRUST;
+		if (!JoystickTapFlag[player])
+		{
+			JoystickTapFlag[player] = TRUE;
+			if (GetTimeCounter () < JoystickTapTime[player] + ONE_SECOND)
+				JoystickThrust[player] = !JoystickThrust[player];
+			else
+				JoystickThrust[player] = TRUE;
+		}
+		if (JoystickThrust[player])
+			InputState |= BATTLE_THRUST;
 	}
 	else
 	{
