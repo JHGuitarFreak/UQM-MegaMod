@@ -66,8 +66,7 @@ void blt_filtered_prim(SDL_Surface *layer, RenderPixelFn plot, int factor,
 		SDL_Surface *base, Color *fill);
 void blt_filtered_fill(SDL_Surface *base, RenderPixelFn plot, int factor,
 		Color *fill);
-void blt_filtered_pal(SDL_Surface *layer, RenderPixelFn plot, int factor,
-		SDL_Surface *base, Color *fill);
+void blt_filtered_pal(SDL_Surface *layer, SDL_Surface *base, Color *fill);
 
 int clip_line(int *lx1, int *ly1, int *lx2, int *ly2, const SDL_Rect *clip_r);
 int clip_rect(SDL_Rect *r, const SDL_Rect *clip_r);

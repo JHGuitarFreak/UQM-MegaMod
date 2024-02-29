@@ -164,7 +164,7 @@ TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin, BOOLEAN unscaled)
 	if (unscaled)
 		scaleMode = GSCALE_IDENTITY;
 	else
-		scaleMode = GetGraphicScale();
+		scaleMode = GetGraphicScale ();
 
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 	{

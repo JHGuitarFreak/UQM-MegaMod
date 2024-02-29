@@ -840,7 +840,7 @@ blt_filtered_prim (SDL_Surface *layer, RenderPixelFn plot, int factor,
 	SDL_PixelFormat *lrfmt = layer->format;
 	SDL_PixelFormat *bsfmt = base->format;
 	GetPixelFn getpix;
-	Uint32 color;
+	Uint32 color = 0;
 	int x, y;
 
 	// Cannot process surfaces of different formats
@@ -873,7 +873,8 @@ blt_filtered_prim (SDL_Surface *layer, RenderPixelFn plot, int factor,
 			al = (lp >> (lrfmt->Ashift)) & 0xFF;
 			ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
 
-			plot (base, x, y, fill ? color : lp, factor == TRANSFER_ALPHA ? al : factor);
+			plot (base, x, y, fill ? color : lp, 
+					factor == TRANSFER_ALPHA ? al : factor);
 
 			// Reapply alpha to pixel since every plot function nukes it
 			*bp &= ~(bsfmt->Amask);
@@ -920,15 +921,14 @@ blt_filtered_fill (SDL_Surface *base, RenderPixelFn plot, int factor,
 }
 
 void
-blt_filtered_pal (SDL_Surface *layer, RenderPixelFn plot, int factor,
-			SDL_Surface *base, Color *fill)
+blt_filtered_pal (SDL_Surface *layer, SDL_Surface *base, Color *fill)
 {
 	SDL_PixelFormat *lrfmt = layer->format;
 	SDL_PixelFormat *bsfmt = base->format;
 	int x, y;	
 
-	// Not for paletted yet!
-	if (!lrfmt->palette)
+	// Wrong formats
+	if (!lrfmt->palette || bsfmt->BytesPerPixel != 4)
 		return;
 
 	for (y = 0; y < base->h; ++y)
