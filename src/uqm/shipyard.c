@@ -1944,6 +1944,11 @@ DoShipyard (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoShipyard;
 
+		
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Starmap();
+#endif
+
 		if (IS_DOS)
 		{
 			memset (&ShipState, 0, sizeof ShipState);
@@ -2066,9 +2071,6 @@ ExitShipyard:
 		if (pMS->CurState != SHIPYARD_SAVELOAD)
 		{
 			pMS->Initialized = FALSE;
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Starmap();
-#endif
 			DrawMenuStateStrings(PM_CREW, pMS->CurState);
 			DoModifyShips (pMS);
 		}
@@ -2083,9 +2085,6 @@ ExitShipyard:
 	}
 	else
 	{
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Menu();
-#endif
 		DoMenuChooser (pMS, PM_CREW);
 	}
 
