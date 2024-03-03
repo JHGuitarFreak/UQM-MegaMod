@@ -569,8 +569,8 @@ DoRestart (MENU_STATE *pMS)
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
-				Flash_UpdateOriginal (pMS->flashContext);
 				ScreenTransition (3, NULL);
+				Flash_UpdateOriginal (pMS->flashContext);
 				DrawRestartMenu (pMS, pMS->CurState, NULL);
 				Flash_continue (pMS->flashContext);
 				UnbatchGraphics ();
