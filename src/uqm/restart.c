@@ -55,7 +55,8 @@ enum
 	LOAD_SAVED_GAME,
 	PLAY_SUPER_MELEE,
 	SETUP_GAME,
-	QUIT_GAME
+	QUIT_GAME,
+	NUM_MENU_ELEMENTS
 };
 
 enum
@@ -309,35 +310,30 @@ InitPulseText (void)
 	COUNT i;
 
 	if (TextCache[0] != NULL)
-	{
-		//printf ("TextCache already initialized!\n");
 		return;
-	}
 
 	SetContextFont (SlabFont);
+	SetContextBackGroundColor (BLACK_COLOR);
+	SetContextForeGroundColor (WHITE_COLOR);
 	GetContextFontLeading (&leading);
 
 	t.baseline.x = MAIN_TEXT_X;
 	t.baseline.y = MAIN_TEXT_Y;
 	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
 
-	for (i = START_NEW_GAME; i <= QUIT_GAME; i++)
+	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
 	{
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
-		t.CharCount = (COUNT)~0;
 
 		frame = CaptureDrawable (CreateDrawable (WANT_PIXMAP, SCREEN_WIDTH,
 			SCREEN_HEIGHT, 1));
 		SetFrameTransparentColor (frame, BLACK_COLOR);
 		OldFrame = SetContextFGFrame (frame);
-
-		SetContextBackGroundColor (BLACK_COLOR);
 		ClearDrawable ();
 		SetContextFGFrame (OldFrame);
 
 		OldFrame = SetContextFGFrame (frame);
-
-		SetContextForeGroundColor (WHITE_COLOR);
 		font_DrawText (&t);
 		SetContextFGFrame (OldFrame);
 
@@ -346,7 +342,6 @@ InitPulseText (void)
 		t.baseline.y += leading;
 	}
 }
-
 
 // Draw the full restart menu. Nothing is done with selections.
 static void
@@ -367,8 +362,6 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	SetContextBackGroundColor (BLACK_COLOR);
 	BatchGraphics ();
 
-	InitPulseText ();
-
 	ClearDrawable ();
 	FlushColorXForms ();
 	DrawStamp (&s);
@@ -383,39 +376,38 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	t.baseline.x = MAIN_TEXT_X;
 	t.baseline.y = MAIN_TEXT_Y;
 	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
 
-	SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0x73, 0x00, 0xFF));
+	SetContextForeGroundColor (MAIN_MENU_TEXT_COLOR);
 
-	for (i = START_NEW_GAME; i <= QUIT_GAME; i++)
+	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
 	{
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
-		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.baseline.y += leading;
 	}
 
 	// Put the version number in the bottom right corner.
 	SetContextFont (TinyFont);
+	SetContextForeGroundColor (WHITE_COLOR);
+	snprintf (buf, sizeof (buf), "v%d.%d.%d %s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
 	t.pStr = buf;
 	t.baseline.x = SCREEN_WIDTH - RES_SCALE (2);
 	t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 	t.align = ALIGN_RIGHT;
-	t.CharCount = (COUNT)~0;
-	sprintf (buf, "v%d.%d.%d %s",
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
-	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 
 	// Put the main menu music credit in the bottom left corner.
 	if (optMainMenuMusic)
 	{
-		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof (buf), "%s %s",
+				GAME_STRING (MAINMENU_STRING_BASE + 61),
+				GAME_STRING (MAINMENU_STRING_BASE + 62 + Rando));
 		t.baseline.x = RES_SCALE (2);
 		t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 		t.align = ALIGN_LEFT;
-		sprintf (buf, "%s %s", GAME_STRING (MAINMENU_STRING_BASE + 61),
-				GAME_STRING (MAINMENU_STRING_BASE + 62 + Rando));
 		font_DrawText (&t);
 	}
 
@@ -484,7 +476,10 @@ DoRestart (MENU_STATE *pMS)
 		pMS->hMusic = 0;
 
 		InitMenuMusic ();
+		InitPulseText ();
 		ResetMusicResume ();
+
+		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
 		pMS->flashContext = Flash_createOverlay (ScreenContext,
 				NULL, NULL);
@@ -560,11 +555,14 @@ DoRestart (MENU_STATE *pMS)
 				Flash_pause (pMS->flashContext);
 				Flash_setState (pMS->flashContext, FlashState_fadeIn,
 						(3 * ONE_SECOND) / 16);
+
 				SetupMenu ();
+
 				if (optRequiresReload)
 					return FALSE;
 
 				LastInputTime = GetTimeCounter ();
+				InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
 				SetTransitionSource (NULL);
 				BatchGraphics ();
@@ -574,7 +572,9 @@ DoRestart (MENU_STATE *pMS)
 				DrawRestartMenu (pMS, pMS->CurState, NULL);
 				Flash_continue (pMS->flashContext);
 				UnbatchGraphics ();
+
 				RestartMessage ();
+
 				return TRUE;
 			case QUIT_GAME:
 				SleepThreadUntil (
@@ -622,25 +622,25 @@ DoRestart (MENU_STATE *pMS)
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
-	else if (MouseButtonDown)
-	{
-		Flash_pause (pMS->flashContext);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
-				// Mouse not supported message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
-		SetTransitionSource (NULL);
-		BatchGraphics ();
-		DrawRestartMenuGraphic (pMS);
-		DrawRestartMenu (pMS, pMS->CurState, NULL);
-		ScreenTransition (3, NULL);
-		UnbatchGraphics ();
-		Flash_continue (pMS->flashContext);
+	//else if (MouseButtonDown)
+	//{
+	//	Flash_pause (pMS->flashContext);
+	//	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
+	//			// Mouse not supported message
+	//	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
 
-		LastInputTime = GetTimeCounter ();
-	}
+	//	SetTransitionSource (NULL);
+	//	BatchGraphics ();
+	//	DrawRestartMenuGraphic (pMS);
+	//	ScreenTransition (3, NULL);
+	//	DrawRestartMenu (pMS, pMS->CurState, NULL);
+	//	Flash_continue (pMS->flashContext);
+	//	UnbatchGraphics ();
+
+	//	LastInputTime = GetTimeCounter ();
+	//}
 	else
 	{	// No input received, check if timed out
-		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 		if (GetTimeCounter () - LastInputTime > InactTimeOut)
 		{
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
@@ -674,8 +674,7 @@ RestartMenu (MENU_STATE *pMS)
 
 		SleepThreadUntil (FadeScreen (FadeAllToWhite, ONE_SECOND / 8)
 				+ ONE_SECOND / 60);
-		SetContextBackGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), 0x0F));
+		SetContextBackGroundColor (WHITE_COLOR);
 
 		ClearDrawable ();
 		FlushColorXForms ();
@@ -752,7 +751,7 @@ RestartMenu (MENU_STATE *pMS)
 	DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 	pMS->CurFrame = 0;
 
-	for (i = START_NEW_GAME; i <= QUIT_GAME; i++)
+	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
 	{
 		DestroyDrawable (ReleaseDrawable (TextCache[i]));
 		TextCache[i] = 0;

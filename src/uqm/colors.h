@@ -562,6 +562,10 @@
 #define CREDITS_TEXT_COLOR \
 		WHITE_COLOR
 
+// === Main Menu ===
+
+#define MAIN_MENU_TEXT_COLOR \
+		BUILD_COLOR_RGB (0x00, 0x73, 0x00)
 
 // === Cargo menu ===
 
