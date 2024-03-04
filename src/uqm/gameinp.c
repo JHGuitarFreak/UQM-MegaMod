@@ -646,6 +646,8 @@ GetDirectionalJoystickInput(int direction, int player)
 			InputState |= BATTLE_THRUST;
 	}
 
+	axisX = axisX == 1 ? 0 : axisX;
+
 	if (!optDirectionalJoystick)
 	{
 		if (player == 1)
