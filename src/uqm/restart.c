@@ -453,9 +453,7 @@ DoRestart (MENU_STATE *pMS)
 	GamePaused = FALSE;
 
 	if (optWindowType < 2)
-	{
-		optMeleeToolTips = FALSE;
-	}
+		optMeleeToolTips = (OPT_ENABLABLE)FALSE;
 	
 	if (optSuperMelee && !optLoadGame)
 	{

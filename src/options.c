@@ -33,6 +33,7 @@
 #include "libs/memlib.h"
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
+#include "types.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -271,7 +272,7 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 	contentMountHandle = mountContentDir (repository, baseContentPath);
 
 	if (contentDirName && contentDirPath == NULL)
-		contentDirPath = contentDirName;
+		contentDirPath = (char *)contentDirName;
 
 	if (addonDirName)
 	{

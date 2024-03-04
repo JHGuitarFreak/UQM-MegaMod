@@ -149,7 +149,7 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 
 void
 DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, int type,
-		BOOLEAN custom)
+		int custom)
 {
 	int i;
 	STAMP stamp;
