@@ -38,13 +38,8 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#define ACCELERATION_INCREMENT (ONE_SECOND)
-#define MENU_REPEAT_DELAY (ONE_SECOND)
-#else
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
-#endif
 
 typedef struct
 {
