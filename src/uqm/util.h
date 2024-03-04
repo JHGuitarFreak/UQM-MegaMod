@@ -19,6 +19,7 @@
 
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
+#include "setupmenu.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -32,7 +33,7 @@ extern void DrawRadarBorder (void);
 extern DWORD SeedRandomNumbers (void);
 
 extern void DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color,
-		int type, BOOLEAN custom);
+		int type, int custom);
 
 // saveRect can be NULL to save the entire context frame
 extern STAMP SaveContextFrame (const RECT *saveRect);
