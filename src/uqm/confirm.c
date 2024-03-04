@@ -142,14 +142,6 @@ DoConfirmExit (void)
 
 		FlushInput ();
 		done = FALSE;
-
-#if defined(ANDROID) || defined(__ANDROID__)
-		if (!(GLOBAL (CurrentActivity) & IN_BATTLE))
-		{	// Abort immediately
-			response = TRUE;
-			done = TRUE;
-		}
-#endif
 		
 		while (!done){
 			// Forbid recursive calls or pausing here!
