@@ -248,6 +248,8 @@ PrintCoarseScanPC (void)
 	SetContextForeGroundColor (optWhichCoarseScan ?
 			SCAN_INFO_COLOR : SCAN_PC_TITLE_COLOR);
 	SetContextFont (MicroFont);
+
+	BatchGraphics ();
 	PrintScanText (&t);
 	
 	SetContextFont (SAFE_BOOL (TinyFont, TinyFontCond));
@@ -405,6 +407,8 @@ PrintCoarseScanPC (void)
 	sprintf (buf, "%d" STR_DEGREE_SIGN, val);
 	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
+
+	UnbatchGraphics ();
 }
 
 static void
@@ -424,6 +428,8 @@ PrintCoarseScan3DO (void)
 	SetContext (PlanetContext);
 
 	GetPlanetTitle (buf, sizeof (buf));
+
+	BatchGraphics ();
 
 	t.align = ALIGN_CENTER;
 	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
@@ -562,6 +568,8 @@ PrintCoarseScan3DO (void)
 		sprintf (buf, "%u.%u%s", val / 10, val % 10, STR_EARTH_SIGN);
 	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
+
+	UnbatchGraphics ();
 }
 
 static void
