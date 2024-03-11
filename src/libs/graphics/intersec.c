@@ -20,6 +20,7 @@
 #include "libs/graphics/drawable.h"
 #include "libs/graphics/tfb_draw.h"
 #include "libs/log.h"
+#include "uqm/units.h"
 
 //#define DEBUG_INTERSEC
 
@@ -40,6 +41,7 @@ frame_intersect (INTERSECT_CONTROL *pControl0, RECT *pr0,
 	SDWORD dx_0, dy_0, dx_1, dy_1;
 	SDWORD xincr0, yincr0, xincr1, yincr1;
 	SDWORD xerror0, xerror1, yerror0, yerror1;
+	SDWORD iterator, xstep0, ystep0, xstep1, ystep1;
 	RECT r_intersect;
 	IMAGE_BOX IB0, IB1;
 	BOOLEAN check0, check1;
@@ -53,20 +55,30 @@ frame_intersect (INTERSECT_CONTROL *pControl0, RECT *pr0,
 	IB1.Box.extent.width = GetFrameWidth (IB1.FramePtr);
 	IB1.Box.extent.height = GetFrameHeight (IB1.FramePtr);
 
+	iterator = RES_SCALE (1);
+
 	dx_0 = pr0->extent.width;
 	dy_0 = pr0->extent.height;
 	if (dx_0 >= 0)
+	{
 		xincr0 = 1;
+		xstep0 = iterator;
+	}
 	else
 	{
 		xincr0 = -1;
+		xstep0 = -iterator;
 		dx_0 = -dx_0;
 	}
 	if (dy_0 >= 0)
+	{
 		yincr0 = 1;
+		ystep0 = iterator;
+	}
 	else
 	{
 		yincr0 = -1;
+		ystep0 = -iterator;
 		dy_0 = -dy_0;
 	}
 	if (dx_0 >= dy_0)
@@ -78,17 +90,25 @@ frame_intersect (INTERSECT_CONTROL *pControl0, RECT *pr0,
 	dx_1 = pr1->extent.width;
 	dy_1 = pr1->extent.height;
 	if (dx_1 >= 0)
+	{
 		xincr1 = 1;
+		xstep1 = iterator;
+	}
 	else
 	{
 		xincr1 = -1;
+		xstep1 = -iterator;
 		dx_1 = -dx_1;
 	}
 	if (dy_1 >= 0)
+	{
 		yincr1 = 1;
+		ystep1 = iterator;
+	}
 	else
 	{
 		yincr1 = -1;
+		ystep1 = -iterator;
 		dy_1 = -dy_1;
 	}
 	if (dx_1 >= dy_1)
@@ -172,12 +192,12 @@ frame_intersect (INTERSECT_CONTROL *pControl0, RECT *pr0,
 		{
 			if ((xerror0 -= dx_0) <= 0)
 			{
-				IB0.Box.corner.x += xincr0;
+				IB0.Box.corner.x += xstep0;
 				xerror0 += cycle0;
 			}
 			if ((yerror0 -= dy_0) <= 0)
 			{
-				IB0.Box.corner.y += yincr0;
+				IB0.Box.corner.y += ystep0;
 				yerror0 += cycle0;
 			}
 
@@ -189,12 +209,12 @@ frame_intersect (INTERSECT_CONTROL *pControl0, RECT *pr0,
 		{
 			if ((xerror1 -= dx_1) <= 0)
 			{
-				IB1.Box.corner.x += xincr1;
+				IB1.Box.corner.x += xstep1;
 				xerror1 += cycle1;
 			}
 			if ((yerror1 -= dy_1) <= 0)
 			{
-				IB1.Box.corner.y += yincr1;
+				IB1.Box.corner.y += ystep1;
 				yerror1 += cycle1;
 			}
 
