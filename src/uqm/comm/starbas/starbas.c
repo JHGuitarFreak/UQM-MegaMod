@@ -257,7 +257,7 @@ DoSellMinerals (void)
 static RESPONSE_REF
 EveryOnesACritic (COUNT total)
 {
-	RESPONSE_REF pStr;
+	RESPONSE_REF pStr = LIGHT_LOAD_A;
 
 	if (total < 1000)
 	{

@@ -277,7 +277,7 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 	if (addonDirName)
 	{
 		if (addonDirPath == NULL)
-			addonDirPath = addonDirName;
+			addonDirPath = (char *)addonDirName;
 
 		log_add (log_Debug, "Using '%s' as addon dir.", addonDirName);
 	}

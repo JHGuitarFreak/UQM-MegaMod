@@ -359,7 +359,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 
 	if (view_state != VIEW_STABLE)
 	{
-		COUNT reduction, i, iss, scale = 0;
+		COUNT reduction, i = 0, iss, scale = 0;
 		DPOINT *ppt;
 		int wrap_around;
 
@@ -407,7 +407,7 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 					star_frame[1] = stars_in_space;
 
 					if (optMeleeScale == TFB_SCALE_STEP)
-					{	/* on PC, the closest stars are images when zoomed out */						
+					{	/* on PC, the closest stars are images when zoomed out */
 						star_object[0] = STAMP_PRIM;
 						if (reduction > 0)
 						{
@@ -441,12 +441,12 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 					star_object[0] = star_object[1] = STAMP_PRIM;
 
 					if (optMeleeScale == TFB_SCALE_STEP && reduction > 0)
-					{						
+					{
 						star_frame[0] = star_frame[1];
 						star_frame[1] = star_frame[2];
 					}
 					else
-					{						
+					{
 						if (scale == 2)
 							star_frame[0] = star_frame[1] = star_frame[2];
 						else if (scale == 1)
