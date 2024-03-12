@@ -907,7 +907,8 @@ CheckTextsIntersect (RECT *curr, RECT *prev)
 			((prev->corner.y + prev->extent.height) <= curr->corner.y))
 		return 0;
 
-	return ((prev->extent.height + RES_SCALE (1)) - (curr->corner.y - prev->corner.y));
+	return ((prev->extent.height + RES_SCALE (1)) - abs (curr->corner.y -
+			prev->corner.y));
 }
 
 static void
