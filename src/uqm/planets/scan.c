@@ -141,6 +141,15 @@ MakeScanValue (UNICODE *buf, long val, const UNICODE *extra)
 	}
 }
 
+static void
+MakeDayValue (UNICODE *buf, long val, const UNICODE *extra)
+{
+	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
+		sprintf (buf, "%u.%02u%s", val / 100, val % 100, extra);
+	else
+		sprintf (buf, "%u.%u%s", val / 10, val % 10, extra);
+}
+
 SIZE
 GetRotationalPeriod (void)
 {
@@ -418,9 +427,8 @@ PrintCoarseScan3DO (void)
 	SDWORD val;
 	TEXT t;
 	STAMP s;
-	UNICODE buf[40];
+	UNICODE buf[200];
 	COUNT frameIndex = 20;
-	RECT r;
 
 	if (optWhichCoarseScan == 3)
 		frameIndex = 24;
@@ -442,29 +450,25 @@ PrintCoarseScan3DO (void)
 
 	s.frame = SetAbsFrameIndex (SpaceJunkFrame, frameIndex);
 
-	GetFrameRect (s.frame, &r);
+	s.origin.x = PLANET_ORG_X - RES_SCALE (107);
+	s.origin.y = PLANET_ORG_Y - RES_SCALE (46) + USE_DOS_SPHERES;
 
-	s.origin.x = t.baseline.x - (r.extent.width >> 1) - RES_SCALE (2);
-	s.origin.y = PLANET_ORG_Y - (r.extent.height >> 1);
 	DrawStamp (&s);
 
-#define SCAN_BASELINE_Y (s.origin.y + RES_SCALE (10))
-#define LEFT_SIDE_BASELINE_X (s.origin.x + RES_SCALE (29))
-#define RIGHT_SIDE_BASELINE_X (s.origin.x + r.extent.width - RES_SCALE (25))
+#define SCAN_BASELINE_Y (PLANET_ORG_Y - RES_SCALE (36) + USE_DOS_SPHERES)
+#define LEFT_SIDE_BASELINE_X (PLANET_ORG_X - RES_SCALE (78))
+#define RIGHT_SIDE_BASELINE_X (PLANET_ORG_X + RES_SCALE (78))
 
 	t.baseline.x = LEFT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_LEFT;
 
-	t.pStr = buf;
 	val = ((pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist * 100L
 			+ (EARTH_RADIUS >> 1)) / EARTH_RADIUS);
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
 	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity
 			== GAS_GIANT_ATMOSPHERE)
 		strcpy (buf, STR_INFINITY_SIGN);
@@ -474,35 +478,30 @@ PrintCoarseScan3DO (void)
 				+ (EARTH_ATMOSPHERE >> 1)) / EARTH_ATMOSPHERE;
 		MakeScanValue (buf, val, STR_EARTH_SIGN);
 	}
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
-	sprintf (buf, "%d" STR_DEGREE_SIGN,
-			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	snprintf (buf, sizeof (buf), "%d%s",
+			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature,
+			STR_DEGREE_SIGN);
 
 	if (optHazardColors) // Planet Temperature
 		HazardCase (LAVASPOT_DISASTER);
 
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
-	sprintf (buf, "<%u>",
+	snprintf (buf, sizeof (buf), "<%u>",
 			pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0
 				? 0 : (pSolarSysState->SysInfo.PlanetInfo.Weather + 1));
 
 	if (optHazardColors) // Weather
 		HazardCase (LIGHTNING_DISASTER);
 
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
-	sprintf (buf, "<%u>",
+	snprintf (buf, sizeof (buf), "<%u>",
 			PLANSIZE (
 			pSolarSysState->SysInfo.PlanetInfo.PlanDataPtr->Type
 			) == GAS_GIANT
@@ -511,14 +510,12 @@ PrintCoarseScan3DO (void)
 	if (optHazardColors) // Tectonics
 		HazardCase (EARTHQUAKE_DISASTER);
 
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 
 	t.baseline.x = RIGHT_SIDE_BASELINE_X;
 	t.baseline.y = SCAN_BASELINE_Y;
 	t.align = ALIGN_RIGHT;
 
-	t.pStr = buf;
 	val = pSolarSysState->SysInfo.PlanetInfo.PlanetRadius;
 	val = ((DWORD) val * (DWORD) val * (DWORD) val / 100L
 			* pSolarSysState->SysInfo.PlanetInfo.PlanetDensity
@@ -530,43 +527,30 @@ PrintCoarseScan3DO (void)
 	if (optHazardColors)
 		SetContextForeGroundColor (SCAN_INFO_COLOR);
 
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
 	val = pSolarSysState->SysInfo.PlanetInfo.PlanetRadius;
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
-
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
 	val = pSolarSysState->SysInfo.PlanetInfo.SurfaceGravity;
 	if (val == 0)
 		val = 1;
 	MakeScanValue (buf, val, STR_EARTH_SIGN);
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
 	val = pSolarSysState->SysInfo.PlanetInfo.AxialTilt;
 	if (val < 0)
 		val = -val;
-	sprintf (buf, "%d" STR_DEGREE_SIGN, val);
-	t.CharCount = (COUNT)~0;
+	snprintf (buf, sizeof (buf), "%d%s", val, STR_DEGREE_SIGN);
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING;
 
-	t.pStr = buf;
 	val = GetRotationalPeriod ();
-	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
-		sprintf (buf, "%u.%02u%s", val / 100, val % 100, STR_EARTH_SIGN);
-	else
-		sprintf (buf, "%u.%u%s", val / 10, val % 10, STR_EARTH_SIGN);
-	t.CharCount = (COUNT)~0;
+	MakeDayValue (buf, val, STR_EARTH_SIGN);
 	PrintScanText (&t);
 
 	UnbatchGraphics ();

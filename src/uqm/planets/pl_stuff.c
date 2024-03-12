@@ -404,7 +404,7 @@ ZoomInPlanetSphere (void)
 				+ (int) (dx * (1.0 - scale)
 				* RES_SCALE (ORIG_SIS_SCREEN_WIDTH * 6 / 10) + 0.5);
 		pt.y = PLANET_ORG_Y + (int) (dy * (1.0 - scale)
-				* (SCAN_SCREEN_HEIGHT * 6 / 10) + 0.5);
+				* (RES_SCALE (SCAN_SCREEN_HEIGHT) * 6 / 10) + 0.5);
 
 		SetContext (PlanetContext);
 
