@@ -74,6 +74,9 @@ extern int ScreenHeight;
 #define NSAFE_NUM_SCL(a) (RES_SCALE (NSAFE_NUM ((a))))
 		// Same as NSAFE_NUM but scaled it to HD
 
+#define MODE_CASE(a,b,c) (IS_DOS ? (a) : (IS_PAD ? (b) : (c)))
+#define MODE_CASE_SCL(a,b,c) RES_SCALE (MODE_CASE ((a),(b),(c)))
+
 		// Margins
 #define SAFE_X (SAFE_NUM_SCL (16))
 		// Left and right screen margin used for 3DO mode
