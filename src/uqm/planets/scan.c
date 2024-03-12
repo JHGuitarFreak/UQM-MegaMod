@@ -97,14 +97,10 @@ EraseCoarseScan (void)
 }
 
 static void
-PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
+PrintScanTitleText (TEXT *t)
 {
-	t->baseline.x = xpos;
 	SetContextForeGroundColor (optWhichCoarseScan ?
 			SCAN_PC_TITLE_COLOR_6014 : SCAN_PC_TITLE_COLOR);
-
-	t->pStr = txt;
-	t->CharCount = (COUNT)~0;
 
 	if (!optNebulae)
 		font_DrawText (t);
@@ -113,14 +109,31 @@ PrintScanTitlePC (TEXT *t, RECT *r, const char *txt, int xpos)
 				optWhichCoarseScan ? SCAN_PC_TITLE_COLOR_6014
 				: GetContextForeGroundColor ()), OUTLINE_COLOR);
 
-	TextRect (t, r, NULL);
-	t->baseline.x += r->extent.width;
 	SetContextForeGroundColor (SCAN_INFO_COLOR);
+}
+
+static void
+PrintScanTitlePC (TEXT *t, UNICODE *buf, COORD xpos)
+{
+	RECT r;
+
+	t->baseline.x = xpos;
+
+	t->pStr = buf;
+	t->CharCount = (COUNT)~0;
+
+	PrintScanTitleText (t);
+
+	TextRect (t, &r, NULL);
+	t->baseline.x += r.extent.width;
 }
 
 static void
 PrintScanText (TEXT *t)
 {
+	if (!(optWhichCoarseScan & 1))
+		t->CharCount = (COUNT)~0;
+
 	if (!optNebulae)
 		font_DrawText (t);
 	else
@@ -241,7 +254,6 @@ PrintCoarseScanPC (void)
 {
 	SDWORD val;
 	TEXT t;
-	RECT r;
 	UNICODE buf[200];
 
 	GetPlanetTitle (buf, sizeof (buf));
@@ -268,153 +280,136 @@ PrintCoarseScanPC (void)
 #define SCAN_BASELINE_Y_PC (PLANET_ORG_Y - RES_SCALE (13))
 #define SCAN_LEADING_PC RES_SCALE (10)
 
+#define ORBITSCAN_TEXT(a) (GAME_STRING (ORBITSCAN_STRING_BASE + (a)))
+
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 	t.align = ALIGN_LEFT;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE),
-			LEFT_SIDE_BASELINE_X_PC); // "Orbit: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (0));
+	PrintScanTitlePC (&t, buf, LEFT_SIDE_BASELINE_X_PC); // "Orbit: "
+
 	val = ((pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist * 100L
 			+ (EARTH_RADIUS >> 1)) / EARTH_RADIUS);
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 1)); // " a.u."
-	t.pStr = buf;
-	t.CharCount = (COUNT)~0;
+	MakeScanValue (buf, val, ORBITSCAN_TEXT (1)); // " a.u."
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 2),
-			LEFT_SIDE_BASELINE_X_PC); // "Atmo: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (2));
+	PrintScanTitlePC (&t, buf, LEFT_SIDE_BASELINE_X_PC); // "Atmo: "
+
 	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity
 			== GAS_GIANT_ATMOSPHERE)
-		utf8StringCopy (buf, sizeof (buf),
-				GAME_STRING (ORBITSCAN_STRING_BASE + 3)); // "Super Thick"
+		utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (3)); // "Super Thick"
 	else if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0)
-		utf8StringCopy (buf, sizeof (buf),
-				GAME_STRING (ORBITSCAN_STRING_BASE + 4)); // "Vacuum"
+		utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (4)); // "Vacuum"
 	else
 	{
 		val = (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity * 100
-			+ (EARTH_ATMOSPHERE >> 1)) / EARTH_ATMOSPHERE;
-		MakeScanValue (buf, val,
-				GAME_STRING (ORBITSCAN_STRING_BASE + 5)); // " atm"
+				+ (EARTH_ATMOSPHERE >> 1)) / EARTH_ATMOSPHERE;
+		MakeScanValue (buf, val, ORBITSCAN_TEXT (5)); // " atm"
 	}
-	t.pStr = buf;
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 6),
-			LEFT_SIDE_BASELINE_X_PC); // "Temp: "
-	sprintf (buf, "%d" STR_DEGREE_SIGN " c",
-			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature);
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (6));
+	PrintScanTitlePC (&t, buf, LEFT_SIDE_BASELINE_X_PC); // "Temp: "
+
+	snprintf (buf, sizeof (buf), "%d%s c",
+			pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature,
+			STR_DEGREE_SIGN);
 
 	if (optHazardColors) // Planet Temperature
 		HazardCase (LAVASPOT_DISASTER);
 
-	t.pStr = buf;
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 7),
-			LEFT_SIDE_BASELINE_X_PC); // "Weather: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (7));
+	PrintScanTitlePC (&t, buf, LEFT_SIDE_BASELINE_X_PC); // "Weather: "
+
 	if (pSolarSysState->SysInfo.PlanetInfo.AtmoDensity == 0)
-		t.pStr = GAME_STRING (ORBITSCAN_STRING_BASE + 8); // "None"
+	{
+		utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (8)); // "None"
+	}
 	else
 	{
-		sprintf (buf, "%s %u",
-				GAME_STRING (ORBITSCAN_STRING_BASE + 9), // "Class"
+		snprintf (buf, sizeof (buf), "%s %u", ORBITSCAN_TEXT (9), // "Class"
 				pSolarSysState->SysInfo.PlanetInfo.Weather + 1);
-		t.pStr = buf;
 	}
 
 	if (optHazardColors) // Weather
 		HazardCase (LIGHTNING_DISASTER);
 
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 10),
-			LEFT_SIDE_BASELINE_X_PC); // "Tectonics: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (10));
+	PrintScanTitlePC (&t, buf, LEFT_SIDE_BASELINE_X_PC); // "Tectonics: "
+
 	if (PLANSIZE (pSolarSysState->SysInfo.PlanetInfo.PlanDataPtr->Type) ==
 			GAS_GIANT)
-		t.pStr = GAME_STRING (ORBITSCAN_STRING_BASE + 8); // "None"
+	{
+		utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (8)); // "None"
+	}
 	else
 	{
-		sprintf (buf, "%s %u",
-				GAME_STRING (ORBITSCAN_STRING_BASE + 9), // "Class"
+		snprintf (buf, sizeof (buf), "%s %u", ORBITSCAN_TEXT (9), // "Class"
 				pSolarSysState->SysInfo.PlanetInfo.Tectonics + 1);
-		t.pStr = buf;
 	}
 
 	if (optHazardColors) // Tectonics
 		HazardCase (EARTHQUAKE_DISASTER);
 
-	t.CharCount = (COUNT)~0;
 	PrintScanText (&t);
 
 	t.baseline.y = SCAN_BASELINE_Y_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 11),
-			RIGHT_SIDE_BASELINE_X_PC); // "Mass: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (11));
+	PrintScanTitlePC (&t, buf, RIGHT_SIDE_BASELINE_X_PC); // "Mass: "
+
 	val = pSolarSysState->SysInfo.PlanetInfo.PlanetRadius;
 	val = ((DWORD) val * (DWORD) val * (DWORD) val / 100L
 			* pSolarSysState->SysInfo.PlanetInfo.PlanetDensity
 			+ ((100L * 100L) >> 1)) / (100L * 100L);
 	if (val == 0)
 		val = 1;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 12)); // " e.s."
-	t.pStr = buf;
-	t.CharCount = (COUNT)~0;
+	MakeScanValue (buf, val, ORBITSCAN_TEXT (12)); // " e.s."
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 13),
-			RIGHT_SIDE_BASELINE_X_PC); // "Radius: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (13));
+	PrintScanTitlePC (&t, buf, RIGHT_SIDE_BASELINE_X_PC); // "Radius: "
+
 	val = pSolarSysState->SysInfo.PlanetInfo.PlanetRadius;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 12)); // " e.s."
-	t.pStr = buf;
-	t.CharCount = (COUNT)~0;
+	MakeScanValue (buf, val, ORBITSCAN_TEXT (12)); // " e.s."
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 14),
-			RIGHT_SIDE_BASELINE_X_PC); // "Gravity: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (14));
+	PrintScanTitlePC (&t, buf, RIGHT_SIDE_BASELINE_X_PC); // "Gravity: "
+
 	val = pSolarSysState->SysInfo.PlanetInfo.SurfaceGravity;
 	if (val == 0)
 		val = 1;
-	MakeScanValue (buf, val,
-			GAME_STRING (ORBITSCAN_STRING_BASE + 15)); // " g."
-	t.pStr = buf;
-	t.CharCount = (COUNT)~0;
+	MakeScanValue (buf, val, ORBITSCAN_TEXT (15)); // " g."
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 16),
-			RIGHT_SIDE_BASELINE_X_PC); // "Day: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (16));
+	PrintScanTitlePC (&t, buf, RIGHT_SIDE_BASELINE_X_PC); // "Day: "
+
 	val = GetRotationalPeriod ();
-	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
-		sprintf (buf, "%u.%02u%s", val / 100, val % 100,
-				GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
-	else
-		sprintf (buf, "%u.%u%s", val / 10, val % 10,
-				GAME_STRING (ORBITSCAN_STRING_BASE + 17)); // " days"
-	t.pStr = buf;
-	t.CharCount = (COUNT)~0;
+	MakeDayValue (buf, val, ORBITSCAN_TEXT (17)); // " days"
 	PrintScanText (&t);
 	t.baseline.y += SCAN_LEADING_PC;
 
-	PrintScanTitlePC (&t, &r, GAME_STRING (ORBITSCAN_STRING_BASE + 18),
-			RIGHT_SIDE_BASELINE_X_PC); // "Tilt: "
+	utf8StringCopy (buf, sizeof (buf), ORBITSCAN_TEXT (18));
+	PrintScanTitlePC (&t, buf, RIGHT_SIDE_BASELINE_X_PC); // "Tilt: "
+
 	val = pSolarSysState->SysInfo.PlanetInfo.AxialTilt;
 	if (val < 0)
 		val = -val;
-	t.pStr = buf;
-	sprintf (buf, "%d" STR_DEGREE_SIGN, val);
-	t.CharCount = (COUNT)~0;
+	snprintf (buf, sizeof (buf), "%d%s", val, STR_DEGREE_SIGN);
 	PrintScanText (&t);
 
 	UnbatchGraphics ();
