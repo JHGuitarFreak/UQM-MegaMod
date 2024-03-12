@@ -968,7 +968,6 @@ DrawSavegameCargo (SIS_STATE *sisState)
 #define ELEMENT_ORG_Y      RES_SCALE (17)
 #define ELEMENT_SPACING_Y  RES_SCALE (12)
 #define ELEMENT_SPACING_X  RES_SCALE (36)
-#define HD_ALIGN_DOTS IF_HD (2)
 
 	SetContext (SpaceContext);
 	BatchGraphics ();
@@ -978,8 +977,8 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
 	s.origin.x = RES_SCALE (7) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS
-			+ NSAFE_NUM_SCL (3) + HD_ALIGN_DOTS;
-	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
+			+ NSAFE_NUM_SCL (3);
+	s.origin.y = ELEMENT_ORG_Y;
 	// setup element amounts
 	t.baseline.x = RES_SCALE (33) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS
 			+ NSAFE_NUM_SCL (3);
@@ -993,7 +992,7 @@ DrawSavegameCargo (SIS_STATE *sisState)
 		if (i == NUM_ELEMENT_CATEGORIES / 2)
 		{
 			s.origin.x += ELEMENT_SPACING_X;
-			s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
+			s.origin.y = ELEMENT_ORG_Y;
 			t.baseline.x += ELEMENT_SPACING_X;
 			t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
 		}
@@ -1010,13 +1009,13 @@ DrawSavegameCargo (SIS_STATE *sisState)
 	}
 
 	// draw Bio icon
-	s.origin.x = RES_SCALE (24) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS + HD_ALIGN_DOTS;
-	s.origin.y = RES_SCALE (68) + HD_ALIGN_DOTS;
+	s.origin.x = RES_SCALE (24) + SUMMARY_X_OFFS - SUMMARY_SIDE_OFFS;
+	s.origin.y = RES_SCALE (68);
 	s.frame = SetAbsFrameIndex (s.frame, 68);
 	DrawStamp (&s);
 	// print Bio amount
 	t.baseline.x = RES_SCALE (50) + SUMMARY_X_OFFS;
-	t.baseline.y = s.origin.y + RES_SCALE (3) - HD_ALIGN_DOTS;
+	t.baseline.y = s.origin.y + RES_SCALE (3);
 	SetContextForeGroundColor (cargo_color[i]);
 	snprintf (buf, sizeof buf, "%u", sisState->TotalBioMass);
 	t.CharCount = (COUNT)~0;

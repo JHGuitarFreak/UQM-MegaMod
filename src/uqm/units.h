@@ -43,6 +43,9 @@ extern int ScreenHeight;
 #define RES_TRP(a) (RES_BOOL ((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
+#define RES_RBSHIFT(a,b) (RES_SCALE (RES_DESCALE ((a)) >> (b)))
+#define RES_RECENTER(a) (RES_RBSHIFT ((a), 1))
+
 #define IS_DOS ((optWindowType == 0) ? TRUE : FALSE)
 #define DOS_BOOL(a,b) (IS_DOS ? (b) : (a))
 		// Returns the 2nd input in DOS mode, the 1st input otherwise

@@ -843,13 +843,12 @@ DrawMineralHelpers (void)
 #define ELEMENT_ORG_Y      RES_SCALE (33)
 #define ELEMENT_SPACING_Y  RES_SCALE (9)
 #define ELEMENT_SPACING_X  RES_SCALE (32)
-#define HD_ALIGN_DOTS IF_HD (2)
 
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
-	s.origin.x = ELEMENT_ORG_X + HD_ALIGN_DOTS;
-	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
+	s.origin.x = ELEMENT_ORG_X;
+	s.origin.y = ELEMENT_ORG_Y;
 	// setup element worths
 	t.baseline.x = ELEMENT_ORG_X + RES_SCALE (12);
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
