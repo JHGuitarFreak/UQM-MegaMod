@@ -2405,7 +2405,8 @@ PlanetSide (POINT planetLoc)
 		if (crew_left == 0)
 		{
 			--GLOBAL_SIS (NumLanders);
-			DrawLanders ();
+			if (!optSubmenu)
+				DrawLanders ();
 
 			ReturnToOrbit ();
 		}
@@ -2421,7 +2422,15 @@ PlanetSide (POINT planetLoc)
 				ReturnToOrbit ();
 
 			AnimateLaunch (LanderFrame[6], FALSE);
-			DeltaSISGauges (crew_left, 0, 0);
+			if (!optSubmenu)
+				DeltaSISGauges (crew_left, 0, 0);
+			else
+			{// Get the crew from landers back but not draw anything
+				COUNT CrewCapacity = GetCrewPodCapacity ();
+				GLOBAL_SIS(CrewEnlisted) += crew_left;
+				if (GLOBAL_SIS(CrewEnlisted) > CrewCapacity)
+					GLOBAL_SIS(CrewEnlisted) = CrewCapacity;
+			}
 
 			if (PSD.ElementLevel)
 			{
@@ -2432,7 +2441,8 @@ PlanetSide (POINT planetLoc)
 					GLOBAL_SIS (TotalElementMass) +=
 							PSD.ElementAmounts[index];
 				}
-				DrawStorageBays (FALSE);
+				if (!optSubmenu)
+					DrawStorageBays (FALSE);
 			}
 
 			GLOBAL_SIS (TotalBioMass) += PSD.BiologicalLevel;
