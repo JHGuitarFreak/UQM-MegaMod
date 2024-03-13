@@ -611,7 +611,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	r.extent.height = RES_SCALE (12);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
-	SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	SetContextForeGroundColor (DKGRAY_COLOR);
 
 	if (!IS_DOS)
 	{
