@@ -725,19 +725,9 @@ check_availability (WIDGET_CHOICE *self, int oldval)
 		check_remixes (self, oldval);
 	}
 
-	if (self->choice_num == 81 && check_dos_3do_modes (self, oldval))
+	if (self->choice_num == 81)
 	{
-		int NewHeight = ScreenHeightActual;
-
-		PutIntOpt ((int *)&optWindowType, (int *)&self->selected,
-				"mm.windowType", TRUE);
-
-		NewHeight = DOS_BOOL (240, 200) * (1 + choices[42].selected);
-
-		if (NewHeight != ScreenHeightActual)
-			ScreenHeightActual = NewHeight;
-
-		res_PutInteger ("config.resheight", ScreenHeightActual);
+		check_dos_3do_modes (self, oldval);
 	}
 }
 
@@ -2325,6 +2315,21 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	{
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		resolutionFactor = resFactor;
+	}
+
+	if (optWindowType != opts->windowType)
+	{
+		int nh;
+		PutIntOpt ((int *)&optWindowType, (int *)&opts->windowType,
+				"mm.windowType", TRUE);
+
+		nh = DOS_BOOL (240, 200) * (1 + opts->loresBlowup);
+
+		if (nh != ScreenHeightActual)
+		{
+			ScreenHeightActual = nh;
+			res_PutInteger("config.resheight", ScreenHeightActual);
+		}
 	}
 
 //#if !(defined(ANDROID) || defined(__ANDROID__))
