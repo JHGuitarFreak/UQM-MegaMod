@@ -526,7 +526,9 @@ DrawNoReturnZone (void)
 	POINT sol, sis;
 	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
 
-	sol = (POINT){ SOL_X, SOL_Y };
+	// JSD Replace hard coded SOL with plot map SOL.
+	//sol = (POINT){ SOL_X, SOL_Y };
+	sol = plot_map[SOL_DEFINED].star_pt;
 	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
 			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
 
@@ -695,7 +697,9 @@ DrawFuelCircle (BOOLEAN secondary)
 		{
 			OldColor =
 				SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-			if (pointsEqual (corner, (POINT) { SOL_X, SOL_Y }))
+			// JSD Replace hard coded SOL with plot map SOL.
+			//if (pointsEqual (corner, (POINT) { SOL_X, SOL_Y }))
+			if (pointsEqual (corner, plot_map[SOL_DEFINED].star_pt))
 			{// We are at Sol, foci are equal - draw a standard oval
 				GetFuelRect (&r, OnBoardFuel, corner);
 				DrawFilledOval (&r);
@@ -907,8 +911,7 @@ CheckTextsIntersect (RECT *curr, RECT *prev)
 			((prev->corner.y + prev->extent.height) <= curr->corner.y))
 		return 0;
 
-	return ((prev->extent.height + RES_SCALE (1)) - abs (curr->corner.y -
-			prev->corner.y));
+	return ((prev->extent.height + RES_SCALE (1)) - (curr->corner.y - prev->corner.y));
 }
 
 static void
@@ -1367,9 +1370,29 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
 		{
 			BYTE Index = star_array[i].Index;
-
 			if (isHomeworld (Index))
 				DrawMarker (star_array[i].star_pt, TRUE);
+		}
+		// JSD DEBUG
+		for (i = 0; i < NUM_HYPER_VORTICES; ++i)
+		{
+			//DrawMarker (portal_map[i].star_pt, TRUE);
+			if (!(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << i)))
+				continue;
+			TEXT t;
+			UNICODE pStr[2];
+			pStr[0] = 'A' + i;
+			pStr[1] = 0;
+			SetContextFont (TinyFontBold);
+			//SetContextForeGroundColor (BUILD_COLOR_RGBA (0x4F, 0x00, 0x8F, 0x1F));
+			// "Quasispace Green"
+			SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x00, 0x1A, 0x00), 0x2F));
+			t.baseline.x = UNIVERSE_TO_DISPX (portal_map[i].star_pt.x);
+			t.baseline.y = UNIVERSE_TO_DISPY (portal_map[i].star_pt.y) + 3;
+			t.align = ALIGN_CENTER;
+			t.pStr = pStr;
+			t.CharCount = 2;
+			font_DrawText (&t);
 		}
 	}
 
@@ -1386,6 +1409,25 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			which_starmap = NORMAL_STARMAP;
 		else
 		{
+			// JSD Changed the way RAINBOW#_DEFINED works - this just got easy
+			//COUNT i;
+			//for (i = RAINBOW_DEFINED0; i <= RAINBOW_DEFINED9; i++)
+			//{
+			//	if (rainbow_mask & (1 << (i - RAINBOW_DEFINED0)) DrawMarker (plot_map[i], TRUE);
+			//}
+
+			// JSD Or we can do it the classic way (no plotmap) - we will start with this one
+			COUNT i;
+			for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
+			{
+				if ((star_array[i].Index >= RAINBOW0_DEFINED) &&
+						(star_array[i].Index <= RAINBOW9_DEFINED))
+				{
+					if (rainbow_mask & (1 << (star_array[i].Index - RAINBOW0_DEFINED)))
+						DrawMarker (star_array[i].star_pt, TRUE);
+				}
+			}
+#if 0
 			COUNT i, j = 0;
 
 			for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
@@ -1397,6 +1439,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						DrawMarker (star_array[i].star_pt, TRUE);
 				}
 			}
+#endif
 		}
 	}
 
@@ -1455,8 +1498,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		if (which_space <= 1)
 		{
-			s.origin.x = UNIVERSE_TO_DISPX (ARILOU_SPACE_X);
-			s.origin.y = UNIVERSE_TO_DISPY (ARILOU_SPACE_Y);
+			// JSD Replace hard coded portal with plot based portal
+			//s.origin.x = UNIVERSE_TO_DISPX (ARILOU_SPACE_X);
+			//s.origin.y = UNIVERSE_TO_DISPY (ARILOU_SPACE_Y);
+			s.origin.x = UNIVERSE_TO_DISPX (plot_map[ARILOU_DEFINED].star_pt.x);
+			s.origin.y = UNIVERSE_TO_DISPY (plot_map[ARILOU_DEFINED].star_pt.y);
+			s.origin = plot_map[ARILOU_DEFINED].star_pt;
 		}
 		else
 		{
@@ -1690,19 +1737,54 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	{
 		// JMS: For masking the names of QS portals not yet entered.
 		BYTE whichPortal = BestSDPtr->Postfix - 133;
-		
+		fprintf(stderr, "whichPortal %d\n", whichPortal);	
 		// A star is near the cursor:
 		// Snap cursor onto star
 		cursorLoc = BestSDPtr->star_pt;
 		
-		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) >= 2
-				&& !(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << whichPortal)))
+		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) < 2)
 		{
-			utf8StringCopy (buf, sizeof (buf),
-					GAME_STRING (STAR_STRING_BASE + 132));
+			GetClusterName (BestSDPtr, buf);
+		}
+		else if (!(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << whichPortal)))
+		{
+			// "UNKNOWN" string
+			utf8StringCopy (buf, sizeof (buf), GAME_STRING (STAR_STRING_BASE + 132));
+		}
+		else if (whichPortal == NUM_HYPER_VORTICES)
+		{
+			// Arilou homeworld name once known
+			GetClusterName (BestSDPtr, buf);
 		}
 		else
-			GetClusterName (BestSDPtr, buf);
+		{
+			// JSD Uses whichPortal (which is based on the postfix of the star) to
+			// determine which portal_map entity this maps to and pull that star name.
+			// We then use that to construct the exit point name.
+			//portal_map[whichPortal].star_pt - coords of the exit
+			//portal_map[whichPortal].nearest_star - STAR_DESC* of nearest star
+			UNICODE starnameBuf[CURSOR_INFO_BUFSIZE] = "";
+			//GetClusterName (portal_map[whichPortal].nearest_star, starnameBuf);
+			utf8StringCopy (starnameBuf, sizeof (starnameBuf), 
+					GAME_STRING (portal_map[whichPortal].nearest_star->Postfix));
+			//utf8StringCopy (visBuf, sizeof (visBuf), buf);
+			// JSD By the way, this is how you get rid of compiler warnings:
+			// %.30s where "30" is a limit.  Enjoy.
+			snprintf (buf, sizeof (buf), "[%c] To %d.%d : %d.%d (Near %.100s)", 'A' + whichPortal,
+					portal_map[whichPortal].star_pt.x / 10,
+					portal_map[whichPortal].star_pt.x % 10,
+					portal_map[whichPortal].star_pt.y / 10,
+					portal_map[whichPortal].star_pt.y % 10,
+					starnameBuf);
+#if 0
+			snprintf (buf, sizeof (buf), "To %d.%d : %d.%d (Near %.100s)",
+					portal_map[whichPortal].star_pt.x / 10,
+					portal_map[whichPortal].star_pt.x % 10,
+					portal_map[whichPortal].star_pt.y / 10,
+					portal_map[whichPortal].star_pt.y % 10,
+					starnameBuf);
+#endif
+		}
 	}
 	else
 	{	// No star found. Reset the coordinates to the cursor's location
@@ -1728,8 +1810,10 @@ UpdateCursorInfo (UNICODE *prevbuf)
 
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{
-			ari_pt.x = ARILOU_SPACE_X;
-			ari_pt.y = ARILOU_SPACE_Y;
+			// JSD Replace hard coded portal with plot based portal
+			//ari_pt.x = ARILOU_SPACE_X;
+			//ari_pt.y = ARILOU_SPACE_Y;
+			ari_pt = plot_map[ARILOU_DEFINED].star_pt;
 		}
 		else
 		{
@@ -1761,7 +1845,9 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				UNICODE visBuf[CURSOR_INFO_BUFSIZE] = "";
 
 				utf8StringCopy (visBuf, sizeof (visBuf), buf);
-				snprintf (buf, sizeof buf, "%c %s %c", '(', visBuf, ')');
+				// JSD This is how you get rid of compiler warnings for
+				// string length:
+				snprintf (buf, sizeof buf, "%c %.251s %c", '(', visBuf, ')');
 			}
 
 			DrawSISMessage (buf);

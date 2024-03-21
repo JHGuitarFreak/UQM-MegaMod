@@ -401,7 +401,9 @@ LoadNebulaeFrame (POINT location)
 	STRING nebulaRes;
 	COUNT nebulaCount;
 	POINT neb_seed;
-	const POINT solPoint = { SOL_X, SOL_Y };
+	// JSD Replace old method for finding SOL with plot method
+	//const POINT solPoint = { SOL_X, SOL_Y };
+	const POINT solPoint = plot_map[SOL_DEFINED].star_pt;
 
 	// Kruzen: Either loading from main menu or option is disabled or
 	// at Sol with MegaMod nebulas
@@ -2826,6 +2828,11 @@ ExploreSolarSys (void)
 	memset (pSolarSysState, 0, sizeof (*pSolarSysState));
 
 	SolarSysState.genFuncs = getGenerateFunctions (CurStarDescPtr->Index);
+	// JSD - adding the following line for debugging plot points
+	if (CurStarDescPtr->Index) fprintf(stderr, "*** Entering Special PLOT System at %d.%d %d.%d: %s (%d)***\n",
+			CurStarDescPtr->star_pt.x / 10, CurStarDescPtr->star_pt.x % 10,
+			CurStarDescPtr->star_pt.y / 10, CurStarDescPtr->star_pt.y % 10,
+			starPresenceString (CurStarDescPtr->Index), CurStarDescPtr->Index);
 
 	InitSolarSys ();
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);

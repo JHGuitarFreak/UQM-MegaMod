@@ -102,6 +102,9 @@ struct GenerateFunctions {
 	PickupLifeFunction pickupLife;
 };
 
+// JSD - GenerateFunctions moved from gendef.h due to dependency issues caused by needing
+// to #include planets/generate.h only for this one declaration.  Anyway, it belongs here.
+const GenerateFunctions *getGenerateFunctions (BYTE Index);
 #if defined(__cplusplus)
 }
 #endif
