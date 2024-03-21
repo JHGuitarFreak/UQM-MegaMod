@@ -28,6 +28,8 @@
 			// JMS_GFX: For LoadGraphic 
 #include "../../planets/planets.h"
 			// For MIN_MOON_RADIUS
+// JSD it needs starmap.h to find SOL
+#include "../../starmap.h"
 
 
 static LOCDATA chmmr_desc =
@@ -189,8 +191,11 @@ ExitConversation (RESPONSE_REF R)
 #define EARTH_INDEX 2 /* earth is 3rd planet --> 3 - 1 = 2 */
 
 		/* transport player to Earth */
-		GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
-		GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+		// JSD replace old method of teleport to SOL with new method
+		// GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
+		// GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+		GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (plot_map[SOL_DEFINED].star_pt.x);
+		GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (plot_map[SOL_DEFINED].star_pt.y);
 		GLOBAL (ShipFacing) = 1;
 		/* At Earth or at Starbase */
 		GLOBAL (ip_planet) = EARTH_INDEX + 1;
