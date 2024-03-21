@@ -31,6 +31,8 @@
 #include "menustat.h"
 #include "gamestr.h"
 #include "shipcont.h"
+// JSD added to reference plot_map for SOL.
+#include "starmap.h"
 
 void
 DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
@@ -614,8 +616,11 @@ get_fuel_to_sol (void)
 	pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 	pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	
-	pt.x -= SOL_X;
-	pt.y -= SOL_Y;
+	// JSD Replace old hard coded SOL with plot based SOL
+	//pt.x -= SOL_X;
+	//pt.y -= SOL_Y;
+	pt.x -= plot_map[SOL_DEFINED].star_pt.x;
+	pt.y -= plot_map[SOL_DEFINED].star_pt.y;
 
 	f = (DWORD)((long)pt.x * pt.x + (long)pt.y * pt.y);
 	if (f == 0 || GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)

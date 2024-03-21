@@ -136,7 +136,17 @@ getGenerateFunctions (BYTE Index)
 			return &generatePkunkFunctions;
 		case SUPOX_DEFINED:
 			return &generateSupoxFunctions;
-		case RAINBOW_DEFINED:
+		// JSD Changed the way RAINBOW#_DEFINED works
+		case RAINBOW0_DEFINED:
+		case RAINBOW1_DEFINED:
+		case RAINBOW2_DEFINED:
+		case RAINBOW3_DEFINED:
+		case RAINBOW4_DEFINED:
+		case RAINBOW5_DEFINED:
+		case RAINBOW6_DEFINED:
+		case RAINBOW7_DEFINED:
+		case RAINBOW8_DEFINED:
+		case RAINBOW9_DEFINED:
 			return &generateRainbowWorldFunctions;
 		case ILWRATH_DEFINED:
 			return &generateIlwrathFunctions;
