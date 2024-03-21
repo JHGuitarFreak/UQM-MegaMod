@@ -19,6 +19,7 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
+#include "uqm/races.h"
 
 static LOCDATA vux_desc =
 {
@@ -801,8 +802,7 @@ Intro (void)
 			}
 			SET_GAME_STATE (VUX_HOME_VISITS, NumVisits);
 
-			if (!GET_GAME_STATE (KNOW_VUX_HOMEWORLD))
-				SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
+			SetHomeworldKnown (VUX_HOME);
 		}
 		else
 		{

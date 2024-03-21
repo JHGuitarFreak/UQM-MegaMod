@@ -344,8 +344,7 @@ TaaloWorld (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, make_alliance))
 	{
 		NPCPhrase (CANT_ALLY_HERE);
-		if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
-			SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
+		SetHomeworldKnown (ORZ_HOME);
 
 		DISABLE_PHRASE (make_alliance);
 	}

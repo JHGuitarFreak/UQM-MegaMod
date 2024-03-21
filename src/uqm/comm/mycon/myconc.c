@@ -22,6 +22,7 @@
 
 #include "uqm/gameev.h"
 #include "libs/mathlib.h"
+#include "uqm/races.h"
 
 
 static LOCDATA mycon_desc =
@@ -529,8 +530,7 @@ Intro (void)
 		{
 			case 0:
 				NPCPhrase (HELLO_SUN_DEVICE_WORLD_1);
-				if (!GET_GAME_STATE (KNOW_MYCON_HOMEWORLD))
-					SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
+				SetHomeworldKnown (MYCON_HOME);
 				break;
 			case 1:
 				NPCPhrase (HELLO_SUN_DEVICE_WORLD_2);
@@ -583,8 +583,7 @@ Intro (void)
 		{
 			case 0:
 				NPCPhrase (HELLO_SPACE_1);
-				if (!GET_GAME_STATE (KNOW_MYCON_HOMEWORLD))
-					SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
+				SetHomeworldKnown (MYCON_HOME);
 				break;
 			case 1:
 				NPCPhrase (HELLO_SPACE_2);

@@ -35,6 +35,7 @@
 #include "../../starmap.h"
 #include "uqm/oscill.h"
 #include "uqm/controls.h"
+#include "uqm/races.h"
 
 
 static const NUMBER_SPEECH_DESC melnorme_numbers_english;
@@ -993,12 +994,10 @@ CurrentEvents (void)
 	switch (phraseId)
 	{
 		case OK_BUY_EVENT_1:
-			if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+			SetHomeworldKnown (SHOFIXTI_HOME);
 			break;
 		case OK_BUY_EVENT_6:
-			if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+			SetHomeworldKnown (SLYLANDRO_HOME);
 			break;
 	}
 	NPCPhrase (phraseId);
@@ -1014,24 +1013,19 @@ AlienRaces (void)
 	switch (phraseId)
 	{
 		case OK_BUY_ALIEN_RACE_5:
-			if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
-				SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+			SetHomeworldKnown (DRUUGE_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_7:
-			if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
-				SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+			SetHomeworldKnown (THRADDASH_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_8:
-			if (!GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD))
-				SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
+			SetHomeworldKnown (CHMMR_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_12:
-			if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+			SetHomeworldKnown (SHOFIXTI_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_13:
-			if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+			SetHomeworldKnown (SLYLANDRO_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_14:
 			if (!GET_GAME_STATE (FOUND_PLUTO_SPATHI))
@@ -1039,8 +1033,7 @@ AlienRaces (void)
 				SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 1);
 				SET_GAME_STATE (SPATHI_HOME_VISITS, 7);
 			}
-			if (!GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
+			SetHomeworldKnown (SPATHI_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_15:
 			if (GET_GAME_STATE (KNOW_ABOUT_SHATTERED) < 2)
@@ -1048,12 +1041,10 @@ AlienRaces (void)
 				SET_GAME_STATE (KNOW_ABOUT_SHATTERED, 2);
 			}
 			SET_GAME_STATE (KNOW_SYREEN_WORLD_SHATTERED, 1);
-			if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+			SetHomeworldKnown (SYREEN_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_16:
-			if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
-				SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
+			SetHomeworldKnown (YEHAT_HOME);
 			break;
 	}
 	NPCPhrase (phraseId);

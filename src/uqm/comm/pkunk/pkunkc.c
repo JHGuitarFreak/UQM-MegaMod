@@ -573,8 +573,7 @@ PkunkHome (RESPONSE_REF R)
 			SET_GAME_STATE (CLEAR_SPINDLE_ON_SHIP, 1);
 		}
 		NPCPhrase (CAN_BE_FRIENDS);
-		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
-			SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
+		SetHomeworldKnown (PKUNK_HOME);
 
 		SET_GAME_STATE (PKUNK_MANNER, 3);
 		SET_GAME_STATE (PKUNK_VISITS, 0);
@@ -772,16 +771,14 @@ PkunkNeutralSpace (RESPONSE_REF R)
 	if (PLAYER_SAID (R, form_alliance))
 	{
 		NPCPhrase (GO_TO_HOMEWORLD);
-		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
-			SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
+		SetHomeworldKnown (PKUNK_HOME);
 
 		DISABLE_PHRASE (form_alliance);
 	}
 	else if (PLAYER_SAID (R, can_you_help))
 	{
 		NPCPhrase (GO_TO_HOMEWORLD_AGAIN);
-		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
-			SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
+		SetHomeworldKnown (PKUNK_HOME);
 
 		DISABLE_PHRASE (can_you_help);
 	}
@@ -1048,8 +1045,7 @@ Intro (void)
 					break;
 				case 3:
 					NPCPhrase (NEUTRAL_SPACE_HELLO_4);
-					if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
-						SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
+					SetHomeworldKnown (PKUNK_HOME);
 					--NumVisits;
 					break;
 			}

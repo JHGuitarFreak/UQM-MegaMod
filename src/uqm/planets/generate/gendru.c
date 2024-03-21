@@ -119,7 +119,7 @@ static bool
 GenerateDruuge_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD)
+	if (IsHomeworldKnown (DRUUGE_HOME)
 			&& matchWorld (solarSys, world,
 			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
