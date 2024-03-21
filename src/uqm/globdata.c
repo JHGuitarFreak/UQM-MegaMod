@@ -461,6 +461,8 @@ InitGameStructures (void)
 				copyFleetInfo (FleetPtr, &MasterPtr->ShipInfo,
 						&MasterPtr->Fleet);
 				UnlockMasterShip (&master_q, hMasterShip);
+				// JSD - hopefully this is the right spot to move a fleet to its starting location
+				SeedFleet (FleetPtr, plot_map);
 			}
 			else
 			{
@@ -509,6 +511,10 @@ InitGameStructures (void)
 	GLOBAL_SIS (Nomad) = optNomad;
 	GLOBAL_SIS (Seed) = optCustomSeed;
 
+	// JSD delete star rng, we should be done with it
+	// except for fleet movement
+	if (StarGenRNG) RandomContext_Delete (StarGenRNG);
+	         StarGenRNG = NULL;
 	if (DIF_HARD && !PrimeSeed)
 	{
 		srand (time (NULL));
@@ -600,6 +606,22 @@ InitGameStructures (void)
 	}
 
 	loadGameCheats ();
+	// JSD SIS improvements
+	GLOBAL_SIS (ModuleSlots[7]) = FUEL_TANK;
+	GLOBAL_SIS (ModuleSlots[6]) = FUEL_TANK;
+	GLOBAL_SIS (ModuleSlots[5]) = FUEL_TANK;
+	GLOBAL_SIS (ModuleSlots[4]) = FUEL_TANK;
+	GLOBAL_SIS (ModuleSlots[10]) = DYNAMO_UNIT;
+	GLOBAL_SIS (ModuleSlots[11]) = DYNAMO_UNIT;
+	GLOBAL_SIS (ModuleSlots[12]) = SHIVA_FURNACE;
+	GLOBAL_SIS (ModuleSlots[12]) = SHIVA_FURNACE;
+	GLOBAL_SIS (ModuleSlots[13]) = TRACKING_SYSTEM;
+	GLOBAL_SIS (ModuleSlots[14]) = CANNON_WEAPON;
+	GLOBAL_SIS (ModuleSlots[15]) = CANNON_WEAPON;
+	GLOBAL_SIS (FuelOnBoard) = 260 * FUEL_TANK_SCALE;
+	for (i = 0; i < NUM_DRIVE_SLOTS; ++i) GLOBAL_SIS (DriveSlots[i]) = FUSION_THRUSTER;
+	for (i = 0; i < NUM_JET_SLOTS; ++i) GLOBAL_SIS (JetSlots[i]) = TURNING_JETS;
+	//JSD end of cheats
 
 	InitQueue (&GLOBAL (built_ship_q),
 			MAX_BUILT_SHIPS, sizeof (SHIP_FRAGMENT));
@@ -646,11 +668,18 @@ InitGameStructures (void)
 		StartSphereTracking (SPATHI_SHIP);
 	}
 
-	GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
-	GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+	//GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
+	//GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+	// JSD Set SIS to the plot-based location of SOL not the static SOL_X / SOL_Y (obsolete?)
+	GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (plot_map[SOL_DEFINED].star_pt.x);
+	GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (plot_map[SOL_DEFINED].star_pt.y);
+	// **** IF it is acting weird it is probably because of this seed:
+	if (GLOBAL_SIS (Seed) == PrimeA) GLOBAL_SIS (Seed) = PrimeA + 1; // Default seed won't work
 	CurStarDescPtr = 0;
 	GLOBAL (autopilot.x) = ~0;
 	GLOBAL (autopilot.y) = ~0;
+	//JSD more debug
+	//for (int i=0; i<25; i++) StartSphereTracking (i);
 
 	ZeroLastLoc ();
 	ZeroAdvancedAutoPilot ();

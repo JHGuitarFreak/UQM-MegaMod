@@ -32,9 +32,10 @@ extern "C" {
 #define RADAR_SCAN_WIDTH RES_DESCALE (UNIT_SCREEN_WIDTH * NUM_RADAR_SCREENS)
 #define RADAR_SCAN_HEIGHT RES_DESCALE (UNIT_SCREEN_HEIGHT * NUM_RADAR_SCREENS)
 
+// JSD These are now calculated from plot not hard coded
 // Hyperspace coordinates of the naturally occuring portal into QuasiSpace
-#define ARILOU_SPACE_X   438
-#define ARILOU_SPACE_Y  6372
+//#define ARILOU_SPACE_X   438
+//#define ARILOU_SPACE_Y  6372
 
 // QuasiSpace coordinates of the same portal
 #define QUASI_SPACE_X  5000
@@ -67,10 +68,12 @@ extern "C" {
 
 // Hyperspace coordinates of the Sol system
 // Should be the same as in plandata.c
-#define SOL_X  1752
-#define SOL_Y  1450
-#define VELA_X  3345
-#define VELA_Y  1931
+// JSD If everything is coded correctly, these are obsolete and replaced by plot_map.
+// VELA wasn't used at all.
+//#define SOL_X  1752
+//#define SOL_Y  1450
+//#define VELA_X  3345
+//#define VELA_Y  1931
 
 
 extern BOOLEAN LoadHyperspace (void);

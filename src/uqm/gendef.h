@@ -1,17 +1,24 @@
 #ifndef GENDEF_H
 #define GENDEF_H
 
-#include "planets/generate.h"
+// JSD planets/generate.h no longer needed once GenerateFunctions is moved there.  It's where it belongs
+// and the include of generate.h is causing circular definitions elsewhere.
+// Added ARILOU_DEFINED = 0 (for location of quasi-portal and arilou zone of influence).
+// Split RAINBOW_DEFINED into separate entries (like MELNORME0_DEFINED is) so they can be scattered.
+// Added NUM_PLOTS for plot iteration.
+// These are used in the plot randomizer.
+//#include "planets/generate.h"
 #include "libs/compiler.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-const GenerateFunctions *getGenerateFunctions (BYTE Index);
+//const GenerateFunctions *getGenerateFunctions (BYTE Index);
 
 enum
 {
+	ARILOU_DEFINED = 0,
 	SOL_DEFINED = 1,
 	SHOFIXTI_DEFINED,
 	MAIDENS_DEFINED,
@@ -55,7 +62,16 @@ enum
 	VUX_DEFINED,
 	ORZ_DEFINED,
 	THRADD_DEFINED,
-	RAINBOW_DEFINED,
+	RAINBOW0_DEFINED,
+	RAINBOW1_DEFINED,
+	RAINBOW2_DEFINED,
+	RAINBOW3_DEFINED,
+	RAINBOW4_DEFINED,
+	RAINBOW5_DEFINED,
+	RAINBOW6_DEFINED,
+	RAINBOW7_DEFINED,
+	RAINBOW8_DEFINED,
+	RAINBOW9_DEFINED,
 	ILWRATH_DEFINED,
 	ANDROSYNTH_DEFINED,
 	MYCON_TRAP_DEFINED,
@@ -67,7 +83,8 @@ enum
 	ZOQ_COLONY1_DEFINED,
 	ALGOLITES_DEFINED,
 	SPATHI_MONUMENT_DEFINED,
-	EXCAVATION_SITE_DEFINED
+	EXCAVATION_SITE_DEFINED,
+	NUM_PLOTS	// Must be last entry, any new entries should have plot min/max added in gendef.c
 };
 
 #define UMGAH_DEFINED TALKING_PET_DEFINED

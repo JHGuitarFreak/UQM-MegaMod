@@ -25,15 +25,50 @@ extern "C" {
 #endif
 
 extern STAR_DESC *CurStarDescPtr;
-extern STAR_DESC *star_array;
+// star_array is now a static buffer we will copy the starmap_array into, and
+// then manipulate from there, so that original starmap is never altered.
+//extern STAR_DESC *star_array;
+extern STAR_DESC star_array[];
 extern POINT *constel_array;
-
+// JSD adding a global plot_map variable, portal_map variable, and moving the
+// NUM_HYPER_VORTICES here. NUM_HYPER_VORTICIES is one fewer than the map
+// because of the Arilou homeworld.
 #define NUM_SOLAR_SYSTEMS 502
+#define NUM_HYPER_VORTICES 15
+extern PLOT_LOCATION plot_map[NUM_PLOTS];
+extern PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES+1];
 
 extern STAR_DESC* FindStar (STAR_DESC *pLastStar, POINT *puniverse,
 		SIZE xbounds, SIZE ybounds);
 
 extern void GetClusterName (const STAR_DESC *pSD, UNICODE buf[]);
+
+// JSD Adding InitPlot, SeedPlot, SeedStarmap which will implement the seeding
+// of plot across the starmap
+
+// InitPlot sets the plotmap object up with the standard set of plot requirements
+// based on the default UQM plot line.  This gives the required min/max distance
+// of each plot laden star from related plot laden stars.
+void InitPlot (PLOT_LOCATION *plotmap);
+
+// SeedPlot takes the starmap and plotmap given, along with the starseed (long)
+// It selects the next plot which needs to be... plotted... and places it into
+// the starmap, setting the Index as appropriate, then iterates until all plots
+// are placed.
+COUNT SeedPlot (STAR_DESC *starmap, PLOT_LOCATION *plotmap, DWORD seed);
+
+// SeedPortalmap takes an array of star_pt and quasi_pt elements and shuffles
+// them (at both sides) according to seed.
+void SeedQuasispace (PORTAL_LOCATION *portalmap, PLOT_LOCATION *plotmap, DWORD seed);
+
+// SeedStarmap resets the starmap given to have no plots, and randomizes the size
+// and colors of the stars on the map.  SUPER_GIANT_STAR does not generate randomly
+// these will be allocated by the plotmap as MELNORME#_DEFINED.
+void SeedStarmap (STAR_DESC *starmap, DWORD seed);
+
+// A globally available seed for seeding the starmap and the plots it contains.
+extern RandomContext *StarGenRNG;
+// JSD end of changes to this file
 
 #define INTERNAL_STAR_INDEX -1
 

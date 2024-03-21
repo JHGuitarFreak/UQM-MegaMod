@@ -250,6 +250,43 @@ debugKeyPressedSynchronous (void)
 		printf("Debug Key Activated\n\n");
 		equipShip ();
 		showSpheres (FALSE);
+		SET_GAME_STATE (KNOW_QS_PORTAL, ~0);
+		if (!GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD))
+				SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
+				SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
+				SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
+				SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
+				SET_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_VUX_HOMEWORLD))
+				SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
+				SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
+				SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD))
+				SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_MYCON_HOMEWORLD))
+				SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
+				SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD))
+				SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
+				SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+		if (!GET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD))
+				SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);
 	}
 
 	forwardToNextEvent (TRUE);
@@ -785,13 +822,17 @@ showSpheres (BOOLEAN Animated)
 				&GLOBAL (avail_race_q), hChmmr);
 
 		SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
-		SyreenPtr->loc.x = 4125;
-		SyreenPtr->loc.y = 3770;
+		// JSD changes to hard coded lore
+		//SeedFleet (SyreenPtr, plot_map);
+		//SyreenPtr->loc.x = 4125;
+		//SyreenPtr->loc.y = 3770;
 		StartSphereTracking (SYREEN_SHIP);
 
 		ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
-		ChmmrPtr->loc.x = 577;
-		ChmmrPtr->loc.y = 2509;
+		// JSD changes to hard coded lore
+		//SeedFleet (ChmmrPtr, plot_map);
+		//ChmmrPtr->loc.x = 577;
+		//ChmmrPtr->loc.y = 2509;
 		StartSphereTracking (CHMMR_SHIP);
 
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
@@ -1225,7 +1266,17 @@ starPresenceString (BYTE index)
 			return "Orz home";
 		case THRADD_DEFINED:
 			return "Thraddash home";
-		case RAINBOW_DEFINED:
+		// JSD Changed the way RAINBOW#_DEFINED works
+		case RAINBOW0_DEFINED:
+		case RAINBOW1_DEFINED:
+		case RAINBOW2_DEFINED:
+		case RAINBOW3_DEFINED:
+		case RAINBOW4_DEFINED:
+		case RAINBOW5_DEFINED:
+		case RAINBOW6_DEFINED:
+		case RAINBOW7_DEFINED:
+		case RAINBOW8_DEFINED:
+		case RAINBOW9_DEFINED:
 			return "Rainbow world";
 		case ILWRATH_DEFINED:
 			return "Ilwrath home";

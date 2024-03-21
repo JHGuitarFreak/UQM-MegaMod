@@ -658,12 +658,15 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			// Transition from QuasiSpace to HyperSpace through
 			// one of the permanent portals.
 			COUNT index;
-			const POINT portal_pt[] =
-					QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
+			// JSD - portal_map can be used to find the exit point
+			//const POINT portal_pt[] =
+			//		QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
 
 			index = CurStarDescPtr - &star_array[NUM_SOLAR_SYSTEMS + 1];
-			GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
-			GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_pt[index].y);
+			//GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
+			//GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_pt[index].y);
+			GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_map[index].star_pt.x);
+			GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_map[index].star_pt.y);
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
@@ -711,8 +714,11 @@ ArilouSpaceTransition (void)
 		// portal.
 		if (!EXTENDED || (EXTENDED && !ValidPoint (LoadLastLoc ())))
 		{
-			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (ARILOU_SPACE_X);
-			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (ARILOU_SPACE_Y);
+			// JSD Converting hard coded ARILOU portal to plot based
+			//GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (ARILOU_SPACE_X);
+			//GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (ARILOU_SPACE_Y);
+			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (plot_map[ARILOU_DEFINED].star_pt.x);
+			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (plot_map[ARILOU_DEFINED].star_pt.y);
 		}
 		else if (EXTENDED && ValidPoint (LoadLastLoc ()))
 		{
@@ -1822,8 +1828,10 @@ SeedUniverse (void)
 				if (ANIMATED_HYPERSAPCE)
 					SD[i].Index += 81;
 				SD[i].Index += 18;
-				SD[i].star_pt.x = ARILOU_SPACE_X;
-				SD[i].star_pt.y = ARILOU_SPACE_Y;
+				// JSD Converting hard coded ARILOU portal to plot based
+				//SD[i].star_pt.x = ARILOU_SPACE_X;
+				//SD[i].star_pt.y = ARILOU_SPACE_Y;
+				SD[i].star_pt = plot_map[ARILOU_DEFINED].star_pt;
 			}
 			else
 			{
