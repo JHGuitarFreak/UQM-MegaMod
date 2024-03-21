@@ -926,10 +926,15 @@ DoRescue (RESPONSE_REF R)
 	COUNT fuel_required;
 
 	(void) R;  // ignored
+	// JSD Replace old method for locating SOL with plot method
+	//dx = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x))
+	//		- SOL_X;
+	//dy = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
+	//		- SOL_Y;
 	dx = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x))
-			- SOL_X;
+			- plot_map[SOL_DEFINED].star_pt.x;
 	dy = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
-			- SOL_Y;
+			- plot_map[SOL_DEFINED].star_pt.y;
 	fuel_required = square_root (
 			(DWORD)((long)dx * dx + (long)dy * dy)
 			) + (2 * FUEL_TANK_SCALE);
