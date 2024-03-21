@@ -154,19 +154,50 @@ GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *wor
 				GET_GAME_STATE (RAINBOW_WORLD0),
 				GET_GAME_STATE (RAINBOW_WORLD1));
 
-		which_rainbow = 0;
-		SDPtr = &star_array[0];
-		while (SDPtr != CurStarDescPtr)
-		{
-			if (SDPtr->Index == RAINBOW_DEFINED)
-				++which_rainbow;
-			++SDPtr;
-		}
-		rainbow_mask |= 1 << which_rainbow;
+		rainbow_mask |= 1 << (CurStarDescPtr->Index - RAINBOW0_DEFINED);
 		SET_GAME_STATE (RAINBOW_WORLD0, LOBYTE (rainbow_mask));
 		SET_GAME_STATE (RAINBOW_WORLD1, HIBYTE (rainbow_mask));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
 	return true;
+}
+
+static void
+GenerateSlylandro (SOLARSYS_STATE *solarSys) {
+	HIPGROUP hGroup, hNextGroup;
+	BYTE a, b;
+
+	BYTE NumSly = GET_GAME_STATE (SLYLANDRO_MULTIPLIER) * 2;
+
+	assert(CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+	CloneShipFragment (SLYLANDRO_SHIP, &GLOBAL (npc_built_ship_q), 0);
+	if (GLOBAL (BattleGroupRef) == 0)
+		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
+
+	for (a = 1; a <= NumSly; ++a)
+		PutGroupInfo (GLOBAL (BattleGroupRef), a);
+
+	ReinitQueue (&GLOBAL (npc_built_ship_q));
+	GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP);
+	hGroup = GetHeadLink (&GLOBAL(ip_group_q));
+
+	for (a = 0, b = 0; a < NumSly; ++a, b += FULL_CIRCLE / NumSly)
+	{
+		IP_GROUP *GroupPtr;
+
+		if (b % (FULL_CIRCLE / NumSly) == 0)
+			b += FULL_CIRCLE / NumSly;
+
+		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
+		hNextGroup = _GetSuccLink (GroupPtr);
+		GroupPtr->task = IN_ORBIT;
+		GroupPtr->sys_loc = solarSys->SunDesc[0].PlanetByte + 1;
+		GroupPtr->dest_loc = GroupPtr->sys_loc;
+		GroupPtr->orbit_pos = NORMALIZE_FACING (ANGLE_TO_FACING(b));
+		GroupPtr->group_counter = 0;
+		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
+		hGroup = hNextGroup;
+	}
 }

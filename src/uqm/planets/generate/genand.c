@@ -71,6 +71,7 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 		{
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+			fprintf(stderr, "Generating ANDROSNYTH_DEFINED with %d planets.\n", solarSys->SunDesc[0].NumPlanets);
 		}
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
