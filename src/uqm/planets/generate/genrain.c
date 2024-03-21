@@ -108,6 +108,9 @@ GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *wor
 				GET_GAME_STATE (RAINBOW_WORLD0),
 				GET_GAME_STATE (RAINBOW_WORLD1));
 
+		// JSD The new way of calculating rainbow mask is much easier
+		rainbow_mask |= 1 << (CurStarDescPtr->Index - RAINBOW0_DEFINED);
+#if 0
 		which_rainbow = 0;
 		SDPtr = &star_array[0];
 		while (SDPtr != CurStarDescPtr)
@@ -117,6 +120,7 @@ GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *wor
 			++SDPtr;
 		}
 		rainbow_mask |= 1 << which_rainbow;
+#endif // JSD removing old method with if 0
 		SET_GAME_STATE (RAINBOW_WORLD0, LOBYTE (rainbow_mask));
 		SET_GAME_STATE (RAINBOW_WORLD1, HIBYTE (rainbow_mask));
 	}
