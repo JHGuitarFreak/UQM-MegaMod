@@ -830,8 +830,7 @@ Intro (void)
 {
 	BYTE NumVisits;
 
-	if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
-		SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+	SetHomeworldKnown (SYREEN_HOME);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{

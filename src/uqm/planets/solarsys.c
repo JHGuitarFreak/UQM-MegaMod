@@ -2923,13 +2923,13 @@ GetNamedPlanetaryBody (void)
 		switch (CurStarDescPtr->Index)
 		{
 			case SHOFIXTI_DEFINED:     // Kyabetsu
-				if (GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+				if (IsHomeworldKnown (SHOFIXTI_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 35);
 				break;
 			case START_COLONY_DEFINED: // Unzervalt
 				return GAME_STRING (PLANET_NUMBER_BASE + 33);
 			case SPATHI_DEFINED:       // Spathiwa
-				if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
+				if (IsHomeworldKnown (SPATHI_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 37);
 				break;
 			case SYREEN_DEFINED:       // Gaia
@@ -2942,13 +2942,13 @@ GetNamedPlanetaryBody (void)
 					return GAME_STRING (PLANET_NUMBER_BASE + 36);
 				break;
 			case DRUUGE_DEFINED:       // Trade HQ
-				if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
+				if (IsHomeworldKnown (DRUUGE_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 41);
 				break;
 			case EGG_CASE0_DEFINED:    // Syra
 				return GAME_STRING (PLANET_NUMBER_BASE + 42);
 			case UTWIG_DEFINED:        // Fahz
-				if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
+				if (IsHomeworldKnown (UTWIG_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 40);
 				break;
 			case SUPOX_DEFINED:        // Vlik
