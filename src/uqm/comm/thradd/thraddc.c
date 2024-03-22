@@ -733,7 +733,7 @@ Intro (void)
 				pStr1 = WELCOME_HELIX1;
 
 				NPCPhrase (pStr0);
-				NPCPhrase (GetCultureName ());
+				NPCPhrase_splice (GetCultureName ());
 				NPCPhrase (pStr1);
 
 				ThraddAllies ((RESPONSE_REF)0);
@@ -834,7 +834,7 @@ Intro (void)
 			pStr1 = WELCOME_SPACE1;
 		}
 		NPCPhrase (pStr0);
-		NPCPhrase (GetCultureName ());
+		NPCPhrase_splice (GetCultureName ());
 		NPCPhrase (pStr1);
 
 		ThraddAllies ((RESPONSE_REF)0);
