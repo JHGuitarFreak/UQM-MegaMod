@@ -61,54 +61,53 @@ const GenerateFunctions generateChmmrFunctions = {
 static bool
 GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
-	//BYTE NumPlanets = (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED ? 4 : 2);
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-
-	if (!PrimeSeed)
-	{
-		if (CurStarDescPtr->Index == CHMMR_DEFINED)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
-		if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
-	}
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
 	if (CurStarDescPtr->Index == CHMMR_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 1;
 		solarSys->SunDesc[0].MoonByte = 0;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SAPPHIRE_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-		if (!PrimeSeed)
+		if (PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 2];
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-			solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
-		}
+			GenerateDefault_generatePlanets (solarSys);
 
-		if (!GET_GAME_STATE (CHMMR_UNLEASHED))
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
+			solarSys->PlanetDesc[1].data_index = SAPPHIRE_WORLD;
+			if (!GET_GAME_STATE (CHMMR_UNLEASHED))
+				solarSys->PlanetDesc[1].data_index |= PLANET_SHIELDED;
+			solarSys->PlanetDesc[1].NumPlanets = 1;
+
+		}
+		else
+		{
+			BYTE pArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 2);
+
+			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+			solarSys->PlanetDesc[1].data_index =
+					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE (pArray)];
+			GeneratePlanets (solarSys);
+		}
 	}
-	
-	if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
+	else if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 3;
-
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = EMERALD_WORLD;
-
-		if (!PrimeSeed)
+		if (PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 2];
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			GenerateDefault_generatePlanets (solarSys);
+			solarSys->PlanetDesc[3].data_index = EMERALD_WORLD;
 		}
+		else
+		{
+			BYTE pArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 3) + 4);
 
+			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+			solarSys->PlanetDesc[3].data_index =
+					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE (pArray)];
+			GeneratePlanets (solarSys);
+		}
 	}
+	else
+		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }

@@ -25,6 +25,10 @@
 extern "C" {
 #endif
 
+#define SMALL_ROCKY (1 << 0)
+#define LARGE_ROCKY (1 << 1)
+#define ALL_ROCKY (1 << 2)
+
 bool GenerateDefault_initNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_reinitNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_uninitNpcs (SOLARSYS_STATE *solarSys);
@@ -56,6 +60,7 @@ bool GenerateDefault_landerReport (SOLARSYS_STATE *);
 bool GenerateDefault_landerReportCycle (SOLARSYS_STATE *);
 extern void GeneratePlanets (SOLARSYS_STATE *system);
 extern SIZE CheckForHabitable (SOLARSYS_STATE *solarSys);
+extern BYTE GenerateRockyWorld (BYTE whichType);
 
 
 extern const GenerateFunctions generateDefaultFunctions;

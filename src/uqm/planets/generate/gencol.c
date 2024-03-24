@@ -91,38 +91,36 @@ GenerateColony_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
-
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	if (!PrimeSeed)
-		GeneratePlanets (solarSys);
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD | PLANET_SHIELDED;
-
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2] | PLANET_SHIELDED;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-		if (EXTENDED)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		CheckForHabitable (solarSys);
+			COUNT angle;
+			PLANET_DESC *pMinPlanet;
+
+			pMinPlanet = &solarSys->PlanetDesc[0];
+			FillOrbits (solarSys, (BYTE)~0, pMinPlanet, FALSE);
+
+			pMinPlanet->radius = EARTH_RADIUS * 115L / 100;
+			angle = ARCTAN (pMinPlanet->location.x, pMinPlanet->location.y);
+			pMinPlanet->location.x = COSINE (angle, pMinPlanet->radius);
+			pMinPlanet->location.y = SINE (angle, pMinPlanet->radius);
+			pMinPlanet->data_index = WATER_WORLD | PLANET_SHIELDED;
+			ComputeSpeed (pMinPlanet, FALSE, 1);
+			if (EXTENDED)
+				pMinPlanet->NumPlanets = 1;
 	}
 	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 115L / 100;
-		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x = COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS) + 1);
+
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		solarSys->PlanetDesc[0].data_index =
+			pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)] | PLANET_SHIELDED;
+		GeneratePlanets (solarSys);
 		if (EXTENDED)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+			solarSys->PlanetDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 2) + 1);
+		CheckForHabitable (solarSys);
 	}
 
 	return true;
@@ -140,7 +138,7 @@ GenerateColony_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		solarSys->MoonDesc[0].data_index = SELENIC_WORLD;
 
 		if(!PrimeSeed)
-			solarSys->MoonDesc[0].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
+			solarSys->MoonDesc[0].data_index = GenerateRockyWorld (SMALL_ROCKY);
 	}
 
 	return true;

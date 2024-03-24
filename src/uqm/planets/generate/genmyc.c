@@ -115,39 +115,34 @@ GenerateMyconDefenders (BYTE index)
 static bool
 GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
-
-	if (!PrimeSeed)
-	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-	}
-	
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
 	if (PrimeSeed)
 	{
-		if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets > 2)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 2;
+		COUNT angle;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 80L / 100;
+		GenerateDefault_generatePlanets (solarSys);
+
+		solarSys->PlanetDesc[0].data_index = SHATTERED_WORLD;
+		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 80L / 100;
+		if (solarSys->PlanetDesc[0].NumPlanets > 2)
+			solarSys->PlanetDesc[0].NumPlanets = 2;
 		angle = ARCTAN (
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
+				solarSys->PlanetDesc[0].location.x,
+				solarSys->PlanetDesc[0].location.y);
+		solarSys->PlanetDesc[0].location.x =
 				COSINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		solarSys->PlanetDesc[0].location.y =
+				SINE (angle, solarSys->PlanetDesc[0].radius);
+		ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
 	}
 	else
+	{
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS) + 1);
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		solarSys->PlanetDesc[0].data_index = SHATTERED_WORLD;
+		GeneratePlanets (solarSys);
 		CheckForHabitable (solarSys);
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
+	}
 
 	return true;
 }

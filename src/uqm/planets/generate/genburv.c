@@ -56,34 +56,15 @@ const GenerateFunctions generateBurvixeseFunctions = {
 static bool
 GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
-	solarSys->SunDesc[0].MoonByte = 0;
-
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
-			(RandomContext_Random (SysGenRNG) % (MAROON_WORLD - FLUORESCENT_WORLD) + FLUORESCENT_WORLD);
+			COUNT angle;
 
-		if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-		else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
-		CheckForHabitable (solarSys);
-	}
-	else
-	{
+		GenerateDefault_generatePlanets (solarSys);
+
+		solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
+		solarSys->PlanetDesc[0].NumPlanets = 1;
 		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 39L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
 				solarSys->PlanetDesc[0].location.y);
@@ -92,6 +73,16 @@ GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[0].location.y =
 				SINE (angle, solarSys->PlanetDesc[0].radius);
 		ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
+	}
+	else
+	{
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS) + 1);
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+			GenerateRockyWorld (LARGE_ROCKY);
+		GeneratePlanets (solarSys);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		CheckForHabitable (solarSys);
 	}
 
 	return true;
@@ -104,13 +95,12 @@ GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 
 	if (matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
-		COUNT angle;
-		DWORD rand_val;
-
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = SELENIC_WORLD;
-
 		if (PrimeSeed)
 		{
+			COUNT angle;
+			DWORD rand_val;
+
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = SELENIC_WORLD;
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius = MIN_MOON_RADIUS
 					+ (MAX_GEN_MOONS - 1) * MOON_DELTA;
 			rand_val = RandomContext_Random (SysGenRNG);
@@ -124,7 +114,7 @@ GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		else
 		{			
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = 
-				(RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
+				GenerateRockyWorld (SMALL_ROCKY);
 		}
 	}
 	return true;
