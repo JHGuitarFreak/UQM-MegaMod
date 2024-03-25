@@ -516,8 +516,9 @@ do_keyconfig (WIDGET *self, int event)
 
 static void
 populate_seed (void)
-{	
-	sprintf (textentries[1].value, "%d", optCustomSeed);
+{
+	snprintf (textentries[1].value, sizeof (textentries[1].value), "%d",
+			optCustomSeed);
 	if (!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
 }
@@ -2521,7 +2522,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		int customSeed = atoi (textentries[1].value);
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;
-		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE); 
+		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
 	}
 
 	PutIntOpt (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", FALSE);
