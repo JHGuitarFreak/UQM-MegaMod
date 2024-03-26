@@ -67,12 +67,6 @@ GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
 	if (PrimeSeed)
 	{
 		memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte],
@@ -106,10 +100,21 @@ GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 				COSINE (angle, solarSys->PlanetDesc[0].radius);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
 				SINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].rand_seed = MAKE_DWORD (
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		solarSys->PlanetDesc[0].rand_seed = MAKE_DWORD (
+						solarSys->PlanetDesc[0].location.x,
+						solarSys->PlanetDesc[0].location.y);
+		ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
+	}
+	else
+	{
+		BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+		solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (ALL_ROCKY);
+		GeneratePlanets (solarSys);
+		CheckForHabitable (solarSys);
 	}
 
 	return true;

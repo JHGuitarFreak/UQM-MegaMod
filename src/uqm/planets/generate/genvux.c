@@ -66,109 +66,131 @@ const GenerateFunctions generateVuxFunctions = {
 static bool
 GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle = 0;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
-
-	if (!PrimeSeed)
-	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-	}
-	
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
 	if (CurStarDescPtr->Index == MAIDENS_DEFINED)
 	{
-		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-
-		if (!PrimeSeed)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-	
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-		GeneratePlanets (solarSys);
-				// XXX: this is the second time that this function is
-				// called. Is it safe to remove one, or does this change
-				// the RNG so that the outcome is different?
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
+		solarSys->SunDesc[0].PlanetByte = 0;
 
 		if (PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 212L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			COUNT angle;
+
+			GenerateDefault_generatePlanets (solarSys);
+			GenerateDefault_generatePlanets (solarSys);
+			// XXX: this is the second time that this function is
+			// called. Is it safe to remove one, or does this change
+			// the RNG so that the outcome is different?
+			// Kruzen: Yes, we have to call it twice for prime seed at least
+			// to preserve vanilla universe
+
+			solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
+			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 212L / 100;
+			angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
+					solarSys->PlanetDesc[0].location.y);
+			solarSys->PlanetDesc[0].location.x =
+					COSINE(angle, solarSys->PlanetDesc[0].radius);
+			solarSys->PlanetDesc[0].location.y =
+					SINE(angle, solarSys->PlanetDesc[0].radius);
+			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
 		}
 		else
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
+			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+			BYTE pArray[] = { ORGANIC_WORLD, CHLORINE_WORLD, REDUX_WORLD };
+			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+			solarSys->PlanetDesc[pIndex].data_index =
+				pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
+			GeneratePlanets (solarSys);
+			CheckForHabitable (solarSys);
+		}
+	}
+	else if (CurStarDescPtr->Index == VUX_DEFINED)
+	{
+		solarSys->SunDesc[0].PlanetByte = 0;
+
+		if (PrimeSeed)
+		{
+			COUNT angle;
+
+			GenerateDefault_generatePlanets (solarSys);
+
+			solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
+			solarSys->PlanetDesc[0].NumPlanets = 1;
+			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 42L / 100;
+			angle = HALF_CIRCLE + OCTANT;
+
+			solarSys->PlanetDesc[0].location.x =
+				COSINE (angle, solarSys->PlanetDesc[0].radius);
+			solarSys->PlanetDesc[0].location.y =
+					SINE (angle, solarSys->PlanetDesc[0].radius);
+			solarSys->PlanetDesc[0].rand_seed = MAKE_DWORD (
+					solarSys->PlanetDesc[0].location.x,
+					solarSys->PlanetDesc[0].location.y);
+			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
+		}
+		else
+		{
+			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+			BYTE pArray[] = { ORGANIC_WORLD, CHLORINE_WORLD, REDUX_WORLD };
+			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+			solarSys->PlanetDesc[pIndex].data_index =
+				pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
+			GeneratePlanets (solarSys);
+			CheckForHabitable (solarSys);
+		}
+	}
+	else if (CurStarDescPtr->Index == VUX_BEAST_DEFINED)
+	{
+		solarSys->SunDesc[0].PlanetByte = 0;
+
+		if (PrimeSeed)
+		{
+			COUNT angle;
+
+			GenerateDefault_generatePlanets (solarSys);
+
+			memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[0],
+					sizeof (solarSys->PlanetDesc[0])
+					* solarSys->SunDesc[0].NumPlanets);
+			++solarSys->SunDesc[0].NumPlanets;
+
+			angle = HALF_CIRCLE - OCTANT;
+			solarSys->PlanetDesc[0].data_index = WATER_WORLD;
+			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 110L / 100;
+			solarSys->PlanetDesc[0].NumPlanets = 0;
+
+			solarSys->PlanetDesc[0].location.x =
+				COSINE (angle, solarSys->PlanetDesc[0].radius);
+			solarSys->PlanetDesc[0].location.y =
+					SINE (angle, solarSys->PlanetDesc[0].radius);
+			solarSys->PlanetDesc[0].rand_seed = MAKE_DWORD (
+					solarSys->PlanetDesc[0].location.x,
+					solarSys->PlanetDesc[0].location.y);
+			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
+		}
+		else
+		{
+			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+			BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+			solarSys->PlanetDesc[pIndex].data_index =
+				pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
+			GeneratePlanets (solarSys);
 			CheckForHabitable (solarSys);
 		}
 	}
 	else
-	{
-		if (CurStarDescPtr->Index == VUX_DEFINED)
-		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		GenerateDefault_generatePlanets (solarSys);
 
-			if (PrimeSeed)
-			{
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 42L / 100;
-				angle = HALF_CIRCLE + OCTANT;
-				ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
-			}
-			else
-			{
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-				CheckForHabitable (solarSys);
-			}
-		}
-		else /* if (CurStarDescPtr->Index == VUX_BEAST_DEFINED) */
-		{
-			if (PrimeSeed)
-			{
-				memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte],
-						sizeof (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte])
-						* solarSys->SunDesc[0].NumPlanets);
-				++solarSys->SunDesc[0].NumPlanets;
-			}
 
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
-
-			if (PrimeSeed)
-			{
-				angle = HALF_CIRCLE - OCTANT;
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 110L / 100;
-				ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
-			}
-			else
-			{
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-				CheckForHabitable (solarSys);
-			}
-		}
-
-		if (PrimeSeed)
-		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].rand_seed = MAKE_DWORD (
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		}
-	}
 	return true;
 }
 

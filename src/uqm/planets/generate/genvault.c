@@ -56,25 +56,25 @@ const GenerateFunctions generateVaultFunctions = {
 static bool
 GenerateVault_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	if(!PrimeSeed)
+	if (PrimeSeed)
+		GenerateDefault_generatePlanets (solarSys);
+	else
 	{
-		if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-		else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+		BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+		BYTE mIndex = solarSys->SunDesc[0].MoonByte;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (LARGE_ROCKY);
+		GeneratePlanets (solarSys);
+		if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
+			solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
 	}
+
 
 	return true;
 }

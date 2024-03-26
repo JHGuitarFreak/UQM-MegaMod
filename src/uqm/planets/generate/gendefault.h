@@ -56,6 +56,9 @@ bool GenerateDefault_landerReport (SOLARSYS_STATE *);
 bool GenerateDefault_landerReportCycle (SOLARSYS_STATE *);
 extern void GeneratePlanets (SOLARSYS_STATE *system);
 extern SIZE CheckForHabitable (SOLARSYS_STATE *solarSys);
+extern BYTE GenerateRockyWorld (BYTE whichType);
+extern BYTE GenerateGasGiantWorld (void);
+extern BYTE GenerateNumberOfPlanets (BYTE minimum);
 
 
 extern const GenerateFunctions generateDefaultFunctions;

@@ -49,26 +49,26 @@ const GenerateFunctions generateSlylandroFunctions = {
 static bool
 GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 3;
 
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+		GenerateDefault_generatePlanets (solarSys);
+
+		solarSys->PlanetDesc[3].data_index = RED_GAS_GIANT;
+		solarSys->PlanetDesc[3].NumPlanets = 1;
 	}
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RED_GAS_GIANT;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-	if (!PrimeSeed)
+	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random (SysGenRNG) % (YEL_GAS_GIANT - BLU_GAS_GIANT) + BLU_GAS_GIANT);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+		solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		solarSys->PlanetDesc[pIndex].data_index = GenerateGasGiantWorld ();
+		GeneratePlanets (solarSys);
 	}
+	
 
 	return true;
 }

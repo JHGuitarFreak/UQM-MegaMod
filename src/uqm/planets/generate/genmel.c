@@ -99,31 +99,46 @@ GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED)
 	{
-		solarSys->SunDesc[0].PlanetByte = 2;
-		solarSys->SunDesc[0].MoonByte = 0;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-	}
+		if (CurStarDescPtr->Index == MELNORME1_DEFINED)
+		{// Precursor starbase
+			solarSys->SunDesc[0].PlanetByte = 2;
+			solarSys->SunDesc[0].MoonByte = 0;
 
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 2];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
-	}
+			if (PrimeSeed)
+			{
+				GenerateDefault_generatePlanets (solarSys);
+				solarSys->PlanetDesc[2].NumPlanets = 1;
+			}
+			else
+			{
+				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+				BYTE mIndex = solarSys->SunDesc[0].MoonByte;
 
-	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED)
-	{
-		solarSys->SunDesc[0].PlanetByte = 3;
+				solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
 
-		if (!PrimeSeed)
-		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
-					RandomContext_Random (SysGenRNG) % LAST_LARGE_ROCKY_WORLD;
+				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+				solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (LARGE_ROCKY);
+				GeneratePlanets (solarSys);
+				if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
+					solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
+			}
+		}
+		else if (CurStarDescPtr->Index == MELNORME7_DEFINED)
+		{// Stele
+			solarSys->SunDesc[0].PlanetByte = 3;
 
-			if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-			else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+			if (PrimeSeed)
+				GenerateDefault_generatePlanets (solarSys);
+			else
+			{
+				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+				solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+				solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (LARGE_ROCKY);
+				GeneratePlanets (solarSys);
+			}
 		}
 	}
 

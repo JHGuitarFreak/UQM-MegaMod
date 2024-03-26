@@ -143,32 +143,44 @@ static bool
 GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 {
 	COUNT i;
-
-	solarSys->SunDesc[0].NumPlanets = 6;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if(!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
-
-	for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
+	if (PrimeSeed)
 	{
-		PLANET_DESC *pCurDesc = &solarSys->PlanetDesc[i];
+#define NUM_PLANETS 6
+		solarSys->SunDesc[0].NumPlanets = NUM_PLANETS;
+		for (i = 0; i < NUM_PLANETS; ++i)
+		{
+			PLANET_DESC *pCurDesc = &solarSys->PlanetDesc[i];
 
-		pCurDesc->NumPlanets = 0;
-		if (i < (solarSys->SunDesc[0].NumPlanets >> 1))
-			pCurDesc->data_index = SELENIC_WORLD;
-		else
-			pCurDesc->data_index = METAL_WORLD;
+			pCurDesc->NumPlanets = 0;
+			if (i < (NUM_PLANETS >> 1))
+				pCurDesc->data_index = SELENIC_WORLD;
+			else
+				pCurDesc->data_index = METAL_WORLD;
+		}
+
+		FillOrbits (solarSys, NUM_PLANETS, solarSys->PlanetDesc, TRUE);
 	}
+	else
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (1);
+		BYTE pArray[] = { GREEN_WORLD, AZURE_WORLD, PURPLE_WORLD, METAL_WORLD, SELENIC_WORLD };
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
+		for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
+		{
+			PLANET_DESC *pCurDesc = &solarSys->PlanetDesc[i];
 
-	if (!PrimeSeed)
+			pCurDesc->data_index = pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
+		}
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
 		CheckForHabitable (solarSys);
+	}		
 
 	if (NOMAD && CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
 
 	return true;
 }

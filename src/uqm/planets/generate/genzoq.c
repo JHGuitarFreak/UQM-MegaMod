@@ -73,74 +73,110 @@ GenerateZoqFotPik_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-	int planetArray[] = { REDUX_WORLD, PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD, };
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-
-	if (!PrimeSeed)
-	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		if (EXTENDED && CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
-	}
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-	
 	if (CurStarDescPtr->Index == ZOQFOT_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 0;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-		if (!PrimeSeed)
+		if (PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random(SysGenRNG) % 3];
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-			CheckForHabitable (solarSys);
+			COUNT angle;
+
+			GenerateDefault_generatePlanets (solarSys);
+
+			solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
+			solarSys->PlanetDesc[0].NumPlanets = 1;
+			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 138L / 100;
+			angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
+					solarSys->PlanetDesc[0].location.y);
+			solarSys->PlanetDesc[0].location.x =
+					COSINE (angle, solarSys->PlanetDesc[0].radius);
+			solarSys->PlanetDesc[0].location.y =
+					SINE (angle, solarSys->PlanetDesc[0].radius);
+			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
 		}
 		else
 		{
-			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 138L / 100;
-			angle = ARCTAN(
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-				COSINE(angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE(angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+			BYTE pArray[] = { REDUX_WORLD, ORGANIC_WORLD, WATER_WORLD };
+			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+			solarSys->PlanetDesc[pIndex].data_index =
+				pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
+			GeneratePlanets (solarSys);
+			CheckForHabitable (solarSys);
 		}
 	}
 	else if (EXTENDED)
 	{
 		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED)
+		{
 			solarSys->SunDesc[0].PlanetByte = 0;
-		else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+
+			if (PrimeSeed)
+			{
+				GenerateDefault_generatePlanets (solarSys);
+
+				solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
+				CheckForHabitable (solarSys);
+			}
+			else
+			{
+				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+				BYTE pArray[] = { REDUX_WORLD, ORGANIC_WORLD, WATER_WORLD };
+				solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+				solarSys->PlanetDesc[pIndex].data_index =
+					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
+				GeneratePlanets (solarSys);
+				CheckForHabitable (solarSys);
+			}
+		}
+		else if (ZOQ_COLONY1_DEFINED)
 		{
 			solarSys->SunDesc[0].PlanetByte = 1;
 
-			if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
+			if (PrimeSeed)
 			{
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-				solarSys->SunDesc[0].MoonByte = 0;
-			}
-		}
+				GenerateDefault_generatePlanets (solarSys);
 
-		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-			|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
-		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-			if (!PrimeSeed)
-			{
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+				solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
+				CheckForHabitable (solarSys);
+
+				if (STAR_COLOR(CurStarDescPtr->Type) == BLUE_BODY)
+				{
+					solarSys->PlanetDesc[1].NumPlanets = 1;
+					solarSys->SunDesc[0].MoonByte = 0;
+				}
 			}
-			CheckForHabitable (solarSys);
+			else
+			{
+				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+				BYTE pArray[] = { REDUX_WORLD, ORGANIC_WORLD, WATER_WORLD };
+				solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+
+				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+				solarSys->PlanetDesc[pIndex].data_index =
+					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
+				GeneratePlanets (solarSys);
+				if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
+				{
+					solarSys->PlanetDesc[1].NumPlanets = 1;
+					solarSys->SunDesc[0].MoonByte = 0;
+				}
+				CheckForHabitable (solarSys);
+			}
 		}
+		else
+			GenerateDefault_generatePlanets (solarSys);
 	}
+	else
+		GenerateDefault_generatePlanets (solarSys);
+
 
 	return true;
 }

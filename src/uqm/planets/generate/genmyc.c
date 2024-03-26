@@ -115,12 +115,9 @@ GenerateMyconDefenders (BYTE index)
 static bool
 GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	solarSys->SunDesc[0].PlanetByte = 0;	
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
-
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
@@ -145,6 +142,14 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
 	else
+	{
+		BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+
+		solarSys->SunDesc[0].NumPlanets =  GenerateNumberOfPlanets (pIndex);
+
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		solarSys->PlanetDesc[pIndex].data_index = SHATTERED_WORLD;
+		GeneratePlanets (solarSys);
 		CheckForHabitable (solarSys);
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
