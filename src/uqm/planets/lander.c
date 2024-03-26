@@ -2485,14 +2485,15 @@ PlanetSide (POINT planetLoc)
 }
 
 static void
-DrawMinDatText ()
+DrawMinDatText (void)
 {
 	TEXT text;
 	RECT rect;
 	Color OldColor;
 	FONT OldFont;
 
-	if (!strlen (GAME_STRING (STATUS_STRING_BASE + 20)))
+	if (!strlen (GAME_STRING (STATUS_STRING_BASE + 20)) ||
+			!strlen (GAME_STRING (STATUS_STRING_BASE + 21)))
 		return;
 
 	OldColor = SetContextForeGroundColor (BLACK_COLOR);
@@ -2512,10 +2513,11 @@ DrawMinDatText ()
 
 	font_DrawText (&text);
 
+	SetContextForeGroundColor (LAND_STAT_DAT_COLOR);
 	text.align = ALIGN_RIGHT;
 	text.baseline.x = rect.corner.x + rect.extent.width - RES_SCALE (1);
 	text.pStr = GAME_STRING (STATUS_STRING_BASE + 21); // DAT
-	SetContextForeGroundColor (LAND_STAT_DAT_COLOR);
+	text.CharCount = (COUNT)~0;
 
 	font_DrawText (&text);
 
@@ -2550,6 +2552,7 @@ InitLander (BYTE LanderFlags)
 		s.frame = SetAbsFrameIndex (LanderFrame[0], 32);
 
 		DrawStamp (&s);
+		DrawMinDatText ();
 		if (LanderFlags == 0)
 		{
 			ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
@@ -2619,8 +2622,6 @@ InitLander (BYTE LanderFlags)
 		if (ShieldFlags & (1 << LAVASPOT_DISASTER))
 			DrawStamp (&s);
 	}
-
-	DrawMinDatText ();
 
 	UnbatchGraphics ();
 }
