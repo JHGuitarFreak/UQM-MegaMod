@@ -321,12 +321,11 @@ main (int argc, char *argv[])
 #if defined(ANDROID) || defined(__ANDROID__)
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        320, 240 ),
-		INIT_CONFIG_OPTION(  fullscreen,        1 ),
 #else
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-		INIT_CONFIG_OPTION(  fullscreen,        0 ),
 #endif
+		INIT_CONFIG_OPTION(  fullscreen,        2 ),
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
 		INIT_CONFIG_OPTION(  showFps,           false ),
