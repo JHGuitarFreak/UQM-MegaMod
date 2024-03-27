@@ -337,6 +337,49 @@ GeneratePlanets (SOLARSYS_STATE *solarSys)
 	}
 }
 
+BYTE
+GenerateRockyWorld (BYTE whichType)
+{
+	BYTE planet = FIRST_SMALL_ROCKY_WORLD;
+
+	if (whichType & SMALL_ROCKY)
+		planet = RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD;
+	else if (whichType & LARGE_ROCKY)
+	{
+		planet = (RandomContext_Random (SysGenRNG) % 
+			(FIRST_GAS_GIANT - FIRST_LARGE_ROCKY_WORLD) + FIRST_LARGE_ROCKY_WORLD);
+	}
+	else if (whichType & ALL_ROCKY)
+		planet = RandomContext_Random (SysGenRNG) % LAST_ROCKY_WORLD;
+
+	if (planet == RAINBOW_WORLD)
+		planet--;
+	if (planet == SHATTERED_WORLD)
+		planet++;
+
+	return planet;
+}
+
+BYTE
+GenerateGasGiantWorld (void)
+{
+	BYTE planet;
+	BYTE roll = LAST_GAS_GIANT + 1 - BLU_GAS_GIANT;
+	BYTE adjust = BLU_GAS_GIANT;
+
+	planet = (RandomContext_Random (SysGenRNG) % roll) + adjust;
+
+	return planet;
+}
+
+BYTE
+GenerateNumberOfPlanets (BYTE minimum)
+{
+	BYTE roll = MAX_GEN_PLANETS - minimum;
+	BYTE adjust = minimum + 1;
+	return (RandomContext_Random (SysGenRNG) % roll) + adjust;
+}
+
 static void
 check_yehat_rebellion (void)
 {
