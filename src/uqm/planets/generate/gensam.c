@@ -196,8 +196,7 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 				solarSys->PlanetDesc[0].data_index = TELLURIC_WORLD;
 				solarSys->PlanetDesc[0].NumPlanets = 2;
 				solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 144L / 100;
-				angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
-						solarSys->PlanetDesc[0].location.y);
+				angle = NORMALIZE_ANGLE (LOWORD (RandomContext_Random (SysGenRNG)));
 				solarSys->PlanetDesc[0].location.x =
 						COSINE (angle, solarSys->PlanetDesc[0].radius);
 				solarSys->PlanetDesc[0].location.y =

@@ -126,6 +126,7 @@ getGenerateFunctions (BYTE Index)
 		case ZOQFOT_DEFINED:
 		case ZOQ_COLONY0_DEFINED:
 		case ZOQ_COLONY1_DEFINED:
+		case ZOQ_COLONY2_DEFINED:
 			return &generateZoqFotPikFunctions;
 		case ZOQ_SCOUT_DEFINED:
 			return &generateZoqFotPikScoutFunctions;

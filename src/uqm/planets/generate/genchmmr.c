@@ -98,8 +98,22 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 		
 		if (PrimeSeed)
 		{
+			COUNT angle;
+
 			GenerateDefault_generatePlanets (solarSys);
+
+			memmove (&solarSys->PlanetDesc[4], &solarSys->PlanetDesc[3],
+				sizeof (solarSys->PlanetDesc[3]));
+			++solarSys->SunDesc[0].NumPlanets;
+
 			solarSys->PlanetDesc[3].data_index = EMERALD_WORLD;
+			solarSys->PlanetDesc[3].radius = EARTH_RADIUS * 1127L / 100;
+			angle = NORMALIZE_ANGLE (LOWORD (RandomContext_Random (SysGenRNG)));
+			solarSys->PlanetDesc[3].location.x =
+					COSINE (angle, solarSys->PlanetDesc[3].radius);
+			solarSys->PlanetDesc[3].location.y =
+					SINE (angle, solarSys->PlanetDesc[3].radius);
+			ComputeSpeed (&solarSys->PlanetDesc[3], FALSE, 1);			
 		}
 		else
 		{
