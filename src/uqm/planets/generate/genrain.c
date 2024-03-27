@@ -83,7 +83,6 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 			SINE (angle, solarSys->PlanetDesc[0].radius);
 	ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
 
-
 	return true;
 }
 

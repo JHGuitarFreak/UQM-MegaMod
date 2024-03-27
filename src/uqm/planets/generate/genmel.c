@@ -85,19 +85,7 @@ GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 3) + 3);
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED)
+	if (EXTENDED)
 	{
 		if (CurStarDescPtr->Index == MELNORME1_DEFINED)
 		{// Precursor starbase
@@ -141,6 +129,8 @@ GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 			}
 		}
 	}
+	else
+		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }

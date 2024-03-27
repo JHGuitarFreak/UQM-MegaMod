@@ -94,7 +94,6 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 	if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
 
-
 	return true;
 }
 

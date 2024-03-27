@@ -75,7 +75,6 @@ GenerateVault_generatePlanets (SOLARSYS_STATE *solarSys)
 			solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
 	}
 
-
 	return true;
 }
 

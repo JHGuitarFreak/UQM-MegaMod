@@ -60,7 +60,13 @@ const GenerateFunctions generateOrzFunctions = {
 static bool
 GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	if (CurStarDescPtr->Index == ORZ_DEFINED)
+	{
+		solarSys->SunDesc[0].PlanetByte = 0;
+
+		if (PrimeSeed)
+		{
+			COUNT angle;
 
 			GenerateDefault_generatePlanets (solarSys);
 			
@@ -88,22 +94,6 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 			GeneratePlanets (solarSys);
 			CheckForHabitable (solarSys);
 		}
-
-		if (PrimeSeed)
-		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 156L / 100;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
-			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
-		}
-
-		solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-
 	}
 	else if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
 	{		
@@ -126,6 +116,8 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 				solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
 		}
 	}
+	else
+		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }

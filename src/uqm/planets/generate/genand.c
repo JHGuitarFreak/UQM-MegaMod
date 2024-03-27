@@ -67,35 +67,29 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 		{
 			COUNT angle;
 
-		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-		solarSys->SunDesc[0].PlanetByte = 1;
+			GenerateDefault_generatePlanets (solarSys);
 
-		if (!PrimeSeed)
-		{
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
-			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+			solarSys->PlanetDesc[1].data_index = TELLURIC_WORLD;
+			solarSys->PlanetDesc[1].radius = EARTH_RADIUS * 204L / 100;
+			angle = ARCTAN (solarSys->PlanetDesc[1].location.x,
+					solarSys->PlanetDesc[1].location.y);
+			solarSys->PlanetDesc[1].location.x =
+					COSINE (angle, solarSys->PlanetDesc[1].radius);
+			solarSys->PlanetDesc[1].location.y =
+					SINE (angle, solarSys->PlanetDesc[1].radius);
+			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
 		}
 		else
 		{
+			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
 			BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 2);
+			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
 
 			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 			solarSys->PlanetDesc[pIndex].data_index =
 					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE (pArray)];
 			GeneratePlanets (solarSys);
 			CheckForHabitable (solarSys);
-		}
-		else
-		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 204L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, 
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x = 
-				COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = 
-				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 		}
 	}
 

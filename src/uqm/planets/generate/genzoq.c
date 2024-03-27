@@ -146,7 +146,7 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 				solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
 				CheckForHabitable (solarSys);
 
-				if (STAR_COLOR(CurStarDescPtr->Type) == BLUE_BODY)
+				if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
 				{
 					solarSys->PlanetDesc[1].NumPlanets = 1;
 					solarSys->SunDesc[0].MoonByte = 0;
@@ -176,7 +176,6 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 	else
 		GenerateDefault_generatePlanets (solarSys);
-
 
 	return true;
 }

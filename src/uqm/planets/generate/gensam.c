@@ -248,7 +248,6 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 	else
 		GenerateDefault_generatePlanets (solarSys);
 	
-
 	return true;
 }
 

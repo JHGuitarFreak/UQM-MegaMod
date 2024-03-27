@@ -25,6 +25,11 @@
 extern "C" {
 #endif
 
+#define SMALL_ROCKY (1 << 0)
+#define LARGE_ROCKY (1 << 1)
+#define ALL_ROCKY (1 << 1)
+
+
 bool GenerateDefault_initNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_reinitNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_uninitNpcs (SOLARSYS_STATE *solarSys);

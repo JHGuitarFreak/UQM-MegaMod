@@ -78,7 +78,6 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 		CheckForHabitable (solarSys);
 	}
 	
-
 	return true;
 }
 

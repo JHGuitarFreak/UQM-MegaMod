@@ -96,8 +96,9 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
 		}
 		else
-		{// Too risky so far. We can generate 9 planets and accidently shove Spathiwa
-		 // into photosphere
+		{// Too risky so far with current generation functions. 
+		 //	We can generate 9 planets and accidently shove Spathiwa
+		 // into solar photosphere
 			COUNT angle;
 			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
 
@@ -136,8 +137,8 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 			{
 				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
 
-				solarSys->SunDesc[0].NumPlanets =  GenerateNumberOfPlanets (pIndex);
-
+				solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+				solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (ALL_ROCKY);
 				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 				GeneratePlanets (solarSys);
 			}
@@ -158,7 +159,7 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
 
 				solarSys->SunDesc[0].NumPlanets =  GenerateNumberOfPlanets (pIndex);
-
+				solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (ALL_ROCKY);
 				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 				GeneratePlanets (solarSys);
 			}

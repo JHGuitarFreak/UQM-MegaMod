@@ -56,9 +56,6 @@ const GenerateFunctions generateBurvixeseFunctions = {
 static bool
 GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
@@ -66,14 +63,10 @@ GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		COUNT angle;
 
-		if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-		else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
-		CheckForHabitable (solarSys);
-	}
-	else
-	{
+		GenerateDefault_generatePlanets (solarSys);
+
+		solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
+		solarSys->PlanetDesc[0].NumPlanets = 1;
 		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 39L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
 				solarSys->PlanetDesc[0].location.y);

@@ -181,7 +181,6 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 	if (NOMAD && CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
-
 	return true;
 }
 

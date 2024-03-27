@@ -69,7 +69,6 @@ GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 		GeneratePlanets (solarSys);
 	}
 	
-
 	return true;
 }
 
