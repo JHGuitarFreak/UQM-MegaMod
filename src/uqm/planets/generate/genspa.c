@@ -92,7 +92,7 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 		pMinPlanet->data_index = WATER_WORLD;
 
 		if (!PrimeSeed)
-			pMinPlanet->data_index = planetArray[RandomContext_Random(SysGenRNG) % 2];
+			pMinPlanet->data_index = planetArray[RandomContext_Random(SysGenRNG) % 3];
 
 		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
 		{

@@ -108,7 +108,7 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (!PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2] | PLANET_SHIELDED;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3] | PLANET_SHIELDED;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 		if (EXTENDED)
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
@@ -193,4 +193,3 @@ GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	return true;
 }
-

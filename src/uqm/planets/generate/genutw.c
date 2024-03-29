@@ -116,7 +116,7 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 		else
 		{
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 			CheckForHabitable (solarSys);
 		}
@@ -134,7 +134,7 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random (SysGenRNG) % (YEL_GAS_GIANT - BLU_GAS_GIANT) + BLU_GAS_GIANT);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (4 - 2) + 2);
 		}
 	}
