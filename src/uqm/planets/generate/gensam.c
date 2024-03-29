@@ -153,100 +153,79 @@ GenerateSaMatra_reinitNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	COUNT p;
+
+	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+
+	if (!PrimeSeed)
+	{
+		if (CurStarDescPtr->Index >= SAMATRA_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 5) + 5);
+	}
+
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	GeneratePlanets (solarSys);
+
 	if (CurStarDescPtr->Index == SAMATRA_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 4;
 		solarSys->SunDesc[0].MoonByte = 0;
 
-		if (PrimeSeed)
-		{
-			GenerateDefault_generatePlanets (solarSys);
-			solarSys->PlanetDesc[4].NumPlanets = 1;
-		}
-		else
-		{
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
-			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
+		if (!PrimeSeed)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateRockyWorld (ALL_ROCKY);
 
-			FillOrbits(solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (LARGE_ROCKY);
-			GeneratePlanets (solarSys);
-			solarSys->PlanetDesc[pIndex].NumPlanets = 1;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		}
 	}
-	else if (EXTENDED)
-	{
-		if (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
-		{
-			solarSys->SunDesc[0].PlanetByte = 0;
-			solarSys->SunDesc[0].MoonByte = 0;
-
-			if (PrimeSeed)
-			{
-				COUNT angle;
-
-				GenerateDefault_generatePlanets (solarSys);
-
-				memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[0],
-						sizeof (solarSys->PlanetDesc[0])
-						* solarSys->SunDesc[0].NumPlanets);
-				++solarSys->SunDesc[0].NumPlanets;
-
-				solarSys->PlanetDesc[0].data_index = TELLURIC_WORLD;
-				solarSys->PlanetDesc[0].NumPlanets = 2;
-				solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 144L / 100;
-				angle = NORMALIZE_ANGLE (LOWORD (RandomContext_Random (SysGenRNG)));
-				solarSys->PlanetDesc[0].location.x =
-						COSINE (angle, solarSys->PlanetDesc[0].radius);
-				solarSys->PlanetDesc[0].location.y =
-						SINE (angle, solarSys->PlanetDesc[0].radius);
-				ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
-				if (!(GET_GAME_STATE (KOHR_AH_FRENZY) && 
-						CheckAlliance (ARILOU_SHIP) == DEAD_GUY))
-					solarSys->PlanetDesc[0].data_index |= PLANET_SHIELDED;
-			}
-			else
-			{
-				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-				BYTE mIndex = solarSys->SunDesc[0].MoonByte;
-
-				BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-				solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-				solarSys->PlanetDesc[pIndex].data_index =
-					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
-				GeneratePlanets (solarSys);
-				if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
-					solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
-				CheckForHabitable (solarSys);
-			}
-		}
-		else if (CurStarDescPtr->Index == URQUAN_DEFINED
-					|| CurStarDescPtr->Index == KOHRAH_DEFINED)
-		{
-			COUNT p;
-
-			solarSys->SunDesc[0].MoonByte = 0;
-
-			GenerateDefault_generatePlanets (solarSys);
-
-			for (p = 0; p < solarSys->SunDesc[0].NumPlanets; p++) {
-				if (solarSys->PlanetDesc[p].NumPlanets <= 1)
-					break;
-			}
-			solarSys->SunDesc[0].PlanetByte = p;
-
-			if (solarSys->PlanetDesc[p].NumPlanets == 0)
-				solarSys->PlanetDesc[p].NumPlanets = 1;
-		}
-		else
-			GenerateDefault_generatePlanets (solarSys);
-	}
-	else
-		GenerateDefault_generatePlanets (solarSys);
 	
+	if (EXTENDED && CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
+	{
+		int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+
+		solarSys->SunDesc[0].PlanetByte = 0;
+		solarSys->SunDesc[0].MoonByte = 0;
+
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+				planetArray[RandomContext_Random (SysGenRNG) % 2];
+
+		if (!(GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ARILOU_SHIP) == DEAD_GUY))
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
+		if (!PrimeSeed)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets =
+					(RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			solarSys->SunDesc[0].MoonByte =
+					(RandomContext_Random(SysGenRNG)
+					% solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
+		}
+		CheckForHabitable (solarSys);
+	}
+
+	if (EXTENDED
+		&& (CurStarDescPtr->Index == URQUAN_DEFINED 
+		|| CurStarDescPtr->Index == KOHRAH_DEFINED))
+	{
+		for (p = 0; p < solarSys->SunDesc[0].NumPlanets; p++) {
+			if (solarSys->PlanetDesc[p].NumPlanets <= 1)
+				break;
+		}
+		solarSys->SunDesc[0].PlanetByte = p;
+		solarSys->SunDesc[0].MoonByte = 0;
+
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
+		if (!PrimeSeed)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
+		}
+	}
+
 	return true;
 }
 
@@ -277,44 +256,14 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 			}
 		}
 
-		if (EXTENDED)
+
+		if (EXTENDED && (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
+				|| CurStarDescPtr->Index == URQUAN_DEFINED 
+				|| CurStarDescPtr->Index == KOHRAH_DEFINED)) 
 		{
-			if (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
-			{
-				solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
-
-				if (PrimeSeed)
-				{
-					solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS;
-					rand_val = RandomContext_Random (SysGenRNG);
-					angle = NORMALIZE_ANGLE (LOWORD (rand_val));
-					solarSys->MoonDesc[0].location.x =
-							COSINE (angle, solarSys->MoonDesc[0].radius);
-					solarSys->MoonDesc[0].location.y =
-							SINE (angle, solarSys->MoonDesc[0].radius);
-					ComputeSpeed (&solarSys->MoonDesc[0], TRUE, 1);
-
-					solarSys->MoonDesc[1].data_index = AURIC_WORLD;
-				}				
-			}
-			else if (CurStarDescPtr->Index == URQUAN_DEFINED
-					|| CurStarDescPtr->Index == KOHRAH_DEFINED)
-			{
-				solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
-
-				if (PrimeSeed)
-				{
-					solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius = MIN_MOON_RADIUS;
-					rand_val = RandomContext_Random (SysGenRNG);
-					angle = NORMALIZE_ANGLE (LOWORD (rand_val));
-					solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].location.x =
-							COSINE (angle, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
-					solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].location.y =
-							SINE (angle, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
-					ComputeSpeed (&solarSys->MoonDesc[0], TRUE, 1);
-				}
-			}
-		}		
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
+		}
+		
 	}
 
 	return true;
@@ -597,5 +546,3 @@ GenerateSaMatra_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	(void) whichNode;
 	return false;
 }
-
-

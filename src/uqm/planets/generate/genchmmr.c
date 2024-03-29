@@ -61,74 +61,54 @@ const GenerateFunctions generateChmmrFunctions = {
 static bool
 GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
+	//BYTE NumPlanets = (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED ? 4 : 2);
+
+	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+
+	if (!PrimeSeed)
+	{
+		if (CurStarDescPtr->Index == CHMMR_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+		if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
+	}
+
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	GeneratePlanets (solarSys);
+
 	if (CurStarDescPtr->Index == CHMMR_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 1;
 		solarSys->SunDesc[0].MoonByte = 0;
 
-		if (PrimeSeed)
-		{
-			GenerateDefault_generatePlanets (solarSys);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SAPPHIRE_WORLD;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
-			solarSys->PlanetDesc[1].data_index = SAPPHIRE_WORLD;
-			if (!GET_GAME_STATE (CHMMR_UNLEASHED))
-				solarSys->PlanetDesc[1].data_index |= PLANET_SHIELDED;
-			solarSys->PlanetDesc[1].NumPlanets = 1;
-		}
-		else
+		if (!PrimeSeed)
 		{
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-			BYTE mIndex = solarSys->SunDesc[0].MoonByte;
-			BYTE pArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
-			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[pIndex].data_index =
-					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE (pArray)];
-			if (!GET_GAME_STATE (CHMMR_UNLEASHED))
-				solarSys->PlanetDesc[pIndex].data_index |= PLANET_SHIELDED;
-			GeneratePlanets (solarSys);
-			if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
-				solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 3];
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+			solarSys->SunDesc[0].MoonByte = (RandomContext_Random(SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 		}
+
+		if (!GET_GAME_STATE (CHMMR_UNLEASHED))
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
 	}
-	else if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
+	
+	if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 3;
-		
-		if (PrimeSeed)
+
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = EMERALD_WORLD;
+
+		if (!PrimeSeed)
 		{
-			COUNT angle;
-
-			GenerateDefault_generatePlanets (solarSys);
-
-			memmove (&solarSys->PlanetDesc[4], &solarSys->PlanetDesc[3],
-				sizeof (solarSys->PlanetDesc[3]));
-			++solarSys->SunDesc[0].NumPlanets;
-
-			solarSys->PlanetDesc[3].data_index = EMERALD_WORLD;
-			solarSys->PlanetDesc[3].radius = EARTH_RADIUS * 1127L / 100;
-			angle = NORMALIZE_ANGLE (LOWORD (RandomContext_Random (SysGenRNG)));
-			solarSys->PlanetDesc[3].location.x =
-					COSINE (angle, solarSys->PlanetDesc[3].radius);
-			solarSys->PlanetDesc[3].location.y =
-					SINE (angle, solarSys->PlanetDesc[3].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[3], FALSE, 1);			
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 3];
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		}
-		else
-		{
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-			BYTE pArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
 
-			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[pIndex].data_index =
-					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE (pArray)];
-			GeneratePlanets (solarSys);
-		}
 	}
-	else
-		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }
@@ -384,4 +364,3 @@ GenerateChmmr_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	(void)whichNode;
 	return false;
 }
-

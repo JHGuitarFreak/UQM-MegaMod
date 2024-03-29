@@ -71,104 +71,61 @@ const GenerateFunctions generateSpathiFunctions = {
 static bool
 GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+
 	if (CurStarDescPtr->Index == SPATHI_DEFINED)
 	{
+		PLANET_DESC *pMinPlanet;
+		COUNT angle;
+		int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+
 		solarSys->SunDesc[0].PlanetByte = 0;
+		pMinPlanet = &solarSys->PlanetDesc[0];
+		solarSys->SunDesc[0].NumPlanets = 1;
 
-		if (PrimeSeed)
-		{
-			COUNT angle;
-			
-			solarSys->SunDesc[0].NumPlanets = 1;
-			FillOrbits (solarSys,
-				solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		FillOrbits (solarSys,
+			solarSys->SunDesc[0].NumPlanets, pMinPlanet, FALSE);
 
-			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 1150L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[0].location.x, 
-					solarSys->PlanetDesc[0].location.y);
-			solarSys->PlanetDesc[0].location.x = 
-					COSINE (angle, solarSys->PlanetDesc[0].radius);
-			solarSys->PlanetDesc[0].location.y = 
-					SINE (angle, solarSys->PlanetDesc[0].radius);
-			solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-			
-			solarSys->PlanetDesc[0].NumPlanets = 1;
-			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
-		}
-		else
-		{// Too risky so far with current generation functions. 
-		 //	We can generate 9 planets and accidently shove Spathiwa
-		 // into solar photosphere
-			COUNT angle;
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+		pMinPlanet->radius = EARTH_RADIUS * 1150L / 100;
+		angle = ARCTAN(pMinPlanet->location.x, pMinPlanet->location.y);
+		pMinPlanet->location.x = COSINE(angle, pMinPlanet->radius);
+		pMinPlanet->location.y = SINE(angle, pMinPlanet->radius);
+		pMinPlanet->data_index = WATER_WORLD;
 
-			BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-			solarSys->SunDesc[0].NumPlanets = 1;
-
-			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 1150L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[0].location.x, 
-					solarSys->PlanetDesc[0].location.y);
-			solarSys->PlanetDesc[0].location.x = 
-					COSINE (angle, solarSys->PlanetDesc[0].radius);
-			solarSys->PlanetDesc[0].location.y = 
-					SINE (angle, solarSys->PlanetDesc[0].radius);
-			solarSys->PlanetDesc[0].data_index = pArray[RandomContext_Random(SysGenRNG) % ARRAY_SIZE(pArray)];
-			
-			solarSys->PlanetDesc[0].NumPlanets = 1;
-			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
-		}
+		if (!PrimeSeed)
+			pMinPlanet->data_index = planetArray[RandomContext_Random(SysGenRNG) % 3];
 
 		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
 		{
 			if (!(EXTENDED && GET_GAME_STATE (KOHR_AH_FRENZY) && CheckAlliance (ORZ_SHIP) == DEAD_GUY))
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
+			pMinPlanet->data_index |= PLANET_SHIELDED;
 		}
+		pMinPlanet->NumPlanets = 1;
+		ComputeSpeed (pMinPlanet, FALSE, 1);
 	}
-	else if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
+
+	if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
 	{
-		if (EXTENDED)
-		{
-			solarSys->SunDesc[0].PlanetByte = 3;
+		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+		solarSys->SunDesc[0].PlanetByte = 3;
 
-			if (PrimeSeed)
-				GenerateDefault_generatePlanets (solarSys);
-			else
-			{
-				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+		if (EXTENDED && !PrimeSeed)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
 
-				solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-				solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (ALL_ROCKY);
-				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-				GeneratePlanets (solarSys);
-			}
-		}
-		else
-			GenerateDefault_generatePlanets (solarSys);
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		GeneratePlanets (solarSys);
 	}
-	else if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
+
+	if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
 	{
-		if (EXTENDED)
-		{
-			solarSys->SunDesc[0].PlanetByte = 1;
+		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+		solarSys->SunDesc[0].PlanetByte = 1;
 
-			if (PrimeSeed)
-				GenerateDefault_generatePlanets (solarSys);
-			else
-			{
-				BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
+		if (EXTENDED && !PrimeSeed)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 
-				solarSys->SunDesc[0].NumPlanets =  GenerateNumberOfPlanets (pIndex);
-				solarSys->PlanetDesc[pIndex].data_index = GenerateRockyWorld (ALL_ROCKY);
-				FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-				GeneratePlanets (solarSys);
-			}
-		}
-		else
-			GenerateDefault_generatePlanets (solarSys);
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		GeneratePlanets (solarSys);
 	}
-	else
-		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }

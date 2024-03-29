@@ -64,30 +64,29 @@ const GenerateFunctions generateSyreenFunctions = {
 static bool
 GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+
+	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if (PrimeSeed)
+	if (!PrimeSeed)
 	{
-		GenerateDefault_generatePlanets (solarSys);
-
-		solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-		solarSys->PlanetDesc[0].NumPlanets = 1;
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
-	else
+
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	GeneratePlanets (solarSys);	
+
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
+	if (!PrimeSeed)
 	{
-		BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-		BYTE mIndex = solarSys->SunDesc[0].MoonByte;
-
-		BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-		solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-		solarSys->PlanetDesc[pIndex].data_index =
-			pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
-		GeneratePlanets (solarSys);
-		if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
-			solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
 		CheckForHabitable (solarSys);
 	}
 

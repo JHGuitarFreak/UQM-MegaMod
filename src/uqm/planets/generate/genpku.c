@@ -57,37 +57,37 @@ const GenerateFunctions generatePkunkFunctions = {
 static bool
 GeneratePkunk_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	COUNT angle;
+	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+
+	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (PrimeSeed)
+	if (!PrimeSeed)
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	GeneratePlanets (solarSys);
+
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
+	if (!PrimeSeed)
 	{
-		COUNT angle;
-
-		GenerateDefault_generatePlanets (solarSys);
-
-		solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-		solarSys->PlanetDesc[0].NumPlanets = 1;
-		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 104L / 100;
-		angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
-				solarSys->PlanetDesc[0].location.y);
-		solarSys->PlanetDesc[0].location.x =
-				COSINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[0].location.y =
-				SINE (angle, solarSys->PlanetDesc[0].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
+		CheckForHabitable (solarSys);
 	}
 	else
-	{
-		BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-
-		BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-		solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-		solarSys->PlanetDesc[pIndex].data_index =
-				pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE (pArray)];
-		GeneratePlanets (solarSys);
-		CheckForHabitable (solarSys);
+	{ 
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 104L / 100;
+		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
+				COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
+				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
 
 	return true;
@@ -197,4 +197,3 @@ GeneratePkunk_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 	return 0;
 }
-

@@ -60,64 +60,58 @@ const GenerateFunctions generateOrzFunctions = {
 static bool
 GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	COUNT angle;
+
+	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+
+	if (!PrimeSeed)
+	{
+		if (CurStarDescPtr->Index == ORZ_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+		else if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+	}
+
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	GeneratePlanets (solarSys);
+
 	if (CurStarDescPtr->Index == ORZ_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 0;
 
-		if (PrimeSeed)
+		if (!PrimeSeed)
 		{
-			COUNT angle;
-
-			GenerateDefault_generatePlanets (solarSys);
-			
-			solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 156L / 100;
-			solarSys->PlanetDesc[0].NumPlanets = 0;
-			angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
-					solarSys->PlanetDesc[0].location.y);
-			solarSys->PlanetDesc[0].location.x =
-					COSINE (angle, solarSys->PlanetDesc[0].radius);
-			solarSys->PlanetDesc[0].location.y =
-					SINE (angle, solarSys->PlanetDesc[0].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
-		}
-		else
-		{
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-
-			BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[pIndex].data_index =
-					pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE (pArray)];
-			GeneratePlanets (solarSys);
+			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 			CheckForHabitable (solarSys);
 		}
+
+		if (PrimeSeed)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 156L / 100;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
+			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
+					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
+					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
+					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		}
+
+		solarSys->PlanetDesc[0].data_index = WATER_WORLD;
+
 	}
 	else if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
 	{		
 		solarSys->SunDesc[0].PlanetByte = 1;
 		solarSys->SunDesc[0].MoonByte = 2;
 
-		if (PrimeSeed)
-			GenerateDefault_generatePlanets (solarSys);
-		else
+		if (!PrimeSeed)
 		{
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-			BYTE mIndex = solarSys->SunDesc[0].MoonByte;
-
-			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[pIndex].data_index = GenerateGasGiantWorld ();
-			GeneratePlanets (solarSys);
-			if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
-				solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (4 - 3) + 3);
 		}
 	}
-	else
-		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }

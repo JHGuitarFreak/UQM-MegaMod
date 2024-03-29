@@ -56,17 +56,29 @@ const GenerateFunctions generateBurvixeseFunctions = {
 static bool
 GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	COUNT angle;
+
+	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if (PrimeSeed)
+	if (!PrimeSeed)
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	GeneratePlanets (solarSys);
+
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
+	if (!PrimeSeed)
 	{
-		COUNT angle;
-
-		GenerateDefault_generatePlanets (solarSys);
-
-		solarSys->PlanetDesc[0].data_index = REDUX_WORLD;
-		solarSys->PlanetDesc[0].NumPlanets = 1;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
+				GenerateRockyWorld (LARGE_ROCKY);
+		CheckForHabitable (solarSys);
+	}
+	else
+	{
 		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 39L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
 				solarSys->PlanetDesc[0].location.y);
@@ -75,22 +87,6 @@ GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->PlanetDesc[0].location.y =
 				SINE (angle, solarSys->PlanetDesc[0].radius);
 		ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
-	}
-	else
-	{
-		BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-		BYTE mIndex = solarSys->SunDesc[0].MoonByte;
-
-		BYTE pArray[] = { ORGANIC_WORLD, CHLORINE_WORLD, REDUX_WORLD };
-		solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-		solarSys->PlanetDesc[pIndex].data_index =
-			pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
-		GeneratePlanets (solarSys);
-		if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
-			solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
-		CheckForHabitable (solarSys);
 	}
 
 	return true;

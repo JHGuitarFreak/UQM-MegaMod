@@ -84,65 +84,60 @@ GenerateUtwig_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	COUNT angle;
+	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+
+	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+
 	if (CurStarDescPtr->Index == UTWIG_DEFINED)
 	{
 		solarSys->SunDesc[0].PlanetByte = 0;
 
-		if (PrimeSeed)
+		if (!PrimeSeed)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		GeneratePlanets (solarSys);
+
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
+		if(PrimeSeed)
 		{
-			COUNT angle;
-
-			GenerateDefault_generatePlanets (solarSys);
-
-			solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-			solarSys->PlanetDesc[0].NumPlanets = 1;
 			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 174L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
-					solarSys->PlanetDesc[0].location.y);
-			solarSys->PlanetDesc[0].location.x =
-					COSINE (angle, solarSys->PlanetDesc[0].radius);
-			solarSys->PlanetDesc[0].location.y =
-					SINE (angle, solarSys->PlanetDesc[0].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[0], FALSE, 1);
+			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
+					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
+					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
+					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
+			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 		}
 		else
 		{
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-
-			BYTE pArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
-			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[pIndex].data_index =
-				pArray[RandomContext_Random (SysGenRNG) % ARRAY_SIZE(pArray)];
-			GeneratePlanets (solarSys);
+			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 			CheckForHabitable (solarSys);
 		}
-	}
-	else if (CurStarDescPtr->Index == BOMB_DEFINED)
+	} 
+	else if (CurStarDescPtr->Index == BOMB_DEFINED) 
 	{
 		solarSys->SunDesc[0].PlanetByte = 5;
 		solarSys->SunDesc[0].MoonByte = 1;
 
-		if (PrimeSeed)
-			GenerateDefault_generatePlanets (solarSys);
-		else
+		if (!PrimeSeed)
+			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 6) + 6);
+
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		GeneratePlanets (solarSys);
+
+		if (!PrimeSeed)
 		{
-			BYTE pIndex = solarSys->SunDesc[0].PlanetByte;
-			BYTE mIndex = solarSys->SunDesc[0].MoonByte;
-
-			solarSys->SunDesc[0].NumPlanets = GenerateNumberOfPlanets (pIndex);
-
-			FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-			solarSys->PlanetDesc[pIndex].data_index = GenerateGasGiantWorld ();
-			GeneratePlanets (solarSys);
-			if (solarSys->PlanetDesc[pIndex].NumPlanets <= mIndex)
-				solarSys->PlanetDesc[pIndex].NumPlanets = mIndex + 1;
-			CheckForHabitable (solarSys);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (4 - 2) + 2);
 		}
 	}
-	else
-		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }
