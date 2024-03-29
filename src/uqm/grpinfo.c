@@ -826,6 +826,10 @@ GetGroupInfo (DWORD offset, BYTE which_group)
 		SeekStateFile (fp, GH.GroupOffset[which_group] + 1, SEEK_SET);
 		sread_8 (fp, &NumShips);
 
+		// Kruzen: if something went wrong - try to spawn only 1 ship
+		if (NumShips > 14)
+			NumShips = 1;
+
 		while (NumShips--)
 		{
 			BYTE RaceType;
