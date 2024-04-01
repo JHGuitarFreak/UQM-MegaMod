@@ -626,26 +626,6 @@ check_for_hd (WIDGET_CHOICE *self, int oldval)
 		oldval = OPTVAL_320_240;
 		addon_unavailable (self, OPTVAL_320_240);
 	}
-
-	switch (choices[81].selected)
-	{
-		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (DOS_MODE (HD)))
-			{
-				optWindowType = OPTVAL_UQM_WINDOW;
-				choices[81].selected = OPTVAL_UQM_WINDOW;
-			}
-			break;
-		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (THREEDO_MODE (HD)))
-			{
-				optWindowType = OPTVAL_UQM_WINDOW;
-				choices[81].selected = OPTVAL_UQM_WINDOW;
-			}
-			break;
-		default:
-			break;
-	}
 }
 
 static BOOLEAN
@@ -2316,6 +2296,24 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	{
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		resolutionFactor = resFactor;
+
+		switch (opts->windowType)
+		{
+			case OPTVAL_PC_WINDOW:
+				if (!isAddonAvailable (DOS_MODE (resolutionFactor)))
+				{
+					opts->windowType = OPTVAL_UQM_WINDOW;
+				}
+				break;
+			case OPTVAL_3DO_WINDOW:
+				if (!isAddonAvailable (THREEDO_MODE (resolutionFactor)))
+				{
+					opts->windowType = OPTVAL_UQM_WINDOW;
+				}
+				break;
+			default:
+				break;
+		}
 	}
 
 	if (optWindowType != opts->windowType)

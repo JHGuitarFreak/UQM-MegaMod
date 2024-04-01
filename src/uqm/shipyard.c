@@ -274,7 +274,7 @@ GetShipStats (SHIP_STATS *ship_stats, SPECIES_ID species_id)
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
 					RDPtr->ship_info.race_strings, 2)),
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-					RDPtr->ship_info.race_strings, 5))
+					RDPtr->ship_info.race_strings, 4))
 		);
 
 	ship_stats->ShipCost = RDPtr->ship_info.ship_cost * 100;
@@ -545,11 +545,13 @@ DrawShipyardShipText (RECT *r, int Index)
 
 	utf8StringCopy ((char *)&race_name, sizeof (race_name),
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-			RDPtr->ship_info.race_strings, 3)));
+			RDPtr->ship_info.race_strings, 
+			GetStringTableCount (RDPtr->ship_info.race_strings) - 3)));
 
 	utf8StringCopy ((char *)&ship_name, sizeof (ship_name),
 			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
-			RDPtr->ship_info.race_strings, 6)));
+			RDPtr->ship_info.race_strings,
+			GetStringTableCount(RDPtr->ship_info.race_strings) - 2)));
 
 	free_ship (RDPtr, TRUE, TRUE);
 
