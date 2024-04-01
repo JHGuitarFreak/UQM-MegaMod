@@ -27,8 +27,8 @@
 extern "C" {
 #endif
 
-#define NUM_RACE_LABELS  4
-#define NUM_CLASS_LABELS 3
+#define NUM_RACE_LABELS  3
+#define NUM_CLASS_LABELS 2
 #define NAME_OFFSET (NUM_RACE_LABELS + NUM_CLASS_LABELS)
 #define NUM_CAPTAINS_NAMES 16
 
