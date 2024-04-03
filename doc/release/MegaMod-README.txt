@@ -1,5 +1,7 @@
 # MegaMod ReadMe
 
+Send any bug reports or issues to: https://github.com/JHGuitarFreak/UQM-MegaMod/issues
+
 First, a note on mod compatibility
 
 MegaMod is not compatible with any other mods nor are they compatible with MegaMod.
@@ -21,9 +23,18 @@ Explanation of the Setup Menu options:
       Resolution - Scales the graphics of Original and HD graphics to the selected resolution.
                     Disclaimer: When switching to HD graphics for the first time make sure to choose 'Default' resolution.
 
+      Custom Resolution - A text entry field that lets you input a custom resolution
+
+      Display Mode - Choose between windowed, exclusive fullscreen (changes the display resolution to fit game resolution), or borderless full screen (stretches the game to the display resolution [SDL2 only])
+
       Gamma Correction - Adjusts the gamma of the screen.
 
 # PC / 3DO
+
+      Platform UI - Choose between DOS, 3DO, or UQM to change the UI scaling to match your option of choice. 
+                    DOS has an aspect ratio 16:10 (320x200/1280x800) and form fits the UI to look just like the DOS version
+                    3DO has an aspect ratio of 4:3 and adds padding to all sides and compensates the viewing area to match the look and feel of the 3DO version
+                    UQM uses the full 4:3 aspect ratio just like vanilla UQM
 
       Melee Zoom - For Android the Melee Zoom option has been 'enhanced' to allow the user to choose which melee scaler to improve game speed. The choices are between Step, Nearest, Bilinear, and Trilinear.
                     The lowest option is a step zoom and will be the fastest on all devices. The 'Nearest' scaler will be the fastest for Smooth Scaling melee. Your mileage may vary depending on your device.
@@ -62,7 +73,7 @@ Explanation of the Setup Menu options:
 
       Fuel Range Indicators - Choose between default fuel range, an extra dotted circle that shows fuel range at the destination, an extra ellipse that depicts the point of no return from Sol, or all fuel range indicators at once.
 
-      Animated HyperSpace Stars - HD-only: Enables the legacy HD-mod animated HyperSpace stars. When disabled it switches to recreated faithful designs of the originals.
+      HD Animations - HD-only: Enables animated HD-mod HyperSpace stars, gravity wells, Hyper/QuasiSpace portals, and solar system suns.
 
       Alternate Orz Font - Turn on/off the alternate font for untranslated Orz text.
 
@@ -90,7 +101,9 @@ Explanation of the Setup Menu options:
 
       Interplanetary Alien Ambience - This option enables music that plays when you are in the orbit of a star within an alien race's Sphere of Influence.
 
-      Music Resume - When enabled music will resume where it last left off.
+      Music Resume - Resumes music from where it last left.
+                    5 Minutes option keeps tabs on each piece of music and resets it to the beginning if it hasn't been active within 5 minutes.
+                    Indefinite resumes the music no matter when it last was heard.
 
 # Controls
 
@@ -222,6 +235,7 @@ WARNING: SPOILERS AHEAD
                         - Commander will tell you about the Melnorme and ZFP earlier than usual
 
                       # Extended Lore
+                        - Apply unused Melnorme dialog when filling tanks to their full capacity
                         - The Ur-Quan's Talking Pet now uses an alternate color palette
                         - The Kzer-Za have their classic baton back on comm screens
                         - Admiral ZEX has an alternate uniform and more medals, differing him from other VUX
@@ -236,7 +250,7 @@ WARNING: SPOILERS AHEAD
                         - Talk to Kohr-Ah when at the Sa-Matra during Death March
                         - Allies will not chase you if you get close to their ships
                         - No longer possible to encounter random Ur-Quan ships in the Zoq-Fot-Pik home system, like their dialogs say (Bugzilla Bug #759)
-                        - Add a "dead" slave-shielded world and starbase @ Beta Ophiuchi I (047.9:887.5)
+                        - Add a "dead" slave-shielded world and starbase in Gamma Ophiuchi (033.3 : 091.6)
                         - Destroyed Ur-Quan(*) / Kohr-Ah(+) starbases
                           + Beta Reticuli (702.0 : 529.1)
                           * Metis (570.8 : 460.4)
@@ -263,7 +277,7 @@ WARNING: SPOILERS AHEAD
                         - New Precursor artifact on Alpha Apodis 4
                         - Added the ability to tell the Ilwrath to GTFO of any star system in their SOI via Hyperwave Broadcaster a maximum of 5 times before they wise-up and attack you
                         - Made Beta Arae (933.3:093.7) an Orange Super Giant (Because there are no Orange Super Giants normally)
-                        - "Pop" Beta Ophiuchi's slave shield on Arilou destruction
+                        - "Pop" Gamma Ophiuchi's slave shield on Arilou destruction
                         - "Pop" Spathiwa's slave shield and generate 3-4 ruins on Orz destruction
                         - Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
 
