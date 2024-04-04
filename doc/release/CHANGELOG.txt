@@ -33,7 +33,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Moved Starmap keys and mineral helpers to the Flagship status area (Top-right of the screen)
 - Made the FPS counter show on-screen instead of in the console - Kruzen
 - HD: Refined melee projectiles and assets - Kruzen
-- HD: Color-corrected ZFP ship - Kruzen
 - Optimized DrawGalaxy() func that draws stars in melee and hyperspace - Kruzen
 - HD: Stars in HD melee now resembles SD more that ever (with unscaled stamp option) - Kruzen
 - Dying SoI now have a brief animation of the race's name to make it more noticeable - Kruzen
@@ -45,8 +44,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Graphics settings now activate immediately within the setup menu
 - Sound slider improved and now you can hear the corresponding volume setting changes "live" - Kruzen
 - Randomize nebulae using system seed when custom seed is set
-- Loading into an encounter no longer re-rolls the planet for the arena
-- Massive revision of the Custom Seed planetary generation code - Kruzen
 - Set borderless fullscreen as the default on new installs
 - HD: Reworked the mineral node graphics to be even more faithful to the originals
 - Updated Windows installer to check for and delete old content when installing over another version of UQM
@@ -63,7 +60,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixes Syreen palette blend from all-black - Kruzen
 - Added Tarp and Bummer6 to the credits
 - HD: HyperSpace ambience (*Nnngn*) fixed - Kruzen
-- HD: Color corrected Orz marines - Kruzen
 - HD: Fix Chenjesu intelligence crash
 - Optimized fuel circles to prevent graphical glitches - Kruzen
 - Fixed kerning when kerndata for a character equals zero
@@ -72,13 +68,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - HD: Fix oscilloscope lines and scale it to 60fps
 - Fixed Procyon not generating the Chmmr homeworld in some custom seeds
 - Fixed the Mother Ark star system from not generating the amount of planets necessary in some custom seeds
+- Androsynth homestar will now have the appropriate amount of planets in Custom Seed thanks to jsd3306
 - Fixed dithering on planets from re-rolling their RNG resulting in a slightly changed texture - Kruzen
 - Content Bug #25 Squashed - Comma on the wrong page in Thraddash convo - Kruzen
 - Code Bug #201 Squashed - Slylandro Battlegroups causing crash in Hard Mode
 - Captain and Flagship renaming will no longer become stuck (seemingly at random) on just naming the Flagship
 - Black screen at the Load screen fixed when quitting to the Main Menu immediately after starting a new game
 - HyperSpace coordinates glitching when traveling to the far edges of the map fixed
-- Androsynth homestar will now have the appropriate amount of planets in Custom Seed thanks to jsd3306
 - Code Bug #165 Squashed - Laser collision is broken in HD for some ships - Kruzen
 - Code Bug #166 Squashed - X-Form lasers should collide and spawn impact graphics - Kruzen
 - Code Bug #156 Squashed - 3DO planet have a black 1px dot in the middle - Mysteriously disappeared over time
