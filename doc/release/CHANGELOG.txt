@@ -71,7 +71,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Androsynth homestar will now have the appropriate amount of planets in Custom Seed thanks to jsd3306
 - Fixed dithering on planets from re-rolling their RNG resulting in a slightly changed texture - Kruzen
 - Content Bug #25 Squashed - Comma on the wrong page in Thraddash convo - Kruzen
-- Code Bug #201 Squashed - Slylandro Battlegroups causing crash in Hard Mode
+- Code Bug #201 Temporarily Squashed - Slylandro Battlegroups causing crash in Hard Mode
 - Captain and Flagship renaming will no longer become stuck (seemingly at random) on just naming the Flagship
 - Black screen at the Load screen fixed when quitting to the Main Menu immediately after starting a new game
 - HyperSpace coordinates glitching when traveling to the far edges of the map fixed
