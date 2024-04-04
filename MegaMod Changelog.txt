@@ -81,7 +81,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Code Bug #162 Squashed - Selling Planet Landers Does Not Remove Sprite
 - ANDROID: Fix directional joystick from instantly turning ship to the right on just a tap
 - ANDROID: On-screen controls fixed in the Shipyard and Outfit screens
-- Fixed dithering on planets from re-rolling their RNG resulting in a slightly changed texture - Kruzen
 
 ## [v0.8.2] - 2022-11-13
 

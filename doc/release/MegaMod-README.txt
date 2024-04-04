@@ -101,7 +101,7 @@ Explanation of the Setup Menu options:
 
       Interplanetary Alien Ambience - This option enables music that plays when you are in the orbit of a star within an alien race's Sphere of Influence.
 
-      Music Resume - Resumes music from where it last left.
+      Music Resume - Resumes music from where it last left off.
                     5 Minutes option keeps tabs on each piece of music and resets it to the beginning if it hasn't been active within 5 minutes.
                     Indefinite resumes the music no matter when it last was heard.
 
