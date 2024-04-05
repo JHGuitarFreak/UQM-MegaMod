@@ -645,7 +645,7 @@ Section "Volasaurus' Complete Remix" SEC07
   AddSize ${VOLS_REMIX_SIZE}
   StrCpy $MANDATORY 0
   StrCpy $MD5SUM "${VOLS_REMIX_MD5SUM}"
-  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/Addons/"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/"
   Push "${VOLS_REMIX_FILE}"
   Push "$INSTDIR\content\addons"
   Call HandlePackage
@@ -660,7 +660,7 @@ Section "Volasaurus' Space Music" SEC08
   AddSize ${VOL_SPACE_SIZE}
   StrCpy $MANDATORY 0
   StrCpy $MD5SUM "${VOL_SPACE_MD5SUM}"
-  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/Addons/"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/"
   Push "${VOL_SPACE_FILE}"
   Push "$INSTDIR\content\addons"
   Call HandlePackage
@@ -675,7 +675,7 @@ Section "Lance_Vader's Utwig voicepack" SEC09
   AddSize ${RMX_UTWIG_SIZE}
   StrCpy $MANDATORY 0
   StrCpy $MD5SUM "${RMX_UTWIG_MD5SUM}"
-  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/Addons/"
+  StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/"
   Push "${RMX_UTWIG_FILE}"
   Push "$INSTDIR\content\addons"
   Call HandlePackage
