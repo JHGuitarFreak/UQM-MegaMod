@@ -773,7 +773,7 @@ SectionGroup "Precursors Remixes" SECGRP04
     AddSize ${PKG_REMIX5_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_REMIX5_MD5SUM}"
-    StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/Addons/"
+    StrCpy $DOWNLOADPATH "${PRODUCT_FILE_SERVER}${PRODUCT_VERSION}/Content/"
     Push "${PKG_REMIX5_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
