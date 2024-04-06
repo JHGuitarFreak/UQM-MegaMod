@@ -2204,7 +2204,7 @@ EnterPlanetOrbit (void)
 						!= PRECURSOR_STARBASE))
 			{
 				snprintf (GLOBAL_SIS (PlanetName)
-						+ strlen (GLOBAL_SIS (PlanetName)), 3, "-%c%c",
+						+ strlen (GLOBAL_SIS (PlanetName)), 4, "-%c%c",
 						'A' + moonIndex (
 							pSolarSysState, pSolarSysState->pOrbitalDesc),
 						'\0');
@@ -2833,11 +2833,15 @@ ExploreSolarSys (void)
 	memset (pSolarSysState, 0, sizeof (*pSolarSysState));
 
 	SolarSysState.genFuncs = getGenerateFunctions (CurStarDescPtr->Index);
-	// JSD - adding the following line for debugging plot points
-	if (CurStarDescPtr->Index) fprintf(stderr, "*** Entering Special PLOT System at %d.%d %d.%d: %s (%d)***\n",
-			CurStarDescPtr->star_pt.x / 10, CurStarDescPtr->star_pt.x % 10,
-			CurStarDescPtr->star_pt.y / 10, CurStarDescPtr->star_pt.y % 10,
-			starPresenceString (CurStarDescPtr->Index), CurStarDescPtr->Index);
+#ifdef DEBUG_STARSEED
+	    if (CurStarDescPtr->Index)
+			fprintf (stderr, "*** Entering Special PLOT System at"
+					"%05.1f : %05.1f %s (%d)***\n",
+					CurStarDescPtr->star_pt.x / 10,
+					CurStarDescPtr->star_pt.y / 10,
+					starPresenceString (CurStarDescPtr->Index),
+					CurStarDescPtr->Index);
+#endif
 
 	InitSolarSys ();
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);

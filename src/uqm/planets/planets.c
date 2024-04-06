@@ -374,7 +374,6 @@ void
 DrawOrbitMapGraphic (void)
 {
 	STAMP s;
-	FRAME SurfDefFrame = NULL;
 
 	SetContext (GetScanContext (NULL));
 
@@ -578,7 +577,7 @@ LoadPlanet (FRAME SurfDefFrame)
 				snprintf (
 						(GLOBAL_SIS (PlanetName))
 						+ strlen (GLOBAL_SIS (PlanetName)),
-						3, "-%c%c", 'A'
+						4, "-%c%c", 'A'
 						+ moonIndex (
 							pSolarSysState, pSolarSysState->pOrbitalDesc),
 							'\0');

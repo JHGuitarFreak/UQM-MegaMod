@@ -86,6 +86,7 @@ OPT_ENABLABLE optAddDevices;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 OPT_ENABLABLE optCustomBorder;
+int optSeedType;
 int optCustomSeed;
 int spaceMusicBySOI;
 OPT_ENABLABLE optSpaceMusic;

@@ -971,6 +971,8 @@ START_GAME_STATE
 	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_X, 16)
 	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, 16)
 
+	ADD_GAME_STATE (SEED_TYPE, 2)
+
 END_GAME_STATE
 
 // Values for GAME_STATE.glob_flags:
@@ -1106,6 +1108,7 @@ extern void FreeSC2Data (void);
 extern BOOLEAN LoadSC2Data (void);
 
 extern void InitGlobData (void);
+extern BOOLEAN InitStarseed (BOOLEAN newgame);
 
 BOOLEAN inFullGame (void);
 BOOLEAN inSuperMelee (void);

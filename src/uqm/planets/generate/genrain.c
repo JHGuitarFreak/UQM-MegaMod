@@ -98,29 +98,17 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 static bool
 GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) &&
+			CurStarDescPtr->Index >= RAINBOW0_DEFINED && CurStarDescPtr->Index <= RAINBOW9_DEFINED)
 	{
-		BYTE which_rainbow;
 		UWORD rainbow_mask;
-		STAR_DESC *SDPtr;
 
 		rainbow_mask = MAKE_WORD (
 				GET_GAME_STATE (RAINBOW_WORLD0),
 				GET_GAME_STATE (RAINBOW_WORLD1));
 
-		// JSD The new way of calculating rainbow mask is much easier
+		// The new way of calculating rainbow mask is much easier
 		rainbow_mask |= 1 << (CurStarDescPtr->Index - RAINBOW0_DEFINED);
-#if 0
-		which_rainbow = 0;
-		SDPtr = &star_array[0];
-		while (SDPtr != CurStarDescPtr)
-		{
-			if (SDPtr->Index == RAINBOW_DEFINED)
-				++which_rainbow;
-			++SDPtr;
-		}
-		rainbow_mask |= 1 << which_rainbow;
-#endif // JSD removing old method with if 0
 		SET_GAME_STATE (RAINBOW_WORLD0, LOBYTE (rainbow_mask));
 		SET_GAME_STATE (RAINBOW_WORLD1, HIBYTE (rainbow_mask));
 	}

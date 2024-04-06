@@ -45,16 +45,20 @@ struct RandomContext {
 };
 #endif
 
+// The Planet Generation seeding code alters SeedA to function.
+// All other modes use proper PrimeA == SeedA == 16807
 #define PrimeA 16807
 #define MAX_SEED 2147483644
 #define MIN_SEED 3
 #define SANE_SEED(a) (((a) < MIN_SEED || (a) > MAX_SEED) ? false : true)
-#define SeedA (SANE_SEED (GLOBAL_SIS (Seed)) ? GLOBAL_SIS (Seed) : PrimeA)  // Default: 16807 - a relatively prime number - also M div Q
+#define SeedA (((optSeedType == OPTVAL_PLANET) && \
+		(SANE_SEED (GLOBAL_SIS (Seed)))) ? GLOBAL_SIS (Seed) : PrimeA)
+// Default SeedA (PrimeA): 16807 - a relatively prime number - also M div Q
 #define SeedM (UINT32_MAX / 2) // 0xFFFFFFFF div 2
 #define SeedQ (SeedM / SeedA)  // Default: 127773L - M div A
 #define SeedR (SeedM % SeedA)  // Default: 2836 - M mod A 
-#define PrimeSeed (SeedA == PrimeA ? true : false)
-#define SEED_BOOL(a,b) (!PrimeSeed ? (b) : (a))
+#define PrimeSeed (optSeedType == OPTVAL_PRIME)
+#define StarSeed (optSeedType > OPTVAL_PLANET)
 
 RandomContext *RandomContext_New (void);
 RandomContext *RandomContext_Set(DWORD Context);

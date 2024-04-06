@@ -794,18 +794,15 @@ PlanAmbush (RESPONSE_REF R)
 		if (SyreenPtr)
 		{
 			SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
-			// JSD plotmap
-			//SyreenPtr->loc.x = 4125;
-			//SyreenPtr->loc.y = 3770;
-			SeedFleet (SyreenPtr, plot_map);
+			SyreenPtr->loc = SeedFleetLocation (SyreenPtr, plot_map, HOME);
 			StartSphereTracking (SYREEN_SHIP);
-			//SetRaceDest (SYREEN_SHIP, 6858, 577, 15, (BYTE)~0);
-			SetRaceDest (SYREEN_SHIP, plot_map[MYCON_TRAP_DEFINED].star_pt.x, plot_map[MYCON_TRAP_DEFINED].star_pt.y, 15, (BYTE)~0);
+			POINT loc = SeedFleetLocation (SyreenPtr, plot_map,
+					MYCON_TRAP_DEFINED);
+			SetRaceDest (SYREEN_SHIP, loc.x, loc.y, 15, (BYTE)~0);
 		}
 
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
 	}
-
 
 	Response (whats_my_reward, Foreplay);
 	Response (bye_after_vault, FriendlyExit);

@@ -81,7 +81,7 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 	if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		if (EXTENDED && CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+		if (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED))
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 	}
 
@@ -116,9 +116,9 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 	else if (EXTENDED)
 	{
-		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED)
+		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY2_DEFINED)
 			solarSys->SunDesc[0].PlanetByte = 0;
-		else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+		else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED)
 		{
 			solarSys->SunDesc[0].PlanetByte = 1;
 
@@ -129,8 +129,8 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 			}
 		}
 
-		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-			|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+		if (CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+			&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
 			if (!PrimeSeed)
@@ -150,7 +150,7 @@ GenerateZoqFotPik_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (EXTENDED && CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED
+	if (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED)
 			&& STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY
 			&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
@@ -223,8 +223,8 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		} 
 		else if (EXTENDED)
 		{
-			if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-				|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+			if (CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+				&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED)
 			{
 				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 				solarSys->PlanetSideFrame[1] =
@@ -233,7 +233,7 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						CaptureStringTable (LoadStringTable (ZFPRUINS_STRTAB));
 			}
 
-			if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED)
+			if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY2_DEFINED)
 			{
 				if (!PrimeSeed)
 				{
@@ -257,7 +257,7 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					return true;
 				}
 			}
-			else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+			else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED)
 			{
 				if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
 				{
@@ -327,8 +327,8 @@ GenerateZoqFotPik_generateEnergy (const SOLARSYS_STATE *solarSys,
 	{
 		if (CurStarDescPtr->Index == ZOQFOT_DEFINED)
 			return GenerateDefault_generateRuins (solarSys, whichNode, info);
-		else if (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-				|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED))
+		else if (EXTENDED && CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+				&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED)
 			return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 4,
 					0, whichNode, info);
 	}
@@ -343,8 +343,8 @@ GenerateZoqFotPik_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		if (CurStarDescPtr->Index == ZOQFOT_DEFINED 
-				|| (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-				|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)))
+				|| (EXTENDED && CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+				&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED))
 		{
 			// Standard ruins report
 			GenerateDefault_landerReportCycle (solarSys);

@@ -118,14 +118,20 @@ getGenerateFunctions (BYTE Index)
 		case VUX_BEAST_DEFINED:
 		case VUX_DEFINED:
 			return &generateVuxFunctions;
-		case URQUAN_DEFINED:
-		case KOHRAH_DEFINED:
+		case URQUAN0_DEFINED:
+		case URQUAN1_DEFINED:
+		case URQUAN2_DEFINED:
+		case KOHRAH0_DEFINED:
+		case KOHRAH1_DEFINED:
+		case KOHRAH2_DEFINED:
 		case DESTROYED_STARBASE_DEFINED:
 		case SAMATRA_DEFINED:
 			return &generateSaMatraFunctions; 
 		case ZOQFOT_DEFINED:
 		case ZOQ_COLONY0_DEFINED:
 		case ZOQ_COLONY1_DEFINED:
+		case ZOQ_COLONY2_DEFINED:
+		case ZOQ_COLONY3_DEFINED:
 			return &generateZoqFotPikFunctions;
 		case ZOQ_SCOUT_DEFINED:
 			return &generateZoqFotPikScoutFunctions;

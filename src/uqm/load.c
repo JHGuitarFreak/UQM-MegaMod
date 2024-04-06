@@ -996,6 +996,27 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 
 	// Reset Debug Key
 	DebugKeyPressed = FALSE;
-
-	return TRUE;
+	// Set the SeedType flag and then start Starseed
+	optSeedType = GET_GAME_STATE (SEED_TYPE);
+	optCustomSeed = GLOBAL_SIS (Seed);
+	if (optSeedType == OPTVAL_PRIME && optCustomSeed != PrimeA)
+	{
+		// Assuming load from older version, optSeedType should be 0 (none)
+		// however, if the seed isn't prime, optSeedType goes to 1 (planet)
+		optSeedType = OPTVAL_PLANET;
+		SET_GAME_STATE (SEED_TYPE, optSeedType);
+	}
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Loading game with seed type %d, %s\n",
+			optSeedType,
+			(optSeedType == 0) ? "Default Game Mode (no seeding)" :
+			(optSeedType == 1) ? "Seed Planets (SysGenRNG only)" :
+			(optSeedType == 2) ? "MRQ (Melnorme, Rainbow, and Quasispace)" :
+			(optSeedType == 3) ? "Seed Plot (Starseed)" : "UNKNOWN");
+#endif
+	// During load game we do not want to bail on a bad seed (the argument).
+	// If it fails to load the seed, it will return false.  Also, we need to
+	// call this on all load games to reset the starmap as needed to the
+	// proper state, including Prime seed.
+	return InitStarseed (FALSE);
 }
