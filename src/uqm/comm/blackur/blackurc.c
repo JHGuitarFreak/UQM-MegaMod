@@ -19,6 +19,7 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
+#include "uqm/lua/luacomm.h"
 
 static LOCDATA blackurq_desc =
 {
@@ -541,6 +542,7 @@ Intro (void)
 static COUNT
 uninit_blackurq (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -558,6 +560,8 @@ init_blackurq_comm (void)
 	blackurq_desc.init_encounter_func = Intro;
 	blackurq_desc.post_encounter_func = post_blackurq_enc;
 	blackurq_desc.uninit_encounter_func = uninit_blackurq;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	blackurq_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	blackurq_desc.AlienTextBaseline.y = 0;

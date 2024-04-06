@@ -22,6 +22,7 @@
  * in Lua code.
  */
 
+//#define DEBUG_STARSEED
 #include <stdlib.h>
 
 #define LUAUQM_INTERNAL
@@ -34,6 +35,9 @@
 #include "uqm/battle.h"
 		// For instantVictory
 #include "uqm/comm.h"
+#include "uqm/starmap.h" // for plot map, etc.
+#include "uqm/gamestr.h" // for GAME_STRING
+#include <ctype.h>		 // for islower, isupper, toupper
 
 
 static const char npcPhraseCallbackRegistryKey[] =
@@ -55,6 +59,11 @@ static int luaUqm_comm_getSegue(lua_State *luaState);
 static int luaUqm_comm_setSegue(lua_State *luaState);
 static int luaUqm_comm_isInOuttakes(lua_State *luaState);
 static int luaUqm_comm_setCustomBaseline (lua_State *luaState);
+static int luaUqm_comm_getPoint (lua_State *luaState);
+static int luaUqm_comm_getStarName (lua_State *luaState);
+static int luaUqm_comm_getConstellation (lua_State *luaState);
+static int luaUqm_comm_getColor (lua_State *luaState);
+static int luaUqm_comm_swapIfSeeded (lua_State *luaState);
 
 static const luaL_Reg commFuncs[] = {
 	{ "addResponse",       luaUqm_comm_addResponse },
@@ -66,6 +75,11 @@ static const luaL_Reg commFuncs[] = {
 	{ "isPhraseEnabled",   luaUqm_comm_isPhraseEnabled },
 	{ "setSegue",          luaUqm_comm_setSegue },
 	{ "setCustomBaseline", luaUqm_comm_setCustomBaseline },
+	{ "getPoint",          luaUqm_comm_getPoint },
+	{ "getStarName",       luaUqm_comm_getStarName },
+	{ "getConstellation",  luaUqm_comm_getConstellation },
+	{ "getColor",          luaUqm_comm_getColor },
+	{ "swapIfSeeded",      luaUqm_comm_swapIfSeeded },
 	{ NULL,              NULL },
 };
 
@@ -363,3 +377,183 @@ luaUqm_comm_setCustomBaseline (lua_State *luaState)
 	return 1;
 }
 
+// Prints out the coordinates "044.6 : 540.0" of the plot ID provided.
+// [1] -> string default text
+// [2] -> int plot_id (from plandata)
+static int
+luaUqm_comm_getPoint (lua_State *luaState)
+{
+	const char *prime_text = luaL_checkstring(luaState, 1);
+	if (!StarSeed)
+	{
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	const char *plot_name = luaL_checkstring(luaState, 2);
+	COUNT plot_id = PlotIdStrToIndex (plot_name);
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "get Point called (%s %s) plot ID %d\n", prime_text,
+			plot_name, plot_id);
+#endif
+	if (plot_id >= NUM_PLOTS)
+	{
+		fprintf (stderr, "Plot not found for Point (%s %s).\n", prime_text,
+				plot_name);
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	char dialog[256];
+	snprintf (dialog, sizeof (dialog), "%05.1f : %05.1f",
+			(float) plot_map[plot_id].star_pt.x / 10,
+			(float) plot_map[plot_id].star_pt.y / 10);
+	lua_pushstring (luaState, dialog);
+	return 1;
+}
+
+// A helper function to upper case dialog if key is upper case.
+// If the first two characters of key are upper case, upper the whole dialog.
+// If the first character of key is upper, upper the first char of dialog.
+void
+CheckCase (const char *key, char *dialog)
+{
+	COUNT i = 0;
+	if (isupper (key[0]) && isupper (key[1]))
+		while (dialog[i] != '\0')
+		{
+			dialog[i] = toupper (dialog[i]);
+			i++;
+		}
+	else if (isupper (key[0]) && islower (dialog[0]))
+		dialog[0] = toupper (dialog[0]);
+}
+
+// Prints out the fully qualified star name, e.g. "Alpha Pavonis"
+// [1] -> the default text for prime seed
+// [2] -> the string name of the plot ID for seeding
+static int
+luaUqm_comm_getStarName (lua_State *luaState)
+{
+	const char *prime_text = luaL_checkstring(luaState, 1);
+	if (!StarSeed)
+	{
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	const char *plot_name = luaL_checkstring(luaState, 2);
+	COUNT plot_id = PlotIdStrToIndex (plot_name);
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "get Star Name called (%s %s) plot ID %d\n",
+			prime_text, plot_name, plot_id);
+#endif
+	if (plot_id >= NUM_PLOTS)
+	{
+		fprintf (stderr, "Plot not found for Star Name (%s %s).\n",
+				prime_text, plot_name);
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	char dialog[256];
+	GetClusterName (plot_map[plot_id].star, dialog);
+	CheckCase (prime_text, dialog);
+	lua_pushstring (luaState, dialog);
+	return 1;
+}
+
+// Prints out the nearest constellation name, e.g. "Pavonis"
+// [1] -> the default text for prime seed
+// [2] -> the string name of the plot ID for seeding
+static int
+luaUqm_comm_getConstellation (lua_State *luaState)
+{
+	const char *prime_text = luaL_checkstring(luaState, 1);
+	if (!StarSeed)
+	{
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	const char *plot_name = luaL_checkstring(luaState, 2);
+	COUNT plot_id = PlotIdStrToIndex (plot_name);
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "get Constellation called (%s %s) plot ID %d\n",
+			prime_text, plot_name, plot_id);
+#endif
+	if (plot_id >= NUM_PLOTS)
+	{
+		fprintf (stderr, "Plot not found for Constellation (%s %s).\n",
+				prime_text, plot_name);
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	char dialog[256];
+	STAR_DESC *SDPtr = FindNearestConstellation
+			(star_array, plot_map[plot_id].star_pt);
+	snprintf (dialog, sizeof (dialog), "%s",
+			GAME_STRING (SDPtr->Postfix));
+	CheckCase (prime_text, dialog);
+	lua_pushstring (luaState, dialog);
+	return 1;
+}
+
+// Prints out the color of the star
+// [1] -> the default text for prime seed
+// [2] -> the string name of the plot ID for seeding
+static int
+luaUqm_comm_getColor (lua_State *luaState)
+{
+	const char *prime_text = luaL_checkstring(luaState, 1);
+	if (!StarSeed)
+	{
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	const char *plot_name = luaL_checkstring(luaState, 2);
+	COUNT plot_id = PlotIdStrToIndex (plot_name);
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "get Color called (%s %s)\n", prime_text, plot_name);
+#endif
+	if (plot_id >= NUM_PLOTS)
+	{
+		fprintf (stderr, "Plot not found for getColor (%s %s).\n",
+				prime_text, plot_name);
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	char dialog[256];
+	snprintf (dialog, sizeof (dialog), "%s",
+			(STAR_COLOR(plot_map[plot_id].star->Type) == RED_BODY) ?
+			"red" :
+			(STAR_COLOR(plot_map[plot_id].star->Type) == ORANGE_BODY) ?
+			"orange" :
+			(STAR_COLOR(plot_map[plot_id].star->Type) == YELLOW_BODY) ?
+			"yellow" :
+			(STAR_COLOR(plot_map[plot_id].star->Type) == GREEN_BODY) ?
+			"green" :
+			(STAR_COLOR(plot_map[plot_id].star->Type) == BLUE_BODY) ?
+			"blue" :
+			(STAR_COLOR(plot_map[plot_id].star->Type) == WHITE_BODY) ?
+			"white" : "UNKNOWN");
+	CheckCase (prime_text, dialog);
+	lua_pushstring (luaState, dialog);
+	return 1;
+}
+
+// Prints out the second string instead of the first string.
+// Used to curate text around plot-replacement lookups.
+// [1] -> the default text for prime seed
+// [2] -> the replacement text for starseed
+static int
+luaUqm_comm_swapIfSeeded (lua_State *luaState)
+{
+	const char *prime_text = luaL_checkstring(luaState, 1);
+	if (!StarSeed)
+	{
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+	const char *seed_text = luaL_checkstring(luaState, 2);
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Swap If Seeded called (%s %s)\n", prime_text, seed_text);
+#endif
+	lua_pushstring (luaState, seed_text);
+	return 1;
+}

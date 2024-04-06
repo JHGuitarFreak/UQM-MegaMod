@@ -841,60 +841,37 @@ StartGame (void)
 		}
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);
-
+	// Be sure to load the seed type from the settings into the state
+	SET_GAME_STATE (SEED_TYPE, optSeedType);
+	fprintf(stderr, "StartGame called for %d mode with seed %d.\n",
+			optSeedType, optCustomSeed);
 	{
 		extern STAR_DESC starmap_array[];
 		extern const BYTE element_array[];
 		extern const PlanetFrame planet_array[];
 		extern POINT constell_array[];
 
-		// JSD We no longer make a pointer to the static starmap,
-		// we make our own copy in static memory so it behaves
-		// the same.  There are three extra due to arilou home
-		// and two endpoint dummy systems.
-		// Starseed mod must use the prime A while generating,
-		// can revert after who cares.
-		if (GLOBAL_SIS (Seed) != PrimeA) GLOBAL_SIS (Seed) = PrimeA;
+		// We no longer make a global pointer to the static starmap,
+		// we make our own global copy in static memory so it behaves
+		// the same throughout the code but can be reset as needed.
+		//
+		// As a reminder, the array has three extra entries beyond
+		// NUM_SOLAR_SYSTEMS and NUM_HYPER_VORTICES due to Arilou
+		// Quasispace home and the two endpoint dummy systems used by
+		// FindStar as a boundary.
+		//
+		// While the starseed init code should always force a
+		// reset of the starmap_array, we will do it here because
+		// paranoia is its own reward.
 		//star_array = starmap_array;
-		int i;
-		//fprintf(stderr, "****RESETTING STARMAP TO ORIGINAL****\n");
-		for (i = 0; i < NUM_SOLAR_SYSTEMS + 1 +
-			NUM_HYPER_VORTICES + 1 + 1; i++)
+		COUNT i;
+		fprintf(stderr, "Initializing star_array, just in case...\n");
+		for (i = 0; i < NUM_SOLAR_SYSTEMS + 1 + NUM_HYPER_VORTICES + 1 + 1; i++)
 			star_array[i] = starmap_array[i];
 		Elements = element_array;
 		PlanData = planet_array;
 		constel_array = constell_array;
 	}
-	// JSD init the plot map, seed the stars, seed the plot
-	if (!StarGenRNG)
-	{
-		fprintf(stderr, "****Creating a STAR GEN RNG****\n");
-		StarGenRNG = RandomContext_New ();
-		UWORD rand_val;
-		RandomContext_SeedRandom (StarGenRNG, 123456);
-		while ((rand_val = RandomContext_Random (StarGenRNG)) > 10000)
-			fprintf(stderr, "RANDOM %d\n",rand_val);
-	}
-	InitPlot (plot_map);
-	int starseed = 123456; // Beta Draconis (was Gamma Geminorum at one point)
-	//badstarseed = 123476; 
-	//starseed = 123464; // Beta Brahe seed
-	starseed = 23464; // Zeta Serpentis seed
-	//starseed = 123475; // Theta Crateris seed
-	//badstarseed = 1275;
-	//badstarseed = 123567;
-	//badstarseed = 123555;
-	//badstarseed = 123666;
-	//badstarseed = 123454;
-	//badstarseed = 123463;
-	SeedStarmap (star_array, starseed);
-	while (SeedPlot (star_array, plot_map, starseed) != NUM_PLOTS)
-		fprintf(stderr, "Seed %d failed.\n", starseed++);
-//	for (starseed=0; starseed < NUM_SOLAR_SYSTEMS; starseed++) star_array[starseed].Index = ANDROSYNTH_DEFINED;
-//	plot_map[SOL_DEFINED].star_pt = (POINT) {3619, 2830};
-	SeedQuasispace (portal_map, plot_map, starseed);
-	if (StarGenRNG) RandomContext_Delete (StarGenRNG);
-	StarGenRNG = NULL;
 	PlayerControl[0] = HUMAN_CONTROL | STANDARD_RATING;
 	PlayerControl[1] = COMPUTER_CONTROL | AWESOME_RATING;
 

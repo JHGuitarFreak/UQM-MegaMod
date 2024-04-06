@@ -251,42 +251,25 @@ debugKeyPressedSynchronous (void)
 		equipShip ();
 		showSpheres (FALSE);
 		SET_GAME_STATE (KNOW_QS_PORTAL, ~0);
-		if (!GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD))
-				SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
-				SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD))
-				SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
-				SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
-				SET_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_VUX_HOMEWORLD))
-				SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
-				SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
-				SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD))
-				SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_MYCON_HOMEWORLD))
-				SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
-				SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD))
-				SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
-		if (!GET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD))
-				SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);
+//		SET_GAME_STATE (KNOW_HOMEWORLD, ~0);
+		SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+		SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);
 	}
 
 	forwardToNextEvent (TRUE);
@@ -822,17 +805,11 @@ showSpheres (BOOLEAN Animated)
 				&GLOBAL (avail_race_q), hChmmr);
 
 		SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
-		// JSD changes to hard coded lore
-		//SeedFleet (SyreenPtr, plot_map);
-		//SyreenPtr->loc.x = 4125;
-		//SyreenPtr->loc.y = 3770;
+		SyreenPtr->loc = SeedFleetLocation (SyreenPtr, plot_map, HOME);
 		StartSphereTracking (SYREEN_SHIP);
 
 		ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
-		// JSD changes to hard coded lore
-		//SeedFleet (ChmmrPtr, plot_map);
-		//ChmmrPtr->loc.x = 577;
-		//ChmmrPtr->loc.y = 2509;
+		ChmmrPtr->loc = SeedFleetLocation (ChmmrPtr, plot_map, HOME);
 		StartSphereTracking (CHMMR_SHIP);
 
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
@@ -1266,7 +1243,6 @@ starPresenceString (BYTE index)
 			return "Orz home";
 		case THRADD_DEFINED:
 			return "Thraddash home";
-		// JSD Changed the way RAINBOW#_DEFINED works
 		case RAINBOW0_DEFINED:
 		case RAINBOW1_DEFINED:
 		case RAINBOW2_DEFINED:
@@ -1284,12 +1260,21 @@ starPresenceString (BYTE index)
 			return "Androsynth ruins";
 		case MYCON_TRAP_DEFINED:
 			return "Mycon trap";
-		case URQUAN_DEFINED:
-		case KOHRAH_DEFINED:
+		case URQUAN0_DEFINED:
+		case URQUAN1_DEFINED:
+		case URQUAN2_DEFINED:
+		case KOHRAH0_DEFINED:
+		case KOHRAH1_DEFINED:
+		case KOHRAH2_DEFINED:
 		case DESTROYED_STARBASE_DEFINED:
 			return "Destroyed Starbase";
 		case MOTHER_ARK_DEFINED:
 			return "Mother-Ark";
+		case ZOQ_COLONY0_DEFINED:
+		case ZOQ_COLONY1_DEFINED:
+		case ZOQ_COLONY2_DEFINED:
+		case ZOQ_COLONY3_DEFINED:
+			return "Zoq Fot Ruins";
 		case ALGOLITES_DEFINED:
 			return "Algolites";
 		default:
@@ -1347,7 +1332,7 @@ dumpMoon (FILE *out, const PLANET_DESC *moon)
 		typeStr = planetTypeString (moon->data_index & ~PLANET_SHIELDED);
 	}
 	fprintf (out, "  - Moon %-30c  %s\n",
-			'a' + (moon - &pSolarSysState->MoonDesc[0]), typeStr);
+			'a' + (UNICODE)(moon - &pSolarSysState->MoonDesc[0]), typeStr);
 
 	dumpWorld (out, moon);
 }
@@ -1965,8 +1950,8 @@ dumpStrings (FILE *out)
 	}
 	
 	if (GAMESTR_COUNT != numStrings) {
-		fprintf(stderr, "Warning: GAMESTR_COUNT is %d, but GameStrings "
-				"contains %d strings.\n", GAMESTR_COUNT, numStrings);
+		fprintf(stderr, "Warning: GAMESTR_COUNT is %i, but GameStrings "
+				"contains %ld strings.\n", GAMESTR_COUNT, numStrings);
 	}
 
 	categoryI = 0;
@@ -1974,7 +1959,7 @@ dumpStrings (FILE *out)
 		while (categoryI < numCategories &&
 				stringI >= categories[categoryI + 1].base)
 			categoryI++;
-		fprintf(out, "[ %s + %d ]  %s\n", categories[categoryI].name,
+		fprintf(out, "[ %s + %ld ]  %s\n", categories[categoryI].name,
 				stringI - categories[categoryI].base, GAME_STRING((COUNT)stringI));
 	}
 }
