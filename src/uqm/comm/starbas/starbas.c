@@ -380,8 +380,7 @@ AllianceInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_SHOFIXTI);
 		AllianceMask |= ALLIANCE_SHOFIXTI;
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SetHomeworldKnown (SHOFIXTI_HOME);
 	}
 	else if (PLAYER_SAID (R, yehat))
 	{

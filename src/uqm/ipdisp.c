@@ -815,7 +815,8 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 
 static void
 AdjustInitialPosition (void)
-{
+{// Corrects SIS position - rounding error, described in 
+ // EnterPlanetOrbit() in solarsys.c
 	BYTE flagship_loc;
 	SIZE radius;
 	POINT pt;

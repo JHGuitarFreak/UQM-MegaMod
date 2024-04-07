@@ -69,8 +69,6 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			// JSD Androsynth need 2, sir
-			// This needs additional work as the planets can still spawn out of sequence, etc.
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 			fprintf(stderr, "Generating ANDROSNYTH_DEFINED with %d planets.\n", solarSys->SunDesc[0].NumPlanets);
@@ -83,7 +81,6 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			// JSD Androsynth need 3 sir
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 			CheckForHabitable (solarSys);

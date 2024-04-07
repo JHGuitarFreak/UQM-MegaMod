@@ -890,8 +890,7 @@ Intro (void)
 			{
 				case 0:
 					NPCPhrase (INIT_SPACE_HELLO);
-					if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
-						SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+					SetHomeworldKnown (DRUUGE_HOME);
 					break;
 				case 1:
 					NPCPhrase (SUBSEQUENT_SPACE_HELLO);

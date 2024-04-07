@@ -1,87 +1,83 @@
-## [Ideas]
-- Special captain graphics in melee for Fwiffo's ship - Jo Li KMC
-- Special game over sequence for the Death March while hiding in QuasiSpace - Jo Li KMC
-- Extend custom border to the playback bar during coversations
-- Restored DOS script when opting out of 3DO voices or if the add-on isn't available
-- Consolidate in-engine drawn shadow boxes
+# Changelog
+All notable changes to this project will be documented in this file.
 
-## [v0.8.2]
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+
+## [v0.8.3]
+
 ### Added
-- Added a dotted fuel circle that shows the fuel range at the destination - PR #102 by taleden
-- Added ability to load glyph spacing and kerning data from a file inside the font directory
-- Added ability to take screenshots using the F8 key. A '.png' file will be saved in the config directory in the "screenshots" folder
-- Added autoload capability for the Classic HD-mod look & feel addon pack
-- Recreated DOS planet scan sphere graphics from scratch - Kruzen
-- Added ability to set nebulae brightness via slider option (when nebulae are enabled) - Kruzen
-- EXTENDED: The Kohr-Ah lose a tiny fraction of their SOI when the Supox and Utwig attack them.
-- Show Auto-Pilot destination and distance to destination when Smart Auto-Pilot is enabled.
-- HARDMODE: Keep time running while orbiting a planet & during a landing excursion
-- Added ability to toggle reticules on stars of interest on the StarMap
-- Transparent Suns for Vanilla graphics while nebulae are enabled - Kruzen
-- Added new "Slaughter Mode" that allows the player to affect Fleet SOI by destroying ships (does not work on the Pkunk, Yehat, Thraddash, and Ilwrath)
-- SETUPMENU: Added ability to turn any given Tooltip line red by adding "&!" to the beginning of the line
-- SETUPMENU: Added ability to underline any given Label line by adding "&_" to the beginning of the line
-- Added oldschool styled DOS fade-in/fade-out animation - Kruzen
-- Added faithful 3DO spheres and slave shield - Kruzen
-- SETUPMENU: Added ability to underline any given Label line by adding "&_" to the beginning of the line
-- EXTENDED: Added ability to open up a HyperSpace portal in QuasiSpace to go right back to where you opened up the initial QuasiSpace portal
-- Centered annotations (REPORT FROM SURFACE, END OF REPORT, etc) for full screen width reports - Kruzen
-- EXTENDED: Ships exploding in Super Melee do not lose all velocity
-- New logo animation graphics created by Kruzen
+- Advanced Auto-Pilot option that auto-pilots the flagship on the shortest route through HyperSpace or QuasiSpace
+- Option to resume all music where it last left off
+- A map that shows Rainbow Worlds that have been currently discovered
+- Option to show short tooltips at the bottom of the melee screen when picking a ship a la SC1 - Kruzen
+- Ability to change graphics and music options without restarting
+- Option to switch between DOS, 3DO, and UQM "Platform UI" (Making MegaMod look like those respective versions)
+- Option to set a custom resolution via text input within the Setup Menu
+- Option to choose between borderless and exclusive fullscreen (SDL2 builds only)
+- SC1 style ship spins with new pop-up animation - Kruzen
+- HD: Draw HD and custom border bevels dynamically
+- All text on-screen is now drawn in-engine to help with modding and translations
+- HD: New fonts made for various UI elements all across the game (SUPER-MELEE title, BATTLE! text, 3DO menu labels, etc...)
+- HD: Ilwrath, Ur-Quan, and Spathi fonts fully remade
+- EXTENDED: Apply unused Melnorme dialog when filling tanks to their full capacity
 
 ### Changed
-- Bubble Warp cheat activates when exiting the StarMap (while not in QuasiSpace or not using the Infinite Fuel cheat) - PR #102 by taleden
-- Improved point-of-no-return fuel ellipse to show proper range back to Sol - PR #102 by taleden - Superseded using Malin's code from Roguelike
-- Filled in point-of-no-return fuel ellipse - Kruzen
-- De-duplicate the GameStateBitMaps to make them easier to safely extend - PR #101 by taleden
-- HARDMODE: Changed THRADDASH_BODY_COUNT from 35 to 30 which prevents saved game overflows when the count was 32+. - Bug #99
-- HD: Make the leading edge of the 3DO planet scan a smooth gradient
-- HD: Slylandro Gas-Bags now have working color transforms - Kruzen
-- EXTENDED: Add small chance of weather and tectonic hazards to level 2 
-- HD: Shipyard powerlines now have smoother gradients - Kruzen
-- HD: Fuel gauge for shipyard and outfit now have smoother gradients - Kruzen
-- Updated cursor speed modifier to 3x for picking a landing zone
-- HD: Melnorme background color changes done via colortable - Kruzen
-- HD: Slylandro, Chmmr, Hayes, Orz, Talking Pet, VUX, Safe Ones, and Syreen color changes all done via color filters - Kruzen
-- Made directional text input look more like 3DO text input
-- Changed Starmap controls for gamepads and updated the in-game helpers to reflect the new controls
-- Expand the width of name variables to allow for unicode character widths.
-- "Rebrand" Precursor Mode back into "God Modes"
-- HD: Use a 5x5 dot for planet/moon intersect frame
-- Captain avatar animation system rework: Super Melee captain's middle or "tween" animations now play properly instead of relying directly on CPU speed - Kruzen
-- Extended HD-default UI to all aspects of the Super Melee UI
-- Setting Auto-Pilot destination to the current star system sets Auto-Pilot directly to HyperSpace
-- EXTENDED: Give Zex an alternate uniform and more medals differing him from other VUX - Kruzen
-- EXTENDED: Give the Kzer-Za their baton on the comm screen - Kruzen
-- HARDMODE: Set crew remaining on the Starbase to 1900 per Hayes' dialog
-- Draw traced fonts on scan screen when nebulae are enabled
-- SETUPMENU: Change "IP Transitions" into "Screen Transitions"
-- Better font switching code for the Alternate Orz Font option - Kruzen
-- Orbit reports now aligned properly when using DOS Lander style - Kruzen
-- HD: Maka Talana's eye glow animation more dramatic to match Vanilla
-- HD: Rerender Arilou, Orz, and Alternate Orz fonts for HD-mod Classic Pack
-- HD: Rerender updated Commander, StarCon, Tiny, Player, and Chmmr font
-- HD: Minor HD fixes and Major revamps for a few race's comm screens. All images are now using proper code for palettes - Kruzen
-- Update the font gradients to be more faithful to the DOS colors
-- EXTENDED: Use alternate color palette for the Ur-Quan's talking pet - Kruzen
-- SETUPMENU: Partial Mineral Pickup changed to Partial Pickup
-- When Partial Pickup is enabled biological data will not be picked up if it is larger than the remaining lander hold
-
+- Cleaned up the Setup Menu code to make it more readable - Kruzen
+- Consolidate in-engine drawn shadow boxes
+- HD: Separated all ambient animations into their own option (Hyper/QuasiSpace gravity wells and solar system suns) - Kruzen
+- HD: Slides, Tiny, TinyBold, TinyCondensed, Player, StarCon, PlayMenu, Label, Lander, and Commander fonts updated
+- HD: Enhance HyperSpace stars - Kruzen
+- HD: HD content check now happens during game startup and within the setup menu (instead of on the main menu screen)
+- HD: Now using Bummer6's Ilwrath Avenger concept art
+- HD: Use color filters to change the colors of the flagship and hyperspace "Nngh" between Hyper and QuasiSpace - Kruzen
+- Moved Starmap keys and mineral helpers to the Flagship status area (Top-right of the screen)
+- Made the FPS counter show on-screen instead of in the console - Kruzen
+- HD: Refined melee projectiles and assets - Kruzen
+- Optimized DrawGalaxy() func that draws stars in melee and hyperspace - Kruzen
+- HD: Stars in HD melee now resembles SD more that ever (with unscaled stamp option) - Kruzen
+- Dying SoI now have a brief animation of the race's name to make it more noticeable - Kruzen
+- HD: Circles appear with smooth edges (fake AA) - Kruzen
+- Race names don't overlap and stack on top of each other now - Kruzen
+- Draw bigger radar border in all non-3DO modes
+- HD: Brighten orbit dots when nebulae are enabled
+- HARDMODE: Moved remaining crew above the flagship to fit on-screen in all screen modes
+- Graphics settings now activate immediately within the setup menu
+- Sound slider improved and now you can hear the corresponding volume setting changes "live" - Kruzen
+- Randomize nebulae using system seed when custom seed is set
+- Set borderless fullscreen as the default on new installs
+- HD: Reworked the mineral node graphics to be even more faithful to the originals
+- Updated Windows installer to check for and delete old content when installing over another version of UQM
+- HD: Added blue glow to bomb modules in DOS ending cutscene - Kruzen
+- Random planets in HyperSpace encounters are now properly saved and loaded - Kruzen
+- Randomize background nebulae based on system seed instead of star location
+- Now using an updated version of Volasaurus' interplanetary space theme
 
 ### Fixed
-- Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
-- HARDMODE: Fixed Melnorme tech price increasing (unintentionally) when refusing to buy new tech and going back to buy the same tech - Bug #100
-- Fixed Y coordinates for mineral nodes when using 3DO planet textures
-- Fixed PC lander graphic being transparent when planet is loading
-- Fixed textured moons loading regardless if Textured Planets was enabled or not
-- EXTENDED: Fixed interaction with Alpha Apodis IV
-- Fixed 3DO slave shield expanding when finishing a conversation with the Chenjesu/Mmrnmhrm
-- Realigned the stars via the .ani to get rid of HD compensation code for the Starmap - Kruzen
-- Fixed bug when exiting game via F10 while entering a captain's name on a new game then immediately starting a new game autofills the captain's name as "UNNAMED"
-- Fixed bug with No Melee Obstacles cheat that caused hard crashes
-- HARDMODE: Fixed oversight that caused the Pkunk to never migrate
-- EXTENDED: Fixed planet names at Gamma Ophiuchi
-- Fixed DOS Lander border not erasing when returning to orbit
-- HD: Fixed the borders of various dialog boxes
-- HD: Fixed bevel inconsistencies for the 3DO pictograph menu
-- HD: Fixed "Fuel Range at Destination" indicator when in HyperSpace
+- Fixed Unlock Ships cheat from showing a second Yehat Terminator
+- Fixed loading of Core saves
+- "Fixed" lander module display in outfit menu to correspond with current selection position - Kruzen
+- Suppressed a metric ton of compiler warnings
+- Fixes Syreen palette blend from all-black - Kruzen
+- Added Tarp and Bummer6 to the credits
+- HD: HyperSpace ambience (*Nnngn*) fixed - Kruzen
+- HD: Fix Chenjesu intelligence crash
+- Optimized fuel circles to prevent graphical glitches - Kruzen
+- Fixed kerning when kerndata for a character equals zero
+- Fix kerning when the kerndata only has the opening line
+- Fixed a bug when some SoI circles sometimes disappear with big enough zoom-in - Kruzen
+- HD: Fix oscilloscope lines and scale it to 60fps
+- Fixed Procyon not generating the Chmmr homeworld in some custom seeds
+- Fixed the Mother Ark star system from not generating the amount of planets necessary in some custom seeds
+- Androsynth homestar will now have the appropriate amount of planets in Custom Seed thanks to jsd3306
+- Fixed dithering on planets from re-rolling their RNG resulting in a slightly changed texture - Kruzen
+- Content Bug #25 Squashed - Comma on the wrong page in Thraddash convo - Kruzen
+- Captain and Flagship renaming will no longer become stuck (seemingly at random) on just naming the Flagship
+- Black screen at the Load screen fixed when quitting to the Main Menu immediately after starting a new game
+- HyperSpace coordinates glitching when traveling to the far edges of the map fixed
+- Code Bug #165 Squashed - Laser collision is broken in HD for some ships - Kruzen
+- Code Bug #166 Squashed - X-Form lasers should collide and spawn impact graphics - Kruzen
+- Code Bug #156 Squashed - 3DO planet have a black 1px dot in the middle - Mysteriously disappeared over time
+- Code Bug #162 Squashed - Selling Planet Landers Does Not Remove Sprite
+- ANDROID: Fix directional joystick from instantly turning ship to the right on just a tap
+- ANDROID: On-screen controls fixed in the Shipyard and Outfit screens
+- Code Bug #239 Squashed - Hard Mode Slylandro Battlegroups causing crash when saving, then loading, around Rainbow Worlds is fixed

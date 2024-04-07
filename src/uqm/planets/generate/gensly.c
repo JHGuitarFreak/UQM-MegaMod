@@ -66,7 +66,7 @@ GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (!PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random (SysGenRNG) % (YEL_GAS_GIANT - BLU_GAS_GIANT) + BLU_GAS_GIANT);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 	}
 
@@ -103,4 +103,3 @@ GenerateSlylandro_generateOrbital (SOLARSYS_STATE *solarSys,
 	GenerateDefault_generateOrbital (solarSys, world);
 	return true;
 }
-

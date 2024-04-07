@@ -709,7 +709,6 @@
 #define YELLOW_STAR_COLOR \
 			BUILD_COLOR_RGB (0xDE, 0xC8, 0x10)
 
-
 // === Play Menu ===
 
 #define PM_RECT_COLOR   DKGRAY_COLOR
@@ -723,6 +722,11 @@
 #define SHP_RECT_COLOR   PM_RECT_COLOR
 #define SHP_TEXT_COLOR   BUILD_SHADE_RGBA (0x78)
 #define SHP_SHADOW_COLOR BUILD_SHADE_RGBA (0x4B)
+
+// === Lander Status ===
+
+#define LAND_STAT_MIN_COLOR BUILD_COLOR_RGB (0x7C, 0x00, 0x00)
+#define LAND_STAT_DAT_COLOR BUILD_COLOR_RGB (0x00, 0x00, 0x90)
 
 // Temporary, until we can use C'99 features:
 #define BLACK_COLOR_INIT \

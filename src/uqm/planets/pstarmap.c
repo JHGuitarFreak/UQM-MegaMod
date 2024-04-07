@@ -755,92 +755,92 @@ isHomeworld (BYTE Index)
 	switch (Index)
 	{
 		case CHMMR_DEFINED:
-			if (GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD)
+			if (IsHomeworldKnown (CHMMR_HOME)
 				&& CheckAlliance (CHMMR_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ORZ_DEFINED:
-			if (GET_GAME_STATE (KNOW_ORZ_HOMEWORLD)
+			if (IsHomeworldKnown (ORZ_HOME)
 				&& CheckAlliance (ORZ_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case PKUNK_DEFINED:
-			if (GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD)
+			if (IsHomeworldKnown (PKUNK_HOME)
 				&& CheckAlliance (PKUNK_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SHOFIXTI_DEFINED:
-			if (GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD)
+			if (IsHomeworldKnown (SHOFIXTI_HOME)
 				&& CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SPATHI_DEFINED:
-			if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD)
+			if (IsHomeworldKnown (SPATHI_HOME)
 				&& CheckAlliance (SPATHI_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SUPOX_DEFINED:
-			if (GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD)
+			if (IsHomeworldKnown (SUPOX_HOME)
 				&& CheckAlliance (SUPOX_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case THRADD_DEFINED:
-			if (GET_GAME_STATE (KNOW_THRADD_HOMEWORLD)
+			if (IsHomeworldKnown (THRADDASH_HOME)
 				&& CheckAlliance (THRADDASH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case UTWIG_DEFINED:
-			if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD)
+			if (IsHomeworldKnown (UTWIG_HOME)
 				&& CheckAlliance (UTWIG_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case VUX_DEFINED:
-			if (GET_GAME_STATE (KNOW_VUX_HOMEWORLD)
+			if (IsHomeworldKnown (VUX_HOME)
 				&& CheckAlliance (VUX_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case YEHAT_DEFINED:
-			if (GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD)
+			if (IsHomeworldKnown (YEHAT_HOME)
 				&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case DRUUGE_DEFINED:
-			if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD)
+			if (IsHomeworldKnown (DRUUGE_HOME)
 				&& CheckAlliance (DRUUGE_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ILWRATH_DEFINED:
-			if (GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD)
+			if (IsHomeworldKnown (ILWRATH_HOME)
 				&& CheckAlliance (ILWRATH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case MYCON_DEFINED:
-			if (GET_GAME_STATE (KNOW_MYCON_HOMEWORLD)
+			if (IsHomeworldKnown (MYCON_HOME)
 				&& CheckAlliance (MYCON_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SLYLANDRO_DEFINED:
-			if (GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD)
+			if (IsHomeworldKnown (SLYLANDRO_HOME)
 				&& Index == SLYLANDRO_DEFINED)
 				raceBool = TRUE;
 			break;
 		case UMGAH_DEFINED:
-			if (GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD)
+			if (IsHomeworldKnown (UMGAH_HOME)
 				&& CheckAlliance (UMGAH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ZOQFOT_DEFINED:
-			if (GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD)
+			if (IsHomeworldKnown (ZOQFOTPIK_HOME)
 				&& CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SYREEN_DEFINED:
-			if (GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD)
+			if (IsHomeworldKnown (SYREEN_HOME)
 				&& CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ANDROSYNTH_DEFINED:
-			if (GET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD)
+			if (IsHomeworldKnown (ANDROSYNTH_HOME)
 				&& Index == ANDROSYNTH_DEFINED
 				&& CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;

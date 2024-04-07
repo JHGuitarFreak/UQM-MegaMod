@@ -207,7 +207,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, slaughterMode);
 	DECL_CONFIG_OPTION(bool, advancedAutoPilot);
 	DECL_CONFIG_OPTION(bool, meleeToolTips);
-	DECL_CONFIG_OPTION(bool, musicResume);
+	DECL_CONFIG_OPTION(int,  musicResume);
 	DECL_CONFIG_OPTION(int,  windowType);
 
 #define INIT_CONFIG_OPTION(name, val) \
@@ -322,12 +322,11 @@ main (int argc, char *argv[])
 #if defined(ANDROID) || defined(__ANDROID__)
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        320, 240 ),
-		INIT_CONFIG_OPTION(  fullscreen,        1 ),
 #else
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-		INIT_CONFIG_OPTION(  fullscreen,        0 ),
 #endif
+		INIT_CONFIG_OPTION(  fullscreen,        2 ),
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
 		INIT_CONFIG_OPTION(  showFps,           false ),
@@ -420,7 +419,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
-		INIT_CONFIG_OPTION(  musicResume,       false ),
+		INIT_CONFIG_OPTION(  musicResume,       0 ),
 		INIT_CONFIG_OPTION(  windowType,        2 ),
 	};
 	struct options_struct defaults = options;
@@ -1150,7 +1149,11 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->advancedAutoPilot,
 			"mm.advancedAutoPilot");
 	getBoolConfigValue (&options->meleeToolTips, "mm.meleeToolTips");
-	getBoolConfigValue (&options->musicResume, "mm.musicResume");
+
+	if (res_IsInteger ("mm.musicResume") && !options->musicResume.set)
+	{
+		options->musicResume.value = res_GetInteger ("mm.musicResume");
+	}
 
 	if (res_IsInteger ("mm.windowType") && !options->windowType.set)
 	{
@@ -1361,7 +1364,7 @@ static struct option longOptions[] =
 	{"slaughtermode", 0, NULL, SLAUGHTER_OPT},
 	{"advancedautopilot", 0, NULL, SISADVAP_OPT},
 	{"meleetooltips", 0, NULL, MELEETIPS_OPT},
-	{"musicresume", 0, NULL, MUSICRESUME_OPT},
+	{"musicresume", 1, NULL, MUSICRESUME_OPT},
 	{"windowtype", 1, NULL, WINDTYPE_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
@@ -2078,8 +2081,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->meleeToolTips, true);
 				break;
 			case MUSICRESUME_OPT:
-				setBoolOption (&options->musicResume, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Music Resume") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nMusic Resume has to be between 0-2\n");
+					badArg = true;
+				}
+				else
+				{
+					options->musicResume.value = temp;
+					options->musicResume.set = true;
+				}
 				break;
+			}
 			case WINDTYPE_OPT:
 			{
 				int temp;
@@ -2485,10 +2505,10 @@ usage (FILE *out, const struct options_struct *defaults)
 			"when picking a ship for your fleet (default: %s)",
 			boolOptString (&defaults->meleeToolTips));
 	log_add (log_User, "  --musicresume : Resumes the music"
-			"in UQM where it last left off (default: %s)",
-			boolOptString (&defaults->musicResume));
+			"in UQM where it last left off : 0: Off | 1: 5 Minutes | "
+			"2: Indefinite (default: 0)");
 	log_add (log_User, "  --windowtype : Choose between DOS, 3DO or "
-			"UQM window types (default: UQM)");
+			"UQM window types : 0: DOS | 1: 3DO | 2: UQM (default: 0)");
 
 	log_setOutput (old);
 }

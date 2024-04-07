@@ -127,7 +127,7 @@ OPT_ENABLABLE optSlaughterMode;
 BOOLEAN optMaskOfDeceit;
 OPT_ENABLABLE optAdvancedAutoPilot;
 OPT_ENABLABLE optMeleeToolTips;
-OPT_ENABLABLE optMusicResume;
+int optMusicResume;
 DWORD optWindowType;
 
 OPT_ENABLABLE opt3doMusic;

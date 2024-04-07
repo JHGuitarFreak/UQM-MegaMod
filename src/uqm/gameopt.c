@@ -397,6 +397,9 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 				(NAMING_STRING_BASE + 2 + nameCaptain));
 	}
 
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		NewGameInit = FALSE;
+
 	FlushCursorRect ();
 
 	SetFlashRect (SFR_MENU_3DO, FALSE);
@@ -604,8 +607,7 @@ DoSettings (MENU_STATE *pMS)
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
-		if (NewGameInit)
-			i = 0;
+		i = 0;
 		return FALSE;
 	}
 

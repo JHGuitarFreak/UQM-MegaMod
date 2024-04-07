@@ -178,7 +178,7 @@ GetToolTipFrameRect (RECT *r)
 }
 
 #define RACE_NAME_OFFSET 0
-#define RACE_SHIP_OFFSET 4
+#define RACE_SHIP_OFFSET 3
 
 void
 DrawTooltip (SHIP_INFO *SIPtr)

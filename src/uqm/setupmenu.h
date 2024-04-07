@@ -141,6 +141,12 @@ typedef enum {
 	OPTVAL_STAR
 } OPT_SEED;
 
+typedef enum {
+	OPTVAL_RESUME_DISABLED,
+	OPTVAL_RESUME_5MIN,
+	OPTVAL_RESUME_INDEFINITE
+} OPT_MUSICRESUME;
+
 /* At the moment, CONTROL_TEMPLATE is directly in this structure.  If
  * CONTROL_TEMPLATE and the options available diverge, this will need
  * to change */
@@ -161,6 +167,7 @@ typedef struct globalopts_struct {
 	OPT_SPHERETYPE sphereType;
 	OPT_WINDOWTYPE windowType;
 	OPT_SEED seedType;
+	OPT_MUSICRESUME musicResume;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
@@ -171,7 +178,7 @@ typedef struct globalopts_struct {
 			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
 			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
 			showVisitedStars, unscaledStarSystem, slaughterMode,
-			advancedAutoPilot, meleeToolTips, musicResume;
+			advancedAutoPilot, meleeToolTips;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;

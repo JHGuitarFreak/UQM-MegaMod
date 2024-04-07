@@ -22,6 +22,7 @@
 
 #include "uqm/lua/luacomm.h"
 #include "uqm/gameev.h"
+#include "uqm/races.h"
 
 
 static LOCDATA shofixti_desc =
@@ -193,8 +194,7 @@ ExitConversation (RESPONSE_REF R)
 	{
 		NPCPhrase (OK_WILL_BE_SENTRY);
 
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SetHomeworldKnown (SHOFIXTI_HOME);
 
 		setSegue (Segue_peace);
 	}
@@ -433,8 +433,7 @@ Friendly (RESPONSE_REF R)
 	{
 		NPCPhrase (I_GUARD);
 
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SetHomeworldKnown (SHOFIXTI_HOME);
 
 		LastStack = 1;
 		SET_GAME_STATE (SHOFIXTI_STACK1, 1);
@@ -456,8 +455,7 @@ Friendly (RESPONSE_REF R)
 	{
 		NPCPhrase (BLEW_IT_UP);
 
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SetHomeworldKnown (SHOFIXTI_HOME);
 
 		LastStack = 2;
 		SET_GAME_STATE (SHOFIXTI_STACK3, 1);

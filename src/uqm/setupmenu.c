@@ -517,8 +517,9 @@ do_keyconfig (WIDGET *self, int event)
 
 static void
 populate_seed (void)
-{	
-	sprintf (textentries[1].value, "%d", optCustomSeed);
+{
+	snprintf (textentries[1].value, sizeof (textentries[1].value), "%d",
+			optCustomSeed);
 	if (!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
 }
@@ -626,26 +627,6 @@ check_for_hd (WIDGET_CHOICE *self, int oldval)
 		oldval = OPTVAL_320_240;
 		addon_unavailable (self, OPTVAL_320_240);
 	}
-
-	switch (choices[81].selected)
-	{
-		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (DOS_MODE (HD)))
-			{
-				optWindowType = OPTVAL_UQM_WINDOW;
-				choices[81].selected = OPTVAL_UQM_WINDOW;
-			}
-			break;
-		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (THREEDO_MODE (HD)))
-			{
-				optWindowType = OPTVAL_UQM_WINDOW;
-				choices[81].selected = OPTVAL_UQM_WINDOW;
-			}
-			break;
-		default:
-			break;
-	}
 }
 
 static BOOLEAN
@@ -726,19 +707,9 @@ check_availability (WIDGET_CHOICE *self, int oldval)
 		check_remixes (self, oldval);
 	}
 
-	if (self->choice_num == 81 && check_dos_3do_modes (self, oldval))
+	if (self->choice_num == 81)
 	{
-		int NewHeight = ScreenHeightActual;
-
-		PutIntOpt ((int *)&optWindowType, (int *)&self->selected,
-				"mm.windowType", TRUE);
-
-		NewHeight = DOS_BOOL (240, 200) * (1 + choices[42].selected);
-
-		if (NewHeight != ScreenHeightActual)
-			ScreenHeightActual = NewHeight;
-
-		res_PutInteger ("config.resheight", ScreenHeightActual);
+		check_dos_3do_modes (self, oldval);
 	}
 }
 
@@ -2329,6 +2300,39 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	{
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		resolutionFactor = resFactor;
+
+		switch (opts->windowType)
+		{
+			case OPTVAL_PC_WINDOW:
+				if (!isAddonAvailable (DOS_MODE (resolutionFactor)))
+				{
+					opts->windowType = OPTVAL_UQM_WINDOW;
+				}
+				break;
+			case OPTVAL_3DO_WINDOW:
+				if (!isAddonAvailable (THREEDO_MODE (resolutionFactor)))
+				{
+					opts->windowType = OPTVAL_UQM_WINDOW;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	if (optWindowType != opts->windowType)
+	{
+		int nh;
+		PutIntOpt ((int *)&optWindowType, (int *)&opts->windowType,
+				"mm.windowType", TRUE);
+
+		nh = DOS_BOOL (240, 200) * (1 + opts->loresBlowup);
+
+		if (nh != ScreenHeightActual)
+		{
+			ScreenHeightActual = nh;
+			res_PutInteger("config.resheight", ScreenHeightActual);
+		}
 	}
 
 //#if !(defined(ANDROID) || defined(__ANDROID__))
@@ -2376,7 +2380,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			UninitMenuMusic ();
 	}
 
-	PutBoolOpt (&optMusicResume, &opts->musicResume, "mm.musicResume", FALSE);
+	PutIntOpt (&optMusicResume, &opts->musicResume, "mm.musicResume", FALSE);
 	PutBoolOpt (&optSpeech, &opts->speech, "config.speech", TRUE);
 
 	if (audioDriver != opts->adriver)
@@ -2521,7 +2525,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		int customSeed = atoi (textentries[1].value);
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;
-		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE); 
+		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
 	}
 
 	PutIntOpt (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", FALSE);
