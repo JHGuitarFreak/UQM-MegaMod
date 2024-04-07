@@ -73,6 +73,7 @@ extern OPT_ENABLABLE optAddDevices;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
 extern OPT_ENABLABLE optCustomBorder;
+extern int optSeedType;
 extern int optCustomSeed;
 extern int spaceMusicBySOI;
 extern OPT_ENABLABLE optSpaceMusic;
@@ -113,8 +114,8 @@ extern OPT_ENABLABLE optSlaughterMode;
 extern BOOLEAN optMaskOfDeceit;
 extern OPT_ENABLABLE optAdvancedAutoPilot;
 extern OPT_ENABLABLE optMeleeToolTips;
-extern OPT_ENABLABLE optMusicResume;
-extern DWORD optWindowType;;
+extern int optMusicResume;
+extern DWORD optWindowType;
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;

@@ -48,7 +48,7 @@
 
 #define XOFFS ((RADAR_SCAN_WIDTH + (UNIT_SCREEN_WIDTH << 2)) >> 1)
 #define YOFFS ((RADAR_SCAN_HEIGHT + (UNIT_SCREEN_HEIGHT << 2)) >> 1)
-#define ANIMATED_HYPERSAPCE (IS_HD && optHyperStars)
+#define ANIMATED_HYPERSPACE (IS_HD && optHyperStars)
 
 static FRAME hyperstars[3];
 static COLORMAP hypercmaps[2];
@@ -443,9 +443,9 @@ FreeHyperData (void)
 	hypercmaps[1] = 0;
 }
 
-#define ARISPACE_MASK (ANIMATED_HYPERSAPCE ? \
+#define ARISPACE_MASK (ANIMATED_HYPERSPACE ? \
 						ARIANIM_MASK_PMAP_ANIM : ARISPACE_MASK_PMAP_ANIM)
-#define HYPERSTARS_MASK (ANIMATED_HYPERSAPCE ? \
+#define HYPERSTARS_MASK (ANIMATED_HYPERSPACE ? \
 						HYPERANIM_MASK_PMAP_ANIM : HYPERSTARS_MASK_PMAP_ANIM)
 
 static void
@@ -1147,11 +1147,11 @@ AddAmbientElement (void)
 	}
 }
 
-#define NUM_VORTEX_TRANSITIONS (ANIMATED_HYPERSAPCE ? 18 : 9)
+#define NUM_VORTEX_TRANSITIONS (ANIMATED_HYPERSPACE ? 18 : 9)
 #define VORTEX_WAIT 1
 /* Hyperspace Animation related */
 #define BASE_VORTEX_FRAME_INDEX 139 // Kruzen: first frame of actual battle group vortex, not the birth/death
-#define TR_COMPENSATION (ANIMATED_HYPERSAPCE ? 8 : 0)// Kruzen: transition_state counts down from 100 when reforming a vortex, but reaching 9 with
+#define TR_COMPENSATION (ANIMATED_HYPERSPACE ? 8 : 0)// Kruzen: transition_state counts down from 100 when reforming a vortex, but reaching 9 with
 // standard option it stars count down every other frame, effectively adding 8 frames of waiting
 
 // Kruzen: preprocess func for animated hole
@@ -1194,13 +1194,13 @@ encounter_transition (ELEMENT *ElementPtr)
 				ElementPtr->next.image.frame = f;
 			else
 			{
-				if (ANIMATED_HYPERSAPCE)
+				if (ANIMATED_HYPERSPACE)
 					ElementPtr->preprocess_func = encounter_animation;
 				ElementPtr->death_func = NULL;
 			}
 		}
 
-		ElementPtr->turn_wait = (ANIMATED_HYPERSAPCE ? 0 : VORTEX_WAIT);
+		ElementPtr->turn_wait = (ANIMATED_HYPERSPACE ? 0 : VORTEX_WAIT);
 	}
 }
 
@@ -1395,7 +1395,7 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 		}
 		else
 		{
-			if (ANIMATED_HYPERSAPCE)
+			if (ANIMATED_HYPERSPACE)
 			{
 				ElementPtr->preprocess_func = encounter_animation;
 				ElementPtr->current.image.frame = SetAbsFrameIndex (
@@ -1599,7 +1599,7 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 				EncounterPtr->transition_state = -1;
 				ElementPtr->hit_points = 1;
 
-				if (ANIMATED_HYPERSAPCE)
+				if (ANIMATED_HYPERSPACE)
 				{
 					ElementPtr->preprocess_func = NULL;
 					ElementPtr->current.image.frame = 
@@ -1795,7 +1795,7 @@ SeedUniverse (void)
 			// A player-created QuasiSpace portal is opening.
 			static POINT portal_pt;
 
-			if (ANIMATED_HYPERSAPCE)
+			if (ANIMATED_HYPERSPACE)
 			{
 				SD[i].Index = portalCounter + 98;
 				if (SD[i].Index > 107)
@@ -1818,14 +1818,14 @@ SeedUniverse (void)
 		if (arilouSpaceCounter)
 		{
 			// The periodically appearing QuasiSpace portal is open.
-			if (ANIMATED_HYPERSAPCE)
+			if (ANIMATED_HYPERSPACE)
 				SD[i].Index = arilouSpaceCounter - 1;
 			else
 				SD[i].Index = arilouSpaceCounter >> 1;
 			if (arilouSpaceSide <= 1)
 			{
 				// The player is in HyperSpace
-				if (ANIMATED_HYPERSAPCE)
+				if (ANIMATED_HYPERSPACE)
 					SD[i].Index += 81;
 				SD[i].Index += 18;
 				// JSD Converting hard coded ARILOU portal to plot based
@@ -1877,7 +1877,7 @@ SeedUniverse (void)
 				continue;
 
 			LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-			if (ANIMATED_HYPERSAPCE &&
+			if (ANIMATED_HYPERSPACE &&
 				((SD[i].Index == 107 && arilouSpaceSide <= 1)
 					|| (SD[i].Index == 8 && arilouSpaceSide > 1))) /* animated */
 				HyperSpaceElementPtr->current.image.frame =
@@ -1934,7 +1934,7 @@ SeedUniverse (void)
 
 			LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
 
-			if (ANIMATED_HYPERSAPCE)
+			if (ANIMATED_HYPERSPACE)
 			{/* animated */
 				if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1))
 				{/* QS */

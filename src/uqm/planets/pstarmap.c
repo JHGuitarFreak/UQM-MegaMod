@@ -385,10 +385,11 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 
 // For showing the War-Era situation in starmap
 static void
-GetWarEraSphereRect (COUNT index, const COUNT war_era_strengths[],
-		const POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
+GetWarEraSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 {
-	long diameter = (long)(war_era_strengths[index] * 2);
+	long diameter = (long)(WarEraStrength (FleetPtr->SpeciesID) *
+			SPHERE_RADIUS_INCREMENT);
+	POINT loc = SeedFleetLocation (FleetPtr, plot_map, WAR_ERA);
 
 	pRect->extent.width = UNIVERSE_TO_DISPX (diameter)
 			- UNIVERSE_TO_DISPX (0);
@@ -403,8 +404,8 @@ GetWarEraSphereRect (COUNT index, const COUNT war_era_strengths[],
 	else if (pRect->extent.height == 0)
 		pRect->extent.height = RES_SCALE (1);
 
-	pRect->corner.x = UNIVERSE_TO_DISPX (war_era_locations[index].x);
-	pRect->corner.y = UNIVERSE_TO_DISPY (war_era_locations[index].y);
+	pRect->corner.x = UNIVERSE_TO_DISPX (loc.x);
+	pRect->corner.y = UNIVERSE_TO_DISPY (loc.y);
 	pRect->corner.x -= pRect->extent.width >> 1;
 	pRect->corner.y -= pRect->extent.height >> 1;
 
@@ -526,8 +527,6 @@ DrawNoReturnZone (void)
 	POINT sol, sis;
 	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
 
-	// JSD Replace hard coded SOL with plot map SOL.
-	//sol = (POINT){ SOL_X, SOL_Y };
 	sol = plot_map[SOL_DEFINED].star_pt;
 	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
 			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
@@ -697,8 +696,6 @@ DrawFuelCircle (BOOLEAN secondary)
 		{
 			OldColor =
 				SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-			// JSD Replace hard coded SOL with plot map SOL.
-			//if (pointsEqual (corner, (POINT) { SOL_X, SOL_Y }))
 			if (pointsEqual (corner, plot_map[SOL_DEFINED].star_pt))
 			{// We are at Sol, foci are equal - draw a standard oval
 				GetFuelRect (&r, OnBoardFuel, corner);
@@ -758,92 +755,92 @@ isHomeworld (BYTE Index)
 	switch (Index)
 	{
 		case CHMMR_DEFINED:
-			if (GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD)
+			if (IsHomeworldKnown (CHMMR_HOME)
 				&& CheckAlliance (CHMMR_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ORZ_DEFINED:
-			if (GET_GAME_STATE (KNOW_ORZ_HOMEWORLD)
+			if (IsHomeworldKnown (ORZ_HOME)
 				&& CheckAlliance (ORZ_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case PKUNK_DEFINED:
-			if (GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD)
+			if (IsHomeworldKnown (PKUNK_HOME)
 				&& CheckAlliance (PKUNK_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SHOFIXTI_DEFINED:
-			if (GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD)
+			if (IsHomeworldKnown (SHOFIXTI_HOME)
 				&& CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SPATHI_DEFINED:
-			if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD)
+			if (IsHomeworldKnown (SPATHI_HOME)
 				&& CheckAlliance (SPATHI_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SUPOX_DEFINED:
-			if (GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD)
+			if (IsHomeworldKnown (SUPOX_HOME)
 				&& CheckAlliance (SUPOX_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case THRADD_DEFINED:
-			if (GET_GAME_STATE (KNOW_THRADD_HOMEWORLD)
+			if (IsHomeworldKnown (THRADDASH_HOME)
 				&& CheckAlliance (THRADDASH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case UTWIG_DEFINED:
-			if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD)
+			if (IsHomeworldKnown (UTWIG_HOME)
 				&& CheckAlliance (UTWIG_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case VUX_DEFINED:
-			if (GET_GAME_STATE (KNOW_VUX_HOMEWORLD)
+			if (IsHomeworldKnown (VUX_HOME)
 				&& CheckAlliance (VUX_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case YEHAT_DEFINED:
-			if (GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD)
+			if (IsHomeworldKnown (YEHAT_HOME)
 				&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case DRUUGE_DEFINED:
-			if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD)
+			if (IsHomeworldKnown (DRUUGE_HOME)
 				&& CheckAlliance (DRUUGE_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ILWRATH_DEFINED:
-			if (GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD)
+			if (IsHomeworldKnown (ILWRATH_HOME)
 				&& CheckAlliance (ILWRATH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case MYCON_DEFINED:
-			if (GET_GAME_STATE (KNOW_MYCON_HOMEWORLD)
+			if (IsHomeworldKnown (MYCON_HOME)
 				&& CheckAlliance (MYCON_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SLYLANDRO_DEFINED:
-			if (GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD)
+			if (IsHomeworldKnown (SLYLANDRO_HOME)
 				&& Index == SLYLANDRO_DEFINED)
 				raceBool = TRUE;
 			break;
 		case UMGAH_DEFINED:
-			if (GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD)
+			if (IsHomeworldKnown (UMGAH_HOME)
 				&& CheckAlliance (UMGAH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ZOQFOT_DEFINED:
-			if (GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD)
+			if (IsHomeworldKnown (ZOQFOTPIK_HOME)
 				&& CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case SYREEN_DEFINED:
-			if (GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD)
+			if (IsHomeworldKnown (SYREEN_HOME)
 				&& CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
 			break;
 		case ANDROSYNTH_DEFINED:
-			if (GET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD)
+			if (IsHomeworldKnown (ANDROSYNTH_HOME)
 				&& Index == ANDROSYNTH_DEFINED
 				&& CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
 				raceBool = TRUE;
@@ -1097,16 +1094,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			RACE_COLORS
 		};
 
-		// JMS: For drawing SC1-era starmap.
-		static const COUNT war_era_strengths[] =
-		{
-			WAR_ERA_STRENGTHS
-		};
-		static const POINT war_era_locations[] =
-		{
-			WAR_ERA_LOCATIONS
-		};
-
 		for (index = 0,
 				hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
 				hStarShip != 0; ++index, hStarShip = hNextShip)
@@ -1117,13 +1104,13 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			hNextShip = _GetSuccLink (FleetPtr);
 
 			if ((FleetPtr->known_strength && which_starmap != WAR_ERA_STARMAP) ||
-				(which_starmap == WAR_ERA_STARMAP && war_era_strengths[index]))
+				(which_starmap == WAR_ERA_STARMAP && WarEraStrength (FleetPtr->SpeciesID)
+				&& index < NUM_BUILDABLE_SHIPS))
 			{
 				RECT repair_r;
 
 				if (which_starmap == WAR_ERA_STARMAP)
-					GetWarEraSphereRect (index, war_era_strengths,
-							war_era_locations, &r, &repair_r);
+					GetWarEraSphereRect (FleetPtr, &r, &repair_r);
 				else
 					GetSphereRect (FleetPtr, &r, &repair_r);
 
@@ -1153,7 +1140,12 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 						SetContextForeGroundColor (c);
 
 					if (!(which_starmap == WAR_ERA_STARMAP
-							&& war_era_strengths[index] == 0))
+							//&& war_era_strengths[index] == 0))
+							// ~JSD~ Purpose of following lines unclear
+							// should be impossible to trigger
+							// but it symmetrically replaces the above
+							&& WarEraStrength (FleetPtr->SpeciesID) == 0
+							&& index >= NUM_BUILDABLE_SHIPS))
 					{
 						DRECT dr = RECT_TO_DRECT (r);
 						DrawOval (&dr, 0, IS_HD);
@@ -1363,6 +1355,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	}
 
 	// This draws markers over known alien Homeworlds
+	// and labels the quasispace portal locations in hyperspace.
 	if (which_space <= 1 && which_starmap == HOMEWORLDS_MAP)
 	{
 		COUNT i;
@@ -1373,10 +1366,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			if (isHomeworld (Index))
 				DrawMarker (star_array[i].star_pt, TRUE);
 		}
-		// JSD DEBUG
 		for (i = 0; i < NUM_HYPER_VORTICES; ++i)
 		{
-			//DrawMarker (portal_map[i].star_pt, TRUE);
 			if (!(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << i)))
 				continue;
 			TEXT t;
@@ -1384,7 +1375,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			pStr[0] = 'A' + i;
 			pStr[1] = 0;
 			SetContextFont (TinyFontBold);
-			//SetContextForeGroundColor (BUILD_COLOR_RGBA (0x4F, 0x00, 0x8F, 0x1F));
 			// "Quasispace Green"
 			SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x00, 0x1A, 0x00), 0x2F));
 			t.baseline.x = UNIVERSE_TO_DISPX (portal_map[i].star_pt.x);
@@ -1409,37 +1399,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			which_starmap = NORMAL_STARMAP;
 		else
 		{
-			// JSD Changed the way RAINBOW#_DEFINED works - this just got easy
-			//COUNT i;
-			//for (i = RAINBOW_DEFINED0; i <= RAINBOW_DEFINED9; i++)
-			//{
-			//	if (rainbow_mask & (1 << (i - RAINBOW_DEFINED0)) DrawMarker (plot_map[i], TRUE);
-			//}
-
-			// JSD Or we can do it the classic way (no plotmap) - we will start with this one
 			COUNT i;
-			for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
-			{
-				if ((star_array[i].Index >= RAINBOW0_DEFINED) &&
-						(star_array[i].Index <= RAINBOW9_DEFINED))
-				{
-					if (rainbow_mask & (1 << (star_array[i].Index - RAINBOW0_DEFINED)))
-						DrawMarker (star_array[i].star_pt, TRUE);
-				}
-			}
-#if 0
-			COUNT i, j = 0;
-
-			for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
-			{
-				if (star_array[i].Index == RAINBOW_DEFINED)
-				{
-					j++;
-					if (rainbow_mask & (1 << (j - 1)))
-						DrawMarker (star_array[i].star_pt, TRUE);
-				}
-			}
-#endif
+			for (i = RAINBOW0_DEFINED; i <= RAINBOW9_DEFINED; i++)
+				if (rainbow_mask & (1 << (i - RAINBOW0_DEFINED)))
+					DrawMarker (plot_map[i].star_pt, TRUE);
 		}
 	}
 
@@ -1498,12 +1461,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		if (which_space <= 1)
 		{
-			// JSD Replace hard coded portal with plot based portal
-			//s.origin.x = UNIVERSE_TO_DISPX (ARILOU_SPACE_X);
-			//s.origin.y = UNIVERSE_TO_DISPY (ARILOU_SPACE_Y);
 			s.origin.x = UNIVERSE_TO_DISPX (plot_map[ARILOU_DEFINED].star_pt.x);
 			s.origin.y = UNIVERSE_TO_DISPY (plot_map[ARILOU_DEFINED].star_pt.y);
-			s.origin = plot_map[ARILOU_DEFINED].star_pt;
 		}
 		else
 		{
@@ -1737,53 +1696,50 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	{
 		// JMS: For masking the names of QS portals not yet entered.
 		BYTE whichPortal = BestSDPtr->Postfix - 133;
-		fprintf(stderr, "whichPortal %d\n", whichPortal);	
+
 		// A star is near the cursor:
 		// Snap cursor onto star
 		cursorLoc = BestSDPtr->star_pt;
 		
-		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) < 2)
-		{
-			GetClusterName (BestSDPtr, buf);
-		}
-		else if (!(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << whichPortal)))
-		{
+		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) >= 2
+				&& !(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << whichPortal)))
 			// "UNKNOWN" string
-			utf8StringCopy (buf, sizeof (buf), GAME_STRING (STAR_STRING_BASE + 132));
-		}
-		else if (whichPortal == NUM_HYPER_VORTICES)
-		{
-			// Arilou homeworld name once known
+			utf8StringCopy (buf, sizeof (buf),
+					GAME_STRING (STAR_STRING_BASE + 132));
+		else if (GET_GAME_STATE(ARILOU_SPACE_SIDE) < 2 ||
+				whichPortal == NUM_HYPER_VORTICES)
+			// Hyperspace side, or Arilou homeworld name once known
 			GetClusterName (BestSDPtr, buf);
-		}
 		else
 		{
-			// JSD Uses whichPortal (which is based on the postfix of the star) to
-			// determine which portal_map entity this maps to and pull that star name.
+			// Use whichPortal (based on the Postfix of the star) to determine
+			// which portal_map entity this maps to and pull the nearest star.
 			// We then use that to construct the exit point name.
-			//portal_map[whichPortal].star_pt - coords of the exit
-			//portal_map[whichPortal].nearest_star - STAR_DESC* of nearest star
+			// This means quasi star array must have rigidly ordered Postfix.
+			// portal_map[whichPortal].star_pt - coords of the exit
+			//                  nearest_star - STAR_DESC* of nearest constell.
 			UNICODE starnameBuf[CURSOR_INFO_BUFSIZE] = "";
-			//GetClusterName (portal_map[whichPortal].nearest_star, starnameBuf);
-			utf8StringCopy (starnameBuf, sizeof (starnameBuf), 
-					GAME_STRING (portal_map[whichPortal].nearest_star->Postfix));
-			//utf8StringCopy (visBuf, sizeof (visBuf), buf);
-			// JSD By the way, this is how you get rid of compiler warnings:
-			// %.30s where "30" is a limit.  Enjoy.
-			snprintf (buf, sizeof (buf), "[%c] To %d.%d : %d.%d (Near %.100s)", 'A' + whichPortal,
-					portal_map[whichPortal].star_pt.x / 10,
-					portal_map[whichPortal].star_pt.x % 10,
-					portal_map[whichPortal].star_pt.y / 10,
-					portal_map[whichPortal].star_pt.y % 10,
+			utf8StringCopy (starnameBuf, sizeof (starnameBuf), GAME_STRING
+					(portal_map[whichPortal].nearest_star->Postfix));
+			// Abbreviate names longer than 11 at the 10th (or less)
+			// non-vowel character.
+			if (strlen (starnameBuf) > 11)
+			{
+				COUNT i;
+				for (i = 9; i > 5; i--)
+					if (starnameBuf[i] != 'a' && starnameBuf[i] != 'e' &&
+							starnameBuf[i] != 'i' && starnameBuf[i] != 'o' &&
+							starnameBuf[i] != 'u' && starnameBuf[i] != 'y')
+						break;
+				starnameBuf[i + 1] = '.';
+				starnameBuf[i + 2] = '\0';
+			}
+			snprintf (buf, sizeof (buf),
+					"[%c] To %05.1f : %05.1f (Near %.12s)",
+					'A' + whichPortal,
+					(float) portal_map[whichPortal].star_pt.x / 10,
+					(float) portal_map[whichPortal].star_pt.y / 10,
 					starnameBuf);
-#if 0
-			snprintf (buf, sizeof (buf), "To %d.%d : %d.%d (Near %.100s)",
-					portal_map[whichPortal].star_pt.x / 10,
-					portal_map[whichPortal].star_pt.x % 10,
-					portal_map[whichPortal].star_pt.y / 10,
-					portal_map[whichPortal].star_pt.y % 10,
-					starnameBuf);
-#endif
 		}
 	}
 	else
@@ -1810,9 +1766,6 @@ UpdateCursorInfo (UNICODE *prevbuf)
 
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{
-			// JSD Replace hard coded portal with plot based portal
-			//ari_pt.x = ARILOU_SPACE_X;
-			//ari_pt.y = ARILOU_SPACE_Y;
 			ari_pt = plot_map[ARILOU_DEFINED].star_pt;
 		}
 		else
@@ -1845,8 +1798,8 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				UNICODE visBuf[CURSOR_INFO_BUFSIZE] = "";
 
 				utf8StringCopy (visBuf, sizeof (visBuf), buf);
-				// JSD This is how you get rid of compiler warnings for
-				// string length:
+				// This is how you get rid of compiler warnings over string
+				// length:  %.30s where "30" is a limit.  Enjoy. ~JSD~
 				snprintf (buf, sizeof buf, "%c %.251s %c", '(', visBuf, ')');
 			}
 
@@ -2386,7 +2339,6 @@ DoBubbleWarp (BOOLEAN UseFuel)
 	}
 }
 
-#define NUM_PORTALS 15
 #define PORTAL_FUEL_COST DIF_CASE(10, 5, 20)
 
 static void
@@ -2394,7 +2346,6 @@ AdvancedAutoPilot (void)
 {
 	POINT current_position;
 	POINT destination = GLOBAL (autopilot);
-	POINT portal_pt[NUM_PORTALS] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
 	POINT portal_coordinates;
 	double distance, fuel_no_portal, fuel_with_portal;
 	double minimum = 0.0;
@@ -2408,9 +2359,9 @@ AdvancedAutoPilot (void)
 	if (pointsEqual (current_position, destination))
 		return;
 
-	for (i = 0; i < NUM_PORTALS; i++)
+	for (i = 0; i < NUM_HYPER_VORTICES; i++)
 	{
-		distance = ptDistance (destination, portal_pt[i]);
+		distance = ptDistance (destination, portal_map[i].star_pt);
 
 		if (!DIF_EASY && !(KnownQSPortals & (1 << i)))
 			distance = MAX_X_UNIVERSE * MAX_Y_UNIVERSE;

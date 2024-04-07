@@ -24,50 +24,82 @@
 extern "C" {
 #endif
 
-extern STAR_DESC *CurStarDescPtr;
-// star_array is now a static buffer we will copy the starmap_array into, and
-// then manipulate from there, so that original starmap is never altered.
-//extern STAR_DESC *star_array;
-extern STAR_DESC star_array[];
-extern POINT *constel_array;
-// JSD adding a global plot_map variable, portal_map variable, and moving the
-// NUM_HYPER_VORTICES here. NUM_HYPER_VORTICIES is one fewer than the map
+// Moving NUM_HYPER_VORTICES here for portal map; one fewer than the map
 // because of the Arilou homeworld.
 #define NUM_SOLAR_SYSTEMS 502
 #define NUM_HYPER_VORTICES 15
+
+extern STAR_DESC *CurStarDescPtr;
+// star_array is now a static buffer we will copy the starmap_array into, and
+// then manipulate from there, so that original starmap is never altered.
+extern STAR_DESC star_array[];
+extern POINT *constel_array;
+
+// Global plot_map stores star_pt (coords) used while seeding into starmap
+// Once seeded the plot_map will contain STAR_DESC pointers to the
+// star locations on the starmap as well.
 extern PLOT_LOCATION plot_map[NUM_PLOTS];
-extern PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES+1];
+
+// Global portal_map stores "star_pt" coords to each portal's exit,
+// as well as "quasi_pt" coords in quasispace, and the STAR_DESC of
+// the "closest constellation" for naming purposes.
+// Also Arilou homeworld but this is still mostly hardcoded.
+extern PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES + 1];
+
+// A globally available seed for seeding the starmap and the plots it contains.
+extern RandomContext *StarGenRNG;
 
 extern STAR_DESC* FindStar (STAR_DESC *pLastStar, POINT *puniverse,
 		SIZE xbounds, SIZE ybounds);
 
+// Populates buf with the full name of the star at pSD
+// May not be used much any more ***
 extern void GetClusterName (const STAR_DESC *pSD, UNICODE buf[]);
 
-// JSD Adding InitPlot, SeedPlot, SeedStarmap which will implement the seeding
-// of plot across the starmap
+// Returns the closest star to point p on the given starmap
+STAR_DESC *FindNearestStar (STAR_DESC *starmap, POINT p);
 
-// InitPlot sets the plotmap object up with the standard set of plot requirements
-// based on the default UQM plot line.  This gives the required min/max distance
-// of each plot laden star from related plot laden stars.
+// Returns the star in the closest constellation to point p on the starmap
+// Constellation only returns stars with a Prefix > 0
+STAR_DESC *FindNearestConstellation (STAR_DESC *starmap, POINT p);
+
+// Resets the starmap given to the default values of the static starmap_array.
+void DefaultStarmap (STAR_DESC *starmap);
+
+// Seeds the provided starmap with no plot, random size and color.
+// Super Giant Star does not generate randomly, these are MELNORME#_DEFINED
+void SeedStarmap (STAR_DESC *starmap);
+
+// Sets the plot to the default values of the provided starmap
+void DefaultPlot (PLOT_LOCATION *plot, STAR_DESC *starmap);
+
+// Sets the basic "push" framework of Melnormes and rainbow worlds
+// and associated plot threads to other plot IDs.
+void InitMelnormeRainbow (PLOT_LOCATION *plotmap);
+
+// InitPlot sets the plotmap object up with the standard set of plot
+// requirements based on the default UQM plot line.  This gives the required
+// min/max distance of each plot laden star from related plot laden stars.
 void InitPlot (PLOT_LOCATION *plotmap);
 
-// SeedPlot takes the starmap and plotmap given, along with the starseed (long)
+// SeedPlot seeds the initialized plot map into the starmap given
 // It selects the next plot which needs to be... plotted... and places it into
 // the starmap, setting the Index as appropriate, then iterates until all plots
 // are placed.
-COUNT SeedPlot (STAR_DESC *starmap, PLOT_LOCATION *plotmap, DWORD seed);
+COUNT SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap);
 
-// SeedPortalmap takes an array of star_pt and quasi_pt elements and shuffles
-// them (at both sides) according to seed.
-void SeedQuasispace (PORTAL_LOCATION *portalmap, PLOT_LOCATION *plotmap, DWORD seed);
+// Sets the portal map to the default values of the static portalmap_array
+void DefaultQuasispace (PORTAL_LOCATION *portalmap);
 
-// SeedStarmap resets the starmap given to have no plots, and randomizes the size
-// and colors of the stars on the map.  SUPER_GIANT_STAR does not generate randomly
-// these will be allocated by the plotmap as MELNORME#_DEFINED.
-void SeedStarmap (STAR_DESC *starmap, DWORD seed);
+// Seeds the portal map, selecting valid locations referencing the
+// provided plot map and star map.
+BOOLEAN SeedQuasispace (PORTAL_LOCATION *portalmap, PLOT_LOCATION *plotmap,
+		STAR_DESC *starmap);
 
-// A globally available seed for seeding the starmap and the plots it contains.
-extern RandomContext *StarGenRNG;
+// Converts the given plot string to the plot ID enum value,
+// e.g. "pkunk" -> PKUNK_DEFINED
+COUNT PlotIdStrToIndex (const char *plotIdStr);
+
 // JSD end of changes to this file
 
 #define INTERNAL_STAR_INDEX -1

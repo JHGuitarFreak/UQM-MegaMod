@@ -81,7 +81,7 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 	if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		if (EXTENDED && CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+		if (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED))
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 	}
 
@@ -97,7 +97,7 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random(SysGenRNG) % 3];
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random(SysGenRNG) % 4];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 			CheckForHabitable (solarSys);
 		}
@@ -116,26 +116,25 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 	else if (EXTENDED)
 	{
-		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED)
+		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY2_DEFINED)
 			solarSys->SunDesc[0].PlanetByte = 0;
-		else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+		else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED)
 		{
 			solarSys->SunDesc[0].PlanetByte = 1;
-
-			if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
-			{
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-				solarSys->SunDesc[0].MoonByte = 0;
-			}
+		}
+		else if (CurStarDescPtr->Index == ZOQ_COLONY2_DEFINED)
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+			solarSys->SunDesc[0].MoonByte = 0;
 		}
 
-		if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-			|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+		if (CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+			&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
 			if (!PrimeSeed)
 			{
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
+				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 4];
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 			}
 			CheckForHabitable (solarSys);
@@ -150,15 +149,14 @@ GenerateZoqFotPik_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (EXTENDED && CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED
-			&& STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY
+	if (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED)
 			&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = TREASURE_WORLD;
 
 		if (!PrimeSeed)
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = 
-					(RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
+					GenerateRockyWorld (SMALL_ROCKY);
 	}
 
 	return true;
@@ -223,8 +221,8 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		} 
 		else if (EXTENDED)
 		{
-			if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-				|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+			if (CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+				&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED)
 			{
 				LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 				solarSys->PlanetSideFrame[1] =
@@ -233,7 +231,7 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						CaptureStringTable (LoadStringTable (ZFPRUINS_STRTAB));
 			}
 
-			if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED)
+			if (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY2_DEFINED)
 			{
 				if (!PrimeSeed)
 				{
@@ -257,58 +255,55 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					return true;
 				}
 			}
-			else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)
+			else if (CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED || CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED)
 			{
-				if (STAR_COLOR (CurStarDescPtr->Type) == BLUE_BODY)
+				GenerateDefault_generateOrbital (solarSys, world);
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 32 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 27;
+				if (!DIF_HARD)
 				{
-					GenerateDefault_generateOrbital (solarSys, world);
-
-					solarSys->SysInfo.PlanetInfo.AtmoDensity =
-							EARTH_ATMOSPHERE * 28 / 100;
-					solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 25;
-					if (!DIF_HARD)
-					{
-						solarSys->SysInfo.PlanetInfo.Weather = 1;
-						solarSys->SysInfo.PlanetInfo.Tectonics = 1;
-					}
-					if (!PrimeSeed)
-					{
-
-						solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
-						solarSys->SysInfo.PlanetInfo.PlanetRadius = 106;
-						solarSys->SysInfo.PlanetInfo.SurfaceGravity = 109;
-						solarSys->SysInfo.PlanetInfo.RotationPeriod = 171;
-						solarSys->SysInfo.PlanetInfo.AxialTilt = -7;
-						solarSys->SysInfo.PlanetInfo.LifeChance = 760;
-					}
-
-					return true;
+					solarSys->SysInfo.PlanetInfo.Weather = 0;
+					solarSys->SysInfo.PlanetInfo.Tectonics = 1;
 				}
-				else
+
+				if (!PrimeSeed)
 				{
-					GenerateDefault_generateOrbital (solarSys, world);
-
-					solarSys->SysInfo.PlanetInfo.AtmoDensity =
-							EARTH_ATMOSPHERE * 32 / 100;
-					solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 27;
-					if (!DIF_HARD)
-					{
-						solarSys->SysInfo.PlanetInfo.Weather = 0;
-						solarSys->SysInfo.PlanetInfo.Tectonics = 1;
-					}
-
-					if (!PrimeSeed)
-					{
-						solarSys->SysInfo.PlanetInfo.PlanetDensity = 100;
-						solarSys->SysInfo.PlanetInfo.PlanetRadius = 75;
-						solarSys->SysInfo.PlanetInfo.SurfaceGravity = 75;
-						solarSys->SysInfo.PlanetInfo.RotationPeriod = 281;
-						solarSys->SysInfo.PlanetInfo.AxialTilt = -17;
-						solarSys->SysInfo.PlanetInfo.LifeChance = 810;
-					}
-
-					return true;
+					solarSys->SysInfo.PlanetInfo.PlanetDensity = 100;
+					solarSys->SysInfo.PlanetInfo.PlanetRadius = 75;
+					solarSys->SysInfo.PlanetInfo.SurfaceGravity = 75;
+					solarSys->SysInfo.PlanetInfo.RotationPeriod = 281;
+					solarSys->SysInfo.PlanetInfo.AxialTilt = -17;
+					solarSys->SysInfo.PlanetInfo.LifeChance = 810;
 				}
+
+				return true;
+			}
+			else if (CurStarDescPtr->Index == ZOQ_COLONY2_DEFINED)
+			{
+				GenerateDefault_generateOrbital (solarSys, world);
+
+				solarSys->SysInfo.PlanetInfo.AtmoDensity =
+						EARTH_ATMOSPHERE * 28 / 100;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 25;
+				if (!DIF_HARD)
+				{
+					solarSys->SysInfo.PlanetInfo.Weather = 1;
+					solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+				}
+				if (!PrimeSeed)
+				{
+
+					solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
+					solarSys->SysInfo.PlanetInfo.PlanetRadius = 106;
+					solarSys->SysInfo.PlanetInfo.SurfaceGravity = 109;
+					solarSys->SysInfo.PlanetInfo.RotationPeriod = 171;
+					solarSys->SysInfo.PlanetInfo.AxialTilt = -7;
+					solarSys->SysInfo.PlanetInfo.LifeChance = 760;
+				}
+
+				return true;
 			}
 		}
 	}
@@ -327,8 +322,8 @@ GenerateZoqFotPik_generateEnergy (const SOLARSYS_STATE *solarSys,
 	{
 		if (CurStarDescPtr->Index == ZOQFOT_DEFINED)
 			return GenerateDefault_generateRuins (solarSys, whichNode, info);
-		else if (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-				|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED))
+		else if (EXTENDED && CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+				&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED)
 			return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 4,
 					0, whichNode, info);
 	}
@@ -343,8 +338,8 @@ GenerateZoqFotPik_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		if (CurStarDescPtr->Index == ZOQFOT_DEFINED 
-				|| (EXTENDED && (CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
-				|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED)))
+				|| (EXTENDED && CurStarDescPtr->Index >= ZOQ_COLONY0_DEFINED
+				&& CurStarDescPtr->Index <= ZOQ_COLONY3_DEFINED))
 		{
 			// Standard ruins report
 			GenerateDefault_landerReportCycle (solarSys);

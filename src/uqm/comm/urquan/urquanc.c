@@ -19,6 +19,7 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
+#include "uqm/lua/luacomm.h"
 
 static LOCDATA urquan_desc =
 {
@@ -538,6 +539,7 @@ Intro (void)
 static COUNT
 uninit_urquan (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -557,6 +559,8 @@ init_urquan_comm (void)
 	urquan_desc.init_encounter_func = Intro;
 	urquan_desc.post_encounter_func = post_urquan_enc;
 	urquan_desc.uninit_encounter_func = uninit_urquan;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	urquan_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	urquan_desc.AlienTextBaseline.y = 0;

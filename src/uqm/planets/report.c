@@ -34,6 +34,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include "../lua/luacomm.h"
 
 
 #define COL_MULTIPLIER (isPC (optSuperPC) || IS_PAD ? 7 : 6)
@@ -340,12 +341,21 @@ DoDiscoveryReport (SOUND ReadOutSounds)
 		else
 			OldFontEffect = SetContextFontEffect (NULL);
 
-		MakeReport (ReadOutSounds,
-				(UNICODE *)GetStringAddress (
-					pSolarSysState->SysInfo.PlanetInfo.DiscoveryString),
-				GetStringLength (
-					pSolarSysState->SysInfo.PlanetInfo.DiscoveryString));
+		luaUqm_comm_init (NULL, NULL_RESOURCE);
+		BOOLEAN allocated = FALSE;
+		char *StrPtr = (UNICODE *)GetStringAddress
+				(pSolarSysState->SysInfo.PlanetInfo.DiscoveryString);
+		if (luaUqm_comm_stringNeedsInterpolate (StrPtr))
+		{
+			allocated = TRUE;
+			StrPtr = luaUqm_comm_stringInterpolate (StrPtr);
+		}
+		MakeReport (ReadOutSounds, StrPtr, strlen (StrPtr));
 		
+		luaUqm_comm_uninit ();
+		if (allocated)
+			HFree (StrPtr);
+
 		SetContextFontEffect (OldFontEffect);
 		SetContextFont (OldFont);
 	}

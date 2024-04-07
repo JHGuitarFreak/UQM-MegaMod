@@ -2484,6 +2484,47 @@ PlanetSide (POINT planetLoc)
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 }
 
+static void
+DrawMinDatText (void)
+{
+	TEXT text;
+	RECT rect;
+	Color OldColor;
+	FONT OldFont;
+
+	if (!strlen (GAME_STRING (STATUS_STRING_BASE + 20)) ||
+			!strlen (GAME_STRING (STATUS_STRING_BASE + 21)))
+		return;
+
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+	rect.corner.x = RES_SCALE (5);
+	rect.corner.y = RADAR_HEIGHT - RES_SCALE (7);
+	rect.extent.width = RES_SCALE (46);
+	rect.extent.height = RES_SCALE (6);
+	DrawFilledRectangle (&rect);
+
+	OldFont = SetContextFont (TinyFontBold);
+	SetContextForeGroundColor (LAND_STAT_MIN_COLOR);
+	text.align = ALIGN_LEFT;
+	text.baseline.x = rect.corner.x + RES_SCALE (1);
+	text.baseline.y = rect.corner.y + rect.extent.height;
+	text.pStr = GAME_STRING (STATUS_STRING_BASE + 20); // MIN
+	text.CharCount = (COUNT)~0;
+
+	font_DrawText (&text);
+
+	SetContextForeGroundColor (LAND_STAT_DAT_COLOR);
+	text.align = ALIGN_RIGHT;
+	text.baseline.x = rect.corner.x + rect.extent.width - RES_SCALE (1);
+	text.pStr = GAME_STRING (STATUS_STRING_BASE + 21); // DAT
+	text.CharCount = (COUNT)~0;
+
+	font_DrawText (&text);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 void
 InitLander (BYTE LanderFlags)
 {
@@ -2511,6 +2552,7 @@ InitLander (BYTE LanderFlags)
 		s.frame = SetAbsFrameIndex (LanderFrame[0], 32);
 
 		DrawStamp (&s);
+		DrawMinDatText ();
 		if (LanderFlags == 0)
 		{
 			ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);

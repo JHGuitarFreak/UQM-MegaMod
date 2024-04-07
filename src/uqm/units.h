@@ -171,14 +171,20 @@ extern int ScreenHeight;
 
 #define MAX_X_UNIVERSE 9999
 #define MAX_Y_UNIVERSE 9999
+// Due to the added rounding error correction, the maximum logical X and Y
+// in Hyperspace cannot go past 999.94999, otherwise the values will be
+// rounded up to 1000.0. We do not want that so we subtract half a unit.
 #define MAX_X_LOGICAL \
-((UNIVERSE_TO_LOGX (MAX_X_UNIVERSE + 1) > UNIVERSE_TO_LOGX (-1) ? \
-UNIVERSE_TO_LOGX (MAX_X_UNIVERSE + 1) : UNIVERSE_TO_LOGX (-1)) - 1L)
+		(UNIVERSE_TO_LOGX (MAX_X_UNIVERSE + 1) - (UNIVERSE_TO_LOGX (1) >> 1) \
+			- 1L)
+// The Y axis is inverted with respect to the screen Y axis.
+// (MAX_Y_UNIVERSE - 1) is really 1 for our purposes.
 #define MAX_Y_LOGICAL \
-((UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) > UNIVERSE_TO_LOGY (-1) ? \
-UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
+		(UNIVERSE_TO_LOGY (-1) - (UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE - 1) >> 1) \
+			- 1L)
 
 #define SPHERE_RADIUS_INCREMENT 11
+
 #define MAX_FLEET_STRENGTH (254 * SPHERE_RADIUS_INCREMENT)
 
 // XXX: These corrected for the weird screen aspect ratio on DOS

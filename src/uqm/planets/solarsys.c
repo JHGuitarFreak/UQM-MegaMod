@@ -2185,39 +2185,34 @@ EnterPlanetOrbit (void)
 	if (pSolarSysState->InIpFlight)
 	{	// This means we hit a planet in IP flight; not a Load into orbit
 		FreeSolarSys ();
+	}
 
-		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-		{	// Moon -- use its origin
-			// XXX: The conversion functions do not error-correct, so the
-			//   point we set here will change once flag_ship_preprocess()
-			//   in ipdisp.c starts over again.
-			GLOBAL (ShipStamp.origin) =
-					pSolarSysState->pOrbitalDesc->image.origin;
+	if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
+	{	// Moon -- use its origin
+		// XXX: The conversion functions do not error-correct, so the
+		//   point we set here will change once flag_ship_preprocess()
+		//   in ipdisp.c starts over again.
+		GLOBAL (ShipStamp.origin) =
+				pSolarSysState->pOrbitalDesc->image.origin;
 
-			// JMS_GFX: Draw the moon letter when orbiting a moon
-			if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
-					&& (pSolarSysState->pOrbitalDesc->data_index
-						!= HIERARCHY_STARBASE
-					&& pSolarSysState->pOrbitalDesc->data_index
-						!= DESTROYED_STARBASE
-					&& pSolarSysState->pOrbitalDesc->data_index
-						!= PRECURSOR_STARBASE))
-			{
-				snprintf (GLOBAL_SIS (PlanetName)
-						+ strlen (GLOBAL_SIS (PlanetName)), 3, "-%c%c",
-						'A' + moonIndex (
-							pSolarSysState, pSolarSysState->pOrbitalDesc),
-						'\0');
-				DrawSISTitle (GLOBAL_SIS (PlanetName));
-			}
+		// JMS_GFX: Draw the moon letter when orbiting a moon
+		if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
+				&& !(pSolarSysState->pOrbitalDesc->data_index
+					& WORLD_TYPE_SPECIAL))
+		{
+			snprintf (GLOBAL_SIS (PlanetName)
+					+ strlen (GLOBAL_SIS (PlanetName)), 3, "-%c%c",
+					'A' + moonIndex (
+						pSolarSysState, pSolarSysState->pOrbitalDesc),
+					'\0');
 		}
-		else
-		{	// Planet -- its origin is for the outer view, so use mid-screen
-			GLOBAL (ShipStamp.origin.x) =
-					RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
-			GLOBAL (ShipStamp.origin.y) =
-					RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
-		}
+	}
+	else
+	{	// Planet -- its origin is for the outer view, so use mid-screen
+		GLOBAL (ShipStamp.origin.x) =
+				RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		GLOBAL (ShipStamp.origin.y) =
+				RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 	}
 
 	GetPlanetInfo ();
@@ -2833,11 +2828,15 @@ ExploreSolarSys (void)
 	memset (pSolarSysState, 0, sizeof (*pSolarSysState));
 
 	SolarSysState.genFuncs = getGenerateFunctions (CurStarDescPtr->Index);
-	// JSD - adding the following line for debugging plot points
-	if (CurStarDescPtr->Index) fprintf(stderr, "*** Entering Special PLOT System at %d.%d %d.%d: %s (%d)***\n",
-			CurStarDescPtr->star_pt.x / 10, CurStarDescPtr->star_pt.x % 10,
-			CurStarDescPtr->star_pt.y / 10, CurStarDescPtr->star_pt.y % 10,
-			starPresenceString (CurStarDescPtr->Index), CurStarDescPtr->Index);
+#ifdef DEBUG_STARSEED
+	    if (CurStarDescPtr->Index)
+			fprintf (stderr, "*** Entering Special PLOT System at"
+					"%05.1f : %05.1f %s (%d)***\n",
+					CurStarDescPtr->star_pt.x / 10,
+					CurStarDescPtr->star_pt.y / 10,
+					starPresenceString (CurStarDescPtr->Index),
+					CurStarDescPtr->Index);
+#endif
 
 	InitSolarSys ();
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
@@ -2930,13 +2929,13 @@ GetNamedPlanetaryBody (void)
 		switch (CurStarDescPtr->Index)
 		{
 			case SHOFIXTI_DEFINED:     // Kyabetsu
-				if (GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
+				if (IsHomeworldKnown (SHOFIXTI_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 35);
 				break;
 			case START_COLONY_DEFINED: // Unzervalt
 				return GAME_STRING (PLANET_NUMBER_BASE + 33);
 			case SPATHI_DEFINED:       // Spathiwa
-				if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
+				if (IsHomeworldKnown (SPATHI_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 37);
 				break;
 			case SYREEN_DEFINED:       // Gaia
@@ -2949,13 +2948,13 @@ GetNamedPlanetaryBody (void)
 					return GAME_STRING (PLANET_NUMBER_BASE + 36);
 				break;
 			case DRUUGE_DEFINED:       // Trade HQ
-				if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
+				if (IsHomeworldKnown (DRUUGE_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 41);
 				break;
 			case EGG_CASE0_DEFINED:    // Syra
 				return GAME_STRING (PLANET_NUMBER_BASE + 42);
 			case UTWIG_DEFINED:        // Fahz
-				if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
+				if (IsHomeworldKnown (UTWIG_HOME))
 					return GAME_STRING (PLANET_NUMBER_BASE + 40);
 				break;
 			case SUPOX_DEFINED:        // Vlik

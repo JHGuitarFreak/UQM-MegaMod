@@ -86,6 +86,7 @@ OPT_ENABLABLE optAddDevices;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 OPT_ENABLABLE optCustomBorder;
+int optSeedType;
 int optCustomSeed;
 int spaceMusicBySOI;
 OPT_ENABLABLE optSpaceMusic;
@@ -126,7 +127,7 @@ OPT_ENABLABLE optSlaughterMode;
 BOOLEAN optMaskOfDeceit;
 OPT_ENABLABLE optAdvancedAutoPilot;
 OPT_ENABLABLE optMeleeToolTips;
-OPT_ENABLABLE optMusicResume;
+int optMusicResume;
 DWORD optWindowType;
 
 OPT_ENABLABLE opt3doMusic;

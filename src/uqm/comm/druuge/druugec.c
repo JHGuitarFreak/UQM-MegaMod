@@ -25,6 +25,7 @@
 #include "uqm/sis.h"
 		// for DeltaSISGauges()
 #include "uqm/planets/generate/gendefault.h"
+#include "uqm/lua/luacomm.h"
 
 
 static LOCDATA druuge_desc =
@@ -889,8 +890,7 @@ Intro (void)
 			{
 				case 0:
 					NPCPhrase (INIT_SPACE_HELLO);
-					if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
-						SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+					SetHomeworldKnown (DRUUGE_HOME);
 					break;
 				case 1:
 					NPCPhrase (SUBSEQUENT_SPACE_HELLO);
@@ -907,6 +907,7 @@ Intro (void)
 static COUNT
 uninit_druuge (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -936,6 +937,8 @@ init_druuge_comm (void)
 	druuge_desc.init_encounter_func = Intro;
 	druuge_desc.post_encounter_func = post_druuge_enc;
 	druuge_desc.uninit_encounter_func = uninit_druuge;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	druuge_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	druuge_desc.AlienTextBaseline.y = RES_SCALE (64);

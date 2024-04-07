@@ -262,4 +262,3 @@ check_old_shofixti (void)
 	}
 	UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
 }
-

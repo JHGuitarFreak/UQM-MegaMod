@@ -87,12 +87,7 @@ GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 	if (!PrimeSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
-			(RandomContext_Random (SysGenRNG) % MAROON_WORLD);
-
-		if(solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-		else if(solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+			GenerateRockyWorld (ALL_ROCKY);
 
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets =
 				(RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
@@ -119,7 +114,7 @@ static bool
 GenerateDruuge_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD)
+	if (IsHomeworldKnown (DRUUGE_HOME)
 			&& matchWorld (solarSys, world,
 			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{

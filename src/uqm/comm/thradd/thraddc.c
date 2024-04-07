@@ -733,7 +733,7 @@ Intro (void)
 				pStr1 = WELCOME_HELIX1;
 
 				NPCPhrase (pStr0);
-				NPCPhrase (GetCultureName ());
+				NPCPhrase_splice (GetCultureName ());
 				NPCPhrase (pStr1);
 
 				ThraddAllies ((RESPONSE_REF)0);
@@ -826,8 +826,7 @@ Intro (void)
 		{
 			pStr0 = WELCOME_HOMEWORLD0;
 			pStr1 = WELCOME_HOMEWORLD1;
-			if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
-				SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+			SetHomeworldKnown (THRADDASH_HOME);
 		}
 		else
 		{
@@ -835,7 +834,7 @@ Intro (void)
 			pStr1 = WELCOME_SPACE1;
 		}
 		NPCPhrase (pStr0);
-		NPCPhrase (GetCultureName ());
+		NPCPhrase_splice (GetCultureName ());
 		NPCPhrase (pStr1);
 
 		ThraddAllies ((RESPONSE_REF)0);

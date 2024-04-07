@@ -175,12 +175,7 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = (RandomContext_Random(SysGenRNG) % MAROON_WORLD);
-
-			if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-			else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateRockyWorld (ALL_ROCKY);
 
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		}
@@ -212,8 +207,8 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 
 	if (EXTENDED
-		&& (CurStarDescPtr->Index == URQUAN_DEFINED 
-		|| CurStarDescPtr->Index == KOHRAH_DEFINED))
+		&& ((CurStarDescPtr->Index >= URQUAN0_DEFINED && CurStarDescPtr->Index <= URQUAN2_DEFINED) 
+		|| (CurStarDescPtr->Index >= KOHRAH0_DEFINED && CurStarDescPtr->Index <= KOHRAH2_DEFINED)))
 	{
 		for (p = 0; p < solarSys->SunDesc[0].NumPlanets; p++) {
 			if (solarSys->PlanetDesc[p].NumPlanets <= 1)
@@ -263,8 +258,8 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 
 
 		if (EXTENDED && (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
-				|| CurStarDescPtr->Index == URQUAN_DEFINED 
-				|| CurStarDescPtr->Index == KOHRAH_DEFINED)) 
+		|| ((CurStarDescPtr->Index >= URQUAN0_DEFINED) && (CurStarDescPtr->Index <= URQUAN2_DEFINED)) 
+		|| ((CurStarDescPtr->Index >= KOHRAH0_DEFINED) && (CurStarDescPtr->Index <= KOHRAH2_DEFINED))))
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
 		}
@@ -351,10 +346,9 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		if (EXTENDED)
 		{
 			UWORD Index = CurStarDescPtr->Index;
-
-			if (Index == URQUAN_DEFINED
-				|| Index == KOHRAH_DEFINED
-				|| Index == DESTROYED_STARBASE_DEFINED)
+			if (((Index >= URQUAN0_DEFINED) && (Index <= URQUAN2_DEFINED)) ||
+					((Index >= KOHRAH0_DEFINED) && (Index <= KOHRAH2_DEFINED)) ||
+					Index == DESTROYED_STARBASE_DEFINED)
 			{
 
 				/* Starbase */
@@ -379,7 +373,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						SetRelStringTableIndex (
 							CaptureStringTable (
 								LoadStringTable (URQUAN_BASE_STRTAB)),
-								Index == KOHRAH_DEFINED);
+								(Index >= KOHRAH0_DEFINED && Index <= KOHRAH2_DEFINED));
 				}
 
 				DoDiscoveryReport (MenuSounds);
@@ -551,5 +545,3 @@ GenerateSaMatra_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	(void) whichNode;
 	return false;
 }
-
-

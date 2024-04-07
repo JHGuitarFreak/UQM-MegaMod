@@ -62,7 +62,7 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (!PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
 		CheckForHabitable (solarSys);
 	}
 	else
@@ -107,4 +107,3 @@ GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	return true;
 }
-

@@ -300,7 +300,6 @@ advance_pkunk_mission (int arg)
 	hPkunk = GetStarShipFromIndex (&GLOBAL (avail_race_q), PKUNK_SHIP);
 	PkunkPtr = LockFleetInfo (&GLOBAL (avail_race_q), hPkunk);
 
-	// JSD here
 	POINT yehat = SeedFleetLocation (PkunkPtr, plot_map, YEHAT_DEFINED);
 	POINT pkunk = SeedFleetLocation (PkunkPtr, plot_map, 0);
 
@@ -311,9 +310,7 @@ advance_pkunk_mission (int arg)
 		MissionState = GET_GAME_STATE (PKUNK_MISSION);
 		if (PkunkPtr->days_left == 0 && MissionState)
 		{
-			if ((MissionState & 1)
-							/* made it to Yehat space */
-							//JSD a bunch here
+			if ((MissionState & 1) /* made it to Yehat space */
 					|| (PkunkPtr->loc.x == yehat.x
 					&& PkunkPtr->loc.y == yehat.y))   // North of yehat by 360
 				PkunkPtr->actual_strength = 0;
@@ -336,24 +333,14 @@ advance_pkunk_mission (int arg)
 		}
 		else
 		{
-			COORD x, y;
 			POINT loc;
 
 			if (!(MissionState & 1))
-			{
 				loc = yehat;
-				x = 4970;
-				y = 400;
-			}
 			else
-			{
 				loc = pkunk;
-				x = 502;
-				y = 401;
-			}
 			SET_GAME_STATE (PKUNK_ON_THE_MOVE, 1);
 			SET_GAME_STATE (PKUNK_SWITCH, 0);
-			//JSD
 			SetRaceDest (PKUNK_SHIP, loc.x, loc.y,
 					(BYTE)((365 >> 1) - PkunkPtr->days_left),
 					ADVANCE_PKUNK_MISSION);
@@ -381,20 +368,15 @@ advance_thradd_mission (int arg)
 	MissionState = GET_GAME_STATE (THRADD_MISSION);
 	if (ThraddPtr->actual_strength && MissionState < 3)
 	{
-		COORD x, y;
 		POINT loc;
 
 		if (MissionState < 2)
 		{	/* attacking */
 			loc = SeedFleetLocation (ThraddPtr, plot_map, SAMATRA_DEFINED);
-			x = 4879;
-			y = 7201;
 		}
 		else
 		{	/* returning */
 			loc = SeedFleetLocation (ThraddPtr, plot_map, 0);
-			x = 2535;
-			y = 8358;
 		}
 
 		if (MissionState == 1)
@@ -414,7 +396,6 @@ advance_thradd_mission (int arg)
 				ThraddPtr->growth_fract = 0;
 			}
 		}
-		//SetRaceDest (THRADDASH_SHIP, x, y, 14, ADVANCE_THRADD_MISSION);
 		SetRaceDest (THRADDASH_SHIP, loc.x, loc.y, 14, ADVANCE_THRADD_MISSION);
 	}
 	++MissionState;
@@ -552,31 +533,19 @@ advance_utwig_supox_mission (int arg)
 		}
 		else
 		{
-			// JSD change the hard coded destination point
-			COORD ux, uy, sx, sy;
 			POINT utwig, supox;
 
 			if (MissionState == 0)
 			{
-				// JSD Set utwig and supox to their samatra attack point
+				// Set utwig and supox to their samatra attack point
 				utwig = SeedFleetLocation (UtwigPtr, plot_map, SAMATRA_DEFINED);
 				supox = SeedFleetLocation (SupoxPtr, plot_map, SAMATRA_DEFINED);
-				ux = 7208;
-				uy = 7000;
-
-				sx = 6479;
-				sy = 7541;
 			}
 			else
 			{
-				// JSD Send utwig and supox home
+				// Send utwig and supox home
 				utwig = SeedFleetLocation (UtwigPtr, plot_map, 0);
 				supox = SeedFleetLocation (SupoxPtr, plot_map, 0);
-				ux = 8534;
-				uy = 8797;
-
-				sx = 7468;
-				sy = 9246;
 
 				UtwigPtr->growth = 0;
 				UtwigPtr->growth_fract = 0;
@@ -596,11 +565,8 @@ advance_utwig_supox_mission (int arg)
 			SET_GAME_STATE (UTWIG_INFO, 0);
 			SET_GAME_STATE (SUPOX_VISITS, 0);
 			SET_GAME_STATE (SUPOX_INFO, 0);
-			// JSD Use the new variables here
 			SetRaceDest (UTWIG_SHIP, utwig.x, utwig.y, 21, ADVANCE_UTWIG_SUPOX_MISSION);
 			SetRaceDest (SUPOX_SHIP, supox.x, supox.y, 21, (BYTE)~0);
-			//SetRaceDest (UTWIG_SHIP, ux, uy, 21, ADVANCE_UTWIG_SUPOX_MISSION);
-			//SetRaceDest (SUPOX_SHIP, sx, sy, 21, (BYTE)~0);
 		}
 	}
 	SET_GAME_STATE (UTWIG_SUPOX_MISSION, MissionState + 1);
@@ -636,9 +602,6 @@ kohr_ah_genocide_event (int arg)
 	BlackUrquanPtr = LockFleetInfo (&GLOBAL (avail_race_q), hBlackUrquan);
 
 	best_dist = -1;
-	// JSD Replace the old method of locating SOL with the plot method.
-	// best_dx = SOL_X - BlackUrquanPtr->loc.x;
-	// best_dy = SOL_Y - BlackUrquanPtr->loc.y;
 	best_dx = plot_map[SOL_DEFINED].star_pt.x - BlackUrquanPtr->loc.x;
 	best_dy = plot_map[SOL_DEFINED].star_pt.y - BlackUrquanPtr->loc.y;
 	for (Index = 0, hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -772,12 +735,8 @@ advance_ilwrath_mission (int arg)
 	IlwrathPtr = LockFleetInfo (&GLOBAL (avail_race_q), hIlwrath);
 	hThradd = GetStarShipFromIndex (&GLOBAL (avail_race_q), THRADDASH_SHIP);
 	ThraddPtr = LockFleetInfo (&GLOBAL (avail_race_q), hThradd);
-	// JSD use the seeded locations
 	POINT thradd_home = SeedFleetLocation (ThraddPtr, plot_map, 0);
 	POINT conflict = SeedFleetLocation (IlwrathPtr, plot_map, THRADD_DEFINED);
-	// 2535 8358 is thraddash   2500 8070 appears to be an arbitrary spot the ilwrath fly to
-	//if (IlwrathPtr->loc.x == ((2500 + 2535) >> 1)
-	//		&& IlwrathPtr->loc.y == ((8070 + 8358) >> 1))
 	if (IlwrathPtr->loc.x == ((thradd_home.x + conflict.x) / 2)
 			&& IlwrathPtr->loc.y == ((thradd_home.y + conflict.y) / 2))
 	{
@@ -791,9 +750,6 @@ advance_ilwrath_mission (int arg)
 	}
 	else if (IlwrathPtr->actual_strength)
 	{
-		//if (!GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH)
-		//		&& (IlwrathPtr->dest_loc.x != 2500
-		//		|| IlwrathPtr->dest_loc.y != 8070))
 		if (!GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH)
 				&& (IlwrathPtr->dest_loc.x != conflict.x
 				|| IlwrathPtr->dest_loc.y != conflict.y))
@@ -814,7 +770,6 @@ advance_ilwrath_mission (int arg)
 				IlwrathPtr->growth = (BYTE)(-strength_loss / MADD_LENGTH);
 				IlwrathPtr->growth_fract =
 						(BYTE)(((strength_loss % MADD_LENGTH) << 8) / MADD_LENGTH);
-				// JSD also here
 				SetRaceDest (ILWRATH_SHIP, (conflict.x + thradd_home.x) / 2,
 						(conflict.y + thradd_home.y) / 2,
 						MADD_LENGTH - 1, ADVANCE_ILWRATH_MISSION);
@@ -839,7 +794,6 @@ advance_ilwrath_mission (int arg)
 			ThraddState = GET_GAME_STATE (THRADD_MISSION);
 			if (ThraddState == 0 || ThraddState > 3)
 			{	/* never went to Kohr-Ah or returned */
-				// JSD
 				SetRaceDest (THRADDASH_SHIP,
 						(conflict.x + thradd_home.x) / 2,
 						(conflict.y + thradd_home.y) / 2,
@@ -847,7 +801,6 @@ advance_ilwrath_mission (int arg)
 			}
 			else if (ThraddState < 3)
 			{	/* recall on the double */
-				// JSD
 				SetRaceDest (THRADDASH_SHIP, thradd_home.x, thradd_home.y, 10,
 						ADVANCE_THRADD_MISSION);
 				SET_GAME_STATE (THRADD_MISSION, 3);
@@ -860,7 +813,6 @@ advance_ilwrath_mission (int arg)
 		ThraddPtr->growth = 0;
 		ThraddPtr->growth_fract = 0;
 		SET_GAME_STATE(ILWRATH_FIGHT_THRADDASH, 0);
-		// JSD here too
 		SetRaceDest(THRADDASH_SHIP, thradd_home.x, thradd_home.y, 3, (BYTE)~0);
 		if (!GET_GAME_STATE(AQUA_HELIX))
 			SET_GAME_STATE(HELIX_UNPROTECTED, 0);
@@ -882,7 +834,6 @@ advance_mycon_mission (int arg)
 	hMycon = GetStarShipFromIndex (&GLOBAL (avail_race_q), MYCON_SHIP);
 	MyconPtr = LockFleetInfo (&GLOBAL (avail_race_q), hMycon);
 
-	// JSD add location
 	POINT home = SeedFleetLocation (MyconPtr, plot_map, 0);
 	POINT trap = SeedFleetLocation (MyconPtr, plot_map, MYCON_TRAP_DEFINED);
 
@@ -892,23 +843,32 @@ advance_mycon_mission (int arg)
 		{
 			// Head back.
 			SET_GAME_STATE (MYCON_KNOW_AMBUSH, 1);
-			// JSD add location from seed
 			SetRaceDest (MYCON_SHIP, home.x, home.y, 30, (BYTE)~0);
-			//SetRaceDest (MYCON_SHIP, 6392, 2200, 30, (BYTE)~0);
 
 			if (EXTENDED)
-				// JSD add location from seed
-				SetRaceDest (SYREEN_SHIP, plot_map[SYREEN_DEFINED].star_pt.x,
-								plot_map[SYREEN_DEFINED].star_pt.y, 30, (BYTE)~0);
-				//SetRaceDest (SYREEN_SHIP, 4125, 3770, 15, (BYTE)~0);
+			{
+				HFLEETINFO hSyreen;
+				FLEET_INFO *SyreenPtr;
+
+				hSyreen = GetStarShipFromIndex (&GLOBAL (avail_race_q),
+						SYREEN_SHIP);
+				SyreenPtr = LockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
+				if (SyreenPtr)
+				{
+					POINT syra = SeedFleetLocation (SyreenPtr, plot_map, 0);
+					SetRaceDest (SYREEN_SHIP, syra.x, syra.y, 30, (BYTE)~0);
+					// The rest?... well we took care of most of them...
+					// in our own special way.
+					SyreenPtr->actual_strength = SyreenPtr->actual_strength *
+							3 / 2;
+				}
+			}
 
 			MyconPtr->growth = 0;
 			MyconPtr->growth_fract = 0;
 		}
-		//else if (MyconPtr->loc.x != 6858 || MyconPtr->loc.y != 577)
 		else if (MyconPtr->loc.x != trap.x || MyconPtr->loc.y != trap.y)
 			SetRaceDest (MYCON_SHIP, trap.x, trap.y, 30, ADVANCE_MYCON_MISSION);
-			//SetRaceDest (MYCON_SHIP, 6858, 577, 30, ADVANCE_MYCON_MISSION);
 					// To Organon.
 		else
 		{
@@ -951,10 +911,7 @@ yehat_rebel_event (int arg)
 	RoyalistPtr = LockFleetInfo (&GLOBAL (avail_race_q), hRoyalist);
 	RoyalistPtr->actual_strength = RoyalistPtr->actual_strength * 2 / 3;
 	RebelPtr->actual_strength = RoyalistPtr->actual_strength;
-	// JSD plot mapped rebel fleet
 	RebelPtr->loc = SeedFleetLocation (RebelPtr, plot_map, YEHAT_DEFINED);
-	//RebelPtr->loc.x = 5150;
-	//RebelPtr->loc.y = 0;
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hRoyalist);
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hRebel);
 	StartSphereTracking (YEHAT_REBEL_SHIP);

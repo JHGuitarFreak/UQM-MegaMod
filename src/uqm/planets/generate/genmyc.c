@@ -377,4 +377,3 @@ GenerateMycon_generateLife (const SOLARSYS_STATE *solarSys,
 	(void) info;
 	return 0;
 }
-

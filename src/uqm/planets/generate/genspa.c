@@ -92,7 +92,7 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 		pMinPlanet->data_index = WATER_WORLD;
 
 		if (!PrimeSeed)
-			pMinPlanet->data_index = planetArray[RandomContext_Random(SysGenRNG) % 2];
+			pMinPlanet->data_index = planetArray[RandomContext_Random(SysGenRNG) % 3];
 
 		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
 		{
@@ -172,7 +172,7 @@ static bool
 GenerateSpathi_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD)
+	if (IsHomeworldKnown (SPATHI_HOME)
 		&& CurStarDescPtr->Index == SPATHI_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
