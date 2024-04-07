@@ -665,6 +665,7 @@ SetBattleGroupOffset (int encounterIndex, DWORD offset)
 		case 12: SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, offset); break;
 		case 13: SET_GAME_STATE (COLONY_GRPOFFS,       offset); break;
 		case 14: SET_GAME_STATE (SAMATRA_GRPOFFS,      offset); break;
+		case 15: SET_GAME_STATE (SLY_PROBE_GRPOFFS,    offset); break;
 		default:
 			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter "
 					"index.\n");

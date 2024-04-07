@@ -773,7 +773,7 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "ADV_AUTOPILOT_QUASI_X", 16 },
 	{ "ADV_AUTOPILOT_QUASI_Y", 16 },
 
-	//{ "SAVED_MODE", 2 },
+	{ "SLY_PROBE_GRPOFFS", 32 },
 
 	/* end rev 3, MegaMod v0.8.3 */
 	{ NULL, 0 },
@@ -1454,6 +1454,7 @@ GetBattleGroupOffset (int encounterIndex)
 		case 12: return GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 		case 13: return GET_GAME_STATE (COLONY_GRPOFFS);
 		case 14: return GET_GAME_STATE (SAMATRA_GRPOFFS);
+		case 15: return GET_GAME_STATE (SLY_PROBE_GRPOFFS);
 		default:
 			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter"
 					" index.\n");
@@ -1505,7 +1506,7 @@ SaveGroups (uio_Stream *fh)
 	if (fp && LengthStateFile (fp) > 0)
 	{
 		int encounter_index;
-		for (encounter_index = 1; encounter_index < 15; encounter_index++)
+		for (encounter_index = 1; encounter_index < 16; encounter_index++)
 		{
 			DWORD grpoffs = GetBattleGroupOffset (encounter_index);
 			if (grpoffs)
