@@ -135,6 +135,13 @@ typedef enum {
 } OPT_WINDOWTYPE;
 
 typedef enum {
+	OPTVAL_PRIME,
+	OPTVAL_PLANET,
+	OPTVAL_MRQ,
+	OPTVAL_STAR
+} OPT_SEED;
+
+typedef enum {
 	OPTVAL_RESUME_DISABLED,
 	OPTVAL_RESUME_5MIN,
 	OPTVAL_RESUME_INDEFINITE
@@ -166,6 +173,7 @@ typedef struct globalopts_struct {
 	OPT_FUELRANGE fuelRange;
 	OPT_SPHERETYPE sphereType;
 	OPT_WINDOWTYPE windowType;
+	OPT_SEED seedType;
 	OPT_MUSICRESUME musicResume;
 	OPT_SEED seedType;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,

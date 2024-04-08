@@ -19,6 +19,7 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
+#include "uqm/lua/luacomm.h"
 #include "uqm/races.h"
 #include "uqm/lua/luacomm.h"
 
