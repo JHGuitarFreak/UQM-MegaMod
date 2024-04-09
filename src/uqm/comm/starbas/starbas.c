@@ -464,7 +464,7 @@ HierarchyInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_ANDROSYNTH);
 		HierarchyMask |= HIERARCHY_ANDROSYNTH;
-		SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);
+		SetHomeworldKnown (ANDROSYNTH_HOME);
 	}
 	else if (PLAYER_SAID (R, ilwrath))
 	{
