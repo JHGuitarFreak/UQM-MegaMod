@@ -81,6 +81,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - ANDROID: Fix directional joystick from instantly turning ship to the right on just a tap
 - ANDROID: On-screen controls fixed in the Shipyard and Outfit screens
 - Code Bug #239 Squashed - Hard Mode Slylandro Battlegroups causing crash when saving, then loading, around Rainbow Worlds is fixed
+- Changed Peter MacMillan to Parker MacMillan in the credits
 
 ## [v0.8.2] - 2022-11-13
 
