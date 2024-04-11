@@ -467,6 +467,7 @@ Function RemoveOldFiles
   ${RemoveFileFromRoot} "content\addons\mm-0.8.2-hd.uqm"
   ${RemoveFileFromRoot} "content\addons\mm-0.8.2-3dovoice.uqm"
   ${RemoveFileFromRoot} "content\addons\mm-hd-classic-pack.uqm"
+  ${RemoveFileFromRoot} "content\addons\mm-vols-remix.uqm"
 FunctionEnd
 
 Var IS_VANILLA_DIR
