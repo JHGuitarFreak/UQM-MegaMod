@@ -1,0 +1,11 @@
+MegaMod Release Checklist
+
+- Make sure MegaMod can be compiled in SDL1, SDL2, Debug, and Release mode within MinGW, Linux, macOS, and maybe Android
+- Double check the changelog to make sure all the important changes are noted
+- Copy the root directory changelog to the 'doc/release/changelog' and delete all version irrelevant changes
+- Copy changelog text to the website noting any new additions and changes with respective badges
+- Make a new set of screenshots for the website and SourceForge
+- Update the website with the new version information and package locations
+- Tag the current git commit with the version number
+- Update Windows installer with all the necessary packages and a fresh MinGW build
+- Move current version compatible packages to the current version's SourceForge files folder
