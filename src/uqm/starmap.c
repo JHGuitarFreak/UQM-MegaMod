@@ -904,15 +904,22 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 	// All other channels are false gods
 	if (star->Index == ILWRATH_DEFINED)
 	{
-		if (optCustomSeed % 44 == 0)
+		COUNT newcolor = (STAR_COLOR (star->Type) + optCustomSeed) % 5;
+		if (optCustomSeed % 44 == 0 || optCustomSeed % 100 == 44)
 				star->Type = starmap_array[i].Type;
 		else star->Type = MAKE_STAR (
 				STAR_TYPE (star->Type),
-				STAR_COLOR (starmap[i].Type) +
-					(optCustomSeed % 5 >= GREEN_BODY ?
-					(optCustomSeed % 5) + 1 :
-					optCustomSeed % 5),
+				newcolor >= GREEN_BODY ? newcolor + 1 : newcolor,
 				STAR_OWNER (star->Type));
+	}
+	// Shofixti can't be orange due to planet types
+	if (star->Index == SHOFIXTI_DEFINED)
+	{
+		COUNT newcolor = (STAR_COLOR (star->Type) + optCustomSeed) % 5;
+		star->Type = MAKE_STAR (
+			STAR_TYPE (star->Type),
+			newcolor >= ORANGE_BODY ? newcolor + 1 : newcolor,
+			STAR_OWNER (star->Type));
 	}
 	// Supox will NOT be the same color as rainbow world
 	// This swaps yellow/blue, red/white, and green/orange
@@ -922,9 +929,11 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 		while (RAINBOW0_DEFINED != starmap[j].Index)
 			if (++j >= NUM_SOLAR_SYSTEMS)
 				return; // It doesn't have one
+		// This will either increment or decriment based on even/odd
+		// and then % 6 to put back into star_color.
 		star->Type = MAKE_STAR
 				(DWARF_STAR,
-				(STAR_COLOR (starmap[j].Type + 6) + 
+				(STAR_COLOR (starmap[j].Type) + 6 +
 					STAR_COLOR (starmap[j].Type) % 2 -
 					(STAR_COLOR (starmap[j].Type) + 1) % 2) % 6,
 				STAR_OWNER (star->Type));
