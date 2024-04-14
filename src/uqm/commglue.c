@@ -28,18 +28,164 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
+//JSD
+#include "uqm/comm/melnorm/strings.h"
+#include "libs/math/random.h"
+
+COUNT RoboTrack[NUM_ROBO_TRACKS];
 
 static int NPCNumberPhrase (int number, const char *fmt, UNICODE **ptrack);
+
+// Scans forward until outside of the interpolation then returns the start
+// of the new section of text.
+UNICODE *
+ScanInterpolation (UNICODE *start)
+{
+	COUNT depth = 1;
+	if (!start || start[0] != '<')
+		return start;
+	start++;
+	while (*start && depth > 0)
+	{
+		if (start[0] == '<' && start[1] == '%')
+			depth++;
+		if (start[0] == '%' && start[1] == '>')
+			depth--;
+		start++;
+	}
+	// If we're not on a null character, it's the >, roll forward.
+	if (*start)
+		start++;
+	return start;
+}
+
+// Will the chunk between [end - start] require robot voicing?
+BOOLEAN
+RoboInterpolation (UNICODE *start, UNICODE *end)
+{
+	char *roboPhrases[] = {
+			"getPoint",
+			"getStarName",
+			"getConstellation",
+			"getColor",
+			"swapIfSeeded",
+			NULL};
+	COUNT i = 0;
+	UNICODE *result;
+	while (roboPhrases[i])
+	{
+		result = strstr (start, roboPhrases[i]);
+		if (result && result < end)
+			return true;
+		i++;
+	}
+	return false;
+}
+
+// This will write to buffer the interpolated chunk, while returning a new
+// "start" value from the original string where interpolation ended.
+UNICODE *
+InterpolateChunk (UNICODE buffer[], UNICODE *start)
+{
+	UNICODE *end = start;
+	UNICODE str_buf[MAX_INTERPOLATE] = "";
+	UNICODE *pStr;
+	COUNT buffsize = 0;
+	BOOLEAN done = false;
+
+	while ((end = strstr (start, "<%")) && !done)
+	{
+		// Copy over plain text part
+		if (end != start)
+		{
+			buffsize += end - start;
+			if (buffsize > MAX_INTERPOLATE)
+			{
+				fprintf (stderr, "String too long to interpolate.\n");
+				return NULL;
+			}
+			strncpy (buffer, start, end - start);
+			buffer = &buffer[end - start];
+			start = end;
+		}
+
+		// Next we grab only the smallest chunk we can interpolate
+		end = ScanInterpolation (start);
+		if (RoboInterpolation (start, end))
+		{
+			// This requires robo-interpolation.  If anything else was
+			// already read, we return and handle that first.  Otherwise,
+			// handle this interpolation, but then we're done.
+			if (buffsize > 0)
+				return start;
+			done = true;
+
+		}
+		strncpy (str_buf, start, end - start);
+		str_buf[end - start] = '\0';
+		pStr = luaUqm_comm_stringInterpolate (str_buf);
+		if (!pStr)
+		{
+			fprintf (stderr, "Interpolation failure (null return).\n");
+			return NULL;
+		}
+		buffsize += strlen (pStr);
+		if (buffsize > MAX_INTERPOLATE)
+		{
+			fprintf (stderr, "String too long to interpolate.\n");
+			return NULL;
+		}
+		strncpy (buffer, pStr, strlen (pStr));
+		HFree (pStr);
+		pStr = NULL;
+		buffer = &buffer[end - start];
+		start = end;
+	}
+	// If we ended because of robointerpolation...
+	if (done)
+		return start;
+	// Otherwise we're done with interpolation, write the remainder
+	// to buffer and return
+	buffsize += strlen (start);
+	if (buffsize > MAX_INTERPOLATE)
+	{
+		fprintf (stderr, "String too long to interpolate.\n");
+		return NULL;
+	}
+	strcpy (buffer, start);
+	return NULL;
+}
+
+// Creates the file name of subclip # clip_number, and prints it to buffer.
+// Assumes track names end in ".ogg".
+void
+GetSubClip (UNICODE buffer[], UNICODE *pClip, COUNT clip_number)
+{
+	UNICODE *pStr = strstr (pClip, ".ogg");
+	if (!pStr)
+	{
+		// Fall through passing back the whole thing
+		strcpy (buffer, pClip);
+		return;
+	}
+	strncpy (buffer, pClip, pStr - pClip);
+	buffer[pStr - pClip] = 'a' + clip_number;
+	pStr++;
+	strncpy (&buffer[pStr - pClip], ".ogg\0", 5);
+	return;
+}
 
 // The CallbackFunction is queued and executes synchronously
 // on the Starcon2Main thread
 void
 NPCPhrase_cb (int index, CallbackFunction cb)
 {
-	char *pStr;
-	void *pClip;
+	UNICODE *pStr;
+	UNICODE *pClip;
 	void *pTimeStamp;
 	BOOLEAN isPStrAlloced = FALSE;
+	COUNT clip_number = 0;
+	COUNT i;
 
 	if (index == 0)
 		return;
@@ -50,17 +196,81 @@ NPCPhrase_cb (int index, CallbackFunction cb)
 			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
 	pTimeStamp = GetStringTimeStamp (
 			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
-		
-	if (luaUqm_comm_stringNeedsInterpolate (pStr))
+
+	if (!StarSeed)
 	{
-		pStr = luaUqm_comm_stringInterpolate (pStr);
-		isPStrAlloced = TRUE;
+		if (luaUqm_comm_stringNeedsInterpolate (pStr))
+		{
+			pStr = luaUqm_comm_stringInterpolate (pStr);
+			isPStrAlloced = TRUE;
+		}
+		SpliceTrack (pClip, pStr, pTimeStamp, cb);
+		if (isPStrAlloced)
+			HFree (pStr);
+		return;
 	}
+	// From here on, we are doing StarSeed robo-interpolation.
+	STRING RoboPhrases = CaptureStringTable (
+			LoadStringTableInstance ("comm.robot.dialogue"));
+	for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
+		RoboTrack[i] = 0;
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Received string...\n<<\n%s\n>>\n", pStr);
+#endif
 
-	SpliceTrack (pClip, pStr, pTimeStamp, cb);
-
-	if (isPStrAlloced)
-		HFree (pStr);
+	do
+	{
+		// Get fresh buffers every loop
+		char str_buf[MAX_INTERPOLATE] = "";
+		char clip_buf[MAX_CLIPNAME] = "";
+		pStr = InterpolateChunk (str_buf, pStr);
+#ifdef DEBUG_STARSEED
+		fprintf (stderr, "Chunk\n<<\n%s\n>>\n", str_buf);
+#endif
+		if (!RoboTrack[0])
+		{
+			if (clip_number == 0 && !pStr)
+				// There's no sub-clips here, return regular clip
+				SpliceTrack (pClip, str_buf, pTimeStamp, cb);
+			else
+			{
+				// This is a subclip of the main dialog
+				GetSubClip (clip_buf, pClip, clip_number);
+				clip_number++;
+				SpliceTrack (clip_buf, str_buf, 0, cb);
+			}
+		}
+		else
+		{
+			// This requires one or more robo-tracks or swap-if subclips
+			UNICODE *tracks[NUM_ROBO_TRACKS + 1] = { [0 ... NUM_ROBO_TRACKS] = NULL };
+			for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
+			{
+				if (RoboTrack[i] == (COUNT) ~0)
+				{
+					// ~0 is a subclip and indexes off the primary clip;
+					// We need to allocate a temp buffer and clean it up later
+					tracks[i] = HCalloc (MAX_CLIPNAME);
+					GetSubClip (tracks[i], pClip, clip_number);
+					clip_number++;
+				}
+				else if (RoboTrack[i] > 0)
+					// Otherwise the robo-track is an index into robo-phrases
+					tracks[i] = GetStringSoundClip (
+							SetAbsStringTableIndex (RoboPhrases, RoboTrack[i] - 1));
+				else
+					tracks[i] = NULL;
+			}
+			SpliceMultiTrack (tracks, str_buf);
+			for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
+			{
+				if (RoboTrack[i] == (COUNT) ~0)
+					HFree (tracks[i]);
+				RoboTrack[i] = 0;
+			}
+		}
+	}
+	while (pStr);
 }
 
 // Special case variant: prevents page breaks.

@@ -40,6 +40,7 @@
 #include <ctype.h>		 // for islower, isupper, toupper
 
 
+extern COUNT RoboTrack[];
 static const char npcPhraseCallbackRegistryKey[] =
 		"uqm_comm_npcPhraseCallback";
 		// Key in the registry storing the callback function for
@@ -407,6 +408,16 @@ luaUqm_comm_getPoint (lua_State *luaState)
 			(float) plot_map[plot_id].star_pt.x / 10,
 			(float) plot_map[plot_id].star_pt.y / 10);
 	lua_pushstring (luaState, dialog);
+	RoboTrack[0] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.x / 1000;
+	RoboTrack[1] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.x / 100 % 10;
+	RoboTrack[2] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.x / 10 % 10;
+	RoboTrack[3] = ROBOT_POINT;
+	RoboTrack[4] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.x % 10;
+	RoboTrack[5] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 1000;
+	RoboTrack[6] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 100 % 10;
+	RoboTrack[7] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 10 % 10;
+	RoboTrack[8] = ROBOT_POINT;
+	RoboTrack[9] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y % 10;
 	return 1;
 }
 
@@ -456,6 +467,13 @@ luaUqm_comm_getStarName (lua_State *luaState)
 	GetClusterName (plot_map[plot_id].star, dialog);
 	CheckCase (prime_text, dialog);
 	lua_pushstring (luaState, dialog);
+	if (plot_map[plot_id].star->Prefix > 0)
+	{
+		RoboTrack[0] = ROBOT_PREFIX_0 + plot_map[plot_id].star->Prefix;
+		RoboTrack[1] = ROBOT_POSTFIX_0 + plot_map[plot_id].star->Postfix;
+	}
+	else
+		RoboTrack[0] = ROBOT_POSTFIX_0 + plot_map[plot_id].star->Postfix;
 	return 1;
 }
 
@@ -491,6 +509,7 @@ luaUqm_comm_getConstellation (lua_State *luaState)
 			GAME_STRING (SDPtr->Postfix));
 	CheckCase (prime_text, dialog);
 	lua_pushstring (luaState, dialog);
+	RoboTrack[0] = ROBOT_POSTFIX_0 + SDPtr->Postfix;
 	return 1;
 }
 
@@ -519,19 +538,43 @@ luaUqm_comm_getColor (lua_State *luaState)
 		return 1;
 	}
 	char dialog[256];
-	snprintf (dialog, sizeof (dialog), "%s",
-			(STAR_COLOR(plot_map[plot_id].star->Type) == RED_BODY) ?
-			"red" :
-			(STAR_COLOR(plot_map[plot_id].star->Type) == ORANGE_BODY) ?
-			"orange" :
-			(STAR_COLOR(plot_map[plot_id].star->Type) == YELLOW_BODY) ?
-			"yellow" :
-			(STAR_COLOR(plot_map[plot_id].star->Type) == GREEN_BODY) ?
-			"green" :
-			(STAR_COLOR(plot_map[plot_id].star->Type) == BLUE_BODY) ?
-			"blue" :
-			(STAR_COLOR(plot_map[plot_id].star->Type) == WHITE_BODY) ?
-			"white" : "UNKNOWN");
+	switch (STAR_COLOR(plot_map[plot_id].star->Type))
+	{
+		case RED_BODY:
+			snprintf (dialog, sizeof (dialog), "%s", "red");
+			RoboTrack[0] = (plot_id == ILWRATH_DEFINED) ?
+					ILWRATH_COLOR_RED : ROBOT_COLOR_RED;
+			break;
+		case ORANGE_BODY:
+			snprintf (dialog, sizeof (dialog), "%s", "orange");
+			RoboTrack[0] = (plot_id == ILWRATH_DEFINED) ?
+					ILWRATH_COLOR_ORANGE : ROBOT_COLOR_ORANGE;
+			break;
+		case YELLOW_BODY:
+			snprintf (dialog, sizeof (dialog), "%s", "yellow");
+			RoboTrack[0] = (plot_id == ILWRATH_DEFINED) ?
+					ILWRATH_COLOR_YELLOW : ROBOT_COLOR_YELLOW;
+			break;
+		case GREEN_BODY:
+			snprintf (dialog, sizeof (dialog), "%s", "green");
+			RoboTrack[0] = (plot_id == ILWRATH_DEFINED) ?
+					ILWRATH_COLOR_GREEN : ROBOT_COLOR_GREEN;
+			break;
+		case BLUE_BODY:
+			snprintf (dialog, sizeof (dialog), "%s", "blue");
+			RoboTrack[0] = (plot_id == ILWRATH_DEFINED) ?
+					ILWRATH_COLOR_BLUE : ROBOT_COLOR_BLUE;
+			break;
+		case WHITE_BODY:
+			snprintf (dialog, sizeof (dialog), "%s", "white");
+			RoboTrack[0] = (plot_id == ILWRATH_DEFINED) ?
+					ILWRATH_COLOR_WHITE : ROBOT_COLOR_WHITE;
+			break;
+		default:
+			snprintf (dialog, sizeof (dialog), "%s", "unknown");
+			RoboTrack[0] = ROBOT_NULL_PHRASE;
+			break;
+	}
 	CheckCase (prime_text, dialog);
 	lua_pushstring (luaState, dialog);
 	return 1;
@@ -555,5 +598,6 @@ luaUqm_comm_swapIfSeeded (lua_State *luaState)
 	fprintf (stderr, "Swap If Seeded called (%s %s)\n", prime_text, seed_text);
 #endif
 	lua_pushstring (luaState, seed_text);
+	RoboTrack[0] = (COUNT) ~0;
 	return 1;
 }
