@@ -21,6 +21,7 @@
 #include "strings.h"
 
 #include "uqm/gameev.h"
+#include "uqm/races.h"
 #include "uqm/lua/luacomm.h"
 
 
@@ -280,8 +281,7 @@ ArilouHome (RESPONSE_REF R)
 		NPCPhrase (ABOUT_WAR);
 
 		SET_GAME_STATE (ARILOU_STACK_1, 1);
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SetHomeworldKnown (SHOFIXTI_HOME);
 	}
 	else if (PLAYER_SAID (R, what_about_urquan))
 	{
@@ -289,8 +289,7 @@ ArilouHome (RESPONSE_REF R)
 
 		SET_GAME_STATE (ARILOU_STACK_1, 2);
 
-		if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+		SetHomeworldKnown (SYREEN_HOME);
 	}
 	else if (PLAYER_SAID (R, tell_arilou_about_tpet))
 	{
@@ -316,8 +315,7 @@ ArilouHome (RESPONSE_REF R)
 
 			LastStack = 1;
 
-			if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
-				SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
+			SetHomeworldKnown (UMGAH_HOME);
 		}
 
 		DISABLE_PHRASE (learned_about_umgah);
@@ -336,8 +334,7 @@ ArilouHome (RESPONSE_REF R)
 
 		SET_GAME_STATE (ARILOU_CHECKED_UMGAH, 3);
 
-		if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
-			SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
+		SetHomeworldKnown (UMGAH_HOME);
 	}
 	else if (PLAYER_SAID (R, what_did_on_earth))
 	{

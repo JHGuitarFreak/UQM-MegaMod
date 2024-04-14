@@ -329,8 +329,7 @@ TaaloWorld (RESPONSE_REF R)
 		else
 		{
 			NPCPhrase (ANGRY_PLACE);
-			if (!GET_GAME_STATE (KNOW_ORZ_HOMEWORLD))
-				SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
+			SetHomeworldKnown (ORZ_HOME);
 		}
 
 		DISABLE_PHRASE (what_is_this_place);

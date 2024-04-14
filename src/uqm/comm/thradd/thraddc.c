@@ -901,8 +901,7 @@ Intro (void)
 				}
 				SET_GAME_STATE (THRADD_HOME_VISITS, NumVisits);
 
-				if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
-					SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+				SetHomeworldKnown (THRADDASH_HOME);
 			}
 			else if ((NumVisits = GET_GAME_STATE (THRADD_MISSION)) == 0
 					|| NumVisits > 3)

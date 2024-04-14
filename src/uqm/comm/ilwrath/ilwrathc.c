@@ -22,6 +22,7 @@
 
 #include "uqm/gameev.h"
 #include "uqm/build.h"
+#include "uqm/races.h"
 #include "uqm/lua/luacomm.h"
 
 
@@ -159,8 +160,7 @@ CombatIsInevitable (RESPONSE_REF R)
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_SPACE_3);
-				if (!GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD))
-					SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
+				SetHomeworldKnown (ILWRATH_HOME);
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_SPACE_4);
