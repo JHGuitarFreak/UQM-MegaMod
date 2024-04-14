@@ -61,12 +61,12 @@ GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 			GLOBAL (BattleGroupRef) = 0;
 			/* 1-3, 3-5, 5-7, 7-9 Probes total */
 			num_groups = (GET_GAME_STATE (SLYLANDRO_MULTIPLIER) * 2) - 1 +
-					(COUNT)TFB_Random () % 3;			
+					(COUNT)TFB_Random () % 3;
 			which_group = 0;
 			do
 			{
-				CloneShipFragment (SLYLANDRO_SHIP, 
-							&GLOBAL (npc_built_ship_q), 0);
+				CloneShipFragment (SLYLANDRO_SHIP,
+						&GLOBAL (npc_built_ship_q), 0);
 				PutGroupInfo (GROUPS_RANDOM, ++which_group);
 				ReinitQueue (&GLOBAL (npc_built_ship_q));
 			} while (--num_groups);

@@ -2301,6 +2301,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		resolutionFactor = resFactor;
 
+#if defined(ANDROID) || defined(__ANDROID__)
+		// Switch to native resolution on Res Factor change
+		ScreenWidthActual = 320 << RESOLUTION_FACTOR;
+		ScreenHeightActual = DOS_BOOL (240, 200) << RESOLUTION_FACTOR;
+		loresBlowupScale = (ScreenWidthActual / 320) - 1;
+		res_PutInteger("config.loresBlowupScale", loresBlowupScale);
+		res_PutInteger("config.reswidth", ScreenWidthActual);
+		res_PutInteger("config.resheight", ScreenHeightActual);
+#endif
+
 		switch (opts->windowType)
 		{
 			case OPTVAL_PC_WINDOW:

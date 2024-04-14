@@ -288,7 +288,6 @@ ArilouHome (RESPONSE_REF R)
 		NPCPhrase (ABOUT_URQUAN);
 
 		SET_GAME_STATE (ARILOU_STACK_1, 2);
-
 		SetHomeworldKnown (SYREEN_HOME);
 	}
 	else if (PLAYER_SAID (R, tell_arilou_about_tpet))
@@ -333,7 +332,6 @@ ArilouHome (RESPONSE_REF R)
 		NPCPhrase (GO_FIND_OUT);
 
 		SET_GAME_STATE (ARILOU_CHECKED_UMGAH, 3);
-
 		SetHomeworldKnown (UMGAH_HOME);
 	}
 	else if (PLAYER_SAID (R, what_did_on_earth))
