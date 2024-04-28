@@ -577,40 +577,39 @@ InitPlot (PLOT_LOCATION *plotmap)
 	// Set up buffers around anyone with a zone of influence during the war
 	// or after the war where homeworlds inside the zone wouldn't make sense
 	// Orz are skipped, Androsynth takes care of them.
-	COUNT home_map[] =
-			{ARILOU_DEFINED, 300,
-			SOL_DEFINED, 700,
-			YEHAT_DEFINED, 700,
-			SHOFIXTI_DEFINED, 700,
-			CHMMR_DEFINED, 700,
-			SYREEN_DEFINED, 700,
-			EGG_CASE0_DEFINED, 700,	
-			MOTHER_ARK_DEFINED, 700,
+	COUNT home_map[23][2] = {
+			{ARILOU_DEFINED, 300},
+			{SOL_DEFINED, 700},
+			{YEHAT_DEFINED, 700},
+			{SHOFIXTI_DEFINED, 700},
+			{CHMMR_DEFINED, 700},
+			{SYREEN_DEFINED, 700},
+			{EGG_CASE0_DEFINED, 700},
+			{MOTHER_ARK_DEFINED, 700},
 
-			DRUUGE_DEFINED, 1300,
-			PKUNK_DEFINED, 700,
-			UTWIG_DEFINED, 700,
-			SUPOX_DEFINED, 300,
-			ZOQFOT_DEFINED, 700,
-			BURVIXESE_DEFINED, 300,
-			START_COLONY_DEFINED, 300,
+			{DRUUGE_DEFINED, 1300},
+			{PKUNK_DEFINED, 700},
+			{UTWIG_DEFINED, 700},
+			{SUPOX_DEFINED, 300},
+			{ZOQFOT_DEFINED, 700},
+			{BURVIXESE_DEFINED, 300},
+			{START_COLONY_DEFINED, 300},
 
-			SAMATRA_DEFINED, 3000,
-			ANDROSYNTH_DEFINED, 1000,
-			ILWRATH_DEFINED, 1000,
-			MYCON_DEFINED, 1000,
-			SPATHI_DEFINED, 1000,
-			THRADD_DEFINED, 1000,
-			VUX_DEFINED, 1000,
-			TALKING_PET_DEFINED, 1000};
+			{SAMATRA_DEFINED, 3000},
+			{ANDROSYNTH_DEFINED, 1000},
+			{ILWRATH_DEFINED, 1000},
+			{MYCON_DEFINED, 1000},
+			{SPATHI_DEFINED, 1000},
+			{THRADD_DEFINED, 1000},
+			{VUX_DEFINED, 1000},
+			{TALKING_PET_DEFINED, 1000}};
 	// Total 8 + 7 + 8 currently 23 homeworlds
 	// Set the homeworlds apart first (can be overwritten later)
-	// Because you can't declare 2D array dynamically, must fake it
-	for (i = 0; i < 22 * 2; i += 2)
-		for (j = i + 2; j < 23 * 2; j += 2)
-			SetPlotLength (plotmap, home_map[i], home_map[j],
-					(home_map[i + 1] > home_map[j + 1]) ?
-					home_map[i + 1] : home_map[j + 1], MAX_PLOT);
+	for (i = 0; i < 22; i++)
+		for (j = i + 1; j < 23; j++)
+			SetPlotLength (plotmap, home_map[i][0], home_map[j][0],
+					(home_map[i][1] > home_map[j][1]) ?
+					home_map[i][1] : home_map[j][1], MAX_PLOT);
 
 	// Sets up Melnormes and Rainbow Worlds with minimal plot weight
 	// also their connections to other races.
@@ -912,7 +911,9 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 				newcolor >= GREEN_BODY ? newcolor + 1 : newcolor,
 				STAR_OWNER (star->Type));
 	}
+#if 0
 	// Shofixti can't be orange due to planet types
+	// Not needed any more, after altering shofixti code a bit
 	if (star->Index == SHOFIXTI_DEFINED)
 	{
 		COUNT newcolor = (STAR_COLOR (star->Type) + optCustomSeed) % 5;
@@ -921,6 +922,7 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 			newcolor >= ORANGE_BODY ? newcolor + 1 : newcolor,
 			STAR_OWNER (star->Type));
 	}
+#endif
 	// Supox will NOT be the same color as rainbow world
 	// This swaps yellow/blue, red/white, and green/orange
 	if (star->Index == SUPOX_DEFINED)

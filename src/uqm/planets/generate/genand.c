@@ -67,25 +67,40 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 		solarSys->SunDesc[0].PlanetByte = 1;
 
-		if (!PrimeSeed)
+		if (StarSeed)
+		{
+			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (2);
+			solarSys->SunDesc[0].PlanetByte =
+					(RandomContext_Random (SysGenRNG) %
+					solarSys->SunDesc[0].NumPlanets);
+		}
+		else if (!PrimeSeed)
 		{
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-			fprintf(stderr, "Generating ANDROSNYTH_DEFINED with %d planets.\n", solarSys->SunDesc[0].NumPlanets);
 		}
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-		GeneratePlanets (solarSys);
+		if (!StarSeed)
+		{
+			GeneratePlanets (solarSys);
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = TELLURIC_WORLD;
+		}
+		else // StarSeed
+		{
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+					GenerateHabitableWorld ();
+			GeneratePlanets (solarSys);
+			CheckForHabitable (solarSys);
+		}
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = TELLURIC_WORLD;
-
-		if (!PrimeSeed)
+		if (!PrimeSeed && !StarSeed)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 			CheckForHabitable (solarSys);
 		}
-		else
+		else if (PrimeSeed)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 204L / 100;
 			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, 
@@ -103,7 +118,14 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 		solarSys->SunDesc[0].PlanetByte = 0;
 
-		if (!PrimeSeed)
+		if (StarSeed)
+		{
+			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+			solarSys->SunDesc[0].PlanetByte =
+					(RandomContext_Random (SysGenRNG) %
+					solarSys->SunDesc[0].NumPlanets);
+		}
+		else if (!PrimeSeed)
 		{
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
@@ -112,7 +134,7 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 		GeneratePlanets (solarSys);
 
-		if (!PrimeSeed)
+		if (!PrimeSeed && !StarSeed)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
 					RandomContext_Random (SysGenRNG) % LAST_LARGE_ROCKY_WORLD;

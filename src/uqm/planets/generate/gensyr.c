@@ -70,19 +70,30 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if (!PrimeSeed)
+	if (!PrimeSeed && !StarSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);	
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+	if (!StarSeed)
+	{
+		GeneratePlanets (solarSys);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+	}
+	else // StarSeed
+	{
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+				GenerateHabitableWorld ();
+	    GeneratePlanets (solarSys);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets += 1;
+		CheckForHabitable (solarSys);
+	}
 
-	if (!PrimeSeed)
+	if (!PrimeSeed && !StarSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
@@ -108,7 +119,7 @@ GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		else
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
 
-		if (PrimeSeed)
+		if (PrimeSeed || StarSeed)
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius = MIN_MOON_RADIUS;
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].location.x =

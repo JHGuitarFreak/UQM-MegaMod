@@ -22,7 +22,6 @@
 
 #include "uqm/gameev.h"
 #include "libs/mathlib.h"
-#include "uqm/lua/luacomm.h"
 #include "uqm/races.h"
 #include "uqm/lua/luacomm.h"
 

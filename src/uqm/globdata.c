@@ -40,6 +40,7 @@
 
 #include <time.h>//required to use 'srand(time(NULL))'
 
+#define OOPS_ALL 0//SYREEN_DEFINED
 static void CreateRadar (void);
 
 CONTEXT RadarContext;
@@ -808,7 +809,7 @@ BOOLEAN
 InitStarseed (BOOLEAN newgame)
 {
 	COUNT i;
-#ifdef DEBUG_STARSEED_V
+#ifdef DEBUG_STARSEED_TRACE_V
 	SeedDEBUG ();
 	fprintf (stderr, "CurrentActivity %d\n", GLOBAL (CurrentActivity));
 #endif
@@ -904,6 +905,10 @@ InitStarseed (BOOLEAN newgame)
 			return FALSE;
 		}
 	}
+	if (OOPS_ALL > 0)
+		for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+			if (!star_array[i].Index)
+				star_array[i].Index = OOPS_ALL;
 	// In case the seed changed above, reset SIS
 	GLOBAL_SIS (Seed) = optCustomSeed;
 #ifdef DEBUG_STARSEED

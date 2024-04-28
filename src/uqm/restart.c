@@ -841,10 +841,15 @@ StartGame (void)
 		}
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);
-	// Be sure to load the seed type from the settings into the state
+	// Be sure to load the seed type from the settings into the state.
 	SET_GAME_STATE (SEED_TYPE, optSeedType);
+	// Make sure to reset the seed if prime game is called for.
+	if (PrimeSeed)
+		optCustomSeed = PrimeA;
+#ifdef DEBUG_STARSEED
 	fprintf(stderr, "StartGame called for %d mode with seed %d.\n",
 			optSeedType, optCustomSeed);
+#endif
 	{
 		extern STAR_DESC starmap_array[];
 		extern const BYTE element_array[];
@@ -863,9 +868,10 @@ StartGame (void)
 		// While the starseed init code should always force a
 		// reset of the starmap_array, we will do it here because
 		// paranoia is its own reward.
-		//star_array = starmap_array;
 		COUNT i;
+#ifdef DEBUG_STARSEED
 		fprintf(stderr, "Initializing star_array, just in case...\n");
+#endif
 		for (i = 0; i < NUM_SOLAR_SYSTEMS + 1 + NUM_HYPER_VORTICES + 1 + 1; i++)
 			star_array[i] = starmap_array[i];
 		Elements = element_array;

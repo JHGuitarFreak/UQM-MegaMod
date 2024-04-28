@@ -59,6 +59,7 @@
 
 #include SDL_INCLUDE(SDL_version.h)
 
+//#define DEBUG_STARSEED
 //#define DEBUG_SOLARSYS
 //#define SMOOTH_SYSTEM_ZOOM  1
 
@@ -401,8 +402,6 @@ LoadNebulaeFrame (POINT location)
 	STRING nebulaRes;
 	COUNT nebulaCount;
 	POINT neb_seed;
-	// JSD Replace old method for finding SOL with plot method
-	//const POINT solPoint = { SOL_X, SOL_Y };
 	const POINT solPoint = plot_map[SOL_DEFINED].star_pt;
 
 	// Kruzen: Either loading from main menu or option is disabled or
@@ -609,10 +608,25 @@ initSolarSysSISCharacteristics (void)
 	}
 }
 
+// For Starseed, we will offset the star-coords seed by the custom seed, to
+// 'pass along' the seed.  This will ensure each star system has a different
+// seeding per custom seed, AND because fleets use their homeworld coords for
+// jitter, it even ensures the same homeworld (coords) sourced fleets will have
+// different jitters on different seeds.
 DWORD
 GetRandomSeedForStar (const STAR_DESC *star)
 {
-	return MAKE_DWORD (star->star_pt.x, star->star_pt.y);
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Get Random Seed For Star. %05.1f : %05.1f "
+			"[%d] (seed %d) = %d.  Plot ID %d (%s).\n",
+			(float) star->star_pt.x / 10, (float) star->star_pt.y / 10,
+			MAKE_DWORD (star->star_pt.x, star->star_pt.y), optCustomSeed,
+			MAKE_DWORD (star->star_pt.x, star->star_pt.y)
+				+ (StarSeed ? optCustomSeed : 0),
+			star->Index, starPresenceString (star->Index));
+#endif
+	return MAKE_DWORD (star->star_pt.x, star->star_pt.y) +
+			(StarSeed ? optCustomSeed : 0);
 }
 
 DWORD
@@ -748,7 +762,6 @@ LoadSolarSys (void)
 	pCurDesc = &pSolarSysState->SunDesc[0];
 	pCurDesc->pPrevDesc = 0;
 	pCurDesc->rand_seed = RandomContext_Random (SysGenRNG);
-
 	pCurDesc->data_index = STAR_TYPE (CurStarDescPtr->Type);
 	pCurDesc->location.x = 0;
 	pCurDesc->location.y = 0;
@@ -2830,10 +2843,10 @@ ExploreSolarSys (void)
 	SolarSysState.genFuncs = getGenerateFunctions (CurStarDescPtr->Index);
 #ifdef DEBUG_STARSEED
 	    if (CurStarDescPtr->Index)
-			fprintf (stderr, "*** Entering Special PLOT System at"
+			fprintf (stderr, "*** Entering Special PLOT System at "
 					"%05.1f : %05.1f %s (%d)***\n",
-					CurStarDescPtr->star_pt.x / 10,
-					CurStarDescPtr->star_pt.y / 10,
+					(float) CurStarDescPtr->star_pt.x / 10,
+					(float) CurStarDescPtr->star_pt.y / 10,
 					starPresenceString (CurStarDescPtr->Index),
 					CurStarDescPtr->Index);
 #endif

@@ -148,8 +148,16 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if(!PrimeSeed)
+	if (StarSeed)
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (2);
+	else if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
+
+	// I can't see any reason to pre-select the types if you're going to
+	// stamp them.  But it does change the seeding, so we only do it this
+	// way for starseed (so that all star types work).
+	if (StarSeed)
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 
 	for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
 	{
@@ -162,7 +170,8 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 			pCurDesc->data_index = METAL_WORLD;
 	}
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
+	if (!StarSeed)
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
 
 	if (!PrimeSeed)
 		CheckForHabitable (solarSys);
