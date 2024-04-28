@@ -140,7 +140,7 @@ extern LOCDATA* init_umgah_comm (void);
 
 #define MAX_INTERPOLATE 8192 // the max length we can robo-interpolate
 #define MAX_CLIPNAME 128 // e.g. "pkunk-004c.ogg"
-#define NUM_ROBO_TRACKS 10 // Need 10 tracks for getPoint (8 digits, 2 points)
+#define NUM_ROBO_TRACKS 11 // Need 11 for getPoint (8 digits, 2 points, 1 by)
 
 enum
 {
@@ -156,6 +156,7 @@ enum
 	ROBOT_DIGIT_8,
 	ROBOT_DIGIT_9,
 	ROBOT_POINT,
+	ROBOT_BY,
 	ROBOT_COLOR_RED,
 	ROBOT_COLOR_ORANGE,
 	ROBOT_COLOR_YELLOW,

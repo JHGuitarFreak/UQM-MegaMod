@@ -413,11 +413,12 @@ luaUqm_comm_getPoint (lua_State *luaState)
 	RoboTrack[2] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.x / 10 % 10;
 	RoboTrack[3] = ROBOT_POINT;
 	RoboTrack[4] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.x % 10;
-	RoboTrack[5] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 1000;
-	RoboTrack[6] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 100 % 10;
-	RoboTrack[7] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 10 % 10;
-	RoboTrack[8] = ROBOT_POINT;
-	RoboTrack[9] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y % 10;
+	RoboTrack[5] = ROBOT_BY;
+	RoboTrack[6] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 1000;
+	RoboTrack[7] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 100 % 10;
+	RoboTrack[8] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y / 10 % 10;
+	RoboTrack[9] = ROBOT_POINT;
+	RoboTrack[10] = ROBOT_DIGIT_0 + plot_map[plot_id].star_pt.y % 10;
 	return 1;
 }
 

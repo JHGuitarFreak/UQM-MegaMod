@@ -28,8 +28,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
-//JSD
-#include "uqm/comm/melnorm/strings.h"
+//JSD I think melnorme strings was for testing but boy I cannot remember
+//if things are broken, try adding it back in
+// random.h is included for StarSeed boolean, not the best place but it works.
+//#include "uqm/comm/melnorm/strings.h"
 #include "libs/math/random.h"
 
 COUNT RoboTrack[NUM_ROBO_TRACKS];
@@ -182,7 +184,7 @@ NPCPhrase_cb (int index, CallbackFunction cb)
 {
 	UNICODE *pStr;
 	UNICODE *pClip;
-	void *pTimeStamp;
+	UNICODE *pTimeStamp;
 	BOOLEAN isPStrAlloced = FALSE;
 	COUNT clip_number = 0;
 	COUNT i;
@@ -209,63 +211,134 @@ NPCPhrase_cb (int index, CallbackFunction cb)
 			HFree (pStr);
 		return;
 	}
+
 	// From here on, we are doing StarSeed robo-interpolation.
-	STRING RoboPhrases = CaptureStringTable (
-			LoadStringTableInstance ("comm.robot.dialogue"));
+	static STRING RoboPhrases = NULL;
+	if (!RoboPhrases)
+		RoboPhrases = CaptureStringTable (
+				LoadStringTableInstance ("comm.robot.dialogue"));
 	for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
 		RoboTrack[i] = 0;
+#ifdef DEBUG_STARSEED_TRACE_TIMESTAMP
+	// This code will roll the "SENSE_KOHRAH_VICTORY" dialog and timestamps
+	// instead of the correct ones for debugging or track syncing purposes.
+	STRING Pkunk = CaptureStringTable (
+			LoadStringTableInstance ("comm.pkunk.dialogue"));
+	pStr = (UNICODE *)GetStringAddress (
+			SetAbsStringTableIndex (Pkunk, 43));
+	pClip = GetStringSoundClip (
+			SetAbsStringTableIndex (Pkunk, 43));
+	pTimeStamp = GetStringTimeStamp (
+			SetAbsStringTableIndex (Pkunk, 43));
+#endif
+
+	// Switch to alternate time stamps if they exist
+	if (pTimeStamp)
+		if (strstr (pTimeStamp, ";"))
+			pTimeStamp = strstr (pTimeStamp, ";") + 1;
+
 #ifdef DEBUG_STARSEED
 	fprintf (stderr, "Received string...\n<<\n%s\n>>\n", pStr);
 #endif
 
+	// Here we will loop through and get the string up to the smallest
+	// interpolation, then chunk it, then repeat until done.
 	do
 	{
 		// Get fresh buffers every loop
 		char str_buf[MAX_INTERPOLATE] = "";
 		char clip_buf[MAX_CLIPNAME] = "";
+#if 0
+		// Gotta test and make sure we don't need this intensity
+			for (i = 0; i < MAX_INTERPOLATE; i++)
+				str_buf[i] = '\0';
+			for (i = 0; i < MAX_CLIPNAME; i++)
+				clip_buf[i] = '\0';
+#endif
+		// InterpolateChunk returns a pointer to the start of the next
+		// chunk, or NULL if done.  Writes the interpolation to str_buf.
 		pStr = InterpolateChunk (str_buf, pStr);
 #ifdef DEBUG_STARSEED
-		fprintf (stderr, "Chunk\n<<\n%s\n>>\n", str_buf);
+		fprintf (stderr, "Chunk\n<<%s>>\n", str_buf);
 #endif
 		if (!RoboTrack[0])
 		{
 			if (clip_number == 0 && !pStr)
+			{
+#ifdef DEBUG_STARSEED
+				fprintf (stderr, "Regular splicetrack.\n");
+#endif
 				// There's no sub-clips here, return regular clip
 				SpliceTrack (pClip, str_buf, pTimeStamp, cb);
+			}
 			else
 			{
+#ifdef DEBUG_STARSEED
+				fprintf (stderr, "Subclip splicetrack.\n");
+#endif
 				// This is a subclip of the main dialog
 				GetSubClip (clip_buf, pClip, clip_number);
+				SpliceTrack (clip_buf, str_buf, pTimeStamp, cb);
+				// Advance to the next timestamp if it exists
+				if (pTimeStamp)
+				{
+					if (strstr (pTimeStamp, ";"))
+						pTimeStamp = strstr (pTimeStamp, ";") + 1;
+					else
+						pTimeStamp = NULL;
+				}
 				clip_number++;
-				SpliceTrack (clip_buf, str_buf, 0, cb);
 			}
 		}
 		else
 		{
 			// This requires one or more robo-tracks or swap-if subclips
-			UNICODE *tracks[NUM_ROBO_TRACKS + 1] = { [0 ... NUM_ROBO_TRACKS] = NULL };
+			// which we will MultiSplice into the main track.
+			UNICODE *tracks[NUM_ROBO_TRACKS + 1] =
+					{ [0 ... NUM_ROBO_TRACKS] = NULL };
 			for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
 			{
 				if (RoboTrack[i] == (COUNT) ~0)
 				{
-					// ~0 is a subclip and indexes off the primary clip;
+					// ~0 is a subclip whose name is based off the primary clip
 					// We need to allocate a temp buffer and clean it up later
-					tracks[i] = HCalloc (MAX_CLIPNAME);
+#ifdef DEBUG_STARSEED
+					fprintf (stderr, "Allocating for track %d.\n", i);
+#endif
+					tracks[i] = HCalloc (sizeof (char) * MAX_CLIPNAME);
 					GetSubClip (tracks[i], pClip, clip_number);
+#ifdef DEBUG_STARSEED
+					fprintf (stderr, "RoboTrack[%d] = <<%s>>.\n", i, tracks[i]);
+#endif
 					clip_number++;
 				}
 				else if (RoboTrack[i] > 0)
+				{
 					// Otherwise the robo-track is an index into robo-phrases
 					tracks[i] = GetStringSoundClip (
-							SetAbsStringTableIndex (RoboPhrases, RoboTrack[i] - 1));
+							SetAbsStringTableIndex (RoboPhrases,
+							RoboTrack[i] - 1));
+#ifdef DEBUG_STARSEED
+					fprintf (stderr, "RoboTrack[%d] = <<%s>>.\n", i, tracks[i]);
+#endif
+				}
 				else
 					tracks[i] = NULL;
 			}
+#ifdef DEBUG_STARSEED
+			fprintf (stderr, "Splice Multitrack string <<%s>>.\n", str_buf);
+#endif
 			SpliceMultiTrack (tracks, str_buf);
 			for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
 			{
 				if (RoboTrack[i] == (COUNT) ~0)
+				{
+#ifdef DEBUG_STARSEED
+					fprintf (stderr, "Freeing track %d.\n", i);
+#endif
 					HFree (tracks[i]);
+				}
+				tracks[i] = NULL;
 				RoboTrack[i] = 0;
 			}
 		}
