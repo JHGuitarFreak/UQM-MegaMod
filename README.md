@@ -83,7 +83,7 @@ MegaMod is not compatible with any other mods nor are they compatible with MegaM
 MegaMod is completely independant from Core UQM, HD-Mod, HD-Remix, Crazy Mod, Balance Mod, Extended, or any other mods.
 As such MegaMod has its own packages and add-ons.
 
-For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.2-hd.uqm`.
+For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.3-hd-content.uqm`.
 
 And as MegaMod is not compatible with any other mods, do not install it over any existing UQM installations.
 
@@ -91,7 +91,7 @@ All MegaMod compatible add-ons and content can be found on the main website's Re
 
 ## Contributors
 
-Me (Kohr-Ah Death), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, and Jordan Lo.
+Me (JHGuitarFreak), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, and Jordan Lo.
 
 The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: http://star-control.com/fan/music/Various/saibuster-hyprespace.mp3, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music/Rush/HSpace%20Rush%20MIX.mp3
 
