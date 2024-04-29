@@ -542,10 +542,14 @@ char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 			stype[STAR_TYPE (CurStarDescPtr->Type)]);
 #endif /* DEBUG_ORBITS */
 	GeneratingMoons = (BOOLEAN) (pBaseDesc == system->MoonDesc);
+	BOOLEAN GasGiant = pPD && pPD->pPrevDesc &&
+			(pPD->pPrevDesc->data_index & ~PLANET_SHIELDED) >= FIRST_GAS_GIANT;
 	if (GeneratingMoons)
-		MaxPlanet = ((PrimeSeed || StarSeed)
+		MaxPlanet = (PrimeSeed || (StarSeed && !GasGiant)
 				? FIRST_LARGE_ROCKY_WORLD
-				: LAST_LARGE_ROCKY_WORLD);
+				: (StarSeed
+				? FIRST_GAS_GIANT
+				: LAST_LARGE_ROCKY_WORLD));
 	else
 		MaxPlanet = NUMBER_OF_PLANET_TYPES;
 	PlanetCount = NumPlanets;
