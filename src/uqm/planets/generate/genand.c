@@ -132,6 +132,9 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 		}
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		if (StarSeed)
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+					GenerateRockyWorld (ALL_ROCKY);
 		GeneratePlanets (solarSys);
 
 		if (!PrimeSeed && !StarSeed)
