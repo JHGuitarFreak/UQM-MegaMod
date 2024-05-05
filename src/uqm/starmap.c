@@ -150,7 +150,7 @@ GetClusterName (const STAR_DESC *pSD, UNICODE buf[])
 STAR_DESC*
 FindNearest (STAR_DESC *starmap, POINT p, BOOLEAN constellation)
 {
-	if (!starmap)
+	if (!starmap || p.x == ~0 || p.y == ~0)
 		return NULL;
 	COUNT index, star_id = 0;
 	DWORD dist, min_dist = MAX_X_UNIVERSE * MAX_Y_UNIVERSE;
@@ -249,7 +249,7 @@ PORTAL_LOCATION portalmap_array[NUM_HYPER_VORTICES + 1] =
 			{ARILOU_HOME_X, ARILOU_HOME_Y}, NULL}
 };
 
-// Reset the given starmap to the default statics starmap array
+// Reset the given starmap to the default static starmap array
 void
 DefaultStarmap (STAR_DESC *starmap)
 {
@@ -306,6 +306,8 @@ SeedStarmap (STAR_DESC *starmap)
 
 // Functions which know how a plotmap works call it "plot" so they can access
 // these internal define functions.
+#define PLOT_HARDCODE(id) (!plot[id].star && plot[id].star_pt.x != ~0 && \
+		plot[id].star_pt.y != ~0)
 #define PLOT_SET(id) (plot[id].star && plot[id].star_pt.x != ~0 && \
 		plot[id].star_pt.y != ~0)
 #define PLOT_MAX(pi,pj) ((pi > pj) ? \
@@ -466,15 +468,20 @@ GetNextPlot (PLOT_LOCATION *plot)
 	COUNT plot_id = 0;
 	DWORD top_weight = 0;
 	COUNT i;
-	//DWORD connect;
 	if (!plot)
 	{
 		fprintf (stderr, "GetNextPlot (plotmap) called with bad data PTR\n");
 		return 0;
 	}
+
 	// If we're already working on one, continue to try that one.
 	if (next_plot < NUM_PLOTS && !PLOT_SET(next_plot))
 		return next_plot;
+
+	// If we have hard coded plots still waiting to be placed, do one.
+	for (i = 0; i < NUM_PLOTS; i++)
+		if (PLOT_HARDCODE(i))
+			return next_plot = i;
 	
 #if 0
 	// Leaving this in for now as a stern reminder:
@@ -491,13 +498,12 @@ GetNextPlot (PLOT_LOCATION *plot)
 #endif
 
 	// Otherwise find the heaviest plot available.
-	if (top_weight == 0)
-		for (i = 0; i < NUM_PLOTS; i++)
-			if ((PLOT_WEIGHT (i) > top_weight) && !(PLOT_SET(i)))
-			{
-				plot_id = i;
-				top_weight = PLOT_WEIGHT (i);
-			}
+	for (i = 0; i < NUM_PLOTS; i++)
+		if ((PLOT_WEIGHT (i) > top_weight) && !(PLOT_SET(i)))
+		{
+			plot_id = i;
+			top_weight = PLOT_WEIGHT (i);
+		}
 
 	// After loop if top weight is 0 (plot_id will also be 0) there may be
 	// unassigned plots without weight, find the first one:
@@ -540,16 +546,19 @@ DefaultPlot (PLOT_LOCATION *plot, STAR_DESC *starmap)
 {
 #define ARILOU_SPACE_X  438 // We don't seed arilou from the map, they
 #define ARILOU_SPACE_Y 6372 // are hard code all the way.
+	COUNT i;
+
 	if (!plot || !starmap)
 	{
 		fprintf (stderr, "DefaultPlot (plotmap, starmap) called %s\n",
 				"with bad data PTR.");
 		return;
 	}
-	COUNT i;
+
+	ResetPlot (plot);
 	plot[0].star_pt = (POINT) {ARILOU_SPACE_X, ARILOU_SPACE_Y};
-	plot[0].star = &(starmap[NUM_SOLAR_SYSTEMS + 1 + NUM_HYPER_VORTICES +1]);
-	for (i = 1; i < NUM_SOLAR_SYSTEMS; i++)
+	plot[0].star = &(starmap[NUM_SOLAR_SYSTEMS + 1 + NUM_HYPER_VORTICES + 1]);
+	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
 		if (starmap[i].Index > 0)
 		{
 			if (starmap[i].Index >= NUM_PLOTS)
@@ -923,6 +932,26 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 			STAR_OWNER (star->Type));
 	}
 #endif
+	// Green, Blue, and White giants are too hot for spathis.
+	// This is an asthetic choice but a good one.
+	if (star->Index == SPATHI_DEFINED)
+	{
+		if (STAR_COLOR (star->Type) == WHITE_BODY)
+			star->Type = MAKE_STAR (
+					STAR_TYPE (star->Type),
+					YELLOW_BODY,
+					STAR_OWNER (star->Type));
+		if (STAR_COLOR (star->Type) == BLUE_BODY)
+			star->Type = MAKE_STAR (
+					STAR_TYPE (star->Type),
+					ORANGE_BODY,
+					STAR_OWNER (star->Type));
+		if (STAR_COLOR (star->Type) == GREEN_BODY)
+			star->Type = MAKE_STAR (
+					STAR_TYPE (star->Type),
+					RED_BODY,
+					STAR_OWNER (star->Type));
+	}
 	// Supox will NOT be the same color as rainbow world
 	// This swaps yellow/blue, red/white, and green/orange
 	if (star->Index == SUPOX_DEFINED)
@@ -980,8 +1009,48 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 		starmap[j].Prefix = star->Prefix;
 		star->Prefix = 1;
 	}
+	// Humans and their egos.
+	if (star->Index == SOL_DEFINED)
+	{
+		int j = 0;
+		while (starmap[j].Postfix != 129) // Postfix 129 = "Sol"
+			if (++j >= NUM_SOLAR_SYSTEMS)
+				return; // Somehow, Sol does not exist
+		if (star->Prefix == 0)
+		{
+			starmap[j].Postfix = star->Postfix;
+			star->Postfix = 129;
+		}
+		else
+		{
+			int prefix = 0;
+			int k;
+			// Re-order the stars to remove new Sol's prefix
+			for (k = 0; k < NUM_SOLAR_SYSTEMS; k++)
+				if (starmap[k].Postfix == star->Postfix &&
+						starmap[k].Prefix > star->Prefix)
+					starmap[k].Prefix--;
+			// New Sol gets its name
+			star->Prefix = 0;
+			star->Postfix = 129;
+			// Find the nearest constellation to old Sol
+			STAR_DESC *pStr = FindNearestConstellation (starmap,
+					starmap[j].star_pt);
+			// Find the highest Prefix
+			for (k = 0; k < NUM_SOLAR_SYSTEMS; k++)
+				if (starmap[k].Postfix == pStr->Postfix &&
+						starmap[k].Prefix > prefix)
+					prefix = starmap[k].Prefix;
+			// Old Sol gets new Prefix/Postfix.  It shouldn't be possible,
+			// but just in case, cap Prefix at 14 ("Xi")
+			starmap[j].Postfix = pStr->Postfix;
+			starmap[j].Prefix = (prefix >= 14 ? 14 : prefix + 1);
+			// Old Sol JUST MIGHT be a Melnorme, in which case
+			Plotify (starmap, &starmap[j]);
+		}
+	}
 	// Alas, the poor algolites... wherever they are, the stars
-	// carry their name (Postfix 113).
+	// carry their name (Postfix 113 = "Algol").
 	if (star->Index == ALGOLITES_DEFINED)
 	{
 		int j = 0;
@@ -1061,9 +1130,8 @@ SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap)
 	if (!timer_running)
 	{
 #ifdef DEBUG_STARSEED
-		fprintf (stderr,
-				"%s %d | optCustomSeed %d | NUM_PLOTS %d.\n",
-				"Starting a timer; global activity", GLOBAL (CurrentActivity),
+		fprintf (stderr, "Starting a timer; global activity %d | "
+				"optCustomSeed %d | NUM_PLOTS %d.\n", GLOBAL (CurrentActivity),
 				optCustomSeed, NUM_PLOTS);
 #endif
 		// Basically a wrapper around the recursion.
@@ -1072,6 +1140,49 @@ SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap)
 		my_clock = TRUE;
 		timer = clock();
 		RandomContext_SeedRandom (StarGenRNG, optCustomSeed);
+		// NULL out all the plot pointers so that it "places" pregens
+		// in order to properly Plotify () the pregens.  ARILOU don't need.
+		for (i = 1; i < NUM_PLOTS; i++)
+			plotmap[i].star = NULL;
+		// Just in case hard coded ARILOU doesn't have a pointer
+		// use Arilou homeworld pointer so we can just skip it
+		if (plotmap[ARILOU_DEFINED].star_pt.x != ~0 &&
+				plotmap[ARILOU_DEFINED].star_pt.y != ~0)
+			plotmap[ARILOU_DEFINED].star =
+					&(starmap[NUM_SOLAR_SYSTEMS + 1 + NUM_HYPER_VORTICES + 1]);
+#if 0
+		// Place down any plots which were already assigned in plotmap
+		for (i = 1; i < NUM_PLOTS; i++)
+		{
+			//if (plotmap[i].star_pt.x != ~0 && plotmap[i].star_pt.x != ~0)
+			if ((plotmap[i].star = FindNearestStar (starmap, plotmap[i].star_pt)))
+			{
+				//plotmap[i].star = FindNearestStar (starmap, plotmap[i].star_pt);
+#ifdef DEBUG_STARSEED
+				print_plot_id (i);
+				fprintf (stderr, " being placed in pre-generated location "
+						"%05.1f : %05.1f (given %05.1f : %05.1f)\n",
+						(float) plotmap[i].star->star_pt.x / 10,
+						(float) plotmap[i].star->star_pt.x / 10,
+						(float) plotmap[i].star_pt.x / 10,
+						(float) plotmap[i].star_pt.y / 10);
+#endif
+				if (plotmap[i].star->Index)
+				{
+					print_plot_id (i);
+					fprintf (stderr, " cannot be placed in location "
+							"%05.1f : %05.1f due to existing plot ",
+							(float) plotmap[i].star->star_pt.x / 10,
+							(float) plotmap[i].star->star_pt.x / 10);
+					print_plot_id (plotmap[i].star->Index);
+					fprintf (stderr, ", aborting...\n");
+					return i;
+				}
+				plotmap[i].star_pt = plotmap[i].star->star_pt;
+				plotmap[i].star->Index = i;
+			}
+		}
+#endif
 	}
 	else if ((clock() - timer) / 100000 > timelimit)
 	{
@@ -1084,14 +1195,15 @@ SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap)
 	// choose a plot by weight
 	if ((plot_id = GetNextPlot (plotmap)) == NUM_PLOTS)
 	{
+		// Sanity check the placements - they all pass PLOT_SET(id)
+		// but may be missing from starmap.
+		//
 		// All plots are assigned, but any without location allocated
 		// were passed in and need Plotify().
 		//next_plot = ~0;
 		timer_running = FALSE;
 		for (i = 1; i < NUM_PLOTS; i++)
 		{
-			// Sanity check the placements - they all pass PLOT_SET(id)
-			// but may be missing from starmap.
 			if (!plotmap[i].star || plotmap[i].star != FindNearestStar
 					(starmap, plotmap[i].star_pt))
 			{
@@ -1106,6 +1218,16 @@ SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap)
 				fprintf (stderr, " coords don't match star ptr, corrected.\n");
 				plotmap[i].star_pt = plotmap[i].star->star_pt;
 			}
+			if (plotmap[i].star->Index > 0 && plotmap[i].star->Index != i)
+			{
+				print_plot_id (i);
+				fprintf (stderr, " plot wants to be at star %05.1f : %05.1f "
+						"but plot ID ", (float) plotmap[i].star_pt.x / 10,
+					   	(float) plotmap[i].star_pt.y / 10);
+				print_plot_id (plotmap[i].star->Index);
+				fprintf (stderr, " is there, ABORT!!!!\n");
+				return i;
+			}
 			if (plotmap[i].star->Index != i)
 			{
 				print_plot_id (i);
@@ -1114,13 +1236,16 @@ SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap)
 				plotmap[i].star->Index = i;
 				Plotify (starmap, plotmap[i].star);
 			}
+		}
 #ifdef DEBUG_STARSEED
+		for (i = 1; i < NUM_PLOTS; i++)
+		{
 			print_plot_id (i);
 			fprintf (stderr, " at %05.1f : %05.1f.\n",
 					(float) plotmap[i].star_pt.x / 10,
 					(float) plotmap[i].star_pt.y / 10);
-#endif
 		}
+#endif
 		return NUM_PLOTS;
 	}
 #ifdef DEBUG_STARSEED_TRACE
@@ -1128,52 +1253,53 @@ SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap)
 	print_plot_id (plot_id);
 #endif
 
-	// If it has coords, it was selected because no pointer; try and locate
-	// those coords and if valid, use that pointer to seed the plot
-	if (plotmap[plot_id].star_pt.x != ~0 &&
-			plotmap[plot_id].star_pt.y != ~0 &&
-			(plotmap[plot_id].star =
-			FindNearestStar (starmap, plotmap[plot_id].star_pt)))
+	// Coordinates and no pointer means seed a static value (first)
+	// We do it this way so we can Plotify at the end
+	if (plotmap[plot_id].star_pt.x != ~0 && plotmap[plot_id].star_pt.y != ~0)
 	{
-		// If destination is not empty, prior seeding is a failure.
-		if (plot_id > 0 && plotmap[plot_id].star->Index != 0 &&
+		plotmap[plot_id].star = FindNearestStar (starmap,
+				plotmap[plot_id].star_pt);
+#ifdef DEBUG_STARSEED
+#ifndef DEBUG_STARSEED_TRACE
+	    fprintf (stderr, "Selected ");
+	    print_plot_id (plot_id);
+#endif
+		fprintf (stderr, " placing in pre-generated location "
+				"%05.1f : %05.1f (given %05.1f : %05.1f)\n",
+				(float) plotmap[plot_id].star->star_pt.x / 10,
+				(float) plotmap[plot_id].star->star_pt.y / 10,
+				(float) plotmap[plot_id].star_pt.x / 10,
+				(float) plotmap[plot_id].star_pt.y / 10);
+#endif
+		if (plotmap[plot_id].star->Index &&
 				plotmap[plot_id].star->Index != plot_id)
 		{
-			if (my_clock)
-			{
-				fprintf(stderr, "Complete failure (starmap full?), "
-						"stopping clock.\n");
-				timer_running = FALSE;
-			}
+			print_plot_id (plot_id);
+			fprintf (stderr, " cannot be placed in location "
+					"%05.1f : %05.1f due to existing plot ",
+					(float) plotmap[plot_id].star->star_pt.x / 10,
+					(float) plotmap[plot_id].star->star_pt.y / 10);
+			print_plot_id (plotmap[plot_id].star->Index);
+			fprintf (stderr, ", aborting...\n");
 			return plot_id;
 		}
-		if (plot_id > 0)
-		{
-			plotmap[plot_id].star->Index = plot_id;
-#ifdef DEBUG_STARSEED
-			print_plot_id (plot_id);
-			fprintf(stderr, " static location %05.1f : %05.1f "
-					"being stamped to starmap.\n",
-					(float) plotmap[plot_id].star_pt.x / 10,
-					(float) plotmap[plot_id].star_pt.y / 10);
-#endif
-		}
+		plotmap[plot_id].star_pt = plotmap[plot_id].star->star_pt;
+		plotmap[plot_id].star->Index = plot_id;
+
 		return_id = SeedPlot (plotmap, starmap);
+
 		if (return_id == NUM_PLOTS)
 		{
 			timer_running = FALSE;
-			if (plot_id != ARILOU_DEFINED)
-				Plotify (starmap, plotmap[plot_id].star);
+			Plotify (starmap, plotmap[plot_id].star);
 			return return_id;
 		}
-		// Theoretically by leaving this assigned, we don't have to iterate
-		// through it further.  Alas, this fouls the map if we have to reseed.
-		if (plot_id != ARILOU_DEFINED)
-			plotmap[plot_id].star->Index = 0;
+		// Either we ran out of time or downstream seeding failed, pop layer
+		plotmap[plot_id].star->Index = 0;
 		plotmap[plot_id].star = NULL;
 		if (my_clock)
 		{
-			fprintf(stderr, "Complete failure, stopping clock.\n");
+			fprintf (stderr, "Complete failure, stopping clock.\n");
 			timer_running = FALSE;
 		}
 		return return_id;
@@ -1462,9 +1588,9 @@ SeedQuasispace (PORTAL_LOCATION *portalmap, PLOT_LOCATION *plotmap,
 			{
 #ifdef DEBUG_STARSEED
 				fprintf(stderr, "Picked Quasi Portal %c at %05.1f : %05.1f, ",
-						'A' + i, portalmap[i].star_pt.x / 10
-						portalmap[i].star_pt.y / 10);
-				fprintf(stderr, "nearest star found at %05.1f : %05.1f, "
+						'A' + i, (float) portalmap[i].star_pt.x / 10,
+						(float) portalmap[i].star_pt.y / 10);
+				fprintf(stderr, "nearest star found at %05.1f : %05.1f, ",
 						(float) portalmap[i].nearest_star->star_pt.x / 10,
 						(float) portalmap[i].nearest_star->star_pt.y / 10);
 				fprintf(stderr, "portal TOO CLOSE to star.\n");
