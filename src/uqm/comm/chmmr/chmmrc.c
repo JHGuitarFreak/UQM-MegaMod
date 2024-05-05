@@ -652,8 +652,8 @@ Intro (void)
 				{
 					ChmmrPtr->actual_strength =
 							986 / SPHERE_RADIUS_INCREMENT * 2;
-					ChmmrPtr->loc.x = 577;
-					ChmmrPtr->loc.y = 2509;
+					ChmmrPtr->loc = SeedFleetLocation (ChmmrPtr, plot_map,
+							HOME);
 					StartSphereTracking (CHMMR_SHIP);
 				}
 				UnlockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
