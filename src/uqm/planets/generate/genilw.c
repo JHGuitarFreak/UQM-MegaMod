@@ -56,30 +56,44 @@ const GenerateFunctions generateIlwrathFunctions = {
 static bool
 GenerateIlwrath_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 3) + 3);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % 3);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+	{
+		pPlanet->data_index = GenerateHabitableWorld ();
+		CheckForHabitable (solarSys);
+	}
+
 	GeneratePlanets (solarSys);
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = PRIMORDIAL_WORLD;
+	if (PrimeSeed)
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = PRIMORDIAL_WORLD;
 
-	if (!PrimeSeed)
+	if (!PrimeSeed && !StarSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 		CheckForHabitable (solarSys);
 	}
-	else
+	else if (PrimeSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 204L / 100;
 		angle = ARCTAN (

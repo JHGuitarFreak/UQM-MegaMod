@@ -91,28 +91,46 @@ GenerateColony_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		solarSys->SunDesc[0].PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+		pPlanet->data_index = GenerateHabitableWorld () | PLANET_SHIELDED;
+
 	if (!PrimeSeed)
 		GeneratePlanets (solarSys);
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD | PLANET_SHIELDED;
 
-	if (!PrimeSeed)
+	if (!PrimeSeed && !StarSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3] | PLANET_SHIELDED;
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 		if (EXTENDED)
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		CheckForHabitable (solarSys);
+	}
+	else if (StarSeed)
+	{
+		DWORD rand_val = RandomContext_Random (SysGenRNG);
+		CheckForHabitable (solarSys);
+		// A large rocky with 1 moon has a 1 in 5 chance of a second moon.
+		pPlanet->NumPlanets = (rand_val % 5 == 0 ? 2 : 1);
 	}
 	else
 	{
@@ -132,6 +150,9 @@ static bool
 GenerateColony_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
+
+	if (StarSeed)
+		return true;
 
 	if (EXTENDED
 		&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))

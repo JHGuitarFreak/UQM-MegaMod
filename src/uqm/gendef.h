@@ -19,49 +19,49 @@ extern "C" {
 enum
 {
 	ARILOU_DEFINED = 0,
-	SOL_DEFINED = 1,
-	SHOFIXTI_DEFINED,
-	MAIDENS_DEFINED,
-	START_COLONY_DEFINED,
-	SPATHI_DEFINED,
-	ZOQFOT_DEFINED,
+	SOL_DEFINED = 1,		// gensol.c, Super hardcoded, must be yellow dwarf
+	SHOFIXTI_DEFINED,		// gensho.c, planet 1* randomly METAL and SELENIC
+	MAIDENS_DEFINED,		// genvux.c, planet 1 [habitable] (redux)
+	START_COLONY_DEFINED,	// gencol.c, planet 1 [habitable] (water)
+	SPATHI_DEFINED,			// genspa.c, planet 1 [habitable] (water)
+	ZOQFOT_DEFINED,			// genzoq.c, planet 1 [habitable] (redux)
 
 	MELNORME0_DEFINED,
-	MELNORME1_DEFINED,
+	MELNORME1_DEFINED,		// genmel.c, planet 3/rand [crystal]
 	MELNORME2_DEFINED,
 	MELNORME3_DEFINED,
 	MELNORME4_DEFINED,
 	MELNORME5_DEFINED,
 	MELNORME6_DEFINED,
-	MELNORME7_DEFINED,
+	MELNORME7_DEFINED,		// genmel.c, planet 4/rand [any rocky]
 	MELNORME8_DEFINED,
 
-	TALKING_PET_DEFINED,
-	CHMMR_DEFINED,
-	SYREEN_DEFINED,
-	BURVIXESE_DEFINED,
-	SLYLANDRO_DEFINED,
-	DRUUGE_DEFINED,
-	BOMB_DEFINED,
-	AQUA_HELIX_DEFINED,
-	SUN_DEVICE_DEFINED,
-	TAALO_PROTECTOR_DEFINED,
-	SHIP_VAULT_DEFINED,
-	URQUAN_WRECK_DEFINED,
-	VUX_BEAST_DEFINED,
-	SAMATRA_DEFINED,
+	TALKING_PET_DEFINED,	// genpet.c, planet 1 [habitable] (telluric)
+	CHMMR_DEFINED,			// genchmmr.c, planet 2/rand [crystal] (sapphire)
+	SYREEN_DEFINED,			// gensyr.c, planet 1 [habitable] (water)
+	BURVIXESE_DEFINED,		// genburv.c, planet 1 [habitable] (redux) A [rand]
+	SLYLANDRO_DEFINED,		// gensly.c, planet 4/rand [gas giant]
+	DRUUGE_DEFINED,			// gendru.c, planet 1 [desolate] (dust)
+	BOMB_DEFINED,			// genutw.c, planet 6 [gas] B [rand] (carbide)
+	AQUA_HELIX_DEFINED,		// genthrad.c planet 1 [habitable] (primordial)
+	SUN_DEVICE_DEFINED,		// genmyc.c, planet 1 shattered
+	TAALO_PROTECTOR_DEFINED,// genorz.c, planet 2 [gas] rand [crystal] (treas)
+	SHIP_VAULT_DEFINED,		// genvault.c, planet 1 [lg rocky] A [rand] (green)
+	URQUAN_WRECK_DEFINED,	// genwreck.c, planet 7 [sm rocky] (noble)
+	VUX_BEAST_DEFINED,		// genvux.c, planet 1 [habitable] (water)
+	SAMATRA_DEFINED,		// gensam.c, planet 5/rand [random]
 	ZOQ_SCOUT_DEFINED,
-	MYCON_DEFINED,
-	EGG_CASE0_DEFINED,
-	EGG_CASE1_DEFINED,
-	EGG_CASE2_DEFINED,
-	PKUNK_DEFINED,
-	UTWIG_DEFINED,
-	SUPOX_DEFINED,
-	YEHAT_DEFINED,
-	VUX_DEFINED,
-	ORZ_DEFINED,
-	THRADD_DEFINED,
+	MYCON_DEFINED,			// genmyc.c, planet 1 shattered
+	EGG_CASE0_DEFINED,		// genmyc.c, planet 1 shattered
+	EGG_CASE1_DEFINED,		// genmyc.c, planet 1 shattered
+	EGG_CASE2_DEFINED,		// genmyc.c, planet 1 shattered
+	PKUNK_DEFINED,			// genpku.c, planet 1 [habitable] (water)
+	UTWIG_DEFINED,			// genutw.c, planet 1 [habitable] (water????)
+	SUPOX_DEFINED,			// gensup.c, planet 1 [habitable] (water)
+	YEHAT_DEFINED,			// genyeh.c, planet 1 [habitable] (water)
+	VUX_DEFINED,			// genvux.c, planet 1 [habitable] (redux)
+	ORZ_DEFINED,			// genorz.c, planet 1 [habitable] (water)
+	THRADD_DEFINED,			// genthrad.c, planet 1 [habitable] (water)
 	RAINBOW0_DEFINED,
 	RAINBOW1_DEFINED,
 	RAINBOW2_DEFINED,
@@ -72,24 +72,24 @@ enum
 	RAINBOW7_DEFINED,
 	RAINBOW8_DEFINED,
 	RAINBOW9_DEFINED,
-	ILWRATH_DEFINED,
-	ANDROSYNTH_DEFINED,
-	MYCON_TRAP_DEFINED,
-	URQUAN0_DEFINED,
-	URQUAN1_DEFINED,
-	URQUAN2_DEFINED,
-	KOHRAH0_DEFINED,
-	KOHRAH1_DEFINED,
-	KOHRAH2_DEFINED,
-	DESTROYED_STARBASE_DEFINED,
-	MOTHER_ARK_DEFINED,
-	ZOQ_COLONY0_DEFINED,
-	ZOQ_COLONY1_DEFINED,
-	ZOQ_COLONY2_DEFINED,
-	ZOQ_COLONY3_DEFINED,
-	ALGOLITES_DEFINED,
-	SPATHI_MONUMENT_DEFINED,
-	EXCAVATION_SITE_DEFINED,
+	ILWRATH_DEFINED,		// genilw.c, planet 1 [habitable] (primordial)
+	ANDROSYNTH_DEFINED,		// genand.c, planet 2/rand [habitable] (telluric)
+	MYCON_TRAP_DEFINED,		// gentrap.c, planet 1 [habitable] (telluric)
+	URQUAN0_DEFINED,		// gensam.c, planet random
+	URQUAN1_DEFINED,		// gensam.c, planet random
+	URQUAN2_DEFINED,		// gensam.c, planet random
+	KOHRAH0_DEFINED,		// gensam.c, planet random
+	KOHRAH1_DEFINED,		// gensam.c, planet random
+	KOHRAH2_DEFINED,		// gensam.c, planet random
+	DESTROYED_STARBASE_DEFINED,// gensam.c, planet 1 [habitable] (primordial)
+	MOTHER_ARK_DEFINED,		// genchmmr.c, planet 4/rand [crystal] (emerald)
+	ZOQ_COLONY0_DEFINED,	// genzoq.c, planet 0 [habitable] (redux)
+	ZOQ_COLONY1_DEFINED,	// genzoq.c, planet 1 [habitable] (redux)
+	ZOQ_COLONY2_DEFINED,	// genzoq.c, planet 1 moon rand [habitable] (redux)
+	ZOQ_COLONY3_DEFINED,	// genzoq.c, planet 0 [habitable] (redux)
+	ALGOLITES_DEFINED,		// genspa.c, planet 4 [habitable, airless]
+	SPATHI_MONUMENT_DEFINED,// genspa.c, planet random [crystal]
+	EXCAVATION_SITE_DEFINED,// genand.c, planet 1/rand [any rocky]
 	NUM_PLOTS,				// Must be right after last valid entry.  Any new
 	WAR_ERA = NUM_PLOTS,	// entries need plot min/max added in gendef.c
 	SUCCESS = NUM_PLOTS,

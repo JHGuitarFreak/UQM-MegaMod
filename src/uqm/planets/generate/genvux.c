@@ -66,19 +66,35 @@ const GenerateFunctions generateVuxFunctions = {
 static bool
 GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle = 0;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 	}
-	
+
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+		pPlanet->data_index = GenerateHabitableWorld ();
+
 	GeneratePlanets (solarSys);
+
+	if (StarSeed)
+	{
+		CheckForHabitable (solarSys);
+		return true;
+	}
 
 	if (CurStarDescPtr->Index == MAIDENS_DEFINED)
 	{
@@ -86,12 +102,13 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-	
+
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 		GeneratePlanets (solarSys);
 				// XXX: this is the second time that this function is
 				// called. Is it safe to remove one, or does this change
 				// the RNG so that the outcome is different?
+				// JSD: Yes. FillOrbits/GeneratePlanets use and modify the RNG.
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
 
 		if (PrimeSeed)
@@ -344,7 +361,7 @@ GenerateVux_generateEnergy (const SOLARSYS_STATE *solarSys,
 			info->loc_pt.x = SCALED_MAP_WIDTH / 3;
 			info->loc_pt.y = MAP_HEIGHT * 5 / 8;
 		}
-		
+
 		return 1; // only matters when count is requested
 	}
 
@@ -371,7 +388,7 @@ GenerateVux_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 
 		SET_GAME_STATE (SHOFIXTI_MAIDENS, 1);
 		SET_GAME_STATE (MAIDENS_ON_SHIP, 1);
-		
+
 		return true; // picked up
 	}
 
@@ -442,6 +459,8 @@ GenerateVux_pickupLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	{
 		if (whichNode == 0)
 		{	// Picked up Zex' Beauty
+			if (GET_GAME_STATE (VUX_BEAST) && StarSeed)
+				return true; // no need to core, just pick it up
 			assert (!GET_GAME_STATE (VUX_BEAST));
 
 			GenerateDefault_landerReport (solarSys);

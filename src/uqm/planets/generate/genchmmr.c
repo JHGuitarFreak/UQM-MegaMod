@@ -62,11 +62,19 @@ static bool
 GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 {
 	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
+	PLANET_DESC *pPlanet;
 	//BYTE NumPlanets = (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED ? 4 : 2);
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-
-	if (!PrimeSeed)
+	if (PrimeSeed)
+		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+	else if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (2);
+		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) %
+				solarSys->SunDesc[0].NumPlanets);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else // (!PrimeSeed && !StarSeed)
 	{
 		if (CurStarDescPtr->Index == CHMMR_DEFINED)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
@@ -75,17 +83,29 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	// Starseed is extended by default until it matters, e.g. lander report
+	if (StarSeed)
+		pPlanet->data_index = GenerateCrystalWorld ();
+
 	GeneratePlanets (solarSys);
 
 	if (CurStarDescPtr->Index == CHMMR_DEFINED)
 	{
-		solarSys->SunDesc[0].PlanetByte = 1;
-		solarSys->SunDesc[0].MoonByte = 0;
+		if (!StarSeed)
+		{
+			solarSys->SunDesc[0].PlanetByte = 1;
+			solarSys->SunDesc[0].MoonByte = 0;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SAPPHIRE_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-		if (!PrimeSeed)
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SAPPHIRE_WORLD;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		}
+		if (StarSeed)
+		{
+			solarSys->SunDesc[0].MoonByte = 0;
+			pPlanet->NumPlanets += 1;
+		}
+		else if (!PrimeSeed)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 3];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
@@ -95,14 +115,17 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 		if (!GET_GAME_STATE (CHMMR_UNLEASHED))
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
 	}
-	
+
 	if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
 	{
-		solarSys->SunDesc[0].PlanetByte = 3;
+		if (!StarSeed)
+		{
+			solarSys->SunDesc[0].PlanetByte = 3;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = EMERALD_WORLD;
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = EMERALD_WORLD;
+		}
 
-		if (!PrimeSeed)
+		if (!PrimeSeed && !StarSeed)
 		{
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 3];
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
@@ -118,7 +141,7 @@ GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (CurStarDescPtr->Index == CHMMR_DEFINED 
+	if (CurStarDescPtr->Index == CHMMR_DEFINED
 		&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		COUNT angle;
@@ -129,7 +152,7 @@ GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		else
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
 
-		if (PrimeSeed)
+		if (PrimeSeed || StarSeed)
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius = MIN_MOON_RADIUS;
 			rand_val = RandomContext_Random (SysGenRNG);
@@ -224,7 +247,7 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 						RepairSISBorder ();
 					}
-					
+
 					GenerateDefault_generateOrbital (solarSys, world);
 
 					return true;
@@ -264,7 +287,7 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 							LoadStringTable (CHMMR_HOME_STRTAB));
 			}
 			else if (matchWorld (solarSys, world,
-					solarSys->SunDesc[0].PlanetByte, 
+					solarSys->SunDesc[0].PlanetByte,
 					solarSys->SunDesc[0].MoonByte))
 			{
 				/* Starbase */

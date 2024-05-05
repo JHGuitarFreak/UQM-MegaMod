@@ -91,7 +91,7 @@ GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 			GroupPtr->group_counter = 0;
 			UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
 
-			// Next ship in queue will add random value to its agnle 
+			// Next ship in queue will add random value to its angle
 			// between OCTANT and HALF_CIRCLE
 			angle += ((COUNT)TFB_Random() % 25) + OCTANT;
 
@@ -114,7 +114,9 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+	else if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -135,7 +137,7 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 	ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 
-	if (!PrimeSeed)
+	if (!PrimeSeed && !StarSeed)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 
 	return true;

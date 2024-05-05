@@ -71,6 +71,15 @@ const GenerateFunctions generateSpathiFunctions = {
 static bool
 GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	// EARTH_RADIUS * 1550L / 100 == MAX_PLANET_RADIUS == SCALE_RADIUS (124)
+	// This works for red, orange, yellow.  Green, blue, white are too hot.
+	COUNT SpathiwaRadius[NUM_STAR_COLORS] = {
+			EARTH_RADIUS * 1550L / 100, // blue
+			EARTH_RADIUS * 1550L / 100, // green
+			EARTH_RADIUS * 1150L / 100, // orange
+			EARTH_RADIUS *  300L / 100, // red
+			EARTH_RADIUS * 1550L / 100, // white
+			EARTH_RADIUS * 1550L / 100};// yellow
 
 	if (CurStarDescPtr->Index == SPATHI_DEFINED)
 	{
@@ -85,13 +94,18 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 		FillOrbits (solarSys,
 			solarSys->SunDesc[0].NumPlanets, pMinPlanet, FALSE);
 
-		pMinPlanet->radius = EARTH_RADIUS * 1150L / 100;
+		if (StarSeed)
+			pMinPlanet->radius = SpathiwaRadius[STAR_COLOR (CurStarDescPtr->Type)];
+		else
+			pMinPlanet->radius = EARTH_RADIUS * 1150L / 100;
 		angle = ARCTAN(pMinPlanet->location.x, pMinPlanet->location.y);
 		pMinPlanet->location.x = COSINE(angle, pMinPlanet->radius);
 		pMinPlanet->location.y = SINE(angle, pMinPlanet->radius);
-		pMinPlanet->data_index = WATER_WORLD;
-
-		if (!PrimeSeed)
+		if (PrimeSeed)
+			pMinPlanet->data_index = WATER_WORLD;
+		else if (StarSeed)
+			pMinPlanet->data_index = GenerateHabitableWorld ();
+		else // !PrimeSeed && !StarSeed
 			pMinPlanet->data_index = planetArray[RandomContext_Random(SysGenRNG) % 3];
 
 		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
@@ -105,25 +119,47 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
 	{
+		PLANET_DESC *pPlanet;
 		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 		solarSys->SunDesc[0].PlanetByte = 3;
 
-		if (EXTENDED && !PrimeSeed)
+		if (StarSeed)
+		{
+			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (4);
+			pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+		}
+		else if (EXTENDED && !PrimeSeed)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+		if (StarSeed)
+			pPlanet->data_index = GenerateHabitableWorld ();
+
 		GeneratePlanets (solarSys);
 	}
 
 	if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
 	{
+		PLANET_DESC *pPlanet;
 		solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 		solarSys->SunDesc[0].PlanetByte = 1;
 
-		if (EXTENDED && !PrimeSeed)
+		if (StarSeed)
+		{
+			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+			solarSys->SunDesc[0].PlanetByte = RandomContext_Random(SysGenRNG) %
+					solarSys->SunDesc[0].NumPlanets;
+			pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+		}
+		else if (EXTENDED && !PrimeSeed)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 
 		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+		if (StarSeed)
+			pPlanet->data_index = GenerateCrystalWorld ();
+
 		GeneratePlanets (solarSys);
 	}
 
@@ -137,7 +173,7 @@ GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 
 	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (CurStarDescPtr->Index == SPATHI_DEFINED 
+	if (CurStarDescPtr->Index == SPATHI_DEFINED
 		&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 
@@ -148,12 +184,12 @@ GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 #endif /* NOTYET */
 
 		solarSys->MoonDesc[0].data_index = PELLUCID_WORLD;
-		
-		if (!PrimeSeed)
-		{
+
+		if (StarSeed)
+			solarSys->MoonDesc[0].data_index = GenerateRockyWorld (SMALL_ROCKY);
+		else if (!PrimeSeed)
 			solarSys->MoonDesc[0].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
-		}
-		else
+		else // PrimeSeed
 		{
 			solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS + MOON_DELTA;
 			angle = NORMALIZE_ANGLE (LOWORD (RandomContext_Random (SysGenRNG)));
@@ -218,7 +254,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				}
 				return true;
 			}
-		
+
 			DoPlanetaryAnalysis (&solarSys->SysInfo, world);
 			rand_val = RandomContext_GetSeed (SysGenRNG);
 
@@ -282,7 +318,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			rand_val = RandomContext_GetSeed (SysGenRNG);
 
 			solarSys->SysInfo.PlanetInfo.ScanSeed[BIOLOGICAL_SCAN] = rand_val;
-			
+
 			if (EXTENDED
 				&& GET_GAME_STATE(KOHR_AH_FRENZY) && CheckAlliance(ORZ_SHIP) == DEAD_GUY &&
 				GET_GAME_STATE(SPATHI_SHIELDED_SELVES))
@@ -314,12 +350,12 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				solarSys->SysInfo.PlanetInfo.AxialTilt = -27;
 				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
 			}
-			
+
 			LoadPlanet (NULL);
 			return true;
 		}
 	}
-	
+
 	if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
 	{
 
@@ -335,6 +371,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			GenerateDefault_generateOrbital (solarSys, world);
 
 			solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
+			solarSys->SysInfo.PlanetInfo.Weather = 0;
 
 			return true;
 		}
@@ -391,7 +428,7 @@ GenerateSpathi_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 	if (EXTENDED
 		&& CurStarDescPtr->Index == ALGOLITES_DEFINED
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET)) 
+		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 6,
 				0, whichNode, info);
@@ -437,8 +474,8 @@ GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		}
 	}
 
-	if (EXTENDED 
-		&& CurStarDescPtr->Index == ALGOLITES_DEFINED 
+	if (EXTENDED
+		&& CurStarDescPtr->Index == ALGOLITES_DEFINED
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		GenerateDefault_landerReportCycle (solarSys);

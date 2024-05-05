@@ -40,7 +40,7 @@
 
 #include <time.h>//required to use 'srand(time(NULL))'
 
-#define OOPS_ALL 0//SYREEN_DEFINED
+#define OOPS_ALL 0 //MELNORME1_DEFINED
 static void CreateRadar (void);
 
 CONTEXT RadarContext;

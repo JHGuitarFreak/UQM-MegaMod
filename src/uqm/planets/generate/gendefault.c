@@ -382,14 +382,34 @@ GenerateRockyWorld (BYTE whichType)
 }
 
 BYTE
+GenerateCrystalWorld (void)
+{
+	int crystalArray[] = {
+			SAPPHIRE_WORLD,
+			EMERALD_WORLD,
+			RUBY_WORLD};
+	return crystalArray[RandomContext_Random (SysGenRNG) % 3];
+}
+
+BYTE
+GenerateDesolateWorld (void)
+{
+	int desolateArray[] = {
+			DUST_WORLD,
+			CRIMSON_WORLD,
+			UREA_WORLD};
+	return desolateArray[RandomContext_Random (SysGenRNG) % 3];
+}
+
+BYTE
 GenerateHabitableWorld (void)
 {
-	int planetArray[] = {
+	int habitableArray[] = {
 			PRIMORDIAL_WORLD,
 			WATER_WORLD,
 			TELLURIC_WORLD,
 			REDUX_WORLD};
-	return planetArray[RandomContext_Random (SysGenRNG) % 4];
+	return habitableArray[RandomContext_Random (SysGenRNG) % 4];
 }
 
 BYTE
@@ -400,38 +420,9 @@ GenerateGasGiantWorld (void)
 			NUMBER_OF_GAS_GIANTS;
 }
 
-#if 0
-BYTE
-GetMoons (BYTE type, BYTE min, BYTE max)
-{
-	if (min < 1)
-		min = 1;
-	if (max > MAX_GEN_MOONS)
-		max = MAX_GEN_MOONS;
-	if (min >= max)
-		return max;
-
-	switch (PLANSIZE (type))
-	{
-		case LARGE_ROCKY_WORLD:
-
-	return RandomContext_Random (SysGenRNG) % (max - min + 1) + min;
-}
-
 // input: 1 <= min <= max
 // output: min <= RNG <= max
 // min 0 will be treated 1; min >= max will return max
-BYTE
-GetPlanets (BYTE min, BYTE max)
-{
-	if (min <= 1)
-		min = 1;
-	if (min >= max)
-		return max;
-	return RandomContext_Random (SysGenRNG) % (max - min + 1) + min;
-}
-#endif
-
 BYTE
 GenerateMinPlanets (BYTE min)
 {

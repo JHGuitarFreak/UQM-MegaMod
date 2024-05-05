@@ -54,17 +54,26 @@ const GenerateFunctions generateWreckFunctions = {
 
 static bool
 GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
-{	
+{
+	PLANET_DESC *pPlanet;
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+	solarSys->SunDesc[0].PlanetByte = 6;
+	pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
 
-	if (!PrimeSeed)
+	if (StarSeed)
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (7);
+	else if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 7) + 7);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+		pPlanet->data_index = GenerateRockyWorld (SMALL_ROCKY);
+
 	GeneratePlanets (solarSys);
 
-	if (!PrimeSeed)
-		solarSys->PlanetDesc[6].data_index = GenerateRockyWorld (SMALL_ROCKY);
+	if (!PrimeSeed && !StarSeed)
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateRockyWorld (SMALL_ROCKY);
 
 	return true;
 }
@@ -72,7 +81,7 @@ GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
 static bool
 GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS)
 				& 1 << PROBE_ENCOUNTER))
@@ -144,7 +153,7 @@ static COUNT
 GenerateWreck_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
 	}
@@ -156,7 +165,7 @@ static bool
 GenerateWreck_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		assert (whichNode == 0);
 

@@ -61,20 +61,38 @@ const GenerateFunctions generateThraddashFunctions = {
 static bool
 GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
-	
+
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	// Interestingly both HW and Aqua Helix are habitable so let's just roll
+	// with it.
+	if (StarSeed)
+		pPlanet->data_index = GenerateHabitableWorld ();
+
 	GeneratePlanets (solarSys);
+
+	if (StarSeed)
+	{
+		CheckForHabitable (solarSys);
+		return true;
+	}
 
 	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED)
 	{
@@ -163,9 +181,9 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 
 			RepairSISBorder (); // reachable if you're frendly with thraddsh and talk to them at helix world
 		}
-		else if (DIF_HARD 
+		else if (DIF_HARD
 					&& CurStarDescPtr->Index == AQUA_HELIX_DEFINED
-					&& !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << THRADDASH_ENCOUNTER) 
+					&& !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << THRADDASH_ENCOUNTER)
 					&& (StartSphereTracking (THRADDASH_SHIP) || !(GET_GAME_STATE(KOHR_AH_FRENZY))))
 		{
 			COUNT sum, i;
@@ -336,7 +354,7 @@ GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		SET_GAME_STATE (AQUA_HELIX, 1);
 		SET_GAME_STATE (AQUA_HELIX_ON_SHIP, 1);
 		SET_GAME_STATE (HELIX_UNPROTECTED, 1);
-		if (EXTENDED && ThraddPtr->allied_state == GOOD_GUY && GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH)) 
+		if (EXTENDED && ThraddPtr->allied_state == GOOD_GUY && GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH))
 		{
 			SetRaceAllied (THRADDASH_SHIP, FALSE);
 			RemoveEscortShips (THRADDASH_SHIP);

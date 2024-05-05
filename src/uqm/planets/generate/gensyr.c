@@ -64,13 +64,19 @@ const GenerateFunctions generateSyreenFunctions = {
 static bool
 GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if (!PrimeSeed && !StarSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
@@ -78,22 +84,26 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
 
-	if (!StarSeed)
+	if (StarSeed)
 	{
-		GeneratePlanets (solarSys);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-	}
-	else // StarSeed
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
-				GenerateHabitableWorld ();
-	    GeneratePlanets (solarSys);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets += 1;
+		pPlanet->data_index = GenerateHabitableWorld ();
 		CheckForHabitable (solarSys);
 	}
 
-	if (!PrimeSeed && !StarSeed)
+	GeneratePlanets (solarSys);
+
+	if (StarSeed)
+	{
+		pPlanet->NumPlanets += 1;
+		if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+			pPlanet->data_index |= PLANET_SHIELDED;
+		return true;
+	}
+
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
+	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+
+	if (!PrimeSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);

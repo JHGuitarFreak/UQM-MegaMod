@@ -60,20 +60,36 @@ const GenerateFunctions generateSupoxFunctions = {
 static bool
 GenerateSupox_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);	
+
+	if (StarSeed)
+		pPlanet->data_index = GenerateHabitableWorld ();
+
+	GeneratePlanets (solarSys);
+
+	if (StarSeed)
+	{
+		CheckForHabitable (solarSys);
+		return true;
+	}
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 2;
@@ -87,11 +103,11 @@ GenerateSupox_generatePlanets (SOLARSYS_STATE *solarSys)
 	else
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 152L / 100;
-		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, 
+		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x = 
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
 			COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = 
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
 			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 	}
@@ -103,7 +119,7 @@ static bool
 GenerateSupox_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (SUPOX_STACK1) > 2 
+	if (GET_GAME_STATE (SUPOX_STACK1) > 2
 		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),

@@ -687,7 +687,7 @@ GenerateSol_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 		return 1; // only matters when count is requested
 	}
-	
+
 	if (matchWorld (solarSys, world, 2, 1))
 	{
 		/* Earth Moon */
@@ -718,7 +718,7 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if (matchWorld (solarSys, world, 8, MATCH_PLANET))
 	{	// Pluto
 		assert (!GET_GAME_STATE (FOUND_PLUTO_SPATHI) && whichNode == 0);
-	
+
 		// Ran into Fwiffo on Pluto
 		#define FWIFFO_FRAGS  8
 		if (!KillLanderCrewSeq (FWIFFO_FRAGS, ONE_SECOND / 20))
@@ -734,7 +734,7 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		// showing up on subsequent visits.
 		return false;
 	}
-	
+
 	if (matchWorld (solarSys, world, 2, 1))
 	{	// Earth Moon
 		assert (!GET_GAME_STATE (MOONBASE_DESTROYED) && whichNode == 0);
@@ -810,7 +810,7 @@ check_probe (void)
 	hGroup = GetHeadLink (&GLOBAL (ip_group_q));
 	if (!hGroup)
 		return; // still nothing to check
-	
+
 	GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
 	// REFORM_GROUP was set in ipdisp.c:ip_group_collision()
 	// during a collision with the flagship.

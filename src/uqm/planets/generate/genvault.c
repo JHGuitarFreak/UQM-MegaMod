@@ -56,18 +56,33 @@ const GenerateFunctions generateVaultFunctions = {
 static bool
 GenerateVault_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
+
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+	{
+		pPlanet->data_index = GenerateRockyWorld (LARGE_ROCKY);
+	}
+
 	GeneratePlanets (solarSys);
 
-	if(!PrimeSeed)
-	{		
+	if (StarSeed)
+		pPlanet->NumPlanets = RandomContext_Random (SysGenRNG) % 5 == 0 ? 2 : 1;
+	else if (!PrimeSeed)
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateRockyWorld (LARGE_ROCKY);
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 	}
