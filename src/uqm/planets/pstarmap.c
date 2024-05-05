@@ -756,93 +756,91 @@ isHomeworld (BYTE Index)
 	{
 		case CHMMR_DEFINED:
 			if (IsHomeworldKnown (CHMMR_HOME)
-				&& CheckAlliance (CHMMR_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (CHMMR_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ORZ_DEFINED:
 			if (IsHomeworldKnown (ORZ_HOME)
-				&& CheckAlliance (ORZ_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ORZ_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case PKUNK_DEFINED:
 			if (IsHomeworldKnown (PKUNK_HOME)
-				&& CheckAlliance (PKUNK_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (PKUNK_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SHOFIXTI_DEFINED:
 			if (IsHomeworldKnown (SHOFIXTI_HOME)
-				&& CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SPATHI_DEFINED:
 			if (IsHomeworldKnown (SPATHI_HOME)
-				&& CheckAlliance (SPATHI_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SPATHI_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SUPOX_DEFINED:
 			if (IsHomeworldKnown (SUPOX_HOME)
-				&& CheckAlliance (SUPOX_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SUPOX_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case THRADD_DEFINED:
 			if (IsHomeworldKnown (THRADDASH_HOME)
-				&& CheckAlliance (THRADDASH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (THRADDASH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case UTWIG_DEFINED:
 			if (IsHomeworldKnown (UTWIG_HOME)
-				&& CheckAlliance (UTWIG_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (UTWIG_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case VUX_DEFINED:
 			if (IsHomeworldKnown (VUX_HOME)
-				&& CheckAlliance (VUX_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (VUX_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case YEHAT_DEFINED:
 			if (IsHomeworldKnown (YEHAT_HOME)
-				&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (YEHAT_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case DRUUGE_DEFINED:
 			if (IsHomeworldKnown (DRUUGE_HOME)
-				&& CheckAlliance (DRUUGE_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (DRUUGE_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ILWRATH_DEFINED:
 			if (IsHomeworldKnown (ILWRATH_HOME)
-				&& CheckAlliance (ILWRATH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ILWRATH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case MYCON_DEFINED:
 			if (IsHomeworldKnown (MYCON_HOME)
-				&& CheckAlliance (MYCON_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (MYCON_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SLYLANDRO_DEFINED:
-			if (IsHomeworldKnown (SLYLANDRO_HOME)
-				&& Index == SLYLANDRO_DEFINED)
+			if (IsHomeworldKnown (SLYLANDRO_HOME))
 				raceBool = TRUE;
 			break;
 		case UMGAH_DEFINED:
 			if (IsHomeworldKnown (UMGAH_HOME)
-				&& CheckAlliance (UMGAH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (UMGAH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ZOQFOT_DEFINED:
 			if (IsHomeworldKnown (ZOQFOTPIK_HOME)
-				&& CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SYREEN_DEFINED:
 			if (IsHomeworldKnown (SYREEN_HOME)
-				&& CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SYREEN_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ANDROSYNTH_DEFINED:
 			if (IsHomeworldKnown (ANDROSYNTH_HOME)
-				&& Index == ANDROSYNTH_DEFINED
-				&& CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SOL_DEFINED:
