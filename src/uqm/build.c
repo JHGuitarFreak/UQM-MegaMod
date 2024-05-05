@@ -882,6 +882,9 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 			else
 				return (POINT) {6392, 2200}; // Going back home
 		case UMGAH_ID:
+			if (visit == SAMATRA_DEFINED)
+				return (POINT) {5288, 4892}; // Compelled to seek death
+			else
 				return (POINT) {1860, 6099}; // War era map
 		case SYREEN_ID:
 			if (visit == MYCON_TRAP_DEFINED)
@@ -1382,6 +1385,19 @@ SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit)
  		case SLYLANDRO_ID:
 			break;
 		case UMGAH_ID:
+			if (visit == SAMATRA_DEFINED)
+			{
+				// 2000 distance times warpath
+				// Bias away from the umgah
+				location = (POINT) {
+						WARPATH_X (warpoint, 2000) +
+						AWAY_X (TALKING_PET_DEFINED) *
+						Jitter (strength, rand_val_x),
+						WARPATH_Y (warpoint, 2000) +
+						AWAY_Y (TALKING_PET_DEFINED) *
+						Jitter (strength, rand_val_y)};
+				break;
+			}
 			location = (POINT) {
 					plotmap[home].star_pt.x +
 					HALF_X * Jitter (strength, rand_val_x),
