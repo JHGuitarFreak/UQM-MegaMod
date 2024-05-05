@@ -211,6 +211,22 @@ planetIndex (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 	return planet - solarSys->PlanetDesc;
 }
 
+UNICODE
+moonLetter (const SOLARSYS_STATE *solarSys, const PLANET_DESC *moon)
+{
+	assert (!worldIsPlanet (solarSys, moon));
+	int i = -1;
+	while (moon - solarSys->MoonDesc >= 0)
+	{
+		if (moon->data_index != HIERARCHY_STARBASE &&
+				moon->data_index != DESTROYED_STARBASE &&
+				moon->data_index != PRECURSOR_STARBASE)
+			i++;
+		moon--;
+	}
+	return i + 'A';
+}
+
 COUNT
 moonIndex (const SOLARSYS_STATE *solarSys, const PLANET_DESC *moon)
 {
@@ -2215,8 +2231,7 @@ EnterPlanetOrbit (void)
 		{
 			snprintf (GLOBAL_SIS (PlanetName)
 					+ strlen (GLOBAL_SIS (PlanetName)), 4, "-%c%c",
-					'A' + moonIndex (
-						pSolarSysState, pSolarSysState->pOrbitalDesc),
+					moonLetter (pSolarSysState, pSolarSysState->pOrbitalDesc),
 					'\0');
 		}
 	}
