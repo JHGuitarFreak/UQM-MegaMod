@@ -1075,7 +1075,7 @@ SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit)
 	COUNT home;		// Plot ID of the homeworld for the fleet
 	COUNT strength; // Strength of the fleet
 	POINT warpoint;	// location being visited, or offset for samatra
-	POINT location; // The results of the seeding
+	POINT location = {0, 0}; // The results of the seeding
 	BOOLEAN myRNG = false; // If you create RNG, clean up RNG
 	UNICODE buf[256] = ""; // For debug string
 

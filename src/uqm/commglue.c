@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define DEBUG_STARSEED
 #include "commglue.h"
 
 #include "battle.h"
@@ -294,9 +295,10 @@ NPCPhrase_cb (int index, CallbackFunction cb)
 		{
 			// This requires one or more robo-tracks or swap-if subclips
 			// which we will MultiSplice into the main track.
-			UNICODE *tracks[NUM_ROBO_TRACKS + 1] =
-					{ [0 ... NUM_ROBO_TRACKS] = NULL };
-			for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
+			//UNICODE *tracks[NUM_ROBO_TRACKS + 1] =
+					//{ [0 ... NUM_ROBO_TRACKS] = NULL };
+			UNICODE *tracks[NUM_ROBO_TRACKS + 1] = {NULL};
+			for (i = 0; i < NUM_ROBO_TRACKS && RoboTrack[i]; i++)
 			{
 				if (RoboTrack[i] == (COUNT) ~0)
 				{
@@ -329,7 +331,7 @@ NPCPhrase_cb (int index, CallbackFunction cb)
 			fprintf (stderr, "Splice Multitrack string <<%s>>.\n", str_buf);
 #endif
 			SpliceMultiTrack (tracks, str_buf);
-			for (i = 0; RoboTrack[i] && i < NUM_ROBO_TRACKS; i++)
+			for (i = 0; i < NUM_ROBO_TRACKS && RoboTrack[i]; i++)
 			{
 				if (RoboTrack[i] == (COUNT) ~0)
 				{

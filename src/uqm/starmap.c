@@ -36,15 +36,17 @@
 // there.  "starmap_array" should never be altered and referenced as little
 // as possible.
 //STAR_DESC *star_array;
-STAR_DESC star_array[NUM_SOLAR_SYSTEMS + NUM_HYPER_VORTICES + 3] =
-		{[0 ... (NUM_SOLAR_SYSTEMS + NUM_HYPER_VORTICES + 2)] =
-		{{~0, ~0}, 0, 0, 0, 0}};
+STAR_DESC star_array[NUM_SOLAR_SYSTEMS + NUM_HYPER_VORTICES + 3] = {0};
+//STAR_DESC star_array[NUM_SOLAR_SYSTEMS + NUM_HYPER_VORTICES + 3] =
+//		{[0 ... (NUM_SOLAR_SYSTEMS + NUM_HYPER_VORTICES + 2)] =
+//		{{~0, ~0}, 0, 0, 0, 0}};
 STAR_DESC *CurStarDescPtr = 0;
 POINT *constel_array;
 // JSD Give my own starseed
 RandomContext *StarGenRNG;
-PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES+1] =
-		{[0 ... (NUM_HYPER_VORTICES)] = {{0, 0}, {0, 0}, NULL}};
+PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES + 1] = {0};
+//PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES+1] =
+//		{[0 ... (NUM_HYPER_VORTICES)] = {{0, 0}, {0, 0}, NULL}};
 
 
 STAR_DESC*
@@ -198,8 +200,9 @@ FindNearestConstellation (STAR_DESC *starmap, POINT p)
 // distances are set.
 // The COORDS are initialized with {~0, ~0}, the rest 0.
 // Plot ID 0 (ARILOU_DEFINED) is ARILOU_HYPERSPACE_PORTAL location.
-PLOT_LOCATION plot_map[NUM_PLOTS] = {[0 ... (NUM_PLOTS - 1)] =
-		{{~0, ~0}, NULL, {[0 ... (NUM_PLOTS - 1)] = 0}}};
+PLOT_LOCATION plot_map[NUM_PLOTS] = {0};
+//PLOT_LOCATION plot_map[NUM_PLOTS] = {[0 ... (NUM_PLOTS - 1)] =
+//		{{~0, ~0}, NULL, {[0 ... (NUM_PLOTS - 1)] = 0}}};
 
 #define VORTEX_SCALE 20		// From the starmap; scales vortex distances
 #define MIN_PORTAL 2000		// The min distance between portals (exits)
@@ -1110,13 +1113,16 @@ SeedPlot (PLOT_LOCATION *plotmap, STAR_DESC *starmap)
 	// my_clock TRUE *locally*, which is how you detect the top layer of the
 	// recursion and thus stop the clock on failure.
 	BOOLEAN my_clock = FALSE;
-#ifdef DEBUG_STARSEED_TRACE_Z
-	BOOLEAN tried[NUM_SOLAR_SYSTEMS] = {[0 ... NUM_SOLAR_SYSTEMS - 1] = FALSE};
-#endif
 	UWORD rand_val;
 	COUNT plot_id, star_id, i;
 	COUNT return_id;
 	// timelimit is in deciseconds, if loading 60 seconds, if new 2 seconds
+#ifdef DEBUG_STARSEED_TRACE_Z
+	BOOLEAN tried[NUM_SOLAR_SYSTEMS] = {FALSE};
+	//BOOLEAN tried[NUM_SOLAR_SYSTEMS] = {[0 ... NUM_SOLAR_SYSTEMS - 1] = FALSE};
+	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+		tried[i] = 0;
+#endif
 	COUNT timelimit = (GLOBAL (CurrentActivity) ? 600 : 20);
 #ifdef DEBUG_STARSEED_TRACE
 	timelimit = (GLOBAL (CurrentActivity) ? 3600 : 3600);

@@ -750,10 +750,13 @@ SeedDEBUG ()
 #define SAMPLE_SIZE 1000
 #define START 123000
 	SDWORD save = optCustomSeed;
-	COUNT histogram[100] = {[0 ... 99] = 0};
+	//COUNT histogram[100] = {[0 ... 99] = 0};
+	COUNT histogram[100] = {0};
 	COUNT decisec;
 	clock_t start_clock;
 	BOOLEAN myRNG = false;
+	for (decisec = 0; decisec < 100; decisec++)
+		histogram[decisec] = 0;
 
 	if (!StarGenRNG)
 	{
