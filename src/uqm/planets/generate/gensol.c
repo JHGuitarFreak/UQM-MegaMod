@@ -176,7 +176,7 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				pCurDesc->data_index = PELLUCID_WORLD;
 				pCurDesc->radius = EARTH_RADIUS * 1550L /* 3937L */ / 100;
 				pCurDesc->NumPlanets = EXTENDED;
-				if(PrimeSeed)
+				if (PrimeSeed || StarSeed)
 					pCurDesc->angle = FULL_CIRCLE - OCTANT;
 				break;
 		}
