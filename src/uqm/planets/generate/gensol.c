@@ -660,6 +660,12 @@ GenerateSol_generateMinerals (const SOLARSYS_STATE *solarSys,
 		return CustomMineralDeposits (&solarSys->SysInfo, whichNode, info,
 				5, CHARON_DUST, LIGHT);
 	}
+	else if (!PrimeSeed && matchWorld (solarSys, world, 0, MATCH_PLANET))
+	{
+		/* Mercury */
+		return CustomMineralDeposits (&solarSys->SysInfo, whichNode, info,
+				5, RADIOACTIVE_COMPOUNDS, LIGHT);
+	}
 	else
 		return GenerateMineralDeposits (&solarSys->SysInfo, whichNode, info);
 }
