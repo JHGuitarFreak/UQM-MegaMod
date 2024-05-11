@@ -114,6 +114,8 @@ I've made this process super easy, as long as you have Visual Studio 2008 or Vis
 For Visual Studio 2008 the solution file is under `UQM-MegaMod/build/msvs2008` for Visual Studio 2015-2022 the solution file is under `build/msvs2019`  
 Just load up the solution file and compile away.
 
+Once the build is complete you'll either have a `UrQuanMasters.exe` or `UrQuanMastersDebug.exe` in the root directory that you can run directly.
+
 If you get a message about missing .dll files they can be found in the `UQM-MegaMod/dev-lib/lib` directory.
 Copy them to the root UQM-MegaMod directory.  
 The .dll are as follows:
@@ -146,6 +148,8 @@ Start a MSYS2 MinGW 32-bit bash, `cd` to the UQM-MegaMod directory, then execute
 When executing this command for the first time you'll come to a configuration screen where you can select a few developer-centric options.
 Just hit enter and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything should build fine.
 
+Once the build is complete you'll either have a `UrQuanMasters.exe` or `UrQuanMastersDebug.exe` in the root directory that you can run directly.
+
 If you get a message about missing .dll files they can be copied to the root directory via running the `msys2-depend.sh` bash script like so:
 
 	./msys2-depend.sh
@@ -171,6 +175,8 @@ Then when those have finished installing you can either clone the repository or 
 When executing this command for the first time you'll come to a configuration screen where you can select a few developer-centric options.
 Just hit enter and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything should build fine.
 
+Once the build is complete you'll either have a `UrQuanMasters` or `UrQuanMastersDebug` binary in the root directory that you can run directly.
+
 </details>
 
 <details>
@@ -190,6 +196,8 @@ Then when those have finished installing you can either clone the MegaMod reposi
 
 When executing this command for the first time you'll come to a configuration screen where you can select a few developer-centric options.
 Just hit enter and UQM will start building. It'll take awhile and you'll see a few scary warnings but everything should build fine.
+
+Once the build is complete you'll either have a `UrQuanMasters` or `UrQuanMastersDebug` binary in the root directory that you can run directly.
 
 </details>
 
