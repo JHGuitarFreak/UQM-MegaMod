@@ -20,6 +20,7 @@
 #include "../yehat/resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 
 
