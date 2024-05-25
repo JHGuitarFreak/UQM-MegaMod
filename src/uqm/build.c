@@ -1306,7 +1306,7 @@ SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit)
 				break;
 			}
 			location = (POINT) {
-					plotmap[YEHAT_DEFINED].star_pt.x +
+					plotmap[home].star_pt.x +
 					TOWARD_X (SHOFIXTI_DEFINED) * FIFTH_X *
 					Jitter (strength, rand_val_x),
 					plotmap[home].star_pt.y +

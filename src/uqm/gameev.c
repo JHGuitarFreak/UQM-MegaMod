@@ -737,8 +737,7 @@ advance_ilwrath_mission (int arg)
 	ThraddPtr = LockFleetInfo (&GLOBAL (avail_race_q), hThradd);
 	POINT thradd_home = SeedFleetLocation (ThraddPtr, plot_map, 0);
 	POINT conflict = SeedFleetLocation (IlwrathPtr, plot_map, THRADD_DEFINED);
-	if (IlwrathPtr->loc.x == ((thradd_home.x + conflict.x) / 2)
-			&& IlwrathPtr->loc.y == ((thradd_home.y + conflict.y) / 2))
+	if (GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH))
 	{
 		IlwrathPtr->actual_strength = 0;
 		IlwrathPtr->allied_state = DEAD_GUY;
@@ -750,9 +749,8 @@ advance_ilwrath_mission (int arg)
 	}
 	else if (IlwrathPtr->actual_strength)
 	{
-		if (!GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH)
-				&& (IlwrathPtr->dest_loc.x != conflict.x
-				|| IlwrathPtr->dest_loc.y != conflict.y))
+		if (IlwrathPtr->dest_loc.x != conflict.x
+				|| IlwrathPtr->dest_loc.y != conflict.y)
 		{
 			SetRaceDest (ILWRATH_SHIP, conflict.x, conflict.y, 90,
 					ADVANCE_ILWRATH_MISSION);
@@ -857,10 +855,8 @@ advance_mycon_mission (int arg)
 				{
 					POINT syra = SeedFleetLocation (SyreenPtr, plot_map, 0);
 					SetRaceDest (SYREEN_SHIP, syra.x, syra.y, 30, (BYTE)~0);
-					// The rest?... well we took care of most of them...
-					// in our own special way.
-					SyreenPtr->actual_strength = SyreenPtr->actual_strength *
-							3 / 2;
+					SyreenPtr->growth = 0;
+					SyreenPtr->growth_fract = 0;
 				}
 			}
 
@@ -880,6 +876,23 @@ advance_mycon_mission (int arg)
 			MyconPtr->growth = (BYTE)(-strength_loss / 14);
 			MyconPtr->growth_fract = (BYTE)(((strength_loss % 14) << 8) / 14);
 			MyconPtr->growth_err_term = 255 >> 1;
+			if (EXTENDED)
+			{
+				HFLEETINFO hSyreen;
+				FLEET_INFO *SyreenPtr;
+
+				hSyreen = GetStarShipFromIndex (&GLOBAL (avail_race_q),
+						SYREEN_SHIP);
+				SyreenPtr = LockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
+				if (SyreenPtr)
+				{
+					// The rest?... well we took care of most of them...
+					// in our own special way.
+					SyreenPtr->growth = (BYTE)(strength_loss / 28);
+					SyreenPtr->growth_fract =
+							(BYTE)(((strength_loss % 28) << 8) / 28);
+				}
+			}
 		}
 	}
 
