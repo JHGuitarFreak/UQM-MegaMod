@@ -22,6 +22,7 @@
 
 #include "uqm/lua/luacomm.h"
 #include "uqm/gameev.h"
+#include "uqm/build.h"
 
 
 static LOCDATA slylandro_desc =
