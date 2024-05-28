@@ -768,6 +768,7 @@ Intro (void)
 		}
 		SET_GAME_STATE (TALKING_PET_HOME_VISITS, NumVisits);
 
+		SetHomeworldKnown (UMGAH_HOME);
 		if (NumVisits == 1)
 		{
 			CompelPlayer ((RESPONSE_REF)0);
