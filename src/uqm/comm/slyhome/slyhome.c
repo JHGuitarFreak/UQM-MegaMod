@@ -892,6 +892,8 @@ Intro (void)
 				break;
 		}
 		SET_GAME_STATE (SLYLANDRO_HOME_VISITS, NumVisits);
+
+		SetHomeworldKnown (SLYLANDRO_HOME);
 	}
 
 	HomeWorld ((RESPONSE_REF)0);
