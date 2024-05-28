@@ -462,6 +462,26 @@ zoqfot_death_event (int arg)
 static int
 shofixti_return_event (int arg)
 {
+	HFLEETINFO hShofixti;
+	FLEET_INFO *ShofixtiPtr;
+	hShofixti = GetStarShipFromIndex (&GLOBAL (avail_race_q), SHOFIXTI_SHIP);
+	ShofixtiPtr = LockFleetInfo (&GLOBAL (avail_race_q), hShofixti);
+	if (ShofixtiPtr->actual_strength)
+	{
+		ShofixtiPtr->growth = 0;
+		ShofixtiPtr->growth_fract = 0;
+		(void) arg;
+		return 0;
+	}
+	if (EXTENDED)
+	{
+		ShofixtiPtr->actual_strength = 150 / SPHERE_RADIUS_INCREMENT * 2;
+		ShofixtiPtr->loc = SeedFleetLocation (ShofixtiPtr, plot_map, HOME);
+		StartSphereTracking (SHOFIXTI_SHIP);
+		ShofixtiPtr->growth = 1;
+		ShofixtiPtr->growth_fract = 0;
+		AddEvent (RELATIVE_EVENT, 3, 0, 0, SHOFIXTI_RETURN_EVENT);
+	}
 	SetRaceAllied (SHOFIXTI_SHIP, TRUE);
 	GLOBAL (CrewCost) -= IF_HARD(2, 1);
 			/* crew is not an issue anymore */
