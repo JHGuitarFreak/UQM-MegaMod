@@ -660,6 +660,8 @@ Intro (void)
 			}
 		}
 		SET_GAME_STATE (CHMMR_HOME_VISITS, NumVisits);
+
+		SetHomeworldKnown (CHMMR_HOME);
 	}
 }
 
