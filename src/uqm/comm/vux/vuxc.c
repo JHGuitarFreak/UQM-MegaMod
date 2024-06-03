@@ -852,9 +852,10 @@ init_vux_comm (void)
 	vux_desc.uninit_encounter_func = uninit_vux;
 
 	vux_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1)
-			+ (SIS_TEXT_WIDTH >> 2);
+			+ (SIS_TEXT_WIDTH >> 2) - SAFE_NUM_SCL (4);
 	vux_desc.AlienTextBaseline.y = 0;
-	vux_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1;
+	vux_desc.AlienTextWidth = ((SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1)
+			+ SAFE_X;
 
 	// use alternate "ZEX" track and frame if available
 	if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))
