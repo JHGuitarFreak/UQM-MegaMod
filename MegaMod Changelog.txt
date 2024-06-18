@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
+- 1-Frame solar system draw after Chmmr dialogue that can cause a crash
 
 ## [v0.8.3] - 2024-04-11
 
