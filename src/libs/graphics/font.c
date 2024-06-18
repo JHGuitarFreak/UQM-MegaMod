@@ -170,8 +170,8 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 }
 
 // Alt stuff to handle 2 fonts at once (for Orz)
-void
-font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key)
+BYTE
+font_DrawTextAlt (TEXT *lpText, BYTE swap, FONT AltFontPtr, UniChar key)
 {
 	RECT ClipRect;
 	POINT origin;
@@ -183,10 +183,10 @@ font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key)
 
 	// TextRect() clobbers TEXT.CharCount so we have to make a copy
 	text = *lpText;
-	if (!TextRectAlt (&text, &ClipRect, NULL, key, AltFontPtr))
+	if (!TextRectAlt (&text, &ClipRect, NULL, swap, key, AltFontPtr))
 		return;
 	// ClipRect is relative to origin
-	_text_blt_alt (&ClipRect, &text, origin, AltFontPtr, key);
+	return _text_blt_alt (&ClipRect, &text, origin, swap, AltFontPtr, key);
 }
 
 void
@@ -195,9 +195,10 @@ font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 {
 	// Preserve current foreground color for full correctness
 	const Color oldfg = SetContextForeGroundColor (trace);
-	const BYTE stroke = RES_SCALE(1);
+	const BYTE stroke = RES_SCALE (1);
 	const POINT t_baseline = pText->baseline;
 	POINT offset;
+	static BYTE swap = 0;
 
 	for (offset.x = -stroke; offset.x <= stroke; ++offset.x)
 	{
@@ -209,13 +210,13 @@ font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 					t_baseline.x + offset.x,
 					t_baseline.y + offset.y
 				);
-			font_DrawTextAlt (pText, AltFontPtr, key);
+			font_DrawTextAlt (pText, swap, AltFontPtr, key);
 		}
 	}
 	pText->baseline = t_baseline;
 
 	SetContextForeGroundColor (text);
-	font_DrawTextAlt (pText, AltFontPtr, key);
+	swap = font_DrawTextAlt (pText, swap, AltFontPtr, key);
 	SetContextForeGroundColor (oldfg);
 }
 
@@ -641,11 +642,11 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair, B
 }
 
 BOOLEAN
-TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontPtr)
+TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, BYTE swap,
+		UniChar key, FONT AltFontPtr)
 {
 	BYTE char_delta_array[MAX_DELTAS];
 	FONT FontPtr;
-	BYTE swap = 0;
 
 	FontPtr = _CurFontPtr;
 	if (FontPtr != 0 && lpText->CharCount != 0)
@@ -773,9 +774,9 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 	return (FALSE);
 }
 
-void
-_text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr, 
-		UniChar key)
+BYTE
+_text_blt_alt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, BYTE swap,
+		FONT AltFontPtr, UniChar key)
 {// Kruzen: To create text using 2 fonts (Orz case)
  // Safest way to do so without going too deep into
  // original code
@@ -788,7 +789,6 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 	POINT origin;
 	TFB_Image *backing, *stock, *ext;
 	DrawMode mode = _get_context_draw_mode();
-	BYTE swap = 0;
 	BYTE leading_step;
 
 	FontPtr = _CurFontPtr;
@@ -892,6 +892,8 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 
 	if (ext)
 		TFB_DrawImage_Delete (ext);
+
+	return swap;
 }
 
 static inline TFB_Char *
