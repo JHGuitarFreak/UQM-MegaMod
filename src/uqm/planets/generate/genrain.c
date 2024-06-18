@@ -91,7 +91,7 @@ GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 			GroupPtr->group_counter = 0;
 			UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
 
-			// Next ship in queue will add random value to its agnle 
+			// Next ship in queue will add random value to its angle 
 			// between OCTANT and HALF_CIRCLE
 			angle += ((COUNT)TFB_Random() % 25) + OCTANT;
 
