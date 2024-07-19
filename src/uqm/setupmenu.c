@@ -2180,9 +2180,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	audioQuality = opts->aquality;
 
-	SfxVol = opts->musicvol =
+	MusVol = opts->musicvol =
 			(((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
-	MusVol = opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
+	SfxVol = opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
 	SpcVol = opts->speechvol =
 			(((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 
