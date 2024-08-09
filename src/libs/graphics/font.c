@@ -179,12 +179,12 @@ font_DrawTextAlt (TEXT *lpText, BYTE swap, FONT AltFontPtr, UniChar key)
 
 	FixContextFontEffect ();
 	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
-		return;
+		return 0;
 
 	// TextRect() clobbers TEXT.CharCount so we have to make a copy
 	text = *lpText;
 	if (!TextRectAlt (&text, &ClipRect, NULL, swap, key, AltFontPtr))
-		return;
+		return 0;
 	// ClipRect is relative to origin
 	return _text_blt_alt (&ClipRect, &text, origin, swap, AltFontPtr, key);
 }
@@ -793,10 +793,10 @@ _text_blt_alt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, BYTE swap,
 
 	FontPtr = _CurFontPtr;
 	if (FontPtr == NULL)
-		return;
+		return 0;
 	stock = _get_context_font_backing();
 	if (!stock)
-		return;
+		return 0;
 
 	if (AltFontPtr != NULL)
 	{// Local backing needed for alt font
@@ -807,7 +807,7 @@ _text_blt_alt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, BYTE swap,
 		w = (SIZE)AltFontPtr->disp.width;
 		h = (SIZE)AltFontPtr->disp.height;
 		if (w == 0 || h == 0)
-			return;
+			return 0;
 
 		ext = TFB_DrawImage_CreateForScreen (w, h, TRUE);
 
@@ -817,13 +817,13 @@ _text_blt_alt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, BYTE swap,
 		TFB_DrawImage_Rect (&r, color, DRAW_REPLACE_MODE, ext);
 	}
 	else
-		return;
+		return 0;
 
 	origin.x = pClipRect->corner.x;
 	origin.y = TextPtr->baseline.y;
 	num_chars = TextPtr->CharCount;
 	if (num_chars == 0)
-		return;
+		return 0;
 
 	leading_step = AltFontPtr->Leading - _CurFontPtr->Leading;
 	pStr = TextPtr->pStr;
