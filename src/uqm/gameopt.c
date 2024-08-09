@@ -491,7 +491,7 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 
 		pchar_deltas = char_deltas;
 
-		FullCursorPos = CursorPos + (COUNT)strlen(dateStr) - 1;
+		FullCursorPos = CursorPos + (COUNT)utf8StringCount (dateStr);
 		for (i = FullCursorPos; i > 0; --i)
 			text_r.corner.x += *pchar_deltas++;
 
