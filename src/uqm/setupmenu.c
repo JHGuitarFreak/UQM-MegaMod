@@ -2386,7 +2386,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			UninitMenuMusic ();
 	}
 
-	PutIntOpt (&optMusicResume, &opts->musicResume, "mm.musicResume", FALSE);
+	PutIntOpt (&optMusicResume, (int*)&opts->musicResume, "mm.musicResume", FALSE);
 	PutBoolOpt (&optSpeech, &opts->speech, "config.speech", TRUE);
 
 	if (audioDriver != opts->adriver)
