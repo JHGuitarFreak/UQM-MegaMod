@@ -495,7 +495,7 @@ SpathiAllies (RESPONSE_REF R)
 		Response (give_us_resources_space, SpathiAllies);
 	if (PHRASE_ENABLED (what_do_for_fun))
 		Response (what_do_for_fun, SpathiAllies);
-	if (NOMAD_DIF (1))
+	if (NOMAD_DIF (OPTVAL_NOM_EASY))
 		Response (join_us_nomad, ExitConversation);
 	Response (bye_ally_space, ExitConversation);
 }

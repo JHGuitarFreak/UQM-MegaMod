@@ -105,7 +105,7 @@ typedef enum {
 typedef enum {
 	OPTVAL_NOM_OFF,
 	OPTVAL_NOM_EASY,
-	OPTVAL_NOM_NORMAL
+	OPTVAL_NOM_NORM
 } OPT_NOMAD;
 
 typedef enum {

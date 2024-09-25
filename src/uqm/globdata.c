@@ -576,7 +576,7 @@ InitGameStructures (void)
 			GLOBAL_SIS (JetSlots[7]) = TURNING_JETS;
 	}
 
-	if (NOMAD_DIF (1))
+	if (NOMAD_DIF (OPTVAL_NOM_EASY))
 	{
 		GLOBAL_SIS (DriveSlots[3]) =
 			GLOBAL_SIS (DriveSlots[4]) = FUSION_THRUSTER;
