@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.4]
 
 ### Added
+- Show the type of save on the loading screen in the blue title bar when loading a vanilla, HD-mod, or legacy vanilla save
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest

@@ -201,8 +201,16 @@ DrawSaveInfo (SIS_STATE SisState)
 	UNICODE TempDiff[11];
 	UNICODE TempExt[12] = "";
 	UNICODE TempNom[10] = "";
+	UNICODE TempVer[SIS_NAME_SIZE] = "";
 
-	DrawSISMessage ("");
+	if (SisState.SaveVersion > 0)
+	{
+		utf8StringCopy (TempVer, sizeof (TempVer),
+				GAME_STRING (SAVEGAME_STRING_BASE + 4
+					+ SisState.SaveVersion));
+	}
+
+	DrawSISMessage (TempVer);
 	DrawSISTitle ("");
 
 	if (SisState.Seed)

@@ -529,11 +529,14 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 
 	if (!LoadSisState (&SummPtr->SS, fp, try_core, legacyMM))
 		return FALSE;
-	
+
+	SummPtr->SS.SaveVersion = 0;
+
 	if (try_core)
 	{	// Sanitize seed, difficulty, extended, and nomad variables
 		SummPtr->SS.Seed = SummPtr->SS.Difficulty = 0;
 		SummPtr->SS.Extended = SummPtr->SS.Nomad = 0;
+		SummPtr->SS.SaveVersion = 1;
 	}
 
 	if (	read_8  (fp, &SummPtr->Activity) != 1 ||
@@ -664,7 +667,7 @@ SetBattleGroupOffset (int encounterIndex, DWORD offset)
 		case 11: SET_GAME_STATE (MELNORME8_GRPOFFS,    offset); break;
 		case 12: SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, offset); break;
 		case 13: SET_GAME_STATE (COLONY_GRPOFFS,       offset); break;
-		case 14: SET_GAME_STATE (SAMATRA_GRPOFFS, offset); break;
+		case 14: SET_GAME_STATE (SAMATRA_GRPOFFS,      offset); break;
 		default:
 			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter "
 					"index.\n");

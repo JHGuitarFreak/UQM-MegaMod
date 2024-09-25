@@ -43,7 +43,7 @@ extern "C" {
 #define NAVIGATION_STRING_COUNT   9
 #define NAMING_STRING_COUNT       8
 #define MELEE_STRING_COUNT       25
-#define SAVEGAME_STRING_COUNT     5
+#define SAVEGAME_STRING_COUNT     8
 #define OPTION_STRING_COUNT      10
 #define QUITMENU_STRING_COUNT     5
 #define STATUS_STRING_COUNT      22

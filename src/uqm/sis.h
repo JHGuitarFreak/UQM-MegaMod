@@ -179,6 +179,7 @@ typedef struct
 	UNICODE PlanetName[SIS_NAME_SIZE];
 	BYTE Difficulty, Extended, Nomad;
 	SDWORD Seed;
+	BYTE SaveVersion;
 } SIS_STATE;
 
 #define OVERRIDE_LANDER_FLAGS (1 << 7)
