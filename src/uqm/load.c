@@ -800,7 +800,7 @@ LoadCoreGame (COUNT which_game, SUMMARY_DESC* SummPtr)
 		return FALSE;
 	}
 
-	return FALSE;
+	return TRUE;
 }
 
 BOOLEAN
