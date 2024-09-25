@@ -1189,6 +1189,7 @@ ZeroAdvancedAutoPilot (void)
 
 // Nomad
 #define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
+#define NOMAD_DIF(a)(GLOBAL_SIS (Nomad) == (a) ? TRUE : FALSE)
 
 #define BOOL_STR(a) ((a) ? "True" : "False")
 

@@ -201,7 +201,7 @@ extern void ContinueFlash (void);
 #define SFR_MENU_NON ((RECT*)~2L)
 extern void DrawHyperCoords (POINT puniverse);
 extern void DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended,
-		BOOLEAN nomad);
+		BYTE nomad);
 extern void DrawSISTitle (UNICODE *pStr);
 
 // Flags for DrawSISMessageEx (may be OR'ed):

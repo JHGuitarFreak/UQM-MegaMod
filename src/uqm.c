@@ -179,7 +179,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  optDiffChooser);
 	DECL_CONFIG_OPTION(int,  optFuelRange);
 	DECL_CONFIG_OPTION(bool, extended);
-	DECL_CONFIG_OPTION(bool, nomad);
+	DECL_CONFIG_OPTION(int,  nomad);
 	DECL_CONFIG_OPTION(bool, gameOver);
 	DECL_CONFIG_OPTION(bool, shipDirectionIP);
 	DECL_CONFIG_OPTION(bool, hazardColors);
@@ -390,7 +390,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  optDiffChooser,    3 ),
 		INIT_CONFIG_OPTION(  optFuelRange,      0 ),
 		INIT_CONFIG_OPTION(  extended,          false ),
-		INIT_CONFIG_OPTION(  nomad,             false ),
+		INIT_CONFIG_OPTION(  nomad,             0 ),
 		INIT_CONFIG_OPTION(  gameOver,          false ),
 		INIT_CONFIG_OPTION(  shipDirectionIP,   false ),
 		INIT_CONFIG_OPTION(  hazardColors,      false ),
@@ -1071,7 +1071,12 @@ getUserConfigOptions (struct options_struct *options)
 		options->optFuelRange.value = res_GetInteger ("mm.fuelRange");
 	}
 	getBoolConfigValue (&options->extended, "mm.extended");
-	getBoolConfigValue (&options->nomad, "mm.nomad");
+	if (res_IsInteger ("mm.nomad") && !options->nomad.set)
+	{
+		options->nomad.value = res_GetInteger ("mm.nomad");
+		if (options->nomad.value > 2)
+			options->nomad.value = 0;
+	}
 	getBoolConfigValue (&options->gameOver, "mm.gameOver");
 	getBoolConfigValue (&options->shipDirectionIP, "mm.shipDirectionIP");
 	getBoolConfigValue (&options->hazardColors, "mm.hazardColors");
@@ -1329,7 +1334,7 @@ static struct option longOptions[] =
 	{"difficulty", 1, NULL, DIFFICULTY_OPT},
 	{"fuelrange", 1, NULL, FUELRANGE_OPT},
 	{"extended", 0, NULL, EXTENDED_OPT},
-	{"nomad", 0, NULL, NOMAD_OPT},
+	{"nomad", 1, NULL, NOMAD_OPT},
 	{"gameover", 0, NULL, GAMEOVER_OPT},
 	{"shipdirectionip", 0, NULL, SHIPDIRIP_OPT},
 	{"hazardcolors", 0, NULL, HAZCOLORS_OPT},
@@ -2393,7 +2398,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			"features (default: %s)",
 			boolOptString (&defaults->extended));
 	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) "
-			"(default: %s)", boolOptString (&defaults->nomad));
+			"0: Off | 1: Easy | 2: Normal (default: 0)");
 	log_add (log_User, "  --gameover : Enables Game Over cutscenes "
 			"(default: %s)", boolOptString (&defaults->gameOver));
 	log_add (log_User, "  --shipdirectionip : Enable NPC ships in IP"

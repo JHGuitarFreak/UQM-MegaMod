@@ -195,7 +195,7 @@ DrawHyperCoords (POINT universe)
 }
 
 void
-DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
+DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BYTE nomad)
 {
 	if (seed)
 	{

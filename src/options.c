@@ -98,7 +98,7 @@ int optDifficulty;
 int optDiffChooser;
 int optFuelRange;
 OPT_ENABLABLE optExtended;
-OPT_ENABLABLE optNomad;
+int optNomad;
 OPT_ENABLABLE optGameOver;
 OPT_ENABLABLE optShipDirectionIP;
 OPT_ENABLABLE optHazardColors;
