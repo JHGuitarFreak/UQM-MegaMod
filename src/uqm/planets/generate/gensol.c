@@ -747,7 +747,8 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 
 		GenerateDefault_landerReport (solarSys);
 
-		if (!NOMAD) {
+		if (!NOMAD)
+		{
 			SetLanderTakeoff ();
 
 			SET_GAME_STATE (MOONBASE_DESTROYED, 1);

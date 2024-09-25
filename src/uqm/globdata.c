@@ -576,21 +576,21 @@ InitGameStructures (void)
 			GLOBAL_SIS (JetSlots[7]) = TURNING_JETS;
 	}
 
-	if (NOMAD)
+	/*if (NOMAD)
 	{
 		GLOBAL_SIS (DriveSlots[3]) =
 			GLOBAL_SIS (DriveSlots[4]) = FUSION_THRUSTER;
 		GLOBAL_SIS (JetSlots[2]) =
 			GLOBAL_SIS (JetSlots[5]) = TURNING_JETS;
 		GLOBAL_SIS (FuelOnBoard) += 20 * FUEL_TANK_SCALE;
-	}
+	}*/
  
 	if (optHeadStart)
 	{
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 2);
 		SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 1);
 		SetHomeworldKnown (SPATHI_HOME);
-		if (!NOMAD) 
+		if (!NOMAD)
 		{
 			SET_GAME_STATE (MOONBASE_ON_SHIP, 1);
 			SET_GAME_STATE (MOONBASE_DESTROYED, 1);
