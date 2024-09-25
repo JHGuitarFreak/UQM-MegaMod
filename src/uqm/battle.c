@@ -73,7 +73,7 @@ RunAwayAllowed (void)
 {
 	return ((LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
 			|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
-			&& (GET_GAME_STATE (STARBASE_AVAILABLE))
+			&& (NOMAD || GET_GAME_STATE (STARBASE_AVAILABLE))
 			&& (DIF_EASY || !GET_GAME_STATE (BOMB_CARRIER)));
 }
 
