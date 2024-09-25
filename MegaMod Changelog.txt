@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Added
 
 ### Changed
+- Nerf Nomad Mode to be a true no StarBase mode, without any extra conveniences but with the ability to complete the Shofixti/Yehat quest
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
