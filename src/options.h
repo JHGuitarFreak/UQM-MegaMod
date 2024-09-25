@@ -85,7 +85,7 @@ extern int optDifficulty;
 extern int optDiffChooser;
 extern int optFuelRange;
 extern OPT_ENABLABLE optExtended;
-extern OPT_ENABLABLE optNomad;
+extern int optNomad;
 extern OPT_ENABLABLE optGameOver;
 extern OPT_ENABLABLE optShipDirectionIP;
 extern OPT_ENABLABLE optHazardColors;

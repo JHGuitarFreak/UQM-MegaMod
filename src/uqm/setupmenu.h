@@ -103,6 +103,12 @@ typedef enum {
 } OPT_DIFFICULTY;
 
 typedef enum {
+	OPTVAL_NOM_OFF,
+	OPTVAL_NOM_EASY,
+	OPTVAL_NOM_NORM
+} OPT_NOMAD;
+
+typedef enum {
 	OPTVAL_KBM,
 	OPTVAL_XBX,
 	OPTVAL_PS4
@@ -154,6 +160,7 @@ typedef struct globalopts_struct {
 	OPT_TDTYPE tdType;
 	OPT_DATETYPE dateType;
 	OPT_DIFFICULTY difficulty;
+	OPT_NOMAD nomad;
 	OPT_MELEEZOOM meleezoom;
 	OPT_CONTROLLER controllerType;
 	OPT_FUELRANGE fuelRange;
@@ -166,7 +173,7 @@ typedef struct globalopts_struct {
 			unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro,
 			infiniteFuel, partialPickup, submenu, addDevices, customBorder,
 			spaceMusic, volasMusic, directionalJoystick, wholeFuel,
-			extended, nomad, gameOver, shipDirectionIP, hazardColors,
+			extended, gameOver, shipDirectionIP, hazardColors,
 			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
 			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
 			showVisitedStars, unscaledStarSystem, slaughterMode,

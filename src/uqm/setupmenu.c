@@ -2537,7 +2537,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if ((optDifficulty = opts->difficulty) == OPTVAL_IMPO)
 		optDifficulty = OPTVAL_NORM;
 	PutBoolOpt (&optExtended, &opts->extended, "mm.extended", FALSE);
-	PutBoolOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
+	PutIntOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
 	PutBoolOpt (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", FALSE);
 
 	// Comm screen

@@ -376,7 +376,9 @@ Hostile (RESPONSE_REF R)
 	switch (GET_GAME_STATE (SHOFIXTI_STACK2))
 	{
 		case 0:
-			Response (no_one_insults, ExitConversation);
+			Response (no_one_insults, (
+					NOMAD_DIF (OPTVAL_NOM_NORM)
+					? RealizeMistake : ExitConversation));
 			break;
 		case 1:
 			Response (mighty_words, ExitConversation);

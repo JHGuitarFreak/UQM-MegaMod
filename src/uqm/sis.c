@@ -195,33 +195,42 @@ DrawHyperCoords (POINT universe)
 }
 
 void
-DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BOOLEAN nomad)
+DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended, BYTE nomad)
 {
+	UNICODE buf[100];
+	UNICODE TempDiff[11];
+	UNICODE TempExt[12] = "";
+	UNICODE TempNom[10] = "";
+
+	DrawSISMessage ("");
+	DrawSISTitle ("");
+
 	if (seed)
 	{
-		UNICODE buf[100];
-		char TempDiff[11];
 
-		strncpy (
-			TempDiff, GAME_STRING (MAINMENU_STRING_BASE + 56 + difficulty),
-			ARRAY_SIZE (TempDiff)
-		);
+		if (nomad)
+		{
+			snprintf (TempNom, sizeof (TempNom), "%s%s",
+					GAME_STRING (MAINMENU_STRING_BASE + 60),
+					nomad == 2 ? "+" : nomad == 1 ? "-" : "");
+		}
+
+		if (extended)
+		{
+			utf8StringCopy (TempExt, sizeof (TempExt),
+					GAME_STRING (MAINMENU_STRING_BASE + 59));
+		}
+
+		utf8StringCopy (TempDiff, sizeof (TempDiff),
+				GAME_STRING (MAINMENU_STRING_BASE + 56 + difficulty));
 
 		snprintf (buf, sizeof buf, "%s %s%s%s",
-				GAME_STRING (MAINMENU_STRING_BASE + 55),
-				TempDiff,
-				(extended ? GAME_STRING (MAINMENU_STRING_BASE + 59) : ""),
-				(nomad ? GAME_STRING (MAINMENU_STRING_BASE + 60) : "")
-			);
+				GAME_STRING (MAINMENU_STRING_BASE + 55), // Difficulty:
+				TempDiff, TempExt, TempNom);
 		DrawSISMessage (buf);
 
 		snprintf (buf, sizeof buf, "%u", seed);
 		DrawSISTitle (buf);
-	}
-	else
-	{
-		DrawSISMessage ("");
-		DrawSISTitle ("");
 	}
 }
 
