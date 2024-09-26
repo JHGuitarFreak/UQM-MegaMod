@@ -215,12 +215,12 @@ DrawSaveInfo (SIS_STATE SisState)
 
 	if (SisState.Seed)
 	{
-
 		if (SisState.Nomad)
 		{
 			snprintf (TempNom, sizeof (TempNom), "%s%s",
 					GAME_STRING (MAINMENU_STRING_BASE + 60),
-					SisState.Nomad == 2 ? "+" : SisState.Nomad == 1 ? "-" : "");
+					SisState.Nomad == 2 ? "+" :
+					SisState.Nomad == 1 ? "-" : "");
 		}
 
 		if (SisState.Extended)
@@ -230,7 +230,8 @@ DrawSaveInfo (SIS_STATE SisState)
 		}
 
 		utf8StringCopy (TempDiff, sizeof (TempDiff),
-				GAME_STRING (MAINMENU_STRING_BASE + 56 + SisState.Difficulty));
+				GAME_STRING (MAINMENU_STRING_BASE + 56
+					+ SisState.Difficulty));
 
 		snprintf (buf, sizeof buf, "%s %s%s%s",
 				GAME_STRING (MAINMENU_STRING_BASE + 55), // Difficulty:

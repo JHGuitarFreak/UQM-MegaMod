@@ -733,7 +733,7 @@ loadGameCheats (void)
 		//SET_GAME_STATE (MELNORME_TECH_STACK, 13);
 	}
 	
-	if(optAddDevices)
+	if (optAddDevices)
 	{
 		SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, 1);
 		SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, 1);
