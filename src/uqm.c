@@ -1890,8 +1890,27 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->extended, true);
 				break;
 			case NOMAD_OPT:
-				setBoolOption (&options->nomad, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp,
+					"Nomad Mode type") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nNomad Mode has to be "
+						"0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->nomad.value = temp;
+					options->nomad.set = true;
+				}
 				break;
+			}
 			case GAMEOVER_OPT:
 				setBoolOption (&options->gameOver, true);
 				break;
@@ -2397,7 +2416,7 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --extended : Enables Extended Edition"
 			"features (default: %s)",
 			boolOptString (&defaults->extended));
-	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) "
+	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) : "
 			"0: Off | 1: Easy | 2: Normal (default: 0)");
 	log_add (log_User, "  --gameover : Enables Game Over cutscenes "
 			"(default: %s)", boolOptString (&defaults->gameOver));
