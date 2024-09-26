@@ -173,6 +173,7 @@ LoadKernel (int argc, char *argv[])
 		loadAddon ("rmx-utwig");
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
+		loadAddon ("distorted-hayes");
 		SyreenVoiceFix = loadAddon ("SyreenVoiceFix");
 	}
 
