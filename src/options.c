@@ -128,6 +128,7 @@ OPT_ENABLABLE optAdvancedAutoPilot;
 OPT_ENABLABLE optMeleeToolTips;
 int optMusicResume;
 DWORD optWindowType;
+BOOLEAN optNoClassic;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

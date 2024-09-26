@@ -1256,6 +1256,7 @@ enum
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
+	CLAPAK_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1362,6 +1363,7 @@ static struct option longOptions[] =
 	{"meleetooltips", 0, NULL, MELEETIPS_OPT},
 	{"musicresume", 1, NULL, MUSICRESUME_OPT},
 	{"windowtype", 1, NULL, WINDTYPE_OPT},
+	{"noclassic", 0, NULL, CLAPAK_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2141,6 +2143,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
+			case CLAPAK_OPT:
+				optNoClassic = TRUE;
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
