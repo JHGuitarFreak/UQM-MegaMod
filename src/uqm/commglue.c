@@ -29,10 +29,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
-//JSD I think melnorme strings was for testing but boy I cannot remember
-//if things are broken, try adding it back in
-// random.h is included for StarSeed boolean, not the best place but it works.
-//#include "uqm/comm/melnorm/strings.h"
 #include "libs/math/random.h"
 
 COUNT RoboTrack[NUM_ROBO_TRACKS];

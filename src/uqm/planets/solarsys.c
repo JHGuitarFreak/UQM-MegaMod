@@ -2858,12 +2858,12 @@ ExploreSolarSys (void)
 	SolarSysState.genFuncs = getGenerateFunctions (CurStarDescPtr->Index);
 #ifdef DEBUG_STARSEED
 	    if (CurStarDescPtr->Index)
-			fprintf (stderr, "*** Entering Special PLOT System at "
-					"%05.1f : %05.1f %s (%d)***\n",
-					(float) CurStarDescPtr->star_pt.x / 10,
-					(float) CurStarDescPtr->star_pt.y / 10,
+			fprintf (stderr, "*** Entering %s (%d) System at "
+					"%05.1f : %05.1f ***\n",
 					starPresenceString (CurStarDescPtr->Index),
-					CurStarDescPtr->Index);
+					CurStarDescPtr->Index,
+					(float) CurStarDescPtr->star_pt.x / 10,
+					(float) CurStarDescPtr->star_pt.y / 10);
 #endif
 
 	InitSolarSys ();
