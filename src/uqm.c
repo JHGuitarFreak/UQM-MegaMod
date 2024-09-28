@@ -170,6 +170,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, customBorder);
 	DECL_CONFIG_OPTION(int,  seedType);
 	DECL_CONFIG_OPTION(int,  customSeed);
+	DECL_CONFIG_OPTION(int,  sphereColors);
 	DECL_CONFIG_OPTION(bool, spaceMusic);
 	DECL_CONFIG_OPTION(bool, volasMusic);
 	DECL_CONFIG_OPTION(bool, wholeFuel);
@@ -378,6 +379,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  customBorder,      false ),
 		INIT_CONFIG_OPTION(  seedType,          0 ),
 		INIT_CONFIG_OPTION(  customSeed,        PrimeA ),
+		INIT_CONFIG_OPTION(  sphereColors,      0 ),
 		INIT_CONFIG_OPTION(  spaceMusic,        false ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
@@ -609,6 +611,7 @@ main (int argc, char *argv[])
 	optCustomBorder = options.customBorder.value;
 	optSeedType = options.seedType.value;
 	optCustomSeed = options.customSeed.value;
+	optSphereColors = options.sphereColors.value;
 	optRequiresReload = FALSE;
 	optRequiresRestart = FALSE;
 	optSpaceMusic = options.spaceMusic.value;
@@ -1053,6 +1056,10 @@ getUserConfigOptions (struct options_struct *options)
 		if (!SANE_SEED (options->customSeed.value))
 			options->customSeed.value = PrimeA;
 	}
+	if (res_IsInteger ("mm.sphereColors") && !options->sphereColors.set)
+	{
+		options->sphereColors.value = res_GetInteger ("mm.sphereColors");
+	}
 	getBoolConfigValue (&options->spaceMusic, "mm.spaceMusic");
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
@@ -1220,6 +1227,7 @@ enum
 	CUSTBORD_OPT,
 	SEEDTYPE_OPT,
 	EXSEED_OPT,
+	SPHERECOLORS_OPT,
 	SPACEMUSIC_OPT,
 	WHOLEFUEL_OPT,
 	DIRJOY_OPT,
@@ -1328,6 +1336,7 @@ static struct option longOptions[] =
 	{"customborder", 0, NULL, CUSTBORD_OPT},
 	{"seedtype", 0, NULL, SEEDTYPE_OPT},
 	{"customseed", 1, NULL, EXSEED_OPT},
+	{"spherecolors", 0, NULL, SPHERECOLORS_OPT},
 	{"spacemusic", 0, NULL, SPACEMUSIC_OPT},
 	{"wholefuel", 0, NULL, WHOLEFUEL_OPT},
 	{"dirjoystick", 0, NULL, DIRJOY_OPT},
@@ -1843,6 +1852,26 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				{
 					options->customSeed.value = temp;
 					options->customSeed.set = true;
+				}
+				break;
+			}
+			case SPHERECOLORS_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Sphere Colors") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 1)
+				{
+					saveError ("\nSphere Colors has to 0 or 1.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->sphereColors.value = temp;
+					options->sphereColors.set = true;
 				}
 				break;
 			}
@@ -2400,6 +2429,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --customseed=# : Allows you to customize the "
 			"internal seed used to generate the solar systems in-game."
 			" (default: 16807)");
+	log_add (log_User, "  --spherecolors: 0: Default colors "
+			"| 1: StarSeed colors (default: 0)");
 	log_add (log_User, "  --spacemusic : Enables localized music for races"
 			" when you are in their sphere of influence (default: %s)",
 			boolOptString (&defaults->spaceMusic));

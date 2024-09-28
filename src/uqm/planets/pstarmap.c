@@ -959,6 +959,85 @@ DrawRaceName (TEXT *t, Color *c)
 	font_DrawText (t);
 }
 
+Color
+RaceColor (COUNT index)
+{
+	static const Color race_colors[] =
+	{
+		RACE_COLORS
+	};
+	if (optSphereColors == OPTVAL_DEFAULT_COLORS)
+		return race_colors[index];
+	// right now, assume OPTVAL_STARSEED_COLORS (option 1), but more options
+	// can be added here with if statements, or with more complicated (better) code
+	switch (index)
+	{
+		case ARILOU_SHIP: // Bold blue
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x17), 0x00);
+		case CHMMR_SHIP: // Pale blue-grey
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x10, 0x15, 0x19), 0x00);
+		case HUMAN_SHIP: // Blue
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x09, 0x1B), 0x00);
+		case ORZ_SHIP: // Plum
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0D, 0x00, 0x05), 0x00);
+		case PKUNK_SHIP: // Pinkunk
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1C, 0x07, 0x19), 0x00);
+		case SHOFIXTI_SHIP: // Marsupial brown
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x06, 0x00), 0x00);
+		case SPATHI_SHIP: // Mustard yellow
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x12, 0x03), 0x00);
+		case SUPOX_SHIP: // Leaf green
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x05, 0x14, 0x01), 0x00);
+		case THRADDASH_SHIP: // Dark cyan
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x00);
+		case UTWIG_SHIP: // Beige
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1A, 0x16, 0x12), 0x00);
+		case VUX_SHIP: // Very Ugly Aqua
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x16, 0x0F), 0x00);
+		case YEHAT_SHIP: // Royal purple
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x00, 0x11), 0x00);
+		case MELNORME_SHIP: // Yellowish
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1A, 0x16, 0x08), 0x00);
+		case DRUUGE_SHIP: // Crimson (tm)
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x00);
+		case ILWRATH_SHIP: // Purple
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0E, 0x00, 0x0E), 0x00);
+		case MYCON_SHIP: // Fungal fuchsia
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x00, 0x0C), 0x00);
+		case SLYLANDRO_SHIP: // Red Alert
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1D, 0x00, 0x07), 0x00);
+		case UMGAH_SHIP: // Olive
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x0C, 0x00), 0x00);
+		case URQUAN_SHIP: // Dark Green
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x08, 0x00), 0x00);
+		case ZOQFOTPIK_SHIP: // Orange
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x16, 0x0D, 0x00), 0x00);
+		case SYREEN_SHIP: // Slightly-orange red
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x07, 0x03), 0x00);
+		case BLACK_URQUAN_SHIP: // Dark grey
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x00);
+		case ANDROSYNTH_SHIP: // Violet
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x00, 0x15), 0x00);
+		case CHENJESU_SHIP: // Cyan
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x15, 0x1C), 0x00);
+		case MMRNMHRM_SHIP: // Silver
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x10, 0x10, 0x10), 0x00);
+		case YEHAT_REBEL_SHIP: // Lavender
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x19, 0x10, 0x1F), 0x00);
+		default: // Hot pink (just a fail state but also reserved)
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1C, 0x00, 0x0C), 0x00);
+	}
+	// Slylandro lightish red (pale pink for gas giant creatures)
+	return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x15, 0x19), 0x00);
+#if 0
+	// A way to choose colors entirely "fairly", although colors don't really map
+	// in such an even distribution.
+		BYTE i, j, k;
+		for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) for (k = 0; k < 3; k++)
+			race_colors[i * 9 + j * 3 + k] = (Color) BUILD_COLOR (MAKE_RGB15_INIT (14 * i + 1, 14 * j + 1, 14 * k + 1), 0x00);
+#endif
+}
+
 static void
 DrawStarMap (COUNT race_update, RECT *pClipRect)
 {
@@ -1087,10 +1166,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		HFLEETINFO hStarShip, hNextShip;
 		NAMEPLATE nameplate[26];
 		BYTE currMax = 0;
-		static const Color race_colors[] =
-		{
-			RACE_COLORS
-		};
 
 		for (index = 0,
 				hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -1130,20 +1205,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					Color c;
 					TEXT t;
 					STRING locString;
+					UNICODE *yehat_rebels = "+Yehat+";
 
-					c = race_colors[index];
+					c = RaceColor (index);
 					if (index == race_index)
 						SetContextForeGroundColor (WHITE_COLOR);
 					else
 						SetContextForeGroundColor (c);
 
-					if (!(which_starmap == WAR_ERA_STARMAP
-							//&& war_era_strengths[index] == 0))
-							// ~JSD~ Purpose of following lines unclear
-							// should be impossible to trigger
-							// but it symmetrically replaces the above
-							&& WarEraStrength (FleetPtr->SpeciesID) == 0
-							&& index >= NUM_BUILDABLE_SHIPS))
 					{
 						DRECT dr = RECT_TO_DRECT (r);
 						DrawOval (&dr, 0, IS_HD);
@@ -1183,6 +1252,11 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 								t.pStr = (UNICODE *)GetStringAddress (locString);
 								break;
 						}						
+					}
+					else if (index == YEHAT_REBEL_SHIP && optSphereColors == 1)
+					{
+						t.CharCount = 7;
+						t.pStr = yehat_rebels;
 					}
 					else
 					{
@@ -1270,7 +1344,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				else if (nameplate[j].index & DEATH_SOI)
 					c = BUILD_SHADE_RGBA (0x80);
 				else
-					c = race_colors[(nameplate[j].index & 0x1F)];
+					c = RaceColor (nameplate[j].index & 0x1F);
 				r = nameplate[j].rect;
 				t = nameplate[j].text;
 				
@@ -1302,7 +1376,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				else if (nameplate[currMax - j].index & DEATH_SOI)
 					c = BUILD_SHADE_RGBA (0x80);
 				else
-					c = race_colors[(nameplate[currMax - j].index & 0x1F)];
+					c = RaceColor (nameplate[currMax - j].index & 0x1F);
 				r = nameplate[currMax - j].rect;
 				t = nameplate[currMax - j].text;
 
@@ -1330,6 +1404,30 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	// starmap.
 	if (which_space <= 1 && which_starmap == CONSTELLATION_MAP)
 	{
+// Debug toy, it prints out a color map
+#ifdef DEBUG_COLOR_PALETTE
+		int i; int j; int k;
+		for (i = 0; i < 32; i++) for (j = 0; j < 32; j++) for (k = 0; k < 32; k++)
+		{
+			TEXT t;
+			UNICODE pStr[7];
+			pStr[0] = (i / 16 ? '1' : '0');
+			pStr[1] = (i % 16 > 9 ? i % 16 - 10 + 'A' : i % 16 + '0');
+			pStr[2] = (j / 16 ? '1' : '0');
+			pStr[3] = (j % 16 > 9 ? j % 16 - 10 + 'A' : j % 16 + '0');
+			pStr[4] = (k / 16 ? '1' : '0');
+			pStr[5] = (k % 16 > 9 ? k % 16 - 10 + 'A' : k % 16 + '0');
+			pStr[6] = '\0';
+			SetContextFont (TinyFontBold);
+			SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (i, j, k), 0x00));
+			t.baseline.x = UNIVERSE_TO_DISPX (300 * j + (k / 16 ? 150 : 0));
+			t.baseline.y = UNIVERSE_TO_DISPY (300 * i + k % 16 * 300 / 16) + 3;
+			t.align = ALIGN_CENTER;
+			t.pStr = pStr;
+			t.CharCount = 10;
+			font_DrawText (&t);
+		}
+#else
 		Color oldColor;
 		POINT *CNPtr;
 		LINE l;
@@ -1350,6 +1448,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			DrawLine (&l, 1);
 		}
 	 	SetContextForeGroundColor (oldColor);
+#endif
 	}
 
 	// This draws markers over known alien Homeworlds

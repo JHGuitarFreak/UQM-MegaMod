@@ -482,6 +482,41 @@ InitGameStructures (void)
 				UnlockMasterShip (&master_q, hMasterShip);
 				// If the game is seeded, move the fleet to starting position
 				SeedFleet (FleetPtr, plot_map);
+#ifdef DEBUG_SPHERE_COLOR
+				switch (i)
+				{
+					case HUMAN_SHIP:
+						FleetPtr->actual_strength = 200;
+						FleetPtr->known_loc = plot_map[SOL_DEFINED].star_pt;
+						break;
+					case SHOFIXTI_SHIP:
+						FleetPtr->actual_strength = 150;
+						FleetPtr->known_loc = plot_map[SHOFIXTI_DEFINED].star_pt;
+						break;
+					case MELNORME_SHIP:
+						FleetPtr->actual_strength = 300;
+						FleetPtr->known_loc = plot_map[MELNORME6_DEFINED].star_pt;
+						break;
+					case ANDROSYNTH_SHIP:
+						FleetPtr->actual_strength = 100;
+						FleetPtr->known_loc = plot_map[START_COLONY_DEFINED].star_pt;
+						break;
+					case CHENJESU_SHIP:
+						FleetPtr->actual_strength = 100;
+						FleetPtr->known_loc = plot_map[ILWRATH_DEFINED].star_pt;
+						break;
+					case MMRNMHRM_SHIP:
+						FleetPtr->actual_strength = 100;
+						FleetPtr->known_loc = plot_map[MOTHER_ARK_DEFINED].star_pt;
+						break;
+					case SLYLANDRO_SHIP:
+						FleetPtr->actual_strength = 300;
+						FleetPtr->known_loc = plot_map[SLYLANDRO_DEFINED].star_pt;
+						break;
+					default:
+						break;
+				}
+#endif
 			}
 			else
 			{
@@ -503,6 +538,14 @@ InitGameStructures (void)
 			// XXX: Hack: Rebel special case 
 			if (i == YEHAT_REBEL_SHIP)
 				FleetPtr->actual_strength = 0;
+#ifdef DEBUG_SPHERE_COLOR
+			if (i == YEHAT_REBEL_SHIP)
+			{
+				FleetPtr->known_loc = plot_map[RAINBOW0_DEFINED].star_pt;
+				FleetPtr->actual_strength = 200;
+				FleetPtr->loc = FleetPtr->known_loc;
+			}
+#endif
 			FleetPtr->growth = 0;
 			FleetPtr->growth_fract = 0;
 			FleetPtr->growth_err_term = 255 >> 1;
