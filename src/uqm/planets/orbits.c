@@ -707,7 +707,7 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 	DWORD rand_val;
 	// static SIZE diffCheck, min_radius;
 
-	starColor =  STAR_COLOR (CurStarDescPtr->Type);
+	starColor = STAR_COLOR (CurStarDescPtr->Type);
 	// Terrible, but efficient, hack to ensure some semblance of sanity.
 	// Eventually, we will need further code if we care about habitable homes.
 	if (StarSeed && starColor == RED_BODY)
@@ -721,8 +721,8 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 
 	// This ensures the planets are at least a certain distance apart, which
 	// mirrors UNSCALE_RADIUS logic from FillOrbits (radius / 2^6 / 5)
-	if (StarSeed && pPD[1].radius < habitableRangeMax + 320 &&
-			pPD[1].radius > habitableRangeMin + 320)
+	if (StarSeed && numPlanets > 1 && pPD[1].radius < habitableRangeMax + 320
+			&& pPD[1].radius > habitableRangeMin + 320)
 		habitableRangeMax = pPD[1].radius - 320;
 
 	if ((oldRadius >= habitableRangeMin && oldRadius <= habitableRangeMax)
@@ -743,7 +743,8 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 
 	planetRadii[planetByte] = newRadius;
 
-	if (planetRadii[planetByte] < planetRadii[planetByte + 1])
+	if ((StarSeed && numPlanets == 1) ||
+			planetRadii[planetByte] < planetRadii[planetByte + 1])
 	{
 		pPD[planetByte].radius = planetRadii[planetByte];
 		pPD[planetByte].angle = NORMALIZE_ANGLE (LOWORD (rand_val));
