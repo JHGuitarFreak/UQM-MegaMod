@@ -115,7 +115,8 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 	COUNT planetI;
 
 #define SOL_SEED 334241042L
-	RandomContext_SeedRandom (SysGenRNG, SOL_SEED);
+	RandomContext_SeedRandom (SysGenRNG, SOL_SEED +
+			(StarSeed ? optCustomSeed : 0));
 
 	solarSys->SunDesc[0].NumPlanets = 9;
 	for (planetI = 0; planetI < 9; ++planetI)
@@ -176,7 +177,7 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				pCurDesc->data_index = PELLUCID_WORLD;
 				pCurDesc->radius = EARTH_RADIUS * 1550L /* 3937L */ / 100;
 				pCurDesc->NumPlanets = EXTENDED;
-				if (PrimeSeed || StarSeed)
+				if (PrimeSeed)
 					pCurDesc->angle = FULL_CIRCLE - OCTANT;
 				break;
 		}
