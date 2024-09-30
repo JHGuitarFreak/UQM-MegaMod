@@ -152,7 +152,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       82
+#define CHOICE_COUNT       84
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -313,7 +313,9 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&choices[77]),   // Slaughter Mode
+	(WIDGET *)(&choices[82]),   // Seed usage selection
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
+	(WIDGET *)(&choices[83]),   // SOI Color Selection
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[32]),   // Skip Intro
 	(WIDGET *)(&choices[40]),   // Partial Pickup switch
@@ -1088,6 +1090,8 @@ SetDefaults (void)
 	choices[79].selected = opts.meleeToolTips;
 	choices[80].selected = opts.musicResume;
 	choices[81].selected = opts.windowType;
+	choices[82].selected = opts.seedType;
+	choices[83].selected = opts.sphereColors;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1185,6 +1189,8 @@ PropagateResults (void)
 	opts.meleeToolTips = choices[79].selected;
 	opts.musicResume = choices[80].selected;
 	opts.windowType = choices[81].selected;
+	opts.seedType = choices[82].selected;
+	opts.sphereColors = choices[83].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -2216,6 +2222,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->fuelRange = optFuelRange;
 	opts->wholeFuel = optWholeFuel;
 	opts->meleeToolTips = optMeleeToolTips;
+	opts->sphereColors = optSphereColors;
 
 	// Interplanetary
 	opts->nebulae = optNebulae;
@@ -2243,6 +2250,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->extended = optExtended;
 	opts->nomad = optNomad;
 	opts->slaughterMode = optSlaughterMode;
+	opts->seedType = optSeedType;
 	
 	// Comm screen
 	opts->scroll = is3DO (optSmoothScroll);
@@ -2503,6 +2511,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt  (&optFuelRange, (int*)(&opts->fuelRange), "mm.fuelRange", FALSE);
 	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
+	PutIntOpt  (&optSphereColors, &opts->sphereColors, "mm.sphereColors", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);
@@ -2527,6 +2536,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	// Game modes
 	{
+		PutIntOpt (&optSeedType, (int*)(&opts->seedType), "mm.seedType", FALSE);
 		int customSeed = atoi (textentries[1].value);
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;

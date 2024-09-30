@@ -542,8 +542,14 @@ char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 			stype[STAR_TYPE (CurStarDescPtr->Type)]);
 #endif /* DEBUG_ORBITS */
 	GeneratingMoons = (BOOLEAN) (pBaseDesc == system->MoonDesc);
+	BOOLEAN GasGiant = pPD && pPD->pPrevDesc &&
+			(pPD->pPrevDesc->data_index & ~PLANET_SHIELDED) >= FIRST_GAS_GIANT;
 	if (GeneratingMoons)
-		MaxPlanet = (PrimeSeed ? FIRST_LARGE_ROCKY_WORLD : LAST_LARGE_ROCKY_WORLD);
+		MaxPlanet = (PrimeSeed || (StarSeed && !GasGiant)
+				? FIRST_LARGE_ROCKY_WORLD
+				: (StarSeed
+				? FIRST_GAS_GIANT
+				: LAST_LARGE_ROCKY_WORLD));
 	else
 		MaxPlanet = NUMBER_OF_PLANET_TYPES;
 	PlanetCount = NumPlanets;
@@ -682,12 +688,12 @@ BOOLEAN
 CheckForHabitable (SOLARSYS_STATE *solarSys)
 {
 	const SIZE HabitableRanges[NUM_STAR_COLORS][2] = {
-		{  853, 1790 },
-		{  544, 1151 },
-		{  139,  287 },
-		{   68,   68 },
-		{ 1231, 2569 },
-		{  312,  778 }
+		{  853, 1790 }, // blue
+		{  544, 1151 }, // green
+		{  139,  287 }, // orange
+		{   68,   68 }, // red
+		{ 1231, 2569 }, // white
+		{  312,  778 }  // yellow
 	};
 #define CLOSEST_RADIUS HabitableRanges[ORANGE_BODY][0]
 	PLANET_DESC *pPD;
@@ -701,13 +707,23 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 	DWORD rand_val;
 	// static SIZE diffCheck, min_radius;
 
-	starColor =  STAR_COLOR (CurStarDescPtr->Type);
+	starColor = STAR_COLOR (CurStarDescPtr->Type);
+	// Terrible, but efficient, hack to ensure some semblance of sanity.
+	// Eventually, we will need further code if we care about habitable homes.
+	if (StarSeed && starColor == RED_BODY)
+		starColor = ORANGE_BODY;
 
 	pPD = solarSys->PlanetDesc;
 	oldRadius = pPD[planetByte].radius;
 
 	habitableRangeMin = HabitableRanges[starColor][0];
 	habitableRangeMax = HabitableRanges[starColor][1];
+
+	// This ensures the planets are at least a certain distance apart, which
+	// mirrors UNSCALE_RADIUS logic from FillOrbits (radius / 2^6 / 5)
+	if (StarSeed && numPlanets > 1 && pPD[1].radius < habitableRangeMax + 320
+			&& pPD[1].radius > habitableRangeMin + 320)
+		habitableRangeMax = pPD[1].radius - 320;
 
 	if ((oldRadius >= habitableRangeMin && oldRadius <= habitableRangeMax)
 			|| starColor == RED_BODY || planetByte > 0)
@@ -727,7 +743,8 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 
 	planetRadii[planetByte] = newRadius;
 
-	if (planetRadii[planetByte] < planetRadii[planetByte + 1])
+	if ((StarSeed && numPlanets == 1) ||
+			planetRadii[planetByte] < planetRadii[planetByte + 1])
 	{
 		pPD[planetByte].radius = planetRadii[planetByte];
 		pPD[planetByte].angle = NORMALIZE_ANGLE (LOWORD (rand_val));

@@ -22,6 +22,7 @@
 #include "races.h"
 #include "displist.h"
 #include "libs/compiler.h"
+#include "starmap.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -66,6 +67,12 @@ extern RACE_DESC *load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData);
 extern void free_ship (RACE_DESC *RaceDescPtr, BOOLEAN FreeIconData,
 		BOOLEAN FreeBattleData);
 extern void loadGameCheats (void);
+// WarEraStrength to obtain the hard coded strength values formerly an array
+// SeedFleetLocaiton will move fleet X to location VISIT
+// SeedFleet does initial fleet placement
+extern COUNT WarEraStrength (SPECIES_ID SpeciesID);
+extern POINT SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit);
+extern void SeedFleet (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap);
 extern BOOLEAN legacySave;
 extern BYTE GTFO;
 

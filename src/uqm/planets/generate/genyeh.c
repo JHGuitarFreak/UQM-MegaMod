@@ -56,21 +56,37 @@ const GenerateFunctions generateYehatFunctions = {
 static bool
 GenerateYehat_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % 3);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+		pPlanet->data_index = GenerateHabitableWorld ();
+
 	GeneratePlanets (solarSys);
-	
+
+	if (StarSeed)
+	{
+		CheckForHabitable (solarSys);
+		return true;
+	}
+
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
 
@@ -81,7 +97,7 @@ GenerateYehat_generatePlanets (SOLARSYS_STATE *solarSys)
 		CheckForHabitable (solarSys);
 	}
 	else
-	{ 
+	{
 		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 106L / 100;
 		angle = ARCTAN (
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,

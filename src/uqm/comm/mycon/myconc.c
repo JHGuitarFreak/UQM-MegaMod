@@ -23,6 +23,7 @@
 #include "uqm/gameev.h"
 #include "libs/mathlib.h"
 #include "uqm/races.h"
+#include "uqm/lua/luacomm.h"
 
 
 static LOCDATA mycon_desc =
@@ -617,6 +618,7 @@ Intro (void)
 static COUNT
 uninit_mycon (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -634,6 +636,8 @@ init_mycon_comm (void)
 	mycon_desc.init_encounter_func = Intro;
 	mycon_desc.post_encounter_func = post_mycon_enc;
 	mycon_desc.uninit_encounter_func = uninit_mycon;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	mycon_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	mycon_desc.AlienTextBaseline.y = 0;

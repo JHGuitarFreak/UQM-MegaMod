@@ -773,7 +773,9 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "ADV_AUTOPILOT_QUASI_X", 16 },
 	{ "ADV_AUTOPILOT_QUASI_Y", 16 },
 
-	/* end rev 3, MegaMod v0.8.3 */
+	/* end rev 4, MegaMod v0.8.3 */
+	{ "SEED_TYPE", 2 },
+
 	{ NULL, 0 },
 };
 

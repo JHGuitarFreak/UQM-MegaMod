@@ -115,18 +115,29 @@ GenerateMyconDefenders (BYTE index)
 static bool
 GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
-	
+
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	// Because I do this here, I don't have to resuffle the moon count
+	if (StarSeed)
+		pPlanet->data_index = SHATTERED_WORLD;
+
 	GeneratePlanets (solarSys);
 
 	if (PrimeSeed)
@@ -147,7 +158,8 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 	else
 		CheckForHabitable (solarSys);
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
+	if (!StarSeed)
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
 
 	return true;
 }
@@ -156,7 +168,7 @@ static bool
 GenerateMycon_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (CurStarDescPtr->Index == EGG_CASE0_DEFINED 
+	if (CurStarDescPtr->Index == EGG_CASE0_DEFINED
 			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
 		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),

@@ -40,6 +40,7 @@
 
 #include <time.h>//required to use 'srand(time(NULL))'
 
+#define OOPS_ALL 0 //MELNORME1_DEFINED
 static void CreateRadar (void);
 
 CONTEXT RadarContext;
@@ -420,6 +421,24 @@ InitGameStructures (void)
 	COUNT i;
 
 	InitGlobData ();
+	// Set Seed Type, then check/start StarSeed
+	SET_GAME_STATE (SEED_TYPE, optSeedType);
+	GLOBAL_SIS (Seed) = optCustomSeed;
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Starting a NEW game with seed type %d, %s\n",
+			optSeedType,
+			(optSeedType == 0) ? "Default Game Mode (no seeding)" :
+			(optSeedType == 1) ? "Seed Planets (SysGenRNG only)" :
+			(optSeedType == 2) ? "MRQ (Melnorme, Rainbow, and Quasispace)" :
+			(optSeedType == 3) ? "Seed Plot (Starseed)" : "UNKNOWN");
+#endif
+	// During NEW game we want to time more aggressively and reseed
+	// if it takes too long to create a map with a seed.
+	// The new seed will be saved to SIS and optCustomSeed
+	// If non-starseed, this will give us a default plot map,
+	// so we still need this.
+	if (!InitStarseed (TRUE))
+		return (FALSE);
 
 	PlayFrame = CaptureDrawable (LoadGraphic (PLAYMENU_ANIM));
 	
@@ -461,6 +480,43 @@ InitGameStructures (void)
 				copyFleetInfo (FleetPtr, &MasterPtr->ShipInfo,
 						&MasterPtr->Fleet);
 				UnlockMasterShip (&master_q, hMasterShip);
+				// If the game is seeded, move the fleet to starting position
+				SeedFleet (FleetPtr, plot_map);
+#ifdef DEBUG_SPHERE_COLOR
+				switch (i)
+				{
+					case HUMAN_SHIP:
+						FleetPtr->actual_strength = 200;
+						FleetPtr->known_loc = plot_map[SOL_DEFINED].star_pt;
+						break;
+					case SHOFIXTI_SHIP:
+						FleetPtr->actual_strength = 150;
+						FleetPtr->known_loc = plot_map[SHOFIXTI_DEFINED].star_pt;
+						break;
+					case MELNORME_SHIP:
+						FleetPtr->actual_strength = 300;
+						FleetPtr->known_loc = plot_map[MELNORME6_DEFINED].star_pt;
+						break;
+					case ANDROSYNTH_SHIP:
+						FleetPtr->actual_strength = 100;
+						FleetPtr->known_loc = plot_map[START_COLONY_DEFINED].star_pt;
+						break;
+					case CHENJESU_SHIP:
+						FleetPtr->actual_strength = 100;
+						FleetPtr->known_loc = plot_map[ILWRATH_DEFINED].star_pt;
+						break;
+					case MMRNMHRM_SHIP:
+						FleetPtr->actual_strength = 100;
+						FleetPtr->known_loc = plot_map[MOTHER_ARK_DEFINED].star_pt;
+						break;
+					case SLYLANDRO_SHIP:
+						FleetPtr->actual_strength = 300;
+						FleetPtr->known_loc = plot_map[SLYLANDRO_DEFINED].star_pt;
+						break;
+					default:
+						break;
+				}
+#endif
 			}
 			else
 			{
@@ -482,6 +538,14 @@ InitGameStructures (void)
 			// XXX: Hack: Rebel special case 
 			if (i == YEHAT_REBEL_SHIP)
 				FleetPtr->actual_strength = 0;
+#ifdef DEBUG_SPHERE_COLOR
+			if (i == YEHAT_REBEL_SHIP)
+			{
+				FleetPtr->known_loc = plot_map[RAINBOW0_DEFINED].star_pt;
+				FleetPtr->actual_strength = 200;
+				FleetPtr->loc = FleetPtr->known_loc;
+			}
+#endif
 			FleetPtr->growth = 0;
 			FleetPtr->growth_fract = 0;
 			FleetPtr->growth_err_term = 255 >> 1;
@@ -509,7 +573,7 @@ InitGameStructures (void)
 	GLOBAL_SIS (Nomad) = optNomad;
 	GLOBAL_SIS (Seed) = optCustomSeed;
 
-	if (DIF_HARD && !PrimeSeed)
+	if (DIF_HARD && !PrimeSeed && !StarSeed)
 	{
 		srand (time (NULL));
 		GLOBAL_SIS (Seed) = (rand () % ((MAX_SEED - MIN_SEED) + MIN_SEED));
@@ -646,8 +710,8 @@ InitGameStructures (void)
 		StartSphereTracking (SPATHI_SHIP);
 	}
 
-	GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
-	GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+	GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (plot_map[SOL_DEFINED].star_pt.x);
+	GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (plot_map[SOL_DEFINED].star_pt.y);
 	CurStarDescPtr = 0;
 	GLOBAL (autopilot.x) = ~0;
 	GLOBAL (autopilot.y) = ~0;
@@ -720,6 +784,188 @@ InitGlobData (void)
 	GLOBAL (DisplayArray) = DisplayArray;
 }
 
+
+// For debugging purposes, generate a bunch of seeds and then
+// calculate how many fall into each time category.
+void
+SeedDEBUG ()
+{
+#define SAMPLE_SIZE 1000
+#define START 123000
+	SDWORD save = optCustomSeed;
+	//COUNT histogram[100] = {[0 ... 99] = 0};
+	COUNT histogram[100] = {0};
+	COUNT decisec;
+	clock_t start_clock;
+	BOOLEAN myRNG = false;
+	for (decisec = 0; decisec < 100; decisec++)
+		histogram[decisec] = 0;
+
+	if (!StarGenRNG)
+	{
+		fprintf(stderr, "****Seed Debug Creating a STAR GEN RNG****\n");
+		StarGenRNG = RandomContext_New ();
+		myRNG = true;
+	}
+	RandomContext_SeedRandom (StarGenRNG, 123456);
+	for (optCustomSeed = START; optCustomSeed < (START + SAMPLE_SIZE);
+			optCustomSeed++)
+	{
+		start_clock = clock();
+		fprintf (stderr, "\n\n\nStarting seed %d... ", optCustomSeed);
+		InitPlot (plot_map);
+		fprintf (stderr, "seeding stars %d... ", optCustomSeed);
+		SeedStarmap (star_array);
+		fprintf (stderr, "seeding plots %d... ", optCustomSeed);
+		if (SeedPlot (plot_map, star_array) < NUM_PLOTS)
+		{
+			fprintf (stderr, "Failed to seed %d. ", optCustomSeed);
+			decisec = 98;
+		}
+		else
+			decisec = (double)(clock() - start_clock) / 100000;
+		fprintf (stderr, "Complete %6.6f seconds.\n",
+				(double)(clock() - start_clock) / 1000000);
+		if (decisec > 99)
+			decisec = 99;
+		histogram[decisec]++;
+	}
+	for (decisec = 0; decisec < 100; decisec++)
+	{
+		if (decisec % 10 == 0) fprintf(stderr, "\n");
+		fprintf(stderr, "%3d ", histogram[decisec]);
+	}
+	optCustomSeed = save;
+	if (StarGenRNG && myRNG)
+	{
+		RandomContext_Delete (StarGenRNG);
+		StarGenRNG = NULL;
+	}
+}
+
+// Initialize the plot map, star array, and quasi portal map.
+// This is called during either new or load, whether or not the new game is
+// a seeded game as we will need to reset global variables regardless.
+//
+// Assumes the space for global arrays already allocated for:
+// star_array - a copy of the starmap (starmap_array)
+// plot_map - a plot array
+// portal_map - a quasispace portal array
+BOOLEAN
+InitStarseed (BOOLEAN newgame)
+{
+	COUNT i;
+#ifdef DEBUG_STARSEED_TRACE_V
+	SeedDEBUG ();
+	fprintf (stderr, "CurrentActivity %d\n", GLOBAL (CurrentActivity));
+#endif
+	DefaultStarmap (star_array);
+	if (!StarGenRNG)
+	{
+#ifdef DEBUG_STARSEED
+		fprintf (stderr, "Init Starseed creating a STAR GEN RNG.\n");
+#endif
+		StarGenRNG = RandomContext_New ();
+		RandomContext_SeedRandom (StarGenRNG, optCustomSeed);
+	}
+	if (!StarSeed)
+	{
+		// Here we will split off, provide default plotmap, return
+		// This makes it easier to integrate seemlessly old vs new
+		DefaultPlot (plot_map, star_array);
+		DefaultQuasispace (portal_map);
+		// Done with StarGenRNG for now; will create later if moving fleets
+		if (StarGenRNG)
+			RandomContext_Delete (StarGenRNG);
+		StarGenRNG = NULL;
+		return TRUE;
+	}
+	if (optSeedType == OPTVAL_MRQ)
+	{
+#ifdef DEBUG_STARSEED
+		fprintf (stderr, "Setting MQR shuffle.\n");
+#endif
+		DefaultPlot (plot_map, star_array);
+		InitMelnormeRainbow (plot_map);
+	}
+	else // optSeedType == OPTVAL_STAR
+	{
+#ifdef DEBUG_STARSEED
+		fprintf (stderr, "Setting full plot shuffle.\n");
+#endif
+		InitPlot (plot_map);
+	}
+	fprintf (stderr, "Starting map generation using seed %d.\n",
+			optCustomSeed);
+	SeedStarmap (star_array);
+	if (GLOBAL (CurrentActivity) || !newgame)
+	{
+#ifdef DEBUG_STARSEED
+		fprintf (stderr, "*+*+* LOADING *+*+*\n");
+#endif
+		if (SeedPlot (plot_map, star_array) != NUM_PLOTS)
+		{
+			fprintf (stderr, "Seed Plot Failed.\n");
+			if (StarGenRNG)
+				RandomContext_Delete (StarGenRNG);
+			StarGenRNG = NULL;
+			return FALSE;
+		}
+		if (!SeedQuasispace (portal_map, plot_map, star_array))
+		{
+			fprintf (stderr, "Seed Quasisapce Failed.\n");
+			if (StarGenRNG)
+				RandomContext_Delete (StarGenRNG);
+			StarGenRNG = NULL;
+			return FALSE;
+		}
+	}
+	else
+	{
+#ifdef DEBUG_STARSEED
+		fprintf (stderr, "*+*+* NEW GAME *+*+*\n");
+#endif
+		i = 0;
+		// if it fails to seed the plot we need to roll the starmap too
+		// otherwise load game will not be correct, it will have other
+		// seed's stars and this seed's plot.  Boo.
+		while (SeedPlot (plot_map, star_array) != NUM_PLOTS && i < 100)
+		{
+			fprintf (stderr, "Seed %d failed (%d).\n", optCustomSeed++, ++i);
+			SeedStarmap (star_array);
+		}
+		if (i >= 100)
+		{
+			fprintf (stderr, "Seed Plot Failed.\n");
+			if (StarGenRNG)
+				RandomContext_Delete (StarGenRNG);
+			StarGenRNG = NULL;
+			return FALSE;
+		}
+		if (!SeedQuasispace (portal_map, plot_map, star_array))
+		{
+			fprintf (stderr, "Seed Quasisapce Failed.\n");
+			if (StarGenRNG)
+				RandomContext_Delete (StarGenRNG);
+			StarGenRNG = NULL;
+			return FALSE;
+		}
+	}
+	if (OOPS_ALL > 0)
+		for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+			if (!star_array[i].Index)
+				star_array[i].Index = OOPS_ALL;
+	// In case the seed changed above, reset SIS
+	GLOBAL_SIS (Seed) = optCustomSeed;
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Done seeding %d.\n", optCustomSeed);
+#endif
+	// Done with StarGenRNG for now; will create later if moving fleets
+	if (StarGenRNG)
+		RandomContext_Delete (StarGenRNG);
+	StarGenRNG = NULL;
+	return (TRUE);
+}
 
 BOOLEAN
 inFullGame (void)

@@ -134,7 +134,7 @@ GenerateShofixti_uninitNpcs (SOLARSYS_STATE *solarSys)
 			SET_GAME_STATE (SHOFIXTI_BRO_KIA, 1);
 		}
 	}
-	
+
 	GenerateDefault_uninitNpcs (solarSys);
 	return true;
 }
@@ -148,21 +148,57 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
 
-	if(!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (2);
+		if (solarSys->SunDesc[0].NumPlanets > 9)
+			solarSys->SunDesc[0].NumPlanets = 9;
+	}
+	else if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
 
-	for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
+	// The only benefit to pre-stamping is that it shuffles them.  But this
+	// causes problems when the star is orange, due to metal type.  Easier to
+	// seed them then stamp them in a shuffled loop so that all types work.
+	// This relies on MAX_PLANETS <= 9 for randomness to work, otherwise you'll
+	// have to count the bitshifts and re-random every 4th time.
+	if (StarSeed)
 	{
-		PLANET_DESC *pCurDesc = &solarSys->PlanetDesc[i];
-
-		pCurDesc->NumPlanets = 0;
-		if (i < (solarSys->SunDesc[0].NumPlanets >> 1))
-			pCurDesc->data_index = SELENIC_WORLD;
-		else
-			pCurDesc->data_index = METAL_WORLD;
+		DWORD rand_val = RandomContext_Random (SysGenRNG);
+		BYTE planet = 0;
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets,
+				solarSys->PlanetDesc, FALSE);
+		for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
+			solarSys->PlanetDesc[i].data_index = METAL_WORLD;
+		for (i = 0; i < solarSys->SunDesc[0].NumPlanets / 2; ++i)
+		{
+			BYTE offset = LOBYTE(rand_val) %
+					(solarSys->SunDesc[0].NumPlanets - i);
+			while (solarSys->PlanetDesc[planet].data_index == SELENIC_WORLD ||
+					offset > 0)
+			{
+				if (solarSys->PlanetDesc[planet].data_index == METAL_WORLD)
+					offset--;
+				planet = (planet + 1) % solarSys->SunDesc[0].NumPlanets;
+			}
+			solarSys->PlanetDesc[planet].data_index = SELENIC_WORLD;
+			rand_val = rand_val >> 8;
+		}
 	}
+	else
+	{
+		for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
+		{
+			PLANET_DESC *pCurDesc = &solarSys->PlanetDesc[i];
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
+			pCurDesc->NumPlanets = 0;
+			if (i < (solarSys->SunDesc[0].NumPlanets >> 1))
+				pCurDesc->data_index = SELENIC_WORLD;
+			else
+				pCurDesc->data_index = METAL_WORLD;
+		}
+		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
+	}
 
 	if (!PrimeSeed)
 		CheckForHabitable (solarSys);

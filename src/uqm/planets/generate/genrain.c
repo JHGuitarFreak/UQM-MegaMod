@@ -114,7 +114,9 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+	else if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
@@ -135,7 +137,7 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
 	ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
 
-	if (!PrimeSeed)
+	if (!PrimeSeed && !StarSeed)
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 
 	return true;
@@ -144,29 +146,59 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 static bool
 GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) &&
+			CurStarDescPtr->Index >= RAINBOW0_DEFINED && CurStarDescPtr->Index <= RAINBOW9_DEFINED)
 	{
-		BYTE which_rainbow;
 		UWORD rainbow_mask;
-		STAR_DESC *SDPtr;
 
 		rainbow_mask = MAKE_WORD (
 				GET_GAME_STATE (RAINBOW_WORLD0),
 				GET_GAME_STATE (RAINBOW_WORLD1));
 
-		which_rainbow = 0;
-		SDPtr = &star_array[0];
-		while (SDPtr != CurStarDescPtr)
-		{
-			if (SDPtr->Index == RAINBOW_DEFINED)
-				++which_rainbow;
-			++SDPtr;
-		}
-		rainbow_mask |= 1 << which_rainbow;
+		rainbow_mask |= 1 << (CurStarDescPtr->Index - RAINBOW0_DEFINED);
 		SET_GAME_STATE (RAINBOW_WORLD0, LOBYTE (rainbow_mask));
 		SET_GAME_STATE (RAINBOW_WORLD1, HIBYTE (rainbow_mask));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
 	return true;
+}
+
+static void
+GenerateSlylandro (SOLARSYS_STATE *solarSys) {
+	HIPGROUP hGroup, hNextGroup;
+	BYTE a, b;
+
+	BYTE NumSly = GET_GAME_STATE (SLYLANDRO_MULTIPLIER) * 2;
+
+	assert(CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+	CloneShipFragment (SLYLANDRO_SHIP, &GLOBAL (npc_built_ship_q), 0);
+	if (GLOBAL (BattleGroupRef) == 0)
+		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
+
+	for (a = 1; a <= NumSly; ++a)
+		PutGroupInfo (GLOBAL (BattleGroupRef), a);
+
+	ReinitQueue (&GLOBAL (npc_built_ship_q));
+	GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP);
+	hGroup = GetHeadLink (&GLOBAL(ip_group_q));
+
+	for (a = 0, b = 0; a < NumSly; ++a, b += FULL_CIRCLE / NumSly)
+	{
+		IP_GROUP *GroupPtr;
+
+		if (b % (FULL_CIRCLE / NumSly) == 0)
+			b += FULL_CIRCLE / NumSly;
+
+		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
+		hNextGroup = _GetSuccLink (GroupPtr);
+		GroupPtr->task = IN_ORBIT;
+		GroupPtr->sys_loc = solarSys->SunDesc[0].PlanetByte + 1;
+		GroupPtr->dest_loc = GroupPtr->sys_loc;
+		GroupPtr->orbit_pos = NORMALIZE_FACING (ANGLE_TO_FACING(b));
+		GroupPtr->group_counter = 0;
+		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
+		hGroup = hNextGroup;
+	}
 }

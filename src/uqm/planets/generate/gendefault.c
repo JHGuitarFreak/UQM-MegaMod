@@ -342,15 +342,36 @@ GenerateRockyWorld (BYTE whichType)
 {
 	BYTE planet = FIRST_SMALL_ROCKY_WORLD;
 
-	if (whichType & SMALL_ROCKY)
-		planet = RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD;
-	else if (whichType & LARGE_ROCKY)
+	if (StarSeed)
 	{
-		planet = (RandomContext_Random (SysGenRNG) % 
-			(FIRST_GAS_GIANT - FIRST_LARGE_ROCKY_WORLD) + FIRST_LARGE_ROCKY_WORLD);
+		if (whichType & SMALL_ROCKY)
+			planet = FIRST_SMALL_ROCKY_WORLD +
+					RandomContext_Random (SysGenRNG) %
+					NUMBER_OF_SMALL_ROCKY_WORLDS;
+		else if (whichType & LARGE_ROCKY)
+			planet = FIRST_LARGE_ROCKY_WORLD +
+					RandomContext_Random (SysGenRNG) %
+					(NUMBER_OF_LARGE_ROCKY_WORLDS - 2);
+		else if (whichType & ALL_ROCKY)
+			planet = FIRST_ROCKY_WORLD +
+					RandomContext_Random (SysGenRNG) %
+					(NUMBER_OF_ROCKY_WORLDS - 2);
+		// Skip over rainbow_world and shattered_world, which are adjacent.
+		if (planet >= RAINBOW_WORLD)
+			planet += 2;
 	}
-	else if (whichType & ALL_ROCKY)
-		planet = RandomContext_Random (SysGenRNG) % LAST_ROCKY_WORLD;
+	else // Leaving this, as the spread is slightly different in PlanetGen
+	{	 // since last rocky != num rocky, and we rainbow/shattered different
+	    if (whichType & SMALL_ROCKY)
+			planet = RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD;
+		else if (whichType & LARGE_ROCKY)
+		{
+			planet = (RandomContext_Random (SysGenRNG) %
+				(FIRST_GAS_GIANT - FIRST_LARGE_ROCKY_WORLD) + FIRST_LARGE_ROCKY_WORLD);
+		}
+		else if (whichType & ALL_ROCKY)
+			planet = RandomContext_Random (SysGenRNG) % LAST_ROCKY_WORLD;
+	}
 
 	if (planet == RAINBOW_WORLD)
 		planet--;
@@ -361,17 +382,59 @@ GenerateRockyWorld (BYTE whichType)
 }
 
 BYTE
-GenerateGasGiantWorld (void)
+GenerateCrystalWorld (void)
 {
-	BYTE planet;
-	BYTE roll = LAST_GAS_GIANT + 1 - BLU_GAS_GIANT;
-	BYTE adjust = BLU_GAS_GIANT;
-
-	planet = (RandomContext_Random (SysGenRNG) % roll) + adjust;
-
-	return planet;
+	int crystalArray[] = {
+			SAPPHIRE_WORLD,
+			EMERALD_WORLD,
+			RUBY_WORLD};
+	return crystalArray[RandomContext_Random (SysGenRNG) % 3];
 }
 
+BYTE
+GenerateDesolateWorld (void)
+{
+	int desolateArray[] = {
+			DUST_WORLD,
+			CRIMSON_WORLD,
+			UREA_WORLD};
+	return desolateArray[RandomContext_Random (SysGenRNG) % 3];
+}
+
+BYTE
+GenerateHabitableWorld (void)
+{
+	int habitableArray[] = {
+			PRIMORDIAL_WORLD,
+			WATER_WORLD,
+			TELLURIC_WORLD,
+			REDUX_WORLD};
+	return habitableArray[RandomContext_Random (SysGenRNG) % 4];
+}
+
+BYTE
+GenerateGasGiantWorld (void)
+{
+	return FIRST_GAS_GIANT +
+			RandomContext_Random (SysGenRNG) %
+			NUMBER_OF_GAS_GIANTS;
+}
+
+// input: 1 <= min <= max
+// output: min <= RNG <= max
+// min 0 will be treated 1; min >= max will return max
+BYTE
+GenerateMinPlanets (BYTE min)
+{
+	if (min == 0)
+		min = 1;
+	if (min >= MAX_GEN_PLANETS)
+		min = MAX_GEN_PLANETS;
+	return RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - min + 1) + min;
+}
+
+// input: 0 <= minimum < MAX_GEN_PLANETS
+// output: minimum + 1 <= RNG <= MAX_GEN_PLANETS
 BYTE
 GenerateNumberOfPlanets (BYTE minimum)
 {

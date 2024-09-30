@@ -1945,7 +1945,7 @@ AutoPilotTextLogic (void)
 	GetClusterName (StarPointer, star_cluster);
 
 	// AUTO-PILOT to [StarCluster] - [TargetDistance]
-	snprintf (buf, sizeof buf, "%s %s %s - %.1f",
+	snprintf (buf, sizeof buf, "%.256s %.256s %.256s - %.1f",
 			GAME_STRING (NAVIGATION_STRING_BASE + 3), // "AUTO-PILOT"
 			GAME_STRING (NAVIGATION_STRING_BASE + 6), // "to"
 			star_cluster,
@@ -1959,7 +1959,7 @@ AutoPilotTextLogic (void)
 	{	// If the full text is too large then
 		// use "->" instead of "AUTO-PILOT"
 		// -> to [StarCluster] - [TargetDistance]
-		snprintf (buf, sizeof buf, "%s %s - %.1f",
+		snprintf (buf, sizeof buf, "%.256s %.256s - %.1f",
 				GAME_STRING (NAVIGATION_STRING_BASE + 7), // "->"
 				star_cluster,
 				target_distance

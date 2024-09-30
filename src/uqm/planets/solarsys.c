@@ -59,6 +59,7 @@
 
 #include SDL_INCLUDE(SDL_version.h)
 
+//#define DEBUG_STARSEED
 //#define DEBUG_SOLARSYS
 //#define SMOOTH_SYSTEM_ZOOM  1
 
@@ -208,6 +209,22 @@ planetIndex (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 	const PLANET_DESC *planet = worldIsPlanet (solarSys, world) ?
 			world : world->pPrevDesc;
 	return planet - solarSys->PlanetDesc;
+}
+
+UNICODE
+moonLetter (const SOLARSYS_STATE *solarSys, const PLANET_DESC *moon)
+{
+	assert (!worldIsPlanet (solarSys, moon));
+	int i = -1;
+	while (moon - solarSys->MoonDesc >= 0)
+	{
+		if (moon->data_index != HIERARCHY_STARBASE &&
+				moon->data_index != DESTROYED_STARBASE &&
+				moon->data_index != PRECURSOR_STARBASE)
+			i++;
+		moon--;
+	}
+	return i + 'A';
 }
 
 COUNT
@@ -401,7 +418,7 @@ LoadNebulaeFrame (POINT location)
 	STRING nebulaRes;
 	COUNT nebulaCount;
 	POINT neb_seed;
-	const POINT solPoint = { SOL_X, SOL_Y };
+	const POINT solPoint = plot_map[SOL_DEFINED].star_pt;
 
 	// Kruzen: Either loading from main menu or option is disabled or
 	// at Sol with MegaMod nebulas
@@ -607,10 +624,25 @@ initSolarSysSISCharacteristics (void)
 	}
 }
 
+// For Starseed, we will offset the star-coords seed by the custom seed, to
+// 'pass along' the seed.  This will ensure each star system has a different
+// seeding per custom seed, AND because fleets use their homeworld coords for
+// jitter, it even ensures the same homeworld (coords) sourced fleets will have
+// different jitters on different seeds.
 DWORD
 GetRandomSeedForStar (const STAR_DESC *star)
 {
-	return MAKE_DWORD (star->star_pt.x, star->star_pt.y);
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Get Random Seed For Star. %05.1f : %05.1f "
+			"[%d] (seed %d) = %d.  Plot ID %d (%s).\n",
+			(float) star->star_pt.x / 10, (float) star->star_pt.y / 10,
+			MAKE_DWORD (star->star_pt.x, star->star_pt.y), optCustomSeed,
+			MAKE_DWORD (star->star_pt.x, star->star_pt.y)
+				+ (StarSeed ? optCustomSeed : 0),
+			star->Index, starPresenceString (star->Index));
+#endif
+	return MAKE_DWORD (star->star_pt.x, star->star_pt.y) +
+			(StarSeed ? optCustomSeed : 0);
 }
 
 DWORD
@@ -746,7 +778,6 @@ LoadSolarSys (void)
 	pCurDesc = &pSolarSysState->SunDesc[0];
 	pCurDesc->pPrevDesc = 0;
 	pCurDesc->rand_seed = RandomContext_Random (SysGenRNG);
-
 	pCurDesc->data_index = STAR_TYPE (CurStarDescPtr->Type);
 	pCurDesc->location.x = 0;
 	pCurDesc->location.y = 0;
@@ -2166,9 +2197,8 @@ EnterPlanetOrbit (void)
 					& WORLD_TYPE_SPECIAL))
 		{
 			snprintf (GLOBAL_SIS (PlanetName)
-					+ strlen (GLOBAL_SIS (PlanetName)), 3, "-%c%c",
-					'A' + moonIndex (
-						pSolarSysState, pSolarSysState->pOrbitalDesc),
+					+ strlen (GLOBAL_SIS (PlanetName)), 4, "-%c%c",
+					moonLetter (pSolarSysState, pSolarSysState->pOrbitalDesc),
 					'\0');
 		}
 	}
@@ -2822,6 +2852,15 @@ ExploreSolarSys (void)
 	memset (pSolarSysState, 0, sizeof (*pSolarSysState));
 
 	SolarSysState.genFuncs = getGenerateFunctions (CurStarDescPtr->Index);
+#ifdef DEBUG_STARSEED
+	    if (CurStarDescPtr->Index)
+			fprintf (stderr, "*** Entering %s (%d) System at "
+					"%05.1f : %05.1f ***\n",
+					starPresenceString (CurStarDescPtr->Index),
+					CurStarDescPtr->Index,
+					(float) CurStarDescPtr->star_pt.x / 10,
+					(float) CurStarDescPtr->star_pt.y / 10);
+#endif
 
 	InitSolarSys ();
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);

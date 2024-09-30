@@ -623,6 +623,8 @@ Intro (void)
 					break;
 			}
 			SET_GAME_STATE (UMGAH_HOME_VISITS, NumVisits);
+
+			SetHomeworldKnown (UMGAH_HOME);
 		}
 		else
 		{
@@ -654,6 +656,7 @@ Intro (void)
 		{
 			NPCPhrase (POST_ZOMBIE_HWLD_HELLO);
 
+			SetHomeworldKnown (UMGAH_HOME);
 			UmgahReward ((RESPONSE_REF)0);
 		}
 		else

@@ -62,20 +62,36 @@ const GenerateFunctions generateTalkingPetFunctions = {
 static bool
 GenerateTalkingPet_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+		pPlanet->data_index = GenerateHabitableWorld ();
+
 	GeneratePlanets (solarSys);
+
+	if (StarSeed)
+	{
+		CheckForHabitable (solarSys);
+		return true;
+	}
 
 	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = TELLURIC_WORLD;
 
@@ -86,7 +102,7 @@ GenerateTalkingPet_generatePlanets (SOLARSYS_STATE *solarSys)
 		CheckForHabitable (solarSys);
 	}
 	else
-	{ 
+	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 204L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
 				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
@@ -262,8 +278,15 @@ ZapToUrquanEncounter (void)
 		BSIPtr->crew_level = TemplatePtr->crew_level;
 		BSIPtr->max_crew = TemplatePtr->max_crew;
 		BSIPtr->max_energy = TemplatePtr->max_energy;
-		EncounterPtr->loc_pt.x = 5288;
-		EncounterPtr->loc_pt.y = 4892;
+
+		HFLEETINFO hUmgah = GetStarShipFromIndex
+				(&GLOBAL (avail_race_q), UMGAH_SHIP);
+		FLEET_INFO *UmgahPtr = LockFleetInfo (&GLOBAL (avail_race_q), hUmgah);
+
+		EncounterPtr->loc_pt = SeedFleetLocation
+				(UmgahPtr, plot_map, SAMATRA_DEFINED);
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hUmgah);
+
 		EncounterPtr->log_x = UNIVERSE_TO_LOGX (EncounterPtr->loc_pt.x);
 		EncounterPtr->log_y = UNIVERSE_TO_LOGY (EncounterPtr->loc_pt.y);
 		GLOBAL_SIS (log_x) = EncounterPtr->log_x;

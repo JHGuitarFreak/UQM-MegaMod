@@ -56,29 +56,62 @@ const GenerateFunctions generateBurvixeseFunctions = {
 static bool
 GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 	solarSys->SunDesc[0].MoonByte = 0;
+	pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
 
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+	if (StarSeed)
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+	else if (!PrimeSeed)
+		solarSys->SunDesc[0].NumPlanets =
+				(RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets,
+			solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+		pPlanet->data_index = GenerateHabitableWorld ();
+
 	GeneratePlanets (solarSys);
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = REDUX_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-	if (!PrimeSeed)
+	if (StarSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
-				GenerateRockyWorld (LARGE_ROCKY);
+		DWORD rand_val = RandomContext_Random (SysGenRNG);
 		CheckForHabitable (solarSys);
+		// A large rocky with 1 moon has a 1 in 5 chance of a second moon.
+		pPlanet->NumPlanets = (rand_val % 5 == 0 ? 2 : 1);
+		// Probably use second moon?  Reuse is OK because 3 and 5 are coprime.
+		if (pPlanet->NumPlanets == 2)
+			solarSys->SunDesc[0].MoonByte = (rand_val % 3 == 0 ? 0 : 1);
 	}
 	else
 	{
+		// pPlanet->data_index = REDUX_WORLD;
+		// pPlanet->NumPlanets = 1;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+				REDUX_WORLD;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+	}
+
+	if (!PrimeSeed && !StarSeed)
+	{
+		// pPlanet->data_index = GenerateRockyWorld (LARGE_ROCKY);
+		// CheckForHabitable (solarSys);
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
+				GenerateRockyWorld (LARGE_ROCKY);
+		CheckForHabitable (solarSys);
+	}
+	else if (!StarSeed)
+	{
+		// pPlanet->radius = EARTH_RADIUS * 39L / 100;
+		// angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		// pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		// pPlanet->location.y = SINE (angle, pPlanet->radius);
+		// ComputeSpeed (pPlanet, FALSE, 1);
 		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 39L / 100;
 		angle = ARCTAN (solarSys->PlanetDesc[0].location.x,
 				solarSys->PlanetDesc[0].location.y);
@@ -97,28 +130,51 @@ GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (StarSeed)	// I don't know why we'd set SELENIC only to set back to
+		return true;	// SMALL_ROCKY at the end.  This seems to work fine.
+	if (matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte,
+			MATCH_PLANET))
 	{
+		// PLANET_DESC *pMoon =
+		// 		&solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte];
 		COUNT angle;
 		DWORD rand_val;
 
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = SELENIC_WORLD;
+		// pMoon->data_index = SELENIC_WORLD;
+		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index =
+				SELENIC_WORLD;
 
 		if (PrimeSeed)
 		{
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius = MIN_MOON_RADIUS
-					+ (MAX_GEN_MOONS - 1) * MOON_DELTA;
+			// pMoon->radius = MIN_MOON_RADIUS +
+			// 		(MAX_GEN_MOONS - 1) * MOON_DELTA;
+			// rand_val = RandomContext_Random (SysGenRNG);
+			// angle = NORMALIZE_ANGLE (LOWORD (rand_val));
+			// pMoon->location.x = COSINE (angle, pMoon->radius);
+			// pMoon->location.y = SINE (angle, pMoon->radius);
+			// ComputeSpeed (pMoon, TRUE, 1);
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius =
+					MIN_MOON_RADIUS + (MAX_GEN_MOONS - 1) * MOON_DELTA;
 			rand_val = RandomContext_Random (SysGenRNG);
 			angle = NORMALIZE_ANGLE (LOWORD (rand_val));
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].location.x =
-					COSINE (angle, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
+					COSINE (angle,
+					solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].location.y =
-					SINE (angle, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
-			ComputeSpeed (&solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte], TRUE, 1);
+					SINE (angle,
+					solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
+			ComputeSpeed (&solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte],
+					TRUE, 1);
 		}
+		else if (StarSeed)
+			// pMoon->data_index = GenerateRockyWorld (SMALL_ROCKY);
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index =
+					GenerateRockyWorld (SMALL_ROCKY);
 		else
-		{			
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = 
+		{
+			// pMoon->data_index = (RandomContext_Random (SysGenRNG) %
+			//		 LAST_SMALL_ROCKY_WORLD);
+			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index =
 				(RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
 		}
 	}
@@ -142,7 +198,8 @@ GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	solarSys->SysInfo.PlanetInfo.ScanSeed[ENERGY_SCAN] = rand_val;
 
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte,
+			MATCH_PLANET))
 	{
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
@@ -169,7 +226,8 @@ GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->SysInfo.PlanetInfo.LifeChance = 860;
 		}
 	}
-	else if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte)
+	else if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte,
+				solarSys->SunDesc[0].MoonByte)
 			&& !GET_GAME_STATE (BURVIXESE_BROADCASTERS))
 	{
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
@@ -203,12 +261,14 @@ static COUNT
 GenerateBurvixese_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte,
+			MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
 
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte,
+			solarSys->SunDesc[0].MoonByte))
 	{
 		// This check is redundant since the retrieval bit will keep the
 		// node from showing up again
@@ -216,7 +276,7 @@ GenerateBurvixese_generateEnergy (const SOLARSYS_STATE *solarSys,
 		{	// already picked up
 			return 0;
 		}
-		
+
 		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
 	}
 
@@ -227,14 +287,16 @@ static bool
 GenerateBurvixese_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte,
+			MATCH_PLANET))
 	{
 		// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);
 		return false;
 	}
 
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte,
+			solarSys->SunDesc[0].MoonByte))
 	{
 		assert (!GET_GAME_STATE (BURVIXESE_BROADCASTERS) && whichNode == 0);
 

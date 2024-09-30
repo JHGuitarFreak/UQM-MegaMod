@@ -64,7 +64,7 @@ const GenerateFunctions generateMelnormeFunctions = {
 static bool
 GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 {
-	if ((EXTENDED && !GET_GAME_STATE (KOHR_AH_FRENZY)) 
+	if ((EXTENDED && !GET_GAME_STATE (KOHR_AH_FRENZY))
 		|| !EXTENDED)
 	{
 		GLOBAL (BattleGroupRef) = GetMelnormeRef ();
@@ -85,17 +85,46 @@ GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
+	if (EXTENDED && !PrimeSeed && !StarSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 3) + 3);
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
+	if (EXTENDED && !PrimeSeed && !StarSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
 
+	if (StarSeed)
+	{
+		if (CurStarDescPtr->Index == MELNORME1_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (3);
+		if (CurStarDescPtr->Index == MELNORME7_DEFINED)
+			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (4);
+		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) %
+				solarSys->SunDesc[0].NumPlanets);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
+		pPlanet->data_index = GenerateCrystalWorld ();
+	if (StarSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
+		pPlanet->data_index = GenerateRockyWorld (ALL_ROCKY);
+
 	GeneratePlanets (solarSys);
+
+	if (StarSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
+	{
+		solarSys->SunDesc[0].MoonByte = 0;
+		pPlanet->NumPlanets += 1;
+		return true;
+	}
+	if (StarSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
+	{
+		return true;
+	}
 
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED)
 	{
@@ -117,7 +146,7 @@ GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
+			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
 					GenerateRockyWorld (ALL_ROCKY);
 		}
 	}

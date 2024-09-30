@@ -62,15 +62,28 @@ const GenerateFunctions generateDruugeFunctions = {
 static bool
 GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT angle;
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
 
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
 	if (!PrimeSeed)
 		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed)
+	{
+		pPlanet->data_index = GenerateDesolateWorld ();
+		CheckForHabitable (solarSys);
+	}
+
 	GeneratePlanets (solarSys);
 
 	if (PrimeSeed)
@@ -81,19 +94,22 @@ GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 		++solarSys->SunDesc[0].NumPlanets;
 	}
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = DUST_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
-
-	if (!PrimeSeed)
+	if (!StarSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = DUST_WORLD;
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
+	}
+
+	if (!PrimeSeed && !StarSeed)
+	{
+		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index =
 			GenerateRockyWorld (ALL_ROCKY);
 
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets =
 				(RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
 		CheckForHabitable (solarSys);
 	}
-	else
+	else if (PrimeSeed)
 	{
 		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 50L / 100;
 		angle = HALF_CIRCLE - OCTANT;

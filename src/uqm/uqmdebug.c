@@ -250,6 +250,8 @@ debugKeyPressedSynchronous (void)
 		printf("Debug Key Activated\n\n");
 		equipShip ();
 		showSpheres (FALSE);
+		SET_GAME_STATE (KNOW_QS_PORTAL, ~0);
+		SET_GAME_STATE (KNOW_HOMEWORLD, ~0);
 	}
 
 	forwardToNextEvent (TRUE);
@@ -785,13 +787,11 @@ showSpheres (BOOLEAN Animated)
 				&GLOBAL (avail_race_q), hChmmr);
 
 		SyreenPtr->actual_strength = 300 / SPHERE_RADIUS_INCREMENT * 2;
-		SyreenPtr->loc.x = 4125;
-		SyreenPtr->loc.y = 3770;
+		SyreenPtr->loc = SeedFleetLocation (SyreenPtr, plot_map, HOME);
 		StartSphereTracking (SYREEN_SHIP);
 
 		ChmmrPtr->actual_strength = 986 / SPHERE_RADIUS_INCREMENT * 2;
-		ChmmrPtr->loc.x = 577;
-		ChmmrPtr->loc.y = 2509;
+		ChmmrPtr->loc = SeedFleetLocation (ChmmrPtr, plot_map, HOME);
 		StartSphereTracking (CHMMR_SHIP);
 
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hSyreen);
@@ -1225,7 +1225,16 @@ starPresenceString (BYTE index)
 			return "Orz home";
 		case THRADD_DEFINED:
 			return "Thraddash home";
-		case RAINBOW_DEFINED:
+		case RAINBOW0_DEFINED:
+		case RAINBOW1_DEFINED:
+		case RAINBOW2_DEFINED:
+		case RAINBOW3_DEFINED:
+		case RAINBOW4_DEFINED:
+		case RAINBOW5_DEFINED:
+		case RAINBOW6_DEFINED:
+		case RAINBOW7_DEFINED:
+		case RAINBOW8_DEFINED:
+		case RAINBOW9_DEFINED:
 			return "Rainbow world";
 		case ILWRATH_DEFINED:
 			return "Ilwrath home";
@@ -1233,12 +1242,21 @@ starPresenceString (BYTE index)
 			return "Androsynth ruins";
 		case MYCON_TRAP_DEFINED:
 			return "Mycon trap";
-		case URQUAN_DEFINED:
-		case KOHRAH_DEFINED:
+		case URQUAN0_DEFINED:
+		case URQUAN1_DEFINED:
+		case URQUAN2_DEFINED:
+		case KOHRAH0_DEFINED:
+		case KOHRAH1_DEFINED:
+		case KOHRAH2_DEFINED:
 		case DESTROYED_STARBASE_DEFINED:
 			return "Destroyed Starbase";
 		case MOTHER_ARK_DEFINED:
 			return "Mother-Ark";
+		case ZOQ_COLONY0_DEFINED:
+		case ZOQ_COLONY1_DEFINED:
+		case ZOQ_COLONY2_DEFINED:
+		case ZOQ_COLONY3_DEFINED:
+			return "Zoq Fot Ruins";
 		case ALGOLITES_DEFINED:
 			return "Algolites";
 		default:
@@ -1296,7 +1314,7 @@ dumpMoon (FILE *out, const PLANET_DESC *moon)
 		typeStr = planetTypeString (moon->data_index & ~PLANET_SHIELDED);
 	}
 	fprintf (out, "  - Moon %-30c  %s\n",
-			'a' + (moon - &pSolarSysState->MoonDesc[0]), typeStr);
+			'a' + (UNICODE)(moon - &pSolarSysState->MoonDesc[0]), typeStr);
 
 	dumpWorld (out, moon);
 }
@@ -1914,8 +1932,8 @@ dumpStrings (FILE *out)
 	}
 	
 	if (GAMESTR_COUNT != numStrings) {
-		fprintf(stderr, "Warning: GAMESTR_COUNT is %d, but GameStrings "
-				"contains %d strings.\n", GAMESTR_COUNT, numStrings);
+		fprintf(stderr, "Warning: GAMESTR_COUNT is %i, but GameStrings "
+				"contains %ld strings.\n", GAMESTR_COUNT, numStrings);
 	}
 
 	categoryI = 0;
@@ -1923,7 +1941,7 @@ dumpStrings (FILE *out)
 		while (categoryI < numCategories &&
 				stringI >= categories[categoryI + 1].base)
 			categoryI++;
-		fprintf(out, "[ %s + %d ]  %s\n", categories[categoryI].name,
+		fprintf(out, "[ %s + %ld ]  %s\n", categories[categoryI].name,
 				stringI - categories[categoryI].base, GAME_STRING((COUNT)stringI));
 	}
 }

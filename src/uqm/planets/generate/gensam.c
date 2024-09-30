@@ -69,7 +69,7 @@ const GenerateFunctions generateSaMatraFunctions = {
 static bool
 GenerateSaMatra_initNpcs (SOLARSYS_STATE *solarSys)
 {
-	if (CurStarDescPtr->Index == SAMATRA_DEFINED) 
+	if (CurStarDescPtr->Index == SAMATRA_DEFINED)
 	{
 		if (!GET_GAME_STATE (URQUAN_MESSED_UP))
 		{
@@ -153,18 +153,47 @@ GenerateSaMatra_reinitNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pPlanet;
 	COUNT p;
 
 	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 
-	if (!PrimeSeed)
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
+		if (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
+			solarSys->SunDesc[0].PlanetByte = 0;
+		else
+			solarSys->SunDesc[0].PlanetByte = RandomContext_Random(SysGenRNG) %
+					solarSys->SunDesc[0].NumPlanets;
+		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+	}
+	else if (!PrimeSeed)
 	{
 		if (CurStarDescPtr->Index >= SAMATRA_DEFINED)
 			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_PLANETS - 5) + 5);
 	}
 
 	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+
+	if (StarSeed && CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
+	{
+		pPlanet->data_index = GenerateHabitableWorld ();
+		// There's not really a specific nearby SOI to gate this on in starseed
+		if (EXTENDED && !(GET_GAME_STATE (KOHR_AH_FRENZY)))
+			pPlanet->data_index |= PLANET_SHIELDED;
+		CheckForHabitable (solarSys);
+	}
+
 	GeneratePlanets (solarSys);
+
+	if (StarSeed)
+	{
+		solarSys->SunDesc[0].MoonByte = 0;
+		if (pPlanet->NumPlanets < 4)
+			pPlanet->NumPlanets += 1;
+		return true;
+	}
 
 	if (CurStarDescPtr->Index == SAMATRA_DEFINED)
 	{
@@ -180,7 +209,7 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
 		}
 	}
-	
+
 	if (EXTENDED && CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED)
 	{
 		int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
@@ -207,8 +236,8 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 
 	if (EXTENDED
-		&& (CurStarDescPtr->Index == URQUAN_DEFINED 
-		|| CurStarDescPtr->Index == KOHRAH_DEFINED))
+		&& ((CurStarDescPtr->Index >= URQUAN0_DEFINED && CurStarDescPtr->Index <= URQUAN2_DEFINED)
+		|| (CurStarDescPtr->Index >= KOHRAH0_DEFINED && CurStarDescPtr->Index <= KOHRAH2_DEFINED)))
 	{
 		for (p = 0; p < solarSys->SunDesc[0].NumPlanets; p++) {
 			if (solarSys->PlanetDesc[p].NumPlanets <= 1)
@@ -242,7 +271,7 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 		if (CurStarDescPtr->Index == SAMATRA_DEFINED)
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = SA_MATRA;
-			
+
 			if (PrimeSeed)
 			{
 				solarSys->MoonDesc[0].radius = MIN_MOON_RADIUS + (2 * MOON_DELTA);
@@ -258,12 +287,12 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 
 
 		if (EXTENDED && (CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
-				|| CurStarDescPtr->Index == URQUAN_DEFINED 
-				|| CurStarDescPtr->Index == KOHRAH_DEFINED)) 
+		|| ((CurStarDescPtr->Index >= URQUAN0_DEFINED) && (CurStarDescPtr->Index <= URQUAN2_DEFINED))
+		|| ((CurStarDescPtr->Index >= KOHRAH0_DEFINED) && (CurStarDescPtr->Index <= KOHRAH2_DEFINED))))
 		{
 			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
 		}
-		
+
 	}
 
 	return true;
@@ -283,7 +312,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 			if (!GET_GAME_STATE (URQUAN_MESSED_UP))
 			{
-				CloneShipFragment ((EXTENDED 
+				CloneShipFragment ((EXTENDED
 						&& GET_GAME_STATE (KOHR_AH_FRENZY)
 						? BLACK_URQUAN_SHIP : URQUAN_SHIP),
 						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
@@ -295,7 +324,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 				for (i = 0; i < URQUAN_REMNANTS; ++i)
 				{
-					CloneShipFragment ((EXTENDED 
+					CloneShipFragment ((EXTENDED
 						&& GET_GAME_STATE (KOHR_AH_FRENZY) ?
 						BLACK_URQUAN_SHIP : URQUAN_SHIP),
 						&GLOBAL (npc_built_ship_q), 0);
@@ -346,10 +375,9 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		if (EXTENDED)
 		{
 			UWORD Index = CurStarDescPtr->Index;
-
-			if (Index == URQUAN_DEFINED
-				|| Index == KOHRAH_DEFINED
-				|| Index == DESTROYED_STARBASE_DEFINED)
+			if (((Index >= URQUAN0_DEFINED) && (Index <= URQUAN2_DEFINED)) ||
+					((Index >= KOHRAH0_DEFINED) && (Index <= KOHRAH2_DEFINED)) ||
+					Index == DESTROYED_STARBASE_DEFINED)
 			{
 
 				/* Starbase */
@@ -374,7 +402,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						SetRelStringTableIndex (
 							CaptureStringTable (
 								LoadStringTable (URQUAN_BASE_STRTAB)),
-								Index == KOHRAH_DEFINED);
+								(Index >= KOHRAH0_DEFINED && Index <= KOHRAH2_DEFINED));
 				}
 
 				DoDiscoveryReport (MenuSounds);
@@ -541,7 +569,7 @@ GenerateSaMatra_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		GenerateDefault_landerReportCycle (solarSys);
 
 		return false; // do not remove the node
-	}	
+	}
 
 	(void) whichNode;
 	return false;
