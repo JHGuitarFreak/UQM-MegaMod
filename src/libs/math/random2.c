@@ -101,3 +101,12 @@ RandomContext_FastRandom (DWORD seed)
 
 	return res;
 }
+
+DWORD
+RangeMinMax (DWORD min, DWORD max, DWORD rand)
+{
+	if (min > max)
+		return max;
+
+	return rand % ((max + 1) - min) + min;
+}

@@ -240,11 +240,16 @@ bool
 matchWorld (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		BYTE planetI, BYTE moonI)
 {
+	BYTE PlanetI = (planetI == MATCH_PBYTE
+			? solarSys->SunDesc[0].PlanetByte : planetI);
+	BYTE MoonI = (moonI == MATCH_MBYTE
+			? solarSys->SunDesc[0].MoonByte : moonI);
+
 	// Check whether we have the right planet.
-	if (planetIndex (solarSys, world) != planetI)
+	if (planetIndex (solarSys, world) != PlanetI)
 		return false;
 
-	if (moonI == MATCH_PLANET)
+	if (MoonI == MATCH_PLANET)
 	{
 		// Only test whether we are at the planet.
 		if (!worldIsPlanet (solarSys, world))
@@ -256,7 +261,7 @@ matchWorld (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		if (!worldIsMoon (solarSys, world))
 			return false;
 
-		if (moonIndex (solarSys, world) != moonI)
+		if (moonIndex (solarSys, world) != MoonI)
 			return false;
 	}
 

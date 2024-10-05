@@ -490,6 +490,12 @@ CheckAlliance (RACE_ID race)
 	return flags;
 }
 
+BOOLEAN
+RaceDead (RACE_ID race)
+{
+	return CheckAlliance (race) == DEAD_GUY;
+}
+
 /*
  * Remove a number of escort ships of the specified race (if present).
  * Returns the number of escort ships removed.
@@ -700,15 +706,17 @@ loadGameCheats (void)
 	else
 		oldRU = 0;
 
-	/*for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
-	{
-		StartSphereTracking (i);
-		KillRace (i);
-	}*/
+	//for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
+	//{
+	//	StartSphereTracking (i);
+	//	KillRace (i);
+	//}
+
+	// SET_GAME_STATE (CHMMR_UNLEASHED, 1);
 
 	// SET_GAME_STATE (KNOW_HOMEWORLD, ~0);
 		
-	if(optInfiniteFuel)
+	if (optInfiniteFuel)
 	{
 		loadFuel = GlobData.SIS_state.FuelOnBoard;
 		GLOBAL_SIS (FuelOnBoard) = GetFuelTankCapacity();

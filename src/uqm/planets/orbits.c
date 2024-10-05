@@ -518,6 +518,12 @@ char stype[] = {'D', 'G', 'S'};
 char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 #endif /* DEBUG_ORBITS */
 
+	if (NumPlanets == NUMPLANETS_PDESC)
+	{	// To shorten the redundancy of the function in repeated areas.
+		NumPlanets = system->SunDesc[0].NumPlanets;
+		pBaseDesc = system->PlanetDesc;
+	}
+
 	pPD = pBaseDesc;
 	StarSize = system->SunDesc[0].data_index;
 	StarColor = STAR_COLOR (CurStarDescPtr->Type);
@@ -682,6 +688,108 @@ RelocatePlanet:
 			}
 		}
 	}
+}
+
+BYTE
+PickClosestHabitable (SOLARSYS_STATE *solarSys)
+{
+	const SIZE hRangesD[NUM_STAR_COLORS][2] = {
+			{  853, 1790 }, // blue
+			{  544, 1151 }, // green
+			{  139,  287 }, // orange
+			{    0,    0 }, // red
+			{ 1231, 2569 }, // white
+			{  312,  778 }  // yellow
+	};
+	const SIZE hRangesG[NUM_STAR_COLORS][2] = {
+			{    0,    0 }, // blue
+			{    0,    0 }, // green
+			{ 3410, 7120 }, // orange
+			{  860, 1800 }, // red
+			{    0,    0 }, // white
+			{ 7630, 7936 }  // yellow
+	};
+	BYTE starColor, starType, numPlanets, i;
+	SIZE hRangeMin = 0;
+	SIZE hRangeMax = 0;
+	SIZE hRangeMed = 0;
+	BYTE pByte = 0;
+	PLANET_DESC *pPD;
+	PLANET_DESC *pPlanet;
+	SIZE dist;
+
+	numPlanets = solarSys->SunDesc[0].NumPlanets;
+	pPD = solarSys->PlanetDesc;
+
+	if (numPlanets == 1)
+		return 0;
+
+	starColor = STAR_COLOR (CurStarDescPtr->Type);
+	starType = STAR_TYPE (CurStarDescPtr->Type);
+
+	if (starType == SUPER_GIANT_STAR)
+		return numPlanets--;
+
+	if (starType == DWARF_STAR)
+	{
+		if (starColor == RED_BODY)
+			return 0;
+
+		hRangeMin = hRangesD[starColor][0];
+		hRangeMax = hRangesD[starColor][1];
+	}
+
+	if (starType == GIANT_STAR)
+	{
+		if (starColor == BLUE_BODY || starColor == GREEN_BODY
+				|| starColor == WHITE_BODY)
+		{
+			return numPlanets--;
+		}
+
+		hRangeMin = hRangesG[starColor][0];
+		hRangeMax = hRangesG[starColor][1];
+	}
+
+	hRangeMed = (hRangeMin + hRangeMax) / 2;
+
+	dist = pPD[0].radius;
+	for (i = 1; i < numPlanets; i++)
+	{
+		if (abs (dist - hRangeMed) >= abs (pPD[i].radius - hRangeMed))
+		{
+			dist = pPD[i].radius;
+			pByte = i;
+		}
+	}
+
+	pPlanet = &pPD[pByte];
+
+	if (pPlanet->radius < hRangeMin || pPlanet->radius > hRangeMax)
+	{
+		DWORD rand = RandomContext_Random (SysGenRNG);
+		SIZE min, max;
+
+		if (pPlanet->radius < hRangeMin)
+		{
+			min = hRangeMin;
+			max = hRangeMed;
+		}
+		else if (pPlanet->radius > hRangeMax)
+		{
+			min = hRangeMed;
+			max = hRangeMax;
+		}
+
+		pPlanet->radius = RangeMinMax (min, max, rand);
+
+		pPlanet->angle = NORMALIZE_ANGLE (LOWORD (rand));
+		pPlanet->location.x = COSINE (pPlanet->angle, pPlanet->radius);
+		pPlanet->location.y = SINE (pPlanet->angle, pPlanet->radius);
+		ComputeSpeed (&pPD[pByte], FALSE, HIWORD (rand));
+	}
+
+	return pByte;
 }
 
 BOOLEAN

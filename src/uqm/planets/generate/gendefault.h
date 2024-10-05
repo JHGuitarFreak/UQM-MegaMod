@@ -68,6 +68,7 @@ extern BYTE GenerateHabitableWorld (void);
 extern BYTE GenerateGasGiantWorld (void);
 extern BYTE GenerateMinPlanets (BYTE min);
 extern BYTE GenerateNumberOfPlanets (BYTE minimum);
+extern BYTE PlanetByteGen (PLANET_DESC *SunDesc);
 
 extern const GenerateFunctions generateDefaultFunctions;
 

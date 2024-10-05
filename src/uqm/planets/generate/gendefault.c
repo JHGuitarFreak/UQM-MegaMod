@@ -426,11 +426,14 @@ GenerateGasGiantWorld (void)
 BYTE
 GenerateMinPlanets (BYTE min)
 {
+	const BYTE max = MAX_GEN_PLANETS + 1;
+
 	if (min == 0)
 		min = 1;
 	if (min >= MAX_GEN_PLANETS)
 		min = MAX_GEN_PLANETS;
-	return RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - min + 1) + min;
+
+	return RandomContext_Random (SysGenRNG) % (max - min) + min;
 }
 
 // input: 0 <= minimum < MAX_GEN_PLANETS
@@ -441,6 +444,13 @@ GenerateNumberOfPlanets (BYTE minimum)
 	BYTE roll = MAX_GEN_PLANETS - minimum;
 	BYTE adjust = minimum + 1;
 	return (RandomContext_Random (SysGenRNG) % roll) + adjust;
+}
+
+// "RandomContext_Random PlanetByte Generator"
+BYTE
+PlanetByteGen (PLANET_DESC *SunDesc)
+{
+	return RandomContext_Random (SysGenRNG) % SunDesc->NumPlanets;
 }
 
 static void

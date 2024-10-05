@@ -391,6 +391,8 @@ COUNT planetIndex (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world);
 COUNT moonIndex (const SOLARSYS_STATE *solarSys, const PLANET_DESC *moon);
 #define MATCH_PLANET ((BYTE) -1)
+#define MATCH_PBYTE ((BYTE) -2)
+#define MATCH_MBYTE ((BYTE) -3)
 bool matchWorld (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		BYTE planetI, BYTE moonI);
 
@@ -420,6 +422,7 @@ extern void DrawRotatedEllipse (int cx, int cy, int rx, int ry,
 		int angle_deg, int filled, int dotted);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons,
 		UWORD rand_val);
+#define NUMPLANETS_PDESC ((BYTE)-2)
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 		PLANET_DESC *pBaseDesc, BOOLEAN TypesDefined);
 extern void InitLander (BYTE LanderFlags);
@@ -466,6 +469,8 @@ extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 
 extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
+
+extern BYTE PickClosestHabitable (SOLARSYS_STATE *solarSys);
 
 #if defined(__cplusplus)
 }
