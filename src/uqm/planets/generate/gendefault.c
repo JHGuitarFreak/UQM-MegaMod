@@ -362,7 +362,7 @@ GenerateRockyWorld (BYTE whichType)
 	}
 	else // Leaving this, as the spread is slightly different in PlanetGen
 	{	 // since last rocky != num rocky, and we rainbow/shattered different
-	    if (whichType & SMALL_ROCKY)
+		if (whichType & SMALL_ROCKY)
 			planet = RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD;
 		else if (whichType & LARGE_ROCKY)
 		{

@@ -30,6 +30,7 @@
 #define LIBS_MATH_RANDOM_H_
 
 #include "../../uqm/globdata.h"
+#include "uqm/setupmenu.h"
 
 /* ----------------------------GLOBALS/EXTERNS---------------------------- */
 

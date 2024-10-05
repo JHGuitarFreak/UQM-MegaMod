@@ -158,12 +158,12 @@ static void
 MakeDayValue (UNICODE *buf, long val, const UNICODE *extra)
 {
 	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
-		sprintf (buf, "%u.%02u%s", val / 100, val % 100, extra);
+		sprintf (buf, "%ld.%02ld%s", val / 100, val % 100, extra);
 	else
-		sprintf (buf, "%u.%u%s", val / 10, val % 10, extra);
+		sprintf (buf, "%ld.%ld%s", val / 10, val % 10, extra);
 }
 
-SIZE
+static SIZE
 GetRotationalPeriod (void)
 {
 	if (pSolarSysState->SysInfo.PlanetInfo.RotationPeriod < 240 * 10)
