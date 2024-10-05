@@ -694,12 +694,12 @@ BYTE
 PickClosestHabitable (SOLARSYS_STATE *solarSys)
 {
 	const SIZE hRangesD[NUM_STAR_COLORS][2] = {
-			{  853, 1790 }, // blue
-			{  544, 1151 }, // green
-			{  139,  287 }, // orange
+			{  860, 1790 }, // blue
+			{  540, 1150 }, // green
+			{  140,  280 }, // orange
 			{    0,    0 }, // red
-			{ 1231, 2569 }, // white
-			{  312,  778 }  // yellow
+			{ 1240, 2560 }, // white
+			{  320,  640 }  // yellow
 	};
 	const SIZE hRangesG[NUM_STAR_COLORS][2] = {
 			{    0,    0 }, // blue
