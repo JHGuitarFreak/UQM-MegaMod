@@ -338,45 +338,44 @@ GeneratePlanets (SOLARSYS_STATE *solarSys)
 }
 
 BYTE
-GenerateRockyWorld (BYTE whichType)
+GenerateWorlds (BYTE whichType)
 {
 	BYTE planet = FIRST_SMALL_ROCKY_WORLD;
 
-	if (StarSeed)
+	if (whichType & SMALL_ROCKY)
 	{
-		if (whichType & SMALL_ROCKY)
-			planet = FIRST_SMALL_ROCKY_WORLD +
-					RandomContext_Random (SysGenRNG) %
-					NUMBER_OF_SMALL_ROCKY_WORLDS;
-		else if (whichType & LARGE_ROCKY)
-			planet = FIRST_LARGE_ROCKY_WORLD +
-					RandomContext_Random (SysGenRNG) %
-					(NUMBER_OF_LARGE_ROCKY_WORLDS - 2);
-		else if (whichType & ALL_ROCKY)
-			planet = FIRST_ROCKY_WORLD +
-					RandomContext_Random (SysGenRNG) %
-					(NUMBER_OF_ROCKY_WORLDS - 2);
-		// Skip over rainbow_world and shattered_world, which are adjacent.
-		if (planet >= RAINBOW_WORLD)
-			planet += 2;
+		planet = FIRST_SMALL_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				NUMBER_OF_SMALL_ROCKY_WORLDS;
 	}
-	else // Leaving this, as the spread is slightly different in PlanetGen
-	{	 // since last rocky != num rocky, and we rainbow/shattered different
-		if (whichType & SMALL_ROCKY)
-			planet = RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD;
-		else if (whichType & LARGE_ROCKY)
-		{
-			planet = (RandomContext_Random (SysGenRNG) %
-				(FIRST_GAS_GIANT - FIRST_LARGE_ROCKY_WORLD) + FIRST_LARGE_ROCKY_WORLD);
-		}
-		else if (whichType & ALL_ROCKY)
-			planet = RandomContext_Random (SysGenRNG) % LAST_ROCKY_WORLD;
+	else if (whichType & LARGE_ROCKY)
+	{
+		planet = FIRST_LARGE_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				(NUMBER_OF_LARGE_ROCKY_WORLDS - 2);
 	}
-
-	if (planet == RAINBOW_WORLD)
-		planet--;
-	if (planet == SHATTERED_WORLD)
-		planet++;
+	else if (whichType & ALL_ROCKY)
+	{
+		planet = FIRST_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				(NUMBER_OF_ROCKY_WORLDS - 2);
+	}
+	else if (whichType & ONLY_LARGE)
+	{
+		planet = FIRST_LARGE_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				(NUMBER_OF_LARGE_ROCKY_WORLDS
+					+ NUMBER_OF_GAS_GIANTS - 2);
+	}
+	else if (whichType & ONLY_GAS)
+	{
+		planet = FIRST_GAS_GIANT +
+				RandomContext_Random (SysGenRNG) %
+				NUMBER_OF_GAS_GIANTS;
+	}
+	// Skip over rainbow_world and shattered_world, which are adjacent.
+	if (planet >= RAINBOW_WORLD)
+		planet += 2;
 
 	return planet;
 }
@@ -448,9 +447,9 @@ GenerateNumberOfPlanets (BYTE minimum)
 
 // "RandomContext_Random PlanetByte Generator"
 BYTE
-PlanetByteGen (PLANET_DESC *SunDesc)
+PlanetByteGen (PLANET_DESC *pPDesc)
 {
-	return RandomContext_Random (SysGenRNG) % SunDesc->NumPlanets;
+	return RandomContext_Random (SysGenRNG) % pPDesc->NumPlanets;
 }
 
 static void

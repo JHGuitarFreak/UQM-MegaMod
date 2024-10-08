@@ -27,7 +27,9 @@ extern "C" {
 
 #define SMALL_ROCKY (1 << 0)
 #define LARGE_ROCKY (1 << 1)
-#define ALL_ROCKY (1 << 1)
+#define ALL_ROCKY (1 << 2)
+#define ONLY_LARGE (1 << 3)
+#define ONLY_GAS (1 << 4)
 
 
 bool GenerateDefault_initNpcs (SOLARSYS_STATE *solarSys);
@@ -61,14 +63,14 @@ bool GenerateDefault_landerReport (SOLARSYS_STATE *);
 bool GenerateDefault_landerReportCycle (SOLARSYS_STATE *);
 extern void GeneratePlanets (SOLARSYS_STATE *system);
 extern SIZE CheckForHabitable (SOLARSYS_STATE *solarSys);
-extern BYTE GenerateRockyWorld (BYTE whichType);
+extern BYTE GenerateWorlds (BYTE whichType);
 extern BYTE GenerateCrystalWorld (void);
 extern BYTE GenerateDesolateWorld (void);
 extern BYTE GenerateHabitableWorld (void);
 extern BYTE GenerateGasGiantWorld (void);
 extern BYTE GenerateMinPlanets (BYTE min);
 extern BYTE GenerateNumberOfPlanets (BYTE minimum);
-extern BYTE PlanetByteGen (PLANET_DESC *SunDesc);
+extern BYTE PlanetByteGen (PLANET_DESC *pPDesc);
 
 extern const GenerateFunctions generateDefaultFunctions;
 
