@@ -108,18 +108,19 @@ GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys,
 
 	if (matchWorld (solarSys, planet, MATCH_PBYTE, MATCH_PLANET))
 	{
-		PLANET_DESC *pMoon =
-				&solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte];
+		BYTE MoonByte = solarSys->SunDesc[0].MoonByte;
+		PLANET_DESC *pMoonDesc = &solarSys->MoonDesc[MoonByte];
 		COUNT angle;
 		DWORD rand_val;
 
-		pMoon->data_index = SELENIC_WORLD;
-		pMoon->radius = MIN_MOON_RADIUS + (MAX_GEN_MOONS - 1) * MOON_DELTA;
+		pMoonDesc->data_index = SELENIC_WORLD;
+		pMoonDesc->radius =
+				MIN_MOON_RADIUS + (MAX_GEN_MOONS - 1) * MOON_DELTA;
 		rand_val = RandomContext_Random (SysGenRNG);
 		angle = NORMALIZE_ANGLE (LOWORD (rand_val));
-		pMoon->location.x = COSINE (angle, pMoon->radius);
-		pMoon->location.y = SINE (angle, pMoon->radius);
-		ComputeSpeed (pMoon, TRUE, 1);
+		pMoonDesc->location.x = COSINE (angle, pMoonDesc->radius);
+		pMoonDesc->location.y = SINE (angle, pMoonDesc->radius);
+		ComputeSpeed (pMoonDesc, TRUE, 1);
 	}
 
 	return true;

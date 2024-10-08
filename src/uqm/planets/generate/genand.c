@@ -98,7 +98,7 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 			pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
 			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 			if (pPlanet->data_index > LAST_ROCKY_WORLD)
-				pPlanet->data_index = GenerateRockyWorld (ALL_ROCKY);
+				pPlanet->data_index = GenerateWorlds (ALL_ROCKY);
 		}
 	}
 
