@@ -716,13 +716,10 @@ PickClosestHabitable (SOLARSYS_STATE *solarSys)
 	BYTE pByte = 0;
 	PLANET_DESC *pPD;
 	PLANET_DESC *pPlanet;
-	SIZE dist;
+	DWORD rand = RandomContext_GetSeed (SysGenRNG);
 
 	numPlanets = solarSys->SunDesc[0].NumPlanets;
 	pPD = solarSys->PlanetDesc;
-
-	if (numPlanets == 1)
-		return 0;
 
 	starColor = STAR_COLOR (CurStarDescPtr->Type);
 	starType = STAR_TYPE (CurStarDescPtr->Type);
@@ -744,6 +741,15 @@ PickClosestHabitable (SOLARSYS_STATE *solarSys)
 		if (starColor == BLUE_BODY || starColor == GREEN_BODY
 				|| starColor == WHITE_BODY)
 		{
+
+			pPlanet = &pPD[numPlanets--];
+
+			pPlanet->radius = MAX_PLANET_RADIUS;
+			pPlanet->angle = NORMALIZE_ANGLE (LOWORD (rand));
+			pPlanet->location.x = COSINE (pPlanet->angle, pPlanet->radius);
+			pPlanet->location.y = SINE (pPlanet->angle, pPlanet->radius);
+			ComputeSpeed (pPlanet, FALSE, HIWORD (rand));
+
 			return numPlanets--;
 		}
 
@@ -753,21 +759,26 @@ PickClosestHabitable (SOLARSYS_STATE *solarSys)
 
 	hRangeMed = (hRangeMin + hRangeMax) / 2;
 
-	dist = pPD[0].radius;
-	for (i = 1; i < numPlanets; i++)
+	if (numPlanets > 1)
 	{
-		if (abs (dist - hRangeMed) >= abs (pPD[i].radius - hRangeMed))
+		SIZE dist = pPD[0].radius;
+		for (i = 1; i < numPlanets; i++)
 		{
-			dist = pPD[i].radius;
-			pByte = i;
+			if (abs (dist - hRangeMed) >=
+					abs (pPD[i].radius - hRangeMed))
+			{
+				dist = pPD[i].radius;
+				pByte = i;
+			}
 		}
 	}
+	else
+		pByte = 0;
 
 	pPlanet = &pPD[pByte];
 
 	if (pPlanet->radius < hRangeMin || pPlanet->radius > hRangeMax)
 	{
-		DWORD rand = RandomContext_Random (SysGenRNG);
 		SIZE min, max;
 
 		if (pPlanet->radius < hRangeMin)
@@ -786,7 +797,7 @@ PickClosestHabitable (SOLARSYS_STATE *solarSys)
 		pPlanet->angle = NORMALIZE_ANGLE (LOWORD (rand));
 		pPlanet->location.x = COSINE (pPlanet->angle, pPlanet->radius);
 		pPlanet->location.y = SINE (pPlanet->angle, pPlanet->radius);
-		ComputeSpeed (&pPD[pByte], FALSE, HIWORD (rand));
+		ComputeSpeed (pPlanet, FALSE, HIWORD (rand));
 	}
 
 	return pByte;
