@@ -109,36 +109,31 @@ GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (StarSeed)
-		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
-	else if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+	pSunDesc->PlanetByte = 0;
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
+	pPlanet->data_index = RAINBOW_WORLD;
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 50L / 100;
-	angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-	if (angle <= QUADRANT)
-		angle += QUADRANT;
-	else if (angle >= FULL_CIRCLE - QUADRANT)
-		angle -= QUADRANT;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-			COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-	ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+	if (PrimeSeed)
+	{
+		COUNT angle;
 
-	if (!PrimeSeed && !StarSeed)
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		pPlanet->NumPlanets = 0;
+		pPlanet->radius = EARTH_RADIUS * 50L / 100;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		if (angle <= QUADRANT)
+			angle += QUADRANT;
+		else if (angle >= FULL_CIRCLE - QUADRANT)
+			angle -= QUADRANT;
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
+	}
 
 	return true;
 }

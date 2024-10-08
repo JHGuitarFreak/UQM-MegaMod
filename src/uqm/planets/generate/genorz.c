@@ -63,94 +63,55 @@ static bool
 GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 {
 	PLANET_DESC *pPlanet;
-	COUNT angle;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (StarSeed)
-	{
-		if (CurStarDescPtr->Index == ORZ_DEFINED)
-		{
-			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
-			solarSys->SunDesc[0].PlanetByte = 0;
-		}
-		if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
-		{
-			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (2);
-			solarSys->SunDesc[0].PlanetByte = 1;
-		}
-		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
-	}
-	if (!PrimeSeed)
-	{
-		if (CurStarDescPtr->Index == ORZ_DEFINED)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		else if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
-	}
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-
-	if (StarSeed)
-	{
-		if (CurStarDescPtr->Index == ORZ_DEFINED)
-			pPlanet->data_index = GenerateHabitableWorld ();
-		if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
-			pPlanet->data_index = GenerateGasGiantWorld ();
-	}
-
-	GeneratePlanets (solarSys);
 
 	if (CurStarDescPtr->Index == ORZ_DEFINED)
 	{
-		if (StarSeed)
-		{
-			CheckForHabitable (solarSys);
-			return true;
-		}
-		solarSys->SunDesc[0].PlanetByte = 0;
-
-		if (!PrimeSeed)
-		{
-			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-			CheckForHabitable (solarSys);
-		}
-
 		if (PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 156L / 100;
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
-			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			COUNT angle;
+
+			pSunDesc->PlanetByte = 0;
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+			pPlanet->data_index = WATER_WORLD;
+			pPlanet->radius = EARTH_RADIUS * 156L / 100;
+			pPlanet->NumPlanets = 0;
+			angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+			pPlanet->location.x = COSINE (angle, pPlanet->radius);
+			pPlanet->location.y = SINE (angle, pPlanet->radius);
+			ComputeSpeed (pPlanet, FALSE, 1);
 		}
-
-		solarSys->PlanetDesc[0].data_index = WATER_WORLD;
-
-	}
-	else if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
-	{
-		if (StarSeed)
+		else
 		{
-			// preserving the integrity of the universe
-			while (pPlanet->NumPlanets == 0)
-				GeneratePlanets (solarSys);
-			solarSys->SunDesc[0].MoonByte = RandomContext_Random (SysGenRNG) %
-					pPlanet->NumPlanets;
-			return true;
+			pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+			pPlanet->data_index = GenerateHabitableWorld ();
 		}
-		solarSys->SunDesc[0].PlanetByte = 1;
-		solarSys->SunDesc[0].MoonByte = 2;
+	}
+
+	if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED)
+	{
+		pSunDesc->PlanetByte = 1;
+		pSunDesc->MoonByte = 2;
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (4 - 3) + 3);
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+			pPlanet->data_index = GenerateGasGiantWorld ();
+
+			if (StarSeed)
+				pSunDesc->MoonByte = PlanetByteGen (pPlanet);
+
+			if (pPlanet->NumPlanets < (pSunDesc->MoonByte + 1))
+				pPlanet->NumPlanets = pSunDesc->MoonByte + 1;
 		}
+
 	}
 
 	return true;
@@ -160,11 +121,16 @@ static bool
 GenerateOrz_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
-	if (StarSeed && CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED &&
-			matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte,
-									            MATCH_PLANET))
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index =
-				GenerateCrystalWorld ();
+
+	if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED
+			&& matchWorld (solarSys, planet, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
+	{
+		BYTE MoonByte = solarSys->SunDesc[0].MoonByte;
+		PLANET_DESC *pMoonDesc = &solarSys->MoonDesc[MoonByte];
+
+		pMoonDesc->data_index = GenerateCrystalWorld ();
+	}
 
 	return true;
 }
@@ -173,9 +139,9 @@ static bool
 GenerateOrz_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
 	if ((CurStarDescPtr->Index == ORZ_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 			|| (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte)
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE)
 			&& !GET_GAME_STATE (TAALO_PROTECTOR)))
 	{
 		COUNT i;
@@ -239,7 +205,7 @@ GenerateOrz_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					CaptureStringTable (
 					LoadStringTable (TAALO_DEVICE_STRTAB));
 
-			if (!PrimeSeed)
+			if (false)
 			{
 				GenerateDefault_generateOrbital (solarSys, world);
 
@@ -268,7 +234,7 @@ GenerateOrz_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
 
-			if (!PrimeSeed)
+			if (false)
 			{
 				GenerateDefault_generateOrbital (solarSys, world);
 
@@ -302,7 +268,7 @@ GenerateOrz_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 	if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		// This check is redundant since the retrieval bit will keep the
 		// node from showing up again
@@ -311,11 +277,12 @@ GenerateOrz_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return 0;
 		}
 
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	if (CurStarDescPtr->Index == ORZ_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
@@ -328,7 +295,7 @@ GenerateOrz_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		assert (!GET_GAME_STATE (TAALO_PROTECTOR) && whichNode == 0);
 
@@ -342,7 +309,7 @@ GenerateOrz_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	}
 
 	if (CurStarDescPtr->Index == ORZ_DEFINED
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);

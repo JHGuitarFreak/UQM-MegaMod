@@ -49,43 +49,47 @@ const GenerateFunctions generateSlylandroFunctions = {
 static bool
 GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 	PLANET_DESC *pPlanet;
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 3;
 
-	if (StarSeed)
-	{
-		// So the minimum (dwarf) distance for a gas giant is 12 scale radius
-		// The minimum distance period is 4 scale radius
-		// The minimum between planets is 5 scale radius
-		// Lets skip the first two planets so that it is always valid.
-		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (3);
-		solarSys->SunDesc[0].PlanetByte = RandomContext_Random (SysGenRNG) %
-				(solarSys->SunDesc[0].NumPlanets - 2) + 2;
-		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
-	}
-	else if (!PrimeSeed)
-	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-	}
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-
-	if (StarSeed)
-		pPlanet->data_index = GenerateGasGiantWorld ();
-
-	GeneratePlanets (solarSys);
+	GenerateDefault_generatePlanets (solarSys);
 
 	if (PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RED_GAS_GIANT;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		pSunDesc->PlanetByte = 3;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = RED_GAS_GIANT;
+		pPlanet->NumPlanets = 1;
 	}
-	else if (!StarSeed)
+	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		BYTE i;
+#define DWARF_GASG_DIST SCALE_RADIUS (12)
+
+		for (i = 0; i < pSunDesc->NumPlanets; i++)
+		{
+			if (solarSys->PlanetDesc[i].radius >= DWARF_GASG_DIST)
+				break;
+		}
+
+		pSunDesc->PlanetByte = i;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateWorlds (ONLY_GAS);
+
+		if (solarSys->PlanetDesc[i].radius < DWARF_GASG_DIST)
+		{
+			COUNT angle;
+			DWORD rand = RandomContext_GetSeed (SysGenRNG);
+
+			pPlanet->radius =
+					RangeMinMax (DWARF_GASG_DIST, MAX_PLANET_RADIUS, rand);
+			angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+			pPlanet->location.x = COSINE (angle, pPlanet->radius);
+			pPlanet->location.y = SINE (angle, pPlanet->radius);
+			ComputeSpeed (pPlanet, FALSE, 1);
+		}
 	}
 
 	return true;
@@ -96,11 +100,14 @@ GenerateSlylandro_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
 	if (GET_GAME_STATE (SLYLANDRO_HOME_VISITS)
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 36));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS(PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 36));
+		SET_GAME_STATE (BATTLE_PLANET,
+				solarSys->PlanetDesc[
+					solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName (solarSys, world);
@@ -112,7 +119,7 @@ static bool
 GenerateSlylandro_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		InitCommunication (SLYLANDRO_HOME_CONVERSATION);
 		return true;

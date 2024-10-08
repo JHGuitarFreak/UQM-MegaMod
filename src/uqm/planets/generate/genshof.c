@@ -142,69 +142,70 @@ GenerateShofixti_uninitNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 	COUNT i;
 
-	solarSys->SunDesc[0].NumPlanets = 6;
-	solarSys->SunDesc[0].PlanetByte = 0;
-	solarSys->SunDesc[0].MoonByte = 0;
+	pSunDesc->PlanetByte = 0;
+	pSunDesc->MoonByte = 0;
 
-	if (StarSeed)
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (2);
-		if (solarSys->SunDesc[0].NumPlanets > 9)
-			solarSys->SunDesc[0].NumPlanets = 9;
-	}
-	else if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 2) + 2);
-
-	// The only benefit to pre-stamping is that it shuffles them.  But this
-	// causes problems when the star is orange, due to metal type.  Easier to
-	// seed them then stamp them in a shuffled loop so that all types work.
-	// This relies on MAX_PLANETS <= 9 for randomness to work, otherwise you'll
-	// have to count the bitshifts and re-random every 4th time.
-	if (StarSeed)
-	{
-		DWORD rand_val = RandomContext_Random (SysGenRNG);
-		BYTE planet = 0;
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets,
-				solarSys->PlanetDesc, FALSE);
-		for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
-			solarSys->PlanetDesc[i].data_index = METAL_WORLD;
-		for (i = 0; i < solarSys->SunDesc[0].NumPlanets / 2; ++i)
-		{
-			BYTE offset = LOBYTE(rand_val) %
-					(solarSys->SunDesc[0].NumPlanets - i);
-			while (solarSys->PlanetDesc[planet].data_index == SELENIC_WORLD ||
-					offset > 0)
-			{
-				if (solarSys->PlanetDesc[planet].data_index == METAL_WORLD)
-					offset--;
-				planet = (planet + 1) % solarSys->SunDesc[0].NumPlanets;
-			}
-			solarSys->PlanetDesc[planet].data_index = SELENIC_WORLD;
-			rand_val = rand_val >> 8;
-		}
-	}
-	else
-	{
-		for (i = 0; i < solarSys->SunDesc[0].NumPlanets; ++i)
+#define NUM_PLANETS 6
+		pSunDesc->NumPlanets = NUM_PLANETS;
+		for (i = 0; i < NUM_PLANETS; ++i)
 		{
 			PLANET_DESC *pCurDesc = &solarSys->PlanetDesc[i];
 
 			pCurDesc->NumPlanets = 0;
-			if (i < (solarSys->SunDesc[0].NumPlanets >> 1))
+			if (i < (NUM_PLANETS >> 1))
 				pCurDesc->data_index = SELENIC_WORLD;
 			else
 				pCurDesc->data_index = METAL_WORLD;
 		}
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, TRUE);
+
+		FillOrbits (solarSys, NUM_PLANETS, solarSys->PlanetDesc, TRUE);
+	}
+	else
+	{
+		DWORD rand_val = RandomContext_Random (SysGenRNG);
+		BYTE planet = 0;
+
+		pSunDesc->NumPlanets = GenerateMinPlanets (2);
+		if (pSunDesc->NumPlanets > 9)
+			pSunDesc->NumPlanets = 9;
+
+		FillOrbits (solarSys, NUMPLANETS_PDESC, NULL, FALSE);
+
+		if (StarSeed)
+			pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+
+		// The only benefit to pre-stamping is that it shuffles them.
+		// But this causes problems when the star is orange, due to metal
+		// type. Easier to seed them then stamp them in a shuffled loop so
+		// that all types work. This relies on MAX_PLANETS <= 9 for
+		// randomness to work, otherwise you'll have to count the bitshifts
+		// and re-random every 4th time.
+		for (i = 0; i < pSunDesc->NumPlanets; ++i)
+			solarSys->PlanetDesc[i].data_index = METAL_WORLD;
+		for (i = 0; i < pSunDesc->NumPlanets / 2; ++i)
+		{
+			BYTE offset = LOBYTE (rand_val) % (pSunDesc->NumPlanets - i);
+
+			while (solarSys->PlanetDesc[planet].data_index ==
+					SELENIC_WORLD || offset > 0)
+			{
+				if (solarSys->PlanetDesc[planet].data_index == METAL_WORLD)
+					offset--;
+				planet = (planet + 1) % pSunDesc->NumPlanets;
+			}
+
+			solarSys->PlanetDesc[planet].data_index = SELENIC_WORLD;
+			rand_val = rand_val >> 8;
+		}
 	}
 
-	if (!PrimeSeed)
-		CheckForHabitable (solarSys);
-
 	if (NOMAD && CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		solarSys->PlanetDesc[pSunDesc->PlanetByte].NumPlanets = 1;
 
 	return true;
 }
@@ -214,7 +215,7 @@ GenerateShofixti_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (NOMAD && matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (NOMAD && matchWorld (solarSys, planet, MATCH_PBYTE, MATCH_PLANET))
 	{
 		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
 	}
@@ -226,11 +227,14 @@ static bool
 GenerateShofixti_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 35));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS (PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 35));
+		SET_GAME_STATE (BATTLE_PLANET,
+				solarSys->PlanetDesc[
+					solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName (solarSys, world);
@@ -239,14 +243,16 @@ GenerateShofixti_generateName (const SOLARSYS_STATE *solarSys,
 }
 
 static bool
-GenerateShofixti_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateShofixti_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (NOMAD && matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (NOMAD && matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		if (CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY)
 		{
-			BOOLEAN MaxShips = (CountEscortShips (SHOFIXTI_SHIP) < IF_HARD(2, 1) ? TRUE : FALSE);
-			BOOLEAN RoomInFleet = EscortFeasibilityStudy (SHOFIXTI_SHIP) ? TRUE : FALSE;
+			BOOLEAN MaxShips = (CountEscortShips (SHOFIXTI_SHIP) <
+					IF_HARD (2, 1) ? TRUE : FALSE);
+			BOOLEAN RoomInFleet = EscortFeasibilityStudy (SHOFIXTI_SHIP);
 			BYTE Index = !MaxShips ? 0 : (!RoomInFleet ? 1 : 2);
 
 			LoadStdLanderFont(&solarSys->SysInfo.PlanetInfo);
@@ -259,7 +265,10 @@ GenerateShofixti_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			DoDiscoveryReport (MenuSounds);
 
 			if (Index == 2)
-				AddEscortShips (SHOFIXTI_SHIP, (CountEscortShips(SHOFIXTI_SHIP) == 1 ? 1 : 2));
+			{
+				AddEscortShips (SHOFIXTI_SHIP, (
+						CountEscortShips (SHOFIXTI_SHIP) == 1 ? 1 : 2));
+			}
 
 			DestroyStringTable (ReleaseStringTable (
 				solarSys->SysInfo.PlanetInfo.DiscoveryString));
