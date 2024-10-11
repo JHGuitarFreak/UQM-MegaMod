@@ -63,34 +63,7 @@ GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 		pPlanet->NumPlanets = 1;
 	}
 	else
-	{
-		BYTE i;
-#define DWARF_GASG_DIST SCALE_RADIUS (12)
-
-		for (i = 0; i < pSunDesc->NumPlanets; i++)
-		{
-			if (solarSys->PlanetDesc[i].radius >= DWARF_GASG_DIST)
-				break;
-		}
-
-		pSunDesc->PlanetByte = i;
-		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
-
-		pPlanet->data_index = GenerateWorlds (ONLY_GAS);
-
-		if (solarSys->PlanetDesc[i].radius < DWARF_GASG_DIST)
-		{
-			COUNT angle;
-			DWORD rand = RandomContext_GetSeed (SysGenRNG);
-
-			pPlanet->radius =
-					RangeMinMax (DWARF_GASG_DIST, MAX_PLANET_RADIUS, rand);
-			angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
-			pPlanet->location.x = COSINE (angle, pPlanet->radius);
-			pPlanet->location.y = SINE (angle, pPlanet->radius);
-			ComputeSpeed (pPlanet, FALSE, 1);
-		}
-	}
+		GenerateGasGiantRanged (solarSys);
 
 	return true;
 }

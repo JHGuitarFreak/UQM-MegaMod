@@ -64,6 +64,7 @@ bool GenerateDefault_landerReportCycle (SOLARSYS_STATE *);
 extern void GeneratePlanets (SOLARSYS_STATE *system);
 extern SIZE CheckForHabitable (SOLARSYS_STATE *solarSys);
 extern BYTE GenerateWorlds (BYTE whichType);
+extern void GenerateGasGiantRanged (SOLARSYS_STATE *solarSys);
 extern BYTE GenerateCrystalWorld (void);
 extern BYTE GenerateDesolateWorld (void);
 extern BYTE GenerateHabitableWorld (void);
