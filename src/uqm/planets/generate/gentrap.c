@@ -45,53 +45,32 @@ const GenerateFunctions generateTrapFunctions = {
 static bool
 GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 	PLANET_DESC *pPlanet;
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (StarSeed)
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
-		pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
-	}
-	else if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+		COUNT angle;
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	if (StarSeed)
-	{
-		pPlanet->data_index = GenerateHabitableWorld ();
-	}
-
-	GeneratePlanets (solarSys);
-
-	if (StarSeed)
-	{
-		CheckForHabitable (solarSys);
-		return true;
-	}
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = TELLURIC_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-	if (!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-		CheckForHabitable (solarSys);
+		pPlanet->data_index = TELLURIC_WORLD;
+		pPlanet->NumPlanets = 1;
+		pPlanet->radius = EARTH_RADIUS * 203L / 100;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 203L / 100;
-		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-			COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateHabitableWorld ();
 	}
 
 	return true;
@@ -102,23 +81,12 @@ GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
 	GenerateDefault_generateOrbital (solarSys, world);
 
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		solarSys->SysInfo.PlanetInfo.AtmoDensity = EARTH_ATMOSPHERE * 2;
-		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 35;
 		if (!DIF_HARD)
 		{
 			solarSys->SysInfo.PlanetInfo.Weather = 3;
 			solarSys->SysInfo.PlanetInfo.Tectonics = 1;
-		}
-		if (!PrimeSeed)
-		{
-			solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
-			solarSys->SysInfo.PlanetInfo.PlanetRadius = 96;
-			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 98;
-			solarSys->SysInfo.PlanetInfo.RotationPeriod = 223;
-			solarSys->SysInfo.PlanetInfo.AxialTilt = 19;
-			solarSys->SysInfo.PlanetInfo.LifeChance = 560;
 		}
 	}
 

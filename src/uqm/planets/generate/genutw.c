@@ -84,90 +84,59 @@ GenerateUtwig_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 	PLANET_DESC *pPlanet;
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+	GenerateDefault_generatePlanets (solarSys);
 
 	if (CurStarDescPtr->Index == UTWIG_DEFINED)
 	{
-		solarSys->SunDesc[0].PlanetByte = 0;
-
-		if (StarSeed)
+		if (PrimeSeed)
 		{
-			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (1);
-			pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
-		}
-		else if (!PrimeSeed)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+			COUNT angle;
 
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+			pSunDesc->PlanetByte = 0;
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-		if (StarSeed)
-			pPlanet->data_index = GenerateHabitableWorld ();
-
-		GeneratePlanets (solarSys);
-
-		if (StarSeed)
-		{
-			CheckForHabitable (solarSys);
-			return true;
-		}
-
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-		if(PrimeSeed)
-		{
-			solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 174L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			pPlanet->data_index = WATER_WORLD;
+			pPlanet->NumPlanets = 1;
+			pPlanet->radius = EARTH_RADIUS * 174L / 100;
+			angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+			pPlanet->location.x = COSINE (angle, pPlanet->radius);
+			pPlanet->location.y = SINE (angle, pPlanet->radius);
+			ComputeSpeed (pPlanet, FALSE, 1);
 		}
 		else
 		{
-			solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-			CheckForHabitable (solarSys);
+			pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+			pPlanet->data_index = GenerateHabitableWorld ();
 		}
 	}
-	else if (CurStarDescPtr->Index == BOMB_DEFINED)
+
+	if (CurStarDescPtr->Index == BOMB_DEFINED)
 	{
-		solarSys->SunDesc[0].PlanetByte = 5;
-		solarSys->SunDesc[0].MoonByte = 1;
+		pSunDesc->PlanetByte = 5;
+		pSunDesc->MoonByte = 1;
 
 		if (StarSeed)
+			GenerateGasGiantRanged (solarSys);
+
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		if (!PrimeSeed && !StarSeed)
 		{
-			solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (6);
-			pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
-		}
-		else if (!PrimeSeed)
-			solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 6) + 6);
+			if (pSunDesc->NumPlanets <= pSunDesc->PlanetByte)
+				pSunDesc->NumPlanets = pSunDesc->PlanetByte + 1;
 
-		FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-
-		if (StarSeed)
-			pPlanet->data_index = GenerateGasGiantWorld ();
-
-		GeneratePlanets (solarSys);
-
-		if (StarSeed)
-		{
-			// Once you have two moons, it's an even 1:3 probability for 2 - 4.
-			pPlanet->NumPlanets = RandomContext_Random (SysGenRNG) % 3 + 2;
-			return true;
+			pPlanet->data_index = GenerateWorlds (ONLY_GAS);
 		}
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 2) + 2);
+			if (pPlanet->NumPlanets <= pSunDesc->MoonByte)
+				pPlanet->NumPlanets = pSunDesc->MoonByte + 1;
 		}
 	}
 
@@ -180,11 +149,14 @@ GenerateUtwig_generateName (const SOLARSYS_STATE *solarSys,
 {
 	if (IsHomeworldKnown (UTWIG_HOME)
 		&& CurStarDescPtr->Index == UTWIG_DEFINED
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 40));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS(PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 40));
+		SET_GAME_STATE (BATTLE_PLANET,
+				solarSys->PlanetDesc[
+					solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName(solarSys, world);
@@ -193,12 +165,13 @@ GenerateUtwig_generateName (const SOLARSYS_STATE *solarSys,
 }
 
 static bool
-GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
 	if ((CurStarDescPtr->Index == UTWIG_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 			|| (CurStarDescPtr->Index == BOMB_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte)
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE)
 			&& !GET_GAME_STATE (UTWIG_BOMB)))
 	{
 		if ((CurStarDescPtr->Index == UTWIG_DEFINED
@@ -298,20 +271,6 @@ GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				solarSys->SysInfo.PlanetInfo.Tectonics = 1;
 			}
 
-			if (!PrimeSeed)
-			{
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 2;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 35;
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 105;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 107;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 112;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 169;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 3;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
-			}
-
 			return true;
 		}
 	}
@@ -326,13 +285,13 @@ GenerateUtwig_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 	if (CurStarDescPtr->Index == UTWIG_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
 
 	if (CurStarDescPtr->Index == BOMB_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		// This check is redundant since the retrieval bit will keep the
 		// node from showing up again
@@ -341,7 +300,8 @@ GenerateUtwig_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return 0;
 		}
 
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -352,7 +312,7 @@ GenerateUtwig_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == UTWIG_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);
@@ -360,7 +320,7 @@ GenerateUtwig_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	}
 
 	if (CurStarDescPtr->Index == BOMB_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		assert (!GET_GAME_STATE (UTWIG_BOMB) && whichNode == 0);
 

@@ -55,33 +55,34 @@ const GenerateFunctions generateWreckFunctions = {
 static bool
 GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
 {
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 	PLANET_DESC *pPlanet;
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 6;
-	pPlanet = &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte];
+
+	GenerateDefault_generatePlanets (solarSys);
+
+	pSunDesc->PlanetByte = 6;
 
 	if (StarSeed)
-		solarSys->SunDesc[0].NumPlanets = GenerateMinPlanets (7);
-	else if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 7) + 7);
+		pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	if (StarSeed)
-		pPlanet->data_index = GenerateRockyWorld (SMALL_ROCKY);
+	if (!PrimeSeed)
+	{
+		if (!StarSeed && pSunDesc->NumPlanets <= pSunDesc->PlanetByte)
+			pSunDesc->NumPlanets = pSunDesc->PlanetByte + 1;
 
-	GeneratePlanets (solarSys);
-
-	if (!PrimeSeed && !StarSeed)
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateRockyWorld (SMALL_ROCKY);
+		pPlanet->data_index = GenerateWorlds (SMALL_ROCKY);
+	}
 
 	return true;
 }
 
 static bool
-GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS)
 				& 1 << PROBE_ENCOUNTER))
@@ -153,9 +154,10 @@ static COUNT
 GenerateWreck_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -165,7 +167,7 @@ static bool
 GenerateWreck_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		assert (whichNode == 0);
 
