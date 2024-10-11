@@ -141,8 +141,9 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 static bool
 GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET) &&
-			CurStarDescPtr->Index >= RAINBOW0_DEFINED && CurStarDescPtr->Index <= RAINBOW9_DEFINED)
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& CurStarDescPtr->Index >= RAINBOW0_DEFINED
+			&& CurStarDescPtr->Index <= RAINBOW9_DEFINED)
 	{
 		UWORD rainbow_mask;
 

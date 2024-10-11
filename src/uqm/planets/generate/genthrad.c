@@ -90,6 +90,8 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 			pPlanet->location.x = COSINE (angle, pPlanet->radius);
 			pPlanet->location.y = SINE (angle, pPlanet->radius);
 		}
+
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
 	{

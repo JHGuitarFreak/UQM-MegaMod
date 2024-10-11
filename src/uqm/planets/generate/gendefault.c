@@ -230,8 +230,8 @@ GenerateDefault_generateRuins (const SOLARSYS_STATE *solarSys,
 		COUNT whichNode, NODE_INFO *info)
 {
 	// Generate a standard spread of city ruins of a destroyed civilization
-	return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, NUM_RACE_RUINS,
-			0, whichNode, info);
+	return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN,
+			NUM_RACE_RUINS, 0, whichNode, info);
 }
 
 static inline void
@@ -405,7 +405,7 @@ GenerateGasGiantRanged (SOLARSYS_STATE *solarSys)
 		DWORD rand = RandomContext_GetSeed (SysGenRNG);
 
 		pPlanet->radius =
-			RangeMinMax (DWARF_GASG_DIST, MAX_PLANET_RADIUS, rand);
+				RangeMinMax (DWARF_GASG_DIST, MAX_PLANET_RADIUS, rand);
 		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
 		pPlanet->location.x = COSINE (angle, pPlanet->radius);
 		pPlanet->location.y = SINE (angle, pPlanet->radius);
