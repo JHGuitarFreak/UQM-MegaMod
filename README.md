@@ -34,10 +34,8 @@ ___
 <p align="center">
 
 <a href="https://uqm-mods.sourceforge.net/Discord">
-	<img src="https://img.shields.io/badge/discord-7289da.svg?style=for-the-badge&logo=discord" alt="discord"></a>	
-<a href="https://ko-fi.com/Z8Z2U0G7V">
-	<img src="https://img.shields.io/badge/Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Donation Badge"></a>
-	
+	<img src="https://img.shields.io/badge/discord-7289da.svg?style=for-the-badge&logo=discord" alt="discord"></a>
+
 </p>
 
 ___
