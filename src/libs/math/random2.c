@@ -102,8 +102,8 @@ RandomContext_FastRandom (DWORD seed)
 	return res;
 }
 
-DWORD
-RangeMinMax (DWORD min, DWORD max, DWORD rand)
+int
+RangeMinMax (int min, int max, DWORD rand)
 {
 	if (min > max)
 		return max;

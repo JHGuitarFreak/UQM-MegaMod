@@ -69,7 +69,7 @@ DWORD RandomContext_Random (RandomContext *context);
 DWORD RandomContext_SeedRandom (RandomContext *context, DWORD new_seed);
 DWORD RandomContext_GetSeed (RandomContext *context);
 DWORD RandomContext_FastRandom (DWORD seed);
-DWORD RangeMinMax (DWORD min, DWORD max, DWORD rand);
+int RangeMinMax (int min, int max, DWORD rand);
 
 
 #endif  /* LIBS_MATH_RANDOM_H_ */
