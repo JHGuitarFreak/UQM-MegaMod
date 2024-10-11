@@ -313,7 +313,7 @@ InventoryShips (SHIPS_STATE *ship_state, SIZE Size)
 	ship_state->count = ShipsOnBoard;
 }
 
-void
+static void
 FillHangarX (void)
 {
 	BYTE i;

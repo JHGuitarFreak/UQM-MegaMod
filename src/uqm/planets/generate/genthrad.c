@@ -61,59 +61,44 @@ const GenerateFunctions generateThraddashFunctions = {
 static bool
 GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-	}
-	
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
+		COUNT angle;
 
-	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = PRIMORDIAL_WORLD;
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-		if (PrimeSeed)
+		if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 65L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			pPlanet->data_index = PRIMORDIAL_WORLD;
+			pPlanet->radius = EARTH_RADIUS * 65L / 100;
+			angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+			pPlanet->location.x = COSINE (angle, pPlanet->radius);
+			pPlanet->location.y = SINE (angle, pPlanet->radius);
 		}
-	}
-	else if	(CurStarDescPtr->Index == THRADD_DEFINED)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
-
-		if (PrimeSeed)
+		else  /* CurStarDescPtr->Index == THRADD_DEFINED */
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 98L / 100;
-			angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-					solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-					COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-					SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-			ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+			pPlanet->data_index = WATER_WORLD;
+			pPlanet->NumPlanets = 0;
+			pPlanet->radius = EARTH_RADIUS * 98L / 100;
+			angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+			pPlanet->location.x = COSINE (angle, pPlanet->radius);
+			pPlanet->location.y = SINE (angle, pPlanet->radius);
 		}
-	}
 
-	if (!PrimeSeed)
+		ComputeSpeed (pPlanet, FALSE, 1);
+	}
+	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateHabitableWorld ();
 	}
 
 	return true;
@@ -123,7 +108,7 @@ static bool
 GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (StartSphereTracking (THRADDASH_SHIP)
 				&& (CurStarDescPtr->Index == THRADD_DEFINED
@@ -161,12 +146,16 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					&& (BYTE)(GET_GAME_STATE (THRADD_MISSION) - 1) >= 3))
 				return true;
 
-			RepairSISBorder (); // reachable if you're frendly with thraddsh and talk to them at helix world
+			RepairSISBorder ();
+				// reachable if you're frendly with thraddsh and talk to
+				// them at helix world
 		}
-		else if (DIF_HARD 
+		else if (DIF_HARD
 					&& CurStarDescPtr->Index == AQUA_HELIX_DEFINED
-					&& !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << THRADDASH_ENCOUNTER) 
-					&& (StartSphereTracking (THRADDASH_SHIP) || !(GET_GAME_STATE(KOHR_AH_FRENZY))))
+					&& !(GET_GAME_STATE (HM_ENCOUNTERS)
+						& 1 << THRADDASH_ENCOUNTER)
+					&& (StartSphereTracking (THRADDASH_SHIP)
+						|| !(GET_GAME_STATE(KOHR_AH_FRENZY))))
 		{
 			COUNT sum, i;
 
@@ -192,7 +181,8 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 				return true;
 
 			{
-				BOOLEAN Survivors = GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
+				BOOLEAN Survivors =
+						GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
 
 				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 				ReinitQueue (&GLOBAL(npc_built_ship_q));
@@ -223,28 +213,6 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					CaptureDrawable (LoadGraphic (AQUA_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (AQUA_STRTAB));
-
-			if (!PrimeSeed)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 160 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = -66;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 3;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 6;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 105;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 97;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 101;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 205;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 10;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 560;
-
-				return true;
-			}
 		}
 		else if (CurStarDescPtr->Index == THRADD_DEFINED)
 		{
@@ -253,28 +221,6 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
-
-			if (!PrimeSeed)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 194 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 38;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 3;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 2;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 84;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 86;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 252;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 21;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
-
-				return true;
-			}
 		}
 	}
 
@@ -287,13 +233,13 @@ GenerateThraddash_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 	if (CurStarDescPtr->Index == THRADD_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
 
 	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// This check is redundant since the retrieval bit will keep the
 		// node from showing up again
@@ -302,7 +248,8 @@ GenerateThraddash_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return 0;
 		}
 
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -312,12 +259,14 @@ static bool
 GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	HFLEETINFO hThradd = GetStarShipFromIndex (&GLOBAL (avail_race_q), THRADDASH_SHIP);
-	FLEET_INFO *ThraddPtr = LockFleetInfo (&GLOBAL (avail_race_q), hThradd);
+	HFLEETINFO hThradd =
+			GetStarShipFromIndex (&GLOBAL (avail_race_q), THRADDASH_SHIP);
+	FLEET_INFO *ThraddPtr =
+			LockFleetInfo (&GLOBAL (avail_race_q), hThradd);
 	SIZE strength_loss;
 
 	if (CurStarDescPtr->Index == THRADD_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);
@@ -325,7 +274,7 @@ GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	}
 
 	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		assert (!GET_GAME_STATE (AQUA_HELIX) && whichNode == 0);
 
@@ -336,13 +285,17 @@ GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		SET_GAME_STATE (AQUA_HELIX, 1);
 		SET_GAME_STATE (AQUA_HELIX_ON_SHIP, 1);
 		SET_GAME_STATE (HELIX_UNPROTECTED, 1);
-		if (EXTENDED && ThraddPtr->allied_state == GOOD_GUY && GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH)) 
+		if (EXTENDED && ThraddPtr->allied_state == GOOD_GUY
+				&& GET_GAME_STATE (ILWRATH_FIGHT_THRADDASH))
 		{
 			SetRaceAllied (THRADDASH_SHIP, FALSE);
 			RemoveEscortShips (THRADDASH_SHIP);
 			strength_loss = (SIZE)(ThraddPtr->actual_strength);
-			ThraddPtr->growth = (BYTE)(-strength_loss / ThraddPtr->days_left);
-			ThraddPtr->growth_fract = (BYTE)(((strength_loss % ThraddPtr->days_left) << 8) / ThraddPtr->days_left);
+			ThraddPtr->growth =
+					(BYTE)(-strength_loss / ThraddPtr->days_left);
+			ThraddPtr->growth_fract =
+					(BYTE)(((strength_loss % ThraddPtr->days_left) << 8)
+						/ ThraddPtr->days_left);
 			SET_GAME_STATE (THRADD_VISITS, 0);
 		}
 

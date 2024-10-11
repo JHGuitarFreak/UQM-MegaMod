@@ -57,37 +57,38 @@ const GenerateFunctions generatePkunkFunctions = {
 static bool
 GeneratePkunk_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+	PLANET_DESC *pPlanet;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
 	solarSys->SunDesc[0].PlanetByte = 0;
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+	GenerateDefault_generatePlanets (solarSys);
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		CheckForHabitable (solarSys);
+		COUNT angle;
+
+		pPlanet->data_index = WATER_WORLD;
+		pPlanet->NumPlanets = 1;
+		pPlanet->radius = EARTH_RADIUS * 104L / 100;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
-	{ 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 104L / 100;
-		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-				COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+	{
+
+		if (StarSeed)
+		{
+			pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+		}
+		else
+			CheckForHabitable (solarSys);
+
+		pPlanet->data_index = GenerateHabitableWorld ();
 	}
 
 	return true;
@@ -96,7 +97,7 @@ GeneratePkunk_generatePlanets (SOLARSYS_STATE *solarSys)
 static bool
 GeneratePkunk_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (StartSphereTracking (PKUNK_SHIP))
 		{
@@ -126,34 +127,13 @@ GeneratePkunk_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->PlanetSideFrame[1] =
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-					CaptureStringTable (LoadStringTable (PKUNK_RUINS_STRTAB));
+					CaptureStringTable (
+						LoadStringTable (PKUNK_RUINS_STRTAB));
 			if (GET_GAME_STATE (CLEAR_SPINDLE))
 			{	// Already picked up the Clear Spindle, skip the report
 				solarSys->SysInfo.PlanetInfo.DiscoveryString =
 						SetAbsStringTableIndex (
 						solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
-			}
-
-			if (!PrimeSeed)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-					EARTH_ATMOSPHERE * 202 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 13;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 3;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 3;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 105;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 75;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 78;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 165;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 2;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
-
-				return true;
 			}
 		}
 	}
@@ -166,7 +146,7 @@ static bool
 GeneratePkunk_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		GenerateDefault_landerReportCycle (solarSys);
 
@@ -190,7 +170,7 @@ static COUNT
 GeneratePkunk_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}

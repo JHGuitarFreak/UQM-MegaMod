@@ -115,39 +115,32 @@ GenerateMyconDefenders (BYTE index)
 static bool
 GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	PLANET_DESC *pPlanet;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
+
+	pSunDesc->PlanetByte = 0;
 
 	if (!PrimeSeed)
-	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-	}
-	
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+	pPlanet->data_index = SHATTERED_WORLD;
 
 	if (PrimeSeed)
 	{
-		if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets > 2)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 2;
+		COUNT angle;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 80L / 100;
-		angle = ARCTAN (
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-				COSINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		pPlanet->radius = EARTH_RADIUS * 80L / 100;
+		if (pPlanet->NumPlanets > 2)
+			pPlanet->NumPlanets = 2;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
-	else
-		CheckForHabitable (solarSys);
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD;
 
 	return true;
 }
@@ -156,12 +149,15 @@ static bool
 GenerateMycon_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (CurStarDescPtr->Index == EGG_CASE0_DEFINED 
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (CurStarDescPtr->Index == EGG_CASE0_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 42));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS (PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 42));
+		SET_GAME_STATE (BATTLE_PLANET,
+				solarSys->PlanetDesc[
+					solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName(solarSys, world);
@@ -170,9 +166,10 @@ GenerateMycon_generateName (const SOLARSYS_STATE *solarSys,
 }
 
 static bool
-GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if ((CurStarDescPtr->Index == MYCON_DEFINED
 				|| CurStarDescPtr->Index == SUN_DEVICE_DEFINED)
@@ -243,7 +240,8 @@ GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 					solarSys->PlanetSideFrame[1] =
 							CaptureDrawable (
-									LoadGraphic (SUN_DEVICE_MASK_PMAP_ANIM));
+									LoadGraphic (
+										SUN_DEVICE_MASK_PMAP_ANIM));
 					solarSys->SysInfo.PlanetInfo.DiscoveryString =
 							CaptureStringTable (
 									LoadStringTable (SUN_DEVICE_STRTAB));
@@ -277,6 +275,17 @@ GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& !PrimeSeed
+			&& (CurStarDescPtr->Index != EGG_CASE0_DEFINED || DIF_HARD))
+	{
+		PLANET_INFO *pPlanetInfo = &solarSys->SysInfo.PlanetInfo;
+		DWORD rand = RandomContext_Random (SysGenRNG);
+
+		pPlanetInfo->SurfaceTemperature = RangeMinMax (100, 300, rand);
+	}
+
 	return true;
 }
 
@@ -285,7 +294,7 @@ GenerateMycon_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 	if (CurStarDescPtr->Index == SUN_DEVICE_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// This check is redundant since the retrieval bit will keep the
 		// node from showing up again
@@ -294,13 +303,14 @@ GenerateMycon_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return 0;
 		}
 
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	if ((CurStarDescPtr->Index == EGG_CASE0_DEFINED
 			|| CurStarDescPtr->Index == EGG_CASE1_DEFINED
 			|| CurStarDescPtr->Index == EGG_CASE2_DEFINED)
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// This check is redundant since the retrieval bit will keep the
 		// node from showing up again
@@ -311,7 +321,8 @@ GenerateMycon_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return 0;
 		}
 
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -322,7 +333,7 @@ GenerateMycon_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == SUN_DEVICE_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		assert (!GET_GAME_STATE (SUN_DEVICE) && whichNode == 0);
 
@@ -339,7 +350,7 @@ GenerateMycon_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if ((CurStarDescPtr->Index == EGG_CASE0_DEFINED
 			|| CurStarDescPtr->Index == EGG_CASE1_DEFINED
 			|| CurStarDescPtr->Index == EGG_CASE2_DEFINED)
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		assert (whichNode == 0);
 

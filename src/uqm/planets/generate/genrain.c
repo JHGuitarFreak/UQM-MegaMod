@@ -109,34 +109,31 @@ GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+	pSunDesc->PlanetByte = 0;
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
+	pPlanet->data_index = RAINBOW_WORLD;
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 50L / 100;
-	angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-	if (angle <= QUADRANT)
-		angle += QUADRANT;
-	else if (angle >= FULL_CIRCLE - QUADRANT)
-		angle -= QUADRANT;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-			COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-	ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+	if (PrimeSeed)
+	{
+		COUNT angle;
 
-	if (!PrimeSeed)
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
+		pPlanet->NumPlanets = 0;
+		pPlanet->radius = EARTH_RADIUS * 50L / 100;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		if (angle <= QUADRANT)
+			angle += QUADRANT;
+		else if (angle >= FULL_CIRCLE - QUADRANT)
+			angle -= QUADRANT;
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
+	}
 
 	return true;
 }
@@ -144,29 +141,60 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 static bool
 GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& CurStarDescPtr->Index >= RAINBOW0_DEFINED
+			&& CurStarDescPtr->Index <= RAINBOW9_DEFINED)
 	{
-		BYTE which_rainbow;
 		UWORD rainbow_mask;
-		STAR_DESC *SDPtr;
 
 		rainbow_mask = MAKE_WORD (
 				GET_GAME_STATE (RAINBOW_WORLD0),
 				GET_GAME_STATE (RAINBOW_WORLD1));
 
-		which_rainbow = 0;
-		SDPtr = &star_array[0];
-		while (SDPtr != CurStarDescPtr)
-		{
-			if (SDPtr->Index == RAINBOW_DEFINED)
-				++which_rainbow;
-			++SDPtr;
-		}
-		rainbow_mask |= 1 << which_rainbow;
+		rainbow_mask |= 1 << (CurStarDescPtr->Index - RAINBOW0_DEFINED);
 		SET_GAME_STATE (RAINBOW_WORLD0, LOBYTE (rainbow_mask));
 		SET_GAME_STATE (RAINBOW_WORLD1, HIBYTE (rainbow_mask));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
 	return true;
+}
+
+static void
+GenerateSlylandro (SOLARSYS_STATE *solarSys) {
+	HIPGROUP hGroup, hNextGroup;
+	BYTE a, b;
+
+	BYTE NumSly = GET_GAME_STATE (SLYLANDRO_MULTIPLIER) * 2;
+
+	assert(CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+
+	CloneShipFragment (SLYLANDRO_SHIP, &GLOBAL (npc_built_ship_q), 0);
+	if (GLOBAL (BattleGroupRef) == 0)
+		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
+
+	for (a = 1; a <= NumSly; ++a)
+		PutGroupInfo (GLOBAL (BattleGroupRef), a);
+
+	ReinitQueue (&GLOBAL (npc_built_ship_q));
+	GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP);
+	hGroup = GetHeadLink (&GLOBAL(ip_group_q));
+
+	for (a = 0, b = 0; a < NumSly; ++a, b += FULL_CIRCLE / NumSly)
+	{
+		IP_GROUP *GroupPtr;
+
+		if (b % (FULL_CIRCLE / NumSly) == 0)
+			b += FULL_CIRCLE / NumSly;
+
+		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
+		hNextGroup = _GetSuccLink (GroupPtr);
+		GroupPtr->task = IN_ORBIT;
+		GroupPtr->sys_loc = solarSys->SunDesc[0].PlanetByte + 1;
+		GroupPtr->dest_loc = GroupPtr->sys_loc;
+		GroupPtr->orbit_pos = NORMALIZE_FACING (ANGLE_TO_FACING(b));
+		GroupPtr->group_counter = 0;
+		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
+		hGroup = hNextGroup;
+	}
 }

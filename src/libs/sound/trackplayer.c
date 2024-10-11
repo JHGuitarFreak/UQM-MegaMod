@@ -293,13 +293,14 @@ OnBufferTag (TFB_SoundSample* sample, TFB_SoundTag* tag)
 
 // Parse the timestamps string into an int array.
 // Rerturns number of timestamps parsed.
+// Stops if it encounters a ; as this is used for alternate time stamps.
 static int
 GetTimeStamps (UNICODE *TimeStamps, sint32 *time_stamps)
 {
 	int pos;
 	int num = 0;
 	
-	while (*TimeStamps && (pos = strcspn (TimeStamps, ",\r\n")))
+	while (*TimeStamps && (pos = strcspn (TimeStamps, ";,\r\n")))
 	{
 		UNICODE valStr[32];
 		uint32 val;
@@ -314,6 +315,8 @@ GetTimeStamps (UNICODE *TimeStamps, sint32 *time_stamps)
 			time_stamps++;
 		}
 		TimeStamps += pos;
+		if (TimeStamps[0] == ';')
+			break;
 		TimeStamps += strspn (TimeStamps, ",\r\n");
 	}
 	return (num);

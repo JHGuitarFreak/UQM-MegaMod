@@ -374,7 +374,6 @@ void
 DrawOrbitMapGraphic (void)
 {
 	STAMP s;
-	FRAME SurfDefFrame = NULL;
 
 	SetContext (GetScanContext (NULL));
 

@@ -56,50 +56,42 @@ const GenerateFunctions generateYehatFunctions = {
 static bool
 GenerateYehat_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % 3);
-	}
+		COUNT angle;
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-	
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	if (!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		CheckForHabitable (solarSys);
+		pPlanet->data_index = WATER_WORLD;
+		pPlanet->NumPlanets = 1;
+		pPlanet->radius = EARTH_RADIUS * 106L / 100;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
-	{ 
-		solarSys->PlanetDesc[0].radius = EARTH_RADIUS * 106L / 100;
-		angle = ARCTAN (
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-				COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+	{
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateHabitableWorld ();
 	}
 
 	return true;
 }
 
 static bool
-GenerateYehat_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateYehat_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (StartSphereTracking (YEHAT_SHIP))
 		{
@@ -130,31 +122,10 @@ GenerateYehat_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (LoadStringTable (RUINS_STRTAB));
-
-		if (!PrimeSeed)
-		{
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			solarSys->SysInfo.PlanetInfo.AtmoDensity =
-					EARTH_ATMOSPHERE * 3;
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 16;
-			if (!DIF_HARD)
-			{
-				solarSys->SysInfo.PlanetInfo.Weather = 3;
-				solarSys->SysInfo.PlanetInfo.Tectonics = 3;
-			}
-			solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
-			solarSys->SysInfo.PlanetInfo.PlanetRadius = 84;
-			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 86;
-			solarSys->SysInfo.PlanetInfo.RotationPeriod = 151;
-			solarSys->SysInfo.PlanetInfo.AxialTilt = -9;
-			solarSys->SysInfo.PlanetInfo.LifeChance = 960;
-
-			return true;
-		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
 	return true;
 }
 
@@ -162,7 +133,7 @@ static COUNT
 GenerateYehat_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
@@ -174,7 +145,7 @@ static bool
 GenerateYehat_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);

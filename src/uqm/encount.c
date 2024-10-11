@@ -107,8 +107,7 @@ SetBattlePlanet (void)
 {
 	BYTE selector;
 
-	selector = (BYTE)((COUNT)TFB_Random ()
-		% NUMBER_OF_PLANET_TYPES);
+	selector = (BYTE)((COUNT)TFB_Random () % NUMBER_OF_PLANET_TYPES);
 
 	if (EXTENDED && (selector == RAINBOW_WORLD
 		|| selector == SHATTERED_WORLD))

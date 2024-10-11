@@ -60,40 +60,32 @@ const GenerateFunctions generateSupoxFunctions = {
 static bool
 GenerateSupox_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-	}
+		COUNT angle;
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);	
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 2;
-
-	if(!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 3];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-		CheckForHabitable (solarSys);
+		pPlanet->data_index = WATER_WORLD;
+		pPlanet->NumPlanets = 2;
+		pPlanet->radius = EARTH_RADIUS * 152L / 100;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 152L / 100;
-		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x, 
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x = 
-			COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y = 
-			SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateHabitableWorld ();
 	}
 
 	return true;
@@ -103,12 +95,15 @@ static bool
 GenerateSupox_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (SUPOX_STACK1) > 2 
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (GET_GAME_STATE (SUPOX_STACK1) > 2
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 38));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS (PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 38));
+		SET_GAME_STATE (BATTLE_PLANET,
+				solarSys->PlanetDesc[
+					solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName (solarSys, world);
@@ -117,9 +112,10 @@ GenerateSupox_generateName (const SOLARSYS_STATE *solarSys,
 }
 
 static bool
-GenerateSupox_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSupox_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (StartSphereTracking (SUPOX_SHIP))
 		{
@@ -149,34 +145,13 @@ GenerateSupox_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->PlanetSideFrame[1] =
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-					CaptureStringTable (LoadStringTable (SUPOX_RUINS_STRTAB));
+					CaptureStringTable (
+						LoadStringTable (SUPOX_RUINS_STRTAB));
 			if (GET_GAME_STATE (ULTRON_CONDITION))
 			{	// Already picked up the Ultron, skip the report
 				solarSys->SysInfo.PlanetInfo.DiscoveryString =
 						SetAbsStringTableIndex (
 						solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
-			}
-
-			if (!PrimeSeed)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 196 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 37;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 3;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 3;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 96;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 90;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 86;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 200;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 16;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
-
-				return true;
 			}
 		}
 	}
@@ -190,7 +165,7 @@ static bool
 GenerateSupox_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		GenerateDefault_landerReportCycle (solarSys);
 
@@ -213,7 +188,7 @@ static COUNT
 GenerateSupox_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}

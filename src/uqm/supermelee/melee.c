@@ -2139,7 +2139,7 @@ StartMelee (MELEE_STATE *pMS)
 		WaitForSoundEnd (TFBSOUND_WAIT_ALL);
 
 		load_gravity_well ((BYTE)((COUNT)TFB_Random () %
-					NUMBER_OF_PLANET_TYPES));
+				NUMBER_OF_PLANET_TYPES));
 		Battle (NULL);
 		free_gravity_well ();
 		ClearPlayerInputAll ();

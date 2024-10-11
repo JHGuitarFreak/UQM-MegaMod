@@ -841,19 +841,43 @@ StartGame (void)
 		}
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);
-
+	// Be sure to load the seed type from the settings into the state.
+	SET_GAME_STATE (SEED_TYPE, optSeedType);
+	// Make sure to reset the seed if prime game is called for.
+	if (PrimeSeed)
+		optCustomSeed = PrimeA;
+#ifdef DEBUG_STARSEED
+	fprintf(stderr, "StartGame called for %d mode with seed %d.\n",
+			optSeedType, optCustomSeed);
+#endif
 	{
 		extern STAR_DESC starmap_array[];
 		extern const BYTE element_array[];
 		extern const PlanetFrame planet_array[];
 		extern POINT constell_array[];
 
-		star_array = starmap_array;
+		// We no longer make a global pointer to the static starmap,
+		// we make our own global copy in static memory so it behaves
+		// the same throughout the code but can be reset as needed.
+		//
+		// As a reminder, the array has three extra entries beyond
+		// NUM_SOLAR_SYSTEMS and NUM_HYPER_VORTICES due to Arilou
+		// Quasispace home and the two endpoint dummy systems used by
+		// FindStar as a boundary.
+		//
+		// While the starseed init code should always force a
+		// reset of the starmap_array, we will do it here because
+		// paranoia is its own reward.
+		COUNT i;
+#ifdef DEBUG_STARSEED
+		fprintf(stderr, "Initializing star_array, just in case...\n");
+#endif
+		for (i = 0; i < NUM_SOLAR_SYSTEMS + 1 + NUM_HYPER_VORTICES + 1 + 1; i++)
+			star_array[i] = starmap_array[i];
 		Elements = element_array;
 		PlanData = planet_array;
 		constel_array = constell_array;
 	}
-
 	PlayerControl[0] = HUMAN_CONTROL | STANDARD_RATING;
 	PlayerControl[1] = COMPUTER_CONTROL | AWESOME_RATING;
 

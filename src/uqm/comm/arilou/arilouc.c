@@ -22,6 +22,7 @@
 
 #include "uqm/gameev.h"
 #include "uqm/races.h"
+#include "uqm/lua/luacomm.h"
 
 
 static LOCDATA arilou_desc =
@@ -815,6 +816,7 @@ Intro (void)
 static COUNT
 uninit_arilou (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -856,6 +858,8 @@ init_arilou_comm (void)
 	arilou_desc.init_encounter_func = Intro;
 	arilou_desc.post_encounter_func = post_arilou_enc;
 	arilou_desc.uninit_encounter_func = uninit_arilou;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	arilou_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	arilou_desc.AlienTextBaseline.y = 0;

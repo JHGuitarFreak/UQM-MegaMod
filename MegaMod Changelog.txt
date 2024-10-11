@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Show the type of save on the loading screen in the blue title bar when loading a vanilla, HD-mod, or legacy vanilla save
 - Auto-load support for Distorted Hayes dialog addon
 - Commandline option to prevent Classic Pack from loading
+- King Duncan's StarSeed, which is a mode that shuffles the locations of all plot events into the starmap including homeworlds, fleet locations, dialog, and artifacts as well as planetary resources and Quasispace
+- An option to change the colors of alien Spheres of Influence to make them more easily identifiable at a glance.
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest

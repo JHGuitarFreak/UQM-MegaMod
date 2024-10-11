@@ -56,29 +56,43 @@ const GenerateFunctions generateVaultFunctions = {
 static bool
 GenerateVault_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
-	solarSys->SunDesc[0].MoonByte = 0;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
+
+	GenerateDefault_generatePlanets (solarSys);
+
+	pSunDesc->PlanetByte = 0;
+	pSunDesc->MoonByte = 0;
+
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+	if (StarSeed)
+	{
+		pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->NumPlanets =
+				RandomContext_GetSeed (SysGenRNG) % 5 == 0 ? 2 : 1;
+
+		pSunDesc->MoonByte = PlanetByteGen (pPlanet);
+	}
 
 	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
+	{
+		pPlanet->data_index = GenerateWorlds (LARGE_ROCKY);
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	if(!PrimeSeed)
-	{		
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateRockyWorld (LARGE_ROCKY);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		if (!StarSeed && !pPlanet->NumPlanets)
+			pPlanet->NumPlanets++;
 	}
 
 	return true;
 }
 
 static bool
-GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
@@ -152,9 +166,10 @@ static COUNT
 GenerateVault_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -164,7 +179,7 @@ static bool
 GenerateVault_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		assert (whichNode == 0);
 

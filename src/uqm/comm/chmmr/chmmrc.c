@@ -28,6 +28,8 @@
 			// JMS_GFX: For LoadGraphic 
 #include "../../planets/planets.h"
 			// For MIN_MOON_RADIUS
+// JSD it needs starmap.h to find SOL
+#include "../../starmap.h"
 
 
 static LOCDATA chmmr_desc =
@@ -189,8 +191,11 @@ ExitConversation (RESPONSE_REF R)
 #define EARTH_INDEX 2 /* earth is 3rd planet --> 3 - 1 = 2 */
 
 		/* transport player to Earth */
-		GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
-		GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+		// JSD replace old method of teleport to SOL with new method
+		// GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
+		// GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+		GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (plot_map[SOL_DEFINED].star_pt.x);
+		GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (plot_map[SOL_DEFINED].star_pt.y);
 		GLOBAL (ShipFacing) = 1;
 		/* At Earth or at Starbase */
 		GLOBAL (ip_planet) = EARTH_INDEX + 1;
@@ -647,14 +652,16 @@ Intro (void)
 				{
 					ChmmrPtr->actual_strength =
 							986 / SPHERE_RADIUS_INCREMENT * 2;
-					ChmmrPtr->loc.x = 577;
-					ChmmrPtr->loc.y = 2509;
+					ChmmrPtr->loc = SeedFleetLocation (ChmmrPtr, plot_map,
+							HOME);
 					StartSphereTracking (CHMMR_SHIP);
 				}
 				UnlockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
 			}
 		}
 		SET_GAME_STATE (CHMMR_HOME_VISITS, NumVisits);
+
+		SetHomeworldKnown (CHMMR_HOME);
 	}
 }
 

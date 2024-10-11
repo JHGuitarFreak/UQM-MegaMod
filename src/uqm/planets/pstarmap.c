@@ -385,10 +385,11 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 
 // For showing the War-Era situation in starmap
 static void
-GetWarEraSphereRect (COUNT index, const COUNT war_era_strengths[],
-		const POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
+GetWarEraSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 {
-	long diameter = (long)(war_era_strengths[index] * 2);
+	long diameter = (long)(WarEraStrength (FleetPtr->SpeciesID) *
+			SPHERE_RADIUS_INCREMENT);
+	POINT loc = SeedFleetLocation (FleetPtr, plot_map, WAR_ERA);
 
 	pRect->extent.width = UNIVERSE_TO_DISPX (diameter)
 			- UNIVERSE_TO_DISPX (0);
@@ -403,8 +404,8 @@ GetWarEraSphereRect (COUNT index, const COUNT war_era_strengths[],
 	else if (pRect->extent.height == 0)
 		pRect->extent.height = RES_SCALE (1);
 
-	pRect->corner.x = UNIVERSE_TO_DISPX (war_era_locations[index].x);
-	pRect->corner.y = UNIVERSE_TO_DISPY (war_era_locations[index].y);
+	pRect->corner.x = UNIVERSE_TO_DISPX (loc.x);
+	pRect->corner.y = UNIVERSE_TO_DISPY (loc.y);
 	pRect->corner.x -= pRect->extent.width >> 1;
 	pRect->corner.y -= pRect->extent.height >> 1;
 
@@ -526,7 +527,7 @@ DrawNoReturnZone (void)
 	POINT sol, sis;
 	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
 
-	sol = (POINT){ SOL_X, SOL_Y };
+	sol = plot_map[SOL_DEFINED].star_pt;
 	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
 			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
 
@@ -695,7 +696,7 @@ DrawFuelCircle (BOOLEAN secondary)
 		{
 			OldColor =
 				SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-			if (pointsEqual (corner, (POINT) { SOL_X, SOL_Y }))
+			if (pointsEqual (corner, plot_map[SOL_DEFINED].star_pt))
 			{// We are at Sol, foci are equal - draw a standard oval
 				GetFuelRect (&r, OnBoardFuel, corner);
 				DrawFilledOval (&r);
@@ -755,93 +756,91 @@ isHomeworld (BYTE Index)
 	{
 		case CHMMR_DEFINED:
 			if (IsHomeworldKnown (CHMMR_HOME)
-				&& CheckAlliance (CHMMR_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (CHMMR_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ORZ_DEFINED:
 			if (IsHomeworldKnown (ORZ_HOME)
-				&& CheckAlliance (ORZ_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ORZ_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case PKUNK_DEFINED:
 			if (IsHomeworldKnown (PKUNK_HOME)
-				&& CheckAlliance (PKUNK_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (PKUNK_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SHOFIXTI_DEFINED:
 			if (IsHomeworldKnown (SHOFIXTI_HOME)
-				&& CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SPATHI_DEFINED:
 			if (IsHomeworldKnown (SPATHI_HOME)
-				&& CheckAlliance (SPATHI_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SPATHI_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SUPOX_DEFINED:
 			if (IsHomeworldKnown (SUPOX_HOME)
-				&& CheckAlliance (SUPOX_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SUPOX_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case THRADD_DEFINED:
 			if (IsHomeworldKnown (THRADDASH_HOME)
-				&& CheckAlliance (THRADDASH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (THRADDASH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case UTWIG_DEFINED:
 			if (IsHomeworldKnown (UTWIG_HOME)
-				&& CheckAlliance (UTWIG_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (UTWIG_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case VUX_DEFINED:
 			if (IsHomeworldKnown (VUX_HOME)
-				&& CheckAlliance (VUX_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (VUX_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case YEHAT_DEFINED:
 			if (IsHomeworldKnown (YEHAT_HOME)
-				&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (YEHAT_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case DRUUGE_DEFINED:
 			if (IsHomeworldKnown (DRUUGE_HOME)
-				&& CheckAlliance (DRUUGE_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (DRUUGE_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ILWRATH_DEFINED:
 			if (IsHomeworldKnown (ILWRATH_HOME)
-				&& CheckAlliance (ILWRATH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ILWRATH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case MYCON_DEFINED:
 			if (IsHomeworldKnown (MYCON_HOME)
-				&& CheckAlliance (MYCON_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (MYCON_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SLYLANDRO_DEFINED:
-			if (IsHomeworldKnown (SLYLANDRO_HOME)
-				&& Index == SLYLANDRO_DEFINED)
+			if (IsHomeworldKnown (SLYLANDRO_HOME))
 				raceBool = TRUE;
 			break;
 		case UMGAH_DEFINED:
 			if (IsHomeworldKnown (UMGAH_HOME)
-				&& CheckAlliance (UMGAH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (UMGAH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ZOQFOT_DEFINED:
 			if (IsHomeworldKnown (ZOQFOTPIK_HOME)
-				&& CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SYREEN_DEFINED:
 			if (IsHomeworldKnown (SYREEN_HOME)
-				&& CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (SYREEN_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ANDROSYNTH_DEFINED:
 			if (IsHomeworldKnown (ANDROSYNTH_HOME)
-				&& Index == ANDROSYNTH_DEFINED
-				&& CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
+				&& (CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SOL_DEFINED:
@@ -907,8 +906,7 @@ CheckTextsIntersect (RECT *curr, RECT *prev)
 			((prev->corner.y + prev->extent.height) <= curr->corner.y))
 		return 0;
 
-	return ((prev->extent.height + RES_SCALE (1)) - abs (curr->corner.y -
-			prev->corner.y));
+	return ((prev->extent.height + RES_SCALE (1)) - (curr->corner.y - prev->corner.y));
 }
 
 static void
@@ -959,6 +957,85 @@ DrawRaceName (TEXT *t, Color *c)
 
 	SetContextForeGroundColor (*c);
 	font_DrawText (t);
+}
+
+Color
+RaceColor (COUNT index)
+{
+	static const Color race_colors[] =
+	{
+		RACE_COLORS
+	};
+	if (optSphereColors == OPTVAL_DEFAULT_COLORS)
+		return race_colors[index];
+	// right now, assume OPTVAL_STARSEED_COLORS (option 1), but more options
+	// can be added here with if statements, or with more complicated (better) code
+	switch (index)
+	{
+		case ARILOU_SHIP: // Bold blue
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x17), 0x00);
+		case CHMMR_SHIP: // Pale blue-grey
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x10, 0x15, 0x19), 0x00);
+		case HUMAN_SHIP: // Blue
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x09, 0x1B), 0x00);
+		case ORZ_SHIP: // Plum
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0D, 0x00, 0x05), 0x00);
+		case PKUNK_SHIP: // Pinkunk
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1C, 0x07, 0x19), 0x00);
+		case SHOFIXTI_SHIP: // Marsupial brown
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x06, 0x00), 0x00);
+		case SPATHI_SHIP: // Mustard yellow
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x12, 0x03), 0x00);
+		case SUPOX_SHIP: // Leaf green
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x05, 0x14, 0x01), 0x00);
+		case THRADDASH_SHIP: // Dark cyan
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x00);
+		case UTWIG_SHIP: // Beige
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1A, 0x16, 0x12), 0x00);
+		case VUX_SHIP: // Very Ugly Aqua
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x16, 0x0F), 0x00);
+		case YEHAT_SHIP: // Royal purple
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x00, 0x11), 0x00);
+		case MELNORME_SHIP: // Yellowish
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1A, 0x16, 0x08), 0x00);
+		case DRUUGE_SHIP: // Crimson (tm)
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x00);
+		case ILWRATH_SHIP: // Purple
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0E, 0x00, 0x0E), 0x00);
+		case MYCON_SHIP: // Fungal fuchsia
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x00, 0x0C), 0x00);
+		case SLYLANDRO_SHIP: // Red Alert
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1D, 0x00, 0x07), 0x00);
+		case UMGAH_SHIP: // Olive
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x0C, 0x00), 0x00);
+		case URQUAN_SHIP: // Dark Green
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x08, 0x00), 0x00);
+		case ZOQFOTPIK_SHIP: // Orange
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x16, 0x0D, 0x00), 0x00);
+		case SYREEN_SHIP: // Slightly-orange red
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x07, 0x03), 0x00);
+		case BLACK_URQUAN_SHIP: // Dark grey
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x00);
+		case ANDROSYNTH_SHIP: // Violet
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x00, 0x15), 0x00);
+		case CHENJESU_SHIP: // Cyan
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x15, 0x1C), 0x00);
+		case MMRNMHRM_SHIP: // Silver
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x10, 0x10, 0x10), 0x00);
+		case YEHAT_REBEL_SHIP: // Lavender
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x19, 0x10, 0x1F), 0x00);
+		default: // Hot pink (just a fail state but also reserved)
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1C, 0x00, 0x0C), 0x00);
+	}
+	// Slylandro lightish red (pale pink for gas giant creatures)
+	return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x15, 0x19), 0x00);
+#if 0
+	// A way to choose colors entirely "fairly", although colors don't really map
+	// in such an even distribution.
+		BYTE i, j, k;
+		for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) for (k = 0; k < 3; k++)
+			race_colors[i * 9 + j * 3 + k] = (Color) BUILD_COLOR (MAKE_RGB15_INIT (14 * i + 1, 14 * j + 1, 14 * k + 1), 0x00);
+#endif
 }
 
 static void
@@ -1089,20 +1166,6 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		HFLEETINFO hStarShip, hNextShip;
 		NAMEPLATE nameplate[26];
 		BYTE currMax = 0;
-		static const Color race_colors[] =
-		{
-			RACE_COLORS
-		};
-
-		// JMS: For drawing SC1-era starmap.
-		static const COUNT war_era_strengths[] =
-		{
-			WAR_ERA_STRENGTHS
-		};
-		static const POINT war_era_locations[] =
-		{
-			WAR_ERA_LOCATIONS
-		};
 
 		for (index = 0,
 				hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -1114,13 +1177,13 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			hNextShip = _GetSuccLink (FleetPtr);
 
 			if ((FleetPtr->known_strength && which_starmap != WAR_ERA_STARMAP) ||
-				(which_starmap == WAR_ERA_STARMAP && war_era_strengths[index]))
+				(which_starmap == WAR_ERA_STARMAP && WarEraStrength (FleetPtr->SpeciesID)
+				&& index < NUM_BUILDABLE_SHIPS))
 			{
 				RECT repair_r;
 
 				if (which_starmap == WAR_ERA_STARMAP)
-					GetWarEraSphereRect (index, war_era_strengths,
-							war_era_locations, &r, &repair_r);
+					GetWarEraSphereRect (FleetPtr, &r, &repair_r);
 				else
 					GetSphereRect (FleetPtr, &r, &repair_r);
 
@@ -1142,15 +1205,14 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					Color c;
 					TEXT t;
 					STRING locString;
+					UNICODE *yehat_rebels = "+Yehat+";
 
-					c = race_colors[index];
+					c = RaceColor (index);
 					if (index == race_index)
 						SetContextForeGroundColor (WHITE_COLOR);
 					else
 						SetContextForeGroundColor (c);
 
-					if (!(which_starmap == WAR_ERA_STARMAP
-							&& war_era_strengths[index] == 0))
 					{
 						DRECT dr = RECT_TO_DRECT (r);
 						DrawOval (&dr, 0, IS_HD);
@@ -1190,6 +1252,11 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 								t.pStr = (UNICODE *)GetStringAddress (locString);
 								break;
 						}						
+					}
+					else if (index == YEHAT_REBEL_SHIP && optSphereColors == 1)
+					{
+						t.CharCount = 7;
+						t.pStr = yehat_rebels;
 					}
 					else
 					{
@@ -1277,7 +1344,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				else if (nameplate[j].index & DEATH_SOI)
 					c = BUILD_SHADE_RGBA (0x80);
 				else
-					c = race_colors[(nameplate[j].index & 0x1F)];
+					c = RaceColor (nameplate[j].index & 0x1F);
 				r = nameplate[j].rect;
 				t = nameplate[j].text;
 				
@@ -1309,7 +1376,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				else if (nameplate[currMax - j].index & DEATH_SOI)
 					c = BUILD_SHADE_RGBA (0x80);
 				else
-					c = race_colors[(nameplate[currMax - j].index & 0x1F)];
+					c = RaceColor (nameplate[currMax - j].index & 0x1F);
 				r = nameplate[currMax - j].rect;
 				t = nameplate[currMax - j].text;
 
@@ -1337,6 +1404,30 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	// starmap.
 	if (which_space <= 1 && which_starmap == CONSTELLATION_MAP)
 	{
+// Debug toy, it prints out a color map
+#ifdef DEBUG_COLOR_PALETTE
+		int i; int j; int k;
+		for (i = 0; i < 32; i++) for (j = 0; j < 32; j++) for (k = 0; k < 32; k++)
+		{
+			TEXT t;
+			UNICODE pStr[7];
+			pStr[0] = (i / 16 ? '1' : '0');
+			pStr[1] = (i % 16 > 9 ? i % 16 - 10 + 'A' : i % 16 + '0');
+			pStr[2] = (j / 16 ? '1' : '0');
+			pStr[3] = (j % 16 > 9 ? j % 16 - 10 + 'A' : j % 16 + '0');
+			pStr[4] = (k / 16 ? '1' : '0');
+			pStr[5] = (k % 16 > 9 ? k % 16 - 10 + 'A' : k % 16 + '0');
+			pStr[6] = '\0';
+			SetContextFont (TinyFontBold);
+			SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (i, j, k), 0x00));
+			t.baseline.x = UNIVERSE_TO_DISPX (300 * j + (k / 16 ? 150 : 0));
+			t.baseline.y = UNIVERSE_TO_DISPY (300 * i + k % 16 * 300 / 16) + 3;
+			t.align = ALIGN_CENTER;
+			t.pStr = pStr;
+			t.CharCount = 10;
+			font_DrawText (&t);
+		}
+#else
 		Color oldColor;
 		POINT *CNPtr;
 		LINE l;
@@ -1357,9 +1448,11 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			DrawLine (&l, 1);
 		}
 	 	SetContextForeGroundColor (oldColor);
+#endif
 	}
 
 	// This draws markers over known alien Homeworlds
+	// and labels the quasispace portal locations in hyperspace.
 	if (which_space <= 1 && which_starmap == HOMEWORLDS_MAP)
 	{
 		COUNT i;
@@ -1367,9 +1460,26 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
 		{
 			BYTE Index = star_array[i].Index;
-
 			if (isHomeworld (Index))
 				DrawMarker (star_array[i].star_pt, TRUE);
+		}
+		for (i = 0; i < NUM_HYPER_VORTICES; ++i)
+		{
+			if (!(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << i)))
+				continue;
+			TEXT t;
+			UNICODE pStr[2];
+			pStr[0] = 'A' + i;
+			pStr[1] = 0;
+			SetContextFont (TinyFontBold);
+			// "Quasispace Green"
+			SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x00, 0x1A, 0x00), 0x2F));
+			t.baseline.x = UNIVERSE_TO_DISPX (portal_map[i].star_pt.x);
+			t.baseline.y = UNIVERSE_TO_DISPY (portal_map[i].star_pt.y) + 3;
+			t.align = ALIGN_CENTER;
+			t.pStr = pStr;
+			t.CharCount = 2;
+			font_DrawText (&t);
 		}
 	}
 
@@ -1386,17 +1496,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			which_starmap = NORMAL_STARMAP;
 		else
 		{
-			COUNT i, j = 0;
-
-			for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
-			{
-				if (star_array[i].Index == RAINBOW_DEFINED)
-				{
-					j++;
-					if (rainbow_mask & (1 << (j - 1)))
-						DrawMarker (star_array[i].star_pt, TRUE);
-				}
-			}
+			COUNT i;
+			for (i = RAINBOW0_DEFINED; i <= RAINBOW9_DEFINED; i++)
+				if (rainbow_mask & (1 << (i - RAINBOW0_DEFINED)))
+					DrawMarker (plot_map[i].star_pt, TRUE);
 		}
 	}
 
@@ -1455,8 +1558,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		if (which_space <= 1)
 		{
-			s.origin.x = UNIVERSE_TO_DISPX (ARILOU_SPACE_X);
-			s.origin.y = UNIVERSE_TO_DISPY (ARILOU_SPACE_Y);
+			s.origin.x = UNIVERSE_TO_DISPX (plot_map[ARILOU_DEFINED].star_pt.x);
+			s.origin.y = UNIVERSE_TO_DISPY (plot_map[ARILOU_DEFINED].star_pt.y);
 		}
 		else
 		{
@@ -1690,19 +1793,51 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	{
 		// JMS: For masking the names of QS portals not yet entered.
 		BYTE whichPortal = BestSDPtr->Postfix - 133;
-		
+
 		// A star is near the cursor:
 		// Snap cursor onto star
 		cursorLoc = BestSDPtr->star_pt;
 		
 		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) >= 2
 				&& !(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << whichPortal)))
-		{
+			// "UNKNOWN" string
 			utf8StringCopy (buf, sizeof (buf),
 					GAME_STRING (STAR_STRING_BASE + 132));
-		}
-		else
+		else if (GET_GAME_STATE(ARILOU_SPACE_SIDE) < 2 ||
+				whichPortal == NUM_HYPER_VORTICES)
+			// Hyperspace side, or Arilou homeworld name once known
 			GetClusterName (BestSDPtr, buf);
+		else
+		{
+			// Use whichPortal (based on the Postfix of the star) to determine
+			// which portal_map entity this maps to and pull the nearest star.
+			// We then use that to construct the exit point name.
+			// This means quasi star array must have rigidly ordered Postfix.
+			// portal_map[whichPortal].star_pt - coords of the exit
+			//                  nearest_star - STAR_DESC* of nearest constell.
+			UNICODE starnameBuf[CURSOR_INFO_BUFSIZE] = "";
+			utf8StringCopy (starnameBuf, sizeof (starnameBuf), GAME_STRING
+					(portal_map[whichPortal].nearest_star->Postfix));
+			// Abbreviate names longer than 11 at the 10th (or less)
+			// non-vowel character.
+			if (strlen (starnameBuf) > 11)
+			{
+				COUNT i;
+				for (i = 9; i > 5; i--)
+					if (starnameBuf[i] != 'a' && starnameBuf[i] != 'e' &&
+							starnameBuf[i] != 'i' && starnameBuf[i] != 'o' &&
+							starnameBuf[i] != 'u' && starnameBuf[i] != 'y')
+						break;
+				starnameBuf[i + 1] = '.';
+				starnameBuf[i + 2] = '\0';
+			}
+			snprintf (buf, sizeof (buf),
+					"[%c] To %05.1f : %05.1f (Near %.12s)",
+					'A' + whichPortal,
+					(float) portal_map[whichPortal].star_pt.x / 10,
+					(float) portal_map[whichPortal].star_pt.y / 10,
+					starnameBuf);
+		}
 	}
 	else
 	{	// No star found. Reset the coordinates to the cursor's location
@@ -1728,8 +1863,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{
-			ari_pt.x = ARILOU_SPACE_X;
-			ari_pt.y = ARILOU_SPACE_Y;
+			ari_pt = plot_map[ARILOU_DEFINED].star_pt;
 		}
 		else
 		{
@@ -1761,7 +1895,9 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				UNICODE visBuf[CURSOR_INFO_BUFSIZE] = "";
 
 				utf8StringCopy (visBuf, sizeof (visBuf), buf);
-				snprintf (buf, sizeof buf, "%c %s %c", '(', visBuf, ')');
+				// This is how you get rid of compiler warnings over string
+				// length:  %.30s where "30" is a limit.  Enjoy. ~JSD~
+				snprintf (buf, sizeof buf, "%c %.251s %c", '(', visBuf, ')');
 			}
 
 			DrawSISMessage (buf);
@@ -2300,7 +2436,6 @@ DoBubbleWarp (BOOLEAN UseFuel)
 	}
 }
 
-#define NUM_PORTALS 15
 #define PORTAL_FUEL_COST DIF_CASE(10, 5, 20)
 
 static void
@@ -2308,7 +2443,6 @@ AdvancedAutoPilot (void)
 {
 	POINT current_position;
 	POINT destination = GLOBAL (autopilot);
-	POINT portal_pt[NUM_PORTALS] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
 	POINT portal_coordinates;
 	double distance, fuel_no_portal, fuel_with_portal;
 	double minimum = 0.0;
@@ -2322,9 +2456,9 @@ AdvancedAutoPilot (void)
 	if (pointsEqual (current_position, destination))
 		return;
 
-	for (i = 0; i < NUM_PORTALS; i++)
+	for (i = 0; i < NUM_HYPER_VORTICES; i++)
 	{
-		distance = ptDistance (destination, portal_pt[i]);
+		distance = ptDistance (destination, portal_map[i].star_pt);
 
 		if (!DIF_EASY && !(KnownQSPortals & (1 << i)))
 			distance = MAX_X_UNIVERSE * MAX_Y_UNIVERSE;

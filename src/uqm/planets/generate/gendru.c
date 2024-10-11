@@ -62,49 +62,38 @@ const GenerateFunctions generateDruugeFunctions = {
 static bool
 GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	PLANET_DESC *pPlanet;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
-
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
+	GenerateDefault_generatePlanets (solarSys);
 
 	if (PrimeSeed)
 	{
-		memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte],
-				sizeof (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte])
-				* solarSys->SunDesc[0].NumPlanets);
-		++solarSys->SunDesc[0].NumPlanets;
-	}
+		COUNT angle;
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = DUST_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	if (!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
-			GenerateRockyWorld (ALL_ROCKY);
+		memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[0],
+				sizeof (solarSys->PlanetDesc[0]) * pSunDesc->NumPlanets);
+		++pSunDesc->NumPlanets;
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets =
-				(RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-		CheckForHabitable (solarSys);
+		pPlanet->data_index = DUST_WORLD;
+		pPlanet->radius = EARTH_RADIUS * 50L / 100;
+		pPlanet->NumPlanets = 0;
+		angle = HALF_CIRCLE - OCTANT;
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		pPlanet->rand_seed =
+				MAKE_DWORD (pPlanet->location.x, pPlanet->location.y);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 50L / 100;
-		angle = HALF_CIRCLE - OCTANT;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-				COSINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].rand_seed = MAKE_DWORD (
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateDesolateWorld ();
 	}
 
 	return true;

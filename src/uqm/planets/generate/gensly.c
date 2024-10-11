@@ -49,26 +49,21 @@ const GenerateFunctions generateSlylandroFunctions = {
 static bool
 GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 3;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
 
-	if (!PrimeSeed)
+	GenerateDefault_generatePlanets (solarSys);
+
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+		pSunDesc->PlanetByte = 3;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = RED_GAS_GIANT;
+		pPlanet->NumPlanets = 1;
 	}
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RED_GAS_GIANT;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-	if (!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = GenerateGasGiantWorld ();
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-	}
+	else
+		GenerateGasGiantRanged (solarSys);
 
 	return true;
 }
@@ -77,12 +72,15 @@ static bool
 GenerateSlylandro_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (SLYLANDRO_HOME_VISITS) 
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (GET_GAME_STATE (SLYLANDRO_HOME_VISITS)
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		utf8StringCopy (GLOBAL_SIS(PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 36));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		utf8StringCopy (GLOBAL_SIS(PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 36));
+		SET_GAME_STATE (BATTLE_PLANET,
+				solarSys->PlanetDesc[
+					solarSys->SunDesc[0].PlanetByte].data_index);
 	}
 	else
 		GenerateDefault_generateName (solarSys, world);
@@ -94,7 +92,7 @@ static bool
 GenerateSlylandro_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		InitCommunication (SLYLANDRO_HOME_CONVERSATION);
 		return true;

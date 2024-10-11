@@ -24,6 +24,7 @@
 #include "options.h"
 #include "uqm/battle.h"
 #include "uqm/setup.h"
+#include "uqm/starmap.h"
 
 
 static const NUMBER_SPEECH_DESC probe_numbers_english;
@@ -405,9 +406,15 @@ CombatIsInevitable (RESPONSE_REF R)
 				{
 					SIZE dx, dy;
 
-					// Probe's coordinate system is {-Y,X} relative to B Corvi
-					dx = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)) - 333;
-					dy = 9812 - LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
+					// Probe's coordinate system is +/-{Y,X} relative to home
+					// If homeworld X or Y are < 5000, we will flip the sign
+					// (and always say Y before X)
+					dx = (plot_map[SLYLANDRO_DEFINED].star_pt.x -
+							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x))) *
+							(plot_map[SLYLANDRO_DEFINED].star_pt.x > 5000 ? 1 : -1);
+					dy = (plot_map[SLYLANDRO_DEFINED].star_pt.y -
+							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))) *
+							(plot_map[SLYLANDRO_DEFINED].star_pt.y > 5000 ? 1 : -1);
 
 					NPCPhrase (THIS_IS_PROBE_40);
 					sayCoord (dy);
