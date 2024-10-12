@@ -153,6 +153,7 @@ GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys,
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
 				CaptureStringTable (
 						LoadStringTable (BURV_RUINS_STRTAB));
+
 		if (!DIF_HARD)
 		{
 			solarSys->SysInfo.PlanetInfo.Weather = 0;
@@ -184,8 +185,7 @@ static COUNT
 GenerateBurvixese_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, MATCH_PBYTE,
-			MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
@@ -199,7 +199,8 @@ GenerateBurvixese_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return 0;
 		}
 
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -209,8 +210,7 @@ static bool
 GenerateBurvixese_pickupEnergy (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world, COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, MATCH_PBYTE,
-			MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);

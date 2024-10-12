@@ -268,9 +268,12 @@ GenerateSol_generateName (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world)
 {
 	COUNT planetNr = planetIndex (solarSys, world);
-	utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+
+	utf8StringCopy (GLOBAL_SIS (PlanetName),
+			sizeof (GLOBAL_SIS (PlanetName)),
 			GAME_STRING (PLANET_NUMBER_BASE + planetNr));
-	SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[planetNr].data_index);
+	SET_GAME_STATE (BATTLE_PLANET,
+			solarSys->PlanetDesc[planetNr].data_index);
 
 	return true;
 }

@@ -256,15 +256,9 @@ GenerateThraddash_generateEnergy (const SOLARSYS_STATE *solarSys,
 }
 
 static bool
-GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
-		COUNT whichNode)
+GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world, COUNT whichNode)
 {
-	HFLEETINFO hThradd =
-			GetStarShipFromIndex (&GLOBAL (avail_race_q), THRADDASH_SHIP);
-	FLEET_INFO *ThraddPtr =
-			LockFleetInfo (&GLOBAL (avail_race_q), hThradd);
-	SIZE strength_loss;
-
 	if (CurStarDescPtr->Index == THRADD_DEFINED
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
@@ -276,6 +270,13 @@ GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if (CurStarDescPtr->Index == AQUA_HELIX_DEFINED
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
+		HFLEETINFO hThradd =
+				GetStarShipFromIndex (
+					&GLOBAL (avail_race_q), THRADDASH_SHIP);
+		FLEET_INFO *ThraddPtr =
+				LockFleetInfo (&GLOBAL (avail_race_q), hThradd);
+		SIZE strength_loss;
+
 		assert (!GET_GAME_STATE (AQUA_HELIX) && whichNode == 0);
 
 		GenerateDefault_landerReport (solarSys);

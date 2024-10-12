@@ -27,7 +27,8 @@
 #include "libs/mathlib.h"
 
 static bool GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys);
-static bool GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys);
+static bool GenerateRainbowWorld_generatePlanets (
+		SOLARSYS_STATE *solarSys);
 static bool GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
 
@@ -73,8 +74,8 @@ GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 
 			GetGroupInfo (GROUPS_RANDOM, GROUP_INIT_IP);
 		}
-		// Fresh groups or not - force probes to rotate around rainbow world
-		// and not spread around the system
+		// Fresh groups or not - force probes to rotate around rainbow
+		// world and not spread around the system
 		angle = (COUNT)TFB_Random () % 9; // Initial angle = 0 - OCTANT
 		for (hGroup = GetHeadLink (&GLOBAL (ip_group_q));
 					hGroup; hGroup = hNextGroup)
@@ -87,7 +88,8 @@ GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 			GroupPtr->task = IN_ORBIT;
 			GroupPtr->sys_loc = solarSys->SunDesc[0].PlanetByte + 1;
 			GroupPtr->dest_loc = GroupPtr->sys_loc;
-			GroupPtr->orbit_pos = NORMALIZE_FACING (ANGLE_TO_FACING (angle));
+			GroupPtr->orbit_pos =
+					NORMALIZE_FACING (ANGLE_TO_FACING (angle));
 			GroupPtr->group_counter = 0;
 			UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
 
@@ -139,7 +141,8 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
 			&& CurStarDescPtr->Index >= RAINBOW0_DEFINED

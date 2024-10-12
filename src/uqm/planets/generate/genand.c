@@ -109,89 +109,80 @@ static bool
 GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world)
 {
-	if (CurStarDescPtr->Index == ANDROSYNTH_DEFINED)
+	if (CurStarDescPtr->Index == ANDROSYNTH_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+		COUNT i;
+		COUNT visits = 0;
+
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (
+				LoadStringTable (ANDROSYNTH_RUINS_STRTAB));
+		// Androsynth ruins are a special case. The DiscoveryString contains
+		// several lander reports which form a story. Each report is given
+		// when the player collides with a new city ruin. Ruins previously
+		// visited are marked in the upper 16 bits of ScanRetrieveMask, and
+		// the lower bits are cleared to keep the ruin nodes on the map.
+		for (i = 16; i < 32; ++i)
 		{
-			COUNT i;
-			COUNT visits = 0;
-
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-			solarSys->PlanetSideFrame[1] =
-					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
+			if (isNodeRetrieved (&solarSys->SysInfo.PlanetInfo,
+					ENERGY_SCAN, i))
+				++visits;
+		}
+		if (visits >= GetStringTableCount (
+				solarSys->SysInfo.PlanetInfo.DiscoveryString))
+		{	// All the reports were already given
+			DestroyStringTable (ReleaseStringTable (
+					solarSys->SysInfo.PlanetInfo.DiscoveryString));
+			solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
+		}
+		else
+		{	// Advance the report sequence to the first unread
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-					CaptureStringTable (
-					LoadStringTable (ANDROSYNTH_RUINS_STRTAB));
-			// Androsynth ruins are a special case. The DiscoveryString contains
-			// several lander reports which form a story. Each report is given
-			// when the player collides with a new city ruin. Ruins previously
-			// visited are marked in the upper 16 bits of ScanRetrieveMask, and
-			// the lower bits are cleared to keep the ruin nodes on the map.
-			for (i = 16; i < 32; ++i)
-			{
-				if (isNodeRetrieved (&solarSys->SysInfo.PlanetInfo,
-						ENERGY_SCAN, i))
-					++visits;
-			}
-			if (visits >= GetStringTableCount (
-					solarSys->SysInfo.PlanetInfo.DiscoveryString))
-			{	// All the reports were already given
-				DestroyStringTable (ReleaseStringTable (
-						solarSys->SysInfo.PlanetInfo.DiscoveryString));
-				solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
-			}
-			else
-			{	// Advance the report sequence to the first unread
-				solarSys->SysInfo.PlanetInfo.DiscoveryString =
-						SetRelStringTableIndex (
-						solarSys->SysInfo.PlanetInfo.DiscoveryString, visits);
-			}
-
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			if (!DIF_HARD)
-			{
-				solarSys->SysInfo.PlanetInfo.Weather = 1;
-				solarSys->SysInfo.PlanetInfo.Tectonics = 1;
-			}
-
-			return true;
+					SetRelStringTableIndex (
+					solarSys->SysInfo.PlanetInfo.DiscoveryString, visits);
 		}
 	}
 
-	if (CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED)
+	if (CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+		&& EXTENDED)
 	{
-		if (EXTENDED &&
-			matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
-		{
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-			solarSys->PlanetSideFrame[1] =
-				CaptureDrawable (
-					LoadGraphic (EXCAVATION_SITE_MASK_PMAP_ANIM));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				CaptureStringTable (
-					LoadStringTable (EXCAVATION_SITE_STRTAB));
-
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			if (!DIF_HARD)
-			{
-				solarSys->SysInfo.PlanetInfo.Weather = 1;
-				solarSys->SysInfo.PlanetInfo.Tectonics = 2;
-			}
-
-			return true;
-		}
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+			CaptureDrawable (
+				LoadGraphic (EXCAVATION_SITE_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+			CaptureStringTable (
+				LoadStringTable (EXCAVATION_SITE_STRTAB));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	{
+		if (CurStarDescPtr->Index == ANDROSYNTH_DEFINED && PrimeSeed)
+		{
+			solarSys->SysInfo.PlanetInfo.AtmoDensity =
+					EARTH_ATMOSPHERE * 144 / 100;
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
+		}
+		if (!DIF_HARD)
+		{
+			solarSys->SysInfo.PlanetInfo.Weather = 1;
+			solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+		}
+	}
 
 	return true;
 }
 
 static bool
-GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
-		COUNT whichNode)
+GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world, COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == ANDROSYNTH_DEFINED &&
 		matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
@@ -217,9 +208,9 @@ GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		return false; // do not remove the node from the surface
 	}
 
-	if (EXTENDED
-		&& CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED
-		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	if (CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+		&& EXTENDED)
 	{
 		GenerateDefault_landerReportCycle (solarSys);
 
@@ -239,12 +230,12 @@ GenerateAndrosynth_generateEnergy (const SOLARSYS_STATE *solarSys,
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
 
-	if (EXTENDED
-		&& CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED
-		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	if (CurStarDescPtr->Index == EXCAVATION_SITE_DEFINED
+		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+		&& EXTENDED)
 	{
-		return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 1,
-				0, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;

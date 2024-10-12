@@ -59,14 +59,13 @@ GenerateIlwrath_generatePlanets (SOLARSYS_STATE *solarSys)
 	PLANET_DESC *pPlanet;
 	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].PlanetByte = 0;
-
 	GenerateDefault_generatePlanets (solarSys);
 
 	if (PrimeSeed)
 	{
 		COUNT angle;
 
+		pSunDesc->PlanetByte = 0;
 		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
 		pPlanet->data_index = PRIMORDIAL_WORLD;
@@ -123,20 +122,17 @@ GenerateIlwrath_generateOrbital (SOLARSYS_STATE *solarSys,
 					LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
-
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			if (!DIF_HARD)
-			{
-				solarSys->SysInfo.PlanetInfo.Weather = 3;
-				solarSys->SysInfo.PlanetInfo.Tectonics = 2;
-			}
-
-			return true;
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& !DIF_HARD)
+	{
+		solarSys->SysInfo.PlanetInfo.Weather = 2;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 3;
+	}
 
 	return true;
 }

@@ -83,6 +83,12 @@ GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
+		if (PrimeSeed)
+		{
+			solarSys->SysInfo.PlanetInfo.AtmoDensity =
+					EARTH_ATMOSPHERE * 2;
+			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 35;
+		}
 		if (!DIF_HARD)
 		{
 			solarSys->SysInfo.PlanetInfo.Weather = 3;

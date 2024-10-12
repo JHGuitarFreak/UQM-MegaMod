@@ -267,7 +267,6 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys,
 			}
 		}
 
-
 		if ((CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
 				|| ((CurStarDescPtr->Index >= URQUAN0_DEFINED)
 				&& CurStarDescPtr->Index <= KOHRAH2_DEFINED))
@@ -275,7 +274,6 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys,
 		{
 			pMoonDesc->data_index = DESTROYED_STARBASE;
 		}
-
 	}
 
 	return true;
@@ -378,7 +376,7 @@ GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys,
 					// hasn't freed the Earth starbase yet
 					if (!GET_GAME_STATE (STARBASE_AVAILABLE))
 						solarSys->SysInfo.PlanetInfo.DiscoveryString =
-						SetRelStringTableIndex (
+								SetRelStringTableIndex (
 								solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
 				}
 				else
@@ -515,7 +513,7 @@ BuildUrquanGuard (SOLARSYS_STATE *solarSys)
 
 static COUNT
 GenerateSaMatra_generateEnergy (const SOLARSYS_STATE *solarSys,
-	const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
+		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 	if (EXTENDED
 		&& CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED
@@ -529,7 +527,7 @@ GenerateSaMatra_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 static bool
 GenerateSaMatra_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
-	COUNT whichNode)
+		COUNT whichNode)
 {
 	if (EXTENDED
 		&& CurStarDescPtr->Index == DESTROYED_STARBASE_DEFINED

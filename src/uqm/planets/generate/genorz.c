@@ -67,7 +67,6 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	GenerateDefault_generatePlanets (solarSys);
 
-
 	if (CurStarDescPtr->Index == ORZ_DEFINED)
 	{
 		if (PrimeSeed)
@@ -204,27 +203,6 @@ GenerateOrz_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (
 					LoadStringTable (TAALO_DEVICE_STRTAB));
-
-			if (false)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = -101;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 0;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 200;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 27;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 54;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 199;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = -8;
-				solarSys->SysInfo.PlanetInfo.LifeChance = -740;
-
-				return true;
-			}
 		}
 		else
 		{
@@ -233,32 +211,26 @@ GenerateOrz_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
-
-			if (false)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 160 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 44;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 3;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 1;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 103;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 84;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 86;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 189;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 4;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
-
-				return true;
-			}
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (CurStarDescPtr->Index == TAALO_PROTECTOR_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE)
+			&& !DIF_HARD)
+	{
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+	}
+	if (CurStarDescPtr->Index == ORZ_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& !DIF_HARD)
+	{
+		solarSys->SysInfo.PlanetInfo.Weather = 3;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 1;
+	}
+
 
 	return true;
 }

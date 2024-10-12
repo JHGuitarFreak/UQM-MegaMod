@@ -103,24 +103,29 @@ static bool
 GenerateDruuge_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (IsHomeworldKnown (DRUUGE_HOME)
-			&& matchWorld (solarSys, world,
-			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	GenerateDefault_generateName (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& IsHomeworldKnown (DRUUGE_HOME))
 	{
-		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS(PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 41));
-		SET_GAME_STATE (BATTLE_PLANET,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
-	} else
-		GenerateDefault_generateName (solarSys, world);
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
+		utf8StringCopy (GLOBAL_SIS (PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 41));
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
+	}
 
 	return true;
 }
 
 static bool
-GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (StartSphereTracking (DRUUGE_SHIP))
 		{
@@ -157,32 +162,17 @@ GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						SetAbsStringTableIndex (
 						solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
 			}
-
-			if (!PrimeSeed)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 220 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 18;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 3;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 2;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 63;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 37;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 23;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 271;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 10;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
-
-				return true;
-			}
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& !DIF_HARD)
+	{
+		solarSys->SysInfo.PlanetInfo.Weather = 3;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+	}
 
 	return true;
 }
@@ -191,7 +181,7 @@ static bool
 GenerateDruuge_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		GenerateDefault_landerReportCycle (solarSys);
 
@@ -215,7 +205,7 @@ static COUNT
 GenerateDruuge_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}

@@ -156,13 +156,13 @@ GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys,
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
-			CaptureStringTable (
-				LoadStringTable (PRECURSOR_BASE_STRTAB));
+				CaptureStringTable (
+					LoadStringTable (PRECURSOR_BASE_STRTAB));
 
 		DoDiscoveryReport (MenuSounds);
 
 		DestroyStringTable(ReleaseStringTable (
-			solarSys->SysInfo.PlanetInfo.DiscoveryString));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 		FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
 
@@ -174,9 +174,9 @@ GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys,
 	{
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
-			CaptureDrawable (LoadGraphic (STELE_MASK_PMAP_ANIM));
+				CaptureDrawable (LoadGraphic (STELE_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
-			CaptureStringTable (LoadStringTable (STELE_STRTAB));
+				CaptureStringTable (LoadStringTable (STELE_STRTAB));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
@@ -191,7 +191,8 @@ GenerateMelnorme_generateEnergy (const SOLARSYS_STATE *solarSys,
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -214,13 +215,6 @@ GenerateMelnorme_pickupEnergy (SOLARSYS_STATE *solarSys,
 
 	(void) whichNode;
 	return false;
-}
-
-bool isnumber (const char *s)
-{
-	char *e = NULL;
-	(void)strtol (s, &e, 0);
-	return e != NULL && *e == (char)0;
 }
 
 char *

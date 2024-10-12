@@ -64,6 +64,8 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 	PLANET_DESC *pPlanet;
 	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
+	GenerateDefault_generatePlanets (solarSys);
+
 	if (CurStarDescPtr->Index == CHMMR_DEFINED)
 	{
 		pSunDesc->PlanetByte = 1;
@@ -71,8 +73,6 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (PrimeSeed)
 		{
-			GenerateDefault_generatePlanets (solarSys);
-
 			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
 			pPlanet->data_index = SAPPHIRE_WORLD;
@@ -80,20 +80,20 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 		}
 		else
 		{
-			pSunDesc->NumPlanets = GenerateMinPlanets (2);
-
-			if (StarSeed)
+			if (!StarSeed)
+			{
+				if (pSunDesc->NumPlanets <= pSunDesc->PlanetByte)
+					pSunDesc->NumPlanets = pSunDesc->PlanetByte + 1;
+			}
+			else
 				pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
 
 			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-			FillOrbits (solarSys, NUMPLANETS_PDESC, NULL, FALSE);
-
 			pPlanet->data_index = GenerateCrystalWorld ();
 
-			GeneratePlanets (solarSys);
-
-			pPlanet->NumPlanets += 1;
+			if (!pPlanet->NumPlanets)
+				pPlanet->NumPlanets++;
 		}
 
 		if (!GET_GAME_STATE (CHMMR_UNLEASHED))
@@ -102,9 +102,8 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
 	{
-		GenerateDefault_generatePlanets (solarSys);
-
 		pSunDesc->PlanetByte = 3;
+
 		if (!PrimeSeed)
 			pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
 
@@ -127,23 +126,20 @@ GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 	{
 		COUNT angle;
 		DWORD rand_val;
-		PLANET_DESC *pMoonDesc =
-				&solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte];
+		BYTE MoonByte = solarSys->SunDesc[0].MoonByte;
+		PLANET_DESC *pMoonDesc = &solarSys->MoonDesc[MoonByte];
 
 		if (!RaceDead (CHMMR_SHIP))
 			pMoonDesc->data_index = HIERARCHY_STARBASE;
 		else
 			pMoonDesc->data_index = DESTROYED_STARBASE;
 
-		if (PrimeSeed || StarSeed)
-		{
-			pMoonDesc->radius = MIN_MOON_RADIUS;
-			rand_val = RandomContext_Random (SysGenRNG);
-			angle = NORMALIZE_ANGLE (LOWORD (rand_val));
-			pMoonDesc->location.x = COSINE (angle, pMoonDesc->radius);
-			pMoonDesc->location.y = SINE (angle, pMoonDesc->radius);
-			ComputeSpeed (pMoonDesc, TRUE, 1);
-		}
+		pMoonDesc->radius = MIN_MOON_RADIUS;
+		rand_val = RandomContext_Random (SysGenRNG);
+		angle = NORMALIZE_ANGLE (LOWORD (rand_val));
+		pMoonDesc->location.x = COSINE (angle, pMoonDesc->radius);
+		pMoonDesc->location.y = SINE (angle, pMoonDesc->radius);
+		ComputeSpeed (pMoonDesc, TRUE, 1);
 	}
 
 	return true;
@@ -300,7 +296,7 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys,
 
 static COUNT
 GenerateChmmr_generateEnergy (const SOLARSYS_STATE *solarSys,
-	const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
+		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 
 	if (CurStarDescPtr->Index == CHMMR_DEFINED
@@ -310,10 +306,12 @@ GenerateChmmr_generateEnergy (const SOLARSYS_STATE *solarSys,
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
 
-	if (EXTENDED && CurStarDescPtr->Index == MOTHER_ARK_DEFINED
-			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	if (CurStarDescPtr->Index == MOTHER_ARK_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
 	{
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -321,7 +319,7 @@ GenerateChmmr_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 static bool
 GenerateChmmr_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
-	COUNT whichNode)
+		COUNT whichNode)
 {
 
 	if (CurStarDescPtr->Index == CHMMR_DEFINED

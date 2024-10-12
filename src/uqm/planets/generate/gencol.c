@@ -74,11 +74,12 @@ GenerateColony_initNpcs (SOLARSYS_STATE *solarSys)
 			&& (hGroup = GetHeadLink (&GLOBAL (ip_group_q))))
 	{
 		IP_GROUP *GroupPtr;
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte + 1;
 
 		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
 		GroupPtr->task = IN_ORBIT;
-		GroupPtr->sys_loc = solarSys->SunDesc[0].PlanetByte + 1; /* orbitting colony */
-		GroupPtr->dest_loc = solarSys->SunDesc[0].PlanetByte + 1; /* orbitting colony */
+		GroupPtr->sys_loc = PlanetByte; /* orbitting colony */
+		GroupPtr->dest_loc = PlanetByte; /* orbitting colony */
 		GroupPtr->loc.x = 0;
 		GroupPtr->loc.y = 0;
 		GroupPtr->group_counter = 0;
@@ -149,18 +150,21 @@ GenerateColony_generateMoons (SOLARSYS_STATE *solarSys,
 
 static bool
 GenerateColony_generateName (const SOLARSYS_STATE *solarSys,
-	const PLANET_DESC *world)
+		const PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	GenerateDefault_generateName (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)) 
 	{
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
 		utf8StringCopy (GLOBAL_SIS (PlanetName),
 				sizeof (GLOBAL_SIS (PlanetName)),
 				GAME_STRING (PLANET_NUMBER_BASE + 33));
-		SET_GAME_STATE (BATTLE_PLANET,
-				solarSys->PlanetDesc[
-					solarSys->SunDesc[0].PlanetByte].data_index);
-	} else
-		GenerateDefault_generateName (solarSys, world);
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
+	}
 
 	return true;
 }

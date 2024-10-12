@@ -71,8 +71,6 @@ GenerateTalkingPet_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		COUNT angle;
 
-		GenerateDefault_generatePlanets (solarSys);
-
 		pSunDesc->PlanetByte = 0;
 		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
@@ -96,87 +94,82 @@ static bool
 GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
-	{
-		if (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
 			|| !GET_GAME_STATE (TALKING_PET)
-			|| StartSphereTracking (UMGAH_SHIP))
-		{
-			NotifyOthers (UMGAH_SHIP, IPNL_ALL_CLEAR);
-			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
-			ReinitQueue (&GLOBAL (ip_group_q));
-			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+			|| StartSphereTracking (UMGAH_SHIP)))
+	{
+		NotifyOthers (UMGAH_SHIP, IPNL_ALL_CLEAR);
+		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+		ReinitQueue (&GLOBAL (ip_group_q));
+		assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-			if (StartSphereTracking (UMGAH_SHIP))
+		if (StartSphereTracking (UMGAH_SHIP))
+		{
+			GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 7);
+			if (!GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES))
 			{
-				GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
-				SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 7);
-				if (!GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES))
+				CloneShipFragment (UMGAH_SHIP,
+						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
+				InitCommunication (UMGAH_CONVERSATION);
+			}
+			else
+			{
+				COUNT i;
+
+				for (i = 0; i < 10; ++i)
 				{
 					CloneShipFragment (UMGAH_SHIP,
-							&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
-					InitCommunication (UMGAH_CONVERSATION);
+							&GLOBAL (npc_built_ship_q), 0);
 				}
-				else
-				{
-					COUNT i;
-
-					for (i = 0; i < 10; ++i)
-					{
-						CloneShipFragment (UMGAH_SHIP,
-								&GLOBAL (npc_built_ship_q), 0);
-					}
-					InitCommunication (TALKING_PET_CONVERSATION);
-				}
+				InitCommunication (TALKING_PET_CONVERSATION);
 			}
-
-			if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
-			{
-				BOOLEAN UmgahSurvivors;
-
-				UmgahSurvivors = GetHeadLink (
-					&GLOBAL (npc_built_ship_q)) != 0;
-				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
-
-				if (GET_GAME_STATE (PLAYER_HYPNOTIZED))
-					ZapToUrquanEncounter ();
-				else if (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
-					&& !UmgahSurvivors)
-				{
-					// Defeated the zombie fleet.
-					InitCommunication (TALKING_PET_CONVERSATION);
-				}
-				else if (!(StartSphereTracking (UMGAH_SHIP)))
-				{
-					// The Kohr-Ah have destroyed the Umgah, but the
-					// talking pet survived.
-					InitCommunication (TALKING_PET_CONVERSATION);
-				}
-
-				ReinitQueue (&GLOBAL (npc_built_ship_q));
-				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
-			}
-
-			return true;
 		}
-		else
+
+		if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
 		{
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-			solarSys->PlanetSideFrame[1] =
-					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+			BOOLEAN UmgahSurvivors;
 
-			GenerateDefault_generateOrbital (solarSys, world);
+			UmgahSurvivors = GetHeadLink (
+					&GLOBAL (npc_built_ship_q)) != 0;
+			GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 
-			if (!DIF_HARD)
-				solarSys->SysInfo.PlanetInfo.Weather = 0;
+			if (GET_GAME_STATE (PLAYER_HYPNOTIZED))
+				ZapToUrquanEncounter ();
+			else if (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
+					&& !UmgahSurvivors)
+			{
+				// Defeated the zombie fleet.
+				InitCommunication (TALKING_PET_CONVERSATION);
+			}
+			else if (!(StartSphereTracking (UMGAH_SHIP)))
+			{
+				// The Kohr-Ah have destroyed the Umgah, but the
+				// talking pet survived.
+				InitCommunication (TALKING_PET_CONVERSATION);
+			}
 
-			return true;
+			ReinitQueue (&GLOBAL (npc_built_ship_q));
+			GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
 		}
+
+		return true;
+	}
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	{
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (LoadStringTable (RUINS_STRTAB));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
 
 	return true;
 }

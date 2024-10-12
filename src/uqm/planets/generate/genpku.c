@@ -79,7 +79,6 @@ GeneratePkunk_generatePlanets (SOLARSYS_STATE *solarSys)
 	}
 	else
 	{
-
 		if (StarSeed)
 		{
 			pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
@@ -139,6 +138,7 @@ GeneratePkunk_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
 	return true;
 }
 

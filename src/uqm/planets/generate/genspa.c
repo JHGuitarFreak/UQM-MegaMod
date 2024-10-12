@@ -104,11 +104,11 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 			pPlanet->data_index = GenerateHabitableWorld ();
 		}
 
-		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
+		if (GET_GAME_STATE (SPATHI_SHIELDED_SELVES)
+				&& !(EXTENDED && GET_GAME_STATE (KOHR_AH_FRENZY)
+				&& RaceDead (ORZ_SHIP)))
 		{
-			if (!(EXTENDED && GET_GAME_STATE (KOHR_AH_FRENZY)
-					&& RaceDead (ORZ_SHIP)))
-				pPlanet->data_index |= PLANET_SHIELDED;
+			pPlanet->data_index |= PLANET_SHIELDED;
 		}
 
 		return true;
@@ -173,19 +173,21 @@ static bool
 GenerateSpathi_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (IsHomeworldKnown (SPATHI_HOME)
-			&& CurStarDescPtr->Index == SPATHI_DEFINED
-			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	GenerateDefault_generateName (solarSys, world);
+
+	if (CurStarDescPtr->Index == SPATHI_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& IsHomeworldKnown (SPATHI_HOME))
 	{
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
 		utf8StringCopy (GLOBAL_SIS (PlanetName),
 				sizeof (GLOBAL_SIS (PlanetName)),
 				GAME_STRING (PLANET_NUMBER_BASE + 37));
-		SET_GAME_STATE (BATTLE_PLANET,
-				solarSys->PlanetDesc[
-					solarSys->SunDesc[0].PlanetByte].data_index);
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
 	}
-	else
-		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }
@@ -240,24 +242,12 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys,
 			solarSys->SysInfo.PlanetInfo.ScanSeed[ENERGY_SCAN] = rand_val;
 
 
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
 			if (!DIF_HARD)
 			{
 				solarSys->SysInfo.PlanetInfo.Weather = 0;
 				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
 			}
-
-			//if (!PrimeSeed)
-			//{
-			//	solarSys->SysInfo.PlanetInfo.AtmoDensity =
-			//			EARTH_ATMOSPHERE * 20 / 100;
-			//	solarSys->SysInfo.PlanetInfo.PlanetDensity = 59;
-			//	solarSys->SysInfo.PlanetInfo.PlanetRadius = 30;
-			//	solarSys->SysInfo.PlanetInfo.SurfaceGravity = 17;
-			//	solarSys->SysInfo.PlanetInfo.RotationPeriod = 283;
-			//	solarSys->SysInfo.PlanetInfo.AxialTilt = 6;
-			//	solarSys->SysInfo.PlanetInfo.LifeChance = 560;
-			//}
 
 			if (!GET_GAME_STATE (UMGAH_BROADCASTERS))
 			{
@@ -296,9 +286,10 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys,
 			solarSys->SysInfo.PlanetInfo.ScanSeed[BIOLOGICAL_SCAN] =
 					rand_val;
 
-			if (EXTENDED
-				&& GET_GAME_STATE (KOHR_AH_FRENZY) && RaceDead (ORZ_SHIP)
-				&& GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
+			if (GET_GAME_STATE (KOHR_AH_FRENZY)
+					&& GET_GAME_STATE (SPATHI_SHIELDED_SELVES)
+					&& RaceDead (ORZ_SHIP)
+					&& EXTENDED)
 			{
 				solarSys->SysInfo.PlanetInfo.ScanSeed[ENERGY_SCAN] =
 						rand_val;
@@ -316,17 +307,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys,
 			{
 				solarSys->SysInfo.PlanetInfo.Weather = 0;
 				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			}
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 31;
-
-			if (!PrimeSeed)
-			{
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 160 / 100;
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 63;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 198;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = -27;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 960;
+				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 31;
 			}
 
 			LoadPlanet (NULL);
@@ -335,48 +316,39 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys,
 		}
 	}
 
-	if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
+	if (CurStarDescPtr->Index == ALGOLITES_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
 	{
-
-		if (EXTENDED
-			&& matchWorld(solarSys, world, MATCH_PBYTE, MATCH_PLANET))
-		{
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-			solarSys->PlanetSideFrame[1] =
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
 				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-				CaptureStringTable (LoadStringTable (ALGOLITE_RUINS_STRTAB));
-
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
-			solarSys->SysInfo.PlanetInfo.Weather = 0;
-
-			return true;
-		}
-
-		GenerateDefault_generateOrbital (solarSys, world);
-
-		return true;
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (
+					LoadStringTable (ALGOLITE_RUINS_STRTAB));
 	}
 
-	if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
+	if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
 	{
-		if (EXTENDED
-			&& matchWorld(solarSys, world, MATCH_PBYTE, MATCH_PLANET))
-		{
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-			solarSys->PlanetSideFrame[1] =
-					CaptureDrawable (
-						LoadGraphic (MONUMENT_MASK_PMAP_ANIM));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-					CaptureStringTable (
-						LoadStringTable (SPATHI_MONUMENT_STRTAB));
-		}
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+				CaptureDrawable (
+					LoadGraphic (MONUMENT_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (
+					LoadStringTable (SPATHI_MONUMENT_STRTAB));
+	}
 
-		GenerateDefault_generateOrbital (solarSys, world);
+	GenerateDefault_generateOrbital (solarSys, world);
 
-		return true;
+	if (CurStarDescPtr->Index == ALGOLITES_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
+	{
+		solarSys->SysInfo.PlanetInfo.AtmoDensity = 0;
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
 	}
 
 	return true;
@@ -400,30 +372,30 @@ GenerateSpathi_generateEnergy (const SOLARSYS_STATE *solarSys,
 			return GenerateDefault_generateArtifact (
 					solarSys, whichNode, info);
 		}
-		else if (EXTENDED
-			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
-			&& GET_GAME_STATE (KOHR_AH_FRENZY) && RaceDead (ORZ_SHIP)
-			&& GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
+		else if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+				&& GET_GAME_STATE (KOHR_AH_FRENZY) && RaceDead (ORZ_SHIP)
+				&& GET_GAME_STATE (SPATHI_SHIELDED_SELVES)
+				&& EXTENDED)
 		{
 			return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 4,
-				0, whichNode, info);
+					0, whichNode, info);
 		}
 	}
 
-	if (EXTENDED
-		&& CurStarDescPtr->Index == ALGOLITES_DEFINED
-		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	if (CurStarDescPtr->Index == ALGOLITES_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
 	{
 		return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 6,
 				0, whichNode, info);
 	}
 
-	if (EXTENDED
-		&& CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED
-		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	if (CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
 	{
-		return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, 1,
-				0, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -447,10 +419,10 @@ GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 
 			return true; // picked up
 		}
-		else if (EXTENDED
-			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
-			&& GET_GAME_STATE (KOHR_AH_FRENZY) && RaceDead (ORZ_SHIP)
-			&& GET_GAME_STATE (SPATHI_SHIELDED_SELVES))
+		else if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+				&& GET_GAME_STATE (KOHR_AH_FRENZY) && RaceDead (ORZ_SHIP)
+				&& GET_GAME_STATE (SPATHI_SHIELDED_SELVES)
+				&& EXTENDED)
 		{
 			GenerateDefault_landerReportCycle (solarSys);
 
@@ -458,18 +430,10 @@ GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		}
 	}
 
-	if (EXTENDED
-		&& CurStarDescPtr->Index == ALGOLITES_DEFINED
-		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
-	{
-		GenerateDefault_landerReportCycle (solarSys);
-
-		return false; // do not remove the node
-	}
-
-	if (EXTENDED
-		&& CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED
-		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	if ((CurStarDescPtr->Index == ALGOLITES_DEFINED
+			|| CurStarDescPtr->Index == SPATHI_MONUMENT_DEFINED)
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& EXTENDED)
 	{
 		GenerateDefault_landerReportCycle (solarSys);
 
@@ -485,7 +449,7 @@ GenerateSpathi_generateLife (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 	if (CurStarDescPtr->Index == SPATHI_DEFINED
-		&& matchWorld(solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+			&& matchWorld(solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		#define NUM_EVIL_ONES  32
 		return GenerateRandomNodes (&solarSys->SysInfo, BIOLOGICAL_SCAN,

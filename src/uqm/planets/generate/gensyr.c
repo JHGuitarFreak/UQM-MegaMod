@@ -128,19 +128,21 @@ static bool
 GenerateSyreen_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if ((GET_GAME_STATE (SYREEN_HOME_VISITS)
-			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON))
-			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	GenerateDefault_generateName (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& (GET_GAME_STATE (SYREEN_HOME_VISITS)
+			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
 	{
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
 		utf8StringCopy (GLOBAL_SIS (PlanetName),
 				sizeof (GLOBAL_SIS (PlanetName)),
 				GAME_STRING (PLANET_NUMBER_BASE + 39));
-		SET_GAME_STATE (BATTLE_PLANET,
-			solarSys->PlanetDesc[
-				solarSys->SunDesc[0].PlanetByte].data_index);
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
 	}
-	else
-		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }
@@ -150,8 +152,7 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world)
 {
 
-	if (matchWorld (solarSys, world,
-			MATCH_PBYTE, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{	/* Gaia */
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
@@ -176,21 +177,19 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys,
 
 	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
+		/* Starbase */
 		if (!RaceDead (SYREEN_SHIP))
 		{
-			/* Starbase */
 			InitCommunication (SYREEN_CONVERSATION);
 
 			return true;
 		}
 		else
 		{
-			/* Starbase */
 			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (
-						LoadStringTable (SYREEN_BASE_STRTAB)
-					);
+						LoadStringTable (SYREEN_BASE_STRTAB));
 
 			DoDiscoveryReport (MenuSounds);
 
@@ -225,8 +224,7 @@ GenerateSyreen_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
-	{
-		// Standard ruins report
+	{	// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);
 		return false;
 	}

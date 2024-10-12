@@ -81,7 +81,7 @@ GenerateVault_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		pPlanet->data_index = GenerateWorlds (LARGE_ROCKY);
 
-		if (!StarSeed && !pPlanet->NumPlanets)
+		if (!pPlanet->NumPlanets)
 			pPlanet->NumPlanets++;
 	}
 
@@ -112,6 +112,8 @@ GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys,
 					&& !(GET_GAME_STATE(KOHR_AH_FRENZY)))
 			{
 				COUNT i;
+				BOOLEAN Survivors;
+				UWORD state;
 
 				PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 				ReinitQueue (&GLOBAL (ip_group_q));
@@ -128,29 +130,21 @@ GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys,
 				if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 					return true;
 
-				{
-					BOOLEAN Survivors =
-							GetHeadLink (&GLOBAL(npc_built_ship_q)) != 0;
+				Survivors = GetHeadLink (&GLOBAL(npc_built_ship_q)) != 0;
 
-					GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
-					ReinitQueue (&GLOBAL (npc_built_ship_q));
-					GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+				ReinitQueue (&GLOBAL (npc_built_ship_q));
+				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
 
-					if (Survivors)
-						return true;
+				if (Survivors)
+					return true;
 
-					{
-						UWORD state;
+				state = GET_GAME_STATE (HM_ENCOUNTERS);
+				state |= 1 << URQUAN_ENCOUNTER;
 
-						state = GET_GAME_STATE (HM_ENCOUNTERS);
+				SET_GAME_STATE (HM_ENCOUNTERS, state);
 
-						state |= 1 << URQUAN_ENCOUNTER;
-
-						SET_GAME_STATE (HM_ENCOUNTERS, state);
-					}
-
-					RepairSISBorder ();
-				}
+				RepairSISBorder ();
 			}
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					SetAbsStringTableIndex (

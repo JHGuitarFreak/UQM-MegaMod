@@ -102,9 +102,9 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 			else /* if (CurStarDescPtr->Index == VUX_BEAST_DEFINED) */
 			{
 				memmove (&solarSys->PlanetDesc[1],
-					&solarSys->PlanetDesc[0],
-					sizeof (solarSys->PlanetDesc[0])
-					* pSunDesc->NumPlanets);
+						&solarSys->PlanetDesc[0],
+						sizeof (solarSys->PlanetDesc[0])
+						* pSunDesc->NumPlanets);
 				++pSunDesc->NumPlanets;
 
 				angle = HALF_CIRCLE - OCTANT;
@@ -129,8 +129,10 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 			pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
 			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 		}
+		else
+			CheckForHabitable (solarSys);
+
 		pPlanet->data_index = GenerateHabitableWorld ();
-		CheckForHabitable (solarSys);
 	}
 
 	return true;
@@ -193,29 +195,6 @@ GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						CaptureStringTable (
 						LoadStringTable (MAIDENS_STRTAB));
 			}
-
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			if (!DIF_HARD)
-			{
-				solarSys->SysInfo.PlanetInfo.Weather = 2;
-				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			}
-
-			if (!PrimeSeed)
-			{
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 26 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 39;
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 102;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 96;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 97;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 251;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 12;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 760;
-			}
-
-			return true;
 		}
 		else if (CurStarDescPtr->Index == VUX_BEAST_DEFINED)
 		{
@@ -227,64 +206,25 @@ GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						CaptureStringTable (
 						LoadStringTable (BEAST_STRTAB));
 			}
-
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			if (!DIF_HARD)
-			{
-				solarSys->SysInfo.PlanetInfo.Weather = 2;
-				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			}
-
-			if (!PrimeSeed)
-			{
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 218 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 20;
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 96;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 99;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 95;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 206;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 16;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
-			}
-
-			return true;
 		}
-		else
+		else // if (CurStarDescPtr->Index == VUX_DEFINED)
 		{
 			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 			solarSys->PlanetSideFrame[1] =
 					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
-
-			GenerateDefault_generateOrbital (solarSys, world);
-
-			if (!DIF_HARD)
-			{
-				solarSys->SysInfo.PlanetInfo.Weather = 2;
-				solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			}
-
-			if (!PrimeSeed)
-			{
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 24 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 14;
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 96;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 93;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 89;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 289;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 23;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 760;
-			}
-
-			return true;
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& !DIF_HARD)
+	{
+		solarSys->SysInfo.PlanetInfo.Weather = 2;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+	}
 
 	return true;
 }

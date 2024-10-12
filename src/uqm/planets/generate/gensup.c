@@ -93,20 +93,22 @@ GenerateSupox_generatePlanets (SOLARSYS_STATE *solarSys)
 
 static bool
 GenerateSupox_generateName (const SOLARSYS_STATE *solarSys,
-	const PLANET_DESC *world)
+		const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (SUPOX_STACK1) > 2
-		&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	GenerateDefault_generateName (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& GET_GAME_STATE (SUPOX_STACK1) > 2)
 	{
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
 		utf8StringCopy (GLOBAL_SIS (PlanetName),
 				sizeof (GLOBAL_SIS (PlanetName)),
 				GAME_STRING (PLANET_NUMBER_BASE + 38));
-		SET_GAME_STATE (BATTLE_PLANET,
-				solarSys->PlanetDesc[
-					solarSys->SunDesc[0].PlanetByte].data_index);
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
 	}
-	else
-		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }

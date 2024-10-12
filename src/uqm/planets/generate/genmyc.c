@@ -67,10 +67,12 @@ GenerateMyconDefenders (BYTE index)
 {
 #define STATE_OFFSET 29
 	BYTE shift = index - STATE_OFFSET;
+	BOOLEAN Survivors;
+	UWORD state;
+	COUNT i;
 
 	if (!(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << shift))
 	{
-		COUNT i;
 
 		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 		ReinitQueue (&GLOBAL (ip_group_q));
@@ -78,7 +80,7 @@ GenerateMyconDefenders (BYTE index)
 
 		for (i = 0; i < 4; ++i)
 			CloneShipFragment (MYCON_SHIP,
-				&GLOBAL (npc_built_ship_q), 0);
+					&GLOBAL (npc_built_ship_q), 0);
 
 		GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
 		InitCommunication (MYCON_CONVERSATION);
@@ -86,28 +88,21 @@ GenerateMyconDefenders (BYTE index)
 		if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 			return true;
 
-		{
-			BOOLEAN Survivors = GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
+		Survivors = GetHeadLink (&GLOBAL (npc_built_ship_q)) != 0;
 
-			GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
-			ReinitQueue (&GLOBAL (npc_built_ship_q));
-			GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+		GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+		ReinitQueue (&GLOBAL (npc_built_ship_q));
+		GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
 
-			if (Survivors)
-				return true;
+		if (Survivors)
+			return true;
 
-			{
-				UWORD state;
+		state = GET_GAME_STATE (HM_ENCOUNTERS);
+		state |= 1 << shift;
 
-				state = GET_GAME_STATE (HM_ENCOUNTERS);
+		SET_GAME_STATE (HM_ENCOUNTERS, state);
 
-				state |= 1 << shift;
-
-				SET_GAME_STATE (HM_ENCOUNTERS, state);
-			}
-
-			RepairSISBorder ();
-		}
+		RepairSISBorder ();
 	}
 	return false;
 }
@@ -149,18 +144,20 @@ static bool
 GenerateMycon_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
+	GenerateDefault_generateName (solarSys, world);
+
 	if (CurStarDescPtr->Index == EGG_CASE0_DEFINED
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
 		utf8StringCopy (GLOBAL_SIS (PlanetName),
 				sizeof (GLOBAL_SIS (PlanetName)),
 				GAME_STRING (PLANET_NUMBER_BASE + 42));
-		SET_GAME_STATE (BATTLE_PLANET,
-				solarSys->PlanetDesc[
-					solarSys->SunDesc[0].PlanetByte].data_index);
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
 	}
-	else
-		GenerateDefault_generateName(solarSys, world);
 
 	return true;
 }

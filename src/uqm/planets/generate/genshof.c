@@ -211,13 +211,17 @@ GenerateShofixti_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateShofixti_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateShofixti_generateMoons (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
 	if (NOMAD && matchWorld (solarSys, planet, MATCH_PBYTE, MATCH_PLANET))
 	{
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
+		BYTE MoonByte = solarSys->SunDesc[0].MoonByte;
+		PLANET_DESC *pMoonDesc = &solarSys->MoonDesc[MoonByte];
+
+		pMoonDesc->data_index = HIERARCHY_STARBASE;
 	}
 
 	return true;
@@ -227,17 +231,19 @@ static bool
 GenerateShofixti_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
+	GenerateDefault_generateName (solarSys, world);
+
 	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
 		utf8StringCopy (GLOBAL_SIS (PlanetName),
 				sizeof (GLOBAL_SIS (PlanetName)),
 				GAME_STRING (PLANET_NUMBER_BASE + 35));
-		SET_GAME_STATE (BATTLE_PLANET,
-				solarSys->PlanetDesc[
-					solarSys->SunDesc[0].PlanetByte].data_index);
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
 	}
-	else
-		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }
@@ -279,6 +285,7 @@ GenerateShofixti_generateOrbital (SOLARSYS_STATE *solarSys,
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
 	return true;
 }
 
