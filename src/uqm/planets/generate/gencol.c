@@ -177,14 +177,11 @@ GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys,
 	{
 		DoPlanetaryAnalysis (&solarSys->SysInfo, world);
 
-		if (PrimeSeed)
-		{
-			solarSys->SysInfo.PlanetInfo.AtmoDensity =
-					EARTH_ATMOSPHERE * 98 / 100;
-			solarSys->SysInfo.PlanetInfo.Weather = 0;
-			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
-			solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
-		}
+		solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 98 / 100;
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 0;
+		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 28;
 
 		LoadPlanet (NULL);
 
