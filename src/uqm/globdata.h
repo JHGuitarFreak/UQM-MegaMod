@@ -954,7 +954,13 @@ START_GAME_STATE
 	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_X, 16)
 	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, 16)
 
+	/* end rev 4, MegaMod v0.8.3 */
+	/* begin rev 5, MegaMod v0.8.4 */
+
 	ADD_GAME_STATE (SEED_TYPE, 2)
+	ADD_GAME_STATE (REV_5_PAD, 5)
+
+	/* end rev 5, MegaMod v0.8.4 */
 
 END_GAME_STATE
 

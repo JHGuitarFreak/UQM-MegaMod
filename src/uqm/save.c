@@ -774,8 +774,13 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "ADV_AUTOPILOT_QUASI_Y", 16 },
 
 	/* end rev 4, MegaMod v0.8.3 */
-	{ "SEED_TYPE", 2 },
+	{ NULL, 5 },
+	/* begin rev 5, MegaMod v0.8.4 */
 
+	{ "SEED_TYPE", 2 },
+	{ "REV_5_PAD", 5 },
+
+	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },
 };
 
@@ -786,7 +791,8 @@ const char* gameStateBitMapRevTag[] = {
 	"MegaMod v0.8.0.85",
 	"MegaMod v0.8.1",
 	"MegaMod v0.8.2",
-	"MegaMod v0.8.3"
+	"MegaMod v0.8.3",
+	"MegaMod v0.8.4"
 };
 
 // XXX: these should handle endian conversions later
