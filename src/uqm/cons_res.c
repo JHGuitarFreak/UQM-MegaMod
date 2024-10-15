@@ -39,7 +39,7 @@ static const char *planet_types[] = {
 	"chlorine", "magnetic", "water", "telluric", "hydrocarbon",
 	"iodine", "vinylogous", "ruby", "magma", "maroon",
 	"bluegas", "cyangas", "greengas", "greygas", "orangegas",
-	"purplegas", "redgas", "violetgas", "yellowgas", "samatra"
+	"purplegas", "redgas", "violetgas", "yellowgas"
 };
 
 static const char *planet_sizes[] = {
@@ -56,9 +56,18 @@ load_gravity_well (BYTE selector)
 
 	if (selector == SA_MATRA)
 	{
-		planet[0] = CaptureDrawable (
-				LoadGraphic (SAMATRA_BIG_MASK_PMAP_ANIM)
-				);
+		if (EXTENDED && LOBYTE (GLOBAL (CurrentActivity)) != IN_LAST_BATTLE)
+		{
+			planet[0] = CaptureDrawable (
+					LoadGraphic (SCENERY_MASK_PMAP_ANIM)
+					);
+		}
+		else
+		{
+			planet[0] = CaptureDrawable (
+					LoadGraphic (SAMATRA_BIG_MASK_PMAP_ANIM)
+					);
+		}
 		planet[1] = planet[2] = 0;
 	}
 	else

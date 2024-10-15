@@ -30,6 +30,8 @@
 #include "util.h"
 #include "planets/planets.h"
 #include "shipcont.h"
+#include "nameref.h"
+#include "ifontres.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -49,7 +51,8 @@ DrawPCMenuFrame (RECT *r)
 	if (IS_HD || optCustomBorder)
 	{
 		DrawRenderedBox (r, TRUE, PCMENU_BACKGROUND_COLOR,
-				optCustomBorder ? SPECIAL_BEVEL : THIN_INNER_BEVEL);
+				optCustomBorder ? SPECIAL_BEVEL : THIN_INNER_BEVEL,
+				optCustomBorder);
 	}
 	else
 	{
@@ -102,7 +105,7 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	if (!optCustomBorder)
 		DrawFilledRectangle (&rt);
 
-	DrawBorder (8);
+	DrawBorder (SIS_RADAR_FRAME);
 
 	if (num_items * PC_MENU_HEIGHT > r->extent.height)
 		log_add (log_Error, "Warning, no room for all menu items!");
@@ -149,7 +152,8 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 
 					s.origin = r->corner;
 
-					s.frame = SetAbsFrameIndex (BorderFrame, 22);
+					s.frame = SetAbsFrameIndex (CustBevelFrame,
+							DOS_MENU_HILITE);
 					DrawStamp (&s);
 				}
 				else
@@ -530,6 +534,124 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	return TRUE;
 }
 
+const UNICODE *
+IndexToText (int Index)
+{
+	int i = -1;
+
+	if (Index < PM_EXIT_GAME_MENU)
+		i = Index;
+
+	switch (Index)
+	{
+		case PM_ENCOUNTER_GAME_MENU:
+		case PM_OUTFIT_GAME_MENU:
+		case PM_SHIPYARD_GAME_MENU:
+			i = GAMESTR_GAME_MENU;
+			break;
+		case PM_EXIT_GAME_MENU:
+		case PM_EXIT_OUTFIT:
+		case PM_EXIT_SHIPYARD:
+		case PM_EXIT_SETTINGS:
+			i = GAMESTR_EXIT_MENU;
+			break;
+		case PM_CONVERSE:
+			i = GAMESTR_CONVERSE;
+			break;
+		case PM_ATTACK:
+			i = GAMESTR_ATTACK;
+			break;
+		case PM_FUEL:
+			i = GAMESTR_FUEL;
+			break;
+		case PM_MODULE:
+			i = GAMESTR_MODULE;
+			break;
+		case PM_CREW:
+			i = GAMESTR_CREW;
+			break;
+		case PM_SOUND_ON:
+			i = GAMESTR_SND_ON;
+			break;
+		case PM_SOUND_OFF:
+			i = GAMESTR_SND_OFF;
+			break;
+		case PM_MUSIC_ON:
+			i = GAMESTR_MUS_ON;
+			break;
+		case PM_MUSIC_OFF:
+			i = GAMESTR_MUS_OFF;
+			break;
+		case PM_CYBORG_OFF:
+		case PM_CYBORG_NORMAL:
+		case PM_CYBORG_DOUBLE:
+		case PM_CYBORG_SUPER:
+			i = GAMESTR_COMBAT;
+			break;
+		case PM_READ_VERY_SLOW:
+		case PM_READ_SLOW:
+		case PM_READ_MODERATE:
+		case PM_READ_FAST:
+		case PM_READ_VERY_FAST:
+			i = GAMESTR_READING;
+			break;
+		case PM_CHANGE_CAPTAIN:
+			i = GAMESTR_CHANGE_CAP;
+			break;
+		case PM_CHANGE_SHIP:
+			i = GAMESTR_CHANGE_SIS;
+			break;
+		default:
+			break;
+	}
+
+	if (i == -1 || !strlen (GAME_STRING (PLAYMENU_STRING_BASE + i)))
+		return NULL;
+
+	return GAME_STRING (PLAYMENU_STRING_BASE + i);
+}
+
+static void
+Draw3DOMenuText (RECT *r, int Index)
+{
+	TEXT text;
+	SIZE leading;
+	RECT block;
+	FONT OldFont;
+	Color OldColor;
+
+	if (IndexToText (Index) == NULL)
+		return;
+
+	OldFont = SetContextFont (PlayMenuFont);
+	OldColor = SetContextForeGroundColor (PM_RECT_COLOR);
+
+	GetContextFontLeading (&leading);
+
+	if (!optCustomBorder)
+	{
+		block = *r;
+		block.corner.y += DOS_NUM_SCL (2);
+		block.extent.height = leading;
+		DrawFilledRectangle (&block); // with PM_RECT_COLOR
+	}
+	else
+		DrawBorder (TEXT_LABEL_FRAME);
+
+	text.align = ALIGN_CENTER;
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading - NDOS_NUM_SCL (2);
+	text.pStr = AlignText (IndexToText (Index),
+			&text.baseline.x);
+	text.CharCount = (COUNT)~0;
+
+	font_DrawShadowedText (&text, NORTH_WEST_SHADOW, PM_TEXT_COLOR,
+			PM_SHADOW_COLOR);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 void
 DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 {
@@ -633,18 +755,18 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	}
 	else
 	{
+		// Gray rectangle behind Lander and HyperSpace radar
+		r.corner.x -= RES_SCALE (1);
+		r.corner.y += DOS_NUM_SCL (5);
+		r.extent.width += RES_SCALE (1);
+		r.extent.height = RADAR_HEIGHT
+				+ RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
+		r.extent.height -= DOS_NUM_SCL (6);
+
 		if (!optCustomBorder)
-		{	// Gray rectangle behind Lander and HyperSpace radar
-			r.corner.x -= RES_SCALE (1);
-			r.corner.y += DOS_NUM_SCL (5);
-			r.extent.width += RES_SCALE (1);
-			r.extent.height = RADAR_HEIGHT
-					+ RES_SCALE (isPC (optWhichMenu) ? 9 : 12);
-			r.extent.height -= DOS_NUM_SCL (6);
 			DrawFilledRectangle (&r);
-		}
 		else
-			DrawBorder (8);
+			DrawBorder (SIS_RADAR_FRAME);
 	}
 	if (s.frame)
 	{
@@ -652,6 +774,8 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 			FunkyMenu (beg_index + (BYTE)NewState, s);
 		else
 			DrawStamp (&s);
+
+		Draw3DOMenuText (&r, beg_index + NewState);
 
 		switch (beg_index + NewState)
 		{
@@ -719,13 +843,12 @@ DrawMineralHelpers (void)
 #define ELEMENT_ORG_Y      RES_SCALE (33)
 #define ELEMENT_SPACING_Y  RES_SCALE (9)
 #define ELEMENT_SPACING_X  RES_SCALE (32)
-#define HD_ALIGN_DOTS IF_HD (2)
 
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
-	s.origin.x = ELEMENT_ORG_X + HD_ALIGN_DOTS;
-	s.origin.y = ELEMENT_ORG_Y + HD_ALIGN_DOTS;
+	s.origin.x = ELEMENT_ORG_X;
+	s.origin.y = ELEMENT_ORG_Y;
 	// setup element worths
 	t.baseline.x = ELEMENT_ORG_X + RES_SCALE (12);
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
@@ -810,9 +933,15 @@ DrawMineralHelpers (void)
 
 	if (GetStorageBayCapacity ())
 	{
-		snprintf (buf, sizeof (buf), "%g%%",
-				(float)GLOBAL_SIS (TotalElementMass)
-				/ (float)GetStorageBayCapacity () * 100);
+		float totalCapacity = (float)GLOBAL_SIS (TotalElementMass)
+				/ (float)GetStorageBayCapacity () * 100;
+
+		if (totalCapacity == 100)
+			snprintf (buf, sizeof (buf), "%.0f%%", totalCapacity);
+		else if (totalCapacity > 9)
+			snprintf (buf, sizeof (buf), "%.1f%%", totalCapacity);
+		else
+			snprintf (buf, sizeof (buf), "%.2f%%", totalCapacity);
 	}
 	else
 	{

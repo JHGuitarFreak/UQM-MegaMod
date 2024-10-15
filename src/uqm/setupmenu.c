@@ -152,7 +152,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         10
-#define CHOICE_COUNT       82
+#define CHOICE_COUNT       84
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       12
 #define LABEL_COUNT         9
@@ -206,17 +206,17 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
 	(WIDGET *)(&choices[3]),    // Scanlines
+#if	SDL_MAJOR_VERSION == 2
 	(WIDGET *)(&choices[12]),   // Show FPS
+#endif
 	(WIDGET *)(&labels[4]),     // Spacer
-
-	(WIDGET *)(&choices[81]),   // Window Type
-	(WIDGET *)(&labels[4]),     // Spacer
-
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
 static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&labels[5]),     // UI Label
+	(WIDGET *)(&choices[81]),   // Window Type
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[4]),    // Menu Style
 	(WIDGET *)(&choices[5]),    // Font Style
 	(WIDGET *)(&choices[11]),   // Cutscenes
@@ -313,7 +313,9 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&choices[77]),   // Slaughter Mode
+	(WIDGET *)(&choices[82]),   // Seed usage selection
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
+	(WIDGET *)(&choices[83]),   // SOI Color Selection
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[32]),   // Skip Intro
 	(WIDGET *)(&choices[40]),   // Partial Pickup switch
@@ -516,8 +518,9 @@ do_keyconfig (WIDGET *self, int event)
 
 static void
 populate_seed (void)
-{	
-	sprintf (textentries[1].value, "%d", optCustomSeed);
+{
+	snprintf (textentries[1].value, sizeof (textentries[1].value), "%d",
+			optCustomSeed);
 	if (!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
 }
@@ -625,26 +628,6 @@ check_for_hd (WIDGET_CHOICE *self, int oldval)
 		oldval = OPTVAL_320_240;
 		addon_unavailable (self, OPTVAL_320_240);
 	}
-
-	switch (choices[81].selected)
-	{
-		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (DOS_MODE (HD)))
-			{
-				optWindowType = OPTVAL_UQM_WINDOW;
-				choices[81].selected = OPTVAL_UQM_WINDOW;
-			}
-			break;
-		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (THREEDO_MODE (HD)))
-			{
-				optWindowType = OPTVAL_UQM_WINDOW;
-				choices[81].selected = OPTVAL_UQM_WINDOW;
-			}
-			break;
-		default:
-			break;
-	}
 }
 
 static BOOLEAN
@@ -678,25 +661,56 @@ check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 	return TRUE;
 }
 
+static BOOLEAN
+check_remixes (WIDGET_CHOICE *self, int oldval)
+{
+	BOOLEAN addon_available = FALSE;
+	switch (self->choice_num)
+	{
+		case 9:
+			addon_available = isAddonAvailable (THREEDO_MUSIC);
+			break;
+		case 21:
+			addon_available = isAddonAvailable (REMIX_MUSIC);
+			break;
+		case 47:
+			addon_available = isAddonAvailable (VOL_RMX_MUSIC);
+			break;
+		case 46:
+			addon_available = isAddonAvailable (VOL_RMX_MUSIC) ||
+					isAddonAvailable (REGION_MUSIC);
+			break;
+		default:
+			log_add (log_Error, "invalid choice_num in check_remixes()");
+			break;
+	}
+
+	if (!addon_available)
+	{
+		oldval = OPTVAL_DISABLED;
+		choices[self->choice_num].selected = oldval;
+		addon_unavailable (self, oldval);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 static void
 check_availability (WIDGET_CHOICE *self, int oldval)
 {
 	if (self->choice_num == 0)
 		check_for_hd (self, oldval);
 
-	if (self->choice_num == 81 && check_dos_3do_modes (self, oldval))
+	if (self->choice_num == 9 || self->choice_num == 21
+			|| self->choice_num == 46 || self->choice_num == 47)
 	{
-		int NewHeight = ScreenHeightActual;
+		check_remixes (self, oldval);
+	}
 
-		PutIntOpt ((int *)&optWindowType, (int *)&self->selected,
-				"mm.windowType", TRUE);
-
-		NewHeight = DOS_BOOL (240, 200) * (1 + choices[42].selected);
-
-		if (NewHeight != ScreenHeightActual)
-			ScreenHeightActual = NewHeight;
-
-		res_PutInteger ("config.resheight", ScreenHeightActual);
+	if (self->choice_num == 81)
+	{
+		check_dos_3do_modes (self, oldval);
 	}
 }
 
@@ -756,6 +770,7 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 {
 	if (self->selected < 6)
 	{
+#if !(defined(ANDROID) || defined(__ANDROID__))
 		if (!self->selected)
 		{	// No blowup
 			*NewWidth = RES_SCALE (320);
@@ -766,6 +781,18 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 			*NewWidth = 320 * (1 + self->selected);
 			*NewHeight = DOS_BOOL (240, 200) * (1 + self->selected);
 		}
+#else
+		if (!self->selected)
+		{	// No blowup
+			*NewWidth = RES_SCALE (320);
+			*NewHeight = RES_SCALE (240);
+		}
+		else
+		{
+			*NewWidth = 320 * (1 + self->selected);
+			*NewHeight = 240 * (1 + self->selected);
+		}
+#endif
 	}
 
 	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
@@ -1063,6 +1090,8 @@ SetDefaults (void)
 	choices[79].selected = opts.meleeToolTips;
 	choices[80].selected = opts.musicResume;
 	choices[81].selected = opts.windowType;
+	choices[82].selected = opts.seedType;
+	choices[83].selected = opts.sphereColors;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1160,6 +1189,8 @@ PropagateResults (void)
 	opts.meleeToolTips = choices[79].selected;
 	opts.musicResume = choices[80].selected;
 	opts.windowType = choices[81].selected;
+	opts.seedType = choices[82].selected;
+	opts.sphereColors = choices[83].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1641,8 +1672,12 @@ init_widgets (void)
 	/* Choice 20 has a special onChange handler, too. */
 	choices[20].onChange = change_template;
 
-	/* Check the availability of HD mode and the DOS/3DO mode addons */
-	choices[0].onChange = check_availability;
+	// Check addon availability for HD mode, DOS/3DO mode, and music remixes
+	choices[ 0].onChange = check_availability;
+	choices[ 9].onChange = check_availability;
+	choices[21].onChange = check_availability;
+	choices[46].onChange = check_availability;
+	choices[47].onChange = check_availability;
 	choices[81].onChange = check_availability;
 
 	// Handle display option
@@ -1700,6 +1735,7 @@ init_widgets (void)
 
 	// nebulaevol is a special case
 	sliders[4].step = 1;
+	sliders[4].max = 50;
 
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{
@@ -2150,9 +2186,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	audioQuality = opts->aquality;
 
-	SfxVol = opts->musicvol =
+	MusVol = opts->musicvol =
 			(((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
-	MusVol = opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
+	SfxVol = opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
 	SpcVol = opts->speechvol =
 			(((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 
@@ -2186,6 +2222,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->fuelRange = optFuelRange;
 	opts->wholeFuel = optWholeFuel;
 	opts->meleeToolTips = optMeleeToolTips;
+	opts->sphereColors = optSphereColors;
 
 	// Interplanetary
 	opts->nebulae = optNebulae;
@@ -2213,6 +2250,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->extended = optExtended;
 	opts->nomad = optNomad;
 	opts->slaughterMode = optSlaughterMode;
+	opts->seedType = optSeedType;
 	
 	// Comm screen
 	opts->scroll = is3DO (optSmoothScroll);
@@ -2266,6 +2304,49 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	{
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		resolutionFactor = resFactor;
+
+#if defined(ANDROID) || defined(__ANDROID__)
+		// Switch to native resolution on Res Factor change
+		ScreenWidthActual = 320 << RESOLUTION_FACTOR;
+		ScreenHeightActual = DOS_BOOL (240, 200) << RESOLUTION_FACTOR;
+		loresBlowupScale = (ScreenWidthActual / 320) - 1;
+		res_PutInteger("config.loresBlowupScale", loresBlowupScale);
+		res_PutInteger("config.reswidth", ScreenWidthActual);
+		res_PutInteger("config.resheight", ScreenHeightActual);
+#endif
+
+		switch (opts->windowType)
+		{
+			case OPTVAL_PC_WINDOW:
+				if (!isAddonAvailable (DOS_MODE (resolutionFactor)))
+				{
+					opts->windowType = OPTVAL_UQM_WINDOW;
+				}
+				break;
+			case OPTVAL_3DO_WINDOW:
+				if (!isAddonAvailable (THREEDO_MODE (resolutionFactor)))
+				{
+					opts->windowType = OPTVAL_UQM_WINDOW;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	if (optWindowType != opts->windowType)
+	{
+		int nh;
+		PutIntOpt ((int *)&optWindowType, (int *)&opts->windowType,
+				"mm.windowType", TRUE);
+
+		nh = DOS_BOOL (240, 200) * (1 + opts->loresBlowup);
+
+		if (nh != ScreenHeightActual)
+		{
+			ScreenHeightActual = nh;
+			res_PutInteger("config.resheight", ScreenHeightActual);
+		}
 	}
 
 //#if !(defined(ANDROID) || defined(__ANDROID__))
@@ -2313,7 +2394,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			UninitMenuMusic ();
 	}
 
-	PutBoolOpt (&optMusicResume, &opts->musicResume, "mm.musicResume", FALSE);
+	PutIntOpt (&optMusicResume, (int*)&opts->musicResume, "mm.musicResume", FALSE);
 	PutBoolOpt (&optSpeech, &opts->speech, "config.speech", TRUE);
 
 	if (audioDriver != opts->adriver)
@@ -2419,7 +2500,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 	}
 #if defined(ANDROID) || defined(__ANDROID__)
-	PutBoolOpt (&optDirectionalJoystick, opts->directionalJoystick, "mm.directionalJoystick", FALSE);
+	PutBoolOpt (&optDirectionalJoystick, &opts->directionalJoystick, "mm.directionalJoystick", FALSE);
 #endif
 	PutIntOpt  (&optDateFormat, (int*)(&opts->dateType), "mm.dateFormat", FALSE);
 	PutBoolOpt (&optCustomBorder, &opts->customBorder, "mm.customBorder", FALSE);
@@ -2430,6 +2511,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt  (&optFuelRange, (int*)(&opts->fuelRange), "mm.fuelRange", FALSE);
 	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
+	PutIntOpt  (&optSphereColors, &opts->sphereColors, "mm.sphereColors", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);
@@ -2454,17 +2536,18 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	// Game modes
 	{
+		PutIntOpt (&optSeedType, (int*)(&opts->seedType), "mm.seedType", FALSE);
 		int customSeed = atoi (textentries[1].value);
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;
-		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE); 
+		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
 	}
 
 	PutIntOpt (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", FALSE);
 	if ((optDifficulty = opts->difficulty) == OPTVAL_IMPO)
 		optDifficulty = OPTVAL_NORM;
 	PutBoolOpt (&optExtended, &opts->extended, "mm.extended", FALSE);
-	PutBoolOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
+	PutIntOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
 	PutBoolOpt (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", FALSE);
 
 	// Comm screen

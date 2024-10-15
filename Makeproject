@@ -41,14 +41,14 @@ uqm_INSTALL_SHARED_content_MODE="go+rX"
 # specified during config.
 uqm_INSTALL_APP="shortcut"
 uqm_INSTALL_APP_shortcut_SRC="$BUILD_WORK/src/res/megamod.desktop"
-uqm_INSTALL_APP_shortcut_DEST="The Ur-Quan Masters MegaMod.desktop"
+uqm_INSTALL_APP_shortcut_DEST="net.sourceforge.uqm_mods.UQM-MegaMod.desktop"
 uqm_INSTALL_APP_shortcut_MODE="0755"
 
 # Stuff to install under the directory for system-independant data, as
 # specified during config.
 uqm_INSTALL_ICON="icon"
 uqm_INSTALL_ICON_icon_SRC="$BUILD_WORK/src/res/megamod.png"
-uqm_INSTALL_ICON_icon_DEST="UrQuanMasters.png"
+uqm_INSTALL_ICON_icon_DEST="net.sourceforge.uqm_mods.UQM-MegaMod.png"
 uqm_INSTALL_ICON_icon_MODE="0755"
 
 # Stuff to install under the directory for binaries, as specified during

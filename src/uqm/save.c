@@ -733,24 +733,7 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "SYS_VISITED_14", 32 },
 	{ "SYS_VISITED_15", 32 },
 
-	{ "KNOW_CHMMR_HOMEWORLD", 1 },
-	{ "KNOW_ORZ_HOMEWORLD", 1 },
-	{ "KNOW_PKUNK_HOMEWORLD", 1 },
-	{ "KNOW_SHOFIXTI_HOMEWORLD", 1 },
-	{ "KNOW_SPATHI_HOMEWORLD", 1 },
-	{ "KNOW_SUPOX_HOMEWORLD", 1 },
-	{ "KNOW_THRADD_HOMEWORLD", 1 },
-	{ "KNOW_UTWIG_HOMEWORLD", 1 },
-	{ "KNOW_VUX_HOMEWORLD", 1 },
-	{ "KNOW_YEHAT_HOMEWORLD", 1 },
-	{ "KNOW_DRUUGE_HOMEWORLD", 1 },
-	{ "KNOW_ILWRATH_HOMEWORLD", 1 },
-	{ "KNOW_MYCON_HOMEWORLD", 1 },
-	{ "KNOW_SLYLANDRO_HOMEWORLD", 1 },
-	{ "KNOW_UMGAH_HOMEWORLD", 1 },
-	{ "KNOW_ZOQFOT_HOMEWORLD", 1 },
-	{ "KNOW_SYREEN_HOMEWORLD", 1 },
-	{ "KNOW_ANDROSYNTH_HOMEWORLD", 1 },
+	{ "KNOW_HOMEWORLD", 18 },
 
 	{ "HM_ENCOUNTERS", 9 },
 
@@ -790,7 +773,9 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "ADV_AUTOPILOT_QUASI_X", 16 },
 	{ "ADV_AUTOPILOT_QUASI_Y", 16 },
 
-	/* end rev 3, MegaMod v0.8.2 */
+	/* end rev 4, MegaMod v0.8.3 */
+	{ "SEED_TYPE", 2 },
+
 	{ NULL, 0 },
 };
 

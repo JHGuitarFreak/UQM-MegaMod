@@ -106,6 +106,8 @@ extern COUNT UninitEncounter (void);
 extern BOOLEAN FleetIsInfinite (COUNT playerNr);
 extern void UpdateShipFragCrew (STARSHIP *);
 
+extern void SetBattlePlanet (void);
+
 // Last race the player battled with, or -1 if no battle took place.
 // Set to -1 by some funcs to inhibit IP groups from intercepting
 // the flagship.

@@ -61,18 +61,24 @@ FONT StarConFont;
 FONT MicroFont;
 FONT TinyFont;
 FONT TinyFontBold;
+FONT TinyFontCond;
 FONT PlyrFont;
+FONT LabelFont;
+FONT SlabFont;
+FONT SquareFont;
+FONT PlayMenuFont;
 QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
-FRAME hyperspacesuns;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME visitedStarsFrame;
 FRAME FontGradFrame;
 FRAME BorderFrame;
 FRAME HDBorderFrame;
+FRAME CustBevelFrame;
+FRAME DefBevelFrame;
 STRING GameStrings;
 QUEUE disp_q;
 
@@ -135,6 +141,8 @@ LoadKernel (int argc, char *argv[])
 	if (loadIndices (contentDir) == 0)
 		return FALSE; // Must have at least one index in content dir
 
+	classicPackPresent = FALSE;
+
 	if (!IS_HD)
 	{
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
@@ -143,14 +151,15 @@ LoadKernel (int argc, char *argv[])
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
-		log_add (log_Debug, "loading HD addon pack");
 		HDPackPresent = TRUE;
+		log_add (log_Debug, "loading HD addon pack");
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		if (optWindowType == 2)
-			classicPackPresent = loadAddon ("classic-pack");
-		else
-			classicPackPresent = FALSE;
+		{
+			classicPackPresent =
+					optNoClassic ? FALSE : loadAddon ("classic-pack");
+		}
 	}
 
 	if (IS_PAD && isAddonAvailable (THREEDO_MODE (IS_HD)))
@@ -167,6 +176,7 @@ LoadKernel (int argc, char *argv[])
 		loadAddon ("rmx-utwig");
 		// Autoload support for Soul Reaver's dialog fixes
 		loadAddon ("MelnormeVoiceFix");
+		loadAddon ("distorted-hayes");
 		SyreenVoiceFix = loadAddon ("SyreenVoiceFix");
 	}
 
@@ -292,20 +302,36 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
+	TinyFontCond = LoadFont (TINY_FONT_COND);
+	if (TinyFontCond == NULL)
+		return FALSE;
+
 	PlyrFont = LoadFont (PLAYER_FONT);
 	if (PlyrFont == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
+
+	PlayMenuFont = LoadFont (PLAYMENU_FONT);
+	if (PlayMenuFont == NULL)
+		return FALSE;
 
 	BorderFrame = CaptureDrawable (LoadGraphic (BORDER_MASK_PMAP_ANIM));
 	if (BorderFrame == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
 
+	CustBevelFrame = CaptureDrawable (LoadGraphic (CUST_BEVEL_MASK_PMAP_ANIM));
+	if (CustBevelFrame == NULL)
+		return FALSE;
+
 	if (HDPackPresent)
 	{
 		HDBorderFrame = CaptureDrawable (LoadGraphic (HD_BORDER_MASK_PMAP_ANIM));
 		if (HDBorderFrame == NULL)
+			return FALSE;
+
+		DefBevelFrame = CaptureDrawable (LoadGraphic (DEF_BEVEL_MASK_PMAP_ANIM));
+		if (DefBevelFrame == NULL)
 			return FALSE;
 	}
 
@@ -319,13 +345,6 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
-	if (HDPackPresent)
-	{ 
-		hyperspacesuns = CaptureDrawable (LoadGraphic (HYPERSUNS_MASK_PMAP_ANIM));
-		if (hyperspacesuns == NULL)
-			return FALSE;
-	}
-
 	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
 	if (SubmenuFrame == NULL)
 		return FALSE;
@@ -336,10 +355,22 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
-	MicroFont = LoadFont(MICRO_FONT);
+	MicroFont = LoadFont (MICRO_FONT);
 	if (MicroFont == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
+
+	LabelFont = LoadFont (LABEL_FONT);
+	if (LabelFont == NULL)
+		return FALSE;
+
+	SquareFont = LoadFont (SQUARE_FONT);
+	if (SquareFont == NULL)
+		return FALSE;
+
+	SlabFont = LoadFont (SLAB_FONT);
+	if (SlabFont == NULL)
+		return FALSE;
 
 	MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
 	if (MenuSounds == 0)

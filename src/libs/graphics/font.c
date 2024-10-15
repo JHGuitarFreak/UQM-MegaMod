@@ -170,8 +170,8 @@ font_DrawTracedText (TEXT *pText, Color text, Color trace)
 }
 
 // Alt stuff to handle 2 fonts at once (for Orz)
-void
-font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key)
+BYTE
+font_DrawTextAlt (TEXT *lpText, BYTE swap, FONT AltFontPtr, UniChar key)
 {
 	RECT ClipRect;
 	POINT origin;
@@ -179,14 +179,14 @@ font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key)
 
 	FixContextFontEffect ();
 	if (!GraphicsSystemActive () || !GetContextValidRect (NULL, &origin))
-		return;
+		return 0;
 
 	// TextRect() clobbers TEXT.CharCount so we have to make a copy
 	text = *lpText;
-	if (!TextRectAlt (&text, &ClipRect, NULL, key, AltFontPtr))
-		return;
+	if (!TextRectAlt (&text, &ClipRect, NULL, swap, key, AltFontPtr))
+		return 0;
 	// ClipRect is relative to origin
-	_text_blt_alt (&ClipRect, &text, origin, AltFontPtr, key);
+	return _text_blt_alt (&ClipRect, &text, origin, swap, AltFontPtr, key);
 }
 
 void
@@ -195,9 +195,10 @@ font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 {
 	// Preserve current foreground color for full correctness
 	const Color oldfg = SetContextForeGroundColor (trace);
-	const BYTE stroke = RES_SCALE(1);
+	const BYTE stroke = RES_SCALE (1);
 	const POINT t_baseline = pText->baseline;
 	POINT offset;
+	static BYTE swap = 0;
 
 	for (offset.x = -stroke; offset.x <= stroke; ++offset.x)
 	{
@@ -209,14 +210,66 @@ font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 					t_baseline.x + offset.x,
 					t_baseline.y + offset.y
 				);
-			font_DrawTextAlt (pText, AltFontPtr, key);
+			font_DrawTextAlt (pText, swap, AltFontPtr, key);
 		}
 	}
 	pText->baseline = t_baseline;
 
 	SetContextForeGroundColor (text);
-	font_DrawTextAlt (pText, AltFontPtr, key);
+	swap = font_DrawTextAlt (pText, swap, AltFontPtr, key);
 	SetContextForeGroundColor (oldfg);
+}
+
+void
+font_DrawShadowedText (TEXT *pText, BYTE direction,
+	Color text_color, Color shadow_color)
+{
+	POINT shadow_angle = { 0, 0 };
+	Color OldColor;
+
+	switch (direction)
+	{
+		case NORTH_SHADOW:
+			shadow_angle = MAKE_POINT (0, -1);
+			break;
+		case NORTH_EAST_SHADOW:
+			shadow_angle = MAKE_POINT (1, -1);
+			break;
+		case EAST_SHADOW:
+			shadow_angle = MAKE_POINT (1, 0);
+			break;
+		case SOUTH_EAST_SHADOW:
+			shadow_angle = MAKE_POINT (1, 1);
+			break;
+		case SOUTH_SHADOW:
+			shadow_angle = MAKE_POINT (0, 1);
+			break;
+		case SOUTH_WEST_SHADOW:
+			shadow_angle = MAKE_POINT (-1, 1);
+			break;
+		case WEST_SHADOW:
+			shadow_angle = MAKE_POINT (-1, 0);
+			break;
+		case NORTH_WEST_SHADOW:
+			shadow_angle = MAKE_POINT (-1, -1);
+			break;
+	}
+
+	pText->baseline.x += RES_SCALE (shadow_angle.x);
+	pText->baseline.y += RES_SCALE (shadow_angle.y);
+
+	OldColor = SetContextForeGroundColor (shadow_color);
+
+	font_DrawText (pText);
+
+	pText->baseline.x -= RES_SCALE (shadow_angle.x);
+	pText->baseline.y -= RES_SCALE (shadow_angle.y);
+
+	SetContextForeGroundColor (text_color);
+
+	font_DrawText (pText);
+
+	SetContextForeGroundColor (OldColor);
 }
 
 BOOLEAN
@@ -331,7 +384,8 @@ TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 
 				width += charFrame->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch]
+				if (num_chars && next_ch < MAX_UNICODE
+						&& FontPtr->KernTab[ch] != (BYTE)~0
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 				{
@@ -437,7 +491,8 @@ _text_blt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin)
 
 			origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-			if (num_chars && FontPtr->KernTab[ch]
+			if (num_chars && next_ch < MAX_UNICODE
+					&& FontPtr->KernTab[ch] != (BYTE)~0
 					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
 			{
@@ -561,7 +616,8 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair, B
 			{
 				origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch]
+				if (num_chars && next_ch < MAX_UNICODE
+						&& FontPtr->KernTab[ch] != (BYTE)~0
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 				{
@@ -586,11 +642,11 @@ _text_blt_fade (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, FRAME repair, B
 }
 
 BOOLEAN
-TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontPtr)
+TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, BYTE swap,
+		UniChar key, FONT AltFontPtr)
 {
 	BYTE char_delta_array[MAX_DELTAS];
 	FONT FontPtr;
-	BYTE swap = 0;
 
 	FontPtr = _CurFontPtr;
 	if (FontPtr != 0 && lpText->CharCount != 0)
@@ -670,7 +726,8 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 
 				width += charFrame->disp.width + FontPtr->CharSpace;
 
-				if (num_chars && FontPtr->KernTab[ch]
+				if (num_chars && next_ch < MAX_UNICODE
+						&& FontPtr->KernTab[ch] != (BYTE)~0
 						&& !(FontPtr->KernTab[ch]
 						& (FontPtr->KernTab[next_ch] >> 2)))
 				{
@@ -717,9 +774,9 @@ TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, UniChar key, FONT AltFontP
 	return (FALSE);
 }
 
-void
-_text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr, 
-		UniChar key)
+BYTE
+_text_blt_alt (RECT *pClipRect, TEXT *TextPtr, POINT ctxOrigin, BYTE swap,
+		FONT AltFontPtr, UniChar key)
 {// Kruzen: To create text using 2 fonts (Orz case)
  // Safest way to do so without going too deep into
  // original code
@@ -732,15 +789,14 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 	POINT origin;
 	TFB_Image *backing, *stock, *ext;
 	DrawMode mode = _get_context_draw_mode();
-	BYTE swap = 0;
 	BYTE leading_step;
 
 	FontPtr = _CurFontPtr;
 	if (FontPtr == NULL)
-		return;
+		return 0;
 	stock = _get_context_font_backing();
 	if (!stock)
-		return;
+		return 0;
 
 	if (AltFontPtr != NULL)
 	{// Local backing needed for alt font
@@ -751,7 +807,7 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 		w = (SIZE)AltFontPtr->disp.width;
 		h = (SIZE)AltFontPtr->disp.height;
 		if (w == 0 || h == 0)
-			return;
+			return 0;
 
 		ext = TFB_DrawImage_CreateForScreen (w, h, TRUE);
 
@@ -761,13 +817,13 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 		TFB_DrawImage_Rect (&r, color, DRAW_REPLACE_MODE, ext);
 	}
 	else
-		return;
+		return 0;
 
 	origin.x = pClipRect->corner.x;
 	origin.y = TextPtr->baseline.y;
 	num_chars = TextPtr->CharCount;
 	if (num_chars == 0)
-		return;
+		return 0;
 
 	leading_step = AltFontPtr->Leading - _CurFontPtr->Leading;
 	pStr = TextPtr->pStr;
@@ -821,8 +877,9 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 
 			origin.x += fontChar->disp.width + FontPtr->CharSpace;
 
-			if (num_chars && FontPtr->KernTab[ch]
-				&& !(FontPtr->KernTab[ch]
+			if (num_chars && next_ch < MAX_UNICODE
+					&& FontPtr->KernTab[ch] != (BYTE)~0
+					&& !(FontPtr->KernTab[ch]
 					& (FontPtr->KernTab[next_ch] >> 2)))
 			{
 				origin.x -= FontPtr->KernAmount;
@@ -835,6 +892,8 @@ _text_blt_alt (RECT* pClipRect, TEXT* TextPtr, POINT ctxOrigin, FONT AltFontPtr,
 
 	if (ext)
 		TFB_DrawImage_Delete (ext);
+
+	return swap;
 }
 
 static inline TFB_Char *

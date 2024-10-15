@@ -35,6 +35,7 @@
 #include "../../starmap.h"
 #include "uqm/oscill.h"
 #include "uqm/controls.h"
+#include "uqm/races.h"
 
 
 static const NUMBER_SPEECH_DESC melnorme_numbers_english;
@@ -926,10 +927,15 @@ DoRescue (RESPONSE_REF R)
 	COUNT fuel_required;
 
 	(void) R;  // ignored
+	// JSD Replace old method for locating SOL with plot method
+	//dx = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x))
+	//		- SOL_X;
+	//dy = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
+	//		- SOL_Y;
 	dx = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x))
-			- SOL_X;
+			- plot_map[SOL_DEFINED].star_pt.x;
 	dy = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y))
-			- SOL_Y;
+			- plot_map[SOL_DEFINED].star_pt.y;
 	fuel_required = square_root (
 			(DWORD)((long)dx * dx + (long)dy * dy)
 			) + (2 * FUEL_TANK_SCALE);
@@ -993,12 +999,10 @@ CurrentEvents (void)
 	switch (phraseId)
 	{
 		case OK_BUY_EVENT_1:
-			if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+			SetHomeworldKnown (SHOFIXTI_HOME);
 			break;
 		case OK_BUY_EVENT_6:
-			if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+			SetHomeworldKnown (SLYLANDRO_HOME);
 			break;
 	}
 	NPCPhrase (phraseId);
@@ -1014,24 +1018,19 @@ AlienRaces (void)
 	switch (phraseId)
 	{
 		case OK_BUY_ALIEN_RACE_5:
-			if (!GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD))
-				SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
+			SetHomeworldKnown (DRUUGE_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_7:
-			if (!GET_GAME_STATE (KNOW_THRADD_HOMEWORLD))
-				SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
+			SetHomeworldKnown (THRADDASH_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_8:
-			if (!GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD))
-				SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
+			SetHomeworldKnown (CHMMR_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_12:
-			if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+			SetHomeworldKnown (SHOFIXTI_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_13:
-			if (!GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
+			SetHomeworldKnown (SLYLANDRO_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_14:
 			if (!GET_GAME_STATE (FOUND_PLUTO_SPATHI))
@@ -1039,8 +1038,7 @@ AlienRaces (void)
 				SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 1);
 				SET_GAME_STATE (SPATHI_HOME_VISITS, 7);
 			}
-			if (!GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
+			SetHomeworldKnown (SPATHI_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_15:
 			if (GET_GAME_STATE (KNOW_ABOUT_SHATTERED) < 2)
@@ -1048,12 +1046,10 @@ AlienRaces (void)
 				SET_GAME_STATE (KNOW_ABOUT_SHATTERED, 2);
 			}
 			SET_GAME_STATE (KNOW_SYREEN_WORLD_SHATTERED, 1);
-			if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
-				SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+			SetHomeworldKnown (SYREEN_HOME);
 			break;
 		case OK_BUY_ALIEN_RACE_16:
-			if (!GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD))
-				SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
+			SetHomeworldKnown (YEHAT_HOME);
 			break;
 	}
 	NPCPhrase (phraseId);
@@ -1164,6 +1160,9 @@ DoBuy (RESPONSE_REF R)
 			if ((int)(needed_credit * FuelCost) <= (int)credit)
 			{
 				DWORD f;
+
+				if (EXTENDED && PLAYER_SAID (R, fill_me_up))
+					NPCPhrase (OK_FILL_YOU_UP);
 
 				NPCPhrase (GOT_FUEL);
 

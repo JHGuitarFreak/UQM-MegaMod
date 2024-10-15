@@ -51,12 +51,9 @@
 
 #define XOFFS ((RADAR_SCAN_WIDTH + (UNIT_SCREEN_WIDTH << 2)) >> 1)
 #define YOFFS ((RADAR_SCAN_HEIGHT + (UNIT_SCREEN_HEIGHT << 2)) >> 1)
+#define ANIMATED_HYPERSPACE (IS_HD && optHyperStars)
 
-static FRAME npcbubble;       // BW: animated bubble
-static FRAME quasiportal;     // JMS: animated quasispace portal in hyper
-static FRAME Falayalaralfali; // JMS: Arilou homeworld in quasispace
-static FRAME hyperholes[3];   // BW: One for each flavour of space
-static FRAME hyperstars[4];
+static FRAME hyperstars[3];
 static COLORMAP hypercmaps[2];
 static BYTE fuel_ticks;
 static COUNT hyper_dx, hyper_dy, hyper_extra;
@@ -352,9 +349,10 @@ check_hyperspace_encounter (void)
 				if (Type == SLYLANDRO_SHIP)
 				{
 					encounter_flags = ONE_SHOT_ENCOUNTER;
-					if (!GET_GAME_STATE (STARBASE_AVAILABLE) && !NOMAD)
-						percent = 100;
-					else
+
+					percent = 100;
+
+					if (GET_GAME_STATE (STARBASE_AVAILABLE))
 						percent *= GET_GAME_STATE (SLYLANDRO_MULTIPLIER);
 
 					if (optNoHQEncounters)
@@ -436,31 +434,12 @@ check_hyperspace_encounter (void)
 void
 FreeHyperData (void)
 {
-	if (IS_HD)
-	{
-		DestroyDrawable (ReleaseDrawable (hyperholes[1]));
-		hyperholes[1] = 0;
-		DestroyDrawable (ReleaseDrawable (hyperholes[2]));
-		hyperholes[2] = 0;
-		// BW: TODO left out for demo
-		// DestroyDrawable (ReleaseDrawable (hyperspacesuns));
-		// hyperspacesuns = 0;
-		DestroyDrawable (ReleaseDrawable (npcbubble));
-		npcbubble = 0;
-		DestroyDrawable (ReleaseDrawable (quasiportal));
-		quasiportal = 0;
-		DestroyDrawable (ReleaseDrawable (Falayalaralfali));
-		Falayalaralfali = 0;
-	}
-	
 	DestroyDrawable (ReleaseDrawable (hyperstars[0]));
 	hyperstars[0] = 0;
 	DestroyDrawable (ReleaseDrawable (hyperstars[1]));
 	hyperstars[1] = 0;
 	DestroyDrawable (ReleaseDrawable (hyperstars[2]));
 	hyperstars[2] = 0;
-	DestroyDrawable (ReleaseDrawable (hyperstars[3]));
-	hyperstars[3] = 0;
 
 	DestroyColorMap (ReleaseColorMap (hypercmaps[0]));
 	hypercmaps[0] = 0;
@@ -468,41 +447,24 @@ FreeHyperData (void)
 	hypercmaps[1] = 0;
 }
 
+#define ARISPACE_MASK (ANIMATED_HYPERSPACE ? \
+						ARIANIM_MASK_PMAP_ANIM : ARISPACE_MASK_PMAP_ANIM)
+#define HYPERSTARS_MASK (ANIMATED_HYPERSPACE ? \
+						HYPERANIM_MASK_PMAP_ANIM : HYPERSTARS_MASK_PMAP_ANIM)
+
 static void
 LoadHyperData (void)
 {
-	if (IS_HD)
-	{
-		if (hyperholes[1] == 0)
-		{
-			hyperholes[1] = CaptureDrawable (
-				LoadGraphic (HYPERHOLES_MASK_PMAP_ANIM));
-			hyperholes[2] = CaptureDrawable (
-				LoadGraphic (ARIHOLES_MASK_PMAP_ANIM));
-			hyperstars[3] = CaptureDrawable (
-				LoadGraphic (ARI_AMBIENT_MASK_PMAP_ANIM));
-		}
-		if (npcbubble == 0)
-			npcbubble = CaptureDrawable (
-					LoadGraphic (NPCBUBBLE_MASK_PMAP_ANIM));
-		if (quasiportal == 0)
-			quasiportal = CaptureDrawable (
-					LoadGraphic (QUASIPORTAL_MASK_PMAP_ANIM));
-		if (Falayalaralfali == 0)
-			Falayalaralfali = CaptureDrawable (
-					LoadGraphic (FALAYALARALFALI_MASK_PMAP_ANIM));
-	}
-	
 	if (hyperstars[0] == 0)
 	{
 		hyperstars[0] = CaptureDrawable (
 				LoadGraphic (AMBIENT_MASK_PMAP_ANIM));
 		hyperstars[1] = CaptureDrawable (
-				LoadGraphic (HYPERSTARS_MASK_PMAP_ANIM));
+				LoadGraphic (HYPERSTARS_MASK));
 		hypercmaps[0] = CaptureColorMap (LoadColorMap (HYPER_COLOR_TAB));
 
 		hyperstars[2] = CaptureDrawable (
-				LoadGraphic (ARISPACE_MASK_PMAP_ANIM));
+				LoadGraphic (ARISPACE_MASK));
 		hypercmaps[1] = CaptureColorMap (
 				LoadColorMap (ARISPACE_COLOR_TAB));
 	}
@@ -521,18 +483,11 @@ LoadHyperspace (void)
 
 	LoadHyperData ();
 	{
-		FRAME F, FQ;
+		FRAME F;
 		
 		F = hyperstars[0];
 		hyperstars[0] = stars_in_space;
 		stars_in_space = F;
-
-		if (IS_HD)
-		{
-			FQ = hyperstars[3];
-			hyperstars[3] = stars_in_quasispace;
-			stars_in_quasispace = FQ;
-		}
 	}
 
 	if (!(LastActivity & CHECK_LOAD))
@@ -589,20 +544,17 @@ BOOLEAN
 FreeHyperspace (void)
 {
 	{
-		FRAME F, FQ;
+		FRAME F;
 		
 		F = hyperstars[0];
 		hyperstars[0] = stars_in_space;
 		stars_in_space = F;
-
-		if (IS_HD)
-		{
-			FQ = hyperstars[3];
-			hyperstars[3] = stars_in_quasispace;
-			stars_in_quasispace = FQ;
-		}
 	}
-//    FreeHyperData ();
+	// Kruzen: To load correct set of frames until we'll use 1 with space filters
+	//if (IS_HD)
+	//	ReloadHyperSpace ();
+
+	//FreeHyperData ();
 
 	return TRUE;
 }
@@ -710,12 +662,15 @@ InterplanetaryTransition (ELEMENT *ElementPtr)
 			// Transition from QuasiSpace to HyperSpace through
 			// one of the permanent portals.
 			COUNT index;
-			const POINT portal_pt[] =
-					QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
+			// JSD - portal_map can be used to find the exit point
+			//const POINT portal_pt[] =
+			//		QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
 
 			index = CurStarDescPtr - &star_array[NUM_SOLAR_SYSTEMS + 1];
-			GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
-			GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_pt[index].y);
+			//GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_pt[index].x);
+			//GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_pt[index].y);
+			GLOBAL_SIS(log_x) = UNIVERSE_TO_LOGX(portal_map[index].star_pt.x);
+			GLOBAL_SIS(log_y) = UNIVERSE_TO_LOGY(portal_map[index].star_pt.y);
 
 			// JMS: This QS portal's HS coordinates are revealed on QS map
 			// the next time the player visits QS.
@@ -763,8 +718,11 @@ ArilouSpaceTransition (void)
 		// portal.
 		if (!EXTENDED || (EXTENDED && !ValidPoint (LoadLastLoc ())))
 		{
-			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (ARILOU_SPACE_X);
-			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (ARILOU_SPACE_Y);
+			// JSD Converting hard coded ARILOU portal to plot based
+			//GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (ARILOU_SPACE_X);
+			//GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (ARILOU_SPACE_Y);
+			GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (plot_map[ARILOU_DEFINED].star_pt.x);
+			GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (plot_map[ARILOU_DEFINED].star_pt.y);
 		}
 		else if (EXTENDED && ValidPoint (LoadLastLoc ()))
 		{
@@ -821,6 +779,7 @@ unhyper_transition (ELEMENT *ElementPtr)
 		{
 			case RANDOM_ENCOUNTER_TRANSITION:
 				SaveSisHyperState ();
+				SetBattlePlanet ();
 				GLOBAL (CurrentActivity) |= START_ENCOUNTER;
 				break;
 			case INTERPLANETARY_TRANSITION:
@@ -1149,6 +1108,10 @@ AddAmbientElement (void)
 				STAMP_PRIM);
 		HyperSpaceElementPtr->preprocess_func = animation_preprocess;
 
+		if (IS_HD && inQuasiSpace ())
+			SetPrimFlags (&DisplayArray[HyperSpaceElementPtr->PrimIndex],
+				HYPER_TO_QUASI_COLOR);
+
 		rand_val = TFB_Random ();
 		dy = LOWORD (rand_val);
 		
@@ -1156,45 +1119,30 @@ AddAmbientElement (void)
 		{	
 			dx = (SIZE)(LOBYTE (dy) % SPACE_WIDTH) - (SPACE_WIDTH >> 1);
 			dy = (SIZE)(HIBYTE (dy) % SPACE_HEIGHT) - (SPACE_HEIGHT >> 1);
-			HyperSpaceElementPtr->current.image.farray = &stars_in_space;
 		}
 		else
 		{
 			dx = (SIZE)((HIWORD (rand_val)) % SPACE_WIDTH)
 					- (SPACE_WIDTH >> 1);
 			dy = (SIZE)(dy % SPACE_HEIGHT) - (SPACE_HEIGHT >> 1);
-			
-			if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-				HyperSpaceElementPtr->current.image.farray =
-						&stars_in_space;
-			else
-				HyperSpaceElementPtr->current.image.farray =
-						&stars_in_quasispace;
 		}
 		
 		HyperSpaceElementPtr->current.location.x =
 				(LOG_SPACE_WIDTH >> 1) + DISPLAY_TO_WORLD (dx);
 		HyperSpaceElementPtr->current.location.y =
 				(LOG_SPACE_HEIGHT >> 1) + DISPLAY_TO_WORLD (dy);
+		HyperSpaceElementPtr->current.image.farray = &stars_in_space;
 
 		if (HIWORD (rand_val) & 7)
 		{
 			HyperSpaceElementPtr->life_span = 14;
-			if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-				HyperSpaceElementPtr->current.image.frame = stars_in_space;
-			else
-				HyperSpaceElementPtr->current.image.frame =
-						stars_in_quasispace;
+			HyperSpaceElementPtr->current.image.frame = stars_in_space;
 		}
 		else
 		{
 			HyperSpaceElementPtr->life_span = 12;
-			if (!IS_HD || (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1))
-				HyperSpaceElementPtr->current.image.frame =
+			HyperSpaceElementPtr->current.image.frame =
 						SetAbsFrameIndex (stars_in_space, 14);
-			else
-				HyperSpaceElementPtr->current.image.frame =
-						SetAbsFrameIndex (stars_in_quasispace, 14);
 		}
 
 		UnlockElement (hHyperSpaceElement);
@@ -1203,8 +1151,27 @@ AddAmbientElement (void)
 	}
 }
 
-#define NUM_VORTEX_TRANSITIONS 9
+#define NUM_VORTEX_TRANSITIONS (ANIMATED_HYPERSPACE ? 18 : 9)
 #define VORTEX_WAIT 1
+/* Hyperspace Animation related */
+#define BASE_VORTEX_FRAME_INDEX 139 // Kruzen: first frame of actual battle group vortex, not the birth/death
+#define TR_COMPENSATION (ANIMATED_HYPERSPACE ? 8 : 0)// Kruzen: transition_state counts down from 100 when reforming a vortex, but reaching 9 with
+// standard option it stars count down every other frame, effectively adding 8 frames of waiting
+
+// Kruzen: preprocess func for animated hole
+static void
+encounter_animation (ELEMENT *ElementPtr)
+{	
+	COUNT f_index = GetFrameIndex (ElementPtr->current.image.frame);
+
+	if ((f_index >= BASE_VORTEX_FRAME_INDEX + 31))
+		ElementPtr->next.image.frame =
+			SetAbsFrameIndex (ElementPtr->current.image.frame, BASE_VORTEX_FRAME_INDEX);// reached max - reset to base frame
+	else
+		ElementPtr->next.image.frame =
+			IncFrameIndex (ElementPtr->current.image.frame);
+
+}
 
 static void
 encounter_transition (ELEMENT *ElementPtr)
@@ -1231,22 +1198,13 @@ encounter_transition (ELEMENT *ElementPtr)
 				ElementPtr->next.image.frame = f;
 			else
 			{
- 				ElementPtr->death_func = NULL;
-				
-				if (IS_HD)
-				{	// BW: the bubble has reached full size so we start
-					// the animation
-					ElementPtr->current.image.farray = &npcbubble;
-					ElementPtr->next.image.farray = &npcbubble;
-					ElementPtr->current.image.frame =
-							SetAbsFrameIndex(npcbubble, 0);
-					ElementPtr->next.image.frame =
-							SetAbsFrameIndex(npcbubble, 0);
-				}
+				if (ANIMATED_HYPERSPACE)
+					ElementPtr->preprocess_func = encounter_animation;
+				ElementPtr->death_func = NULL;
 			}
 		}
 
-		ElementPtr->turn_wait = VORTEX_WAIT;
+		ElementPtr->turn_wait = (ANIMATED_HYPERSPACE ? 0 : VORTEX_WAIT);
 	}
 }
 
@@ -1333,7 +1291,7 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 	{
 		EncounterPtr->flags &= ~ENCOUNTER_REFORMING;
 
-		EncounterPtr->transition_state = 100;
+		EncounterPtr->transition_state = 100 + TR_COMPENSATION;
 		if ((EncounterPtr->flags & ONE_SHOT_ENCOUNTER)
 				|| EncounterPtr->num_ships == 0)
 			return 0;
@@ -1437,24 +1395,26 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 			ElementPtr->current.image.frame = SetRelFrameIndex (
 					ElementPtr->current.image.farray[0], -i);
 			ElementPtr->death_func = encounter_transition;
+			ElementPtr->preprocess_func = NULL;
 		}
 		else
 		{
-			if (IS_HD)
+			if (ANIMATED_HYPERSPACE)
 			{
-				ElementPtr->current.image.farray = &npcbubble;
-				ElementPtr->next.image.farray = &npcbubble;
-				ElementPtr->current.image.frame =
-						SetAbsFrameIndex (npcbubble, 0);
-				ElementPtr->next.image.frame =
-						SetAbsFrameIndex (npcbubble, 0);
-			} else
+				ElementPtr->preprocess_func = encounter_animation;
+				ElementPtr->current.image.frame = SetAbsFrameIndex (
+					ElementPtr->current.image.farray[0], BASE_VORTEX_FRAME_INDEX +
+						(TFB_Random () % 31));
+			}
+			else
+			{
 				ElementPtr->current.image.frame = DecFrameIndex (
 						ElementPtr->current.image.farray[0]);
+				ElementPtr->preprocess_func = NULL;
+			}
 		}
 
 		ElementPtr->turn_wait = VORTEX_WAIT;
-		ElementPtr->preprocess_func = NULL;
 		ElementPtr->postprocess_func = NULL; // decorate_vortex;
 		ElementPtr->collision_func = encounter_collision;
 
@@ -1529,7 +1489,7 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 	}
 }
 
-// Returns false iff the encounter is to be removed.
+// Returns false if the encounter is to be removed.
 static bool
 ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 		COORD ox, COORD oy, STAMP *stamp)
@@ -1621,11 +1581,6 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 		EncounterPtr->loc_pt.x = LOGX_TO_UNIVERSE (EncounterPtr->log_x);
 		EncounterPtr->loc_pt.y = LOGY_TO_UNIVERSE (EncounterPtr->log_y);
 
-		// BW: Animate the NPC bubble in hi-res modes.
-		if (IS_HD)
-			ElementPtr->next.image.frame =
-					IncFrameIndex (ElementPtr->current.image.frame);
-
 		encounter_radius = EncounterPtr->radius + (GRID_OFFSET >> 1);
 		delta_x = EncounterPtr->loc_pt.x - EncounterPtr->origin.x;
 		if (delta_x < 0)
@@ -1647,6 +1602,13 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 				ElementPtr->death_func = encounter_transition;
 				EncounterPtr->transition_state = -1;
 				ElementPtr->hit_points = 1;
+
+				if (ANIMATED_HYPERSPACE)
+				{
+					ElementPtr->preprocess_func = NULL;
+					ElementPtr->current.image.frame = 
+							ElementPtr->current.image.farray[0];
+				}
 			}
 			else
 			{
@@ -1741,6 +1703,26 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 BOOLEAN GetCounter = TRUE;
 DWORD TimeOut = (DWORD)~0;
 
+static Color
+GetMaskColor (BYTE startype)
+{
+	switch (startype)
+	{
+		case RED_BODY:
+			return RED_STAR_COLOR;
+		case ORANGE_BODY:
+			return ORANGE_STAR_COLOR;
+		case YELLOW_BODY:
+			return YELLOW_STAR_COLOR;
+		case GREEN_BODY:
+			return GREEN_STAR_COLOR;
+		case BLUE_BODY:
+			return BLUE_STAR_COLOR;
+		default:
+			return WHITE_COLOR;
+	}
+}
+
 void
 SeedUniverse (void)
 {
@@ -1754,9 +1736,7 @@ SeedUniverse (void)
 	HELEMENT hHyperSpaceElement;
 	ELEMENT *HyperSpaceElementPtr;
 
-	static COUNT frameCounter; // BW
-	
-	frameCounter++; // BW
+	static COUNT frameCounter = 0; // BW
 
 	universe.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 	universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
@@ -1822,7 +1802,14 @@ SeedUniverse (void)
 			// A player-created QuasiSpace portal is opening.
 			static POINT portal_pt;
 
-			SD[i].Index = ((portalCounter - 1) >> 1) + 18;
+			if (ANIMATED_HYPERSPACE)
+			{
+				SD[i].Index = portalCounter + 98;
+				if (SD[i].Index > 107)
+					SD[i].Index--;
+			}
+			else
+				SD[i].Index = ((portalCounter - 1) >> 1) + 18;
 			if (portalCounter == 1)
 				portal_pt = universe;
 			SD[i].star_pt = portal_pt;
@@ -1831,19 +1818,27 @@ SeedUniverse (void)
 			if (++portalCounter == (10 + 1))
 				portalCounter = (9 + 1);
 
+
 			SET_GAME_STATE (PORTAL_COUNTER, portalCounter);
 		}
 
 		if (arilouSpaceCounter)
 		{
 			// The periodically appearing QuasiSpace portal is open.
-			SD[i].Index = arilouSpaceCounter >> 1;
+			if (ANIMATED_HYPERSPACE)
+				SD[i].Index = arilouSpaceCounter - 1;
+			else
+				SD[i].Index = arilouSpaceCounter >> 1;
 			if (arilouSpaceSide <= 1)
 			{
 				// The player is in HyperSpace
+				if (ANIMATED_HYPERSPACE)
+					SD[i].Index += 81;
 				SD[i].Index += 18;
-				SD[i].star_pt.x = ARILOU_SPACE_X;
-				SD[i].star_pt.y = ARILOU_SPACE_Y;
+				// JSD Converting hard coded ARILOU portal to plot based
+				//SD[i].star_pt.x = ARILOU_SPACE_X;
+				//SD[i].star_pt.y = ARILOU_SPACE_Y;
+				SD[i].star_pt = plot_map[ARILOU_DEFINED].star_pt;
 			}
 			else
 			{
@@ -1889,34 +1884,16 @@ SeedUniverse (void)
 				continue;
 
 			LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-			if (!IS_HD
-				|| (SD[i].Index < 22 && arilouSpaceSide <= 1)
-				|| (SD[i].Index < 4 && arilouSpaceSide > 1))
-			{	// The QS portal is still growing
-				// (Or when playing in 1x resolution).
+			if (ANIMATED_HYPERSPACE &&
+				((SD[i].Index == 107 && arilouSpaceSide <= 1)
+					|| (SD[i].Index == 8 && arilouSpaceSide > 1))) /* animated */
 				HyperSpaceElementPtr->current.image.frame =
-						SetAbsFrameIndex (
-							hyperstars[
-								1 +
-								(GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)
-							],
-							SD[i].Index);
-			}
-			else if (arilouSpaceSide > 1)
-			{	// QS. The HS portal has done its growing animation.
-				// In HD switch to the full-size anim.
-				HyperSpaceElementPtr->current.image.frame =
-					SetAbsFrameIndex (quasiportal, frameCounter);
-				HyperSpaceElementPtr->current.image.farray =
-						&hyperholes[2];
-			}
-			else
-			{	// HS. The QS portal has done its growing animation
-				// In HD switch to the full-size anim.
-				HyperSpaceElementPtr->current.image.frame =
-					SetAbsFrameIndex (quasiportal, frameCounter);
-				HyperSpaceElementPtr->current.image.farray = &quasiportal;
-			}
+				SetAbsFrameIndex (hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
+					frameCounter + SD[i].Index);
+			else /* non-animated */
+				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
+					hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
+					SD[i].Index);
 
 			HyperSpaceElementPtr->preprocess_func = NULL;
 			HyperSpaceElementPtr->postprocess_func = NULL;
@@ -1945,7 +1922,6 @@ SeedUniverse (void)
 		while ((SDPtr = FindStar (SDPtr, &universe, XOFFS, YOFFS)))
 		{
 			BYTE star_type;
-			int which_spaces_star_gfx;
 
 			ex = SDPtr->star_pt.x - universe.x;
 			if (ex < 0)
@@ -1957,188 +1933,79 @@ SeedUniverse (void)
 					|| ey > (YOFFS / NUM_RADAR_SCREENS))
 				continue;
 
+			hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
+			if (hHyperSpaceElement == 0)
+				continue;
+
 			star_type = SDPtr->Type;
 
-			if (!IS_HD)
-			{
-				hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
-				if (hHyperSpaceElement == 0)
-					continue;
-				
-				LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-				which_spaces_star_gfx =
-						1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
-				
-				HyperSpaceElementPtr->current.image.frame =
-						SetAbsFrameIndex (
-							hyperstars[which_spaces_star_gfx],
-							STAR_TYPE (star_type) * NUM_STAR_COLORS
-							+ STAR_COLOR (star_type));
-				
-				HyperSpaceElementPtr->preprocess_func = NULL;
-				HyperSpaceElementPtr->postprocess_func = NULL;
-				HyperSpaceElementPtr->collision_func = hyper_collision;
-				
-				SetUpElement (HyperSpaceElementPtr);
-				
-				if (SDPtr == CurStarDescPtr
-						&& GET_GAME_STATE (PORTAL_COUNTER) == 0)
-						HyperSpaceElementPtr->death_func = hyper_death;
-				else
-				{
-					HyperSpaceElementPtr->death_func = NULL;
-					HyperSpaceElementPtr->
-							IntersectControl.IntersectStamp.frame =
-								DecFrameIndex (stars_in_space);
+			LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
+
+			if (ANIMATED_HYPERSPACE)
+			{/* animated */
+				if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1))
+				{/* QS */
+					HyperSpaceElementPtr->current.image.frame =
+						SetAbsFrameIndex (hyperstars[2],
+							frameCounter + ((STAR_COLOR (star_type) == YELLOW_BODY) ? 40 : 8));
 				}
-				UnlockElement (hHyperSpaceElement);
-				
-				InsertElement (hHyperSpaceElement, GetHeadElement ());
+				else
+				{/* HS */
+					if (STAR_COLOR (star_type) != WHITE_BODY)
+					{// Add a color filter before the star vortex
+						HyperSpaceElementPtr->current.image.frame = 
+							SetAbsFrameIndex (hyperstars[1], 96 + STAR_TYPE (star_type));
+
+						SetPrimType (&DisplayArray[HyperSpaceElementPtr->PrimIndex], STAMPFILL_PRIM);
+						SetPrimColor (&DisplayArray[HyperSpaceElementPtr->PrimIndex], GetMaskColor (STAR_COLOR (star_type)));
+						SetPrimFlags (&DisplayArray[HyperSpaceElementPtr->PrimIndex], HS_STARMASK);
+
+						HyperSpaceElementPtr->state_flags =
+									APPEARING | FINITE_LIFE | NONSOLID;
+
+						UnlockElement (hHyperSpaceElement);
+
+						InsertElement (hHyperSpaceElement, GetHeadElement ());
+
+
+						hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
+						if (hHyperSpaceElement == 0)
+							continue;
+
+						LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
+					}
+					HyperSpaceElementPtr->current.image.frame = 
+						SetAbsFrameIndex (hyperstars[1], STAR_TYPE (star_type) * NUM_FRAMES +
+							frameCounter);
+				}
 			}
 			else
-			{	// BW: first the actual star
-				if ((optHyperStars && GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-						|| ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
-						&& STAR_COLOR (star_type) == YELLOW_BODY))
-				{
-					hHyperSpaceElement =
-							AllocHyperElement (&SDPtr->star_pt);
-					if (hHyperSpaceElement == 0)
-						continue;
-				
-					LockElement (hHyperSpaceElement,
-							&HyperSpaceElementPtr);
-					which_spaces_star_gfx =
-							1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
-				
-					// JMS_GFX: Draw stars in hyperspace.
-					if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-					{	// The color, then the size and finally
-						// the frame offset for the actual animation
-						HyperSpaceElementPtr->current.image.frame =
-								SetAbsFrameIndex (
-									hyperspacesuns,
-									STAR_COLOR (star_type)
-										* NUM_STAR_TYPES * NUM_FRAMES
-										+ STAR_TYPE (star_type)
-										* NUM_FRAMES + frameCounter
-										% NUM_FRAMES);
-
-						HyperSpaceElementPtr->current.image.farray =
-								&hyperspacesuns;
-						HyperSpaceElementPtr->death_func = NULL;
-					}
-					else if (STAR_COLOR (star_type) == YELLOW_BODY)
-					{	// Draw animated Arilou homeworld
-						HyperSpaceElementPtr->current.image.frame =
-								SetAbsFrameIndex (Falayalaralfali,
-									frameCounter);
-						HyperSpaceElementPtr->current.image.farray =
-								&Falayalaralfali;
-					}
-					HyperSpaceElementPtr->death_func = NULL;
-					HyperSpaceElementPtr->preprocess_func = NULL;
-					HyperSpaceElementPtr->postprocess_func = NULL;
-					HyperSpaceElementPtr->collision_func = hyper_collision;
-				
-					SetUpElement (HyperSpaceElementPtr);
-				
-					HyperSpaceElementPtr->
-							IntersectControl.IntersectStamp.frame =
-								DecFrameIndex (stars_in_space);
-				
-					UnlockElement (hHyperSpaceElement);
-				
-					InsertElement (hHyperSpaceElement, GetHeadElement ());
-				
-					// JMS_GFX: Don't draw hole for arilou homeworld
-					// it already has a nice planet gfx.
-					if (!IS_HD && GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1
-							&& STAR_COLOR (star_type) == YELLOW_BODY)
-						continue;
-				}
-				
-				// BW: and then the animated hyperspace portal
-				hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
-				if (hHyperSpaceElement == 0)
-					continue;
-				
-				LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-				which_spaces_star_gfx =
-						1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1);
-				
-				if (!optHyperStars
-						&& (GET_GAME_STATE(ARILOU_SPACE_SIDE) <= 1))
-				{
-					HyperSpaceElementPtr->current.image.frame =
-							SetAbsFrameIndex (
-								hyperstars[which_spaces_star_gfx],
-								STAR_TYPE (star_type) * NUM_STAR_COLORS
-								+ STAR_COLOR(star_type));
-				}
-				else
-				{	// Most holes go 100, 150, 200 or 150, 200, 250
-					HyperSpaceElementPtr->current.image.frame =
-							SetAbsFrameIndex (
-								hyperholes[which_spaces_star_gfx],
-								STAR_TYPE (star_type) * NUM_FRAMES);
-					
-					// Green, orange and yellow need bigger holes
-					if (STAR_COLOR (star_type) == GREEN_BODY
-							|| STAR_COLOR (star_type) == ORANGE_BODY
-							|| STAR_COLOR (star_type) == YELLOW_BODY)
-					{
-						HyperSpaceElementPtr->current.image.frame =
-								SetRelFrameIndex (
-									HyperSpaceElementPtr->
-										current.image.frame,
-									NUM_FRAMES);
-					}
-					
-					// Super giant blue needs a bigger hole
-					if (STAR_COLOR (star_type) == BLUE_BODY
-							&& STAR_TYPE (star_type) == SUPER_GIANT_STAR)
-					{
-						HyperSpaceElementPtr->current.image.frame =
-								SetRelFrameIndex (
-									HyperSpaceElementPtr->
-										current.image.frame,
-									NUM_FRAMES);
-					}
-					
-					// The actual animation
-					HyperSpaceElementPtr->current.image.frame =
-							SetRelFrameIndex (
-								HyperSpaceElementPtr->current.image.frame,
-								frameCounter % NUM_FRAMES);
-	
-					HyperSpaceElementPtr->current.image.farray =
-							&hyperholes[which_spaces_star_gfx];
-				}
-
-
-				HyperSpaceElementPtr->preprocess_func = NULL;
-				HyperSpaceElementPtr->postprocess_func = NULL;
-				HyperSpaceElementPtr->collision_func = hyper_collision;
-				
-				SetUpElement (HyperSpaceElementPtr);
-				
-				if ((SDPtr == CurStarDescPtr
-						&& GET_GAME_STATE (PORTAL_COUNTER) == 0))
-				{
-					HyperSpaceElementPtr->death_func = hyper_death;
-				}
-				else
-				{
-					HyperSpaceElementPtr->death_func = NULL;
-					HyperSpaceElementPtr->
-							IntersectControl.IntersectStamp.frame =
-								DecFrameIndex (stars_in_space);
-				}
-				UnlockElement (hHyperSpaceElement);
-				
-				InsertElement (hHyperSpaceElement, GetHeadElement ());
+			{/* non-animated */
+				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
+							hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
+							STAR_TYPE (star_type) * NUM_STAR_COLORS
+							+ STAR_COLOR (star_type));				
 			}
+
+			HyperSpaceElementPtr->preprocess_func = NULL;
+			HyperSpaceElementPtr->postprocess_func = NULL;
+			HyperSpaceElementPtr->collision_func = hyper_collision;
+
+			SetUpElement (HyperSpaceElementPtr);
+
+			if (SDPtr == CurStarDescPtr
+					&& GET_GAME_STATE (PORTAL_COUNTER) == 0)
+				HyperSpaceElementPtr->death_func = hyper_death;
+			else
+			{
+				HyperSpaceElementPtr->death_func = NULL;
+				HyperSpaceElementPtr->
+					IntersectControl.IntersectStamp.frame =
+						DecFrameIndex (stars_in_space);
+			}
+			UnlockElement (hHyperSpaceElement);
+
+			InsertElement (hHyperSpaceElement, GetHeadElement());
 		}
 		ProcessEncounters (&universe, ox, oy);
 	}
@@ -2163,6 +2030,8 @@ SeedUniverse (void)
 		GLOBAL (ShipStamp.origin) = universe;
 		DrawHyperCoords (universe);
 	}
+
+	frameCounter = (frameCounter + 1) & 0x1F;
 
 	if (SpaceMusicOK && inHyperSpace ())
 	{

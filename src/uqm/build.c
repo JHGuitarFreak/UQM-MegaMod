@@ -490,6 +490,12 @@ CheckAlliance (RACE_ID race)
 	return flags;
 }
 
+BOOLEAN
+RaceDead (RACE_ID race)
+{
+	return CheckAlliance (race) == DEAD_GUY;
+}
+
 /*
  * Remove a number of escort ships of the specified race (if present).
  * Returns the number of escort ships removed.
@@ -689,9 +695,9 @@ SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 void
 loadGameCheats (void)
 {
-	if (EXTENDED && star_array[63].Index == MELNORME0_DEFINED)
+	if (EXTENDED && !StarSeed)
 	{
-		star_array[63].Type =
+		plot_map[MELNORME0_DEFINED].star->Type =
 				MAKE_STAR (SUPER_GIANT_STAR, ORANGE_BODY, -1);
 	}
 
@@ -700,32 +706,17 @@ loadGameCheats (void)
 	else
 		oldRU = 0;
 
-	/*for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
-	{
-		StartSphereTracking (i);
-		KillRace (i);
-	}*/
+	//for (BYTE i = ARILOU_SHIP; i <= MMRNMHRM_SHIP; ++i)
+	//{
+	//	StartSphereTracking (i);
+	//	KillRace (i);
+	//}
 
-	/*SET_GAME_STATE (KNOW_CHMMR_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_ORZ_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_PKUNK_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_THRADD_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_YEHAT_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_MYCON_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
-	SET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD, 1);*/
+	// SET_GAME_STATE (CHMMR_UNLEASHED, 1);
+
+	// SET_GAME_STATE (KNOW_HOMEWORLD, ~0);
 		
-	if(optInfiniteFuel)
+	if (optInfiniteFuel)
 	{
 		loadFuel = GlobData.SIS_state.FuelOnBoard;
 		GLOBAL_SIS (FuelOnBoard) = GetFuelTankCapacity();
@@ -750,7 +741,7 @@ loadGameCheats (void)
 		//SET_GAME_STATE (MELNORME_TECH_STACK, 13);
 	}
 	
-	if(optAddDevices)
+	if (optAddDevices)
 	{
 		SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, 1);
 		SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, 1);
@@ -781,4 +772,726 @@ loadGameCheats (void)
 		SET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP, 0);
 		SET_GAME_STATE (SYREEN_HOME_VISITS, 0);
 	}
+}
+
+// Jitter returns a distance between 0..66.6% of the fleet's actual strength,
+// weighted towards 20% median value.  We can adjust the jitter by changing
+// the fraction at the end.
+// (COUNT) sqrt (rand_val) gives a value 0..255 which leans heavy towards 255
+// so subtract from 255 to receive a weighted towards zero jitter.
+COUNT
+Jitter (COUNT str, UWORD rand_val)
+{
+	return (str * (SPHERE_RADIUS_INCREMENT / 2) *
+			(255 - (COUNT) sqrt (rand_val)) / 256) * 2 / 3;
+}
+
+void
+JitDebug (FLEET_INFO *FleetPtr, UWORD rand_val_x, UWORD rand_val_y)
+{
+	static const char * const fleet_name[] =
+			{"ERROR", "Arilou", "CHMMR", "Earthling", "Orz", "Pkunk",
+			"Shofixti", "Spathi", "Supox", "Thraddash", "Utwig", "VUX",
+			"Yehat", "Melnorme", "Druuge", "Ilwrath", "Mycon", "Slylandro",
+			"Umgah", "Ur Quan", "ZoqFotPik", "Syreen", "Kohr Ah",
+			"Androsynth", "Chenjesu", "Mmrnmhrm"};
+	COUNT str = (FleetPtr->actual_strength > 0 ?
+			FleetPtr->actual_strength :
+			WarEraStrength (FleetPtr->SpeciesID));
+	fprintf (stderr, "%s Fleet %d: Actual Str %d; WarEra Str %d; ",
+			fleet_name[FleetPtr->SpeciesID > 25 ? 0 : FleetPtr->SpeciesID],
+			FleetPtr->SpeciesID,
+			FleetPtr->actual_strength * SPHERE_RADIUS_INCREMENT / 2,
+			WarEraStrength (FleetPtr->SpeciesID) * SPHERE_RADIUS_INCREMENT / 2);
+	fprintf (stderr, "Rand X %d (%d); Rand Y %d (%d)\n",
+			rand_val_x, (255 - (COUNT) sqrt (rand_val_x)),
+			rand_val_y, (255 - (COUNT) sqrt (rand_val_y)));
+	fprintf (stderr, "		Jit X %d%% Jit Y %d%%; (Jit X %d Jit Y %d)  ",
+			(255 - (COUNT) sqrt (rand_val_x)) * 67 / 256,
+			(255 - (COUNT) sqrt (rand_val_y)) * 67 / 256,
+			Jitter (str, rand_val_x),
+			Jitter (str, rand_val_y));
+	fprintf (stderr, "%05.1f : %05.1f  units.\n",
+			(float) Jitter (str, rand_val_x) / 10,
+			(float) Jitter (str, rand_val_y) / 10);
+}
+
+// Provide the default fleet movement or war era position for the
+// given fleet and plot ID being visited
+POINT
+DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
+{
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Seeding hard coded location for fleet %d (plot %d).\n",
+			SpeciesID, visit);
+#endif
+	// We need to return plot specific coordinates here
+	// We also assume we only care about fleet movements and war map,
+	// as initial fleet positions are loaded from the ship files.
+	switch (SpeciesID)
+	{
+		case CHMMR_ID:
+				return (POINT) { 577, 2509}; // Homeworld
+		case EARTHLING_ID:
+				return (POINT) {1806, 1476}; // War era map
+		case PKUNK_ID:
+			if (visit == YEHAT_DEFINED)
+				return (POINT) {4970,  400}; // Rejoin Yehat
+			else if (visit == WAR_ERA)
+				return (POINT) { 577,  463}; // War Era 'Unknown'
+			else
+				return (POINT) { 502,  401}; // Return homeworld
+		case SHOFIXTI_ID:
+				return (POINT) {2852,  242}; // War era map
+		case SPATHI_ID:
+				return (POINT) {2416, 3687}; // War era map
+		case SUPOX_ID:
+			if (visit == SAMATRA_DEFINED)
+				return (POINT) {6479, 7541}; // Attack Kohr-Ah
+			else
+				return (POINT) {7468, 9246}; // Return homeworld
+		case THRADDASH_ID:
+			if (visit == SAMATRA_DEFINED)
+				return (POINT) {4879, 7201}; // Attack Kohr-Ah
+			else if (visit == WAR_ERA)
+				return (POINT) {2808, 8522}; // War Era 'Unknown'
+			else
+				return (POINT) {2535, 8358}; // Return homeworld
+		case UTWIG_ID:
+			if (visit == SAMATRA_DEFINED)
+				return (POINT) {7208, 7000}; // Attack Kohr-Ah
+			else
+				return (POINT) {8534, 8797}; // Return homeworld
+		case VUX_ID:
+				return (POINT) {4333, 1520}; // War era map
+		case YEHAT_ID:
+			if (visit == YEHAT_DEFINED)
+				return (POINT) {5150,    0}; // Here there be rebels
+			else if (visit == WAR_ERA)
+				return (POINT) {4969,   75}; // War era map
+			else
+				return (POINT) {4970,   40}; // Filthy Royalists
+		case DRUUGE_ID:
+				return (POINT) {9421, 2754}; // War Era 'Unknown'
+		case ILWRATH_ID:
+			if (visit == THRADD_DEFINED)
+				return (POINT) {2500, 8070}; // Thraddash/Ilwrath zone
+			else if (visit == PKUNK_DEFINED)
+				return (POINT) {  48, 1700}; // Attacking Pkunk (unused?)
+			else if (visit == WAR_ERA)
+				return (POINT) {   0, 3589}; // War era map
+			else
+				return (POINT) { 215, 3630}; // Homeworld (extended lore)
+		case MYCON_ID:
+			if (visit == MYCON_TRAP_DEFINED)
+				return (POINT) {6858,  577}; // Goin to the party
+			else if (visit == WAR_ERA)
+				return (POINT) {6278, 2399}; // War era map
+			else
+				return (POINT) {6392, 2200}; // Going back home
+		case UMGAH_ID:
+			if (visit == SAMATRA_DEFINED)
+				return (POINT) {5288, 4892}; // Compelled to seek death
+			else
+				return (POINT) {1860, 6099}; // War era map
+		case SYREEN_ID:
+			if (visit == MYCON_TRAP_DEFINED)
+				return (POINT) {6858,  577}; // Goin to the party
+			else
+				return (POINT) {4125, 3770}; // Going back home
+		case ANDROSYNTH_ID:
+				return (POINT) {3676, 2619}; // War era map
+		case CHENJESU_ID:
+				return (POINT) { 701, 2137}; // War era map
+		case MMRNMHRM_ID:
+				return (POINT) { 672, 2930}; // War era map
+		default:
+			fprintf (stderr, "%s %d / plot %d combo.\n",
+					"DefaultFleetLocation called with bad fleet",
+					SpeciesID, visit);
+			return (POINT) {0, 0};
+	}
+}
+
+// Provide the war era strength for the given species ID (from fleet).
+COUNT
+WarEraStrength (SPECIES_ID SpeciesID)
+{
+	switch (SpeciesID)
+	{
+		case EARTHLING_ID:
+			return 460 / SPHERE_RADIUS_INCREMENT * 2;
+		case PKUNK_ID:
+			return 350 / SPHERE_RADIUS_INCREMENT * 2;
+		case SHOFIXTI_ID:
+			return 329 / SPHERE_RADIUS_INCREMENT * 2;
+		case SPATHI_ID:
+			return 1007 / SPHERE_RADIUS_INCREMENT * 2;
+		case THRADDASH_ID:
+			return 723 / SPHERE_RADIUS_INCREMENT * 2;
+		case VUX_ID:
+			return 572 / SPHERE_RADIUS_INCREMENT * 2;
+		case YEHAT_ID:
+			return 1029 / SPHERE_RADIUS_INCREMENT * 2;
+		case DRUUGE_ID:
+			return 745 / SPHERE_RADIUS_INCREMENT * 2;
+		case ILWRATH_ID:
+			return 470 / SPHERE_RADIUS_INCREMENT * 2;
+		case MYCON_ID:
+			return 591 / SPHERE_RADIUS_INCREMENT * 2;
+		case UMGAH_ID:
+			return 506 / SPHERE_RADIUS_INCREMENT * 2;
+		case ANDROSYNTH_ID:
+			return 504 / SPHERE_RADIUS_INCREMENT * 2;
+		case CHENJESU_ID:
+			return 657 / SPHERE_RADIUS_INCREMENT * 2;
+		case MMRNMHRM_ID:
+			return 482 / SPHERE_RADIUS_INCREMENT * 2;
+		default:
+			return 0;
+	}
+	return 0;
+}
+
+// Provide the homeworld plot ID for the given species ID (from fleet).
+COUNT
+Homeworld (SPECIES_ID SpeciesID)
+{
+	switch (SpeciesID)
+	{
+		case ARILOU_ID:
+			return ARILOU_DEFINED;
+		case CHMMR_ID:
+			return CHMMR_DEFINED;
+		case EARTHLING_ID:
+			return SOL_DEFINED;
+		case ORZ_ID:
+			return ORZ_DEFINED;
+		case PKUNK_ID:
+			return PKUNK_DEFINED;
+		case SHOFIXTI_ID:
+			return SHOFIXTI_DEFINED;
+		case SPATHI_ID:
+			return SPATHI_DEFINED;
+		case SUPOX_ID:
+			return SUPOX_DEFINED;
+		case THRADDASH_ID:
+			return THRADD_DEFINED;
+		case UTWIG_ID:
+			return UTWIG_DEFINED;
+		case VUX_ID:
+			return VUX_DEFINED;
+		case YEHAT_ID:
+			return YEHAT_DEFINED;
+		case MELNORME_ID:
+			return MELNORME1_DEFINED; // I have my reasons
+		case DRUUGE_ID:
+			return DRUUGE_DEFINED;
+		case ILWRATH_ID:
+			return ILWRATH_DEFINED;
+		case MYCON_ID:
+			return MYCON_DEFINED;
+		case SLYLANDRO_ID:
+			return SLYLANDRO_DEFINED;
+		case UMGAH_ID:
+			return TALKING_PET_DEFINED;
+		case UR_QUAN_ID:
+			return SAMATRA_DEFINED;
+		case ZOQFOTPIK_ID:
+			return ZOQFOT_DEFINED;
+		case SYREEN_ID:
+			return SYREEN_DEFINED;
+		case KOHR_AH_ID:
+			return SAMATRA_DEFINED;
+		case ANDROSYNTH_ID:
+			return ANDROSYNTH_DEFINED;
+		case CHENJESU_ID:
+			return CHMMR_DEFINED;
+		case MMRNMHRM_ID:
+			return MOTHER_ARK_DEFINED;
+		default:
+			fprintf(stderr, "Homeworld %s %d.\n",
+					"(Fleet ID) called with bad fleet ID", SpeciesID);
+		   	return NUM_PLOTS;
+	}
+
+}
+
+// SeedFleet is called during initial setup of a map.  Sets the fleet
+// referenced in the FLEET_INFO pointer passed to the coordinates of that
+// fleet's plot on the PLOT_LOCATION array passed.
+// For Prime seed games this just returns, as the fleet does not relocate.
+void
+SeedFleet (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap)
+{
+	if ((!StarSeed) || (optSeedType == OPTVAL_MRQ))
+		return;
+	if (!FleetPtr || !plotmap)
+	{
+		fprintf(stderr, "SeedFleet called with NULL PTR(s).\n");
+		return;
+	}
+	FleetPtr->known_loc = SeedFleetLocation (FleetPtr, plotmap,
+			(FleetPtr->SpeciesID == ILWRATH_ID) ? PKUNK_DEFINED : HOME);
+	return;
+}
+
+// Helper define functions for SeedFleetLocation
+//
+// WARPATH gives an offset to the "warpoint" destination, to be multiplied
+// by dist, in the direction of the warpather's home star.  This will scale
+// the arguments based on total distance to provide a new center.
+// {WARPATH_X (visit, dist) + jitter, WARPATH_Y (visit, dist) + jitter}
+#define WARPATH_X(a, d) \
+	(warpoint.x + (d) * (plotmap[home].star_pt.x - (a).x) / sqrt \
+	((plotmap[home].star_pt.x - (a).x) * (plotmap[home].star_pt.x - (a).x) + \
+	(plotmap[home].star_pt.y - (a).y) * (plotmap[home].star_pt.y - (a).y)))
+#define WARPATH_Y(a, d) \
+	(warpoint.y + (d) * (plotmap[home].star_pt.y - (a).y) / sqrt \
+	((plotmap[home].star_pt.x - (a).x) * (plotmap[home].star_pt.x - (a).x) + \
+	(plotmap[home].star_pt.y - (a).y) * (plotmap[home].star_pt.y - (a).y)))
+
+// This points your jitter towards or away from "a" in X, Y directions
+#define TOWARD_X(a) \
+	((plotmap[home].star_pt.x < plotmap[(a)].star_pt.x) ? 1 : -1)
+#define TOWARD_Y(a) \
+	((plotmap[home].star_pt.y < plotmap[(a)].star_pt.y) ? 1 : -1)
+#define AWAY_X(a) \
+	((plotmap[home].star_pt.x > plotmap[(a)].star_pt.x) ? 1 : -1)
+#define AWAY_Y(a) \
+	((plotmap[home].star_pt.y > plotmap[(a)].star_pt.y) ? 1 : -1)
+
+// For those with no toward/away you can randomly jitter +/-
+#define HALF_X (rand_val_x % 2 ? 1 : -1)
+#define HALF_Y (rand_val_y % 2 ? 1 : -1)
+
+// 1/5 of the time we flip X, or Y, or both for some races.  Why?  Why not!
+#define FIFTH_X ((rand_val_x * rand_val_y) % 10 ? 1 : -1)
+#define FIFTH_Y ((rand_val_x + rand_val_y) % 5 ? 1 : -1)
+
+// SeedFleetLocation is called when a fleet needs to be located or relocated.
+// It will return the center for the SOI of the race listed, or if visit
+// plot ID != HOME, another value as dictated by the interaction of the two.
+// Then the location is "jittered".  Essentially this function maps between a
+// fleet/race ID and the plot IDs.
+// For PrimeSeed games this will need to look up the hard coded fleet movements
+// or resets which were part of gameev.c, or the war era map.
+POINT
+SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit)
+{
+	UWORD rand_val_x, rand_val_y;
+	COUNT home;		// Plot ID of the homeworld for the fleet
+	COUNT strength; // Strength of the fleet
+	POINT warpoint;	// location being visited, or offset for samatra
+	POINT location = {0, 0}; // The results of the seeding
+	BOOLEAN myRNG = false; // If you create RNG, clean up RNG
+	UNICODE buf[256] = ""; // For debug string
+
+	if (!FleetPtr || !plotmap)
+	{
+		fprintf (stderr, "SeedFleetLocation called with NULL PTR(s).\n");
+		return (POINT) {~0, ~0};
+	}
+
+	// Firstly, handle hard coded data from prime seed
+	if (!StarSeed || optSeedType == OPTVAL_MRQ)
+		return DefaultFleetLocation (FleetPtr->SpeciesID, visit);
+
+	home = Homeworld (FleetPtr->SpeciesID);
+	if (home >= NUM_PLOTS)
+		return (POINT) {~0, ~0}; // Error already messaged in Homeworld ().
+	if (visit >= NUM_PLOTS && visit != WAR_ERA && visit != HOME)
+	{
+		fprintf (stderr, "%s %d\n",
+				"SeedFleet called with invalid away plot ID", visit);
+		return (POINT) {~0, ~0};
+	}
+	if (visit < NUM_PLOTS && !plotmap[visit].star)
+	{
+		fprintf (stderr, "%s %d has a NULL star pointer.\n",
+				"SeedFleet called, but away plot ID", visit);
+		return (POINT) {~0, ~0};
+	}
+	if (!plotmap[home].star)
+	{
+		fprintf (stderr, "%s %d has a NULL star pointer.\n",
+				"SeedFleet called, but home plot ID", home);
+		return (POINT) {~0, ~0};
+	}
+
+	if (!StarGenRNG)
+	{
+#ifdef DEBUG_STARSEED
+		fprintf (stderr, "SeedFleet creating a STAR GEN RNG\n");
+#endif
+		StarGenRNG = RandomContext_New ();
+		myRNG = true;
+	}
+	RandomContext_SeedRandom (StarGenRNG,
+			GetRandomSeedForStar (plotmap[home].star));
+	rand_val_x = RandomContext_Random (StarGenRNG);
+	rand_val_y = RandomContext_Random (StarGenRNG);
+	if (visit > 0 && visit != SAMATRA_DEFINED && visit < NUM_PLOTS)
+	{
+		RandomContext_SeedRandom (StarGenRNG,
+				GetRandomSeedForStar (plotmap[visit].star));
+		rand_val_x += RandomContext_Random (StarGenRNG) % sizeof (UWORD);
+		rand_val_y += RandomContext_Random (StarGenRNG) % sizeof (UWORD);
+		// If there's a conflict, this will assist in WARPATH
+		warpoint = plotmap[visit].star_pt;
+	}
+	else if (visit == SAMATRA_DEFINED)
+	{
+	// Contrary to other fleet movements, I don't want to jitter from
+	// the SAMATRA center.  Pick a spot nearby and then jitter from there.
+	// First, imagine a coord near SAMATRA that Utwig/Supox/Thraddash can
+	// sort of share (it will bias in the general direction of home).
+		RandomContext_SeedRandom (StarGenRNG, GetRandomSeedForStar
+				(plotmap[visit].star));
+		UWORD rand_val_s = RandomContext_Random (StarGenRNG);
+		warpoint = (POINT) {
+				plotmap[visit].star_pt.x +
+				LOBYTE (rand_val_s) * 2 * AWAY_X (visit),
+				plotmap[visit].star_pt.y +
+				HIBYTE (rand_val_s) * 2 * AWAY_Y (visit)};
+
+		snprintf (buf, sizeof (buf), "'Sa-Matra' center %05.1f : %05.1f\n",
+				(float) warpoint.x / 10, (float) warpoint.y / 10);
+	}
+	else
+		warpoint = plotmap[home].star_pt; // just in case
+
+	strength = (visit == WAR_ERA ? WarEraStrength (FleetPtr->SpeciesID) :
+			FleetPtr->actual_strength);
+
+	switch (FleetPtr->SpeciesID)
+	{
+		case ARILOU_ID: // Arilou don't jitter
+			location = plotmap[home].star_pt;
+			break;
+		case CHMMR_ID: // Jitter towards Mmrnmhrm home
+			location = (POINT) {
+					plotmap[home].star_pt.x + TOWARD_X (MOTHER_ARK_DEFINED) *
+					FIFTH_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y + TOWARD_Y (MOTHER_ARK_DEFINED) *
+					FIFTH_Y * Jitter (strength, rand_val_y)};
+			break;
+		case EARTHLING_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+		case ORZ_ID: // Jitter towards the playground
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					TOWARD_X (TAALO_PROTECTOR_DEFINED) * FIFTH_X *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					TOWARD_Y (TAALO_PROTECTOR_DEFINED) * FIFTH_Y *
+					Jitter (strength, rand_val_y)};
+			break;
+		case PKUNK_ID: // Jitter away from Ilwrath / home from Yehat
+			if (visit == YEHAT_DEFINED)
+			{
+				location = (POINT) {
+						plotmap[visit].star_pt.x +
+						AWAY_X (visit) * FIFTH_X *
+						Jitter (strength, rand_val_x),
+						plotmap[visit].star_pt.y +
+						AWAY_Y (visit) * FIFTH_Y *
+						Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					AWAY_X (ILWRATH_DEFINED) * FIFTH_X *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					AWAY_Y (ILWRATH_DEFINED) * FIFTH_Y *
+					Jitter (strength, rand_val_y)};
+			break;
+		case SHOFIXTI_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					TOWARD_X (YEHAT_DEFINED) * FIFTH_X *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					TOWARD_Y (YEHAT_DEFINED) * FIFTH_Y *
+					Jitter (strength, rand_val_y)};
+			break;
+		case SPATHI_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+		case SUPOX_ID: // Jitter towards Utwig
+			if (visit == SAMATRA_DEFINED)
+			{
+				// 1200 distance times warpath
+				// Then jitter fleet away from Utwig, for reasons
+				location = (POINT) {
+						WARPATH_X (warpoint, 1200) +
+						AWAY_X (UTWIG_DEFINED) *
+						Jitter (strength, rand_val_x),
+						WARPATH_Y (warpoint, 1200) +
+						AWAY_Y (UTWIG_DEFINED) *
+						Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					TOWARD_X (UTWIG_DEFINED) * FIFTH_X *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					TOWARD_Y (UTWIG_DEFINED) * FIFTH_Y *
+					Jitter (strength, rand_val_y)};
+			break;
+		case THRADDASH_ID:
+			if (visit == SAMATRA_DEFINED)
+			{
+				// 1200 distance times warpath
+				// Bias away from the aqua helix because thraddash.
+				location = (POINT) {
+						WARPATH_X (warpoint, 1200) +
+						AWAY_X (AQUA_HELIX_DEFINED) *
+						Jitter (strength, rand_val_x),
+						WARPATH_Y (warpoint, 1200) +
+						AWAY_Y (AQUA_HELIX_DEFINED) *
+						Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					TOWARD_X (AQUA_HELIX_DEFINED) * FIFTH_X *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					TOWARD_Y (AQUA_HELIX_DEFINED) * FIFTH_Y *
+					Jitter (strength, rand_val_y)};
+			break;
+		case UTWIG_ID: // Jitter towards Supox
+			if (visit == SAMATRA_DEFINED)
+			{
+				// 1200 distance times warpath
+				// Then jitter fleet away from Supox, for reasons
+				location = (POINT) {
+						WARPATH_X (warpoint, 1200) +
+						AWAY_X (SUPOX_DEFINED) *
+						Jitter (strength, rand_val_x),
+						WARPATH_Y (warpoint, 1200) +
+						AWAY_Y (SUPOX_DEFINED) *
+						Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					TOWARD_X (SUPOX_DEFINED) * FIFTH_X *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					TOWARD_Y (SUPOX_DEFINED) * FIFTH_Y *
+					Jitter (strength, rand_val_y)};
+			break;
+		case VUX_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+		case YEHAT_ID: // Jitter towards Shofixti.  Except rebels.
+			if (visit == YEHAT_DEFINED)
+			{
+				location = (POINT) {
+						plotmap[home].star_pt.x +
+						AWAY_X (SHOFIXTI_DEFINED) * FIFTH_X *
+						Jitter (strength, rand_val_x),
+						plotmap[home].star_pt.y +
+						AWAY_Y (SHOFIXTI_DEFINED) * FIFTH_Y *
+						Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					TOWARD_X (SHOFIXTI_DEFINED) * FIFTH_X *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					TOWARD_Y (SHOFIXTI_DEFINED) * FIFTH_Y *
+					Jitter (strength, rand_val_y)};
+			break;
+		case MELNORME_ID:
+			break;
+		case DRUUGE_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+		case ILWRATH_ID: // Jitter towards victims
+			if (visit == THRADD_DEFINED) // default 290 distance
+			{
+				// Set the X and Y coords based on being 500 units away
+				// from the target along the warpath.
+				location = (POINT) {
+						WARPATH_X (warpoint, 500) +
+						TOWARD_X (visit) * Jitter (strength, rand_val_x),
+						WARPATH_Y (warpoint, 500) +
+						TOWARD_Y (visit) * Jitter (strength, rand_val_y)};
+				snprintf (buf, sizeof (buf), "%s %05.1f : %05.1f\n",
+						"ILWRATH x THRADDASH",
+						(float) location.x / 10, (float) location.y / 10);
+				break;
+			}
+			if (visit == PKUNK_DEFINED) // default 1270 distance
+			{
+				warpoint = plotmap[visit].star_pt;
+				location = (POINT) {
+						WARPATH_X (warpoint, 1400) +
+						TOWARD_X (visit) * Jitter (strength, rand_val_x),
+						WARPATH_Y (warpoint, 1400) +
+						TOWARD_Y (visit) * Jitter (strength, rand_val_y)};
+				snprintf (buf, sizeof (buf), "%s %05.1f : %05.1f\n",
+						"ILWRATH x PKUNK",
+						(float) location.x / 10, (float) location.y / 10);
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+		case MYCON_ID:
+			if (visit == MYCON_TRAP_DEFINED)
+			{
+				location = (POINT) {
+						plotmap[visit].star_pt.x +
+						AWAY_X (visit) * Jitter (strength, rand_val_x),
+						plotmap[visit].star_pt.y +
+						AWAY_Y (visit) * Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) { // Jitter towards sun device and eggs
+					plotmap[home].star_pt.x +
+					(plotmap[home].star_pt.x * 2 < 
+					plotmap[SUN_DEVICE_DEFINED].star_pt.x + 
+					plotmap[EGG_CASE2_DEFINED].star_pt.x / 2 +
+					plotmap[EGG_CASE1_DEFINED].star_pt.x / 3 +
+					plotmap[EGG_CASE0_DEFINED].star_pt.x / 6 ? 1 : -1) *
+					Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					(plotmap[home].star_pt.y * 2 < 
+					plotmap[SUN_DEVICE_DEFINED].star_pt.y + 
+					plotmap[EGG_CASE2_DEFINED].star_pt.y / 2 +
+					plotmap[EGG_CASE1_DEFINED].star_pt.y / 3 +
+					plotmap[EGG_CASE0_DEFINED].star_pt.y / 6 ? 1 : -1) *
+					Jitter (strength, rand_val_y)};
+			break;
+ 		case SLYLANDRO_ID:
+			break;
+		case UMGAH_ID:
+			if (visit == SAMATRA_DEFINED)
+			{
+				// 2000 distance times warpath
+				// Bias away from the umgah
+				location = (POINT) {
+						WARPATH_X (warpoint, 2000) +
+						AWAY_X (TALKING_PET_DEFINED) *
+						Jitter (strength, rand_val_x),
+						WARPATH_Y (warpoint, 2000) +
+						AWAY_Y (TALKING_PET_DEFINED) *
+						Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+		case UR_QUAN_ID: // Halved jitter due to size
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_Y * Jitter (strength, rand_val_x) / 2,
+					plotmap[home].star_pt.y +
+					HALF_X + Jitter (strength, rand_val_y) / 2};
+			break;
+		case KOHR_AH_ID: // Halved jitter, swap x and y from UQ (same seed)
+			location = (POINT) { // and ONE sign for a 90 degree turn
+					plotmap[home].star_pt.x -
+					HALF_X * Jitter (strength, rand_val_y) / 2,
+					plotmap[home].star_pt.y +
+					HALF_Y + Jitter (strength, rand_val_x) / 2};
+			break;
+ 		case ZOQFOTPIK_ID: // ZoqFot jitter is inverted (str - jit) away from
+			location = (POINT) { // KA/UQ zone, then /2, gives 16% - 50% jit
+					plotmap[home].star_pt.x + AWAY_X (SAMATRA_DEFINED) *
+					(FleetPtr->actual_strength * SPHERE_RADIUS_INCREMENT / 2 -
+						Jitter (strength, rand_val_x)) / 2,
+					plotmap[home].star_pt.y + AWAY_Y (SAMATRA_DEFINED) *
+					(FleetPtr->actual_strength * SPHERE_RADIUS_INCREMENT / 2 -
+						Jitter (strength, rand_val_y)) / 2};
+			break;
+ 		case SYREEN_ID:
+			if (visit == MYCON_TRAP_DEFINED)
+			{
+				location = (POINT) {
+						plotmap[visit].star_pt.x +
+						HALF_X * Jitter (strength, rand_val_x),
+						plotmap[visit].star_pt.y +
+						HALF_Y * Jitter (strength, rand_val_y)};
+				break;
+			}
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+		case ANDROSYNTH_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_y),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_x)};
+			break;
+	 	case CHENJESU_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_x),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_y)};
+			break;
+ 		case MMRNMHRM_ID:
+			location = (POINT) {
+					plotmap[home].star_pt.x +
+					HALF_X * Jitter (strength, rand_val_y),
+					plotmap[home].star_pt.y +
+					HALF_Y * Jitter (strength, rand_val_x)};
+			break;
+		default: break;
+	}
+	if (location.x < 0)
+			location.x = 0;
+	if (location.x >= MAX_X_UNIVERSE)
+			location.x = MAX_X_UNIVERSE - 1;
+	if (location.y < 0)
+			location.y = 0;
+	if (location.y >= MAX_Y_UNIVERSE)
+			location.y = MAX_Y_UNIVERSE - 1;
+
+#ifdef DEBUG_STARSEED
+	JitDebug (FleetPtr, rand_val_x, rand_val_y);
+	if (buf[0])
+		fprintf (stderr, "%s", buf);
+#endif
+	if (StarGenRNG && myRNG)
+	{
+		RandomContext_Delete (StarGenRNG);
+		StarGenRNG = NULL;
+	}
+	return (location);
 }

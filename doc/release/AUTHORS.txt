@@ -20,6 +20,8 @@ Elestan (Feedback)
 Kruzenshtern (Coding, QA, art, and writing)
 Tarp (Ideas and writing)
 Jo Li KMC (QA and feedback)
+Bummer6 (Ilwrath Avenger concept art)
+Flashira Nakirov (Default Super Melee menu music)
 
 Nebulae and HD Super Melee backgrounds created using wwwtyro's space2d & space2dwgl procedural space-scape generator.
 

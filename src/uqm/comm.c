@@ -544,7 +544,7 @@ DrawCommBorder (RECT r)
 
 	SetContextClipRect (&oldClipRect);
 
-	DrawBorder (11);
+	DrawBorder (SIS_COMM_FRAME);
 }
 
 static void
@@ -1968,7 +1968,7 @@ InitCommunication (CONVERSATION which_comm)
 						&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
 					{
 						snprintf ((GLOBAL_SIS (PlanetName)) + strlen (GLOBAL_SIS (PlanetName)),
-							3, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
+							4, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
 					}
 				}
 

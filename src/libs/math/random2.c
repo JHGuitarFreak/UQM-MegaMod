@@ -89,3 +89,24 @@ RandomContext_GetSeed (RandomContext *context)
 {
 	return context->seed;
 }
+
+DWORD
+RandomContext_FastRandom (DWORD seed)
+{
+	DWORD res = SeedA * (seed % SeedQ) - SeedR * (seed / SeedQ);
+	if (res > SeedM) {
+		res -= SeedM;
+	} else if (res == 0)
+		res = 1;
+
+	return res;
+}
+
+int
+RangeMinMax (int min, int max, DWORD rand)
+{
+	if (min > max)
+		return max;
+
+	return rand % ((max + 1) - min) + min;
+}

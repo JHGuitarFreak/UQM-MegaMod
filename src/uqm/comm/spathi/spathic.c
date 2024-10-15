@@ -21,6 +21,7 @@
 #include "strings.h"
 
 #include "uqm/build.h"
+#include "uqm/lua/luacomm.h"
 
 
 static LOCDATA spathi_desc =
@@ -206,16 +207,16 @@ ExitConversation (RESPONSE_REF Response)
 					NAME_OFFSET + NUM_CAPTAINS_NAMES);
 		}
 	}
-	else if (PLAYER_SAID(Response, join_us_nomad))
+	else if (PLAYER_SAID (Response, join_us_nomad))
 	{
-		if ((EscortFeasibilityStudy(SPATHI_SHIP) == 0 
-				|| CountEscortShips(SPATHI_SHIP) > 2)) 
+		if ((EscortFeasibilityStudy (SPATHI_SHIP) == 0 
+				|| CountEscortShips (SPATHI_SHIP) > 2)) 
 		{
-			NPCPhrase(TOO_SCARY);
+			NPCPhrase (TOO_SCARY);
 		}
 		else
 		{
-			NPCPhrase(WILL_JOIN);
+			NPCPhrase (WILL_JOIN);
 
 			AlienTalkSegue((COUNT)~0);
 			AddEscortShips(SPATHI_SHIP, 1);
@@ -495,8 +496,8 @@ SpathiAllies (RESPONSE_REF R)
 		Response (give_us_resources_space, SpathiAllies);
 	if (PHRASE_ENABLED (what_do_for_fun))
 		Response (what_do_for_fun, SpathiAllies);
-	if (NOMAD)
-		Response(join_us_nomad, ExitConversation);
+	if (NOMAD_DIF (OPTVAL_NOM_EASY))
+		Response (join_us_nomad, ExitConversation);
 	Response (bye_ally_space, ExitConversation);
 }
 
@@ -739,8 +740,7 @@ Intro (void)
 			SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 0);
 			SET_GAME_STATE (SPATHI_HOME_VISITS, 0);
 		}
-		if (!GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SPATHI_HOMEWORLD, 1);
+		SetHomeworldKnown (SPATHI_HOME);
 
 		Response (identify, SpathiMustGrovel);
 		Response (hi_there, SpathiOnPluto);
@@ -791,6 +791,7 @@ Intro (void)
 static COUNT
 uninit_spathi (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -827,6 +828,8 @@ init_spathi_comm (void)
 	spathi_desc.init_encounter_func = Intro;
 	spathi_desc.post_encounter_func = post_spathi_enc;
 	spathi_desc.uninit_encounter_func = uninit_spathi;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	spathi_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	spathi_desc.AlienTextBaseline.y = 0;

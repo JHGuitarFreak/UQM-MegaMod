@@ -50,6 +50,7 @@ static int luaUqm_state_sis_getResUnits(lua_State *luaState);
 static int luaUqm_state_sis_getShipName(lua_State *luaState);
 static int luaUqm_state_prop_get(lua_State *luaState);
 static int luaUqm_state_prop_set(lua_State *luaState);
+static int luaUqm_state_misc_alignText (lua_State *luaState);
 
 static const luaL_Reg stateClockFuncs[] = {
 	{ "getDate",         luaUqm_state_clock_getDate },
@@ -95,6 +96,11 @@ static const luaL_Reg stateSisFuncs[] = {
 	{ NULL,              NULL },
 };
 
+static const luaL_Reg stateMiscFuncs[] = {
+	{ "alignText",       luaUqm_state_misc_alignText },
+	{ NULL,              NULL },
+};
+
 int
 luaUqm_state_open(lua_State *luaState) {
 	// Create a table on the stack with space reserved for five fields.
@@ -114,6 +120,9 @@ luaUqm_state_open(lua_State *luaState) {
 
 	luaL_newlib(luaState, stateSisFuncs);
 	lua_setfield(luaState, -2, "sis");
+
+	luaL_newlib(luaState, stateMiscFuncs);
+	lua_setfield(luaState, -2, "misc");
 
 	return 1;
 }
@@ -541,5 +550,27 @@ luaUqm_state_prop_set(lua_State *luaState) {
 
 	luaUqm_setProp(luaState, 1, 2);
 	return 0;
+}
+
+// [1] -> int delta
+static int
+luaUqm_state_misc_alignText (lua_State *luaState)
+{
+	int delta;
+
+	if (&luaUqm_delta._int != NULL)
+	{
+		luaUqm_delta._int = 0;
+	}
+
+	delta = luaL_checkint (luaState, 1);
+
+	if (&delta == NULL)
+		return 0;
+
+	luaUqm_delta._int = delta;
+	lua_pushstring (luaState, "");
+
+	return 1;
 }
 

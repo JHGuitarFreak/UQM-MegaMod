@@ -1014,7 +1014,8 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 	// is a savegame from an older version), we have to rewind the
 	// savefile to be able to read the saved variables into their
 	// correct places.
-	if (strncmp(SummPtr->SaveNameChecker, LEGACY_SAVE_NAME_CHECKER, LEGACY_SAVE_CHECKER_SIZE))
+	if (strncmp (SummPtr->SaveNameChecker, LEGACY_SAVE_NAME_CHECKER,
+			LEGACY_SAVE_CHECKER_SIZE))
 	{
 		COUNT i;
 			
@@ -1023,9 +1024,12 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 		// to temp variables at this point to preserve them.
 		no_savename = TRUE;
 		memcpy(&temp_log_x, SummPtr->SaveNameChecker, sizeof(SDWORD));
-		memcpy(&temp_log_y, &(SummPtr->SaveNameChecker[sizeof(SDWORD)]), sizeof(SDWORD));
-		memcpy(&temp_ru, &(SummPtr->SaveNameChecker[2 * sizeof(SDWORD)]), sizeof(DWORD));
-		memcpy(&temp_fuel, &(SummPtr->SaveNameChecker[2 * sizeof(SDWORD)+ sizeof(DWORD)]), sizeof(DWORD));
+		memcpy(&temp_log_y, &(SummPtr->SaveNameChecker[sizeof(SDWORD)]),
+				sizeof(SDWORD));
+		memcpy(&temp_ru, &(SummPtr->SaveNameChecker[2 * sizeof(SDWORD)]),
+				sizeof(DWORD));
+		memcpy(&temp_fuel, &(SummPtr->SaveNameChecker[2 * sizeof(SDWORD)
+				+ sizeof(DWORD)]), sizeof(DWORD));
 			
 		// Rewind the position in savefile.
 		for (i = 0; i < LEGACY_SAVE_CHECKER_SIZE; i++)
@@ -1038,7 +1042,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 		// Make sure the save's name is empty.
 		for (i = 0; i < LEGACY_SAVE_NAME_SIZE; i++)
 			SummPtr->LegacySaveName[i] = 0;
-		}
+	}
 	else
 	{
 		// If the name identifier exists, let's also read
@@ -1055,6 +1059,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_vanilla)
 	// Sanitize seed, difficulty, extended, and nomad variables
 	SummPtr->SS.Seed = SummPtr->SS.Difficulty = 0;
 	SummPtr->SS.Extended = SummPtr->SS.Nomad = 0;
+	SummPtr->SS.SaveVersion = no_savename ? 2 : 3;
 			
 	// JMS: Now we'll put those temp variables into action.
 	if (no_savename)

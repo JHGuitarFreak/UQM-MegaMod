@@ -98,7 +98,7 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height,
 	{
 #ifdef HAVE_OPENGL
 		result = TFB_GL_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen, *resFactor, *windowType);
+				togglefullscreen, *resFactor);
 #else
 		driver = TFB_GFXDRIVER_SDL_PURE;
 		log_add (log_Warning, "OpenGL support not compiled in,"

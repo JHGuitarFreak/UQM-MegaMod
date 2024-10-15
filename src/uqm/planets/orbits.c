@@ -477,18 +477,25 @@ YellowDistribution (BYTE which_world)
 #define SUPERGIANT_ROCK_DIST SCALE_RADIUS (16)
 #define SUPERGIANT_GASG_DIST SCALE_RADIUS (33)
 
-void ComputeSpeed (PLANET_DESC *planet, BOOLEAN GeneratingMoons, UWORD rand_val)
+void ComputeSpeed (PLANET_DESC *planet, BOOLEAN GeneratingMoons,
+		UWORD rand_val)
 {
 	//BW : empiric values, which would give roughly correct
 	// rotation periods for most moons in the solar system
 	if (GeneratingMoons) {
-		planet->orb_speed = FULL_CIRCLE / (29 * pow((double)planet->radius / (MIN_MOON_RADIUS + (MAX_GEN_MOONS - 1) * MOON_DELTA), 1.5));
-		if ((planet->pPrevDesc->data_index & ~PLANET_SHIELDED) >= FIRST_GAS_GIANT)
+		planet->orb_speed =
+				FULL_CIRCLE / (29 * pow((double)planet->radius
+						/ (MIN_MOON_RADIUS + (MAX_GEN_MOONS - 1)
+						* MOON_DELTA), 1.5));
+		if ((planet->pPrevDesc->data_index & ~PLANET_SHIELDED)
+				>= FIRST_GAS_GIANT)
 			planet->orb_speed *= 2;
 		if (!(rand_val % 7))
 			planet->orb_speed = - planet->orb_speed;
 	} else {
-		planet->orb_speed = FULL_CIRCLE / (ONE_YEAR * pow((double)planet->radius / EARTH_RADIUS, 1.5));
+		planet->orb_speed =
+				FULL_CIRCLE / (ONE_YEAR * pow((double)planet->radius
+						/ EARTH_RADIUS, 1.5));
 	}
 }
 
@@ -518,6 +525,12 @@ char stype[] = {'D', 'G', 'S'};
 char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 #endif /* DEBUG_ORBITS */
 
+	if (NumPlanets == NUMPLANETS_PDESC)
+	{	// To shorten the redundancy of the function in repeated areas.
+		NumPlanets = system->SunDesc[0].NumPlanets;
+		pBaseDesc = system->PlanetDesc;
+	}
+
 	pPD = pBaseDesc;
 	StarSize = system->SunDesc[0].data_index;
 	StarColor = STAR_COLOR (CurStarDescPtr->Type);
@@ -542,8 +555,14 @@ char scolor[] = {'B', 'G', 'O', 'R', 'W', 'Y'};
 			stype[STAR_TYPE (CurStarDescPtr->Type)]);
 #endif /* DEBUG_ORBITS */
 	GeneratingMoons = (BOOLEAN) (pBaseDesc == system->MoonDesc);
+	BOOLEAN GasGiant = pPD && pPD->pPrevDesc &&
+			(pPD->pPrevDesc->data_index & ~PLANET_SHIELDED) >= FIRST_GAS_GIANT;
 	if (GeneratingMoons)
-		MaxPlanet = (PrimeSeed ? FIRST_LARGE_ROCKY_WORLD : LAST_LARGE_ROCKY_WORLD);
+		MaxPlanet = (PrimeSeed || (StarSeed && !GasGiant)
+				? FIRST_LARGE_ROCKY_WORLD
+				: (StarSeed
+				? FIRST_GAS_GIANT
+				: LAST_LARGE_ROCKY_WORLD));
 	else
 		MaxPlanet = NUMBER_OF_PLANET_TYPES;
 	PlanetCount = NumPlanets;
@@ -678,16 +697,129 @@ RelocatePlanet:
 	}
 }
 
+BYTE
+PickClosestHabitable (SOLARSYS_STATE *solarSys)
+{
+	const SIZE hRangesD[NUM_STAR_COLORS][2] = {
+			{  860, 1790 }, // blue
+			{  540, 1150 }, // green
+			{  140,  280 }, // orange
+			{    0,    0 }, // red
+			{ 1240, 2560 }, // white
+			{  320,  640 }  // yellow
+	};
+	const SIZE hRangesG[NUM_STAR_COLORS][2] = {
+			{    0,    0 }, // blue
+			{    0,    0 }, // green
+			{ 3410, 7120 }, // orange
+			{  860, 1800 }, // red
+			{    0,    0 }, // white
+			{ 7630, 7936 }  // yellow
+	};
+	BYTE starColor, starType, numPlanets, i;
+	SIZE hRangeMin = 0;
+	SIZE hRangeMax = 0;
+	SIZE hRangeMed = 0;
+	BYTE pByte = 0;
+	PLANET_DESC *pPD;
+	PLANET_DESC *pPlanet;
+	DWORD rand = RandomContext_GetSeed (SysGenRNG);
+
+	numPlanets = solarSys->SunDesc[0].NumPlanets;
+	pPD = solarSys->PlanetDesc;
+
+	starColor = STAR_COLOR (CurStarDescPtr->Type);
+	starType = STAR_TYPE (CurStarDescPtr->Type);
+
+	if (starType == SUPER_GIANT_STAR)
+		return numPlanets--;
+
+	if (starType == DWARF_STAR)
+	{
+		if (starColor == RED_BODY)
+			return 0;
+
+		hRangeMin = hRangesD[starColor][0];
+		hRangeMax = hRangesD[starColor][1];
+	}
+
+	if (starType == GIANT_STAR)
+	{
+		if (starColor == BLUE_BODY || starColor == GREEN_BODY
+				|| starColor == WHITE_BODY)
+		{
+
+			pPlanet = &pPD[numPlanets--];
+
+			pPlanet->radius = MAX_PLANET_RADIUS;
+			pPlanet->angle = NORMALIZE_ANGLE (LOWORD (rand));
+			pPlanet->location.x = COSINE (pPlanet->angle, pPlanet->radius);
+			pPlanet->location.y = SINE (pPlanet->angle, pPlanet->radius);
+			ComputeSpeed (pPlanet, FALSE, HIWORD (rand));
+
+			return numPlanets--;
+		}
+
+		hRangeMin = hRangesG[starColor][0];
+		hRangeMax = hRangesG[starColor][1];
+	}
+
+	hRangeMed = (hRangeMin + hRangeMax) / 2;
+
+	if (numPlanets > 1)
+	{
+		SIZE dist = pPD[0].radius;
+		for (i = 1; i < numPlanets; i++)
+		{
+			if (abs (dist - hRangeMed) >=
+					abs (pPD[i].radius - hRangeMed))
+			{
+				dist = pPD[i].radius;
+				pByte = i;
+			}
+		}
+	}
+	else
+		pByte = 0;
+
+	pPlanet = &pPD[pByte];
+
+	if (pPlanet->radius < hRangeMin || pPlanet->radius > hRangeMax)
+	{
+		SIZE min, max;
+
+		if (pPlanet->radius < hRangeMin)
+		{
+			min = hRangeMin;
+			max = hRangeMed;
+		}
+		else if (pPlanet->radius > hRangeMax)
+		{
+			min = hRangeMed;
+			max = hRangeMax;
+		}
+
+		pPlanet->radius = RangeMinMax (min, max, rand);
+
+		pPlanet->angle = NORMALIZE_ANGLE (LOWORD (rand));
+		pPlanet->location.x = COSINE (pPlanet->angle, pPlanet->radius);
+		pPlanet->location.y = SINE (pPlanet->angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, HIWORD (rand));
+	}
+
+	return pByte;
+}
+
 BOOLEAN
 CheckForHabitable (SOLARSYS_STATE *solarSys)
 {
 	const SIZE HabitableRanges[NUM_STAR_COLORS][2] = {
-		{  853, 1790 },
-		{  544, 1151 },
-		{  139,  287 },
-		{   68,   68 },
-		{ 1231, 2569 },
-		{  312,  778 }
+		{  853, 1790 }, // blue
+		{  544, 1151 }, // green
+		{  139,  287 }, // orange
+		{   68,   68 }, // red
+		{ 1231, 2569 }, // white
+		{  312,  778 }  // yellow
 	};
 #define CLOSEST_RADIUS HabitableRanges[ORANGE_BODY][0]
 	PLANET_DESC *pPD;
@@ -701,13 +833,23 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 	DWORD rand_val;
 	// static SIZE diffCheck, min_radius;
 
-	starColor =  STAR_COLOR (CurStarDescPtr->Type);
+	starColor = STAR_COLOR (CurStarDescPtr->Type);
+	// Terrible, but efficient, hack to ensure some semblance of sanity.
+	// Eventually, we will need further code if we care about habitable homes.
+	if (StarSeed && starColor == RED_BODY)
+		starColor = ORANGE_BODY;
 
 	pPD = solarSys->PlanetDesc;
 	oldRadius = pPD[planetByte].radius;
 
 	habitableRangeMin = HabitableRanges[starColor][0];
 	habitableRangeMax = HabitableRanges[starColor][1];
+
+	// This ensures the planets are at least a certain distance apart, which
+	// mirrors UNSCALE_RADIUS logic from FillOrbits (radius / 2^6 / 5)
+	if (StarSeed && numPlanets > 1 && pPD[1].radius < habitableRangeMax + 320
+			&& pPD[1].radius > habitableRangeMin + 320)
+		habitableRangeMax = pPD[1].radius - 320;
 
 	if ((oldRadius >= habitableRangeMin && oldRadius <= habitableRangeMax)
 			|| starColor == RED_BODY || planetByte > 0)
@@ -727,7 +869,8 @@ CheckForHabitable (SOLARSYS_STATE *solarSys)
 
 	planetRadii[planetByte] = newRadius;
 
-	if (planetRadii[planetByte] < planetRadii[planetByte + 1])
+	if ((StarSeed && numPlanets == 1) ||
+			planetRadii[planetByte] < planetRadii[planetByte + 1])
 	{
 		pPD[planetByte].radius = planetRadii[planetByte];
 		pPD[planetByte].angle = NORMALIZE_ANGLE (LOWORD (rand_val));

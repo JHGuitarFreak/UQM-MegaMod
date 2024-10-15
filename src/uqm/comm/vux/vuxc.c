@@ -19,6 +19,8 @@
 #include "../commall.h"
 #include "resinst.h"
 #include "strings.h"
+#include "uqm/races.h"
+#include "uqm/lua/luacomm.h"
 
 static LOCDATA vux_desc =
 {
@@ -801,8 +803,7 @@ Intro (void)
 			}
 			SET_GAME_STATE (VUX_HOME_VISITS, NumVisits);
 
-			if (!GET_GAME_STATE (KNOW_VUX_HOMEWORLD))
-				SET_GAME_STATE (KNOW_VUX_HOMEWORLD, 1);
+			SetHomeworldKnown (VUX_HOME);
 		}
 		else
 		{
@@ -833,6 +834,7 @@ Intro (void)
 static COUNT
 uninit_vux (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -851,10 +853,13 @@ init_vux_comm (void)
 	vux_desc.post_encounter_func = post_vux_enc;
 	vux_desc.uninit_encounter_func = uninit_vux;
 
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+
 	vux_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1)
-			+ (SIS_TEXT_WIDTH >> 2);
+			+ (SIS_TEXT_WIDTH >> 2) - SAFE_NUM_SCL (4);
 	vux_desc.AlienTextBaseline.y = 0;
-	vux_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1;
+	vux_desc.AlienTextWidth = ((SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1)
+			+ SAFE_X;
 
 	// use alternate "ZEX" track and frame if available
 	if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))

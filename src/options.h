@@ -43,7 +43,7 @@ extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
 extern unsigned int loresBlowupScale;
-extern int resolutionFactor;
+extern unsigned int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
 
@@ -73,7 +73,9 @@ extern OPT_ENABLABLE optAddDevices;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
 extern OPT_ENABLABLE optCustomBorder;
+extern int optSeedType;
 extern int optCustomSeed;
+extern int optSphereColors;
 extern int spaceMusicBySOI;
 extern OPT_ENABLABLE optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
@@ -85,7 +87,7 @@ extern int optDifficulty;
 extern int optDiffChooser;
 extern int optFuelRange;
 extern OPT_ENABLABLE optExtended;
-extern OPT_ENABLABLE optNomad;
+extern int optNomad;
 extern OPT_ENABLABLE optGameOver;
 extern OPT_ENABLABLE optShipDirectionIP;
 extern OPT_ENABLABLE optHazardColors;
@@ -113,8 +115,9 @@ extern OPT_ENABLABLE optSlaughterMode;
 extern BOOLEAN optMaskOfDeceit;
 extern OPT_ENABLABLE optAdvancedAutoPilot;
 extern OPT_ENABLABLE optMeleeToolTips;
-extern OPT_ENABLABLE optMusicResume;
-extern DWORD optWindowType;;
+extern int optMusicResume;
+extern DWORD optWindowType;
+extern BOOLEAN optNoClassic;
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
@@ -149,7 +152,11 @@ typedef struct
 extern ADDON_COUNT addonList;
 
 // addon names to check against
-#define HD_MODE      ("mm-hd")
+#define THREEDO_MUSIC "3domusic"
+#define REMIX_MUSIC   "remix"
+#define VOL_RMX_MUSIC "volasaurus-remix-pack"
+#define REGION_MUSIC  "SpaceMusic"
+#define HD_MODE       "mm-hd"
 
 #define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
 #define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")

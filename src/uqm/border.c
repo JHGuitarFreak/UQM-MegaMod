@@ -244,7 +244,7 @@ DrawSISFrame (void)
 		DrawFilledRectangle (&r);
 	}
 
-	DrawBorder (0);
+	DrawBorder (SIS_MAIN_FRAME);
 
 	InitSISContexts ();
 	ClearSISRect (DRAW_SIS_DISPLAY);

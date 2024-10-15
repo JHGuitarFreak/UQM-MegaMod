@@ -9,8 +9,9 @@ with either the CMD prompt, Windows PowerShell, or any Bash Shell,
 type in `fontforge-console` and press `Enter`. 
 This will allow you to  use FontForge's built-in Python interpreter.
 Then you can run the script by typing in `ffpython ttf2png.py` and 
-hitting `Enter`. The script will prompt you to enter the filename of
-a font (for now just use 'dpcomic.ttf') and then the font size.
+hitting `Enter`. The script will list out all the fonts in the 
+working directing for you to choose from (for now just choose 'dpcomic.ttf')
+and then prompts you for the font size after you've picked a font.
 
 If succesful it should start spitting out PNG files
 from the test font 'DPComic' into a newly created "dpcomic" directory.
@@ -39,5 +40,11 @@ actual largest height from your glyph `.png` files and plug it into the command.
 
 Add 3 pixels to the right of the canvas:
 `mogrify -splice 3x0 -gravity East -background black *.png`
+
+Remove 3 pixels to the left of the canvas:
+`mogrify -chop 3x0 -gravity West *.png`
+
+Trim the East and West sides by color (No longer needed as it's now part of the export process):
+`mogrify -fuzz 10% -define trim:edges=east/west -trim +repage *.png`
 
 DPComic font made by codeman38 - http://www.zone38.net/

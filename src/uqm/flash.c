@@ -575,6 +575,12 @@ Flash_grabOriginal (FlashContext *context)
 			// is necessary to ensure that it can actually be used.
 }
 
+void
+Flash_UpdateOriginal (FlashContext *context)
+{
+	Flash_grabOriginal (context);
+}
+
 static inline void
 Flash_blendFraction (FlashContext *context, int numer, int denom,
 		int *resNumer, int *resDenom)

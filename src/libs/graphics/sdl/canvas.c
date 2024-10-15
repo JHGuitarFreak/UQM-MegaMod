@@ -70,6 +70,10 @@ checkPrimitiveMode (SDL_Surface *surf, Color *color, DrawMode *mode)
 	}
 }
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b)) ? (a) : (b))
+#endif
+
 void
 TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 		DrawMode mode, TFB_Canvas target, BYTE thickness)
@@ -82,7 +86,7 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 	checkPrimitiveMode (dst, &color, &mode);
 	sdlColor = SDL_MapRGBA (fmt, color.r, color.g, color.b, color.a);
 
-	plotFn = renderpixel_for (target, mode.kind);
+	plotFn = renderpixel_for (target, mode.kind, FALSE);
 	if (!plotFn)
 	{
 		log_add (log_Warning, "ERROR: TFB_DrawCanvas_Line "
@@ -101,8 +105,8 @@ TFB_DrawCanvas_Line (int x1, int y1, int x2, int y2, Color color,
 		if (x1 == x2 || y1 == y2)
 		{// Vertical/horizontal
 			SDL_Rect sr;
-			sr.x = min (x1, x2);
-			sr.y = min (y1, y2);
+			sr.x = MIN (x1, x2);
+			sr.y = MIN (y1, y2);
 			sr.w = abs (x1 - x2) + thickness;
 			sr.h = abs (y1 - y2) + thickness;
 			SDL_LockSurface (dst);
@@ -146,16 +150,13 @@ TFB_DrawCanvas_Rect (RECT *rect, Color color, DrawMode mode, TFB_Canvas target)
 	}
 	else
 	{	// Custom fillrect rendering
-		RenderPixelFn plotFn = renderpixel_for (target, mode.kind);
+		RenderPixelFn plotFn = renderpixel_for (target, mode.kind, FALSE);
 		if (!plotFn)
 		{
 			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Rect "
 					"unsupported draw mode (%d)", (int)mode.kind);
 			return;
 		}
-
-		if (mode.kind >= DRAW_MULTIPLY)
-			mode.factor = FULLY_OPAQUE_ALPHA;
 
 		SDL_LockSurface (dst);
 		fillrect_prim (sr, sdlColor, plotFn, mode.factor, dst);
@@ -187,16 +188,13 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 	else
 	{	// Custom blit
 		SDL_Rect loc_src_r, loc_dst_r;
-		RenderPixelFn plotFn = renderpixel_for (dst, mode.kind);
+		RenderPixelFn plotFn = renderpixel_for (dst, mode.kind, FALSE);
 		if (!plotFn)
 		{
 			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Blit "
 					"unsupported draw mode (%d)", (int)mode.kind);
 			return;
 		}
-
-		if (mode.kind >= DRAW_MULTIPLY)
-			mode.factor = FULLY_OPAQUE_ALPHA;
 
 		if (!src_r)
 		{	// blit whole image; generate rect
@@ -215,7 +213,6 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 			loc_dst_r.h = dst->h;
 			dst_r = &loc_dst_r;
 		}
-
 		SDL_LockSurface (dst);
 		blt_prim (src, *src_r, plotFn, mode.factor, dst, *dst_r);
 		SDL_UnlockSurface (dst);
@@ -295,6 +292,44 @@ TFB_DrawCanvas_Image (TFB_Image *img, int x, int y, int scale,
 		//   colormap. As it stands now, the colormap must have been
 		//   addrefed when passed to us.
 		TFB_ReturnColorMap (cmap);
+	}
+
+	if (mode.kind == DRAW_ALPHA && surf->format->Amask != 0)
+	{	// Per-pixel alpha and surface alpha will not work together
+		// We have to handle DRAW_ALPHA differently by modulating
+		// the backing surface alpha channel ourselves.
+		// The existing backing surface alpha channel is ignored.
+		int alpha = mode.factor;
+		mode.kind = DRAW_REPLACE;
+
+		if (alpha != 0xFF)
+		{
+			SDL_LockSurface (surf);
+			{
+				int i, length;
+				const Uint32 smask = ~surf->format->Amask;
+				const int ashift = surf->format->Ashift;
+				Uint32 p;
+				Uint32 a;
+				Uint32 *src_p = (Uint32 *)surf->pixels;
+
+				length = surf->h * surf->w;
+
+				for (i = 0; i < length; ++i, ++src_p)
+				{
+					p = *src_p & smask;
+					a = (*src_p >> ashift) & 0xFF;
+
+					if (a != 0)
+					{	// modulate the alpha channel
+						a = (a * alpha) >> 8;
+					}
+
+					*src_p = p | (a << ashift);
+				}
+			}
+			SDL_UnlockSurface (surf);
+		}
 	}
 
 	TFB_DrawCanvas_Blit (surf, pSrcRect, target, &targetRect, mode);
@@ -663,6 +698,104 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 
 	TFB_DrawCanvas_Blit (surf, &srcRect, dst, &targetRect, mode);
 	UnlockMutex (backing->mutex);
+}
+
+static void
+TFB_DrawCanvas_FillMask (SDL_Surface *base, DrawMode mode, Color *fill)
+{
+	if (!fill)
+	{// Layer should be the same size or larger than base
+		log_add (log_Warning, "ERROR: TFB_DrawCanvas_FillMask "
+					"no color were passed down");
+		return;
+	}
+	else
+	{// Applying blit
+		RenderPixelFn plotFn = renderpixel_for (base, mode.kind, TRUE);
+		
+		if (!plotFn)
+		{
+			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Mask "
+					"unsupported draw mode (%d)", (int)mode.kind);
+			return;
+		}
+
+		if (mode.factor == TRANSFER_ALPHA)
+			mode.factor = 0xFF;
+
+		SDL_LockSurface (base);
+		blt_filtered_fill (base, plotFn, mode.factor, fill);
+		SDL_UnlockSurface (base);
+	}
+}
+
+static void
+TFB_DrawCanvas_Mask (SDL_Surface *layer, SDL_Surface *base, DrawMode mode, Color *fill)
+{
+	if (layer->w < base->w || layer->h < base->h)
+	{// Layer should be the same size or larger than base
+		log_add (log_Warning, "ERROR: TFB_DrawCanvas_Mask "
+					"layered surface should be not less than base");
+		return;
+	}
+	else
+	{// Applying blit
+		RenderPixelFn plotFn = renderpixel_for (base, mode.kind, TRUE);
+		if (!plotFn)
+		{
+			log_add (log_Warning, "ERROR: TFB_DrawCanvas_Mask "
+					"unsupported draw mode (%d)", (int)mode.kind);
+			return;
+		}
+
+		if (layer->format->palette && base->format->Amask)
+		{// Layering 8-bit image to 32-bit mask
+			Color *pal;
+			SDL_Palette *palette = layer->format->palette;
+			int i;
+
+			pal = HCalloc (sizeof (Color) * 256);
+			assert (palette->ncolors <= 256);
+			for (i = 0; i < palette->ncolors; ++i)
+				pal[i] = NativeToColor (palette->colors[i]);
+
+			SDL_LockSurface (base);
+			blt_filtered_pal (layer, base, pal);
+			SDL_UnlockSurface (base);
+			HFree (pal);
+		}
+		else
+		{
+			SDL_LockSurface (base);
+			blt_filtered_prim (layer, plotFn, mode.factor, base, fill);
+			SDL_UnlockSurface (base);
+		}
+	}
+}
+
+void
+TFB_DrawCanvas_MaskImage (TFB_Image *img, DrawMode mode, TFB_Canvas target,	Color *fill)
+{
+	if (!img)// No layer - do a fill instead
+		TFB_DrawCanvas_FillMask (target, mode, fill);
+	else
+	{
+		SDL_Surface *surf;
+
+		LockMutex (img->mutex);
+		surf = img->NormalImg;
+
+		if (surf->format->palette)
+		{
+			TFB_ColorMap *cmap = NULL;
+			cmap = TFB_GetColorMap (img->colormap_index);
+			TFB_SetColors (img->NormalImg, cmap->palette->colors, 0, 256);
+			TFB_ReturnColorMap (cmap);
+		}
+
+		TFB_DrawCanvas_Mask (surf, target, mode, fill);
+		UnlockMutex (img->mutex);
+	}
 }
 
 TFB_Canvas

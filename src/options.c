@@ -33,6 +33,7 @@
 #include "libs/memlib.h"
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
+#include "types.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -55,7 +56,7 @@ int optMeleeScale;
 const char **optAddons;
 
 unsigned int loresBlowupScale;
-int resolutionFactor;
+unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 
@@ -85,7 +86,9 @@ OPT_ENABLABLE optAddDevices;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 OPT_ENABLABLE optCustomBorder;
+int optSeedType;
 int optCustomSeed;
+int optSphereColors;
 int spaceMusicBySOI;
 OPT_ENABLABLE optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
@@ -97,7 +100,7 @@ int optDifficulty;
 int optDiffChooser;
 int optFuelRange;
 OPT_ENABLABLE optExtended;
-OPT_ENABLABLE optNomad;
+int optNomad;
 OPT_ENABLABLE optGameOver;
 OPT_ENABLABLE optShipDirectionIP;
 OPT_ENABLABLE optHazardColors;
@@ -125,8 +128,9 @@ OPT_ENABLABLE optSlaughterMode;
 BOOLEAN optMaskOfDeceit;
 OPT_ENABLABLE optAdvancedAutoPilot;
 OPT_ENABLABLE optMeleeToolTips;
-OPT_ENABLABLE optMusicResume;
+int optMusicResume;
 DWORD optWindowType;
+BOOLEAN optNoClassic;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;
@@ -271,12 +275,12 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 	contentMountHandle = mountContentDir (repository, baseContentPath);
 
 	if (contentDirName && contentDirPath == NULL)
-		contentDirPath = contentDirName;
+		contentDirPath = (char *)contentDirName;
 
 	if (addonDirName)
 	{
 		if (addonDirPath == NULL)
-			addonDirPath = addonDirName;
+			addonDirPath = (char *)addonDirName;
 
 		log_add (log_Debug, "Using '%s' as addon dir.", addonDirName);
 	}
@@ -546,8 +550,6 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		log_add (log_Info, "%d available addon pack%s.", count,
 				count == 1 ? "" : "s");
 
-		addonList.amount = count;
-
 		count = 0;
 		for (i = 0; i < availableAddons->numNames; ++i)
 		{
@@ -558,10 +560,10 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			if (!addon)
 				continue;
 
+			addonList.name_hash[count] = crc32b (addon);
+
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
-
-			addonList.name_hash[i] = crc32b (addon);
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
@@ -575,6 +577,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			mountDirZips (addonDir, mountname, uio_MOUNT_BELOW, mountHandle);
 			uio_closeDir (addonDir);
 		}
+
+		addonList.amount = count;
 	}
 	else
 	{

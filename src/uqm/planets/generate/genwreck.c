@@ -54,25 +54,35 @@ const GenerateFunctions generateWreckFunctions = {
 
 static bool
 GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
-{	
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+{
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
+
+	GenerateDefault_generatePlanets (solarSys);
+
+	pSunDesc->PlanetByte = 6;
+
+	if (StarSeed)
+		pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
+
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
 	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 7) + 7);
+	{
+		if (!StarSeed && pSunDesc->NumPlanets <= pSunDesc->PlanetByte)
+			pSunDesc->NumPlanets = pSunDesc->PlanetByte + 1;
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	if (!PrimeSeed)
-		solarSys->PlanetDesc[6].data_index = (RandomContext_Random (SysGenRNG) % LAST_SMALL_ROCKY_WORLD);
+		pPlanet->data_index = GenerateWorlds (SMALL_ROCKY);
+	}
 
 	return true;
 }
 
 static bool
-GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (DIF_HARD && !(GET_GAME_STATE (HM_ENCOUNTERS)
 				& 1 << PROBE_ENCOUNTER))
@@ -144,9 +154,10 @@ static COUNT
 GenerateWreck_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -156,7 +167,7 @@ static bool
 GenerateWreck_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		assert (whichNode == 0);
 

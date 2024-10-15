@@ -20,6 +20,7 @@
 #include "../yehat/resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 
 
@@ -244,8 +245,7 @@ RebelInfo (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, what_about_war))
 	{
 		NPCPhrase (ABOUT_WAR);
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SetHomeworldKnown (SHOFIXTI_HOME);
 
 		DISABLE_PHRASE (what_about_war);
 	}
@@ -422,6 +422,7 @@ Intro (void)
 static COUNT
 uninit_yehat (void)
 {
+	luaUqm_comm_uninit();
 	return (0);
 }
 
@@ -439,6 +440,10 @@ init_rebel_yehat_comm (void)
 	yehat_desc.init_encounter_func = Intro;
 	yehat_desc.post_encounter_func = post_yehat_enc;
 	yehat_desc.uninit_encounter_func = uninit_yehat;
+
+	// Initialise Lua for string interpolation. This will be
+	// generalised in the future.
+	luaUqm_comm_init(NULL, NULL_RESOURCE);
 
 	yehat_desc.AlienTextBaseline.x = SIS_SCREEN_WIDTH * 2 / 3;
 	yehat_desc.AlienTextBaseline.y = RES_SCALE (107 * 2 / 3);

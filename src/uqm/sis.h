@@ -179,6 +179,7 @@ typedef struct
 	UNICODE PlanetName[SIS_NAME_SIZE];
 	BYTE Difficulty, Extended, Nomad;
 	SDWORD Seed;
+	BYTE SaveVersion;
 } SIS_STATE;
 
 #define OVERRIDE_LANDER_FLAGS (1 << 7)
@@ -200,8 +201,7 @@ extern void ContinueFlash (void);
 #define SFR_MENU_ANY ((RECT*)~1L)
 #define SFR_MENU_NON ((RECT*)~2L)
 extern void DrawHyperCoords (POINT puniverse);
-extern void DrawDiffSeed (SDWORD seed, BYTE difficulty, BOOLEAN extended,
-		BOOLEAN nomad);
+extern void DrawSaveInfo (SIS_STATE SisState);
 extern void DrawSISTitle (UNICODE *pStr);
 
 // Flags for DrawSISMessageEx (may be OR'ed):
@@ -269,9 +269,39 @@ extern void DrawCaptainsName (bool NewGame);
 extern void DrawFuelInFTanks (BOOLEAN isOutfit);
 extern FRAME hdFuelFrame;// Frame for HD fuel with smooth gradient
 
+typedef enum
+{
+	SIS_MAIN_FRAME = 0,
+	SIS_STAT_FRAME,
+	DEVICE_CARGO_FRAME,
+	SIS_STAT_REPAIR_FRAME,
+	SIS_STAT_SUMM_FRAME,
+	SIS_MSG_FRAME,
+	SIS_TITLE_FRAME,
+	CAPTAIN_FRAME,
+	CAP_NAME_FRAME,
+	STAT_MSG_FRAME,
+	SIS_RADAR_FRAME,
+	TEXT_LABEL_FRAME,
+	SIS_REPAIR_FRAME,
+	LANDER_3DO_FRAME,
+	LANDER_DOS_FRAME,
+	SIS_COMM_FRAME,
+} BORDER_ORDER;
+
+typedef enum
+{
+	DOS_MENU_HILITE = 0,
+	SPECIAL_BEVEL,
+	THIN_INNER_BEVEL = SPECIAL_BEVEL + 8,
+	THICK_INNER_BEVEL = THIN_INNER_BEVEL + 8,
+	THIN_OUTER_BEVEL = THICK_INNER_BEVEL + 8,
+	THICK_OUTER_BEVEL = THIN_OUTER_BEVEL + 8,
+	THICK_OUT_INV_BEVEL = THICK_OUTER_BEVEL + 8,
+} BEVEL_LEVEL;
+
 #if defined(__cplusplus)
 }
 #endif
 
 #endif /* SIS_H_INCL__ */
-

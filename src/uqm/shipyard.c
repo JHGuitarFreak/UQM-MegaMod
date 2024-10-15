@@ -101,8 +101,8 @@ static BOOLEAN DoShipSpins;
 
 
 // This is all for drawing the DOS version modules menu
-#define SHIPS_ORG_Y       RES_SCALE (33)
-#define SHIPS_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+#define SHIPS_ORG_Y       RES_SCALE (36)
+#define SHIPS_SPACING_Y   RES_SCALE (16)
 
 #define SHIPS_COL_0       RES_SCALE (5)
 #define SHIPS_COL_1       RES_SCALE (61)
@@ -201,7 +201,7 @@ DrawShipsDisplay (SHIPS_STATE *shipState)
 			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "MODULES" title
 	SetContextFont (StarConFont);
@@ -313,7 +313,7 @@ InventoryShips (SHIPS_STATE *ship_state, SIZE Size)
 	ship_state->count = ShipsOnBoard;
 }
 
-void
+static void
 FillHangarX (void)
 {
 	BYTE i;
@@ -526,9 +526,79 @@ ShipCost (BYTE race_id)
 }
 
 static void
+DrawShipyardShipText (RECT *r, int Index)
+{
+	RACE_DESC *RDPtr;
+	UNICODE race_name[64];
+	UNICODE ship_name[64];
+	FONT OldFont;
+	Color OldColor;
+	SIZE leading;
+	RECT block;
+	TEXT text;
+	COORD og_baseline_x;
+
+	if (IS_DOS)
+		return;
+
+	RDPtr = load_ship (Index + 1, FALSE);
+
+	utf8StringCopy ((char *)&race_name, sizeof (race_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings, 
+			GetStringTableCount (RDPtr->ship_info.race_strings) - 3)));
+
+	utf8StringCopy ((char *)&ship_name, sizeof (ship_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings,
+			GetStringTableCount(RDPtr->ship_info.race_strings) - 2)));
+
+	free_ship (RDPtr, TRUE, TRUE);
+
+	if (!strlen ((char *)&race_name) || !strlen ((char *)&ship_name))
+		return;
+
+	OldFont = SetContextFont (ModuleFont);
+	OldColor = SetContextForeGroundColor (SHP_RECT_COLOR);
+
+	GetContextFontLeading (&leading);
+	
+	if (!optCustomBorder)
+	{
+		block = *r;
+		block.extent.height = (leading << 1);
+		DrawFilledRectangle (&block);
+	}
+	else
+		DrawBorder (TEXT_LABEL_FRAME);
+
+	text.align = ALIGN_CENTER;
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading;
+	og_baseline_x = text.baseline.x;
+
+	text.pStr = AlignText ((const UNICODE*)&race_name, &text.baseline.x);
+	text.CharCount = (COUNT)~0;
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
+
+	if (text.baseline.x != og_baseline_x)
+		text.baseline.x = og_baseline_x;
+
+	text.baseline.y += leading;
+	text.pStr = AlignText ((const UNICODE*)&ship_name, &text.baseline.x);
+	text.CharCount = (COUNT)~0;
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+static void
 DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 {
-	RECT r;
+	RECT r, textRect;
 	STAMP s;
 	CONTEXT OldContext;
 	
@@ -543,12 +613,17 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	r.extent.height = RES_SCALE (12);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
-	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+	SetContextForeGroundColor (DKGRAY_COLOR);
 
 	if (!IS_DOS)
-		DrawFilledRectangle (&r);
+	{
+		if (!optCustomBorder)
+			DrawFilledRectangle (&r);
 
-	DrawBorder (8);
+		textRect = r;
+	}
+
+	DrawBorder (SIS_RADAR_FRAME);
 
 	if (!IS_DOS)
 	{
@@ -577,7 +652,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		else
 		{
 			DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
-					THIN_INNER_BEVEL);
+					THIN_INNER_BEVEL, optCustomBorder);
 		}
 	}
 
@@ -599,7 +674,10 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		// Draw the ship name, above the ship image.
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 3 + NewRaceItem);
 		if (!IS_DOS)
+		{
 			DrawStamp (&s);
+			DrawShipyardShipText (&textRect, NewRaceItem);
+		}
 
 		// Draw the ship image.
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
@@ -1868,11 +1946,19 @@ DoShipyard (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoShipyard;
 
+		
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Starmap();
+#endif
+
 		if (IS_DOS)
 		{
 			memset (&ShipState, 0, sizeof ShipState);
 			InventoryShips (&ShipState, NUM_BUILDABLE_SHIPS);
 		}
+
+		if (!IS_DOS)
+			ModuleFont = LoadFont (MODULE_FONT);
 
 		{
 			STAMP s;
@@ -1917,7 +2003,7 @@ DoShipyard (MENU_STATE *pMS)
 				DrawStamp (&s);
 
 				if (optCustomBorder)
-					DrawBorder (9);
+					DrawBorder (SIS_REPAIR_FRAME);
 
 				SetContextClipRect (&old_r);
 
@@ -1974,6 +2060,10 @@ ExitShipyard:
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
 		pMS->CurString = 0;
 
+		// Release Fonts
+		if (!IS_DOS)
+			DestroyFont (ModuleFont);
+
 		SetMusicPosition ();
 
 		return FALSE;
@@ -1983,9 +2073,6 @@ ExitShipyard:
 		if (pMS->CurState != SHIPYARD_SAVELOAD)
 		{
 			pMS->Initialized = FALSE;
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Starmap();
-#endif
 			DrawMenuStateStrings(PM_CREW, pMS->CurState);
 			DoModifyShips (pMS);
 		}
@@ -2000,9 +2087,6 @@ ExitShipyard:
 	}
 	else
 	{
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Menu();
-#endif
 		DoMenuChooser (pMS, PM_CREW);
 	}
 

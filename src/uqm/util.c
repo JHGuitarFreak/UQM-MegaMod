@@ -31,6 +31,8 @@
 #include "menustat.h"
 #include "gamestr.h"
 #include "shipcont.h"
+// JSD added to reference plot_map for SOL.
+#include "starmap.h"
 
 void
 DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
@@ -148,7 +150,8 @@ DrawStarConBox (RECT *pRect, SIZE BorderWidth, Color TopLeftColor,
 }
 
 void
-DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, SCB_TYPE type)
+DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, int type,
+		int custom)
 {
 	int i;
 	STAMP stamp;
@@ -185,8 +188,7 @@ DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color, SCB_TYPE type)
 		SetContextForeGroundColor (OldColor);
 	}
 
-	stamp.frame = optCustomBorder && LOBYTE (GLOBAL (CurrentActivity))
-			!= SUPER_MELEE ? BorderFrame : HDBorderFrame;
+	stamp.frame = custom ? CustBevelFrame : DefBevelFrame;
 
 	if (type == SPECIAL_BEVEL)
 	{
@@ -301,7 +303,8 @@ DrawRadarBorder (void)
 
 	if (IS_HD || optCustomBorder)
 	{
-		DrawRenderedBox (&r, FALSE, NULL_COLOR, THIN_INNER_BEVEL);
+		DrawRenderedBox (&r, FALSE, NULL_COLOR, THIN_INNER_BEVEL,
+				optCustomBorder);
 	}
 	else
 	{
@@ -344,6 +347,47 @@ SaveContextFrame (const RECT *saveRect)
 	return s;
 }
 
+static void
+DrawPauseText (RECT *rect)
+{
+	TEXT text;
+	FONT OldFont;
+	Color OldColor;
+	RECT block;
+
+	if (!strlen (GAME_STRING (QUITMENU_STRING_BASE + 4)))
+		return;
+
+	OldFont = SetContextFont (DOS_BOOL (LabelFont, StarConFont));
+	OldColor = SetContextForeGroundColor (
+			BUILD_SHADE_RGBA (DOS_BOOL (0x74, 0x6B)));
+
+	// Blank out the text
+	block = *rect;
+	block.extent.width -= RES_SCALE (4);
+	block.extent.height -= RES_SCALE (4);
+	block.corner.x += RES_SCALE (2);
+	block.corner.y += RES_SCALE (2);
+	DrawFilledRectangle (&block);
+
+	SetContextForeGroundColor (
+			DOS_BOOL (SHADOWBOX_DARK_COLOR, WHITE_COLOR));
+
+	text.baseline = rect->corner;
+	text.baseline.x += rect->extent.width >> 1;
+	text.baseline.y += RES_SCALE (10);
+	text.align = ALIGN_CENTER;
+	text.pStr = AlignText (
+			(const UNICODE *)GAME_STRING (QUITMENU_STRING_BASE + 4),
+			&text.baseline.x);
+	text.CharCount = (COUNT)~0;
+
+	font_DrawText (&text);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 BOOLEAN
 PauseGame (void)
 {
@@ -352,7 +396,7 @@ PauseGame (void)
 	CONTEXT OldContext;
 	STAMP saveStamp;
 	RECT ctxRect;
-	POINT oldOrigin;
+	POINT OldOrigin;
 	RECT OldRect;
 
 	if (ActivityFrame == 0
@@ -366,7 +410,7 @@ PauseGame (void)
 		PauseTrack ();
 
 	OldContext = SetContext (ScreenContext);
-	oldOrigin = SetContextOrigin (MAKE_POINT (0, 0));
+	OldOrigin = SetContextOrigin (MAKE_POINT (0, 0));
 	GetContextClipRect (&OldRect);
 	SetContextClipRect (NULL);
 
@@ -376,11 +420,11 @@ PauseGame (void)
 	r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
 	saveStamp = SaveContextFrame (&r);
 
-	// TODO: This should draw a localizable text message instead
 	s.origin = r.corner;
 	s.frame = ActivityFrame;
 	SetSystemRect (&r);
 	DrawStamp (&s);
+	DrawPauseText (&r);
 
 	FlushGraphics ();
 
@@ -409,7 +453,7 @@ PauseGame (void)
 	ClearSystemRect ();
 
 	SetContextClipRect (&OldRect);
-	SetContextOrigin (oldOrigin);
+	SetContextOrigin (OldOrigin);
 	SetContext (OldContext);
 
 	WaitForNoInput (ONE_SECOND / 4, TRUE);
@@ -572,8 +616,11 @@ get_fuel_to_sol (void)
 	pt.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 	pt.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	
-	pt.x -= SOL_X;
-	pt.y -= SOL_Y;
+	// JSD Replace old hard coded SOL with plot based SOL
+	//pt.x -= SOL_X;
+	//pt.y -= SOL_Y;
+	pt.x -= plot_map[SOL_DEFINED].star_pt.x;
+	pt.y -= plot_map[SOL_DEFINED].star_pt.y;
 
 	f = (DWORD)((long)pt.x * pt.x + (long)pt.y * pt.y);
 	if (f == 0 || GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1)
@@ -600,7 +647,7 @@ DrawFlagStatDisplay (UNICODE *str)
 			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "str" title
 	SetContextFont (StarConFont);

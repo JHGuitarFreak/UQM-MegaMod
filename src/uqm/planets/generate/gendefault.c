@@ -230,8 +230,8 @@ GenerateDefault_generateRuins (const SOLARSYS_STATE *solarSys,
 		COUNT whichNode, NODE_INFO *info)
 {
 	// Generate a standard spread of city ruins of a destroyed civilization
-	return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN, NUM_RACE_RUINS,
-			0, whichNode, info);
+	return GenerateRandomNodes (&solarSys->SysInfo, ENERGY_SCAN,
+			NUM_RACE_RUINS, 0, whichNode, info);
 }
 
 static inline void
@@ -335,6 +335,154 @@ GeneratePlanets (SOLARSYS_STATE *solarSys)
 		}
 		planet->NumPlanets = num_moons;
 	}
+}
+
+BYTE
+GenerateWorlds (BYTE whichType)
+{
+	BYTE planet = FIRST_SMALL_ROCKY_WORLD;
+
+	if (whichType & SMALL_ROCKY)
+	{
+		planet = FIRST_SMALL_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				NUMBER_OF_SMALL_ROCKY_WORLDS;
+	}
+	else if (whichType & LARGE_ROCKY)
+	{
+		planet = FIRST_LARGE_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				(NUMBER_OF_LARGE_ROCKY_WORLDS - 2);
+	}
+	else if (whichType & ALL_ROCKY)
+	{
+		planet = FIRST_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				(NUMBER_OF_ROCKY_WORLDS - 2);
+	}
+	else if (whichType & ONLY_LARGE)
+	{
+		planet = FIRST_LARGE_ROCKY_WORLD +
+				RandomContext_Random (SysGenRNG) %
+				(NUMBER_OF_LARGE_ROCKY_WORLDS
+					+ NUMBER_OF_GAS_GIANTS - 2);
+	}
+	else if (whichType & ONLY_GAS)
+	{
+		planet = FIRST_GAS_GIANT +
+				RandomContext_Random (SysGenRNG) %
+				NUMBER_OF_GAS_GIANTS;
+	}
+	// Skip over rainbow_world and shattered_world, which are adjacent.
+	if (planet >= RAINBOW_WORLD)
+		planet += 2;
+
+	return planet;
+}
+
+void
+GenerateGasGiantRanged (SOLARSYS_STATE *solarSys)
+{
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
+	BYTE i;
+#define DWARF_GASG_DIST SCALE_RADIUS (12)
+
+	for (i = 0; i < pSunDesc->NumPlanets; i++)
+	{
+		if (solarSys->PlanetDesc[i].radius >= DWARF_GASG_DIST)
+			break;
+	}
+
+	pSunDesc->PlanetByte = i;
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+	pPlanet->data_index = GenerateWorlds (ONLY_GAS);
+
+	if (solarSys->PlanetDesc[i].radius < DWARF_GASG_DIST)
+	{
+		COUNT angle;
+		DWORD rand = RandomContext_GetSeed (SysGenRNG);
+
+		pPlanet->radius =
+				RangeMinMax (DWARF_GASG_DIST, MAX_PLANET_RADIUS, rand);
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
+	}
+}
+
+BYTE
+GenerateCrystalWorld (void)
+{
+	int crystalArray[] = {
+			SAPPHIRE_WORLD,
+			EMERALD_WORLD,
+			RUBY_WORLD};
+	return crystalArray[RandomContext_Random (SysGenRNG) % 3];
+}
+
+BYTE
+GenerateDesolateWorld (void)
+{
+	int desolateArray[] = {
+			DUST_WORLD,
+			CRIMSON_WORLD,
+			UREA_WORLD};
+	return desolateArray[RandomContext_Random (SysGenRNG) % 3];
+}
+
+BYTE
+GenerateHabitableWorld (void)
+{
+	int habitableArray[] = {
+			PRIMORDIAL_WORLD,
+			WATER_WORLD,
+			TELLURIC_WORLD,
+			REDUX_WORLD};
+	return habitableArray[RandomContext_Random (SysGenRNG) % 4];
+}
+
+BYTE
+GenerateGasGiantWorld (void)
+{
+	return FIRST_GAS_GIANT +
+			RandomContext_Random (SysGenRNG) %
+			NUMBER_OF_GAS_GIANTS;
+}
+
+// input: 1 <= min <= max
+// output: min <= RNG <= max
+// min 0 will be treated 1; min >= max will return max
+BYTE
+GenerateMinPlanets (BYTE min)
+{
+	const BYTE max = MAX_GEN_PLANETS + 1;
+
+	if (min == 0)
+		min = 1;
+	if (min >= MAX_GEN_PLANETS)
+		min = MAX_GEN_PLANETS;
+
+	return RandomContext_Random (SysGenRNG) % (max - min) + min;
+}
+
+// input: 0 <= minimum < MAX_GEN_PLANETS
+// output: minimum + 1 <= RNG <= MAX_GEN_PLANETS
+BYTE
+GenerateNumberOfPlanets (BYTE minimum)
+{
+	BYTE roll = MAX_GEN_PLANETS - minimum;
+	BYTE adjust = minimum + 1;
+	return (RandomContext_Random (SysGenRNG) % roll) + adjust;
+}
+
+// "RandomContext_Random PlanetByte Generator"
+BYTE
+PlanetByteGen (PLANET_DESC *pPDesc)
+{
+	return RandomContext_Random (SysGenRNG) % pPDesc->NumPlanets;
 }
 
 static void

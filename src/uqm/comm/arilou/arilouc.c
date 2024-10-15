@@ -21,6 +21,8 @@
 #include "strings.h"
 
 #include "uqm/gameev.h"
+#include "uqm/races.h"
+#include "uqm/lua/luacomm.h"
 
 
 static LOCDATA arilou_desc =
@@ -279,17 +281,14 @@ ArilouHome (RESPONSE_REF R)
 		NPCPhrase (ABOUT_WAR);
 
 		SET_GAME_STATE (ARILOU_STACK_1, 1);
-		if (!GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD, 1);
+		SetHomeworldKnown (SHOFIXTI_HOME);
 	}
 	else if (PLAYER_SAID (R, what_about_urquan))
 	{
 		NPCPhrase (ABOUT_URQUAN);
 
 		SET_GAME_STATE (ARILOU_STACK_1, 2);
-
-		if (!GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SYREEN_HOMEWORLD, 1);
+		SetHomeworldKnown (SYREEN_HOME);
 	}
 	else if (PLAYER_SAID (R, tell_arilou_about_tpet))
 	{
@@ -315,8 +314,7 @@ ArilouHome (RESPONSE_REF R)
 
 			LastStack = 1;
 
-			if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
-				SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
+			SetHomeworldKnown (UMGAH_HOME);
 		}
 
 		DISABLE_PHRASE (learned_about_umgah);
@@ -334,9 +332,7 @@ ArilouHome (RESPONSE_REF R)
 		NPCPhrase (GO_FIND_OUT);
 
 		SET_GAME_STATE (ARILOU_CHECKED_UMGAH, 3);
-
-		if (!GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD))
-			SET_GAME_STATE (KNOW_UMGAH_HOMEWORLD, 1);
+		SetHomeworldKnown (UMGAH_HOME);
 	}
 	else if (PLAYER_SAID (R, what_did_on_earth))
 	{
@@ -820,6 +816,7 @@ Intro (void)
 static COUNT
 uninit_arilou (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -861,6 +858,8 @@ init_arilou_comm (void)
 	arilou_desc.init_encounter_func = Intro;
 	arilou_desc.post_encounter_func = post_arilou_enc;
 	arilou_desc.uninit_encounter_func = uninit_arilou;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	arilou_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	arilou_desc.AlienTextBaseline.y = 0;

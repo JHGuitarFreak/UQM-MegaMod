@@ -18,6 +18,11 @@ into place:
     cp Plugins/x86-ansi/INetC.dll /mingw32/share/nsis/Plugins/ansi/
     cp md5dll/ANSI/md5dll.dll /mingw32/share/nsis/Plugins/ansi/
 
+These most likely are also (or rather) needed in the unicode path:
+
+    cp Plugins/x86-ansi/INetC.dll /mingw32/share/nsis/Plugins/unicode/
+    cp md5dll/ANSI/md5dll.dll /mingw32/share/nsis/Plugins/unicode/
+
 If this is a new release of UQM, and content packs have not already been
 regenerated, consult INSTALL.pkgs for the steps to update it. These steps
 include updates to the "packages.nsh" file and the "uqm-installer.nsi" files,

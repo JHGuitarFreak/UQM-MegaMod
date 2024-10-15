@@ -22,12 +22,15 @@
 #include "races.h"
 #include "displist.h"
 #include "libs/compiler.h"
+#include "starmap.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-#define NAME_OFFSET 5
+#define NUM_RACE_LABELS  3
+#define NUM_CLASS_LABELS 2
+#define NAME_OFFSET (NUM_RACE_LABELS + NUM_CLASS_LABELS)
 #define NUM_CAPTAINS_NAMES 16
 
 #define PickCaptainName() (((COUNT)TFB_Random () \
@@ -57,6 +60,7 @@ extern COUNT CountEscortShips (RACE_ID race);
 extern BOOLEAN HaveEscortShip (RACE_ID race);
 extern COUNT EscortFeasibilityStudy (RACE_ID race);
 extern COUNT CheckAlliance (RACE_ID race);
+extern BOOLEAN RaceDead (RACE_ID race);
 extern COUNT RemoveSomeEscortShips (RACE_ID race, COUNT count);
 extern COUNT RemoveEscortShips (RACE_ID race);
 
@@ -64,6 +68,12 @@ extern RACE_DESC *load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData);
 extern void free_ship (RACE_DESC *RaceDescPtr, BOOLEAN FreeIconData,
 		BOOLEAN FreeBattleData);
 extern void loadGameCheats (void);
+// WarEraStrength to obtain the hard coded strength values formerly an array
+// SeedFleetLocaiton will move fleet X to location VISIT
+// SeedFleet does initial fleet placement
+extern COUNT WarEraStrength (SPECIES_ID SpeciesID);
+extern POINT SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit);
+extern void SeedFleet (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap);
 extern BOOLEAN legacySave;
 extern BYTE GTFO;
 

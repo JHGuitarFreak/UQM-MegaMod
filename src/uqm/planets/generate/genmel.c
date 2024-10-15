@@ -28,6 +28,8 @@
 #include "../../state.h"
 #include "libs/log.h"
 
+#include <ctype.h>
+
 
 static bool GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys);
@@ -64,7 +66,7 @@ const GenerateFunctions generateMelnormeFunctions = {
 static bool
 GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 {
-	if ((EXTENDED && !GET_GAME_STATE (KOHR_AH_FRENZY)) 
+	if ((EXTENDED && !GET_GAME_STATE (KOHR_AH_FRENZY))
 		|| !EXTENDED)
 	{
 		GLOBAL (BattleGroupRef) = GetMelnormeRef ();
@@ -85,45 +87,41 @@ GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 static bool
 GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	int jewelArray[] = { SAPPHIRE_WORLD, EMERALD_WORLD, RUBY_WORLD };
+	PLANET_DESC *pPlanet;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 3) + 3);
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME7_DEFINED)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 4) + 4);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED)
+	if (CurStarDescPtr->Index == MELNORME1_DEFINED)
 	{
-		solarSys->SunDesc[0].PlanetByte = 2;
-		solarSys->SunDesc[0].MoonByte = 0;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-	}
+		pSunDesc->PlanetByte = 2;
+		pSunDesc->MoonByte = 0;
 
-	if (EXTENDED && !PrimeSeed && CurStarDescPtr->Index == MELNORME1_DEFINED)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = jewelArray[RandomContext_Random(SysGenRNG) % 2];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random(SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
-	}
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED)
-	{
-		solarSys->SunDesc[0].PlanetByte = 3;
+		if (EXTENDED && pPlanet->NumPlanets < MAX_GEN_MOONS)
+			pPlanet->NumPlanets++;
 
 		if (!PrimeSeed)
 		{
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
-					RandomContext_Random (SysGenRNG) % LAST_LARGE_ROCKY_WORLD;
+			pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-			if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-			else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+			pPlanet->data_index = GenerateCrystalWorld ();
+		}
+
+	}
+
+	if (CurStarDescPtr->Index == MELNORME7_DEFINED)
+	{
+		pSunDesc->PlanetByte = 3;
+
+		if (!PrimeSeed)
+		{
+			pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+			pPlanet->data_index = GenerateWorlds (ALL_ROCKY);
 		}
 	}
 
@@ -131,36 +129,40 @@ GenerateMelnorme_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateMelnorme_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateMelnorme_generateMoons (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED
-		&& matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+		&& matchWorld (solarSys, planet, MATCH_PBYTE, MATCH_PLANET))
 	{
-		solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = PRECURSOR_STARBASE;
+		BYTE MoonByte = solarSys->SunDesc[0].MoonByte;
+
+		solarSys->MoonDesc[MoonByte].data_index = PRECURSOR_STARBASE;
 	}
 
 	return true;
 }
 
 static bool
-GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME1_DEFINED &&
-			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+			matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		/* Starbase */
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
-			CaptureStringTable (
-				LoadStringTable (PRECURSOR_BASE_STRTAB));
+				CaptureStringTable (
+					LoadStringTable (PRECURSOR_BASE_STRTAB));
 
 		DoDiscoveryReport (MenuSounds);
 
 		DestroyStringTable(ReleaseStringTable (
-			solarSys->SysInfo.PlanetInfo.DiscoveryString));
+				solarSys->SysInfo.PlanetInfo.DiscoveryString));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString = 0;
 		FreeLanderFont (&solarSys->SysInfo.PlanetInfo);
 
@@ -168,13 +170,13 @@ GenerateMelnorme_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 	}
 
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED &&
-			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
-			CaptureDrawable (LoadGraphic (STELE_MASK_PMAP_ANIM));
+				CaptureDrawable (LoadGraphic (STELE_MASK_PMAP_ANIM));
 		solarSys->SysInfo.PlanetInfo.DiscoveryString =
-			CaptureStringTable (LoadStringTable (STELE_STRTAB));
+				CaptureStringTable (LoadStringTable (STELE_STRTAB));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
@@ -187,20 +189,21 @@ GenerateMelnorme_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED
-			&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
 }
 
 static bool
-GenerateMelnorme_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
-		COUNT whichNode)
+GenerateMelnorme_pickupEnergy (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world, COUNT whichNode)
 {
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED &&
-			matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+			matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		assert (whichNode == 0);
 
@@ -214,43 +217,49 @@ GenerateMelnorme_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	return false;
 }
 
-static DWORD
-GetMelnormeRef (void)
+char *
+SelectMelnormeRefVar (void)
 {
 	switch (CurStarDescPtr->Index)
 	{
-		case MELNORME0_DEFINED: return GET_GAME_STATE (MELNORME0_GRPOFFS);
-		case MELNORME1_DEFINED: return GET_GAME_STATE (MELNORME1_GRPOFFS);
-		case MELNORME2_DEFINED: return GET_GAME_STATE (MELNORME2_GRPOFFS);
-		case MELNORME3_DEFINED: return GET_GAME_STATE (MELNORME3_GRPOFFS);
-		case MELNORME4_DEFINED: return GET_GAME_STATE (MELNORME4_GRPOFFS);
-		case MELNORME5_DEFINED: return GET_GAME_STATE (MELNORME5_GRPOFFS);
-		case MELNORME6_DEFINED: return GET_GAME_STATE (MELNORME6_GRPOFFS);
-		case MELNORME7_DEFINED: return GET_GAME_STATE (MELNORME7_GRPOFFS);
-		case MELNORME8_DEFINED: return GET_GAME_STATE (MELNORME8_GRPOFFS);
+		case MELNORME0_DEFINED: return "MELNORME0_GRPOFFS";
+		case MELNORME1_DEFINED: return "MELNORME1_GRPOFFS";
+		case MELNORME2_DEFINED: return "MELNORME2_GRPOFFS";
+		case MELNORME3_DEFINED: return "MELNORME3_GRPOFFS";
+		case MELNORME4_DEFINED: return "MELNORME4_GRPOFFS";
+		case MELNORME5_DEFINED: return "MELNORME5_GRPOFFS";
+		case MELNORME6_DEFINED: return "MELNORME6_GRPOFFS";
+		case MELNORME7_DEFINED: return "MELNORME7_GRPOFFS";
+		case MELNORME8_DEFINED: return "MELNORME8_GRPOFFS";
 		default:
-			log_add (log_Warning, "GetMelnormeRef(): reference unknown");
-			return 0;
+			return "0";
 	}
+}
+
+static DWORD
+GetMelnormeRef (void)
+{
+	char *RefVar = SelectMelnormeRefVar ();
+
+	if (isdigit (RefVar[0]))
+	{
+		log_add (log_Warning, "GetMelnormeRef(): reference unknown");
+		return 0;
+	}
+
+	return D_GET_GAME_STATE (RefVar);
 }
 
 static void
 SetMelnormeRef (DWORD Ref)
 {
-	switch (CurStarDescPtr->Index)
-	{
-		case MELNORME0_DEFINED: SET_GAME_STATE (MELNORME0_GRPOFFS, Ref); break;
-		case MELNORME1_DEFINED: SET_GAME_STATE (MELNORME1_GRPOFFS, Ref); break;
-		case MELNORME2_DEFINED: SET_GAME_STATE (MELNORME2_GRPOFFS, Ref); break;
-		case MELNORME3_DEFINED: SET_GAME_STATE (MELNORME3_GRPOFFS, Ref); break;
-		case MELNORME4_DEFINED: SET_GAME_STATE (MELNORME4_GRPOFFS, Ref); break;
-		case MELNORME5_DEFINED: SET_GAME_STATE (MELNORME5_GRPOFFS, Ref); break;
-		case MELNORME6_DEFINED: SET_GAME_STATE (MELNORME6_GRPOFFS, Ref); break;
-		case MELNORME7_DEFINED: SET_GAME_STATE (MELNORME7_GRPOFFS, Ref); break;
-		case MELNORME8_DEFINED: SET_GAME_STATE (MELNORME8_GRPOFFS, Ref); break;
-		default:
-			log_add (log_Warning, "SetMelnormeRef(): reference unknown");
-			return;
-	}
-}
+	char *RefVar = SelectMelnormeRefVar ();
 
+	if (isdigit (RefVar[0]))
+	{
+		log_add (log_Warning, "SetMelnormeRef(): reference unknown");
+		return;
+	}
+
+	D_SET_GAME_STATE (RefVar, Ref);
+}

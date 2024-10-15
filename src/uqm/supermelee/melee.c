@@ -192,9 +192,43 @@ enum
 #define MELEE_STATUS_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02)
 
+#define BUTTON_LABEL_COLOR \
+		BUILD_SHADE_RGBA (0x8A)
+#define BUTTON_LABEL_HILITE \
+		BUILD_COLOR_RGBA (0xF8, 0xE0, 0x00, 0xFF)
+
+#define BATTLE_TRACE_COLOR \
+		BUILD_COLOR_RGBA (0x1F, 0x00, 0x1F, 0xFF)
+#define BATTLE_TRACE_HL_COLOR \
+		BUILD_COLOR_RGBA (0x3E, 0x00, 0x3E, 0xFF)
+
+#define CONTROL_BOX_COLOR \
+		BUILD_COLOR_RGBA (0x02, 0x04, 0x3E, 0xFF)
+#define CONTROL_BOX_HL_COLOR \
+		BUILD_COLOR_RGBA (0x04, 0x08, 0x7C, 0xFF)
+#define CONTROL_TEXT_COLOR \
+		BUILD_COLOR_RGBA (0x23, 0x8C, 0xD2, 0xFF)
+#define CONTROL_TEXT_HL_COLOR \
+		BUILD_COLOR_RGBA (0x28, 0xA0, 0xF0, 0xFF)
+#define CONTROL_TEXT_TRACE_COLOR \
+		BUILD_COLOR_RGBA (0x28, 0x28, 0x7C, 0xFF)
+#define CONTROL_TEXT_TRACE_HL_COLOR \
+		BUILD_COLOR_RGBA (0x3C, 0x3C, 0xBA, 0xFF)
+
+#define SHIP_PICK_TEXT_SHADED_COLOR \
+		BUILD_SHADE_RGBA (0x45)
+#define SHIP_PICK_TEXT_COLOR \
+		BUILD_SHADE_RGBA (0x74)
+
+#define TEAM_PICK_TEXT_COLOR \
+		BUILD_COLOR_RGB (0x32, 0x32, 0x9B)
+
+
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
 MELEE_STATE *pMeleeState;
+FONT MicroThinFont;
+FONT ButtonFont;
 
 BOOLEAN DoMelee (MELEE_STATE *pMS);
 static BOOLEAN DoEdit (MELEE_STATE *pMS);
@@ -214,17 +248,457 @@ static void Melee_UpdateView_ship (MELEE_STATE *pMS, COUNT side,
 		FleetShipIndex index);
 static void Melee_UpdateView_teamName (MELEE_STATE *pMS, COUNT side);
 
+static int
+ButtonText (COUNT which_icon)
+{
+	switch (which_icon)
+	{
+		case HUMAN_CON_TOP:
+		case HUMAN_CON_TOP_HL:
+		case HUMAN_CON_BOTT:
+		case HUMAN_CON_BOTT_HL:
+			return 10; // "HUMAN CONTROL"
+		case WEAK_CYBORG_TOP:
+		case WEAK_CYBORG_TOP_HL:
+		case WEAK_CYBORG_BOTT:
+		case WEAK_CYBORG_BOTT_HL:
+			return 11; // "WEAK CYBORG"
+		case GOOD_CYBORG_TOP:
+		case GOOD_CYBORG_TOP_HL:
+		case GOOD_CYBORG_BOTT:
+		case GOOD_CYBORG_BOTT_HL:
+			return 12; // "GOOD CYBORG"
+		case AWES_CYBORG_TOP:
+		case AWES_CYBORG_TOP_HL:
+		case AWES_CYBORG_BOTT:
+		case AWES_CYBORG_BOTT_HL:
+			return 13; // "AWESOME CYBORG"
+		case LOAD_BUTTON_TOP:
+		case LOAD_BUTTON_TOP_HL:
+		case LOAD_BUTTON_BOTT:
+		case LOAD_BUTTON_BOTT_HL:
+			return 14; // "LOAD"
+		case SAVE_BUTTON_TOP:
+		case SAVE_BUTTON_TOP_HL:
+		case SAVE_BUTTON_BOTT:
+		case SAVE_BUTTON_BOTT_HL:
+			return 15; // "SAVE"
+		case BATTLE_BUTTON:
+		case BATTLE_BUTTON_HL:
+			return 16; // "BATTLE!"
+		case QUIT_BUTTON:
+		case QUIT_BUTTON_HL:
+			return 17; // "QUIT"
+		case NETWORK_CON_TOP:
+		case NETWORK_CON_TOP_HL:
+		case NETWORK_CON_BOTT:
+		case NETWORK_CON_BOTT_HL:
+			return 18; // "NETWORK CONTROL"
+		case NET_BUTTON_TOP:
+		case NET_BUTTON_TOP_HL:
+		case NET_BUTTON_BOTT:
+		case NET_BUTTON_BOTT_HL:
+			return 19; // "NET..."
+		default:
+			return 0;
+	}
+}
+
+static void
+DrawControlText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+{
+	RECT r;
+	TEXT t;
+	FONT OldFont;
+	SIZE leading;
+	UNICODE buf[256];
+
+	if (!ButtonText (which_icon))
+		return;
+
+	OldFont = SetContextFont (MicroThinFont);
+
+	GetFrameRect (stamp.frame, &r);
+
+	GetContextFontLeading (&leading);
+
+	utf8StringCopy ((char *)buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
+
+	t.align = ALIGN_CENTER;
+	t.pStr = strtok (buf, " ");
+	t.CharCount = (COUNT)~0;
+
+	t.baseline.x = r.corner.x + (r.extent.width >> 1);
+	t.baseline.y = r.corner.y + leading + RES_SCALE (4);
+
+	while (t.pStr != NULL)
+	{
+		t.pStr = AlignText ((const UNICODE *)t.pStr, &t.baseline.x);
+		t.CharCount = (COUNT)~0;
+
+		font_DrawTracedText (&t,
+				HiLite ? CONTROL_TEXT_HL_COLOR : CONTROL_TEXT_COLOR,
+				HiLite ? CONTROL_TEXT_TRACE_HL_COLOR
+					: CONTROL_TEXT_TRACE_COLOR);
+
+		t.pStr = strtok (NULL, " ");
+		t.CharCount = (COUNT)~0;
+		t.baseline.y += leading;
+	}
+
+	SetContextFont (OldFont);
+}
+
+static void
+DrawBattleText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+{
+	RECT r;
+	TEXT t;
+	FONT OldFont;
+	FRAME OldFontEffect;
+	SIZE leading;
+	UNICODE buf[256];
+
+	if (!ButtonText (which_icon))
+		return;
+
+	OldFont = SetContextFont (LabelFont);
+
+	GetFrameRect (stamp.frame, &r);
+
+	GetContextFontLeading (&leading);
+
+	utf8StringCopy ((char *)buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
+
+	t.baseline.x = r.corner.x + (r.extent.width >> 1);
+	t.baseline.y = r.corner.y + r.extent.height
+			- RES_SCALE (RES_DESCALE (leading) >> 1) - RES_SCALE (1);
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = AlignText ((const UNICODE *)buf, &t.baseline.x);
+
+	font_DrawTracedText (&t, TRANSPARENT,
+			HiLite ? BATTLE_TRACE_HL_COLOR : BATTLE_TRACE_COLOR);
+
+	OldFontEffect = SetContextFontEffect (
+			SetAbsFrameIndex (FontGradFrame, 8 + HiLite));
+
+	font_DrawText (&t);
+
+	SetContextFontEffect (OldFontEffect);
+
+	SetContextFont (OldFont);
+}
+
+static void
+DrawButtonText (STAMP stamp, COUNT which_icon, BOOLEAN HiLite)
+{
+	RECT r;
+	TEXT t;
+	FONT OldFont;
+	Color OldColor;
+	UNICODE buf[256];
+
+	if (!ButtonText (which_icon))
+		return;
+
+	OldFont = SetContextFont (ButtonFont);
+	OldColor = SetContextForeGroundColor (
+			HiLite ? BUTTON_LABEL_HILITE : BUTTON_LABEL_COLOR);
+
+	GetFrameRect (stamp.frame, &r);
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + ButtonText (which_icon)));
+
+	t.baseline.x = r.corner.x + (r.extent.width >> 1);
+	t.baseline.y = r.corner.y;
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+	t.pStr = AlignText ((const UNICODE *)buf, &t.baseline.x);
+
+	font_DrawText (&t);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+static void
+DrawVerticalText (UNICODE *str, POINT point)
+{
+	TEXT t;
+	COUNT i;
+	SIZE leading;
+	size_t str_len;
+	UNICODE buf[256];
+	Color OldColor;
+
+	GetContextFontLeading (&leading);
+	
+	t.baseline = point;
+
+	utf8StringCopy (buf, sizeof (buf),
+			AlignText ((const UNICODE *)AddPadd (
+					(const UNICODE *)str, &leading), &t.baseline.x));
+
+	str_len = strlen (buf);
+
+	t.align = ALIGN_CENTER;
+	t.CharCount = 1;
+	t.pStr = buf;
+
+	OldColor = GetContextForeGroundColor ();
+
+	for (i = 0; i < str_len; i++)
+	{
+		SetContextForeGroundColor (SHIP_PICK_TEXT_SHADED_COLOR);
+		t.baseline.x -= RES_SCALE (1);
+		font_DrawText (&t);
+
+		SetContextForeGroundColor (SHIP_PICK_TEXT_COLOR);
+		t.baseline.x += RES_SCALE (1);
+		font_DrawText (&t);
+
+		t.pStr = skipUTF8Chars (t.pStr, 1);
+		t.baseline.y += leading;
+	}
+
+	SetContextForeGroundColor (OldColor);
+}
+
+#define SP_X_PADDING RES_SCALE (2)
+#define SP_Y_PADDING RES_SCALE (3)
+
+void
+DrawShipPickerText (STAMP stamp)
+{
+	RECT r;
+	FONT OldFont;
+	COUNT i;
+	STAMP s;
+	POINT pt;
+
+	for (i = 0; i < 2; i++)
+	{	// Check if we actually have text to print
+		if (!strlen (GAME_STRING (MELEE_STRING_BASE + 23 + i)))
+			return;
+	}
+
+	OldFont = SetContextFont (LabelFont);
+
+	GetFrameRect (stamp.frame, &r);
+
+	pt.x = r.corner.x + SP_X_PADDING;
+	pt.y = r.corner.y + SP_Y_PADDING;
+
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			CONFIRM_PC + (optControllerType * 4));
+	s.origin = pt;
+
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+
+	pt.x = s.origin.x + (r.extent.width >> 1);
+	pt.y = s.origin.y + r.extent.height + RES_SCALE (9);
+
+	DrawVerticalText (GAME_STRING (MELEE_STRING_BASE + 23), pt);
+
+	GetFrameRect (stamp.frame, &r);
+
+	pt.x = r.corner.x + r.extent.width - SP_X_PADDING;
+	pt.y = r.corner.y + SP_Y_PADDING;
+
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			SPECIAL_PC + (optControllerType * 4));
+
+	GetFrameRect (s.frame, &r);
+	pt.x -= r.extent.width;
+	s.origin = pt;
+
+	DrawStamp (&s);
+
+	pt.x = s.origin.x + (r.extent.width >> 1);
+	pt.y = s.origin.y + r.extent.height + RES_SCALE (9);
+
+	DrawVerticalText (GAME_STRING (MELEE_STRING_BASE + 24), pt);
+
+	SetContextFont (OldFont);
+}
+
+#define TP_PADDING RES_SCALE (3)
+
+static void
+DrawTeamPickerText (STAMP stamp)
+{
+	RECT r, text_r;
+	POINT pt;
+	TEXT t;
+	FONT OldFont;
+	Color OldColor;
+	UNICODE buf[256];
+	STAMP s;
+	COUNT i;
+	SIZE leading;
+
+	for (i = 0; i < 3; i++)
+	{	// Check if we actually have text to print
+		utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + 20 + i));
+
+		if (!strlen (buf))
+			return;
+	}
+
+	OldFont = SetContextFont (LabelFont);
+	OldColor = SetContextForeGroundColor (TEAM_PICK_TEXT_COLOR);
+
+	GetFrameRect (stamp.frame, &r);
+	GetContextFontLeading (&leading);
+
+	pt.x = r.corner.x + TP_PADDING;
+	pt.y = r.corner.y + r.extent.height - TP_PADDING;
+
+	s.frame = SetAbsFrameIndex (MeleeFrame,
+			CONFIRM_PC + (optControllerType * 4));
+
+	GetFrameRect (s.frame, &r);
+	pt.y -= r.extent.height;
+	s.origin = pt;
+
+	DrawStamp (&s);
+
+	utf8StringCopy (buf, sizeof (buf),
+			GAME_STRING (MELEE_STRING_BASE + 20));
+
+	t.baseline.x = r.extent.width + pt.x + TP_PADDING;
+	t.baseline.y = pt.y + leading - RES_SCALE (1);
+
+	t.align = ALIGN_LEFT;
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+
+	for (i = 0; i < 3; ++i)
+	{
+		font_DrawText (&t);
+		text_r = font_GetTextRect (&t);
+
+		if (i == 2)
+			break;
+
+		s.frame = SetAbsFrameIndex (MeleeFrame,
+				CANCEL_PC + i + (optControllerType * 4));
+		s.origin.x = text_r.extent.width + t.baseline.x + TP_PADDING
+				+ RES_SCALE (1);
+		DrawStamp (&s);
+
+		utf8StringCopy (buf, sizeof (buf),
+				GAME_STRING (MELEE_STRING_BASE + 21 + i));
+		t.baseline.x = s.origin.x + r.extent.width + TP_PADDING;
+		t.CharCount = (COUNT)~0;
+	}
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+static int
+WhichText (COUNT which_icon)
+{
+	switch (which_icon)
+	{
+		case HUMAN_CON_TOP:
+		case HUMAN_CON_TOP_HL:
+		case HUMAN_CON_BOTT:
+		case HUMAN_CON_BOTT_HL:
+		case WEAK_CYBORG_TOP:
+		case WEAK_CYBORG_TOP_HL:
+		case WEAK_CYBORG_BOTT:
+		case WEAK_CYBORG_BOTT_HL:
+		case GOOD_CYBORG_TOP:
+		case GOOD_CYBORG_TOP_HL:
+		case GOOD_CYBORG_BOTT:
+		case GOOD_CYBORG_BOTT_HL:
+		case AWES_CYBORG_TOP:
+		case AWES_CYBORG_TOP_HL:
+		case AWES_CYBORG_BOTT:
+		case AWES_CYBORG_BOTT_HL:
+		case NETWORK_CON_TOP:
+		case NETWORK_CON_TOP_HL:
+		case NETWORK_CON_BOTT:
+		case NETWORK_CON_BOTT_HL:
+			return 1;
+		case LOAD_BUTTON_TOP:
+		case LOAD_BUTTON_TOP_HL:
+		case LOAD_BUTTON_BOTT:
+		case LOAD_BUTTON_BOTT_HL:
+		case SAVE_BUTTON_TOP:
+		case SAVE_BUTTON_TOP_HL:
+		case SAVE_BUTTON_BOTT:
+		case SAVE_BUTTON_BOTT_HL:
+		case QUIT_BUTTON:
+		case QUIT_BUTTON_HL:
+		case NET_BUTTON_TOP:
+		case NET_BUTTON_TOP_HL:
+		case NET_BUTTON_BOTT:
+		case NET_BUTTON_BOTT_HL:
+			return 3;
+		case BATTLE_BUTTON:
+		case BATTLE_BUTTON_HL:
+			return 2;
+		case TEAM_PICK_KB:
+		case TEAM_PICK_XB:
+		case TEAM_PICK_PS:
+			return 4;
+		default:
+			return 0;
+	}
+}
 
 // These icons come from ui/meleemenu.ani
 void
-DrawMeleeIcon (COUNT which_icon)
+DrawMeleeIcon (COUNT which_icon, BOOLEAN HiLite)
 {
 	STAMP s;
+	int which_text = WhichText (which_icon);
+	BOOLEAN NeedBatch = which_text && which_text < 3;
+
+	if (NeedBatch)
+		BatchGraphics ();
 
 	s.origin.x = 0;
 	s.origin.y = 0;
 	s.frame = SetAbsFrameIndex (MeleeFrame, which_icon);
 	DrawStamp (&s);
+
+	if (!which_text)
+		return;
+
+	switch (which_text)
+	{
+		case 1:
+			DrawControlText (s, which_icon, HiLite);
+			break;
+		case 2:
+			DrawBattleText (s, which_icon, HiLite);
+			break;
+		case 3:
+			DrawButtonText (s, which_icon, HiLite);
+			break;
+		case 4:
+			DrawTeamPickerText (s);
+			break;
+		default:
+			// should not happen
+			break;
+	}
+
+	if (NeedBatch)
+		UnbatchGraphics ();
 }
 
 static FleetShipIndex
@@ -274,7 +748,7 @@ DrawShipBox (COUNT side, FleetShipIndex index, MeleeShip ship, BOOLEAN HiLite)
 	if (IS_HD)
 	{	// Draw prerendered rectangles in HD
 		STAMP s;
-#define HD_SHIPBOX_START_INDEX 44
+#define HD_SHIPBOX_START_INDEX (GetFrameCount (MeleeFrame) - 4)
 
 		s.origin = r.corner;
 		s.frame = SetAbsFrameIndex (MeleeFrame, HD_SHIPBOX_START_INDEX 
@@ -336,7 +810,7 @@ DrawControls (COUNT which_side, BOOLEAN HiLite)
 
 	if (PlayerControl[which_side] & NETWORK_CONTROL)
 	{
-		DrawMeleeIcon (35 + (HiLite ? 1 : 0) + 2 * (1 - which_side));
+		DrawMeleeIcon (35 + (HiLite ? 1 : 0) + 2 * (1 - which_side), HiLite);
 				/* "Network Control" */
 		return;
 	}
@@ -364,7 +838,7 @@ DrawControls (COUNT which_side, BOOLEAN HiLite)
 		}
 	}
 
-	DrawMeleeIcon (1 + (8 * (1 - which_side)) + (HiLite ? 4 : 0) + which_icon);
+	DrawMeleeIcon (1 + (8 * (1 - which_side)) + (HiLite ? 4 : 0) + which_icon, HiLite);
 }
 
 static void
@@ -416,11 +890,38 @@ QuickRepair (COUNT whichFrame, RECT *pRect)
 		oldOrigin =
 				SetContextOrigin (MAKE_POINT (-r.corner.x, -r.corner.y));
 
-	DrawMeleeIcon (whichFrame);
+	DrawMeleeIcon (whichFrame, FALSE);
 
 	SetContextOrigin (oldOrigin);
 	SetContextClipRect (&OldRect);
 	SetContext (OldContext);
+}
+
+static void
+DrawSuperMeleeTitle (void)
+{
+	TEXT t;
+	FONT OldFont;
+	FRAME OldFontEffect;
+	UNICODE *buf = GAME_STRING (MELEE_STRING_BASE + 9);
+
+	if (strlen (buf) == 0)
+		return;
+
+	OldFont = SetContextFont (LoadFont (MELEE_TITLE_FONT));
+	OldFontEffect = SetContextFontEffect (
+			SetAbsFrameIndex (FontGradFrame, 7));
+
+	t.baseline.x = (SCREEN_WIDTH >> 1) - (SAFE_NEG (1));
+	t.baseline.y = RES_SCALE (4);
+	t.align = ALIGN_CENTER;
+	t.pStr = AlignText ((const UNICODE *)buf, &t.baseline.x);
+	t.CharCount = (COUNT)~0;
+
+	font_DrawText (&t);
+
+	SetContextFont (OldFont);
+	SetContextFontEffect (OldFontEffect);
 }
 
 void
@@ -448,14 +949,29 @@ RepairMeleeFrame (const RECT *pRect)
 			-r.corner.y + SAFE_Y));
 	BatchGraphics ();
 
-	DrawMeleeIcon (0);   /* Entire melee screen */
-#ifdef NETPLAY
-	DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
-	//DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
-#endif
-	DrawMeleeIcon (26);  /* "Battle!" (highlighted) */
+	DrawMeleeIcon (MELEE_BACKGROUND, FALSE); // Entire melee background
 
 	DrawTeams ();
+
+	if (pRect->corner.x == 0 && pRect->corner.y == 0
+			&& pRect->extent.width == SCREEN_WIDTH
+			&& pRect->extent.height == SCREEN_HEIGHT)
+	{	// Only draw these on a full screen redraw
+
+		DrawSuperMeleeTitle ();
+
+		DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);
+		DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);
+		DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE);
+		DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE);
+		DrawMeleeIcon (QUIT_BUTTON, FALSE);
+
+#ifdef NETPLAY
+		DrawMeleeIcon (NET_BUTTON_TOP, FALSE);
+		//DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);
+#endif
+		DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);
+	}
 
 	if (pMeleeState->MeleeOption == BUILD_PICK)
 		DrawPickFrame (pMeleeState);
@@ -808,30 +1324,38 @@ Deselect (BYTE opt)
 	switch (opt)
 	{
 		case START_MELEE:
-			DrawMeleeIcon (25);  /* "Battle!" (not highlighted) */
+			DrawMeleeIcon (BATTLE_BUTTON, FALSE);
+				// "Battle!" (not highlighted)
 			break;
 		case LOAD_TOP:
-			DrawMeleeIcon (17); /* "Load" (top, not highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_TOP, FALSE);
+				// "Load" (top, not highlighted)
 			break;
 		case LOAD_BOT:
-			DrawMeleeIcon (22); /* "Load" (bottom, not highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_BOTT, FALSE);
+				// "Load" (bottom, not highlighted)
 			break;
 		case SAVE_TOP:
-			DrawMeleeIcon (18);  /* "Save" (top, not highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_TOP, FALSE);
+				// "Save" (top, not highlighted)
 			break;
 		case SAVE_BOT:
-			DrawMeleeIcon (21);  /* "Save" (bottom, not highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_BOTT, FALSE);
+				// "Save" (bottom, not highlighted)
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-			DrawMeleeIcon (39);  /* "Net..." (top, not highlighted) */
+			DrawMeleeIcon (NET_BUTTON_TOP, FALSE);
+				// "Net..." (top, not highlighted)
 			break;
 		//case NET_BOT:
-		//	DrawMeleeIcon (41);  /* "Net..." (bottom, not highlighted) */
+		//	DrawMeleeIcon (NET_BUTTON_BOTT, FALSE);
+		//		// "Net..." (bottom, not highlighted)
 		//	break;
 #endif
 		case QUIT_BOT:
-			DrawMeleeIcon (33);  /* "Quit" (not highlighted) */
+			DrawMeleeIcon (QUIT_BUTTON, FALSE);
+				// "Quit" (not highlighted)
 			break;
 		case CONTROLS_TOP:
 		case CONTROLS_BOT:
@@ -873,30 +1397,38 @@ Select (BYTE opt)
 	switch (opt)
 	{
 		case START_MELEE:
-			DrawMeleeIcon (26);  /* "Battle!" (highlighted) */
+			DrawMeleeIcon (BATTLE_BUTTON_HL, TRUE);
+				/* "Battle!" (highlighted) */
 			break;
 		case LOAD_TOP:
-			DrawMeleeIcon (19); /* "Load" (top, highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_TOP_HL, TRUE);
+				/* "Load" (top, highlighted) */
 			break;
 		case LOAD_BOT:
-			DrawMeleeIcon (24); /* "Load" (bottom, highlighted) */
+			DrawMeleeIcon (LOAD_BUTTON_BOTT_HL, TRUE);
+				/* "Load" (bottom, highlighted) */
 			break;
 		case SAVE_TOP:
-			DrawMeleeIcon (20);  /* "Save" (top; highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_TOP_HL, TRUE);
+				/* "Save" (top; highlighted) */
 			break;
 		case SAVE_BOT:
-			DrawMeleeIcon (23);  /* "Save" (bottom; highlighted) */
+			DrawMeleeIcon (SAVE_BUTTON_BOTT_HL, TRUE);
+				/* "Save" (bottom; highlighted) */
 			break;
 #ifdef NETPLAY
 		case NET_TOP:
-			DrawMeleeIcon (40);  /* "Net..." (top; highlighted) */
+			DrawMeleeIcon (NET_BUTTON_TOP_HL, TRUE);
+				/* "Net..." (top; highlighted) */
 			break;
 		//case NET_BOT:
-		//	DrawMeleeIcon (42);  /* "Net..." (bottom; highlighted) */
+		//	DrawMeleeIcon (NET_BUTTON_BOTT_HL, TRUE);
+		//		/* "Net..." (bottom; highlighted) */
 		//	break;
 #endif
 		case QUIT_BOT:
-			DrawMeleeIcon (34);  /* "Quit" (highlighted) */
+			DrawMeleeIcon (QUIT_BUTTON_HL, TRUE);
+				/* "Quit" (highlighted) */
 			break;
 		case CONTROLS_TOP:
 		case CONTROLS_BOT:
@@ -1529,6 +2061,10 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 	BuildPickMeleeFrame ();
 	MeleeFrame = CaptureDrawable (LoadGraphic (MELEE_SCREEN_PMAP_ANIM));
 	BuildBuildPickFrame ();
+	MicroThinFont = LoadFont (MICRO_THIN_FONT);
+	ButtonFont = LoadFont (BUTTON_FONT);
+	FontGradFrame = CaptureDrawable (
+			LoadGraphic (FONTGRAD_PMAP_ANIM));
 
 	InitSpace ();
 
@@ -1554,6 +2090,10 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	MeleeFrame = 0;
 
 	DestroyBuildPickFrame ();
+	DestroyFont (MicroThinFont);
+	DestroyFont (ButtonFont);
+	DestroyDrawable (ReleaseDrawable (FontGradFrame));
+	FontGradFrame = 0;
 
 #ifdef NETPLAY
 	closeAllConnections ();
@@ -1599,7 +2139,7 @@ StartMelee (MELEE_STATE *pMS)
 		WaitForSoundEnd (TFBSOUND_WAIT_ALL);
 
 		load_gravity_well ((BYTE)((COUNT)TFB_Random () %
-					NUMBER_OF_PLANET_TYPES));
+				NUMBER_OF_PLANET_TYPES));
 		Battle (NULL);
 		free_gravity_well ();
 		ClearPlayerInputAll ();

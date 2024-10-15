@@ -127,7 +127,7 @@ print_mp_array (const MUSIC_POSITION mp_array[], const COUNT num_items)
 {
 	COUNT i;
 
-	system ("cls");
+	//system ("cls");
 	printf ("--------------------\n\n");
 	for (i = num_items; i > 0; --i)
 	{

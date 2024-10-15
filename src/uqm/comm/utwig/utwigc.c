@@ -232,8 +232,7 @@ ExitConversation (RESPONSE_REF R)
 
 			SET_GAME_STATE (REFUSED_ULTRON_AT_BOMB, 1);
 
-			if (!GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD))
-				SET_GAME_STATE (KNOW_UTWIG_HOMEWORLD, 1);
+			SetHomeworldKnown (UTWIG_HOME);
 		}
 		else
 		{
@@ -541,8 +540,7 @@ NeutralUtwig (RESPONSE_REF R)
 		NPCPhrase (ABOUT_US_3);
 		
 		SET_GAME_STATE (UTWIG_WAR_NEWS, 3);
-		if (!GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD))
-			SET_GAME_STATE (KNOW_SUPOX_HOMEWORLD, 1);
+		SetHomeworldKnown (SUPOX_HOME);
 	}
 	else if (PLAYER_SAID (R, what_about_urquan_1))
 	{

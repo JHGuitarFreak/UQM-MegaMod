@@ -707,9 +707,8 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 		SetElementStarShip (IPSHIPElementPtr, GroupPtr);
 
 		SetUpElement (IPSHIPElementPtr);
-		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame =
-				(IS_HD ? SetAbsFrameIndex (SpaceJunkFrame, 24) :
-					DecFrameIndex (stars_in_space));
+		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame = 
+				DecFrameIndex (stars_in_space);
 		
 		UnlockElement (hIPSHIPElement);
 
@@ -816,7 +815,8 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 
 static void
 AdjustInitialPosition (void)
-{
+{// Corrects SIS position - rounding error, described in 
+ // EnterPlanetOrbit() in solarsys.c
 	BYTE flagship_loc;
 	SIZE radius;
 	POINT pt;

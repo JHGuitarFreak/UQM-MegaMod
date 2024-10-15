@@ -123,12 +123,13 @@ TFB_Prim_Line (LINE *line, Color color, DrawMode mode, POINT ctxOrigin,
 }
 
 void
-TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin)
+TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin, BOOLEAN unscaled)
 {
 	int x, y;
 	FRAME SrcFramePtr;
 	TFB_Image *img;
 	TFB_ColorMap *cmap = NULL;
+	int scaleMode;
 
 	SrcFramePtr = stmp->frame;
 	if (!SrcFramePtr)
@@ -160,24 +161,30 @@ TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin)
 
 	UnlockMutex (img->mutex);
 
+	if (unscaled)
+		scaleMode = GSCALE_IDENTITY;
+	else
+		scaleMode = GetGraphicScale ();
+
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 	{
-		TFB_DrawScreen_Image (img, x, y, GetGraphicScale (),
+		TFB_DrawScreen_Image (img, x, y, scaleMode,
 				GetGraphicScaleMode (), cmap, mode, TFB_SCREEN_MAIN);
 	}
 	else
 	{
-		TFB_DrawImage_Image (img, x, y, GetGraphicScale (),
+		TFB_DrawImage_Image (img, x, y, scaleMode,
 				GetGraphicScaleMode (), cmap, mode, _CurFramePtr->image);
 	}
 }
 
 void
-TFB_Prim_StampFill (STAMP *stmp, Color color, DrawMode mode, POINT ctxOrigin)
+TFB_Prim_StampFill (STAMP *stmp, Color color, DrawMode mode, POINT ctxOrigin, BOOLEAN unscaled)
 {
 	int x, y;
 	FRAME SrcFramePtr;
 	TFB_Image *img;
+	int scaleMode;
 
 	SrcFramePtr = stmp->frame;
 	if (!SrcFramePtr)
@@ -203,14 +210,19 @@ TFB_Prim_StampFill (STAMP *stmp, Color color, DrawMode mode, POINT ctxOrigin)
 
 	UnlockMutex (img->mutex);
 
+	if (unscaled)
+		scaleMode = GSCALE_IDENTITY;
+	else
+		scaleMode = GetGraphicScale ();
+
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 	{
-		TFB_DrawScreen_FilledImage (img, x, y, GetGraphicScale (),
+		TFB_DrawScreen_FilledImage (img, x, y, scaleMode,
 				GetGraphicScaleMode (), color, mode, TFB_SCREEN_MAIN);
 	}
 	else
 	{
-		TFB_DrawImage_FilledImage (img, x, y, GetGraphicScale (),
+		TFB_DrawImage_FilledImage (img, x, y, scaleMode,
 				GetGraphicScaleMode (), color, mode, _CurFramePtr->image);
 	}
 }
@@ -238,3 +250,38 @@ TFB_Prim_FontChar (POINT charOrigin, TFB_Char *fontChar, TFB_Image *backing,
 }
 
 // Text rendering is in font.c, under the name _text_blt
+
+void
+TFB_Prim_MaskFrame (FRAME layer, FRAME base, DrawMode mode, Color *fill)
+{
+	TFB_Image *img;
+	TFB_Image *bas;
+
+	if (!base)
+	{
+		log_add (log_Warning, "TFB_Prim_MaskFrame: NULL frame passed");
+		return;
+	}
+
+	if (!layer)
+		img = NULL;
+	else
+	{
+		img = layer->image;
+		if (!img)
+		{
+			log_add (log_Warning, "Non-existent layer image to TFB_Prim_MaskFrame()");
+			return;
+		}
+	}
+	
+	bas = base->image;
+
+	if (!bas)
+	{
+		log_add(log_Warning, "Non-existent base image to TFB_Prim_MaskFrame()");
+		return;
+	}
+
+	TFB_DrawImage_MaskImage (img, mode, bas, fill);
+}

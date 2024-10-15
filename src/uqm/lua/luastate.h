@@ -26,6 +26,16 @@ extern "C" {
 
 extern lua_State *luaUqm_globalState;
 
+typedef struct delta_types
+{
+	int _int;
+	BOOLEAN _bool;
+	UNICODE *_str;
+	char _char;
+} DELTA_TYPES;
+
+extern DELTA_TYPES luaUqm_delta;
+
 void luaUqm_initState(void);
 void luaUqm_uninitState(void);
 void luaUqm_reinitState(void);

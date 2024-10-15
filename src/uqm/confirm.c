@@ -59,8 +59,17 @@ DrawConfirmationWindow (BOOLEAN answer)
 	}
 #endif
 	r.extent.height = CONFIRM_WIN_HEIGHT;
-	DrawShadowedBox (&r, ALT_SHADOWBOX_BACKGROUND_COLOR,
-			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
+	if (!IS_HD)
+	{
+		DrawShadowedBox (&r, ALT_SHADOWBOX_BACKGROUND_COLOR,
+				SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
+	}
+	else
+	{
+		DrawRenderedBox (&r, TRUE, ALT_SHADOWBOX_BACKGROUND_COLOR,
+				THICK_OUTER_BEVEL, FALSE);
+	}
+
 
 	t.baseline.x = r.corner.x + (r.extent.width >> 1);
 	t.baseline.y = r.corner.y + RES_SCALE (10);
@@ -133,14 +142,6 @@ DoConfirmExit (void)
 
 		FlushInput ();
 		done = FALSE;
-
-#if defined(ANDROID) || defined(__ANDROID__)
-		if (!(GLOBAL (CurrentActivity) & IN_BATTLE))
-		{	// Abort immediately
-			response = TRUE;
-			done = TRUE;
-		}
-#endif
 		
 		while (!done){
 			// Forbid recursive calls or pausing here!

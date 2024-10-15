@@ -22,6 +22,7 @@
 
 #include "uqm/lua/luacomm.h"
 #include "uqm/gameev.h"
+#include "uqm/build.h"
 
 
 static LOCDATA slylandro_desc =
@@ -892,6 +893,8 @@ Intro (void)
 				break;
 		}
 		SET_GAME_STATE (SLYLANDRO_HOME_VISITS, NumVisits);
+
+		SetHomeworldKnown (SLYLANDRO_HOME);
 	}
 
 	HomeWorld ((RESPONSE_REF)0);
