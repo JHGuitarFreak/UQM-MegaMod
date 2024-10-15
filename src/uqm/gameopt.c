@@ -1870,7 +1870,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		printf (saving ? "Saving -> " : "Loading -> ");
 		printf ("Slot: %d\n", MenuState.CurState);
 		printf ("Name: %s\n", pSD->SaveName);
-		printf ("Seed: %d\n", SeedA);
+		printf ("Seed Type: %s\n", SeedStr ());
+		printf ("Seed: %d\n", GLOBAL_SIS (Seed));
 		printf ("Difficulty: %s\n", DIF_STR (DIFFICULTY));
 		printf ("Extended: %s\n", BOOL_STR (EXTENDED));
 		printf ("Nomad: %s\n\n", NOMAD_STR (NOMAD));
@@ -1878,7 +1879,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		log_add (log_Info, saving ? "Saving > " : "Loading > ");
 		log_add (log_Info, "Name: %s\n", pSD->SaveName);
 		log_add (log_Info, "Slot: %d\n", MenuState.CurState);
-		log_add (log_Info, "Seed: %d\n", SeedA);
+		log_add (log_Info, "Seed Type: %s\n", SeedStr ());
+		log_add (log_Info, "Seed: %d\n", GLOBAL_SIS (Seed));
 		log_add (log_Info, "Difficulty: %s\n", DIF_STR (DIFFICULTY));
 		log_add (log_Info, "Extended: %s\n", BOOL_STR (EXTENDED));
 		log_add (log_Info, "Nomad: %s\n\n", NOMAD_STR (NOMAD));
