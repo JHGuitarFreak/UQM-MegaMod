@@ -61,6 +61,24 @@ struct RandomContext {
 #define PrimeSeed (optSeedType == OPTVAL_PRIME)
 #define StarSeed (optSeedType > OPTVAL_PLANET)
 
+inline UNICODE *
+SeedStr (void)
+{
+	switch (optSeedType)
+	{
+		case 0:
+			return "None";
+		case 1:
+			return "Planet";
+		case 2:
+			return "MRQ";
+		case 3:
+			return "StarSeed";
+		default:
+			return "???";
+	}
+}
+
 RandomContext *RandomContext_New (void);
 RandomContext *RandomContext_Set(DWORD Context);
 void RandomContext_Delete (RandomContext *context);
