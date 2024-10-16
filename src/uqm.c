@@ -171,7 +171,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  seedType);
 	DECL_CONFIG_OPTION(int,  customSeed);
 	DECL_CONFIG_OPTION(int,  sphereColors);
-	DECL_CONFIG_OPTION(bool, spaceMusic);
+	DECL_CONFIG_OPTION(int,  spaceMusic);
 	DECL_CONFIG_OPTION(bool, volasMusic);
 	DECL_CONFIG_OPTION(bool, wholeFuel);
 	DECL_CONFIG_OPTION(bool, directionalJoystick);
@@ -380,7 +380,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  seedType,          0 ),
 		INIT_CONFIG_OPTION(  customSeed,        PrimeA ),
 		INIT_CONFIG_OPTION(  sphereColors,      0 ),
-		INIT_CONFIG_OPTION(  spaceMusic,        false ),
+		INIT_CONFIG_OPTION(  spaceMusic,        0 ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -1060,7 +1060,10 @@ getUserConfigOptions (struct options_struct *options)
 	{
 		options->sphereColors.value = res_GetInteger ("mm.sphereColors");
 	}
-	getBoolConfigValue (&options->spaceMusic, "mm.spaceMusic");
+	if (res_IsInteger ("mm.spaceMusic") && !options->spaceMusic.set)
+	{
+		options->spaceMusic.value = res_GetInteger ("mm.spaceMusic");
+	}
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
@@ -1343,7 +1346,7 @@ static struct option longOptions[] =
 	{"seedtype", 0, NULL, SEEDTYPE_OPT},
 	{"customseed", 1, NULL, EXSEED_OPT},
 	{"spherecolors", 0, NULL, SPHERECOLORS_OPT},
-	{"spacemusic", 0, NULL, SPACEMUSIC_OPT},
+	{"spacemusic", 1, NULL, SPACEMUSIC_OPT},
 	{"wholefuel", 0, NULL, WHOLEFUEL_OPT},
 	{"dirjoystick", 0, NULL, DIRJOY_OPT},
 	{"landerhold", 0, NULL, LANDHOLD_OPT},
@@ -1883,8 +1886,27 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			}
 			case SPACEMUSIC_OPT:
-				setBoolOption (&options->spaceMusic, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp,
+						"Ambient Space Music") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nAmbient Space Music has to be "
+							"0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->spaceMusic.value = temp;
+					options->spaceMusic.set = true;
+				}
 				break;
+			}
 			case WHOLEFUEL_OPT:
 				setBoolOption (&options->wholeFuel, true);
 				break;
@@ -2460,9 +2482,9 @@ usage (FILE *out, const struct options_struct *defaults)
 			" (default: 16807)");
 	log_add (log_User, "  --spherecolors: 0: Default colors "
 			"| 1: StarSeed colors (default: 0)");
-	log_add (log_User, "  --spacemusic : Enables localized music for races"
-			" when you are in their sphere of influence (default: %s)",
-			boolOptString (&defaults->spaceMusic));
+	log_add (log_User, "  --spacemusic #: Enables localized music for "
+			"aliens when you are in their sphere of influence\n"
+			"0: Default (OFF) | 1: No Spoilers | 2: Spoilers");
 	log_add (log_User, "  --wholefuel : Enables the display of the whole "
 			"fuel value in the ship status (default: %s)",
 			boolOptString (&defaults->wholeFuel));

@@ -356,16 +356,18 @@ FoundHome:
 }
 
 void
-findRaceSOI(void)
+findRaceSOI (void)
 {
 	POINT universe = CurStarDescPtr->star_pt;
 	HFLEETINFO hFleet, hNextFleet;
 	BYTE Index;
 	BYTE i = 0;
-
 	BYTE RaceHasMusic[] = { RACE_MUSIC_BOOL };
 	BYTE HomeWorld[] = { HOMEWORLD_LOC };
-	BYTE speciesID[4] = { 0 };
+	BYTE WhichHomeWorld = NO_ID;
+#define MAX_OVERLAP 10
+	BYTE speciesID[MAX_OVERLAP] = { NO_ID };
+	COUNT radi[MAX_OVERLAP] = { 0 };
 
 	if (!SpaceMusicOK)
 	{
@@ -379,22 +381,27 @@ findRaceSOI(void)
 		return;
 	}
 
-	for (hFleet = GetHeadLink(&GLOBAL(avail_race_q)), Index = 0;
-		hFleet; hFleet = hNextFleet, ++Index)
+	for (hFleet = GetHeadLink (&GLOBAL (avail_race_q)), Index = 0;
+			hFleet; hFleet = hNextFleet, ++Index)
 	{
 		FLEET_INFO* FleetPtr;
 		BYTE race_enc = HomeWorld[Index];
 		BOOLEAN race_alive;
 
-		FleetPtr = LockFleetInfo(&GLOBAL(avail_race_q), hFleet);
+		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 		hNextFleet = _GetSuccLink(FleetPtr);
-		race_alive = (FleetPtr->actual_strength > 0 || race_enc == CHMMR_DEFINED
-			|| race_enc == SYREEN_DEFINED);
+		race_alive = (FleetPtr->actual_strength > 0
+				|| race_enc == CHMMR_DEFINED
+				|| race_enc == SYREEN_DEFINED);
 
 		if (race_enc && CurStarDescPtr->Index == race_enc && race_alive)
-		{	// Finds the race homeworld
-			spaceMusicBySOI = FleetPtr->SpeciesID;
-			return;
+		{	// Found a HomeWorld, set the species ID accordingly
+			if (optSpaceMusic == 2 || (optSpaceMusic == 1
+				&& CheckSphereTracking (FleetPtr->SpeciesID - 1)))
+			{	// If the No Spoilers option is enabled. Only add the
+				// species ID if their SOI is shown on the map.
+				WhichHomeWorld = FleetPtr->SpeciesID;
+			}
 		}
 
 		if (FleetPtr->actual_strength && RaceHasMusic[Index])
@@ -406,7 +413,10 @@ findRaceSOI(void)
 			if (FleetPtr->actual_strength == INFINITE_RADIUS)
 				encounter_radius = (MAX_X_UNIVERSE + 1) << 1;
 			else
-				encounter_radius = (FleetPtr->actual_strength * SPHERE_RADIUS_INCREMENT) >> 1;
+			{
+				encounter_radius = (FleetPtr->actual_strength
+						* SPHERE_RADIUS_INCREMENT) >> 1;
+			}
 
 			dx = universe.x - FleetPtr->loc.x;
 			if (dx < 0)
@@ -421,21 +431,56 @@ findRaceSOI(void)
 				&& (d_squared = (DWORD)dx * dx + (DWORD)dy * dy)
 				< (DWORD)encounter_radius * encounter_radius)
 			{	// Finds the race SOI
-				speciesID[++i] = FleetPtr->SpeciesID;
+				if (optSpaceMusic == 2 || (optSpaceMusic == 1
+						&& CheckSphereTracking (FleetPtr->SpeciesID - 1)))
+				{	// If the No Spoilers option is enabled. Only add the
+					// species ID if their SOI is shown on the map.
+					speciesID[++i] = FleetPtr->SpeciesID;
+					radi[i] = encounter_radius;
+				}
 			}
 		}
 	}
 
-	if (speciesID[1] > 0 && speciesID[2] > 0 && speciesID[3] > 0)
-		spaceMusicBySOI = speciesID[2];
-	else if (speciesID[1] > 0)
-		spaceMusicBySOI = speciesID[1];
-	else
+	if (WhichHomeWorld != NO_ID)
+	{	// HomeWorlds override all SOI findings
+		spaceMusicBySOI = WhichHomeWorld;
+		return;
+	}
+
+	if (speciesID[1] == NO_ID)
+	{	// We're not in a SOI so no species ID
 		spaceMusicBySOI = NO_ID;
+		return;
+	}
+
+	if (i > 1)
+	{
+		SIZE soiRadi = radi[1];
+		BYTE raceByte = 0;
+		BYTE j;
+
+		for (j = 1; j <= i; j++)
+		{	// Finding the smallest SOI we're currently occupying
+			if (radi[j] <= soiRadi)
+			{
+				soiRadi = radi[j];
+				raceByte = j;
+			}
+		}
+		// And setting the species ID to the smallest SOI found
+		spaceMusicBySOI = speciesID[raceByte];
+	}
+	else
+	{	// We're only in a single SOI, set the species ID to the SOI we're
+		// currently occupying
+		spaceMusicBySOI = speciesID[1];
+	}
 }
 
 static void
-FlushGroupInfo (GROUP_HEADER* pGH, DWORD offset, BYTE which_group, GAME_STATE_FILE *fp)
+FlushGroupInfo (GROUP_HEADER* pGH, DWORD offset, BYTE which_group,
+		GAME_STATE_FILE *fp)
 {
 	if (which_group == GROUP_LIST)
 	{

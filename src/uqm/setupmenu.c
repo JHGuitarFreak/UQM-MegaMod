@@ -2384,7 +2384,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&opt3doMusic, &opts->music3do, "config.3domusic", TRUE);
 	PutBoolOpt (&optRemixMusic, &opts->musicremix, "config.remixmusic", TRUE);
 	PutBoolOpt (&optVolasMusic, &opts->volasMusic, "mm.volasMusic", TRUE);
-	PutBoolOpt (&optSpaceMusic, &opts->spaceMusic, "mm.spaceMusic", TRUE);
+
+	PutIntOpt (&optSpaceMusic, &opts->spaceMusic, "mm.spaceMusic", TRUE);
 
 	if (PutBoolOpt (&optMainMenuMusic, &opts->mainMenuMusic, "mm.mainMenuMusic", FALSE))
 	{
