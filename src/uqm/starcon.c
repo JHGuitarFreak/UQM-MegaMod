@@ -327,7 +327,6 @@ while (--ac > 0)
 #endif
 		do
 		{
-
 			if (debugHook != NULL)
 			{
 				void (*saveDebugHook) (void);

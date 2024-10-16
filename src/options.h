@@ -77,7 +77,7 @@ extern int optSeedType;
 extern int optCustomSeed;
 extern int optSphereColors;
 extern int spaceMusicBySOI;
-extern OPT_ENABLABLE optSpaceMusic;
+extern int optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
 extern OPT_ENABLABLE optWholeFuel;
 extern OPT_ENABLABLE optDirectionalJoystick;

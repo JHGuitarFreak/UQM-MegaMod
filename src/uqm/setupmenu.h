@@ -158,6 +158,12 @@ typedef enum {
 	OPTVAL_STARSEED_COLORS
 } OPT_SPHERECOLORS;
 
+typedef enum {
+	OPTVAL_NO_SPACEMUSIC,
+	OPTVAL_SM_NO_SPOILERS,
+	OPTVAL_SM_SPOILERS
+} OPT_SPACEMUSIC;
+
 /* At the moment, CONTROL_TEMPLATE is directly in this structure.  If
  * CONTROL_TEMPLATE and the options available diverge, this will need
  * to change */
@@ -181,17 +187,18 @@ typedef struct globalopts_struct {
 	OPT_MUSICRESUME musicResume;
 	OPT_SEED seedType;
 	OPT_SPHERECOLORS sphereColors;
+	OPT_SPACEMUSIC spaceMusic;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
 			unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro,
 			infiniteFuel, partialPickup, submenu, addDevices, customBorder,
-			spaceMusic, volasMusic, directionalJoystick, wholeFuel,
-			extended, gameOver, shipDirectionIP, hazardColors,
-			orzCompFont, smartAutoPilot, nonStopOscill, hyperStars,
-			planetTexture, noHQEncounters, deCleansing, meleeObstacles,
-			showVisitedStars, unscaledStarSystem, slaughterMode,
-			advancedAutoPilot, meleeToolTips;
+			volasMusic, directionalJoystick, wholeFuel, extended, gameOver,
+			shipDirectionIP, hazardColors, orzCompFont, smartAutoPilot,
+			nonStopOscill, hyperStars, planetTexture, noHQEncounters,
+			deCleansing, meleeObstacles, showVisitedStars,
+			unscaledStarSystem, slaughterMode, advancedAutoPilot,
+			meleeToolTips;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;

@@ -90,7 +90,7 @@ int optSeedType;
 int optCustomSeed;
 int optSphereColors;
 int spaceMusicBySOI;
-OPT_ENABLABLE optSpaceMusic;
+int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
 OPT_ENABLABLE optDirectionalJoystick;
