@@ -2120,7 +2120,6 @@ spaceMusicSwitch (BYTE SpeciesID)
 static void
 playSpaceMusic (void)
 {
-
 	if (!SpaceMusic)
 	{
 		if (SpaceMusicOK)

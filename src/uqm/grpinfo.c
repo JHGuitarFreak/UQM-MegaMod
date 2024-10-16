@@ -361,13 +361,13 @@ findRaceSOI (void)
 	POINT universe = CurStarDescPtr->star_pt;
 	HFLEETINFO hFleet, hNextFleet;
 	BYTE Index;
-	BYTE i = 0;
+	BYTE i = 0, j;
 	BYTE RaceHasMusic[] = { RACE_MUSIC_BOOL };
 	BYTE HomeWorld[] = { HOMEWORLD_LOC };
 	BYTE WhichHomeWorld = NO_ID;
 #define MAX_OVERLAP 10
-	BYTE speciesID[MAX_OVERLAP] = { NO_ID };
-	COUNT radi[MAX_OVERLAP] = { 0 };
+	BYTE SpeciesArr[MAX_OVERLAP] = { NO_ID };
+	COUNT RadiusArr[MAX_OVERLAP] = { 0 };
 
 	if (!SpaceMusicOK)
 	{
@@ -385,23 +385,24 @@ findRaceSOI (void)
 			hFleet; hFleet = hNextFleet, ++Index)
 	{
 		FLEET_INFO* FleetPtr;
-		BYTE race_enc = HomeWorld[Index];
-		BOOLEAN race_alive;
+		SPECIES_ID SpeciesID;
+		RACE_ID RaceID;
 
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 		hNextFleet = _GetSuccLink(FleetPtr);
-		race_alive = (FleetPtr->actual_strength > 0
-				|| race_enc == CHMMR_DEFINED
-				|| race_enc == SYREEN_DEFINED);
+		SpeciesID = FleetPtr->SpeciesID;
+		RaceID = SpeciesID - 1;
 
-		if (race_enc && CurStarDescPtr->Index == race_enc && race_alive)
+		if (HomeWorld[Index] && CurStarDescPtr->Index == HomeWorld[Index]
+				&& !RaceDead (RaceID)
+				&& (optSpaceMusic == 2 || (optSpaceMusic == 1
+				&& (CheckSphereTracking (RaceID)
+				|| IsHomeworldKnown (SpeciesToHomeID (SpeciesID))))))
 		{	// Found a HomeWorld, set the species ID accordingly
-			if (optSpaceMusic == 2 || (optSpaceMusic == 1
-				&& CheckSphereTracking (FleetPtr->SpeciesID - 1)))
-			{	// If the No Spoilers option is enabled. Only add the
-				// species ID if their SOI is shown on the map.
-				WhichHomeWorld = FleetPtr->SpeciesID;
-			}
+			// If the No Spoilers option is enabled. Only add the
+			// species ID if their SOI is shown on the map or if
+			// their HomeWorld is known
+			WhichHomeWorld = SpeciesID;
 		}
 
 		if (FleetPtr->actual_strength && RaceHasMusic[Index])
@@ -432,11 +433,12 @@ findRaceSOI (void)
 				< (DWORD)encounter_radius * encounter_radius)
 			{	// Finds the race SOI
 				if (optSpaceMusic == 2 || (optSpaceMusic == 1
-						&& CheckSphereTracking (FleetPtr->SpeciesID - 1)))
+						&& CheckSphereTracking (RaceID)))
 				{	// If the No Spoilers option is enabled. Only add the
 					// species ID if their SOI is shown on the map.
-					speciesID[++i] = FleetPtr->SpeciesID;
-					radi[i] = encounter_radius;
+					SpeciesArr[i] = SpeciesID;
+					RadiusArr[i] = encounter_radius;
+					++i;
 				}
 			}
 		}
@@ -448,34 +450,13 @@ findRaceSOI (void)
 		return;
 	}
 
-	if (speciesID[1] == NO_ID)
-	{	// We're not in a SOI so no species ID
-		spaceMusicBySOI = NO_ID;
-		return;
+	Index = 0;
+	for (j = 1; j < i; j++)
+	{	// Finding the smallest SOI we're currently occupying
+		if (RadiusArr[j] < RadiusArr[Index])
+			Index = j;
 	}
-
-	if (i > 1)
-	{
-		SIZE soiRadi = radi[1];
-		BYTE raceByte = 0;
-		BYTE j;
-
-		for (j = 1; j <= i; j++)
-		{	// Finding the smallest SOI we're currently occupying
-			if (radi[j] <= soiRadi)
-			{
-				soiRadi = radi[j];
-				raceByte = j;
-			}
-		}
-		// And setting the species ID to the smallest SOI found
-		spaceMusicBySOI = speciesID[raceByte];
-	}
-	else
-	{	// We're only in a single SOI, set the species ID to the SOI we're
-		// currently occupying
-		spaceMusicBySOI = speciesID[1];
-	}
+	spaceMusicBySOI = SpeciesArr[Index];
 }
 
 static void
