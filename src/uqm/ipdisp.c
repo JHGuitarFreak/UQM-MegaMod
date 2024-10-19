@@ -225,10 +225,10 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		}
 		else if (group_loc == flagship_loc)
 		{
-			SWORD detect_dist = 0;
+			SWORD detect_dist = 1200;
 
 			if (EXTENDED && CheckAlliance (GroupPtr->race_id) == GOOD_GUY)
-				detect_dist = 1200;
+				detect_dist = 0;
 
 			if (group_loc != 0) /* if in planetary views */
 			{
