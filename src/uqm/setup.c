@@ -152,7 +152,6 @@ LoadKernel (int argc, char *argv[])
 	else if (loadAddon ("mm-hd"))
 	{
 		HDPackPresent = TRUE;
-		log_add (log_Debug, "loading HD addon pack");
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
 		if (optWindowType == 2)
@@ -168,16 +167,16 @@ LoadKernel (int argc, char *argv[])
 		loadAddon (DOS_MODE (IS_HD));
 
 	usingSpeech = optSpeech;
-	if (optSpeech && !loadAddon ("3dovoice"))
+	if (optSpeech && !loadAddon ("mm-3dovoice"))
 		usingSpeech = FALSE;
 	
 	if (usingSpeech)
 	{
-		loadAddon ("rmx-utwig");
+		loadAddon ("mm-rmx-utwig");
 		// Autoload support for Soul Reaver's dialog fixes
-		loadAddon ("MelnormeVoiceFix");
-		loadAddon ("distorted-hayes");
-		SyreenVoiceFix = loadAddon ("SyreenVoiceFix");
+		loadAddon ("mm-MelnormeVoiceFix");
+		loadAddon ("mm-distorted-hayes");
+		SyreenVoiceFix = loadAddon ("mm-SyreenVoiceFix");
 	}
 
 	if (opt3doMusic)
