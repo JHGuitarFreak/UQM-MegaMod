@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
+- The helper graphics for scanning and landing now show current cargo manifest for elements and biological data
+- Dropped support for autoloading vanilla voice content as it is no longer compatible
+- Preliminary support for only loading the current MegaMod base content pack in the content/packages directory (Alas this also means no more shadow content for those that used such a thing)
+- Split the ambient space music option to include a "No Spoilers" option that will only play a region's music if their Sphere of Influene is on the map
+- As part of the No Spoilers option, when the Sphere of Influence is not on the map, regional music will only play at a homeworld if you know about the homeworld
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
