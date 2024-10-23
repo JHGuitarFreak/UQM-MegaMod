@@ -962,7 +962,7 @@ PickPlanetSide (void)
 
 #define NUM_FLASH_COLORS 8
 
-static void
+void
 DrawScannedStuff (COUNT y, COUNT scan)
 {
 	HELEMENT hElement, hNextElement;

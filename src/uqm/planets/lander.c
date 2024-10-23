@@ -1850,6 +1850,146 @@ LanderFire (SIZE facing)
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
 }
 
+void
+ScatterElements ()
+{
+	POINT location[NUM_ELEMENT_CATEGORIES];
+	COUNT angle, dist;
+	DWORD rand_val;
+	COUNT i;
+	COUNT num_nodes;
+	PLANETSIDE_DESC *pPSD = planetSideDesc;
+
+#define MAX_MAP_HEIGHT (MAP_HEIGHT << 1)
+#define MAX_MAP_WIDTH (SCALED_MAP_WIDTH << 1)
+
+	{
+		static COUNT j;
+		//COUNT i;
+
+		printf ("[ explosion ]\n");
+		for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
+		{
+			printf ("%d -> %d\n", i, pPSD->ElementAmounts[i]);
+		}
+		printf ("\n");
+	}
+
+	printPt (curLanderLoc, "curLanderLoc");
+
+	for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
+	{
+		rand_val = TFB_Random ();
+		angle = LOBYTE (HIWORD (rand_val));
+		dist = (RES_SCALE (LOBYTE (LOWORD (rand_val)) % 8));
+		if (HIBYTE (LOWORD (rand_val)) < 256 * 1 / 3)
+			dist += (RES_SCALE (8));
+
+		dist += RES_SCALE (24);
+		location[i].x = (curLanderLoc.x + COSINE (angle, dist)) >> MAG_SHIFT;
+		location[i].y = abs ((curLanderLoc.y + SINE (angle, dist)) >> MAG_SHIFT);
+
+		if (location[i].x < 0)
+			location[i].x += SCALED_MAP_WIDTH;
+
+		if (location[i].x > SCALED_MAP_WIDTH)
+			location[i].x -= SCALED_MAP_WIDTH;
+
+		if (location[i].y > MAP_HEIGHT)
+			location[i].y = MAP_HEIGHT - (location[i].y - MAP_HEIGHT);
+	}
+
+	num_nodes = 25;
+
+	//CustomMineralDeposit ();
+
+	printf ("%u -> ", 1);
+	printPt (location[1], "location");
+
+	//while (num_nodes++ < 32)
+	{
+		HELEMENT hNodeElement;
+		ELEMENT *NodeElementPtr;
+		NODE_INFO info;
+		POINT node_loc = location[1];
+
+		printf ("num_nodes %u\n", num_nodes);
+
+		//if (!isNodeRetrieved (&pSolarSysState->SysInfo.PlanetInfo,
+		//	MINERAL_SCAN, num_nodes))
+		//	continue;
+
+
+		hNodeElement = AllocElement ();
+		if (!hNodeElement)
+			return;
+
+		LockElement (hNodeElement, &NodeElementPtr);
+
+		callGenerateForScanType (pSolarSysState,
+			pSolarSysState->pOrbitalDesc, num_nodes,
+			MINERAL_SCAN, &info);
+
+		setNodeNotRetrieved (&pSolarSysState->SysInfo.PlanetInfo,
+				MINERAL_SCAN, num_nodes);
+
+		CustomMineralDeposit (&pSolarSysState->SysInfo, num_nodes, &info,
+			1, RADIOACTIVE_COMPOUNDS, 100, node_loc);
+
+		NodeElementPtr->scan_node = MAKE_WORD (MINERAL_SCAN, num_nodes + 1);
+		NodeElementPtr->playerNr = PS_NON_PLAYER;
+		NodeElementPtr->current.location = info.loc_pt;
+
+		SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex],
+			STAMP_PRIM);
+
+		NodeElementPtr->turn_wait = info.type;
+
+		// JMS: Partially scavenged energy blips won't return
+		// anymore to original size after leaving planet.
+		NodeElementPtr->mass_points = HIBYTE (info.density)
+			- pSolarSysState->SysInfo.PlanetInfo.
+			PartiallyScavengedList[MINERAL_SCAN][num_nodes];
+
+		NodeElementPtr->current.image.frame = SetAbsFrameIndex (
+			MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
+			+ ElementCategory (info.type) * 5);
+		NodeElementPtr->next.image.frame = SetRelFrameIndex (
+			NodeElementPtr->current.image.frame,
+			LOBYTE (info.density) + 1);
+		DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+			IncFrameIndex (NodeElementPtr->next.image.frame);
+
+		NodeElementPtr->next.location.x =
+			NodeElementPtr->current.location.x << MAG_SHIFT;
+		NodeElementPtr->next.location.y =
+			NodeElementPtr->current.location.y << MAG_SHIFT;
+
+		NodeElementPtr->state_flags |= CHANGING;
+		SET_GAME_STATE (PLANETARY_CHANGE, 1);
+
+		UnlockElement (hNodeElement);
+
+		PutElement (hNodeElement);
+	}
+
+
+	{
+		CONTEXT context;
+		BOOLEAN ownContext;
+
+		context = GetScanContext (&ownContext);
+		SetContext (context);
+
+		BatchGraphics ();
+		DrawScannedStuff (MAP_HEIGHT, MINERAL_SCAN);
+		UnbatchGraphics ();
+
+		if (ownContext)
+			DestroyScanContext ();
+	}
+}
+
 static BOOLEAN
 LanderExplosion (void)
 {
@@ -1883,6 +2023,8 @@ LanderExplosion (void)
 
 	PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_DESTROYED),
 			NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
+
+	ScatterElements ();
 
 	return TRUE;
 }

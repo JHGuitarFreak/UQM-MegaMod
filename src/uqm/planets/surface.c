@@ -406,3 +406,84 @@ CustomMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 
 	return num_deposits;
 }
+
+COUNT
+CustomMineralDeposit (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
+		NODE_INFO *info, COUNT numNodes, COUNT type, BYTE quality,
+		POINT location)
+{
+	BYTE j;
+	COUNT num_deposits;
+	BOOLEAN OpenSeason = TRUE;
+	NODE_INFO temp_info;
+	const ELEMENT_ENTRY *eptr;
+
+	if (!info) // user not interested in info but we need space for it
+		info = &temp_info;
+
+	RandomContext_SeedRandom (SysGenRNG,
+		SysInfoPtr->PlanetInfo.ScanSeed[MINERAL_SCAN]);
+
+	eptr = &SysInfoPtr->PlanetInfo.PlanDataPtr->UsefulElements[0];
+	num_deposits = 0;
+	j = NUM_USEFUL_ELEMENTS;
+	do
+	{
+		BYTE num_possible, depositQuality = 0;
+
+		num_possible = numNodes;
+		info->type = type;
+		depositQuality = quality;
+
+		while (num_possible--)
+		{
+			COUNT deposit_quality_fine;
+			COUNT deposit_quality_gross;
+
+			// JMS: For making the mineral blip smaller in case it is partially scavenged.
+			SDWORD temp_deposit_quality;
+
+			deposit_quality_fine = depositQuality;
+
+			// JMS: This makes the mineral blip smaller in case it is partially scavenged.
+			if (which_deposit < 32)
+				temp_deposit_quality = deposit_quality_fine
+						- ((SysInfoPtr->PlanetInfo.PartiallyScavengedList[MINERAL_SCAN][which_deposit]) * 10);
+			// JMS: In case which_deposit >= 32 (most likely 65535), it means that this
+			// function is being called only to count the number of deposit nodes on the
+			// surface. In that case we don't need to use the PartiallyScavengedList
+			// since the amount of minerals in that node is not stored yet.
+			// (AND we cannot use the list since accessing element 65535 would crash the game ;)
+			else
+				temp_deposit_quality = deposit_quality_fine;
+
+			if (temp_deposit_quality < 0)
+				temp_deposit_quality = 0;
+
+			if (temp_deposit_quality < MEDIUM_DEPOSIT_THRESHOLD)
+				deposit_quality_gross = 0;
+			else if (temp_deposit_quality < LARGE_DEPOSIT_THRESHOLD)
+				deposit_quality_gross = 1;
+			else
+				deposit_quality_gross = 2;
+
+			info->loc_pt = location;
+
+			info->density = MAKE_WORD (
+					deposit_quality_gross, deposit_quality_fine / 10 + 1);
+#ifdef DEBUG_SURFACE
+			log_add (log_Debug, "\t\t%d units of %Fs",
+				info->density,
+				Elements[eptr->ElementType].name);
+#endif /* DEBUG_SURFACE */
+			if (num_deposits >= which_deposit
+				|| ++num_deposits == sizeof (DWORD) * 8)
+			{	// reached the maximum or the requested node
+				return num_deposits;
+			}
+		}
+		++eptr;
+	} while (--j);
+
+	return num_deposits;
+}
