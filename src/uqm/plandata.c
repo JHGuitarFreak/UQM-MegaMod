@@ -1345,6 +1345,15 @@ const BYTE element_array[NUMBER_OF_ELEMENTS] =
 	EXOTIC, /* TZO CRYSTALS */
 	COMMON, /* CALCIUM COMPOUNDS */
 	COMMON, /* NITRIC ACID */
+
+	COMMON,
+	CORROSIVE,
+	BASE_METAL,
+	NOBLE,
+	RARE_EARTH,
+	PRECIOUS,
+	RADIOACTIVE,
+	EXOTIC,
 };
 
 /*------------------------------ Global Data ------------------------------ */
