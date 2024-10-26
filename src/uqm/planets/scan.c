@@ -737,9 +737,8 @@ DispatchLander (void)
 	{
 		GLOBAL_SIS (FuelOnBoard) -= landingFuel;
 
-		if (optSubmenu)
-			DrawMineralHelpers ();
-		else
+		DrawMineralHelpers ();
+		if (!optSubmenu)
 			DeltaSISGauges (0, UNDEFINED_DELTA, 0);
 	}
 

@@ -829,6 +829,9 @@ DrawMineralHelpers (void)
 	RECT r;
 	SIZE leading;
 
+	if (!optSubmenu)
+		return;
+
 	OldContext = SetContext (StatusContext);
 
 	BatchGraphics ();

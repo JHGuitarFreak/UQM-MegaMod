@@ -220,7 +220,8 @@ findFileInDirs (const char *locs[], int numLocs, const char *file)
 // execFile is the path to the uqm executable, as acquired through
 // main()'s argv[0].
 void
-prepareContentDir (const char *contentDirName, const char* addonDirName, const char *execFile)
+prepareContentDir (const char *contentDirName, const char* addonDirName,
+		const char *execFile)
 {
 	const char *testFile = "version";
 	const char *loc;
