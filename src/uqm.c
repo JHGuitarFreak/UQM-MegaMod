@@ -210,6 +210,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, meleeToolTips);
 	DECL_CONFIG_OPTION(int,  musicResume);
 	DECL_CONFIG_OPTION(int,  windowType);
+	DECL_CONFIG_OPTION(bool, scatterElements);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -423,6 +424,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
 		INIT_CONFIG_OPTION(  musicResume,       0 ),
 		INIT_CONFIG_OPTION(  windowType,        2 ),
+		INIT_CONFIG_OPTION(  scatterElements,   false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -653,6 +655,7 @@ main (int argc, char *argv[])
 	optMeleeToolTips = options.meleeToolTips.value;
 	optMusicResume = options.musicResume.value;
 	optWindowType = options.windowType.value;
+	optScatterElements = options.scatterElements.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1174,6 +1177,8 @@ getUserConfigOptions (struct options_struct *options)
 	{
 		options->windowType.value = res_GetInteger ("mm.windowType");
 	}
+
+	getBoolConfigValue (&options->scatterElements, "mm.scatterElements");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1272,6 +1277,7 @@ enum
 	MELEETIPS_OPT,
 	MUSICRESUME_OPT,
 	WINDTYPE_OPT,
+	SCATTERELEMS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1385,6 +1391,7 @@ static struct option longOptions[] =
 	{"musicresume", 1, NULL, MUSICRESUME_OPT},
 	{"windowtype", 1, NULL, WINDTYPE_OPT},
 	{"noclassic", 0, NULL, CLAPAK_OPT},
+	{"scatterelements", 0, NULL, SCATTERELEMS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2197,6 +2204,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
+			case SCATTERELEMS_OPT:
+				setBoolOption (&options->scatterElements, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2591,6 +2601,10 @@ usage (FILE *out, const struct options_struct *defaults)
 			"2: Indefinite (default: 0)");
 	log_add (log_User, "  --windowtype : Choose between DOS, 3DO or "
 			"UQM window types : 0: DOS | 1: 3DO | 2: UQM (default: 0)");
+	log_add (log_User, "  --scatterelements : Scatter a percentage of the"
+			"elements in the lander's cargo hold onto the planet's surface"
+			" when the lander explodes (default: %s)",
+			boolOptString (&defaults->scatterElements));
 
 	log_setOutput (old);
 }

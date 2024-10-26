@@ -153,7 +153,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         11
-#define CHOICE_COUNT       84
+#define CHOICE_COUNT       85
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       13
 #define LABEL_COUNT         9
@@ -356,6 +356,7 @@ static WIDGET *visual_widgets[] = {
 static WIDGET *qol_widgets[] = {
 	(WIDGET *)(&choices[32]),   // Skip Intro
 	(WIDGET *)(&choices[40]),   // Partial Pickup switch
+	(WIDGET *)(&choices[84]),   // Scatter Elements
 	(WIDGET *)(&choices[41]),   // Submenu switch
 	(WIDGET *)(&choices[60]),   // Smart Auto-Pilot
 	(WIDGET *)(&choices[78]),   // Advanced Auto-Pilot
@@ -1114,6 +1115,7 @@ SetDefaults (void)
 	choices[81].selected = opts.windowType;
 	choices[82].selected = opts.seedType;
 	choices[83].selected = opts.sphereColors;
+	choices[84].selected = opts.scatterElements;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1213,6 +1215,7 @@ PropagateResults (void)
 	opts.windowType = choices[81].selected;
 	opts.seedType = choices[82].selected;
 	opts.sphereColors = choices[83].selected;
+	opts.scatterElements = choices[84].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -2289,6 +2292,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
+	// QoL
+	opts->scatterElements = optScatterElements;
 
 /*
  *		Cheats
@@ -2535,6 +2540,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
 	PutIntOpt  (&optSphereColors, &opts->sphereColors, "mm.sphereColors", FALSE);
+	PutBoolOpt (&optScatterElements, &opts->scatterElements, "mm.scatterElements", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);

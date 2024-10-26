@@ -1949,6 +1949,9 @@ ScatterDeposits ()
 	BYTE newNodeType[NUM_ELEMENT_CATEGORIES];
 	PLANETSIDE_DESC *pPSD = planetSideDesc;
 
+	if (!optScatterElements)
+		return;
+
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
 	{
 		if (pPSD->ElementAmounts[i])
