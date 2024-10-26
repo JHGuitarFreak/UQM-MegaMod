@@ -1976,25 +1976,15 @@ ScatterDeposits ()
 		BYTE affix = i - numDeposits;
 		double penalty = (double)RangeMinMax (25, 75, TFB_Random ()) / 100;
 
+		if (newNodeAmounts[affix] * penalty < 1)
+			continue;
+
 		GimmeRandomLocation (&location);
 		DepositNode (location, i, COMMON_MATERIALS + newNodeType[affix],
 				newNodeAmounts[affix] * penalty);
 	}
 
-	{
-		CONTEXT context;
-		BOOLEAN ownContext;
-
-		context = GetScanContext (&ownContext);
-		SetContext (context);
-
-		BatchGraphics ();
-		DrawScannedStuff (MAP_HEIGHT, MINERAL_SCAN);
-		UnbatchGraphics ();
-
-		if (ownContext)
-			DestroyScanContext ();
-	}
+	DrawAllMinerals ();
 }
 
 static BOOLEAN

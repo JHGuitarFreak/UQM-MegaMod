@@ -961,7 +961,7 @@ PickPlanetSide (void)
 
 #define NUM_FLASH_COLORS 8
 
-void
+static void
 DrawScannedStuff (COUNT y, COUNT scan)
 {
 	HELEMENT hElement, hNextElement;
@@ -1038,6 +1038,23 @@ DrawScannedStuff (COUNT y, COUNT scan)
 	}
 	
 	SetContextForeGroundColor (OldColor);
+}
+
+void
+DrawAllMinerals (void)
+{
+	CONTEXT context;
+	BOOLEAN ownContext;
+
+	context = GetScanContext (&ownContext);
+	SetContext (context);
+
+	BatchGraphics ();
+	DrawScannedStuff (MAP_HEIGHT, MINERAL_SCAN);
+	UnbatchGraphics ();
+
+	if (ownContext)
+		DestroyScanContext ();
 }
 
 
