@@ -1846,6 +1846,154 @@ LanderFire (SIZE facing)
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
 }
 
+static void
+GimmeRandomLocation (POINT *location)
+{
+	COUNT angle, dist;
+	DWORD rand_val;
+
+	rand_val = TFB_Random ();
+	angle = LOBYTE (HIWORD (rand_val));
+	dist = (RES_SCALE (LOBYTE (LOWORD (rand_val)) % 8));
+	if (HIBYTE (LOWORD (rand_val)) < 256 * 1 / 3)
+		dist += (RES_SCALE (8));
+
+	dist += RES_SCALE (24);
+	location->x = (curLanderLoc.x + COSINE (angle, dist)) >> MAG_SHIFT;
+	location->y = abs ((curLanderLoc.y + SINE (angle, dist)) >> MAG_SHIFT);
+
+	if (location->x < 0)
+		location->x += SCALED_MAP_WIDTH;
+
+	if (location->x > SCALED_MAP_WIDTH)
+		location->x -= SCALED_MAP_WIDTH;
+
+	if (location->y > MAP_HEIGHT)
+		location->y = MAP_HEIGHT - (location->y - MAP_HEIGHT);
+}
+
+static void
+DepositNode (POINT location, COUNT which_node, BYTE type, COUNT amount)
+{
+
+	HELEMENT hNodeElement;
+	ELEMENT *NodeElementPtr;
+	NODE_INFO info;
+
+	printf ("which_node %u\n", which_node);
+
+	//if (!isNodeRetrieved (&pSolarSysState->SysInfo.PlanetInfo,
+	//	MINERAL_SCAN, which_node))
+	//	continue;
+
+	hNodeElement = AllocElement ();
+	if (!hNodeElement)
+		return;
+
+	LockElement (hNodeElement, &NodeElementPtr);
+
+	callGenerateForScanType (pSolarSysState,
+		pSolarSysState->pOrbitalDesc, which_node,
+		MINERAL_SCAN, &info);
+
+	setNodeNotRetrieved (&pSolarSysState->SysInfo.PlanetInfo,
+		MINERAL_SCAN, which_node);
+
+	CustomMineralDeposit (&info, type, amount, location);
+
+	NodeElementPtr->scan_node = MAKE_WORD (MINERAL_SCAN, which_node + 1);
+	NodeElementPtr->playerNr = PS_NON_PLAYER;
+	NodeElementPtr->current.location = info.loc_pt;
+
+	SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex],
+		STAMP_PRIM);
+
+	NodeElementPtr->turn_wait = info.type;
+
+	// JMS: Partially scavenged energy blips won't return
+	// anymore to original size after leaving planet.
+	NodeElementPtr->mass_points = HIBYTE (info.density)
+		- pSolarSysState->SysInfo.PlanetInfo.
+		PartiallyScavengedList[MINERAL_SCAN][which_node];
+
+	NodeElementPtr->current.image.frame = SetAbsFrameIndex (
+		MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
+		+ ElementCategory (info.type) * 5);
+	NodeElementPtr->next.image.frame = SetRelFrameIndex (
+		NodeElementPtr->current.image.frame,
+		LOBYTE (info.density) + 1);
+	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+		IncFrameIndex (NodeElementPtr->next.image.frame);
+
+	NodeElementPtr->next.location.x =
+		NodeElementPtr->current.location.x << MAG_SHIFT;
+	NodeElementPtr->next.location.y =
+		NodeElementPtr->current.location.y << MAG_SHIFT;
+
+	NodeElementPtr->state_flags |= CHANGING;
+	SET_GAME_STATE (PLANETARY_CHANGE, 1);
+
+	UnlockElement (hNodeElement);
+
+	PutElement (hNodeElement);
+}
+
+void
+ScatterDeposits ()
+{
+	POINT location;
+	COUNT i;
+	COUNT numDeposits;
+	COUNT numNewNodes = 0;
+	COUNT newNodeAmounts[NUM_ELEMENT_CATEGORIES];
+	BYTE newNodeType[NUM_ELEMENT_CATEGORIES];
+	PLANETSIDE_DESC *pPSD = planetSideDesc;
+
+	for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
+	{
+		if (pPSD->ElementAmounts[i])
+		{
+			newNodeType[numNewNodes] = i;
+			newNodeAmounts[numNewNodes] = pPSD->ElementAmounts[i];
+			numNewNodes++;
+		}
+	}
+
+	if (!numNewNodes)
+		return;
+
+	numDeposits = callGenerateForScanType (pSolarSysState,
+			pSolarSysState->pOrbitalDesc, GENERATE_ALL, MINERAL_SCAN, NULL);
+
+	if (numDeposits == 32 || numDeposits == 0)
+		return;
+
+	for (i = numDeposits; i < (numDeposits + numNewNodes); i++)
+	{
+		BYTE affix = i - numDeposits;
+		double penalty = (double)RangeMinMax (25, 75, TFB_Random ()) / 100;
+
+		GimmeRandomLocation (&location);
+		DepositNode (location, i, COMMON_MATERIALS + newNodeType[affix],
+				newNodeAmounts[affix] * penalty);
+	}
+
+	{
+		CONTEXT context;
+		BOOLEAN ownContext;
+
+		context = GetScanContext (&ownContext);
+		SetContext (context);
+
+		BatchGraphics ();
+		DrawScannedStuff (MAP_HEIGHT, MINERAL_SCAN);
+		UnbatchGraphics ();
+
+		if (ownContext)
+			DestroyScanContext ();
+	}
+}
+
 static BOOLEAN
 LanderExplosion (void)
 {
@@ -1879,6 +2027,8 @@ LanderExplosion (void)
 
 	PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_DESTROYED),
 			NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
+
+	ScatterDeposits ();
 
 	return TRUE;
 }

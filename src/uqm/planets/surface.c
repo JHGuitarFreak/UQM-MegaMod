@@ -406,3 +406,33 @@ CustomMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 
 	return num_deposits;
 }
+
+COUNT
+CustomMineralDeposit (NODE_INFO *info, COUNT type, BYTE quality,
+		POINT location)
+{
+	NODE_INFO temp_info;
+	COUNT deposit_quality_fine;
+	COUNT deposit_quality_gross;
+	SDWORD temp_deposit_quality;
+
+	if (!info)
+		return 0;
+
+	info->type = type;
+
+	deposit_quality_fine = quality * 10;
+
+	if (deposit_quality_fine < MEDIUM_DEPOSIT_THRESHOLD)
+		deposit_quality_gross = 0;
+	else if (deposit_quality_fine < LARGE_DEPOSIT_THRESHOLD)
+		deposit_quality_gross = 1;
+	else
+		deposit_quality_gross = 2;
+
+	info->loc_pt = location;
+
+	info->density = MAKE_WORD (deposit_quality_gross, quality);
+
+	return 1;
+}
