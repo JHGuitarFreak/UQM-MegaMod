@@ -283,6 +283,105 @@ DamageColorCycle (Color c, COUNT i)
 static HELEMENT AddGroundDisaster (COUNT which_disaster);
 
 void
+spawn_node (ELEMENT *ElementPtr)
+{
+	HELEMENT hNodeElement;
+	ELEMENT *NodeElementPtr;
+	NODE_INFO info;
+
+	if (ElementPtr->next.location.y < 0)
+	{
+		ElementPtr->next.location.y = 0;
+		ZeroVelocityComponents (&ElementPtr->velocity);
+	}
+	if (ElementPtr->next.location.y > (MAP_HEIGHT << MAG_SHIFT) - 1)
+	{
+		ElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+		ZeroVelocityComponents (&ElementPtr->velocity);
+	}
+
+	if (ElementPtr->life_span > 0)
+	{
+		SIZE arc;
+
+		hNodeElement = AllocElement();
+		if (!hNodeElement)
+			return;
+
+		LockElement (hNodeElement, &NodeElementPtr);
+
+
+		arc = (abs (abs (ElementPtr->next_turn - ElementPtr->life_span) - 
+			ElementPtr->next_turn)) << 1;
+
+		NodeElementPtr->playerNr = PS_NON_PLAYER;
+		NodeElementPtr->mass_points = 1;
+		NodeElementPtr->life_span = 1;
+		NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID;
+		NodeElementPtr->next.location = ElementPtr->next.location;
+		NodeElementPtr->next.location.y -= arc;
+
+
+		SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMP_PRIM);
+		DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+			IncFrameIndex (ElementPtr->next.image.frame);
+
+		UnlockElement (hNodeElement);
+		InsertElement (hNodeElement, GetHeadElement());
+		return;
+	}
+
+	ZeroVelocityComponents (&ElementPtr->velocity);
+
+	hNodeElement = AllocElement ();
+	if (!hNodeElement)
+		return;
+
+	callGenerateForScanType (pSolarSysState,
+		pSolarSysState->pOrbitalDesc, ElementPtr->cycle,
+		MINERAL_SCAN, &info);
+
+	setNodeNotRetrieved (&pSolarSysState->SysInfo.PlanetInfo,
+		MINERAL_SCAN, ElementPtr->cycle);
+
+	CustomMineralDeposit (&info, ElementPtr->turn_wait, ElementPtr->thrust_wait, ElementPtr->current.location);
+
+	LockElement (hNodeElement, &NodeElementPtr);
+
+	NodeElementPtr->scan_node = MAKE_WORD (MINERAL_SCAN, ElementPtr->cycle + 1);
+	NodeElementPtr->playerNr = PS_NON_PLAYER;
+	NodeElementPtr->current.location = ElementPtr->next.location;
+
+	SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex],
+		STAMP_PRIM);
+
+	NodeElementPtr->turn_wait = info.type;
+
+	// JMS: Partially scavenged energy blips won't return
+	// anymore to original size after leaving planet.
+	NodeElementPtr->mass_points = HIBYTE (info.density)
+		- pSolarSysState->SysInfo.PlanetInfo.
+		PartiallyScavengedList[MINERAL_SCAN][ElementPtr->cycle];
+
+	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+			IncFrameIndex (ElementPtr->next.image.frame);
+
+	NodeElementPtr->next.location.x =
+		NodeElementPtr->current.location.x;
+	NodeElementPtr->next.location.y =
+		NodeElementPtr->current.location.y;
+
+	NodeElementPtr->state_flags |= CHANGING;
+	SET_GAME_STATE (PLANETARY_CHANGE, 1);
+
+	UnlockElement (hNodeElement);
+
+	PutElement (hNodeElement);
+
+	//RedrawSurfaceScan (NULL);
+}
+
+void
 object_animation (ELEMENT *ElementPtr)
 {
 	COUNT frame_index, angle;
@@ -1847,10 +1946,17 @@ LanderFire (SIZE facing)
 }
 
 static void
-GimmeRandomLocation (POINT *location)
+LobMineralNode (COUNT which_node, BYTE type, COUNT amount)
 {
-	COUNT angle, dist;
+	POINT location;
+	COUNT dist;
 	DWORD rand_val;
+	COUNT angle;
+	COUNT velocity_bonus;
+	COUNT deposit_quality_fine, deposit_quality_gross;
+	HELEMENT hNodeElement;
+	ELEMENT *NodeElementPtr;
+	NODE_INFO info;
 
 	rand_val = TFB_Random ();
 	angle = LOBYTE (HIWORD (rand_val));
@@ -1858,9 +1964,83 @@ GimmeRandomLocation (POINT *location)
 	if (HIBYTE (LOWORD (rand_val)) < 256 * 1 / 3)
 		dist += (RES_SCALE (8));
 
+	dist += RES_SCALE (12);
+	location.x = (curLanderLoc.x + COSINE (angle, dist)) >> MAG_SHIFT;
+	location.y = abs((curLanderLoc.y + SINE (angle, dist)) >> MAG_SHIFT);
+
+	if (location.x < 0)
+		location.x += SCALED_MAP_WIDTH;
+
+	if (location.x > SCALED_MAP_WIDTH)
+		location.x -= SCALED_MAP_WIDTH;
+
+	if (location.y > MAP_HEIGHT)
+		location.y = MAP_HEIGHT - (location.y - MAP_HEIGHT);
+
+
+	hNodeElement = AllocElement();
+	if (hNodeElement == NULL)
+		return;
+
+	deposit_quality_fine = amount * 10;
+	if (deposit_quality_fine < 150)
+		deposit_quality_gross = 0;
+	else if (deposit_quality_fine < 225)
+		deposit_quality_gross = 1;
+	else
+		deposit_quality_gross = 2;
+
+	LockElement (hNodeElement, &NodeElementPtr);
+
+	printf("%d\n", dist);
+
+	NodeElementPtr->playerNr = PS_NON_PLAYER;
+	NodeElementPtr->mass_points = 1;
+	NodeElementPtr->life_span = dist;
+	NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID;
+	NodeElementPtr->next.location = curLanderLoc;
+	NodeElementPtr->cycle = which_node;
+	NodeElementPtr->turn_wait = type;
+	NodeElementPtr->thrust_wait = amount;
+	NodeElementPtr->next_turn = dist >> 1;
+	NodeElementPtr->preprocess_func = spawn_node;
+
+	SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMPFILL_PRIM);
+	SetPrimColor (&DisplayArray[NodeElementPtr->PrimIndex], BLACK_COLOR);
+	NodeElementPtr->current.image.frame = SetAbsFrameIndex (
+		MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
+		+ ElementCategory (type) * 5);
+
+	NodeElementPtr->next.image.frame = SetRelFrameIndex (
+		NodeElementPtr->current.image.frame,
+		LOBYTE (MAKE_WORD (deposit_quality_gross, amount)) + 1);
+	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+		IncFrameIndex (NodeElementPtr->next.image.frame);
+
+	velocity_bonus = TFB_Random () % 3;
+	SetVelocityVector (&NodeElementPtr->velocity, (RES_SCALE (1 + 
+		velocity_bonus)), angle);
+
+	UnlockElement (hNodeElement);
+
+	InsertElement (hNodeElement, GetHeadElement());
+}
+
+static void
+GimmeRandomLocation (POINT *location, COUNT *angle)
+{
+	COUNT dist;
+	DWORD rand_val;
+
+	rand_val = TFB_Random ();
+	*angle = LOBYTE (HIWORD (rand_val));
+	dist = (RES_SCALE (LOBYTE (LOWORD (rand_val)) % 8));
+	if (HIBYTE (LOWORD (rand_val)) < 256 * 1 / 3)
+		dist += (RES_SCALE (8));
+
 	dist += RES_SCALE (24);
-	location->x = (curLanderLoc.x + COSINE (angle, dist)) >> MAG_SHIFT;
-	location->y = abs ((curLanderLoc.y + SINE (angle, dist)) >> MAG_SHIFT);
+	location->x = (curLanderLoc.x + COSINE (*angle, dist)) >> MAG_SHIFT;
+	location->y = abs ((curLanderLoc.y + SINE (*angle, dist)) >> MAG_SHIFT);
 
 	if (location->x < 0)
 		location->x += SCALED_MAP_WIDTH;
@@ -1939,9 +2119,10 @@ DepositNode (POINT location, COUNT which_node, BYTE type, COUNT amount)
 }
 
 void
-ScatterDeposits ()
+ScatterDeposits (void)
 {
 	POINT location;
+	COUNT angle;
 	COUNT i;
 	COUNT numDeposits;
 	COUNT numNewNodes = 0;
@@ -1979,12 +2160,9 @@ ScatterDeposits ()
 		if (newNodeAmounts[affix] * penalty < 1)
 			continue;
 
-		GimmeRandomLocation (&location);
-		DepositNode (location, i, COMMON_MATERIALS + newNodeType[affix],
-				newNodeAmounts[affix] * penalty);
+		LobMineralNode (i, COMMON_MATERIALS + newNodeType[affix],
+			newNodeAmounts[affix] * penalty);
 	}
-
-	DrawAllMinerals ();
 }
 
 static BOOLEAN
@@ -2097,6 +2275,10 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		if (crew_left)
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
+#ifdef DEBUG
+			if (PulsedInputState.menu[KEY_DEBUG_2])
+				DeltaLanderCrew(-1, LANDER_INJURED);
+#endif
 #if defined(ANDROID) || defined(__ANDROID__)
 			BATTLE_INPUT_STATE InputState =
 					GetDirectionalJoystickInput(index, 0);
