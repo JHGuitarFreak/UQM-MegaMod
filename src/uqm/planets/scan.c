@@ -677,7 +677,7 @@ RedrawSurfaceScan (const POINT *newLoc)
 	if (newLoc)
 	{
 		setPlanetLoc (*newLoc, FALSE);
-	 	drawPlanetCursor (FALSE);
+		drawPlanetCursor (FALSE);
 	}
 	UnbatchGraphics ();
 
@@ -1039,24 +1039,6 @@ DrawScannedStuff (COUNT y, COUNT scan)
 	
 	SetContextForeGroundColor (OldColor);
 }
-
-void
-DrawAllMinerals (void)
-{
-	CONTEXT context;
-	BOOLEAN ownContext;
-
-	context = GetScanContext (&ownContext);
-	SetContext (context);
-
-	BatchGraphics ();
-	DrawScannedStuff (MAP_HEIGHT, MINERAL_SCAN);
-	UnbatchGraphics ();
-
-	if (ownContext)
-		DestroyScanContext ();
-}
-
 
 static void
 DrawPCScannedStuff (COUNT scan)

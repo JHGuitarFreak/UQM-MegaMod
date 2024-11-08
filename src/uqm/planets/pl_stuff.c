@@ -602,4 +602,3 @@ DrawPlanet (int tintY, Color tintColor)
 	}
 	UnbatchGraphics ();
 }
-

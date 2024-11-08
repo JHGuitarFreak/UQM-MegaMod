@@ -57,7 +57,6 @@ extern bool callPickupForScanType (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world, COUNT node, BYTE scanType);
 
 extern void RedrawSurfaceScan (const POINT *newLoc);
-extern void DrawAllMinerals (void);
 extern CONTEXT GetScanContext (BOOLEAN *owner);
 extern void DestroyScanContext (void);
 

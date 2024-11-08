@@ -752,19 +752,6 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	if (Scan != BIOLOGICAL_SCAN)
 		pPSD->ElementAmounts[ElementCategory (EType)] += NumRetrieved;
 
-	{
-		static COUNT j;
-		COUNT i;
-		SIZE which_node = HIBYTE (ElementPtr->scan_node) - 1;
-
-		printf ("[ NODE: %u ]\n", j++);
-		for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
-		{
-			printf ("%d -> %d\n", i, pPSD->ElementAmounts[i]);
-		}
-		printf ("\n");
-	}
-
 	pPSD->NumFrames = NUM_TEXT_FRAMES;
 	sprintf (pPSD->AmountBuf, "%u", NumRetrieved);
 	pStr = GAME_STRING (EType + Offset);
@@ -1959,7 +1946,7 @@ spawn_node (ELEMENT *ElementPtr)
 	NodeElementPtr->next.location.y =
 			NodeElementPtr->current.location.y << MAG_SHIFT;
 
-	NodeElementPtr->state_flags |= CHANGING;
+	NodeElementPtr->state_flags = APPEARING;
 	SET_GAME_STATE (PLANETARY_CHANGE, 1);
 
 	UnlockElement (hNodeElement);
@@ -2000,7 +1987,7 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	NodeElementPtr->playerNr = PS_NON_PLAYER;
 	NodeElementPtr->mass_points = 1;
 	NodeElementPtr->life_span = dist;
-	NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID;
+	NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID | APPEARING;
 	NodeElementPtr->next.location = curLanderLoc;
 	NodeElementPtr->cycle = which_node;
 	NodeElementPtr->turn_wait = full_type;
@@ -2165,9 +2152,6 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	{	// Dead, damage dealt, and exploding
 		if (explosion_index > EXPLOSION_LIFE + EXPLOSION_WAIT_FRAMES)
 			return FALSE;
-
-		if (explosion_index == EXPLOSION_LIFE && optScatterElements)
-			DrawAllMinerals ();
 		
 		if (explosion_index > EXPLOSION_LIFE)
 		{	// Keep going until the wait expires
@@ -2411,7 +2395,7 @@ IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 	while (GetTimeCounter () < TimeOut)
 	{
 		// 10 to clear the lander off of the screen
-		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10))); 
+		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10)));
 		SleepThreadUntil (inputState->NextTime);
 		inputState->NextTime += PLANET_SIDE_RATE;
 	}
