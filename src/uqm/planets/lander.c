@@ -1847,66 +1847,22 @@ LanderFire (SIZE facing)
 }
 
 static void
-spawn_node (ELEMENT *ElementPtr)
+put_node (ELEMENT *ElementPtr)
 {
 	HELEMENT hNodeElement;
 	ELEMENT *NodeElementPtr;
 	NODE_INFO info;
-	POINT location;
-
-	if (ElementPtr->next.location.y < 0)
-	{
-		ElementPtr->next.location.y = 0;
-		ZeroVelocityComponents (&ElementPtr->velocity);
-	}
-	if (ElementPtr->next.location.y > (MAP_HEIGHT << MAG_SHIFT) - 1)
-	{
-		ElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
-		ZeroVelocityComponents (&ElementPtr->velocity);
-	}
-
-	if (ElementPtr->life_span > 0)
-	{
-		SIZE arc;
-
-		hNodeElement = AllocElement ();
-		if (!hNodeElement)
-			return;
-
-		LockElement (hNodeElement, &NodeElementPtr);
-
-		arc = (abs (abs (ElementPtr->next_turn - ElementPtr->life_span) -
-				ElementPtr->next_turn)) << 1;
-
-		NodeElementPtr->playerNr = PS_NON_PLAYER;
-		NodeElementPtr->mass_points = 1;
-		NodeElementPtr->life_span = 1;
-		NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID;
-		NodeElementPtr->next.location = ElementPtr->next.location;
-		NodeElementPtr->next.location.y -= arc;
-
-
-		SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMP_PRIM);
-		DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
-				IncFrameIndex (ElementPtr->next.image.frame);
-
-		UnlockElement (hNodeElement);
-		InsertElement (hNodeElement, GetHeadElement ());
-		return;
-	}
-
-	ZeroVelocityComponents (&ElementPtr->velocity);
 
 	hNodeElement = AllocElement ();
 	if (!hNodeElement)
 		return;
 
 	callGenerateForScanType (pSolarSysState,
-		pSolarSysState->pOrbitalDesc, ElementPtr->cycle,
-		MINERAL_SCAN, &info);
+			pSolarSysState->pOrbitalDesc, ElementPtr->cycle,
+			MINERAL_SCAN, &info);
 
 	setNodeNotRetrieved (&pSolarSysState->SysInfo.PlanetInfo,
-		MINERAL_SCAN, ElementPtr->cycle);
+			MINERAL_SCAN, ElementPtr->cycle);
 
 	ElementPtr->next.location.x >>= MAG_SHIFT;
 	ElementPtr->next.location.y >>= MAG_SHIFT;
@@ -1939,14 +1895,14 @@ spawn_node (ELEMENT *ElementPtr)
 			LOBYTE (info.density) + 1);
 
 	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
-		IncFrameIndex (ElementPtr->next.image.frame);
+			IncFrameIndex (NodeElementPtr->next.image.frame);
 
 	NodeElementPtr->next.location.x =
 			NodeElementPtr->current.location.x << MAG_SHIFT;
 	NodeElementPtr->next.location.y =
 			NodeElementPtr->current.location.y << MAG_SHIFT;
 
-	NodeElementPtr->state_flags = APPEARING;
+	NodeElementPtr->state_flags |= APPEARING;
 	SET_GAME_STATE (PLANETARY_CHANGE, 1);
 
 	UnlockElement (hNodeElement);
@@ -1955,24 +1911,73 @@ spawn_node (ELEMENT *ElementPtr)
 }
 
 static void
+spawn_node (ELEMENT *ElementPtr)
+{
+	if (ElementPtr->next.location.y < 0)
+	{
+		ElementPtr->next.location.y = 0;
+		ZeroVelocityComponents (&ElementPtr->velocity);
+	}
+	if (ElementPtr->next.location.y > (MAP_HEIGHT << MAG_SHIFT) - 1)
+	{
+		ElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+		ZeroVelocityComponents (&ElementPtr->velocity);
+	}
+
+	if (ElementPtr->life_span > 0)
+	{
+		HELEMENT hNodeElement;
+		ELEMENT *NodeElementPtr;
+		SIZE arc;
+		COUNT half_dist = ElementPtr->life_span >> 1;
+
+		hNodeElement = AllocElement ();
+		if (!hNodeElement)
+			return;
+
+		LockElement (hNodeElement, &NodeElementPtr);
+
+		arc = (abs (abs (half_dist - ElementPtr->life_span)
+				- half_dist)) << 1;
+
+		NodeElementPtr->playerNr = PS_NON_PLAYER;
+		NodeElementPtr->mass_points = 1;
+		NodeElementPtr->life_span = 1;
+		NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID;
+		NodeElementPtr->next.location.x = ElementPtr->next.location.x;
+		NodeElementPtr->next.location.y = ElementPtr->next.location.y - arc;
+
+		SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMP_PRIM);
+		DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+				IncFrameIndex (ElementPtr->next.image.frame);
+
+		UnlockElement (hNodeElement);
+		InsertElement (hNodeElement, GetHeadElement ());
+
+		return;
+	}
+
+	ZeroVelocityComponents (&ElementPtr->velocity);
+
+	put_node (ElementPtr);
+}
+
+static void
 LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 {
-	COUNT dist, half_dist;
-	COUNT angle;
-	COUNT velocity_bonus;
+	COUNT dist, angle, velocity_bonus;
 	COUNT deposit_quality_fine, deposit_quality_gross;
 	HELEMENT hNodeElement;
 	ELEMENT *NodeElementPtr;
-	DWORD rand_val = TFB_Random ();
-	BYTE full_type = COMMON_MATERIALS + type;
+	BYTE full_type;
 
 	hNodeElement = AllocElement();
 	if (hNodeElement == NULL)
 		return;
 
-	angle = LOBYTE (HIWORD (rand_val));
-	dist = RES_SCALE ((LOBYTE (LOWORD (rand_val)) % 8) + 14);
-	half_dist = dist >> 1;
+	angle = (COUNT)TFB_Random ();
+	dist = ((COUNT)TFB_Random () % 8) + 14;
+	full_type = COMMON_MATERIALS + type;
 
 	deposit_quality_fine = amount * 10;
 	if (deposit_quality_fine < 150)
@@ -1991,7 +1996,6 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	NodeElementPtr->next.location = curLanderLoc;
 	NodeElementPtr->cycle = which_node;
 	NodeElementPtr->turn_wait = full_type;
-	NodeElementPtr->next_turn = half_dist;
 	NodeElementPtr->thrust_wait = amount;
 	NodeElementPtr->preprocess_func = spawn_node;
 
@@ -2007,7 +2011,7 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
 			IncFrameIndex (NodeElementPtr->next.image.frame);
 
-	velocity_bonus = RES_SCALE (1 + (rand_val % 3));
+	velocity_bonus = RES_SCALE (1 + (TFB_Random () % 3));
 	SetVelocityVector (&NodeElementPtr->velocity, velocity_bonus, angle);
 
 	UnlockElement (hNodeElement);
