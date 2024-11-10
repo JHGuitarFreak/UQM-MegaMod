@@ -1965,7 +1965,7 @@ spawn_node (ELEMENT *ElementPtr)
 static void
 LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 {
-	COUNT dist, angle, velocity_bonus;
+	COUNT dist, angle;
 	COUNT deposit_quality_fine, deposit_quality_gross;
 	HELEMENT hNodeElement;
 	ELEMENT *NodeElementPtr;
@@ -1976,7 +1976,7 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 		return;
 
 	angle = (COUNT)TFB_Random ();
-	dist = ((COUNT)TFB_Random () % 8) + 14;
+	dist = ((COUNT)TFB_Random () % 8) + 4;
 	full_type = COMMON_MATERIALS + type;
 
 	deposit_quality_fine = amount * 10;
@@ -2011,8 +2011,7 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
 			IncFrameIndex (NodeElementPtr->next.image.frame);
 
-	velocity_bonus = RES_SCALE (1 + (TFB_Random () % 3));
-	SetVelocityVector (&NodeElementPtr->velocity, velocity_bonus, angle);
+	SetVelocityVector (&NodeElementPtr->velocity, RES_SCALE (dist >> 1), angle);
 
 	UnlockElement (hNodeElement);
 
