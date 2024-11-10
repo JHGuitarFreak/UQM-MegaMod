@@ -35,6 +35,13 @@ extern "C" {
 
 #define NUM_TEXT_FRAMES 32
 
+typedef struct
+{
+	BYTE NumNodesGrabbed;
+	BYTE NodeType[32];
+	COUNT NodeAmounts[32];
+} NODE_DATA;
+
 // XXX: This is a private type now. Move it to lander.c?
 //   We may also want to merge it with LanderInputState.
 typedef struct
@@ -57,6 +64,8 @@ typedef struct
 	BYTE TectonicsChance;
 	BYTE WeatherChance;
 	BYTE FireChance;
+
+	NODE_DATA NodeData;
 } PLANETSIDE_DESC;
 
 extern MUSIC_REF LanderMusic;

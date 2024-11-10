@@ -750,7 +750,15 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	FillLanderHold (pPSD, Scan, NumRetrieved);
 
 	if (Scan != BIOLOGICAL_SCAN)
+	{
+		BYTE NumNodesGrabbed = pPSD->NodeData.NumNodesGrabbed;
+
 		pPSD->ElementAmounts[ElementCategory (EType)] += NumRetrieved;
+
+		pPSD->NodeData.NodeType[NumNodesGrabbed] = EType;
+		pPSD->NodeData.NodeAmounts[NumNodesGrabbed] = NumRetrieved;
+		pPSD->NodeData.NumNodesGrabbed++;
+	}
 
 	pPSD->NumFrames = NUM_TEXT_FRAMES;
 	sprintf (pPSD->AmountBuf, "%u", NumRetrieved);
@@ -1969,7 +1977,6 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	COUNT deposit_quality_fine, deposit_quality_gross;
 	HELEMENT hNodeElement;
 	ELEMENT *NodeElementPtr;
-	BYTE full_type;
 
 	hNodeElement = AllocElement();
 	if (hNodeElement == NULL)
@@ -1977,7 +1984,6 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 
 	angle = (COUNT)TFB_Random ();
 	dist = ((COUNT)TFB_Random () % 8) + 4;
-	full_type = COMMON_MATERIALS + type;
 
 	deposit_quality_fine = amount * 10;
 	if (deposit_quality_fine < 150)
@@ -1995,7 +2001,7 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID | APPEARING;
 	NodeElementPtr->next.location = curLanderLoc;
 	NodeElementPtr->cycle = which_node;
-	NodeElementPtr->turn_wait = full_type;
+	NodeElementPtr->turn_wait = type;
 	NodeElementPtr->thrust_wait = amount;
 	NodeElementPtr->preprocess_func = spawn_node;
 
@@ -2003,7 +2009,7 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	SetPrimColor (&DisplayArray[NodeElementPtr->PrimIndex], BLACK_COLOR);
 	NodeElementPtr->current.image.frame = SetAbsFrameIndex (
 			MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
-			+ ElementCategory (full_type) * 5);
+			+ ElementCategory (type) * 5);
 
 	NodeElementPtr->next.image.frame = SetRelFrameIndex (
 			NodeElementPtr->current.image.frame,
@@ -2022,43 +2028,30 @@ static void
 ScatterDeposits (void)
 {
 	COUNT i, numDeposits;
-	COUNT numNewNodes = 0;
-	COUNT newNodeAmounts[NUM_ELEMENT_CATEGORIES];
-	BYTE newNodeType[NUM_ELEMENT_CATEGORIES];
+	BYTE NumNodesGrabbed;
 	PLANETSIDE_DESC *pPSD = planetSideDesc;
 
 	if (!optScatterElements)
 		return;
 
-	for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
-	{
-		if (pPSD->ElementAmounts[i])
-		{
-			newNodeType[numNewNodes] = i;
-			newNodeAmounts[numNewNodes] = pPSD->ElementAmounts[i];
-			numNewNodes++;
-		}
-	}
-
-	if (!numNewNodes)
+	if (!pPSD->NodeData.NumNodesGrabbed)
 		return;
+
+	NumNodesGrabbed = pPSD->NodeData.NumNodesGrabbed;
 
 	numDeposits = callGenerateForScanType (pSolarSysState,
 			pSolarSysState->pOrbitalDesc, GENERATE_ALL, MINERAL_SCAN, NULL);
 
-	if (numDeposits == 32 || numDeposits == 0)
-		return;
-
-	for (i = numDeposits; i < (numDeposits + numNewNodes); i++)
+	for (i = numDeposits; i < (numDeposits + NumNodesGrabbed); i++)
 	{
 		BYTE affix = i - numDeposits;
 		double penalty = (double)RangeMinMax (25, 75, TFB_Random ()) / 100;
 
-		if (newNodeAmounts[affix] * penalty < 1)
+		if (pPSD->NodeData.NodeAmounts[affix] * penalty < 1)
 			continue;
 
-		LobMineralNode (i, newNodeType[affix],
-				newNodeAmounts[affix] * penalty);
+		LobMineralNode (i, pPSD->NodeData.NodeType[affix],
+				pPSD->NodeData.NodeAmounts[affix] * penalty);
 	}
 }
 
