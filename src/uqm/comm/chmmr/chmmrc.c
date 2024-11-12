@@ -266,6 +266,12 @@ ExitConversation (RESPONSE_REF R)
 		GLOBAL_SIS (ModuleSlots[8]) = BOMB_MODULE_5;
 		GLOBAL_SIS (ModuleSlots[9]) = BOMB_MODULE_2;
 	}
+	else if (PLAYER_SAID (R, perhaps_not_install))
+	{
+		NPCPhrase (YES);
+
+		NPCPhrase (GOODBYE);
+	}
 }
 
 static void
@@ -348,6 +354,9 @@ ImproveBomb (RESPONSE_REF R)
 	if (CheckAlliance (CHMMR_SHIP) != GOOD_GUY)
 		Response (other_assistance, ImproveBomb);
 	Response (proceed, ExitConversation);
+
+	if (EXTENDED)
+		Response (perhaps_not_install, ExitConversation);
 }
 
 static void
