@@ -354,9 +354,7 @@ ImproveBomb (RESPONSE_REF R)
 	if (CheckAlliance (CHMMR_SHIP) != GOOD_GUY)
 		Response (other_assistance, ImproveBomb);
 	Response (proceed, ExitConversation);
-
-	if (EXTENDED)
-		Response (perhaps_not_install, ExitConversation);
+	Response (perhaps_not_install, ExitConversation);
 }
 
 static void
