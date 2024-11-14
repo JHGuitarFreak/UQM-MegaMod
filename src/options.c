@@ -131,6 +131,7 @@ OPT_ENABLABLE optMeleeToolTips;
 int optMusicResume;
 DWORD optWindowType;
 BOOLEAN optNoClassic;
+OPT_ENABLABLE optScatterElements;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;
@@ -167,6 +168,9 @@ static void mountAddonDir (uio_Repository *repository,
 		uio_MountHandle *contentMountHandle, const char *addonDirName);
 
 static void mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
+		int relativeFlags, uio_MountHandle *relativeHandle);
+
+static void mountBaseZip (uio_DirHandle *dirHandle, const char *mountPoint,
 		int relativeFlags, uio_MountHandle *relativeHandle);
 
 // Looks for a file 'file' in all 'numLocs' locations from 'locs'.
@@ -217,7 +221,8 @@ findFileInDirs (const char *locs[], int numLocs, const char *file)
 // execFile is the path to the uqm executable, as acquired through
 // main()'s argv[0].
 void
-prepareContentDir (const char *contentDirName, const char* addonDirName, const char *execFile)
+prepareContentDir (const char *contentDirName, const char* addonDirName,
+		const char *execFile)
 {
 	const char *testFile = "version";
 	const char *loc;
@@ -480,8 +485,9 @@ mountContentDir (uio_Repository *repository, const char *contentPath)
 	packagesDir = uio_openDir (repository, "/packages", 0);
 	if (packagesDir != NULL)
 	{
-		mountDirZips (packagesDir, "/", uio_MOUNT_BELOW, contentMountHandle);
-		uio_closeDir (packagesDir);	
+		mountBaseZip (packagesDir, "/", uio_MOUNT_BELOW,
+				contentMountHandle);
+		uio_closeDir (packagesDir);
 	}
 
 	return contentMountHandle;
@@ -613,9 +619,9 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 {
 	static uio_AutoMount *autoMount[] = { NULL };
 	uio_DirList *dirList;
+	const char *pattern = "\\.([zZ][iI][pP]|[uU][qQ][mM])$";
 
-	dirList = uio_getDirList (dirHandle, "", "\\.([zZ][iI][pP]|[uU][qQ][mM])$",
-			match_MATCH_REGEX);
+	dirList = uio_getDirList (dirHandle, "", pattern, match_MATCH_REGEX);
 	if (dirList != NULL)
 	{
 		int i;
@@ -630,6 +636,54 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 				log_add (log_Warning, "Warning: Could not mount '%s': %s.",
 						dirList->names[i], strerror (errno));
 			}
+		}
+	}
+	uio_DirList_free (dirList);
+}
+
+static void
+mountBaseZip (uio_DirHandle *dirHandle, const char *mountPoint,
+		int relativeFlags, uio_MountHandle *relativeHandle)
+{
+	static uio_AutoMount *autoMount[] = { NULL };
+	uio_DirList *dirList;
+	const char *pattern = "\\.([zZ][iI][pP]|[uU][qQ][mM])$";
+	const DWORD name_hash = crc32b (BASE_CONTENT_NAME);
+
+	dirList = uio_getDirList (dirHandle, "", pattern, match_MATCH_REGEX);
+	if (dirList != NULL)
+	{
+		DWORD names_hash = 0;
+		int i;
+		
+		for (i = 0; i < dirList->numNames; i++)
+		{
+			names_hash = crc32b (dirList->names[i]);
+			if (name_hash == names_hash)
+				break;
+		}
+
+		if (i == dirList->numNames)
+		{
+			if (name_hash != names_hash)
+			{
+				log_add (log_Warning, "Warning: Could not find '%s': %s.",
+						BASE_CONTENT_NAME, strerror (errno));
+
+				uio_DirList_free (dirList);
+				return;
+			}
+			else
+				i--;
+		}
+
+		if (uio_mountDir (repository, mountPoint, uio_FSTYPE_ZIP,
+				dirHandle, dirList->names[i], "/", autoMount,
+				relativeFlags | uio_MOUNT_RDONLY,
+				relativeHandle) == NULL)
+		{
+			log_add (log_Warning, "Warning: Could not mount '%s': %s.",
+					dirList->names[i], strerror (errno));
 		}
 	}
 	uio_DirList_free (dirList);

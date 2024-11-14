@@ -507,7 +507,7 @@ object_animation (ELEMENT *ElementPtr)
 						speed = WORLD_TO_VELOCITY (2 * 1) * 9 / 10;
 						break;
 				}
-				speed = RES_SCALE (speed); 
+				speed = RES_SCALE (speed);
 
 				SetVelocityComponents (&ElementPtr->velocity,
 						COSINE (angle, speed), SINE (angle, speed));
@@ -750,7 +750,15 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	FillLanderHold (pPSD, Scan, NumRetrieved);
 
 	if (Scan != BIOLOGICAL_SCAN)
+	{
+		BYTE NumNodesGrabbed = pPSD->NodeData.NumNodesGrabbed;
+
 		pPSD->ElementAmounts[ElementCategory (EType)] += NumRetrieved;
+
+		pPSD->NodeData.NodeType[NumNodesGrabbed] = EType;
+		pPSD->NodeData.NodeAmounts[NumNodesGrabbed] = NumRetrieved;
+		pPSD->NodeData.NumNodesGrabbed++;
+	}
 
 	pPSD->NumFrames = NUM_TEXT_FRAMES;
 	sprintf (pPSD->AmountBuf, "%u", NumRetrieved);
@@ -907,9 +915,7 @@ static void
 DrawRadarArea (void)
 {
 	DrawRadarBorder ();
-
-	if (optSubmenu)
-		DrawMineralHelpers ();
+	DrawMineralHelpers ();
 }
 
 static void
@@ -1673,9 +1679,8 @@ AnimateLanderWarmup (void)
 
 		--GLOBAL_SIS (CrewEnlisted);
 
-		if (optSubmenu)
-			DrawMineralHelpers ();
-		else
+		DrawMineralHelpers ();
+		if (!optSubmenu)
 			DeltaSISGauges (UNDEFINED_DELTA, 0, 0);
 
 		DeltaLanderCrew (1, 0);
@@ -1746,8 +1751,7 @@ InitPlanetSide (POINT pt)
 		ClearSISRect (CLEAR_SIS_RADAR);
 		MapSurface = MAKE_EXTENT (RADAR_WIDTH, RADAR_HEIGHT);
 
-		if (optSubmenu)
-			DrawMineralHelpers ();
+		DrawMineralHelpers ();
 	}
 	else
 	{
@@ -1850,6 +1854,207 @@ LanderFire (SIZE facing)
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
 }
 
+static void
+put_node (ELEMENT *ElementPtr)
+{
+	HELEMENT hNodeElement;
+	ELEMENT *NodeElementPtr;
+	NODE_INFO info;
+
+	hNodeElement = AllocElement ();
+	if (!hNodeElement)
+		return;
+
+	callGenerateForScanType (pSolarSysState,
+			pSolarSysState->pOrbitalDesc, ElementPtr->cycle,
+			MINERAL_SCAN, &info);
+
+	setNodeNotRetrieved (&pSolarSysState->SysInfo.PlanetInfo,
+			MINERAL_SCAN, ElementPtr->cycle);
+
+	ElementPtr->next.location.x >>= MAG_SHIFT;
+	ElementPtr->next.location.y >>= MAG_SHIFT;
+
+	CustomMineralDeposit (&info, ElementPtr->turn_wait,
+			ElementPtr->thrust_wait, ElementPtr->next.location);
+
+	LockElement (hNodeElement, &NodeElementPtr);
+
+	NodeElementPtr->scan_node =
+			MAKE_WORD (MINERAL_SCAN, ElementPtr->cycle + 1);
+	NodeElementPtr->playerNr = PS_NON_PLAYER;
+	NodeElementPtr->current.location = info.loc_pt;
+
+	SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMP_PRIM);
+
+	NodeElementPtr->turn_wait = info.type;
+
+	// JMS: Partially scavenged energy blips won't return
+	// anymore to original size after leaving planet.
+	NodeElementPtr->mass_points = HIBYTE (info.density)
+			- pSolarSysState->SysInfo.PlanetInfo.
+			PartiallyScavengedList[MINERAL_SCAN][ElementPtr->cycle];
+
+	NodeElementPtr->current.image.frame = SetAbsFrameIndex (
+			MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
+			+ ElementCategory (info.type) * 5);
+	NodeElementPtr->next.image.frame = SetRelFrameIndex (
+			NodeElementPtr->current.image.frame,
+			LOBYTE (info.density) + 1);
+
+	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+			IncFrameIndex (NodeElementPtr->next.image.frame);
+
+	NodeElementPtr->next.location.x =
+			NodeElementPtr->current.location.x << MAG_SHIFT;
+	NodeElementPtr->next.location.y =
+			NodeElementPtr->current.location.y << MAG_SHIFT;
+
+	NodeElementPtr->state_flags |= APPEARING;
+	SET_GAME_STATE (PLANETARY_CHANGE, 1);
+
+	UnlockElement (hNodeElement);
+
+	PutElement (hNodeElement);
+}
+
+static void
+spawn_node (ELEMENT *ElementPtr)
+{
+	if (ElementPtr->next.location.y < 0)
+	{
+		ElementPtr->next.location.y = 0;
+		ZeroVelocityComponents (&ElementPtr->velocity);
+	}
+	if (ElementPtr->next.location.y > (MAP_HEIGHT << MAG_SHIFT) - 1)
+	{
+		ElementPtr->next.location.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+		ZeroVelocityComponents (&ElementPtr->velocity);
+	}
+
+	if (ElementPtr->life_span > 0)
+	{
+		HELEMENT hNodeElement;
+		ELEMENT *NodeElementPtr;
+		SIZE arc;
+		COUNT half_dist = ElementPtr->life_span >> 1;
+
+		hNodeElement = AllocElement ();
+		if (!hNodeElement)
+			return;
+
+		LockElement (hNodeElement, &NodeElementPtr);
+
+		arc = (abs (abs (half_dist - ElementPtr->life_span)
+				- half_dist)) << 1;
+
+		NodeElementPtr->playerNr = PS_NON_PLAYER;
+		NodeElementPtr->mass_points = 1;
+		NodeElementPtr->life_span = 1;
+		NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID;
+		NodeElementPtr->next.location.x = ElementPtr->next.location.x;
+		NodeElementPtr->next.location.y = ElementPtr->next.location.y - arc;
+
+		SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMP_PRIM);
+		DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+				IncFrameIndex (ElementPtr->next.image.frame);
+
+		UnlockElement (hNodeElement);
+		InsertElement (hNodeElement, GetHeadElement ());
+
+		return;
+	}
+
+	ZeroVelocityComponents (&ElementPtr->velocity);
+
+	put_node (ElementPtr);
+}
+
+static void
+LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
+{
+	COUNT dist, angle;
+	COUNT deposit_quality_fine, deposit_quality_gross;
+	HELEMENT hNodeElement;
+	ELEMENT *NodeElementPtr;
+
+	hNodeElement = AllocElement();
+	if (hNodeElement == NULL)
+		return;
+
+	angle = (COUNT)TFB_Random ();
+	dist = ((COUNT)TFB_Random () % 8) + 4;
+
+	deposit_quality_fine = amount * 10;
+	if (deposit_quality_fine < 150)
+		deposit_quality_gross = 0;
+	else if (deposit_quality_fine < 225)
+		deposit_quality_gross = 1;
+	else
+		deposit_quality_gross = 2;
+
+	LockElement (hNodeElement, &NodeElementPtr);
+
+	NodeElementPtr->playerNr = PS_NON_PLAYER;
+	NodeElementPtr->mass_points = 1;
+	NodeElementPtr->life_span = dist;
+	NodeElementPtr->state_flags = FINITE_LIFE | NONSOLID | APPEARING;
+	NodeElementPtr->next.location = curLanderLoc;
+	NodeElementPtr->cycle = which_node;
+	NodeElementPtr->turn_wait = type;
+	NodeElementPtr->thrust_wait = amount;
+	NodeElementPtr->preprocess_func = spawn_node;
+
+	SetPrimType (&DisplayArray[NodeElementPtr->PrimIndex], STAMPFILL_PRIM);
+	SetPrimColor (&DisplayArray[NodeElementPtr->PrimIndex], BLACK_COLOR);
+	NodeElementPtr->current.image.frame = SetAbsFrameIndex (
+			MiscDataFrame, (NUM_SCANDOT_TRANSITIONS * 2)
+			+ ElementCategory (type) * 5);
+
+	NodeElementPtr->next.image.frame = SetRelFrameIndex (
+			NodeElementPtr->current.image.frame,
+			LOBYTE (MAKE_WORD (deposit_quality_gross, amount)) + 1);
+	DisplayArray[NodeElementPtr->PrimIndex].Object.Stamp.frame =
+			IncFrameIndex (NodeElementPtr->next.image.frame);
+
+	SetVelocityVector (&NodeElementPtr->velocity, RES_SCALE (dist >> 1), angle);
+
+	UnlockElement (hNodeElement);
+
+	InsertElement (hNodeElement, GetHeadElement());
+}
+
+static void
+ScatterDeposits (void)
+{
+	COUNT i, numDeposits;
+	BYTE NumNodesGrabbed;
+	PLANETSIDE_DESC *pPSD = planetSideDesc;
+
+	if (!optScatterElements)
+		return;
+
+	if (!pPSD->NodeData.NumNodesGrabbed)
+		return;
+
+	NumNodesGrabbed = pPSD->NodeData.NumNodesGrabbed;
+
+	numDeposits = callGenerateForScanType (pSolarSysState,
+			pSolarSysState->pOrbitalDesc, GENERATE_ALL, MINERAL_SCAN, NULL);
+
+	for (i = numDeposits; i < (numDeposits + NumNodesGrabbed); i++)
+	{
+		BYTE affix = i - numDeposits;
+		double penalty = (double)RangeMinMax (25, 75, TFB_Random ()) / 100;
+
+		if (pPSD->NodeData.NodeAmounts[affix] * penalty < 1)
+			continue;
+
+		LobMineralNode (i, pPSD->NodeData.NodeType[affix],
+				pPSD->NodeData.NodeAmounts[affix] * penalty);
+	}
+}
+
 static BOOLEAN
 LanderExplosion (void)
 {
@@ -1883,6 +2088,8 @@ LanderExplosion (void)
 
 	PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_DESTROYED),
 			NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
+
+	ScatterDeposits ();
 
 	return TRUE;
 }
@@ -1929,6 +2136,14 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	{
 		return FALSE;
 	}
+
+#ifdef DEBUG
+	if (PulsedInputState.menu[KEY_DEBUG_2])
+	{
+		KillLanderCrewSeq (crew_left, ONE_SECOND / 20);
+	}
+#endif
+
 	else if (!crew_left && !damage_index)
 	{	// Dead, damage dealt, and exploding
 		if (explosion_index > EXPLOSION_LIFE + EXPLOSION_WAIT_FRAMES)
@@ -1958,6 +2173,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		if (crew_left)
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
+
 #if defined(ANDROID) || defined(__ANDROID__)
 			BATTLE_INPUT_STATE InputState =
 					GetDirectionalJoystickInput(index, 0);
@@ -2175,7 +2391,7 @@ IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 	while (GetTimeCounter () < TimeOut)
 	{
 		// 10 to clear the lander off of the screen
-		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10))); 
+		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10)));
 		SleepThreadUntil (inputState->NextTime);
 		inputState->NextTime += PLANET_SIDE_RATE;
 	}
@@ -2557,8 +2773,7 @@ InitLander (BYTE LanderFlags)
 		{
 			ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
 			capacity_shift = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
-			if (optSubmenu)
-				DrawMineralHelpers ();
+			DrawMineralHelpers ();
 		}
 		else
 		{

@@ -52,7 +52,8 @@ CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 			COUNT deposit_quality_fine;
 			COUNT deposit_quality_gross;
 
-			// JMS: For making the mineral blip smaller in case it is partially scavenged.
+			// JMS: For making the mineral blip smaller in case it is
+			// partially scavenged.
 			SDWORD temp_deposit_quality;
 
 			deposit_quality_fine = (LOWORD (RandomContext_Random (SysGenRNG)) % 100)
@@ -61,14 +62,19 @@ CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 					+ SysInfoPtr->StarSize
 					) * 50;
 
-			// JMS: This makes the mineral blip smaller in case it is partially scavenged.
+			// JMS: This makes the mineral blip smaller in case it is
+			// partially scavenged.
 			if (which_deposit < 32)
-				temp_deposit_quality = deposit_quality_fine - ((SysInfoPtr->PlanetInfo.PartiallyScavengedList[MINERAL_SCAN][which_deposit]) * 10);
-			// JMS: In case which_deposit >= 32 (most likely 65535), it means that this
-			// function is being called only to count the number of deposit nodes on the
-			// surface. In that case we don't need to use the PartiallyScavengedList
+				temp_deposit_quality = deposit_quality_fine -
+						((SysInfoPtr->PlanetInfo.PartiallyScavengedList
+							[MINERAL_SCAN][which_deposit]) * 10);
+			// JMS: In case which_deposit >= 32 (most likely 65535), it
+			// means that this function is being called only to count the
+			// number of deposit nodes on the surface. In that case we
+			// don't need to use the PartiallyScavengedList
 			// since the amount of minerals in that node is not stored yet.
-			// (AND we cannot use the list since accessing element 65535 would crash the game ;)
+			// (AND we cannot use the list since accessing element 65535
+			// would crash the game ;)
 			else
 				temp_deposit_quality = deposit_quality_fine;
 			
@@ -405,4 +411,34 @@ CustomMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 	} while (--j);
 
 	return num_deposits;
+}
+
+COUNT
+CustomMineralDeposit (NODE_INFO *info, COUNT type, BYTE quality,
+		POINT location)
+{
+	NODE_INFO temp_info;
+	COUNT deposit_quality_fine;
+	COUNT deposit_quality_gross;
+	SDWORD temp_deposit_quality;
+
+	if (!info)
+		return 0;
+
+	info->type = type;
+
+	deposit_quality_fine = quality * 10;
+
+	if (deposit_quality_fine < MEDIUM_DEPOSIT_THRESHOLD)
+		deposit_quality_gross = 0;
+	else if (deposit_quality_fine < LARGE_DEPOSIT_THRESHOLD)
+		deposit_quality_gross = 1;
+	else
+		deposit_quality_gross = 2;
+
+	info->loc_pt = location;
+
+	info->density = MAKE_WORD (deposit_quality_gross, quality);
+
+	return 1;
 }

@@ -32,6 +32,7 @@
 #include "shipcont.h"
 #include "nameref.h"
 #include "ifontres.h"
+#include "libs/graphics/drawable.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -828,32 +829,41 @@ DrawMineralHelpers (void)
 	RECT r;
 	SIZE leading;
 
+	if (!optSubmenu)
+		return;
+
 	OldContext = SetContext (StatusContext);
 
 	BatchGraphics ();
 
-	DrawFlagStatDisplay (GAME_STRING (STATUS_STRING_BASE + 6));
+	DrawFlagStatDisplay (""); // (GAME_STRING (STATUS_STRING_BASE + 6));
 
 	SetContextFont (TinyFont);
 
 	GetContextFontLeading (&leading);
 	leading -= RES_SCALE (1);
 
-#define ELEMENT_ORG_X      RES_SCALE (22)
-#define ELEMENT_ORG_Y      RES_SCALE (33)
+#define ELEMENT_ORG_Y      RES_SCALE (24)
 #define ELEMENT_SPACING_Y  RES_SCALE (9)
-#define ELEMENT_SPACING_X  RES_SCALE (32)
+
+#define ELEMENT_COL_0      RES_SCALE (10)
+#define ELEMENT_COL_1      RES_SCALE (32)
+#define ELEMENT_COL_2      RES_SCALE (58)
 
 	// setup element icons
 	s.frame = SetAbsFrameIndex (MiscDataFrame,
 			(NUM_SCANDOT_TRANSITIONS << 1) + 3);
-	s.origin.x = ELEMENT_ORG_X;
+	s.origin.x = ELEMENT_COL_0;
 	s.origin.y = ELEMENT_ORG_Y;
 	// setup element worths
-	t.baseline.x = ELEMENT_ORG_X + RES_SCALE (12);
+	t.baseline.x = ELEMENT_COL_1;
 	t.baseline.y = ELEMENT_ORG_Y + RES_SCALE (3);
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+
+	r.extent = GetFrameBounds (s.frame);
+	r.corner.x = ELEMENT_COL_0 - RES_SCALE (3);
 
 	// draw element icons and worths
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; ++i)
@@ -863,21 +873,41 @@ DrawMineralHelpers (void)
 		s.frame = SetRelFrameIndex (s.frame, 5);
 		s.origin.y += ELEMENT_SPACING_Y;
 
-		// print x'es
+		// print element worth
 		SetContextForeGroundColor (MODULE_PRICE_COLOR);
-		snprintf (buf, sizeof buf, "%s", "x");
+		snprintf (buf, sizeof buf, "%u", GLOBAL (ElementWorth[i]));
 		font_DrawText (&t);
 
-		// print element worth
-		SetContextForeGroundColor (MODULE_NAME_COLOR);
-		snprintf (buf, sizeof buf, "%u", GLOBAL (ElementWorth[i]));
-		digit = RES_SCALE (11);
-		t.baseline.x += digit;
-		t.CharCount = (COUNT)~0;
+		// print x'es
+		snprintf (buf, sizeof buf, "x");
+		t.baseline.x -= RES_SCALE (11);
 		font_DrawText (&t);
-		t.baseline.x -= digit;
+
+		// print the element amount
+		SetContextForeGroundColor (MODULE_NAME_COLOR);
+		t.baseline.x = ELEMENT_COL_2;
+		snprintf (buf, sizeof buf, "%u", GLOBAL_SIS (ElementAmounts[i]));
+		font_DrawText (&t);
+
+		t.baseline.x = ELEMENT_COL_1;
 		t.baseline.y += ELEMENT_SPACING_Y;
 	}
+
+	SetContextForeGroundColor (BLACK_COLOR);
+	r.corner.y = s.origin.y - RES_SCALE (3);
+	DrawFilledRectangle (&r);
+
+	s.frame = SetAbsFrameIndex (s.frame, 68);
+	s.origin.x = r.corner.x + RES_RECENTER (r.extent.height);
+	s.origin.y = r.corner.y + RES_RECENTER (r.extent.height);
+	DrawStamp (&s);
+
+	// print the bio amount
+	SetContextForeGroundColor (MODULE_NAME_COLOR);
+	t.baseline.x = ELEMENT_COL_2;
+	snprintf (buf, sizeof buf, "%u", GLOBAL_SIS (TotalBioMass));
+	font_DrawText (&t);
+	t.baseline.y += ELEMENT_SPACING_Y;
 
 	r.corner.x = RES_SCALE (4);
 	r.corner.y = t.baseline.y - RES_SCALE (7);

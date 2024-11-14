@@ -105,9 +105,13 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 			pPlanet->data_index = GenerateGasGiantWorld ();
 
 			if (StarSeed)
-				pSunDesc->MoonByte = PlanetByteGen (pPlanet);
+			{
+				if (!pPlanet->NumPlanets)
+					pPlanet->NumPlanets++;
 
-			if (pPlanet->NumPlanets < (pSunDesc->MoonByte + 1))
+				pSunDesc->MoonByte = PlanetByteGen (pPlanet);
+			}
+			else if (pPlanet->NumPlanets < (pSunDesc->MoonByte + 1))
 				pPlanet->NumPlanets = pSunDesc->MoonByte + 1;
 		}
 

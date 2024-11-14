@@ -11,9 +11,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Commandline option to prevent Classic Pack from loading
 - King Duncan's StarSeed, which is a mode that shuffles the locations of all plot events into the starmap including homeworlds, fleet locations, dialog, and artifacts as well as planetary resources and Quasispace
 - An option to change the colors of alien Spheres of Influence to make them more easily identifiable at a glance.
+- Added a "Quality of Life" menu option in the Setup Menu to corral helpful options into one place
+- Added an option that, when upon lander explosion, will scatter a percentage of elements from within the lander's cargo hold on to the planet's surface
+- Added a dialogue option when talking to the Chmmr about installing the bomb which allows you to "install the bomb" later
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
+- The helper graphics for scanning and landing now show current cargo manifest for elements and biological data
+- Dropped support for autoloading vanilla voice content as it is no longer compatible
+- Preliminary support for only loading the current MegaMod base content pack in the content/packages directory (Alas this also means no more shadow content for those that used such a thing)
+- Split the ambient space music option to include a "No Spoilers" option that will only play a region's music if their Sphere of Influene is on the map
+- As part of the No Spoilers option, when the Sphere of Influence is not on the map, regional music will only play at a homeworld if you know about the homeworld
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles

@@ -146,15 +146,16 @@ static int do_advanced (WIDGET *self, int event);
 static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
+static int do_qol (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         10
-#define CHOICE_COUNT       84
+#define MENU_COUNT         11
+#define CHOICE_COUNT       85
 #define SLIDER_COUNT        5
-#define BUTTON_COUNT       12
+#define BUTTON_COUNT       13
 #define LABEL_COUNT         9
 #define TEXTENTRY_COUNT     3
 #define CONTROLENTRY_COUNT  8
@@ -175,7 +176,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
-	do_keyconfig, do_music, do_visual };
+	do_keyconfig, do_music, do_visual, do_qol };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -186,6 +187,7 @@ static WIDGET *main_widgets[] = {
 	(WIDGET *)(&buttons[4]),    // Sound
 	(WIDGET *)(&buttons[10]),   // Music
 	(WIDGET *)(&buttons[6]),    // Controls
+	(WIDGET *)(&buttons[12]),   // Quality of Life
 	(WIDGET *)(&buttons[7]),    // Advanced
 	(WIDGET *)(&buttons[5]),    // Cheats
 	(WIDGET *)(&labels[4]),     // Spacer
@@ -313,18 +315,11 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&choices[77]),   // Slaughter Mode
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[82]),   // Seed usage selection
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
 	(WIDGET *)(&choices[83]),   // SOI Color Selection
 	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&choices[32]),   // Skip Intro
-	(WIDGET *)(&choices[40]),   // Partial Pickup switch
-	(WIDGET *)(&choices[56]),   // Game Over switch
-	(WIDGET *)(&choices[41]),   // Submenu switch
-	(WIDGET *)(&choices[60]),   // Smart Auto-Pilot
-	(WIDGET *)(&choices[78]),   // Advanced Auto-Pilot
-	(WIDGET *)(&choices[74]),   // Show Visited Stars
-	(WIDGET *)(&choices[79]),   // Melee Tool Tips
 	(WIDGET *)(&buttons[1]),
 	NULL };
 
@@ -335,6 +330,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[48]),   // Whole Fuel Value switch
 	(WIDGET *)(&choices[33]),   // Fuel Range
 	(WIDGET *)(&choices[67]),   // Animated HyperStars
+	(WIDGET *)(&choices[56]),   // Game Over switch
 
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&labels[6]),     // Comm Label
@@ -354,6 +350,19 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
+	(WIDGET *)(&buttons[1]),    // Exit to Menu
+	NULL };
+
+static WIDGET *qol_widgets[] = {
+	(WIDGET *)(&choices[32]),   // Skip Intro
+	(WIDGET *)(&choices[40]),   // Partial Pickup switch
+	(WIDGET *)(&choices[84]),   // Scatter Elements
+	(WIDGET *)(&choices[41]),   // Submenu switch
+	(WIDGET *)(&choices[60]),   // Smart Auto-Pilot
+	(WIDGET *)(&choices[78]),   // Advanced Auto-Pilot
+	(WIDGET *)(&choices[74]),   // Show Visited Stars
+	(WIDGET *)(&choices[79]),   // Melee Tool Tips
+	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
@@ -389,6 +398,7 @@ menu_defs[] =
 	{editkeys_widgets, 7},
 	{music_widgets, 8},
 	{visual_widgets, 9},
+	{qol_widgets, 10},
 	{NULL, 0}
 };
 
@@ -558,6 +568,19 @@ do_visual (WIDGET *self, int event)
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[9]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_qol (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[10]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -1092,6 +1115,7 @@ SetDefaults (void)
 	choices[81].selected = opts.windowType;
 	choices[82].selected = opts.seedType;
 	choices[83].selected = opts.sphereColors;
+	choices[84].selected = opts.scatterElements;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1191,6 +1215,7 @@ PropagateResults (void)
 	opts.windowType = choices[81].selected;
 	opts.seedType = choices[82].selected;
 	opts.sphereColors = choices[83].selected;
+	opts.scatterElements = choices[84].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -2267,6 +2292,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
+	// QoL
+	opts->scatterElements = optScatterElements;
 
 /*
  *		Cheats
@@ -2513,6 +2540,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
 	PutIntOpt  (&optSphereColors, &opts->sphereColors, "mm.sphereColors", FALSE);
+	PutBoolOpt (&optScatterElements, &opts->scatterElements, "mm.scatterElements", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);

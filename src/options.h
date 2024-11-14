@@ -27,6 +27,8 @@
 #include "libs/uio.h"
 #include "uqm/setupmenu.h"
 
+#include "uqmversion.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -118,6 +120,7 @@ extern OPT_ENABLABLE optMeleeToolTips;
 extern int optMusicResume;
 extern DWORD optWindowType;
 extern BOOLEAN optNoClassic;
+extern OPT_ENABLABLE optScatterElements;
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
@@ -160,6 +163,9 @@ extern ADDON_COUNT addonList;
 
 #define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
 #define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
+
+#define BASE_CONTENT_NAME "mm-" UQM_MAJOR_VERSION_S "." \
+		UQM_MINOR_VERSION_S "." UQM_PATCH_VERSION_S "-content.uqm"
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
