@@ -169,6 +169,8 @@ extern void FlushCustomBaseLine (void);
 extern void BlockTalkingAnim (COUNT trackStart, COUNT trackEnd);
 extern void UpdateDuty (BOOLEAN talk);
 
+extern void DeltaLastTime (TimeCount diff);
+
 extern BOOLEAN IsProbe;
 extern BOOLEAN cwLock;
 

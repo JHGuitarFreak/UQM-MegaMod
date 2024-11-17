@@ -878,3 +878,12 @@ DisengageFilters (void)
 {
 	filterEnabled = FALSE;
 }
+
+void
+DeltaLastTime (TimeCount diff)
+{
+	if (diff < 0)
+		diff = 0;
+
+	LastTime += diff;
+}
