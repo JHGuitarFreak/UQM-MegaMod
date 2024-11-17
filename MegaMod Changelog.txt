@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Preliminary support for only loading the current MegaMod base content pack in the content/packages directory (Alas this also means no more shadow content for those that used such a thing)
 - Split the ambient space music option to include a "No Spoilers" option that will only play a region's music if their Sphere of Influene is on the map
 - As part of the No Spoilers option, when the Sphere of Influence is not on the map, regional music will only play at a homeworld if you know about the homeworld
+- Paused state now have a grayscale filter applied to the whole screen along with music fading dirung the pause
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
@@ -29,6 +30,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Orz computer font persisting through multiple lines
 - Music and sfx settings now being saved to config properly
 - Fixed the loading of vanilla saves (again)
+- Fixed animation timings being off after a long pause
+- Fixed sound jitter produced by an alien voiceover if F10 and Confirm were struck during dialogue
 
 ## [v0.8.3] - 2024-04-11
 

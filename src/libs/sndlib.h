@@ -101,6 +101,7 @@ extern void WaitForSoundEnd (COUNT Channel);
 #define TFBSOUND_WAIT_ALL ((COUNT)~0)
 
 extern DWORD FadeMusic (BYTE end_vol, SIZE TimeInterval);
+extern BYTE GetCurrMusicVol (void);
 
 // For music resume option
 typedef struct music_position
