@@ -466,7 +466,7 @@ DoRestart (MENU_STATE *pMS)
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
 
-	if (pMS->Initialized)
+	if (pMS->Initialized && !(GLOBAL (CurrentActivity) & CHECK_ABORT))
 		Flash_process (pMS->flashContext);
 
 	if (!pMS->Initialized)
@@ -499,6 +499,8 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
+		SleepThreadUntil (
+				FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])

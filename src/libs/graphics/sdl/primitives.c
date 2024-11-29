@@ -426,6 +426,31 @@ renderpixel_linearburn (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_RGB (fmt, r, g, b);
 }
 
+static void
+renderpixel_desaturate (SDL_Surface *surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+	int luma;
+
+	(void) pixel;
+
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+
+	luma = ((3 * sr + 6 * sg + sb) * 205) >> 11;
+	r = clip_channel(sr + ((factor * (luma - sr)) >> 8));
+	g = clip_channel(sg + ((factor * (luma - sg)) >> 8));
+	b = clip_channel(sb + ((factor * (luma - sb)) >> 8));
+	
+	*p = PACK_PIXEL_RGB (fmt, r, g, b);
+}
+
 /* Kruzen: special instant blend to transform HD hyperspace ambience to quasispace one */
 static void
 renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
@@ -481,6 +506,8 @@ renderpixel_for (SDL_Surface *surface, RenderKind kind, BOOLEAN forMask)
 		return &renderpixel_linearburn;
 	case renderHypToQuas:
 		return &renderpixel_hypertoquasi;
+	case renderDesatur:
+		return &renderpixel_desaturate;
 	}
 	// should not ever get here
 	return NULL;

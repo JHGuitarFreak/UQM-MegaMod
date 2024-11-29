@@ -217,8 +217,9 @@ Flash_terminate (FlashContext *context)
 {
 	if (context->started)
 	{
-		// Restore the flash rectangle:
-		Flash_drawFrame (context, context->original, FALSE);
+		// Restore the flash rectangle IF not quiting:
+		if (!(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			Flash_drawFrame (context, context->original, FALSE);
 
 		Flash_clearCache (context);
 		HFree (context->cache);

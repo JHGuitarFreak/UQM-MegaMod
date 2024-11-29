@@ -1965,8 +1965,11 @@ DoGameOptions (MENU_STATE *pMS)
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 			case QUIT_GAME:
+				DrawMenuStateStrings (PM_SAVE_GAME, pMS->CurState);
 				if (ConfirmExit ())
 					return FALSE;
+				else
+					DrawMenuStateStrings(PM_SAVE_GAME, pMS->CurState);
 				break;
 			case SETTINGS:
 				SettingsMenu (FALSE);

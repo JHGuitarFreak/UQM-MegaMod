@@ -427,11 +427,11 @@ PauseGame (void)
 	r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
 	saveStamp = SaveContextFrame (&ctxRect);
 
-	mode = MAKE_DRAW_MODE (DRAW_GRAYSCALE, 0x80);
+	mode = MAKE_DRAW_MODE (DRAW_DESATURATE, 0xBE);
 	oldMode = SetContextDrawMode (mode);
 	DrawFilledRectangle (&ctxRect);
 	SetContextDrawMode (oldMode);
-	OldColor = SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x40));
+	OldColor = SetContextForeGroundColor (BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x30));
 	DrawFilledRectangle (&ctxRect);
 	SetContextForeGroundColor (OldColor);
 
