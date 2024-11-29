@@ -40,6 +40,7 @@ typedef enum
 	renderGrayscale,
 	renderLinearburn,
 	renderHypToQuas,
+	renderDesatur,
 } RenderKind;
 
 #define FULLY_OPAQUE_ALPHA  255

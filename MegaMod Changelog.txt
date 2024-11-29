@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added a "Quality of Life" menu option in the Setup Menu to corral helpful options into one place
 - Added an option that, when upon lander explosion, will scatter a percentage of elements from within the lander's cargo hold on to the planet's surface
 - Added a dialogue option when talking to the Chmmr about installing the bomb which allows you to "install the bomb" later
+- Added desaturation software filter
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
@@ -22,7 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Preliminary support for only loading the current MegaMod base content pack in the content/packages directory (Alas this also means no more shadow content for those that used such a thing)
 - Split the ambient space music option to include a "No Spoilers" option that will only play a region's music if their Sphere of Influene is on the map
 - As part of the No Spoilers option, when the Sphere of Influence is not on the map, regional music will only play at a homeworld if you know about the homeworld
-- Paused state now have a grayscale filter applied to the whole screen along with music fading dirung the pause
+- Paused state now have a desaturated filter applied to the whole screen along with music fading dirung the pause
+- Removed seemingly useless call to redraw solarsys menu from loading screen
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
@@ -32,6 +34,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixed the loading of vanilla saves (again)
 - Fixed animation timings being off after a long pause
 - Fixed sound jitter produced by an alien voiceover if F10 and Confirm were struck during dialogue
+- Fixed F10 exit from the main menu
+- Fixed F10 exit being overdrawn in some cases
+- Fixed flash context "repairing" frame during exit
 
 ## [v0.8.3] - 2024-04-11
 

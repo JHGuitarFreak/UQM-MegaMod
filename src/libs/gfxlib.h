@@ -550,6 +550,7 @@ typedef enum
 	DRAW_GRAYSCALE, // To get true grayscale - factor should be == 128
 	DRAW_LINEARBURN,
 	DRAW_HYPTOQUAS,
+	DRAW_DESATURATE, // Desaturate image. Not optimized for high fps
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;
