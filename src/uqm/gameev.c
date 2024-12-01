@@ -154,7 +154,7 @@ EventHandler (BYTE selector)
 
 	eventIdStr = eventIdNumToStr (selector);
 	if (eventIdStr == NULL) {
-		log_add(log_Warning, "Warning: EventHandler(): Event %d is "
+		log_add (log_Warning, "Warning: EventHandler(): Event %d is "
 				"unknown.", selector);
 		return;
 	}

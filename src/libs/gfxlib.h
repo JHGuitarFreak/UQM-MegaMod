@@ -565,6 +565,8 @@ typedef struct
 #define DRAW_FACTOR_1       0xff
 #define TRANSFER_ALPHA      0x7fff
 
+#define DESAT_AMOUNT 0xBE
+
 static inline DrawMode
 MAKE_DRAW_MODE (DrawKind kind, SWORD factor)
 {

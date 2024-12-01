@@ -144,12 +144,12 @@ DoConfirmExit (void)
 		r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
 		s = SaveContextFrame (&ctxRect);
 
-		mode = MAKE_DRAW_MODE (DRAW_DESATURATE, 0xBE);
+		mode = MAKE_DRAW_MODE (DRAW_DESATURATE, DESAT_AMOUNT);
 		oldMode = SetContextDrawMode (mode);
 		DrawFilledRectangle (&ctxRect);
 		SetContextDrawMode (oldMode);
 		OldColor = SetContextForeGroundColor 
-			(BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x30));
+				(BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x30));
 		DrawFilledRectangle (&ctxRect);
 		SetContextForeGroundColor (OldColor);
 
