@@ -1524,12 +1524,15 @@ ScanSystem (void)
 	SetFlashRect (NULL, FALSE);
 
 	// cleanup scan graphics
-	BatchGraphics ();
-	SetContext (ScanContext);
-	DrawPlanet (0, BLACK_COLOR);
+	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT))
+	{
+		BatchGraphics ();
+		SetContext (ScanContext);
+		DrawPlanet (0, BLACK_COLOR);
 
-	EraseCoarseScan ();
-	UnbatchGraphics ();
+		EraseCoarseScan ();
+		UnbatchGraphics ();
+	}
 
 	DestroyDrawable (ReleaseDrawable (eraseFrame));
 	eraseFrame = NULL;
