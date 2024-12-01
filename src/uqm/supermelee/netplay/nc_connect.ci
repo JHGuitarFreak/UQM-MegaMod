@@ -156,7 +156,8 @@ NetConnection_clientGo(NetConnection *conn) {
 	connectFlags.retryDelayMs = NETPLAY_RETRYDELAY;
 
 	result = connectHostByName(conn->options->host, conn->options->port,
-			IPProto_tcp, &connectFlags, NetConnection_connectedClientCallback,
+			IPProto_tcp, &connectFlags,
+			(ConnectConnectCallback)NetConnection_connectedClientCallback,
 			NetConnection_connectedClientErrorCallback, (void *) conn);
 	
 	return result;

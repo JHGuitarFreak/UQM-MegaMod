@@ -2412,7 +2412,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optRemixMusic, &opts->musicremix, "config.remixmusic", TRUE);
 	PutBoolOpt (&optVolasMusic, &opts->volasMusic, "mm.volasMusic", TRUE);
 
-	PutIntOpt (&optSpaceMusic, &opts->spaceMusic, "mm.spaceMusic", TRUE);
+	PutIntOpt (&optSpaceMusic, (int *)&opts->spaceMusic, "mm.spaceMusic", TRUE);
 
 	if (PutBoolOpt (&optMainMenuMusic, &opts->mainMenuMusic, "mm.mainMenuMusic", FALSE))
 	{
@@ -2539,7 +2539,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt  (&optFuelRange, (int*)(&opts->fuelRange), "mm.fuelRange", FALSE);
 	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
-	PutIntOpt  (&optSphereColors, &opts->sphereColors, "mm.sphereColors", FALSE);
+	PutIntOpt  (&optSphereColors, (int *)&opts->sphereColors, "mm.sphereColors", FALSE);
 	PutBoolOpt (&optScatterElements, &opts->scatterElements, "mm.scatterElements", FALSE);
 	
 	// Interplanetary
@@ -2576,7 +2576,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if ((optDifficulty = opts->difficulty) == OPTVAL_IMPO)
 		optDifficulty = OPTVAL_NORM;
 	PutBoolOpt (&optExtended, &opts->extended, "mm.extended", FALSE);
-	PutIntOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
+	PutIntOpt (&optNomad, (int *)&opts->nomad, "mm.nomad", FALSE);
 	PutBoolOpt (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", FALSE);
 
 	// Comm screen
