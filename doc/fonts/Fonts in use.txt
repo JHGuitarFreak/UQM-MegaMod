@@ -1,7 +1,7 @@
 --   Use Case                     Font Name                   License                 Website                                                                   
 --  ---------------------------- --------------------------- ----------------------- -------------------------------------------------------------------------- 
 --   3DO Menu                     UQM 3DO Menu Labels Reg.    CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
---   Arilou                       Puritan Alt Bold            Freeware (No License)   https://www.dafont.com/puritan-ds.font                                    
+--   Arilou                       UQM Arilou Regular          CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Chmmr                        UQM Chmmr Regular           CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Commander                    UQM Commander Regular       CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Computer                     DJB Get Digital             Free for personal use   https://www.dafont.com/djb-get-digital.font                               
