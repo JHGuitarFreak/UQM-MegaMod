@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added an option that, when upon lander explosion, will scatter a percentage of elements from within the lander's cargo hold on to the planet's surface
 - Added a dialogue option when talking to the Chmmr about installing the bomb which allows you to "install the bomb" later
 - Added desaturation software filter
+- Currently owned lander modifications now appear on lander sprites during planetside
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest

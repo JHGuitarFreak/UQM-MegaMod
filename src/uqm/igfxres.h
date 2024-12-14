@@ -62,6 +62,7 @@
 #define LANDER_LAUNCH_MASK_PMAP_ANIM "graphics.landerlaunch"
 #define LANDER_MASK_PMAP_ANIM "graphics.lander"
 #define LANDER_PC_MASK_PMAP_ANIM "graphics.lander.pc"
+#define LANDER_MODS_PMAP_ANIM "graphics.lander.mods"
 #define LANDER_RETURN_MASK_PMAP_ANIM "graphics.landerreturn"
 #define LANDER_SHIELD_MASK_ANIM "graphics.landershield"
 #define LAVA_MASK_PMAP_ANIM "graphics.lavaspot"

@@ -3179,12 +3179,8 @@ SolarSysMenu (void)
 	MenuState.InputFunc = DoSolarSysMenu;
 	DoInput (&MenuState, TRUE);
 
-	// Kruzen: this part is in the Core, but I don't know why it's here.
-	// This thing only causes minor visual inconsistency in LOAD menu
-	// and the menu will be redrawn anyway on the next frame to the correct
-	// set.
-	//if (!(GLOBAL (CurrentActivity) & CHECK_LOAD))
-	//	DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
+	if (!(GLOBAL (CurrentActivity) & CHECK_LOAD))
+		DrawMenuStateStrings (PM_STARMAP, -NAVIGATION);
 }
 
 static BOOLEAN
