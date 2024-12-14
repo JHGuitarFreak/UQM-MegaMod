@@ -876,36 +876,60 @@ blt_filtered_prim (SDL_Surface *layer, RenderPixelFn plot, int factor,
 	else
 		getpix = getpixel_for (layer);// For both layer and base
 
-	// Not for paletted yet!
+	// For paletted
 	if (lrfmt->palette)
-		return;
-
-	if (fill)
-		color = SDL_MapRGB (bsfmt, fill->r, fill->g, fill->b);
-
-	for (y = 0; y < base->h; ++y)
 	{
-		for (x = 0; x < base->w; ++x)
+		Uint32 lkey = ~0;
+		Uint32 bkey = ~0;
+		TFB_GetColorKey (layer, &lkey);
+		TFB_GetColorKey (base, &bkey);
+
+		for (y = 0; y < base->h; ++y)
 		{
-			Uint8 al, ab;
-			Uint32 lp;
-			Uint32 *bp;
+			for (x = 0; x < base->w; ++x)
+			{
+				Uint32 lp;
+				Uint8 *bp;
+
+				lp = getpix (layer, x, y);
+				bp = ((Uint8*)base->pixels + y * base->pitch + x);
+
+				if (lp == lkey || *bp == bkey)
+					continue;
+
+				*bp = lp;
+			}
+		}
+	}
+	else
+	{// For truecolor
+		if (fill)
+			color = SDL_MapRGB (bsfmt, fill->r, fill->g, fill->b);
+
+		for (y = 0; y < base->h; ++y)
+		{
+			for (x = 0; x < base->w; ++x)
+			{
+				Uint8 al, ab;
+				Uint32 lp;
+				Uint32 *bp;
 			
-			lp = getpix (layer, x, y);
-			bp = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
+				lp = getpix (layer, x, y);
+				bp = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
 			
-			if ((lp & lrfmt->Amask) == 0 || (*bp & bsfmt->Amask) == 0)
-				continue; // transparent pixel
+				if ((lp & lrfmt->Amask) == 0 || (*bp & bsfmt->Amask) == 0)
+					continue; // transparent pixel
 
-			al = (lp >> (lrfmt->Ashift)) & 0xFF;
-			ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
+				al = (lp >> (lrfmt->Ashift)) & 0xFF;
+				ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
 
-			plot (base, x, y, fill ? color : lp, 
-					factor == TRANSFER_ALPHA ? al : factor);
+				plot (base, x, y, fill ? color : lp, 
+						factor == TRANSFER_ALPHA ? al : factor);
 
-			// Reapply alpha to pixel since every plot function nukes it
-			*bp &= ~(bsfmt->Amask);
-			*bp |= ((Uint32)ab << (bsfmt->Ashift));
+				// Reapply alpha to pixel since every plot function nukes it
+				*bp &= ~(bsfmt->Amask);
+				*bp |= ((Uint32)ab << (bsfmt->Ashift));
+			}
 		}
 	}
 }

@@ -538,6 +538,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, 0, 0);
 	OrbitNum = SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
+	MaskLanderGraphics ();
 
 	if (isPC (optScrTrans))
 		SleepThreadUntil (sleep);
