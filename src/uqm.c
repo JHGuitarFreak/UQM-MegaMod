@@ -211,6 +211,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,  musicResume);
 	DECL_CONFIG_OPTION(int,  windowType);
 	DECL_CONFIG_OPTION(bool, scatterElements);
+	DECL_CONFIG_OPTION(bool, showUpgrades);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -425,6 +426,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  musicResume,       0 ),
 		INIT_CONFIG_OPTION(  windowType,        2 ),
 		INIT_CONFIG_OPTION(  scatterElements,   false ),
+		INIT_CONFIG_OPTION(  showUpgrades,      false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -656,6 +658,7 @@ main (int argc, char *argv[])
 	optMusicResume = options.musicResume.value;
 	optWindowType = options.windowType.value;
 	optScatterElements = options.scatterElements.value;
+	optShowUpgrades = options.showUpgrades.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1179,6 +1182,8 @@ getUserConfigOptions (struct options_struct *options)
 	}
 
 	getBoolConfigValue (&options->scatterElements, "mm.scatterElements");
+
+	getBoolConfigValue (&options->showUpgrades, "mm.showUpgrades");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1278,6 +1283,7 @@ enum
 	MUSICRESUME_OPT,
 	WINDTYPE_OPT,
 	SCATTERELEMS_OPT,
+	SHOWUPG_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1392,6 +1398,7 @@ static struct option longOptions[] =
 	{"windowtype", 1, NULL, WINDTYPE_OPT},
 	{"noclassic", 0, NULL, CLAPAK_OPT},
 	{"scatterelements", 0, NULL, SCATTERELEMS_OPT},
+	{"showupgrades", 0, NULL, SHOWUPG_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2207,6 +2214,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SCATTERELEMS_OPT:
 				setBoolOption (&options->scatterElements, true);
 				break;
+			case SHOWUPG_OPT:
+				setBoolOption (&options->showUpgrades, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2605,6 +2615,9 @@ usage (FILE *out, const struct options_struct *defaults)
 			"elements in the lander's cargo hold onto the planet's surface"
 			" when the lander explodes (default: %s)",
 			boolOptString (&defaults->scatterElements));
+	log_add (log_User, "  --showupgrades : Show lander upgrade graphics "
+			"when exploring planets (default: %s)",
+			boolOptString (&defaults->showUpgrades));
 
 	log_setOutput (old);
 }

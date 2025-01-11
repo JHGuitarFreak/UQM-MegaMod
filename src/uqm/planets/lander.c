@@ -2273,6 +2273,9 @@ MaskLanderGraphics (void)
 {
 	BYTE currFlagState;
 
+	if (!optShowUpgrades)
+		return;
+
 	currFlagState = (GET_GAME_STATE (IMPROVED_LANDER_SHOT) << 0) +
 		(GET_GAME_STATE (IMPROVED_LANDER_SPEED) << 1) +
 		(GET_GAME_STATE (IMPROVED_LANDER_CARGO) << 2);

@@ -132,6 +132,7 @@ int optMusicResume;
 DWORD optWindowType;
 BOOLEAN optNoClassic;
 OPT_ENABLABLE optScatterElements;
+OPT_ENABLABLE optShowUpgrades;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

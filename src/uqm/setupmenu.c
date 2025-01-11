@@ -153,7 +153,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         11
-#define CHOICE_COUNT       85
+#define CHOICE_COUNT       86
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       13
 #define LABEL_COUNT         9
@@ -350,6 +350,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
+	(WIDGET *)(&choices[85]),   // Show Lander Upgrades
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
@@ -1116,6 +1117,7 @@ SetDefaults (void)
 	choices[82].selected = opts.seedType;
 	choices[83].selected = opts.sphereColors;
 	choices[84].selected = opts.scatterElements;
+	choices[85].selected = opts.showUpgrades;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1216,6 +1218,7 @@ PropagateResults (void)
 	opts.seedType = choices[82].selected;
 	opts.sphereColors = choices[83].selected;
 	opts.scatterElements = choices[84].selected;
+	opts.showUpgrades = choices[85].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -2295,6 +2298,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	// QoL
 	opts->scatterElements = optScatterElements;
 
+	opts->showUpgrades = optShowUpgrades;
+
 /*
  *		Cheats
  */
@@ -2562,6 +2567,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt  (&optScanSphere, (int*)&opts->sphereType, "mm.sphereType", FALSE);
 	PutConsOpt (&optTintPlanSphere, &opts->tintPlanSphere, "mm.tintPlanSphere", FALSE);
 	PutConsOpt (&optWhichShield, &opts->shield, "config.pulseshield", FALSE);
+	PutBoolOpt (&optShowUpgrades, &opts->showUpgrades, "mm.showUpgrades", FALSE);
 
 	// Game modes
 	{
