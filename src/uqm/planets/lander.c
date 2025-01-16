@@ -2337,6 +2337,8 @@ FreeLanderData (void)
 		DestroyDrawable (ReleaseDrawable (LanderFrame[i]));
 		LanderFrame[i] = 0;
 	}
+
+	LanderUpgradesFlag = 0;
 }
 
 void
