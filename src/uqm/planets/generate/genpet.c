@@ -88,6 +88,8 @@ GenerateTalkingPet_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		pPlanet->data_index = GenerateHabitableWorld ();
 	}
+
+	return true;
 }
 
 static bool
