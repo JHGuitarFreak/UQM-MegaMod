@@ -825,7 +825,7 @@ void
 DrawMineralHelpers (void)
 {
 	CONTEXT OldContext;
-	COUNT i, digit;
+	COUNT i;
 	STAMP s;
 	TEXT t;
 	UNICODE buf[40];
