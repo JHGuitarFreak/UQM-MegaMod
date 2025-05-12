@@ -335,6 +335,8 @@ FillHangarX (void)
 	}
 }
 
+#define WANDERING_X (optWindowType == 2 ? 2 : (optWindowType == 1 ? 6 : 19))
+
 static void
 showRemainingCrew (void)
 {
@@ -344,16 +346,19 @@ showRemainingCrew (void)
 	SIZE remaining_crew;
 #define INITIAL_CREW 2000
 
+	if (!DIF_HARD)
+		return;
+
 	remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
 			GET_GAME_STATE (CREW_PURCHASED0),
 			GET_GAME_STATE (CREW_PURCHASED1));
 	
 	r.extent = MAKE_EXTENT (RES_SCALE (122), RES_SCALE (7));
-	r.corner = MAKE_POINT (RES_SCALE (2),
+	r.corner = MAKE_POINT (RES_SCALE (WANDERING_X),
 			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
 
 	if (optWindowType < 2)
-		r.corner = MAKE_POINT (RES_SCALE (20), RES_SCALE (1));
+		r.corner.y = RES_SCALE (1);
 
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -388,6 +393,110 @@ showRemainingCrew (void)
 	else
 		sprintf (buf, "%u", remaining_crew);
 
+	font_DrawText (&t);
+}
+
+static SIZE
+CalcAllyPoints ()
+{
+	BYTE i;
+	HFLEETINFO hFleet;
+	FLEET_INFO *FleetPtr;
+	RACE_DESC *RDPtr;
+	SIZE MaxPoints = DIF_CASE (80, 160, 40);
+
+	for (i = ARILOU_SHIP; i <= ZOQFOTPIK_SHIP; i++)
+	{
+		if (i == HUMAN_SHIP)
+			continue;
+
+		hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), i);
+		if (!hFleet)
+			return FALSE;
+
+		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+
+		if (FleetPtr->allied_state == GOOD_GUY)
+		{
+			RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
+			MaxPoints += RDPtr->ship_info.ship_cost * DIF_CASE (2, 3, 1);
+			free_ship (RDPtr, TRUE, TRUE);
+		}
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	}
+
+	return MaxPoints;
+}
+
+static BOOLEAN
+CanBuyPoints (BYTE race_id)
+{
+	SIZE remaining_points;
+
+	if (!optFleetPointSys || GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
+		return TRUE;
+	
+	remaining_points = CalcAllyPoints () - CalculateEscortsPoints ();
+
+	if (ShipPoints (race_id) > remaining_points)
+		return FALSE;
+
+	return TRUE;
+}
+
+static void
+showRemainingPoints (void)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[30];
+	SIZE remaining_points;
+	SBYTE percentage_left;
+	COORD wandering_x;
+
+	if (!optFleetPointSys || GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
+		return;
+
+	remaining_points = CalcAllyPoints () - CalculateEscortsPoints ();
+
+	wandering_x = optWindowType == 2 ? DOS_SIS_SCREEN_WIDTH - 73 :
+			(optWindowType == 1 ? THREEDO_SIS_SCREEN_WIDTH - 77 :
+				DOS_SIS_SCREEN_WIDTH - 90);
+	
+	r.extent = MAKE_EXTENT (RES_SCALE (73), RES_SCALE (7));
+	r.corner = MAKE_POINT (RES_SCALE (wandering_x),
+			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
+
+	if (optWindowType < 2)
+		r.corner.y = RES_SCALE (1);
+
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
+
+	r.corner.x = ((optWindowType == 2 || optWindowType == 0) ?
+			DOS_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_WIDTH) - WANDERING_X;
+	
+	// Print remaining points
+	SetContextFont (TinyFont);
+	t.baseline.x = r.corner.x;
+	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
+	t.align = ALIGN_RIGHT;
+	t.CharCount = (COUNT)~0;
+	t.pStr = buf;
+	sprintf (buf, "%d", remaining_points);
+	percentage_left =
+			(float)remaining_points / (float)CalcAllyPoints () * 100;
+	SetContextForeGroundColor (
+			percentage_left > 50 ? FULL_CREW_COLOR :
+			(percentage_left < 25 ? LOW_CREW_COLOR :
+				HALF_CREW_COLOR));
+
+	font_DrawText (&t);
+	r = font_GetTextRect (&t);
+	t.baseline.x -= r.extent.width;
+	SetContextForeGroundColor (BLUEPRINT_COLOR);
+	utf8StringCopy (buf, sizeof (buf), "Fleet Points: ");
 	font_DrawText (&t);
 }
 
@@ -523,6 +632,28 @@ ShipCost (BYTE race_id)
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 
 	return shipCost;
+}
+
+COUNT
+ShipPoints (BYTE race_id)
+{
+	HFLEETINFO hStarShip =
+			GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
+	FLEET_INFO *FleetPtr;
+	RACE_DESC *RDPtr;
+	COUNT shipPoints;
+
+	if (!hStarShip)
+		return 0;
+
+	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+	RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
+	shipPoints = RDPtr->ship_info.ship_cost;
+
+	free_ship (RDPtr, TRUE, TRUE);
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+	return shipPoints;
 }
 
 static void
@@ -662,7 +793,9 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		HFLEETINFO hStarShip;
 		FLEET_INFO *FleetPtr;
 		UNICODE buf[30];
-		COUNT shipCost;
+		COUNT shipCost, shipPoints;
+		SIZE remaining_points;
+		RECT r, r2;
 
 		ManipulateShips (NewRaceItem);
 
@@ -670,6 +803,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		NewRaceItem = GetIndexFromStarShip (&GLOBAL (avail_race_q),
 				hStarShip);
 		shipCost = ShipCost (NewRaceItem);
+		shipPoints = ShipPoints (NewRaceItem);
 
 		// Draw the ship name, above the ship image.
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 3 + NewRaceItem);
@@ -686,6 +820,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		s.origin.x += (RADAR_WIDTH >> 1);
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
+
 
 		// Print the ship cost.
 		t.baseline.x = RES_SCALE (4) + RADAR_WIDTH - RES_SCALE (2);
@@ -706,6 +841,30 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 			SetContextForeGroundColor (BRIGHT_RED_COLOR);
 
 		font_DrawText (&t);
+
+		// Print the fleet points
+
+		if (optFleetPointSys && GET_GAME_STATE (CHMMR_BOMB_STATE) < 3)
+		{
+			t.baseline.y = RADAR_Y + RES_SCALE (7)
+				+ DOS_NUM_SCL (2) - SAFE_Y;
+			sprintf (buf, "%u", shipPoints);
+
+			remaining_points = CalcAllyPoints () - CalculateEscortsPoints ();
+			if (shipPoints < remaining_points)
+				SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+			else
+				SetContextForeGroundColor (BRIGHT_RED_COLOR);
+
+			font_DrawText (&t);
+
+			r = font_GetTextRect (&t);
+			t.baseline.x -= r.extent.width;
+
+			utf8StringCopy (buf, sizeof (buf), "FP: ");
+			SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
+			font_DrawText (&t);
+		}
 	}
 	UnbatchGraphics ();
 	SetContext (OldContext);
@@ -1011,8 +1170,7 @@ CrewTransaction (SIZE crew_delta)
 			SET_GAME_STATE (CREW_PURCHASED0, LOBYTE (crew_bought));
 			SET_GAME_STATE (CREW_PURCHASED1, HIBYTE (crew_bought));
 
-			if (DIF_HARD)
-				showRemainingCrew ();
+			showRemainingCrew ();
 		}
 	}
 }
@@ -1506,8 +1664,7 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 	BYTE MaxBuild = 2;
 	COUNT shipCost = ShipCost (Index);
 
-	if (((DIF_HARD && CountEscortShips (Index) < MaxBuild) || !DIF_HARD)
-			&& GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
+	if (CanBuyPoints (Index) && GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
 			&& CloneShipFragment (Index, &GLOBAL (built_ship_q), 1))
 	{
 		ShowCombatShip (pMS, pMS->CurState, NULL);
@@ -1518,6 +1675,8 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 
 		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, -(int)shipCost);
 		DMS_SetMode (pMS, DMS_Mode_editCrew);
+
+		showRemainingPoints ();
 	}
 	else
 	{
@@ -1616,6 +1775,8 @@ DMS_ScrapEscortShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 	FreeShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	// refresh SIS display
 	DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
+
+	showRemainingPoints ();
 
 	SetContext (SpaceContext);
 	DMS_SetMode (pMS, DMS_Mode_navigate);
@@ -1921,8 +2082,8 @@ DrawBluePrint (MENU_STATE *pMS)
 
 	DrawFuelInFTanks (FALSE);
 
-	if (DIF_HARD)
-		showRemainingCrew ();
+	showRemainingCrew ();
+	showRemainingPoints ();
 
 	DestroyDrawable (ReleaseDrawable (ModuleFrame));
 }
