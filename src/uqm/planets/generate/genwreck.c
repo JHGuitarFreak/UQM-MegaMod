@@ -58,22 +58,33 @@ GenerateWreck_generatePlanets (SOLARSYS_STATE *solarSys)
 	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 	PLANET_DESC *pPlanet;
 
-	GenerateDefault_generatePlanets (solarSys);
-
 	pSunDesc->PlanetByte = 6;
-
-	if (StarSeed)
-		pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
-
-	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
 	if (!PrimeSeed)
 	{
-		if (!StarSeed && pSunDesc->NumPlanets <= pSunDesc->PlanetByte)
-			pSunDesc->NumPlanets = pSunDesc->PlanetByte + 1;
+		if (!StarSeed)
+		{
+			DWORD RandVal = RandomContext_Random (SysGenRNG);
+			BYTE PByte = pSunDesc->PlanetByte + 1;
+			pSunDesc->NumPlanets =
+					(RandVal % (MAX_GEN_PLANETS - PByte) + PByte);
+
+			FillOrbits (solarSys, pSunDesc->NumPlanets,
+					solarSys->PlanetDesc, FALSE);
+			GeneratePlanets (solarSys);
+		}
+		else
+			GenerateDefault_generatePlanets (solarSys);
+
+		if (StarSeed)
+			pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
+
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
 		pPlanet->data_index = GenerateWorlds (SMALL_ROCKY);
 	}
+	else
+		GenerateDefault_generatePlanets (solarSys);
 
 	return true;
 }

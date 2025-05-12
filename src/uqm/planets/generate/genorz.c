@@ -65,10 +65,10 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 	PLANET_DESC *pPlanet;
 	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	GenerateDefault_generatePlanets (solarSys);
-
 	if (CurStarDescPtr->Index == ORZ_DEFINED)
 	{
+		GenerateDefault_generatePlanets (solarSys);
+
 		if (PrimeSeed)
 		{
 			COUNT angle;
@@ -100,21 +100,34 @@ GenerateOrz_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+			if (!StarSeed)
+			{
+				DWORD RandVal = RandomContext_Random (SysGenRNG);
+				BYTE PByte = pSunDesc->PlanetByte + 1;
+				pSunDesc->NumPlanets =
+						(RandVal % (MAX_GEN_PLANETS - PByte) + PByte);
+			}
+			else
+				pSunDesc->NumPlanets = (BYTE)~0;
 
-			pPlanet->data_index = GenerateGasGiantWorld ();
+			FillOrbits (solarSys, pSunDesc->NumPlanets,
+				solarSys->PlanetDesc, FALSE);
 
 			if (StarSeed)
-			{
-				if (!pPlanet->NumPlanets)
-					pPlanet->NumPlanets++;
+				GenerateGasGiantRanged (solarSys);
 
-				pSunDesc->MoonByte = PlanetByteGen (pPlanet);
-			}
-			else if (pPlanet->NumPlanets < (pSunDesc->MoonByte + 1))
+			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+			if (!StarSeed)
+				pPlanet->data_index = GenerateWorlds (ONLY_GAS);
+
+			GeneratePlanets (solarSys);
+
+			if (pPlanet->NumPlanets <= pSunDesc->MoonByte)
 				pPlanet->NumPlanets = pSunDesc->MoonByte + 1;
 		}
-
+		else
+			GenerateDefault_generatePlanets (solarSys);
 	}
 
 	return true;

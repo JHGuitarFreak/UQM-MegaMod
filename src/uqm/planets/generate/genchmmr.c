@@ -64,8 +64,6 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 	PLANET_DESC *pPlanet;
 	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	GenerateDefault_generatePlanets (solarSys);
-
 	if (CurStarDescPtr->Index == CHMMR_DEFINED)
 	{
 		pSunDesc->PlanetByte = 1;
@@ -73,6 +71,8 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (PrimeSeed)
 		{
+			GenerateDefault_generatePlanets (solarSys);
+
 			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
 			pPlanet->data_index = SAPPHIRE_WORLD;
@@ -82,11 +82,20 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 		{
 			if (!StarSeed)
 			{
-				if (pSunDesc->NumPlanets <= pSunDesc->PlanetByte)
-					pSunDesc->NumPlanets = pSunDesc->PlanetByte + 1;
+				DWORD RandVal = RandomContext_Random (SysGenRNG);
+				BYTE PByte = pSunDesc->PlanetByte + 1;
+				pSunDesc->NumPlanets =
+						(RandVal % (MAX_GEN_PLANETS - PByte) + PByte);
+
+				FillOrbits (solarSys, pSunDesc->NumPlanets,
+						solarSys->PlanetDesc, FALSE);
+				GeneratePlanets (solarSys);
 			}
 			else
+			{
+				GenerateDefault_generatePlanets (solarSys);
 				pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
+			}
 
 			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
@@ -102,6 +111,8 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 
 	if (CurStarDescPtr->Index == MOTHER_ARK_DEFINED)
 	{
+		GenerateDefault_generatePlanets (solarSys);
+
 		pSunDesc->PlanetByte = 3;
 
 		if (!PrimeSeed)
