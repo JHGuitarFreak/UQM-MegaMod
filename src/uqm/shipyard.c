@@ -208,7 +208,7 @@ DrawShipsDisplay (SHIPS_STATE *shipState)
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
-	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 8);
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 10);
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
 	font_DrawText (&t);
@@ -373,6 +373,7 @@ showRemainingCrew (void)
 	t.pStr = buf;
 	utf8StringCopy (
 			buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 6));
+				// Remaining Crew:
 
 	font_DrawText (&t);
 
@@ -389,6 +390,7 @@ showRemainingCrew (void)
 	{
 		utf8StringCopy (
 				buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 7));
+					// Cdr. Hayes
 	}
 	else
 		sprintf (buf, "%u", remaining_crew);
@@ -403,7 +405,7 @@ CalcAllyPoints ()
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
 	RACE_DESC *RDPtr;
-	SIZE MaxPoints = DIF_CASE (80, 160, 40);
+	SIZE MaxPoints = DIF_CASE (80, 120, 40);
 
 	for (i = ARILOU_SHIP; i <= ZOQFOTPIK_SHIP; i++)
 	{
@@ -434,7 +436,8 @@ CanBuyPoints (BYTE race_id)
 {
 	SIZE remaining_points;
 
-	if (!optFleetPointSys || GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
+	if ((!optFleetPointSys && !DIF_HARD)
+			|| GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 		return TRUE;
 	
 	remaining_points = CalcAllyPoints () - CalculateEscortsPoints ();
@@ -455,8 +458,9 @@ showRemainingPoints (void)
 	SBYTE percentage_left;
 	COORD wandering_x;
 
-	if (!optFleetPointSys || GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
-		return;
+	if ((!optFleetPointSys && !DIF_HARD)
+			|| GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
+		return TRUE;
 
 	remaining_points = CalcAllyPoints () - CalculateEscortsPoints ();
 
@@ -496,7 +500,9 @@ showRemainingPoints (void)
 	r = font_GetTextRect (&t);
 	t.baseline.x -= r.extent.width;
 	SetContextForeGroundColor (BLUEPRINT_COLOR);
-	utf8StringCopy (buf, sizeof (buf), "Fleet Points: ");
+	utf8StringCopy (
+			buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 8));
+				// Fleet Points: 
 	font_DrawText (&t);
 }
 
@@ -843,14 +849,15 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		font_DrawText (&t);
 
 		// Print the fleet points
-
-		if (optFleetPointSys && GET_GAME_STATE (CHMMR_BOMB_STATE) < 3)
+		if ((optFleetPointSys || DIF_HARD)
+				&& GET_GAME_STATE (CHMMR_BOMB_STATE) < 3)
 		{
 			t.baseline.y = RADAR_Y + RES_SCALE (7)
 				+ DOS_NUM_SCL (2) - SAFE_Y;
 			sprintf (buf, "%u", shipPoints);
 
-			remaining_points = CalcAllyPoints () - CalculateEscortsPoints ();
+			remaining_points =
+					CalcAllyPoints () - CalculateEscortsPoints ();
 			if (shipPoints < remaining_points)
 				SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 			else
@@ -861,7 +868,9 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 			r = font_GetTextRect (&t);
 			t.baseline.x -= r.extent.width;
 
-			utf8StringCopy (buf, sizeof (buf), "FP: ");
+			utf8StringCopy (
+					buf, sizeof (buf),
+					GAME_STRING (STARBASE_STRING_BASE + 9)); // FP: 
 			SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
 			font_DrawText (&t);
 		}
