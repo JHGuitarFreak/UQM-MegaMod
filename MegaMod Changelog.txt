@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixed F10 exit from the main menu
 - Fixed F10 exit being overdrawn in some cases
 - Fixed flash context "repairing" frame during exit
+- Fixed F10 exit issue when shipyard powerlines being drawn over exit dialog box
 
 ## [v0.8.3] - 2024-04-11
 
