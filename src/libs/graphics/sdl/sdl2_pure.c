@@ -152,6 +152,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
 
+	int tallPixels = TRUE ? 40 << resFactor : 0;
+	height = (windowType ? height : (width / 4) * 3);
+
+
 	if (window == NULL)
 	{
 		SDL_RendererInfo info;
@@ -186,21 +190,21 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		{
 			log_add (log_Info, "SDL2 renderer had no name.");
 		}
-		SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+		SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight + tallPixels);
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		{
 			SDL2_Screens[i].scaled = NULL;
 			SDL2_Screens[i].texture = NULL;
 			SDL2_Screens[i].dirty = TRUE;
 			SDL2_Screens[i].active = TRUE;
-			if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight))
+			if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight + tallPixels))
 			{
 				return -1;
 			}
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight + tallPixels))
 				return -1;
 		}
 		else
@@ -221,11 +225,11 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		SDL_RenderGetLogicalSize (renderer, &LastScreenWidth, &LastScreenHeight);
 		if (LastScreenWidth != ScreenWidth || LastScreenHeight != ScreenHeight)
 		{
-			SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+			SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight + tallPixels);
 			for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 			{
 				SDL2_Screens[i].dirty = TRUE;
-				if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight))
+				if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight + tallPixels))
 				{
 					return -1;
 				}
@@ -235,7 +239,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight + tallPixels))
 				return -1;
 		}
 		else
@@ -277,7 +281,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 				continue;
 			}
 			if (0 != ReInit_Screen(&SDL2_Screens[i].scaled,
-					ScreenWidth * 2, ScreenHeight * 2))
+					ScreenWidth * 2, (ScreenHeight + tallPixels) * 2))
 			{
 				return -1;
 			}
@@ -297,7 +301,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth * 2, ScreenHeight * 2))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth * 2, (ScreenHeight + tallPixels) * 2))
 				return -1;
 		}
 		else
@@ -335,8 +339,9 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	ScreenWidthActual = width;
 	ScreenHeightActual = height;
 
-	(void) resFactor; /* satisfy compiler (unused parameter) */
-	(void) windowType; /* satisfy compiler (unused parameter) */
+
+	//(void) resFactor; /* satisfy compiler (unused parameter) */
+	//(void) windowType; /* satisfy compiler (unused parameter) */
 	return 0;
 }
 
