@@ -50,6 +50,9 @@ SDL_Surface *SDL_Screen_fps;
 
 SDL_Surface *format_conv_surf = NULL;
 
+static SDL_Rect TransitionClipRect;
+SDL_Rect *pTransitionClipRect = NULL;
+
 #if SDL_MAJOR_VERSION == 1
 const SDL_VideoInfo *SDL_screen_info; 
 #endif
@@ -62,6 +65,13 @@ TFB_GRAPHICS_BACKEND *graphics_backend = NULL;
 
 volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
+
+static inline BOOLEAN
+IsWholeScreen (RECT *r)
+{
+	return (r->corner.x == 0 && r->corner.y == 0 &&
+		r->extent.width == ScreenWidth && r->extent.height == ScreenHeight);
+}
 
 int
 TFB_InitGraphics (int driver, int flags, const char* renderer,
@@ -276,13 +286,8 @@ TFB_SwapBuffers (int force_full_redraw)
 
 	if (transition_amount != 255)
 	{
-		SDL_Rect r;
-		r.x = TransitionClipRect.corner.x;
-		r.y = TransitionClipRect.corner.y;
-		r.w = TransitionClipRect.extent.width;
-		r.h = TransitionClipRect.extent.height;
 		graphics_backend->screen (TFB_SCREEN_TRANSITION,
-				255 - transition_amount, &r);
+				255 - transition_amount, pTransitionClipRect);
 	}
 
 	if (fade_amount != 255)
@@ -648,9 +653,20 @@ UnInit_Screen (SDL_Surface **screen)
 }
 
 void
-TFB_UploadTransitionScreen (void)
+TFB_UploadTransitionScreen (RECT *pRect)
 {
 	graphics_backend->uploadTransitionScreen ();
+
+	if (pRect && !IsWholeScreen (pRect))
+	{
+		TransitionClipRect.x = pRect->corner.x;
+		TransitionClipRect.y = pRect->corner.y;
+		TransitionClipRect.w = pRect->extent.width;
+		TransitionClipRect.h = pRect->extent.height;
+		pTransitionClipRect = &TransitionClipRect;
+	}
+	else
+		pTransitionClipRect = NULL;
 }
 
 int
