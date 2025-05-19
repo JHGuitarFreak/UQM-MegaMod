@@ -498,6 +498,7 @@ static void
 TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	SDL_Texture *texture = SDL2_Screens[screen].texture;
+	SDL_Rect dstRect, *pDstRect = rect;
 	if (SDL2_Screens[screen].dirty)
 	{
 		TFB_SDL2_UpdateTexture (texture, SDL_Screens[screen], &SDL2_Screens[screen].updated);
@@ -511,7 +512,15 @@ TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 		SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_BLEND);
 		SDL_SetTextureAlphaMod (texture, a);
 	}
-	SDL_RenderCopy (renderer, texture, rect, rect);
+	if (rect && SDL_Screens[screen]->h != ScreenHeight)
+	{
+		dstRect = *rect;
+		dstRect.y = (int)((dstRect.y * 1.2f) + 0.5f);
+		dstRect.h = (int)((dstRect.h * 1.2f) + 0.5f);
+		pDstRect = &dstRect;
+	}
+
+	SDL_RenderCopy (renderer, texture, rect, pDstRect);
 }
 
 static void

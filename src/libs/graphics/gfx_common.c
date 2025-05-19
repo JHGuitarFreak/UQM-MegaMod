@@ -36,7 +36,6 @@ int GraphicsDriver;
 int TFB_DEBUG_HALT = 0;
 
 volatile int TransitionAmount = 255;
-RECT TransitionClipRect;
 
 static int gscale = GSCALE_IDENTITY;
 static int gscale_mode = TFB_SCALE_NEAREST;
@@ -167,19 +166,7 @@ ScreenTransition (int TransType, const RECT *pRect)
 	if (TransType == OPT_PC)
 		return;
 
-	if (pRect)
-	{
-		TransitionClipRect = *pRect;
-	}
-	else
-	{
-		TransitionClipRect.corner.x = 0;
-		TransitionClipRect.corner.y = 0;
-		TransitionClipRect.extent.width = ScreenWidth;
-		TransitionClipRect.extent.height = ScreenHeight;
-	}
-
-	TFB_UploadTransitionScreen ();
+	TFB_UploadTransitionScreen (pRect);
 	
 	TransitionAmount = 0;
 	FlushGraphics ();
