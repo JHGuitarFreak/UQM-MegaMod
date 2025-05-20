@@ -260,6 +260,28 @@ CalculateEscortsWorth (void)
 	return total;
 }
 
+/*
+ * Returns the total point value of all the ships escorting the SIS.
+ */
+COUNT
+CalculateEscortsPoints (void)
+{
+	COUNT total = 0;
+	HSHIPFRAG hStarShip, hNextShip;
+
+	for (hStarShip = GetHeadLink (&GLOBAL (built_ship_q));
+			hStarShip; hStarShip = hNextShip)
+	{
+		SHIP_FRAGMENT *StarShipPtr;
+
+		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
+		hNextShip = _GetSuccLink (StarShipPtr);
+		total += ShipPoints (StarShipPtr->race_id);
+		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
+	}
+	return total;
+}
+
 #if 0
 /*
  * Returns the size of the fleet of the specified race when the starmap was

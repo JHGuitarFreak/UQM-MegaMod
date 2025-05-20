@@ -122,6 +122,7 @@ extern DWORD optWindowType;
 extern BOOLEAN optNoClassic;
 extern OPT_ENABLABLE optScatterElements;
 extern OPT_ENABLABLE optShowUpgrades;
+extern OPT_ENABLABLE optFleetPointSys;
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;

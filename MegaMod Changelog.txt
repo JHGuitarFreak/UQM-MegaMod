@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added a dialogue option when talking to the Chmmr about installing the bomb which allows you to "install the bomb" later
 - Added desaturation software filter
 - When option enabled currently owned lander modifications will appear on lander sprites during planetside
+- Introduced a "Fleet Point System" which limits the total amount of ships you can purchase by the max melee point value of your entire fleet
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest

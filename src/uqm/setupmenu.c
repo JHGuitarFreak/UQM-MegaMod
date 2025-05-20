@@ -153,7 +153,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         11
-#define CHOICE_COUNT       86
+#define CHOICE_COUNT       87
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       13
 #define LABEL_COUNT         9
@@ -315,6 +315,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&choices[77]),   // Slaughter Mode
+	(WIDGET *)(&choices[86]),   // Fleet Point System
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[82]),   // Seed usage selection
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
@@ -1118,6 +1119,7 @@ SetDefaults (void)
 	choices[83].selected = opts.sphereColors;
 	choices[84].selected = opts.scatterElements;
 	choices[85].selected = opts.showUpgrades;
+	choices[86].selected = opts.fleetPointSys;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1219,6 +1221,7 @@ PropagateResults (void)
 	opts.sphereColors = choices[83].selected;
 	opts.scatterElements = choices[84].selected;
 	opts.showUpgrades = choices[85].selected;
+	opts.fleetPointSys = choices[86].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -2279,6 +2282,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nomad = optNomad;
 	opts->slaughterMode = optSlaughterMode;
 	opts->seedType = optSeedType;
+	opts->fleetPointSys = optFleetPointSys;
 	
 	// Comm screen
 	opts->scroll = is3DO (optSmoothScroll);
@@ -2584,6 +2588,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optExtended, &opts->extended, "mm.extended", FALSE);
 	PutIntOpt (&optNomad, (int *)&opts->nomad, "mm.nomad", FALSE);
 	PutBoolOpt (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", FALSE);
+	PutBoolOpt (&optFleetPointSys, &opts->fleetPointSys, "mm.fleetPointSys", FALSE);
 
 	// Comm screen
 	PutConsOpt (&optSmoothScroll, &opts->scroll, "config.smoothscroll", FALSE);

@@ -212,6 +212,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   windowType);
 	DECL_CONFIG_OPTION(bool,  scatterElements);
 	DECL_CONFIG_OPTION(bool,  showUpgrades);
+	DECL_CONFIG_OPTION(bool,  fleetPointSys);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -427,6 +428,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  windowType,        2 ),
 		INIT_CONFIG_OPTION(  scatterElements,   false ),
 		INIT_CONFIG_OPTION(  showUpgrades,      false ),
+		INIT_CONFIG_OPTION(  fleetPointSys,     false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -659,6 +661,7 @@ main (int argc, char *argv[])
 	optWindowType = options.windowType.value;
 	optScatterElements = options.scatterElements.value;
 	optShowUpgrades = options.showUpgrades.value;
+	optFleetPointSys = options.fleetPointSys.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1184,6 +1187,8 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->scatterElements, "mm.scatterElements");
 
 	getBoolConfigValue (&options->showUpgrades, "mm.showUpgrades");
+
+	getBoolConfigValue (&options->fleetPointSys, "mm.fleetPointSys");
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1284,6 +1289,7 @@ enum
 	WINDTYPE_OPT,
 	SCATTERELEMS_OPT,
 	SHOWUPG_OPT,
+	FLTPTSYS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1399,6 +1405,7 @@ static struct option longOptions[] =
 	{"noclassic", 0, NULL, CLAPAK_OPT},
 	{"scatterelements", 0, NULL, SCATTERELEMS_OPT},
 	{"showupgrades", 0, NULL, SHOWUPG_OPT},
+	{"fleetpointsys", 0, NULL, FLTPTSYS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2217,6 +2224,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SHOWUPG_OPT:
 				setBoolOption (&options->showUpgrades, true);
 				break;
+			case FLTPTSYS_OPT:
+				setBoolOption (&options->fleetPointSys, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2618,6 +2628,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --showupgrades : Show lander upgrade graphics "
 			"when exploring planets (default: %s)",
 			boolOptString (&defaults->showUpgrades));
+	log_add (log_User, "  --fleetpointsys : Show lander upgrade graphics "
+			"when exploring planets (default: %s)",
+			boolOptString (&defaults->fleetPointSys));
 
 	log_setOutput (old);
 }
