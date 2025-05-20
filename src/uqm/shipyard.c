@@ -349,6 +349,8 @@ showRemainingCrew (void)
 	if (!DIF_HARD)
 		return;
 
+	BatchGraphics ();
+
 	remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
 			GET_GAME_STATE (CREW_PURCHASED0),
 			GET_GAME_STATE (CREW_PURCHASED1));
@@ -396,6 +398,8 @@ showRemainingCrew (void)
 		sprintf (buf, "%u", remaining_crew);
 
 	font_DrawText (&t);
+
+	UnbatchGraphics ();
 }
 
 static SIZE
@@ -431,18 +435,16 @@ CalculateAllyPoints ()
 	return MaxPoints;
 }
 
+#define REMAINING_FP (CalculateAllyPoints () - CalculateEscortsPoints ())
+
 static BOOLEAN
 CanBuyPoints (BYTE race_id)
 {
-	SIZE remaining_points;
-
 	if ((!optFleetPointSys && !DIF_HARD)
 			|| GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 		return TRUE;
-	
-	remaining_points = CalculateAllyPoints () - CalculateEscortsPoints ();
 
-	if (ShipPoints (race_id) > remaining_points)
+	if (ShipPoints (race_id) > REMAINING_FP)
 		return FALSE;
 
 	return TRUE;
@@ -454,42 +456,42 @@ showRemainingPoints (void)
 	RECT r;
 	TEXT t;
 	UNICODE buf[30];
-	SIZE remaining_points;
 	SBYTE percentage_left;
 
 	if ((!optFleetPointSys && !DIF_HARD)
 			|| GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 		return;
 
-	remaining_points = CalculateAllyPoints () - CalculateEscortsPoints ();
+	BatchGraphics ();
+
+	// Draw black rectangle before drawing text
+	r.extent = MAKE_EXTENT (RES_SCALE (100), RES_SCALE (7));
+	r.corner.x = RES_SCALE (((optWindowType == 2 || optWindowType == 0) ?
+			DOS_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_WIDTH)
+			- RES_SCALE (100));
+	r.corner.y = RES_SCALE (74) - (r.extent.height + RES_SCALE (2));
 
 	if (optWindowType < 2)
 		r.corner.y = RES_SCALE (1);
+
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
 	
-	// Print remaining points
+	// Draw remaining points
 	SetContextFont (TinyFont);
 	t.align = ALIGN_RIGHT;
 	t.CharCount = (COUNT)~0;
 	t.pStr = buf;
-	sprintf (buf, "%d", remaining_points);
-
-	r = font_GetTextRect (&t);
+	sprintf (buf, "%d", REMAINING_FP);
 
 	r.corner.x = RES_SCALE (((optWindowType == 2 || optWindowType == 0) ?
-			DOS_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_WIDTH)
-			- WANDERING_X);
-	r.corner.y = RES_SCALE (74) - (r.extent.height + RES_SCALE (2));
+			DOS_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_WIDTH) - WANDERING_X);
 
 	t.baseline.x = r.corner.x;
 	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
 
-	// Draw black rectangle before drawing points
-	r.corner.x -= r.extent.width;
-	SetContextForeGroundColor (BLACK_COLOR);
-	DrawFilledRectangle (&r);
-
 	percentage_left =
-			(float)remaining_points / (float)CalculateAllyPoints () * 100;
+			(float)REMAINING_FP / (float)CalculateAllyPoints () * 100;
 	SetContextForeGroundColor (
 			percentage_left > 50 ? FULL_CREW_COLOR :
 			(percentage_left < 25 ? LOW_CREW_COLOR :
@@ -497,18 +499,17 @@ showRemainingPoints (void)
 
 	font_DrawText (&t);
 
+	// Draw the "Fleet Points: " text
+	r = font_GetTextRect (&t);
 	t.baseline.x -= r.extent.width;
 	utf8StringCopy (
 			buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 8));
 				// Fleet Points: 
 
-	// Draw black rectangle before drawing text
-	r = font_GetTextRect (&t);
-	SetContextForeGroundColor (BLACK_COLOR);
-	DrawFilledRectangle (&r);
-
 	SetContextForeGroundColor (BLUEPRINT_COLOR);
 	font_DrawText (&t);
+
+	UnbatchGraphics ();
 }
 
 static void
@@ -805,7 +806,6 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		FLEET_INFO *FleetPtr;
 		UNICODE buf[30];
 		COUNT shipCost, shipPoints;
-		SIZE remaining_points;
 		RECT r;
 
 		ManipulateShips (NewRaceItem);
@@ -861,9 +861,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 				+ DOS_NUM_SCL (2) - SAFE_Y;
 			sprintf (buf, "%u", shipPoints);
 
-			remaining_points =
-					CalculateAllyPoints () - CalculateEscortsPoints ();
-			if (shipPoints < remaining_points)
+			if (shipPoints < REMAINING_FP)
 				SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 			else
 				SetContextForeGroundColor (BRIGHT_RED_COLOR);
