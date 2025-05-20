@@ -2628,8 +2628,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --showupgrades : Show lander upgrade graphics "
 			"when exploring planets (default: %s)",
 			boolOptString (&defaults->showUpgrades));
-	log_add (log_User, "  --fleetpointsys : Show lander upgrade graphics "
-			"when exploring planets (default: %s)",
+	log_add (log_User, "  --fleetpointsys : Restrict the amount of ships "
+			"that can be purchased via their melee points (default: %s)",
 			boolOptString (&defaults->fleetPointSys));
 
 	log_setOutput (old);
