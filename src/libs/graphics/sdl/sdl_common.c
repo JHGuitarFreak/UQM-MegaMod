@@ -341,11 +341,12 @@ TFB_SwapBuffers (int force_full_redraw)
 #endif
 	}
 
-
-	if (system_box_active)
+	// After Pause/F10 exit rework we don't need it in both SDL1 and SDL2
+	// TODO: delete systembox
+	/*if (system_box_active)
 	{
 		graphics_backend->screen (TFB_SCREEN_MAIN, 255, &system_box);
-	}
+	}*/
 
 	graphics_backend->postprocess (IS_HD);
 }
@@ -657,6 +658,7 @@ TFB_UploadTransitionScreen (RECT *pRect)
 {
 	graphics_backend->uploadTransitionScreen ();
 
+#if SDL_MAJOR_VERSION == 1
 	if (pRect && !IsWholeScreen (pRect))
 	{
 		TransitionClipRect.x = pRect->corner.x;
@@ -667,6 +669,7 @@ TFB_UploadTransitionScreen (RECT *pRect)
 	}
 	else
 		pTransitionClipRect = NULL;
+#endif
 }
 
 int

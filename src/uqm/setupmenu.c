@@ -202,8 +202,8 @@ static WIDGET *graphics_widgets[] = {
 #if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
-	(WIDGET *)(&choices[23]),   // Aspect Ratio
 #endif
+	(WIDGET *)(&choices[23]),   // Aspect Ratio
 	(WIDGET *)(&choices[10]),   // Display Mode
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
