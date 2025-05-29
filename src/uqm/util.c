@@ -438,7 +438,7 @@ PauseGame (void)
 
 	s.origin = r.corner;
 	s.frame = ActivityFrame;
-	SetSystemRect (&r);
+	// There was a SetSystemRect(&r) call which we don't need anymore
 	DrawStamp (&s);
 	DrawPauseText (&r);
 

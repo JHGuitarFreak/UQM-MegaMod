@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Paused state now have a desaturated filter applied to the whole screen along with music fading dirung the pause
 - Removed seemingly useless call to redraw solarsys menu from loading screen
 - "Scanning Screen Options" now "Orbit Screen Options" in the Setup Menu
+- Added support for Tall Pixels for SDL2 through "Keep Aspect Ratio" option
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles

@@ -346,8 +346,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	}
 
 	/* We succeeded, so alter the screen size to our new sizes */
-	ScreenWidthActual = setWidth;
-	ScreenHeightActual = setHeight;
+	ScreenWidthActual = width;
+	ScreenHeightActual = height;
 
 
 	(void) resFactor; /* satisfy compiler (unused parameter) */
