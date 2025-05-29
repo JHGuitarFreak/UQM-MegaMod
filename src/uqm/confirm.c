@@ -153,7 +153,7 @@ DoConfirmExit (void)
 		DrawFilledRectangle (&ctxRect);
 		SetContextForeGroundColor (OldColor);
 
-		SetSystemRect (&r);
+		// There was a SetSystemRect(&r) call which we don't need anymore
 
 		DrawConfirmationWindow (response, FALSE);
 		FlushGraphics ();
@@ -296,7 +296,7 @@ DoPopupWindow (const char *msg)
 	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR,
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 	DrawLabelAsWindow (&label, &windowRect);
-	SetSystemRect (&windowRect);
+	// There was a SetSystemRect(&windowRect) call which we don't need anymore
 
 	GetMenuSounds (&s0, &s1);
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);

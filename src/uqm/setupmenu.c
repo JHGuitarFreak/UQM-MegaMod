@@ -202,8 +202,8 @@ static WIDGET *graphics_widgets[] = {
 #if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
-	(WIDGET *)(&choices[23]),   // Aspect Ratio
 #endif
+	(WIDGET *)(&choices[23]),   // Aspect Ratio
 	(WIDGET *)(&choices[10]),   // Display Mode
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
@@ -911,6 +911,14 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 		case 12:
 			toggle_showfps (self, &NewGfxFlags);
 			break;
+		case 23:
+			optKeepAspectRatio = self->selected;
+			res_PutBoolean ("config.keepaspectratio", self->selected);
+#if SDL_MAJOR_VERSION == 1
+			return;
+#else
+			break;
+#endif
 		case 42:
 			change_scaling (self, &NewWidth, &NewHeight);
 			isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
@@ -1717,6 +1725,7 @@ init_widgets (void)
 	choices[ 3].onChange = process_graphics_options;
 	choices[10].onChange = process_graphics_options;
 	choices[12].onChange = process_graphics_options;
+	choices[23].onChange = process_graphics_options;
 	choices[42].onChange = process_graphics_options;
 
 	/* Sliders */
@@ -2402,7 +2411,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 //#endif
 //	}
 
-	PutBoolOpt (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", FALSE);
+	//PutBoolOpt (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", FALSE);
 
 	// Avoid setting gamma when it is not necessary
 	if (optGamma != 1.0f || sliderToGamma (opts->gamma) != 1.0f)

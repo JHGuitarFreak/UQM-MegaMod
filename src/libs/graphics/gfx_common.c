@@ -23,6 +23,7 @@
 #include "libs/misc.h"
 		// for TFB_DEBUG_HALT
 #include "options.h"
+#include SDL_INCLUDE(SDL.h)
 
 int fs_height = 0; 
 int fs_width  = 0;
@@ -36,7 +37,6 @@ int GraphicsDriver;
 int TFB_DEBUG_HALT = 0;
 
 volatile int TransitionAmount = 255;
-RECT TransitionClipRect;
 
 static int gscale = GSCALE_IDENTITY;
 static int gscale_mode = TFB_SCALE_NEAREST;
@@ -146,6 +146,7 @@ ExpandRect (RECT *rect, int expansion)
 void
 SetTransitionSource (const RECT *pRect)
 {
+#if SDL_MAJOR_VERSION == 1
 	RECT ActualRect;
 
 	if (pRect)
@@ -155,6 +156,9 @@ SetTransitionSource (const RECT *pRect)
 		ExpandRect (&ActualRect, 2);
 	}
 	TFB_DrawScreen_Copy (pRect, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
+#else	/* If we want custom resolutions, we have to make all transitions full screen*/
+	TFB_DrawScreen_Copy (NULL, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
+#endif
 }
 
 // ScreenTransition() is synchronous (does not return until transition done)
@@ -167,19 +171,7 @@ ScreenTransition (int TransType, const RECT *pRect)
 	if (TransType == OPT_PC)
 		return;
 
-	if (pRect)
-	{
-		TransitionClipRect = *pRect;
-	}
-	else
-	{
-		TransitionClipRect.corner.x = 0;
-		TransitionClipRect.corner.y = 0;
-		TransitionClipRect.extent.width = ScreenWidth;
-		TransitionClipRect.extent.height = ScreenHeight;
-	}
-
-	TFB_UploadTransitionScreen ();
+	TFB_UploadTransitionScreen (pRect);
 	
 	TransitionAmount = 0;
 	FlushGraphics ();
