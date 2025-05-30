@@ -932,6 +932,7 @@ getListConfigValue (struct int_option *option, const char *config_val,
 static void
 getUserConfigOptions (struct options_struct *options)
 {
+	BYTE i;
 	// Most of the user config options are only applied if they
 	// have not already been set (i.e. on the commandline)
 
@@ -1189,6 +1190,17 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->showUpgrades, "mm.showUpgrades");
 
 	getBoolConfigValue (&options->fleetPointSys, "mm.fleetPointSys");
+
+	for (i = 0; i < NUM_DEVICES; i++)
+	{
+		UNICODE *buf[PATH_MAX];
+		snprintf (buf, sizeof (buf), "cheat.deviceArray%d", i);
+
+		if (res_IsInteger (buf))
+		{
+			optDeviceArray[i] = res_GetInteger (buf);
+		}
+	}
 	
 	if (res_IsInteger ("config.player1control"))
 	{

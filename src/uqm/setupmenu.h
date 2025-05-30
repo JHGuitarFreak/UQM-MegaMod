@@ -164,6 +164,12 @@ typedef enum {
 	OPTVAL_SM_SPOILERS
 } OPT_SPACEMUSIC;
 
+typedef enum {
+	OPTVAL_DO_NOTHING,
+	OPTVAL_ADD_DEVICE,
+	OPTVAL_REM_DEVICE
+} OPT_ADD_DEVICES;
+
 /* At the moment, CONTROL_TEMPLATE is directly in this structure.  If
  * CONTROL_TEMPLATE and the options available diverge, this will need
  * to change */
@@ -188,6 +194,7 @@ typedef struct globalopts_struct {
 	OPT_SEED seedType;
 	OPT_SPHERECOLORS sphereColors;
 	OPT_SPACEMUSIC spaceMusic;
+	OPT_ADD_DEVICES deviceArray[25];
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,

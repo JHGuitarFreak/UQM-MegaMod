@@ -147,15 +147,18 @@ static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
 static int do_qol (WIDGET *self, int event);
+static int do_qol (WIDGET *self, int event);
+static int do_devices (WIDGET *self, int event);
+static int do_upgrades (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         11
-#define CHOICE_COUNT       87
+#define MENU_COUNT         13
+#define CHOICE_COUNT      112
 #define SLIDER_COUNT        5
-#define BUTTON_COUNT       13
+#define BUTTON_COUNT       15
 #define LABEL_COUNT         9
 #define TEXTENTRY_COUNT     3
 #define CONTROLENTRY_COUNT  8
@@ -176,7 +179,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
-	do_keyconfig, do_music, do_visual, do_qol };
+	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -278,6 +281,8 @@ static WIDGET *music_widgets[] = {
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
+	(WIDGET *)(&buttons[13]),   // Devices Menu
+	(WIDGET *)(&buttons[14]),   // Upgrades Menu
 	(WIDGET *)(&choices[24]),   // JMS: cheatMode on/off
 	(WIDGET *)(&choices[72]),   // Kohr-Ah DeCleansing mode
 	(WIDGET *)(&choices[25]),   // Precursor Mode
@@ -383,6 +388,41 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&buttons[9]),        // Previous menu
 	NULL };
 
+static WIDGET *devices_widgets[] = {
+	(WIDGET *)(&choices[87]),   // Portal Spawner
+	(WIDGET *)(&choices[88]),   // Portal Spawner
+	(WIDGET *)(&choices[89]),   // Portal Spawner
+	(WIDGET *)(&choices[90]),   // Portal Spawner
+	(WIDGET *)(&choices[91]),   // Portal Spawner
+	(WIDGET *)(&choices[92]),   // Portal Spawner
+	(WIDGET *)(&choices[93]),   // Portal Spawner
+	(WIDGET *)(&choices[94]),   // Portal Spawner
+	(WIDGET *)(&choices[95]),   // Portal Spawner
+	(WIDGET *)(&choices[96]),   // Portal Spawner
+	(WIDGET *)(&choices[97]),   // Portal Spawner
+	(WIDGET *)(&choices[98]),   // Portal Spawner
+	(WIDGET *)(&choices[99]),   // Portal Spawner
+	(WIDGET *)(&choices[100]),   // Portal Spawner
+	(WIDGET *)(&choices[101]),   // Portal Spawner
+	(WIDGET *)(&choices[102]),   // Portal Spawner
+	(WIDGET *)(&choices[103]),   // Portal Spawner
+	(WIDGET *)(&choices[104]),   // Portal Spawner
+	(WIDGET *)(&choices[105]),   // Portal Spawner
+	(WIDGET *)(&choices[106]),   // Portal Spawner
+	(WIDGET *)(&choices[107]),   // Portal Spawner
+	(WIDGET *)(&choices[108]),   // Portal Spawner
+	(WIDGET *)(&choices[109]),   // Portal Spawner
+	(WIDGET *)(&choices[110]),   // Portal Spawner
+	(WIDGET *)(&choices[111]),   // Portal Spawner
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[5]),    // Cheats
+	NULL };
+
+static WIDGET *upgrades_widgets[] = {
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[5]),    // Cheats
+	NULL };
+
 static const struct
 {
 	WIDGET **widgets;
@@ -401,6 +441,8 @@ menu_defs[] =
 	{music_widgets, 8},
 	{visual_widgets, 9},
 	{qol_widgets, 10},
+	{devices_widgets, 11},
+	{upgrades_widgets, 12},
 	{NULL, 0}
 };
 
@@ -583,6 +625,32 @@ do_qol (WIDGET *self, int event)
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[10]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_devices (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[11]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_upgrades (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[12]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -1031,10 +1099,13 @@ change_res (WIDGET_TEXTENTRY *self)
 #define Y_STEP (SCREEN_HEIGHT / NUM_STEPS)
 #define MENU_FRAME_RATE (ONE_SECOND / 20)
 
+#define DEVICE_START 87
+
 static void
 SetDefaults (void)
 {
 	GLOBALOPTS opts;
+	BYTE i, j;
 	
 	GetGlobalOptions (&opts);
 	choices[0].selected = opts.screenResolution;
@@ -1129,6 +1200,12 @@ SetDefaults (void)
 	choices[85].selected = opts.showUpgrades;
 	choices[86].selected = opts.fleetPointSys;
 
+	// Devices
+	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
+	{
+		choices[i].selected = opts.deviceArray[i - DEVICE_START];
+	}
+
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
@@ -1140,6 +1217,8 @@ static void
 PropagateResults (void)
 {
 	GLOBALOPTS opts;
+	BYTE i, j;
+
 	opts.screenResolution = choices[0].selected;
 	opts.driver = choices[1].selected;
 	opts.scaler = choices[2].selected;
@@ -1230,6 +1309,12 @@ PropagateResults (void)
 	opts.scatterElements = choices[84].selected;
 	opts.showUpgrades = choices[85].selected;
 	opts.fleetPointSys = choices[86].selected;
+
+	// Devices
+	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
+	{
+		opts.deviceArray[i - DEVICE_START] = choices[i].selected;
+	}
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1559,10 +1644,15 @@ count_widgets (WIDGET **widgets)
 static stringbank *bank = NULL;
 static FRAME setup_frame = NULL;
 
+#define MAX_BUFF (MENU_COUNT + CHOICE_COUNT + \
+				SLIDER_COUNT + BUTTON_COUNT + \
+				LABEL_COUNT + TEXTENTRY_COUNT + \
+				CONTROLENTRY_COUNT)
+
 static void
 init_widgets (void)
 {
-	const char *buffer[100], *str, *title;
+	const char *buffer[MAX_BUFF], *str, *title;
 	int count, i, index;
 
 	if (bank == NULL)
@@ -1590,7 +1680,7 @@ init_widgets (void)
 	title = StringBank_AddOrFindString (bank,
 			GetStringAddress (SetAbsStringTableIndex (SetupTab, 0)));
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, 1)), '\n', 100, buffer, bank) != MENU_COUNT)
+			SetupTab, 1)), '\n', MAX_BUFF, buffer, bank) != MENU_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Menu Subtitles");
@@ -1623,13 +1713,13 @@ init_widgets (void)
 		
 	/* Options */
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, 2)), '\n', 100, buffer, bank) != CHOICE_COUNT)
+			SetupTab, 2)), '\n', MAX_BUFF, buffer, bank) != CHOICE_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Choice Options: "
 				"%d. Should be %d", CHOICE_COUNT,
 				SplitString (GetStringAddress (
 					SetAbsStringTableIndex (SetupTab, 2)),
-					'\n', 100, buffer, bank));
+					'\n', MAX_BUFF, buffer, bank));
 		exit (EXIT_FAILURE);
 	}
 
@@ -1664,7 +1754,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		optcount = SplitString (str, '\n', 100, buffer, bank);
+		optcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		choices[i].numopts = optcount;
 		choices[i].options = HMalloc (optcount * sizeof (CHOICE_OPTION));
 		choices[i].choice_num = i;
@@ -1687,7 +1777,7 @@ init_widgets (void)
 			}
 			str = GetStringAddress (
 					SetAbsStringTableIndex (SetupTab, index++));
-			tipcount = SplitString (str, '\n', 100, buffer, bank);
+			tipcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 			if (tipcount > 3)
 			{
 				tipcount = 3;
@@ -1737,7 +1827,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank) != SLIDER_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != SLIDER_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Slider Options");
@@ -1789,7 +1879,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		tipcount = SplitString (str, '\n', 100, buffer, bank);
+		tipcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		if (tipcount > 3)
 		{
 			tipcount = 3;
@@ -1809,7 +1899,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank) != BUTTON_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != BUTTON_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Button Options");
@@ -1843,7 +1933,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		tipcount = SplitString (str, '\n', 100, buffer, bank);
+		tipcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		if (tipcount > 3)
 		{
 			tipcount = 3;
@@ -1863,7 +1953,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank) != LABEL_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != LABEL_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Label Options");
@@ -1895,7 +1985,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		linecount = SplitString (str, '\n', 100, buffer, bank);
+		linecount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		labels[i].line_count = linecount;
 		labels[i].lines =
 				(const char **)HMalloc(linecount * sizeof(const char *));
@@ -1914,7 +2004,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
 			!= TEXTENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Text Entries");
@@ -1940,7 +2030,7 @@ init_widgets (void)
 		textentries[i].tooltip[2] = "";
 	}
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
 			!= TEXTENTRY_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
@@ -1961,7 +2051,7 @@ init_widgets (void)
 			exit(EXIT_FAILURE);
 		}
 		str = GetStringAddress(SetAbsStringTableIndex(SetupTab, index++));
-		tipcount = SplitString(str, '\n', 100, buffer, bank);
+		tipcount = SplitString(str, '\n', MAX_BUFF, buffer, bank);
 		if (tipcount > 3)
 		{
 			tipcount = 3;
@@ -1985,7 +2075,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
 			!= CONTROLENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Control Entries");
@@ -2104,6 +2194,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 {
 	bool whichBound;
 	int flags;
+	BYTE i;
 
 /*
  *		Graphics options
@@ -2329,6 +2420,12 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->noHQEncounters = optNoHQEncounters;
 	opts->deCleansing = optDeCleansing;
 	opts->meleeObstacles = optMeleeObstacles;
+
+	// Devices
+	for (i = 0; i < NUM_DEVICES; i++)
+	{
+		opts->deviceArray[i] = optDeviceArray[i];
+	}
 }
 
 void
@@ -2337,6 +2434,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewSndFlags = 0;
 	int resFactor = resolutionFactor;
 	int newFactor;
+	BYTE i;
 
 /*
  *		Graphics options
@@ -2647,6 +2745,13 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", FALSE);
 	PutBoolOpt (&optDeCleansing, &opts->deCleansing, "cheat.deCleansing", FALSE);
 	PutBoolOpt (&optMeleeObstacles, &opts->meleeObstacles, "cheat.meleeObstacles", FALSE);
+
+	for (i = 0; i < NUM_DEVICES; i++)
+	{
+		UNICODE *buf[PATH_MAX];
+		snprintf (buf, sizeof (buf), "cheat.deviceArray%d", i);
+		PutIntOpt (&optDeviceArray[i], (int *)&opts->deviceArray[i], buf, FALSE);
+	}
 
 	SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
 	SaveKeyConfiguration (configDir, "flight.cfg");

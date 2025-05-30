@@ -714,6 +714,119 @@ SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 	return Index;
 }
 
+static void
+deviceSwitch (int device, int val)
+{
+	int var = 0;
+
+	if (val)
+		var = val - 1;
+
+	switch (device)
+	{
+		case 0:
+			SET_GAME_STATE (PORTAL_SPAWNER_ON_SHIP, var);
+			break;
+		case 1:
+			SET_GAME_STATE (TALKING_PET_ON_SHIP, var);
+			break;
+		case 2:
+			SET_GAME_STATE (UTWIG_BOMB_ON_SHIP, var);
+			break;
+		case 3:
+			SET_GAME_STATE (SUN_DEVICE_ON_SHIP, var);
+			break;
+		case 4:
+			SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, var);
+			break;
+		case 5:
+			SET_GAME_STATE (AQUA_HELIX_ON_SHIP, var);
+			break;
+		case 6:
+			SET_GAME_STATE (CLEAR_SPINDLE_ON_SHIP, var);
+			break;
+		case 7:
+			SET_GAME_STATE (ULTRON_CONDITION, var);
+			break;
+		case 8:
+			SET_GAME_STATE (ULTRON_CONDITION, var ? 2 : 0);
+			break;
+		case 9:
+			SET_GAME_STATE (ULTRON_CONDITION, var ? 3 : 0);
+			break;
+		case 10:
+			SET_GAME_STATE (ULTRON_CONDITION, var ? 4 : 0);
+			break;
+		case 11:
+			SET_GAME_STATE (MAIDENS_ON_SHIP, var);
+			break;
+		case 12:
+			SET_GAME_STATE (UMGAH_BROADCASTERS_ON_SHIP, var);
+			break;
+		case 13:
+			SET_GAME_STATE (BURV_BROADCASTERS_ON_SHIP, var);
+			break;
+		case 14:
+			SET_GAME_STATE (TAALO_PROTECTOR_ON_SHIP, var);
+			break;
+		case 15:
+		case 16:
+		case 17:
+			if (GET_GAME_STATE (KNOW_ABOUT_SHATTERED) < 2 && var)
+				SET_GAME_STATE (KNOW_ABOUT_SHATTERED, 2);
+			SET_GAME_STATE (KNOW_SYREEN_WORLD_SHATTERED, var);
+
+			if (device == 15)
+				SET_GAME_STATE (EGG_CASE0_ON_SHIP, var);
+			else if (device == 16)
+				SET_GAME_STATE (EGG_CASE1_ON_SHIP, var);
+			else
+				SET_GAME_STATE (EGG_CASE2_ON_SHIP, var);
+			break;
+		case 18:
+			SET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP, var);
+			break;
+		case 19:
+			SET_GAME_STATE (VUX_BEAST_ON_SHIP, var);
+			break;
+		case 20:
+			SET_GAME_STATE (DESTRUCT_CODE_ON_SHIP, var);
+			break;
+		case 21:
+			SET_GAME_STATE (PORTAL_KEY_ON_SHIP, var);
+			break;
+		case 22:
+			SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, var);
+			break;
+		case 23:
+			SET_GAME_STATE (GLOWING_ROD_ON_SHIP, var);
+			break;
+		case 24:
+			SET_GAME_STATE (MOONBASE_ON_SHIP, var);
+			break;
+		default: // Shouldn't happen, do nothing
+			break;
+	}
+
+	//SET_GAME_STATE (SHIP_VAULT_UNLOCKED, 1);
+	//SET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP, 0);
+	//SET_GAME_STATE (SYREEN_HOME_VISITS, 0);
+}
+
+static void
+cheatAddRemoveDevices (void)
+{
+	BYTE i;
+
+	for (i = 0; i < NUM_DEVICES; i++)
+	{
+		if (!optDeviceArray[i])
+			continue;
+		else
+			deviceSwitch (i, optDeviceArray[i]);
+	}
+}
+
 void
 loadGameCheats (void)
 {
@@ -762,8 +875,10 @@ loadGameCheats (void)
 		GLOBAL (ModuleCost[SHIVA_FURNACE]) = 4000 / MODULE_COST_SCALE;
 		//SET_GAME_STATE (MELNORME_TECH_STACK, 13);
 	}
+
+	cheatAddRemoveDevices ();
 	
-	if (optAddDevices)
+	/*if (optAddDevices)
 	{
 		SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, 1);
 		SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, 1);
@@ -793,7 +908,7 @@ loadGameCheats (void)
 		SET_GAME_STATE (SHIP_VAULT_UNLOCKED, 1);
 		SET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP, 0);
 		SET_GAME_STATE (SYREEN_HOME_VISITS, 0);
-	}
+	}*/
 }
 
 // Jitter returns a distance between 0..66.6% of the fleet's actual strength,
