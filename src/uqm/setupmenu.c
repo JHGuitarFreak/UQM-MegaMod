@@ -156,9 +156,9 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         13
-#define CHOICE_COUNT      112
+#define CHOICE_COUNT      125
 #define SLIDER_COUNT        5
-#define BUTTON_COUNT       15
+#define BUTTON_COUNT       16
 #define LABEL_COUNT         9
 #define TEXTENTRY_COUNT     3
 #define CONTROLENTRY_COUNT  8
@@ -179,7 +179,8 @@ typedef int (*HANDLER)(WIDGET *, int);
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
-	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades };
+	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
+	do_cheats };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -290,10 +291,10 @@ static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[27]),   // Bubble Warp
 	(WIDGET *)(&choices[29]),   // Head Start
 	(WIDGET *)(&choices[28]),   // Unlock Ships
-	(WIDGET *)(&choices[30]),   // Unlock Upgrades
+	//(WIDGET *)(&choices[30]),   // Unlock Upgrades
 	(WIDGET *)(&choices[31]),   // Infinite RU
 	(WIDGET *)(&choices[39]),   // Infinite Fuel
-	(WIDGET *)(&choices[43]),   // Add Devices
+	//(WIDGET *)(&choices[43]),   // Add Devices
 	(WIDGET *)(&choices[71]),   // No HyperSpace Encounters
 	(WIDGET *)(&choices[73]),   // No Planets in melee
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
@@ -390,37 +391,50 @@ static WIDGET *editkeys_widgets[] = {
 
 static WIDGET *devices_widgets[] = {
 	(WIDGET *)(&choices[87]),   // Portal Spawner
-	(WIDGET *)(&choices[88]),   // Portal Spawner
-	(WIDGET *)(&choices[89]),   // Portal Spawner
-	(WIDGET *)(&choices[90]),   // Portal Spawner
-	(WIDGET *)(&choices[91]),   // Portal Spawner
-	(WIDGET *)(&choices[92]),   // Portal Spawner
-	(WIDGET *)(&choices[93]),   // Portal Spawner
-	(WIDGET *)(&choices[94]),   // Portal Spawner
-	(WIDGET *)(&choices[95]),   // Portal Spawner
-	(WIDGET *)(&choices[96]),   // Portal Spawner
-	(WIDGET *)(&choices[97]),   // Portal Spawner
-	(WIDGET *)(&choices[98]),   // Portal Spawner
-	(WIDGET *)(&choices[99]),   // Portal Spawner
-	(WIDGET *)(&choices[100]),   // Portal Spawner
-	(WIDGET *)(&choices[101]),   // Portal Spawner
-	(WIDGET *)(&choices[102]),   // Portal Spawner
-	(WIDGET *)(&choices[103]),   // Portal Spawner
-	(WIDGET *)(&choices[104]),   // Portal Spawner
-	(WIDGET *)(&choices[105]),   // Portal Spawner
-	(WIDGET *)(&choices[106]),   // Portal Spawner
-	(WIDGET *)(&choices[107]),   // Portal Spawner
-	(WIDGET *)(&choices[108]),   // Portal Spawner
-	(WIDGET *)(&choices[109]),   // Portal Spawner
-	(WIDGET *)(&choices[110]),   // Portal Spawner
-	(WIDGET *)(&choices[111]),   // Portal Spawner
+	(WIDGET *)(&choices[88]),   // Talking Pet
+	(WIDGET *)(&choices[89]),   // Utwig Bomb
+	(WIDGET *)(&choices[90]),   // Sun Device
+	(WIDGET *)(&choices[91]),   // Rosy Sphere
+	(WIDGET *)(&choices[92]),   // Aqua Helix
+	(WIDGET *)(&choices[93]),   // Clear Spindle
+	(WIDGET *)(&choices[94]),   // Ultron (Broken)
+	(WIDGET *)(&choices[95]),   // Ultron (Semi-Broken)
+	(WIDGET *)(&choices[96]),   // Ultron (Semi-Fixed)
+	(WIDGET *)(&choices[97]),   // Ultron (Fixed)
+	(WIDGET *)(&choices[98]),   // Shofixti Maidens
+	(WIDGET *)(&choices[99]),   // Umgah Caster
+	(WIDGET *)(&choices[100]),  // Burvixese Caster
+	(WIDGET *)(&choices[101]),  // Taalo Shield
+	(WIDGET *)(&choices[102]),  // Egg Case 01
+	(WIDGET *)(&choices[103]),  // Egg Case 02
+	(WIDGET *)(&choices[104]),  // Egg Case 03
+	(WIDGET *)(&choices[105]),  // Syreen Shuttle
+	(WIDGET *)(&choices[106]),  // VUX Beast
+	(WIDGET *)(&choices[107]),  // Slylandro Destruct
+	(WIDGET *)(&choices[108]),  // Ur-Quan Warp Pod
+	(WIDGET *)(&choices[109]),  // Wimbli's Trident
+	(WIDGET *)(&choices[110]),  // Glowing Rod
+	(WIDGET *)(&choices[111]),  // Lunar Base
 	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[5]),    // Cheats
+	(WIDGET *)(&buttons[15]),   // Back to Cheats
 	NULL };
 
 static WIDGET *upgrades_widgets[] = {
+	(WIDGET *)(&choices[112]),  // Lander Speed
+	(WIDGET *)(&choices[113]),  // Lander Cargo
+	(WIDGET *)(&choices[114]),  // Lander Rapid Fire
+	(WIDGET *)(&choices[115]),  // Lander Bio Shield
+	(WIDGET *)(&choices[116]),  // Lander Quake Shield
+	(WIDGET *)(&choices[117]),  // Lander Lightning Shield
+	(WIDGET *)(&choices[118]),  // Lander Heat Shield
+	(WIDGET *)(&choices[119]),  // Point Defense Module
+	(WIDGET *)(&choices[120]),  // Fusion Blaster Module
+	(WIDGET *)(&choices[121]),  // Hi-Eff Fuel Module
+	(WIDGET *)(&choices[122]),  // Tracking Module
+	(WIDGET *)(&choices[123]),  // Hellbore Cannon Module
+	(WIDGET *)(&choices[124]),  // Shiva Furnace Module
 	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[5]),    // Cheats
+	(WIDGET *)(&buttons[15]),   // Back to Cheats
 	NULL };
 
 static const struct
@@ -1100,12 +1114,13 @@ change_res (WIDGET_TEXTENTRY *self)
 #define MENU_FRAME_RATE (ONE_SECOND / 20)
 
 #define DEVICE_START 87
+#define UPGRADE_START 112
 
 static void
 SetDefaults (void)
 {
 	GLOBALOPTS opts;
-	BYTE i, j;
+	BYTE i;
 	
 	GetGlobalOptions (&opts);
 	choices[0].selected = opts.screenResolution;
@@ -1206,6 +1221,13 @@ SetDefaults (void)
 		choices[i].selected = opts.deviceArray[i - DEVICE_START];
 	}
 
+	for (i = UPGRADE_START; i < UPGRADE_START + NUM_UPGRADES; i++)
+	{
+		choices[i].selected = opts.upgradeArray[i - UPGRADE_START];
+	}
+
+	// Next choice should be choices[125]
+
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
@@ -1217,7 +1239,7 @@ static void
 PropagateResults (void)
 {
 	GLOBALOPTS opts;
-	BYTE i, j;
+	BYTE i;
 
 	opts.screenResolution = choices[0].selected;
 	opts.driver = choices[1].selected;
@@ -1314,6 +1336,11 @@ PropagateResults (void)
 	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
 	{
 		opts.deviceArray[i - DEVICE_START] = choices[i].selected;
+	}
+
+	for (i = UPGRADE_START; i < UPGRADE_START + NUM_UPGRADES; i++)
+	{
+		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
 	opts.musicvol = sliders[0].value;
@@ -2426,6 +2453,12 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	{
 		opts->deviceArray[i] = optDeviceArray[i];
 	}
+
+	// Upgrades
+	for (i = 0; i < NUM_UPGRADES; i++)
+	{
+		opts->upgradeArray[i] = optUpgradeArray[i];
+	}
 }
 
 void
@@ -2746,11 +2779,16 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optDeCleansing, &opts->deCleansing, "cheat.deCleansing", FALSE);
 	PutBoolOpt (&optMeleeObstacles, &opts->meleeObstacles, "cheat.meleeObstacles", FALSE);
 
+	// Devices
 	for (i = 0; i < NUM_DEVICES; i++)
 	{
-		UNICODE *buf[PATH_MAX];
-		snprintf (buf, sizeof (buf), "cheat.deviceArray%d", i);
-		PutIntOpt (&optDeviceArray[i], (int *)&opts->deviceArray[i], buf, FALSE);
+		optDeviceArray[i] = opts->deviceArray[i];
+	}
+
+	// Upgrades
+	for (i = 0; i < NUM_UPGRADES; i++)
+	{
+		optUpgradeArray[i] = opts->upgradeArray[i];
 	}
 
 	SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);

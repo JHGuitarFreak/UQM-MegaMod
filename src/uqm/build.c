@@ -814,6 +814,89 @@ deviceSwitch (int device, int val)
 }
 
 static void
+upgradeSwitch (int upgrade, int val)
+{
+	int var = 0;
+	BYTE LanderShields;
+	int ModuleCost;
+
+	if (val)
+		var = val - 1;
+
+	if (upgrade > 2 || upgrade < 7)
+	{
+		LanderShields = GET_GAME_STATE (LANDER_SHIELDS);
+	}
+
+	switch (upgrade)
+	{
+		case 0:
+			SET_GAME_STATE (IMPROVED_LANDER_SPEED, var);
+			break;
+		case 1:
+			SET_GAME_STATE (IMPROVED_LANDER_CARGO, var);
+			break;
+		case 2:
+			SET_GAME_STATE (IMPROVED_LANDER_SHOT, var);
+			break;
+		case 3:
+			if (var)
+				LanderShields |= (1 << BIOLOGICAL_DISASTER);
+			else
+				LanderShields &= ~(1 << BIOLOGICAL_DISASTER);
+			SET_GAME_STATE (LANDER_SHIELDS, LanderShields);
+			break;
+		case 4:
+			if (var)
+				LanderShields |= (1 << EARTHQUAKE_DISASTER);
+			else
+				LanderShields &= ~(1 << EARTHQUAKE_DISASTER);
+			SET_GAME_STATE (LANDER_SHIELDS, LanderShields);
+			break;
+		case 5:
+			if (var)
+				LanderShields |= (1 << LIGHTNING_DISASTER);
+			else
+				LanderShields &= ~(1 << LIGHTNING_DISASTER);
+			SET_GAME_STATE (LANDER_SHIELDS, LanderShields);
+			break;
+		case 6:
+			if (var)
+				LanderShields |= (1 << LAVASPOT_DISASTER);
+			else
+				LanderShields &= ~(1 << LAVASPOT_DISASTER);
+			SET_GAME_STATE (LANDER_SHIELDS, LanderShields);
+			break;
+		case 7:
+			ModuleCost = var ? 4000 / MODULE_COST_SCALE : 0;
+			GLOBAL (ModuleCost[ANTIMISSILE_DEFENSE]) = ModuleCost;
+			break;
+		case 8:
+			ModuleCost = var ? 4000 / MODULE_COST_SCALE : 0;
+			GLOBAL (ModuleCost[BLASTER_WEAPON]) = ModuleCost;
+			break;
+		case 9:
+			ModuleCost = var ? 1000 / MODULE_COST_SCALE : 0;
+			GLOBAL (ModuleCost[HIGHEFF_FUELSYS]) = ModuleCost;
+			break;
+		case 10:
+			ModuleCost = var ? 5000 / MODULE_COST_SCALE : 0;
+			GLOBAL (ModuleCost[TRACKING_SYSTEM]) = ModuleCost;
+			break;
+		case 11:
+			ModuleCost = var ? 6000 / MODULE_COST_SCALE : 0;
+			GLOBAL (ModuleCost[CANNON_WEAPON]) = ModuleCost;
+			break;
+		case 12:
+			ModuleCost = var ? 4000 / MODULE_COST_SCALE : 0;
+			GLOBAL (ModuleCost[SHIVA_FURNACE]) = ModuleCost;
+			break;
+		default: // Shouldn't happen, do nothing
+			break;
+	}
+}
+
+static void
 cheatAddRemoveDevices (void)
 {
 	BYTE i;
@@ -824,6 +907,20 @@ cheatAddRemoveDevices (void)
 			continue;
 		else
 			deviceSwitch (i, optDeviceArray[i]);
+	}
+}
+
+static void
+cheatAddRemoveUpgrades (void)
+{
+	BYTE i;
+
+	for (i = 0; i < NUM_UPGRADES; i++)
+	{
+		if (!optUpgradeArray[i])
+			continue;
+		else
+			upgradeSwitch (i, optUpgradeArray[i]);
 	}
 }
 
@@ -858,6 +955,9 @@ loadGameCheats (void)
 	} 
 	else
 		loadFuel = 0;
+
+	cheatAddRemoveDevices ();
+	cheatAddRemoveUpgrades ();
 	
 	if (optUnlockUpgrades)
 	{
@@ -875,40 +975,6 @@ loadGameCheats (void)
 		GLOBAL (ModuleCost[SHIVA_FURNACE]) = 4000 / MODULE_COST_SCALE;
 		//SET_GAME_STATE (MELNORME_TECH_STACK, 13);
 	}
-
-	cheatAddRemoveDevices ();
-	
-	/*if (optAddDevices)
-	{
-		SET_GAME_STATE (ROSY_SPHERE_ON_SHIP, 1);
-		SET_GAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, 1);
-		SET_GAME_STATE (GLOWING_ROD_ON_SHIP, 1);
-		SET_GAME_STATE (SUN_DEVICE_ON_SHIP, 1);
-		SET_GAME_STATE (UTWIG_BOMB_ON_SHIP, 1);
-		SET_GAME_STATE (ULTRON_CONDITION, 1);
-		SET_GAME_STATE (MAIDENS_ON_SHIP, 1);
-		SET_GAME_STATE (TALKING_PET_ON_SHIP, 1);
-		SET_GAME_STATE (AQUA_HELIX_ON_SHIP, 1);
-		SET_GAME_STATE (CLEAR_SPINDLE_ON_SHIP, 1);
-		SET_GAME_STATE (UMGAH_BROADCASTERS_ON_SHIP, 1);
-		SET_GAME_STATE (TAALO_PROTECTOR_ON_SHIP, 1);
-		SET_GAME_STATE (EGG_CASE0_ON_SHIP, 1);
-		SET_GAME_STATE (EGG_CASE1_ON_SHIP, 1);
-		SET_GAME_STATE (EGG_CASE2_ON_SHIP, 1);
-		SET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP, 1);
-		SET_GAME_STATE (VUX_BEAST_ON_SHIP, 1);
-		SET_GAME_STATE (PORTAL_SPAWNER_ON_SHIP, 1);
-		SET_GAME_STATE (BURV_BROADCASTERS_ON_SHIP, 1);
-		SET_GAME_STATE (DESTRUCT_CODE_ON_SHIP, 1);
-
-		if (GET_GAME_STATE(KNOW_ABOUT_SHATTERED) < 2)
-			SET_GAME_STATE (KNOW_ABOUT_SHATTERED, 2);
-		SET_GAME_STATE (KNOW_SYREEN_WORLD_SHATTERED, 1);
-
-		SET_GAME_STATE (SHIP_VAULT_UNLOCKED, 1);
-		SET_GAME_STATE (SYREEN_SHUTTLE_ON_SHIP, 0);
-		SET_GAME_STATE (SYREEN_HOME_VISITS, 0);
-	}*/
 }
 
 // Jitter returns a distance between 0..66.6% of the fleet's actual strength,
