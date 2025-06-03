@@ -663,6 +663,9 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	BYTE hilite = 1;
 	extern FRAME PlayFrame;
 
+	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		return;
+
 	if (NewState < 0)
 	{
 		NewState = -NewState;
@@ -822,7 +825,7 @@ void
 DrawMineralHelpers (void)
 {
 	CONTEXT OldContext;
-	COUNT i, digit;
+	COUNT i;
 	STAMP s;
 	TEXT t;
 	UNICODE buf[40];

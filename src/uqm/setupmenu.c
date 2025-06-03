@@ -147,15 +147,18 @@ static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
 static int do_qol (WIDGET *self, int event);
+static int do_qol (WIDGET *self, int event);
+static int do_devices (WIDGET *self, int event);
+static int do_upgrades (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         11
-#define CHOICE_COUNT       85
+#define MENU_COUNT         13
+#define CHOICE_COUNT      125
 #define SLIDER_COUNT        5
-#define BUTTON_COUNT       13
+#define BUTTON_COUNT       16
 #define LABEL_COUNT         9
 #define TEXTENTRY_COUNT     3
 #define CONTROLENTRY_COUNT  8
@@ -176,7 +179,8 @@ typedef int (*HANDLER)(WIDGET *, int);
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
-	do_keyconfig, do_music, do_visual, do_qol };
+	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
+	do_cheats };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -202,8 +206,8 @@ static WIDGET *graphics_widgets[] = {
 #if defined (HAVE_OPENGL)
 	(WIDGET *)(&choices[1]),    // Use Framebuffer
 #endif
-	(WIDGET *)(&choices[23]),   // Aspect Ratio
 #endif
+	(WIDGET *)(&choices[23]),   // Aspect Ratio
 	(WIDGET *)(&choices[10]),   // Display Mode
 	(WIDGET *)(&sliders[3]),    // Gamma Correction
 	(WIDGET *)(&choices[2]),    // Scaler
@@ -278,6 +282,8 @@ static WIDGET *music_widgets[] = {
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
+	(WIDGET *)(&buttons[13]),   // Devices Menu
+	(WIDGET *)(&buttons[14]),   // Upgrades Menu
 	(WIDGET *)(&choices[24]),   // JMS: cheatMode on/off
 	(WIDGET *)(&choices[72]),   // Kohr-Ah DeCleansing mode
 	(WIDGET *)(&choices[25]),   // Precursor Mode
@@ -285,10 +291,10 @@ static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[27]),   // Bubble Warp
 	(WIDGET *)(&choices[29]),   // Head Start
 	(WIDGET *)(&choices[28]),   // Unlock Ships
-	(WIDGET *)(&choices[30]),   // Unlock Upgrades
+	//(WIDGET *)(&choices[30]),   // Unlock Upgrades
 	(WIDGET *)(&choices[31]),   // Infinite RU
 	(WIDGET *)(&choices[39]),   // Infinite Fuel
-	(WIDGET *)(&choices[43]),   // Add Devices
+	//(WIDGET *)(&choices[43]),   // Add Devices
 	(WIDGET *)(&choices[71]),   // No HyperSpace Encounters
 	(WIDGET *)(&choices[73]),   // No Planets in melee
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
@@ -315,6 +321,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[54]),   // Extended features
 	(WIDGET *)(&choices[55]),   // Nomad Mode
 	(WIDGET *)(&choices[77]),   // Slaughter Mode
+	(WIDGET *)(&choices[86]),   // Fleet Point System
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[82]),   // Seed usage selection
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
@@ -350,6 +357,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&labels[8]),     // Scan Label
 	(WIDGET *)(&choices[44]),   // Hazard Colors
 	(WIDGET *)(&choices[69]),   // Planet Texture
+	(WIDGET *)(&choices[85]),   // Show Lander Upgrades
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
 	NULL };
 
@@ -381,6 +389,54 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&buttons[9]),        // Previous menu
 	NULL };
 
+static WIDGET *devices_widgets[] = {
+	(WIDGET *)(&choices[87]),   // Portal Spawner
+	(WIDGET *)(&choices[88]),   // Talking Pet
+	(WIDGET *)(&choices[89]),   // Utwig Bomb
+	(WIDGET *)(&choices[90]),   // Sun Device
+	(WIDGET *)(&choices[91]),   // Rosy Sphere
+	(WIDGET *)(&choices[92]),   // Aqua Helix
+	(WIDGET *)(&choices[93]),   // Clear Spindle
+	(WIDGET *)(&choices[94]),   // Ultron (Broken)
+	(WIDGET *)(&choices[95]),   // Ultron (Semi-Broken)
+	(WIDGET *)(&choices[96]),   // Ultron (Semi-Fixed)
+	(WIDGET *)(&choices[97]),   // Ultron (Fixed)
+	(WIDGET *)(&choices[98]),   // Shofixti Maidens
+	(WIDGET *)(&choices[99]),   // Umgah Caster
+	(WIDGET *)(&choices[100]),  // Burvixese Caster
+	(WIDGET *)(&choices[101]),  // Taalo Shield
+	(WIDGET *)(&choices[102]),  // Egg Case 01
+	(WIDGET *)(&choices[103]),  // Egg Case 02
+	(WIDGET *)(&choices[104]),  // Egg Case 03
+	(WIDGET *)(&choices[105]),  // Syreen Shuttle
+	(WIDGET *)(&choices[106]),  // VUX Beast
+	(WIDGET *)(&choices[107]),  // Slylandro Destruct
+	(WIDGET *)(&choices[108]),  // Ur-Quan Warp Pod
+	(WIDGET *)(&choices[109]),  // Wimbli's Trident
+	(WIDGET *)(&choices[110]),  // Glowing Rod
+	(WIDGET *)(&choices[111]),  // Lunar Base
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[15]),   // Back to Cheats
+	NULL };
+
+static WIDGET *upgrades_widgets[] = {
+	(WIDGET *)(&choices[112]),  // Lander Speed
+	(WIDGET *)(&choices[113]),  // Lander Cargo
+	(WIDGET *)(&choices[114]),  // Lander Rapid Fire
+	(WIDGET *)(&choices[115]),  // Lander Bio Shield
+	(WIDGET *)(&choices[116]),  // Lander Quake Shield
+	(WIDGET *)(&choices[117]),  // Lander Lightning Shield
+	(WIDGET *)(&choices[118]),  // Lander Heat Shield
+	(WIDGET *)(&choices[119]),  // Point Defense Module
+	(WIDGET *)(&choices[120]),  // Fusion Blaster Module
+	(WIDGET *)(&choices[121]),  // Hi-Eff Fuel Module
+	(WIDGET *)(&choices[122]),  // Tracking Module
+	(WIDGET *)(&choices[123]),  // Hellbore Cannon Module
+	(WIDGET *)(&choices[124]),  // Shiva Furnace Module
+	(WIDGET *)(&labels[4]),     // Spacer
+	(WIDGET *)(&buttons[15]),   // Back to Cheats
+	NULL };
+
 static const struct
 {
 	WIDGET **widgets;
@@ -399,6 +455,8 @@ menu_defs[] =
 	{music_widgets, 8},
 	{visual_widgets, 9},
 	{qol_widgets, 10},
+	{devices_widgets, 11},
+	{upgrades_widgets, 12},
 	{NULL, 0}
 };
 
@@ -581,6 +639,32 @@ do_qol (WIDGET *self, int event)
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[10]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_devices (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[11]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_upgrades (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[12]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -909,6 +993,14 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 		case 12:
 			toggle_showfps (self, &NewGfxFlags);
 			break;
+		case 23:
+			optKeepAspectRatio = self->selected;
+			res_PutBoolean ("config.keepaspectratio", self->selected);
+#if SDL_MAJOR_VERSION == 1
+			return;
+#else
+			break;
+#endif
 		case 42:
 			change_scaling (self, &NewWidth, &NewHeight);
 			isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
@@ -1021,10 +1113,14 @@ change_res (WIDGET_TEXTENTRY *self)
 #define Y_STEP (SCREEN_HEIGHT / NUM_STEPS)
 #define MENU_FRAME_RATE (ONE_SECOND / 20)
 
+#define DEVICE_START 87
+#define UPGRADE_START 112
+
 static void
 SetDefaults (void)
 {
 	GLOBALOPTS opts;
+	BYTE i;
 	
 	GetGlobalOptions (&opts);
 	choices[0].selected = opts.screenResolution;
@@ -1059,7 +1155,7 @@ SetDefaults (void)
 	choices[27].selected = opts.bubbleWarp;
 	choices[28].selected = opts.unlockShips;
 	choices[29].selected = opts.headStart;
-	choices[30].selected = opts.unlockUpgrades;
+	//choices[30].selected = opts.unlockUpgrades;
 	choices[31].selected = opts.infiniteRU;
 	choices[32].selected = opts.skipIntro;
 	choices[33].selected = opts.fuelRange;
@@ -1072,7 +1168,7 @@ SetDefaults (void)
 	choices[40].selected = opts.partialPickup;
 	choices[41].selected = opts.submenu;
 	choices[42].selected = opts.loresBlowup;
-	choices[43].selected = opts.addDevices;
+	//choices[43].selected = opts.addDevices;
 	choices[44].selected = opts.hazardColors;
 	choices[45].selected = opts.customBorder;
 	choices[46].selected = opts.spaceMusic;
@@ -1116,6 +1212,21 @@ SetDefaults (void)
 	choices[82].selected = opts.seedType;
 	choices[83].selected = opts.sphereColors;
 	choices[84].selected = opts.scatterElements;
+	choices[85].selected = opts.showUpgrades;
+	choices[86].selected = opts.fleetPointSys;
+
+	// Devices
+	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
+	{
+		choices[i].selected = opts.deviceArray[i - DEVICE_START];
+	}
+
+	for (i = UPGRADE_START; i < UPGRADE_START + NUM_UPGRADES; i++)
+	{
+		choices[i].selected = opts.upgradeArray[i - UPGRADE_START];
+	}
+
+	// Next choice should be choices[125]
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1128,6 +1239,8 @@ static void
 PropagateResults (void)
 {
 	GLOBALOPTS opts;
+	BYTE i;
+
 	opts.screenResolution = choices[0].selected;
 	opts.driver = choices[1].selected;
 	opts.scaler = choices[2].selected;
@@ -1159,7 +1272,7 @@ PropagateResults (void)
 	opts.bubbleWarp = choices[27].selected;
 	opts.unlockShips = choices[28].selected;
 	opts.headStart = choices[29].selected;
-	opts.unlockUpgrades = choices[30].selected;
+	//opts.unlockUpgrades = choices[30].selected;
 	opts.infiniteRU = choices[31].selected;
 	opts.skipIntro = choices[32].selected;
 	opts.fuelRange = choices[33].selected;
@@ -1172,7 +1285,7 @@ PropagateResults (void)
 	opts.partialPickup = choices[40].selected;
 	opts.submenu = choices[41].selected;
 	opts.loresBlowup = choices[42].selected;
-	opts.addDevices = choices[43].selected;
+	//opts.addDevices = choices[43].selected;
 	opts.hazardColors = choices[44].selected;
 	opts.customBorder = choices[45].selected;
 	opts.spaceMusic = choices[46].selected;
@@ -1216,6 +1329,19 @@ PropagateResults (void)
 	opts.seedType = choices[82].selected;
 	opts.sphereColors = choices[83].selected;
 	opts.scatterElements = choices[84].selected;
+	opts.showUpgrades = choices[85].selected;
+	opts.fleetPointSys = choices[86].selected;
+
+	// Devices
+	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
+	{
+		opts.deviceArray[i - DEVICE_START] = choices[i].selected;
+	}
+
+	for (i = UPGRADE_START; i < UPGRADE_START + NUM_UPGRADES; i++)
+	{
+		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
+	}
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1545,10 +1671,15 @@ count_widgets (WIDGET **widgets)
 static stringbank *bank = NULL;
 static FRAME setup_frame = NULL;
 
+#define MAX_BUFF (MENU_COUNT + CHOICE_COUNT + \
+				SLIDER_COUNT + BUTTON_COUNT + \
+				LABEL_COUNT + TEXTENTRY_COUNT + \
+				CONTROLENTRY_COUNT)
+
 static void
 init_widgets (void)
 {
-	const char *buffer[100], *str, *title;
+	const char *buffer[MAX_BUFF], *str, *title;
 	int count, i, index;
 
 	if (bank == NULL)
@@ -1576,7 +1707,7 @@ init_widgets (void)
 	title = StringBank_AddOrFindString (bank,
 			GetStringAddress (SetAbsStringTableIndex (SetupTab, 0)));
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, 1)), '\n', 100, buffer, bank) != MENU_COUNT)
+			SetupTab, 1)), '\n', MAX_BUFF, buffer, bank) != MENU_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Menu Subtitles");
@@ -1609,13 +1740,13 @@ init_widgets (void)
 		
 	/* Options */
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, 2)), '\n', 100, buffer, bank) != CHOICE_COUNT)
+			SetupTab, 2)), '\n', MAX_BUFF, buffer, bank) != CHOICE_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Choice Options: "
 				"%d. Should be %d", CHOICE_COUNT,
 				SplitString (GetStringAddress (
 					SetAbsStringTableIndex (SetupTab, 2)),
-					'\n', 100, buffer, bank));
+					'\n', MAX_BUFF, buffer, bank));
 		exit (EXIT_FAILURE);
 	}
 
@@ -1650,7 +1781,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		optcount = SplitString (str, '\n', 100, buffer, bank);
+		optcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		choices[i].numopts = optcount;
 		choices[i].options = HMalloc (optcount * sizeof (CHOICE_OPTION));
 		choices[i].choice_num = i;
@@ -1673,7 +1804,7 @@ init_widgets (void)
 			}
 			str = GetStringAddress (
 					SetAbsStringTableIndex (SetupTab, index++));
-			tipcount = SplitString (str, '\n', 100, buffer, bank);
+			tipcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 			if (tipcount > 3)
 			{
 				tipcount = 3;
@@ -1711,6 +1842,7 @@ init_widgets (void)
 	choices[ 3].onChange = process_graphics_options;
 	choices[10].onChange = process_graphics_options;
 	choices[12].onChange = process_graphics_options;
+	choices[23].onChange = process_graphics_options;
 	choices[42].onChange = process_graphics_options;
 
 	/* Sliders */
@@ -1722,7 +1854,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank) != SLIDER_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != SLIDER_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Slider Options");
@@ -1774,7 +1906,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		tipcount = SplitString (str, '\n', 100, buffer, bank);
+		tipcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		if (tipcount > 3)
 		{
 			tipcount = 3;
@@ -1794,7 +1926,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank) != BUTTON_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != BUTTON_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Button Options");
@@ -1828,7 +1960,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		tipcount = SplitString (str, '\n', 100, buffer, bank);
+		tipcount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		if (tipcount > 3)
 		{
 			tipcount = 3;
@@ -1848,7 +1980,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank) != LABEL_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != LABEL_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Label Options");
@@ -1880,7 +2012,7 @@ init_widgets (void)
 		}
 		str = GetStringAddress (
 				SetAbsStringTableIndex (SetupTab, index++));
-		linecount = SplitString (str, '\n', 100, buffer, bank);
+		linecount = SplitString (str, '\n', MAX_BUFF, buffer, bank);
 		labels[i].line_count = linecount;
 		labels[i].lines =
 				(const char **)HMalloc(linecount * sizeof(const char *));
@@ -1899,7 +2031,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
 			!= TEXTENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Text Entries");
@@ -1925,7 +2057,7 @@ init_widgets (void)
 		textentries[i].tooltip[2] = "";
 	}
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
 			!= TEXTENTRY_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
@@ -1946,7 +2078,7 @@ init_widgets (void)
 			exit(EXIT_FAILURE);
 		}
 		str = GetStringAddress(SetAbsStringTableIndex(SetupTab, index++));
-		tipcount = SplitString(str, '\n', 100, buffer, bank);
+		tipcount = SplitString(str, '\n', MAX_BUFF, buffer, bank);
 		if (tipcount > 3)
 		{
 			tipcount = 3;
@@ -1970,7 +2102,7 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', 100, buffer, bank)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
 			!= CONTROLENTRY_COUNT)
 	{
 		log_add (log_Fatal, "PANIC: Incorrect number of Control Entries");
@@ -2089,6 +2221,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 {
 	bool whichBound;
 	int flags;
+	BYTE i;
 
 /*
  *		Graphics options
@@ -2276,6 +2409,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nomad = optNomad;
 	opts->slaughterMode = optSlaughterMode;
 	opts->seedType = optSeedType;
+	opts->fleetPointSys = optFleetPointSys;
 	
 	// Comm screen
 	opts->scroll = is3DO (optSmoothScroll);
@@ -2295,6 +2429,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	// QoL
 	opts->scatterElements = optScatterElements;
 
+	opts->showUpgrades = optShowUpgrades;
+
 /*
  *		Cheats
  */
@@ -2304,13 +2440,25 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->bubbleWarp = optBubbleWarp;
 	opts->unlockShips = optUnlockShips;
 	opts->headStart = optHeadStart;
-	opts->unlockUpgrades = optUnlockUpgrades;
-	opts->addDevices = optAddDevices;
+	//opts->unlockUpgrades = optUnlockUpgrades;
+	//opts->addDevices = optAddDevices;
 	opts->infiniteRU = optInfiniteRU;
 	opts->infiniteFuel = optInfiniteFuel;
 	opts->noHQEncounters = optNoHQEncounters;
 	opts->deCleansing = optDeCleansing;
 	opts->meleeObstacles = optMeleeObstacles;
+
+	// Devices
+	for (i = 0; i < NUM_DEVICES; i++)
+	{
+		opts->deviceArray[i] = optDeviceArray[i];
+	}
+
+	// Upgrades
+	for (i = 0; i < NUM_UPGRADES; i++)
+	{
+		opts->upgradeArray[i] = optUpgradeArray[i];
+	}
 }
 
 void
@@ -2319,6 +2467,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewSndFlags = 0;
 	int resFactor = resolutionFactor;
 	int newFactor;
+	BYTE i;
 
 /*
  *		Graphics options
@@ -2393,7 +2542,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 //#endif
 //	}
 
-	PutBoolOpt (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", FALSE);
+	//PutBoolOpt (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", FALSE);
 
 	// Avoid setting gamma when it is not necessary
 	if (optGamma != 1.0f || sliderToGamma (opts->gamma) != 1.0f)
@@ -2412,7 +2561,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optRemixMusic, &opts->musicremix, "config.remixmusic", TRUE);
 	PutBoolOpt (&optVolasMusic, &opts->volasMusic, "mm.volasMusic", TRUE);
 
-	PutIntOpt (&optSpaceMusic, &opts->spaceMusic, "mm.spaceMusic", TRUE);
+	PutIntOpt (&optSpaceMusic, (int *)&opts->spaceMusic, "mm.spaceMusic", TRUE);
 
 	if (PutBoolOpt (&optMainMenuMusic, &opts->mainMenuMusic, "mm.mainMenuMusic", FALSE))
 	{
@@ -2539,7 +2688,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt  (&optFuelRange, (int*)(&opts->fuelRange), "mm.fuelRange", FALSE);
 	PutBoolOpt (&optWholeFuel, &opts->wholeFuel, "mm.wholeFuel", FALSE);
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
-	PutIntOpt  (&optSphereColors, &opts->sphereColors, "mm.sphereColors", FALSE);
+	PutIntOpt  (&optSphereColors, (int *)&opts->sphereColors, "mm.sphereColors", FALSE);
 	PutBoolOpt (&optScatterElements, &opts->scatterElements, "mm.scatterElements", FALSE);
 	
 	// Interplanetary
@@ -2562,6 +2711,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt  (&optScanSphere, (int*)&opts->sphereType, "mm.sphereType", FALSE);
 	PutConsOpt (&optTintPlanSphere, &opts->tintPlanSphere, "mm.tintPlanSphere", FALSE);
 	PutConsOpt (&optWhichShield, &opts->shield, "config.pulseshield", FALSE);
+	PutBoolOpt (&optShowUpgrades, &opts->showUpgrades, "mm.showUpgrades", FALSE);
 
 	// Game modes
 	{
@@ -2576,8 +2726,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	if ((optDifficulty = opts->difficulty) == OPTVAL_IMPO)
 		optDifficulty = OPTVAL_NORM;
 	PutBoolOpt (&optExtended, &opts->extended, "mm.extended", FALSE);
-	PutIntOpt (&optNomad, &opts->nomad, "mm.nomad", FALSE);
+	PutIntOpt (&optNomad, (int *)&opts->nomad, "mm.nomad", FALSE);
 	PutBoolOpt (&optSlaughterMode, &opts->slaughterMode, "mm.slaughterMode", FALSE);
+	PutBoolOpt (&optFleetPointSys, &opts->fleetPointSys, "mm.fleetPointSys", FALSE);
 
 	// Comm screen
 	PutConsOpt (&optSmoothScroll, &opts->scroll, "config.smoothscroll", FALSE);
@@ -2620,13 +2771,25 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optBubbleWarp, &opts->bubbleWarp, "cheat.bubbleWarp", FALSE);
 	PutBoolOpt (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", FALSE);
 	PutBoolOpt (&optHeadStart, &opts->headStart, "cheat.headStart", FALSE);
-	PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
-	PutBoolOpt (&optAddDevices, &opts->addDevices, "cheat.addDevices", FALSE);
+	//PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
+	//PutBoolOpt (&optAddDevices, &opts->addDevices, "cheat.addDevices", FALSE);
 	PutBoolOpt (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", FALSE);
 	PutBoolOpt (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", FALSE);
 	PutBoolOpt (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", FALSE);
 	PutBoolOpt (&optDeCleansing, &opts->deCleansing, "cheat.deCleansing", FALSE);
 	PutBoolOpt (&optMeleeObstacles, &opts->meleeObstacles, "cheat.meleeObstacles", FALSE);
+
+	// Devices
+	for (i = 0; i < NUM_DEVICES; i++)
+	{
+		optDeviceArray[i] = opts->deviceArray[i];
+	}
+
+	// Upgrades
+	for (i = 0; i < NUM_UPGRADES; i++)
+	{
+		optUpgradeArray[i] = opts->upgradeArray[i];
+	}
 
 	SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
 	SaveKeyConfiguration (configDir, "flight.cfg");

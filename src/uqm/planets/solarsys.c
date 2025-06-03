@@ -3133,6 +3133,9 @@ DoSolarSysMenu (MENU_STATE *pMS)
 				return FALSE;
 
 			TransitionSystemIn ();
+
+			if (optWhichMenu != OPT_PC)
+				DrawMenuStateStrings (PM_STARMAP, NAVIGATION);
 			// Fall through !!!
 		case NAVIGATION:
 			return FALSE;

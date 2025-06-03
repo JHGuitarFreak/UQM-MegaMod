@@ -31,6 +31,7 @@
 #include "menustat.h"
 #include "gamestr.h"
 #include "shipcont.h"
+#include "comm.h"
 // JSD added to reference plot_map for SOL.
 #include "starmap.h"
 
@@ -398,6 +399,10 @@ PauseGame (void)
 	RECT ctxRect;
 	POINT OldOrigin;
 	RECT OldRect;
+	Color OldColor;
+	DrawMode mode, oldMode;
+	BYTE oldVolume;
+	TimeCount deltaT;
 
 	if (ActivityFrame == 0
 			|| (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_PAUSE))
@@ -409,6 +414,8 @@ PauseGame (void)
 	if (PlayingTrack ())
 		PauseTrack ();
 
+	deltaT = GetTimeCounter ();
+
 	OldContext = SetContext (ScreenContext);
 	OldOrigin = SetContextOrigin (MAKE_POINT (0, 0));
 	GetContextClipRect (&OldRect);
@@ -418,13 +425,25 @@ PauseGame (void)
 	GetFrameRect (ActivityFrame, &r);
 	r.corner.x = (ctxRect.extent.width - r.extent.width) >> 1;
 	r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
-	saveStamp = SaveContextFrame (&r);
+	saveStamp = SaveContextFrame (&ctxRect);
+
+	mode = MAKE_DRAW_MODE (DRAW_DESATURATE, DESAT_AMOUNT);
+	oldMode = SetContextDrawMode (mode);
+	DrawFilledRectangle (&ctxRect);
+	SetContextDrawMode (oldMode);
+	OldColor = SetContextForeGroundColor (
+			BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x30));
+	DrawFilledRectangle (&ctxRect);
+	SetContextForeGroundColor (OldColor);
 
 	s.origin = r.corner;
 	s.frame = ActivityFrame;
-	SetSystemRect (&r);
+	// There was a SetSystemRect(&r) call which we don't need anymore
 	DrawStamp (&s);
 	DrawPauseText (&r);
+
+	oldVolume = GetCurrMusicVol();
+	FadeMusic (60, ONE_SECOND / 2);
 
 	FlushGraphics ();
 
@@ -452,11 +471,15 @@ PauseGame (void)
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
 	ClearSystemRect ();
 
+	FadeMusic (oldVolume, ONE_SECOND / 2);
+
 	SetContextClipRect (&OldRect);
 	SetContextOrigin (OldOrigin);
 	SetContext (OldContext);
 
 	WaitForNoInput (ONE_SECOND / 4, TRUE);
+
+	DeltaLastTime (GetTimeCounter () - deltaT);
 
 	if (PlayingTrack ())
 		ResumeTrack ();

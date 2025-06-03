@@ -93,4 +93,3 @@ GenerateZoqFotPikScout_reinitNpcs (SOLARSYS_STATE *solarSys)
 
 	return true;
 }
-

@@ -41,7 +41,7 @@ for name in F:
 		F[name].export(FullPath, FontSize)
 		print("Inverting color and defining PNG color type",  end='', flush=True)
 		system('mogrify -negate -define png:color-type=0 "'+FullPath+'"')
-		if int(subprocess.check_output('convert "'+FullPath+'" -format "%k" info:', shell=True)) > 1:
+		if int(subprocess.check_output('magick "'+FullPath+'" -format "%k" info:', shell=True)) > 1:
 			print(" -> Trimming east/west black space")
 			system('mogrify -fuzz 30% -define trim:edges=west,east -trim +repage "'+FullPath+'"')
 		else:

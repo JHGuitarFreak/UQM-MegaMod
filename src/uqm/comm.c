@@ -1120,9 +1120,11 @@ TalkSegue (COUNT wait_track)
 	if (runningTalkingAnim ())
 		setStopTalkingAnim ();
 
-	// Wait until the animation task stops "talking"
-	while (runningTalkingAnim ())
-		runCommAnimFrame ();
+	if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
+	{// Wait until the animation task stops "talking"
+		while (runningTalkingAnim ())
+			runCommAnimFrame ();
+	}
 
 	return talkingState.ended;
 }

@@ -121,6 +121,10 @@ extern int optMusicResume;
 extern DWORD optWindowType;
 extern BOOLEAN optNoClassic;
 extern OPT_ENABLABLE optScatterElements;
+extern OPT_ENABLABLE optShowUpgrades;
+extern OPT_ENABLABLE optFleetPointSys;
+extern OPT_ADD_REMOVE optDeviceArray[25];
+extern OPT_ADD_REMOVE optUpgradeArray[13];
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;

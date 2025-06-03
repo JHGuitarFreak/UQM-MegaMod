@@ -175,4 +175,8 @@ FadeMusic (BYTE end_vol, SIZE TimeInterval)
 	}
 }
 
+BYTE GetCurrMusicVol (void)
+{
+	return (BYTE)musicVolume;
+}
 

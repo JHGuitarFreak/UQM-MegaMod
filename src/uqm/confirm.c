@@ -28,6 +28,7 @@
 #include "libs/log.h"
 #include "libs/resource/stringbank.h"
 #include "battle.h"
+#include "comm.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -39,7 +40,7 @@
 BOOLEAN WarpFromMenu = FALSE;
 
 static void
-DrawConfirmationWindow (BOOLEAN answer)
+DrawConfirmationWindow (BOOLEAN answer, BOOLEAN confirm)
 {
 	Color oldfg = SetContextForeGroundColor (SHADOWBOX_DARK_COLOR);
 	FONT  oldfont = SetContextFont (StarConFont);
@@ -85,7 +86,8 @@ DrawConfirmationWindow (BOOLEAN answer)
 #endif
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 1); // "Yes"
 	SetContextForeGroundColor (
-			answer ? MENU_HIGHLIGHT_COLOR : BLACK_COLOR);
+			answer ? (confirm ? WHITE_COLOR : MENU_HIGHLIGHT_COLOR) :
+			BLACK_COLOR);
 	font_DrawText (&t);
 	t.baseline.x += (r.extent.width >> 1);
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 2); // "No"
@@ -124,6 +126,12 @@ DoConfirmExit (void)
 		CONTEXT oldContext;
 		RECT oldRect;
 		BOOLEAN response = FALSE, done;
+		Color OldColor;
+		DrawMode mode, oldMode;
+		BYTE oldVolume;
+		TimeCount deltaT;
+
+		deltaT = GetTimeCounter ();
 
 		oldContext = SetContext (ScreenContext);
 		GetContextClipRect (&oldRect);
@@ -134,14 +142,27 @@ DoConfirmExit (void)
 		r.extent.height = CONFIRM_WIN_HEIGHT + RES_SCALE (4);
 		r.corner.x = (ctxRect.extent.width - r.extent.width) >> 1;
 		r.corner.y = (ctxRect.extent.height - r.extent.height) >> 1;
-		s = SaveContextFrame (&r);
-		SetSystemRect (&r);
+		s = SaveContextFrame (&ctxRect);
 
-		DrawConfirmationWindow (response);
+		mode = MAKE_DRAW_MODE (DRAW_DESATURATE, DESAT_AMOUNT);
+		oldMode = SetContextDrawMode (mode);
+		DrawFilledRectangle (&ctxRect);
+		SetContextDrawMode (oldMode);
+		OldColor = SetContextForeGroundColor 
+				(BUILD_COLOR_RGBA (0x00, 0x00, 0x00, 0x30));
+		DrawFilledRectangle (&ctxRect);
+		SetContextForeGroundColor (OldColor);
+
+		// There was a SetSystemRect(&r) call which we don't need anymore
+
+		DrawConfirmationWindow (response, FALSE);
 		FlushGraphics ();
 
 		FlushInput ();
 		done = FALSE;
+
+		oldVolume = GetCurrMusicVol();
+		FadeMusic (60, ONE_SECOND / 2);
 		
 		while (!done){
 			// Forbid recursive calls or pausing here!
@@ -167,14 +188,23 @@ DoConfirmExit (void)
 					|| PulsedInputState.menu[KEY_MENU_RIGHT])
 			{
 				response = !response;
-				DrawConfirmationWindow (response);
+				DrawConfirmationWindow (response, FALSE);
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 			SleepThread (ONE_SECOND / 30);
 		};
 
 		// Restore the screen under the confirmation window
-		DrawStamp (&s);
+		if (!response)
+		{
+			DrawStamp (&s);
+			DeltaLastTime (GetTimeCounter () - deltaT);
+			FadeMusic (oldVolume, ONE_SECOND / 2);
+		}
+		else
+		{
+			DrawConfirmationWindow (TRUE, TRUE);
+		}
 		DestroyDrawable (ReleaseDrawable (s.frame));
 		ClearSystemRect ();
 		if (response || (GLOBAL (CurrentActivity) & CHECK_ABORT))
@@ -199,7 +229,7 @@ DoConfirmExit (void)
 
 	ContinueFlash ();
 
-	if (PlayingTrack ())
+	if (PlayingTrack () && !result)
 		ResumeTrack ();
 
 	return (result);
@@ -266,7 +296,7 @@ DoPopupWindow (const char *msg)
 	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR,
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 	DrawLabelAsWindow (&label, &windowRect);
-	SetSystemRect (&windowRect);
+	// There was a SetSystemRect(&windowRect) call which we don't need anymore
 
 	GetMenuSounds (&s0, &s1);
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);

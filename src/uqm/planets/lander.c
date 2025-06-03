@@ -69,6 +69,7 @@ struct LanderInputState {
 };
 
 FRAME LanderFrame[8];
+BYTE LanderUpgradesFlag;
 static SOUND LanderSounds;
 MUSIC_REF LanderMusic;
 static CONTEXT PCLanderContext;
@@ -2268,6 +2269,51 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 }
 
 void
+MaskLanderGraphics (void)
+{
+	BYTE currFlagState;
+
+	if (!optShowUpgrades)
+		return;
+
+	currFlagState = (GET_GAME_STATE (IMPROVED_LANDER_SHOT) << 0) +
+		(GET_GAME_STATE (IMPROVED_LANDER_SPEED) << 1) +
+		(GET_GAME_STATE (IMPROVED_LANDER_CARGO) << 2);
+
+	if (currFlagState != LanderUpgradesFlag)
+	{
+		COUNT i,j;
+		FRAME mods = CaptureDrawable (LoadGraphic (LANDER_MODS_PMAP_ANIM));
+		FRAME lander;
+		FRAME mask;
+		DrawMode mode = MAKE_DRAW_MODE (DRAW_REPLACE, DRAW_FACTOR_1);
+
+		// Reload landersprites for remasking
+		DestroyDrawable (ReleaseDrawable (LanderFrame[0]));
+		LanderFrame[0] = 
+			CaptureDrawable (LoadGraphic (LANDER_MASK_PMAP_ANIM));
+
+		LanderUpgradesFlag = currFlagState;
+
+		for (j = 0; j < 3; j++)
+		{
+			if (currFlagState & (1 << j))
+			{
+				for (i = 0; i < 16; i++)
+				{
+					mask = SetAbsFrameIndex (mods, i + (j * 16));
+					lander = SetAbsFrameIndex (LanderFrame[0], i);
+					ApplyMask (mask, lander, mode, NULL);
+				}
+			}
+		}
+
+		DestroyDrawable (ReleaseDrawable (mods));
+		mods = 0;
+	}	
+}
+
+void
 FreeLanderData (void)
 {
 	COUNT i;
@@ -2291,6 +2337,8 @@ FreeLanderData (void)
 		DestroyDrawable (ReleaseDrawable (LanderFrame[i]));
 		LanderFrame[i] = 0;
 	}
+
+	LanderUpgradesFlag = 0;
 }
 
 void
@@ -2315,6 +2363,8 @@ LoadLanderData (void)
 			CaptureDrawable (LoadGraphic (LANDER_RETURN_MASK_PMAP_ANIM));
 	LanderFrame[7] =
 			CaptureDrawable (LoadGraphic (LANDER_PC_MASK_PMAP_ANIM));
+
+	LanderUpgradesFlag = 0;
 	
 	LanderSounds = CaptureSound (LoadSound (LANDER_SOUNDS));
 

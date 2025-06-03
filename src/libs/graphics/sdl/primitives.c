@@ -426,6 +426,31 @@ renderpixel_linearburn (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_RGB (fmt, r, g, b);
 }
 
+static void
+renderpixel_desaturate (SDL_Surface *surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+	int luma;
+
+	(void) pixel;
+
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+
+	luma = ((3 * sr + 6 * sg + sb) * 205) >> 11;
+	r = clip_channel(sr + ((factor * (luma - sr)) >> 8));
+	g = clip_channel(sg + ((factor * (luma - sg)) >> 8));
+	b = clip_channel(sb + ((factor * (luma - sb)) >> 8));
+	
+	*p = PACK_PIXEL_RGB (fmt, r, g, b);
+}
+
 /* Kruzen: special instant blend to transform HD hyperspace ambience to quasispace one */
 static void
 renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
@@ -481,6 +506,8 @@ renderpixel_for (SDL_Surface *surface, RenderKind kind, BOOLEAN forMask)
 		return &renderpixel_linearburn;
 	case renderHypToQuas:
 		return &renderpixel_hypertoquasi;
+	case renderDesatur:
+		return &renderpixel_desaturate;
 	}
 	// should not ever get here
 	return NULL;
@@ -849,36 +876,60 @@ blt_filtered_prim (SDL_Surface *layer, RenderPixelFn plot, int factor,
 	else
 		getpix = getpixel_for (layer);// For both layer and base
 
-	// Not for paletted yet!
+	// For paletted
 	if (lrfmt->palette)
-		return;
-
-	if (fill)
-		color = SDL_MapRGB (bsfmt, fill->r, fill->g, fill->b);
-
-	for (y = 0; y < base->h; ++y)
 	{
-		for (x = 0; x < base->w; ++x)
+		Uint32 lkey = ~0;
+		Uint32 bkey = ~0;
+		TFB_GetColorKey (layer, &lkey);
+		TFB_GetColorKey (base, &bkey);
+
+		for (y = 0; y < base->h; ++y)
 		{
-			Uint8 al, ab;
-			Uint32 lp;
-			Uint32 *bp;
+			for (x = 0; x < base->w; ++x)
+			{
+				Uint32 lp;
+				Uint8 *bp;
+
+				lp = getpix (layer, x, y);
+				bp = ((Uint8*)base->pixels + y * base->pitch + x);
+
+				if (lp == lkey || *bp == bkey)
+					continue;
+
+				*bp = lp;
+			}
+		}
+	}
+	else
+	{// For truecolor
+		if (fill)
+			color = SDL_MapRGB (bsfmt, fill->r, fill->g, fill->b);
+
+		for (y = 0; y < base->h; ++y)
+		{
+			for (x = 0; x < base->w; ++x)
+			{
+				Uint8 al, ab;
+				Uint32 lp;
+				Uint32 *bp;
 			
-			lp = getpix (layer, x, y);
-			bp = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
+				lp = getpix (layer, x, y);
+				bp = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
 			
-			if ((lp & lrfmt->Amask) == 0 || (*bp & bsfmt->Amask) == 0)
-				continue; // transparent pixel
+				if ((lp & lrfmt->Amask) == 0 || (*bp & bsfmt->Amask) == 0)
+					continue; // transparent pixel
 
-			al = (lp >> (lrfmt->Ashift)) & 0xFF;
-			ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
+				al = (lp >> (lrfmt->Ashift)) & 0xFF;
+				ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
 
-			plot (base, x, y, fill ? color : lp, 
-					factor == TRANSFER_ALPHA ? al : factor);
+				plot (base, x, y, fill ? color : lp, 
+						factor == TRANSFER_ALPHA ? al : factor);
 
-			// Reapply alpha to pixel since every plot function nukes it
-			*bp &= ~(bsfmt->Amask);
-			*bp |= ((Uint32)ab << (bsfmt->Ashift));
+				// Reapply alpha to pixel since every plot function nukes it
+				*bp &= ~(bsfmt->Amask);
+				*bp |= ((Uint32)ab << (bsfmt->Ashift));
+			}
 		}
 	}
 }

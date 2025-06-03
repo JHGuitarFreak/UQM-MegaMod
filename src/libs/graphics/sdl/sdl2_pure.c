@@ -21,6 +21,7 @@
 #include "scalers.h"
 #include "uqmversion.h"
 #include "png2sdl.h"
+#include "options.h"
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -144,6 +145,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 {
 	int i;
 	char buf[50];
+	int setWidth = width;
+	int setHeight = height;
 
 	GraphicsDriver = driver;
 	(void) togglefullscreen;
@@ -152,13 +155,24 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
 
+	if (optKeepAspectRatio)
+	{
+		float threshold = 0.75f;
+		float ratio = (float)height/(float)width;
+
+		if (ratio > threshold) // screen is narrower than 4:3			
+			setWidth = setHeight / threshold;
+		else if (ratio < threshold) // screen is wider than 4:3
+			setHeight = setWidth * threshold;
+	}
+
 	if (window == NULL)
 	{
 		SDL_RendererInfo info;
 
 		window = SDL_CreateWindow ("",
 				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-				width, height, 0);
+				setWidth, setHeight, 0);
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
 			/* If we create the window fullscreen, it will have
@@ -186,7 +200,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		{
 			log_add (log_Info, "SDL2 renderer had no name.");
 		}
-		SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+		SDL_RenderSetLogicalSize (renderer, setWidth, setHeight);
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		{
 			SDL2_Screens[i].scaled = NULL;
@@ -219,9 +233,9 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	{
 		int LastScreenWidth, LastScreenHeight;
 		SDL_RenderGetLogicalSize (renderer, &LastScreenWidth, &LastScreenHeight);
-		if (LastScreenWidth != ScreenWidth || LastScreenHeight != ScreenHeight)
+		if (LastScreenWidth != setWidth || LastScreenHeight != setHeight)
 		{
-			SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+			SDL_RenderSetLogicalSize (renderer, setWidth, setHeight);
 			for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 			{
 				SDL2_Screens[i].dirty = TRUE;
@@ -251,7 +265,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		else
 		{
 			SDL_SetWindowFullscreen (window, 0);
-			SDL_SetWindowSize (window, width, height);
+			SDL_SetWindowSize (window, setWidth, setHeight);
 		}
 	}
 
@@ -334,6 +348,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	/* We succeeded, so alter the screen size to our new sizes */
 	ScreenWidthActual = width;
 	ScreenHeightActual = height;
+
 
 	(void) resFactor; /* satisfy compiler (unused parameter) */
 	(void) windowType; /* satisfy compiler (unused parameter) */
@@ -506,6 +521,7 @@ TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 		SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_BLEND);
 		SDL_SetTextureAlphaMod (texture, a);
 	}
+
 	SDL_RenderCopy (renderer, texture, rect, rect);
 }
 

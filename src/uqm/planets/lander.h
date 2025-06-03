@@ -76,6 +76,8 @@ extern BYTE SetPlanetMusic (BYTE planet_type);
 extern void LoadLanderData (void);
 extern void FreeLanderData (void);
 
+extern void MaskLanderGraphics (void);
+
 extern void object_animation (ELEMENT *ElementPtr);
 
 extern void SetLanderTakeoff (void);

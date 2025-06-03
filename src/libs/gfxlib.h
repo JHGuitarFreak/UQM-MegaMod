@@ -550,6 +550,7 @@ typedef enum
 	DRAW_GRAYSCALE, // To get true grayscale - factor should be == 128
 	DRAW_LINEARBURN,
 	DRAW_HYPTOQUAS,
+	DRAW_DESATURATE, // Desaturate image. Not optimized for high fps
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;
@@ -563,6 +564,8 @@ typedef struct
 #define DRAW_REPLACE_MODE   MAKE_DRAW_MODE (DRAW_REPLACE, 0)
 #define DRAW_FACTOR_1       0xff
 #define TRANSFER_ALPHA      0x7fff
+
+#define DESAT_AMOUNT 0xBE
 
 static inline DrawMode
 MAKE_DRAW_MODE (DrawKind kind, SWORD factor)
