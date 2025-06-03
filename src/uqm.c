@@ -601,7 +601,7 @@ main (int argc, char *argv[])
 	optBubbleWarp = options.bubbleWarp.value;
 	optUnlockShips = options.unlockShips.value;
 	optHeadStart = options.headStart.value;
-	optUnlockUpgrades = options.unlockUpgrades.value;
+	//optUnlockUpgrades = options.unlockUpgrades.value;
 	optInfiniteRU = options.infiniteRU.value;
 	optSkipIntro = options.skipIntro.value;
 	optMainMenuMusic = options.mainMenuMusic.value;
@@ -613,7 +613,7 @@ main (int argc, char *argv[])
 	optInfiniteFuel = options.infiniteFuel.value;
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;
-	optAddDevices = options.addDevices.value;
+	//optAddDevices = options.addDevices.value;
 	optCustomBorder = options.customBorder.value;
 	optSeedType = options.seedType.value;
 	optCustomSeed = options.customSeed.value;
@@ -1037,7 +1037,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->bubbleWarp, "cheat.bubbleWarp");
 	getBoolConfigValue (&options->unlockShips, "cheat.unlockShips");
 	getBoolConfigValue (&options->headStart, "cheat.headStart");
-	getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
+	//getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
 	getBoolConfigValue (&options->infiniteRU, "cheat.infiniteRU");
 	getBoolConfigValue (&options->skipIntro, "mm.skipIntro");
 	getBoolConfigValue (&options->mainMenuMusic, "mm.mainMenuMusic");
@@ -1053,7 +1053,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->infiniteFuel, "cheat.infiniteFuel");
 	getBoolConfigValue (&options->partialPickup, "mm.partialPickup");
 	getBoolConfigValue (&options->submenu, "mm.submenu");
-	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
+	//getBoolConfigValue (&options->addDevices, "cheat.addDevices");
 	getBoolConfigValue (&options->customBorder, "mm.customBorder");
 	if (res_IsInteger ("mm.seedType") && !options->seedType.set)
 	{
@@ -1712,7 +1712,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case ADDON_OPT:
 				options->numAddons++;
 				options->addons = HRealloc ((void *)options->addons,
-					(options->numAddons + 1) * sizeof (const char *));
+						(options->numAddons + 1) * sizeof (const char *));
 				options->addons[options->numAddons - 1] = optarg;
 				options->addons[options->numAddons] = NULL;
 				break;
@@ -1794,7 +1794,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->headStart, true);
 				break;
 			case UPGRADES_OPT:
-				setBoolOption (&options->unlockUpgrades, true);
+				//setBoolOption (&options->unlockUpgrades, true);
 				break;
 			case INFINITERU_OPT:
 				setBoolOption (&options->infiniteRU, true);
@@ -1844,7 +1844,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->submenu, true);
 				break;
 			case DEVICES_OPT:
-				setBoolOption (&options->addDevices, true);
+				//setBoolOption (&options->addDevices, true);
 				break;
 			case CUSTBORD_OPT:
 				setBoolOption (&options->customBorder, true);

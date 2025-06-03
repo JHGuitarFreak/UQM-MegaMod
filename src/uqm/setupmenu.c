@@ -1155,7 +1155,7 @@ SetDefaults (void)
 	choices[27].selected = opts.bubbleWarp;
 	choices[28].selected = opts.unlockShips;
 	choices[29].selected = opts.headStart;
-	choices[30].selected = opts.unlockUpgrades;
+	//choices[30].selected = opts.unlockUpgrades;
 	choices[31].selected = opts.infiniteRU;
 	choices[32].selected = opts.skipIntro;
 	choices[33].selected = opts.fuelRange;
@@ -1168,7 +1168,7 @@ SetDefaults (void)
 	choices[40].selected = opts.partialPickup;
 	choices[41].selected = opts.submenu;
 	choices[42].selected = opts.loresBlowup;
-	choices[43].selected = opts.addDevices;
+	//choices[43].selected = opts.addDevices;
 	choices[44].selected = opts.hazardColors;
 	choices[45].selected = opts.customBorder;
 	choices[46].selected = opts.spaceMusic;
@@ -1272,7 +1272,7 @@ PropagateResults (void)
 	opts.bubbleWarp = choices[27].selected;
 	opts.unlockShips = choices[28].selected;
 	opts.headStart = choices[29].selected;
-	opts.unlockUpgrades = choices[30].selected;
+	//opts.unlockUpgrades = choices[30].selected;
 	opts.infiniteRU = choices[31].selected;
 	opts.skipIntro = choices[32].selected;
 	opts.fuelRange = choices[33].selected;
@@ -1285,7 +1285,7 @@ PropagateResults (void)
 	opts.partialPickup = choices[40].selected;
 	opts.submenu = choices[41].selected;
 	opts.loresBlowup = choices[42].selected;
-	opts.addDevices = choices[43].selected;
+	//opts.addDevices = choices[43].selected;
 	opts.hazardColors = choices[44].selected;
 	opts.customBorder = choices[45].selected;
 	opts.spaceMusic = choices[46].selected;
@@ -2440,8 +2440,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->bubbleWarp = optBubbleWarp;
 	opts->unlockShips = optUnlockShips;
 	opts->headStart = optHeadStart;
-	opts->unlockUpgrades = optUnlockUpgrades;
-	opts->addDevices = optAddDevices;
+	//opts->unlockUpgrades = optUnlockUpgrades;
+	//opts->addDevices = optAddDevices;
 	opts->infiniteRU = optInfiniteRU;
 	opts->infiniteFuel = optInfiniteFuel;
 	opts->noHQEncounters = optNoHQEncounters;
@@ -2771,8 +2771,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optBubbleWarp, &opts->bubbleWarp, "cheat.bubbleWarp", FALSE);
 	PutBoolOpt (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", FALSE);
 	PutBoolOpt (&optHeadStart, &opts->headStart, "cheat.headStart", FALSE);
-	PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
-	PutBoolOpt (&optAddDevices, &opts->addDevices, "cheat.addDevices", FALSE);
+	//PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
+	//PutBoolOpt (&optAddDevices, &opts->addDevices, "cheat.addDevices", FALSE);
 	PutBoolOpt (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", FALSE);
 	PutBoolOpt (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", FALSE);
 	PutBoolOpt (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", FALSE);
