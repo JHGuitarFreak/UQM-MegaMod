@@ -447,19 +447,9 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 			InputState |= BATTLE_RIGHT;
 	}
 	if (keyState[KEY_WEAPON])
-	{
-		if (antiCheatAlt (OPTVAL_INF_ENERGY)
-				|| antiCheatAlt (OPTVAL_FULL_GOD))
-			resetEnergyBattle ();
 		InputState |= BATTLE_WEAPON;
-	}
 	if (keyState[KEY_SPECIAL])
-	{
-		if (antiCheatAlt (OPTVAL_INF_ENERGY)
-				|| antiCheatAlt (OPTVAL_FULL_GOD))
-			resetEnergyBattle ();
 		InputState |= BATTLE_SPECIAL;
-	}
 	if (keyState[KEY_ESCAPE])
 		InputState |= BATTLE_ESCAPE;
 	if (keyState[KEY_DOWN])
