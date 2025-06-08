@@ -294,7 +294,7 @@ static WIDGET *cheat_widgets[] = {
 	//(WIDGET *)(&choices[30]),   // Unlock Upgrades
 	(WIDGET *)(&choices[31]),   // Infinite RU
 	(WIDGET *)(&choices[39]),   // Infinite Fuel
-	//(WIDGET *)(&choices[43]),   // Add Devices
+	(WIDGET *)(&choices[43]),   // Infinite Credits
 	(WIDGET *)(&choices[71]),   // No HyperSpace Encounters
 	(WIDGET *)(&choices[73]),   // No Planets in melee
 	(WIDGET *)(&buttons[1]),    // Exit to Menu
@@ -1168,7 +1168,7 @@ SetDefaults (void)
 	choices[40].selected = opts.partialPickup;
 	choices[41].selected = opts.submenu;
 	choices[42].selected = opts.loresBlowup;
-	//choices[43].selected = opts.addDevices;
+	choices[43].selected = opts.infiniteCredits;
 	choices[44].selected = opts.hazardColors;
 	choices[45].selected = opts.customBorder;
 	choices[46].selected = opts.spaceMusic;
@@ -1285,7 +1285,7 @@ PropagateResults (void)
 	opts.partialPickup = choices[40].selected;
 	opts.submenu = choices[41].selected;
 	opts.loresBlowup = choices[42].selected;
-	//opts.addDevices = choices[43].selected;
+	opts.infiniteCredits = choices[43].selected;
 	opts.hazardColors = choices[44].selected;
 	opts.customBorder = choices[45].selected;
 	opts.spaceMusic = choices[46].selected;
@@ -2441,7 +2441,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->unlockShips = optUnlockShips;
 	opts->headStart = optHeadStart;
 	//opts->unlockUpgrades = optUnlockUpgrades;
-	//opts->addDevices = optAddDevices;
+	opts->infiniteCredits = optInfiniteCredits;
 	opts->infiniteRU = optInfiniteRU;
 	opts->infiniteFuel = optInfiniteFuel;
 	opts->noHQEncounters = optNoHQEncounters;
@@ -2772,7 +2772,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", FALSE);
 	PutBoolOpt (&optHeadStart, &opts->headStart, "cheat.headStart", FALSE);
 	//PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
-	//PutBoolOpt (&optAddDevices, &opts->addDevices, "cheat.addDevices", FALSE);
+	PutBoolOpt (&optInfiniteCredits, &opts->infiniteCredits, "cheat.infiniteCredits", FALSE);
 	PutBoolOpt (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", FALSE);
 	PutBoolOpt (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", FALSE);
 	PutBoolOpt (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", FALSE);

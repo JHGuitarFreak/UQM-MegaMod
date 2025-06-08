@@ -550,10 +550,21 @@ DrawStatusMessage (const UNICODE *pStr)
 	{
 		if (curMsgMode == SMM_CREDITS)
 		{
-			snprintf (buf, sizeof buf, "%u %s", MAKE_WORD (
-					GET_GAME_STATE (MELNORME_CREDIT0),
-					GET_GAME_STATE (MELNORME_CREDIT1)
-					), GAME_STRING (STATUS_STRING_BASE + 0)); // "Cr"
+			if (optInfiniteCredits)
+			{
+				snprintf (buf, sizeof buf, "%s %s",
+					(isPC (optWhichMenu) && isPC (optWhichFonts)) ?
+					GAME_STRING (STATUS_STRING_BASE + 2)
+					: STR_INFINITY_SIGN, // "UNLIMITED"
+					GAME_STRING (STATUS_STRING_BASE + 0)); // "Cr"
+			}
+			else
+			{
+				snprintf (buf, sizeof buf, "%u %s", MAKE_WORD (
+						GET_GAME_STATE (MELNORME_CREDIT0),
+						GET_GAME_STATE (MELNORME_CREDIT1)
+						), GAME_STRING (STATUS_STRING_BASE + 0)); // "Cr"
+			}
 		}
 		else if (curMsgMode == SMM_RES_UNITS)
 		{

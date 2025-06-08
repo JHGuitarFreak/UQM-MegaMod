@@ -71,7 +71,7 @@ extern OPT_ENABLABLE optInfiniteFuel;
 extern DWORD loadFuel;
 extern OPT_ENABLABLE optPartialPickup;
 extern OPT_ENABLABLE optSubmenu;
-extern OPT_ENABLABLE optAddDevices;
+extern OPT_ENABLABLE optInfiniteCredits;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
 extern OPT_ENABLABLE optCustomBorder;

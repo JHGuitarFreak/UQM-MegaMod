@@ -82,7 +82,7 @@ OPT_ENABLABLE optInfiniteFuel;
 DWORD loadFuel;
 OPT_ENABLABLE optPartialPickup;
 OPT_ENABLABLE optSubmenu;
-OPT_ENABLABLE optAddDevices;
+OPT_ENABLABLE optInfiniteCredits;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 OPT_ENABLABLE optCustomBorder;
