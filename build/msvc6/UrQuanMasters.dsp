@@ -310,6 +310,10 @@ SOURCE=..\..\src\libs\graphics\sdl\canvas.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\libs\graphics\sdl\clipboard.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\libs\graphics\sdl\hq2x.c
 # End Source File
 # Begin Source File

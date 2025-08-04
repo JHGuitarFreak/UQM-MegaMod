@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - When option enabled currently owned lander modifications will appear on lander sprites during planetside
 - Introduced a "Fleet Point System" which limits the total amount of ships you can purchase by the max melee point value of your entire fleet
 - Added Infinite Credits cheat
+- Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest

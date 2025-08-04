@@ -658,6 +658,10 @@ TFB_SDL_ScreenShot (const char *path)
 		tmp->pixels, tmp->pitch);
 	if (SDL_SavePNG (tmp, path) == 0)
 		successful = TRUE;
+
+	if (successful && CopySurfaceToClipboard (tmp) != 0)
+		log_add (log_Warning, "Failed to copy PNG to clipboard\n");
+
 	SDL_UnlockSurface (tmp);
 	SDL_FreeSurface (tmp);
 

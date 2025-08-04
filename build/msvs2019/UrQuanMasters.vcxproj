@@ -294,6 +294,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClCompile Include="..\..\src\libs\graphics\sdl\biadv2x.c" />
     <ClCompile Include="..\..\src\libs\graphics\sdl\bilinear2x.c" />
     <ClCompile Include="..\..\src\libs\graphics\sdl\canvas.c" />
+    <ClCompile Include="..\..\src\libs\graphics\sdl\clipboard.c" />
     <ClCompile Include="..\..\src\libs\graphics\sdl\hq2x.c" />
     <ClCompile Include="..\..\src\libs\graphics\sdl\nearest2x.c" />
     <ClCompile Include="..\..\src\libs\graphics\sdl\opengl.c" />
