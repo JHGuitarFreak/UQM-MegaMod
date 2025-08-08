@@ -1151,7 +1151,7 @@ Draw_SIS (void)
 {
 	TEXT t;
 	RECT r;
-	BOOLEAN flat = is3DO (optWhichFonts);
+	BOOLEAN flat = (BOOLEAN)is3DO (optWhichFonts);
 
 	GetGaugeRect (&r, FALSE);
 	t.baseline.x = (STATUS_WIDTH >> 1);

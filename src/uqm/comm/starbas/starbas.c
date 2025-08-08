@@ -1888,8 +1888,6 @@ init_starbase_comm ()
 	commander_desc.post_encounter_func = post_starbase_enc;
 	commander_desc.uninit_encounter_func = uninit_starbase;
 
-	
-
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.

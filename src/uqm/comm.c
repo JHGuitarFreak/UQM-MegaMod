@@ -76,8 +76,6 @@ static BOOLEAN TalkingFinished;
 static CommIntroMode curIntroMode = CIM_DEFAULT;
 static TimeCount fadeTime;
 
-BOOLEAN IsProbe;
-
 // Dark mode
 BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
@@ -1932,8 +1930,6 @@ InitCommunication (CONVERSATION which_comm)
 	COUNT status;
 	LOCDATA *LocDataPtr;
 
-	IsProbe = FALSE;
-
 #ifdef DEBUG
 	if (disableInteractivity)
 		return 0;
@@ -1984,7 +1980,6 @@ InitCommunication (CONVERSATION which_comm)
 	{
 		status = URQUAN_DRONE_SHIP;
 		which_comm = URQUAN_CONVERSATION;
-		IsProbe = TRUE;
 	}
 	else
 	{

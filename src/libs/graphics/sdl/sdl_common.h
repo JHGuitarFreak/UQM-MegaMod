@@ -64,8 +64,8 @@ void TFB_InitOnScreenKeyboard(void);
 
 void UnInit_Screen (SDL_Surface **screen);
 
-BOOLEAN TFB_SDL_ScreenShot (const char *path);
+extern BOOLEAN TFB_SDL_ScreenShot (const char *path);
 
 extern int CopySurfaceToClipboard (SDL_Surface *surface);
 
-#endif
+#endif /* SDL_COMMON_H */

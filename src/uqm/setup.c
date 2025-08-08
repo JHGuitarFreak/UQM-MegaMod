@@ -166,7 +166,7 @@ LoadKernel (int argc, char *argv[])
 	if (IS_DOS && isAddonAvailable (DOS_MODE (IS_HD)))
 		loadAddon (DOS_MODE (IS_HD));
 
-	usingSpeech = optSpeech;
+	usingSpeech = (BOOLEAN)optSpeech;
 	if (optSpeech && !loadAddon ("mm-3dovoice"))
 		usingSpeech = FALSE;
 	
