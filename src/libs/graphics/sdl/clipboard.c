@@ -102,6 +102,6 @@ CopySurfaceToClipboard (SDL_Surface *surface)
 #else
 	log_add (log_Warning, "Clipboard functionality is not implemented on "
 			"this platform.");
-	return FALSE;
+	return SDL_FALSE;
 #endif
 }
