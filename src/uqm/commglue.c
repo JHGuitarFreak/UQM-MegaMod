@@ -128,7 +128,7 @@ InterpolateChunk (UNICODE buffer[], UNICODE *start)
 			fprintf (stderr, "Interpolation failure (null return).\n");
 			return NULL;
 		}
-		buffsize += strlen (pStr);
+		buffsize += (COUNT)strlen (pStr);
 		if (buffsize > MAX_INTERPOLATE)
 		{
 			fprintf (stderr, "String too long to interpolate.\n");
@@ -145,7 +145,7 @@ InterpolateChunk (UNICODE buffer[], UNICODE *start)
 		return start;
 	// Otherwise we're done with interpolation, write the remainder
 	// to buffer and return
-	buffsize += strlen (start);
+	buffsize += (COUNT)strlen (start);
 	if (buffsize > MAX_INTERPOLATE)
 	{
 		fprintf (stderr, "String too long to interpolate.\n");

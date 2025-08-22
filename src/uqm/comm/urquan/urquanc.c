@@ -569,7 +569,9 @@ init_urquan_comm (void)
 	GrpOffs = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 	
 	// use alternate "Probe" track if available
-	if (IsProbe == TRUE)
+	if ((LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
+			&& GLOBAL (BattleGroupRef)
+			&& GLOBAL (BattleGroupRef) == GrpOffs))
 		altResFlags |= USE_ALT_SONG;
 
 	if (EXTENDED)

@@ -166,7 +166,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  infiniteFuel);
 	DECL_CONFIG_OPTION(bool,  partialPickup);
 	DECL_CONFIG_OPTION(bool,  submenu);
-	DECL_CONFIG_OPTION(bool,  addDevices);
+	DECL_CONFIG_OPTION(bool,  infiniteCredits);
 	DECL_CONFIG_OPTION(bool,  customBorder);
 	DECL_CONFIG_OPTION(int,   seedType);
 	DECL_CONFIG_OPTION(int,   customSeed);
@@ -378,7 +378,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  infiniteFuel,      false ),
 		INIT_CONFIG_OPTION(  partialPickup,     false ),
 		INIT_CONFIG_OPTION(  submenu,           false ),
-		INIT_CONFIG_OPTION(  addDevices,        false ),
+		INIT_CONFIG_OPTION(  infiniteCredits,   false ),
 		INIT_CONFIG_OPTION(  customBorder,      false ),
 		INIT_CONFIG_OPTION(  seedType,          0 ),
 		INIT_CONFIG_OPTION(  customSeed,        PrimeA ),
@@ -613,7 +613,7 @@ main (int argc, char *argv[])
 	optInfiniteFuel = options.infiniteFuel.value;
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;
-	//optAddDevices = options.addDevices.value;
+	optInfiniteCredits = options.infiniteCredits.value;
 	optCustomBorder = options.customBorder.value;
 	optSeedType = options.seedType.value;
 	optCustomSeed = options.customSeed.value;
@@ -1053,7 +1053,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->infiniteFuel, "cheat.infiniteFuel");
 	getBoolConfigValue (&options->partialPickup, "mm.partialPickup");
 	getBoolConfigValue (&options->submenu, "mm.submenu");
-	//getBoolConfigValue (&options->addDevices, "cheat.addDevices");
+	getBoolConfigValue (&options->infiniteCredits, "cheat.infiniteCredits");
 	getBoolConfigValue (&options->customBorder, "mm.customBorder");
 	if (res_IsInteger ("mm.seedType") && !options->seedType.set)
 	{
@@ -1250,7 +1250,7 @@ enum
 	INFFUEL_OPT,
 	PICKUP_OPT,
 	SUBMENU_OPT,
-	DEVICES_OPT,
+	INFCRED_OPT,
 	CUSTBORD_OPT,
 	SEEDTYPE_OPT,
 	EXSEED_OPT,
@@ -1363,7 +1363,7 @@ static struct option longOptions[] =
 	{"infinitefuel", 0, NULL, INFFUEL_OPT},
 	{"partialpickup", 0, NULL, PICKUP_OPT},
 	{"submenu", 0, NULL, SUBMENU_OPT},
-	{"adddevices", 0, NULL, DEVICES_OPT},
+	{"infinitecredits", 0, NULL, INFCRED_OPT},
 	{"customborder", 0, NULL, CUSTBORD_OPT},
 	{"seedtype", 0, NULL, SEEDTYPE_OPT},
 	{"customseed", 1, NULL, EXSEED_OPT},
@@ -1843,8 +1843,8 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SUBMENU_OPT:
 				setBoolOption (&options->submenu, true);
 				break;
-			case DEVICES_OPT:
-				//setBoolOption (&options->addDevices, true);
+			case INFCRED_OPT:
+				setBoolOption (&options->infiniteCredits, true);
 				break;
 			case CUSTBORD_OPT:
 				setBoolOption (&options->customBorder, true);
@@ -2498,9 +2498,9 @@ usage (FILE *out, const struct options_struct *defaults)
 			boolOptString (&defaults->submenu));
 	log_add (log_User, "  --dateformat : 0: MMM DD.YYYY | 1: MM.DD.YYYY | "
 			"2: DD MMM.YYYY | 3: DD.MM.YYYY (default: 0)");
-	log_add (log_User, "  --adddevices : Gives you all available "
-			"devices (default: %s)",
-			boolOptString (&defaults->addDevices));
+	log_add (log_User, "  --infinitecredits: Gives you infinite Melnorme"
+			"Credits  (default: %s)",
+			boolOptString (&defaults->infiniteCredits));
 	log_add (log_User, "  --melee : Takes you straight to Super Melee"
 			"after the splash screen.");
 	log_add (log_User, "  --loadgame : Takes you straight to the Load"

@@ -27,6 +27,7 @@
 		// for NUM_PLAYERS
 #include "menustat.h"
 #include "util.h"
+#include "intel.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -474,6 +475,10 @@ DeltaEnergy (ELEMENT *ElementPtr, SIZE energy_delta)
 	SHIP_INFO *ShipInfoPtr;
 
 	retval = TRUE;
+	
+	if (antiCheat (ElementPtr, FALSE, OPTVAL_INF_ENERGY)
+			|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD))
+		return retval;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	ShipInfoPtr = &StarShipPtr->RaceDescPtr->ship_info;
