@@ -349,10 +349,9 @@ check_hyperspace_encounter (void)
 				if (Type == SLYLANDRO_SHIP)
 				{
 					encounter_flags = ONE_SHOT_ENCOUNTER;
-
-					percent = 100;
-
-					if (GET_GAME_STATE (STARBASE_AVAILABLE))
+					if (!GET_GAME_STATE (STARBASE_AVAILABLE))
+						percent = 100;
+					else
 						percent *= GET_GAME_STATE (SLYLANDRO_MULTIPLIER);
 
 					if (optNoHQEncounters)
