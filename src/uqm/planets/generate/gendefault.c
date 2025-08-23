@@ -353,12 +353,18 @@ GenerateWorlds (BYTE whichType)
 		planet = FIRST_LARGE_ROCKY_WORLD +
 				RandomContext_Random (SysGenRNG) %
 				(NUMBER_OF_LARGE_ROCKY_WORLDS - 2);
+		// Skip over rainbow_world and shattered_world, which are adjacent.
+		if (planet >= RAINBOW_WORLD)
+			planet += 2;
 	}
 	else if (whichType & ALL_ROCKY)
 	{
 		planet = FIRST_ROCKY_WORLD +
 				RandomContext_Random (SysGenRNG) %
 				(NUMBER_OF_ROCKY_WORLDS - 2);
+		// Skip over rainbow_world and shattered_world, which are adjacent.
+		if (planet >= RAINBOW_WORLD)
+			planet += 2;
 	}
 	else if (whichType & ONLY_LARGE)
 	{
@@ -366,6 +372,9 @@ GenerateWorlds (BYTE whichType)
 				RandomContext_Random (SysGenRNG) %
 				(NUMBER_OF_LARGE_ROCKY_WORLDS
 					+ NUMBER_OF_GAS_GIANTS - 2);
+		// Skip over rainbow_world and shattered_world, which are adjacent.
+		if (planet >= RAINBOW_WORLD)
+			planet += 2;
 	}
 	else if (whichType & ONLY_GAS)
 	{
@@ -373,9 +382,6 @@ GenerateWorlds (BYTE whichType)
 				RandomContext_Random (SysGenRNG) %
 				NUMBER_OF_GAS_GIANTS;
 	}
-	// Skip over rainbow_world and shattered_world, which are adjacent.
-	if (planet >= RAINBOW_WORLD)
-		planet += 2;
 
 	return planet;
 }
@@ -387,6 +393,7 @@ GenerateGasGiantRanged (SOLARSYS_STATE *solarSys)
 	PLANET_DESC *pPlanet;
 	BYTE i;
 #define DWARF_GASG_DIST SCALE_RADIUS (12)
+	DWORD rand = RandomContext_GetSeed (SysGenRNG);
 
 	for (i = 0; i < pSunDesc->NumPlanets; i++)
 	{
@@ -394,6 +401,10 @@ GenerateGasGiantRanged (SOLARSYS_STATE *solarSys)
 			break;
 	}
 
+	if (i == pSunDesc->NumPlanets)
+		i = rand % (pSunDesc->NumPlanets);
+	else
+		i += rand % (pSunDesc->NumPlanets - i);
 	pSunDesc->PlanetByte = i;
 	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
@@ -402,7 +413,6 @@ GenerateGasGiantRanged (SOLARSYS_STATE *solarSys)
 	if (solarSys->PlanetDesc[i].radius < DWARF_GASG_DIST)
 	{
 		COUNT angle;
-		DWORD rand = RandomContext_GetSeed (SysGenRNG);
 
 		pPlanet->radius =
 				RangeMinMax (DWARF_GASG_DIST, MAX_PLANET_RADIUS, rand);
