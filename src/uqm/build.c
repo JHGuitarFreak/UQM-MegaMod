@@ -703,7 +703,8 @@ SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 	}
 	if (hStarShip)
 	{
-		StarShipPtr->crew_level = crew_level;
+		StarShipPtr->crew_level = (crew_level > StarShipPtr->max_crew ?
+				StarShipPtr->max_crew : crew_level);
 		StarShipPtr->captains_name_index = captain;
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}

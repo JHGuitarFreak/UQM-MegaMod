@@ -483,6 +483,7 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
 			(!try_core && (read_8 (fp, &SSPtr->Difficulty) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Extended) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Nomad) != 1)) ||
+			(!try_core && (read_8 (fp, &SSPtr->ShipSeed) != 1)) ||
 			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1))
 		)
 		return FALSE;
@@ -536,6 +537,7 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 	{	// Sanitize seed, difficulty, extended, and nomad variables
 		SummPtr->SS.Seed = SummPtr->SS.Difficulty = 0;
 		SummPtr->SS.Extended = SummPtr->SS.Nomad = 0;
+		SummPtr->SS.ShipSeed = 0;
 		SummPtr->SS.SaveVersion = 1;
 	}
 
@@ -844,6 +846,11 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 
 	GlobData.SIS_state = SummPtr->SS;
 
+	optCustomSeed = GLOBAL_SIS (Seed);
+	optShipSeed = (GLOBAL_SIS (ShipSeed) > 0 ? true : false);
+	LoadMasterShipList (NULL);
+	LoadFleetInfo ();
+
 	ReinitQueue (&GLOBAL (GameClock.event_q));
 	ReinitQueue (&GLOBAL (encounter_q));
 	ReinitQueue (&GLOBAL (ip_group_q));
@@ -1001,7 +1008,6 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 	DebugKeyPressed = FALSE;
 	// Set the SeedType flag and then start Starseed
 	optSeedType = GET_GAME_STATE (SEED_TYPE);
-	optCustomSeed = GLOBAL_SIS (Seed);
 	if (optSeedType == OPTVAL_PRIME && optCustomSeed != PrimeA)
 	{
 		// Assuming load from older version, optSeedType should be 0 (none)
