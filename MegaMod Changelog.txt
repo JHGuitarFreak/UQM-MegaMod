@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Introduced a "Fleet Point System" which limits the total amount of ships you can purchase by the max melee point value of your entire fleet
 - Added Infinite Credits cheat
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
+- Added support for alien race specific HyperSpace themes that will change on-the-fly as you traverse HyperSpace (takes into account the No Spoilers option)
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest

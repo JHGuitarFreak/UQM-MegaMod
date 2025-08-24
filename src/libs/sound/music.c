@@ -397,6 +397,86 @@ GetMusicPosition ()
 	return 0; // Shouldn't happen, music array completely full
 }
 
+void
+SetHyperSpace (void)
+{
+	DWORD filename_hash;
+	TimeCount TimeIn, difference;
+	TimeCount smallest_difference = (DWORD)~0;
+	MUSIC_POSITION *target = NULL;
+	int index = -1;
+	int target_index = -1;
+	int i;
+
+	if (!optMusicResume || GLOBAL (CurrentActivity) & CHECK_ABORT
+			|| !PLRPlaying ((MUSIC_REF)~0))
+		return;
+
+	filename_hash = PLRGetFilenameHash ();
+	if (!filename_hash)
+		return;
+
+	TimeIn = GetTimeCounter ();
+
+	for (i = 0; i < PATH_MAX; ++i)
+	{
+		MUSIC_POSITION *RMAptr = &resumeMusicArray[i];
+
+		if (RMAptr->filename_hash == 0)
+		{
+			if (target_index == -1)
+				target_index = i;
+
+			if (target_index != -1 && index != -1 && RMAptr->filename_hash
+					!= filename_hash)
+				break;
+
+			continue;
+		}
+
+		if (RMAptr->filename_hash == filename_hash)
+		{
+			target_index = i;
+		}
+
+		if (RMAptr->is_hyperspace)
+		{
+			difference = TimeIn - RMAptr->last_played;
+
+			if (difference >= 0 && difference < smallest_difference)
+			{
+				smallest_difference = difference;
+				index = i;
+			}
+		}
+	}
+
+	if (target_index == -1)
+	{
+		// Technically should never happen, array completely full
+		return;
+	}
+
+	target = &resumeMusicArray[target_index];
+
+	if (target->filename_hash == 0)
+	{
+		target->filename_hash = filename_hash;
+		target->is_hyperspace = TRUE;
+	}
+	else if (!target->is_hyperspace)
+		target->is_hyperspace = TRUE;
+
+	if (index != -1)
+	{
+		MUSIC_POSITION *source = &resumeMusicArray[index];
+		target->position = source->position;
+		target->last_played = source->last_played;
+	}
+
+	//print_mp_array (resumeMusicArray, 9); // For debugging purposes
+}
+
 #define FIVE_MINUTES (1000 * 300)
 
 BOOLEAN

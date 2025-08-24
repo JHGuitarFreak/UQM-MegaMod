@@ -90,6 +90,9 @@ PlayMusicResume (MUSIC_REF MusicRef, BYTE Volume)
 	SetMusicVolume (MUTE_VOLUME);
 	PlayMusic (MusicRef, TRUE, 1);
 
+	if (VolasPackPresent && inHyperSpace ())
+		SetHyperSpace ();
+
 	if (OkayToResume ())
 	{
 		SeekMusic (GetMusicPosition ());

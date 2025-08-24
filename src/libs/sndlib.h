@@ -109,18 +109,20 @@ typedef struct music_position
 	DWORD filename_hash;
 	DWORD position;
 	DWORD last_played;
+	BOOLEAN is_hyperspace;
 } MUSIC_POSITION;
 
 extern void SetMusicPosition (void);
 extern BOOLEAN OkayToResume (void);
 extern DWORD GetMusicPosition (void);
 extern void ResetMusicResume (void);
+extern void SetHyperSpace (void);
 
 static inline void
 print_mp (const MUSIC_POSITION mp)
 {
-	printf ("filename_hash: 0x%X, position: %d, last_played: %d\n",
-		mp.filename_hash, mp.position, mp.last_played);
+	printf ("is_hyperspace: %d, filename_hash: 0x%X, position: %d, last_played: %d\n",
+		mp.is_hyperspace, mp.filename_hash, mp.position, mp.last_played);
 }
 
 static inline void
@@ -128,7 +130,7 @@ print_mp_array (const MUSIC_POSITION mp_array[], const COUNT num_items)
 {
 	COUNT i;
 
-	//system ("cls");
+	system ("cls");
 	printf ("--------------------\n\n");
 	for (i = num_items; i > 0; --i)
 	{
