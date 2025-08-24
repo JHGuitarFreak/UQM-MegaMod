@@ -237,7 +237,7 @@ GetStreamLength (uint32 source)
 	return sample->decoder->length * 1000;
 }
 
-float
+DWORD
 GetStreamTime (uint32 source)
 {
 	TFB_SoundSample* sample = soundSource[source].sample;
@@ -245,7 +245,7 @@ GetStreamTime (uint32 source)
 	if (!sample)
 		return 0;
 
-	return SoundDecoder_GetTime (sample->decoder) * 1000;
+	return (DWORD)SoundDecoder_GetTime (sample->decoder) * 1000;
 }
 
 BOOLEAN

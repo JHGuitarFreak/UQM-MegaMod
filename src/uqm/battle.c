@@ -283,16 +283,7 @@ BattleSong (BOOLEAN DoPlay)
 
 	if (DoPlay)
 	{
-		SetMusicVolume (MUTE_VOLUME);
-		PlayMusic (BattleRef, TRUE, 1);
-
-		if (OkayToResume ())
-		{
-			SeekMusic (GetMusicPosition ());
-			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-		}
-		else
-			SetMusicVolume (NORMAL_VOLUME);
+		PlayMusicResume (BattleRef, NORMAL_VOLUME);
 	}
 }
 

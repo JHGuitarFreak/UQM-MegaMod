@@ -101,10 +101,10 @@ PLRPause (MUSIC_REF MusicRef)
 	}
 }
 
-static sint32
+static DWORD
 get_current_music_pos (MUSIC_REF MusicRef)
 {
-	float pos = 0.0f;
+	DWORD pos = 0;
 	float length = 0.0f;
 	//UNICODE *filename;
 
@@ -120,7 +120,7 @@ get_current_music_pos (MUSIC_REF MusicRef)
 		if (IsTracker (MUSIC_SOURCE))
 		{
 			length = (float)GetNumTrackerPos (MUSIC_SOURCE);
-			pos = (float)GetStreamFrame (MUSIC_SOURCE);
+			pos = GetStreamFrame (MUSIC_SOURCE);
 		}
 		else
 		{
@@ -133,13 +133,13 @@ get_current_music_pos (MUSIC_REF MusicRef)
 	else
 		return 0;
 
-	if (pos < 0 || pos > length)
+	if (pos > (DWORD)length)
 		pos = 0;
 
-	return (sint32)pos;
+	return pos;
 }
 
-SDWORD
+DWORD
 PLRGetPos (void)
 {
 	return curMusicRef != 0 ? get_current_music_pos (curMusicRef) : 0;
@@ -332,88 +332,69 @@ _ReleaseMusicData (void *data)
 }
 
 // For music resume option
-static void
-SetGlobalMusicPosition (void)
+void
+SetMusicPosition (void)
 {
 	MUSIC_POSITION temp;
-	int i, j;
+	int i;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		return;
-	if (!optMusicResume)
+	if (!optMusicResume || GLOBAL (CurrentActivity) & CHECK_ABORT
+			|| !PLRPlaying ((MUSIC_REF)~0))
 		return;
 
 	temp.filename_hash = PLRGetFilenameHash ();
-
 	if (!temp.filename_hash)
 		return;
 
 	temp.position = PLRGetPos ();
 	temp.last_played = GetTimeCounter ();
 
-	if (!temp.filename_hash)
-		return;
-
 	for (i = 0; i < PATH_MAX; ++i)
 	{
-		if (!resumeMusicArray[i].filename_hash)
-			break;
+		print_mp_array (resumeMusicArray, 9); // For debugging purposes
+
+		if (resumeMusicArray[i].filename_hash == temp.filename_hash)
+		{
+			// Update existing entry
+			resumeMusicArray[i].position = temp.position;
+			resumeMusicArray[i].last_played = temp.last_played;
+			return;
+		}
+
+		if (resumeMusicArray[i].filename_hash == 0)
+		{
+			// Found empty slot - insert and return
+			resumeMusicArray[i].filename_hash = temp.filename_hash;
+			resumeMusicArray[i].position = temp.position;
+			resumeMusicArray[i].last_played = temp.last_played;
+			return;
+		}
 	}
-
-	for (j = 0; j < i; ++j)
-	{
-		if (resumeMusicArray[j].filename_hash == temp.filename_hash)
-			break;
-	}
-
-	if (j < PATH_MAX
-			&& resumeMusicArray[j].filename_hash == temp.filename_hash)
-	{
-		resumeMusicArray[j].position = temp.position;
-		resumeMusicArray[j].last_played = temp.last_played;
-	}
-	else
-		resumeMusicArray[i] = temp;
-
-	//print_mp_array (resumeMusicArray, 9); For debugging purposes
-}
-
-void
-SetMusicPosition (void)
-{
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		return;
-	if (!optMusicResume)
-		return;
-	if (!PLRPlaying ((MUSIC_REF)~0))
-		return;
-
-	SetGlobalMusicPosition ();
 }
 
 DWORD
-GetMusicPosition (void)
+GetMusicPosition ()
 {
 	DWORD filename_hash;
 	int i;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		return 0;
-	if (!optMusicResume)
+	if (!optMusicResume || GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return 0;
 
 	filename_hash = PLRGetFilenameHash ();
-
 	if (!filename_hash)
-		return FALSE;
+		return 0;
 
 	for (i = 0; i < PATH_MAX; ++i)
 	{
+		if (!resumeMusicArray[i].filename_hash)
+			return 0;
+
 		if (resumeMusicArray[i].filename_hash == filename_hash)
-			break;
+			return resumeMusicArray[i].position;
 	}
 
-	return resumeMusicArray[i].position;
+	return 0; // Shouldn't happen, music array completely full
 }
 
 #define FIVE_MINUTES (1000 * 300)
@@ -425,13 +406,10 @@ OkayToResume (void)
 	DWORD filename_hash;
 	int i;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		return FALSE;
-	if (!optMusicResume)
+	if (!optMusicResume || GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
 	filename_hash = PLRGetFilenameHash ();
-
 	if (!filename_hash)
 		return FALSE;
 
@@ -445,7 +423,7 @@ OkayToResume (void)
 		return FALSE;
 
 	if (!resumeMusicArray[i].last_played
-		|| !resumeMusicArray[i].position)
+			|| !resumeMusicArray[i].position)
 		return FALSE;
 
 	TimeIn = GetTimeCounter ();
