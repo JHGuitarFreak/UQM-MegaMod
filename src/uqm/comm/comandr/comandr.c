@@ -643,7 +643,7 @@ GiveRadios (RESPONSE_REF R)
 
 		if (altResFlags & USE_ALT_SONG)
 		{
-			SDWORD MusicPos = PLRGetPos ();
+			DWORD MusicPos = PLRGetPos ();
 			StopMusic ();
 			CommData.AlienSong = LoadMusic (CommData.AlienSongRes);
 

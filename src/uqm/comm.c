@@ -1187,16 +1187,7 @@ AlienTalkSegue (COUNT wait_track)
 		
 		pCurInputState->Initialized = TRUE;
 
-		SetMusicVolume (MUTE_VOLUME);
-		PlayMusic (AlienSong, TRUE, 1);
-
-		if (OkayToResume ())
-		{
-			SeekMusic (GetMusicPosition ());
-			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
-		}
-		else
-			SetMusicVolume (BACKGROUND_VOL);
+		PlayMusicResume (AlienSong, BACKGROUND_VOL);
 
 		InitCommAnimations ();
 

@@ -2198,16 +2198,7 @@ DoShipyard (MENU_STATE *pMS)
 			ScreenTransition (optScrTrans, NULL);
 			UnbatchGraphics ();
 
-			SetMusicVolume (MUTE_VOLUME);
-			PlayMusic (pMS->hMusic, TRUE, 1);
-
-			if (OkayToResume ())
-			{
-				SeekMusic (GetMusicPosition ());
-				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-			}
-			else
-				SetMusicVolume (NORMAL_VOLUME);
+			PlayMusicResume (pMS->hMusic, NORMAL_VOLUME);
 
 			ShowCombatShip (pMS, (COUNT)~0, NULL);
 

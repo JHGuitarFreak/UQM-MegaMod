@@ -545,16 +545,7 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 	{
-		SetMusicVolume (MUTE_VOLUME);
-		PlayMusic (LanderMusic, TRUE, 1);
-
-		if (OkayToResume ())
-		{
-			SeekMusic (GetMusicPosition ());
-			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-		}
-		else
-			SetMusicVolume (NORMAL_VOLUME);
+		PlayMusicResume (LanderMusic, NORMAL_VOLUME);
 	}
 
 	if (WaitMode)
