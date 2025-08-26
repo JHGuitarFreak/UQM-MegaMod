@@ -24,6 +24,7 @@
 #include "uqm/globdata.h"
 #include "uqm/tactrans.h"
 #include "libs/mathlib.h"
+#include "../../starmap.h"
 
 // Core characteristics
 #define MAX_CREW 6
@@ -499,9 +500,11 @@ init_shofixti (void)
 
 	new_shofixti_desc = shofixti_desc;
 	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
+			&& CurStarDescPtr && CurStarDescPtr->Index == SHOFIXTI_DEFINED
 			&& !GET_GAME_STATE (SHOFIXTI_RECRUITED))
 	{
 		// Tanaka/Katana flies in a damaged ship.
+		// This is determined by being at the homeworld & not allied
 		COUNT i;
 
 		new_shofixti_desc.ship_data.ship_rsc[0] = OLDSHOF_BIG_MASK_PMAP_ANIM;

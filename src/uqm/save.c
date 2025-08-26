@@ -1155,6 +1155,7 @@ SaveSisState (const SIS_STATE *SSPtr, void *fp)
 	write_8   (fp, SSPtr->Difficulty);
 	write_8   (fp, SSPtr->Extended);
 	write_8   (fp, SSPtr->Nomad);
+	write_8   (fp, SSPtr->ShipSeed);
 	write_32  (fp, SSPtr->Seed);
 }
 

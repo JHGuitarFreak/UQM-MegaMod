@@ -40,7 +40,7 @@
 
 #include <time.h>//required to use 'srand(time(NULL))'
 
-#define OOPS_ALL 0 //MELNORME1_DEFINED
+#define OOPS_ALL 0 // Set a plot ID to stamp it to all empty starsystems
 static void CreateRadar (void);
 
 CONTEXT RadarContext;
@@ -415,6 +415,117 @@ copyFleetInfo (FLEET_INFO *dst, SHIP_INFO *src, FLEET_STUFF *fleet)
 	dst->known_loc = fleet->known_loc;
 }
 
+void
+LoadFleetInfo (void)
+{ 		/* Yehat Rebels and Ur-Quan probe */
+	COUNT num_ships = LAST_MELEE_ID - ARILOU_ID + 1 + 2;
+	InitQueue (&GLOBAL (avail_race_q), num_ships, sizeof (FLEET_INFO));
+	SPECIES_ID ship_ref = ARILOU_ID - 1;
+	for (int i = 0; i < num_ships; ++i)
+	{
+		HFLEETINFO hFleet;
+		FLEET_INFO *FleetPtr;
+
+		if (i < num_ships - 2)
+			ship_ref++;
+		else if (i == num_ships - 2)
+			ship_ref = YEHAT_ID;
+		else  /* (i == num_ships - 1) */
+			ship_ref = UR_QUAN_PROBE_ID;
+
+		hFleet = AllocLink (&GLOBAL (avail_race_q));
+		if (!hFleet)
+			continue;
+		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+		FleetPtr->SpeciesID = ship_ref;
+
+		if (i < num_ships - 1)
+		{
+			HMASTERSHIP hMasterShip;
+			MASTER_SHIP_INFO *MasterPtr;
+
+			hMasterShip = FindMasterShip (ship_ref);
+			MasterPtr = LockMasterShip (&master_q, hMasterShip);
+			// Grab a copy of loaded icons and strings (not owned)
+			copyFleetInfo (FleetPtr, &MasterPtr->ShipInfo,
+					&MasterPtr->Fleet);
+			UnlockMasterShip (&master_q, hMasterShip);
+			// If the game is seeded, move the fleet to starting position
+			SeedFleet (FleetPtr, plot_map);
+			// Rebel special case
+			if (i == YEHAT_REBEL_SHIP)
+				FleetPtr->actual_strength = 0;
+#ifdef DEBUG_SPHERE_COLOR
+			switch (i)
+			{
+				case HUMAN_SHIP:
+					FleetPtr->actual_strength = 200;
+					FleetPtr->known_loc = plot_map[SOL_DEFINED].star_pt;
+					break;
+				case SHOFIXTI_SHIP:
+					FleetPtr->actual_strength = 150;
+					FleetPtr->known_loc = plot_map[SHOFIXTI_DEFINED].star_pt;
+					break;
+				case MELNORME_SHIP:
+					FleetPtr->actual_strength = 300;
+					FleetPtr->known_loc = plot_map[MELNORME6_DEFINED].star_pt;
+					break;
+				case ANDROSYNTH_SHIP:
+					FleetPtr->actual_strength = 100;
+					FleetPtr->known_loc = plot_map[START_COLONY_DEFINED].star_pt;
+					break;
+				case CHENJESU_SHIP:
+					FleetPtr->actual_strength = 100;
+					FleetPtr->known_loc = plot_map[ILWRATH_DEFINED].star_pt;
+					break;
+				case MMRNMHRM_SHIP:
+					FleetPtr->actual_strength = 100;
+					FleetPtr->known_loc = plot_map[MOTHER_ARK_DEFINED].star_pt;
+					break;
+				case SLYLANDRO_SHIP:
+					FleetPtr->actual_strength = 300;
+					FleetPtr->known_loc = plot_map[SLYLANDRO_DEFINED].star_pt;
+					break;
+				case YEHAT_REBEL_SHIP:
+					FleetPtr->actual_strength = 200;
+					FleetPtr->known_loc = plot_map[RAINBOW0_DEFINED].star_pt;
+					break;
+				default:
+					break;
+			}
+#endif
+		}
+		else
+		{
+			// Ur-Quan probe.
+			RACE_DESC *RDPtr = load_ship (FleetPtr->SpeciesID,
+					FALSE);
+			if (RDPtr)
+			{	// Grab a copy of loaded icons and strings
+				copyFleetInfo (FleetPtr, &RDPtr->ship_info,
+						&RDPtr->fleet);
+				// avail_race_q owns these resources now
+				free_ship (RDPtr, FALSE, FALSE);
+			}
+		}
+
+		FleetPtr->allied_state = BAD_GUY;
+		FleetPtr->known_strength = 0;
+		FleetPtr->loc = FleetPtr->known_loc;
+		FleetPtr->growth = 0;
+		FleetPtr->growth_fract = 0;
+		FleetPtr->growth_err_term = 255 >> 1;
+		FleetPtr->days_left = 0;
+		FleetPtr->func_index = ~0;
+		FleetPtr->can_build = FALSE;
+		if (optUnlockShips && i < LAST_MELEE_ID)
+			FleetPtr->can_build = TRUE;
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+		PutQueue (&GLOBAL (avail_race_q), hFleet);
+	}
+}
+
 BOOLEAN
 InitGameStructures (void)
 {
@@ -424,6 +535,7 @@ InitGameStructures (void)
 	// Set Seed Type, then check/start StarSeed
 	SET_GAME_STATE (SEED_TYPE, optSeedType);
 	GLOBAL_SIS (Seed) = optCustomSeed;
+	GLOBAL_SIS (ShipSeed) = (optShipSeed ? 1 : 0);
 #ifdef DEBUG_STARSEED
 	fprintf (stderr, "Starting a NEW game with seed type %d, %s\n",
 			optSeedType,
@@ -441,124 +553,10 @@ InitGameStructures (void)
 		return (FALSE);
 
 	PlayFrame = CaptureDrawable (LoadGraphic (PLAYMENU_ANIM));
-	
-	{
-		COUNT num_ships;
-		SPECIES_ID s_id = ARILOU_ID;
 
-		num_ships = LAST_MELEE_ID - s_id + 1
-				+ 2; /* Yehat Rebels and Ur-Quan probe */
-
-		InitQueue (&GLOBAL (avail_race_q), num_ships, sizeof (FLEET_INFO));
-		for (i = 0; i < num_ships; ++i)
-		{
-			SPECIES_ID ship_ref;
-			HFLEETINFO hFleet;
-			FLEET_INFO *FleetPtr;
-
-			if (i < num_ships - 2)
-				ship_ref = s_id++;
-			else if (i == num_ships - 2)
-				ship_ref = YEHAT_ID;
-			else  /* (i == num_ships - 1) */
-				ship_ref = UR_QUAN_PROBE_ID;
-			
-			hFleet = AllocLink (&GLOBAL (avail_race_q));
-			if (!hFleet)
-				continue;
-			FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
-			FleetPtr->SpeciesID = ship_ref;
-
-			if (i < num_ships - 1)
-			{
-				HMASTERSHIP hMasterShip;
-				MASTER_SHIP_INFO *MasterPtr;
-				
-				hMasterShip = FindMasterShip (ship_ref);
-				MasterPtr = LockMasterShip (&master_q, hMasterShip);
-				// Grab a copy of loaded icons and strings (not owned)
-				copyFleetInfo (FleetPtr, &MasterPtr->ShipInfo,
-						&MasterPtr->Fleet);
-				UnlockMasterShip (&master_q, hMasterShip);
-				// If the game is seeded, move the fleet to starting position
-				SeedFleet (FleetPtr, plot_map);
-#ifdef DEBUG_SPHERE_COLOR
-				switch (i)
-				{
-					case HUMAN_SHIP:
-						FleetPtr->actual_strength = 200;
-						FleetPtr->known_loc = plot_map[SOL_DEFINED].star_pt;
-						break;
-					case SHOFIXTI_SHIP:
-						FleetPtr->actual_strength = 150;
-						FleetPtr->known_loc = plot_map[SHOFIXTI_DEFINED].star_pt;
-						break;
-					case MELNORME_SHIP:
-						FleetPtr->actual_strength = 300;
-						FleetPtr->known_loc = plot_map[MELNORME6_DEFINED].star_pt;
-						break;
-					case ANDROSYNTH_SHIP:
-						FleetPtr->actual_strength = 100;
-						FleetPtr->known_loc = plot_map[START_COLONY_DEFINED].star_pt;
-						break;
-					case CHENJESU_SHIP:
-						FleetPtr->actual_strength = 100;
-						FleetPtr->known_loc = plot_map[ILWRATH_DEFINED].star_pt;
-						break;
-					case MMRNMHRM_SHIP:
-						FleetPtr->actual_strength = 100;
-						FleetPtr->known_loc = plot_map[MOTHER_ARK_DEFINED].star_pt;
-						break;
-					case SLYLANDRO_SHIP:
-						FleetPtr->actual_strength = 300;
-						FleetPtr->known_loc = plot_map[SLYLANDRO_DEFINED].star_pt;
-						break;
-					default:
-						break;
-				}
-#endif
-			}
-			else
-			{
-				// Ur-Quan probe.
-				RACE_DESC *RDPtr = load_ship (FleetPtr->SpeciesID,
-						FALSE);
-				if (RDPtr)
-				{	// Grab a copy of loaded icons and strings
-					copyFleetInfo (FleetPtr, &RDPtr->ship_info,
-							&RDPtr->fleet);
-					// avail_race_q owns these resources now
-					free_ship (RDPtr, FALSE, FALSE);
-				}
-			}
-
-			FleetPtr->allied_state = BAD_GUY;
-			FleetPtr->known_strength = 0;
-			FleetPtr->loc = FleetPtr->known_loc;
-			// XXX: Hack: Rebel special case 
-			if (i == YEHAT_REBEL_SHIP)
-				FleetPtr->actual_strength = 0;
-#ifdef DEBUG_SPHERE_COLOR
-			if (i == YEHAT_REBEL_SHIP)
-			{
-				FleetPtr->known_loc = plot_map[RAINBOW0_DEFINED].star_pt;
-				FleetPtr->actual_strength = 200;
-				FleetPtr->loc = FleetPtr->known_loc;
-			}
-#endif
-			FleetPtr->growth = 0;
-			FleetPtr->growth_fract = 0;
-			FleetPtr->growth_err_term = 255 >> 1;
-			FleetPtr->days_left = 0;
-			FleetPtr->func_index = ~0;
-			FleetPtr->can_build = FALSE;
-			if (optUnlockShips && i < LAST_MELEE_ID)
-				FleetPtr->can_build = TRUE;
-
-			UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
-			PutQueue (&GLOBAL (avail_race_q), hFleet);
-		}
-	}
+	// Load ships based on current seed settings
+	LoadMasterShipList (NULL);
+	LoadFleetInfo ();
 
 	InitSISContexts ();
 	LoadSC2Data ();
@@ -571,7 +569,7 @@ InitGameStructures (void)
 	GLOBAL_SIS (Difficulty) = optDifficulty;
 	GLOBAL_SIS (Extended) = optExtended;
 	GLOBAL_SIS (Nomad) = optNomad;
-	GLOBAL_SIS (Seed) = optCustomSeed;
+	GLOBAL_SIS (Seed) = optCustomSeed;	// In case Starseed rolls the seed
 
 	if (DIF_HARD && !PrimeSeed && !StarSeed)
 	{
@@ -701,7 +699,7 @@ InitGameStructures (void)
 
 	if (optHeadStart)
 	{
-		BYTE SpaCrew = IF_EASY(1, 30);
+		BYTE SpaCrew = IF_EASY(1, MAX_CREW_SIZE);
 		AddEscortShips (SPATHI_SHIP, 1);
 		// Make the Eluder escort captained by Fwiffo alone or have a full
 		// compliment for Easy mode.

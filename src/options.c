@@ -88,6 +88,7 @@ BOOLEAN optLoadGame;
 OPT_ENABLABLE optCustomBorder;
 int optSeedType;
 int optCustomSeed;
+BOOLEAN optShipSeed;
 int optSphereColors;
 int spaceMusicBySOI;
 int optSpaceMusic;
