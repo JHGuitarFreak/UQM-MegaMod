@@ -351,7 +351,7 @@ SetMusicPosition (void)
 
 	for (i = 0; i < PATH_MAX; ++i)
 	{
-		print_mp_array (resumeMusicArray, 9); // For debugging purposes
+		// print_mp_array (resumeMusicArray, 9); // For debugging purposes
 
 		if (resumeMusicArray[i].filename_hash == temp.filename_hash)
 		{
