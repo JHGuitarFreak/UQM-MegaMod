@@ -33,6 +33,7 @@
 #include "libs/memlib.h"
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
+#include "types.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -55,7 +56,7 @@ int optMeleeScale;
 const char **optAddons;
 
 unsigned int loresBlowupScale;
-int resolutionFactor;
+unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 
@@ -81,13 +82,15 @@ OPT_ENABLABLE optInfiniteFuel;
 DWORD loadFuel;
 OPT_ENABLABLE optPartialPickup;
 OPT_ENABLABLE optSubmenu;
-OPT_ENABLABLE optAddDevices;
+OPT_ENABLABLE optInfiniteCredits;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 OPT_ENABLABLE optCustomBorder;
+int optSeedType;
 int optCustomSeed;
+int optSphereColors;
 int spaceMusicBySOI;
-OPT_ENABLABLE optSpaceMusic;
+int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
 OPT_ENABLABLE optDirectionalJoystick;
@@ -97,7 +100,7 @@ int optDifficulty;
 int optDiffChooser;
 int optFuelRange;
 OPT_ENABLABLE optExtended;
-OPT_ENABLABLE optNomad;
+int optNomad;
 OPT_ENABLABLE optGameOver;
 OPT_ENABLABLE optShipDirectionIP;
 OPT_ENABLABLE optHazardColors;
@@ -125,8 +128,14 @@ OPT_ENABLABLE optSlaughterMode;
 BOOLEAN optMaskOfDeceit;
 OPT_ENABLABLE optAdvancedAutoPilot;
 OPT_ENABLABLE optMeleeToolTips;
-OPT_ENABLABLE optMusicResume;
+int optMusicResume;
 DWORD optWindowType;
+BOOLEAN optNoClassic;
+OPT_ENABLABLE optScatterElements;
+OPT_ENABLABLE optShowUpgrades;
+OPT_ENABLABLE optFleetPointSys;
+OPT_ADD_REMOVE optDeviceArray[25];
+OPT_ADD_REMOVE optUpgradeArray[13];
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;
@@ -163,6 +172,9 @@ static void mountAddonDir (uio_Repository *repository,
 		uio_MountHandle *contentMountHandle, const char *addonDirName);
 
 static void mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
+		int relativeFlags, uio_MountHandle *relativeHandle);
+
+static void mountBaseZip (uio_DirHandle *dirHandle, const char *mountPoint,
 		int relativeFlags, uio_MountHandle *relativeHandle);
 
 // Looks for a file 'file' in all 'numLocs' locations from 'locs'.
@@ -213,7 +225,8 @@ findFileInDirs (const char *locs[], int numLocs, const char *file)
 // execFile is the path to the uqm executable, as acquired through
 // main()'s argv[0].
 void
-prepareContentDir (const char *contentDirName, const char* addonDirName, const char *execFile)
+prepareContentDir (const char *contentDirName, const char* addonDirName,
+		const char *execFile)
 {
 	const char *testFile = "version";
 	const char *loc;
@@ -271,12 +284,12 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 	contentMountHandle = mountContentDir (repository, baseContentPath);
 
 	if (contentDirName && contentDirPath == NULL)
-		contentDirPath = contentDirName;
+		contentDirPath = (char *)contentDirName;
 
 	if (addonDirName)
 	{
 		if (addonDirPath == NULL)
-			addonDirPath = addonDirName;
+			addonDirPath = (char *)addonDirName;
 
 		log_add (log_Debug, "Using '%s' as addon dir.", addonDirName);
 	}
@@ -476,8 +489,9 @@ mountContentDir (uio_Repository *repository, const char *contentPath)
 	packagesDir = uio_openDir (repository, "/packages", 0);
 	if (packagesDir != NULL)
 	{
-		mountDirZips (packagesDir, "/", uio_MOUNT_BELOW, contentMountHandle);
-		uio_closeDir (packagesDir);	
+		mountBaseZip (packagesDir, "/", uio_MOUNT_BELOW,
+				contentMountHandle);
+		uio_closeDir (packagesDir);
 	}
 
 	return contentMountHandle;
@@ -546,8 +560,6 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		log_add (log_Info, "%d available addon pack%s.", count,
 				count == 1 ? "" : "s");
 
-		addonList.amount = count;
-
 		count = 0;
 		for (i = 0; i < availableAddons->numNames; ++i)
 		{
@@ -558,10 +570,10 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			if (!addon)
 				continue;
 
+			addonList.name_hash[count] = crc32b (addon);
+
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
-
-			addonList.name_hash[i] = crc32b (addon);
 		
 			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
@@ -575,6 +587,8 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			mountDirZips (addonDir, mountname, uio_MOUNT_BELOW, mountHandle);
 			uio_closeDir (addonDir);
 		}
+
+		addonList.amount = count;
 	}
 	else
 	{
@@ -609,9 +623,9 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 {
 	static uio_AutoMount *autoMount[] = { NULL };
 	uio_DirList *dirList;
+	const char *pattern = "\\.([zZ][iI][pP]|[uU][qQ][mM])$";
 
-	dirList = uio_getDirList (dirHandle, "", "\\.([zZ][iI][pP]|[uU][qQ][mM])$",
-			match_MATCH_REGEX);
+	dirList = uio_getDirList (dirHandle, "", pattern, match_MATCH_REGEX);
 	if (dirList != NULL)
 	{
 		int i;
@@ -626,6 +640,54 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 				log_add (log_Warning, "Warning: Could not mount '%s': %s.",
 						dirList->names[i], strerror (errno));
 			}
+		}
+	}
+	uio_DirList_free (dirList);
+}
+
+static void
+mountBaseZip (uio_DirHandle *dirHandle, const char *mountPoint,
+		int relativeFlags, uio_MountHandle *relativeHandle)
+{
+	static uio_AutoMount *autoMount[] = { NULL };
+	uio_DirList *dirList;
+	const char *pattern = "\\.([zZ][iI][pP]|[uU][qQ][mM])$";
+	const DWORD name_hash = crc32b (BASE_CONTENT_NAME);
+
+	dirList = uio_getDirList (dirHandle, "", pattern, match_MATCH_REGEX);
+	if (dirList != NULL)
+	{
+		DWORD names_hash = 0;
+		int i;
+		
+		for (i = 0; i < dirList->numNames; i++)
+		{
+			names_hash = crc32b (dirList->names[i]);
+			if (name_hash == names_hash)
+				break;
+		}
+
+		if (i == dirList->numNames)
+		{
+			if (name_hash != names_hash)
+			{
+				log_add (log_Warning, "Warning: Could not find '%s': %s.",
+						BASE_CONTENT_NAME, strerror (errno));
+
+				uio_DirList_free (dirList);
+				return;
+			}
+			else
+				i--;
+		}
+
+		if (uio_mountDir (repository, mountPoint, uio_FSTYPE_ZIP,
+				dirHandle, dirList->names[i], "/", autoMount,
+				relativeFlags | uio_MOUNT_RDONLY,
+				relativeHandle) == NULL)
+		{
+			log_add (log_Warning, "Warning: Could not mount '%s': %s.",
+					dirList->names[i], strerror (errno));
 		}
 	}
 	uio_DirList_free (dirList);

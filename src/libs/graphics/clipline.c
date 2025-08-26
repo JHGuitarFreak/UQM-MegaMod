@@ -19,7 +19,7 @@
 #include "gfxintrn.h"
 
 INTERSECT_CODE
-_clip_line (const RECT *pClipRect, BRESENHAM_LINE *pLine)
+_clip_line (const DRECT *pClipRect, BRESENHAM_LINE *pLine)
 {
 	COORD p;
 	COORD x0, y0, xmin, ymin, xmax, ymax;

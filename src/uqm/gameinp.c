@@ -38,13 +38,8 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#define ACCELERATION_INCREMENT(ONE_SECOND)
-#define MENU_REPEAT_DELAY(ONE_SECOND)
-#else
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
-#endif
 
 typedef struct
 {
@@ -452,19 +447,9 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 			InputState |= BATTLE_RIGHT;
 	}
 	if (keyState[KEY_WEAPON])
-	{
-		if (antiCheatAlt (OPTVAL_INF_ENERGY)
-				|| antiCheatAlt (OPTVAL_FULL_GOD))
-			resetEnergyBattle ();
 		InputState |= BATTLE_WEAPON;
-	}
 	if (keyState[KEY_SPECIAL])
-	{
-		if (antiCheatAlt (OPTVAL_INF_ENERGY)
-				|| antiCheatAlt (OPTVAL_FULL_GOD))
-			resetEnergyBattle ();
 		InputState |= BATTLE_SPECIAL;
-	}
 	if (keyState[KEY_ESCAPE])
 		InputState |= BATTLE_ESCAPE;
 	if (keyState[KEY_DOWN])
@@ -619,14 +604,14 @@ GetDirectionalJoystickInput(int direction, int player)
 		return InputState;
 	}
 
-	axisX = VControl_GetJoyAxis(0, player * 2);
-	axisY = VControl_GetJoyAxis(0, player * 2 + 1);
+	axisX = VControl_GetJoyAxis (0, player * 2);
+	axisY = VControl_GetJoyAxis (0, player * 2 + 1);
 
 	if (axisX == 0 && axisY == 0)
 	{	// Some basic gamepad input support
 		axisX = VControl_GetJoyAxis(2, player * 2);
 		axisY = VControl_GetJoyAxis(2, player * 2 + 1);
-		if (abs(axisX) > 5000 || abs(axisY) > 5000)
+		if (abs (axisX) > 5000 || abs (axisY) > 5000)
 		{	// Deadspot at the center
 			JoystickTapFlag[player] = TRUE;
 			JoystickThrust[player] = FALSE;
@@ -650,6 +635,8 @@ GetDirectionalJoystickInput(int direction, int player)
 		if (CurrentInputState.key[PlayerControls[player]][KEY_UP])
 			InputState |= BATTLE_THRUST;
 	}
+
+	axisX = axisX == 1 ? 0 : axisX;
 
 	if (!optDirectionalJoystick)
 	{
@@ -689,16 +676,16 @@ GetDirectionalJoystickInput(int direction, int player)
 		if (diff > SHIP_DIRECTIONS / 2)
 			InputState |= BATTLE_RIGHT;
 
-		// if (!JoystickTapFlag[player])
-		// {
-		// 	JoystickTapFlag[player] = TRUE;
-		// 	if (GetTimeCounter () < JoystickTapTime[player] + ONE_SECOND)
-		// 		JoystickThrust[player] = !JoystickThrust[player];
-		// 	else
-		// 		JoystickThrust[player] = TRUE;
-		// }
-		// if (JoystickThrust[player])
-		// 	InputState |= BATTLE_THRUST;
+		if (!JoystickTapFlag[player])
+		{
+			JoystickTapFlag[player] = TRUE;
+			if (GetTimeCounter () < JoystickTapTime[player] + ONE_SECOND)
+				JoystickThrust[player] = !JoystickThrust[player];
+			else
+				JoystickThrust[player] = TRUE;
+		}
+		if (JoystickThrust[player])
+			InputState |= BATTLE_THRUST;
 	}
 	else
 	{

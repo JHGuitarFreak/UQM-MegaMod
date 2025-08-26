@@ -233,7 +233,7 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 
 	if (ElementPtr->state_flags & APPEARING)
 		ElementPtr->velocity = GLOBAL (velocity);
-	
+
 	AccelerateDirection = 0;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
@@ -974,10 +974,7 @@ init_sis (void)
 		new_sis_desc.ship_data.victory_ditty_rsc = NULL_RESOURCE;
 		new_sis_desc.ship_data.ship_sounds_rsc = NULL_RESOURCE;
 
-		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1 && (IS_HD || EndlessSCLoaded))
-			new_sis_desc.ship_data.ship_rsc[0] = SIS_QUASI_MASK_PMAP_ANIM;
-		else
-			new_sis_desc.ship_data.ship_rsc[0] = SIS_HYPER_MASK_PMAP_ANIM;
+		new_sis_desc.ship_data.ship_rsc[0] = SIS_HYPER_MASK_PMAP_ANIM;
 
 		new_sis_desc.preprocess_func = sis_hyper_preprocess;
 		new_sis_desc.postprocess_func = sis_hyper_postprocess;

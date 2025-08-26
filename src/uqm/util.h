@@ -19,6 +19,7 @@
 
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
+#include "setupmenu.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -31,17 +32,8 @@ extern void DrawBorderPadding (DWORD videoWidth);
 extern void DrawRadarBorder (void);
 extern DWORD SeedRandomNumbers (void);
 
-typedef enum
-{
-	SPECIAL_BEVEL = 14,
-	THIN_INNER_BEVEL = 25,
-	THICK_INNER_BEVEL = THIN_INNER_BEVEL + 8,
-	THIN_OUTER_BEVEL = THICK_INNER_BEVEL + 8,
-	THICK_OUTER_BEVEL = THIN_OUTER_BEVEL + 8
-} SCB_TYPE;
-
 extern void DrawRenderedBox (RECT *r, BOOLEAN filled, Color fill_color,
-		SCB_TYPE type);
+		int type, int custom);
 
 // saveRect can be NULL to save the entire context frame
 extern STAMP SaveContextFrame (const RECT *saveRect);

@@ -22,6 +22,8 @@
 		// for uint32
 #include <sys/types.h>
 		// For size_t
+#include "compiler.h"
+		// for UNICODE
 
 #if defined(__cplusplus)
 extern "C" {
@@ -43,7 +45,9 @@ unsigned char *getLineFromString(const UNICODE_CHAR *start,
 size_t utf8StringCount(const UNICODE_CHAR *start);
 size_t utf8StringCountN(const UNICODE_CHAR *start,
 		const UNICODE_CHAR *end);
+size_t utf8CharCount (const unsigned char *start, UniChar uni_char);
 int utf8StringPos (const UNICODE_CHAR *pStr, UniChar ch);
+int utf8StringLastPos (const unsigned char *pStr, UniChar ch);
 unsigned char *utf8StringCopy (UNICODE_CHAR *dst, size_t size,
 		const UNICODE_CHAR *src);
 int utf8StringCompare (const UNICODE_CHAR *str1, const UNICODE_CHAR *str2);
@@ -61,6 +65,9 @@ int UniChar_isGraph(UniChar ch);
 int UniChar_isPrint(UniChar ch);
 UniChar UniChar_toUpper(UniChar ch);
 UniChar UniChar_toLower(UniChar ch);
+
+UNICODE *AlignText (const UNICODE *str, sint16 *loc_x);
+UNICODE *AddPadd (const UNICODE *str, sint16 *padding);
 
 #undef UNICODE_CHAR
 

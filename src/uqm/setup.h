@@ -34,13 +34,14 @@ extern FRAME Screen;
 extern FRAME ActivityFrame;
 extern FRAME StatusFrame;
 extern FRAME SubmenuFrame;
-extern FRAME hyperspacesuns;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME visitedStarsFrame;
 extern FRAME FontGradFrame;
 extern FRAME BorderFrame;
 extern FRAME HDBorderFrame;
+extern FRAME CustBevelFrame;
+extern FRAME DefBevelFrame;
 
 extern CONTEXT OffScreenContext;
 		// OffScreenContext can often refer to a deleted ForeGroundFrame
@@ -56,7 +57,12 @@ extern FONT StarConFont;
 extern FONT MicroFont;
 extern FONT TinyFont;
 extern FONT TinyFontBold;
+extern FONT TinyFontCond;
 extern FONT PlyrFont;
+extern FONT LabelFont;
+extern FONT SlabFont;
+extern FONT SquareFont;
+extern FONT PlayMenuFont;
 
 extern CondVar RenderingCond;
 
@@ -67,7 +73,6 @@ extern QUEUE race_q[];
 
 extern BOOLEAN solTexturesPresent;
 extern BOOLEAN SyreenVoiceFix;
-extern BOOLEAN HDPackPresent;
 extern BOOLEAN EndlessSCLoaded;
 extern BOOLEAN VolasPackPresent;
 extern BYTE Rando;

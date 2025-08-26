@@ -35,6 +35,7 @@
 #include "../setup.h"
 #include "../sounds.h"
 #include "../state.h"
+#include "../init.h"
 #include "../uqmdebug.h"
 #include "options.h"
 #include "libs/inplib.h"
@@ -61,12 +62,28 @@ typedef enum {
 	NUM_STARMAPS
 } CURRENT_STARMAP_SHOWN;
 
+typedef struct namePlate {
+	RECT rect;
+	TEXT text;
+	BYTE index;
+} NAMEPLATE;
+
+static void
+SwapPlates (NAMEPLATE *n1, NAMEPLATE *n2)
+{
+	NAMEPLATE temp = *n1;
+	*n1 = *n2;
+	*n2 = temp;
+}
+
+#define IGNORE_MOVING_SOI (1 << 5)
+#define PRE_DEATH_SOI (1 << 6)
+#define DEATH_SOI (1 << 7)
+
 static POINT cursorLoc;
 static POINT mapOrigin;
 static int zoomLevel;
 static FRAME StarMapFrame;
-
-static BOOLEAN show_war_era_situation;
 static CURRENT_STARMAP_SHOWN which_starmap;
 
 static inline long
@@ -222,7 +239,7 @@ DrawMarker (POINT dest, BYTE type)
 	s.origin = MAKE_POINT (
 			UNIVERSE_TO_DISPX (dest.x),
 			UNIVERSE_TO_DISPY (dest.y));
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 107 + type);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 106 + type);
 
 	DrawStamp (&s);
 }
@@ -246,7 +263,7 @@ DrawAutoPilot (POINT *pDstPt)
 	}
 
 	if (IS_HD)
-		s.frame = SetAbsFrameIndex (MiscDataFrame, 106);
+		s.frame = DecFrameIndex (stars_in_space);
 
 	pt.x = UNIVERSE_TO_DISPX (pt.x);
 	pt.y = UNIVERSE_TO_DISPY (pt.y);
@@ -293,7 +310,7 @@ DrawAutoPilot (POINT *pDstPt)
 			}
 		}
 		else if (!(delta & 1))
-			DrawPoint(&pt);
+			DrawPoint (&pt);
 
 		if ((xerror -= dx) <= 0)
 		{
@@ -368,10 +385,11 @@ GetSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 
 // For showing the War-Era situation in starmap
 static void
-GetWarEraSphereRect (COUNT index, const COUNT war_era_strengths[],
-		const POINT war_era_locations[], RECT *pRect, RECT *pRepairRect)
+GetWarEraSphereRect (FLEET_INFO *FleetPtr, RECT *pRect, RECT *pRepairRect)
 {
-	long diameter = (long)(war_era_strengths[index] * 2);
+	long diameter = (long)(WarEraStrength (FleetPtr->SpeciesID) *
+			SPHERE_RADIUS_INCREMENT);
+	POINT loc = SeedFleetLocation (FleetPtr, plot_map, WAR_ERA);
 
 	pRect->extent.width = UNIVERSE_TO_DISPX (diameter)
 			- UNIVERSE_TO_DISPX (0);
@@ -386,8 +404,8 @@ GetWarEraSphereRect (COUNT index, const COUNT war_era_strengths[],
 	else if (pRect->extent.height == 0)
 		pRect->extent.height = RES_SCALE (1);
 
-	pRect->corner.x = UNIVERSE_TO_DISPX (war_era_locations[index].x);
-	pRect->corner.y = UNIVERSE_TO_DISPY (war_era_locations[index].y);
+	pRect->corner.x = UNIVERSE_TO_DISPX (loc.x);
+	pRect->corner.y = UNIVERSE_TO_DISPY (loc.y);
 	pRect->corner.x -= pRect->extent.width >> 1;
 	pRect->corner.y -= pRect->extent.height >> 1;
 
@@ -442,7 +460,7 @@ FuelRequiredTo (POINT dest)
 }
 
 // Begin Malin's fuel to Sol ellipse code. Edited by Kruzen
-#define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X)? 1 : 0))
+#define MATH_ROUND(X) ((X) + ((int)((X) + 0.5) > (X) ? 1 : 0))
 
 POINT
 GetPointOfEllipse (double a, double b, double radian)
@@ -468,6 +486,29 @@ RotatePoint (POINT p, POINT Pivot, double radian)
 	return (POINT) { MATH_ROUND (x), MATH_ROUND (y) };
 }
 
+// Kruzen: Merged together with overflow check. Functions above are redundant
+POINT
+CalcEllipsePoint (double a, double b, double rad_one, double rad_two, POINT Pivot)
+{
+	double q[2] = { a * cos (rad_one), b * sin (rad_one) };
+	double w[2] = { MATH_ROUND (q[0]) + Pivot.x, MATH_ROUND (q[1]) + Pivot.y };
+
+	double d[2] = { w[0] - Pivot.x, w[1] - Pivot.y};
+	double cosine[2] = { cos (rad_two), sin (rad_two) };
+	double x = Pivot.x + (d[0] * cosine[0] - d[1] * cosine[1]);
+	double y = Pivot.y + (d[0] * cosine[1] + d[1] * cosine[0]);
+
+	x = MATH_ROUND(x);
+	if (x > 32767.0) { x = 32767.0; }
+	if (x < -32768.0) { x = -32768.0; }
+
+	y = MATH_ROUND (y);
+	if (y > 32767.0) { y = 32767.0; }
+	if (y < -32768.0) { y = -32768.0; }
+
+	return (POINT) { UNIVERSE_TO_DISPX2 (x), UNIVERSE_TO_DISPY2 (y) };
+}
+
 BOOLEAN
 onScreen (LINE *l, BOOLEAN ignoreX, BOOLEAN ignoreY)
 {
@@ -486,11 +527,11 @@ DrawNoReturnZone (void)
 	POINT sol, sis;
 	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
 
-	sol = (POINT){ SOL_X, SOL_Y };
+	sol = plot_map[SOL_DEFINED].star_pt;
 	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
 			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
 
-	dist = FuelRequiredTo (sol) / 2;
+	dist = (double)FuelRequiredTo (sol) / 2;
 	
 	if (dist <= halfFuel)
 	{	// do not draw ellipse when fuel is not enough to reach Sol
@@ -510,11 +551,7 @@ DrawNoReturnZone (void)
 
 		for (i = 0; i < M_PI * 2; i += Step)
 		{
-			curr = RotatePoint (ShiftPoint (GetPointOfEllipse (halfFuel,
-					ry, i), center), center, rotation);
-			curr.x = UNIVERSE_TO_DISPX2 (curr.x);
-			curr.y = UNIVERSE_TO_DISPY2 (curr.y);
-
+			curr = CalcEllipsePoint (halfFuel, ry, i, rotation, center);
 			if (curr.y > rmax_y.y)
 				rmax_y = curr;
 
@@ -526,22 +563,14 @@ DrawNoReturnZone (void)
 		{// If the ellipse is completely off screen - drop it
 			LINE L;
 			LINE tempLine;
-			POINT prev = RotatePoint (ShiftPoint (GetPointOfEllipse (
-					halfFuel, ry, i - Step), center), center, rotation);
+			POINT prev = CalcEllipsePoint (halfFuel, ry, i - Step, rotation, center);
 			COORD dy;
 			double err = ((double)rmax_y.x - (double)rmin_y.x)
 					/ ((double)rmax_y.y - (double)rmin_y.y);
 
-			prev.x = UNIVERSE_TO_DISPX2 (prev.x);
-			prev.y = UNIVERSE_TO_DISPY2 (prev.y);
-
 			for (i = 0; i < M_PI * 2; i += Step)
 			{
-				L.first = RotatePoint (ShiftPoint (GetPointOfEllipse (
-						halfFuel, ry, i), center), center, rotation);
-				L.first.x = UNIVERSE_TO_DISPX2 (L.first.x);
-				L.first.y = UNIVERSE_TO_DISPY2 (L.first.y);
-
+				L.first = CalcEllipsePoint (halfFuel, ry, i, rotation, center);
 				L.second.x = rmax_y.x
 						- (COORD)(err * (rmax_y.y - L.first.y));
 				L.second.y = L.first.y;
@@ -589,10 +618,48 @@ DrawNoReturnZone (void)
 }
 
 static void
+GetFuelRect (DRECT *r, SDWORD diameter, POINT corner)
+{// Operating with DRECT because of overflows in HD on max zoom
+	SDWORD x, y, width, height;
+
+	if (diameter < 0)
+		diameter = 0;
+
+	// Cap the diameter to a sane range
+	if (diameter > MAX_X_UNIVERSE * 4)
+		diameter = MAX_X_UNIVERSE * 4;
+
+	// Calculate in case of overflow
+	width = RES_SCALE (signedDivWithError (((diameter - mapOrigin.x) << zoomLevel)
+			* ORIG_SIS_SCREEN_WIDTH, MAX_X_UNIVERSE + MAP_FIT_X)
+			+ ((ORIG_SIS_SCREEN_WIDTH - 1) >> 1))
+			- UNIVERSE_TO_DISPX (0);// Cannot overflow in current HD resolution
+
+	if (width < 0)
+		width = -width;
+
+	height = RES_SCALE (signedDivWithError (((mapOrigin.y - diameter) << zoomLevel)
+			* ORIG_SIS_SCREEN_HEIGHT, MAX_Y_UNIVERSE + 2)
+			+ ((ORIG_SIS_SCREEN_HEIGHT - 1) >> 1))
+			- UNIVERSE_TO_DISPY (0);// Cannot overflow in current HD resolution
+
+	if (height < 0)
+		height = -height;
+
+	// SIS cannot leave universe boundaries, so cannot overflow either
+	x = UNIVERSE_TO_DISPX (corner.x) - (width >> 1);
+	y = UNIVERSE_TO_DISPY (corner.y) - (height >> 1);
+
+	r->corner.x = x;
+	r->corner.y = y;
+	r->extent.width = width;
+	r->extent.height = height;	
+}
+
+static void
 DrawFuelCircle (BOOLEAN secondary)
 {
-	RECT r;
-	long diameter;
+	DRECT r;
 	POINT corner;
 	Color OldColor;
 	DWORD OnBoardFuel = GLOBAL_SIS (FuelOnBoard);
@@ -610,31 +677,7 @@ DrawFuelCircle (BOOLEAN secondary)
 		corner.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
-	diameter = OnBoardFuel << 1;
-	if (diameter < 0)
-		diameter = 0;
-
-	// Cap the diameter to a sane range
-	if (diameter > MAX_X_UNIVERSE * 4)
-		diameter = MAX_X_UNIVERSE * 4;
-
-	/* Draw circle*/
-	r.extent.width = UNIVERSE_TO_DISPX (diameter)
-			- UNIVERSE_TO_DISPX (0);
-
-	if (r.extent.width < 0)
-		r.extent.width = -r.extent.width;
-
-	r.extent.height = UNIVERSE_TO_DISPY (diameter)
-			- UNIVERSE_TO_DISPY (0);
-
-	if (r.extent.height < 0)
-		r.extent.height = -r.extent.height;
-
-	r.corner.x = UNIVERSE_TO_DISPX (corner.x)
-			- (r.extent.width >> 1);
-	r.corner.y = UNIVERSE_TO_DISPY (corner.y)
-			- (r.extent.height >> 1);
+	GetFuelRect (&r, OnBoardFuel << 1, corner);
 
 	if (secondary)
 	{
@@ -644,6 +687,7 @@ DrawFuelCircle (BOOLEAN secondary)
 	}
 	else
 	{
+		/* Draw circle*/
 		OldColor = SetContextForeGroundColor (STARMAP_FUEL_RANGE_COLOR);
 		DrawFilledOval (&r);
 		SetContextForeGroundColor (OldColor);
@@ -652,35 +696,10 @@ DrawFuelCircle (BOOLEAN secondary)
 		{
 			OldColor =
 				SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-			if (pointsEqual(corner, (POINT) { SOL_X, SOL_Y }))
+			if (pointsEqual (corner, plot_map[SOL_DEFINED].star_pt))
 			{// We are at Sol, foci are equal - draw a standard oval
-				diameter = OnBoardFuel;
-				if (diameter < 0)
-					diameter = 0;
-
-				// Cap the diameter to a sane range
-				if (diameter > MAX_X_UNIVERSE * 4)
-					diameter = MAX_X_UNIVERSE * 4;
-
-				/* Draw circle*/
-				r.extent.width = UNIVERSE_TO_DISPX(diameter)
-					- UNIVERSE_TO_DISPX(0);
-
-				if (r.extent.width < 0)
-					r.extent.width = -r.extent.width;
-
-				r.extent.height = UNIVERSE_TO_DISPY(diameter)
-					- UNIVERSE_TO_DISPY(0);
-
-				if (r.extent.height < 0)
-					r.extent.height = -r.extent.height;
-
-				r.corner.x = UNIVERSE_TO_DISPX(corner.x)
-					- (r.extent.width >> 1);
-				r.corner.y = UNIVERSE_TO_DISPY(corner.y)
-					- (r.extent.height >> 1);
-
-				DrawFilledOval(&r);
+				GetFuelRect (&r, OnBoardFuel, corner);
+				DrawFilledOval (&r);
 			}
 			else
 				DrawNoReturnZone ();
@@ -736,94 +755,92 @@ isHomeworld (BYTE Index)
 	switch (Index)
 	{
 		case CHMMR_DEFINED:
-			if (GET_GAME_STATE (KNOW_CHMMR_HOMEWORLD)
-				&& CheckAlliance (CHMMR_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (CHMMR_HOME)
+				&& (CheckAlliance (CHMMR_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ORZ_DEFINED:
-			if (GET_GAME_STATE (KNOW_ORZ_HOMEWORLD)
-				&& CheckAlliance (ORZ_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (ORZ_HOME)
+				&& (CheckAlliance (ORZ_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case PKUNK_DEFINED:
-			if (GET_GAME_STATE (KNOW_PKUNK_HOMEWORLD)
-				&& CheckAlliance (PKUNK_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (PKUNK_HOME)
+				&& (CheckAlliance (PKUNK_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SHOFIXTI_DEFINED:
-			if (GET_GAME_STATE (KNOW_SHOFIXTI_HOMEWORLD)
-				&& CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (SHOFIXTI_HOME)
+				&& (CheckAlliance (SHOFIXTI_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SPATHI_DEFINED:
-			if (GET_GAME_STATE (KNOW_SPATHI_HOMEWORLD)
-				&& CheckAlliance (SPATHI_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (SPATHI_HOME)
+				&& (CheckAlliance (SPATHI_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SUPOX_DEFINED:
-			if (GET_GAME_STATE (KNOW_SUPOX_HOMEWORLD)
-				&& CheckAlliance (SUPOX_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (SUPOX_HOME)
+				&& (CheckAlliance (SUPOX_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case THRADD_DEFINED:
-			if (GET_GAME_STATE (KNOW_THRADD_HOMEWORLD)
-				&& CheckAlliance (THRADDASH_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (THRADDASH_HOME)
+				&& (CheckAlliance (THRADDASH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case UTWIG_DEFINED:
-			if (GET_GAME_STATE (KNOW_UTWIG_HOMEWORLD)
-				&& CheckAlliance (UTWIG_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (UTWIG_HOME)
+				&& (CheckAlliance (UTWIG_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case VUX_DEFINED:
-			if (GET_GAME_STATE (KNOW_VUX_HOMEWORLD)
-				&& CheckAlliance (VUX_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (VUX_HOME)
+				&& (CheckAlliance (VUX_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case YEHAT_DEFINED:
-			if (GET_GAME_STATE (KNOW_YEHAT_HOMEWORLD)
-				&& CheckAlliance (YEHAT_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (YEHAT_HOME)
+				&& (CheckAlliance (YEHAT_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case DRUUGE_DEFINED:
-			if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD)
-				&& CheckAlliance (DRUUGE_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (DRUUGE_HOME)
+				&& (CheckAlliance (DRUUGE_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ILWRATH_DEFINED:
-			if (GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD)
-				&& CheckAlliance (ILWRATH_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (ILWRATH_HOME)
+				&& (CheckAlliance (ILWRATH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case MYCON_DEFINED:
-			if (GET_GAME_STATE (KNOW_MYCON_HOMEWORLD)
-				&& CheckAlliance (MYCON_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (MYCON_HOME)
+				&& (CheckAlliance (MYCON_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SLYLANDRO_DEFINED:
-			if (GET_GAME_STATE (KNOW_SLYLANDRO_HOMEWORLD)
-				&& Index == SLYLANDRO_DEFINED)
+			if (IsHomeworldKnown (SLYLANDRO_HOME))
 				raceBool = TRUE;
 			break;
 		case UMGAH_DEFINED:
-			if (GET_GAME_STATE (KNOW_UMGAH_HOMEWORLD)
-				&& CheckAlliance (UMGAH_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (UMGAH_HOME)
+				&& (CheckAlliance (UMGAH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ZOQFOT_DEFINED:
-			if (GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD)
-				&& CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (ZOQFOTPIK_HOME)
+				&& (CheckAlliance (ZOQFOTPIK_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SYREEN_DEFINED:
-			if (GET_GAME_STATE (KNOW_SYREEN_HOMEWORLD)
-				&& CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (SYREEN_HOME)
+				&& (CheckAlliance (SYREEN_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case ANDROSYNTH_DEFINED:
-			if (GET_GAME_STATE (KNOW_ANDROSYNTH_HOMEWORLD)
-				&& Index == ANDROSYNTH_DEFINED
-				&& CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY)
+			if (IsHomeworldKnown (ANDROSYNTH_HOME)
+				&& (CheckAlliance (ANDROSYNTH_SHIP) != DEAD_GUY || StarSeed))
 				raceBool = TRUE;
 			break;
 		case SOL_DEFINED:
@@ -876,6 +893,149 @@ setStarMarked (const int star_index, const char *marker_state)
 	starData = D_GET_GAME_STATE (markerBuf (starIndex, marker_state));
 	starData ^= (1 << (starIndex % 32));
 	D_SET_GAME_STATE (markerBuf (starIndex, marker_state), starData);
+}
+
+static COORD
+CheckTextsIntersect (RECT *curr, RECT *prev)
+{
+	if (((curr->corner.x + curr->extent.width) <= prev->corner.x) ||
+			((prev->corner.x + prev->extent.width) <= curr->corner.x))
+		return 0;
+
+	if (((curr->corner.y + curr->extent.height) <= prev->corner.y) ||
+			((prev->corner.y + prev->extent.height) <= curr->corner.y))
+		return 0;
+
+	return ((prev->extent.height + RES_SCALE (1)) - (curr->corner.y - prev->corner.y));
+}
+
+static void
+AdjustTextRect (RECT *r, TEXT *t)
+{
+	COORD offs;
+	if (r->corner.x <= 0)
+	{
+		offs = r->corner.x - RES_SCALE (1);
+		t->baseline.x -= offs;
+		r->corner.x -= offs;
+	}
+	else if (r->corner.x + r->extent.width
+		>= SIS_SCREEN_WIDTH)
+	{
+		offs = (r->corner.x + r->extent.width)
+			- SIS_SCREEN_WIDTH + RES_SCALE (1);
+		t->baseline.x -= offs;
+		r->corner.x -= offs;
+	}
+	if (r->corner.y <= 0)
+	{
+		offs = r->corner.y - RES_SCALE (1);
+		t->baseline.y -= offs;
+		r->corner.y -= offs;
+	}
+	else if (r->corner.y + r->extent.height
+		>= SIS_SCREEN_HEIGHT)
+	{
+		offs = (r->corner.y + r->extent.height)
+			- SIS_SCREEN_HEIGHT + RES_SCALE (1);
+		t->baseline.y -= offs;
+		r->corner.y -= offs;
+	}
+}
+
+static void
+DrawRaceName (TEXT *t, Color *c)
+{
+	// The text color is slightly lighter than the color of
+	// the SoI.
+	c->r = (c->r >= 0xff - CC5TO8 (0x03)) ?
+			0xff : c->r + CC5TO8 (0x03);
+	c->g = (c->g >= 0xff - CC5TO8 (0x03)) ?
+			0xff : c->g + CC5TO8 (0x03);
+	c->b = (c->b >= 0xff - CC5TO8 (0x03)) ?
+			0xff : c->b + CC5TO8 (0x03);
+
+	SetContextForeGroundColor (*c);
+	font_DrawText (t);
+}
+
+Color
+RaceColor (COUNT index)
+{
+	static const Color race_colors[] =
+	{
+		RACE_COLORS
+	};
+	if (optSphereColors == OPTVAL_DEFAULT_COLORS)
+		return race_colors[index];
+	// right now, assume OPTVAL_STARSEED_COLORS (option 1), but more options
+	// can be added here with if statements, or with more complicated (better) code
+	switch (index)
+	{
+		case ARILOU_SHIP: // Bold blue
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x17), 0x00);
+		case CHMMR_SHIP: // Pale blue-grey
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x10, 0x15, 0x19), 0x00);
+		case HUMAN_SHIP: // Blue
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x09, 0x1B), 0x00);
+		case ORZ_SHIP: // Plum
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0D, 0x00, 0x05), 0x00);
+		case PKUNK_SHIP: // Pinkunk
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1C, 0x07, 0x19), 0x00);
+		case SHOFIXTI_SHIP: // Marsupial brown
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x06, 0x00), 0x00);
+		case SPATHI_SHIP: // Mustard yellow
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x12, 0x03), 0x00);
+		case SUPOX_SHIP: // Leaf green
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x05, 0x14, 0x01), 0x00);
+		case THRADDASH_SHIP: // Dark cyan
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x00);
+		case UTWIG_SHIP: // Beige
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1A, 0x16, 0x12), 0x00);
+		case VUX_SHIP: // Very Ugly Aqua
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x16, 0x0F), 0x00);
+		case YEHAT_SHIP: // Royal purple
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0A, 0x00, 0x11), 0x00);
+		case MELNORME_SHIP: // Yellowish
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1A, 0x16, 0x08), 0x00);
+		case DRUUGE_SHIP: // Crimson (tm)
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x00);
+		case ILWRATH_SHIP: // Purple
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0E, 0x00, 0x0E), 0x00);
+		case MYCON_SHIP: // Fungal fuchsia
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x00, 0x0C), 0x00);
+		case SLYLANDRO_SHIP: // Red Alert
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1D, 0x00, 0x07), 0x00);
+		case UMGAH_SHIP: // Olive
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x0C, 0x00), 0x00);
+		case URQUAN_SHIP: // Dark Green
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x08, 0x00), 0x00);
+		case ZOQFOTPIK_SHIP: // Orange
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x16, 0x0D, 0x00), 0x00);
+		case SYREEN_SHIP: // Slightly-orange red
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x15, 0x07, 0x03), 0x00);
+		case BLACK_URQUAN_SHIP: // Dark grey
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x00);
+		case ANDROSYNTH_SHIP: // Violet
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x00, 0x15), 0x00);
+		case CHENJESU_SHIP: // Cyan
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x15, 0x1C), 0x00);
+		case MMRNMHRM_SHIP: // Silver
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x10, 0x10, 0x10), 0x00);
+		case YEHAT_REBEL_SHIP: // Lavender
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x19, 0x10, 0x1F), 0x00);
+		default: // Hot pink (just a fail state but also reserved)
+			return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1C, 0x00, 0x0C), 0x00);
+	}
+	// Slylandro lightish red (pale pink for gas giant creatures)
+	return (Color) BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x15, 0x19), 0x00);
+#if 0
+	// A way to choose colors entirely "fairly", although colors don't really map
+	// in such an even distribution.
+		BYTE i, j, k;
+		for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) for (k = 0; k < 3; k++)
+			race_colors[i * 9 + j * 3 + k] = (Color) BUILD_COLOR (MAKE_RGB15_INIT (14 * i + 1, 14 * j + 1, 14 * k + 1), 0x00);
+#endif
 }
 
 static void
@@ -1002,21 +1162,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	if (which_space <= 1 && which_starmap != CONSTELLATION_MAP)
 	{
 		COUNT index;
+		COUNT race_index = (race_update & 0x1F) - 1;
 		HFLEETINFO hStarShip, hNextShip;
-		static const Color race_colors[] =
-		{
-			RACE_COLORS
-		};
-
-		// JMS: For drawing SC1-era starmap.
-		static const COUNT war_era_strengths[] =
-		{
-			WAR_ERA_STRENGTHS
-		};
-		static const POINT war_era_locations[] =
-		{
-			WAR_ERA_LOCATIONS
-		};
+		NAMEPLATE nameplate[26];
+		BYTE currMax = 0;
 
 		for (index = 0,
 				hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -1027,16 +1176,17 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 			hNextShip = _GetSuccLink (FleetPtr);
 
-			if (FleetPtr->known_strength || 
-				(show_war_era_situation && war_era_strengths[index]))
+			if ((FleetPtr->known_strength && which_starmap != WAR_ERA_STARMAP) ||
+				(which_starmap == WAR_ERA_STARMAP && WarEraStrength (FleetPtr->SpeciesID)
+				&& index < NUM_BUILDABLE_SHIPS))
 			{
 				RECT repair_r;
 
-				if (show_war_era_situation)
-					GetWarEraSphereRect (index, war_era_strengths,
-							war_era_locations, &r, &repair_r);
+				if (which_starmap == WAR_ERA_STARMAP)
+					GetWarEraSphereRect (FleetPtr, &r, &repair_r);
 				else
 					GetSphereRect (FleetPtr, &r, &repair_r);
+
 
 				if (r.corner.x < SIS_SCREEN_WIDTH
 						&& r.corner.y < SIS_SCREEN_HEIGHT
@@ -1055,16 +1205,18 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					Color c;
 					TEXT t;
 					STRING locString;
+					UNICODE *yehat_rebels = "+Yehat+";
 
-					c = race_colors[index];
-					if (index + 1 == race_update)
+					c = RaceColor (index);
+					if (index == race_index)
 						SetContextForeGroundColor (WHITE_COLOR);
 					else
 						SetContextForeGroundColor (c);
 
-					if (!(which_starmap == WAR_ERA_STARMAP
-							&& war_era_strengths[index] == 0))
-						DrawOval (&r, 0, IS_HD);
+					{
+						DRECT dr = RECT_TO_DRECT (r);
+						DrawOval (&dr, 0, IS_HD);
+					}
 
 					if (isPC (optWhichFonts))
 						SetContextFont (TinyFont);
@@ -1075,15 +1227,9 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 					t.baseline.y = r.corner.y + (r.extent.height >> 1)
 							- RES_SCALE (1);
 					t.align = ALIGN_CENTER;
-					
-					locString = SetAbsStringTableIndex (
-							FleetPtr->race_strings,
-							(index == ANDROSYNTH_SHIP ? 0 : 1));
-					t.CharCount = GetStringLength (locString);
-					t.pStr = (UNICODE *)GetStringAddress (locString);
-					
+
 					// For drawing War-Era starmap.
-					if (show_war_era_situation)
+					if (which_starmap == WAR_ERA_STARMAP)
 					{
 						switch (index)
 						{
@@ -1091,45 +1237,166 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 							case THRADDASH_SHIP:
 							case DRUUGE_SHIP:
 								t.pStr = GAME_STRING (STAR_STRING_BASE + 132);
+								t.CharCount = (COUNT)strlen (t.pStr);
 								break;
-						}
-						t.CharCount = (COUNT)strlen (t.pStr);
+							case ANDROSYNTH_SHIP:
+								locString = SetAbsStringTableIndex(
+												FleetPtr->race_strings, 0);
+								t.pStr = (UNICODE *)GetStringAddress (locString);
+								t.CharCount = GetStringLength (locString);
+								break;
+							default:
+								locString = SetAbsStringTableIndex (
+												FleetPtr->race_strings, 1);
+								t.CharCount = GetStringLength (locString);
+								t.pStr = (UNICODE *)GetStringAddress (locString);
+								break;
+						}						
+					}
+					else if (index == YEHAT_REBEL_SHIP && optSphereColors == 1)
+					{
+						t.CharCount = 7;
+						t.pStr = yehat_rebels;
+					}
+					else
+					{
+						locString = SetAbsStringTableIndex (
+										FleetPtr->race_strings, 1);
+						t.CharCount = GetStringLength (locString);
+						t.pStr = (UNICODE *)GetStringAddress (locString);
 					}
 
 					TextRect (&t, &r, NULL);
 
-					if (r.corner.x <= 0)
-						t.baseline.x -= r.corner.x - RES_SCALE (1);
-					else if (r.corner.x + r.extent.width
-							>= SIS_SCREEN_WIDTH)
-						t.baseline.x -= (r.corner.x + r.extent.width)
-								- SIS_SCREEN_WIDTH + RES_SCALE (1);
-					if (r.corner.y <= 0)
-						t.baseline.y -= r.corner.y - RES_SCALE (1);
-					else if (r.corner.y + r.extent.height
-							>= SIS_SCREEN_HEIGHT)
-						t.baseline.y -= (r.corner.y + r.extent.height)
-								- SIS_SCREEN_HEIGHT + RES_SCALE (1);
-
-					// The text color is slightly lighter than the color of
-					// the SoI.
-					c.r = (c.r >= 0xff - CC5TO8 (0x03)) ?
-							0xff : c.r + CC5TO8 (0x03);
-					c.g = (c.g >= 0xff - CC5TO8 (0x03)) ?
-							0xff : c.g + CC5TO8 (0x03);
-					c.b = (c.b >= 0xff - CC5TO8 (0x03)) ?
-							0xff : c.b + CC5TO8 (0x03);
-
-					SetContextForeGroundColor (c);
-					
-					if (!show_war_era_situation ||
-							(show_war_era_situation
-								&& war_era_strengths[index]))
-						font_DrawText (&t);
+					if (index == race_index && 
+							race_update & IGNORE_MOVING_SOI)
+					{
+						AdjustTextRect (&r, &t);
+						DrawRaceName (&t, &c);
+					}
+					else
+					{
+						nameplate[currMax].rect = r;
+						nameplate[currMax].text = t;
+						nameplate[currMax].index = index;
+						currMax++;
+					}
 				}
 			}
+			else if (index == race_index &&
+						race_update & (PRE_DEATH_SOI | DEATH_SOI))
+			{// Kruzen: SoI is dead, but we need to fade nameplate 
+				TEXT t;
+				STRING locString;
+				RECT repair_r;
 
+				locString = SetAbsStringTableIndex (FleetPtr->race_strings, 1);
+				t.CharCount = GetStringLength (locString);
+				t.pStr = (UNICODE *)GetStringAddress (locString);
+
+				GetSphereRect (FleetPtr, &r, &repair_r);
+
+				t.baseline.x = r.corner.x + (r.extent.width >> 1);
+				t.baseline.y = r.corner.y + (r.extent.height >> 1)
+						- RES_SCALE (1);
+				t.align = ALIGN_CENTER;
+
+				TextRect (&t, &r, NULL);
+
+				nameplate[currMax].rect = r;
+				nameplate[currMax].text = t;
+				nameplate[currMax].index = race_update - 1;
+				currMax++;
+			}
 			UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+		}
+
+		if (currMax > 0)
+		{
+			BYTE j, k;
+			BOOLEAN swapped;
+			COORD offs;
+			TEXT t;
+			Color c;
+			BYTE mid = currMax;
+
+			for (j = 0; j < currMax - 1; j++)
+			{// Sort nameplates by Y-axis from top to bottom
+				swapped = FALSE;
+				for (k = 0; k < currMax - j - 1; k++)
+				{
+					if (nameplate[k].rect.corner.y > nameplate[k + 1].rect.corner.y)
+					{
+						SwapPlates (&nameplate[k], &nameplate[k + 1]);
+						swapped = TRUE;
+					}
+				}
+				// If no two elements were swapped by inner loop,
+				// then break
+				if (swapped == FALSE)
+					break;
+			}
+
+			for (j = 0; j < currMax; j++, mid--)
+			{
+				if (nameplate[j].index & PRE_DEATH_SOI)
+					c = WHITE_COLOR;
+				else if (nameplate[j].index & DEATH_SOI)
+					c = BUILD_SHADE_RGBA (0x80);
+				else
+					c = RaceColor (nameplate[j].index & 0x1F);
+				r = nameplate[j].rect;
+				t = nameplate[j].text;
+				
+				AdjustTextRect (&r, &t);
+
+				r.corner.y += RES_SCALE (1);
+				r.extent.height -= RES_SCALE (2);
+
+				if (r.corner.y > (SIS_SCREEN_HEIGHT >> 1))
+					break;
+
+				for (k = 0; k < j; k++)
+				{
+					if ((offs = CheckTextsIntersect (&r, &nameplate[k].rect)) != 0)
+					{
+						r.corner.y += offs;
+						t.baseline.y += offs;
+					}
+				}
+				nameplate[j].rect = r;
+
+				DrawRaceName (&t, &c);
+			}
+
+			for (j = 1; j <= mid; j++)
+			{
+				if (nameplate[currMax - j].index & PRE_DEATH_SOI)
+					c = WHITE_COLOR;
+				else if (nameplate[currMax - j].index & DEATH_SOI)
+					c = BUILD_SHADE_RGBA (0x80);
+				else
+					c = RaceColor (nameplate[currMax - j].index & 0x1F);
+				r = nameplate[currMax - j].rect;
+				t = nameplate[currMax - j].text;
+
+				AdjustTextRect (&r, &t);
+
+				r.corner.y += RES_SCALE(1);
+				r.extent.height -= RES_SCALE(2);
+
+				for (k = 0; k < j; k++)
+				{
+					if ((offs = CheckTextsIntersect (&r, &nameplate[currMax - k].rect)) != 0)
+					{
+						r.corner.y -= offs;
+						t.baseline.y -= offs;
+					}
+				}
+				nameplate[currMax - j].rect = r;
+
+				DrawRaceName (&t, &c);
+			}
 		}
 	}
 
@@ -1137,6 +1404,30 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	// starmap.
 	if (which_space <= 1 && which_starmap == CONSTELLATION_MAP)
 	{
+// Debug toy, it prints out a color map
+#ifdef DEBUG_COLOR_PALETTE
+		int i; int j; int k;
+		for (i = 0; i < 32; i++) for (j = 0; j < 32; j++) for (k = 0; k < 32; k++)
+		{
+			TEXT t;
+			UNICODE pStr[7];
+			pStr[0] = (i / 16 ? '1' : '0');
+			pStr[1] = (i % 16 > 9 ? i % 16 - 10 + 'A' : i % 16 + '0');
+			pStr[2] = (j / 16 ? '1' : '0');
+			pStr[3] = (j % 16 > 9 ? j % 16 - 10 + 'A' : j % 16 + '0');
+			pStr[4] = (k / 16 ? '1' : '0');
+			pStr[5] = (k % 16 > 9 ? k % 16 - 10 + 'A' : k % 16 + '0');
+			pStr[6] = '\0';
+			SetContextFont (TinyFontBold);
+			SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (i, j, k), 0x00));
+			t.baseline.x = UNIVERSE_TO_DISPX (300 * j + (k / 16 ? 150 : 0));
+			t.baseline.y = UNIVERSE_TO_DISPY (300 * i + k % 16 * 300 / 16) + 3;
+			t.align = ALIGN_CENTER;
+			t.pStr = pStr;
+			t.CharCount = 10;
+			font_DrawText (&t);
+		}
+#else
 		Color oldColor;
 		POINT *CNPtr;
 		LINE l;
@@ -1157,9 +1448,11 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			DrawLine (&l, 1);
 		}
 	 	SetContextForeGroundColor (oldColor);
+#endif
 	}
 
 	// This draws markers over known alien Homeworlds
+	// and labels the quasispace portal locations in hyperspace.
 	if (which_space <= 1 && which_starmap == HOMEWORLDS_MAP)
 	{
 		COUNT i;
@@ -1167,9 +1460,26 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
 		{
 			BYTE Index = star_array[i].Index;
-
 			if (isHomeworld (Index))
 				DrawMarker (star_array[i].star_pt, TRUE);
+		}
+		for (i = 0; i < NUM_HYPER_VORTICES; ++i)
+		{
+			if (!(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << i)))
+				continue;
+			TEXT t;
+			UNICODE pStr[2];
+			pStr[0] = 'A' + i;
+			pStr[1] = 0;
+			SetContextFont (TinyFontBold);
+			// "Quasispace Green"
+			SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x00, 0x1A, 0x00), 0x2F));
+			t.baseline.x = UNIVERSE_TO_DISPX (portal_map[i].star_pt.x);
+			t.baseline.y = UNIVERSE_TO_DISPY (portal_map[i].star_pt.y) + 3;
+			t.align = ALIGN_CENTER;
+			t.pStr = pStr;
+			t.CharCount = 2;
+			font_DrawText (&t);
 		}
 	}
 
@@ -1186,17 +1496,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			which_starmap = NORMAL_STARMAP;
 		else
 		{
-			COUNT i, j = 0;
-
-			for (i = 0; i < (NUM_SOLAR_SYSTEMS + 1); ++i)
-			{
-				if (star_array[i].Index == RAINBOW_DEFINED)
-				{
-					j++;
-					if (rainbow_mask & (1 << (j - 1)))
-						DrawMarker (star_array[i].star_pt, TRUE);
-				}
-			}
+			COUNT i;
+			for (i = RAINBOW0_DEFINED; i <= RAINBOW9_DEFINED; i++)
+				if (rainbow_mask & (1 << (i - RAINBOW0_DEFINED)))
+					DrawMarker (plot_map[i].star_pt, TRUE);
 		}
 	}
 
@@ -1255,8 +1558,8 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 	{
 		if (which_space <= 1)
 		{
-			s.origin.x = UNIVERSE_TO_DISPX (ARILOU_SPACE_X);
-			s.origin.y = UNIVERSE_TO_DISPY (ARILOU_SPACE_Y);
+			s.origin.x = UNIVERSE_TO_DISPX (plot_map[ARILOU_DEFINED].star_pt.x);
+			s.origin.y = UNIVERSE_TO_DISPY (plot_map[ARILOU_DEFINED].star_pt.y);
 		}
 		else
 		{
@@ -1490,19 +1793,51 @@ UpdateCursorInfo (UNICODE *prevbuf)
 	{
 		// JMS: For masking the names of QS portals not yet entered.
 		BYTE whichPortal = BestSDPtr->Postfix - 133;
-		
+
 		// A star is near the cursor:
 		// Snap cursor onto star
 		cursorLoc = BestSDPtr->star_pt;
 		
 		if (GET_GAME_STATE(ARILOU_SPACE_SIDE) >= 2
 				&& !(GET_GAME_STATE (KNOW_QS_PORTAL) & (1 << whichPortal)))
-		{
+			// "UNKNOWN" string
 			utf8StringCopy (buf, sizeof (buf),
 					GAME_STRING (STAR_STRING_BASE + 132));
-		}
-		else
+		else if (GET_GAME_STATE(ARILOU_SPACE_SIDE) < 2 ||
+				whichPortal == NUM_HYPER_VORTICES)
+			// Hyperspace side, or Arilou homeworld name once known
 			GetClusterName (BestSDPtr, buf);
+		else
+		{
+			// Use whichPortal (based on the Postfix of the star) to determine
+			// which portal_map entity this maps to and pull the nearest star.
+			// We then use that to construct the exit point name.
+			// This means quasi star array must have rigidly ordered Postfix.
+			// portal_map[whichPortal].star_pt - coords of the exit
+			//                  nearest_star - STAR_DESC* of nearest constell.
+			UNICODE starnameBuf[CURSOR_INFO_BUFSIZE] = "";
+			utf8StringCopy (starnameBuf, sizeof (starnameBuf), GAME_STRING
+					(portal_map[whichPortal].nearest_star->Postfix));
+			// Abbreviate names longer than 11 at the 10th (or less)
+			// non-vowel character.
+			if (strlen (starnameBuf) > 11)
+			{
+				COUNT i;
+				for (i = 9; i > 5; i--)
+					if (starnameBuf[i] != 'a' && starnameBuf[i] != 'e' &&
+							starnameBuf[i] != 'i' && starnameBuf[i] != 'o' &&
+							starnameBuf[i] != 'u' && starnameBuf[i] != 'y')
+						break;
+				starnameBuf[i + 1] = '.';
+				starnameBuf[i + 2] = '\0';
+			}
+			snprintf (buf, sizeof (buf),
+					"[%c] To %05.1f : %05.1f (Near %.12s)",
+					'A' + whichPortal,
+					(float) portal_map[whichPortal].star_pt.x / 10,
+					(float) portal_map[whichPortal].star_pt.y / 10,
+					starnameBuf);
+		}
 	}
 	else
 	{	// No star found. Reset the coordinates to the cursor's location
@@ -1528,8 +1863,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{
-			ari_pt.x = ARILOU_SPACE_X;
-			ari_pt.y = ARILOU_SPACE_Y;
+			ari_pt = plot_map[ARILOU_DEFINED].star_pt;
 		}
 		else
 		{
@@ -1561,7 +1895,9 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				UNICODE visBuf[CURSOR_INFO_BUFSIZE] = "";
 
 				utf8StringCopy (visBuf, sizeof (visBuf), buf);
-				snprintf (buf, sizeof buf, "%c %s %c", '(', visBuf, ')');
+				// This is how you get rid of compiler warnings over string
+				// length:  %.30s where "30" is a limit.  Enjoy. ~JSD~
+				snprintf (buf, sizeof buf, "%c %.251s %c", '(', visBuf, ')');
 			}
 
 			DrawSISMessage (buf);
@@ -1575,7 +1911,7 @@ UpdateCursorInfo (UNICODE *prevbuf)
 				CONTEXT OldContext;
 				OldContext = SetContext (OffScreenContext);
 				
-				if (show_war_era_situation)
+				if (which_starmap == WAR_ERA_STARMAP)
 					SetContextForeGroundColor (
 							BUILD_COLOR (
 								MAKE_RGB15 (0x18, 0x00, 0x00), 0x00));
@@ -2100,7 +2436,6 @@ DoBubbleWarp (BOOLEAN UseFuel)
 	}
 }
 
-#define NUM_PORTALS 15
 #define PORTAL_FUEL_COST DIF_CASE(10, 5, 20)
 
 static void
@@ -2108,7 +2443,6 @@ AdvancedAutoPilot (void)
 {
 	POINT current_position;
 	POINT destination = GLOBAL (autopilot);
-	POINT portal_pt[NUM_PORTALS] = QUASISPACE_PORTALS_HYPERSPACE_ENDPOINTS;
 	POINT portal_coordinates;
 	double distance, fuel_no_portal, fuel_with_portal;
 	double minimum = 0.0;
@@ -2122,9 +2456,9 @@ AdvancedAutoPilot (void)
 	if (pointsEqual (current_position, destination))
 		return;
 
-	for (i = 0; i < NUM_PORTALS; i++)
+	for (i = 0; i < NUM_HYPER_VORTICES; i++)
 	{
-		distance = ptDistance (destination, portal_pt[i]);
+		distance = ptDistance (destination, portal_map[i].star_pt);
 
 		if (!DIF_EASY && !(KnownQSPortals & (1 << i)))
 			distance = MAX_X_UNIVERSE * MAX_Y_UNIVERSE;
@@ -2291,11 +2625,6 @@ DoMoveCursor (MENU_STATE *pMS)
 
 			PlayMenuSound (MENU_SOUND_MOVE);
 
-			if (which_starmap == WAR_ERA_STARMAP)
-				show_war_era_situation = TRUE;
-			else
-				show_war_era_situation = FALSE;
-
 			DrawStarMap (0, NULL);
 			last_buf[0] = '\0';
 			UpdateCursorInfo (last_buf);
@@ -2431,6 +2760,10 @@ RepairMap (COUNT update_race, RECT *pLastRect, RECT *pNextRect)
 	DrawStarMap (update_race, &r);
 }
 
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
 static void
 UpdateMap (void)
 {
@@ -2467,6 +2800,7 @@ UpdateMap (void)
 		{
 			SIZE dx, dy, delta;
 			RECT r, last_r, temp_r0, temp_r1;
+			COUNT str;
 
 			dx = FleetPtr->loc.x - FleetPtr->known_loc.x;
 			dy = FleetPtr->loc.y - FleetPtr->known_loc.y;
@@ -2507,8 +2841,8 @@ UpdateMap (void)
 				}
 
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
-				last_r.extent.width += RES_SCALE (1);
-				last_r.extent.height += RES_SCALE (1);
+				last_r.extent.width += RES_SCALE (1) + IF_HD (1);// dot in HD is 5px wide for AA to work
+				last_r.extent.height += RES_SCALE (1) + IF_HD (1);// so we have to add extra 1
 				VisibleChange = FALSE;
 				do
 				{
@@ -2543,13 +2877,13 @@ UpdateMap (void)
 						goto DoneSphereMove;
 					}
 
-					r.extent.width += RES_SCALE (1);
-					r.extent.height += RES_SCALE (1);
+					r.extent.width += RES_SCALE (1) + IF_HD (1);
+					r.extent.height += RES_SCALE (1) + IF_HD (1);
 					if (temp_r0.corner.x != temp_r1.corner.x
 							|| temp_r0.corner.y != temp_r1.corner.y)
-					{
+					{// Ignore name stacking during movement
 						VisibleChange = TRUE;
-						RepairMap (index, &last_r, &r);
+						RepairMap (index | IGNORE_MOVING_SOI, &last_r, &r);
 						SleepThread (ONE_SECOND / 24);
 					}
 				} while (delta >= 0);
@@ -2581,10 +2915,14 @@ DoneSphereMove:
 				GetSphereRect (FleetPtr, &temp_r0, &last_r);
 				last_r.extent.width += RES_SCALE (1);
 				last_r.extent.height += RES_SCALE (1);
+				// Kruzen: Font size to clean up double space because of text stacking now
+				last_r.extent.height = MAX (last_r.extent.height, RES_SCALE (14));
 				VisibleChange = FALSE;
 
 				/*printf("%s: %d\n", raceName (index),
 						FleetPtr->actual_strength);*/
+
+				str = FleetPtr->known_strength;
 
 				GrowthFactor = delta > 0 ? FleetPtr->actual_strength
 						: FleetPtr->known_strength;
@@ -2614,12 +2952,21 @@ DoneSphereMove:
 					}
 					r.extent.width += RES_SCALE (1);
 					r.extent.height += RES_SCALE (1);
-					if (temp_r0.extent.height != temp_r1.extent.height)
-					{
+					if ((temp_r0.extent.height != temp_r1.extent.height) &&
+							!(str > 0 && FleetPtr->known_strength == 0))
+					{// Update race SOI size IF the race didn't die out
 						VisibleChange = TRUE;
 						RepairMap (index, &last_r, &r);
 						SleepThread (
 								ONE_SECOND / (12 + GrowthFactor / 44));
+					}
+					else if (str > 0 && FleetPtr->known_strength == 0)
+					{// Flash dying race name
+						VisibleChange = TRUE;
+						RepairMap (index | PRE_DEATH_SOI, &last_r, &r);
+						SleepThread (ONE_SECOND / 12);
+						RepairMap (index | DEATH_SOI, &last_r, &r);
+						SleepThread (ONE_SECOND / 12);
 					}
 				} while (delta >= 0);
 				if (VisibleChange
@@ -2688,7 +3035,7 @@ DrawStarmapHelper (void)
 
 	s.origin.x = t.baseline.x + RES_SCALE (28);
 	s.origin.y += RES_SCALE (4);
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 109);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 108);
 	DrawStamp (&s);
 
 	// Cursor Speed
@@ -2779,8 +3126,6 @@ StarMap (void)
 
 	memset (&MenuState, 0, sizeof (MenuState));
 
-	// JMS: For showing SC1-era starmap / starmap with constellations.
-	show_war_era_situation = FALSE; 
 	which_starmap = NORMAL_STARMAP;
 
 	zoomLevel = 0;

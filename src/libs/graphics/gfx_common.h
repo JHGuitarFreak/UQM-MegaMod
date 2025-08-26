@@ -72,7 +72,7 @@ int TFB_ReInitGraphics (int driver, int flags, int width, int height,
 void TFB_UninitGraphics (void);
 void TFB_ProcessEvents (void);
 bool TFB_SetGamma (float gamma);
-void TFB_UploadTransitionScreen (void);
+void TFB_UploadTransitionScreen (RECT *pRect);
 int TFB_SupportsHardwareScaling (void);
 // This function should not be called directly
 void TFB_SwapBuffers (int force_full_redraw);
@@ -97,7 +97,6 @@ void ScreenTransition (int transition, const RECT *pRect);
 
 // TODO: there should be accessor functions for these
 extern volatile int TransitionAmount;
-extern RECT TransitionClipRect;
 
 extern float FrameRate;
 extern int FrameRateTickBase;

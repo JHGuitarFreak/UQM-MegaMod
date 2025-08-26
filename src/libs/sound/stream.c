@@ -237,7 +237,7 @@ GetStreamLength (uint32 source)
 	return sample->decoder->length * 1000;
 }
 
-float
+DWORD
 GetStreamTime (uint32 source)
 {
 	TFB_SoundSample* sample = soundSource[source].sample;
@@ -245,7 +245,7 @@ GetStreamTime (uint32 source)
 	if (!sample)
 		return 0;
 
-	return SoundDecoder_GetTime (sample->decoder) * 1000;
+	return (DWORD)SoundDecoder_GetTime (sample->decoder) * 1000;
 }
 
 BOOLEAN
@@ -396,6 +396,15 @@ add_scope_data (TFB_SoundSource *source, uint32 bytes)
 	{	// all fits at the tail
 		tail_bytes = bytes;
 		wrap_bytes = 0;
+	}
+
+	if (wrap_bytes > source->sbuf_tail)
+	{	// we can only wrap around to the current tail
+		log_add (log_Warning, "add_scope_data: Has wrap_bytes %d "
+				"greater than source_buffer_tail %d "
+				"| total bytes %d | source_buffer_size %d",
+				wrap_bytes, source->sbuf_tail, bytes, source->sbuf_size);
+		wrap_bytes = source->sbuf_tail;
 	}
 	
 	if (tail_bytes)

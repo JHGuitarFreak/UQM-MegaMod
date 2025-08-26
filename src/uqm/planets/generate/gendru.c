@@ -62,54 +62,38 @@ const GenerateFunctions generateDruugeFunctions = {
 static bool
 GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
+	PLANET_DESC *pPlanet;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
-
-	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
+	GenerateDefault_generatePlanets (solarSys);
 
 	if (PrimeSeed)
 	{
-		memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte],
-				sizeof (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte])
-				* solarSys->SunDesc[0].NumPlanets);
-		++solarSys->SunDesc[0].NumPlanets;
-	}
+		COUNT angle;
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = DUST_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 0;
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	if (!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = 
-			(RandomContext_Random (SysGenRNG) % MAROON_WORLD);
+		memmove (&solarSys->PlanetDesc[1], &solarSys->PlanetDesc[0],
+				sizeof (solarSys->PlanetDesc[0]) * pSunDesc->NumPlanets);
+		++pSunDesc->NumPlanets;
 
-		if(solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-		else if(solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
-
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets =
-				(RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-		CheckForHabitable (solarSys);
+		pPlanet->data_index = DUST_WORLD;
+		pPlanet->radius = EARTH_RADIUS * 50L / 100;
+		pPlanet->NumPlanets = 0;
+		angle = HALF_CIRCLE - OCTANT;
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		pPlanet->rand_seed =
+				MAKE_DWORD (pPlanet->location.x, pPlanet->location.y);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
 	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 50L / 100;
-		angle = HALF_CIRCLE - OCTANT;
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-				COSINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE (angle, solarSys->PlanetDesc[0].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].rand_seed = MAKE_DWORD (
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateDesolateWorld ();
 	}
 
 	return true;
@@ -119,24 +103,29 @@ static bool
 GenerateDruuge_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if (GET_GAME_STATE (KNOW_DRUUGE_HOMEWORLD)
-			&& matchWorld (solarSys, world,
-			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	GenerateDefault_generateName (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& IsHomeworldKnown (DRUUGE_HOME))
 	{
-		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS(PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 41));
-		SET_GAME_STATE (BATTLE_PLANET,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
-	} else
-		GenerateDefault_generateName (solarSys, world);
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
+		utf8StringCopy (GLOBAL_SIS (PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 41));
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
+	}
 
 	return true;
 }
 
 static bool
-GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		if (StartSphereTracking (DRUUGE_SHIP))
 		{
@@ -173,32 +162,17 @@ GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						SetAbsStringTableIndex (
 						solarSys->SysInfo.PlanetInfo.DiscoveryString, 1);
 			}
-
-			if (!PrimeSeed)
-			{
-				GenerateDefault_generateOrbital (solarSys, world);
-
-				solarSys->SysInfo.PlanetInfo.AtmoDensity =
-						EARTH_ATMOSPHERE * 220 / 100;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 18;
-				if (!DIF_HARD)
-				{
-					solarSys->SysInfo.PlanetInfo.Weather = 3;
-					solarSys->SysInfo.PlanetInfo.Tectonics = 2;
-				}
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 63;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 37;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 23;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 271;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = 10;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 810;
-
-				return true;
-			}
 		}
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& !DIF_HARD)
+	{
+		solarSys->SysInfo.PlanetInfo.Weather = 3;
+		solarSys->SysInfo.PlanetInfo.Tectonics = 2;
+	}
 
 	return true;
 }
@@ -207,7 +181,7 @@ static bool
 GenerateDruuge_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		GenerateDefault_landerReportCycle (solarSys);
 
@@ -231,7 +205,7 @@ static COUNT
 GenerateDruuge_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}

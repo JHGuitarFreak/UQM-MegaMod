@@ -218,8 +218,7 @@ ExitConversation (RESPONSE_REF R)
 		NPCPhrase_cb (EMMISSARIES7, &SelectAlienPIK);
 		ZFPTalkSegue ((COUNT)~0);
 
-		if (!GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD))
-			SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
+		SetHomeworldKnown (ZOQFOTPIK_HOME);
 	}
 	else if (PLAYER_SAID (R, sure))
 	{
@@ -753,8 +752,7 @@ Intro (void)
 {
 	BYTE NumVisits;
 
-	if (!GET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD))
-		SET_GAME_STATE (KNOW_ZOQFOT_HOMEWORLD, 1);
+	SetHomeworldKnown (ZOQFOTPIK_HOME);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{

@@ -50,6 +50,7 @@ enum
 };
 
 POINT lander_pos[MAX_LANDERS];
+FONT ModuleFont;
 
 static void
 InitializeDOSLanderPos (void)
@@ -71,8 +72,8 @@ InitializeDOSLanderPos (void)
 }
 
 // This is all for drawing the DOS version modules menu
-#define MODULE_ORG_Y       RES_SCALE (33)
-#define MODULE_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+#define MODULE_ORG_Y       RES_SCALE (36)
+#define MODULE_SPACING_Y   RES_SCALE (16)
 
 #define MODULE_COL_0       RES_SCALE (5)
 #define MODULE_COL_1       RES_SCALE (61)
@@ -125,7 +126,7 @@ DrawModuleStatus (COUNT index, COUNT pos, bool selected)
 		SetContextForeGroundColor (selected ?
 				MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
 		t.baseline.y = r.corner.y + TEXT_BASELINE;
-		t.pStr = GAME_STRING (index + STARBASE_STRING_BASE + 10);
+		t.pStr = GAME_STRING (index + STARBASE_STRING_BASE + 12);
 		t.CharCount = utf8StringPos (t.pStr, ' ');
 		font_DrawText (&t);
 		t.baseline.y += TEXT_SPACING_Y;
@@ -175,14 +176,14 @@ DrawModuleDisplay (MODULES_STATE *modState)
 				TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "MODULES" title
 	SetContextFont (StarConFont);
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
-	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 9);
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 11);
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
 	font_DrawText (&t);
@@ -263,6 +264,60 @@ InventoryModules (BYTE *pModuleMap, COUNT Size)
 }
 
 static void
+DrawModuleMenuText (RECT *r, int Index)
+{
+	TEXT text;
+	SIZE leading;
+	RECT block;
+	UNICODE buf[256];
+	COORD og_baseline_x;
+
+	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 26 + Index)))
+		return;
+
+	SetContextFont (ModuleFont);
+
+	GetContextFontLeading (&leading);
+
+	SetContextForeGroundColor (MDL_RECT_COLOR);
+
+	if (!optCustomBorder)
+	{
+		block = *r;
+		block.extent.height = (leading << 1) - RES_SCALE (1);
+		DrawFilledRectangle (&block);
+	}
+	else
+		DrawBorder (TEXT_LABEL_FRAME);
+
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading - RES_SCALE (1);
+	og_baseline_x = text.baseline.x;
+
+	utf8StringCopy ((char *)buf, sizeof (buf),
+			GAME_STRING (STARBASE_STRING_BASE + 26 + Index));
+
+	text.align = ALIGN_CENTER;
+	text.pStr = strtok (buf, " ");
+	text.CharCount = (COUNT)~0;
+
+	while (text.pStr != NULL)
+	{
+		text.pStr = AlignText ((const UNICODE *)text.pStr,
+				&text.baseline.x);
+		text.CharCount = (COUNT)~0;
+
+		font_DrawShadowedText (&text, WEST_SHADOW, MDL_TEXT_COLOR,
+				MDL_SHADOW_COLOR);
+
+		text.pStr = strtok (NULL, " ");
+		text.CharCount = (COUNT)~0;
+		text.baseline.y += leading;
+		text.baseline.x = og_baseline_x;
+	}
+}
+
+static void
 DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 {
 	RECT r;
@@ -284,10 +339,11 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		r.extent.height = RES_SCALE (11);
 		//	ClearSISRect (CLEAR_SIS_RADAR); // blinks otherwise
 		SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
-		DrawFilledRectangle (&r); // drawn over anyway
+		if (!optCustomBorder)
+			DrawFilledRectangle (&r); // drawn over anyway
 	}
 
-	DrawBorder (8);
+	DrawBorder (SIS_RADAR_FRAME);
 
 	if (IS_DOS)
 	{
@@ -318,7 +374,7 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 			else
 			{
 				DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
-					THIN_INNER_BEVEL);
+						THIN_INNER_BEVEL, optCustomBorder);
 			}
 		}
 	}
@@ -339,6 +395,9 @@ DrawModuleStrings (MENU_STATE *pMS, BYTE NewModule)
 		// Draw the module image.
 		s.frame = SetAbsFrameIndex (pMS->CurFrame, NewModule);
 		DrawStamp (&s);
+
+		/// HERE!
+		DrawModuleMenuText (&r, NewModule);
 
 		// Print the module cost.
 		t.baseline.x = s.origin.x + RADAR_WIDTH - RES_SCALE (2);
@@ -380,6 +439,107 @@ RedistributeFuel (void)
 	SetContext (OldContext);
 }
 
+static void
+DrawEscapePodText (RECT rect )
+{
+	TEXT text;
+	FONT OldFont;
+	Color OldColor;
+	SIZE leading;
+	RECT block;
+	UNICODE buf[256];
+	COORD og_baseline_x;
+
+	if (!strlen (GAME_STRING (STARBASE_STRING_BASE + 41)))
+		return;
+
+	OldFont = SetContextFont (SquareFont);
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+	
+	block = rect;
+	block.corner.x += DOS_BOOL_SCL (171, 9);
+	block.corner.y += RES_SCALE (38);
+	block.extent.width = RES_SCALE (36);
+	block.extent.height = RES_SCALE (6);
+	DrawFilledRectangle (&block);
+
+	block.corner.x += RES_SCALE (9);
+	block.corner.y += block.extent.height;
+	block.extent.width = RES_SCALE (19);
+	DrawFilledRectangle (&block);
+
+	GetContextFontLeading (&leading);
+
+	text.baseline = rect.corner;
+	text.baseline.x += DOS_BOOL_SCL (189, 27);
+	text.baseline.y += RES_SCALE (39);
+	text.align = ALIGN_CENTER;
+
+	og_baseline_x = text.baseline.x;
+
+	utf8StringCopy ((char *)buf, sizeof (buf),
+			GAME_STRING (STARBASE_STRING_BASE + 41));
+
+	text.align = ALIGN_CENTER;
+	text.pStr = strtok (buf, " ");
+	text.CharCount = (COUNT)~0;
+
+	SetContextForeGroundColor (LANDER_POD_TEXT_COLOR);
+
+	while (text.pStr != NULL)
+	{
+		text.pStr = AlignText ((const UNICODE *)text.pStr,
+				&text.baseline.x);
+		text.CharCount = (COUNT)~0;
+
+		font_DrawText (&text);
+
+		text.pStr = strtok (NULL, " ");
+		text.CharCount = (COUNT)~0;
+		text.baseline.y += leading;
+		text.baseline.x = og_baseline_x;
+	}
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
+static void
+DrawNoLandersText (RECT rect)
+{
+	TEXT text;
+	FONT OldFont;
+	Color OldColor;
+	RECT block;
+
+	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 40)))
+		return;
+
+	OldFont = SetContextFont (SquareFont);
+	OldColor = SetContextForeGroundColor (BLACK_COLOR);
+
+	block = rect;
+	block.corner.y += RES_SCALE (9);
+	block.extent.width = RES_SCALE (162) - IF_HD (3);
+	block.extent.height = RES_SCALE (20);
+	DrawFilledRectangle (&block);
+
+	text.baseline = rect.corner;
+	text.baseline.x += RES_SCALE (81);
+	text.baseline.y += RES_SCALE (17);
+	text.align = ALIGN_CENTER;
+	text.pStr = AlignText (
+			(const UNICODE *)GAME_STRING (STARBASE_STRING_BASE + 40),
+			&text.baseline.x);
+	text.CharCount = (COUNT)~0;
+
+	SetContextForeGroundColor (LANDER_POD_TEXT_COLOR);
+	font_DrawText (&text);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 #define LANDER_X (RES_SCALE (24) - SAFE_PAD)
 #define LANDER_Y RES_SCALE (67)
 #define LANDER_WIDTH RES_SCALE (15)
@@ -392,10 +552,18 @@ DisplayLanders (MENU_STATE *pMS)
 	s.frame = pMS->ModuleFrame;
 	if (GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 	{
-		s.origin.x = s.origin.y = 0;
+		RECT rect;
+		s.origin.x = -SAFE_X;
+		s.origin.y = 0;
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame,
 				SHIELD_LOCATION_IN_MODULE_ANI + 4);
 		DrawStamp (&s);
+
+		GetFrameRect (s.frame, &rect);
+		rect.corner.x += s.origin.x;
+
+		DrawNoLandersText (rect);
+		DrawEscapePodText (rect);
 	}
 	else
 	{
@@ -1010,6 +1178,7 @@ DoOutfit (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoOutfit;
 		pMS->Initialized = TRUE;
+		
 #if defined(ANDROID) || defined(__ANDROID__)
 		TFB_SetOnScreenKeyboard_Starmap();
 #endif
@@ -1020,6 +1189,9 @@ DoOutfit (MENU_STATE *pMS)
 		{
 			COUNT num_frames;
 			STAMP s;
+
+			if (!IS_DOS)
+				ModuleFont = LoadFont (MODULE_FONT);
 
 			pMS->CurFrame = CaptureDrawable (
 					LoadGraphic (MODULES_PMAP_ANIM));
@@ -1108,16 +1280,7 @@ DoOutfit (MENU_STATE *pMS)
 
 			ScreenTransition (optScrTrans, NULL);
 
-			SetMusicVolume (MUTE_VOLUME);
-			PlayMusic (pMS->hMusic, TRUE, 1);
-
-			if (OkayToResume ())
-			{
-				SeekMusic (GetMusicPosition ());
-				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-			}
-			else
-				SetMusicVolume (NORMAL_VOLUME);
+			PlayMusicResume (pMS->hMusic, NORMAL_VOLUME);
 
 			UnbatchGraphics ();
 			
@@ -1150,6 +1313,10 @@ ExitOutfit:
 			pMS->CurFrame = 0;
 			DestroyDrawable (ReleaseDrawable (pMS->ModuleFrame));
 			pMS->ModuleFrame = 0;
+
+			// Release Fonts
+			if (!IS_DOS)
+				DestroyFont (ModuleFont);
 
 			SetMusicPosition ();
 
@@ -1210,16 +1377,10 @@ ExitOutfit:
 		switch (pMS->CurState)
 		{
 			case OUTFIT_DOFUEL:
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Starmap();
-#endif
 				SetMenuSounds (MENU_SOUND_ARROWS,
 						MENU_SOUND_PAGE | MENU_SOUND_ACTION);
 				break;
 			default:
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Menu();
-#endif
 				SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 				break;
 		}

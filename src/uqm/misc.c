@@ -401,8 +401,8 @@ AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 			CrewPtr->current.image.farray = &stars_in_space;
 		} else {
 			SetPrimType (&DisplayArray[CrewPtr->PrimIndex], STAMPFILL_PRIM);
-			CrewPtr->current.image.frame = SetAbsFrameIndex (crew_dots[0], 0);
-			CrewPtr->current.image.farray = crew_dots;
+			CrewPtr->current.image.frame = SetAbsFrameIndex (stars_misc[0], 0);
+			CrewPtr->current.image.farray = stars_misc;
 		}
 		SetPrimColor (&DisplayArray[CrewPtr->PrimIndex],
 				BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02));

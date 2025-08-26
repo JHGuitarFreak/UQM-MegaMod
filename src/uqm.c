@@ -121,93 +121,98 @@ struct options_struct
 	const char* graphicsBackend;
 	
 	// Commandline and user config options
-	DECL_CONFIG_OPTION(bool, opengl);
-	DECL_CONFIG_OPTION2(int, resolution, width, height);
-	DECL_CONFIG_OPTION(int,  fullscreen);
-	DECL_CONFIG_OPTION(bool, scanlines);
-	DECL_CONFIG_OPTION(int,  scaler);
-	DECL_CONFIG_OPTION(bool, showFps);
-	DECL_CONFIG_OPTION(bool, keepAspectRatio);
+	DECL_CONFIG_OPTION(bool,  opengl);
+	DECL_CONFIG_OPTION2(int,  resolution, width, height);
+	DECL_CONFIG_OPTION(int,   fullscreen);
+	DECL_CONFIG_OPTION(bool,  scanlines);
+	DECL_CONFIG_OPTION(int,   scaler);
+	DECL_CONFIG_OPTION(bool,  showFps);
+	DECL_CONFIG_OPTION(bool,  keepAspectRatio);
 	DECL_CONFIG_OPTION(float, gamma);
-	DECL_CONFIG_OPTION(int,  soundDriver);
-	DECL_CONFIG_OPTION(int,  soundQuality);
-	DECL_CONFIG_OPTION(bool, use3doMusic);
-	DECL_CONFIG_OPTION(bool, useRemixMusic);
-	DECL_CONFIG_OPTION(bool, useSpeech);
-	DECL_CONFIG_OPTION(int,  whichCoarseScan);
-	DECL_CONFIG_OPTION(int,  whichMenu);
-	DECL_CONFIG_OPTION(int,  whichFonts);
-	DECL_CONFIG_OPTION(int,  whichIntro);
-	DECL_CONFIG_OPTION(int,  whichShield);
-	DECL_CONFIG_OPTION(int,  smoothScroll);
-	DECL_CONFIG_OPTION(int,  meleeScale);
-	DECL_CONFIG_OPTION(bool, subtitles);
-	DECL_CONFIG_OPTION(bool, stereoSFX);
+	DECL_CONFIG_OPTION(int,   soundDriver);
+	DECL_CONFIG_OPTION(int,   soundQuality);
+	DECL_CONFIG_OPTION(bool,  use3doMusic);
+	DECL_CONFIG_OPTION(bool,  useRemixMusic);
+	DECL_CONFIG_OPTION(bool,  useSpeech);
+	DECL_CONFIG_OPTION(int,   whichCoarseScan);
+	DECL_CONFIG_OPTION(int,   whichMenu);
+	DECL_CONFIG_OPTION(int,   whichFonts);
+	DECL_CONFIG_OPTION(int,   whichIntro);
+	DECL_CONFIG_OPTION(int,   whichShield);
+	DECL_CONFIG_OPTION(int,   smoothScroll);
+	DECL_CONFIG_OPTION(int,   meleeScale);
+	DECL_CONFIG_OPTION(bool,  subtitles);
+	DECL_CONFIG_OPTION(bool,  stereoSFX);
 	DECL_CONFIG_OPTION(float, musicVolumeScale);
 	DECL_CONFIG_OPTION(float, sfxVolumeScale);
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
-	DECL_CONFIG_OPTION(bool, safeMode);
-	DECL_CONFIG_OPTION(int,  resolutionFactor); 
-	DECL_CONFIG_OPTION(int,  loresBlowupScale); 
- 	DECL_CONFIG_OPTION(bool, cheatMode);
-	DECL_CONFIG_OPTION(int,  optGodModes);
-	DECL_CONFIG_OPTION(int,  timeDilationScale);
-	DECL_CONFIG_OPTION(bool, bubbleWarp);
-	DECL_CONFIG_OPTION(bool, unlockShips);
-	DECL_CONFIG_OPTION(bool, headStart);
-	DECL_CONFIG_OPTION(bool, unlockUpgrades);
-	DECL_CONFIG_OPTION(bool, infiniteRU);
-	DECL_CONFIG_OPTION(bool, skipIntro);
-	DECL_CONFIG_OPTION(bool, mainMenuMusic);
-	DECL_CONFIG_OPTION(bool, nebulae);
-	DECL_CONFIG_OPTION(bool, orbitingPlanets);
-	DECL_CONFIG_OPTION(bool, texturedPlanets);
-	DECL_CONFIG_OPTION(int,  optDateFormat);
-	DECL_CONFIG_OPTION(bool, infiniteFuel);
-	DECL_CONFIG_OPTION(bool, partialPickup);
-	DECL_CONFIG_OPTION(bool, submenu);
-	DECL_CONFIG_OPTION(bool, addDevices);
-	DECL_CONFIG_OPTION(bool, customBorder);
-	DECL_CONFIG_OPTION(int,  customSeed);
-	DECL_CONFIG_OPTION(bool, spaceMusic);
-	DECL_CONFIG_OPTION(bool, volasMusic);
-	DECL_CONFIG_OPTION(bool, wholeFuel);
-	DECL_CONFIG_OPTION(bool, directionalJoystick);
-	DECL_CONFIG_OPTION(int,  landerHold);
-	DECL_CONFIG_OPTION(int,  scrTrans);
-	DECL_CONFIG_OPTION(int,  optDifficulty);
-	DECL_CONFIG_OPTION(int,  optDiffChooser);
-	DECL_CONFIG_OPTION(int,  optFuelRange);
-	DECL_CONFIG_OPTION(bool, extended);
-	DECL_CONFIG_OPTION(bool, nomad);
-	DECL_CONFIG_OPTION(bool, gameOver);
-	DECL_CONFIG_OPTION(bool, shipDirectionIP);
-	DECL_CONFIG_OPTION(bool, hazardColors);
-	DECL_CONFIG_OPTION(bool, orzCompFont);
-	DECL_CONFIG_OPTION(int,  optControllerType);
-	DECL_CONFIG_OPTION(bool, smartAutoPilot);
-	DECL_CONFIG_OPTION(int,  tintPlanSphere);
-	DECL_CONFIG_OPTION(int,  planetStyle);
-	DECL_CONFIG_OPTION(int,  starBackground);
-	DECL_CONFIG_OPTION(int,  scanStyle);
-	DECL_CONFIG_OPTION(bool, nonStopOscill);
-	DECL_CONFIG_OPTION(int,  scopeStyle);
-	DECL_CONFIG_OPTION(bool, hyperStars);
-	DECL_CONFIG_OPTION(int,  landerStyle);
-	DECL_CONFIG_OPTION(bool, planetTexture);
-	DECL_CONFIG_OPTION(int,  flagshipColor);
-	DECL_CONFIG_OPTION(bool, noHQEncounters);
-	DECL_CONFIG_OPTION(bool, deCleansing);
-	DECL_CONFIG_OPTION(bool, meleeObstacles);
-	DECL_CONFIG_OPTION(bool, showVisitedStars);
-	DECL_CONFIG_OPTION(bool, unscaledStarSystem);
-	DECL_CONFIG_OPTION(int,  sphereType);
-	DECL_CONFIG_OPTION(int,  nebulaevol);
-	DECL_CONFIG_OPTION(bool, slaughterMode);
-	DECL_CONFIG_OPTION(bool, advancedAutoPilot);
-	DECL_CONFIG_OPTION(bool, meleeToolTips);
-	DECL_CONFIG_OPTION(bool, musicResume);
-	DECL_CONFIG_OPTION(int,  windowType);
+	DECL_CONFIG_OPTION(bool,  safeMode);
+	DECL_CONFIG_OPTION(int,   resolutionFactor);
+	DECL_CONFIG_OPTION(int,   loresBlowupScale);
+ 	DECL_CONFIG_OPTION(bool,  cheatMode);
+	DECL_CONFIG_OPTION(int,   optGodModes);
+	DECL_CONFIG_OPTION(int,   timeDilationScale);
+	DECL_CONFIG_OPTION(bool,  bubbleWarp);
+	DECL_CONFIG_OPTION(bool,  unlockShips);
+	DECL_CONFIG_OPTION(bool,  headStart);
+	DECL_CONFIG_OPTION(bool,  unlockUpgrades);
+	DECL_CONFIG_OPTION(bool,  infiniteRU);
+	DECL_CONFIG_OPTION(bool,  skipIntro);
+	DECL_CONFIG_OPTION(bool,  mainMenuMusic);
+	DECL_CONFIG_OPTION(bool,  nebulae);
+	DECL_CONFIG_OPTION(bool,  orbitingPlanets);
+	DECL_CONFIG_OPTION(bool,  texturedPlanets);
+	DECL_CONFIG_OPTION(int,   optDateFormat);
+	DECL_CONFIG_OPTION(bool,  infiniteFuel);
+	DECL_CONFIG_OPTION(bool,  partialPickup);
+	DECL_CONFIG_OPTION(bool,  submenu);
+	DECL_CONFIG_OPTION(bool,  infiniteCredits);
+	DECL_CONFIG_OPTION(bool,  customBorder);
+	DECL_CONFIG_OPTION(int,   seedType);
+	DECL_CONFIG_OPTION(int,   customSeed);
+	DECL_CONFIG_OPTION(int,   sphereColors);
+	DECL_CONFIG_OPTION(int,   spaceMusic);
+	DECL_CONFIG_OPTION(bool,  volasMusic);
+	DECL_CONFIG_OPTION(bool,  wholeFuel);
+	DECL_CONFIG_OPTION(bool,  directionalJoystick);
+	DECL_CONFIG_OPTION(int,   landerHold);
+	DECL_CONFIG_OPTION(int,   scrTrans);
+	DECL_CONFIG_OPTION(int,   optDifficulty);
+	DECL_CONFIG_OPTION(int,   optDiffChooser);
+	DECL_CONFIG_OPTION(int,   optFuelRange);
+	DECL_CONFIG_OPTION(bool,  extended);
+	DECL_CONFIG_OPTION(int,   nomad);
+	DECL_CONFIG_OPTION(bool,  gameOver);
+	DECL_CONFIG_OPTION(bool,  shipDirectionIP);
+	DECL_CONFIG_OPTION(bool,  hazardColors);
+	DECL_CONFIG_OPTION(bool,  orzCompFont);
+	DECL_CONFIG_OPTION(int,   optControllerType);
+	DECL_CONFIG_OPTION(bool,  smartAutoPilot);
+	DECL_CONFIG_OPTION(int,   tintPlanSphere);
+	DECL_CONFIG_OPTION(int,   planetStyle);
+	DECL_CONFIG_OPTION(int,   starBackground);
+	DECL_CONFIG_OPTION(int,   scanStyle);
+	DECL_CONFIG_OPTION(bool,  nonStopOscill);
+	DECL_CONFIG_OPTION(int,   scopeStyle);
+	DECL_CONFIG_OPTION(bool,  hyperStars);
+	DECL_CONFIG_OPTION(int,   landerStyle);
+	DECL_CONFIG_OPTION(bool,  planetTexture);
+	DECL_CONFIG_OPTION(int,   flagshipColor);
+	DECL_CONFIG_OPTION(bool,  noHQEncounters);
+	DECL_CONFIG_OPTION(bool,  deCleansing);
+	DECL_CONFIG_OPTION(bool,  meleeObstacles);
+	DECL_CONFIG_OPTION(bool,  showVisitedStars);
+	DECL_CONFIG_OPTION(bool,  unscaledStarSystem);
+	DECL_CONFIG_OPTION(int,   sphereType);
+	DECL_CONFIG_OPTION(int,   nebulaevol);
+	DECL_CONFIG_OPTION(bool,  slaughterMode);
+	DECL_CONFIG_OPTION(bool,  advancedAutoPilot);
+	DECL_CONFIG_OPTION(bool,  meleeToolTips);
+	DECL_CONFIG_OPTION(int,   musicResume);
+	DECL_CONFIG_OPTION(int,   windowType);
+	DECL_CONFIG_OPTION(bool,  scatterElements);
+	DECL_CONFIG_OPTION(bool,  showUpgrades);
+	DECL_CONFIG_OPTION(bool,  fleetPointSys);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -321,12 +326,11 @@ main (int argc, char *argv[])
 #if defined(ANDROID) || defined(__ANDROID__)
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        320, 240 ),
-		INIT_CONFIG_OPTION(  fullscreen,        1 ),
 #else
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-		INIT_CONFIG_OPTION(  fullscreen,        0 ),
 #endif
+		INIT_CONFIG_OPTION(  fullscreen,        2 ),
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
 		INIT_CONFIG_OPTION(  showFps,           false ),
@@ -374,10 +378,12 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  infiniteFuel,      false ),
 		INIT_CONFIG_OPTION(  partialPickup,     false ),
 		INIT_CONFIG_OPTION(  submenu,           false ),
-		INIT_CONFIG_OPTION(  addDevices,        false ),
+		INIT_CONFIG_OPTION(  infiniteCredits,   false ),
 		INIT_CONFIG_OPTION(  customBorder,      false ),
+		INIT_CONFIG_OPTION(  seedType,          0 ),
 		INIT_CONFIG_OPTION(  customSeed,        PrimeA ),
-		INIT_CONFIG_OPTION(  spaceMusic,        false ),
+		INIT_CONFIG_OPTION(  sphereColors,      0 ),
+		INIT_CONFIG_OPTION(  spaceMusic,        0 ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -391,7 +397,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  optDiffChooser,    3 ),
 		INIT_CONFIG_OPTION(  optFuelRange,      0 ),
 		INIT_CONFIG_OPTION(  extended,          false ),
-		INIT_CONFIG_OPTION(  nomad,             false ),
+		INIT_CONFIG_OPTION(  nomad,             0 ),
 		INIT_CONFIG_OPTION(  gameOver,          false ),
 		INIT_CONFIG_OPTION(  shipDirectionIP,   false ),
 		INIT_CONFIG_OPTION(  hazardColors,      false ),
@@ -414,12 +420,15 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  showVisitedStars,  false ),
 		INIT_CONFIG_OPTION(  unscaledStarSystem,false ),
 		INIT_CONFIG_OPTION(  sphereType,        2 ),
-		INIT_CONFIG_OPTION(  nebulaevol,        24 ),
+		INIT_CONFIG_OPTION(  nebulaevol,        16 ),
 		INIT_CONFIG_OPTION(  slaughterMode,     false ),
 		INIT_CONFIG_OPTION(  advancedAutoPilot, false ),
 		INIT_CONFIG_OPTION(  meleeToolTips,     false ),
-		INIT_CONFIG_OPTION(  musicResume,       false ),
+		INIT_CONFIG_OPTION(  musicResume,       0 ),
 		INIT_CONFIG_OPTION(  windowType,        2 ),
+		INIT_CONFIG_OPTION(  scatterElements,   false ),
+		INIT_CONFIG_OPTION(  showUpgrades,      false ),
+		INIT_CONFIG_OPTION(  fleetPointSys,     false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -592,7 +601,7 @@ main (int argc, char *argv[])
 	optBubbleWarp = options.bubbleWarp.value;
 	optUnlockShips = options.unlockShips.value;
 	optHeadStart = options.headStart.value;
-	optUnlockUpgrades = options.unlockUpgrades.value;
+	//optUnlockUpgrades = options.unlockUpgrades.value;
 	optInfiniteRU = options.infiniteRU.value;
 	optSkipIntro = options.skipIntro.value;
 	optMainMenuMusic = options.mainMenuMusic.value;
@@ -604,9 +613,11 @@ main (int argc, char *argv[])
 	optInfiniteFuel = options.infiniteFuel.value;
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;
-	optAddDevices = options.addDevices.value;
+	optInfiniteCredits = options.infiniteCredits.value;
 	optCustomBorder = options.customBorder.value;
+	optSeedType = options.seedType.value;
 	optCustomSeed = options.customSeed.value;
+	optSphereColors = options.sphereColors.value;
 	optRequiresReload = FALSE;
 	optRequiresRestart = FALSE;
 	optSpaceMusic = options.spaceMusic.value;
@@ -648,6 +659,9 @@ main (int argc, char *argv[])
 	optMeleeToolTips = options.meleeToolTips.value;
 	optMusicResume = options.musicResume.value;
 	optWindowType = options.windowType.value;
+	optScatterElements = options.scatterElements.value;
+	optShowUpgrades = options.showUpgrades.value;
+	optFleetPointSys = options.fleetPointSys.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1023,7 +1037,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->bubbleWarp, "cheat.bubbleWarp");
 	getBoolConfigValue (&options->unlockShips, "cheat.unlockShips");
 	getBoolConfigValue (&options->headStart, "cheat.headStart");
-	getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
+	//getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
 	getBoolConfigValue (&options->infiniteRU, "cheat.infiniteRU");
 	getBoolConfigValue (&options->skipIntro, "mm.skipIntro");
 	getBoolConfigValue (&options->mainMenuMusic, "mm.mainMenuMusic");
@@ -1039,15 +1053,26 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->infiniteFuel, "cheat.infiniteFuel");
 	getBoolConfigValue (&options->partialPickup, "mm.partialPickup");
 	getBoolConfigValue (&options->submenu, "mm.submenu");
-	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
+	getBoolConfigValue (&options->infiniteCredits, "cheat.infiniteCredits");
 	getBoolConfigValue (&options->customBorder, "mm.customBorder");
+	if (res_IsInteger ("mm.seedType") && !options->seedType.set)
+	{
+		options->seedType.value = res_GetInteger ("mm.seedType");
+	}
 	if (res_IsInteger ("mm.customSeed") && !options->customSeed.set)
 	{
 		options->customSeed.value = res_GetInteger ("mm.customSeed");
 		if (!SANE_SEED (options->customSeed.value))
 			options->customSeed.value = PrimeA;
 	}
-	getBoolConfigValue (&options->spaceMusic, "mm.spaceMusic");
+	if (res_IsInteger ("mm.sphereColors") && !options->sphereColors.set)
+	{
+		options->sphereColors.value = res_GetInteger ("mm.sphereColors");
+	}
+	if (res_IsInteger ("mm.spaceMusic") && !options->spaceMusic.set)
+	{
+		options->spaceMusic.value = res_GetInteger ("mm.spaceMusic");
+	}
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
@@ -1072,7 +1097,12 @@ getUserConfigOptions (struct options_struct *options)
 		options->optFuelRange.value = res_GetInteger ("mm.fuelRange");
 	}
 	getBoolConfigValue (&options->extended, "mm.extended");
-	getBoolConfigValue (&options->nomad, "mm.nomad");
+	if (res_IsInteger ("mm.nomad") && !options->nomad.set)
+	{
+		options->nomad.value = res_GetInteger ("mm.nomad");
+		if (options->nomad.value > 2)
+			options->nomad.value = 0;
+	}
 	getBoolConfigValue (&options->gameOver, "mm.gameOver");
 	getBoolConfigValue (&options->shipDirectionIP, "mm.shipDirectionIP");
 	getBoolConfigValue (&options->hazardColors, "mm.hazardColors");
@@ -1135,18 +1165,34 @@ getUserConfigOptions (struct options_struct *options)
 	if (res_IsInteger ("mm.nebulaevol") && !options->nebulaevol.set)
 	{
 		options->nebulaevol.value = res_GetInteger ("mm.nebulaevol");
+		if (options->nebulaevol.value > 50)
+			options->nebulaevol.value = 11;
 	}
 
 	getBoolConfigValue (&options->slaughterMode, "mm.slaughterMode");
 	getBoolConfigValue (&options->advancedAutoPilot,
 			"mm.advancedAutoPilot");
 	getBoolConfigValue (&options->meleeToolTips, "mm.meleeToolTips");
-	getBoolConfigValue (&options->musicResume, "mm.musicResume");
+
+	if (res_IsInteger ("mm.musicResume") && !options->musicResume.set)
+	{
+		options->musicResume.value = res_GetInteger ("mm.musicResume");
+	}
 
 	if (res_IsInteger ("mm.windowType") && !options->windowType.set)
 	{
 		options->windowType.value = res_GetInteger ("mm.windowType");
 	}
+
+	getBoolConfigValue (&options->scatterElements, "mm.scatterElements");
+
+	getBoolConfigValue (&options->showUpgrades, "mm.showUpgrades");
+
+	getBoolConfigValue (&options->fleetPointSys, "mm.fleetPointSys");
+
+	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
+
+	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1204,9 +1250,11 @@ enum
 	INFFUEL_OPT,
 	PICKUP_OPT,
 	SUBMENU_OPT,
-	DEVICES_OPT,
+	INFCRED_OPT,
 	CUSTBORD_OPT,
+	SEEDTYPE_OPT,
 	EXSEED_OPT,
+	SPHERECOLORS_OPT,
 	SPACEMUSIC_OPT,
 	WHOLEFUEL_OPT,
 	DIRJOY_OPT,
@@ -1243,9 +1291,13 @@ enum
 	MELEETIPS_OPT,
 	MUSICRESUME_OPT,
 	WINDTYPE_OPT,
+	SCATTERELEMS_OPT,
+	SHOWUPG_OPT,
+	FLTPTSYS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
+	CLAPAK_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1255,7 +1307,7 @@ enum
 #endif
 };
 
-static const char *optString = "+r:foc:b:spC:n:?hM:S:T:q:ug:l:i:vwxk";
+static const char *optString = "+r:f:oc:b:spC:n:?hM:S:T:q:ug:l:i:vwxk";
 static struct option longOptions[] = 
 {
 	{"res", 1, NULL, 'r'},
@@ -1311,10 +1363,12 @@ static struct option longOptions[] =
 	{"infinitefuel", 0, NULL, INFFUEL_OPT},
 	{"partialpickup", 0, NULL, PICKUP_OPT},
 	{"submenu", 0, NULL, SUBMENU_OPT},
-	{"adddevices", 0, NULL, DEVICES_OPT},
+	{"infinitecredits", 0, NULL, INFCRED_OPT},
 	{"customborder", 0, NULL, CUSTBORD_OPT},
+	{"seedtype", 0, NULL, SEEDTYPE_OPT},
 	{"customseed", 1, NULL, EXSEED_OPT},
-	{"spacemusic", 0, NULL, SPACEMUSIC_OPT},
+	{"spherecolors", 0, NULL, SPHERECOLORS_OPT},
+	{"spacemusic", 1, NULL, SPACEMUSIC_OPT},
 	{"wholefuel", 0, NULL, WHOLEFUEL_OPT},
 	{"dirjoystick", 0, NULL, DIRJOY_OPT},
 	{"landerhold", 0, NULL, LANDHOLD_OPT},
@@ -1324,7 +1378,7 @@ static struct option longOptions[] =
 	{"difficulty", 1, NULL, DIFFICULTY_OPT},
 	{"fuelrange", 1, NULL, FUELRANGE_OPT},
 	{"extended", 0, NULL, EXTENDED_OPT},
-	{"nomad", 0, NULL, NOMAD_OPT},
+	{"nomad", 1, NULL, NOMAD_OPT},
 	{"gameover", 0, NULL, GAMEOVER_OPT},
 	{"shipdirectionip", 0, NULL, SHIPDIRIP_OPT},
 	{"hazardcolors", 0, NULL, HAZCOLORS_OPT},
@@ -1350,8 +1404,12 @@ static struct option longOptions[] =
 	{"slaughtermode", 0, NULL, SLAUGHTER_OPT},
 	{"advancedautopilot", 0, NULL, SISADVAP_OPT},
 	{"meleetooltips", 0, NULL, MELEETIPS_OPT},
-	{"musicresume", 0, NULL, MUSICRESUME_OPT},
+	{"musicresume", 1, NULL, MUSICRESUME_OPT},
 	{"windowtype", 1, NULL, WINDTYPE_OPT},
+	{"noclassic", 0, NULL, CLAPAK_OPT},
+	{"scatterelements", 0, NULL, SCATTERELEMS_OPT},
+	{"showupgrades", 0, NULL, SHOWUPG_OPT},
+	{"fleetpointsys", 0, NULL, FLTPTSYS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1654,7 +1712,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case ADDON_OPT:
 				options->numAddons++;
 				options->addons = HRealloc ((void *)options->addons,
-					(options->numAddons + 1) * sizeof (const char *));
+						(options->numAddons + 1) * sizeof (const char *));
 				options->addons[options->numAddons - 1] = optarg;
 				options->addons[options->numAddons] = NULL;
 				break;
@@ -1736,7 +1794,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->headStart, true);
 				break;
 			case UPGRADES_OPT:
-				setBoolOption (&options->unlockUpgrades, true);
+				//setBoolOption (&options->unlockUpgrades, true);
 				break;
 			case INFINITERU_OPT:
 				setBoolOption (&options->infiniteRU, true);
@@ -1785,12 +1843,32 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SUBMENU_OPT:
 				setBoolOption (&options->submenu, true);
 				break;
-			case DEVICES_OPT:
-				setBoolOption (&options->addDevices, true);
+			case INFCRED_OPT:
+				setBoolOption (&options->infiniteCredits, true);
 				break;
 			case CUSTBORD_OPT:
 				setBoolOption (&options->customBorder, true);
 				break;
+			case SEEDTYPE_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Seed Type") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 3)
+				{
+					saveError ("\nSeed Type has to be 0, 1, 2, or 3.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->seedType.value = temp;
+					options->seedType.set = true;
+				}
+				break;
+			}
 			case EXSEED_OPT:
 			{
 				int temp;
@@ -1812,9 +1890,48 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
-			case SPACEMUSIC_OPT:
-				setBoolOption (&options->spaceMusic, true);
+			case SPHERECOLORS_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Sphere Colors") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 1)
+				{
+					saveError ("\nSphere Colors has to 0 or 1.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->sphereColors.value = temp;
+					options->sphereColors.set = true;
+				}
 				break;
+			}
+			case SPACEMUSIC_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp,
+						"Ambient Space Music") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nAmbient Space Music has to be "
+							"0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->spaceMusic.value = temp;
+					options->spaceMusic.set = true;
+				}
+				break;
+			}
 			case WHOLEFUEL_OPT:
 				setBoolOption (&options->wholeFuel, true);
 				break;
@@ -1880,8 +1997,27 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->extended, true);
 				break;
 			case NOMAD_OPT:
-				setBoolOption (&options->nomad, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp,
+					"Nomad Mode type") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nNomad Mode has to be "
+						"0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->nomad.value = temp;
+					options->nomad.set = true;
+				}
 				break;
+			}
 			case GAMEOVER_OPT:
 				setBoolOption (&options->gameOver, true);
 				break;
@@ -2047,8 +2183,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->meleeToolTips, true);
 				break;
 			case MUSICRESUME_OPT:
-				setBoolOption (&options->musicResume, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Music Resume") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nMusic Resume has to be between 0-2\n");
+					badArg = true;
+				}
+				else
+				{
+					options->musicResume.value = temp;
+					options->musicResume.set = true;
+				}
 				break;
+			}
 			case WINDTYPE_OPT:
 			{
 				int temp;
@@ -2069,6 +2222,15 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
+			case SCATTERELEMS_OPT:
+				setBoolOption (&options->scatterElements, true);
+				break;
+			case SHOWUPG_OPT:
+				setBoolOption (&options->showUpgrades, true);
+				break;
+			case FLTPTSYS_OPT:
+				setBoolOption (&options->fleetPointSys, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2095,6 +2257,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
+			case CLAPAK_OPT:
+				optNoClassic = TRUE;
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -2172,7 +2337,7 @@ parseIntOption (const char *str, int *result, const char *optName)
 	char *endPtr;
 	int temp;
 
-	if (str[0] == '\0')
+	if (str == NULL || str[0] == '\0')
 	{
 		saveError ("Error: Invalid value for '%s'.", optName);
 		return -1;
@@ -2333,9 +2498,9 @@ usage (FILE *out, const struct options_struct *defaults)
 			boolOptString (&defaults->submenu));
 	log_add (log_User, "  --dateformat : 0: MMM DD.YYYY | 1: MM.DD.YYYY | "
 			"2: DD MMM.YYYY | 3: DD.MM.YYYY (default: 0)");
-	log_add (log_User, "  --adddevices : Gives you all available "
-			"devices (default: %s)",
-			boolOptString (&defaults->addDevices));
+	log_add (log_User, "  --infinitecredits: Gives you infinite Melnorme"
+			"Credits  (default: %s)",
+			boolOptString (&defaults->infiniteCredits));
 	log_add (log_User, "  --melee : Takes you straight to Super Melee"
 			"after the splash screen.");
 	log_add (log_User, "  --loadgame : Takes you straight to the Load"
@@ -2343,12 +2508,17 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --customborder : Enables the custom border"
 			"frame. (default: %s)",
 			boolOptString (&defaults->customBorder));
+	log_add (log_User, "  --seedtype: 0: Default seed | 1: Seed planets "
+			"| 2: Seed Melnorme/Rainbow/Quasispace "
+			"| 3: Seed Starmap (default: 0)");
 	log_add (log_User, "  --customseed=# : Allows you to customize the "
 			"internal seed used to generate the solar systems in-game."
 			" (default: 16807)");
-	log_add (log_User, "  --spacemusic : Enables localized music for races"
-			" when you are in their sphere of influence (default: %s)",
-			boolOptString (&defaults->spaceMusic));
+	log_add (log_User, "  --spherecolors: 0: Default colors "
+			"| 1: StarSeed colors (default: 0)");
+	log_add (log_User, "  --spacemusic #: Enables localized music for "
+			"aliens when you are in their sphere of influence\n"
+			"0: Default (OFF) | 1: No Spoilers | 2: Spoilers");
 	log_add (log_User, "  --wholefuel : Enables the display of the whole "
 			"fuel value in the ship status (default: %s)",
 			boolOptString (&defaults->wholeFuel));
@@ -2370,8 +2540,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --extended : Enables Extended Edition"
 			"features (default: %s)",
 			boolOptString (&defaults->extended));
-	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) "
-			"(default: %s)", boolOptString (&defaults->nomad));
+	log_add (log_User, "  --nomad : Enables 'Nomad Mode' (No Starbase) : "
+			"0: Off | 1: Easy | 2: Normal (default: 0)");
 	log_add (log_User, "  --gameover : Enables Game Over cutscenes "
 			"(default: %s)", boolOptString (&defaults->gameOver));
 	log_add (log_User, "  --shipdirectionip : Enable NPC ships in IP"
@@ -2438,7 +2608,7 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --spheretype : Choose between PC, 3DO, or UQM"
 			" scan sphere styles (default: %s)",
 			choiceOptString (&defaults->sphereType));
-	log_add (log_User, "--nebulaevol=VOLUME (0-100, default 24)");
+	log_add (log_User, "--nebulaevol=VOLUME (0-50, default 11)");
 	log_add (log_User, "--slaughtermode : Affect a race's SOI by "
 			"destroying their ships in battle (default: %s)",
 			boolOptString (&defaults->slaughterMode));
@@ -2451,10 +2621,20 @@ usage (FILE *out, const struct options_struct *defaults)
 			"when picking a ship for your fleet (default: %s)",
 			boolOptString (&defaults->meleeToolTips));
 	log_add (log_User, "  --musicresume : Resumes the music"
-			"in UQM where it last left off (default: %s)",
-			boolOptString (&defaults->musicResume));
+			"in UQM where it last left off : 0: Off | 1: 5 Minutes | "
+			"2: Indefinite (default: 0)");
 	log_add (log_User, "  --windowtype : Choose between DOS, 3DO or "
-			"UQM window types (default: UQM)");
+			"UQM window types : 0: DOS | 1: 3DO | 2: UQM (default: 0)");
+	log_add (log_User, "  --scatterelements : Scatter a percentage of the"
+			"elements in the lander's cargo hold onto the planet's surface"
+			" when the lander explodes (default: %s)",
+			boolOptString (&defaults->scatterElements));
+	log_add (log_User, "  --showupgrades : Show lander upgrade graphics "
+			"when exploring planets (default: %s)",
+			boolOptString (&defaults->showUpgrades));
+	log_add (log_User, "  --fleetpointsys : Restrict the amount of ships "
+			"that can be purchased via their melee points (default: %s)",
+			boolOptString (&defaults->fleetPointSys));
 
 	log_setOutput (old);
 }

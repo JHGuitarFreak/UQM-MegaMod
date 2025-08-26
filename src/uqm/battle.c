@@ -73,7 +73,8 @@ RunAwayAllowed (void)
 {
 	return ((LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
 			|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
-			&& (NOMAD || GET_GAME_STATE (STARBASE_AVAILABLE))
+			&& (NOMAD_DIF (OPTVAL_NOM_EASY)
+				|| GET_GAME_STATE (STARBASE_AVAILABLE))
 			&& (DIF_EASY || !GET_GAME_STATE (BOMB_CARRIER)));
 }
 
@@ -282,16 +283,7 @@ BattleSong (BOOLEAN DoPlay)
 
 	if (DoPlay)
 	{
-		SetMusicVolume (MUTE_VOLUME);
-		PlayMusic (BattleRef, TRUE, 1);
-
-		if (OkayToResume ())
-		{
-			SeekMusic (GetMusicPosition ());
-			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-		}
-		else
-			SetMusicVolume (NORMAL_VOLUME);
+		PlayMusicResume (BattleRef, NORMAL_VOLUME);
 	}
 }
 

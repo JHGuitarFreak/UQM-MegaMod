@@ -55,6 +55,8 @@ BuildBuildPickFrame (void)
 	for (i = 0; i < NUM_PICK_COLS * NUM_PICK_ROWS; ++i)
 		DrawPickIcon (i, true);
 
+	DrawShipPickerText (s);
+
 	SetContext (OldContext);
 }
 

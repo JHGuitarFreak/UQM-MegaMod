@@ -55,7 +55,8 @@ enum
 	LOAD_SAVED_GAME,
 	PLAY_SUPER_MELEE,
 	SETUP_GAME,
-	QUIT_GAME
+	QUIT_GAME,
+	NUM_MENU_ELEMENTS
 };
 
 enum
@@ -64,12 +65,6 @@ enum
 	ORIGINAL_DIFF,
 	HARD_DIFF
 };
-
-static BOOLEAN
-PacksInstalled (void)
-{
-	return (!IS_HD) | (IS_HD & HDPackPresent);
-}
 
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
@@ -123,10 +118,10 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 
 	SetContextFont (TinyFont);
 
-	GetFrameRect (SetRelFrameIndex (pMS->CurFrame, 6), &r);
+	GetFrameRect (SetRelFrameIndex (pMS->CurFrame, 2), &r);
 	r.corner.y += CHOOSER_Y + r.extent.height + RES_SCALE (1);
 
-	s.frame = SetRelFrameIndex (pMS->CurFrame, 7);
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 3);
 	r.extent = GetFrameBounds (s.frame);
 	r.corner.x = RES_SCALE (
 		(RES_DESCALE (ScreenWidth) - RES_DESCALE (r.extent.width)) >> 1);
@@ -163,7 +158,7 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	COUNT i;
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
-	s.frame = SetRelFrameIndex (pMS->CurFrame, 6);
+	s.frame = SetRelFrameIndex (pMS->CurFrame, 2);
 	DrawStamp (&s);
 
 	DrawToolTips (pMS, answer);
@@ -276,8 +271,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			LastInputTime = GetTimeCounter ();
 
 		}
-		else if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& PacksInstalled ())
+		else if (GetTimeCounter () - LastInputTime > InactTimeOut)
 		{	// timed out
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			done = TRUE;
@@ -302,6 +296,52 @@ DoDiffChooser (MENU_STATE *pMS)
 	return response;
 }
 
+#define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
+#define MAIN_TEXT_Y (RES_SCALE (42) - DOS_NUM_SCL (20))
+
+FRAME TextCache[5];
+
+static void
+InitPulseText (void)
+{
+	FRAME frame, OldFrame;
+	SIZE leading;
+	TEXT t;
+	COUNT i;
+
+	if (TextCache[0] != NULL)
+		return;
+
+	SetContextFont (SlabFont);
+	SetContextBackGroundColor (BLACK_COLOR);
+	SetContextForeGroundColor (WHITE_COLOR);
+	GetContextFontLeading (&leading);
+
+	t.baseline.x = MAIN_TEXT_X;
+	t.baseline.y = MAIN_TEXT_Y;
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+
+	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
+	{
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
+
+		frame = CaptureDrawable (CreateDrawable (WANT_PIXMAP, SCREEN_WIDTH,
+			SCREEN_HEIGHT, 1));
+		SetFrameTransparentColor (frame, BLACK_COLOR);
+		OldFrame = SetContextFGFrame (frame);
+		ClearDrawable ();
+		SetContextFGFrame (OldFrame);
+
+		OldFrame = SetContextFGFrame (frame);
+		font_DrawText (&t);
+		SetContextFGFrame (OldFrame);
+
+		TextCache[i] = frame;
+
+		t.baseline.y += leading;
+	}
+}
 
 // Draw the full restart menu. Nothing is done with selections.
 static void
@@ -311,6 +351,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	STAMP s;
 	TEXT t;
 	UNICODE buf[64];
+	COUNT i;
+	SIZE leading;
 
 	s.frame = pMS->CurFrame;
 	GetFrameRect (s.frame, &r);
@@ -319,32 +361,53 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	
 	SetContextBackGroundColor (BLACK_COLOR);
 	BatchGraphics ();
+
 	ClearDrawable ();
 	FlushColorXForms ();
 	DrawStamp (&s);
 
+	s.frame = IncFrameIndex (pMS->CurFrame);
+	DrawStamp (&s);
+
+	SetContextFont (SlabFont);
+
+	GetContextFontLeading (&leading);
+
+	t.baseline.x = MAIN_TEXT_X;
+	t.baseline.y = MAIN_TEXT_Y;
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+
+	SetContextForeGroundColor (MAIN_MENU_TEXT_COLOR);
+
+	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
+	{
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
+		font_DrawText (&t);
+		t.baseline.y += leading;
+	}
+
 	// Put the version number in the bottom right corner.
 	SetContextFont (TinyFont);
+	SetContextForeGroundColor (WHITE_COLOR);
+	snprintf (buf, sizeof (buf), "v%d.%d.%d %s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
 	t.pStr = buf;
 	t.baseline.x = SCREEN_WIDTH - RES_SCALE (2);
 	t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 	t.align = ALIGN_RIGHT;
-	t.CharCount = (COUNT)~0;
-	sprintf (buf, "v%d.%d.%d %s",
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
-	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 
 	// Put the main menu music credit in the bottom left corner.
 	if (optMainMenuMusic)
 	{
-		memset (&buf[0], 0, sizeof (buf));
+		snprintf (buf, sizeof (buf), "%s %s",
+				GAME_STRING (MAINMENU_STRING_BASE + 61),
+				GAME_STRING (MAINMENU_STRING_BASE + 62 + Rando));
 		t.baseline.x = RES_SCALE (2);
 		t.baseline.y = SCREEN_HEIGHT - RES_SCALE (2);
 		t.align = ALIGN_LEFT;
-		sprintf (buf, "%s %s", GAME_STRING (MAINMENU_STRING_BASE + 61),
-				GAME_STRING (MAINMENU_STRING_BASE + 62 + Rando));
 		font_DrawText (&t);
 	}
 
@@ -357,36 +420,26 @@ DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 	POINT origin;
 	origin.x = 0;
 	origin.y = 0;
-	Flash_setOverlay (pMS->flashContext, &origin, SetAbsFrameIndex (f, NewState + 1), FALSE);
+	Flash_setOverlay (pMS->flashContext, &origin, TextCache[NewState], FALSE);
+
+	(void)f; // Silence compiler warnings
 }
 
 static BOOLEAN
-RestartMessage (MENU_STATE *pMS, TimeCount TimeIn)
-{	
-	if (!PacksInstalled ())
-	{
-		Flash_pause (pMS->flashContext);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35 + RESOLUTION_FACTOR));
-		// Could not find graphics pack - message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
-		SetTransitionSource (NULL);
-		Flash_continue (pMS->flashContext);
-		SleepThreadUntil (TimeIn + ONE_SECOND / 30);
-		return TRUE;
-	}
-	else if (optRequiresRestart)
-	{
-		SetFlashRect (NULL, FALSE);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
-		// Got to restart -message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
-		SetTransitionSource (NULL);
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
-		GLOBAL (CurrentActivity) = CHECK_ABORT;
-		restartGame = TRUE;
-		return TRUE;
-	}
-	return FALSE;
+RestartMessage (void)
+{
+	if (!optRequiresRestart)
+		return FALSE;
+
+	SetFlashRect (NULL, FALSE);
+	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 35));
+	// Got to restart -message
+	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
+	SetTransitionSource (NULL);
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	GLOBAL (CurrentActivity) = CHECK_ABORT;
+	restartGame = TRUE;
+	return TRUE;
 }
 
 static BOOLEAN
@@ -400,22 +453,20 @@ DoRestart (MENU_STATE *pMS)
 	GamePaused = FALSE;
 
 	if (optWindowType < 2)
-	{
-		optMeleeToolTips = FALSE;
-	}
+		optMeleeToolTips = (OPT_ENABLABLE)FALSE;
 	
-	if (optSuperMelee && !optLoadGame && PacksInstalled ())
+	if (optSuperMelee && !optLoadGame)
 	{
 		pMS->CurState = PLAY_SUPER_MELEE;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
-	else if (optLoadGame && !optSuperMelee && PacksInstalled ())
+	else if (optLoadGame && !optSuperMelee)
 	{
 		pMS->CurState = LOAD_SAVED_GAME;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
 
-	if (pMS->Initialized)
+	if (pMS->Initialized && !(GLOBAL (CurrentActivity) & CHECK_ABORT))
 		Flash_process (pMS->flashContext);
 
 	if (!pMS->Initialized)
@@ -423,8 +474,9 @@ DoRestart (MENU_STATE *pMS)
 		pMS->hMusic = 0;
 
 		InitMenuMusic ();
+		InitPulseText ();
 		ResetMusicResume ();
-		
+
 		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
 		pMS->flashContext = Flash_createOverlay (ScreenContext,
@@ -437,7 +489,7 @@ DoRestart (MENU_STATE *pMS)
 				(3 * ONE_SECOND) / 16);
 		Flash_setPulseBox (pMS->flashContext, FALSE);
 
-		DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
+		DrawRestartMenu (pMS, pMS->CurState, NULL);
 		Flash_start (pMS->flashContext);
 
 		LastInputTime = GetTimeCounter ();
@@ -447,14 +499,12 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
+		SleepThreadUntil (
+				FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
-	{// Kruzen: soon to be unused since we can't get here if we not having the content in the first place
-		if (RestartMessage(pMS, TimeIn) &&
-				pMS->CurState <= PLAY_SUPER_MELEE)
-			return TRUE;
-
+	{
 		switch (pMS->CurState)
 		{
 			case START_NEW_GAME:
@@ -505,19 +555,26 @@ DoRestart (MENU_STATE *pMS)
 				Flash_pause (pMS->flashContext);
 				Flash_setState (pMS->flashContext, FlashState_fadeIn,
 						(3 * ONE_SECOND) / 16);
+
 				SetupMenu ();
+
 				if (optRequiresReload)
 					return FALSE;
 
 				LastInputTime = GetTimeCounter ();
+				InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
 				ScreenTransition (3, NULL);
-				DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
+				Flash_UpdateOriginal (pMS->flashContext);
+				DrawRestartMenu (pMS, pMS->CurState, NULL);
 				Flash_continue (pMS->flashContext);
 				UnbatchGraphics ();
+
+				RestartMessage ();
+
 				return TRUE;
 			case QUIT_GAME:
 				SleepThreadUntil (
@@ -553,7 +610,7 @@ DoRestart (MENU_STATE *pMS)
 		if (NewState != pMS->CurState)
 		{
 			BatchGraphics ();
-			DrawRestartMenu (pMS, NewState, pMS->CurFrame);
+			DrawRestartMenu (pMS, NewState, NULL);
 			UnbatchGraphics ();
 			pMS->CurState = NewState;
 		}
@@ -565,29 +622,26 @@ DoRestart (MENU_STATE *pMS)
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
-	else if (MouseButtonDown)
-	{
-		Flash_pause (pMS->flashContext);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
-				// Mouse not supported message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
-		SetTransitionSource (NULL);
-		BatchGraphics ();
-		DrawRestartMenuGraphic (pMS);
-		DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame);
-		ScreenTransition (3, NULL);
-		UnbatchGraphics ();
-		Flash_continue (pMS->flashContext);
+	//else if (MouseButtonDown)
+	//{
+	//	Flash_pause (pMS->flashContext);
+	//	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
+	//			// Mouse not supported message
+	//	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
 
-		LastInputTime = GetTimeCounter ();
-	}
+	//	SetTransitionSource (NULL);
+	//	BatchGraphics ();
+	//	DrawRestartMenuGraphic (pMS);
+	//	ScreenTransition (3, NULL);
+	//	DrawRestartMenu (pMS, pMS->CurState, NULL);
+	//	Flash_continue (pMS->flashContext);
+	//	UnbatchGraphics ();
+
+	//	LastInputTime = GetTimeCounter ();
+	//}
 	else
 	{	// No input received, check if timed out
-		// JMS: After changing resolution mode, prevent displaying credits
-		// (until the next time the game is restarted). This is to prevent
-		// showing the credits with the wrong resolution mode's font&background.
-		if (GetTimeCounter () - LastInputTime > InactTimeOut
-			&& !optRequiresRestart && PacksInstalled ())
+		if (GetTimeCounter () - LastInputTime > InactTimeOut)
 		{
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			return FALSE;
@@ -603,6 +657,7 @@ static BOOLEAN
 RestartMenu (MENU_STATE *pMS)
 {
 	TimeCount TimeOut;
+	COUNT i;
 
 	ReinitQueue (&race_q[0]);
 	ReinitQueue (&race_q[1]);
@@ -619,8 +674,7 @@ RestartMenu (MENU_STATE *pMS)
 
 		SleepThreadUntil (FadeScreen (FadeAllToWhite, ONE_SECOND / 8)
 				+ ONE_SECOND / 60);
-		SetContextBackGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), 0x0F));
+		SetContextBackGroundColor (WHITE_COLOR);
 
 		ClearDrawable ();
 		FlushColorXForms ();
@@ -696,6 +750,12 @@ RestartMenu (MENU_STATE *pMS)
 	pMS->flashContext = 0;
 	DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 	pMS->CurFrame = 0;
+
+	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
+	{
+		DestroyDrawable (ReleaseDrawable (TextCache[i]));
+		TextCache[i] = 0;
+	}
 
 	if (optRequiresReload)
 		Reload ();
@@ -783,19 +843,43 @@ StartGame (void)
 		}
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);
-
+	// Be sure to load the seed type from the settings into the state.
+	SET_GAME_STATE (SEED_TYPE, optSeedType);
+	// Make sure to reset the seed if prime game is called for.
+	if (PrimeSeed)
+		optCustomSeed = PrimeA;
+#ifdef DEBUG_STARSEED
+	fprintf(stderr, "StartGame called for %d mode with seed %d.\n",
+			optSeedType, optCustomSeed);
+#endif
 	{
 		extern STAR_DESC starmap_array[];
 		extern const BYTE element_array[];
 		extern const PlanetFrame planet_array[];
 		extern POINT constell_array[];
 
-		star_array = starmap_array;
+		// We no longer make a global pointer to the static starmap,
+		// we make our own global copy in static memory so it behaves
+		// the same throughout the code but can be reset as needed.
+		//
+		// As a reminder, the array has three extra entries beyond
+		// NUM_SOLAR_SYSTEMS and NUM_HYPER_VORTICES due to Arilou
+		// Quasispace home and the two endpoint dummy systems used by
+		// FindStar as a boundary.
+		//
+		// While the starseed init code should always force a
+		// reset of the starmap_array, we will do it here because
+		// paranoia is its own reward.
+		COUNT i;
+#ifdef DEBUG_STARSEED
+		fprintf(stderr, "Initializing star_array, just in case...\n");
+#endif
+		for (i = 0; i < NUM_SOLAR_SYSTEMS + 1 + NUM_HYPER_VORTICES + 1 + 1; i++)
+			star_array[i] = starmap_array[i];
 		Elements = element_array;
 		PlanData = planet_array;
 		constel_array = constell_array;
 	}
-
 	PlayerControl[0] = HUMAN_CONTROL | STANDARD_RATING;
 	PlayerControl[1] = COMPUTER_CONTROL | AWESOME_RATING;
 

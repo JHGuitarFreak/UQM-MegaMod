@@ -33,7 +33,7 @@ typedef sint16            SWORD;
 typedef uint32            DWORD;
 typedef sint32           SDWORD;
 typedef uint64            QWORD;
-typedef sint64            FWORD;
+typedef sint64           SQWORD;
 
 typedef UWORD             COUNT;
 typedef SWORD              SIZE;

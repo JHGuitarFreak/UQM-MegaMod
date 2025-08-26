@@ -802,6 +802,77 @@ typedef enum
 		{672,2930},	 /* MMRNMHRM_SHIP */ \
 		{0,0},		 /* YEHAT_REBEL_SHIP */
 
+typedef enum
+{
+	CHMMR_HOME,
+	ORZ_HOME,
+	PKUNK_HOME,
+	SHOFIXTI_HOME,
+	SPATHI_HOME,
+	SUPOX_HOME,
+	THRADDASH_HOME,
+	UTWIG_HOME,
+	VUX_HOME,
+	YEHAT_HOME,
+	DRUUGE_HOME,
+	ILWRATH_HOME,
+	MYCON_HOME,
+	SLYLANDRO_HOME,
+	UMGAH_HOME,
+	ZOQFOTPIK_HOME,
+
+	SYREEN_HOME,
+	ANDROSYNTH_HOME,
+	NUM_AVAILABLE_HOMES
+} HOME_ID;
+
+static inline HOME_ID
+SpeciesToHomeID (SPECIES_ID species_id)
+{
+	switch (species_id)
+	{
+		case CHMMR_ID:
+			return CHMMR_HOME;
+		case ORZ_ID:
+			return ORZ_HOME;
+		case PKUNK_ID:
+			return PKUNK_HOME;
+		case SHOFIXTI_ID:
+			return SHOFIXTI_HOME;
+		case SPATHI_ID:
+			return SPATHI_HOME;
+		case SUPOX_ID:
+			return SUPOX_HOME;
+		case THRADDASH_ID:
+			return THRADDASH_HOME;
+		case UTWIG_ID:
+			return UTWIG_HOME;
+		case VUX_ID:
+			return VUX_HOME;
+		case YEHAT_ID:
+			return YEHAT_HOME;
+		case DRUUGE_ID:
+			return DRUUGE_HOME;
+		case ILWRATH_ID:
+			return ILWRATH_HOME;
+		case MYCON_ID:
+			return MYCON_HOME;
+		case SLYLANDRO_ID:
+			return SLYLANDRO_HOME;
+		case UMGAH_ID:
+			return UMGAH_HOME;
+		case ZOQFOTPIK_ID:
+			return ZOQFOTPIK_HOME;
+		case SYREEN_ID:
+			return SYREEN_HOME;
+		case ANDROSYNTH_ID:
+			return ANDROSYNTH_HOME;
+		default:
+			return NUM_AVAILABLE_HOMES;
+	}
+}
+
+
 #if defined(__cplusplus)
 }
 #endif

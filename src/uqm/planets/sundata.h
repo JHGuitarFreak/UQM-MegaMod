@@ -54,6 +54,8 @@ extern COUNT GenerateRandomNodes (const SYSTEM_INFO *, COUNT scan, COUNT numNode
 		COUNT type, COUNT whichNode, NODE_INFO *info);
 extern COUNT CustomMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 		NODE_INFO *info, COUNT numNodes, COUNT type, BYTE quality);
+extern COUNT CustomMineralDeposit (NODE_INFO *info, COUNT type, BYTE quality,
+		POINT location);
 // Generate lifeforms from a preset lifeTypes[] array
 extern COUNT GeneratePresetLife (const SYSTEM_INFO *,
 		const SBYTE *lifeTypes, COUNT whichLife, NODE_INFO *info);

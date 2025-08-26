@@ -76,8 +76,6 @@ static BOOLEAN TalkingFinished;
 static CommIntroMode curIntroMode = CIM_DEFAULT;
 static TimeCount fadeTime;
 
-BOOLEAN IsProbe;
-
 // Dark mode
 BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
@@ -544,7 +542,7 @@ DrawCommBorder (RECT r)
 
 	SetContextClipRect (&oldClipRect);
 
-	DrawBorder (11);
+	DrawBorder (SIS_COMM_FRAME);
 }
 
 static void
@@ -1120,9 +1118,11 @@ TalkSegue (COUNT wait_track)
 	if (runningTalkingAnim ())
 		setStopTalkingAnim ();
 
-	// Wait until the animation task stops "talking"
-	while (runningTalkingAnim ())
-		runCommAnimFrame ();
+	if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
+	{// Wait until the animation task stops "talking"
+		while (runningTalkingAnim ())
+			runCommAnimFrame ();
+	}
 
 	return talkingState.ended;
 }
@@ -1187,16 +1187,7 @@ AlienTalkSegue (COUNT wait_track)
 		
 		pCurInputState->Initialized = TRUE;
 
-		SetMusicVolume (MUTE_VOLUME);
-		PlayMusic (AlienSong, TRUE, 1);
-
-		if (OkayToResume ())
-		{
-			SeekMusic (GetMusicPosition ());
-			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
-		}
-		else
-			SetMusicVolume (BACKGROUND_VOL);
+		PlayMusicResume (AlienSong, BACKGROUND_VOL);
 
 		InitCommAnimations ();
 
@@ -1930,8 +1921,6 @@ InitCommunication (CONVERSATION which_comm)
 	COUNT status;
 	LOCDATA *LocDataPtr;
 
-	IsProbe = FALSE;
-
 #ifdef DEBUG
 	if (disableInteractivity)
 		return 0;
@@ -1968,7 +1957,7 @@ InitCommunication (CONVERSATION which_comm)
 						&& pSolarSysState->pOrbitalDesc->data_index != PRECURSOR_STARBASE))
 					{
 						snprintf ((GLOBAL_SIS (PlanetName)) + strlen (GLOBAL_SIS (PlanetName)),
-							3, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
+							4, "-%c%c", 'A' + moonIndex (pSolarSysState, pSolarSysState->pOrbitalDesc), '\0');
 					}
 				}
 
@@ -1982,7 +1971,6 @@ InitCommunication (CONVERSATION which_comm)
 	{
 		status = URQUAN_DRONE_SHIP;
 		which_comm = URQUAN_CONVERSATION;
-		IsProbe = TRUE;
 	}
 	else
 	{

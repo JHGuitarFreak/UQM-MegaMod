@@ -39,6 +39,8 @@ extern BOOLEAN InvokeSpawner (void);
 
 extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
 
+extern FONT ModuleFont;
+
 #if defined(__cplusplus)
 }
 #endif

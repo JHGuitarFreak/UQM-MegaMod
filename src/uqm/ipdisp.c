@@ -225,7 +225,10 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 		}
 		else if (group_loc == flagship_loc)
 		{
-			SWORD detect_dist = EXTENDED && CheckAlliance (GroupPtr->race_id) == GOOD_GUY ? 0 : 1200;
+			SWORD detect_dist = 1200;
+
+			if (EXTENDED && CheckAlliance (GroupPtr->race_id) == GOOD_GUY)
+				detect_dist = 0;
 
 			if (group_loc != 0) /* if in planetary views */
 			{
@@ -420,7 +423,9 @@ PartialRevolution:
 			else
 			{	// In inner system; also leaving outer CheckGetAway hack
 CheckGetAway:
-				dest_pt = displayToLocation (MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT), MAX_ZOOM_RADIUS);
+				dest_pt = displayToLocation (
+						MAKE_POINT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT),
+						MAX_ZOOM_RADIUS);
 				if (!((GroupPtr->loc.x > -dest_pt.x
 						&& GroupPtr->loc.y > -dest_pt.y)
 						&& (GroupPtr->loc.x < dest_pt.x
@@ -463,15 +468,15 @@ CheckGetAway:
 								((COUNT)TFB_Random () % MAX_REVOLUTIONS)
 								<< FACING_SHIFT;
 					}
-					// The group enters inner system exactly on the edge of a
-					// circle with radius = 9/16 * window-dim, which is
+					// The group enters inner system exactly on the edge of
+					// a circle with radius = 9/16 * window-dim, which is
 					// different from how the flagship enters, but similar
 					// in the way that the group will never show up in any
 					// of the corners.
-					entryPt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) - COSINE (angle,
-							SIS_SCREEN_WIDTH * 9 / 16);
-					entryPt.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) - SINE (angle,
-							SIS_SCREEN_HEIGHT * 9 / 16);
+					entryPt.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
+							- COSINE (angle, SIS_SCREEN_WIDTH * 9 / 16);
+					entryPt.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1)
+							- SINE (angle, SIS_SCREEN_HEIGHT * 9 / 16);
 					GroupPtr->loc = displayToLocation (entryPt,
 							MAX_ZOOM_RADIUS);
 					group_loc = target_loc;
@@ -484,32 +489,54 @@ CheckGetAway:
 		{
 			if (GroupPtr->race_id != SLYLANDRO_SHIP)
 			{	// BW : make IP ships face the direction they're going into
-				if (GLOBAL (CurrentActivity) & START_ENCOUNTER)	// sometimes they give up chase, don't turn them away from sis during red alert phase
-					suggestedFrame = SetAbsFrameIndex (EPtr->next.image.farray[0], GetFrameIndex (EPtr->current.image.frame));
+				if (GLOBAL (CurrentActivity) & START_ENCOUNTER)
+				{	// sometimes they give up chase, don't turn them away
+					// from sis during red alert phase
+					suggestedFrame =
+							SetAbsFrameIndex (EPtr->next.image.farray[0],
+								GetFrameIndex (EPtr->current.image.frame));
+				}
 				else
-					suggestedFrame = SetAbsFrameIndex (EPtr->next.image.farray[0], 2 + NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y))));
+				{
+					suggestedFrame =
+							SetAbsFrameIndex (EPtr->next.image.farray[0],
+								2 + NORMALIZE_FACING (
+									ANGLE_TO_FACING (
+										ARCTAN (delta_x, delta_y))));
+				}
 
-				// Set ship sprite when player entering the system (image index is always 1 by default)
+				// Set ship sprite when player entering the system (image
+				// index is always 1 by default)
 				if (GetFrameIndex (EPtr->current.image.frame) == 1)
 					EPtr->next.image.frame = suggestedFrame;
 
 				if (isOrbiting)
-				{	// JMS: Direction memory prevents jittering of battle group icons when they are orbiting a planet (and not chasing the player ship).
+				{	// JMS: Direction memory prevents jittering of battle
+					// group icons when they are orbiting a planet (and not
+					// chasing the player ship).
 					if (GroupPtr->canTurn)
 					{
 						EPtr->next.image.frame = suggestedFrame;
-						GroupPtr->canTurn = FALSE; // cannot turn until destination is reached
+						GroupPtr->canTurn = FALSE;
+							// cannot turn until destination is reached
 					}
 				} 
 				else
 					EPtr->next.image.frame = suggestedFrame;
 			} 
 			else
-				EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame);
+			{
+				EPtr->next.image.frame =
+						IncFrameIndex (EPtr->next.image.frame);
+			}
 
-			// If destination reached - ship can turn (or ship leaves/enters inner system, but not reached destination yet)
-			if ((dest_pt.x == GroupPtr->loc.x && dest_pt.y == GroupPtr->loc.y) || Transition)
+			// If destination reached - ship can turn (or ship
+			// leaves/enters inner system, but not reached destination yet)
+			if ((dest_pt.x == GroupPtr->loc.x
+					&& dest_pt.y == GroupPtr->loc.y) || Transition)
+			{
 				GroupPtr->canTurn = TRUE;
+			}
 		}
 	}
 	else if (task >= REFORM_GROUP && optShipDirectionIP)
@@ -517,23 +544,34 @@ CheckGetAway:
 		if (GroupPtr->race_id != SLYLANDRO_SHIP)
 		{
 			if (GetFrameIndex (EPtr->current.image.frame) == 1)
-			{	// Define direction only once and not follow player while reforming
+			{	// Define direction only once and not follow player while
+				// reforming
 				SIZE delta_x, delta_y;
 				POINT sis_pt;
 
-				sis_pt = displayToLocation (GLOBAL (ShipStamp.origin), radius);
+				sis_pt = displayToLocation (
+						GLOBAL (ShipStamp.origin), radius);
 
 				// Destination point is sis location
 				delta_x = sis_pt.x - GroupPtr->loc.x;
 				delta_y = sis_pt.y - GroupPtr->loc.y;
 
-				EPtr->next.image.frame = SetAbsFrameIndex (EPtr->next.image.farray[0], 2 + NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y))));
+				EPtr->next.image.frame =
+						SetAbsFrameIndex (EPtr->next.image.farray[0],
+								2 + NORMALIZE_FACING (
+									ANGLE_TO_FACING (
+										ARCTAN (delta_x, delta_y))));
 
-				GroupPtr->canTurn = TRUE; // Allow ship to turn after reforming is complete and if no more chasing player
+				GroupPtr->canTurn = TRUE;
+					// Allow ship to turn after reforming is complete and
+					// if no more chasing player
 			}
 		}
 		else
-			EPtr->next.image.frame = IncFrameIndex (EPtr->next.image.frame); // Probe will wobble while reforming
+		{	// Probe will wobble while reforming
+			EPtr->next.image.frame =
+					IncFrameIndex (EPtr->next.image.frame);
+		}
 	}
 
 	radius = zoomRadiusForLocation (group_loc);
@@ -680,9 +718,12 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 			 */
 		if (optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
 		{
-			GroupPtr->melee_icon = CaptureDrawable (LoadGraphic(SLYLANDRO_SML_MASK_PMAP_ANIM));
+			GroupPtr->melee_icon =
+					CaptureDrawable (
+						LoadGraphic (SLYLANDRO_SML_MASK_PMAP_ANIM));
 			IPSHIPElementPtr->current.image.frame = SetAbsFrameIndex (
-				GroupPtr->melee_icon, (TFB_Random () % (15 - 1) + 1)); // randomize initial sprite            
+					GroupPtr->melee_icon, (TFB_Random () % (15 - 1) + 1));
+						// randomize initial sprite
 		}
 		IPSHIPElementPtr->death_func = ip_group_preprocess;
 		IPSHIPElementPtr->collision_func = ip_group_collision;
@@ -707,9 +748,8 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 		SetElementStarShip (IPSHIPElementPtr, GroupPtr);
 
 		SetUpElement (IPSHIPElementPtr);
-		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame =
-				(IS_HD ? SetAbsFrameIndex (SpaceJunkFrame, 24) :
-					DecFrameIndex (stars_in_space));
+		IPSHIPElementPtr->IntersectControl.IntersectStamp.frame = 
+				DecFrameIndex (stars_in_space);
 		
 		UnlockElement (hIPSHIPElement);
 
@@ -816,7 +856,8 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 
 static void
 AdjustInitialPosition (void)
-{
+{// Corrects SIS position - rounding error, described in 
+ // EnterPlanetOrbit() in solarsys.c
 	BYTE flagship_loc;
 	SIZE radius;
 	POINT pt;
@@ -898,8 +939,11 @@ DoMissions (void)
 		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
 		hNextGroup = _GetSuccLink (GroupPtr);
 
-		if (GroupPtr->in_system && CheckAlliance (GroupPtr->race_id) != DEAD_GUY)
+		if (GroupPtr->in_system
+				&& CheckAlliance (GroupPtr->race_id) != DEAD_GUY)
+		{
 			spawn_ip_group (GroupPtr);
+		}
 
 		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
 	}

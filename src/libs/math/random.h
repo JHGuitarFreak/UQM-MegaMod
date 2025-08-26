@@ -30,6 +30,7 @@
 #define LIBS_MATH_RANDOM_H_
 
 #include "../../uqm/globdata.h"
+#include "uqm/setupmenu.h"
 
 /* ----------------------------GLOBALS/EXTERNS---------------------------- */
 
@@ -45,15 +46,38 @@ struct RandomContext {
 };
 #endif
 
+// The Planet Generation seeding code alters SeedA to function.
+// All other modes use proper PrimeA == SeedA == 16807
 #define PrimeA 16807
 #define MAX_SEED 2147483644
 #define MIN_SEED 3
 #define SANE_SEED(a) (((a) < MIN_SEED || (a) > MAX_SEED) ? false : true)
-#define SeedA (SANE_SEED (GLOBAL_SIS (Seed)) ? GLOBAL_SIS (Seed) : PrimeA)  // Default: 16807 - a relatively prime number - also M div Q
+#define SeedA (((optSeedType == OPTVAL_PLANET) && \
+		(SANE_SEED (GLOBAL_SIS (Seed)))) ? GLOBAL_SIS (Seed) : PrimeA)
+// Default SeedA (PrimeA): 16807 - a relatively prime number - also M div Q
 #define SeedM (UINT32_MAX / 2) // 0xFFFFFFFF div 2
 #define SeedQ (SeedM / SeedA)  // Default: 127773L - M div A
 #define SeedR (SeedM % SeedA)  // Default: 2836 - M mod A 
-#define PrimeSeed (SeedA == PrimeA ? true : false)
+#define PrimeSeed (optSeedType == OPTVAL_PRIME)
+#define StarSeed (optSeedType > OPTVAL_PLANET)
+
+static inline UNICODE *
+SeedStr (void)
+{
+	switch (optSeedType)
+	{
+		case 0:
+			return "None";
+		case 1:
+			return "Planet";
+		case 2:
+			return "MRQ";
+		case 3:
+			return "StarSeed";
+		default:
+			return "???";
+	}
+}
 
 RandomContext *RandomContext_New (void);
 RandomContext *RandomContext_Set(DWORD Context);
@@ -62,6 +86,8 @@ RandomContext *RandomContext_Copy (const RandomContext *source);
 DWORD RandomContext_Random (RandomContext *context);
 DWORD RandomContext_SeedRandom (RandomContext *context, DWORD new_seed);
 DWORD RandomContext_GetSeed (RandomContext *context);
+DWORD RandomContext_FastRandom (DWORD seed);
+int RangeMinMax (int min, int max, DWORD rand);
 
 
 #endif  /* LIBS_MATH_RANDOM_H_ */

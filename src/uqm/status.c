@@ -27,6 +27,7 @@
 		// for NUM_PLAYERS
 #include "menustat.h"
 #include "util.h"
+#include "intel.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -431,7 +432,7 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		r.corner.y = y - 4;
 		r.extent.width = CAPTAIN_WIDTH + 8;
 		r.extent.height = CAPTAIN_HEIGHT + 8;
-		DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL);
+		DrawRenderedBox (&r, TRUE, BLACK_COLOR, THIN_INNER_BEVEL, FALSE);
 	}
 
 	s.frame = RDPtr->ship_data.captain_control.background;
@@ -474,6 +475,10 @@ DeltaEnergy (ELEMENT *ElementPtr, SIZE energy_delta)
 	SHIP_INFO *ShipInfoPtr;
 
 	retval = TRUE;
+	
+	if (antiCheat (ElementPtr, FALSE, OPTVAL_INF_ENERGY)
+			|| antiCheat (ElementPtr, FALSE, OPTVAL_FULL_GOD))
+		return retval;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	ShipInfoPtr = &StarShipPtr->RaceDescPtr->ship_info;

@@ -25,6 +25,13 @@
 extern "C" {
 #endif
 
+#define SMALL_ROCKY (1 << 0)
+#define LARGE_ROCKY (1 << 1)
+#define ALL_ROCKY (1 << 2)
+#define ONLY_LARGE (1 << 3)
+#define ONLY_GAS (1 << 4)
+
+
 bool GenerateDefault_initNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_reinitNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_uninitNpcs (SOLARSYS_STATE *solarSys);
@@ -56,7 +63,15 @@ bool GenerateDefault_landerReport (SOLARSYS_STATE *);
 bool GenerateDefault_landerReportCycle (SOLARSYS_STATE *);
 extern void GeneratePlanets (SOLARSYS_STATE *system);
 extern SIZE CheckForHabitable (SOLARSYS_STATE *solarSys);
-
+extern BYTE GenerateWorlds (BYTE whichType);
+extern void GenerateGasGiantRanged (SOLARSYS_STATE *solarSys);
+extern BYTE GenerateCrystalWorld (void);
+extern BYTE GenerateDesolateWorld (void);
+extern BYTE GenerateHabitableWorld (void);
+extern BYTE GenerateGasGiantWorld (void);
+extern BYTE GenerateMinPlanets (BYTE min);
+extern BYTE GenerateNumberOfPlanets (BYTE minimum);
+extern BYTE PlanetByteGen (PLANET_DESC *pPDesc);
 
 extern const GenerateFunctions generateDefaultFunctions;
 
@@ -65,7 +80,7 @@ typedef enum {
 	PROBE_ENCOUNTER, // 4/2 probes at dreadnought wreck
 	URQUAN_ENCOUNTER, // 6 dreadnoughts at vault if the shuttle is on board
 	EGGCASE00_ENCOUNTER, // 4 mycon
-	EGGCASE01_ENCOUNTER, // 4 mycon 
+	EGGCASE01_ENCOUNTER, // 4 mycon
 	EGGCASE02_ENCOUNTER, // 4 mycon
 	THRADDASH_ENCOUNTER, // 12/6 thraddash minimum at all time
 	NO_HELP_FROM_PKUNK, // no help before final battle if pkunk are absorbed before the revolt

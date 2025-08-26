@@ -24,7 +24,8 @@ void TFB_Prim_Line (LINE *, Color, DrawMode, POINT ctxOrigin, BYTE thickness);
 void TFB_Prim_Point (POINT *, Color, DrawMode, POINT ctxOrigin, BOOLEAN scaled);
 void TFB_Prim_Rect (RECT *, Color, DrawMode, POINT ctxOrigin, BOOLEAN scaled);
 void TFB_Prim_FillRect (RECT *, Color, DrawMode, POINT ctxOrigin);
-void TFB_Prim_Stamp (STAMP *, DrawMode, POINT ctxOrigin);
-void TFB_Prim_StampFill (STAMP *, Color, DrawMode, POINT ctxOrigin);
+void TFB_Prim_Stamp (STAMP *, DrawMode, POINT ctxOrigin, BOOLEAN unscaled);
+void TFB_Prim_StampFill (STAMP *, Color, DrawMode, POINT ctxOrigin, BOOLEAN unscaled);
 void TFB_Prim_FontChar (POINT charOrigin, TFB_Char *fontChar,
 		TFB_Image *backing, DrawMode, POINT ctxOrigin);
+void TFB_Prim_MaskFrame (FRAME layer, FRAME base, DrawMode mode, Color *fill);

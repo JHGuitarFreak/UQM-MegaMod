@@ -164,7 +164,7 @@ DrawHDMeleeBorder (STARSHIP *StarShipPtr)
 	r.extent.width = STATUS_WIDTH;
 	r.extent.height = SHIP_STATUS_HEIGHT - 4;
 
-	DrawRenderedBox (&r, FALSE, NULL_COLOR, THICK_OUTER_BEVEL);
+	DrawRenderedBox (&r, FALSE, NULL_COLOR, THICK_OUTER_BEVEL, FALSE);
 }
 
 void
@@ -492,6 +492,22 @@ spawn_ship (STARSHIP *StarShipPtr)
 				//   in sis.c. See also r1614.
 				//GLOBAL (ShipFacing) = StarShipPtr->ShipFacing + 1;
 				StarShipPtr->ShipFacing = facing;
+
+				if (IS_HD)
+				{
+					COUNT i;
+					COUNT numFrames = GetFrameCount (RDPtr->ship_data.ship[0]);
+					DrawMode mode = MAKE_DRAW_MODE (DRAW_LINEARBURN, 0xFF);
+					Color c;
+
+					if (inHyperSpace ())
+						c = BUILD_COLOR_RGB (0xFF, 0x00, 0x00);
+					else
+						c = BUILD_COLOR_RGB (0x00, 0xE4, 0x00);
+
+					for (i = 0; i < numFrames; i++)
+						ApplyMask (NULL, SetAbsFrameIndex (RDPtr->ship_data.ship[0], i), mode, &c);
+				}
 			}
 			ShipElementPtr->current.image.frame =
 					SetAbsFrameIndex (RDPtr->ship_data.ship[0],

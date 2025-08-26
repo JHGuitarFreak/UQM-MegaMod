@@ -95,12 +95,13 @@ extern void SetChannelVolume (COUNT Channel, COUNT Volume, BYTE
 extern void StopSound (void);
 extern BOOLEAN SoundPlaying (void);
 
-extern SDWORD PLRGetPos (void);
+extern DWORD PLRGetPos (void);
 
 extern void WaitForSoundEnd (COUNT Channel);
 #define TFBSOUND_WAIT_ALL ((COUNT)~0)
 
 extern DWORD FadeMusic (BYTE end_vol, SIZE TimeInterval);
+extern BYTE GetCurrMusicVol (void);
 
 // For music resume option
 typedef struct music_position
@@ -127,7 +128,7 @@ print_mp_array (const MUSIC_POSITION mp_array[], const COUNT num_items)
 {
 	COUNT i;
 
-	system ("cls");
+	//system ("cls");
 	printf ("--------------------\n\n");
 	for (i = num_items; i > 0; --i)
 	{

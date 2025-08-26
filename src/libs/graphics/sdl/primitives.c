@@ -109,7 +109,7 @@ putpixel_32(SDL_Surface *surface, int x, int y, Uint32 pixel)
 }
 
 GetPixelFn
-getpixel_for(SDL_Surface *surface)
+getpixel_for (SDL_Surface *surface)
 {
 	int bpp = surface->format->BytesPerPixel;
 	switch (bpp) {
@@ -130,7 +130,7 @@ getpixel_for(SDL_Surface *surface)
 }
 
 PutPixelFn
-putpixel_for(SDL_Surface *surface)
+putpixel_for (SDL_Surface *surface)
 {
 	int bpp = surface->format->BytesPerPixel;
 	switch (bpp) {
@@ -151,15 +151,15 @@ putpixel_for(SDL_Surface *surface)
 }
 
 static void
-renderpixel_replace(SDL_Surface *surface, int x, int y, Uint32 pixel,
+renderpixel_replace (SDL_Surface *surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	(void) factor; // ignored
-	putpixel_32(surface, x, y, pixel);
+	putpixel_32 (surface, x, y, pixel);
 }
 
 static inline Uint8
-clip_channel(int c)
+clip_channel (int c)
 {
 	if (c < 0)
 		c = 0;
@@ -169,7 +169,7 @@ clip_channel(int c)
 }
 
 static inline Uint8
-modulated_sum(Uint8 dc, Uint8 sc, int factor)
+modulated_sum (Uint8 dc, Uint8 sc, int factor)
 {
 	// We use >> 8 instead of / 255 because it is faster, but it does
 	// not work 100% correctly. It should be safe because this should
@@ -179,21 +179,23 @@ modulated_sum(Uint8 dc, Uint8 sc, int factor)
 }
 
 static inline Uint8
-alpha_blend(Uint8 dc, Uint8 sc, int alpha)
+alpha_blend (Uint8 dc, Uint8 sc, int alpha)
 {
 	// We use >> 8 instead of / 255 because it is faster, but it does
 	// not work 100% correctly. It should be safe because this should
 	// not be called for alpha==255
 	// No need to clip since we should never get values outside of 0..255
 	// range, unless alpha is over 255, which is not supported.
-	return (((sc - dc) * alpha) >> 8) + dc;
+	if (alpha == 0xff)
+		return sc;
+	else
+		return (((sc - dc) * alpha) >> 8) + dc;
+		
 }
 
 static inline Uint8
-multiply_blend (Uint8 dc, Uint8 sc, int alpha)
+multiply_blend (Uint8 dc, Uint8 sc)
 {	// Kruzen: custom blend for multiply
-	(void)alpha;
-
 	return (sc * dc) >> 8;
 }
 
@@ -211,32 +213,56 @@ overlay_blend (Uint8 dc, Uint8 sc)
 }
 
 static inline Uint8
-screen_blend (Uint8 dc, Uint8 sc, int alpha)
+screen_blend (Uint8 dc, Uint8 sc)
 {	// Custom "screen" blend mode
-	(void)alpha;
-
 	return (255 - (((255 - sc) * (255 - dc)) >> 8));
 }
 
+static inline Uint8
+linburn_blend (Uint8 dc, Uint8 sc)
+{	// Custom "linear burn" blend mode
+
+	if (dc + sc < 0xff)
+		return 0;
+	else
+		return dc + sc - 0xff;
+}
+
 // Assumes 8 bits/channel, a safe assumption for 32bpp surfaces
-#define UNPACK_PIXEL_32(p, fmt, r, g, b) \
+#define UNPACK_PIXEL_RGB(p, fmt, r, g, b) \
 	do { \
 		(r) = ((p) >> (fmt)->Rshift) & 0xff; \
 		(g) = ((p) >> (fmt)->Gshift) & 0xff; \
 		(b) = ((p) >> (fmt)->Bshift) & 0xff; \
 	} while (0)
 
+#define UNPACK_PIXEL_RGBA(p, fmt, r, g, b, a) \
+	do { \
+		(r) = ((p) >> (fmt)->Rshift) & 0xff; \
+		(g) = ((p) >> (fmt)->Gshift) & 0xff; \
+		(b) = ((p) >> (fmt)->Bshift) & 0xff; \
+		(a) = ((p) >> (fmt)->Ashift) & 0xff; \
+	} while (0)
+
 // Assumes the channels already clipped to 8 bits
 static inline Uint32
-PACK_PIXEL_32(const SDL_PixelFormat *fmt,
+PACK_PIXEL_RGB (const SDL_PixelFormat *fmt,
 		Uint8 r, Uint8 g, Uint8 b)
 {
 	return ((Uint32)r << fmt->Rshift) | ((Uint32)g << fmt->Gshift)
 			| ((Uint32)b << fmt->Bshift);
 }
 
+static inline Uint32
+PACK_PIXEL_RGBA (const SDL_PixelFormat *fmt,
+		Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+	return ((Uint32)r << fmt->Rshift) | ((Uint32)g << fmt->Gshift)
+			| ((Uint32)b << fmt->Bshift) | ((Uint32)a << fmt->Ashift);
+}
+
 static void
-renderpixel_additive(SDL_Surface *surface, int x, int y, Uint32 pixel,
+renderpixel_additive (SDL_Surface *surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	const SDL_PixelFormat *fmt = surface->format;
@@ -247,30 +273,30 @@ renderpixel_additive(SDL_Surface *surface, int x, int y, Uint32 pixel,
 	
 	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
-	UNPACK_PIXEL_32(sp, fmt, sr, sg, sb);
-	UNPACK_PIXEL_32(pixel, fmt, r, g, b);
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (pixel, fmt, r, g, b);
 	
 	// TODO: We may need a special case for factor == -ADDITIVE_FACTOR_1 too,
 	// but it is not important enough right now to care ;)
 	if (factor == ADDITIVE_FACTOR_1)
 	{	// no need to modulate the 'pixel', and modulation does not
 		// work correctly with factor==255 anyway
-		sr = clip_channel(sr + r);
-		sg = clip_channel(sg + g);
-		sb = clip_channel(sb + b);
+		sr = clip_channel (sr + r);
+		sg = clip_channel (sg + g);
+		sb = clip_channel (sb + b);
 	}
 	else
 	{
-		sr = modulated_sum(sr, r, factor);
-		sg = modulated_sum(sg, g, factor);
-		sb = modulated_sum(sb, b, factor);
+		sr = modulated_sum (sr, r, factor);
+		sg = modulated_sum (sg, g, factor);
+		sb = modulated_sum (sb, b, factor);
 	}
 
-	*p = PACK_PIXEL_32(fmt, sr, sg, sb);
+	*p = PACK_PIXEL_RGB (fmt, sr, sg, sb);
 }
 
 static void
-renderpixel_alpha(SDL_Surface *surface, int x, int y, Uint32 pixel,
+renderpixel_alpha (SDL_Surface *surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	const SDL_PixelFormat *fmt = surface->format;
@@ -282,22 +308,22 @@ renderpixel_alpha(SDL_Surface *surface, int x, int y, Uint32 pixel,
 	if (factor == FULLY_OPAQUE_ALPHA)
 	{	// alpha == 255 is equivalent to 'replace' and blending does not
 		// work correctly anyway because we use >> 8 instead of / 255
-		putpixel_32(surface, x, y, pixel);
+		putpixel_32 (surface, x, y, pixel);
 		return;
 	}
 
 	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
-	UNPACK_PIXEL_32(sp, fmt, sr, sg, sb);
-	UNPACK_PIXEL_32(pixel, fmt, r, g, b);
-	sr = alpha_blend(sr, r, factor);
-	sg = alpha_blend(sg, g, factor);
-	sb = alpha_blend(sb, b, factor);
-	*p = PACK_PIXEL_32(fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (pixel, fmt, r, g, b);
+	sr = alpha_blend (sr, r, factor);
+	sg = alpha_blend (sg, g, factor);
+	sb = alpha_blend (sb, b, factor);
+	*p = PACK_PIXEL_RGB (fmt, sr, sg, sb);
 }
 
 static void
-renderpixel_multiply (SDL_Surface* surface, int x, int y, Uint32 pixel,
+renderpixel_multiply (SDL_Surface *surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
@@ -306,18 +332,40 @@ renderpixel_multiply (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
-	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	(void) factor;// Doesn't support alpha
+
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
-	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
-	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-	sr = multiply_blend (sr, r, factor);
-	sg = multiply_blend (sg, g, factor);
-	sb = multiply_blend (sb, b, factor);
-	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (pixel, fmt, r, g, b);
+	sr = multiply_blend (sr, r);
+	sg = multiply_blend (sg, g);
+	sb = multiply_blend (sb, b);
+	*p = PACK_PIXEL_RGB (fmt, sr, sg, sb);
 }
 
 static void
-renderpixel_overlay (SDL_Surface* surface, int x, int y, Uint32 pixel,
+renderpixel_overlay (SDL_Surface *surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	int r, g, b, a;
+
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGBA (pixel, fmt, r, g, b, a);
+	r = alpha_blend (sr, overlay_blend (sr, r), factor);
+	g = alpha_blend (sg, overlay_blend (sg, g), factor);
+	b = alpha_blend (sb, overlay_blend (sb, b), factor);
+	*p = PACK_PIXEL_RGB (fmt, r, g, b);
+}
+
+static void
+renderpixel_screen (SDL_Surface *surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
@@ -326,20 +374,40 @@ renderpixel_overlay (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
-	(void)factor;
+	(void) factor;// Doesn't support alpha
 
-	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
-	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
-	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-	sr = overlay_blend (sr, r);
-	sg = overlay_blend (sg, g);
-	sb = overlay_blend (sb, b);
-	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (pixel, fmt, r, g, b);
+	sr = screen_blend (sr, r);
+	sg = screen_blend (sg, g);
+	sb = screen_blend (sb, b);
+	*p = PACK_PIXEL_RGB (fmt, sr, sg, sb);
 }
 
 static void
-renderpixel_screen (SDL_Surface* surface, int x, int y, Uint32 pixel,
+renderpixel_grayscale (SDL_Surface *surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
+	Uint8 avr;
+	Uint8 sr, sg, sb;
+
+	(void) pixel;
+
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+
+	avr = overlay_blend ((((sr + sg + sb) * 341) >> 10), factor);
+	*p = PACK_PIXEL_RGB (fmt, avr, avr, avr);
+}
+
+static void
+renderpixel_linearburn (SDL_Surface* surface, int x, int y, Uint32 pixel,
 		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
@@ -348,57 +416,74 @@ renderpixel_screen (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
-	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
-	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
-	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-	sr = screen_blend (sr, r, factor);
-	sg = screen_blend (sg, g, factor);
-	sb = screen_blend (sb, b, factor);
-	*p = PACK_PIXEL_32 (fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (pixel, fmt, r, g, b);
+	r = alpha_blend (sr, linburn_blend (sr, r), factor);
+	g = alpha_blend (sg, linburn_blend (sg, g), factor);
+	b = alpha_blend (sb, linburn_blend (sb, b), factor);
+	*p = PACK_PIXEL_RGB (fmt, r, g, b);
 }
 
 static void
-renderpixel_grayscale(SDL_Surface* surface, int x, int y, Uint32 pixel,
-	int factor)
+renderpixel_desaturate (SDL_Surface *surface, int x, int y, Uint32 pixel,
+		int factor)
 {
 	const SDL_PixelFormat* fmt = surface->format;
 	Uint32* p;
 	Uint32 sp;
-	Uint8 avr, min, max;
+	Uint8 sr, sg, sb;
+	int r, g, b;
+	int luma;
+
+	(void) pixel;
+
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+
+	luma = ((3 * sr + 6 * sg + sb) * 205) >> 11;
+	r = clip_channel(sr + ((factor * (luma - sr)) >> 8));
+	g = clip_channel(sg + ((factor * (luma - sg)) >> 8));
+	b = clip_channel(sb + ((factor * (luma - sb)) >> 8));
+	
+	*p = PACK_PIXEL_RGB (fmt, r, g, b);
+}
+
+/* Kruzen: special instant blend to transform HD hyperspace ambience to quasispace one */
+static void
+renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
+		int factor)
+{
+	const SDL_PixelFormat* fmt = surface->format;
+	Uint32* p;
+	Uint32 sp;
 	Uint8 sr, sg, sb;
 	int r, g, b;
 
-	(void)factor;
-
-	p = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * 4);
+	p = (Uint32 *) ((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
 	sp = *p;
-	UNPACK_PIXEL_32 (sp, fmt, sr, sg, sb);
-	UNPACK_PIXEL_32 (pixel, fmt, r, g, b);
-
-	// To satisfy compiler warnings
-	(void)g;
-	(void)b;
-
-	max = sg > sb ? sg : sb;
-	max = max > sr ? max : sr;
-	min = sg > sb ? sb : sg;
-	min = min > sr ? sr : min;
-	avr = overlay_blend ((max + min) >> 1, r);
-	*p = PACK_PIXEL_32(fmt, avr, avr, avr);
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (pixel, fmt, r, g, b);
+	g = alpha_blend (sg, ((255 - (((r + g + b) * 341) >> 10)) * 0x78) >> 8, factor);
+	r = alpha_blend (sr, 0, factor);
+	b = alpha_blend (sb, 0, factor);
+	*p = PACK_PIXEL_RGB (fmt, r, g, b);
 }
 
 RenderPixelFn
-renderpixel_for(SDL_Surface *surface, RenderKind kind)
+renderpixel_for (SDL_Surface *surface, RenderKind kind, BOOLEAN forMask)
 {
 	const SDL_PixelFormat *fmt = surface->format;
+	// forMask ignores some older conditions
 
 	// The only supported rendering is to 32bpp surfaces
-	if (fmt->BytesPerPixel != 4)
+	if (fmt->BytesPerPixel != 4 && !forMask)
 		return NULL;
 
 	// Rendering other than REPLACE is not supported on RGBA surfaces
-	if (fmt->Amask != 0 && kind != renderReplace)
+	if (fmt->Amask != 0 && kind != renderReplace && !forMask)
 		return NULL;
 
 	switch (kind)
@@ -417,6 +502,12 @@ renderpixel_for(SDL_Surface *surface, RenderKind kind)
 		return &renderpixel_screen;
 	case renderGrayscale:
 		return &renderpixel_grayscale;
+	case renderLinearburn:
+		return &renderpixel_linearburn;
+	case renderHypToQuas:
+		return &renderpixel_hypertoquasi;
+	case renderDesatur:
+		return &renderpixel_desaturate;
 	}
 	// should not ever get here
 	return NULL;
@@ -701,8 +792,8 @@ clip_rect(SDL_Rect *r, const SDL_Rect *clip_r)
 }
 
 void
-blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
-		SDL_Surface *dst, SDL_Rect dst_r)
+blt_prim (SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
+			SDL_Surface *dst, SDL_Rect dst_r)
 {
 	SDL_PixelFormat *srcfmt = src->format;
 	SDL_Palette *srcpal = srcfmt->palette;
@@ -757,12 +848,158 @@ blt_prim(SDL_Surface *src, SDL_Rect src_r, RenderPixelFn plot, int factor,
 			}
 
 			// convert pixel format to destination
-			SDL_GetRGBA(p, srcfmt, &r, &g, &b, &a);
+			SDL_GetRGBA (p, srcfmt, &r, &g, &b, &a);
 			// TODO: handle source pixel alpha; plot() should probably
 			//   get a source alpha parameter
-			p = SDL_MapRGBA(dstfmt, r, g, b, a);
+			// Kruzen: Done via TRANSFER_ALPHA flag, although a bit ugly
+			p = SDL_MapRGBA (dstfmt, r, g, b, a);
+
+			plot(dst, dst_r.x + x, dst_r.y + y, p, factor == TRANSFER_ALPHA ? a : factor);
+		}
+	}
+}
+
+// Kruzen: Special blits to permanently transform base image. To restore it - unload it from RAM and load again
+void
+blt_filtered_prim (SDL_Surface *layer, RenderPixelFn plot, int factor,
+			SDL_Surface *base, Color *fill)
+{
+	SDL_PixelFormat *lrfmt = layer->format;
+	SDL_PixelFormat *bsfmt = base->format;
+	GetPixelFn getpix;
+	Uint32 color = 0;
+	int x, y;
+
+	// Cannot process surfaces of different formats
+	if (lrfmt->BytesPerPixel != bsfmt->BytesPerPixel)
+		return;
+	else
+		getpix = getpixel_for (layer);// For both layer and base
+
+	// For paletted
+	if (lrfmt->palette)
+	{
+		Uint32 lkey = ~0;
+		Uint32 bkey = ~0;
+		TFB_GetColorKey (layer, &lkey);
+		TFB_GetColorKey (base, &bkey);
+
+		for (y = 0; y < base->h; ++y)
+		{
+			for (x = 0; x < base->w; ++x)
+			{
+				Uint32 lp;
+				Uint8 *bp;
+
+				lp = getpix (layer, x, y);
+				bp = ((Uint8*)base->pixels + y * base->pitch + x);
+
+				if (lp == lkey || *bp == bkey)
+					continue;
+
+				*bp = lp;
+			}
+		}
+	}
+	else
+	{// For truecolor
+		if (fill)
+			color = SDL_MapRGB (bsfmt, fill->r, fill->g, fill->b);
+
+		for (y = 0; y < base->h; ++y)
+		{
+			for (x = 0; x < base->w; ++x)
+			{
+				Uint8 al, ab;
+				Uint32 lp;
+				Uint32 *bp;
 			
-			plot(dst, dst_r.x + x, dst_r.y + y, p, factor);
+				lp = getpix (layer, x, y);
+				bp = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
+			
+				if ((lp & lrfmt->Amask) == 0 || (*bp & bsfmt->Amask) == 0)
+					continue; // transparent pixel
+
+				al = (lp >> (lrfmt->Ashift)) & 0xFF;
+				ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
+
+				plot (base, x, y, fill ? color : lp, 
+						factor == TRANSFER_ALPHA ? al : factor);
+
+				// Reapply alpha to pixel since every plot function nukes it
+				*bp &= ~(bsfmt->Amask);
+				*bp |= ((Uint32)ab << (bsfmt->Ashift));
+			}
+		}
+	}
+}
+
+void
+blt_filtered_fill (SDL_Surface *base, RenderPixelFn plot, int factor,
+			Color *fill)
+{
+	SDL_PixelFormat *fmt = base->format;
+	int x, y;
+	Uint32 color;
+
+	// Not for paletted yet!
+	if (fmt->palette)
+		return;
+
+	color = SDL_MapRGB (fmt, fill->r, fill->g, fill->b);
+
+	for (y = 0; y < base->h; ++y)
+	{
+		for (x = 0; x < base->w; ++x)
+		{
+			Uint8 a;
+			Uint32 *p;
+			
+			p = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
+			
+			if ((*p & fmt->Amask) == 0)
+				continue; // transparent pixel
+
+			a = (*p >> (fmt->Ashift)) & 0xFF;			
+
+			plot (base, x, y, color, factor);
+
+			// Reapply alpha to pixel since every plot function nukes it
+			*p &= ~(fmt->Amask);
+			*p |= ((Uint32)a << (fmt->Ashift));
+		}
+	}
+}
+
+void
+blt_filtered_pal (SDL_Surface *layer, SDL_Surface *base, Color *fill)
+{
+	SDL_PixelFormat *lrfmt = layer->format;
+	SDL_PixelFormat *bsfmt = base->format;
+	int x, y;	
+
+	// Wrong formats
+	if (!lrfmt->palette || bsfmt->BytesPerPixel != 4)
+		return;
+
+	for (y = 0; y < base->h; ++y)
+	{
+		for (x = 0; x < base->w; ++x)
+		{
+			Uint8 ab;
+			Uint8 *lp;
+			Uint32 *bp;
+			
+			bp = (Uint32 *) ((Uint8 *)base->pixels + y * base->pitch + x * 4);
+			
+			if ((*bp & bsfmt->Amask) == 0)
+				continue; // transparent pixel
+
+			lp = (Uint8 *)layer->pixels + y * layer->pitch + x;
+
+			ab = (*bp >> (bsfmt->Ashift)) & 0xFF;
+
+			*bp = PACK_PIXEL_RGBA (bsfmt, fill[*lp].r, fill[*lp].g, fill[*lp].b, ab);
 		}
 	}
 }

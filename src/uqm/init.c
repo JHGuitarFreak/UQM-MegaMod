@@ -40,11 +40,8 @@
 
 
 FRAME stars_in_space;
-FRAME misc_in_space;
-FRAME StarPoints;
-FRAME stars_in_quasispace; 
-FRAME crew_dots[NUM_VIEWS]; 
-FRAME ion_trails[NUM_VIEWS]; 
+FRAME stars_misc[NUM_VIEWS];
+FRAME scenery;
 FRAME asteroid[NUM_VIEWS];
 FRAME blast[NUM_VIEWS];
 FRAME explosion[NUM_VIEWS];
@@ -130,26 +127,18 @@ InitSpace (void)
 		if (stars_in_space == NULL)
 			return FALSE;
 
-		misc_in_space =
-				CaptureDrawable (LoadGraphic (STARMISK_MASK_PMAP_ANIM));
+		scenery = CaptureDrawable (
+				LoadGraphic (SCENERY_MASK_PMAP_ANIM));
+		if (scenery == NULL)
+			return FALSE;
+
 
 		if (IS_HD)
-		{
-			StarPoints = CaptureDrawable (
-					LoadGraphic (STARPOINT_MASK_PMAP_ANIM));
-			if (StarPoints == NULL)
-				return FALSE;
-			
-			if (!load_animation (crew_dots,
-					CREW_BIG_MASK_PMAP_ANIM,
-					CREW_MED_MASK_PMAP_ANIM,
-					CREW_SML_MASK_PMAP_ANIM))
-				return FALSE;
-			
-			if (!load_animation (ion_trails,
-					IONS_BIG_MASK_PMAP_ANIM,
-					IONS_MED_MASK_PMAP_ANIM,
-					IONS_SML_MASK_PMAP_ANIM))
+		{			
+			if (!load_animation (stars_misc,
+					STARMISK_BIG_MASK_PMAP_ANIM,
+					STARMISK_MED_MASK_PMAP_ANIM,
+					STARMISK_SML_MASK_PMAP_ANIM))
 				return FALSE;
 		}
 
@@ -183,17 +172,14 @@ UninitSpace (void)
 		free_image (blast);
 		free_image (explosion);
 		free_image (asteroid);
-
 		
-		free_image (crew_dots);
-		free_image (ion_trails);
+		free_image (stars_misc);
 
 		DestroyDrawable (ReleaseDrawable (stars_in_space));
-		DestroyDrawable (ReleaseDrawable (StarPoints));
-		DestroyDrawable (ReleaseDrawable (misc_in_space));
 		stars_in_space = 0;
-		StarPoints = 0;
-		misc_in_space = 0;
+
+		DestroyDrawable (ReleaseDrawable (scenery));
+		scenery = 0;
 	}
 }
 
@@ -221,12 +207,6 @@ InitShips (void)
 
 	InitSpace ();
 
-	SetContext (StatusContext);
-	SetContext (SpaceContext);
-
-	InitDisplayList ();
-	InitGalaxy ();
-
 	if (inHQSpace ())
 	{
 		ReinitQueue (&race_q[0]);
@@ -235,12 +215,22 @@ InitShips (void)
 		BuildSIS ();
 		LoadHyperspace ();
 
+		// Kruzen: Moved and duped for melee to load correct stars in InitGalaxy()
+		// Depended on stars_in_space frame, which is redeclared in LoadHyperspace()
+		InitDisplayList ();
+		InitGalaxy ();
+
 		num_ships = 1;
 	}
 	else
 	{
 		COUNT i;
 		RECT r;
+
+		SetContext (SpaceContext);
+
+		InitDisplayList ();
+		InitGalaxy ();
 
 		SetContextFGFrame (Screen);
 		r.corner.x = SAFE_X;

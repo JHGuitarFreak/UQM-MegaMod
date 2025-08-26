@@ -22,6 +22,8 @@
 
 #include "uqm/gameev.h"
 #include "uqm/build.h"
+#include "uqm/races.h"
+#include "uqm/lua/luacomm.h"
 
 
 static LOCDATA ilwrath_desc =
@@ -158,8 +160,7 @@ CombatIsInevitable (RESPONSE_REF R)
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_SPACE_3);
-				if (!GET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD))
-					SET_GAME_STATE (KNOW_ILWRATH_HOMEWORLD, 1);
+				SetHomeworldKnown (ILWRATH_HOME);
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_SPACE_4);
@@ -663,6 +664,7 @@ Intro (void)
 static COUNT
 uninit_ilwrath (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -680,6 +682,8 @@ init_ilwrath_comm (void)
 	ilwrath_desc.init_encounter_func = Intro;
 	ilwrath_desc.post_encounter_func = post_ilwrath_enc;
 	ilwrath_desc.uninit_encounter_func = uninit_ilwrath;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	ilwrath_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	ilwrath_desc.AlienTextBaseline.y = RES_SCALE (64);

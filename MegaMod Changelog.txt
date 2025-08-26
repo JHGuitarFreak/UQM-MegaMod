@@ -1,26 +1,99 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
-## [Ideas]
-- Special captain graphics in melee for Fwiffo's ship - Jo Li KMC
-- Special game over sequence for the Death March while hiding in QuasiSpace - Jo Li KMC
-- Extend custom border to the playback bar during coversations
-- Restored DOS script when opting out of 3DO voices or if the add-on isn't available
-- Remove bottom "NET..." from Super Melee and add top/bottom player option to connect dialog
+## [v0.8.4]
 
-## [v0.8.3]
 ### Added
-- Added Advanced Auto-Pilot option that auto-pilots the flagship on the shortest route through HyperSpace or QuasiSpace
-- Added option to resume all music where it last left off
-- Added a map that shows Rainbow Worlds that have been discovered
-- Added option to show short tooltips at the bottom of the melee screen when picking a ship a la SC1 - Kruzen
-- Added ability to change graphics and music options without restarting
+- Show the type of save on the loading screen in the blue title bar when loading a vanilla, HD-mod, or legacy vanilla save
+- Auto-load support for Distorted Hayes dialog addon
+- Commandline option to prevent Classic Pack from loading
+- King Duncan's StarSeed, which is a mode that shuffles the locations of all plot events into the starmap including homeworlds, fleet locations, dialog, and artifacts as well as planetary resources and Quasispace
+- An option to change the colors of alien Spheres of Influence to make them more easily identifiable at a glance.
+- Added a "Quality of Life" menu option in the Setup Menu to corral helpful options into one place
+- Added an option that, when upon lander explosion, will scatter a percentage of elements from within the lander's cargo hold on to the planet's surface
+- Added a dialogue option when talking to the Chmmr about installing the bomb which allows you to "install the bomb" later
+- Added desaturation software filter
+- When option enabled currently owned lander modifications will appear on lander sprites during planetside
+- Introduced a "Fleet Point System" which limits the total amount of ships you can purchase by the max melee point value of your entire fleet
+- Added Infinite Credits cheat
+- Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
+
+### Changed
+- Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
+- The helper graphics for scanning and landing now show current cargo manifest for elements and biological data
+- Dropped support for autoloading vanilla voice content as it is no longer compatible
+- Preliminary support for only loading the current MegaMod base content pack in the content/packages directory (Alas this also means no more shadow content for those that used such a thing)
+- Split the ambient space music option to include a "No Spoilers" option that will only play a region's music if their Sphere of Influene is on the map
+- As part of the No Spoilers option, when the Sphere of Influence is not on the map, regional music will only play at a homeworld if you know about the homeworld
+- Paused state now have a desaturated filter applied to the whole screen along with music fading dirung the pause
+- Removed seemingly useless call to redraw solarsys menu from loading screen
+- "Scanning Screen Options" now "Orbit Screen Options" in the Setup Menu
+- Added support for Tall Pixels for SDL2 through "Keep Aspect Ratio" option
+- Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
+
+### Fixed
+- Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
+- 1-Frame solar system draw after Chmmr dialogue that can cause a crash
+- Orz computer font persisting through multiple lines
+- Music and sfx settings now being saved to config properly
+- Fixed the loading of vanilla saves (again)
+- Fixed animation timings being off after a long pause
+- Fixed sound jitter produced by an alien voiceover if F10 and Confirm were struck during dialogue
+- Fixed F10 exit from the main menu
+- Fixed F10 exit being overdrawn in some cases
+- Fixed flash context "repairing" frame during exit
+- Fixed F10 exit issue when shipyard powerlines being drawn over exit dialog box
+
+## [v0.8.3] - 2024-04-11
+
+### Added
+- Advanced Auto-Pilot option that auto-pilots the flagship on the shortest route through HyperSpace or QuasiSpace
+- Option to resume all music where it last left off
+- A map that shows Rainbow Worlds that have been currently discovered
+- Option to show short tooltips at the bottom of the melee screen when picking a ship a la SC1 - Kruzen
+- Ability to change graphics and music options without restarting
+- Option to switch between DOS, 3DO, and UQM "Platform UI" (Making MegaMod look like those respective versions)
+- Option to set a custom resolution via text input within the Setup Menu
+- Option to choose between borderless and exclusive fullscreen (SDL2 builds only)
+- SC1 style ship spins with new pop-up animation - Kruzen
+- HD: Draw HD and custom border bevels dynamically
+- All text on-screen is now drawn in-engine to help with modding and translations
+- HD: New fonts made for various UI elements all across the game (SUPER-MELEE title, BATTLE! text, 3DO menu labels, etc...)
+- HD: Ilwrath, Ur-Quan, and Spathi fonts fully remade
+- EXTENDED: Apply unused Melnorme dialog when filling tanks to their full capacity
 
 ### Changed
 - Cleaned up the Setup Menu code to make it more readable - Kruzen
 - Consolidate in-engine drawn shadow boxes
+- HD: Separated all ambient animations into their own option (Hyper/QuasiSpace gravity wells and solar system suns) - Kruzen
+- HD: Slides, Tiny, TinyBold, TinyCondensed, Player, StarCon, PlayMenu, Label, Lander, and Commander fonts updated
+- HD: Enhance HyperSpace stars - Kruzen
+- HD: HD content check now happens during game startup and within the setup menu (instead of on the main menu screen)
+- HD: Now using Bummer6's Ilwrath Avenger concept art
+- HD: Use color filters to change the colors of the flagship and hyperspace "Nngh" between Hyper and QuasiSpace - Kruzen
+- Moved Starmap keys and mineral helpers to the Flagship status area (Top-right of the screen)
+- Made the FPS counter show on-screen instead of in the console - Kruzen
+- HD: Refined melee projectiles and assets - Kruzen
+- Optimized DrawGalaxy() func that draws stars in melee and hyperspace - Kruzen
+- HD: Stars in HD melee now resembles SD more that ever (with unscaled stamp option) - Kruzen
+- Dying SoI now have a brief animation of the race's name to make it more noticeable - Kruzen
+- HD: Circles appear with smooth edges (fake AA) - Kruzen
+- Race names don't overlap and stack on top of each other now - Kruzen
+- Draw bigger radar border in all non-3DO modes
+- HD: Brighten orbit dots when nebulae are enabled
+- HARDMODE: Moved remaining crew above the flagship to fit on-screen in all screen modes
+- Graphics settings now activate immediately within the setup menu
+- Sound slider improved and now you can hear the corresponding volume setting changes "live" - Kruzen
+- Randomize nebulae using system seed when custom seed is set
+- Set borderless fullscreen as the default on new installs
+- HD: Reworked the mineral node graphics to be even more faithful to the originals
+- Updated Windows installer to check for and delete old content when installing over another version of UQM
+- HD: Added blue glow to bomb modules in DOS ending cutscene - Kruzen
+- Random planets in HyperSpace encounters are now properly saved and loaded - Kruzen
+- Randomize background nebulae based on system seed instead of star location
+- Now using an updated version of Volasaurus' interplanetary space theme
 
 ### Fixed
 - Fixed Unlock Ships cheat from showing a second Yehat Terminator
@@ -28,10 +101,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - "Fixed" lander module display in outfit menu to correspond with current selection position - Kruzen
 - Suppressed a metric ton of compiler warnings
 - Fixes Syreen palette blend from all-black - Kruzen
+- Added Tarp and Bummer6 to the credits
+- HD: HyperSpace ambience (*Nnngn*) fixed - Kruzen
+- HD: Fix Chenjesu intelligence crash
+- Optimized fuel circles to prevent graphical glitches - Kruzen
+- Fixed kerning when kerndata for a character equals zero
+- Fix kerning when the kerndata only has the opening line
+- Fixed a bug when some SoI circles sometimes disappear with big enough zoom-in - Kruzen
+- HD: Fix oscilloscope lines and scale it to 60fps
+- Fixed Procyon not generating the Chmmr homeworld in some custom seeds
+- Fixed the Mother Ark star system from not generating the amount of planets necessary in some custom seeds
+- Androsynth homestar will now have the appropriate amount of planets in Custom Seed thanks to jsd3306
+- Fixed dithering on planets from re-rolling their RNG resulting in a slightly changed texture - Kruzen
+- Content Bug #25 Squashed - Comma on the wrong page in Thraddash convo - Kruzen
+- Captain and Flagship renaming will no longer become stuck (seemingly at random) on just naming the Flagship
+- Black screen at the Load screen fixed when quitting to the Main Menu immediately after starting a new game
+- HyperSpace coordinates glitching when traveling to the far edges of the map fixed
+- Code Bug #165 Squashed - Laser collision is broken in HD for some ships - Kruzen
+- Code Bug #166 Squashed - X-Form lasers should collide and spawn impact graphics - Kruzen
+- Code Bug #156 Squashed - 3DO planet have a black 1px dot in the middle - Mysteriously disappeared over time
+- Code Bug #162 Squashed - Selling Planet Landers Does Not Remove Sprite
+- ANDROID: Fix directional joystick from instantly turning ship to the right on just a tap
+- ANDROID: On-screen controls fixed in the Shipyard and Outfit screens
+- Code Bug #239 Squashed - Hard Mode Slylandro Battlegroups causing crash when saving, then loading, around Rainbow Worlds is fixed
+- Changed Peter MacMillan to Parker MacMillan in the credits
 
+## [v0.8.2] - 2022-11-13
 
-
-## [v0.8.2]
 ### Added
 - Added a dotted fuel circle that shows the fuel range at the destination - PR #102 by taleden
 - Added ability to load glyph spacing and kerning data from a file inside the font directory
@@ -93,7 +189,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - SETUPMENU: Partial Mineral Pickup changed to Partial Pickup
 - When Partial Pickup is enabled biological data will not be picked up if it is larger than the remaining lander hold
 
-
 ### Fixed
 - Fixed issue that prevented Core v0.8.0 saves from loading properly - PR #101 by taleden
 - HARDMODE: Fixed Melnorme tech price increasing (unintentionally) when refusing to buy new tech and going back to buy the same tech - Bug #100
@@ -112,9 +207,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - HD: Fixed bevel inconsistencies for the 3DO pictograph menu
 - HD: Fixed "Fuel Range at Destination" indicator when in HyperSpace
 
+## [v0.8.1] - 2021-12-23
 
-
-## [v0.8.1]
 ### Thanks
 - Thanks to Mergrim for his playthrough of the MegaMod. Which in turn helped bring a couple bugs to light (The "Trade HQ" and Zex's "funky" screen bugs)
 
@@ -173,12 +267,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - DOS-style, text-only, "sell minerals" Commander dialog when not using voices - Kruzen
 - Full reimplementation of the "read speed" DOS option when not using voices - Kruzen
 - Pass through allies when auto-pilot is enabled
-- EXTENDED: New reports for the Syreen and Chmmr wen they are cleansed by the Kohr-Ah by Tarp
+- EXTENDED: New reports for the Syreen and Chmmr when they are cleansed by the Kohr-Ah by Tarp
 - CUSTOMSEED: Made a rudimentary function that puts some home worlds in their star's respective habitable zone
 - EXTENDED: Gave the Chmmr and Syreen ruined planets and StarBases when "cleansed"
 - Newly created Lander graphics by Jordan Lo
 - New life form canister graphics by Jordan Lo
-
 
 ### Changed
 - Scaled the outer border of the viewport to match DOS
@@ -238,7 +331,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Adjusted the planet map height to match the PC and 3DO versions
 - Moved the "dead" slave-shielded world and starbase from Beta Ophiuchi I to Gamma Ophiuchi I (033.3 : 891.6)
 
-
 ### Fixed
 - Fixed suicide Game Over screen having illegible text
 - HD: Fixed 'k' glyph for Classic HD Commander font
@@ -276,8 +368,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Show the Spathi SOI and give the player the Spathi password when using the Head Start cheat
 - Fixed planet map texture rescaling - Kruzen
 
+## [v0.8.0.85] - 2020-11-06
 
-## [v0.8.0.85]
 ### Added
 - Ala-lala: Allow parallelization of build.sh builds with -j
 - Ala-lala: Add SDL2 support (ported from UQM 0.7.1 branch)
@@ -437,16 +529,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Ala-lala: Improve performance of smooth zoom in Super Melee when building in Visual Studio
 - Ala-lala: Scale menu sliders in HD
 
+## [v0.8.0.84] - 2019-09-15
 
-## [v0.8.0.84]
 ### Fixed
 - Animated powerlines no longer draw over ship descriptions in the Shipyard
 - Only Unzervalt will be named Unzervalt
 - Fixed various other planet name discrepencies
 - Isolated the Android specific controls to fix gamepad controls on non-Android devices
 
+## [v0.8.0.83] - 2019-09-05
 
-## [v0.8.0.83]
 ### Added
 - Difficulty Modes
 - Android compaitibility
@@ -567,7 +659,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fixed subtitle timing for re-voiced Utwig
 
 
-## [v0.8.0.82]
+## [v0.8.0.82] - 2018-12-15
 
 ### Added
 -Massive graphics overhaul

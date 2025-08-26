@@ -169,7 +169,8 @@ extern void FlushCustomBaseLine (void);
 extern void BlockTalkingAnim (COUNT trackStart, COUNT trackEnd);
 extern void UpdateDuty (BOOLEAN talk);
 
-extern BOOLEAN IsProbe;
+extern void DeltaLastTime (TimeCount diff);
+
 extern BOOLEAN cwLock;
 
 #define USE_ALT_FRAME (1 << 0)

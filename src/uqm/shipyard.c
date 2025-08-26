@@ -101,8 +101,8 @@ static BOOLEAN DoShipSpins;
 
 
 // This is all for drawing the DOS version modules menu
-#define SHIPS_ORG_Y       RES_SCALE (33)
-#define SHIPS_SPACING_Y  (RES_SCALE (16) + RES_SCALE (2))
+#define SHIPS_ORG_Y       RES_SCALE (36)
+#define SHIPS_SPACING_Y   RES_SCALE (16)
 
 #define SHIPS_COL_0       RES_SCALE (5)
 #define SHIPS_COL_1       RES_SCALE (61)
@@ -201,14 +201,14 @@ DrawShipsDisplay (SHIPS_STATE *shipState)
 			TRUE, MODULE_BACK_COLOR, FALSE, TRANSPARENT);
 	}
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// print the "MODULES" title
 	SetContextFont (StarConFont);
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
-	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 8);
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 10);
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
 	font_DrawText (&t);
@@ -313,7 +313,7 @@ InventoryShips (SHIPS_STATE *ship_state, SIZE Size)
 	ship_state->count = ShipsOnBoard;
 }
 
-void
+static void
 FillHangarX (void)
 {
 	BYTE i;
@@ -335,6 +335,8 @@ FillHangarX (void)
 	}
 }
 
+#define WANDERING_X (optWindowType == 2 ? 2 : (optWindowType == 1 ? 6 : 19))
+
 static void
 showRemainingCrew (void)
 {
@@ -344,16 +346,21 @@ showRemainingCrew (void)
 	SIZE remaining_crew;
 #define INITIAL_CREW 2000
 
+	if (!DIF_HARD)
+		return;
+
+	BatchGraphics ();
+
 	remaining_crew = INITIAL_CREW - (SIZE)MAKE_WORD (
 			GET_GAME_STATE (CREW_PURCHASED0),
 			GET_GAME_STATE (CREW_PURCHASED1));
 	
 	r.extent = MAKE_EXTENT (RES_SCALE (122), RES_SCALE (7));
-	r.corner = MAKE_POINT (RES_SCALE (2),
+	r.corner = MAKE_POINT (RES_SCALE (WANDERING_X),
 			RES_SCALE (74) - (r.extent.height + RES_SCALE (2)));
 
 	if (optWindowType < 2)
-		r.corner = MAKE_POINT (RES_SCALE (20), RES_SCALE (1));
+		r.corner.y = RES_SCALE (1);
 
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
@@ -368,6 +375,7 @@ showRemainingCrew (void)
 	t.pStr = buf;
 	utf8StringCopy (
 			buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 6));
+				// Remaining Crew:
 
 	font_DrawText (&t);
 
@@ -384,11 +392,124 @@ showRemainingCrew (void)
 	{
 		utf8StringCopy (
 				buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 7));
+					// Cdr. Hayes
 	}
 	else
 		sprintf (buf, "%u", remaining_crew);
 
 	font_DrawText (&t);
+
+	UnbatchGraphics ();
+}
+
+static SIZE
+CalculateAllyPoints ()
+{
+	BYTE i;
+	HFLEETINFO hFleet;
+	FLEET_INFO *FleetPtr;
+	RACE_DESC *RDPtr;
+	SIZE MaxPoints = DIF_CASE (80, 120, 40);
+
+	for (i = ARILOU_SHIP; i <= ZOQFOTPIK_SHIP; i++)
+	{
+		if (i == HUMAN_SHIP)
+			continue;
+
+		hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), i);
+		if (!hFleet)
+			return FALSE;
+
+		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+
+		if (FleetPtr->allied_state == GOOD_GUY)
+		{
+			RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
+			MaxPoints += RDPtr->ship_info.ship_cost * DIF_CASE (2, 3, 1);
+			free_ship (RDPtr, TRUE, TRUE);
+		}
+
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	}
+
+	return MaxPoints;
+}
+
+#define REMAINING_FP (CalculateAllyPoints () - CalculateEscortsPoints ())
+
+static BOOLEAN
+CanBuyPoints (BYTE race_id)
+{
+	if ((!optFleetPointSys && !DIF_HARD)
+			|| GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
+		return TRUE;
+
+	if (ShipPoints (race_id) > REMAINING_FP)
+		return FALSE;
+
+	return TRUE;
+}
+
+static void
+showRemainingPoints (void)
+{
+	RECT r;
+	TEXT t;
+	UNICODE buf[30];
+	SBYTE percentage_left;
+
+	if ((!optFleetPointSys && !DIF_HARD)
+			|| GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
+		return;
+
+	BatchGraphics ();
+
+	// Draw black rectangle before drawing text
+	r.extent = MAKE_EXTENT (RES_SCALE (100), RES_SCALE (7));
+	r.corner.x = RES_SCALE (((optWindowType == 2 || optWindowType == 0) ?
+			DOS_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_WIDTH)
+			- RES_SCALE (100));
+	r.corner.y = RES_SCALE (74) - (r.extent.height + RES_SCALE (2));
+
+	if (optWindowType < 2)
+		r.corner.y = RES_SCALE (1);
+
+	SetContextForeGroundColor (BLACK_COLOR);
+	DrawFilledRectangle (&r);
+	
+	// Draw remaining points
+	SetContextFont (TinyFont);
+	t.align = ALIGN_RIGHT;
+	t.CharCount = (COUNT)~0;
+	t.pStr = buf;
+	sprintf (buf, "%d", REMAINING_FP);
+
+	r.corner.x = RES_SCALE (((optWindowType == 2 || optWindowType == 0) ?
+			DOS_SIS_SCREEN_WIDTH : THREEDO_SIS_SCREEN_WIDTH) - WANDERING_X);
+
+	t.baseline.x = r.corner.x;
+	t.baseline.y = r.corner.y + r.extent.height - RES_SCALE (1);
+
+	percentage_left =
+			(float)REMAINING_FP / (float)CalculateAllyPoints () * 100;
+	SetContextForeGroundColor (
+			percentage_left > 50 ? FULL_CREW_COLOR :
+			(percentage_left < 25 ? LOW_CREW_COLOR :
+				HALF_CREW_COLOR));
+
+	font_DrawText (&t);
+
+	// Draw the "Fleet Points: " text
+	r = font_GetTextRect (&t);
+	t.baseline.x -= r.extent.width;
+	utf8StringCopy (
+			buf, sizeof (buf), GAME_STRING (STARBASE_STRING_BASE + 8));
+				// Fleet Points: 
+
+	SetContextForeGroundColor (BLUEPRINT_COLOR);
+	font_DrawText (&t);
+
+	UnbatchGraphics ();
 }
 
 static void
@@ -399,7 +520,7 @@ animatePowerLines (MENU_STATE *pMS)
 	static TimeCount NextTime = 0;
 	TimeCount Now = GetTimeCounter ();
 
-	if (SAFE_X)
+	if (SAFE_X || GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return;
 
 	if (pMS)
@@ -525,10 +646,102 @@ ShipCost (BYTE race_id)
 	return shipCost;
 }
 
+COUNT
+ShipPoints (BYTE race_id)
+{
+	HFLEETINFO hStarShip =
+			GetStarShipFromIndex (&GLOBAL (avail_race_q), race_id);
+	FLEET_INFO *FleetPtr;
+	RACE_DESC *RDPtr;
+	COUNT shipPoints;
+
+	if (!hStarShip)
+		return 0;
+
+	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+	RDPtr = load_ship (FleetPtr->SpeciesID, FALSE);
+	shipPoints = RDPtr->ship_info.ship_cost;
+
+	free_ship (RDPtr, TRUE, TRUE);
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+	return shipPoints;
+}
+
+static void
+DrawShipyardShipText (RECT *r, int Index)
+{
+	RACE_DESC *RDPtr;
+	UNICODE race_name[64];
+	UNICODE ship_name[64];
+	FONT OldFont;
+	Color OldColor;
+	SIZE leading;
+	RECT block;
+	TEXT text;
+	COORD og_baseline_x;
+
+	if (IS_DOS)
+		return;
+
+	RDPtr = load_ship (Index + 1, FALSE);
+
+	utf8StringCopy ((char *)&race_name, sizeof (race_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings, 
+			GetStringTableCount (RDPtr->ship_info.race_strings) - 3)));
+
+	utf8StringCopy ((char *)&ship_name, sizeof (ship_name),
+			(UNICODE *)GetStringAddress (SetAbsStringTableIndex (
+			RDPtr->ship_info.race_strings,
+			GetStringTableCount(RDPtr->ship_info.race_strings) - 2)));
+
+	free_ship (RDPtr, TRUE, TRUE);
+
+	if (!strlen ((char *)&race_name) || !strlen ((char *)&ship_name))
+		return;
+
+	OldFont = SetContextFont (ModuleFont);
+	OldColor = SetContextForeGroundColor (SHP_RECT_COLOR);
+
+	GetContextFontLeading (&leading);
+	
+	if (!optCustomBorder)
+	{
+		block = *r;
+		block.extent.height = (leading << 1);
+		DrawFilledRectangle (&block);
+	}
+	else
+		DrawBorder (TEXT_LABEL_FRAME);
+
+	text.align = ALIGN_CENTER;
+	text.baseline.x = r->corner.x + (r->extent.width >> 1);
+	text.baseline.y = r->corner.y + leading;
+	og_baseline_x = text.baseline.x;
+
+	text.pStr = AlignText ((const UNICODE*)&race_name, &text.baseline.x);
+	text.CharCount = (COUNT)~0;
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
+
+	if (text.baseline.x != og_baseline_x)
+		text.baseline.x = og_baseline_x;
+
+	text.baseline.y += leading;
+	text.pStr = AlignText ((const UNICODE*)&ship_name, &text.baseline.x);
+	text.CharCount = (COUNT)~0;
+	font_DrawShadowedText (&text, WEST_SHADOW, SHP_TEXT_COLOR,
+			SHP_SHADOW_COLOR);
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldColor);
+}
+
 static void
 DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 {
-	RECT r;
+	RECT r, textRect;
 	STAMP s;
 	CONTEXT OldContext;
 	
@@ -543,12 +756,17 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 	r.extent.height = RES_SCALE (12);
 	BatchGraphics ();
 	ClearSISRect (CLEAR_SIS_RADAR);
-	SetContextForeGroundColor (MENU_FOREGROUND_COLOR);
+	SetContextForeGroundColor (DKGRAY_COLOR);
 
 	if (!IS_DOS)
-		DrawFilledRectangle (&r);
+	{
+		if (!optCustomBorder)
+			DrawFilledRectangle (&r);
 
-	DrawBorder (8);
+		textRect = r;
+	}
+
+	DrawBorder (SIS_RADAR_FRAME);
 
 	if (!IS_DOS)
 	{
@@ -577,7 +795,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		else
 		{
 			DrawRenderedBox (&dosRect, TRUE, BLACK_COLOR,
-					THIN_INNER_BEVEL);
+					THIN_INNER_BEVEL, optCustomBorder);
 		}
 	}
 
@@ -587,7 +805,8 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		HFLEETINFO hStarShip;
 		FLEET_INFO *FleetPtr;
 		UNICODE buf[30];
-		COUNT shipCost;
+		COUNT shipCost, shipPoints;
+		RECT r;
 
 		ManipulateShips (NewRaceItem);
 
@@ -595,11 +814,15 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		NewRaceItem = GetIndexFromStarShip (&GLOBAL (avail_race_q),
 				hStarShip);
 		shipCost = ShipCost (NewRaceItem);
+		shipPoints = ShipPoints (NewRaceItem);
 
 		// Draw the ship name, above the ship image.
 		s.frame = SetAbsFrameIndex (pMS->ModuleFrame, 3 + NewRaceItem);
 		if (!IS_DOS)
+		{
 			DrawStamp (&s);
+			DrawShipyardShipText (&textRect, NewRaceItem);
+		}
 
 		// Draw the ship image.
 		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
@@ -608,6 +831,7 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 		s.origin.x += (RADAR_WIDTH >> 1);
 		s.origin.y += (RADAR_HEIGHT >> 1);
 		DrawStamp (&s);
+
 
 		// Print the ship cost.
 		t.baseline.x = RES_SCALE (4) + RADAR_WIDTH - RES_SCALE (2);
@@ -628,6 +852,31 @@ DrawRaceStrings (MENU_STATE *pMS, BYTE NewRaceItem)
 			SetContextForeGroundColor (BRIGHT_RED_COLOR);
 
 		font_DrawText (&t);
+
+		// Print the fleet points
+		if ((optFleetPointSys || DIF_HARD)
+				&& GET_GAME_STATE (CHMMR_BOMB_STATE) < 3)
+		{
+			t.baseline.y = RADAR_Y + RES_SCALE (7)
+				+ DOS_NUM_SCL (2) - SAFE_Y;
+			sprintf (buf, "%u", shipPoints);
+
+			if (shipPoints < REMAINING_FP)
+				SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+			else
+				SetContextForeGroundColor (BRIGHT_RED_COLOR);
+
+			font_DrawText (&t);
+
+			r = font_GetTextRect (&t);
+			t.baseline.x -= r.extent.width;
+
+			utf8StringCopy (
+					buf, sizeof (buf),
+					GAME_STRING (STARBASE_STRING_BASE + 9)); // FP: 
+			SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
+			font_DrawText (&t);
+		}
 	}
 	UnbatchGraphics ();
 	SetContext (OldContext);
@@ -933,8 +1182,7 @@ CrewTransaction (SIZE crew_delta)
 			SET_GAME_STATE (CREW_PURCHASED0, LOBYTE (crew_bought));
 			SET_GAME_STATE (CREW_PURCHASED1, HIBYTE (crew_bought));
 
-			if (DIF_HARD)
-				showRemainingCrew ();
+			showRemainingCrew ();
 		}
 	}
 }
@@ -1428,8 +1676,7 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 	BYTE MaxBuild = 2;
 	COUNT shipCost = ShipCost (Index);
 
-	if (((DIF_HARD && CountEscortShips (Index) < MaxBuild) || !DIF_HARD)
-			&& GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
+	if (CanBuyPoints (Index) && GLOBAL_SIS (ResUnits) >= (DWORD)shipCost
 			&& CloneShipFragment (Index, &GLOBAL (built_ship_q), 1))
 	{
 		ShowCombatShip (pMS, pMS->CurState, NULL);
@@ -1440,6 +1687,8 @@ DMS_TryAddEscortShip (MENU_STATE *pMS)
 
 		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, -(int)shipCost);
 		DMS_SetMode (pMS, DMS_Mode_editCrew);
+
+		showRemainingPoints ();
 	}
 	else
 	{
@@ -1538,6 +1787,8 @@ DMS_ScrapEscortShip (MENU_STATE *pMS, HSHIPFRAG hStarShip)
 	FreeShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	// refresh SIS display
 	DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
+
+	showRemainingPoints ();
 
 	SetContext (SpaceContext);
 	DMS_SetMode (pMS, DMS_Mode_navigate);
@@ -1843,8 +2094,8 @@ DrawBluePrint (MENU_STATE *pMS)
 
 	DrawFuelInFTanks (FALSE);
 
-	if (DIF_HARD)
-		showRemainingCrew ();
+	showRemainingCrew ();
+	showRemainingPoints ();
 
 	DestroyDrawable (ReleaseDrawable (ModuleFrame));
 }
@@ -1868,11 +2119,19 @@ DoShipyard (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoShipyard;
 
+		
+#if defined(ANDROID) || defined(__ANDROID__)
+		TFB_SetOnScreenKeyboard_Starmap();
+#endif
+
 		if (IS_DOS)
 		{
 			memset (&ShipState, 0, sizeof ShipState);
 			InventoryShips (&ShipState, NUM_BUILDABLE_SHIPS);
 		}
+
+		if (!IS_DOS)
+			ModuleFont = LoadFont (MODULE_FONT);
 
 		{
 			STAMP s;
@@ -1917,7 +2176,7 @@ DoShipyard (MENU_STATE *pMS)
 				DrawStamp (&s);
 
 				if (optCustomBorder)
-					DrawBorder (9);
+					DrawBorder (SIS_REPAIR_FRAME);
 
 				SetContextClipRect (&old_r);
 
@@ -1939,16 +2198,7 @@ DoShipyard (MENU_STATE *pMS)
 			ScreenTransition (optScrTrans, NULL);
 			UnbatchGraphics ();
 
-			SetMusicVolume (MUTE_VOLUME);
-			PlayMusic (pMS->hMusic, TRUE, 1);
-
-			if (OkayToResume ())
-			{
-				SeekMusic (GetMusicPosition ());
-				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-			}
-			else
-				SetMusicVolume (NORMAL_VOLUME);
+			PlayMusicResume (pMS->hMusic, NORMAL_VOLUME);
 
 			ShowCombatShip (pMS, (COUNT)~0, NULL);
 
@@ -1974,6 +2224,10 @@ ExitShipyard:
 		DestroyColorMap (ReleaseColorMap (pMS->CurString));
 		pMS->CurString = 0;
 
+		// Release Fonts
+		if (!IS_DOS)
+			DestroyFont (ModuleFont);
+
 		SetMusicPosition ();
 
 		return FALSE;
@@ -1983,9 +2237,6 @@ ExitShipyard:
 		if (pMS->CurState != SHIPYARD_SAVELOAD)
 		{
 			pMS->Initialized = FALSE;
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Starmap();
-#endif
 			DrawMenuStateStrings(PM_CREW, pMS->CurState);
 			DoModifyShips (pMS);
 		}
@@ -2000,9 +2251,6 @@ ExitShipyard:
 	}
 	else
 	{
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Menu();
-#endif
 		DoMenuChooser (pMS, PM_CREW);
 	}
 

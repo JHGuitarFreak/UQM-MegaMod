@@ -51,6 +51,13 @@ enum PlanetScanTypes
 #define SCALED_MAP_WIDTH RES_SCALE \
 		(((is3DO (optSuperPC) ? UQM_MAP_WIDTH \
 		: SC2_MAP_WIDTH)) - SAFE_NUM (33))
+#define UNSCALED_MAP_WIDTH \
+		(((is3DO (optSuperPC) ? UQM_MAP_WIDTH \
+		: SC2_MAP_WIDTH)) - SAFE_NUM (33))
+
+#define MAP_DIMENSIONS \
+		{SC2_MAP_WIDTH,     SC2_MAP_HEIGHT}, \
+		{(UQM_MAP_WIDTH-1), UQM_MAP_HEIGHT}, \
 
 enum
 {
@@ -99,8 +106,14 @@ enum
 #define MAX_GEN_PLANETS 9
 
 #define MAP_BORDER_HEIGHT RES_SCALE (5)
+
+//#define SCAN_SCREEN_HEIGHT \//
+//		(SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
+
+// Unscaled so that the math generates a proper output for HD
 #define SCAN_SCREEN_HEIGHT \
-		(SIS_SCREEN_HEIGHT - MAP_HEIGHT - MAP_BORDER_HEIGHT)
+		(ORIG_SIS_SCREEN_HEIGHT - SC2_MAP_HEIGHT \
+		- RES_DESCALE (MAP_BORDER_HEIGHT))
 
 #define PC_ROTATION_RATE (ONE_SECOND / RES_SCALE (12))
 #define THREEDO_ROTATION_RATE (ONE_SECOND * 6 / RES_SCALE (SC2_MAP_WIDTH))
@@ -108,7 +121,12 @@ enum
 
 #define PLANET_ROTATION_RATE(a) (!a ? PC_ROTATION_RATE : \
 		(a == 1 ? THREEDO_ROTATION_RATE : UQM_ROTATION_RATE))
-#define PLANET_ORG_Y (SCAN_SCREEN_HEIGHT >> 1) - (useDosSpheres ? 2 : 0)
+
+#define USE_DOS_SPHERES RES_SCALE (useDosSpheres ? 2 : 0)
+
+#define PLANET_ORG_X RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1)
+#define PLANET_ORG_Y \
+				RES_SCALE (SCAN_SCREEN_HEIGHT >> 1) - USE_DOS_SPHERES
 
 #define NUM_RACE_RUINS 16
 
@@ -120,12 +138,20 @@ typedef struct star_desc STAR_DESC;
 typedef struct node_info NODE_INFO;
 typedef struct planet_orbit PLANET_ORBIT;
 typedef struct solarsys_state SOLARSYS_STATE;
+// JSD plot_map is an array of "plot locations" for each plot in the game,
+// the contents of which are COORDS to the star system (for dialogs and fleets)
+// as well as internal required distance parameters used during the initial seed.
+// It also might make sense for this and star_desc to be defined in starmap.h and
+// the corresponding functions & the star_map object in starmap.c.
+typedef struct plot_location PLOT_LOCATION;
+typedef struct portal_location PORTAL_LOCATION;
 
 #include "generate.h"
 #include "../units.h"
 #include "lifeform.h"
 #include "plandata.h"
 #include "sundata.h"
+#include "../gendef.h" //JSD need gendef.h unless we move plots & starmap to starmap
  
 typedef struct
 {
@@ -316,6 +342,33 @@ struct solarsys_state
 			// For PC scan, generated from TopoFrame
 };
 
+// The other part of PLOT_LOCATION
+// star_pt is the coords where the plot is seeded, for public consumption.
+// star is the pointer to the star description on the starmap on which this
+// plotmap was seeded.
+// Because Arilou have no hyperspace home, must keep star_pt.  Because "starmap"
+// could be any variable, need to have pointer to star in map.
+// dist_sq is the min or max distance to the plot in the array (it stores both),
+// or the "weight" of the plot at that location when called reflexively.
+// dist_sq is internal and accessed by the "PLOT_" defines on "plot" variable.
+struct plot_location
+{
+	POINT star_pt;
+	STAR_DESC *star;
+	DWORD dist_sq[NUM_PLOTS];
+};
+
+// PORTAL_LOCATION aka portal_location.  The star_pt is the location in
+// hyperspace, while quasi_pt is the location in quasispace.  The
+// nearest_star variable is the pointer to the star description on the
+// starmap provided of the nearest actual star.
+struct portal_location
+{
+	POINT star_pt;
+	POINT quasi_pt;
+	STAR_DESC *nearest_star;
+};
+
 extern SOLARSYS_STATE *pSolarSysState;
 extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
@@ -338,6 +391,8 @@ COUNT planetIndex (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world);
 COUNT moonIndex (const SOLARSYS_STATE *solarSys, const PLANET_DESC *moon);
 #define MATCH_PLANET ((BYTE) -1)
+#define MATCH_PBYTE ((BYTE) -2)
+#define MATCH_MBYTE ((BYTE) -3)
 bool matchWorld (const SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		BYTE planetI, BYTE moonI);
 
@@ -359,14 +414,15 @@ extern void ExploreSolarSys (void);
 extern void DrawStarBackGround (void);
 extern FRAME GetStarBackFround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
-extern void DrawOval (RECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
-extern void DrawFilledOval (RECT *pRect);
+extern void DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
+extern void DrawFilledOval (DRECT *pRect);
 extern void DrawEllipse (int cx, int cy, int rx, int ry, int shear,
 		int filled, int dotted);
 extern void DrawRotatedEllipse (int cx, int cy, int rx, int ry,
 		int angle_deg, int filled, int dotted);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons,
 		UWORD rand_val);
+#define NUMPLANETS_PDESC ((BYTE)-2)
 extern void FillOrbits (SOLARSYS_STATE *system, BYTE NumPlanets,
 		PLANET_DESC *pBaseDesc, BOOLEAN TypesDefined);
 extern void InitLander (BYTE LanderFlags);
@@ -397,6 +453,7 @@ extern void ZoomInPlanetSphere (void);
 extern void RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop);
 
 extern void DrawScannedObjects (BOOLEAN Reversed);
+extern void GetPlanetTopography (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame);
 extern void GeneratePlanetSurface (PLANET_DESC *pPlanetDesc,
 		FRAME SurfDefFrame, COUNT width, COUNT height);
 extern void DeltaTopography (COUNT num_iterations, SBYTE *DepthArray,
@@ -406,12 +463,14 @@ extern void TransformColor (Color *c, COUNT scan);
 
 extern void DrawPlanetSurfaceBorder (void);
 
-extern FRAME CreateStarBackGround (BOOLEAN encounter);
+extern FRAME GetStarBackGround (BOOLEAN encounter);
 extern UNICODE* GetNamedPlanetaryBody (void);
 extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 
 extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
+
+extern BYTE PickClosestHabitable (SOLARSYS_STATE *solarSys);
 
 #if defined(__cplusplus)
 }

@@ -23,10 +23,10 @@
 #if SDL_MAJOR_VERSION == 1
 
 int TFB_GL_InitGraphics (int driver, int flags, int width, int height,
-		int resFactor);
+		unsigned int resFactor, unsigned int windowType);
 void TFB_GL_UninitGraphics (void);
-int TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen,
-		int resFactor);
+int TFB_GL_ConfigureVideo (int driver, int flags, int width, int height,
+		int togglefullscreen, int resFactor);
 
 #ifdef HAVE_OPENGL
 #ifdef WIN32

@@ -38,6 +38,9 @@ typedef enum
 	renderOverlay,
 	renderScreen,
 	renderGrayscale,
+	renderLinearburn,
+	renderHypToQuas,
+	renderDesatur,
 } RenderKind;
 
 #define FULLY_OPAQUE_ALPHA  255
@@ -48,7 +51,7 @@ typedef enum
 typedef void (*RenderPixelFn)(SDL_Surface *, int x, int y, Uint32 pixel,
 		int factor);
 
-RenderPixelFn renderpixel_for(SDL_Surface *surface, RenderKind);
+RenderPixelFn renderpixel_for(SDL_Surface *surface, RenderKind kind, BOOLEAN forMask);
 
 void line_prim(int x1, int y1, int x2, int y2, Uint32 color,
 		RenderPixelFn plot, int factor, SDL_Surface *dst);
@@ -60,6 +63,11 @@ void fillrect_prim(SDL_Rect r, Uint32 color,
 void blt_prim(SDL_Surface *src, SDL_Rect src_r,
 		RenderPixelFn plot, int factor,
 		SDL_Surface *dst, SDL_Rect dst_r);
+void blt_filtered_prim(SDL_Surface *layer, RenderPixelFn plot, int factor,
+		SDL_Surface *base, Color *fill);
+void blt_filtered_fill(SDL_Surface *base, RenderPixelFn plot, int factor,
+		Color *fill);
+void blt_filtered_pal(SDL_Surface *layer, SDL_Surface *base, Color *fill);
 
 int clip_line(int *lx1, int *ly1, int *lx2, int *ly2, const SDL_Rect *clip_r);
 int clip_rect(SDL_Rect *r, const SDL_Rect *clip_r);

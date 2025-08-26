@@ -58,7 +58,8 @@ WIDGET *widget_focus = NULL;
 		BUILD_COLOR_RGBA (0xB1, 0x27, 0x47, 0xFF)
 
 #define ONSCREEN DOS_BOOL (13, 10)
-#define SCROLL_OFFSET 3 // The pos from the page edge where we need to start scrolling
+// The pos from the page edge where we need to start scrolling
+#define SCROLL_OFFSET 3
 #define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2)
 #define LSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 - 7)
 #define RSTEP RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2 + 7)
@@ -289,8 +290,10 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	font_DrawText (&t);
 
 	height = 0;
-	for (widget_index = 0; widget_index < self->num_children; widget_index++)
-	{	// Calculate overall height until we hit top limit (more widgets can't fit the page)
+	for (widget_index = 0; widget_index
+			< self->num_children; widget_index++)
+	{	// Calculate overall height until we hit top limit
+		// (more widgets can't fit the page)
 		WIDGET *child = self->child[widget_index];
 		if (widget_index <= ONSCREEN)
 		{
@@ -303,38 +306,45 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	widget_y = (ScreenHeight - height) >> 1;
 
 	{	// Scrolling
-		if (self->highlighted > (offset_b - SCROLL_OFFSET) && offset_b < self->num_children - 1)
+		if (self->highlighted > (offset_b - SCROLL_OFFSET)
+				&& offset_b < self->num_children - 1)
 		{
-			if (self->highlighted == self->num_children - 1 && offset_t != self->highlighted - (ONSCREEN - SCROLL_OFFSET))
-			{// smooth wrapping scroll
+			if (self->highlighted == self->num_children - 1
+					&& offset_t != self->highlighted
+						- (ONSCREEN - SCROLL_OFFSET))
+			{	// smooth wrapping scroll
 				offset_t += 1;
 				offset_b += 1;
 			}
 			else
-			{// standart scroll
+			{	// standart scroll
 				offset_b = self->highlighted + SCROLL_OFFSET;
 
 				if (offset_b > self->num_children - 1)
-				{// reached bottom widget
-					offset_b = self->num_children - 1;// cap bottom offset - stop further scrolling
+				{	// reached bottom widget
+					offset_b = self->num_children - 1;
+						// cap bottom offset - stop further scrolling
 					offset_t = offset_b - ONSCREEN;// cap top offset
 				}
 				else // still moving
-					offset_t = self->highlighted - (ONSCREEN - SCROLL_OFFSET);
-			}			
+				{
+					offset_t = self->highlighted
+							- (ONSCREEN - SCROLL_OFFSET);
+				}
+			}
 		}
 		if (self->highlighted < (offset_t + SCROLL_OFFSET) && offset_t > 0)
 		{
 			if (self->highlighted < offset_t && offset_t != 0)
-			{// smooth wrapping scroll
+			{	// smooth wrapping scroll
 				offset_t -= 1;
 				offset_b -= 1;
 			}
 			else
-			{// standart scroll
+			{	// standart scroll
 				offset_t = self->highlighted - SCROLL_OFFSET;
 				if (offset_t > 65500) // unit16 overflow
-				{// reached top widget
+				{	// reached top widget
 					offset_t = 0;// cap top offset - stop further scrolling
 					offset_b = offset_t + ONSCREEN;// cap bottom offset
 				}
@@ -356,14 +366,18 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 			}
 			if (offset_b != self->num_children - 1)
 			{
-				arr.frame = SetAbsFrameIndex (arrow_frame, 1); // Down arrow
+				arr.frame = SetAbsFrameIndex (arrow_frame, 1);
+					// Down arrow
 				arr.origin.y = RES_SCALE (195);
 				DrawStamp (&arr);
 			}
 		}
 	}
 	// Determine how much widgets we're gonna draw
-	on_screen = (((offset_b + 1) < self->num_children) ? (offset_b + 1) : self->num_children);
+	on_screen =  self->num_children;
+
+	if ((offset_b + 1) < self->num_children)
+		on_screen = offset_b + 1;
 
 	for (widget_index = offset_t; widget_index < on_screen; widget_index++)
 	{
@@ -854,11 +868,10 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		{
 			t.pStr = "---";
 		}
-		if ((widget_focus == _self) &&
-		    (self->highlighted == i))
+		if ((widget_focus == _self) && (self->highlighted == i))
 		{
 			SetContextForeGroundColor (selected);
-		} 
+		}
 		else
 		{
 			SetContextForeGroundColor (default_color);

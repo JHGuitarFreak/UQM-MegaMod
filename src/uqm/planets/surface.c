@@ -52,7 +52,8 @@ CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 			COUNT deposit_quality_fine;
 			COUNT deposit_quality_gross;
 
-			// JMS: For making the mineral blip smaller in case it is partially scavenged.
+			// JMS: For making the mineral blip smaller in case it is
+			// partially scavenged.
 			SDWORD temp_deposit_quality;
 
 			deposit_quality_fine = (LOWORD (RandomContext_Random (SysGenRNG)) % 100)
@@ -61,14 +62,19 @@ CalcMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 					+ SysInfoPtr->StarSize
 					) * 50;
 
-			// JMS: This makes the mineral blip smaller in case it is partially scavenged.
+			// JMS: This makes the mineral blip smaller in case it is
+			// partially scavenged.
 			if (which_deposit < 32)
-				temp_deposit_quality = deposit_quality_fine - ((SysInfoPtr->PlanetInfo.PartiallyScavengedList[MINERAL_SCAN][which_deposit]) * 10);
-			// JMS: In case which_deposit >= 32 (most likely 65535), it means that this
-			// function is being called only to count the number of deposit nodes on the
-			// surface. In that case we don't need to use the PartiallyScavengedList
+				temp_deposit_quality = deposit_quality_fine -
+						((SysInfoPtr->PlanetInfo.PartiallyScavengedList
+							[MINERAL_SCAN][which_deposit]) * 10);
+			// JMS: In case which_deposit >= 32 (most likely 65535), it
+			// means that this function is being called only to count the
+			// number of deposit nodes on the surface. In that case we
+			// don't need to use the PartiallyScavengedList
 			// since the amount of minerals in that node is not stored yet.
-			// (AND we cannot use the list since accessing element 65535 would crash the game ;)
+			// (AND we cannot use the list since accessing element 65535
+			// would crash the game ;)
 			else
 				temp_deposit_quality = deposit_quality_fine;
 			
@@ -227,29 +233,43 @@ GeneratePresetLife (const SYSTEM_INFO *SysInfoPtr, const SBYTE *lifeTypes,
 	return i;
 }
 
-static int
-widthHeightPicker (BOOLEAN is_width)
+
+static COORD
+widthPick (void)
 {
-	if (optPlanetTexture)
-		return (is_width ? (UQM_MAP_WIDTH - 1) : UQM_MAP_HEIGHT);
-	else
-		return (is_width ? SC2_MAP_WIDTH : SC2_MAP_HEIGHT);
+	EXTENT map_dimensions[] = { MAP_DIMENSIONS };
+
+	return map_dimensions[optPlanetTexture].width;
 }
 
 static COORD
-scaleMapDimensions (BOOLEAN is_width, COORD value)
+heightPick (void)
 {
-	float percentage;
-	int widthOrHeight = is_width ?
-		UQM_MAP_WIDTH : SC2_MAP_HEIGHT;
+	EXTENT map_dimensions[] = { MAP_DIMENSIONS };
 
-	if (widthOrHeight == widthHeightPicker (is_width))
-		percentage = 1;
-	else
-		percentage = scaleThing (widthOrHeight,
-			widthHeightPicker (is_width));
+	return map_dimensions[optPlanetTexture].height;
+}
 
-	return (COORD)(value * percentage);
+static COORD
+scaleMapWidth (COORD value)
+{
+	float percentage = 1;
+
+	if (UNSCALED_MAP_WIDTH != widthPick ())
+		percentage = scaleThing (UNSCALED_MAP_WIDTH, widthPick ());
+
+	return RES_SCALE ((COORD)(value * percentage));
+}
+
+static COORD
+scaleMapHeight (COORD value)
+{
+	float percentage = 1;
+
+	if (SC2_MAP_HEIGHT != heightPick ())
+		percentage = scaleThing (SC2_MAP_HEIGHT, heightPick ());
+
+	return RES_SCALE ((COORD)(value * percentage));
 }
 
 void
@@ -258,29 +278,11 @@ GenerateRandomLocation (POINT *loc)
 	UWORD rand_val;
 
 	rand_val = RandomContext_Random (SysGenRNG);
-	if (is3DO (optSuperPC))
-	{
-		loc->x = RES_SCALE (
-			scaleMapDimensions (
-				TRUE, 8 + LOBYTE (rand_val)
-				% (widthHeightPicker (TRUE) - (8 << 1))
-			));
-		loc->y = RES_SCALE (
-			scaleMapDimensions (
-				FALSE, 8 + HIBYTE (rand_val)
-				% (widthHeightPicker (FALSE) - (8 << 1))
-			));
-	}
-	else
-	{
-		loc->x = RES_SCALE (8 + LOBYTE (rand_val)
-				% (SC2_MAP_WIDTH - (8 << 1)));
-		loc->y = RES_SCALE (
-			scaleMapDimensions (
-				FALSE, 8 + HIBYTE (rand_val)
-				% (widthHeightPicker (FALSE) - (8 << 1))
-			));
-	}
+
+	loc->x = scaleMapWidth (8 + LOBYTE (rand_val)
+			% (widthPick () - (8 << 1)));
+	loc->y = scaleMapHeight (8 + HIBYTE (rand_val)
+			% (heightPick () - (8 << 1)));
 }
 
 // Returns:
@@ -409,4 +411,32 @@ CustomMineralDeposits (const SYSTEM_INFO *SysInfoPtr, COUNT which_deposit,
 	} while (--j);
 
 	return num_deposits;
+}
+
+COUNT
+CustomMineralDeposit (NODE_INFO *info, COUNT type, BYTE quality,
+		POINT location)
+{
+	COUNT deposit_quality_fine;
+	COUNT deposit_quality_gross;
+
+	if (!info)
+		return 0;
+
+	info->type = type;
+
+	deposit_quality_fine = quality * 10;
+
+	if (deposit_quality_fine < MEDIUM_DEPOSIT_THRESHOLD)
+		deposit_quality_gross = 0;
+	else if (deposit_quality_fine < LARGE_DEPOSIT_THRESHOLD)
+		deposit_quality_gross = 1;
+	else
+		deposit_quality_gross = 2;
+
+	info->loc_pt = location;
+
+	info->density = MAKE_WORD (deposit_quality_gross, quality);
+
+	return 1;
 }

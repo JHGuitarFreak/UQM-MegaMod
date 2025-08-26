@@ -98,6 +98,7 @@
 #define METAL_XLAT_TAB "planet.metal.translatetable"
 #define MOONBASE_STRTAB "text.moonbase"
 #define MOTHER_ARK_STRTAB "text.motherark"
+#define NEBULA_RESOURCES "nebula.resource"
 #define NOBLE_COLOR_TAB "planet.noble.colortable"
 #define NOBLE_XLAT_TAB "planet.noble.translatetable"
 #define NOMAD_BASE_STRTAB "text.earthbase"

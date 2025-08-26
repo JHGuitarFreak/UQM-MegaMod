@@ -157,7 +157,7 @@ DrawCargoDisplay (void)
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, CARGO_BACK_COLOR, FALSE, TRANSPARENT);
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// draw the "CARGO" title
 	SetContextFont (StarConFont);
@@ -178,7 +178,7 @@ DrawCargoDisplay (void)
 			(NUM_SCANDOT_TRANSITIONS * 2) + 3);
 	r.corner.x = ELEMENT_COL_0;
 	r.extent = GetFrameBounds (s.frame);
-	s.origin.x = r.corner.x + (r.extent.width >> 1);
+	s.origin.x = r.corner.x + RES_RECENTER (r.extent.height);
 
 	cy = ELEMENT_ORG_Y;
 
@@ -205,7 +205,7 @@ DrawCargoDisplay (void)
 		DrawFilledRectangle (&r);
 
 		// draw an element icon
-		s.origin.y = r.corner.y + (r.extent.height >> 1);
+		s.origin.y = r.corner.y + RES_RECENTER (r.extent.height);
 		DrawStamp (&s);
 		s.frame = SetRelFrameIndex (s.frame, 5);
 
@@ -218,7 +218,7 @@ DrawCargoDisplay (void)
 	DrawFilledRectangle (&r);
 
 	// draw the Bio icon
-	s.origin.y = r.corner.y + (r.extent.height >> 1);
+	s.origin.y = r.corner.y + RES_RECENTER (r.extent.height);
 	s.frame = SetAbsFrameIndex (s.frame, 68);
 	DrawStamp (&s);
 
@@ -226,15 +226,15 @@ DrawCargoDisplay (void)
 	DrawElementAmount (NUM_ELEMENT_CATEGORIES, false);
 
 	// draw the line over the Bio amount
-	r.corner.x = RES_SCALE (4); 
-	r.corner.y = BIO_ORG_Y - RES_SCALE (2); 
-	r.extent.width = FIELD_WIDTH - RES_SCALE (3); 
+	r.corner.x = RES_SCALE (4);
+	r.corner.y = BIO_ORG_Y - RES_SCALE (2);
+	r.extent.width = FIELD_WIDTH - RES_SCALE (3);
 	r.extent.height = RES_SCALE (1);
 	SetContextForeGroundColor (CARGO_SELECTED_BACK_COLOR);
 	DrawFilledRectangle (&r);
 
 	// print "Free"
-	t.baseline.x = RES_SCALE (5); 
+	t.baseline.x = RES_SCALE (5);
 	t.baseline.y = FREE_ORG_Y + TEXT_BASELINE;
 	t.align = ALIGN_LEFT;
 	t.pStr = GAME_STRING (CARGO_STRING_BASE + 1);
@@ -308,7 +308,7 @@ DrawRainbowPlanet (COUNT planet)
 				SHADOWBOX_MEDIUM_COLOR, SHADOWBOX_DARK_COLOR,
 				TRUE, CARGO_BACK_COLOR, FALSE, TRANSPARENT);
 	else
-		DrawBorder (13);
+		DrawBorder (DEVICE_CARGO_FRAME);
 
 	// draw the "DATALOG" title
 	SetContextFont (StarConFont);
@@ -323,7 +323,7 @@ DrawRainbowPlanet (COUNT planet)
 	// rainbow world icon
 	s.origin.x = RES_SCALE (1);
 	s.origin.y = RES_SCALE (27);
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 110);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 109);
 	DrawStamp (&s);
 
 	// number of worlds

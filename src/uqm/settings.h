@@ -27,6 +27,7 @@ extern void ToggleMusic (void);
 extern void StopMusic (void);
 extern void ResumeMusic (void);
 extern void PauseMusic (void);
+extern void PlayMusicResume (MUSIC_REF hMusic, BYTE Volume);
 extern void ToggleSoundEffect (void);
 extern void SeekMusic (DWORD pos);
 

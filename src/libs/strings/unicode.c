@@ -25,6 +25,8 @@
 #include <string.h>
 #include "libs/log.h"
 #include "libs/misc.h"
+#include "libs/strlib.h"
+#include "uqm/units.h"
 
 
 // Resynchronise (skip everything starting with 0x10xxxxxx):
@@ -249,6 +251,20 @@ utf8StringCountN(const unsigned char *start, const unsigned char *end) {
 	}
 }
 
+size_t
+utf8CharCount (const unsigned char *start, UniChar uni_char) {
+	size_t count = 0;
+	UniChar ch;
+
+	for (;;) {
+		ch = getCharFromString (&start);
+		if (ch == '\0')
+			return count;
+		if (ch == uni_char)
+			count++;
+	}
+}
+
 // Locates a unicode character (ch) in a UTF-8 string (pStr)
 // returns the char positions when found
 //  -1 when not found
@@ -262,6 +278,30 @@ utf8StringPos (const unsigned char *pStr, UniChar ch)
 		if (getCharFromString (&pStr) == ch)
 			return pos;
 	}
+
+	if (ch == '\0' && *pStr == '\0')
+		return pos;
+
+	return -1;
+}
+
+// Locates a unicode character (ch) in a UTF-8 string (pStr)
+// returns the char positions when found
+//  -1 when not found
+int
+utf8StringLastPos (const unsigned char *pStr, UniChar ch)
+{
+	int pos;
+	int last_pos = -1;
+ 
+	for (pos = 0; *pStr != '\0'; ++pos)
+	{
+		if (getCharFromString (&pStr) == ch)
+			last_pos = pos;
+	}
+
+	if (last_pos != -1)
+		return last_pos;
 
 	if (ch == '\0' && *pStr == '\0')
 		return pos;
@@ -545,5 +585,61 @@ UniChar_toLower(UniChar ch)
 {	// this is a very basic Latin-1 implementation
 	// just to get things going
 	return (ch < 0x100) ? (UniChar) tolower((int) ch) : ch;
+}
+
+
+// Custom functions
+
+
+UNICODE *
+AlignText (const UNICODE *str, sint16 *loc_x)
+{
+	int modSize = 0;
+	int first_pos = utf8StringPos ((unsigned char *)str, UNICHAR_PIPE);
+	int last_pos = utf8StringLastPos ((unsigned char *)str, UNICHAR_PIPE);
+
+	if (utf8CharCount ((unsigned char *)str, UNICHAR_PIPE) != 2
+			|| str == NULL || first_pos != 0 || last_pos == -1
+			|| last_pos == 0)
+		return (UNICODE *)str;
+
+	if (sscanf (str, "|%d|", &modSize) != 1)
+	{
+		log_add (log_Debug,
+			"\nVariable between delimiters is missing, corrupt, or "
+			"not an integer: %s\n", str);
+		return (UNICODE *)str;
+	}
+
+	if (modSize != 0)
+		*loc_x += RES_SCALE (modSize);
+
+	return (UNICODE *)skipUTF8Chars ((unsigned char *)str, last_pos + 1);
+}
+
+UNICODE *
+AddPadd (const UNICODE *str, sint16 *padding)
+{
+	int modSize = 0;
+	int first_pos = utf8StringPos ((unsigned char *)str, UNICHAR_COLON);
+	int last_pos = utf8StringLastPos ((unsigned char *)str, UNICHAR_COLON);
+
+	if (utf8CharCount ((unsigned char *)str, UNICHAR_COLON) != 2
+			|| str == NULL || first_pos != 0 || last_pos == -1
+			|| last_pos == 0)
+		return (UNICODE *)str;
+
+	if (sscanf (str, ":%d:", &modSize) != 1)
+	{
+		log_add (log_Debug,
+			"\nVariable between delimiters is missing, corrupt, or "
+			"not an integer: %s\n", str);
+		return (UNICODE *)str;
+	}
+
+	if (modSize != 0)
+		*padding += RES_SCALE (modSize);
+
+	return (UNICODE *)skipUTF8Chars ((unsigned char *)str, last_pos + 1);
 }
 

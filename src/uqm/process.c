@@ -93,6 +93,7 @@ AllocElement (void)
 			explode ();
 		}
 		SetPrimType (&DisplayArray[ElementPtr->PrimIndex], NO_PRIM);
+		SetPrimFlags (&DisplayArray[ElementPtr->PrimIndex], 0);
 		UnlockElement (hElement);
 	}
 
@@ -319,8 +320,12 @@ CalcView (DPOINT *pNewScrollPt, SIZE next_reduction,
 	{
 		if (optMeleeScale == TFB_SCALE_STEP)
 		{
-			SpaceOrg.x = (SDWORD)(LOG_SPACE_WIDTH >> 1) - (LOG_SPACE_WIDTH >> ((MAX_REDUCTION + 1) - next_reduction));
-			SpaceOrg.y = (SDWORD)(LOG_SPACE_HEIGHT >> 1) - (LOG_SPACE_HEIGHT >> ((MAX_REDUCTION + 1) - next_reduction));
+			SpaceOrg.x = (SDWORD)(LOG_SPACE_WIDTH >> 1)
+					- (LOG_SPACE_WIDTH >> ((MAX_REDUCTION + 1)
+					- next_reduction));
+			SpaceOrg.y = (SDWORD)(LOG_SPACE_HEIGHT >> 1)
+					- (LOG_SPACE_HEIGHT >> ((MAX_REDUCTION + 1)
+					- next_reduction));
 		}
 		else
 		{
@@ -333,8 +338,10 @@ CalcView (DPOINT *pNewScrollPt, SIZE next_reduction,
 				
 			// Always align the origin on a whole pixel to reduce the
 			// amount of object positioning jitter
-			SpaceOrg.x = DISPLAY_ALIGN((int)(LOG_SPACE_WIDTH >> 1) - (LOG_SPACE_WIDTH * next_reduction / (MAX_ZOOM_OUT << 2)));
-			SpaceOrg.y = DISPLAY_ALIGN((int)(LOG_SPACE_HEIGHT >> 1) - (LOG_SPACE_HEIGHT * next_reduction / (MAX_ZOOM_OUT << 2)));
+			SpaceOrg.x = DISPLAY_ALIGN((int)(LOG_SPACE_WIDTH >> 1) -
+					(LOG_SPACE_WIDTH * next_reduction / (MAX_ZOOM_OUT << 2)));
+			SpaceOrg.y = DISPLAY_ALIGN((int)(LOG_SPACE_HEIGHT >> 1) -
+					(LOG_SPACE_HEIGHT * next_reduction / (MAX_ZOOM_OUT << 2)));
  		
 		}
 		zoom_out = next_reduction;

@@ -158,30 +158,25 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 #define BUILD_SHADE_RGBA(s) \
 		buildColorRgba ((s), (s), (s), 0xFF)
 
+#define BUILD_COLOR_RGB(r, g, b) \
+		buildColorRgba ((r), (g), (b), 0xFF)
+
 static inline void
-MultiplyBrightness (Color *color, float value)
+IncreaseBrightness (BYTE *ch, BYTE value)
 {
-	if (color->r)
-	{
-		if (color->r * value > 255)
-			color->r = 255;
-		else
-			color->r *= value;
-	}
-	if (color->g)
-	{
-		if (color->g * value > 255)
-			color->g = 255;
-		else
-			color->g *= value;
-	}
-	if (color->b)
-	{
-		if (color->b * value > 255)
-			color->b = 255;
-		else
-			color->b *= value;
-	}
+	int c;
+	if (*ch < 128)
+		c = ((*ch * 255) >> 7);
+	else
+		c = (((*ch + 255) << 1) - 255 - ((255 * *ch) >> 7));
+
+	if (c > 0xFF)
+		c = 0xFF;
+
+	if (value == 0xFF)
+		*ch = (BYTE)c;
+	else
+		*ch = (BYTE)(((c - *ch) * value) >> 8) + *ch;
 }
 
 static inline BOOLEAN
@@ -277,6 +272,14 @@ typedef struct rect
 	EXTENT extent;
 } RECT;
 
+// Kruzen: Thanks to JMS, using this to draw ovals
+// Overflows happen in HD with Starmap and max zoom (Fuel circles)
+typedef struct drect
+{
+	DPOINT corner;
+	DEXTENT extent;
+} DRECT;
+
 typedef struct line
 {
 	POINT first, second;
@@ -308,6 +311,17 @@ MAKE_DEXTENT (SDWORD width, SDWORD height)
 {
 	DEXTENT ext = {width, height};
 	return ext;
+}
+
+// Kruzen: Some DrawOval() calls still use standard rect where overflow is impossible as it's 2 figures away from that
+// Used to draw SOI and planet orbits
+// To avoid any typedef conflicts - transform standard RECT to DRECT
+static inline DRECT
+RECT_TO_DRECT (RECT r)
+{
+	DRECT dr = { {r.corner.x, r.corner.y}, {r.extent.width, r.extent.height} };
+
+	return dr;
 }
 
 //static inline void
@@ -533,7 +547,10 @@ typedef enum
 			// RGBA targets (WANT_ALPHA): not yet supported
 	DRAW_OVERLAY,
 	DRAW_SCREEN,
-	DRAW_GRAYSCALE,
+	DRAW_GRAYSCALE, // To get true grayscale - factor should be == 128
+	DRAW_LINEARBURN,
+	DRAW_HYPTOQUAS,
+	DRAW_DESATURATE, // Desaturate image. Not optimized for high fps
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;
@@ -546,6 +563,9 @@ typedef struct
 
 #define DRAW_REPLACE_MODE   MAKE_DRAW_MODE (DRAW_REPLACE, 0)
 #define DRAW_FACTOR_1       0xff
+#define TRANSFER_ALPHA      0x7fff
+
+#define DESAT_AMOUNT 0xBE
 
 static inline DrawMode
 MAKE_DRAW_MODE (DrawKind kind, SWORD factor)
@@ -555,6 +575,18 @@ MAKE_DRAW_MODE (DrawKind kind, SWORD factor)
 	mode.factor = factor;
 	return mode;
 }
+
+typedef enum
+{
+	NORTH_SHADOW,
+	NORTH_EAST_SHADOW,
+	EAST_SHADOW,
+	SOUTH_EAST_SHADOW,
+	SOUTH_SHADOW,
+	SOUTH_WEST_SHADOW,
+	WEST_SHADOW,
+	NORTH_WEST_SHADOW,
+} SHADOW_ANGLE;
 
 extern CONTEXT SetContext (CONTEXT Context);
 extern Color SetContextForeGroundColor (Color Color);
@@ -585,6 +617,7 @@ extern void DrawPoint (POINT *pPoint);
 extern void DrawRectangle (RECT *pRect, BOOLEAN scaled);
 extern void DrawFilledRectangle (RECT *pRect);
 extern void DrawLine (LINE *pLine, BYTE thickness);
+extern void ApplyMask (FRAME layer, FRAME base, DrawMode mode, Color *fill);
 extern void InstaPoint (int x, int y);
 extern void InstaRect (int x, int y, int w, int h, BOOLEAN scaled);
 extern void InstaFilledRect (int x, int y, int w, int h);
@@ -593,9 +626,11 @@ extern RECT font_GetTextRect (TEXT* pText);
 extern void font_DrawText (TEXT *pText);
 extern void font_DrawText_Fade (TEXT *lpText, FRAME repair, BOOLEAN *skip);
 extern void font_DrawTracedText (TEXT *pText, Color text, Color trace);
-extern void font_DrawTextAlt (TEXT* lpText, FONT AltFontPtr, UniChar key);
+extern BYTE font_DrawTextAlt (TEXT *lpText, BYTE swap, FONT AltFontPtr, UniChar key);
 extern void font_DrawTracedTextAlt (TEXT* pText, Color text, Color trace, FONT AltFontPtr,
 		UniChar key);
+extern void font_DrawShadowedText (TEXT *pText, BYTE direction,
+		Color text_color, Color shadow_color);
 extern void DrawBatch (PRIMITIVE *pBasePrim, PRIM_LINKS PrimLinks,
 		BATCH_FLAGS BatchFlags);
 extern void BatchGraphics (void);
@@ -636,7 +671,7 @@ extern FONT SetContextFont (FONT Font);
 extern BOOLEAN DestroyFont (FONT FontRef);
 // The returned pRect is relative to the context drawing origin
 extern BOOLEAN TextRect (TEXT *pText, RECT *pRect, BYTE *pdelta);
-extern BOOLEAN TextRectAlt (TEXT* lpText, RECT* pRect, BYTE* pdelta, UniChar key, FONT AltFontPtr);
+extern BOOLEAN TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, BYTE swap, UniChar key, FONT AltFontPtr);
 extern BOOLEAN GetContextFontLeading (SIZE *pheight);
 extern BOOLEAN GetContextFontDispHeight (SIZE *pheight);
 extern BOOLEAN GetContextFontDispWidth (SIZE *pwidth);
@@ -678,6 +713,7 @@ extern BOOLEAN SetColorMap (COLORMAPPTR ColorMapPtr);
 extern DWORD XFormColorMap (COLORMAPPTR ColorMapPtr, SIZE TimeInterval);
 extern DWORD FadeScreen (ScreenFadeType fadeType, SIZE TimeInterval);
 extern void FlushColorXForms (void);
+extern UBYTE GetColorMapTableIndex (COLORMAP map);
 #define InitColorMapResources InitStringTableResources
 #define LoadColorMapFile LoadStringTableFile
 #define LoadColorMapInstance LoadStringTableInstance
@@ -686,7 +722,7 @@ extern void FlushColorXForms (void);
 #define DestroyColorMap DestroyStringTable
 #define GetColorMapRef GetStringTable
 #define GetColorMapCount GetStringTableCount
-#define GetColorMapIndex GetStringTableIndex
+#define GetColorMapIndex GetColorMapTableIndex //Originally used GetStringTableIndex, but there were no macro calls and it didn't do what it's supposed to do
 #define SetAbsColorMapIndex SetAbsStringTableIndex
 #define SetRelColorMapIndex SetRelStringTableIndex
 #define GetColorMapLength GetStringLengthBin

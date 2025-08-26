@@ -67,14 +67,19 @@ UninitKernel (void)
 	DestroyStringTable (ReleaseStringTable (GameStrings));
 	DestroyDrawable (ReleaseDrawable (BorderFrame));
 	DestroyDrawable (ReleaseDrawable (HDBorderFrame));
+	DestroyDrawable (ReleaseDrawable (CustBevelFrame));
+	DestroyDrawable (ReleaseDrawable (DefBevelFrame));
 	DestroyDrawable (ReleaseDrawable (StatusFrame));
 	DestroyDrawable (ReleaseDrawable (SubmenuFrame));
-	DestroyDrawable (ReleaseDrawable (hyperspacesuns));
 	DestroyDrawable (ReleaseDrawable (ActivityFrame));
 	DestroyFont (TinyFont);
 	DestroyFont (TinyFontBold);
 	DestroyFont (StarConFont);
 	DestroyFont (PlyrFont);
+	DestroyFont (LabelFont);
+	DestroyFont (SlabFont);
+	DestroyFont (SquareFont);
+	DestroyFont (PlayMenuFont);
 
 	UninitQueue (&race_q[0]);
 	UninitQueue (&race_q[1]);

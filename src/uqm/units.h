@@ -43,6 +43,9 @@ extern int ScreenHeight;
 #define RES_TRP(a) (RES_BOOL ((a), (a) * 3))
 #define IF_HD(a) (RES_BOOL (0, (a)))
 
+#define RES_RBSHIFT(a,b) (RES_SCALE (RES_DESCALE ((a)) >> (b)))
+#define RES_RECENTER(a) (RES_RBSHIFT ((a), 1))
+
 #define IS_DOS ((optWindowType == 0) ? TRUE : FALSE)
 #define DOS_BOOL(a,b) (IS_DOS ? (b) : (a))
 		// Returns the 2nd input in DOS mode, the 1st input otherwise
@@ -70,6 +73,9 @@ extern int ScreenHeight;
 		// Returns the input number if 3DO mode is not active
 #define NSAFE_NUM_SCL(a) (RES_SCALE (NSAFE_NUM ((a))))
 		// Same as NSAFE_NUM but scaled it to HD
+
+#define MODE_CASE(a,b,c) (IS_DOS ? (a) : (IS_PAD ? (b) : (c)))
+#define MODE_CASE_SCL(a,b,c) RES_SCALE (MODE_CASE ((a),(b),(c)))
 
 		// Margins
 #define SAFE_X (SAFE_NUM_SCL (16))
@@ -101,11 +107,20 @@ extern int ScreenHeight;
 
 #define ORIG_SIS_SCREEN_WIDTH (RES_DESCALE (SIS_SCREEN_WIDTH))
 #define ORIG_SIS_SCREEN_HEIGHT (RES_DESCALE (SIS_SCREEN_HEIGHT))
-#define PC_SIS_SCREEN_HEIGHT (187)
+#define DOS_SIS_SCREEN_WIDTH (243)
+#define DOS_SIS_SCREEN_HEIGHT (187)
 #define THREEDO_SIS_SCREEN_WIDTH (210)
 #define THREEDO_SIS_SCREEN_HEIGHT (195)
+#define UQM_SIS_SCREEN_WIDTH (242)
+#define UQM_SIS_SCREEN_HEIGHT (227)
 #define HDMOD_SIS_SCREEN_WIDTH (1074)
 #define HDMOD_SIS_SCREEN_HEIGHT (924)
+
+#define SIS_SCREEN_DIMENSIONS \
+		{DOS_SIS_SCREEN_WIDTH,     DOS_SIS_SCREEN_HEIGHT}, \
+		{THREEDO_SIS_SCREEN_WIDTH, THREEDO_SIS_SCREEN_HEIGHT}, \
+		{UQM_SIS_SCREEN_WIDTH,     UQM_SIS_SCREEN_HEIGHT}, \
+		{HDMOD_SIS_SCREEN_WIDTH,   HDMOD_SIS_SCREEN_HEIGHT},
 
 		/* Radar. */
 #define RADAR_X (RES_SCALE (4) + (SPACE_WIDTH + SAFE_X))
@@ -156,14 +171,20 @@ extern int ScreenHeight;
 
 #define MAX_X_UNIVERSE 9999
 #define MAX_Y_UNIVERSE 9999
+// Due to the added rounding error correction, the maximum logical X and Y
+// in Hyperspace cannot go past 999.94999, otherwise the values will be
+// rounded up to 1000.0. We do not want that so we subtract half a unit.
 #define MAX_X_LOGICAL \
-((UNIVERSE_TO_LOGX (MAX_X_UNIVERSE + 1) > UNIVERSE_TO_LOGX (-1) ? \
-UNIVERSE_TO_LOGX (MAX_X_UNIVERSE + 1) : UNIVERSE_TO_LOGX (-1)) - 1L)
+		(UNIVERSE_TO_LOGX (MAX_X_UNIVERSE + 1) - (UNIVERSE_TO_LOGX (1) >> 1) \
+			- 1L)
+// The Y axis is inverted with respect to the screen Y axis.
+// (MAX_Y_UNIVERSE - 1) is really 1 for our purposes.
 #define MAX_Y_LOGICAL \
-((UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) > UNIVERSE_TO_LOGY (-1) ? \
-UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
+		(UNIVERSE_TO_LOGY (-1) - (UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE - 1) >> 1) \
+			- 1L)
 
 #define SPHERE_RADIUS_INCREMENT 11
+
 #define MAX_FLEET_STRENGTH (254 * SPHERE_RADIUS_INCREMENT)
 
 // XXX: These corrected for the weird screen aspect ratio on DOS

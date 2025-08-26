@@ -217,8 +217,9 @@ Flash_terminate (FlashContext *context)
 {
 	if (context->started)
 	{
-		// Restore the flash rectangle:
-		Flash_drawFrame (context, context->original, FALSE);
+		// Restore the flash rectangle IF not quiting:
+		if (!(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			Flash_drawFrame (context, context->original, FALSE);
 
 		Flash_clearCache (context);
 		HFree (context->cache);
@@ -573,6 +574,12 @@ Flash_grabOriginal (FlashContext *context)
 			// CopyContextRect() may have queued the command to read
 			// a rectangle from the screen; a FlushGraphics()
 			// is necessary to ensure that it can actually be used.
+}
+
+void
+Flash_UpdateOriginal (FlashContext *context)
+{
+	Flash_grabOriginal (context);
 }
 
 static inline void

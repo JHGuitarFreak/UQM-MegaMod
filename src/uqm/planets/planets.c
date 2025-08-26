@@ -36,6 +36,7 @@
 #include "options.h"
 #include "libs/graphics/gfx_common.h"
 #include "../gendef.h"
+#include "uqm/gamestr.h"
 
 
 // PlanetOrbitMenu() items
@@ -301,10 +302,10 @@ DrawPlanetSurfaceBorder (void)
 		SetContextForeGroundColor (SIS_LEFT_BORDER_COLOR);
 		DrawFilledRectangle (&r);
 
-		DrawBorder (23);
+		DrawBorder (LANDER_DOS_FRAME);
 	}
 	else
-		DrawBorder (10);
+		DrawBorder (LANDER_3DO_FRAME);
 	
 	UnbatchGraphics ();
 
@@ -321,18 +322,68 @@ typedef enum
 
 } DRAW_ORBITAL_MODE;
 
+static void
+DrawEnterOrbitText (RECT rect)
+{
+	TEXT text;
+	FONT OldFont;
+	FRAME OldFontEffect;
+	SIZE leading;
+	UNICODE buf[256];
+	COORD og_baseline_x;
+
+	OldFont = SetContextFont (MicroFont);
+	OldFontEffect = SetContextFontEffect (
+			SetAbsFrameIndex (FontGradFrame, 12));
+
+	GetContextFontLeading (&leading);
+
+	text.baseline = rect.corner;
+	text.baseline.x += rect.extent.width >> 1;
+	text.baseline.y += RES_SCALE (4) + leading - RES_SCALE (4);
+	text.align = ALIGN_CENTER;
+
+	og_baseline_x = text.baseline.x;
+
+	utf8StringCopy ((char *)buf, sizeof (buf),
+		GAME_STRING (NAVIGATION_STRING_BASE + 8));
+
+	text.align = ALIGN_CENTER;
+	text.pStr = strtok (buf, "\n");
+	text.CharCount = (COUNT)~0;
+
+	while (text.pStr != NULL)
+	{
+		text.pStr = AlignText ((const UNICODE *)text.pStr,
+				&text.baseline.x);
+		text.CharCount = (COUNT)~0;
+
+		font_DrawText (&text);
+
+		text.pStr = strtok (NULL, "\n");
+		text.CharCount = (COUNT)~0;
+		text.baseline.y += leading;
+		text.baseline.x = og_baseline_x;
+	}
+
+	SetContextFont (OldFont);
+	SetContextFontEffect (OldFontEffect);
+}
+
 void
 DrawOrbitMapGraphic (void)
 {
 	STAMP s;
-	FRAME SurfDefFrame = NULL;
 
 	SetContext (GetScanContext (NULL));
 
-	if (isPC (optScrTrans))
+	if (optScanSphere != 1)
 	{
-		s.frame = SetAbsFrameIndex (CaptureDrawable
-		(LoadGraphic (ORBENTER_PMAP_ANIM)), 0);
+		BOOLEAN HaveString =
+				strlen (GAME_STRING (NAVIGATION_STRING_BASE + 8)) > 0;
+
+		s.frame = SetAbsFrameIndex (CaptureDrawable (
+				LoadGraphic (ORBENTER_PMAP_ANIM)), HaveString);
 
 		s.origin.x = -SAFE_X;
 		s.origin.y = 0;
@@ -346,11 +397,23 @@ DrawOrbitMapGraphic (void)
 
 		DrawStamp (&s);
 
+		if (HaveString)
+		{
+			RECT rect;
+
+			GetFrameRect (s.frame, &rect);
+			rect.corner.x += s.origin.x;
+			DrawEnterOrbitText (rect);
+		}
+
 		DestroyDrawable (ReleaseDrawable (s.frame));
 	}
 	else
+	{
 		DrawPlanet (0, BLACK_COLOR);
-
+		DestroyDrawable (ReleaseDrawable (pSolarSysState->TopoFrame));
+		pSolarSysState->TopoFrame = 0;
+	}
 #if 0
 	if (never)
 	{
@@ -449,6 +512,7 @@ LoadPlanet (FRAME SurfDefFrame)
 {
 	bool WaitMode = !(LastActivity & CHECK_LOAD);
 	PLANET_DESC *pPlanetDesc;
+	TimeCount sleep;
 
 #ifdef DEBUG
 	if (disableInteractivity)
@@ -461,29 +525,27 @@ LoadPlanet (FRAME SurfDefFrame)
 
 	StopMusic ();
 
+	sleep = GetTimeCounter () + (ONE_SECOND * 6 / 5);
 	pPlanetDesc = pSolarSysState->pOrbitalDesc;
+
+	if (WaitMode)
+	{
+		if (optScanSphere == 1)
+			GetPlanetTopography (pPlanetDesc, SurfDefFrame);
+		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
+	}
+
 	GeneratePlanetSurface (pPlanetDesc, SurfDefFrame, 0, 0);
 	OrbitNum = SetPlanetMusic (pPlanetDesc->data_index & ~PLANET_SHIELDED);
 	GeneratePlanetSide ();
-
-	if (WaitMode)
-		DrawOrbitalDisplay (DRAW_ORBITAL_WAIT);
+	MaskLanderGraphics ();
 
 	if (isPC (optScrTrans))
-		SleepThread (ONE_SECOND * 6 / 5);
+		SleepThreadUntil (sleep);
 
 	if (!PLRPlaying ((MUSIC_REF)~0))
 	{
-		SetMusicVolume (MUTE_VOLUME);
-		PlayMusic (LanderMusic, TRUE, 1);
-
-		if (OkayToResume ())
-		{
-			SeekMusic (GetMusicPosition ());
-			FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-		}
-		else
-			SetMusicVolume (NORMAL_VOLUME);
+		PlayMusicResume (LanderMusic, NORMAL_VOLUME);
 	}
 
 	if (WaitMode)
@@ -493,26 +555,7 @@ LoadPlanet (FRAME SurfDefFrame)
 		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE);
 	}
 	else
-	{	// to fix moon suffix on load
-		if (worldIsMoon (pSolarSysState, pSolarSysState->pOrbitalDesc))
-		{
-			if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
-					&& (pSolarSysState->pOrbitalDesc->data_index
-							< PRECURSOR_STARBASE
-					&& pSolarSysState->pOrbitalDesc->data_index
-							!= DESTROYED_STARBASE
-					&& pSolarSysState->pOrbitalDesc->data_index
-							!= PRECURSOR_STARBASE))
-			{
-				snprintf (
-						(GLOBAL_SIS (PlanetName))
-						+ strlen (GLOBAL_SIS (PlanetName)),
-						3, "-%c%c", 'A'
-						+ moonIndex (
-							pSolarSysState, pSolarSysState->pOrbitalDesc),
-							'\0');
-			}
-		}
+	{
 	 	DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
 	}
 }
@@ -687,7 +730,8 @@ DoPlanetOrbit (MENU_STATE *pMS)
 static void
 on_input_frame (void)
 {
-	RotatePlanetSphere (TRUE, NULL);
+	if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
+		RotatePlanetSphere (TRUE, NULL);
 }
 
 void

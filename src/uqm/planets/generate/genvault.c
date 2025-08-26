@@ -56,33 +56,43 @@ const GenerateFunctions generateVaultFunctions = {
 static bool
 GenerateVault_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
-	solarSys->SunDesc[0].MoonByte = 0;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
+
+	GenerateDefault_generatePlanets (solarSys);
+
+	pSunDesc->PlanetByte = 0;
+	pSunDesc->MoonByte = 0;
+
+	pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+	if (StarSeed)
+	{
+		pSunDesc->PlanetByte = PlanetByteGen (pSunDesc);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->NumPlanets =
+				RandomContext_GetSeed (SysGenRNG) % 5 == 0 ? 2 : 1;
+
+		pSunDesc->MoonByte = PlanetByteGen (pPlanet);
+	}
 
 	if (!PrimeSeed)
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
-
-	if(!PrimeSeed)
 	{
-		if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == RAINBOW_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = RAINBOW_WORLD - 1;
-		else if (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index == SHATTERED_WORLD)
-			solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = SHATTERED_WORLD + 1;
+		pPlanet->data_index = GenerateWorlds (LARGE_ROCKY);
 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
+		if (!pPlanet->NumPlanets)
+			pPlanet->NumPlanets++;
 	}
 
 	return true;
 }
 
 static bool
-GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
@@ -102,6 +112,8 @@ GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					&& !(GET_GAME_STATE(KOHR_AH_FRENZY)))
 			{
 				COUNT i;
+				BOOLEAN Survivors;
+				UWORD state;
 
 				PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
 				ReinitQueue (&GLOBAL (ip_group_q));
@@ -118,29 +130,21 @@ GenerateVault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 				if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 					return true;
 
-				{
-					BOOLEAN Survivors =
-							GetHeadLink (&GLOBAL(npc_built_ship_q)) != 0;
+				Survivors = GetHeadLink (&GLOBAL(npc_built_ship_q)) != 0;
 
-					GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
-					ReinitQueue (&GLOBAL (npc_built_ship_q));
-					GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
+				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
+				ReinitQueue (&GLOBAL (npc_built_ship_q));
+				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
 
-					if (Survivors)
-						return true;
+				if (Survivors)
+					return true;
 
-					{
-						UWORD state;
+				state = GET_GAME_STATE (HM_ENCOUNTERS);
+				state |= 1 << URQUAN_ENCOUNTER;
 
-						state = GET_GAME_STATE (HM_ENCOUNTERS);
+				SET_GAME_STATE (HM_ENCOUNTERS, state);
 
-						state |= 1 << URQUAN_ENCOUNTER;
-
-						SET_GAME_STATE (HM_ENCOUNTERS, state);
-					}
-
-					RepairSISBorder ();
-				}
+				RepairSISBorder ();
 			}
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					SetAbsStringTableIndex (
@@ -156,9 +160,10 @@ static COUNT
 GenerateVault_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
-		return GenerateDefault_generateArtifact (solarSys, whichNode, info);
+		return GenerateDefault_generateArtifact (
+				solarSys, whichNode, info);
 	}
 
 	return 0;
@@ -168,7 +173,7 @@ static bool
 GenerateVault_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
 		assert (whichNode == 0);
 

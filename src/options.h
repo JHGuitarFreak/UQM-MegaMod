@@ -27,6 +27,8 @@
 #include "libs/uio.h"
 #include "uqm/setupmenu.h"
 
+#include "uqmversion.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -43,7 +45,7 @@ extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
 extern unsigned int loresBlowupScale;
-extern int resolutionFactor;
+extern unsigned int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
 
@@ -69,13 +71,15 @@ extern OPT_ENABLABLE optInfiniteFuel;
 extern DWORD loadFuel;
 extern OPT_ENABLABLE optPartialPickup;
 extern OPT_ENABLABLE optSubmenu;
-extern OPT_ENABLABLE optAddDevices;
+extern OPT_ENABLABLE optInfiniteCredits;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
 extern OPT_ENABLABLE optCustomBorder;
+extern int optSeedType;
 extern int optCustomSeed;
+extern int optSphereColors;
 extern int spaceMusicBySOI;
-extern OPT_ENABLABLE optSpaceMusic;
+extern int optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
 extern OPT_ENABLABLE optWholeFuel;
 extern OPT_ENABLABLE optDirectionalJoystick;
@@ -85,7 +89,7 @@ extern int optDifficulty;
 extern int optDiffChooser;
 extern int optFuelRange;
 extern OPT_ENABLABLE optExtended;
-extern OPT_ENABLABLE optNomad;
+extern int optNomad;
 extern OPT_ENABLABLE optGameOver;
 extern OPT_ENABLABLE optShipDirectionIP;
 extern OPT_ENABLABLE optHazardColors;
@@ -113,8 +117,14 @@ extern OPT_ENABLABLE optSlaughterMode;
 extern BOOLEAN optMaskOfDeceit;
 extern OPT_ENABLABLE optAdvancedAutoPilot;
 extern OPT_ENABLABLE optMeleeToolTips;
-extern OPT_ENABLABLE optMusicResume;
-extern DWORD optWindowType;;
+extern int optMusicResume;
+extern DWORD optWindowType;
+extern BOOLEAN optNoClassic;
+extern OPT_ENABLABLE optScatterElements;
+extern OPT_ENABLABLE optShowUpgrades;
+extern OPT_ENABLABLE optFleetPointSys;
+extern OPT_ADD_REMOVE optDeviceArray[25];
+extern OPT_ADD_REMOVE optUpgradeArray[13];
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
@@ -149,10 +159,17 @@ typedef struct
 extern ADDON_COUNT addonList;
 
 // addon names to check against
-#define HD_MODE      ("mm-hd")
+#define THREEDO_MUSIC "3domusic"
+#define REMIX_MUSIC   "remix"
+#define VOL_RMX_MUSIC "volasaurus-remix-pack"
+#define REGION_MUSIC  "SpaceMusic"
+#define HD_MODE       "mm-hd"
 
 #define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
 #define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
+
+#define BASE_CONTENT_NAME "mm-" UQM_MAJOR_VERSION_S "." \
+		UQM_MINOR_VERSION_S "." UQM_PATCH_VERSION_S "-content.uqm"
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */

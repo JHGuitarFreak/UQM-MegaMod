@@ -126,11 +126,13 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 			PRIMITIVE *lpWorkPrim;
 			RECT ClipRect;
 			Color color;
+			BYTE flags;
 
 			lpPrim = &lpBasePrim[CurIndex];
 			PrimType = GetPrimType (lpPrim);
 			if (!ValidPrimType (PrimType))
 				continue;
+			flags = GetPrimFlags (lpPrim);
 
 			lpWorkPrim = lpPrim;
 
@@ -141,16 +143,24 @@ DrawBatch (PRIMITIVE *lpBasePrim, PRIM_LINKS PrimLinks,
 					TFB_Prim_Point (&lpWorkPrim->Object.Point, color,
 							mode, origin, FALSE);
 					break;
-				case MISC_PRIM:
-					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin);
-					break;
 				case STAMP_PRIM:
-					TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode, origin);
+					if (flags & HYPER_TO_QUASI_COLOR)
+						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, 
+							MAKE_DRAW_MODE (DRAW_HYPTOQUAS, TRANSFER_ALPHA),
+							origin, flags & UNSCALED_STAMP);
+					else
+						TFB_Prim_Stamp (&lpWorkPrim->Object.Stamp, mode,
+							origin, flags & UNSCALED_STAMP);
 					break;
 				case STAMPFILL_PRIM:
 					color = GetPrimColor (lpWorkPrim);
-					TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
-							mode, origin);
+					if (flags & HS_STARMASK)
+						TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
+							MAKE_DRAW_MODE (DRAW_OVERLAY, TRANSFER_ALPHA), 
+							origin, flags & UNSCALED_STAMP);
+					else
+						TFB_Prim_StampFill (&lpWorkPrim->Object.Stamp, color,
+								mode, origin, flags & UNSCALED_STAMP);
 					break;
 				case LINE_PRIM:
 					color = GetPrimColor (lpWorkPrim);
@@ -299,7 +309,7 @@ DrawStamp (STAMP *stmp)
 	if (GraphicsSystemActive () && GetContextValidRect (NULL, &origin))
 	{
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_Stamp (stmp, mode, origin);
+		TFB_Prim_Stamp (stmp, mode, origin, FALSE);
 	}
 }
 
@@ -312,7 +322,24 @@ DrawFilledStamp (STAMP *stmp)
 	{
 		Color color = GetPrimColor (&_locPrim);
 		DrawMode mode = _get_context_draw_mode ();
-		TFB_Prim_StampFill (stmp, color, mode, origin);
+		TFB_Prim_StampFill (stmp, color, mode, origin, FALSE);
+	}
+}
+
+// Kruzen: Permanently applies layer frame to base via masking
+// until base frame is unloaded from memory.
+// Layer frame should be the same size or larger that base frame.
+// Works with paletted but only with REPLACE mode (doesn't alter the palette).
+// If layer frame is NULL and color pointer is not NULL - blend will be
+// applied to every pixel equally with alpha = 255
+void
+ApplyMask (FRAME layer, FRAME base, DrawMode mode, Color *fill)
+{	
+	POINT origin;
+
+	if (GraphicsSystemActive () && GetContextValidRect (NULL, &origin))
+	{
+		TFB_Prim_MaskFrame (layer, base, mode, fill);
 	}
 }
 

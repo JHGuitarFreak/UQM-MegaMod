@@ -119,6 +119,7 @@ void TFB_DrawImage_FilledImage (TFB_Image *img, int x, int y, int scale,
 		int scaleMode, Color, DrawMode, TFB_Image *target);
 void TFB_DrawImage_FontChar (TFB_Char *, TFB_Image *backing, int x, int y,
 		DrawMode, TFB_Image *target);
+void TFB_DrawImage_MaskImage (TFB_Image *img, DrawMode mode, TFB_Image *target, Color *fill);
 
 TFB_Canvas TFB_DrawCanvas_LoadFromFile (void *dir, const char *fileName);
 TFB_Canvas TFB_DrawCanvas_New_TrueColor (int w, int h, BOOLEAN hasalpha);
@@ -159,6 +160,7 @@ void TFB_DrawCanvas_FontChar (TFB_Char *, TFB_Image *backing, int x, int y,
 		DrawMode, TFB_Canvas target);
 void TFB_DrawCanvas_CopyRect (TFB_Canvas source, const RECT *srcRect,
 		TFB_Canvas target, POINT dstPt);
+void TFB_DrawCanvas_MaskImage (TFB_Image *img, DrawMode mode, TFB_Canvas target, Color *fill);
 
 BOOLEAN TFB_DrawCanvas_GetFontCharData (TFB_Canvas canvas, BYTE *outData,
 		unsigned dataPitch);

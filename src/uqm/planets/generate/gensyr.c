@@ -64,58 +64,60 @@ const GenerateFunctions generateSyreenFunctions = {
 static bool
 GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
+	PLANET_DESC *pPlanet;
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
-	solarSys->SunDesc[0].MoonByte = 0;
+	pSunDesc->MoonByte = 0;
 
-	if (!PrimeSeed)
+	GenerateDefault_generatePlanets (solarSys);
+
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = WATER_WORLD; // | PLANET_SHIELDED;
+		pPlanet->NumPlanets = 1;
+	}
+	else
+	{
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateHabitableWorld ();
+
+		if (!pPlanet->NumPlanets)
+			pPlanet->NumPlanets++;
 	}
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);	
-
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = WATER_WORLD;
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = 1;
-
-	if (!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_MOONS - 1) + 1);
-		solarSys->SunDesc[0].MoonByte = (RandomContext_Random (SysGenRNG) % solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets);
-		CheckForHabitable (solarSys);
-	}
-
-	if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index |= PLANET_SHIELDED;
+	if (!RaceDead (SYREEN_SHIP))
+		pPlanet->data_index |= PLANET_SHIELDED;
 
 	return true;
 }
 
 static bool
-GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
-	if (matchWorld (solarSys, planet, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, planet, MATCH_PBYTE, MATCH_PLANET))
 	{
-		if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = HIERARCHY_STARBASE;
-		else
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].data_index = DESTROYED_STARBASE;
+		BYTE MoonByte = solarSys->SunDesc[0].MoonByte;
+		PLANET_DESC *pMoonDesc = &solarSys->MoonDesc[MoonByte];
 
-		if (PrimeSeed)
+		if (!RaceDead (SYREEN_SHIP))
+			pMoonDesc->data_index = HIERARCHY_STARBASE;
+		else
+			pMoonDesc->data_index = DESTROYED_STARBASE;
+
+		if (PrimeSeed || StarSeed)
 		{
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius = MIN_MOON_RADIUS;
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].location.x =
-					COSINE (QUADRANT, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
-			solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].location.y =
-					SINE (QUADRANT, solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte].radius);
-			ComputeSpeed (&solarSys->MoonDesc[solarSys->SunDesc[0].MoonByte], TRUE, 1);
+			pMoonDesc->radius = MIN_MOON_RADIUS;
+			pMoonDesc->location.x = COSINE (QUADRANT, pMoonDesc->radius);
+			pMoonDesc->location.y = SINE (QUADRANT, pMoonDesc->radius);
+			ComputeSpeed (pMoonDesc, TRUE, 1);
 		}
 	}
 
@@ -126,25 +128,31 @@ static bool
 GenerateSyreen_generateName (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world)
 {
-	if ((GET_GAME_STATE (SYREEN_HOME_VISITS) || GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON))
-		&& matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	GenerateDefault_generateName (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& (GET_GAME_STATE (SYREEN_HOME_VISITS)
+			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
 	{
-		utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
-			GAME_STRING (PLANET_NUMBER_BASE + 39));
-		SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index);
+		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
+		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
+
+		utf8StringCopy (GLOBAL_SIS (PlanetName),
+				sizeof (GLOBAL_SIS (PlanetName)),
+				GAME_STRING (PLANET_NUMBER_BASE + 39));
+
+		SET_GAME_STATE (BATTLE_PLANET, pPlanetDesc.data_index);
 	}
-	else
-		GenerateDefault_generateName (solarSys, world);
 
 	return true;
 }
 
 static bool
-GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
 
-	if (matchWorld (solarSys, world,
-			solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{	/* Gaia */
 		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 		solarSys->PlanetSideFrame[1] =
@@ -155,45 +163,33 @@ GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		GenerateDefault_generateOrbital (solarSys, world);
 
 		solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 19;
+		solarSys->SysInfo.PlanetInfo.AtmoDensity =
+				EARTH_ATMOSPHERE * 9 / 10;
+
 		if (!DIF_HARD)
 		{
 			solarSys->SysInfo.PlanetInfo.Tectonics = 0;
 			solarSys->SysInfo.PlanetInfo.Weather = 0;
 		}
-		solarSys->SysInfo.PlanetInfo.AtmoDensity =
-				EARTH_ATMOSPHERE * 9 / 10;
-
-		if (!PrimeSeed)
-		{
-			solarSys->SysInfo.PlanetInfo.PlanetDensity = 97;
-			solarSys->SysInfo.PlanetInfo.PlanetRadius = 85;
-			solarSys->SysInfo.PlanetInfo.SurfaceGravity = 82;
-			solarSys->SysInfo.PlanetInfo.RotationPeriod = 244;
-			solarSys->SysInfo.PlanetInfo.AxialTilt = 3;
-			solarSys->SysInfo.PlanetInfo.LifeChance = 560;
-		}
 
 		return true;
 	}
 
-	if (matchWorld (solarSys, world,
-			solarSys->SunDesc[0].PlanetByte, solarSys->SunDesc[0].MoonByte))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_MBYTE))
 	{
-		if (CheckAlliance (SYREEN_SHIP) != DEAD_GUY)
+		/* Starbase */
+		if (!RaceDead (SYREEN_SHIP))
 		{
-			/* Starbase */
 			InitCommunication (SYREEN_CONVERSATION);
 
 			return true;
 		}
 		else
 		{
-			/* Starbase */
 			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
 			solarSys->SysInfo.PlanetInfo.DiscoveryString =
 					CaptureStringTable (
-						LoadStringTable (SYREEN_BASE_STRTAB)
-					);
+						LoadStringTable (SYREEN_BASE_STRTAB));
 
 			DoDiscoveryReport (MenuSounds);
 
@@ -215,7 +211,7 @@ static COUNT
 GenerateSyreen_generateEnergy (const SOLARSYS_STATE *solarSys,
 	const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
@@ -227,9 +223,8 @@ static bool
 GenerateSyreen_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-	{
-		// Standard ruins report
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	{	// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);
 		return false;
 	}

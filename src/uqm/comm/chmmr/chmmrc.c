@@ -28,6 +28,8 @@
 			// JMS_GFX: For LoadGraphic 
 #include "../../planets/planets.h"
 			// For MIN_MOON_RADIUS
+// JSD it needs starmap.h to find SOL
+#include "../../starmap.h"
 
 
 static LOCDATA chmmr_desc =
@@ -139,7 +141,7 @@ static FILTER_DESC chmmr_filters =
 		},
 		{
 			0, /* Color index */
-			0, /* Opacity index */
+			3, /* Opacity index */
 			-1, /* Frame index */
 			DRAW_OVERLAY, /* DrawKind*/
 			0, /* Flags */
@@ -189,8 +191,11 @@ ExitConversation (RESPONSE_REF R)
 #define EARTH_INDEX 2 /* earth is 3rd planet --> 3 - 1 = 2 */
 
 		/* transport player to Earth */
-		GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
-		GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+		// JSD replace old method of teleport to SOL with new method
+		// GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
+		// GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (SOL_Y);
+		GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (plot_map[SOL_DEFINED].star_pt.x);
+		GLOBAL_SIS (log_y) = UNIVERSE_TO_LOGY (plot_map[SOL_DEFINED].star_pt.y);
 		GLOBAL (ShipFacing) = 1;
 		/* At Earth or at Starbase */
 		GLOBAL (ip_planet) = EARTH_INDEX + 1;
@@ -213,8 +218,8 @@ ExitConversation (RESPONSE_REF R)
 			/* XXX : this should be unhardcoded eventually */
 			/* transport to Starbase */
 			/* note: if optOrbitingPlanets is enabled, this will be corrected in DoTimePassage */
-			GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + COSINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS) - SAFE_X;
-			GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + SINE(HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS >> 1) - SAFE_Y;
+			GLOBAL (ShipStamp.origin.x) = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1) + COSINE (HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS);
+			GLOBAL (ShipStamp.origin.y) = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1) + SINE (HALF_CIRCLE + QUADRANT, MIN_MOON_RADIUS >> 1);
 		}
 		else
 		{	/* 'Beating Game Differently' mode - never visited Starbase,
@@ -260,6 +265,12 @@ ExitConversation (RESPONSE_REF R)
 		GLOBAL_SIS (ModuleSlots[7]) = BOMB_MODULE_4;
 		GLOBAL_SIS (ModuleSlots[8]) = BOMB_MODULE_5;
 		GLOBAL_SIS (ModuleSlots[9]) = BOMB_MODULE_2;
+	}
+	else if (PLAYER_SAID (R, perhaps_not_install))
+	{
+		NPCPhrase (YES);
+
+		NPCPhrase (GOODBYE);
 	}
 }
 
@@ -343,6 +354,7 @@ ImproveBomb (RESPONSE_REF R)
 	if (CheckAlliance (CHMMR_SHIP) != GOOD_GUY)
 		Response (other_assistance, ImproveBomb);
 	Response (proceed, ExitConversation);
+	Response (perhaps_not_install, ExitConversation);
 }
 
 static void
@@ -647,14 +659,16 @@ Intro (void)
 				{
 					ChmmrPtr->actual_strength =
 							986 / SPHERE_RADIUS_INCREMENT * 2;
-					ChmmrPtr->loc.x = 577;
-					ChmmrPtr->loc.y = 2509;
+					ChmmrPtr->loc = SeedFleetLocation (ChmmrPtr, plot_map,
+							HOME);
 					StartSphereTracking (CHMMR_SHIP);
 				}
 				UnlockFleetInfo (&GLOBAL (avail_race_q), hChmmr);
 			}
 		}
 		SET_GAME_STATE (CHMMR_HOME_VISITS, NumVisits);
+
+		SetHomeworldKnown (CHMMR_HOME);
 	}
 }
 

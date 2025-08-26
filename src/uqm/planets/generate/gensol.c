@@ -78,7 +78,8 @@ GenerateSol_initNpcs (SOLARSYS_STATE *solarSys)
 	GLOBAL (BattleGroupRef) = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 	if (GLOBAL (BattleGroupRef) == 0)
 	{
-		CloneShipFragment (URQUAN_DRONE_SHIP, &GLOBAL (npc_built_ship_q), 0);
+		CloneShipFragment (URQUAN_DRONE_SHIP,
+				&GLOBAL (npc_built_ship_q), 0);
 		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
 		ReinitQueue (&GLOBAL (npc_built_ship_q));
 		SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, GLOBAL (BattleGroupRef));
@@ -115,7 +116,8 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 	COUNT planetI;
 
 #define SOL_SEED 334241042L
-	RandomContext_SeedRandom (SysGenRNG, SOL_SEED);
+	RandomContext_SeedRandom (SysGenRNG, SOL_SEED +
+			(StarSeed ? optCustomSeed : 0));
 
 	solarSys->SunDesc[0].NumPlanets = 9;
 	for (planetI = 0; planetI < 9; ++planetI)
@@ -140,7 +142,8 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				pCurDesc->data_index = PRIMORDIAL_WORLD;
 				pCurDesc->radius = EARTH_RADIUS * 72L / 100;
 				pCurDesc->NumPlanets = 0;
-				pCurDesc->angle = NORMALIZE_ANGLE (FULL_CIRCLE - pCurDesc->angle);
+				pCurDesc->angle =
+						NORMALIZE_ANGLE (FULL_CIRCLE - pCurDesc->angle);
 				break;
 			case 2: /* EARTH */
 				pCurDesc->data_index = WATER_WORLD | PLANET_SHIELDED;
@@ -176,11 +179,12 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 				pCurDesc->data_index = PELLUCID_WORLD;
 				pCurDesc->radius = EARTH_RADIUS * 1550L /* 3937L */ / 100;
 				pCurDesc->NumPlanets = EXTENDED;
-				if(PrimeSeed)
+				if (PrimeSeed)
 					pCurDesc->angle = FULL_CIRCLE - OCTANT;
 				break;
 		}
-		pCurDesc->orb_speed = FULL_CIRCLE / (365.25 * pow((float)pCurDesc->radius / EARTH_RADIUS, 1.5));
+		pCurDesc->orb_speed = FULL_CIRCLE / (365.25 *
+				pow((float)pCurDesc->radius / EARTH_RADIUS, 1.5));
 		pCurDesc->location.x = COSINE (pCurDesc->angle, pCurDesc->radius);
 		pCurDesc->location.y = SINE (pCurDesc->angle, pCurDesc->radius);
 	}
@@ -267,9 +271,12 @@ GenerateSol_generateName (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world)
 {
 	COUNT planetNr = planetIndex (solarSys, world);
-	utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
+
+	utf8StringCopy (GLOBAL_SIS (PlanetName),
+			sizeof (GLOBAL_SIS (PlanetName)),
 			GAME_STRING (PLANET_NUMBER_BASE + planetNr));
-	SET_GAME_STATE (BATTLE_PLANET, solarSys->PlanetDesc[planetNr].data_index);
+	SET_GAME_STATE (BATTLE_PLANET,
+			solarSys->PlanetDesc[planetNr].data_index);
 
 	return true;
 }
@@ -502,10 +509,10 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		switch (planetNr)
 		{
 			case 2: /* moons of EARTH */
-				// NOTE: Even though we save the seed here, it is irrelevant.
-				//   The seed will be used to randomly place the tractors, but
-				//   since they are mobile, they will be moved to different
-				//   locations not governed by this seed.
+				//   NOTE: Even though we save the seed here, it is
+				//   irrelevant. The seed will be used to randomly place
+				//   the tractors, but since they are mobile, they will be
+				//   moved to different locations not governed by this seed.
 				solarSys->SysInfo.PlanetInfo.ScanSeed[BIOLOGICAL_SCAN] =
 						rand_val;
 
@@ -660,6 +667,12 @@ GenerateSol_generateMinerals (const SOLARSYS_STATE *solarSys,
 		return CustomMineralDeposits (&solarSys->SysInfo, whichNode, info,
 				5, CHARON_DUST, LIGHT);
 	}
+	else if (!PrimeSeed && matchWorld (solarSys, world, 0, MATCH_PLANET))
+	{
+		/* Mercury */
+		return CustomMineralDeposits (&solarSys->SysInfo, whichNode, info,
+				5, RADIOACTIVE_COMPOUNDS, LIGHT);
+	}
 	else
 		return GenerateMineralDeposits (&solarSys->SysInfo, whichNode, info);
 }
@@ -673,7 +686,8 @@ GenerateSol_generateEnergy (const SOLARSYS_STATE *solarSys,
 	{
 		/* Pluto */
 		// This check is needed because the retrieval bit is not set for
-		// this node to keep it on the surface while the lander is taking off
+		// this node to keep it on the surface while the lander is taking
+		// off
 		if (GET_GAME_STATE (FOUND_PLUTO_SPATHI))
 		{	// already picked up
 			return 0;
@@ -687,7 +701,7 @@ GenerateSol_generateEnergy (const SOLARSYS_STATE *solarSys,
 
 		return 1; // only matters when count is requested
 	}
-	
+
 	if (matchWorld (solarSys, world, 2, 1))
 	{
 		/* Earth Moon */
@@ -718,7 +732,7 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 	if (matchWorld (solarSys, world, 8, MATCH_PLANET))
 	{	// Pluto
 		assert (!GET_GAME_STATE (FOUND_PLUTO_SPATHI) && whichNode == 0);
-	
+
 		// Ran into Fwiffo on Pluto
 		#define FWIFFO_FRAGS  8
 		if (!KillLanderCrewSeq (FWIFFO_FRAGS, ONE_SECOND / 20))
@@ -734,14 +748,15 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		// showing up on subsequent visits.
 		return false;
 	}
-	
+
 	if (matchWorld (solarSys, world, 2, 1))
 	{	// Earth Moon
 		assert (!GET_GAME_STATE (MOONBASE_DESTROYED) && whichNode == 0);
 
 		GenerateDefault_landerReport (solarSys);
 
-		if (!NOMAD) {
+		if (!NOMAD)
+		{
 			SetLanderTakeoff ();
 
 			SET_GAME_STATE (MOONBASE_DESTROYED, 1);
@@ -764,8 +779,8 @@ GenerateSol_generateLife (const SOLARSYS_STATE *solarSys,
 	if (matchWorld (solarSys, world, 2, 1))
 	{
 		/* Earth Moon */
-		return GenerateRandomNodes (&solarSys->SysInfo, BIOLOGICAL_SCAN, 10,
-				BRAINBOX_BULLDOZER, whichNode, info);
+		return GenerateRandomNodes (&solarSys->SysInfo, BIOLOGICAL_SCAN,
+				10, BRAINBOX_BULLDOZER, whichNode, info);
 	}
 
 	return 0;
@@ -810,7 +825,7 @@ check_probe (void)
 	hGroup = GetHeadLink (&GLOBAL (ip_group_q));
 	if (!hGroup)
 		return; // still nothing to check
-	
+
 	GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
 	// REFORM_GROUP was set in ipdisp.c:ip_group_collision()
 	// during a collision with the flagship.
@@ -824,4 +839,3 @@ check_probe (void)
 	}
 	UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
 }
-

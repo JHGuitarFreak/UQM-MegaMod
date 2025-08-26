@@ -62,142 +62,116 @@ const GenerateFunctions generateTalkingPetFunctions = {
 static bool
 GenerateTalkingPet_generatePlanets (SOLARSYS_STATE *solarSys)
 {
-	COUNT angle;
-	int planetArray[] = { PRIMORDIAL_WORLD, WATER_WORLD, TELLURIC_WORLD };
+	PLANET_DESC *pPlanet;
+	PLANET_DESC *pSunDesc = &solarSys->SunDesc[0];
 
-	solarSys->SunDesc[0].NumPlanets = (BYTE)~0;
-	solarSys->SunDesc[0].PlanetByte = 0;
+	GenerateDefault_generatePlanets (solarSys);
 
-	if (!PrimeSeed)
+	if (PrimeSeed)
 	{
-		solarSys->SunDesc[0].NumPlanets = (RandomContext_Random (SysGenRNG) % (MAX_GEN_PLANETS - 1) + 1);
-		solarSys->SunDesc[0].PlanetByte = (RandomContext_Random (SysGenRNG) % solarSys->SunDesc[0].NumPlanets);
-	}
+		COUNT angle;
 
-	FillOrbits (solarSys, solarSys->SunDesc[0].NumPlanets, solarSys->PlanetDesc, FALSE);
-	GeneratePlanets (solarSys);
+		pSunDesc->PlanetByte = 0;
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-	solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = TELLURIC_WORLD;
-
-	if (!PrimeSeed)
-	{
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].data_index = planetArray[RandomContext_Random (SysGenRNG) % 2];
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].NumPlanets = (RandomContext_Random (SysGenRNG) % MAX_GEN_MOONS);
-		CheckForHabitable (solarSys);
+		pPlanet->data_index = TELLURIC_WORLD;
+		pPlanet->radius = EARTH_RADIUS * 204L / 100;
+		angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
+		pPlanet->location.x = COSINE (angle, pPlanet->radius);
+		pPlanet->location.y = SINE (angle, pPlanet->radius);
+		ComputeSpeed (pPlanet, FALSE, 1);
 	}
 	else
-	{ 
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius = EARTH_RADIUS * 204L / 100;
-		angle = ARCTAN (solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x,
-				solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.x =
-				COSINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].location.y =
-				SINE (angle, solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte].radius);
-		ComputeSpeed (&solarSys->PlanetDesc[solarSys->SunDesc[0].PlanetByte], FALSE, 1);
+	{
+		pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
+		pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
+
+		pPlanet->data_index = GenerateHabitableWorld ();
 	}
 
 	return true;
 }
 
 static bool
-GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
-	{
-		if (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+			&& (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
 			|| !GET_GAME_STATE (TALKING_PET)
-			|| StartSphereTracking (UMGAH_SHIP))
-		{
-			NotifyOthers (UMGAH_SHIP, IPNL_ALL_CLEAR);
-			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
-			ReinitQueue (&GLOBAL (ip_group_q));
-			assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
+			|| StartSphereTracking (UMGAH_SHIP)))
+	{
+		NotifyOthers (UMGAH_SHIP, IPNL_ALL_CLEAR);
+		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+		ReinitQueue (&GLOBAL (ip_group_q));
+		assert (CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
 
-			if (StartSphereTracking (UMGAH_SHIP))
+		if (StartSphereTracking (UMGAH_SHIP))
+		{
+			GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
+			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 7);
+			if (!GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES))
 			{
-				GLOBAL (CurrentActivity) |= START_INTERPLANETARY;
-				SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 7);
-				if (!GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES))
+				CloneShipFragment (UMGAH_SHIP,
+						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
+				InitCommunication (UMGAH_CONVERSATION);
+			}
+			else
+			{
+				COUNT i;
+
+				for (i = 0; i < 10; ++i)
 				{
 					CloneShipFragment (UMGAH_SHIP,
-							&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
-					InitCommunication (UMGAH_CONVERSATION);
+							&GLOBAL (npc_built_ship_q), 0);
 				}
-				else
-				{
-					COUNT i;
-
-					for (i = 0; i < 10; ++i)
-					{
-						CloneShipFragment (UMGAH_SHIP,
-								&GLOBAL (npc_built_ship_q), 0);
-					}
-					InitCommunication (TALKING_PET_CONVERSATION);
-				}
+				InitCommunication (TALKING_PET_CONVERSATION);
 			}
-
-			if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
-			{
-				BOOLEAN UmgahSurvivors;
-
-				UmgahSurvivors = GetHeadLink (
-					&GLOBAL (npc_built_ship_q)) != 0;
-				GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
-
-				if (GET_GAME_STATE (PLAYER_HYPNOTIZED))
-					ZapToUrquanEncounter ();
-				else if (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
-					&& !UmgahSurvivors)
-				{
-					// Defeated the zombie fleet.
-					InitCommunication (TALKING_PET_CONVERSATION);
-				}
-				else if (!(StartSphereTracking (UMGAH_SHIP)))
-				{
-					// The Kohr-Ah have destroyed the Umgah, but the
-					// talking pet survived.
-					InitCommunication (TALKING_PET_CONVERSATION);
-				}
-
-				ReinitQueue (&GLOBAL (npc_built_ship_q));
-				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
-			}
-
-			return true;
 		}
-		else
+
+		if (!(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
 		{
-			LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
-			solarSys->PlanetSideFrame[1] =
-					CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
-			solarSys->SysInfo.PlanetInfo.DiscoveryString =
-					CaptureStringTable (LoadStringTable (RUINS_STRTAB));
+			BOOLEAN UmgahSurvivors;
 
-			GenerateDefault_generateOrbital (solarSys, world);
+			UmgahSurvivors = GetHeadLink (
+					&GLOBAL (npc_built_ship_q)) != 0;
+			GLOBAL (CurrentActivity) &= ~START_INTERPLANETARY;
 
-			if (!DIF_HARD)
-				solarSys->SysInfo.PlanetInfo.Weather = 0;
-
-			if (!PrimeSeed)
+			if (GET_GAME_STATE (PLAYER_HYPNOTIZED))
+				ZapToUrquanEncounter ();
+			else if (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
+					&& !UmgahSurvivors)
 			{
-				solarSys->SysInfo.PlanetInfo.AtmoDensity = 239;
-				solarSys->SysInfo.PlanetInfo.SurfaceTemperature = 72;
-				if (!DIF_HARD)
-					solarSys->SysInfo.PlanetInfo.Tectonics = 3;
-				solarSys->SysInfo.PlanetInfo.PlanetDensity = 96;
-				solarSys->SysInfo.PlanetInfo.PlanetRadius = 107;
-				solarSys->SysInfo.PlanetInfo.SurfaceGravity = 102;
-				solarSys->SysInfo.PlanetInfo.RotationPeriod = 192;
-				solarSys->SysInfo.PlanetInfo.AxialTilt = -18;
-				solarSys->SysInfo.PlanetInfo.LifeChance = 560;
+				// Defeated the zombie fleet.
+				InitCommunication (TALKING_PET_CONVERSATION);
+			}
+			else if (!(StartSphereTracking (UMGAH_SHIP)))
+			{
+				// The Kohr-Ah have destroyed the Umgah, but the
+				// talking pet survived.
+				InitCommunication (TALKING_PET_CONVERSATION);
 			}
 
-			return true;
+			ReinitQueue (&GLOBAL (npc_built_ship_q));
+			GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
 		}
+
+		return true;
+	}
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+	{
+		LoadStdLanderFont (&solarSys->SysInfo.PlanetInfo);
+		solarSys->PlanetSideFrame[1] =
+				CaptureDrawable (LoadGraphic (RUINS_MASK_PMAP_ANIM));
+		solarSys->SysInfo.PlanetInfo.DiscoveryString =
+				CaptureStringTable (LoadStringTable (RUINS_STRTAB));
 	}
 
 	GenerateDefault_generateOrbital (solarSys, world);
+
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
+		solarSys->SysInfo.PlanetInfo.Weather = 0;
 
 	return true;
 }
@@ -206,7 +180,7 @@ static COUNT
 GenerateTalkingPet_generateEnergy (const SOLARSYS_STATE *solarSys,
 		const PLANET_DESC *world, COUNT whichNode, NODE_INFO *info)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		return GenerateDefault_generateRuins (solarSys, whichNode, info);
 	}
@@ -215,10 +189,10 @@ GenerateTalkingPet_generateEnergy (const SOLARSYS_STATE *solarSys,
 }
 
 static bool
-GenerateTalkingPet_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
-		COUNT whichNode)
+GenerateTalkingPet_pickupEnergy (SOLARSYS_STATE *solarSys,
+		PLANET_DESC *world, COUNT whichNode)
 {
-	if (matchWorld (solarSys, world, solarSys->SunDesc[0].PlanetByte, MATCH_PLANET))
+	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		// Standard ruins report
 		GenerateDefault_landerReportCycle (solarSys);
@@ -234,7 +208,8 @@ ZapToUrquanEncounter (void)
 {
 	HENCOUNTER hEncounter;
 
-	if ((hEncounter = AllocEncounter ()) || (hEncounter = GetHeadEncounter ()))
+	if ((hEncounter = AllocEncounter ())
+			|| (hEncounter = GetHeadEncounter ()))
 	{
 		SIZE dx, dy;
 		ENCOUNTER *EncounterPtr;
@@ -250,7 +225,8 @@ ZapToUrquanEncounter (void)
 
 		InsertEncounter (hEncounter, GetHeadEncounter ());
 
-		hStarShip = GetStarShipFromIndex (&GLOBAL (avail_race_q), URQUAN_SHIP);
+		hStarShip = GetStarShipFromIndex (
+				&GLOBAL (avail_race_q), URQUAN_SHIP);
 		TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 		EncounterPtr->origin = TemplatePtr->loc;
 		EncounterPtr->radius = TemplatePtr->actual_strength;
@@ -262,8 +238,16 @@ ZapToUrquanEncounter (void)
 		BSIPtr->crew_level = TemplatePtr->crew_level;
 		BSIPtr->max_crew = TemplatePtr->max_crew;
 		BSIPtr->max_energy = TemplatePtr->max_energy;
-		EncounterPtr->loc_pt.x = 5288;
-		EncounterPtr->loc_pt.y = 4892;
+
+		HFLEETINFO hUmgah = GetStarShipFromIndex
+				(&GLOBAL (avail_race_q), UMGAH_SHIP);
+		FLEET_INFO *UmgahPtr =
+				LockFleetInfo (&GLOBAL (avail_race_q), hUmgah);
+
+		EncounterPtr->loc_pt = SeedFleetLocation
+				(UmgahPtr, plot_map, SAMATRA_DEFINED);
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hUmgah);
+
 		EncounterPtr->log_x = UNIVERSE_TO_LOGX (EncounterPtr->loc_pt.x);
 		EncounterPtr->log_y = UNIVERSE_TO_LOGY (EncounterPtr->loc_pt.y);
 		GLOBAL_SIS (log_x) = EncounterPtr->log_x;
@@ -276,7 +260,9 @@ ZapToUrquanEncounter (void)
 			MoveGameClockDays (LOST_DAYS);
 		}
 
-		GLOBAL (CurrentActivity) = MAKE_WORD (IN_HYPERSPACE, 0) | START_ENCOUNTER;
+		GLOBAL (CurrentActivity) =
+				MAKE_WORD (IN_HYPERSPACE, 0) | START_ENCOUNTER;
+		SetBattlePlanet ();
 
 		dx = CurStarDescPtr->star_pt.x - EncounterPtr->loc_pt.x;
 		dy = CurStarDescPtr->star_pt.y - EncounterPtr->loc_pt.y;
@@ -301,4 +287,3 @@ ZapToUrquanEncounter (void)
 		UnlockEncounter (hEncounter);
 	}
 }
-
