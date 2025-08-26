@@ -1863,5 +1863,31 @@ uio_MountHandle_free(uio_MountHandle *mountHandle) {
 	uio_free(mountHandle);
 }
 
+unsigned char *
+Get_Basename (const char *path)
+{
+	const char *last_slash = strrchr (path, '/');
+	const char *last_backslash = strrchr (path, '\\');
+
+	const char *last_separator = NULL;
+	if (last_slash && last_backslash)
+	{
+		last_separator = (last_slash > last_backslash) ? last_slash : last_backslash;
+	}
+	else if (last_slash)
+	{
+		last_separator = last_slash;
+	}
+	else if (last_backslash)
+	{
+		last_separator = last_backslash;
+	}
+
+	if (last_separator != NULL)
+	{
+		return last_separator + 1;
+	}
+	return path;
+}
 
 
