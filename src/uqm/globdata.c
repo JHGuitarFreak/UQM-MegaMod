@@ -534,6 +534,19 @@ InitGameStructures (void)
 	InitGlobData ();
 	// Set Seed Type, then check/start StarSeed
 	SET_GAME_STATE (SEED_TYPE, optSeedType);
+	GLOBAL_SIS (Difficulty) = optDifficulty;
+	GLOBAL_SIS (Extended) = optExtended;
+	GLOBAL_SIS (Nomad) = optNomad;
+	if (PrimeSeed)
+	{
+		optShipSeed = false;
+		optCustomSeed = PrimeA;
+	}
+	if (DIF_HARD && !PrimeSeed && !StarSeed)
+	{
+		srand (time (NULL));
+		optCustomSeed = (rand () % ((MAX_SEED - MIN_SEED) + MIN_SEED));
+	}
 	GLOBAL_SIS (Seed) = optCustomSeed;
 	GLOBAL_SIS (ShipSeed) = (optShipSeed ? 1 : 0);
 #ifdef DEBUG_STARSEED
@@ -551,6 +564,7 @@ InitGameStructures (void)
 	// so we still need this.
 	if (!InitStarseed (TRUE))
 		return (FALSE);
+	GLOBAL_SIS (Seed) = optCustomSeed;	// In case Starseed rolls the seed
 
 	PlayFrame = CaptureDrawable (LoadGraphic (PLAYMENU_ANIM));
 
@@ -566,17 +580,6 @@ InitGameStructures (void)
 
 	GLOBAL (glob_flags) = NUM_READ_SPEEDS >> 1;
 	
-	GLOBAL_SIS (Difficulty) = optDifficulty;
-	GLOBAL_SIS (Extended) = optExtended;
-	GLOBAL_SIS (Nomad) = optNomad;
-	GLOBAL_SIS (Seed) = optCustomSeed;	// In case Starseed rolls the seed
-
-	if (DIF_HARD && !PrimeSeed && !StarSeed)
-	{
-		srand (time (NULL));
-		GLOBAL_SIS (Seed) = (rand () % ((MAX_SEED - MIN_SEED) + MIN_SEED));
-	}
-
 	GLOBAL (ElementWorth[COMMON]) = 1;
 	GLOBAL_SIS (ElementAmounts[COMMON]) = 0;
 	GLOBAL (ElementWorth[CORROSIVE]) = 2;

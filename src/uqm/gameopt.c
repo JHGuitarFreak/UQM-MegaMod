@@ -1278,18 +1278,14 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		RECT OldRect;
 		TEXT t;
 		QUEUE player_built_q;
-		QUEUE player_avail_q;
 		CONTEXT OldContext;
 		SIS_STATE SaveSS;
 		UNICODE buf[256];
 		POINT starPt;
 
 		// Save the states because we will hack them
-		int SaveCustomSeed = optCustomSeed;
-		BOOLEAN SaveShipSeed = optShipSeed;
 		SaveSS = GlobData.SIS_state;
 		player_built_q = GLOBAL (built_ship_q);
-		player_avail_q = GLOBAL (avail_race_q);
 
 		OldContext = SetContext (StatusContext);
 		// Hack StatusContext so we can use standard SIS display funcs
@@ -1305,12 +1301,6 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		// Hack the states so that we can use standard SIS display funcs
 		GlobData.SIS_state = pSD->SS;
-
-		// Reload master ship list and avail_race_q based on ShipSeed
-		optCustomSeed = GLOBAL_SIS (Seed);
-		optShipSeed = ((GLOBAL_SIS (ShipSeed) > 0) ? true : false);
-		LoadMasterShipList (NULL);
-		LoadFleetInfo ();
 
 		DrawSaveInfo (GlobData.SIS_state);
 		InitQueue (&GLOBAL (built_ship_q),
@@ -1485,15 +1475,10 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		SetContext (OldContext);
 
 		// Restore the state and queues because we hacked them
-		// Then reload seeds and master ship list
 		GLOBAL (built_ship_q) = player_built_q;
-		GLOBAL (avail_race_q) = player_avail_q;
 		GlobData.SIS_state = SaveSS;
-		optCustomSeed = SaveCustomSeed;
-		optShipSeed = SaveShipSeed;
 		if (optCustomBorder)
 			DrawStatusMessage (NULL);
-		LoadMasterShipList (NULL);
 	}
 
 	UnbatchGraphics ();

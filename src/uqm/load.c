@@ -847,7 +847,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 	GlobData.SIS_state = SummPtr->SS;
 
 	optCustomSeed = GLOBAL_SIS (Seed);
-	optShipSeed = (GLOBAL_SIS (ShipSeed) > 0 ? true : false);
+	optShipSeed = (GLOBAL_SIS (ShipSeed) != 0 ? true : false);
 	LoadMasterShipList (NULL);
 	LoadFleetInfo ();
 
