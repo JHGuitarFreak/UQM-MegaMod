@@ -107,8 +107,8 @@ void TFB_PurgeDanglingGraphics (void); // Only call from main thread as part of 
 extern int fs_height; 
 extern int fs_width;
 
-extern int ScreenWidth;
-extern int ScreenHeight;
+extern int CanvasWidth;
+extern int CanvasHeight;
 extern int ScreenWidthActual;
 extern int ScreenHeightActual;
 extern int ScreenColorDepth;

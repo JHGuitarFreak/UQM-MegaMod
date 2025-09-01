@@ -70,7 +70,7 @@ static inline BOOLEAN
 IsWholeScreen (RECT *r)
 {
 	return (r->corner.x == 0 && r->corner.y == 0 &&
-		r->extent.width == ScreenWidth && r->extent.height == ScreenHeight);
+		r->extent.width == CanvasWidth && r->extent.height == CanvasHeight);
 }
 
 int

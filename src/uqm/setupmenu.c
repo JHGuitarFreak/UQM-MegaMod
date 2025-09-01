@@ -2807,17 +2807,17 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		ResetOffset ();
 
 		RESOLUTION_FACTOR = resolutionFactor;
-		ScreenWidth = 320 << resolutionFactor;
-		ScreenHeight = DOS_BOOL (240, 200) << resolutionFactor;
+		CanvasWidth = 320 << resolutionFactor;
+		CanvasHeight = DOS_BOOL (240, 200) << resolutionFactor;
 
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
-				"Wactual:%d, Hactual:%d", ScreenWidth, ScreenHeight,
+				"Wactual:%d, Hactual:%d", CanvasWidth, CanvasHeight,
 				ScreenWidthActual, ScreenHeightActual);
 
 		// These solve the context problem that plagued the setupmenu
 		// when changing to higher resolution.
 		TFB_BBox_Reset ();
-		TFB_BBox_Init (ScreenWidth, ScreenHeight);
+		TFB_BBox_Init (CanvasWidth, CanvasHeight);
 		FlushColorXForms ();
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,

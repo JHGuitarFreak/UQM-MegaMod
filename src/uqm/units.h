@@ -26,13 +26,13 @@
 extern "C" {
 #endif
 
-extern int ScreenWidth;
-extern int ScreenHeight;
+extern int CanvasWidth;
+extern int CanvasHeight;
 
 		/* Most basic resolution units. */
 #define HD 2
-#define SCREEN_WIDTH ScreenWidth
-#define SCREEN_HEIGHT ScreenHeight
+#define SCREEN_WIDTH CanvasWidth
+#define SCREEN_HEIGHT CanvasHeight
 #define RESOLUTION_FACTOR resolutionFactor
 #define IS_HD (RESOLUTION_FACTOR != HD ? FALSE : TRUE)
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)

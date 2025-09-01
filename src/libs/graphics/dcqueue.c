@@ -146,7 +146,7 @@ Init_DrawCommandQueue (void)
 	DrawCommandQueue.FullSize = 0;
 	DrawCommandQueue.Size = 0;
 
-	TFB_BBox_Init (ScreenWidth, ScreenHeight);
+	TFB_BBox_Init (CanvasWidth, CanvasHeight);
 
 	DCQ_Mutex = CreateRecursiveMutex ("DCQ",
 			SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);

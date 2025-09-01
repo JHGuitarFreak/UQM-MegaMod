@@ -28,8 +28,8 @@
 int fs_height = 0; 
 int fs_width  = 0;
 
-int ScreenWidth;
-int ScreenHeight;
+int CanvasWidth;
+int CanvasHeight;
 int ScreenWidthActual;
 int ScreenHeightActual;
 int ScreenColorDepth;
@@ -132,15 +132,15 @@ ExpandRect (RECT *rect, int expansion)
 		rect->corner.y = 0;
 	}
 
-	if (rect->corner.x + rect->extent.width + expansion <= ScreenWidth)
+	if (rect->corner.x + rect->extent.width + expansion <= CanvasWidth)
 		rect->extent.width += expansion;
 	else
-		rect->extent.width = ScreenWidth - rect->corner.x;
+		rect->extent.width = CanvasWidth - rect->corner.x;
 
-	if (rect->corner.y + rect->extent.height + expansion <= ScreenHeight)
+	if (rect->corner.y + rect->extent.height + expansion <= CanvasHeight)
 		rect->extent.height += expansion;
 	else
-		rect->extent.height = ScreenHeight - rect->corner.y;
+		rect->extent.height = CanvasHeight - rect->corner.y;
 }
 
 void

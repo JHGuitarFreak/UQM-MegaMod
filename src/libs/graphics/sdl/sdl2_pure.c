@@ -214,16 +214,16 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			SDL2_Screens[i].texture = NULL;
 			SDL2_Screens[i].dirty = TRUE;
 			SDL2_Screens[i].active = TRUE;
-			if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth,
-					ScreenHeight))
+			if (0 != ReInit_Screen (&SDL_Screens[i], CanvasWidth,
+					CanvasHeight))
 			{
 				return -1;
 			}
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth,
-					ScreenHeight))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, CanvasWidth,
+					CanvasHeight))
 				return -1;
 		}
 		else
@@ -248,8 +248,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 			{
 				SDL2_Screens[i].dirty = TRUE;
-				if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth,
-						ScreenHeight))
+				if (0 != ReInit_Screen (&SDL_Screens[i], CanvasWidth,
+						CanvasHeight))
 				{
 					return -1;
 				}
@@ -259,8 +259,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth,
-					ScreenHeight))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, CanvasWidth,
+					CanvasHeight))
 				return -1;
 		}
 		else
@@ -302,7 +302,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 				continue;
 			}
 			if (0 != ReInit_Screen(&SDL2_Screens[i].scaled,
-					ScreenWidth * 2, ScreenHeight * 2))
+					CanvasWidth * 2, CanvasHeight * 2))
 			{
 				return -1;
 			}
@@ -313,7 +313,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			}
 			SDL2_Screens[i].texture = SDL_CreateTexture (renderer,
 					SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING,
-					ScreenWidth * 2, ScreenHeight * 2);
+					CanvasWidth * 2, CanvasHeight * 2);
 			SDL_LockSurface (SDL2_Screens[i].scaled);
 			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL,
 					SDL2_Screens[i].scaled->pixels,
@@ -322,8 +322,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth * 2,
-					ScreenHeight * 2))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, CanvasWidth * 2,
+					CanvasHeight * 2))
 				return -1;
 		}
 		else
@@ -347,7 +347,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			}
 			SDL2_Screens[i].texture = SDL_CreateTexture (renderer,
 					SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING,
-					ScreenWidth, ScreenHeight);
+					CanvasWidth, CanvasHeight);
 			SDL_LockSurface (SDL_Screens[i]);
 			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL,
 					SDL_Screens[i]->pixels, SDL_Screens[i]->pitch);
@@ -376,8 +376,8 @@ TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");
 
-	ScreenWidth = (320 << resFactor);
-	ScreenHeight = ((windowType ? 240 : 200) << resFactor);
+	CanvasWidth = (320 << resFactor);
+	CanvasHeight = ((windowType ? 240 : 200) << resFactor);
 	rendererBackend = renderer;
 
 	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0,
@@ -410,8 +410,8 @@ TFB_SDL2_UploadTransitionScreen (void)
 {
 	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.x = 0;
 	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.y = 0;
-	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.w = ScreenWidth;
-	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.h = ScreenHeight;
+	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.w = CanvasWidth;
+	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.h = CanvasHeight;
 	SDL2_Screens[TFB_SCREEN_TRANSITION].dirty = TRUE;
 }
 
@@ -454,22 +454,22 @@ TFB_SDL2_ScanLines (bool hd)
 	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
 	if (!hd)
 	{		
-		SDL_RenderSetLogicalSize (renderer, ScreenWidth << 1,
-				ScreenHeight << 1);
-		for (y = 0; y < (ScreenHeight << 1); y += 2)
+		SDL_RenderSetLogicalSize (renderer, CanvasWidth << 1,
+				CanvasHeight << 1);
+		for (y = 0; y < (CanvasHeight << 1); y += 2)
 		{
-			SDL_RenderDrawLine(renderer, 0, y, (ScreenWidth << 1) - 1, y);
+			SDL_RenderDrawLine(renderer, 0, y, (CanvasWidth << 1) - 1, y);
 		}
-		SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
+		SDL_RenderSetLogicalSize (renderer, CanvasWidth, CanvasHeight);
 	}
 	else
 	{
-		for (y = 0; y < ScreenHeight; y++)
+		for (y = 0; y < CanvasHeight; y++)
 		{
 			if (y & 2)
 				continue;
 
-			SDL_RenderDrawLine (renderer, 0, y, ScreenWidth - 1, y);
+			SDL_RenderDrawLine (renderer, 0, y, CanvasWidth - 1, y);
 		}
 	}	
 }
@@ -480,8 +480,8 @@ TFB_SDL2_FPS (void)
 	SDL_Texture *texture;
 	SDL_Rect r;
 	r.x = r.y = 0;
-	r.w = ScreenWidth >> 4;
-	r.h = ScreenHeight >> 5;
+	r.w = CanvasWidth >> 4;
+	r.h = CanvasHeight >> 5;
 	texture = SDL_CreateTextureFromSurface (renderer, SDL_Screen_fps);
 	SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_BLEND);
 	SDL_RenderCopy (renderer, texture, &r, &r);
@@ -500,8 +500,8 @@ TFB_SDL2_Preprocess (int force_full_redraw, int transition_amount,
 	{
 		SDL2_Screens[TFB_SCREEN_MAIN].updated.x = 0;
 		SDL2_Screens[TFB_SCREEN_MAIN].updated.y = 0;
-		SDL2_Screens[TFB_SCREEN_MAIN].updated.w = ScreenWidth;
-		SDL2_Screens[TFB_SCREEN_MAIN].updated.h = ScreenHeight;
+		SDL2_Screens[TFB_SCREEN_MAIN].updated.w = CanvasWidth;
+		SDL2_Screens[TFB_SCREEN_MAIN].updated.h = CanvasHeight;
 		SDL2_Screens[TFB_SCREEN_MAIN].dirty = TRUE;
 	}
 	else if (TFB_BBox.valid)
