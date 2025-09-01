@@ -107,7 +107,7 @@ BackgroundInitKernel (DWORD TimeOut)
 	InitGameKernel ();
 
 	while ((GetTimeCounter () <= TimeOut) &&
-	       !(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			!(GLOBAL (CurrentActivity) & CHECK_ABORT))
 	{
 		UpdateInputState ();
 		TaskSwitch ();

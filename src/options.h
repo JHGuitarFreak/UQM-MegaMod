@@ -71,7 +71,7 @@ extern OPT_ENABLABLE optInfiniteFuel;
 extern DWORD loadFuel;
 extern OPT_ENABLABLE optPartialPickup;
 extern OPT_ENABLABLE optSubmenu;
-extern OPT_ENABLABLE optAddDevices;
+extern OPT_ENABLABLE optInfiniteCredits;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
 extern OPT_ENABLABLE optCustomBorder;
@@ -122,6 +122,9 @@ extern DWORD optWindowType;
 extern BOOLEAN optNoClassic;
 extern OPT_ENABLABLE optScatterElements;
 extern OPT_ENABLABLE optShowUpgrades;
+extern OPT_ENABLABLE optFleetPointSys;
+extern OPT_ADD_REMOVE optDeviceArray[25];
+extern OPT_ADD_REMOVE optUpgradeArray[13];
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;

@@ -1,50 +1,43 @@
-# Windows Instructions
+# Font to PNG Converter
 
-To use this script you have to install [FontForge](https://fontforge.org/en-US/downloads/) and [ImageMagick](https://imagemagick.org/script/download.php).
-Then you add FontForge and ImageMagick's installation folder
-to your [environment path](https://stackoverflow.com/a/44272417/2373275).
+This Python script converts font glyphs into individual PNG images, named by their Unicode values.
 
-Once you have that completed you can `cd` into the script directory
-with either the CMD prompt, Windows PowerShell, or any Bash Shell,
-type in `fontforge-console` and press `Enter`. 
-This will allow you to  use FontForge's built-in Python interpreter.
-Then you can run the script by typing in `ffpython ttf2png.py` and 
-hitting `Enter`. The script will list out all the fonts in the 
-working directing for you to choose from (for now just choose 'dpcomic.ttf')
-and then prompts you for the font size after you've picked a font.
+## Requirements
+- Python 3.x
+- FontForge Python bindings (`fontforge`)
+- Pillow library (`PIL`)
 
-If succesful it should start spitting out PNG files
-from the test font 'DPComic' into a newly created "dpcomic" directory.
+Install dependencies with:
+`pip install fontforge pillow`
 
-With the test completed you too can have the fun of exporting PNG files
-from any given font.
+If you're using MSYS2/MinGW64:
+`pacman -S mingw-w64-x86_64-fontforge mingw-w64-x86_64-python-pillow`
 
-## Troubleshooting
-### Glyphs are at different heights
-When each glyph image has a differing height it can make for an uneven font 
-display within UQM. Luckily this is an easily resolved issue. 
-First you find largest image height within the font directory.
-Say, for example, it's 65. (Width does not matter in this context)
-We click over to our CMD prompt, PowerShell, or Bash Shell and `cd` into
-the font folder and type in this command and press enter:
-`mogrify -extent 0x65 -gravity North -background black *.png`
+## Usage
+1. Place your font files (TTF/OTF/WOFF) in the same directory as the script
+2. Run the script: `python font2png.py`
+3. Choose your font from the list provided
+4. Enter the desired font size in point
+5. If there are no errors your font will be exported in a matter of seconds
 
-What this does is expands the image height of every glyph `.png` within 
-the current directory to 65 pixels, leaving width intact.
+### Command Line Options
+- `--ansi` Export only ANSI character set (0x20-0xFF) - Can not be used with `--ascii`
+- `--ascii` Export only basic ASCII character set (0x20-0x7F) - Can not be used with `--ansi`
+- `--invert` Export PNG as black on white (default is white on black)
+- `--ascender #` Custom ascender value for fonts with cut-off tops - Must be taller than the font's ascender
+- `--descender #` Custom descender value for fonts with cut-off bottoms - Must be shorter than the font's descender
+- `--uqm` Option for UQM fonts that adjusts final widths
 
-All that needs to be done for your particular use case is to take the 
-actual largest height from your glyph `.png` files and plug it into the command.
+## Example Output
+`python font2png.py --uqm --ascii --invert`
 
+This will export ASCII characters (32-127) as black glyphs on white background using UQM width adjustments.
 
-### Other commands that can help with fonts
+<img width="189" height="256" alt="Example Python output" src="https://github.com/user-attachments/assets/108f0845-b0bf-4ed2-815f-1ade3e9332a7" />
+<img width="547" height="256" alt="Example image output" src="https://github.com/user-attachments/assets/434254c4-4510-44f2-80be-06d2b265b2a5" />
 
-Add 3 pixels to the right of the canvas:
-`mogrify -splice 3x0 -gravity East -background black *.png`
-
-Remove 3 pixels to the left of the canvas:
-`mogrify -chop 3x0 -gravity West *.png`
-
-Trim the East and West sides by color (No longer needed as it's now part of the export process):
-`mogrify -fuzz 10% -define trim:edges=east/west -trim +repage *.png`
-
-DPComic font made by codeman38 - http://www.zone38.net/
+## Notes
+The `Ascender`, `Descender`, and `ImgHeight` values shown in the output are for scenarios where the font is chopped off
+either at the top or bottom and to be used in conjunction with the `--ascender #` and `--descender #` command line
+options accordingly.  
+Also some vertical adjustment will still be required for all exported glyphs in order to get the desired size absolutely perfect.

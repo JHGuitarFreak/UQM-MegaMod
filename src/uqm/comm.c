@@ -76,8 +76,6 @@ static BOOLEAN TalkingFinished;
 static CommIntroMode curIntroMode = CIM_DEFAULT;
 static TimeCount fadeTime;
 
-BOOLEAN IsProbe;
-
 // Dark mode
 BOOLEAN IsDarkMode = FALSE;
 BOOLEAN cwLock = FALSE; // To avoid drawing over comWindow if JumpTrack() is called
@@ -1189,16 +1187,7 @@ AlienTalkSegue (COUNT wait_track)
 		
 		pCurInputState->Initialized = TRUE;
 
-		SetMusicVolume (MUTE_VOLUME);
-		PlayMusic (AlienSong, TRUE, 1);
-
-		if (OkayToResume ())
-		{
-			SeekMusic (GetMusicPosition ());
-			FadeMusic (BACKGROUND_VOL, ONE_SECOND * 2);
-		}
-		else
-			SetMusicVolume (BACKGROUND_VOL);
+		PlayMusicResume (AlienSong, BACKGROUND_VOL);
 
 		InitCommAnimations ();
 
@@ -1932,8 +1921,6 @@ InitCommunication (CONVERSATION which_comm)
 	COUNT status;
 	LOCDATA *LocDataPtr;
 
-	IsProbe = FALSE;
-
 #ifdef DEBUG
 	if (disableInteractivity)
 		return 0;
@@ -1984,7 +1971,6 @@ InitCommunication (CONVERSATION which_comm)
 	{
 		status = URQUAN_DRONE_SHIP;
 		which_comm = URQUAN_CONVERSATION;
-		IsProbe = TRUE;
 	}
 	else
 	{

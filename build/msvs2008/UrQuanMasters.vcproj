@@ -2264,6 +2264,46 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath="..\..\src\libs\graphics\sdl\clipboard.c"
+							>
+							<FileConfiguration
+								Name="Debug SDL1|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release SDL1|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath="..\..\src\libs\graphics\sdl\hq2x.c"
 							>
 							<FileConfiguration

@@ -682,7 +682,6 @@ TFB_HasColorKey (SDL_Surface *surface)
 void
 TFB_ScreenShot (void)
 {
-
 	char curTime[PATH_MAX], fullPath[PATH_MAX];
 	time_t t = time (NULL);
 	struct tm *tm = localtime (&t);

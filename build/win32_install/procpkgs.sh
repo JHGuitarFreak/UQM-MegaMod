@@ -11,7 +11,7 @@
 # should generally already have those in your path.
 
 NSH_FILE="packages.nsh"
-PKG_VERSION="0.8.3"
+PKG_VERSION="0.8.4"
 
 CONTENT_PKG="mm-$PKG_VERSION-content.uqm"
 HD_CONTENT_PKG="mm-$PKG_VERSION-hd-content.uqm"

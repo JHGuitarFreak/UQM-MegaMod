@@ -82,7 +82,7 @@ OPT_ENABLABLE optInfiniteFuel;
 DWORD loadFuel;
 OPT_ENABLABLE optPartialPickup;
 OPT_ENABLABLE optSubmenu;
-OPT_ENABLABLE optAddDevices;
+OPT_ENABLABLE optInfiniteCredits;
 BOOLEAN optSuperMelee;
 BOOLEAN optLoadGame;
 OPT_ENABLABLE optCustomBorder;
@@ -133,6 +133,9 @@ DWORD optWindowType;
 BOOLEAN optNoClassic;
 OPT_ENABLABLE optScatterElements;
 OPT_ENABLABLE optShowUpgrades;
+OPT_ENABLABLE optFleetPointSys;
+OPT_ADD_REMOVE optDeviceArray[25];
+OPT_ADD_REMOVE optUpgradeArray[13];
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

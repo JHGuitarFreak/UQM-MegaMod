@@ -417,10 +417,8 @@ COUNT
 CustomMineralDeposit (NODE_INFO *info, COUNT type, BYTE quality,
 		POINT location)
 {
-	NODE_INFO temp_info;
 	COUNT deposit_quality_fine;
 	COUNT deposit_quality_gross;
-	SDWORD temp_deposit_quality;
 
 	if (!info)
 		return 0;

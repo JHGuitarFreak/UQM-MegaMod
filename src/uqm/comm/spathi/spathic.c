@@ -209,8 +209,8 @@ ExitConversation (RESPONSE_REF Response)
 	}
 	else if (PLAYER_SAID (Response, join_us_nomad))
 	{
-		if ((EscortFeasibilityStudy (SPATHI_SHIP) == 0 
-				|| CountEscortShips (SPATHI_SHIP) > 2)) 
+		if ((EscortFeasibilityStudy (SPATHI_SHIP) == 0
+				|| CountEscortShips (SPATHI_SHIP) > 2))
 		{
 			NPCPhrase (TOO_SCARY);
 		}

@@ -126,7 +126,7 @@ DrawModuleStatus (COUNT index, COUNT pos, bool selected)
 		SetContextForeGroundColor (selected ?
 				MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
 		t.baseline.y = r.corner.y + TEXT_BASELINE;
-		t.pStr = GAME_STRING (index + STARBASE_STRING_BASE + 10);
+		t.pStr = GAME_STRING (index + STARBASE_STRING_BASE + 12);
 		t.CharCount = utf8StringPos (t.pStr, ' ');
 		font_DrawText (&t);
 		t.baseline.y += TEXT_SPACING_Y;
@@ -183,7 +183,7 @@ DrawModuleDisplay (MODULES_STATE *modState)
 	t.baseline.x = (STATUS_WIDTH >> 1) - RES_SCALE (1);
 	t.baseline.y = r.corner.y + RES_SCALE (7);
 	t.align = ALIGN_CENTER;
-	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 9);
+	t.pStr = GAME_STRING (STARBASE_STRING_BASE + 11);
 	t.CharCount = (COUNT)~0;
 	SetContextForeGroundColor (MODULE_SELECTED_COLOR);
 	font_DrawText (&t);
@@ -272,7 +272,7 @@ DrawModuleMenuText (RECT *r, int Index)
 	UNICODE buf[256];
 	COORD og_baseline_x;
 
-	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 24 + Index)))
+	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 26 + Index)))
 		return;
 
 	SetContextFont (ModuleFont);
@@ -295,7 +295,7 @@ DrawModuleMenuText (RECT *r, int Index)
 	og_baseline_x = text.baseline.x;
 
 	utf8StringCopy ((char *)buf, sizeof (buf),
-			GAME_STRING (STARBASE_STRING_BASE + 24 + Index));
+			GAME_STRING (STARBASE_STRING_BASE + 26 + Index));
 
 	text.align = ALIGN_CENTER;
 	text.pStr = strtok (buf, " ");
@@ -450,7 +450,7 @@ DrawEscapePodText (RECT rect )
 	UNICODE buf[256];
 	COORD og_baseline_x;
 
-	if (!strlen (GAME_STRING (STARBASE_STRING_BASE + 39)))
+	if (!strlen (GAME_STRING (STARBASE_STRING_BASE + 41)))
 		return;
 
 	OldFont = SetContextFont (SquareFont);
@@ -478,7 +478,7 @@ DrawEscapePodText (RECT rect )
 	og_baseline_x = text.baseline.x;
 
 	utf8StringCopy ((char *)buf, sizeof (buf),
-			GAME_STRING (STARBASE_STRING_BASE + 39));
+			GAME_STRING (STARBASE_STRING_BASE + 41));
 
 	text.align = ALIGN_CENTER;
 	text.pStr = strtok (buf, " ");
@@ -512,7 +512,7 @@ DrawNoLandersText (RECT rect)
 	Color OldColor;
 	RECT block;
 
-	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 38)))
+	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 40)))
 		return;
 
 	OldFont = SetContextFont (SquareFont);
@@ -529,7 +529,7 @@ DrawNoLandersText (RECT rect)
 	text.baseline.y += RES_SCALE (17);
 	text.align = ALIGN_CENTER;
 	text.pStr = AlignText (
-			(const UNICODE *)GAME_STRING (STARBASE_STRING_BASE + 38),
+			(const UNICODE *)GAME_STRING (STARBASE_STRING_BASE + 40),
 			&text.baseline.x);
 	text.CharCount = (COUNT)~0;
 
@@ -1280,16 +1280,7 @@ DoOutfit (MENU_STATE *pMS)
 
 			ScreenTransition (optScrTrans, NULL);
 
-			SetMusicVolume (MUTE_VOLUME);
-			PlayMusic (pMS->hMusic, TRUE, 1);
-
-			if (OkayToResume ())
-			{
-				SeekMusic (GetMusicPosition ());
-				FadeMusic (NORMAL_VOLUME, ONE_SECOND * 2);
-			}
-			else
-				SetMusicVolume (NORMAL_VOLUME);
+			PlayMusicResume (pMS->hMusic, NORMAL_VOLUME);
 
 			UnbatchGraphics ();
 			
