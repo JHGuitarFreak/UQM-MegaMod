@@ -845,15 +845,9 @@ StartGame (void)
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);
 
-	// Make sure to reset the seed if prime game is called for.
-	if (PrimeSeed)
-	{
-		optShipSeed = false;
-		optCustomSeed = PrimeA;
-	}
 #ifdef DEBUG_STARSEED
-	fprintf(stderr, "StartGame called for %d mode with seed %d.\n",
-			optSeedType, optCustomSeed);
+	fprintf(stderr, "StartGame called for %d mode with seed %d shipseed %s.\n",
+			optSeedType, optCustomSeed, optShipSeed ? "on" : "off");
 #endif
 	{
 		extern STAR_DESC starmap_array[];

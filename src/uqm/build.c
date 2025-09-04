@@ -73,6 +73,30 @@ GetStarShipFromIndex (QUEUE *pShipQ, COUNT Index)
 	return (hStarShip);
 }
 
+// Gives the first fleet in avail_race_q that builds specified ship.
+HLINK
+GetFleetFromSpecies (SPECIES_ID id)
+{
+	HLINK hFleet, hNextFleet;
+
+	for (hFleet = GetHeadLink (&GLOBAL (avail_race_q));
+			hFleet; hFleet = hNextFleet)
+	{
+		FLEET_INFO *FleetPtr;
+
+		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+		if (FleetPtr->SpeciesID == id)
+		{
+			UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+			return hFleet;
+		}
+		hNextFleet = _GetSuccLink (FleetPtr);
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	}
+
+	return (hFleet);
+}
+
 HSHIPFRAG
 GetEscortByStarShipIndex (COUNT index)
 {
@@ -641,6 +665,20 @@ CloneShipFragment (RACE_ID shipIndex, QUEUE *pDstQueue, COUNT crew_level)
 	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), shipIndex);
 	if (!hFleet)
 		return 0;
+	// The options seed / shipseed should only mismatch during load screen
+	// It clones fragments off a fleet (RACE_ID) but what they want is the
+	// ship (SPECIES_ID). So, if the ship seed options differ we need to
+	// calculate the ship ID required to swap it in the window.
+	if ((optShipSeed && GLOBAL_SIS (ShipSeed) == 0)
+			|| (!optShipSeed && GLOBAL_SIS (ShipSeed) != 0)
+			|| (optCustomSeed != GLOBAL_SIS (Seed)))
+	{
+		TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+		hFleet = GetFleetFromSpecies (SeedShip (TemplatePtr->SpeciesID, true));
+		if (!hFleet)
+			return 0;
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	}
 
 	TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 	if (shipIndex == SAMATRA_SHIP)
