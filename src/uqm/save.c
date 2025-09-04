@@ -1155,8 +1155,8 @@ SaveSisState (const SIS_STATE *SSPtr, void *fp)
 	write_8   (fp, SSPtr->Difficulty);
 	write_8   (fp, SSPtr->Extended);
 	write_8   (fp, SSPtr->Nomad);
-	write_8   (fp, SSPtr->ShipSeed);
 	write_32  (fp, SSPtr->Seed);
+	write_8   (fp, SSPtr->ShipSeed);
 }
 
 /* Write out the Summary Chunk. This is variable length because of the
@@ -1551,7 +1551,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 	if ((out_fp = res_OpenResFile (saveDir, file, "wb")))
 	{
 		io_ok = TRUE;
-		write_32 (out_fp, MMV3_TAG);
+		write_32 (out_fp, MMV4_TAG);
 
 		PrepareSummary (SummPtr, name);
 		SaveSummary (SummPtr, out_fp);

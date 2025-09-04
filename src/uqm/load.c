@@ -458,9 +458,9 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 
 static BOOLEAN
 LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
-		BOOLEAN legacyMM)
+		int legacyMM)
 {
-	COUNT SisNameSize = (legacyMM || try_core) ?
+	COUNT SisNameSize = (legacyMM == 1 || try_core) ?
 			LEGACY_SIS_NAME_SIZE : SIS_NAME_SIZE;
 
 	if (
@@ -483,8 +483,8 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
 			(!try_core && (read_8 (fp, &SSPtr->Difficulty) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Extended) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Nomad) != 1)) ||
-			(!try_core && (read_8 (fp, &SSPtr->ShipSeed) != 1)) ||
 			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1))
+			(!try_core && !(legacyMM > 0) && (read_8 (fp, &SSPtr->ShipSeed) != 1))
 		)
 		return FALSE;
  	else
@@ -507,15 +507,16 @@ static BOOLEAN
 LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 {
 	DWORD magic;
-	DWORD magicTag = try_core ? SAVEFILE_TAG : MMV3_TAG;
+	DWORD magicTag = try_core ? SAVEFILE_TAG : MMV4_TAG;
 	DWORD nameSize = 0;
-	BOOLEAN legacyMM = FALSE;
+	int legacyMM = FALSE;
 	if (!read_32 (fp, &magic))
 		return FALSE;
-	if (magic == magicTag || magic == MEGA_TAG)
+	if (magic == magicTag || magic == MEGA_TAG || magic == MMV3_TAG)
 	{
-		if (magic == MEGA_TAG)
-			legacyMM = TRUE;
+		legacyMM = magic == MEGA_TAG ? 1 : magic == MMV3_TAG ? 2 : 0;
+
+		printf ("%d\n", legacyMM);
 
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
@@ -537,8 +538,11 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 	{	// Sanitize seed, difficulty, extended, and nomad variables
 		SummPtr->SS.Seed = SummPtr->SS.Difficulty = 0;
 		SummPtr->SS.Extended = SummPtr->SS.Nomad = 0;
-		SummPtr->SS.ShipSeed = 0;
 		SummPtr->SS.SaveVersion = 1;
+	}
+	if (try_core || legacyMM > 0)
+	{
+		SummPtr->SS.ShipSeed = 0;
 	}
 
 	if (	read_8  (fp, &SummPtr->Activity) != 1 ||
