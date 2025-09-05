@@ -35,6 +35,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/log/uqmlog.h"
 #include "comm.h"
+#include "master.h"
 
 #include <ctype.h>
 
@@ -1276,7 +1277,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		COUNT i;
 		RECT OldRect;
 		TEXT t;
-		QUEUE player_q;
+		QUEUE player_built_q;
 		CONTEXT OldContext;
 		SIS_STATE SaveSS;
 		UNICODE buf[256];
@@ -1284,7 +1285,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		// Save the states because we will hack them
 		SaveSS = GlobData.SIS_state;
-		player_q = GLOBAL (built_ship_q);
+		player_built_q = GLOBAL (built_ship_q);
 
 		OldContext = SetContext (StatusContext);
 		// Hack StatusContext so we can use standard SIS display funcs
@@ -1300,6 +1301,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		// Hack the states so that we can use standard SIS display funcs
 		GlobData.SIS_state = pSD->SS;
+
 		DrawSaveInfo (GlobData.SIS_state);
 		InitQueue (&GLOBAL (built_ship_q),
 				MAX_BUILT_SHIPS, sizeof (SHIP_FRAGMENT));
@@ -1472,8 +1474,8 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 
 		SetContext (OldContext);
 
-		// Restore the states because we hacked them
-		GLOBAL (built_ship_q) = player_q;
+		// Restore the state and queues because we hacked them
+		GLOBAL (built_ship_q) = player_built_q;
 		GlobData.SIS_state = SaveSS;
 		if (optCustomBorder)
 			DrawStatusMessage (NULL);

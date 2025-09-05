@@ -33,6 +33,13 @@ extern "C" {
 
 typedef HLINK HIPGROUP;
 
+typedef BYTE IP_FLAGS;
+
+#define CAN_TURN (1 << 0)
+#define ROTATES (1 << 1)
+#define IS_PROBE (1 << 2)
+#define IS_XFORM (1 << 3)
+
 typedef struct
 {
 	// LINK elements; must be first
@@ -58,7 +65,7 @@ typedef struct
 
 	FRAME melee_icon;
 	
-	BOOLEAN canTurn;
+	IP_FLAGS flags;
 } IP_GROUP;
 
 enum

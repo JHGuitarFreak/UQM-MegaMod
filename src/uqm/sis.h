@@ -177,7 +177,7 @@ typedef struct
 	UNICODE ShipName[SIS_NAME_SIZE];
 	UNICODE CommanderName[SIS_NAME_SIZE];
 	UNICODE PlanetName[SIS_NAME_SIZE];
-	BYTE Difficulty, Extended, Nomad;
+	BYTE Difficulty, Extended, Nomad, ShipSeed;
 	SDWORD Seed;
 	BYTE SaveVersion;
 } SIS_STATE;

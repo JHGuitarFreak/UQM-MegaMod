@@ -77,6 +77,7 @@ extern BOOLEAN optLoadGame;
 extern OPT_ENABLABLE optCustomBorder;
 extern int optSeedType;
 extern int optCustomSeed;
+extern BOOLEAN optShipSeed;
 extern int optSphereColors;
 extern int spaceMusicBySOI;
 extern int optSpaceMusic;
