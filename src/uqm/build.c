@@ -28,6 +28,7 @@
 #include "starbase.h"
 #include "starmap.h"
 #include "gendef.h"
+#include "save.h"
 #include <stdlib.h>
 
 
@@ -94,7 +95,36 @@ GetFleetFromSpecies (SPECIES_ID id)
 		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 	}
 
-	return (hFleet);
+	return hFleet;
+}
+
+// Returns the handle for the first fleet that normally builds the ships
+// the fleet in Index builds after seeding.
+// e.g. if Index is a fleet building Cruisers, returns the Earthling fleet.
+// This is for every part of the game that assumes a RACE_ID is a SPECIES_ID
+// If shipseed is not in use, it will do GetStarShipFromIndex on avail_race_q
+// If this seems like overkill just remember the Yehat rebels.
+HFLEETINFO
+GetSeededFleetFromIndex (COUNT Index)
+{
+	FLEET_INFO *TemplatePtr = NULL;
+	HFLEETINFO hFleet;
+	SPECIES_ID ship;
+	BOOLEAN loading = GLOBAL (CurrentActivity) & CHECK_PAUSE;
+	BOOLEAN loadWindow = ((optShipSeed && GLOBAL_SIS (ShipSeed) == 0) ||
+			(!optShipSeed && GLOBAL_SIS (ShipSeed) != 0) ||
+			(optCustomSeed != GLOBAL_SIS (Seed)));
+
+	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), Index);
+	if (!hFleet)
+		return hFleet;
+	TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	if (!TemplatePtr)
+		return NULL;
+	ship = SeedShip (TemplatePtr->SpeciesID, loadWindow);
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	hFleet = GetFleetFromSpecies (ship);
+	return hFleet;
 }
 
 HSHIPFRAG
@@ -662,23 +692,17 @@ CloneShipFragment (RACE_ID shipIndex, QUEUE *pDstQueue, COUNT crew_level)
 
 	assert (GetLinkSize (pDstQueue) == sizeof (SHIP_FRAGMENT));
 
-	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), shipIndex);
-	if (!hFleet)
-		return 0;
-	// The options seed / shipseed should only mismatch during load screen
-	// It clones fragments off a fleet (RACE_ID) but what they want is the
-	// ship (SPECIES_ID). So, if the ship seed options differ we need to
-	// calculate the ship ID required to swap it in the window.
+	// If options mismatch with SIS, it means we're in a load window.
+	// In that case we want to find the correct fleet ID for that ship.
 	if ((optShipSeed && GLOBAL_SIS (ShipSeed) == 0)
 			|| (!optShipSeed && GLOBAL_SIS (ShipSeed) != 0)
 			|| (optCustomSeed != GLOBAL_SIS (Seed)))
-	{
-		TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
-		hFleet = GetFleetFromSpecies (SeedShip (TemplatePtr->SpeciesID, true));
-		if (!hFleet)
-			return 0;
-		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
-	}
+		hFleet = GetSeededFleetFromIndex (shipIndex);
+	else
+		hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), shipIndex);
+
+	if (!hFleet)
+		return 0;
 
 	TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 	if (shipIndex == SAMATRA_SHIP)

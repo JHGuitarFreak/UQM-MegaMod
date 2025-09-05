@@ -483,7 +483,7 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
 			(!try_core && (read_8 (fp, &SSPtr->Difficulty) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Extended) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Nomad) != 1)) ||
-			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1))
+			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1)) ||
 			(!try_core && !(legacyMM > 0) && (read_8 (fp, &SSPtr->ShipSeed) != 1))
 		)
 		return FALSE;
