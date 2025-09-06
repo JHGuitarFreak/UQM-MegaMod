@@ -152,7 +152,7 @@ SeedShip (SPECIES_ID SpeciesID, BOOLEAN loadWindow)
 	target = SpeciesID;
 	if ((index = ShipIndex (SpeciesID)) < NUM_SHIPS)
 	{
-		if (!loadWindow)
+		if (!loadWindow && optShipSeed)
 			return shipMap[index];
 		if (GLOBAL_SIS (ShipSeed) != 0)
 			target = shipWindowMap[index];
