@@ -67,6 +67,40 @@ enum HyperMenuItems
 	NAVIGATION,
 };
 
+static inline SIZE
+RaceHyperSpeed (RACE_ID Index)
+{
+	static int seedStamp = -1;
+	const SIZE defaultMap[] = { RACE_HYPER_SPEED };
+	const COUNT numRaces = sizeof (defaultMap) / sizeof (COUNT);
+	static SIZE speedMap[sizeof (defaultMap) / sizeof (COUNT)] = {0};
+	int x;
+	if (!optShipSeed && (seedStamp != -1 || speedMap[0] == 0))
+	{
+		for (x = 0; x < numRaces; x++)
+			speedMap[x] = defaultMap[x];
+		seedStamp = -1;
+		if (speedMap[0] == 0)
+			speedMap[0] = 1;
+	}
+
+	if (optShipSeed && (seedStamp != optCustomSeed || speedMap[0] == 0))
+	{
+		HFLEETINFO hFleet;
+		for (x = 0; x < numRaces; x++)
+		{
+			hFleet = GetSeededFleetFromIndex (x);
+			if (hFleet)
+				speedMap[x] = defaultMap[GetIndexFromStarShip (
+						&GLOBAL (avail_race_q), hFleet)];
+			else
+				speedMap[x] = defaultMap[x];
+		}
+		if (speedMap[0] == 0)
+			speedMap[0] = 1;
+	}
+	return speedMap[Index];
+}
 /*
  * draws the melee icon for the battle group inside the black holes,
  * so you can see who's chasing you.
@@ -414,6 +448,7 @@ check_hyperspace_encounter (void)
 					EncounterPtr->radius = encounter_radius;
 					EncounterPtr->flags = encounter_flags;
 					EncounterPtr->race_id = Type;
+
 					UnlockEncounter (hEncounter);
 
 					PutEncounter (hEncounter);
@@ -1541,13 +1576,9 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 			if (delta_facing || (delta_x == 0 && delta_y == 0))
 			{
 				SIZE speed;
-				const SIZE RaceHyperSpeed[] =
-				{
-					RACE_HYPER_SPEED
-				};
 
 #define ENCOUNTER_TRACK_WAIT 3
-				speed = RaceHyperSpeed[EncounterPtr->race_id];
+				speed = RaceHyperSpeed (EncounterPtr->race_id);
 				if (delta_facing < ANGLE_TO_FACING (HALF_CIRCLE))
 					--cur_facing;
 				else

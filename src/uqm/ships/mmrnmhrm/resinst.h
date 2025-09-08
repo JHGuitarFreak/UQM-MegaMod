@@ -7,6 +7,7 @@
 #define MMRNMHRM_ICON_MASK_PMAP_ANIM "ship.mmrnmhrm.icons"
 #define MMRNMHRM_MED_MASK_PMAP_ANIM "ship.mmrnmhrm.graphics.xform.medium"
 #define MMRNMHRM_MICON_MASK_PMAP_ANIM "ship.mmrnmhrm.meleeicons"
+#define MMRNMHRM_MICON_MASK_PMAP_ANIM_Y "ship.mmrnmhrm.meleeicons.y"
 #define MMRNMHRM_RACE_STRINGS "ship.mmrnmhrm.text"
 #define MMRNMHRM_SHIP_SOUNDS "ship.mmrnmhrm.sounds"
 #define MMRNMHRM_SML_MASK_PMAP_ANIM "ship.mmrnmhrm.graphics.xform.small"

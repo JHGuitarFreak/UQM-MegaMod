@@ -548,6 +548,7 @@ DoRestart (MENU_STATE *pMS)
 				optLoadGame = FALSE;
 				break;
 			case PLAY_SUPER_MELEE:
+				LoadMasterShipList (NULL);
 				GLOBAL (CurrentActivity) = SUPER_MELEE;
 				optSuperMelee = FALSE;
 				break;
@@ -843,14 +844,10 @@ StartGame (void)
 		}
 	
 	} while (GLOBAL (CurrentActivity) & CHECK_ABORT);
-	// Be sure to load the seed type from the settings into the state.
-	SET_GAME_STATE (SEED_TYPE, optSeedType);
-	// Make sure to reset the seed if prime game is called for.
-	if (PrimeSeed)
-		optCustomSeed = PrimeA;
+
 #ifdef DEBUG_STARSEED
-	fprintf(stderr, "StartGame called for %d mode with seed %d.\n",
-			optSeedType, optCustomSeed);
+	fprintf(stderr, "StartGame called for %d mode with seed %d shipseed %s.\n",
+			optSeedType, optCustomSeed, optShipSeed ? "on" : "off");
 #endif
 	{
 		extern STAR_DESC starmap_array[];
