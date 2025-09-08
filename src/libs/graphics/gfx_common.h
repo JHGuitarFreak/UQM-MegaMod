@@ -109,8 +109,8 @@ extern int fs_width;
 
 extern int CanvasWidth;
 extern int CanvasHeight;
-extern int ScreenWidthActual;
-extern int ScreenHeightActual;
+extern int WindowWidth;
+extern int WindowHeight;
 extern int ScreenColorDepth;
 extern int GraphicsDriver;
 

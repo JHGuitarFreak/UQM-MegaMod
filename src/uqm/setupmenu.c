@@ -185,256 +185,270 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
-	(WIDGET *)(&buttons[2]),    // Graphics
-	(WIDGET *)(&buttons[3]),    // PC/3DO
-	(WIDGET *)(&buttons[11]),   // Visuals
-	(WIDGET *)(&buttons[4]),    // Sound
-	(WIDGET *)(&buttons[10]),   // Music
-	(WIDGET *)(&buttons[6]),    // Controls
-	(WIDGET *)(&buttons[12]),   // Quality of Life
-	(WIDGET *)(&buttons[7]),    // Advanced
-	(WIDGET *)(&buttons[5]),    // Cheats
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[0]),    // Quit Setup Menu
+	(WIDGET *)(&buttons[BTN_GFXMENU  ]),		// Graphics
+	(WIDGET *)(&buttons[BTN_ENGMENU  ]),		// PC/3DO
+	(WIDGET *)(&buttons[BTN_VISMENU  ]),		// Visuals
+	(WIDGET *)(&buttons[BTN_SNDMENU  ]),		// Sound
+	(WIDGET *)(&buttons[BTN_MUSMENU  ]),		// Music
+	(WIDGET *)(&buttons[BTN_KEYMENU  ]),		// Controls
+	(WIDGET *)(&buttons[BTN_QOLMENU  ]),		// Quality of Life
+	(WIDGET *)(&buttons[BTN_ADVMENU  ]),		// Advanced
+	(WIDGET *)(&buttons[BTN_CHTMENU  ]),		// Cheats
+
+	(WIDGET *)(&labels[LABEL_SPACER	 ]),		// Spacer
+	(WIDGET *)(&buttons[BTN_QUITSETUP]),		// Quit Setup Menu
 	NULL };
 
 static WIDGET *graphics_widgets[] = {
-	(WIDGET *)(&choices[0]),    // Graphics
-	(WIDGET *)(&choices[42]),   // Resolution
-	(WIDGET *)(&textentries[2]),// Custom Seed entry
+	(WIDGET *)(&choices[CHOICE_GRAPHICS  ]),	// Graphics
+	(WIDGET *)(&choices[CHOICE_RESOLUTION]),	// Resolution
+	(WIDGET *)(&textentries[TEXT_CUSTMRES]),	// Custom resolution entry
 #if	SDL_MAJOR_VERSION == 1
 #if defined (HAVE_OPENGL)
-	(WIDGET *)(&choices[1]),    // Use Framebuffer
+	(WIDGET *)(&choices[CHOICE_FRBUFFER  ]),	// Use Framebuffer
 #endif
 #endif
-	(WIDGET *)(&choices[23]),   // Aspect Ratio
-	(WIDGET *)(&choices[10]),   // Display Mode
-	(WIDGET *)(&sliders[3]),    // Gamma Correction
-	(WIDGET *)(&choices[2]),    // Scaler
-	(WIDGET *)(&choices[3]),    // Scanlines
+	(WIDGET *)(&choices[CHOICE_ASPRATIO  ]),	// Aspect Ratio
+	(WIDGET *)(&choices[CHOICE_DISPLAY   ]),	// Display Mode
+	(WIDGET *)(&sliders[SLIDER_GAMMA     ]),	// Gamma Correction
+	(WIDGET *)(&choices[CHOICE_SCALER    ]),	// Scaler
+	(WIDGET *)(&choices[CHOICE_SCANLINE  ]),	// Scanlines
 #if	SDL_MAJOR_VERSION == 2
-	(WIDGET *)(&choices[12]),   // Show FPS
+	(WIDGET *)(&choices[CHOICE_SHOWFPS   ]),	// Show FPS
 #endif
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[1]),
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
 	NULL };
 
 static WIDGET *engine_widgets[] = {
-	(WIDGET *)(&labels[5]),     // UI Label
-	(WIDGET *)(&choices[81]),   // Window Type
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&choices[4]),    // Menu Style
-	(WIDGET *)(&choices[5]),    // Font Style
-	(WIDGET *)(&choices[11]),   // Cutscenes
+	(WIDGET *)(&labels[LABEL_UI			   ]),  // UI Label
+	(WIDGET *)(&choices[CHOICE_WINDOWTYPE  ]),  // Window Type
+
+	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
+	(WIDGET *)(&choices[CHOICE_MENUSTYLE   ]),  // Menu Style
+	(WIDGET *)(&choices[CHOICE_FONTSTYLE   ]),  // Font Style
+	(WIDGET *)(&choices[CHOICE_CUTSCENE    ]),  // Cutscenes
 #if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[50]),   // Android: Melee Zoom
+	(WIDGET *)(&choices[CHOICE_ANDRZOOM    ]),  // Android: Melee Zoom
 #else
-	(WIDGET *)(&choices[13]),   // Melee Zoom
+	(WIDGET *)(&choices[CHOICE_MELEEZOOM   ]),  // Melee Zoom
 #endif
-	(WIDGET *)(&choices[70]),   // Flagship Style
-	(WIDGET *)(&choices[52]),   // Screen Transitions
+	(WIDGET *)(&choices[CHOICE_FLAGSHIP    ]),  // Flagship Style
+	(WIDGET *)(&choices[CHOICE_SCRMELT     ]),  // Screen Transitions
 
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[6]),     // Comm Label
-	(WIDGET *)(&choices[7]),    // Scroll Style
-	(WIDGET *)(&choices[22]),   // Speech
-	(WIDGET *)(&choices[8]),    // Subtitles
-	(WIDGET *)(&choices[66]),   // Oscilloscope Style
+	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
+	(WIDGET *)(&labels[LABEL_COMM		   ]),  // Comm Label
+	(WIDGET *)(&choices[CHOICE_SCROLLSTYLE ]),  // Scroll Style
+	(WIDGET *)(&choices[CHOICE_SPEECH      ]),  // Speech
+	(WIDGET *)(&choices[CHOICE_SUBTITLES   ]),  // Subtitles
+	(WIDGET *)(&choices[CHOICE_OSCILLSTYLE ]),  // Oscilloscope Style
 
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[7]),     // IP Label
-	(WIDGET *)(&choices[62]),   // Interplanetary Style
-	(WIDGET *)(&choices[63]),   // Star Background
+	(WIDGET *)(&labels[LABEL_SPACER        ]),  // Spacer
+	(WIDGET *)(&labels[LABEL_IP			   ]),  // IP Label
+	(WIDGET *)(&choices[CHOICE_IPSTYLE     ]),  // Interplanetary Style
+	(WIDGET *)(&choices[CHOICE_IPBACKGROUND]),  // Star Background
 
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[8]),     // Scan Label
-	(WIDGET *)(&choices[6]),    // Scan Style
-	(WIDGET *)(&choices[17]),   // Slave Shields
-	(WIDGET *)(&choices[64]),   // Scan Style
-	(WIDGET *)(&choices[76]),   // Scan Sphere Type
-	(WIDGET *)(&choices[61]),   // Scanned Sphere Tint
-	(WIDGET *)(&choices[68]),   // Lander Style
-	(WIDGET *)(&buttons[1]),
+	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
+	(WIDGET *)(&labels[LABEL_SCAN		   ]),  // Scan Label
+	(WIDGET *)(&choices[CHOICE_SCANMENU    ]),  // Scan Menu Display
+	(WIDGET *)(&choices[CHOICE_SLVSHIELD   ]),  // Slave Shields
+	(WIDGET *)(&choices[CHOICE_SCANSTYLE   ]),  // Scan Style
+	(WIDGET *)(&choices[CHOICE_SCANSPHERE  ]),  // Scan Sphere Type
+	(WIDGET *)(&choices[CHOICE_SCANTINT    ]),  // Scanned Sphere Tint
+	(WIDGET *)(&choices[CHOICE_LANDERSTYLE ]),  // Lander Style
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]),	// Exit to Menu
 	NULL };
 
 static WIDGET *audio_widgets[] = {
-	(WIDGET *)(&sliders[0]),    // Music Volume
-	(WIDGET *)(&sliders[1]),    // SFX Volume
-	(WIDGET *)(&sliders[2]),    // Speech Volume
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&choices[14]),   // Positional Audio
-	(WIDGET *)(&choices[15]),   // Sound Driver
-	(WIDGET *)(&choices[16]),   // Sound Quality
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[1]),
+	(WIDGET *)(&sliders[SLIDER_MUSVOLUME ]),	// Music Volume
+	(WIDGET *)(&sliders[SLIDER_SFXVOLUME ]),	// SFX Volume
+	(WIDGET *)(&sliders[SLIDER_SPCHVOLUME]),	// Speech Volume
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&choices[CHOICE_POSAUDIO  ]),	// Positional Audio
+	(WIDGET *)(&choices[CHOICE_SNDDRIVER ]),	// Sound Driver
+	(WIDGET *)(&choices[CHOICE_SNDQUALITY]),	// Sound Quality
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
 	NULL };
 
 static WIDGET *music_widgets[] = {
-	(WIDGET *)(&choices[9]),    // 3DO Remixes
-	(WIDGET *)(&choices[21]),   // Precursor's Remixes
-	(WIDGET *)(&choices[47]),   // Volasaurus' Remix Pack
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&choices[46]),   // Volasaurus' Space Music
-	(WIDGET *)(&choices[34]),   // Main Menu Music
-	(WIDGET *)(&choices[80]),   // Music Resume
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[1]),
+	(WIDGET *)(&choices[CHOICE_REMIXES1  ]),	// 3DO Remixes
+	(WIDGET *)(&choices[CHOICE_REMIXES2  ]),	// Precursor's Remixes
+	(WIDGET *)(&choices[CHOICE_REMIXES3  ]),	// Volasaurus' Remix Pack
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&choices[CHOICE_IPMUSIC   ]),	// Volasaurus' Space Music
+	(WIDGET *)(&choices[CHOICE_MMENUMUSIC]),	// Main Menu Music
+	(WIDGET *)(&choices[CHOICE_MUSRESUME ]),	// Music Resume
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
-	(WIDGET *)(&buttons[13]),   // Devices Menu
-	(WIDGET *)(&buttons[14]),   // Upgrades Menu
-	(WIDGET *)(&choices[24]),   // JMS: cheatMode on/off
-	(WIDGET *)(&choices[72]),   // Kohr-Ah DeCleansing mode
-	(WIDGET *)(&choices[25]),   // Precursor Mode
-	(WIDGET *)(&choices[26]),   // Time Dilation
-	(WIDGET *)(&choices[27]),   // Bubble Warp
-	(WIDGET *)(&choices[29]),   // Head Start
-	(WIDGET *)(&choices[28]),   // Unlock Ships
-	//(WIDGET *)(&choices[30]),   // Unlock Upgrades
-	(WIDGET *)(&choices[31]),   // Infinite RU
-	(WIDGET *)(&choices[39]),   // Infinite Fuel
-	(WIDGET *)(&choices[43]),   // Infinite Credits
-	(WIDGET *)(&choices[71]),   // No HyperSpace Encounters
-	(WIDGET *)(&choices[73]),   // No Planets in melee
-	(WIDGET *)(&buttons[1]),    // Exit to Menu
+	(WIDGET *)(&buttons[BTN_DEVMENU        ]),  // Devices Menu
+	(WIDGET *)(&buttons[BTN_UPGMENU        ]),  // Upgrades Menu
+	(WIDGET *)(&choices[CHOICE_CHEATING    ]),  // JMS: cheatMode on/off
+	(WIDGET *)(&choices[CHOICE_CHDECLEAN   ]),  // Kohr-Ah DeCleansing mode
+	(WIDGET *)(&choices[CHOICE_CHGODMODE   ]),  // Precursor Mode
+	(WIDGET *)(&choices[CHOICE_CHTIME      ]),  // Time Dilation
+	(WIDGET *)(&choices[CHOICE_CHWARP      ]),  // Bubble Warp
+	(WIDGET *)(&choices[CHOICE_CHHEADSTART ]),  // Head Start
+	(WIDGET *)(&choices[CHOICE_CHSHIPS     ]),  // Unlock Ships
+	//(WIDGET *)(&choices[CHOICE_CHUPGRADES]),  // Unlock Upgrades
+	(WIDGET *)(&choices[CHOICE_CHINFRU     ]),  // Infinite RU
+	(WIDGET *)(&choices[CHOICE_CHINFFUEL   ]),  // Infinite Fuel
+	(WIDGET *)(&choices[CHOICE_CHINFCRD    ]),  // Infinite Credits
+	(WIDGET *)(&choices[CHOICE_CHCLEANHYPER]),  // No HyperSpace Encounters
+	(WIDGET *)(&choices[CHOICE_CHNOPLANET  ]),  // No Planets in melee
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]),  // Exit to Menu
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
-	(WIDGET *)(&choices[59]),   // Control Display
+	(WIDGET *)(&choices[CHOICE_INPDEVICE]),		// Control Display
 #endif
-	(WIDGET *)(&choices[18]),   // Bottom Player
-	(WIDGET *)(&choices[19]),   // Top Player
+	(WIDGET *)(&choices[CHOICE_BTMPLAYER]),		// Bottom Player
+	(WIDGET *)(&choices[CHOICE_TOPPLAYER]),		// Top Player
 #if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[49]),   // Directional Joystick toggle
+	(WIDGET *)(&choices[CHOICE_JOYSTICK ]),		// Directional Joystick toggle
 #endif
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[1]),
-	(WIDGET *)(&buttons[8]),    // Edit Controls
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[1]),
+
+	(WIDGET *)(&labels[LABEL_SPACER		]),     // Spacer
+	(WIDGET *)(&labels[LABEL_KEYSTOOLTIP]),		// "To view or edit..."
+	(WIDGET *)(&buttons[BTN_EDITKEYS    ]),		// Edit Controls
+
+	(WIDGET *)(&labels[LABEL_SPACER		]),     // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU ]),		// Exit to Menu
 	NULL };
 
 static WIDGET *advanced_widgets[] = {
-	(WIDGET *)(&choices[53]),   // Difficulty
-	(WIDGET *)(&choices[54]),   // Extended features
-	(WIDGET *)(&choices[55]),   // Nomad Mode
-	(WIDGET *)(&choices[77]),   // Slaughter Mode
-	(WIDGET *)(&choices[86]),   // Fleet Point System
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&choices[82]),   // Seed usage selection
-	(WIDGET *)(&textentries[1]),// Custom Seed entry
-	(WIDGET *)(&choices[83]),   // SOI Color Selection
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[1]),
+	(WIDGET *)(&choices[CHOICE_SKILLLVL  ]),	// Difficulty
+	(WIDGET *)(&choices[CHOICE_EXTENDED  ]),	// Extended features
+	(WIDGET *)(&choices[CHOICE_NOMAD     ]),	// Nomad Mode
+	(WIDGET *)(&choices[CHOICE_SLAUGHTER ]),	// Slaughter Mode
+	(WIDGET *)(&choices[CHOICE_FLEETPOINT]),	// Fleet Point System
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&choices[CHOICE_GAMESEED  ]),	// Seed usage selection
+	(WIDGET *)(&textentries[TEXT_GAMESEED]),	// Custom Seed entry
+	(WIDGET *)(&choices[CHOICE_SOICOLOR  ]),	// SOI Color Selection
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
 	NULL };
 
 static WIDGET *visual_widgets[] = {
-	(WIDGET *)(&labels[5]),     // UI Label
-	(WIDGET *)(&choices[38]),   // Switch date formats
-	(WIDGET *)(&choices[45]),   // Custom Border switch
-	(WIDGET *)(&choices[48]),   // Whole Fuel Value switch
-	(WIDGET *)(&choices[33]),   // Fuel Range
-	(WIDGET *)(&choices[67]),   // Animated HyperStars
-	(WIDGET *)(&choices[56]),   // Game Over switch
+	(WIDGET *)(&labels[LABEL_UI				]), // UI Label
+	(WIDGET *)(&choices[CHOICE_DATESTRING   ]),	// Switch date formats
+	(WIDGET *)(&choices[CHOICE_CUSTBORDER   ]),	// Custom Border switch
+	(WIDGET *)(&choices[CHOICE_FUELDECIM    ]),	// Whole Fuel Value switch
+	(WIDGET *)(&choices[CHOICE_FUELCIRCLE   ]),	// Fuel Range
+	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]),	// Animated HyperStars
+	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]),	// Game Over switch
 
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[6]),     // Comm Label
-	(WIDGET *)(&choices[58]),   // Alternate Orz font
-	(WIDGET *)(&choices[65]),   // Non-Stop Scope
+	(WIDGET *)(&labels[LABEL_SPACER			]), // Spacer
+	(WIDGET *)(&labels[LABEL_COMM			]), // Comm Label
+	(WIDGET *)(&choices[CHOICE_ORZFONT      ]),	// Alternate Orz font
+	(WIDGET *)(&choices[CHOICE_NOSTOSCILL   ]),	// Non-Stop Scope
 
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[7]),     // IP Label
-	(WIDGET *)(&choices[35]),   // IP nebulae on/off
-	(WIDGET *)(&sliders[4]),    // Nebulae Volume
-	(WIDGET *)(&choices[36]),   // orbitingPlanets on/off
-	(WIDGET *)(&choices[37]),   // texturedPlanets on/off
-	(WIDGET *)(&choices[75]),   // T6014's Classic Star System View
-	(WIDGET *)(&choices[57]),   // NPC Ship Direction in IP
+	(WIDGET *)(&labels[LABEL_SPACER			]), // Spacer
+	(WIDGET *)(&labels[LABEL_IP				]), // IP Label
+	(WIDGET *)(&choices[CHOICE_NEBULAE      ]),	// IP nebulae on/off
+	(WIDGET *)(&sliders[SLIDER_NEBULA       ]),	// Nebulae Volume
+	(WIDGET *)(&choices[CHOICE_ORBPLANETS   ]),	// orbitingPlanets on/off
+	(WIDGET *)(&choices[CHOICE_TEXPLANETS   ]),	// texturedPlanets on/off
+	(WIDGET *)(&choices[CHOICE_6014IP       ]),	// T6014's Classic Star System View
+	(WIDGET *)(&choices[CHOICE_IPSHIPDIR    ]),	// NPC Ship Direction in IP
 
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&labels[8]),     // Scan Label
-	(WIDGET *)(&choices[44]),   // Hazard Colors
-	(WIDGET *)(&choices[69]),   // Planet Texture
-	(WIDGET *)(&choices[85]),   // Show Lander Upgrades
-	(WIDGET *)(&buttons[1]),    // Exit to Menu
+	(WIDGET *)(&labels[LABEL_SPACER			]), // Spacer
+	(WIDGET *)(&labels[LABEL_SCAN			]), // Scan Label
+	(WIDGET *)(&choices[CHOICE_HAZARDCLR    ]), // Hazard Colors
+	(WIDGET *)(&choices[CHOICE_PLNTEXTURE   ]), // Planet Texture
+	(WIDGET *)(&choices[CHOICE_LANDERUPGMASK]), // Show Lander Upgrades
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU     ]),	// Exit to Menu
 	NULL };
 
 static WIDGET *qol_widgets[] = {
-	(WIDGET *)(&choices[32]),   // Skip Intro
-	(WIDGET *)(&choices[40]),   // Partial Pickup switch
-	(WIDGET *)(&choices[84]),   // Scatter Elements
-	(WIDGET *)(&choices[41]),   // Submenu switch
-	(WIDGET *)(&choices[60]),   // Smart Auto-Pilot
-	(WIDGET *)(&choices[78]),   // Advanced Auto-Pilot
-	(WIDGET *)(&choices[74]),   // Show Visited Stars
-	(WIDGET *)(&choices[79]),   // Melee Tool Tips
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[1]),    // Exit to Menu
+	(WIDGET *)(&choices[CHOICE_SKIPINTRO   ]),  // Skip Intro
+	(WIDGET *)(&choices[CHOICE_PARTPICKUP  ]),  // Partial Pickup switch
+	(WIDGET *)(&choices[CHOICE_SCATTERCARGO]),  // Scatter Elements
+	(WIDGET *)(&choices[CHOICE_SUBMENU     ]),  // Submenu switch
+	(WIDGET *)(&choices[CHOICE_SMARTAUTO   ]),  // Smart Auto-Pilot
+	(WIDGET *)(&choices[CHOICE_ADVAUTO     ]),  // Advanced Auto-Pilot
+	(WIDGET *)(&choices[CHOICE_VISITED     ]),  // Show Visited Stars
+	(WIDGET *)(&choices[CHOICE_MLTOOLTIP   ]),  // Melee Tool Tips
+
+	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]),  // Exit to Menu
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
-	(WIDGET *)(&choices[20]),       // Current layout
-	(WIDGET *)(&textentries[0]),    // Layout name
-	(WIDGET *)(&labels[2]),         // "Tap to Edit..."
-	(WIDGET *)(&controlentries[0]), // Up
-	(WIDGET *)(&controlentries[1]), // Down
-	(WIDGET *)(&controlentries[2]), // Left
-	(WIDGET *)(&controlentries[3]), // Right
-	(WIDGET *)(&controlentries[4]), // Weapon
-	(WIDGET *)(&controlentries[5]), // Special
-	(WIDGET *)(&controlentries[6]), // Escape
-	(WIDGET *)(&controlentries[7]), // Thrust
-	(WIDGET *)(&buttons[9]),        // Previous menu
+	(WIDGET *)(&choices[CHOICE_KBLAYOUT    ]),  // Current layout
+	(WIDGET *)(&textentries[TEXT_LOUTNAME  ]),  // Layout name
+	(WIDGET *)(&labels[LABEL_TAPTOOLTIP	   ]),  // "Press return to..."
+	(WIDGET *)(&controlentries[CONTROL_UP  ]),	// Up
+	(WIDGET *)(&controlentries[CONTROL_DOWN]),	// Down
+	(WIDGET *)(&controlentries[CONTROL_LEFT]),	// Left
+	(WIDGET *)(&controlentries[CONTROL_RGHT]),	// Right
+	(WIDGET *)(&controlentries[CONTROL_WEAP]),	// Weapon
+	(WIDGET *)(&controlentries[CONTROL_SPEC]),	// Special
+	(WIDGET *)(&controlentries[CONTROL_ESC ]),	// Escape
+	(WIDGET *)(&controlentries[CONTROL_THRU]),	// Thrust
+	(WIDGET *)(&buttons[BTN_PREVMENU	   ]),	// Previous menu
 	NULL };
 
 static WIDGET *devices_widgets[] = {
-	(WIDGET *)(&choices[87]),   // Portal Spawner
-	(WIDGET *)(&choices[88]),   // Talking Pet
-	(WIDGET *)(&choices[89]),   // Utwig Bomb
-	(WIDGET *)(&choices[90]),   // Sun Device
-	(WIDGET *)(&choices[91]),   // Rosy Sphere
-	(WIDGET *)(&choices[92]),   // Aqua Helix
-	(WIDGET *)(&choices[93]),   // Clear Spindle
-	(WIDGET *)(&choices[94]),   // Ultron (Broken)
-	(WIDGET *)(&choices[95]),   // Ultron (Semi-Broken)
-	(WIDGET *)(&choices[96]),   // Ultron (Semi-Fixed)
-	(WIDGET *)(&choices[97]),   // Ultron (Fixed)
-	(WIDGET *)(&choices[98]),   // Shofixti Maidens
-	(WIDGET *)(&choices[99]),   // Umgah Caster
-	(WIDGET *)(&choices[100]),  // Burvixese Caster
-	(WIDGET *)(&choices[101]),  // Taalo Shield
-	(WIDGET *)(&choices[102]),  // Egg Case 01
-	(WIDGET *)(&choices[103]),  // Egg Case 02
-	(WIDGET *)(&choices[104]),  // Egg Case 03
-	(WIDGET *)(&choices[105]),  // Syreen Shuttle
-	(WIDGET *)(&choices[106]),  // VUX Beast
-	(WIDGET *)(&choices[107]),  // Slylandro Destruct
-	(WIDGET *)(&choices[108]),  // Ur-Quan Warp Pod
-	(WIDGET *)(&choices[109]),  // Wimbli's Trident
-	(WIDGET *)(&choices[110]),  // Glowing Rod
-	(WIDGET *)(&choices[111]),  // Lunar Base
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[15]),   // Back to Cheats
+	(WIDGET *)(&choices[CHOICE_DEVSPAWNER]),	// Portal Spawner
+	(WIDGET *)(&choices[CHOICE_DEVPET    ]),	// Talking Pet
+	(WIDGET *)(&choices[CHOICE_DEVBOMB   ]),	// Utwig Bomb
+	(WIDGET *)(&choices[CHOICE_DEVSUN    ]),	// Sun Device
+	(WIDGET *)(&choices[CHOICE_DEVSPHERE ]),	// Rosy Sphere
+	(WIDGET *)(&choices[CHOICE_DEVHELIX  ]),	// Aqua Helix
+	(WIDGET *)(&choices[CHOICE_DEVSPINDLE]),	// Clear Spindle
+	(WIDGET *)(&choices[CHOICE_DEVULTRON0]),	// Ultron (Broken)
+	(WIDGET *)(&choices[CHOICE_DEVULTRON1]),	// Ultron (Semi-Broken)
+	(WIDGET *)(&choices[CHOICE_DEVULTRON2]),	// Ultron (Semi-Fixed)
+	(WIDGET *)(&choices[CHOICE_DEVULTRON3]),	// Ultron (Fixed)
+	(WIDGET *)(&choices[CHOICE_DEVMAIDENS]),	// Shofixti Maidens
+	(WIDGET *)(&choices[CHOICE_DEVCASTER0]),	// Umgah Caster
+	(WIDGET *)(&choices[CHOICE_DEVCASTER1]),	// Burvixese Caster
+	(WIDGET *)(&choices[CHOICE_DEVSHIELD ]),	// Taalo Shield
+	(WIDGET *)(&choices[CHOICE_DEVEGGCS0 ]),	// Egg Case 01
+	(WIDGET *)(&choices[CHOICE_DEVEGGCS1 ]),	// Egg Case 02
+	(WIDGET *)(&choices[CHOICE_DEVEGGCS2 ]),	// Egg Case 03
+	(WIDGET *)(&choices[CHOICE_DEVSHUTTLE]),	// Syreen Shuttle
+	(WIDGET *)(&choices[CHOICE_DEVBEAST  ]),	// VUX Beast
+	(WIDGET *)(&choices[CHOICE_DEVSLYCODE]),	// Slylandro Destruct
+	(WIDGET *)(&choices[CHOICE_DEVWARPPOD]),	// Ur-Quan Warp Pod
+	(WIDGET *)(&choices[CHOICE_DEVTRIDENT]),	// Wimbli's Trident
+	(WIDGET *)(&choices[CHOICE_DEVROD    ]),	// Glowing Rod
+	(WIDGET *)(&choices[CHOICE_DEVLUNBASE]),	// Lunar Base
+
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
+	(WIDGET *)(&buttons[BTN_CHTPREV		 ]),	// Back to Cheats
 	NULL };
 
 static WIDGET *upgrades_widgets[] = {
-	(WIDGET *)(&choices[112]),  // Lander Speed
-	(WIDGET *)(&choices[113]),  // Lander Cargo
-	(WIDGET *)(&choices[114]),  // Lander Rapid Fire
-	(WIDGET *)(&choices[115]),  // Lander Bio Shield
-	(WIDGET *)(&choices[116]),  // Lander Quake Shield
-	(WIDGET *)(&choices[117]),  // Lander Lightning Shield
-	(WIDGET *)(&choices[118]),  // Lander Heat Shield
-	(WIDGET *)(&choices[119]),  // Point Defense Module
-	(WIDGET *)(&choices[120]),  // Fusion Blaster Module
-	(WIDGET *)(&choices[121]),  // Hi-Eff Fuel Module
-	(WIDGET *)(&choices[122]),  // Tracking Module
-	(WIDGET *)(&choices[123]),  // Hellbore Cannon Module
-	(WIDGET *)(&choices[124]),  // Shiva Furnace Module
-	(WIDGET *)(&labels[4]),     // Spacer
-	(WIDGET *)(&buttons[15]),   // Back to Cheats
+	(WIDGET *)(&choices[CHOICE_UPGLANDERSPD]),  // Lander Speed
+	(WIDGET *)(&choices[CHOICE_UPGLANDERCRG]),  // Lander Cargo
+	(WIDGET *)(&choices[CHOICE_UPGLANDERFRE]),  // Lander Rapid Fire
+	(WIDGET *)(&choices[CHOICE_UPGLANDERBSH]),  // Lander Bio Shield
+	(WIDGET *)(&choices[CHOICE_UPGLANDERQSH]),  // Lander Quake Shield
+	(WIDGET *)(&choices[CHOICE_UPGLANDERLSH]),  // Lander Lightning Shield
+	(WIDGET *)(&choices[CHOICE_UPGLANDERHSH]),  // Lander Heat Shield
+	(WIDGET *)(&choices[CHOICE_MODPOINTDEF ]),  // Point Defense Module
+	(WIDGET *)(&choices[CHOICE_MODFUSBLAST ]),  // Fusion Blaster Module
+	(WIDGET *)(&choices[CHOICE_MODFUELTANK ]),  // Hi-Eff Fuel Module
+	(WIDGET *)(&choices[CHOICE_MODTRACKING ]),  // Tracking Module
+	(WIDGET *)(&choices[CHOICE_MODHELLBORE ]),  // Hellbore Cannon Module
+	(WIDGET *)(&choices[CHOICE_MODFURNACE  ]),  // Shiva Furnace Module
+
+	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
+	(WIDGET *)(&buttons[BTN_CHTPREV		   ]),  // Back to Cheats
 	NULL };
 
 static const struct
@@ -503,7 +517,7 @@ quit_sub_menu (WIDGET *self, int event)
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		ResetOffset ();
-		next = (WIDGET *)(&menus[0]);
+		next = (WIDGET *)(&menus[MENU_QUITSUB]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_SELECT);
 		return TRUE;
 	}
@@ -514,8 +528,8 @@ quit_sub_menu (WIDGET *self, int event)
 static void
 populate_res (void)
 {
-	sprintf (textentries[2].value, "%dx%d",
-			ScreenWidthActual, ScreenHeightActual);
+	sprintf (textentries[TEXT_CUSTMRES].value, "%dx%d",
+			WindowWidth, WindowHeight);
 }
 
 static int
@@ -523,7 +537,7 @@ do_graphics (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[1]);
+		next = (WIDGET *)(&menus[MENU_GRAPHICS]);
 		populate_res ();
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
@@ -537,7 +551,7 @@ do_audio (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[2]);
+		next = (WIDGET *)(&menus[MENU_AUDIO]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -550,7 +564,7 @@ do_engine (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[3]);
+		next = (WIDGET *)(&menus[MENU_ENGINE]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -563,7 +577,7 @@ do_cheats (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[4]);
+		next = (WIDGET *)(&menus[MENU_CHEATS]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -576,7 +590,7 @@ do_keyconfig (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[5]);
+		next = (WIDGET *)(&menus[MENY_KEYCONF]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -587,8 +601,8 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed (void)
 {
-	snprintf (textentries[1].value, sizeof (textentries[1].value), "%d",
-			optCustomSeed);
+	snprintf (textentries[TEXT_GAMESEED].value, 
+		sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
 	if (!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
 }
@@ -598,7 +612,7 @@ do_advanced (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[6]);
+		next = (WIDGET *)(&menus[MENU_ADVANCED]);
 		populate_seed();
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
@@ -612,7 +626,7 @@ do_music (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[8]);
+		next = (WIDGET *)(&menus[MENU_MUSIC]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -625,7 +639,7 @@ do_visual (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[9]);
+		next = (WIDGET *)(&menus[MENU_VISUAL]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -638,7 +652,7 @@ do_qol (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[10]);
+		next = (WIDGET *)(&menus[MENU_QOL]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -651,7 +665,7 @@ do_devices (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[11]);
+		next = (WIDGET *)(&menus[MENU_DEVICES]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -664,7 +678,7 @@ do_upgrades (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[12]);
+		next = (WIDGET *)(&menus[MENU_UPGRADES]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -677,9 +691,9 @@ populate_editkeys (int templat)
 {
 	int i, j;
 	
-	strncpy (textentries[0].value, input_templates[templat].name,
-			textentries[0].maxlen);
-	textentries[0].value[textentries[0].maxlen-1] = 0;
+	strncpy (textentries[TEXT_LOUTNAME].value, input_templates[templat].name,
+			textentries[TEXT_LOUTNAME].maxlen);
+	textentries[TEXT_LOUTNAME].value[textentries[TEXT_LOUTNAME].maxlen-1] = 0;
 	
 	for (i = 0; i < NUM_KEYS; i++)
 	{
@@ -697,9 +711,9 @@ do_editkeys (WIDGET *self, int event)
 {
 	if (event == WIDGET_EVENT_SELECT)
 	{
-		next = (WIDGET *)(&menus[7]);
+		next = (WIDGET *)(&menus[MENU_EDITKEYS]);
 		/* Prepare the components */
-		choices[20].selected = 0;
+		choices[CHOICE_KBLAYOUT].selected = 0;
 		
 		populate_editkeys (0);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
@@ -744,7 +758,7 @@ check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 	{
 		case OPTVAL_PC_WINDOW:
 			if (!isAddonAvailable (
-					DOS_MODE (choices[0].selected && !IS_HD ? HD : IS_HD)))
+					DOS_MODE (choices[CHOICE_GRAPHICS].selected && !IS_HD ? HD : IS_HD)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, oldval);
@@ -754,7 +768,7 @@ check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 		case OPTVAL_3DO_WINDOW:
 			if (!isAddonAvailable (
 					THREEDO_MODE (
-						choices[0].selected && !IS_HD ? HD : IS_HD)))
+						choices[CHOICE_GRAPHICS].selected && !IS_HD ? HD : IS_HD)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, OPTVAL_UQM_WINDOW);
@@ -829,8 +843,8 @@ rename_template (WIDGET_TEXTENTRY *self)
 	   to track this symbolically or ensure that self->value's
 	   buffer is always at least this big; this will require some
 	   reworking of widgets */
-	strncpy (input_templates[choices[20].selected].name, self->value, 30);
-	input_templates[choices[20].selected].name[29] = 0;
+	strncpy (input_templates[choices[CHOICE_KBLAYOUT].selected].name, self->value, 30);
+	input_templates[choices[CHOICE_KBLAYOUT].selected].name[29] = 0;
 }
 
 static void
@@ -969,8 +983,8 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 {
 	int NewGfxFlags = GfxFlags;
 	int NewGfxDriver = GraphicsDriver;
-	int NewWidth = ScreenWidthActual;
-	int NewHeight = ScreenHeightActual;
+	int NewWidth = WindowWidth;
+	int NewHeight = WindowHeight;
 	BOOLEAN isExclusive = FALSE;
 
 	if (OldVal == self->selected)
@@ -1009,10 +1023,10 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			return;
 	}
 
-	if (NewWidth != ScreenWidthActual || NewHeight != ScreenHeightActual)
+	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
 	{
-		ScreenWidthActual = NewWidth;
-		ScreenHeightActual = NewHeight;
+		WindowWidth = NewWidth;
+		WindowHeight = NewHeight;
 
 		if (isExclusive)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
@@ -1026,14 +1040,14 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 
 	FlushInput ();
 	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-			ScreenWidthActual, ScreenHeightActual);
+			WindowWidth, WindowHeight);
 
 	if (isExclusive)
 	{	// needed twice to reinitialize Exclusive Full Screen after a 
 		// resolution change 
 		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-				ScreenWidthActual, ScreenHeightActual);
+				WindowWidth, WindowHeight);
 	}
 
 	populate_res ();
@@ -1057,8 +1071,8 @@ res_check (int width, int height)
 static void
 change_res (WIDGET_TEXTENTRY *self)
 {
-	int NewWidth = ScreenWidthActual;
-	int NewHeight = ScreenHeightActual;
+	int NewWidth = WindowWidth;
+	int NewHeight = WindowHeight;
 	int NewGfxFlags = GfxFlags;
 	BOOLEAN isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
 
@@ -1068,10 +1082,10 @@ change_res (WIDGET_TEXTENTRY *self)
 		return;
 	}
 	
-	if (NewWidth != ScreenWidthActual || NewHeight != ScreenHeightActual)
+	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
 	{
-		ScreenWidthActual = NewWidth;
-		ScreenHeightActual = NewHeight;
+		WindowWidth = NewWidth;
+		WindowHeight = NewHeight;
 
 		if (isExclusive)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
@@ -1085,24 +1099,24 @@ change_res (WIDGET_TEXTENTRY *self)
 	FlushInput ();
 
 	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-		ScreenWidthActual, ScreenHeightActual);
+		WindowWidth, WindowHeight);
 
 	if (isExclusive)
 	{	// needed twice to reinitialize Exclusive Full Screen after a 
 		// resolution change
 		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-				ScreenWidthActual, ScreenHeightActual);
+				WindowWidth, WindowHeight);
 	}
 
 	if (res_check (NewWidth, NewHeight))
 	{
-		choices[42].selected = (NewWidth / 320) - 1;
+		choices[CHOICE_RESOLUTION].selected = (NewWidth / 320) - 1;
 	}
 	else
-		choices[42].selected = 6;
+		choices[CHOICE_RESOLUTION].selected = 6;
 
-	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&choices[42].selected),
+	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&choices[CHOICE_RESOLUTION].selected),
 			"config.loresBlowupScale", FALSE);
 	res_PutInteger ("config.reswidth", NewWidth);
 	res_PutInteger ("config.resheight", NewHeight);
@@ -1123,97 +1137,97 @@ SetDefaults (void)
 	BYTE i;
 	
 	GetGlobalOptions (&opts);
-	choices[0].selected = opts.screenResolution;
-	choices[1].selected = opts.driver;
-	choices[2].selected = opts.scaler;
-	choices[3].selected = opts.scanlines;
-	choices[4].selected = opts.menu;
-	choices[5].selected = opts.text;
-	choices[6].selected = opts.cscan;
-	choices[7].selected = opts.scroll;
-	choices[8].selected = opts.subtitles;
-	choices[9].selected = opts.music3do;
-	choices[10].selected = opts.fullscreen;
-	choices[11].selected = opts.intro;
-	choices[12].selected = opts.fps;
+	choices[CHOICE_GRAPHICS        ].selected = opts.screenResolution;
+	choices[CHOICE_FRBUFFER        ].selected = opts.driver;
+	choices[CHOICE_SCALER          ].selected = opts.scaler;
+	choices[CHOICE_SCANLINE        ].selected = opts.scanlines;
+	choices[CHOICE_MENUSTYLE       ].selected = opts.menu;
+	choices[CHOICE_FONTSTYLE       ].selected = opts.text;
+	choices[CHOICE_SCANMENU        ].selected = opts.cscan;
+	choices[CHOICE_SCROLLSTYLE     ].selected = opts.scroll;
+	choices[CHOICE_SUBTITLES       ].selected = opts.subtitles;
+	choices[CHOICE_REMIXES1        ].selected = opts.music3do;
+	choices[CHOICE_DISPLAY         ].selected = opts.fullscreen;
+	choices[CHOICE_CUTSCENE        ].selected = opts.intro;
+	choices[CHOICE_SHOWFPS         ].selected = opts.fps;
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	choices[13].selected = opts.meleezoom;
+	choices[CHOICE_MELEEZOOM       ].selected = opts.meleezoom;
 #endif
-	choices[14].selected = opts.stereo;
-	choices[15].selected = opts.adriver;
-	choices[16].selected = opts.aquality;
-	choices[17].selected = opts.shield;
-	choices[18].selected = opts.player1;
-	choices[19].selected = opts.player2;
-	choices[20].selected = 0;
-	choices[21].selected = opts.musicremix;
-	choices[22].selected = opts.speech;
-	choices[23].selected = opts.keepaspect;
- 	choices[24].selected = opts.cheatMode;
-	choices[25].selected = opts.godModes;
-	choices[26].selected = opts.tdType;
-	choices[27].selected = opts.bubbleWarp;
-	choices[28].selected = opts.unlockShips;
-	choices[29].selected = opts.headStart;
-	//choices[30].selected = opts.unlockUpgrades;
-	choices[31].selected = opts.infiniteRU;
-	choices[32].selected = opts.skipIntro;
-	choices[33].selected = opts.fuelRange;
-	choices[34].selected = opts.mainMenuMusic;
-	choices[35].selected = opts.nebulae;
-	choices[36].selected = opts.orbitingPlanets;
-	choices[37].selected = opts.texturedPlanets;
-	choices[38].selected = opts.dateType;
-	choices[39].selected = opts.infiniteFuel;
-	choices[40].selected = opts.partialPickup;
-	choices[41].selected = opts.submenu;
-	choices[42].selected = opts.loresBlowup;
-	choices[43].selected = opts.infiniteCredits;
-	choices[44].selected = opts.hazardColors;
-	choices[45].selected = opts.customBorder;
-	choices[46].selected = opts.spaceMusic;
-	choices[47].selected = opts.volasMusic;
-	choices[48].selected = opts.wholeFuel;
+	choices[CHOICE_POSAUDIO        ].selected = opts.stereo;
+	choices[CHOICE_SNDDRIVER       ].selected = opts.adriver;
+	choices[CHOICE_SNDQUALITY      ].selected = opts.aquality;
+	choices[CHOICE_SLVSHIELD       ].selected = opts.shield;
+	choices[CHOICE_BTMPLAYER       ].selected = opts.player1;
+	choices[CHOICE_TOPPLAYER       ].selected = opts.player2;
+	choices[CHOICE_KBLAYOUT        ].selected = 0;
+	choices[CHOICE_REMIXES2        ].selected = opts.musicremix;
+	choices[CHOICE_SPEECH          ].selected = opts.speech;
+	choices[CHOICE_ASPRATIO        ].selected = opts.keepaspect;
+ 	choices[CHOICE_CHEATING        ].selected = opts.cheatMode;
+	choices[CHOICE_CHGODMODE       ].selected = opts.godModes;
+	choices[CHOICE_CHTIME          ].selected = opts.tdType;
+	choices[CHOICE_CHWARP          ].selected = opts.bubbleWarp;
+	choices[CHOICE_CHSHIPS         ].selected = opts.unlockShips;
+	choices[CHOICE_CHHEADSTART     ].selected = opts.headStart;
+	//choices[CHOICE_CHUPGRADES    ].selected = opts.unlockUpgrades;
+	choices[CHOICE_CHINFRU         ].selected = opts.infiniteRU;
+	choices[CHOICE_SKIPINTRO       ].selected = opts.skipIntro;
+	choices[CHOICE_FUELCIRCLE      ].selected = opts.fuelRange;
+	choices[CHOICE_MMENUMUSIC      ].selected = opts.mainMenuMusic;
+	choices[CHOICE_NEBULAE         ].selected = opts.nebulae;
+	choices[CHOICE_ORBPLANETS      ].selected = opts.orbitingPlanets;
+	choices[CHOICE_TEXPLANETS      ].selected = opts.texturedPlanets;
+	choices[CHOICE_DATESTRING      ].selected = opts.dateType;
+	choices[CHOICE_CHINFFUEL       ].selected = opts.infiniteFuel;
+	choices[CHOICE_PARTPICKUP      ].selected = opts.partialPickup;
+	choices[CHOICE_SUBMENU         ].selected = opts.submenu;
+	choices[CHOICE_RESOLUTION      ].selected = opts.loresBlowup;
+	choices[CHOICE_CHINFCRD        ].selected = opts.infiniteCredits;
+	choices[CHOICE_HAZARDCLR       ].selected = opts.hazardColors;
+	choices[CHOICE_CUSTBORDER      ].selected = opts.customBorder;
+	choices[CHOICE_IPMUSIC         ].selected = opts.spaceMusic;
+	choices[CHOICE_REMIXES3        ].selected = opts.volasMusic;
+	choices[CHOICE_FUELDECIM       ].selected = opts.wholeFuel;
 #if defined(ANDROID) || defined(__ANDROID__)
-	choices[49].selected = opts.directionalJoystick;
-	choices[50].selected = opts.meleezoom;
+	choices[CHOICE_JOYSTICK        ].selected = opts.directionalJoystick;
+	choices[CHOICE_ANDRZOOM        ].selected = opts.meleezoom;
 #endif
-	choices[51].selected = opts.landerHold;
-	choices[52].selected = opts.scrTrans;
-	choices[53].selected = opts.difficulty;
-	choices[54].selected = opts.extended;
-	choices[55].selected = opts.nomad;
-	choices[56].selected = opts.gameOver;
-	choices[57].selected = opts.shipDirectionIP;
-	choices[58].selected = opts.orzCompFont;
-	choices[59].selected = opts.controllerType;
-	choices[60].selected = opts.smartAutoPilot;
-	choices[61].selected = opts.tintPlanSphere;
-	choices[62].selected = opts.planetStyle;
-	choices[63].selected = opts.starBackground;
-	choices[64].selected = opts.scanStyle;
-	choices[65].selected = opts.nonStopOscill;
-	choices[66].selected = opts.scopeStyle;
-	choices[67].selected = opts.hyperStars;
-	choices[68].selected = opts.landerStyle;
-	choices[69].selected = opts.planetTexture;
-	choices[70].selected = opts.flagshipColor;
-	choices[71].selected = opts.noHQEncounters;
-	choices[72].selected = opts.deCleansing;
-	choices[73].selected = opts.meleeObstacles;
-	choices[74].selected = opts.showVisitedStars;
-	choices[75].selected = opts.unscaledStarSystem;
-	choices[76].selected = opts.sphereType;
-	choices[77].selected = opts.slaughterMode;
-	choices[78].selected = opts.advancedAutoPilot;
-	choices[79].selected = opts.meleeToolTips;
-	choices[80].selected = opts.musicResume;
-	choices[81].selected = opts.windowType;
-	choices[82].selected = opts.seedType;
-	choices[83].selected = opts.sphereColors;
-	choices[84].selected = opts.scatterElements;
-	choices[85].selected = opts.showUpgrades;
-	choices[86].selected = opts.fleetPointSys;
+	choices[CHOICE_LANDERHOLD      ].selected = opts.landerHold;
+	choices[CHOICE_SCRMELT         ].selected = opts.scrTrans;
+	choices[CHOICE_SKILLLVL        ].selected = opts.difficulty;
+	choices[CHOICE_EXTENDED        ].selected = opts.extended;
+	choices[CHOICE_NOMAD           ].selected = opts.nomad;
+	choices[CHOICE_GAMEOVER        ].selected = opts.gameOver;
+	choices[CHOICE_IPSHIPDIR       ].selected = opts.shipDirectionIP;
+	choices[CHOICE_ORZFONT         ].selected = opts.orzCompFont;
+	choices[CHOICE_INPDEVICE       ].selected = opts.controllerType;
+	choices[CHOICE_SMARTAUTO       ].selected = opts.smartAutoPilot;
+	choices[CHOICE_SCANTINT        ].selected = opts.tintPlanSphere;
+	choices[CHOICE_IPSTYLE         ].selected = opts.planetStyle;
+	choices[CHOICE_IPBACKGROUND    ].selected = opts.starBackground;
+	choices[CHOICE_SCANSTYLE       ].selected = opts.scanStyle;
+	choices[CHOICE_NOSTOSCILL      ].selected = opts.nonStopOscill;
+	choices[CHOICE_OSCILLSTYLE     ].selected = opts.scopeStyle;
+	choices[CHOICE_ANIMHYPER       ].selected = opts.hyperStars;
+	choices[CHOICE_LANDERSTYLE     ].selected = opts.landerStyle;
+	choices[CHOICE_PLNTEXTURE      ].selected = opts.planetTexture;
+	choices[CHOICE_FLAGSHIP        ].selected = opts.flagshipColor;
+	choices[CHOICE_CHCLEANHYPER    ].selected = opts.noHQEncounters;
+	choices[CHOICE_CHDECLEAN       ].selected = opts.deCleansing;
+	choices[CHOICE_CHNOPLANET      ].selected = opts.meleeObstacles;
+	choices[CHOICE_VISITED         ].selected = opts.showVisitedStars;
+	choices[CHOICE_6014IP          ].selected = opts.unscaledStarSystem;
+	choices[CHOICE_SCANSPHERE      ].selected = opts.sphereType;
+	choices[CHOICE_SLAUGHTER       ].selected = opts.slaughterMode;
+	choices[CHOICE_ADVAUTO         ].selected = opts.advancedAutoPilot;
+	choices[CHOICE_MLTOOLTIP       ].selected = opts.meleeToolTips;
+	choices[CHOICE_MUSRESUME       ].selected = opts.musicResume;
+	choices[CHOICE_WINDOWTYPE      ].selected = opts.windowType;
+	choices[CHOICE_GAMESEED        ].selected = opts.seedType;
+	choices[CHOICE_SOICOLOR        ].selected = opts.sphereColors;
+	choices[CHOICE_SCATTERCARGO    ].selected = opts.scatterElements;
+	choices[CHOICE_LANDERUPGMASK   ].selected = opts.showUpgrades;
+	choices[CHOICE_FLEETPOINT      ].selected = opts.fleetPointSys;
 
 	// Devices
 	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
@@ -1228,11 +1242,11 @@ SetDefaults (void)
 
 	// Next choice should be choices[125]
 
-	sliders[0].value = opts.musicvol;
-	sliders[1].value = opts.sfxvol;
-	sliders[2].value = opts.speechvol;
-	sliders[3].value = opts.gamma;
-	sliders[4].value = opts.nebulaevol;
+	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
+	sliders[SLIDER_SFXVOLUME ].value = opts.sfxvol;
+	sliders[SLIDER_SPCHVOLUME].value = opts.speechvol;
+	sliders[SLIDER_GAMMA     ].value = opts.gamma;
+	sliders[SLIDER_NEBULA    ].value = opts.nebulaevol;
 }
 
 static void
@@ -1241,96 +1255,96 @@ PropagateResults (void)
 	GLOBALOPTS opts;
 	BYTE i;
 
-	opts.screenResolution = choices[0].selected;
-	opts.driver = choices[1].selected;
-	opts.scaler = choices[2].selected;
-	opts.scanlines = choices[3].selected;
-	opts.menu = choices[4].selected;
-	opts.text = choices[5].selected;
-	opts.cscan = choices[6].selected;
-	opts.scroll = choices[7].selected;
-	opts.subtitles = choices[8].selected;
-	opts.music3do = choices[9].selected;
-	opts.fullscreen = choices[10].selected;
-	opts.intro = choices[11].selected;
-	opts.fps = choices[12].selected;
+	opts.screenResolution = choices[CHOICE_GRAPHICS     ].selected;
+	opts.driver =			choices[CHOICE_FRBUFFER     ].selected;
+	opts.scaler =			choices[CHOICE_SCALER       ].selected;
+	opts.scanlines =		choices[CHOICE_SCANLINE     ].selected;
+	opts.menu =				choices[CHOICE_MENUSTYLE    ].selected;
+	opts.text =				choices[CHOICE_FONTSTYLE    ].selected;
+	opts.cscan =			choices[CHOICE_SCANMENU     ].selected;
+	opts.scroll =			choices[CHOICE_SCROLLSTYLE  ].selected;
+	opts.subtitles =		choices[CHOICE_SUBTITLES    ].selected;
+	opts.music3do =			choices[CHOICE_REMIXES1     ].selected;
+	opts.fullscreen =		choices[CHOICE_DISPLAY      ].selected;
+	opts.intro =			choices[CHOICE_CUTSCENE     ].selected;
+	opts.fps =				choices[CHOICE_SHOWFPS      ].selected;
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	opts.meleezoom = choices[13].selected;
+	opts.meleezoom =		choices[CHOICE_MELEEZOOM    ].selected;
 #endif
-	opts.stereo = choices[14].selected;
-	opts.adriver = choices[15].selected;
-	opts.aquality = choices[16].selected;
-	opts.shield = choices[17].selected;
-	opts.player1 = choices[18].selected;
-	opts.player2 = choices[19].selected;
-	opts.musicremix = choices[21].selected;
-	opts.speech = choices[22].selected;
-	opts.keepaspect = choices[23].selected;
- 	opts.cheatMode = choices[24].selected;
-	opts.godModes = choices[25].selected;
-	opts.tdType = choices[26].selected;
-	opts.bubbleWarp = choices[27].selected;
-	opts.unlockShips = choices[28].selected;
-	opts.headStart = choices[29].selected;
-	//opts.unlockUpgrades = choices[30].selected;
-	opts.infiniteRU = choices[31].selected;
-	opts.skipIntro = choices[32].selected;
-	opts.fuelRange = choices[33].selected;
-	opts.mainMenuMusic = choices[34].selected;
-	opts.nebulae = choices[35].selected;
-	opts.orbitingPlanets = choices[36].selected;
-	opts.texturedPlanets = choices[37].selected;
-	opts.dateType = choices[38].selected;
-	opts.infiniteFuel = choices[39].selected;
-	opts.partialPickup = choices[40].selected;
-	opts.submenu = choices[41].selected;
-	opts.loresBlowup = choices[42].selected;
-	opts.infiniteCredits = choices[43].selected;
-	opts.hazardColors = choices[44].selected;
-	opts.customBorder = choices[45].selected;
-	opts.spaceMusic = choices[46].selected;
-	opts.volasMusic = choices[47].selected;
-	opts.wholeFuel = choices[48].selected;
+	opts.stereo =			choices[CHOICE_POSAUDIO     ].selected;
+	opts.adriver =			choices[CHOICE_SNDDRIVER    ].selected;
+	opts.aquality =			choices[CHOICE_SNDQUALITY   ].selected;
+	opts.shield =			choices[CHOICE_SLVSHIELD    ].selected;
+	opts.player1 =			choices[CHOICE_BTMPLAYER    ].selected;
+	opts.player2 =			choices[CHOICE_TOPPLAYER    ].selected;
+	opts.musicremix =		choices[CHOICE_REMIXES2     ].selected;
+	opts.speech =			choices[CHOICE_SPEECH       ].selected;
+	opts.keepaspect =		choices[CHOICE_ASPRATIO     ].selected;
+ 	opts.cheatMode =		choices[CHOICE_CHEATING     ].selected;
+	opts.godModes =			choices[CHOICE_CHGODMODE    ].selected;
+	opts.tdType =			choices[CHOICE_CHTIME       ].selected;
+	opts.bubbleWarp =		choices[CHOICE_CHWARP       ].selected;
+	opts.unlockShips =		choices[CHOICE_CHSHIPS      ].selected;
+	opts.headStart =		choices[CHOICE_CHHEADSTART  ].selected;
+	//opts.unlockUpgrades = choices[CHOICE_CHUPGRADES   ].selected;
+	opts.infiniteRU =		choices[CHOICE_CHINFRU      ].selected;
+	opts.skipIntro =		choices[CHOICE_SKIPINTRO    ].selected;
+	opts.fuelRange =		choices[CHOICE_FUELCIRCLE   ].selected;
+	opts.mainMenuMusic =	choices[CHOICE_MMENUMUSIC   ].selected;
+	opts.nebulae =			choices[CHOICE_NEBULAE      ].selected;
+	opts.orbitingPlanets =	choices[CHOICE_ORBPLANETS   ].selected;
+	opts.texturedPlanets =	choices[CHOICE_TEXPLANETS   ].selected;
+	opts.dateType =			choices[CHOICE_DATESTRING   ].selected;
+	opts.infiniteFuel =		choices[CHOICE_CHINFFUEL    ].selected;
+	opts.partialPickup =	choices[CHOICE_PARTPICKUP   ].selected;
+	opts.submenu =			choices[CHOICE_SUBMENU      ].selected;
+	opts.loresBlowup =		choices[CHOICE_RESOLUTION   ].selected;
+	opts.infiniteCredits =	choices[CHOICE_CHINFCRD     ].selected;
+	opts.hazardColors =		choices[CHOICE_HAZARDCLR    ].selected;
+	opts.customBorder =		choices[CHOICE_CUSTBORDER   ].selected;
+	opts.spaceMusic =		choices[CHOICE_IPMUSIC      ].selected;
+	opts.volasMusic =		choices[CHOICE_REMIXES3     ].selected;
+	opts.wholeFuel =		choices[CHOICE_FUELDECIM    ].selected;
 #if defined(ANDROID) || defined(__ANDROID__)
-	opts.directionalJoystick = choices[49].selected;
-	opts.meleezoom = choices[50].selected;
+	opts.directionalJoystick = choices[CHOICE_JOYSTICK  ].selected;
+	opts.meleezoom =		choices[CHOICE_ANDRZOOM     ].selected;
 #endif
-	opts.landerHold = choices[51].selected;
-	opts.scrTrans = choices[52].selected;
-	opts.difficulty = choices[53].selected;
-	opts.extended = choices[54].selected;
-	opts.nomad = choices[55].selected;
-	opts.gameOver = choices[56].selected;
-	opts.shipDirectionIP = choices[57].selected;
-	opts.orzCompFont = choices[58].selected;
-	opts.controllerType = choices[59].selected;
-	opts.smartAutoPilot = choices[60].selected;
-	opts.tintPlanSphere = choices[61].selected;
-	opts.planetStyle = choices[62].selected;
-	opts.starBackground = choices[63].selected;
-	opts.scanStyle = choices[64].selected;
-	opts.nonStopOscill = choices[65].selected;
-	opts.scopeStyle = choices[66].selected;
-	opts.hyperStars = choices[67].selected;
-	opts.landerStyle = choices[68].selected;
-	opts.planetTexture = choices[69].selected;
-	opts.flagshipColor = choices[70].selected;
-	opts.noHQEncounters = choices[71].selected;
-	opts.deCleansing = choices[72].selected;
-	opts.meleeObstacles = choices[73].selected;
-	opts.showVisitedStars = choices[74].selected;
-	opts.unscaledStarSystem = choices[75].selected;
-	opts.sphereType = choices[76].selected;
-	opts.slaughterMode = choices[77].selected;
-	opts.advancedAutoPilot = choices[78].selected;
-	opts.meleeToolTips = choices[79].selected;
-	opts.musicResume = choices[80].selected;
-	opts.windowType = choices[81].selected;
-	opts.seedType = choices[82].selected;
-	opts.sphereColors = choices[83].selected;
-	opts.scatterElements = choices[84].selected;
-	opts.showUpgrades = choices[85].selected;
-	opts.fleetPointSys = choices[86].selected;
+	opts.landerHold =		choices[CHOICE_LANDERHOLD   ].selected;
+	opts.scrTrans =			choices[CHOICE_SCRMELT      ].selected;
+	opts.difficulty =		choices[CHOICE_SKILLLVL     ].selected;
+	opts.extended =			choices[CHOICE_EXTENDED     ].selected;
+	opts.nomad =			choices[CHOICE_NOMAD        ].selected;
+	opts.gameOver =			choices[CHOICE_GAMEOVER     ].selected;
+	opts.shipDirectionIP =	choices[CHOICE_IPSHIPDIR    ].selected;
+	opts.orzCompFont =		choices[CHOICE_ORZFONT      ].selected;
+	opts.controllerType =	choices[CHOICE_INPDEVICE    ].selected;
+	opts.smartAutoPilot =	choices[CHOICE_SMARTAUTO    ].selected;
+	opts.tintPlanSphere =	choices[CHOICE_SCANTINT     ].selected;
+	opts.planetStyle =		choices[CHOICE_IPSTYLE      ].selected;
+	opts.starBackground =	choices[CHOICE_IPBACKGROUND ].selected;
+	opts.scanStyle =		choices[CHOICE_SCANSTYLE    ].selected;
+	opts.nonStopOscill =	choices[CHOICE_NOSTOSCILL   ].selected;
+	opts.scopeStyle =		choices[CHOICE_OSCILLSTYLE  ].selected;
+	opts.hyperStars =		choices[CHOICE_ANIMHYPER    ].selected;
+	opts.landerStyle =		choices[CHOICE_LANDERSTYLE  ].selected;
+	opts.planetTexture =	choices[CHOICE_PLNTEXTURE   ].selected;
+	opts.flagshipColor =	choices[CHOICE_FLAGSHIP     ].selected;
+	opts.noHQEncounters =	choices[CHOICE_CHCLEANHYPER ].selected;
+	opts.deCleansing =		choices[CHOICE_CHDECLEAN    ].selected;
+	opts.meleeObstacles =	choices[CHOICE_CHNOPLANET   ].selected;
+	opts.showVisitedStars = choices[CHOICE_VISITED      ].selected;
+	opts.unscaledStarSystem=choices[CHOICE_6014IP       ].selected;
+	opts.sphereType =		choices[CHOICE_SCANSPHERE   ].selected;
+	opts.slaughterMode =	choices[CHOICE_SLAUGHTER    ].selected;
+	opts.advancedAutoPilot= choices[CHOICE_ADVAUTO      ].selected;
+	opts.meleeToolTips =	choices[CHOICE_MLTOOLTIP    ].selected;
+	opts.musicResume =		choices[CHOICE_MUSRESUME    ].selected;
+	opts.windowType =		choices[CHOICE_WINDOWTYPE   ].selected;
+	opts.seedType =			choices[CHOICE_GAMESEED     ].selected;
+	opts.sphereColors =		choices[CHOICE_SOICOLOR     ].selected;
+	opts.scatterElements =	choices[CHOICE_SCATTERCARGO ].selected;
+	opts.showUpgrades =		choices[CHOICE_LANDERUPGMASK].selected;
+	opts.fleetPointSys =	choices[CHOICE_FLEETPOINT   ].selected;
 
 	// Devices
 	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
@@ -1343,11 +1357,11 @@ PropagateResults (void)
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
-	opts.musicvol = sliders[0].value;
-	opts.sfxvol = sliders[1].value;
-	opts.speechvol = sliders[2].value;
-	opts.gamma = sliders[3].value;
-	opts.nebulaevol = sliders[4].value;
+	opts.musicvol	= sliders[SLIDER_MUSVOLUME ].value;
+	opts.sfxvol		= sliders[SLIDER_SFXVOLUME ].value;
+	opts.speechvol	= sliders[SLIDER_SPCHVOLUME].value;
+	opts.gamma		= sliders[SLIDER_GAMMA     ].value;
+	opts.nebulaevol = sliders[SLIDER_NEBULA    ].value;
 	SetGlobalOptions (&opts);
 }
 
@@ -1636,12 +1650,12 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 static void
 rebind_control (WIDGET_CONTROLENTRY *widget)
 {
-	int templat = choices[20].selected;
+	int templat = choices[CHOICE_KBLAYOUT].selected;
 	int control = widget->controlindex;
 	int index = widget->highlighted;
 
 	FlushInput ();
-	DrawLabelAsWindow (&labels[3], NULL);
+	DrawLabelAsWindow (&labels[LABEL_PRESSTOEDIT], NULL);
 	RebindInputState (templat, control, index);
 	populate_editkeys (templat);
 	FlushInput ();
@@ -1650,7 +1664,7 @@ rebind_control (WIDGET_CONTROLENTRY *widget)
 static void
 clear_control (WIDGET_CONTROLENTRY *widget)
 {
-	int templat = choices[20].selected;
+	int templat = choices[CHOICE_KBLAYOUT].selected;
 	int control = widget->controlindex;
 	int index = widget->highlighted;
 
@@ -1816,34 +1830,42 @@ init_widgets (void)
 		}
 	}
 
+	for (i = 0; i < choices[CHOICE_RESOLUTION].numopts - 1; i++)
+	{
+		snprintf(choices[CHOICE_RESOLUTION].options[i].optname,
+			strlen(choices[CHOICE_RESOLUTION].options[i].optname),
+			"%dx%d", RES_DESCALE (CanvasWidth)*(i+1), 
+			RES_DESCALE (CanvasHeight)* (i + 1));
+	}
+
 	// Choices 18-20 are also special, being the names of the key
 	// configurations
 	for (i = 0; i < 6; i++)
 	{
-		choices[18].options[i].optname = input_templates[i].name;
-		choices[19].options[i].optname = input_templates[i].name;
-		choices[20].options[i].optname = input_templates[i].name;
+		choices[CHOICE_BTMPLAYER].options[i].optname = input_templates[i].name;
+		choices[CHOICE_TOPPLAYER].options[i].optname = input_templates[i].name;
+		choices[CHOICE_KBLAYOUT ].options[i].optname = input_templates[i].name;
 	}
 
 	/* Choice 20 has a special onChange handler, too. */
-	choices[20].onChange = change_template;
+	choices[CHOICE_KBLAYOUT].onChange = change_template;
 
 	// Check addon availability for HD mode, DOS/3DO mode, and music remixes
-	choices[ 0].onChange = check_availability;
-	choices[ 9].onChange = check_availability;
-	choices[21].onChange = check_availability;
-	choices[46].onChange = check_availability;
-	choices[47].onChange = check_availability;
-	choices[81].onChange = check_availability;
+	choices[CHOICE_GRAPHICS  ].onChange = check_availability;
+	choices[CHOICE_REMIXES1  ].onChange = check_availability;
+	choices[CHOICE_REMIXES2  ].onChange = check_availability;
+	choices[CHOICE_IPMUSIC   ].onChange = check_availability;
+	choices[CHOICE_REMIXES3  ].onChange = check_availability;
+	choices[CHOICE_WINDOWTYPE].onChange = check_availability;
 
 	// Handle display option
-	choices[ 1].onChange = process_graphics_options;
-	choices[ 2].onChange = process_graphics_options;
-	choices[ 3].onChange = process_graphics_options;
-	choices[10].onChange = process_graphics_options;
-	choices[12].onChange = process_graphics_options;
-	choices[23].onChange = process_graphics_options;
-	choices[42].onChange = process_graphics_options;
+	choices[CHOICE_FRBUFFER  ].onChange = process_graphics_options;
+	choices[CHOICE_SCALER    ].onChange = process_graphics_options;
+	choices[CHOICE_SCANLINE  ].onChange = process_graphics_options;
+	choices[CHOICE_DISPLAY   ].onChange = process_graphics_options;
+	choices[CHOICE_SHOWFPS   ].onChange = process_graphics_options;
+	choices[CHOICE_ASPRATIO  ].onChange = process_graphics_options;
+	choices[CHOICE_RESOLUTION].onChange = process_graphics_options;
 
 	/* Sliders */
 	if (index >= count)
@@ -1881,18 +1903,18 @@ init_widgets (void)
 		sliders[i].tooltip[2] = "";
 		sliders[i].onChange = NULL;
 	}
-	sliders[0].onChange = adjustMusic;
-	sliders[1].onChange = adjustSFX;
-	sliders[2].onChange = adjustSpeech;
+	sliders[SLIDER_MUSVOLUME ].onChange = adjustMusic;
+	sliders[SLIDER_SFXVOLUME ].onChange = adjustSFX;
+	sliders[SLIDER_SPCHVOLUME].onChange = adjustSpeech;
 
 	// gamma is a special case
-	sliders[3].step = 1;
-	sliders[3].handleEvent = gamma_HandleEventSlider;
-	sliders[3].draw_value = gamma_DrawValue;
+	sliders[SLIDER_GAMMA].step = 1;
+	sliders[SLIDER_GAMMA].handleEvent = gamma_HandleEventSlider;
+	sliders[SLIDER_GAMMA].draw_value = gamma_DrawValue;
 
 	// nebulaevol is a special case
-	sliders[4].step = 1;
-	sliders[4].max = 50;
+	sliders[SLIDER_NEBULA].step = 1;
+	sliders[SLIDER_NEBULA].max = 50;
 
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{
@@ -2089,9 +2111,9 @@ init_widgets (void)
 		}
 	}
 
-	textentries[0].onChange = rename_template;
-	textentries[1].onChange = change_seed;
-	textentries[2].onChange = change_res;
+	textentries[TEXT_LOUTNAME].onChange = rename_template;
+	textentries[TEXT_GAMESEED].onChange = change_seed;
+	textentries[TEXT_CUSTMRES].onChange = change_res;
 
 	/* Control Entry boxes */
 	if (index >= count)
@@ -2283,7 +2305,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	/* Work out resolution.  On the way, try to guess a good default
 	 * for config.alwaysgl, then overwrite it if it was set previously. */
 	if ((!IS_HD && (GraphicsDriver != TFB_GFXDRIVER_SDL_PURE) &&
-		((ScreenWidthActual == 320) || (ScreenWidthActual == 640))) ||
+		((WindowWidth == 320) || (WindowWidth == 640))) ||
 		res_GetBoolean ("config.alwaysgl"))
 		opts->driver = OPTVAL_ALWAYS_GL;
 	else
@@ -2518,10 +2540,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 		nh = DOS_BOOL (240, 200) * (1 + opts->loresBlowup);
 
-		if (nh != ScreenHeightActual)
+		if (nh != WindowHeight)
 		{
-			ScreenHeightActual = nh;
-			res_PutInteger("config.resheight", ScreenHeightActual);
+			WindowHeight = nh;
+			res_PutInteger("config.resheight", WindowHeight);
 		}
 	}
 
@@ -2716,7 +2738,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	// Game modes
 	{
 		PutIntOpt (&optSeedType, (int*)(&opts->seedType), "mm.seedType", FALSE);
-		int customSeed = atoi (textentries[1].value);
+		int customSeed = atoi (textentries[TEXT_GAMESEED].value);
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;
 		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
@@ -2812,7 +2834,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
 				"Wactual:%d, Hactual:%d", CanvasWidth, CanvasHeight,
-				ScreenWidthActual, ScreenHeightActual);
+				WindowWidth, WindowHeight);
 
 		// These solve the context problem that plagued the setupmenu
 		// when changing to higher resolution.
@@ -2821,7 +2843,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		FlushColorXForms ();
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-				ScreenWidthActual, ScreenHeightActual);
+				WindowWidth, WindowHeight);
 		InitVideoPlayer (TRUE);
 
 		Reload ();

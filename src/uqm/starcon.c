@@ -151,7 +151,7 @@ ProcessUtilityKeys (void)
 		// clear ImmediateInputState so we don't repeat this next frame
 		FlushInput ();
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, flags,
-				ScreenWidthActual, ScreenHeightActual);
+				WindowWidth, WindowHeight);
 	}
 
 	if (ImmediateInputState.menu[KEY_SCREENSHOT])

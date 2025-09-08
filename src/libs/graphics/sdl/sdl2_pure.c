@@ -242,7 +242,9 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	{
 		int LastScreenWidth, LastScreenHeight;
 		SDL_RenderGetLogicalSize (renderer, &LastScreenWidth, &LastScreenHeight);
-		if (LastScreenWidth != setWidth || LastScreenHeight != setHeight)
+		//printf("Curr: %d, Desired: %d\n", SDL_Screens[0]->h, CanvasHeight);
+		if (LastScreenWidth != setWidth || LastScreenHeight != setHeight ||
+			SDL_Screens[0]->h != CanvasHeight)
 		{
 			SDL_RenderSetLogicalSize (renderer, setWidth, setHeight);
 			for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
@@ -358,8 +360,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	}
 
 	/* We succeeded, so alter the screen size to our new sizes */
-	ScreenWidthActual = width;
-	ScreenHeightActual = height;
+	WindowWidth = width;
+	WindowHeight = height;
 
 
 	(void) resFactor; /* satisfy compiler (unused parameter) */
@@ -452,7 +454,11 @@ TFB_SDL2_ScanLines (bool hd)
 	int y;
 	SDL_SetRenderDrawColor (renderer, 0, 0, 0, 64);
 	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
-	if (!hd)
+	for (y = 0; y < WindowHeight; y+=2)
+	{
+		SDL_RenderDrawLine (renderer, 0, y, WindowWidth - 1, y);
+	}
+	/*if (!hd)
 	{		
 		SDL_RenderSetLogicalSize (renderer, CanvasWidth << 1,
 				CanvasHeight << 1);
@@ -471,7 +477,7 @@ TFB_SDL2_ScanLines (bool hd)
 
 			SDL_RenderDrawLine (renderer, 0, y, CanvasWidth - 1, y);
 		}
-	}	
+	}	*/
 }
 
 static void

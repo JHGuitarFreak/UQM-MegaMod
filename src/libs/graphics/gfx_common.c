@@ -28,10 +28,14 @@
 int fs_height = 0; 
 int fs_width  = 0;
 
+// Actual canvas size we're plotting our graphics to
 int CanvasWidth;
 int CanvasHeight;
-int ScreenWidthActual;
-int ScreenHeightActual;
+
+// Size of the window on screen
+int WindowWidth;
+int WindowHeight;
+
 int ScreenColorDepth;
 int GraphicsDriver;
 int TFB_DEBUG_HALT = 0;

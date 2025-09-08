@@ -648,8 +648,8 @@ TFB_FlushGraphics (void)
 				TFB_DrawCommand_ReinitVideo *cmd = &DC.data.reinitvideo;
 				int oldDriver = GraphicsDriver;
 				int oldFlags = GfxFlags;
-				int oldWidth = ScreenWidthActual;
-				int oldHeight = ScreenHeightActual;
+				int oldWidth = WindowWidth;
+				int oldHeight = WindowHeight;
 				if (TFB_ReInitGraphics (cmd->driver, cmd->flags,
 						cmd->width, cmd->height, &resolutionFactor,
 						&optWindowType))
