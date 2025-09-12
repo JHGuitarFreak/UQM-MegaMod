@@ -45,6 +45,7 @@
 #include "options.h"
 #include "cons_res.h"
 #include "build.h"
+#include "master.h"
 
 #include "libs/resource/stringbank.h"
 // for StringBank_Create() & SplitString()

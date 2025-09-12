@@ -33,7 +33,7 @@
 #include "libs/tasklib.h"
 #include "libs/log.h"
 #include "libs/misc.h"
-
+#include "master.h"
 //#define DEBUG_LOAD
 
 ACTIVITY NextActivity;
