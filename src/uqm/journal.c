@@ -379,15 +379,8 @@ Journal (void)
 		universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
-	//if (optWhichMenu == OPT_PC)
-	//{
-	//	/*if (actuallyInOrbit)
-	//		DrawMenuStateStrings (PM_ALT_SCAN,
-	//				PM_ALT_JOURNAL - PM_ALT_SCAN);
-	//	else*/
-	//		DrawMenuStateStrings (PM_ALT_STARMAP,
-	//				PM_ALT_JOURNAL - PM_ALT_STARMAP);
-	//}
+	WriteJournals ();
+	which_journal = OBJECTIVES_JOURNAL;
 
 	MenuState.InputFunc = DoChangeJournal;
 	MenuState.Initialized = FALSE;

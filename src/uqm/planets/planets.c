@@ -680,26 +680,6 @@ DoPlanetOrbit (MENU_STATE *pMS)
 		case ROSTER:
 			select = RosterMenu ();
 			break;
-		//case JOURNAL:
-		//{
-		//	InputFrameCallback *oldCallback;
-
-		//	// Deactivate planet rotation
-		//	oldCallback = SetInputCallback (NULL);
-
-		//	RepairSISBorder ();
-
-		//	Journal ();
-		//	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		//		return FALSE;
-
-		//	// Reactivate planet rotation
-		//	SetInputCallback (oldCallback);
-
-		//	// Redraw the orbital display
-		//	DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
-		//	break;
-		//}
 		case GAME_MENU:
 			if (!GameOptions ())
 				return FALSE; // abort or load
