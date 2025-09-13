@@ -152,6 +152,7 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 		}
 		else if (DIF_HARD
 					&& CurStarDescPtr->Index == AQUA_HELIX_DEFINED
+					&& !GET_GAME_STATE (HELIX_UNPROTECTED)
 					&& !(GET_GAME_STATE (HM_ENCOUNTERS)
 						& 1 << THRADDASH_ENCOUNTER)
 					&& (StartSphereTracking (THRADDASH_SHIP)
@@ -188,7 +189,7 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 				ReinitQueue (&GLOBAL(npc_built_ship_q));
 				GetGroupInfo (GROUPS_RANDOM, GROUP_LOAD_IP);
 
-				if (Survivors)
+				if (Survivors && !GET_GAME_STATE (HELIX_UNPROTECTED))
 					return true;
 
 				{
