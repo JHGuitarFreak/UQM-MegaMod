@@ -321,7 +321,7 @@ DrawJournal (void)
 	{
 		RECT r;
 		GetContextClipRect (&r);
-		ScreenTransition (optIPScaler, &r);
+		ScreenTransition (optScrTrans, &r);
 		transition_pending = FALSE;
 	}
 
@@ -379,15 +379,15 @@ Journal (void)
 		universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
-	if (optWhichMenu == OPT_PC)
-	{
-		if (actuallyInOrbit)
-			DrawMenuStateStrings (PM_ALT_SCAN,
-					PM_ALT_JOURNAL - PM_ALT_SCAN);
-		else
-			DrawMenuStateStrings (PM_ALT_STARMAP,
-					PM_ALT_JOURNAL - PM_ALT_STARMAP);
-	}
+	//if (optWhichMenu == OPT_PC)
+	//{
+	//	/*if (actuallyInOrbit)
+	//		DrawMenuStateStrings (PM_ALT_SCAN,
+	//				PM_ALT_JOURNAL - PM_ALT_SCAN);
+	//	else*/
+	//		DrawMenuStateStrings (PM_ALT_STARMAP,
+	//				PM_ALT_JOURNAL - PM_ALT_STARMAP);
+	//}
 
 	MenuState.InputFunc = DoChangeJournal;
 	MenuState.Initialized = FALSE;
@@ -396,13 +396,8 @@ Journal (void)
 	DrawJournal ();
 	transition_pending = FALSE;
 
-#if defined(ANDROID) || defined(__ANDROID__)
-	TFB_SetOnScreenKeyboard_Starmap();
-	DoInput(&MenuState, FALSE);
-	TFB_SetOnScreenKeyboard_Menu();
-#else // ANDROID
-	DoInput(&MenuState, FALSE);
-#endif
+	DoInput (&MenuState, FALSE);
+
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	SetDefaultMenuRepeatDelay ();
 

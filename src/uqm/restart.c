@@ -131,7 +131,7 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 
 	SetContextForeGroundColor (BLACK_COLOR);
 
-	t.pStr = GAME_STRING (MEGAMOD_STRING_BASE + 14 + answer);
+	t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 66 + answer);
 	line_count = SplitString (t.pStr, '\n', 30, lines, bank);
 
 	t.baseline.x = r.corner.x
@@ -513,7 +513,7 @@ DoRestart (MENU_STATE *pMS)
 				{
 					SetFlashRect (NULL, FALSE);
 					DoPopupWindow (
-							GAME_STRING (MEGAMOD_STRING_BASE + 13));
+							GAME_STRING (MAINMENU_STRING_BASE + 65));
 					// Got to restart -message
 					SetMenuSounds (
 							MENU_SOUND_UP | MENU_SOUND_DOWN,

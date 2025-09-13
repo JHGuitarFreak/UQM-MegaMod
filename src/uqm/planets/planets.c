@@ -48,7 +48,6 @@ enum PlanetMenuItems
 	EQUIP_DEVICE,
 	CARGO,
 	ROSTER,
-	JOURNAL,
 	GAME_MENU,
 	NAVIGATION,
 };
@@ -318,7 +317,8 @@ typedef enum
 {
 	DRAW_ORBITAL_FULL,
 	DRAW_ORBITAL_WAIT,
-	DRAW_ORBITAL_UPDATE
+	DRAW_ORBITAL_UPDATE,
+	DRAW_ORBITAL_FROM_STARMAP,
 
 } DRAW_ORBITAL_MODE;
 
@@ -470,7 +470,12 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	else if (Mode == DRAW_ORBITAL_FULL)
 	{
 		DrawDefaultPlanetSphere ();
-		DrawMenuStateStrings (PM_SCAN, menu_index);
+		DrawMenuStateStrings (PM_SCAN, SCAN);
+	}
+	else if (Mode == DRAW_ORBITAL_FROM_STARMAP)
+	{
+		DrawDefaultPlanetSphere ();
+		DrawMenuStateStrings (PM_SCAN, STARMAP);
 	}
 	else
 		DrawMenuStateStrings (PM_SCAN, SCAN);
@@ -547,7 +552,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	{
 		if (is3DO (optScrTrans) || optScanSphere == 1)
 			ZoomInPlanetSphere ();
-		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE, -1);
+		DrawOrbitalDisplay (DRAW_ORBITAL_UPDATE);
 	}
 	else
 	{
@@ -675,26 +680,26 @@ DoPlanetOrbit (MENU_STATE *pMS)
 		case ROSTER:
 			select = RosterMenu ();
 			break;
-		case JOURNAL:
-		{
-			InputFrameCallback *oldCallback;
+		//case JOURNAL:
+		//{
+		//	InputFrameCallback *oldCallback;
 
-			// Deactivate planet rotation
-			oldCallback = SetInputCallback (NULL);
+		//	// Deactivate planet rotation
+		//	oldCallback = SetInputCallback (NULL);
 
-			RepairSISBorder ();
+		//	RepairSISBorder ();
 
-			Journal ();
-			if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-				return FALSE;
+		//	Journal ();
+		//	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		//		return FALSE;
 
-			// Reactivate planet rotation
-			SetInputCallback (oldCallback);
+		//	// Reactivate planet rotation
+		//	SetInputCallback (oldCallback);
 
-			// Redraw the orbital display
-			DrawOrbitalDisplay (DRAW_ORBITAL_FULL, JOURNAL);
-			break;
-		}
+		//	// Redraw the orbital display
+		//	DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
+		//	break;
+		//}
 		case GAME_MENU:
 			if (!GameOptions ())
 				return FALSE; // abort or load
@@ -718,7 +723,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 
 			if (!AutoPilotSet)
 			{	// Redraw the orbital display
-				DrawOrbitalDisplay (DRAW_ORBITAL_FULL, STARMAP);
+				DrawOrbitalDisplay (DRAW_ORBITAL_FROM_STARMAP); //WAS FULL
 				break;
 			}
 			// Fall through !!!
@@ -733,7 +738,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 		{	// 3DO menu jumps to NAVIGATE after a successful submenu run
 			if (optWhichMenu != OPT_PC)
 				pMS->CurState = NAVIGATION;
-			if (pMS->CurState != STARMAP && pMS->CurState != JOURNAL)
+			if (pMS->CurState != STARMAP)
 				DrawMenuStateStrings (PM_SCAN, pMS->CurState);
 		}
 		SetFlashRect (SFR_MENU_3DO, FALSE);
