@@ -32,6 +32,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/memlib.h"
 #include "libs/strlib.h"
+#include "util.h"
 #include <stdlib.h>
 #include <stdarg.h>
 
@@ -243,16 +244,12 @@ DrawJournal (void)
 	JOURNAL_SECTION *section;
 	JOURNAL_ENTRY *entry;
 
-	SetContext (SpaceContext);
-
 	if (transition_pending)
 		SetTransitionSource (NULL);
 
 	BatchGraphics ();
-
 	ClearDrawable ();
-	SetContextForeGroundColor (LTGRAY_COLOR);
-	SetContextBackGroundColor (BLACK_COLOR);
+	RepairSISBorder ();
 	SetContextFont (PlyrFont);
 	GetContextFontLeading (&leading);
 
@@ -364,13 +361,28 @@ DoChangeJournal (MENU_STATE *pMS)
 BOOLEAN
 Journal (void)
 {
-	MENU_STATE MenuState;
+	MENU_STATE MenuState = { 0 };
 	POINT universe;
+	Color OldBGColor, OldFGColor;
+	CONTEXT OldContext;
+	RECT r, old_r;
+	STAMP s;
 
-	memset (&MenuState, 0, sizeof (MenuState));
+	OldContext = SetContext (SpaceContext);
+	OldBGColor = SetContextBackGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
+	OldFGColor = SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
-	WriteJournals ();
-	which_journal = OBJECTIVES_JOURNAL;
+	GetContextClipRect (&old_r);
+
+	// For the Orbital and Shipyard transitions
+	r = old_r;
+	r.corner.x -= RES_SCALE (1);
+	r.extent.width += RES_SCALE (2);
+	r.extent.height += RES_SCALE (1);
+	SetContextClipRect (&r);
+	s = SaveContextFrame (NULL);
+
+	SetContextClipRect (&old_r);
 
 	if (!inHQSpace ())
 		universe = CurStarDescPtr->star_pt;
@@ -397,9 +409,28 @@ Journal (void)
 
 	FreeJournals ();
 
-	DrawHyperCoords (universe);
-	DrawSISMessage (NULL);
-	DrawStatusMessage (NULL);
+	SetContextClipRect (&r);
+	SetTransitionSource (&r);
+	BatchGraphics ();
+
+		SetContextBackGroundColor (OldBGColor);
+		SetContextForeGroundColor (OldFGColor);
+		
+		DrawStamp (&s);
+
+		DrawHyperCoords (universe);
+		DrawSISMessage (NULL);
+		DrawStatusMessage (NULL);
+
+		ScreenTransition (optScrTrans, &r);
+	
+	UnbatchGraphics ();
+
+	DestroyDrawable (ReleaseDrawable (s.frame));
+	FlushInput ();
+
+	SetContextClipRect (&old_r);
+	SetContext (OldContext);
 	
 	return TRUE;
 }
