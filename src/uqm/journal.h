@@ -1,5 +1,3 @@
-//Copyright Paul Reiche, Fred Ford. 1992-2002
-
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,34 +14,31 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef UQM_SHIPCONT_H_
-#define UQM_SHIPCONT_H_
+#ifndef UQM_JOURNAL_H
+#define UQM_JOURNAL_H
 
-#include "menustat.h"
+enum
+{
+	NO_JOURNAL_ENTRY,
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+	OBJECTIVES_JOURNAL_HEADER,
+	ALIENS_JOURNAL_HEADER,
+	ARTIFACTS_JOURNAL_HEADER,
 
-#define FIELD_WIDTH (STATUS_WIDTH - RES_SCALE (5))
+	VISIT_EARTH,
+	CONTACT_EARTH,
+	GET_RADIOACTIVES,
+	GIVE_RADIOACTIVES,
+	NEED_LANDER,
+	NEED_LANDER_AGAIN,
+	NEED_FUEL,
+	NEED_FUEL_AGAIN,
+	DESTROY_MOONBASE,
+	REPORT_MOONBASE,
+	RECRUIT_EARTH,
 
-extern void CargoMenu (void);
-extern BOOLEAN RosterMenu (void);
-extern BOOLEAN DevicesMenu (void);
-extern BOOLEAN StarMap (void);
-extern BOOLEAN Journal (void);
 
-extern void DrawCargoStrings (BYTE OldElement, BYTE NewElement);
-extern void ShowRemainingCapacity (void);
-extern void DrawRainbowPlanet (COUNT planet);
-extern BOOLEAN InvokeSpawner (void);
+	NUM_JOURNAL_STRINGS
+};
 
-extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
-
-extern FONT ModuleFont;
-
-#if defined(__cplusplus)
-}
-#endif
-
-#endif /* UQM_SHIPCONT_H_ */
+#endif /* UQM_JOURNAL_H */

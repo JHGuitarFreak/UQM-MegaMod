@@ -95,6 +95,7 @@ enum SolarSysMenuMenuItems
 	EQUIP_DEVICE,
 	CARGO,
 	ROSTER,
+	JOURNAL,
 	GAME_MENU,
 	NAVIGATION,
 };
@@ -3109,6 +3110,13 @@ DoSolarSysMenu (MENU_STATE *pMS)
 		case ROSTER:
 			select = RosterMenu ();
 			break;
+		case JOURNAL:
+			Journal ();
+			if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+				return FALSE;
+
+			TransitionSystemIn ();
+			return FALSE;
 		case GAME_MENU:
 			if (!GameOptions ())
 				return FALSE; // abort or load

@@ -642,6 +642,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClCompile Include="..\..\src\uqm\intel.c" />
     <ClCompile Include="..\..\src\uqm\intro.c" />
     <ClCompile Include="..\..\src\uqm\ipdisp.c" />
+    <ClCompile Include="..\..\src\uqm\journal.c" />
     <ClCompile Include="..\..\src\uqm\load.c" />
     <ClCompile Include="..\..\src\uqm\load_legacy.c" />
     <ClCompile Include="..\..\src\uqm\loadship.c" />

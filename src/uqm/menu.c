@@ -398,6 +398,10 @@ GetAlternateMenu (BYTE *BaseState, BYTE *CurState)
 				*BaseState = PM_ALT_CARGO;
 				*CurState = PM_ALT_ROSTER - PM_ALT_CARGO;
 				return TRUE;
+			case PM_JOURNAL:
+				*BaseState = PM_ALT_SCAN + adj;
+				*CurState = PM_ALT_JOURNAL - PM_ALT_SCAN - adj;
+				return TRUE;
 			case PM_GAME_MENU:
 				*BaseState = PM_ALT_SCAN + adj;
 				*CurState = PM_ALT_GAME_MENU - PM_ALT_SCAN - adj;
@@ -457,6 +461,8 @@ ConvertAlternateMenu (BYTE BaseState, BYTE NewState)
 			return (PM_DEVICES - PM_SCAN);
 		case PM_ALT_ROSTER:
 			return (PM_ROSTER - PM_SCAN);
+		case PM_ALT_JOURNAL:
+			return (PM_JOURNAL - PM_SCAN);
 		case PM_ALT_EXIT_MANIFEST:
 			return (ALT_EXIT_MANIFEST);
 		case PM_ALT_MSCAN:

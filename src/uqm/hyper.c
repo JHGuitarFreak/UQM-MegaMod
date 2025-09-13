@@ -63,6 +63,7 @@ enum HyperMenuItems
 	EQUIP_DEVICE,
 	CARGO,
 	ROSTER,
+	JOURNAL,
 	GAME_MENU,
 	NAVIGATION,
 };
@@ -2102,6 +2103,9 @@ DoHyperspaceMenu (MENU_STATE *pMS)
 			break;
 		case STARMAP:
 			StarMap ();
+			return FALSE;
+		case JOURNAL:
+			Journal ();
 			return FALSE;
 		case NAVIGATION:
 			return FALSE;
