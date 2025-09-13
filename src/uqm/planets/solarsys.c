@@ -1422,6 +1422,11 @@ flagship_inertial_thrust (COUNT CurrentAngle)
 	}
 }
 
+#define NORTH  0
+#define EAST   4
+#define SOUTH  8
+#define WEST  12
+
 static SIZE
 ScreenCompass (COUNT index)
 {
@@ -1430,79 +1435,69 @@ ScreenCompass (COUNT index)
 	EXTENT sisScr = { SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT };
 	BOOLEAN westOfCenter = scrLoc.x < (sisScr.width >> 1);
 	BOOLEAN northOfCenter = scrLoc.y < (sisScr.height >> 1);
+	int quadrant = (westOfCenter ? 0 : 1) | (northOfCenter ? 0 : 2);
 
-#define NORTH  0
-#define EAST   4
-#define SOUTH  8
-#define WEST  12
-
-	if (westOfCenter && northOfCenter)
-	{	// NorthWest Quadrant
-		if (scrLoc.x < scrLoc.y)
-			facing = WEST;
-		else
-			facing = NORTH;
+	switch (quadrant)
+	{
+		case 0: // NorthWest Quadrant
+			facing = (scrLoc.x < scrLoc.y) ? WEST : NORTH;
+			break;
+		case 1: // NorthEast Quadrant
+			facing = ((sisScr.width - scrLoc.x) < scrLoc.y) ? EAST : NORTH;
+			break;
+		case 2: // SouthWest Quadrant
+			facing = (scrLoc.x < (sisScr.height - scrLoc.y)) ? WEST : SOUTH;
+			break;
+		case 3: // SouthEast Quadrant
+			facing = ((sisScr.width - scrLoc.x)
+					< (sisScr.height - scrLoc.y)) ? EAST : SOUTH;
+			break;
+		default:
+			return index;
 	}
-	else if (!westOfCenter && northOfCenter)
-	{	// NorthEast Quadrant
-		if ((sisScr.width - scrLoc.x) < scrLoc.y)
-			facing = EAST;
-		else
-			facing = NORTH;
-	}
-	else if (!westOfCenter && !northOfCenter)
-	{	// SouthEast Quadrant
-		if ((sisScr.width - scrLoc.x) < (sisScr.height - scrLoc.y))
-			facing = EAST;
-		else
-			facing = SOUTH;
-	}
-	else if (westOfCenter && !northOfCenter)
-	{	// SouthWest Quadrant
-		if (scrLoc.x < (sisScr.height - scrLoc.y))
-			facing = WEST;
-		else
-			facing = SOUTH;
-	}
-	else
-		facing = index;
 
 	return facing;
 }
+
+#define SHIP_THRUST -1
+#define TURN_LEFT 1
+#define TURN_RIGHT -1
 
 static POINT
 TurnAbout (SIZE delta_x, SIZE delta_y)
 {
 	SIZE facing;
-	COUNT frame_index;
+	COUNT index;
 	POINT delta = { delta_x, delta_y };
 
 	if (!optSmartAutoPilot)
 	{
-		delta.y = -1;
+		delta.y = SHIP_THRUST;
 		return delta;
 	}
 
-	frame_index = GetFrameIndex (GLOBAL (ShipStamp.frame));
+	index = GetFrameIndex (GLOBAL (ShipStamp.frame));
 
-	facing = ScreenCompass (frame_index);
+	facing = ScreenCompass (index);
 
-	if ((int)facing != frame_index)
+	if ((int)facing != index)
 	{
-		if (NORMALIZE_FACING (frame_index - facing)
-				>= ANGLE_TO_FACING (HALF_CIRCLE))
+		int NormalizeFacing = NORMALIZE_FACING (index - facing);
+		int AngleTo = ANGLE_TO_FACING (HALF_CIRCLE);
+
+		if (NormalizeFacing >= AngleTo)
 		{
-			facing = NORMALIZE_FACING (facing - 1);
+			facing = NORMALIZE_FACING (facing + TURN_RIGHT);
 			delta.x++;
 		}
-		else if ((int)frame_index != (int)facing)
+		else if ((int)index != (int)facing)
 		{
-			facing = NORMALIZE_FACING (facing + 1);
+			facing = NORMALIZE_FACING (facing + TURN_LEFT);
 			delta.x--;
 		}
 	}
 	else
-		delta.y = -1;
+		delta.y = SHIP_THRUST;
 
 	return delta;
 }

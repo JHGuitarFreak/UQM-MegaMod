@@ -207,7 +207,8 @@ typedef struct globalopts_struct {
 			smartAutoPilot, nonStopOscill, hyperStars, planetTexture,
 			noHQEncounters, deCleansing, meleeObstacles, showVisitedStars,
 			unscaledStarSystem, slaughterMode, advancedAutoPilot,
-			meleeToolTips, scatterElements, showUpgrades, fleetPointSys;
+			meleeToolTips, scatterElements, showUpgrades, fleetPointSys,
+			shipSeed;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;
