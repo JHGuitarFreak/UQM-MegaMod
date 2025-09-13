@@ -338,7 +338,8 @@ DoChangeJournal (MENU_STATE *pMS)
 
 		return TRUE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	else if (PulsedInputState.menu[KEY_JOURNAL]
+			|| PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
 		return FALSE;
 	}

@@ -88,6 +88,7 @@ static const char *menu_res_names[] = {
 	"debug_2",
 	"debug_3",
 	"debug_4",
+	"journal",
 	NULL
 };
 

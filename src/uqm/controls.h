@@ -68,6 +68,7 @@ enum {
 	KEY_DEBUG_2,
 	KEY_DEBUG_3,
 	KEY_DEBUG_4,
+	KEY_JOURNAL,
 	KEY_MENU_ANY, /* abstract char key */
 	NUM_MENU_KEYS
 };
