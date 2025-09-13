@@ -37,6 +37,41 @@ BOOLEAN legacySave;
 BYTE GTFO = 0;
 extern FRAME SpaceJunkFrame;
 
+static inline SIZE
+RaceIPSpeed (RACE_ID Index)
+{
+	static int seedStamp = -1;
+	const SIZE defaultMap[] = { RACE_IP_SPEED };
+	const COUNT numRaces = sizeof (defaultMap) / sizeof (COUNT);
+	static SIZE speedMap[sizeof (defaultMap) / sizeof (COUNT)] = {0};
+	int x;
+	if (!optShipSeed && (seedStamp != -1 || speedMap[0] == 0))
+	{
+		for (x = 0; x < numRaces; x++)
+			speedMap[x] = defaultMap[x];
+		seedStamp = -1;
+		if (speedMap[0] == 0)
+			speedMap[0] = 1;
+	}
+
+	if (optShipSeed && (seedStamp != optCustomSeed || speedMap[0] == 0))
+	{
+		HFLEETINFO hFleet;
+		for (x = 0; x < numRaces; x++)
+		{
+			hFleet = GetSeededFleetFromIndex (x);
+			if (hFleet)
+				speedMap[x] = defaultMap[GetIndexFromStarShip (
+						&GLOBAL (avail_race_q), hFleet)];
+			else
+				speedMap[x] = defaultMap[x];
+		}
+		if (speedMap[0] == 0)
+			speedMap[0] = 1;
+	}
+	return speedMap[Index];
+}
+
 void
 NotifyOthers (COUNT which_race, BYTE target_loc)
 {
@@ -142,6 +177,11 @@ getFlagshipLocation (void)
 	else
 		return 1 + planetIndex (pSolarSysState, pSolarSysState->pOrbitalDesc);
 }
+
+// These need to be global in case something else uses them
+// after shipseed write to them
+FRAME Xform = NULL_RESOURCE;
+FRAME Ywing = NULL_RESOURCE;
 
 static void
 ip_group_preprocess (ELEMENT *ElementPtr)
@@ -256,6 +296,17 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 	GetCurrentVelocityComponents (&EPtr->velocity, &vdx, &vdy);
 
 	task &= ~IGNORE_FLAGSHIP;
+	// Make sure we have images for the xform and ywing
+	if (optShipSeed)
+	{
+		if (!Xform)
+			Xform = CaptureDrawable (
+					LoadGraphic ("ship.mmrnmhrm.meleeicons"));
+		if (!Ywing)
+			Ywing = CaptureDrawable (
+					LoadGraphic ("ship.mmrnmhrm.meleeicons.y"));
+	}
+
 #ifdef NEVER
 	if (task <= FLEE || (task == ON_STATION	&& GroupPtr->dest_loc == 0))
 #else
@@ -372,12 +423,7 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 			}
 			else
 			{
-				SIZE RaceIPSpeed[] =
-				{
-					RACE_IP_SPEED
-				};
-
-				speed = RaceIPSpeed[GroupPtr->race_id];
+				speed = RaceIPSpeed (GroupPtr->race_id);
 				EPtr->thrust_wait = TRACK_WAIT;
 			}
 
@@ -487,7 +533,7 @@ CheckGetAway:
 		
 		if (optShipDirectionIP)
 		{
-			if (GroupPtr->race_id != SLYLANDRO_SHIP)
+			if (GroupPtr->flags & ROTATES)
 			{	// BW : make IP ships face the direction they're going into
 				if (GLOBAL (CurrentActivity) & START_ENCOUNTER)
 				{	// sometimes they give up chase, don't turn them away
@@ -514,34 +560,39 @@ CheckGetAway:
 				{	// JMS: Direction memory prevents jittering of battle
 					// group icons when they are orbiting a planet (and not
 					// chasing the player ship).
-					if (GroupPtr->canTurn)
+					if (GroupPtr->flags & CAN_TURN)
 					{
 						EPtr->next.image.frame = suggestedFrame;
-						GroupPtr->canTurn = FALSE;
-							// cannot turn until destination is reached
+						GroupPtr->flags &= ~CAN_TURN;
+						// cannot turn until destination is reached
 					}
 				} 
 				else
 					EPtr->next.image.frame = suggestedFrame;
 			} 
-			else
-			{
+			// Tumble any probes
+			if (GroupPtr->flags & IS_PROBE)
 				EPtr->next.image.frame =
 						IncFrameIndex (EPtr->next.image.frame);
-			}
-
+			// Transform any xforms
+			if (GroupPtr->flags & IS_XFORM &&
+					GroupPtr->dest_loc == IPNL_INTERCEPT_PLAYER)
+				GroupPtr->melee_icon = Ywing;
+			if (GroupPtr->flags & IS_XFORM &&
+					GroupPtr->dest_loc != IPNL_INTERCEPT_PLAYER)
+				GroupPtr->melee_icon = Xform;
 			// If destination reached - ship can turn (or ship
 			// leaves/enters inner system, but not reached destination yet)
 			if ((dest_pt.x == GroupPtr->loc.x
 					&& dest_pt.y == GroupPtr->loc.y) || Transition)
 			{
-				GroupPtr->canTurn = TRUE;
+				GroupPtr->flags |= CAN_TURN;
 			}
 		}
 	}
 	else if (task >= REFORM_GROUP && optShipDirectionIP)
 	{	// To face sis while reforming
-		if (GroupPtr->race_id != SLYLANDRO_SHIP)
+		if (GroupPtr->flags & ROTATES)
 		{
 			if (GetFrameIndex (EPtr->current.image.frame) == 1)
 			{	// Define direction only once and not follow player while
@@ -562,12 +613,10 @@ CheckGetAway:
 									ANGLE_TO_FACING (
 										ARCTAN (delta_x, delta_y))));
 
-				GroupPtr->canTurn = TRUE;
-					// Allow ship to turn after reforming is complete and
-					// if no more chasing player
+				GroupPtr->flags |= CAN_TURN;
 			}
 		}
-		else
+		else if (GroupPtr->flags & IS_PROBE)
 		{	// Probe will wobble while reforming
 			EPtr->next.image.frame =
 					IncFrameIndex (EPtr->next.image.frame);
@@ -716,7 +765,63 @@ spawn_ip_group (IP_GROUP *GroupPtr)
 			 * same result without the side
 			 * effect (InitIntersectFrame)
 			 */
-		if (optShipDirectionIP && GroupPtr->race_id == SLYLANDRO_SHIP)
+		GroupPtr->flags = 0;
+		if (GroupPtr->race_id != SLYLANDRO_SHIP)
+			GroupPtr->flags |= ROTATES;
+		if (GroupPtr->race_id == MMRNMHRM_SHIP)
+			GroupPtr->flags |= IS_XFORM;
+		if (GroupPtr->race_id == SLYLANDRO_SHIP)
+			GroupPtr->flags |= IS_PROBE;
+		if (optShipSeed)
+		{
+			FLEET_INFO *TemplatePtr = NULL;
+			HFLEETINFO hFleet;
+			hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), GroupPtr->race_id);
+			if (hFleet)
+				TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+			if (TemplatePtr)
+			{
+				SPECIES_ID ship = SeedShip (TemplatePtr->SpeciesID, false);
+				UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+				GroupPtr->flags = 0;
+				switch (ship) {
+					case SLYLANDRO_ID:
+						GroupPtr->flags |= IS_PROBE;
+						break;
+					case MMRNMHRM_ID:
+						GroupPtr->flags |= IS_XFORM + ROTATES;
+						break;
+					case ORZ_ID:
+					case UTWIG_ID:
+					case YEHAT_ID:
+					case MYCON_ID:
+					case UR_QUAN_ID:
+					case KOHR_AH_ID:
+					case ARILOU_ID:
+					case PKUNK_ID:
+					case SPATHI_ID:
+					case SUPOX_ID:
+					case MELNORME_ID:
+					case DRUUGE_ID:
+					case SHOFIXTI_ID:
+					case THRADDASH_ID:
+					case VUX_ID:
+					case ILWRATH_ID:
+					case UMGAH_ID:
+					case ZOQFOTPIK_ID:
+					case CHMMR_ID:
+					case CHENJESU_ID:
+					case ANDROSYNTH_ID:
+					case EARTHLING_ID:
+					case SYREEN_ID:
+						GroupPtr->flags |= ROTATES;
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		if (optShipDirectionIP && GroupPtr->flags & IS_PROBE)
 		{
 			GroupPtr->melee_icon =
 					CaptureDrawable (

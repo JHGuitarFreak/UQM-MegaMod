@@ -156,7 +156,7 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT         13
-#define CHOICE_COUNT      125
+#define CHOICE_COUNT      126
 #define SLIDER_COUNT        5
 #define BUTTON_COUNT       16
 #define LABEL_COUNT         9
@@ -325,6 +325,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&choices[82]),   // Seed usage selection
 	(WIDGET *)(&textentries[1]),// Custom Seed entry
+	(WIDGET *)(&choices[125]),  // Ship seeding toggle
 	(WIDGET *)(&choices[83]),   // SOI Color Selection
 	(WIDGET *)(&labels[4]),     // Spacer
 	(WIDGET *)(&buttons[1]),
@@ -1227,6 +1228,7 @@ SetDefaults (void)
 	}
 
 	// Next choice should be choices[125]
+	choices[125].selected = opts.shipSeed;
 
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -1342,6 +1344,7 @@ PropagateResults (void)
 	{
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
+	opts.shipSeed = choices[125].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -2409,6 +2412,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->nomad = optNomad;
 	opts->slaughterMode = optSlaughterMode;
 	opts->seedType = optSeedType;
+	opts->shipSeed = optShipSeed;
 	opts->fleetPointSys = optFleetPointSys;
 	
 	// Comm screen
@@ -2720,6 +2724,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		if (!SANE_SEED (customSeed))
 			customSeed = PrimeA;
 		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
+		PutBoolOpt (&optShipSeed, &opts->shipSeed, "mm.shipSeed", FALSE);
 	}
 
 	PutIntOpt (&optDiffChooser, (int*)&opts->difficulty, "mm.difficulty", FALSE);

@@ -150,6 +150,8 @@ void uio_DirList_free(uio_DirList *dirList);
 // For debugging purposes
 void uio_DirHandle_print(const uio_DirHandle *dirHandle, FILE *out);
 
+unsigned char * Get_Basename (const char *path);
+
 
 #ifdef DEBUG
 #	define uio_DEBUG

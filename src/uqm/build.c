@@ -28,6 +28,7 @@
 #include "starbase.h"
 #include "starmap.h"
 #include "gendef.h"
+#include "save.h"
 #include <stdlib.h>
 
 
@@ -71,6 +72,59 @@ GetStarShipFromIndex (QUEUE *pShipQ, COUNT Index)
 	}
 
 	return (hStarShip);
+}
+
+// Gives the first fleet in avail_race_q that builds specified ship.
+HLINK
+GetFleetFromSpecies (SPECIES_ID id)
+{
+	HLINK hFleet, hNextFleet;
+
+	for (hFleet = GetHeadLink (&GLOBAL (avail_race_q));
+			hFleet; hFleet = hNextFleet)
+	{
+		FLEET_INFO *FleetPtr;
+
+		FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+		if (FleetPtr->SpeciesID == id)
+		{
+			UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+			return hFleet;
+		}
+		hNextFleet = _GetSuccLink (FleetPtr);
+		UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	}
+
+	return hFleet;
+}
+
+// Returns the handle for the first fleet that normally builds the ships
+// the fleet in Index builds after seeding.
+// e.g. if Index is a fleet building Cruisers, returns the Earthling fleet.
+// This is for every part of the game that assumes a RACE_ID is a SPECIES_ID
+// If shipseed is not in use, it will do GetStarShipFromIndex on avail_race_q
+// If this seems like overkill just remember the Yehat rebels.
+HFLEETINFO
+GetSeededFleetFromIndex (COUNT Index)
+{
+	FLEET_INFO *TemplatePtr = NULL;
+	HFLEETINFO hFleet;
+	SPECIES_ID ship;
+	BOOLEAN loading = GLOBAL (CurrentActivity) & CHECK_PAUSE;
+	BOOLEAN loadWindow = ((optShipSeed && GLOBAL_SIS (ShipSeed) == 0) ||
+			(!optShipSeed && GLOBAL_SIS (ShipSeed) != 0) ||
+			(optCustomSeed != GLOBAL_SIS (Seed)));
+
+	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), Index);
+	if (!hFleet)
+		return hFleet;
+	TemplatePtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	if (!TemplatePtr)
+		return NULL;
+	ship = SeedShip (TemplatePtr->SpeciesID, loadWindow);
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	hFleet = GetFleetFromSpecies (ship);
+	return hFleet;
 }
 
 HSHIPFRAG
@@ -638,7 +692,15 @@ CloneShipFragment (RACE_ID shipIndex, QUEUE *pDstQueue, COUNT crew_level)
 
 	assert (GetLinkSize (pDstQueue) == sizeof (SHIP_FRAGMENT));
 
-	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), shipIndex);
+	// If options mismatch with SIS, it means we're in a load window.
+	// In that case we want to find the correct fleet ID for that ship.
+	if ((optShipSeed && GLOBAL_SIS (ShipSeed) == 0)
+			|| (!optShipSeed && GLOBAL_SIS (ShipSeed) != 0)
+			|| (optCustomSeed != GLOBAL_SIS (Seed)))
+		hFleet = GetSeededFleetFromIndex (shipIndex);
+	else
+		hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), shipIndex);
+
 	if (!hFleet)
 		return 0;
 
@@ -703,7 +765,8 @@ SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 	}
 	if (hStarShip)
 	{
-		StarShipPtr->crew_level = crew_level;
+		StarShipPtr->crew_level = (crew_level > StarShipPtr->max_crew ?
+				StarShipPtr->max_crew : crew_level);
 		StarShipPtr->captains_name_index = captain;
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}
