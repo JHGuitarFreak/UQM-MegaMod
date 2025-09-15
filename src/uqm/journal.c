@@ -46,9 +46,14 @@ typedef enum {
 } JOURNAL_ID;
 
 typedef enum {
-	OPEN_SECTION,
-	COMPLETED_SECTION,
-	SPATHI_SECTION,
+	OPEN_OBJECTIVES,
+	CLOSED_OBJECTIVES,
+	OPEN_ALIENS,
+	CLOSED_ALIENS,
+	OPEN_ARTIFACTS,
+	CLOSED_ARTIFACTS,
+	OPEN_SPATHI,
+	CLOSED_SPATHI,
 
 	NUM_SECTIONS
 } SECTION_ID;
@@ -86,7 +91,6 @@ StoreJournalEntry (SECTION_ID sid, JOURNAL_ENTRY *entry)
 	return TRUE;
 }
 
-
 static BOOLEAN
 AppendJournalEntry (SECTION_ID sid, char *string)
 {
@@ -95,7 +99,6 @@ AppendJournalEntry (SECTION_ID sid, char *string)
 	entry->shared = TRUE;
 	return StoreJournalEntry (sid, entry);
 }
-
 
 static BOOLEAN
 BuildJournalEntry (SECTION_ID sid, const char *format, ...)
@@ -115,7 +118,6 @@ BuildJournalEntry (SECTION_ID sid, const char *format, ...)
 	entry->shared = FALSE;
 	return StoreJournalEntry (sid, entry);
 }
-
 
 static void
 FreeJournals (void)
@@ -139,12 +141,36 @@ FreeJournals (void)
 	JournalStrings = NULL;
 }
 
-
 static BOOLEAN
-AddJournalObjective (int steps, ...)
+AddJournal (JOURNAL_ID Objective, int steps, ...)
 {
-	int i, s, test, jstring;
+	int i, test, jstring;
+	int s = 0;
 	char *str = NULL;
+	SECTION_ID Open = OPEN_SPATHI;
+	SECTION_ID Closed = CLOSED_SPATHI;
+
+	if (Objective > ARTIFACTS_JOURNAL || Objective < OBJECTIVES_JOURNAL)
+		return FALSE;
+
+	if (Objective == OBJECTIVES_JOURNAL)
+	{
+		Open = OPEN_OBJECTIVES;
+		Closed = CLOSED_OBJECTIVES;
+	}
+	else if (Objective == ALIENS_JOURNAL)
+	{
+		Open = OPEN_ALIENS;
+		Closed = CLOSED_ALIENS;
+	}
+	else
+	{
+		Open = OPEN_ARTIFACTS;
+		Closed = CLOSED_ARTIFACTS;
+	}
+
+	if (Open > OPEN_ARTIFACTS || Open < OPEN_OBJECTIVES)
+		return FALSE;
 
 	va_list args;
 	va_start (args, steps);
@@ -163,10 +189,8 @@ AddJournalObjective (int steps, ...)
 
 	if (!str || !*str)
 		return FALSE;
-	return AppendJournalEntry (
-			s == steps ? COMPLETED_SECTION : OPEN_SECTION, str);
+	return AppendJournalEntry (s == steps ? Closed : Open, str);
 }
-
 
 static void
 WriteJournals (void)
@@ -205,35 +229,34 @@ WriteJournals (void)
 			GET_GAME_STATE(MOONBASE_DESTROYED) &&
 			!GET_GAME_STATE(MOONBASE_ON_SHIP));
 
-	AddJournalObjective (2,
+	AddJournal (ALIENS_JOURNAL, 2,
 			1,                            VISIT_EARTH,
 			GS(PROBE_MESSAGE_DELIVERED),  VISIT_EARTH);
-	AddJournalObjective (4,
+	AddJournal (OBJECTIVES_JOURNAL, 4,
 			GS(PROBE_MESSAGE_DELIVERED),  CONTACT_EARTH,
 			GS(STARBASE_VISITED),         GET_RADIOACTIVES,
 			have_radioactives,            GIVE_RADIOACTIVES,
 			GS(RADIOACTIVES_PROVIDED),    GIVE_RADIOACTIVES);
-	AddJournalObjective (2,
+	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_lander,                  NEED_LANDER,
 			GS(LANDERS_LOST),             NEED_LANDER);
-	AddJournalObjective (2,
+	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_lander_again,            NEED_LANDER_AGAIN,
 			TF(!need_lander),             NO_JOURNAL_ENTRY);
-	AddJournalObjective (2,
+	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_fuel,                    NEED_FUEL,
 			GS(GIVEN_FUEL_BEFORE),        NEED_FUEL);
-	AddJournalObjective (2,
+	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_fuel_again,              NEED_FUEL_AGAIN,
 			TF(!need_fuel),               NO_JOURNAL_ENTRY);
-	AddJournalObjective (3,
+	AddJournal (OBJECTIVES_JOURNAL, 3,
 			GS(WILL_DESTROY_BASE),        DESTROY_MOONBASE,
 			GS(MOONBASE_ON_SHIP),         REPORT_MOONBASE,
 			reported_moonbase,            DESTROY_MOONBASE);
-	AddJournalObjective (2,
+	AddJournal (OBJECTIVES_JOURNAL, 2,
 			GS(RADIOACTIVES_PROVIDED),    RECRUIT_EARTH,
 			GS(STARBASE_AVAILABLE),       RECRUIT_EARTH);
 }
-
 
 static void
 DrawJournal (void)
@@ -261,25 +284,25 @@ DrawJournal (void)
 	{
 		case OBJECTIVES_JOURNAL:
 			DrawSISMessage (JOURNAL_STRING (OBJECTIVES_JOURNAL_HEADER));
-			sid = OPEN_SECTION;
-			sid_end = COMPLETED_SECTION;
+			sid = OPEN_OBJECTIVES;
+			sid_end = CLOSED_OBJECTIVES;
 			break;
 		case ALIENS_JOURNAL:
 			DrawSISMessage (JOURNAL_STRING (ALIENS_JOURNAL_HEADER));
-			sid = 1;
-			sid_end = 0;
+			sid = OPEN_ALIENS;
+			sid_end = CLOSED_ALIENS;
 			break;
 		case ARTIFACTS_JOURNAL:
 			DrawSISMessage (JOURNAL_STRING (ARTIFACTS_JOURNAL_HEADER));
-			sid = 1;
-			sid_end = 0;
+			sid = OPEN_ARTIFACTS;
+			sid_end = CLOSED_ARTIFACTS;
 			break;
 		default:
 			snprintf (journal_buf, JOURNAL_BUF_SIZE, "journal #%d",
 					which_journal);
 			DrawSISMessage (journal_buf);
-			sid = 1;
-			sid_end = 0;
+			sid = OPEN_OBJECTIVES;
+			sid_end = CLOSED_OBJECTIVES;
 			break;
 	}
 
@@ -289,7 +312,10 @@ DrawJournal (void)
 		const char *nextchar = NULL;
 
 		SetContextForeGroundColor (
-				(sid == COMPLETED_SECTION) ? DKGRAY_COLOR : LTGRAY_COLOR);
+				(sid == CLOSED_OBJECTIVES
+				|| sid == CLOSED_ALIENS
+				|| sid == CLOSED_ARTIFACTS)
+				? VDKGRAY_COLOR : LTGRAY_COLOR);
 
 		for (entry = section->head;  entry != NULL;  entry = entry->next)
 		{
