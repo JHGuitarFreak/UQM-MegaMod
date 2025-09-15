@@ -788,16 +788,16 @@ check_remixes (WIDGET_CHOICE *self, int oldval)
 	BOOLEAN addon_available = FALSE;
 	switch (self->choice_num)
 	{
-		case 9:
+		case CHOICE_REMIXES1:
 			addon_available = isAddonAvailable (THREEDO_MUSIC);
 			break;
-		case 21:
+		case CHOICE_REMIXES2:
 			addon_available = isAddonAvailable (REMIX_MUSIC);
 			break;
-		case 47:
+		case CHOICE_REMIXES3:
 			addon_available = isAddonAvailable (VOL_RMX_MUSIC);
 			break;
-		case 46:
+		case CHOICE_IPMUSIC:
 			addon_available = isAddonAvailable (VOL_RMX_MUSIC) ||
 					isAddonAvailable (REGION_MUSIC);
 			break;
@@ -820,16 +820,17 @@ check_remixes (WIDGET_CHOICE *self, int oldval)
 static void
 check_availability (WIDGET_CHOICE *self, int oldval)
 {
-	if (self->choice_num == 0)
+	if (self->choice_num == CHOICE_GRAPHICS)
 		check_for_hd (self, oldval);
 
-	if (self->choice_num == 9 || self->choice_num == 21
-			|| self->choice_num == 46 || self->choice_num == 47)
+	if (self->choice_num == CHOICE_REMIXES1 || self->choice_num == 
+		CHOICE_REMIXES2 || self->choice_num == CHOICE_REMIXES3 || 
+		self->choice_num == CHOICE_IPMUSIC)
 	{
 		check_remixes (self, oldval);
 	}
 
-	if (self->choice_num == 81)
+	if (self->choice_num == CHOICE_WINDOWTYPE)
 	{
 		check_dos_3do_modes (self, oldval);
 	}
@@ -992,30 +993,26 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 
 	switch (self->choice_num)
 	{
-		case 1:
+		case CHOICE_FRBUFFER:
 			change_gfxdriver (self, &NewGfxDriver);
 			break;
-		case 2:
+		case CHOICE_SCALER:
 			change_scaler (self, OldVal, &NewGfxFlags);
 			break;
-		case 3:
+		case CHOICE_SCANLINE:
 			toggle_scanlines (self, &NewGfxFlags);
 			break;
-		case 10:
+		case CHOICE_DISPLAY:
 			toggle_fullscreen (self, &NewGfxFlags);
 			break;
-		case 12:
+		case CHOICE_SHOWFPS:
 			toggle_showfps (self, &NewGfxFlags);
 			break;
-		case 23:
+		case CHOICE_ASPRATIO:
 			optKeepAspectRatio = self->selected;
 			res_PutBoolean ("config.keepaspectratio", self->selected);
-#if SDL_MAJOR_VERSION == 1
-			return;
-#else
 			break;
-#endif
-		case 42:
+		case CHOICE_RESOLUTION:
 			change_scaling (self, &NewWidth, &NewHeight);
 			isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
 			break;
