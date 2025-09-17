@@ -32,6 +32,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "libs/memlib.h"
 #include "libs/strlib.h"
+#include "lua/luacomm.h"
 #include "util.h"
 #include <stdlib.h>
 #include <stdarg.h>
@@ -370,6 +371,13 @@ DrawJournal (void)
 			t.CharCount = (COUNT)~0;
 			t.baseline.x = RES_SCALE (3);
 			font_DrawText (&t);
+
+			luaUqm_comm_init (NULL, NULL_RESOURCE);
+
+			if (luaUqm_comm_stringNeedsInterpolate (entry->string))
+				entry->string = luaUqm_comm_stringInterpolate (entry->string);
+
+			luaUqm_comm_uninit ();
 
 			t.pStr = entry->string;
 			t.CharCount = (COUNT)~0;
