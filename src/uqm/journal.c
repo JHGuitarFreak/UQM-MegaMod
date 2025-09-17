@@ -396,6 +396,10 @@ DoChangeJournal (MENU_STATE *pMS)
 
 		return TRUE;
 	}
+	else if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	{
+		return FALSE; // bail out
+	}
 	else if (PulsedInputState.menu[KEY_JOURNAL]
 			|| PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
@@ -415,8 +419,6 @@ DoChangeJournal (MENU_STATE *pMS)
 
 		DrawJournal ();
 	}
-
-	return !(GLOBAL (CurrentActivity) & CHECK_ABORT);
 }
 
 BOOLEAN
