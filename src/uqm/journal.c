@@ -52,6 +52,8 @@ typedef enum {
 	CLOSED_ALIENS,
 	OPEN_ARTIFACTS,
 	CLOSED_ARTIFACTS,
+
+	// Default values for error checking
 	OPEN_SPATHI,
 	CLOSED_SPATHI,
 
@@ -78,6 +80,11 @@ static char journal_buf[JOURNAL_BUF_SIZE];
 static BOOLEAN transition_pending;
 
 #define JOURNAL_STRING(i) (GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
+
+#define GS(flag)     (GET_GAME_STATE(flag) > 0)
+#define GSET(flag,n) (GET_GAME_STATE(flag) == (n))
+#define GSLT(flag,n) (GET_GAME_STATE(flag) < (n))
+#define GSGE(flag,n) (GET_GAME_STATE(flag) >= (n))
 
 static BOOLEAN
 StoreJournalEntry (SECTION_ID sid, JOURNAL_ENTRY *entry)
@@ -144,6 +151,7 @@ FreeJournals (void)
 static BOOLEAN
 AddJournal (JOURNAL_ID Objective, int steps, ...)
 {
+	va_list args;
 	int i, test, jstring;
 	int s = 0;
 	char *str = NULL;
@@ -172,7 +180,6 @@ AddJournal (JOURNAL_ID Objective, int steps, ...)
 	if (Open > OPEN_ARTIFACTS || Open < OPEN_OBJECTIVES)
 		return FALSE;
 
-	va_list args;
 	va_start (args, steps);
 	for (i = 0;  i < steps;  i++)
 	{
@@ -193,69 +200,68 @@ AddJournal (JOURNAL_ID Objective, int steps, ...)
 }
 
 static void
-WriteJournals (void)
-{
-#define TF(val)       ((val) ? 1 : 0)
-#define GS(flag)      TF(GET_GAME_STATE(flag) > 0)
-#define GSLT(flag,n)  TF(GET_GAME_STATE(flag) < (n))
-#define GSGE(flag,n)  TF(GET_GAME_STATE(flag) >= (n))
+ObjectivesJournal (void)
+{	// starbase missions
+	BOOLEAN FuelLow = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
+	BOOLEAN HaveRadios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
 
-	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
-	if (JournalStrings == 0)
-		return;
+	int have_radioactives = GS (STARBASE_VISITED) && HaveRadios;
+	int need_radioactives = GS (STARBASE_VISITED) && !HaveRadios &&
+			!GS (RADIOACTIVES_PROVIDED);
+	int need_lander = need_radioactives && GLOBAL_SIS (NumLanders) < 1;
+	int need_lander_again = need_lander && GS (LANDERS_LOST);
+	int need_fuel = need_radioactives && FuelLow;
+	int need_fuel_again = need_fuel && GS (GIVEN_FUEL_BEFORE);
+	int reported_moonbase = GS (MOONBASE_DESTROYED) && !GS (MOONBASE_ON_SHIP);
+	int signal_uranus = FwiffoBullet && !GS (FOUND_PLUTO_SPATHI);
+	int can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
 
 	// starbase missions
-
-	int have_radioactives = TF(
-			GET_GAME_STATE(STARBASE_VISITED) &&
-			GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0);
-	int need_radioactives = TF(
-			GET_GAME_STATE(STARBASE_VISITED) &&
-			GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) <= 0 &&
-			!GET_GAME_STATE(RADIOACTIVES_PROVIDED));
-	int need_lander = TF(
-			need_radioactives &&
-			GLOBAL_SIS (NumLanders) < 1);
-	int need_lander_again = TF(
-			need_lander &&
-			GS(LANDERS_LOST));
-	int need_fuel = TF(
-			need_radioactives &&
-			GLOBAL_SIS (FuelOnBoard) < 2 * FUEL_TANK_SCALE);
-	int need_fuel_again = TF(
-			need_fuel &&
-			GS(GIVEN_FUEL_BEFORE));
-	int reported_moonbase = TF(
-			GET_GAME_STATE(MOONBASE_DESTROYED) &&
-			!GET_GAME_STATE(MOONBASE_ON_SHIP));
-
-	AddJournal (ALIENS_JOURNAL, 2,
+	AddJournal (OBJECTIVES_JOURNAL, 2,
 			1,                            VISIT_EARTH,
-			GS(PROBE_MESSAGE_DELIVERED),  VISIT_EARTH);
+			GS (PROBE_MESSAGE_DELIVERED), VISIT_EARTH);
 	AddJournal (OBJECTIVES_JOURNAL, 4,
-			GS(PROBE_MESSAGE_DELIVERED),  CONTACT_EARTH,
-			GS(STARBASE_VISITED),         GET_RADIOACTIVES,
+			GS (PROBE_MESSAGE_DELIVERED), CONTACT_EARTH,
+			GS (STARBASE_VISITED),        GET_RADIOACTIVES,
 			have_radioactives,            GIVE_RADIOACTIVES,
-			GS(RADIOACTIVES_PROVIDED),    GIVE_RADIOACTIVES);
+			GS (RADIOACTIVES_PROVIDED),   GIVE_RADIOACTIVES);
 	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_lander,                  NEED_LANDER,
-			GS(LANDERS_LOST),             NEED_LANDER);
+			GS (LANDERS_LOST),            NEED_LANDER);
 	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_lander_again,            NEED_LANDER_AGAIN,
-			TF(!need_lander),             NO_JOURNAL_ENTRY);
+			!need_lander,                 NO_JOURNAL_ENTRY);
 	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_fuel,                    NEED_FUEL,
-			GS(GIVEN_FUEL_BEFORE),        NEED_FUEL);
+			GS (GIVEN_FUEL_BEFORE),       NEED_FUEL);
 	AddJournal (OBJECTIVES_JOURNAL, 2,
 			need_fuel_again,              NEED_FUEL_AGAIN,
-			TF(!need_fuel),               NO_JOURNAL_ENTRY);
+			!need_fuel,                   NO_JOURNAL_ENTRY);
 	AddJournal (OBJECTIVES_JOURNAL, 3,
-			GS(WILL_DESTROY_BASE),        DESTROY_MOONBASE,
-			GS(MOONBASE_ON_SHIP),         REPORT_MOONBASE,
+			GS (WILL_DESTROY_BASE),       DESTROY_MOONBASE,
+			GS (MOONBASE_ON_SHIP),        REPORT_MOONBASE,
 			reported_moonbase,            DESTROY_MOONBASE);
 	AddJournal (OBJECTIVES_JOURNAL, 2,
-			GS(RADIOACTIVES_PROVIDED),    RECRUIT_EARTH,
-			GS(STARBASE_AVAILABLE),       RECRUIT_EARTH);
+			GS (RADIOACTIVES_PROVIDED),   RECRUIT_EARTH,
+			GS (STARBASE_AVAILABLE),      RECRUIT_EARTH);
+
+	AddJournal (OBJECTIVES_JOURNAL, 4,
+			(!GS (AWARE_OF_SAMATRA) || GSLT (CHMMR_BOMB_STATE, 1)) && GS (STARBASE_AVAILABLE), FIND_DEFEAT_URQUAN,
+			GS (AWARE_OF_SAMATRA) && !GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA,
+			GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1),  FIND_DESTROY_SAMATRA,
+			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2), DESTROY_SAMATRA);
+}
+
+static void
+AliensJournal (void)
+{
+	
+}
+
+static void
+ArtifactsJournal (void)
+{
+	
 }
 
 static void
@@ -394,6 +400,10 @@ Journal (void)
 	RECT r, old_r;
 	STAMP s;
 
+	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
+	if (JournalStrings == 0)
+		return FALSE;
+
 	OldContext = SetContext (SpaceContext);
 	OldBGColor = SetContextBackGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
 	OldFGColor = SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
@@ -418,7 +428,11 @@ Journal (void)
 		universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
-	WriteJournals ();
+	// Write journals
+	ObjectivesJournal ();
+	AliensJournal ();
+	ArtifactsJournal ();
+
 	which_journal = OBJECTIVES_JOURNAL;
 
 	MenuState.InputFunc = DoChangeJournal;
