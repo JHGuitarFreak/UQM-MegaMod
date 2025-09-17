@@ -428,6 +428,8 @@ Journal (void)
 		universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 	}
 
+	PauseFlash ();
+
 	// Write journals
 	ObjectivesJournal ();
 	AliensJournal ();
@@ -471,6 +473,8 @@ Journal (void)
 
 	SetContextClipRect (&old_r);
 	SetContext (OldContext);
+
+	ContinueFlash ();
 	
 	return TRUE;
 }
