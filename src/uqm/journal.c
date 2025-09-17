@@ -358,21 +358,24 @@ DrawJournal (void)
 			// Draw section header
 			t.pStr = section_header;
 			t.CharCount = (COUNT)~0;
-			t.baseline.x = RES_SCALE (3);
+			t.baseline.x = RES_SCALE (2);
 			font_DrawText (&t);
-			t.baseline.y += leading;
+			t.baseline.y += leading + RES_SCALE (2);
 		}
 
-		SetContextForeGroundColor (sid_open ? LTGRAY_COLOR : VDKGRAY_COLOR);
+		SetContextForeGroundColor (sid_open ? LTGRAY_COLOR : DKGRAY_COLOR);
 
 		for (entry = section->head;  entry != NULL;  entry = entry->next)
 		{
 			BOOLEAN comm_init = FALSE;
+			RECT r;
 
-			t.pStr = "-";
+			t.pStr = " - ";
 			t.CharCount = (COUNT)~0;
-			t.baseline.x = RES_SCALE (3);
+			t.baseline.x = 0;
 			font_DrawText (&t);
+
+			r = font_GetTextRect (&t);
 
 			if (luaUqm_commState == NULL)
 			{
@@ -388,7 +391,7 @@ DrawJournal (void)
 
 			t.pStr = entry->string;
 			t.CharCount = (COUNT)~0;
-			t.baseline.x = RES_SCALE (10);
+			t.baseline.x = r.extent.width;
 			while (!getLineWithinWidth (&t, &nextchar, width, (COUNT)~0))
 			{
 				font_DrawText (&t);
@@ -396,7 +399,7 @@ DrawJournal (void)
 				t.CharCount = (COUNT)~0;
 				t.pStr = nextchar;
 			}
-			font_DrawText(&t);
+			font_DrawText (&t);
 
 			t.baseline.y += leading;
 		}
