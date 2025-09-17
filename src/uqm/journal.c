@@ -290,7 +290,7 @@ DrawJournal (void)
 	BatchGraphics ();
 	ClearDrawable ();
 	RepairSISBorder ();
-	SetContextFont (PlyrFont);
+	SetContextFont (TinyFont);
 	GetContextFontLeading (&leading);
 
 	width = SIS_SCREEN_WIDTH - RES_SCALE (10 + 2);
@@ -327,16 +327,34 @@ DrawJournal (void)
 	{
 		section = &journal_section[sid];
 		const char *nextchar = NULL;
+		BOOLEAN sid_open = sid == OPEN_OBJECTIVES
+				|| sid == OPEN_ALIENS || sid == OPEN_ARTIFACTS;
 
-		SetContextForeGroundColor (
-				(sid == CLOSED_OBJECTIVES
-				|| sid == CLOSED_ALIENS
-				|| sid == CLOSED_ARTIFACTS)
-				? VDKGRAY_COLOR : LTGRAY_COLOR);
+		if (section->head != NULL)
+		{
+			const char *section_header = sid_open ?
+					JOURNAL_STRING (OPEN_OBJECTIVE)      // OPEN:
+					: JOURNAL_STRING (CLOSED_OBJECTIVE); // CLOSED:
+
+			SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
+
+			// Add gap between last open objective and the CLOSED: header
+			if (!sid_open)
+				t.baseline.y += leading;
+
+			// Draw section header
+			t.pStr = section_header;
+			t.CharCount = (COUNT)~0;
+			t.baseline.x = RES_SCALE (3);
+			font_DrawText (&t);
+			t.baseline.y += leading;
+		}
+
+		SetContextForeGroundColor (sid_open ? LTGRAY_COLOR : VDKGRAY_COLOR);
 
 		for (entry = section->head;  entry != NULL;  entry = entry->next)
 		{
-			t.pStr = STR_BULLET;
+			t.pStr = "-";
 			t.CharCount = (COUNT)~0;
 			t.baseline.x = RES_SCALE (3);
 			font_DrawText (&t);
