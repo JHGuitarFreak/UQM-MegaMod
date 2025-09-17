@@ -78,6 +78,7 @@ static JOURNAL_SECTION journal_section[NUM_SECTIONS];
 #define JOURNAL_BUF_SIZE 1024
 static char journal_buf[JOURNAL_BUF_SIZE];
 static BOOLEAN transition_pending;
+BOOLEAN FwiffoCanJoin = FALSE;
 
 #define JOURNAL_STRING(i) (GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
 
@@ -204,6 +205,7 @@ ObjectivesJournal (void)
 {	// starbase missions
 	BOOLEAN FuelLow = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
 	BOOLEAN HaveRadios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
+	BOOLEAN FwiffoBullet = GET_GAME_STATE (STARBASE_BULLETS) & (1L << 9);
 
 	int have_radioactives = GS (STARBASE_VISITED) && HaveRadios;
 	int need_radioactives = GS (STARBASE_VISITED) && !HaveRadios &&
@@ -244,6 +246,15 @@ ObjectivesJournal (void)
 	AddJournal (OBJECTIVES_JOURNAL, 2,
 			GS (RADIOACTIVES_PROVIDED),   RECRUIT_EARTH,
 			GS (STARBASE_AVAILABLE),      RECRUIT_EARTH);
+
+	AddJournal (OBJECTIVES_JOURNAL, 2,
+			signal_uranus,                FIND_FWIFFO,
+			GS (FOUND_PLUTO_SPATHI),      FIND_FWIFFO);
+
+	AddJournal (OBJECTIVES_JOURNAL, 2,
+			can_fwiffo_join,              RECRUIT_FWIFFO,
+			GSGE (FOUND_PLUTO_SPATHI, 2), MET_FWIFFO);
+
 
 	AddJournal (OBJECTIVES_JOURNAL, 4,
 			(!GS (AWARE_OF_SAMATRA) || GSLT (CHMMR_BOMB_STATE, 1)) && GS (STARBASE_AVAILABLE), FIND_DEFEAT_URQUAN,
