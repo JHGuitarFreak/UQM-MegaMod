@@ -367,17 +367,24 @@ DrawJournal (void)
 
 		for (entry = section->head;  entry != NULL;  entry = entry->next)
 		{
+			BOOLEAN comm_init = FALSE;
+
 			t.pStr = "-";
 			t.CharCount = (COUNT)~0;
 			t.baseline.x = RES_SCALE (3);
 			font_DrawText (&t);
 
-			luaUqm_comm_init (NULL, NULL_RESOURCE);
+			if (luaUqm_commState == NULL)
+			{
+				luaUqm_comm_init (NULL, NULL_RESOURCE);
+				comm_init = TRUE;
+			}
 
 			if (luaUqm_comm_stringNeedsInterpolate (entry->string))
 				entry->string = luaUqm_comm_stringInterpolate (entry->string);
-
-			luaUqm_comm_uninit ();
+			
+			if (comm_init)
+				luaUqm_comm_uninit ();
 
 			t.pStr = entry->string;
 			t.CharCount = (COUNT)~0;
