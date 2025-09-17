@@ -399,7 +399,7 @@ DrawJournal (void)
 	{
 		RECT r;
 		GetContextClipRect (&r);
-		ScreenTransition (OPT_3DO, &r);
+		ScreenTransition (optScrTrans, &r);
 		transition_pending = FALSE;
 	}
 
@@ -515,7 +515,7 @@ Journal (void)
 		DrawSISMessage (NULL);
 		DrawStatusMessage (NULL);
 
-		ScreenTransition (OPT_3DO, &r);
+		ScreenTransition (optScrTrans, &r);
 	
 	UnbatchGraphics ();
 
