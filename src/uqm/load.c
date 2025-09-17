@@ -516,8 +516,6 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 	{
 		legacyMM = magic == MEGA_TAG ? 1 : magic == MMV3_TAG ? 2 : 0;
 
-		printf ("%d\n", legacyMM);
-
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
 		if (read_32 (fp, &magic) != 1 || magic < 160)
