@@ -1827,13 +1827,14 @@ init_widgets (void)
 		}
 	}
 
-	for (i = 0; i < choices[CHOICE_RESOLUTION].numopts - 1; i++)
+	// Code to swap resolution optnames for correct ones
+	/*for (i = 0; i < choices[CHOICE_RESOLUTION].numopts - 1; i++)
 	{
 		snprintf(choices[CHOICE_RESOLUTION].options[i].optname,
 			strlen(choices[CHOICE_RESOLUTION].options[i].optname),
 			"%dx%d", RES_DESCALE (CanvasWidth)*(i+1), 
 			RES_DESCALE (CanvasHeight)* (i + 1));
-	}
+	}*/
 
 	// Choices 18-20 are also special, being the names of the key
 	// configurations
