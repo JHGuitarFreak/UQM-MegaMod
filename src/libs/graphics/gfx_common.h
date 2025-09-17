@@ -116,11 +116,12 @@ extern int GraphicsDriver;
 
 void TFB_ScreenShot (void);
 void TFB_ClearFPSCanvas (void);
-void TFB_SetOnScreenKeyboard_Hidden(void);
-void TFB_SetOnScreenKeyboard_HiddenPermanently(void);
-void TFB_SetOnScreenKeyboard_Menu(void);
-void TFB_SetOnScreenKeyboard_Starmap(void);
-void TFB_SetOnScreenKeyboard_Melee(void);
-void TFB_SetOnScreenKeyboard_TwoPlayersMelee(void);
+void TFB_SetOnScreenKeyboard_Hidden (void);
+void TFB_SetOnScreenKeyboard_HiddenPermanently (void);
+void TFB_SetOnScreenKeyboard_Menu (void);
+void TFB_SetOnScreenKeyboard_Starmap (void);
+void TFB_SetOnScreenKeyboard_Melee (void);
+void TFB_SetOnScreenKeyboard_TwoPlayersMelee (void);
+void TFB_GetScreenSize (SIZE *width, SIZE *height);
 
 #endif
