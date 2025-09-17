@@ -66,7 +66,7 @@ typedef struct journal_section_struct {
 } JOURNAL_SECTION;
 
 typedef struct journal_entry_struct {
-	char *string;
+	UNICODE *string;
 	BOOLEAN shared;
 	struct journal_entry_struct *next;
 } JOURNAL_ENTRY;
@@ -76,11 +76,12 @@ static JOURNAL_ID which_journal;
 static int scroll_journal;
 static JOURNAL_SECTION journal_section[NUM_SECTIONS];
 #define JOURNAL_BUF_SIZE 1024
-static char journal_buf[JOURNAL_BUF_SIZE];
+static UNICODE journal_buf[JOURNAL_BUF_SIZE];
 static BOOLEAN transition_pending;
 BOOLEAN FwiffoCanJoin = FALSE;
 
-#define JOURNAL_STRING(i) (GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
+#define JOURNAL_STRING(i) \
+		(GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
 
 #define GS(flag)     (GET_GAME_STATE(flag) > 0)
 #define GSET(flag,n) (GET_GAME_STATE(flag) == (n))
@@ -100,7 +101,7 @@ StoreJournalEntry (SECTION_ID sid, JOURNAL_ENTRY *entry)
 }
 
 static BOOLEAN
-AppendJournalEntry (SECTION_ID sid, char *string)
+AppendJournalEntry (SECTION_ID sid, UNICODE *string)
 {
 	JOURNAL_ENTRY *entry = HCalloc (sizeof (JOURNAL_ENTRY));
 	entry->string = string;
@@ -109,7 +110,7 @@ AppendJournalEntry (SECTION_ID sid, char *string)
 }
 
 static BOOLEAN
-BuildJournalEntry (SECTION_ID sid, const char *format, ...)
+BuildJournalEntry (SECTION_ID sid, const UNICODE *format, ...)
 {
 	size_t len;
 	JOURNAL_ENTRY *entry;
@@ -155,7 +156,7 @@ AddJournal (JOURNAL_ID Objective, int steps, ...)
 	va_list args;
 	int i, test, jstring;
 	int s = 0;
-	char *str = NULL;
+	UNICODE *str = NULL;
 	SECTION_ID Open = OPEN_SPATHI;
 	SECTION_ID Closed = CLOSED_SPATHI;
 
@@ -325,14 +326,14 @@ DrawJournal (void)
 
 	for (; sid <= sid_end; sid++)
 	{
-		section = &journal_section[sid];
+		const UNICODE *nextchar = NULL;
 		const char *nextchar = NULL;
 		BOOLEAN sid_open = sid == OPEN_OBJECTIVES
 				|| sid == OPEN_ALIENS || sid == OPEN_ARTIFACTS;
 
 		if (section->head != NULL)
 		{
-			const char *section_header = sid_open ?
+			const UNICODE *section_header = sid_open ?
 					JOURNAL_STRING (OPEN_OBJECTIVE)      // OPEN:
 					: JOURNAL_STRING (CLOSED_OBJECTIVE); // CLOSED:
 
