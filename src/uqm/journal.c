@@ -163,23 +163,26 @@ AddJournal (JOURNAL_ID Objective, int steps, ...)
 	if (Objective > ARTIFACTS_JOURNAL || Objective < OBJECTIVES_JOURNAL)
 		return FALSE;
 
-	if (Objective == OBJECTIVES_JOURNAL)
+	switch (Objective)
 	{
-		Open = OPEN_OBJECTIVES;
-		Closed = CLOSED_OBJECTIVES;
-	}
-	else if (Objective == ALIENS_JOURNAL)
-	{
-		Open = OPEN_ALIENS;
-		Closed = CLOSED_ALIENS;
-	}
-	else
-	{
-		Open = OPEN_ARTIFACTS;
-		Closed = CLOSED_ARTIFACTS;
+		case OBJECTIVES_JOURNAL:
+			Open = OPEN_OBJECTIVES;
+			Closed = CLOSED_OBJECTIVES;
+			break;
+		case ALIENS_JOURNAL:
+			Open = OPEN_ALIENS;
+			Closed = CLOSED_ALIENS;
+			break;
+		case ARTIFACTS_JOURNAL:
+			Open = OPEN_ARTIFACTS;
+			Closed = CLOSED_ARTIFACTS;
+			break;
+		default:
+			// Shouldn't happen
+			return FALSE;
 	}
 
-	if (Open > OPEN_ARTIFACTS || Open < OPEN_OBJECTIVES)
+	if (Open == OPEN_SPATHI || Closed == CLOSED_SPATHI)
 		return FALSE;
 
 	va_start (args, steps);
@@ -278,25 +281,32 @@ ArtifactsJournal (void)
 
 static void
 DrawJournal (void)
-{	// TODO: move strings to gamestrings or some other string resource file
+{
 	SIZE width, leading;
 	TEXT t;
 	SECTION_ID sid, sid_end;
 	JOURNAL_SECTION *section;
 	JOURNAL_ENTRY *entry;
+	Color OldBGColor, OldFGColor;
+	FONT OldFont;
 
 	if (transition_pending)
 		SetTransitionSource (NULL);
 
-	BatchGraphics ();
-	ClearDrawable ();
-	RepairSISBorder ();
-	SetContextFont (TinyFont);
+	OldBGColor = SetContextBackGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
+	OldFGColor = SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
+	OldFont = SetContextFont (TinyFont);
+
 	GetContextFontLeading (&leading);
 
 	width = SIS_SCREEN_WIDTH - RES_SCALE (10 + 2);
 	t.align = ALIGN_LEFT;
 	t.baseline.y = leading * (1 - scroll_journal);
+
+	BatchGraphics ();
+
+		ClearDrawable ();
+		RepairSISBorder ();
 
 	switch (which_journal)
 	{
@@ -319,17 +329,18 @@ DrawJournal (void)
 			snprintf (journal_buf, JOURNAL_BUF_SIZE, "journal #%d",
 					which_journal);
 			DrawSISMessage (journal_buf);
-			sid = OPEN_OBJECTIVES;
-			sid_end = CLOSED_OBJECTIVES;
+			sid = OPEN_SPATHI;
+			sid_end = CLOSED_SPATHI;
 			break;
 	}
 
 	for (; sid <= sid_end; sid++)
 	{
 		const UNICODE *nextchar = NULL;
-		const char *nextchar = NULL;
 		BOOLEAN sid_open = sid == OPEN_OBJECTIVES
 				|| sid == OPEN_ALIENS || sid == OPEN_ARTIFACTS;
+
+		section = &journal_section[sid];
 
 		if (section->head != NULL)
 		{
@@ -380,11 +391,15 @@ DrawJournal (void)
 	{
 		RECT r;
 		GetContextClipRect (&r);
-		ScreenTransition (optScrTrans, &r);
+		ScreenTransition (OPT_3DO, &r);
 		transition_pending = FALSE;
 	}
 
 	UnbatchGraphics ();
+
+	SetContextFont (OldFont);
+	SetContextForeGroundColor (OldFGColor);
+	SetContextBackGroundColor (OldBGColor);
 }
 
 static BOOLEAN
@@ -419,6 +434,8 @@ DoChangeJournal (MENU_STATE *pMS)
 		which_journal = (which_journal + dj + NUM_JOURNALS) % NUM_JOURNALS;
 
 		DrawJournal ();
+
+		return TRUE;
 	}
 }
 
@@ -427,7 +444,6 @@ Journal (void)
 {
 	MENU_STATE MenuState = { 0 };
 	POINT universe;
-	Color OldBGColor, OldFGColor;
 	CONTEXT OldContext;
 	RECT r, old_r;
 	STAMP s;
@@ -437,8 +453,6 @@ Journal (void)
 		return FALSE;
 
 	OldContext = SetContext (SpaceContext);
-	OldBGColor = SetContextBackGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
-	OldFGColor = SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
 	GetContextClipRect (&old_r);
 
@@ -486,9 +500,6 @@ Journal (void)
 	SetContextClipRect (&r);
 	SetTransitionSource (&r);
 	BatchGraphics ();
-
-		SetContextBackGroundColor (OldBGColor);
-		SetContextForeGroundColor (OldFGColor);
 		
 		DrawStamp (&s);
 
@@ -496,7 +507,7 @@ Journal (void)
 		DrawSISMessage (NULL);
 		DrawStatusMessage (NULL);
 
-		ScreenTransition (optScrTrans, &r);
+		ScreenTransition (OPT_3DO, &r);
 	
 	UnbatchGraphics ();
 
