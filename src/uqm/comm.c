@@ -48,6 +48,7 @@
 #include "menustat.h"
 // for free_gravity_well() & load_gravity_well()
 #include "cons_res.h"
+#include "shipcont.h"
 
 #include <ctype.h>
 
@@ -1486,6 +1487,10 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
 		SelectResponse (pES);
+	}
+	else if (PulsedInputState.menu[KEY_JOURNAL])
+	{
+		Journal ();
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL] &&
 			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE &&
