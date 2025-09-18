@@ -332,10 +332,10 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_SLAUGHTER ]),	// Slaughter Mode
 	(WIDGET *)(&choices[CHOICE_FLEETPOINT]),	// Fleet Point System
 
-	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
+	(WIDGET *)(&labels[LABEL_SPACER		 ]),	// Spacer
 	(WIDGET *)(&choices[CHOICE_GAMESEED  ]),	// Seed usage selection
 	(WIDGET *)(&textentries[TEXT_GAMESEED]),	// Custom Seed entry
-  (WIDGET *)(&choices[125              ]),	// Ship seeding toggle
+	(WIDGET *)(&choices[CHOICE_SHIPSEED	 ]),	// Ship seeding toggle
 	(WIDGET *)(&choices[CHOICE_SOICOLOR  ]),	// SOI Color Selection
 
 	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
