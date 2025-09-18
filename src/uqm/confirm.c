@@ -113,11 +113,12 @@ BOOLEAN
 DoConfirmExit (void)
 {
 	BOOLEAN result;
+	BOOLEAN FlashPaused;
 
 	if (PlayingTrack ())
 		PauseTrack ();
 
-	PauseFlash ();
+	FlashPaused = PauseFlash ();
 
 	{
 		RECT r;
@@ -227,7 +228,8 @@ DoConfirmExit (void)
 		SetContext (oldContext);
 	}
 
-	ContinueFlash ();
+	if (FlashPaused)
+		ContinueFlash ();
 
 	if (PlayingTrack () && !result)
 		ResumeTrack ();
@@ -264,6 +266,7 @@ DoPopupWindow (const char *msg)
 	POPUP_STATE state;
 	MENU_SOUND_FLAGS s0, s1;
 	InputFrameCallback *oldCallback;
+	BOOLEAN FlashPaused;
 
 	if (!bank)
 	{
@@ -282,7 +285,7 @@ DoPopupWindow (const char *msg)
 	label.line_count = SplitString (msg, '\n', 30, lines, bank);
 	label.lines = lines;
 
-	PauseFlash ();
+	FlashPaused = PauseFlash ();
 
 	oldContext = SetContext (ScreenContext);
 	GetContextClipRect (&oldRect);
@@ -311,7 +314,10 @@ DoPopupWindow (const char *msg)
 	DestroyDrawable (ReleaseDrawable (s.frame));
 	SetContextClipRect (&oldRect);
 	SetContext (oldContext);
-	ContinueFlash ();
+
+	if (FlashPaused)
+		ContinueFlash ();
+
 	SetMenuSounds (s0, s1);
 	StringBank_Free (bank);
 }

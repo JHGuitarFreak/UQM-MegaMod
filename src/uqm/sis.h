@@ -177,7 +177,7 @@ typedef struct
 	UNICODE ShipName[SIS_NAME_SIZE];
 	UNICODE CommanderName[SIS_NAME_SIZE];
 	UNICODE PlanetName[SIS_NAME_SIZE];
-	BYTE Difficulty, Extended, Nomad;
+	BYTE Difficulty, Extended, Nomad, ShipSeed;
 	SDWORD Seed;
 	BYTE SaveVersion;
 } SIS_STATE;
@@ -194,7 +194,7 @@ extern void SetAdditionalRect (const RECT *pRect, COUNT number);
 extern void DumpAdditionalRect (void);
 extern void PreUpdateFlashRect (void);
 extern void PostUpdateFlashRect (void);
-extern void PauseFlash (void);
+extern BOOLEAN PauseFlash (void);
 extern void ContinueFlash (void);
 
 #define SFR_MENU_3DO ((RECT*)~0L)

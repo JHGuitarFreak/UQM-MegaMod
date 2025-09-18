@@ -41,6 +41,7 @@ extern HLINK Build (QUEUE *pQueue, SPECIES_ID SpeciesID);
 extern HSHIPFRAG CloneShipFragment (RACE_ID shipIndex, QUEUE *pDstQueue,
 		COUNT crew_level);
 extern HLINK GetStarShipFromIndex (QUEUE *pShipQ, COUNT Index);
+extern HFLEETINFO GetSeededFleetFromIndex (COUNT Index);
 extern HSHIPFRAG GetEscortByStarShipIndex (COUNT index);
 extern BYTE NameCaptain (QUEUE *pQueue, SPECIES_ID SpeciesID);
 
@@ -69,12 +70,15 @@ extern RACE_DESC *load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData);
 extern void free_ship (RACE_DESC *RaceDescPtr, BOOLEAN FreeIconData,
 		BOOLEAN FreeBattleData);
 extern void loadGameCheats (void);
-// WarEraStrength to obtain the hard coded strength values formerly an array
-// SeedFleetLocaiton will move fleet X to location VISIT
-// SeedFleet does initial fleet placement
+// WarEraStrength gives the hard coded strength values (formerly an array)
 extern COUNT WarEraStrength (SPECIES_ID SpeciesID);
-extern POINT SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit);
+// SeedFleetLocation moves the fleet to the plot location specified in visit.
+extern POINT SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap,
+		COUNT visit);
+// SeedFleet does initial fleet placement for StarSeed
 extern void SeedFleet (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap);
+// SeedShip handles ship seeding, used in build.c to handle the load window
+extern SPECIES_ID SeedShip (SPECIES_ID SpeciesID, BOOLEAN loadWindow);
 extern BOOLEAN legacySave;
 extern BYTE GTFO;
 

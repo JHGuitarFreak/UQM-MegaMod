@@ -2332,13 +2332,16 @@ PostUpdateFlashRect (void)
 }
 
 // Stop flashing if flashing is active.
-void
+BOOLEAN
 PauseFlash (void)
 {
 	BYTE i;
 
 	if (flashContext[0] != NULL)
 	{
+		if (flashPaused)
+			return FALSE;
+
 		Alarm_remove (flashAlarm);
 		flashAlarm = 0;
 		flashPaused = TRUE;
@@ -2348,6 +2351,8 @@ PauseFlash (void)
 		if (flashContext[i] != NULL && Flash_getPulseBox (flashContext[i]))
 				Flash_pause (flashContext[i]);
 	}
+
+	return TRUE;
 }
 
 // Continue flashing after PauseFlash (), if flashing was active.

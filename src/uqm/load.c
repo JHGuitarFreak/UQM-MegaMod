@@ -33,7 +33,7 @@
 #include "libs/tasklib.h"
 #include "libs/log.h"
 #include "libs/misc.h"
-
+#include "master.h"
 //#define DEBUG_LOAD
 
 ACTIVITY NextActivity;
@@ -458,9 +458,9 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 
 static BOOLEAN
 LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
-		BOOLEAN legacyMM)
+		int legacyMM)
 {
-	COUNT SisNameSize = (legacyMM || try_core) ?
+	COUNT SisNameSize = (legacyMM == 1 || try_core) ?
 			LEGACY_SIS_NAME_SIZE : SIS_NAME_SIZE;
 
 	if (
@@ -483,7 +483,8 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
 			(!try_core && (read_8 (fp, &SSPtr->Difficulty) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Extended) != 1)) ||
 			(!try_core && (read_8 (fp, &SSPtr->Nomad) != 1)) ||
-			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1))
+			(!try_core && (read_32s (fp, &SSPtr->Seed) != 1)) ||
+			(!try_core && !(legacyMM > 0) && (read_8 (fp, &SSPtr->ShipSeed) != 1))
 		)
 		return FALSE;
  	else
@@ -506,15 +507,14 @@ static BOOLEAN
 LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 {
 	DWORD magic;
-	DWORD magicTag = try_core ? SAVEFILE_TAG : MMV3_TAG;
+	DWORD magicTag = try_core ? SAVEFILE_TAG : MMV4_TAG;
 	DWORD nameSize = 0;
-	BOOLEAN legacyMM = FALSE;
+	int legacyMM = FALSE;
 	if (!read_32 (fp, &magic))
 		return FALSE;
-	if (magic == magicTag || magic == MEGA_TAG)
+	if (magic == magicTag || magic == MEGA_TAG || magic == MMV3_TAG)
 	{
-		if (magic == MEGA_TAG)
-			legacyMM = TRUE;
+		legacyMM = magic == MEGA_TAG ? 1 : magic == MMV3_TAG ? 2 : 0;
 
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
@@ -537,6 +537,10 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 		SummPtr->SS.Seed = SummPtr->SS.Difficulty = 0;
 		SummPtr->SS.Extended = SummPtr->SS.Nomad = 0;
 		SummPtr->SS.SaveVersion = 1;
+	}
+	if (try_core || legacyMM > 0)
+	{
+		SummPtr->SS.ShipSeed = 0;
 	}
 
 	if (	read_8  (fp, &SummPtr->Activity) != 1 ||
@@ -844,6 +848,11 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 
 	GlobData.SIS_state = SummPtr->SS;
 
+	optCustomSeed = GLOBAL_SIS (Seed);
+	optShipSeed = (GLOBAL_SIS (ShipSeed) != 0 ? true : false);
+	LoadMasterShipList (NULL);
+	LoadFleetInfo ();
+
 	ReinitQueue (&GLOBAL (GameClock.event_q));
 	ReinitQueue (&GLOBAL (encounter_q));
 	ReinitQueue (&GLOBAL (ip_group_q));
@@ -1001,7 +1010,6 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 	DebugKeyPressed = FALSE;
 	// Set the SeedType flag and then start Starseed
 	optSeedType = GET_GAME_STATE (SEED_TYPE);
-	optCustomSeed = GLOBAL_SIS (Seed);
 	if (optSeedType == OPTVAL_PRIME && optCustomSeed != PrimeA)
 	{
 		// Assuming load from older version, optSeedType should be 0 (none)
