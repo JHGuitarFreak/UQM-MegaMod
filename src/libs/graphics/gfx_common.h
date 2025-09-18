@@ -111,6 +111,8 @@ extern int CanvasWidth;
 extern int CanvasHeight;
 extern int WindowWidth;
 extern int WindowHeight;
+extern int SavedWidth;
+extern int SavedHeight;
 extern int ScreenColorDepth;
 extern int GraphicsDriver;
 

@@ -529,7 +529,7 @@ static void
 populate_res (void)
 {
 	sprintf (textentries[TEXT_CUSTMRES].value, "%dx%d",
-			WindowWidth, WindowHeight);
+			SavedWidth, SavedHeight);
 }
 
 static int
@@ -917,6 +917,9 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 #endif
 	}
 
+	SavedWidth = inBounds(*NewWidth, 320, 1920);
+	SavedHeight = inBounds(*NewHeight, 200, 1400);
+
 	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
 			"config.loresBlowupScale", FALSE);
 	res_PutInteger ("config.reswidth", *NewWidth);
@@ -984,8 +987,8 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 {
 	int NewGfxFlags = GfxFlags;
 	int NewGfxDriver = GraphicsDriver;
-	int NewWidth = WindowWidth;
-	int NewHeight = WindowHeight;
+	int NewWidth = SavedWidth;
+	int NewHeight = SavedHeight;
 	BOOLEAN isExclusive = FALSE;
 
 	if (OldVal == self->selected)
@@ -1020,24 +1023,28 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			return;
 	}
 
-	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
+	if (optKeepAspectRatio)
 	{
-		WindowWidth = NewWidth;
-		WindowHeight = NewHeight;
+		float threshold = 0.75f;
+		float ratio = (float)NewHeight / (float)NewWidth;
 
-		if (isExclusive)
-			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+		if (ratio > threshold) // screen is narrower than 4:3
+			NewWidth = NewHeight / threshold;
+		else if (ratio < threshold) // screen is wider than 4:3
+			NewHeight = NewWidth * threshold;
 	}
 
-	if (NewGfxFlags != GfxFlags)
-		GfxFlags = NewGfxFlags;
+	if (NewWidth != WindowWidth || NewHeight != WindowHeight ||
+			NewGfxFlags != GfxFlags || NewGfxDriver != GraphicsDriver)
+	{
+		if (isExclusive)
+			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
-	if (NewGfxDriver != GraphicsDriver)
-		GraphicsDriver = NewGfxDriver;
+		TFB_DrawScreen_ReinitVideo (NewGfxDriver, NewGfxFlags,
+			NewWidth, NewHeight);		
+	}
 
 	FlushInput ();
-	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-			WindowWidth, WindowHeight);
 
 	if (isExclusive)
 	{	// needed twice to reinitialize Exclusive Full Screen after a 
@@ -1068,8 +1075,8 @@ res_check (int width, int height)
 static void
 change_res (WIDGET_TEXTENTRY *self)
 {
-	int NewWidth = WindowWidth;
-	int NewHeight = WindowHeight;
+	int NewWidth = SavedWidth;
+	int NewHeight = SavedHeight;
 	int NewGfxFlags = GfxFlags;
 	BOOLEAN isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
 
@@ -1078,14 +1085,31 @@ change_res (WIDGET_TEXTENTRY *self)
 		populate_res ();
 		return;
 	}
+
+	NewWidth = inBounds(NewWidth, 320, 1920);
+	NewHeight = inBounds(NewHeight, 200, 1440);
+
+	SavedWidth = NewWidth;
+	SavedHeight = NewHeight;
+
+	if (optKeepAspectRatio)
+	{
+		float threshold = 0.75f;
+		float ratio = (float)NewHeight / (float)NewWidth;
+
+		if (ratio > threshold) // screen is narrower than 4:3
+			NewWidth = NewHeight / threshold;
+		else if (ratio < threshold) // screen is wider than 4:3
+			NewHeight = NewWidth * threshold;
+	}
 	
 	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
 	{
-		WindowWidth = NewWidth;
-		WindowHeight = NewHeight;
-
 		if (isExclusive)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+			NewWidth, NewHeight);
 	}
 	else
 		return;
@@ -1093,10 +1117,7 @@ change_res (WIDGET_TEXTENTRY *self)
 	if (NewGfxFlags != GfxFlags)
 		GfxFlags = NewGfxFlags;
 
-	FlushInput ();
-
-	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-		WindowWidth, WindowHeight);
+	FlushInput ();	
 
 	if (isExclusive)
 	{	// needed twice to reinitialize Exclusive Full Screen after a 
@@ -1106,17 +1127,19 @@ change_res (WIDGET_TEXTENTRY *self)
 				WindowWidth, WindowHeight);
 	}
 
-	if (res_check (NewWidth, NewHeight))
+	/*if (res_check(NewWidth, NewHeight))
 	{
 		choices[CHOICE_RESOLUTION].selected = (NewWidth / 320) - 1;
 	}
 	else
-		choices[CHOICE_RESOLUTION].selected = 6;
+		choices[CHOICE_RESOLUTION].selected = 6;*/
+
+	populate_res();
 
 	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&choices[CHOICE_RESOLUTION].selected),
 			"config.loresBlowupScale", FALSE);
-	res_PutInteger ("config.reswidth", NewWidth);
-	res_PutInteger ("config.resheight", NewHeight);
+	res_PutInteger ("config.reswidth", SavedWidth);
+	res_PutInteger ("config.resheight", SavedHeight);
 }
 
 #define NUM_STEPS 20
@@ -2507,8 +2530,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		ScreenHeightActual = DOS_BOOL (240, 200) << RESOLUTION_FACTOR;
 		loresBlowupScale = (ScreenWidthActual / 320) - 1;
 		res_PutInteger("config.loresBlowupScale", loresBlowupScale);
-		res_PutInteger("config.reswidth", ScreenWidthActual);
-		res_PutInteger("config.resheight", ScreenHeightActual);
+		res_PutInteger("config.reswidth", WindowWidth);
+		res_PutInteger("config.resheight", WindowHeight);
 #endif
 
 		switch (opts->windowType)
@@ -2532,17 +2555,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	if (optWindowType != opts->windowType)
 	{
-		int nh;
 		PutIntOpt ((int *)&optWindowType, (int *)&opts->windowType,
 				"mm.windowType", TRUE);
-
-		nh = DOS_BOOL (240, 200) * (1 + opts->loresBlowup);
-
-		if (nh != WindowHeight)
-		{
-			WindowHeight = nh;
-			res_PutInteger("config.resheight", WindowHeight);
-		}
 	}
 
 //#if !(defined(ANDROID) || defined(__ANDROID__))
@@ -2819,6 +2833,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	if (optRequiresReload)
 	{
+		int w = WindowWidth;
+		int h = WindowHeight;
+
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 
 		FlushGraphics ();
@@ -2830,9 +2847,26 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		CanvasWidth = 320 << resolutionFactor;
 		CanvasHeight = DOS_BOOL (240, 200) << resolutionFactor;
 
+		if (choices[CHOICE_RESOLUTION].selected != 6) {
+			h = DOS_BOOL (240, 200) * (loresBlowupScale + 1);
+			SavedHeight = h;
+			res_PutInteger ("config.resheight", SavedHeight);
+		}
+
+		if (optKeepAspectRatio)
+		{
+			float threshold = 0.75f;
+			float ratio = (float)h / (float)w;
+
+			if (ratio > threshold) // screen is narrower than 4:3
+				w = h / threshold;
+			else if (ratio < threshold) // screen is wider than 4:3
+				h = w * threshold;
+		}
+
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
 				"Wactual:%d, Hactual:%d", CanvasWidth, CanvasHeight,
-				WindowWidth, WindowHeight);
+				w, h);
 
 		// These solve the context problem that plagued the setupmenu
 		// when changing to higher resolution.
@@ -2840,8 +2874,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		TFB_BBox_Init (CanvasWidth, CanvasHeight);
 		FlushColorXForms ();
 
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-				WindowWidth, WindowHeight);
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags, w, h);
 		InitVideoPlayer (TRUE);
 
 		Reload ();

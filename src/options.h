@@ -165,8 +165,9 @@ extern ADDON_COUNT addonList;
 #define REGION_MUSIC  "SpaceMusic"
 #define HD_MODE       "mm-hd"
 
-#define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
-#define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
+#define DOS_MODE(a)			((a) ? "dos-mode-hd" : "dos-mode-sd")
+#define THREEDO_MODE(a)		((a) ? "3do-mode-hd" : "3do-mode-sd")
+#define WINDOW_MODE(a,b)	((b) == 0 ? DOS_MODE(a) : THREEDO_MODE(a))
 
 #define BASE_CONTENT_NAME "mm-" UQM_MAJOR_VERSION_S "." \
 		UQM_MINOR_VERSION_S "." UQM_PATCH_VERSION_S "-content.uqm"

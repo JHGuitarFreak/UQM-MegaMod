@@ -269,6 +269,16 @@ oldLogyToUniverse(SDWORD ly)
 			/ OLD_LOG_UNITS_Y));
 }
 
+static inline SDWORD
+inBounds(SDWORD val, SDWORD min, SDWORD max)
+{
+	if (val < min)
+		return min;
+	if (val > max)
+		return max;
+	return val;
+}
+
 #define CIRCLE_SHIFT 6
 #define FULL_CIRCLE (1 << CIRCLE_SHIFT)
 #define OCTANT_SHIFT (CIRCLE_SHIFT - 3) /* (1 << 3) == 8 */

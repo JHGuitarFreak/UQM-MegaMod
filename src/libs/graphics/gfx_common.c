@@ -36,6 +36,10 @@ int CanvasHeight;
 int WindowWidth;
 int WindowHeight;
 
+// Real unforced window size we get from options
+int SavedWidth;
+int SavedHeight;
+
 int ScreenColorDepth;
 int GraphicsDriver;
 int TFB_DEBUG_HALT = 0;

@@ -585,17 +585,13 @@ main (int argc, char *argv[])
 	optWhichShield = options.whichShield.value;
 	optSmoothScroll = options.smoothScroll.value;
 	optMeleeScale = options.meleeScale.value;
-	optKeepAspectRatio = options.keepAspectRatio.value;
 	optSubtitles = options.subtitles.value;
 	optStereoSFX = options.stereoSFX.value;
 	musicVolumeScale = options.musicVolumeScale.value;
 	sfxVolumeScale = options.sfxVolumeScale.value;
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
-	
-	resolutionFactor = (unsigned int) options.resolutionFactor.value;
-	loresBlowupScale = (unsigned int) options.loresBlowupScale.value;
-	
+
 	optGodModes = options.optGodModes.value;
 	timeDilationScale = options.timeDilationScale.value;
 	optBubbleWarp = options.bubbleWarp.value;
@@ -658,44 +654,63 @@ main (int argc, char *argv[])
 	optAdvancedAutoPilot = options.advancedAutoPilot.value;
 	optMeleeToolTips = options.meleeToolTips.value;
 	optMusicResume = options.musicResume.value;
-	optWindowType = options.windowType.value;
 	optScatterElements = options.scatterElements.value;
 	optShowUpgrades = options.showUpgrades.value;
 	optFleetPointSys = options.fleetPointSys.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
-	if (resolutionFactor && !isAddonAvailable (HD_MODE))
-	{
-		resolutionFactor = 0;
-		options.resolutionFactor.value = 0;
-		options.resolutionFactor.set = true;
-		options.resolution.width = 320 * (loresBlowupScale + 1);
-		options.resolution.height = 240 * (loresBlowupScale + 1);
-	}
+	resolutionFactor = isAddonAvailable (HD_MODE) ?
+		(unsigned int)options.resolutionFactor.value : 0;
+	options.resolutionFactor.value = resolutionFactor;
+	options.resolutionFactor.set = true;
 
-	switch (optWindowType)
+	loresBlowupScale = (unsigned int)options.loresBlowupScale.value;
+	optKeepAspectRatio = options.keepAspectRatio.value;
+
+	optWindowType = OPTVAL_UQM_WINDOW;
+	if (options.windowType.value < OPTVAL_UQM_WINDOW &&
+		isAddonAvailable (WINDOW_MODE (resolutionFactor,
+			options.windowType.value)))
 	{
-		case 0:
-			if (!isAddonAvailable (DOS_MODE (resolutionFactor)))
-			{
-				optWindowType = 2;
-				options.windowType.value = 2;
-				options.windowType.set = true;
-				options.resolution.width = 320 * (loresBlowupScale + 1);
-				options.resolution.height = 240 * (loresBlowupScale + 1);
-			}
-			break;
-		case 1:
-			if (!isAddonAvailable (THREEDO_MODE (resolutionFactor)))
-			{
-				optWindowType = 2;
-				options.windowType.value = 2;
-				options.windowType.set = true;
-			}
-			break;
-		default:
-			break;
+		optWindowType = options.windowType.value;
+	}
+	options.windowType.value = optWindowType;
+	options.windowType.set = true;
+
+	{
+		int w = 320;
+		int h = (DOS_BOOL (240, 200));
+		int scaleFactor = loresBlowupScale + 1; // stored value starts with 0
+
+		CanvasWidth = w << resolutionFactor;
+		CanvasHeight = h << resolutionFactor;
+
+		if (loresBlowupScale < 6) {
+			SavedWidth = loresBlowupScale ? (w * scaleFactor) : CanvasWidth;
+			SavedHeight = loresBlowupScale ? (h * scaleFactor) : CanvasHeight;
+		}
+		else
+		{
+			SavedWidth = inBounds(options.resolution.width, 320, 1920);
+			SavedHeight = inBounds(options.resolution.height, 200, 1440);
+		}
+
+		if (optKeepAspectRatio)
+		{
+			float threshold = 0.75f;
+			float ratio = (float)SavedHeight / (float)SavedWidth;
+
+			if (ratio > threshold) // screen is narrower than 4:3
+				options.resolution.width = SavedHeight / threshold;
+			else if (ratio < threshold) // screen is wider than 4:3
+				options.resolution.height = SavedWidth * threshold;
+		}
+		else
+		{
+			options.resolution.width = SavedWidth;
+			options.resolution.height = SavedHeight;
+		}
 	}
 
 	prepareMeleeDir ();
