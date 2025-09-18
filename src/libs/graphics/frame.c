@@ -215,8 +215,8 @@ ClearScreen (void)
 		return;
 
 	ValidRect.corner = MAKE_POINT (0, 0);
-	ValidRect.extent.width = ScreenWidth;
-	ValidRect.extent.height = ScreenHeight;
+	ValidRect.extent.width = CanvasWidth;
+	ValidRect.extent.height = CanvasHeight;
 
 	ClearBackGround (&ValidRect);
 }

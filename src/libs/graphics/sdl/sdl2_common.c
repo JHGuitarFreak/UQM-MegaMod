@@ -87,7 +87,7 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height,
 	if ((GfxFlags == (flags ^ TFB_GFXFLAGS_FULLSCREEN)
 			|| GfxFlags == (flags ^ TFB_GFXFLAGS_EX_FULLSCREEN)) &&
 			driver == GraphicsDriver &&
-			width == ScreenWidthActual && height == ScreenHeightActual)
+			width == WindowWidth && height == WindowHeight)
 	{
 		togglefullscreen = 1;
 	}

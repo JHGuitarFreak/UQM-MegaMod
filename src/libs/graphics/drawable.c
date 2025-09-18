@@ -134,11 +134,11 @@ CreateDisplay (CREATE_FLAGS CreateFlags, SIZE *pwidth, SIZE *pheight)
 {
 	DRAWABLE Drawable;
 
-	// TODO: ScreenWidth and ScreenHeight should be passed in
+	// TODO: CanvasWidth and CanvasHeight should be passed in
 	//   instead of returned.
 	Drawable = request_drawable (1, SCREEN_DRAWABLE,
 			(CreateFlags & (WANT_PIXMAP | WANT_MASK)),
-			ScreenWidth, ScreenHeight);
+			CanvasWidth, CanvasHeight);
 	if (Drawable)
 	{
 		FRAME F;

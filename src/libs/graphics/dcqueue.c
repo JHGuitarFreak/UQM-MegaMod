@@ -146,7 +146,7 @@ Init_DrawCommandQueue (void)
 	DrawCommandQueue.FullSize = 0;
 	DrawCommandQueue.Size = 0;
 
-	TFB_BBox_Init (ScreenWidth, ScreenHeight);
+	TFB_BBox_Init (CanvasWidth, CanvasHeight);
 
 	DCQ_Mutex = CreateRecursiveMutex ("DCQ",
 			SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);
@@ -648,8 +648,8 @@ TFB_FlushGraphics (void)
 				TFB_DrawCommand_ReinitVideo *cmd = &DC.data.reinitvideo;
 				int oldDriver = GraphicsDriver;
 				int oldFlags = GfxFlags;
-				int oldWidth = ScreenWidthActual;
-				int oldHeight = ScreenHeightActual;
+				int oldWidth = WindowWidth;
+				int oldHeight = WindowHeight;
 				if (TFB_ReInitGraphics (cmd->driver, cmd->flags,
 						cmd->width, cmd->height, &resolutionFactor,
 						&optWindowType))

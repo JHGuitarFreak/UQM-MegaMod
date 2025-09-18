@@ -2137,8 +2137,8 @@ getScreen (void)
 
 	screenRect.corner.x = 0;
 	screenRect.corner.y = 0;
-	screenRect.extent.width = ScreenWidth;
-	screenRect.extent.height = ScreenHeight;
+	screenRect.extent.width = CanvasWidth;
+	screenRect.extent.height = CanvasHeight;
 	savedFrame = CaptureDrawable (LoadDisplayPixmap (&screenRect, (FRAME) 0));
 
 	(void) SetContext (oldContext);

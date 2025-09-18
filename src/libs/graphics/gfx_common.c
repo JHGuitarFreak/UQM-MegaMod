@@ -28,10 +28,18 @@
 int fs_height = 0; 
 int fs_width  = 0;
 
-int ScreenWidth;
-int ScreenHeight;
-int ScreenWidthActual;
-int ScreenHeightActual;
+// Actual canvas size we're plotting our graphics to
+int CanvasWidth;
+int CanvasHeight;
+
+// Size of the window on screen
+int WindowWidth;
+int WindowHeight;
+
+// Real unforced window size we get from options
+int SavedWidth;
+int SavedHeight;
+
 int ScreenColorDepth;
 int GraphicsDriver;
 int TFB_DEBUG_HALT = 0;
@@ -132,15 +140,15 @@ ExpandRect (RECT *rect, int expansion)
 		rect->corner.y = 0;
 	}
 
-	if (rect->corner.x + rect->extent.width + expansion <= ScreenWidth)
+	if (rect->corner.x + rect->extent.width + expansion <= CanvasWidth)
 		rect->extent.width += expansion;
 	else
-		rect->extent.width = ScreenWidth - rect->corner.x;
+		rect->extent.width = CanvasWidth - rect->corner.x;
 
-	if (rect->corner.y + rect->extent.height + expansion <= ScreenHeight)
+	if (rect->corner.y + rect->extent.height + expansion <= CanvasHeight)
 		rect->extent.height += expansion;
 	else
-		rect->extent.height = ScreenHeight - rect->corner.y;
+		rect->extent.height = CanvasHeight - rect->corner.y;
 }
 
 void
