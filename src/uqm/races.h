@@ -826,7 +826,7 @@ typedef enum
 	NUM_AVAILABLE_HOMES
 } HOME_ID;
 
-inline HOME_ID
+static inline HOME_ID
 SpeciesToHomeID (SPECIES_ID species_id)
 {
 	switch (species_id)

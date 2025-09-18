@@ -44,8 +44,7 @@
 --   Super Melee Menu             UQM Button Font             CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Super Melee Menu             UQM Micro Regular (Alt)     CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   SUPER-MELEE Title            SUPER-MELEE Regular         CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
---   Supox Uppercase              START REVOLUTION (Modded)   Free for personal use   https://www.fontspace.com/start-revolution-font-f25979                    
---   Supox Lowercase              Leaf (Demo)                 Free for personal use   https://www.dafont.com/leaf-2.font                                        
+--   Supox                        UQM Supox Regular           CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Syreen                       Oleo Script Swash Caps      OFL-1.1 License         https://www.fontspace.com/oleo-script-swash-caps-font-f17184              
 --   Talking Pet                  Dinova Black                Freeware (No License)   http://www.typografski.de/pages/fonts_dinova.html                         
 --   Thraddash                    Oxanium Extra Bold          OFL-1.1 License         https://github.com/sevmeyer/oxanium                                       

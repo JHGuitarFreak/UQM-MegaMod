@@ -107,20 +107,23 @@ void TFB_PurgeDanglingGraphics (void); // Only call from main thread as part of 
 extern int fs_height; 
 extern int fs_width;
 
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern int ScreenWidthActual;
-extern int ScreenHeightActual;
+extern int CanvasWidth;
+extern int CanvasHeight;
+extern int WindowWidth;
+extern int WindowHeight;
+extern int SavedWidth;
+extern int SavedHeight;
 extern int ScreenColorDepth;
 extern int GraphicsDriver;
 
 void TFB_ScreenShot (void);
 void TFB_ClearFPSCanvas (void);
-void TFB_SetOnScreenKeyboard_Hidden(void);
-void TFB_SetOnScreenKeyboard_HiddenPermanently(void);
-void TFB_SetOnScreenKeyboard_Menu(void);
-void TFB_SetOnScreenKeyboard_Starmap(void);
-void TFB_SetOnScreenKeyboard_Melee(void);
-void TFB_SetOnScreenKeyboard_TwoPlayersMelee(void);
+void TFB_SetOnScreenKeyboard_Hidden (void);
+void TFB_SetOnScreenKeyboard_HiddenPermanently (void);
+void TFB_SetOnScreenKeyboard_Menu (void);
+void TFB_SetOnScreenKeyboard_Starmap (void);
+void TFB_SetOnScreenKeyboard_Melee (void);
+void TFB_SetOnScreenKeyboard_TwoPlayersMelee (void);
+void TFB_GetScreenSize (SIZE *width, SIZE *height);
 
 #endif

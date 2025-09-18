@@ -71,7 +71,7 @@ extern OPT_ENABLABLE optInfiniteFuel;
 extern DWORD loadFuel;
 extern OPT_ENABLABLE optPartialPickup;
 extern OPT_ENABLABLE optSubmenu;
-extern OPT_ENABLABLE optAddDevices;
+extern OPT_ENABLABLE optInfiniteCredits;
 extern BOOLEAN optSuperMelee;
 extern BOOLEAN optLoadGame;
 extern OPT_ENABLABLE optCustomBorder;
@@ -122,6 +122,9 @@ extern DWORD optWindowType;
 extern BOOLEAN optNoClassic;
 extern OPT_ENABLABLE optScatterElements;
 extern OPT_ENABLABLE optShowUpgrades;
+extern OPT_ENABLABLE optFleetPointSys;
+extern OPT_ADD_REMOVE optDeviceArray[25];
+extern OPT_ADD_REMOVE optUpgradeArray[13];
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
@@ -162,8 +165,9 @@ extern ADDON_COUNT addonList;
 #define REGION_MUSIC  "SpaceMusic"
 #define HD_MODE       "mm-hd"
 
-#define DOS_MODE(a)     ((a) ? "dos-mode-hd" : "dos-mode-sd")
-#define THREEDO_MODE(a) ((a) ? "3do-mode-hd" : "3do-mode-sd")
+#define DOS_MODE(a)			((a) ? "dos-mode-hd" : "dos-mode-sd")
+#define THREEDO_MODE(a)		((a) ? "3do-mode-hd" : "3do-mode-sd")
+#define WINDOW_MODE(a,b)	((b) == 0 ? DOS_MODE(a) : THREEDO_MODE(a))
 
 #define BASE_CONTENT_NAME "mm-" UQM_MAJOR_VERSION_S "." \
 		UQM_MINOR_VERSION_S "." UQM_PATCH_VERSION_S "-content.uqm"

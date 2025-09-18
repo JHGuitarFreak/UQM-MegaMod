@@ -1105,7 +1105,7 @@ DoBuy (RESPONSE_REF R)
 	} while (slot--);
 
 	// If they're out of credits, educate them on how commerce works.
-	if (credit == 0)
+	if (credit == 0 && !optInfiniteCredits)
 	{
 		AskedToBuy = TRUE;
 		NPCPhrase (NEED_CREDIT);
@@ -1134,7 +1134,7 @@ DoBuy (RESPONSE_REF R)
 					+ FUEL_TANK_SCALE - 1)
 				/ FUEL_TANK_SCALE;
 
-			if (credit < remainingCapacity)
+			if (credit < remainingCapacity && !optInfiniteCredits)
 				needed_credit = credit;
 			else
 				needed_credit = remainingCapacity;
@@ -1157,7 +1157,8 @@ DoBuy (RESPONSE_REF R)
 				goto TryFuelAgain;
 			}
 
-			if ((int)(needed_credit * FuelCost) <= (int)credit)
+			if (((int)(needed_credit * FuelCost) <= (int)credit)
+					|| optInfiniteCredits)
 			{
 				DWORD f;
 
@@ -1178,7 +1179,8 @@ DoBuy (RESPONSE_REF R)
 		}
 		if (needed_credit)
 		{
-			DeltaCredit (-needed_credit);
+			if (!optInfiniteCredits)
+				DeltaCredit (-needed_credit);
 			if (GLOBAL_SIS (FuelOnBoard) >= capacity)
 				goto BuyBuyBuy;
 		}
@@ -1216,7 +1218,7 @@ TryFuelAgain:
 			if (!nextTech)
 				goto BuyBuyBuy; // No tech left to buy
 
-			if (!DeltaCredit (-nextTech->price))
+			if (!optInfiniteCredits && !DeltaCredit (-nextTech->price))
 				goto BuyBuyBuy;  // Can't afford it
 
 			// Make the sale
@@ -1261,7 +1263,7 @@ TryFuelAgain:
 		else
 		{
 #define INFO_COST 75
-			if (!DeltaCredit (-INFO_COST))
+			if (!optInfiniteCredits && !DeltaCredit (-INFO_COST))
 				goto BuyBuyBuy;
 
 			if (PLAYER_SAID (R, buy_current_events))
@@ -1559,7 +1561,8 @@ NatureOfConversation (RESPONSE_REF R)
 	if (GLOBAL_SIS (FuelOnBoard) > 0
 			|| GLOBAL_SIS (TotalBioMass)
 			|| Credit
-			|| num_new_rainbows)
+			|| num_new_rainbows
+			|| optInfiniteCredits)
 	{
 		if (!GET_GAME_STATE (TRADED_WITH_MELNORME))
 		{
@@ -1575,8 +1578,8 @@ NatureOfConversation (RESPONSE_REF R)
 			AlienTalkSegue (1);
 
 			XFormColorMap(GetColorMapAddress(
-				SetAbsColorMapIndex(CommData.AlienColorMap, 1)
-				), ONE_SECOND / 2);
+					SetAbsColorMapIndex(CommData.AlienColorMap, 1)
+					), ONE_SECOND / 2);
 
 			AlienTalkSegue ((COUNT)~0);
 		}
@@ -1595,7 +1598,7 @@ NatureOfConversation (RESPONSE_REF R)
 			NPCPhrase (OK_DONE_BUYING);
 		}
 
-		if (!GET_GAME_STATE (WHY_MELNORME_PURPLE))
+		if (!GET_GAME_STATE (WHY_MELNORME_PURPLE) && !optInfiniteCredits)
 		{
 			Response (why_turned_purple, NatureOfConversation);
 		}

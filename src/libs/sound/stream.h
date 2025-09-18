@@ -30,7 +30,7 @@ uint32 GetStreamFrame (uint32 source);
 uint16 GetNumTrackerPos (uint32 source);
 BOOLEAN IsTracker (uint32 source);
 float GetStreamLength (uint32 source);
-float GetStreamTime (uint32 source);
+DWORD GetStreamTime (uint32 source);
 BOOLEAN PlayingStream (uint32 source);
 
 int GraphForegroundStream (uint8 *data, sint32 width, sint32 height,

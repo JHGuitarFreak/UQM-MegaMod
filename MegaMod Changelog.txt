@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added a dialogue option when talking to the Chmmr about installing the bomb which allows you to "install the bomb" later
 - Added desaturation software filter
 - When option enabled currently owned lander modifications will appear on lander sprites during planetside
+- Introduced a "Fleet Point System" which limits the total amount of ships you can purchase by the max melee point value of your entire fleet
+- Added Infinite Credits cheat
+- Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
 
 ### Changed
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
@@ -28,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Removed seemingly useless call to redraw solarsys menu from loading screen
 - "Scanning Screen Options" now "Orbit Screen Options" in the Setup Menu
 - Added support for Tall Pixels for SDL2 through "Keep Aspect Ratio" option
+- Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
 
 ### Fixed
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
@@ -41,6 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixed F10 exit being overdrawn in some cases
 - Fixed flash context "repairing" frame during exit
 - Fixed F10 exit issue when shipyard powerlines being drawn over exit dialog box
+- Fixed an array of bugs introduced with tall pixels and custom resolution modes
 
 ## [v0.8.3] - 2024-04-11
 

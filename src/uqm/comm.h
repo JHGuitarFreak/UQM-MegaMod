@@ -171,7 +171,6 @@ extern void UpdateDuty (BOOLEAN talk);
 
 extern void DeltaLastTime (TimeCount diff);
 
-extern BOOLEAN IsProbe;
 extern BOOLEAN cwLock;
 
 #define USE_ALT_FRAME (1 << 0)

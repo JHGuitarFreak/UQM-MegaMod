@@ -26,13 +26,13 @@
 extern "C" {
 #endif
 
-extern int ScreenWidth;
-extern int ScreenHeight;
+extern int CanvasWidth;
+extern int CanvasHeight;
 
 		/* Most basic resolution units. */
 #define HD 2
-#define SCREEN_WIDTH ScreenWidth
-#define SCREEN_HEIGHT ScreenHeight
+#define SCREEN_WIDTH CanvasWidth
+#define SCREEN_HEIGHT CanvasHeight
 #define RESOLUTION_FACTOR resolutionFactor
 #define IS_HD (RESOLUTION_FACTOR != HD ? FALSE : TRUE)
 #define RES_SCALE(a) ((a) << RESOLUTION_FACTOR)
@@ -267,6 +267,16 @@ oldLogyToUniverse(SDWORD ly)
 	return (SDWORD)(MAX_Y_UNIVERSE -
 		((ly * OLD_UNIVERSE_UNITS_Y + ROUNDING_ERROR(OLD_LOG_UNITS_Y))
 			/ OLD_LOG_UNITS_Y));
+}
+
+static inline SDWORD
+inBounds(SDWORD val, SDWORD min, SDWORD max)
+{
+	if (val < min)
+		return min;
+	if (val > max)
+		return max;
+	return val;
 }
 
 #define CIRCLE_SHIFT 6

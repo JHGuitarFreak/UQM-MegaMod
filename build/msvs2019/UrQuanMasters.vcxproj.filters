@@ -387,6 +387,9 @@
     <ClCompile Include="..\..\src\libs\graphics\sdl\canvas.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\libs\graphics\sdl\clipboard.c">
+      <Filter>Source Files\libs\graphics\sdl</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\libs\graphics\sdl\hq2x.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>

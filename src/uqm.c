@@ -166,7 +166,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  infiniteFuel);
 	DECL_CONFIG_OPTION(bool,  partialPickup);
 	DECL_CONFIG_OPTION(bool,  submenu);
-	DECL_CONFIG_OPTION(bool,  addDevices);
+	DECL_CONFIG_OPTION(bool,  infiniteCredits);
 	DECL_CONFIG_OPTION(bool,  customBorder);
 	DECL_CONFIG_OPTION(int,   seedType);
 	DECL_CONFIG_OPTION(int,   customSeed);
@@ -212,6 +212,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   windowType);
 	DECL_CONFIG_OPTION(bool,  scatterElements);
 	DECL_CONFIG_OPTION(bool,  showUpgrades);
+	DECL_CONFIG_OPTION(bool,  fleetPointSys);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -377,7 +378,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  infiniteFuel,      false ),
 		INIT_CONFIG_OPTION(  partialPickup,     false ),
 		INIT_CONFIG_OPTION(  submenu,           false ),
-		INIT_CONFIG_OPTION(  addDevices,        false ),
+		INIT_CONFIG_OPTION(  infiniteCredits,   false ),
 		INIT_CONFIG_OPTION(  customBorder,      false ),
 		INIT_CONFIG_OPTION(  seedType,          0 ),
 		INIT_CONFIG_OPTION(  customSeed,        PrimeA ),
@@ -427,6 +428,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  windowType,        2 ),
 		INIT_CONFIG_OPTION(  scatterElements,   false ),
 		INIT_CONFIG_OPTION(  showUpgrades,      false ),
+		INIT_CONFIG_OPTION(  fleetPointSys,     false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -583,23 +585,19 @@ main (int argc, char *argv[])
 	optWhichShield = options.whichShield.value;
 	optSmoothScroll = options.smoothScroll.value;
 	optMeleeScale = options.meleeScale.value;
-	optKeepAspectRatio = options.keepAspectRatio.value;
 	optSubtitles = options.subtitles.value;
 	optStereoSFX = options.stereoSFX.value;
 	musicVolumeScale = options.musicVolumeScale.value;
 	sfxVolumeScale = options.sfxVolumeScale.value;
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
-	
-	resolutionFactor = (unsigned int) options.resolutionFactor.value;
-	loresBlowupScale = (unsigned int) options.loresBlowupScale.value;
-	
+
 	optGodModes = options.optGodModes.value;
 	timeDilationScale = options.timeDilationScale.value;
 	optBubbleWarp = options.bubbleWarp.value;
 	optUnlockShips = options.unlockShips.value;
 	optHeadStart = options.headStart.value;
-	optUnlockUpgrades = options.unlockUpgrades.value;
+	//optUnlockUpgrades = options.unlockUpgrades.value;
 	optInfiniteRU = options.infiniteRU.value;
 	optSkipIntro = options.skipIntro.value;
 	optMainMenuMusic = options.mainMenuMusic.value;
@@ -611,7 +609,7 @@ main (int argc, char *argv[])
 	optInfiniteFuel = options.infiniteFuel.value;
 	optPartialPickup = options.partialPickup.value;
 	optSubmenu = options.submenu.value;
-	optAddDevices = options.addDevices.value;
+	optInfiniteCredits = options.infiniteCredits.value;
 	optCustomBorder = options.customBorder.value;
 	optSeedType = options.seedType.value;
 	optCustomSeed = options.customSeed.value;
@@ -656,43 +654,63 @@ main (int argc, char *argv[])
 	optAdvancedAutoPilot = options.advancedAutoPilot.value;
 	optMeleeToolTips = options.meleeToolTips.value;
 	optMusicResume = options.musicResume.value;
-	optWindowType = options.windowType.value;
 	optScatterElements = options.scatterElements.value;
 	optShowUpgrades = options.showUpgrades.value;
+	optFleetPointSys = options.fleetPointSys.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
-	if (resolutionFactor && !isAddonAvailable (HD_MODE))
-	{
-		resolutionFactor = 0;
-		options.resolutionFactor.value = 0;
-		options.resolutionFactor.set = true;
-		options.resolution.width = 320 * (loresBlowupScale + 1);
-		options.resolution.height = 240 * (loresBlowupScale + 1);
-	}
+	resolutionFactor = isAddonAvailable (HD_MODE) ?
+		(unsigned int)options.resolutionFactor.value : 0;
+	options.resolutionFactor.value = resolutionFactor;
+	options.resolutionFactor.set = true;
 
-	switch (optWindowType)
+	loresBlowupScale = (unsigned int)options.loresBlowupScale.value;
+	optKeepAspectRatio = options.keepAspectRatio.value;
+
+	optWindowType = OPTVAL_UQM_WINDOW;
+	if (options.windowType.value < OPTVAL_UQM_WINDOW &&
+		isAddonAvailable (WINDOW_MODE (resolutionFactor,
+			options.windowType.value)))
 	{
-		case 0:
-			if (!isAddonAvailable (DOS_MODE (resolutionFactor)))
-			{
-				optWindowType = 2;
-				options.windowType.value = 2;
-				options.windowType.set = true;
-				options.resolution.width = 320 * (loresBlowupScale + 1);
-				options.resolution.height = 240 * (loresBlowupScale + 1);
-			}
-			break;
-		case 1:
-			if (!isAddonAvailable (THREEDO_MODE (resolutionFactor)))
-			{
-				optWindowType = 2;
-				options.windowType.value = 2;
-				options.windowType.set = true;
-			}
-			break;
-		default:
-			break;
+		optWindowType = options.windowType.value;
+	}
+	options.windowType.value = optWindowType;
+	options.windowType.set = true;
+
+	{
+		int w = 320;
+		int h = (DOS_BOOL (240, 200));
+		int scaleFactor = loresBlowupScale + 1; // stored value starts with 0
+
+		CanvasWidth = w << resolutionFactor;
+		CanvasHeight = h << resolutionFactor;
+
+		if (loresBlowupScale < 6) {
+			SavedWidth = loresBlowupScale ? (w * scaleFactor) : CanvasWidth;
+			SavedHeight = loresBlowupScale ? (h * scaleFactor) : CanvasHeight;
+		}
+		else
+		{
+			SavedWidth = inBounds(options.resolution.width, 320, 1920);
+			SavedHeight = inBounds(options.resolution.height, 200, 1440);
+		}
+
+		if (optKeepAspectRatio)
+		{
+			float threshold = 0.75f;
+			float ratio = (float)SavedHeight / (float)SavedWidth;
+
+			if (ratio > threshold) // screen is narrower than 4:3
+				options.resolution.width = SavedHeight / threshold;
+			else if (ratio < threshold) // screen is wider than 4:3
+				options.resolution.height = SavedWidth * threshold;
+		}
+		else
+		{
+			options.resolution.width = SavedWidth;
+			options.resolution.height = SavedHeight;
+		}
 	}
 
 	prepareMeleeDir ();
@@ -1034,7 +1052,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->bubbleWarp, "cheat.bubbleWarp");
 	getBoolConfigValue (&options->unlockShips, "cheat.unlockShips");
 	getBoolConfigValue (&options->headStart, "cheat.headStart");
-	getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
+	//getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
 	getBoolConfigValue (&options->infiniteRU, "cheat.infiniteRU");
 	getBoolConfigValue (&options->skipIntro, "mm.skipIntro");
 	getBoolConfigValue (&options->mainMenuMusic, "mm.mainMenuMusic");
@@ -1050,7 +1068,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->infiniteFuel, "cheat.infiniteFuel");
 	getBoolConfigValue (&options->partialPickup, "mm.partialPickup");
 	getBoolConfigValue (&options->submenu, "mm.submenu");
-	getBoolConfigValue (&options->addDevices, "cheat.addDevices");
+	getBoolConfigValue (&options->infiniteCredits, "cheat.infiniteCredits");
 	getBoolConfigValue (&options->customBorder, "mm.customBorder");
 	if (res_IsInteger ("mm.seedType") && !options->seedType.set)
 	{
@@ -1184,6 +1202,12 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->scatterElements, "mm.scatterElements");
 
 	getBoolConfigValue (&options->showUpgrades, "mm.showUpgrades");
+
+	getBoolConfigValue (&options->fleetPointSys, "mm.fleetPointSys");
+
+	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
+
+	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
 	
 	if (res_IsInteger ("config.player1control"))
 	{
@@ -1241,7 +1265,7 @@ enum
 	INFFUEL_OPT,
 	PICKUP_OPT,
 	SUBMENU_OPT,
-	DEVICES_OPT,
+	INFCRED_OPT,
 	CUSTBORD_OPT,
 	SEEDTYPE_OPT,
 	EXSEED_OPT,
@@ -1284,6 +1308,7 @@ enum
 	WINDTYPE_OPT,
 	SCATTERELEMS_OPT,
 	SHOWUPG_OPT,
+	FLTPTSYS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1353,7 +1378,7 @@ static struct option longOptions[] =
 	{"infinitefuel", 0, NULL, INFFUEL_OPT},
 	{"partialpickup", 0, NULL, PICKUP_OPT},
 	{"submenu", 0, NULL, SUBMENU_OPT},
-	{"adddevices", 0, NULL, DEVICES_OPT},
+	{"infinitecredits", 0, NULL, INFCRED_OPT},
 	{"customborder", 0, NULL, CUSTBORD_OPT},
 	{"seedtype", 0, NULL, SEEDTYPE_OPT},
 	{"customseed", 1, NULL, EXSEED_OPT},
@@ -1399,6 +1424,7 @@ static struct option longOptions[] =
 	{"noclassic", 0, NULL, CLAPAK_OPT},
 	{"scatterelements", 0, NULL, SCATTERELEMS_OPT},
 	{"showupgrades", 0, NULL, SHOWUPG_OPT},
+	{"fleetpointsys", 0, NULL, FLTPTSYS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1701,7 +1727,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case ADDON_OPT:
 				options->numAddons++;
 				options->addons = HRealloc ((void *)options->addons,
-					(options->numAddons + 1) * sizeof (const char *));
+						(options->numAddons + 1) * sizeof (const char *));
 				options->addons[options->numAddons - 1] = optarg;
 				options->addons[options->numAddons] = NULL;
 				break;
@@ -1783,7 +1809,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->headStart, true);
 				break;
 			case UPGRADES_OPT:
-				setBoolOption (&options->unlockUpgrades, true);
+				//setBoolOption (&options->unlockUpgrades, true);
 				break;
 			case INFINITERU_OPT:
 				setBoolOption (&options->infiniteRU, true);
@@ -1832,8 +1858,8 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SUBMENU_OPT:
 				setBoolOption (&options->submenu, true);
 				break;
-			case DEVICES_OPT:
-				setBoolOption (&options->addDevices, true);
+			case INFCRED_OPT:
+				setBoolOption (&options->infiniteCredits, true);
 				break;
 			case CUSTBORD_OPT:
 				setBoolOption (&options->customBorder, true);
@@ -2217,6 +2243,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SHOWUPG_OPT:
 				setBoolOption (&options->showUpgrades, true);
 				break;
+			case FLTPTSYS_OPT:
+				setBoolOption (&options->fleetPointSys, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2484,9 +2513,9 @@ usage (FILE *out, const struct options_struct *defaults)
 			boolOptString (&defaults->submenu));
 	log_add (log_User, "  --dateformat : 0: MMM DD.YYYY | 1: MM.DD.YYYY | "
 			"2: DD MMM.YYYY | 3: DD.MM.YYYY (default: 0)");
-	log_add (log_User, "  --adddevices : Gives you all available "
-			"devices (default: %s)",
-			boolOptString (&defaults->addDevices));
+	log_add (log_User, "  --infinitecredits: Gives you infinite Melnorme"
+			"Credits  (default: %s)",
+			boolOptString (&defaults->infiniteCredits));
 	log_add (log_User, "  --melee : Takes you straight to Super Melee"
 			"after the splash screen.");
 	log_add (log_User, "  --loadgame : Takes you straight to the Load"
@@ -2618,6 +2647,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --showupgrades : Show lander upgrade graphics "
 			"when exploring planets (default: %s)",
 			boolOptString (&defaults->showUpgrades));
+	log_add (log_User, "  --fleetpointsys : Restrict the amount of ships "
+			"that can be purchased via their melee points (default: %s)",
+			boolOptString (&defaults->fleetPointSys));
 
 	log_setOutput (old);
 }

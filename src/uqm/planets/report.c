@@ -350,7 +350,7 @@ DoDiscoveryReport (SOUND ReadOutSounds)
 			allocated = TRUE;
 			StrPtr = luaUqm_comm_stringInterpolate (StrPtr);
 		}
-		MakeReport (ReadOutSounds, StrPtr, strlen (StrPtr));
+		MakeReport (ReadOutSounds, StrPtr, (COUNT)strlen (StrPtr));
 		
 		luaUqm_comm_uninit ();
 		if (allocated)

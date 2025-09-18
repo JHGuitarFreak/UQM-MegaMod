@@ -20,6 +20,7 @@
 
 #include "globdata.h"
 #include "libs/compiler.h"
+#include "setup.h"
 
 
 static MUSIC_REF LastMusicRef;
@@ -81,6 +82,21 @@ void
 PauseMusic (void)
 {
 	PLRPause (LastMusicRef);
+}
+
+void
+PlayMusicResume (MUSIC_REF MusicRef, BYTE Volume)
+{
+	SetMusicVolume (MUTE_VOLUME);
+	PlayMusic (MusicRef, TRUE, 1);
+
+	if (OkayToResume ())
+	{
+		SeekMusic (GetMusicPosition ());
+		FadeMusic (Volume, ONE_SECOND * 2);
+	}
+	else
+		SetMusicVolume (Volume);
 }
 
 void

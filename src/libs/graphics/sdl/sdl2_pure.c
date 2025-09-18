@@ -52,48 +52,52 @@ static TFB_ScaleFunc scaler = NULL;
 #define R_MASK 0xff000000
 #endif
 
-static void TFB_SDL2_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
+static void TFB_SDL2_Preprocess (int force_full_redraw,
+		int transition_amount, int fade_amount);
 static void TFB_SDL2_Postprocess (bool hd);
 static void TFB_SDL2_UploadTransitionScreen (void);
-static void TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
-static void TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
-static void TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
+static void TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a,
+		SDL_Rect *rect);
+static void TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a,
+		SDL_Rect *rect);
+static void TFB_SDL2_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+		SDL_Rect *rect);
 
 static TFB_GRAPHICS_BACKEND sdl2_scaled_backend = {
-        TFB_SDL2_Preprocess,
-        TFB_SDL2_Postprocess,
+		TFB_SDL2_Preprocess,
+		TFB_SDL2_Postprocess,
 	TFB_SDL2_UploadTransitionScreen,
-        TFB_SDL2_Scaled_ScreenLayer,
-        TFB_SDL2_ColorLayer };
+		TFB_SDL2_Scaled_ScreenLayer,
+		TFB_SDL2_ColorLayer };
 
 static TFB_GRAPHICS_BACKEND sdl2_unscaled_backend = {
-        TFB_SDL2_Preprocess,
-        TFB_SDL2_Postprocess,
+		TFB_SDL2_Preprocess,
+		TFB_SDL2_Postprocess,
 	TFB_SDL2_UploadTransitionScreen,
-        TFB_SDL2_Unscaled_ScreenLayer,
-        TFB_SDL2_ColorLayer };
+		TFB_SDL2_Unscaled_ScreenLayer,
+		TFB_SDL2_ColorLayer };
 
 static SDL_Surface *
 Create_Screen (int w, int h)
 {
-        SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
-                        32, R_MASK, G_MASK, B_MASK, 0);
-        if (newsurf == 0)
+		SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
+						32, R_MASK, G_MASK, B_MASK, 0);
+		if (newsurf == 0)
 		{
-                log_add (log_Error, "Couldn't create screen buffers: %s",
-                                SDL_GetError());
-        }
-        return newsurf;
+				log_add (log_Error, "Couldn't create screen buffers: %s",
+								SDL_GetError());
+		}
+		return newsurf;
 }
 
 static int
 ReInit_Screen (SDL_Surface **screen, int w, int h)
 {
-        if (*screen)
-                SDL_FreeSurface (*screen);
-        *screen = Create_Screen (w, h);
-        
-        return *screen == 0 ? -1 : 0;
+		if (*screen)
+				SDL_FreeSurface (*screen);
+		*screen = Create_Screen (w, h);
+		
+		return *screen == 0 ? -1 : 0;
 }
 
 static int
@@ -101,7 +105,8 @@ ReInit_FPS_Screen (SDL_Surface **screen, int w, int h)
 {
 	if (*screen)
 		SDL_FreeSurface (*screen);
-	*screen = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, R_MASK, G_MASK, B_MASK, A_MASK);
+	*screen = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, R_MASK, G_MASK,
+			B_MASK, A_MASK);
 	if (*screen == 0)
 	{
 		log_add(log_Error, "Couldn't create screen buffers: %s",
@@ -120,7 +125,8 @@ FindBestRenderDriver (void)
 		return -1;
 	}
 	n = SDL_GetNumRenderDrivers ();
-	log_add (log_Info, "Searching for render driver \"%s\".", rendererBackend);
+	log_add (log_Info, "Searching for render driver \"%s\".",
+			rendererBackend);
 
 	for (i = 0; i < n; i++) {
 		SDL_RendererInfo info;
@@ -134,7 +140,8 @@ FindBestRenderDriver (void)
 	}
 	/* We did not find any accelerated drivers that weren't D3D9.
 	 * Return -1 to ask SDL2 to do its best. */
-	log_add (log_Info, "Render driver \"%s\" not available, using system default", rendererBackend);
+	log_add (log_Info, "Render driver \"%s\" not available, using system "
+			"default", rendererBackend);
 	return -1;
 }
 
@@ -144,35 +151,22 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		unsigned int windowType)
 {
 	int i;
-	char buf[50];
-	int setWidth = width;
-	int setHeight = height;
-
+	char caption[50];
 	GraphicsDriver = driver;
-	(void) togglefullscreen;
+	(void) togglefullscreen; /* satisfy compiler (unused parameter) */
+	(void) windowType; /* satisfy compiler (unused parameter) */
 
-	snprintf (buf, sizeof (buf), "The Ur-Quan Masters v%d.%d.%d %s",
+	snprintf (caption, sizeof (caption), "The Ur-Quan Masters v%d.%d.%d %s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
-
-	if (optKeepAspectRatio)
-	{
-		float threshold = 0.75f;
-		float ratio = (float)height/(float)width;
-
-		if (ratio > threshold) // screen is narrower than 4:3			
-			setWidth = setHeight / threshold;
-		else if (ratio < threshold) // screen is wider than 4:3
-			setHeight = setWidth * threshold;
-	}
 
 	if (window == NULL)
 	{
 		SDL_RendererInfo info;
 
-		window = SDL_CreateWindow ("",
+		window = SDL_CreateWindow (caption,
 				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-				setWidth, setHeight, 0);
+				width, height, 0);
 		if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		{
 			/* If we create the window fullscreen, it will have
@@ -200,21 +194,23 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		{
 			log_add (log_Info, "SDL2 renderer had no name.");
 		}
-		SDL_RenderSetLogicalSize (renderer, setWidth, setHeight);
+		SDL_RenderSetLogicalSize (renderer, width, height);
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		{
 			SDL2_Screens[i].scaled = NULL;
 			SDL2_Screens[i].texture = NULL;
 			SDL2_Screens[i].dirty = TRUE;
 			SDL2_Screens[i].active = TRUE;
-			if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight))
+			if (0 != ReInit_Screen (&SDL_Screens[i], CanvasWidth,
+					CanvasHeight))
 			{
 				return -1;
 			}
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, CanvasWidth >> 4,
+					CanvasHeight >> 4))
 				return -1;
 		}
 		else
@@ -233,13 +229,17 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	{
 		int LastScreenWidth, LastScreenHeight;
 		SDL_RenderGetLogicalSize (renderer, &LastScreenWidth, &LastScreenHeight);
-		if (LastScreenWidth != setWidth || LastScreenHeight != setHeight)
+		if (LastScreenWidth != width || LastScreenHeight != height)
 		{
-			SDL_RenderSetLogicalSize (renderer, setWidth, setHeight);
+			SDL_RenderSetLogicalSize (renderer, width, height);
+		}
+		if (SDL_Screens[0]->h != CanvasHeight)
+		{
 			for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 			{
 				SDL2_Screens[i].dirty = TRUE;
-				if (0 != ReInit_Screen (&SDL_Screens[i], ScreenWidth, ScreenHeight))
+				if (0 != ReInit_Screen(&SDL_Screens[i], CanvasWidth,
+					CanvasHeight))
 				{
 					return -1;
 				}
@@ -249,7 +249,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth, ScreenHeight))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, CanvasWidth >> 4,
+					CanvasHeight >> 4))
 				return -1;
 		}
 		else
@@ -265,11 +266,10 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		else
 		{
 			SDL_SetWindowFullscreen (window, 0);
-			SDL_SetWindowSize (window, setWidth, setHeight);
+			SDL_SetWindowSize (window, width, height);
 		}
-	}
-
-	SDL_SetWindowTitle (window, buf);
+		SDL_SetWindowTitle (window, caption);
+	}	
 
 	if (GfxFlags & TFB_GFXFLAGS_SCALE_ANY)
 	{
@@ -291,7 +291,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 				continue;
 			}
 			if (0 != ReInit_Screen(&SDL2_Screens[i].scaled,
-					ScreenWidth * 2, ScreenHeight * 2))
+					CanvasWidth * 2, CanvasHeight * 2))
 			{
 				return -1;
 			}
@@ -302,7 +302,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			}
 			SDL2_Screens[i].texture = SDL_CreateTexture (renderer,
 					SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING,
-					ScreenWidth * 2, ScreenHeight * 2);
+					CanvasWidth * 2, CanvasHeight * 2);
 			SDL_LockSurface (SDL2_Screens[i].scaled);
 			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL,
 					SDL2_Screens[i].scaled->pixels,
@@ -311,7 +311,8 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		}
 		if (flags & TFB_GFXFLAGS_SHOWFPS)
 		{
-			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, ScreenWidth * 2, ScreenHeight * 2))
+			if (0 != ReInit_FPS_Screen (&SDL_Screen_fps, CanvasWidth * 2,
+					CanvasHeight * 2))
 				return -1;
 		}
 		else
@@ -335,7 +336,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			}
 			SDL2_Screens[i].texture = SDL_CreateTexture (renderer,
 					SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING,
-					ScreenWidth, ScreenHeight);
+					CanvasWidth, CanvasHeight);
 			SDL_LockSurface (SDL_Screens[i]);
 			SDL_UpdateTexture (SDL2_Screens[i].texture, NULL,
 					SDL_Screens[i]->pixels, SDL_Screens[i]->pitch);
@@ -346,12 +347,9 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 	}
 
 	/* We succeeded, so alter the screen size to our new sizes */
-	ScreenWidthActual = width;
-	ScreenHeightActual = height;
+	WindowWidth = width;
+	WindowHeight = height;
 
-
-	(void) resFactor; /* satisfy compiler (unused parameter) */
-	(void) windowType; /* satisfy compiler (unused parameter) */
 	return 0;
 }
 
@@ -364,8 +362,8 @@ TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");
 
-	ScreenWidth = (320 << resFactor);
-	ScreenHeight = ((windowType ? 240 : 200) << resFactor);
+	(void) windowType;
+	
 	rendererBackend = renderer;
 
 	if (TFB_Pure_ConfigureVideo (driver, flags, width, height, 0,
@@ -398,8 +396,8 @@ TFB_SDL2_UploadTransitionScreen (void)
 {
 	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.x = 0;
 	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.y = 0;
-	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.w = ScreenWidth;
-	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.h = ScreenHeight;
+	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.w = CanvasWidth;
+	SDL2_Screens[TFB_SCREEN_TRANSITION].updated.h = CanvasHeight;
 	SDL2_Screens[TFB_SCREEN_TRANSITION].dirty = TRUE;
 }
 
@@ -440,44 +438,32 @@ TFB_SDL2_ScanLines (bool hd)
 	int y;
 	SDL_SetRenderDrawColor (renderer, 0, 0, 0, 64);
 	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
-	if (!hd)
-	{		
-		SDL_RenderSetLogicalSize (renderer, ScreenWidth << 1, ScreenHeight << 1);
-		for (y = 0; y < (ScreenHeight << 1); y += 2)
-		{
-			SDL_RenderDrawLine(renderer, 0, y, (ScreenWidth << 1) - 1, y);
-		}
-		SDL_RenderSetLogicalSize (renderer, ScreenWidth, ScreenHeight);
-	}
-	else
+	for (y = 0; y < WindowHeight; y+=2)
 	{
-		for (y = 0; y < ScreenHeight; y++)
-		{
-			if (y & 2)
-				continue;
-
-			SDL_RenderDrawLine (renderer, 0, y, ScreenWidth - 1, y);
-		}
-	}	
+		SDL_RenderDrawLine (renderer, 0, y, WindowWidth - 1, y);
+	}
 }
 
 static void
 TFB_SDL2_FPS (void)
 {
 	SDL_Texture *texture;
-	SDL_Rect r;
-	r.x = r.y = 0;
-	r.w = ScreenWidth >> 4;
-	r.h = ScreenHeight >> 5;
+	SDL_Rect r, t;
+	r.x = r.y = t.x = t.y = 0;
+	r.w = CanvasWidth >> 4;
+	r.h = CanvasHeight >> 4;
+	t.w = WindowWidth >> 4;
+	t.h = WindowHeight >> 4;
 	texture = SDL_CreateTextureFromSurface (renderer, SDL_Screen_fps);
 	SDL_SetTextureBlendMode (texture, SDL_BLENDMODE_BLEND);
-	SDL_RenderCopy (renderer, texture, &r, &r);
+	SDL_RenderCopy (renderer, texture, &r, &t);
 	SDL_DestroyTexture (texture);
 	texture = NULL;
 }
 
 static void
-TFB_SDL2_Preprocess (int force_full_redraw, int transition_amount, int fade_amount)
+TFB_SDL2_Preprocess (int force_full_redraw, int transition_amount,
+		int fade_amount)
 {
 	(void) transition_amount;
 	(void) fade_amount;
@@ -486,16 +472,18 @@ TFB_SDL2_Preprocess (int force_full_redraw, int transition_amount, int fade_amou
 	{
 		SDL2_Screens[TFB_SCREEN_MAIN].updated.x = 0;
 		SDL2_Screens[TFB_SCREEN_MAIN].updated.y = 0;
-		SDL2_Screens[TFB_SCREEN_MAIN].updated.w = ScreenWidth;
-		SDL2_Screens[TFB_SCREEN_MAIN].updated.h = ScreenHeight;
+		SDL2_Screens[TFB_SCREEN_MAIN].updated.w = CanvasWidth;
+		SDL2_Screens[TFB_SCREEN_MAIN].updated.h = CanvasHeight;
 		SDL2_Screens[TFB_SCREEN_MAIN].dirty = TRUE;
 	}
 	else if (TFB_BBox.valid)
 	{
 		SDL2_Screens[TFB_SCREEN_MAIN].updated.x = TFB_BBox.region.corner.x;
 		SDL2_Screens[TFB_SCREEN_MAIN].updated.y = TFB_BBox.region.corner.y;
-		SDL2_Screens[TFB_SCREEN_MAIN].updated.w = TFB_BBox.region.extent.width;
-		SDL2_Screens[TFB_SCREEN_MAIN].updated.h = TFB_BBox.region.extent.height;
+		SDL2_Screens[TFB_SCREEN_MAIN].updated.w =
+				TFB_BBox.region.extent.width;
+		SDL2_Screens[TFB_SCREEN_MAIN].updated.h =
+				TFB_BBox.region.extent.height;
 		SDL2_Screens[TFB_SCREEN_MAIN].dirty = TRUE;
 	}
 
@@ -510,7 +498,8 @@ TFB_SDL2_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 	SDL_Texture *texture = SDL2_Screens[screen].texture;
 	if (SDL2_Screens[screen].dirty)
 	{
-		TFB_SDL2_UpdateTexture (texture, SDL_Screens[screen], &SDL2_Screens[screen].updated);
+		TFB_SDL2_UpdateTexture (texture, SDL_Screens[screen],
+				&SDL2_Screens[screen].updated);
 	}
 	if (a == 255)
 	{
@@ -658,10 +647,21 @@ TFB_SDL_ScreenShot (const char *path)
 		tmp->pixels, tmp->pitch);
 	if (SDL_SavePNG (tmp, path) == 0)
 		successful = TRUE;
+
+	if (successful && CopySurfaceToClipboard (tmp) != 0)
+		log_add (log_Warning, "Failed to copy PNG to clipboard\n");
+
 	SDL_UnlockSurface (tmp);
 	SDL_FreeSurface (tmp);
 
 	return successful;
 }
 
-#endif
+void
+TFB_SDL2_GetDisplaySize (SDL_Rect *bounds)
+{
+	if (SDL_GetDisplayBounds (0, bounds) != 0)
+		printf (SDL_GetError ());
+}
+
+#endif /* SDL_MAJOR_VERSION > 1 */
