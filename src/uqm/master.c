@@ -116,6 +116,19 @@ FreeMasterShipList (void)
 	UninitQueue (&master_q);
 }
 
+void
+ReloadMasterShipList (void (* YieldProcessing)(void))
+{
+	static int seed = 0;
+	if ((optShipSeed && seed != optCustomSeed)
+			|| (!optShipSeed && seed != -1))
+	{
+		FreeMasterShipList ();
+		LoadMasterShipList (YieldProcessing);
+		seed = optShipSeed ? optCustomSeed : -1;
+	}
+}
+
 HMASTERSHIP
 FindMasterShip (SPECIES_ID ship_ref)
 {

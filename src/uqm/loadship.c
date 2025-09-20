@@ -279,6 +279,8 @@ load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData)
 	}
 
 ExitFunc:
+	HFree (RDPtrSwap->data);
+	RDPtrSwap->data = 0;
 	return RDPtr;
 
 	// TODO: We should really free the resources that did load here
