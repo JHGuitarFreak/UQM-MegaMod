@@ -14,6 +14,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <stdlib.h>
+#include <stdarg.h>
+
+#include "build.h"
 #include "colors.h"
 #include "comm.h"
 #include "controls.h"
@@ -34,8 +38,7 @@
 #include "libs/strlib.h"
 #include "lua/luacomm.h"
 #include "util.h"
-#include <stdlib.h>
-#include <stdarg.h>
+#include "comm/starbas/strings.h"
 
 
 typedef enum {
@@ -84,6 +87,7 @@ BOOLEAN FwiffoCanJoin = FALSE;
 #define JOURNAL_STRING(i) \
 		(GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
 
+#define GGS(flag)    (GET_GAME_STATE(flag))
 #define GS(flag)     (GET_GAME_STATE(flag) > 0)
 #define GSET(flag,n) (GET_GAME_STATE(flag) == (n))
 #define GSLT(flag,n) (GET_GAME_STATE(flag) < (n))
@@ -208,9 +212,16 @@ AddJournal (JOURNAL_ID Objective, int steps, ...)
 static void
 ObjectivesJournal (void)
 {	// starbase missions
+	BOOLEAN SBA = GGS (STARBASE_AVAILABLE) && GGS (STARBASE_VISITED);
 	BOOLEAN FuelLow = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
 	BOOLEAN HaveRadios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
-	BOOLEAN FwiffoBullet = GET_GAME_STATE (STARBASE_BULLETS) & (1L << 9);
+	BOOLEAN FwiffoBullet = (GGS (STARBASE_BULLETS) & (1L << 9)) != 0;
+	BOOLEAN ZFPBullet = (GGS (STARBASE_BULLETS) & (1L << 11)) != 0;
+	BOOLEAN MelsBullet = (GGS (STARBASE_BULLETS) & (1L << 7)) != 0;
+	BOOLEAN OrzVisits = GGS (ORZ_VISITS);
+	BOOLEAN OrzHomeVisits = GGS (ORZ_HOME_VISITS);
+	BYTE AllianceMask = GGS (ALLIANCE_MASK);
+	BYTE HierarchyMask = GGS (HIERARCHY_MASK);
 
 	int have_radioactives = GS (STARBASE_VISITED) && HaveRadios;
 	int need_radioactives = GS (STARBASE_VISITED) && !HaveRadios &&
@@ -222,6 +233,20 @@ ObjectivesJournal (void)
 	int reported_moonbase = GS (MOONBASE_DESTROYED) && !GS (MOONBASE_ON_SHIP);
 	int signal_uranus = FwiffoBullet && !GS (FOUND_PLUTO_SPATHI);
 	int can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
+	int met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
+			|| GS (MET_ZOQFOT);
+
+	BOOLEAN sb_arilou = (AllianceMask & ALLIANCE_ARILOU) != 0;
+	BOOLEAN met_arilou = (GS (ARILOU_VISITS) || GS (ARILOU_HOME_VISITS));
+
+	BOOLEAN sb_chenjesu = (AllianceMask & ALLIANCE_CHENJESU) != 0;
+	BOOLEAN sb_mmrnmhrm = (AllianceMask & ALLIANCE_MMRNMHRM) != 0;
+	BOOLEAN met_chmmr = GS (CHMMR_HOME_VISITS);
+
+	BOOLEAN sb_andro = (HierarchyMask & HIERARCHY_ANDROSYNTH) != 0;
+	BOOLEAN andro_dead = RaceDead (ANDROSYNTH_SHIP);
+
+	BOOLEAN met_mels = GS (MET_MELNORME);
 
 	// starbase missions
 	AddJournal (OBJECTIVES_JOURNAL, 2,
@@ -253,31 +278,51 @@ ObjectivesJournal (void)
 			GS (STARBASE_AVAILABLE),      RECRUIT_EARTH);
 
 	AddJournal (OBJECTIVES_JOURNAL, 2,
-			signal_uranus,                FIND_FWIFFO,
-			GS (FOUND_PLUTO_SPATHI),      FIND_FWIFFO);
+			GS (AWARE_OF_SAMATRA) && !GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA,
+			GS (AWARE_OF_SAMATRA) && GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA);
 
-	AddJournal (OBJECTIVES_JOURNAL, 2,
+	AddJournal (OBJECTIVES_JOURNAL, 3,
+			(!GS (AWARE_OF_SAMATRA) || GSLT (CHMMR_BOMB_STATE, 1)) && (GS (STARBASE_AVAILABLE) || NOMAD), FIND_DEFEAT_URQUAN,
+			GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1), FIND_DESTROY_SAMATRA,
+			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2), DESTROY_SAMATRA);
+
+	// Aliens Journal
+
+	AddJournal (ALIENS_JOURNAL, 2,
+			signal_uranus,           FIND_FWIFFO,
+			GS (FOUND_PLUTO_SPATHI), FIND_FWIFFO);
+
+	AddJournal (ALIENS_JOURNAL, 2,
 			can_fwiffo_join,              RECRUIT_FWIFFO,
 			GSGE (FOUND_PLUTO_SPATHI, 2), MET_FWIFFO);
 
+	AddJournal (ALIENS_JOURNAL, 2,
+			ZFPBullet && !met_the_zfp, INVESTIGATE_RIGEL,
+			met_the_zfp,               INVESTIGATE_RIGEL);
 
-	AddJournal (OBJECTIVES_JOURNAL, 4,
-			(!GS (AWARE_OF_SAMATRA) || GSLT (CHMMR_BOMB_STATE, 1)) && GS (STARBASE_AVAILABLE), FIND_DEFEAT_URQUAN,
-			GS (AWARE_OF_SAMATRA) && !GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA,
-			GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1),  FIND_DESTROY_SAMATRA,
-			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2), DESTROY_SAMATRA);
-}
+	AddJournal (ALIENS_JOURNAL, 2,
+			sb_arilou,   CONTACT_ARILOU,
+			met_arilou,  CONTACT_ARILOU);
 
-static void
-AliensJournal (void)
-{
-	
-}
+	AddJournal (ALIENS_JOURNAL, 2,
+			sb_chenjesu, CONTACT_CHENJESU,
+			met_chmmr,   CONTACT_CHENJESU);
 
-static void
-ArtifactsJournal (void)
-{
-	
+	AddJournal (ALIENS_JOURNAL, 2,
+			sb_mmrnmhrm, CONTACT_MMRNMHRM,
+			met_chmmr,   CONTACT_MMRNMHRM);
+
+	AddJournal (ALIENS_JOURNAL, 2,
+			MelsBullet && !met_mels, CONTACT_MELNORME,
+			MelsBullet && met_mels,  MET_THE_MELNORME);
+
+	AddJournal (ALIENS_JOURNAL, 2,
+			sb_andro,                CONTACT_ANDROSYNTH,
+			andro_dead || OrzVisits, CONTACT_ANDROSYNTH);
+
+	AddJournal (ALIENS_JOURNAL, 2,
+			OrzVisits && !OrzHomeVisits, VISIT_ORZ_HOMEWORLD,
+			OrzVisits && OrzHomeVisits,  VISIT_ORZ_HOMEWORLD);
 }
 
 static void
@@ -496,8 +541,6 @@ Journal (void)
 
 	// Write journals
 	ObjectivesJournal ();
-	AliensJournal ();
-	ArtifactsJournal ();
 
 	which_journal = OBJECTIVES_JOURNAL;
 
