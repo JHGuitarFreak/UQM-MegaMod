@@ -661,7 +661,7 @@ void
 TFB_SDL2_GetDisplaySize (SDL_Rect *bounds)
 {
 	if (SDL_GetDisplayBounds (0, bounds) != 0)
-		printf (SDL_GetError ());
+		printf ("%s\n", SDL_GetError ());
 }
 
 #endif /* SDL_MAJOR_VERSION > 1 */
