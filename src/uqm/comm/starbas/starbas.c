@@ -363,13 +363,8 @@ static BYTE stack3;
 static void
 AllianceInfo (RESPONSE_REF R)
 {
-#define ALLIANCE_SHOFIXTI (1 << 0)
-#define ALLIANCE_YEHAT (1 << 1)
-#define ALLIANCE_ARILOU (1 << 2)
-#define ALLIANCE_CHENJESU (1 << 3)
-#define ALLIANCE_MMRNMHRM (1 << 4)
-#define ALLIANCE_SYREEN (1 << 5)
 	static BYTE AllianceMask = 0;
+	BYTE GStateMask = GET_GAME_STATE (ALLIANCE_MASK);
 
 	if (PLAYER_SAID (R, what_about_alliance))
 	{
@@ -381,32 +376,46 @@ AllianceInfo (RESPONSE_REF R)
 		NPCPhrase (ABOUT_SHOFIXTI);
 		AllianceMask |= ALLIANCE_SHOFIXTI;
 		SetHomeworldKnown (SHOFIXTI_HOME);
+
+		GStateMask |= ALLIANCE_SHOFIXTI;
 	}
 	else if (PLAYER_SAID (R, yehat))
 	{
 		NPCPhrase (ABOUT_YEHAT);
 		AllianceMask |= ALLIANCE_YEHAT;
+
+		GStateMask |= ALLIANCE_YEHAT;
 	}
 	else if (PLAYER_SAID (R, arilou))
 	{
 		NPCPhrase (ABOUT_ARILOU);
 		AllianceMask |= ALLIANCE_ARILOU;
+
+		GStateMask |= ALLIANCE_ARILOU;
 	}
 	else if (PLAYER_SAID (R, chenjesu))
 	{
 		NPCPhrase (ABOUT_CHENJESU);
 		AllianceMask |= ALLIANCE_CHENJESU;
+
+		GStateMask |= ALLIANCE_CHENJESU;
 	}
 	else if (PLAYER_SAID (R, mmrnmhrm))
 	{
 		NPCPhrase (ABOUT_MMRNMHRM);
 		AllianceMask |= ALLIANCE_MMRNMHRM;
+
+		GStateMask |= ALLIANCE_MMRNMHRM;
 	}
 	else if (PLAYER_SAID (R, syreen))
 	{
 		NPCPhrase (ABOUT_SYREEN);
 		AllianceMask |= ALLIANCE_SYREEN;
+
+		GStateMask |= ALLIANCE_SYREEN;
 	}
+
+	SET_GAME_STATE (ALLIANCE_MASK, GStateMask);
 
 	if (!(AllianceMask & ALLIANCE_SHOFIXTI))
 		Response (shofixti, AllianceInfo);
@@ -426,14 +435,8 @@ AllianceInfo (RESPONSE_REF R)
 static void
 HierarchyInfo (RESPONSE_REF R)
 {
-#define HIERARCHY_MYCON (1 << 0)
-#define HIERARCHY_SPATHI (1 << 1)
-#define HIERARCHY_UMGAH (1 << 2)
-#define HIERARCHY_ANDROSYNTH (1 << 3)
-#define HIERARCHY_ILWRATH (1 << 4)
-#define HIERARCHY_VUX (1 << 5)
-#define HIERARCHY_URQUAN (1 << 6)
 	static BYTE HierarchyMask = 0;
+	BYTE GStateMask = GET_GAME_STATE (ALLIANCE_MASK);
 
 	if (PLAYER_SAID (R, what_about_hierarchy))
 	{
@@ -444,38 +447,54 @@ HierarchyInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_URQUAN);
 		HierarchyMask |= HIERARCHY_URQUAN;
+
+		GStateMask |= HIERARCHY_URQUAN;
 	}
 	else if (PLAYER_SAID (R, mycon))
 	{
 		NPCPhrase (ABOUT_MYCON);
 		HierarchyMask |= HIERARCHY_MYCON;
+
+		GStateMask |= HIERARCHY_MYCON;
 	}
 	else if (PLAYER_SAID (R, spathi))
 	{
 		NPCPhrase (ABOUT_SPATHI);
 		HierarchyMask |= HIERARCHY_SPATHI;
+
+		GStateMask |= HIERARCHY_SPATHI;
 	}
 	else if (PLAYER_SAID (R, umgah))
 	{
 		NPCPhrase (ABOUT_UMGAH);
 		HierarchyMask |= HIERARCHY_UMGAH;
+
+		GStateMask |= HIERARCHY_UMGAH;
 	}
 	else if (PLAYER_SAID (R, androsynth))
 	{
 		NPCPhrase (ABOUT_ANDROSYNTH);
 		HierarchyMask |= HIERARCHY_ANDROSYNTH;
 		SetHomeworldKnown (ANDROSYNTH_HOME);
+
+		GStateMask |= HIERARCHY_ANDROSYNTH;
 	}
 	else if (PLAYER_SAID (R, ilwrath))
 	{
 		NPCPhrase (ABOUT_ILWRATH);
 		HierarchyMask |= HIERARCHY_ILWRATH;
+
+		GStateMask |= HIERARCHY_ILWRATH;
 	}
 	else if (PLAYER_SAID (R, vux))
 	{
 		NPCPhrase (ABOUT_VUX);
 		HierarchyMask |= HIERARCHY_VUX;
+
+		GStateMask |= HIERARCHY_VUX;
 	}
+
+	SET_GAME_STATE (HIERARCHY_MASK, GStateMask);
 
 	if (!(HierarchyMask & HIERARCHY_URQUAN))
 		Response (urquan, HierarchyInfo);

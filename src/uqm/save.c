@@ -737,7 +737,9 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	{ "HM_ENCOUNTERS", 9 },
 
-	{ "RESERVED", 32 },
+	{ "ALLIANCE_MASK", 6 },
+	{ "HIERARCHY_MASK", 7 },
+	{ "JOURNAL_STATE", 19 },
 
 	/* end rev 2, MegaMod v0.8.1 */
 	{ NULL, 3 },
