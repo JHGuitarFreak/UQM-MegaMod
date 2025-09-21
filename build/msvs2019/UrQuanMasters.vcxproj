@@ -1076,6 +1076,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClInclude Include="..\..\src\uqm\ipdisp.h" />
     <ClInclude Include="..\..\src\uqm\isndres.h" />
     <ClInclude Include="..\..\src\uqm\istrtab.h" />
+    <ClInclude Include="..\..\src\uqm\journal.h" />
     <ClInclude Include="..\..\src\uqm\master.h" />
     <ClInclude Include="..\..\src\uqm\menustat.h" />
     <ClInclude Include="..\..\src\uqm\nameref.h" />
