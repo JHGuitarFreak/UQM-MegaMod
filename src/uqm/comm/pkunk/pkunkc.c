@@ -175,6 +175,7 @@ ExitConversation (RESPONSE_REF R)
 	{
 		NPCPhrase (CANT_ASK_FOR_MORE);
 		NPCPhrase (VISIT_OUR_HOMEWORLD);
+		SetHomeworldKnown (PKUNK_HOME);
 
 		SET_GAME_STATE (PKUNK_MANNER, 3);
 		SET_GAME_STATE (PKUNK_VISITS, 0);
@@ -988,6 +989,8 @@ Intro (void)
 			}
 		}
 		SET_GAME_STATE (PKUNK_HOME_VISITS, NumVisits);
+
+		SetHomeworldKnown (PKUNK_HOME);
 
 		PkunkHome ((RESPONSE_REF)0);
 	}

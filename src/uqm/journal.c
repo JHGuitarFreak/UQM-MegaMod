@@ -210,31 +210,52 @@ AddJournal (JOURNAL_ID Objective, int steps, ...)
 }
 
 static void
-ObjectivesJournal (void)
+WriteJournals (void)
 {	// starbase missions
-	BOOLEAN SBA = GGS (STARBASE_AVAILABLE) && GGS (STARBASE_VISITED);
+	BOOLEAN StarbaseAvailable = GGS (STARBASE_AVAILABLE);
 	BOOLEAN FuelLow = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
 	BOOLEAN HaveRadios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
-	BOOLEAN FwiffoBullet = (GGS (STARBASE_BULLETS) & (1L << 9)) != 0;
-	BOOLEAN ZFPBullet = (GGS (STARBASE_BULLETS) & (1L << 11)) != 0;
-	BOOLEAN MelsBullet = (GGS (STARBASE_BULLETS) & (1L << 7)) != 0;
-	BOOLEAN OrzVisits = GGS (ORZ_VISITS);
-	BOOLEAN OrzHomeVisits = GGS (ORZ_HOME_VISITS);
+	BOOLEAN have_radioactives = GS (STARBASE_VISITED) && HaveRadios;
+	BOOLEAN need_radioactives = GS (STARBASE_VISITED) && !HaveRadios &&
+		!GS (RADIOACTIVES_PROVIDED);
+	BOOLEAN need_lander = need_radioactives && GLOBAL_SIS (NumLanders) < 1;
+	BOOLEAN need_lander_again = need_lander && GS (LANDERS_LOST);
+	BOOLEAN need_fuel = need_radioactives && FuelLow;
+	BOOLEAN need_fuel_again = need_fuel && GS (GIVEN_FUEL_BEFORE);
+	BOOLEAN reported_moonbase = GS (MOONBASE_DESTROYED)
+			&& !GS (MOONBASE_ON_SHIP);
+
+	BOOLEAN AwareOfSAM =
+			GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1);
+	BOOLEAN FindDefeatQuan = StarbaseAvailable && !AwareOfSAM;
+	BOOLEAN FindDestroySAM = AwareOfSAM;
+	BOOLEAN DestroySAM =
+			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2);
+	BOOLEAN FindAccessSAM = AwareOfSAM && !GS (TALKING_PET_ON_SHIP);
+
+
+	// Alien missions
 	BYTE AllianceMask = GGS (ALLIANCE_MASK);
 	BYTE HierarchyMask = GGS (HIERARCHY_MASK);
 
-	int have_radioactives = GS (STARBASE_VISITED) && HaveRadios;
-	int need_radioactives = GS (STARBASE_VISITED) && !HaveRadios &&
-			!GS (RADIOACTIVES_PROVIDED);
-	int need_lander = need_radioactives && GLOBAL_SIS (NumLanders) < 1;
-	int need_lander_again = need_lander && GS (LANDERS_LOST);
-	int need_fuel = need_radioactives && FuelLow;
-	int need_fuel_again = need_fuel && GS (GIVEN_FUEL_BEFORE);
-	int reported_moonbase = GS (MOONBASE_DESTROYED) && !GS (MOONBASE_ON_SHIP);
-	int signal_uranus = FwiffoBullet && !GS (FOUND_PLUTO_SPATHI);
-	int can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
-	int met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
+	BOOLEAN FwiffoBullet = (GGS (STARBASE_BULLETS) & (1L << 9)) != 0;
+	BOOLEAN signal_uranus = FwiffoBullet && !GS (FOUND_PLUTO_SPATHI);
+	BOOLEAN can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
+
+	BOOLEAN ZFPBullet = (GGS (STARBASE_BULLETS) & (1L << 11)) != 0;
+	BOOLEAN met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
 			|| GS (MET_ZOQFOT);
+
+	BOOLEAN MelsBullet = (GGS (STARBASE_BULLETS) & (1L << 7)) != 0;
+	BOOLEAN met_mels = GS (MET_MELNORME);
+
+	BOOLEAN OrzVisits = GGS (ORZ_VISITS);
+	BOOLEAN OrzHomeVisits = GGS (ORZ_HOME_VISITS);
+
+	BOOLEAN PkunkIlwrath = GGS (HEARD_PKUNK_ILWRATH);
+	BOOLEAN PkunkMelnorme = GGS (MELNORME_ALIEN_INFO_STACK) >= 2;
+	BOOLEAN KnowntPkunkHome = IsHomeworldKnown (PKUNK_HOME)
+			&& GGS (PKUNK_VISITS) && !GGS (PKUNK_HOME_VISITS);
 
 	BOOLEAN sb_arilou = (AllianceMask & ALLIANCE_ARILOU) != 0;
 	BOOLEAN met_arilou = (GS (ARILOU_VISITS) || GS (ARILOU_HOME_VISITS));
@@ -246,83 +267,100 @@ ObjectivesJournal (void)
 	BOOLEAN sb_andro = (HierarchyMask & HIERARCHY_ANDROSYNTH) != 0;
 	BOOLEAN andro_dead = RaceDead (ANDROSYNTH_SHIP);
 
-	BOOLEAN met_mels = GS (MET_MELNORME);
+	BOOLEAN find_shofixti = (AllianceMask & ALLIANCE_SHOFIXTI) != 0
+			|| GGS (MELNORME_ALIEN_INFO_STACK) >= 12
+			|| (IsHomeworldKnown (SHOFIXTI_HOME) && !GGS (SHOFIXTI_VISITS));
+	BOOLEAN shofixti_returned = CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY;
+	BOOLEAN find_maidens = GGS (MELNORME_ALIEN_INFO_STACK) >= 12;
 
-	// starbase missions
-	AddJournal (OBJECTIVES_JOURNAL, 2,
-			1,                            VISIT_EARTH,
-			GS (PROBE_MESSAGE_DELIVERED), VISIT_EARTH);
-	AddJournal (OBJECTIVES_JOURNAL, 4,
-			GS (PROBE_MESSAGE_DELIVERED), CONTACT_EARTH,
-			GS (STARBASE_VISITED),        GET_RADIOACTIVES,
-			have_radioactives,            GIVE_RADIOACTIVES,
-			GS (RADIOACTIVES_PROVIDED),   GIVE_RADIOACTIVES);
-	AddJournal (OBJECTIVES_JOURNAL, 2,
-			need_lander,                  NEED_LANDER,
-			GS (LANDERS_LOST),            NEED_LANDER);
-	AddJournal (OBJECTIVES_JOURNAL, 2,
-			need_lander_again,            NEED_LANDER_AGAIN,
-			!need_lander,                 NO_JOURNAL_ENTRY);
-	AddJournal (OBJECTIVES_JOURNAL, 2,
-			need_fuel,                    NEED_FUEL,
-			GS (GIVEN_FUEL_BEFORE),       NEED_FUEL);
-	AddJournal (OBJECTIVES_JOURNAL, 2,
-			need_fuel_again,              NEED_FUEL_AGAIN,
-			!need_fuel,                   NO_JOURNAL_ENTRY);
-	AddJournal (OBJECTIVES_JOURNAL, 3,
-			GS (WILL_DESTROY_BASE),       DESTROY_MOONBASE,
-			GS (MOONBASE_ON_SHIP),        REPORT_MOONBASE,
-			reported_moonbase,            DESTROY_MOONBASE);
-	AddJournal (OBJECTIVES_JOURNAL, 2,
-			GS (RADIOACTIVES_PROVIDED),   RECRUIT_EARTH,
-			GS (STARBASE_AVAILABLE),      RECRUIT_EARTH);
+	
+	{ // Main Objectives
+		// Starbase Missions
+		AddJournal (OBJECTIVES_JOURNAL, 2,
+				1,                            VISIT_EARTH,
+				GS (PROBE_MESSAGE_DELIVERED), VISIT_EARTH);
+		AddJournal (OBJECTIVES_JOURNAL, 4,
+				GS (PROBE_MESSAGE_DELIVERED), CONTACT_EARTH,
+				GS (STARBASE_VISITED),        GET_RADIOACTIVES,
+				have_radioactives,            GIVE_RADIOACTIVES,
+				GS (RADIOACTIVES_PROVIDED),   GIVE_RADIOACTIVES);
+		AddJournal (OBJECTIVES_JOURNAL, 2,
+				need_lander,                  NEED_LANDER,
+				GS (LANDERS_LOST),            NEED_LANDER);
+		AddJournal (OBJECTIVES_JOURNAL, 2,
+				need_lander_again,            NEED_LANDER_AGAIN,
+				!need_lander,                 NO_JOURNAL_ENTRY);
+		AddJournal (OBJECTIVES_JOURNAL, 2,
+				need_fuel,                    NEED_FUEL,
+				GS (GIVEN_FUEL_BEFORE),       NEED_FUEL);
+		AddJournal (OBJECTIVES_JOURNAL, 2,
+				need_fuel_again,              NEED_FUEL_AGAIN,
+				!need_fuel,                   NO_JOURNAL_ENTRY);
+		AddJournal (OBJECTIVES_JOURNAL, 3,
+				GS (WILL_DESTROY_BASE),       DESTROY_MOONBASE,
+				GS (MOONBASE_ON_SHIP),        REPORT_MOONBASE,
+				reported_moonbase,            DESTROY_MOONBASE);
+		AddJournal (OBJECTIVES_JOURNAL, 2,
+				GS (RADIOACTIVES_PROVIDED),   RECRUIT_EARTH,
+				StarbaseAvailable,            RECRUIT_EARTH);
 
-	AddJournal (OBJECTIVES_JOURNAL, 2,
-			GS (AWARE_OF_SAMATRA) && !GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA,
-			GS (AWARE_OF_SAMATRA) && GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA);
+		// Sa-Matra Missions
+		AddJournal (OBJECTIVES_JOURNAL, 2,
+				FindAccessSAM,            FIND_ACCESS_SAMATRA,
+				GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA);
 
-	AddJournal (OBJECTIVES_JOURNAL, 3,
-			(!GS (AWARE_OF_SAMATRA) || GSLT (CHMMR_BOMB_STATE, 1)) && (GS (STARBASE_AVAILABLE) || NOMAD), FIND_DEFEAT_URQUAN,
-			GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1), FIND_DESTROY_SAMATRA,
-			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2), DESTROY_SAMATRA);
+		AddJournal (OBJECTIVES_JOURNAL, 3,
+				FindDefeatQuan, FIND_DEFEAT_URQUAN,
+				AwareOfSAM,     FIND_DESTROY_SAMATRA,
+				DestroySAM,     DESTROY_SAMATRA);
+	}
 
-	// Aliens Journal
+	{	// Aliens Journal
+		AddJournal (ALIENS_JOURNAL, 3,
+				signal_uranus,                FIND_FWIFFO,
+				can_fwiffo_join,              RECRUIT_FWIFFO,
+				GSGE (FOUND_PLUTO_SPATHI, 2), MET_FWIFFO);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			signal_uranus,           FIND_FWIFFO,
-			GS (FOUND_PLUTO_SPATHI), FIND_FWIFFO);
+		AddJournal (ALIENS_JOURNAL, 2,
+				ZFPBullet && !met_the_zfp, INVESTIGATE_RIGEL,
+				met_the_zfp,               INVESTIGATE_RIGEL);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			can_fwiffo_join,              RECRUIT_FWIFFO,
-			GSGE (FOUND_PLUTO_SPATHI, 2), MET_FWIFFO);
+		AddJournal (ALIENS_JOURNAL, 2,
+				sb_arilou,   CONTACT_ARILOU,
+				met_arilou,  CONTACT_ARILOU);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			ZFPBullet && !met_the_zfp, INVESTIGATE_RIGEL,
-			met_the_zfp,               INVESTIGATE_RIGEL);
+		AddJournal (ALIENS_JOURNAL, 2,
+				sb_chenjesu, CONTACT_CHENJESU,
+				met_chmmr,   CONTACT_CHENJESU);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			sb_arilou,   CONTACT_ARILOU,
-			met_arilou,  CONTACT_ARILOU);
+		AddJournal (ALIENS_JOURNAL, 2,
+				sb_mmrnmhrm, CONTACT_MMRNMHRM,
+				met_chmmr,   CONTACT_MMRNMHRM);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			sb_chenjesu, CONTACT_CHENJESU,
-			met_chmmr,   CONTACT_CHENJESU);
+		AddJournal (ALIENS_JOURNAL, 2,
+				MelsBullet && !met_mels, CONTACT_MELNORME,
+				MelsBullet && met_mels,  MET_THE_MELNORME);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			sb_mmrnmhrm, CONTACT_MMRNMHRM,
-			met_chmmr,   CONTACT_MMRNMHRM);
+		AddJournal (ALIENS_JOURNAL, 2,
+				sb_andro,                CONTACT_ANDROSYNTH,
+				andro_dead || OrzVisits, CONTACT_ANDROSYNTH);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			MelsBullet && !met_mels, CONTACT_MELNORME,
-			MelsBullet && met_mels,  MET_THE_MELNORME);
+		AddJournal (ALIENS_JOURNAL, 2,
+				OrzVisits && !OrzHomeVisits, VISIT_ORZ_HOMEWORLD,
+				OrzVisits && OrzHomeVisits,  VISIT_ORZ_HOMEWORLD);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			sb_andro,                CONTACT_ANDROSYNTH,
-			andro_dead || OrzVisits, CONTACT_ANDROSYNTH);
+		AddJournal (ALIENS_JOURNAL, 4,
+				PkunkIlwrath,      HEARD_OF_PKUNK_ILWRATH,
+				PkunkMelnorme,     HEARD_OF_PKUNK_MELNORME,
+				KnowntPkunkHome,   GO_TO_PKUNK_HOMEWORLD,
+				GS (PKUNK_HOME_VISITS), MET_THE_PKUNK);
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			OrzVisits && !OrzHomeVisits, VISIT_ORZ_HOMEWORLD,
-			OrzVisits && OrzHomeVisits,  VISIT_ORZ_HOMEWORLD);
+		AddJournal (ALIENS_JOURNAL, 4,
+				find_shofixti,            CONTACT_SHOFIXTI,
+				GGS (SHOFIXTI_VISITS),    RECRUIT_THE_SHOFIXTI,
+				GGS (SHOFIXTI_RECRUITED), SENT_SHOFIXTI,
+				shofixti_returned,        SHOFIXTI_REPOPULATED);
+	}
 }
 
 static void
@@ -531,6 +569,9 @@ Journal (void)
 	RECT r, old_r;
 	STAMP s;
 
+	if (NOMAD || DIF_HARD)
+		return FALSE;
+
 	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
 	if (JournalStrings == 0)
 		return FALSE;
@@ -559,8 +600,7 @@ Journal (void)
 
 	PauseFlash ();
 
-	// Write journals
-	ObjectivesJournal ();
+	WriteJournals ();
 
 	which_journal = OBJECTIVES_JOURNAL;
 
