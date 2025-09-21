@@ -2813,6 +2813,9 @@
     <ClInclude Include="..\..\src\uqm\supermelee\meleeship.h">
       <Filter>Source Files\uqm\supermelee</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\uqm\journal.h">
+      <Filter>Source Files\uqm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\res\UrQuanMasters.rc">
