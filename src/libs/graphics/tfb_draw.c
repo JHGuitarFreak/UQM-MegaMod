@@ -51,8 +51,8 @@ TFB_DrawScreen_Rect (RECT *rect, Color color, DrawMode mode, SCREEN dest)
 	if (!rect)
 	{
 		locRect.corner.x = locRect.corner.y = 0;
-		locRect.extent.width = ScreenWidth;
-		locRect.extent.height = ScreenHeight;
+		locRect.extent.width = CanvasWidth;
+		locRect.extent.height = CanvasHeight;
 		rect = &locRect;
 	}
 
@@ -142,8 +142,8 @@ TFB_DrawScreen_Copy (const RECT *r, SCREEN src, SCREEN dest)
 	if (!r)
 	{
 		locRect.corner.x = locRect.corner.y = 0;
-		locRect.extent.width = ScreenWidth;
-		locRect.extent.height = ScreenHeight;
+		locRect.extent.width = CanvasWidth;
+		locRect.extent.height = CanvasHeight;
 		r = &locRect;
 	}
 

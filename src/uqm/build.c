@@ -964,7 +964,7 @@ cheatAddRemoveDevices (void)
 {
 	BYTE i;
 
-	for (i = 0; i < NUM_DEVICES; i++)
+	for (i = 0; i < ARRAY_SIZE (optDeviceArray); i++)
 	{
 		if (!optDeviceArray[i])
 			continue;

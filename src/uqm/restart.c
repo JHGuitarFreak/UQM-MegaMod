@@ -125,7 +125,7 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 	s.frame = SetRelFrameIndex (pMS->CurFrame, 3);
 	r.extent = GetFrameBounds (s.frame);
 	r.corner.x = RES_SCALE (
-		(RES_DESCALE (ScreenWidth) - RES_DESCALE (r.extent.width)) >> 1);
+		(RES_DESCALE (CanvasWidth) - RES_DESCALE (r.extent.width)) >> 1);
 	s.origin = r.corner;
 	DrawStamp (&s);
 

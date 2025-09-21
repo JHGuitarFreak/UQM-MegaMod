@@ -70,7 +70,7 @@ static inline BOOLEAN
 IsWholeScreen (RECT *r)
 {
 	return (r->corner.x == 0 && r->corner.y == 0 &&
-		r->extent.width == ScreenWidth && r->extent.height == ScreenHeight);
+		r->extent.width == CanvasWidth && r->extent.height == CanvasHeight);
 }
 
 int
@@ -708,6 +708,22 @@ void
 TFB_ClearFPSCanvas (void)
 {
 	SDL_FillRect (SDL_Screen_fps, NULL, 0x00000000);
+}
+
+void
+TFB_GetScreenSize (SIZE *width, SIZE *height)
+{
+	SDL_Rect bounds;
+
+#if SDL_MAJOR_VERSION == 1
+	*width = 1920;
+	*height = 1440;
+#else
+	TFB_SDL2_GetDisplaySize (&bounds);
+
+	*width = bounds.w;
+	*height = bounds.h;
+#endif
 }
 
 #if defined(ANDROID) || defined(__ANDROID__)
