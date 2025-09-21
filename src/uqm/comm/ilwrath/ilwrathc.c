@@ -177,7 +177,10 @@ CombatIsInevitable (RESPONSE_REF R)
 		if (PLAYER_SAID (R, bye))
 			NPCPhrase (GOODBYE_AND_DIE);
 		else if (PLAYER_SAID (R, where_you_come_from))
+		{
 			NPCPhrase (CAME_FROM);
+			SET_GAME_STATE (HEARD_PKUNK_ILWRATH, 1);
+		}
 		if (PLAYER_SAID (R, it_will_be_a_pleasure))
 			NPCPhrase (WHO_BLASTS_WHO);
 		if (PLAYER_SAID (R, surrender))

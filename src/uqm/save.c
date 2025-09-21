@@ -781,6 +781,7 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	{ "ALLIANCE_MASK", 6 },
 	{ "HIERARCHY_MASK", 7 },
+	{ "HEARD_PKUNK_ILWRATH", 1 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },
