@@ -397,7 +397,7 @@ DrawJournal (void)
 			SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
 			// Add gap between last open objective and the CLOSED: header
-			if (!sid_open)
+			if (!sid_open && journal_section[sid - 1].head != NULL)
 				t.baseline.y += leading;
 
 			// Draw section header
