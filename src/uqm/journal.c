@@ -270,8 +270,19 @@ WriteJournals (void)
 	BOOLEAN find_shofixti = (AllianceMask & ALLIANCE_SHOFIXTI) != 0
 			|| GGS (MELNORME_ALIEN_INFO_STACK) >= 12
 			|| (IsHomeworldKnown (SHOFIXTI_HOME) && !GGS (SHOFIXTI_VISITS));
-	BOOLEAN shofixti_returned = CheckAlliance (SHOFIXTI_SHIP) == GOOD_GUY;
+	BOOLEAN shofixti_returned = RaceAllied (SHOFIXTI_SHIP);
 	BOOLEAN find_maidens = GGS (MELNORME_ALIEN_INFO_STACK) >= 12;
+
+	BOOLEAN meet_supox = IsHomeworldKnown (SUPOX_HOME)
+			|| CheckSphereTracking (SUPOX_SHIP);
+	BOOLEAN met_supox = GS (SUPOX_HOSTILE) || GS (SUPOX_HOME_VISITS)
+			|| GS (SUPOX_VISITS) || GS (SUPOX_STACK1) || GS (SUPOX_STACK2);
+
+	BOOLEAN SyreenBullet = (AllianceMask & ALLIANCE_SYREEN) != 0;
+	BOOLEAN meet_syreen = IsHomeworldKnown (SYREEN_HOME);
+	BOOLEAN met_syreen = GS (SYREEN_HOME_VISITS)
+			|| GS (KNOW_SYREEN_VAULT) || GS (SHIP_VAULT_UNLOCKED)
+			|| RaceAllied (SYREEN_SHIP);
 
 	
 	{ // Main Objectives
@@ -360,6 +371,15 @@ WriteJournals (void)
 				GGS (SHOFIXTI_VISITS),    RECRUIT_THE_SHOFIXTI,
 				GGS (SHOFIXTI_RECRUITED), SENT_SHOFIXTI,
 				shofixti_returned,        SHOFIXTI_REPOPULATED);
+
+		AddJournal (ALIENS_JOURNAL, 2,
+				meet_supox, CONTACT_SUPOX,
+				met_supox,  MET_THE_SUPOX);
+
+		AddJournal (ALIENS_JOURNAL, 3,
+				SyreenBullet, CONTACT_SYREEN,
+				meet_syreen,  CONTACT_SYREEN_HW,
+				met_syreen,   MET_THE_SYREEN);
 	}
 }
 
