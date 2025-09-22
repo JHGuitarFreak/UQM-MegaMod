@@ -572,6 +572,12 @@ RaceDead (RACE_ID race)
 	return CheckAlliance (race) == DEAD_GUY;
 }
 
+BOOLEAN
+RaceAllied (RACE_ID race)
+{
+	return CheckAlliance (race) == GOOD_GUY;
+}
+
 /*
  * Remove a number of escort ships of the specified race (if present).
  * Returns the number of escort ships removed.

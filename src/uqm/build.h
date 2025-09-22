@@ -63,6 +63,7 @@ extern BOOLEAN HaveEscortShip (RACE_ID race);
 extern COUNT EscortFeasibilityStudy (RACE_ID race);
 extern COUNT CheckAlliance (RACE_ID race);
 extern BOOLEAN RaceDead (RACE_ID race);
+extern BOOLEAN RaceAllied (RACE_ID race);
 extern COUNT RemoveSomeEscortShips (RACE_ID race, COUNT count);
 extern COUNT RemoveEscortShips (RACE_ID race);
 
