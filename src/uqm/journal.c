@@ -284,8 +284,11 @@ WriteJournals (void)
 			|| GS (KNOW_SYREEN_VAULT) || GS (SHIP_VAULT_UNLOCKED)
 			|| RaceAllied (SYREEN_SHIP);
 
+	BOOLEAN sb_others = GGS (HAYES_OTHER_ALIENS);
+
+	BOOLEAN mels_thraddash = GGS (MELNORME_ALIEN_INFO_STACK) >= 7;
 	
-	{ // Main Objectives
+	{	// Objectives Journal
 		// Starbase Missions
 		AddJournal (OBJECTIVES_JOURNAL, 2,
 				1,                            VISIT_EARTH,
@@ -333,8 +336,8 @@ WriteJournals (void)
 				GSGE (FOUND_PLUTO_SPATHI, 2), MET_FWIFFO);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				ZFPBullet && !met_the_zfp, INVESTIGATE_RIGEL,
-				met_the_zfp,               INVESTIGATE_RIGEL);
+				ZFPBullet,   INVESTIGATE_RIGEL,
+				met_the_zfp, INVESTIGATE_RIGEL);
 
 		AddJournal (ALIENS_JOURNAL, 2,
 				sb_arilou,   CONTACT_ARILOU,
@@ -360,7 +363,8 @@ WriteJournals (void)
 				OrzVisits && !OrzHomeVisits, VISIT_ORZ_HOMEWORLD,
 				OrzVisits && OrzHomeVisits,  VISIT_ORZ_HOMEWORLD);
 
-		AddJournal (ALIENS_JOURNAL, 4,
+		AddJournal (ALIENS_JOURNAL, 5,
+				sb_others,         HAYES_PKUNK,
 				PkunkIlwrath,      HEARD_OF_PKUNK_ILWRATH,
 				PkunkMelnorme,     HEARD_OF_PKUNK_MELNORME,
 				KnowntPkunkHome,   GO_TO_PKUNK_HOMEWORLD,
@@ -380,6 +384,12 @@ WriteJournals (void)
 				SyreenBullet, CONTACT_SYREEN,
 				meet_syreen,  CONTACT_SYREEN_HW,
 				met_syreen,   MET_THE_SYREEN);
+
+
+	}
+
+	{	// Artifacts Journal
+
 	}
 }
 

@@ -540,6 +540,8 @@ AlienRaces (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_OTHER);
 		RacesMask |= RACES_OTHER;
+
+		SET_GAME_STATE (HAYES_OTHER_ALIENS, 1);
 	}
 
 	if (!(RacesMask & RACES_ALLIANCE))

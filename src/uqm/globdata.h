@@ -962,6 +962,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (ALLIANCE_MASK, 6)
 	ADD_GAME_STATE (HIERARCHY_MASK, 7)
 	ADD_GAME_STATE (HEARD_PKUNK_ILWRATH, 1)
+	ADD_GAME_STATE (HAYES_OTHER_ALIENS, 1)
 
 	/* end rev 5, MegaMod v0.8.4 */
 
@@ -1221,7 +1222,7 @@ IsHomeworldKnown (DWORD homeworld)
 	if (homeworld > 18)
 		return FALSE;
 
-	return GET_GAME_STATE (KNOW_HOMEWORLD) & (1 << homeworld);
+	return (GET_GAME_STATE (KNOW_HOMEWORLD) & (1 << homeworld)) != 0;
 }
 
 static inline void
