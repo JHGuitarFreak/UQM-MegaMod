@@ -779,10 +779,12 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	{ "SEED_TYPE", 2 },
 
+	// Journal gamestates
 	{ "ALLIANCE_MASK", 6 },
 	{ "HIERARCHY_MASK", 7 },
 	{ "HEARD_PKUNK_ILWRATH", 1 },
 	{ "HAYES_OTHER_ALIENS", 1 },
+	{ "INVESTIGATE_THRADD" },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

@@ -286,7 +286,14 @@ WriteJournals (void)
 
 	BOOLEAN sb_others = GGS (HAYES_OTHER_ALIENS);
 
+	BOOLEAN gen_thraddash = GGS (INVESTIGATE_THRADD);
 	BOOLEAN mels_thraddash = GGS (MELNORME_ALIEN_INFO_STACK) >= 7;
+	BOOLEAN met_thraddash = GGS (THRADD_INFO) || GGS (THRADD_STACK_1)
+			|| GGS (THRADD_HOSTILE_STACK_2) || GGS (THRADD_HOSTILE_STACK_3)
+			|| GGS (THRADD_HOSTILE_STACK_4) || GGS (THRADD_HOSTILE_STACK_5)
+			|| GGS (THRADD_VISITS) || GGS (HELIX_VISITS)
+			|| GGS (THRADD_HOME_VISITS) || GGS (THRADDASH_BODY_COUNT);
+
 	
 	{	// Objectives Journal
 		// Starbase Missions
@@ -384,6 +391,12 @@ WriteJournals (void)
 				SyreenBullet, CONTACT_SYREEN,
 				meet_syreen,  CONTACT_SYREEN_HW,
 				met_syreen,   MET_THE_SYREEN);
+
+		AddJournal (ALIENS_JOURNAL, 4,
+				sb_others,      HAYES_THRADDASH,
+				gen_thraddash,  GENERAL_THRADDASH,
+				mels_thraddash, MELNORME_THRADDASH,
+				met_thraddash,  CONTACTED_THRADDASH);
 
 
 	}

@@ -411,6 +411,8 @@ NormalUmgah (RESPONSE_REF R)
 		NPCPhrase (FINE_BY_US);
 
 		DISABLE_PHRASE (want_to_defeat_urquan);
+
+		SET_GAME_STATE (INVESTIGATE_THRADD, 1);
 	}
 
 	if (!GET_GAME_STATE (UMGAH_EVIL_BLOBBIES))

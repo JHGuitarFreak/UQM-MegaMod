@@ -334,6 +334,8 @@ SpathiInfo (RESPONSE_REF R)
 		NPCPhrase (ABOUT_HIERARCHY);
 
 		DISABLE_PHRASE (what_about_hierarchy);
+
+		SET_GAME_STATE (INVESTIGATE_THRADD, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_history))
 	{
