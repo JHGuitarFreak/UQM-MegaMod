@@ -577,6 +577,8 @@ WarInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (URQUAN_STARTED_WAR);
 		WarMask |= WAR_STARTED;
+
+		SET_GAME_STATE (INVESTIGATE_UMGAH, 1);
 	}
 	else if (PLAYER_SAID (R, what_was_war_like))
 	{

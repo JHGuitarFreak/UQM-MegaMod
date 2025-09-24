@@ -606,6 +606,8 @@ ZoqFotHome (RESPONSE_REF R)
 				NPCPhrase_cb (GENERAL_INFO_411, &SelectAlienPIK);
 				ZFPTalkSegue ((COUNT)~0);
 				--NumVisits;
+
+				SET_GAME_STATE (INVESTIGATE_UMGAH, 1);
 				break;
 		}
 		SET_GAME_STATE (ZOQFOT_INFO, NumVisits);

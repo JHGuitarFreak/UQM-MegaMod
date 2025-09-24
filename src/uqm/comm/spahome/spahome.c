@@ -354,6 +354,8 @@ SpathiInfo (RESPONSE_REF R)
 		NPCPhrase (ABOUT_OTHER);
 
 		DISABLE_PHRASE (what_about_other);
+		
+		SET_GAME_STATE (INVESTIGATE_UMGAH, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_precursors))
 	{

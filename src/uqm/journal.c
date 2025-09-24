@@ -294,7 +294,18 @@ WriteJournals (void)
 			|| GGS (THRADD_VISITS) || GGS (HELIX_VISITS)
 			|| GGS (THRADD_HOME_VISITS) || GGS (THRADDASH_BODY_COUNT);
 
+	BOOLEAN meet_utwig = GGS (MELNORME_EVENTS_INFO_STACK) >= 7
+			|| CheckSphereTracking (UTWIG_SHIP);
+	BOOLEAN met_utwig = GGS (UTWIG_HOSTILE) || GGS (UTWIG_INFO)
+			|| GGS (UTWIG_HOME_VISITS) || GGS (UTWIG_VISITS)
+			|| GGS (BOMB_VISITS) || RaceAllied (UTWIG_SHIP);
 	
+	BOOLEAN meet_umgah = GGS (MELNORME_EVENTS_INFO_STACK) >= 3
+			|| GGS (INVESTIGATE_UMGAH) || CheckSphereTracking (UTWIG_SHIP);
+	BOOLEAN met_umgah = GGS (MET_NORMAL_UMGAH) || GGS (KNOW_UMGAH_ZOMBIES)
+			|| GGS (UMGAH_MENTIONED_TRICKS) || GGS (UMGAH_EVIL_BLOBBIES)
+			|| GGS (UMGAH_HOSTILE);
+
 	{	// Objectives Journal
 		// Starbase Missions
 		AddJournal (OBJECTIVES_JOURNAL, 2,
@@ -397,6 +408,14 @@ WriteJournals (void)
 				gen_thraddash,  GENERAL_THRADDASH,
 				mels_thraddash, MELNORME_THRADDASH,
 				met_thraddash,  CONTACTED_THRADDASH);
+
+		AddJournal (ALIENS_JOURNAL, 2,
+				meet_utwig, INVESTIGATE_UWTIG,
+				met_utwig,  CONTACTED_UTWIG);
+
+		AddJournal (ALIENS_JOURNAL, 2,
+				meet_umgah, CONTACT_UMGAH,
+				met_umgah,  MET_THE_UMGAH);
 
 
 	}
