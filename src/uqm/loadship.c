@@ -23,6 +23,7 @@
 #include "nameref.h"
 #include "races.h"
 #include "init.h"
+#include "libs/strings/strintrn.h"
 
 static RESOURCE code_resources[] = {
 		NULL_RESOURCE,
@@ -167,6 +168,15 @@ SeedShip (SPECIES_ID SpeciesID, BOOLEAN loadWindow)
 	return target;
 }
 
+static void
+SwapStrings (STRING a, STRING b, COUNT index)
+{
+	UNICODE *swap = GetStringAddress (SetAbsStringTableIndex (b, index));
+	(SetAbsStringTableIndex (b, index))->data =
+			(SetAbsStringTableIndex (a, index))->data;
+	(SetAbsStringTableIndex (a, index))->data = swap;
+}
+
 RACE_DESC *
 load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData)
 {
@@ -194,6 +204,7 @@ load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData)
 	if (!CodeRef || !CodeRefSwap)
 		goto BadLoad;
 	RDPtr->CodeRef = CodeRef;
+	RDPtrSwap->CodeRef = CodeRefSwap;
 
 	RDPtr->fleet = RDPtrSwap->fleet;
 	if (RDPtr->ship_info.icons_rsc != NULL_RESOURCE)
@@ -224,6 +235,14 @@ load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData)
 		{
 			/* goto BadLoad */
 		}
+		RDPtrSwap->ship_info.race_strings = CaptureStringTable (LoadStringTable (
+				RDPtr->ship_info.race_strings_rsc));
+		SwapStrings (RDPtrSwap->ship_info.race_strings,
+				RDPtr->ship_info.race_strings, 4);
+		SwapStrings (RDPtrSwap->ship_info.race_strings,
+				RDPtr->ship_info.race_strings,
+				GetStringTableCount (RDPtrSwap->ship_info.race_strings) - 2);
+		DestroyStringTable (ReleaseStringTable (RDPtrSwap->ship_info.race_strings));
 	}
 
 	if (LoadBattleData)
@@ -279,8 +298,7 @@ load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData)
 	}
 
 ExitFunc:
-	HFree (RDPtrSwap->data);
-	RDPtrSwap->data = 0;
+	DestroyCodeRes (ReleaseCodeRes (RDPtrSwap->CodeRef));
 	return RDPtr;
 
 	// TODO: We should really free the resources that did load here
