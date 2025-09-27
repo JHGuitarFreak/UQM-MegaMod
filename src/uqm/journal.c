@@ -325,6 +325,12 @@ WriteJournals (void)
 	BOOLEAN met_yehat = GGS (YEHAT_VISITS) || GGS (YEHAT_REBEL_VISITS)
 			|| GGS (YEHAT_HOME_VISITS) || GGS (YEHAT_CIVIL_WAR);
 
+	BOOLEAN inv_probes = GGS (PROBE_EXHIBITED_BUG)
+			|| StarbaseBulletins (15);
+	BOOLEAN mels_sly_probe = GSGE (MELNORME_EVENTS_INFO_STACK, 6)
+			|| GSGE (MELNORME_ALIEN_INFO_STACK, 13);
+	BOOLEAN probe_program;
+
 	{	// Objectives Journal
 		// Starbase Missions
 		AddJournal (OBJECTIVES_JOURNAL, 2,
@@ -440,8 +446,6 @@ WriteJournals (void)
 				find_yehat, CONTACT_YEHAT,
 				mels_yehat, MELNORME_YEHAT,
 				met_yehat,  MET_THE_YEHAT);
-
-
 	}
 
 	{	// Artifacts Journal

@@ -786,6 +786,12 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "HAYES_OTHER_ALIENS", 1 },
 	{ "INVESTIGATE_THRADD", 1 },
 	{ "INVESTIGATE_UMGAH", 1 },
+	{ "INVESTIGATE_PROBES", 2 },
+			/* 0 no info about slylandro probes.
+			 * 1 heard info about probes from the ZFP
+			 * 2 heard info about probes from the Thraddash
+			 * 3 unused
+			 */
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

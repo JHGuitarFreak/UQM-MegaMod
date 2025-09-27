@@ -966,6 +966,12 @@ START_GAME_STATE
 	ADD_GAME_STATE (HAYES_OTHER_ALIENS, 1)
 	ADD_GAME_STATE (INVESTIGATE_THRADD, 1)
 	ADD_GAME_STATE (INVESTIGATE_UMGAH, 1)
+	ADD_GAME_STATE (INVESTIGATE_PROBES, 2)
+			/* 0 no info about slylandro probes.
+			 * 1 heard info about probes from the ZFP
+			 * 2 heard info about probes from the Thraddash
+			 * 3 unused
+			 */
 
 	/* end rev 5, MegaMod v0.8.4 */
 

@@ -466,6 +466,8 @@ ZoqFotInfo (RESPONSE_REF R)
 		ZFPTalkSegue ((COUNT)~0);
 
 		DISABLE_PHRASE (what_about_others);
+
+		SET_GAME_STATE (INVESTIGATE_PROBES, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_zebranky))
 	{

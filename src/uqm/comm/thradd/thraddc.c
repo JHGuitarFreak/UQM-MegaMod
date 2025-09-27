@@ -363,6 +363,8 @@ ThraddAllies (RESPONSE_REF R)
 		{
 			case 0:
 				NPCPhrase (GENERAL_INFO_ALLY_1);
+
+				SET_GAME_STATE (INVESTIGATE_PROBES, 2);
 				break;
 			case 1:
 				NPCPhrase (GENERAL_INFO_ALLY_2);
@@ -583,9 +585,13 @@ ThraddHostile (RESPONSE_REF R)
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_HOSTILE_3);
+
+				SET_GAME_STATE (INVESTIGATE_PROBES, 2);
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_HOSTILE_4);
+
+				SET_GAME_STATE (INVESTIGATE_PROBES, 3);
 				--NumVisits;
 				break;
 		}
