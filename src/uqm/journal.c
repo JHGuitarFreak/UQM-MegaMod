@@ -287,24 +287,30 @@ WriteJournals (void)
 	BOOLEAN sb_others = GGS (HAYES_OTHER_ALIENS);
 
 	BOOLEAN gen_thraddash = GGS (INVESTIGATE_THRADD);
-	BOOLEAN mels_thraddash = GGS (MELNORME_ALIEN_INFO_STACK) >= 7;
+	BOOLEAN mels_thraddash = GSGE (MELNORME_ALIEN_INFO_STACK, 7);
 	BOOLEAN met_thraddash = GGS (THRADD_INFO) || GGS (THRADD_STACK_1)
 			|| GGS (THRADD_HOSTILE_STACK_2) || GGS (THRADD_HOSTILE_STACK_3)
 			|| GGS (THRADD_HOSTILE_STACK_4) || GGS (THRADD_HOSTILE_STACK_5)
 			|| GGS (THRADD_VISITS) || GGS (HELIX_VISITS)
 			|| GGS (THRADD_HOME_VISITS) || GGS (THRADDASH_BODY_COUNT);
 
-	BOOLEAN meet_utwig = GGS (MELNORME_EVENTS_INFO_STACK) >= 7
+	BOOLEAN meet_utwig = GSGE (MELNORME_EVENTS_INFO_STACK, 7)
 			|| CheckSphereTracking (UTWIG_SHIP);
 	BOOLEAN met_utwig = GGS (UTWIG_HOSTILE) || GGS (UTWIG_INFO)
 			|| GGS (UTWIG_HOME_VISITS) || GGS (UTWIG_VISITS)
 			|| GGS (BOMB_VISITS) || RaceAllied (UTWIG_SHIP);
 	
-	BOOLEAN meet_umgah = GGS (MELNORME_EVENTS_INFO_STACK) >= 3
-			|| GGS (INVESTIGATE_UMGAH) || CheckSphereTracking (UTWIG_SHIP);
+	BOOLEAN meet_umgah = GSGE (MELNORME_EVENTS_INFO_STACK, 3)
+			|| GGS (INVESTIGATE_UMGAH) || CheckSphereTracking (UTWIG_SHIP)
+			|| (HierarchyMask & HIERARCHY_UMGAH) != 0;
 	BOOLEAN met_umgah = GGS (MET_NORMAL_UMGAH) || GGS (KNOW_UMGAH_ZOMBIES)
 			|| GGS (UMGAH_MENTIONED_TRICKS) || GGS (UMGAH_EVIL_BLOBBIES)
 			|| GGS (UMGAH_HOSTILE);
+
+	BOOLEAN find_yehat = (AllianceMask & ALLIANCE_YEHAT) != 0;
+	BOOLEAN mels_yehat = GSGE (MELNORME_ALIEN_INFO_STACK, 16);
+	BOOLEAN met_yehat = GGS (YEHAT_VISITS) || GGS (YEHAT_REBEL_VISITS)
+			|| GGS (YEHAT_HOME_VISITS) || GGS (YEHAT_CIVIL_WAR);
 
 	{	// Objectives Journal
 		// Starbase Missions
@@ -370,8 +376,8 @@ WriteJournals (void)
 				met_chmmr,   CONTACT_MMRNMHRM);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				MelsBullet && !met_mels, CONTACT_MELNORME,
-				MelsBullet && met_mels,  MET_THE_MELNORME);
+				MelsBullet, CONTACT_MELNORME,
+				met_mels,   MET_THE_MELNORME);
 
 		AddJournal (ALIENS_JOURNAL, 2,
 				sb_andro,                CONTACT_ANDROSYNTH,
@@ -410,12 +416,17 @@ WriteJournals (void)
 				met_thraddash,  CONTACTED_THRADDASH);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				meet_utwig, INVESTIGATE_UWTIG,
+				meet_utwig, INVESTIGATE_UTWIG,
 				met_utwig,  CONTACTED_UTWIG);
 
 		AddJournal (ALIENS_JOURNAL, 2,
 				meet_umgah, CONTACT_UMGAH,
 				met_umgah,  MET_THE_UMGAH);
+
+		AddJournal (ALIENS_JOURNAL, 3,
+				find_yehat, CONTACT_YEHAT,
+				mels_yehat, MELNORME_YEHAT,
+				met_yehat,  MET_THE_YEHAT);
 
 
 	}
