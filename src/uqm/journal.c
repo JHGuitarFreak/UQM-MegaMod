@@ -87,12 +87,6 @@ BOOLEAN FwiffoCanJoin = FALSE;
 #define JOURNAL_STRING(i) \
 		(GetStringAddress (SetAbsStringTableIndex (JournalStrings, (i))))
 
-#define GGS(flag)    (GET_GAME_STATE(flag))
-#define GS(flag)     (GET_GAME_STATE(flag) > 0)
-#define GSET(flag,n) (GET_GAME_STATE(flag) == (n))
-#define GSLT(flag,n) (GET_GAME_STATE(flag) < (n))
-#define GSGE(flag,n) (GET_GAME_STATE(flag) >= (n))
-
 static BOOLEAN
 StoreJournalEntry (SECTION_ID sid, JOURNAL_ENTRY *entry)
 {
@@ -209,6 +203,26 @@ AddJournal (JOURNAL_ID Objective, int steps, ...)
 	return AppendJournalEntry (s == steps ? Closed : Open, str);
 }
 
+#define GGS(flag)    (GET_GAME_STATE(flag))
+#define GS(flag)     (GET_GAME_STATE(flag) > 0)
+#define GSET(flag,n) (GET_GAME_STATE(flag) == (n))
+#define GSLT(flag,n) (GET_GAME_STATE(flag) < (n))
+#define GSGE(flag,n) (GET_GAME_STATE(flag) >= (n))
+
+static BOOLEAN
+StarbaseBulletins (BYTE bullet)
+{
+	return (GGS (STARBASE_BULLETS) & (1L << bullet)) != 0;
+}
+
+static BOOLEAN
+AllianceInfo (BYTE info)
+{
+	BYTE AllianceMask = GGS (ALLIANCE_MASK);
+
+	return (AllianceMask & info) != 0;
+}
+
 static void
 WriteJournals (void)
 {	// starbase missions
@@ -235,18 +249,17 @@ WriteJournals (void)
 
 
 	// Alien missions
-	BYTE AllianceMask = GGS (ALLIANCE_MASK);
 	BYTE HierarchyMask = GGS (HIERARCHY_MASK);
 
-	BOOLEAN FwiffoBullet = (GGS (STARBASE_BULLETS) & (1L << 9)) != 0;
+	BOOLEAN FwiffoBullet = StarbaseBulletins (9);
 	BOOLEAN signal_uranus = FwiffoBullet && !GS (FOUND_PLUTO_SPATHI);
 	BOOLEAN can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
 
-	BOOLEAN ZFPBullet = (GGS (STARBASE_BULLETS) & (1L << 11)) != 0;
+	BOOLEAN ZFPBullet = StarbaseBulletins (11);
 	BOOLEAN met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
 			|| GS (MET_ZOQFOT);
 
-	BOOLEAN MelsBullet = (GGS (STARBASE_BULLETS) & (1L << 7)) != 0;
+	BOOLEAN MelsBullet = StarbaseBulletins (7);
 	BOOLEAN met_mels = GS (MET_MELNORME);
 
 	BOOLEAN OrzVisits = GGS (ORZ_VISITS);
@@ -257,17 +270,17 @@ WriteJournals (void)
 	BOOLEAN KnowntPkunkHome = IsHomeworldKnown (PKUNK_HOME)
 			&& GGS (PKUNK_VISITS) && !GGS (PKUNK_HOME_VISITS);
 
-	BOOLEAN sb_arilou = (AllianceMask & ALLIANCE_ARILOU) != 0;
+	BOOLEAN sb_arilou = AllianceInfo (ALLIANCE_ARILOU);
 	BOOLEAN met_arilou = (GS (ARILOU_VISITS) || GS (ARILOU_HOME_VISITS));
 
-	BOOLEAN sb_chenjesu = (AllianceMask & ALLIANCE_CHENJESU) != 0;
-	BOOLEAN sb_mmrnmhrm = (AllianceMask & ALLIANCE_MMRNMHRM) != 0;
+	BOOLEAN sb_chenjesu = AllianceInfo (ALLIANCE_CHENJESU);
+	BOOLEAN sb_mmrnmhrm = AllianceInfo (ALLIANCE_MMRNMHRM);
 	BOOLEAN met_chmmr = GS (CHMMR_HOME_VISITS);
 
 	BOOLEAN sb_andro = (HierarchyMask & HIERARCHY_ANDROSYNTH) != 0;
 	BOOLEAN andro_dead = RaceDead (ANDROSYNTH_SHIP);
 
-	BOOLEAN find_shofixti = (AllianceMask & ALLIANCE_SHOFIXTI) != 0
+	BOOLEAN find_shofixti = AllianceInfo (ALLIANCE_SHOFIXTI)
 			|| GGS (MELNORME_ALIEN_INFO_STACK) >= 12
 			|| (IsHomeworldKnown (SHOFIXTI_HOME) && !GGS (SHOFIXTI_VISITS));
 	BOOLEAN shofixti_returned = RaceAllied (SHOFIXTI_SHIP);
@@ -278,7 +291,7 @@ WriteJournals (void)
 	BOOLEAN met_supox = GS (SUPOX_HOSTILE) || GS (SUPOX_HOME_VISITS)
 			|| GS (SUPOX_VISITS) || GS (SUPOX_STACK1) || GS (SUPOX_STACK2);
 
-	BOOLEAN SyreenBullet = (AllianceMask & ALLIANCE_SYREEN) != 0;
+	BOOLEAN SyreenBullet = AllianceInfo (ALLIANCE_SYREEN);
 	BOOLEAN meet_syreen = IsHomeworldKnown (SYREEN_HOME);
 	BOOLEAN met_syreen = GS (SYREEN_HOME_VISITS)
 			|| GS (KNOW_SYREEN_VAULT) || GS (SHIP_VAULT_UNLOCKED)
@@ -307,7 +320,7 @@ WriteJournals (void)
 			|| GGS (UMGAH_MENTIONED_TRICKS) || GGS (UMGAH_EVIL_BLOBBIES)
 			|| GGS (UMGAH_HOSTILE);
 
-	BOOLEAN find_yehat = (AllianceMask & ALLIANCE_YEHAT) != 0;
+	BOOLEAN find_yehat = AllianceInfo (ALLIANCE_YEHAT);
 	BOOLEAN mels_yehat = GSGE (MELNORME_ALIEN_INFO_STACK, 16);
 	BOOLEAN met_yehat = GGS (YEHAT_VISITS) || GGS (YEHAT_REBEL_VISITS)
 			|| GGS (YEHAT_HOME_VISITS) || GGS (YEHAT_CIVIL_WAR);
