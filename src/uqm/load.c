@@ -850,7 +850,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 
 	optCustomSeed = GLOBAL_SIS (Seed);
 	optShipSeed = (GLOBAL_SIS (ShipSeed) != 0 ? true : false);
-	LoadMasterShipList (NULL);
+	ReloadMasterShipList (NULL);
 	LoadFleetInfo ();
 
 	ReinitQueue (&GLOBAL (GameClock.event_q));

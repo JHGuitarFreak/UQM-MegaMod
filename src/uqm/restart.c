@@ -549,7 +549,7 @@ DoRestart (MENU_STATE *pMS)
 				optLoadGame = FALSE;
 				break;
 			case PLAY_SUPER_MELEE:
-				LoadMasterShipList (NULL);
+				ReloadMasterShipList (NULL);
 				GLOBAL (CurrentActivity) = SUPER_MELEE;
 				optSuperMelee = FALSE;
 				break;

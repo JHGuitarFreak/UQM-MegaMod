@@ -569,7 +569,7 @@ InitGameStructures (void)
 	PlayFrame = CaptureDrawable (LoadGraphic (PLAYMENU_ANIM));
 
 	// Load ships based on current seed settings
-	LoadMasterShipList (NULL);
+	ReloadMasterShipList (NULL);
 	LoadFleetInfo ();
 
 	InitSISContexts ();

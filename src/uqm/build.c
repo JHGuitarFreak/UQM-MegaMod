@@ -110,7 +110,6 @@ GetSeededFleetFromIndex (COUNT Index)
 	FLEET_INFO *TemplatePtr = NULL;
 	HFLEETINFO hFleet;
 	SPECIES_ID ship;
-	BOOLEAN loading = GLOBAL (CurrentActivity) & CHECK_PAUSE;
 	BOOLEAN loadWindow = ((optShipSeed && GLOBAL_SIS (ShipSeed) == 0) ||
 			(!optShipSeed && GLOBAL_SIS (ShipSeed) != 0) ||
 			(optCustomSeed != GLOBAL_SIS (Seed)));
