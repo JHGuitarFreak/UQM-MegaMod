@@ -311,6 +311,7 @@ ExitConversation (RESPONSE_REF R)
 
 			AlienTalkSegue ((COUNT)~0);
 			AddEscortShips (UTWIG_SHIP, DIF_CASE(4, 4, 2));
+			PrepareShip (UTWIG_SHIP);
 		}
 	}
 }
@@ -397,7 +398,7 @@ AlliedHome (RESPONSE_REF R)
 		Response (what_now_homeworld, AlliedHome);
 	if (PHRASE_ENABLED (how_is_ultron))
 		Response (how_is_ultron, AlliedHome);
-	if (NumVisits == 0 && EscortFeasibilityStudy (UTWIG_SHIP) != 0)
+	if ((NumVisits == 0 || NumVisits >= 5) && ShipsReady (UTWIG_SHIP))
 		Response (can_you_help, ExitConversation);
 	Response (bye_allied_homeworld, ExitConversation);
 }
