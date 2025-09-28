@@ -230,8 +230,8 @@ WriteJournals (void)
 	BOOLEAN FuelLow = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
 	BOOLEAN HaveRadios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
 	BOOLEAN have_radioactives = GS (STARBASE_VISITED) && HaveRadios;
-	BOOLEAN need_radioactives = GS (STARBASE_VISITED) && !HaveRadios &&
-		!GS (RADIOACTIVES_PROVIDED);
+	BOOLEAN need_radioactives = GS (STARBASE_VISITED) && !HaveRadios
+			&& !GS (RADIOACTIVES_PROVIDED);
 	BOOLEAN need_lander = need_radioactives && GLOBAL_SIS (NumLanders) < 1;
 	BOOLEAN need_lander_again = need_lander && GS (LANDERS_LOST);
 	BOOLEAN need_fuel = need_radioactives && FuelLow;
@@ -246,7 +246,6 @@ WriteJournals (void)
 	BOOLEAN DestroySAM =
 			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2);
 	BOOLEAN FindAccessSAM = AwareOfSAM && !GS (TALKING_PET_ON_SHIP);
-
 
 	// Alien missions
 	BYTE HierarchyMask = GGS (HIERARCHY_MASK);
@@ -266,7 +265,7 @@ WriteJournals (void)
 	BOOLEAN OrzHomeVisits = GGS (ORZ_HOME_VISITS);
 
 	BOOLEAN PkunkIlwrath = GGS (HEARD_PKUNK_ILWRATH);
-	BOOLEAN PkunkMelnorme = GGS (MELNORME_ALIEN_INFO_STACK) >= 2;
+	BOOLEAN PkunkMelnorme = GSGE (MELNORME_ALIEN_INFO_STACK, 2);
 	BOOLEAN KnowntPkunkHome = IsHomeworldKnown (PKUNK_HOME)
 			&& GGS (PKUNK_VISITS) && !GGS (PKUNK_HOME_VISITS);
 
@@ -281,10 +280,10 @@ WriteJournals (void)
 	BOOLEAN andro_dead = RaceDead (ANDROSYNTH_SHIP);
 
 	BOOLEAN find_shofixti = AllianceInfo (ALLIANCE_SHOFIXTI)
-			|| GGS (MELNORME_ALIEN_INFO_STACK) >= 12
+			|| GSGE (MELNORME_ALIEN_INFO_STACK, 12)
 			|| (IsHomeworldKnown (SHOFIXTI_HOME) && !GGS (SHOFIXTI_VISITS));
 	BOOLEAN shofixti_returned = RaceAllied (SHOFIXTI_SHIP);
-	BOOLEAN find_maidens = GGS (MELNORME_ALIEN_INFO_STACK) >= 12;
+	BOOLEAN find_maidens = GSGE (MELNORME_ALIEN_INFO_STACK, 12);
 
 	BOOLEAN meet_supox = IsHomeworldKnown (SUPOX_HOME)
 			|| CheckSphereTracking (SUPOX_SHIP);
@@ -327,9 +326,15 @@ WriteJournals (void)
 
 	BOOLEAN inv_probes = GGS (PROBE_EXHIBITED_BUG)
 			|| StarbaseBulletins (15);
+	BOOLEAN zfp_sly_probes = GSET (INVESTIGATE_PROBES, 1);
+	BOOLEAN thradd_probes_00 = GSET (INVESTIGATE_PROBES, 2);
+	BOOLEAN thradd_probes_01 = GSET (INVESTIGATE_PROBES, 3);
 	BOOLEAN mels_sly_probe = GSGE (MELNORME_EVENTS_INFO_STACK, 6)
 			|| GSGE (MELNORME_ALIEN_INFO_STACK, 13);
-	BOOLEAN probe_program;
+	BOOLEAN probe_program = GGS (PLAYER_KNOWS_PROGRAM)
+			|| GGS (PLAYER_KNOWS_PROBE);
+	BOOLEAN sly_know = GGS (SLYLANDRO_KNOW_BROKEN)
+			&& GGS (DESTRUCT_CODE_ON_SHIP);
 
 	{	// Objectives Journal
 		// Starbase Missions
@@ -446,6 +451,14 @@ WriteJournals (void)
 				find_yehat, CONTACT_YEHAT,
 				mels_yehat, MELNORME_YEHAT,
 				met_yehat,  MET_THE_YEHAT);
+
+		AddJournal (ALIENS_JOURNAL, 6,
+				inv_probes,       INV_SLYLANDRO_PROBE,
+				zfp_sly_probes,   INV_SLYLANDRO_ZFP,
+				thradd_probes_00, INV_SLY_THRADD_00,
+				mels_sly_probe,   MELNORME_SLYLANDRO,
+				probe_program,    SLY_PROBE_FAULTY,
+				sly_know,         SLYLANDRO_CONVINCED);
 	}
 
 	{	// Artifacts Journal
