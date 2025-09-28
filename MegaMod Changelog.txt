@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
 
 ### Fixed
+- Load legacy savefiles correctly load with StarSeed code
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
 - 1-Frame solar system draw after Chmmr dialogue that can cause a crash
 - Orz computer font persisting through multiple lines
