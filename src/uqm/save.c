@@ -778,7 +778,13 @@ const GameStateBitMap gameStateBitMap[] = {
 	/* begin rev 5, MegaMod v0.8.4 */
 
 	{ "SEED_TYPE", 2 },
-	{ "REV_5_PAD", 5 },
+	{ "SUPOX_SHIP_MONTH", 4 },
+	{ "SUPOX_SHIP_DAY", 5 },
+	{ "SUPOX_SHIP_YEAR", 5 },
+	{ "UTWIG_SHIP_MONTH", 4 },
+	{ "UTWIG_SHIP_DAY", 5 },
+	{ "UTWIG_SHIP_YEAR", 5 },
+	{ "REV_5_PAD", 1 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },
