@@ -1373,8 +1373,6 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 
 	// Reset Debug Key
 	DebugKeyPressed = FALSE;
-	SET_GAME_STATE (SEED_TYPE, optSeedType = OPTVAL_PRIME);
-	GLOBAL_SIS (Seed) = optCustomSeed = PrimeA;
 
-	return InitStarseed (FALSE);
+	return TRUE;
 }
