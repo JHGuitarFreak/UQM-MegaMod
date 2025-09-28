@@ -99,6 +99,35 @@ static LOCDATA pkunk_desc =
 	NULL,
 };
 
+static BOOLEAN
+ShipsReady (void)
+{
+	SIZE i;
+
+	return (GET_GAME_STATE (PKUNK_MANNER) == 3
+		&& !((i = (GLOBAL (GameClock.year_index) - START_YEAR) - GET_GAME_STATE (PKUNK_SHIP_YEAR)) < 0
+		     || ((i == 0 && (i = GLOBAL (GameClock.month_index) - GET_GAME_STATE (PKUNK_SHIP_MONTH)) < 0)
+			 || (i == 0 && GLOBAL (GameClock.day_index) < GET_GAME_STATE (PKUNK_SHIP_DAY)))));
+}
+
+static void
+PrepareShip (void)
+{
+#define MAX_PKUNK_SHIPS DIF_CASE (4, 4, 2)
+	if (AddEscortShips (PKUNK_SHIP, MAX_PKUNK_SHIPS))
+	{
+		BYTE mi, di, yi;
+
+		mi = GLOBAL (GameClock.month_index);
+		SET_GAME_STATE (PKUNK_SHIP_MONTH, mi);
+		if ((di = GLOBAL (GameClock.day_index)) > 28)
+			di = 28;
+		SET_GAME_STATE (PKUNK_SHIP_DAY, di);
+		yi = (BYTE)(GLOBAL (GameClock.year_index) - START_YEAR) + 1;
+		SET_GAME_STATE (PKUNK_SHIP_YEAR, yi);
+	}
+}
+
 #define GOOD_REASON_1 (1 << 0)
 #define GOOD_REASON_2 (1 << 1)
 #define BAD_REASON_1 (1 << 2)
@@ -139,8 +168,7 @@ ExitConversation (RESPONSE_REF R)
 		{
 			NPCPhrase (INIT_SHIP_GIFT);
 			AlienTalkSegue ((COUNT)~0);
-		    if (AddEscortShips (PKUNK_SHIP, DIF_CASE (4, 4, 2)))
-				PrepareShip (PKUNK_SHIP);
+			PrepareShip ();
 		}
 	}
 	else if (PLAYER_SAID (R, try_to_be_nicer))
@@ -626,7 +654,7 @@ PkunkFriendlySpace (RESPONSE_REF R)
 
 	if (PLAYER_SAID (R, whats_up_space))
 	{
-		if (ShipsReady (PKUNK_SHIP) && GET_GAME_STATE (PKUNK_MANNER) == 3)
+		if (ShipsReady ())
 			NPCPhrase (SHIPS_AT_HOME);
 		else
 		{
@@ -920,16 +948,14 @@ Intro (void)
 		}
 		else
 		{
-			if (NumVisits && ShipsReady (PKUNK_SHIP) &&
-					GET_GAME_STATE (PKUNK_MANNER) == 3)
+			if (NumVisits && ShipsReady ())
 			{
 				if (EscortFeasibilityStudy (PKUNK_SHIP) == 0)
 					NPCPhrase (NO_ROOM);
 				else
 				{
 					NPCPhrase (SHIP_GIFT);
-				    if (AddEscortShips (PKUNK_SHIP, DIF_CASE (4, 4, 2)))
-						PrepareShip (PKUNK_SHIP);
+					PrepareShip ();
 				}
 			}
 			else switch (NumVisits++)

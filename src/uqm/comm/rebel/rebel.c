@@ -198,6 +198,22 @@ static LOCDATA yehat_desc =
 };
 
 static void
+PrepareShip (void)
+{
+	BYTE mi, di, yi;
+
+	mi = (GLOBAL (GameClock.month_index) % 12) + 1;
+	SET_GAME_STATE (YEHAT_SHIP_MONTH, mi);
+	if ((di = GLOBAL (GameClock.day_index)) > 28)
+		di = 28;
+	SET_GAME_STATE (YEHAT_SHIP_DAY, di);
+	yi = (BYTE)(GLOBAL (GameClock.year_index) - START_YEAR);
+	if (mi == 1)
+		++yi;
+	SET_GAME_STATE (YEHAT_SHIP_YEAR, yi);
+}
+
+static void
 ExitConversation (RESPONSE_REF R)
 {
 	if (PLAYER_SAID (R, bye_rebel))
@@ -309,7 +325,10 @@ Rebels (RESPONSE_REF R)
 	}
 	else if (PLAYER_SAID (R, any_ships))
 	{
-		if (!ShipsReady (YEHAT_SHIP))
+		if (GET_GAME_STATE (YEHAT_SHIP_MONTH)
+		    && ((NumVisits = (GLOBAL (GameClock.year_index) - START_YEAR) - GET_GAME_STATE (YEHAT_SHIP_YEAR)) < 0
+			|| ((NumVisits == 0 && (NumVisits = GLOBAL (GameClock.month_index) - GET_GAME_STATE (YEHAT_SHIP_MONTH)) < 0) 
+			    || (NumVisits == 0 && GLOBAL (GameClock.day_index) < GET_GAME_STATE (YEHAT_SHIP_DAY)))))
 			NPCPhrase (NO_SHIPS_YET);
 		else if ((NumVisits = EscortFeasibilityStudy (YEHAT_SHIP)) == 0)
 			NPCPhrase (NO_ROOM);
@@ -326,7 +345,7 @@ Rebels (RESPONSE_REF R)
 
 			AlienTalkSegue ((COUNT)~0);
 			AddEscortShips (YEHAT_SHIP, NumVisits);
-			PrepareShip (YEHAT_SHIP);
+			PrepareShip ();
 		}
 
 		DISABLE_PHRASE (any_ships);

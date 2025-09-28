@@ -105,8 +105,6 @@ static LOCDATA supox_desc =
 	NULL,
 };
 
-#define IN_ORBIT (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 7))
-
 static void
 ExitConversation (RESPONSE_REF R)
 {
@@ -133,7 +131,6 @@ ExitConversation (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, can_you_help))
 	{
 		NPCPhrase (HOW_HELP);
-		SetRaceAllied (SUPOX_SHIP, TRUE);
 		if (EscortFeasibilityStudy (SUPOX_SHIP) == 0)
 			NPCPhrase (DONT_NEED);
 		else
@@ -142,7 +139,6 @@ ExitConversation (RESPONSE_REF R)
 
 			AlienTalkSegue ((COUNT)~0);
 			AddEscortShips (SUPOX_SHIP, DIF_CASE(4, 4, 2));
-			PrepareShip (SUPOX_SHIP);
 		}
 	}
 }
@@ -237,8 +233,7 @@ AlliedHome (RESPONSE_REF R)
 		Response (how_is_ultron, AlliedHome);
 	if (EXTENDED && PHRASE_ENABLED (give_info))
 		Response (give_info, AlliedHome);
-	if (EXTENDED && ShipsReady (SUPOX_SHIP) &&
-			(NumVisits == 0 || NumVisits >= 5))
+	if (NumVisits == 0)
 		Response (can_you_help, ExitConversation);
 	Response (bye_allied_homeworld, ExitConversation);
 }
@@ -373,12 +368,8 @@ NeutralSupox (RESPONSE_REF R)
 	{
 		NPCPhrase (UTWIG_NEARBY);
 
-		DISABLE_PHRASE (anyone_around_here);
-		if (!EXTENDED || GET_GAME_STATE (SUPOX_STACK1) >= 5)
-		{
-			LastStack = 2;
-			SET_GAME_STATE (SUPOX_WAR_NEWS, 1);
-		}
+		LastStack = 2;
+		SET_GAME_STATE (SUPOX_WAR_NEWS, 1);
 		StartSphereTracking (UTWIG_SHIP);
 	}
 	else if (PLAYER_SAID (R, what_relation_to_utwig))
@@ -392,17 +383,8 @@ NeutralSupox (RESPONSE_REF R)
 	{
 		NPCPhrase (BROKE_ULTRON);
 
-		if (!EXTENDED || (GET_GAME_STATE (UTWIG_STACK1) >= 3 &&
-					GET_GAME_STATE (SUPOX_STACK1) >= 5))
-		{
-			LastStack = 2;
-			SET_GAME_STATE (SUPOX_WAR_NEWS, 2);
-		}
-		else
-		{
-			SET_GAME_STATE (SUPOX_WAR_NEWS,
-					PHRASE_ENABLED (anyone_around_here) ? 2 : 0);
-		}
+		LastStack = 2;
+		SET_GAME_STATE (SUPOX_WAR_NEWS, 2);
 	}
 	else if (PLAYER_SAID (R, whats_ultron))
 	{
@@ -411,58 +393,34 @@ NeutralSupox (RESPONSE_REF R)
 		SET_GAME_STATE (SUPOX_WAR_NEWS, 0);
 		SET_GAME_STATE (ULTRON_CONDITION, 1);
 
-		Response (what_do_i_do_now, (EXTENDED ? NeutralSupox : ExitConversation));
+		Response (what_do_i_do_now, ExitConversation);
 		Response (thanks_now_we_eat_you, ExitConversation);
 
 		return;
-	}
-	else if (PLAYER_SAID (R, what_do_i_do_now))
-	{
-		NPCPhrase (FIX_IT);
 	}
 	else if (PLAYER_SAID (R, got_fixed_ultron))
 	{
 		NPCPhrase (GOOD_GIVE_TO_UTWIG);
 
-		if (EXTENDED && CheckAlliance (SUPOX_SHIP) != GOOD_GUY)
-			Response (can_you_help, IN_ORBIT ? ExitConversation : NeutralSupox);
 		SET_GAME_STATE (SUPOX_ULTRON_HELP, 1);
 	}
 	else if (PLAYER_SAID (R, look_i_repaired_lots))
 	{
 		NPCPhrase (ALMOST_THERE);
 
-		if (EXTENDED && CheckAlliance (SUPOX_SHIP) != GOOD_GUY)
-			Response (can_you_help, IN_ORBIT ? ExitConversation : NeutralSupox);
 		SET_GAME_STATE (SUPOX_ULTRON_HELP, 1);
 	}
 	else if (PLAYER_SAID (R, look_i_slightly_repaired))
 	{
 		NPCPhrase (GREAT_DO_MORE);
 
-		if (EXTENDED && CheckAlliance (SUPOX_SHIP) != GOOD_GUY)
-			Response (can_you_help, IN_ORBIT ? ExitConversation : NeutralSupox);
 		SET_GAME_STATE (SUPOX_ULTRON_HELP, 1);
 	}
 	else if (PLAYER_SAID (R, where_get_repairs))
 	{
 		NPCPhrase (ANCIENT_RHYME);
 
-		if (EXTENDED)
-			StartSphereTracking (DRUUGE_SHIP);
 		SET_GAME_STATE (SUPOX_ULTRON_HELP, 1);
-	}
-	else if (PLAYER_SAID (R, give_info))
-	{
-		NPCPhrase (GOOD_HINTS);
-
-		DISABLE_PHRASE (give_info);
-	}
-	else if (PLAYER_SAID (R, can_you_help))
-	{
-		NPCPhrase (HOW_HELP);
-
-		SetRaceAllied (SUPOX_SHIP, TRUE);
 	}
 
 	switch (GET_GAME_STATE (SUPOX_STACK2))
@@ -504,20 +462,17 @@ NeutralSupox (RESPONSE_REF R)
 		{
 			case 0:
 				if (GET_GAME_STATE (UTWIG_VISITS)
-						|| GET_GAME_STATE (UTWIG_HOSTILE)
 						|| GET_GAME_STATE (UTWIG_HOME_VISITS)
 						|| GET_GAME_STATE (BOMB_VISITS))
 					pStr[2] = what_relation_to_utwig;
-				else if (PHRASE_ENABLED (anyone_around_here))
+				else
 					pStr[2] = anyone_around_here;
 				break;
 			case 1:
 				pStr[2] = whats_wrong_with_utwig;
 				break;
 			case 2:
-				if (!EXTENDED || (GET_GAME_STATE (UTWIG_STACK1) >= 3 &&
-						GET_GAME_STATE (SUPOX_STACK1) >= 5))
-					pStr[2] = whats_ultron;
+				pStr[2] = whats_ultron;
 				break;
 		}
 	}
@@ -545,15 +500,6 @@ NeutralSupox (RESPONSE_REF R)
 				Response (got_fixed_ultron, NeutralSupox);
 				break;
 		}
-	}
-	// This is effectively "At allied homeworld" but before the
-	// war triggers the full alliance
-	if (EXTENDED && CheckAlliance (SUPOX_SHIP) == GOOD_GUY && IN_ORBIT)
-	{
-		if (PHRASE_ENABLED (give_info))
-			Response (give_info, NeutralSupox);
-		if (ShipsReady (SUPOX_SHIP))
-			Response (can_you_help, ExitConversation);
 	}
 	Response (bye_neutral, ExitConversation);
 }
@@ -588,10 +534,9 @@ Intro (void)
 
 		setSegue (Segue_peace);
 	}
-	else if (CheckAlliance (SUPOX_SHIP) == GOOD_GUY &&
-			GET_GAME_STATE (UTWIG_SUPOX_MISSION) > 0)
+	else if (CheckAlliance (SUPOX_SHIP) == GOOD_GUY)
 	{
-		if (IN_ORBIT)
+		if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 7))
 		{
 			NumVisits = GET_GAME_STATE (SUPOX_HOME_VISITS);
 			switch (NumVisits++)
@@ -670,7 +615,7 @@ Intro (void)
 	}
 	else
 	{
-		if (IN_ORBIT)
+		if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 7))
 		{
 			NumVisits = GET_GAME_STATE (SUPOX_HOME_VISITS);
 			switch (NumVisits++)
