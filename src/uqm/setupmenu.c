@@ -1251,7 +1251,8 @@ SetDefaults (void)
 	choices[CHOICE_FLEETPOINT      ].selected = opts.fleetPointSys;
 
 	// Devices
-	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
+	for (i = DEVICE_START; i < DEVICE_START
+			+ ARRAY_SIZE (opts.deviceArray); i++)
 	{
 		choices[i].selected = opts.deviceArray[i - DEVICE_START];
 	}
@@ -1369,7 +1370,8 @@ PropagateResults (void)
 	opts.fleetPointSys =	choices[CHOICE_FLEETPOINT   ].selected;
 
 	// Devices
-	for (i = DEVICE_START; i < DEVICE_START + NUM_DEVICES; i++)
+	for (i = DEVICE_START;
+			i < DEVICE_START + ARRAY_SIZE (opts.deviceArray); i++)
 	{
 		opts.deviceArray[i - DEVICE_START] = choices[i].selected;
 	}
