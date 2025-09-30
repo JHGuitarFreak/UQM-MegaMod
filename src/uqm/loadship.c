@@ -169,12 +169,12 @@ SeedShip (SPECIES_ID SpeciesID, BOOLEAN loadWindow)
 }
 
 static void
-SwapStrings (STRING a, STRING b, COUNT index)
+SwapStrings (STRING a, STRING b, COUNT ia, COUNT ib)
 {
-	UNICODE *swap = GetStringAddress (SetAbsStringTableIndex (b, index));
-	(SetAbsStringTableIndex (b, index))->data =
-			(SetAbsStringTableIndex (a, index))->data;
-	(SetAbsStringTableIndex (a, index))->data = swap;
+	UNICODE *swap = GetStringAddress (SetAbsStringTableIndex (b, ib));
+	(SetAbsStringTableIndex (b, ib))->data =
+			(SetAbsStringTableIndex (a, ia))->data;
+	(SetAbsStringTableIndex (a, ia))->data = swap;
 }
 
 RACE_DESC *
@@ -238,10 +238,11 @@ load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData)
 		RDPtrSwap->ship_info.race_strings = CaptureStringTable (LoadStringTable (
 				RDPtr->ship_info.race_strings_rsc));
 		SwapStrings (RDPtrSwap->ship_info.race_strings,
-				RDPtr->ship_info.race_strings, 4);
+				RDPtr->ship_info.race_strings, 4, 4);
 		SwapStrings (RDPtrSwap->ship_info.race_strings,
 				RDPtr->ship_info.race_strings,
-				GetStringTableCount (RDPtrSwap->ship_info.race_strings) - 2);
+				GetStringTableCount (RDPtrSwap->ship_info.race_strings) - 2,
+				GetStringTableCount (RDPtr->ship_info.race_strings) - 2);
 		DestroyStringTable (ReleaseStringTable (RDPtrSwap->ship_info.race_strings));
 	}
 
