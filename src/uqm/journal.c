@@ -336,6 +336,12 @@ WriteJournals (void)
 	BOOLEAN sly_know = GGS (SLYLANDRO_KNOW_BROKEN)
 			&& GGS (DESTRUCT_CODE_ON_SHIP);
 
+	BYTE num_rainbows = RAINBOW9_DEFINED - RAINBOW0_DEFINED;
+	UWORD rainbow_mask = MAKE_WORD (
+			GGS (RAINBOW_WORLD0),
+			GGS (RAINBOW_WORLD1));
+	BOOLEAN rainbow_5 = (rainbow_mask & (1 << 5)) != 0;
+
 	{	// Objectives Journal
 		// Starbase Missions
 		AddJournal (OBJECTIVES_JOURNAL, 2,
@@ -459,9 +465,20 @@ WriteJournals (void)
 				mels_sly_probe,   MELNORME_SLYLANDRO,
 				probe_program,    SLY_PROBE_FAULTY,
 				sly_know,         SLYLANDRO_CONVINCED);
+
+		AddJournal (ALIENS_JOURNAL, 2,
+				thradd_probes_01, INV_SLY_THRADD_01,
+				rainbow_5,        NO_JOURNAL_ENTRY);
 	}
 
 	{	// Artifacts Journal
+		BYTE i;
+
+		for (i = 0; i <= num_rainbows; i++)
+		{
+			AddJournal (ARTIFACTS_JOURNAL, 1,
+				(rainbow_mask & (1 << i)) != 0, FOUND_RAINBOW_0 + i);
+		}
 
 	}
 }
