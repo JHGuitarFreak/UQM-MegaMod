@@ -140,6 +140,7 @@ void DoInput (void *pInputState, BOOLEAN resetInput);
 
 extern volatile BOOLEAN GamePaused;
 extern volatile BOOLEAN ExitRequested;
+extern volatile BOOLEAN JournalRequested;
 
 typedef struct joy_char joy_char_t;
 

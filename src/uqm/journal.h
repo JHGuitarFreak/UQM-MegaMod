@@ -163,6 +163,8 @@ enum
 	NUM_JOURNAL_STRINGS
 };
 
+extern BOOLEAN Journal (void);
+
 extern BOOLEAN FwiffoCanJoin;
 
 #endif /* UQM_JOURNAL_H */

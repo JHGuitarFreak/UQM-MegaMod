@@ -2668,10 +2668,6 @@ DoMoveCursor (MENU_STATE *pMS)
 		else
 			PlayMenuSound (MENU_SOUND_FAILURE);
 	}
-	else if (PulsedInputState.menu[KEY_JOURNAL])
-	{
-		Journal ();
-	}
 	else
 	{
 		SBYTE sx, sy;

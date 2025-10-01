@@ -978,6 +978,12 @@ inFullGame (void)
 }
 
 BOOLEAN
+inEncounter (void)
+{
+	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER);
+}
+
+BOOLEAN
 inSuperMelee (void)
 {
 	return (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE);

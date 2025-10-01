@@ -1113,6 +1113,7 @@ extern void InitGlobData (void);
 extern BOOLEAN InitStarseed (BOOLEAN newgame);
 
 BOOLEAN inFullGame (void);
+BOOLEAN inEncounter (void);
 BOOLEAN inSuperMelee (void);
 //BOOLEAN inBattle (void);
 //BOOLEAN inInterPlanetary (void);

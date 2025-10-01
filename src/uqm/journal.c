@@ -39,6 +39,8 @@
 #include "lua/luacomm.h"
 #include "util.h"
 #include "comm/starbas/strings.h"
+#include "planets/lander.h"
+#include "gameopt.h"
 
 
 typedef enum {
@@ -471,13 +473,13 @@ WriteJournals (void)
 				rainbow_5,        NO_JOURNAL_ENTRY);
 	}
 
-	{	// Artifacts Journal
+	{	// Curiosities Journal
 		BYTE i;
 
 		for (i = 0; i <= num_rainbows; i++)
 		{
 			AddJournal (ARTIFACTS_JOURNAL, 1,
-				(rainbow_mask & (1 << i)) != 0, FOUND_RAINBOW_0 + i);
+					(rainbow_mask & (1 << i)) != 0, FOUND_RAINBOW_0 + i);
 		}
 
 	}
@@ -646,6 +648,8 @@ DrawJournal (void)
 static BOOLEAN
 DoChangeJournal (MENU_STATE *pMS)
 {
+	JournalRequested = FALSE;
+
 	if (!pMS->Initialized)
 	{
 		pMS->Initialized = TRUE;
@@ -683,18 +687,30 @@ DoChangeJournal (MENU_STATE *pMS)
 BOOLEAN
 Journal (void)
 {
+	MENU_SOUND_FLAGS OldSound0, OldSound1;
+	InputFrameCallback *oldCallback;
 	MENU_STATE MenuState = { 0 };
 	POINT universe;
 	CONTEXT OldContext;
 	RECT r, old_r;
 	STAMP s;
 
-	if (NOMAD || DIF_HARD)
+	JournalRequested = FALSE;
+
+	if (NOMAD || DIF_HARD || SaveLoadActive || planetSideDesc != NULL
+			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE
+			|| !(CommData.AlienFrame != NULL || playerInSolarSystem ()
+			|| inHQSpace () || inEncounter ()))
+	{
 		return FALSE;
+	}
 
 	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
 	if (JournalStrings == 0)
 		return FALSE;
+
+	if (PlayingTrack ())
+		PauseTrack ();
 
 	OldContext = SetContext (SpaceContext);
 
@@ -731,10 +747,14 @@ Journal (void)
 	DrawJournal ();
 	transition_pending = FALSE;
 
-	DoInput (&MenuState, FALSE);
-
+	GetMenuSounds (&OldSound0, &OldSound1);
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	SetDefaultMenuRepeatDelay ();
+	oldCallback = SetInputCallback (NULL);
+
+	DoInput (&MenuState, FALSE);
+
+	SetInputCallback (oldCallback);
 
 	FreeJournals ();
 
@@ -759,6 +779,10 @@ Journal (void)
 	SetContext (OldContext);
 
 	ContinueFlash ();
+	SetMenuSounds (OldSound0, OldSound1);
+
+	if (PlayingTrack ())
+		ResumeTrack ();
 	
 	return TRUE;
 }

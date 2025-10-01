@@ -31,7 +31,6 @@ extern void CargoMenu (void);
 extern BOOLEAN RosterMenu (void);
 extern BOOLEAN DevicesMenu (void);
 extern BOOLEAN StarMap (void);
-extern BOOLEAN Journal (void);
 
 extern void DrawCargoStrings (BYTE OldElement, BYTE NewElement);
 extern void ShowRemainingCapacity (void);

@@ -37,6 +37,7 @@
 #include "setup.h"
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
+#include "journal.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
@@ -71,6 +72,7 @@ volatile CONTROLLER_INPUT_STATE ImmediateInputState;
 volatile BOOLEAN ExitRequested;
 volatile BOOLEAN GamePaused;
 volatile BOOLEAN OnScreenKeyboardLocked;
+volatile BOOLEAN JournalRequested;
 
 static InputFrameCallback *inputCallback;
 
@@ -245,6 +247,9 @@ UpdateInputState (void)
 	if (ExitRequested)
 		ConfirmExit ();
 
+	if (JournalRequested)
+		Journal ();
+
 	CurrentInputState = ImmediateInputState;
 	OldInputState = CachedInputState;
 	CachedInputState = ImmediateInputState;
@@ -280,6 +285,9 @@ UpdateInputState (void)
 
 	if (CurrentInputState.menu[KEY_EXIT])
 		ExitRequested = TRUE;
+
+	if (PulsedInputState.menu[KEY_JOURNAL])
+		JournalRequested = TRUE;
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])

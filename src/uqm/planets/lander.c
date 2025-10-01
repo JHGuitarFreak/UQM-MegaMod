@@ -193,7 +193,7 @@ static int weapon_wait;
 		// semantics similar to STARSHIP.weapon_counter
 
 // TODO: We may want to make the PLANETSIDE_DESC fields into static vars
-static PLANETSIDE_DESC *planetSideDesc;
+PLANETSIDE_DESC *planetSideDesc;
 
 EXTENT MapSurface;
 

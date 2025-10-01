@@ -483,21 +483,6 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	BYTE OrigBase = BaseState;
 	BOOLEAN useAltMenu = FALSE;
 
-	if (PulsedInputState.menu[KEY_JOURNAL])
-	{
-		InputFrameCallback *oldCallback;
-
-		// Deactivate planet rotation
-		oldCallback = SetInputCallback (NULL);
-
-		Journal ();
-		if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-			return FALSE;
-
-		// Reactivate planet rotation
-		SetInputCallback (oldCallback);
-	}
-
 	if (optWhichMenu == OPT_PC)
 		useAltMenu = GetAlternateMenu (&BaseState, &NewState);
 	if (PulsedInputState.menu[KEY_MENU_LEFT] ||

@@ -34,6 +34,7 @@ extern BOOLEAN NewGameInit;
 extern BYTE OutfitOrShipyard;
 extern BOOLEAN SaveOrLoad;
 extern BOOLEAN TextEntry3DO;
+extern BOOLEAN SaveLoadActive;
 
 #if defined(__cplusplus)
 }
