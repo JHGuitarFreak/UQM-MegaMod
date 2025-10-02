@@ -139,6 +139,7 @@ ExitConversation (RESPONSE_REF R)
 
 			AlienTalkSegue ((COUNT)~0);
 			AddEscortShips (SUPOX_SHIP, DIF_CASE(4, 4, 2));
+			PrepareShip (SUPOX_SHIP);
 		}
 	}
 }
@@ -233,7 +234,7 @@ AlliedHome (RESPONSE_REF R)
 		Response (how_is_ultron, AlliedHome);
 	if (EXTENDED && PHRASE_ENABLED (give_info))
 		Response (give_info, AlliedHome);
-	if (NumVisits == 0)
+	if (EXTENDED && ShipsReady (SUPOX_SHIP))
 		Response (can_you_help, ExitConversation);
 	Response (bye_allied_homeworld, ExitConversation);
 }
@@ -393,10 +394,14 @@ NeutralSupox (RESPONSE_REF R)
 		SET_GAME_STATE (SUPOX_WAR_NEWS, 0);
 		SET_GAME_STATE (ULTRON_CONDITION, 1);
 
-		Response (what_do_i_do_now, ExitConversation);
+		Response (what_do_i_do_now, (EXTENDED ? NeutralSupox : ExitConversation));
 		Response (thanks_now_we_eat_you, ExitConversation);
 
 		return;
+	}
+	else if (PLAYER_SAID (R, what_do_i_do_now))
+	{
+		NPCPhrase (FIX_IT);
 	}
 	else if (PLAYER_SAID (R, got_fixed_ultron))
 	{
@@ -420,7 +425,15 @@ NeutralSupox (RESPONSE_REF R)
 	{
 		NPCPhrase (ANCIENT_RHYME);
 
+		if (EXTENDED)
+			StartSphereTracking (DRUUGE_SHIP);
 		SET_GAME_STATE (SUPOX_ULTRON_HELP, 1);
+	}
+	else if (PLAYER_SAID (R, give_info))
+	{
+		NPCPhrase (GOOD_HINTS);
+
+		DISABLE_PHRASE (give_info);
 	}
 
 	switch (GET_GAME_STATE (SUPOX_STACK2))
@@ -501,6 +514,8 @@ NeutralSupox (RESPONSE_REF R)
 				break;
 		}
 	}
+	if (EXTENDED && NumVisits && PHRASE_ENABLED (give_info))
+		Response (give_info, NeutralSupox);
 	Response (bye_neutral, ExitConversation);
 }
 

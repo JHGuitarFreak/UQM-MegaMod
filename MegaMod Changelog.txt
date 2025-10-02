@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.4]
 
 ### Added
+- Extended mode: Utwig and Supox now give gift ships on a calendar similar to the Yehat and Pkunk (which now use standardized functions).
+- Extended mode: Added missing Supox rumors to neutral (but helpful) Supox dialog.
+- Extended mode: Druuge SOI revealed when Supox tell you to look for Ultron parts there.
 - Added option to shuffle ship allocations to alien races (within three tiers of ship) based on the custom seed. Applies to both Melee and new games.
 - Show the type of save on the loading screen in the blue title bar when loading a vanilla, HD-mod, or legacy vanilla save
 - Auto-load support for Distorted Hayes dialog addon
@@ -22,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
 
 ### Changed
+- Extended mode: Supox dialog doesn't kick you out between gifting ultron and asking about Druuge.
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
 - The helper graphics for scanning and landing now show current cargo manifest for elements and biological data
 - Dropped support for autoloading vanilla voice content as it is no longer compatible
