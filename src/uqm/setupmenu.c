@@ -155,14 +155,6 @@ static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#define MENU_COUNT         13
-#define CHOICE_COUNT      126
-#define SLIDER_COUNT        5
-#define BUTTON_COUNT       16
-#define LABEL_COUNT         9
-#define TEXTENTRY_COUNT     3
-#define CONTROLENTRY_COUNT  8
-
 /* The space for our widgets */
 static WIDGET_MENU_SCREEN menus[MENU_COUNT];
 static WIDGET_CHOICE choices[CHOICE_COUNT];
@@ -362,7 +354,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&sliders[SLIDER_NEBULA       ]),	// Nebulae Volume
 	(WIDGET *)(&choices[CHOICE_ORBPLANETS   ]),	// orbitingPlanets on/off
 	(WIDGET *)(&choices[CHOICE_TEXPLANETS   ]),	// texturedPlanets on/off
-	(WIDGET *)(&choices[CHOICE_6014IP       ]),	// T6014's Classic Star System View
+	(WIDGET *)(&choices[CHOICE_HDM_IP       ]), // HD's Star System View
 	(WIDGET *)(&choices[CHOICE_IPSHIPDIR    ]),	// NPC Ship Direction in IP
 
 	(WIDGET *)(&labels[LABEL_SPACER			]), // Spacer
@@ -1237,7 +1229,7 @@ SetDefaults (void)
 	choices[CHOICE_CHDECLEAN       ].selected = opts.deCleansing;
 	choices[CHOICE_CHNOPLANET      ].selected = opts.meleeObstacles;
 	choices[CHOICE_VISITED         ].selected = opts.showVisitedStars;
-	choices[CHOICE_6014IP          ].selected = opts.unscaledStarSystem;
+	choices[CHOICE_HDM_IP       ].selected = opts.unscaledStarSystem;
 	choices[CHOICE_SCANSPHERE      ].selected = opts.sphereType;
 	choices[CHOICE_SLAUGHTER       ].selected = opts.slaughterMode;
 	choices[CHOICE_ADVAUTO         ].selected = opts.advancedAutoPilot;
@@ -1262,8 +1254,8 @@ SetDefaults (void)
 		choices[i].selected = opts.upgradeArray[i - UPGRADE_START];
 	}
 
-	// Next choice should be choices[125]
-	choices[125].selected = opts.shipSeed;
+	// Next choice should be choices[CHOICE_SHIPSEED]
+	choices[CHOICE_SHIPSEED  ].selected = opts.shipSeed;
 
 	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME ].value = opts.sfxvol;
@@ -1356,7 +1348,7 @@ PropagateResults (void)
 	opts.deCleansing =		choices[CHOICE_CHDECLEAN    ].selected;
 	opts.meleeObstacles =	choices[CHOICE_CHNOPLANET   ].selected;
 	opts.showVisitedStars = choices[CHOICE_VISITED      ].selected;
-	opts.unscaledStarSystem=choices[CHOICE_6014IP       ].selected;
+	opts.unscaledStarSystem=choices[CHOICE_HDM_IP       ].selected;
 	opts.sphereType =		choices[CHOICE_SCANSPHERE   ].selected;
 	opts.slaughterMode =	choices[CHOICE_SLAUGHTER    ].selected;
 	opts.advancedAutoPilot= choices[CHOICE_ADVAUTO      ].selected;
@@ -1380,7 +1372,8 @@ PropagateResults (void)
 	{
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
-	opts.shipSeed = choices[125].selected;
+
+	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
 
 	opts.musicvol	= sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol		= sliders[SLIDER_SFXVOLUME ].value;
