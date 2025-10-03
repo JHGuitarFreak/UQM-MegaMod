@@ -156,12 +156,12 @@ static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 /* The space for our widgets */
-static WIDGET_MENU_SCREEN menus[MENU_COUNT];
-static WIDGET_CHOICE choices[CHOICE_COUNT];
-static WIDGET_SLIDER sliders[SLIDER_COUNT];
-static WIDGET_BUTTON buttons[BUTTON_COUNT];
-static WIDGET_LABEL labels[LABEL_COUNT];
-static WIDGET_TEXTENTRY textentries[TEXTENTRY_COUNT];
+static WIDGET_MENU_SCREEN  menus         [MENU_COUNT        ];
+static WIDGET_CHOICE       choices       [CHOICE_COUNT      ];
+static WIDGET_SLIDER       sliders       [SLIDER_COUNT      ];
+static WIDGET_BUTTON       buttons       [BUTTON_COUNT      ];
+static WIDGET_LABEL        labels        [LABEL_COUNT       ];
+static WIDGET_TEXTENTRY    textentries   [TEXTENTRY_COUNT   ];
 static WIDGET_CONTROLENTRY controlentries[CONTROLENTRY_COUNT];
 
 /* The hardcoded data that isn't strings */
@@ -177,271 +177,276 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
-	(WIDGET *)(&buttons[BTN_GFXMENU  ]),		// Graphics
-	(WIDGET *)(&buttons[BTN_ENGMENU  ]),		// PC/3DO
-	(WIDGET *)(&buttons[BTN_VISMENU  ]),		// Visuals
-	(WIDGET *)(&buttons[BTN_SNDMENU  ]),		// Sound
-	(WIDGET *)(&buttons[BTN_MUSMENU  ]),		// Music
-	(WIDGET *)(&buttons[BTN_KEYMENU  ]),		// Controls
-	(WIDGET *)(&buttons[BTN_QOLMENU  ]),		// Quality of Life
-	(WIDGET *)(&buttons[BTN_ADVMENU  ]),		// Advanced
-	(WIDGET *)(&buttons[BTN_CHTMENU  ]),		// Cheats
+	(WIDGET *)(&buttons[BTN_GFXMENU  ]), // Graphics
+	(WIDGET *)(&buttons[BTN_ENGMENU  ]), // PC/3DO
+	(WIDGET *)(&buttons[BTN_VISMENU  ]), // Visuals
+	(WIDGET *)(&buttons[BTN_SNDMENU  ]), // Sound
+	(WIDGET *)(&buttons[BTN_MUSMENU  ]), // Music
+	(WIDGET *)(&buttons[BTN_KEYMENU  ]), // Controls
+	(WIDGET *)(&buttons[BTN_QOLMENU  ]), // Quality of Life
+	(WIDGET *)(&buttons[BTN_ADVMENU  ]), // Advanced
+	(WIDGET *)(&buttons[BTN_CHTMENU  ]), // Cheats
 
-	(WIDGET *)(&labels[LABEL_SPACER	 ]),		// Spacer
-	(WIDGET *)(&buttons[BTN_QUITSETUP]),		// Quit Setup Menu
+	(WIDGET *)(&labels [LABEL_SPACER ]), // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSETUP]), // Quit Setup Menu
 	NULL };
 
 static WIDGET *graphics_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_GRAPHICS  ]),	// Graphics
-	(WIDGET *)(&choices[CHOICE_RESOLUTION]),	// Resolution
-	(WIDGET *)(&textentries[TEXT_CUSTMRES]),	// Custom resolution entry
+	(WIDGET *)(&choices    [CHOICE_GRAPHICS  ]), // Graphics
+	(WIDGET *)(&choices    [CHOICE_RESOLUTION]), // Resolution
+	(WIDGET *)(&textentries[TEXT_CUSTMRES    ]), // Custom resolution entry
 #if	SDL_MAJOR_VERSION == 1
 #if defined (HAVE_OPENGL)
-	(WIDGET *)(&choices[CHOICE_FRBUFFER  ]),	// Use Framebuffer
+	(WIDGET *)(&choices    [CHOICE_FRBUFFER  ]), // Use Framebuffer
 #endif
 #endif
-	(WIDGET *)(&choices[CHOICE_ASPRATIO  ]),	// Aspect Ratio
-	(WIDGET *)(&choices[CHOICE_DISPLAY   ]),	// Display Mode
-	(WIDGET *)(&sliders[SLIDER_GAMMA     ]),	// Gamma Correction
-	(WIDGET *)(&choices[CHOICE_SCALER    ]),	// Scaler
-	(WIDGET *)(&choices[CHOICE_SCANLINE  ]),	// Scanlines
+	(WIDGET *)(&choices    [CHOICE_ASPRATIO  ]), // Aspect Ratio
+	(WIDGET *)(&choices    [CHOICE_DISPLAY   ]), // Display Mode
+	(WIDGET *)(&sliders    [SLIDER_GAMMA     ]), // Gamma Correction
+	(WIDGET *)(&choices    [CHOICE_SCALER    ]), // Scaler
+	(WIDGET *)(&choices    [CHOICE_SCANLINE  ]), // Scanlines
+
 #if	SDL_MAJOR_VERSION == 2
-	(WIDGET *)(&choices[CHOICE_SHOWFPS   ]),	// Show FPS
+	(WIDGET *)(&choices    [CHOICE_SHOWFPS   ]), // Show FPS
 #endif
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
+	(WIDGET *)(&labels     [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&buttons    [BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
 static WIDGET *engine_widgets[] = {
-	(WIDGET *)(&labels[LABEL_UI			   ]),  // UI Label
-	(WIDGET *)(&choices[CHOICE_WINDOWTYPE  ]),  // Window Type
+	(WIDGET *)(&labels [LABEL_UI           ]), // UI Label
+	(WIDGET *)(&choices[CHOICE_WINDOWTYPE  ]), // Window Type
 
-	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
-	(WIDGET *)(&choices[CHOICE_MENUSTYLE   ]),  // Menu Style
-	(WIDGET *)(&choices[CHOICE_FONTSTYLE   ]),  // Font Style
-	(WIDGET *)(&choices[CHOICE_CUTSCENE    ]),  // Cutscenes
+	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
+	(WIDGET *)(&choices[CHOICE_MENUSTYLE   ]), // Menu Style
+	(WIDGET *)(&choices[CHOICE_FONTSTYLE   ]), // Font Style
+	(WIDGET *)(&choices[CHOICE_CUTSCENE    ]), // Cutscenes
+
 #if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[CHOICE_ANDRZOOM    ]),  // Android: Melee Zoom
+	(WIDGET *)(&choices[CHOICE_ANDRZOOM    ]), // Android: Melee Zoom
 #else
-	(WIDGET *)(&choices[CHOICE_MELEEZOOM   ]),  // Melee Zoom
+	(WIDGET *)(&choices[CHOICE_MELEEZOOM   ]), // Melee Zoom
 #endif
-	(WIDGET *)(&choices[CHOICE_FLAGSHIP    ]),  // Flagship Style
-	(WIDGET *)(&choices[CHOICE_SCRMELT     ]),  // Screen Transitions
 
-	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
-	(WIDGET *)(&labels[LABEL_COMM		   ]),  // Comm Label
-	(WIDGET *)(&choices[CHOICE_SCROLLSTYLE ]),  // Scroll Style
-	(WIDGET *)(&choices[CHOICE_SPEECH      ]),  // Speech
-	(WIDGET *)(&choices[CHOICE_SUBTITLES   ]),  // Subtitles
-	(WIDGET *)(&choices[CHOICE_OSCILLSTYLE ]),  // Oscilloscope Style
+	(WIDGET *)(&choices[CHOICE_FLAGSHIP    ]), // Flagship Style
+	(WIDGET *)(&choices[CHOICE_SCRMELT     ]), // Screen Transitions
 
-	(WIDGET *)(&labels[LABEL_SPACER        ]),  // Spacer
-	(WIDGET *)(&labels[LABEL_IP			   ]),  // IP Label
-	(WIDGET *)(&choices[CHOICE_IPSTYLE     ]),  // Interplanetary Style
-	(WIDGET *)(&choices[CHOICE_IPBACKGROUND]),  // Star Background
+	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
+	(WIDGET *)(&labels [LABEL_COMM         ]), // Comm Label
+	(WIDGET *)(&choices[CHOICE_SCROLLSTYLE ]), // Scroll Style
+	(WIDGET *)(&choices[CHOICE_SPEECH      ]), // Speech
+	(WIDGET *)(&choices[CHOICE_SUBTITLES   ]), // Subtitles
+	(WIDGET *)(&choices[CHOICE_OSCILLSTYLE ]), // Oscilloscope Style
 
-	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
-	(WIDGET *)(&labels[LABEL_SCAN		   ]),  // Scan Label
-	(WIDGET *)(&choices[CHOICE_SCANMENU    ]),  // Scan Menu Display
-	(WIDGET *)(&choices[CHOICE_SLVSHIELD   ]),  // Slave Shields
-	(WIDGET *)(&choices[CHOICE_SCANSTYLE   ]),  // Scan Style
-	(WIDGET *)(&choices[CHOICE_SCANSPHERE  ]),  // Scan Sphere Type
-	(WIDGET *)(&choices[CHOICE_SCANTINT    ]),  // Scanned Sphere Tint
-	(WIDGET *)(&choices[CHOICE_LANDERSTYLE ]),  // Lander Style
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]),	// Exit to Menu
+	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
+	(WIDGET *)(&labels [LABEL_IP           ]), // IP Label
+	(WIDGET *)(&choices[CHOICE_IPSTYLE     ]), // Interplanetary Style
+	(WIDGET *)(&choices[CHOICE_IPBACKGROUND]), // Star Background
+
+	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
+	(WIDGET *)(&labels [LABEL_SCAN         ]), // Scan Label
+	(WIDGET *)(&choices[CHOICE_SCANMENU    ]), // Scan Menu Display
+	(WIDGET *)(&choices[CHOICE_SLVSHIELD   ]), // Slave Shields
+	(WIDGET *)(&choices[CHOICE_SCANSTYLE   ]), // Scan Style
+	(WIDGET *)(&choices[CHOICE_SCANSPHERE  ]), // Scan Sphere Type
+	(WIDGET *)(&choices[CHOICE_SCANTINT    ]), // Scanned Sphere Tint
+	(WIDGET *)(&choices[CHOICE_LANDERSTYLE ]), // Lander Style
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]), // Exit to Menu
 	NULL };
 
 static WIDGET *audio_widgets[] = {
-	(WIDGET *)(&sliders[SLIDER_MUSVOLUME ]),	// Music Volume
-	(WIDGET *)(&sliders[SLIDER_SFXVOLUME ]),	// SFX Volume
-	(WIDGET *)(&sliders[SLIDER_SPCHVOLUME]),	// Speech Volume
+	(WIDGET *)(&sliders[SLIDER_MUSVOLUME ]), // Music Volume
+	(WIDGET *)(&sliders[SLIDER_SFXVOLUME ]), // SFX Volume
+	(WIDGET *)(&sliders[SLIDER_SPCHVOLUME]), // Speech Volume
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
-	(WIDGET *)(&choices[CHOICE_POSAUDIO  ]),	// Positional Audio
-	(WIDGET *)(&choices[CHOICE_SNDDRIVER ]),	// Sound Driver
-	(WIDGET *)(&choices[CHOICE_SNDQUALITY]),	// Sound Quality
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&choices[CHOICE_POSAUDIO  ]), // Positional Audio
+	(WIDGET *)(&choices[CHOICE_SNDDRIVER ]), // Sound Driver
+	(WIDGET *)(&choices[CHOICE_SNDQUALITY]), // Sound Quality
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
 static WIDGET *music_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_REMIXES1  ]),	// 3DO Remixes
-	(WIDGET *)(&choices[CHOICE_REMIXES2  ]),	// Precursor's Remixes
-	(WIDGET *)(&choices[CHOICE_REMIXES3  ]),	// Volasaurus' Remix Pack
+	(WIDGET *)(&choices[CHOICE_REMIXES1  ]), // 3DO Remixes
+	(WIDGET *)(&choices[CHOICE_REMIXES2  ]), // Precursor's Remixes
+	(WIDGET *)(&choices[CHOICE_REMIXES3  ]), // Volasaurus' Remix Pack
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
-	(WIDGET *)(&choices[CHOICE_IPMUSIC   ]),	// Volasaurus' Space Music
-	(WIDGET *)(&choices[CHOICE_MMENUMUSIC]),	// Main Menu Music
-	(WIDGET *)(&choices[CHOICE_MUSRESUME ]),	// Music Resume
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&choices[CHOICE_IPMUSIC   ]), // Volasaurus' Space Music
+	(WIDGET *)(&choices[CHOICE_MMENUMUSIC]), // Main Menu Music
+	(WIDGET *)(&choices[CHOICE_MUSRESUME ]), // Music Resume
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
-	(WIDGET *)(&buttons[BTN_DEVMENU        ]),  // Devices Menu
-	(WIDGET *)(&buttons[BTN_UPGMENU        ]),  // Upgrades Menu
-	(WIDGET *)(&choices[CHOICE_CHEATING    ]),  // JMS: cheatMode on/off
-	(WIDGET *)(&choices[CHOICE_CHDECLEAN   ]),  // Kohr-Ah DeCleansing mode
-	(WIDGET *)(&choices[CHOICE_CHGODMODE   ]),  // Precursor Mode
-	(WIDGET *)(&choices[CHOICE_CHTIME      ]),  // Time Dilation
-	(WIDGET *)(&choices[CHOICE_CHWARP      ]),  // Bubble Warp
-	(WIDGET *)(&choices[CHOICE_CHHEADSTART ]),  // Head Start
-	(WIDGET *)(&choices[CHOICE_CHSHIPS     ]),  // Unlock Ships
-	//(WIDGET *)(&choices[CHOICE_CHUPGRADES]),  // Unlock Upgrades
-	(WIDGET *)(&choices[CHOICE_CHINFRU     ]),  // Infinite RU
-	(WIDGET *)(&choices[CHOICE_CHINFFUEL   ]),  // Infinite Fuel
-	(WIDGET *)(&choices[CHOICE_CHINFCRD    ]),  // Infinite Credits
-	(WIDGET *)(&choices[CHOICE_CHCLEANHYPER]),  // No HyperSpace Encounters
-	(WIDGET *)(&choices[CHOICE_CHNOPLANET  ]),  // No Planets in melee
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]),  // Exit to Menu
+	(WIDGET *)(&buttons[BTN_DEVMENU        ]), // Devices Menu
+	(WIDGET *)(&buttons[BTN_UPGMENU        ]), // Upgrades Menu
+	(WIDGET *)(&choices[CHOICE_CHEATING    ]), // JMS: cheatMode on/off
+	(WIDGET *)(&choices[CHOICE_CHDECLEAN   ]), // Kohr-Ah DeCleansing mode
+	(WIDGET *)(&choices[CHOICE_CHGODMODE   ]), // Precursor Mode
+	(WIDGET *)(&choices[CHOICE_CHTIME      ]), // Time Dilation
+	(WIDGET *)(&choices[CHOICE_CHWARP      ]), // Bubble Warp
+	(WIDGET *)(&choices[CHOICE_CHHEADSTART ]), // Head Start
+	(WIDGET *)(&choices[CHOICE_CHSHIPS     ]), // Unlock Ships
+//	(WIDGET *)(&choices[CHOICE_CHUPGRADES  ]), // Unlock Upgrades
+	(WIDGET *)(&choices[CHOICE_CHINFRU     ]), // Infinite RU
+	(WIDGET *)(&choices[CHOICE_CHINFFUEL   ]), // Infinite Fuel
+	(WIDGET *)(&choices[CHOICE_CHINFCRD    ]), // Infinite Credits
+	(WIDGET *)(&choices[CHOICE_CHCLEANHYPER]), // No HyperSpace Encounters
+	(WIDGET *)(&choices[CHOICE_CHNOPLANET  ]), // No Planets in melee
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]), // Exit to Menu
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
-	(WIDGET *)(&choices[CHOICE_INPDEVICE]),		// Control Display
+	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
 #endif
-	(WIDGET *)(&choices[CHOICE_BTMPLAYER]),		// Bottom Player
-	(WIDGET *)(&choices[CHOICE_TOPPLAYER]),		// Top Player
+
+	(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Bottom Player
+	(WIDGET *)(&choices[CHOICE_TOPPLAYER ]), // Top Player
+
 #if defined(ANDROID) || defined(__ANDROID__)
-	(WIDGET *)(&choices[CHOICE_JOYSTICK ]),		// Directional Joystick toggle
+	(WIDGET *)(&choices[CHOICE_JOYSTICK  ]), // Directional Joystick toggle
 #endif
 
-	(WIDGET *)(&labels[LABEL_SPACER		]),     // Spacer
-	(WIDGET *)(&labels[LABEL_KEYSTOOLTIP]),		// "To view or edit..."
-	(WIDGET *)(&buttons[BTN_EDITKEYS    ]),		// Edit Controls
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP]), // "To view or edit..."
+	(WIDGET *)(&buttons[BTN_EDITKEYS     ]), // Edit Controls
 
-	(WIDGET *)(&labels[LABEL_SPACER		]),     // Spacer
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU ]),		// Exit to Menu
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
 static WIDGET *advanced_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_SKILLLVL  ]),	// Difficulty
-	(WIDGET *)(&choices[CHOICE_EXTENDED  ]),	// Extended features
-	(WIDGET *)(&choices[CHOICE_NOMAD     ]),	// Nomad Mode
-	(WIDGET *)(&choices[CHOICE_SLAUGHTER ]),	// Slaughter Mode
-	(WIDGET *)(&choices[CHOICE_FLEETPOINT]),	// Fleet Point System
+	(WIDGET *)(&choices    [CHOICE_SKILLLVL  ]), // Difficulty
+	(WIDGET *)(&choices    [CHOICE_EXTENDED  ]), // Extended features
+	(WIDGET *)(&choices    [CHOICE_NOMAD     ]), // Nomad Mode
+	(WIDGET *)(&choices    [CHOICE_SLAUGHTER ]), // Slaughter Mode
+	(WIDGET *)(&choices    [CHOICE_FLEETPOINT]), // Fleet Point System
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),	// Spacer
-	(WIDGET *)(&choices[CHOICE_GAMESEED  ]),	// Seed usage selection
-	(WIDGET *)(&textentries[TEXT_GAMESEED]),	// Custom Seed entry
-	(WIDGET *)(&choices[CHOICE_SHIPSEED	 ]),	// Ship seeding toggle
-	(WIDGET *)(&choices[CHOICE_SOICOLOR  ]),	// SOI Color Selection
+	(WIDGET *)(&labels     [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&choices    [CHOICE_GAMESEED  ]), // Seed usage selection
+	(WIDGET *)(&textentries[TEXT_GAMESEED    ]), // Custom Seed entry
+	(WIDGET *)(&choices    [CHOICE_SHIPSEED  ]), // Ship seeding toggle
+	(WIDGET *)(&choices    [CHOICE_SOICOLOR  ]), // SOI Color Selection
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]),	// Exit to Menu
+	(WIDGET *)(&labels     [LABEL_SPACER     ]),    // Spacer
+	(WIDGET *)(&buttons    [BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
 static WIDGET *visual_widgets[] = {
-	(WIDGET *)(&labels[LABEL_UI				]), // UI Label
-	(WIDGET *)(&choices[CHOICE_DATESTRING   ]),	// Switch date formats
-	(WIDGET *)(&choices[CHOICE_CUSTBORDER   ]),	// Custom Border switch
-	(WIDGET *)(&choices[CHOICE_FUELDECIM    ]),	// Whole Fuel Value switch
-	(WIDGET *)(&choices[CHOICE_FUELCIRCLE   ]),	// Fuel Range
-	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]),	// Animated HyperStars
-	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]),	// Game Over switch
+	(WIDGET *)(&labels [LABEL_UI            ]), // UI Label
+	(WIDGET *)(&choices[CHOICE_DATESTRING   ]), // Switch date formats
+	(WIDGET *)(&choices[CHOICE_CUSTBORDER   ]), // Custom Border switch
+	(WIDGET *)(&choices[CHOICE_FUELDECIM    ]), // Whole Fuel Value switch
+	(WIDGET *)(&choices[CHOICE_FUELCIRCLE   ]), // Fuel Range
+	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]), // Animated HyperStars
+	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]), // Game Over switch
 
-	(WIDGET *)(&labels[LABEL_SPACER			]), // Spacer
-	(WIDGET *)(&labels[LABEL_COMM			]), // Comm Label
-	(WIDGET *)(&choices[CHOICE_ORZFONT      ]),	// Alternate Orz font
-	(WIDGET *)(&choices[CHOICE_NOSTOSCILL   ]),	// Non-Stop Scope
+	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
+	(WIDGET *)(&labels [LABEL_COMM          ]), // Comm Label
+	(WIDGET *)(&choices[CHOICE_ORZFONT      ]), // Alternate Orz font
+	(WIDGET *)(&choices[CHOICE_NOSTOSCILL   ]), // Non-Stop Scope
 
-	(WIDGET *)(&labels[LABEL_SPACER			]), // Spacer
-	(WIDGET *)(&labels[LABEL_IP				]), // IP Label
-	(WIDGET *)(&choices[CHOICE_NEBULAE      ]),	// IP nebulae on/off
-	(WIDGET *)(&sliders[SLIDER_NEBULA       ]),	// Nebulae Volume
-	(WIDGET *)(&choices[CHOICE_ORBPLANETS   ]),	// orbitingPlanets on/off
-	(WIDGET *)(&choices[CHOICE_TEXPLANETS   ]),	// texturedPlanets on/off
+	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
+	(WIDGET *)(&labels [LABEL_IP            ]), // IP Label
+	(WIDGET *)(&choices[CHOICE_NEBULAE      ]), // IP nebulae on/off
+	(WIDGET *)(&sliders[SLIDER_NEBULA       ]), // Nebulae Volume
+	(WIDGET *)(&choices[CHOICE_ORBPLANETS   ]), // orbitingPlanets on/off
+	(WIDGET *)(&choices[CHOICE_TEXPLANETS   ]), // texturedPlanets on/off
 	(WIDGET *)(&choices[CHOICE_HDM_IP       ]), // HD's Star System View
-	(WIDGET *)(&choices[CHOICE_IPSHIPDIR    ]),	// NPC Ship Direction in IP
+	(WIDGET *)(&choices[CHOICE_IPSHIPDIR    ]), // NPC Ship Direction in IP
 
-	(WIDGET *)(&labels[LABEL_SPACER			]), // Spacer
-	(WIDGET *)(&labels[LABEL_SCAN			]), // Scan Label
+	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
+	(WIDGET *)(&labels [LABEL_SCAN          ]), // Scan Label
 	(WIDGET *)(&choices[CHOICE_HAZARDCLR    ]), // Hazard Colors
 	(WIDGET *)(&choices[CHOICE_PLNTEXTURE   ]), // Planet Texture
 	(WIDGET *)(&choices[CHOICE_LANDERUPGMASK]), // Show Lander Upgrades
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU     ]),	// Exit to Menu
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU     ]), // Exit to Menu
 	NULL };
 
 static WIDGET *qol_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_SKIPINTRO   ]),  // Skip Intro
-	(WIDGET *)(&choices[CHOICE_PARTPICKUP  ]),  // Partial Pickup switch
-	(WIDGET *)(&choices[CHOICE_SCATTERCARGO]),  // Scatter Elements
-	(WIDGET *)(&choices[CHOICE_SUBMENU     ]),  // Submenu switch
-	(WIDGET *)(&choices[CHOICE_SMARTAUTO   ]),  // Smart Auto-Pilot
-	(WIDGET *)(&choices[CHOICE_ADVAUTO     ]),  // Advanced Auto-Pilot
-	(WIDGET *)(&choices[CHOICE_VISITED     ]),  // Show Visited Stars
-	(WIDGET *)(&choices[CHOICE_MLTOOLTIP   ]),  // Melee Tool Tips
+	(WIDGET *)(&choices[CHOICE_SKIPINTRO   ]), // Skip Intro
+	(WIDGET *)(&choices[CHOICE_PARTPICKUP  ]), // Partial Pickup switch
+	(WIDGET *)(&choices[CHOICE_SCATTERCARGO]), // Scatter Elements
+	(WIDGET *)(&choices[CHOICE_SUBMENU     ]), // Submenu switch
+	(WIDGET *)(&choices[CHOICE_SMARTAUTO   ]), // Smart Auto-Pilot
+	(WIDGET *)(&choices[CHOICE_ADVAUTO     ]), // Advanced Auto-Pilot
+	(WIDGET *)(&choices[CHOICE_VISITED     ]), // Show Visited Stars
+	(WIDGET *)(&choices[CHOICE_MLTOOLTIP   ]), // Melee Tool Tips
 
-	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
-	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]),  // Exit to Menu
+	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]), // Exit to Menu
 	NULL };
 
 static WIDGET *editkeys_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_KBLAYOUT    ]),  // Current layout
-	(WIDGET *)(&textentries[TEXT_LOUTNAME  ]),  // Layout name
-	(WIDGET *)(&labels[LABEL_TAPTOOLTIP	   ]),  // "Press return to..."
-	(WIDGET *)(&controlentries[CONTROL_UP  ]),	// Up
-	(WIDGET *)(&controlentries[CONTROL_DOWN]),	// Down
-	(WIDGET *)(&controlentries[CONTROL_LEFT]),	// Left
-	(WIDGET *)(&controlentries[CONTROL_RGHT]),	// Right
-	(WIDGET *)(&controlentries[CONTROL_WEAP]),	// Weapon
-	(WIDGET *)(&controlentries[CONTROL_SPEC]),	// Special
-	(WIDGET *)(&controlentries[CONTROL_ESC ]),	// Escape
-	(WIDGET *)(&controlentries[CONTROL_THRU]),	// Thrust
-	(WIDGET *)(&buttons[BTN_PREVMENU	   ]),	// Previous menu
+	(WIDGET *)(&choices       [CHOICE_KBLAYOUT ]), // Current layout
+	(WIDGET *)(&textentries   [TEXT_LOUTNAME   ]), // Layout name
+	(WIDGET *)(&labels        [LABEL_TAPTOOLTIP]), // "Press return to..."
+	(WIDGET *)(&controlentries[CONTROL_UP      ]), // Up
+	(WIDGET *)(&controlentries[CONTROL_DOWN    ]), // Down
+	(WIDGET *)(&controlentries[CONTROL_LEFT    ]), // Left
+	(WIDGET *)(&controlentries[CONTROL_RGHT    ]), // Right
+	(WIDGET *)(&controlentries[CONTROL_WEAP    ]), // Weapon
+	(WIDGET *)(&controlentries[CONTROL_SPEC    ]), // Special
+	(WIDGET *)(&controlentries[CONTROL_ESC     ]), // Escape
+	(WIDGET *)(&controlentries[CONTROL_THRU    ]), // Thrust
+	(WIDGET *)(&buttons       [BTN_PREVMENU    ]), // Previous menu
 	NULL };
 
 static WIDGET *devices_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_DEVSPAWNER]),	// Portal Spawner
-	(WIDGET *)(&choices[CHOICE_DEVPET    ]),	// Talking Pet
-	(WIDGET *)(&choices[CHOICE_DEVBOMB   ]),	// Utwig Bomb
-	(WIDGET *)(&choices[CHOICE_DEVSUN    ]),	// Sun Device
-	(WIDGET *)(&choices[CHOICE_DEVSPHERE ]),	// Rosy Sphere
-	(WIDGET *)(&choices[CHOICE_DEVHELIX  ]),	// Aqua Helix
-	(WIDGET *)(&choices[CHOICE_DEVSPINDLE]),	// Clear Spindle
-	(WIDGET *)(&choices[CHOICE_DEVULTRON0]),	// Ultron (Broken)
-	(WIDGET *)(&choices[CHOICE_DEVULTRON1]),	// Ultron (Semi-Broken)
-	(WIDGET *)(&choices[CHOICE_DEVULTRON2]),	// Ultron (Semi-Fixed)
-	(WIDGET *)(&choices[CHOICE_DEVULTRON3]),	// Ultron (Fixed)
-	(WIDGET *)(&choices[CHOICE_DEVMAIDENS]),	// Shofixti Maidens
-	(WIDGET *)(&choices[CHOICE_DEVCASTER0]),	// Umgah Caster
-	(WIDGET *)(&choices[CHOICE_DEVCASTER1]),	// Burvixese Caster
-	(WIDGET *)(&choices[CHOICE_DEVSHIELD ]),	// Taalo Shield
-	(WIDGET *)(&choices[CHOICE_DEVEGGCS0 ]),	// Egg Case 01
-	(WIDGET *)(&choices[CHOICE_DEVEGGCS1 ]),	// Egg Case 02
-	(WIDGET *)(&choices[CHOICE_DEVEGGCS2 ]),	// Egg Case 03
-	(WIDGET *)(&choices[CHOICE_DEVSHUTTLE]),	// Syreen Shuttle
-	(WIDGET *)(&choices[CHOICE_DEVBEAST  ]),	// VUX Beast
-	(WIDGET *)(&choices[CHOICE_DEVSLYCODE]),	// Slylandro Destruct
-	(WIDGET *)(&choices[CHOICE_DEVWARPPOD]),	// Ur-Quan Warp Pod
-	(WIDGET *)(&choices[CHOICE_DEVTRIDENT]),	// Wimbli's Trident
-	(WIDGET *)(&choices[CHOICE_DEVROD    ]),	// Glowing Rod
-	(WIDGET *)(&choices[CHOICE_DEVLUNBASE]),	// Lunar Base
+	(WIDGET *)(&choices[CHOICE_DEVSPAWNER]), // Portal Spawner
+	(WIDGET *)(&choices[CHOICE_DEVPET    ]), // Talking Pet
+	(WIDGET *)(&choices[CHOICE_DEVBOMB   ]), // Utwig Bomb
+	(WIDGET *)(&choices[CHOICE_DEVSUN    ]), // Sun Device
+	(WIDGET *)(&choices[CHOICE_DEVSPHERE ]), // Rosy Sphere
+	(WIDGET *)(&choices[CHOICE_DEVHELIX  ]), // Aqua Helix
+	(WIDGET *)(&choices[CHOICE_DEVSPINDLE]), // Clear Spindle
+	(WIDGET *)(&choices[CHOICE_DEVULTRON0]), // Ultron (Broken)
+	(WIDGET *)(&choices[CHOICE_DEVULTRON1]), // Ultron (Semi-Broken)
+	(WIDGET *)(&choices[CHOICE_DEVULTRON2]), // Ultron (Semi-Fixed)
+	(WIDGET *)(&choices[CHOICE_DEVULTRON3]), // Ultron (Fixed)
+	(WIDGET *)(&choices[CHOICE_DEVMAIDENS]), // Shofixti Maidens
+	(WIDGET *)(&choices[CHOICE_DEVCASTER0]), // Umgah Caster
+	(WIDGET *)(&choices[CHOICE_DEVCASTER1]), // Burvixese Caster
+	(WIDGET *)(&choices[CHOICE_DEVSHIELD ]), // Taalo Shield
+	(WIDGET *)(&choices[CHOICE_DEVEGGCS0 ]), // Egg Case 01
+	(WIDGET *)(&choices[CHOICE_DEVEGGCS1 ]), // Egg Case 02
+	(WIDGET *)(&choices[CHOICE_DEVEGGCS2 ]), // Egg Case 03
+	(WIDGET *)(&choices[CHOICE_DEVSHUTTLE]), // Syreen Shuttle
+	(WIDGET *)(&choices[CHOICE_DEVBEAST  ]), // VUX Beast
+	(WIDGET *)(&choices[CHOICE_DEVSLYCODE]), // Slylandro Destruct
+	(WIDGET *)(&choices[CHOICE_DEVWARPPOD]), // Ur-Quan Warp Pod
+	(WIDGET *)(&choices[CHOICE_DEVTRIDENT]), // Wimbli's Trident
+	(WIDGET *)(&choices[CHOICE_DEVROD    ]), // Glowing Rod
+	(WIDGET *)(&choices[CHOICE_DEVLUNBASE]), // Lunar Base
 
-	(WIDGET *)(&labels[LABEL_SPACER		 ]),    // Spacer
-	(WIDGET *)(&buttons[BTN_CHTPREV		 ]),	// Back to Cheats
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&buttons[BTN_CHTPREV      ]), // Back to Cheats
 	NULL };
 
 static WIDGET *upgrades_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_UPGLANDERSPD]),  // Lander Speed
-	(WIDGET *)(&choices[CHOICE_UPGLANDERCRG]),  // Lander Cargo
-	(WIDGET *)(&choices[CHOICE_UPGLANDERFRE]),  // Lander Rapid Fire
-	(WIDGET *)(&choices[CHOICE_UPGLANDERBSH]),  // Lander Bio Shield
-	(WIDGET *)(&choices[CHOICE_UPGLANDERQSH]),  // Lander Quake Shield
-	(WIDGET *)(&choices[CHOICE_UPGLANDERLSH]),  // Lander Lightning Shield
-	(WIDGET *)(&choices[CHOICE_UPGLANDERHSH]),  // Lander Heat Shield
-	(WIDGET *)(&choices[CHOICE_MODPOINTDEF ]),  // Point Defense Module
-	(WIDGET *)(&choices[CHOICE_MODFUSBLAST ]),  // Fusion Blaster Module
-	(WIDGET *)(&choices[CHOICE_MODFUELTANK ]),  // Hi-Eff Fuel Module
-	(WIDGET *)(&choices[CHOICE_MODTRACKING ]),  // Tracking Module
-	(WIDGET *)(&choices[CHOICE_MODHELLBORE ]),  // Hellbore Cannon Module
-	(WIDGET *)(&choices[CHOICE_MODFURNACE  ]),  // Shiva Furnace Module
+	(WIDGET *)(&choices[CHOICE_UPGLANDERSPD]), // Lander Speed
+	(WIDGET *)(&choices[CHOICE_UPGLANDERCRG]), // Lander Cargo
+	(WIDGET *)(&choices[CHOICE_UPGLANDERFRE]), // Lander Rapid Fire
+	(WIDGET *)(&choices[CHOICE_UPGLANDERBSH]), // Lander Bio Shield
+	(WIDGET *)(&choices[CHOICE_UPGLANDERQSH]), // Lander Quake Shield
+	(WIDGET *)(&choices[CHOICE_UPGLANDERLSH]), // Lander Lightning Shield
+	(WIDGET *)(&choices[CHOICE_UPGLANDERHSH]), // Lander Heat Shield
+	(WIDGET *)(&choices[CHOICE_MODPOINTDEF ]), // Point Defense Module
+	(WIDGET *)(&choices[CHOICE_MODFUSBLAST ]), // Fusion Blaster Module
+	(WIDGET *)(&choices[CHOICE_MODFUELTANK ]), // Hi-Eff Fuel Module
+	(WIDGET *)(&choices[CHOICE_MODTRACKING ]), // Tracking Module
+	(WIDGET *)(&choices[CHOICE_MODHELLBORE ]), // Hellbore Cannon Module
+	(WIDGET *)(&choices[CHOICE_MODFURNACE  ]), // Shiva Furnace Module
 
-	(WIDGET *)(&labels[LABEL_SPACER		   ]),  // Spacer
-	(WIDGET *)(&buttons[BTN_CHTPREV		   ]),  // Back to Cheats
+	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
+	(WIDGET *)(&buttons[BTN_CHTPREV        ]), // Back to Cheats
 	NULL };
 
 static const struct
@@ -1150,97 +1155,99 @@ SetDefaults (void)
 	BYTE i;
 	
 	GetGlobalOptions (&opts);
-	choices[CHOICE_GRAPHICS        ].selected = opts.screenResolution;
-	choices[CHOICE_FRBUFFER        ].selected = opts.driver;
-	choices[CHOICE_SCALER          ].selected = opts.scaler;
-	choices[CHOICE_SCANLINE        ].selected = opts.scanlines;
-	choices[CHOICE_MENUSTYLE       ].selected = opts.menu;
-	choices[CHOICE_FONTSTYLE       ].selected = opts.text;
-	choices[CHOICE_SCANMENU        ].selected = opts.cscan;
-	choices[CHOICE_SCROLLSTYLE     ].selected = opts.scroll;
-	choices[CHOICE_SUBTITLES       ].selected = opts.subtitles;
-	choices[CHOICE_REMIXES1        ].selected = opts.music3do;
-	choices[CHOICE_DISPLAY         ].selected = opts.fullscreen;
-	choices[CHOICE_CUTSCENE        ].selected = opts.intro;
-	choices[CHOICE_SHOWFPS         ].selected = opts.fps;
+	choices[CHOICE_GRAPHICS     ].selected = opts.screenResolution;
+	choices[CHOICE_FRBUFFER     ].selected = opts.driver;
+	choices[CHOICE_SCALER       ].selected = opts.scaler;
+	choices[CHOICE_SCANLINE     ].selected = opts.scanlines;
+	choices[CHOICE_MENUSTYLE    ].selected = opts.menu;
+	choices[CHOICE_FONTSTYLE    ].selected = opts.text;
+	choices[CHOICE_SCANMENU     ].selected = opts.cscan;
+	choices[CHOICE_SCROLLSTYLE  ].selected = opts.scroll;
+	choices[CHOICE_SUBTITLES    ].selected = opts.subtitles;
+	choices[CHOICE_REMIXES1     ].selected = opts.music3do;
+	choices[CHOICE_DISPLAY      ].selected = opts.fullscreen;
+	choices[CHOICE_CUTSCENE     ].selected = opts.intro;
+	choices[CHOICE_SHOWFPS      ].selected = opts.fps;
+
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	choices[CHOICE_MELEEZOOM       ].selected = opts.meleezoom;
+	choices[CHOICE_MELEEZOOM    ].selected = opts.meleezoom;
 #endif
-	choices[CHOICE_POSAUDIO        ].selected = opts.stereo;
-	choices[CHOICE_SNDDRIVER       ].selected = opts.adriver;
-	choices[CHOICE_SNDQUALITY      ].selected = opts.aquality;
-	choices[CHOICE_SLVSHIELD       ].selected = opts.shield;
-	choices[CHOICE_BTMPLAYER       ].selected = opts.player1;
-	choices[CHOICE_TOPPLAYER       ].selected = opts.player2;
-	choices[CHOICE_KBLAYOUT        ].selected = 0;
-	choices[CHOICE_REMIXES2        ].selected = opts.musicremix;
-	choices[CHOICE_SPEECH          ].selected = opts.speech;
-	choices[CHOICE_ASPRATIO        ].selected = opts.keepaspect;
- 	choices[CHOICE_CHEATING        ].selected = opts.cheatMode;
-	choices[CHOICE_CHGODMODE       ].selected = opts.godModes;
-	choices[CHOICE_CHTIME          ].selected = opts.tdType;
-	choices[CHOICE_CHWARP          ].selected = opts.bubbleWarp;
-	choices[CHOICE_CHSHIPS         ].selected = opts.unlockShips;
-	choices[CHOICE_CHHEADSTART     ].selected = opts.headStart;
-	//choices[CHOICE_CHUPGRADES    ].selected = opts.unlockUpgrades;
-	choices[CHOICE_CHINFRU         ].selected = opts.infiniteRU;
-	choices[CHOICE_SKIPINTRO       ].selected = opts.skipIntro;
-	choices[CHOICE_FUELCIRCLE      ].selected = opts.fuelRange;
-	choices[CHOICE_MMENUMUSIC      ].selected = opts.mainMenuMusic;
-	choices[CHOICE_NEBULAE         ].selected = opts.nebulae;
-	choices[CHOICE_ORBPLANETS      ].selected = opts.orbitingPlanets;
-	choices[CHOICE_TEXPLANETS      ].selected = opts.texturedPlanets;
-	choices[CHOICE_DATESTRING      ].selected = opts.dateType;
-	choices[CHOICE_CHINFFUEL       ].selected = opts.infiniteFuel;
-	choices[CHOICE_PARTPICKUP      ].selected = opts.partialPickup;
-	choices[CHOICE_SUBMENU         ].selected = opts.submenu;
-	choices[CHOICE_RESOLUTION      ].selected = opts.loresBlowup;
-	choices[CHOICE_CHINFCRD        ].selected = opts.infiniteCredits;
-	choices[CHOICE_HAZARDCLR       ].selected = opts.hazardColors;
-	choices[CHOICE_CUSTBORDER      ].selected = opts.customBorder;
-	choices[CHOICE_IPMUSIC         ].selected = opts.spaceMusic;
-	choices[CHOICE_REMIXES3        ].selected = opts.volasMusic;
-	choices[CHOICE_FUELDECIM       ].selected = opts.wholeFuel;
+
+	choices[CHOICE_POSAUDIO     ].selected = opts.stereo;
+	choices[CHOICE_SNDDRIVER    ].selected = opts.adriver;
+	choices[CHOICE_SNDQUALITY   ].selected = opts.aquality;
+	choices[CHOICE_SLVSHIELD    ].selected = opts.shield;
+	choices[CHOICE_BTMPLAYER    ].selected = opts.player1;
+	choices[CHOICE_TOPPLAYER    ].selected = opts.player2;
+	choices[CHOICE_KBLAYOUT     ].selected = 0;
+	choices[CHOICE_REMIXES2     ].selected = opts.musicremix;
+	choices[CHOICE_SPEECH       ].selected = opts.speech;
+	choices[CHOICE_ASPRATIO     ].selected = opts.keepaspect;
+ 	choices[CHOICE_CHEATING     ].selected = opts.cheatMode;
+	choices[CHOICE_CHGODMODE    ].selected = opts.godModes;
+	choices[CHOICE_CHTIME       ].selected = opts.tdType;
+	choices[CHOICE_CHWARP       ].selected = opts.bubbleWarp;
+	choices[CHOICE_CHSHIPS      ].selected = opts.unlockShips;
+	choices[CHOICE_CHHEADSTART  ].selected = opts.headStart;
+//	choices[CHOICE_CHUPGRADES   ].selected = opts.unlockUpgrades;
+	choices[CHOICE_CHINFRU      ].selected = opts.infiniteRU;
+	choices[CHOICE_SKIPINTRO    ].selected = opts.skipIntro;
+	choices[CHOICE_FUELCIRCLE   ].selected = opts.fuelRange;
+	choices[CHOICE_MMENUMUSIC   ].selected = opts.mainMenuMusic;
+	choices[CHOICE_NEBULAE      ].selected = opts.nebulae;
+	choices[CHOICE_ORBPLANETS   ].selected = opts.orbitingPlanets;
+	choices[CHOICE_TEXPLANETS   ].selected = opts.texturedPlanets;
+	choices[CHOICE_DATESTRING   ].selected = opts.dateType;
+	choices[CHOICE_CHINFFUEL    ].selected = opts.infiniteFuel;
+	choices[CHOICE_PARTPICKUP   ].selected = opts.partialPickup;
+	choices[CHOICE_SUBMENU      ].selected = opts.submenu;
+	choices[CHOICE_RESOLUTION   ].selected = opts.loresBlowup;
+	choices[CHOICE_CHINFCRD     ].selected = opts.infiniteCredits;
+	choices[CHOICE_HAZARDCLR    ].selected = opts.hazardColors;
+	choices[CHOICE_CUSTBORDER   ].selected = opts.customBorder;
+	choices[CHOICE_IPMUSIC      ].selected = opts.spaceMusic;
+	choices[CHOICE_REMIXES3     ].selected = opts.volasMusic;
+	choices[CHOICE_FUELDECIM    ].selected = opts.wholeFuel;
 #if defined(ANDROID) || defined(__ANDROID__)
-	choices[CHOICE_JOYSTICK        ].selected = opts.directionalJoystick;
-	choices[CHOICE_ANDRZOOM        ].selected = opts.meleezoom;
+	choices[CHOICE_JOYSTICK     ].selected = opts.directionalJoystick;
+	choices[CHOICE_ANDRZOOM     ].selected = opts.meleezoom;
 #endif
-	choices[CHOICE_LANDERHOLD      ].selected = opts.landerHold;
-	choices[CHOICE_SCRMELT         ].selected = opts.scrTrans;
-	choices[CHOICE_SKILLLVL        ].selected = opts.difficulty;
-	choices[CHOICE_EXTENDED        ].selected = opts.extended;
-	choices[CHOICE_NOMAD           ].selected = opts.nomad;
-	choices[CHOICE_GAMEOVER        ].selected = opts.gameOver;
-	choices[CHOICE_IPSHIPDIR       ].selected = opts.shipDirectionIP;
-	choices[CHOICE_ORZFONT         ].selected = opts.orzCompFont;
-	choices[CHOICE_INPDEVICE       ].selected = opts.controllerType;
-	choices[CHOICE_SMARTAUTO       ].selected = opts.smartAutoPilot;
-	choices[CHOICE_SCANTINT        ].selected = opts.tintPlanSphere;
-	choices[CHOICE_IPSTYLE         ].selected = opts.planetStyle;
-	choices[CHOICE_IPBACKGROUND    ].selected = opts.starBackground;
-	choices[CHOICE_SCANSTYLE       ].selected = opts.scanStyle;
-	choices[CHOICE_NOSTOSCILL      ].selected = opts.nonStopOscill;
-	choices[CHOICE_OSCILLSTYLE     ].selected = opts.scopeStyle;
-	choices[CHOICE_ANIMHYPER       ].selected = opts.hyperStars;
-	choices[CHOICE_LANDERSTYLE     ].selected = opts.landerStyle;
-	choices[CHOICE_PLNTEXTURE      ].selected = opts.planetTexture;
-	choices[CHOICE_FLAGSHIP        ].selected = opts.flagshipColor;
-	choices[CHOICE_CHCLEANHYPER    ].selected = opts.noHQEncounters;
-	choices[CHOICE_CHDECLEAN       ].selected = opts.deCleansing;
-	choices[CHOICE_CHNOPLANET      ].selected = opts.meleeObstacles;
-	choices[CHOICE_VISITED         ].selected = opts.showVisitedStars;
+	choices[CHOICE_LANDERHOLD   ].selected = opts.landerHold;
+	choices[CHOICE_SCRMELT      ].selected = opts.scrTrans;
+	choices[CHOICE_SKILLLVL     ].selected = opts.difficulty;
+	choices[CHOICE_EXTENDED     ].selected = opts.extended;
+	choices[CHOICE_NOMAD        ].selected = opts.nomad;
+	choices[CHOICE_GAMEOVER     ].selected = opts.gameOver;
+	choices[CHOICE_IPSHIPDIR    ].selected = opts.shipDirectionIP;
+	choices[CHOICE_ORZFONT      ].selected = opts.orzCompFont;
+	choices[CHOICE_INPDEVICE    ].selected = opts.controllerType;
+	choices[CHOICE_SMARTAUTO    ].selected = opts.smartAutoPilot;
+	choices[CHOICE_SCANTINT     ].selected = opts.tintPlanSphere;
+	choices[CHOICE_IPSTYLE      ].selected = opts.planetStyle;
+	choices[CHOICE_IPBACKGROUND ].selected = opts.starBackground;
+	choices[CHOICE_SCANSTYLE    ].selected = opts.scanStyle;
+	choices[CHOICE_NOSTOSCILL   ].selected = opts.nonStopOscill;
+	choices[CHOICE_OSCILLSTYLE  ].selected = opts.scopeStyle;
+	choices[CHOICE_ANIMHYPER    ].selected = opts.hyperStars;
+	choices[CHOICE_LANDERSTYLE  ].selected = opts.landerStyle;
+	choices[CHOICE_PLNTEXTURE   ].selected = opts.planetTexture;
+	choices[CHOICE_FLAGSHIP     ].selected = opts.flagshipColor;
+	choices[CHOICE_CHCLEANHYPER ].selected = opts.noHQEncounters;
+	choices[CHOICE_CHDECLEAN    ].selected = opts.deCleansing;
+	choices[CHOICE_CHNOPLANET   ].selected = opts.meleeObstacles;
+	choices[CHOICE_VISITED      ].selected = opts.showVisitedStars;
 	choices[CHOICE_HDM_IP       ].selected = opts.unscaledStarSystem;
-	choices[CHOICE_SCANSPHERE      ].selected = opts.sphereType;
-	choices[CHOICE_SLAUGHTER       ].selected = opts.slaughterMode;
-	choices[CHOICE_ADVAUTO         ].selected = opts.advancedAutoPilot;
-	choices[CHOICE_MLTOOLTIP       ].selected = opts.meleeToolTips;
-	choices[CHOICE_MUSRESUME       ].selected = opts.musicResume;
-	choices[CHOICE_WINDOWTYPE      ].selected = opts.windowType;
-	choices[CHOICE_GAMESEED        ].selected = opts.seedType;
-	choices[CHOICE_SOICOLOR        ].selected = opts.sphereColors;
-	choices[CHOICE_SCATTERCARGO    ].selected = opts.scatterElements;
-	choices[CHOICE_LANDERUPGMASK   ].selected = opts.showUpgrades;
-	choices[CHOICE_FLEETPOINT      ].selected = opts.fleetPointSys;
+	choices[CHOICE_SCANSPHERE   ].selected = opts.sphereType;
+	choices[CHOICE_SLAUGHTER    ].selected = opts.slaughterMode;
+	choices[CHOICE_ADVAUTO      ].selected = opts.advancedAutoPilot;
+	choices[CHOICE_MLTOOLTIP    ].selected = opts.meleeToolTips;
+	choices[CHOICE_MUSRESUME    ].selected = opts.musicResume;
+	choices[CHOICE_WINDOWTYPE   ].selected = opts.windowType;
+	choices[CHOICE_GAMESEED     ].selected = opts.seedType;
+	choices[CHOICE_SOICOLOR     ].selected = opts.sphereColors;
+	choices[CHOICE_SCATTERCARGO ].selected = opts.scatterElements;
+	choices[CHOICE_LANDERUPGMASK].selected = opts.showUpgrades;
+	choices[CHOICE_FLEETPOINT   ].selected = opts.fleetPointSys;
 
 	// Devices
 	for (i = DEVICE_START; i < DEVICE_START
@@ -1271,95 +1278,97 @@ PropagateResults (void)
 	BYTE i;
 
 	opts.screenResolution = choices[CHOICE_GRAPHICS     ].selected;
-	opts.driver =			choices[CHOICE_FRBUFFER     ].selected;
-	opts.scaler =			choices[CHOICE_SCALER       ].selected;
-	opts.scanlines =		choices[CHOICE_SCANLINE     ].selected;
-	opts.menu =				choices[CHOICE_MENUSTYLE    ].selected;
-	opts.text =				choices[CHOICE_FONTSTYLE    ].selected;
-	opts.cscan =			choices[CHOICE_SCANMENU     ].selected;
-	opts.scroll =			choices[CHOICE_SCROLLSTYLE  ].selected;
-	opts.subtitles =		choices[CHOICE_SUBTITLES    ].selected;
-	opts.music3do =			choices[CHOICE_REMIXES1     ].selected;
-	opts.fullscreen =		choices[CHOICE_DISPLAY      ].selected;
-	opts.intro =			choices[CHOICE_CUTSCENE     ].selected;
-	opts.fps =				choices[CHOICE_SHOWFPS      ].selected;
+	opts.driver =           choices[CHOICE_FRBUFFER     ].selected;
+	opts.scaler =           choices[CHOICE_SCALER       ].selected;
+	opts.scanlines =        choices[CHOICE_SCANLINE     ].selected;
+	opts.menu =             choices[CHOICE_MENUSTYLE    ].selected;
+	opts.text =             choices[CHOICE_FONTSTYLE    ].selected;
+	opts.cscan =            choices[CHOICE_SCANMENU     ].selected;
+	opts.scroll =           choices[CHOICE_SCROLLSTYLE  ].selected;
+	opts.subtitles =        choices[CHOICE_SUBTITLES    ].selected;
+	opts.music3do =         choices[CHOICE_REMIXES1     ].selected;
+	opts.fullscreen =       choices[CHOICE_DISPLAY      ].selected;
+	opts.intro =            choices[CHOICE_CUTSCENE     ].selected;
+	opts.fps =              choices[CHOICE_SHOWFPS      ].selected;
+
 #if !(defined(ANDROID) || defined(__ANDROID__))
-	opts.meleezoom =		choices[CHOICE_MELEEZOOM    ].selected;
+	opts.meleezoom =        choices[CHOICE_MELEEZOOM    ].selected;
 #endif
-	opts.stereo =			choices[CHOICE_POSAUDIO     ].selected;
-	opts.adriver =			choices[CHOICE_SNDDRIVER    ].selected;
-	opts.aquality =			choices[CHOICE_SNDQUALITY   ].selected;
-	opts.shield =			choices[CHOICE_SLVSHIELD    ].selected;
-	opts.player1 =			choices[CHOICE_BTMPLAYER    ].selected;
-	opts.player2 =			choices[CHOICE_TOPPLAYER    ].selected;
-	opts.musicremix =		choices[CHOICE_REMIXES2     ].selected;
-	opts.speech =			choices[CHOICE_SPEECH       ].selected;
-	opts.keepaspect =		choices[CHOICE_ASPRATIO     ].selected;
- 	opts.cheatMode =		choices[CHOICE_CHEATING     ].selected;
-	opts.godModes =			choices[CHOICE_CHGODMODE    ].selected;
-	opts.tdType =			choices[CHOICE_CHTIME       ].selected;
-	opts.bubbleWarp =		choices[CHOICE_CHWARP       ].selected;
-	opts.unlockShips =		choices[CHOICE_CHSHIPS      ].selected;
-	opts.headStart =		choices[CHOICE_CHHEADSTART  ].selected;
-	//opts.unlockUpgrades = choices[CHOICE_CHUPGRADES   ].selected;
-	opts.infiniteRU =		choices[CHOICE_CHINFRU      ].selected;
-	opts.skipIntro =		choices[CHOICE_SKIPINTRO    ].selected;
-	opts.fuelRange =		choices[CHOICE_FUELCIRCLE   ].selected;
-	opts.mainMenuMusic =	choices[CHOICE_MMENUMUSIC   ].selected;
-	opts.nebulae =			choices[CHOICE_NEBULAE      ].selected;
-	opts.orbitingPlanets =	choices[CHOICE_ORBPLANETS   ].selected;
-	opts.texturedPlanets =	choices[CHOICE_TEXPLANETS   ].selected;
-	opts.dateType =			choices[CHOICE_DATESTRING   ].selected;
-	opts.infiniteFuel =		choices[CHOICE_CHINFFUEL    ].selected;
-	opts.partialPickup =	choices[CHOICE_PARTPICKUP   ].selected;
-	opts.submenu =			choices[CHOICE_SUBMENU      ].selected;
-	opts.loresBlowup =		choices[CHOICE_RESOLUTION   ].selected;
-	opts.infiniteCredits =	choices[CHOICE_CHINFCRD     ].selected;
-	opts.hazardColors =		choices[CHOICE_HAZARDCLR    ].selected;
-	opts.customBorder =		choices[CHOICE_CUSTBORDER   ].selected;
-	opts.spaceMusic =		choices[CHOICE_IPMUSIC      ].selected;
-	opts.volasMusic =		choices[CHOICE_REMIXES3     ].selected;
-	opts.wholeFuel =		choices[CHOICE_FUELDECIM    ].selected;
+
+	opts.stereo =           choices[CHOICE_POSAUDIO     ].selected;
+	opts.adriver =          choices[CHOICE_SNDDRIVER    ].selected;
+	opts.aquality =         choices[CHOICE_SNDQUALITY   ].selected;
+	opts.shield =           choices[CHOICE_SLVSHIELD    ].selected;
+	opts.player1 =          choices[CHOICE_BTMPLAYER    ].selected;
+	opts.player2 =          choices[CHOICE_TOPPLAYER    ].selected;
+	opts.musicremix =       choices[CHOICE_REMIXES2     ].selected;
+	opts.speech =           choices[CHOICE_SPEECH       ].selected;
+	opts.keepaspect =       choices[CHOICE_ASPRATIO     ].selected;
+ 	opts.cheatMode =        choices[CHOICE_CHEATING     ].selected;
+	opts.godModes =         choices[CHOICE_CHGODMODE    ].selected;
+	opts.tdType =           choices[CHOICE_CHTIME       ].selected;
+	opts.bubbleWarp =       choices[CHOICE_CHWARP       ].selected;
+	opts.unlockShips =      choices[CHOICE_CHSHIPS      ].selected;
+	opts.headStart =        choices[CHOICE_CHHEADSTART  ].selected;
+//	opts.unlockUpgrades =   choices[CHOICE_CHUPGRADES   ].selected;
+	opts.infiniteRU =       choices[CHOICE_CHINFRU      ].selected;
+	opts.skipIntro =        choices[CHOICE_SKIPINTRO    ].selected;
+	opts.fuelRange =        choices[CHOICE_FUELCIRCLE   ].selected;
+	opts.mainMenuMusic =    choices[CHOICE_MMENUMUSIC   ].selected;
+	opts.nebulae =          choices[CHOICE_NEBULAE      ].selected;
+	opts.orbitingPlanets =  choices[CHOICE_ORBPLANETS   ].selected;
+	opts.texturedPlanets =  choices[CHOICE_TEXPLANETS   ].selected;
+	opts.dateType =         choices[CHOICE_DATESTRING   ].selected;
+	opts.infiniteFuel =     choices[CHOICE_CHINFFUEL    ].selected;
+	opts.partialPickup =    choices[CHOICE_PARTPICKUP   ].selected;
+	opts.submenu =          choices[CHOICE_SUBMENU      ].selected;
+	opts.loresBlowup =      choices[CHOICE_RESOLUTION   ].selected;
+	opts.infiniteCredits =  choices[CHOICE_CHINFCRD     ].selected;
+	opts.hazardColors =     choices[CHOICE_HAZARDCLR    ].selected;
+	opts.customBorder =     choices[CHOICE_CUSTBORDER   ].selected;
+	opts.spaceMusic =       choices[CHOICE_IPMUSIC      ].selected;
+	opts.volasMusic =       choices[CHOICE_REMIXES3     ].selected;
+	opts.wholeFuel =        choices[CHOICE_FUELDECIM    ].selected;
 #if defined(ANDROID) || defined(__ANDROID__)
 	opts.directionalJoystick = choices[CHOICE_JOYSTICK  ].selected;
-	opts.meleezoom =		choices[CHOICE_ANDRZOOM     ].selected;
+	opts.meleezoom =           choices[CHOICE_ANDRZOOM  ].selected;
 #endif
-	opts.landerHold =		choices[CHOICE_LANDERHOLD   ].selected;
-	opts.scrTrans =			choices[CHOICE_SCRMELT      ].selected;
-	opts.difficulty =		choices[CHOICE_SKILLLVL     ].selected;
-	opts.extended =			choices[CHOICE_EXTENDED     ].selected;
-	opts.nomad =			choices[CHOICE_NOMAD        ].selected;
-	opts.gameOver =			choices[CHOICE_GAMEOVER     ].selected;
-	opts.shipDirectionIP =	choices[CHOICE_IPSHIPDIR    ].selected;
-	opts.orzCompFont =		choices[CHOICE_ORZFONT      ].selected;
-	opts.controllerType =	choices[CHOICE_INPDEVICE    ].selected;
-	opts.smartAutoPilot =	choices[CHOICE_SMARTAUTO    ].selected;
-	opts.tintPlanSphere =	choices[CHOICE_SCANTINT     ].selected;
-	opts.planetStyle =		choices[CHOICE_IPSTYLE      ].selected;
-	opts.starBackground =	choices[CHOICE_IPBACKGROUND ].selected;
-	opts.scanStyle =		choices[CHOICE_SCANSTYLE    ].selected;
-	opts.nonStopOscill =	choices[CHOICE_NOSTOSCILL   ].selected;
-	opts.scopeStyle =		choices[CHOICE_OSCILLSTYLE  ].selected;
-	opts.hyperStars =		choices[CHOICE_ANIMHYPER    ].selected;
-	opts.landerStyle =		choices[CHOICE_LANDERSTYLE  ].selected;
-	opts.planetTexture =	choices[CHOICE_PLNTEXTURE   ].selected;
-	opts.flagshipColor =	choices[CHOICE_FLAGSHIP     ].selected;
-	opts.noHQEncounters =	choices[CHOICE_CHCLEANHYPER ].selected;
-	opts.deCleansing =		choices[CHOICE_CHDECLEAN    ].selected;
-	opts.meleeObstacles =	choices[CHOICE_CHNOPLANET   ].selected;
+	opts.landerHold =       choices[CHOICE_LANDERHOLD   ].selected;
+	opts.scrTrans =         choices[CHOICE_SCRMELT      ].selected;
+	opts.difficulty =       choices[CHOICE_SKILLLVL     ].selected;
+	opts.extended =         choices[CHOICE_EXTENDED     ].selected;
+	opts.nomad =            choices[CHOICE_NOMAD        ].selected;
+	opts.gameOver =         choices[CHOICE_GAMEOVER     ].selected;
+	opts.shipDirectionIP =  choices[CHOICE_IPSHIPDIR    ].selected;
+	opts.orzCompFont =      choices[CHOICE_ORZFONT      ].selected;
+	opts.controllerType =   choices[CHOICE_INPDEVICE    ].selected;
+	opts.smartAutoPilot =   choices[CHOICE_SMARTAUTO    ].selected;
+	opts.tintPlanSphere =   choices[CHOICE_SCANTINT     ].selected;
+	opts.planetStyle =      choices[CHOICE_IPSTYLE      ].selected;
+	opts.starBackground =   choices[CHOICE_IPBACKGROUND ].selected;
+	opts.scanStyle =        choices[CHOICE_SCANSTYLE    ].selected;
+	opts.nonStopOscill =    choices[CHOICE_NOSTOSCILL   ].selected;
+	opts.scopeStyle =       choices[CHOICE_OSCILLSTYLE  ].selected;
+	opts.hyperStars =       choices[CHOICE_ANIMHYPER    ].selected;
+	opts.landerStyle =      choices[CHOICE_LANDERSTYLE  ].selected;
+	opts.planetTexture =    choices[CHOICE_PLNTEXTURE   ].selected;
+	opts.flagshipColor =    choices[CHOICE_FLAGSHIP     ].selected;
+	opts.noHQEncounters =   choices[CHOICE_CHCLEANHYPER ].selected;
+	opts.deCleansing =      choices[CHOICE_CHDECLEAN    ].selected;
+	opts.meleeObstacles =   choices[CHOICE_CHNOPLANET   ].selected;
 	opts.showVisitedStars = choices[CHOICE_VISITED      ].selected;
 	opts.unscaledStarSystem=choices[CHOICE_HDM_IP       ].selected;
-	opts.sphereType =		choices[CHOICE_SCANSPHERE   ].selected;
-	opts.slaughterMode =	choices[CHOICE_SLAUGHTER    ].selected;
+	opts.sphereType =       choices[CHOICE_SCANSPHERE   ].selected;
+	opts.slaughterMode =    choices[CHOICE_SLAUGHTER    ].selected;
 	opts.advancedAutoPilot= choices[CHOICE_ADVAUTO      ].selected;
-	opts.meleeToolTips =	choices[CHOICE_MLTOOLTIP    ].selected;
-	opts.musicResume =		choices[CHOICE_MUSRESUME    ].selected;
-	opts.windowType =		choices[CHOICE_WINDOWTYPE   ].selected;
-	opts.seedType =			choices[CHOICE_GAMESEED     ].selected;
-	opts.sphereColors =		choices[CHOICE_SOICOLOR     ].selected;
-	opts.scatterElements =	choices[CHOICE_SCATTERCARGO ].selected;
-	opts.showUpgrades =		choices[CHOICE_LANDERUPGMASK].selected;
-	opts.fleetPointSys =	choices[CHOICE_FLEETPOINT   ].selected;
+	opts.meleeToolTips =    choices[CHOICE_MLTOOLTIP    ].selected;
+	opts.musicResume =      choices[CHOICE_MUSRESUME    ].selected;
+	opts.windowType =       choices[CHOICE_WINDOWTYPE   ].selected;
+	opts.seedType =         choices[CHOICE_GAMESEED     ].selected;
+	opts.sphereColors =     choices[CHOICE_SOICOLOR     ].selected;
+	opts.scatterElements =  choices[CHOICE_SCATTERCARGO ].selected;
+	opts.showUpgrades =     choices[CHOICE_LANDERUPGMASK].selected;
+	opts.fleetPointSys =    choices[CHOICE_FLEETPOINT   ].selected;
 
 	// Devices
 	for (i = DEVICE_START;
@@ -1375,11 +1384,12 @@ PropagateResults (void)
 
 	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
 
-	opts.musicvol	= sliders[SLIDER_MUSVOLUME ].value;
-	opts.sfxvol		= sliders[SLIDER_SFXVOLUME ].value;
-	opts.speechvol	= sliders[SLIDER_SPCHVOLUME].value;
-	opts.gamma		= sliders[SLIDER_GAMMA     ].value;
+	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
+	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
+	opts.speechvol  = sliders[SLIDER_SPCHVOLUME].value;
+	opts.gamma      = sliders[SLIDER_GAMMA     ].value;
 	opts.nebulaevol = sliders[SLIDER_NEBULA    ].value;
+
 	SetGlobalOptions (&opts);
 }
 
@@ -1867,7 +1877,7 @@ init_widgets (void)
 	}
 
 	/* Choice 20 has a special onChange handler, too. */
-	choices[CHOICE_KBLAYOUT].onChange = change_template;
+	choices[CHOICE_KBLAYOUT  ].onChange = change_template;
 
 	// Check addon availability for HD mode, DOS/3DO mode, and music remixes
 	choices[CHOICE_GRAPHICS  ].onChange = check_availability;
