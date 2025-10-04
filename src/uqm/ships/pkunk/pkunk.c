@@ -24,6 +24,8 @@
 #include "uqm/tactrans.h"
 #include "libs/mathlib.h"
 #include "../../settings.h"
+#include "uqm/build.h" // for fwiffo
+#include "uqm/nameref.h" // for fwiffo
 
 // Core characteristics
 #define MAX_CREW 8
@@ -480,6 +482,8 @@ phoenix_transition (ELEMENT *ElementPtr)
 	UnlockElement (StarShipPtr->hShip);
 }
 
+SOUND FwiffoSounds = 0;
+
 static void
 pkunk_preprocess (ELEMENT *ElementPtr)
 {
@@ -488,6 +492,13 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	PkunkData = GetCustomShipData (StarShipPtr->RaceDescPtr);
+
+	BOOLEAN Fwiffo = (StarShipPtr->captains_name_index ==
+			NAME_OFFSET + NUM_CAPTAINS_NAMES &&
+			StarShipPtr->SpeciesID == SPATHI_ID);
+	if (Fwiffo && !FwiffoSounds)
+		FwiffoSounds = CaptureSound (LoadSound ("ship.spathi.sounds"));
+
 	if (ElementPtr->state_flags & APPEARING)
 	{
 		HELEMENT hPhoenix = 0;
@@ -529,7 +540,10 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 		{	// Start the reincarnation sequence
 			COUNT angle, facing;
 
-			ProcessSound (SetAbsSoundIndex (
+			if (Fwiffo)
+				ProcessSound (SetAbsSoundIndex (FwiffoSounds, 1), ElementPtr);
+			else
+				ProcessSound (SetAbsSoundIndex (
 					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1
 					), ElementPtr);
 
@@ -613,6 +627,11 @@ static void
 uninit_pkunk (RACE_DESC *pRaceDesc)
 {
 	SetCustomShipData (pRaceDesc, NULL);
+	if (FwiffoSounds)
+	{
+		DestroySound (ReleaseSound (FwiffoSounds));
+		FwiffoSounds = 0;
+	}
 }
 
 RACE_DESC*

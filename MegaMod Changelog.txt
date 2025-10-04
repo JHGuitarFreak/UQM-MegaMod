@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Extended mode: Utwig and Supox now give gift ships on a calendar similar to the Yehat and Pkunk (which now use standardized functions).
 - Extended mode: Added missing Supox rumors to neutral (but helpful) Supox dialog.
 - Extended mode: Druuge SOI revealed when Supox tell you to look for Ultron parts there.
-- Added option to shuffle ship allocations to alien races (within three tiers of ship) based on the custom seed. Applies to both Melee and new games.
+- Added option to shuffle ship allocations to alien races (within three tiers of ship) based on the custom seed when starting a New Game.
 - Show the type of save on the loading screen in the blue title bar when loading a vanilla, HD-mod, or legacy vanilla save
 - Auto-load support for Distorted Hayes dialog addon
 - Commandline option to prevent Classic Pack from loading
