@@ -549,6 +549,7 @@ DoRestart (MENU_STATE *pMS)
 				optLoadGame = FALSE;
 				break;
 			case PLAY_SUPER_MELEE:
+				optShipSeed = FALSE;	// Prevent ShipSeed in Super Melee
 				ReloadMasterShipList (NULL);
 				GLOBAL (CurrentActivity) = SUPER_MELEE;
 				optSuperMelee = FALSE;
