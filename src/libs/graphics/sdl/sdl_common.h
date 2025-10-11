@@ -60,8 +60,6 @@ int TFB_SetColorKey (SDL_Surface *surface, Uint32 key, int rleaccel);
 int TFB_DisableColorKey (SDL_Surface *surface);
 int TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 
-void TFB_InitOnScreenKeyboard(void);
-
 void UnInit_Screen (SDL_Surface **screen);
 
 extern BOOLEAN TFB_SDL_ScreenShot (const char *path);
