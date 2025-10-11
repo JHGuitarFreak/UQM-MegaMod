@@ -613,6 +613,9 @@ DrawJournal (void)
 	{
 		RECT r;
 
+		if (IS_PAD)
+			SetContextFont (TinyFontCond);
+
 		SetContextForeGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
 		r.corner.y = SIS_SCREEN_HEIGHT - (leading + RES_SCALE (4));
 		r.corner.x = 0;
