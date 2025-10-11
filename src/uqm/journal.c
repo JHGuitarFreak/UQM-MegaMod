@@ -41,6 +41,7 @@
 #include "comm/starbas/strings.h"
 #include "planets/lander.h"
 #include "gameopt.h"
+#include "gamestr.h"
 
 
 typedef enum {
@@ -514,27 +515,29 @@ DrawJournal (void)
 		ClearDrawable ();
 		RepairSISBorder ();
 
+		DrawSISMessage (JOURNAL_STRING (CAPTAINS_LOG));
+
 	switch (which_journal)
 	{
 		case OBJECTIVES_JOURNAL:
-			DrawSISMessage (JOURNAL_STRING (OBJECTIVES_JOURNAL_HEADER));
+			DrawSISTitle (JOURNAL_STRING (OBJECTIVES_JOURNAL_HEADER));
 			sid = OPEN_OBJECTIVES;
 			sid_end = CLOSED_OBJECTIVES;
 			break;
 		case ALIENS_JOURNAL:
-			DrawSISMessage (JOURNAL_STRING (ALIENS_JOURNAL_HEADER));
+			DrawSISTitle (JOURNAL_STRING (ALIENS_JOURNAL_HEADER));
 			sid = OPEN_ALIENS;
 			sid_end = CLOSED_ALIENS;
 			break;
 		case ARTIFACTS_JOURNAL:
-			DrawSISMessage (JOURNAL_STRING (ARTIFACTS_JOURNAL_HEADER));
+			DrawSISTitle (JOURNAL_STRING (ARTIFACTS_JOURNAL_HEADER));
 			sid = OPEN_ARTIFACTS;
 			sid_end = CLOSED_ARTIFACTS;
 			break;
 		default:
 			snprintf (journal_buf, JOURNAL_BUF_SIZE, "journal #%d",
 					which_journal);
-			DrawSISMessage (journal_buf);
+			DrawSISTitle (journal_buf);
 			sid = OPEN_SPATHI;
 			sid_end = CLOSED_SPATHI;
 			break;
@@ -723,7 +726,7 @@ Journal (void)
 
 	GetContextClipRect (&old_r);
 
-	// For the Orbital and Shipyard transitions
+	// For the Orbital, Shipyard, and Comm transitions
 	r = old_r;
 	r.corner.x -= RES_SCALE (1);
 	r.extent.width += RES_SCALE (2);
@@ -770,10 +773,16 @@ Journal (void)
 	BatchGraphics ();
 		
 		DrawStamp (&s);
-
-		DrawHyperCoords (universe);
 		DrawSISMessage (NULL);
-		DrawStatusMessage (NULL);
+
+		if (inHQSpace ())
+			DrawHyperCoords (GLOBAL (ShipStamp.origin));
+		else if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) == (BYTE)~0)
+			DrawSISTitle (GAME_STRING (STARBASE_STRING_BASE + 0));
+		else if (GLOBAL (ip_planet) || playerInInnerSystem ())
+			DrawSISTitle (GLOBAL_SIS (PlanetName));
+		else
+			DrawHyperCoords (CurStarDescPtr->star_pt);
 
 		ScreenTransition (optScrTrans, &r);
 	
