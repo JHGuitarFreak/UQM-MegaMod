@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.4]
 
 ### Added
-- Added option to shuffle ship allocations to alien races (within three tiers of ship) based on the custom seed. Applies to both Melee and new games.
+- Extended mode: Utwig and Supox now give gift ships on a calendar similar to the Yehat and Pkunk (which now use standardized functions).
+- Extended mode: Added missing Supox rumors to neutral (but helpful) Supox dialog.
+- Extended mode: Druuge SOI revealed when Supox tell you to look for Ultron parts there.
+- Added option to shuffle ship allocations to alien races (within three tiers of ship) based on the custom seed when starting a New Game.
 - Show the type of save on the loading screen in the blue title bar when loading a vanilla, HD-mod, or legacy vanilla save
 - Auto-load support for Distorted Hayes dialog addon
 - Commandline option to prevent Classic Pack from loading
@@ -23,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added support for alien race specific HyperSpace themes that will change on-the-fly as you traverse HyperSpace (takes into account the No Spoilers option)
 
 ### Changed
+- Extended mode: Supox dialog doesn't kick you out between gifting ultron and asking about Druuge.
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
 - The helper graphics for scanning and landing now show current cargo manifest for elements and biological data
 - Dropped support for autoloading vanilla voice content as it is no longer compatible
@@ -36,6 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
 
 ### Fixed
+- Load legacy savefiles correctly load with StarSeed code
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
 - 1-Frame solar system draw after Chmmr dialogue that can cause a crash
 - Orz computer font persisting through multiple lines
@@ -47,6 +52,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixed F10 exit being overdrawn in some cases
 - Fixed flash context "repairing" frame during exit
 - Fixed F10 exit issue when shipyard powerlines being drawn over exit dialog box
+- Fixed an array of bugs introduced with tall pixels and custom resolution modes
 - Fixed Hard Mode Thraddash Allies during UQ/KA mission not able to acquire Aqua Helix
 
 ## [v0.8.3] - 2024-04-11

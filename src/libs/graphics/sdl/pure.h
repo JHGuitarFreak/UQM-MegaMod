@@ -29,5 +29,6 @@ int TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		int togglefullscreen, unsigned int resFactor, unsigned int windowType);
 void Scale_PerfTest (void);
 bool TFB_SDL2_GammaCorrection (float gamma);
+void TFB_SDL2_GetDisplaySize (SDL_Rect *bounds);
 
 #endif

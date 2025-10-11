@@ -135,7 +135,7 @@ BOOLEAN optNoClassic;
 OPT_ENABLABLE optScatterElements;
 OPT_ENABLABLE optShowUpgrades;
 OPT_ENABLABLE optFleetPointSys;
-OPT_ADD_REMOVE optDeviceArray[25];
+OPT_ADD_REMOVE optDeviceArray[28];
 OPT_ADD_REMOVE optUpgradeArray[13];
 
 OPT_ENABLABLE opt3doMusic;

@@ -65,19 +65,6 @@ BOOLEAN restartGame;
 			// Including this is actually necessary on OSX.
 #endif
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#	include <SDL_android.h>
-static void AndroidAppPutToBackgroundCallback(void) {
-	SDL_ANDROID_PauseAudioPlayback();
-	GameActive = FALSE;
-}
-
-static void SDLCALL AndroidAppRestoredCallback(void) {
-	SDL_ANDROID_ResumeAudioPlayback();
-	GameActive = TRUE;
-}
-#endif
-
 struct bool_option
 {
 	bool value;
@@ -324,13 +311,8 @@ main (int argc, char *argv[])
 		/* .numAddons = */          0,
 		/* .graphicsBackend = */    NULL,
 
-#if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(  opengl,            false ),
-		INIT_CONFIG_OPTION2( resolution,        320, 240 ),
-#else
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-#endif
 		INIT_CONFIG_OPTION(  fullscreen,        2 ),
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
@@ -357,11 +339,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 		// Begin MegaMod defaults
 		INIT_CONFIG_OPTION(  resolutionFactor,  0 ),
-#if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(  loresBlowupScale,  0),
-#else
 		INIT_CONFIG_OPTION(  loresBlowupScale,  1),
-#endif
 		INIT_CONFIG_OPTION(  cheatMode,         false ),
 		INIT_CONFIG_OPTION(  optGodModes,       0 ),
 		INIT_CONFIG_OPTION(  timeDilationScale, 0 ),
@@ -388,11 +366,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  spaceMusic,        0 ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
-#if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(  directionalJoystick, true ),
-#else
 		INIT_CONFIG_OPTION(  directionalJoystick, false ),
-#endif
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  scrTrans,          OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
@@ -587,17 +561,13 @@ main (int argc, char *argv[])
 	optWhichShield = options.whichShield.value;
 	optSmoothScroll = options.smoothScroll.value;
 	optMeleeScale = options.meleeScale.value;
-	optKeepAspectRatio = options.keepAspectRatio.value;
 	optSubtitles = options.subtitles.value;
 	optStereoSFX = options.stereoSFX.value;
 	musicVolumeScale = options.musicVolumeScale.value;
 	sfxVolumeScale = options.sfxVolumeScale.value;
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
-	
-	resolutionFactor = (unsigned int) options.resolutionFactor.value;
-	loresBlowupScale = (unsigned int) options.loresBlowupScale.value;
-	
+
 	optGodModes = options.optGodModes.value;
 	timeDilationScale = options.timeDilationScale.value;
 	optBubbleWarp = options.bubbleWarp.value;
@@ -661,44 +631,63 @@ main (int argc, char *argv[])
 	optAdvancedAutoPilot = options.advancedAutoPilot.value;
 	optMeleeToolTips = options.meleeToolTips.value;
 	optMusicResume = options.musicResume.value;
-	optWindowType = options.windowType.value;
 	optScatterElements = options.scatterElements.value;
 	optShowUpgrades = options.showUpgrades.value;
 	optFleetPointSys = options.fleetPointSys.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
-	if (resolutionFactor && !isAddonAvailable (HD_MODE))
-	{
-		resolutionFactor = 0;
-		options.resolutionFactor.value = 0;
-		options.resolutionFactor.set = true;
-		options.resolution.width = 320 * (loresBlowupScale + 1);
-		options.resolution.height = 240 * (loresBlowupScale + 1);
-	}
+	resolutionFactor = isAddonAvailable (HD_MODE) ?
+		(unsigned int)options.resolutionFactor.value : 0;
+	options.resolutionFactor.value = resolutionFactor;
+	options.resolutionFactor.set = true;
 
-	switch (optWindowType)
+	loresBlowupScale = (unsigned int)options.loresBlowupScale.value;
+	optKeepAspectRatio = options.keepAspectRatio.value;
+
+	optWindowType = OPTVAL_UQM_WINDOW;
+	if (options.windowType.value < OPTVAL_UQM_WINDOW &&
+		isAddonAvailable (WINDOW_MODE (resolutionFactor,
+			options.windowType.value)))
 	{
-		case 0:
-			if (!isAddonAvailable (DOS_MODE (resolutionFactor)))
-			{
-				optWindowType = 2;
-				options.windowType.value = 2;
-				options.windowType.set = true;
-				options.resolution.width = 320 * (loresBlowupScale + 1);
-				options.resolution.height = 240 * (loresBlowupScale + 1);
-			}
-			break;
-		case 1:
-			if (!isAddonAvailable (THREEDO_MODE (resolutionFactor)))
-			{
-				optWindowType = 2;
-				options.windowType.value = 2;
-				options.windowType.set = true;
-			}
-			break;
-		default:
-			break;
+		optWindowType = options.windowType.value;
+	}
+	options.windowType.value = optWindowType;
+	options.windowType.set = true;
+
+	{
+		int w = 320;
+		int h = (DOS_BOOL (240, 200));
+		int scaleFactor = loresBlowupScale + 1; // stored value starts with 0
+
+		CanvasWidth = w << resolutionFactor;
+		CanvasHeight = h << resolutionFactor;
+
+		if (loresBlowupScale < 6) {
+			SavedWidth = loresBlowupScale ? (w * scaleFactor) : CanvasWidth;
+			SavedHeight = loresBlowupScale ? (h * scaleFactor) : CanvasHeight;
+		}
+		else
+		{
+			SavedWidth = inBounds(options.resolution.width, 320, 1920);
+			SavedHeight = inBounds(options.resolution.height, 200, 1440);
+		}
+
+		if (optKeepAspectRatio)
+		{
+			float threshold = 0.75f;
+			float ratio = (float)SavedHeight / (float)SavedWidth;
+
+			if (ratio > threshold) // screen is narrower than 4:3
+				options.resolution.width = SavedHeight / threshold;
+			else if (ratio < threshold) // screen is wider than 4:3
+				options.resolution.height = SavedWidth * threshold;
+		}
+		else
+		{
+			options.resolution.width = SavedWidth;
+			options.resolution.height = SavedHeight;
+		}
 	}
 
 	prepareMeleeDir ();
@@ -989,7 +978,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->useSpeech, "config.speech");
 
 
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef MELEE_ZOOM
 	if (res_IsInteger("config.smoothmelee") && !options->meleeScale.set)
 	{
 		options->meleeScale.value = res_GetInteger("config.smoothmelee");
@@ -1080,7 +1069,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef DIRECTIONAL_JOY
 	getBoolConfigValue (&options->directionalJoystick,
 			"mm.directionalJoystick"); // For Android
 #endif

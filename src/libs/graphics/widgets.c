@@ -141,10 +141,10 @@ DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect)
 
 	BatchGraphics ();
 	r.corner.x = RES_SCALE (
-			(RES_DESCALE (ScreenWidth) - RES_DESCALE (win_w)) >> 1)
+			(RES_DESCALE (CanvasWidth) - RES_DESCALE (win_w)) >> 1)
 			- RES_SCALE (2);
 	r.corner.y = RES_SCALE (
-			(RES_DESCALE (ScreenHeight) - RES_DESCALE (win_h)) >> 1)
+			(RES_DESCALE (CanvasHeight) - RES_DESCALE (win_h)) >> 1)
 			- RES_SCALE (2);
 	r.extent.width = win_w + RES_SCALE (4);
 	r.extent.height = win_h + RES_SCALE (4);
@@ -217,8 +217,8 @@ Widget_DrawToolTips (int numlines, const char **tips)
 
 	r.corner.x = RES_SCALE (2);
 	r.corner.y = RES_SCALE (8);
-	r.extent.width = ScreenWidth - RES_SCALE (4);
-	r.extent.height = ScreenHeight + RES_SCALE (3);
+	r.extent.width = CanvasWidth - RES_SCALE (4);
+	r.extent.height = CanvasHeight + RES_SCALE (3);
 
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -271,8 +271,8 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	
 	r.corner.x = RES_SCALE (2);
 	r.corner.y = RES_SCALE (1);
-	r.extent.width = ScreenWidth - RES_SCALE (4);
-	r.extent.height = ScreenHeight - RES_SCALE (4);
+	r.extent.width = CanvasWidth - RES_SCALE (4);
+	r.extent.height = CanvasHeight - RES_SCALE (4);
 	
 	title = WIDGET_INACTIVE_SELECTED_COLOR;
 	
@@ -303,7 +303,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	}
 
 	height -= RES_SCALE (8);
-	widget_y = (ScreenHeight - height) >> 1;
+	widget_y = (CanvasHeight - height) >> 1;
 
 	{	// Scrolling
 		if (self->highlighted > (offset_b - SCROLL_OFFSET)
@@ -603,7 +603,7 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	RECT r;
-	int tick = (ScreenWidth - x) / 8;
+	int tick = (CanvasWidth - x) / 8;
 	int slider_width;
 
 	if (cur_font)
@@ -750,7 +750,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		GetContextFontLeading (&leading);
 		r.corner.x = t.baseline.x - RES_SCALE (1);
 		r.corner.y = t.baseline.y - leading + BOX_VERT_OFFSET;
-		r.extent.width = ScreenWidth - r.corner.x - RES_SCALE (10);
+		r.extent.width = CanvasWidth - r.corner.x - RES_SCALE (10);
 		r.extent.height = leading - RES_SCALE (1);
 
 		TextRect (&t, &text_r, char_deltas);
@@ -856,12 +856,12 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 
 	t.baseline.x -= t.baseline.x;
 
-	home_x = t.baseline.x + (ScreenWidth / 3);
+	home_x = t.baseline.x + (CanvasWidth / 3);
 	home_y = t.baseline.y;
 	t.align = ALIGN_LEFT;
 	for (i = 0; i < 2; i++)
 	{
-		t.baseline.x = home_x + ((i % 3) * (ScreenWidth / 3));
+		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));
 		t.baseline.y = home_y + RES_SCALE (8 * (i / 3));
 		t.pStr = self->controlname[i];
 		if (!t.pStr[0])
@@ -895,7 +895,7 @@ int
 Widget_HeightFullScreen (WIDGET *_self)
 {
 	(void)_self;
-	return ScreenHeight;
+	return CanvasHeight;
 }
 
 int
@@ -916,7 +916,7 @@ int
 Widget_WidthFullScreen (WIDGET *_self)
 {
 	(void)_self;
-	return ScreenWidth;
+	return CanvasWidth;
 }
 
 int

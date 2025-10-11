@@ -218,7 +218,7 @@ TFB_PlayVideo (VIDEO_REF vid, uint32 x, uint32 y)
 {
 	RECT scrn_r;
 	RECT clip_r = {{0, 0}, {vid->w, vid->h}};
-	RECT vid_r = {{0, 0}, {ScreenWidth, ScreenHeight}};
+	RECT vid_r = {{0, 0}, {CanvasWidth, CanvasHeight}};
 	RECT dr = {{x, y}, {vid->w, vid->h}};
 	RECT sr;
 	bool loop_music = false;

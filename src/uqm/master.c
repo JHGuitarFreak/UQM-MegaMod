@@ -26,6 +26,7 @@
 
 
 QUEUE master_q;
+static int master_ship_seed = 0;
 
 void
 LoadMasterShipList (void (* YieldProcessing)(void))
@@ -90,6 +91,7 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 		InsertQueue (&master_q, hBuiltShip, hStarShip);
 		AdvanceLoadProgress ();
 	}
+	master_ship_seed = optShipSeed ? optCustomSeed : -1;
 }
 
 void
@@ -114,6 +116,18 @@ FreeMasterShipList (void)
 	}
 
 	UninitQueue (&master_q);
+}
+
+void
+ReloadMasterShipList (void (* YieldProcessing)(void))
+{
+	if ((optShipSeed && master_ship_seed != optCustomSeed)
+			|| (!optShipSeed && master_ship_seed != -1))
+	{
+		FreeMasterShipList ();
+		LoadMasterShipList (YieldProcessing);
+		master_ship_seed = optShipSeed ? optCustomSeed : -1;
+	}
 }
 
 HMASTERSHIP

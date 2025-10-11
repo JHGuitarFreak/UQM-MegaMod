@@ -516,8 +516,6 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN try_core)
 	{
 		legacyMM = magic == MEGA_TAG ? 1 : magic == MMV3_TAG ? 2 : 0;
 
-		printf ("%d\n", legacyMM);
-
 		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
 		if (read_32 (fp, &magic) != 1 || magic < 160)
@@ -852,7 +850,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 
 	optCustomSeed = GLOBAL_SIS (Seed);
 	optShipSeed = (GLOBAL_SIS (ShipSeed) != 0 ? true : false);
-	LoadMasterShipList (NULL);
+	ReloadMasterShipList (NULL);
 	LoadFleetInfo ();
 
 	ReinitQueue (&GLOBAL (GameClock.event_q));
@@ -1012,13 +1010,13 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 	DebugKeyPressed = FALSE;
 	// Set the SeedType flag and then start Starseed
 	optSeedType = GET_GAME_STATE (SEED_TYPE);
-	if (optSeedType == OPTVAL_PRIME && optCustomSeed != PrimeA)
-	{
-		// Assuming load from older version, optSeedType should be 0 (none)
-		// however, if the seed isn't prime, optSeedType goes to 1 (planet)
-		optSeedType = OPTVAL_PLANET;
-		SET_GAME_STATE (SEED_TYPE, optSeedType);
-	}
+	// Assuming load from older version, optSeedType should be 0 (none)
+	// If the seed is also 0 it's a really old save file and prime seed
+	// Otherwise if the seed isn't prime, optSeedType goes to 1 (planet)
+	if (optSeedType == OPTVAL_PRIME && optCustomSeed == 0)
+		GLOBAL_SIS (Seed) = optCustomSeed = PrimeA;
+	else if (optSeedType == OPTVAL_PRIME && optCustomSeed != PrimeA)
+		SET_GAME_STATE (SEED_TYPE, optSeedType = OPTVAL_PLANET);
 #ifdef DEBUG_STARSEED
 	fprintf (stderr, "Loading game with seed type %d, %s\n",
 			optSeedType,

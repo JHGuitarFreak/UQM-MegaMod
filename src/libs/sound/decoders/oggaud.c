@@ -272,11 +272,7 @@ ova_GetFrame (THIS_PTR)
 	// this is the closest to a frame there is in ogg vorbis stream
 	// doesn't seem to be a func to retrive it
 #ifdef OVCODEC_TREMOR
-#if defined(ANDROID) || defined(__ANDROID__)
-	return ova->vf.os.pageno;
-#else
 	return ova->vf.os->pageno;
-#endif
 #else
 	return ova->vf.os.pageno;
 #endif  /* OVCODEC_TREMOR */

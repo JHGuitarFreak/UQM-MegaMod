@@ -192,9 +192,9 @@ enum
 	MAIDENS_DEVICE,
 	UMGAH_HYPERWAVE_DEVICE,
 	BURVIX_HYPERWAVE_DEVICE,
-	//DATA_PLATE_1_DEVICE,
-	//DATA_PLATE_2_DEVICE,
-	//DATA_PLATE_3_DEVICE,
+	DATA_PLATE_1_DEVICE,
+	DATA_PLATE_2_DEVICE,
+	DATA_PLATE_3_DEVICE,
 	TAALO_PROTECTOR_DEVICE,
 	EGG_CASING0_DEVICE,
 	EGG_CASING1_DEVICE,
@@ -958,7 +958,22 @@ START_GAME_STATE
 	/* begin rev 5, MegaMod v0.8.4 */
 
 	ADD_GAME_STATE (SEED_TYPE, 2)
-	ADD_GAME_STATE (REV_5_PAD, 5)
+
+	ADD_GAME_STATE (SUPOX_SHIP_MONTH, 4)
+			/* The month that new ships are available from the Supox. */
+	ADD_GAME_STATE (SUPOX_SHIP_DAY, 5)
+			/* The day of the month in that new ships are available. */
+	ADD_GAME_STATE (SUPOX_SHIP_YEAR, 5)
+			/* The year that new ships are available from the Supox
+			 * (stored as an offset from the year the game starts). */
+	ADD_GAME_STATE (UTWIG_SHIP_MONTH, 4)
+			/* The month that new ships are available from the Utwig. */
+	ADD_GAME_STATE (UTWIG_SHIP_DAY, 5)
+			/* The day of the month in that new ships are available. */
+	ADD_GAME_STATE (UTWIG_SHIP_YEAR, 5)
+			/* The year that new ships are available from the Utwig
+			 * (stored as an offset from the year the game starts). */
+	ADD_GAME_STATE (REV_5_PAD, 33)
 
 	/* end rev 5, MegaMod v0.8.4 */
 
