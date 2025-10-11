@@ -159,8 +159,6 @@ TFB_InitGraphics (int driver, int flags, const char* renderer,
 
 	TFB_DrawCanvas_Initialize ();
 
-	TFB_InitOnScreenKeyboard();
-
 	return result;
 }
 
