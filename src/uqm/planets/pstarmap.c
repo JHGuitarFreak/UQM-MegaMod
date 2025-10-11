@@ -3186,13 +3186,9 @@ StarMap (void)
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 	SetMenuRepeatDelay (MIN_ACCEL_DELAY, MAX_ACCEL_DELAY, STEP_ACCEL_DELAY,
 			TRUE);
-#if defined(ANDROID) || defined(__ANDROID__)
-	TFB_SetOnScreenKeyboard_Starmap();
+
 	DoInput(&MenuState, FALSE);
-	TFB_SetOnScreenKeyboard_Menu();
-#else // ANDROID
-	DoInput(&MenuState, FALSE);
-#endif
+
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	SetDefaultMenuRepeatDelay ();
 

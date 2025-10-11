@@ -14,8 +14,6 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#if !defined(ANDROID) || !defined(__ANDROID__)
-
 #include "msgbox.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -66,5 +64,3 @@ log_displayBox (const /*UTF-8*/char *title, int isError,
 	free (swTitle);
 	free (swMsg);
 }
-
-#endif

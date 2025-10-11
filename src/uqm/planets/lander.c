@@ -2175,28 +2175,15 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
 
-#if defined(ANDROID) || defined(__ANDROID__)
-			BATTLE_INPUT_STATE InputState =
-					GetDirectionalJoystickInput(index, 0);
-#endif
 			if (turn_wait)
 				--turn_wait;
-#if defined(ANDROID) || defined(__ANDROID__)
-			else if ((InputState & BATTLE_LEFT)
-					|| (InputState & BATTLE_RIGHT))
-#else
 			else if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
 				CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
-#endif
 			{
 				COUNT landerSpeedNumer;
 				COUNT angle;
 
-#if defined(ANDROID) || defined(__ANDROID__)
-				if (InputState & BATTLE_LEFT)
-#else
 				if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT])
-#endif
 					--index;
 				else
 					++index;
@@ -2221,12 +2208,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
-#if defined(ANDROID) || defined(__ANDROID__)
-			if ((InputState & BATTLE_THRUST_ALT))
-#else
 			if (CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
 					|| CurrentInputState.key[PlayerControls[0]][KEY_UP])
-#endif
 			{
 				GetNextVelocityComponents (
 						&GLOBAL (velocity), &dx, &dy, 1);
@@ -2658,13 +2641,8 @@ PlanetSide (POINT planetLoc)
 	landerInputState.Initialized = FALSE;
 	landerInputState.InputFunc = DoPlanetSide;
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
-#if defined(ANDROID) || defined(__ANDROID__)
-	TFB_SetOnScreenKeyboard_Melee();
-	DoInput(&landerInputState, FALSE);
-	TFB_SetOnScreenKeyboard_Menu();
-#else
+
 	DoInput (&landerInputState, FALSE);
-#endif
 
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT))
 	{
