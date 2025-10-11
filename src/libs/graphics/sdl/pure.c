@@ -158,11 +158,7 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height,
 		if (resFactor != HD)
 		{
 			// Check the sanity of resolution.
-#if !(defined(ANDROID) || defined(__ANDROID__))
-			if (width > 640 || height > 480)
-#else
 			if (width > 320 || height > 240)
-#endif
 			{
 				log_add(log_Error, "Screen resolution of %dx%d not supported "
 					"under pure SDL, using 320x240", width, height);
@@ -182,14 +178,6 @@ TFB_Pure_ConfigureVideo(int driver, int flags, int width, int height,
 			graphics_backend = &pure_unscaled_backend;
 		}
 	}
-
-#if defined(ANDROID) || defined(__ANDROID__)
-	videomode_flags = SDL_SWSURFACE;
-	//ScreenWidthActual = 1280;
-	//ScreenHeightActual = 960;
-	graphics_backend = &pure_unscaled_backend;
-	BPP = 24;
-#endif
 
 	videomode_flags |= SDL_ANYFORMAT;
 	if (flags & TFB_GFXFLAGS_FULLSCREEN

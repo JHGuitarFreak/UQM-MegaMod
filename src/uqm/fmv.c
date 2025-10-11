@@ -31,6 +31,7 @@
 #include "libs/sound/sound.h"
 #include "init.h"
 #include "gameopt.h"
+#include "build.h"
 
 #define MAX_LOAD_ENTRIES 40
 
@@ -43,6 +44,13 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	OldContext = SetContext (ScreenContext);
 
+	if (optShipSeed)
+	{
+		HMASTERSHIP hMaster = GetStarShipFromIndex (&master_q, index);
+		MASTER_SHIP_INFO *mPtr = LockMasterShip (&master_q, hMaster);
+		index = FindMasterShipIndex (SeedShip (mPtr->SpeciesID, false));
+		UnlockMasterShip (&master_q, hMaster);
+	}
 
 	LoadIntoExtraScreen (NULL);
 	
@@ -213,7 +221,7 @@ AdvanceLoadProgress (void)
 		static COUNT i = 0;
 
 		r.corner.x = RES_SCALE (16);
-		r.corner.y = ScreenHeight - DOS_BOOL_SCL (50, 30);
+		r.corner.y = CanvasHeight - DOS_BOOL_SCL (50, 30);
 		r.extent.height = RES_SCALE (15);
 		r.extent.width = RES_SCALE ((i + 1) * 7);
 

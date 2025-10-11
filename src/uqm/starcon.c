@@ -151,7 +151,7 @@ ProcessUtilityKeys (void)
 		// clear ImmediateInputState so we don't repeat this next frame
 		FlushInput ();
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, flags,
-				ScreenWidthActual, ScreenHeightActual);
+				WindowWidth, WindowHeight);
 	}
 
 	if (ImmediateInputState.menu[KEY_SCREENSHOT])
@@ -322,9 +322,6 @@ while (--ac > 0)
 					NOMAD_STR (GLOBAL_SIS (Nomad)));
 		}
 
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Melee();
-#endif
 		do
 		{
 			if (debugHook != NULL)

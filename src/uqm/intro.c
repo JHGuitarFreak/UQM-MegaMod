@@ -34,6 +34,7 @@
 #include "libs/log.h"
 #include "libs/inplib.h"
 #include "util.h"
+#include "build.h"
 
 #include <ctype.h>
 
@@ -444,6 +445,229 @@ ShowPresentationFile (const char *name)
 	return result;
 }
 
+typedef struct
+{
+	SPECIES_ID sID;		// The ship SPECIES_ID, a second index
+	char ditty[256];	// The ditty string (file name)
+	char race[256];		// The race's name string e.g. EARTHLING
+	char ship[256];		// The ship's name string e.g. CRUISER
+	COUNT spinline;		// The line on which race/ship strings occur
+	COUNT width;		// The SD pixel width of the race name
+} SHIPMAP;
+
+static const SHIPMAP ship_map[] = {
+		{ ARILOU_ID, "arilou", "ARILOULALEELAY", " SKIFF", 2, 123 },
+		{ CHMMR_ID, "chmmr", "CHMMR", " AVATAR", 2, 50 },
+		{ EARTHLING_ID, "earthling", "EARTHLING", " CRUISER", 130, 79 },
+		{ ORZ_ID, "orz", "ORZ", " NEMESIS", 2, 25 },
+		{ PKUNK_ID, "pkunk", "PKUNK", " FURY", 2, 43 },
+		{ SHOFIXTI_ID, "shofixti", "SHOFIXTI", " SCOUT", 4, 61 },
+		{ SPATHI_ID, "spathi", "SPATHI", " ELUDER", 2, 47 },
+		{ SUPOX_ID, "supox", "SUPOX", " BLADE", 2, 43 },
+		{ THRADDASH_ID, "thraddash", "THRADDASH", " TORCH", 2, 87 },
+		{ UTWIG_ID, "utwig", "UTWIG", " JUGGER", 2, 43 },
+		{ VUX_ID, "vux", "VUX", " INTRUDER", 130, 28 },
+		{ YEHAT_ID, "yehat", "YEHAT", " TERMINATOR", 130, 46 },
+		{ MELNORME_ID, "melnorme", "MELNORME", " TRADER", 2, 77 },
+		{ DRUUGE_ID, "druuge", "DRUUGE", " MAULER", 2, 53 },
+		{ ILWRATH_ID, "ilwrath", "ILWRATH", " AVENGER", 2, 62 },
+		{ MYCON_ID, "mycon", "MYCON", " PODSHIP", 127, 47 },
+		{ SLYLANDRO_ID, "slylandro", "SLYLANDRO", " PROBE", 1, 80 },
+		{ UMGAH_ID, "umgah", "UMGAH", " DRONE", 127, 50 },
+		{ UR_QUAN_ID, "urquan", "UR-QUAN", "\nDREADNAUGHT", 119, 66 },
+		{ ZOQFOTPIK_ID, "zoqfotpik", "ZOQ-FOT-PIK", " STINGER", 130, 92 },
+		{ SYREEN_ID, "syreen", "SYREEN", " PENETRATOR", 2, 53 },
+		{ KOHR_AH_ID, "kohrah", "KOHR-AH", "", 119, 64 },
+		{ ANDROSYNTH_ID, "androsynth", "ANDROSYNTH", " GUARDIAN", 2, 94 },
+		{ CHENJESU_ID, "chenjesu", "CHENJESU", "    BROODHOME", 1, 71 },
+		{ MMRNMHRM_ID, "mmrnmhrm", "MMRNMHRM", " TRANSFORMER", 128, 84 },
+};
+
+#define NUM_SHIPS (sizeof (ship_map) / sizeof (SHIPMAP))
+
+static COUNT shipID = NUM_SHIPS;
+static COUNT raceID = NUM_SHIPS;
+static BOOLEAN linespun = false;
+
+static void
+SeedDitty (char *buf, size_t size, char *str)
+{
+	if (!optShipSeed)
+		goto SeedDittyPassThru;
+
+	for (shipID = 0; shipID < NUM_SHIPS; shipID++)
+		if (!strcasecmp (str, ship_map[shipID].ditty))
+			break;
+	if (shipID >= NUM_SHIPS)
+		goto SeedDittyPassThru;
+
+	for (raceID = 0; raceID < NUM_SHIPS; raceID++)
+		if (SeedShip (ship_map[raceID].sID, false) == ship_map[shipID].sID)
+			break;
+	if (raceID >= NUM_SHIPS)
+		goto SeedDittyPassThru;
+
+	linespun = false;
+	snprintf (buf, size, "ship.%s.ditty", ship_map[raceID].ditty);
+	return;
+
+SeedDittyPassThru:
+	shipID = raceID = NUM_SHIPS;
+	snprintf (buf, size, "ship.%s.ditty", str);
+	return;
+}
+
+static void
+SeedLineSpin (int *x1, int *y1, int *x2, int *y2)
+{
+	if (!optShipSeed || !x1 || !x2 || !y1 || !y2 || shipID == raceID ||
+			shipID >= NUM_SHIPS || raceID >= NUM_SHIPS)
+		goto SeedLineSpinPassThru;
+
+	if (ship_map[shipID].sID == KOHR_AH_ID &&
+			ship_map[raceID].sID != ARILOU_ID &&
+			ship_map[raceID].width > 80 && *y2 == 122)
+		*x2 -= ship_map[raceID].width - 80; // Shorten line for Spinning Blade
+	if (ship_map[shipID].sID == DRUUGE_ID && !IS_HD &&
+			ship_map[raceID].width > 80 && *y1 == 21)
+	{ // Line for High-recoil Cannon in SD, needs to move down for wide ships
+		*y1 += 10;
+		*y2 += 10;
+	}
+SeedLineSpinPassThru:
+	return;
+}
+
+static void
+SeedTextSpin (char *buf, size_t size, char *str, int *x, int *y)
+{
+	if (!optShipSeed || !x || !y || shipID == raceID ||
+			shipID >= NUM_SHIPS || raceID >= NUM_SHIPS)
+		goto SeedTextSpinPassThru;
+
+	if (ship_map[shipID].sID == SPATHI_ID && IS_HD &&
+			ship_map[raceID].sID != ARILOU_ID &&
+			ship_map[raceID].width > 80 && (*x == 25 || *x == 40))
+		*x -= 15; // Rear-firing Missile Launch Tube, move left for wide ships
+	if (ship_map[shipID].sID == DRUUGE_ID && !IS_HD &&
+			ship_map[raceID].width > 80 && *x == 108)
+		*y += 10; // This is High-recoil Cannon, move down for wide ships
+	if (ship_map[shipID].sID == SLYLANDRO_ID && *x == 18)
+		goto SeedTextSpinSkipLine; // This is 2418-B skip unless O.G.
+	if (ship_map[shipID].spinline != *y)
+		goto SeedTextSpinPassThru; // This is anything not on the spinline
+	if (ship_map[shipID].sID == MELNORME_ID && *x == 215)
+		goto SeedTextSpinPassThru; // This is Confusion Ray, on the spinline
+	if (ship_map[shipID].sID == UR_QUAN_ID && *x == 222)
+		goto SeedTextSpinPassThru; // This is Fusion Blast, on the spinline
+	if (linespun)
+		goto SeedTextSpinSkipLine; // Anything on the spinline we've done
+
+	linespun = true;
+	utf8StringCopy (buf, size, ship_map[raceID].race);
+	buf += strlen(ship_map[raceID].race) * sizeof (char);
+
+	switch (ship_map[shipID].sID)
+	{
+		case CHENJESU_ID:
+		case EARTHLING_ID:
+		case KOHR_AH_ID:
+		case MYCON_ID:
+		case THRADDASH_ID: // Right hand huggers
+			if ((ship_map[shipID].sID == EARTHLING_ID ||
+					(ship_map[shipID].sID == KOHR_AH_ID && IS_HD)) &&
+					ship_map[raceID].sID == ARILOU_ID)
+			{ // Special case - ship doesn't have room, cuts to "ARILOU"
+				buf -= 8 * sizeof (char);
+				*x += ship_map[shipID].width - 50;
+				break;
+			}
+			if (ship_map[shipID].sID == CHENJESU_ID && IS_HD)
+				*x -= 10; // Better centering the gap over the broodhome
+			*x += ship_map[shipID].width - ship_map[raceID].width;
+			break;
+		case SHOFIXTI_ID: // Right hand hugger but squeeze it a little
+			*x += (ship_map[shipID].width - ship_map[raceID].width) * 4 / 5;
+			break;
+		case VUX_ID: // Middle but squeeze the right a little
+			if (ship_map[shipID].sID == VUX_ID &&
+					ship_map[raceID].sID == ARILOU_ID)
+			{ // Special case - ship doesn't have room, cuts to "ARILOU"
+				buf -= 8 * sizeof (char);
+				*x += (ship_map[shipID].width - 50) * 3 / 5;
+				break;
+			}
+			*x += (ship_map[shipID].width - ship_map[raceID].width) * 3 / 5;
+			break;
+		case ANDROSYNTH_ID:
+		case ARILOU_ID:
+		case PKUNK_ID:
+		case SPATHI_ID:
+		case SYREEN_ID:
+		case UTWIG_ID:
+		case MMRNMHRM_ID: // Middle-ships
+			if (ship_map[shipID].sID == SPATHI_ID &&
+					ship_map[raceID].sID == ARILOU_ID)
+			{ // Special case - ship doesn't have room, cuts to "ARILOU"
+				buf -= 8 * sizeof (char);
+				*x += (ship_map[shipID].width - 50) / 2;
+				break;
+			}
+			if (ship_map[shipID].sID == SPATHI_ID)
+				*x += 2; // Better centering over (In Attack Position)
+			if (ship_map[shipID].sID == ARILOU_ID)
+				*x += 4; // Better centering over (Last Reported Position)
+			*x += (ship_map[shipID].width - ship_map[raceID].width) / 2;
+			break;
+		case CHMMR_ID:
+		case ILWRATH_ID:
+		case MELNORME_ID:
+		case ORZ_ID:
+		case SLYLANDRO_ID:
+		case UMGAH_ID:
+		case UR_QUAN_ID:
+		case YEHAT_ID:
+		case ZOQFOTPIK_ID: // Lefties need no adjustment
+			if ((ship_map[shipID].sID == CHMMR_ID ||
+					ship_map[shipID].sID == ORZ_ID ||
+					ship_map[shipID].sID == ZOQFOTPIK_ID) &&
+					ship_map[raceID].sID == ARILOU_ID)
+			{ // Special case - ship doesn't have room, cuts to "ARILOU"
+				buf -= 8 * sizeof (char);
+				break;
+			}
+			if (ship_map[shipID].sID == UMGAH_ID && !IS_HD)
+			{ // Right hand hugger but squeeze it a little
+				*x += (ship_map[shipID].width - ship_map[raceID].width)
+						* 4 / 5;
+				break;
+			}
+			break;
+		case DRUUGE_ID:
+		case SUPOX_ID: // Lefties but line break when long
+			if (ship_map[raceID].width > 80)
+			{
+				char *pad = (IS_HD ? "\n   " : "\n       ");
+				utf8StringCopy (buf, size, pad);
+				buf += strlen (pad) * sizeof (char);
+			}
+			break;
+		default:
+			break;
+	}
+
+	utf8StringCopy (buf, size, ship_map[shipID].ship);
+	return;
+
+SeedTextSpinSkipLine:
+	utf8StringCopy (buf, size, "");
+	return;
+
+SeedTextSpinPassThru:
+	utf8StringCopy (buf, size, str);
+	return;
+}
+
 static BOOLEAN
 DoPresentation (void *pIS)
 {
@@ -628,8 +852,11 @@ DoPresentation (void *pIS)
 		}
 		else if (strcmp (Opcode, "DITTY") == 0)
 		{	/* set ditty */
-			snprintf (pPIS->Buffer, sizeof (pPIS->Buffer),
-					"ship.%s.ditty", pStr);
+			if (optShipSeed)
+				SeedDitty (pPIS->Buffer, sizeof (pPIS->Buffer), pStr);
+			else
+				snprintf (pPIS->Buffer, sizeof (pPIS->Buffer),
+						"ship.%s.ditty", pStr);
 
 			if (pPIS->MusicRef)
 			{
@@ -773,11 +1000,14 @@ DoPresentation (void *pIS)
 
 			if (2 == sscanf (pStr, "%d %d %n", &x, &y, &n))
 			{
+				if (optShipSeed)
+					SeedTextSpin (pPIS->Buffer, sizeof (pPIS->Buffer),
+							pStr + n, &x, &y);
+				else
+					utf8StringCopy (pPIS->Buffer, sizeof (pPIS->Buffer),
+							pStr + n);
 				x <<= RESOLUTION_FACTOR;
 				y <<= RESOLUTION_FACTOR;
-
-				utf8StringCopy (
-						pPIS->Buffer, sizeof (pPIS->Buffer), pStr + n);
 
 				if (pPIS->HaveFrame
 							&&(pPIS->GetRect.extent.width > 0
@@ -789,8 +1019,31 @@ DoPresentation (void *pIS)
 
 				SetContextForeGroundColor (pPIS->TextColor);
 				SetContextBackGroundColor (pPIS->TextBackColor);
-				DoSpinText (pPIS->Buffer, x, y + RES_SCALE (7),
-						SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+				if (optShipSeed && !strncmp (pPIS->Buffer, "SPATHI", 6))
+				{ // Manually space the SPATHI text
+					DoSpinText ("SP", x,
+							y + RES_SCALE (7),
+							SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+					DoSpinText ("A", x + RES_SCALE (16),
+							y + RES_SCALE (7),
+							SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+					DoSpinText ("THI", x + RES_SCALE (25),
+							y + RES_SCALE (7),
+							SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+					if (ship_map[shipID].sID == UR_QUAN_ID)
+					{ // All for a ship that won't occur anyway
+						x -= RES_SCALE (52);
+						y += RES_SCALE (11);
+					}
+					DoSpinText (&(pPIS->Buffer[6]), x + RES_SCALE (52),
+							y + RES_SCALE (7),
+							SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+				}
+				else
+				{
+					DoSpinText (pPIS->Buffer, x, y + RES_SCALE (7),
+							SetAbsFrameIndex (pPIS->Frame, 0), &pPIS->Skip);
+				}
 
 				if (pPIS->Skip)
 					Present_BatchGraphics (pPIS);
@@ -1075,6 +1328,8 @@ DoPresentation (void *pIS)
 			int x1, x2, y1, y2;
 			if (4 == sscanf (pStr, "%d %d %d %d", &x1, &y1, &x2, &y2))
 			{
+				if (optShipSeed)
+					SeedLineSpin (&x1, &y1, &x2, &y2);
 				LINE l;
 
 				x1 <<= RESOLUTION_FACTOR;

@@ -194,7 +194,7 @@ extern void SetAdditionalRect (const RECT *pRect, COUNT number);
 extern void DumpAdditionalRect (void);
 extern void PreUpdateFlashRect (void);
 extern void PostUpdateFlashRect (void);
-extern void PauseFlash (void);
+extern BOOLEAN PauseFlash (void);
 extern void ContinueFlash (void);
 
 #define SFR_MENU_3DO ((RECT*)~0L)

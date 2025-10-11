@@ -260,27 +260,27 @@ DrawBorderPadding (DWORD videoWidth)
 
 	// Top bar
 	r.corner = MAKE_POINT (0, 0);
-	r.extent.width = ScreenWidth;
+	r.extent.width = CanvasWidth;
 	r.extent.height = SAFE_Y;
 	DrawFilledRectangle (&r);
 
 	// Right bar
 	r.corner.x = r.extent.width - safe_x;
 	r.extent.width = safe_x;
-	r.extent.height = ScreenHeight;
+	r.extent.height = CanvasHeight;
 	DrawFilledRectangle (&r);
 
 	// Bottom bar
 	r.corner.x = 0;
-	r.corner.y = ScreenHeight - SAFE_Y;
-	r.extent.width = ScreenWidth;
+	r.corner.y = CanvasHeight - SAFE_Y;
+	r.extent.width = CanvasWidth;
 	r.extent.height = SAFE_Y;
 	DrawFilledRectangle (&r);
 
 	// Left bar
 	r.corner = MAKE_POINT (0, 0);
 	r.extent.width = safe_x;
-	r.extent.height = ScreenHeight;
+	r.extent.height = CanvasHeight;
 	DrawFilledRectangle (&r);
 
 	SetContext (OldContext);
