@@ -23,9 +23,6 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <errno.h>
-#if defined(ANDROID) || defined(__ANDROID__)
-#include <android/log.h>
-#endif
 #include "libs/threadlib.h"
 
 #ifndef MAX_LOG_ENTRY_SIZE
@@ -192,9 +189,6 @@ log_addV (log_Level level, const char *fmt, va_list list) {
 	
 	if ((int)level <= maxStreamLevel) {
 		fprintf (streamOut, "%s\n", full_msg);
-#if defined(ANDROID) || defined(__ANDROID__)
-		__android_log_print(ANDROID_LOG_INFO, "Ur-Quan Masters MegaMod", "%s", full_msg);
-#endif
 	}
 
 	if ((int)level <= maxLevel) {
@@ -228,9 +222,6 @@ log_add_nothreadV (log_Level level, const char *fmt, va_list list) {
 	
 	if ((int)level <= maxStreamLevel) {
 		fprintf (streamOut, "%s\n", full_msg);
-#if defined(ANDROID) || defined(__ANDROID__)
-		__android_log_print(ANDROID_LOG_INFO, "Ur-Quan Masters MegaMod", "%s", full_msg);
-#endif
 	}
 
 	if ((int)level <= maxLevel) {

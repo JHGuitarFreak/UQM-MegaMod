@@ -322,9 +322,6 @@ while (--ac > 0)
 					NOMAD_STR (GLOBAL_SIS (Nomad)));
 		}
 
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Melee();
-#endif
 		do
 		{
 			if (debugHook != NULL)

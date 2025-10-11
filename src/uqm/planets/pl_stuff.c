@@ -288,7 +288,7 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	if (pPlanetDesc->radius > 4 * pSolarSysState->SunDesc[0].radius)
 		return;
 
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef NEVER
 	{
 		COUNT framerate;
 		// Optimization : the smallest worlds are rotated only once in a

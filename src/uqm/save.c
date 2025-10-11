@@ -778,6 +778,12 @@ const GameStateBitMap gameStateBitMap[] = {
 	/* begin rev 5, MegaMod v0.8.4 */
 
 	{ "SEED_TYPE", 2 },
+	{ "SUPOX_SHIP_MONTH", 4 },
+	{ "SUPOX_SHIP_DAY", 5 },
+	{ "SUPOX_SHIP_YEAR", 5 },
+	{ "UTWIG_SHIP_MONTH", 4 },
+	{ "UTWIG_SHIP_DAY", 5 },
+	{ "UTWIG_SHIP_YEAR", 5 },
 
 	// Journal gamestates
 	{ "ALLIANCE_MASK", 6 },

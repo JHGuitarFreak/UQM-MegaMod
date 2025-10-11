@@ -31,11 +31,7 @@ enum
 extern int TFB_InitInput (int driver, int flags);
 extern void TFB_UninitInput (void);
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#define MAX_FLIGHT_ALTERNATES 3
-#else
 #define MAX_FLIGHT_ALTERNATES 2
-#endif
 
 extern void TFB_SetInputVectors (volatile int menu[], int num_menu,
 		volatile int flight[], int num_templ, int num_flight);

@@ -16,10 +16,6 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#include <android/log.h>
-#endif
-
 #include "battle.h"
 
 #include "battlecontrols.h"
@@ -147,11 +143,7 @@ BATTLE_INPUT_STATE
 frameInputHuman (HumanInputContext *context, STARSHIP *StarShipPtr)
 {
 	(void) StarShipPtr;
-#if defined(ANDROID) || defined(__ANDROID__)
-	return CurrentInputToBattleInput (context->playerNr, StarShipPtr ? StarShipPtr->ShipFacing : -1);
-#else
-	return CurrentInputToBattleInput (context->playerNr, -1);
-#endif
+	return CurrentInputToBattleInput (context->playerNr);
 }
 
 static void
@@ -436,12 +428,6 @@ Battle (BattleFrameCallback *callback)
 {
 	SIZE num_ships;
 
-#if defined(ANDROID) || defined(__ANDROID__)
-	TFB_SetOnScreenKeyboard_Melee ();
-	if (PlayerControl[1] & HUMAN_CONTROL)
-		TFB_SetOnScreenKeyboard_TwoPlayersMelee ();
-#endif
-
 #if !(DEMO_MODE || CREATE_JOURNAL)
 	if (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) {
 		// In Supermelee, the RNG is already initialised.
@@ -554,10 +540,6 @@ AbortBattle:
 
 	UninitShips ();
 	FreeBattleSong ();
-
-#if defined(ANDROID) || defined(__ANDROID__)
-	TFB_SetOnScreenKeyboard_Menu ();
-#endif
 	
 	return (BOOLEAN) (num_ships < 0);
 }

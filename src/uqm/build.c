@@ -110,7 +110,6 @@ GetSeededFleetFromIndex (COUNT Index)
 	FLEET_INFO *TemplatePtr = NULL;
 	HFLEETINFO hFleet;
 	SPECIES_ID ship;
-	BOOLEAN loading = GLOBAL (CurrentActivity) & CHECK_PAUSE;
 	BOOLEAN loadWindow = ((optShipSeed && GLOBAL_SIS (ShipSeed) == 0) ||
 			(!optShipSeed && GLOBAL_SIS (ShipSeed) != 0) ||
 			(optCustomSeed != GLOBAL_SIS (Seed)));
@@ -334,6 +333,79 @@ CalculateEscortsPoints (void)
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}
 	return total;
+}
+
+BOOLEAN
+ShipsReady (RACE_ID race)
+{
+	SIZE i;
+	COUNT year, month, day = 0;
+	switch (race)
+	{
+		case PKUNK_SHIP:
+			year = GET_GAME_STATE (PKUNK_SHIP_YEAR);
+			month = GET_GAME_STATE (PKUNK_SHIP_MONTH);
+			day = GET_GAME_STATE (PKUNK_SHIP_DAY);
+			break;
+		case SUPOX_SHIP:
+			year = GET_GAME_STATE (SUPOX_SHIP_YEAR);
+			month = GET_GAME_STATE (SUPOX_SHIP_MONTH);
+			day = GET_GAME_STATE (SUPOX_SHIP_DAY);
+			break;
+		case UTWIG_SHIP:
+			year = GET_GAME_STATE (UTWIG_SHIP_YEAR);
+			month = GET_GAME_STATE (UTWIG_SHIP_MONTH);
+			day = GET_GAME_STATE (UTWIG_SHIP_DAY);
+			break;
+		case YEHAT_SHIP:
+		case YEHAT_REBEL_SHIP:
+			year = GET_GAME_STATE (YEHAT_SHIP_YEAR);
+			month = GET_GAME_STATE (YEHAT_SHIP_MONTH);
+			day = GET_GAME_STATE (YEHAT_SHIP_DAY);
+			break;
+		default:
+			return false;
+	}
+	return ((i = (GLOBAL (GameClock.year_index) - START_YEAR) - year) > 0) ||
+			(i == 0 && (((i = GLOBAL (GameClock.month_index) - month) > 0) ||
+			(i == 0 && GLOBAL (GameClock.day_index) > day)));
+}
+
+void
+PrepareShip (RACE_ID race)
+{
+	BYTE mi, di, yi;
+
+	mi = GLOBAL (GameClock.month_index);
+	if ((di = GLOBAL (GameClock.day_index)) > 28)
+		di = 28;
+	yi = (BYTE)(GLOBAL (GameClock.year_index) - START_YEAR) + 1;
+	switch (race)
+	{
+		case PKUNK_SHIP:
+			SET_GAME_STATE (PKUNK_SHIP_YEAR, yi);
+			SET_GAME_STATE (PKUNK_SHIP_MONTH, mi);
+			SET_GAME_STATE (PKUNK_SHIP_DAY, di);
+			break;
+		case SUPOX_SHIP:
+			SET_GAME_STATE (SUPOX_SHIP_YEAR, yi);
+			SET_GAME_STATE (SUPOX_SHIP_MONTH, mi);
+			SET_GAME_STATE (SUPOX_SHIP_DAY, di);
+			break;
+		case UTWIG_SHIP:
+			SET_GAME_STATE (UTWIG_SHIP_YEAR, yi);
+			SET_GAME_STATE (UTWIG_SHIP_MONTH, mi);
+			SET_GAME_STATE (UTWIG_SHIP_DAY, di);
+			break;
+		case YEHAT_SHIP:
+		case YEHAT_REBEL_SHIP:
+			SET_GAME_STATE (YEHAT_SHIP_YEAR, yi);
+			SET_GAME_STATE (YEHAT_SHIP_MONTH, mi);
+			SET_GAME_STATE (YEHAT_SHIP_DAY, di);
+			break;
+		default:
+			break;
+	}
 }
 
 #if 0

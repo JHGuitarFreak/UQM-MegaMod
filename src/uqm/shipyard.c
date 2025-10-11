@@ -2119,11 +2119,6 @@ DoShipyard (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoShipyard;
 
-		
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Starmap();
-#endif
-
 		if (IS_DOS)
 		{
 			memset (&ShipState, 0, sizeof ShipState);

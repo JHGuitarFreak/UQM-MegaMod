@@ -52,13 +52,6 @@ DrawConfirmationWindow (BOOLEAN answer, BOOLEAN confirm)
 	r.corner.x = (SCREEN_WIDTH - CONFIRM_WIN_WIDTH) >> 1;
 	r.corner.y = (SCREEN_HEIGHT - CONFIRM_WIN_HEIGHT) >> 1;
 	r.extent.width = CONFIRM_WIN_WIDTH;
-#if defined(ANDROID) || defined(__ANDROID__)
-	if (GLOBAL (CurrentActivity) & IN_BATTLE && RunAwayAllowed ())
-	{
-		r.corner.x -= NRES_BOOL (40);
-		r.extent.width += NRES_BOOL (40);
-	}
-#endif
 	r.extent.height = CONFIRM_WIN_HEIGHT;
 	if (!IS_HD)
 	{
@@ -80,10 +73,6 @@ DrawConfirmationWindow (BOOLEAN answer, BOOLEAN confirm)
 	font_DrawText (&t);
 	t.baseline.y += RES_SCALE (10);
 	t.baseline.x = r.corner.x + (r.extent.width >> 2);
-#if defined(ANDROID) || defined(__ANDROID__)
-	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
-		t.baseline.x -= NRES_BOOL (5);
-#endif
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 1); // "Yes"
 	SetContextForeGroundColor (
 			answer ? (confirm ? WHITE_COLOR : MENU_HIGHLIGHT_COLOR) :
@@ -91,13 +80,6 @@ DrawConfirmationWindow (BOOLEAN answer, BOOLEAN confirm)
 	font_DrawText (&t);
 	t.baseline.x += (r.extent.width >> 1);
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 2); // "No"
-#if defined(ANDROID) || defined(__ANDROID__)
-	if (GLOBAL(CurrentActivity) & IN_BATTLE && RunAwayAllowed())
-	{
-		t.baseline.x -= RES_BOOL (10, 20);
-		t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 3); // "Escape Unit"
-	}
-#endif
 	SetContextForeGroundColor (
 			answer ? BLACK_COLOR : MENU_HIGHLIGHT_COLOR);
 	font_DrawText (&t);
@@ -215,10 +197,6 @@ DoConfirmExit (void)
 		}		
 		else
 		{
-#if defined(ANDROID) || defined(__ANDROID__)
-			if (GLOBAL (CurrentActivity) & IN_BATTLE && RunAwayAllowed ())
-				WarpFromMenu = TRUE;
-#endif
 			result = FALSE;
 		}
 		ExitRequested = FALSE;

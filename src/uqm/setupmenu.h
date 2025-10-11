@@ -246,7 +246,7 @@ enum {
 	CHOICE_CHDECLEAN,
 	CHOICE_CHNOPLANET,
 	CHOICE_VISITED,
-	CHOICE_6014IP,
+	CHOICE_HDM_IP,
 	CHOICE_SCANSPHERE,
 	CHOICE_SLAUGHTER,
 	CHOICE_ADVAUTO,
@@ -296,7 +296,9 @@ enum {
 	CHOICE_MODTRACKING,
 	CHOICE_MODHELLBORE,
 	CHOICE_MODFURNACE,
-	CHOICE_SHIPSEED
+	CHOICE_SHIPSEED,
+
+	CHOICE_COUNT
 };
 
 enum {
@@ -312,7 +314,9 @@ enum {
 	MENU_VISUAL,		// Visual menu
 	MENU_QOL,			// Quality of life features menu
 	MENU_DEVICES,		// Add devices cheat submenu
-	MENU_UPGRADES		// Add upgrades cheat submenu
+	MENU_UPGRADES,		// Add upgrades cheat submenu
+	
+	MENU_COUNT
 };
 
 enum {
@@ -320,7 +324,9 @@ enum {
 	SLIDER_SFXVOLUME,
 	SLIDER_SPCHVOLUME,
 	SLIDER_GAMMA,
-	SLIDER_NEBULA
+	SLIDER_NEBULA,
+
+	SLIDER_COUNT
 };
 
 enum {
@@ -339,7 +345,9 @@ enum {
 	BTN_QOLMENU,
 	BTN_DEVMENU,
 	BTN_UPGMENU,
-	BTN_CHTPREV
+	BTN_CHTPREV,
+
+	BUTTON_COUNT
 };
 
 enum {
@@ -352,12 +360,16 @@ enum {
 	LABEL_COMM,
 	LABEL_IP,
 	LABEL_SCAN,
+
+	LABEL_COUNT
 };
 
 enum {
 	TEXT_LOUTNAME,
 	TEXT_GAMESEED,
-	TEXT_CUSTMRES
+	TEXT_CUSTMRES,
+
+	TEXTENTRY_COUNT
 };
 
 enum {
@@ -368,7 +380,9 @@ enum {
 	CONTROL_WEAP,
 	CONTROL_SPEC,
 	CONTROL_ESC,
-	CONTROL_THRU
+	CONTROL_THRU,
+
+	CONTROLENTRY_COUNT
 };
 
 #define NUM_UPGRADES 13
@@ -397,7 +411,7 @@ typedef struct globalopts_struct {
 	OPT_SEED seedType;
 	OPT_SPHERECOLORS sphereColors;
 	OPT_SPACEMUSIC spaceMusic;
-	OPT_ADD_REMOVE deviceArray[25], upgradeArray[NUM_UPGRADES];
+	OPT_ADD_REMOVE deviceArray[28], upgradeArray[NUM_UPGRADES];
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,

@@ -65,19 +65,6 @@ BOOLEAN restartGame;
 			// Including this is actually necessary on OSX.
 #endif
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#	include <SDL_android.h>
-static void AndroidAppPutToBackgroundCallback(void) {
-	SDL_ANDROID_PauseAudioPlayback();
-	GameActive = FALSE;
-}
-
-static void SDLCALL AndroidAppRestoredCallback(void) {
-	SDL_ANDROID_ResumeAudioPlayback();
-	GameActive = TRUE;
-}
-#endif
-
 struct bool_option
 {
 	bool value;
@@ -324,13 +311,8 @@ main (int argc, char *argv[])
 		/* .numAddons = */          0,
 		/* .graphicsBackend = */    NULL,
 
-#if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(  opengl,            false ),
-		INIT_CONFIG_OPTION2( resolution,        320, 240 ),
-#else
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-#endif
 		INIT_CONFIG_OPTION(  fullscreen,        2 ),
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
@@ -357,11 +339,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 		// Begin MegaMod defaults
 		INIT_CONFIG_OPTION(  resolutionFactor,  0 ),
-#if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(  loresBlowupScale,  0),
-#else
 		INIT_CONFIG_OPTION(  loresBlowupScale,  1),
-#endif
 		INIT_CONFIG_OPTION(  cheatMode,         false ),
 		INIT_CONFIG_OPTION(  optGodModes,       0 ),
 		INIT_CONFIG_OPTION(  timeDilationScale, 0 ),
@@ -388,11 +366,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  spaceMusic,        0 ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
-#if defined(ANDROID) || defined(__ANDROID__)
-		INIT_CONFIG_OPTION(  directionalJoystick, true ),
-#else
 		INIT_CONFIG_OPTION(  directionalJoystick, false ),
-#endif
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  scrTrans,          OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
@@ -1004,7 +978,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->useSpeech, "config.speech");
 
 
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef MELEE_ZOOM
 	if (res_IsInteger("config.smoothmelee") && !options->meleeScale.set)
 	{
 		options->meleeScale.value = res_GetInteger("config.smoothmelee");
@@ -1095,7 +1069,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef DIRECTIONAL_JOY
 	getBoolConfigValue (&options->directionalJoystick,
 			"mm.directionalJoystick"); // For Android
 #endif

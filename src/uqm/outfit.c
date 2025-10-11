@@ -1178,10 +1178,7 @@ DoOutfit (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoOutfit;
 		pMS->Initialized = TRUE;
-		
-#if defined(ANDROID) || defined(__ANDROID__)
-		TFB_SetOnScreenKeyboard_Starmap();
-#endif
+
 		InitializeDOSLanderPos ();
 
 		SetNamingCallback (onNamingDone);
