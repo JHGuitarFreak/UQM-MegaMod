@@ -664,6 +664,7 @@ DoChangeJournal (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_JOURNAL]
 			|| PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
+		PlayMenuSound (MENU_SOUND_SUCCESS);
 		return FALSE;
 	}
 	else
@@ -702,8 +703,11 @@ Journal (void)
 			|| !(CommData.AlienFrame != NULL || playerInSolarSystem ()
 			|| inHQSpace () || inEncounter ()))
 	{
+		PlayMenuSound (MENU_SOUND_FAILURE);
 		return FALSE;
 	}
+
+	PlayMenuSound (MENU_SOUND_SUCCESS);
 
 	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
 	if (JournalStrings == 0)
