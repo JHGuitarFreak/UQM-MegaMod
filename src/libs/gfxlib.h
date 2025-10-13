@@ -415,6 +415,13 @@ printRect (RECT r, UNICODE *Str)
 }
 
 static inline void
+printDRect (DRECT r, UNICODE *Str)
+{
+	printf ("%s.corner = %d x %d\n", Str, r.corner.x, r.corner.y);
+	printf ("%s.extent = %d x %d\n", Str, r.extent.width, r.extent.height);
+}
+
+static inline void
 ZeroPoint (POINT *pt)
 {
 	pt->x = pt->y = ~0;
