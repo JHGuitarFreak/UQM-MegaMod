@@ -343,7 +343,10 @@ WriteJournals (void)
 	UWORD rainbow_mask = MAKE_WORD (
 			GGS (RAINBOW_WORLD0),
 			GGS (RAINBOW_WORLD1));
+	BOOLEAN rainbow_0 = (rainbow_mask & (1 << 0)) != 0;
 	BOOLEAN rainbow_5 = (rainbow_mask & (1 << 5)) != 0;
+	BOOLEAN rainbow_shofixti = GGS (SHOFIXTI_STACK2) > 2
+			&& GSGE (SHOFIXTI_STACK1, 2);
 
 	{	// Objectives Journal
 		// Starbase Missions
@@ -476,6 +479,10 @@ WriteJournals (void)
 
 	{	// Curiosities Journal
 		BYTE i;
+
+		AddJournal (ARTIFACTS_JOURNAL, 2,
+				rainbow_shofixti, FIND_RAINBOW_SEXTANTIS,
+				rainbow_0, NO_JOURNAL_ENTRY);
 
 		for (i = 0; i <= num_rainbows; i++)
 		{
