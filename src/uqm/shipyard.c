@@ -520,7 +520,7 @@ animatePowerLines (MENU_STATE *pMS)
 	static TimeCount NextTime = 0;
 	TimeCount Now = GetTimeCounter ();
 
-	if (SAFE_X || GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (IS_PAD || GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return;
 
 	if (pMS)
