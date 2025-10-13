@@ -155,7 +155,10 @@ ProcessUtilityKeys (void)
 	}
 
 	if (ImmediateInputState.menu[KEY_SCREENSHOT])
+	{
 		TFB_ScreenShot ();
+		FlushInput ();
+	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	{	// Only call the debug func on the rising edge of

@@ -88,6 +88,7 @@ DWORD RandomContext_SeedRandom (RandomContext *context, DWORD new_seed);
 DWORD RandomContext_GetSeed (RandomContext *context);
 DWORD RandomContext_FastRandom (DWORD seed);
 int RangeMinMax (int min, int max, DWORD rand);
+extern void printBits (size_t const size, void const *const ptr);
 
 
 #endif  /* LIBS_MATH_RANDOM_H_ */
