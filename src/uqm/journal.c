@@ -490,6 +490,12 @@ WriteJournals (void)
 				rainbow_supox, FIND_RAINBOW_LEPORIS,
 				rainbow_7,     NO_JOURNAL_ENTRY);
 
+		AddJournal (ARTIFACTS_JOURNAL, 1,
+				GGS (DISCUSSED_GLOWING_ROD), GLOWING_ROD_ENTRY);
+
+		AddJournal (ARTIFACTS_JOURNAL, 1,
+				GGS (DISCUSSED_WIMBLIS_TRIDENT), WIMBLIS_TRIDENT_ENTRY);
+
 		for (i = 0; i <= num_rainbows; i++)
 		{
 			AddJournal (ARTIFACTS_JOURNAL, 1,
