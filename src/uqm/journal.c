@@ -344,9 +344,11 @@ WriteJournals (void)
 			GGS (RAINBOW_WORLD0),
 			GGS (RAINBOW_WORLD1));
 	BOOLEAN rainbow_0 = (rainbow_mask & (1 << 0)) != 0;
+	BOOLEAN rainbow_7 = (rainbow_mask & (1 << 7)) != 0;
 	BOOLEAN rainbow_5 = (rainbow_mask & (1 << 5)) != 0;
 	BOOLEAN rainbow_shofixti = GGS (SHOFIXTI_STACK2) > 2
 			&& GSGE (SHOFIXTI_STACK1, 2);
+	BOOLEAN rainbow_supox = GSET (SUPOX_STACK1, 6);
 
 	{	// Objectives Journal
 		// Starbase Missions
@@ -482,7 +484,11 @@ WriteJournals (void)
 
 		AddJournal (ARTIFACTS_JOURNAL, 2,
 				rainbow_shofixti, FIND_RAINBOW_SEXTANTIS,
-				rainbow_0, NO_JOURNAL_ENTRY);
+				rainbow_0,        NO_JOURNAL_ENTRY);
+
+		AddJournal (ARTIFACTS_JOURNAL, 2,
+				rainbow_supox, FIND_RAINBOW_LEPORIS,
+				rainbow_7,     NO_JOURNAL_ENTRY);
 
 		for (i = 0; i <= num_rainbows; i++)
 		{
