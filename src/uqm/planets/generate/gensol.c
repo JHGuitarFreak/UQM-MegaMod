@@ -75,8 +75,11 @@ const GenerateFunctions generateSolFunctions = {
 static bool
 GenerateSol_initNpcs (SOLARSYS_STATE *solarSys)
 {
+	if (optHeadStart)
+		SET_GAME_STATE (PROBE_MESSAGE_DELIVERED, 1);
 	GLOBAL (BattleGroupRef) = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
-	if (GLOBAL (BattleGroupRef) == 0)
+	if (GLOBAL (BattleGroupRef) == 0 &&
+			!GET_GAME_STATE (PROBE_MESSAGE_DELIVERED))
 	{
 		CloneShipFragment (URQUAN_DRONE_SHIP,
 				&GLOBAL (npc_built_ship_q), 0);
