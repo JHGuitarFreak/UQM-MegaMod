@@ -331,9 +331,8 @@ static WIDGET *advanced_widgets[] = {
 
 	(WIDGET *)(&labels     [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&choices    [CHOICE_GAMESEED  ]), // Seed usage selection
-	(WIDGET *)(&textentries[TEXT_GAMESEED    ]), // Custom Seed entry
 	(WIDGET *)(&choices    [CHOICE_SHIPSEED  ]), // Ship seeding toggle
-	(WIDGET *)(&choices    [CHOICE_SOICOLOR  ]), // SOI Color Selection
+	(WIDGET *)(&textentries[TEXT_GAMESEED    ]), // Custom Seed entry
 
 	(WIDGET *)(&labels     [LABEL_SPACER     ]),    // Spacer
 	(WIDGET *)(&buttons    [BTN_QUITSUBMENU  ]), // Exit to Menu
@@ -345,6 +344,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_CUSTBORDER   ]), // Custom Border switch
 	(WIDGET *)(&choices[CHOICE_FUELDECIM    ]), // Whole Fuel Value switch
 	(WIDGET *)(&choices[CHOICE_FUELCIRCLE   ]), // Fuel Range
+	(WIDGET *)(&choices[CHOICE_SOICOLOR     ]), // SOI Color Selection
 	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]), // Animated HyperStars
 	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]), // Game Over switch
 
@@ -599,10 +599,10 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed (void)
 {
+	if (!SANE_SEED (optCustomSeed) || choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME)
+		optCustomSeed = PrimeA;
 	snprintf (textentries[TEXT_GAMESEED].value, 
 		sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
-	if (!SANE_SEED (optCustomSeed))
-		optCustomSeed = PrimeA;
 }
 
 static int
@@ -847,10 +847,27 @@ rename_template (WIDGET_TEXTENTRY *self)
 }
 
 static void
+change_seedtype (WIDGET_CHOICE *self)
+{
+	if (self->selected == OPTVAL_PRIME)
+	{
+		optCustomSeed = PrimeA;
+		snprintf (textentries[TEXT_GAMESEED].value,
+				sizeof (textentries[TEXT_GAMESEED].value),
+				"%d", optCustomSeed);
+	}
+}
+
+static void
 change_seed (WIDGET_TEXTENTRY *self)
 {
-	if (!SANE_SEED (atoi (self->value)))
-		snprintf (self->value, sizeof (self->value), "%d", PrimeA);
+	int customSeed = atoi (self->value);
+	if (!SANE_SEED (customSeed) || choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME)
+	{
+		customSeed = PrimeA;
+		snprintf (self->value, sizeof (self->value), "%d", customSeed);
+	}
+	optCustomSeed = customSeed;
 }
 
 static void
@@ -2132,6 +2149,7 @@ init_widgets (void)
 	}
 
 	textentries[TEXT_LOUTNAME].onChange = rename_template;
+	choices[CHOICE_GAMESEED].onChange = change_seedtype;
 	textentries[TEXT_GAMESEED].onChange = change_seed;
 	textentries[TEXT_CUSTMRES].onChange = change_res;
 
@@ -2471,7 +2489,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	// QoL
 	opts->scatterElements = optScatterElements;
-
 	opts->showUpgrades = optShowUpgrades;
 
 /*
@@ -2724,7 +2741,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	{
 		PutIntOpt (&optSeedType, (int*)(&opts->seedType), "mm.seedType", FALSE);
 		int customSeed = atoi (textentries[TEXT_GAMESEED].value);
-		if (!SANE_SEED (customSeed))
+		if (!SANE_SEED (customSeed) || optSeedType == OPTVAL_PRIME)
 			customSeed = PrimeA;
 		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
 		PutBoolOpt (&optShipSeed, &opts->shipSeed, "mm.shipSeed", FALSE);
