@@ -250,9 +250,9 @@ InventoryModules (BYTE *pModuleMap, COUNT Size)
 	ModulesOnBoard = 0;
 	for (i = 0; i < NUM_PURCHASE_MODULES && Size > 0; ++i)
 	{
-		BYTE ActiveModule;
+		//BYTE ActiveModule;
 
-		ActiveModule = GLOBAL (ModuleCost[i]);
+		//ActiveModule = GLOBAL (ModuleCost[i]);
 
 		{
 			*pModuleMap++ = i;
@@ -927,7 +927,6 @@ DoInstallModule (MENU_STATE *pMS)
 
 			if (NewState == pMS->CurState)
 			{
-				SIZE h = 0;
 				if (NewState == PLANET_LANDER
 						|| NewState == EMPTY_SLOT + 3)
 				{
@@ -1197,7 +1196,7 @@ DoOutfit (MENU_STATE *pMS)
 			pMS->CurState = OUTFIT_FUEL;
 			pMS->ModuleFrame = CaptureDrawable (
 					LoadGraphic (SISMODS_MASK_PMAP_ANIM));
-			s.origin.x = SAFE_X ? (-SAFE_X + RES_SCALE (3)) : 0;
+			s.origin.x = IS_PAD ? (-SAFE_X + RES_SCALE (3)) : 0;
 			s.origin.y = 0;
 			s.frame = CaptureDrawable (
 					LoadGraphic (OUTFIT_PMAP_ANIM));

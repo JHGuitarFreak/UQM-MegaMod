@@ -6,8 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.4]
 
 ### Added
-- Storage Queue: QOL feature adds a ship storage queue accessable at the starbase for storing escort ships or retrieving them from storage.  Gift ships will enter storage if flagship does not have room at the time they are given.  Storing/unstoring uses TAB key binding.
-- Shipyard Captain Names: QOL feature to display captain's names above the ships in the shipyard.
+- Storage Queue: QOL option adds a ship storage queue accessable at the starbase for storing escort ships or retrieving them from storage.  Gift ships will enter storage if flagship does not have room at the time they are given.  Storing/unstoring uses TAB key binding.
+- Shipyard Captain Names: Visual option to display captain's names above the ships in the shipyard. (Also moved Sphere Colors to Visual)
 - Shipyard/Outfit DOS Side Window: Platform option to always use the DOS side menu (in place of flagship window) for buying ships and modules, as well as removing ships from storage.
 - Extended mode: Utwig and Supox now give gift ships on a calendar similar to the Yehat and Pkunk (which now use standardized functions).
 - Extended mode: Added missing Supox rumors to neutral (but helpful) Supox dialog.
