@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.4]
 
 ### Added
+- Storage Queue: QOL feature adds a ship storage queue accessable at the starbase for storing escort ships or retrieving them from storage.  Gift ships will enter storage if flagship does not have room at the time they are given.  Storing/unstoring uses TAB key binding.
+- Shipyard Captain Names: QOL feature to display captain's names above the ships in the shipyard.
+- Shipyard/Outfit DOS Side Window: Platform option to always use the DOS side menu (in place of flagship window) for buying ships and modules, as well as removing ships from storage.
 - Extended mode: Utwig and Supox now give gift ships on a calendar similar to the Yehat and Pkunk (which now use standardized functions).
 - Extended mode: Added missing Supox rumors to neutral (but helpful) Supox dialog.
 - Extended mode: Druuge SOI revealed when Supox tell you to look for Ultron parts there.
@@ -25,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
 
 ### Changed
+- Fleet points display updates at the same time the SIS displays RU changes (instead of when the confirmation is made).  Also, it blacks out the value before writing the new one.
 - Extended mode: Supox dialog doesn't kick you out between gifting ultron and asking about Druuge.
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
 - The helper graphics for scanning and landing now show current cargo manifest for elements and biological data
@@ -39,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
 
 ### Fixed
+- Shipyard no longer called "load_ship" to retrieve ship data (was seriously lagging in DOS mode), instead uses the master ship list.
 - Load legacy savefiles correctly load with StarSeed code
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
 - 1-Frame solar system draw after Chmmr dialogue that can cause a crash

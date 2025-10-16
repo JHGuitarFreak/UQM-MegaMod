@@ -38,7 +38,8 @@
 #include "shipcont.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
-#define SHIELD_LOCATION_IN_MODULE_ANI 51
+#define SHIELD_LOCATION_IN_MODULE_ANI (23 + 2 * NUM_PURCHASE_MODULES)
+#define DOS_MENU (optDosMenus || IS_DOS)    // The DOS Menu window
 
 enum
 {
@@ -126,7 +127,7 @@ DrawModuleStatus (COUNT index, COUNT pos, bool selected)
 		SetContextForeGroundColor (selected ?
 				MODULE_SELECTED_COLOR : MODULE_NAME_COLOR);
 		t.baseline.y = r.corner.y + TEXT_BASELINE;
-		t.pStr = GAME_STRING (index + STARBASE_STRING_BASE + 12);
+		t.pStr = GAME_STRING (index + DOS_STARBASE_STRING_BASE);
 		t.CharCount = utf8StringPos (t.pStr, ' ');
 		font_DrawText (&t);
 		t.baseline.y += TEXT_SPACING_Y;
@@ -222,7 +223,7 @@ ManipulateModules (SIZE NewState)
 	MODULES_STATE *modState;
 	SIZE NewTop;
 
-	if (!IS_DOS)
+	if (!DOS_MENU)
 		return;
 
 	modState = &ModuleState;
@@ -272,7 +273,7 @@ DrawModuleMenuText (RECT *r, int Index)
 	UNICODE buf[256];
 	COORD og_baseline_x;
 
-	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 26 + Index)))
+	if (IS_DOS || !strlen (GAME_STRING (TDO_STARBASE_STRING_BASE + Index)))
 		return;
 
 	SetContextFont (ModuleFont);
@@ -295,7 +296,7 @@ DrawModuleMenuText (RECT *r, int Index)
 	og_baseline_x = text.baseline.x;
 
 	utf8StringCopy ((char *)buf, sizeof (buf),
-			GAME_STRING (STARBASE_STRING_BASE + 26 + Index));
+			GAME_STRING (TDO_STARBASE_STRING_BASE + Index));
 
 	text.align = ALIGN_CENTER;
 	text.pStr = strtok (buf, " ");
@@ -450,7 +451,7 @@ DrawEscapePodText (RECT rect )
 	UNICODE buf[256];
 	COORD og_baseline_x;
 
-	if (!strlen (GAME_STRING (STARBASE_STRING_BASE + 41)))
+	if (!strlen (GAME_STRING (END_STARBASE_STRING_BASE + 1)))
 		return;
 
 	OldFont = SetContextFont (SquareFont);
@@ -478,7 +479,7 @@ DrawEscapePodText (RECT rect )
 	og_baseline_x = text.baseline.x;
 
 	utf8StringCopy ((char *)buf, sizeof (buf),
-			GAME_STRING (STARBASE_STRING_BASE + 41));
+			GAME_STRING (END_STARBASE_STRING_BASE + 1));
 
 	text.align = ALIGN_CENTER;
 	text.pStr = strtok (buf, " ");
@@ -512,7 +513,7 @@ DrawNoLandersText (RECT rect)
 	Color OldColor;
 	RECT block;
 
-	if (IS_DOS || !strlen (GAME_STRING (STARBASE_STRING_BASE + 40)))
+	if (IS_DOS || !strlen (GAME_STRING (END_STARBASE_STRING_BASE)))
 		return;
 
 	OldFont = SetContextFont (SquareFont);
@@ -529,7 +530,7 @@ DrawNoLandersText (RECT rect)
 	text.baseline.y += RES_SCALE (17);
 	text.align = ALIGN_CENTER;
 	text.pStr = AlignText (
-			(const UNICODE *)GAME_STRING (STARBASE_STRING_BASE + 40),
+			(const UNICODE *)GAME_STRING (END_STARBASE_STRING_BASE),
 			&text.baseline.x);
 	text.CharCount = (COUNT)~0;
 
@@ -691,7 +692,8 @@ DoInstallModule (MENU_STATE *pMS)
 			{
 				if (old_slot_piece == CREW_POD)
 				{
-					if (GLOBAL_SIS (CrewEnlisted) > CREW_POD_CAPACITY
+					if (GLOBAL_SIS (CrewEnlisted)
+							> CREW_POD_CAPACITY
 							* (CountSISPieces (CREW_POD) - 1))
 					{	// crew pod still needed for crew recruited
 						PlayMenuSound (MENU_SOUND_FAILURE);
@@ -1178,7 +1180,6 @@ DoOutfit (MENU_STATE *pMS)
 	{
 		pMS->InputFunc = DoOutfit;
 		pMS->Initialized = TRUE;
-
 		InitializeDOSLanderPos ();
 
 		SetNamingCallback (onNamingDone);
@@ -1343,7 +1344,7 @@ ExitOutfit:
 				break;
 			case OUTFIT_MODULES:
 
-				if (IS_DOS)
+				if (DOS_MENU)
 				{
 					memset (&ModuleState, 0, sizeof ModuleState);
 					ModuleState.count = InventoryModules (ModuleState.list,

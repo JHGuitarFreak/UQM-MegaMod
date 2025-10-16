@@ -666,6 +666,8 @@ InitGameStructures (void)
 
 	loadGameCheats ();
 
+	InitQueue (&GLOBAL (stowed_ship_q),
+			MAX_STOWED_SHIPS, sizeof (SHIP_FRAGMENT));
 	InitQueue (&GLOBAL (built_ship_q),
 			MAX_BUILT_SHIPS, sizeof (SHIP_FRAGMENT));
 	InitQueue (&GLOBAL (npc_built_ship_q), MAX_SHIPS_PER_SIDE,
@@ -748,6 +750,7 @@ UninitGameStructures (void)
 	UninitQueue (&GLOBAL (ip_group_q));
 	UninitQueue (&GLOBAL (npc_built_ship_q));
 	UninitQueue (&GLOBAL (built_ship_q));
+	UninitQueue (&GLOBAL (stowed_ship_q));
 	UninitGroupInfo ();
 	UninitPlanetInfo ();
 
