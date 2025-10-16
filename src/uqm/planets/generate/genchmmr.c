@@ -246,8 +246,6 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys,
 			SET_GAME_STATE (HM_ENCOUNTERS, state);
 
 			RepairSISBorder ();
-
-			return true;
 		}
 	}
 
