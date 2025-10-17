@@ -653,7 +653,6 @@ InitGameStructures (void)
 	if (optHeadStart)
 	{
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 2);
-		SET_GAME_STATE (KNOW_SPATHI_PASSWORD, 1);
 		SetHomeworldKnown (SPATHI_HOME);
 		if (!NOMAD)
 		{

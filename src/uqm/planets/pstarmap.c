@@ -1386,7 +1386,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 				r.corner.y += RES_SCALE(1);
 				r.extent.height -= RES_SCALE(2);
 
-				for (k = 0; k < j; k++)
+				for (k = 1; k < j; k++)
 				{
 					if ((offs = CheckTextsIntersect (&r, &nameplate[currMax - k].rect)) != 0)
 					{

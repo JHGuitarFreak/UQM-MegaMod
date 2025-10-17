@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Changed
 - Fleet points display updates at the same time the SIS displays RU changes (instead of when the confirmation is made).  Also, it blacks out the value before writing the new one.
+- Head Start cheat now skips the UQ Drone encounter at Earth (and disables it for the game).
 - Extended mode: Supox dialog doesn't kick you out between gifting ultron and asking about Druuge.
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
 - The helper graphics for scanning and landing now show current cargo manifest for elements and biological data
@@ -44,6 +45,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Fixed
 - Shipyard no longer called "load_ship" to retrieve ship data (was seriously lagging in DOS mode), instead uses the master ship list.
+- Head Start no longer gives you the Melnorme version of the Spathi password (only Fwiffo's version)
+- Hard mode: Defeating Ilwrath at Chmmr homeworld now takes you into orbit
+- Fixed bug in starmap name plates array indexing out of bounds (potential crash)
+- Seed value is now stored immediately after being changed, and normalizes to PrimeA when "Prime" seed type is selected
 - Load legacy savefiles correctly load with StarSeed code
 - Visual bug in 3DO mode that resulted in repeated words in VUX subtitles
 - 1-Frame solar system draw after Chmmr dialogue that can cause a crash
