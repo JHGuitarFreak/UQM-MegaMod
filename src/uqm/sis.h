@@ -116,6 +116,8 @@ enum
 
 #define MAX_BUILT_SHIPS 12
 		/* Maximum number of ships escorting the SIS */
+#define MAX_STOWED_SHIPS 200 // Limited to a byte
+		/* Maximum number of ships banked at the starbase */
 #define MAX_LANDERS 10
 
 #define SUPPORT_SHIP_PTS \

@@ -47,6 +47,7 @@ extern "C" {
 #define IP_GRP_Q_TAG     0x51704749 // "IGpQ": ip_group_q
 #define NPC_SHIP_Q_TAG   0x5163704e // "NpcQ": npc_built_ship_q
 #define SHIP_Q_TAG       0x51706853 // "ShpQ": built_ship_q
+#define STOWED_Q_TAG     0x51777453 // "StwQ": stowed_ship_q
 #define STAR_TAG         0x72617453 // "Star": STAR_DESC
 #define SCAN_TAG         0x6e616353 // "Scan": Scan Masks (stuff picked up)
 #define BATTLE_GROUP_TAG 0x70477442 // "BtGp": Battle Group definition

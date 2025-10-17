@@ -1179,6 +1179,7 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 	ReinitQueue (&GLOBAL (ip_group_q));
 	ReinitQueue (&GLOBAL (npc_built_ship_q));
 	ReinitQueue (&GLOBAL (built_ship_q));
+	ReinitQueue (&GLOBAL (stowed_ship_q));
 
 	uninitEventSystem ();
 	luaUqm_uninitState();
