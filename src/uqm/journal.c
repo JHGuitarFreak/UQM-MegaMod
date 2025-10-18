@@ -350,6 +350,16 @@ WriteJournals (void)
 			&& GSGE (SHOFIXTI_STACK1, 2);
 	BOOLEAN rainbow_supox = GSET (SUPOX_STACK1, 6);
 
+	BOOLEAN melnorme_ultron = GSGE (MELNORME_EVENTS_INFO_STACK, 8);
+	BOOLEAN have_spindle = GGS (CLEAR_SPINDLE)
+			&& GGS (CLEAR_SPINDLE_ON_SHIP);
+	BOOLEAN used_spindle = GGS (CLEAR_SPINDLE)
+			&& !GGS (CLEAR_SPINDLE_ON_SHIP);
+	BOOLEAN have_rsphere = GGS (ROSY_SPHERE) && GGS (ROSY_SPHERE_ON_SHIP);
+	BOOLEAN used_rsphere = GGS (ROSY_SPHERE) && !GGS (ROSY_SPHERE_ON_SHIP);
+	BOOLEAN have_ahelix = GGS (AQUA_HELIX) && GGS (AQUA_HELIX_ON_SHIP);
+	BOOLEAN used_ahelix = GGS (AQUA_HELIX) && !GGS (AQUA_HELIX_ON_SHIP);
+
 	{	// Objectives Journal
 		// Starbase Missions
 		AddJournal (OBJECTIVES_JOURNAL, 2,
@@ -495,6 +505,25 @@ WriteJournals (void)
 
 		AddJournal (ARTIFACTS_JOURNAL, 1,
 				GGS (DISCUSSED_WIMBLIS_TRIDENT), WIMBLIS_TRIDENT_ENTRY);
+
+		AddJournal (ARTIFACTS_JOURNAL, 5,
+				melnorme_ultron,                GET_AQUAHELIX,
+				mels_thraddash,                 GET_AQUAHELIX_DRACONIS,
+				have_ahelix,                    LEARN_AQUAHELIX,
+				have_ahelix && melnorme_ultron, USE_AQUAHELIX,
+				used_ahelix,                    USED_AQUAHELIX);
+
+		AddJournal (ARTIFACTS_JOURNAL, 4,
+				melnorme_ultron,                 GET_ROSYSPHERE,
+				have_rsphere,                    LEARN_ROSYSPHERE,
+				have_rsphere && melnorme_ultron, USE_ROSYSPHERE,
+				used_rsphere,                    USED_ROSYSPHERE);
+
+		AddJournal (ARTIFACTS_JOURNAL, 4,
+				melnorme_ultron,                 GET_CLEARSPINDLE,
+				have_spindle,                    LEARN_CLEARSPINDLE,
+				have_spindle && melnorme_ultron, USE_CLEARSPINDLE,
+				used_spindle,                    USED_CLEARSPINDLE);
 
 		for (i = 0; i <= num_rainbows; i++)
 		{
