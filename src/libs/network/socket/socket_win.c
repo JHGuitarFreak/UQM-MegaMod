@@ -18,6 +18,8 @@
 
 // Socket functions for Winsock sockets.
 
+#if (_MSC_VER || defined(__MINGW32__))
+
 #define PORT_WANT_ERRNO
 #include "port.h"
 #include "../netport.h"
@@ -311,4 +313,5 @@ Socket_getError(Socket *sock, int *err) {
 	return 0;
 }
 
+#endif
 

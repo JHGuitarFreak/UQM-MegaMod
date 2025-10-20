@@ -16,6 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#if (_MSC_VER || defined(__MINGW32__))
+
 #define PORT_WANT_ERRNO
 #include "port.h"
 #include "../netport.h"
@@ -461,4 +463,4 @@ NetManager_process(uint32 *timeoutMs) {
 	return 0;
 }
 
-
+#endif

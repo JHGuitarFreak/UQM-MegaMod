@@ -13,6 +13,9 @@
 	/* If we're compiling on MS Windows using build.sh, use
 	 * config_win.h, generated from src/config_win.h.in. */
 #	include "config_win.h"
+#elif defined(__ANDROID__)
+/* If we're compiling for Android, use config_android.h */
+#	include "config_android.h"
 #else
 	/* If we're compiling in unix, use config_unix.h, generated from
 	 * src/config_unix.h.in by build.sh. */

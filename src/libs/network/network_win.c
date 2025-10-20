@@ -16,6 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#if (_MSC_VER || defined(__MINGW32__))
+
 #include "netport.h"
 
 #include "network.h"
@@ -72,4 +74,4 @@ Network_uninit(void) {
 	}
 }
 
-
+#endif

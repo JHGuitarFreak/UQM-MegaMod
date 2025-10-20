@@ -847,7 +847,7 @@ rename_template (WIDGET_TEXTENTRY *self)
 }
 
 static void
-change_seedtype (WIDGET_CHOICE *self)
+change_seedtype (WIDGET_CHOICE *self, int oldval)
 {
 	if (self->selected == OPTVAL_PRIME)
 	{
@@ -1886,6 +1886,7 @@ init_widgets (void)
 
 	/* Choice 20 has a special onChange handler, too. */
 	choices[CHOICE_KBLAYOUT  ].onChange = change_template;
+	choices[CHOICE_GAMESEED  ].onChange = change_seedtype;
 
 	// Check addon availability for HD mode, DOS/3DO mode, and music remixes
 	choices[CHOICE_GRAPHICS  ].onChange = check_availability;
@@ -2149,7 +2150,6 @@ init_widgets (void)
 	}
 
 	textentries[TEXT_LOUTNAME].onChange = rename_template;
-	choices[CHOICE_GAMESEED].onChange = change_seedtype;
 	textentries[TEXT_GAMESEED].onChange = change_seed;
 	textentries[TEXT_CUSTMRES].onChange = change_res;
 

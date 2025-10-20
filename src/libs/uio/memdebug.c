@@ -94,6 +94,7 @@ uio_MemDebug_init(void) {
 				uio_MemDebug_pointerCompare,
 				uio_MemDebug_pointerCopy,
 				uio_MemDebug_pointerFree,
+				NULL,
 				4, 0.85, 0.90);
 	}
 }
