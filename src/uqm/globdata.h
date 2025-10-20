@@ -1056,6 +1056,9 @@ typedef struct
 	QUEUE built_ship_q;
 			/* List of SIS escort ships;
 			 * queue element is SHIP_FRAGMENT */
+	QUEUE stowed_ship_q;
+			/* List of escort ships available at starbase;
+			 * queue element is SHIP_FRAGMENT */
 } GAME_STATE;
 
 typedef struct
@@ -1149,6 +1152,14 @@ extern void UninitGameStructures (void);
 #define EXTENDED (GLOBAL_SIS (Extended) ? TRUE : FALSE)
 #define EXT_CASE(a,b) (!EXTENDED ? (a) : (b))
 
+// Nomad
+#define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
+#define NOMAD_DIF(a) (GLOBAL_SIS (Nomad) == (a) ? TRUE : FALSE)
+#define NOMAD_STR(a) ((a) == 2 ? "Normal" : ((a) == 1 ? "Easy" : "Off"))
+
+// Storage Queue
+#define STORAGE_Q (optShipStore || DIF_HARD || optFleetPointSys)
+
 static inline POINT
 LoadLastLoc (void)
 {
@@ -1211,11 +1222,6 @@ ZeroAdvancedAutoPilot (void)
 	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_X, ~0);
 	SET_GAME_STATE (ADV_AUTOPILOT_SAVE_Y, ~0);
 }
-
-// Nomad
-#define NOMAD (GLOBAL_SIS (Nomad) ? TRUE : FALSE)
-#define NOMAD_DIF(a) (GLOBAL_SIS (Nomad) == (a) ? TRUE : FALSE)
-#define NOMAD_STR(a) ((a) == 2 ? "Normal" : ((a) == 1 ? "Easy" : "Off"))
 
 #define BOOL_STR(a) ((a) ? "True" : "False")
 
