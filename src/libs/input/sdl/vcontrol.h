@@ -22,7 +22,6 @@
 
 #if SDL_MAJOR_VERSION == 1
 typedef SDLKey sdl_key_t;
-#undef HAVE_JOYSTICK
 #else
 typedef SDL_Keycode sdl_key_t;
 #endif
@@ -38,8 +37,16 @@ typedef enum
 {
 	VCONTROL_NONE,
 	VCONTROL_KEY,
+
+#if SDL_MAJOR_VERSION > 1
 	VCONTROL_CONTROLLERAXIS,
 	VCONTROL_CONTROLLERBUTTON,
+#else
+	VCONTROL_JOYAXIS,
+	VCONTROL_JOYBUTTON,
+	VCONTROL_JOYHAT,
+#endif // SDL_MAJOR_VERSION
+
 	NUM_VCONTROL_GESTURES
 } VCONTROL_GESTURE_TYPE;
 
@@ -49,8 +56,16 @@ typedef struct
 	union
 	{
 		sdl_key_t key;
+
+#if SDL_MAJOR_VERSION > 1
 		struct { int port, axis, polarity; } controller_axis;
 		struct { int port, button; } controller_button;
+#else
+		struct { int port, index, polarity; } axis;
+		struct { int port, index; } button;
+		struct { int port, index; Uint8 dir; } hat;
+#endif // SDL_MAJOR_VERSION
+
 	} gesture;
 } VCONTROL_GESTURE;
 
@@ -60,11 +75,22 @@ void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);
 
 int  VControl_AddKeyBinding (sdl_key_t symbol, int *target);
 void VControl_RemoveKeyBinding (sdl_key_t symbol, int *target);
+
+#if SDL_MAJOR_VERSION > 1
 int  VControl_AddControllerAxisBinding (int port, int axis, int polarity, int *target);
 void VControl_RemoveControllerAxisBinding (int port, int axis, int polarity, int *target);
 int  VControl_SetControllerThreshold (int port, int threshold);
 int  VControl_AddControllerButtonBinding (int port, int button, int *target);
 void VControl_RemoveControllerButtonBinding (int port, int button, int *target);
+#else
+int  VControl_AddJoyAxisBinding (int port, int axis, int polarity, int *target);
+void VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target);
+int  VControl_SetJoyThreshold (int port, int threshold);
+int  VControl_AddJoyButtonBinding (int port, int button, int *target);
+void VControl_RemoveJoyButtonBinding (int port, int button, int *target);
+int  VControl_AddJoyHatBinding (int port, int which, Uint8 dir, int *target);
+void VControl_RemoveJoyHatBinding (int port, int which, Uint8 dir, int *target);
+#endif // SDL_MAJOR_VERSION
 
 void VControl_RemoveAllBindings (void);
 
@@ -77,9 +103,16 @@ void VControl_BeginFrame (void);
 void VControl_HandleEvent (const SDL_Event *e);
 void VControl_ProcessKeyDown (sdl_key_t symbol);
 void VControl_ProcessKeyUp (sdl_key_t symbol);
+#if SDL_MAJOR_VERSION > 1
 void VControl_ProcessControllerButtonDown (int port, int button);
 void VControl_ProcessControllerButtonUp (int port, int button);
 void VControl_ProcessControllerAxis (int port, int axis, int value);
+#else
+void VControl_ProcessJoyButtonDown (int port, int button);
+void VControl_ProcessJoyButtonUp (int port, int button);
+void VControl_ProcessJoyAxis (int port, int axis, int value);
+void VControl_ProcessJoyHat (int port, int which, Uint8 value);
+#endif // SDL_MAJOR_VERSION
 
 /* Force the input into the blank state.  For preventing "sticky" keys. */
 void VControl_ResetInput (void);

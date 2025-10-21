@@ -303,11 +303,9 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
+
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
-#else
-	(WIDGET *)(&labels [LABEL_NO_SUPPORT ]), // "...not support gamepads"
-	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 #endif
 
 	(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Bottom Player

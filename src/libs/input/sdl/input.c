@@ -44,7 +44,7 @@ static int *kbdstate = NULL;
 static BOOLEAN set_character_mode = FALSE;
 		// Records whether the UI thread has caught up with game thread
 		// on this setting
-#endif
+#endif // SDL_MAJOR_VERSION
 
 static volatile int *menu_vec;
 static int num_menu;
@@ -186,7 +186,6 @@ initKeyConfig (void)
 
 	/* First, load in the menu keys */
 	LoadResourceIndex (contentDir, "menu.key", "menu.");
-
 	LoadResourceIndex (configDir, "override.cfg", "menu.");
 	for (i = 0; i < num_menu; i++)
 	{
@@ -216,7 +215,7 @@ resetKeyboardState (void)
 #if SDL_MAJOR_VERSION == 1
 	memset (kbdstate, 0, sizeof (int) * num_keys);
 	menu_vec[KEY_MENU_ANY] = 0;
-#endif
+#endif // SDL_MAJOR_VERSION
 }
 
 void
@@ -236,6 +235,8 @@ TFB_SetInputVectors (volatile int menu[], int num_menu_,
 }
 
 #ifdef HAVE_JOYSTICK
+
+#if SDL_MAJOR_VERSION > 1
 
 static void
 initController (void)
@@ -294,28 +295,59 @@ uninitController (void)
 	SDL_QuitSubSystem (SDL_INIT_GAMECONTROLLER);
 }
 
+#else
+
+static void
+initJoystick (void)
+{
+	int nJoysticks;
+
+	if ((SDL_InitSubSystem (SDL_INIT_JOYSTICK)) == -1)
+	{
+		log_add (log_Fatal, "Couldn't initialize joystick subsystem: %s",
+			SDL_GetError ());
+		exit (EXIT_FAILURE);
+	}
+
+	log_add (log_Info, "%i joysticks were found.", SDL_NumJoysticks ());
+
+	nJoysticks = SDL_NumJoysticks ();
+	if (nJoysticks > 0)
+	{
+		int i;
+
+		log_add (log_Info, "The names of the joysticks are:");
+		for (i = 0; i < nJoysticks; i++)
+		{
+			log_add (log_Info, "    %s", SDL_JoystickName (i));
+		}
+		SDL_JoystickEventState (SDL_ENABLE);
+	}
+}
+
+#endif // SDL_MAJOR_VERSION
+
 #endif /* HAVE_JOYSTICK */
 
-int 
+int
 TFB_InitInput (int driver, int flags)
 {
-	int signed_num_keys; // JMS: New variable to silence warnings
 	(void)driver;
 	(void)flags;
 
 #if SDL_MAJOR_VERSION == 1
-	SDL_EnableUNICODE(1);
-	(void)SDL_GetKeyState (&signed_num_keys);
-	num_keys = (unsigned int) signed_num_keys;
+	SDL_EnableUNICODE (1);
+	(void)SDL_GetKeyState (&num_keys);
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
-#else
-	(void) signed_num_keys; /* satisfy compiler (unused parameter) */
 #endif
-	
 
 #ifdef HAVE_JOYSTICK
+# if SDL_MAJOR_VERSION > 1
 	initController ();
-#endif /* HAVE_JOYSTICK */
+# else
+	initJoystick ();
+# endif
+#endif
 
 	in_character_mode = FALSE;
 	resetKeyboardState ();
@@ -324,7 +356,7 @@ TFB_InitInput (int driver, int flags)
 	VControl_Init ();
 
 	initKeyConfig ();
-	
+
 	VControl_ResetInput ();
 	InputInitialized = TRUE;
 
@@ -335,7 +367,7 @@ void
 TFB_UninitInput (void)
 {
 	VControl_Uninit ();
-#ifdef HAVE_JOYSTICK
+#if SDL_MAJOR_VERSION == 2
 	uninitController ();
 #endif
 	HFree (controls);
@@ -470,6 +502,7 @@ ProcessInputEvent (const SDL_Event *Event)
 		}
 	}
 }
+
 #else
 
 static inline int
@@ -563,14 +596,14 @@ ProcessInputEvent (const SDL_Event *Event)
 	}
 }
 
-#endif
+#endif // SDL_MAJOR_VERSION
 
 void
 TFB_ResetControls (void)
 {
 	VControl_ResetInput ();
 	resetKeyboardState ();
-			// flush character buffer
+	// flush character buffer
 	kbdhead = kbdtail = 0;
 	lastchar = 0;
 }
@@ -630,7 +663,7 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 					VControl_code2name (g->gesture.key));
 			buffer[maxlen - 1] = 0;
 			break;
-
+#if SDL_MAJOR_VERSION > 1
 		case VCONTROL_CONTROLLERBUTTON:
 			if (optControllerType == 1)
 			{	// Xbox/Xinput controller
@@ -652,7 +685,6 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 			}
 			buffer[maxlen - 1] = 0;
 			break;
-
 		case VCONTROL_CONTROLLERAXIS:
 			if (optControllerType == 1)
 			{	// Xbox/Xinput controller
@@ -677,7 +709,22 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 			}
 			buffer[maxlen - 1] = 0;
 			break;
-
+#else
+		case VCONTROL_JOYBUTTON:
+			snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port,
+					g->gesture.button.index + 1);
+			buffer[maxlen - 1] = 0;
+			break;
+		case VCONTROL_JOYAXIS:
+			snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port,
+					g->gesture.axis.index,
+					g->gesture.axis.polarity > 0 ? '+' : '-');
+			break;
+		case VCONTROL_JOYHAT:
+			snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port,
+					g->gesture.hat.index, g->gesture.hat.dir);
+			break;
+#endif // SDL_MAJOR_VERSION
 		default:
 			/* Something we don't handle yet */
 			buffer[0] = 0;
