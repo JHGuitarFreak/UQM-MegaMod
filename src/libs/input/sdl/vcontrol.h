@@ -77,19 +77,27 @@ int  VControl_AddKeyBinding (sdl_key_t symbol, int *target);
 void VControl_RemoveKeyBinding (sdl_key_t symbol, int *target);
 
 #if SDL_MAJOR_VERSION > 1
-int  VControl_AddControllerAxisBinding (int port, int axis, int polarity, int *target);
-void VControl_RemoveControllerAxisBinding (int port, int axis, int polarity, int *target);
+int  VControl_AddControllerAxisBinding (int port, int axis, int polarity,
+		int *target);
+void VControl_RemoveControllerAxisBinding (int port, int axis,
+		int polarity, int *target);
 int  VControl_SetControllerThreshold (int port, int threshold);
-int  VControl_AddControllerButtonBinding (int port, int button, int *target);
-void VControl_RemoveControllerButtonBinding (int port, int button, int *target);
+int  VControl_AddControllerButtonBinding (int port, int button,
+		int *target);
+void VControl_RemoveControllerButtonBinding (int port, int button,
+		int *target);
 #else
-int  VControl_AddJoyAxisBinding (int port, int axis, int polarity, int *target);
-void VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target);
+int  VControl_AddJoyAxisBinding (int port, int axis, int polarity,
+		int *target);
+void VControl_RemoveJoyAxisBinding (int port, int axis, int polarity,
+		int *target);
 int  VControl_SetJoyThreshold (int port, int threshold);
 int  VControl_AddJoyButtonBinding (int port, int button, int *target);
 void VControl_RemoveJoyButtonBinding (int port, int button, int *target);
-int  VControl_AddJoyHatBinding (int port, int which, Uint8 dir, int *target);
-void VControl_RemoveJoyHatBinding (int port, int which, Uint8 dir, int *target);
+int  VControl_AddJoyHatBinding (int port, int which, Uint8 dir,
+		int *target);
+void VControl_RemoveJoyHatBinding (int port, int which, Uint8 dir,
+		int *target);
 #endif // SDL_MAJOR_VERSION
 
 void VControl_RemoveAllBindings (void);
@@ -97,8 +105,8 @@ void VControl_RemoveAllBindings (void);
 /* Signal to VControl that a frame is about to begin. */
 void VControl_BeginFrame (void);
 
-/* The listener.  Routines besides HandleEvent may be used to 'fake' inputs without
- * fabricating an SDL_Event.
+/* The listener.  Routines besides HandleEvent may be used to 'fake'
+ * inputs without fabricating an SDL_Event.
  */
 void VControl_HandleEvent (const SDL_Event *e);
 void VControl_ProcessKeyDown (sdl_key_t symbol);

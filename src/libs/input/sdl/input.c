@@ -691,21 +691,24 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 				snprintf (buffer, maxlen, "[C%d %s%c]",
 						g->gesture.controller_axis.port,
 						xbx_axes[g->gesture.controller_axis.axis],
-						g->gesture.controller_axis.polarity > 0 ? '+' : '-');
+						g->gesture.controller_axis.polarity > 0
+							? '+' : '-');
 			}
 			else if (optControllerType == 2)
 			{	// DualShock 4/DualSense controller
 				snprintf (buffer, maxlen, "[C%d %s%c]",
 						g->gesture.controller_axis.port,
 						ds4_axes[g->gesture.controller_axis.axis],
-						g->gesture.controller_axis.polarity > 0 ? '+' : '-');
+						g->gesture.controller_axis.polarity > 0
+							? '+' : '-');
 			}
 			else
 			{	// Generic controller, show raw axis number
 				snprintf (buffer, maxlen, "[C%d A%d %c]",
 						g->gesture.controller_axis.port,
 						g->gesture.controller_axis.axis,
-						g->gesture.controller_axis.polarity > 0 ? '+' : '-');
+						g->gesture.controller_axis.polarity > 0
+							? '+' : '-');
 			}
 			buffer[maxlen - 1] = 0;
 			break;

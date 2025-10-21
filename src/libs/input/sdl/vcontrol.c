@@ -214,7 +214,8 @@ create_joystick (int index)
 	int axes, buttons, hats;
 	if ((unsigned int)index >= joycount)
 	{
-		log_add (log_Warning, "VControl warning: Tried to open a non-existent joystick!");
+		log_add (log_Warning, "VControl warning: Tried to open a "
+				"non-existent joystick!");
 		return;
 	}
 	if (joysticks[index].stick)
@@ -227,15 +228,15 @@ create_joystick (int index)
 	{
 		joystick *x = &joysticks[index];
 		int j;
-#if SDL_MAJOR_VERSION == 1
-		log_add (log_Info, "VControl opened joystick: %s", SDL_JoystickName (index));
-#else
-		log_add (log_Info, "VControl opened joystick: %s", SDL_JoystickName (stick));
-#endif
+
+		log_add (log_Info, "VControl opened joystick: %s",
+				SDL_JoystickName (index));
+
 		axes = SDL_JoystickNumAxes (stick);
 		buttons = SDL_JoystickNumButtons (stick);
 		hats = SDL_JoystickNumHats (stick);
-		log_add (log_Info, "%d axes, %d buttons, %d hats.", axes, buttons, hats);
+		log_add (log_Info, "%d axes, %d buttons, %d hats.",
+				axes, buttons, hats);
 		x->numaxes = axes;
 		x->numbuttons = buttons;
 		x->numhats = hats;
@@ -260,7 +261,8 @@ create_joystick (int index)
 	}
 	else
 	{
-		log_add (log_Warning, "VControl: Could not initialize joystick #%d", index);
+		log_add (log_Warning, "VControl: Could not initialize "
+				"joystick #%d", index);
 	}
 }
 
@@ -290,7 +292,6 @@ static void
 key_init (void)
 {
 	unsigned int i;
-	int num_keys; // Temp to match type of param for SDL_GetKeyState().
 	pool = allocate_key_chunk ();
 	for (i = 0; i < KEYBOARD_INPUT_BUCKETS; i++)
 		bindings[i] = NULL;
@@ -422,7 +423,8 @@ VControl_SetJoyThreshold (int port, int threshold)
 	(void)threshold;
 #endif /* HAVE_JOYSTICK */
 	{
-		// log_add (log_Warning, "VControl_SetJoyThreshold passed illegal port %d", port);
+		// log_add (log_Warning, "VControl_SetJoyThreshold passed "
+		//	"illegal port %d", port);
 		return -1;
 	}
 }
@@ -569,7 +571,8 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 			g->type = VCONTROL_CONTROLLERAXIS;
 			g->gesture.controller_axis.port = e->caxis.which;
 			g->gesture.controller_axis.axis = e->caxis.axis;
-			g->gesture.controller_axis.polarity = (e->caxis.value < 0) ? -1 : 1;
+			g->gesture.controller_axis.polarity = (e->caxis.value < 0)
+				? -1 : 1;
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			g->type = VCONTROL_CONTROLLERBUTTON;
@@ -736,7 +739,8 @@ VControl_RemoveKeyBinding (sdl_key_t symbol, int *target)
 #if SDL_MAJOR_VERSION > 1
 
 int
-VControl_AddControllerAxisBinding (int port, int axis, int polarity, int *target)
+VControl_AddControllerAxisBinding (int port, int axis, int polarity,
+		int *target)
 {
 #ifdef HAVE_JOYSTICK
 	if (port >= 0 && (unsigned int)port < controller_count)
@@ -914,21 +918,25 @@ VControl_AddJoyAxisBinding (int port, int axis, int polarity, int *target)
 		{
 			if (polarity < 0)
 			{
-				add_binding (&joysticks[port].axes[axis].neg, target, SDLK_UNKNOWN);
+				add_binding (&joysticks[port].axes[axis].neg, target,
+						SDLK_UNKNOWN);
 			}
 			else if (polarity > 0)
 			{
-				add_binding (&joysticks[port].axes[axis].pos, target, SDLK_UNKNOWN);
+				add_binding (&joysticks[port].axes[axis].pos, target,
+						SDLK_UNKNOWN);
 			}
 			else
 			{
-				log_add (log_Debug, "VControl: Attempted to bind to polarity zero");
+				log_add (log_Debug, "VControl: Attempted to bind to "
+						"polarity zero");
 				return -1;
 			}
 		}
 		else
 		{
-			// log_add (log_Debug, "VControl: Attempted to bind to illegal axis %d", axis);
+			// log_add (log_Debug, "VControl: Attempted to bind to "
+			//	"illegal axis %d", axis);
 			return -1;
 		}
 	}
@@ -940,14 +948,16 @@ VControl_AddJoyAxisBinding (int port, int axis, int polarity, int *target)
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
-		// log_add (log_Debug, "VControl: Attempted to bind to illegal port %d", port);
+		// log_add (log_Debug, "VControl: Attempted to bind to illegal "
+		//	"port %d", port);
 		return -1;
 	}
 	return 0;
 }
 
 void
-VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target)
+VControl_RemoveJoyAxisBinding (int port, int axis, int polarity,
+		int *target)
 {
 #ifdef HAVE_JOYSTICK
 	if (port >= 0 && (unsigned int)port < joycount)
@@ -959,20 +969,24 @@ VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target)
 		{
 			if (polarity < 0)
 			{
-				remove_binding (&joysticks[port].axes[axis].neg, target, SDLK_UNKNOWN);
+				remove_binding (&joysticks[port].axes[axis].neg, target,
+						SDLK_UNKNOWN);
 			}
 			else if (polarity > 0)
 			{
-				remove_binding (&joysticks[port].axes[axis].pos, target, SDLK_UNKNOWN);
+				remove_binding (&joysticks[port].axes[axis].pos, target,
+						SDLK_UNKNOWN);
 			}
 			else
 			{
-				log_add (log_Debug, "VControl: Attempted to unbind from polarity zero");
+				log_add (log_Debug, "VControl: Attempted to unbind from "
+						"polarity zero");
 			}
 		}
 		else
 		{
-			log_add (log_Debug, "VControl: Attempted to unbind from illegal axis %d", axis);
+			log_add (log_Debug, "VControl: Attempted to unbind from "
+					"illegal axis %d", axis);
 		}
 	}
 	else
@@ -983,7 +997,8 @@ VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target)
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
-		log_add (log_Debug, "VControl: Attempted to unbind from illegal port %d", port);
+		log_add (log_Debug, "VControl: Attempted to unbind from illegal "
+				"port %d", port);
 	}
 }
 
@@ -998,12 +1013,14 @@ VControl_AddJoyButtonBinding (int port, int button, int *target)
 			create_joystick (port);
 		if ((button >= 0) && (button < j->numbuttons))
 		{
-			add_binding (&joysticks[port].buttons[button], target, SDLK_UNKNOWN);
+			add_binding (&joysticks[port].buttons[button], target,
+					SDLK_UNKNOWN);
 			return 0;
 		}
 		else
 		{
-			// log_add (log_Debug, "VControl: Attempted to bind to illegal button %d", button);
+			// log_add (log_Debug, "VControl: Attempted to bind to "
+			//	"illegal button %d", button);
 			return -1;
 		}
 	}
@@ -1014,7 +1031,8 @@ VControl_AddJoyButtonBinding (int port, int button, int *target)
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
-		// log_add (log_Debug, "VControl: Attempted to bind to illegal port %d", port);
+		// log_add (log_Debug, "VControl: Attempted to bind to illegal "
+		//	"port %d", port);
 		return -1;
 	}
 }
@@ -1030,11 +1048,13 @@ VControl_RemoveJoyButtonBinding (int port, int button, int *target)
 			create_joystick (port);
 		if ((button >= 0) && (button < j->numbuttons))
 		{
-			remove_binding (&joysticks[port].buttons[button], target, SDLK_UNKNOWN);
+			remove_binding (&joysticks[port].buttons[button], target,
+					SDLK_UNKNOWN);
 		}
 		else
 		{
-			log_add (log_Debug, "VControl: Attempted to unbind from illegal button %d", button);
+			log_add (log_Debug, "VControl: Attempted to unbind from "
+					"illegal button %d", button);
 		}
 	}
 	else
@@ -1044,7 +1064,8 @@ VControl_RemoveJoyButtonBinding (int port, int button, int *target)
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
-		log_add (log_Debug, "VControl: Attempted to unbind from illegal port %d", port);
+		log_add (log_Debug, "VControl: Attempted to unbind from illegal "
+				"port %d", port);
 	}
 }
 
@@ -1061,30 +1082,36 @@ VControl_AddJoyHatBinding (int port, int which, Uint8 dir, int *target)
 		{
 			if (dir == SDL_HAT_LEFT)
 			{
-				add_binding (&joysticks[port].hats[which].left, target, SDLK_UNKNOWN);
+				add_binding (&joysticks[port].hats[which].left, target,
+						SDLK_UNKNOWN);
 			}
 			else if (dir == SDL_HAT_RIGHT)
 			{
-				add_binding (&joysticks[port].hats[which].right, target, SDLK_UNKNOWN);
+				add_binding (&joysticks[port].hats[which].right, target,
+						SDLK_UNKNOWN);
 			}
 			else if (dir == SDL_HAT_UP)
 			{
-				add_binding (&joysticks[port].hats[which].up, target, SDLK_UNKNOWN);
+				add_binding (&joysticks[port].hats[which].up, target,
+						SDLK_UNKNOWN);
 			}
 			else if (dir == SDL_HAT_DOWN)
 			{
-				add_binding (&joysticks[port].hats[which].down, target, SDLK_UNKNOWN);
+				add_binding (&joysticks[port].hats[which].down, target,
+						SDLK_UNKNOWN);
 			}
 			else
 			{
-				// log_add (log_Debug, "VControl: Attempted to bind to illegal direction");
+				// log_add (log_Debug, "VControl: Attempted to bind to "
+				//	"illegal direction");
 				return -1;
 			}
 			return 0;
 		}
 		else
 		{
-			// log_add (log_Debug, "VControl: Attempted to bind to illegal hat %d", which);
+			// log_add (log_Debug, "VControl: Attempted to bind to "
+			//	"illegal hat %d", which);
 			return -1;
 		}
 	}
@@ -1096,7 +1123,8 @@ VControl_AddJoyHatBinding (int port, int which, Uint8 dir, int *target)
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
-		// log_add (log_Debug, "VControl: Attempted to bind to illegal port %d", port);
+		// log_add (log_Debug, "VControl: Attempted to bind to illegal "
+		//	"port %d", port);
 		return -1;
 	}
 }
@@ -1114,28 +1142,34 @@ VControl_RemoveJoyHatBinding (int port, int which, Uint8 dir, int *target)
 		{
 			if (dir == SDL_HAT_LEFT)
 			{
-				remove_binding (&joysticks[port].hats[which].left, target, SDLK_UNKNOWN);
+				remove_binding (&joysticks[port].hats[which].left, target,
+						SDLK_UNKNOWN);
 			}
 			else if (dir == SDL_HAT_RIGHT)
 			{
-				remove_binding (&joysticks[port].hats[which].right, target, SDLK_UNKNOWN);
+				remove_binding (&joysticks[port].hats[which].right, target,
+						SDLK_UNKNOWN);
 			}
 			else if (dir == SDL_HAT_UP)
 			{
-				remove_binding (&joysticks[port].hats[which].up, target, SDLK_UNKNOWN);
+				remove_binding (&joysticks[port].hats[which].up, target,
+						SDLK_UNKNOWN);
 			}
 			else if (dir == SDL_HAT_DOWN)
 			{
-				remove_binding (&joysticks[port].hats[which].down, target, SDLK_UNKNOWN);
+				remove_binding (&joysticks[port].hats[which].down, target,
+						SDLK_UNKNOWN);
 			}
 			else
 			{
-				log_add (log_Debug, "VControl: Attempted to unbind from illegal direction");
+				log_add (log_Debug, "VControl: Attempted to unbind from "
+						"illegal direction");
 			}
 		}
 		else
 		{
-			log_add (log_Debug, "VControl: Attempted to unbind from illegal hat %d", which);
+			log_add (log_Debug, "VControl: Attempted to unbind from "
+					"illegal hat %d", which);
 		}
 	}
 	else
@@ -1146,7 +1180,8 @@ VControl_RemoveJoyHatBinding (int port, int which, Uint8 dir, int *target)
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
-		log_add (log_Debug, "VControl: Attempted to unbind from illegal port %d", port);
+		log_add (log_Debug,
+				"VControl: Attempted to unbind from illegal port %d", port);
 	}
 }
 
@@ -1217,7 +1252,8 @@ VControl_ProcessControllerAxis (int port, int axis, int value)
 		{
 			if (controllers[port].axes[axis].polarity == -1)
 			{
-				deactivate (controllers[port].axes[axis].neg, SDLK_UNKNOWN);
+				deactivate (controllers[port].axes[axis].neg,
+						SDLK_UNKNOWN);
 			}
 			controllers[port].axes[axis].polarity = 1;
 			activate (controllers[port].axes[axis].pos, SDLK_UNKNOWN);
@@ -1229,7 +1265,8 @@ VControl_ProcessControllerAxis (int port, int axis, int value)
 		{
 			if (controllers[port].axes[axis].polarity == 1)
 			{
-				deactivate (controllers[port].axes[axis].pos, SDLK_UNKNOWN);
+				deactivate (controllers[port].axes[axis].pos,
+						SDLK_UNKNOWN);
 			}
 			controllers[port].axes[axis].polarity = -1;
 			activate (controllers[port].axes[axis].neg, SDLK_UNKNOWN);
@@ -1454,7 +1491,8 @@ VControl_HandleEvent (const SDL_Event *e)
 			break;
 # else
 		case SDL_JOYAXISMOTION:
-			VControl_ProcessJoyAxis (e->jaxis.which, e->jaxis.axis, e->jaxis.value);
+			VControl_ProcessJoyAxis (
+					e->jaxis.which, e->jaxis.axis, e->jaxis.value);
 			if ((e->jaxis.value > 15000) || (e->jaxis.value < -15000))
 			{
 				last_interesting = *e;
@@ -1462,17 +1500,20 @@ VControl_HandleEvent (const SDL_Event *e)
 			}
 			break;
 		case SDL_JOYHATMOTION:
-			VControl_ProcessJoyHat (e->jhat.which, e->jhat.hat, e->jhat.value);
+			VControl_ProcessJoyHat (
+					e->jhat.which, e->jhat.hat, e->jhat.value);
 			last_interesting = *e;
 			event_ready = 1;
 			break;
 		case SDL_JOYBUTTONDOWN:
-			VControl_ProcessJoyButtonDown (e->jbutton.which, e->jbutton.button);
+			VControl_ProcessJoyButtonDown (
+					e->jbutton.which, e->jbutton.button);
 			last_interesting = *e;
 			event_ready = 1;
 			break;
 		case SDL_JOYBUTTONUP:
-			VControl_ProcessJoyButtonUp (e->jbutton.which, e->jbutton.button);
+			VControl_ProcessJoyButtonUp (
+					e->jbutton.which, e->jbutton.button);
 			break;
 # endif // SDL_MAJOR_VERSION
 #endif /* HAVE_JOYSTICK */
@@ -1571,7 +1612,8 @@ next_token (parse_state *state)
 	state->token[index] = 0;
 
 	/* If the token was too long, skip ahead until we get to whitespace */
-	while (state->line[base + index] && !isspace (state->line[base + index]))
+	while (state->line[base + index]
+			&& !isspace (state->line[base + index]))
 	{
 		index++;
 	}
@@ -1874,22 +1916,30 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 #if SDL_MAJOR_VERSION > 1
 		case VCONTROL_CONTROLLERAXIS:
 			return snprintf (buf, n, "controller %d axis %d %s",
-				g->gesture.controller_axis.port, g->gesture.controller_axis.axis,
-				(g->gesture.controller_axis.polarity > 0) ? "positive" : "negative");
+					g->gesture.controller_axis.port,
+					g->gesture.controller_axis.axis,
+					(g->gesture.controller_axis.polarity > 0)
+					? "positive" : "negative");
 		case VCONTROL_CONTROLLERBUTTON:
 			return snprintf (buf, n, "controller %d button %d",
-				g->gesture.controller_button.port, g->gesture.controller_button.button);
+					g->gesture.controller_button.port,
+					g->gesture.controller_button.button);
 #else
 		case VCONTROL_JOYAXIS:
-			return snprintf (buf, n, "joystick %d axis %d %s", g->gesture.axis.port, g->gesture.axis.index,
-				(g->gesture.axis.polarity > 0) ? "positive" : "negative");
+			return snprintf (buf, n, "joystick %d axis %d %s",
+					g->gesture.axis.port, g->gesture.axis.index,
+					(g->gesture.axis.polarity > 0)
+					? "positive" : "negative");
 		case VCONTROL_JOYBUTTON:
-			return snprintf (buf, n, "joystick %d button %d", g->gesture.button.port, g->gesture.button.index);
+			return snprintf (buf, n, "joystick %d button %d",
+					g->gesture.button.port, g->gesture.button.index);
 		case VCONTROL_JOYHAT:
-			return snprintf (buf, n, "joystick %d hat %d %s", g->gesture.hat.port, g->gesture.hat.index,
-				(g->gesture.hat.dir == SDL_HAT_UP) ? "up" :
-				((g->gesture.hat.dir == SDL_HAT_DOWN) ? "down" :
-					((g->gesture.hat.dir == SDL_HAT_LEFT) ? "left" : "right")));
+			return snprintf (buf, n, "joystick %d hat %d %s",
+					g->gesture.hat.port, g->gesture.hat.index,
+					(g->gesture.hat.dir == SDL_HAT_UP) ? "up" :
+					((g->gesture.hat.dir == SDL_HAT_DOWN) ? "down" :
+					((g->gesture.hat.dir == SDL_HAT_LEFT)
+						? "left" : "right")));
 #endif // SDL_MAJOR_VERSION
 		default:
 			buf[0] = '\0';
