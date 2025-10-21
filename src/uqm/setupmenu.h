@@ -302,19 +302,19 @@ enum {
 };
 
 enum {
-	MENU_QUITSUB,		// Quits settings sub menu
-	MENU_GRAPHICS,		// Graphics menu
-	MENU_AUDIO,			// General audio menu (volume, quality etc)
-	MENU_ENGINE,		// Engine behaviour menu (PC/3DO)
-	MENU_CHEATS,		// Cheats menu
-	MENY_KEYCONF,		// Main key configuration menu (input device etc)
-	MENU_ADVANCED,		// Advanced settings menu
-	MENU_EDITKEYS,		// Key layout editing menu (submenu for KEYCONF)
-	MENU_MUSIC,			// Music menu (remixes)
-	MENU_VISUAL,		// Visual menu
-	MENU_QOL,			// Quality of life features menu
-	MENU_DEVICES,		// Add devices cheat submenu
-	MENU_UPGRADES,		// Add upgrades cheat submenu
+	MENU_QUITSUB,  // Quits settings sub menu
+	MENU_GRAPHICS, // Graphics menu
+	MENU_AUDIO,    // General audio menu (volume, quality etc)
+	MENU_ENGINE,   // Engine behaviour menu (PC/3DO)
+	MENU_CHEATS,   // Cheats menu
+	MENY_KEYCONF,  // Main key configuration menu (input device etc)
+	MENU_ADVANCED, // Advanced settings menu
+	MENU_EDITKEYS, // Key layout editing menu (submenu for KEYCONF)
+	MENU_MUSIC,    // Music menu (remixes)
+	MENU_VISUAL,   // Visual menu
+	MENU_QOL,      // Quality of life features menu
+	MENU_DEVICES,  // Add devices cheat submenu
+	MENU_UPGRADES, // Add upgrades cheat submenu
 	
 	MENU_COUNT
 };
@@ -360,6 +360,7 @@ enum {
 	LABEL_COMM,
 	LABEL_IP,
 	LABEL_SCAN,
+	LABEL_NO_SUPPORT,
 
 	LABEL_COUNT
 };

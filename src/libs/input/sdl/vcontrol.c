@@ -64,9 +64,10 @@ typedef struct vcontrol_controller
 	keybinding **buttons;
 } controller_type;
 
+static controller_type *controllers;
+
 #endif /* HAVE_JOYSTICK */
 
-static controller_type *controllers;
 static unsigned int controller_count;
 
 static keybinding *bindings[KEYBOARD_INPUT_BUCKETS];
@@ -391,6 +392,7 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 			g->type = VCONTROL_KEY;
 			g->gesture.key = e->key.keysym.sym;
 			break;
+#ifdef HAVE_JOYSTICK
 		case SDL_CONTROLLERAXISMOTION:
 			g->type = VCONTROL_CONTROLLERAXIS;
 			g->gesture.controller_axis.port = e->caxis.which;
@@ -402,7 +404,7 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 			g->gesture.controller_button.port = e->cbutton.which;
 			g->gesture.controller_button.button = e->cbutton.button;
 			break;
-
+#endif
 		default:
 			g->type = VCONTROL_NONE;
 			break;

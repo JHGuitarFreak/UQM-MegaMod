@@ -245,10 +245,6 @@ initController (void)
 	size_t base_len;
 	const char *slash;
 
-#if SDL_MAJOR_VERSION == 1
-	return;
-#endif
-
 	if ((SDL_InitSubSystem (SDL_INIT_GAMECONTROLLER)) == -1)
 	{
 		log_add (log_Fatal, "Couldn't initialize controller subsystem: %s",
@@ -298,7 +294,6 @@ uninitController (void)
 	SDL_QuitSubSystem (SDL_INIT_GAMECONTROLLER);
 }
 
-
 #endif /* HAVE_JOYSTICK */
 
 int 
@@ -340,7 +335,9 @@ void
 TFB_UninitInput (void)
 {
 	VControl_Uninit ();
+#ifdef HAVE_JOYSTICK
 	uninitController ();
+#endif
 	HFree (controls);
 #if SDL_MAJOR_VERSION == 1
 	HFree (kbdstate);
@@ -583,6 +580,11 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 	int maxlen)
 {
 	VCONTROL_GESTURE *g = CONTROL_PTR (templat, control, index);
+
+#if SDL_MAJOR_VERSION == 1
+#	define SDL_CONTROLLER_BUTTON_MAX 21
+#	define SDL_CONTROLLER_AXIS_MAX 6
+#endif
 
 	// Controller button names for different controller types
 	const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =

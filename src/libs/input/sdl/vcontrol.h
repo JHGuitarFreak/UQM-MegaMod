@@ -22,6 +22,7 @@
 
 #if SDL_MAJOR_VERSION == 1
 typedef SDLKey sdl_key_t;
+#undef HAVE_JOYSTICK
 #else
 typedef SDL_Keycode sdl_key_t;
 #endif

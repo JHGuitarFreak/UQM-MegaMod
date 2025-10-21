@@ -305,6 +305,9 @@ static WIDGET *cheat_widgets[] = {
 static WIDGET *keyconfig_widgets[] = {
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
+#else
+	(WIDGET *)(&labels [LABEL_NO_SUPPORT ]), // "...not support gamepads"
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 #endif
 
 	(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Bottom Player
@@ -2039,7 +2042,8 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != LABEL_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
+			!= LABEL_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Label Options");
