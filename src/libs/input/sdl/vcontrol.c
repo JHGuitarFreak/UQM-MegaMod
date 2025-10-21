@@ -709,6 +709,10 @@ VControl_ProcessControllerAxis (int port, int axis, int value)
 	int t;
 	if (!controllers[port].controller)
 		return;
+
+	if (axis < 0 || axis >= controllers[port].num_axes)
+		return;
+
 	t = controllers[port].threshold;
 	if (value > t)
 	{

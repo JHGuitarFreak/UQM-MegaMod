@@ -2699,11 +2699,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 #if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
 		opts->controllerType = 0;
 #endif
-	if (PutIntOpt (&optControllerType, (int*)(&opts->controllerType), "mm.controllerType", FALSE))
-	{
-		TFB_UninitInput ();
-		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
-	}
+	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
 #ifdef DIRECTIONAL_JOY
 	PutBoolOpt (&optDirectionalJoystick, &opts->directionalJoystick, "mm.directionalJoystick", FALSE);
 #endif
@@ -2771,14 +2767,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optShipDirectionIP, &opts->shipDirectionIP, "mm.shipDirectionIP", FALSE);
 
 	// Controls
+	PlayerControls[0] = opts->player1;
 	PlayerControls[1] = opts->player2;
-
-	if (optControllerType == 2)
-		PlayerControls[0] = CONTROL_TEMPLATE_JOY_3;
-	else if (optControllerType == 1)
-		PlayerControls[0] = CONTROL_TEMPLATE_JOY_2;
-	else
-		PlayerControls[0] = opts->player1;
 
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
