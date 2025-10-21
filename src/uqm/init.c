@@ -386,13 +386,13 @@ ReloadGameContent (void)
 	ClearPlayerInputAll ();
 	UninitGameKernel ();
 	FreeMasterShipList ();
-	TFB_UninitInput ();
+	//TFB_UninitInput ();
 
 	prepareContentDir (contentDirPath, addonDirPath, 0);
 
 	if (LoadKernel (0, 0))
 	{
-		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+		//TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 		LoadMasterShipList (TaskSwitch);
 		TaskSwitch ();
 		InitGameKernel ();

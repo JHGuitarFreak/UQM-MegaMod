@@ -554,8 +554,10 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	int i;
 	RECT r;
 	const UNICODE *amperScore = "&_";
+	const UNICODE *amperBang = "&!";
 	const size_t asSize = strlen (amperScore);
 	BOOLEAN underline = FALSE;
+	BOOLEAN warning = FALSE;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -569,12 +571,22 @@ Widget_DrawLabel (WIDGET *_self, int x, int y)
 	{
 		t.pStr = self->lines[i];
 		underline = strncmp (amperScore, t.pStr, asSize) == 0;
+		warning = strncmp (amperBang, t.pStr, asSize) == 0;
 
 		if (underline)
 			t.pStr += asSize;
 
+		if (warning)
+		{
+			t.pStr += asSize;
+			SetContextForeGroundColor (WIDGET_WARNING_COLOR);
+		}
+
 		font_DrawText (&t);
 		t.baseline.y += RES_SCALE (10);
+
+		if (warning)
+			SetContextForeGroundColor (WIDGET_LABEL_COLOR);
 
 		if (underline)
 		{	// Underline labels
