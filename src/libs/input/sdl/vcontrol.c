@@ -1851,7 +1851,16 @@ VControl_ParseGesture (VCONTROL_GESTURE *g, const char *spec)
 	next_token (&ps);
 	parse_gesture (&ps, g);
 	if (ps.error)
-		printf ("Error parsing %s\n", spec);
+	{
+#if SDL_MAJOR_VERSION > 1
+		int is_wrong_prefix = (strstr (spec, "joystick") != NULL);
+#else
+		int is_wrong_prefix = (strstr (spec, "controller") != NULL);
+#endif
+		if (!is_wrong_prefix)
+			log_add (log_Debug, "VControl_ParseGesture: Error parsing '%s'"
+					, spec);
+	}
 }
 
 int
