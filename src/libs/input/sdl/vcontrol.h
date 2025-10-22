@@ -77,14 +77,17 @@ int  VControl_AddKeyBinding (sdl_key_t symbol, int *target);
 void VControl_RemoveKeyBinding (sdl_key_t symbol, int *target);
 
 #if SDL_MAJOR_VERSION > 1
-int  VControl_AddControllerAxisBinding (int port, int axis, int polarity,
-		int *target);
-void VControl_RemoveControllerAxisBinding (int port, int axis,
+void create_controller (int device_index);
+void destroy_controller (SDL_JoystickID instance_id);
+
+int  VControl_AddControllerAxisBinding (int instance_id, int axis,
 		int polarity, int *target);
-int  VControl_SetControllerThreshold (int port, int threshold);
-int  VControl_AddControllerButtonBinding (int port, int button,
+void VControl_RemoveControllerAxisBinding (int instance_id, int axis,
+		int polarity, int *target);
+int  VControl_SetControllerThreshold (int instance_id, int threshold);
+int  VControl_AddControllerButtonBinding (int instance_id, int button,
 		int *target);
-void VControl_RemoveControllerButtonBinding (int port, int button,
+void VControl_RemoveControllerButtonBinding (int instance_id, int button,
 		int *target);
 #else
 int  VControl_AddJoyAxisBinding (int port, int axis, int polarity,

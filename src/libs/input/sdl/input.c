@@ -253,6 +253,8 @@ initController (void)
 		exit (EXIT_FAILURE);
 	}
 
+	SDL_GameControllerEventState (SDL_ENABLE);
+
 	base_len = strlen (baseContentPath);
 	if (base_len > 0)
 	{
@@ -280,13 +282,7 @@ initController (void)
 	log_add (log_Info, "%i controllers were found.", nControllers);
 
 	for (int i = 0; i < nControllers; i++)
-	{
-		if (SDL_IsGameController (i))
-		{
-			log_add (log_Info, "Controller %i: '%s'", i,
-				SDL_GameControllerNameForIndex (i));
-		}
-	}
+		create_controller (i);
 }
 
 static void

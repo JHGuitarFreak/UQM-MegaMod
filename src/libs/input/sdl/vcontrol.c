@@ -66,8 +66,40 @@ typedef struct vcontrol_controller
 	keybinding **buttons;
 } controller_type;
 
-static controller_type *controllers;
-static unsigned int controller_count;
+typedef struct vcontrol_controller_list
+{
+	controller_type controller;
+	struct vcontrol_controller_list *next;
+	SDL_JoystickID instance_id;
+} controller_list;
+
+typedef struct
+{
+	int instance_id;
+	int axis;
+	int polarity;
+	int button;
+	int *target;
+	int is_axis_binding;
+} controller_binding;
+
+static controller_list *controller_list_head = NULL;
+static int controller_assignments[2] = { -1, -1 };
+static int active_controller_count = 0;
+
+typedef struct
+{
+	int is_axis_binding;
+	int axis;
+	int polarity;
+	int button;
+	int *target;
+	int logical_port;
+} default_binding;
+
+static default_binding *default_bindings = NULL;
+static int default_binding_count = 0;
+static int default_binding_capacity = 0;
 
 #else
 
@@ -142,67 +174,214 @@ free_key_pool (keypool *x)
 
 #if SDL_MAJOR_VERSION > 1
 
+
 static void
-create_controller (int index)
+store_default_binding (int is_axis_binding, int axis, int polarity,
+		int button, int *target, int logical_port)
 {
-	if ((unsigned int)index >= controller_count)
+	default_binding *new_bindings, *binding;
+	int new_capacity;
+
+	if (default_binding_count >= default_binding_capacity)
 	{
-		log_add (log_Warning, "VControl warning: Tried to open a "
-			"non-existent controller!");
-		return;
-	}
-	if (controllers[index].controller)
-	{
-		// Controller is already created.  Return.
-		return;
+		new_capacity = default_binding_capacity == 0
+				? 16 : default_binding_capacity * 2;
+		new_bindings = HRealloc (default_bindings,
+				sizeof (default_binding) *new_capacity);
+
+		if (!new_bindings)
+			return;
+
+		default_bindings = new_bindings;
+		default_binding_capacity = new_capacity;
 	}
 
-	SDL_GameController *gamecontroller = SDL_GameControllerOpen (index);
-	if (gamecontroller)
-	{
-		controller_type *x = &controllers[index];
-
-		log_add (log_Info, "VControl opened controller: %s",
-				SDL_GameControllerName (gamecontroller));
-
-		x->num_axes = SDL_CONTROLLER_AXIS_MAX;
-		x->num_buttons = SDL_CONTROLLER_BUTTON_MAX;
-		x->axes = HMalloc (sizeof (controller_axis_type) * x->num_axes);
-		x->buttons = HMalloc (sizeof (keybinding *) * x->num_buttons);
-
-		for (int j = 0; j < x->num_axes; j++)
-		{
-			x->axes[j].neg = x->axes[j].pos = NULL;
-			x->axes[j].polarity = 0;
-		}
-		for (int j = 0; j < x->num_buttons; j++)
-		{
-			x->buttons[j] = NULL;
-		}
-		x->controller = gamecontroller;
-		x->threshold = 10000;
-	}
-	else
-	{
-		log_add (log_Warning,
-				"VControl: Could not initialize controller #%d", index);
-	}
+	binding = &default_bindings[default_binding_count++];
+	binding->is_axis_binding = is_axis_binding;
+	binding->axis = axis;
+	binding->polarity = polarity;
+	binding->button = button;
+	binding->target = target;
+	binding->logical_port = logical_port;
 }
 
 static void
-destroy_controller (int index)
+apply_default_bindings_to_controller (SDL_JoystickID instance_id,
+		int logical_port)
 {
-	SDL_GameController *controller = controllers[index].controller;
-	if (controller)
+	default_binding *binding;
+
+	if (!default_bindings)
+		return;
+
+	for (int i = 0; i < default_binding_count; i++)
 	{
-		SDL_GameControllerClose (controller);
-		controllers[index].controller = NULL;
-		HFree (controllers[index].axes);
-		HFree (controllers[index].buttons);
-		controllers[index].num_axes = controllers[index].num_buttons = 0;
-		controllers[index].axes = NULL;
-		controllers[index].buttons = NULL;
+		binding = &default_bindings[i];
+
+		if (binding->logical_port != logical_port)
+			continue;
+
+		if (binding->is_axis_binding)
+		{
+			VControl_AddControllerAxisBinding (instance_id,
+					binding->axis,
+					binding->polarity,
+					binding->target);
+		}
+		else
+		{
+			VControl_AddControllerButtonBinding (instance_id,
+					binding->button,
+					binding->target);
+		}
 	}
+
+	log_add (log_Debug, "Applied %d bindings for logical port %d "
+			"(instance %d)", default_binding_count, logical_port,
+			instance_id);
+}
+
+void
+create_controller (int device_index)
+{
+	SDL_GameController *gamecontroller;
+	SDL_Joystick *joystick;
+	SDL_JoystickID instance_id;
+	controller_list *current, *new_controller;
+	controller_type *x;
+
+	if (!SDL_IsGameController (device_index))
+		return;
+
+	gamecontroller = SDL_GameControllerOpen (device_index);
+	if (!gamecontroller)
+	{
+		log_add (log_Warning, "VControl: Could not initialize "
+				"controller #%d", device_index);
+		return;
+	}
+
+	joystick = SDL_GameControllerGetJoystick (gamecontroller);
+	instance_id = SDL_JoystickInstanceID (joystick);
+
+	current = controller_list_head;
+	while (current)
+	{
+		if (current->instance_id == instance_id)
+		{
+			log_add (log_Warning, "Controller instance %d already in list",
+					instance_id);
+			SDL_GameControllerClose (gamecontroller);
+			return;
+		}
+		current = current->next;
+	}
+
+	new_controller = HMalloc (sizeof (controller_list));
+	if (!new_controller)
+	{
+		log_add (log_Warning, "Failed to allocate memory for new controller");
+		SDL_GameControllerClose (gamecontroller);
+		return;
+	}
+
+	x = &new_controller->controller;
+	x->num_axes = SDL_CONTROLLER_AXIS_MAX;
+	x->num_buttons = SDL_CONTROLLER_BUTTON_MAX;
+	x->axes = HMalloc (sizeof (controller_axis_type) *x->num_axes);
+	x->buttons = HMalloc (sizeof (keybinding *) *x->num_buttons);
+
+	for (int j = 0; j < x->num_axes; j++)
+	{
+		x->axes[j].neg = x->axes[j].pos = NULL;
+		x->axes[j].polarity = 0;
+	}
+	for (int j = 0; j < x->num_buttons; j++)
+	{
+		x->buttons[j] = NULL;
+	}
+	x->controller = gamecontroller;
+	x->threshold = 10000;
+
+	new_controller->instance_id = instance_id;
+	new_controller->next = controller_list_head;
+	controller_list_head = new_controller;
+
+	int logical_port = -1;
+	for (int i = 0; i < 2; i++)
+	{
+		if (controller_assignments[i] == -1)
+		{
+			logical_port = i;
+			controller_assignments[i] = instance_id;
+			active_controller_count++;
+			break;
+		}
+	}
+
+	if (logical_port == -1)
+	{
+		log_add (log_Info, "Maximum of 2 controllers already connected, "
+				"ignoring additional controller");
+		SDL_GameControllerClose (gamecontroller);
+		HFree (x->axes);
+		HFree (x->buttons);
+		HFree (new_controller);
+		return;
+	}
+
+	log_add (log_Info, "VControl opened controller %d (logical port %d): "
+			"%s (instance %d)", device_index, logical_port,
+			SDL_GameControllerName (gamecontroller), instance_id);
+
+	apply_default_bindings_to_controller (instance_id, logical_port);
+}
+
+void
+destroy_controller (SDL_JoystickID instance_id)
+{
+	controller_list **prev = &controller_list_head;
+	controller_list *current = controller_list_head;
+	controller_type *x;
+
+	for (int i = 0; i < 2; i++)
+	{
+		if (controller_assignments[i] == instance_id)
+		{
+			controller_assignments[i] = -1;
+			active_controller_count--;
+			break;
+		}
+	}
+
+	while (current)
+	{
+		if (current->instance_id == instance_id)
+		{
+			// Found the controller to remove
+			*prev = current->next;
+
+			x = &current->controller;
+			if (x->controller)
+			{
+				SDL_GameControllerClose (x->controller);
+				x->controller = NULL;
+			}
+
+			HFree (x->axes);
+			HFree (x->buttons);
+			HFree (current);
+
+			log_add (log_Info, "Controller instance %d removed",
+					instance_id);
+			return;
+		}
+		prev = &current->next;
+		current = current->next;
+	}
+
+	log_add (log_Warning, "Controller instance %d not found for removal",
+			instance_id);
 }
 
 #else
@@ -299,24 +478,15 @@ key_init (void)
 #ifdef HAVE_JOYSTICK
 
 #if SDL_MAJOR_VERSION > 1
-	/* Prepare for possible controller controls */
-	controller_count = SDL_NumJoysticks ();
-	if (controller_count)
+	for (i = 0; i < 2; i++)
 	{
-		controllers = HMalloc (sizeof (controller_type) * controller_count);
-		for (i = 0; i < controller_count; i++)
-		{
-			controllers[i].controller = NULL;
-			controllers[i].num_axes = controllers[i].num_buttons = 0;
-			controllers[i].axes = NULL;
-			controllers[i].buttons = NULL;
-			controllers[i].threshold = 10000;
-		}
+		controller_assignments[i] = -1;
 	}
-	else
-	{
-		controllers = NULL;
-	}
+	active_controller_count = 0;
+	controller_list_head = NULL;
+	default_bindings = NULL;
+	default_binding_count = 0;
+	default_binding_capacity = 0;
 #else
 	/* Prepare for possible joystick controls.  We don't actually
 	   GRAB joysticks unless we're asked to make a joystick
@@ -359,9 +529,31 @@ key_uninit (void)
 
 #ifdef HAVE_JOYSTICK
 # if SDL_MAJOR_VERSION > 1
-	for (i = 0; i < controller_count; i++)
-		destroy_controller (i);
-	HFree (controllers);
+	controller_list *current = controller_list_head;
+	controller_list *next;
+	controller_type *x;
+
+	while (current)
+	{
+		next = current->next;
+		x = &current->controller;
+		if (x->controller)
+		{
+			SDL_GameControllerClose (x->controller);
+		}
+		HFree (x->axes);
+		HFree (x->buttons);
+		HFree (current);
+		current = next;
+	}
+	controller_list_head = NULL;
+	active_controller_count = 0;
+
+	/* Free binding tracking */
+	HFree (default_bindings);
+	default_bindings = NULL;
+	default_binding_count = 0;
+	default_binding_capacity = 0;
 # else
 	for (i = 0; i < joycount; i++)
 		destroy_joystick (i);
@@ -385,18 +577,23 @@ VControl_Uninit (void)
 #if SDL_MAJOR_VERSION > 1
 
 int
-VControl_SetControllerThreshold (int port, int threshold)
+VControl_SetControllerThreshold (int instance_id, int threshold)
 {
 #ifdef HAVE_JOYSTICK
-	if (port >= 0 && (unsigned int)port < controller_count)
+	controller_list *current = controller_list_head;
+
+	while (current)
 	{
-		controllers[port].threshold = threshold;
-		return 0;
+		if (current->instance_id == instance_id)
+		{
+			current->controller.threshold = threshold;
+			return 0;
+		}
+		current = current->next;
 	}
-	else
 #else
-	(void)port;
-	(void)threshold;
+	(void) instance_id;
+	(void) threshold;
 #endif /* HAVE_JOYSTICK */
 	{
 		// log_add (log_Warning,
@@ -482,7 +679,7 @@ add_binding (keybinding **newptr, int *target, sdl_key_t keycode)
 	if (!newbinding)
 	{
 		log_add (log_Warning,
-			"add_binding failed to find a free binding slot!");
+				"add_binding failed to find a free binding slot!");
 		return;
 	}
 
@@ -572,7 +769,7 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 			g->gesture.controller_axis.port = e->caxis.which;
 			g->gesture.controller_axis.axis = e->caxis.axis;
 			g->gesture.controller_axis.polarity = (e->caxis.value < 0)
-				? -1 : 1;
+					? -1 : 1;
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			g->type = VCONTROL_CONTROLLERBUTTON;
@@ -617,19 +814,49 @@ VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target)
 #if SDL_MAJOR_VERSION > 1
 		case VCONTROL_CONTROLLERAXIS:
 #ifdef HAVE_JOYSTICK
-			result = VControl_AddControllerAxisBinding (
-					g->gesture.controller_axis.port,
-					g->gesture.controller_axis.axis,
+		{
+			int logical_port = g->gesture.controller_axis.port;
+
+			store_default_binding (1, g->gesture.controller_axis.axis,
 					(g->gesture.controller_axis.polarity < 0) ? -1 : 1,
-					target);
+					-1, target, logical_port);
+
+			if (logical_port >= 0 && logical_port < 2 &&
+					controller_assignments[logical_port] != -1)
+			{
+				result = VControl_AddControllerAxisBinding (
+						controller_assignments[logical_port],
+						g->gesture.controller_axis.axis,
+						(g->gesture.controller_axis.polarity < 0) ? -1 : 1,
+						target);
+			}
+			else
+				result = 0;
+
 			break;
+		}
 #endif /* HAVE_JOYSTICK */
 		case VCONTROL_CONTROLLERBUTTON:
 #ifdef HAVE_JOYSTICK
-			result = VControl_AddControllerButtonBinding (
-					g->gesture.controller_button.port,
-					g->gesture.controller_button.button, target);
+		{
+			int logical_port = g->gesture.controller_button.port;
+
+			store_default_binding (0, -1, 0,
+					g->gesture.controller_button.button,
+					target, logical_port);
+
+			if (logical_port >= 0 && logical_port < 2 &&
+					controller_assignments[logical_port] != -1)
+			{
+				result = VControl_AddControllerButtonBinding (
+						controller_assignments[logical_port],
+						g->gesture.controller_button.button, target);
+			}
+			else
+				result = 0;
+
 			break;
+		}
 #endif /* HAVE_JOYSTICK */
 #else
 		case VCONTROL_JOYAXIS:
@@ -716,7 +943,7 @@ VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target)
 			break;
 		default:
 			log_add (log_Warning, "VControl_RemoveGestureBinding didn't "
-				"understand argument gesture");
+					"understand argument gesture");
 			break;
 	}
 }
@@ -739,42 +966,50 @@ VControl_RemoveKeyBinding (sdl_key_t symbol, int *target)
 #if SDL_MAJOR_VERSION > 1
 
 int
-VControl_AddControllerAxisBinding (int port, int axis, int polarity,
+VControl_AddControllerAxisBinding (int instance_id, int axis, int polarity,
 		int *target)
 {
 #ifdef HAVE_JOYSTICK
-	if (port >= 0 && (unsigned int)port < controller_count)
+	int applied = 0;
+	controller_list *current;
+	controller_type *c;
+
+	if (instance_id >= 0)
 	{
-		controller_type *c = &controllers[port];
-		if (!(c->controller))
-			create_controller (port);
-		if ((axis >= 0) && (axis < c->num_axes))
+		current = controller_list_head;
+		while (current)
 		{
-			if (polarity < 0)
+			if (current->instance_id == instance_id)
 			{
-				add_binding (&controllers[port].axes[axis].neg, target,
-					SDLK_UNKNOWN);
+				c = &current->controller;
+
+				if ((axis >= 0) && (axis < c->num_axes))
+				{
+					if (polarity < 0)
+					{
+						add_binding (&c->axes[axis].neg, target,
+								SDLK_UNKNOWN);
+					}
+					else if (polarity > 0)
+					{
+						add_binding (&c->axes[axis].pos, target,
+								SDLK_UNKNOWN);
+					}
+					applied = 1;
+				}
+				break;
 			}
-			else if (polarity > 0)
-			{
-				add_binding (&controllers[port].axes[axis].pos, target,
-					SDLK_UNKNOWN);
-			}
-			else
-			{
-				log_add (log_Debug,
-					"VControl: Attempted to bind to polarity zero");
-				return -1;
-			}
-		}
-		else
-		{
-			// log_add (log_Debug, "VControl: Attempted to bind to illegal"
-			//		" axis %d", axis);
-			return -1;
+			current = current->next;
 		}
 	}
-	else
+
+	if (!applied)
+	{
+		log_add (log_Debug, "VControl: Could not apply axis binding to "
+				"instance %d", instance_id);
+	}
+
+	if (instance_id < 0)
 #else
 	(void) port;
 	(void) axis;
@@ -790,77 +1025,102 @@ VControl_AddControllerAxisBinding (int port, int axis, int polarity,
 }
 
 void
-VControl_RemoveControllerAxisBinding (int port, int axis, int polarity,
-	int *target)
+VControl_RemoveControllerAxisBinding (int instance_id, int axis,
+		int polarity, int *target)
 {
 #ifdef HAVE_JOYSTICK
-	if (port >= 0 && (unsigned int)port < controller_count)
+	controller_list *current;
+	controller_type *c;
+
+	if (instance_id >= 0)
 	{
-		controller_type *c = &controllers[port];
-		if (!(c->controller))
-			create_controller (port);
-		if ((axis >= 0) && (axis < c->num_axes))
+		current = controller_list_head;
+		while (current)
 		{
-			if (polarity < 0)
+			if (current->instance_id == instance_id)
 			{
-				remove_binding (&controllers[port].axes[axis].neg, target,
-					SDLK_UNKNOWN);
+				c = &current->controller;
+
+				if ((axis >= 0) && (axis < c->num_axes))
+				{
+					if (polarity < 0)
+					{
+						remove_binding (&c->axes[axis].neg, target,
+								SDLK_UNKNOWN);
+					}
+					else if (polarity > 0)
+					{
+						remove_binding (&c->axes[axis].pos, target,
+								SDLK_UNKNOWN);
+					}
+					else
+					{
+						log_add (log_Debug, "VControl: Attempted to "
+								"unbind from polarity zero");
+					}
+				}
+				else
+				{
+					log_add (log_Debug, "VControl: Attempted to unbind "
+							"from illegal axis %d", axis);
+				}
+				return;
 			}
-			else if (polarity > 0)
-			{
-				remove_binding (&controllers[port].axes[axis].pos, target,
-					SDLK_UNKNOWN);
-			}
-			else
-			{
-				log_add (log_Debug, "VControl: Attempted to unbind from "
-					"polarity zero");
-			}
-		}
-		else
-		{
-			log_add (log_Debug, "VControl: Attempted to unbind from "
-				"illegal axis %d", axis);
+			current = current->next;
 		}
 	}
 	else
 #else
-	(void) port;
+	(void) instance_id;
 	(void) axis;
 	(void) polarity;
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
 		log_add (log_Debug, "VControl: Attempted to unbind from illegal "
-			"port %d", port);
+				"port %d", instance_id);
 	}
 }
 
 int
-VControl_AddControllerButtonBinding (int port, int button, int *target)
+VControl_AddControllerButtonBinding (int instance_id, int button,
+		int *target)
 {
 #ifdef HAVE_JOYSTICK
-	if (port >= 0 && (unsigned int)port < controller_count)
+	int applied = 0;
+	controller_list *current;
+	controller_type *c;
+
+	if (instance_id >= 0)
 	{
-		controller_type *c = &controllers[port];
-		if (!(c->controller))
-			create_controller (port);
-		if ((button >= 0) && (button < c->num_buttons))
+		current = controller_list_head;
+		while (current)
 		{
-			add_binding (&controllers[port].buttons[button], target,
-				SDLK_UNKNOWN);
-			return 0;
-		}
-		else
-		{
-			// log_add (log_Debug, "VControl: Attempted to bind to illegal"
-			//		" button %d", button);
-			return -1;
+			if (current->instance_id == instance_id)
+			{
+				c = &current->controller;
+
+				if ((button >= 0) && (button < c->num_buttons))
+				{
+					add_binding (&c->buttons[button], target,
+							SDLK_UNKNOWN);
+					applied = 1;
+				}
+				break;
+			}
+			current = current->next;
 		}
 	}
-	else
+
+	if (!applied)
+	{
+		log_add (log_Debug, "VControl: Could not apply button binding to "
+				"instance %d", instance_id);
+	}
+
+	if (instance_id < 0)
 #else
-	(void) port;
+	(void) instance_id;
 	(void) button;
 	(void) target;
 #endif /* HAVE_JOYSTICK */
@@ -869,37 +1129,50 @@ VControl_AddControllerButtonBinding (int port, int button, int *target)
 		//		"port %d", port);
 		return -1;
 	}
+	return 0;
 }
 
 void
-VControl_RemoveControllerButtonBinding (int port, int button, int *target)
+VControl_RemoveControllerButtonBinding (int instance_id, int button,
+		int *target)
 {
 #ifdef HAVE_JOYSTICK
-	if (port >= 0 && (unsigned int)port < controller_count)
+	controller_list *current;
+	controller_type *c;
+
+	if (instance_id >= 0)
 	{
-		controller_type *c = &controllers[port];
-		if (!(c->controller))
-			create_controller (port);
-		if ((button >= 0) && (button < c->num_buttons))
+		current = controller_list_head;
+		while (current)
 		{
-			remove_binding (&controllers[port].buttons[button], target,
-				SDLK_UNKNOWN);
-		}
-		else
-		{
-			log_add (log_Debug, "VControl: Attempted to unbind from "
-				"illegal button %d", button);
+			if (current->instance_id == instance_id)
+			{
+				c = &current->controller;
+
+				if ((button >= 0) && (button < c->num_buttons))
+				{
+					remove_binding (&c->buttons[button], target,
+							SDLK_UNKNOWN);
+				}
+				else
+				{
+					log_add (log_Debug, "VControl: Attempted to unbind "
+							"from illegal button %d", button);
+				}
+				return;
+			}
+			current = current->next;
 		}
 	}
 	else
 #else
-	(void) port;
+	(void) instance_id;
 	(void) button;
 	(void) target;
 #endif /* HAVE_JOYSTICK */
 	{
 		log_add (log_Debug, "VControl: Attempted to unbind from illegal "
-				"port %d", port);
+				"port %d", instance_id);
 	}
 }
 
@@ -1209,83 +1482,104 @@ VControl_ProcessKeyUp (sdl_key_t symbol)
 #if SDL_MAJOR_VERSION > 1
 
 void
-VControl_ProcessControllerButtonDown (int port, int button)
+VControl_ProcessControllerButtonDown (int instance_id, int button)
 {
 #ifdef HAVE_JOYSTICK
-	if (!controllers[port].controller)
-		return;
-	activate (controllers[port].buttons[button], SDLK_UNKNOWN);
+	controller_list *current = controller_list_head;
+	while (current)
+	{
+		if (current->instance_id == instance_id)
+		{
+			activate (current->controller.buttons[button], SDLK_UNKNOWN);
+			return;
+		}
+		current = current->next;
+	}
 #else
-	(void) port;
+	(void) instance_id;
 	(void) button;
 #endif /* HAVE_JOYSTICK */
 }
 
 void
-VControl_ProcessControllerButtonUp (int port, int button)
+VControl_ProcessControllerButtonUp (int instance_id, int button)
 {
 #ifdef HAVE_JOYSTICK
-	if (!controllers[port].controller)
-		return;
-	deactivate (controllers[port].buttons[button], SDLK_UNKNOWN);
+	controller_list *current = controller_list_head;
+	while (current)
+	{
+		if (current->instance_id == instance_id)
+		{
+			deactivate (current->controller.buttons[button], SDLK_UNKNOWN);
+			return;
+		}
+		current = current->next;
+	}
 #else
-	(void) port;
+	(void) instance_id;
 	(void) button;
 #endif /* HAVE_JOYSTICK */
 }
 
 void
-VControl_ProcessControllerAxis (int port, int axis, int value)
+VControl_ProcessControllerAxis (int instance_id, int axis, int value)
 {
 #ifdef HAVE_JOYSTICK
-	int t;
-	if (!controllers[port].controller)
-		return;
+	controller_list *current = controller_list_head;
+	controller_type *c;
 
-	if (axis < 0 || axis >= controllers[port].num_axes)
-		return;
+	while (current)
+	{
+		if (current->instance_id == instance_id)
+		{
+			c = &current->controller;
+			int t = c->threshold;
 
-	t = controllers[port].threshold;
-	if (value > t)
-	{
-		if (controllers[port].axes[axis].polarity != 1)
-		{
-			if (controllers[port].axes[axis].polarity == -1)
+			if (axis < 0 || axis >= c->num_axes)
+				return;
+
+			if (value > t)
 			{
-				deactivate (controllers[port].axes[axis].neg,
-						SDLK_UNKNOWN);
+				if (c->axes[axis].polarity != 1)
+				{
+					if (c->axes[axis].polarity == -1)
+					{
+						deactivate (c->axes[axis].neg, SDLK_UNKNOWN);
+					}
+					c->axes[axis].polarity = 1;
+					activate (c->axes[axis].pos, SDLK_UNKNOWN);
+				}
 			}
-			controllers[port].axes[axis].polarity = 1;
-			activate (controllers[port].axes[axis].pos, SDLK_UNKNOWN);
-		}
-	}
-	else if (value < -t)
-	{
-		if (controllers[port].axes[axis].polarity != -1)
-		{
-			if (controllers[port].axes[axis].polarity == 1)
+			else if (value < -t)
 			{
-				deactivate (controllers[port].axes[axis].pos,
-						SDLK_UNKNOWN);
+				if (c->axes[axis].polarity != -1)
+				{
+					if (c->axes[axis].polarity == 1)
+					{
+						deactivate (c->axes[axis].pos, SDLK_UNKNOWN);
+					}
+					c->axes[axis].polarity = -1;
+					activate (c->axes[axis].neg, SDLK_UNKNOWN);
+				}
 			}
-			controllers[port].axes[axis].polarity = -1;
-			activate (controllers[port].axes[axis].neg, SDLK_UNKNOWN);
+			else
+			{
+				if (c->axes[axis].polarity == -1)
+				{
+					deactivate (c->axes[axis].neg, SDLK_UNKNOWN);
+				}
+				else if (c->axes[axis].polarity == 1)
+				{
+					deactivate (c->axes[axis].pos, SDLK_UNKNOWN);
+				}
+				c->axes[axis].polarity = 0;
+			}
+			return;
 		}
-	}
-	else
-	{
-		if (controllers[port].axes[axis].polarity == -1)
-		{
-			deactivate (controllers[port].axes[axis].neg, SDLK_UNKNOWN);
-		}
-		else if (controllers[port].axes[axis].polarity == 1)
-		{
-			deactivate (controllers[port].axes[axis].pos, SDLK_UNKNOWN);
-		}
-		controllers[port].axes[axis].polarity = 0;
+		current = current->next;
 	}
 #else
-	(void) port;
+	(void) instance_id;
 	(void) axis;
 	(void) value;
 #endif /* HAVE_JOYSTICK */
@@ -1472,7 +1766,7 @@ VControl_HandleEvent (const SDL_Event *e)
 # if SDL_MAJOR_VERSION > 1
 		case SDL_CONTROLLERAXISMOTION:
 			VControl_ProcessControllerAxis (e->caxis.which, e->caxis.axis,
-				e->caxis.value);
+					e->caxis.value);
 			if ((e->caxis.value > 15000) || (e->caxis.value < -15000))
 			{
 				last_interesting = *e;
@@ -1481,13 +1775,32 @@ VControl_HandleEvent (const SDL_Event *e)
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			VControl_ProcessControllerButtonDown (e->cbutton.which,
-				e->cbutton.button);
+					e->cbutton.button);
 			last_interesting = *e;
 			event_ready = 1;
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			VControl_ProcessControllerButtonUp (e->cbutton.which,
-				e->cbutton.button);
+					e->cbutton.button);
+			break;
+		case SDL_CONTROLLERDEVICEADDED:
+		{
+			int device_index = e->cdevice.which;
+
+			create_controller (device_index);
+
+			break;
+		}
+		case SDL_CONTROLLERDEVICEREMOVED:
+		{
+			SDL_JoystickID instance_id = e->cdevice.which;
+
+			destroy_controller (instance_id);
+
+			break;
+		}
+		case SDL_CONTROLLERDEVICEREMAPPED:
+			log_add (log_Info, "Controller mapping updated");
 			break;
 # else
 		case SDL_JOYAXISMOTION:
@@ -1604,7 +1917,7 @@ next_token (parse_state *state)
 
 	index = 0;
 	while (index < (TOKEN_SIZE - 1) && state->line[base + index]
-		&& !isspace (state->line[base + index]))
+			&& !isspace (state->line[base + index]))
 	{
 		state->token[index] = state->line[base + index];
 		index++;
@@ -1625,7 +1938,7 @@ static void
 expected_error (parse_state *state, const char *expected)
 {
 	log_add (log_Warning, "VControl: Expected '%s' on config file line %d",
-		expected, state->linenum);
+			expected, state->linenum);
 	state->error = 1;
 }
 
@@ -1661,8 +1974,8 @@ consume_num (parse_state *state)
 	if (*end != '\0')
 	{
 		log_add (log_Warning,
-			"VControl: Expected integer on config line %d",
-			state->linenum);
+				"VControl: Expected integer on config line %d",
+				state->linenum);
 		state->error = 1;
 	}
 	next_token (state);
@@ -1695,15 +2008,19 @@ static void
 parse_controller_binding (parse_state *state, VCONTROL_GESTURE *gesture)
 {
 	int controllernum;
+	int axisnum;
+	int buttonnum;
+
 	consume (state, "controller");
 	controllernum = consume_num (state);
+
 	if (!state->error)
 	{
 		if (!strcasecmp (state->token, "axis"))
 		{
-			int axisnum;
 			consume (state, "axis");
 			axisnum = consume_num (state);
+
 			if (!state->error)
 			{
 				int polarity = consume_polarity (state);
@@ -1718,9 +2035,9 @@ parse_controller_binding (parse_state *state, VCONTROL_GESTURE *gesture)
 		}
 		else if (!strcasecmp (state->token, "button"))
 		{
-			int buttonnum;
 			consume (state, "button");
 			buttonnum = consume_num (state);
+
 			if (!state->error)
 			{
 				gesture->type = VCONTROL_CONTROLLERBUTTON;
@@ -1738,11 +2055,13 @@ parse_controller_binding (parse_state *state, VCONTROL_GESTURE *gesture)
 static void
 parse_gesture (parse_state *state, VCONTROL_GESTURE *gesture)
 {
+	int keysym;
+
 	gesture->type = VCONTROL_NONE; /* Default to error */
+
 	if (!strcasecmp (state->token, "key"))
 	{
 		/* Parse key binding */
-		int keysym;
 		consume (state, "key");
 		keysym = consume_keyname (state);
 		if (!state->error)
