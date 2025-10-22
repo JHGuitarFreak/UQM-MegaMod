@@ -113,6 +113,10 @@ extern int WindowWidth;
 extern int WindowHeight;
 extern int SavedWidth;
 extern int SavedHeight;
+extern int ScreenWidth;
+extern int ScreenHeight;
+extern int ScreenWidthActual;
+extern int ScreenHeightActual;
 extern int ScreenColorDepth;
 extern int GraphicsDriver;
 
