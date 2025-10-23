@@ -73,16 +73,6 @@ typedef struct vcontrol_controller_list
 	SDL_JoystickID instance_id;
 } controller_list;
 
-typedef struct
-{
-	int instance_id;
-	int axis;
-	int polarity;
-	int button;
-	int *target;
-	int is_axis_binding;
-} controller_binding;
-
 static controller_list *controller_list_head = NULL;
 static int controller_assignments[2] = { -1, -1 };
 static int active_controller_count = 0;
