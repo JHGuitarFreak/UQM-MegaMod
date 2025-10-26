@@ -222,6 +222,9 @@ StarMapMouseInput (void)
 	BOOLEAN cursorMoved = FALSE;
 	POINT currentMouse = CurrentMousePos;
 	POINT newCursorLoc;
+	POINT pt, starTarget;
+	STAR_DESC *SDPtr = NULL;
+	STAR_DESC *BestSDPtr = NULL;
 
 	if (!optMouseInput)
 		return FALSE;
@@ -253,6 +256,23 @@ StarMapMouseInput (void)
 
 	newCursorLoc = ScreenToStarMapCoords (currentMouse);
 
+	pt.x = UNIVERSE_TO_DISPX (newCursorLoc.x);
+	pt.y = UNIVERSE_TO_DISPY (newCursorLoc.y);
+
+	while ((SDPtr = FindStar (SDPtr, &newCursorLoc, 75, 75)))
+	{
+		if (UNIVERSE_TO_DISPX (SDPtr->star_pt.x) == pt.x &&
+				UNIVERSE_TO_DISPY (SDPtr->star_pt.y) == pt.y &&
+				(BestSDPtr == NULL ||
+				STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
+		{
+			BestSDPtr = SDPtr;
+		}
+	}
+
+	if (BestSDPtr)
+		newCursorLoc = BestSDPtr->star_pt;
+
 	if (!MouseDragging)
 		cursorMoved = CursorLocation (newCursorLoc);
 
@@ -269,10 +289,10 @@ StarMapMouseInput (void)
 
 		if (currentTime - MouseDownTime < (ONE_SECOND / 4))
 		{
-			if (pointsEqual (GLOBAL (autopilot), cursorLoc))
+			if (pointsEqual (GLOBAL (autopilot), newCursorLoc))
 				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
 			else
-				GLOBAL (autopilot) = cursorLoc;
+				GLOBAL (autopilot) = newCursorLoc;
 
 			DrawStarMap (0, NULL);
 		}
