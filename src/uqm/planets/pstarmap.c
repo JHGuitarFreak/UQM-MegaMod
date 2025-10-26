@@ -169,6 +169,126 @@ universeToDispy2 (COORD uy)
 #define UNIVERSE_TO_DISPY2(uy) \
 		(IS_HD ? universeToDispy2(uy) : universeToDispy(uy))
 
+// Begin mouse-centric chunk of code
+
+static void DrawStarMap (COUNT race_update, RECT *pClipRect);
+static void DrawCursor (COORD curs_x, COORD curs_y);
+static void EraseCursor (COORD curs_x, COORD curs_y);
+static void ZoomStarMap (SIZE dir);
+
+static BOOLEAN MouseDragging = FALSE;
+static DWORD MouseDownTime = 0;
+
+static POINT
+ScreenToStarMapCoords (POINT scrPos)
+{
+	POINT pos;
+	POINT pt = ScaleCanvas (scrPos);
+
+	pos.x = inBounds (
+			DISP_TO_UNIVERSEX (pt.x - SIS_CORN.x), 0, MAX_X_UNIVERSE);
+	pos.y = inBounds (
+			DISP_TO_UNIVERSEY (pt.y - SIS_CORN.y), 0, MAX_Y_UNIVERSE);
+
+	return pos;
+}
+
+static BOOLEAN
+IsMouseInViewport (POINT scrPos)
+{
+	return pointWithinRect (SIS_RECT, ScaleCanvas (scrPos));
+}
+
+static BOOLEAN
+CursorLocation (POINT pt)
+{
+	if (pointsEqual (pt, cursorLoc))
+		return FALSE;
+
+	EraseCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
+		UNIVERSE_TO_DISPY (cursorLoc.y));
+
+	cursorLoc = pt;
+
+	DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
+		UNIVERSE_TO_DISPY (cursorLoc.y));
+
+	return TRUE;
+}
+
+static BOOLEAN
+StarMapMouseInput (void)
+{
+	BOOLEAN cursorMoved = FALSE;
+	POINT currentMouse = CurrentMousePos;
+	POINT newCursorLoc;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	if (MouseWheelDelta != 0)
+	{
+		SIZE zoomDir = 0;
+		if (MouseWheelDelta > 0)
+			zoomDir = 1;
+		else if (MouseWheelDelta < 0)
+			zoomDir = -1;
+
+		if (zoomDir != 0)
+		{
+			ZoomStarMap (zoomDir);
+			MouseWheelDelta = 0;
+		}
+	}
+
+	if (!IsMouseInViewport (currentMouse))
+	{
+		if (MouseDragging)
+		{
+			MouseDragging = FALSE;
+			MouseDownTime = 0;
+		}
+		return FALSE;
+	}
+
+	newCursorLoc = ScreenToStarMapCoords (currentMouse);
+
+	if (!MouseDragging)
+		cursorMoved = CursorLocation (newCursorLoc);
+
+	if (MouseButtonDown == 1 && !MouseDragging)
+	{
+		MouseDragging = TRUE;
+		MouseDownTime = GetTimeCounter ();
+
+		cursorMoved = CursorLocation (newCursorLoc);
+	}
+	else if (!MouseButtonDown && MouseDragging)
+	{
+		DWORD currentTime = GetTimeCounter ();
+
+		if (currentTime - MouseDownTime < (ONE_SECOND / 4))
+		{
+			if (pointsEqual (GLOBAL (autopilot), cursorLoc))
+				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
+			else
+				GLOBAL (autopilot) = cursorLoc;
+
+			DrawStarMap (0, NULL);
+		}
+
+		MouseDragging = FALSE;
+		MouseDownTime = 0;
+	}
+
+	if (MouseDragging)
+		cursorMoved = CursorLocation (newCursorLoc);
+
+	return cursorMoved;
+}
+
+// End mouse-centric chunk of code
+
 static BOOLEAN transition_pending;
 
 static void
@@ -248,9 +368,9 @@ static void
 DrawAutoPilot (POINT *pDstPt)
 {
 	SIZE dx, dy,
-				xincr, yincr,
-				xerror, yerror,
-				cycle, delta;
+			xincr, yincr,
+			xerror, yerror,
+			cycle, delta;
 	POINT pt;
 	STAMP s;
 
@@ -2520,9 +2640,24 @@ DoMoveCursor (MENU_STATE *pMS)
 		UpdateCursorInfo (last_buf);
 		UpdateFuelRequirement ();
 
+		if (optMouseInput)
+		{
+			MouseDragging = FALSE;
+			MouseDownTime = 0;
+		}
+
 		return TRUE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
+
+	if (StarMapMouseInput ())
+	{
+		UpdateCursorInfo (last_buf);
+		UpdateFuelRequirement ();
+		flashCurrentLocation (NULL, TRUE);
+		isMove = TRUE;
+	}
+	
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButtonDown == 2)
 	{
 		FlushInput ();
 

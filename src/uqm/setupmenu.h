@@ -297,6 +297,7 @@ enum {
 	CHOICE_MODHELLBORE,
 	CHOICE_MODFURNACE,
 	CHOICE_SHIPSEED,
+	CHOICE_MOUSEINPUT,
 
 	CHOICE_COUNT
 };
@@ -423,7 +424,7 @@ typedef struct globalopts_struct {
 			noHQEncounters, deCleansing, meleeObstacles, showVisitedStars,
 			unscaledStarSystem, slaughterMode, advancedAutoPilot,
 			meleeToolTips, scatterElements, showUpgrades, fleetPointSys,
-			shipSeed;
+			shipSeed, mouseInput;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;

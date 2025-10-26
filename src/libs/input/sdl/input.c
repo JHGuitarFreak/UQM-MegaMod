@@ -28,7 +28,6 @@
 #include "libs/file.h"
 #include "libs/log.h"
 #include "libs/reslib.h"
-#include "options.h"
 
 
 #define KBDBUFSIZE (1 << 8)
@@ -58,6 +57,10 @@ static int num_flight;
 static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
+
+volatile int MouseButtonDown = 0;
+volatile int MouseWheelDelta = 0;
+POINT CurrentMousePos = { 0, 0 };
 
 static const char *menu_res_names[] = {
 	"pause",
@@ -405,27 +408,41 @@ UniChar
 GetLastCharacter (void)
 {
 	return lastchar;
-}	
+}
 
-volatile int MouseButtonDown = 0;
-
-#if 0
 static void
 ProcessMouseEvent (const SDL_Event *e)
 {
+	if (!optMouseInput)
+		return;
+
 	switch (e->type)
 	{
 	case SDL_MOUSEBUTTONDOWN:
-		MouseButtonDown = 1;
+		if (e->button.button == SDL_BUTTON_LEFT)
+			MouseButtonDown = 1;
+		else if (e->button.button == SDL_BUTTON_RIGHT)
+			MouseButtonDown = 2;
 		break;
 	case SDL_MOUSEBUTTONUP:
-		MouseButtonDown = 0;
+		if (e->button.button == SDL_BUTTON_LEFT)
+			MouseButtonDown = 0;
+		else if (e->button.button == SDL_BUTTON_RIGHT)
+			MouseButtonDown = 0;
 		break;
+	case SDL_MOUSEMOTION:
+		CurrentMousePos.x = e->motion.x;
+		CurrentMousePos.y = e->motion.y;
+		break;
+#if SDL_MAJOR_VERSION > 1
+	case SDL_MOUSEWHEEL:
+		MouseWheelDelta += e->wheel.y;
+		break;
+#endif
 	default:
 		break;
 	}
 }
-#endif
 
 #if SDL_MAJOR_VERSION == 1
 
@@ -445,7 +462,7 @@ ProcessInputEvent (const SDL_Event *Event)
 	if (!InputInitialized)
 		return;
 	
-	// ProcessMouseEvent (Event);
+	ProcessMouseEvent (Event);
 
 	// In character mode with NumLock on, numpad chars bypass VControl
 	// so that menu arrow events are not produced
@@ -517,6 +534,8 @@ ProcessInputEvent (const SDL_Event *Event)
 {
 	if (!InputInitialized)
 		return;
+
+	ProcessMouseEvent (Event);
 
 	if (in_character_mode && !set_character_mode)
 	{

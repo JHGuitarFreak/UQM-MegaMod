@@ -50,6 +50,8 @@
 #include "libs/misc.h"
 #include "scan.h"
 #include "libs/graphics/cmap.h"
+#include "planets.h"
+#include "libs/inplib.h"
 
 #include "../hyper.h"
 		// for SOL_X/Y
@@ -62,6 +64,15 @@
 //#define DEBUG_STARSEED
 //#define DEBUG_SOLARSYS
 //#define SMOOTH_SYSTEM_ZOOM  1
+
+#define SHIP_THRUST -1
+#define TURN_LEFT 1
+#define TURN_RIGHT -1
+
+#define NORTH  0
+#define EAST   4
+#define SOUTH  8
+#define WEST  12
 
 #define IP_FRAME_RATE  (ONE_SECOND / 30)
 
@@ -173,12 +184,526 @@ displayToLocation (POINT pt, SIZE scaleRadius)
 	POINT out;
 
 	out.x = (((long)pt.x - RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1))
-		* scaleRadius / DISPLAY_TO_LOC);
+			* scaleRadius / DISPLAY_TO_LOC);
 	out.y = (((long)pt.y - RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1))
-		* scaleRadius / DISPLAY_TO_LOC);
+			* scaleRadius / DISPLAY_TO_LOC);
 
 	return out;
 }
+
+// Begin mouse-centric chunk of code
+
+static POINT ip_autopilot = { ~0, ~0 };
+static POINT ip_autopilot_display = { ~0, ~0 };
+static PLANET_DESC *ip_target_body = NULL;
+
+static void
+DrawIPMouseCursor (POINT cursor_pos)
+{
+	LINE line;
+	Color OldColor;
+
+	if (!optMouseInput)
+		return;
+
+	OldColor = SetContextForeGroundColor (BRIGHT_PINK_COLOR);
+
+	BatchGraphics ();
+
+	// Draw crosshair arms
+	line.first.x = cursor_pos.x - RES_SCALE (3);
+	line.second.x = cursor_pos.x - RES_SCALE (2);
+	line.first.y = cursor_pos.y;
+	line.second.y = cursor_pos.y;
+	DrawLine (&line, RES_SCALE (1));
+
+	line.first.x = cursor_pos.x + RES_SCALE (2);
+	line.second.x = cursor_pos.x + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+
+	line.first.x = cursor_pos.x;
+	line.second.x = cursor_pos.x;
+	line.first.y = cursor_pos.y - RES_SCALE (3);
+	line.second.y = cursor_pos.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+
+	line.first.y = cursor_pos.y + RES_SCALE (2);
+	line.second.y = cursor_pos.y + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+
+	UnbatchGraphics ();
+
+	SetContextForeGroundColor (OldColor);
+}
+
+static void
+DrawIPAutopilotTarget (void)
+{
+	LINE line;
+	RECT diag;
+	POINT target;
+	SIZE radius;
+	BOOLEAN is_exit_target = FALSE;
+	BOOLEAN isPlanet = ip_target_body != NULL;
+
+	if (!optMouseInput)
+		return;
+
+	if ((GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
+			|| (ip_autopilot.x == ~0 || ip_autopilot.y == ~0))
+	{
+		return;
+	}
+
+	if (isPlanet)
+		target = ip_target_body->image.origin;
+	else
+		target = ip_autopilot_display;
+
+	is_exit_target = (target.x <= RES_SCALE (2) ||
+			target.x >= SIS_EXT.width - RES_SCALE (2) ||
+			target.y <= RES_SCALE (2) ||
+			target.y >= SIS_EXT.height - RES_SCALE (2));
+
+	radius = pSolarSysState->SunDesc[0].radius;
+
+	if (is_exit_target
+			&& (radius == MAX_ZOOM_RADIUS || playerInInnerSystem ()))
+		SetContextForeGroundColor (BRIGHT_RED_COLOR);
+	else if (isPlanet)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (TEAL_COLOR);
+
+	BatchGraphics ();
+
+	if (isPlanet)
+	{
+		if (playerInInnerSystem ()
+				&& ip_target_body == pSolarSysState->pOrbitalDesc)
+		{
+			target.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+			target.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
+		}
+		else
+		{
+			target = ip_target_body->image.origin;
+		}
+
+		if (ip_target_body->image.frame)
+		{
+			RECT planet_rect;
+			EXTENT halves;
+
+			GetFrameRect (ip_target_body->image.frame, &planet_rect);
+
+			halves.width = planet_rect.extent.width >> 1;
+			halves.height = planet_rect.extent.height >> 1;
+
+			// Draw initial crosshair
+			line.first.x = target.x - halves.width - RES_SCALE (4);
+			line.second.x = target.x - halves.width - RES_SCALE (2);
+			line.first.y = target.y;
+			line.second.y = target.y;
+			DrawLine (&line, RES_SCALE (1));
+			line.first.x = target.x + halves.width + RES_SCALE (2);
+			line.second.x = target.x + halves.width + RES_SCALE (4);
+			DrawLine (&line, RES_SCALE (1));
+			line.first.x = target.x;
+			line.second.x = target.x;
+			line.first.y = target.y - halves.height - RES_SCALE (4);
+			line.second.y = target.y - halves.height - RES_SCALE (2);
+			DrawLine (&line, RES_SCALE (1));
+			line.first.y = target.y + halves.height + RES_SCALE (2);
+			line.second.y = target.y + halves.height + RES_SCALE (4);
+			DrawLine (&line, RES_SCALE (1));
+
+			// Diagonal corner points at the base of each arm
+			diag.corner.x = target.x - halves.width - RES_SCALE (1);
+			diag.corner.y = target.y - halves.height - RES_SCALE (1);
+			diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
+			DrawFilledRectangle (&diag);
+			diag.corner.x = target.x + halves.width + RES_SCALE (1);
+			diag.corner.y = target.y + halves.height + RES_SCALE (1);
+			DrawFilledRectangle (&diag);
+			diag.corner.x = target.x - halves.width - RES_SCALE (1);
+			diag.corner.y = target.y + halves.height + RES_SCALE (1);
+			DrawFilledRectangle (&diag);
+			diag.corner.x = target.x + halves.width + RES_SCALE (1);
+			diag.corner.y = target.y - halves.height - RES_SCALE (1);
+			DrawFilledRectangle (&diag);
+		}
+	}
+	else
+	{
+		// Draw initial crosshair
+		line.first.x = target.x - RES_SCALE (4);
+		line.second.x = target.x - RES_SCALE (2);
+		line.first.y = target.y;
+		line.second.y = target.y;
+		DrawLine (&line, RES_SCALE (1));
+		line.first.x = target.x + RES_SCALE (2);
+		line.second.x = target.x + RES_SCALE (4);
+		DrawLine (&line, RES_SCALE (1));
+		line.first.x = target.x;
+		line.second.x = target.x;
+		line.first.y = target.y - RES_SCALE (4);
+		line.second.y = target.y - RES_SCALE (2);
+		DrawLine (&line, RES_SCALE (1));
+		line.first.y = target.y + RES_SCALE (2);
+		line.second.y = target.y + RES_SCALE (4);
+		DrawLine (&line, RES_SCALE (1));
+
+		// Diagonal corner points at the base of each arm
+		diag.corner.x = target.x - RES_SCALE (2);
+		diag.corner.y = target.y - RES_SCALE (2);
+		diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
+		DrawFilledRectangle (&diag);
+		diag.corner.x += RES_SCALE (4);
+		DrawFilledRectangle (&diag);
+		diag.corner.y += RES_SCALE (4);
+		DrawFilledRectangle (&diag);
+		diag.corner.x -= RES_SCALE (4);
+		DrawFilledRectangle (&diag);
+	}
+
+	if (true)
+	{
+		POINT shipLoc = GLOBAL (ShipStamp.origin);
+		POINT pt = shipLoc;
+		SIZE dx = target.x - shipLoc.x;
+		SIZE dy = target.y - shipLoc.y;
+		BOOLEAN drawLine = FALSE;
+		COORD shortened_x = 0;
+		COORD shortened_y = 0;
+
+		float distance = sqrt (dx * dx + dy * dy);
+
+		if (distance > RES_SCALE (4))
+		{
+			float unit_x = dx / distance;
+			float unit_y = dy / distance;
+
+			shortened_x = target.x - unit_x * RES_SCALE (isPlanet ? 5 : 2);
+			shortened_y = target.y - unit_y * RES_SCALE (isPlanet ? 5 : 2);
+
+			drawLine = TRUE;
+		}
+		else
+			drawLine = FALSE;
+
+		if (!IS_HD)
+		{
+			line.first.x = shipLoc.x;
+			line.first.y = shipLoc.y;
+			line.second.x = shortened_x;
+			line.second.y = shortened_y;
+
+			if (drawLine)
+				DrawLine (&line, 1);
+		}
+		else
+		{
+			STAMP s;
+			SIZE dx, dy,
+					xincr, yincr,
+					xerror, yerror,
+					cycle, delta;
+
+			s.frame = DecFrameIndex (stars_in_space);
+
+			dx = abs (shortened_x - shipLoc.x) << 1;
+			dy = abs (shortened_y - shipLoc.y) << 1;
+			xincr = (shortened_x > shipLoc.x) ? 1 : -1;
+			yincr = (shortened_y > shipLoc.y) ? 1 : -1;
+			cycle = (dx > dy) ? dx : dy;
+			delta = cycle / 2;
+			xerror = yerror = delta;
+
+			delta &= ~1;
+			while (delta--)
+			{
+				if (delta % 8 == 0 && delta != 0 && drawLine)
+				{
+					s.origin = pt;
+					DrawFilledStamp (&s);
+				}
+
+				if ((xerror -= dx) <= 0)
+				{
+					pt.x += xincr;
+					xerror += cycle;
+				}
+				if ((yerror -= dy) <= 0)
+				{
+					pt.y += yincr;
+					yerror += cycle;
+				}
+			}
+		}
+	}
+
+	UnbatchGraphics ();
+}
+
+static void
+UpdateIPAutopilot (SIZE new_radius)
+{
+	if (!optMouseInput)
+		return;
+
+	if (ip_autopilot.x == ~0 || ip_autopilot.y == ~0)
+		return;
+
+	if (ip_target_body != NULL)
+		ip_autopilot_display = ip_target_body->image.origin;
+	else
+		ip_autopilot_display =
+		locationToDisplay (ip_autopilot, new_radius);
+}
+
+static void
+ClearIPAutopilot (void)
+{
+	ip_autopilot.x = ~0;
+	ip_autopilot.y = ~0;
+	ip_autopilot_display.x = ~0;
+	ip_autopilot_display.y = ~0;
+	ip_target_body = NULL;
+}
+
+static POINT
+ScreenToIPCoords (POINT pt)
+{
+	POINT ipPos;
+
+	ipPos = ScaleCanvas (pt);
+
+	ipPos.x = (COORD)inBounds (ipPos.x - SIS_CORN.x, 0, SIS_EXT.width);
+	ipPos.y = (COORD)inBounds (ipPos.y - SIS_CORN.y, 0, SIS_EXT.height);
+
+	return ipPos;
+}
+
+static BOOLEAN
+IsMouseInIPViewport (POINT screenPos)
+{
+	if (!optMouseInput)
+		return FALSE;
+
+	return pointWithinRect (SIS_RECT, ScaleCanvas (screenPos));
+}
+
+static BOOLEAN
+IsMouseOnWorld (POINT point, PLANET_DESC *planet)
+{
+	RECT planet_rect;
+
+	if (!planet->image.frame)
+		return FALSE;
+
+	GetFrameRect (planet->image.frame, &planet_rect);
+
+	planet_rect.corner.x += planet->image.origin.x;
+	planet_rect.corner.y += planet->image.origin.y;
+
+	return pointWithinRect (planet_rect, point);
+}
+
+static BOOLEAN
+IsMouseOnShip (POINT point)
+{
+	RECT ship_rect;
+	STAMP ship_stamp = GLOBAL (ShipStamp);
+
+	GetFrameRect (ship_stamp.frame, &ship_rect);
+
+	ship_rect.corner.x += ship_stamp.origin.x;
+	ship_rect.corner.y += ship_stamp.origin.y;
+
+	return pointWithinRect (ship_rect, point);
+}
+
+static PLANET_DESC *
+GetWorldAtTarget (POINT point)
+{
+	COUNT i;
+	PLANET_DESC *pCurDesc;
+	POINT canvas_point = ScreenToIPCoords (point);
+
+	if (playerInInnerSystem ())
+	{
+		pCurDesc = pSolarSysState->pOrbitalDesc;
+
+		if (IsMouseOnWorld (canvas_point, pCurDesc))
+			return pCurDesc;
+
+		for (i = 0; i < pCurDesc->NumPlanets; i++)
+		{
+			PLANET_DESC *moon = &pSolarSysState->MoonDesc[i];
+
+			if (IsMouseOnWorld (canvas_point, moon))
+				return moon;
+		}
+	}
+	else
+	{
+		pCurDesc = pSolarSysState->pBaseDesc->pPrevDesc;
+
+		if (pCurDesc != pSolarSysState->SunDesc &&
+			IsMouseOnWorld (canvas_point, pCurDesc))
+		{
+			return pCurDesc;
+		}
+
+		for (i = pCurDesc->NumPlanets,
+			pCurDesc = pSolarSysState->pBaseDesc; i; --i, ++pCurDesc)
+		{
+			if (IsMouseOnWorld (canvas_point, pCurDesc))
+				return pCurDesc;
+		}
+	}
+
+	return NULL;
+}
+
+static void
+SetAutopilotToWorld (PLANET_DESC *body)
+{
+	POINT target_display = body->image.origin;
+	SIZE radius = pSolarSysState->SunDesc[0].radius;
+	POINT ip_loc;
+
+	if (playerInInnerSystem () && body == pSolarSysState->pOrbitalDesc)
+	{
+		target_display.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		target_display.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
+		ip_loc = displayToLocation (target_display, radius);
+	}
+	else
+		ip_loc = displayToLocation (target_display, radius);
+
+	ip_autopilot = ip_loc;
+	ip_autopilot_display = target_display;
+	ip_target_body = body;
+}
+
+static POINT
+InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
+{
+	POINT ship_pos, target_pos;
+	SIZE dx, dy, distance;
+	SIZE exit_threshold, sis_perimeter;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+	RECT ship_rect;
+
+	ship_pos = GLOBAL (ShipStamp.origin);
+
+	target_pos = ip_autopilot_display;
+
+	GetFrameRect (GLOBAL (ShipStamp.frame), &ship_rect);
+
+	sis_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
+			? ship_rect.extent.width : ship_rect.extent.height;
+
+	sis_perimeter >>= 1;
+
+	dx = target_pos.x - ship_pos.x;
+	dy = target_pos.y - ship_pos.y;
+	distance = sqrt (dx * dx + dy * dy);
+
+	exit_threshold = sis_perimeter + RES_SCALE (5);
+
+	if (target_pos.x <= RES_SCALE (2) ||
+			target_pos.x >= SIS_SCREEN_WIDTH - RES_SCALE (2) ||
+			target_pos.y <= RES_SCALE (2) ||
+			target_pos.y >= SIS_SCREEN_HEIGHT - RES_SCALE (2))
+	{
+		exit_threshold = sis_perimeter + RES_SCALE (2);
+	}
+
+	if (distance < exit_threshold)
+	{
+		ClearIPAutopilot ();
+		return (POINT) { 0, 0 };
+	}
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = GetFrameIndex (GLOBAL (ShipStamp.frame));
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (facing_diff == 0)
+		delta_x = 0;
+	else if (facing_diff <= 8)
+		delta_x = 1;
+	else
+		delta_x = -1;
+
+	if (abs (facing_diff) <= 4 || delta_x == 0)
+		delta_y = SHIP_THRUST;
+	else
+		delta_y = 0;
+
+	return (POINT) { delta_x, delta_y };
+}
+
+static void
+SetIPAutopilot (POINT window_destination)
+{
+	POINT ip_display_pos = ScreenToIPCoords (window_destination);
+	SIZE radius = pSolarSysState->SunDesc[0].radius;
+	POINT ip_loc = displayToLocation (ip_display_pos, radius);
+
+	ip_target_body = NULL;
+
+	ip_autopilot = ip_loc;
+	ip_autopilot_display = ip_display_pos;
+}
+
+static SIZE ScreenCompass (COUNT index);
+
+static void
+ExitImmediateArea (void)
+{
+	COUNT index;
+	SIZE facing;
+	POINT delta = { 0, 0 };
+	POINT target = { 0, 0 };
+	POINT scrLoc = GLOBAL (ShipStamp.origin);
+	COORD buffer = RES_SCALE (2);
+	SIZE radius = pSolarSysState->SunDesc[0].radius;
+
+	ip_target_body = NULL;
+
+	index = GetFrameIndex (GLOBAL (ShipStamp.frame));
+	facing = ScreenCompass (index);
+
+	switch (facing)
+	{
+		case NORTH:
+			target.x = scrLoc.x;
+			target.y = buffer;
+			break;
+		case EAST:
+			target.y = scrLoc.y;
+			target.x = SIS_EXT.width - buffer;
+			break;
+		case SOUTH:
+			target.x = scrLoc.x;
+			target.y = SIS_EXT.height - buffer;
+			break;
+		case WEST:
+			target.y = scrLoc.y;
+			target.x = buffer;
+			break;
+	}
+
+	ip_autopilot = displayToLocation (target, radius);
+	ip_autopilot_display = target;
+}
+
+// End mouse-centric chunk of code
 
 POINT
 planetOuterLocation (COUNT planetI)
@@ -1422,11 +1947,6 @@ flagship_inertial_thrust (COUNT CurrentAngle)
 	}
 }
 
-#define NORTH  0
-#define EAST   4
-#define SOUTH  8
-#define WEST  12
-
 static SIZE
 ScreenCompass (COUNT index)
 {
@@ -1459,12 +1979,8 @@ ScreenCompass (COUNT index)
 	return facing;
 }
 
-#define SHIP_THRUST -1
-#define TURN_LEFT 1
-#define TURN_RIGHT -1
-
 static POINT
-TurnAbout (SIZE delta_x, SIZE delta_y)
+ExitStarSystem (SIZE delta_x, SIZE delta_y)
 {
 	SIZE facing;
 	COUNT index;
@@ -1477,7 +1993,6 @@ TurnAbout (SIZE delta_x, SIZE delta_y)
 	}
 
 	index = GetFrameIndex (GLOBAL (ShipStamp.frame));
-
 	facing = ScreenCompass (index);
 
 	if ((int)facing != index)
@@ -1526,6 +2041,8 @@ ProcessShipControls (void)
 		GLOBAL (autopilot.x) = ~0;
 		GLOBAL (autopilot.y) = ~0;
 
+		ClearIPAutopilot ();
+
 		if (ValidPoint (LoadAdvancedAutoPilot ())
 				|| ValidPoint (LoadAdvancedQuasiPilot ()))
 		{
@@ -1535,9 +2052,13 @@ ProcessShipControls (void)
 	}
 	else if (GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
 	{
-		POINT delta;
-		delta = TurnAbout (delta_x, delta_y);
-
+		POINT delta = ExitStarSystem (delta_x, delta_y);
+		delta_x = delta.x;
+		delta_y = delta.y;
+	}
+	else if (ip_autopilot.x != ~0 && ip_autopilot.y != ~0)
+	{
+		POINT delta = InterplanetaryAutoPilot (delta_x, delta_y);
 		delta_x = delta.x;
 		delta_y = delta.y;
 	}
@@ -1676,6 +2197,7 @@ enterOrbital (PLANET_DESC *planet)
 	ZeroVelocityComponents (&GLOBAL (velocity));
 	pSolarSysState->pOrbitalDesc = planet;
 	pSolarSysState->InOrbit = TRUE;
+	ClearIPAutopilot ();
 }
 
 static BOOLEAN
@@ -1683,14 +2205,60 @@ CheckShipLocation (SIZE *newRadius)
 {
 	SIZE radius;
 	BOOLEAN SISonScreen;
+	static SIZE last_radius = 0;
 
 	radius = pSolarSysState->SunDesc[0].radius;
 	*newRadius = pSolarSysState->SunDesc[0].radius;
+
+	if (optMouseInput)
+	{
+		if ((GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
+				&& (ip_autopilot.x != ~0 || ip_autopilot.y != ~0))
+			ClearIPAutopilot ();
+
+		if (MouseButtonDown == 2 && IsMouseInIPViewport (CurrentMousePos))
+		{
+			if (ip_autopilot.x != ~0 || ip_autopilot.y != ~0)
+				ClearIPAutopilot ();
+
+			MouseButtonDown = 0;
+		}
+	}
 
 	SISonScreen = (GLOBAL (ShipStamp.origin.x) < 0
 			|| GLOBAL (ShipStamp.origin.x) >= SIS_SCREEN_WIDTH
 			|| GLOBAL (ShipStamp.origin.y) < 0
 			|| GLOBAL (ShipStamp.origin.y) >= SIS_SCREEN_HEIGHT);
+
+
+	if (optMouseInput)
+	{
+		if (MouseButtonDown && !SISonScreen
+				&& IsMouseInIPViewport (CurrentMousePos))
+		{
+			PLANET_DESC *clicked_body = GetWorldAtTarget (CurrentMousePos);
+			if (IsMouseOnShip (ScreenToIPCoords (CurrentMousePos)))
+				ExitImmediateArea ();
+			else if (GetWorldAtTarget (CurrentMousePos))
+				SetAutopilotToWorld (clicked_body);
+			else
+				SetIPAutopilot (CurrentMousePos);
+
+			MouseButtonDown = 0;
+		}
+
+		if (last_radius != radius && ip_autopilot.x != ~0)
+		{
+			UpdateIPAutopilot (radius);
+		}
+		last_radius = radius;
+
+		if (SISonScreen && ip_autopilot.x != ~0)
+		{
+			if (radius == MAX_ZOOM_RADIUS && !playerInInnerSystem ())
+				ClearIPAutopilot ();
+		}
+	}
 	
 	if (SISonScreen)
 	{
@@ -1735,7 +2303,8 @@ CheckShipLocation (SIZE *newRadius)
 		return TRUE;
 	}
 
-	if (GLOBAL (autopilot.x) == ~0 && GLOBAL (autopilot.y) == ~0)
+	if (GLOBAL (autopilot.x) == ~0 && GLOBAL (autopilot.y) == ~0
+			&& ip_autopilot.x == ~0)
 	{	// Not on autopilot -- may collide with a planet
 		PLANET_DESC *planet = CheckIntersect ();
 		if (planet)
@@ -1948,6 +2517,9 @@ IP_frame (void)
 		else
 		{	// Zooming outer system
 			ScaleSystem (newRadius);
+
+			if (ip_autopilot.x != ~0)
+				UpdateIPAutopilot (newRadius);
 		}
 	}
 	else if (!pSolarSysState->InOrbit)
@@ -1970,6 +2542,12 @@ IP_frame (void)
 				DrawOuterPlanets (pSolarSysState->SunDesc[0].radius);
 			}
 		}
+
+		DrawIPAutopilotTarget ();
+
+		if (IsMouseInIPViewport (CurrentMousePos))
+			DrawIPMouseCursor (ScreenToIPCoords (CurrentMousePos));
+
 		RedrawQueue (FALSE);
 		DrawAutoPilotMessage (FALSE);
 		UnbatchGraphics ();

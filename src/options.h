@@ -126,6 +126,7 @@ extern OPT_ENABLABLE optShowUpgrades;
 extern OPT_ENABLABLE optFleetPointSys;
 extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
+extern OPT_ENABLABLE optMouseInput;
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;

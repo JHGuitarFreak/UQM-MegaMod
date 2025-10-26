@@ -137,6 +137,7 @@ OPT_ENABLABLE optShowUpgrades;
 OPT_ENABLABLE optFleetPointSys;
 OPT_ADD_REMOVE optDeviceArray[28];
 OPT_ADD_REMOVE optUpgradeArray[13];
+OPT_ENABLABLE optMouseInput;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

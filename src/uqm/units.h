@@ -122,6 +122,10 @@ extern int CanvasHeight;
 		{UQM_SIS_SCREEN_WIDTH,     UQM_SIS_SCREEN_HEIGHT}, \
 		{HDMOD_SIS_SCREEN_WIDTH,   HDMOD_SIS_SCREEN_HEIGHT},
 
+#define SIS_CORN (POINT){ SIS_ORG_X, SIS_ORG_Y }
+#define SIS_EXT (EXTENT){ SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT }
+#define SIS_RECT (RECT){ SIS_CORN, SIS_EXT }
+
 		/* Radar. */
 #define RADAR_X (RES_SCALE (4) + (SPACE_WIDTH + SAFE_X))
 #define RADAR_WIDTH (STATUS_WIDTH - RES_SCALE (8))
@@ -215,7 +219,6 @@ extern int CanvasHeight;
 #define OLD_LOG_UNITS_Y      ((SDWORD)(7680 >> 4) * SECTOR_HEIGHT)
 #define OLD_UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4) * 10)
 #define OLD_UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
-
 
 #define ROUNDING_ERROR(div)  ((div) >> 1)
 

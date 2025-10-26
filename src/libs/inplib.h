@@ -23,6 +23,7 @@
 #include "libs/compiler.h"
 #include "libs/uio.h"
 #include "libs/unicode.h"
+#include "options.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -35,14 +36,10 @@ extern BOOLEAN ActKeysPress (void);
 
 extern void TFB_ResetControls (void);
 
-/*
- * Not used right now
-extern BOOLEAN FindMouse (void);
-extern void MoveMouse (SWORD x, SWORD y);
-extern BYTE LocateMouse (SWORD *px, SWORD *py);
-*/
-
 extern volatile int MouseButtonDown;
+extern volatile int MouseWheelDelta;
+extern POINT CurrentMousePos;
+
 extern volatile int QuitPosted;
 extern volatile int GameActive;
 

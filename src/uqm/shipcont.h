@@ -20,6 +20,7 @@
 #define UQM_SHIPCONT_H_
 
 #include "menustat.h"
+#include "libs/graphics/gfx_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -40,6 +41,17 @@ extern BOOLEAN InvokeSpawner (void);
 extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
 
 extern FONT ModuleFont;
+
+static inline POINT
+ScaleCanvas (POINT pt)
+{
+	POINT temp;
+
+	temp.x = (COORD)(pt.x * ((float)CanvasWidth / (float)WindowWidth));
+	temp.y = (COORD)(pt.y * ((float)CanvasHeight / (float)WindowHeight));
+
+	return temp;
+}
 
 #if defined(__cplusplus)
 }

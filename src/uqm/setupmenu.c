@@ -311,6 +311,9 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Bottom Player
 	(WIDGET *)(&choices[CHOICE_TOPPLAYER ]), // Top Player
 
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&choices[CHOICE_MOUSEINPUT]), // Mouse Input
+
 #ifdef DIRECTIONAL_JOY
 	(WIDGET *)(&choices[CHOICE_JOYSTICK  ]), // Directional Joystick toggle
 #endif
@@ -1044,7 +1047,7 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
 		TFB_DrawScreen_ReinitVideo (NewGfxDriver, NewGfxFlags,
-			NewWidth, NewHeight);		
+			NewWidth, NewHeight);
 	}
 
 	FlushInput ();
@@ -1270,6 +1273,7 @@ SetDefaults (void)
 
 	// Next choice should be choices[CHOICE_SHIPSEED]
 	choices[CHOICE_SHIPSEED  ].selected = opts.shipSeed;
+	choices[CHOICE_MOUSEINPUT].selected = opts.mouseInput;
 
 	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME ].value = opts.sfxvol;
@@ -1391,7 +1395,8 @@ PropagateResults (void)
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
-	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
+	opts.shipSeed =   choices[CHOICE_SHIPSEED  ].selected;
+	opts.mouseInput = choices[CHOICE_MOUSEINPUT].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -2488,6 +2493,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	// Controls
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
+	opts->mouseInput = optMouseInput;
 
 	// QoL
 	opts->scatterElements = optScatterElements;
@@ -2778,6 +2784,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutString ("keys.5.name", input_templates[4].name);
 	res_PutString ("keys.6.name", input_templates[5].name);
 
+	PutBoolOpt (&optMouseInput, &opts->mouseInput, "mm.mouseInput", FALSE);
 
 /*
  *		Cheats
