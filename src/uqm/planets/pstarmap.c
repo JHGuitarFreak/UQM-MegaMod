@@ -1786,6 +1786,10 @@ ZoomStarMap (SIZE dir)
 		if (zoomLevel < MAX_ZOOM_SHIFT)
 		{
 			++zoomLevel;
+
+			if (optMouseInput && IsMouseInViewport (CurrentMousePos))
+				cursorLoc = ScreenToStarMapCoords (CurrentMousePos);
+
 			mapOrigin = cursorLoc;
 
 			DrawStarMap (0, NULL);
@@ -1797,7 +1801,12 @@ ZoomStarMap (SIZE dir)
 		if (zoomLevel > 0)
 		{
 			if (zoomLevel > 1)
+			{
+				if (optMouseInput && IsMouseInViewport (CurrentMousePos))
+					cursorLoc = ScreenToStarMapCoords (CurrentMousePos);
+
 				mapOrigin = cursorLoc;
+			}
 			else
 			{
 				mapOrigin.x = MAX_X_UNIVERSE >> 1;
