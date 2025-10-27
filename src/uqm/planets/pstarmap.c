@@ -196,7 +196,16 @@ ScreenToStarMapCoords (POINT scrPos)
 static BOOLEAN
 IsMouseInViewport (POINT scrPos)
 {
-	return pointWithinRect (SIS_RECT, ScaleCanvas (scrPos));
+	BOOLEAN WellIsIt = FALSE;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	WellIsIt = pointWithinRect (SIS_RECT, ScaleCanvas (scrPos));
+
+	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
+
+	return WellIsIt;
 }
 
 static BOOLEAN

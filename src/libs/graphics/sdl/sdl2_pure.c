@@ -160,7 +160,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
 			(resFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
 
-	SDL_ShowCursor (SDL_DISABLE);
+	SDL_SetCursor (SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_CROSSHAIR));
 
 	if (window == NULL)
 	{

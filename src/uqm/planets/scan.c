@@ -100,13 +100,20 @@ ScreenToScanCoords (POINT scrPos)
 static BOOLEAN
 IsMouseInScanViewport (POINT scrPos)
 {
+	BOOLEAN WellIsIt = FALSE;
 	RECT scanRect;
-	POINT pt = ScaleCanvas (scrPos);
 	CONTEXT OldContext = SetContext (ScanContext);
 	GetContextClipRect (&scanRect);
 	SetContext (OldContext);
 
-	return pointWithinRect (scanRect, pt);
+	if (!optMouseInput)
+		return FALSE;
+
+	WellIsIt = pointWithinRect (scanRect, ScaleCanvas (scrPos));
+
+	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
+
+	return WellIsIt;
 }
 
 static void restorePlanetLocationImage (void);

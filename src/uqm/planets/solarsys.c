@@ -488,10 +488,16 @@ ScreenToIPCoords (POINT pt)
 static BOOLEAN
 IsMouseInIPViewport (POINT screenPos)
 {
+	BOOLEAN WellIsIt = FALSE;
+
 	if (!optMouseInput)
 		return FALSE;
 
-	return pointWithinRect (SIS_RECT, ScaleCanvas (screenPos));
+	WellIsIt = pointWithinRect (SIS_RECT, ScaleCanvas (screenPos));
+
+	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
+
+	return WellIsIt;
 }
 
 static BOOLEAN
@@ -2545,9 +2551,6 @@ IP_frame (void)
 
 		DrawIPAutopilotTarget ();
 
-		if (IsMouseInIPViewport (CurrentMousePos))
-			DrawIPMouseCursor (ScreenToIPCoords (CurrentMousePos));
-
 		RedrawQueue (FALSE);
 		DrawAutoPilotMessage (FALSE);
 		UnbatchGraphics ();
@@ -3748,7 +3751,7 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	}
 	else if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{
-		static TimeCount TimeOutIP, TimeOutClock;
+		static TimeCount TimeOutIP, TimeOutClock, LastMouseTime;
 		TimeCount Now = GetTimeCounter ();
 
 		assert (pSS->InIpFlight);
@@ -3764,6 +3767,9 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 			IP_frame ();
 			TimeOutIP = Now + IP_FRAME_RATE;
 		}
+
+		if (IsMouseInIPViewport (CurrentMousePos))
+			DrawIPMouseCursor (ScreenToIPCoords (CurrentMousePos));
 
 		if (NewGameInit)
 		{
