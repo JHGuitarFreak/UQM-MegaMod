@@ -44,6 +44,7 @@
 #include "libs/graphics/drawable.h"
 #include "libs/inplib.h"
 #include "libs/mathlib.h"
+#include "uqm/shipcont.h"
 
 extern FRAME SpaceJunkFrame;
 
@@ -68,6 +69,104 @@ enum ScanMenuItems
 	DISPATCH_SHUTTLE,
 };
 
+// Begin mouse-centric code chunk
+
+static BOOLEAN ScanMouseDragging = FALSE;
+
+static POINT
+ScreenToScanCoords (POINT scrPos)
+{
+	POINT pos;
+	POINT pt = ScaleCanvas (scrPos);
+
+	RECT scanRect;
+	CONTEXT OldContext = SetContext (ScanContext);
+	GetContextClipRect (&scanRect);
+	SetContext (OldContext);
+
+	pos.x = (pt.x - scanRect.corner.x) << MAG_SHIFT;
+	pos.y = (pt.y - scanRect.corner.y) << MAG_SHIFT;
+
+	if (pos.x < 0) pos.x = 0;
+	else if (pos.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+		pos.x = (SCALED_MAP_WIDTH << MAG_SHIFT) - 1;
+	if (pos.y < 0) pos.y = 0;
+	else if (pos.y >= (MAP_HEIGHT << MAG_SHIFT))
+		pos.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+
+	return pos;
+}
+
+static BOOLEAN
+IsMouseInScanViewport (POINT scrPos)
+{
+	RECT scanRect;
+	POINT pt = ScaleCanvas (scrPos);
+	CONTEXT OldContext = SetContext (ScanContext);
+	GetContextClipRect (&scanRect);
+	SetContext (OldContext);
+
+	return pointWithinRect (scanRect, pt);
+}
+
+static void restorePlanetLocationImage (void);
+static void drawPlanetCursor (BOOLEAN filled);
+static void setPlanetLoc (POINT new_pt, BOOLEAN restoreOld);
+
+static BOOLEAN
+ScanCursorLocation (POINT pt)
+{
+	if (pointsEqual (pt, planetLoc))
+		return FALSE;
+
+	restorePlanetLocationImage ();
+	setPlanetLoc (pt, FALSE);
+	drawPlanetCursor (FALSE);
+
+	return TRUE;
+}
+
+static BOOLEAN
+ScanMouseInput (void)
+{
+	BOOLEAN cursorMoved = FALSE;
+	POINT currentMouse = CurrentMousePos;
+	POINT newCursorLoc;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	if (!IsMouseInScanViewport (currentMouse))
+	{
+		if (ScanMouseDragging)
+		{
+			ScanMouseDragging = FALSE;
+		}
+		return FALSE;
+	}
+
+	newCursorLoc = ScreenToScanCoords (currentMouse);
+
+	if (!ScanMouseDragging)
+		cursorMoved = ScanCursorLocation (newCursorLoc);
+
+	if (MouseButtonDown == 1 && !ScanMouseDragging)
+	{
+		ScanMouseDragging = TRUE;
+		cursorMoved = ScanCursorLocation (newCursorLoc);
+	}
+	else if (!MouseButtonDown && ScanMouseDragging)
+	{
+		ScanMouseDragging = FALSE;
+	}
+
+	if (ScanMouseDragging)
+		cursorMoved = ScanCursorLocation (newCursorLoc);
+
+	return cursorMoved;
+}
+
+// End mouse-centric code chunk
 
 void
 RepairBackRect (RECT *pRect)
@@ -785,8 +884,13 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN select, cancel;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	if (ScanMouseInput ())
+	{
+		flashPlanetLocation ();
+	}
+
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButtonDown == 1;
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButtonDown == 2;
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
