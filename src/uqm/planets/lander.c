@@ -39,6 +39,8 @@
 #include "options.h"
 #include "uqm/menustat.h"
 #include "../util.h"
+#include "uqm/shipcont.h"
+#include "libs/inplib.h"
 
 //define SPIN_ON_LAUNCH to let the planet spin while
 // the lander animation is playing
@@ -196,6 +198,9 @@ static int weapon_wait;
 static PLANETSIDE_DESC *planetSideDesc;
 
 EXTENT MapSurface;
+
+static POINT targetLanderLoc = { 0, 0 };
+static BOOLEAN hasMouseTarget = FALSE;
 
 #define ON_THE_GROUND   0
 
@@ -1570,8 +1575,6 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		RotatePlanetSphere (TRUE, NULL);
 	}
 
-
-
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
@@ -2242,6 +2245,25 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			GameClockTick ();
 			TimeOutClock = Now + CLOCK_FRAME_RATE;
 		}
+	}
+
+
+	{
+		CONTEXT OldContext;
+		CONTEXT ScanContext = GetScanContext (NULL);
+
+		if (is3DO (optSuperPC)
+				&& IsMouseInViewport (PlanetContext))
+		{
+			DrawMouseCursor (PlanetContext);
+		}
+		
+		OldContext = SetContext (ScanContext);
+
+		if (IsMouseInViewport (ScanContext))
+			DrawMouseCursor (ScanContext);
+
+		SetContext (OldContext);
 	}
 
 	SleepThreadUntil (pMS->NextTime);

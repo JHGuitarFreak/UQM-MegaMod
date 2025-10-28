@@ -43,17 +43,6 @@ extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
 
 extern FONT ModuleFont;
 
-static inline POINT
-ScaleCanvas (POINT pt)
-{
-	POINT temp;
-
-	temp.x = (COORD)(pt.x * ((float)CanvasWidth / (float)WindowWidth));
-	temp.y = (COORD)(pt.y * ((float)CanvasHeight / (float)WindowHeight));
-
-	return temp;
-}
-
 #if defined(__cplusplus)
 }
 #endif

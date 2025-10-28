@@ -28,7 +28,9 @@
 #include "libs/file.h"
 #include "libs/log.h"
 #include "libs/reslib.h"
-
+#include "libs/graphics/gfx_common.h"
+#include "uqm/colors.h"
+#include "uqm/units.h"
 
 #define KBDBUFSIZE (1 << 8)
 static int kbdhead=0, kbdtail=0;
@@ -797,3 +799,92 @@ BeginInputFrame (void)
 {
 	VControl_BeginFrame ();
 }
+
+POINT
+ScaleCanvas (void)
+{
+	POINT temp;
+	POINT pt = CurrentMousePos;
+
+	temp.x = (COORD)(pt.x * ((float)CanvasWidth / (float)WindowWidth));
+	temp.y = (COORD)(pt.y * ((float)CanvasHeight / (float)WindowHeight));
+
+	return temp;
+}
+
+POINT
+ScreenToCanvas (CONTEXT context)
+{
+	POINT ipPos;
+	RECT r;
+	CONTEXT OldContext = SetContext (context);
+	GetContextClipRect (&r);
+	SetContext (OldContext);
+
+	ipPos = ScaleCanvas ();
+
+	ipPos.x = (COORD)inBounds (ipPos.x - r.corner.x, 0, r.extent.width);
+	ipPos.y = (COORD)inBounds (ipPos.y - r.corner.y, 0, r.extent.height);
+
+	return ipPos;
+}
+
+BOOLEAN
+IsMouseInViewport (CONTEXT context)
+{
+	BOOLEAN WellIsIt = FALSE;
+	CONTEXT OldContext;
+	RECT r;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	OldContext = SetContext (context);
+	GetContextClipRect (&r);
+	SetContext (OldContext);
+
+	WellIsIt = pointWithinRect (r, ScaleCanvas ());
+
+	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
+
+	return WellIsIt;
+}
+
+void
+DrawMouseCursor (CONTEXT context)
+{
+	LINE line;
+	Color OldColor;
+	POINT pt;
+
+	if (!optMouseInput)
+		return;
+
+	pt = ScreenToCanvas (context);
+
+	BatchGraphics ();
+
+	OldColor = SetContextForeGroundColor (BRIGHT_PINK_COLOR);
+
+	line.first.x = pt.x - RES_SCALE (3);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (3);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+
+	SetContextForeGroundColor (OldColor);
+
+	UnbatchGraphics ();
+}
+

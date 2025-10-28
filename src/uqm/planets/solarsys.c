@@ -198,45 +198,6 @@ static POINT ip_autopilot_display = { ~0, ~0 };
 static PLANET_DESC *ip_target_body = NULL;
 
 static void
-DrawIPMouseCursor (POINT cursor_pos)
-{
-	LINE line;
-	Color OldColor;
-
-	if (!optMouseInput)
-		return;
-
-	OldColor = SetContextForeGroundColor (BRIGHT_PINK_COLOR);
-
-	BatchGraphics ();
-
-	// Draw crosshair arms
-	line.first.x = cursor_pos.x - RES_SCALE (3);
-	line.second.x = cursor_pos.x - RES_SCALE (2);
-	line.first.y = cursor_pos.y;
-	line.second.y = cursor_pos.y;
-	DrawLine (&line, RES_SCALE (1));
-
-	line.first.x = cursor_pos.x + RES_SCALE (2);
-	line.second.x = cursor_pos.x + RES_SCALE (3);
-	DrawLine (&line, RES_SCALE (1));
-
-	line.first.x = cursor_pos.x;
-	line.second.x = cursor_pos.x;
-	line.first.y = cursor_pos.y - RES_SCALE (3);
-	line.second.y = cursor_pos.y - RES_SCALE (2);
-	DrawLine (&line, RES_SCALE (1));
-
-	line.first.y = cursor_pos.y + RES_SCALE (2);
-	line.second.y = cursor_pos.y + RES_SCALE (3);
-	DrawLine (&line, RES_SCALE (1));
-
-	UnbatchGraphics ();
-
-	SetContextForeGroundColor (OldColor);
-}
-
-static void
 DrawIPAutopilotTarget (void)
 {
 	LINE line;
@@ -472,34 +433,6 @@ ClearIPAutopilot (void)
 	ip_target_body = NULL;
 }
 
-static POINT
-ScreenToIPCoords (POINT pt)
-{
-	POINT ipPos;
-
-	ipPos = ScaleCanvas (pt);
-
-	ipPos.x = (COORD)inBounds (ipPos.x - SIS_CORN.x, 0, SIS_EXT.width);
-	ipPos.y = (COORD)inBounds (ipPos.y - SIS_CORN.y, 0, SIS_EXT.height);
-
-	return ipPos;
-}
-
-static BOOLEAN
-IsMouseInIPViewport (POINT screenPos)
-{
-	BOOLEAN WellIsIt = FALSE;
-
-	if (!optMouseInput)
-		return FALSE;
-
-	WellIsIt = pointWithinRect (SIS_RECT, ScaleCanvas (screenPos));
-
-	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
-
-	return WellIsIt;
-}
-
 static BOOLEAN
 IsMouseOnWorld (POINT point, PLANET_DESC *planet)
 {
@@ -517,7 +450,7 @@ IsMouseOnWorld (POINT point, PLANET_DESC *planet)
 }
 
 static BOOLEAN
-IsMouseOnShip (POINT point)
+IsMouseOnShip (void)
 {
 	RECT ship_rect;
 	STAMP ship_stamp = GLOBAL (ShipStamp);
@@ -527,15 +460,15 @@ IsMouseOnShip (POINT point)
 	ship_rect.corner.x += ship_stamp.origin.x;
 	ship_rect.corner.y += ship_stamp.origin.y;
 
-	return pointWithinRect (ship_rect, point);
+	return pointWithinRect (ship_rect, ScreenToCanvas (SpaceContext));
 }
 
 static PLANET_DESC *
-GetWorldAtTarget (POINT point)
+GetWorldAtTarget (void)
 {
 	COUNT i;
 	PLANET_DESC *pCurDesc;
-	POINT canvas_point = ScreenToIPCoords (point);
+	POINT canvas_point = ScreenToCanvas (SpaceContext);
 
 	if (playerInInnerSystem ())
 	{
@@ -655,9 +588,9 @@ InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
 }
 
 static void
-SetIPAutopilot (POINT window_destination)
+SetIPAutopilot (void)
 {
-	POINT ip_display_pos = ScreenToIPCoords (window_destination);
+	POINT ip_display_pos = ScreenToCanvas (SpaceContext);
 	SIZE radius = pSolarSysState->SunDesc[0].radius;
 	POINT ip_loc = displayToLocation (ip_display_pos, radius);
 
@@ -2222,7 +2155,8 @@ CheckShipLocation (SIZE *newRadius)
 				&& (ip_autopilot.x != ~0 || ip_autopilot.y != ~0))
 			ClearIPAutopilot ();
 
-		if (MouseButtonDown == 2 && IsMouseInIPViewport (CurrentMousePos))
+		if (MouseButtonDown == 2
+				&& IsMouseInViewport (SpaceContext))
 		{
 			if (ip_autopilot.x != ~0 || ip_autopilot.y != ~0)
 				ClearIPAutopilot ();
@@ -2240,15 +2174,15 @@ CheckShipLocation (SIZE *newRadius)
 	if (optMouseInput)
 	{
 		if (MouseButtonDown && !SISonScreen
-				&& IsMouseInIPViewport (CurrentMousePos))
+				&& IsMouseInViewport (SpaceContext))
 		{
-			PLANET_DESC *clicked_body = GetWorldAtTarget (CurrentMousePos);
-			if (IsMouseOnShip (ScreenToIPCoords (CurrentMousePos)))
+			PLANET_DESC *clicked_body = GetWorldAtTarget ();
+			if (IsMouseOnShip ())
 				ExitImmediateArea ();
-			else if (GetWorldAtTarget (CurrentMousePos))
+			else if (GetWorldAtTarget ())
 				SetAutopilotToWorld (clicked_body);
 			else
-				SetIPAutopilot (CurrentMousePos);
+				SetIPAutopilot ();
 
 			MouseButtonDown = 0;
 		}
@@ -3768,8 +3702,8 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 			TimeOutIP = Now + IP_FRAME_RATE;
 		}
 
-		if (IsMouseInIPViewport (CurrentMousePos))
-			DrawIPMouseCursor (ScreenToIPCoords (CurrentMousePos));
+		if (IsMouseInViewport (SpaceContext))
+			DrawMouseCursor (SpaceContext);
 
 		if (NewGameInit)
 		{

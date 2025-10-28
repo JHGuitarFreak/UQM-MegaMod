@@ -180,10 +180,10 @@ static BOOLEAN MouseDragging = FALSE;
 static DWORD MouseDownTime = 0;
 
 static POINT
-ScreenToStarMapCoords (POINT scrPos)
+ScreenToStarMapCoords (void)
 {
 	POINT pos;
-	POINT pt = ScaleCanvas (scrPos);
+	POINT pt = ScaleCanvas ();
 
 	pos.x = inBounds (
 			DISP_TO_UNIVERSEX (pt.x - SIS_CORN.x), 0, MAX_X_UNIVERSE);
@@ -191,21 +191,6 @@ ScreenToStarMapCoords (POINT scrPos)
 			DISP_TO_UNIVERSEY (pt.y - SIS_CORN.y), 0, MAX_Y_UNIVERSE);
 
 	return pos;
-}
-
-static BOOLEAN
-IsMouseInViewport (POINT scrPos)
-{
-	BOOLEAN WellIsIt = FALSE;
-
-	if (!optMouseInput)
-		return FALSE;
-
-	WellIsIt = pointWithinRect (SIS_RECT, ScaleCanvas (scrPos));
-
-	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
-
-	return WellIsIt;
 }
 
 static BOOLEAN
@@ -229,9 +214,8 @@ static BOOLEAN
 StarMapMouseInput (void)
 {
 	BOOLEAN cursorMoved = FALSE;
-	POINT currentMouse = CurrentMousePos;
 	POINT newCursorLoc;
-	POINT pt, starTarget;
+	POINT pt;
 	STAR_DESC *SDPtr = NULL;
 	STAR_DESC *BestSDPtr = NULL;
 
@@ -253,7 +237,7 @@ StarMapMouseInput (void)
 		}
 	}
 
-	if (!IsMouseInViewport (currentMouse))
+	if (!IsMouseInViewport (SpaceContext))
 	{
 		if (MouseDragging)
 		{
@@ -263,7 +247,7 @@ StarMapMouseInput (void)
 		return FALSE;
 	}
 
-	newCursorLoc = ScreenToStarMapCoords (currentMouse);
+	newCursorLoc = ScreenToStarMapCoords ();
 
 	pt.x = UNIVERSE_TO_DISPX (newCursorLoc.x);
 	pt.y = UNIVERSE_TO_DISPY (newCursorLoc.y);
@@ -1796,8 +1780,10 @@ ZoomStarMap (SIZE dir)
 		{
 			++zoomLevel;
 
-			if (optMouseInput && IsMouseInViewport (CurrentMousePos))
-				cursorLoc = ScreenToStarMapCoords (CurrentMousePos);
+			if (IsMouseInViewport (SpaceContext))
+			{
+				cursorLoc = ScreenToStarMapCoords ();
+			}
 
 			mapOrigin = cursorLoc;
 
@@ -1811,8 +1797,8 @@ ZoomStarMap (SIZE dir)
 		{
 			if (zoomLevel > 1)
 			{
-				if (optMouseInput && IsMouseInViewport (CurrentMousePos))
-					cursorLoc = ScreenToStarMapCoords (CurrentMousePos);
+				if (IsMouseInViewport (SpaceContext))
+					cursorLoc = ScreenToStarMapCoords ();
 
 				mapOrigin = cursorLoc;
 			}

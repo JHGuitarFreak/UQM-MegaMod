@@ -74,10 +74,10 @@ enum ScanMenuItems
 static BOOLEAN ScanMouseDragging = FALSE;
 
 static POINT
-ScreenToScanCoords (POINT scrPos)
+ScreenToScanCoords (void)
 {
 	POINT pos;
-	POINT pt = ScaleCanvas (scrPos);
+	POINT pt = ScaleCanvas ();
 
 	RECT scanRect;
 	CONTEXT OldContext = SetContext (ScanContext);
@@ -97,32 +97,15 @@ ScreenToScanCoords (POINT scrPos)
 	return pos;
 }
 
-static BOOLEAN
-IsMouseInScanViewport (POINT scrPos)
-{
-	BOOLEAN WellIsIt = FALSE;
-	RECT scanRect;
-	CONTEXT OldContext = SetContext (ScanContext);
-	GetContextClipRect (&scanRect);
-	SetContext (OldContext);
-
-	if (!optMouseInput)
-		return FALSE;
-
-	WellIsIt = pointWithinRect (scanRect, ScaleCanvas (scrPos));
-
-	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
-
-	return WellIsIt;
-}
-
 static void restorePlanetLocationImage (void);
 static void drawPlanetCursor (BOOLEAN filled);
 static void setPlanetLoc (POINT new_pt, BOOLEAN restoreOld);
 
 static BOOLEAN
-ScanCursorLocation (POINT pt)
+ScanCursorLocation (void)
 {
+	POINT pt = ScreenToScanCoords ();
+
 	if (pointsEqual (pt, planetLoc))
 		return FALSE;
 
@@ -137,13 +120,12 @@ static BOOLEAN
 ScanMouseInput (void)
 {
 	BOOLEAN cursorMoved = FALSE;
-	POINT currentMouse = CurrentMousePos;
 	POINT newCursorLoc;
 
 	if (!optMouseInput)
 		return FALSE;
 
-	if (!IsMouseInScanViewport (currentMouse))
+	if (!IsMouseInViewport (ScanContext))
 	{
 		if (ScanMouseDragging)
 		{
@@ -152,15 +134,13 @@ ScanMouseInput (void)
 		return FALSE;
 	}
 
-	newCursorLoc = ScreenToScanCoords (currentMouse);
-
 	if (!ScanMouseDragging)
-		cursorMoved = ScanCursorLocation (newCursorLoc);
+		cursorMoved = ScanCursorLocation ();
 
 	if (MouseButtonDown == 1 && !ScanMouseDragging)
 	{
 		ScanMouseDragging = TRUE;
-		cursorMoved = ScanCursorLocation (newCursorLoc);
+		cursorMoved = ScanCursorLocation ();
 	}
 	else if (!MouseButtonDown && ScanMouseDragging)
 	{
@@ -168,7 +148,7 @@ ScanMouseInput (void)
 	}
 
 	if (ScanMouseDragging)
-		cursorMoved = ScanCursorLocation (newCursorLoc);
+		cursorMoved = ScanCursorLocation ();
 
 	return cursorMoved;
 }
@@ -785,6 +765,7 @@ RedrawSurfaceScan (const POINT *newLoc)
 		setPlanetLoc (*newLoc, FALSE);
 		drawPlanetCursor (FALSE);
 	}
+
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
