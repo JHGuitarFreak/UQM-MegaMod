@@ -261,7 +261,6 @@ DrawIPAutopilotTarget (void)
 			halves.width = planet_rect.extent.width >> 1;
 			halves.height = planet_rect.extent.height >> 1;
 
-			// Draw initial crosshair
 			line.first.x = target.x - halves.width - RES_SCALE (4);
 			line.second.x = target.x - halves.width - RES_SCALE (2);
 			line.first.y = target.y;
@@ -279,7 +278,6 @@ DrawIPAutopilotTarget (void)
 			line.second.y = target.y + halves.height + RES_SCALE (4);
 			DrawLine (&line, RES_SCALE (1));
 
-			// Diagonal corner points at the base of each arm
 			diag.corner.x = target.x - halves.width - RES_SCALE (1);
 			diag.corner.y = target.y - halves.height - RES_SCALE (1);
 			diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
@@ -297,35 +295,7 @@ DrawIPAutopilotTarget (void)
 	}
 	else
 	{
-		// Draw initial crosshair
-		line.first.x = target.x - RES_SCALE (4);
-		line.second.x = target.x - RES_SCALE (2);
-		line.first.y = target.y;
-		line.second.y = target.y;
-		DrawLine (&line, RES_SCALE (1));
-		line.first.x = target.x + RES_SCALE (2);
-		line.second.x = target.x + RES_SCALE (4);
-		DrawLine (&line, RES_SCALE (1));
-		line.first.x = target.x;
-		line.second.x = target.x;
-		line.first.y = target.y - RES_SCALE (4);
-		line.second.y = target.y - RES_SCALE (2);
-		DrawLine (&line, RES_SCALE (1));
-		line.first.y = target.y + RES_SCALE (2);
-		line.second.y = target.y + RES_SCALE (4);
-		DrawLine (&line, RES_SCALE (1));
-
-		// Diagonal corner points at the base of each arm
-		diag.corner.x = target.x - RES_SCALE (2);
-		diag.corner.y = target.y - RES_SCALE (2);
-		diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
-		DrawFilledRectangle (&diag);
-		diag.corner.x += RES_SCALE (4);
-		DrawFilledRectangle (&diag);
-		diag.corner.y += RES_SCALE (4);
-		DrawFilledRectangle (&diag);
-		diag.corner.x -= RES_SCALE (4);
-		DrawFilledRectangle (&diag);
+		DrawAutopilotTarget (target);
 	}
 
 	if (true)
@@ -334,73 +304,35 @@ DrawIPAutopilotTarget (void)
 		POINT pt = shipLoc;
 		SIZE dx = target.x - shipLoc.x;
 		SIZE dy = target.y - shipLoc.y;
-		BOOLEAN drawLine = FALSE;
-		COORD shortened_x = 0;
-		COORD shortened_y = 0;
+		SIZE ship_perimeter;
+		RECT ship_rect;
+		POINT shortened;
+		POINT line_end;
 
 		float distance = sqrt (dx * dx + dy * dy);
 
-		if (distance > RES_SCALE (4))
+		GetFrameRect (GLOBAL (ShipStamp.frame), &ship_rect);
+
+		ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
+			? ship_rect.extent.width : ship_rect.extent.height;
+
+		ship_perimeter = (ship_perimeter >> 1) + RES_SCALE (2);
+
+		if (distance > ship_perimeter)
 		{
 			float unit_x = dx / distance;
 			float unit_y = dy / distance;
 
-			shortened_x = target.x - unit_x * RES_SCALE (isPlanet ? 5 : 2);
-			shortened_y = target.y - unit_y * RES_SCALE (isPlanet ? 5 : 2);
+			shortened.x = shipLoc.x + (unit_x * ship_perimeter);
+			shortened.y = shipLoc.y + (unit_y * ship_perimeter);
 
-			drawLine = TRUE;
-		}
-		else
-			drawLine = FALSE;
+			line_end.x = target.x - (unit_x * RES_SCALE (5));
+			line_end.y = target.y - (unit_y * RES_SCALE (5));
 
-		if (!IS_HD)
-		{
-			line.first.x = shipLoc.x;
-			line.first.y = shipLoc.y;
-			line.second.x = shortened_x;
-			line.second.y = shortened_y;
+			line.first = shortened;
+			line.second = line_end;
 
-			if (drawLine)
-				DrawLine (&line, 1);
-		}
-		else
-		{
-			STAMP s;
-			SIZE dx, dy,
-					xincr, yincr,
-					xerror, yerror,
-					cycle, delta;
-
-			s.frame = DecFrameIndex (stars_in_space);
-
-			dx = abs (shortened_x - shipLoc.x) << 1;
-			dy = abs (shortened_y - shipLoc.y) << 1;
-			xincr = (shortened_x > shipLoc.x) ? 1 : -1;
-			yincr = (shortened_y > shipLoc.y) ? 1 : -1;
-			cycle = (dx > dy) ? dx : dy;
-			delta = cycle / 2;
-			xerror = yerror = delta;
-
-			delta &= ~1;
-			while (delta--)
-			{
-				if (delta % 8 == 0 && delta != 0 && drawLine)
-				{
-					s.origin = pt;
-					DrawFilledStamp (&s);
-				}
-
-				if ((xerror -= dx) <= 0)
-				{
-					pt.x += xincr;
-					xerror += cycle;
-				}
-				if ((yerror -= dy) <= 0)
-				{
-					pt.y += yincr;
-					yerror += cycle;
-				}
-			}
+			DrawLine (&line, 1);
 		}
 	}
 
@@ -424,7 +356,7 @@ UpdateIPAutopilot (SIZE new_radius)
 }
 
 static void
-ClearIPAutopilot (void)
+KillAutopilot (void)
 {
 	ip_autopilot.x = ~0;
 	ip_autopilot.y = ~0;
@@ -564,7 +496,7 @@ InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
 
 	if (distance < exit_threshold)
 	{
-		ClearIPAutopilot ();
+		KillAutopilot ();
 		return (POINT) { 0, 0 };
 	}
 
@@ -1980,7 +1912,7 @@ ProcessShipControls (void)
 		GLOBAL (autopilot.x) = ~0;
 		GLOBAL (autopilot.y) = ~0;
 
-		ClearIPAutopilot ();
+		KillAutopilot ();
 
 		if (ValidPoint (LoadAdvancedAutoPilot ())
 				|| ValidPoint (LoadAdvancedQuasiPilot ()))
@@ -2136,7 +2068,7 @@ enterOrbital (PLANET_DESC *planet)
 	ZeroVelocityComponents (&GLOBAL (velocity));
 	pSolarSysState->pOrbitalDesc = planet;
 	pSolarSysState->InOrbit = TRUE;
-	ClearIPAutopilot ();
+	KillAutopilot ();
 }
 
 static BOOLEAN
@@ -2153,13 +2085,13 @@ CheckShipLocation (SIZE *newRadius)
 	{
 		if ((GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
 				&& (ip_autopilot.x != ~0 || ip_autopilot.y != ~0))
-			ClearIPAutopilot ();
+			KillAutopilot ();
 
 		if (MouseButtonDown == 2
 				&& IsMouseInViewport (SpaceContext))
 		{
 			if (ip_autopilot.x != ~0 || ip_autopilot.y != ~0)
-				ClearIPAutopilot ();
+				KillAutopilot ();
 
 			MouseButtonDown = 0;
 		}
@@ -2196,7 +2128,7 @@ CheckShipLocation (SIZE *newRadius)
 		if (SISonScreen && ip_autopilot.x != ~0)
 		{
 			if (radius == MAX_ZOOM_RADIUS && !playerInInnerSystem ())
-				ClearIPAutopilot ();
+				KillAutopilot ();
 		}
 	}
 	

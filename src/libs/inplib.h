@@ -66,6 +66,7 @@ extern POINT ScaleCanvas (void);
 extern POINT ScreenToCanvas (CONTEXT context);
 extern BOOLEAN IsMouseInViewport (CONTEXT context);
 extern void DrawMouseCursor (CONTEXT context);
+extern void DrawAutopilotTarget (POINT pt);
 
 #if defined(__cplusplus)
 }

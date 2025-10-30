@@ -41,6 +41,7 @@
 #include "../util.h"
 #include "uqm/shipcont.h"
 #include "libs/inplib.h"
+#include "uqm/init.h"
 
 //define SPIN_ON_LAUNCH to let the planet spin while
 // the lander animation is playing
@@ -201,6 +202,259 @@ EXTENT MapSurface;
 
 static POINT targetLanderLoc = { 0, 0 };
 static BOOLEAN hasMouseTarget = FALSE;
+static BOOLEAN autoThrust = FALSE;
+static BOOLEAN autoTurnLeft = FALSE;
+static BOOLEAN autoTurnRight = FALSE;
+CONTEXT ScanContext;
+
+static void
+DrawPlanetAutopilotTarget (void)
+{
+	LINE line;
+	RECT diag;
+	POINT target;
+	SIZE ship_perimeter;
+
+	target.x = ((targetLanderLoc.x - curLanderLoc.x))
+			+ (MapSurface.width >> 1);
+	target.y = ((targetLanderLoc.y - curLanderLoc.y))
+			+ (MapSurface.height >> 1);
+
+	SetContextForeGroundColor (TEAL_COLOR);
+
+	BatchGraphics ();
+
+	DrawAutopilotTarget (target);
+
+	if (true)
+	{
+		POINT shortened;
+		POINT line_end;
+		RECT ship_rect;
+		POINT shipLoc = { MapSurface.width >> 1, MapSurface.height >> 1 };
+		SIZE dx = target.x - shipLoc.x;
+		SIZE dy = target.y - shipLoc.y;
+
+		float distance = sqrt (dx * dx + dy * dy);
+
+		GetFrameRect (LanderFrame[0], &ship_rect);
+
+		ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
+				? ship_rect.extent.width : ship_rect.extent.height;
+
+		ship_perimeter = (ship_perimeter >> 1) + RES_SCALE (2);
+
+		if (distance > ship_perimeter)
+		{
+			float unit_x = dx / distance;
+			float unit_y = dy / distance;
+
+			shortened.x = shipLoc.x + (unit_x * ship_perimeter);
+			shortened.y = shipLoc.y + (unit_y * ship_perimeter);
+
+			line_end.x = target.x - (unit_x * RES_SCALE (7));
+			line_end.y = target.y - (unit_y * RES_SCALE (7));
+
+			line.first = shortened;
+			line.second = line_end;
+
+			DrawLine (&line, 1);
+		}
+	}
+
+	UnbatchGraphics ();
+}
+
+static void
+DrawScanAutopilotTarget (void)
+{
+	LINE line;
+	RECT diag;
+	POINT target;
+	SIZE perimeter;
+
+	target.x = targetLanderLoc.x >> MAG_SHIFT;
+	target.y = targetLanderLoc.y >> MAG_SHIFT;
+
+	if (target.x < 0) target.x = 0;
+	else if (target.x >= SCALED_MAP_WIDTH)
+		target.x = SCALED_MAP_WIDTH - 1;
+	if (target.y < 0) target.y = 0;
+	else if (target.y >= MAP_HEIGHT)
+		target.y = MAP_HEIGHT - 1;
+
+	SetContextForeGroundColor (TEAL_COLOR);
+
+	BatchGraphics ();
+
+	DrawAutopilotTarget (target);
+
+	if (true)
+	{
+		POINT shortened;
+		POINT line_end;
+		POINT shipLoc;
+		SIZE dx, dy;
+		float distance;
+
+		shipLoc.x = curLanderLoc.x >> MAG_SHIFT;
+		shipLoc.y = curLanderLoc.y >> MAG_SHIFT;
+
+		dx = target.x - shipLoc.x;
+		dy = target.y - shipLoc.y;
+
+		if (abs (dx) > (SCALED_MAP_WIDTH >> 1))
+		{
+			if (dx > 0)
+				dx -= SCALED_MAP_WIDTH;
+			else
+				dx += SCALED_MAP_WIDTH;
+		}
+
+		distance = sqrt (dx * dx + dy * dy);
+
+		perimeter = RES_SCALE (5);
+
+		if (distance > perimeter)
+		{
+			float unit_x = dx / distance;
+			float unit_y = dy / distance;
+
+			shortened.x = shipLoc.x + (unit_x * perimeter);
+			shortened.y = shipLoc.y + (unit_y * perimeter);
+
+			line_end.x = shipLoc.x + dx - (unit_x * perimeter);
+			line_end.y = shipLoc.y + dy - (unit_y * perimeter);
+
+			line.first = shortened;
+			line.second = line_end;
+
+			DrawLine (&line, 1);
+		}
+	}
+
+	UnbatchGraphics ();
+}
+
+static POINT
+GetMouseScanCoords (void)
+{
+	POINT canvasPt = ScreenToCanvas (ScanContext);
+	POINT landerPt;
+
+	landerPt.x = canvasPt.x << MAG_SHIFT;
+	landerPt.y = canvasPt.y << MAG_SHIFT;
+
+	if (landerPt.x < 0) landerPt.x = 0;
+	else if (landerPt.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+		landerPt.x = (SCALED_MAP_WIDTH << MAG_SHIFT) - 1;
+	if (landerPt.y < 0) landerPt.y = 0;
+	else if (landerPt.y >= (MAP_HEIGHT << MAG_SHIFT))
+		landerPt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+
+	return landerPt;
+}
+
+static POINT
+GetMousePlanetCoords (void)
+{
+	POINT landerPt;
+	POINT canvasPt = ScreenToCanvas (PlanetContext);
+
+	landerPt.x = ((canvasPt.x - (MapSurface.width >> 1)))
+			+ curLanderLoc.x;
+	landerPt.y = ((canvasPt.y - (MapSurface.height >> 1)))
+			+ curLanderLoc.y;
+
+	if (landerPt.x < 0)
+		landerPt.x += SCALED_MAP_WIDTH << MAG_SHIFT;
+	else if (landerPt.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+		landerPt.x -= SCALED_MAP_WIDTH << MAG_SHIFT;
+
+	if (landerPt.y < 0)
+		landerPt.y = 0;
+	else if (landerPt.y >= (MAP_HEIGHT << MAG_SHIFT))
+		landerPt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+
+	return landerPt;
+}
+
+static void
+KillAutopilot (void)
+{
+	hasMouseTarget = FALSE;
+	autoThrust = FALSE;
+	autoTurnLeft = FALSE;
+	autoTurnRight = FALSE;
+	return;
+}
+
+static void
+CalculateAutopilot (void)
+{
+	POINT ship_pos, target_pos;
+	SIZE dx, dy;
+	SIZE distance, ship_perimeter;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+	RECT ship_rect;
+
+	if (!hasMouseTarget || !crew_left ||
+			CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_UP])
+	{
+		KillAutopilot ();
+		return;
+	}
+
+	target_pos = targetLanderLoc;
+	ship_pos = curLanderLoc;
+
+	dx = target_pos.x - ship_pos.x;
+	dy = target_pos.y - ship_pos.y;
+
+	GetFrameRect (LanderFrame[0], &ship_rect);
+
+	ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
+			? ship_rect.extent.width : ship_rect.extent.height;
+
+	ship_perimeter >>= 1;
+
+	if (dx < -(SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
+		dx += SCALED_MAP_WIDTH << MAG_SHIFT;
+	else if (dx > (SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
+		dx -= SCALED_MAP_WIDTH << MAG_SHIFT;
+
+	distance = sqrt (dx * dx + dy * dy);
+
+	if (distance < (ship_perimeter - RES_SCALE (5)))
+	{
+		KillAutopilot ();
+		return;
+	}
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = GetFrameIndex (LanderFrame[0]);
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (abs (facing_diff) <= 1)
+	{
+		autoTurnRight = FALSE;
+		autoTurnLeft = FALSE;
+	}
+	else if (facing_diff <= 8)
+		autoTurnRight = TRUE;
+	else
+		autoTurnLeft = TRUE;
+
+	if (abs (facing_diff) <= 4 || !(autoTurnLeft && autoTurnRight))
+		autoThrust = TRUE;
+	else
+		autoThrust = FALSE;
+}
 
 #define ON_THE_GROUND   0
 
@@ -1732,6 +1986,7 @@ AnimateLanderWarmup (void)
 static void
 InitPlanetSide (POINT pt)
 {
+	ScanContext = GetScanContext (NULL);
 	// Adjust landing location by a random jitter.
 #define RANDOM_MISS RES_SCALE (64)
 	// Jitter the X landing point.
@@ -2108,6 +2363,22 @@ DoPlanetSide (LanderInputState *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
 
+	if (IsMouseInViewport (ScanContext)
+			|| IsMouseInViewport (PlanetContext))
+	{
+		if (MouseButtonDown == 1)
+		{
+			if (IsMouseInViewport (ScanContext))
+				targetLanderLoc = GetMouseScanCoords ();
+			else
+				targetLanderLoc = GetMousePlanetCoords ();
+
+			hasMouseTarget = TRUE;
+		}
+		else if (MouseButtonDown == 2)
+			KillAutopilot ();
+	}
+
 	if (!pMS->Initialized)
 	{
 		COUNT landerSpeedNumer;
@@ -2171,6 +2442,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 						" allocate explosion element!");
 			}
 		}
+
+		KillAutopilot ();
 	}
 	else
 	{
@@ -2178,17 +2451,23 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
 
+			if (hasMouseTarget)
+				CalculateAutopilot ();
+
 			if (turn_wait)
 				--turn_wait;
 			else if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
-				CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
+					CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+					autoTurnLeft || autoTurnRight)
 			{
 				COUNT landerSpeedNumer;
 				COUNT angle;
 
-				if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT])
+				if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT]
+						|| autoTurnLeft)
 					--index;
-				else
+				else if (CurrentInputState.key[PlayerControls[0]][KEY_RIGHT]
+						|| autoTurnRight)
 					++index;
 
 				index = NORMALIZE_FACING (index);
@@ -2196,23 +2475,25 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 				angle = FACING_TO_ANGLE (index);
 				landerSpeedNumer = GET_GAME_STATE (IMPROVED_LANDER_SPEED) ?
-					WORLD_TO_VELOCITY (RES_SCALE (2 * 14)) :
-					WORLD_TO_VELOCITY (RES_SCALE (2 * 8));
+						WORLD_TO_VELOCITY (RES_SCALE (2 * 14)) :
+						WORLD_TO_VELOCITY (RES_SCALE (2 * 8));
 
 #ifdef FAST_FAST
-landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
+				landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 #endif
 
 				SetVelocityComponents (&GLOBAL (velocity),
 						COSINE (angle, landerSpeedNumer)
-							/ LANDER_SPEED_DENOM,
+						/ LANDER_SPEED_DENOM,
 						SINE (angle, landerSpeedNumer)
-							/ LANDER_SPEED_DENOM);
+						/ LANDER_SPEED_DENOM);
 
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
+
 			if (CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
-					|| CurrentInputState.key[PlayerControls[0]][KEY_UP])
+					|| CurrentInputState.key[PlayerControls[0]][KEY_UP]
+					|| autoThrust)
 			{
 				GetNextVelocityComponents (
 						&GLOBAL (velocity), &dx, &dy, 1);
@@ -2247,21 +2528,26 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		}
 	}
 
-
+	if (optMouseInput)
 	{
 		CONTEXT OldContext;
-		CONTEXT ScanContext = GetScanContext (NULL);
 
 		if (is3DO (optSuperPC)
 				&& IsMouseInViewport (PlanetContext))
 		{
 			DrawMouseCursor (PlanetContext);
 		}
+
+		if (is3DO (optSuperPC) && hasMouseTarget)
+			DrawPlanetAutopilotTarget ();
 		
 		OldContext = SetContext (ScanContext);
 
 		if (IsMouseInViewport (ScanContext))
 			DrawMouseCursor (ScanContext);
+
+		if (isPC (optSuperPC) && hasMouseTarget)
+			DrawScanAutopilotTarget ();
 
 		SetContext (OldContext);
 	}

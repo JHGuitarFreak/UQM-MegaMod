@@ -888,3 +888,42 @@ DrawMouseCursor (CONTEXT context)
 	UnbatchGraphics ();
 }
 
+void
+DrawAutopilotTarget (POINT pt)
+{
+	LINE line;
+	RECT diag;
+
+	BatchGraphics ();
+
+	line.first.x = pt.x - RES_SCALE (4);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (4);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+
+	diag.corner.x = pt.x - RES_SCALE (2);
+	diag.corner.y = pt.y - RES_SCALE (2);
+	diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
+	DrawFilledRectangle (&diag);
+	diag.corner.x += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.y += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.x -= RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+
+	UnbatchGraphics ();
+}
+
