@@ -484,8 +484,8 @@ main (int argc, char *argv[])
 #endif // __MINGW32__
 
 #ifdef __MINGW64__
-		printf("MINGW64_VERSION: %d.%d\n\n", __MINGW64_MAJOR_VERSION, __MINGW64_MINOR_VERSION);
-		log_add(log_Info, "MINGW64_VERSION: %d.%d\n", __MINGW64_MAJOR_VERSION, __MINGW64_MINOR_VERSION);
+		printf("MINGW64_VERSION: %d.%d\n\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
+		log_add(log_Info, "MINGW64_VERSION: %d.%d\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
 #endif // __MINGW64__
 
 		printf("Build Time: %s %s\n\n", __DATE__, __TIME__);
