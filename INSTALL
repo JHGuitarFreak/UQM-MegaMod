@@ -30,12 +30,22 @@ https://www.msys2.org -- after you install the base system, open an
 
   pacman -Syuu
 
-until there is nothing left to do. Aftr that you can install the
+until there is nothing left to do. After that you can install the
 packages you will need to build the 32-bit version of UQM:
 
   pacman -S make pkg-config mingw-w64-i686-gcc mingw-w64-i686-libogg \
             mingw-w64-i686-libpng mingw-w64-i686-libsystre \
-            mingw-w64-i686-libvorbis mingw-w64-i686-SDL2 mingw-w64-i686-zlib
+            mingw-w64-i686-libvorbis mingw-w64-i686-SDL2 mingw-w64-i686-zlib \
+            mingw-w64-i686-ninja mingw-w64-i686-cmake
+
+For experimental 64-bit:
+
+  pacman -S mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config \
+            mingw-w64-x86_64-gcc mingw-w64-x86_64-libogg \
+            mingw-w64-x86_64-libpng mingw-w64-x86_64-libsystre \
+            mingw-w64-x86_64-libvorbis mingw-w64-x86_64-SDL2 \
+            mingw-w64-x86_64-zlib mingw-w64-x86_64-ninja \
+            mingw-w64-x86_64-cmake
 
 Actually building UQM will need to be done from a "MSYS2 MinGW 32-bit"
 window, not "MSYS2 MSYS".
