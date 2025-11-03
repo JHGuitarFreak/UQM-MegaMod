@@ -184,11 +184,10 @@ ScreenToStarMapCoords (void)
 {
 	POINT pos;
 	POINT pt = ScaleCanvas ();
+	POINT max = { MAX_X_UNIVERSE, MAX_Y_UNIVERSE };
 
-	pos.x = inBounds (
-			DISP_TO_UNIVERSEX (pt.x - SIS_CORN.x), 0, MAX_X_UNIVERSE);
-	pos.y = inBounds (
-			DISP_TO_UNIVERSEY (pt.y - SIS_CORN.y), 0, MAX_Y_UNIVERSE);
+	pos.x = inBounds (DISP_TO_UNIVERSEX (pt.x - SIS_ORG_X), 0, max.x);
+	pos.y = inBounds (DISP_TO_UNIVERSEY (pt.y - SIS_ORG_Y), 0, max.y);
 
 	return pos;
 }
