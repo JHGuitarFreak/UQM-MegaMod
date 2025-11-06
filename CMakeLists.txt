@@ -228,7 +228,7 @@ function(parse_makeinfo_with_recurse target_sources)
     set_makeinfo_env(uqm_HAVE_GETOPT_LONG HAVE_GETOPT_LONG)
     set_makeinfo_env(uqm_HAVE_REGEX       HAVE_REGEX_H)
 
-    set_env(uqm_THREADLIB "${UQM_THREAD_LIB}")
+    set(ENV{uqm_THREADLIB} "${UQM_THREAD_LIB}")
 
     #set_env_if function defined in helpers.cmake
     #          ↓ env_var to set  set to ↓    ↓ conditional
