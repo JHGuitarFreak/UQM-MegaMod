@@ -544,6 +544,8 @@ DrawJournal (void)
 	JOURNAL_ENTRY *entry;
 	Color OldBGColor, OldFGColor;
 	FONT OldFont;
+	RECT r;
+	BOOLEAN HasEntries = FALSE;
 
 	if (transition_pending)
 		SetTransitionSource (NULL);
@@ -605,6 +607,8 @@ DrawJournal (void)
 					JOURNAL_STRING (OPEN_OBJECTIVE)      // OPEN:
 					: JOURNAL_STRING (CLOSED_OBJECTIVE); // CLOSED:
 
+			HasEntries = TRUE;
+
 			SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
 			// Add gap between last open objective and the CLOSED: header
@@ -661,32 +665,40 @@ DrawJournal (void)
 		}
 	}
 
+	if (!HasEntries)
 	{
-		RECT r;
-
-		if (IS_PAD)
-			SetContextFont (TinyFontCond);
-
-		SetContextForeGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
-		r.corner.y = SIS_SCREEN_HEIGHT - (leading + RES_SCALE (4));
-		r.corner.x = 0;
-		r.extent.width = SIS_SCREEN_WIDTH;
-		r.extent.height = leading + RES_SCALE (4);
-		DrawFilledRectangle (&r);
-
-		SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
-		t.pStr = JOURNAL_STRING (PRESS_LEFT_RIGHT);
+		FONT OldEntryFont = SetContextFont (PlayMenuFont);
+		SetContextForeGroundColor (DKGRAY_COLOR);
 		t.align = ALIGN_CENTER;
-		t.baseline.y = SIS_SCREEN_HEIGHT - (leading - RES_SCALE (4));
-		t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		t.pStr = JOURNAL_STRING (NO_OBJECTIVE); // NO ENTRIES
 		t.CharCount = (COUNT)~0;
-		r = font_GetTextRect (&t);
+		t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+		t.baseline.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 		font_DrawText (&t);
+		SetContextFont (OldEntryFont);
 	}
+
+	if (IS_PAD)
+		SetContextFont (TinyFontCond);
+
+	SetContextForeGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
+	r.corner.y = SIS_SCREEN_HEIGHT - (leading + RES_SCALE (4));
+	r.corner.x = 0;
+	r.extent.width = SIS_SCREEN_WIDTH;
+	r.extent.height = leading + RES_SCALE (4);
+	DrawFilledRectangle (&r);
+
+	SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
+	t.pStr = JOURNAL_STRING (PRESS_LEFT_RIGHT); // PRESS LEFT OR RIGHT TO
+	t.align = ALIGN_CENTER;                     // SHOW THE OTHER LOGS
+	t.baseline.y = SIS_SCREEN_HEIGHT - (leading - RES_SCALE (4));
+	t.baseline.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
+	t.CharCount = (COUNT)~0;
+	r = font_GetTextRect (&t);
+	font_DrawText (&t);
 
 	if (transition_pending)
 	{
-		RECT r;
 		GetContextClipRect (&r);
 		ScreenTransition (optScrTrans, &r);
 		transition_pending = FALSE;
