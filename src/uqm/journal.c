@@ -229,156 +229,183 @@ AllianceInfo (BYTE info)
 static void
 WriteJournals (void)
 {
+
+	BOOLEAN sb_available, fuel_low, have_radios, have_radioactives,
+			need_radioactives, need_lander, need_lander_again, need_fuel,
+			need_fuel_again, reported_moonbase;
+	BOOLEAN aware_of_sam, find_defeat_quan, find_destroy_sam, destroy_sam,
+			find_access_sam;
+
+	BYTE hierarchy_mask;
+	BOOLEAN fwiffo_bullet, signal_uranus, can_fwiffo_join,
+			spathi_home, spathi_quest, wiped_evil,
+			zfp_bullet, met_the_zfp,
+			mels_bullet, met_mels,
+			investigate_orz, met_orz, orz_status, orz_frumple,
+			pkunk_ilwrath, pkunk_melnorme, knownt_pkunk_home,
+			sb_arilou, met_arilou,
+			sb_chenjesu, sb_mmrnmhrm, met_chmmr,
+			sb_andro, andro_dead,
+			find_shofixti, shofixti_returned, find_maidens,
+			meet_supox, met_supox,
+			syreen_bullet, meet_syreen, met_syreen,
+			sb_others,
+			gen_thraddash, mels_thraddash, met_thraddash,
+			meet_utwig, met_utwig,
+			meet_umgah, met_umgah,
+			find_yehat, mels_yehat, met_yehat;
+	BOOLEAN inv_probes, zfp_sly_probes, thradd_probes_00, thradd_probes_01,
+			mels_sly_probe, probe_program, sly_know;
+	
+	BYTE num_rainbows;
+	UWORD rainbow_mask;
+	BOOLEAN heard_portal, heard_portal_mels, know_portal, have_spawner;
+	BOOLEAN melnorme_ultron, have_ahelix, used_ahelix, have_rsphere,
+			used_rsphere, have_spindle, used_spindle;
+	BOOLEAN burvixese_mels;
+	BOOLEAN rainbow_shofixti, rainbow_supox, rainbow_0, rainbow_7,
+			rainbow_5;
+
 	// Objectives log
 
-	BOOLEAN sb_available = GGS (STARBASE_AVAILABLE);
-	BOOLEAN fuel_low = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
-	BOOLEAN have_radios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
-	BOOLEAN have_radioactives = GS (STARBASE_VISITED) && have_radios;
-	BOOLEAN need_radioactives = GS (STARBASE_VISITED) && !have_radios
+	sb_available = GGS (STARBASE_AVAILABLE);
+	fuel_low = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
+	have_radios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
+	have_radioactives = GS (STARBASE_VISITED) && have_radios;
+	need_radioactives = GS (STARBASE_VISITED) && !have_radios
 			&& !GS (RADIOACTIVES_PROVIDED);
-	BOOLEAN need_lander = need_radioactives && GLOBAL_SIS (NumLanders) < 1;
-	BOOLEAN need_lander_again = need_lander && GS (LANDERS_LOST);
-	BOOLEAN need_fuel = need_radioactives && fuel_low;
-	BOOLEAN need_fuel_again = need_fuel && GS (GIVEN_FUEL_BEFORE);
-	BOOLEAN reported_moonbase = GS (MOONBASE_DESTROYED)
-			&& !GS (MOONBASE_ON_SHIP);
+	need_lander = need_radioactives && GLOBAL_SIS (NumLanders) < 1;
+	need_lander_again = need_lander && GS (LANDERS_LOST);
+	need_fuel = need_radioactives && fuel_low;
+	need_fuel_again = need_fuel && GS (GIVEN_FUEL_BEFORE);
+	reported_moonbase = GS (MOONBASE_DESTROYED) && !GS (MOONBASE_ON_SHIP);
 
-	BOOLEAN aware_of_sam =
-			GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1);
-	BOOLEAN find_defeat_quan = sb_available && !aware_of_sam;
-	BOOLEAN find_destroy_sam = aware_of_sam;
-	BOOLEAN destroy_sam =
-			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2);
-	BOOLEAN find_access_sam = aware_of_sam && !GS (TALKING_PET_ON_SHIP);
+	aware_of_sam = GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1);
+	find_defeat_quan = sb_available && !aware_of_sam;
+	find_destroy_sam = aware_of_sam;
+	destroy_sam = GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2);
+	find_access_sam = aware_of_sam && !GS (TALKING_PET_ON_SHIP);
 
 	// Aliens log
 
-	BYTE hierarchy_mask = GGS (HIERARCHY_MASK);
+	hierarchy_mask = GGS (HIERARCHY_MASK);
 
-	BOOLEAN fwiffo_bullet = StarbaseBulletins (9);
-	BOOLEAN signal_uranus = fwiffo_bullet && !GS (FOUND_PLUTO_SPATHI);
-	BOOLEAN can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
+	fwiffo_bullet = StarbaseBulletins (9);
+	signal_uranus = fwiffo_bullet && !GS (FOUND_PLUTO_SPATHI);
+	can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
 
-	BOOLEAN spathi_home = IsHomeworldKnown (SPATHI_HOME);
-	BOOLEAN spathi_quest = GGS (KNOW_SPATHI_QUEST);
-	BOOLEAN wiped_evil = GGS (SPATHI_CREATURES_ELIMINATED);
+	spathi_home = IsHomeworldKnown (SPATHI_HOME);
+	spathi_quest = GGS (KNOW_SPATHI_QUEST);
+	wiped_evil = GGS (SPATHI_CREATURES_ELIMINATED);
 
-	BOOLEAN zfp_bullet = StarbaseBulletins (11);
-	BOOLEAN met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
+	zfp_bullet = StarbaseBulletins (11);
+	met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
 			|| GS (MET_ZOQFOT);
 
-	BOOLEAN mels_bullet = StarbaseBulletins (7);
-	BOOLEAN met_mels = GS (MET_MELNORME);
+	mels_bullet = StarbaseBulletins (7);
+	met_mels = GS (MET_MELNORME);
 
-	BOOLEAN investigate_orz = GGS (INVESTIGATE_ORZ)
+	investigate_orz = GGS (INVESTIGATE_ORZ)
 			|| GSGE (MELNORME_ALIEN_INFO_STACK, 10);
-	BOOLEAN met_orz = GGS (MET_ORZ_BEFORE);
-	BOOLEAN orz_status = RaceAllied (ORZ_SHIP) || RaceDead (ORZ_SHIP)
+	met_orz = GGS (MET_ORZ_BEFORE);
+	orz_status = RaceAllied (ORZ_SHIP) || RaceDead (ORZ_SHIP)
 			|| GSET (ORZ_MANNER, 2);
-	BOOLEAN orz_frumple = GSET (ORZ_MANNER, 2);
+	orz_frumple = GSET (ORZ_MANNER, 2);
+	
+	pkunk_ilwrath = GGS (HEARD_PKUNK_ILWRATH);
+	pkunk_melnorme = GSGE (MELNORME_ALIEN_INFO_STACK, 2);
+	knownt_pkunk_home = IsHomeworldKnown (PKUNK_HOME) && GGS (PKUNK_VISITS)
+			&& !GGS (PKUNK_HOME_VISITS);
+	
+	sb_arilou = AllianceInfo (ALLIANCE_ARILOU);
+	met_arilou = (GS (ARILOU_VISITS) || GS (ARILOU_HOME_VISITS));
 
-	BOOLEAN pkunk_ilwrath = GGS (HEARD_PKUNK_ILWRATH);
-	BOOLEAN pkunk_melnorme = GSGE (MELNORME_ALIEN_INFO_STACK, 2);
-	BOOLEAN knownt_pkunk_home = IsHomeworldKnown (PKUNK_HOME)
-			&& GGS (PKUNK_VISITS) && !GGS (PKUNK_HOME_VISITS);
+	sb_chenjesu = AllianceInfo (ALLIANCE_CHENJESU);
+	sb_mmrnmhrm = AllianceInfo (ALLIANCE_MMRNMHRM);
+	met_chmmr = GS (CHMMR_HOME_VISITS);
 
-	BOOLEAN sb_arilou = AllianceInfo (ALLIANCE_ARILOU);
-	BOOLEAN met_arilou = (GS (ARILOU_VISITS) || GS (ARILOU_HOME_VISITS));
+	sb_andro = (hierarchy_mask & HIERARCHY_ANDROSYNTH) != 0;
+	andro_dead = RaceDead (ANDROSYNTH_SHIP);
 
-	BOOLEAN sb_chenjesu = AllianceInfo (ALLIANCE_CHENJESU);
-	BOOLEAN sb_mmrnmhrm = AllianceInfo (ALLIANCE_MMRNMHRM);
-	BOOLEAN met_chmmr = GS (CHMMR_HOME_VISITS);
-
-	BOOLEAN sb_andro = (hierarchy_mask & HIERARCHY_ANDROSYNTH) != 0;
-	BOOLEAN andro_dead = RaceDead (ANDROSYNTH_SHIP);
-
-	BOOLEAN find_shofixti = AllianceInfo (ALLIANCE_SHOFIXTI)
+	find_shofixti = AllianceInfo (ALLIANCE_SHOFIXTI)
 			|| GSGE (MELNORME_ALIEN_INFO_STACK, 12)
 			|| (IsHomeworldKnown (SHOFIXTI_HOME) && !GGS (SHOFIXTI_VISITS));
-	BOOLEAN shofixti_returned = RaceAllied (SHOFIXTI_SHIP);
-	BOOLEAN find_maidens = GSGE (MELNORME_ALIEN_INFO_STACK, 12);
+	shofixti_returned = RaceAllied (SHOFIXTI_SHIP);
+	find_maidens = GSGE (MELNORME_ALIEN_INFO_STACK, 12);
 
-	BOOLEAN meet_supox = IsHomeworldKnown (SUPOX_HOME)
+	meet_supox = IsHomeworldKnown (SUPOX_HOME)
 			|| CheckSphereTracking (SUPOX_SHIP);
-	BOOLEAN met_supox = GS (SUPOX_HOSTILE) || GS (SUPOX_HOME_VISITS)
+	met_supox = GS (SUPOX_HOSTILE) || GS (SUPOX_HOME_VISITS)
 			|| GS (SUPOX_VISITS) || GS (SUPOX_STACK1) || GS (SUPOX_STACK2);
 
-	BOOLEAN syreen_bullet = AllianceInfo (ALLIANCE_SYREEN);
-	BOOLEAN meet_syreen = IsHomeworldKnown (SYREEN_HOME);
-	BOOLEAN met_syreen = GS (SYREEN_HOME_VISITS)
+	syreen_bullet = AllianceInfo (ALLIANCE_SYREEN);
+	meet_syreen = IsHomeworldKnown (SYREEN_HOME);
+	met_syreen = GS (SYREEN_HOME_VISITS)
 			|| GS (KNOW_SYREEN_VAULT) || GS (SHIP_VAULT_UNLOCKED)
 			|| RaceAllied (SYREEN_SHIP);
 
-	BOOLEAN sb_others = GGS (HAYES_OTHER_ALIENS);
+	sb_others = GGS (HAYES_OTHER_ALIENS);
 
-	BOOLEAN gen_thraddash = GGS (INVESTIGATE_THRADD);
-	BOOLEAN mels_thraddash = GSGE (MELNORME_ALIEN_INFO_STACK, 7);
-	BOOLEAN met_thraddash = GGS (THRADD_INFO) || GGS (THRADD_STACK_1)
+	gen_thraddash = GGS (INVESTIGATE_THRADD);
+	mels_thraddash = GSGE (MELNORME_ALIEN_INFO_STACK, 7);
+	met_thraddash = GGS (THRADD_INFO) || GGS (THRADD_STACK_1)
 			|| GGS (THRADD_HOSTILE_STACK_2) || GGS (THRADD_HOSTILE_STACK_3)
 			|| GGS (THRADD_HOSTILE_STACK_4) || GGS (THRADD_HOSTILE_STACK_5)
 			|| GGS (THRADD_VISITS) || GGS (HELIX_VISITS)
 			|| GGS (THRADD_HOME_VISITS) || GGS (THRADDASH_BODY_COUNT);
 
-	BOOLEAN meet_utwig = GSGE (MELNORME_EVENTS_INFO_STACK, 7)
+	meet_utwig = GSGE (MELNORME_EVENTS_INFO_STACK, 7)
 			|| CheckSphereTracking (UTWIG_SHIP);
-	BOOLEAN met_utwig = GGS (UTWIG_HOSTILE) || GGS (UTWIG_INFO)
+	met_utwig = GGS (UTWIG_HOSTILE) || GGS (UTWIG_INFO)
 			|| GGS (UTWIG_HOME_VISITS) || GGS (UTWIG_VISITS)
 			|| GGS (BOMB_VISITS) || RaceAllied (UTWIG_SHIP);
 	
-	BOOLEAN meet_umgah = GSGE (MELNORME_EVENTS_INFO_STACK, 3)
+	meet_umgah = GSGE (MELNORME_EVENTS_INFO_STACK, 3)
 			|| GGS (INVESTIGATE_UMGAH) || CheckSphereTracking (UTWIG_SHIP)
 			|| (hierarchy_mask & HIERARCHY_UMGAH) != 0;
-	BOOLEAN met_umgah = GGS (MET_NORMAL_UMGAH) || GGS (KNOW_UMGAH_ZOMBIES)
+	met_umgah = GGS (MET_NORMAL_UMGAH) || GGS (KNOW_UMGAH_ZOMBIES)
 			|| GGS (UMGAH_MENTIONED_TRICKS) || GGS (UMGAH_EVIL_BLOBBIES)
 			|| GGS (UMGAH_HOSTILE);
 
-	BOOLEAN find_yehat = AllianceInfo (ALLIANCE_YEHAT);
-	BOOLEAN mels_yehat = GSGE (MELNORME_ALIEN_INFO_STACK, 16);
-	BOOLEAN met_yehat = GGS (YEHAT_VISITS) || GGS (YEHAT_REBEL_VISITS)
+	find_yehat = AllianceInfo (ALLIANCE_YEHAT);
+	mels_yehat = GSGE (MELNORME_ALIEN_INFO_STACK, 16);
+	met_yehat = GGS (YEHAT_VISITS) || GGS (YEHAT_REBEL_VISITS)
 			|| GGS (YEHAT_HOME_VISITS) || GGS (YEHAT_CIVIL_WAR);
 
-	BOOLEAN inv_probes = GGS (PROBE_EXHIBITED_BUG)
-			|| StarbaseBulletins (15);
-	BOOLEAN zfp_sly_probes = GSET (INVESTIGATE_PROBES, 1);
-	BOOLEAN thradd_probes_00 = GSET (INVESTIGATE_PROBES, 2);
-	BOOLEAN thradd_probes_01 = GSET (INVESTIGATE_PROBES, 3);
-	BOOLEAN mels_sly_probe = GSGE (MELNORME_EVENTS_INFO_STACK, 6)
+	inv_probes = GGS (PROBE_EXHIBITED_BUG) || StarbaseBulletins (15);
+	zfp_sly_probes = GSET (INVESTIGATE_PROBES, 1);
+	thradd_probes_00 = GSET (INVESTIGATE_PROBES, 2);
+	thradd_probes_01 = GSET (INVESTIGATE_PROBES, 3);
+	mels_sly_probe = GSGE (MELNORME_EVENTS_INFO_STACK, 6)
 			|| GSGE (MELNORME_ALIEN_INFO_STACK, 13);
-	BOOLEAN probe_program = GGS (PLAYER_KNOWS_PROGRAM)
-			|| GGS (PLAYER_KNOWS_PROBE);
-	BOOLEAN sly_know = GGS (SLYLANDRO_KNOW_BROKEN)
-			&& GGS (DESTRUCT_CODE_ON_SHIP);
+	probe_program = GGS (PLAYER_KNOWS_PROGRAM) || GGS (PLAYER_KNOWS_PROBE);
+	sly_know = GGS (SLYLANDRO_KNOW_BROKEN) && GGS (DESTRUCT_CODE_ON_SHIP);
 
 	// Curiosities log
 
-	BYTE num_rainbows = RAINBOW9_DEFINED - RAINBOW0_DEFINED;
-	UWORD rainbow_mask = MAKE_WORD (
-			GGS (RAINBOW_WORLD0),
-			GGS (RAINBOW_WORLD1));
-	BOOLEAN rainbow_0 = (rainbow_mask & (1 << 0)) != 0;
-	BOOLEAN rainbow_7 = (rainbow_mask & (1 << 7)) != 0;
-	BOOLEAN rainbow_5 = (rainbow_mask & (1 << 5)) != 0;
-	BOOLEAN rainbow_shofixti = GGS (SHOFIXTI_STACK2) > 2
+	heard_portal = GGS (INVESTIGATE_PORTAL);
+	heard_portal_mels = GSGE (MELNORME_EVENTS_INFO_STACK, 4);
+	know_portal = heard_portal & (1 << 2);
+	have_spawner = GGS (PORTAL_SPAWNER);
+
+	melnorme_ultron = GSGE (MELNORME_EVENTS_INFO_STACK, 8);
+	have_ahelix = GGS (AQUA_HELIX) && GGS (AQUA_HELIX_ON_SHIP);
+	used_ahelix = GGS (AQUA_HELIX) && !GGS (AQUA_HELIX_ON_SHIP);
+	have_rsphere = GGS (ROSY_SPHERE) && GGS (ROSY_SPHERE_ON_SHIP);
+	used_rsphere = GGS (ROSY_SPHERE) && !GGS (ROSY_SPHERE_ON_SHIP);
+	have_spindle = GGS (CLEAR_SPINDLE) && GGS (CLEAR_SPINDLE_ON_SHIP);
+	used_spindle = GGS (CLEAR_SPINDLE) && !GGS (CLEAR_SPINDLE_ON_SHIP);
+
+	burvixese_mels = GSGE (MELNORME_ALIEN_INFO_STACK, 6);
+
+	num_rainbows = RAINBOW9_DEFINED - RAINBOW0_DEFINED;
+	rainbow_mask = MAKE_WORD (GGS (RAINBOW_WORLD0), GGS (RAINBOW_WORLD1));
+	rainbow_0 = (rainbow_mask & (1 << 0)) != 0;
+	rainbow_7 = (rainbow_mask & (1 << 7)) != 0;
+	rainbow_5 = (rainbow_mask & (1 << 5)) != 0;
+	rainbow_shofixti = GGS (SHOFIXTI_STACK2) > 2
 			&& GSGE (SHOFIXTI_STACK1, 2);
-	BOOLEAN rainbow_supox = GSET (SUPOX_STACK1, 6);
-
-	BOOLEAN melnorme_ultron = GSGE (MELNORME_EVENTS_INFO_STACK, 8);
-	BOOLEAN have_spindle = GGS (CLEAR_SPINDLE)
-			&& GGS (CLEAR_SPINDLE_ON_SHIP);
-	BOOLEAN used_spindle = GGS (CLEAR_SPINDLE)
-			&& !GGS (CLEAR_SPINDLE_ON_SHIP);
-	BOOLEAN have_rsphere = GGS (ROSY_SPHERE) && GGS (ROSY_SPHERE_ON_SHIP);
-	BOOLEAN used_rsphere = GGS (ROSY_SPHERE) && !GGS (ROSY_SPHERE_ON_SHIP);
-	BOOLEAN have_ahelix = GGS (AQUA_HELIX) && GGS (AQUA_HELIX_ON_SHIP);
-	BOOLEAN used_ahelix = GGS (AQUA_HELIX) && !GGS (AQUA_HELIX_ON_SHIP);
-
-	BOOLEAN heard_portal_mels = GSGE (MELNORME_EVENTS_INFO_STACK, 4);
-	BOOLEAN heard_portal = GGS (INVESTIGATE_PORTAL);
-	BOOLEAN know_portal = heard_portal & (1 << 2);
-	BOOLEAN have_spawner = GGS (PORTAL_SPAWNER);
-
-	BOOLEAN burvixese_mels = GSGE (MELNORME_ALIEN_INFO_STACK, 6);
+	rainbow_supox = GSET (SUPOX_STACK1, 6);
 
 	{	// Objectives log
 
