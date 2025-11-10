@@ -231,58 +231,56 @@ WriteJournals (void)
 {
 	// Objectives log
 
-	BOOLEAN StarbaseAvailable = GGS (STARBASE_AVAILABLE);
-	BOOLEAN FuelLow = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
-	BOOLEAN HaveRadios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
-	BOOLEAN have_radioactives = GS (STARBASE_VISITED) && HaveRadios;
-	BOOLEAN need_radioactives = GS (STARBASE_VISITED) && !HaveRadios
+	BOOLEAN sb_available = GGS (STARBASE_AVAILABLE);
+	BOOLEAN fuel_low = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
+	BOOLEAN have_radios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
+	BOOLEAN have_radioactives = GS (STARBASE_VISITED) && have_radios;
+	BOOLEAN need_radioactives = GS (STARBASE_VISITED) && !have_radios
 			&& !GS (RADIOACTIVES_PROVIDED);
 	BOOLEAN need_lander = need_radioactives && GLOBAL_SIS (NumLanders) < 1;
 	BOOLEAN need_lander_again = need_lander && GS (LANDERS_LOST);
-	BOOLEAN need_fuel = need_radioactives && FuelLow;
+	BOOLEAN need_fuel = need_radioactives && fuel_low;
 	BOOLEAN need_fuel_again = need_fuel && GS (GIVEN_FUEL_BEFORE);
 	BOOLEAN reported_moonbase = GS (MOONBASE_DESTROYED)
 			&& !GS (MOONBASE_ON_SHIP);
 
-	BOOLEAN AwareOfSAM =
+	BOOLEAN aware_of_sam =
 			GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1);
-	BOOLEAN FindDefeatQuan = StarbaseAvailable && !AwareOfSAM;
-	BOOLEAN FindDestroySAM = AwareOfSAM;
-	BOOLEAN DestroySAM =
+	BOOLEAN find_defeat_quan = sb_available && !aware_of_sam;
+	BOOLEAN find_destroy_sam = aware_of_sam;
+	BOOLEAN destroy_sam =
 			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2);
-	BOOLEAN FindAccessSAM = AwareOfSAM && !GS (TALKING_PET_ON_SHIP);
+	BOOLEAN find_access_sam = aware_of_sam && !GS (TALKING_PET_ON_SHIP);
 
 	// Aliens log
 
-	BYTE HierarchyMask = GGS (HIERARCHY_MASK);
+	BYTE hierarchy_mask = GGS (HIERARCHY_MASK);
 
-	BOOLEAN FwiffoBullet = StarbaseBulletins (9);
-	BOOLEAN signal_uranus = FwiffoBullet && !GS (FOUND_PLUTO_SPATHI);
+	BOOLEAN fwiffo_bullet = StarbaseBulletins (9);
+	BOOLEAN signal_uranus = fwiffo_bullet && !GS (FOUND_PLUTO_SPATHI);
 	BOOLEAN can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
 
-	BOOLEAN SpathiHome = IsHomeworldKnown (SPATHI_HOME);
-	BOOLEAN SpathiQuest = GGS (KNOW_SPATHI_QUEST);
-	BOOLEAN WipedEvil = GGS (SPATHI_CREATURES_ELIMINATED);
+	BOOLEAN spathi_home = IsHomeworldKnown (SPATHI_HOME);
+	BOOLEAN spathi_quest = GGS (KNOW_SPATHI_QUEST);
+	BOOLEAN wiped_evil = GGS (SPATHI_CREATURES_ELIMINATED);
 
-	BOOLEAN ZFPBullet = StarbaseBulletins (11);
+	BOOLEAN zfp_bullet = StarbaseBulletins (11);
 	BOOLEAN met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
 			|| GS (MET_ZOQFOT);
 
-	BOOLEAN MelsBullet = StarbaseBulletins (7);
+	BOOLEAN mels_bullet = StarbaseBulletins (7);
 	BOOLEAN met_mels = GS (MET_MELNORME);
 
-	BOOLEAN OrzVisits = GGS (ORZ_VISITS);
-	BOOLEAN OrzHomeVisits = GGS (ORZ_HOME_VISITS);
-	BOOLEAN InvestigateOrz = GGS (INVESTIGATE_ORZ)
+	BOOLEAN investigate_orz = GGS (INVESTIGATE_ORZ)
 			|| GSGE (MELNORME_ALIEN_INFO_STACK, 10);
-	BOOLEAN MetOrz = GGS (MET_ORZ_BEFORE);
-	BOOLEAN OrzStatus = RaceAllied (ORZ_SHIP) || RaceDead (ORZ_SHIP)
+	BOOLEAN met_orz = GGS (MET_ORZ_BEFORE);
+	BOOLEAN orz_status = RaceAllied (ORZ_SHIP) || RaceDead (ORZ_SHIP)
 			|| GSET (ORZ_MANNER, 2);
-	BOOLEAN OrzFrumple = GSET (ORZ_MANNER, 2);
+	BOOLEAN orz_frumple = GSET (ORZ_MANNER, 2);
 
-	BOOLEAN PkunkIlwrath = GGS (HEARD_PKUNK_ILWRATH);
-	BOOLEAN PkunkMelnorme = GSGE (MELNORME_ALIEN_INFO_STACK, 2);
-	BOOLEAN KnowntPkunkHome = IsHomeworldKnown (PKUNK_HOME)
+	BOOLEAN pkunk_ilwrath = GGS (HEARD_PKUNK_ILWRATH);
+	BOOLEAN pkunk_melnorme = GSGE (MELNORME_ALIEN_INFO_STACK, 2);
+	BOOLEAN knownt_pkunk_home = IsHomeworldKnown (PKUNK_HOME)
 			&& GGS (PKUNK_VISITS) && !GGS (PKUNK_HOME_VISITS);
 
 	BOOLEAN sb_arilou = AllianceInfo (ALLIANCE_ARILOU);
@@ -292,7 +290,7 @@ WriteJournals (void)
 	BOOLEAN sb_mmrnmhrm = AllianceInfo (ALLIANCE_MMRNMHRM);
 	BOOLEAN met_chmmr = GS (CHMMR_HOME_VISITS);
 
-	BOOLEAN sb_andro = (HierarchyMask & HIERARCHY_ANDROSYNTH) != 0;
+	BOOLEAN sb_andro = (hierarchy_mask & HIERARCHY_ANDROSYNTH) != 0;
 	BOOLEAN andro_dead = RaceDead (ANDROSYNTH_SHIP);
 
 	BOOLEAN find_shofixti = AllianceInfo (ALLIANCE_SHOFIXTI)
@@ -306,7 +304,7 @@ WriteJournals (void)
 	BOOLEAN met_supox = GS (SUPOX_HOSTILE) || GS (SUPOX_HOME_VISITS)
 			|| GS (SUPOX_VISITS) || GS (SUPOX_STACK1) || GS (SUPOX_STACK2);
 
-	BOOLEAN SyreenBullet = AllianceInfo (ALLIANCE_SYREEN);
+	BOOLEAN syreen_bullet = AllianceInfo (ALLIANCE_SYREEN);
 	BOOLEAN meet_syreen = IsHomeworldKnown (SYREEN_HOME);
 	BOOLEAN met_syreen = GS (SYREEN_HOME_VISITS)
 			|| GS (KNOW_SYREEN_VAULT) || GS (SHIP_VAULT_UNLOCKED)
@@ -330,7 +328,7 @@ WriteJournals (void)
 	
 	BOOLEAN meet_umgah = GSGE (MELNORME_EVENTS_INFO_STACK, 3)
 			|| GGS (INVESTIGATE_UMGAH) || CheckSphereTracking (UTWIG_SHIP)
-			|| (HierarchyMask & HIERARCHY_UMGAH) != 0;
+			|| (hierarchy_mask & HIERARCHY_UMGAH) != 0;
 	BOOLEAN met_umgah = GGS (MET_NORMAL_UMGAH) || GGS (KNOW_UMGAH_ZOMBIES)
 			|| GGS (UMGAH_MENTIONED_TRICKS) || GGS (UMGAH_EVIL_BLOBBIES)
 			|| GGS (UMGAH_HOSTILE);
@@ -410,16 +408,16 @@ WriteJournals (void)
 				reported_moonbase,            DESTROY_MOONBASE);
 		AddJournal (OBJECTIVES_JOURNAL, 2,
 				GS (RADIOACTIVES_PROVIDED),   RECRUIT_EARTH,
-				StarbaseAvailable,            RECRUIT_EARTH);
+				sb_available,                 RECRUIT_EARTH);
 
 		AddJournal (OBJECTIVES_JOURNAL, 2,
-				FindAccessSAM,            FIND_ACCESS_SAMATRA,
+				find_access_sam,          FIND_ACCESS_SAMATRA,
 				GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA);
 
 		AddJournal (OBJECTIVES_JOURNAL, 3,
-				FindDefeatQuan, FIND_DEFEAT_URQUAN,
-				AwareOfSAM,     FIND_DESTROY_SAMATRA,
-				DestroySAM,     DESTROY_SAMATRA);
+				find_defeat_quan, FIND_DEFEAT_URQUAN,
+				aware_of_sam,     FIND_DESTROY_SAMATRA,
+				destroy_sam,      DESTROY_SAMATRA);
 	}
 
 	{	// Aliens log
@@ -430,19 +428,19 @@ WriteJournals (void)
 				GSGE (FOUND_PLUTO_SPATHI, 2), MET_FWIFFO);
 
 		AddJournal (ALIENS_JOURNAL, 5,
-				SpathiHome,                   CONTACT_SPATHI,
-				SpathiQuest,                  ERADICATE_EVIL_ONES,
-				SpathiQuest && WipedEvil,     INFORM_SPATHI_EVIL_ONES,
+				spathi_home,                  CONTACT_SPATHI,
+				spathi_quest,                 ERADICATE_EVIL_ONES,
+				spathi_quest && wiped_evil,   INFORM_SPATHI_EVIL_ONES,
 				RaceAllied (SPATHI_SHIP),     ALLIED_WITH_SPATHI,
 				GGS (SPATHI_SHIELDED_SELVES), NO_JOURNAL_ENTRY);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				ZFPBullet,   INVESTIGATE_RIGEL,
+				zfp_bullet,  INVESTIGATE_RIGEL,
 				met_the_zfp, INVESTIGATE_RIGEL);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				sb_arilou,   CONTACT_ARILOU,
-				met_arilou,  CONTACT_ARILOU);
+				sb_arilou,  CONTACT_ARILOU,
+				met_arilou, CONTACT_ARILOU);
 
 		AddJournal (ALIENS_JOURNAL, 2,
 				sb_chenjesu, CONTACT_CHENJESU,
@@ -453,7 +451,7 @@ WriteJournals (void)
 				met_chmmr,   CONTACT_MMRNMHRM);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				MelsBullet, CONTACT_MELNORME,
+				mels_bullet, CONTACT_MELNORME,
 				met_mels,   MET_THE_MELNORME);
 
 		AddJournal (ALIENS_JOURNAL, 2,
@@ -461,19 +459,19 @@ WriteJournals (void)
 				andro_dead, CONTACT_ANDROSYNTH);
 
 		AddJournal (ALIENS_JOURNAL, 3,
-				InvestigateOrz, INVESTIGATE_THE_ORZ,
-				MetOrz,         MET_THE_ORZ,
-				OrzStatus,      NO_JOURNAL_ENTRY);
+				investigate_orz, INVESTIGATE_THE_ORZ,
+				met_orz,         MET_THE_ORZ,
+				orz_status,      NO_JOURNAL_ENTRY);
 
 		AddJournal (ALIENS_JOURNAL, 2,
 				RaceAllied (ORZ_SHIP), ALLIED_WITH_ORZ,
-				OrzFrumple,            MADE_ORZ_FRUMPLE);
+				orz_frumple,           MADE_ORZ_FRUMPLE);
 
 		AddJournal (ALIENS_JOURNAL, 5,
-				sb_others,         HAYES_PKUNK,
-				PkunkIlwrath,      HEARD_OF_PKUNK_ILWRATH,
-				PkunkMelnorme,     HEARD_OF_PKUNK_MELNORME,
-				KnowntPkunkHome,   GO_TO_PKUNK_HOMEWORLD,
+				sb_others,              HAYES_PKUNK,
+				pkunk_ilwrath,          HEARD_OF_PKUNK_ILWRATH,
+				pkunk_melnorme,         HEARD_OF_PKUNK_MELNORME,
+				knownt_pkunk_home,      GO_TO_PKUNK_HOMEWORLD,
 				GS (PKUNK_HOME_VISITS), MET_THE_PKUNK);
 
 		AddJournal (ALIENS_JOURNAL, 4,
@@ -487,9 +485,9 @@ WriteJournals (void)
 				met_supox,  MET_THE_SUPOX);
 
 		AddJournal (ALIENS_JOURNAL, 3,
-				SyreenBullet, CONTACT_SYREEN,
-				meet_syreen,  CONTACT_SYREEN_HW,
-				met_syreen,   MET_THE_SYREEN);
+				syreen_bullet, CONTACT_SYREEN,
+				meet_syreen,   CONTACT_SYREEN_HW,
+				met_syreen,    MET_THE_SYREEN);
 
 		AddJournal (ALIENS_JOURNAL, 4,
 				sb_others,      HAYES_THRADDASH,
