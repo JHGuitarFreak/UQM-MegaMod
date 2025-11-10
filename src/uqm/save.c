@@ -799,6 +799,11 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * 3 unused
 			 */
 	{ "INVESTIGATE_PORTAL", 3 },
+			/* Bit-0 Heard of the portal from the Spathi
+			 * Bit-1 Heard of the portal from the Arilou
+			 * Bit-2 Traveled into QuasiSpace
+			 */
+	{ "INVESTIGATE_ORZ", 1 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

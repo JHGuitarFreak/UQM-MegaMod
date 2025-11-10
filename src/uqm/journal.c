@@ -266,6 +266,12 @@ WriteJournals (void)
 
 	BOOLEAN OrzVisits = GGS (ORZ_VISITS);
 	BOOLEAN OrzHomeVisits = GGS (ORZ_HOME_VISITS);
+	BOOLEAN InvestigateOrz = GGS (INVESTIGATE_ORZ)
+			|| GSGE (MELNORME_ALIEN_INFO_STACK, 10);
+	BOOLEAN MetOrz = GGS (MET_ORZ_BEFORE);
+	BOOLEAN OrzStatus = RaceAllied (ORZ_SHIP) || RaceDead (ORZ_SHIP)
+			|| GSET (ORZ_MANNER, 2);
+	BOOLEAN OrzFrumple = GSET (ORZ_MANNER, 2);
 
 	BOOLEAN PkunkIlwrath = GGS (HEARD_PKUNK_ILWRATH);
 	BOOLEAN PkunkMelnorme = GSGE (MELNORME_ALIEN_INFO_STACK, 2);
@@ -433,12 +439,17 @@ WriteJournals (void)
 				met_mels,   MET_THE_MELNORME);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				sb_andro,                CONTACT_ANDROSYNTH,
-				andro_dead || OrzVisits, CONTACT_ANDROSYNTH);
+				sb_andro,   CONTACT_ANDROSYNTH,
+				andro_dead, CONTACT_ANDROSYNTH);
+
+		AddJournal (ALIENS_JOURNAL, 3,
+				InvestigateOrz, INVESTIGATE_THE_ORZ,
+				MetOrz,         MET_THE_ORZ,
+				OrzStatus,      NO_JOURNAL_ENTRY);
 
 		AddJournal (ALIENS_JOURNAL, 2,
-				OrzVisits && !OrzHomeVisits, VISIT_ORZ_HOMEWORLD,
-				OrzVisits && OrzHomeVisits,  VISIT_ORZ_HOMEWORLD);
+				RaceAllied (ORZ_SHIP), ALLIED_WITH_ORZ,
+				OrzFrumple,            MADE_ORZ_FRUMPLE);
 
 		AddJournal (ALIENS_JOURNAL, 5,
 				sb_others,         HAYES_PKUNK,

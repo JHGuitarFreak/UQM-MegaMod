@@ -430,6 +430,7 @@ SpathiAllies (RESPONSE_REF R)
 				break;
 			case 1:
 				NPCPhrase (GENERAL_INFO_2);
+				SET_GAME_STATE (INVESTIGATE_ORZ, 1);
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_3);

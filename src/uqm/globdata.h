@@ -988,6 +988,11 @@ START_GAME_STATE
 			 * 3 unused
 			 */
 	ADD_GAME_STATE (INVESTIGATE_PORTAL, 3)
+			/* Bit-0 Heard of the portal from the Spathi
+			 * Bit-1 Heard of the portal from the Arilou
+			 * Bit-2 Traveled into QuasiSpace
+			 */
+	ADD_GAME_STATE (INVESTIGATE_ORZ, 1)
 
 	/* end rev 5, MegaMod v0.8.4 */
 

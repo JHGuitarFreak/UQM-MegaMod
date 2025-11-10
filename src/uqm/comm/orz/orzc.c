@@ -676,7 +676,7 @@ Intro (void)
 		{
 			CommData.AlienFrameRes = ORZ_ANGRY_PMAP_ANIM;
 			CommData.AlienFrame = CaptureDrawable (
-				LoadGraphic (CommData.AlienFrameRes));			
+				LoadGraphic (CommData.AlienFrameRes));
 		}
 		else
 			CommData.AlienColorMap =
