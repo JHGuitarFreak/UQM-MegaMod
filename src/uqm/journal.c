@@ -228,7 +228,9 @@ AllianceInfo (BYTE info)
 
 static void
 WriteJournals (void)
-{	// starbase missions
+{
+	// Objectives log
+
 	BOOLEAN StarbaseAvailable = GGS (STARBASE_AVAILABLE);
 	BOOLEAN FuelLow = GLOBAL_SIS (FuelOnBoard) < (2 * FUEL_TANK_SCALE);
 	BOOLEAN HaveRadios = GLOBAL_SIS (ElementAmounts[RADIOACTIVE]) > 0;
@@ -250,12 +252,17 @@ WriteJournals (void)
 			GS (AWARE_OF_SAMATRA) && GSGE (CHMMR_BOMB_STATE, 2);
 	BOOLEAN FindAccessSAM = AwareOfSAM && !GS (TALKING_PET_ON_SHIP);
 
-	// Alien missions
+	// Aliens log
+
 	BYTE HierarchyMask = GGS (HIERARCHY_MASK);
 
 	BOOLEAN FwiffoBullet = StarbaseBulletins (9);
 	BOOLEAN signal_uranus = FwiffoBullet && !GS (FOUND_PLUTO_SPATHI);
 	BOOLEAN can_fwiffo_join = GSET (FOUND_PLUTO_SPATHI, 1) && FwiffoCanJoin;
+
+	BOOLEAN SpathiHome = IsHomeworldKnown (SPATHI_HOME);
+	BOOLEAN SpathiQuest = GGS (KNOW_SPATHI_QUEST);
+	BOOLEAN WipedEvil = GGS (SPATHI_CREATURES_ELIMINATED);
 
 	BOOLEAN ZFPBullet = StarbaseBulletins (11);
 	BOOLEAN met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
@@ -345,6 +352,8 @@ WriteJournals (void)
 	BOOLEAN sly_know = GGS (SLYLANDRO_KNOW_BROKEN)
 			&& GGS (DESTRUCT_CODE_ON_SHIP);
 
+	// Curiosities log
+
 	BYTE num_rainbows = RAINBOW9_DEFINED - RAINBOW0_DEFINED;
 	UWORD rainbow_mask = MAKE_WORD (
 			GGS (RAINBOW_WORLD0),
@@ -371,8 +380,10 @@ WriteJournals (void)
 	BOOLEAN know_portal = heard_portal & (1 << 2);
 	BOOLEAN have_spawner = GGS (PORTAL_SPAWNER);
 
-	{	// Objectives Journal
-		// Starbase Missions
+	BOOLEAN burvixese_mels = GSGE (MELNORME_ALIEN_INFO_STACK, 6);
+
+	{	// Objectives log
+
 		AddJournal (OBJECTIVES_JOURNAL, 2,
 				1,                            VISIT_EARTH,
 				GS (PROBE_MESSAGE_DELIVERED), VISIT_EARTH);
@@ -401,7 +412,6 @@ WriteJournals (void)
 				GS (RADIOACTIVES_PROVIDED),   RECRUIT_EARTH,
 				StarbaseAvailable,            RECRUIT_EARTH);
 
-		// Sa-Matra Missions
 		AddJournal (OBJECTIVES_JOURNAL, 2,
 				FindAccessSAM,            FIND_ACCESS_SAMATRA,
 				GS (TALKING_PET_ON_SHIP), FIND_ACCESS_SAMATRA);
@@ -412,11 +422,19 @@ WriteJournals (void)
 				DestroySAM,     DESTROY_SAMATRA);
 	}
 
-	{	// Aliens Journal
+	{	// Aliens log
+
 		AddJournal (ALIENS_JOURNAL, 3,
 				signal_uranus,                FIND_FWIFFO,
 				can_fwiffo_join,              RECRUIT_FWIFFO,
 				GSGE (FOUND_PLUTO_SPATHI, 2), MET_FWIFFO);
+
+		AddJournal (ALIENS_JOURNAL, 5,
+				SpathiHome,                   CONTACT_SPATHI,
+				SpathiQuest,                  ERADICATE_EVIL_ONES,
+				SpathiQuest && WipedEvil,     INFORM_SPATHI_EVIL_ONES,
+				RaceAllied (SPATHI_SHIP),     ALLIED_WITH_SPATHI,
+				GGS (SPATHI_SHIELDED_SELVES), NO_JOURNAL_ENTRY);
 
 		AddJournal (ALIENS_JOURNAL, 2,
 				ZFPBullet,   INVESTIGATE_RIGEL,
@@ -505,7 +523,8 @@ WriteJournals (void)
 				rainbow_5,        NO_JOURNAL_ENTRY);
 	}
 
-	{	// Curiosities Journal
+	{	// Curiosities log
+
 		BYTE i;
 
 		AddJournal (ARTIFACTS_JOURNAL, 2,
@@ -516,7 +535,7 @@ WriteJournals (void)
 				heard_portal_mels,           FIND_PORTAL_MELS,
 				have_spawner || know_portal, NO_JOURNAL_ENTRY);
 
-		AddJournal (ARTIFACTS_JOURNAL, 2,
+		AddJournal (ARTIFACTS_JOURNAL, 3,
 				heard_portal & (1 << 1), FIND_PORTAL_ARILOU,
 				know_portal,             FOUND_QS_PORTAL,
 				have_spawner,            NO_JOURNAL_ENTRY);
@@ -545,6 +564,10 @@ WriteJournals (void)
 				have_spindle,                    LEARN_CLEARSPINDLE,
 				have_spindle && melnorme_ultron, USE_CLEARSPINDLE,
 				used_spindle,                    USED_CLEARSPINDLE);
+
+		AddJournal (ARTIFACTS_JOURNAL, 2,
+				burvixese_mels,               INVESTIGATE_BURVIXESE,
+				GGS (BURVIXESE_BROADCASTERS), NO_JOURNAL_ENTRY);
 
 		AddJournal (ARTIFACTS_JOURNAL, 2,
 				rainbow_shofixti, FIND_RAINBOW_SEXTANTIS,
