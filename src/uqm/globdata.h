@@ -657,7 +657,7 @@ START_GAME_STATE
 			 * 1 if the U&S are on their way towards the Kohr-Ah
 			 * 2 if the U&S are fighting the Kohr-Ah (first 80 days)
 			 * 3 does not occur
-             * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
+			 * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
 			 * 5 if the U&S are returning home.
 			 * 6 if the U&S are back at their home world.
 			 */
@@ -987,6 +987,7 @@ START_GAME_STATE
 			 * 2 heard info about probes from the Thraddash
 			 * 3 unused
 			 */
+	ADD_GAME_STATE (INVESTIGATE_PORTAL, 3)
 
 	/* end rev 5, MegaMod v0.8.4 */
 
@@ -1118,6 +1119,16 @@ enum {
 		setGameStateUint (SName, (val))
 #define D_GET_GAME_STATE(SName) \
 		getGameStateUint (SName)
+
+static inline void
+BitMaskGameState (const char *state_name, int bit_to_shift)
+{
+	BYTE gs = D_GET_GAME_STATE (state_name);
+	gs |= (1 << bit_to_shift);
+	D_SET_GAME_STATE (state_name, gs);
+}
+#define BM_GAME_STATE(SName, val) \
+		BitMaskGameState (#SName, (val))
 
 extern CONTEXT RadarContext;
 

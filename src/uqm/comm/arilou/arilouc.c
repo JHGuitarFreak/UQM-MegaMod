@@ -573,6 +573,7 @@ FriendlySpaceArilou (RESPONSE_REF R)
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_4);
+				BM_GAME_STATE (INVESTIGATE_PORTAL, 1);
 				--NumVisits;
 				break;
 		}

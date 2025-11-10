@@ -798,6 +798,7 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * 2 heard info about probes from the Thraddash
 			 * 3 unused
 			 */
+	{ "INVESTIGATE_PORTAL", 3 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

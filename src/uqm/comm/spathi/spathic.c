@@ -472,6 +472,8 @@ SpathiAllies (RESPONSE_REF R)
 	{
 		NPCPhrase (GENERAL_INFO_SPACE_2);
 
+		BM_GAME_STATE (INVESTIGATE_PORTAL, 0);
+
 		DISABLE_PHRASE (whats_up_space_2);
 	}
 	else if (PLAYER_SAID (R, give_us_info_from_space))

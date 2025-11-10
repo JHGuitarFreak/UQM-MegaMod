@@ -360,6 +360,11 @@ WriteJournals (void)
 	BOOLEAN have_ahelix = GGS (AQUA_HELIX) && GGS (AQUA_HELIX_ON_SHIP);
 	BOOLEAN used_ahelix = GGS (AQUA_HELIX) && !GGS (AQUA_HELIX_ON_SHIP);
 
+	BOOLEAN heard_portal_mels = GSGE (MELNORME_EVENTS_INFO_STACK, 4);
+	BOOLEAN heard_portal = GGS (INVESTIGATE_PORTAL);
+	BOOLEAN know_portal = heard_portal & (1 << 2);
+	BOOLEAN have_spawner = GGS (PORTAL_SPAWNER);
+
 	{	// Objectives Journal
 		// Starbase Missions
 		AddJournal (OBJECTIVES_JOURNAL, 2,
@@ -493,12 +498,17 @@ WriteJournals (void)
 		BYTE i;
 
 		AddJournal (ARTIFACTS_JOURNAL, 2,
-				rainbow_shofixti, FIND_RAINBOW_SEXTANTIS,
-				rainbow_0,        NO_JOURNAL_ENTRY);
+				heard_portal & (1 << 0),     FIND_PORTAL_SPATHI,
+				have_spawner || know_portal, NO_JOURNAL_ENTRY);
 
 		AddJournal (ARTIFACTS_JOURNAL, 2,
-				rainbow_supox, FIND_RAINBOW_LEPORIS,
-				rainbow_7,     NO_JOURNAL_ENTRY);
+				heard_portal_mels,           FIND_PORTAL_MELS,
+				have_spawner || know_portal, NO_JOURNAL_ENTRY);
+
+		AddJournal (ARTIFACTS_JOURNAL, 2,
+				heard_portal & (1 << 1), FIND_PORTAL_ARILOU,
+				know_portal,             FOUND_QS_PORTAL,
+				have_spawner,            NO_JOURNAL_ENTRY);
 
 		AddJournal (ARTIFACTS_JOURNAL, 1,
 				GGS (DISCUSSED_GLOWING_ROD), GLOWING_ROD_ENTRY);
@@ -524,6 +534,14 @@ WriteJournals (void)
 				have_spindle,                    LEARN_CLEARSPINDLE,
 				have_spindle && melnorme_ultron, USE_CLEARSPINDLE,
 				used_spindle,                    USED_CLEARSPINDLE);
+
+		AddJournal (ARTIFACTS_JOURNAL, 2,
+				rainbow_shofixti, FIND_RAINBOW_SEXTANTIS,
+				rainbow_0,        NO_JOURNAL_ENTRY);
+
+		AddJournal (ARTIFACTS_JOURNAL, 2,
+				rainbow_supox, FIND_RAINBOW_LEPORIS,
+				rainbow_7,     NO_JOURNAL_ENTRY);
 
 		for (i = 0; i <= num_rainbows; i++)
 		{
@@ -668,7 +686,7 @@ DrawJournal (void)
 	if (!HasEntries)
 	{
 		FONT OldEntryFont = SetContextFont (PlayMenuFont);
-		SetContextForeGroundColor (DKGRAY_COLOR);
+		SetContextForeGroundColor (LTGRAY_COLOR);
 		t.align = ALIGN_CENTER;
 		t.pStr = JOURNAL_STRING (NO_OBJECTIVE); // NO ENTRIES
 		t.CharCount = (COUNT)~0;

@@ -742,6 +742,8 @@ ArilouSpaceTransition (void)
 			SET_GAME_STATE (PORTAL_COUNTER, 0);
 			SET_GAME_STATE (ARILOU_SPACE_SIDE, 3);
 		}
+
+		BM_GAME_STATE (INVESTIGATE_PORTAL, 2);
 	}
 	else
 	{
