@@ -804,6 +804,8 @@ const GameStateBitMap gameStateBitMap[] = {
 			 * Bit-2 Traveled into QuasiSpace
 			 */
 	{ "INVESTIGATE_ORZ", 1 },
+	{ "INVESTIGATE_ZFP", 1 },
+	{ "MET_ZFP_HOME", 1 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

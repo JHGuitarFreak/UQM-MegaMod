@@ -758,6 +758,9 @@ Intro (void)
 
 	SetHomeworldKnown (ZOQFOTPIK_HOME);
 
+	if ((GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 7)) != 0)
+		SET_GAME_STATE (MET_ZFP_HOME, 1);
+
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{
 		NPCPhrase_cb (OUT_TAKES0, &SelectAlienZOQ);

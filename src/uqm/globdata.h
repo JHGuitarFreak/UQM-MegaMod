@@ -993,6 +993,8 @@ START_GAME_STATE
 			 * Bit-2 Traveled into QuasiSpace
 			 */
 	ADD_GAME_STATE (INVESTIGATE_ORZ, 1)
+	ADD_GAME_STATE (INVESTIGATE_ZFP, 1)
+	ADD_GAME_STATE (MET_ZFP_HOME, 1)
 
 	/* end rev 5, MegaMod v0.8.4 */
 

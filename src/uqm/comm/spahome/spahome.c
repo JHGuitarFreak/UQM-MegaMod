@@ -348,6 +348,8 @@ SpathiInfo (RESPONSE_REF R)
 		NPCPhrase (ABOUT_ALLIANCE);
 
 		DISABLE_PHRASE (what_about_alliance);
+
+		SET_GAME_STATE (INVESTIGATE_ZFP, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_other))
 	{

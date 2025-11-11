@@ -232,12 +232,13 @@ WriteJournals (void)
 	BOOLEAN sb_available, fuel_low, have_radios, have_radioactives,
 			need_radioactives, need_lander, need_lander_again, need_fuel,
 			need_fuel_again, reported_moonbase,
+			zfp_bullet,
 			aware_of_sam, find_defeat_quan, destroy_sam, find_access_sam;
 
 	BYTE hierarchy_mask;
 	BOOLEAN fwiffo_bullet, signal_uranus, can_fwiffo_join,
 			spathi_home, spathi_quest, wiped_evil,
-			zfp_bullet, met_the_zfp,
+			met_zfp_scout, met_zfp_home,
 			mels_bullet, met_mels,
 			investigate_orz, met_orz, orz_status, orz_frumple,
 			pkunk_ilwrath, pkunk_melnorme, knownt_pkunk_home,
@@ -318,7 +319,16 @@ WriteJournals (void)
 
 	AddJournal (OBJECTIVES_JOURNAL, 2,
 			GS (RADIOACTIVES_PROVIDED),   RECRUIT_EARTH,
-			sb_available,                 RECRUIT_EARTH);	
+			sb_available,                 RECRUIT_EARTH);
+
+	zfp_bullet = StarbaseBulletins (6);
+
+	AddJournal (OBJECTIVES_JOURNAL, 3,
+			zfp_bullet,                              SAVE_THE_ZFP,
+			zfp_bullet && GSET (ZOQFOT_DISTRESS, 2), NO_JOURNAL_ENTRY,
+			zfp_bullet && !GGS (ZOQFOT_DISTRESS),    SAVED_THE_ZFP);
+	AddJournal (OBJECTIVES_JOURNAL, 1,
+			zfp_bullet && GSET (ZOQFOT_DISTRESS, 2), THE_ZFP_DIED);
 
 	aware_of_sam = GS (AWARE_OF_SAMATRA) || GSET (CHMMR_BOMB_STATE, 1);
 	find_access_sam = aware_of_sam && !GS (TALKING_PET_ON_SHIP);
@@ -358,12 +368,16 @@ WriteJournals (void)
 			GGS (SPATHI_SHIELDED_SELVES), NO_JOURNAL_ENTRY);
 
 	zfp_bullet = StarbaseBulletins (11);
-	met_the_zfp = GS (ZOQFOT_HOME_VISITS) || GS (ZOQFOT_GRPOFFS)
-		|| GS (MET_ZOQFOT);
+	met_zfp_home = GGS (MET_ZFP_HOME);
+	met_zfp_scout = GGS (MET_ZOQFOT) && !met_zfp_home;
 
-	AddJournal (ALIENS_JOURNAL, 2,
-			zfp_bullet,  INVESTIGATE_RIGEL,
-			met_the_zfp, INVESTIGATE_RIGEL);
+	AddJournal (ALIENS_JOURNAL, 6,
+			GGS (INVESTIGATE_ZFP),          INVESTIGATE_ZFP_SPATHI,
+			zfp_bullet,                     INVESTIGATE_RIGEL,
+			met_zfp_scout,                  MEET_ZFP_HOMEWORLD,
+			met_zfp_home,                   NO_JOURNAL_ENTRY,
+			RaceDead (ZOQFOTPIK_SHIP),      NO_JOURNAL_ENTRY,
+			RaceAllied (ZOQFOTPIK_SHIP),    ALLIED_WITH_ZFP);
 
 	sb_arilou = AllianceInfo (ALLIANCE_ARILOU);
 	met_arilou = (GS (ARILOU_VISITS) || GS (ARILOU_HOME_VISITS));
