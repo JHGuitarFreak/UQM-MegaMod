@@ -42,6 +42,7 @@
 #include "planets/lander.h"
 #include "gameopt.h"
 #include "gamestr.h"
+#include "libs/graphics/widgets.h"
 
 
 typedef enum {
@@ -642,6 +643,8 @@ DrawJournal (void)
 	FONT OldFont;
 	RECT r;
 	BOOLEAN HasEntries = FALSE;
+	BYTE i = 0;
+	COUNT footer_baseline;
 
 	if (transition_pending)
 		SetTransitionSource (NULL);
@@ -655,6 +658,7 @@ DrawJournal (void)
 	width = SIS_SCREEN_WIDTH - RES_SCALE (10 + 2);
 	t.align = ALIGN_LEFT;
 	t.baseline.y = leading * (1 - scroll_journal);
+	footer_baseline = SIS_SCREEN_HEIGHT - (leading + RES_SCALE (2));
 
 	BatchGraphics ();
 
@@ -697,6 +701,10 @@ DrawJournal (void)
 
 		section = &journal_section[sid];
 
+
+		if (t.baseline.y > SIS_SCREEN_HEIGHT)
+			continue;
+
 		if (section->head != NULL)
 		{
 			const UNICODE *section_header = sid_open ?
@@ -719,12 +727,20 @@ DrawJournal (void)
 			t.baseline.y += leading + RES_SCALE (2);
 		}
 
-		SetContextForeGroundColor (sid_open ? LTGRAY_COLOR : DKGRAY_COLOR);
+		if (!sid_open)
+			SetContextForeGroundColor (VDKGRAYB_COLOR);
 
-		for (entry = section->head;  entry != NULL;  entry = entry->next)
+		for (entry = section->head;  entry != NULL; entry = entry->next)
 		{
 			BOOLEAN comm_init = FALSE;
 			RECT r;
+
+			if (sid_open)
+			{
+				SetContextForeGroundColor (
+						i % 2 == 0 ? LTGRAY_COLOR : DKGRAY_COLOR);
+				i++;
+			}
 
 			t.pStr = " - ";
 			t.CharCount = (COUNT)~0;
@@ -757,7 +773,7 @@ DrawJournal (void)
 			}
 			font_DrawText (&t);
 
-			t.baseline.y += leading;
+			t.baseline.y += leading + (leading >> 1);
 		}
 	}
 
@@ -773,12 +789,39 @@ DrawJournal (void)
 		font_DrawText (&t);
 		SetContextFont (OldEntryFont);
 	}
+	else
+	{	// Arrows (blue to the right)
+		STAMP arr;
+		RECT arr_rect;
+
+		arr.frame = SetAbsFrameIndex (arrow_frame, 0); // Up arrow
+		GetFrameRect (arr.frame, &arr_rect);
+		arr.origin.x = SIS_SCREEN_WIDTH - arr_rect.extent.width - RES_SCALE (2);
+
+		if (scroll_journal != 0)
+		{
+			arr.origin.y = RES_SCALE (25);
+			DrawStamp (&arr);
+		}
+
+		r = font_GetTextRect (&t);
+
+		if (r.corner.y - leading > footer_baseline)
+		{
+			arr.frame = SetAbsFrameIndex (arrow_frame, 1); // Down arrow
+			arr.origin.y = RES_SCALE (195);
+			DrawStamp (&arr);
+		} 
+
+		if (r.corner.y < footer_baseline)
+			scroll_journal -= 1;
+	}
 
 	if (IS_PAD)
 		SetContextFont (TinyFontCond);
 
 	SetContextForeGroundColor (COMM_HISTORY_BACKGROUND_COLOR);
-	r.corner.y = SIS_SCREEN_HEIGHT - (leading + RES_SCALE (4));
+	r.corner.y = footer_baseline;
 	r.corner.x = 0;
 	r.extent.width = SIS_SCREEN_WIDTH;
 	r.extent.height = leading + RES_SCALE (4);
@@ -871,6 +914,8 @@ Journal (void)
 
 	PlayMenuSound (MENU_SOUND_SUCCESS);
 
+	LoadArrows ();
+
 	JournalStrings = CaptureStringTable (LoadStringTable (JOURNAL_STRTAB));
 	if (JournalStrings == 0)
 		return FALSE;
@@ -945,6 +990,7 @@ Journal (void)
 	UnbatchGraphics ();
 
 	DestroyDrawable (ReleaseDrawable (s.frame));
+	ReleaseArrows ();
 	FlushInput ();
 
 	SetContextClipRect (&old_r);

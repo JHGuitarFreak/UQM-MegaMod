@@ -219,6 +219,7 @@ void Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y);
 void ResetOffset (void);
 void LoadArrows (void);
 void ReleaseArrows (void);
+FRAME arrow_frame;
 
 /* Other implementations will need these values */
 extern WIDGET *widget_focus;

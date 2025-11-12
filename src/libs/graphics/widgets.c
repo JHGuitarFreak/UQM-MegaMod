@@ -75,7 +75,7 @@ static FONT cur_font;
 
 static COUNT offset_t = 0; // Top widget offset
 static COUNT offset_b;// = ONSCREEN; // Bottom widget offset
-static FRAME arrow_frame = NULL; // Frames for additional graphics
+FRAME arrow_frame = NULL; // Frames for additional graphics
 
 void
 ResetOffset (void)
