@@ -259,7 +259,8 @@ WriteJournals (void)
 	
 	BYTE num_rainbows;
 	UWORD rainbow_mask;
-	BOOLEAN heard_portal, heard_portal_mels, know_portal, have_spawner;
+	BOOLEAN heard_portal, heard_portal_mels, know_portal, have_spawner,
+			heard_wreck_mels, know_wreck_arilou, have_warp_pod;
 	BOOLEAN melnorme_ultron, have_ahelix, used_ahelix, have_rsphere,
 			used_rsphere, have_spindle, used_spindle;
 	BOOLEAN burvixese_mels;
@@ -565,6 +566,17 @@ WriteJournals (void)
 			heard_portal & (1 << 1), FIND_PORTAL_ARILOU,
 			know_portal,             FOUND_QS_PORTAL,
 			have_spawner,            NO_JOURNAL_ENTRY);
+
+	know_wreck_arilou = GGS (KNOW_ARILOU_WANT_WRECK);
+	heard_wreck_mels = GSGE (MELNORME_EVENTS_INFO_STACK, 5);
+	have_warp_pod = GGS (PORTAL_KEY_ON_SHIP);
+
+	AddJournal (ARTIFACTS_JOURNAL, 5,
+			heard_wreck_mels,                    CHECK_CRASH_SITE,
+			know_wreck_arilou,                   GET_WARPPOD,
+			have_warp_pod && !know_wreck_arilou, LEARN_WARPPOD,
+			have_warp_pod && know_wreck_arilou,  GIVE_WARPPOD,
+			have_spawner,                        NO_JOURNAL_ENTRY);
 
 	AddJournal (ARTIFACTS_JOURNAL, 1,
 			GGS (DISCUSSED_GLOWING_ROD), GLOWING_ROD_ENTRY);
