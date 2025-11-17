@@ -792,6 +792,7 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "HAYES_OTHER_ALIENS", 1 },
 	{ "INVESTIGATE_THRADD", 1 },
 	{ "INVESTIGATE_UMGAH", 1 },
+	{ "INVESTIGATE_UMGAH_ZFP", 1 },
 	{ "INVESTIGATE_PROBES", 2 },
 			/* 0 no info about slylandro probes.
 			 * 1 heard info about probes from the ZFP

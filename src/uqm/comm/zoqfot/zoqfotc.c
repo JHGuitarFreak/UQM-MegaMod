@@ -609,7 +609,7 @@ ZoqFotHome (RESPONSE_REF R)
 				ZFPTalkSegue ((COUNT)~0);
 				--NumVisits;
 
-				SET_GAME_STATE (INVESTIGATE_UMGAH, 1);
+				SET_GAME_STATE (INVESTIGATE_UMGAH_ZFP, 1);
 				break;
 		}
 		SET_GAME_STATE (ZOQFOT_INFO, NumVisits);

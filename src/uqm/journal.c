@@ -260,10 +260,14 @@ WriteJournals (void)
 	BYTE num_rainbows;
 	UWORD rainbow_mask;
 	BOOLEAN heard_portal, heard_portal_mels, know_portal, have_spawner,
-			heard_wreck_mels, know_wreck_arilou, have_warp_pod;
+			heard_wreck_mels, know_wreck_arilou, have_warp_pod,
+			spawner_on_ship;
+	BOOLEAN investigate_orionis, arilou_tp, umgah_zombies,
+			arilou_scouts, met_tpet, neutralize_tpet,
+			have_taalo_shield, have_tpet;
 	BOOLEAN melnorme_ultron, have_ahelix, used_ahelix, have_rsphere,
 			used_rsphere, have_spindle, used_spindle;
-	BOOLEAN burvixese_mels;
+	BOOLEAN burvixese_mels, taalo_playground, taalo_mels;
 	BYTE rbs;
 	BOOLEAN rainbow_shofixti, rainbow_supox, rainbow_0, rainbow_7,
 			rainbow_5;
@@ -501,8 +505,9 @@ WriteJournals (void)
 			meet_utwig, INVESTIGATE_UTWIG,
 			met_utwig,  CONTACTED_UTWIG);
 
-	meet_umgah = GSGE (MELNORME_EVENTS_INFO_STACK, 3)
-			|| GGS (INVESTIGATE_UMGAH) || CheckSphereTracking (UTWIG_SHIP)
+	meet_umgah = GGS(INVESTIGATE_UMGAH)
+			|| GSGE (MELNORME_EVENTS_INFO_STACK, 3)
+			|| CheckSphereTracking (UMGAH_SHIP)
 			|| (hierarchy_mask & HIERARCHY_UMGAH) != 0;
 	met_umgah = GGS (MET_NORMAL_UMGAH) || GGS (KNOW_UMGAH_ZOMBIES)
 			|| GGS (UMGAH_MENTIONED_TRICKS) || GGS (UMGAH_EVIL_BLOBBIES)
@@ -562,10 +567,9 @@ WriteJournals (void)
 			heard_portal_mels,           FIND_PORTAL_MELS,
 			have_spawner || know_portal, NO_JOURNAL_ENTRY);
 
-	AddJournal (ARTIFACTS_JOURNAL, 3,
+	AddJournal (ARTIFACTS_JOURNAL, 2,
 			heard_portal & (1 << 1), FIND_PORTAL_ARILOU,
-			know_portal,             FOUND_QS_PORTAL,
-			have_spawner,            NO_JOURNAL_ENTRY);
+			know_portal,             FOUND_QS_PORTAL);
 
 	know_wreck_arilou = GGS (KNOW_ARILOU_WANT_WRECK);
 	heard_wreck_mels = GSGE (MELNORME_EVENTS_INFO_STACK, 5);
@@ -577,6 +581,38 @@ WriteJournals (void)
 			have_warp_pod && !know_wreck_arilou, LEARN_WARPPOD,
 			have_warp_pod && know_wreck_arilou,  GIVE_WARPPOD,
 			have_spawner,                        NO_JOURNAL_ENTRY);
+
+	spawner_on_ship = GGS (PORTAL_SPAWNER_ON_SHIP);
+
+	AddJournal (ARTIFACTS_JOURNAL, 1,
+		have_spawner && spawner_on_ship, ACQUIRED_QS_SPAWNER);
+
+	AddJournal (ARTIFACTS_JOURNAL, 1,
+		have_spawner && !spawner_on_ship, SOLD_QS_SPAWNER);
+		
+	investigate_orionis = GGS (INVESTIGATE_UMGAH_ZFP);
+	arilou_tp = GGS (ARILOU_STACK_4);
+	umgah_zombies = GGS (KNOW_UMGAH_ZOMBIES);
+	arilou_scouts = GGS (ARILOU_CHECKED_UMGAH);
+	met_tpet = GGS (TALKING_PET_HOME_VISITS);
+	neutralize_tpet = GGS (ARILOU_STACK_2) || (!arilou_tp && met_tpet);
+	have_taalo_shield = GGS (TAALO_PROTECTOR)
+			&& GGS (TAALO_PROTECTOR_ON_SHIP);
+	have_tpet = GGS (TALKING_PET) && GGS (TALKING_PET_ON_SHIP);
+
+	AddJournal (ARTIFACTS_JOURNAL, 9,
+			investigate_orionis,         INVESTIGATE_ORIONIS,
+			arilou_tp,                   ASK_UMGAH_TPET,
+			!arilou_tp && umgah_zombies, UMGAH_BEING_WEIRD,
+			arilou_tp && umgah_zombies,  REPORT_UMGAH_WEIRD,
+			arilou_scouts > 0,           FOLLOWUP_UMGAH_WEIRD,
+			arilou_scouts == 3,          CHECK_UMGAH_HOME,
+			neutralize_tpet,             NEUTRALIZE_TPET,
+			have_taalo_shield,           CONFRONT_TPET,
+			have_tpet,                   ACQUIRED_TPET);
+
+	AddJournal (ARTIFACTS_JOURNAL, 1,
+			have_spawner && !spawner_on_ship, SOLD_QS_SPAWNER);
 
 	AddJournal (ARTIFACTS_JOURNAL, 1,
 			GGS (DISCUSSED_GLOWING_ROD), GLOWING_ROD_ENTRY);
@@ -618,6 +654,14 @@ WriteJournals (void)
 	AddJournal (ARTIFACTS_JOURNAL, 2,
 			burvixese_mels,               INVESTIGATE_BURVIXESE,
 			GGS (BURVIXESE_BROADCASTERS), NO_JOURNAL_ENTRY);
+
+	taalo_playground = GSGE (ORZ_GENERAL_INFO, 2);
+	taalo_mels = GSGE (MELNORME_HISTORY_INFO_STACK, 4);
+
+	AddJournal (ARTIFACTS_JOURNAL, 3,
+			taalo_playground,  CHECK_PLAYGROUND,
+			taalo_mels,        INVESTIGATE_TAALO,
+			have_taalo_shield, NO_JOURNAL_ENTRY);
 
 	rainbow_shofixti = GGS (SHOFIXTI_STACK2) > 2
 			&& GSGE (SHOFIXTI_STACK1, 2);
@@ -727,11 +771,9 @@ DrawJournal (void)
 
 			SetContextForeGroundColor (COMM_HISTORY_TEXT_COLOR);
 
-			// Add gap between last open objective and the CLOSED: header
 			if (!sid_open && journal_section[sid - 1].head != NULL)
 				t.baseline.y += leading;
 
-			// Draw section header
 			t.pStr = section_header;
 			t.CharCount = (COUNT)~0;
 			t.baseline.x = RES_SCALE (2);
@@ -739,20 +781,12 @@ DrawJournal (void)
 			t.baseline.y += leading + RES_SCALE (2);
 		}
 
-		if (!sid_open)
-			SetContextForeGroundColor (VDKGRAYB_COLOR);
+		SetContextForeGroundColor (sid_open ? LTGRAY_COLOR : DKGRAY_COLOR);
 
 		for (entry = section->head;  entry != NULL; entry = entry->next)
 		{
 			BOOLEAN comm_init = FALSE;
 			RECT r;
-
-			if (sid_open)
-			{
-				SetContextForeGroundColor (
-						i % 2 == 0 ? LTGRAY_COLOR : DKGRAY_COLOR);
-				i++;
-			}
 
 			t.pStr = " - ";
 			t.CharCount = (COUNT)~0;
@@ -768,7 +802,10 @@ DrawJournal (void)
 			}
 
 			if (luaUqm_comm_stringNeedsInterpolate (entry->string))
-				entry->string = luaUqm_comm_stringInterpolate (entry->string);
+			{
+				entry->string =
+						luaUqm_comm_stringInterpolate (entry->string);
+			}
 			
 			if (comm_init)
 				luaUqm_comm_uninit ();
@@ -808,7 +845,8 @@ DrawJournal (void)
 
 		arr.frame = SetAbsFrameIndex (arrow_frame, 0); // Up arrow
 		GetFrameRect (arr.frame, &arr_rect);
-		arr.origin.x = SIS_SCREEN_WIDTH - arr_rect.extent.width - RES_SCALE (2);
+		arr.origin.x =
+				SIS_SCREEN_WIDTH - arr_rect.extent.width - RES_SCALE (2);
 
 		if (scroll_journal != 0)
 		{

@@ -495,6 +495,12 @@ START_GAME_STATE
 	ADD_GAME_STATE (ARILOU_HOME_VISITS, 3)
 	ADD_GAME_STATE (KNOW_ARILOU_WANT_WRECK, 1)
 	ADD_GAME_STATE (ARILOU_CHECKED_UMGAH, 2)
+			/* 0 if the Arilou haven't checked the Umgah yet
+			 * 1 if the Arilou has sent scouts to check the Umgah
+			 * 2 if the Arilou have checked the Umgah
+			 * 3 if the Captain has asked the Arilou what to do about the
+			 *       Umgah and they have given their advice.
+			 */
 	ADD_GAME_STATE (PORTAL_SPAWNER, 1)
 	ADD_GAME_STATE (PORTAL_SPAWNER_ON_SHIP, 1)
 
@@ -981,6 +987,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (HAYES_OTHER_ALIENS, 1)
 	ADD_GAME_STATE (INVESTIGATE_THRADD, 1)
 	ADD_GAME_STATE (INVESTIGATE_UMGAH, 1)
+	ADD_GAME_STATE (INVESTIGATE_UMGAH_ZFP, 1)
 	ADD_GAME_STATE (INVESTIGATE_PROBES, 2)
 			/* 0 no info about slylandro probes.
 			 * 1 heard info about probes from the ZFP
