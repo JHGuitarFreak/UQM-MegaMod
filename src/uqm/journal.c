@@ -267,7 +267,11 @@ WriteJournals (void)
 			have_taalo_shield, have_tpet;
 	BOOLEAN melnorme_ultron, have_ahelix, used_ahelix, have_rsphere,
 			used_rsphere, have_spindle, used_spindle;
-	BOOLEAN burvixese_mels, taalo_playground, taalo_mels;
+	BYTE ultron_cond;
+	BOOLEAN ultron_broken, ultron_fixed, ultron_returned, have_bomb,
+			melnorme_bomb,
+			burvixese_mels,
+			taalo_playground, taalo_mels;
 	BYTE rbs;
 	BOOLEAN rainbow_shofixti, rainbow_supox, rainbow_0, rainbow_7,
 			rainbow_5;
@@ -648,6 +652,24 @@ WriteJournals (void)
 			have_spindle,                    LEARN_CLEARSPINDLE,
 			have_spindle && melnorme_ultron, USE_CLEARSPINDLE,
 			used_spindle,                    USED_CLEARSPINDLE);
+
+	ultron_cond = GGS (ULTRON_CONDITION);
+	ultron_broken = ultron_cond < 4 && ultron_cond > 0;
+	ultron_fixed = ultron_cond == 4;
+	ultron_returned = ultron_cond == 5 && GGS (UTWIG_HAVE_ULTRON);
+	have_bomb = GGS (UTWIG_BOMB) && GGS (UTWIG_BOMB_ON_SHIP);
+
+	AddJournal (ARTIFACTS_JOURNAL, 4,
+			ultron_broken,   FIX_THE_ULTRON,
+			ultron_fixed,    RETURN_THE_ULTRON,
+			ultron_returned, GET_THE_BOMB,
+			have_bomb,       IMPROVE_THE_BOMB);
+
+	melnorme_bomb = GSGE (MELNORME_EVENTS_INFO_STACK, 7);
+
+	AddJournal (ARTIFACTS_JOURNAL, 2,
+			melnorme_bomb, MELNORME_BOMB,
+			have_bomb,     NO_JOURNAL_ENTRY);
 
 	burvixese_mels = GSGE (MELNORME_ALIEN_INFO_STACK, 6);
 
