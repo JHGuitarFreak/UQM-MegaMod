@@ -50,8 +50,15 @@
 #define YOFFS ((RADAR_SCAN_HEIGHT + (UNIT_SCREEN_HEIGHT << 2)) >> 1)
 #define ANIMATED_HYPERSPACE (IS_HD && optHyperStars)
 
+/*
+* Array of all misc sprites used in Hyper/Quasi space
+* Except SIS, which is handled in ship.c
+* 0 - radar sprites
+* 1 - hyperstars sprites
+* 2 - ambient sprites
+*/
 static FRAME hyperstars[3];
-static COLORMAP hypercmaps[2];
+static COLORMAP hypercmap;
 static BYTE fuel_ticks;
 static COUNT hyper_dx, hyper_dy, hyper_extra;
 
@@ -472,16 +479,16 @@ FreeHyperData (void)
 	DestroyDrawable (ReleaseDrawable (hyperstars[2]));
 	hyperstars[2] = 0;
 
-	DestroyColorMap (ReleaseColorMap (hypercmaps[0]));
-	hypercmaps[0] = 0;
-	DestroyColorMap (ReleaseColorMap (hypercmaps[1]));
-	hypercmaps[1] = 0;
+	DestroyColorMap (ReleaseColorMap (hypercmap));
+	hypercmap = 0;
 }
 
 #define ARISPACE_MASK (ANIMATED_HYPERSPACE ? \
 						ARIANIM_MASK_PMAP_ANIM : ARISPACE_MASK_PMAP_ANIM)
-#define HYPERSTARS_MASK (ANIMATED_HYPERSPACE ? \
+#define HYPERSPACE_MASK (ANIMATED_HYPERSPACE ? \
 						HYPERANIM_MASK_PMAP_ANIM : HYPERSTARS_MASK_PMAP_ANIM)
+#define HYPERSTARS_MASK (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 ? \
+						HYPERSPACE_MASK : ARISPACE_MASK)
 
 static void
 LoadHyperData (void)
@@ -489,21 +496,38 @@ LoadHyperData (void)
 	if (hyperstars[0] == 0)
 	{
 		hyperstars[0] = CaptureDrawable (
-				LoadGraphic (AMBIENT_MASK_PMAP_ANIM));
+				LoadGraphic (RADAR_MASK_PMAP_ANIM));
 		hyperstars[1] = CaptureDrawable (
 				LoadGraphic (HYPERSTARS_MASK));
-		hypercmaps[0] = CaptureColorMap (LoadColorMap (HYPER_COLOR_TAB));
-
 		hyperstars[2] = CaptureDrawable (
-				LoadGraphic (ARISPACE_MASK));
-		hypercmaps[1] = CaptureColorMap (
-				LoadColorMap (ARISPACE_COLOR_TAB));
+				LoadGraphic (AMBIENT_MASK_PMAP_ANIM));
+		hypercmap = CaptureColorMap (LoadColorMap (HYPER_COLOR_TAB));
+
+		if (IS_HD) {
+			// Apply mask
+		}
+	}
+	else 
+	{
+		DestroyDrawable (ReleaseDrawable (hyperstars[1]));
+		hyperstars[1] = CaptureDrawable (
+				LoadGraphic (HYPERSTARS_MASK));
+
+		if (IS_HD)
+		{
+			DestroyDrawable (ReleaseDrawable (hyperstars[2]));
+			hyperstars[2] = CaptureDrawable (
+				LoadGraphic (AMBIENT_MASK_PMAP_ANIM));
+			// Apply mask
+		}
 	}
 }
 
 BOOLEAN
 LoadHyperspace (void)
 {
+	BYTE whichPalette = (GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) +
+				(is3DO (optFlagshipColor) * 2);
 	hyper_dx = 0;
 	hyper_dy = 0;
 	hyper_extra = 0;
@@ -516,8 +540,8 @@ LoadHyperspace (void)
 	{
 		FRAME F;
 		
-		F = hyperstars[0];
-		hyperstars[0] = stars_in_space;
+		F = hyperstars[2];
+		hyperstars[2] = stars_in_space;
 		stars_in_space = F;
 	}
 
@@ -538,25 +562,19 @@ LoadHyperspace (void)
 	if (!(GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0))
 		DrawSISMessage (NULL);
 
-	SetContext (RadarContext);
-	SetContextBackGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x00, 0x0E, 0x00), 0x6C));
+	SetColorMap (GetColorMapAddress (SetAbsColorMapIndex (
+			hypercmap, whichPalette)));
 
-	SetContext (SpaceContext);
-	if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-	{	// Hyperspace Color
-		SetContextBackGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x07, 0x00, 0x00), 0x2F));
-		SetColorMap (GetColorMapAddress (hypercmaps[0]));
-	}
-	else
-	{	// Quasispace Color
-		SetContextBackGroundColor (
-				BUILD_COLOR (MAKE_RGB15 (0x00, 0x1A, 0x00), 0x2F));
-		SetColorMap (GetColorMapAddress (hypercmaps[1]));
-		SET_GAME_STATE (USED_BROADCASTER, 0);
-		SET_GAME_STATE (BROADCASTER_RESPONSE, 0);
-	}
+	SetContext (RadarContext);
+	SetContextBackGroundColor (GetColorMapColor (0x35, 0xFD));
+
+	SetContext (SpaceContext);	
+
+	// Space color is in the last spot of hyper palette (index 53)
+	SetContextBackGroundColor (GetColorMapColor (0x35, 0xFF));
+
+	SET_GAME_STATE (USED_BROADCASTER, 0);
+	SET_GAME_STATE (BROADCASTER_RESPONSE, 0);
 //    ClearDrawable ();
 
 	return TRUE;
@@ -577,8 +595,8 @@ FreeHyperspace (void)
 	{
 		FRAME F;
 		
-		F = hyperstars[0];
-		hyperstars[0] = stars_in_space;
+		F = hyperstars[2];
+		hyperstars[2] = stars_in_space;
 		stars_in_space = F;
 	}
 	// Kruzen: To load correct set of frames until we'll use 1 with space filters
@@ -1110,8 +1128,7 @@ AllocHyperElement (const POINT *elem_pt)
 
 		SetPrimType (&DisplayArray[HyperSpaceElementPtr->PrimIndex],
 				STAMP_PRIM);
-		HyperSpaceElementPtr->current.image.farray =
-				&hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)];
+		HyperSpaceElementPtr->current.image.farray = &hyperstars[1];
 
 		UnlockElement (hHyperSpaceElement);
 	}
@@ -1221,9 +1238,11 @@ encounter_transition (ELEMENT *ElementPtr)
 		{
 			f = DecFrameIndex (ElementPtr->current.image.frame);
 			ElementPtr->next.image.frame = f;
+			printf("%d\n\n", GetFrameIndex(ElementPtr->current.image.frame));
 		}
 		else
 		{
+			printf("%d\n\n", GetFrameIndex(ElementPtr->current.image.frame));
 			f = IncFrameIndex (ElementPtr->current.image.frame);
 			if (f != ElementPtr->current.image.farray[0])
 				ElementPtr->next.image.frame = f;
@@ -1474,8 +1493,7 @@ DrawHyperGrid (COORD ux, COORD uy, COORD ox, COORD oy)
 	RECT r;
 
 	ClearDrawable ();
-	SetContextForeGroundColor (
-			BUILD_COLOR (MAKE_RGB15 (0x00, 0x10, 0x00), 0x6B));
+	SetContextForeGroundColor (GetColorMapColor (0x35, 0xFC));
 
 	sx = ux - (RADAR_SCAN_WIDTH >> 1);
 	if (sx  < 0)
@@ -1704,7 +1722,7 @@ ProcessEncounters (POINT *puniverse, COORD ox, COORD oy)
 	STAMP stamp;
 	HENCOUNTER hEncounter, hNextEncounter;
 
-	stamp.frame = SetAbsFrameIndex (stars_in_space, 91);
+	stamp.frame = SetAbsFrameIndex (hyperstars[0], 1);
 	for (hEncounter = GetHeadEncounter ();
 			hEncounter; hEncounter = hNextEncounter)
 	{
@@ -1754,7 +1772,6 @@ SeedUniverse (void)
 	COORD sx, sy, ex, ey;
 	SWORD portalCounter, arilouSpaceCounter, arilouSpaceSide;
 	POINT universe;
-	FRAME blip_frame;
 	STAMP s;
 	STAR_DESC *SDPtr;
 	HELEMENT hHyperSpaceElement;
@@ -1765,7 +1782,6 @@ SeedUniverse (void)
 	universe.x = LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x));
 	universe.y = LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y));
 
-	blip_frame = SetAbsFrameIndex (stars_in_space, 90);
 
 	SetContext (RadarContext);
 	BatchGraphics ();
@@ -1804,7 +1820,7 @@ SeedUniverse (void)
 						/ RADAR_SCAN_WIDTH) - ox;
 				s.origin.y = (COORD)((long)(MAX_Y_UNIVERSE - ey)
 						* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy;
-				s.frame = SetRelFrameIndex (blip_frame,
+				s.frame = SetRelFrameIndex (hyperstars[0],
 						star_type + 2);
 				DrawStamp (&s);
 			}
@@ -1889,7 +1905,7 @@ SeedUniverse (void)
 					- ox;
 			s.origin.y = (COORD)((long)(MAX_Y_UNIVERSE - ey)
 					* RADAR_HEIGHT / RADAR_SCAN_HEIGHT) - oy;
-			s.frame = SetAbsFrameIndex (stars_in_space, 95);
+			s.frame = SetAbsFrameIndex (hyperstars[0], 5);
 			DrawStamp (&s);
 
 			ex -= universe.x;
@@ -1912,12 +1928,10 @@ SeedUniverse (void)
 				((SD[i].Index == 107 && arilouSpaceSide <= 1)
 					|| (SD[i].Index == 8 && arilouSpaceSide > 1))) /* animated */
 				HyperSpaceElementPtr->current.image.frame =
-				SetAbsFrameIndex (hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
-					frameCounter + SD[i].Index);
+				SetAbsFrameIndex (hyperstars[1], frameCounter + SD[i].Index);
 			else /* non-animated */
 				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
-					hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
-					SD[i].Index);
+					hyperstars[1], SD[i].Index);
 
 			HyperSpaceElementPtr->preprocess_func = NULL;
 			HyperSpaceElementPtr->postprocess_func = NULL;
@@ -1970,7 +1984,7 @@ SeedUniverse (void)
 				if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1))
 				{/* QS */
 					HyperSpaceElementPtr->current.image.frame =
-						SetAbsFrameIndex (hyperstars[2],
+						SetAbsFrameIndex (hyperstars[1],
 							frameCounter + ((STAR_COLOR (star_type) == YELLOW_BODY) ? 40 : 8));
 				}
 				else
@@ -2006,9 +2020,8 @@ SeedUniverse (void)
 			else
 			{/* non-animated */
 				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-							hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
-							STAR_TYPE (star_type) * NUM_STAR_COLORS
-							+ STAR_COLOR (star_type));				
+							hyperstars[1], STAR_TYPE (star_type) * 
+							NUM_STAR_COLORS	+ STAR_COLOR (star_type));				
 			}
 
 			HyperSpaceElementPtr->preprocess_func = NULL;
@@ -2036,7 +2049,7 @@ SeedUniverse (void)
 
 	s.origin.x = RADAR_WIDTH >> 1;
 	s.origin.y = RADAR_HEIGHT >> 1;
-	s.frame = blip_frame;
+	s.frame = hyperstars[0];
 	DrawStamp (&s);
 
 	DrawRadarBorder ();
