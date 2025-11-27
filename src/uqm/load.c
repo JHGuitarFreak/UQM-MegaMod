@@ -472,8 +472,10 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
  	{
 		if (try_core)
 		{	// Use old Log X to Universe code to get proper coordinates from core saves
-			SSPtr->log_x = RES_SCALE (UNIVERSE_TO_LOGX (oldLogxToUniverse (SSPtr->log_x)));
-			SSPtr->log_y = RES_SCALE (UNIVERSE_TO_LOGY (oldLogyToUniverse (SSPtr->log_y)));
+			printf ("SSPtr->log_x %d, oldLogxToUniverse () %d, UNIVERSE_TO_LOGX () %d\n", SSPtr->log_x, oldLogxToUniverse (SSPtr->log_x), UNIVERSE_TO_LOGX (oldLogxToUniverse (SSPtr->log_x)));
+
+			SSPtr->log_x = UNIVERSE_TO_LOGX (oldLogxToUniverse (SSPtr->log_x));
+			SSPtr->log_y = UNIVERSE_TO_LOGY (oldLogyToUniverse (SSPtr->log_y));
 		}
 		else
 		{	// JMS: Let's make savegames work even between different resolution modes.

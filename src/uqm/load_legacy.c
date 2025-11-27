@@ -793,8 +793,8 @@ LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh, BOOLEAN try_vanilla)
 
 	if (try_vanilla)
 	{	// Use old Log to Universe code to get proper coordinates from legacy saves
-		EncounterPtr->log_x = RES_SCALE (UNIVERSE_TO_LOGX (oldLogxToUniverse (EncounterPtr->log_x)));
-		EncounterPtr->log_y = RES_SCALE (UNIVERSE_TO_LOGY (oldLogyToUniverse (EncounterPtr->log_y)));
+		EncounterPtr->log_x = UNIVERSE_TO_LOGX (oldLogxToUniverse (EncounterPtr->log_x));
+		EncounterPtr->log_y = UNIVERSE_TO_LOGY (oldLogyToUniverse (EncounterPtr->log_y));
 	}
 	else
 	{	// JMS: Let's make savegames work even between different resolution modes.
