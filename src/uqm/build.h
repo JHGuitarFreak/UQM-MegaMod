@@ -54,6 +54,7 @@ extern RACE_ID RaceIdStrToIndex (const char *raceIdStr);
 extern COUNT AddEscortShips (RACE_ID race, SIZE count);
 extern COUNT CalculateEscortsWorth (void);
 extern COUNT CalculateEscortsPoints (void);
+extern BOOLEAN CanBuyPoints (HFLEETINFO hFleet);
 extern BOOLEAN ShipsReady (RACE_ID race);
 extern void PrepareShip (RACE_ID race);
 extern BOOLEAN SetRaceAllied (RACE_ID race, BOOLEAN flag);
