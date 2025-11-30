@@ -1989,13 +1989,13 @@ SeedUniverse (void)
 
 			GetFrameRect (star_frame, &frameRect);
 
-			img_log.width =  DISPLAY_TO_WORLD (frameRect.extent.width);
-			img_log.height = DISPLAY_TO_WORLD (frameRect.extent.height);
+			img_log.width =  frameRect.extent.width  << 1;
+			img_log.height = frameRect.extent.height << 1;
 
-			if ((lx + (img_log.width >> 1))  < -HS_WEST_EDGE ||
-				(lx - (img_log.width >> 1))  >  HS_EAST_EDGE ||
-				(ly + (img_log.height >> 1)) < -HS_NORTH_EDGE ||
-				(ly - (img_log.height >> 1)) >  HS_SOUTH_EDGE)
+			if ((lx + img_log.width)  < -HS_WEST_EDGE ||
+				(lx - img_log.width)  >  HS_EAST_EDGE ||
+				(ly + img_log.height) < -HS_NORTH_EDGE ||
+				(ly - img_log.height) >  HS_SOUTH_EDGE)
 			{
 				continue;
 			}
