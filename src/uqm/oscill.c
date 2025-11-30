@@ -58,7 +58,6 @@ InitOscilloscope (FRAME scopeBg)
 void
 UninitOscilloscope (void)
 {
-	// XXX: Is never called (BUG?)
 	DestroyDrawable (ReleaseDrawable (scopeWork));
 	scopeWork = NULL;
 	scope_init = 0;

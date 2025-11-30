@@ -220,6 +220,7 @@ static WIDGET *engine_widgets[] = {
 
 	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
 	(WIDGET *)(&choices[CHOICE_MENUSTYLE   ]), // Menu Style
+	(WIDGET *)(&choices[CHOICE_DOSMENUS    ]), // DOS side menu in shipyard
 	(WIDGET *)(&choices[CHOICE_FONTSTYLE   ]), // Font Style
 	(WIDGET *)(&choices[CHOICE_CUTSCENE    ]), // Cutscenes
 
@@ -303,6 +304,7 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
+
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
 #endif
@@ -331,9 +333,8 @@ static WIDGET *advanced_widgets[] = {
 
 	(WIDGET *)(&labels     [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&choices    [CHOICE_GAMESEED  ]), // Seed usage selection
-	(WIDGET *)(&textentries[TEXT_GAMESEED    ]), // Custom Seed entry
 	(WIDGET *)(&choices    [CHOICE_SHIPSEED  ]), // Ship seeding toggle
-	(WIDGET *)(&choices    [CHOICE_SOICOLOR  ]), // SOI Color Selection
+	(WIDGET *)(&textentries[TEXT_GAMESEED    ]), // Custom Seed entry
 
 	(WIDGET *)(&labels     [LABEL_SPACER     ]),    // Spacer
 	(WIDGET *)(&buttons    [BTN_QUITSUBMENU  ]), // Exit to Menu
@@ -345,7 +346,9 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_CUSTBORDER   ]), // Custom Border switch
 	(WIDGET *)(&choices[CHOICE_FUELDECIM    ]), // Whole Fuel Value switch
 	(WIDGET *)(&choices[CHOICE_FUELCIRCLE   ]), // Fuel Range
+	(WIDGET *)(&choices[CHOICE_SOICOLOR     ]), // SOI Color Selection
 	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]), // Animated HyperStars
+	(WIDGET *)(&choices[CHOICE_CAPTNAMES    ]), // Captain names in shipyard
 	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]), // Game Over switch
 
 	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
@@ -379,6 +382,7 @@ static WIDGET *qol_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_ADVAUTO     ]), // Advanced Auto-Pilot
 	(WIDGET *)(&choices[CHOICE_VISITED     ]), // Show Visited Stars
 	(WIDGET *)(&choices[CHOICE_MLTOOLTIP   ]), // Melee Tool Tips
+	(WIDGET *)(&choices[CHOICE_SHIPSTORE   ]), // Ship storage queue
 
 	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]), // Exit to Menu
@@ -599,10 +603,11 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed (void)
 {
-	snprintf (textentries[TEXT_GAMESEED].value, 
-		sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
-	if (!SANE_SEED (optCustomSeed))
+	if (choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME ||
+			!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
+	snprintf (textentries[TEXT_GAMESEED].value,
+			sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
 }
 
 static int
@@ -847,10 +852,28 @@ rename_template (WIDGET_TEXTENTRY *self)
 }
 
 static void
+change_seedtype (WIDGET_CHOICE *self, int oldval)
+{
+	if (self->selected == OPTVAL_PRIME)
+	{
+		optCustomSeed = PrimeA;
+		snprintf (textentries[TEXT_GAMESEED].value,
+				sizeof (textentries[TEXT_GAMESEED].value),
+				"%d", optCustomSeed);
+	}
+}
+
+static void
 change_seed (WIDGET_TEXTENTRY *self)
 {
-	if (!SANE_SEED (atoi (self->value)))
-		snprintf (self->value, sizeof (self->value), "%d", PrimeA);
+	int customSeed = atoi (self->value);
+	if (choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME ||
+			!SANE_SEED (optCustomSeed))
+	{
+		customSeed = PrimeA;
+		snprintf (self->value, sizeof (self->value), "%d", customSeed);
+	}
+	optCustomSeed = customSeed;
 }
 
 static void
@@ -1252,6 +1275,9 @@ SetDefaults (void)
 
 	// Next choice should be choices[CHOICE_SHIPSEED]
 	choices[CHOICE_SHIPSEED  ].selected = opts.shipSeed;
+	choices[CHOICE_SHIPSTORE ].selected = opts.shipStore;
+	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
+	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
 
 	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME ].value = opts.sfxvol;
@@ -1374,6 +1400,9 @@ PropagateResults (void)
 	}
 
 	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
+	opts.shipStore = choices[CHOICE_SHIPSTORE].selected;
+	opts.captainNames = choices[CHOICE_CAPTNAMES].selected;
+	opts.dosMenus = choices[CHOICE_DOSMENUS].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -1869,6 +1898,7 @@ init_widgets (void)
 
 	/* Choice 20 has a special onChange handler, too. */
 	choices[CHOICE_KBLAYOUT  ].onChange = change_template;
+	choices[CHOICE_GAMESEED  ].onChange = change_seedtype;
 
 	// Check addon availability for HD mode, DOS/3DO mode, and music remixes
 	choices[CHOICE_GRAPHICS  ].onChange = check_availability;
@@ -2022,7 +2052,8 @@ init_widgets (void)
 	}
 
 	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
-			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank) != LABEL_COUNT)
+			SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
+			!= LABEL_COUNT)
 	{
 		/* TODO: Ignore extras instead of dying. */
 		log_add (log_Fatal, "PANIC: Incorrect number of Label Options");
@@ -2423,6 +2454,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->wholeFuel = optWholeFuel;
 	opts->meleeToolTips = optMeleeToolTips;
 	opts->sphereColors = optSphereColors;
+	opts->dosMenus = optDosMenus;
 
 	// Interplanetary
 	opts->nebulae = optNebulae;
@@ -2471,8 +2503,9 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	// QoL
 	opts->scatterElements = optScatterElements;
-
 	opts->showUpgrades = optShowUpgrades;
+	opts->shipStore = optShipStore;
+	opts->captainNames = optCaptainNames;
 
 /*
  *		Cheats
@@ -2678,11 +2711,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 #if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
 		opts->controllerType = 0;
 #endif
-	if (PutIntOpt (&optControllerType, (int*)(&opts->controllerType), "mm.controllerType", FALSE))
-	{
-		TFB_UninitInput ();
-		TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
-	}
+	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
 #ifdef DIRECTIONAL_JOY
 	PutBoolOpt (&optDirectionalJoystick, &opts->directionalJoystick, "mm.directionalJoystick", FALSE);
 #endif
@@ -2697,6 +2726,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
 	PutIntOpt  (&optSphereColors, (int *)&opts->sphereColors, "mm.sphereColors", FALSE);
 	PutBoolOpt (&optScatterElements, &opts->scatterElements, "mm.scatterElements", FALSE);
+	PutBoolOpt (&optShipStore, &opts->shipStore, "mm.shipStore", FALSE);
+	PutBoolOpt (&optCaptainNames, &opts->captainNames, "mm.captainNames", FALSE);
+	PutBoolOpt (&optDosMenus, &opts->dosMenus, "mm.dosMenus", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);
@@ -2724,7 +2756,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	{
 		PutIntOpt (&optSeedType, (int*)(&opts->seedType), "mm.seedType", FALSE);
 		int customSeed = atoi (textentries[TEXT_GAMESEED].value);
-		if (!SANE_SEED (customSeed))
+		if (!SANE_SEED (customSeed) || optSeedType == OPTVAL_PRIME)
 			customSeed = PrimeA;
 		PutIntOpt (&optCustomSeed, &customSeed, "mm.customSeed", FALSE);
 		PutBoolOpt (&optShipSeed, &opts->shipSeed, "mm.shipSeed", FALSE);
@@ -2750,14 +2782,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optShipDirectionIP, &opts->shipDirectionIP, "mm.shipDirectionIP", FALSE);
 
 	// Controls
+	PlayerControls[0] = opts->player1;
 	PlayerControls[1] = opts->player2;
-
-	if (optControllerType == 2)
-		PlayerControls[0] = CONTROL_TEMPLATE_JOY_3;
-	else if (optControllerType == 1)
-		PlayerControls[0] = CONTROL_TEMPLATE_JOY_2;
-	else
-		PlayerControls[0] = opts->player1;
 
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
