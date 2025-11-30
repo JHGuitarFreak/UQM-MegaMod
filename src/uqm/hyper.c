@@ -1756,11 +1756,14 @@ SeedUniverse (void)
 	COORD sx, sy, ex, ey;
 	SWORD portalCounter, arilouSpaceCounter, arilouSpaceSide;
 	POINT universe;
-	FRAME blip_frame;
+	FRAME blip_frame, star_frame;
 	STAMP s;
 	STAR_DESC *SDPtr;
 	HELEMENT hHyperSpaceElement;
 	ELEMENT *HyperSpaceElementPtr;
+	SDWORD lx, ly;
+	RECT frameRect;
+	DEXTENT img_log;
 
 	static COUNT frameCounter = 0; // BW
 
@@ -1910,16 +1913,23 @@ SeedUniverse (void)
 				continue;
 
 			LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
+
 			if (ANIMATED_HYPERSPACE &&
-				((SD[i].Index == 107 && arilouSpaceSide <= 1)
-					|| (SD[i].Index == 8 && arilouSpaceSide > 1))) /* animated */
+					((SD[i].Index == 107 && arilouSpaceSide <= 1)
+					|| (SD[i].Index == 8 && arilouSpaceSide > 1)))
+			{
 				HyperSpaceElementPtr->current.image.frame =
-				SetAbsFrameIndex (hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
-					frameCounter + SD[i].Index);
-			else /* non-animated */
-				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex(
-					hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
-					SD[i].Index);
+						SetAbsFrameIndex (
+							hyperstars[1 + (arilouSpaceSide >> 1)],
+							frameCounter + SD[i].Index);
+			}
+			else
+			{
+				HyperSpaceElementPtr->current.image.frame =
+						SetAbsFrameIndex (
+							hyperstars[1 + (arilouSpaceSide >> 1)],
+							SD[i].Index);
+			}
 
 			HyperSpaceElementPtr->preprocess_func = NULL;
 			HyperSpaceElementPtr->postprocess_func = NULL;
@@ -1947,72 +1957,88 @@ SeedUniverse (void)
 		SDPtr = 0;
 		while ((SDPtr = FindStar (SDPtr, &universe, XOFFS, YOFFS)))
 		{
-			BYTE star_type;
+			BYTE star_type = SDPtr->Type;
+			BYTE star_color = STAR_COLOR (star_type);
 
-			ex = SDPtr->star_pt.x - universe.x;
-			if (ex < 0)
-				ex = -ex;
-			ey = SDPtr->star_pt.y - universe.y;
-			if (ey < 0)
-				ey = -ey;
-			if (ex > (XOFFS / NUM_RADAR_SCREENS)
-					|| ey > (YOFFS / NUM_RADAR_SCREENS))
+			lx = UNIVERSE_TO_LOGX (SDPtr->star_pt.x) - GLOBAL_SIS (log_x);
+			ly = UNIVERSE_TO_LOGY (SDPtr->star_pt.y) - GLOBAL_SIS (log_y);
+
+			if (ANIMATED_HYPERSPACE)
+			{
+				if ((arilouSpaceSide > 1))
+				{
+					star_frame = SetAbsFrameIndex (hyperstars[2],
+							frameCounter +
+							((star_color == YELLOW_BODY) ? 40 : 8));
+				}
+				else
+				{
+					star_frame = SetAbsFrameIndex (hyperstars[1],
+							STAR_TYPE (star_type) * NUM_FRAMES +
+							frameCounter);
+				}
+			}
+			else
+			{
+				star_frame = SetAbsFrameIndex (
+						hyperstars[1 + (arilouSpaceSide >> 1)],
+						STAR_TYPE (star_type) * NUM_STAR_COLORS
+						+ star_color);
+			}
+
+			if (star_frame == NULL)
 				continue;
+
+			GetFrameRect (star_frame, &frameRect);
+
+			img_log.width =  frameRect.extent.width  << 1;
+			img_log.height = frameRect.extent.height << 1;
+
+			if ((lx + img_log.width)  < -HS_WEST_EDGE ||
+				(lx - img_log.width)  >  HS_EAST_EDGE ||
+				(ly + img_log.height) < -HS_NORTH_EDGE ||
+				(ly - img_log.height) >  HS_SOUTH_EDGE)
+			{
+				continue;
+			}
 
 			hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
 			if (hHyperSpaceElement == 0)
 				continue;
 
-			star_type = SDPtr->Type;
-
 			LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
 
-			if (ANIMATED_HYPERSPACE)
-			{/* animated */
-				if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1))
-				{/* QS */
-					HyperSpaceElementPtr->current.image.frame =
-						SetAbsFrameIndex (hyperstars[2],
-							frameCounter + ((STAR_COLOR (star_type) == YELLOW_BODY) ? 40 : 8));
-				}
-				else
-				{/* HS */
-					if (STAR_COLOR (star_type) != WHITE_BODY)
-					{// Add a color filter before the star vortex
-						HyperSpaceElementPtr->current.image.frame = 
-							SetAbsFrameIndex (hyperstars[1], 96 + STAR_TYPE (star_type));
+			if (ANIMATED_HYPERSPACE && !(arilouSpaceSide > 1)
+					&& star_color != WHITE_BODY)
+			{
+				COUNT *PrimIndex;
 
-						SetPrimType (&DisplayArray[HyperSpaceElementPtr->PrimIndex], STAMPFILL_PRIM);
-						SetPrimColor (&DisplayArray[HyperSpaceElementPtr->PrimIndex], GetMaskColor (STAR_COLOR (star_type)));
-						SetPrimFlags (&DisplayArray[HyperSpaceElementPtr->PrimIndex], HS_STARMASK);
+				HyperSpaceElementPtr->current.image.frame = 
+						SetAbsFrameIndex (hyperstars[1],
+							96 + STAR_TYPE (star_type));
 
-						HyperSpaceElementPtr->state_flags =
-									APPEARING | FINITE_LIFE | NONSOLID;
+				PrimIndex = &HyperSpaceElementPtr->PrimIndex;
 
-						UnlockElement (hHyperSpaceElement);
+				SetPrimType (&DisplayArray[*PrimIndex], STAMPFILL_PRIM);
+				SetPrimColor (&DisplayArray[*PrimIndex],
+						GetMaskColor (STAR_COLOR (star_type)));
+				SetPrimFlags (&DisplayArray[*PrimIndex], HS_STARMASK);
 
-						InsertElement (hHyperSpaceElement, GetHeadElement ());
+				HyperSpaceElementPtr->state_flags =
+						APPEARING | FINITE_LIFE | NONSOLID;
 
+				UnlockElement (hHyperSpaceElement);
 
-						hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
-						if (hHyperSpaceElement == 0)
-							continue;
+				InsertElement (hHyperSpaceElement, GetHeadElement ());
 
-						LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
-					}
-					HyperSpaceElementPtr->current.image.frame = 
-						SetAbsFrameIndex (hyperstars[1], STAR_TYPE (star_type) * NUM_FRAMES +
-							frameCounter);
-				}
-			}
-			else
-			{/* non-animated */
-				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
-							hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
-							STAR_TYPE (star_type) * NUM_STAR_COLORS
-							+ STAR_COLOR (star_type));				
+				hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
+				if (hHyperSpaceElement == 0)
+					continue;
+
+				LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
 			}
 
+			HyperSpaceElementPtr->current.image.frame = star_frame;
 			HyperSpaceElementPtr->preprocess_func = NULL;
 			HyperSpaceElementPtr->postprocess_func = NULL;
 			HyperSpaceElementPtr->collision_func = hyper_collision;
@@ -2021,7 +2047,9 @@ SeedUniverse (void)
 
 			if (SDPtr == CurStarDescPtr
 					&& GET_GAME_STATE (PORTAL_COUNTER) == 0)
+			{
 				HyperSpaceElementPtr->death_func = hyper_death;
+			}
 			else
 			{
 				HyperSpaceElementPtr->death_func = NULL;

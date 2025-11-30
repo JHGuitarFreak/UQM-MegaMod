@@ -33,7 +33,8 @@ void VControl_Uninit (void);
 /* Structures for representing actual VControl Inputs.  Returned by
    iterators and used to construct bindings. */
 
-typedef enum {
+typedef enum
+{
 	VCONTROL_NONE,
 	VCONTROL_KEY,
 	VCONTROL_JOYAXIS,
@@ -50,7 +51,7 @@ typedef struct {
 		struct { int port, index; } button;
 		struct { int port, index; Uint8 dir; } hat;
 	} gesture;
-} VCONTROL_GESTURE;			
+} VCONTROL_GESTURE;
 
 /* Control of bindings */
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);
@@ -58,21 +59,31 @@ void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);
 
 int  VControl_AddKeyBinding (sdl_key_t symbol, int *target);
 void VControl_RemoveKeyBinding (sdl_key_t symbol, int *target);
-int  VControl_AddJoyAxisBinding (int port, int axis, int polarity, int *target);
-void VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target);
+
+
+void create_joystick (int device_index);
+
+int  VControl_AddJoyAxisBinding (int port, int axis, int polarity,
+		int *target);
+void VControl_RemoveJoyAxisBinding (int port, int axis, int polarity,
+		int *target);
 int  VControl_SetJoyThreshold (int port, int threshold);
 int  VControl_AddJoyButtonBinding (int port, int button, int *target);
 void VControl_RemoveJoyButtonBinding (int port, int button, int *target);
-int  VControl_AddJoyHatBinding (int port, int which, Uint8 dir, int *target);
-void VControl_RemoveJoyHatBinding (int port, int which, Uint8 dir, int *target);
+#if SDL_MAJOR_VERSION == 1
+int  VControl_AddJoyHatBinding (int port, int which, Uint8 dir,
+		int *target);
+void VControl_RemoveJoyHatBinding (int port, int which, Uint8 dir,
+		int *target);
+#endif // SDL_MAJOR_VERSION
 
 void VControl_RemoveAllBindings (void);
 
 /* Signal to VControl that a frame is about to begin. */
 void VControl_BeginFrame (void);
 
-/* The listener.  Routines besides HandleEvent may be used to 'fake' inputs without 
- * fabricating an SDL_Event. 
+/* The listener.  Routines besides HandleEvent may be used to 'fake'
+ * inputs without fabricating an SDL_Event.
  */
 void VControl_HandleEvent (const SDL_Event *e);
 void VControl_ProcessKeyDown (sdl_key_t symbol);
@@ -80,7 +91,9 @@ void VControl_ProcessKeyUp (sdl_key_t symbol);
 void VControl_ProcessJoyButtonDown (int port, int button);
 void VControl_ProcessJoyButtonUp (int port, int button);
 void VControl_ProcessJoyAxis (int port, int axis, int value);
+#if SDL_MAJOR_VERSION == 1
 void VControl_ProcessJoyHat (int port, int which, Uint8 value);
+#endif // SDL_MAJOR_VERSION
 
 /* Force the input into the blank state.  For preventing "sticky" keys. */
 void VControl_ResetInput (void);

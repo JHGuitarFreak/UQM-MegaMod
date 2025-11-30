@@ -261,7 +261,15 @@ AddEscortShips (RACE_ID race, SIZE count)
 		HSHIPFRAG hOldShip;
 		SHIP_FRAGMENT *StarShipPtr;
 
-		hStarShip = CloneShipFragment (race, &GLOBAL (built_ship_q), 0);
+		if (!STORAGE_Q)
+			hStarShip = CloneShipFragment (race, &GLOBAL (built_ship_q), 0);
+		else if (!CanBuyPoints (hFleet) || !(hStarShip =
+				CloneShipFragment (race, &GLOBAL (built_ship_q), 0)))
+		{ // If we don't have room or failed to create in built queue, stow it
+			if ((hStarShip =
+					CloneShipFragment (race, &GLOBAL (stowed_ship_q), 0)))
+				continue;
+		}
 		if (!hStarShip)
 			break;
 
@@ -308,28 +316,6 @@ CalculateEscortsWorth (void)
 		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
 		total += ShipCost (StarShipPtr->race_id);
-		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
-	}
-	return total;
-}
-
-/*
- * Returns the total point value of all the ships escorting the SIS.
- */
-COUNT
-CalculateEscortsPoints (void)
-{
-	COUNT total = 0;
-	HSHIPFRAG hStarShip, hNextShip;
-
-	for (hStarShip = GetHeadLink (&GLOBAL (built_ship_q));
-			hStarShip; hStarShip = hNextShip)
-	{
-		SHIP_FRAGMENT *StarShipPtr;
-
-		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
-		hNextShip = _GetSuccLink (StarShipPtr);
-		total += ShipPoints (StarShipPtr->race_id);
 		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
 	}
 	return total;
@@ -612,7 +598,8 @@ EscortFeasibilityStudy (RACE_ID race)
 	if (!hFleet)
 		return 0;
 
-	return (MAX_BUILT_SHIPS - CountLinks (&GLOBAL (built_ship_q)));
+	return (MAX_BUILT_SHIPS - CountLinks (&GLOBAL (built_ship_q)) + (STORAGE_Q
+			? MAX_STOWED_SHIPS - CountLinks (&GLOBAL (stowed_ship_q)) : 0));
 }
 
 /*
@@ -657,38 +644,46 @@ RaceAllied (RACE_ID race)
 COUNT
 RemoveSomeEscortShips (RACE_ID race, COUNT count)
 {
-	HSHIPFRAG hStarShip;
+	QUEUE* ship_q = &GLOBAL (built_ship_q);
+	HSHIPFRAG hStarShip = GetHeadLink (ship_q);
 	HSHIPFRAG hNextShip;
 
 	if (count == 0)
 		return 0;
+	if (!hStarShip && count > MAX_BUILT_SHIPS)
+	{
+		ship_q = &GLOBAL (stowed_ship_q);
+		hStarShip = GetHeadLink (ship_q);
+	}
 
-	for (hStarShip = GetHeadLink (&GLOBAL (built_ship_q)); hStarShip;
+	for (hStarShip = GetHeadLink (ship_q); hStarShip;
 			hStarShip = hNextShip)
 	{
 		BOOLEAN RemoveShip;
 		SHIP_FRAGMENT *StarShipPtr;
 
-		StarShipPtr = LockShipFrag (&GLOBAL (built_ship_q), hStarShip);
+		StarShipPtr = LockShipFrag (ship_q, hStarShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
 		RemoveShip = (StarShipPtr->race_id == race);
-		UnlockShipFrag (&GLOBAL (built_ship_q), hStarShip);
+		UnlockShipFrag (ship_q, hStarShip);
 
 		if (RemoveShip)
 		{
-			RemoveQueue (&GLOBAL (built_ship_q), hStarShip);
-			FreeShipFrag (&GLOBAL (built_ship_q), hStarShip);
+			RemoveQueue (ship_q, hStarShip);
+			FreeShipFrag (ship_q, hStarShip);
 			count--;
 			if (count == 0)
 				break;
 		}
+		if (count > MAX_BUILT_SHIPS && !hNextShip && ship_q == &GLOBAL (built_ship_q))
+		{
+			ship_q = &GLOBAL (stowed_ship_q);
+			hNextShip = GetHeadLink (ship_q);
+		}
 	}
 	
-	if (count > 0)
-	{
-		// Update the display.
-		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
-	}
+	// Update the display.
+	DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 
 	return count;
 }

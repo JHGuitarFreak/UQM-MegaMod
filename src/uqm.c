@@ -201,6 +201,9 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  scatterElements);
 	DECL_CONFIG_OPTION(bool,  showUpgrades);
 	DECL_CONFIG_OPTION(bool,  fleetPointSys);
+	DECL_CONFIG_OPTION(bool,  shipStore);
+	DECL_CONFIG_OPTION(bool,  captainNames);
+	DECL_CONFIG_OPTION(bool,  dosMenus);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -405,6 +408,9 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  scatterElements,   false ),
 		INIT_CONFIG_OPTION(  showUpgrades,      false ),
 		INIT_CONFIG_OPTION(  fleetPointSys,     false ),
+		INIT_CONFIG_OPTION(  shipStore,         false ),
+		INIT_CONFIG_OPTION(  captainNames,      false ),
+		INIT_CONFIG_OPTION(  dosMenus,          false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -484,8 +490,8 @@ main (int argc, char *argv[])
 #endif // __MINGW32__
 
 #ifdef __MINGW64__
-		printf("MINGW64_VERSION: %d.%d\n\n", __MINGW64_MAJOR_VERSION, __MINGW64_MINOR_VERSION);
-		log_add(log_Info, "MINGW64_VERSION: %d.%d\n", __MINGW64_MAJOR_VERSION, __MINGW64_MINOR_VERSION);
+		printf("MINGW64_VERSION: %d.%d\n\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
+		log_add(log_Info, "MINGW64_VERSION: %d.%d\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
 #endif // __MINGW64__
 
 		printf("Build Time: %s %s\n\n", __DATE__, __TIME__);
@@ -634,6 +640,9 @@ main (int argc, char *argv[])
 	optScatterElements = options.scatterElements.value;
 	optShowUpgrades = options.showUpgrades.value;
 	optFleetPointSys = options.fleetPointSys.value;
+	optShipStore = options.shipStore.value;
+	optCaptainNames = options.captainNames.value;
+	optDosMenus = options.dosMenus.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1183,6 +1192,12 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->fleetPointSys, "mm.fleetPointSys");
 
+	getBoolConfigValue (&options->shipStore, "mm.shipStore");
+
+	getBoolConfigValue (&options->captainNames, "mm.captainNames");
+
+	getBoolConfigValue (&options->dosMenus, "mm.dosMenus");
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1288,6 +1303,9 @@ enum
 	SCATTERELEMS_OPT,
 	SHOWUPG_OPT,
 	FLTPTSYS_OPT,
+	SHIPSTORE_OPT,
+	CAPTNAMES_OPT,
+	DOSMENUS_OPT,
 	MELEE_OPT,
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
@@ -1405,6 +1423,9 @@ static struct option longOptions[] =
 	{"scatterelements", 0, NULL, SCATTERELEMS_OPT},
 	{"showupgrades", 0, NULL, SHOWUPG_OPT},
 	{"fleetpointsys", 0, NULL, FLTPTSYS_OPT},
+	{"shipstore", 0, NULL, SHIPSTORE_OPT},
+	{"captainnames", 0, NULL, CAPTNAMES_OPT},
+	{"dosmenus", 0, NULL, DOSMENUS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2229,6 +2250,15 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case FLTPTSYS_OPT:
 				setBoolOption (&options->fleetPointSys, true);
 				break;
+			case SHIPSTORE_OPT:
+				setBoolOption (&options->shipStore, true);
+				break;
+			case CAPTNAMES_OPT:
+				setBoolOption (&options->captainNames, true);
+				break;
+			case DOSMENUS_OPT:
+				setBoolOption (&options->dosMenus, true);
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2636,6 +2666,15 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --fleetpointsys : Restrict the amount of ships "
 			"that can be purchased via their melee points (default: %s)",
 			boolOptString (&defaults->fleetPointSys));
+	log_add (log_User, "  --shipstore : Enable a storage queue accessed "
+			"at the shipyard (default: %s)",
+			boolOptString (&defaults->shipStore));
+	log_add (log_User, "  --captainnames : Display captain names "
+			"at shipyard (default: %s)",
+			boolOptString (&defaults->captainNames));
+	log_add (log_User, "  --dosmenus : Display DOS style menu in shipyard "
+			"in place of SIS window (default: %s)",
+			boolOptString (&defaults->dosMenus));
 
 	log_setOutput (old);
 }

@@ -34,6 +34,7 @@
 #include "libs/log.h"
 #include "libs/misc.h"
 #include "master.h"
+
 //#define DEBUG_LOAD
 
 ACTIVITY NextActivity;
@@ -472,8 +473,8 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, BOOLEAN try_core,
  	{
 		if (try_core)
 		{	// Use old Log X to Universe code to get proper coordinates from core saves
-			SSPtr->log_x = RES_SCALE (UNIVERSE_TO_LOGX (oldLogxToUniverse (SSPtr->log_x)));
-			SSPtr->log_y = RES_SCALE (UNIVERSE_TO_LOGY (oldLogyToUniverse (SSPtr->log_y)));
+			SSPtr->log_x = UNIVERSE_TO_LOGX (oldLogxToUniverse (SSPtr->log_x));
+			SSPtr->log_y = UNIVERSE_TO_LOGY (oldLogyToUniverse (SSPtr->log_y));
 		}
 		else
 		{	// JMS: Let's make savegames work even between different resolution modes.
@@ -839,6 +840,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 	ReinitQueue (&GLOBAL (ip_group_q));
 	ReinitQueue (&GLOBAL (npc_built_ship_q));
 	ReinitQueue (&GLOBAL (built_ship_q));
+	ReinitQueue (&GLOBAL (stowed_ship_q));
 	
 	uninitEventSystem ();
 	luaUqm_uninitState();
@@ -943,6 +945,9 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 			break;
 		case SHIP_Q_TAG:
 			LoadShipQueue (in_fp, &GLOBAL (built_ship_q), chunkSize);
+			break;
+		case STOWED_Q_TAG:
+			LoadShipQueue (in_fp, &GLOBAL (stowed_ship_q), chunkSize);
 			break;
 		case SCAN_TAG:
 			LoadScanInfo (in_fp, chunkSize);
