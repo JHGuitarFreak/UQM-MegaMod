@@ -192,6 +192,14 @@ extern int CanvasHeight;
 #define UNIT_SCREEN_WIDTH RES_SCALE (63)
 #define UNIT_SCREEN_HEIGHT RES_SCALE (50)
 
+#define TOTAL_LOG_WIDTH DISPLAY_TO_WORLD (SIS_SCREEN_WIDTH)
+#define TOTAL_LOG_HEIGHT DISPLAY_TO_WORLD (SIS_SCREEN_HEIGHT)
+#define MAGIC_NUMBER DISPLAY_TO_WORLD (UNIT_SCREEN_WIDTH - UNIT_SCREEN_HEIGHT + 1)
+
+#define LEFT_EDGE ((TOTAL_LOG_WIDTH + MAGIC_NUMBER) >> 1)
+#define RIGHT_EDGE ((TOTAL_LOG_WIDTH - MAGIC_NUMBER) >> 1)
+#define TOP_EDGE ((TOTAL_LOG_HEIGHT + MAGIC_NUMBER) >> 1)
+#define BOTTOM_EDGE ((TOTAL_LOG_HEIGHT - MAGIC_NUMBER) >> 1)
 
 // Bug #945: Simplified, these set the speed of SIS in Hyperspace and
 //   Quasispace. The ratio between UNIVERSE_UNITS_ and LOG_UNITS_ is
@@ -203,19 +211,8 @@ extern int CanvasHeight;
 
 #define UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4))
 #define UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
-#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE (16))) 
-#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE (16))) 
-
-// Original (and now broken) Hyperspace speed factors
-// Now being utilized to load Vanilla saves properly
-#define SECTOR_WIDTH 195
-#define SECTOR_HEIGHT 25
-
-#define OLD_LOG_UNITS_X      ((SDWORD)(8192 >> 4) * SECTOR_WIDTH)
-#define OLD_LOG_UNITS_Y      ((SDWORD)(7680 >> 4) * SECTOR_HEIGHT)
-#define OLD_UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4) * 10)
-#define OLD_UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
-
+#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE (16)))
+#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE (16)))
 
 #define ROUNDING_ERROR(div)  ((div) >> 1)
 
@@ -253,6 +250,16 @@ universeToLogy (COORD uy)
 }
 #define UNIVERSE_TO_LOGY(uy) \
 		universeToLogy (uy)
+
+// Original (and now broken) Hyperspace speed factors
+// Now being utilized to load Vanilla saves properly
+#define SECTOR_WIDTH 195
+#define SECTOR_HEIGHT 25
+
+#define OLD_LOG_UNITS_X      ((SDWORD)(8192 >> 4) * SECTOR_WIDTH)
+#define OLD_LOG_UNITS_Y      ((SDWORD)(7680 >> 4) * SECTOR_HEIGHT)
+#define OLD_UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4) * 10)
+#define OLD_UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
 
 static inline SDWORD
 oldLogxToUniverse(SDWORD lx)

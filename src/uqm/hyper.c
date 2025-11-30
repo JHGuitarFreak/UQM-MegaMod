@@ -1759,6 +1759,9 @@ SeedUniverse (void)
 	STAR_DESC *SDPtr;
 	HELEMENT hHyperSpaceElement;
 	ELEMENT *HyperSpaceElementPtr;
+	SDWORD lx, ly;
+	RECT frameRect;
+	DEXTENT img_log;
 
 	static COUNT frameCounter = 0; // BW
 
@@ -1947,15 +1950,51 @@ SeedUniverse (void)
 		{
 			BYTE star_type;
 
-			ex = SDPtr->star_pt.x - universe.x;
-			if (ex < 0)
-				ex = -ex;
-			ey = SDPtr->star_pt.y - universe.y;
-			if (ey < 0)
-				ey = -ey;
-			if (ex > (XOFFS / NUM_RADAR_SCREENS)
-					|| ey > (YOFFS / NUM_RADAR_SCREENS))
+			lx = UNIVERSE_TO_LOGX (SDPtr->star_pt.x) - GLOBAL_SIS (log_x);
+			ly = UNIVERSE_TO_LOGY (SDPtr->star_pt.y) - GLOBAL_SIS (log_y);
+
+			if (ANIMATED_HYPERSPACE)
+			{
+				if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1))
+				{
+					GetFrameRect (SetAbsFrameIndex (hyperstars[2],
+							frameCounter +
+							((STAR_COLOR (SDPtr->Type) == YELLOW_BODY) ? 40 : 8)),
+							&frameRect);
+				}
+				else
+				{
+					GetFrameRect (SetAbsFrameIndex (hyperstars[1],
+							STAR_TYPE (SDPtr->Type) * NUM_FRAMES +
+							frameCounter), &frameRect);
+				}
+			}
+			else
+			{
+				GetFrameRect (SetAbsFrameIndex (
+						hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
+						STAR_TYPE (SDPtr->Type) *NUM_STAR_COLORS
+						+ STAR_COLOR (SDPtr->Type)), &frameRect);
+			}
+
+			img_log.width = DISPLAY_TO_WORLD (frameRect.extent.width);
+			img_log.height = DISPLAY_TO_WORLD (frameRect.extent.height);
+
+			if ((lx + (img_log.width >> 1)) < -LEFT_EDGE ||
+				(lx - (img_log.width >> 1)) > RIGHT_EDGE ||
+				(ly + (img_log.height >> 1)) < -TOP_EDGE ||
+				(ly - (img_log.height >> 1)) > BOTTOM_EDGE)
+			{
+				if (SDPtr->star_pt.x == 3352 && SDPtr->star_pt.y == 1940)
+				{
+					printf ("Zeeman is being culled. %d\n", frameCounter);
+				}
+				if (SDPtr->star_pt.x == ARILOU_HOME_X && SDPtr->star_pt.y == ARILOU_HOME_Y)
+				{
+					printf ("Falayalaralfali is being culled. %d\n", frameCounter);
+				}
 				continue;
+			}
 
 			hHyperSpaceElement = AllocHyperElement (&SDPtr->star_pt);
 			if (hHyperSpaceElement == 0)
@@ -2008,7 +2047,7 @@ SeedUniverse (void)
 				HyperSpaceElementPtr->current.image.frame = SetAbsFrameIndex (
 							hyperstars[1 + (GET_GAME_STATE (ARILOU_SPACE_SIDE) >> 1)],
 							STAR_TYPE (star_type) * NUM_STAR_COLORS
-							+ STAR_COLOR (star_type));				
+							+ STAR_COLOR (star_type));
 			}
 
 			HyperSpaceElementPtr->preprocess_func = NULL;
