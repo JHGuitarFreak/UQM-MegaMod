@@ -194,6 +194,17 @@ extern int CanvasHeight;
 #define UNIT_SCREEN_WIDTH RES_SCALE (63)
 #define UNIT_SCREEN_HEIGHT RES_SCALE (50)
 
+// These are for determining the HyperSpace boundaries
+// for culling HyperStars when they move off screen
+#define SIS_WORLD_WIDTH DISPLAY_TO_WORLD (SIS_SCREEN_WIDTH)
+#define SIS_WORLD_HEIGHT DISPLAY_TO_WORLD (SIS_SCREEN_HEIGHT)
+#define UNIT_SCR_DIFF \
+		DISPLAY_TO_WORLD (UNIT_SCREEN_WIDTH - UNIT_SCREEN_HEIGHT + 1)
+
+#define HS_WEST_EDGE ((SIS_WORLD_WIDTH + UNIT_SCR_DIFF) >> 1)
+#define HS_EAST_EDGE ((SIS_WORLD_WIDTH - UNIT_SCR_DIFF) >> 1)
+#define HS_NORTH_EDGE ((SIS_WORLD_HEIGHT + UNIT_SCR_DIFF) >> 1)
+#define HS_SOUTH_EDGE ((SIS_WORLD_HEIGHT - UNIT_SCR_DIFF) >> 1)
 
 // Bug #945: Simplified, these set the speed of SIS in Hyperspace and
 //   Quasispace. The ratio between UNIVERSE_UNITS_ and LOG_UNITS_ is
@@ -205,18 +216,8 @@ extern int CanvasHeight;
 
 #define UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4))
 #define UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
-#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE (16))) 
-#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE (16))) 
-
-// Original (and now broken) Hyperspace speed factors
-// Now being utilized to load Vanilla saves properly
-#define SECTOR_WIDTH 195
-#define SECTOR_HEIGHT 25
-
-#define OLD_LOG_UNITS_X      ((SDWORD)(8192 >> 4) * SECTOR_WIDTH)
-#define OLD_LOG_UNITS_Y      ((SDWORD)(7680 >> 4) * SECTOR_HEIGHT)
-#define OLD_UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4) * 10)
-#define OLD_UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
+#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * RES_SCALE (16)))
+#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * RES_SCALE (16)))
 
 #define ROUNDING_ERROR(div)  ((div) >> 1)
 
@@ -254,6 +255,16 @@ universeToLogy (COORD uy)
 }
 #define UNIVERSE_TO_LOGY(uy) \
 		universeToLogy (uy)
+
+// Original (and now broken) Hyperspace speed factors
+// Now being utilized to load Vanilla saves properly
+#define SECTOR_WIDTH 195
+#define SECTOR_HEIGHT 25
+
+#define OLD_LOG_UNITS_X      ((SDWORD)(8192 >> 4) * SECTOR_WIDTH)
+#define OLD_LOG_UNITS_Y      ((SDWORD)(7680 >> 4) * SECTOR_HEIGHT)
+#define OLD_UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4) * 10)
+#define OLD_UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
 
 static inline SDWORD
 oldLogxToUniverse(SDWORD lx)
@@ -310,11 +321,11 @@ inBounds(SDWORD val, SDWORD min, SDWORD max)
 extern SDWORD sinetab[];
 #define SINVAL(a) sinetab[NORMALIZE_ANGLE(a)]
 #define COSVAL(a) SINVAL((a)+QUADRANT)
-#define SINE(a,m) ((SDWORD)((((long)SINVAL(a))*(long)(m))>>SIN_SHIFT)) // JMS: SDWORD was SIZE. Changed to avoid overflows in hires.
+#define SINE(a,m) ((SDWORD)((((long)SINVAL(a))*(long)(m))>>SIN_SHIFT))
 #define COSINE(a,m) SINE((a)+QUADRANT,m)
-extern COUNT ARCTAN (SDWORD delta_x, SDWORD delta_y); // JMS: SDWORD was SIZE. Changed to avoid overflows in hires.
+extern COUNT ARCTAN (SDWORD delta_x, SDWORD delta_y);
 
-#define WRAP_VAL(v,w) ((DWORD)((v)<0?((v)+(w)):((v)>=(w)?((v)-(w)):(v)))) // JMS: DWORD was COUNT. Changed to avoid overflows in hires.
+#define WRAP_VAL(v,w) ((DWORD)((v)<0?((v)+(w)):((v)>=(w)?((v)-(w)):(v))))
 #define WRAP_X(x) WRAP_VAL(x,LOG_SPACE_WIDTH)
 #define WRAP_Y(y) WRAP_VAL(y,LOG_SPACE_HEIGHT)
 #define WRAP_DELTA_X(dx) ((dx)<0 ? \

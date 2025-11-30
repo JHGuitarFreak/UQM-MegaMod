@@ -220,6 +220,7 @@ static WIDGET *engine_widgets[] = {
 
 	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
 	(WIDGET *)(&choices[CHOICE_MENUSTYLE   ]), // Menu Style
+	(WIDGET *)(&choices[CHOICE_DOSMENUS    ]), // DOS side menu in shipyard
 	(WIDGET *)(&choices[CHOICE_FONTSTYLE   ]), // Font Style
 	(WIDGET *)(&choices[CHOICE_CUTSCENE    ]), // Cutscenes
 
@@ -350,6 +351,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_FUELCIRCLE   ]), // Fuel Range
 	(WIDGET *)(&choices[CHOICE_SOICOLOR     ]), // SOI Color Selection
 	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]), // Animated HyperStars
+	(WIDGET *)(&choices[CHOICE_CAPTNAMES    ]), // Captain names in shipyard
 	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]), // Game Over switch
 
 	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
@@ -383,6 +385,7 @@ static WIDGET *qol_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_ADVAUTO     ]), // Advanced Auto-Pilot
 	(WIDGET *)(&choices[CHOICE_VISITED     ]), // Show Visited Stars
 	(WIDGET *)(&choices[CHOICE_MLTOOLTIP   ]), // Melee Tool Tips
+	(WIDGET *)(&choices[CHOICE_SHIPSTORE   ]), // Ship storage queue
 
 	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]), // Exit to Menu
@@ -603,10 +606,11 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed (void)
 {
-	if (!SANE_SEED (optCustomSeed) || choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME)
+	if (choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME ||
+			!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
-	snprintf (textentries[TEXT_GAMESEED].value, 
-		sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
+	snprintf (textentries[TEXT_GAMESEED].value,
+			sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
 }
 
 static int
@@ -866,7 +870,8 @@ static void
 change_seed (WIDGET_TEXTENTRY *self)
 {
 	int customSeed = atoi (self->value);
-	if (!SANE_SEED (customSeed) || choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME)
+	if (choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME ||
+			!SANE_SEED (optCustomSeed))
 	{
 		customSeed = PrimeA;
 		snprintf (self->value, sizeof (self->value), "%d", customSeed);
@@ -1273,6 +1278,9 @@ SetDefaults (void)
 
 	// Next choice should be choices[CHOICE_SHIPSEED]
 	choices[CHOICE_SHIPSEED  ].selected = opts.shipSeed;
+	choices[CHOICE_SHIPSTORE ].selected = opts.shipStore;
+	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
+	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
 	choices[CHOICE_MOUSEINPUT].selected = opts.mouseInput;
 
 	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
@@ -1395,7 +1403,10 @@ PropagateResults (void)
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
-	opts.shipSeed =   choices[CHOICE_SHIPSEED  ].selected;
+	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
+	opts.shipStore = choices[CHOICE_SHIPSTORE].selected;
+	opts.captainNames = choices[CHOICE_CAPTNAMES].selected;
+	opts.dosMenus = choices[CHOICE_DOSMENUS].selected;
 	opts.mouseInput = choices[CHOICE_MOUSEINPUT].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
@@ -2448,6 +2459,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->wholeFuel = optWholeFuel;
 	opts->meleeToolTips = optMeleeToolTips;
 	opts->sphereColors = optSphereColors;
+	opts->dosMenus = optDosMenus;
 
 	// Interplanetary
 	opts->nebulae = optNebulae;
@@ -2498,6 +2510,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	// QoL
 	opts->scatterElements = optScatterElements;
 	opts->showUpgrades = optShowUpgrades;
+	opts->shipStore = optShipStore;
+	opts->captainNames = optCaptainNames;
 
 /*
  *		Cheats
@@ -2718,6 +2732,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
 	PutIntOpt  (&optSphereColors, (int *)&opts->sphereColors, "mm.sphereColors", FALSE);
 	PutBoolOpt (&optScatterElements, &opts->scatterElements, "mm.scatterElements", FALSE);
+	PutBoolOpt (&optShipStore, &opts->shipStore, "mm.shipStore", FALSE);
+	PutBoolOpt (&optCaptainNames, &opts->captainNames, "mm.captainNames", FALSE);
+	PutBoolOpt (&optDosMenus, &opts->dosMenus, "mm.dosMenus", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);
