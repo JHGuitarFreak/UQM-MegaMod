@@ -282,7 +282,7 @@ RebelInfo (RESPONSE_REF R)
 static void
 Rebels (RESPONSE_REF R)
 {
-	SBYTE NumVisits;
+	COUNT NumVisits;
 
 	if (PLAYER_SAID (R, how_goes_revolution))
 	{

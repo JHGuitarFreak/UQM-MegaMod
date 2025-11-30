@@ -1589,6 +1589,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 				SaveGroupQueue (out_fp, &GLOBAL (ip_group_q));
 		}
 		SaveShipQueue (out_fp, &GLOBAL (built_ship_q), SHIP_Q_TAG);
+		SaveShipQueue (out_fp, &GLOBAL (stowed_ship_q), STOWED_Q_TAG);
 
 		// Save the game event chunk
 		SaveEvents (out_fp);

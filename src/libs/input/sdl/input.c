@@ -236,23 +236,29 @@ TFB_SetInputVectors (volatile int menu[], int num_menu_,
 
 #ifdef HAVE_JOYSTICK
 
-#if SDL_MAJOR_VERSION > 1
-
 static void
-initController (void)
+initJoystick (void)
 {
-	int nControllers;
+	int nJoysticks;
+
+#if SDL_MAJOR_VERSION > 1
 	char mapping_db[PATH_MAX];
 	size_t base_len;
 	const char *slash;
+#endif
 
+#if SDL_MAJOR_VERSION > 1
 	if ((SDL_InitSubSystem (SDL_INIT_GAMECONTROLLER)) == -1)
+#else
+	if ((SDL_InitSubSystem (SDL_INIT_JOYSTICK)) == -1)
+#endif
 	{
-		log_add (log_Fatal, "Couldn't initialize controller subsystem: %s",
-				SDL_GetError ());
+		log_add (log_Fatal, "Couldn't initialize joystick subsystem: %s",
+			SDL_GetError ());
 		exit (EXIT_FAILURE);
 	}
 
+#if SDL_MAJOR_VERSION > 1
 	SDL_GameControllerEventState (SDL_ENABLE);
 
 	base_len = strlen (baseContentPath);
@@ -277,51 +283,39 @@ initController (void)
 		log_add (log_Debug, "Loaded controller mappings from %s",
 				mapping_db);
 	}
-
-	nControllers = SDL_NumJoysticks ();
-	log_add (log_Info, "%i controllers were found.", nControllers);
-
-	for (int i = 0; i < nControllers; i++)
-		create_controller (i);
-}
-
-static void
-uninitController (void)
-{
-	SDL_QuitSubSystem (SDL_INIT_GAMECONTROLLER);
-}
-
-#else
-
-static void
-initJoystick (void)
-{
-	int nJoysticks;
-
-	if ((SDL_InitSubSystem (SDL_INIT_JOYSTICK)) == -1)
-	{
-		log_add (log_Fatal, "Couldn't initialize joystick subsystem: %s",
-			SDL_GetError ());
-		exit (EXIT_FAILURE);
-	}
-
-	log_add (log_Info, "%i joysticks were found.", SDL_NumJoysticks ());
-
+#endif
 	nJoysticks = SDL_NumJoysticks ();
+	log_add (log_Info, "%i joysticks were found.", nJoysticks);
+
 	if (nJoysticks > 0)
 	{
 		int i;
-
 		log_add (log_Info, "The names of the joysticks are:");
 		for (i = 0; i < nJoysticks; i++)
 		{
+#if SDL_MAJOR_VERSION > 1
+			if (SDL_IsGameController (i))
+			{
+				log_add (log_Info, "    %s (controller)",
+					SDL_GameControllerNameForIndex (i));
+			}
+			else
+			{
+				log_add (log_Info, "    %s (joystick)",
+					SDL_JoystickNameForIndex (i));
+			}
+#else
 			log_add (log_Info, "    %s", SDL_JoystickName (i));
+#endif
 		}
+#if SDL_MAJOR_VERSION == 1
 		SDL_JoystickEventState (SDL_ENABLE);
+#else
+		for (int i = 0; i < nJoysticks; i++)
+			create_joystick (i);
+#endif
 	}
 }
-
-#endif // SDL_MAJOR_VERSION
 
 #endif /* HAVE_JOYSTICK */
 
@@ -332,17 +326,15 @@ TFB_InitInput (int driver, int flags)
 	(void)flags;
 
 #if SDL_MAJOR_VERSION == 1
+	int signed_num_keys;
 	SDL_EnableUNICODE (1);
+	(void)SDL_GetKeyState (&signed_num_keys);
 	(void)SDL_GetKeyState (&num_keys);
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
 #endif
 
 #ifdef HAVE_JOYSTICK
-# if SDL_MAJOR_VERSION > 1
-	initController ();
-# else
 	initJoystick ();
-# endif
 #endif
 
 	in_character_mode = FALSE;
@@ -363,12 +355,11 @@ void
 TFB_UninitInput (void)
 {
 	VControl_Uninit ();
-#if SDL_MAJOR_VERSION == 2
-	uninitController ();
-#endif
 	HFree (controls);
 #if SDL_MAJOR_VERSION == 1
 	HFree (kbdstate);
+#else
+	SDL_QuitSubSystem (SDL_INIT_GAMECONTROLLER);
 #endif
 }
 
@@ -610,12 +601,7 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 {
 	VCONTROL_GESTURE *g = CONTROL_PTR (templat, control, index);
 
-#if SDL_MAJOR_VERSION == 1
-#	define SDL_CONTROLLER_BUTTON_MAX 21
-#	define SDL_CONTROLLER_AXIS_MAX 6
-#endif
-
-	// Controller button names for different controller types
+#if SDL_MAJOR_VERSION > 1
 	const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
 	{
 		"A", "B", "X", "Y", "Back", "Guide", "Start",
@@ -630,7 +616,6 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		"DUp", "DDown", "DLeft", "DRight", "TouchPad"
 	};
 
-	// Controller axis names
 	const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
 	{
 		"LStick H", "LStick V", "RStick H", "RStick V",
@@ -642,6 +627,7 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		"LStick H", "LStick V", "RStick H", "RStick V",
 		"L2", "R2"
 	};
+#endif
 
 	if (templat >= num_templ || control >= num_flight
 		|| index >= MAX_FLIGHT_ALTERNATES)
@@ -659,71 +645,61 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 					VControl_code2name (g->gesture.key));
 			buffer[maxlen - 1] = 0;
 			break;
-#if SDL_MAJOR_VERSION > 1
-		case VCONTROL_CONTROLLERBUTTON:
-			if (optControllerType == 1)
-			{	// Xbox/Xinput controller
-				snprintf (buffer, maxlen, "[C%d %s]",
-					g->gesture.controller_button.port,
-					xbx_buttons[g->gesture.controller_button.button]);
-			}
-			else if (optControllerType == 2)
-			{	// DualShock 4/DualSense controller
-				snprintf (buffer, maxlen, "[C%d %s]",
-					g->gesture.controller_button.port,
-					ds4_buttons[g->gesture.controller_button.button]);
-			}
-			else
-			{	// Generic controller, show raw button number
-				snprintf (buffer, maxlen, "[C%d B%d]",
-					g->gesture.controller_button.port,
-					g->gesture.controller_button.button);
-			}
-			buffer[maxlen - 1] = 0;
-			break;
-		case VCONTROL_CONTROLLERAXIS:
-			if (optControllerType == 1)
-			{	// Xbox/Xinput controller
-				snprintf (buffer, maxlen, "[C%d %s%c]",
-						g->gesture.controller_axis.port,
-						xbx_axes[g->gesture.controller_axis.axis],
-						g->gesture.controller_axis.polarity > 0
-							? '+' : '-');
-			}
-			else if (optControllerType == 2)
-			{	// DualShock 4/DualSense controller
-				snprintf (buffer, maxlen, "[C%d %s%c]",
-						g->gesture.controller_axis.port,
-						ds4_axes[g->gesture.controller_axis.axis],
-						g->gesture.controller_axis.polarity > 0
-							? '+' : '-');
-			}
-			else
-			{	// Generic controller, show raw axis number
-				snprintf (buffer, maxlen, "[C%d A%d %c]",
-						g->gesture.controller_axis.port,
-						g->gesture.controller_axis.axis,
-						g->gesture.controller_axis.polarity > 0
-							? '+' : '-');
-			}
-			buffer[maxlen - 1] = 0;
-			break;
-#else
 		case VCONTROL_JOYBUTTON:
-			snprintf (buffer, maxlen, "[J%d B%d]", g->gesture.button.port,
-					g->gesture.button.index + 1);
+#if SDL_MAJOR_VERSION > 1
+			if (optControllerType == 1)
+			{
+				snprintf (buffer, maxlen, "[J%d %s]",
+						g->gesture.button.port,
+						xbx_buttons[g->gesture.button.index]);
+			}
+			else if (optControllerType == 2)
+			{
+				snprintf (buffer, maxlen, "[J%d %s]",
+						g->gesture.button.port,
+						ds4_buttons[g->gesture.button.index]);
+			}
+			else
+#endif
+			{
+				snprintf (buffer, maxlen, "[J%d B%d]",
+						g->gesture.button.port,
+						g->gesture.button.index);
+			}
 			buffer[maxlen - 1] = 0;
 			break;
 		case VCONTROL_JOYAXIS:
-			snprintf (buffer, maxlen, "[J%d A%d %c]", g->gesture.axis.port,
-					g->gesture.axis.index,
-					g->gesture.axis.polarity > 0 ? '+' : '-');
+#if SDL_MAJOR_VERSION > 1
+			if (optControllerType == 1)
+			{
+				snprintf (buffer, maxlen, "[J%d %s%c]",
+						g->gesture.axis.port,
+						xbx_axes[g->gesture.axis.index],
+						g->gesture.axis.polarity > 0 ? '+' : '-');
+			}
+			else if (optControllerType == 2)
+			{
+				snprintf (buffer, maxlen, "[J%d %s%c]",
+						g->gesture.axis.port,
+						ds4_axes[g->gesture.axis.index],
+						g->gesture.axis.polarity > 0 ? '+' : '-');
+			}
+			else
+#endif
+			{
+				snprintf (buffer, maxlen, "[J%d A%d %c]",
+						g->gesture.axis.port,
+						g->gesture.axis.index,
+						g->gesture.axis.polarity > 0 ? '+' : '-');
+			}
+			buffer[maxlen - 1] = 0;
 			break;
+#if SDL_MAJOR_VERSION == 1
 		case VCONTROL_JOYHAT:
 			snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port,
 					g->gesture.hat.index, g->gesture.hat.dir);
 			break;
-#endif // SDL_MAJOR_VERSION
+#endif
 		default:
 			/* Something we don't handle yet */
 			buffer[0] = 0;
