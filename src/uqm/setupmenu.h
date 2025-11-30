@@ -297,24 +297,27 @@ enum {
 	CHOICE_MODHELLBORE,
 	CHOICE_MODFURNACE,
 	CHOICE_SHIPSEED,
+	CHOICE_SHIPSTORE,
+	CHOICE_CAPTNAMES,
+	CHOICE_DOSMENUS,
 
 	CHOICE_COUNT
 };
 
 enum {
-	MENU_QUITSUB,		// Quits settings sub menu
-	MENU_GRAPHICS,		// Graphics menu
-	MENU_AUDIO,			// General audio menu (volume, quality etc)
-	MENU_ENGINE,		// Engine behaviour menu (PC/3DO)
-	MENU_CHEATS,		// Cheats menu
-	MENY_KEYCONF,		// Main key configuration menu (input device etc)
-	MENU_ADVANCED,		// Advanced settings menu
-	MENU_EDITKEYS,		// Key layout editing menu (submenu for KEYCONF)
-	MENU_MUSIC,			// Music menu (remixes)
-	MENU_VISUAL,		// Visual menu
-	MENU_QOL,			// Quality of life features menu
-	MENU_DEVICES,		// Add devices cheat submenu
-	MENU_UPGRADES,		// Add upgrades cheat submenu
+	MENU_QUITSUB,  // Quits settings sub menu
+	MENU_GRAPHICS, // Graphics menu
+	MENU_AUDIO,    // General audio menu (volume, quality etc)
+	MENU_ENGINE,   // Engine behaviour menu (PC/3DO)
+	MENU_CHEATS,   // Cheats menu
+	MENY_KEYCONF,  // Main key configuration menu (input device etc)
+	MENU_ADVANCED, // Advanced settings menu
+	MENU_EDITKEYS, // Key layout editing menu (submenu for KEYCONF)
+	MENU_MUSIC,    // Music menu (remixes)
+	MENU_VISUAL,   // Visual menu
+	MENU_QOL,      // Quality of life features menu
+	MENU_DEVICES,  // Add devices cheat submenu
+	MENU_UPGRADES, // Add upgrades cheat submenu
 	
 	MENU_COUNT
 };
@@ -423,7 +426,7 @@ typedef struct globalopts_struct {
 			noHQEncounters, deCleansing, meleeObstacles, showVisitedStars,
 			unscaledStarSystem, slaughterMode, advancedAutoPilot,
 			meleeToolTips, scatterElements, showUpgrades, fleetPointSys,
-			shipSeed;
+			shipSeed, shipStore, captainNames, dosMenus;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor;

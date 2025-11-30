@@ -112,23 +112,9 @@ PropFile_from_string (char *d, PROPERTY_HANDLER handler, const char *prefix)
 		   make a new map entry. */
 		d[key_end] = '\0';
 		d[value_end] = '\0';
-		if (prefix)
-		{
+		if (prefix) {
 			char buf[256];
-			char dKeyStart[256];
-			const char *Prefix[2] = { "ds4.", "xbx." };
-
-			snprintf (dKeyStart, sizeof (dKeyStart), "%s", d + key_start);
-			
-			if (strstr (dKeyStart, Prefix[0]) || strstr (dKeyStart, Prefix[1]))
-			{
-				if (optControllerType == 2)
-					removeSubstr (dKeyStart, Prefix[0]);
-				else
-					removeSubstr (dKeyStart, Prefix[1]);
-			}
-
-			snprintf(buf, 255, "%s%s", prefix, dKeyStart);
+			snprintf (buf, 255, "%s%s", prefix, d + key_start);
 			buf[255]=0;
 			handler(buf, d+value_start);
 		} else {
