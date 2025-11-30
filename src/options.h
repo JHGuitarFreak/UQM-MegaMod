@@ -124,6 +124,9 @@ extern BOOLEAN optNoClassic;
 extern OPT_ENABLABLE optScatterElements;
 extern OPT_ENABLABLE optShowUpgrades;
 extern OPT_ENABLABLE optFleetPointSys;
+extern OPT_ENABLABLE optShipStore;
+extern OPT_ENABLABLE optCaptainNames;
+extern OPT_ENABLABLE optDosMenus;
 extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 
