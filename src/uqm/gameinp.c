@@ -37,6 +37,7 @@
 #include "setup.h"
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
+#include "gameopt.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
@@ -280,6 +281,20 @@ UpdateInputState (void)
 
 	if (CurrentInputState.menu[KEY_EXIT])
 		ExitRequested = TRUE;
+
+	if (PulsedInputState.menu[KEY_QUICKLOAD])
+	{
+		FlushInput ();
+		if (quickSaveSlot != (BYTE)~0)
+			QuickLoad ();
+	}
+	
+	if (PulsedInputState.menu[KEY_QUICKSAVE])
+	{
+		FlushInput ();
+		if (inSavablePos () && quickSaveSlot != (BYTE)~0)
+			QuickSave ();
+	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])

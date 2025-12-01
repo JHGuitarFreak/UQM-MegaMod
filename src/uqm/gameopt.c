@@ -1637,7 +1637,7 @@ DoPickGame (MENU_STATE *pMS)
 		pickState->success = FALSE;
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT] || pMS->QuickSL)
 	{
 		pSD = &pickState->summary[pMS->CurState];
 		if (pickState->saving || pSD->year_index)
@@ -1717,13 +1717,15 @@ DoPickGame (MENU_STATE *pMS)
 }
 
 static BOOLEAN
-SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_user)
+SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
+		BOOLEAN *canceled_by_user, BOOLEAN quicksave)
 {
 	SUMMARY_DESC *desc = pickState->summary + gameIndex;
 	UNICODE nameBuf[256];
 	STAMP saveStamp;
 	BOOLEAN success;
 	RECT r;
+	BOOLEAN initQS = FALSE;
 
 	GetContextClipRect(&r);
 
@@ -1735,18 +1737,36 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 
 		// Initialize the save name with whatever name is there already
 		// SAVE_NAME_SIZE is less than 256, so this is safe.
-		strncpy(nameBuf, desc->SaveName, SAVE_NAME_SIZE);
+		strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
 		nameBuf[SAVE_NAME_SIZE] = 0;
-		if (NameSaveGame (gameIndex, nameBuf))
+
+
+		if (!quicksave)
 		{
-			PlayMenuSound (MENU_SOUND_SUCCESS);
-			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
-			success = SaveGame (gameIndex, desc, nameBuf);
+			if (NameSaveGame (gameIndex, nameBuf))
+			{
+				PlayMenuSound (MENU_SOUND_SUCCESS);
+				ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
+				success = SaveGame (gameIndex, desc, nameBuf);
+
+				if (success && strcmp (nameBuf,
+					GAME_STRING (SAVEGAME_STRING_BASE + 5)) == 0)
+				{
+					quickSaveSlot = gameIndex;
+					initQS = TRUE;
+				}
+			}
+			else
+			{
+				success = FALSE;
+				*canceled_by_user = TRUE;
+			}
 		}
 		else
 		{
-			success = FALSE;
-			*canceled_by_user = TRUE;
+			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
+			SleepThread (ONE_SECOND / 2);
+			success = SaveGame (gameIndex, desc, nameBuf);
 		}
 	}
 	else
@@ -1764,11 +1784,14 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
 
+	if (initQS)
+		DoPopupWindow (GAME_STRING (SAVEGAME_STRING_BASE + 6));
+
 	return success;
 }
 
 static BOOLEAN
-PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
+PickGame (BOOLEAN saving, BOOLEAN fromMainMenu, BOOLEAN quicksave)
 {
 	CONTEXT OldContext;
 	MENU_STATE MenuState;
@@ -1785,7 +1808,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &pickState;
 	// select the last used slot
-	MenuState.CurState = lastUsedSlot;
+	MenuState.CurState = quicksave ? quickSaveSlot : lastUsedSlot;
+	MenuState.QuickSL = quicksave;
 
 	TimeOut = FadeMusic (0, ONE_SECOND / 2);
 
@@ -1799,7 +1823,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	DlgStamp = SaveContextFrame (NULL);
 	GetContextClipRect (&DlgRect);
 
-	DrawMenuStateStrings (PM_SAVE_GAME, !saving);
+	if (!quicksave)
+		DrawMenuStateStrings (PM_SAVE_GAME, !saving);
 
 	SleepThreadUntil (TimeOut);
 	PauseMusic ();
@@ -1813,6 +1838,12 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
 	RedrawPickDisplay (&pickState, MenuState.CurState);
+
+	if (!quicksave)
+	{
+		RedrawPickDisplay (&pickState, MenuState.CurState);
+		DrawSaveLoad (&pickState);
+	}
 
 	if (fromMainMenu)
 	{
@@ -1844,7 +1875,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 
 		lastUsedSlot = MenuState.CurState;
 
-		if (SaveLoadGame (&pickState, MenuState.CurState, &canceled_by_user))
+		if (SaveLoadGame (&pickState, MenuState.CurState,
+				&canceled_by_user, quicksave))
 			break; // all good
 
 		// something broke
@@ -1853,8 +1885,11 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		// TODO: Shouldn't we have a Problem() equivalent for Load too?
 
 		// reload and redraw everything
-		LoadGameDescriptions (pickState.summary);
-		RedrawPickDisplay (&pickState, MenuState.CurState);
+		if (!quicksave)
+		{
+			LoadGameDescriptions (pickState.summary);
+			RedrawPickDisplay (&pickState, MenuState.CurState);
+		}
 	}
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
@@ -1864,7 +1899,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		GLOBAL (CurrentActivity) |= CHECK_LOAD;
 	}
 
-	if (pickState.success) 
+	if (pickState.success)
 	{
 		SUMMARY_DESC *pSD = pickState.summary + MenuState.CurState;
 
@@ -1942,6 +1977,25 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	return pickState.success;
 }
 
+BOOLEAN
+QuickLoad (void)
+{
+	return PickGame (FALSE, FALSE, TRUE);
+}
+
+BOOLEAN
+QuickSave (void)
+{
+	PICK_GAME_STATE pickState;
+
+	memset (&pickState, 0, sizeof pickState);
+	pickState.saving = TRUE;
+
+	LoadGameDescriptions (pickState.summary);
+
+	return SaveLoadGame (&pickState, quickSaveSlot, FALSE, TRUE);
+}
+
 static BOOLEAN
 DoGameOptions (MENU_STATE *pMS)
 {
@@ -1961,7 +2015,7 @@ DoGameOptions (MENU_STATE *pMS)
 			case SAVE_GAME:
 			case LOAD_GAME:
 				SetFlashRect (NULL, FALSE);
-				if (PickGame (pMS->CurState == SAVE_GAME, FALSE))
+				if (PickGame (pMS->CurState == SAVE_GAME, FALSE, FALSE))
 					return FALSE;
 				DrawMenuStateStrings (PM_SAVE_GAME, pMS->CurState);
 				SetFlashRect (SFR_MENU_3DO, FALSE);
@@ -1998,7 +2052,7 @@ GameOptions (void)
 		BOOLEAN success;
 
 		DrawMenuStateStrings (PM_SAVE_GAME, LOAD_GAME);
-		success = PickGame (FALSE, TRUE);
+		success = PickGame (FALSE, TRUE, FALSE);
 		if (!success)
 		{	// Selected LOAD from main menu, and canceled
 			GLOBAL (CurrentActivity) |= CHECK_ABORT;

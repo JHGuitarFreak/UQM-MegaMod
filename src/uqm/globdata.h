@@ -1119,6 +1119,7 @@ extern BOOLEAN InitStarseed (BOOLEAN newgame);
 
 BOOLEAN inFullGame (void);
 BOOLEAN inSuperMelee (void);
+BOOLEAN inSavablePos (void);
 //BOOLEAN inBattle (void);
 //BOOLEAN inInterPlanetary (void);
 //BOOLEAN inSolarSystem (void);

@@ -129,6 +129,7 @@ extern OPT_ENABLABLE optCaptainNames;
 extern OPT_ENABLABLE optDosMenus;
 extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
+extern BYTE quickSaveSlot;
 
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;

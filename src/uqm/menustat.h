@@ -50,6 +50,7 @@ typedef struct menu_state
 	// For private use by various menus
 	// Usually, a menu associates its internal data struct using this
 	void *privData;
+	BOOLEAN QuickSL;
 
 } MENU_STATE;
 
