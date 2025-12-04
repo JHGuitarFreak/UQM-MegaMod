@@ -70,6 +70,25 @@ enum
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
 
+static RECT menuItemRects[NUM_MENU_ELEMENTS];
+
+static BYTE
+GetMenuItemAtMouse (void)
+{
+	COUNT i;
+
+	if (!optMouseInput)
+		return (BYTE)~0;
+
+	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
+	{
+		if (pointWithinRect (menuItemRects[i], ScaleCanvas ()))
+			return i;
+	}
+
+	return (BYTE)~0;
+}
+
 // Kruzen: Having this ref separated gains more control
 // We can load and free it whenever we want and not rely on menu volume
 MUSIC_REF menuMusic;
@@ -309,6 +328,7 @@ InitPulseText (void)
 	SIZE leading;
 	TEXT t;
 	COUNT i;
+	RECT textSize;
 
 	if (TextCache[0] != NULL)
 		return;
@@ -326,6 +346,12 @@ InitPulseText (void)
 	for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
 	{
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
+
+		if (optMouseInput)
+		{
+			textSize = font_GetTextRect (&t);
+			menuItemRects[i] = textSize;
+		}
 
 		frame = CaptureDrawable (CreateDrawable (WANT_PIXMAP, SCREEN_WIDTH,
 			SCREEN_HEIGHT, 1));
@@ -449,6 +475,7 @@ DoRestart (MENU_STATE *pMS)
 	static TimeCount LastInputTime;
 	static TimeCount InactTimeOut;
 	TimeCount TimeIn = GetTimeCounter ();
+	BYTE hoveredItem;
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
@@ -466,6 +493,8 @@ DoRestart (MENU_STATE *pMS)
 		pMS->CurState = LOAD_SAVED_GAME;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
+
+	hoveredItem = GetMenuItemAtMouse ();
 
 	if (pMS->Initialized && !(GLOBAL (CurrentActivity) & CHECK_ABORT))
 		Flash_process (pMS->flashContext);
@@ -504,8 +533,23 @@ DoRestart (MENU_STATE *pMS)
 				FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| (optMouseInput && MouseButtonDown == 1))
 	{
+		if (MouseButtonDown == 1)
+		{
+			MouseButtonDown = 0;
+			FlushInput ();
+
+			if (hoveredItem == (BYTE)~0)
+			{
+				//PlayMenuSound (MENU_SOUND_FAILURE);
+				return TRUE;
+			}
+
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+		}
+
 		switch (pMS->CurState)
 		{
 			case START_NEW_GAME:
@@ -620,28 +664,26 @@ DoRestart (MENU_STATE *pMS)
 
 		LastInputTime = GetTimeCounter ();
 	}
+	else if (optMouseInput && hoveredItem != (BYTE)~0)
+	{
+		BYTE NewState = hoveredItem;
+
+		if (NewState != pMS->CurState)
+		{
+			BatchGraphics ();
+			DrawRestartMenu (pMS, NewState, NULL);
+			UnbatchGraphics ();
+			pMS->CurState = NewState;
+			PlayMenuSound (MENU_SOUND_MOVE);
+		}
+
+		LastInputTime = GetTimeCounter ();
+	}
 	else if (PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_RIGHT])
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
-	//else if (MouseButtonDown)
-	//{
-	//	Flash_pause (pMS->flashContext);
-	//	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
-	//			// Mouse not supported message
-	//	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
-
-	//	SetTransitionSource (NULL);
-	//	BatchGraphics ();
-	//	DrawRestartMenuGraphic (pMS);
-	//	ScreenTransition (3, NULL);
-	//	DrawRestartMenu (pMS, pMS->CurState, NULL);
-	//	Flash_continue (pMS->flashContext);
-	//	UnbatchGraphics ();
-
-	//	LastInputTime = GetTimeCounter ();
-	//}
 	else
 	{	// No input received, check if timed out
 		if (GetTimeCounter () - LastInputTime > InactTimeOut)
