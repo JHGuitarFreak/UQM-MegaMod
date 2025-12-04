@@ -429,12 +429,38 @@ ProcessMouseEvent (const SDL_Event *e)
 		break;
 #if SDL_MAJOR_VERSION > 1
 	case SDL_MOUSEWHEEL:
-		MouseWheelDelta += e->wheel.y;
+	{
+		static TimeCount lastWheelTime = 0;
+		TimeCount currentTime = GetTimeCounter ();
+
+		if (currentTime - lastWheelTime > (ONE_SECOND / 12))
+		{
+			if (e->wheel.y != 0)
+			{
+				MouseWheelDelta = (e->wheel.y > 0) ? 1 : -1;
+				lastWheelTime = currentTime;
+			}
+		}
 		break;
+	}
 #endif
 	default:
 		break;
 	}
+}
+
+BOOLEAN
+ClearMouseEvents (void)
+{
+	BOOLEAN had_event = (MouseButtonDown != 0) || (MouseWheelDelta != 0);
+
+	if (MouseButtonDown != 0)
+		MouseButtonDown = 0;
+
+	if (MouseWheelDelta != 0)
+		MouseWheelDelta = 0;
+
+	return had_event;
 }
 
 #if SDL_MAJOR_VERSION == 1

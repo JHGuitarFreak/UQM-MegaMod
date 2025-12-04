@@ -36,6 +36,7 @@
 #include "planets/planets.h"
 #include <math.h>
 #include "util.h"
+#include "libs/inplib.h"
 
 
 static void CleanupAfterStarBase (void);
@@ -353,8 +354,12 @@ DoStarBase (MENU_STATE *pMS)
 
 		UnbatchGraphics ();
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButtonDown == 1)
 	{
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+
 ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;
@@ -423,13 +428,23 @@ ExitStarBase:
 		STARBASE_STATE NewState;
 
 		NewState = pMS->CurState;
-		if (PulsedInputState.menu[KEY_MENU_LEFT] || PulsedInputState.menu[KEY_MENU_UP])
+		if (PulsedInputState.menu[KEY_MENU_LEFT]
+				|| PulsedInputState.menu[KEY_MENU_UP]
+				|| MouseWheelDelta > 0)
 		{
+			if (ClearMouseEvents ())
+				PlayMenuSound (MENU_SOUND_MOVE);
+
 			if (NewState-- == TALK_COMMANDER)
 				NewState = DEPART_BASE;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_RIGHT] || PulsedInputState.menu[KEY_MENU_DOWN])
+		else if (PulsedInputState.menu[KEY_MENU_RIGHT]
+				|| PulsedInputState.menu[KEY_MENU_DOWN]
+				|| MouseWheelDelta < 0)
 		{
+			if (ClearMouseEvents ())
+				PlayMenuSound (MENU_SOUND_MOVE);
+
 			if (NewState++ == DEPART_BASE)
 				NewState = TALK_COMMANDER;
 		}

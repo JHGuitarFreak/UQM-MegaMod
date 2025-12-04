@@ -62,6 +62,7 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 
 void BeginInputFrame (void);
 
+extern BOOLEAN ClearMouseEvents (void);
 extern POINT ScaleCanvas (void);
 extern POINT ScreenToCanvas (CONTEXT context);
 extern BOOLEAN IsMouseInViewport (CONTEXT context);

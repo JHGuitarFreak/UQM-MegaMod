@@ -34,6 +34,7 @@
 #include "util.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/log/uqmlog.h"
+#include "libs/inplib.h"
 #include "comm.h"
 #include "master.h"
 
@@ -1632,13 +1633,20 @@ DoPickGame (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButtonDown == 2)
 	{
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+
 		pickState->success = FALSE;
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButtonDown == 1)
 	{
+		ClearMouseEvents ();
+
 		pSD = &pickState->summary[pMS->CurState];
 		if (pickState->saving || pSD->year_index)
 		{	// valid slot
@@ -1688,15 +1696,22 @@ DoPickGame (MENU_STATE *pMS)
 			else 
 				NewState = MAX_SAVED_GAMES - 1;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_UP])
+		else if (PulsedInputState.menu[KEY_MENU_UP] || MouseWheelDelta > 0)
 		{
+			if (ClearMouseEvents ())
+				PlayMenuSound (MENU_SOUND_MOVE);
+
 			if (NewState == 0)
 				NewState = MAX_SAVED_GAMES - 1;
 			else
 				NewState--;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_DOWN])
+		else if (PulsedInputState.menu[KEY_MENU_DOWN]
+				|| MouseWheelDelta < 0)
 		{
+			if (ClearMouseEvents ())
+				PlayMenuSound (MENU_SOUND_MOVE);
+
 			if (NewState == MAX_SAVED_GAMES - 1)
 				NewState = 0;
 			else

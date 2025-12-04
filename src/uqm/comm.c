@@ -909,8 +909,11 @@ DoTalkSegue (TALKING_STATE *pTS)
 	
 	if (optSpeech || optSmoothScroll == OPT_3DO || (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
 	{
-		if (PulsedInputState.menu[KEY_MENU_CANCEL])
+		if (PulsedInputState.menu[KEY_MENU_CANCEL]
+				|| MouseButtonDown == 2)
 		{
+			ClearMouseEvents ();
+
 			JumpTrack ();
 			pTS->ended = true;
 			return FALSE;
@@ -933,8 +936,10 @@ DoTalkSegue (TALKING_STATE *pTS)
 #endif
 		curTrack = PlayingTrack();
 
-		if (right)
+		if (right || MouseWheelDelta > 0)
 		{
+			ClearMouseEvents ();
+
 			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 3));
 			if (optSmoothScroll == OPT_PC || !optSpeech)
 				FastForward_Page ();
@@ -942,8 +947,10 @@ DoTalkSegue (TALKING_STATE *pTS)
 				FastForward_Smooth ();
 			pTS->seeking = true;
 		}
-		else if (left || pTS->rewind)
+		else if (left || pTS->rewind || MouseWheelDelta < 0)
 		{
+			ClearMouseEvents ();
+
 			pTS->rewind = false;
 			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 4));
 			if (optSmoothScroll == OPT_PC || !optSpeech)
@@ -1259,8 +1266,11 @@ DoConvSummary (SUMMARY_STATE *pSS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| PulsedInputState.menu[KEY_MENU_RIGHT])
+			|| PulsedInputState.menu[KEY_MENU_RIGHT]
+			|| MouseButtonDown == 1)
 	{
+		ClearMouseEvents ();
+
 		if (pSS->NextSub)
 		{	// we want the next page
 			pSS->PrintNext = TRUE;
@@ -1483,14 +1493,22 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		RefreshResponses (pES);
 	}
 
-	if (PulsedInputState.menu[KEY_MENU_SELECT])
+	if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButtonDown == 1)
 	{
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+
 		SelectResponse (pES);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_CANCEL] &&
+	else if ((PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButtonDown == 2) &&
 			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE &&
 			!IsDarkMode)
 	{
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+
 		SelectConversationSummary (pES);
 	}
 	else
@@ -1507,10 +1525,30 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			}
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP])
+		{
 			response = (BYTE)((response + (BYTE)(pES->num_responses - 1))
-					% pES->num_responses);
+				% pES->num_responses);
+		}
 		else if (PulsedInputState.menu[KEY_MENU_DOWN])
+		{
 			response = (BYTE)((BYTE)(response + 1) % pES->num_responses);
+		}
+		else if (MouseWheelDelta != 0)
+		{
+			if (MouseWheelDelta > 0)
+			{
+				response =
+						(BYTE)((response + (BYTE)(pES->num_responses - 1))
+						% pES->num_responses);
+			}
+			else
+			{
+				response =
+						(BYTE)((BYTE)(response + 1) % pES->num_responses);
+			}
+			ClearMouseEvents ();
+			PlayMenuSound (MENU_SOUND_MOVE);
+		}
 
 		if (response != pES->cur_response)
 		{
