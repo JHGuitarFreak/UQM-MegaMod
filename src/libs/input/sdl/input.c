@@ -433,7 +433,7 @@ ProcessMouseEvent (const SDL_Event *e)
 		static TimeCount lastWheelTime = 0;
 		TimeCount currentTime = GetTimeCounter ();
 
-		if (currentTime - lastWheelTime > (ONE_SECOND / 12))
+		if (currentTime - lastWheelTime > (ONE_SECOND / 16))
 		{
 			if (e->wheel.y != 0)
 			{

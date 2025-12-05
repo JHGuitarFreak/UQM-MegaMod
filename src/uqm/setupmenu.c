@@ -1421,6 +1421,7 @@ PropagateResults (void)
 static BOOLEAN
 DoSetupMenu (SETUP_MENU_STATE *pInputState)
 {
+	static BOOLEAN clicked_in = FALSE;
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
@@ -1455,28 +1456,70 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 
 	UnbatchGraphics ();
 
-	if (PulsedInputState.menu[KEY_MENU_UP])
+	if (current && current->tag == WIDGET_TYPE_MENU_SCREEN)
+	{
+		BOOLEAN horizontal = FALSE;
+		WIDGET_MENU_SCREEN *menu = (WIDGET_MENU_SCREEN *)current;
+		if (menu->highlighted >= 0
+				&& menu->highlighted < menu->num_children)
+		{
+			WIDGET *highlighted_widget = menu->child[menu->highlighted];
+			if (highlighted_widget)
+			{
+				switch (highlighted_widget->tag)
+				{
+					case WIDGET_TYPE_SLIDER:
+						horizontal = TRUE;
+						break;
+					case WIDGET_TYPE_CHOICE:
+						horizontal = TRUE;
+						break;
+					case WIDGET_TYPE_TEXTENTRY:
+					case WIDGET_TYPE_CONTROLENTRY:
+						horizontal = FALSE;
+						MouseButtonDown = 0;
+						break;
+					default:
+						horizontal = FALSE;
+						break;
+				}
+			}
+		}
+
+		if (MouseButtonDown == 1 && horizontal)
+		{
+			clicked_in ^= 1 << 0;
+		}
+	}
+
+	if (PulsedInputState.menu[KEY_MENU_UP]
+			|| (!clicked_in && MouseWheelDelta > 0))
 	{
 		Widget_Event (WIDGET_EVENT_UP);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_DOWN])
+	else if (PulsedInputState.menu[KEY_MENU_DOWN]
+			|| (!clicked_in && MouseWheelDelta < 0))
 	{
 		Widget_Event (WIDGET_EVENT_DOWN);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_LEFT])
+	else if (PulsedInputState.menu[KEY_MENU_LEFT]
+			|| (clicked_in && MouseWheelDelta < 0))
 	{
 		Widget_Event (WIDGET_EVENT_LEFT);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+	else if (PulsedInputState.menu[KEY_MENU_RIGHT]
+			|| (clicked_in && MouseWheelDelta > 0))
 	{
 		Widget_Event (WIDGET_EVENT_RIGHT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_SELECT])
+	if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| (MouseButtonDown == 1))
 	{
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButtonDown == 2)
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_CANCEL);
 	}
 	if (PulsedInputState.menu[KEY_MENU_DELETE])
@@ -1484,10 +1527,16 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
 
+	if (MouseButtonDown)
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+	if (MouseWheelDelta)
+		PlayMenuSound (MENU_SOUND_MOVE);
+
+	ClearMouseEvents ();
+
 	SleepThreadUntil (pInputState->NextTime + MENU_FRAME_RATE);
 	pInputState->NextTime = GetTimeCounter ();
-	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || 
-		 (next == NULL));
+	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || (next == NULL));
 }
 
 static void
