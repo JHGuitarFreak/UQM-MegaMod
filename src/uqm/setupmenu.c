@@ -1527,11 +1527,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
 
-	if (MouseButtonDown)
-		PlayMenuSound (MENU_SOUND_SUCCESS);
-	if (MouseWheelDelta)
-		PlayMenuSound (MENU_SOUND_MOVE);
-
+	DoMouseSounds ();
 	ClearMouseEvents ();
 
 	SleepThreadUntil (pInputState->NextTime + MENU_FRAME_RATE);

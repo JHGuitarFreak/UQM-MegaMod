@@ -619,8 +619,10 @@ DoInstallModule (MENU_STATE *pMS)
 		return (TRUE);
 	}
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT);
 	motion = PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_RIGHT] ||
 			PulsedInputState.menu[KEY_MENU_UP] ||

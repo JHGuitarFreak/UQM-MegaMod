@@ -389,8 +389,10 @@ DoDiscardCargo (MENU_STATE *pMS)
 	BYTE NewState;
 	BOOLEAN select, cancel, back, forward;
 	
-	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP]
 			|| PulsedInputState.menu[KEY_MENU_LEFT] || MouseWheelDelta > 0;
 	forward = PulsedInputState.menu[KEY_MENU_DOWN]
@@ -399,6 +401,7 @@ DoDiscardCargo (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
+	DoMouseSounds ();
 	ClearMouseEvents ();
 
 	if (cancel)

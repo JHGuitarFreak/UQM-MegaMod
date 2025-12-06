@@ -1440,8 +1440,10 @@ DoScan (MENU_STATE *pMS)
 {
 	BOOLEAN select, cancel;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;

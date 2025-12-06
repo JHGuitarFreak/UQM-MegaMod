@@ -907,7 +907,8 @@ DoTalkSegue (TALKING_STATE *pTS)
 		return FALSE;
 	}
 	
-	if (optSpeech || optSmoothScroll == OPT_3DO || (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
+	if (optSpeech || optSmoothScroll == OPT_3DO
+			|| (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
 	{
 		if (PulsedInputState.menu[KEY_MENU_CANCEL]
 				|| MouseButton (MOUSE_RGT))
