@@ -68,6 +68,7 @@ void BeginInputFrame (void);
 
 extern BOOLEAN ClearMouseEvents (void);
 extern BOOLEAN MouseButton (int button);
+extern void DoMouseSounds (void);
 extern POINT ScaleCanvas (void);
 extern POINT ScreenToCanvas (CONTEXT context);
 extern BOOLEAN IsMouseInViewport (CONTEXT context);

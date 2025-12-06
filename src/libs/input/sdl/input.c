@@ -31,6 +31,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "uqm/colors.h"
 #include "uqm/units.h"
+#include "uqm/sounds.h"
 
 #define KBDBUFSIZE (1 << 8)
 static int kbdhead=0, kbdtail=0;
@@ -461,6 +462,15 @@ BOOLEAN
 MouseButton (int button)
 {
 	return MouseButtonDown == button;
+}
+
+void
+DoMouseSounds (void)
+{
+	if (MouseButtonDown)
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+	if (MouseWheelDelta)
+		PlayMenuSound (MENU_SOUND_MOVE);
 }
 
 #if SDL_MAJOR_VERSION == 1
