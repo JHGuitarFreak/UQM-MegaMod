@@ -137,7 +137,7 @@ ScanMouseInput (void)
 	if (!ScanMouseDragging)
 		cursorMoved = ScanCursorLocation ();
 
-	if (MouseButtonDown == 1 && !ScanMouseDragging)
+	if (MouseButton (MOUSE_LFT) && !ScanMouseDragging)
 	{
 		ScanMouseDragging = TRUE;
 		cursorMoved = ScanCursorLocation ();
@@ -877,8 +877,8 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		flashPlanetLocation ();
 	}
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButtonDown == 1;
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButtonDown == 2;
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
@@ -886,13 +886,18 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		return FALSE;
 	}
 
+	if (MouseButtonDown)
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+
 	if (cancel)
 	{
+		ClearMouseEvents ();
 		pickState->success = false;
 		return FALSE;
 	}
 	else if (select)
 	{
+		ClearMouseEvents ();
 		pickState->success = true;
 		return FALSE;
 	}
@@ -1435,18 +1440,25 @@ DoScan (MENU_STATE *pMS)
 {
 	BOOLEAN select, cancel;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
+	if (MouseButton (MOUSE_LFT))
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
+		ClearMouseEvents ();
+
 		return FALSE;
 	}
 	else if (select)
 	{
+		ClearMouseEvents ();
+
 		if (pMS->CurState == DISPATCH_SHUTTLE)
 		{
 			COUNT fuel_required;

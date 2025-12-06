@@ -421,8 +421,6 @@ CalculateAutopilot (void)
 	ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
 			? ship_rect.extent.width : ship_rect.extent.height;
 
-	ship_perimeter >>= 1;
-
 	if (dx < -(SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
 		dx += SCALED_MAP_WIDTH << MAG_SHIFT;
 	else if (dx > (SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
@@ -2366,7 +2364,7 @@ DoPlanetSide (LanderInputState *pMS)
 	if (IsMouseInViewport (ScanContext)
 			|| IsMouseInViewport (PlanetContext))
 	{
-		if (MouseButtonDown == 1)
+		if (MouseButton (MOUSE_LFT))
 		{
 			if (IsMouseInViewport (ScanContext))
 				targetLanderLoc = GetMouseScanCoords ();
@@ -2375,7 +2373,7 @@ DoPlanetSide (LanderInputState *pMS)
 
 			hasMouseTarget = TRUE;
 		}
-		else if (MouseButtonDown == 2)
+		else if (MouseButton (MOUSE_RGT))
 			KillAutopilot ();
 	}
 

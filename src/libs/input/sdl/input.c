@@ -412,16 +412,10 @@ ProcessMouseEvent (const SDL_Event *e)
 	switch (e->type)
 	{
 	case SDL_MOUSEBUTTONDOWN:
-		if (e->button.button == SDL_BUTTON_LEFT)
-			MouseButtonDown = 1;
-		else if (e->button.button == SDL_BUTTON_RIGHT)
-			MouseButtonDown = 2;
+		MouseButtonDown = e->button.button;
 		break;
 	case SDL_MOUSEBUTTONUP:
-		if (e->button.button == SDL_BUTTON_LEFT)
-			MouseButtonDown = 0;
-		else if (e->button.button == SDL_BUTTON_RIGHT)
-			MouseButtonDown = 0;
+		MouseButtonDown = 0;
 		break;
 	case SDL_MOUSEMOTION:
 		CurrentMousePos.x = e->motion.x;
@@ -461,6 +455,12 @@ ClearMouseEvents (void)
 		MouseWheelDelta = 0;
 
 	return had_event;
+}
+
+BOOLEAN
+MouseButton (int button)
+{
+	return MouseButtonDown == button;
 }
 
 #if SDL_MAJOR_VERSION == 1

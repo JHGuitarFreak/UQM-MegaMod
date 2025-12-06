@@ -1477,7 +1477,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 					case WIDGET_TYPE_TEXTENTRY:
 					case WIDGET_TYPE_CONTROLENTRY:
 						horizontal = FALSE;
-						MouseButtonDown = 0;
+						ClearMouseEvents ();
 						break;
 					default:
 						horizontal = FALSE;
@@ -1486,7 +1486,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 			}
 		}
 
-		if (MouseButtonDown == 1 && horizontal)
+		if (MouseButton (MOUSE_LFT) && horizontal)
 		{
 			clicked_in ^= 1 << 0;
 		}
@@ -1513,11 +1513,11 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 		Widget_Event (WIDGET_EVENT_RIGHT);
 	}
 	if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| (MouseButtonDown == 1))
+			|| (MouseButton (MOUSE_LFT)))
 	{
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButtonDown == 2)
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
 		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_CANCEL);

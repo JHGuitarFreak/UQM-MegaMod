@@ -2087,13 +2087,13 @@ CheckShipLocation (SIZE *newRadius)
 				&& (ip_autopilot.x != ~0 || ip_autopilot.y != ~0))
 			KillAutopilot ();
 
-		if (MouseButtonDown == 2
+		if (MouseButton (MOUSE_RGT)
 				&& IsMouseInViewport (SpaceContext))
 		{
 			if (ip_autopilot.x != ~0 || ip_autopilot.y != ~0)
 				KillAutopilot ();
 
-			MouseButtonDown = 0;
+			ClearMouseEvents ();
 		}
 	}
 
@@ -2116,7 +2116,7 @@ CheckShipLocation (SIZE *newRadius)
 			else
 				SetIPAutopilot ();
 
-			MouseButtonDown = 0;
+			ClearMouseEvents ();
 		}
 
 		if (last_radius != radius && ip_autopilot.x != ~0)
@@ -3503,7 +3503,8 @@ SaveSolarSysLocation (void)
 static BOOLEAN
 DoSolarSysMenu (MENU_STATE *pMS)
 {
-	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT];
+	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT);
 	BOOLEAN handled;
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
