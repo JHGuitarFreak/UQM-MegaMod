@@ -2105,7 +2105,7 @@ CheckShipLocation (SIZE *newRadius)
 
 	if (optMouseInput)
 	{
-		if (MouseButtonDown && !SISonScreen
+		if (MouseButton (MOUSE_LFT) && !SISonScreen
 				&& IsMouseInViewport (SpaceContext))
 		{
 			PLANET_DESC *clicked_body = GetWorldAtTarget ();
@@ -3603,7 +3603,8 @@ static BOOLEAN
 DoIpFlight (SOLARSYS_STATE *pSS)
 {
 	//static TimeCount NextTime; unused
-	BOOLEAN cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	BOOLEAN cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_MID);
 
 	if (pSS->InOrbit)
 	{	// CheckShipLocation() or InitSolarSys() sent us to orbital

@@ -26,6 +26,7 @@
 #include "uqm/hyper.h"
 #include "libs/mathlib.h"
 #include "../../setup.h"
+#include "libs/inplib.h"
 
 /* Core characteristics.
  * All of these are changed at init time by some module, except for
@@ -398,7 +399,8 @@ sis_hyper_postprocess (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	if (((StarShipPtr->cur_status_flags & WEAPON) ||
-			PulsedInputState.menu[KEY_MENU_CANCEL])
+			(PulsedInputState.menu[KEY_MENU_CANCEL]
+				|| MouseButton (MOUSE_MID)))
 			&& StarShipPtr->special_counter == 0)
 	{
 #define MENU_DELAY 10

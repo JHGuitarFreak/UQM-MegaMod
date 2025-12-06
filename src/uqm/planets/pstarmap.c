@@ -2671,7 +2671,8 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT] || (MouseButton (MOUSE_LFT) && !MouseDragging))
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| (MouseButton (MOUSE_LFT) && !MouseDragging))
 	{
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
@@ -2752,7 +2753,8 @@ DoMoveCursor (MENU_STATE *pMS)
 			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+	else if (PulsedInputState.menu[KEY_MENU_SPECIAL]
+			|| MouseButton (MOUSE_MID))
 	{
 		FlushInput ();
 
