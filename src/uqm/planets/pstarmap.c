@@ -221,21 +221,6 @@ StarMapMouseInput (void)
 	if (!optMouseInput)
 		return FALSE;
 
-	if (MouseWheelDelta != 0)
-	{
-		SIZE zoomDir = 0;
-		if (MouseWheelDelta > 0)
-			zoomDir = 1;
-		else if (MouseWheelDelta < 0)
-			zoomDir = -1;
-
-		if (zoomDir != 0)
-		{
-			ZoomStarMap (zoomDir);
-			MouseWheelDelta = 0;
-		}
-	}
-
 	if (!IsMouseInViewport (SpaceContext))
 	{
 		if (MouseDragging)
@@ -267,31 +252,6 @@ StarMapMouseInput (void)
 
 	if (!MouseDragging)
 		cursorMoved = CursorLocation (newCursorLoc);
-
-	if (MouseButtonDown == 1 && !MouseDragging)
-	{
-		MouseDragging = TRUE;
-		MouseDownTime = GetTimeCounter ();
-
-		cursorMoved = CursorLocation (newCursorLoc);
-	}
-	else if (!MouseButtonDown && MouseDragging)
-	{
-		DWORD currentTime = GetTimeCounter ();
-
-		if (currentTime - MouseDownTime < (ONE_SECOND / 4))
-		{
-			if (pointsEqual (GLOBAL (autopilot), newCursorLoc))
-				GLOBAL (autopilot.x) = GLOBAL (autopilot.y) = ~0;
-			else
-				GLOBAL (autopilot) = newCursorLoc;
-
-			DrawStarMap (0, NULL);
-		}
-
-		MouseDragging = FALSE;
-		MouseDownTime = 0;
-	}
 
 	if (MouseDragging)
 		cursorMoved = CursorLocation (newCursorLoc);
@@ -2680,7 +2640,7 @@ DoMoveCursor (MENU_STATE *pMS)
 		isMove = TRUE;
 	}
 	
-	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButtonDown == 2)
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
 		FlushInput ();
 
@@ -2711,11 +2671,10 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT] || (MouseButton (MOUSE_LFT) && !MouseDragging))
 	{
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
-
 		FlushInput ();
 
 		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
@@ -2833,10 +2792,12 @@ DoMoveCursor (MENU_STATE *pMS)
 		SIZE ZoomIn, ZoomOut;
 
 		ZoomIn = ZoomOut = 0;
-		if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
+		if (PulsedInputState.menu[KEY_MENU_ZOOM_IN] || MouseWheelDelta > 0)
 			ZoomIn = 1;
-		else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
+		else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT] || MouseWheelDelta < 0)
 			ZoomOut = 1;
+
+		ClearMouseEvents ();
 
 		ZoomStarMap (ZoomIn - ZoomOut);
 
