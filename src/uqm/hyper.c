@@ -45,6 +45,7 @@
 #include "libs/mathlib.h"
 #include "libs/log.h"
 #include "util.h"
+#include "libs/inplib.h"
 
 #define XOFFS ((RADAR_SCAN_WIDTH + (UNIT_SCREEN_WIDTH << 2)) >> 1)
 #define YOFFS ((RADAR_SCAN_HEIGHT + (UNIT_SCREEN_HEIGHT << 2)) >> 1)
@@ -2089,7 +2090,8 @@ SeedUniverse (void)
 static BOOLEAN
 DoHyperspaceMenu (MENU_STATE *pMS)
 {
-	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT];
+	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT);
 	BOOLEAN handled;
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))

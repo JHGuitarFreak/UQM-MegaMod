@@ -910,7 +910,7 @@ DoTalkSegue (TALKING_STATE *pTS)
 	if (optSpeech || optSmoothScroll == OPT_3DO || (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
 	{
 		if (PulsedInputState.menu[KEY_MENU_CANCEL]
-				|| MouseButtonDown == 2)
+				|| MouseButton (MOUSE_RGT))
 		{
 			ClearMouseEvents ();
 
@@ -1267,7 +1267,7 @@ DoConvSummary (SUMMARY_STATE *pSS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| PulsedInputState.menu[KEY_MENU_RIGHT]
-			|| MouseButtonDown == 1)
+			|| MouseButton (MOUSE_LFT))
 	{
 		ClearMouseEvents ();
 
@@ -1494,7 +1494,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	}
 
 	if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButtonDown == 1)
+			|| MouseButton (MOUSE_LFT))
 	{
 		if (ClearMouseEvents ())
 			PlayMenuSound (MENU_SOUND_SUCCESS);
@@ -1502,7 +1502,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		SelectResponse (pES);
 	}
 	else if ((PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| MouseButtonDown == 2) &&
+			|| MouseButton (MOUSE_RGT)) &&
 			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE &&
 			!IsDarkMode)
 	{

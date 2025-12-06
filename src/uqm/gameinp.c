@@ -333,6 +333,7 @@ FlushInput (void)
 {
 	TFB_ResetControls ();
 	_clear_menu_state ();
+	ClearMouseEvents ();
 }
 
 static MENU_SOUND_FLAGS

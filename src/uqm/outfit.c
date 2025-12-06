@@ -36,6 +36,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "util.h"
 #include "shipcont.h"
+#include "libs/inplib.h"
 
 // How manyeth .png in the module.ani file is the first lander shield.
 #define SHIELD_LOCATION_IN_MODULE_ANI (23 + 2 * NUM_PURCHASE_MODULES)
@@ -618,8 +619,8 @@ DoInstallModule (MENU_STATE *pMS)
 		return (TRUE);
 	}
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	motion = PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_RIGHT] ||
 			PulsedInputState.menu[KEY_MENU_UP] ||
@@ -675,6 +676,8 @@ DoInstallModule (MENU_STATE *pMS)
 	}
 	else if (select || cancel)
 	{
+		ClearMouseEvents ();
+
 		new_slot_piece = pMS->CurState;
 		if (select)
 		{
@@ -744,6 +747,8 @@ DoInstallModule (MENU_STATE *pMS)
 
 		if (select)
 		{
+			ClearMouseEvents ();
+
 			if (new_slot_piece >= EMPTY_SLOT
 					&& old_slot_piece >= EMPTY_SLOT)
 			{
@@ -816,11 +821,16 @@ DoInstallModule (MENU_STATE *pMS)
 			else if (pMS->CurState > EMPTY_SLOT + 2)
 				pMS->CurState = EMPTY_SLOT + 2;
 			if (cancel)
+			{
+				ClearMouseEvents ();
 				new_slot_piece = pMS->CurState;
+			}
 			goto InitFlash;
 		}
 		else if (!cancel)
 		{
+			ClearMouseEvents ();
+
 			if ((new_slot_piece == EMPTY_SLOT + 3) &&
 					(old_slot_piece == PLANET_LANDER) &&
 					(pMS->delta_item < GLOBAL_SIS (NumLanders)))
@@ -1291,10 +1301,14 @@ DoOutfit (MENU_STATE *pMS)
 
 		SetContext (StatusContext);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| (PulsedInputState.menu[KEY_MENU_SELECT]
+	else if ((PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT))
+			|| ((PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == OUTFIT_EXIT))
 	{
+		ClearMouseEvents ();
+
 		if (pMS->CurState == OUTFIT_DOFUEL)
 		{
 			pMS->CurState = OUTFIT_FUEL;
@@ -1322,7 +1336,8 @@ ExitOutfit:
 			return (FALSE);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{

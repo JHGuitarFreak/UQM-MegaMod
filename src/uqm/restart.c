@@ -222,7 +222,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			return FALSE;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_SELECT]
-				|| MouseButtonDown == 1)
+				|| MouseButton (MOUSE_LFT))
 		{
 			done = TRUE;
 			response = TRUE;
@@ -232,7 +232,7 @@ DoDiffChooser (MENU_STATE *pMS)
 		}
 		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
 				|| CurrentInputState.menu[KEY_EXIT]
-				|| MouseButtonDown == 2)
+				|| MouseButton (MOUSE_RGT))
 		{
 			done = TRUE;
 			response = FALSE;
@@ -516,7 +516,7 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButtonDown == 1)
+			|| MouseButton (MOUSE_LFT))
 	{
 		if (ClearMouseEvents ())
 			PlayMenuSound (MENU_SOUND_SUCCESS);

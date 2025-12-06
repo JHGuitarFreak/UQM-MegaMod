@@ -2318,8 +2318,10 @@ DoModifyShips (MENU_STATE *pMS)
 	else
 	{
 		BOOLEAN special = (PulsedInputState.menu[KEY_MENU_SPECIAL] != 0);
-		BOOLEAN select = (PulsedInputState.menu[KEY_MENU_SELECT] != 0);
-		BOOLEAN cancel = (PulsedInputState.menu[KEY_MENU_CANCEL] != 0);
+		BOOLEAN select = (PulsedInputState.menu[KEY_MENU_SELECT] != 0
+				|| MouseButton (MOUSE_LFT));
+		BOOLEAN cancel = (PulsedInputState.menu[KEY_MENU_CANCEL] != 0
+				|| MouseButton (MOUSE_RGT));
 		SBYTE dx = 0;
 		SBYTE dy = 0;
 

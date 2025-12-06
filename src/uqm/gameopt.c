@@ -625,13 +625,15 @@ DoSettings (MENU_STATE *pMS)
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| (PulsedInputState.menu[KEY_MENU_SELECT]
+	if ((PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+			|| ((PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_SETTINGS_MENU))
 	{
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{
@@ -1634,7 +1636,7 @@ DoPickGame (MENU_STATE *pMS)
 		return FALSE;
 
 	if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| MouseButtonDown == 2)
+			|| MouseButton (MOUSE_RGT))
 	{
 		if (ClearMouseEvents ())
 			PlayMenuSound (MENU_SOUND_SUCCESS);
@@ -1643,7 +1645,7 @@ DoPickGame (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButtonDown == 1)
+			|| MouseButton (MOUSE_LFT))
 	{
 		ClearMouseEvents ();
 
@@ -1963,13 +1965,15 @@ DoGameOptions (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| (PulsedInputState.menu[KEY_MENU_SELECT]
+	if ((PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+			|| ((PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_GAME_MENU))
 	{
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{

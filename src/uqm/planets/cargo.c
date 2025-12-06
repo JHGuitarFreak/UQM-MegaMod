@@ -28,6 +28,7 @@
 #include "planets.h"
 #include "libs/graphics/drawable.h"
 		// for GetFrameBounds()
+#include "libs/inplib.h"
 
 
 #define ELEMENT_ORG_Y      RES_SCALE (35)
@@ -388,13 +389,17 @@ DoDiscardCargo (MENU_STATE *pMS)
 	BYTE NewState;
 	BOOLEAN select, cancel, back, forward;
 	
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
-	back = PulsedInputState.menu[KEY_MENU_UP] || PulsedInputState.menu[KEY_MENU_LEFT];
-	forward = PulsedInputState.menu[KEY_MENU_DOWN] || PulsedInputState.menu[KEY_MENU_RIGHT];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
+	back = PulsedInputState.menu[KEY_MENU_UP]
+			|| PulsedInputState.menu[KEY_MENU_LEFT] || MouseWheelDelta > 0;
+	forward = PulsedInputState.menu[KEY_MENU_DOWN]
+			|| PulsedInputState.menu[KEY_MENU_RIGHT] || MouseWheelDelta < 0;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
+
+	ClearMouseEvents ();
 
 	if (cancel)
 	{

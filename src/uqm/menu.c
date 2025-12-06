@@ -33,6 +33,8 @@
 #include "nameref.h"
 #include "ifontres.h"
 #include "libs/graphics/drawable.h"
+#include "libs/inplib.h"
+#include "sounds.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -481,16 +483,27 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	BYTE NewState = pMS->CurState;
 	BYTE OrigBase = BaseState;
 	BOOLEAN useAltMenu = FALSE;
+
+	if (MouseButtonDown)
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+	if (MouseWheelDelta)
+		PlayMenuSound (MENU_SOUND_MOVE);
+
 	if (optWhichMenu == OPT_PC)
 		useAltMenu = GetAlternateMenu (&BaseState, &NewState);
 	if (PulsedInputState.menu[KEY_MENU_LEFT] ||
-			PulsedInputState.menu[KEY_MENU_UP])
+			PulsedInputState.menu[KEY_MENU_UP] ||
+			MouseWheelDelta > 0)
 		NewState = PreviousMenuState (BaseState, NewState);
 	else if (PulsedInputState.menu[KEY_MENU_RIGHT] ||
-			PulsedInputState.menu[KEY_MENU_DOWN])
+			PulsedInputState.menu[KEY_MENU_DOWN] ||
+			MouseWheelDelta < 0)
 		NewState = NextMenuState (BaseState, NewState);
-	else if (useAltMenu && PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (useAltMenu && (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT)))
 	{
+		ClearMouseEvents ();
+
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 		if (NewState == ALT_MANIFEST)
 		{
@@ -512,9 +525,12 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 		return FALSE;
 	}
 	else if ((optWhichMenu == OPT_PC) &&
-			PulsedInputState.menu[KEY_MENU_CANCEL] && 
+			(PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT)) &&
 			(BaseState == PM_ALT_CARGO))
 	{
+		ClearMouseEvents ();
+
 		if (OrigBase == PM_SCAN)
 			DrawMenuStateStrings (PM_ALT_SCAN,
 					PM_ALT_MANIFEST - PM_ALT_SCAN);
@@ -525,12 +541,17 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 		return TRUE;
 	}
 	else
+	{
+		ClearMouseEvents ();
+
 		return FALSE;
+	}
 
 	DrawMenuStateStrings (BaseState, NewState);
 	if (useAltMenu)
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 	pMS->CurState = NewState;
+	ClearMouseEvents ();
 
 	return TRUE;
 }

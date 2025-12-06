@@ -41,6 +41,7 @@
 #include "../../options.h"
 #include "libs/graphics/gfx_common.h"
                 // for scaling down devices in HD
+#include "libs/inplib.h"
 
 
 // If DEBUG_DEVICES is defined, the device list shown in the game will
@@ -505,17 +506,19 @@ DoManipulateDevices (MENU_STATE *pMS)
 	BOOLEAN select, cancel, back, forward;
 	BOOLEAN pagefwd, pageback;
 	
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP] ||
-			PulsedInputState.menu[KEY_MENU_LEFT];
+			PulsedInputState.menu[KEY_MENU_LEFT] || MouseWheelDelta > 0;
 	forward = PulsedInputState.menu[KEY_MENU_DOWN]
-			|| PulsedInputState.menu[KEY_MENU_RIGHT];
+			|| PulsedInputState.menu[KEY_MENU_RIGHT] || MouseWheelDelta < 0;
 	pagefwd = PulsedInputState.menu[KEY_MENU_PAGE_DOWN];
 	pageback = PulsedInputState.menu[KEY_MENU_PAGE_UP];
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
+
+	ClearMouseEvents ();
 
 	if (cancel)
 	{

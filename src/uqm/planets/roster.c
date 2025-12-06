@@ -30,6 +30,7 @@
 #include "libs/gfxlib.h"
 #include "libs/log.h"
 #include "libs/tasklib.h"
+#include "libs/inplib.h"
 
 #include <stdlib.h>
 
@@ -260,8 +261,8 @@ DoModifyRoster (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	up = PulsedInputState.menu[KEY_MENU_UP];
 	down = PulsedInputState.menu[KEY_MENU_DOWN];
 	// Left or right produces the same effect because there are 2 columns
