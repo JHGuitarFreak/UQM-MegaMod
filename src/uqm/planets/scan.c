@@ -1360,8 +1360,8 @@ DoScan (MENU_STATE *pMS)
 			COUNT fuel_required;
 
 			if (pSolarSysState->pOrbitalDesc->data_index & PLANET_SHIELDED
-					|| pSolarSysState->SysInfo.PlanetInfo.AtmoDensity ==
-						GAS_GIANT_ATMOSPHERE)
+					|| (!EXTENDED && pSolarSysState->SysInfo.PlanetInfo.AtmoDensity ==
+					GAS_GIANT_ATMOSPHERE))
 			{	// cannot dispatch to shielded planets or gas giants
 				PlayMenuSound (MENU_SOUND_FAILURE);
 				return TRUE;

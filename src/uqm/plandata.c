@@ -2337,10 +2337,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2356,10 +2356,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2375,10 +2375,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2394,10 +2394,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2413,10 +2413,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2432,10 +2432,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2451,10 +2451,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2470,10 +2470,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
@@ -2489,10 +2489,10 @@ const PlanetFrame planet_array[NUMBER_OF_PLANET_TYPES] =
 		NO_TECTONICS, /* Tectonics - Scaled with Earth at 82    */
 		MAKE_BYTE (GAS_DENSITY, HEAVY), /* Atmosphere and density */
 		{
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
-			{NOTHING, NO_DEPOSIT},
+			{HYDROGEN, HUGE_USEFUL},
+			{HELIUM, MEDIUM_USEFUL},
+			{METHANE, TRACE_USEFUL},
+			{AMMONIA, TRACE_USEFUL},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},
 			{NOTHING, NO_DEPOSIT},

@@ -255,36 +255,44 @@ GetAltColorMap (PLANET_DESC *pPlanetDesc)
 {
 	switch (pPlanetDesc->data_index)
 	{
-	case METAL_WORLD:					/* MERCURY */
+	case METAL_WORLD:               /* MERCURY */
 		return MERCURY_COLOR_TAB;
-	case PRIMORDIAL_WORLD:				/* VENUS */
+	case PRIMORDIAL_WORLD:          /* VENUS */
 		return VENUS_COLOR_TAB;
-	case DUST_WORLD:					/* MARS */
+	case DUST_WORLD:                /* MARS */
 		return MARS_COLOR_TAB;
-	case PELLUCID_WORLD:				/* PLUTO & CALLISTO */
+	case PELLUCID_WORLD:            /* PLUTO & CALLISTO */
 	{
 		if (worldIsPlanet (pSolarSysState, pPlanetDesc))
 			return PLUTO_COLOR_TAB;
 		else
 			return CALLISTO_COLOR_TAB;
 	}
-	case SELENIC_WORLD:					/* LUNA & CHARON */
+	case SELENIC_WORLD:            /* LUNA & CHARON */
 	{
 		if (planetIndex (pSolarSysState, pPlanetDesc) == 2)
 			return LUNA_COLOR_TAB;
 		else
 			return CHARON_COLOR_TAB;
 	}
-	case RADIOACTIVE_WORLD:				/* IO */
+	case RADIOACTIVE_WORLD:        /* IO */
 		return IO_COLOR_TAB;
-	case HALIDE_WORLD:					/* EUROPA */
+	case HALIDE_WORLD:             /* EUROPA */
 		return EUROPA_COLOR_TAB;
-	case CYANIC_WORLD:					/* GANYMEDE */
+	case CYANIC_WORLD:             /* GANYMEDE */
 		return GANYMEDE_COLOR_TAB;
-	case ALKALI_WORLD:					/* TITAN */
+	case ALKALI_WORLD:             /* TITAN */
 		return TITAN_COLOR_TAB;
-	case VINYLOGOUS_WORLD:				/* TRITON */
+	case VINYLOGOUS_WORLD:         /* TRITON */
 		return TRITON_COLOR_TAB;
+	case RED_GAS_GIANT:            /* JUPITER */
+		return JUPITER_COLOR_TAB;
+	case ORA_GAS_GIANT:            /* SATURN */
+		return SATURN_COLOR_TAB;
+	case GRN_GAS_GIANT:            /* URANUS */
+		return URANUS_COLOR_TAB;
+	case BLU_GAS_GIANT:            /* NEPTUNE */
+		return NEPTUNE_COLOR_TAB;
 	default:
 		return NULL;
 	}
@@ -2690,7 +2698,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			pPlanetDesc, PlanDataPtr, PlanetInfo,
 			shielded && useDosSpheres, (customTexture && !ForIP
 				&& !useDosSpheres && !shielded
-				&& PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE));
+				&& (EXTENDED
+					|| PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)));
 
 	if (SurfDefFrame)
 	{	// This is a defined planet; pixmap for the topography and
@@ -2827,7 +2836,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 
 	if (!ForIP && !shielded
-			&& PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE)
+			&& (EXTENDED || PlanetInfo->AtmoDensity != GAS_GIANT_ATMOSPHERE))
 	{	// produce 4x scaled topo image for Planetside
 		// for the planets that we can land on
 
@@ -2901,7 +2910,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 
 	if (PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO
-			|| (customTexture && use3DOSpheres))
+			|| (customTexture && !useDosSpheres))
 	{	// convert topo data to a light map, based on relative
 		// map point elevations
 		memset (Orbit->lpTopoData, 0, width * height);
