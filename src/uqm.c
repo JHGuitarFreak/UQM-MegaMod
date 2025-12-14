@@ -1083,8 +1083,8 @@ getUserConfigOptions (struct options_struct *options)
 			"mm.directionalJoystick"); // For Android
 #endif
 
-	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
-		OPT_3DO, OPT_PC);
+	/*getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
+		OPT_3DO, OPT_PC);*/
 	getBoolConfigValueXlat (&options->scrTrans, "mm.scrTransition",
 		OPT_3DO, OPT_PC);
 	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set)

@@ -23,6 +23,7 @@
 #include "options.h"
 #include "types.h"
 #include "uqm/globdata.h"
+#include "uqm/planets/planets.h"
 #include <stdio.h>
 
 static bool menu_visible = 0;
@@ -280,7 +281,6 @@ EnhancementsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 				ImGui_Text ("Difficulty");
 				break;
 			case 5:
-				ImGui_Text ("Cheats");
 				draw_cheats_menu ();
 				break;
 			case 6:
@@ -511,9 +511,6 @@ static void draw_engine_menu (void)
 	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Lander Style", &optSuperPC, pc_or_3do, 3);
 
-	ImGui_SetNextItemWidth (combo_width);
-	ImGui_ComboChar ("Lander Capacity", &optLanderHold, pc_or_3do, 3);
-
 	// ImGui_CollapsingHeader example
 	//if (ImGui_CollapsingHeader ("Scanning", ImGuiTreeNodeFlags_DefaultOpen))
 	//{
@@ -522,6 +519,8 @@ static void draw_engine_menu (void)
 
 static void draw_cheats_menu (void)
 {
+	int MaxScrounged = MAX_SCROUNGED;
+
 	const char *god_modes[] =
 	{
 		"None",
@@ -538,6 +537,8 @@ static void draw_cheats_menu (void)
 
 	ImGui_ColumnsEx (3, "CheatColumns", false); // For taming width
 
+	ImGui_SeparatorText ("Basic Cheats");
+
 	ImGui_Checkbox ("Kohr-Stahp", (bool *)&optCheatMode);
 	ImGui_Checkbox ("Kohr-Ah DeCleansing", (bool *)&optDeCleansing);
 
@@ -552,6 +553,56 @@ static void draw_cheats_menu (void)
 	ImGui_Checkbox ("Infinite Credits", (bool *)&optInfiniteCredits);
 	ImGui_Checkbox ("No Hyperspace Encounters", (bool *)&optNoHQEncounters);
 	ImGui_Checkbox ("No Melee Obstacles", (bool *)&optMeleeObstacles);
+
+	ImGui_SeparatorText ("Expanded Cheats");
+
+	ImGui_Text ("Lander Capacity:");
+	ImGui_Checkbox ("##Change Lander Capacity", &changeLanderCapacity);
+	ImGui_SameLine ();
+	ImGui_InputInt ("##Lander Capacity",
+			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
+
+	ImGui_Text ("Current R.U.:");
+	ImGui_InputInt ("##Current RU", (int *)&GLOBAL_SIS (ResUnits));
+
+	{
+		int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
+		int volume = FUEL_RESERVE +
+				((DWORD)CountSISPieces (FUEL_TANK)
+				* FUEL_TANK_CAPACITY
+				+ (DWORD)CountSISPieces (HIGHEFF_FUELSYS)
+				* HEFUEL_TANK_CAPACITY);
+
+		ImGui_Text ("Current Fuel:");
+		if (ImGui_InputInt ("##Current Fuel", &CurrentFuel))
+		{
+			if (CurrentFuel > volume)
+				CurrentFuel = volume;
+			if (CurrentFuel < 0)
+				CurrentFuel = 0;
+
+			GLOBAL_SIS (FuelOnBoard) = CurrentFuel;
+		}
+	}
+
+	{
+		int Credits = MAKE_WORD (GET_GAME_STATE (MELNORME_CREDIT0),
+			GET_GAME_STATE (MELNORME_CREDIT1));
+
+		ImGui_Text ("Current Credits:");
+		if (ImGui_InputInt ("##Current Credits", &Credits))
+		{
+			if (Credits > (uint16)~0)
+				Credits = (uint16)~0;
+			if (Credits < 0)
+				Credits = 0;
+
+			SET_GAME_STATE (MELNORME_CREDIT0, LOBYTE (Credits));
+			SET_GAME_STATE (MELNORME_CREDIT1, HIBYTE (Credits));
+		}
+	}
+
+	ImGui_NextColumn ();
 }
 
 static void draw_visual_menu (void)
@@ -602,7 +653,7 @@ static void draw_visual_menu (void)
 	ImGui_Checkbox ("Hazard Colors", (bool *)&optHazardColors);
 
 	ImGui_SetNextItemWidth (combo_width);
-	ImGui_ComboChar ("Planet Map Textures", &optPlanetTexture,
+	ImGui_ComboChar ("Planet Map Textures", (int *)&optPlanetTexture,
 			planet_textures, 2);
 
 	ImGui_Checkbox ("Show Lander Upgrades", (bool *)&optShowUpgrades);

@@ -95,6 +95,7 @@ int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
 OPT_ENABLABLE optDirectionalJoystick;
+bool changeLanderCapacity;
 int optLanderHold;
 int optScrTrans;
 int optDifficulty;

@@ -2740,7 +2740,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optTexturedPlanets, &opts->texturedPlanets, "mm.texturedPlanets", FALSE);
 	
 	// Orbit
-	PutConsOpt (&optLanderHold, &opts->landerHold, "mm.landerHold", FALSE);
+	//PutConsOpt (&optLanderHold, &opts->landerHold, "mm.landerHold", FALSE);
 	PutBoolOpt (&optPartialPickup, &opts->partialPickup, "mm.partialPickup", FALSE);
 	PutIntOpt  (&optWhichCoarseScan, &opts->cscan, "config.iconicscan", FALSE);
 	PutBoolOpt (&optHazardColors, &opts->hazardColors, "mm.hazardColors", FALSE);

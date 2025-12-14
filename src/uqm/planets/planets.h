@@ -78,7 +78,7 @@ enum
 	LANDER_DESTROYED
 };
 
-#define MAX_SCROUNGED (isPC (optSuperPC) ? 64 : 50)
+#define MAX_SCROUNGED (changeLanderCapacity ? optLanderHold : (isPC (optSuperPC) ? 64 : 50))
 #define MAX_HOLD_BARS (isPC (optSuperPC) ? 64 : 50)
 
 #define SCALE_RADIUS(r) ((r) << 6)
