@@ -1,0 +1,623 @@
+//Copyright Paul Reiche, Fred Ford. 1992-2002
+/*
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#include "uqm_imgui.h"
+#include "dcimgui.h"
+#include "dcimgui_impl_sdl2.h"
+#include "dcimgui_impl_sdlrenderer2.h"
+#include "uqm/setupmenu.h"
+#include "options.h"
+#include "types.h"
+#include "uqm/globdata.h"
+#include <stdio.h>
+
+static bool menu_visible = 0;
+static bool imgui_initialized = 0;
+static SDL_Renderer *imgui_renderer = NULL;
+
+// Initializes ImGui with SDL2 and SDL_Renderer2
+int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
+{
+	if (imgui_initialized)
+		return 1;
+
+	printf ("UQM_ImGui_Init: Initializing Dear ImGui\n");
+
+	imgui_renderer = renderer;
+
+	ImGui_CreateContext (NULL);
+
+	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
+	{
+		printf ("ERROR: cImGui_ImplSDL2_InitForSDLRenderer failed\n");
+		return 0;
+	}
+
+	if (!cImGui_ImplSDLRenderer2_Init (renderer))
+	{
+		printf ("ERROR: cImGui_ImplSDLRenderer2_Init failed\n");
+		cImGui_ImplSDL2_Shutdown ();
+		return 0;
+	}
+
+	ImGui_StyleColorsDark (NULL);
+
+	imgui_initialized = 1;
+	printf ("UQM_ImGui_Init: Success!\n\n");
+	return 1;
+}
+
+// Processes SDL events for ImGui
+void UQM_ImGui_ProcessEvent (SDL_Event *event)
+{
+	if (!imgui_initialized)
+		return;
+
+	cImGui_ImplSDL2_ProcessEvent (event);
+}
+
+// Renders the ImGui draw data
+void UQM_ImGui_Render (SDL_Renderer *renderer)
+{
+	if (!imgui_initialized)
+		return;
+
+	ImGui_Render ();
+	cImGui_ImplSDLRenderer2_RenderDrawData (ImGui_GetDrawData (), renderer);
+}
+
+// Cleans up ImGui
+void UQM_ImGui_Shutdown (void)
+{
+	if (!imgui_initialized) return;
+
+	printf ("ImGui_Shutdown\n");
+
+	cImGui_ImplSDLRenderer2_Shutdown ();
+	cImGui_ImplSDL2_Shutdown ();
+	ImGui_DestroyContext (NULL);
+
+	imgui_initialized = 0;
+	imgui_renderer = NULL;
+}
+
+// Does what it says on the tin
+void UQM_ImGui_ToggleMenu (void)
+{
+	menu_visible = !menu_visible;
+	printf ("Menu toggled: %s\n", menu_visible ? "visible" : "hidden");
+}
+
+// This redirects input to ImGui when the menu is visible
+int UQM_ImGui_WantCaptureInput (void)
+{
+	if (!imgui_initialized)
+		return 0;
+
+	ImGuiIO *io = ImGui_GetIO ();
+	return (io->WantCaptureKeyboard || io->WantCaptureMouse) ? 1 : 0;
+}
+
+// Begin actual menu drawing
+
+typedef struct
+{
+	int settings_tab;
+	int enhancements_tab;
+	int randomizer_tab;
+	int devtools_tab;
+} MenuState;
+
+static void draw_engine_menu (void);
+static void draw_visual_menu (void);
+static void draw_cheats_menu (void);
+static void draw_qol_menu (void);
+static void ShowFullScreenMenu (MenuState *state);
+static MenuState menu_state = { 0 };
+
+#define CENTER_TEXT (ImVec2){ 0.5f, 0.5f }
+#define ZERO_F      (ImVec2){ 0.0f, 0.0f }
+
+void UQM_ImGui_NewFrame (void)
+{
+	if (!imgui_initialized)
+		return;
+
+	cImGui_ImplSDLRenderer2_NewFrame ();
+	cImGui_ImplSDL2_NewFrame ();
+	ImGui_NewFrame ();
+
+	if (menu_visible)
+	{
+		ShowFullScreenMenu (&menu_state);
+	}
+}
+
+static void
+SettingsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
+		ImVec2 button_size)
+{
+	BYTE i;
+
+	const char *tab_names[] = {
+		"Search",
+		"General",
+		"Audio",
+		"Graphics",
+		"Controls"
+	};
+
+	if (ImGui_BeginTabItem ("Settings", NULL, 0))
+	{
+		bool selected;
+
+		ImGui_BeginChild ("SettingsContent", content_size,
+				ImGuiChildFlags_Borders, 0);
+		ImGui_BeginChild ("SettingsSidebar", sidebar_size,
+				ImGuiChildFlags_Borders, 0);
+
+		ImGui_PushStyleVarImVec2 (
+				ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
+
+		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
+		{
+			selected = (state->settings_tab == i);
+			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
+				state->settings_tab = i;
+
+			if (i < ARRAY_SIZE (tab_names) - 1)
+				ImGui_Spacing ();
+		}
+
+		ImGui_PopStyleVar ();
+		ImGui_EndChild ();
+
+		ImGui_SameLine ();
+		ImGui_BeginChild ("SettingsContentArea", ZERO_F,
+				ImGuiChildFlags_Borders, 0);
+
+		switch (state->settings_tab)
+		{
+			case 0:
+				ImGui_Text ("Search");
+				break;
+			case 1:
+				ImGui_Text ("General");
+				draw_engine_menu ();
+				break;
+			case 2:
+				ImGui_Text ("Audio");
+				break;
+			case 3:
+				ImGui_Text ("Graphics");
+				break;
+			case 4:
+				ImGui_Text ("Controls");
+				break;
+		}
+
+		ImGui_EndChild ();
+		ImGui_EndChild ();
+		ImGui_EndTabItem ();
+	}
+}
+
+static void
+EnhancementsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
+		ImVec2 button_size)
+{
+	BYTE i;
+	const char *tab_names[] = {
+		"Quality of Life",
+		"Skips & Speed-ups",
+		"Visuals",
+		"Fixes",
+		"Difficulty",
+		"Cheats",
+		"Timers"
+	};
+
+	if (ImGui_BeginTabItem ("Enhancements", NULL, 0))
+	{
+		bool selected;
+
+		ImGui_BeginChild ("EnhancementsContent", content_size,
+				ImGuiChildFlags_Borders, 0);
+		ImGui_BeginChild ("EnhancementsSidebar", sidebar_size,
+				ImGuiChildFlags_Borders, 0);
+
+		ImGui_PushStyleVarImVec2 (
+				ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
+
+		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
+		{
+			selected = (state->enhancements_tab == i);
+			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
+				state->enhancements_tab = i;
+
+			if (i < ARRAY_SIZE (tab_names) - 1)
+				ImGui_Spacing ();
+		}
+
+		ImGui_PopStyleVar ();
+		ImGui_EndChild ();
+
+		ImGui_SameLine ();
+		ImGui_BeginChild ("EnhancementsContentArea", ZERO_F,
+				ImGuiChildFlags_Borders, 0);
+
+		switch (state->enhancements_tab)
+		{
+			case 0:
+				//ImGui_Text ("Quality of Life");
+				draw_qol_menu ();
+				break;
+			case 1:
+				ImGui_Text ("Skips & Speed-ups");
+				break;
+			case 2:
+				//ImGui_Text ("Visuals");
+				draw_visual_menu ();
+				break;
+			case 3:
+				ImGui_Text ("Fixes");
+				break;
+			case 4:
+				ImGui_Text ("Difficulty");
+				break;
+			case 5:
+				ImGui_Text ("Cheats");
+				draw_cheats_menu ();
+				break;
+			case 6:
+				ImGui_Text ("Timers");
+				break;
+		}
+
+		ImGui_EndChild ();
+		ImGui_EndChild ();
+		ImGui_EndTabItem ();
+	}
+}
+
+static void
+RandomizerTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
+		ImVec2 button_size)
+{
+	BYTE i;
+	const char *tab_names[] = {
+		"Seed Settings",
+		"Enhancements"
+	};
+
+	if (ImGui_BeginTabItem ("Randomizer", NULL, 0))
+	{
+		bool selected;
+
+		ImGui_BeginChild ("RandomizerContent", content_size,
+				ImGuiChildFlags_Borders, 0);
+		ImGui_BeginChild ("RandomizerSidebar", sidebar_size,
+				ImGuiChildFlags_Borders, 0);
+
+		ImGui_PushStyleVarImVec2 (
+				ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
+
+		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
+		{
+			selected = (state->randomizer_tab == i);
+			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
+				state->randomizer_tab = i;
+
+			if (i < ARRAY_SIZE (tab_names) - 1)
+				ImGui_Spacing ();
+		}
+
+		ImGui_PopStyleVar ();
+		ImGui_EndChild ();
+
+		ImGui_SameLine ();
+		ImGui_BeginChild ("RandomizerContentArea", ZERO_F,
+				ImGuiChildFlags_Borders, 0);
+
+		switch (state->randomizer_tab)
+		{
+			case 0:
+				ImGui_Text ("Seed Settings");
+				break;
+			case 1:
+				ImGui_Text ("Enhancements");
+				break;
+		}
+
+		ImGui_EndChild ();
+		ImGui_EndChild ();
+		ImGui_EndTabItem ();
+	}
+}
+
+static void
+DevToolsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
+		ImVec2 button_size)
+{
+	BYTE i;
+	const char *tab_names[] = {
+		"General",
+		"Stats",
+		"Console",
+		"Save Editor"
+	};
+
+	if (ImGui_BeginTabItem ("Dev Tools", NULL, 0))
+	{
+		bool selected;
+
+		ImGui_BeginChild ("DevToolsContent", content_size,
+				ImGuiChildFlags_Borders, 0);
+		ImGui_BeginChild ("DevToolsSidebar", sidebar_size,
+				ImGuiChildFlags_Borders, 0);
+
+		ImGui_PushStyleVarImVec2 (
+				ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
+
+		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
+		{
+			selected = (state->devtools_tab == i);
+			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
+				state->devtools_tab = i;
+
+			if (i < ARRAY_SIZE (tab_names) - 1)
+				ImGui_Spacing ();
+		}
+
+		ImGui_PopStyleVar ();
+		ImGui_EndChild ();
+
+		ImGui_SameLine ();
+		ImGui_BeginChild ("DevToolsContentArea", ZERO_F,
+				ImGuiChildFlags_Borders, 0);
+
+		switch (state->devtools_tab)
+		{
+			case 0:
+				ImGui_Text ("General Dev Tools");
+				break;
+			case 1:
+				ImGui_Text ("Statistics");
+				break;
+			case 2:
+				ImGui_Text ("Console");
+				break;
+			case 3:
+				ImGui_Text ("Save Editor");
+				break;
+		}
+
+		ImGui_EndChild ();
+		ImGui_EndChild ();
+		ImGui_EndTabItem ();
+	}
+}
+
+void ShowFullScreenMenu (MenuState *state)
+{
+	float sidebar_width, button_height, content_height;
+	ImVec2 button_size, sidebar_size, content_size;
+	ImGuiWindowFlags window_flags;
+	ImGuiIO *io = ImGui_GetIO ();
+	ImVec2 display_size = io->DisplaySize;
+
+	sidebar_width = display_size.x * 0.15f;
+	if (sidebar_width < 120.0f)
+		sidebar_width = 120.0f;
+	if (sidebar_width > 200.0f)
+		sidebar_width = 200.0f;
+
+	button_height = display_size.y * 0.06f;
+	if (button_height < 30.0f)
+		button_height = 30.0f;
+	if (button_height > 50.0f)
+		button_height = 50.0f;
+
+	content_height = display_size.y - 40.0f;
+
+	button_size = (ImVec2){ sidebar_width - 16.0f, button_height };
+	sidebar_size = (ImVec2){ sidebar_width, 0.0f };
+	content_size = (ImVec2){ 0.0f, content_height };
+
+	ImGui_SetNextWindowPos (ZERO_F, 0);
+	ImGui_SetNextWindowSize (display_size, 0);
+
+	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
+
+	if (!ImGui_Begin ("Full Screen Menu", NULL, window_flags))
+	{
+		ImGui_End ();
+		return;
+	}
+
+	if (ImGui_BeginTabBar ("MainTabs", 0))
+	{
+		SettingsTab (state, content_size, sidebar_size, button_size);
+		EnhancementsTab (state, content_size, sidebar_size, button_size);
+		RandomizerTab (state, content_size, sidebar_size, button_size);
+		DevToolsTab (state, content_size, sidebar_size, button_size);
+
+		ImGui_EndTabBar ();
+	}
+	ImGui_End ();
+}
+
+static void draw_engine_menu (void)
+{
+	float combo_width = 100.0f;
+	// Added blank spot because the combo box wouldn't quite work with
+	// just two entries. Will fix later.
+	const char *pc_or_3do[] = { "", "3DO", "DOS" };
+	const char *star_backgrounds[] = { "DOS", "3DO", "UQM", "HD-mod" };
+	const char *sphere_types[] = { "DOS", "3DO", "UQM" };
+	const char *coarse_scan[] =
+	{
+		"DOS",
+		"3DO",
+		"DOS (6014)",
+		"3DO (6014)"
+	};
+
+	ImGui_ColumnsEx (3, "EngineColumns", false);
+
+	ImGui_Checkbox ("Subtitles", (bool*)&optSubtitles);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Text Scroll Style", &optSmoothScroll, pc_or_3do, 3);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Oscilloscope Style", &optScopeStyle, pc_or_3do, 3);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Screen Transitions", &optScrTrans, pc_or_3do, 3);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Star Background", &optStarBackground,
+			star_backgrounds, 4);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Coarse Scan Display", &optWhichCoarseScan,
+			coarse_scan, 4);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Scan Style", &optScanStyle, pc_or_3do, 3);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Scan Sphere Type", &optScanSphere, sphere_types, 3);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Tint Scanned Sphere", &optTintPlanSphere,
+			pc_or_3do, 3);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Lander Style", &optSuperPC, pc_or_3do, 3);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Lander Capacity", &optLanderHold, pc_or_3do, 3);
+
+	// ImGui_CollapsingHeader example
+	//if (ImGui_CollapsingHeader ("Scanning", ImGuiTreeNodeFlags_DefaultOpen))
+	//{
+	//}
+}
+
+static void draw_cheats_menu (void)
+{
+	const char *god_modes[] =
+	{
+		"None",
+		"Infinite Energy",
+		"Invulnerable",
+		"Full God Mode"
+	};
+	const char *time_modes[] =
+	{
+		"Normal",
+		"Slow (x6)",
+		"Fast (x5)"
+	};
+
+	ImGui_ColumnsEx (3, "CheatColumns", false); // For taming width
+
+	ImGui_Checkbox ("Kohr-Stahp", (bool *)&optCheatMode);
+	ImGui_Checkbox ("Kohr-Ah DeCleansing", (bool *)&optDeCleansing);
+
+	ImGui_ComboChar ("God Modes", &optGodModes, god_modes, 4);
+	ImGui_ComboChar ("Time Dilation", &timeDilationScale, time_modes, 3);
+
+	ImGui_Checkbox ("Bubble Warp", (bool*)&optBubbleWarp);
+	ImGui_Checkbox ("Head Start", (bool *)&optHeadStart);
+	ImGui_Checkbox ("Unlock All Ships", (bool *)&optUnlockShips);
+	ImGui_Checkbox ("Infinite R.U.", (bool *)&optInfiniteRU);
+	ImGui_Checkbox ("Infinite Fuel", (bool *)&optInfiniteFuel);
+	ImGui_Checkbox ("Infinite Credits", (bool *)&optInfiniteCredits);
+	ImGui_Checkbox ("No Hyperspace Encounters", (bool *)&optNoHQEncounters);
+	ImGui_Checkbox ("No Melee Obstacles", (bool *)&optMeleeObstacles);
+}
+
+static void draw_visual_menu (void)
+{
+	float combo_width = 100.0f;
+	const char *date_formats[] =
+	{
+		"MMM DD.YYYY",
+		"MM.DD.YYYY",
+		"DD MMM.YYYY",
+		"DD.MM.YYYY"
+	};
+	const char *fuel_ranges[] =
+	{
+		"None",
+		"At Destination",
+		"To Sol",
+		"Both"
+	};
+	const char *planet_textures[] =
+	{
+		"3DO",
+		"UQM"
+	};
+
+
+	ImGui_ColumnsEx (3, "VisualsColumns", false);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Date Format", &optDateFormat, date_formats, 4);
+
+	ImGui_Checkbox ("Show Whole Fuel Value", (bool *)&optWholeFuel);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Fuel Range Display", &optFuelRange, fuel_ranges, 4);
+
+	ImGui_Checkbox ("SOI Colors", (bool *)&optSphereColors);
+	ImGui_Checkbox ("Animated HyperSpace Stars", (bool *)&optHyperStars);
+	ImGui_Checkbox ("Captain Names in Shipyard", (bool *)&optCaptainNames);
+	ImGui_Checkbox ("Alternate Orz Font", (bool *)&optOrzCompFont);
+	ImGui_Checkbox ("Non-stop Oscilloscope", (bool *)&optNonStopOscill);
+	ImGui_Checkbox ("Nebulae", (bool *)&optNebulae);
+	ImGui_Checkbox ("Orbiting Planets", (bool *)&optOrbitingPlanets);
+	ImGui_Checkbox ("Textured Planets", (bool *)&optTexturedPlanets);
+	ImGui_Checkbox ("Unscaled Star System (HD Only)",
+			(bool *)&optUnscaledStarSystem);
+	ImGui_Checkbox ("NPC Ship Orientation", (bool *)&optShipDirectionIP);
+	ImGui_Checkbox ("Hazard Colors", (bool *)&optHazardColors);
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("Planet Map Textures", &optPlanetTexture,
+			planet_textures, 2);
+
+	ImGui_Checkbox ("Show Lander Upgrades", (bool *)&optShowUpgrades);
+
+	ImGui_SliderInt ("Nebulae Volume", &optNebulaeVolume, 0, 50);
+}
+
+static void draw_qol_menu (void)
+{
+	ImGui_ColumnsEx (3, "QoLColumns", false);
+
+	ImGui_Checkbox ("Partial Pickup", (bool *)&optPartialPickup);
+	ImGui_Checkbox ("Scatter Elements", (bool *)&optScatterElements);
+	ImGui_Checkbox ("In-Game Help Menus", (bool *)&optSubmenu);
+	ImGui_Checkbox ("Smart Auto-Pilot", (bool *)&optSmartAutoPilot);
+	ImGui_Checkbox ("Advanced Auto-Pilot", (bool *)&optAdvancedAutoPilot);
+	ImGui_Checkbox ("Show Visited Stars", (bool *)&optShowVisitedStars);
+}

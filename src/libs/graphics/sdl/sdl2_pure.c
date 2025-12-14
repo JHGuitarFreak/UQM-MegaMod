@@ -22,6 +22,7 @@
 #include "uqmversion.h"
 #include "png2sdl.h"
 #include "options.h"
+#include "libs/imgui/uqm_imgui.h"
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -145,6 +146,8 @@ FindBestRenderDriver (void)
 	return -1;
 }
 
+static int imgui_initialized_in_pure = 0;
+
 int
 TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		int togglefullscreen, unsigned int resFactor,
@@ -195,6 +198,19 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			log_add (log_Info, "SDL2 renderer had no name.");
 		}
 		SDL_RenderSetLogicalSize (renderer, width, height);
+
+		if (!imgui_initialized_in_pure)
+		{
+			if (!UQM_ImGui_Init (window, renderer))
+			{
+				log_add (log_Warning, "Failed to initialize ImGui menu system");
+			}
+			else
+			{
+				imgui_initialized_in_pure = 1;
+			}
+		}
+
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		{
 			SDL2_Screens[i].scaled = NULL;
@@ -269,7 +285,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 			SDL_SetWindowSize (window, width, height);
 		}
 		SDL_SetWindowTitle (window, caption);
-	}	
+	}
 
 	if (GfxFlags & TFB_GFXFLAGS_SCALE_ANY)
 	{
@@ -383,6 +399,8 @@ TFB_Pure_InitGraphics (int driver, int flags, const char* renderer,
 void
 TFB_Pure_UninitGraphics (void)
 {
+	UQM_ImGui_Shutdown ();
+
 	if (renderer) {
 		SDL_DestroyRenderer (renderer);
 	}
@@ -610,6 +628,9 @@ TFB_SDL2_Postprocess (bool hd)
 
 	if (GfxFlags & TFB_GFXFLAGS_SHOWFPS)
 		TFB_SDL2_FPS ();
+
+	UQM_ImGui_NewFrame ();
+	UQM_ImGui_Render (renderer);
 
 	SDL_RenderPresent (renderer);
 }

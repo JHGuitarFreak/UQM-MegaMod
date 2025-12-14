@@ -35,6 +35,7 @@
 #include "libs/vidlib.h"
 #include "uqm/units.h"
 #include "uqm/globdata.h"
+#include "libs/imgui/uqm_imgui.h"
 
 #include <time.h>
 
@@ -189,6 +190,15 @@ TFB_ProcessEvents ()
 
 	while (SDL_PollEvent (&Event) > 0)
 	{
+		UQM_ImGui_ProcessEvent (&Event);
+
+		if (UQM_ImGui_WantCaptureInput ()
+			&& !(Event.type == SDL_KEYDOWN
+				&& Event.key.keysym.sym == SDLK_BACKQUOTE))
+		{
+			continue;
+		}
+
 		/* Run through the InputEvent filter. */
 		ProcessInputEvent (&Event);
 		/* Handle graphics and exposure events. */

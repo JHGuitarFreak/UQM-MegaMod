@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Introduced a "Fleet Point System" which limits the total amount of ships you can purchase by the max melee point value of your entire fleet
 - Added Infinite Credits cheat
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
+- Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 
 ### Changed
 - Fleet points display updates at the same time the SIS displays RU changes (instead of when the confirmation is made).  Also, it blacks out the value before writing the new one.

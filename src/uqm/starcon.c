@@ -57,6 +57,7 @@
 #include "cons_res.h"
 #include <time.h>//required to use 'srand(time(NULL))'
 #include "sounds.h"
+#include "libs/imgui/uqm_imgui.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP
@@ -157,6 +158,12 @@ ProcessUtilityKeys (void)
 	if (ImmediateInputState.menu[KEY_SCREENSHOT])
 	{
 		TFB_ScreenShot ();
+		FlushInput ();
+	}
+
+	if (ImmediateInputState.menu[KEY_IMGUI])
+	{
+		UQM_ImGui_ToggleMenu ();
 		FlushInput ();
 	}
 

@@ -1,0 +1,20 @@
+NOTICES
+
+This project incorporates components from the following third-party software:
+
+1. Dear ImGui
+   - Copyright (c) 2014-2025 Omar Cornut
+   - License: MIT
+   - Repository: https://github.com/ocornut/imgui
+   - License URL: https://github.com/ocornut/imgui/blob/master/LICENSE.txt
+   - Files: ./src/libs/imgui
+
+2. Dear Bindings
+   - Copyright (c) 2021-2022 Ben Carter
+   - License: MIT
+   - Repository: https://github.com/dearimgui/dear_bindings
+   - License URL: https://github.com/dearimgui/dear_bindings/blob/main/LICENSE.txt
+   - Files: .src/libs/imgui
+
+The full text of the MIT License is included in the file MIT-LICENSE.txt
+or can be found at: https://opensource.org/licenses/MIT
