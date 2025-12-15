@@ -699,4 +699,7 @@ static void draw_qol_menu (void)
 	ImGui_Checkbox ("Smart Auto-Pilot", (bool *)&optSmartAutoPilot);
 	ImGui_Checkbox ("Advanced Auto-Pilot", (bool *)&optAdvancedAutoPilot);
 	ImGui_Checkbox ("Show Visited Stars", (bool *)&optShowVisitedStars);
+	ImGui_Checkbox ("Super Melee Ship Descriptions",
+			(bool *)&optMeleeToolTips);
+	ImGui_Checkbox ("Ship Storage Queue", (bool *)&optShipStore);
 }
