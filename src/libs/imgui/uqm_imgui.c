@@ -33,6 +33,8 @@ static SDL_Renderer *imgui_renderer = NULL;
 // Initializes ImGui with SDL2 and SDL_Renderer2
 int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 {
+	ImGuiIO *io;
+
 	if (imgui_initialized)
 		return 1;
 
@@ -41,6 +43,9 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 	imgui_renderer = renderer;
 
 	ImGui_CreateContext (NULL);
+
+	io = ImGui_GetIO ();
+	io->IniFilename = NULL;
 
 	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
 	{
