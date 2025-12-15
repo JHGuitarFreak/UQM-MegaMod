@@ -622,11 +622,27 @@ static void draw_cheats_menu (void)
 				"%s", GLOBAL_SIS (CommanderName));
 
 		ImGui_Text ("Captain's Name:");
-		if (ImGui_InputText ("##CaptainsName", &CaptainsName, sizeof(CaptainsName), 0))
+		if (ImGui_InputText ("##CaptainsName", &CaptainsName,
+				sizeof(CaptainsName), 0))
 		{
 			snprintf (GLOBAL_SIS (CommanderName),
 					sizeof (GLOBAL_SIS (CommanderName)),
 					"%s", CaptainsName);
+		}
+	}
+
+	{	// Edit Ship Name
+		char SISName[SIS_NAME_SIZE];
+
+		snprintf ((char *)&SISName, sizeof (SISName),
+				"%s", GLOBAL_SIS (ShipName));
+
+		ImGui_Text ("Ship Name:");
+		if (ImGui_InputText ("##SISName", &SISName, sizeof(SISName), 0))
+		{
+			snprintf (GLOBAL_SIS (ShipName),
+					sizeof (GLOBAL_SIS (ShipName)),
+					"%s", SISName);
 		}
 	}
 
