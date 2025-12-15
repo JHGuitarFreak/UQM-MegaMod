@@ -140,6 +140,8 @@ static MenuState menu_state = { 0 };
 
 void UQM_ImGui_NewFrame (void)
 {
+	ImGuiIO *io;
+
 	if (!imgui_initialized)
 		return;
 
@@ -147,10 +149,14 @@ void UQM_ImGui_NewFrame (void)
 	cImGui_ImplSDL2_NewFrame ();
 	ImGui_NewFrame ();
 
+	io = ImGui_GetIO ();
+	if (io->WantTextInput && !SDL_IsTextInputActive ())
+		SDL_StartTextInput ();
+	else if (!io->WantTextInput && SDL_IsTextInputActive ())
+		SDL_StopTextInput ();
+
 	if (menu_visible)
-	{
 		ShowFullScreenMenu (&menu_state);
-	}
 }
 
 static void
