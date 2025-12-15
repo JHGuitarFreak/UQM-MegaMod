@@ -160,26 +160,26 @@ void UQM_ImGui_NewFrame (void)
 }
 
 static void
-SettingsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
+GeneralTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 		ImVec2 button_size)
 {
 	BYTE i;
 
 	const char *tab_names[] = {
 		"Search",
-		"General",
+		"Settings",
 		"Audio",
 		"Graphics",
 		"Controls"
 	};
 
-	if (ImGui_BeginTabItem ("Settings", NULL, 0))
+	if (ImGui_BeginTabItem ("General", NULL, 0))
 	{
 		bool selected;
 
-		ImGui_BeginChild ("SettingsContent", content_size,
+		ImGui_BeginChild ("GeneralContent", content_size,
 				ImGuiChildFlags_Borders, 0);
-		ImGui_BeginChild ("SettingsSidebar", sidebar_size,
+		ImGui_BeginChild ("GeneralSidebar", sidebar_size,
 				ImGuiChildFlags_Borders, 0);
 
 		ImGui_PushStyleVarImVec2 (
@@ -199,7 +199,7 @@ SettingsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 		ImGui_EndChild ();
 
 		ImGui_SameLine ();
-		ImGui_BeginChild ("SettingsContentArea", ZERO_F,
+		ImGui_BeginChild ("GeneralContentArea", ZERO_F,
 				ImGuiChildFlags_Borders, 0);
 
 		switch (state->settings_tab)
@@ -208,7 +208,7 @@ SettingsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 				ImGui_Text ("Search");
 				break;
 			case 1:
-				ImGui_Text ("General");
+				//ImGui_Text ("Settings");
 				draw_engine_menu ();
 				break;
 			case 2:
@@ -462,7 +462,7 @@ void ShowFullScreenMenu (MenuState *state)
 
 	if (ImGui_BeginTabBar ("MainTabs", 0))
 	{
-		SettingsTab (state, content_size, sidebar_size, button_size);
+		GeneralTab (state, content_size, sidebar_size, button_size);
 		EnhancementsTab (state, content_size, sidebar_size, button_size);
 		RandomizerTab (state, content_size, sidebar_size, button_size);
 		DevToolsTab (state, content_size, sidebar_size, button_size);
