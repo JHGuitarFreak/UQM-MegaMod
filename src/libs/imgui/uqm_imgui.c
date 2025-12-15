@@ -553,8 +553,10 @@ static void draw_cheats_menu (void)
 	ImGui_Checkbox ("Kohr-Stahp", (bool *)&optCheatMode);
 	ImGui_Checkbox ("Kohr-Ah DeCleansing", (bool *)&optDeCleansing);
 
-	ImGui_ComboChar ("God Modes", &optGodModes, god_modes, 4);
-	ImGui_ComboChar ("Time Dilation", &timeDilationScale, time_modes, 3);
+	ImGui_Text ("God Modes:");
+	ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4);
+	ImGui_Text ("Time Dilation:");
+	ImGui_ComboChar ("##TimeDilation", &timeDilationScale, time_modes, 3);
 
 	ImGui_Checkbox ("Bubble Warp", (bool*)&optBubbleWarp);
 	ImGui_Checkbox ("Head Start", (bool *)&optHeadStart);
@@ -568,13 +570,13 @@ static void draw_cheats_menu (void)
 	ImGui_SeparatorText ("Expanded Cheats");
 
 	ImGui_Text ("Lander Capacity:");
-	ImGui_Checkbox ("##Change Lander Capacity", &changeLanderCapacity);
+	ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
 	ImGui_SameLine ();
-	ImGui_InputInt ("##Lander Capacity",
+	ImGui_InputInt ("##LanderCapacity",
 			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
 
 	ImGui_Text ("Current R.U.:");
-	ImGui_InputInt ("##Current RU", (int *)&GLOBAL_SIS (ResUnits));
+	ImGui_InputInt ("##CurrentRU", (int *)&GLOBAL_SIS (ResUnits));
 
 	{
 		int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
@@ -585,7 +587,7 @@ static void draw_cheats_menu (void)
 				* HEFUEL_TANK_CAPACITY);
 
 		ImGui_Text ("Current Fuel:");
-		if (ImGui_InputInt ("##Current Fuel", &CurrentFuel))
+		if (ImGui_InputInt ("##CurrentFuel", &CurrentFuel))
 		{
 			if (CurrentFuel > volume)
 				CurrentFuel = volume;
@@ -601,7 +603,7 @@ static void draw_cheats_menu (void)
 			GET_GAME_STATE (MELNORME_CREDIT1));
 
 		ImGui_Text ("Current Credits:");
-		if (ImGui_InputInt ("##Current Credits", &Credits))
+		if (ImGui_InputInt ("##CurrentCredits", &Credits))
 		{
 			if (Credits > (uint16)~0)
 				Credits = (uint16)~0;
