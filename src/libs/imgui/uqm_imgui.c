@@ -615,6 +615,21 @@ static void draw_cheats_menu (void)
 		}
 	}
 
+	{	// Edit Captain's Name
+		char CaptainsName[SIS_NAME_SIZE];
+
+		snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
+				"%s", GLOBAL_SIS (CommanderName));
+
+		ImGui_Text ("Captain's Name:");
+		if (ImGui_InputText ("##CaptainsName", &CaptainsName, sizeof(CaptainsName), 0))
+		{
+			snprintf (GLOBAL_SIS (CommanderName),
+					sizeof (GLOBAL_SIS (CommanderName)),
+					"%s", CaptainsName);
+		}
+	}
+
 	ImGui_NextColumn ();
 }
 
