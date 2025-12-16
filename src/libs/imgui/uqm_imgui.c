@@ -142,6 +142,9 @@ void UQM_ImGui_NewFrame (void)
 {
 	ImGuiIO *io;
 
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+		return;
+
 	if (!imgui_initialized)
 		return;
 
