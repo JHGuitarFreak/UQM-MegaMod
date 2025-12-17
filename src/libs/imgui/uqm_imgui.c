@@ -24,6 +24,7 @@
 #include "types.h"
 #include "uqm/globdata.h"
 #include "uqm/planets/planets.h"
+#include "libs/graphics/gfx_common.h"
 #include <stdio.h>
 
 static bool menu_visible = 0;
@@ -129,6 +130,8 @@ typedef struct
 } MenuState;
 
 static void draw_engine_menu (void);
+static void draw_status_menu (void);
+static void draw_graphics_menu (void);
 static void draw_visual_menu (void);
 static void draw_cheats_menu (void);
 static void draw_qol_menu (void);
@@ -169,11 +172,12 @@ GeneralTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 	BYTE i;
 
 	const char *tab_names[] = {
-		"Search",
-		"Settings",
-		"Audio",
 		"Graphics",
-		"Controls"
+		"PC / 3DO",
+		"Sound",
+		"Music",
+		"Controls",
+		"Status"
 	};
 
 	if (ImGui_BeginTabItem ("General", NULL, 0))
@@ -208,20 +212,19 @@ GeneralTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 		switch (state->settings_tab)
 		{
 			case 0:
-				ImGui_Text ("Search");
+				draw_graphics_menu ();
 				break;
 			case 1:
-				//ImGui_Text ("Settings");
 				draw_engine_menu ();
 				break;
 			case 2:
-				ImGui_Text ("Audio");
 				break;
 			case 3:
-				ImGui_Text ("Graphics");
 				break;
 			case 4:
-				ImGui_Text ("Controls");
+				break;
+			case 5:
+				draw_status_menu ();
 				break;
 		}
 
@@ -242,8 +245,8 @@ EnhancementsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 		"Visuals",
 		"Fixes",
 		"Difficulty",
-		"Cheats",
-		"Timers"
+		"Cheats"
+//		"Timers"
 	};
 
 	if (ImGui_BeginTabItem ("Enhancements", NULL, 0))
@@ -297,9 +300,9 @@ EnhancementsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 			case 5:
 				draw_cheats_menu ();
 				break;
-			case 6:
-				ImGui_Text ("Timers");
-				break;
+			//case 6:
+			//	ImGui_Text ("Timers");
+			//	break;
 		}
 
 		ImGui_EndChild ();
@@ -426,13 +429,18 @@ DevToolsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 	}
 }
 
+ImVec2 display_size;
+
+#define DISPLAY_BOOL (display_size.x > 640.0f ? 3 : 1)
+
 void ShowFullScreenMenu (MenuState *state)
 {
 	float sidebar_width, button_height, content_height;
 	ImVec2 button_size, sidebar_size, content_size;
 	ImGuiWindowFlags window_flags;
 	ImGuiIO *io = ImGui_GetIO ();
-	ImVec2 display_size = io->DisplaySize;
+	
+	display_size = io->DisplaySize;
 
 	sidebar_width = display_size.x * 0.15f;
 	if (sidebar_width < 120.0f)
@@ -477,7 +485,6 @@ void ShowFullScreenMenu (MenuState *state)
 
 static void draw_engine_menu (void)
 {
-	float combo_width = 100.0f;
 	// Added blank spot because the combo box wouldn't quite work with
 	// just two entries. Will fix later.
 	const char *pc_or_3do[] = { "", "3DO", "DOS" };
@@ -491,38 +498,21 @@ static void draw_engine_menu (void)
 		"3DO (6014)"
 	};
 
-	ImGui_ColumnsEx (3, "EngineColumns", false);
+	ImGui_ColumnsEx (DISPLAY_BOOL, "EngineColumns", false);
 
 	ImGui_Checkbox ("Subtitles", (bool*)&optSubtitles);
 
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Text Scroll Style", &optSmoothScroll, pc_or_3do, 3);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Oscilloscope Style", &optScopeStyle, pc_or_3do, 3);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Screen Transitions", &optScrTrans, pc_or_3do, 3);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Star Background", &optStarBackground,
 			star_backgrounds, 4);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Coarse Scan Display", &optWhichCoarseScan,
 			coarse_scan, 4);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Scan Style", &optScanStyle, pc_or_3do, 3);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Scan Sphere Type", &optScanSphere, sphere_types, 3);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Tint Scanned Sphere", &optTintPlanSphere,
 			pc_or_3do, 3);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Lander Style", &optSuperPC, pc_or_3do, 3);
 
 	// ImGui_CollapsingHeader example
@@ -531,52 +521,40 @@ static void draw_engine_menu (void)
 	//}
 }
 
-static void draw_cheats_menu (void)
+static void draw_status_menu (void)
 {
-	int MaxScrounged = MAX_SCROUNGED;
+	ImGui_ColumnsEx (DISPLAY_BOOL, "StatusColumns", false);
 
-	const char *god_modes[] =
-	{
-		"None",
-		"Infinite Energy",
-		"Invulnerable",
-		"Full God Mode"
-	};
-	const char *time_modes[] =
-	{
-		"Normal",
-		"Slow (x6)",
-		"Fast (x5)"
-	};
+	{	// Edit Captain's Name
+		char CaptainsName[SIS_NAME_SIZE];
 
-	ImGui_ColumnsEx (3, "CheatColumns", false); // For taming width
+		snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
+			"%s", GLOBAL_SIS (CommanderName));
 
-	ImGui_SeparatorText ("Basic Cheats");
+		ImGui_Text ("Captain's Name:");
+		if (ImGui_InputText ("##CaptainsName", CaptainsName,
+			sizeof (CaptainsName), 0))
+		{
+			snprintf (GLOBAL_SIS (CommanderName),
+				sizeof (GLOBAL_SIS (CommanderName)),
+				"%s", CaptainsName);
+		}
+	}
 
-	ImGui_Checkbox ("Kohr-Stahp", (bool *)&optCheatMode);
-	ImGui_Checkbox ("Kohr-Ah DeCleansing", (bool *)&optDeCleansing);
+	{	// Edit Ship Name
+		char SISName[SIS_NAME_SIZE];
 
-	ImGui_Text ("God Modes:");
-	ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4);
-	ImGui_Text ("Time Dilation:");
-	ImGui_ComboChar ("##TimeDilation", &timeDilationScale, time_modes, 3);
+		snprintf ((char *)&SISName, sizeof (SISName),
+			"%s", GLOBAL_SIS (ShipName));
 
-	ImGui_Checkbox ("Bubble Warp", (bool*)&optBubbleWarp);
-	ImGui_Checkbox ("Head Start", (bool *)&optHeadStart);
-	ImGui_Checkbox ("Unlock All Ships", (bool *)&optUnlockShips);
-	ImGui_Checkbox ("Infinite R.U.", (bool *)&optInfiniteRU);
-	ImGui_Checkbox ("Infinite Fuel", (bool *)&optInfiniteFuel);
-	ImGui_Checkbox ("Infinite Credits", (bool *)&optInfiniteCredits);
-	ImGui_Checkbox ("No Hyperspace Encounters", (bool *)&optNoHQEncounters);
-	ImGui_Checkbox ("No Melee Obstacles", (bool *)&optMeleeObstacles);
-
-	ImGui_SeparatorText ("Expanded Cheats");
-
-	ImGui_Text ("Lander Capacity:");
-	ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
-	ImGui_SameLine ();
-	ImGui_InputInt ("##LanderCapacity",
-			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
+		ImGui_Text ("Ship Name:");
+		if (ImGui_InputText ("##SISName", SISName, sizeof (SISName), 0))
+		{
+			snprintf (GLOBAL_SIS (ShipName),
+				sizeof (GLOBAL_SIS (ShipName)),
+				"%s", SISName);
+		}
+	}
 
 	ImGui_Text ("Current R.U.:");
 	ImGui_InputInt ("##CurrentRU", (int *)&GLOBAL_SIS (ResUnits));
@@ -584,7 +562,7 @@ static void draw_cheats_menu (void)
 	{
 		int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
 		int volume = FUEL_RESERVE +
-				((DWORD)CountSISPieces (FUEL_TANK)
+			((DWORD)CountSISPieces (FUEL_TANK)
 				* FUEL_TANK_CAPACITY
 				+ (DWORD)CountSISPieces (HIGHEFF_FUELSYS)
 				* HEFUEL_TANK_CAPACITY);
@@ -617,44 +595,222 @@ static void draw_cheats_menu (void)
 			SET_GAME_STATE (MELNORME_CREDIT1, HIBYTE (Credits));
 		}
 	}
+}
+
+static void draw_graphics_menu (void)
+{
+	bool value = false;
+	const char *resolutions[] =
+	{
+		"Default",
+		"640x480",
+		"960x720",
+		"1280x960",
+		"1600x1200",
+		"1920x1440",
+		"Custom"
+	};
+	const char *aspect_ratios[] =
+	{
+		"Any",
+		"Force 4:3"
+	};
+	const char *display_modes[] =
+	{
+		"Windowed",
+		"Exclusive Fullscreen",
+		"Borderless Fullscreen"
+	};
+	const char *scalers[] =
+	{
+		"None",
+		"Bilinear",
+		"Adapt. Bilinear",
+		"Adv. Bilinear",
+		"Triscan (Scale2x)",
+		"HQ (2x)"
+	};
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "GraphicsColumns", false);
+
+	ImGui_BeginDisabled (true);
+	if (ImGui_Checkbox ("HD Mode", (bool *)&resolutionFactor))
+	{
+		// Add HD switching code here
+	}
+
+	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
+	{
+		ImGui_SetTooltip ("Example of a tooltip");
+	}
+	ImGui_EndDisabled ();
+
+	ImGui_Text ("Resolution:");
+	if (ImGui_ComboChar ("##Resolution",
+			(int *)&loresBlowupScale, resolutions, 7))
+	{
+		// Add resolution switch code here
+	}
 
 	{	// Edit Captain's Name
-		char CaptainsName[SIS_NAME_SIZE];
+		char CustomResolution[SIS_NAME_SIZE];
 
-		snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
-				"%s", GLOBAL_SIS (CommanderName));
+		snprintf ((char *)&CustomResolution, sizeof (CustomResolution),
+				"%dx%d", SavedWidth, SavedHeight);
 
-		ImGui_Text ("Captain's Name:");
-		if (ImGui_InputText ("##CaptainsName", &CaptainsName,
-				sizeof(CaptainsName), 0))
+		ImGui_Text ("Custom Resolution:");
+		if (ImGui_InputText ("##CustomeResolution", CustomResolution,
+			sizeof (CustomResolution), 0))
 		{
-			snprintf (GLOBAL_SIS (CommanderName),
-					sizeof (GLOBAL_SIS (CommanderName)),
-					"%s", CaptainsName);
+			// Add custom resolution code here
 		}
 	}
 
-	{	// Edit Ship Name
-		char SISName[SIS_NAME_SIZE];
+	ImGui_Text ("Aspect Ratio:");
+	if (ImGui_ComboChar ("##AspectRatio", (int *)&optKeepAspectRatio,
+			aspect_ratios, 2))
+	{
+		// Add aspect ratio code here
+	}
 
-		snprintf ((char *)&SISName, sizeof (SISName),
-				"%s", GLOBAL_SIS (ShipName));
+	{
+		int display_mode = 0;
 
-		ImGui_Text ("Ship Name:");
-		if (ImGui_InputText ("##SISName", &SISName, sizeof(SISName), 0))
+		if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+			display_mode = 2;
+		else if (GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN)
+			display_mode = 1;
+		else
+			display_mode = 0;
+
+		ImGui_Text ("Display Mode:");
+		if (ImGui_ComboChar ("##DisplayMode", (int *)&display_mode,
+			display_modes, 3))
 		{
-			snprintf (GLOBAL_SIS (ShipName),
-					sizeof (GLOBAL_SIS (ShipName)),
-					"%s", SISName);
+			// Add display mode code here
 		}
 	}
 
-	ImGui_NextColumn ();
+	{
+		ImGui_Text ("Gamma:");
+		if (ImGui_SliderFloatEx ("##Gamma", &optGamma, 0.4f, 2.5f, "%.2f",
+				ImGuiSliderFlags_Logarithmic))
+		{
+			setGammaCorrection (optGamma);
+		}
+		if (ImGui_Button ("Reset Gamma"))
+		{
+			optGamma = 1.0f;
+			setGammaCorrection (optGamma);
+		}
+	}
+
+	{
+		int flags, curr_scaler;
+
+		flags = GfxFlags & 248; // 11111000 - only scaler flags
+
+		switch (flags)
+		{
+			case TFB_GFXFLAGS_SCALE_BILINEAR:
+				curr_scaler = 1;
+				break;
+			case TFB_GFXFLAGS_SCALE_BIADAPT:
+				curr_scaler = 2;
+				break;
+			case TFB_GFXFLAGS_SCALE_BIADAPTADV:
+				curr_scaler = 3;
+				break;
+			case TFB_GFXFLAGS_SCALE_TRISCAN:
+				curr_scaler = 4;
+				break;
+			case TFB_GFXFLAGS_SCALE_HQXX:
+				curr_scaler = 5;
+				break;
+			default:
+				curr_scaler = 0;
+				break;
+		}
+
+		ImGui_Text ("Scaler:");
+		if (ImGui_ComboChar ("##Scaler", &curr_scaler,
+			scalers, 6))
+		{
+			// Add scaler code here
+		}
+	}
+
+	{
+		bool flags = GfxFlags & TFB_GFXFLAGS_SCANLINES;
+
+		if (ImGui_Checkbox ("Scanlines", &flags))
+		{
+			// Add scanline code here
+		}
+	}
+
+	{
+		bool flags = GfxFlags & TFB_GFXFLAGS_SHOWFPS;
+
+		if (ImGui_Checkbox ("Show FPS", &flags))
+		{
+			// Add show FPS code here
+		}
+	}
+}
+
+static void draw_cheats_menu (void)
+{
+	int MaxScrounged = MAX_SCROUNGED;
+
+	const char *god_modes[] =
+	{
+		"None",
+		"Infinite Energy",
+		"Invulnerable",
+		"Full God Mode"
+	};
+	const char *time_modes[] =
+	{
+		"Normal",
+		"Slow (x6)",
+		"Fast (x5)"
+	};
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "CheatColumns", false); // For taming width
+
+	ImGui_SeparatorText ("Basic Cheats");
+
+	ImGui_Checkbox ("Kohr-Stahp", (bool *)&optCheatMode);
+	ImGui_Checkbox ("Kohr-Ah DeCleansing", (bool *)&optDeCleansing);
+
+	ImGui_Text ("God Modes:");
+	ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4);
+	ImGui_Text ("Time Dilation:");
+	ImGui_ComboChar ("##TimeDilation", &timeDilationScale, time_modes, 3);
+
+	ImGui_Checkbox ("Bubble Warp", (bool*)&optBubbleWarp);
+	ImGui_Checkbox ("Head Start", (bool *)&optHeadStart);
+	ImGui_Checkbox ("Unlock All Ships", (bool *)&optUnlockShips);
+	ImGui_Checkbox ("Infinite R.U.", (bool *)&optInfiniteRU);
+	ImGui_Checkbox ("Infinite Fuel", (bool *)&optInfiniteFuel);
+	ImGui_Checkbox ("Infinite Credits", (bool *)&optInfiniteCredits);
+	ImGui_Checkbox ("No Hyperspace Encounters", (bool *)&optNoHQEncounters);
+	ImGui_Checkbox ("No Melee Obstacles", (bool *)&optMeleeObstacles);
+
+	ImGui_SeparatorText ("Expanded Cheats");
+
+	ImGui_Text ("Lander Capacity:");
+	ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
+	ImGui_SameLine ();
+	ImGui_InputInt ("##LanderCapacity",
+			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
+
+	//ImGui_NextColumn ();
 }
 
 static void draw_visual_menu (void)
 {
-	float combo_width = 100.0f;
 	const char *date_formats[] =
 	{
 		"MMM DD.YYYY",
@@ -675,15 +831,12 @@ static void draw_visual_menu (void)
 		"UQM"
 	};
 
+	ImGui_ColumnsEx (DISPLAY_BOOL, "VisualsColumns", false);
 
-	ImGui_ColumnsEx (3, "VisualsColumns", false);
-
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Date Format", &optDateFormat, date_formats, 4);
 
 	ImGui_Checkbox ("Show Whole Fuel Value", (bool *)&optWholeFuel);
 
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Fuel Range Display", &optFuelRange, fuel_ranges, 4);
 
 	ImGui_Checkbox ("SOI Colors", (bool *)&optSphereColors);
@@ -699,7 +852,6 @@ static void draw_visual_menu (void)
 	ImGui_Checkbox ("NPC Ship Orientation", (bool *)&optShipDirectionIP);
 	ImGui_Checkbox ("Hazard Colors", (bool *)&optHazardColors);
 
-	ImGui_SetNextItemWidth (combo_width);
 	ImGui_ComboChar ("Planet Map Textures", (int *)&optPlanetTexture,
 			planet_textures, 2);
 
@@ -710,7 +862,7 @@ static void draw_visual_menu (void)
 
 static void draw_qol_menu (void)
 {
-	ImGui_ColumnsEx (3, "QoLColumns", false);
+	ImGui_ColumnsEx (DISPLAY_BOOL, "QoLColumns", false);
 
 	ImGui_Checkbox ("Partial Pickup", (bool *)&optPartialPickup);
 	ImGui_Checkbox ("Scatter Elements", (bool *)&optScatterElements);
