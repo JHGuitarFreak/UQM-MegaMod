@@ -845,6 +845,8 @@ static void draw_graphics_menu (void)
 	}
 	ImGui_EndDisabled ();
 
+	Spacer ();
+
 	ImGui_Text ("Resolution:");
 	if (ImGui_ComboChar ("##Resolution",
 			(int *)&loresBlowupScale, resolutions, 7))
@@ -891,6 +893,8 @@ static void draw_graphics_menu (void)
 		}
 	}
 
+	Spacer ();
+
 	{
 		ImGui_Text ("Gamma:");
 		if (ImGui_SliderFloatEx ("##Gamma", &optGamma, 0.4f, 2.5f, "%.2f",
@@ -904,6 +908,8 @@ static void draw_graphics_menu (void)
 			setGammaCorrection (optGamma);
 		}
 	}
+
+	Spacer ();
 
 	{
 		int flags, curr_scaler;
@@ -939,6 +945,8 @@ static void draw_graphics_menu (void)
 			// Add scaler code here
 		}
 	}
+
+	Spacer ();
 
 	{
 		bool flags = GfxFlags & TFB_GFXFLAGS_SCANLINES;
