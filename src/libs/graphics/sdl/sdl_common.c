@@ -194,7 +194,8 @@ TFB_ProcessEvents ()
 
 		if (UQM_ImGui_WantCaptureInput ()
 			&& !(Event.type == SDL_KEYDOWN
-				&& Event.key.keysym.sym == SDLK_BACKQUOTE))
+				&& (Event.key.keysym.sym == SDLK_BACKQUOTE
+					|| Event.key.keysym.sym == SDLK_F8)))
 		{
 			continue;
 		}
