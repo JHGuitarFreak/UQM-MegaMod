@@ -1554,6 +1554,27 @@
     <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_widgets.cpp">
       <Filter>Source Files\libs\imgui\dcimgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_engine.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_tabs.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_cheats.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_graphics.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_misc.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_status.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_visuals.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\getopt\getopt.h">
@@ -2855,7 +2876,6 @@
     <ClInclude Include="..\..\src\libs\imgui\uqm_imgui.h">
       <Filter>Source Files\libs\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imconfig.h" />
     <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui.h">
       <Filter>Source Files\libs\imgui\dcimgui</Filter>
     </ClInclude>

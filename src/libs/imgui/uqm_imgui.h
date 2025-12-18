@@ -34,15 +34,37 @@
 extern "C" {
 #endif
 
-	int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer);
-	void UQM_ImGui_ProcessEvent (SDL_Event *event);
-	void UQM_ImGui_NewFrame (void);
-	void UQM_ImGui_Render (SDL_Renderer *renderer);
-	void UQM_ImGui_Shutdown (void);
-	void UQM_ImGui_ToggleMenu (void);
-	int UQM_ImGui_WantCaptureInput (void);
+int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer);
+void UQM_ImGui_ProcessEvent (SDL_Event *event);
+void UQM_ImGui_NewFrame (void);
+void UQM_ImGui_Render (SDL_Renderer *renderer);
+void UQM_ImGui_Shutdown (void);
+void UQM_ImGui_ToggleMenu (void);
+int UQM_ImGui_WantCaptureInput (void);
 
 #define DISPLAY_BOOL (ImGui_GetIO ()->DisplaySize.x > 640.0f ? 3 : 1)
+#define CENTER_TEXT (ImVec2){ 0.5f, 0.5f }
+#define ZERO_F      (ImVec2){ 0.0f, 0.0f }
+
+typedef struct
+{
+	int settings_tab;
+	int enhancements_tab;
+	int randomizer_tab;
+	int devtools_tab;
+} TabState;
+
+static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
+
+void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
+		ImVec2 button_size);
+
+void draw_engine_menu (void);
+void draw_graphics_menu (void);
+void draw_status_menu (void);
+void draw_visual_menu (void);
+void draw_cheats_menu (void);
+void draw_qol_menu (void);
 
 #ifdef __cplusplus
 }

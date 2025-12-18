@@ -374,6 +374,34 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_cheats.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_engine.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_graphics.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_misc.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_status.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_tabs.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_visuals.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\src\libs\input\sdl\input.c" />
     <ClCompile Include="..\..\src\libs\input\sdl\keynames.c" />
     <ClCompile Include="..\..\src\libs\input\sdl\vcontrol.c" />
