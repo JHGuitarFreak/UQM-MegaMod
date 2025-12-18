@@ -1094,57 +1094,57 @@ GetGaugeRect (RECT *pRect, BOOLEAN IsCrewRect)
 	pRect->corner.y = IsCrewRect ? RES_SCALE (117) : RES_SCALE (38);
 }
 
-static void
-DrawPC_SIS (void)
-{
-	TEXT t;
-	RECT r;
-
-	GetGaugeRect (&r, FALSE);
-	t.baseline.x = (STATUS_WIDTH >> 1);
-	t.baseline.y = r.corner.y - RES_SCALE (1);
-	t.align = ALIGN_CENTER;
-	t.CharCount = (COUNT)~0;
-	SetContextFont (TinyFont);
-	SetContextForeGroundColor (BLACK_COLOR);
-
-	// Black rectangle behind "FUEL" text and fuel amount.
-	r.corner.y -= RES_SCALE (6);
-	r.corner.x -= RES_SCALE (1);
-	r.extent.width += RES_SCALE (2);
-	DrawFilledRectangle (&r);
-
-	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 1));
-	t.pStr = GAME_STRING (STATUS_STRING_BASE + 3); // "FUEL"
-	font_DrawText (&t);
-
-	// Black rectangle behind "CREW" text and crew amount.
-	r.corner.y += RES_SCALE (79);
-	t.baseline.y += RES_SCALE (79);
-	DrawFilledRectangle (&r);
-
-	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 2));
-	t.pStr = GAME_STRING (STATUS_STRING_BASE + 4); // "CREW"
-	font_DrawText (&t);
-	SetContextFontEffect (NULL);
-
-	// Background of text "CAPTAIN".
-	r.corner.x = RES_SCALE (2 + 1);
-	r.corner.y = RES_SCALE (3);
-	r.extent.width = RES_SCALE (58);
-	r.extent.height = RES_SCALE (7);
-	SetContextForeGroundColor (PC_CAPTAIN_STRING_BACKGROUND_COLOR);
-	DrawFilledRectangle (&r);
-
-	DrawBorder (CAPTAIN_FRAME);
-
-	// Text "CAPTAIN".
-	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);
-	t.baseline.y = r.corner.y + RES_SCALE (6);
-	t.baseline.x -= RES_SCALE (1);
-	t.pStr = GAME_STRING (STATUS_STRING_BASE + 5); // "CAPTAIN"
-	font_DrawText (&t);
-}
+//static void
+//DrawPC_SIS (void)
+//{
+//	TEXT t;
+//	RECT r;
+//
+//	GetGaugeRect (&r, FALSE);
+//	t.baseline.x = (STATUS_WIDTH >> 1);
+//	t.baseline.y = r.corner.y - RES_SCALE (1);
+//	t.align = ALIGN_CENTER;
+//	t.CharCount = (COUNT)~0;
+//	SetContextFont (TinyFont);
+//	SetContextForeGroundColor (BLACK_COLOR);
+//
+//	// Black rectangle behind "FUEL" text and fuel amount.
+//	r.corner.y -= RES_SCALE (6);
+//	r.corner.x -= RES_SCALE (1);
+//	r.extent.width += RES_SCALE (2);
+//	DrawFilledRectangle (&r);
+//
+//	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 1));
+//	t.pStr = GAME_STRING (STATUS_STRING_BASE + 3); // "FUEL"
+//	font_DrawText (&t);
+//
+//	// Black rectangle behind "CREW" text and crew amount.
+//	r.corner.y += RES_SCALE (79);
+//	t.baseline.y += RES_SCALE (79);
+//	DrawFilledRectangle (&r);
+//
+//	SetContextFontEffect (SetAbsFrameIndex (FontGradFrame, 2));
+//	t.pStr = GAME_STRING (STATUS_STRING_BASE + 4); // "CREW"
+//	font_DrawText (&t);
+//	SetContextFontEffect (NULL);
+//
+//	// Background of text "CAPTAIN".
+//	r.corner.x = RES_SCALE (2 + 1);
+//	r.corner.y = RES_SCALE (3);
+//	r.extent.width = RES_SCALE (58);
+//	r.extent.height = RES_SCALE (7);
+//	SetContextForeGroundColor (PC_CAPTAIN_STRING_BACKGROUND_COLOR);
+//	DrawFilledRectangle (&r);
+//
+//	DrawBorder (CAPTAIN_FRAME);
+//
+//	// Text "CAPTAIN".
+//	SetContextForeGroundColor (PC_CAPTAIN_STRING_TEXT_COLOR);
+//	t.baseline.y = r.corner.y + RES_SCALE (6);
+//	t.baseline.x -= RES_SCALE (1);
+//	t.pStr = GAME_STRING (STATUS_STRING_BASE + 5); // "CAPTAIN"
+//	font_DrawText (&t);
+//}
 
 static void
 Draw_SIS (void)
@@ -1882,11 +1882,13 @@ CountSISPieces (BYTE piece_type)
 	return num_pieces;
 }
 
+#define MAX_CLUSTER 45 // "Epsilon Camelopardalis" x 2 + null terminator
+
 static void
 AutoPilotTextLogic (void)
 {
 	UNICODE buf[PATH_MAX];
-	UNICODE star_cluster[PATH_MAX];
+	UNICODE star_cluster[MAX_CLUSTER];
 	POINT Falayalaralfali;
 	POINT destination;
 	POINT current_position;
@@ -1956,7 +1958,7 @@ AutoPilotTextLogic (void)
 	GetClusterName (StarPointer, star_cluster);
 
 	// AUTO-PILOT to [StarCluster] - [TargetDistance]
-	snprintf (buf, sizeof buf, "%.256s %.256s %.256s - %.1f",
+	snprintf (buf, sizeof buf, "%s %s %s - %.1f",
 			GAME_STRING (NAVIGATION_STRING_BASE + 3), // "AUTO-PILOT"
 			GAME_STRING (NAVIGATION_STRING_BASE + 6), // "to"
 			star_cluster,
@@ -1970,7 +1972,7 @@ AutoPilotTextLogic (void)
 	{	// If the full text is too large then
 		// use "->" instead of "AUTO-PILOT"
 		// -> to [StarCluster] - [TargetDistance]
-		snprintf (buf, sizeof buf, "%.256s %.256s - %.1f",
+		snprintf (buf, sizeof buf, "%s %s - %.1f",
 				GAME_STRING (NAVIGATION_STRING_BASE + 7), // "->"
 				star_cluster,
 				target_distance

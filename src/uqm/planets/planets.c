@@ -706,7 +706,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 				DrawOrbitalDisplay (DRAW_ORBITAL_FROM_STARMAP);//WAS FULL
 				break;
 			}
-			// Fall through !!!
+			FALLTHROUGH; // Fall through !!!
 		}
 		case NAVIGATION:
 			return FALSE;

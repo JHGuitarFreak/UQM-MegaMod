@@ -550,6 +550,7 @@ explosion_preprocess (ELEMENT *ShipPtr)
 	{
 		case 25:
 			ShipPtr->preprocess_func = NULL;
+			FALLTHROUGH;
 		case 0:
 		case 1:
 		case 2:
@@ -570,6 +571,7 @@ explosion_preprocess (ELEMENT *ShipPtr)
 		case 15:
 			SetPrimType (&DisplayArray[ShipPtr->PrimIndex], NO_PRIM);
 			ShipPtr->state_flags |= CHANGING;
+			FALLTHROUGH;
 		default:
 			i = 3;
 			break;

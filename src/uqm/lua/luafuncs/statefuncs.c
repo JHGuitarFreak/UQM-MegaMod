@@ -556,19 +556,7 @@ luaUqm_state_prop_set(lua_State *luaState) {
 static int
 luaUqm_state_misc_alignText (lua_State *luaState)
 {
-	int delta;
-
-	if (&luaUqm_delta._int != NULL)
-	{
-		luaUqm_delta._int = 0;
-	}
-
-	delta = luaL_checkint (luaState, 1);
-
-	if (&delta == NULL)
-		return 0;
-
-	luaUqm_delta._int = delta;
+	luaUqm_delta._int = luaL_checkint (luaState, 1);
 	lua_pushstring (luaState, "");
 
 	return 1;

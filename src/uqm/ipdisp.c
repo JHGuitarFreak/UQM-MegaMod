@@ -884,6 +884,8 @@ flag_ship_preprocess (ELEMENT *ElementPtr)
 
 			RemoveElement (hSuccElement);
 			PutElement (hSuccElement);
+
+			(void)hPredElement; // satisfy compiler (unused variable)
 		}
 
 		ElementPtr->thrust_wait = FLIP_WAIT;

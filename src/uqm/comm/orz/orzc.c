@@ -291,6 +291,7 @@ ExitConversation (RESPONSE_REF R)
 				break;
 			case 7:
 				--NumVisits;
+				FALLTHROUGH;
 			default:
 				NPCPhrase (INSULTED_4);
 				setSegue (Segue_hostile);

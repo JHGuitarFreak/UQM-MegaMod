@@ -3,6 +3,13 @@
 
 #include "config.h"
 
+// For quelching intentional fallthrough warnings in switch statements.
+#if defined(__GNUC__) && __GNUC__ >= 7
+#	define FALLTHROUGH __attribute__((fallthrough))
+#else
+#	define FALLTHROUGH /* fall through */
+#endif
+
 #ifdef NEVER
 // Microsoft Windows headers expect this to be set. The MSVC compiler sets
 // it, but MinGW doesn't.

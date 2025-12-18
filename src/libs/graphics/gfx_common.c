@@ -120,6 +120,7 @@ FlushGraphics (void)
 	TFB_DrawScreen_WaitForSignal ();
 }
 
+#if SDL_MAJOR_VERSION == 1
 static void
 ExpandRect (RECT *rect, int expansion)
 {
@@ -155,6 +156,7 @@ ExpandRect (RECT *rect, int expansion)
 	else
 		rect->extent.height = CanvasHeight - rect->corner.y;
 }
+#endif // SDL_MAJOR_VERSION
 
 void
 SetTransitionSource (const RECT *pRect)
@@ -171,6 +173,7 @@ SetTransitionSource (const RECT *pRect)
 	TFB_DrawScreen_Copy (pRect, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
 #else	/* If we want custom resolutions, we have to make all transitions full screen*/
 	TFB_DrawScreen_Copy (NULL, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
+	(void)pRect; /* Satisfying compiler (unused parameter) */
 #endif
 }
 
@@ -184,7 +187,7 @@ ScreenTransition (int TransType, const RECT *pRect)
 	if (TransType == OPT_PC)
 		return;
 
-	TFB_UploadTransitionScreen (pRect);
+	TFB_UploadTransitionScreen ((RECT *)pRect);
 	
 	TransitionAmount = 0;
 	FlushGraphics ();
