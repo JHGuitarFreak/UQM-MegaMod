@@ -33,37 +33,96 @@ void draw_visual_menu (void)
 		"To Sol",
 		"Both"
 	};
-	const char *planet_textures[] =
-	{
-		"3DO",
-		"UQM"
-	};
+	const char *planet_textures[] = { "3DO", "UQM" };
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "VisualsColumns", false);
 
-	ImGui_ComboChar ("Date Format", &optDateFormat, date_formats, 4);
+	// User Interface
+	{
+		ImGui_SeparatorText ("User Interface");
 
-	ImGui_Checkbox ("Show Whole Fuel Value", (bool *)&optWholeFuel);
+		{
+			ImGui_Text ("Date Format:");
+			ImGui_ComboChar ("##DateFormat", &optDateFormat,
+					date_formats, 4);
+		}
 
-	ImGui_ComboChar ("Fuel Range Display", &optFuelRange, fuel_ranges, 4);
+		Spacer ();
 
-	ImGui_Checkbox ("SOI Colors", (bool *)&optSphereColors);
-	ImGui_Checkbox ("Animated HyperSpace Stars", (bool *)&optHyperStars);
-	ImGui_Checkbox ("Captain Names in Shipyard", (bool *)&optCaptainNames);
-	ImGui_Checkbox ("Alternate Orz Font", (bool *)&optOrzCompFont);
-	ImGui_Checkbox ("Non-stop Oscilloscope", (bool *)&optNonStopOscill);
-	ImGui_Checkbox ("Nebulae", (bool *)&optNebulae);
-	ImGui_Checkbox ("Orbiting Planets", (bool *)&optOrbitingPlanets);
-	ImGui_Checkbox ("Textured Planets", (bool *)&optTexturedPlanets);
-	ImGui_Checkbox ("Unscaled Star System (HD Only)",
-		(bool *)&optUnscaledStarSystem);
-	ImGui_Checkbox ("NPC Ship Orientation", (bool *)&optShipDirectionIP);
-	ImGui_Checkbox ("Hazard Colors", (bool *)&optHazardColors);
+		ImGui_Checkbox ("Custom Border", (bool *)&optCustomBorder);
+		ImGui_Checkbox ("Show Whole Fuel Value", (bool *)&optWholeFuel);
 
-	ImGui_ComboChar ("Planet Map Textures", (int *)&optPlanetTexture,
-		planet_textures, 2);
+		Spacer ();
 
-	ImGui_Checkbox ("Show Lander Upgrades", (bool *)&optShowUpgrades);
+		{
+			ImGui_Text ("Fuel Range Indicators");
+			ImGui_ComboChar ("##FuelRange", &optFuelRange, fuel_ranges, 4);
+		}
 
-	ImGui_SliderInt ("Nebulae Volume", &optNebulaeVolume, 0, 50);
+		Spacer ();
+
+		ImGui_Checkbox ("SOI Colors", (bool *)&optSphereColors);
+		ImGui_Checkbox ("HD Animations", (bool *)&optHyperStars);
+		ImGui_Checkbox ("Captain Names in Shipyard",
+				(bool *)&optCaptainNames);
+		ImGui_Checkbox ("Game Over Cutscenes", (bool *)&optGameOver);
+
+		ImGui_NewLine ();
+	}
+
+	// Conversation Screen
+	{
+		ImGui_SeparatorText ("Conversation Screen");
+
+		ImGui_Checkbox ("Alternate Orz Font", (bool *)&optOrzCompFont);
+		ImGui_Checkbox ("Non-Stop Oscilloscope", (bool *)&optNonStopOscill);
+
+		ImGui_NewLine ();
+	}
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_NextColumn ();
+
+	// Star System View
+	{
+		ImGui_SeparatorText ("Star System View");
+
+		ImGui_Text ("Nebulae & Nebulae Brightness:");
+		ImGui_Checkbox ("##Nebulae", (bool *)&optNebulae);
+		ImGui_SameLine ();
+		ImGui_SliderInt ("##NebulaeVolume", &optNebulaeVolume, 0, 50);
+
+		Spacer ();
+
+		ImGui_Checkbox ("Orbiting Planets", (bool *)&optOrbitingPlanets);
+		ImGui_Checkbox ("Textured Planets", (bool *)&optTexturedPlanets);
+		ImGui_Checkbox ("Unscaled View (HD Only)",
+				(bool *)&optUnscaledStarSystem);
+		ImGui_Checkbox ("NPC Ship Orientation",
+				(bool *)&optShipDirectionIP);
+
+		ImGui_NewLine ();
+	}
+
+	// Orbit Screen
+	{
+		ImGui_SeparatorText ("Orbit Screen");
+
+		ImGui_Checkbox ("Hazard Colors", (bool *)&optHazardColors);
+
+		Spacer ();
+
+		{
+			ImGui_Text ("Planet Map Textures:");
+			ImGui_ComboChar ("##PlanetMapTextures", (int *)&optPlanetTexture,
+					planet_textures, 2);
+		}
+
+		Spacer ();
+
+		ImGui_Checkbox ("Show Lander Upgrades", (bool *)&optShowUpgrades);
+
+		ImGui_NewLine ();
+	}
+
 }

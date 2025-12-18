@@ -19,7 +19,6 @@
 
 void draw_graphics_menu (void)
 {
-	bool value = false;
 	const char *resolutions[] =
 	{
 		"Default",
@@ -30,11 +29,7 @@ void draw_graphics_menu (void)
 		"1920x1440",
 		"Custom"
 	};
-	const char *aspect_ratios[] =
-	{
-		"Any",
-		"Force 4:3"
-	};
+	const char *aspect_ratios[] = { "Any", "Force 4:3" };
 	const char *display_modes[] =
 	{
 		"Windowed",
@@ -61,7 +56,7 @@ void draw_graphics_menu (void)
 
 	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
 	{
-		ImGui_SetTooltip ("Example of a tooltip");
+		ImGui_SetTooltip ("No can change!");
 	}
 	ImGui_EndDisabled ();
 
@@ -117,14 +112,15 @@ void draw_graphics_menu (void)
 
 	{
 		ImGui_Text ("Gamma:");
+		if (ImGui_Button ("Reset"))
+		{
+			optGamma = 1.0f;
+			setGammaCorrection (optGamma);
+		}
+		ImGui_SameLine ();
 		if (ImGui_SliderFloatEx ("##Gamma", &optGamma, 0.4f, 2.5f, "%.2f",
 			ImGuiSliderFlags_Logarithmic))
 		{
-			setGammaCorrection (optGamma);
-		}
-		if (ImGui_Button ("Reset Gamma"))
-		{
-			optGamma = 1.0f;
 			setGammaCorrection (optGamma);
 		}
 	}

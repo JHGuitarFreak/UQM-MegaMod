@@ -115,6 +115,7 @@ void draw_audio_menu (void)
 
 	ImGui_NewLine ();
 
+	// Music Options
 	{
 		ImGui_SeparatorText ("Music Options");
 

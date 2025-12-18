@@ -119,7 +119,7 @@ draw_engine_menu (void)
 			}
 		}
 
-		Spacer ();
+		ImGui_NewLine ();
 	}
 
 	if (DISPLAY_BOOL != 1)
@@ -156,7 +156,7 @@ draw_engine_menu (void)
 			}
 		}
 
-		Spacer ();
+		ImGui_NewLine ();
 	}
 
 	// Star System View
@@ -179,7 +179,7 @@ draw_engine_menu (void)
 				star_backgrounds, 4);
 		}
 
-		Spacer ();
+		ImGui_NewLine ();
 	}
 
 	if (DISPLAY_BOOL != 1)
@@ -247,6 +247,6 @@ draw_engine_menu (void)
 			}
 		}
 
-		Spacer ();
+		ImGui_NewLine ();
 	}
 }
