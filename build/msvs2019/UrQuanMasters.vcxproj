@@ -374,6 +374,10 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_audio.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_cheats.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>

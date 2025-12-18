@@ -26,8 +26,7 @@ GeneralTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
 	const char *tab_names[] = {
 		"Graphics",
 		"PC / 3DO",
-		"Sound",
-		"Music",
+		"Audio",
 		"Controls",
 		"Status"
 	};
@@ -70,12 +69,11 @@ GeneralTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
 				draw_engine_menu ();
 				break;
 			case 2:
+				draw_audio_menu ();
 				break;
 			case 3:
 				break;
 			case 4:
-				break;
-			case 5:
 				draw_status_menu ();
 				break;
 		}
