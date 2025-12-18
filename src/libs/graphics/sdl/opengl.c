@@ -54,7 +54,7 @@ static BOOLEAN first_init = TRUE;
 #endif
 
 static void TFB_GL_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
-static void TFB_GL_Postprocess (void);
+static void TFB_GL_Postprocess (bool hd);
 static void TFB_GL_UploadTransitionScreen (void);
 static void TFB_GL_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
@@ -622,8 +622,10 @@ TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 }
 
 static void
-TFB_GL_Postprocess (void)
+TFB_GL_Postprocess (bool hd)
 {
+	(void)hd;
+
 	if (GfxFlags & TFB_GFXFLAGS_SCANLINES)
 		TFB_GL_ScanLines ();
 

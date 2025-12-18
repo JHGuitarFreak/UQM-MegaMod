@@ -359,7 +359,7 @@ destroy_joystick (SDL_JoystickID instance_id)
 
 #else
 
-static void
+void
 create_joystick (int index)
 {
 	SDL_Joystick *stick;
