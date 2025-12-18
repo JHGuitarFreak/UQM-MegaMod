@@ -125,15 +125,6 @@ void draw_audio_menu (void)
 		Spacer ();
 
 		{
-			int quality;
-
-			if (soundflags & audio_QUALITY_HIGH)
-				quality = OPTVAL_HIGH;
-			else if (soundflags & audio_QUALITY_LOW)
-				quality = OPTVAL_LOW;
-			else
-				quality = OPTVAL_MEDIUM;
-
 			ImGui_Text ("Interplanetary Alien Ambience:");
 			if (ImGui_ComboChar ("##InterplanetaryAlienAmbience",
 					&optSpaceMusic, alien_ambience, 3))
@@ -149,15 +140,6 @@ void draw_audio_menu (void)
 		Spacer ();
 
 		{
-			int quality;
-
-			if (soundflags & audio_QUALITY_HIGH)
-				quality = OPTVAL_HIGH;
-			else if (soundflags & audio_QUALITY_LOW)
-				quality = OPTVAL_LOW;
-			else
-				quality = OPTVAL_MEDIUM;
-
 			ImGui_Text ("Music Resume:");
 			if (ImGui_ComboChar ("##MusicResume", &optMusicResume,
 					music_resume, 3))
