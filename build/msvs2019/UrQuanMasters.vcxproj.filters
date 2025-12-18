@@ -334,6 +334,9 @@
     <Filter Include="Source Files\libs\imgui">
       <UniqueIdentifier>{89c2449b-69fe-4877-9adf-64a16c2f0029}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\libs\imgui\dcimgui">
+      <UniqueIdentifier>{97b528e4-6193-4b90-899b-36c5c0b519a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\getopt\getopt.c">
@@ -1515,41 +1518,41 @@
     <ClCompile Include="..\..\src\libs\graphics\sdl\sdl2_pure.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\imgui.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\imgui_draw.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\imgui_impl_sdl2.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\imgui_impl_sdlrenderer2.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\imgui_tables.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\imgui_widgets.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\imgui_demo.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui_impl_sdl2.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui_impl_sdlrenderer2.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui_internal.cpp">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\libs\imgui\uqm_imgui.c">
       <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdl2.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdlrenderer2.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui_internal.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_demo.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_draw.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdl2.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdlrenderer2.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_tables.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_widgets.cpp">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2849,41 +2852,45 @@
     <ClInclude Include="..\..\src\uqm\supermelee\meleeship.h">
       <Filter>Source Files\uqm\supermelee</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imgui.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imgui_impl_sdl2.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imgui_impl_sdlrenderer2.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imgui_internal.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imstb_rectpack.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imstb_textedit.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\imstb_truetype.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui_impl_sdl2.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui_impl_sdlrenderer2.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui_internal.h">
-      <Filter>Source Files\libs\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\libs\imgui\uqm_imgui.h">
       <Filter>Source Files\libs\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\imconfig.h" />
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdl2.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdlrenderer2.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui_internal.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imconfig.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdl2.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdlrenderer2.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui_internal.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imstb_rectpack.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imstb_textedit.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imstb_truetype.h">
+      <Filter>Source Files\libs\imgui\dcimgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -16,16 +16,6 @@
  */
 
 #include "uqm_imgui.h"
-#include "dcimgui.h"
-#include "dcimgui_impl_sdl2.h"
-#include "dcimgui_impl_sdlrenderer2.h"
-#include "uqm/setupmenu.h"
-#include "options.h"
-#include "types.h"
-#include "uqm/globdata.h"
-#include "uqm/planets/planets.h"
-#include "libs/graphics/gfx_common.h"
-#include <stdio.h>
 
 static bool menu_visible = 0;
 static bool imgui_initialized = 0;
@@ -434,14 +424,11 @@ DevToolsTab (MenuState *state, ImVec2 content_size, ImVec2 sidebar_size,
 	}
 }
 
-ImVec2 display_size;
-
-#define DISPLAY_BOOL (display_size.x > 640.0f ? 3 : 1)
-
 void ShowFullScreenMenu (MenuState *state)
 {
 	float sidebar_width, button_height, content_height;
 	ImVec2 button_size, sidebar_size, content_size;
+	ImVec2 display_size;
 	ImGuiWindowFlags window_flags;
 	ImGuiIO *io = ImGui_GetIO ();
 	

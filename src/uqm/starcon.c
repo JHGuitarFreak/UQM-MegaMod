@@ -161,11 +161,13 @@ ProcessUtilityKeys (void)
 		FlushInput ();
 	}
 
+#if SDL_MAJOR_VERSION == 2
 	if (ImmediateInputState.menu[KEY_IMGUI])
 	{
 		UQM_ImGui_ToggleMenu ();
 		FlushInput ();
 	}
+#endif
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	{	// Only call the debug func on the rising edge of

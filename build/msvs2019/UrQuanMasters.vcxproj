@@ -326,18 +326,54 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClCompile Include="..\..\src\libs\graphics\tfb_prim.c" />
     <ClCompile Include="..\..\src\libs\graphics\widgets.c" />
     <ClCompile Include="..\..\src\libs\heap\heap.c" />
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui_internal.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui_impl_sdl2.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\dcimgui_impl_sdlrenderer2.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\imgui.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\imgui_impl_sdl2.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\imgui_impl_sdlrenderer2.cpp" />
-    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui.c" />
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdl2.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdlrenderer2.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\dcimgui_internal.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_demo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_draw.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdl2.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdlrenderer2.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_tables.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\dcimgui\imgui_widgets.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\src\libs\input\sdl\input.c" />
     <ClCompile Include="..\..\src\libs\input\sdl\keynames.c" />
     <ClCompile Include="..\..\src\libs\input\sdl\vcontrol.c" />
@@ -726,19 +762,58 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClInclude Include="..\..\src\libs\graphics\tfb_prim.h" />
     <ClInclude Include="..\..\src\libs\graphics\widgets.h" />
     <ClInclude Include="..\..\src\libs\heap\heap.h" />
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui.h" />
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui_internal.h" />
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui_impl_sdl2.h" />
-    <ClInclude Include="..\..\src\libs\imgui\dcimgui_impl_sdlrenderer2.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imgui.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imconfig.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imgui_internal.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imgui_impl_sdl2.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imgui_impl_sdlrenderer2.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\..\src\libs\imgui\imstb_truetype.h" />
-    <ClInclude Include="..\..\src\libs\imgui\uqm_imgui.h" />
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdl2.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui_impl_sdlrenderer2.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\dcimgui_internal.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imconfig.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdl2.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui_impl_sdlrenderer2.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imgui_internal.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imstb_rectpack.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imstb_textedit.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\dcimgui\imstb_truetype.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libs\imgui\uqm_imgui.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\..\src\libs\input\sdl\input.h" />
     <ClInclude Include="..\..\src\libs\input\sdl\keynames.h" />
     <ClInclude Include="..\..\src\libs\input\sdl\vcontrol.h" />

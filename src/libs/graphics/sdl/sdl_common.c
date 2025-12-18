@@ -190,6 +190,8 @@ TFB_ProcessEvents ()
 
 	while (SDL_PollEvent (&Event) > 0)
 	{
+
+#if SDL_MAJOR_VERSION == 2
 		UQM_ImGui_ProcessEvent (&Event);
 
 		if (UQM_ImGui_WantCaptureInput ()
@@ -199,6 +201,7 @@ TFB_ProcessEvents ()
 		{
 			continue;
 		}
+#endif
 
 		/* Run through the InputEvent filter. */
 		ProcessInputEvent (&Event);

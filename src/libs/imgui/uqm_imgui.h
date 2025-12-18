@@ -18,6 +18,16 @@
 #ifndef UQM_IMGUI_H
 #define UQM_IMGUI_H
 
+#include "dcimgui/dcimgui.h"
+#include "dcimgui/dcimgui_impl_sdl2.h"
+#include "dcimgui/dcimgui_impl_sdlrenderer2.h"
+#include "options.h"
+#include "types.h"
+#include "libs/graphics/gfx_common.h"
+#include "uqm/globdata.h"
+#include "uqm/planets/planets.h"
+#include "uqm/setupmenu.h"
+
 #include <SDL.h>
 
 #ifdef __cplusplus
@@ -31,6 +41,8 @@ extern "C" {
 	void UQM_ImGui_Shutdown (void);
 	void UQM_ImGui_ToggleMenu (void);
 	int UQM_ImGui_WantCaptureInput (void);
+
+#define DISPLAY_BOOL (ImGui_GetIO ()->DisplaySize.x > 640.0f ? 3 : 1)
 
 #ifdef __cplusplus
 }
