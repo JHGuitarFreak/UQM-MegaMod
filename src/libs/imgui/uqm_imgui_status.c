@@ -91,4 +91,81 @@ void draw_status_menu (void)
 			SET_GAME_STATE (MELNORME_CREDIT1, HIBYTE (Credits));
 		}
 	}
+
+	Spacer ();
+
+	{
+		BYTE ShieldFlags = GET_GAME_STATE (LANDER_SHIELDS);
+		bool QuakeShield = ShieldFlags & (1 << EARTHQUAKE_DISASTER);
+		bool BioShield = ShieldFlags & (1 << BIOLOGICAL_DISASTER);
+		bool LghtngShield = ShieldFlags & (1 << LIGHTNING_DISASTER);
+		bool LavaShield = ShieldFlags & (1 << LAVASPOT_DISASTER);
+		bool LanderShot = GET_GAME_STATE (IMPROVED_LANDER_SHOT);
+		bool LanderSpeed = GET_GAME_STATE (IMPROVED_LANDER_SPEED);
+		bool LanderCargo = GET_GAME_STATE (IMPROVED_LANDER_CARGO);
+
+		ImGui_Text ("Lander Upgrades:");
+
+		if (ImGui_BeginTable ("##Upgrades", 2, 0))
+		{
+			ImGui_TableNextRow ();
+			ImGui_TableNextColumn ();
+
+			if (ImGui_Checkbox ("Quake", &QuakeShield))
+			{
+				ShieldFlags ^= 1 << EARTHQUAKE_DISASTER;
+				SET_GAME_STATE (LANDER_SHIELDS, ShieldFlags);
+			}
+
+			ImGui_TableNextColumn ();
+
+			if (ImGui_Checkbox ("BIO", &BioShield))
+			{
+				ShieldFlags ^= 1 << BIOLOGICAL_DISASTER;
+				SET_GAME_STATE (LANDER_SHIELDS, ShieldFlags);
+			}
+
+			ImGui_TableNextRow ();
+			ImGui_TableNextColumn ();
+
+			if (ImGui_Checkbox ("Lightning", &LghtngShield))
+			{
+				ShieldFlags ^= 1 << LIGHTNING_DISASTER;
+				SET_GAME_STATE (LANDER_SHIELDS, ShieldFlags);
+			}
+
+			ImGui_TableNextColumn ();
+
+			if (ImGui_Checkbox ("Lava", &LavaShield))
+			{
+				ShieldFlags ^= 1 << LAVASPOT_DISASTER;
+				SET_GAME_STATE (LANDER_SHIELDS, ShieldFlags);
+			}
+
+			ImGui_TableNextRow ();
+			ImGui_TableNextColumn ();
+
+			if (ImGui_Checkbox ("Weapon", &LanderShot))
+			{
+				SET_GAME_STATE (IMPROVED_LANDER_SHOT, LanderShot);
+			}
+
+			ImGui_TableNextColumn ();
+
+			if (ImGui_Checkbox ("Speed", &LanderSpeed))
+			{
+				SET_GAME_STATE (IMPROVED_LANDER_SPEED, LanderSpeed);
+			}
+
+			ImGui_TableNextRow ();
+			ImGui_TableNextColumn ();
+
+			if (ImGui_Checkbox ("Cargo", &LanderCargo))
+			{
+				SET_GAME_STATE (IMPROVED_LANDER_CARGO, LanderCargo);
+			}
+
+			ImGui_EndTable ();
+		}
+	}
 }
