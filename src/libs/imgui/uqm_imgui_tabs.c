@@ -72,6 +72,7 @@ GeneralTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
 				draw_audio_menu ();
 				break;
 			case 3:
+				draw_controls_menu ();
 				break;
 			case 4:
 				draw_status_menu ();
