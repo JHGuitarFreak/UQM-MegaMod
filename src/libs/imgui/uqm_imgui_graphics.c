@@ -46,12 +46,18 @@ void draw_graphics_menu (void)
 		"HQ (2x)"
 	};
 
+	bool in_main_menu = GLOBAL (CurrentActivity) == 0;
+
 	ImGui_ColumnsEx (DISPLAY_BOOL, "GraphicsColumns", false);
 
-	ImGui_BeginDisabled (true);
-	if (ImGui_Checkbox ("HD Mode", (bool *)&resolutionFactor))
+	ImGui_BeginDisabled (in_main_menu);
 	{
-		// Add HD switching code here
+		bool res_factor = resolutionFactor > 0;
+
+		if (ImGui_Checkbox ("HD Mode", &res_factor))
+		{
+			// Add HD switching code here
+		}
 	}
 
 	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
