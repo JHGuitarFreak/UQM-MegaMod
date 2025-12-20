@@ -53,6 +53,11 @@ static void ShowFullScreenMenu (TabState *state)
 	ImGui_SetNextWindowPos (ZERO_F, 0);
 	ImGui_SetNextWindowSize (display_size, 0);
 
+	if (io->WantTextInput && !SDL_IsTextInputActive ())
+		SDL_StartTextInput ();
+	else if (!io->WantTextInput && SDL_IsTextInputActive ())
+		SDL_StopTextInput ();
+
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoResize;
 
@@ -69,8 +74,6 @@ static void ShowFullScreenMenu (TabState *state)
 
 void UQM_ImGui_NewFrame (void)
 {
-	ImGuiIO *io;
-
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return;
 
@@ -80,12 +83,6 @@ void UQM_ImGui_NewFrame (void)
 	cImGui_ImplSDLRenderer2_NewFrame ();
 	cImGui_ImplSDL2_NewFrame ();
 	ImGui_NewFrame ();
-
-	io = ImGui_GetIO ();
-	if (io->WantTextInput && !SDL_IsTextInputActive ())
-		SDL_StartTextInput ();
-	else if (!io->WantTextInput && SDL_IsTextInputActive ())
-		SDL_StopTextInput ();
 
 	if (menu_visible)
 		ShowFullScreenMenu (&tab_state);
