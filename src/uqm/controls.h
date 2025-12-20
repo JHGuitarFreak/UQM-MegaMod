@@ -22,6 +22,7 @@
 #include "libs/compiler.h"
 #include "libs/strlib.h"
 #include "libs/timelib.h"
+#include "libs/input/sdl/vcontrol.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -72,6 +73,8 @@ enum {
 	KEY_MENU_ANY, /* abstract char key */
 	NUM_MENU_KEYS
 };
+
+MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 
 typedef enum {
 	CONTROL_TEMPLATE_KB_1,

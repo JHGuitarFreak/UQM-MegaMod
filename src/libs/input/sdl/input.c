@@ -104,6 +104,43 @@ static const char *flight_res_names[] = {
 	NULL
 };
 
+void GetCurrentMenuBindings (void)
+{
+	int i, j;
+	char buf[40];
+
+	for (i = 0; menu_res_names[i] != NULL; i++)
+	{
+		snprintf (&curr_bindings[i].action,
+				sizeof (curr_bindings[i].action), "%s", menu_res_names[i]);
+
+		for (j = 1; j <= 6; j++)
+		{
+			snprintf (buf, 39, "menu.%s.%d", menu_res_names[i], j);
+
+			if (!res_IsString (buf))
+				break;
+
+			VControl_ParseGesture (&curr_bindings[i].binding[j - 1],
+					res_GetString (buf));
+		}
+	}
+
+	// Test to make sure we filled in all the bindings
+	//for (i = 0; i < 30; i++)
+	//{
+	//	printf ("%s\n", curr_bindings[i].action);
+
+	//	for (j = 0; j < 6; j++)
+	//	{
+	//		if (curr_bindings[i].binding[j].type == VCONTROL_NONE)
+	//			continue;
+	//		VControl_DumpGesture (buf, 39, &curr_bindings[i].binding[j]);
+	//		printf ("  %d: %s\n", j + 1, buf);
+	//	}
+	//}
+}
+
 static void
 register_menu_controls (int index)
 {
@@ -206,6 +243,8 @@ initKeyConfig (void)
 	}
 
 	register_flight_controls ();
+
+	GetCurrentMenuBindings ();
 
 	return;
 }

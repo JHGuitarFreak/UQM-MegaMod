@@ -53,6 +53,12 @@ typedef struct {
 	} gesture;
 } VCONTROL_GESTURE;
 
+typedef struct menu_bindings
+{
+	char action[40];
+	VCONTROL_GESTURE binding[6];
+} MENU_BINDINGS;
+
 /* Control of bindings */
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);
 void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);
