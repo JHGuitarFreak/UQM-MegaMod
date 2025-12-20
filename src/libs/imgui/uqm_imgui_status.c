@@ -32,12 +32,16 @@ void draw_status_menu (void)
 				"%s", GLOBAL_SIS (CommanderName));
 
 			ImGui_Text ("Captain's Name:");
-			if (ImGui_InputText ("##CaptainsName", CaptainsName,
-				sizeof (CaptainsName), 0))
+			ImGui_InputText ("##CaptainsName", CaptainsName,
+					sizeof (CaptainsName), 0);
+			if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& strlen(CaptainsName) < SIS_NAME_SIZE)
 			{
 				snprintf (GLOBAL_SIS (CommanderName),
-					sizeof (GLOBAL_SIS (CommanderName)),
-					"%s", CaptainsName);
+						sizeof (GLOBAL_SIS (CommanderName)),
+						"%s", CaptainsName);
+
+				//DrawCaptainsName (FALSE); Not Yet
 			}
 		}
 
@@ -48,16 +52,30 @@ void draw_status_menu (void)
 				"%s", GLOBAL_SIS (ShipName));
 
 			ImGui_Text ("Ship Name:");
-			if (ImGui_InputText ("##SISName", SISName, sizeof (SISName), 0))
+			ImGui_InputText ("##SISName", SISName, sizeof (SISName), 0);
+			if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& strlen(SISName) < SIS_NAME_SIZE)
 			{
 				snprintf (GLOBAL_SIS (ShipName),
-					sizeof (GLOBAL_SIS (ShipName)),
-					"%s", SISName);
+						sizeof (GLOBAL_SIS (ShipName)),
+						"%s", SISName);
+
+				//DrawFlagshipName (TRUE, FALSE); Not Yet
 			}
 		}
 
-		ImGui_Text ("Current R.U.:");
-		ImGui_InputInt ("##CurrentRU", (int *)&GLOBAL_SIS (ResUnits));
+		{
+			DWORD curr_ru = GLOBAL_SIS (ResUnits);
+
+			ImGui_Text ("Current R.U.:");
+			//ImGui_InputInt ("##CurrentRU", (int *)&GLOBAL_SIS (ResUnits));
+			ImGui_InputScalar ("##CurrentRU", ImGuiDataType_U32, &curr_ru);
+			if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& curr_ru > 0 && curr_ru < (DWORD)~0)
+			{
+				GLOBAL_SIS (ResUnits) = curr_ru;
+			}
+		}
 
 		{
 			int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
@@ -68,12 +86,12 @@ void draw_status_menu (void)
 					* HEFUEL_TANK_CAPACITY);
 
 			ImGui_Text ("Current Fuel:");
-			if (ImGui_InputInt ("##CurrentFuel", &CurrentFuel))
+			ImGui_InputInt ("##CurrentFuel", &CurrentFuel);
+			if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& CurrentFuel > 0 && CurrentFuel < (DWORD)~0)
 			{
 				if (CurrentFuel > volume)
 					CurrentFuel = volume;
-				if (CurrentFuel < 0)
-					CurrentFuel = 0;
 
 				GLOBAL_SIS (FuelOnBoard) = CurrentFuel;
 			}
@@ -84,13 +102,10 @@ void draw_status_menu (void)
 				GET_GAME_STATE (MELNORME_CREDIT1));
 
 			ImGui_Text ("Current Credits:");
-			if (ImGui_InputInt ("##CurrentCredits", &Credits))
+			ImGui_InputInt ("##CurrentCredits", &Credits);
+			if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& Credits < (COUNT)~0 && Credits > 0)
 			{
-				if (Credits > (uint16)~0)
-					Credits = (uint16)~0;
-				if (Credits < 0)
-					Credits = 0;
-
 				SET_GAME_STATE (MELNORME_CREDIT0, LOBYTE (Credits));
 				SET_GAME_STATE (MELNORME_CREDIT1, HIBYTE (Credits));
 			}
@@ -188,8 +203,6 @@ void draw_status_menu (void)
 				"Common", "Corrosive", "Base Metal", "Noble",
 				"Rare Earth", "Precious", "Radioactive", "Exotic"
 			};
-			int rem_capacity = GetStorageBayCapacity ()
-					- GLOBAL_SIS (TotalElementMass);
 			int i;
 
 			for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
@@ -211,26 +224,36 @@ void draw_status_menu (void)
 
 				ImGui_TableNextColumn ();
 
-				if (ImGui_InputInt2 (buf, element, 0))
+				ImGui_InputInt2 (buf, element, 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& element[0] < (BYTE)~0 && element[1] < (COUNT)~0)
 				{
 					if (GLOBAL (ElementWorth[i]) != element[0])
 						GLOBAL (ElementWorth[i]) = element[0];
 
 					if (GLOBAL_SIS (ElementAmounts[i]) != element[1])
 					{
+						int mass = GLOBAL_SIS (TotalElementMass);
+						int cap = GetStorageBayCapacity ();
 						int temp = element[1]
-								- GLOBAL_SIS (ElementAmounts[i]);
+							- GLOBAL_SIS (ElementAmounts[i]);
 
-						GLOBAL_SIS (ElementAmounts[i]) = element[1];
-						GLOBAL_SIS (TotalElementMass) += temp;
+						if (mass + temp <= cap)
+						{
+							GLOBAL_SIS (ElementAmounts[i]) = element[1];
+							GLOBAL_SIS (TotalElementMass) += temp;
+						}
 					}
 				}
 			}
 
 			{
 				char buf[40];
-				float total_capacity = (float)GLOBAL_SIS (TotalElementMass)
+				float capacity_filled =
+						(float)GLOBAL_SIS (TotalElementMass)
 						/ (float)GetStorageBayCapacity ();
+				int rem_capacity = GetStorageBayCapacity ()
+						- GLOBAL_SIS (TotalElementMass);
 
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
@@ -240,7 +263,7 @@ void draw_status_menu (void)
 				ImGui_TableNextColumn ();
 
 				snprintf (buf, sizeof buf, "%d", rem_capacity);
-				ImGui_ProgressBar (total_capacity, (ImVec2) {0, 0}, buf);
+				ImGui_ProgressBar (capacity_filled, (ImVec2) {0, 0}, buf);
 			}
 
 			{
@@ -253,7 +276,9 @@ void draw_status_menu (void)
 
 				ImGui_TableNextColumn ();
 
-				if (ImGui_InputIntEx ("##BioData", &BioData, 0, 0, 0))
+				ImGui_InputIntEx ("##BioData", &BioData, 0, 0, 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& BioData < (COUNT)~0)
 				{
 					GLOBAL_SIS (TotalBioMass) = BioData;
 				}
