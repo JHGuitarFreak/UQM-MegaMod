@@ -68,6 +68,7 @@ void draw_status_menu (void);
 void draw_visual_menu (void);
 void draw_cheats_menu (void);
 void draw_qol_menu (void);
+void draw_adv_menu (void);
 
 #ifdef __cplusplus
 }

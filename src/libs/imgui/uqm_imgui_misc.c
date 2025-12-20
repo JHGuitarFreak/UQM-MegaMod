@@ -31,3 +31,82 @@ void draw_qol_menu (void)
 		(bool *)&optMeleeToolTips);
 	ImGui_Checkbox ("Ship Storage Queue", (bool *)&optShipStore);
 }
+
+void draw_adv_menu (void)
+{
+	const char *difficulties[4] =
+			{ "Original", "Easy", "Hard", "Choose At Start" };
+	const char *nomad_modes[3] = { "Disabled", "Easy", "Normal" };
+	const char *seed_modes[4] = { "Prime", "Planet", "MRQ", "Starseed"};
+
+	UWORD activity = GLOBAL (CurrentActivity);
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "AdvancedColumns", false);
+
+	{
+		ImGui_Text ("Difficulty:");
+		if (ImGui_ComboChar ("##Difficulty", &optDiffChooser,
+				difficulties, 4))
+		{
+			// Add switching code here
+		}
+	}
+
+	Spacer ();
+
+	{
+		//bool is_extended = GLOBAL_SIS (Extended);
+		if (ImGui_Checkbox ("Extended Lore", (bool *)&optExtended))
+		{
+			// Add switching code here
+		}
+	}
+
+	Spacer ();
+
+	{
+		ImGui_Text ("Nomad Mode:");
+		if (ImGui_ComboChar ("##Nomad", &optNomad, nomad_modes, 3))
+		{
+			// Add switching code here
+		}
+	}
+
+	Spacer ();
+
+	ImGui_Checkbox ("Slaughter Mode", (bool *)&optSlaughterMode);
+	ImGui_Checkbox ("Fleet Point System", (bool *)&optFleetPointSys);
+
+	ImGui_NewLine ();
+
+	{
+		ImGui_Text ("Starmap Seeding:");
+		if (ImGui_ComboChar ("##Seeding", &optSeedType, seed_modes, 4))
+		{
+			// Add switching code here
+		}
+	}
+
+	Spacer ();
+
+	if (ImGui_Checkbox ("Ship Seeding", (bool *)&optShipSeed))
+	{
+		// Add switching code here
+	}
+
+	Spacer ();
+
+	{
+		int custom_seed = optCustomSeed;
+
+		ImGui_Text ("Custom Seed:");
+		ImGui_InputInt ("##CustomSeed", &custom_seed);
+		if (ImGui_IsItemDeactivatedAfterEdit ()
+				&& SANE_SEED (custom_seed))
+		{
+			// Add switching code here
+		}
+	}
+
+	ImGui_NewLine ();
+}

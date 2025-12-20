@@ -28,6 +28,7 @@ GeneralTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
 		"PC / 3DO",
 		"Audio",
 		"Controls",
+		"Advanced",
 		"Status"
 	};
 
@@ -75,6 +76,9 @@ GeneralTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
 				draw_controls_menu ();
 				break;
 			case 4:
+				draw_adv_menu ();
+				break;
+			case 5:
 				draw_status_menu ();
 				break;
 		}
