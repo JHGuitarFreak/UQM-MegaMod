@@ -289,4 +289,51 @@ void draw_status_menu (void)
 
 		ImGui_NewLine ();
 	}
+
+	// Module Status
+	{
+		ImGui_SeparatorText ("Module Status");
+
+		if (ImGui_BeginTable ("##Modules", 2, 0))
+		{
+			int i;
+			const char *modules[NUM_PURCHASE_MODULES] =
+			{
+				"Lander", "Fusion Thruster", "Turning Jets", "Crew Pod",
+				"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
+				"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
+				"Fusion Blaster", "Hellbore Cannon", "Tracking System",
+				"Point Defense Laser"
+			};
+
+			for (i = 0; i < NUM_PURCHASE_MODULES; i++)
+			{
+				char buf[40];
+
+				int module_cost =
+						GLOBAL (ModuleCost[i]) * MODULE_COST_SCALE;
+
+				snprintf (buf, sizeof (buf), "##%s", modules[i]);
+
+				ImGui_TableNextRow ();
+				ImGui_TableNextColumn ();
+
+				ImGui_Text (modules[i]);
+
+				ImGui_TableNextColumn ();
+
+				ImGui_InputIntEx (buf, &module_cost, 0, 0, 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& module_cost < 12750)
+				{
+					GLOBAL (ModuleCost[i]) =
+							module_cost / MODULE_COST_SCALE;
+				}
+			}
+
+			ImGui_EndTable ();
+		}
+
+		ImGui_NewLine ();
+	}
 }
