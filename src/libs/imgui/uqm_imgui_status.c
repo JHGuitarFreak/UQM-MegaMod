@@ -407,4 +407,78 @@ void draw_status_menu (void)
 
 		ImGui_NewLine ();
 	}
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_NextColumn ();
+
+	// Flagship Status
+	{
+		static bool thrusters[11] = { false };
+		static bool jets[8] = { false };
+		int something = 0;
+		int num_modules = 16;
+		int jet_thrust = 4;
+		int jet_stop = 12;
+		int thrust_stop = 15;
+		int i;
+		const char *ship_modules[] =
+		{
+			"None", "Crew Pod",
+			"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
+			"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
+			"Fusion Blaster", "Hellbore Cannon", "Tracking System",
+			"Point Defense Laser"
+		};
+
+		ImGuiStyle *style = ImGui_GetStyle ();
+		ImVec2 og_spacing = style->ItemSpacing;
+		style->ItemSpacing = (ImVec2){ 4.0f, 4.0f };
+
+		ImGui_SeparatorText ("Flagship Status");
+
+		for (i = 0; i < num_modules; i++)
+		{
+			char buf[40];
+
+			if (i >= jet_thrust && i < thrust_stop)
+			{
+				ImGui_PushStyleColor (ImGuiCol_CheckMark,
+						IM_COL32 (255, 0, 0, 255));
+				snprintf (buf, sizeof buf, "##thruster%d", i);
+				ImGui_Checkbox (buf, &thrusters[i - jet_thrust]);
+				ImGui_PopStyleColor ();
+			}
+			else
+			{
+				float checkbox_size = ImGui_GetFrameHeight ();
+				ImGui_Dummy ((ImVec2) { checkbox_size, checkbox_size });
+			}
+
+			ImGui_SameLine ();
+
+			if (i >= jet_thrust && i < jet_stop)
+			{
+				ImGui_PushStyleColor (ImGuiCol_CheckMark,
+						IM_COL32 (0, 255, 0, 255));
+				snprintf (buf, sizeof buf, "##jet%d", i);
+				ImGui_Checkbox (buf, &jets[i - jet_thrust]);
+				ImGui_PopStyleColor ();
+			}
+			else
+			{
+				float checkbox_size = ImGui_GetFrameHeight ();
+				ImGui_Dummy ((ImVec2) { checkbox_size, checkbox_size });
+			}
+
+			ImGui_SameLine ();
+
+			snprintf (buf, sizeof buf, "##module%d", i);
+			if (ImGui_ComboChar (buf, &something, ship_modules, 12))
+			{
+				// Handle combo selection
+			}
+		}
+
+		style->ItemSpacing = og_spacing;
+	}
 }
