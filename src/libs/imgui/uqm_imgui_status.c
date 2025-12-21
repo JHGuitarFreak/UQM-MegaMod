@@ -17,8 +17,12 @@
 
 #include "uqm_imgui.h"
 
+#include "uqm/races.h"
+
 void draw_status_menu (void)
 {
+	bool in_main_menu = GLOBAL (CurrentActivity) == 0;
+
 	ImGui_ColumnsEx (DISPLAY_BOOL, "StatusColumns", false);
 
 	// Player Status
@@ -329,6 +333,73 @@ void draw_status_menu (void)
 					GLOBAL (ModuleCost[i]) =
 							module_cost / MODULE_COST_SCALE;
 				}
+			}
+
+			ImGui_EndTable ();
+		}
+
+		ImGui_NewLine ();
+	}
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_NextColumn ();
+
+	// Alien Status
+	if (!in_main_menu)
+	{
+		ImGui_SeparatorText ("Alien Status");
+
+		if (ImGui_BeginTable ("##Aliens", 2, 0))
+		{
+			COUNT Index;
+			HFLEETINFO hStarShip, hNextShip;
+
+			const char *allied_states[3] =
+					{ "Dead Guy", "Good Guy", "Bad Guy" };
+
+			Index = 0;
+			for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
+					hStarShip; hStarShip = hNextShip)
+			{
+				FLEET_INFO *FleetPtr;
+				int race_state;
+				bool ship_buildable;
+				char buf[40];
+
+				if (Index == NUM_BUILDABLE_SHIPS)
+					break;
+
+				FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+				ImGui_TableNextRow ();
+				ImGui_TableNextColumn ();
+
+				ImGui_Text (GetStringAddress (SetAbsStringTableIndex (
+						FleetPtr->race_strings, 0)));
+
+				ImGui_TableNextColumn ();
+
+				race_state = FleetPtr->allied_state;
+				snprintf (buf, sizeof buf, "##AlliedState%d", Index);
+
+				if (ImGui_ComboChar (buf, &race_state, allied_states, 3))
+				{
+					FleetPtr->allied_state = race_state;
+				}
+
+				ImGui_SameLine ();
+
+				ship_buildable = FleetPtr->can_build;
+				snprintf (buf, sizeof buf, "##Buildable%d", Index);
+
+				if (ImGui_Checkbox (buf, &ship_buildable))
+				{
+					FleetPtr->can_build = ship_buildable;
+				}
+
+				Index++;
+				hNextShip = _GetSuccLink (FleetPtr);
+				UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 			}
 
 			ImGui_EndTable ();
