@@ -383,6 +383,27 @@ void ImGui::StyleColorsLight(ImGuiStyle* dst)
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
+void ImGui::StyleColorsMyTheme (ImGuiStyle *dst)
+{
+    ImGuiStyle *style = dst ? dst : &ImGui::GetStyle ();
+    ImVec4 *colors = style->Colors;
+
+    style->WindowBorderSize = 1;
+    style->ChildBorderSize = 1;
+    style->PopupBorderSize = 1;
+    style->FrameBorderSize = 1;
+    style->TabBorderSize = 1;
+    style->WindowRounding = 6;
+    style->ChildRounding = 4;
+    style->FrameRounding = 3;
+    style->PopupRounding = 4;
+    style->ScrollbarRounding = 9;
+    style->GrabRounding = 3;
+    style->LogSliderDeadzone = 4;
+    style->TabRounding = 4;
+    style->SelectablesRounding = 4;
+}
+
 //-----------------------------------------------------------------------------
 // [SECTION] ImDrawList
 //-----------------------------------------------------------------------------

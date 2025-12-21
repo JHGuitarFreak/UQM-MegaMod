@@ -435,6 +435,7 @@ CIMGUI_API const char* ImGui_GetVersion(void);                                  
 CIMGUI_API void ImGui_StyleColorsDark(ImGuiStyle* dst /* = NULL */);     // new, recommended style (default)
 CIMGUI_API void ImGui_StyleColorsLight(ImGuiStyle* dst /* = NULL */);    // best used with borders and a custom, thicker font
 CIMGUI_API void ImGui_StyleColorsClassic(ImGuiStyle* dst /* = NULL */);  // classic imgui style
+CIMGUI_API void ImGui_StyleColorsMyTheme (ImGuiStyle *dst /* = NULL */);     // new, recommended style (default)
 
 // Windows
 // - Begin() = push window to the stack and start appending to it. End() = pop window from the stack.

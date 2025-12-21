@@ -120,7 +120,7 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 		return 0;
 	}
 
-	ImGui_StyleColorsDark (NULL);
+	ImGui_StyleColorsMyTheme (NULL);
 
 	imgui_initialized = 1;
 	printf ("UQM_ImGui_Init: Success!\n\n");

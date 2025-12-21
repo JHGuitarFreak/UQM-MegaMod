@@ -431,6 +431,11 @@ CIMGUI_API void cimgui::ImGui_StyleColorsClassic(cimgui::ImGuiStyle* dst)
     ::ImGui::StyleColorsClassic(reinterpret_cast<::ImGuiStyle*>(dst));
 }
 
+CIMGUI_API void cimgui::ImGui_StyleColorsMyTheme (cimgui::ImGuiStyle* dst)
+{
+    ::ImGui::StyleColorsMyTheme(reinterpret_cast<::ImGuiStyle*>(dst));
+}
+
 CIMGUI_API bool cimgui::ImGui_Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 {
     return ::ImGui::Begin(name, p_open, flags);
