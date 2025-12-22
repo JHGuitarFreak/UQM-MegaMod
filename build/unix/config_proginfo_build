@@ -90,7 +90,7 @@ case "$HOST_SYSTEM" in
 				EXTRA_PLATFORM_GCC_FLAGS_LINK='-mmacosx-version-min=10.7 -arch x86_64'
 				;;
 			*)
-				echo "Unknown architecture: $ARCH"
+				echo "Unknown architecture: $(uname -m)" >&2
 				exit 1
 				;;
 		esac
