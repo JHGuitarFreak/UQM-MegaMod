@@ -228,75 +228,75 @@ CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 	return quad_visible;
 }
 
-static BYTE
-CheckOvalCollisionOld (POINT *ch_one, POINT *ch_two)
-{
-	POINT mp;
-	BRESENHAM_LINE ClipLine;
-	RECT ClipRect;
-	BYTE quad_visible = 0;
-
-	ClipRect.corner.x = ClipRect.corner.y = 0;
-	ClipRect.extent.width = SIS_SCREEN_WIDTH;
-	ClipRect.extent.height = SIS_SCREEN_HEIGHT;
-
-	mp.x = (ch_one->x + ch_two->x) >> 1;
-	mp.y = (ch_one->y + ch_two->y) >> 1;
-
-	if (ch_one->y >= 0 && ch_one->y < ClipRect.extent.height
-		&& ch_two->x >= 0 && ch_two->x < ClipRect.extent.width)
-		quad_visible |= FIRST_QUAD;
-	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = ch_one->y;
-		ClipLine.second.x = ch_two->x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
-			quad_visible |= FIRST_QUAD;
-	}
-
-	if (ch_one->y >= 0 && ch_one->y < ClipRect.extent.height
-		&& ch_one->x >= 0 && ch_one->x < ClipRect.extent.width)
-		quad_visible |= SECOND_QUAD;
-	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = ch_one->y;
-		ClipLine.second.x = ch_one->x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
-			quad_visible |= SECOND_QUAD;
-	}
-
-	if (ch_two->y >= 0 && ch_two->y < ClipRect.extent.height
-		&& ch_one->x >= 0 && ch_one->x < ClipRect.extent.width)
-		quad_visible |= THIRD_QUAD;
-	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = ch_two->y;
-		ClipLine.second.x = ch_one->x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
-			quad_visible |= THIRD_QUAD;
-	}
-
-	if (ch_two->y >= 0 && ch_two->y < ClipRect.extent.height
-		&& ch_two->x >= 0 && ch_two->x < ClipRect.extent.width)
-		quad_visible |= FOURTH_QUAD;
-	else
-	{
-		ClipLine.first.x = mp.x;
-		ClipLine.first.y = ch_two->y;
-		ClipLine.second.x = ch_two->x;
-		ClipLine.second.y = mp.y;
-		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
-			quad_visible |= FOURTH_QUAD;
-	}
-
-	return quad_visible;
-}
+//static BYTE
+//CheckOvalCollisionOld (POINT *ch_one, POINT *ch_two)
+//{
+//	POINT mp;
+//	BRESENHAM_LINE ClipLine;
+//	RECT ClipRect;
+//	BYTE quad_visible = 0;
+//
+//	ClipRect.corner.x = ClipRect.corner.y = 0;
+//	ClipRect.extent.width = SIS_SCREEN_WIDTH;
+//	ClipRect.extent.height = SIS_SCREEN_HEIGHT;
+//
+//	mp.x = (ch_one->x + ch_two->x) >> 1;
+//	mp.y = (ch_one->y + ch_two->y) >> 1;
+//
+//	if (ch_one->y >= 0 && ch_one->y < ClipRect.extent.height
+//		&& ch_two->x >= 0 && ch_two->x < ClipRect.extent.width)
+//		quad_visible |= FIRST_QUAD;
+//	else
+//	{
+//		ClipLine.first.x = mp.x;
+//		ClipLine.first.y = ch_one->y;
+//		ClipLine.second.x = ch_two->x;
+//		ClipLine.second.y = mp.y;
+//		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
+//			quad_visible |= FIRST_QUAD;
+//	}
+//
+//	if (ch_one->y >= 0 && ch_one->y < ClipRect.extent.height
+//		&& ch_one->x >= 0 && ch_one->x < ClipRect.extent.width)
+//		quad_visible |= SECOND_QUAD;
+//	else
+//	{
+//		ClipLine.first.x = mp.x;
+//		ClipLine.first.y = ch_one->y;
+//		ClipLine.second.x = ch_one->x;
+//		ClipLine.second.y = mp.y;
+//		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
+//			quad_visible |= SECOND_QUAD;
+//	}
+//
+//	if (ch_two->y >= 0 && ch_two->y < ClipRect.extent.height
+//		&& ch_one->x >= 0 && ch_one->x < ClipRect.extent.width)
+//		quad_visible |= THIRD_QUAD;
+//	else
+//	{
+//		ClipLine.first.x = mp.x;
+//		ClipLine.first.y = ch_two->y;
+//		ClipLine.second.x = ch_one->x;
+//		ClipLine.second.y = mp.y;
+//		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
+//			quad_visible |= THIRD_QUAD;
+//	}
+//
+//	if (ch_two->y >= 0 && ch_two->y < ClipRect.extent.height
+//		&& ch_two->x >= 0 && ch_two->x < ClipRect.extent.width)
+//		quad_visible |= FOURTH_QUAD;
+//	else
+//	{
+//		ClipLine.first.x = mp.x;
+//		ClipLine.first.y = ch_two->y;
+//		ClipLine.second.x = ch_two->x;
+//		ClipLine.second.y = mp.y;
+//		if (_clip_line ((DRECT *)&ClipRect, &ClipLine))
+//			quad_visible |= FOURTH_QUAD;
+//	}
+//
+//	return quad_visible;
+//}
 
 void
 DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)

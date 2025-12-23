@@ -752,16 +752,20 @@ check_for_hd (WIDGET_CHOICE *self, int oldval)
 		oldval = OPTVAL_320_240;
 		addon_unavailable (self, OPTVAL_320_240);
 	}
+
+	(void)oldval; // Satisfy compiler
 }
 
 static BOOLEAN
 check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 {
+	bool selected = choices[CHOICE_GRAPHICS].selected;
+	int shmagoigle = (selected && !IS_HD) ? HD : IS_HD;
+
 	switch (self->selected)
 	{
 		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (
-					DOS_MODE (choices[CHOICE_GRAPHICS].selected && !IS_HD ? HD : IS_HD)))
+			if (!isAddonAvailable (DOS_MODE (shmagoigle)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, oldval);
@@ -769,9 +773,7 @@ check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 			}
 			break;
 		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (
-					THREEDO_MODE (
-						choices[CHOICE_GRAPHICS].selected && !IS_HD ? HD : IS_HD)))
+			if (!isAddonAvailable (THREEDO_MODE (shmagoigle)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, OPTVAL_UQM_WINDOW);
@@ -861,6 +863,8 @@ change_seedtype (WIDGET_CHOICE *self, int oldval)
 				sizeof (textentries[TEXT_GAMESEED].value),
 				"%d", optCustomSeed);
 	}
+
+	(void)oldval; // Satisfy compiler
 }
 
 static void
@@ -1065,20 +1069,20 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 	populate_res ();
 }
 
-static BOOLEAN
-res_check (int width, int height)
-{
-	if (width % 320)
-		return FALSE;
-
-	if (height % DOS_BOOL (240, 200))
-		return FALSE;
-
-	if (width > 1920 || height > 1440)
-		return FALSE;
-
-	return TRUE;
-}
+//static BOOLEAN
+//res_check (int width, int height)
+//{
+//	if (width % 320)
+//		return FALSE;
+//
+//	if (height % DOS_BOOL (240, 200))
+//		return FALSE;
+//
+//	if (width > 1920 || height > 1440)
+//		return FALSE;
+//
+//	return TRUE;
+//}
 
 static void
 change_res (WIDGET_TEXTENTRY *self)
@@ -2552,7 +2556,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	newFactor = (int)(opts->screenResolution << 1);
 	PutIntOpt (&resFactor, &newFactor, "config.resolutionfactor", TRUE);
 
-	if (resFactor != resolutionFactor)
+	if (resFactor != (int)resolutionFactor)
 	{
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		resolutionFactor = resFactor;

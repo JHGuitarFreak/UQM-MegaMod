@@ -47,10 +47,10 @@ SDL_Surface *SDL_Screen_fps;
 
 SDL_Surface *format_conv_surf = NULL;
 
-static SDL_Rect TransitionClipRect;
 SDL_Rect *pTransitionClipRect = NULL;
 
 #if SDL_MAJOR_VERSION == 1
+static SDL_Rect TransitionClipRect;
 const SDL_VideoInfo *SDL_screen_info; 
 #endif
 
@@ -677,6 +677,8 @@ TFB_UploadTransitionScreen (RECT *pRect)
 	}
 	else
 		pTransitionClipRect = NULL;
+#else
+	(void)pRect; /*satisfy compiler (unused parameter)*/
 #endif
 }
 
@@ -690,18 +692,33 @@ TFB_HasColorKey (SDL_Surface *surface)
 void
 TFB_ScreenShot (void)
 {
-	char curTime[PATH_MAX], fullPath[PATH_MAX];
+	char curTime[64];
+	char *fullPath;
 	time_t t = time (NULL);
 	struct tm *tm = localtime (&t);
 	const char *shotDirName = getenv ("UQM_SCR_SHOT_DIR");
 	struct stat sb;
+	int len;
 
 	strftime (curTime, sizeof (curTime),
 		"%Y-%m-%d_%H-%M-%S", tm);
-	snprintf (fullPath, sizeof (fullPath),
-		"%s%s v%d.%d.%d %s.%s", shotDirName, curTime,
-		UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
-		RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION), "png");
+
+	len = snprintf(NULL, 0,
+			"%s%s v%d.%d.%d %s.png", shotDirName, curTime,
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			RES_BOOL(UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
+	
+	if (len < 0)
+		return;
+
+	fullPath = HMalloc (len + 1);
+	if (!fullPath)
+		return;
+
+	snprintf (fullPath, len + 1,
+			"%s%s v%d.%d.%d %s.png", shotDirName, curTime,
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, UQM_PATCH_VERSION,
+			RES_BOOL (UQM_EXTRA_VERSION, "HD " UQM_EXTRA_VERSION));
 
 	if (stat (shotDirName, &sb) == 0 && S_ISDIR (sb.st_mode))
 	{
@@ -710,6 +727,8 @@ TFB_ScreenShot (void)
 		else
 			log_add (log_Debug, "Screenshot not saved due to an error");
 	}
+
+	HFree (fullPath);
 }
 
 void

@@ -388,24 +388,32 @@ printPt (POINT pt, UNICODE *Str)
 {
 	printf ("%s = %d x %d\n", Str, pt.x, pt.y);
 }
+#define PRINT_PT(pt) \
+		printPt (pt, #pt)
 
 static inline void
 printDPt (DPOINT dPt, UNICODE *Str)
 {
 	printf ("%s = %d x %d\n", Str, dPt.x, dPt.y);
 }
+#define PRINT_DPT(dpt) \
+		printDPt (dpt, #dpt)
 
 static inline void
 printExt (EXTENT ext, UNICODE *Str)
 {
 	printf ("%s = %d x %d\n", Str, ext.width, ext.height);
 }
+#define PRINT_EXT(ext) \
+		printExt (ext, #ext)
 
 static inline void
 printDExt (DEXTENT dExt, UNICODE *Str)
 {
 	printf ("%s = %d x %d\n", Str, dExt.width, dExt.height);
 }
+#define PRINT_DEXT(dext) \
+		printDExt (dext, #dext)
 
 static inline void
 printRect (RECT r, UNICODE *Str)
@@ -413,6 +421,8 @@ printRect (RECT r, UNICODE *Str)
 	printf ("%s.corner = %d x %d\n", Str, r.corner.x, r.corner.y);
 	printf ("%s.extent = %d x %d\n", Str, r.extent.width, r.extent.height);
 }
+#define PRINT_RECT(rect) \
+		printRect (rect, #rect)
 
 static inline void
 printDRect (DRECT r, UNICODE *Str)
@@ -420,6 +430,8 @@ printDRect (DRECT r, UNICODE *Str)
 	printf ("%s.corner = %d x %d\n", Str, r.corner.x, r.corner.y);
 	printf ("%s.extent = %d x %d\n", Str, r.extent.width, r.extent.height);
 }
+#define PRINT_DRECT(drect) \
+		printDRect (drect, #drect)
 
 static inline void
 ZeroPoint (POINT *pt)

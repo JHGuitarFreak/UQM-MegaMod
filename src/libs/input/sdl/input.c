@@ -282,7 +282,8 @@ initJoystick (void)
 	int nJoysticks;
 
 #if SDL_MAJOR_VERSION > 1
-	char mapping_db[PATH_MAX];
+	char *mapping_db;
+	int len;
 	size_t base_len;
 	const char *slash;
 #endif
@@ -310,8 +311,13 @@ initJoystick (void)
 	else
 		slash = "/";
 
-	snprintf (mapping_db, sizeof mapping_db, "%s%sgamecontrollerdb.txt",
+	len = snprintf (NULL, 0, "%s%sgamecontrollerdb.txt",
 			baseContentPath, slash);
+
+	mapping_db = HMalloc (len + 1);
+
+	snprintf (mapping_db, len + 1, "%s%sgamecontrollerdb.txt",
+		baseContentPath, slash);
 
 	if (SDL_GameControllerAddMappingsFromFile (mapping_db) == -1)
 	{
@@ -323,6 +329,8 @@ initJoystick (void)
 		log_add (log_Debug, "Loaded controller mappings from %s",
 				mapping_db);
 	}
+
+	HFree (mapping_db);
 #endif
 	nJoysticks = SDL_NumJoysticks ();
 	log_add (log_Info, "%i joysticks were found.", nJoysticks);
