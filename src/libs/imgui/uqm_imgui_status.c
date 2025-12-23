@@ -23,6 +23,12 @@ void draw_status_menu (void)
 {
 	bool in_main_menu = GLOBAL (CurrentActivity) == 0;
 
+	if (in_main_menu)
+	{
+		ImGui_Text ("Status not available in the Main Menu...");
+		return;
+	}
+
 	ImGui_ColumnsEx (DISPLAY_BOOL, "StatusColumns", false);
 
 	// Player Status
