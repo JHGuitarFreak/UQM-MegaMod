@@ -27,12 +27,37 @@
 #include "uqm/globdata.h"
 #include "uqm/planets/planets.h"
 #include "uqm/setupmenu.h"
+#include "libs/log/uqmlog.h"
 
 #include <SDL.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct
+{
+	const char *name;
+	DWORD value;
+	bool valid;
+} GSCacheEntry;
+
+typedef struct
+{
+	GSCacheEntry *entries;
+	size_t count;
+} GameStateCache;
+
+GameStateCache gs_cache;
+
+int get_cached_gamestate (const char *name);
+void set_cached_gamestate (const char *name, int value);
+void revalidate_game_state_cache (void);
+
+#define SET_CGAME_STATE(SName,val) \
+	set_cached_gamestate (#SName,val)
+#define GET_CGAME_STATE(SName) \
+	get_cached_gamestate (#SName)
 
 int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer);
 void UQM_ImGui_ProcessEvent (SDL_Event *event);

@@ -153,6 +153,13 @@ void UQM_ImGui_Shutdown (void)
 
 	printf ("ImGui_Shutdown\n");
 
+	if (gs_cache.entries)
+	{
+		free (gs_cache.entries);
+		gs_cache.entries = NULL;
+		gs_cache.count = 0;
+	}
+
 	cImGui_ImplSDLRenderer2_Shutdown ();
 	cImGui_ImplSDL2_Shutdown ();
 	ImGui_DestroyContext (NULL);
@@ -166,6 +173,9 @@ void UQM_ImGui_ToggleMenu (void)
 {
 	menu_visible = !menu_visible;
 	printf ("Menu toggled: %s\n", menu_visible ? "visible" : "hidden");
+
+	if (menu_visible)
+		revalidate_game_state_cache ();
 }
 
 // This redirects input to ImGui when the menu is visible
@@ -176,4 +186,100 @@ int UQM_ImGui_WantCaptureInput (void)
 
 	ImGuiIO *io = ImGui_GetIO ();
 	return (io->WantCaptureKeyboard || io->WantCaptureMouse) ? 1 : 0;
+}
+
+// Begin GameState cache implementation
+
+GameStateCache gs_cache = { NULL, 0 };
+
+GSCacheEntry *
+find_cache_entry (const char *name)
+{
+	for (size_t i = 0; i < gs_cache.count; i++)
+	{
+		if (strcmp (gs_cache.entries[i].name, name) == 0)
+		{
+			return &gs_cache.entries[i];
+		}
+	}
+	return NULL;
+}
+
+static GSCacheEntry *
+add_cache_entry (const char *name)
+{
+	size_t new_count = gs_cache.count + 1;
+	size_t new_size = sizeof (GSCacheEntry) * new_count;
+	GSCacheEntry *new_entries = realloc (gs_cache.entries, new_size);
+
+	if (!new_entries)
+	{
+		log_add (log_Warning, "Failed to realloc gs_cache");
+		return NULL;
+	}
+
+	gs_cache.entries = new_entries;
+
+	gs_cache.entries[gs_cache.count].name = name;
+	gs_cache.entries[gs_cache.count].valid = false;
+	gs_cache.entries[gs_cache.count].value = 0;
+
+	return &gs_cache.entries[gs_cache.count++];
+}
+
+// Get cached gamestate if it exists, If not, create one
+int
+get_cached_gamestate (const char *name)
+{
+	GSCacheEntry *entry = find_cache_entry (name);
+
+	if (entry)
+	{
+		if (!entry->valid)
+		{
+			entry->value = D_GET_GAME_STATE (name);
+			entry->valid = true;
+		}
+		return entry->value;
+	}
+
+	entry = add_cache_entry (name);
+	if (entry)
+	{
+		entry->value = D_GET_GAME_STATE (name);
+		entry->valid = true;
+		return entry->value;
+	}
+
+	return D_GET_GAME_STATE (name);
+}
+
+// Set cached gamestate if it exists. If not, create one
+void
+set_cached_gamestate (const char *name, int value)
+{
+	GSCacheEntry *entry = find_cache_entry (name);
+
+	D_SET_GAME_STATE (name, value);
+
+	if (entry)
+	{
+		entry->value = value;
+		entry->valid = true;
+	}
+	else
+	{
+		entry = add_cache_entry (name);
+		if (entry)
+		{
+			entry->value = value;
+			entry->valid = true;
+		}
+	}
+}
+
+void revalidate_game_state_cache (void)
+{
+	for (size_t i = 0; i < gs_cache.count; i++)
+		gs_cache.entries[i].valid = false;
 }
