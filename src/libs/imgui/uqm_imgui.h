@@ -59,6 +59,8 @@ void revalidate_game_state_cache (void);
 #define GET_CGAME_STATE(SName) \
 	get_cached_gamestate (#SName)
 
+bool menu_visible;
+
 int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer);
 void UQM_ImGui_ProcessEvent (SDL_Event *event);
 void UQM_ImGui_NewFrame (void);

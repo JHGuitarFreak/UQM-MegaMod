@@ -192,14 +192,27 @@ TFB_ProcessEvents ()
 	{
 
 #if SDL_MAJOR_VERSION == 2
-		UQM_ImGui_ProcessEvent (&Event);
-
-		if (UQM_ImGui_WantCaptureInput ()
-			&& !(Event.type == SDL_KEYDOWN
-				&& (Event.key.keysym.sym == SDLK_BACKQUOTE
-					|| Event.key.keysym.sym == SDLK_F8)))
+		if (menu_visible)
 		{
-			continue;
+			UQM_ImGui_ProcessEvent (&Event);
+
+			if (UQM_ImGui_WantCaptureInput ())
+			{
+				switch (Event.type)
+				{
+					case SDL_KEYDOWN:
+						if (Event.key.keysym.sym == SDLK_BACKQUOTE ||
+								Event.key.keysym.sym == SDLK_F8)
+						{
+							break;
+						}
+					case SDL_QUIT:
+					case SDL_WINDOWEVENT:
+						break;
+					default:
+						continue;
+				}
+			}
 		}
 #endif
 

@@ -17,10 +17,13 @@
 
 #include "uqm_imgui.h"
 
-static bool menu_visible = 0;
+bool menu_visible = 0;
 static bool imgui_initialized = 0;
-static SDL_Renderer *imgui_renderer = NULL;
 TabState tab_state = { 0 };
+
+static SDL_Rect old_viewport;
+static SDL_BlendMode old_blend;
+static int old_logical_w, old_logical_h;
 
 static void ShowFullScreenMenu (TabState *state)
 {
@@ -98,10 +101,6 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 	if (imgui_initialized)
 		return 1;
 
-	printf ("UQM_ImGui_Init: Initializing Dear ImGui\n");
-
-	imgui_renderer = renderer;
-
 	ImGui_CreateContext (NULL);
 
 	io = ImGui_GetIO ();
@@ -109,13 +108,14 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 
 	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
 	{
-		printf ("ERROR: cImGui_ImplSDL2_InitForSDLRenderer failed\n");
+		log_add (log_Error, "ERROR: cImGui_ImplSDL2_InitForSDLRenderer "
+				"failed");
 		return 0;
 	}
 
 	if (!cImGui_ImplSDLRenderer2_Init (renderer))
 	{
-		printf ("ERROR: cImGui_ImplSDLRenderer2_Init failed\n");
+		log_add (log_Error, "ERROR: cImGui_ImplSDLRenderer2_Init failed");
 		cImGui_ImplSDL2_Shutdown ();
 		return 0;
 	}
@@ -123,7 +123,6 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 	ImGui_StyleColorsMyTheme (NULL);
 
 	imgui_initialized = 1;
-	printf ("UQM_ImGui_Init: Success!\n\n");
 	return 1;
 }
 
@@ -144,14 +143,15 @@ void UQM_ImGui_Render (SDL_Renderer *renderer)
 
 	ImGui_Render ();
 	cImGui_ImplSDLRenderer2_RenderDrawData (ImGui_GetDrawData (), renderer);
+
+	SDL_RenderPresent (renderer);
 }
 
 // Cleans up ImGui
 void UQM_ImGui_Shutdown (void)
 {
-	if (!imgui_initialized) return;
-
-	printf ("ImGui_Shutdown\n");
+	if (!imgui_initialized)
+		return;
 
 	if (gs_cache.entries)
 	{
@@ -165,17 +165,68 @@ void UQM_ImGui_Shutdown (void)
 	ImGui_DestroyContext (NULL);
 
 	imgui_initialized = 0;
-	imgui_renderer = NULL;
+}
+
+static void
+UQM_ImGui_SaveOldRenderer (SDL_Renderer *renderer)
+{
+	SDL_RenderGetLogicalSize (renderer, &old_logical_w, &old_logical_h);
+	SDL_RenderGetViewport (renderer, &old_viewport);
+	SDL_GetRenderDrawBlendMode (renderer, &old_blend);
+}
+
+static void
+UQM_ImGui_ResetOldRenderer (SDL_Renderer *renderer)
+{
+	SDL_RenderSetLogicalSize (renderer, old_logical_w, old_logical_h);
+	SDL_RenderSetViewport (renderer, &old_viewport);
+	SDL_SetRenderDrawBlendMode (renderer, old_blend);
+}
+
+static void
+UQM_ImGui_SetNewRenderer (SDL_Renderer *renderer, SDL_Window *window)
+{
+	SDL_Rect new_viewport;
+	int window_w, window_h;
+
+	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
+	SDL_GetWindowSize (window, &window_w, &window_h);
+	SDL_GetDisplayBounds (0, &new_viewport);
+	SDL_RenderSetViewport (renderer, &new_viewport);
+	SDL_RenderSetLogicalSize (renderer, window_w, window_h);
 }
 
 // Does what it says on the tin
 void UQM_ImGui_ToggleMenu (void)
 {
-	menu_visible = !menu_visible;
-	printf ("Menu toggled: %s\n", menu_visible ? "visible" : "hidden");
+	SDL_Window *window = SDL_GetWindowFromID (1);
+	SDL_Renderer *renderer = SDL_GetRenderer (window);
 
-	if (menu_visible)
+	menu_visible = !menu_visible;
+
+	if (menu_visible && window && renderer)
+	{
+		UQM_ImGui_SaveOldRenderer (renderer);
+		UQM_ImGui_SetNewRenderer (renderer, window);
+
+		if (!UQM_ImGui_Init (window, renderer))
+		{
+			log_add (log_Error, "Failed to initialize ImGui menu");
+
+			menu_visible = false;
+
+			UQM_ImGui_ResetOldRenderer (renderer);
+			SDL_RenderPresent (renderer);
+			UQM_ImGui_Shutdown ();
+			return;
+		}
+
 		revalidate_game_state_cache ();
+		return;
+	}
+
+	UQM_ImGui_ResetOldRenderer (renderer);
+	UQM_ImGui_Shutdown ();
 }
 
 // This redirects input to ImGui when the menu is visible

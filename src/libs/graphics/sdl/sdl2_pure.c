@@ -199,18 +199,6 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		}
 		SDL_RenderSetLogicalSize (renderer, width, height);
 
-		if (!imgui_initialized_in_pure)
-		{
-			if (!UQM_ImGui_Init (window, renderer))
-			{
-				log_add (log_Warning, "Failed to initialize ImGui menu system");
-			}
-			else
-			{
-				imgui_initialized_in_pure = 1;
-			}
-		}
-
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		{
 			SDL2_Screens[i].scaled = NULL;
@@ -631,10 +619,13 @@ TFB_SDL2_Postprocess (bool hd)
 	if (GfxFlags & TFB_GFXFLAGS_SHOWFPS)
 		TFB_SDL2_FPS ();
 
-	UQM_ImGui_NewFrame ();
-	UQM_ImGui_Render (renderer);
-
-	SDL_RenderPresent (renderer);
+	if (menu_visible)
+	{
+		UQM_ImGui_NewFrame ();
+		UQM_ImGui_Render (renderer);
+	}
+	else
+		SDL_RenderPresent (renderer);
 }
 
 bool

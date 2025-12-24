@@ -166,6 +166,10 @@ ProcessUtilityKeys (void)
 	{
 		UQM_ImGui_ToggleMenu ();
 		FlushInput ();
+
+		// So the ImGui menu can be toggled off during pause
+		if (!menu_visible)
+			TFB_SwapBuffers (TFB_REDRAW_NO);
 	}
 #endif
 

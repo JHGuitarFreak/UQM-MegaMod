@@ -57,6 +57,7 @@
 #include "uqm/setup.h"
 #include "uqm/starcon.h"
 #include "libs/math/random.h"
+#include "libs/imgui/uqm_imgui.h"
 
 BOOLEAN restartGame;
 
@@ -778,6 +779,12 @@ main (int argc, char *argv[])
 		ProcessUtilityKeys ();
 		ProcessThreadLifecycles ();
 		TFB_FlushGraphics ();
+
+#if SDL_MAJOR_VERSION == 2
+		// So the ImGui menu can be toggled on during pause
+		if (menu_visible)
+			TFB_SwapBuffers (TFB_REDRAW_NO);
+#endif
 	}
 
 	/* Currently, we use atexit() callbacks everywhere, so we
