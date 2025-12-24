@@ -39,26 +39,38 @@ void draw_cheats_menu (void)
 
 	ImGui_SeparatorText ("Basic Cheats");
 
-	ImGui_Checkbox ("Kohr-Stahp", (bool *)&optCheatMode);
-	ImGui_Checkbox ("Kohr-Ah DeCleansing", (bool *)&optDeCleansing);
+	UQM_ImGui_CheckBox ("Kohr-Stahp", &optCheatMode, "cheat.kohrStahp");
+	UQM_ImGui_CheckBox ("Kohr-Ah DeCleansing", &optDeCleansing,
+			"cheat.deCleansing");
+
+	Spacer ();
 
 	ImGui_Text ("God Modes:");
-	ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4);
-	ImGui_Text ("Time Dilation:");
-	ImGui_ComboChar ("##TimeDilation", &timeDilationScale, time_modes, 3);
-
-	ImGui_Checkbox ("Bubble Warp", (bool *)&optBubbleWarp);
-	ImGui_Checkbox ("Head Start", (bool *)&optHeadStart);
-	ImGui_Checkbox ("Unlock All Ships", (bool *)&optUnlockShips);
-	ImGui_Checkbox ("Infinite R.U.", (bool *)&optInfiniteRU);
-	ImGui_Checkbox ("Infinite Fuel", (bool *)&optInfiniteFuel);
-	ImGui_Checkbox ("Infinite Credits", (bool *)&optInfiniteCredits);
-	ImGui_Checkbox ("No Hyperspace Encounters", (bool *)&optNoHQEncounters);
-	if (ImGui_Checkbox ("No Melee Obstacles", (bool *)&optMeleeObstacles))
+	if (ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4))
 	{
-		res_PutBoolean ("cheat.meleeObstacles", optMeleeObstacles);
+		res_PutInteger ("cheat.godModes", optGodModes);
 		cheat_changed = true;
 	}
+
+	ImGui_Text ("Time Dilation:");
+	if (ImGui_ComboChar ("##TimeDilation", &timeDilationScale, time_modes, 3))
+	{
+		res_PutInteger ("cheat.timeDilation", timeDilationScale);
+		cheat_changed = true;
+	}
+
+	Spacer ();
+
+	UQM_ImGui_CheckBox ("Bubble Warp", &optBubbleWarp, "cheat.bubbleWarp");
+	UQM_ImGui_CheckBox ("Head Start", &optHeadStart, "cheat.headStart");
+	UQM_ImGui_CheckBox ("Unlock All Ships", &optUnlockShips, "cheat.unlockShips");
+	UQM_ImGui_CheckBox ("Infinite R.U.", &optInfiniteRU, "cheat.infiniteRU");
+	UQM_ImGui_CheckBox ("Infinite Fuel", &optInfiniteFuel, "cheat.infiniteFuel");
+	UQM_ImGui_CheckBox ("Infinite Credits", &optInfiniteCredits, "cheat.infiniteCredits");
+	UQM_ImGui_CheckBox ("No Hyperspace Encounters", &optNoHQEncounters, "cheat.noHQEncounters");
+	UQM_ImGui_CheckBox ("No Melee Obstacles", &optMeleeObstacles, "cheat.meleeObstacles");
+
+	ImGui_NewLine ();
 
 	ImGui_SeparatorText ("Expanded Cheats");
 
