@@ -25,6 +25,10 @@ static SDL_Rect old_viewport;
 static SDL_BlendMode old_blend;
 static int old_logical_w, old_logical_h;
 
+int config_changed;
+int mmcfg_changed;
+int cheat_changed;
+
 static void ShowFullScreenMenu (TabState *state)
 {
 	float sidebar_width, button_height, content_height;
@@ -71,6 +75,18 @@ static void ShowFullScreenMenu (TabState *state)
 	}
 
 	UQM_ImGui_Tabs (state, content_size, sidebar_size, button_size);
+
+	if (config_changed || mmcfg_changed || cheat_changed)
+	{
+		if (config_changed)
+			SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
+		if (mmcfg_changed)
+			SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
+		if (cheat_changed)
+			SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
+
+		config_changed = mmcfg_changed = cheat_changed = false;
+	}
 
 	ImGui_End ();
 }

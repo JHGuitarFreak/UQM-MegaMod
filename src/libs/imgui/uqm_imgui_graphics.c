@@ -62,7 +62,7 @@ void draw_graphics_menu (void)
 
 	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
 	{
-		ImGui_SetTooltip ("No can change!");
+		ImGui_SetTooltip ("This option requires a reload.");
 	}
 	ImGui_EndDisabled ();
 

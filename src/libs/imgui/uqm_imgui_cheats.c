@@ -54,7 +54,11 @@ void draw_cheats_menu (void)
 	ImGui_Checkbox ("Infinite Fuel", (bool *)&optInfiniteFuel);
 	ImGui_Checkbox ("Infinite Credits", (bool *)&optInfiniteCredits);
 	ImGui_Checkbox ("No Hyperspace Encounters", (bool *)&optNoHQEncounters);
-	ImGui_Checkbox ("No Melee Obstacles", (bool *)&optMeleeObstacles);
+	if (ImGui_Checkbox ("No Melee Obstacles", (bool *)&optMeleeObstacles))
+	{
+		res_PutBoolean ("cheat.meleeObstacles", optMeleeObstacles);
+		cheat_changed = true;
+	}
 
 	ImGui_SeparatorText ("Expanded Cheats");
 

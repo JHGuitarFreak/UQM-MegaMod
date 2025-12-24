@@ -28,6 +28,7 @@
 #include "uqm/planets/planets.h"
 #include "uqm/setupmenu.h"
 #include "libs/log/uqmlog.h"
+#include "libs/reslib.h"
 
 #include <SDL.h>
 
@@ -80,6 +81,10 @@ typedef struct
 	int randomizer_tab;
 	int devtools_tab;
 } TabState;
+
+int config_changed;
+int mmcfg_changed;
+int cheat_changed;
 
 static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
 
