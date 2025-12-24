@@ -20,6 +20,13 @@
 #include "uqm/races.h"
 #include "uqm/gamestr.h"
 
+static int collapse_player;
+static int collapse_lander;
+static int collapse_cargo;
+static int collapse_module;
+static int collapse_alien;
+static int collapse_flagship;
+
 void draw_status_menu (void)
 {
 	bool in_main_menu = GLOBAL (CurrentActivity) == 0;
@@ -33,8 +40,9 @@ void draw_status_menu (void)
 	ImGui_ColumnsEx (DISPLAY_BOOL, "StatusColumns", false);
 
 	// Player Status
+	if (ImGui_CollapsingHeader ("Player Status", collapse_player))
 	{
-		ImGui_SeparatorText ("Player Status");
+		//ImGui_SeparatorText ("Player Status");
 
 		{
 			DWORD curr_ru = GLOBAL_SIS (ResUnits);
@@ -64,9 +72,15 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
+
+		if (collapse_player == ImGuiTreeNodeFlags_None)
+			collapse_player = ImGuiTreeNodeFlags_DefaultOpen;
 	}
+	else if (collapse_player = ImGuiTreeNodeFlags_DefaultOpen)
+		collapse_player = ImGuiTreeNodeFlags_None;
 
 	// Lander Upgrades
+	if (ImGui_CollapsingHeader ("Lander Upgrades", collapse_lander))
 	{
 		BYTE ShieldFlags = GET_CGAME_STATE (LANDER_SHIELDS); // gs_cache.ShieldFlags;
 		bool QuakeShield = ShieldFlags & (1 << EARTHQUAKE_DISASTER);
@@ -77,7 +91,7 @@ void draw_status_menu (void)
 		bool LanderSpeed = GET_CGAME_STATE (IMPROVED_LANDER_SPEED); // gs_cache.LanderSpeed;
 		bool LanderCargo = GET_CGAME_STATE (IMPROVED_LANDER_CARGO); // gs_cache.LanderCargo;
 
-		ImGui_SeparatorText ("Lander Upgrades");
+		//ImGui_SeparatorText ("Lander Upgrades");
 
 		if (ImGui_BeginTable ("##Upgrades", 2, 0))
 		{
@@ -142,11 +156,17 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
+
+		if (collapse_lander == ImGuiTreeNodeFlags_None)
+			collapse_lander = ImGuiTreeNodeFlags_DefaultOpen;
 	}
+	else if (collapse_lander = ImGuiTreeNodeFlags_DefaultOpen)
+		collapse_lander = ImGuiTreeNodeFlags_None;
 
 	// Cargo Status
+	if (ImGui_CollapsingHeader ("Cargo Status", collapse_cargo))
 	{
-		ImGui_SeparatorText ("Cargo Status");
+		//ImGui_SeparatorText ("Cargo Status");
 
 		if (ImGui_BeginTable ("##Cargo", 2, 0))
 		{
@@ -240,11 +260,17 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
+
+		if (collapse_cargo == ImGuiTreeNodeFlags_None)
+			collapse_cargo = ImGuiTreeNodeFlags_DefaultOpen;
 	}
+	else if (collapse_cargo = ImGuiTreeNodeFlags_DefaultOpen)
+		collapse_cargo = ImGuiTreeNodeFlags_None;
 
 	// Module Status
+	if (ImGui_CollapsingHeader ("Module Status", collapse_module))
 	{
-		ImGui_SeparatorText ("Module Status");
+		//ImGui_SeparatorText ("Module Status");
 
 		if (ImGui_BeginTable ("##Modules", 2, 0))
 		{
@@ -287,15 +313,20 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
+
+		if (collapse_module == ImGuiTreeNodeFlags_None)
+			collapse_module = ImGuiTreeNodeFlags_DefaultOpen;
 	}
+	else if (collapse_module = ImGuiTreeNodeFlags_DefaultOpen)
+		collapse_module = ImGuiTreeNodeFlags_None;
 
 	if (DISPLAY_BOOL != 1)
 		ImGui_NextColumn ();
 
 	// Alien Status
-	if (!in_main_menu)
+	if (ImGui_CollapsingHeader ("Alien Status", collapse_alien))
 	{
-		ImGui_SeparatorText ("Alien Status");
+		//ImGui_SeparatorText ("Alien Status");
 
 		if (ImGui_BeginTable ("##Aliens", 2, 0))
 		{
@@ -354,12 +385,18 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
+
+		if (collapse_alien == ImGuiTreeNodeFlags_None)
+			collapse_alien = ImGuiTreeNodeFlags_DefaultOpen;
 	}
+	else if (collapse_alien = ImGuiTreeNodeFlags_DefaultOpen)
+		collapse_alien = ImGuiTreeNodeFlags_None;
 
 	if (DISPLAY_BOOL != 1)
 		ImGui_NextColumn ();
 
 	// Flagship Status
+	if (ImGui_CollapsingHeader ("Flagship Status", collapse_flagship))
 	{
 		static bool thrusters[11] = { false };
 		static bool jets[8] = { false };
@@ -382,7 +419,7 @@ void draw_status_menu (void)
 		ImVec2 og_spacing = style->ItemSpacing;
 		style->ItemSpacing = (ImVec2){ 4.0f, 4.0f };
 
-		ImGui_SeparatorText ("Flagship Status");
+		//ImGui_SeparatorText ("Flagship Status");
 
 		// Captain's Name
 		{
@@ -554,5 +591,10 @@ void draw_status_menu (void)
 				GLOBAL_SIS (CrewEnlisted) = CurrentCrew;
 			}
 		}
+
+		if (collapse_flagship == ImGuiTreeNodeFlags_None)
+			collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen;
 	}
+	else if (collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen)
+		collapse_flagship = ImGuiTreeNodeFlags_None;
 }
