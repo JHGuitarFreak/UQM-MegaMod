@@ -17,9 +17,9 @@
 
 #include "uqm_imgui.h"
 
-bool menu_visible = 0;
-static bool imgui_initialized = 0;
-TabState tab_state = { 0 };
+bool menu_visible = false;
+static bool imgui_initialized;
+static TabState tab_state;
 
 static SDL_Rect old_viewport;
 static SDL_BlendMode old_blend;

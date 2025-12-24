@@ -146,8 +146,6 @@ FindBestRenderDriver (void)
 	return -1;
 }
 
-static int imgui_initialized_in_pure = 0;
-
 int
 TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		int togglefullscreen, unsigned int resFactor,
