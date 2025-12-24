@@ -196,26 +196,26 @@ TFB_ProcessEvents ()
 		{
 			UQM_ImGui_ProcessEvent (&Event);
 
-			if (UQM_ImGui_WantCaptureInput ())
+			switch (Event.type)
 			{
-				switch (Event.type)
+				case SDL_KEYDOWN:
 				{
-					case SDL_KEYDOWN:
-						if (Event.key.keysym.sym == SDLK_BACKQUOTE ||
-								Event.key.keysym.sym == SDLK_F8)
-						{
-							break;
-						}
-					case SDL_QUIT:
-					case SDL_WINDOWEVENT:
+					switch (Event.key.keysym.sym)
+					{
+					case SDLK_BACKQUOTE:
+					case SDLK_F8:
 						break;
-					default:
-						continue;
+					}
+					continue;
 				}
+				case SDL_QUIT:
+				case SDL_WINDOWEVENT:
+					break;
+				default:
+					continue;
 			}
 		}
 #endif
-
 		/* Run through the InputEvent filter. */
 		ProcessInputEvent (&Event);
 		/* Handle graphics and exposure events. */

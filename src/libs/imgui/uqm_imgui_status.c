@@ -400,8 +400,6 @@ void draw_status_menu (void)
 				snprintf (GLOBAL_SIS (CommanderName),
 					sizeof (GLOBAL_SIS (CommanderName)),
 					"%s", CaptainsName);
-
-				//DrawCaptainsName (FALSE); Not Yet
 			}
 		}
 
@@ -420,10 +418,6 @@ void draw_status_menu (void)
 				snprintf (GLOBAL_SIS (ShipName),
 					sizeof (GLOBAL_SIS (ShipName)),
 					"%s", SISName);
-
-				BatchGraphics ();
-				DrawFlagshipName (TRUE, FALSE);
-				UnbatchGraphics ();
 			}
 		}
 
