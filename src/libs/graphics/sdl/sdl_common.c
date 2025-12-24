@@ -205,8 +205,9 @@ TFB_ProcessEvents ()
 					case SDLK_BACKQUOTE:
 					case SDLK_F8:
 						break;
+					default:
+						continue;
 					}
-					continue;
 				}
 				case SDL_QUIT:
 				case SDL_WINDOWEVENT:
