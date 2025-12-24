@@ -86,6 +86,8 @@ int config_changed;
 int mmcfg_changed;
 int cheat_changed;
 
+void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
+
 static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
 
 void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,

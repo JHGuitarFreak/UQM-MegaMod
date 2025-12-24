@@ -255,6 +255,22 @@ int UQM_ImGui_WantCaptureInput (void)
 	return (io->WantCaptureKeyboard || io->WantCaptureMouse) ? 1 : 0;
 }
 
+void
+UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key)
+{
+	if (!ImGui_Checkbox (label, (bool *)v) || key == NULL)
+		return;
+
+	res_PutBoolean (key, *v);
+
+	if (strncmp (key, "cheat.", 6) == 0)
+		cheat_changed = true;
+	else if (strncmp (key, "mm.", 3) == 0)
+		mmcfg_changed = true;
+	else if (strncmp (key, "config.", 7) == 0)
+		config_changed = true;
+}
+
 // Begin GameState cache implementation
 
 GameStateCache gs_cache = { NULL, 0 };
