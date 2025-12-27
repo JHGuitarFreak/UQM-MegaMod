@@ -1,4 +1,4 @@
-package org.openmw.utils
+package org.megamod.uqm
 
 import android.Manifest
 import android.app.Activity
