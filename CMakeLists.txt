@@ -227,6 +227,7 @@ function(parse_makeinfo_with_recurse target_sources)
     set_makeinfo_env(uqm_HAVE_STRICMP     HAVE_STRICMP)
     set_makeinfo_env(uqm_HAVE_GETOPT_LONG HAVE_GETOPT_LONG)
     set_makeinfo_env(uqm_HAVE_REGEX       HAVE_REGEX_H)
+    set_makeinfo_env(uqm_USE_ZIP_IO       USE_ZIP_IO)
 
     set(ENV{uqm_THREADLIB} "${UQM_THREAD_LIB}")
 
@@ -371,6 +372,7 @@ append_list(UQM_DEFINITIONS USE_INTERNAL_MIKMOD    USE_INTERNAL_MIKMOD)
 append_list(UQM_DEFINITIONS USE_INTERNAL_LUA       USE_INTERNAL_LUA)
 append_list(UQM_DEFINITIONS HAVE_JOYSTICK          HAVE_JOYSTICK)
 append_list(UQM_DEFINITIONS USE_PLATFORM_ACCEL     USE_PLATFORM_ACCEL)
+append_list(UQM_DEFINITIONS HAVE_ZIP               HAVE_ZIP)
 append_list(UQM_DEFINITIONS DEBUG                  DEBUG)
 append_list(UQM_DEFINITIONS "NETPLAY=NETPLAY_FULL" UQM_NETPLAY)
 
@@ -392,9 +394,9 @@ set(UQM_LINK_LIBRARIES
 )
 
 append_list(UQM_LINK_LIBRARIES "${OPENAL_LIBRARIES}" "OPENAL_FOUND AND UQM_SOUND_BACKEND STREQUAL \"openal\"")
-append_list(UQM_LINK_LIBRARIES "${ZLIB_LIBRARIES}"   "ZLIB_FOUND AND UQM_ZIP_IO")
+append_list(UQM_LINK_LIBRARIES "${ZLIB_LIBRARIES}"   USE_ZIP_IO)
 append_list(UQM_LINK_LIBRARIES "Threads::Threads"    "Threads_FOUND AND UQM_THREAD_LIB STREQUAL \"PTHREAD\"")
-append_list(UQM_LINK_LIBRARIES "OpenGL::GL"          "OPENGL_FOUND AND UQM_OPENGL")
+append_list(UQM_LINK_LIBRARIES "OpenGL::GL"          HAVE_OPENGL)
 append_list(UQM_LINK_LIBRARIES "gdi32"               IS_WINDOWS)
 
 if(HAVE_REGEX_H AND IS_MINGW)
