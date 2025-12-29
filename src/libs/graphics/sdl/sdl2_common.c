@@ -70,16 +70,6 @@ TFB_PreInit (void)
 		exit (EXIT_FAILURE);
 	}
 
-#ifdef ANDROID
-	// Add game controller mappings from file
-	if (SDL_GameControllerAddMappingsFromFile (
-			"/storage/emulated/0/alpha3/uqm/gamecontrollerdb.txt") == -1)
-	{
-		log_add (log_Warning, "Could not load game controller mappings: %s"
-				, SDL_GetError ());
-	}
-#endif
-
 	atexit (TFB_PreQuit);
 }
 

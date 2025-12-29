@@ -428,9 +428,7 @@ int main(int argc, char** argv)
 
 #ifdef ANDROID
 	// Always enable logging on Android to specific path
-	options.logFile = "/storage/emulated/0/alpha3/uqm/uqm_log.txt";
-	options.contentDir = "/storage/emulated/0/alpha3/uqm/content";
-	options.configDir = "/storage/emulated/0/alpha3/uqm";
+	options.logFile = "/storage/emulated/0/uqm-megamod/uqm_log.txt";
 #endif
 
 	// NOTE: we cannot use the logging facility yet because we may have to
