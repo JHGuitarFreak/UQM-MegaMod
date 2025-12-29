@@ -284,6 +284,7 @@ log.txt
 *.exp
 config_unix.h
 config_win.h
+config_android.h
 *.vcproj.*
 dist-packages
 The\ Ur-Quan\ Masters\ MegaMod.app
