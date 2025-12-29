@@ -88,7 +88,6 @@ android {
                 cmake {
                     arguments(
                         "-DCMAKE_CXX_FLAGS=-fvisibility=hidden",
-                        "-fvisibility-inlines-hidden",
                         "-DCMAKE_VERBOSE_MAKEFILE=ON"
                     )
                 }
