@@ -126,7 +126,7 @@ typedef struct
 {
 	UNICODE ShipName[30];
 	COUNT ShipCost;
-	COUNT CrewLevel, MaxCrew;
+	BYTE CrewLevel, MaxCrew;
 } SHIP_STATS;
 
 typedef struct

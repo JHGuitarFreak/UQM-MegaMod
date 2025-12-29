@@ -31,6 +31,7 @@ static bool GenerateRainbowWorld_generatePlanets (
 		SOLARSYS_STATE *solarSys);
 static bool GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world);
+static void GenerateSlylandro (SOLARSYS_STATE *solarSys);
 
 const GenerateFunctions generateRainbowWorldFunctions = {
 	/* .initNpcs         = */ GenerateRainbowWorld_initNpcs,
@@ -52,56 +53,7 @@ static bool
 GenerateRainbowWorld_initNpcs (SOLARSYS_STATE *solarSys)
 {
 	if (DIF_HARD && GET_GAME_STATE (SLYLANDRO_MULTIPLIER) > 0)
-	{
-		HIPGROUP hGroup, hNextGroup;
-		BYTE angle, num_groups, which_group;
-
-		if (!GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP))
-		{// This code will run if we have no battle group generated
-		 // or all are expired
-			GLOBAL (BattleGroupRef) = 0;
-			/* 1-3, 3-5, 5-7, 7-9 Probes total */
-			num_groups = (GET_GAME_STATE (SLYLANDRO_MULTIPLIER) * 2) - 1 +
-					(COUNT)TFB_Random () % 3;
-			which_group = 0;
-			do
-			{
-				CloneShipFragment (SLYLANDRO_SHIP,
-						&GLOBAL (npc_built_ship_q), 0);
-				PutGroupInfo (GROUPS_RANDOM, ++which_group);
-				ReinitQueue (&GLOBAL (npc_built_ship_q));
-			} while (--num_groups);
-
-			GetGroupInfo (GROUPS_RANDOM, GROUP_INIT_IP);
-		}
-		// Fresh groups or not - force probes to rotate around rainbow
-		// world and not spread around the system
-		angle = (COUNT)TFB_Random () % 9; // Initial angle = 0 - OCTANT
-		for (hGroup = GetHeadLink (&GLOBAL (ip_group_q));
-					hGroup; hGroup = hNextGroup)
-		{
-			IP_GROUP *GroupPtr;
-
-			GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
-			hNextGroup = _GetSuccLink (GroupPtr);
-
-			GroupPtr->task = IN_ORBIT;
-			GroupPtr->sys_loc = solarSys->SunDesc[0].PlanetByte + 1;
-			GroupPtr->dest_loc = GroupPtr->sys_loc;
-			GroupPtr->orbit_pos =
-					NORMALIZE_FACING (ANGLE_TO_FACING (angle));
-			GroupPtr->group_counter = 0;
-			UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
-
-			// Next ship in queue will add random value to its angle 
-			// between OCTANT and HALF_CIRCLE
-			angle += ((COUNT)TFB_Random() % 25) + OCTANT;
-
-			// Normalize angle
-			if (angle > FULL_CIRCLE)
-				angle -= FULL_CIRCLE;
-		}
-	}
+		GenerateSlylandro (solarSys);
 	else
 		GenerateDefault_initNpcs (solarSys);
 
@@ -164,40 +116,54 @@ GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys,
 }
 
 static void
-GenerateSlylandro (SOLARSYS_STATE *solarSys) {
+GenerateSlylandro (SOLARSYS_STATE *solarSys)
+{
 	HIPGROUP hGroup, hNextGroup;
-	BYTE a, b;
+	BYTE angle, num_groups, which_group;
 
-	BYTE NumSly = GET_GAME_STATE (SLYLANDRO_MULTIPLIER) * 2;
+	if (!GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP))
+	{// This code will run if we have no battle group generated
+	 // or all are expired
+		GLOBAL (BattleGroupRef) = 0;
+		/* 1-3, 3-5, 5-7, 7-9 Probes total */
+		num_groups = (GET_GAME_STATE (SLYLANDRO_MULTIPLIER) * 2) - 1 +
+			(COUNT)TFB_Random () % 3;
+		which_group = 0;
+		do
+		{
+			CloneShipFragment (SLYLANDRO_SHIP,
+				&GLOBAL (npc_built_ship_q), 0);
+			PutGroupInfo (GROUPS_RANDOM, ++which_group);
+			ReinitQueue (&GLOBAL (npc_built_ship_q));
+		} while (--num_groups);
 
-	assert(CountLinks (&GLOBAL (npc_built_ship_q)) == 0);
-
-	CloneShipFragment (SLYLANDRO_SHIP, &GLOBAL (npc_built_ship_q), 0);
-	if (GLOBAL (BattleGroupRef) == 0)
-		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
-
-	for (a = 1; a <= NumSly; ++a)
-		PutGroupInfo (GLOBAL (BattleGroupRef), a);
-
-	ReinitQueue (&GLOBAL (npc_built_ship_q));
-	GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP);
-	hGroup = GetHeadLink (&GLOBAL(ip_group_q));
-
-	for (a = 0, b = 0; a < NumSly; ++a, b += FULL_CIRCLE / NumSly)
+		GetGroupInfo (GROUPS_RANDOM, GROUP_INIT_IP);
+	}
+	// Fresh groups or not - force probes to rotate around rainbow
+	// world and not spread around the system
+	angle = (COUNT)TFB_Random () % 9; // Initial angle = 0 - OCTANT
+	for (hGroup = GetHeadLink (&GLOBAL (ip_group_q));
+		hGroup; hGroup = hNextGroup)
 	{
 		IP_GROUP *GroupPtr;
 
-		if (b % (FULL_CIRCLE / NumSly) == 0)
-			b += FULL_CIRCLE / NumSly;
-
 		GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
 		hNextGroup = _GetSuccLink (GroupPtr);
+
 		GroupPtr->task = IN_ORBIT;
 		GroupPtr->sys_loc = solarSys->SunDesc[0].PlanetByte + 1;
 		GroupPtr->dest_loc = GroupPtr->sys_loc;
-		GroupPtr->orbit_pos = NORMALIZE_FACING (ANGLE_TO_FACING(b));
+		GroupPtr->orbit_pos =
+			NORMALIZE_FACING (ANGLE_TO_FACING (angle));
 		GroupPtr->group_counter = 0;
 		UnlockIpGroup (&GLOBAL (ip_group_q), hGroup);
-		hGroup = hNextGroup;
+
+		// Next ship in queue will add random value to its angle 
+		// between OCTANT and HALF_CIRCLE
+		angle += ((COUNT)TFB_Random () % 25) + OCTANT;
+
+		// Normalize angle
+		if (angle > FULL_CIRCLE)
+			angle -= FULL_CIRCLE;
 	}
 }

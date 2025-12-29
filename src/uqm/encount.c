@@ -474,39 +474,39 @@ InitEncounter (void)
 	}
 }
 
-static STAMP
-SetTextFrameRect (const UNICODE* str1, const UNICODE* str2, RECT* pRect)
-{
-	STAMP s;
-	TEXT t1, t2;
-	RECT r1, r2, res;
-
-	t1.baseline.x = pRect->corner.x + RES_SCALE(100);
-	t1.baseline.y = pRect->corner.y + RES_SCALE(45);
-	t1.align = ALIGN_CENTER;
-	t1.pStr = str1;
-	t1.CharCount = (COUNT)~0;
-	t2 = t1;
-	t2.baseline.y += RES_SCALE(11);
-	t2.pStr = str2;
-
-	TextRect (&t1, &r1, NULL);
-	TextRect (&t2, &r2, NULL);
-
-	// Take the closest X to the origin point.
-	res.corner.x = (r1.corner.x < r2.corner.x ? r1.corner.x : r2.corner.x);
-	// r1 always on top
-	res.corner.y = r1.corner.y;
-
-	// Take the widest extent
-	res.extent.width = (r1.extent.width > r2.extent.width ? r1.extent.width : r2.extent.width);
-	// Height is the gap between texts plus height of the second one
-	res.extent.height = r2.corner.y - r1.corner.y + r2.extent.height;
-
-	s = SaveContextFrame(&res);
-
-	return s;
-}
+//static STAMP
+//SetTextFrameRect (const UNICODE* str1, const UNICODE* str2, RECT* pRect)
+//{
+//	STAMP s;
+//	TEXT t1, t2;
+//	RECT r1, r2, res;
+//
+//	t1.baseline.x = pRect->corner.x + RES_SCALE(100);
+//	t1.baseline.y = pRect->corner.y + RES_SCALE(45);
+//	t1.align = ALIGN_CENTER;
+//	t1.pStr = str1;
+//	t1.CharCount = (COUNT)~0;
+//	t2 = t1;
+//	t2.baseline.y += RES_SCALE(11);
+//	t2.pStr = str2;
+//
+//	TextRect (&t1, &r1, NULL);
+//	TextRect (&t2, &r2, NULL);
+//
+//	// Take the closest X to the origin point.
+//	res.corner.x = (r1.corner.x < r2.corner.x ? r1.corner.x : r2.corner.x);
+//	// r1 always on top
+//	res.corner.y = r1.corner.y;
+//
+//	// Take the widest extent
+//	res.extent.width = (r1.extent.width > r2.extent.width ? r1.extent.width : r2.extent.width);
+//	// Height is the gap between texts plus height of the second one
+//	res.extent.height = r2.corner.y - r1.corner.y + r2.extent.height;
+//
+//	s = SaveContextFrame(&res);
+//
+//	return s;
+//}
 
 static void
 DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
