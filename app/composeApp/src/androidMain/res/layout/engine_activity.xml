@@ -1,0 +1,18 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sdl_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <!-- Placeholder for ComposeView -->
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/compose_overlayUI"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top|start" />
+
+        <!-- Placeholder for ComposeView -->
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/compose_leftThumb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+</FrameLayout>
