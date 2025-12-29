@@ -11,15 +11,16 @@ import org.libsdl.app.SDLActivity
 class EngineActivity : SDLActivity() {
     private lateinit var sdlView: View
 
+    var uqm = "UrQuanMasters"
+
     override fun loadLibraries() {
         System.loadLibrary("c++_shared")
-        System.loadLibrary("openal")
         System.loadLibrary("SDL2")
-        System.loadLibrary("uqm")
+        System.loadLibrary(uqm)
     }
 
     override fun getMainSharedObject(): String {
-        return "libuqm.so"
+        return "lib${uqm}.so"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
