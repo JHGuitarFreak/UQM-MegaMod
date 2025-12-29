@@ -35,24 +35,12 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.compose_multiplatform),
-                        contentDescription = null
-                    )
-                    Text("Compose: $greeting")
-                    Button(onClick = { context.startGame() }) {
-                        Text("Start Game")
-                    }
-                }
+            Image(
+                painter = painterResource(Res.drawable.compose_multiplatform),
+                contentDescription = null
+            )
+            Button(onClick = { context.startGame() }) {
+                Text("Start Game")
             }
         }
     }
