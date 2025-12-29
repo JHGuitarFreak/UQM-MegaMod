@@ -291,5 +291,8 @@ uqmanimationtool.conf
 *.uqm
 UrQuanMasters
 UrQuanMastersDebug
+cmake-debug
+cmake-release
+cmake-build
 
 build/msvs2008/UrQuanMasters\.vcproj\.DESKTOP-TCJIFU9\.seros\.user
