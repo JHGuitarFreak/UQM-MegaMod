@@ -426,11 +426,6 @@ int main(int argc, char** argv)
 	int gfxFlags;
 	int i;
 
-#ifdef ANDROID
-	// Always enable logging on Android to specific path
-	options.logFile = "/storage/emulated/0/uqm-megamod/uqm_log.txt";
-#endif
-
 	// NOTE: we cannot use the logging facility yet because we may have to
 	//   log to a file, and we'll only get the log file name after parsing
 	//   the options.

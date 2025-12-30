@@ -10,6 +10,8 @@ import org.libsdl.app.SDLActivity
 
 class EngineActivity : SDLActivity() {
     private lateinit var sdlView: View
+    private var loggingEnabled = false
+    private var logFilePath = ""
 
     var uqm = "UrQuanMasters"
 
@@ -26,6 +28,10 @@ class EngineActivity : SDLActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        loggingEnabled = intent.getBooleanExtra("logging_enabled", false)
+        logFilePath = intent.getStringExtra("log_file_path") ?: ""
+        
         setContentView(R.layout.engine_activity)
         sdlView = getContentView()
 
@@ -41,5 +47,22 @@ class EngineActivity : SDLActivity() {
             // Nothing yet
         }
     }
-}
 
+    override fun getArguments(): Array<String> {
+        val arguments = mutableListOf<String>()
+        
+        if (loggingEnabled && logFilePath.isNotEmpty()) {
+            arguments.add("--log=$logFilePath")
+        }
+        
+        return arguments.toTypedArray()
+    }
+
+    override fun getLibraries(): Array<String> {
+        val libraries = super.getLibraries()
+        if (loggingEnabled) {
+            
+        }
+        return libraries
+    }
+}
