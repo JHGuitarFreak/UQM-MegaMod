@@ -17,282 +17,114 @@
 
 #include "uqm_imgui.h"
 
-static void
-GeneralTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
-	ImVec2 button_size)
-{
-	BYTE i;
-
-	const char *tab_names[] = {
-		"Graphics",
-		"PC / 3DO",
-		"Audio",
-		"Controls",
-		"Advanced",
-		"Status"
-	};
-
-	if (ImGui_BeginTabItem ("General", NULL, 0))
-	{
-		bool selected;
-
-		ImGui_BeginChild ("GeneralContent", content_size,
-			ImGuiChildFlags_Borders, 0);
-		ImGui_BeginChild ("GeneralSidebar", sidebar_size,
-			ImGuiChildFlags_Borders, 0);
-
-		ImGui_PushStyleVarImVec2 (
-			ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
-
-		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
-		{
-			selected = (state->settings_tab == i);
-			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
-				state->settings_tab = i;
-
-			if (i < ARRAY_SIZE (tab_names) - 1)
-				ImGui_Spacing ();
-		}
-
-		ImGui_PopStyleVar ();
-		ImGui_EndChild ();
-
-		ImGui_SameLine ();
-		ImGui_BeginChild ("GeneralContentArea", ZERO_F,
-			ImGuiChildFlags_Borders, 0);
-
-		switch (state->settings_tab)
-		{
-			case 0:
-				draw_graphics_menu ();
-				break;
-			case 1:
-				draw_engine_menu ();
-				break;
-			case 2:
-				draw_audio_menu ();
-				break;
-			case 3:
-				draw_controls_menu ();
-				break;
-			case 4:
-				draw_adv_menu ();
-				break;
-			case 5:
-				draw_status_menu ();
-				break;
-		}
-
-		ImGui_EndChild ();
-		ImGui_EndChild ();
-		ImGui_EndTabItem ();
-	}
-}
-
-static void
-EnhancementsTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
-	ImVec2 button_size)
-{
-	BYTE i;
-	const char *tab_names[] = {
-		"Quality of Life",
-		"Skips & Speed-ups",
-		"Visuals",
-		"Fixes",
-		"Difficulty",
-		"Cheats"
-		//		"Timers"
-	};
-
-	if (ImGui_BeginTabItem ("Enhancements", NULL, 0))
-	{
-		bool selected;
-
-		ImGui_BeginChild ("EnhancementsContent", content_size,
-			ImGuiChildFlags_Borders, 0);
-		ImGui_BeginChild ("EnhancementsSidebar", sidebar_size,
-			ImGuiChildFlags_Borders, 0);
-
-		ImGui_PushStyleVarImVec2 (
-			ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
-
-		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
-		{
-			selected = (state->enhancements_tab == i);
-			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
-				state->enhancements_tab = i;
-
-			if (i < ARRAY_SIZE (tab_names) - 1)
-				ImGui_Spacing ();
-		}
-
-		ImGui_PopStyleVar ();
-		ImGui_EndChild ();
-
-		ImGui_SameLine ();
-		ImGui_BeginChild ("EnhancementsContentArea", ZERO_F,
-			ImGuiChildFlags_Borders, 0);
-
-		switch (state->enhancements_tab)
-		{
-			case 0:
-				//ImGui_Text ("Quality of Life");
-				draw_qol_menu ();
-				break;
-			case 1:
-				ImGui_Text ("Skips & Speed-ups");
-				break;
-			case 2:
-				//ImGui_Text ("Visuals");
-				draw_visual_menu ();
-				break;
-			case 3:
-				ImGui_Text ("Fixes");
-				break;
-			case 4:
-				ImGui_Text ("Difficulty");
-				break;
-			case 5:
-				draw_cheats_menu ();
-				break;
-				//case 6:
-				//	ImGui_Text ("Timers");
-				//	break;
-		}
-
-		ImGui_EndChild ();
-		ImGui_EndChild ();
-		ImGui_EndTabItem ();
-	}
-}
-
-static void
-RandomizerTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
-	ImVec2 button_size)
-{
-	BYTE i;
-	const char *tab_names[] = {
-		"Seed Settings",
-		"Enhancements"
-	};
-
-	if (ImGui_BeginTabItem ("Randomizer", NULL, 0))
-	{
-		bool selected;
-
-		ImGui_BeginChild ("RandomizerContent", content_size,
-			ImGuiChildFlags_Borders, 0);
-		ImGui_BeginChild ("RandomizerSidebar", sidebar_size,
-			ImGuiChildFlags_Borders, 0);
-
-		ImGui_PushStyleVarImVec2 (
-			ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
-
-		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
-		{
-			selected = (state->randomizer_tab == i);
-			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
-				state->randomizer_tab = i;
-
-			if (i < ARRAY_SIZE (tab_names) - 1)
-				ImGui_Spacing ();
-		}
-
-		ImGui_PopStyleVar ();
-		ImGui_EndChild ();
-
-		ImGui_SameLine ();
-		ImGui_BeginChild ("RandomizerContentArea", ZERO_F,
-			ImGuiChildFlags_Borders, 0);
-
-		switch (state->randomizer_tab)
-		{
-			case 0:
-				ImGui_Text ("Seed Settings");
-				break;
-			case 1:
-				ImGui_Text ("Enhancements");
-				break;
-		}
-
-		ImGui_EndChild ();
-		ImGui_EndChild ();
-		ImGui_EndTabItem ();
-	}
-}
-
-static void
-DevToolsTab (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
-	ImVec2 button_size)
-{
-	BYTE i;
-	const char *tab_names[] = {
-		"General",
-		"Stats",
-		"Console",
-		"Save Editor"
-	};
-
-	if (ImGui_BeginTabItem ("Dev Tools", NULL, 0))
-	{
-		bool selected;
-
-		ImGui_BeginChild ("DevToolsContent", content_size,
-			ImGuiChildFlags_Borders, 0);
-		ImGui_BeginChild ("DevToolsSidebar", sidebar_size,
-			ImGuiChildFlags_Borders, 0);
-
-		ImGui_PushStyleVarImVec2 (
-			ImGuiStyleVar_SelectableTextAlign, CENTER_TEXT);
-
-		for (i = 0; i < ARRAY_SIZE (tab_names); i++)
-		{
-			selected = (state->devtools_tab == i);
-			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
-				state->devtools_tab = i;
-
-			if (i < ARRAY_SIZE (tab_names) - 1)
-				ImGui_Spacing ();
-		}
-
-		ImGui_PopStyleVar ();
-		ImGui_EndChild ();
-
-		ImGui_SameLine ();
-		ImGui_BeginChild ("DevToolsContentArea", ZERO_F,
-			ImGuiChildFlags_Borders, 0);
-
-		switch (state->devtools_tab)
-		{
-			case 0:
-				ImGui_Text ("General Dev Tools");
-				break;
-			case 1:
-				ImGui_Text ("Statistics");
-				break;
-			case 2:
-				ImGui_Text ("Console");
-				break;
-			case 3:
-				ImGui_Text ("Save Editor");
-				break;
-		}
-
-		ImGui_EndChild ();
-		ImGui_EndChild ();
-		ImGui_EndTabItem ();
-	}
-}
+#define IGCF_B ImGuiChildFlags_Borders
+#define SelectableAlign ImGuiStyleVar_SelectableTextAlign
 
 void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		ImVec2 sidebar_size, ImVec2 button_size)
 {
+	int num_tabs;
+	int subtab_counts;
+	const char *tab_names[] =
+			{ "General", "Enhancements", "Randomizer", "Dev Tools" };
+
+	const char *subtab_names[][6] = {
+			{"Graphics", "PC / 3DO", "Audio", "Controls", "Advanced", "Status"},
+			{"Quality of Life", "Visuals", "Difficulty", "Cheats", NULL, NULL},
+			{"Seed Settings", "Enhancements", NULL, NULL, NULL, NULL},
+			{"General", "Stats", "Console", "Save Editor", NULL, NULL}
+	};
+
+	int *active_subtabs[] =
+			{ &state->settings_tab, &state->enhancements_tab,
+			&state->randomizer_tab, &state->devtools_tab };
+
+
 	if (ImGui_BeginTabBar ("MainTabs", 0))
 	{
-		GeneralTab (state, content_size, sidebar_size, button_size);
-		EnhancementsTab (state, content_size, sidebar_size, button_size);
-		RandomizerTab (state, content_size, sidebar_size, button_size);
-		DevToolsTab (state, content_size, sidebar_size, button_size);
+		int i, j;
+
+		num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);
+
+		for (i = 0; i < num_tabs; i++)
+		{
+			if (ImGui_BeginTabItem (tab_names[i], NULL, 0))
+			{
+				ImGui_BeginChild ("Content", content_size, IGCF_B, 0);
+				ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
+
+				ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_TEXT);
+
+				subtab_counts = sizeof (subtab_names[i]) /
+						sizeof (subtab_names[i][0]);
+
+				for (j = 0; j < subtab_counts; j++)
+				{
+					if (subtab_names[i][j] == NULL)
+						break;
+
+					bool selected = (*active_subtabs[i] == j);
+					if (ImGui_SelectableEx (subtab_names[i][j],
+							selected, 0, button_size))
+					{
+						*active_subtabs[i] = j;
+					}
+
+					if (j < subtab_counts - 1)
+						ImGui_Spacing ();
+				}
+
+				ImGui_PopStyleVar ();
+				ImGui_EndChild ();
+
+				ImGui_SameLine ();
+				ImGui_BeginChild ("ContentArea", ZERO_F, IGCF_B, 0);
+
+				switch (i)
+				{
+					case 0:
+						switch (*active_subtabs[i])
+						{
+						case 0: draw_graphics_menu (); break;
+						case 1: draw_engine_menu (); break;
+						case 2: draw_audio_menu (); break;
+						case 3: draw_controls_menu (); break;
+						case 4: draw_adv_menu (); break;
+						case 5: draw_status_menu (); break;
+						}
+						break;
+					case 1:
+						switch (*active_subtabs[i])
+						{
+						case 0: draw_qol_menu (); break;
+						case 1: draw_visual_menu (); break;
+						case 2: ImGui_Text ("Difficulty"); break;
+						case 3: draw_cheats_menu (); break;
+						}
+						break;
+					case 2:
+						switch (*active_subtabs[i])
+						{
+						case 0: ImGui_Text ("Seed Settings"); break;
+						case 1: ImGui_Text ("Enhancements"); break;
+						}
+						break;
+					case 3:
+						switch (*active_subtabs[i])
+						{
+						case 0: ImGui_Text ("General Dev Tools"); break;
+						case 1: ImGui_Text ("Statistics"); break;
+						case 2: ImGui_Text ("Console"); break;
+						case 3: ImGui_Text ("Save Editor"); break;
+						}
+						break;
+				}
+
+				ImGui_EndChild ();
+				ImGui_EndChild ();
+				ImGui_EndTabItem ();
+			}
+		}
 
 		ImGui_EndTabBar ();
 	}
