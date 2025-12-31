@@ -2,5 +2,5 @@ uqm_SUBDIRS="dcimgui"
 uqm_CFILES="uqm_imgui.c uqm_imgui_cheats.c uqm_imgui_engine.c
 		uqm_imgui_graphics.c uqm_imgui_misc.c uqm_imgui_status.c
 		uqm_imgui_tabs.c uqm_imgui_visuals.c uqm_imgui_audio.c
-		uqm_imgui_controls.c"
+		uqm_imgui_controls.c uqm_imgui_str.c"
 uqm_HFILES="uqm_imgui.h"

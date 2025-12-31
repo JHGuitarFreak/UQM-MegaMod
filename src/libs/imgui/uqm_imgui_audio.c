@@ -20,16 +20,18 @@
 
 void draw_audio_menu (void)
 {
-	const char *sound_drivers[] = {"None", "MixSDL", "OpenAL"};
+	const char *sound_drivers[3];
 	const char *sound_qualities[] = {"Low", "Medium", "High"};
 	const char *alien_ambience[] = {"Disabled", "No Spoilers", "Spoilers"};
 	const char *music_resume[] = {"Disabled", "5 Minutes", "Indefinite"};
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "AudioColumns", false);
+	IMG_ARRAY ("SOUND_DRIVERS", sound_drivers, ARRAY_SIZE (sound_drivers));
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "##AudioColumns", false);
 
 	// Sound Options
 	{
-		ImGui_SeparatorText ("Sound Options");
+		ImGui_SeparatorText (IMG_STR ("SOUND_SEPARATOR"));
 
 		{
 			int volume = musicVolumeScale * 100;

@@ -29,6 +29,8 @@
 #include "uqm/setupmenu.h"
 #include "libs/log/uqmlog.h"
 #include "libs/reslib.h"
+#include "uqm/istrtab.h"
+#include "uqm/nameref.h"
 
 #include <SDL.h>
 
@@ -85,6 +87,11 @@ typedef struct
 int config_changed;
 int mmcfg_changed;
 int cheat_changed;
+
+const char *Imgui_GetString (const char *id);
+#define IMG_STR(id) Imgui_GetString(id)
+int Imgui_GetStringArray (const char *id, const char **array, int count);
+#define IMG_ARRAY(id, arr, count) Imgui_GetStringArray(id, arr, count)
 
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 
