@@ -20,19 +20,9 @@
 void draw_visual_menu (void)
 {
 	const char *date_formats[] =
-	{
-		"MMM DD.YYYY",
-		"MM.DD.YYYY",
-		"DD MMM.YYYY",
-		"DD.MM.YYYY"
-	};
+			{ "MMM DD.YYYY", "MM.DD.YYYY", "DD MMM.YYYY", "DD.MM.YYYY" };
 	const char *fuel_ranges[] =
-	{
-		"None",
-		"At Destination",
-		"To Sol",
-		"Both"
-	};
+			{ "None", "At Destination", "To Sol", "Both" };
 	const char *planet_textures[] = { "3DO", "UQM" };
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "VisualsColumns", false);
@@ -43,29 +33,36 @@ void draw_visual_menu (void)
 
 		{
 			ImGui_Text ("Date Format:");
-			ImGui_ComboChar ("##DateFormat", &optDateFormat,
-					date_formats, 4);
+			if (ImGui_ComboChar ("##DateFormat", &optDateFormat,
+					date_formats, 4))
+			{
+				res_PutInteger ("mm.dateFormat", optDateFormat);
+				mmcfg_changed = true;
+			}
 		}
 
 		Spacer ();
 
-		ImGui_Checkbox ("Custom Border", (bool *)&optCustomBorder);
-		ImGui_Checkbox ("Show Whole Fuel Value", (bool *)&optWholeFuel);
+		UQM_ImGui_CheckBox ("Custom Border", &optCustomBorder, "mm.customBorder");
+		UQM_ImGui_CheckBox ("Show Whole Fuel Value", &optWholeFuel, "mm.wholeFuel");
 
 		Spacer ();
 
 		{
 			ImGui_Text ("Fuel Range Indicators");
-			ImGui_ComboChar ("##FuelRange", &optFuelRange, fuel_ranges, 4);
+			if (ImGui_ComboChar ("##FuelRange", &optFuelRange, fuel_ranges, 4))
+			{
+				res_PutInteger ("mm.fuelRange", optFuelRange);
+				mmcfg_changed = true;
+			}
 		}
 
 		Spacer ();
 
-		ImGui_Checkbox ("SOI Colors", (bool *)&optSphereColors);
-		ImGui_Checkbox ("HD Animations", (bool *)&optHyperStars);
-		ImGui_Checkbox ("Captain Names in Shipyard",
-				(bool *)&optCaptainNames);
-		ImGui_Checkbox ("Game Over Cutscenes", (bool *)&optGameOver);
+		UQM_ImGui_CheckBox ("SOI Colors", &optSphereColors, "mm.sphereColors");
+		UQM_ImGui_CheckBox ("HD Animations", &optHyperStars, "mm.hyperStars");
+		UQM_ImGui_CheckBox ("Captain Names in Shipyard", &optCaptainNames, "mm.captainNames");
+		UQM_ImGui_CheckBox ("Game Over Cutscenes", &optGameOver, "mm.gameOver");
 
 		ImGui_NewLine ();
 	}
@@ -74,8 +71,8 @@ void draw_visual_menu (void)
 	{
 		ImGui_SeparatorText ("Conversation Screen");
 
-		ImGui_Checkbox ("Alternate Orz Font", (bool *)&optOrzCompFont);
-		ImGui_Checkbox ("Non-Stop Oscilloscope", (bool *)&optNonStopOscill);
+		UQM_ImGui_CheckBox ("Alternate Orz Font", &optOrzCompFont, "mm.orzCompFont");
+		UQM_ImGui_CheckBox ("Non-Stop Oscilloscope", &optNonStopOscill, "mm.nonStopOscill");
 
 		ImGui_NewLine ();
 	}
@@ -88,18 +85,20 @@ void draw_visual_menu (void)
 		ImGui_SeparatorText ("Star System View");
 
 		ImGui_Text ("Nebulae & Nebulae Brightness:");
-		ImGui_Checkbox ("##Nebulae", (bool *)&optNebulae);
+		UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae");
 		ImGui_SameLine ();
-		ImGui_SliderInt ("##NebulaeVolume", &optNebulaeVolume, 0, 50);
+		if (ImGui_SliderInt ("##NebulaeVolume", &optNebulaeVolume, 0, 50))
+		{
+			res_PutInteger ("mm.nebulaevol", optNebulaeVolume);
+			mmcfg_changed = true;
+		}
 
 		Spacer ();
 
-		ImGui_Checkbox ("Orbiting Planets", (bool *)&optOrbitingPlanets);
-		ImGui_Checkbox ("Textured Planets", (bool *)&optTexturedPlanets);
-		ImGui_Checkbox ("Unscaled View (HD Only)",
-				(bool *)&optUnscaledStarSystem);
-		ImGui_Checkbox ("NPC Ship Orientation",
-				(bool *)&optShipDirectionIP);
+		UQM_ImGui_CheckBox ("Orbiting Planets", &optOrbitingPlanets, "mm.orbitingPlanets");
+		UQM_ImGui_CheckBox ("Textured Planets", &optTexturedPlanets, "mm.texturedPlanets");
+		UQM_ImGui_CheckBox ("Unscaled View (HD Only)", &optUnscaledStarSystem, "mm.unscaledStarSystem");
+		UQM_ImGui_CheckBox ("NPC Ship Orientation", &optShipDirectionIP, "mm.shipDirectionIP");
 
 		ImGui_NewLine ();
 	}
@@ -108,19 +107,23 @@ void draw_visual_menu (void)
 	{
 		ImGui_SeparatorText ("Orbit Screen");
 
-		ImGui_Checkbox ("Hazard Colors", (bool *)&optHazardColors);
+		UQM_ImGui_CheckBox ("Hazard Colors", &optHazardColors, "mm.hazardColors");
 
 		Spacer ();
 
 		{
 			ImGui_Text ("Planet Map Textures:");
-			ImGui_ComboChar ("##PlanetMapTextures", (int *)&optPlanetTexture,
-					planet_textures, 2);
+			if (ImGui_ComboChar ("##PlanetMapTextures", (int *)&optPlanetTexture,
+					planet_textures, 2))
+			{
+				res_PutInteger ("mm.planetTexture", optPlanetTexture);
+				mmcfg_changed = true;
+			}
 		}
 
 		Spacer ();
 
-		ImGui_Checkbox ("Show Lander Upgrades", (bool *)&optShowUpgrades);
+		UQM_ImGui_CheckBox ("Show Lander Upgrades", &optShowUpgrades, "mm.showUpgrades");
 
 		ImGui_NewLine ();
 	}
