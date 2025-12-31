@@ -70,9 +70,12 @@ void UQM_ImGui_Shutdown (void);
 void UQM_ImGui_ToggleMenu (void);
 int UQM_ImGui_WantCaptureInput (void);
 
+void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
+
 #define DISPLAY_BOOL (ImGui_GetIO ()->DisplaySize.x > 640.0f ? 3 : 1)
 #define CENTER_TEXT (ImVec2){ 0.5f, 0.5f }
 #define ZERO_F      (ImVec2){ 0.0f, 0.0f }
+#define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
 typedef struct
 {
@@ -103,6 +106,11 @@ void draw_visual_menu (void);
 void draw_cheats_menu (void);
 void draw_qol_menu (void);
 void draw_adv_menu (void);
+
+// Colors
+
+#define IV4_RED_COLOR ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
+#define IV4_YELLOW_COLOR ((ImVec4){ 1.0f, 1.0f, 0.0f, 1.0f })
 
 #ifdef __cplusplus
 }

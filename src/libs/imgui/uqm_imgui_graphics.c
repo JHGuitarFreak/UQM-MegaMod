@@ -46,11 +46,9 @@ void draw_graphics_menu (void)
 		"HQ (2x)"
 	};
 
-	bool in_main_menu = GLOBAL (CurrentActivity) == 0;
-
 	ImGui_ColumnsEx (DISPLAY_BOOL, "GraphicsColumns", false);
 
-	ImGui_BeginDisabled (in_main_menu);
+	ImGui_BeginDisabled (IN_MAIN_MENU);
 	{
 		bool res_factor = resolutionFactor > 0;
 

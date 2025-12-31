@@ -271,6 +271,17 @@ UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key)
 		config_changed = true;
 }
 
+void
+ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...)
+{
+	va_list args;
+	va_start (args, fmt);
+	ImGui_PushStyleColorImVec4 (ImGuiCol_Text, col);
+	ImGui_TextWrappedV (fmt, args);
+	ImGui_PopStyleColor ();
+	va_end (args);
+}
+
 // Begin GameState cache implementation
 
 GameStateCache gs_cache = { NULL, 0 };
