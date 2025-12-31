@@ -78,7 +78,7 @@ void draw_cheats_menu (void)
 	ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
 	ImGui_SameLine ();
 	ImGui_InputInt ("##LanderCapacity",
-		!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
+			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
 
 	//ImGui_NextColumn ();
 }

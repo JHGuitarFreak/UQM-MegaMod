@@ -21,15 +21,16 @@ void draw_qol_menu (void)
 {
 	ImGui_ColumnsEx (DISPLAY_BOOL, "QoLColumns", false);
 
-	ImGui_Checkbox ("Partial Pickup", (bool *)&optPartialPickup);
-	ImGui_Checkbox ("Scatter Elements", (bool *)&optScatterElements);
-	ImGui_Checkbox ("In-Game Help Menus", (bool *)&optSubmenu);
-	ImGui_Checkbox ("Smart Auto-Pilot", (bool *)&optSmartAutoPilot);
-	ImGui_Checkbox ("Advanced Auto-Pilot", (bool *)&optAdvancedAutoPilot);
-	ImGui_Checkbox ("Show Visited Stars", (bool *)&optShowVisitedStars);
-	ImGui_Checkbox ("Super Melee Ship Descriptions",
-		(bool *)&optMeleeToolTips);
-	ImGui_Checkbox ("Ship Storage Queue", (bool *)&optShipStore);
+	ImGui_SeparatorText ("Basic QoL Options");
+
+	UQM_ImGui_CheckBox ("Partial Pickup", &optPartialPickup, "mm.partialPickup");
+	UQM_ImGui_CheckBox ("Scatter Elements", &optScatterElements, "mm.scatterElements");
+	UQM_ImGui_CheckBox ("In-Game Help Menus", &optSubmenu, "mm.submenu");
+	UQM_ImGui_CheckBox ("Smart Auto-Pilot", &optSmartAutoPilot, "mm.smartAutoPilot");
+	UQM_ImGui_CheckBox ("Advanced Auto-Pilot", &optAdvancedAutoPilot, "mm.advancedAutoPilot");
+	UQM_ImGui_CheckBox ("Show Visited Stars", &optShowVisitedStars, "mm.showVisitedStars");
+	UQM_ImGui_CheckBox ("Super Melee Ship Descriptions", &optMeleeToolTips, "mm.meleeToolTips");
+	UQM_ImGui_CheckBox ("Ship Storage Queue", &optShipStore, "mm.shipStore");
 }
 
 void draw_adv_menu (void)
