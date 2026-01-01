@@ -25,6 +25,16 @@ void draw_visual_menu (void)
 			{ "None", "At Destination", "To Sol", "Both" };
 	const char *planet_textures[] = { "3DO", "UQM" };
 
+	if (!IN_MAIN_MENU)
+	{
+		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+				"Some of the options in this part of the menu need a full "
+				"screen update for them to take full effect. If in doubt "
+				"either enter/leave planet orbit or leave and re-enter "
+				"the current star system.");
+		Spacer ();
+	}
+
 	ImGui_ColumnsEx (DISPLAY_BOOL, "VisualsColumns", false);
 
 	// User Interface
@@ -60,7 +70,23 @@ void draw_visual_menu (void)
 		Spacer ();
 
 		UQM_ImGui_CheckBox ("SOI Colors", &optSphereColors, "mm.sphereColors");
-		UQM_ImGui_CheckBox ("HD Animations", &optHyperStars, "mm.hyperStars");
+
+		{
+			ImGui_BeginDisabled (!IN_MAIN_MENU);
+
+			UQM_ImGui_CheckBox ("HD Animations", &optHyperStars, "mm.hyperStars");
+
+			if (!IN_MAIN_MENU)
+			{
+				ImGui_TextWrappedColored (IV4_RED_COLOR,
+						"WARNING! HD Animations can only be "
+						"(de)activated while in the Main Menu!");
+				Spacer ();
+			}
+
+			ImGui_EndDisabled ();
+		}
+
 		UQM_ImGui_CheckBox ("Captain Names in Shipyard", &optCaptainNames, "mm.captainNames");
 		UQM_ImGui_CheckBox ("Game Over Cutscenes", &optGameOver, "mm.gameOver");
 
@@ -96,7 +122,24 @@ void draw_visual_menu (void)
 		Spacer ();
 
 		UQM_ImGui_CheckBox ("Orbiting Planets", &optOrbitingPlanets, "mm.orbitingPlanets");
-		UQM_ImGui_CheckBox ("Textured Planets", &optTexturedPlanets, "mm.texturedPlanets");
+
+		{
+			ImGui_BeginDisabled (!IN_MAIN_MENU);
+
+			UQM_ImGui_CheckBox ("Textured Planets", &optTexturedPlanets,
+					"mm.texturedPlanets");
+
+			if (!IN_MAIN_MENU)
+			{
+				ImGui_TextWrappedColored (IV4_RED_COLOR,
+						"WARNING! Textured Planets can only be "
+						"(de)activated while in the Main Menu!");
+				Spacer ();
+			}
+
+			ImGui_EndDisabled ();
+		}
+
 		UQM_ImGui_CheckBox ("Unscaled View (HD Only)", &optUnscaledStarSystem, "mm.unscaledStarSystem");
 		UQM_ImGui_CheckBox ("NPC Ship Orientation", &optShipDirectionIP, "mm.shipDirectionIP");
 

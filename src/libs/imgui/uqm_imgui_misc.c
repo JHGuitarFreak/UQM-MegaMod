@@ -46,6 +46,7 @@ void draw_adv_menu (void)
 	ImGui_ColumnsEx (DISPLAY_BOOL, "AdvancedColumns", false);
 
 	// Risky Click
+	if (!IN_MAIN_MENU)
 	{
 		ImGui_Text ("Let me modify risky options in-game:");
 		ImGui_Checkbox ("##RiskyOptions", &risky_options);
