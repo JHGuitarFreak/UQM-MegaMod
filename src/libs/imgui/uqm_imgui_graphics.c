@@ -17,6 +17,20 @@
 
 #include "uqm_imgui.h"
 
+const int scaler_list[6] =
+{
+	0,
+	TFB_GFXFLAGS_SCALE_BILINEAR,
+	TFB_GFXFLAGS_SCALE_BIADAPT,
+	TFB_GFXFLAGS_SCALE_BIADAPTADV,
+	TFB_GFXFLAGS_SCALE_TRISCAN,
+	TFB_GFXFLAGS_SCALE_HQXX
+};
+
+int imgui_GfxFlags = (int)~0;
+int imgui_SavedWidth = 0;
+int imgui_SavedHeight = 0;
+
 void draw_graphics_menu (void)
 {
 	const char *resolutions[] =
@@ -48,7 +62,7 @@ void draw_graphics_menu (void)
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "GraphicsColumns", false);
 
-	ImGui_BeginDisabled (IN_MAIN_MENU);
+	ImGui_BeginDisabled (true);
 	{
 		bool res_factor = resolutionFactor > 0;
 
@@ -60,22 +74,36 @@ void draw_graphics_menu (void)
 
 	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
 	{
-		ImGui_SetTooltip ("This option requires a reload.");
+		ImGui_SetTooltip ("This option is only here for aesthetics.");
 	}
 	ImGui_EndDisabled ();
 
 	Spacer ();
 
-	ImGui_Text ("Resolution:");
-	if (ImGui_ComboChar ("##Resolution",
-		(int *)&loresBlowupScale, resolutions, 7))
 	{
-		// Add resolution switch code here
+		ImGui_Text ("Resolution:");
+		if (ImGui_ComboChar ("##Resolution",
+			(int *)&loresBlowupScale, resolutions, 7))
+		{
+			if (loresBlowupScale < 6)
+			{
+				if (!loresBlowupScale)
+				{   // No blowup
+					imgui_SavedWidth = RES_SCALE (320);
+					imgui_SavedHeight = RES_SCALE (DOS_BOOL (240, 200));
+				}
+				else
+				{
+					imgui_SavedWidth = 320 * (1 + loresBlowupScale);
+					imgui_SavedHeight = DOS_BOOL (240, 200) * (1 + loresBlowupScale);
+				}
+			}
+			gfx_change = true;
+		}
 	}
 
-	{	// Edit Captain's Name
+	{
 		char CustomResolution[SIS_NAME_SIZE];
-
 		snprintf ((char *)&CustomResolution, sizeof (CustomResolution),
 			"%dx%d", SavedWidth, SavedHeight);
 
@@ -91,9 +119,13 @@ void draw_graphics_menu (void)
 	if (ImGui_ComboChar ("##AspectRatio", (int *)&optKeepAspectRatio,
 		aspect_ratios, 2))
 	{
-		// Add aspect ratio code here
+		imgui_SavedWidth = SavedWidth;
+		imgui_SavedHeight = SavedHeight;
+		gfx_change = true;
 	}
 
+
+	// Display Mode
 	{
 		int display_mode = 0;
 
@@ -108,7 +140,29 @@ void draw_graphics_menu (void)
 		if (ImGui_ComboChar ("##DisplayMode", (int *)&display_mode,
 			display_modes, 3))
 		{
-			// Add display mode code here
+			SDL_Rect desktop_rect;
+			SDL_GetDisplayBounds (0, &desktop_rect);
+
+			imgui_GfxFlags = GfxFlags;
+			imgui_GfxFlags &= ~TFB_GFXFLAGS_FS_ANY;
+			if (display_mode == 1)
+			{
+				imgui_SavedWidth = desktop_rect.w;
+				imgui_SavedHeight = desktop_rect.h;
+				imgui_GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+			}
+			else if (display_mode == 2)
+			{
+				imgui_SavedWidth = desktop_rect.w;
+				imgui_SavedHeight = desktop_rect.h;
+				imgui_GfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
+			}
+			else
+			{
+				imgui_SavedWidth = SavedWidth;
+				imgui_SavedHeight = SavedHeight;
+			}
+			gfx_change = true;
 		}
 	}
 
@@ -126,6 +180,9 @@ void draw_graphics_menu (void)
 			ImGuiSliderFlags_Logarithmic))
 		{
 			setGammaCorrection (optGamma);
+			res_PutInteger ("config.gamma", (int)(optGamma * GAMMA_SCALE + 0.5));
+
+			config_changed = true;
 		}
 	}
 
@@ -158,11 +215,14 @@ void draw_graphics_menu (void)
 				break;
 		}
 
-		ImGui_Text ("Scaler:");
+		ImGui_Text ("Scaler: %d", flags);
 		if (ImGui_ComboChar ("##Scaler", &curr_scaler,
 			scalers, 6))
 		{
-			// Add scaler code here
+			imgui_GfxFlags = GfxFlags;
+			imgui_GfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
+			imgui_GfxFlags |= scaler_list[curr_scaler];
+			gfx_change = true;
 		}
 	}
 
@@ -173,7 +233,14 @@ void draw_graphics_menu (void)
 
 		if (ImGui_Checkbox ("Scanlines", &flags))
 		{
-			// Add scanline code here
+			imgui_GfxFlags = GfxFlags;
+
+			if (flags)
+				imgui_GfxFlags |= TFB_GFXFLAGS_SCANLINES;
+			else
+				imgui_GfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
+
+			gfx_change = true;
 		}
 	}
 
@@ -182,7 +249,14 @@ void draw_graphics_menu (void)
 
 		if (ImGui_Checkbox ("Show FPS", &flags))
 		{
-			// Add show FPS code here
+			imgui_GfxFlags = GfxFlags;
+
+			if (flags)
+				imgui_GfxFlags |= TFB_GFXFLAGS_SHOWFPS;
+			else
+				imgui_GfxFlags &= ~TFB_GFXFLAGS_SHOWFPS;
+
+			gfx_change = true;
 		}
 	}
 }

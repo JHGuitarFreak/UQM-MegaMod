@@ -29,6 +29,7 @@
 #include "uqm/setupmenu.h"
 #include "libs/log/uqmlog.h"
 #include "libs/reslib.h"
+#include "libs/graphics/tfb_draw.h"
 
 #include <SDL.h>
 
@@ -69,6 +70,7 @@ void UQM_ImGui_Render (SDL_Renderer *renderer);
 void UQM_ImGui_Shutdown (void);
 void UQM_ImGui_ToggleMenu (void);
 int UQM_ImGui_WantCaptureInput (void);
+void ApplyDeferredGraphicsChanges (void);
 
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
 
@@ -85,9 +87,14 @@ typedef struct
 	int devtools_tab;
 } TabState;
 
-int config_changed;
-int mmcfg_changed;
-int cheat_changed;
+bool config_changed;
+bool mmcfg_changed;
+bool cheat_changed;
+
+int imgui_GfxFlags;
+int imgui_SavedWidth;
+int imgui_SavedHeight;
+bool gfx_change;
 
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 

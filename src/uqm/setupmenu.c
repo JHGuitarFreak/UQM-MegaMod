@@ -1053,7 +1053,7 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
 		TFB_DrawScreen_ReinitVideo (NewGfxDriver, NewGfxFlags,
-			NewWidth, NewHeight);		
+			NewWidth, NewHeight);
 	}
 
 	FlushInput ();

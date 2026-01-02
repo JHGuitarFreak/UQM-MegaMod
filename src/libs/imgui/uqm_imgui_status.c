@@ -29,9 +29,7 @@ static int collapse_flagship;
 
 void draw_status_menu (void)
 {
-	bool in_main_menu = GLOBAL (CurrentActivity) == 0;
-
-	if (in_main_menu)
+	if (IN_MAIN_MENU)
 	{
 		ImGui_Text ("Status not available in the Main Menu...");
 		return;

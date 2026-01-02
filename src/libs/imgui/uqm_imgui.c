@@ -25,9 +25,10 @@ static SDL_Rect old_viewport;
 static SDL_BlendMode old_blend;
 static int old_logical_w, old_logical_h;
 
-int config_changed;
-int mmcfg_changed;
-int cheat_changed;
+bool config_changed;
+bool mmcfg_changed;
+bool cheat_changed;
+bool gfx_change = false;
 
 static void ShowFullScreenMenu (TabState *state)
 {
@@ -76,6 +77,8 @@ static void ShowFullScreenMenu (TabState *state)
 
 	UQM_ImGui_Tabs (state, content_size, sidebar_size, button_size);
 
+	ImGui_End ();
+
 	if (config_changed || mmcfg_changed || cheat_changed)
 	{
 		if (config_changed)
@@ -87,8 +90,6 @@ static void ShowFullScreenMenu (TabState *state)
 
 		config_changed = mmcfg_changed = cheat_changed = false;
 	}
-
-	ImGui_End ();
 }
 
 void UQM_ImGui_NewFrame (void)
@@ -243,6 +244,108 @@ void UQM_ImGui_ToggleMenu (void)
 
 	UQM_ImGui_ResetOldRenderer (renderer);
 	UQM_ImGui_Shutdown ();
+}
+
+void ApplyDeferredGraphicsChanges (void)
+{
+	BOOLEAN isExclusive;
+	bool was_visible;
+
+	if (!gfx_change)
+		return;
+
+	SDL_Window *window = SDL_GetWindowFromID (1);
+	SDL_Renderer *renderer = SDL_GetRenderer (window);
+
+	if (!window || !renderer)
+		return;
+
+	if (imgui_GfxFlags == (int)~0)
+		imgui_GfxFlags = GfxFlags;
+	if (!imgui_SavedWidth == 0)
+		imgui_SavedWidth = WindowWidth;
+	if (!imgui_SavedHeight == 0)
+		imgui_SavedHeight = WindowHeight;
+
+	isExclusive = imgui_GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
+	was_visible = menu_visible;
+
+	if (was_visible)
+	{
+		UQM_ImGui_ResetOldRenderer (renderer);
+		UQM_ImGui_Shutdown ();
+		menu_visible = false;
+	}
+
+	if (imgui_SavedWidth != WindowWidth ||
+			imgui_SavedHeight != WindowHeight ||
+			imgui_GfxFlags != GfxFlags)
+	{
+		// Handle aspect ratio if needed
+		int NewWidth = imgui_SavedWidth;
+		int NewHeight = imgui_SavedHeight;
+
+		if (optKeepAspectRatio)
+		{
+			float threshold = 0.75f;
+			float ratio = (float)NewHeight / (float)NewWidth;
+
+			if (ratio > threshold) // screen is narrower than 4:3
+				NewWidth = NewHeight / threshold;
+			else if (ratio < threshold) // screen is wider than 4:3
+				NewHeight = NewWidth * threshold;
+		}
+
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, imgui_GfxFlags,
+				NewWidth, NewHeight);
+	}
+
+	if (imgui_GfxFlags != GfxFlags)
+		GfxFlags = imgui_GfxFlags;
+
+	if (isExclusive)
+	{	// needed twice to reinitialize Exclusive Full Screen after a 
+		// resolution change
+		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				WindowWidth, WindowHeight);
+	}
+
+	gfx_change = false;
+
+	if (was_visible)
+	{
+		SDL_Delay (50);
+		menu_visible = true;
+
+		UQM_ImGui_SaveOldRenderer (renderer);
+		UQM_ImGui_SetNewRenderer (renderer, window);
+
+		if (!UQM_ImGui_Init (window, renderer))
+		{
+			log_add (log_Error, "Failed to reinitialize ImGui menu after "
+					"graphics change");
+			menu_visible = false;
+			UQM_ImGui_ResetOldRenderer (renderer);
+			SDL_RenderPresent (renderer);
+			UQM_ImGui_Shutdown ();
+			return;
+		}
+
+		revalidate_game_state_cache ();
+	}
+
+	res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
+	res_PutInteger ("config.reswidth", imgui_SavedWidth);
+	res_PutInteger ("config.resheight", imgui_SavedHeight);
+	res_PutBoolean ("config.scanlines", GfxFlags & TFB_GFXFLAGS_SCANLINES);
+	res_PutBoolean ("config.showfps", GfxFlags & TFB_GFXFLAGS_SHOWFPS);
+
+	imgui_GfxFlags = (int)~0;
+	imgui_SavedWidth = 0;
+	imgui_SavedHeight = 0;
+
+	config_changed = true;
 }
 
 // This redirects input to ImGui when the menu is visible

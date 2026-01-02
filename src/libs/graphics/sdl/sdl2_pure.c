@@ -619,6 +619,7 @@ TFB_SDL2_Postprocess (bool hd)
 
 	if (menu_visible)
 	{
+		ApplyDeferredGraphicsChanges ();
 		UQM_ImGui_NewFrame ();
 		UQM_ImGui_Render (renderer);
 	}
