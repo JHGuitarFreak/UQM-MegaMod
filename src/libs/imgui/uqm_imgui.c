@@ -403,9 +403,49 @@ ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 	if (was_visible)
 		UQM_ImGui_ResetMenu (window, renderer);
 
-	//res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
-	//res_PutInteger ("config.reswidth", SavedWidth);
-	//res_PutInteger ("config.resheight", SavedHeight);
+	res_PutBoolean ("config.scanlines", GfxFlags & TFB_GFXFLAGS_SCANLINES);
+	res_PutBoolean ("config.showfps", GfxFlags & TFB_GFXFLAGS_SHOWFPS);
+
+	{
+		int fullscreen_mode = 0;
+
+		if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+			fullscreen_mode = 2;
+		else if (GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN)
+			fullscreen_mode = 1;
+
+		res_PutInteger ("config.fullscreen", fullscreen_mode);
+	}
+
+	{
+		const char *scaler_list[6] =
+				{ "no", "bilinear", "biadapt", "biadv", "triscan", "hq" };
+		int curr_scaler;
+
+		switch (GfxFlags & 248)
+		{
+			case TFB_GFXFLAGS_SCALE_BILINEAR:
+				curr_scaler = 1;
+				break;
+			case TFB_GFXFLAGS_SCALE_BIADAPT:
+				curr_scaler = 2;
+				break;
+			case TFB_GFXFLAGS_SCALE_BIADAPTADV:
+				curr_scaler = 3;
+				break;
+			case TFB_GFXFLAGS_SCALE_TRISCAN:
+				curr_scaler = 4;
+				break;
+			case TFB_GFXFLAGS_SCALE_HQXX:
+				curr_scaler = 5;
+				break;
+			default:
+				curr_scaler = 0;
+				break;
+		}
+
+		res_PutString ("config.scaler", scaler_list[curr_scaler]);
+	}
 
 	config_changed = true;
 }

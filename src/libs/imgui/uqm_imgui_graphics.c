@@ -17,16 +17,6 @@
 
 #include "uqm_imgui.h"
 
-const int scaler_list[6] =
-{
-	0,
-	TFB_GFXFLAGS_SCALE_BILINEAR,
-	TFB_GFXFLAGS_SCALE_BIADAPT,
-	TFB_GFXFLAGS_SCALE_BIADAPTADV,
-	TFB_GFXFLAGS_SCALE_TRISCAN,
-	TFB_GFXFLAGS_SCALE_HQXX
-};
-
 int imgui_GfxFlags = (int)~0;
 int imgui_SavedWidth = 0;
 int imgui_SavedHeight = 0;
@@ -176,11 +166,9 @@ void draw_graphics_menu (void)
 	Spacer ();
 
 	{
-		int flags, curr_scaler;
+		int curr_scaler;
 
-		flags = GfxFlags & 248; // 11111000 - only scaler flags
-
-		switch (flags)
+		switch (GfxFlags & 248) // 11111000 - only scaler flags
 		{
 			case TFB_GFXFLAGS_SCALE_BILINEAR:
 				curr_scaler = 1;
@@ -202,10 +190,20 @@ void draw_graphics_menu (void)
 				break;
 		}
 
-		ImGui_Text ("Scaler: %d", flags);
+		ImGui_Text ("Scaler:");
 		if (ImGui_ComboChar ("##Scaler", &curr_scaler,
 			scalers, 6))
 		{
+			const int scaler_list[6] =
+			{
+				0,
+				TFB_GFXFLAGS_SCALE_BILINEAR,
+				TFB_GFXFLAGS_SCALE_BIADAPT,
+				TFB_GFXFLAGS_SCALE_BIADAPTADV,
+				TFB_GFXFLAGS_SCALE_TRISCAN,
+				TFB_GFXFLAGS_SCALE_HQXX
+			};
+
 			imgui_GfxFlags = GfxFlags;
 			imgui_GfxFlags &= ~TFB_GFXFLAGS_SCALE_ANY;
 			imgui_GfxFlags |= scaler_list[curr_scaler];
