@@ -415,6 +415,8 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	UnbatchGraphics ();
 }
 
+BOOLEAN MusicInitialized = FALSE;
+
 static void
 DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f)
 {
@@ -652,6 +654,17 @@ DoRestart (MENU_STATE *pMS)
 	}
 
 	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
+
+	if (!MusicInitialized && optMainMenuMusic)
+	{
+		InitMenuMusic ();
+		MusicInitialized = TRUE;
+	}
+	else if (MusicInitialized && !optMainMenuMusic)
+	{
+		UninitMenuMusic ();
+		MusicInitialized = FALSE;
+	}
 
 	return TRUE;
 }
