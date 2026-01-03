@@ -35,7 +35,7 @@ void draw_graphics_menu (void)
 {
 	const char *resolutions[] =
 	{
-		"Default",
+		"Native",
 		"640x480",
 		"960x720",
 		"1280x960",
@@ -88,7 +88,7 @@ void draw_graphics_menu (void)
 			if (loresBlowupScale < 6)
 			{
 				if (!loresBlowupScale)
-				{   // No blowup
+				{	// No blowup
 					imgui_SavedWidth = RES_SCALE (320);
 					imgui_SavedHeight = RES_SCALE (DOS_BOOL (240, 200));
 				}
@@ -98,20 +98,21 @@ void draw_graphics_menu (void)
 					imgui_SavedHeight = DOS_BOOL (240, 200) * (1 + loresBlowupScale);
 				}
 			}
-			gfx_change = true;
+			res_change = true;
 		}
 	}
 
 	{
-		char CustomResolution[SIS_NAME_SIZE];
-		snprintf ((char *)&CustomResolution, sizeof (CustomResolution),
-			"%dx%d", SavedWidth, SavedHeight);
+		int cust_res[2] = { SavedWidth, SavedHeight };
 
 		ImGui_Text ("Custom Resolution:");
-		if (ImGui_InputText ("##CustomeResolution", CustomResolution,
-			sizeof (CustomResolution), 0))
+		ImGui_InputInt2 ("##CustomResolution", cust_res, 0);
+		if (ImGui_IsItemDeactivatedAfterEdit ()
+				&& cust_res[0] >= 320 && cust_res[1] >= 200)
 		{
-			// Add custom resolution code here
+			imgui_SavedWidth = cust_res[0];
+			imgui_SavedHeight = cust_res[1];
+			res_change = true;
 		}
 	}
 
@@ -121,9 +122,8 @@ void draw_graphics_menu (void)
 	{
 		imgui_SavedWidth = SavedWidth;
 		imgui_SavedHeight = SavedHeight;
-		gfx_change = true;
+		res_change = true;
 	}
-
 
 	// Display Mode
 	{
@@ -140,28 +140,12 @@ void draw_graphics_menu (void)
 		if (ImGui_ComboChar ("##DisplayMode", (int *)&display_mode,
 			display_modes, 3))
 		{
-			SDL_Rect desktop_rect;
-			SDL_GetDisplayBounds (0, &desktop_rect);
-
 			imgui_GfxFlags = GfxFlags;
 			imgui_GfxFlags &= ~TFB_GFXFLAGS_FS_ANY;
 			if (display_mode == 1)
-			{
-				imgui_SavedWidth = desktop_rect.w;
-				imgui_SavedHeight = desktop_rect.h;
 				imgui_GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
-			}
 			else if (display_mode == 2)
-			{
-				imgui_SavedWidth = desktop_rect.w;
-				imgui_SavedHeight = desktop_rect.h;
 				imgui_GfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
-			}
-			else
-			{
-				imgui_SavedWidth = SavedWidth;
-				imgui_SavedHeight = SavedHeight;
-			}
 			gfx_change = true;
 		}
 	}
@@ -174,6 +158,9 @@ void draw_graphics_menu (void)
 		{
 			optGamma = 1.0f;
 			setGammaCorrection (optGamma);
+			res_PutInteger ("config.gamma", (int)(optGamma * GAMMA_SCALE + 0.5));
+
+			config_changed = true;
 		}
 		ImGui_SameLine ();
 		if (ImGui_SliderFloatEx ("##Gamma", &optGamma, 0.4f, 2.5f, "%.2f",
@@ -234,11 +221,10 @@ void draw_graphics_menu (void)
 		if (ImGui_Checkbox ("Scanlines", &flags))
 		{
 			imgui_GfxFlags = GfxFlags;
+			imgui_GfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
 
 			if (flags)
 				imgui_GfxFlags |= TFB_GFXFLAGS_SCANLINES;
-			else
-				imgui_GfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
 
 			gfx_change = true;
 		}
@@ -250,11 +236,10 @@ void draw_graphics_menu (void)
 		if (ImGui_Checkbox ("Show FPS", &flags))
 		{
 			imgui_GfxFlags = GfxFlags;
+			imgui_GfxFlags &= ~TFB_GFXFLAGS_SHOWFPS;
 
 			if (flags)
 				imgui_GfxFlags |= TFB_GFXFLAGS_SHOWFPS;
-			else
-				imgui_GfxFlags &= ~TFB_GFXFLAGS_SHOWFPS;
 
 			gfx_change = true;
 		}

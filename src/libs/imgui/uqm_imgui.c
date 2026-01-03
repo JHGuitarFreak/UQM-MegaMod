@@ -28,6 +28,7 @@ static int old_logical_w, old_logical_h;
 bool config_changed;
 bool mmcfg_changed;
 bool cheat_changed;
+bool res_change = false;
 bool gfx_change = false;
 
 static void ShowFullScreenMenu (TabState *state)
@@ -246,30 +247,56 @@ void UQM_ImGui_ToggleMenu (void)
 	UQM_ImGui_Shutdown ();
 }
 
-void ApplyDeferredGraphicsChanges (void)
+static void
+UQM_ImGui_ResetMenu (SDL_Window *window, SDL_Renderer *renderer)
+{
+	SDL_Delay (50);
+
+	menu_visible = true;
+
+	UQM_ImGui_SaveOldRenderer (renderer);
+	UQM_ImGui_SetNewRenderer (renderer, window);
+
+	if (!UQM_ImGui_Init (window, renderer))
+	{
+		log_add (log_Error, "Failed to reinitialize ImGui menu");
+
+		menu_visible = false;
+
+		UQM_ImGui_ResetOldRenderer (renderer);
+		SDL_RenderPresent (renderer);
+		UQM_ImGui_Shutdown ();
+		return;
+	}
+
+	revalidate_game_state_cache ();
+}
+
+void
+ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 {
 	BOOLEAN isExclusive;
 	bool was_visible;
+	int NewGfxFlags;
+	int NewWidth = imgui_SavedWidth;
+	int NewHeight = imgui_SavedHeight;
 
-	if (!gfx_change)
+	if (!window || !renderer || !res_change)
 		return;
 
-	SDL_Window *window = SDL_GetWindowFromID (1);
-	SDL_Renderer *renderer = SDL_GetRenderer (window);
+	res_change = false;
 
-	if (!window || !renderer)
-		return;
+	NewGfxFlags = GfxFlags;
 
-	if (imgui_GfxFlags == (int)~0)
-		imgui_GfxFlags = GfxFlags;
-	if (!imgui_SavedWidth == 0)
-		imgui_SavedWidth = WindowWidth;
-	if (!imgui_SavedHeight == 0)
-		imgui_SavedHeight = WindowHeight;
+	NewWidth = inBounds (NewWidth, 320, 1920);
+	NewHeight = inBounds (NewHeight, 200, 1440);
 
-	isExclusive = imgui_GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
+	SavedWidth = NewWidth;
+	SavedHeight = NewHeight;
+
+	isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
+
 	was_visible = menu_visible;
-
 	if (was_visible)
 	{
 		UQM_ImGui_ResetOldRenderer (renderer);
@@ -277,31 +304,33 @@ void ApplyDeferredGraphicsChanges (void)
 		menu_visible = false;
 	}
 
-	if (imgui_SavedWidth != WindowWidth ||
-			imgui_SavedHeight != WindowHeight ||
-			imgui_GfxFlags != GfxFlags)
+	if (optKeepAspectRatio)
 	{
-		// Handle aspect ratio if needed
-		int NewWidth = imgui_SavedWidth;
-		int NewHeight = imgui_SavedHeight;
+		float threshold = 0.75f;
+		float ratio = (float)NewHeight / (float)NewWidth;
 
-		if (optKeepAspectRatio)
-		{
-			float threshold = 0.75f;
-			float ratio = (float)NewHeight / (float)NewWidth;
-
-			if (ratio > threshold) // screen is narrower than 4:3
-				NewWidth = NewHeight / threshold;
-			else if (ratio < threshold) // screen is wider than 4:3
-				NewHeight = NewWidth * threshold;
-		}
-
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, imgui_GfxFlags,
-				NewWidth, NewHeight);
+		if (ratio > threshold) // screen is narrower than 4:3
+			NewWidth = NewHeight / threshold;
+		else if (ratio < threshold) // screen is wider than 4:3
+			NewHeight = NewWidth * threshold;
 	}
 
-	if (imgui_GfxFlags != GfxFlags)
-		GfxFlags = imgui_GfxFlags;
+	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
+	{
+		if (isExclusive)
+			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
+
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+			NewWidth, NewHeight);
+	}
+	else if (was_visible)
+	{
+		UQM_ImGui_ResetMenu (window, renderer);
+		return;
+	}
+
+	if (NewGfxFlags != GfxFlags)
+		GfxFlags = NewGfxFlags;
 
 	if (isExclusive)
 	{	// needed twice to reinitialize Exclusive Full Screen after a 
@@ -311,39 +340,72 @@ void ApplyDeferredGraphicsChanges (void)
 				WindowWidth, WindowHeight);
 	}
 
+	if (was_visible)
+		UQM_ImGui_ResetMenu (window, renderer);
+
+	res_PutBoolean ("config.keepaspectratio", optKeepAspectRatio);
+	res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
+	res_PutInteger ("config.reswidth", SavedWidth);
+	res_PutInteger ("config.resheight", SavedHeight);
+
+	config_changed = true;
+}
+
+void
+ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
+{
+	BOOLEAN isExclusive;
+	bool was_visible;
+	int NewGfxFlags;
+
+	if (!window || !renderer || !gfx_change)
+		return;
+
 	gfx_change = false;
 
+	NewGfxFlags = imgui_GfxFlags;
+
+	isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
+
+	was_visible = menu_visible;
 	if (was_visible)
 	{
-		SDL_Delay (50);
-		menu_visible = true;
-
-		UQM_ImGui_SaveOldRenderer (renderer);
-		UQM_ImGui_SetNewRenderer (renderer, window);
-
-		if (!UQM_ImGui_Init (window, renderer))
-		{
-			log_add (log_Error, "Failed to reinitialize ImGui menu after "
-					"graphics change");
-			menu_visible = false;
-			UQM_ImGui_ResetOldRenderer (renderer);
-			SDL_RenderPresent (renderer);
-			UQM_ImGui_Shutdown ();
-			return;
-		}
-
-		revalidate_game_state_cache ();
+		UQM_ImGui_ResetOldRenderer (renderer);
+		UQM_ImGui_Shutdown ();
+		menu_visible = false;
 	}
 
-	res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
-	res_PutInteger ("config.reswidth", imgui_SavedWidth);
-	res_PutInteger ("config.resheight", imgui_SavedHeight);
-	res_PutBoolean ("config.scanlines", GfxFlags & TFB_GFXFLAGS_SCANLINES);
-	res_PutBoolean ("config.showfps", GfxFlags & TFB_GFXFLAGS_SHOWFPS);
+	if (NewGfxFlags != GfxFlags)
+	{
+		if (isExclusive)
+			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
-	imgui_GfxFlags = (int)~0;
-	imgui_SavedWidth = 0;
-	imgui_SavedHeight = 0;
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, NewGfxFlags,
+				WindowWidth, WindowHeight);
+	}
+	else if (was_visible)
+	{
+		UQM_ImGui_ResetMenu (window, renderer);
+		return;
+	}
+
+	if (NewGfxFlags != GfxFlags)
+		GfxFlags = NewGfxFlags;
+
+	if (isExclusive)
+	{	// needed twice to reinitialize Exclusive Full Screen after a 
+		// resolution change
+		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				WindowWidth, WindowHeight);
+	}
+
+	if (was_visible)
+		UQM_ImGui_ResetMenu (window, renderer);
+
+	//res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
+	//res_PutInteger ("config.reswidth", SavedWidth);
+	//res_PutInteger ("config.resheight", SavedHeight);
 
 	config_changed = true;
 }

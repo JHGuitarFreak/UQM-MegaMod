@@ -70,7 +70,8 @@ void UQM_ImGui_Render (SDL_Renderer *renderer);
 void UQM_ImGui_Shutdown (void);
 void UQM_ImGui_ToggleMenu (void);
 int UQM_ImGui_WantCaptureInput (void);
-void ApplyDeferredGraphicsChanges (void);
+void ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer);
+void ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer);
 
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
 
@@ -94,6 +95,7 @@ bool cheat_changed;
 int imgui_GfxFlags;
 int imgui_SavedWidth;
 int imgui_SavedHeight;
+bool res_change;
 bool gfx_change;
 
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
