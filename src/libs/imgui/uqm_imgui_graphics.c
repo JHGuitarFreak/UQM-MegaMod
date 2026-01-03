@@ -52,6 +52,8 @@ void draw_graphics_menu (void)
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "GraphicsColumns", false);
 
+	ImGui_SeparatorText ("Graphics Options");
+
 	ImGui_BeginDisabled (true);
 	{
 		bool res_factor = resolutionFactor > 0;
@@ -62,10 +64,11 @@ void draw_graphics_menu (void)
 		}
 	}
 
-	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
-	{
-		ImGui_SetTooltip ("This option is only here for aesthetics.");
-	}
+	ImGui_TextWrappedColored (IV4_RED_COLOR,
+			"WARNING! The HD Mode option can not be changed "
+			"in the GUI at this time. To change this option you "
+			"must use the Setup Menu.");
+
 	ImGui_EndDisabled ();
 
 	Spacer ();
@@ -92,6 +95,8 @@ void draw_graphics_menu (void)
 		}
 	}
 
+	Spacer ();
+
 	{
 		int cust_res[2] = { SavedWidth, SavedHeight };
 
@@ -106,6 +111,8 @@ void draw_graphics_menu (void)
 		}
 	}
 
+	Spacer ();
+
 	ImGui_Text ("Aspect Ratio:");
 	if (ImGui_ComboChar ("##AspectRatio", (int *)&optKeepAspectRatio,
 		aspect_ratios, 2))
@@ -114,6 +121,8 @@ void draw_graphics_menu (void)
 		imgui_SavedHeight = SavedHeight;
 		res_change = true;
 	}
+
+	Spacer ();
 
 	// Display Mode
 	{
@@ -227,6 +236,8 @@ void draw_graphics_menu (void)
 			gfx_change = true;
 		}
 	}
+
+	Spacer ();
 
 	{
 		bool flags = GfxFlags & TFB_GFXFLAGS_SHOWFPS;

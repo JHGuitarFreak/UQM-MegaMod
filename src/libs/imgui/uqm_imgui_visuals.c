@@ -30,8 +30,8 @@ void draw_visual_menu (void)
 		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
 				"Some of the options in this part of the menu need a full "
 				"screen update for them to take full effect. If in doubt "
-				"either enter/leave planet orbit or leave and re-enter "
-				"the current star system.");
+				"enter/leave planet orbit, leave and re-enter "
+				"the current star system, or enter and leave the Starbase");
 		Spacer ();
 	}
 
