@@ -17,6 +17,12 @@
 
 #include "uqm_imgui.h"
 
+static int
+ToCons (int opt)
+{
+	return (opt ? OPT_3DO : OPT_PC);
+}
+
 void
 draw_engine_menu (void)
 {
@@ -30,6 +36,7 @@ draw_engine_menu (void)
 	const char *engine_style[] = { "Green Engine", "Red Engine" };
 	const char *scroll_style[] = { "Per-Page", "Smooth" };
 	const char *slave_shields[] = { "Static", "Pulsating" };
+	const char *sphere_tint[] = { "Shaded", "Plain" };
 	const char *stats_display[] =
 	{
 		"Text",
@@ -38,6 +45,16 @@ draw_engine_menu (void)
 		"Pictograms (6014)"
 	};
 
+	if (!IN_MAIN_MENU)
+	{
+		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+				"Some of the options in this part of the menu need a full "
+				"screen update for them to take full effect. If in doubt "
+				"enter/leave planet orbit, leave and re-enter "
+				"the current star system, or enter and leave the Starbase");
+		Spacer ();
+	}
+
 	ImGui_ColumnsEx (DISPLAY_BOOL, "EngineColumns", false);
 
 	// User Interface
@@ -45,12 +62,22 @@ draw_engine_menu (void)
 		ImGui_SeparatorText ("User Interface");
 
 		{
+			ImGui_BeginDisabled (true);
+
 			ImGui_Text ("Platform UI:");
 			if (ImGui_ComboChar ("##PlatformUI", (int *)&optWindowType,
 					dos_3do_uqm, 3))
 			{
 				// Add switching code here
 			}
+
+			ImGui_TextWrappedColored (IV4_RED_COLOR,
+					"WARNING! The Platform UI option can not be changed "
+					"in the GUI at this time. To change this option you "
+					"must use the Setup Menu.");
+			Spacer ();
+
+			ImGui_EndDisabled ();
 		}
 
 		{
@@ -59,13 +86,15 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##MenuStyle", &which_menu,
 					menu_styles, 2))
 			{
-				// Add switching code here
+				optWhichMenu = ToCons (which_menu);
+				res_PutBoolean ("config.textmenu", (BOOLEAN)which_menu);
+				config_changed = true;
 			}
 		}
 
 		Spacer ();
 
-		ImGui_Checkbox ("DOS Side Menu", (bool *)&optDosMenus);
+		UQM_ImGui_CheckBox ("DOS Side Menu", &optDosMenus, "mm.dosMenus");
 
 		Spacer ();
 
@@ -75,11 +104,15 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##FontStyle", &which_fonts,
 					font_styles, 2))
 			{
-				// Add switching code here
+				optWhichFonts = ToCons (which_fonts);
+				res_PutBoolean ("config.textgradients", (BOOLEAN)which_fonts);
+				config_changed = true;
 			}
 		}
 
 		{
+			ImGui_BeginDisabled (true);
+
 			int which_intro = is3DO (optWhichIntro);
 			ImGui_Text ("Cutscenes:");
 			if (ImGui_ComboChar ("##Cutscenes", &which_intro,
@@ -87,16 +120,40 @@ draw_engine_menu (void)
 			{
 				// Add switching code here
 			}
+
+			ImGui_TextWrappedColored (IV4_RED_COLOR,
+					"WARNING! The Cutscene option can not be changed in "
+					"the GUI at this time. To change this option you must "
+					"use the Setup Menu.");
+			Spacer ();
+
+			ImGui_EndDisabled ();
 		}
 
+		Spacer ();
+
 		{
+			ImGui_BeginDisabled (!IN_MAIN_MENU);
+
 			int melee_scale = (optMeleeScale != TFB_SCALE_STEP);
 			ImGui_Text ("Melee Zoom:");
 			if (ImGui_ComboChar ("##MeleeZoom", &melee_scale,
 					melee_style, 2))
 			{
-				// Add switching code here
+				optMeleeScale = (melee_scale ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP);
+				res_PutBoolean ("config.smoothmelee", (BOOLEAN)melee_scale);
+				config_changed = true;
 			}
+
+			if (!IN_MAIN_MENU)
+			{
+				ImGui_TextWrappedColored (IV4_RED_COLOR,
+						"WARNING! Melee Zoom can only be "
+						"changed while in the Main Menu!");
+				Spacer ();
+			}
+
+			ImGui_EndDisabled ();
 		}
 
 		{
@@ -105,7 +162,9 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##EngineColor", &engine_color,
 					engine_style, 2))
 			{
-				// Add switching code here
+				optFlagshipColor = ToCons (engine_color);
+				res_PutBoolean ("mm.flagshipColor", (BOOLEAN)engine_color);
+				mmcfg_changed = true;
 			}
 		}
 
@@ -115,7 +174,9 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##ScreenTransitions", &scr_trans,
 					pc_or_3do, 2))
 			{
-				// Add switching code here
+				optScrTrans = ToCons (scr_trans);
+				res_PutBoolean ("mm.scrTransition", (BOOLEAN)scr_trans);
+				mmcfg_changed = true;
 			}
 		}
 
@@ -135,14 +196,29 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##ScrollStyle", &smooth_scroll,
 					scroll_style, 2))
 			{
-				// Add switching code here
+				optSmoothScroll = ToCons (smooth_scroll);
+				res_PutBoolean ("config.smoothscroll", (BOOLEAN)smooth_scroll);
+				config_changed = true;
 			}
 		}
 
 		Spacer ();
 
+		{
+			ImGui_BeginDisabled (true);
+
 			ImGui_Checkbox ("Speech", (bool *)&optSpeech);
-			ImGui_Checkbox ("Subtitles", (bool *)&optSubtitles);
+
+			if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
+			{
+				ImGui_SetTooltip (
+					"This option can only be changed in the Setup Menu.");
+			}
+
+			ImGui_EndDisabled ();
+		}
+
+		UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles");
 
 		Spacer ();
 
@@ -152,7 +228,9 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##OscilloscopelStyle", &scope_style,
 					pc_or_3do, 2))
 			{
-				// Add switching code here
+				optScopeStyle = ToCons (scope_style);
+				res_PutBoolean ("mm.scopeStyle", (BOOLEAN)scope_style);
+				mmcfg_changed = true;
 			}
 		}
 
@@ -164,19 +242,37 @@ draw_engine_menu (void)
 		ImGui_SeparatorText ("Star System View");
 
 		{
+			ImGui_BeginDisabled (!IN_MAIN_MENU);
+
 			int planet_style = is3DO (optPlanetStyle);
 			ImGui_Text ("Planet Style:");
 			if (ImGui_ComboChar ("##PlanetStyle", &planet_style,
 					pc_or_3do, 2))
 			{
-				// Add switching code here
+				optPlanetStyle = ToCons (planet_style);
+				res_PutBoolean ("mm.planetStyle", (BOOLEAN)planet_style);
+				mmcfg_changed = true;
 			}
+
+			if (!IN_MAIN_MENU)
+			{
+				ImGui_TextWrappedColored (IV4_RED_COLOR,
+						"WARNING! Planet Style can only be "
+						"changed while in the Main Menu!");
+				Spacer ();
+			}
+
+			ImGui_EndDisabled ();
 		}
 
 		{
 			ImGui_Text ("Star Background:");
-			ImGui_ComboChar ("##StarBackground", &optStarBackground,
-				star_backgrounds, 4);
+			if (ImGui_ComboChar ("##StarBackground", &optStarBackground,
+				star_backgrounds, 4))
+			{
+				res_PutInteger ("mm.starBackground", optStarBackground);
+				mmcfg_changed = true;
+			}
 		}
 
 		ImGui_NewLine ();
@@ -194,7 +290,8 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##StatsStyle", &optWhichCoarseScan,
 					stats_display, 4))
 			{
-				// Add switching code here
+				res_PutInteger ("config.iconicscan", optWhichCoarseScan);
+				config_changed = true;
 			}
 		}
 
@@ -204,7 +301,9 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##SlaveShields", &which_shield,
 					slave_shields, 2))
 			{
-				// Add switching code here
+				optWhichShield = ToCons (which_shield);
+				res_PutBoolean ("config.pulseshield", (BOOLEAN)which_shield);
+				config_changed = true;
 			}
 		}
 
@@ -214,7 +313,9 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##ScanningStyle", &scan_style,
 					pc_or_3do, 2))
 			{
-				// Add switching code here
+				optScanStyle = ToCons (scan_style);
+				res_PutBoolean ("mm.scanStyle", (BOOLEAN)scan_style);
+				mmcfg_changed = true;
 			}
 		}
 
@@ -223,17 +324,20 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##SphereStyle", &optScanSphere,
 					dos_3do_uqm, 3))
 			{
-				// Add switching code here
+				res_PutInteger ("mm.sphereType", optScanSphere);
+				mmcfg_changed = true;
 			}
 		}
 
 		{
 			int tint_sphere = is3DO (optTintPlanSphere);
-			ImGui_Text ("Sphere Scan Overlay:");
+			ImGui_Text ("Tinted Sphere Scan:");
 			if (ImGui_ComboChar ("##TintSphere", &tint_sphere,
-					pc_or_3do, 2))
+					sphere_tint, 2))
 			{
-				// Add switching code here
+				optTintPlanSphere = ToCons (tint_sphere);
+				res_PutBoolean ("mm.tintPlanSphere", (BOOLEAN)tint_sphere);
+				mmcfg_changed = true;
 			}
 		}
 
@@ -243,7 +347,9 @@ draw_engine_menu (void)
 			if (ImGui_ComboChar ("##LanderView", &super_pc,
 					pc_or_3do, 2))
 			{
-				// Add switching code here
+				optSuperPC = ToCons (super_pc);
+				res_PutBoolean ("mm.landerStyle", (BOOLEAN)super_pc);
+				mmcfg_changed = true;
 			}
 		}
 
