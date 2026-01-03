@@ -54,22 +54,23 @@ void draw_graphics_menu (void)
 
 	ImGui_SeparatorText ("Graphics Options");
 
-	ImGui_BeginDisabled (true);
 	{
+		ImGui_BeginDisabled (true);
+
 		bool res_factor = resolutionFactor > 0;
 
 		if (ImGui_Checkbox ("HD Mode", &res_factor))
 		{
 			// Add HD switching code here
 		}
+
+		ImGui_TextWrappedColored (IV4_RED_COLOR,
+				"WARNING! The HD Mode option can not be changed "
+				"in the GUI at this time. To change this option you "
+				"must use the Setup Menu.");
+
+		ImGui_EndDisabled ();
 	}
-
-	ImGui_TextWrappedColored (IV4_RED_COLOR,
-			"WARNING! The HD Mode option can not be changed "
-			"in the GUI at this time. To change this option you "
-			"must use the Setup Menu.");
-
-	ImGui_EndDisabled ();
 
 	Spacer ();
 
@@ -98,6 +99,8 @@ void draw_graphics_menu (void)
 	Spacer ();
 
 	{
+		ImGui_BeginDisabled (true);
+
 		int cust_res[2] = { SavedWidth, SavedHeight };
 
 		ImGui_Text ("Custom Resolution:");
@@ -109,23 +112,41 @@ void draw_graphics_menu (void)
 			imgui_SavedHeight = cust_res[1];
 			res_change = true;
 		}
+
+		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+			"This option is disabled as it doesn't currently play nice."
+			"It can be changed in the Setup Menu.");
+
+		ImGui_EndDisabled ();
 	}
 
 	Spacer ();
 
-	ImGui_Text ("Aspect Ratio:");
-	if (ImGui_ComboChar ("##AspectRatio", (int *)&optKeepAspectRatio,
-		aspect_ratios, 2))
 	{
-		imgui_SavedWidth = SavedWidth;
-		imgui_SavedHeight = SavedHeight;
-		res_change = true;
+		ImGui_BeginDisabled (true);
+
+		ImGui_Text ("Aspect Ratio:");
+		if (ImGui_ComboChar ("##AspectRatio", (int *)&optKeepAspectRatio,
+			aspect_ratios, 2))
+		{
+			imgui_SavedWidth = SavedWidth;
+			imgui_SavedHeight = SavedHeight;
+			res_change = true;
+		}
+
+		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+			"This option is disabled as it doesn't currently play nice."
+			"It can be changed in the Setup Menu.");
+
+		ImGui_EndDisabled ();
 	}
 
 	Spacer ();
 
 	// Display Mode
 	{
+		ImGui_BeginDisabled (true);
+
 		int display_mode = 0;
 
 		if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
@@ -147,6 +168,14 @@ void draw_graphics_menu (void)
 				imgui_GfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
 			gfx_change = true;
 		}
+
+		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+			"This option is disabled as it doesn't currently play nice."
+			"If fullscreen is wanted you can change it in the Setup Menu "
+			"or if you're playing with a keyboard, press the F11 key "
+			"after exiting this GUI.");
+
+		ImGui_EndDisabled ();
 	}
 
 	Spacer ();
