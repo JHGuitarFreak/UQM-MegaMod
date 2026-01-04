@@ -114,7 +114,7 @@ void draw_graphics_menu (void)
 		}
 
 		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-			"This option is disabled as it doesn't currently play nice."
+			"This option is disabled as it doesn't currently play nice. "
 			"It can be changed in the Setup Menu.");
 
 		ImGui_EndDisabled ();
@@ -135,7 +135,7 @@ void draw_graphics_menu (void)
 		}
 
 		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-			"This option is disabled as it doesn't currently play nice."
+			"This option is disabled as it doesn't currently play nice. "
 			"It can be changed in the Setup Menu.");
 
 		ImGui_EndDisabled ();
@@ -170,7 +170,7 @@ void draw_graphics_menu (void)
 		}
 
 		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-			"This option is disabled as it doesn't currently play nice."
+			"This option is disabled as it doesn't currently play nice. "
 			"If fullscreen is wanted you can change it in the Setup Menu "
 			"or if you're playing with a keyboard, press the F11 key "
 			"after exiting this GUI.");
@@ -204,28 +204,14 @@ void draw_graphics_menu (void)
 	Spacer ();
 
 	{
-		int curr_scaler;
-
+		int curr_scaler = 0;
 		switch (GfxFlags & 248) // 11111000 - only scaler flags
 		{
-			case TFB_GFXFLAGS_SCALE_BILINEAR:
-				curr_scaler = 1;
-				break;
-			case TFB_GFXFLAGS_SCALE_BIADAPT:
-				curr_scaler = 2;
-				break;
-			case TFB_GFXFLAGS_SCALE_BIADAPTADV:
-				curr_scaler = 3;
-				break;
-			case TFB_GFXFLAGS_SCALE_TRISCAN:
-				curr_scaler = 4;
-				break;
-			case TFB_GFXFLAGS_SCALE_HQXX:
-				curr_scaler = 5;
-				break;
-			default:
-				curr_scaler = 0;
-				break;
+			case TFB_GFXFLAGS_SCALE_BILINEAR:   curr_scaler = 1; break;
+			case TFB_GFXFLAGS_SCALE_BIADAPT:    curr_scaler = 2; break;
+			case TFB_GFXFLAGS_SCALE_BIADAPTADV: curr_scaler = 3; break;
+			case TFB_GFXFLAGS_SCALE_TRISCAN:    curr_scaler = 4; break;
+			case TFB_GFXFLAGS_SCALE_HQXX:       curr_scaler = 5; break;
 		}
 
 		ImGui_Text ("Scaler:");

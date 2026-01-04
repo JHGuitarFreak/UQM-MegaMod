@@ -402,6 +402,8 @@ void ImGui::StyleColorsMyTheme (ImGuiStyle *dst)
     style->LogSliderDeadzone = 4;
     style->TabRounding = 4;
     style->SelectablesRounding = 4;
+
+    colors[ImGuiCol_WindowBg] = ImVec4 (0.06f, 0.06f, 0.06f, 0.84f);
 }
 
 //-----------------------------------------------------------------------------

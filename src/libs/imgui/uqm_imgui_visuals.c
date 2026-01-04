@@ -69,7 +69,7 @@ void draw_visual_menu (void)
 
 		Spacer ();
 
-		UQM_ImGui_CheckBox ("SOI Colors", &optSphereColors, "mm.sphereColors");
+		UQM_ImGui_CheckBox ("SOI Colors", (OPT_ENABLABLE*)&optSphereColors, "mm.sphereColors");
 
 		{
 			ImGui_BeginDisabled (!IN_MAIN_MENU);
