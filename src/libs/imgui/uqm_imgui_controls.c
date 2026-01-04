@@ -323,28 +323,20 @@ UpdateRebinding (void)
 	if (VControl_GetLastGesture (&new_g))
 	{
 		memcpy (&rebind_state.new_g, &new_g, sizeof (VCONTROL_GESTURE));
-
 		rebind_state.show_popup = TRUE;
-
-		rebind_state.active = FALSE;
-
 		VControl_ClearGesture ();
-
-		log_add (log_Debug, "Captured gesture for %s (binding %d): type=%d",
-				menu_res_names[rebind_state.action],
-				rebind_state.binding + 1,
-				new_g.type);
 	}
 }
 
 static void
 ShowRebindPopup (void)
 {
+	VCONTROL_GESTURE new_g;
+	
 	if (rebind_state.active)
 	{
 		ImGui_OpenPopup ("##RebindPopup", 0);
 	}
-
 
 #define WINDOW_FLAGS ImGuiWindowFlags_NoTitleBar | \
 		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
@@ -352,7 +344,6 @@ ShowRebindPopup (void)
 	if (ImGui_BeginPopupModal ("##RebindPopup", NULL, WINDOW_FLAGS))
 	{
 		char popup_title[128];
-		VCONTROL_GESTURE new_g;
 		const char *display_text;
 
 		snprintf (popup_title, sizeof (popup_title),
