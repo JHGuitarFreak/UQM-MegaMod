@@ -68,6 +68,15 @@ void BeginInputFrame (void);
 const char *menu_res_names[];
 volatile int *menu_vec;
 
+#if SDL_MAJOR_VERSION > 1
+const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16];
+const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+#endif
+
 #if defined(__cplusplus)
 }
 #endif

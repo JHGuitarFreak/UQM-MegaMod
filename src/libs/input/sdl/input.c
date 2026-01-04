@@ -643,39 +643,43 @@ TFB_ResetControls (void)
 	lastchar = 0;
 }
 
+#if SDL_MAJOR_VERSION > 1
+const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	"A", "B", "X", "Y", "Back", "Guide", "Start", "LStick", "RStick",
+	"LB", "RB", "Up", "Down", "Left", "Right", "Misc", "Paddle 1",
+	"Paddle 3","Paddle 2","Paddle 4","???"
+};
+
+const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+		{ "LStick H", "LStick V", "RStick H", "RStick V", "LT", "RT" };
+
+const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE, "Share", "PS",
+	"Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right",
+	"Mic Toggle","Paddle 1","Paddle 3","Paddle 2","Paddle 4","TouchPad"
+};
+
+const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+		{ "LStick H", "LStick V", "RStick H", "RStick V", "L2", "R2" };
+
+const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	"B", "A", "Y", "X", "Minus", "Home", "Plus", "LStick", "RStick",
+	"L", "R", "Up", "Down", "Left", "Right", "Capture", "Paddle 1",
+	"Paddle 3", "Paddle 2", "Paddle 4", "???"
+};
+
+const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+		{ "LStick H", "LStick V", "RStick H", "RStick V", "ZL", "ZR" };
+#endif
+
 void
 InterrogateInputState (int templat, int control, int index, char *buffer,
 	int maxlen)
 {
 	VCONTROL_GESTURE *g = CONTROL_PTR (templat, control, index);
-
-#if SDL_MAJOR_VERSION > 1
-	const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		"A", "B", "X", "Y", "Back", "Guide", "Start",
-		"LStick", "RStick", "LShoulder", "RShoulder",
-		"DUp", "DDown", "DLeft", "DRight", "Misc"
-	};
-
-	const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE,
-		"Share", "PS", "Options", "L3", "R3", "L1", "R1",
-		"DUp", "DDown", "DLeft", "DRight", "TouchPad"
-	};
-
-	const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-	{
-		"LStick H", "LStick V", "RStick H", "RStick V",
-		"LTrigger", "RTrigger"
-	};
-
-	const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-	{
-		"LStick H", "LStick V", "RStick H", "RStick V",
-		"L2", "R2"
-	};
-#endif
 
 	if (templat >= num_templ || control >= num_flight
 		|| index >= MAX_FLIGHT_ALTERNATES)

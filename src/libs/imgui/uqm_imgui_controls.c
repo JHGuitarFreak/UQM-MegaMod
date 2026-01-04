@@ -469,24 +469,6 @@ ShowRebindPopup (void)
 			}
 		}
 
-		//if (ImGui_IsKeyPressed (ImGuiKey_Escape))
-		//{
-		//	if (rebind_state.old_g.type != VCONTROL_NONE)
-		//	{
-		//		edit_bindings[rebind_state.action].
-		//				binding[rebind_state.binding] = rebind_state.old_g;
-		//		curr_bindings[rebind_state.action].
-		//				binding[rebind_state.binding] = rebind_state.old_g;
-
-		//		VControl_AddGestureBinding (&rebind_state.old_g,
-		//				(int *)&menu_vec[rebind_state.action]);
-		//	}
-
-		//	rebind_state.active = FALSE;
-		//	rebind_state.new_g.type = VCONTROL_NONE;
-		//	ImGui_CloseCurrentPopup ();
-		//}
-
 		ImGui_EndPopup ();
 	}
 }
@@ -537,28 +519,6 @@ static const char *
 GetBindingDisplayText (VCONTROL_GESTURE *gesture)
 {
 	static char buffer[128];
-
-	const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		"A", "B", "X", "Y", "Back", "Guide", "Start", "LStick", "RStick",
-		"LB", "RB", "Up", "Down", "Left", "Right", "Misc"
-	};
-
-	const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE, "Share", "PS",
-		"Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right",
-		"TouchPad"
-	};
-
-	const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-	{
-		"LStick H", "LStick V", "RStick H", "RStick V",
-		"LTrigger", "RTrigger"
-	};
-
-	const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-			{ "LStick H", "LStick V", "RStick H", "RStick V", "L2", "R2" };
 
 	if (gesture->type == VCONTROL_NONE)
 	{
