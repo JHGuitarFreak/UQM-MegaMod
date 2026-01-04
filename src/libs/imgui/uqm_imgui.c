@@ -31,6 +31,40 @@ bool cheat_changed;
 bool res_change = false;
 bool gfx_change = false;
 
+static ImFont *
+GetFont (ImGuiIO *io)
+{
+	char *font_path;
+	int len;
+	size_t base_len;
+	const char *slash;
+	ImFont *font;
+
+	base_len = strlen (baseContentPath);
+	if (base_len > 0)
+	{
+		char last_char = baseContentPath[base_len - 1];
+		slash = (last_char == '/' || last_char == '\\') ? "" : "/";
+	}
+	else
+		slash = "/";
+
+	len = snprintf (NULL, 0, "%s%splayerfont.ttf",
+		baseContentPath, slash);
+
+	font_path = HMalloc (len + 1);
+
+	snprintf (font_path, len + 1, "%s%splayerfont.ttf",
+		baseContentPath, slash);
+
+	font = ImFontAtlas_AddFontFromFileTTF (io->Fonts,
+		font_path, 18, NULL, NULL);
+
+	HFree (font_path);
+
+	return font;
+}
+
 static void ShowFullScreenMenu (TabState *state)
 {
 	float sidebar_width, button_height, content_height;
@@ -40,6 +74,8 @@ static void ShowFullScreenMenu (TabState *state)
 	ImGuiIO *io = ImGui_GetIO ();
 
 	display_size = io->DisplaySize;
+
+	ImGui_PushFont (GetFont (io));
 
 	sidebar_width = display_size.x * 0.15f;
 	if (sidebar_width < 120.0f)
@@ -91,6 +127,8 @@ static void ShowFullScreenMenu (TabState *state)
 
 		config_changed = mmcfg_changed = cheat_changed = false;
 	}
+
+	ImGui_PopFont ();
 }
 
 void UQM_ImGui_NewFrame (void)
@@ -123,6 +161,9 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 
 	io = ImGui_GetIO ();
 	io->IniFilename = NULL;
+
+	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
 	{
