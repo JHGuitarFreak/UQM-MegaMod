@@ -206,14 +206,24 @@ TFB_ProcessEvents ()
 					case SDLK_F8:
 						break;
 					default:
-						continue;
+						if (!rebind_state.active)
+							continue;
 					}
 				}
 				case SDL_QUIT:
 				case SDL_WINDOWEVENT:
 					break;
+				case SDL_CONTROLLERBUTTONDOWN:
+				case SDL_CONTROLLERAXISMOTION:
+				case SDL_JOYBUTTONDOWN:
+				case SDL_JOYAXISMOTION:
+					if (!rebind_state.active)
+						continue;
+					break;
 				default:
-					continue;
+					if (!rebind_state.active)
+						continue;
+					break;
 			}
 		}
 #endif

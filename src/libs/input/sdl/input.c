@@ -46,7 +46,7 @@ static BOOLEAN set_character_mode = FALSE;
 		// on this setting
 #endif // SDL_MAJOR_VERSION
 
-static volatile int *menu_vec;
+volatile int *menu_vec;
 static int num_menu;
 // The last vector element is the character repeat "key"
 // This is only used in SDL1 input but it's mostly harmless everywhere else
@@ -59,7 +59,7 @@ static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
 
-static const char *menu_res_names[] = {
+const char *menu_res_names[] = {
 	"pause",
 	"exit",
 	"abort",
@@ -92,7 +92,7 @@ static const char *menu_res_names[] = {
 	NULL
 };
 
-static const char *flight_res_names[] = {
+const char *flight_res_names[] = {
 	"up",
 	"down",
 	"left",

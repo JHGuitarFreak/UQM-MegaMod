@@ -65,6 +65,9 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 
 void BeginInputFrame (void);
 
+const char *menu_res_names[];
+volatile int *menu_vec;
+
 #if defined(__cplusplus)
 }
 #endif

@@ -98,6 +98,17 @@ int imgui_SavedHeight;
 bool res_change;
 bool gfx_change;
 
+typedef struct
+{
+	int action;
+	int binding;
+	BOOLEAN active;
+	BOOLEAN show_popup;
+	VCONTROL_GESTURE old_g, new_g;
+} REBIND_STATE;
+
+REBIND_STATE rebind_state;
+
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 
 static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
