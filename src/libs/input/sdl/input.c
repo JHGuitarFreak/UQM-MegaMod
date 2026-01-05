@@ -141,6 +141,29 @@ void GetCurrentMenuBindings (void)
 	//}
 }
 
+void GetDefaultMenuBindings (void)
+{
+	int i, j;
+	char buf[40];
+
+	for (i = 0; menu_res_names[i] != NULL; i++)
+	{
+		snprintf (&def_bindings[i].action,
+				sizeof (def_bindings[i].action), "%s", menu_res_names[i]);
+
+		for (j = 1; j <= 6; j++)
+		{
+			snprintf (buf, 39, "menu.%s.%d", menu_res_names[i], j);
+
+			if (!res_IsString (buf))
+				break;
+
+			VControl_ParseGesture (&def_bindings[i].binding[j - 1],
+					res_GetString (buf));
+		}
+	}
+}
+
 static void
 register_menu_controls (int index)
 {
@@ -224,6 +247,8 @@ initKeyConfig (void)
 
 	/* First, load in the menu keys */
 	LoadResourceIndex (contentDir, "menu.key", "menu.");
+	GetDefaultMenuBindings ();
+
 	LoadResourceIndex (configDir, "override.cfg", "menu.");
 	for (i = 0; i < num_menu; i++)
 	{
@@ -231,6 +256,8 @@ initKeyConfig (void)
 			break;
 		register_menu_controls (i);
 	}
+
+	GetCurrentMenuBindings ();
 	
 	LoadResourceIndex (configDir, "flight.cfg", "keys.");
 	if (!res_HasKey ("keys.1.name"))
@@ -243,8 +270,6 @@ initKeyConfig (void)
 	}
 
 	register_flight_controls ();
-
-	GetCurrentMenuBindings ();
 
 	return;
 }

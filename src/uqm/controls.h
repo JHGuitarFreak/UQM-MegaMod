@@ -75,6 +75,7 @@ enum {
 };
 
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
+MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
 
 typedef enum {
 	CONTROL_TEMPLATE_KB_1,

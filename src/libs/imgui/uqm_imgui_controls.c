@@ -184,6 +184,33 @@ static void MenuControls (void)
 	ImGui_EndChild ();
 }
 
+static void
+LoadDefaultMenuKeys ()
+{
+	int i, j;
+
+	for (i = 0; i < NUM_MENU_KEYS; i++)
+	{
+		if (!menu_res_names[i])
+			break;
+
+		for (int j = 0; j < 6; j++)
+		{
+			VControl_RemoveGestureBinding (&edit_bindings[i].binding[j],
+					(int *)&menu_vec[i]);
+		}
+
+		memcpy (&curr_bindings[i], &def_bindings[i], sizeof (MENU_BINDINGS));
+		memcpy (&edit_bindings[i], &def_bindings[i], sizeof (MENU_BINDINGS));
+
+		for (int j = 0; j < 6; j++)
+		{
+			VControl_AddGestureBinding (&def_bindings[i].binding[j],
+					(int *)&menu_vec[i]);
+		}
+	}
+}
+
 static void MenuControlsTab (void)
 {
 	if (ImGui_BeginTabItem ("Menu", NULL, 0))
@@ -192,6 +219,7 @@ static void MenuControlsTab (void)
 
 		if (ImGui_Button ("Load Defaults"))
 		{
+			LoadDefaultMenuKeys ();
 			bindings_dirty = TRUE;
 		}
 
