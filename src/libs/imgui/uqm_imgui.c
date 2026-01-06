@@ -77,7 +77,7 @@ static void ShowFullScreenMenu (TabState *state)
 
 	ImGui_PushFont (GetFont (io));
 
-	sidebar_width = display_size.x * 0.15f;
+	sidebar_width = display_size.x * 0.12f;
 	if (sidebar_width < 120.0f)
 		sidebar_width = 120.0f;
 	if (sidebar_width > 200.0f)
@@ -89,7 +89,7 @@ static void ShowFullScreenMenu (TabState *state)
 	if (button_height > 50.0f)
 		button_height = 50.0f;
 
-	content_height = display_size.y - 40.0f;
+	content_height = display_size.y - 53.0f;
 
 	button_size = (ImVec2){ sidebar_width - 16.0f, button_height };
 	sidebar_size = (ImVec2){ sidebar_width, 0.0f };

@@ -82,6 +82,7 @@ void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
 
 typedef struct
 {
+	int active_tab;
 	int settings_tab;
 	int enhancements_tab;
 	int randomizer_tab;

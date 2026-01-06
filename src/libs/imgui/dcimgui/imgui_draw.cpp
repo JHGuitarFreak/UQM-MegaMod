@@ -391,8 +391,8 @@ void ImGui::StyleColorsMyTheme (ImGuiStyle *dst)
     style->WindowBorderSize = 1;
     style->ChildBorderSize = 1;
     style->PopupBorderSize = 1;
-    style->FrameBorderSize = 1;
-    style->TabBorderSize = 1;
+    style->FrameBorderSize = 0;
+    style->TabBorderSize = 0;
     style->WindowRounding = 6;
     style->ChildRounding = 4;
     style->FrameRounding = 3;
@@ -403,7 +403,7 @@ void ImGui::StyleColorsMyTheme (ImGuiStyle *dst)
     style->TabRounding = 4;
     style->SelectablesRounding = 4;
 
-    colors[ImGuiCol_WindowBg] = ImVec4 (0.06f, 0.06f, 0.06f, 0.84f);
+    colors[ImGuiCol_WindowBg] = ImVec4 (0.06f, 0.06f, 0.06f, 0.90f);
 }
 
 //-----------------------------------------------------------------------------
