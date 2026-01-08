@@ -68,7 +68,7 @@ GetFont (ImGuiIO *io)
 static void ShowFullScreenMenu (TabState *state)
 {
 	float sidebar_width, button_height, content_height;
-	ImVec2 button_size, sidebar_size, content_size;
+	ImVec2 sidebar_size, content_size;
 	ImVec2 display_size;
 	ImGuiWindowFlags window_flags;
 	ImGuiIO *io = ImGui_GetIO ();
@@ -83,15 +83,7 @@ static void ShowFullScreenMenu (TabState *state)
 	if (sidebar_width > 200.0f)
 		sidebar_width = 200.0f;
 
-	button_height = display_size.y * 0.06f;
-	if (button_height < 30.0f)
-		button_height = 30.0f;
-	if (button_height > 50.0f)
-		button_height = 50.0f;
-
 	content_height = display_size.y - 53.0f;
-
-	button_size = (ImVec2){ sidebar_width - 16.0f, button_height };
 	sidebar_size = (ImVec2){ sidebar_width, 0.0f };
 	content_size = (ImVec2){ 0.0f, content_height };
 
@@ -112,7 +104,7 @@ static void ShowFullScreenMenu (TabState *state)
 		return;
 	}
 
-	UQM_ImGui_Tabs (state, content_size, sidebar_size, button_size);
+	UQM_ImGui_Tabs (state, content_size, sidebar_size);
 
 	ImGui_End ();
 

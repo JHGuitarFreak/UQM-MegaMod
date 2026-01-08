@@ -114,8 +114,7 @@ void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 
 static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
 
-void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size,
-		ImVec2 button_size);
+void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size);
 
 void draw_graphics_menu (void);
 void draw_engine_menu (void);

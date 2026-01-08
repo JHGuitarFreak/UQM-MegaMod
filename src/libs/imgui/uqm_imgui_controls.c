@@ -73,16 +73,9 @@ const char *pretty_actions[] = {
 
 void draw_controls_menu (void)
 {
+	int i;
 	const char *control_display[] = { "Keyboard", "Xbox", "PlayStation" };
-	const char *player_controls[] =
-	{
-		"Control Set 1",
-		"Control Set 2",
-		"Control Set 3",
-		"Control Set 4",
-		"Control Set 5",
-		"Control Set 6",
-	};
+	const char *player_controls[6];
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "ControlsColumns", false);
 
@@ -99,6 +92,9 @@ void draw_controls_menu (void)
 		}
 
 		Spacer ();
+
+		for (i = 0; i < 6; i++)
+			player_controls[i] = &input_templates[i].name;
 
 		ImGui_Text ("Player 1:");
 		if (ImGui_ComboChar ("##BottomPlayer", (int *)&PlayerControls[0],

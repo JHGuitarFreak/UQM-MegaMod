@@ -20,8 +20,9 @@
 #define IGCF_B ImGuiChildFlags_AlwaysUseWindowPadding
 #define SelectableAlign ImGuiStyleVar_SelectableTextAlign
 
-	void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
-		ImVec2 sidebar_size, ImVec2 button_size)
+void
+UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
+		ImVec2 sidebar_size)
 {
 	int num_tabs;
 	int subtab_counts;
