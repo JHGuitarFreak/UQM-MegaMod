@@ -53,7 +53,7 @@ static int num_menu;
 #define KEY_MENU_ANY  (num_menu - 1)
 volatile int *flight_vec;
 static int num_templ;
-static int num_flight;
+int num_flight;
 
 static BOOLEAN InputInitialized = FALSE;
 

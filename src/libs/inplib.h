@@ -69,6 +69,7 @@ const char *menu_res_names[];
 const char *flight_res_names[];
 volatile int *menu_vec;
 volatile int *flight_vec;
+int num_flight;
 
 #if SDL_MAJOR_VERSION > 1
 const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];

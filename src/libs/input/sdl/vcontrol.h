@@ -65,6 +65,8 @@ typedef struct flight_bindings
 	VCONTROL_GESTURE binding[2];
 } FLIGHT_BINDINGS;
 
+extern FLIGHT_BINDINGS curr_fl_bindings[6][8];
+extern FLIGHT_BINDINGS def_fl_bindings[6][8];
 extern char def_template_names[6][40];
 
 /* Control of bindings */
