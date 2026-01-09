@@ -108,7 +108,8 @@ typedef struct
 	VCONTROL_GESTURE old_g, new_g;
 } REBIND_STATE;
 
-REBIND_STATE rebind_state;
+REBIND_STATE menu_rebind_state;
+REBIND_STATE flight_rebind_state;
 
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 

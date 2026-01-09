@@ -59,6 +59,14 @@ typedef struct menu_bindings
 	VCONTROL_GESTURE binding[6];
 } MENU_BINDINGS;
 
+typedef struct flight_bindings
+{
+	char action[40];
+	VCONTROL_GESTURE binding[2];
+} FLIGHT_BINDINGS;
+
+extern char def_template_names[6][40];
+
 /* Control of bindings */
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);
 void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);

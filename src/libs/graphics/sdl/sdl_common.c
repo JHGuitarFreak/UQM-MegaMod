@@ -206,7 +206,7 @@ TFB_ProcessEvents ()
 					case SDLK_F8:
 						break;
 					default:
-						if (!rebind_state.active)
+						if (!menu_rebind_state.active)
 							continue;
 					}
 				}
@@ -217,11 +217,11 @@ TFB_ProcessEvents ()
 				case SDL_CONTROLLERAXISMOTION:
 				case SDL_JOYBUTTONDOWN:
 				case SDL_JOYAXISMOTION:
-					if (!rebind_state.active)
+					if (!menu_rebind_state.active)
 						continue;
 					break;
 				default:
-					if (!rebind_state.active)
+					if (!menu_rebind_state.active)
 						continue;
 					break;
 			}

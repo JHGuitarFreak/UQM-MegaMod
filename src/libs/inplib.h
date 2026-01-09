@@ -66,7 +66,9 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 void BeginInputFrame (void);
 
 const char *menu_res_names[];
+const char *flight_res_names[];
 volatile int *menu_vec;
+volatile int *flight_vec;
 
 #if SDL_MAJOR_VERSION > 1
 const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];

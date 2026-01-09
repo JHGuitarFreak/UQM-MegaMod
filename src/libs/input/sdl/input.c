@@ -51,7 +51,7 @@ static int num_menu;
 // The last vector element is the character repeat "key"
 // This is only used in SDL1 input but it's mostly harmless everywhere else
 #define KEY_MENU_ANY  (num_menu - 1)
-static volatile int *flight_vec;
+volatile int *flight_vec;
 static int num_templ;
 static int num_flight;
 
@@ -125,20 +125,6 @@ void GetCurrentMenuBindings (void)
 					res_GetString (buf));
 		}
 	}
-
-	// Test to make sure we filled in all the bindings
-	//for (i = 0; i < 30; i++)
-	//{
-	//	printf ("%s\n", curr_bindings[i].action);
-
-	//	for (j = 0; j < 6; j++)
-	//	{
-	//		if (curr_bindings[i].binding[j].type == VCONTROL_NONE)
-	//			continue;
-	//		VControl_DumpGesture (buf, 39, &curr_bindings[i].binding[j]);
-	//		printf ("  %d: %s\n", j + 1, buf);
-	//	}
-	//}
 }
 
 void GetDefaultMenuBindings (void)
@@ -231,6 +217,70 @@ register_flight_controls (void)
 	}
 }
 
+void GetCurrentFlightBindings(void)
+{
+	int i, j, k;
+	char buf[40];
+
+	for (i = 0; i < num_templ; i++)
+	{
+		for (j = 0; flight_res_names[j] != NULL; j++)
+		{
+			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
+			{
+				snprintf(buf, 39, "keys.%d.%s.%d", i + 1,
+					flight_res_names[j], k + 1);
+
+				if (res_IsString(buf))
+				{
+					VControl_ParseGesture(&curr_fl_bindings[i][j].binding[k],
+						res_GetString(buf));
+				}
+			}
+		}
+	}
+}
+
+char def_template_names[6][40];
+
+void GetDefaultFlightBindings(void)
+{
+	int i, j, k;
+	char buf[40];
+
+	for (i = 0; i < num_templ; i++)
+	{
+		snprintf(buf, 39, "keys.%d.name", i + 1);
+		if (res_IsString(buf))
+		{
+			strncpy(def_template_names[i], res_GetString(buf), 29);
+			def_template_names[i][29] = '\0';
+		}
+		else
+		{
+			def_template_names[i][0] = '\0';
+		}
+	}
+
+	for (i = 0; i < num_templ; i++)
+	{
+		for (j = 0; flight_res_names[j] != NULL; j++)
+		{
+			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
+			{
+				snprintf(buf, 39, "keys.%d.%s.%d", i + 1,
+					flight_res_names[j], k + 1);
+
+				if (res_IsString(buf))
+				{
+					VControl_ParseGesture(&def_fl_bindings[i][j].binding[k],
+						res_GetString(buf));
+				}
+			}
+		}
+	}
+}
+
 static void
 initKeyConfig (void)
 {
@@ -258,18 +308,13 @@ initKeyConfig (void)
 	}
 
 	GetCurrentMenuBindings ();
-	
-	LoadResourceIndex (configDir, "flight.cfg", "keys.");
-	if (!res_HasKey ("keys.1.name"))
-	{
-		/* Either flight.cfg doesn't exist, or we're using an old version
-		   of flight.cfg, and thus we wound up loading untyped values into
-		   'keys.keys.1.name' and such.  Load the defaults from the content
-		   directory. */
-		LoadResourceIndex (contentDir, "uqm.key", "keys.");
-	}
 
+	LoadResourceIndex(contentDir, "uqm.key", "keys.");
+	GetDefaultFlightBindings();
+
+	LoadResourceIndex (configDir, "flight.cfg", "keys.");
 	register_flight_controls ();
+	GetCurrentFlightBindings();
 
 	return;
 }
