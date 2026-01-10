@@ -186,7 +186,6 @@ static void
 LoadDefaultFlightKeys (void)
 {
 	int j, k;
-	int template_idx = template_id;
 	char keybuf[40], valbuf[40];
 	char key[40];
 
@@ -200,26 +199,26 @@ LoadDefaultFlightKeys (void)
 		for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
 		{
 			VControl_RemoveGestureBinding (
-				&curr_fl_bindings[template_idx][j].binding[k],
-				(int *)(flight_vec + template_idx * num_flight + j));
+				&curr_fl_bindings[template_id][j].binding[k],
+				(int *)(flight_vec + template_id * num_flight + j));
 		}
 
-		memcpy (&curr_fl_bindings[template_idx][j],
-			&def_fl_bindings[template_idx][j],
+		memcpy (&curr_fl_bindings[template_id][j],
+			&def_fl_bindings[template_id][j],
 			sizeof (FLIGHT_BINDINGS));
 
 		for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
 		{
-			VCONTROL_GESTURE *g = &def_fl_bindings[template_idx][j].binding[k];
+			VCONTROL_GESTURE *g = &def_fl_bindings[template_id][j].binding[k];
 
-			if (def_fl_bindings[template_idx][j].binding[k].type != VCONTROL_NONE)
+			if (def_fl_bindings[template_id][j].binding[k].type != VCONTROL_NONE)
 			{
 				VControl_AddGestureBinding (g,
-					(int *)(flight_vec + template_idx * num_flight + j));
+					(int *)(flight_vec + template_id * num_flight + j));
 			}
 
 			snprintf (keybuf, sizeof (keybuf), "keys.%d.%s.%d",
-				template_idx + 1,
+				template_id + 1,
 				flight_res_names[j],
 				k + 1);
 			VControl_DumpGesture (valbuf, sizeof valbuf, g);
@@ -227,14 +226,14 @@ LoadDefaultFlightKeys (void)
 		}
 	}
 
-	strncpy (input_templates[template_idx].name,
-		def_template_names[template_idx], 29);
-	input_templates[template_idx].name[29] = '\0';
+	strncpy (input_templates[template_id].name,
+		def_template_names[template_id], 29);
+	input_templates[template_id].name[29] = '\0';
 
 	flight_bindings_dirty = TRUE;
 
-	snprintf (key, sizeof (key), "keys.%d.name", template_idx + 1);
-	res_PutString (key, def_template_names[template_idx]);
+	snprintf (key, sizeof (key), "keys.%d.name", template_id + 1);
+	res_PutString (key, def_template_names[template_id]);
 }
 
 static void
@@ -392,7 +391,6 @@ static void
 RestoreFlightBindings (void)
 {
 	int i, j;
-	int template_idx = template_id;
 
 	for (i = 0; i < NUM_KEYS; i++)
 	{
@@ -402,28 +400,28 @@ RestoreFlightBindings (void)
 		for (j = 0; j < MAX_FLIGHT_ALTERNATES; j++)
 		{
 			VControl_RemoveGestureBinding (
-				&curr_fl_bindings[template_idx][i].binding[j],
-				(int *)(flight_vec + template_idx * num_flight + i));
+				&curr_fl_bindings[template_id][i].binding[j],
+				(int *)(flight_vec + template_id * num_flight + i));
 		}
 
-		memcpy (&curr_fl_bindings[template_idx][i],
-			&saved_flight_bindings[template_idx][i],
+		memcpy (&curr_fl_bindings[template_id][i],
+			&saved_flight_bindings[template_id][i],
 			sizeof (FLIGHT_BINDINGS));
 
 		for (j = 0; j < MAX_FLIGHT_ALTERNATES; j++)
 		{
-			if (curr_fl_bindings[template_idx][i].binding[j].type != VCONTROL_NONE)
+			if (curr_fl_bindings[template_id][i].binding[j].type != VCONTROL_NONE)
 			{
 				VControl_AddGestureBinding (
-					&curr_fl_bindings[template_idx][i].binding[j],
-					(int *)(flight_vec + template_idx * num_flight + i));
+					&curr_fl_bindings[template_id][i].binding[j],
+					(int *)(flight_vec + template_id * num_flight + i));
 			}
 		}
 	}
 
-	strncpy (input_templates[template_idx].name,
-		saved_template_names[template_idx], 29);
-	input_templates[template_idx].name[29] = '\0';
+	strncpy (input_templates[template_id].name,
+		saved_template_names[template_id], 29);
+	input_templates[template_id].name[29] = '\0';
 }
 
 static void FlightControlsTab (void)
@@ -480,16 +478,16 @@ static void Control_Tabs (void)
 }
 
 static void
-StartRebinding (int action, int binding, int *template_idx)
+StartRebinding (int action, int binding, int *template_id)
 {
 	rebind_state.active = TRUE;
 	rebind_state.action = action;
 	rebind_state.binding = binding;
 
-	if (template_idx != NULL)
+	if (template_id != NULL)
 	{
 		rebind_state.old_g =
-			curr_fl_bindings[*template_idx][action].binding[binding];
+			curr_fl_bindings[*template_id][action].binding[binding];
 	}
 	else
 		rebind_state.old_g = curr_bindings[action].binding[binding];
@@ -498,11 +496,11 @@ StartRebinding (int action, int binding, int *template_idx)
 
 	VControl_ClearGesture ();
 
-	if (template_idx != NULL)
+	if (template_id != NULL)
 	{
 		log_add (log_Debug,
 			"Started rebinding for template %d, %s (binding %d)",
-			*template_idx + 1, menu_res_names[action], binding + 1);
+			*template_id + 1, menu_res_names[action], binding + 1);
 	}
 	else
 	{
@@ -647,8 +645,6 @@ ShowRebindPopup (void)
 static void
 ShowFlightRebindPopup (void)
 {
-
-	int template_idx;
 	char popup_title[128];
 	char keybuf[40], valbuf[40];
 
@@ -664,11 +660,9 @@ ShowFlightRebindPopup (void)
 		return;
 	}
 
-	template_idx = template_id;
-
 	snprintf (popup_title, sizeof (popup_title),
 		"Template: %s | Control: %s | Binding #: %d",
-		input_templates[template_idx].name,
+		input_templates[template_id].name,
 		pretty_flight_actions[rebind_state.action],
 		rebind_state.binding + 1);
 
@@ -693,17 +687,17 @@ ShowFlightRebindPopup (void)
 
 	if (ImGui_Button ("Clear"))
 	{
-		curr_fl_bindings[template_idx][rebind_state.action].
+		curr_fl_bindings[template_id][rebind_state.action].
 			binding[rebind_state.binding].type = VCONTROL_NONE;
 
 		if (rebind_state.old_g.type != VCONTROL_NONE)
 		{
 			VControl_RemoveGestureBinding (&rebind_state.old_g,
-				(int *)(flight_vec + template_idx * num_flight + rebind_state.action));
+				(int *)(flight_vec + template_id * num_flight + rebind_state.action));
 		}
 
 		snprintf (keybuf, sizeof (keybuf), "keys.%d.%s.%d",
-			template_idx + 1,
+			template_id + 1,
 			flight_res_names[rebind_state.action],
 			rebind_state.binding + 1);
 		VControl_DumpGesture (valbuf, sizeof valbuf,
@@ -723,11 +717,11 @@ ShowFlightRebindPopup (void)
 	{
 		if (rebind_state.old_g.type != VCONTROL_NONE)
 		{
-			curr_fl_bindings[template_idx][rebind_state.action].
+			curr_fl_bindings[template_id][rebind_state.action].
 				binding[rebind_state.binding] = rebind_state.old_g;
 
 			VControl_AddGestureBinding (&rebind_state.old_g,
-				(int *)(flight_vec + template_idx * num_flight + rebind_state.action));
+				(int *)(flight_vec + template_id * num_flight + rebind_state.action));
 		}
 
 		rebind_state.active = FALSE;
@@ -741,21 +735,21 @@ ShowFlightRebindPopup (void)
 	{
 		char keybuf[40], valbuf[40];
 
-		curr_fl_bindings[template_idx][rebind_state.action].
+		curr_fl_bindings[template_id][rebind_state.action].
 			binding[rebind_state.binding] = rebind_state.new_g;
 
 		if (rebind_state.old_g.type != VCONTROL_NONE)
 		{
 			VControl_RemoveGestureBinding (&rebind_state.old_g,
-				(int *)(flight_vec + template_idx * num_flight + rebind_state.action));
+				(int *)(flight_vec + template_id * num_flight + rebind_state.action));
 		}
 
 		VControl_AddGestureBinding
 		(&rebind_state.new_g,
-			(int *)(flight_vec + template_idx * num_flight + rebind_state.action));
+			(int *)(flight_vec + template_id * num_flight + rebind_state.action));
 
 		snprintf (keybuf, sizeof (keybuf), "keys.%d.%s.%d",
-			template_idx + 1,
+			template_id + 1,
 			flight_res_names[rebind_state.action],
 			rebind_state.binding + 1);
 		VControl_DumpGesture (valbuf, sizeof valbuf,
@@ -766,7 +760,7 @@ ShowFlightRebindPopup (void)
 
 		log_add (log_Debug,
 			"Applied new flight binding for template %d, %s (binding %d): %s",
-			template_idx + 1, flight_res_names[rebind_state.action],
+			template_id + 1, flight_res_names[rebind_state.action],
 			rebind_state.binding + 1,
 			GetBindingDisplayText (&rebind_state.new_g));
 
