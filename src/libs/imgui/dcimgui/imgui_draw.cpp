@@ -388,7 +388,7 @@ void ImGui::StyleColorsMyTheme (ImGuiStyle *dst)
     ImGuiStyle *style = dst ? dst : &ImGui::GetStyle ();
     ImVec4 *colors = style->Colors;
 
-    style->WindowBorderSize = 1;
+    style->WindowBorderSize = 0;
     style->ChildBorderSize = 1;
     style->PopupBorderSize = 1;
     style->FrameBorderSize = 0;
@@ -402,8 +402,10 @@ void ImGui::StyleColorsMyTheme (ImGuiStyle *dst)
     style->LogSliderDeadzone = 4;
     style->TabRounding = 4;
     style->SelectablesRounding = 4;
+    style->TabBarBorderSize = 4;
 
     colors[ImGuiCol_WindowBg] = ImVec4 (0.06f, 0.06f, 0.06f, 0.90f);
+    colors[ImGuiCol_ModalWindowDimBg] = ImVec4 (0.0f, 0.0f, 0.0f, 0.64f);
 }
 
 //-----------------------------------------------------------------------------

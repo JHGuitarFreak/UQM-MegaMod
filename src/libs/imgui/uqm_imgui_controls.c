@@ -613,40 +613,31 @@ ShowRebindPopup (void)
 
 		ImGui_SameLine ();
 
-		if (menu_rebind_state.new_g.type == VCONTROL_NONE)
+		if (menu_rebind_state.new_g.type != VCONTROL_NONE)
 		{
-			ImGui_PushStyleVar (ImGuiStyleVar_Alpha, 0.5f);
-			ImGui_Button ("OK");
-			ImGui_PopStyleVar ();
-		}
-		else
-		{
-			if (ImGui_Button ("OK"))
+			curr_bindings[menu_rebind_state.action].
+				binding[menu_rebind_state.binding] = menu_rebind_state.new_g;
+
+			if (menu_rebind_state.old_g.type != VCONTROL_NONE)
 			{
-				curr_bindings[menu_rebind_state.action].
-					binding[menu_rebind_state.binding] = menu_rebind_state.new_g;
-
-				if (menu_rebind_state.old_g.type != VCONTROL_NONE)
-				{
-					VControl_RemoveGestureBinding (&menu_rebind_state.old_g,
-						(int *)&menu_vec[menu_rebind_state.action]);
-				}
-
-				VControl_AddGestureBinding (&menu_rebind_state.new_g,
+				VControl_RemoveGestureBinding (&menu_rebind_state.old_g,
 					(int *)&menu_vec[menu_rebind_state.action]);
-
-				bindings_dirty = TRUE;
-
-				log_add (log_Debug,
-					"Applied new binding for %s (binding %d): %s",
-					menu_res_names[menu_rebind_state.action],
-					menu_rebind_state.binding + 1,
-					GetBindingDisplayText (&menu_rebind_state.new_g));
-
-				menu_rebind_state.active = FALSE;
-				menu_rebind_state.new_g.type = VCONTROL_NONE;
-				ImGui_CloseCurrentPopup ();
 			}
+
+			VControl_AddGestureBinding (&menu_rebind_state.new_g,
+				(int *)&menu_vec[menu_rebind_state.action]);
+
+			bindings_dirty = TRUE;
+
+			log_add (log_Debug,
+				"Applied new binding for %s (binding %d): %s",
+				menu_res_names[menu_rebind_state.action],
+				menu_rebind_state.binding + 1,
+				GetBindingDisplayText (&menu_rebind_state.new_g));
+
+			menu_rebind_state.active = FALSE;
+			menu_rebind_state.new_g.type = VCONTROL_NONE;
+			ImGui_CloseCurrentPopup ();
 		}
 
 		ImGui_EndPopup ();
@@ -744,53 +735,42 @@ ShowFlightRebindPopup (void)
 
 		ImGui_SameLine ();
 
-		if (flight_rebind_state.new_g.type == VCONTROL_NONE)
+		if (flight_rebind_state.new_g.type != VCONTROL_NONE)
 		{
-			ImGui_PushStyleVar (ImGuiStyleVar_Alpha, 0.5f);
-			ImGui_Button ("OK");
-			ImGui_PopStyleVar ();
-		}
-		else
-		{
-			if (ImGui_Button ("OK"))
+			char keybuf[40], valbuf[40];
+
+			curr_fl_bindings[template_idx][flight_rebind_state.action].
+				binding[flight_rebind_state.binding] = flight_rebind_state.new_g;
+
+			if (flight_rebind_state.old_g.type != VCONTROL_NONE)
 			{
-				char keybuf[40], valbuf[40];
-
-				curr_fl_bindings[template_idx][flight_rebind_state.action].
-					binding[flight_rebind_state.binding] = flight_rebind_state.new_g;
-
-				if (flight_rebind_state.old_g.type != VCONTROL_NONE)
-				{
-					VControl_RemoveGestureBinding (&flight_rebind_state.old_g,
-						(int *)(flight_vec + template_idx * num_flight + flight_rebind_state.action));
-				}
-
-				VControl_AddGestureBinding
-				(&flight_rebind_state.new_g,
+				VControl_RemoveGestureBinding (&flight_rebind_state.old_g,
 					(int *)(flight_vec + template_idx * num_flight + flight_rebind_state.action));
-
-				snprintf (keybuf, sizeof (keybuf), "keys.%d.%s.%d",
-					template_idx + 1,
-					flight_res_names[flight_rebind_state.action],
-					flight_rebind_state.binding + 1);
-				VControl_DumpGesture (valbuf, sizeof valbuf,
-					&flight_rebind_state.new_g);
-				res_PutString (keybuf, valbuf);
-
-				fl_bindings_dirty = TRUE;
-
-				log_add (log_Debug,
-					"Applied new flight binding for template %d, %s (binding %d): %s",
-					template_idx + 1, flight_res_names[flight_rebind_state.action],
-					flight_rebind_state.binding + 1,
-					GetBindingDisplayText (&flight_rebind_state.new_g));
-
-
-
-				flight_rebind_state.active = FALSE;
-				flight_rebind_state.new_g.type = VCONTROL_NONE;
-				ImGui_CloseCurrentPopup ();
 			}
+
+			VControl_AddGestureBinding
+			(&flight_rebind_state.new_g,
+				(int *)(flight_vec + template_idx * num_flight + flight_rebind_state.action));
+
+			snprintf (keybuf, sizeof (keybuf), "keys.%d.%s.%d",
+				template_idx + 1,
+				flight_res_names[flight_rebind_state.action],
+				flight_rebind_state.binding + 1);
+			VControl_DumpGesture (valbuf, sizeof valbuf,
+				&flight_rebind_state.new_g);
+			res_PutString (keybuf, valbuf);
+
+			fl_bindings_dirty = TRUE;
+
+			log_add (log_Debug,
+				"Applied new flight binding for template %d, %s (binding %d): %s",
+				template_idx + 1, flight_res_names[flight_rebind_state.action],
+				flight_rebind_state.binding + 1,
+				GetBindingDisplayText (&flight_rebind_state.new_g));
+
+			flight_rebind_state.active = FALSE;
+			flight_rebind_state.new_g.type = VCONTROL_NONE;
+			ImGui_CloseCurrentPopup ();
 		}
 
 		ImGui_EndPopup ();
