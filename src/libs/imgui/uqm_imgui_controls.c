@@ -48,49 +48,19 @@ static void ShowFlightRebindPopup (void);
 static void SaveCustomBindings (void);
 static const char *GetBindingDisplayText (VCONTROL_GESTURE *gesture);
 
-const char *pretty_menu_actions[] = {
-	"Pause",
-	"Exit",
-	"Abort",
-	"Debug 1",
-	"Fullscreen",
-	"Up",
-	"Down",
-	"Left",
-	"Right",
-	"Select",
-	"Cancel",
-	"Special",
-	"Page-Up",
-	"Page-Down",
-	"Home",
-	"End",
-	"Zoom-In",
-	"Zoom-Out",
-	"Delete",
-	"Backspace",
-	"Cancel Edit",
-	"Star Search",
-	"Tab / Next",
-	"Toggle StarMaps",
-	"Screenshot",
-	"ImGui Toggle",
-	"Debug 2",
-	"Debug 3",
-	"Debug 4",
-	NULL
+static const char *pretty_menu_actions[] =
+{
+	"Pause", "Exit", "Abort", "Debug 1", "Fullscreen", "Up", "Down",
+	"Left", "Right", "Select", "Cancel", "Special", "Page-Up", "Page-Down",
+	"Home", "End", "Zoom-In", "Zoom-Out", "Delete", "Backspace",
+	"Cancel Edit", "Star Search", "Tab / Next", "Toggle StarMaps",
+	"Screenshot", "ImGui Toggle", "Debug 2", "Debug 3", "Debug 4", NULL
 };
 
-const char *pretty_flight_actions[] = {
-	"Up",
-	"Down",
-	"Left",
-	"Right",
-	"Weapon",
-	"Special",
-	"Escape",
-	"Thrust",
-	NULL
+static const char *pretty_flight_actions[] =
+{
+	"Up", "Down", "Left", "Right", "Weapon", "Special", "Escape",
+	"Thrust", NULL
 };
 
 void draw_controls_menu (void)
@@ -482,7 +452,8 @@ StartFlightRebinding (int template_idx, int action, int binding)
 	flight_rebind_state.active = TRUE;
 	flight_rebind_state.action = action;
 	flight_rebind_state.binding = binding;
-	flight_rebind_state.old_g = curr_fl_bindings[template_idx][action].binding[binding];
+	flight_rebind_state.old_g =
+			curr_fl_bindings[template_idx][action].binding[binding];
 	flight_rebind_state.new_g.type = VCONTROL_NONE;
 
 	VControl_ClearGesture ();
@@ -550,7 +521,10 @@ ShowRebindPopup (void)
 
 		Spacer ();
 
-		ImGui_Separator ();
+		ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
+		ImGui_BeginChild ("HorizontalSeparator", MAKE_IV2 (0, 1), 0, 0);
+		ImGui_EndChild ();
+		ImGui_PopStyleColor ();
 
 		Spacer ();
 
@@ -561,19 +535,13 @@ ShowRebindPopup (void)
 			VControl_ClearGesture ();
 		}
 
-		if (menu_rebind_state.new_g.type != VCONTROL_NONE)
-		{
-			display_text = GetBindingDisplayText (&menu_rebind_state.new_g);
-			ImGui_Text ("Captured Input: %s",
-				display_text[0] ? display_text : "None");
-		}
-		else
+		if (menu_rebind_state.new_g.type == VCONTROL_NONE)
 		{
 			ImGui_TextColored (IV4_YELLOW_COLOR, "Waiting for input...");
 			ImGui_Text ("Press any key, button, or move an axis");
 		}
 
-		ImGui_NewLine ();
+		Spacer ();
 
 		if (ImGui_Button ("Clear"))
 		{
@@ -672,22 +640,21 @@ ShowFlightRebindPopup (void)
 		ImGui_Text ("%s", popup_title);
 
 		Spacer ();
-		ImGui_Separator ();
+
+		ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
+		ImGui_BeginChild ("HorizontalSeparator", MAKE_IV2 (0, 1), 0, 0);
+		ImGui_EndChild ();
+		ImGui_PopStyleColor ();
+
 		Spacer ();
 
-		if (flight_rebind_state.new_g.type != VCONTROL_NONE)
-		{
-			display_text = GetBindingDisplayText (&flight_rebind_state.new_g);
-			ImGui_Text ("Captured Input: %s",
-				display_text[0] ? display_text : "None");
-		}
-		else
+		if (flight_rebind_state.new_g.type == VCONTROL_NONE)
 		{
 			ImGui_TextColored (IV4_YELLOW_COLOR, "Waiting for input...");
 			ImGui_Text ("Press any key, button, or move an axis");
 		}
 
-		ImGui_NewLine ();
+		Spacer ();
 
 		if (ImGui_Button ("Clear"))
 		{
