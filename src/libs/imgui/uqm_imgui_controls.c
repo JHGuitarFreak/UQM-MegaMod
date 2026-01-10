@@ -28,9 +28,6 @@
 
 REBIND_STATE menu_rebind_state = { 0 };
 REBIND_STATE flight_rebind_state = { 0 };
-
-static MENU_BINDINGS edit_bindings[NUM_MENU_KEYS];
-static FLIGHT_BINDINGS edit_fl_bindings[6][NUM_KEYS];
 static BOOLEAN bindings_dirty = FALSE;
 static BOOLEAN bindings_loaded = FALSE;
 static BOOLEAN fl_bindings_dirty = FALSE;
@@ -172,7 +169,7 @@ static void MenuControls (void)
 
 		for (j = 0; j < 6; j++)
 		{
-			VCONTROL_GESTURE *g = &edit_bindings[i].binding[j];
+			VCONTROL_GESTURE *g = &curr_bindings[i].binding[j];
 
 			snprintf (button_id, sizeof (button_id), "##bind_%d_%d", i, j);
 
@@ -205,12 +202,11 @@ LoadDefaultMenuKeys ()
 
 		for (int j = 0; j < 6; j++)
 		{
-			VControl_RemoveGestureBinding (&edit_bindings[i].binding[j],
+			VControl_RemoveGestureBinding (&curr_bindings[i].binding[j],
 				(int *)&menu_vec[i]);
 		}
 
 		memcpy (&curr_bindings[i], &def_bindings[i], sizeof (MENU_BINDINGS));
-		memcpy (&edit_bindings[i], &def_bindings[i], sizeof (MENU_BINDINGS));
 
 		for (int j = 0; j < 6; j++)
 		{
@@ -243,9 +239,6 @@ LoadDefaultFlightKeys (void)
 		}
 
 		memcpy (&curr_fl_bindings[template_idx][j],
-			&def_fl_bindings[template_idx][j],
-			sizeof (FLIGHT_BINDINGS));
-		memcpy (&edit_fl_bindings[template_idx][j],
 			&def_fl_bindings[template_idx][j],
 			sizeof (FLIGHT_BINDINGS));
 
@@ -457,14 +450,6 @@ static void Control_Tabs (void)
 static void
 LoadBindingsForEditing (void)
 {
-	int i;
-
-	for (i = 0; i < NUM_MENU_KEYS; i++)
-	{
-		memcpy (&edit_bindings[i], &curr_bindings[i],
-			sizeof (MENU_BINDINGS));
-	}
-
 	bindings_loaded = TRUE;
 	bindings_dirty = FALSE;
 }
@@ -472,25 +457,6 @@ LoadBindingsForEditing (void)
 static void
 LoadFlightBindingsForEditing (void)
 {
-	int i, j;
-
-	for (i = 0; i < 6; i++)
-	{
-		for (j = 0; j < NUM_KEYS; j++)
-		{
-			if (flight_res_names[j] == NULL)
-			{
-				break;
-			}
-
-			memcpy (&edit_fl_bindings[i][j], &curr_fl_bindings[i][j],
-				sizeof (FLIGHT_BINDINGS));
-
-			strncpy (edit_fl_bindings[i][j].action, flight_res_names[j], 39);
-			edit_fl_bindings[i][j].action[39] = '\0';
-		}
-	}
-
 	fl_bindings_loaded = TRUE;
 	fl_bindings_dirty = FALSE;
 }
@@ -501,8 +467,7 @@ StartRebinding (int action, int binding)
 	menu_rebind_state.active = TRUE;
 	menu_rebind_state.action = action;
 	menu_rebind_state.binding = binding;
-
-	menu_rebind_state.old_g = edit_bindings[action].binding[binding];
+	menu_rebind_state.old_g = curr_bindings[action].binding[binding];
 	menu_rebind_state.new_g.type = VCONTROL_NONE;
 
 	VControl_ClearGesture ();
@@ -517,8 +482,7 @@ StartFlightRebinding (int template_idx, int action, int binding)
 	flight_rebind_state.active = TRUE;
 	flight_rebind_state.action = action;
 	flight_rebind_state.binding = binding;
-
-	flight_rebind_state.old_g = edit_fl_bindings[template_idx][action].binding[binding];
+	flight_rebind_state.old_g = curr_fl_bindings[template_idx][action].binding[binding];
 	flight_rebind_state.new_g.type = VCONTROL_NONE;
 
 	VControl_ClearGesture ();
@@ -613,8 +577,6 @@ ShowRebindPopup (void)
 
 		if (ImGui_Button ("Clear"))
 		{
-			edit_bindings[menu_rebind_state.action].
-				binding[menu_rebind_state.binding].type = VCONTROL_NONE;
 			curr_bindings[menu_rebind_state.action].
 				binding[menu_rebind_state.binding].type = VCONTROL_NONE;
 
@@ -637,8 +599,6 @@ ShowRebindPopup (void)
 		{
 			if (menu_rebind_state.old_g.type != VCONTROL_NONE)
 			{
-				edit_bindings[menu_rebind_state.action].
-					binding[menu_rebind_state.binding] = menu_rebind_state.old_g;
 				curr_bindings[menu_rebind_state.action].
 					binding[menu_rebind_state.binding] = menu_rebind_state.old_g;
 
@@ -663,8 +623,6 @@ ShowRebindPopup (void)
 		{
 			if (ImGui_Button ("OK"))
 			{
-				edit_bindings[menu_rebind_state.action].
-					binding[menu_rebind_state.binding] = menu_rebind_state.new_g;
 				curr_bindings[menu_rebind_state.action].
 					binding[menu_rebind_state.binding] = menu_rebind_state.new_g;
 
@@ -742,8 +700,6 @@ ShowFlightRebindPopup (void)
 
 		if (ImGui_Button ("Clear"))
 		{
-			edit_fl_bindings[template_idx][flight_rebind_state.action].
-				binding[flight_rebind_state.binding].type = VCONTROL_NONE;
 			curr_fl_bindings[template_idx][flight_rebind_state.action].
 				binding[flight_rebind_state.binding].type = VCONTROL_NONE;
 
@@ -774,8 +730,6 @@ ShowFlightRebindPopup (void)
 		{
 			if (flight_rebind_state.old_g.type != VCONTROL_NONE)
 			{
-				edit_fl_bindings[template_idx][flight_rebind_state.action].
-					binding[flight_rebind_state.binding] = flight_rebind_state.old_g;
 				curr_fl_bindings[template_idx][flight_rebind_state.action].
 					binding[flight_rebind_state.binding] = flight_rebind_state.old_g;
 
@@ -802,8 +756,6 @@ ShowFlightRebindPopup (void)
 			{
 				char keybuf[40], valbuf[40];
 
-				edit_fl_bindings[template_idx][flight_rebind_state.action].
-					binding[flight_rebind_state.binding] = flight_rebind_state.new_g;
 				curr_fl_bindings[template_idx][flight_rebind_state.action].
 					binding[flight_rebind_state.binding] = flight_rebind_state.new_g;
 
