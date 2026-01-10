@@ -34,7 +34,7 @@ static FLIGHT_BINDINGS saved_flight_bindings[6][NUM_KEYS];
 static char saved_template_names[6][30];
 static BOOLEAN bindings_backed_up = FALSE;
 
-static int template = 0;
+static int template_id = 0;
 
 static void Control_Tabs (void);
 
@@ -186,7 +186,7 @@ static void
 LoadDefaultFlightKeys (void)
 {
 	int j, k;
-	int template_idx = template;
+	int template_idx = template_id;
 	char keybuf[40], valbuf[40];
 	char key[40];
 
@@ -321,11 +321,11 @@ FlightControls (void)
 		control_template[i] = input_templates[i].name;
 
 	ImGui_Text ("Template:");
-	ImGui_ComboChar ("##InputTemplate", &template, control_template, 6);
+	ImGui_ComboChar ("##InputTemplate", &template_id, control_template, 6);
 
 
 	snprintf (template_name, sizeof (template_name),
-		"%s", input_templates[template].name);
+		"%s", input_templates[template_id].name);
 
 	ImGui_Text ("Template Name:");
 	ImGui_InputText ("##TemplateName", template_name, sizeof (template_name), 0);
@@ -333,12 +333,12 @@ FlightControls (void)
 	{
 		char key[40];
 
-		snprintf (input_templates[template].name,
-			sizeof (input_templates[template].name),
+		snprintf (input_templates[template_id].name,
+			sizeof (input_templates[template_id].name),
 			"%s", template_name);
 
 		flight_bindings_dirty = TRUE;
-		snprintf (key, sizeof (key), "keys.%d.name", template + 1);
+		snprintf (key, sizeof (key), "keys.%d.name", template_id + 1);
 		res_PutString (key, template_name);
 	}
 
@@ -365,7 +365,7 @@ FlightControls (void)
 
 		for (j = 0; j < MAX_FLIGHT_ALTERNATES; j++)
 		{
-			gesture = &curr_fl_bindings[template][i].binding[j];
+			gesture = &curr_fl_bindings[template_id][i].binding[j];
 
 			snprintf (button_id, sizeof (button_id), "##bind_fl_%d_%d", i, j);
 
@@ -373,7 +373,7 @@ FlightControls (void)
 
 			if (ImGui_ButtonEx (GetBindingDisplayText (gesture), BB_WIDTH))
 			{
-				StartRebinding (i, j, &template);
+				StartRebinding (i, j, &template_id);
 			}
 
 			ImGui_PopID ();
@@ -392,7 +392,7 @@ static void
 RestoreFlightBindings (void)
 {
 	int i, j;
-	int template_idx = template;
+	int template_idx = template_id;
 
 	for (i = 0; i < NUM_KEYS; i++)
 	{
@@ -489,7 +489,7 @@ StartRebinding (int action, int binding, int *template_idx)
 	if (template_idx != NULL)
 	{
 		rebind_state.old_g =
-				curr_fl_bindings[*template_idx][action].binding[binding];
+			curr_fl_bindings[*template_idx][action].binding[binding];
 	}
 	else
 		rebind_state.old_g = curr_bindings[action].binding[binding];
@@ -501,13 +501,13 @@ StartRebinding (int action, int binding, int *template_idx)
 	if (template_idx != NULL)
 	{
 		log_add (log_Debug,
-				"Started rebinding for template %d, %s (binding %d)",
-				*template_idx + 1, menu_res_names[action], binding + 1);
+			"Started rebinding for template %d, %s (binding %d)",
+			*template_idx + 1, menu_res_names[action], binding + 1);
 	}
 	else
 	{
 		log_add (log_Debug, "Started rebinding for %s (binding %d)",
-				menu_res_names[action], binding + 1);
+			menu_res_names[action], binding + 1);
 	}
 }
 
@@ -664,7 +664,7 @@ ShowFlightRebindPopup (void)
 		return;
 	}
 
-	template_idx = template;
+	template_idx = template_id;
 
 	snprintf (popup_title, sizeof (popup_title),
 		"Template: %s | Control: %s | Binding #: %d",
