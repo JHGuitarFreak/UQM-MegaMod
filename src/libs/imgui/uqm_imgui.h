@@ -114,6 +114,7 @@ REBIND_STATE flight_rebind_state;
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 
 static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
+#define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
 
 void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size);
 
@@ -130,8 +131,14 @@ void draw_adv_menu (void);
 
 // Colors
 
+#define STYLE_COLOR(a) ImGui_GetColorU32 (a)
+
 #define IV4_RED_COLOR ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
 #define IV4_YELLOW_COLOR ((ImVec4){ 1.0f, 1.0f, 0.0f, 1.0f })
+
+#define U32_RED_COLOR IM_COL32 (0xFF, 0x00, 0x00, 0xFF)
+#define U32_GREEN_COLOR IM_COL32 (0x00, 0xFF, 0x00, 0xFF)
+#define U32_GUN_SLOT_COLOR IM_COL32 (0x69, 0x80, 0xA1, 0x8A)
 
 #ifdef __cplusplus
 }

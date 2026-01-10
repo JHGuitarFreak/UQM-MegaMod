@@ -28,7 +28,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	int subtab_counts;
 	int active_tab;
 	ImGuiStyle *style = ImGui_GetStyle ();
-
+	
 	const char *tab_names[] =
 			{ "General", "Enhancements", "Randomizer", "Dev Tools" };
 
@@ -50,6 +50,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	active_tab = state->active_tab;
 	num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);
 
+	// Begin NavBar
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_TEXT);
 
 	for (int i = 0; i < num_tabs; i++)
@@ -59,7 +60,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		bool selected = (active_tab == i);
 
 		ImGui_SameLine ();
-		ImGui_Dummy ((ImVec2) { 4.0f, 0.0f });
+		ImGui_Dummy (MAKE_IV2 (4, 0));
 		ImGui_SameLine ();
 
 		text_size = ImGui_CalcTextSize (tab_names[i]);
@@ -72,18 +73,17 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	}
 
 	ImGui_PopStyleVar ();
+	// End NavBar
 
 	ImGui_Spacing ();
 
-	ImGui_PushStyleColor (ImGuiCol_ChildBg,
-		ImGui_GetColorU32 (ImGuiCol_Separator));
-	ImGui_BeginChild ("HorizontalSeparator", (ImVec2) { 0.0f, 1.0f }, 0, 0);
+	ImGui_PushStyleColor(ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
+	ImGui_BeginChild ("HorizontalSeparator", MAKE_IV2 (0, 1), 0, 0);
 	ImGui_EndChild ();
 	ImGui_PopStyleColor ();
 
-	ImGui_BeginChild ("Content", content_size, IGCF_B, 0);
+	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
-
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_TEXT);
 
 	subtab_counts = sizeof (subtab_names[active_tab]) /
@@ -109,7 +109,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 		if (centering > 0.0f)
 		{
-			ImGui_Dummy ((ImVec2) { centering, 0.0f });
+			ImGui_Dummy (MAKE_IV2 (centering, 0));
 			ImGui_SameLine ();
 		}
 
@@ -120,22 +120,24 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		}
 
 		if (j >= 0)
-			ImGui_Dummy ((ImVec2) { 0.0f, 8.0f });
+			ImGui_Dummy (MAKE_IV2 (0, 8));
 	}
 
 	ImGui_PopStyleVar ();
 	ImGui_EndChild ();
+	// Sidebar Ends
 
 	ImGui_SameLine ();
 
-	ImGui_PushStyleColor (ImGuiCol_ChildBg,
-		ImGui_GetColorU32 (ImGuiCol_Separator));
-	ImGui_BeginChild ("VerticalSeparator", (ImVec2) { 1.0f, 0.0f }, 0, 0);
+	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
+	ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
 	ImGui_EndChild ();
 	ImGui_PopStyleColor ();
 
 	ImGui_SameLine ();
 
+	// Content Begins
+	ImGui_BeginChild("Content", content_size, IGCF_B, 0);
 	ImGui_BeginChild ("ContentArea", ZERO_F, IGCF_B, 0);
 
 	switch (active_tab)
@@ -180,4 +182,5 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_EndChild ();
 	ImGui_EndChild ();
+	// Content Ends
 }

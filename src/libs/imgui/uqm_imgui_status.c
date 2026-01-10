@@ -233,7 +233,7 @@ void draw_status_menu (void)
 				ImGui_TableNextColumn ();
 
 				snprintf (buf, sizeof buf, "%d", rem_capacity);
-				ImGui_ProgressBar (capacity_filled, (ImVec2) {0, 0}, buf);
+				ImGui_ProgressBar (capacity_filled, ZERO_F, buf);
 			}
 
 			{
@@ -415,7 +415,7 @@ void draw_status_menu (void)
 
 		ImGuiStyle *style = ImGui_GetStyle ();
 		ImVec2 og_spacing = style->ItemSpacing;
-		style->ItemSpacing = (ImVec2){ 4.0f, 4.0f };
+		style->ItemSpacing = MAKE_IV2 (4, 4);
 
 		//ImGui_SeparatorText ("Flagship Status");
 
@@ -498,8 +498,7 @@ void draw_status_menu (void)
 			{
 				bool DriveSlot = GLOBAL_SIS (DriveSlots[t_index]) == 1;
 
-				ImGui_PushStyleColor (ImGuiCol_CheckMark,
-						IM_COL32 (255, 0, 0, 255));
+				ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_RED_COLOR);
 
 				snprintf (buf, sizeof buf, "##thruster%d", t_index);
 				ImGui_Checkbox (buf, &DriveSlot);
@@ -515,7 +514,7 @@ void draw_status_menu (void)
 			else
 			{
 				float checkbox_size = ImGui_GetFrameHeight ();
-				ImGui_Dummy ((ImVec2) { checkbox_size, checkbox_size });
+				ImGui_Dummy (MAKE_IV2 (checkbox_size, checkbox_size));
 			}
 
 			ImGui_SameLine ();
@@ -525,8 +524,7 @@ void draw_status_menu (void)
 				bool JetSlot =
 						GLOBAL_SIS (JetSlots[j_index]) == 2;
 
-				ImGui_PushStyleColor (ImGuiCol_CheckMark,
-						IM_COL32 (0, 255, 0, 255));
+				ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_GREEN_COLOR);
 
 				snprintf (buf, sizeof buf, "##jet%d", j_index);
 				if (ImGui_Checkbox (buf, &JetSlot))
@@ -542,12 +540,14 @@ void draw_status_menu (void)
 			else
 			{
 				float checkbox_size = ImGui_GetFrameHeight ();
-				ImGui_Dummy ((ImVec2) { checkbox_size, checkbox_size });
+				ImGui_Dummy (MAKE_IV2 (checkbox_size, checkbox_size));
 			}
 
 			ImGui_SameLine ();
 
 			{
+				bool gun_slots = i < 2 || i > 12;
+
 				int ModuleSlot = GLOBAL_SIS (ModuleSlots[i]);
 
 				if (ModuleSlot == EMPTY_SLOT + 2)
@@ -555,6 +555,9 @@ void draw_status_menu (void)
 				else
 					ModuleSlot -= TURNING_JETS;
 
+
+				if (gun_slots)
+					ImGui_PushStyleColor (ImGuiCol_FrameBg, U32_GUN_SLOT_COLOR);
 
 				snprintf (buf, sizeof buf, "##module%d", i);
 				if (ImGui_ComboChar (buf, &ModuleSlot, ship_modules, 18))
@@ -567,6 +570,9 @@ void draw_status_menu (void)
 					else
 						GLOBAL_SIS (ModuleSlots[i]) = EMPTY_SLOT + 2;
 				}
+
+				if (gun_slots)
+					ImGui_PopStyleColor ();
 			}
 		}
 

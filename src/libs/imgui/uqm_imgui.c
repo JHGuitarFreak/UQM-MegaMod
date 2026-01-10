@@ -67,44 +67,38 @@ GetFont (ImGuiIO *io)
 
 static void ShowFullScreenMenu (TabState *state)
 {
-	float sidebar_width, button_height, content_height;
-	ImVec2 sidebar_size, content_size;
-	ImVec2 display_size;
-	ImGuiWindowFlags window_flags;
+	float sidebar_width;
+	ImVec2 sidebar_size;
 	ImGuiIO *io = ImGui_GetIO ();
-
-	display_size = io->DisplaySize;
 
 	ImGui_PushFont (GetFont (io));
 
-	sidebar_width = display_size.x * 0.12f;
-	if (sidebar_width < 120.0f)
-		sidebar_width = 120.0f;
-	if (sidebar_width > 200.0f)
-		sidebar_width = 200.0f;
-
-	content_height = display_size.y - 53.0f;
-	sidebar_size = (ImVec2){ sidebar_width, 0.0f };
-	content_size = (ImVec2){ 0.0f, content_height };
-
 	ImGui_SetNextWindowPos (ZERO_F, 0);
-	ImGui_SetNextWindowSize (display_size, 0);
+	ImGui_SetNextWindowSize (io->DisplaySize, 0);
 
 	if (io->WantTextInput && !SDL_IsTextInputActive ())
 		SDL_StartTextInput ();
 	else if (!io->WantTextInput && SDL_IsTextInputActive ())
 		SDL_StopTextInput ();
 
-	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoResize;
+#define FSM_FLAGS ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | \
+			ImGuiWindowFlags_NoResize
 
-	if (!ImGui_Begin ("##FullScreenMenu", NULL, window_flags))
+	if (!ImGui_Begin ("##FullScreenMenu", NULL, FSM_FLAGS))
 	{
 		ImGui_End ();
 		return;
 	}
 
-	UQM_ImGui_Tabs (state, content_size, sidebar_size);
+	sidebar_width = io->DisplaySize.x * 0.12f;
+	if (sidebar_width < 120.0f)
+		sidebar_width = 120.0f;
+	if (sidebar_width > 200.0f)
+		sidebar_width = 200.0f;
+
+	sidebar_size = (ImVec2){ sidebar_width, 0.0f };
+
+	UQM_ImGui_Tabs (state, ZERO_F, sidebar_size);
 
 	ImGui_End ();
 
@@ -144,15 +138,12 @@ void UQM_ImGui_NewFrame (void)
 // Initializes ImGui with SDL2 and SDL_Renderer2
 int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 {
-	ImGuiIO *io;
-
 	if (imgui_initialized)
 		return 1;
 
 	ImGui_CreateContext (NULL);
 
-	io = ImGui_GetIO ();
-	io->IniFilename = NULL;
+	ImGui_GetIO()->IniFilename = NULL;
 
 	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
