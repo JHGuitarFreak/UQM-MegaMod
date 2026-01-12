@@ -1184,8 +1184,10 @@ ProcessControlEvents (SDL_Event *event)
 
 					snprintf (RSPtr->error_message,
 							sizeof (RSPtr->error_message),
-							"Cannot bind `%s' to `%s'",
-							pretty_actions, RSPtr->conflict_action);
+							"Cannot bind to `%s' using the `%s' ( %s ) "
+							"binding",
+							pretty_actions, RSPtr->conflict_action,
+							GetBindingDisplayText(&new_g));
 
 					memcpy (&RSPtr->new_g, &new_g, sizeof (new_g));
 					RSPtr->show_popup = TRUE;
