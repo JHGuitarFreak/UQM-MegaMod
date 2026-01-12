@@ -105,11 +105,6 @@ draw_controls_menu (void)
 
 		Spacer ();
 
-
-
-
-
-
 		for (i = 0; i < 6; i++)
 			player_controls[i] = input_templates[i].name;
 
