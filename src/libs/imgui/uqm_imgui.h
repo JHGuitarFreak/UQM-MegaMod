@@ -126,13 +126,18 @@ REBIND_STATE rebind_state;
 bool ProcessControlEvents (SDL_Event *event);
 
 // Helpers
-#define DISPLAY_BOOL (ImGui_GetIO ()->DisplaySize.x > 640.0f ? 3 : 1)
-#define CENTER_TEXT (ImVec2){ 0.5f, 0.5f }
-#define ZERO_F      (ImVec2){ 0.0f, 0.0f }
+#define DISPLAY_SIZE ImGui_GetIO ()->DisplaySize
+#define DISPLAY_BOOL (DISPLAY_SIZE.x > 640.0f ? 3 : 1)
 #define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
-static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
 #define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
+#define MAKE_IV4(w,x,y,z) ((ImVec4){ (w), (x), (y), (z) })
+
+static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
+
+#define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, 4))
+#define CENTER_IT MAKE_IV2 (0.5f, 0.5f)
+#define ZERO_F    MAKE_IV2 (0.0f, 0.0f)
 
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);

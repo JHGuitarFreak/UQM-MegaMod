@@ -51,7 +51,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);
 
 	// Begin NavBar
-	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_TEXT);
+	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
 	for (int i = 0; i < num_tabs; i++)
 	{
@@ -81,7 +81,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
-	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_TEXT);
+	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
 	subtab_counts = sizeof (subtab_names[active_tab]) /
 		sizeof (subtab_names[active_tab][0]);
