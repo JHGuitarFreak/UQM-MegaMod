@@ -706,7 +706,7 @@ deactivate (keybinding *i, sdl_key_t keycode)
 	}
 }
 
-static void
+void
 event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 {
 	switch (e->type)

@@ -194,37 +194,8 @@ TFB_ProcessEvents ()
 #if SDL_MAJOR_VERSION == 2
 		if (menu_visible)
 		{
-			UQM_ImGui_ProcessEvent (&Event);
-
-			switch (Event.type)
-			{
-				case SDL_KEYDOWN:
-				{
-					switch (Event.key.keysym.sym)
-					{
-					case SDLK_BACKQUOTE:
-					case SDLK_F8:
-						break;
-					default:
-						if (!rebind_state.active)
-							continue;
-					}
-				}
-				case SDL_QUIT:
-				case SDL_WINDOWEVENT:
-					break;
-				case SDL_CONTROLLERBUTTONDOWN:
-				case SDL_CONTROLLERAXISMOTION:
-				case SDL_JOYBUTTONDOWN:
-				case SDL_JOYAXISMOTION:
-					if (!rebind_state.active)
-						continue;
-					break;
-				default:
-					if (!rebind_state.active)
-						continue;
-					break;
-			}
+			if (UQM_ImGui_ProcessEvent (&Event))
+				continue;
 		}
 #endif
 		/* Run through the InputEvent filter. */

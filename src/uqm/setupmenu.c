@@ -704,7 +704,7 @@ populate_editkeys (int templat)
 		{
 			InterrogateInputState (templat, i, j,
 					controlentries[i].controlname[j],
-					WIDGET_CONTROLENTRY_WIDTH);
+					WIDGET_CONTROLENTRY_WIDTH, NULL);
 		}
 	}
 }
@@ -1129,7 +1129,7 @@ change_res (WIDGET_TEXTENTRY *self)
 	if (NewGfxFlags != GfxFlags)
 		GfxFlags = NewGfxFlags;
 
-	FlushInput ();	
+	FlushInput ();
 
 	if (isExclusive)
 	{	// needed twice to reinitialize Exclusive Full Screen after a 
@@ -1138,13 +1138,6 @@ change_res (WIDGET_TEXTENTRY *self)
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				WindowWidth, WindowHeight);
 	}
-
-	/*if (res_check(NewWidth, NewHeight))
-	{
-		choices[CHOICE_RESOLUTION].selected = (NewWidth / 320) - 1;
-	}
-	else
-		choices[CHOICE_RESOLUTION].selected = 6;*/
 
 	populate_res();
 

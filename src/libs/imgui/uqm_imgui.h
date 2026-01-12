@@ -37,6 +37,24 @@
 extern "C" {
 #endif
 
+// ImGui Menus
+void draw_graphics_menu (void);
+void draw_engine_menu (void);
+void draw_audio_menu (void);
+void draw_controls_menu (void);
+void draw_status_menu (void);
+
+void draw_visual_menu (void);
+void draw_cheats_menu (void);
+void draw_qol_menu (void);
+void draw_adv_menu (void);
+
+// ImGui main
+bool menu_visible;
+bool config_changed;
+bool mmcfg_changed;
+bool cheat_changed;
+
 typedef struct
 {
 	const char *name;
@@ -61,10 +79,8 @@ void revalidate_game_state_cache (void);
 #define GET_CGAME_STATE(SName) \
 	get_cached_gamestate (#SName)
 
-bool menu_visible;
-
 int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer);
-void UQM_ImGui_ProcessEvent (SDL_Event *event);
+bool UQM_ImGui_ProcessEvent (SDL_Event *event);
 void UQM_ImGui_NewFrame (void);
 void UQM_ImGui_Render (SDL_Renderer *renderer);
 void UQM_ImGui_Shutdown (void);
@@ -73,13 +89,14 @@ int UQM_ImGui_WantCaptureInput (void);
 void ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer);
 void ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer);
 
-void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
+// ImGui Graphics
+int imgui_GfxFlags;
+int imgui_SavedWidth;
+int imgui_SavedHeight;
+bool res_change;
+bool gfx_change;
 
-#define DISPLAY_BOOL (ImGui_GetIO ()->DisplaySize.x > 640.0f ? 3 : 1)
-#define CENTER_TEXT (ImVec2){ 0.5f, 0.5f }
-#define ZERO_F      (ImVec2){ 0.0f, 0.0f }
-#define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
-
+// ImGui Tabs
 typedef struct
 {
 	int active_tab;
@@ -89,47 +106,39 @@ typedef struct
 	int devtools_tab;
 } TabState;
 
-bool config_changed;
-bool mmcfg_changed;
-bool cheat_changed;
+void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size);
 
-int imgui_GfxFlags;
-int imgui_SavedWidth;
-int imgui_SavedHeight;
-bool res_change;
-bool gfx_change;
-
+// Imgui Controls
 typedef struct
 {
+	BOOLEAN active;
 	int action;
 	int binding;
-	BOOLEAN active;
-	BOOLEAN show_popup;
+	int template_id;
 	VCONTROL_GESTURE old_g, new_g;
+	BOOLEAN show_popup, has_error;
+	char error_message[128];
+	char conflict_action[64];
 } REBIND_STATE;
 
 REBIND_STATE rebind_state;
 
-void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
+bool ProcessControlEvents (SDL_Event *event);
+
+// Helpers
+#define DISPLAY_BOOL (ImGui_GetIO ()->DisplaySize.x > 640.0f ? 3 : 1)
+#define CENTER_TEXT (ImVec2){ 0.5f, 0.5f }
+#define ZERO_F      (ImVec2){ 0.0f, 0.0f }
+#define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
 static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
 #define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
 
-void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size);
-
-void draw_graphics_menu (void);
-void draw_engine_menu (void);
-void draw_audio_menu (void);
-void draw_controls_menu (void);
-void draw_status_menu (void);
-
-void draw_visual_menu (void);
-void draw_cheats_menu (void);
-void draw_qol_menu (void);
-void draw_adv_menu (void);
+void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
+void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
+void ImGui_HorizontalSeparator (const char *str_id);
 
 // Colors
-
 #define STYLE_COLOR(a) ImGui_GetColorU32 (a)
 
 #define IV4_RED_COLOR ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })

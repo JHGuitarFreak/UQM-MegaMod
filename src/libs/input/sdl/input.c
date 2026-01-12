@@ -47,7 +47,7 @@ static BOOLEAN set_character_mode = FALSE;
 #endif // SDL_MAJOR_VERSION
 
 volatile int *menu_vec;
-static int num_menu;
+int num_menu;
 // The last vector element is the character repeat "key"
 // This is only used in SDL1 input but it's mostly harmless everywhere else
 #define KEY_MENU_ANY  (num_menu - 1)
@@ -111,7 +111,7 @@ void GetCurrentMenuBindings (void)
 
 	for (i = 0; menu_res_names[i] != NULL; i++)
 	{
-		snprintf (&curr_bindings[i].action,
+		snprintf (curr_bindings[i].action,
 				sizeof (curr_bindings[i].action), "%s", menu_res_names[i]);
 
 		for (j = 1; j <= 6; j++)
@@ -747,17 +747,24 @@ const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
 
 void
 InterrogateInputState (int templat, int control, int index, char *buffer,
-	int maxlen)
+		int maxlen, VCONTROL_GESTURE *g_override)
 {
-	VCONTROL_GESTURE *g = CONTROL_PTR (templat, control, index);
-
-	if (templat >= num_templ || control >= num_flight
-		|| index >= MAX_FLIGHT_ALTERNATES)
+	VCONTROL_GESTURE *g;
+	
+	if (g_override != NULL)
+		g = g_override;
+	else
 	{
-		log_add (log_Warning,
+		g = CONTROL_PTR (templat, control, index);
+
+		if (templat >= num_templ || control >= num_flight
+			|| index >= MAX_FLIGHT_ALTERNATES)
+		{
+			log_add (log_Warning,
 				"InterrogateInputState(): invalid control index");
-		buffer[0] = 0;
-		return;
+			buffer[0] = 0;
+			return;
+		}
 	}
 
 	switch (g->type)

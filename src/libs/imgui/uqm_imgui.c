@@ -169,12 +169,14 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 }
 
 // Processes SDL events for ImGui
-void UQM_ImGui_ProcessEvent (SDL_Event *event)
+bool UQM_ImGui_ProcessEvent (SDL_Event *event)
 {
 	if (!imgui_initialized)
-		return;
+		return false;
 
 	cImGui_ImplSDL2_ProcessEvent (event);
+
+	return ProcessControlEvents (event);
 }
 
 // Renders the ImGui draw data
@@ -484,6 +486,8 @@ int UQM_ImGui_WantCaptureInput (void)
 	return (io->WantCaptureKeyboard || io->WantCaptureMouse) ? 1 : 0;
 }
 
+// Helper functions
+
 void
 UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key)
 {
@@ -509,6 +513,15 @@ ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...)
 	ImGui_TextWrappedV (fmt, args);
 	ImGui_PopStyleColor ();
 	va_end (args);
+}
+
+void
+ImGui_HorizontalSeparator (const char *str_id)
+{
+	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
+	ImGui_BeginChild (str_id, MAKE_IV2 (0, 1), 0, 0);
+	ImGui_EndChild ();
+	ImGui_PopStyleColor ();
 }
 
 // Begin GameState cache implementation

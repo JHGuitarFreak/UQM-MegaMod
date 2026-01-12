@@ -69,6 +69,8 @@ extern FLIGHT_BINDINGS curr_fl_bindings[6][8];
 extern FLIGHT_BINDINGS def_fl_bindings[6][8];
 extern char def_template_names[6][40];
 
+extern void event2gesture (SDL_Event *e, VCONTROL_GESTURE *g);
+
 /* Control of bindings */
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);
 void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);

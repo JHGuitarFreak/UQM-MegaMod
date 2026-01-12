@@ -77,10 +77,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_Spacing ();
 
-	ImGui_PushStyleColor(ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
-	ImGui_BeginChild ("HorizontalSeparator", MAKE_IV2 (0, 1), 0, 0);
-	ImGui_EndChild ();
-	ImGui_PopStyleColor ();
+	ImGui_HorizontalSeparator ("##NavBarSeparator");
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);

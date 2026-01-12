@@ -23,6 +23,7 @@
 #include "libs/compiler.h"
 #include "libs/uio.h"
 #include "libs/unicode.h"
+#include "libs/input/sdl/vcontrol.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -55,7 +56,8 @@ UniChar GetLastCharacter (void);
 
 /* Interrogating the current key configuration */
 
-void InterrogateInputState (int templat, int control, int index, char *buffer, int maxlen);
+void InterrogateInputState (int templat, int control, int index,
+		char *buffer, int maxlen, VCONTROL_GESTURE *override);
 void RemoveInputState (int templat, int control, int index);
 void RebindInputState (int templat, int control, int index);
 
