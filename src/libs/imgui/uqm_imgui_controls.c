@@ -1025,7 +1025,15 @@ BlacklistedBindings (int action_index)
 	switch (action_index)
 	{
 	case KEY_SCREENSHOT:
+	case KEY_EXIT:
 	case KEY_IMGUI:
+	case KEY_PAUSE:
+	case KEY_ABORT:
+	case KEY_DEBUG:
+	case KEY_FULLSCREEN:
+	case KEY_DEBUG_2:
+	case KEY_DEBUG_3:
+	case KEY_DEBUG_4:
 		return true;
 	default:
 		return false;
