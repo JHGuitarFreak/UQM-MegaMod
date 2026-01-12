@@ -139,6 +139,15 @@ static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
 #define CENTER_IT MAKE_IV2 (0.5f, 0.5f)
 #define ZERO_F    MAKE_IV2 (0.0f, 0.0f)
 
+static inline ImVec2
+Float2Mult (ImVec2 iv2, float mul)
+{
+	ImVec2 result;
+	result.x = iv2.x * mul;
+	result.y = iv2.y * mul;
+	return result;
+}
+
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
 void ImGui_HorizontalSeparator (const char *str_id);

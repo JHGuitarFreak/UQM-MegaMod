@@ -281,6 +281,9 @@ ShowFlightRebindPopup (void)
 		ImGui_OpenPopup ("##FlightRebindPopup", 0);
 	}
 
+	ImGui_SetNextWindowPosEx (Float2Mult (DISPLAY_SIZE, 0.5f),
+			ImGuiCond_Always, CENTER_IT);
+
 	if (!ImGui_BeginPopupModal ("##FlightRebindPopup", NULL,
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_AlwaysAutoResize))
@@ -525,6 +528,10 @@ ShowMenuRebindPopup (void)
 #define WINDOW_FLAGS 
 
 	ImGui_OpenPopup ("##RebindPopup", 0);
+
+	ImGui_SetNextWindowPosEx (Float2Mult (DISPLAY_SIZE, 0.5f),
+			ImGuiCond_Always, CENTER_IT);
+
 	if (!ImGui_BeginPopupModal ("##RebindPopup", NULL,
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_AlwaysAutoResize))
