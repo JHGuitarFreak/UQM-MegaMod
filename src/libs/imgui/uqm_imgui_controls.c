@@ -189,7 +189,7 @@ static void
 FlightControls (void)
 {
 	int i, j;
-	char *control_template[6];
+	static char *control_template[6];
 	char template_name[30];
 	char button_id[32];
 	VCONTROL_GESTURE *g;
