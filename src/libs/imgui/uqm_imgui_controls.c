@@ -319,8 +319,11 @@ ShowFlightRebindPopup (void)
 
 	if (RSPtr->has_error && RSPtr->error_message[0] != '\0')
 	{
+		ImGui_TextColored (DangerGradient (), "Illegal bind detected!");
+		ImGui_NewLine ();
+
 		ImGui_TextColored (IV4_RED_COLOR, "%s", RSPtr->error_message);
-		Spacer ();
+		ImGui_NewLine ();
 	}
 
 	if (RSPtr->new_g.type == VCONTROL_NONE && !RSPtr->has_error)
@@ -543,14 +546,16 @@ ShowMenuRebindPopup (void)
 
 	if (RSPtr->has_error && RSPtr->error_message[0] != '\0')
 	{
+		ImGui_TextColored (DangerGradient (), "Illegal bind detected!");
+		ImGui_NewLine ();
+
 		ImGui_TextColored (IV4_RED_COLOR, "%s", RSPtr->error_message);
-		Spacer ();
+		ImGui_NewLine ();
 	}
 
 	if (VControl_GetLastGesture (&new_g))
 	{
-		memcpy (&RSPtr->new_g, &new_g,
-				sizeof (VCONTROL_GESTURE));
+		memcpy (&RSPtr->new_g, &new_g, sizeof (VCONTROL_GESTURE));
 		VControl_ClearGesture ();
 	}
 

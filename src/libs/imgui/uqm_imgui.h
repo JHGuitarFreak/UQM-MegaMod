@@ -153,6 +153,27 @@ void ImGui_HorizontalSeparator (const char *str_id);
 #define U32_GREEN_COLOR IM_COL32 (0x00, 0xFF, 0x00, 0xFF)
 #define U32_GUN_SLOT_COLOR IM_COL32 (0x69, 0x80, 0xA1, 0x8A)
 
+static inline ImVec4
+DangerGradient (void)
+{
+	static DWORD c_index = 0;
+	static TimeCount NextTime = 0;
+	static int direction = 1;
+	const size_t c_count = 10;
+	static ImVec4 gradient;
+
+	if (GetTimeCounter () >= NextTime)
+	{
+		c_index = (c_index + direction + c_count) % c_count;
+		if (c_index == 0 || c_index == c_count - 1)
+			direction = -direction;
+
+		NextTime = GetTimeCounter () + (ONE_SECOND * 3 / 40);
+	}
+
+	return MAKE_IV4 (1, (float)c_index / (float)c_count, 0, 1);
+}
+
 #ifdef __cplusplus
 }
 #endif
