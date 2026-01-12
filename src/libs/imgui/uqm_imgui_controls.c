@@ -1005,8 +1005,25 @@ VControl_GestureEqual (VCONTROL_GESTURE *a, VCONTROL_GESTURE *b)
 	}
 }
 
+// These actions are not allowed to be rebound to game actions
+// and vice versa.
 bool
-SpecialActions (int action_index)
+BlacklistedBindings (int action_index)
+{
+	switch (action_index)
+	{
+	case KEY_SCREENSHOT:
+	case KEY_IMGUI:
+		return true;
+	default:
+		return false;
+	}
+}
+
+// These actions are allowed to pass through to the game while the
+// ImGui menu is open.
+bool
+WhitelistedPassThru (int action_index)
 {
 	switch (action_index)
 	{
@@ -1086,7 +1103,7 @@ CheckRebindConflict (VCONTROL_GESTURE *g, int action, int template_id)
 	BOOLEAN binding_special = FALSE;
 
 	if (is_menu_rebind)
-		binding_special = SpecialActions (action);
+		binding_special = BlacklistedBindings (action);
 
 	rebind_state.conflict_action[0] = '\0';
 
@@ -1100,10 +1117,9 @@ CheckRebindConflict (VCONTROL_GESTURE *g, int action, int template_id)
 		if (is_menu_rebind && i == action)
 			continue;
 
-		key_special = SpecialActions (i);
+		key_special = BlacklistedBindings (i);
 
-		if ((binding_special && !key_special) ||
-				(!binding_special && key_special))
+		if (binding_special || key_special)
 		{
 			if (CheckMenuBindingConflict (i, g))
 				return TRUE;
@@ -1201,7 +1217,7 @@ ProcessControlEvents (SDL_Event *event)
 	case SDL_CONTROLLERBUTTONDOWN:
 	case SDL_CONTROLLERBUTTONUP:
 	case SDL_CONTROLLERAXISMOTION:
-		return !SpecialActions (GetActionForEvent (event));
+		return !WhitelistedPassThru (GetActionForEvent (event));
 	default:
 		return TRUE;
 	}
