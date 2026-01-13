@@ -50,6 +50,9 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	active_tab = state->active_tab;
 	num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);
 
+	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 52), IGCF_B, 0);
+	ImGui_BeginChild ("NavBarArea", ZERO_F, IGCF_B, 0);
+
 	// Begin NavBar
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
@@ -73,14 +76,17 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	}
 
 	ImGui_PopStyleVar ();
+	ImGui_EndChild ();
+	ImGui_EndChild ();
 	// End NavBar
 
 	ImGui_Spacing ();
 
-	ImGui_HorizontalSeparator ("##NavBarSeparator");
+	//ImGui_HorizontalSeparator ("##NavBarSeparator");
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
+	ImGui_BeginChild ("SidebarArea", ZERO_F, IGCF_B, 0);
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
 	subtab_counts = sizeof (subtab_names[active_tab]) /
@@ -102,7 +108,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		button_size = (ImVec2){ text_size.x + 20.0f, 20.0f };
 
 		centering = ((sidebar_size.x - button_size.x) / 2)
-				- style->WindowPadding.x * 2;
+				- style->WindowPadding.x * 3;
 
 		if (centering > 0.0f)
 		{
@@ -122,14 +128,15 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_PopStyleVar ();
 	ImGui_EndChild ();
+	ImGui_EndChild ();
 	// Sidebar Ends
 
-	ImGui_SameLine ();
+	//ImGui_SameLine ();
 
-	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
-	ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
-	ImGui_EndChild ();
-	ImGui_PopStyleColor ();
+	//ImGui_PushStyleColor (ImGuiCol_ChildBg, 0x00000000);
+	//ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
+	//ImGui_EndChild ();
+	//ImGui_PopStyleColor ();
 
 	ImGui_SameLine ();
 

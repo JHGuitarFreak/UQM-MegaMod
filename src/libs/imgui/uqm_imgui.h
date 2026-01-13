@@ -158,9 +158,9 @@ void ImGui_HorizontalSeparator (const char *str_id);
 #define IV4_RED_COLOR ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
 #define IV4_YELLOW_COLOR ((ImVec4){ 1.0f, 1.0f, 0.0f, 1.0f })
 
-#define U32_RED_COLOR IM_COL32 (0xFF, 0x00, 0x00, 0xFF)
-#define U32_GREEN_COLOR IM_COL32 (0x00, 0xFF, 0x00, 0xFF)
-#define U32_GUN_SLOT_COLOR IM_COL32 (0x69, 0x80, 0xA1, 0x8A)
+#define U32_RED_COLOR IM_COL32 (0xFF, 0x00, 0x00, 0xAF)
+#define U32_GREEN_COLOR IM_COL32 (0x00, 0xFF, 0x00, 0xAF)
+#define U32_GUN_SLOT_COLOR IM_COL32 (0x4F, 0x4F, 0x4F, 0x8A)
 
 static inline ImVec4
 DangerGradient (void)

@@ -518,7 +518,7 @@ ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...)
 void
 ImGui_HorizontalSeparator (const char *str_id)
 {
-	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_Border));
+	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
 	ImGui_BeginChild (str_id, MAKE_IV2 (0, 1), 0, 0);
 	ImGui_EndChild ();
 	ImGui_PopStyleColor ();
