@@ -171,6 +171,8 @@ Float2Mult (ImVec2 iv2, float mul)
 }
 
 void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key);
+bool ImGui_SizedComboChar (const char *label, int *curr_item,
+		const char *const items[], int items_count);
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
 void ImGui_HorizontalSeparator (const char *str_id);
 
