@@ -74,11 +74,6 @@ enum {
 	NUM_MENU_KEYS
 };
 
-MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
-MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
-FLIGHT_BINDINGS curr_fl_bindings[6][NUM_KEYS];
-FLIGHT_BINDINGS def_fl_bindings[6][NUM_KEYS];
-
 typedef enum {
 	CONTROL_TEMPLATE_KB_1,
 	CONTROL_TEMPLATE_KB_2,

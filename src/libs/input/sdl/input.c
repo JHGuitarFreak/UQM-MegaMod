@@ -30,6 +30,7 @@
 #include "libs/reslib.h"
 #include "options.h"
 
+#include "libs/imgui/uqm_imgui.h"
 
 #define KBDBUFSIZE (1 << 8)
 static int kbdhead=0, kbdtail=0;
@@ -134,7 +135,7 @@ void GetDefaultMenuBindings (void)
 
 	for (i = 0; menu_res_names[i] != NULL; i++)
 	{
-		snprintf (&def_bindings[i].action,
+		snprintf (def_bindings[i].action,
 				sizeof (def_bindings[i].action), "%s", menu_res_names[i]);
 
 		for (j = 1; j <= 6; j++)
@@ -240,8 +241,6 @@ void GetCurrentFlightBindings(void)
 		}
 	}
 }
-
-char def_template_names[6][40];
 
 void GetDefaultFlightBindings(void)
 {

@@ -35,6 +35,9 @@ typedef struct _tfb_graphics_backend {
 	void (*color) (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
 } TFB_GRAPHICS_BACKEND;
 
+extern SDL_Window *window;
+extern SDL_Renderer *renderer;
+
 extern TFB_GRAPHICS_BACKEND *graphics_backend;
 
 extern SDL_Surface *SDL_Screen;
