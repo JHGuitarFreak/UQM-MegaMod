@@ -53,22 +53,6 @@ typedef struct {
 	} gesture;
 } VCONTROL_GESTURE;
 
-typedef struct menu_bindings
-{
-	char action[40];
-	VCONTROL_GESTURE binding[6];
-} MENU_BINDINGS;
-
-typedef struct flight_bindings
-{
-	char action[40];
-	VCONTROL_GESTURE binding[2];
-} FLIGHT_BINDINGS;
-
-extern FLIGHT_BINDINGS curr_fl_bindings[6][8];
-extern FLIGHT_BINDINGS def_fl_bindings[6][8];
-extern char def_template_names[6][40];
-
 extern void event2gesture (SDL_Event *e, VCONTROL_GESTURE *g);
 
 /* Control of bindings */

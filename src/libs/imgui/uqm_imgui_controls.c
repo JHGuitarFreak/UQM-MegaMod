@@ -17,11 +17,6 @@
 
 #include "uqm_imgui.h"
 
-#include "libs/inplib.h"
-#include "libs/input/sdl/vcontrol.h"
-#include "libs/input/sdl/keynames.h"
-#include "libs/input/input_common.h"
-
 #include <ctype.h>
 
 #define BB_WIDTH MAKE_IV2 (120, 0)
@@ -41,6 +36,12 @@ static char saved_template_names[6][30];
 static BOOLEAN binds_backed_up = FALSE;
 
 static int template_id = 0;
+
+char def_template_names[6][40];
+MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
+MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
+FLIGHT_BINDINGS curr_fl_bindings[6][NUM_KEYS];
+FLIGHT_BINDINGS def_fl_bindings[6][NUM_KEYS];
 
 // ImGui Menu Functions
 static void Control_Tabs (void);
@@ -189,7 +190,7 @@ static void
 FlightControls (void)
 {
 	int i, j;
-	static char *control_template[6];
+	static const char *control_template[6];
 	char template_name[30];
 	char button_id[32];
 	VCONTROL_GESTURE *g;

@@ -67,19 +67,19 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 
 void BeginInputFrame (void);
 
-const char *menu_res_names[];
-const char *flight_res_names[];
-volatile int *menu_vec;
-volatile int *flight_vec;
-int num_flight;
+extern const char *menu_res_names[];
+extern const char *flight_res_names[];
+extern volatile int *menu_vec;
+extern volatile int *flight_vec;
+extern int num_flight;
 
 #if SDL_MAJOR_VERSION > 1
-const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
-const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16];
-const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
-const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16];
-const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
-const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+extern const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+extern const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+extern const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+extern const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16];
+extern const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+extern const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
 #endif
 
 #if defined(__cplusplus)

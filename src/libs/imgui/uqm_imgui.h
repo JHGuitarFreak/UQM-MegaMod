@@ -30,6 +30,11 @@
 #include "libs/log/uqmlog.h"
 #include "libs/reslib.h"
 #include "libs/graphics/tfb_draw.h"
+#include "libs/inplib.h"
+#include "libs/input/sdl/vcontrol.h"
+#include "libs/input/sdl/keynames.h"
+#include "libs/input/input_common.h"
+#include "uqm/controls.h"
 
 #include <SDL.h>
 
@@ -50,10 +55,10 @@ void draw_qol_menu (void);
 void draw_adv_menu (void);
 
 // ImGui main
-bool menu_visible;
-bool config_changed;
-bool mmcfg_changed;
-bool cheat_changed;
+extern bool menu_visible;
+extern bool config_changed;
+extern bool mmcfg_changed;
+extern bool cheat_changed;
 
 typedef struct
 {
@@ -68,18 +73,17 @@ typedef struct
 	size_t count;
 } GameStateCache;
 
-GameStateCache gs_cache;
+extern GameStateCache gs_cache;
 
-int get_cached_gamestate (const char *name);
-void set_cached_gamestate (const char *name, int value);
-void revalidate_game_state_cache (void);
+extern int get_cached_gamestate (const char *name);
+extern void set_cached_gamestate (const char *name, int value);
+extern void revalidate_game_state_cache (void);
 
 #define SET_CGAME_STATE(SName,val) \
 	set_cached_gamestate (#SName,val)
 #define GET_CGAME_STATE(SName) \
 	get_cached_gamestate (#SName)
 
-int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer);
 bool UQM_ImGui_ProcessEvent (SDL_Event *event);
 void UQM_ImGui_NewFrame (void);
 void UQM_ImGui_Render (SDL_Renderer *renderer);
@@ -90,11 +94,11 @@ void ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer);
 void ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer);
 
 // ImGui Graphics
-int imgui_GfxFlags;
-int imgui_SavedWidth;
-int imgui_SavedHeight;
-bool res_change;
-bool gfx_change;
+extern int imgui_GfxFlags;
+extern int imgui_SavedWidth;
+extern int imgui_SavedHeight;
+extern bool res_change;
+extern bool gfx_change;
 
 // ImGui Tabs
 typedef struct
@@ -121,7 +125,25 @@ typedef struct
 	char conflict_action[64];
 } REBIND_STATE;
 
-REBIND_STATE rebind_state;
+extern REBIND_STATE rebind_state;
+
+typedef struct menu_bindings
+{
+	char action[40];
+	VCONTROL_GESTURE binding[6];
+} MENU_BINDINGS;
+
+typedef struct flight_bindings
+{
+	char action[40];
+	VCONTROL_GESTURE binding[2];
+} FLIGHT_BINDINGS;
+
+extern char def_template_names[6][40];
+extern MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
+extern MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
+extern FLIGHT_BINDINGS curr_fl_bindings[6][NUM_KEYS];
+extern FLIGHT_BINDINGS def_fl_bindings[6][NUM_KEYS];
 
 bool ProcessControlEvents (SDL_Event *event);
 
@@ -169,7 +191,6 @@ DangerGradient (void)
 	static TimeCount NextTime = 0;
 	static int direction = 1;
 	const size_t c_count = 10;
-	static ImVec4 gradient;
 
 	if (GetTimeCounter () >= NextTime)
 	{

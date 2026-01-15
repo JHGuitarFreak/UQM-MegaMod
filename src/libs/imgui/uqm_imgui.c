@@ -17,6 +17,8 @@
 
 #include "uqm_imgui.h"
 
+#include "libs/graphics/sdl/sdl_common.h"
+
 bool menu_visible = false;
 static bool imgui_initialized;
 static TabState tab_state;
@@ -243,8 +245,8 @@ UQM_ImGui_SetNewRenderer (SDL_Renderer *renderer, SDL_Window *window)
 // Does what it says on the tin
 void UQM_ImGui_ToggleMenu (void)
 {
-	SDL_Window *window = SDL_GetWindowFromID (1);
-	SDL_Renderer *renderer = SDL_GetRenderer (window);
+	//SDL_Window *window = SDL_GetWindowFromID (1);
+	//SDL_Renderer *renderer = SDL_GetRenderer (window);
 
 	menu_visible = !menu_visible;
 
