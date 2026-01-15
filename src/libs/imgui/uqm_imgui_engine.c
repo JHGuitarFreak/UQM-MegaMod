@@ -62,13 +62,14 @@ draw_engine_menu (void)
 		ImGui_SeparatorText ("User Interface");
 
 		{
+			int window_type = optWindowType;
+
 			ImGui_BeginDisabled (true);
 
-			ImGui_Text ("Platform UI:");
-			if (ImGui_ComboChar ("##PlatformUI", (int *)&optWindowType,
+			if (ImGui_SizedComboChar ("Platform UI:", &window_type,
 					dos_3do_uqm, 3))
 			{
-				// Add switching code here
+				// Switching code goes here;
 			}
 
 			ImGui_TextWrappedColored (IV4_RED_COLOR,
@@ -82,8 +83,8 @@ draw_engine_menu (void)
 
 		{
 			int which_menu = is3DO (optWhichMenu);
-			ImGui_Text ("Menu Style:");
-			if (ImGui_ComboChar ("##MenuStyle", &which_menu,
+
+			if (ImGui_SizedComboChar ("Menu Style:", &which_menu,
 					menu_styles, 2))
 			{
 				optWhichMenu = ToCons (which_menu);
@@ -92,20 +93,21 @@ draw_engine_menu (void)
 			}
 		}
 
-		Spacer ();
+		ImGui_NewLine ();
 
-		UQM_ImGui_CheckBox ("DOS Side Menu", &optDosMenus, "mm.dosMenus");
+		UQM_ImGui_CheckBox (" DOS Side Menu", &optDosMenus, "mm.dosMenus");
 
-		Spacer ();
+		ImGui_NewLine ();
 
 		{
 			int which_fonts = is3DO (optWhichFonts);
-			ImGui_Text ("Font Style:");
-			if (ImGui_ComboChar ("##FontStyle", &which_fonts,
+
+			if (ImGui_SizedComboChar ("Font Style:", &which_fonts,
 					font_styles, 2))
 			{
 				optWhichFonts = ToCons (which_fonts);
-				res_PutBoolean ("config.textgradients", (BOOLEAN)which_fonts);
+				res_PutBoolean ("config.textgradients",
+						(BOOLEAN)which_fonts);
 				config_changed = true;
 			}
 		}
@@ -114,8 +116,8 @@ draw_engine_menu (void)
 			ImGui_BeginDisabled (true);
 
 			int which_intro = is3DO (optWhichIntro);
-			ImGui_Text ("Cutscenes:");
-			if (ImGui_ComboChar ("##Cutscenes", &which_intro,
+
+			if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
 					cutscene_style, 2))
 			{
 				// Add switching code here
@@ -136,11 +138,12 @@ draw_engine_menu (void)
 			ImGui_BeginDisabled (!IN_MAIN_MENU);
 
 			int melee_scale = (optMeleeScale != TFB_SCALE_STEP);
-			ImGui_Text ("Melee Zoom:");
-			if (ImGui_ComboChar ("##MeleeZoom", &melee_scale,
+
+			if (ImGui_SizedComboChar ("Melee Zoom:", &melee_scale,
 					melee_style, 2))
 			{
-				optMeleeScale = (melee_scale ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP);
+				optMeleeScale =
+						(melee_scale ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP);
 				res_PutBoolean ("config.smoothmelee", (BOOLEAN)melee_scale);
 				config_changed = true;
 			}
@@ -158,9 +161,9 @@ draw_engine_menu (void)
 
 		{
 			int engine_color = is3DO (optFlagshipColor);
-			ImGui_Text ("Flagship Engine Color:");
-			if (ImGui_ComboChar ("##EngineColor", &engine_color,
-					engine_style, 2))
+
+			if (ImGui_SizedComboChar ("Flagship Engine Color:",
+					&engine_color, engine_style, 2))
 			{
 				optFlagshipColor = ToCons (engine_color);
 				res_PutBoolean ("mm.flagshipColor", (BOOLEAN)engine_color);
@@ -170,9 +173,9 @@ draw_engine_menu (void)
 
 		{
 			int scr_trans = is3DO (optScrTrans);
-			ImGui_Text ("Screen Transitions:");
-			if (ImGui_ComboChar ("##ScreenTransitions", &scr_trans,
-					pc_or_3do, 2))
+
+			if (ImGui_SizedComboChar ("Screen Transitions:",
+					&scr_trans, pc_or_3do, 2))
 			{
 				optScrTrans = ToCons (scr_trans);
 				res_PutBoolean ("mm.scrTransition", (BOOLEAN)scr_trans);
@@ -192,9 +195,9 @@ draw_engine_menu (void)
 
 		{
 			int smooth_scroll = is3DO (optSmoothScroll);
-			ImGui_Text ("Scroll Style:");
-			if (ImGui_ComboChar ("##ScrollStyle", &smooth_scroll,
-					scroll_style, 2))
+
+			if (ImGui_SizedComboChar ("Scroll Style:",
+					&smooth_scroll, scroll_style, 2))
 			{
 				optSmoothScroll = ToCons (smooth_scroll);
 				res_PutBoolean ("config.smoothscroll", (BOOLEAN)smooth_scroll);
@@ -202,7 +205,7 @@ draw_engine_menu (void)
 			}
 		}
 
-		Spacer ();
+		ImGui_NewLine ();
 
 		{
 			ImGui_BeginDisabled (true);
@@ -220,13 +223,13 @@ draw_engine_menu (void)
 
 		UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles");
 
-		Spacer ();
+		ImGui_NewLine ();
 
 		{
 			int scope_style = is3DO (optScopeStyle);
-			ImGui_Text ("Oscilloscope Style:");
-			if (ImGui_ComboChar ("##OscilloscopelStyle", &scope_style,
-					pc_or_3do, 2))
+
+			if (ImGui_SizedComboChar ("Oscilloscope Style:",
+					&scope_style, pc_or_3do, 2))
 			{
 				optScopeStyle = ToCons (scope_style);
 				res_PutBoolean ("mm.scopeStyle", (BOOLEAN)scope_style);
@@ -245,8 +248,8 @@ draw_engine_menu (void)
 			ImGui_BeginDisabled (!IN_MAIN_MENU);
 
 			int planet_style = is3DO (optPlanetStyle);
-			ImGui_Text ("Planet Style:");
-			if (ImGui_ComboChar ("##PlanetStyle", &planet_style,
+
+			if (ImGui_SizedComboChar ("Planet Style:", &planet_style,
 					pc_or_3do, 2))
 			{
 				optPlanetStyle = ToCons (planet_style);
@@ -266,10 +269,12 @@ draw_engine_menu (void)
 		}
 
 		{
-			ImGui_Text ("Star Background:");
-			if (ImGui_ComboChar ("##StarBackground", &optStarBackground,
+			int star_background = optStarBackground;
+
+			if (ImGui_SizedComboChar ("Star Background:", &star_background,
 				star_backgrounds, 4))
 			{
+				optStarBackground = star_background;
 				res_PutInteger ("mm.starBackground", optStarBackground);
 				mmcfg_changed = true;
 			}
@@ -286,10 +291,12 @@ draw_engine_menu (void)
 		ImGui_SeparatorText ("Orbit Screen");
 
 		{
-			ImGui_Text ("Stats Display:");
-			if (ImGui_ComboChar ("##StatsStyle", &optWhichCoarseScan,
+			int which_scan = optWhichCoarseScan;
+
+			if (ImGui_SizedComboChar ("Stats Display:", &which_scan,
 					stats_display, 4))
 			{
+				optWhichCoarseScan = which_scan;
 				res_PutInteger ("config.iconicscan", optWhichCoarseScan);
 				config_changed = true;
 			}
@@ -297,8 +304,8 @@ draw_engine_menu (void)
 
 		{
 			int which_shield = is3DO (optWhichShield);
-			ImGui_Text ("Slave Shields:");
-			if (ImGui_ComboChar ("##SlaveShields", &which_shield,
+
+			if (ImGui_SizedComboChar ("Slave Shields:", &which_shield,
 					slave_shields, 2))
 			{
 				optWhichShield = ToCons (which_shield);
@@ -309,9 +316,9 @@ draw_engine_menu (void)
 
 		{
 			int scan_style = is3DO (optScanStyle);
-			ImGui_Text ("Scanning Style:");
-			if (ImGui_ComboChar ("##ScanningStyle", &scan_style,
-					pc_or_3do, 2))
+
+			if (ImGui_SizedComboChar ("Scanning Style:", &scan_style,
+				pc_or_3do, 2))
 			{
 				optScanStyle = ToCons (scan_style);
 				res_PutBoolean ("mm.scanStyle", (BOOLEAN)scan_style);
@@ -320,10 +327,12 @@ draw_engine_menu (void)
 		}
 
 		{
-			ImGui_Text ("Sphere Style:");
-			if (ImGui_ComboChar ("##SphereStyle", &optScanSphere,
+			int sphere_style = optScanSphere;
+
+			if (ImGui_SizedComboChar ("Sphere Style:", &sphere_style,
 					dos_3do_uqm, 3))
 			{
+				optScanSphere = sphere_style;
 				res_PutInteger ("mm.sphereType", optScanSphere);
 				mmcfg_changed = true;
 			}
@@ -331,8 +340,8 @@ draw_engine_menu (void)
 
 		{
 			int tint_sphere = is3DO (optTintPlanSphere);
-			ImGui_Text ("Tinted Sphere Scan:");
-			if (ImGui_ComboChar ("##TintSphere", &tint_sphere,
+
+			if (ImGui_SizedComboChar ("Tinted Sphere Scan:", &tint_sphere,
 					sphere_tint, 2))
 			{
 				optTintPlanSphere = ToCons (tint_sphere);
@@ -343,8 +352,8 @@ draw_engine_menu (void)
 
 		{
 			int super_pc = is3DO (optSuperPC);
-			ImGui_Text ("Lander View Style:");
-			if (ImGui_ComboChar ("##LanderView", &super_pc,
+
+			if (ImGui_SizedComboChar ("Lander View Style:", &super_pc,
 					pc_or_3do, 2))
 			{
 				optSuperPC = ToCons (super_pc);

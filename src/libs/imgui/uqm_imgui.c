@@ -526,6 +526,35 @@ ImGui_HorizontalSeparator (const char *str_id)
 	ImGui_PopStyleColor ();
 }
 
+bool
+ImGui_SizedComboChar (const char *label, int *curr_item,
+		const char *const items[], int items_count)
+{
+	bool temp = false;
+	char buf[100];
+	ImGuiStyle *style = ImGui_GetStyle ();
+	float column_width = ImGui_GetColumnWidth (ImGui_GetColumnIndex ());
+	float combo_width = column_width * 0.75f;
+	float center_offset = (column_width - combo_width) * 0.5f
+			- style->WindowPadding.x * 2;
+
+	snprintf (buf, sizeof buf, "##%s", label);
+
+	ImGui_AlignTextToFramePadding ();
+	ImGui_Text (label);
+	ImGui_SetCursorPosX (ImGui_GetCursorPosX () + center_offset);
+	ImGui_SetNextItemWidth (combo_width);
+
+	ImGui_PushStyleVarImVec2 (ImGuiStyleVar_SelectableTextAlign, CENTER_IT);
+
+	temp = ImGui_ComboChar (buf, curr_item, items, items_count);
+
+	ImGui_PopStyleVar ();
+
+	return temp;
+}
+
+
 // Begin GameState cache implementation
 
 GameStateCache gs_cache = { NULL, 0 };
