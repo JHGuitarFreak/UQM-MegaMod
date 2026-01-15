@@ -50,8 +50,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	active_tab = state->active_tab;
 	num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);
 
-	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 52), IGCF_B, 0);
-	ImGui_BeginChild ("NavBarArea", ZERO_F, IGCF_B, 0);
+	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38), IGCF_B, 0);
 
 	// Begin NavBar
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
@@ -63,6 +62,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		bool selected = (active_tab == i);
 
 		ImGui_SameLine ();
+
 		ImGui_Dummy (MAKE_IV2 (4, 0));
 		ImGui_SameLine ();
 
@@ -77,7 +77,6 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_PopStyleVar ();
 	ImGui_EndChild ();
-	ImGui_EndChild ();
 	// End NavBar
 
 	ImGui_Spacing ();
@@ -86,7 +85,6 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
-	ImGui_BeginChild ("SidebarArea", ZERO_F, IGCF_B, 0);
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
 	subtab_counts = sizeof (subtab_names[active_tab]) /
@@ -108,7 +106,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		button_size = (ImVec2){ text_size.x + 20.0f, 20.0f };
 
 		centering = ((sidebar_size.x - button_size.x) / 2)
-				- style->WindowPadding.x * 3;
+				- style->WindowPadding.x * 2;
 
 		if (centering > 0.0f)
 		{
@@ -128,7 +126,6 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_PopStyleVar ();
 	ImGui_EndChild ();
-	ImGui_EndChild ();
 	// Sidebar Ends
 
 	//ImGui_SameLine ();
@@ -142,7 +139,6 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	// Content Begins
 	ImGui_BeginChild("Content", content_size, IGCF_B, 0);
-	ImGui_BeginChild ("ContentArea", ZERO_F, IGCF_B, 0);
 
 	switch (active_tab)
 	{
@@ -183,8 +179,6 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 			}
 			break;
 	}
-
-	ImGui_EndChild ();
 	ImGui_EndChild ();
 	// Content Ends
 }
