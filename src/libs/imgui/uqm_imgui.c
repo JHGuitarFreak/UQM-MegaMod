@@ -225,30 +225,44 @@ static void
 UQM_ImGui_SaveOldRenderer (SDL_Renderer *renderer)
 {
 	SDL_RenderGetLogicalSize (renderer, &old_logical_w, &old_logical_h);
-	SDL_RenderGetViewport (renderer, &old_viewport);
-	SDL_GetRenderDrawBlendMode (renderer, &old_blend);
+	//SDL_RenderGetViewport (renderer, &old_viewport);
+	//SDL_GetRenderDrawBlendMode (renderer, &old_blend);
+
+	(void)renderer;
 }
 
 static void
 UQM_ImGui_ResetOldRenderer (SDL_Renderer *renderer)
 {
-	SDL_RenderSetLogicalSize (renderer, old_logical_w, old_logical_h);
-	SDL_RenderSetViewport (renderer, &old_viewport);
-	SDL_SetRenderDrawBlendMode (renderer, old_blend);
+	//SDL_RenderSetLogicalSize (renderer, old_logical_w, old_logical_h);
+	//SDL_RenderSetViewport (renderer, &old_viewport);
+	//SDL_SetRenderDrawBlendMode (renderer, old_blend);
+
+	TFB_ReInitGraphics (GraphicsDriver, GfxFlags, old_logical_w,
+			old_logical_h, &resolutionFactor, &optWindowType);
+
+	(void)renderer;
 }
 
 static void
 UQM_ImGui_SetNewRenderer (SDL_Renderer *renderer, SDL_Window *window)
 {
-	SDL_Rect new_viewport;
+	//SDL_Rect new_viewport;
 	int window_w, window_h;
-	int disp_index = SDL_GetWindowDisplayIndex (window);
+	//int disp_index = SDL_GetWindowDisplayIndex (window);
 
-	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
+	//SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
+	//SDL_GetWindowSize (window, &window_w, &window_h);
+	//SDL_GetDisplayBounds (disp_index, &new_viewport);
+	//SDL_RenderSetViewport (renderer, &new_viewport);
+	//SDL_RenderSetLogicalSize (renderer, window_w, window_h);
+
 	SDL_GetWindowSize (window, &window_w, &window_h);
-	SDL_GetDisplayBounds (disp_index, &new_viewport);
-	SDL_RenderSetViewport (renderer, &new_viewport);
-	SDL_RenderSetLogicalSize (renderer, window_w, window_h);
+	TFB_ReInitGraphics (GraphicsDriver, GfxFlags, window_w, window_h,
+			&resolutionFactor, &optWindowType);
+
+	(void)renderer;
+	(void)window;
 }
 
 // Does what it says on the tin
