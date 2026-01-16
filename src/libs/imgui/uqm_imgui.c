@@ -33,6 +33,9 @@ bool cheat_changed;
 bool res_change = false;
 bool gfx_change = false;
 
+SDL_Window *imgui_window = NULL;
+SDL_Renderer *imgui_renderer = NULL;
+
 static ImFont *
 GetFont (ImGuiIO *io)
 {
@@ -182,15 +185,20 @@ bool UQM_ImGui_ProcessEvent (SDL_Event *event)
 }
 
 // Renders the ImGui draw data
-void UQM_ImGui_Render (SDL_Renderer *renderer)
+void UQM_ImGui_Render (void)
 {
+	ApplyResChanges (imgui_window, imgui_renderer);
+	ApplyGfxChanges (imgui_window, imgui_renderer);
+
+	UQM_ImGui_NewFrame ();
+
 	if (!imgui_initialized)
 		return;
 
 	ImGui_Render ();
-	cImGui_ImplSDLRenderer2_RenderDrawData (ImGui_GetDrawData (), renderer);
+	cImGui_ImplSDLRenderer2_RenderDrawData (ImGui_GetDrawData (), imgui_renderer);
 
-	SDL_RenderPresent (renderer);
+	SDL_RenderPresent (imgui_renderer);
 }
 
 // Cleans up ImGui
@@ -234,10 +242,11 @@ UQM_ImGui_SetNewRenderer (SDL_Renderer *renderer, SDL_Window *window)
 {
 	SDL_Rect new_viewport;
 	int window_w, window_h;
+	int disp_index = SDL_GetWindowDisplayIndex (window);
 
 	SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
 	SDL_GetWindowSize (window, &window_w, &window_h);
-	SDL_GetDisplayBounds (0, &new_viewport);
+	SDL_GetDisplayBounds (disp_index, &new_viewport);
 	SDL_RenderSetViewport (renderer, &new_viewport);
 	SDL_RenderSetLogicalSize (renderer, window_w, window_h);
 }
@@ -245,24 +254,24 @@ UQM_ImGui_SetNewRenderer (SDL_Renderer *renderer, SDL_Window *window)
 // Does what it says on the tin
 void UQM_ImGui_ToggleMenu (void)
 {
-	//SDL_Window *window = SDL_GetWindowFromID (1);
-	//SDL_Renderer *renderer = SDL_GetRenderer (window);
+	imgui_window = window;
+	imgui_renderer = renderer;
 
 	menu_visible = !menu_visible;
 
-	if (menu_visible && window && renderer)
+	if (menu_visible && imgui_window && imgui_renderer)
 	{
-		UQM_ImGui_SaveOldRenderer (renderer);
-		UQM_ImGui_SetNewRenderer (renderer, window);
+		UQM_ImGui_SaveOldRenderer (imgui_renderer);
+		UQM_ImGui_SetNewRenderer (imgui_renderer, imgui_window);
 
-		if (!UQM_ImGui_Init (window, renderer))
+		if (!UQM_ImGui_Init (imgui_window, imgui_renderer))
 		{
 			log_add (log_Error, "Failed to initialize ImGui menu");
 
 			menu_visible = false;
 
-			UQM_ImGui_ResetOldRenderer (renderer);
-			SDL_RenderPresent (renderer);
+			UQM_ImGui_ResetOldRenderer (imgui_renderer);
+			SDL_RenderPresent (imgui_renderer);
 			UQM_ImGui_Shutdown ();
 			return;
 		}
@@ -271,7 +280,7 @@ void UQM_ImGui_ToggleMenu (void)
 		return;
 	}
 
-	UQM_ImGui_ResetOldRenderer (renderer);
+	UQM_ImGui_ResetOldRenderer (imgui_renderer);
 	UQM_ImGui_Shutdown ();
 }
 
@@ -554,6 +563,40 @@ ImGui_SizedComboChar (const char *label, int *curr_item,
 	return temp;
 }
 
+// Code adapted from StackOverflow reply
+// https://stackoverflow.com/a/70073137
+void
+ImGui_TextCenteredColored (ImVec4 col, const char *fmt, ...)
+{
+	va_list args;
+	float text_indentation;
+	float min_indentation;
+	float win_width = ImGui_GetWindowSize ().x;
+	float text_width;
+
+	va_start (args, fmt);
+
+	text_width = ImGui_CalcTextSize (fmt).x;
+	text_indentation = (win_width - text_width) * 0.5f;
+	min_indentation = 20.0f;
+
+	if (text_indentation <= min_indentation)
+	{
+		text_indentation = min_indentation;
+	}
+
+	ImGui_SameLineEx (0, text_indentation);
+
+	ImGui_PushTextWrapPos (win_width - text_indentation);
+
+	ImGui_PushStyleColorImVec4 (ImGuiCol_Text, col);
+	ImGui_TextWrappedV (fmt, args);
+	ImGui_PopStyleColor ();
+
+	ImGui_PopTextWrapPos ();
+
+	va_end (args);
+}
 
 // Begin GameState cache implementation
 

@@ -618,13 +618,7 @@ TFB_SDL2_Postprocess (bool hd)
 		TFB_SDL2_FPS ();
 
 	if (menu_visible)
-	{
-		ApplyResChanges (window, renderer);
-		ApplyGfxChanges (window, renderer);
-
-		UQM_ImGui_NewFrame ();
-		UQM_ImGui_Render (renderer);
-	}
+		UQM_ImGui_Render ();
 	else
 		SDL_RenderPresent (renderer);
 }
