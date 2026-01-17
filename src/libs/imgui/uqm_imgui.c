@@ -222,7 +222,13 @@ void UQM_ImGui_Shutdown (void)
 }
 
 static void
-UQM_ImGui_ResetOldRenderer (void)
+UQM_ImGui_SaveOldRenderer ()
+{
+	SDL_RenderGetLogicalSize (renderer, &old_logical_w, &old_logical_h);
+}
+
+static void
+UQM_ImGui_ResetOldRenderer ()
 {
 	TFB_ReInitGraphics (GraphicsDriver, GfxFlags, old_logical_w,
 			old_logical_h, &resolutionFactor, &optWindowType);
@@ -248,8 +254,7 @@ void UQM_ImGui_ToggleMenu (void)
 
 	if (menu_visible && imgui_window && imgui_renderer)
 	{
-		SDL_RenderGetLogicalSize (imgui_renderer, &old_logical_w,
-				&old_logical_h);
+		UQM_ImGui_SaveOldRenderer ();
 		UQM_ImGui_SetNewRenderer (imgui_window);
 
 		if (!UQM_ImGui_Init (imgui_window, imgui_renderer))
@@ -279,7 +284,7 @@ UQM_ImGui_ResetMenu (SDL_Window *window, SDL_Renderer *renderer)
 
 	menu_visible = true;
 
-	SDL_RenderGetLogicalSize (renderer, &old_logical_w, &old_logical_h);
+	UQM_ImGui_SaveOldRenderer ();
 	UQM_ImGui_SetNewRenderer (window);
 
 	if (!UQM_ImGui_Init (window, renderer))
@@ -367,6 +372,9 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 
 	if (was_visible)
 		UQM_ImGui_ResetMenu (window, renderer);
+
+	old_logical_w = SavedWidth;
+	old_logical_h = SavedHeight;
 
 	res_PutBoolean ("config.keepaspectratio", optKeepAspectRatio);
 	res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
