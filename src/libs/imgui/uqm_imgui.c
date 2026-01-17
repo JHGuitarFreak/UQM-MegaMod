@@ -222,47 +222,20 @@ void UQM_ImGui_Shutdown (void)
 }
 
 static void
-UQM_ImGui_SaveOldRenderer (SDL_Renderer *renderer)
+UQM_ImGui_ResetOldRenderer (void)
 {
-	SDL_RenderGetLogicalSize (renderer, &old_logical_w, &old_logical_h);
-	//SDL_RenderGetViewport (renderer, &old_viewport);
-	//SDL_GetRenderDrawBlendMode (renderer, &old_blend);
-
-	(void)renderer;
-}
-
-static void
-UQM_ImGui_ResetOldRenderer (SDL_Renderer *renderer)
-{
-	//SDL_RenderSetLogicalSize (renderer, old_logical_w, old_logical_h);
-	//SDL_RenderSetViewport (renderer, &old_viewport);
-	//SDL_SetRenderDrawBlendMode (renderer, old_blend);
-
 	TFB_ReInitGraphics (GraphicsDriver, GfxFlags, old_logical_w,
 			old_logical_h, &resolutionFactor, &optWindowType);
-
-	(void)renderer;
 }
 
 static void
-UQM_ImGui_SetNewRenderer (SDL_Renderer *renderer, SDL_Window *window)
+UQM_ImGui_SetNewRenderer (SDL_Window *window)
 {
-	//SDL_Rect new_viewport;
 	int window_w, window_h;
-	//int disp_index = SDL_GetWindowDisplayIndex (window);
-
-	//SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
-	//SDL_GetWindowSize (window, &window_w, &window_h);
-	//SDL_GetDisplayBounds (disp_index, &new_viewport);
-	//SDL_RenderSetViewport (renderer, &new_viewport);
-	//SDL_RenderSetLogicalSize (renderer, window_w, window_h);
 
 	SDL_GetWindowSize (window, &window_w, &window_h);
 	TFB_ReInitGraphics (GraphicsDriver, GfxFlags, window_w, window_h,
 			&resolutionFactor, &optWindowType);
-
-	(void)renderer;
-	(void)window;
 }
 
 // Does what it says on the tin
@@ -275,8 +248,9 @@ void UQM_ImGui_ToggleMenu (void)
 
 	if (menu_visible && imgui_window && imgui_renderer)
 	{
-		UQM_ImGui_SaveOldRenderer (imgui_renderer);
-		UQM_ImGui_SetNewRenderer (imgui_renderer, imgui_window);
+		SDL_RenderGetLogicalSize (imgui_renderer, &old_logical_w,
+				&old_logical_h);
+		UQM_ImGui_SetNewRenderer (imgui_window);
 
 		if (!UQM_ImGui_Init (imgui_window, imgui_renderer))
 		{
@@ -284,7 +258,7 @@ void UQM_ImGui_ToggleMenu (void)
 
 			menu_visible = false;
 
-			UQM_ImGui_ResetOldRenderer (imgui_renderer);
+			UQM_ImGui_ResetOldRenderer ();
 			SDL_RenderPresent (imgui_renderer);
 			UQM_ImGui_Shutdown ();
 			return;
@@ -294,7 +268,7 @@ void UQM_ImGui_ToggleMenu (void)
 		return;
 	}
 
-	UQM_ImGui_ResetOldRenderer (imgui_renderer);
+	UQM_ImGui_ResetOldRenderer ();
 	UQM_ImGui_Shutdown ();
 }
 
@@ -305,8 +279,8 @@ UQM_ImGui_ResetMenu (SDL_Window *window, SDL_Renderer *renderer)
 
 	menu_visible = true;
 
-	UQM_ImGui_SaveOldRenderer (renderer);
-	UQM_ImGui_SetNewRenderer (renderer, window);
+	SDL_RenderGetLogicalSize (renderer, &old_logical_w, &old_logical_h);
+	UQM_ImGui_SetNewRenderer (window);
 
 	if (!UQM_ImGui_Init (window, renderer))
 	{
@@ -314,7 +288,7 @@ UQM_ImGui_ResetMenu (SDL_Window *window, SDL_Renderer *renderer)
 
 		menu_visible = false;
 
-		UQM_ImGui_ResetOldRenderer (renderer);
+		UQM_ImGui_ResetOldRenderer ();
 		SDL_RenderPresent (renderer);
 		UQM_ImGui_Shutdown ();
 		return;
@@ -350,7 +324,7 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 	was_visible = menu_visible;
 	if (was_visible)
 	{
-		UQM_ImGui_ResetOldRenderer (renderer);
+		UQM_ImGui_ResetOldRenderer ();
 		UQM_ImGui_Shutdown ();
 		menu_visible = false;
 	}
@@ -372,7 +346,7 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-			NewWidth, NewHeight);
+				NewWidth, NewHeight);
 	}
 	else if (was_visible)
 	{
@@ -421,7 +395,7 @@ ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 	was_visible = menu_visible;
 	if (was_visible)
 	{
-		UQM_ImGui_ResetOldRenderer (renderer);
+		UQM_ImGui_ResetOldRenderer ();
 		UQM_ImGui_Shutdown ();
 		menu_visible = false;
 	}
