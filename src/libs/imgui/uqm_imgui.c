@@ -595,7 +595,9 @@ ImGui_TextCenteredColored (ImVec4 col, const char *fmt, ...)
 }
 
 void
-ImGui_BeginStyledChild (const char *str_id, ImVec2 size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags, ImVec4 *col)
+ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
+		ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags,
+		ImVec4 *col)
 {
 	ImVec4 colour = MAKE_IV4 (0, 0, 0, 0);
 	if (col != NULL)

@@ -60,10 +60,11 @@ draw_engine_menu (void)
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "EngineColumns", false);
 
-	// User Interface
-	{
+	if (DISPLAY_BOOL != 1)
 		ImGui_BeginStyledChild ("##UI", ZERO_F, CHILD_FLAGS, 0, NULL);
 
+	// User Interface
+	{
 		ImGui_SeparatorText ("User Interface");
 
 		//{
@@ -187,19 +188,18 @@ draw_engine_menu (void)
 				mmcfg_changed = true;
 			}
 		}
-		ImGui_EndChild ();
-
 		ImGui_NewLine ();
 	}
 
 	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
 		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Convo", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
 
 	// Conversation Screen
 	{
-
-		ImGui_BeginStyledChild ("##Convo", ZERO_F, CHILD_FLAGS, 0, NULL);
-
 		ImGui_SeparatorText ("Conversation Screen");
 
 		{
@@ -245,7 +245,6 @@ draw_engine_menu (void)
 				mmcfg_changed = true;
 			}
 		}
-
 		ImGui_NewLine ();
 	}
 
@@ -288,18 +287,18 @@ draw_engine_menu (void)
 				mmcfg_changed = true;
 			}
 		}
-		ImGui_EndChild ();
-
 		ImGui_NewLine ();
 	}
 
 	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
 		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Orbit", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
 
 	// Orbit Screen
 	{
-		ImGui_BeginStyledChild ("##Orbit", ZERO_F, CHILD_FLAGS, 0, NULL);
-
 		ImGui_SeparatorText ("Orbit Screen");
 
 		{
@@ -373,9 +372,9 @@ draw_engine_menu (void)
 				mmcfg_changed = true;
 			}
 		}
-
-		ImGui_EndChild ();
-
 		ImGui_NewLine ();
 	}
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_EndChild ();
 }

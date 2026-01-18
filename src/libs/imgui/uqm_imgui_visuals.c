@@ -17,6 +17,9 @@
 
 #include "uqm_imgui.h"
 
+#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
+		| ImGuiChildFlags_AlwaysUseWindowPadding
+
 void draw_visual_menu (void)
 {
 	const char *date_formats[] =
@@ -36,6 +39,9 @@ void draw_visual_menu (void)
 	}
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "VisualsColumns", false);
+	
+	if (DISPLAY_BOOL != 1)
+		ImGui_BeginStyledChild ("##UI", ZERO_F, CHILD_FLAGS, 0, NULL);
 
 	// User Interface
 	{
@@ -104,7 +110,11 @@ void draw_visual_menu (void)
 	}
 
 	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
 		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##SSV", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
 
 	// Star System View
 	{
@@ -171,4 +181,6 @@ void draw_visual_menu (void)
 		ImGui_NewLine ();
 	}
 
+	if (DISPLAY_BOOL != 1)
+		ImGui_EndChild ();
 }

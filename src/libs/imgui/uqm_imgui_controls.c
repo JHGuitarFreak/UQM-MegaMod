@@ -21,6 +21,8 @@
 
 #define BB_WIDTH MAKE_IV2 (120, 0)
 
+#define CHILD_FLAGS ImGuiChildFlags_AlwaysUseWindowPadding
+
 typedef struct
 {
 	BOOLEAN menu;
@@ -195,7 +197,7 @@ FlightControls (void)
 	char button_id[32];
 	VCONTROL_GESTURE *g;
 
-	ImGui_BeginChild ("FlightBindings", ZERO_F, 0, 0);
+	ImGui_BeginStyledChild ("FlightBindings", ZERO_F, CHILD_FLAGS, 0, NULL);
 	ImGui_ColumnsEx (2, "FlightTemplates", false);
 	ImGui_SetColumnWidth (0, 300.0f);
 
@@ -479,7 +481,7 @@ MenuControls (void)
 	char button_id[32];
 	VCONTROL_GESTURE *g;
 
-	ImGui_BeginChild ("MenuBindings", ZERO_F, 0, 0);
+	ImGui_BeginStyledChild ("MenuBindings", ZERO_F, CHILD_FLAGS, 0, NULL);
 
 	ImGui_ColumnsEx (2, "MenuControlBindings", false);
 	ImGui_SetColumnWidth (0, 150.0f);
