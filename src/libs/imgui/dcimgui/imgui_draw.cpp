@@ -462,7 +462,7 @@ void ImGui::StyleColorsMyTheme (ImGuiStyle *dst)
     colors[ImGuiCol_DragDropTarget] = ImVec4 (1.00f, 1.00f, 0.00f, 0.90f);
     colors[ImGuiCol_DragDropTargetBg] = ImVec4 (0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_UnsavedMarker] = ImVec4 (1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_NavCursor] = ImVec4 (0.26f, 0.26f, 0.26f, 1.00f);
+    colors[ImGuiCol_NavCursor] = ImVec4 (1.0f, 0.0f, 0.50f, 1.00f);
     colors[ImGuiCol_NavWindowingHighlight] = ImVec4 (1.00f, 1.00f, 1.00f, 0.70f);
     colors[ImGuiCol_NavWindowingDimBg] = ImVec4 (0.0f, 0.0f, 0.0f, 0.64f);
 }

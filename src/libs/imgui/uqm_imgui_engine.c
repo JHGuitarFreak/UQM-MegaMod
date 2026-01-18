@@ -17,6 +17,9 @@
 
 #include "uqm_imgui.h"
 
+#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
+		| ImGuiChildFlags_AlwaysUseWindowPadding
+
 static int
 ToCons (int opt)
 {
@@ -59,27 +62,29 @@ draw_engine_menu (void)
 
 	// User Interface
 	{
+		ImGui_BeginStyledChild ("##UI", ZERO_F, CHILD_FLAGS, 0, NULL);
+
 		ImGui_SeparatorText ("User Interface");
 
-		{
-			int window_type = optWindowType;
+		//{
+		//	int window_type = optWindowType;
 
-			ImGui_BeginDisabled (true);
+		//	ImGui_BeginDisabled (true);
 
-			if (ImGui_SizedComboChar ("Platform UI:", &window_type,
-					dos_3do_uqm, 3))
-			{
-				// Switching code goes here;
-			}
+		//	if (ImGui_SizedComboChar ("Platform UI:", &window_type,
+		//			dos_3do_uqm, 3))
+		//	{
+		//		// Switching code goes here;
+		//	}
 
-			ImGui_TextWrappedColored (IV4_RED_COLOR,
-					"WARNING! The Platform UI option can not be changed "
-					"in the GUI at this time. To change this option you "
-					"must use the Setup Menu.");
-			Spacer ();
+		//	ImGui_TextWrappedColored (IV4_RED_COLOR,
+		//			"WARNING! The Platform UI option can not be changed "
+		//			"in the GUI at this time. To change this option you "
+		//			"must use the Setup Menu.");
+		//	Spacer ();
 
-			ImGui_EndDisabled ();
-		}
+		//	ImGui_EndDisabled ();
+		//}
 
 		{
 			int which_menu = is3DO (optWhichMenu);
@@ -112,25 +117,25 @@ draw_engine_menu (void)
 			}
 		}
 
-		{
-			ImGui_BeginDisabled (true);
+		//{
+		//	ImGui_BeginDisabled (true);
 
-			int which_intro = is3DO (optWhichIntro);
+		//	int which_intro = is3DO (optWhichIntro);
 
-			if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
-					cutscene_style, 2))
-			{
-				// Add switching code here
-			}
+		//	if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
+		//			cutscene_style, 2))
+		//	{
+		//		// Add switching code here
+		//	}
 
-			ImGui_TextWrappedColored (IV4_RED_COLOR,
-					"WARNING! The Cutscene option can not be changed in "
-					"the GUI at this time. To change this option you must "
-					"use the Setup Menu.");
-			Spacer ();
+		//	ImGui_TextWrappedColored (IV4_RED_COLOR,
+		//			"WARNING! The Cutscene option can not be changed in "
+		//			"the GUI at this time. To change this option you must "
+		//			"use the Setup Menu.");
+		//	Spacer ();
 
-			ImGui_EndDisabled ();
-		}
+		//	ImGui_EndDisabled ();
+		//}
 
 		Spacer ();
 
@@ -182,6 +187,7 @@ draw_engine_menu (void)
 				mmcfg_changed = true;
 			}
 		}
+		ImGui_EndChild ();
 
 		ImGui_NewLine ();
 	}
@@ -191,6 +197,9 @@ draw_engine_menu (void)
 
 	// Conversation Screen
 	{
+
+		ImGui_BeginStyledChild ("##Convo", ZERO_F, CHILD_FLAGS, 0, NULL);
+
 		ImGui_SeparatorText ("Conversation Screen");
 
 		{
@@ -207,19 +216,19 @@ draw_engine_menu (void)
 
 		ImGui_NewLine ();
 
-		{
-			ImGui_BeginDisabled (true);
+		//{
+		//	ImGui_BeginDisabled (true);
 
-			ImGui_Checkbox ("Speech", (bool *)&optSpeech);
+		//	ImGui_Checkbox ("Speech", (bool *)&optSpeech);
 
-			if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
-			{
-				ImGui_SetTooltip (
-					"This option can only be changed in the Setup Menu.");
-			}
+		//	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
+		//	{
+		//		ImGui_SetTooltip (
+		//			"This option can only be changed in the Setup Menu.");
+		//	}
 
-			ImGui_EndDisabled ();
-		}
+		//	ImGui_EndDisabled ();
+		//}
 
 		UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles");
 
@@ -279,6 +288,7 @@ draw_engine_menu (void)
 				mmcfg_changed = true;
 			}
 		}
+		ImGui_EndChild ();
 
 		ImGui_NewLine ();
 	}
@@ -288,6 +298,8 @@ draw_engine_menu (void)
 
 	// Orbit Screen
 	{
+		ImGui_BeginStyledChild ("##Orbit", ZERO_F, CHILD_FLAGS, 0, NULL);
+
 		ImGui_SeparatorText ("Orbit Screen");
 
 		{
@@ -361,6 +373,8 @@ draw_engine_menu (void)
 				mmcfg_changed = true;
 			}
 		}
+
+		ImGui_EndChild ();
 
 		ImGui_NewLine ();
 	}

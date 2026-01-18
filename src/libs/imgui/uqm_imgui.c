@@ -150,7 +150,7 @@ int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
 
 	ImGui_GetIO()->IniFilename = NULL;
 
-	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	ImGui_GetIO ()->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
@@ -592,6 +592,18 @@ ImGui_TextCenteredColored (ImVec4 col, const char *fmt, ...)
 	ImGui_PopTextWrapPos ();
 
 	va_end (args);
+}
+
+void
+ImGui_BeginStyledChild (const char *str_id, ImVec2 size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags, ImVec4 *col)
+{
+	ImVec4 colour = MAKE_IV4 (0, 0, 0, 0);
+	if (col != NULL)
+		colour = *col;
+
+	ImGui_PushStyleColorImVec4 (ImGuiCol_ChildBg, colour);
+	ImGui_BeginChild (str_id, size, child_flags, window_flags);
+	ImGui_PopStyleColor ();
 }
 
 // Begin GameState cache implementation

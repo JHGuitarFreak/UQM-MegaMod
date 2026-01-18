@@ -175,6 +175,9 @@ bool ImGui_SizedComboChar (const char *label, int *curr_item,
 		const char *const items[], int items_count);
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
 void ImGui_HorizontalSeparator (const char *str_id);
+void ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
+		ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags,
+		ImVec4 *col);
 
 // Colors
 #define STYLE_COLOR(a) ImGui_GetColorU32 (a)
