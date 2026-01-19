@@ -60,7 +60,6 @@ void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);
 int  VControl_AddKeyBinding (sdl_key_t symbol, int *target);
 void VControl_RemoveKeyBinding (sdl_key_t symbol, int *target);
 
-
 void create_joystick (int device_index);
 
 int  VControl_AddJoyAxisBinding (int port, int axis, int polarity,

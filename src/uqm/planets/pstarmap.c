@@ -2441,7 +2441,8 @@ DoBubbleWarp (BOOLEAN UseFuel)
 
 static void
 AdvancedAutoPilot (void)
-{
+{	// (Based on the Python QuasiSpace Calculator by Lukrative525 
+	// https://www.reddit.com/r/starcontrol/comments/zpyhkc/quasispace_calculator/
 	POINT current_position;
 	POINT destination = GLOBAL (autopilot);
 	POINT portal_coordinates;

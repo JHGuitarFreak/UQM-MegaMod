@@ -1420,6 +1420,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 					starPt = SDPtr->star_pt;
 					break;
 				}
+				FALLTHROUGH;
 			}
 			default:
 				buf[0] = '\0';
