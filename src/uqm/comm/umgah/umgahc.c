@@ -443,7 +443,12 @@ UmgahReward (RESPONSE_REF R)
 	}
 	else if (PLAYER_SAID (R, where_caster))
 	{
+		int channel_44 = GET_GAME_STATE (KNOW_CHANNEL_44);
+
 		NPCPhrase (SPATHI_TOOK_THEM);
+
+		channel_44 |= (1 << 0);
+		SET_GAME_STATE (KNOW_CHANNEL_44, channel_44);
 
 		DISABLE_PHRASE (where_caster);
 	}

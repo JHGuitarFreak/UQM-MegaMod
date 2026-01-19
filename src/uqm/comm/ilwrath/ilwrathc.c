@@ -214,7 +214,12 @@ IlwrathGods (RESPONSE_REF R)
 	}
 	else if (PLAYER_SAID (R, how_talk_with_gods))
 	{
+		int channel_44 = GET_GAME_STATE (KNOW_CHANNEL_44);
+
 		NPCPhrase (CHANNEL_44);
+
+		channel_44 |= (1 << 2);
+		SET_GAME_STATE (KNOW_CHANNEL_44, channel_44);
 
 		DISABLE_PHRASE (how_talk_with_gods);
 	}

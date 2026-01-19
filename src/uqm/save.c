@@ -807,6 +807,7 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "INVESTIGATE_ORZ", 1 },
 	{ "INVESTIGATE_ZFP", 1 },
 	{ "MET_ZFP_HOME", 1 },
+	{ "KNOW_CHANNEL_44", 3 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

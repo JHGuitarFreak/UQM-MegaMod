@@ -638,7 +638,14 @@ PkunkFriendlySpace (RESPONSE_REF R)
 					NPCPhrase (GENERAL_INFO_SPACE_1);
 					break;
 				case 1:
+				{
+					int channel_44 = GET_GAME_STATE (KNOW_CHANNEL_44);
+
 					NPCPhrase (GENERAL_INFO_SPACE_2);
+
+					channel_44 |= (1 << 1);
+					SET_GAME_STATE (KNOW_CHANNEL_44, channel_44);
+				}
 					break;
 				case 2:
 					NPCPhrase (GENERAL_INFO_SPACE_3);

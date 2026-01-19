@@ -274,6 +274,7 @@ WriteJournals (void)
 			melnorme_bomb,
 			burvixese_mels,
 			taalo_playground, taalo_mels;
+	BOOLEAN have_caster, channel_44;
 	BYTE rbs;
 	BOOLEAN rainbow_shofixti, rainbow_supox, rainbow_0, rainbow_7,
 			rainbow_5;
@@ -708,6 +709,16 @@ WriteJournals (void)
 			taalo_playground,  CHECK_PLAYGROUND,
 			taalo_mels,        INVESTIGATE_TAALO,
 			have_taalo_shield, NO_JOURNAL_ENTRY);
+
+	have_caster = GGS (BURV_BROADCASTERS_ON_SHIP)
+			|| GGS (UMGAH_BROADCASTERS_ON_SHIP);
+	channel_44 = GSGE (MELNORME_EVENTS_INFO_STACK, 3)
+			|| GGS (KNOW_CHANNEL_44);
+
+	AddJournal (ARTIFACTS_JOURNAL, 3,
+			have_caster,               BANANA_PHONE,
+			have_caster && channel_44, PRANK_ILWRATH,
+			GGS (ILWRATH_DECEIVED),    BYE_ILWRATH);
 
 	rainbow_shofixti = GGS (SHOFIXTI_STACK2) > 2
 			&& GSGE (SHOFIXTI_STACK1, 2);
