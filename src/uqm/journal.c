@@ -245,8 +245,10 @@ WriteJournals (void)
 			pkunk_ilwrath, pkunk_melnorme, knownt_pkunk_home,
 			sb_arilou, met_arilou,
 			sb_chenjesu, sb_mmrnmhrm, met_chmmr,
-			sb_andro, andro_dead,
-			find_shofixti, shofixti_returned, find_maidens,
+			sb_andro, andro_dead;
+	BOOLEAN know_zex, know_maidens, find_beast, have_beast, zex_dead,
+			have_maidens;
+	BOOLEAN find_shofixti, shofixti_returned, find_maidens,
 			meet_supox, met_supox,
 			syreen_bullet, meet_syreen, met_syreen,
 			mention_deep_children, want_proof, have_eggcase, find_vault,
@@ -457,10 +459,28 @@ WriteJournals (void)
 			knownt_pkunk_home,      GO_TO_PKUNK_HOMEWORLD,
 			GS (PKUNK_HOME_VISITS), MET_THE_PKUNK);
 
-	find_shofixti = AllianceInfo (ALLIANCE_SHOFIXTI)
-			|| GSGE (MELNORME_ALIEN_INFO_STACK, 12)
-			|| (IsHomeworldKnown (SHOFIXTI_HOME) && !GGS (SHOFIXTI_VISITS));
+	know_zex = GGS (HEARD_OF_ZEX);
+	know_maidens = GSGE (MELNORME_EVENTS_INFO_STACK, 1);
+	find_beast = GGS (KNOW_ZEX_WANTS_MONSTER);
+	have_beast = GGS (VUX_BEAST_ON_SHIP);
+	zex_dead = GGS (ZEX_IS_DEAD);
+	have_maidens = GGS (MAIDENS_ON_SHIP);
 	shofixti_returned = RaceAllied (SHOFIXTI_SHIP);
+
+	AddJournal (ALIENS_JOURNAL, 8,
+			know_zex,                     CONTACT_ZEX,
+			know_maidens,                 CONTACT_ZEX_MAIDENS,
+			find_beast,                   ZEX_QUEST,
+			find_beast && have_beast,     ZEX_BEAST,
+			zex_dead,                     GET_THE_MAIDENS,
+			have_maidens,                 GOT_THE_MAIDENS,
+			know_maidens && have_maidens, REVIVE_SHOFIXTI,
+			shofixti_returned,            NO_JOURNAL_ENTRY);
+
+	find_shofixti = (AllianceInfo (ALLIANCE_SHOFIXTI)
+			|| GSGE (MELNORME_ALIEN_INFO_STACK, 1) || know_maidens
+			|| (IsHomeworldKnown (SHOFIXTI_HOME))
+			&& !GGS (SHOFIXTI_VISITS));
 	find_maidens = GSGE (MELNORME_ALIEN_INFO_STACK, 12);
 
 	AddJournal (ALIENS_JOURNAL, 4,
@@ -689,6 +709,11 @@ WriteJournals (void)
 			ultron_fixed,    RETURN_THE_ULTRON,
 			ultron_returned, GET_THE_BOMB,
 			have_bomb,       IMPROVE_THE_BOMB);
+
+	AddJournal (ARTIFACTS_JOURNAL, 2,
+			have_beast && !(know_zex || know_maidens || zex_dead
+				|| find_beast), HAVE_BEAST_NO_ZEX,
+			shofixti_returned,  NO_JOURNAL_ENTRY);
 
 	melnorme_bomb = GSGE (MELNORME_EVENTS_INFO_STACK, 7);
 

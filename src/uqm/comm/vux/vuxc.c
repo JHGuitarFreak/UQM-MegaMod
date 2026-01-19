@@ -654,6 +654,7 @@ NormalVux (RESPONSE_REF R)
 		{
 			case 0:
 				NPCPhrase (GENERAL_INFO_HOSTILE_1);
+				SET_GAME_STATE (HEARD_OF_ZEX, 1);
 				break;
 			case 1:
 				NPCPhrase (GENERAL_INFO_HOSTILE_2);

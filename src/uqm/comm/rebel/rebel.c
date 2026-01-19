@@ -237,6 +237,8 @@ RebelInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_VUX);
 
+		SET_GAME_STATE (HEARD_OF_ZEX, 1);
+
 		DISABLE_PHRASE (what_about_vux);
 	}
 	else if (PLAYER_SAID (R, what_about_clue))
