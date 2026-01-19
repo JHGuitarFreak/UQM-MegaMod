@@ -249,6 +249,8 @@ WriteJournals (void)
 			find_shofixti, shofixti_returned, find_maidens,
 			meet_supox, met_supox,
 			syreen_bullet, meet_syreen, met_syreen,
+			mention_deep_children, want_proof, have_eggcase, find_vault,
+			vault_unlocked, mycon_ambush, ambush_complete, ambush_success,
 			sb_others,
 			gen_thraddash, mels_thraddash, met_thraddash,
 			meet_utwig, met_utwig,
@@ -477,13 +479,35 @@ WriteJournals (void)
 
 	syreen_bullet = AllianceInfo (ALLIANCE_SYREEN);
 	meet_syreen = IsHomeworldKnown (SYREEN_HOME);
-	met_syreen = GS (SYREEN_HOME_VISITS) || GS (KNOW_SYREEN_VAULT)
-			|| GS (SHIP_VAULT_UNLOCKED) || RaceAllied (SYREEN_SHIP);
+	met_syreen = GS (SYREEN_STACK0) || GS (SYREEN_STACK1)
+			|| GS (SYREEN_STACK2);
 
-	AddJournal (ALIENS_JOURNAL, 3,
-			syreen_bullet, CONTACT_SYREEN,
-			meet_syreen,   CONTACT_SYREEN_HW,
-			met_syreen,    MET_THE_SYREEN);
+	AddJournal (ALIENS_JOURNAL, 4,
+			syreen_bullet,            CONTACT_SYREEN,
+			meet_syreen,              CONTACT_SYREEN_HW,
+			met_syreen,               MET_THE_SYREEN,
+			RaceAllied (SYREEN_SHIP), NO_JOURNAL_ENTRY);
+
+	mention_deep_children = met_syreen && GGS (KNOW_ABOUT_SHATTERED);
+	want_proof = GGS (KNOW_ABOUT_SHATTERED) == 3 && GGS (SYREEN_WANT_PROOF);
+	have_eggcase = GGS (EGG_CASE0_ON_SHIP) || GGS (EGG_CASE1_ON_SHIP) || GGS (EGG_CASE2_ON_SHIP);
+	find_vault = GGS (SYREEN_KNOW_ABOUT_MYCON) && GGS (SYREEN_SHUTTLE) && GGS (SYREEN_SHUTTLE_ON_SHIP);
+	vault_unlocked = GGS (SHIP_VAULT_UNLOCKED);
+	mycon_ambush = GGS (MYCON_AMBUSH);
+	ambush_complete = GGS (MYCON_KNOW_AMBUSH);
+	ambush_success = RaceAllied (SYREEN_SHIP);
+
+	AddJournal (ALIENS_JOURNAL, 10,
+			mention_deep_children,                 MENTION_DEEP_CHILDREN,
+			want_proof,                            PROVIDE_PROOF,
+			want_proof && have_eggcase,            SHOW_EGGCASE,
+			find_vault,                            FIND_SHIP_VAULT,
+			find_vault && GGS (KNOW_SYREEN_VAULT), KNOW_SHIP_VAULT,
+			vault_unlocked,                        FOUND_VAULT,
+			mycon_ambush,                          AMBUSH_MYCON,
+			GGS (MYCON_FELL_FOR_AMBUSH),           AMBUSH_AWAY,
+			ambush_complete,                       TALK_ABOUT_AMBUSH,
+			ambush_success,                        SYREEN_ALLIED);
 
 	gen_thraddash = GGS (INVESTIGATE_THRADD);
 	mels_thraddash = GSGE (MELNORME_ALIEN_INFO_STACK, 7);
