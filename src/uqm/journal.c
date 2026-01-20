@@ -252,6 +252,7 @@ WriteJournals (void)
 	BOOLEAN know_zex, know_maidens, find_beast, have_beast, zex_dead,
 			have_maidens;
 	BOOLEAN find_shofixti, shofixti_returned, find_maidens,
+			showoff_shofixti,
 			meet_supox, met_supox,
 			syreen_bullet, meet_syreen, met_syreen,
 			mention_deep_children, want_proof, have_eggcase, find_vault,
@@ -470,8 +471,7 @@ WriteJournals (void)
 	out_of_avenues = convinced_01 && convinced_02 && not_convinced_01
 			&& not_convinced_02;
 	pkunk_absorbed = GS (YEHAT_ABSORBED_PKUNK);
-	informed_absorbed = GS (YEHAT_REBEL_TOLD_PKUNK)
-			|| GS (YEHAT_ROYALIST_TOLD_PKUNK);
+	informed_absorbed = GS (YEHAT_ROYALIST_TOLD_PKUNK);
 	pkunk_mission = GGS (PKUNK_MISSION);
 
 	AddJournal (ALIENS_JOURNAL, 3,
@@ -524,6 +524,12 @@ WriteJournals (void)
 			GGS (SHOFIXTI_VISITS),    RECRUIT_THE_SHOFIXTI,
 			GGS (SHOFIXTI_RECRUITED), SENT_SHOFIXTI,
 			shofixti_returned,        SHOFIXTI_REPOPULATED);
+
+	showoff_shofixti = shofixti_returned && GGS (SHOW_YEHAT_SHOFIXTI);
+
+	AddJournal (ALIENS_JOURNAL, 2,
+			showoff_shofixti,      SHOWOFF_SHOFIXTI,
+			GGS (YEHAT_CIVIL_WAR), LETS_START_A_RIOT);
 
 	meet_supox = IsHomeworldKnown (SUPOX_HOME)
 			|| CheckSphereTracking (SUPOX_SHIP);

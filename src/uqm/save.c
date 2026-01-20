@@ -811,6 +811,7 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "HEARD_OF_ZEX", 1 },
 	{ "PKUNK_WHY", 2 },
 	{ "PKUNK_LIVE", 1 },
+	{ "SHOW_YEHAT_SHOFIXTI", 1 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

@@ -341,6 +341,10 @@ Rebels (RESPONSE_REF R)
 			NPCPhrase (HATE_PKUNK_REBEL);
 
 		SET_GAME_STATE (YEHAT_REBEL_TOLD_PKUNK, 1);
+
+		// Reused here because YEHAT_REBEL_TOLD_PKUNK is reused when
+		// starting the Yehat revolution
+		SET_GAME_STATE (YEHAT_ROYALIST_TOLD_PKUNK, 1);
 	}
 	else if (PLAYER_SAID (R, enough_info))
 		NPCPhrase (OK_ENOUGH_INFO);
