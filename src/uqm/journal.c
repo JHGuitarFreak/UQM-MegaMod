@@ -242,8 +242,11 @@ WriteJournals (void)
 			met_zfp_scout, met_zfp_home,
 			mels_bullet, met_mels,
 			investigate_orz, met_orz, orz_status, orz_frumple,
-			pkunk_ilwrath, pkunk_melnorme, knownt_pkunk_home,
-			sb_arilou, met_arilou,
+			pkunk_ilwrath, pkunk_melnorme, knownt_pkunk_home;
+	BOOLEAN convinced_01, convinced_02, convinced, out_of_convinced,
+			not_convinced_01, not_convinced_02, out_of_avenues,
+			pkunk_absorbed, informed_absorbed, pkunk_mission;
+	BOOLEAN sb_arilou, met_arilou,
 			sb_chenjesu, sb_mmrnmhrm, met_chmmr,
 			sb_andro, andro_dead;
 	BOOLEAN know_zex, know_maidens, find_beast, have_beast, zex_dead,
@@ -458,16 +461,18 @@ WriteJournals (void)
 			knownt_pkunk_home,      GO_TO_PKUNK_HOMEWORLD,
 			GGS (MET_PKUNK),        MET_THE_PKUNK);
 
-	BOOLEAN convinced_01 = (GGS (PKUNK_REASONS) & (1 << 0)) != 0;
-	BOOLEAN convinced_02 = (GGS (PKUNK_REASONS) & (1 << 1)) != 0;
-	BOOLEAN convinced = convinced_01 || convinced_02;
-	BOOLEAN out_of_convinced = convinced_01 && convinced_02;
-	BOOLEAN not_convinced_01 = (GGS (PKUNK_REASONS) & (1 << 2)) != 0;
-	BOOLEAN not_convinced_02 = (GGS (PKUNK_REASONS) & (1 << 3)) != 0;
-	BOOLEAN out_of_avenues = convinced_01 && convinced_02 && not_convinced_01 && not_convinced_02;
-	BOOLEAN pkunk_absorbed = GS (YEHAT_ABSORBED_PKUNK);
-	BOOLEAN informed_absorbed = GS (YEHAT_REBEL_TOLD_PKUNK) || GS (YEHAT_ROYALIST_TOLD_PKUNK);
-	BOOLEAN pkunk_mission = GGS (PKUNK_MISSION);
+	convinced_01 = (GGS (PKUNK_REASONS) & (1 << 0)) != 0;
+	convinced_02 = (GGS (PKUNK_REASONS) & (1 << 1)) != 0;
+	convinced = convinced_01 || convinced_02;
+	out_of_convinced = convinced_01 && convinced_02;
+	not_convinced_01 = (GGS (PKUNK_REASONS) & (1 << 2)) != 0;
+	not_convinced_02 = (GGS (PKUNK_REASONS) & (1 << 3)) != 0;
+	out_of_avenues = convinced_01 && convinced_02 && not_convinced_01
+			&& not_convinced_02;
+	pkunk_absorbed = GS (YEHAT_ABSORBED_PKUNK);
+	informed_absorbed = GS (YEHAT_REBEL_TOLD_PKUNK)
+			|| GS (YEHAT_ROYALIST_TOLD_PKUNK);
+	pkunk_mission = GGS (PKUNK_MISSION);
 
 	AddJournal (ALIENS_JOURNAL, 3,
 			pkunk_mission > 2,               NO_JOURNAL_ENTRY,
