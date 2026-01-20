@@ -376,6 +376,8 @@ Intro (void)
 			NumVisits = DIF_CASE(8, 8, 4);
 		AddEscortShips (YEHAT_REBEL_SHIP, NumVisits - (NumVisits >> 1));
 		AddEscortShips (PKUNK_SHIP, NumVisits >> 1);
+
+		SET_GAME_STATE (PKUNK_LIVE, 1);
 	}
 	else
 	{

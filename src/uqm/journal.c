@@ -449,15 +449,46 @@ WriteJournals (void)
 	sb_others = GGS (HAYES_OTHER_ALIENS);
 	pkunk_ilwrath = GGS (HEARD_PKUNK_ILWRATH);
 	pkunk_melnorme = GSGE (MELNORME_ALIEN_INFO_STACK, 2);
-	knownt_pkunk_home = IsHomeworldKnown (PKUNK_HOME) && GGS (PKUNK_VISITS)
-			&& !GGS (PKUNK_HOME_VISITS);
+	knownt_pkunk_home = IsHomeworldKnown (PKUNK_HOME) && !GGS (MET_PKUNK);
 
 	AddJournal (ALIENS_JOURNAL, 5,
 			sb_others,              HAYES_PKUNK,
 			pkunk_ilwrath,          HEARD_OF_PKUNK_ILWRATH,
 			pkunk_melnorme,         HEARD_OF_PKUNK_MELNORME,
 			knownt_pkunk_home,      GO_TO_PKUNK_HOMEWORLD,
-			GS (PKUNK_HOME_VISITS), MET_THE_PKUNK);
+			GGS (MET_PKUNK),        MET_THE_PKUNK);
+
+	BOOLEAN convinced_01 = (GGS (PKUNK_REASONS) & (1 << 0)) != 0;
+	BOOLEAN convinced_02 = (GGS (PKUNK_REASONS) & (1 << 1)) != 0;
+	BOOLEAN convinced = convinced_01 || convinced_02;
+	BOOLEAN out_of_convinced = convinced_01 && convinced_02;
+	BOOLEAN not_convinced_01 = (GGS (PKUNK_REASONS) & (1 << 2)) != 0;
+	BOOLEAN not_convinced_02 = (GGS (PKUNK_REASONS) & (1 << 3)) != 0;
+	BOOLEAN out_of_avenues = convinced_01 && convinced_02 && not_convinced_01 && not_convinced_02;
+	BOOLEAN pkunk_absorbed = GS (YEHAT_ABSORBED_PKUNK);
+	BOOLEAN informed_absorbed = GS (YEHAT_REBEL_TOLD_PKUNK) || GS (YEHAT_ROYALIST_TOLD_PKUNK);
+	BOOLEAN pkunk_mission = GGS (PKUNK_MISSION);
+
+	AddJournal (ALIENS_JOURNAL, 3,
+			pkunk_mission > 2,               NO_JOURNAL_ENTRY,
+			pkunk_mission == 1,              WHY_PKUNK_MOVE,
+			convinced && pkunk_mission == 2, STOPPED_MIGRATION_01);
+
+	AddJournal (ALIENS_JOURNAL, 3,
+			pkunk_mission > 4,                      NO_JOURNAL_ENTRY,
+			pkunk_mission == 3,                     PKUNK_MOVING_AGAIN_01,
+			out_of_convinced && pkunk_mission == 4, STOPPED_MIGRATION_02);
+
+	AddJournal (ALIENS_JOURNAL, 5,
+			pkunk_mission == 5,                   PKUNK_MOVING_AGAIN_02,
+			pkunk_mission == 5 && out_of_avenues, UNABLE_TO_STOP,
+			pkunk_absorbed,                       FIND_OUT_FROM_YEHAT,
+			informed_absorbed,                    NO_JOURNAL_ENTRY,
+			GGS (PKUNK_LIVE),                     THEY_LIVE);
+
+	AddJournal (ALIENS_JOURNAL, 2,
+			GGS (PKUNK_LIVE),  NO_JOURNAL_ENTRY,
+			informed_absorbed, PKUNK_WERE_ABSORBED);
 
 	know_zex = GGS (HEARD_OF_ZEX);
 	know_maidens = GSGE (MELNORME_EVENTS_INFO_STACK, 1);

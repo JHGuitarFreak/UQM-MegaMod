@@ -809,6 +809,8 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "MET_ZFP_HOME", 1 },
 	{ "KNOW_CHANNEL_44", 3 },
 	{ "HEARD_OF_ZEX", 1 },
+	{ "PKUNK_WHY", 2 },
+	{ "PKUNK_LIVE", 1 },
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },
