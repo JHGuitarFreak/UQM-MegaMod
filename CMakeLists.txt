@@ -1,6 +1,7 @@
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 4.1.2)
 project (UQM-MegaMod VERSION 0.8.4 LANGUAGES C CXX)
 
+include (FetchContent)
 include (helpers.cmake)
 
 set (CMAKE_C_STANDARD 99)
@@ -50,25 +51,58 @@ if (UQM_NETPLAY AND IS_WINDOWS)
 	set (USE_WINSOCK TRUE)
 endif ()
 
-find_package (PkgConfig REQUIRED)
+# Find/Fetch the dependencies
 
-pkg_check_modules (SDL2 QUIET REQUIRED sdl2)
-message (STATUS "Found SDL2: ${SDL2_VERSION}")
-set (SDL_DIR "SDL2")
+find_package (SDL2 QUIET)
+if (SDL2_FOUND)
+	message (STATUS "Found SDL2: ${SDL2_VERSION}")
+	set (SDL_DIR "SDL2")
+	set (SDL2_LIBRARIES "SDL2::SDL2")
+else ()
+	FetchSDL ()
+	message (STATUS "Fetched SDL2: ${SDL2_VERSION}")
+endif ()
 
-pkg_check_modules (PNG QUIET REQUIRED libpng)
-message (STATUS "Found libPNG: ${PNG_VERSION}")
+find_package (PNG QUIET)
+if (PNG_FOUND)
+	message (STATUS "Found libPNG: ${PNG_VERSION_STRING}")
+	set (PNG_LIBRARIES "PNG::PNG")
+else ()
+	FetchPNG ()
+	message (STATUS "Fetched libPNG: ${PNG_VERSION}")
+endif ()
 
-pkg_check_modules (VORBISFILE QUIET REQUIRED vorbisfile)
-pkg_check_modules (VORBIS QUIET REQUIRED vorbis)
-pkg_check_modules (OGG QUIET REQUIRED ogg)
-message (STATUS "Using standard Ogg Vorbis codec")
-set (OGGVORBIS "vorbisfile")
-set (UQM_OGG_CODEC "standard")
+find_package (Ogg QUIET)
+if (Ogg_FOUND)
+	message (STATUS "Found ogg: ${Ogg_VERSION}")
+	set (OGG_LIBRARIES "Ogg::ogg")
+else ()
+	FetchOgg ()
+	message (STATUS "Fetched ogg: ${OGG_VERSION}")
+endif ()
+
+find_package (Vorbis QUIET)
+if (Vorbis_FOUND)
+	message (STATUS "Found Vorbis: ${Vorbis_VERSION}")
+	set (VORBIS_LIBRARIES "Vorbis::vorbis")
+	set (VORBISFILE_LIBRARIES "Vorbis::vorbisfile")
+
+	set (VORBISFILE_INCLUDE_DIRS ${VORBIS_INCLUDE_DIRS})
+	set (UQM_OGG_CODEC "standard")
+else ()
+	FetchVorbis ()
+	message (STATUS "Fetched Vorbis: ${VORBIS_VERSION}")
+endif ()
 
 if (UQM_ZIP_IO)
-	pkg_check_modules (ZLIB QUIET REQUIRED zlib)
-	message (STATUS "Found ZLIB: ${ZLIB_VERSION}")
+	find_package (ZLIB QUIET)
+	if (ZLIB_FOUND)
+		message (STATUS "Found ZLIB: ${ZLIB_VERSION}")
+		set (ZLIB_LIBRARIES "ZLIB::ZLIB")
+	else ()
+		FetchZLIB ()
+		message (STATUS "Fetched ZLIB: ${ZLIB_VERSION}")
+	endif ()
 	set (HAVE_ZIP 1)
 	set (USE_ZIP_IO 1)
 else ()
@@ -80,7 +114,6 @@ endif ()
 include (CheckSymbolExists)
 include (CheckIncludeFile)
 include (CheckTypeSize)
-include (CheckCSourceCompiles)
 
 include (TestBigEndian)
 test_big_endian (WORDS_BIGENDIAN)
@@ -105,7 +138,7 @@ quieter_check_symbol (getopt_long "getopt.h"  HAVE_GETOPT_LONG)
 # type to check ↓ save to var ↓
 check_type ("wchar_t" HAVE_WCHAR_T)
 check_type ("wint_t"  HAVE_WINT_T)
-check_type ("_Bool"   HAVE_WINT_T)
+check_type ("_Bool"   HAVE__BOOL)
 #check_include function defined in helpers.cmake
 #        header ↓   save to var ↓
 check_include ("regex.h" HAVE_REGEX_H)
@@ -191,7 +224,8 @@ function (parse_makeinfo_with_recurse target_sources)
 	set (ENV{BUILD_WORK} "${CMAKE_SOURCE_DIR}")
 
 	execute_process (
-			COMMAND sh "${CMAKE_SOURCE_DIR}/build/unix/recurse" "uqm" "${CMAKE_SOURCE_DIR}"
+			COMMAND sh "${CMAKE_SOURCE_DIR}/build/unix/recurse" "uqm"
+					"${CMAKE_SOURCE_DIR}"
 			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 			OUTPUT_VARIABLE recurse_output
 			ERROR_VARIABLE recurse_error
@@ -204,7 +238,8 @@ function (parse_makeinfo_with_recurse target_sources)
 	endif ()
 
 	if (NOT recurse_result EQUAL 0)
-		message (FATAL_ERROR "recurse script failed with exit code: ${recurse_result}")
+		message (FATAL_ERROR "recurse script failed with exit code:
+				${recurse_result}")
 	endif ()
 
 	string (REPLACE "\n" ";" file_lines "${recurse_output}")
@@ -274,6 +309,7 @@ target_include_directories (UrQuanMasters PRIVATE
 		${CMAKE_SOURCE_DIR}/src
 		${SDL2_INCLUDE_DIRS}
 		${PNG_INCLUDE_DIRS}
+		${ZLIB_INCLUDE_DIRS}
 		${VORBISFILE_INCLUDE_DIRS}
 )
 
@@ -319,9 +355,9 @@ target_compile_definitions (UrQuanMasters PRIVATE ${UQM_DEFINITIONS})
 set (UQM_LINK_LIBRARIES
 		${SDL2_LIBRARIES}
 		${PNG_LIBRARIES}
-		${VORBISFILE_LIBRARIES}
-		${VORBIS_LIBRARIES}
 		${OGG_LIBRARIES}
+		${VORBIS_LIBRARIES}
+		${VORBISFILE_LIBRARIES}
 		${EXTRA_LIBS}
 )
 
@@ -329,7 +365,7 @@ append_list (UQM_LINK_LIBRARIES "${ZLIB_LIBRARIES}" USE_ZIP_IO)
 append_list (UQM_LINK_LIBRARIES "gdi32"             IS_WINDOWS)
 
 if (HAVE_REGEX_H AND IS_MINGW)
-	pkg_check_modules (REGEX QUIET regex)
+	find_package (REGEX REQUIRED)
 	if (REGEX_FOUND)
 		list (APPEND UQM_LINK_LIBRARIES ${REGEX_LIBRARIES})
 		message (STATUS "Using regex: ${REGEX_LIBRARIES}")
@@ -347,7 +383,8 @@ target_link_libraries (UrQuanMasters ${UQM_LINK_LIBRARIES})
 message (STATUS "")
 message (STATUS "=== UQM-MegaMod Configuration ===")
 message (STATUS "Build Type:       ${CMAKE_BUILD_TYPE}")
-message (STATUS "Graphics Engine:  ${UQM_GFX_BACKEND} (SDL_DIR: ${SDL_DIR})")
+message (STATUS "Graphics Engine:  ${UQM_GFX_BACKEND} "
+		"(SDL_DIR: ${SDL_DIR})")
 message (STATUS "Sound Backend:    ${UQM_SOUND_BACKEND}")
 message (STATUS "Ogg Vorbis Codec: ${UQM_OGG_CODEC}")
 message (STATUS "Thread Library:   ${UQM_THREAD_LIB}")
