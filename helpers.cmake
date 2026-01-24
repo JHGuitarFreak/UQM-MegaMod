@@ -113,7 +113,7 @@ function (FetchPNG)
 	set (PNG_SHARED OFF CACHE BOOL "Build libpng as a shared library" FORCE)
 	set (PNG_STATIC ON  CACHE BOOL "Build libpng as a static library" FORCE)
 
-	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING")
+	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
 
 	FetchContent_Declare (
 			png
@@ -124,8 +124,9 @@ function (FetchPNG)
 	)
 	FetchContent_MakeAvailable (png)
 
-	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS") # Re-enable status messages
 
+	# Set variables
 	set (PNG_FOUND TRUE PARENT_SCOPE)
 	set (PNG_LIBRARIES png_static PARENT_SCOPE)
 	set (PNG_INCLUDE_DIRS
@@ -139,7 +140,8 @@ endfunction ()
 
 function (FetchOgg)
 	message (STATUS "Fetching libogg...")
-	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING")
+
+	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
 
 	FetchContent_Declare (
 			libogg
@@ -150,9 +152,9 @@ function (FetchOgg)
 	)
 	FetchContent_MakeAvailable (libogg)
 
-	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS") # Re-enable status messages
 
-	# Set OGG variables
+	# Set variables
 	set (OGG_FOUND TRUE PARENT_SCOPE)
 	set (OGG_LIBRARIES ogg PARENT_SCOPE)
 	set (OGG_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/libogg/")
@@ -167,7 +169,8 @@ endfunction ()
 
 function (FetchVorbis)
 	message (STATUS "Fetching libvorbis...")
-	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING")
+
+	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
 
 	FetchContent_Declare (
 			libvorbis
@@ -178,8 +181,9 @@ function (FetchVorbis)
 	)
 	FetchContent_MakeAvailable (libvorbis)
 
-	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS") # Re-enable status messages
 
+	# Set variables
 	set (VORBIS_FOUND TRUE PARENT_SCOPE)
 	set (VORBIS_LIBRARIES vorbis PARENT_SCOPE)
 	set (VORBIS_INCLUDE_DIRS
@@ -204,7 +208,7 @@ endfunction ()
 function (FetchZLIB)
 	message (STATUS "Fetching ZLIB...")
 
-	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING")
+	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
 
 	FetchContent_Declare (
 			zlib
@@ -218,12 +222,15 @@ function (FetchZLIB)
 	)
 	FetchContent_MakeAvailable (zlib)
 
-	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS") # Re-enable status messages
 
+	# Set variables
 	if (TARGET zlibstatic)
 		set (ZLIB_TARGET zlibstatic)
-	else ()
+	elseif (TARGET zlib)
 		set (ZLIB_TARGET zlib)
+	else (TARGET zlib)
+		set (ZLIB_TARGET z)
 	endif ()
 
 	set (ZLIB_FOUND TRUE PARENT_SCOPE)

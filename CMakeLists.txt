@@ -7,11 +7,16 @@ include (helpers.cmake)
 set (CMAKE_C_STANDARD 99)
 set (CMAKE_C_STANDARD_REQUIRED ON)
 
+set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
 message (STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set (CMAKE_C_FLAGS_DEBUG "-g -Og -Wall -DDEBUG")
 set (CMAKE_C_FLAGS_RELEASE "-O2 -s -DNDEBUG")
 set (COMMON_C_FLAGS "")
+
+set (CXX_EXTRA_FLAGS "-fno-rtti -fno-exceptions -nostdinc++")
 
 set (USE_WINSOCK FALSE)
 set (IS_MINGW FALSE)
@@ -56,49 +61,15 @@ endif ()
 find_package (SDL2 QUIET)
 if (SDL2_FOUND)
 	message (STATUS "Found SDL2: ${SDL2_VERSION}")
-	set (SDL_DIR "SDL2")
-	set (SDL2_LIBRARIES "SDL2::SDL2")
 else ()
 	FetchSDL ()
 	message (STATUS "Fetched SDL2: ${SDL2_VERSION}")
-endif ()
-
-find_package (PNG QUIET)
-if (PNG_FOUND)
-	message (STATUS "Found libPNG: ${PNG_VERSION_STRING}")
-	set (PNG_LIBRARIES "PNG::PNG")
-else ()
-	FetchPNG ()
-	message (STATUS "Fetched libPNG: ${PNG_VERSION}")
-endif ()
-
-find_package (Ogg QUIET)
-if (Ogg_FOUND)
-	message (STATUS "Found ogg: ${Ogg_VERSION}")
-	set (OGG_LIBRARIES "Ogg::ogg")
-else ()
-	FetchOgg ()
-	message (STATUS "Fetched ogg: ${OGG_VERSION}")
-endif ()
-
-find_package (Vorbis QUIET)
-if (Vorbis_FOUND)
-	message (STATUS "Found Vorbis: ${Vorbis_VERSION}")
-	set (VORBIS_LIBRARIES "Vorbis::vorbis")
-	set (VORBISFILE_LIBRARIES "Vorbis::vorbisfile")
-
-	set (VORBISFILE_INCLUDE_DIRS ${VORBIS_INCLUDE_DIRS})
-	set (UQM_OGG_CODEC "standard")
-else ()
-	FetchVorbis ()
-	message (STATUS "Fetched Vorbis: ${VORBIS_VERSION}")
 endif ()
 
 if (UQM_ZIP_IO)
 	find_package (ZLIB QUIET)
 	if (ZLIB_FOUND)
 		message (STATUS "Found ZLIB: ${ZLIB_VERSION}")
-		set (ZLIB_LIBRARIES "ZLIB::ZLIB")
 	else ()
 		FetchZLIB ()
 		message (STATUS "Fetched ZLIB: ${ZLIB_VERSION}")
@@ -109,6 +80,31 @@ else ()
 	message (STATUS "ZIP I/O support disabled")
 	set (HAVE_ZIP 0)
 	set (USE_ZIP_IO 0)
+endif ()
+
+find_package (PNG QUIET)
+if (PNG_FOUND)
+	message (STATUS "Found libPNG: ${PNG_VERSION_STRING}")
+else ()
+	FetchPNG ()
+	message (STATUS "Fetched libPNG: ${PNG_VERSION}")
+endif ()
+
+find_package (Ogg QUIET)
+if (Ogg_FOUND)
+	message (STATUS "Found ogg: ${Ogg_VERSION}")
+else ()
+	FetchOgg ()
+	message (STATUS "Fetched ogg: ${OGG_VERSION}")
+endif ()
+
+find_package (Vorbis QUIET)
+if (Vorbis_FOUND)
+	message (STATUS "Found Vorbis: ${Vorbis_VERSION}")
+	set (UQM_OGG_CODEC "standard")
+else ()
+	FetchVorbis ()
+	message (STATUS "Fetched Vorbis: ${VORBIS_VERSION}")
 endif ()
 
 include (CheckSymbolExists)
@@ -153,14 +149,16 @@ endif ()
 
 if (UQM_DEBUG)
 	if (UQM_STRICT_DEBUG)
-		set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS}
+		list (APPEND WARNING_FLAGS
 				-Wcast-qual -Wmissing-declarations -Wwrite-strings
 				-Wimplicit -Wreturn-type -Wformat -Wswitch -Wcomment
-				-Wchar-subscripts -Wparentheses -Wcast-align
-				-Wuninitialized")
-		set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wbad-function-cast
-				-Wmissing-prototypes -Wstrict-prototypes
-				-Wdeclaration-after-statement")
+				-Wchar-subscripts -Wparentheses -Wcast-align -Wuninitialized
+				-Wbad-function-cast -Wmissing-prototypes -Wstrict-prototypes
+				-Wdeclaration-after-statement
+		)
+		string (REPLACE ";" " " WARNING_FLAGS_DELIM "${WARNING_FLAGS}")
+		set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS_DELIM}")
+		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS_DELIM}")
 	endif ()
 	set (DEBUG 1)
 endif ()
@@ -179,10 +177,10 @@ endif ()
 set_if_else (UQM_PLATFORM_ACCEL USE_PLATFORM_ACCEL "1" "0")
 
 #set_if function defined in helpers.cmake
-# condition ↓            var to set ↓          set value ↓
-set_if (UQM_JOYSTICK            HAVE_JOYSTICK           "1")
-set_if (UQM_USE_INTERNAL_MIKMOD USE_INTERNAL_MIKMOD     "1")
-set_if (UQM_USE_INTERNAL_LUA    USE_INTERNAL_LUA        "1")
+# condition ↓            var to set ↓      set value ↓
+set_if (UQM_JOYSTICK            HAVE_JOYSTICK       "1")
+set_if (UQM_USE_INTERNAL_MIKMOD USE_INTERNAL_MIKMOD "1")
+set_if (UQM_USE_INTERNAL_LUA    USE_INTERNAL_LUA    "1")
 
 #function to parse the Makeinfo in every subdirectory using the existing
 # recurse script
@@ -327,18 +325,12 @@ endif ()
 
 set (UQM_COMPILE_OPTIONS
 		$<$<COMPILE_LANGUAGE:C>:${COMMON_C_FLAGS}>
+		$<$<COMPILE_LANGUAGE:CXX>:${CXX_EXTRA_FLAGS}>
 )
-#append_list macro defined in helpers.cmake
-#            ↓ list to append     ↓ var to include      ↓ condition
-append_list (UQM_COMPILE_OPTIONS "${SDL2_CFLAGS_OTHER}" SDL2_CFLAGS_OTHER)
-append_list (UQM_COMPILE_OPTIONS "${PNG_CFLAGS_OTHER}"  PNG_CFLAGS_OTHER)
 
 target_compile_options (UrQuanMasters PRIVATE ${UQM_COMPILE_OPTIONS})
 
-set (UQM_DEFINITIONS
-		GFXMODULE_SDL
-		SDL_DIR="${SDL_DIR}")
-
+append_list (UQM_DEFINITIONS GFXMODULE_SDL          IS_WINDOWS)
 append_list (UQM_DEFINITIONS HAVE_OPENAL            HAVE_OPENAL)
 append_list (UQM_DEFINITIONS USE_INTERNAL_MIKMOD    USE_INTERNAL_MIKMOD)
 append_list (UQM_DEFINITIONS USE_INTERNAL_LUA       USE_INTERNAL_LUA)
@@ -362,10 +354,9 @@ set (UQM_LINK_LIBRARIES
 )
 
 append_list (UQM_LINK_LIBRARIES "${ZLIB_LIBRARIES}" USE_ZIP_IO)
-append_list (UQM_LINK_LIBRARIES "gdi32"             IS_WINDOWS)
 
 if (HAVE_REGEX_H AND IS_MINGW)
-	find_package (REGEX REQUIRED)
+	find_package (REGEX QUIET)
 	if (REGEX_FOUND)
 		list (APPEND UQM_LINK_LIBRARIES ${REGEX_LIBRARIES})
 		message (STATUS "Using regex: ${REGEX_LIBRARIES}")
