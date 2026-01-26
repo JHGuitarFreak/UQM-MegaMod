@@ -62,6 +62,8 @@ TFB_PreInit (void)
 	}
 #endif
 
+	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+
 	if ((SDL_Init (SDL_INIT_VIDEO) == -1))
 	{
 		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
