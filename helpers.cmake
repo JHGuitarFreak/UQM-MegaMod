@@ -73,8 +73,10 @@ endmacro()
 function (FetchSDL)
 	message (STATUS "Fetching SDL2...")
 
-	set (SDL_SHARED ON CACHE BOOL "Build SDL2 as a shared library")
-	set (SDL_STATIC ON CACHE BOOL "Build SDL2 as a static library")
+	set (SDL_SHARED ON  CACHE BOOL "Build SDL2 as a shared library")
+	set (SDL_STATIC ON  CACHE BOOL "Build SDL2 as a static library")
+	set (SDL_TEST   OFF CACHE BOOL "Build the SDL2_test library")
+	set (SDL_TESTS  OFF CACHE BOOL "Build the test directory")
 
 	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
 
@@ -107,11 +109,51 @@ function (FetchSDL)
 	set (SDL2_VERSION      "2.32.8"           PARENT_SCOPE)
 endfunction ()
 
-function (FetchPNG)
+function (FetchZLIB)
+	message (STATUS "Fetching ZLIB...")
+
+	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
+
+	FetchContent_Declare (
+			zlib
+			URL https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
+			URL_HASH SHA256=9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
+			SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/zlib
+			DOWNLOAD_NO_PROGRESS TRUE
+			OVERRIDE_FIND_PACKAGE
+	)
+	FetchContent_MakeAvailable (zlib)
+
+	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS") # Re-enable status messages
+
+	# Set variables
+	if (TARGET zlibstatic)
+		set (ZLIB_TARGET zlibstatic)
+	elseif (TARGET zlib)
+		set (ZLIB_TARGET zlib)
+	else (TARGET zlib)
+		set (ZLIB_TARGET z)
+	endif ()
+
+	set (ZLIB_FOUND TRUE PARENT_SCOPE)
+	set (ZLIB_LIBRARIES ${ZLIB_TARGET} PARENT_SCOPE)
+	set (ZLIB_INCLUDE_DIRS ${zlib_SOURCE_DIR} PARENT_SCOPE)
+	set (ZLIB_VERSION "1.3.1" PARENT_SCOPE)
+	set (ZLIB_FETCHED 1 PARENT_SCOPE)
+endfunction ()
+
+function (FetchPNG uqm_zip_io zlib_fetched zlib_libraries)
 	message (STATUS "Fetching libPNG...")
 
 	set (PNG_SHARED OFF CACHE BOOL "Build libpng as a shared library" FORCE)
 	set (PNG_STATIC ON  CACHE BOOL "Build libpng as a static library" FORCE)
+	set (PNG_TESTS OFF CACHE BOOL "Build the libpng tests" FORCE)
+	set (PNG_TOOLS OFF CACHE BOOL "Build the libpng tools" FORCE)
+
+	if (zlib_fetched)
+		set (SKIP_INSTALL_ALL TRUE)
+		add_library (ZLIB::ZLIB INTERFACE IMPORTED)
+	endif ()
 
 	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
 
@@ -123,6 +165,10 @@ function (FetchPNG)
 			DOWNLOAD_NO_PROGRESS TRUE
 	)
 	FetchContent_MakeAvailable (png)
+
+	if (zlib_fetched AND NOT uqm_zip_io)
+		target_link_libraries (png_static PUBLIC ${zlib_libraries})
+	endif ()
 
 	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS") # Re-enable status messages
 
@@ -203,38 +249,4 @@ function (FetchVorbis)
 
 	set (OGGVORBIS     "vorbisfile" PARENT_SCOPE)
 	set (UQM_OGG_CODEC "standard"   PARENT_SCOPE)
-endfunction ()
-
-function (FetchZLIB)
-	message (STATUS "Fetching ZLIB...")
-
-	set (CMAKE_MESSAGE_LOG_LEVEL "WARNING") # Disable status messages
-
-	FetchContent_Declare (
-			zlib
-			URL https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
-			URL_HASH SHA256=9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
-			SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/zlib
-			DOWNLOAD_NO_PROGRESS TRUE
-			CMAKE_ARGS
-			-DBUILD_SHARED_LIBS=OFF
-			-DZLIB_BUILD_EXAMPLES=OFF
-	)
-	FetchContent_MakeAvailable (zlib)
-
-	set (CMAKE_MESSAGE_LOG_LEVEL "STATUS") # Re-enable status messages
-
-	# Set variables
-	if (TARGET zlibstatic)
-		set (ZLIB_TARGET zlibstatic)
-	elseif (TARGET zlib)
-		set (ZLIB_TARGET zlib)
-	else (TARGET zlib)
-		set (ZLIB_TARGET z)
-	endif ()
-
-	set (ZLIB_FOUND TRUE PARENT_SCOPE)
-	set (ZLIB_LIBRARIES ${ZLIB_TARGET} PARENT_SCOPE)
-	set (ZLIB_INCLUDE_DIRS ${zlib_SOURCE_DIR} PARENT_SCOPE)
-	set (ZLIB_VERSION "1.3.1" PARENT_SCOPE)
 endfunction ()
