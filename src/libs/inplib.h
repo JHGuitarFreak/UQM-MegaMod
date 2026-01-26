@@ -65,6 +65,10 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 
 void BeginInputFrame (void);
 
+#define MAX_RUMBLE 0xFFFF
+
+void TFB_RumbleController (int player, int low_strength, int high_strength, int duration);
+
 #if defined(__cplusplus)
 }
 #endif

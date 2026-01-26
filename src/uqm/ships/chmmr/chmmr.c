@@ -23,6 +23,7 @@
 #include "uqm/colors.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
+#include "libs/inplib.h"
 
 // Core characteristics
 #define MAX_CREW MAX_CREW_SIZE
@@ -244,6 +245,9 @@ initialize_megawatt_laser (ELEMENT *ShipPtr, HELEMENT LaserArray[])
 	LaserBlock.pixoffs = 0;
 	LaserBlock.color = cycle_array[StarShipPtr->special_counter];
 	LaserArray[0] = initialize_laser (&LaserBlock);
+
+	TFB_RumbleController (ShipPtr->playerNr, 0, MAX_RUMBLE, 50);
+	TFB_RumbleController (ShipPtr->playerNr, MAX_RUMBLE, 0, 50);
 
 	if (LaserArray[0])
 	{
@@ -596,6 +600,8 @@ spawn_point_defense (ELEMENT *ElementPtr)
 			UnlockElement (hPointDefense);
 
 			PutElement (hPointDefense);
+
+			TFB_RumbleController (LaserBlock.sender, 0, MAX_RUMBLE, 100);
 
 			SattPtr->thrust_wait = DEFENSE_WAIT;
 		}

@@ -1982,3 +1982,37 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 			return 0;
 	}
 }
+
+void TFB_RumbleController (int player, int low_strength, int high_strength, int duration)
+{
+	SDL_JoystickID instance_id;
+	controller_list *current;
+
+#ifdef HAVE_JOYSTICK
+#if SDL_MAJOR_VERSION > 1
+	if (player < 0 || player >= 2)
+		return;
+
+	instance_id = controller_assignments[player];
+	if (instance_id == -1)
+		return;
+
+	current = controller_list_head;
+	while (current)
+	{
+		if (current->instance_id == instance_id && current->gamepad.stick)
+		{
+			SDL_GameControllerRumble (current->gamepad.stick,
+					low_strength, high_strength, duration);
+			break;
+		}
+		current = current->next;
+	}
+#else
+	(void)player;
+	(void)low_strength;
+	(void)high_strength;
+	(void)duration;
+#endif /* SDL_MAJOR_VERSION */
+#endif /* HAVE_JOYSTICK */
+}
