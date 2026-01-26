@@ -200,72 +200,72 @@ fighter_postprocess (ELEMENT *ElementPtr)
 	ElementPtr->thrust_wait = FIGHTER_WEAPON_WAIT;
 }
 
-static void
-ion_preprocess (ELEMENT* ElementPtr)
-{
-	static const Color colorTable[] =
-	{
-		MAKE_RGBA_INIT(0xfc, 0x7c, 0xfc, 0xff),
-		MAKE_RGBA_INIT(0xfc, 0x40, 0xfc, 0xff),
-		MAKE_RGBA_INIT(0xd0, 0x14, 0xd0, 0xff),
-		MAKE_RGBA_INIT(0x90, 0x08, 0x94, 0xff),
-	};
-	const size_t colorTabCount = ARRAY_SIZE (colorTable);
+//static void
+//ion_preprocess (ELEMENT* ElementPtr)
+//{
+//	static const Color colorTable[] =
+//	{
+//		MAKE_RGBA_INIT(0xfc, 0x7c, 0xfc, 0xff),
+//		MAKE_RGBA_INIT(0xfc, 0x40, 0xfc, 0xff),
+//		MAKE_RGBA_INIT(0xd0, 0x14, 0xd0, 0xff),
+//		MAKE_RGBA_INIT(0x90, 0x08, 0x94, 0xff),
+//	};
+//	const size_t colorTabCount = ARRAY_SIZE (colorTable);
+//
+//	ElementPtr->colorCycleIndex++;
+//	if (ElementPtr->colorCycleIndex != colorTabCount)
+//	{
+//		ElementPtr->life_span = ElementPtr->thrust_wait;
+//
+//		SetPrimColor (&(GLOBAL(DisplayArray))[ElementPtr->PrimIndex],
+//			colorTable[ElementPtr->colorCycleIndex]);
+//
+//		ElementPtr->state_flags &= ~DISAPPEARING;
+//		ElementPtr->state_flags |= CHANGING;
+//	}
+//}
 
-	ElementPtr->colorCycleIndex++;
-	if (ElementPtr->colorCycleIndex != colorTabCount)
-	{
-		ElementPtr->life_span = ElementPtr->thrust_wait;
-
-		SetPrimColor (&(GLOBAL(DisplayArray))[ElementPtr->PrimIndex],
-			colorTable[ElementPtr->colorCycleIndex]);
-
-		ElementPtr->state_flags &= ~DISAPPEARING;
-		ElementPtr->state_flags |= CHANGING;
-	}
-}
-
-static void
-spawn_fighter_ion_trail (ELEMENT *ElementPtr, STARSHIP *StarShipPtr,
-		COUNT facing)
-{
-	HELEMENT hIonElement;
-
-	hIonElement = AllocElement ();
-	if (hIonElement)
-	{
-		COUNT angle;
-		ELEMENT *IonElementPtr;
-
-		angle = FACING_TO_ANGLE (facing) + HALF_CIRCLE;
-
-		InsertElement (hIonElement, GetHeadElement ());
-		LockElement (hIonElement, &IonElementPtr);
-		IonElementPtr->playerNr = NEUTRAL_PLAYER_NUM;
-		IonElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
-		IonElementPtr->thrust_wait = ION_LIFE;
-		IonElementPtr->life_span = IonElementPtr->thrust_wait;
-		SetPrimType (&(GLOBAL (DisplayArray))[IonElementPtr->PrimIndex], POINT_PRIM);
-		SetPrimColor (&(GLOBAL (DisplayArray))[IonElementPtr->PrimIndex], START_ION_COLOR);
-		IonElementPtr->colorCycleIndex = 0;
-		IonElementPtr->current.location = ElementPtr->current.location;
-		IonElementPtr->current.location.x +=
-				(COORD)COSINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
-		IonElementPtr->current.location.y +=
-				(COORD)SINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
-		IonElementPtr->death_func = ion_preprocess;
-
-		SetElementStarShip (IonElementPtr, StarShipPtr);
-
-		{
-			IonElementPtr->next = IonElementPtr->current;
-			--IonElementPtr->life_span;
-			IonElementPtr->state_flags |= PRE_PROCESS;
-		}
-
-		UnlockElement (hIonElement);
-	}
-}
+//static void
+//spawn_fighter_ion_trail (ELEMENT *ElementPtr, STARSHIP *StarShipPtr,
+//		COUNT facing)
+//{
+//	HELEMENT hIonElement;
+//
+//	hIonElement = AllocElement ();
+//	if (hIonElement)
+//	{
+//		COUNT angle;
+//		ELEMENT *IonElementPtr;
+//
+//		angle = FACING_TO_ANGLE (facing) + HALF_CIRCLE;
+//
+//		InsertElement (hIonElement, GetHeadElement ());
+//		LockElement (hIonElement, &IonElementPtr);
+//		IonElementPtr->playerNr = NEUTRAL_PLAYER_NUM;
+//		IonElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
+//		IonElementPtr->thrust_wait = ION_LIFE;
+//		IonElementPtr->life_span = IonElementPtr->thrust_wait;
+//		SetPrimType (&(GLOBAL (DisplayArray))[IonElementPtr->PrimIndex], POINT_PRIM);
+//		SetPrimColor (&(GLOBAL (DisplayArray))[IonElementPtr->PrimIndex], START_ION_COLOR);
+//		IonElementPtr->colorCycleIndex = 0;
+//		IonElementPtr->current.location = ElementPtr->current.location;
+//		IonElementPtr->current.location.x +=
+//				(COORD)COSINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
+//		IonElementPtr->current.location.y +=
+//				(COORD)SINE (angle, DISPLAY_TO_WORLD (RES_SCALE (2)));
+//		IonElementPtr->death_func = ion_preprocess;
+//
+//		SetElementStarShip (IonElementPtr, StarShipPtr);
+//
+//		{
+//			IonElementPtr->next = IonElementPtr->current;
+//			--IonElementPtr->life_span;
+//			IonElementPtr->state_flags |= PRE_PROCESS;
+//		}
+//
+//		UnlockElement (hIonElement);
+//	}
+//}
 
 static void
 fighter_preprocess (ELEMENT *ElementPtr)
