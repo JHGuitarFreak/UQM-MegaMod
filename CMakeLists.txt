@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 4.1.2)
+cmake_minimum_required (VERSION 3.14)
 project (UQM-MegaMod VERSION 0.8.4 LANGUAGES C CXX)
 
 include (FetchContent)
@@ -59,7 +59,9 @@ endif ()
 
 # Find/Fetch the dependencies
 
-find_package (PkgConfig QUIET)
+if (NOT ANDROID)
+	find_package (PkgConfig QUIET)
+endif ()
 if (PkgConfig_FOUND)
 	message (STATUS "Found pkg-config: ${PkgConfig_VERSION}")
 else ()
@@ -330,6 +332,13 @@ if (IS_WINDOWS)
 			@ONLY
 	)
 	message (STATUS "Generated config_win.h in src directory")
+elseif (ANDROID)
+	configure_file (
+			${CMAKE_SOURCE_DIR}/src/config_android.h.in
+			${CMAKE_SOURCE_DIR}/src/config_android.h
+			@ONLY
+	)
+	message (STATUS "Generated config_android.h in src directory")
 else ()
 	configure_file (
 			${CMAKE_SOURCE_DIR}/src/config_unix.h.in
@@ -339,7 +348,11 @@ else ()
 	message (STATUS "Generated config_unix.h in src directory")
 endif ()
 
-add_executable (UrQuanMasters ${UQM_SOURCES})
+if (ANDROID)
+	add_library (UrQuanMasters SHARED ${UQM_SOURCES})
+else ()
+	add_executable (UrQuanMasters ${UQM_SOURCES})
+endif ()
 
 target_include_directories (UrQuanMasters PRIVATE
 		${CMAKE_BINARY_DIR}
@@ -350,7 +363,7 @@ target_include_directories (UrQuanMasters PRIVATE
 		${VORBISFILE_INCLUDE_DIRS}
 )
 
-if (UQM_DEBUG)
+if (UQM_DEBUG AND NOT ANDROID)
 	set_target_properties (UrQuanMasters PROPERTIES OUTPUT_NAME
 			"UrQuanMastersDebug")
 endif ()
@@ -413,6 +426,10 @@ if (HAVE_REGEX_H AND IS_MINGW OR NOT HAVE_REGEX_H)
 			message (FATAL_ERROR "REGEX NOT FOUND!")
 		endif ()
 	endif ()
+endif ()
+
+if (ANDROID)
+	list (APPEND UQM_LINK_LIBRARIES log)
 endif ()
 
 target_link_libraries (UrQuanMasters ${UQM_LINK_LIBRARIES})
