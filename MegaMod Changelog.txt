@@ -69,6 +69,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Added
 - Advanced Auto-Pilot option that auto-pilots the flagship on the shortest route through HyperSpace or QuasiSpace
+		(Based on the Python QuasiSpace Calculator by Lukrative525 - https://www.reddit.com/r/starcontrol/comments/zpyhkc/quasispace_calculator/)
 - Option to resume all music where it last left off
 - A map that shows Rainbow Worlds that have been currently discovered
 - Option to show short tooltips at the bottom of the melee screen when picking a ship a la SC1 - Kruzen

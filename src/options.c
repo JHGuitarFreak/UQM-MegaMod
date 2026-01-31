@@ -238,9 +238,20 @@ prepareContentDir (const char *contentDirName, const char* addonDirName,
 
 	if (contentDirName == NULL)
 	{
+		char buf[PATH_MAX];
+
+		if (expandPath (buf, PATH_MAX - 13, CONTENTDIR, EP_ALL_SYSTEM)
+				== -1)
+		{
+			log_add (log_Fatal, "Fatal error: Invalid path to "
+					"content files.");
+			exit (EXIT_FAILURE);
+		}
+
 		// Try the default content locations.
 		const char *locs[] = {
 			CONTENTDIR, /* defined in config.h */
+			buf,        /* expanded CONTENTDIR */
 			"content",
 		};
 		loc = findFileInDirs (locs, ARRAY_SIZE (locs), testFile);
