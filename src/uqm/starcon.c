@@ -57,6 +57,7 @@
 #include "cons_res.h"
 #include <time.h>//required to use 'srand(time(NULL))'
 #include "sounds.h"
+#include "gameopt.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP
@@ -156,8 +157,14 @@ ProcessUtilityKeys (void)
 
 	if (ImmediateInputState.menu[KEY_SCREENSHOT])
 	{
-		TFB_ScreenShot ();
 		FlushInput ();
+		TFB_ScreenShot ();
+	}
+
+	if (ImmediateInputState.menu[KEY_QUICKLOAD])
+	{
+		FlushInput ();
+		RequestQuickLoad ();
 	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
@@ -337,6 +344,9 @@ while (--ac > 0)
 				(*saveDebugHook) ();
 				continue;
 			}
+
+			if (QuickLoadDeferred ())
+				continue;
 
 			SetStatusMessageMode (SMM_DEFAULT);
 

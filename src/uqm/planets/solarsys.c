@@ -830,8 +830,13 @@ LoadSolarSys (void)
 	else
 	{	// Inner system
 		pSolarSysState->SunDesc[0].location = GLOBAL (ip_location);
+		printPt (GLOBAL (ShipStamp.origin), "GLOBAL (ShipStamp.origin)");
+		printPt (GLOBAL (ip_location), "GLOBAL (ip_location) 1");
+
 		GLOBAL (ip_location) = displayToLocation (
 				GLOBAL (ShipStamp.origin), MAX_ZOOM_RADIUS);
+
+		printPt (GLOBAL (ip_location), "GLOBAL (ip_location) 2");
 
 		i = GLOBAL (ip_planet) - 1;
 		pSolarSysState->pOrbitalDesc = &pSolarSysState->PlanetDesc[i];
@@ -2241,7 +2246,6 @@ InitSolarSys (void)
 	BOOLEAN InnerSystem;
 	BOOLEAN Reentry;
 	PLANET_DESC *orbital;
-
 
 	LoadIPData ();
 	LoadLanderData ();

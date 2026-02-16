@@ -41,9 +41,8 @@
 
 extern FRAME PlayFrame;
 
-#define MAX_SAVED_GAMES   50
 #define SAVES_PER_PAGE   (optWindowType < 2 ? 2 : 5)
-#define MAX_NAME_SIZE     SIS_NAME_SIZE
+#define MAX_NAME_SIZE    SIS_NAME_SIZE
 
 #define SUMMARY_X_OFFS    NSAFE_NUM_SCL (14)
 #define SUMMARY_SIDE_OFFS NSAFE_NUM_SCL (7)
@@ -56,6 +55,7 @@ BOOLEAN NewGameInit;
 BYTE OutfitOrShipyard = 0;
 BOOLEAN SaveOrLoad = FALSE;
 BOOLEAN TextEntry3DO = FALSE;
+BOOLEAN QuickLoadRequested = FALSE;
 
 void
 ConfirmSaveLoad (STAMP *MsgStamp)
@@ -740,7 +740,7 @@ SettingsMenu (BOOLEAN NameFlagship)
 
 typedef struct
 {
-	SUMMARY_DESC summary[MAX_SAVED_GAMES];
+	SUMMARY_DESC summary[MAX_SAVED_GAMES+1];
 	BOOLEAN saving;
 			// TRUE when saving, FALSE when loading
 	BOOLEAN success;
@@ -1518,7 +1518,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 {
 	RECT r;
 	TEXT t;
-	COUNT i, curSlot;
+	COUNT i, curSlot, totalSlots;
 	UNICODE buf[256], buf2[80], *SaveName;
 	Color UnSelected = SAVE_UNSELECTED_COLOR;
 	Color Selected = SAVE_SELECTED_COLOR;
@@ -1542,9 +1542,9 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	t.align = ALIGN_LEFT;
 
 	// Draw savegame slots info
+	totalSlots = pickState->saving ? MAX_SAVED_GAMES : MAX_SAVED_GAMES + 1;
 	curSlot = selSlot - (selSlot % SAVES_PER_PAGE);
-	for (i = 0; i < SAVES_PER_PAGE && curSlot < MAX_SAVED_GAMES;
-			++i, ++curSlot)
+	for (i = 0; i < SAVES_PER_PAGE && curSlot < totalSlots; ++i, ++curSlot)
 	{
 		SUMMARY_DESC *desc = &pickState->summary[curSlot];
 
@@ -1560,8 +1560,15 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 		t.baseline.x = r.corner.x + RES_SCALE (3);
 		t.baseline.y = r.corner.y + RES_SCALE (8);
-		snprintf (buf, sizeof buf,
+		if (!pickState->saving && curSlot == MAX_SAVED_GAMES)
+		{
+			snprintf (buf, sizeof buf, "QS");
+		}
+		else
+		{
+			snprintf (buf, sizeof buf,
 				(MAX_SAVED_GAMES > 99) ? "%03u" : "%02u", curSlot);
+		}
 		font_DrawText (&t);
 
 		r.extent.width = RES_SCALE (204) +
@@ -1611,11 +1618,13 @@ RedrawPickDisplay (PICK_GAME_STATE *pickState, COUNT selSlot)
 }
 
 static void
-LoadGameDescriptions (SUMMARY_DESC *pSD)
+LoadGameDescriptions (SUMMARY_DESC *pSD, BOOLEAN includeQuickSave)
 {
 	COUNT i;
 
-	for (i = 0; i < MAX_SAVED_GAMES; ++i, ++pSD)
+	COUNT maxSlots = includeQuickSave ? TOTAL_SLOTS : MAX_SAVED_GAMES;
+
+	for (i = 0; i < maxSlots; ++i, ++pSD)
 	{
 		if (!LoadGame (i, pSD, NULL, FALSE))
 			pSD->year_index = 0;
@@ -1629,6 +1638,7 @@ DoPickGame (MENU_STATE *pMS)
 	BYTE NewState;
 	SUMMARY_DESC *pSD;
 	DWORD TimeIn = GetTimeCounter ();
+	COUNT maxSlots = pickState->saving ? MAX_SAVED_GAMES - 1 : MAX_SAVED_GAMES;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
@@ -1641,7 +1651,8 @@ DoPickGame (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT] || pMS->QuickSL)
 	{
 		pSD = &pickState->summary[pMS->CurState];
-		if (pickState->saving || pSD->year_index)
+		if (pickState->saving || pSD->year_index ||
+			(!pickState->saving && pMS->CurState == MAX_SAVED_GAMES))
 		{	// valid slot
 			DWORD LoadFuelScaled = loadFuel / FUEL_TANK_SCALE;
 			DWORD TankCapacityScaled = GetFuelTankCapacity() / FUEL_TANK_SCALE;
@@ -1670,35 +1681,35 @@ DoPickGame (MENU_STATE *pMS)
 	{
 		NewState = pMS->CurState;
 		if (PulsedInputState.menu[KEY_MENU_LEFT]
-				|| PulsedInputState.menu[KEY_MENU_PAGE_UP])
+			|| PulsedInputState.menu[KEY_MENU_PAGE_UP])
 		{
 			if (NewState == 0)
-				NewState = MAX_SAVED_GAMES - 1;
-			else if ((NewState - SAVES_PER_PAGE) > 0)
+				NewState = maxSlots;
+			else if ((NewState - SAVES_PER_PAGE) >= 0)
 				NewState -= SAVES_PER_PAGE;
-			else 
+			else
 				NewState = 0;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_RIGHT]
-				|| PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
+			|| PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
 		{
-			if (NewState == MAX_SAVED_GAMES - 1)
+			if (NewState == maxSlots)
 				NewState = 0;
-			else if ((NewState + SAVES_PER_PAGE) < MAX_SAVED_GAMES - 1)
+			else if ((NewState + SAVES_PER_PAGE) < maxSlots)
 				NewState += SAVES_PER_PAGE;
-			else 
-				NewState = MAX_SAVED_GAMES - 1;
+			else
+				NewState = maxSlots;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP])
 		{
 			if (NewState == 0)
-				NewState = MAX_SAVED_GAMES - 1;
+				NewState = maxSlots;
 			else
 				NewState--;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_DOWN])
 		{
-			if (NewState == MAX_SAVED_GAMES - 1)
+			if (NewState == maxSlots)
 				NewState = 0;
 			else
 				NewState++;
@@ -1726,7 +1737,6 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 	STAMP saveStamp;
 	BOOLEAN success;
 	RECT r;
-	BOOLEAN initQS = FALSE;
 
 	GetContextClipRect(&r);
 
@@ -1734,28 +1744,20 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 
 	if (pickState->saving)
 	{
-		TruncateSaveName (desc->SaveName, r.extent.width - 104, TRUE);
-
-		// Initialize the save name with whatever name is there already
-		// SAVE_NAME_SIZE is less than 256, so this is safe.
-		strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
-		nameBuf[SAVE_NAME_SIZE] = 0;
-
-
 		if (!quicksave)
 		{
+			TruncateSaveName (desc->SaveName, r.extent.width - 104, TRUE);
+
+			// Initialize the save name with whatever name is there already
+			// SAVE_NAME_SIZE is less than 256, so this is safe.
+			strncpy (nameBuf, desc->SaveName, SAVE_NAME_SIZE);
+			nameBuf[SAVE_NAME_SIZE] = 0;
+
 			if (NameSaveGame (gameIndex, nameBuf))
 			{
 				PlayMenuSound (MENU_SOUND_SUCCESS);
 				ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
 				success = SaveGame (gameIndex, desc, nameBuf);
-
-				if (success && strcmp (nameBuf,
-					GAME_STRING (SAVEGAME_STRING_BASE + 5)) == 0)
-				{
-					quickSaveSlot = gameIndex;
-					initQS = TRUE;
-				}
 			}
 			else
 			{
@@ -1767,7 +1769,8 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 		{
 			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
 			SleepThread (ONE_SECOND / 2);
-			success = SaveGame (gameIndex, desc, nameBuf);
+			success = SaveGame (gameIndex, desc,
+					GAME_STRING (SAVEGAME_STRING_BASE + 8));
 		}
 	}
 	else
@@ -1784,9 +1787,6 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 	}
 
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
-
-	if (initQS)
-		DoPopupWindow (GAME_STRING (SAVEGAME_STRING_BASE + 6));
 
 	return success;
 }
@@ -1809,7 +1809,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu, BOOLEAN quicksave)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &pickState;
 	// select the last used slot
-	MenuState.CurState = quicksave ? quickSaveSlot : lastUsedSlot;
+	MenuState.CurState = !quicksave ? lastUsedSlot : QUICKSAVE_SLOT;
 	MenuState.QuickSL = quicksave;
 
 	TimeOut = FadeMusic (0, ONE_SECOND / 2);
@@ -1817,7 +1817,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu, BOOLEAN quicksave)
 	// Deactivate any background drawing, like planet rotation
 	oldCallback = SetInputCallback (NULL);
 
-	LoadGameDescriptions (pickState.summary);
+	LoadGameDescriptions (pickState.summary, !pickState.saving);
 
 	OldContext = SetContext (SpaceContext);
 	// Save the current state of the screen for later restoration
@@ -1888,7 +1888,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu, BOOLEAN quicksave)
 		// reload and redraw everything
 		if (!quicksave)
 		{
-			LoadGameDescriptions (pickState.summary);
+			LoadGameDescriptions (pickState.summary, !pickState.saving);
 			RedrawPickDisplay (&pickState, MenuState.CurState);
 		}
 	}
@@ -1922,6 +1922,11 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu, BOOLEAN quicksave)
 		log_add (log_Info, "Difficulty: %s\n", DIF_STR (DIFFICULTY));
 		log_add (log_Info, "Extended: %s\n", BOOL_STR (EXTENDED));
 		log_add (log_Info, "Nomad: %s\n\n", NOMAD_STR (NOMAD));
+
+		if (lastUsedSlot == QUICKSAVE_SLOT)
+		{
+			lastUsedSlot = 0; // reset to first slot after quicksave
+		}
 	}
 
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT) &&
@@ -1978,10 +1983,45 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu, BOOLEAN quicksave)
 	return pickState.success;
 }
 
-BOOLEAN
-QuickLoad (void)
+void
+RequestQuickLoad (void)
 {
-	return PickGame (FALSE, FALSE, TRUE);
+	SUMMARY_DESC desc;
+
+	if (!inSavablePos ())
+		return;
+
+	if (!LoadGame (QUICKSAVE_SLOT, &desc, NULL, FALSE))
+	{
+		log_add (log_Warning, "QuickLoad: No quicksave found");
+		return;
+	}
+
+	QuickLoadRequested = TRUE;
+
+	if ((GLOBAL (CurrentActivity) & END_INTERPLANETARY) == 0)
+		GLOBAL (CurrentActivity) |= (END_INTERPLANETARY | CHECK_LOAD);
+	else
+		GLOBAL (CurrentActivity) |= CHECK_LOAD;
+}
+
+BOOLEAN
+QuickLoadDeferred (void)
+{
+	if (!QuickLoadRequested)
+		return FALSE;
+
+	QuickLoadRequested = FALSE;
+
+	ConfirmSaveLoad (NULL);
+
+	if (!LoadGame (QUICKSAVE_SLOT, NULL, NULL, FALSE))
+	{
+		log_add (log_Error, "QuickLoadDeferred: Failed to load quicksave");
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 BOOLEAN
@@ -1992,9 +2032,9 @@ QuickSave (void)
 	memset (&pickState, 0, sizeof pickState);
 	pickState.saving = TRUE;
 
-	LoadGameDescriptions (pickState.summary);
+	LoadGameDescriptions (pickState.summary, !pickState.saving);
 
-	return SaveLoadGame (&pickState, quickSaveSlot, FALSE, TRUE);
+	return SaveLoadGame (&pickState, QUICKSAVE_SLOT, FALSE, TRUE);
 }
 
 static BOOLEAN

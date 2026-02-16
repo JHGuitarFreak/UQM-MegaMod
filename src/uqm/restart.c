@@ -455,8 +455,6 @@ DoRestart (MENU_STATE *pMS)
 
 	if (optWindowType < 2)
 		optMeleeToolTips = (OPT_ENABLABLE)FALSE;
-
-	quickSaveSlot = (BYTE)~0;
 	
 	if (optSuperMelee && !optLoadGame)
 	{

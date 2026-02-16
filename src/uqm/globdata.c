@@ -992,7 +992,7 @@ inSavablePos (void)
 	ACTIVITY act = LOBYTE (GLOBAL (CurrentActivity));
 	return (act == IN_ENCOUNTER || act == IN_HYPERSPACE ||
 			act == IN_INTERPLANETARY || act == IN_PLANET_ORBIT ||
-			act == IN_STARBASE);
+			act == IN_STARBASE) && act != SUPER_MELEE;
 }
 
 #if 0
