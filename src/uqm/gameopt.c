@@ -1737,6 +1737,10 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 	STAMP saveStamp;
 	BOOLEAN success;
 	RECT r;
+	CONTEXT OldContext;
+	
+	if (quicksave)
+		OldContext = SetContext (SpaceContext);
 
 	GetContextClipRect(&r);
 
@@ -1768,6 +1772,7 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 		else
 		{
 			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
+
 			SleepThread (ONE_SECOND / 2);
 			success = SaveGame (gameIndex, desc,
 					GAME_STRING (SAVEGAME_STRING_BASE + 8));
@@ -1787,6 +1792,9 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
 	}
 
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
+
+	if (quicksave)
+		SetContext (OldContext);
 
 	return success;
 }
@@ -2008,12 +2016,18 @@ RequestQuickLoad (void)
 BOOLEAN
 QuickLoadDeferred (void)
 {
+	CONTEXT OldContext;
+
 	if (!QuickLoadRequested)
 		return FALSE;
 
 	QuickLoadRequested = FALSE;
 
+	OldContext = SetContext (SpaceContext);
+
 	ConfirmSaveLoad (NULL);
+
+	SetContext (OldContext);
 
 	if (!LoadGame (QUICKSAVE_SLOT, NULL, NULL, FALSE))
 	{
