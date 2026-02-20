@@ -606,7 +606,7 @@ DoSettings (MENU_STATE *pMS)
 	BYTE cur_speed, read_speed;
 	static BYTE i = 0;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 	{
 		i = 0;
 		return FALSE;
@@ -2003,8 +2003,6 @@ QuickLoadDeferred (void)
 		return FALSE;
 	}
 
-	GLOBAL (CurrentActivity) |= CHECK_LOAD;
-
 	return TRUE;
 }
 
@@ -2045,7 +2043,7 @@ QuickSave (void)
 static BOOLEAN
 DoGameOptions (MENU_STATE *pMS)
 {
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
 	if (PulsedInputState.menu[KEY_MENU_CANCEL]
