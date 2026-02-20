@@ -2025,7 +2025,6 @@ QuickSave (void)
 	OldContext = SetContext (SpaceContext);
 
 	ConfirmSaveLoad (&saveStamp);
-
 	SleepThread (ONE_SECOND / 2);
 
 	success = !SaveGame (QUICKSAVE_SLOT, pickState.summary,
@@ -2037,9 +2036,7 @@ QuickSave (void)
 	}
 
 	DrawStamp (&saveStamp);
-
 	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
-
 	SetContext (OldContext);
 
 	return success;
