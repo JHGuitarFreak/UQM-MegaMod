@@ -132,6 +132,7 @@ BOOLEAN WaitForNoInputUntil (TimeCount timeOut, BOOLEAN resetInput);
 
 extern BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
 
+extern BOOLEAN InPopUp;
 void DoPopupWindow(const char *msg);
 
 typedef void (InputFrameCallback) (void);

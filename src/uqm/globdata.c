@@ -994,7 +994,7 @@ inSavablePos (void)
 	ACTIVITY curr_act = GLOBAL (CurrentActivity);
 	ACTIVITY lob_curr_act = LOBYTE (curr_act);
 
-	if (lob_curr_act == SUPER_MELEE || planetSideDesc != NULL
+	if (InPopUp || lob_curr_act == SUPER_MELEE || planetSideDesc != NULL
 			|| CommData.ConversationPhrases != NULL
 			|| ((curr_act & IN_BATTLE) && lob_curr_act != IN_HYPERSPACE))
 		return FALSE;

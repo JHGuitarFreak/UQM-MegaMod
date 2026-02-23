@@ -161,12 +161,6 @@ ProcessUtilityKeys (void)
 		TFB_ScreenShot ();
 	}
 
-	if (ImmediateInputState.menu[KEY_QUICKLOAD])
-	{
-		FlushInput ();
-		RequestQuickLoad ();
-	}
-
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	{	// Only call the debug func on the rising edge of
 		// ImmediateInputState[KEY_DEBUG] so it does not execute repeatedly.

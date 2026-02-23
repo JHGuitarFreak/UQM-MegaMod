@@ -1970,6 +1970,7 @@ RequestQuickLoad (void)
 	if (!LoadGame (QUICKSAVE_SLOT, &desc, NULL, FALSE))
 	{
 		log_add (log_Warning, "QuickLoad: No quicksave found");
+		DoPopupWindow (GAME_STRING (SAVEGAME_STRING_BASE + 9));
 		return;
 	}
 
