@@ -1078,13 +1078,15 @@ Journal (void)
 	CONTEXT OldContext;
 	RECT r, old_r;
 	STAMP s;
+	ACTIVITY curr_act = GLOBAL (CurrentActivity);
+	ACTIVITY lob_curr_act = LOBYTE (curr_act);
 
 	JournalRequested = FALSE;
 
-	if (NOMAD || DIF_HARD || SaveLoadActive || planetSideDesc != NULL
-			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE
-			|| !(CommData.AlienFrame != NULL || playerInSolarSystem ()
-			|| inHQSpace () || inEncounter ()))
+	if (NOMAD || DIF_HARD || InPopUp || SaveLoadActive
+			|| planetSideDesc != NULL || lob_curr_act == SUPER_MELEE
+			|| ((curr_act & IN_BATTLE) && lob_curr_act != IN_HYPERSPACE)
+			|| lob_curr_act == WON_LAST_BATTLE)
 	{
 		PlayMenuSound (MENU_SOUND_FAILURE);
 		return FALSE;
