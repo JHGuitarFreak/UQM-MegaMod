@@ -37,6 +37,7 @@
 #include "setup.h"
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
+#include "gameopt.h"
 #include "journal.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
@@ -285,6 +286,20 @@ UpdateInputState (void)
 
 	if (CurrentInputState.menu[KEY_EXIT])
 		ExitRequested = TRUE;
+
+	if (PulsedInputState.menu[KEY_QUICKLOAD])
+	{
+		FlushInput ();
+		RequestQuickLoad ();
+	}
+	
+	if (PulsedInputState.menu[KEY_QUICKSAVE])
+	{
+		FlushInput ();
+
+		if (inSavablePos ())
+			QuickSave ();
+	}
 
 	if (PulsedInputState.menu[KEY_JOURNAL])
 		JournalRequested = TRUE;

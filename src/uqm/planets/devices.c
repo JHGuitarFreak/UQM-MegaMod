@@ -514,7 +514,7 @@ DoManipulateDevices (MENU_STATE *pMS)
 	pagefwd = PulsedInputState.menu[KEY_MENU_PAGE_DOWN];
 	pageback = PulsedInputState.menu[KEY_MENU_PAGE_UP];
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
 	if (cancel)

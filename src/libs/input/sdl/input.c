@@ -85,6 +85,8 @@ static const char *menu_res_names[] = {
 	"next",
 	"togglemap",
 	"screenshot",
+	"quicksave",
+	"quickload",
 	"debug_2",
 	"debug_3",
 	"debug_4",
