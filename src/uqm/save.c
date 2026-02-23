@@ -813,11 +813,16 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "PKUNK_LIVE", 1 },
 	{ "SHOW_YEHAT_SHOFIXTI", 1 },
 	{ "ILWRATH_AT_PROCYON", 2 },
-		/* 0 Player hasn't encountered Ilwrath infinite fleet yet
-		 * 1 Player has encountered Ilwrath infinite fleet at Procyon
-		 * 2 Player has sent the Ilwrath away and has returned to Procyon
-		 * 3 unused
-		 */
+			/* 0 Player hasn't encountered Ilwrath infinite fleet yet
+			 * 1 Player has encountered Ilwrath infinite fleet at Procyon
+			 * 2 Player has sent the Ilwrath away and has returned to Procyon
+			 * 3 unused
+			 */
+	{ "THRADDASH_INFO", 3 },
+			/* Bit-0 Heard of Episolon Draconis rainbow world
+			 * Bit-1 Heard of beast on Delta Lyncis
+			 * Bit-2 Found the stele
+			 */
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

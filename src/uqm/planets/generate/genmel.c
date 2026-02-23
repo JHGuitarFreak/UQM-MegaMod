@@ -202,12 +202,21 @@ static bool
 GenerateMelnorme_pickupEnergy (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world, COUNT whichNode)
 {
+	BYTE ThraddashInfo = GET_GAME_STATE (THRADDASH_INFO);
+
 	if (EXTENDED && CurStarDescPtr->Index == MELNORME7_DEFINED &&
 			matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		assert (whichNode == 0);
 
 		GenerateDefault_landerReport (solarSys);
+
+		if ((ThraddashInfo & (1 << 0)) != 0
+				&& (ThraddashInfo & (1 << 2)) == 0)
+		{
+			ThraddashInfo |= (1 << 2);
+			SET_GAME_STATE (THRADDASH_INFO, ThraddashInfo);
+		}
 
 		// The cheese can not be "picked up". It is always on the surface.
 		return false;

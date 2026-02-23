@@ -383,6 +383,8 @@ ThraddAllies (RESPONSE_REF R)
 	}
 	else if (PLAYER_SAID (R, how_goes_culture))
 	{
+		BYTE ThraddashInfo = GET_GAME_STATE (THRADDASH_INFO);
+
 		NumVisits = GET_GAME_STATE (THRADD_DEMEANOR);
 		switch (NumVisits & ((1 << 2) - 1))
 		{
@@ -406,13 +408,24 @@ ThraddAllies (RESPONSE_REF R)
 				break;
 			case 3:
 				if (!(NumVisits & ~((1 << 2) - 1)))
+				{
 					NPCPhrase (LIKE_YOU_GOES_1);
+
+					if ((ThraddashInfo & (1 << 0)) == 0)
+						ThraddashInfo |= 1 << 0;
+				}
 				else
+				{
 					NPCPhrase (LIKE_YOU_GOES_2);
+
+					if ((ThraddashInfo & (1 << 1)) == 0)
+						ThraddashInfo |= 1 << 1;
+				}
 				break;
 		}
 		NumVisits |= 1 << 2;
 		SET_GAME_STATE (THRADD_DEMEANOR, NumVisits);
+		SET_GAME_STATE (THRADDASH_INFO, ThraddashInfo);
 
 		DISABLE_PHRASE (how_goes_culture);
 	}

@@ -280,6 +280,8 @@ WriteJournals (void)
 			melnorme_bomb,
 			burvixese_mels,
 			taalo_playground, taalo_mels;
+	BYTE ThraddashInfo;
+	BOOLEAN know_rainbow_thradd, know_beast_thradd;
 	BOOLEAN have_caster, channel_44;
 	BYTE rbs;
 	BOOLEAN rainbow_shofixti, rainbow_supox, rainbow_0, rainbow_7,
@@ -760,6 +762,26 @@ WriteJournals (void)
 			have_beast && !(know_zex || know_maidens || zex_dead
 				|| find_beast), HAVE_BEAST_NO_ZEX,
 			shofixti_returned,  NO_JOURNAL_ENTRY);
+
+	ThraddashInfo = GGS (THRADDASH_INFO);
+	know_rainbow_thradd = ThraddashInfo & (1 << 0);
+	know_beast_thradd = ThraddashInfo & (1 << 1);
+
+	AddJournal (ARTIFACTS_JOURNAL, 2,
+			know_rainbow_thradd, INV_RAINBOW_THRADD,
+			rainbow_5,           NO_JOURNAL_ENTRY);
+
+	AddJournal (ARTIFACTS_JOURNAL, 2,
+			know_beast_thradd, INV_LYNCIS_THRADD,
+			GGS (VUX_BEAST),   NO_JOURNAL_ENTRY);
+
+	if (EXTENDED)
+	{
+		BOOLEAN found_stele = ThraddashInfo & (1 << 2);
+		AddJournal (ARTIFACTS_JOURNAL, 2,
+				know_rainbow_thradd, INV_STELE_THRADD,
+				found_stele,         NO_JOURNAL_ENTRY);
+	}
 
 	melnorme_bomb = GSGE (MELNORME_EVENTS_INFO_STACK, 7);
 
