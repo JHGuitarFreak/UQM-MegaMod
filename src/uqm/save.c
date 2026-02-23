@@ -812,6 +812,12 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "PKUNK_WHY", 2 },
 	{ "PKUNK_LIVE", 1 },
 	{ "SHOW_YEHAT_SHOFIXTI", 1 },
+	{ "ILWRATH_AT_PROCYON", 2 },
+		/* 0 Player hasn't encountered Ilwrath infinite fleet yet
+		 * 1 Player has encountered Ilwrath infinite fleet at Procyon
+		 * 2 Player has sent the Ilwrath away and has returned to Procyon
+		 * 3 unused
+		 */
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

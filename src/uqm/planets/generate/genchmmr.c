@@ -165,6 +165,10 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys,
 	{
 		BOOLEAN HardModeBS = DIF_HARD && !GET_GAME_STATE (KOHR_AH_FRENZY)
 			&& !(GET_GAME_STATE (HM_ENCOUNTERS) & 1 << ILWRATH_ENCOUNTER);
+		BYTE IlwrathAtProcyon = GET_GAME_STATE (ILWRATH_AT_PROCYON);
+
+		if (IlwrathAtProcyon == 1 && GET_GAME_STATE (ILWRATH_DECEIVED))
+			SET_GAME_STATE (ILWRATH_AT_PROCYON, 2);
 
 		if (RaceDead (CHMMR_SHIP))
 		{
@@ -224,6 +228,9 @@ GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys,
 				CloneShipFragment (ILWRATH_SHIP,
 						&GLOBAL (npc_built_ship_q), INFINITE_FLEET);
 			}
+
+			if (!IlwrathAtProcyon)
+				SET_GAME_STATE (ILWRATH_AT_PROCYON, 1);
 
 			SET_GAME_STATE (GLOBAL_FLAGS_AND_DATA, 1 << 6);
 			GLOBAL (CurrentActivity) |= START_INTERPLANETARY;

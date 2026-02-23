@@ -642,6 +642,10 @@ WriteJournals (void)
 			thradd_probes_01, INV_SLY_THRADD_01,
 			rainbow_5,        NO_JOURNAL_ENTRY);
 
+	AddJournal (ALIENS_JOURNAL, 2,
+			GGS (ILWRATH_AT_PROCYON) == 1, ILWRATH_TROUBLE,
+			GGS (ILWRATH_AT_PROCYON) == 2, NO_JOURNAL_ENTRY);
+
 	// Curiosities log
 
 	heard_portal = GGS (INVESTIGATE_PORTAL);
