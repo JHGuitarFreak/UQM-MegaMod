@@ -37,6 +37,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "uqmdebug.h"
+#include "planets/lander.h"
+#include "comm.h"
 
 #include <time.h>//required to use 'srand(time(NULL))'
 
@@ -984,6 +986,24 @@ inSuperMelee (void)
 {
 	return (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE);
 			// TODO: && !inMainMenu ()
+}
+
+BOOLEAN
+inSavablePos (void)
+{
+	ACTIVITY curr_act = GLOBAL (CurrentActivity);
+	ACTIVITY lob_curr_act = LOBYTE (curr_act);
+
+	if (InPopUp || lob_curr_act == SUPER_MELEE || planetSideDesc != NULL
+			|| CommData.ConversationPhrases != NULL
+			|| ((curr_act & IN_BATTLE) && lob_curr_act != IN_HYPERSPACE))
+		return FALSE;
+
+	return (lob_curr_act == IN_ENCOUNTER ||
+			lob_curr_act == IN_HYPERSPACE ||
+			lob_curr_act == IN_INTERPLANETARY ||
+			lob_curr_act == IN_PLANET_ORBIT ||
+			lob_curr_act == IN_STARBASE);
 }
 
 #if 0

@@ -2714,7 +2714,7 @@ DoMoveCursor (MENU_STATE *pMS)
 
 	flashCurrentLocation (NULL, FALSE);
 
-	return !(GLOBAL (CurrentActivity) & CHECK_ABORT);
+	return !(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD));
 }
 
 static void

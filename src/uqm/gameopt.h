@@ -23,8 +23,15 @@
 extern "C" {
 #endif
 
+#define MAX_SAVED_GAMES 50
+#define QUICKSAVE_SLOT  (MAX_SAVED_GAMES)
+#define TOTAL_SLOTS     (MAX_SAVED_GAMES + 1)
+
 extern void ConfirmSaveLoad (STAMP *MsgStamp);
 extern BOOLEAN GameOptions (void);
+extern void RequestQuickLoad (void);
+extern BOOLEAN QuickLoadDeferred (void);
+extern BOOLEAN QuickSave (void);
 
 typedef void (NamingCallback) (void);
 extern void SetNamingCallback (NamingCallback *);
@@ -34,6 +41,7 @@ extern BOOLEAN NewGameInit;
 extern BYTE OutfitOrShipyard;
 extern BOOLEAN SaveOrLoad;
 extern BOOLEAN TextEntry3DO;
+extern BOOLEAN QuickLoadRequested;
 
 #if defined(__cplusplus)
 }
