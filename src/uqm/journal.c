@@ -412,13 +412,15 @@ WriteJournals (void)
 
 	AddJournal (ALIENS_JOURNAL, 2,
 			sb_chenjesu, CONTACT_CHENJESU,
+			GSGE (MELNORME_ALIEN_INFO_STACK, 8), CONTACT_CHMMR,
 			met_chmmr,   CONTACT_CHENJESU);
 
 	sb_mmrnmhrm = AllianceInfo (ALLIANCE_MMRNMHRM);
 
 	AddJournal (ALIENS_JOURNAL, 2,
-			sb_mmrnmhrm, CONTACT_MMRNMHRM,
-			met_chmmr,   CONTACT_MMRNMHRM);
+			sb_mmrnmhrm,                         CONTACT_MMRNMHRM,
+			GSGE (MELNORME_ALIEN_INFO_STACK, 8), NO_JOURNAL_ENTRY,
+			met_chmmr,                           CONTACT_MMRNMHRM);
 
 	mels_bullet = StarbaseBulletins (7);
 	met_mels = GS (MET_MELNORME);
