@@ -787,6 +787,7 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	// Journal gamestates
 	{ "JOURNAL_BIT", 1 }, // Don't allow journal unless this bit is flipped
+	{ "ALLIANCE_TRACKER", 26 }, // Track alliances by RACE_ID
 	{ "ALLIANCE_MASK", 6 },
 	{ "HIERARCHY_MASK", 7 },
 	{ "HEARD_PKUNK_ILWRATH", 1 },
@@ -823,6 +824,12 @@ const GameStateBitMap gameStateBitMap[] = {
 			/* Bit-0 Heard of Episolon Draconis rainbow world
 			 * Bit-1 Heard of beast on Delta Lyncis
 			 * Bit-2 Found the stele
+			 */
+	{ "SPATHI_CASTER", 2 },
+			/* 0 Player hasn't picked up the Umgah caster
+			 * 1 Spathi were shielded when caster was picked up
+			 * 2 Spathi were wiped out when caster was picked up
+			 * 3 unused
 			 */
 
 	/* end rev 5, MegaMod v0.8.4 */

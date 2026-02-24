@@ -238,7 +238,7 @@ WriteJournals (void)
 
 	BYTE hierarchy_mask;
 	BOOLEAN fwiffo_bullet, signal_uranus, can_fwiffo_join,
-			spathi_home, spathi_quest, wiped_evil,
+			spathi_home, spathi_quest, wiped_evil, check_spathi_soi,
 			met_zfp_scout, met_zfp_home,
 			mels_bullet, met_mels,
 			investigate_orz, met_orz, orz_status, orz_frumple,
@@ -381,12 +381,25 @@ WriteJournals (void)
 	spathi_quest = GGS (KNOW_SPATHI_QUEST);
 	wiped_evil = GGS (SPATHI_CREATURES_ELIMINATED);
 
-	AddJournal (ALIENS_JOURNAL, 5,
+	AddJournal (ALIENS_JOURNAL, 6,
 			spathi_home,                  CONTACT_SPATHI,
 			spathi_quest,                 ERADICATE_EVIL_ONES,
 			spathi_quest && wiped_evil,   INFORM_SPATHI_EVIL_ONES,
-			RaceAllied (SPATHI_SHIP),     ALLIED_WITH_SPATHI,
-			GGS (SPATHI_SHIELDED_SELVES), NO_JOURNAL_ENTRY);
+			GGS (SPATHI_PARTY),           CHECK_IN_SPATHI,
+			GGS (SPATHI_SHIELDED_SELVES), NO_JOURNAL_ENTRY,
+			RaceAllied (SPATHI_SHIP),     ALLIED_WITH_SPATHI);
+
+	check_spathi_soi = WasRaceAllied (SPATHI_SHIP)
+			&& !CheckSphereTracking (SPATHI_SHIP);
+
+	AddJournal (ALIENS_JOURNAL, 6,
+			check_spathi_soi,         INVESTIGATE_SPATHI_SOI,
+			StarbaseBulletins (10),   INVESTIGATE_SPATHI_HAYES,
+			GGS (SPATHI_CASTER) == 1, SPATHI_HAVE_SHIELDED,
+			GGS (SPATHI_CASTER) == 2, NO_JOURNAL_ENTRY);
+
+	AddJournal (ALIENS_JOURNAL, 1,
+			GGS (SPATHI_CASTER) == 2, SPATHI_WIPED_OUT);
 
 	zfp_bullet = StarbaseBulletins (11);
 	met_zfp_home = GGS (MET_ZFP_HOME);
@@ -810,9 +823,9 @@ WriteJournals (void)
 	channel_44 = GSGE (MELNORME_EVENTS_INFO_STACK, 3)
 			|| GGS (KNOW_CHANNEL_44);
 
-	AddJournal (ARTIFACTS_JOURNAL, 3,
+	AddJournal (ARTIFACTS_JOURNAL, 2,
 			have_caster,               BANANA_PHONE,
-			have_caster && channel_44, PRANK_ILWRATH,
+			//have_caster && channel_44, PRANK_ILWRATH,
 			GGS (ILWRATH_DECEIVED),    BYE_ILWRATH);
 
 	rainbow_shofixti = GGS (SHOFIXTI_STACK2) > 2

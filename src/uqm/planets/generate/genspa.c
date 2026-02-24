@@ -266,6 +266,11 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys,
 							SetAbsStringTableIndex (
 							solarSys->SysInfo.PlanetInfo.DiscoveryString,
 								1);
+					SET_GAME_STATE (SPATHI_CASTER, 2);
+				}
+				else
+				{
+					SET_GAME_STATE (SPATHI_CASTER, 1);
 				}
 			}
 
