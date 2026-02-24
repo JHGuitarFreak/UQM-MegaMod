@@ -786,6 +786,7 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "UTWIG_SHIP_YEAR", 5 },
 
 	// Journal gamestates
+	{ "JOURNAL_BIT", 1 }, // Don't allow journal unless this bit is flipped
 	{ "ALLIANCE_MASK", 6 },
 	{ "HIERARCHY_MASK", 7 },
 	{ "HEARD_PKUNK_ILWRATH", 1 },

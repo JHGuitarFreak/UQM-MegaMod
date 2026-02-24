@@ -665,6 +665,8 @@ InitGameStructures (void)
 		}
 	}
 
+	SET_GAME_STATE (JOURNAL_BIT, 1);
+
 	loadGameCheats ();
 
 	InitQueue (&GLOBAL (stowed_ship_q),

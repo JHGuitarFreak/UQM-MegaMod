@@ -1107,7 +1107,8 @@ Journal (void)
 
 	JournalRequested = FALSE;
 
-	if (NOMAD || DIF_HARD || InPopUp || SaveLoadActive
+	if (!GET_GAME_STATE (JOURNAL_BIT) || NOMAD || DIF_HARD
+			|| InPopUp || SaveLoadActive
 			|| planetSideDesc != NULL || lob_curr_act == SUPER_MELEE
 			|| ((curr_act & IN_BATTLE) && lob_curr_act != IN_HYPERSPACE)
 			|| lob_curr_act == WON_LAST_BATTLE)

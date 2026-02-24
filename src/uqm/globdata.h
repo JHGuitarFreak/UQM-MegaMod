@@ -981,6 +981,7 @@ START_GAME_STATE
 			 * (stored as an offset from the year the game starts). */
 
 	// Journal gamestates
+	ADD_GAME_STATE (JOURNAL_BIT, 1)
 	ADD_GAME_STATE (ALLIANCE_MASK, 6)
 	ADD_GAME_STATE (HIERARCHY_MASK, 7)
 	ADD_GAME_STATE (HEARD_PKUNK_ILWRATH, 1)
