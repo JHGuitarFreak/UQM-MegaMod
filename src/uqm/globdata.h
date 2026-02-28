@@ -696,18 +696,7 @@ BOOLEAN deserialiseGameState (const GameStateBitMap *bm,
 	X(UTWIG_SHIP_MONTH, 4) \
 	X(UTWIG_SHIP_DAY, 5) \
 	X(UTWIG_SHIP_YEAR, 5) \
-	X(ALLIANCE_MASK, 6) \
-	X(HIERARCHY_MASK, 7) \
-	X(HEARD_PKUNK_ILWRATH, 1) \
-	X(HAYES_OTHER_ALIENS, 1) \
-	X(INVESTIGATE_THRADD, 1) \
-	X(INVESTIGATE_UMGAH, 1) \
-	X(INVESTIGATE_UMGAH_ZFP, 1) \
-	X(INVESTIGATE_PROBES, 2) \
-	X(INVESTIGATE_PORTAL, 3) \
-	X(INVESTIGATE_ORZ, 1) \
-	X(INVESTIGATE_ZFP, 1) \
-	X(MET_ZFP_HOME, 1)
+	X(REV_5_PAD, 33)
 
 #define GAME_STATE_ENUM_ENTRY(name, bits) name, END_##name = name + bits - 1,
 enum
@@ -874,6 +863,7 @@ extern BOOLEAN InitStarseed (BOOLEAN newgame);
 BOOLEAN inFullGame (void);
 BOOLEAN inEncounter (void);
 BOOLEAN inSuperMelee (void);
+BOOLEAN inSavablePos (void);
 //BOOLEAN inBattle (void);
 //BOOLEAN inInterPlanetary (void);
 //BOOLEAN inSolarSystem (void);
@@ -1263,8 +1253,4 @@ SetHomeworldKnown (DWORD homeworld)
  *   SHOFIXTI_GRPOFFS, ZOQFOT_GRPOFFS, MELNORME0_GRPOFFS through
  *   MELNORME8_GRPOFFS, URQUAN_PROBE_GRPOFFS, COLONY_GRPOFFS,
  *   SAMATRA_GRPOFFS
- *
- * These states are defined as macros but have special meanings:
- *   YEARS_TO_KOHRAH_VICTORY (optDeCleansing ? 100 : 4) [macro,
- *   not a state]
  */

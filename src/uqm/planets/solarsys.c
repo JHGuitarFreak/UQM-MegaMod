@@ -2245,7 +2245,6 @@ InitSolarSys (void)
 	BOOLEAN Reentry;
 	PLANET_DESC *orbital;
 
-
 	LoadIPData ();
 	LoadLanderData ();
 

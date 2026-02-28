@@ -257,7 +257,7 @@ DoModifyRoster (MENU_STATE *pMS)
 	ROSTER_STATE *rosterState = pMS->privData;
 	BOOLEAN select, cancel, up, down, pgup, pgdn, horiz;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
 	select = PulsedInputState.menu[KEY_MENU_SELECT];

@@ -23,8 +23,6 @@
 #include "uqm/build.h"
 #include "uqm/lua/luacomm.h"
 
-#include "uqm/journal.h"
-
 
 static LOCDATA spathi_desc =
 {
@@ -406,8 +404,6 @@ SpathiOnPluto (RESPONSE_REF R)
 		Response (join_us, ExitConversation);
 	else
 		Response (join_us, SpathiOnPluto);
-
-	FwiffoCanJoin = PHRASE_ENABLED (join_us);
 
 	Response (changed_mind, ExitConversation);
 }
