@@ -85,6 +85,8 @@ extern bool KillLanderCrewSeq (COUNT numKilled, DWORD period);
 
 extern unsigned GetThermalHazardRating (int temp);
 
+extern PLANETSIDE_DESC *planetSideDesc;
+
 // ELEMENT.playerNr constants
 enum
 {
