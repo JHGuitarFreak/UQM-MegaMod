@@ -57,6 +57,7 @@
 #include "cons_res.h"
 #include <time.h>//required to use 'srand(time(NULL))'
 #include "sounds.h"
+#include "gameopt.h"
 #include "libs/imgui/uqm_imgui.h"
 
 volatile int MainExited = FALSE;
@@ -157,8 +158,8 @@ ProcessUtilityKeys (void)
 
 	if (ImmediateInputState.menu[KEY_SCREENSHOT])
 	{
-		TFB_ScreenShot ();
 		FlushInput ();
+		TFB_ScreenShot ();
 	}
 
 #if SDL_MAJOR_VERSION == 2
@@ -350,6 +351,9 @@ while (--ac > 0)
 				(*saveDebugHook) ();
 				continue;
 			}
+
+			if (QuickLoadDeferred ())
+				continue;
 
 			SetStatusMessageMode (SMM_DEFAULT);
 

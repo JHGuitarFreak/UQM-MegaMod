@@ -66,6 +66,8 @@ enum {
 	KEY_MENU_NEXT,
 	KEY_MENU_TOGGLEMAP,
 	KEY_SCREENSHOT,
+	KEY_QUICKSAVE,
+	KEY_QUICKLOAD,
 	KEY_IMGUI,
 	KEY_DEBUG_2,
 	KEY_DEBUG_3,
@@ -132,6 +134,7 @@ BOOLEAN WaitForNoInputUntil (TimeCount timeOut, BOOLEAN resetInput);
 
 extern BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
 
+extern BOOLEAN InPopUp;
 void DoPopupWindow(const char *msg);
 
 typedef void (InputFrameCallback) (void);
