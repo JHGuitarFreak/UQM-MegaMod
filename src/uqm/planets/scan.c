@@ -1346,7 +1346,7 @@ DoScan (MENU_STATE *pMS)
 	select = PulsedInputState.menu[KEY_MENU_SELECT];
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
 	
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))

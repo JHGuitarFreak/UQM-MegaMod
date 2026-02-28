@@ -442,6 +442,8 @@ TFB_SDL2_ScanLines (bool hd)
 	{
 		SDL_RenderDrawLine (renderer, 0, y, WindowWidth - 1, y);
 	}
+
+	(void)hd; // satisfy compiler (unused parameter)
 }
 
 static void
