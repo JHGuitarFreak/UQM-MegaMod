@@ -918,7 +918,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 				if (optDeCleansing && EventPtr->func_index == KOHR_AH_VICTORIOUS_EVENT)
 				{
 					UnlockEvent (hEvent);
-					printf("EventPtr->year_index: %d\n", EventPtr->year_index);
+					//printf("EventPtr->year_index: %d\n", EventPtr->year_index);
 
 					if (EventPtr->year_index == 2158)
 					{
