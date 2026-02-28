@@ -1779,6 +1779,8 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 	return success;
 }
 
+BOOLEAN SaveLoadActive = FALSE;
+
 static BOOLEAN
 PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 {
@@ -1789,6 +1791,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	STAMP DlgStamp;
 	TimeCount TimeOut;
 	InputFrameCallback *oldCallback;
+
+	SaveLoadActive = TRUE;
 
 	memset (&pickState, 0, sizeof pickState);
 	pickState.saving = saving;
@@ -1955,6 +1959,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 
 	// Reactivate any background drawing, like planet rotation
 	SetInputCallback (oldCallback);
+
+	SaveLoadActive = FALSE;
 
 	return pickState.success;
 }
