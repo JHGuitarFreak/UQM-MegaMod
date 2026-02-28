@@ -73,8 +73,10 @@ typedef struct vcontrol_joystick {
 	hat_type *hats;
 } joystick;
 
+#if SDL_MAJOR_VERSION == 1
 static joystick *joysticks;
 static unsigned int joycount;
+#endif // SDL_MAJOR_VERSION
 
 #if SDL_MAJOR_VERSION > 1
 
@@ -359,7 +361,7 @@ destroy_joystick (SDL_JoystickID instance_id)
 
 #else
 
-static void
+void
 create_joystick (int index)
 {
 	SDL_Joystick *stick;

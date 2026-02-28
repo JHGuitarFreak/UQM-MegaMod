@@ -38,6 +38,7 @@
 #define CONFIRM_WIN_HEIGHT RES_SCALE (26)
 
 BOOLEAN WarpFromMenu = FALSE;
+BOOLEAN InPopUp = FALSE;
 
 static void
 DrawConfirmationWindow (BOOLEAN answer, BOOLEAN confirm)
@@ -101,6 +102,8 @@ DoConfirmExit (void)
 		PauseTrack ();
 
 	FlashPaused = PauseFlash ();
+
+	InPopUp = TRUE;
 
 	{
 		RECT r;
@@ -212,6 +215,8 @@ DoConfirmExit (void)
 	if (PlayingTrack () && !result)
 		ResumeTrack ();
 
+	InPopUp = FALSE;
+
 	return (result);
 }
 
@@ -265,6 +270,8 @@ DoPopupWindow (const char *msg)
 
 	FlashPaused = PauseFlash ();
 
+	InPopUp = TRUE;
+
 	oldContext = SetContext (ScreenContext);
 	GetContextClipRect (&oldRect);
 	SetContextClipRect (NULL);
@@ -295,6 +302,8 @@ DoPopupWindow (const char *msg)
 
 	if (FlashPaused)
 		ContinueFlash ();
+
+	InPopUp = FALSE;
 
 	SetMenuSounds (s0, s1);
 	StringBank_Free (bank);

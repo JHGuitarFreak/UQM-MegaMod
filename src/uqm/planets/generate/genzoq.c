@@ -18,7 +18,7 @@
 
 #include "genall.h"
 #include "../planets.h"
-#include "../../build.h"
+#include "../../build.h" 
 #include "../../comm.h"
 #include "../../gendef.h"
 #include "../../globdata.h"
@@ -206,9 +206,9 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys,
 			CaptureStringTable (LoadStringTable(RUINS_STRTAB));
 	}
 
-	if ((CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
+	if (((CurStarDescPtr->Index == ZOQ_COLONY0_DEFINED
 			|| CurStarDescPtr->Index == ZOQ_COLONY1_DEFINED
-			|| CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED
+			|| CurStarDescPtr->Index == ZOQ_COLONY3_DEFINED)
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 			&& EXTENDED)
 	{

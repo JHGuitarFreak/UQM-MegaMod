@@ -41,9 +41,8 @@
 
 extern FRAME PlayFrame;
 
-#define MAX_SAVED_GAMES   50
 #define SAVES_PER_PAGE   (optWindowType < 2 ? 2 : 5)
-#define MAX_NAME_SIZE     SIS_NAME_SIZE
+#define MAX_NAME_SIZE    SIS_NAME_SIZE
 
 #define SUMMARY_X_OFFS    NSAFE_NUM_SCL (14)
 #define SUMMARY_SIDE_OFFS NSAFE_NUM_SCL (7)
@@ -56,6 +55,7 @@ BOOLEAN NewGameInit;
 BYTE OutfitOrShipyard = 0;
 BOOLEAN SaveOrLoad = FALSE;
 BOOLEAN TextEntry3DO = FALSE;
+BOOLEAN QuickLoadRequested = FALSE;
 
 void
 ConfirmSaveLoad (STAMP *MsgStamp)
@@ -606,7 +606,7 @@ DoSettings (MENU_STATE *pMS)
 	BYTE cur_speed, read_speed;
 	static BYTE i = 0;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 	{
 		i = 0;
 		return FALSE;
@@ -740,7 +740,7 @@ SettingsMenu (BOOLEAN NameFlagship)
 
 typedef struct
 {
-	SUMMARY_DESC summary[MAX_SAVED_GAMES];
+	SUMMARY_DESC summary[MAX_SAVED_GAMES+1];
 	BOOLEAN saving;
 			// TRUE when saving, FALSE when loading
 	BOOLEAN success;
@@ -1420,6 +1420,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 					starPt = SDPtr->star_pt;
 					break;
 				}
+				FALLTHROUGH;
 			}
 			default:
 				buf[0] = '\0';
@@ -1517,7 +1518,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 {
 	RECT r;
 	TEXT t;
-	COUNT i, curSlot;
+	COUNT i, curSlot, totalSlots;
 	UNICODE buf[256], buf2[80], *SaveName;
 	Color UnSelected = SAVE_UNSELECTED_COLOR;
 	Color Selected = SAVE_SELECTED_COLOR;
@@ -1541,9 +1542,9 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	t.align = ALIGN_LEFT;
 
 	// Draw savegame slots info
+	totalSlots = pickState->saving ? MAX_SAVED_GAMES : MAX_SAVED_GAMES + 1;
 	curSlot = selSlot - (selSlot % SAVES_PER_PAGE);
-	for (i = 0; i < SAVES_PER_PAGE && curSlot < MAX_SAVED_GAMES;
-			++i, ++curSlot)
+	for (i = 0; i < SAVES_PER_PAGE && curSlot < totalSlots; ++i, ++curSlot)
 	{
 		SUMMARY_DESC *desc = &pickState->summary[curSlot];
 
@@ -1559,8 +1560,15 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 		t.baseline.x = r.corner.x + RES_SCALE (3);
 		t.baseline.y = r.corner.y + RES_SCALE (8);
-		snprintf (buf, sizeof buf,
+		if (!pickState->saving && curSlot == MAX_SAVED_GAMES)
+		{
+			snprintf (buf, sizeof buf, "QS");
+		}
+		else
+		{
+			snprintf (buf, sizeof buf,
 				(MAX_SAVED_GAMES > 99) ? "%03u" : "%02u", curSlot);
+		}
 		font_DrawText (&t);
 
 		r.extent.width = RES_SCALE (204) +
@@ -1610,11 +1618,13 @@ RedrawPickDisplay (PICK_GAME_STATE *pickState, COUNT selSlot)
 }
 
 static void
-LoadGameDescriptions (SUMMARY_DESC *pSD)
+LoadGameDescriptions (SUMMARY_DESC *pSD, BOOLEAN includeQuickSave)
 {
 	COUNT i;
 
-	for (i = 0; i < MAX_SAVED_GAMES; ++i, ++pSD)
+	COUNT maxSlots = includeQuickSave ? TOTAL_SLOTS : MAX_SAVED_GAMES;
+
+	for (i = 0; i < maxSlots; ++i, ++pSD)
 	{
 		if (!LoadGame (i, pSD, NULL, FALSE))
 			pSD->year_index = 0;
@@ -1628,6 +1638,7 @@ DoPickGame (MENU_STATE *pMS)
 	BYTE NewState;
 	SUMMARY_DESC *pSD;
 	DWORD TimeIn = GetTimeCounter ();
+	COUNT maxSlots = pickState->saving ? MAX_SAVED_GAMES - 1 : MAX_SAVED_GAMES;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
@@ -1640,7 +1651,8 @@ DoPickGame (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
 		pSD = &pickState->summary[pMS->CurState];
-		if (pickState->saving || pSD->year_index)
+		if (pickState->saving || pSD->year_index ||
+			(!pickState->saving && pMS->CurState == MAX_SAVED_GAMES))
 		{	// valid slot
 			DWORD LoadFuelScaled = loadFuel / FUEL_TANK_SCALE;
 			DWORD TankCapacityScaled = GetFuelTankCapacity() / FUEL_TANK_SCALE;
@@ -1669,35 +1681,35 @@ DoPickGame (MENU_STATE *pMS)
 	{
 		NewState = pMS->CurState;
 		if (PulsedInputState.menu[KEY_MENU_LEFT]
-				|| PulsedInputState.menu[KEY_MENU_PAGE_UP])
+			|| PulsedInputState.menu[KEY_MENU_PAGE_UP])
 		{
 			if (NewState == 0)
-				NewState = MAX_SAVED_GAMES - 1;
-			else if ((NewState - SAVES_PER_PAGE) > 0)
+				NewState = maxSlots;
+			else if ((NewState - SAVES_PER_PAGE) >= 0)
 				NewState -= SAVES_PER_PAGE;
-			else 
+			else
 				NewState = 0;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_RIGHT]
-				|| PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
+			|| PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
 		{
-			if (NewState == MAX_SAVED_GAMES - 1)
+			if (NewState == maxSlots)
 				NewState = 0;
-			else if ((NewState + SAVES_PER_PAGE) < MAX_SAVED_GAMES - 1)
+			else if ((NewState + SAVES_PER_PAGE) < maxSlots)
 				NewState += SAVES_PER_PAGE;
-			else 
-				NewState = MAX_SAVED_GAMES - 1;
+			else
+				NewState = maxSlots;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP])
 		{
 			if (NewState == 0)
-				NewState = MAX_SAVED_GAMES - 1;
+				NewState = maxSlots;
 			else
 				NewState--;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_DOWN])
 		{
-			if (NewState == MAX_SAVED_GAMES - 1)
+			if (NewState == maxSlots)
 				NewState = 0;
 			else
 				NewState++;
@@ -1767,6 +1779,8 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 	return success;
 }
 
+BOOLEAN SaveLoadActive = FALSE;
+
 static BOOLEAN
 PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 {
@@ -1777,6 +1791,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	STAMP DlgStamp;
 	TimeCount TimeOut;
 	InputFrameCallback *oldCallback;
+
+	SaveLoadActive = TRUE;
 
 	memset (&pickState, 0, sizeof pickState);
 	pickState.saving = saving;
@@ -1792,7 +1808,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	// Deactivate any background drawing, like planet rotation
 	oldCallback = SetInputCallback (NULL);
 
-	LoadGameDescriptions (pickState.summary);
+	LoadGameDescriptions (pickState.summary, !pickState.saving);
 
 	OldContext = SetContext (SpaceContext);
 	// Save the current state of the screen for later restoration
@@ -1829,7 +1845,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	}
 
 	SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGE,
-			0);
+		0);
 	MenuState.InputFunc = DoPickGame;
 
 	// Save/load retry loop
@@ -1853,7 +1869,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		// TODO: Shouldn't we have a Problem() equivalent for Load too?
 
 		// reload and redraw everything
-		LoadGameDescriptions (pickState.summary);
+		LoadGameDescriptions (pickState.summary, !pickState.saving);
 		RedrawPickDisplay (&pickState, MenuState.CurState);
 	}
 
@@ -1864,7 +1880,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		GLOBAL (CurrentActivity) |= CHECK_LOAD;
 	}
 
-	if (pickState.success) 
+	if (pickState.success)
 	{
 		SUMMARY_DESC *pSD = pickState.summary + MenuState.CurState;
 
@@ -1886,6 +1902,11 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 		log_add (log_Info, "Difficulty: %s\n", DIF_STR (DIFFICULTY));
 		log_add (log_Info, "Extended: %s\n", BOOL_STR (EXTENDED));
 		log_add (log_Info, "Nomad: %s\n\n", NOMAD_STR (NOMAD));
+
+		if (lastUsedSlot == QUICKSAVE_SLOT)
+		{
+			lastUsedSlot = 0; // reset to first slot after quicksave
+		}
 	}
 
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT) &&
@@ -1939,13 +1960,97 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	// Reactivate any background drawing, like planet rotation
 	SetInputCallback (oldCallback);
 
+	SaveLoadActive = FALSE;
+
 	return pickState.success;
+}
+
+void
+RequestQuickLoad (void)
+{
+	SUMMARY_DESC desc;
+
+	if (!inSavablePos ())
+		return;
+
+	if (!LoadGame (QUICKSAVE_SLOT, &desc, NULL, FALSE))
+	{
+		log_add (log_Warning, "QuickLoad: No quicksave found");
+		DoPopupWindow (GAME_STRING (SAVEGAME_STRING_BASE + 9));
+		return;
+	}
+
+	QuickLoadRequested = TRUE;
+
+	if ((GLOBAL (CurrentActivity) & END_INTERPLANETARY) == 0)
+		GLOBAL (CurrentActivity) |= (END_INTERPLANETARY | CHECK_LOAD);
+	else
+		GLOBAL (CurrentActivity) |= CHECK_LOAD;
+}
+
+BOOLEAN
+QuickLoadDeferred (void)
+{
+	CONTEXT OldContext;
+
+	if (!QuickLoadRequested)
+		return FALSE;
+
+	QuickLoadRequested = FALSE;
+
+	OldContext = SetContext (SpaceContext);
+
+	ConfirmSaveLoad (NULL);
+
+	SetContext (OldContext);
+
+	if (!LoadGame (QUICKSAVE_SLOT, NULL, NULL, FALSE))
+	{
+		log_add (log_Error, "QuickLoad: Failed to load quicksave");
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOLEAN
+QuickSave (void)
+{
+	PICK_GAME_STATE pickState;
+	STAMP saveStamp;
+	BOOLEAN success;
+	CONTEXT OldContext;
+
+	memset (&pickState, 0, sizeof pickState);
+	pickState.saving = TRUE;
+
+	if (!LoadGame (QUICKSAVE_SLOT, pickState.summary, NULL, FALSE))
+		pickState.summary->year_index = 0;
+
+	OldContext = SetContext (SpaceContext);
+
+	ConfirmSaveLoad (&saveStamp);
+	SleepThread (ONE_SECOND / 2);
+
+	success = !SaveGame (QUICKSAVE_SLOT, pickState.summary,
+		GAME_STRING (SAVEGAME_STRING_BASE + 8));
+
+	if (!success)
+	{
+		log_add (log_Error, "QuickSave failed to save");
+	}
+
+	DrawStamp (&saveStamp);
+	DestroyDrawable (ReleaseDrawable (saveStamp.frame));
+	SetContext (OldContext);
+
+	return success;
 }
 
 static BOOLEAN
 DoGameOptions (MENU_STATE *pMS)
 {
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
 	if (PulsedInputState.menu[KEY_MENU_CANCEL]
