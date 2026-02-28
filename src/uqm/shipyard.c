@@ -126,7 +126,7 @@ typedef struct
 {
 	UNICODE ShipName[30];
 	COUNT ShipCost;
-	COUNT CrewLevel, MaxCrew;
+	BYTE CrewLevel, MaxCrew;
 } SHIP_STATS;
 
 typedef struct
@@ -641,7 +641,7 @@ animatePowerLines (MENU_STATE *pMS)
 	static TimeCount NextTime = 0;
 	TimeCount Now = GetTimeCounter ();
 
-	if (IS_PAD || GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (IS_PAD || GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return;
 
 	if (pMS)
@@ -2298,7 +2298,7 @@ DMS_NavigateShipSlots (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 static BOOLEAN
 DoModifyShips (MENU_STATE *pMS)
 {
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 	{
 		pMS->InputFunc = DoShipyard;
 		return TRUE;
@@ -2582,7 +2582,8 @@ DoShipyard (MENU_STATE *pMS)
 
 		pMS->Initialized = TRUE;
 	}
-	else if (cancel || (select && pMS->CurState == SHIPYARD_EXIT))
+	else if (cancel || (select && pMS->CurState == SHIPYARD_EXIT)
+			|| GLOBAL (CurrentActivity) & CHECK_LOAD)
 	{
 ExitShipyard:
 		SetInputCallback (NULL);

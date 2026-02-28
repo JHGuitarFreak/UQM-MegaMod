@@ -1445,7 +1445,7 @@ DoScan (MENU_STATE *pMS)
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| MouseButton (MOUSE_RGT);
 	
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
 	if (MouseButton (MOUSE_LFT))

@@ -1,0 +1,109 @@
+name: Build UQM Binaries
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Linux Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libsdl2-dev \
+          libpng-dev \
+          libogg-dev \
+          libvorbis-dev \
+          zlib1g-dev \
+          make \
+          automake \
+          autoconf
+      
+    - name: Create config.state
+      run: |
+        cat > config.state << 'EOF'
+        CHOICE_debug_VALUE='debug'
+        CHOICE_graphics_VALUE='sdl2'
+        CHOICE_sound_VALUE='mixsdl'
+        CHOICE_mikmod_VALUE='internal'
+        CHOICE_lua_VALUE='internal'
+        CHOICE_ovcodec_VALUE='standard'
+        CHOICE_netplay_VALUE='full'
+        CHOICE_joystick_VALUE='enabled'
+        CHOICE_ioformat_VALUE='stdio_zip'
+        CHOICE_accel_VALUE='asm'
+        CHOICE_threadlib_VALUE='sdl'
+        EOF
+    
+    - name: Build Linux Binary
+      run: |
+        ./build.sh uqm -j$(nproc)
+    
+    - name: Upload Linux Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: UrQuanMastersDebug-Linux
+        path: ./UrQuanMastersDebug
+        if-no-files-found: error
+
+  build-windows-32bit:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup MSYS2 for 32-bit
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        msystem: MINGW32
+        install: >-
+          base-devel
+          mingw-w64-i686-toolchain
+          mingw-w64-i686-SDL2
+          mingw-w64-i686-libpng
+          mingw-w64-i686-libogg
+          mingw-w64-i686-libvorbis
+          mingw-w64-i686-zlib
+          make
+          autoconf
+          automake
+    
+    - name: Create config.state
+      shell: msys2 {0}
+      run: |
+        cat > config.state << 'EOF'
+        CHOICE_debug_VALUE='debug'
+        CHOICE_graphics_VALUE='sdl2'
+        CHOICE_sound_VALUE='mixsdl'
+        CHOICE_mikmod_VALUE='internal'
+        CHOICE_lua_VALUE='internal'
+        CHOICE_ovcodec_VALUE='standard'
+        CHOICE_netplay_VALUE='full'
+        CHOICE_joystick_VALUE='enabled'
+        CHOICE_ioformat_VALUE='stdio_zip'
+        CHOICE_accel_VALUE='asm'
+        CHOICE_threadlib_VALUE='sdl'
+        EOF
+    
+    - name: Build Windows 32-bit Binary
+      shell: msys2 {0}
+      run: |
+        chmod +x build.sh
+        ./build.sh uqm -j$(nproc)
+    
+    - name: Upload Windows 32-bit Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: UrQuanMastersDebug-Windows
+        path: ./UrQuanMastersDebug.exe
+        if-no-files-found: error

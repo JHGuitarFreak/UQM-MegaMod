@@ -613,7 +613,7 @@ DoInstallModule (MENU_STATE *pMS)
 	SIZE FirstItem, LastItem;
 	BOOLEAN select, cancel, motion;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 	{
 		pMS->InputFunc = DoOutfit;
 		return (TRUE);
@@ -1385,6 +1385,10 @@ ExitOutfit:
 				SetFlashRect (SFR_MENU_3DO, FALSE);
 				break;
 		}
+	}
+	else if (GLOBAL (CurrentActivity) & CHECK_LOAD)
+	{	// Don't judge me, ExitOutFit already existed
+		goto ExitOutfit;
 	}
 	else
 	{

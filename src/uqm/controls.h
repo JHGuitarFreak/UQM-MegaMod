@@ -65,6 +65,8 @@ enum {
 	KEY_MENU_NEXT,
 	KEY_MENU_TOGGLEMAP,
 	KEY_SCREENSHOT,
+	KEY_QUICKSAVE,
+	KEY_QUICKLOAD,
 	KEY_DEBUG_2,
 	KEY_DEBUG_3,
 	KEY_DEBUG_4,
@@ -129,6 +131,8 @@ BOOLEAN WaitForNoInput (TimePeriod duration, BOOLEAN resetInput);
 BOOLEAN WaitForNoInputUntil (TimeCount timeOut, BOOLEAN resetInput);
 
 void DoPopupWindow (const char *msg);
+
+extern BOOLEAN InPopUp;
 
 typedef void (InputFrameCallback) (void);
 InputFrameCallback* SetInputCallback (InputFrameCallback *);

@@ -398,7 +398,7 @@ DoDiscardCargo (MENU_STATE *pMS)
 	forward = PulsedInputState.menu[KEY_MENU_DOWN]
 			|| PulsedInputState.menu[KEY_MENU_RIGHT] || MouseWheelDelta < 0;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
 	DoMouseSounds ();

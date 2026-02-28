@@ -681,7 +681,7 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	BYTE hilite = 1;
 	extern FRAME PlayFrame;
 
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return;
 
 	if (NewState < 0)
