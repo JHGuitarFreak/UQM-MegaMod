@@ -148,12 +148,14 @@ LoadKernel (int argc, char *argv[])
 		EndlessSCLoaded = loadAddon ("EndlessSC-SD");
 		solTexturesPresent = loadAddon ("sol-textures-sd");
 		loadAddon ("yellow-fried-sd");
+		loadAddon ("PurpleQuanSD");
 	} 
 	else if (loadAddon ("mm-hd"))
 	{
 		HDPackPresent = TRUE;
 		solTexturesPresent = loadAddon ("sol-textures-hd");
 		loadAddon ("yellow-fried-hd");
+		loadAddon ("PurpleQuanHD");
 		if (optWindowType == 2)
 		{
 			classicPackPresent =

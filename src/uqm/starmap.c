@@ -868,6 +868,43 @@ CheckValid (PLOT_LOCATION *plot, COUNT plot_id)
 	return TRUE;
 }
 
+static BOOLEAN
+NeedsHabitable (BYTE sIndex)
+{
+	switch (sIndex)
+	{
+	case SHOFIXTI_DEFINED:
+	case START_COLONY_DEFINED:
+	case ZOQFOT_DEFINED:
+	case TALKING_PET_DEFINED:
+	case SYREEN_DEFINED:
+	case BURVIXESE_DEFINED:
+	case DRUUGE_DEFINED:
+	case SUN_DEVICE_DEFINED:
+	case VUX_BEAST_DEFINED: 
+	case MYCON_DEFINED:
+	case EGG_CASE0_DEFINED:
+	case EGG_CASE1_DEFINED:
+	case EGG_CASE2_DEFINED:
+	case PKUNK_DEFINED:
+	case UTWIG_DEFINED:
+	case YEHAT_DEFINED:
+	case VUX_DEFINED:
+	case ORZ_DEFINED:
+	case THRADD_DEFINED:
+	case ANDROSYNTH_DEFINED:
+	case MYCON_TRAP_DEFINED:
+	case ZOQ_COLONY0_DEFINED:
+	case ZOQ_COLONY1_DEFINED:
+	case ZOQ_COLONY2_DEFINED:
+	case ZOQ_COLONY3_DEFINED:
+	case ALGOLITES_DEFINED:
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
 // Plotify (internal) takes
 // starmap - map you are plotting
 // star - star you are adjusting to the plot
@@ -909,6 +946,31 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 
 	// Section 2: change colors of stars based on plot
 	// Specific homeworlds that work best with their correct color star (SOL)
+	if (NeedsHabitable (star->Index))
+	{
+		BYTE star_color = STAR_COLOR (star->Type);
+		DWORD rand_val = GetRandomSeedForStar (star);
+
+		if (STAR_TYPE (star->Type) == DWARF_STAR && star_color == RED_BODY)
+		{
+			BYTE color_array[] = { BLUE_BODY, GREEN_BODY, ORANGE_BODY,
+					WHITE_BODY, YELLOW_BODY };
+
+			star->Type = MAKE_STAR (
+					STAR_TYPE (star->Type), color_array[rand_val % 5],
+					STAR_OWNER (star->Type));
+		}
+		else if (STAR_TYPE (star->Type) == GIANT_STAR
+				&& (star_color == BLUE_BODY || star_color == GREEN_BODY
+				|| star_color == WHITE_BODY))
+		{
+			BYTE color_array[] = { ORANGE_BODY, RED_BODY, YELLOW_BODY };
+
+			star->Type = MAKE_STAR (
+					STAR_TYPE (star->Type), color_array[rand_val % 3],
+					STAR_OWNER (star->Type));
+		}
+	}
 	if (star->Index == SOL_DEFINED)
 		star->Type = starmap_array[i].Type;
 	// On world 44s, the Eye Of Dogar is Green, of course

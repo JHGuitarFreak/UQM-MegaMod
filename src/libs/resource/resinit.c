@@ -370,50 +370,79 @@ LoadResourceIndex (uio_DirHandle *dir, const char *rmpfile, const char *prefix)
 	PropFile_from_filename (dir, rmpfile, process_resource_desc, prefix);
 }
 
+static int strptrcmp (const void *a, const void *b)
+{
+	const char *str_a = *(const char **)a;
+	const char *str_b = *(const char **)b;
+	return strcmp (str_a, str_b);
+}
+
 void
 SaveResourceIndex (uio_DirHandle *dir, const char *rmpfile, const char *root, BOOLEAN strip_root)
 {
 	uio_Stream *f;
 	CharHashTable_Iterator *it;
 	unsigned int prefix_len;
-	
+	int count, capacity;
+	char **keys;
+
 	f = res_OpenResFile (dir, rmpfile, "wb");
 	if (!f) {
 		/* TODO: Warning message */
 		return;
 	}
 	prefix_len = root ? strlen (root) : 0;
+
+	count = 0;
+	capacity = 100;
+	keys = HMalloc (capacity * sizeof (char *));
+
 	for (it = CharHashTable_getIterator (_get_current_index_header ()->map);
-	     !CharHashTable_iteratorDone (it);
-	     it = CharHashTable_iteratorNext (it)) {
+		!CharHashTable_iteratorDone (it);
+		it = CharHashTable_iteratorNext (it)) {
 		char *key = CharHashTable_iteratorKey (it);
 		if (!root || !strncmp (root, key, prefix_len)) {
-			ResourceDesc *value = CharHashTable_iteratorValue (it);
-			if (!value) {
-				log_add(log_Warning, "Resource %s had no value", key);
-			} else if (!value->vtable) {
-				log_add(log_Warning, "Resource %s had no type", key);
-			} else if (value->vtable->toString) {
-				char buf[256];
-				value->vtable->toString (&value->resdata, buf, 256);
-				buf[255]=0;
-				if (root && strip_root) {
-					WriteResFile (key+prefix_len, 1, strlen (key) - prefix_len, f);
-				} else {
-					WriteResFile (key, 1, strlen (key), f);
-				}
-				PutResFileChar(' ', f);
-				PutResFileChar('=', f);
-				PutResFileChar(' ', f);
-				WriteResFile (value->vtable->resType, 1, strlen (value->vtable->resType), f);
-				PutResFileChar(':', f);
-				WriteResFile (buf, 1, strlen (buf), f);
-				PutResFileNewline(f);
+			if (count >= capacity){
+				capacity *= 2;
+				keys = HRealloc (keys, capacity * sizeof (char *));
 			}
+			keys[count] = HMalloc (strlen (key) + 1);
+			strcpy (keys[count], key);
+			count++;
 		}
 	}
-	res_CloseResFile (f);
 	CharHashTable_freeIterator (it);
+
+	qsort (keys, count, sizeof (char *), strptrcmp);
+
+	for (int i = 0; i < count; i++) {
+		char *key = keys[i];
+		ResourceDesc *value = CharHashTable_find (_get_current_index_header ()->map, key);
+		if (!value) {
+			log_add(log_Warning, "Resource %s had no value", key);
+		} else if (!value->vtable) {
+			log_add(log_Warning, "Resource %s had no type", key);
+		} else if (value->vtable->toString) {
+			char buf[256];
+			value->vtable->toString (&value->resdata, buf, 256);
+			buf[255]=0;
+			if (root && strip_root) {
+				WriteResFile (key+prefix_len, 1, strlen (key) - prefix_len, f);
+			} else {
+				WriteResFile (key, 1, strlen (key), f);
+			}
+			PutResFileChar(' ', f);
+			PutResFileChar('=', f);
+			PutResFileChar(' ', f);
+			WriteResFile (value->vtable->resType, 1, strlen (value->vtable->resType), f);
+			PutResFileChar(':', f);
+			WriteResFile (buf, 1, strlen (buf), f);
+			PutResFileNewline(f);
+		}
+		HFree (keys[i]);
+	}
+	HFree (keys);
+	res_CloseResFile (f);
 }
 
 void
