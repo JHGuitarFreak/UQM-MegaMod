@@ -289,7 +289,7 @@ ___
 
 ## Contributors
 
-Me (JHGuitarFreak), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, Taleden, and Jordan Lo.
+Me (JHGuitarFreak), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, Taleden, Jordan Lo, Tarponpet, and King Duncan.
 
 The main menu music for the MegaMod is brought to you by...
 * Saibuster A.K.A. Itamar.Levy: https://s3.amazonaws.com/starcontrol/files/fan/music/Various/saibuster-hyprespace.mp3
