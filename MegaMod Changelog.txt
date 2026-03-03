@@ -43,6 +43,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - "Scanning Screen Options" now "Orbit Screen Options" in the Setup Menu
 - Added support for Tall Pixels for SDL2 through "Keep Aspect Ratio" option
 - Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
+- No longer needs separate bindings for Xbox and PlayStation controllers (Still need to use the Control Display option to show your gamepad preference in the UI)
+- Hotswapping controllers is now available. Meaning you can now connect a controller mid-game and use it without restarting.
 
 ### Fixed
 - Shipyard no longer called "load_ship" to retrieve ship data (was seriously lagging in DOS mode), instead uses the master ship list.
