@@ -154,7 +154,105 @@ All current MegaMod compatible add-ons and content can be found on the main webs
 
 ___
 
-# <p style="color:red">WARNING! Spoilers Ahead!</p>
+# Default Gamepad Controls
+
+<center>
+
+![gamepad](./gamepad.png)
+
+<table>
+<td>
+</br>
+
+| Menu Controls |             |          |
+|:-------------:|:-----------:|:--------:|
+| **Up**        | D-Pad Up    | LS Up    |
+| **Down**      | D-Pad Down  | LS Down  |
+| **Left**      | D-Pad Left  | LS Left  |
+| **Right**     | D-Pad Right | LS Right |
+| **Select**    | A           |          |
+| **Cancel**    | B           |          |
+| **Special**   | X           |          |
+| **Pause**     | Start       |          |
+| **Exit**      | Select      |          |
+
+</td>
+<td>
+</br>
+
+| Shipyard Controls       |             |          |
+|:-----------------------:|:-----------:|:--------:|
+| **Fill Crew x1**        | D-Pad Up    | LS Up    |
+| **Remove Crew x1**      | D-Pad Down  | LS Down  |
+| **Remove Crew x10**     | D-Pad Left  | LS Left  |
+| **Fill Crew x10**       | D-Pad Right | LS Right |
+| **Fill All Crew**       | RB          |          |
+| **Remove All Crew**     | LB          |          |
+| **Store/Retrieve Ship** | LT          |          |
+
+</td>
+</table>
+<table>
+<td>
+</br>
+
+| Outfit Controls     |             |          |
+|:-------------------:|:-----------:|:--------:|
+| **Fill Fuel x1**    | D-Pad Up    | LS Up    |
+| **Remove Fuel x1**  | D-Pad Down  | LS Down  |
+| **Remove Fuel x10** | D-Pad Left  | LS Left  |
+| **Fill Fuel x10**   | D-Pad Right | LS Right |
+| **Fill All Fuel**   | RB          |          |
+| **Remove All Fuel** | LB          |          |
+
+</td>
+<td>
+</br>
+
+| StarMap Controls           |          |
+|:--------------------------:|:--------:|
+| **Zoom-In**                | RB       |
+| **Zoom-Out**               | LB       |
+| **Star Search**            | LB + RB  |
+| **Search -> Next Star**    | LT       |
+| **Increase Cursor Speed**  | Hold LT  |
+| **Change Map**             | Y        |
+| **Add/Remove Star Marker** | X        |
+
+</td>
+</table>
+<table>
+<td>
+</br>
+
+| Flight Controls      |             |          |     |
+|:--------------------:|:-----------:|:--------:|:---:|
+| **Thrust**           | D-Pad Up    | A        | RT  |
+| **Turn Left**        | D-Pad Left  | LS Left  |     |
+| **Turn Right**       | D-Pad Right | LS Right |     |
+| **Primary Weapon**   | X           | RB       |     |
+| **Secondary Weapon** | B           | LB       |     |
+| **Emergency Escape** | Y           |          |     |
+
+</td>
+<td>
+</br>
+
+| Lander Controls    |             |          |     |
+|:------------------:|:-----------:|:--------:|:---:|
+| **Thrust**         | D-Pad Up    | A        | RT  |
+| **Turn Left**      | D-Pad Left  | LS Left  |     |
+| **Turn Right**     | D-Pad Right | LS Right |     |
+| **Weapon**         | X           | RB       |     |
+| **Return to Ship** | B           | Y        | LB  |
+
+</td>
+</table>
+</center>
+
+___
+
+# WARNING! Spoilers Ahead!
 ## List of changes for the various modes
 
 <details>
