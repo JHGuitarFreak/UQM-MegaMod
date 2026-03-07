@@ -1,21 +1,41 @@
 # The Ur-Quan Masters HD MegaMod
-
 Send any bug reports or issues to: https://github.com/JHGuitarFreak/UQM-MegaMod/issues
 
 ## Compatibility
-
 MegaMod is not compatible with any other mods nor are they compatible with MegaMod.
 MegaMod is completely independant from Core UQM, HD-Mod, HD-Remix, Crazy Mod, Balance Mod, Extended, or any other mods.
 As such MegaMod has its own set of packages and add-ons.
 
-For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.4-hd.uqm`.
+For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.4-hd-content.uqm`.
 
 And as MegaMod is not compatible with any other mods, refrain from installing it over any existing UQM installations.
 
 All current MegaMod compatible add-ons and content can be found on the main website's Releases page: https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.4/
 
-## The Setup Menu
+## Content Installation
+For these examples I will be using the HD content package but this works for any of the content packages.
+To start, download the HD content package from the [Content](https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.4/content) folder on the SourceForge downloads page
+and make note of where you downloaded it.
 
+### Windows
+**You will only need to install content separately when not using the Windows installer**
+
+Copy the <code>mm-0.8.4-hd-content.uqm</code> file to your <code>addons</code> directory. Which by default is 
+
+<code>C:\Games\The Ur-Quan Masters MegaMod\content\addons\\</code>
+
+After that you can load the MegaMod and opt to use the HD content in the setup menu within the graphics options.
+
+### macOS
+Right click on the MegaMod app and select <code>Show Package Contents</code><br/>
+Navigate to <code>Contents -> Resources -> content -> addons</code><br/>
+Move or copy the <code>mm-0.8.4-hd-content.uqm</code> file into the <code>addons</code> folder. <br /><br />
+After that you can load the MegaMod and opt to use the HD content in the setup menu within the graphics options.
+
+### GNU/Linux
+To be honest I don't know of a decent, safe, and streamlined way to do this.
+
+## The Setup Menu
 <details>
 <summary>Graphics</summary>
 
@@ -209,15 +229,15 @@ ___
 <td>
 </br>
 
-| StarMap Controls           |          |
-|:--------------------------:|:--------:|
-| **Zoom-In**                | RB       |
-| **Zoom-Out**               | LB       |
-| **Star Search**            | LB + RB  |
-| **Search -> Next Star**    | LT       |
-| **Increase Cursor Speed**  | Hold LT  |
-| **Change Map**             | Y        |
-| **Add/Remove Star Marker** | X        |
+| StarMap Controls           |         |
+|:--------------------------:|:-------:|
+| **Zoom-In**                | RB      |
+| **Zoom-Out**               | LB      |
+| **Star Search**            | LB + RB |
+| **Search -> Next Star**    | LT      |
+| **Increase Cursor Speed**  | Hold LT |
+| **Change Map**             | Y       |
+| **Add/Remove Star Marker** | X       |
 
 </td>
 </table>
@@ -225,26 +245,26 @@ ___
 <td>
 </br>
 
-| Flight Controls      |             |          |     |
-|:--------------------:|:-----------:|:--------:|:---:|
-| **Thrust**           | D-Pad Up    | A        | RT  |
-| **Turn Left**        | D-Pad Left  | LS Left  |     |
-| **Turn Right**       | D-Pad Right | LS Right |     |
-| **Primary Weapon**   | X           | RB       |     |
-| **Secondary Weapon** | B           | LB       |     |
-| **Emergency Escape** | Y           |          |     |
+| Flight Controls      |             |          |    |    |
+|:--------------------:|:-----------:|:--------:|:--:|:--:|
+| **Thrust**           | D-Pad Up    | LS Up    | A  | RT |
+| **Turn Left**        | D-Pad Left  | LS Left  |    |    |
+| **Turn Right**       | D-Pad Right | LS Right |    |    |
+| **Primary Weapon**   | X           | RB       |    |    |
+| **Secondary Weapon** | B           | LB       |    |    |
+| **Emergency Escape** | Y           |          |    |    |
 
 </td>
 <td>
 </br>
 
-| Lander Controls    |             |          |     |
-|:------------------:|:-----------:|:--------:|:---:|
-| **Thrust**         | D-Pad Up    | A        | RT  |
-| **Turn Left**      | D-Pad Left  | LS Left  |     |
-| **Turn Right**     | D-Pad Right | LS Right |     |
-| **Weapon**         | X           | RB       |     |
-| **Return to Ship** | B           | Y        | LB  |
+| Lander Controls    |             |          |    |    |
+|:------------------:|:-----------:|:--------:|:--:|:--:|
+| **Thrust**         | D-Pad Up    | LS Up    | A  | RT |
+| **Turn Left**      | D-Pad Left  | LS Left  |    |    |
+| **Turn Right**     | D-Pad Right | LS Right |    |    |
+| **Weapon**         | X           | RB       |    |    |
+| **Return to Ship** | B           | Y        | LB |    |
 
 </td>
 </table>
