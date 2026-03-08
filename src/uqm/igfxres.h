@@ -4,6 +4,7 @@
 
 #define ACTIVITY_ANIM "graphics.activity"
 #define AMBIENT_MASK_PMAP_ANIM "graphics.ambient"
+#define RADAR_MASK_PMAP_ANIM "graphics.beacon"
 #define AQUA_MASK_PMAP_ANIM "graphics.aquahelix"
 #define ARISPACE_MASK_PMAP_ANIM "graphics.quasispace"
 #define ARIANIM_MASK_PMAP_ANIM "graphics.quasispace.anim"
