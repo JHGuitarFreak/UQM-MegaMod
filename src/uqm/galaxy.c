@@ -311,6 +311,10 @@ InitGalaxy (void)
 			SetPrimColor (&DisplayArray[p], medStarColor);
 			DisplayArray[p].Object.Stamp.frame = (SCENERY(i) ? scenery 
 							: stars_in_space);
+
+			// TODO: Remove these eventually
+			if (inQuasiSpace ())
+				SetPrimFlags (&DisplayArray[p], HYPER_TO_QUASI_COLOR);
 		}
 		else
 		{// in SD, when prim type is POINT, nothing below color will matter
